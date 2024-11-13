@@ -391,23 +391,25 @@ end
 -- enter --
 vcbOptions1Box6PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nTicks of the Spell to be shown?") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nTicks of the Spell to be shown?|nThe game will be reloaded!|nAfter you choose") 
 end)
 -- naming --
 vcbOptions1Box6PopOut1Choice0.Text:SetText("Hide")
-vcbOptions1Box6PopOut1Choice1.Text:SetText("Show")
+vcbOptions1Box6PopOut1Choice1.Text:SetText("Modern")
+vcbOptions1Box6PopOut1Choice2.Text:SetText("Classic")
 -- parent & sort --
-for i = 1, 1, 1 do
+for i = 1, 2, 1 do
 	_G["vcbOptions1Box6PopOut1Choice"..i]:SetParent(vcbOptions1Box6PopOut1Choice0)
 	_G["vcbOptions1Box6PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box6PopOut1Choice"..i-1], "BOTTOM", 0, 0)
 end
 -- clicking --
-for i = 0, 1, 1 do
+for i = 0, 2, 1 do
 	_G["vcbOptions1Box6PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["Ticks"] = self.Text:GetText()
 			vcbOptions1Box6PopOut1.Text:SetText(self.Text:GetText())
 			vcbOptions1Box6PopOut1Choice0:Hide()
+			C_UI.Reload()
 		end
 	end)
 end

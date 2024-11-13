@@ -5,7 +5,7 @@
 ## DefaultState: enabled
 ## LoadOnDemand: 1
 ## Dependencies: VCB
-## Version: 1.62
+## Version: 1.63
 ## Author: The_Indolent
 ## X-Website: https://panosanastasiou.rocks/
 

@@ -687,22 +687,44 @@ local function Create3Ticks()
 	spaceTick = PlayerCastingBarFrame:GetWidth() / 3
 	for i = 1, 3, 1 do
 		if i == 1 then
-			local tick = PlayerCastingBarFrame:CreateTexture("VCB3spark".. i, "OVERLAY", nil, 7)
-			tick:SetAtlas("ui-castingbar-empower-cursor", true)
-			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB3spark"..i, "OVERLAY", nil, 7)
+			if VCBrPlayer["Ticks"] == "Show" or VCBrPlayer["Ticks"] == "Modern" then
+				tick:SetAtlas("ui-castingbar-empower-cursor", false)
+				tick:SetDesaturated(false)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(12)
+				tick:SetVertexColor(1, 1, 1, 1)
+				tick:SetBlendMode("BLEND")
+			elseif VCBrPlayer["Ticks"] == "Classic" then
+				tick:SetAtlas("!Tooltip-Azerite-NineSlice-EdgeLeft", false)
+				tick:SetDesaturated(true)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(8)
+				tick:SetVertexColor(0.9, 0.9, 0.9, 0.8)
+				tick:SetBlendMode("BLEND")
+			end
 			tick:ClearAllPoints()
 			tick:SetPoint("CENTER", PlayerCastingBarFrame, "LEFT", 0, 0)
-			tick:SetBlendMode("BLEND")
-			tick:SetVertexColor(1, 1, 1, 1)
 			tick:Hide()
 		else
-			local tick = PlayerCastingBarFrame:CreateTexture("VCB3spark".. i, "OVERLAY", nil, 7)
-			tick:SetAtlas("ui-castingbar-empower-cursor", true)
-			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB3spark"..i, "OVERLAY", nil, 7)
+			if VCBrPlayer["Ticks"] == "Show" or VCBrPlayer["Ticks"] == "Modern" then
+				tick:SetAtlas("ui-castingbar-empower-cursor", false)
+				tick:SetDesaturated(false)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(12)
+				tick:SetVertexColor(1, 1, 1, 1)
+				tick:SetBlendMode("BLEND")
+			elseif VCBrPlayer["Ticks"] == "Classic" then
+				tick:SetAtlas("!Tooltip-Azerite-NineSlice-EdgeLeft", false)
+				tick:SetDesaturated(true)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(8)
+				tick:SetVertexColor(0.9, 0.9, 0.9, 0.8)
+				tick:SetBlendMode("BLEND")
+			end
 			tick:ClearAllPoints()
 			tick:SetPoint("LEFT", "VCB3spark".. i-1, "LEFT", spaceTick, 0)
-			tick:SetBlendMode("BLEND")
-			tick:SetVertexColor(1, 1, 1, 1)
 			tick:Hide()
 		end
 	end
@@ -712,22 +734,44 @@ local function Create4Ticks()
 	spaceTick = PlayerCastingBarFrame:GetWidth() / 4
 	for i = 1, 4, 1 do
 		if i == 1 then
-			local tick = PlayerCastingBarFrame:CreateTexture("VCB4spark".. i, "OVERLAY", nil, 7)
-			tick:SetAtlas("ui-castingbar-empower-cursor", true)
-			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB4spark"..i, "OVERLAY", nil, 7)
+			if VCBrPlayer["Ticks"] == "Show" or VCBrPlayer["Ticks"] == "Modern" then
+				tick:SetAtlas("ui-castingbar-empower-cursor", false)
+				tick:SetDesaturated(false)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(12)
+				tick:SetVertexColor(1, 1, 1, 1)
+				tick:SetBlendMode("BLEND")
+			elseif VCBrPlayer["Ticks"] == "Classic" then
+				tick:SetAtlas("!Tooltip-Azerite-NineSlice-EdgeLeft", false)
+				tick:SetDesaturated(true)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(8)
+				tick:SetVertexColor(0.9, 0.9, 0.9, 0.8)
+				tick:SetBlendMode("BLEND")
+			end
 			tick:ClearAllPoints()
 			tick:SetPoint("CENTER", PlayerCastingBarFrame, "LEFT", 0, 0)
-			tick:SetBlendMode("BLEND")
-			tick:SetVertexColor(1, 1, 1, 1)
 			tick:Hide()
 		else
-			local tick = PlayerCastingBarFrame:CreateTexture("VCB4spark".. i, "OVERLAY", nil, 7)
-			tick:SetAtlas("ui-castingbar-empower-cursor", true)
-			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB4spark"..i, "OVERLAY", nil, 7)
+			if VCBrPlayer["Ticks"] == "Show" or VCBrPlayer["Ticks"] == "Modern" then
+				tick:SetAtlas("ui-castingbar-empower-cursor", false)
+				tick:SetDesaturated(false)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(12)
+				tick:SetVertexColor(1, 1, 1, 1)
+				tick:SetBlendMode("BLEND")
+			elseif VCBrPlayer["Ticks"] == "Classic" then
+				tick:SetAtlas("!Tooltip-Azerite-NineSlice-EdgeLeft", false)
+				tick:SetDesaturated(true)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(8)
+				tick:SetVertexColor(0.9, 0.9, 0.9, 0.8)
+				tick:SetBlendMode("BLEND")
+			end
 			tick:ClearAllPoints()
 			tick:SetPoint("LEFT", "VCB4spark".. i-1, "LEFT", spaceTick, 0)
-			tick:SetBlendMode("BLEND")
-			tick:SetVertexColor(1, 1, 1, 1)
 			tick:Hide()
 		end
 	end
@@ -737,22 +781,44 @@ local function Create5Ticks()
 	spaceTick = PlayerCastingBarFrame:GetWidth() / 5
 	for i = 1, 5, 1 do
 		if i == 1 then
-			local tick = PlayerCastingBarFrame:CreateTexture("VCB5spark".. i, "OVERLAY", nil, 7)
-			tick:SetAtlas("ui-castingbar-empower-cursor", true)
-			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB5spark"..i, "OVERLAY", nil, 7)
+			if VCBrPlayer["Ticks"] == "Show" or VCBrPlayer["Ticks"] == "Modern" then
+				tick:SetAtlas("ui-castingbar-empower-cursor", false)
+				tick:SetDesaturated(false)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(12)
+				tick:SetVertexColor(1, 1, 1, 1)
+				tick:SetBlendMode("BLEND")
+			elseif VCBrPlayer["Ticks"] == "Classic" then
+				tick:SetAtlas("!Tooltip-Azerite-NineSlice-EdgeLeft", false)
+				tick:SetDesaturated(true)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(8)
+				tick:SetVertexColor(0.9, 0.9, 0.9, 0.8)
+				tick:SetBlendMode("BLEND")
+			end
 			tick:ClearAllPoints()
 			tick:SetPoint("CENTER", PlayerCastingBarFrame, "LEFT", 0, 0)
-			tick:SetBlendMode("BLEND")
-			tick:SetVertexColor(1, 1, 1, 1)
 			tick:Hide()
 		else
-			local tick = PlayerCastingBarFrame:CreateTexture("VCB5spark".. i, "OVERLAY", nil, 7)
-			tick:SetAtlas("ui-castingbar-empower-cursor", true)
-			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB5spark"..i, "OVERLAY", nil, 7)
+			if VCBrPlayer["Ticks"] == "Show" or VCBrPlayer["Ticks"] == "Modern" then
+				tick:SetAtlas("ui-castingbar-empower-cursor", false)
+				tick:SetDesaturated(false)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(12)
+				tick:SetVertexColor(1, 1, 1, 1)
+				tick:SetBlendMode("BLEND")
+			elseif VCBrPlayer["Ticks"] == "Classic" then
+				tick:SetAtlas("!Tooltip-Azerite-NineSlice-EdgeLeft", false)
+				tick:SetDesaturated(true)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(8)
+				tick:SetVertexColor(0.9, 0.9, 0.9, 0.8)
+				tick:SetBlendMode("BLEND")
+			end
 			tick:ClearAllPoints()
 			tick:SetPoint("LEFT", "VCB5spark".. i-1, "LEFT", spaceTick, 0)
-			tick:SetBlendMode("BLEND")
-			tick:SetVertexColor(1, 1, 1, 1)
 			tick:Hide()
 		end
 	end
@@ -762,22 +828,44 @@ local function Create6Ticks()
 	spaceTick = PlayerCastingBarFrame:GetWidth() / 6
 	for i = 1, 6, 1 do
 		if i == 1 then
-			local tick = PlayerCastingBarFrame:CreateTexture("VCB6spark".. i, "OVERLAY", nil, 7)
-			tick:SetAtlas("ui-castingbar-empower-cursor", true)
-			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB6spark"..i, "OVERLAY", nil, 7)
+			if VCBrPlayer["Ticks"] == "Show" or VCBrPlayer["Ticks"] == "Modern" then
+				tick:SetAtlas("ui-castingbar-empower-cursor", false)
+				tick:SetDesaturated(false)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(12)
+				tick:SetVertexColor(1, 1, 1, 1)
+				tick:SetBlendMode("BLEND")
+			elseif VCBrPlayer["Ticks"] == "Classic" then
+				tick:SetAtlas("!Tooltip-Azerite-NineSlice-EdgeLeft", false)
+				tick:SetDesaturated(true)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(8)
+				tick:SetVertexColor(0.9, 0.9, 0.9, 0.9)
+				tick:SetBlendMode("BLEND")
+			end
 			tick:ClearAllPoints()
 			tick:SetPoint("CENTER", PlayerCastingBarFrame, "LEFT", 0, 0)
-			tick:SetBlendMode("BLEND")
-			tick:SetVertexColor(1, 1, 1, 1)
 			tick:Hide()
 		else
-			local tick = PlayerCastingBarFrame:CreateTexture("VCB6spark".. i, "OVERLAY", nil, 7)
-			tick:SetAtlas("ui-castingbar-empower-cursor", true)
-			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB6spark"..i, "OVERLAY", nil, 7)
+			if VCBrPlayer["Ticks"] == "Show" or VCBrPlayer["Ticks"] == "Modern" then
+				tick:SetAtlas("ui-castingbar-empower-cursor", false)
+				tick:SetDesaturated(false)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(12)
+				tick:SetVertexColor(1, 1, 1, 1)
+				tick:SetBlendMode("BLEND")
+			elseif VCBrPlayer["Ticks"] == "Classic" then
+				tick:SetAtlas("!Tooltip-Azerite-NineSlice-EdgeLeft", false)
+				tick:SetDesaturated(true)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(8)
+				tick:SetVertexColor(0.9, 0.9, 0.9, 0.9)
+				tick:SetBlendMode("BLEND")
+			end
 			tick:ClearAllPoints()
 			tick:SetPoint("LEFT", "VCB6spark".. i-1, "LEFT", spaceTick, 0)
-			tick:SetBlendMode("BLEND")
-			tick:SetVertexColor(1, 1, 1, 1)
 			tick:Hide()
 		end
 	end
@@ -787,22 +875,44 @@ local function Create7Ticks()
 	spaceTick = PlayerCastingBarFrame:GetWidth() / 7
 	for i = 1, 7, 1 do
 		if i == 1 then
-			local tick = PlayerCastingBarFrame:CreateTexture("VCB7spark".. i, "OVERLAY", nil, 7)
-			tick:SetAtlas("ui-castingbar-empower-cursor", true)
-			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB7spark"..i, "OVERLAY", nil, 7)
+			if VCBrPlayer["Ticks"] == "Show" or VCBrPlayer["Ticks"] == "Modern" then
+				tick:SetAtlas("ui-castingbar-empower-cursor", false)
+				tick:SetDesaturated(false)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(12)
+				tick:SetVertexColor(1, 1, 1, 1)
+				tick:SetBlendMode("BLEND")
+			elseif VCBrPlayer["Ticks"] == "Classic" then
+				tick:SetAtlas("!Tooltip-Azerite-NineSlice-EdgeLeft", false)
+				tick:SetDesaturated(true)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(8)
+				tick:SetVertexColor(0.9, 0.9, 0.9, 0.9)
+				tick:SetBlendMode("BLEND")
+			end
 			tick:ClearAllPoints()
 			tick:SetPoint("CENTER", PlayerCastingBarFrame, "LEFT", 0, 0)
-			tick:SetBlendMode("BLEND")
-			tick:SetVertexColor(1, 1, 1, 1)
 			tick:Hide()
 		else
-			local tick = PlayerCastingBarFrame:CreateTexture("VCB7spark".. i, "OVERLAY", nil, 7)
-			tick:SetAtlas("ui-castingbar-empower-cursor", true)
-			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB7spark"..i, "OVERLAY", nil, 7)
+			if VCBrPlayer["Ticks"] == "Show" or VCBrPlayer["Ticks"] == "Modern" then
+				tick:SetAtlas("ui-castingbar-empower-cursor", false)
+				tick:SetDesaturated(false)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(12)
+				tick:SetVertexColor(1, 1, 1, 1)
+				tick:SetBlendMode("BLEND")
+			elseif VCBrPlayer["Ticks"] == "Classic" then
+				tick:SetAtlas("!Tooltip-Azerite-NineSlice-EdgeLeft", false)
+				tick:SetDesaturated(true)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(8)
+				tick:SetVertexColor(0.9, 0.9, 0.9, 0.9)
+				tick:SetBlendMode("BLEND")
+			end
 			tick:ClearAllPoints()
 			tick:SetPoint("LEFT", "VCB7spark".. i-1, "LEFT", spaceTick, 0)
-			tick:SetBlendMode("BLEND")
-			tick:SetVertexColor(1, 1, 1, 1)
 			tick:Hide()
 		end
 	end
@@ -812,22 +922,44 @@ local function Create8Ticks()
 	spaceTick = PlayerCastingBarFrame:GetWidth() / 8
 	for i = 1, 8, 1 do
 		if i == 1 then
-			local tick = PlayerCastingBarFrame:CreateTexture("VCB8spark".. i, "OVERLAY", nil, 7)
-			tick:SetAtlas("ui-castingbar-empower-cursor", true)
-			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB8spark"..i, "OVERLAY", nil, 7)
+			if VCBrPlayer["Ticks"] == "Show" or VCBrPlayer["Ticks"] == "Modern" then
+				tick:SetAtlas("ui-castingbar-empower-cursor", false)
+				tick:SetDesaturated(false)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(12)
+				tick:SetVertexColor(1, 1, 1, 1)
+				tick:SetBlendMode("BLEND")
+			elseif VCBrPlayer["Ticks"] == "Classic" then
+				tick:SetAtlas("!Tooltip-Azerite-NineSlice-EdgeLeft", false)
+				tick:SetDesaturated(true)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(8)
+				tick:SetVertexColor(0.9, 0.9, 0.9, 0.9)
+				tick:SetBlendMode("BLEND")
+			end
 			tick:ClearAllPoints()
 			tick:SetPoint("CENTER", PlayerCastingBarFrame, "LEFT", 0, 0)
-			tick:SetBlendMode("BLEND")
-			tick:SetVertexColor(1, 1, 1, 1)
 			tick:Hide()
 		else
-			local tick = PlayerCastingBarFrame:CreateTexture("VCB8spark".. i, "OVERLAY", nil, 7)
-			tick:SetAtlas("ui-castingbar-empower-cursor", true)
-			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB8spark"..i, "OVERLAY", nil, 7)
+			if VCBrPlayer["Ticks"] == "Show" or VCBrPlayer["Ticks"] == "Modern" then
+				tick:SetAtlas("ui-castingbar-empower-cursor", false)
+				tick:SetDesaturated(false)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(12)
+				tick:SetVertexColor(1, 1, 1, 1)
+				tick:SetBlendMode("BLEND")
+			elseif VCBrPlayer["Ticks"] == "Classic" then
+				tick:SetAtlas("!Tooltip-Azerite-NineSlice-EdgeLeft", false)
+				tick:SetDesaturated(true)
+				tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+				tick:SetWidth(8)
+				tick:SetVertexColor(0.9, 0.9, 0.9, 0.9)
+				tick:SetBlendMode("BLEND")
+			end
 			tick:ClearAllPoints()
 			tick:SetPoint("LEFT", "VCB8spark".. i-1, "LEFT", spaceTick, 0)
-			tick:SetBlendMode("BLEND")
-			tick:SetVertexColor(1, 1, 1, 1)
 			tick:Hide()
 		end
 	end
@@ -1264,7 +1396,7 @@ PlayerCastingBarFrame:HookScript("OnUpdate", function(self)
 		end
 	end
 	VCBnameText:SetText(self.Text:GetText())
-	if (self.barType == "channel" or self.barType =="uninterruptable") and VCBrPlayer["Ticks"] == "Show" then
+	if (self.barType == "channel" or self.barType =="uninterruptable") and VCBrPlayer["Ticks"] ~= "Hide" then
 		vcbShowTicks(VCBarg3)
 	else
 		vcbHideTicks()

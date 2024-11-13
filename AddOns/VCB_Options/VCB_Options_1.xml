@@ -220,6 +220,7 @@
 						</Anchors>
 						<Frames>
 							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice2" inherits="vcbPopOutButton"/>
 						</Frames>
 					</Button>
 <!-- Pop Out Button 1 Global Cooldown -->
