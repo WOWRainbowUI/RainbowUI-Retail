@@ -391,23 +391,25 @@ end
 -- enter --
 vcbOptions1Box6PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText("是否要顯示施法斷點?") 
+	GameTooltip:SetText("是否要顯示施法斷點?|n選擇後將會重新載入介面!") 
 end)
 -- naming --
 vcbOptions1Box6PopOut1Choice0.Text:SetText("隱藏")
-vcbOptions1Box6PopOut1Choice1.Text:SetText("顯示")
+vcbOptions1Box6PopOut1Choice1.Text:SetText("現代")
+vcbOptions1Box6PopOut1Choice2.Text:SetText("經典")
 -- parent & sort --
-for i = 1, 1, 1 do
+for i = 1, 2, 1 do
 	_G["vcbOptions1Box6PopOut1Choice"..i]:SetParent(vcbOptions1Box6PopOut1Choice0)
 	_G["vcbOptions1Box6PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box6PopOut1Choice"..i-1], "BOTTOM", 0, 0)
 end
 -- clicking --
-for i = 0, 1, 1 do
+for i = 0, 2, 1 do
 	_G["vcbOptions1Box6PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["Ticks"] = self.Text:GetText()
 			vcbOptions1Box6PopOut1.Text:SetText(self.Text:GetText())
 			vcbOptions1Box6PopOut1Choice0:Hide()
+			C_UI.Reload()
 		end
 	end)
 end
