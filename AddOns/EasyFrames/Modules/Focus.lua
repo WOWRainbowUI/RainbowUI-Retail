@@ -52,8 +52,12 @@ function Focus:OnEnable()
             self:CheckClassification(FocusFrame);
         end);
 
-        hooksecurefunc(FocusFrame.TargetFrameContent.TargetFrameContentMain.ManaBar, "SetStatusBarTexture", function()
-            self:ManaBar_SetStatusBarTexture();
+        hooksecurefunc(FocusFrame.TargetFrameContent.TargetFrameContentMain.ManaBar, "SetStatusBarTexture", function(manaBar)
+            self:ManaBar_SetStatusBarTexture(manaBar);
+        end);
+
+        hooksecurefunc(FocusFrameToT.ManaBar, "SetStatusBarTexture", function(manaBar)
+            self:ManaBar_SetStatusBarTexture(manaBar);
         end);
     else
         hooksecurefunc(FocusFrame, "CheckClassification", function()
@@ -196,8 +200,8 @@ function Focus:CheckClassificationForNonEFMode(frame)
     healthBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0);
 end
 
-function Focus:ManaBar_SetStatusBarTexture()
-    FocusFrame.TargetFrameContent.TargetFrameContentMain.ManaBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND");
+function Focus:ManaBar_SetStatusBarTexture(manaBar)
+    manaBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND");
 end
 
 function Focus:MakeClassPortraits(frame)

@@ -52,8 +52,12 @@ function Target:OnEnable()
             self:CheckClassification(TargetFrame);
         end);
 
-        hooksecurefunc(TargetFrame.TargetFrameContent.TargetFrameContentMain.ManaBar, "SetStatusBarTexture", function()
-            self:ManaBar_SetStatusBarTexture();
+        hooksecurefunc(TargetFrame.TargetFrameContent.TargetFrameContentMain.ManaBar, "SetStatusBarTexture", function(manaBar)
+            self:ManaBar_SetStatusBarTexture(manaBar);
+        end);
+
+        hooksecurefunc(TargetFrameToT.ManaBar, "SetStatusBarTexture", function(manaBar)
+            self:ManaBar_SetStatusBarTexture(manaBar);
         end);
     else
         hooksecurefunc(TargetFrame, "CheckClassification", function()
@@ -196,8 +200,8 @@ function Target:CheckClassificationForNonEFMode(frame)
     healthBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0);
 end
 
-function Target:ManaBar_SetStatusBarTexture()
-    TargetFrame.TargetFrameContent.TargetFrameContentMain.ManaBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND");
+function Target:ManaBar_SetStatusBarTexture(manaBar)
+    manaBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND");
 end
 
 function Target:MakeClassPortraits(frame)
