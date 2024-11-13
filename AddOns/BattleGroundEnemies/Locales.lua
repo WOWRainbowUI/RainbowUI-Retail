@@ -17,7 +17,7 @@ Data.L = setmetatable({}, { --key set by all non english clients, Table gets acc
         if defaultLocale[k] then
             if gameLocale ~= "enUS" and not missingReported then
                 C_Timer.After(3, function()
-                    BattleGroundEnemies:OnetimeInformation("Missing localizations for your ingame language. You can help translating this addon on https://www.curseforge.com/wow/addons/battlegroundenemies/localization")
+                    -- BattleGroundEnemies:OnetimeInformation("Missing localizations for your ingame language. You can help translating this addon on https://www.curseforge.com/wow/addons/battlegroundenemies/localization")
                 end)
                 missingReported = true
             end
@@ -25,7 +25,7 @@ Data.L = setmetatable({}, { --key set by all non english clients, Table gets acc
             return defaultLocale[k]
         else
             C_Timer.After(3, function()
-                BattleGroundEnemies:OnetimeDebug("Missing localization entry for['"..k.."']. Please report this to the addon author.")
+                -- BattleGroundEnemies:OnetimeDebug("Missing localization entry for['"..k.."']. Please report this to the addon author.")
             end)
             return k
         end
@@ -471,7 +471,7 @@ L["PlayerCount_Enabled"] = "Enable Player Count"
 
 L = Data.L;
 
-elseif LOCALE_zhCN then
+if LOCALE_zhCN then
 L["AddPoint"] = "新增对齐点"
 L["Allies"] = "友方"
 L["allies"] = "友方"
