@@ -110,7 +110,7 @@ vcbOptions3Box1CheckButton1:HookScript("OnClick", function (self, button)
 		elseif self:GetChecked() == false then
 			VCBrFocus["Unlock"] = false
 			vcbDisable()
-			if VCBrFocus["otherAdddon"] == "Shadowed Unit Frame" then VCBrFocus["otherAdddon"] = "None" end
+			if VCBrFocus["otherAdddon"] == "Shadowed Unit Frame" then VCBrFocus["otherAdddon"] = "無" end
 			C_UI.Reload()
 		end
 	end

@@ -552,4 +552,37 @@
 			</OnLoad>
 		</Scripts>
 	</Frame>
+<!-- Casting Bar Preview	-->
+	<Frame name="vcbPreview" frameStrata="BACKGROUND" enableMouse="true" movable="true" dontSavePosition="true" clampedToScreen="true" hidden="true" virtual="true">
+		<Size x="120" y="10"/>
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="0">
+				<Texture parentKey="TextBorder" atlas="ui-castingbar-textbox">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" x="0" y="-12"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="Background" atlas="ui-castingbar-background">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BorderShield" atlas="ui-castingbar-shield">
+					<Size x="20" y="20"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-20" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER" outline="NORMAL">
+					<Anchors>
+						<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Frame>
 </Ui>

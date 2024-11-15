@@ -410,7 +410,7 @@ local function LoadSavedVariables1()
 			if classFilename ~= nil then vcbClassColorTarget = C_ClassColor.GetClassColor(classFilename) end
 		end)
 		vcbSufCoOp_Traget()
-	elseif VCBrTarget["otherAdddon"] == "None" and VCBrTarget["Unlock"] then
+	elseif VCBrTarget["otherAdddon"] == "無" and VCBrTarget["Unlock"] then
 		AloneTargetSpellBar()
 		-- extra hooking --
 		TargetFrameSpellBar:HookScript("OnUpdate", function(self)
@@ -418,7 +418,7 @@ local function LoadSavedVariables1()
 			self:ClearAllPoints()
 			self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrTarget["Position"]["X"], VCBrTarget["Position"]["Y"])
 		end)
-	elseif VCBrTarget["otherAdddon"] == "None" and not VCBrTarget["Unlock"] then
+	elseif VCBrTarget["otherAdddon"] == "無" and not VCBrTarget["Unlock"] then
 		AloneTargetSpellBar()
 	end
 end

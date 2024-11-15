@@ -409,14 +409,14 @@ local function LoadSavedVariables2()
 			if classFilename ~= nil then vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename) end
 		end)
 		vcbSufCoOp_Focus()
-	elseif VCBrFocus["otherAdddon"] == "None" and VCBrFocus["Unlock"] then
+	elseif VCBrFocus["otherAdddon"] == "無" and VCBrFocus["Unlock"] then
 		AloneFocusSpellBar()
 		FocusFrameSpellBar:HookScript("OnUpdate", function(self)
 			self:SetScale(VCBrFocus["Scale"]/100)
 			self:ClearAllPoints()
 			self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrFocus["Position"]["X"], VCBrFocus["Position"]["Y"])
 		end)
-	elseif VCBrFocus["otherAdddon"] == "None" and not VCBrFocus["Unlock"] then
+	elseif VCBrFocus["otherAdddon"] == "無" and not VCBrFocus["Unlock"] then
 		AloneFocusSpellBar()
 	end
 end
