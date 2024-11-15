@@ -8,9 +8,9 @@ addon:RegisterSettings('MolinariDB3', {
 		title = string.format(L['Modifier to activate %s'], addonName),
 		default = 'ALT',
 		options = {
-			ALT = ALT_KEY_TEXT,
-			CTRL = ALT_KEY_TEXT .. ' + ' .. CTRL_KEY,
-			SHIFT = ALT_KEY_TEXT .. ' + ' .. SHIFT_KEY,
+			{value='ALT', label=L['Alt key']},
+			{value='CTRL', label=L['ALT + CTRL key']},
+			{value='SHIFT', label=L['ALT + SHIFT key']},
 		}
 	}
 }, L['Molinari'])

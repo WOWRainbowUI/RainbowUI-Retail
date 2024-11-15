@@ -1,6 +1,6 @@
-## Interface: 110005
+## Interface: 110005, 110007
 ## Author: p3lim
-## Version: 110000.124-Release
+## Version: 110000.125-Release
 ## Title: Molinari
 ## Notes: One-click Milling, Prospecting, Disenchanting, Lockpicking, and more!
 ## IconTexture: Interface\Icons\ability_miling
@@ -20,9 +20,10 @@ libs\Dashi\embed.xml
 locale\zhCN.lua
 locale\zhTW.lua
 
+hack.lua
+
 utils.lua
 addon.lua
-hack.lua
 settings.lua
 
 data\openable.lua
