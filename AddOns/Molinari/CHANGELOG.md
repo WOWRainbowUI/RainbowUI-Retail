@@ -1,5 +1,6 @@
-### Changes in 110000.124-Release:
+### Changes in 110000.125-Release:
 
-- Fixed: Addon blocked error
-- Fixed: Error on login on cataclysm
+- Changed: Update Interface version (classic)
+- Fixed: Sometimes not working on first login
+- Fixed: Relics not being disenchantable
 
