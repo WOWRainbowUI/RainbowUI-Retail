@@ -2151,8 +2151,8 @@ spec:RegisterAbilities( {
         id = 1966,
         cast = 0,
         cooldown = function() return 15 * ( pvptalent.thiefs_bargain.enabled and 0.667 or 1 ) end,
-        charges = function() return talent.graceful_guile.enabled and 2 or nil end,
-        recharge = function() return talent.graceful_guile.enabled and ( 15 * ( pvptalent.thiefs_bargain.enabled and 0.667 or 1 ) ) or nil end,
+        charges = function() if talent.graceful_guile.enabled then return 2 end end,
+        recharge = function() if talent.graceful_guile.enabled then return ( 15 * ( pvptalent.thiefs_bargain.enabled and 0.667 or 1 ) ) end end,
         gcd = "off",
         school = "physical",
 
@@ -2559,13 +2559,9 @@ spec:RegisterAbilities( {
     shadowstep = {
         id = 36554,
         cast = 0,
-        charges = function()
-            if talent.shadowstep.enabled and talent.shadowstep_2.enabled then return 2 end
-        end,
+        charges = function() if talent.shadowstep.enabled and talent.shadowstep_2.enabled then return 2 end end,
         cooldown = function() return 30 * ( 1 - 0.333 * talent.intent_to_kill.rank ) end,
-        recharge = function()
-            if talent.shadowstep.enabled and talent.shadowstep_2.enabled then return 30 * ( 1 - 0.333 * talent.intent_to_kill.rank ) end
-        end,
+        recharge = function() if talent.shadowstep.enabled and talent.shadowstep_2.enabled then return 30 * ( 1 - 0.333 * talent.intent_to_kill.rank ) end end,
         gcd = "off",
 
         talent = "shadowstep",
@@ -2582,13 +2578,9 @@ spec:RegisterAbilities( {
     shiv = {
         id = 5938,
         cast = 0,
-        charges = function()
-            if talent.lightweight_shiv.enabled then return 2 end
-        end,
+        charges = function() if talent.lightweight_shiv.enabled then return 2 end end,
         cooldown = 25,
-        recharge = function()
-            if talent.lightweight_shiv.enabled then return 25 end
-        end,
+        recharge = function() if talent.lightweight_shiv.enabled then return 25 end end,
         gcd = "totem",
         school = "physical",
 
@@ -2759,13 +2751,9 @@ spec:RegisterAbilities( {
     vanish = {
         id = 1856,
         cast = 0,
-        charges = function()
-            if talent.without_a_trace.enabled then return 2 end
-        end,
+        charges = function() if talent.without_a_trace.enabled then return 2 end end,
         cooldown = function() return 120 * ( pvptalent.thiefs_bargain.enabled and 0.667 or 1 ) end,
-        recharge = function()
-            if talent.without_a_trace.enabled then return 120 * ( pvptalent.thiefs_bargain.enabled and 0.667 or 1 ) end
-        end,
+        recharge = function() if talent.without_a_trace.enabled then return 120 * ( pvptalent.thiefs_bargain.enabled and 0.667 or 1 ) end end,
         gcd = "off",
 
         startsCombat = false,

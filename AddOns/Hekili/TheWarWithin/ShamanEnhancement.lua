@@ -257,7 +257,10 @@ spec:RegisterAuras( {
     crackling_surge = {
         id = 224127,
         duration = 15,
-        max_stack = 1
+        max_stack = 20,
+        meta = {
+            active = function( t ) return active_crackling_surges end,
+        },
     },
     crash_lightning = {
         id = 187878,
@@ -337,7 +340,10 @@ spec:RegisterAuras( {
         id = 392375,
         duration = 15,
         type = "Magic",
-        max_stack = 1
+        max_stack = 20,
+        meta = {
+            active = function( t ) return active_earthen_weapons end,
+        },
     },
     -- Rooted.
     -- https://wowhead.com/ptr-2/spell=64695
@@ -398,7 +404,7 @@ spec:RegisterAuras( {
         id = 333957,
         duration = 15,
         tick_time = 3,
-        max_stack = 1,
+        max_stack = 20,
         meta = {
             active = function( t ) return active_feral_spirits end,
         },
@@ -514,7 +520,10 @@ spec:RegisterAuras( {
     icy_edge = {
         id = 224126,
         duration = 15,
-        max_stack = 1
+        max_stack = 20,
+        meta = {
+            active = function( t ) return active_icy_edges end,
+        },
     },
     -- Fire damage inflicted every $t2 sec.
     -- https://wowhead.com/ptr-2/spell=118297
@@ -581,7 +590,10 @@ spec:RegisterAuras( {
         id = 224125,
         duration = 15,
         type = "Magic",
-        max_stack = 1
+        max_stack = 20,
+        meta = {
+            active = function( t ) return active_molten_weapons end,
+        },
     },
     -- Talent: Your next healing or damaging Nature spell is instant cast and costs no mana.
     -- https://wowhead.com/ptr-2/spell=378081
@@ -876,6 +888,10 @@ local recallTotem1
 local recallTotem2
 
 local actual_spirits = {}
+local molten_weapons = {}
+local icy_edges = {}
+local crackling_surges = {}
+local earthen_weapons = {}
 
 spec:RegisterCombatLogEvent( function( _, subtype, _,  sourceGUID, sourceName, _, _, destGUID, destName, destFlags, _, spellID, spellName )
     -- Deaths/despawns.
@@ -962,6 +978,30 @@ spec:RegisterCombatLogEvent( function( _, subtype, _,  sourceGUID, sourceName, _
             end
         end
     end
+
+    if destGUID == state.GUID and ( subtype == "SPELL_AURA_APPLIED" or subtype == "SPELL_AURA_REFRESH" ) then
+        if spellID == 224125 then
+            insert( molten_weapons, {
+                expires = GetTime() + ( state.talent.flowing_spirits.enabled and 8 or 15 )
+            } )
+
+        elseif spellID == 224126 then
+            insert( icy_edges, {
+                expires = GetTime() + ( state.talent.flowing_spirits.enabled and 8 or 15 )
+            } )
+
+        elseif spellID == 224127 then
+            insert( crackling_surges, {
+                expires = GetTime() + ( state.talent.flowing_spirits.enabled and 8 or 15 )
+            } )
+
+        elseif spellID == 392375 then
+            insert( earthen_weapons, {
+                expires = GetTime() + ( state.talent.flowing_spirits.enabled and 8 or 15 )
+            } )
+
+        end
+    end
 end )
 
 spec:RegisterStateExpr( "vesper_totem_heal_charges", function()
@@ -1017,6 +1057,56 @@ spec:RegisterStateExpr( "alpha_wolf_min_remains", function()
 
     return minimum or 0
 end )
+
+
+local virtual_molten_weapons = {}
+
+spec:RegisterStateExpr( "active_molten_weapons", function()
+    local count = 0
+
+    for _, v in pairs( virtual_molten_weapons ) do
+        if v > query_time then count = count + 1 end
+    end
+
+    return count
+end )
+
+local virtual_icy_edges = {}
+
+spec:RegisterStateExpr( "active_icy_edges", function()
+    local count = 0
+
+    for _, v in pairs( virtual_icy_edges ) do
+        if v > query_time then count = count + 1 end
+    end
+
+    return count
+end )
+
+local virtual_crackling_surges = {}
+
+spec:RegisterStateExpr( "active_crackling_surges", function()
+    local count = 0
+
+    for _, v in pairs( virtual_crackling_surges ) do
+        if v > query_time then count = count + 1 end
+    end
+
+    return count
+end )
+
+local virtual_earthen_weapons = {}
+
+spec:RegisterStateExpr( "active_earthen_weapons", function()
+    local count = 0
+
+    for _, v in pairs( virtual_earthen_weapons ) do
+        if v > query_time then count = count + 1 end
+    end
+
+    return count
+end )
+
 
 
 local TriggerFeralMaelstrom = setfenv( function()
@@ -1109,7 +1199,53 @@ spec:RegisterHook( "reset_precast", function ()
                 expires = v.expires,
                 alpha_expires = v.alpha_expires
             }
+        else
+            virtual_spirits[ k ] = nil
         end
+    end
+
+    wipe( virtual_molten_weapons )
+    for k, v in pairs( molten_weapons ) do
+        if v.expires > now then
+            virtual_molten_weapons[ k ] = v.expires
+        else
+            molten_weapons[ k ] = nil
+        end
+    end
+
+    wipe( virtual_icy_edges )
+    for k, v in pairs( icy_edges ) do
+        if v.expires > now then
+            virtual_icy_edges[ k ] = v.expires
+        else
+            icy_edges[ k ] = nil
+        end
+    end
+
+    wipe( virtual_crackling_surges )
+    for k, v in pairs( crackling_surges ) do
+        if v.expires > now then
+            virtual_crackling_surges[ k ] = v.expires
+        else
+            crackling_surges[ k ] = nil
+        end
+    end
+
+    wipe( virtual_earthen_weapons )
+    for k, v in pairs( earthen_weapons ) do
+        if v.expires > now then
+            virtual_earthen_weapons[ k ] = v.expires
+        else
+            earthen_weapons[ k ] = nil
+        end
+    end
+
+    if Hekili.ActiveDebug then
+        if active_feral_spirits > 0 then Hekili:Debug( "Feral Spirits: " .. active_feral_spirits ) end
+        if active_molten_weapons > 0 then Hekili:Debug( "Molten Weapons: " .. active_molten_weapons ) end
+        if active_icy_edges > 0 then Hekili:Debug( "Icy Edges: " .. active_icy_edges ) end
+        if active_crackling_surges > 0 then Hekili:Debug( "Crackling Surges: " .. active_crackling_surges ) end
+        if active_earthen_weapons > 0 then Hekili:Debug( "Earthen Weapons: " .. active_earthen_weapons ) end
     end
 
     if buff.ascendance.up and talent.static_accumulation.enabled then
@@ -1692,11 +1828,19 @@ spec:RegisterAbilities( {
                 alpha_expires = 0
             } )
 
+            if not talent.elemental_spirits.enabled then
+                insert( virtual_earthen_weapons, query_time + 15 )
+                insert( virtual_earthen_weapons, query_time + 15 )
+            end
+
             if set_bonus.tww1_4pc > 0 then
                 insert( virtual_spirits, {
                     expires = query_time + 15,
                     alpha_expires = 0
                 } )
+                if not talent.elemental_spirits.enabled then
+                    insert( virtual_earthen_weapons, query_time + 15 )
+                end
             end
 
             if set_bonus.tier31_4pc > 0 then
@@ -1793,6 +1937,7 @@ spec:RegisterAbilities( {
     -- Talent: Chills the target with frost, causing $s1 Frost damage and reducing the target's movement speed by $s2% for $d.
     frost_shock = {
         id = 196840,
+        known = 196840,
         cast = 0,
         cooldown = 6,
         hasteCD = true,
@@ -1818,6 +1963,10 @@ spec:RegisterAbilities( {
 
             if buff.vesper_totem.up and vesper_totem_dmg_charges > 0 then trigger_vesper_damage() end
         end,
+
+        bind = function()
+            if talent.ice_strike_passive.enabled then return "ice_strike" end
+        end
     },
 
     -- Turn into a Ghost Wolf, increasing movement speed by $?s382215[${$s2+$382216s1}][$s2]% and preventing movement speed from being reduced below $s3%.
@@ -1939,6 +2088,7 @@ spec:RegisterAbilities( {
         spendType = "mana",
 
         talent = "ice_strike",
+        notalent = "ice_strike_passive",
         startsCombat = true,
 
         handler = function ()
@@ -2284,7 +2434,9 @@ spec:RegisterAbilities( {
                     expires = query_time + 15,
                     alpha_expires = 0
                 } )
-                applyBuff( "crackling_surge" )
+                if not talent.elemental_spirits.enabled then
+                    insert( virtual_earthen_weapons, query_time + 15 )
+                end
             end
         end,
 

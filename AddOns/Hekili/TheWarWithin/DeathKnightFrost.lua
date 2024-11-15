@@ -444,7 +444,7 @@ spec:RegisterAuras( {
         meta = {
             remains = function( t )
                 if not t.up then return 0 end
-                return ( runic_power.current + ( runes.current * 10 ) ) / 16
+                return ( runic_power.current + ( runes.current * 10 ) ) / 17
             end,
         }
     },
@@ -564,7 +564,7 @@ spec:RegisterAuras( {
     -- https://wowhead.com/beta/spell=377195
     enduring_strength_buff = {
         id = 377195,
-        duration = 6,
+        duration = function() return 6 + 2 * buff.enduring_strength.stack end,
         max_stack = 1
     },
     everfrost = {
@@ -665,8 +665,8 @@ spec:RegisterAuras( {
     },
     icy_talons = {
         id = 194879,
-        duration = 6,
-        max_stack = function() return ( talent.smothering_offense.enabled and 5 or 3 ) + ( talent.dark_talons.enabled and 2 or 0 ) end,
+        duration = 10,
+        max_stack = function() return ( talent.smothering_offense.enabled and 5 or 3 ) + ( talent.dark_talons.enabled and 3 or 0 ) end,
     },
     inexorable_assault = {
         id = 253595,
@@ -683,7 +683,7 @@ spec:RegisterAuras( {
     killing_machine = {
         id = 51124,
         duration = 10,
-        max_stack = function() return 1 + talent.fatal_fixation.rank end,
+        max_stack = 2,
     },
     -- Absorbing up to $w1 magic damage.; Duration of harmful magic effects reduced by $s2%.
     lesser_antimagic_shell = {
@@ -692,7 +692,6 @@ spec:RegisterAuras( {
         max_stack = 1,
 
         -- Affected by:
-        -- fatal_fixation[405166] #0: { 'type': APPLY_AURA, 'subtype': ADD_FLAT_MODIFIER, 'points': 1.0, 'target': TARGET_UNIT_CASTER, 'modifies': MAX_STACKS, }
         -- antimagic_barrier[205727] #0: { 'type': APPLY_AURA, 'subtype': ADD_FLAT_MODIFIER, 'points': -20000.0, 'target': TARGET_UNIT_CASTER, 'modifies': COOLDOWN, }
         -- antimagic_barrier[205727] #1: { 'type': APPLY_AURA, 'subtype': ADD_PCT_MODIFIER, 'pvp_multiplier': 0.5, 'points': 40.0, 'target': TARGET_UNIT_CASTER, 'modifies': BUFF_DURATION, }
         -- osmosis[454835] #0: { 'type': APPLY_AURA, 'subtype': ADD_FLAT_MODIFIER, 'points': 15.0, 'target': TARGET_UNIT_CASTER, 'modifies': EFFECT_4_VALUE, }
@@ -988,17 +987,44 @@ local TriggerERW = setfenv( function()
     gain( 5, "runic_power" )
 end, state )
 
+local TriggerEnduringStrengthBuff = setfenv( function()
+    applyBuff( "enduring_strength_buff" )
+end, state )
+
 local any_dnd_set = false
 
+local spendHook = function( amt, resource )
+    -- Runic Power
+    if amt > 0 and resource == "runic_power" then
+        if talent.icy_talons.enabled then addStack( "icy_talons", nil, 1 ) end
+        if talent.unleashed_frenzy.enabled then addStack( "unleashed_frenzy") end
+    end
+    -- Runes
+    if resource == "rune" and amt > 0 then
+        if active_dot.shackle_the_unworthy > 0 then
+            reduceCooldown( "shackle_the_unworthy", 4 * amt )
+        end
+
+        if talent.rune_carved_plates.enabled then
+            addStack( "rune_carved_plates", nil, amt )
+        end
+    end
+end
+
+spec:RegisterHook( "spend", spendHook )
+
 spec:RegisterHook( "reset_precast", function ()
-    if state:IsKnown( "deaths_due" ) then
-        class.abilities.any_dnd = class.abilities.deaths_due
-        cooldown.any_dnd = cooldown.deaths_due
-        setCooldown( "death_and_decay", cooldown.deaths_due.remains )
-    elseif state:IsKnown( "defile" ) then
-        class.abilities.any_dnd = class.abilities.defile
-        cooldown.any_dnd = cooldown.defile
-        setCooldown( "death_and_decay", cooldown.defile.remains )
+
+    if covenant.night_fae then
+        if state:IsKnown( "deaths_due" ) then
+            class.abilities.any_dnd = class.abilities.deaths_due
+            cooldown.any_dnd = cooldown.deaths_due
+            setCooldown( "death_and_decay", cooldown.deaths_due.remains )
+        elseif state:IsKnown( "defile" ) then
+            class.abilities.any_dnd = class.abilities.defile
+            cooldown.any_dnd = cooldown.defile
+            setCooldown( "death_and_decay", cooldown.defile.remains )
+        end
     else
         class.abilities.any_dnd = class.abilities.death_and_decay
         cooldown.any_dnd = cooldown.death_and_decay
@@ -1009,8 +1035,12 @@ spec:RegisterHook( "reset_precast", function ()
         any_dnd_set = true
     end
 
+    if buff.pillar_of_frost.up and talent.enduring_strength.enabled then
+        state:QueueAuraEvent( "pillar_of_frost", TriggerEnduringStrengthBuff, buff.pillar_of_frost.expires, "AURA_EXPIRATION" )
+    end
+
     local control_expires = action.control_undead.lastCast + 300
-    if control_expires > now and pet.up then
+    if talent.control_undead.enabled and control_expires > now and pet.up then
         summonPet( "controlled_undead", control_expires - now )
     end
 
@@ -1023,13 +1053,15 @@ spec:RegisterHook( "reset_precast", function ()
     end
 
     if buff.empower_rune_weapon.up then
-        local expires = buff.empower_rune_weapon.expires
-
-        while expires >= query_time do
-            state:QueueAuraExpiration( "empower_rune_weapon", TriggerERW, expires )
-            expires = expires - 5
+        local tick, expires = buff.empower_rune_weapon.applied, buff.empower_rune_weapon.expires
+        for i = 1, 4 do
+            tick = tick + 5
+            if tick > query_time and tick < expires then
+                state:QueueAuraEvent( "empower_rune_weapon", TriggerERW, tick, "AURA_TICK" )
+            end
         end
     end
+
 end )
 
 
@@ -1134,7 +1166,7 @@ spec:RegisterAbilities( {
         cooldown = 120,
         gcd = "off",
 
-        spend = 18,
+        spend = 17,
         spendType = "runic_power",
         readySpend = function () return settings.bos_rp end,
 
@@ -1382,29 +1414,20 @@ spec:RegisterAbilities( {
     empower_rune_weapon = {
         id = 47568,
         cast = 0,
-        charges = function()
-            if talent.empower_rune_weapon.rank + talent.empower_rune_weapon_2.rank > 1 then return 2 end
-        end,
         cooldown = function () return ( conduit.accelerated_cold.enabled and 0.9 or 1 ) * ( essence.vision_of_perfection.enabled and 0.87 or 1 ) * ( level > 55 and 105 or 120 ) end,
-        recharge = function ()
-            if talent.empower_rune_weapon.rank + talent.empower_rune_weapon_2.rank > 1 then return ( conduit.accelerated_cold.enabled and 0.9 or 1 ) * ( essence.vision_of_perfection.enabled and 0.87 or 1 ) * ( level > 55 and 105 or 120 ) end
-        end,
         gcd = "off",
 
         talent = "empower_rune_weapon",
         startsCombat = false,
-
-        usable = function() return talent.empower_rune_weapon.rank + talent.empower_rune_weapon_2.rank > 0, "requires an empower_rune_weapon talent" end,
 
         handler = function ()
             stat.haste = state.haste + 0.15 + ( conduit.accelerated_cold.mod * 0.01 )
             gain( 1, "runes" )
             gain( 5, "runic_power" )
             applyBuff( "empower_rune_weapon" )
-            state:QueueAuraExpiration( "empower_rune_weapon", TriggerERW, query_time + 5 )
-            state:QueueAuraExpiration( "empower_rune_weapon", TriggerERW, query_time + 10 )
-            state:QueueAuraExpiration( "empower_rune_weapon", TriggerERW, query_time + 15 )
-            state:QueueAuraExpiration( "empower_rune_weapon", TriggerERW, query_time + 20 )
+            for i = 5, 20, 5 do
+                state:QueueAuraEvent( "empower_rune_weapon", TriggerERW, query_time + i, "AURA_TICK" )
+            end
         end,
 
         copy = "empowered_rune_weapon"
@@ -1419,6 +1442,7 @@ spec:RegisterAbilities( {
 
         spend = 30,
         spendType = "runic_power",
+        school = function() if talent.dark_talons.enabled and buff.icy_talons.up then return "shadowfrost" end return "frost" end,
 
         talent = "frost_strike",
         startsCombat = true,
@@ -1429,21 +1453,21 @@ spec:RegisterAbilities( {
         end,
 
         handler = function ()
-            applyDebuff( "target", "razorice", 20, 2 )
 
             if talent.obliteration.enabled and buff.pillar_of_frost.up then addStack( "killing_machine" ) end
-            removeBuff( "eradicating_blow" )
+            if talent.shattering_blade.enabled and debuff.razorice.stack == 5 then removeDebuff( "target", "razorice" ) end
+            -- if debuff.razorice.stack > 5 then applyDebuff( "target", "razorice", nil, debuff.razorice.stack - 5 ) end 
 
-            if talent.shattering_blade.enabled then
-                if debuff.razorice.stack == 5 then removeDebuff( "target", "razorice" )
-                elseif debuff.razorice.stack > 5 then applyDebuff( "target", "razorice", nil, debuff.razorice.stack - 5 ) end
-            end
+            
+            if death_knight.runeforge.razorice then applyDebuff( "target", "razorice", nil, min( 5, buff.razorice.stack + 1 ) ) end
 
-            if talent.unleashed_frenzy.enabled then addStack( "unleashed_frenzy", nil, 3 ) end
-
+            -- Legacy / PvP
             if pvptalent.bitter_chill.enabled and debuff.chains_of_ice.up then
                 applyDebuff( "target", "chains_of_ice" )
             end
+
+            if conduit.eradicating_blow.enabled then removeBuff( "eradicating_blow" ) end
+
         end,
 
         auras = {
@@ -1498,6 +1522,7 @@ spec:RegisterAbilities( {
         toggle = "cooldowns",
 
         handler = function ()
+            -- if talent.apocalypse_now.enabled then do stuff end
             applyDebuff( "target", "frostwyrms_fury" )
             if set_bonus.tier30_4pc > 0 then applyDebuff( "target", "lingering_chill" ) end
             if legendary.absolute_zero.enabled then applyDebuff( "target", "absolute_zero" ) end
@@ -1547,7 +1572,7 @@ spec:RegisterAbilities( {
         cast = 0,
         cooldown = 0,
         gcd = "spell",
-        school = function() return talent.bind_in_darkness.enabled and "shadowfrost" or "frost" end,
+        school = function() return talent.bind_in_darkness.enabled and buff.rime.up and "shadowfrost" or "frost" end,
 
         spend = function () return buff.rime.up and 0 or 1 end,
         spendType = "runes",
@@ -1560,18 +1585,14 @@ spec:RegisterAbilities( {
             active_dot.frost_fever = max( active_dot.frost_fever, active_enemies )
 
             if talent.bind_in_darkness.enabled and debuff.reapers_mark.up then applyDebuff( "target", "reapers_mark", nil, debuff.reapers_mark.stack + 2 ) end
-
             if talent.obliteration.enabled and buff.pillar_of_frost.up then addStack( "killing_machine" ) end
 
             if buff.rime.up then
                 removeBuff( "rime" )
-
-                if legendary.rage_of_the_frozen_champion.enabled then
-                    gain( 8, "runic_power" )
-                end
-                if set_bonus.tier30_2pc > 0 then
-                    addStack( "wrath_of_the_frostwyrm" )
-                end
+                if talent.rage_of_the_frozen_champion.enabled then gain( 6, "runic_power") end
+                if talent.avalanche.enabled then applyDebuff( "target", "razorice", nil, min( 5, buff.razorice.stack + 1 ) ) end
+                if legendary.rage_of_the_frozen_champion.enabled then gain( 8, "runic_power" ) end
+                if set_bonus.tier30_2pc > 0 then addStack( "wrath_of_the_frostwyrm" ) end
             end
 
             if pvptalent.delirium.enabled then applyDebuff( "target", "delirium" ) end
@@ -1640,11 +1661,15 @@ spec:RegisterAbilities( {
         cooldown = 0,
         gcd = "spell",
 
-        spend = 2,
+        spend = function()
+            if talent.exterminate.enabled and buff.exterminate.up then return 1 end
+            return 2
+        end,
         spendType = "runes",
 
         talent = "obliterate",
         startsCombat = true,
+        school = function() if buff.killing_machine.up then return "frost" end return "physical" end,
 
         cycle = function ()
             if debuff.mark_of_fyralath.up then return "mark_of_fyralath" end
@@ -1652,21 +1677,26 @@ spec:RegisterAbilities( {
         end,
 
         handler = function ()
-            removeStack( "inexorable_assault" )
+            if talent.inexorable_assault.enabled then removeStack( "inexorable_assault" ) end
 
             if buff.exterminate.up then
                 removeStack( "exterminate" )
-                if talent.wither_away.enabled and buff.exterminate.down then applyDebuff( "target", "frost_fever" ) end
+                if talent.wither_away.enabled then
+                    applyDebuff( "target", "frost_fever" )
+                    active_dot.frost_fever = max ( active_dot.frost_fever, active_enemies ) -- it applies in AoE around your target
+                end
+                gain( 10, "runic_power")
             end
 
-            if buff.killing_machine.up and talent.bonegrinder.enabled then
-                if buff.bonegrinder_crit.stack_pct == 100 then
+            if buff.killing_machine.up then
+                if talent.bonegrinder.enabled and buff.bonegrinder_crit.stack_pct == 100 then
                     removeBuff( "bonegrinder_crit" )
                     applyBuff( "bonegrinder_frost" )
                 else
                     addStack( "bonegrinder_crit" )
                 end
-                removeBuff( "killing_machine" )
+                removeStack( "killing_machine" )
+                if talent.arctic_assault.enabled then applyDebuff( "target", "razorice", nil, min( 5, buff.razorice.stack + 1 ) ) end
             end
 
             -- Koltira's Favor is not predictable.
@@ -1712,6 +1742,8 @@ spec:RegisterAbilities( {
 
         handler = function ()
             applyBuff( "pillar_of_frost" )
+
+            -- Legacy
             if set_bonus.tier30_2pc > 0 then
                 applyDebuff( "target", "frostwyrms_fury" )
                 applyDebuff( "target", "lingering_chill" )
@@ -1764,7 +1796,7 @@ spec:RegisterAbilities( {
         cooldown = function() return 60.0 - ( 15 * talent.reapers_onslaught.rank ) end,
         gcd = "spell",
 
-        spend = function() return 2 - ( talent.swift_end.enabled and 1 or 0 ) end,
+        spend = 2,
         spendType = 'runes',
 
         talent = "reapers_mark",
@@ -1774,7 +1806,7 @@ spec:RegisterAbilities( {
             applyDebuff( "target", "reapers_mark" )
 
             if talent.grim_reaper.enabled then
-                applyBuff( "killing_machine" )
+                addStack( "killing_machine" )
             end
 
             if talent.reaper_of_souls.enabled then
@@ -1860,7 +1892,7 @@ spec:RegisterAbilities( {
         cooldown = 6,
         gcd = "spell",
 
-        spend = 1,
+        spend = function() if talent.reaper_of_souls.enabled and buff.reaper_of_souls.up then return 0 end return 1 end,
         spendType = "runes",
 
         talent = "soul_reaper",
