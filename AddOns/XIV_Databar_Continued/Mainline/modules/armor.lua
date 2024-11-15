@@ -223,28 +223,32 @@ function ArmorModule:UpdatePlayerCoordinates()
     return
   end
   
-  self.coordText:Show()
-  local map_id = C_Map.GetBestMapForUnit('player')
-  if not map_id then return end
+  if not IsInInstance() then
+    self.coordText:Show()
+    local map_id = C_Map.GetBestMapForUnit('player')
+    if not map_id then return end
 
-  local rects = self.MapRects[map_id]
-  if not rects then
-    local _, topleft = C_Map.GetWorldPosFromMapPos(map_id, CreateVector2D(0, 0))
-    local _, bottomright = C_Map.GetWorldPosFromMapPos(map_id, CreateVector2D(1, 1))
-    if bottomright and topleft then -- 暫時修正
-		rects = { }
-		bottomright:Subtract(topleft)
-		rects = { topleft.x, topleft.y, bottomright.x, bottomright.y }
-		self.MapRects[map_id] = rects
-	end
+    local rects = self.MapRects[map_id]
+    if not rects then
+      rects = { }
+      local _, topleft = C_Map.GetWorldPosFromMapPos(map_id, CreateVector2D(0, 0))
+      local _, bottomright = C_Map.GetWorldPosFromMapPos(map_id, CreateVector2D(1, 1))
+      if bottomright and topleft then -- 暫時修正
+	      bottomright:Subtract(topleft)
+	      rects = { topleft.x, topleft.y, bottomright.x, bottomright.y }
+	      self.MapRects[map_id] = rects
+	  end
+    end
+
+    local x, y = UnitPosition('player')
+    if not x then return end
+    x = floor(((x - rects[1]) / rects[3]) * 10000) / 100
+    y = floor(((y - rects[2]) / rects[4]) * 10000) / 100
+
+    self.coordText:SetText(y .. ', ' .. x)
+  else
+    self.coordText:Hide()
   end
-
-  local x, y = UnitPosition('player')
-  if not x or not rects then return end -- 暫時修正
-  x = floor(((x - rects[1]) / rects[3]) * 100)
-  y = floor(((y - rects[2]) / rects[4]) * 100)
-
-  self.coordText:SetText(y .. ', ' .. x)
 end
 
 function ArmorModule:GetDefaultOptions()

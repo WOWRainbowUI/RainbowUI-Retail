@@ -154,8 +154,10 @@ L['Available Ranks'] = "神兵武器等級";
 L['Artifact Knowledge'] = "神兵知識等級";
 
 -- Travel
-L["Mythic+ Portals"] = "M+ 傳送門";
-L['Show Mythic+ Portals'] = "顯示 M+ 傳送門";
+L['M+ Teleports'] = "M+ 傳送門";
+L['Only show current season'] = "只顯示當前賽季";
+L["Mythic+ Teleports"] = "M+ 傳送門";
+L['Show Mythic+ Teleports'] = "顯示 M+ 傳送門";
 L['Use Random Hearthstone'] = "使用隨機爐石";
 L['Empty Hearthstones List'] = "如果下方的清單是空的，或是沒有完整顯示出你擁有的爐石，請等幾秒後再重新載入介面 (暴雪使用非同步的方式載入物品資訊，這是目前唯一的解決方法)。"
 L['Hearthstones Select'] = "選擇爐石";
@@ -207,6 +209,7 @@ L["Diablo 4"] = "暗黑破壞神IV"
 L["Blizzard Arcade Collection"] = "暴雪遊樂場典藏系列"
 L["Crash Bandicoot 4"] = "袋狼大進擊4"
 L["Hide Friends Playing Other Games"] = "隱藏其他遊戲好友"; -- used for the friend list function I added myself
+L["Hearthstones"] = "爐石"
 
 -- Changelog
 L["%month%-%day%-%year%"] = "%year%年%month%月%day%日"

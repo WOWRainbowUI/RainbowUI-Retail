@@ -1,8 +1,8 @@
-## Interface: 40400
-## X-Interface: 40400
+## Interface: 40401
+## X-Interface: 40401
 ## Title: XIV_Databar Continued
 ## Author: ZelionGG
-## Version: 3.1 Fix5
+## Version: 3.2
 
 ## Notes: Adds a databar. Previously maintained by |cff00FF99Saxitoxin|r, |cffbbbbbbMille|r|cff990000XIV|r, |c03dbfcbbVicious|r, |cffbab86cKozoaku|r, and now |cffFF0000ZelionGG|r.
 ## SavedVariables: XIVBarDB
@@ -11,6 +11,7 @@
 ## X-Issues: https://github.com/ZelionGG/XIV_Databar-Continued/issues
 
 ## X-Curse-Project-ID: 787614
+## X-WoWI-ID: 26826
 ## X-Wago-ID: WqKQVaGx
 
 ## Title-zhTW: |cff0099FF[介面]|r 功能資訊列
