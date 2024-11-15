@@ -366,9 +366,11 @@ local function OmniCDCastingBarFrame_OnUpdate(self, elapsed)
 		else
 			self.fadeOut = nil;
 			self:Hide();
+			OmniCDCastingBarFrame_OnHide(self)
 		end
 	else
 		self:Hide();
+		OmniCDCastingBarFrame_OnHide(self)
 	end
 end
 
@@ -602,7 +604,6 @@ function P:AcquireStatusBar(icon, key, nameWithoutRealm)
 		castingBar.statusBar = statusBar
 		castingBar:SetScript("OnUpdate", OmniCDCastingBarFrame_OnUpdate)
 		castingBar:SetScript("OnShow", OmniCDCastingBarFrame_OnShow)
-		castingBar:SetScript("OnHide", OmniCDCastingBarFrame_OnHide)
 
 		statusBar.Text:SetFontObject(E.StatusBarFont)
 		castingBar.Text:SetFontObject(E.StatusBarFont)

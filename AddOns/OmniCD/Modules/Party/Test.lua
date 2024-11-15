@@ -56,9 +56,9 @@ addOnTestMode.Aptechka = function(isTestEnabled)
 	Aptechka:ReconfigureProtected()
 end
 
---[[
+--[[ solo uses CellSoloFramePlayer
 addOnTestMode.Cell = function(isTestEnabled)
-	if not CellDB or not CellDB["general"] or not CellDB["general"]["showSolo"] then
+	if not CellDB or not CellDB["general"] then
 		return
 	end
 	if isTestEnabled then
@@ -82,7 +82,7 @@ function TM:Test(key)
 	P.isInTestMode = not P.isInTestMode
 
 	if P.isInTestMode then
-		if not E.db.position.detached and groupSize < 1 and activeCustomUF and not addOnTestMode[activeCustomUF] then
+		if not E.db.position.detached and groupSize < 1 and activeCustomUF and activeCustomUF ~= "auto" and not addOnTestMode[activeCustomUF] then
 			E.write(format(E.STR.UNSUPPORTED_ADDON, activeCustomUF))
 		end
 
@@ -204,8 +204,10 @@ function TM:PLAYER_REGEN_ENABLED()
 			CompactRaidFrameManager:Hide()
 			CompactRaidFrameContainer:Hide()
 		end
+	--[[
 	elseif E.customUF.active == "Cell" then
 		Cell:Fire("UpdateVisibility", "solo")
+	]]
 	end
 	self:UnregisterEvent('PLAYER_REGEN_ENABLED')
 end

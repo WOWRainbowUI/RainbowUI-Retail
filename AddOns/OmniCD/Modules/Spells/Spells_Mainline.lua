@@ -114,7 +114,7 @@ E.spell_db = {
 		{ ["class"]="DEMONHUNTER",["type"]="defensive",["buff"]=206803,["spec"]=true,["name"]="Rain from Above",["duration"]=90,["icon"]=1380371,["spellID"]=206803, },
 		{ ["class"]="DEMONHUNTER",["type"]="counterCC",["buff"]=205604,["spec"]=true,["name"]="Reverse Magic",["duration"]=60,["icon"]=1380372,["spellID"]=205604, },
 		{ ["class"]="DEMONHUNTER",["type"]="immunity",["buff"]=196555,["spec"]=true,["name"]="Netherwalk",["duration"]=180,["icon"]=463284,["spellID"]=196555, },
-		{ ["class"]="DEMONHUNTER",["type"]="offensive",["buff"]=370965,["spec"]={370965,321077},["name"]="The Hunt",["duration"]=90,["icon"]=6035306,["spellID"]=370965, },
+		{ ["class"]="DEMONHUNTER",["type"]="offensive",["buff"]=370965,["spec"]={370965,321077},["name"]="The Hunt",["duration"]=90,["icon"]=6035307,["spellID"]=370965, },
 		{ ["class"]="DEMONHUNTER",["type"]="movement",["buff"]=232893,["spec"]=true,["name"]="Felblade",["duration"]=15,["icon"]=1344646,["spellID"]=232893, },
 		{ ["class"]="DEMONHUNTER",["type"]="movement",["buff"]=198793,["spec"]=true,["name"]="Vengeful Retreat",["duration"]=25,["icon"]=1348401,["spellID"]=198793, },
 		{ ["class"]="DEMONHUNTER",["type"]="offensive",["buff"]=204596,["name"]="Sigil of Flame",["duration"]=30,["icon"]=1344652,["spellID"]=204596, },
@@ -187,7 +187,7 @@ E.spell_db = {
 		{ ["class"]="MONK",["type"]="offensive",["buff"]=325153,["spec"]=true,["name"]="Exploding Keg",["duration"]=60,["icon"]=644378,["spellID"]=325153, },
 		{ ["class"]="MONK",["type"]="tankDefensive",["buff"]=132578,["spec"]=true,["name"]="Invoke Niuzao, the Black Ox",["duration"]=180,["icon"]=608951,["spellID"]=132578, },
 		{ ["class"]="MONK",["type"]="defensive",["buff"]=115176,["spec"]=true,["name"]="Zen Meditation",["duration"]=300,["icon"]=642417,["spellID"]=115176, },
-		{ ["class"]="MONK",["type"]="tankDefensive",["buff"]=119582,["spec"]=true,["name"]="Purifying Brew",["charges"]=2,["duration"]=15,["icon"]=133701,["spellID"]=119582, },
+		{ ["class"]="MONK",["type"]="tankDefensive",["buff"]=119582,["spec"]=true,["name"]="Purifying Brew",["charges"]=2,["duration"]=20,["icon"]=133701,["spellID"]=119582, },
 		{ ["class"]="MONK",["type"]="heal",["buff"]=443028,["spec"]=true,["name"]="Celestial Conduit",["duration"]=90,["icon"]=5927619,["spellID"]=443028, },
 	},
 	["DEATHKNIGHT"] = {
@@ -359,7 +359,7 @@ E.spell_db = {
 		{ ["class"]="DRUID",["type"]="heal",["buff"]=203651,["spec"]=true,["name"]="Overgrowth",["duration"]=60,["icon"]=1408836,["spellID"]=203651, },
 		{ ["class"]="DRUID",["type"]="heal",["buff"]=117679,["spec"]=true,["name"]="Incarnation: Tree of Life",["duration"]=180,["icon"]=236157,["spellID"]=33891, },
 		{ ["class"]="DRUID",["type"]="offensive",["buff"]=391528,["spec"]={391528,321077},["name"]="Convoke the Spirits",["duration"]=120,["icon"]=6035309,["spellID"]=391528, },
-		{ ["class"]="DRUID",["type"]="heal",["buff"]=391888,["spec"]={391888,321078},["name"]="Adaptive Swarm",["duration"]=25,["icon"]=6035307,["spellID"]=391888, },
+		{ ["class"]="DRUID",["type"]="heal",["buff"]=391888,["spec"]={391888,321078},["name"]="Adaptive Swarm",["duration"]=25,["icon"]=6035308,["spellID"]=391888, },
 		{ ["class"]="DRUID",["type"]="heal",["buff"]=392160,["spec"]=true,["name"]="Invigorate",["duration"]=20,["icon"]=136073,["spellID"]=392160, },
 		{ ["class"]="DRUID",["type"]="heal",["buff"]=197721,["spec"]=true,["name"]="Flourish",["duration"]=60,["icon"]=538743,["spellID"]=197721, },
 		{ ["class"]="DRUID",["type"]="externalDefensive",["buff"]=102342,["spec"]=true,["name"]="Ironbark",["duration"]=90,["icon"]=572025,["spellID"]=102342, },
@@ -530,7 +530,7 @@ E.spell_db = {
 		{ ["class"]="PALADIN",["type"]="tankDefensive",["buff"]=327193,["spec"]=true,["name"]="Moment of Glory",["duration"]=90,["icon"]=237537,["spellID"]=327193, },
 		{ ["class"]="PALADIN",["type"]="dispel",["buff"]=213644,["spec"]=true,["name"]="Cleanse Toxins",["charges"]=1,["duration"]=8,["icon"]=135953,["spellID"]=213644, },
 		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=255937,["spec"]=true,["name"]="Wake of Ashes",["duration"]=30,["icon"]=1112939,["spellID"]=255937,["talent"]=384052, },
-		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=231895,["spec"]=384392,["name"]="Crusade",["duration"]=120,["icon"]=236262,["spellID"]=231895,["talent"]=458359 },
+		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=231895,["spec"]=true,["name"]="Crusade",["duration"]=120,["icon"]=236262,["spellID"]=231895,["talent"]=458359 },
 		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=343527,["spec"]=true,["name"]="Execution Sentence",["duration"]=30,["icon"]=613954,["spellID"]=343527, },
 		{ ["class"]="PALADIN",["type"]="defensive",["buff"]=184662,["spec"]=true,["name"]="Shield of Vengeance",["duration"]=90,["icon"]=236264,["spellID"]=184662, },
 		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=343721,["spec"]=true,["name"]="Final Reckoning",["duration"]=60,["icon"]=135878,["spellID"]=343721, },
@@ -545,10 +545,10 @@ E.spell_db = {
 		{ ["class"]="PALADIN",["type"]="cc",["buff"]=20066,["spec"]=true,["name"]="Repentance",["duration"]=15,["icon"]=135942,["spellID"]=20066, },
 		{ ["class"]="PALADIN",["type"]="freedom",["buff"]=1044,["spec"]=true,["name"]="Blessing of Freedom",["charges"]=1,["duration"]=25,["icon"]=135968,["spellID"]=1044, },
 		{ ["class"]="PALADIN",["type"]="interrupt",["buff"]=96231,["spec"]=true,["name"]="Rebuke",["duration"]=15,["icon"]=523893,["spellID"]=96231, },
-		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=31884,["spec"]=true,["name"]="Avenging Wrath",["duration"]={[70]=60,["default"]=120},["icon"]=135875,["spellID"]=31884,["talent"]={216331,384392,389539,458359},
+		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=31884,["spec"]=true,["name"]="Avenging Wrath",["duration"]={[70]=60,["default"]=120},["icon"]=135875,["spellID"]=31884,["talent"]={216331,231895,389539,458359}, -- Radiant Glory (makes it passive)
 		disabledSpec={[65]={arena=true,pvp=true,party=true,raid=true,scenario=true,none=true}} },
 
-		{ ["class"]="PALADIN",["type"]="heal",["buff"]=31884,["spec"]=31884,["name"]="Avenging Wrath",["duration"]=120,["icon"]=135875,["spellID"]=384376,["talent"]={216331,384392,389539},
+		{ ["class"]="PALADIN",["type"]="heal",["buff"]=31884,["spec"]=31884,["name"]="Avenging Wrath",["duration"]=120,["icon"]=135875,["spellID"]=384376,["talent"]={216331,231895,389539,458359}, -- Holy
 		disabledSpec={[66]={arena=true,pvp=true,party=true,raid=true,scenario=true,none=true},[70]={arena=true,pvp=true,party=true,raid=true,scenario=true,none=true}} },
 		{ ["class"]="PALADIN",["type"]="externalDefensive",["buff"]=6940,["spec"]=true,["name"]="Blessing of Sacrifice",["charges"]=1,["duration"]=120,["icon"]=135966,["spellID"]=6940,["talent"]=199452, },
 		{ ["class"]="PALADIN",["type"]="externalDefensive",["buff"]=1022,["spec"]=true,["name"]="Blessing of Protection",["charges"]=1,["duration"]=300,["icon"]=135964,["spellID"]=1022, },

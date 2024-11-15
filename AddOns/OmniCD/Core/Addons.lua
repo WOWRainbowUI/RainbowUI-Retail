@@ -78,9 +78,25 @@ local unitFrameData = {
 		[4] = 1,
 		[5] = 5,
 	},
+	--[[ error in Cell's pattern matching raidID's
 	{
 		[1] = "Cell-Raid",
 		[2] = "CellRaidFrameMember",
+		[3] = "unit",
+		[4] = 1,
+		[5] = 40,
+	},
+	]]
+	{
+		[1] = "Cell-Raid",
+		[2] = "CellRaidFrameHeader%dUnitButton",
+		[3] = "unit",
+		[4] = 1,
+		[5] = 5,
+	},
+	{
+		[1] = "Cell-Raid-CombinedGroups",
+		[2] = "CellRaidFrameHeader0UnitButton",
 		[3] = "unit",
 		[4] = 1,
 		[5] = 40,
