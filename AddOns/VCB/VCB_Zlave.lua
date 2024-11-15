@@ -135,6 +135,19 @@ local function FirstTimeSavedVariables()
 			otherAdddon = "None",
 		}
 	end
+	if VCBrBoss == nil then
+		VCBrBoss = { Unlock = false,
+			Position = {X = 0, Y = 0},
+			Scale = 100,
+			NameText = "Top",
+			CurrentTimeText = {Position = "Bottom Left", Direction = "Both", Sec = "Hide", Decimals = 2},
+			TotalTimeText = {Position = "Bottom Right", Sec = "Hide", Decimals = 2},
+			BothTimeText = {Position = "Hide", Direction = "Both", Sec = "Hide", Decimals = 2},
+			Color = "Default Color",
+			Art = "Default",
+			otherAdddon = "None",
+		}
+	end
 	if VCBrPlayer["CurrentTimeText"]["Decimals"] == nil then VCBrPlayer["CurrentTimeText"]["Decimals"] = 2 end
 	if VCBrPlayer["TotalTimeText"]["Decimals"] == nil then VCBrPlayer["TotalTimeText"]["Decimals"] = 2 end
 	if VCBrPlayer["BothTimeText"]["Decimals"] == nil then VCBrPlayer["BothTimeText"]["Decimals"] = 2 end
