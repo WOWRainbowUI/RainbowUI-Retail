@@ -1,11 +1,10 @@
 local mod	= DBM:NewMod(2609, "DBM-Raids-WarWithin", 1, 1273)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241108061753")
+mod:SetRevision("20241115055452")
 mod:SetCreatureID(214504)
 mod:SetEncounterID(2918)
---mod:SetUsedIcons(1, 2, 3)
-mod:SetHotfixNoticeRev(20240818000000)
+mod:SetHotfixNoticeRev(20241115000000)
 mod:SetMinSyncRevision(20240720000000)
 mod:SetZone(2657)
 mod.respawnTime = 29
@@ -14,18 +13,14 @@ mod:RegisterCombat("combat")
 
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START 444687 439789 455373 439784 439795 439811 454989 452806 456853 456762",
-	"SPELL_AURA_APPLIED 458067",
+	"SPELL_AURA_APPLIED 458067 439776",
 	"SPELL_AURA_APPLIED_DOSE 458067",
-	"SPELL_INTERRUPT"
---	"SPELL_PERIODIC_DAMAGE",
---	"SPELL_PERIODIC_MISSED",
+	"SPELL_INTERRUPT",
+	"SPELL_PERIODIC_DAMAGE 439776",
+	"SPELL_PERIODIC_MISSED 439776"
 --	"UNIT_SPELLCAST_START boss1"
 )
 
---TODO, maybe auto mark https://www.wowhead.com/beta/spell=434579/corrosion so still assign clears by icon
---TODO, maybe use https://www.wowhead.com/beta/spell=455287/infested-bite to announce or mark infested spawns after the fact for healing?
---TODO, emphasize Enveloping webs cast itself? will probably only have a soon warning for it that's emphasized with a precise timer
---TODO, change option keys to match BW for weak aura compatability before live
 --[[
 (ability.id = 444687 or ability.id = 439789 or ability.id = 455373 or ability.id = 439784 or ability.id = 439795 or ability.id = 439811 or ability.id = 454989 or ability.id = 452806 or ability.id = 456853 or ability.id = 456841) and type = "begincast"
 or ability.id = 456762 and type = "begincast"
@@ -42,10 +37,8 @@ local specWarnSavageAssault						= mod:NewSpecialWarningDefensive(444687, nil, n
 local specWarnSavageAssaultTaunt				= mod:NewSpecialWarningTaunt(444687, nil, nil, nil, 1, 2)
 local specWarnWebReave							= mod:NewSpecialWarningCount(439795, nil, nil, DBM_COMMON_L.GROUPSOAK, 2, 2)
 local specWarnEvellpingWebs						= mod:NewSpecialWarningDodgeCount(454989, nil, 157317, nil, 2, 2)
---local yellWebReave							= mod:NewShortYell(439795, DBM_COMMON_L.GROUPSOAK, nil, nil, "YELL")
---local yellSearingAftermathFades				= mod:NewShortFadesYell(422577)
 local specWarnAcidEruption						= mod:NewSpecialWarningInterrupt(452806, "HasInterrupt", nil, nil, 1, 2)
---local specWarnGTFO							= mod:NewSpecialWarningGTFO(421532, nil, nil, nil, 1, 8)
+local specWarnGTFO								= mod:NewSpecialWarningGTFO(421532, nil, nil, nil, 1, 8)
 
 local timerSavageAssaultCD						= mod:NewCDCountTimer(49, 444687, DBM_COMMON_L.TANKDEBUFF.." (%s)", "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerRollingAcidCD						= mod:NewCDCountTimer(21.3, 439789, 437704, nil, nil, 3)--Shortname "Toxic Waves"
@@ -346,7 +339,7 @@ local allTimers = {
 			--Erosive Spray
 			[439811] = {8.1, 40},
 			--Infested Spawn
-			[455373] = {18.8},
+			[455373] = {18.7},
 			--Rolling Acid
 			[439789] = {35},
 			--Savage Assault
@@ -374,7 +367,7 @@ local allTimers = {
 			--Erosive Spray
 			[439811] = {23.6, 25},
 			--Infested Spawn
-			[455373] = {14.3, 20},
+			[455373] = {0},--Not cast on this movement
 			--Rolling Acid
 			[439789] = {15.8},
 			--Savage Assault
@@ -388,7 +381,7 @@ local allTimers = {
 			--Erosive Spray
 			[439811] = {23.6, 25},
 			--Infested Spawn
-			[455373] = {14.4, 24.7},
+			[455373] = {14.3, 20},
 			--Rolling Acid
 			[439789] = {0},--Not cast on 4th area
 			--Savage Assault
@@ -402,7 +395,7 @@ local allTimers = {
 			--Erosive Spray
 			[439811] = {23.6, 25},
 			--Infested Spawn
-			[455373] = {19.1},
+			[455373] = {14.4, 24.7},
 			--Rolling Acid
 			[439789] = {20.6},
 			--Savage Assault
@@ -416,7 +409,7 @@ local allTimers = {
 			--Erosive Spray
 			[439811] = {0},
 			--Infested Spawn
-			[455373] = {0},
+			[455373] = {19.1},
 			--Rolling Acid
 			[439789] = {0},
 			--Savage Assault
@@ -500,6 +493,12 @@ function mod:OnTimerRecovery()
 	end
 end
 
+local function delayedTankCheck(self)
+	local bossTarget = self:GetBossTarget(214504) or DBM_COMMON_L.UNKNOWN
+	specWarnSavageAssaultTaunt:Show(bossTarget)
+	specWarnSavageAssaultTaunt:Play("tauntboss")
+end
+
 function mod:SPELL_CAST_START(args)
 	local spellId = args.spellId
 	if spellId == 444687 then
@@ -508,10 +507,9 @@ function mod:SPELL_CAST_START(args)
 		if self:IsTanking("player", "boss1", nil, true) then
 			specWarnSavageAssault:Show()
 			specWarnSavageAssault:Play("defensive")
-		elseif not DBM:UnitDebuff("player", 458067) then
-			local bossTarget = self:GetBossTarget(214504) or DBM_COMMON_L.UNKNOWN
-			specWarnSavageAssaultTaunt:Show(bossTarget)
-			specWarnSavageAssaultTaunt:Play("tauntboss")
+		else
+			--Delayed so it doesn't grab invalid target since boss might be looking at previous target on first frame
+			self:Schedule(0.3, delayedTankCheck, self)
 		end
 		local timer = self:GetFromTimersTable(allTimers, savedDifficulty, self.vb.phase, spellId, self.vb.assaultCount+1)
 		if timer then
@@ -585,6 +583,9 @@ function mod:SPELL_AURA_APPLIED(args)
 	local spellId = args.spellId
 	if spellId == 458067 then
 		warnSavageWound:Show(args.destName, args.amount or 1)
+	elseif spellId == 439776 and args:IsPlayer() and self:AntiSpam(3, 1) then
+		specWarnGTFO:Show(args.spellName)
+		specWarnGTFO:Play("watchfeet")
 	end
 end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
@@ -613,25 +614,10 @@ function mod:SPELL_INTERRUPT(args)
 	end
 end
 
---[[
 function mod:SPELL_PERIODIC_DAMAGE(_, _, _, _, destGUID, _, _, _, spellId, spellName)
-	if spellId == 421532 and destGUID == UnitGUID("player") and self:AntiSpam(2, 2) then
+	if spellId == 439776 and destGUID == UnitGUID("player") and self:AntiSpam(3, 1) then
 		specWarnGTFO:Show(spellName)
 		specWarnGTFO:Play("watchfeet")
 	end
 end
 mod.SPELL_PERIODIC_MISSED = mod.SPELL_PERIODIC_DAMAGE
---]]
-
---function mod:WebReaveTarget(targetname)
---	if not targetname then return end
---	if targetname == UnitName("player") then
---		yellWebReave:Yell()
---	end
---end
-
---function mod:UNIT_SPELLCAST_START(uId, _, spellId)
---	if spellId == 439795 then
---		self:BossUnitTargetScanner(uId, "WebReaveTarget")
---	end
---end
