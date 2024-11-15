@@ -254,15 +254,19 @@ function IUF:SetActiveObject(object)
 		if self.db.units[object.objectType].active then
 			object.watch = true
 			RegisterUnitWatch(object)
+
 			if object.objectType == "party" then
+
 				if self.db.hidePartyFrame == true then
 					RegisterStateDriver(object, "hideraid", "hide")
 					object:SetAttribute("unitsuffix", "none")
 					object:Hide()
 				else
-					RegisterStateDriver(object, "hideraid", self.db.hideInRaid and "[@raid1,exists]hide;show" or "show")
+					RegisterStateDriver(object, "hideraid", self.db.hideInRaid and "[group:raid]hide;show" or "show")
 					if self.db.hideInRaid and IsInGroup() and IsInRaid() then
+
 						object:SetAttribute("unitsuffix", "none")
+
 						object:Hide()
 					else
 						object:SetAttribute("unitsuffix", nil)

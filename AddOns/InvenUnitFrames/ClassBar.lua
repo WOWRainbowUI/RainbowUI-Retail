@@ -678,13 +678,13 @@ if playerClass == "DRUID" then
 			end
 			updateVisible()
 		else
-			if object.classBar.setupBlizzard then
+--			if object.classBar.setupBlizzard then
 				PlayerFrameAlternateManaBar:ClearAllPoints()
 				if TotemFrame then
 					TotemFrame:ClearAllPoints()
 					TotemFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
 				end
-			end
+--			end
 			object.classBar.addOn:Hide()
 			if not InCombatLockdown() then 	ComboPointDruidPlayerFrame:Hide() end
 			ComboPointDruidPlayerFrame:SetAlpha(0)
@@ -914,12 +914,12 @@ elseif playerClass == "DEATHKNIGHT" then
 			end
 			updateVisible()
 		else
-			if object.classBar.setupBlizzard then
+--			if object.classBar.setupBlizzard then
 				TotemFrame:ClearAllPoints()
 				TotemFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
 				RuneFrame:ClearAllPoints()
 				RuneFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
-			end
+--			end
 			object.classBar.addOn:Hide()
 		end
 	end
@@ -1089,14 +1089,14 @@ elseif playerClass == "PRIEST" then
 			end
 			updateVisible()
 		else
-			if object.classBar.setupBlizzard then
+--			if object.classBar.setupBlizzard then
 				TotemFrame:ClearAllPoints()
 				TotemFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
 				PlayerFrameAlternateManaBar:SetAlpha(0.0)
 				PlayerFrameAlternateManaBar:SetScale(0.1)
 --~ 				PlayerFrameAlternateManaBar:ClearAllPoints()
 --~ 				PlayerFrameAlternateManaBar:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
-			end
+--			end
 			object.classBar.addOn:Hide()
 		end
 	end
@@ -1268,12 +1268,12 @@ elseif playerClass == "PALADIN" then
 			end
 			updateVisible()
 		else
-			if object.classBar.setupBlizzard then
+--			if object.classBar.setupBlizzard then
 				TotemFrame:ClearAllPoints()
 				TotemFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
 				PaladinPowerBarFrame:ClearAllPoints()
 				PaladinPowerBarFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
-			end
+--			end
 			object.classBar.addOn:Hide()
 		end
 	end
@@ -1644,7 +1644,7 @@ elseif playerClass == "MONK" then
 			end
 			updateVisible()
 		else
-			if object.classBar.setupBlizzard then
+--			if object.classBar.setupBlizzard then
 				TotemFrame:ClearAllPoints()
 				TotemFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
 				MonkHarmonyBarFrame:ClearAllPoints()
@@ -1653,7 +1653,7 @@ elseif playerClass == "MONK" then
 				MonkStaggerBar:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
 				PlayerFrameAlternateManaBar:ClearAllPoints()
 				MonkHarmonyBarFrame.SetPoint(PlayerFrameAlternateManaBar, "BOTTOM", UIParent, "TOP", 0, 2000)
-			end
+--			end
 			object.classBar.addOn:Hide()
 		end
 	end
@@ -2059,12 +2059,12 @@ elseif playerClass == "WARLOCK" then
 			end
 			updateVisible()
 		else
-			if object.classBar.setupBlizzard then
+--			if object.classBar.setupBlizzard then
 				TotemFrame:ClearAllPoints()
 				TotemFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
 				WarlockPowerFrame:ClearAllPoints()
 				WarlockPowerFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
-			end
+--			end
 			object.classBar.addOn:Hide()
 		end
 	end
@@ -2240,10 +2240,10 @@ elseif playerClass == "MAGE" then
 			end
 			updateVisible()
 		else
-			if object.classBar.setupBlizzard then
+--			if object.classBar.setupBlizzard then
 				TotemFrame:ClearAllPoints()
 				TotemFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
-			end
+--			end
 			object.classBar.addOn:Hide()
 		end
 	end
@@ -2416,10 +2416,10 @@ elseif playerClass == "ROGUE" then
 			end
 			updateVisible()
 		else
-			if object.classBar.setupBlizzard then
+--			if object.classBar.setupBlizzard then
 				TotemFrame:ClearAllPoints()
 				TotemFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
-			end
+--			end
 			object.classBar.addOn:Hide()
 			if not InCombatLockdown() then RogueComboPointBarFrame:Hide() end
 		end
@@ -2598,14 +2598,14 @@ else
 			updateVisible()
 		else
 			object.classBar.addOn:Hide()
-			if object.classBar.setupBlizzard then
+--			if object.classBar.setupBlizzard then
 				PlayerFrameAlternateManaBar:SetAlpha(0.0)
 				PlayerFrameAlternateManaBar:SetScale(0.1)
 				EssencePlayerFrame:SetAlpha(0.0)
 				EssencePlayerFrame:SetScale(0.1)
 				TotemFrame:ClearAllPoints()
 				TotemFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
-			end
+--			end
 		end
 	end
 end
