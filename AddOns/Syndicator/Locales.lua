@@ -25,7 +25,10 @@ L["SHOW_CURRENCY"] = "Show currency"
 L["SHOW_RACE_ICONS"] = "Show race icons"
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
 L["DELETE_CHARACTER"] = "Delete Character"
+L["DELETE_GUILD"] = "Delete Guild"
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
+L["CHARACTERS"] = "Characters"
+L["GUILDS"] = "Guilds"
 
 L["ALL_CHARACTERS_COLON"] = "All Characters:"
 
@@ -235,6 +238,10 @@ L["VOID_X"] = "虛空倉庫: %s"
 L["WARBAND"] = "戰隊"
 L["WARBAND_LOWER"] = "戰隊"
 L["X_CHARACTERS_SHOWN"] = "顯示 %s 個角色"
+
+L["DELETE_GUILD"] = "刪除公會"
+L["CHARACTERS"] = "角色"
+L["GUILDS"] = "公會"
 
 
 local L = Locales.zhCN
