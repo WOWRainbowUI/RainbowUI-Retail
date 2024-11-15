@@ -5720,7 +5720,8 @@ do
                 buff.key = key
                 buff.id = spellID
                 buff.name = name
-                buff.count = count > 0 and count or 1
+                if buff.count and buff.count > 0 then buff.count = buff.count + ( count > 0 and count or 1 )
+                else buff.count = count > 0 and count or 1 end
                 buff.expires = expires
                 -- buff.duration = duration
                 buff.applied = expires - duration
@@ -6503,10 +6504,10 @@ do
             if dispName == 'Primary' then
                 if mode == "single" or mode == "dual" or mode == "reactive" then state.max_targets = 1
                 elseif mode == "aoe" then state.min_targets = spec and spec.aoe or 3 end
-                -- if state.empowerment.active then state.filter = "empowerment" end
+                state.filter = "none"
             elseif dispName == 'AOE' then
                 state.min_targets = spec and spec.aoe or 3
-                -- if state.empowerment.active then state.filter = "empowerment" end
+                state.filter = "none"
             elseif dispName == 'Cooldowns' then state.filter = "cooldowns"
             elseif dispName == 'Interrupts' then state.filter = "interrupts"
             elseif dispName == 'Defensives' then state.filter = "defensives"

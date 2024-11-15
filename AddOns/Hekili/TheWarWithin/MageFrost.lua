@@ -1029,9 +1029,9 @@ spec:RegisterAbilities( {
     flurry = {
         id = 44614,
         cast = 0,
-        charges = function() return talent.perpetual_winter.enabled and 2 or nil end,
+        charges = function() if talent.perpetual_winter.enabled then return 2 end end,
         cooldown = 30,
-        recharge = function() return talent.perpetual_winter.enabled and 30 or nil end,
+        recharge = function() if talent.perpetual_winter.enabled then return 30 end end,
         gcd = "spell",
         school = "frost",
 
@@ -1494,7 +1494,7 @@ spec:RegisterAbilities( {
     -- Talent: Draw power from the Night Fae, dealing 2,168 Nature damage over 3.6 sec to enemies within 18 yds. While channeling, your Mage ability cooldowns are reduced by 12 sec over 3.6 sec.
     shifting_power = {
         id = function() return talent.shifting_power.enabled and 382440 or 314791 end,
-        cast = function() return 4 * haste end,
+        cast = 4,
         channeled = true,
         cooldown = 60,
         gcd = "spell",

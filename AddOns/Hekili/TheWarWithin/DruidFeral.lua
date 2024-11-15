@@ -1,3 +1,4 @@
+
 -- DruidFeral.lua
 -- July 2024
 
@@ -1848,6 +1849,7 @@ spec:RegisterAbilities( {
             if talent.ravage.enabled then removeBuff( "ravage" ) end
             if talent.bloodtalons.enabled then removeStack( "bloodtalons" ) end
             if talent.sabertooth.enabled then applyDebuff( "target", "sabertooth" ) end
+            if state.spec.restoration and talent.master_shapeshifter.enabled and combo_points.current == 5 then gain( 175000, "mana" ) end
 
             if buff.apex_predator.up or buff.apex_predators_craving.up then
                 applyBuff( "predatory_swiftness" )
@@ -1875,9 +1877,9 @@ spec:RegisterAbilities( {
     frenzied_regeneration = {
         id = 22842,
         cast = 0,
-        charges = function () return talent.innate_resolve.enabled and 2 or nil end,
+        charges = function () if talent.innate_resolve.enabled then return 2 end end,
         cooldown = function () return 36 * ( buff.berserk.up and talent.berserk_persistence.enabled and 0 or 1 ) * ( 1 - 0.2 * talent.reinvigoration.rank ) end,
-        recharge = function () return talent.innate_resolve.enabled and ( 36 * ( buff.berserk.up and talent.berserk_persistence.enabled and 0 or 1 ) ) or nil end,
+        recharge = function () if talent.innate_resolve.enabled then return ( 36 * ( buff.berserk.up and talent.berserk_persistence.enabled and 0 or 1 ) ) end end,
         gcd = "spell",
         school = "physical",
 
@@ -2037,6 +2039,7 @@ spec:RegisterAbilities( {
 
         handler = function ()
             applyDebuff( "target", "maim", combo_points.current )
+            if state.spec.restoration and talent.master_shapeshifter.enabled and combo_points.current == 5 then gain( 175000, "mana" ) end
             spend( combo_points.current, "combo_points" )
 
             removeBuff( "iron_jaws" )
@@ -2491,6 +2494,7 @@ spec:RegisterAbilities( {
         handler = function ()
             applyDebuff( "target", "rip" )
             debuff.rip.pmultiplier = persistent_multiplier
+            if state.spec.restoration and talent.master_shapeshifter.enabled and combo_points.current == 5 then gain( 175000, "mana" ) end
             spend( combo_points.current, "combo_points" )
 
             if talent.bloodtalons.enabled then removeStack( "bloodtalons" ) end
@@ -2596,6 +2600,29 @@ spec:RegisterAbilities( {
         usable = function () return debuff.dispellable_enrage.up end,
         handler = function ()
             removeDebuff( "target", "dispellable_enrage" )
+        end,
+    },
+
+    starsurge = {
+        id = 197626,
+        cast = 0,
+        cooldown = function() return 10 - ( 4 * talent.starlight_conduit.rank ) end,
+        gcd = "spell",
+
+        spend = function () return ( talent.starlight_conduit.enabled and 0.003 or 0.006 ) end,
+        spendType = "mana",
+
+        startsCombat = true,
+        texture = 135730,
+        talent = "starsurge",
+
+        handler = function ()
+            gain( 0.3 * health.max, "health" )
+            if talent.master_shapeshifter.enabled then gain( 43750, "mana" ) end
+            if talent.call_of_the_elder_druid.enabled and debuff.oath_of_the_elder_druid.down then
+                applyBuff( "heart_of_the_wild", 15 )
+                applyDebuff( "player", "oath_of_the_elder_druid" )
+            end
         end,
     },
 

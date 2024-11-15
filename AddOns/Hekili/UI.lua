@@ -1066,7 +1066,7 @@ do
 
 
         function d:OnUpdate( elapsed )
-            if not self.Recommendations or not Hekili.PLAYER_ENTERING_WORLD then
+            if not self.Recommendations or not Hekili.PLAYER_ENTERING_WORLD or self:IsThreadLocked() then
                 return
             end
 
@@ -1075,9 +1075,14 @@ do
             local profile = Hekili.DB.profile
             local conf = profile.displays[ self.id ]
 
+            local fullUpdate = self.NewRecommendations
+            self.NewRecommendations = nil
+
+            local madeUpdate = false
+
             self.alphaCheck = self.alphaCheck - elapsed
 
-            if self.alphaCheck <= 0 then
+            if fullUpdate or self.alphaCheck <= 0 then
                 self.alphaCheck = 0.5
                 self:UpdateAlpha()
             end
@@ -1100,7 +1105,8 @@ do
 
             self.recTimer = self.recTimer - elapsed
 
-            if not self:IsThreadLocked() and ( self.NewRecommendations or self.recTimer < 0 ) then
+            if fullUpdate or self.recTimer < 0 then
+                madeUpdate = true
                 local alpha = self.alpha
                 local options = Hekili:GetActiveSpecOption( "abilities" )
 
@@ -1245,7 +1251,10 @@ do
             if self.HasRecommendations then
                 self.glowTimer = self.glowTimer - elapsed
 
-                if self.glowTimer < 0 or self.NewRecommendations then
+                if fullUpdate or self.glowTimer < 0 then
+                    madeUpdate = true
+                    self.glowTimer = pulseGlow
+
                     if conf.glow.enabled then
                         for i, b in ipairs( self.Buttons ) do
                             if not b.Action then break end
@@ -1302,7 +1311,9 @@ do
                     local a = self.Buttons[ 1 ].Action
                     local changed = self.lastFlash ~= a
 
-                    if a and ( changed or self.flashTimer < 0 ) then
+                    if a and ( fullUpdate or self.flashTimer < 0 or changed ) then
+                        madeUpdate = true
+
                         if changed then
                             for frame in pairs( self.lastFlashFrames ) do
                                 frame:Hide()
@@ -1392,10 +1403,12 @@ do
 
                 self.targetTimer = self.targetTimer - elapsed
 
-                if self.targetTimer < 0 or self.NewRecommendations then
+                if fullUpdate or self.targetTimer < 0 then
                     local b = self.Buttons[ 1 ]
 
                     if conf.targets.enabled then
+                        madeUpdate = true
+
                         local tMin, tMax = 0, 0
                         local mode = profile.toggles.mode.value
                         local spec = state.spec.id and profile.specs[ state.spec.id ]
@@ -1424,6 +1437,7 @@ do
                             b.targetShown = false
                         end
                     elseif b.targetShown then
+                        madeUpdate = true
                         b.Targets:SetText(nil)
                     end
 
@@ -1434,7 +1448,9 @@ do
 
                 self.delayTimer = self.delayTimer - elapsed
 
-                if self.Buttons[ 1 ].ExactTime and ( self.delayTimer < 0 or self.NewRecommendations ) then
+                if self.Buttons[ 1 ].ExactTime and ( self.delayTimer < 0 or fullUpdate ) then
+                    madeUpdate = true
+
                     local b = self.Buttons[ 1 ]
                     local a = b.Ability
 
@@ -1519,7 +1535,9 @@ do
 
                 self.rangeTimer = self.rangeTimer - elapsed
 
-                if self.rangeTimer < 0 or self.NewRecommendations then
+                if self.rangeTimer < 0 or fullUpdate then
+                    madeUpdate = true
+
                     for i, b in ipairs( self.Buttons ) do
                         local a = b.Ability
 
@@ -1587,36 +1605,35 @@ do
                 end
 
                 local postRange = debugprofilestop()
-
-                self.NewRecommendations = false
-
                 local finish = debugprofilestop()
 
-                if self.updateTime then
-                    local newTime = self.updateTime * self.updateCount + ( finish - init )
-                    self.updateCount = self.updateCount + 1
-                    self.updateTime = newTime / self.updateCount
+                if madeUpdate then
+                    if self.updateTime then
+                        local newTime = self.updateTime * self.updateCount + ( finish - init )
+                        self.updateCount = self.updateCount + 1
+                        self.updateTime = newTime / self.updateCount
 
-                    self.updateMax = max( self.updateMax, finish - init )
-                    self.postAlpha = max( self.postAlpha, postAlpha - init )
-                    self.postRecs = max( self.postRecs, postRecs - postAlpha )
-                    self.postGlow = max( self.postGlow, postGlow - postRecs )
-                    self.postRange = max( self.postRange, postRange - postGlow )
-                    self.postFlash = max( self.postFlash, postFlash - postRange )
-                    self.postTargets = max( self.postTargets, postTargets - postFlash )
-                    self.postDelay = max( self.postDelay, finish - postTargets )
-                else
-                    self.updateCount = 1
-                    self.updateTime = finish - init
-                    self.updateMax = finish - init
+                        self.updateMax = max( self.updateMax, finish - init )
+                        self.postAlpha = max( self.postAlpha, postAlpha - init )
+                        self.postRecs = max( self.postRecs, postRecs - postAlpha )
+                        self.postGlow = max( self.postGlow, postGlow - postRecs )
+                        self.postRange = max( self.postRange, postRange - postGlow )
+                        self.postFlash = max( self.postFlash, postFlash - postRange )
+                        self.postTargets = max( self.postTargets, postTargets - postFlash )
+                        self.postDelay = max( self.postDelay, finish - postTargets )
+                    else
+                        self.updateCount = 1
+                        self.updateTime = finish - init
+                        self.updateMax = finish - init
 
-                    self.postAlpha = postAlpha - init
-                    self.postRecs = postRecs - postAlpha
-                    self.postGlow = postGlow - postRecs
-                    self.postRange = postRange - postGlow
-                    self.postFlash = postFlash - postRange
-                    self.postTargets = postTargets - postFlash
-                    self.postDelay = finish - postTargets
+                        self.postAlpha = postAlpha - init
+                        self.postRecs = postRecs - postAlpha
+                        self.postGlow = postGlow - postRecs
+                        self.postRange = postRange - postGlow
+                        self.postFlash = postFlash - postRange
+                        self.postTargets = postTargets - postFlash
+                        self.postDelay = finish - postTargets
+                    end
                 end
             end
         end
@@ -2352,6 +2369,7 @@ do
                 if not self.firstThreadCompleted then
                     Hekili.maxFrameTime = InCombatLockdown() and 10 or 25
                 else
+                    --[[ This automated throttling has been costing work/clock time at high framerates. Disabling for now.
                     if #frameSpans > 0 then
                         local averageSpan = 0
                         for _, span in ipairs( frameSpans ) do
@@ -2363,15 +2381,11 @@ do
                         Hekili.maxFrameTime = Clamp( 0.6 * averageSpan, 3, 20 ) -- Dynamically adjust to 60% of (seemingly) average frame rate between updates.
                     else
                         Hekili.maxFrameTime = Hekili.maxFrameTime or 10
-                    end
+                    end ]]
+
+                    Hekili.maxFrameTime = Hekili:GetActiveSpecOption( "throttleTime" ) and Hekili:GetActiveSpecOption( "maxTime" ) or 15
                 end
 
-                --[[
-                elseif Hekili:GetActiveSpecOption( "throttleTime" ) then
-                    Hekili.maxFrameTime = Hekili:GetActiveSpecOption( "maxTime" ) or 15
-                else
-                    Hekili.maxFrameTime = 15
-                end ]]
 
                 thread = self.activeThread
             end
@@ -2434,7 +2448,10 @@ do
         if super then
             self.Engine.superUpdate = true
         end
-        if self.Engine.firstForce == 0 then self.Engine.firstForce = GetTime() end
+
+        if self.Engine.firstForce == 0 then
+            self.Engine.firstForce = GetTime()
+        end
 
         if event then
             self.Engine.eventsTriggered[ event ] = true

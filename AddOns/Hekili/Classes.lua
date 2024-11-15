@@ -1757,7 +1757,7 @@ all:RegisterAuras( {
                     t.v3 = 0
                     t.caster = unit
 
-                    if unit == "target" and Hekili.DB.profile.filterCasts then
+                    if unit == "target" and Hekili.DB.profile.toggles.interrupts.filterCasts then
                         local filters = Hekili.DB.profile.castFilters
                         local npcid = state.target.npcid
 

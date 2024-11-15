@@ -663,7 +663,7 @@ do
             self.Engine.lastYieldReason = msg
         end
 
-        if force or self.maxFrameTime > 0 and time - self.activeFrameStart > self.maxFrameTime then
+        if self.maxFrameTime > 0 and time - self.activeFrameStart > self.maxFrameTime then
             coroutine.yield()
         end
     end
@@ -1044,10 +1044,10 @@ function Hekili:GetPredictionFromAPL( dispName, packName, listName, slot, action
                                                 end
 
                                                 Timer:Track("Pre-Recheck")
+                                                state.recheck( action, script, Stack, Block )
 
                                                 -- NEW:  If the ability's conditions didn't pass, but the ability can report on times when it should recheck, let's try that now.
                                                 if not aScriptPass then
-                                                    state.recheck( action, script, Stack, Block )
 
                                                     Timer:Track("Post-Recheck Times")
 
@@ -1056,11 +1056,15 @@ function Hekili:GetPredictionFromAPL( dispName, packName, listName, slot, action
                                                     else
                                                         local base_delay = state.delay
 
-                                                        if debug then self:Debug( "There are " .. #state.recheckTimes .. " recheck events." ) end
+                                                        if debug then
+                                                            self:Debug( "There are " .. #state.recheckTimes .. " recheck events." )
+                                                            self:Debug( "Times: " .. table.concat( state.recheckTimes, ", " ) )
+                                                        end
+
 
                                                         local first_rechannel = 0
 
-                                                        Timer:Track("Pre-Recheck Loop")
+                                                        Timer:Track( "Pre-Recheck Loop" )
 
                                                         for i, step in pairs( state.recheckTimes ) do
                                                             local new_wait = base_delay + step
@@ -1351,7 +1355,7 @@ function Hekili:GetPredictionFromAPL( dispName, packName, listName, slot, action
                     end
 
                     if debug and action ~= "call_action_list" and action ~= "run_action_list" and action ~= "use_items" then
-                        self:Debug( "Time spent on this action:  %.2fms\nTimeData:%s-%s-%d:%s:%.2f%s", Timer:Total(), packName, listName, actID, action, Timer:Total(), Timer:Output() )
+                        self:Debug( "Time spent on this action:  %.2fms\nTimeData:%s-%s-%d:%s:x%d:%.2f%s", Timer:Total(), packName, listName, actID, action, #state.recheckTimes, Timer:Total(), Timer:Output() )
                     end
                 end
             else
@@ -1484,13 +1488,13 @@ local aoeDisplayRule = function( p )
 end
 
 local displayRules = {
+    Primary    = { function(   ) return true                                                         end, true , "AOE"        },
+    AOE        = { aoeDisplayRule                                                                       , true , "Interrupts" },
     Interrupts = { function( p ) return p.toggles.interrupts.value and p.toggles.interrupts.separate end, false, "Defensives" },
     Defensives = { function( p ) return p.toggles.defensives.value and p.toggles.defensives.separate end, false, "Cooldowns"  },
     Cooldowns  = { function( p ) return p.toggles.cooldowns.value  and p.toggles.cooldowns.separate  end, false, "Primary"    },
-    Primary    = { function(   ) return true                                                         end, true , "AOE"        },
-    AOE        = { aoeDisplayRule                                                                       , true , "Interrupts" }
 }
-local lastDisplay = "AOE"
+local lastDisplay = "Primary"
 
 local hasSnapped
 
@@ -1526,7 +1530,7 @@ function Hekili.Update( initial )
 
     local snaps
 
-    local dispName = initial or displayRules[ lastDisplay ][ 3 ]
+    local dispName = "Primary"
     state.display = dispName
 
     for round = 1, 5 do
@@ -2044,6 +2048,7 @@ function Hekili.Update( initial )
             UI.RecommendationsStr = checkstr
 
             UI:SetThreadLocked( false )
+            UI:OnUpdate( 1000 )
 
             if WeakAuras and WeakAuras.ScanEvents then
                 if not UI.EventPayload then

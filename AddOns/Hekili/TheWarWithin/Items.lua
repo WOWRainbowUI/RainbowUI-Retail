@@ -918,7 +918,7 @@ all:RegisterAbilities( {
         }
     },
 
-    living_flame = {
+    living_flame_trinket = {
         cast = 0,
         cooldown = 120,
         gcd = "off",
