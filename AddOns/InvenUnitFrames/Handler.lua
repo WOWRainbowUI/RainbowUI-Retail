@@ -359,6 +359,8 @@ function handlers:OnUpdate()
 	end
 end
 
+
+
 function handlers:PLAYER_ENTERING_WORLD()
 	if self.realunit and self.unit and UnitExists(self.realunit) and UnitExists(self.unit) then
 		self.values.vehicle = UnitHasVehicleUI(self.realunit) and 1 or nil
@@ -375,6 +377,20 @@ function handlers:PLAYER_ENTERING_WORLD()
 			end
 		end
 	end
+
+
+--LFG입장시 보정코드
+if not InCombatLockdown() then
+if  IUF.db.hidePartyFrame or (IUF.db.hideInRaid and IsInGroup() and IsInRaid() )then 
+	if InvenUnitFrames_Party1:IsShown() then InvenUnitFrames_Party1:Hide() end
+	if InvenUnitFrames_Party2:IsShown() then InvenUnitFrames_Party2:Hide() end
+	if InvenUnitFrames_Party3:IsShown() then InvenUnitFrames_Party3:Hide() end
+	if InvenUnitFrames_Party4:IsShown() then InvenUnitFrames_Party4:Hide() end
+
+
+end
+end
+
 end
 
 function handlers:UNIT_COMBAT(...)
@@ -443,10 +459,13 @@ function handlers:UNIT_NAME_UPDATE()
 	self.values.level = getUnitLevel(self.unit)
 	self.values.attack = UnitCanAttack("player", self.unit)
 	self.values.player = UnitIsPlayer(self.unit)
+	--LFG시 class보정
+	self.values.class=select(2, UnitClass(self.unit)) or "PET"
+
 	if self.values.player then
 		self.values.classification = nil
 		self.values.elite = nil
-		self.values.class = select(2, UnitClass(self.unit)) or "PET"
+--		self.values.class = select(2, UnitClass(self.unit)) or "PET"
 		self.values.creature = nil
 		self.values.questBoss = nil
 	else

@@ -479,6 +479,7 @@ function callbacks:Power()
 end
 
 function callbacks:HealthColor()
+
 	if self.vehicleunit and self.values.vehicle then
 		self.healthBar:SetColor(unpack(IUF.colordb.class.PET))
 	elseif self.values.tapped then
