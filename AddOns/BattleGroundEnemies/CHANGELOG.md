@@ -1,55 +1,10 @@
 # BattleGroundEnemies
 
-## [11.0.5.1](https://github.com/BullseiWoWAddons/BattleGroundEnemies/tree/11.0.5.1) (2024-11-13)
-[Full Changelog](https://github.com/BullseiWoWAddons/BattleGroundEnemies/commits/11.0.5.1) [Previous Releases](https://github.com/BullseiWoWAddons/BattleGroundEnemies/releases)
+## [11.0.5.3](https://github.com/BullseiWoWAddons/BattleGroundEnemies/tree/11.0.5.3) (2024-11-14)
+[Full Changelog](https://github.com/BullseiWoWAddons/BattleGroundEnemies/compare/11.0.5.2...11.0.5.3) [Previous Releases](https://github.com/BullseiWoWAddons/BattleGroundEnemies/releases)
 
-- undo mistake  
-- feat: improve objectiveandrespawn auratext handling  
-- feat: add GetClassAtlas to luacheck globals  
-- update changelog  
-- safe solorbg state  
-- feat: add modern class icons to spec class priority module and update version  
-- update changelog  
-- feat:  change default priority cooldown font size setting for 15 man  
-- adjut default settings of cooldown font size for 5 man  
-- refactor: use global string for GENERAL  
-- refactor: enhance AddNormalTextSettings function to include reset option and improve order of settings  
-- refactor: remove unnecessary blank line in Level.lua options function  
-- playercount text settnigs are now more global  
-- claner look for aura filtering  
-- refactor:  made playercount mainframe text settings more global, more destinctive variable name for playertypesetting  
-- refactor: rename PlayerDied to PlayerIsDead for clarity and update event handling, also hide sspec/class icon if priority icon is active to avoid it shining through on lower alpha  
-- refactor: comment out debug log in UPDATE\_BATTLEFIELD\_SCORE function  
-- refactor: replace classTag with classToken for consistency across data handling  
-- Added seperate function to apply settings after debounce time, this function is only used when applying settings with config panel, don't use the timeout otherwise  
-- fix typo in ResetCombatLogScanningTables function name  
-- add reset functionality for button sizing  
-- add default settings for ActionButtonUseKeyDown and UseClique in Defaults.lua  
-- add reset functionality for settings groups in Options.lua and fix range indicator settings  
-- remove unnecessary blank lines in Mainframe.lua  
-- fixed buttons growing upwards  
-- refactor profile handling to streamline profile changes and resets  
-- add silent mode for profile upgrade notifications  
-- remove unnecessary blank lines in Data.lua  
-- childGroups of Auras use tabs instead of tree  
-- handle profile reset differently  
-- update todo  
-- Update changelog and fix option naming and fix typo  
-- more options to move settings around and set to defaults  
-- Add method to check if Testmode or Editmode is active in BattleGroundEnemies  
-- Use select instaed of 2 buttons to copy settings mirrored or 1to1  
-- add BattleGroundEnemies class annoation  
-- remove unused vertical spacing option from health bar  
-- add back height setting to powerbar  
-- Fix bug in respawn timer when player is alive again while countdown is active  
-- remove whtiespace  
-- remove debugging print statement from generateOverwritableOptions function  
-- update build workflow to trigger on all branches  
-- adjust fake aura duration in edit mode and clean up code  
-- make global cooldown and text settings resettable  
-- Move the active profile information text to the top  
-- .  
-- tweak changelog  
-- Update defaults to make them more consistent  
-- only use localized systemname for the label  
-- ues different locale for module settings  
+- update changelog for version 11.0.5.3 and increment version in Messaging.lua  
+- refactor: comment out logging in AddPlayerToSource function  
+- refactor: remove currentTarget state from BattleGroundEnemies  
+- refactor: clean up  
+- refactor: update state management for battleground buffs and debuffs  
