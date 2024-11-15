@@ -908,7 +908,7 @@ D["EnhBloodlust"] = {
 	defaultEnable = 1,
 	tags = { "COMBAT" },
 	title = "嗜血音樂",
-	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`台語翻唱｜Bling-Bang-Bang-Born`原唱 Creepy Nuts`Cover by 柏慎BoShen FT. 藝級玩家``https://www.youtube.com/watch?v=TwCZBB5d8IM",
+	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`APT`by ROSÉ & Bruno Mars``https://www.youtube.com/watch?v=ekr2nIex040",
 	icon = "Interface\\Icons\\spell_nature_bloodlust",
 	img = true,
 	{
