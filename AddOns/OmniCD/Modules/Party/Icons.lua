@@ -201,10 +201,10 @@ function BarFrameIconMixin:SetExIconName(db)
 		self.name:Hide()
 	else
 		self.name:SetPoint("BOTTOM", 0, db.nameOfsY)
-		local unitName = P.groupInfo[self.guid].name
+		local nameWithoutRealm = P.groupInfo[self.guid].nameWithoutRealm
 		local numChar = db.truncateIconName
 		if numChar > 0 then
-			unitName = string.utf8sub(unitName, 1, numChar)
+			nameWithoutRealm = string.utf8sub(nameWithoutRealm, 1, numChar)
 		end
 		if db.classColor then
 			local c = RAID_CLASS_COLORS[self.class]
@@ -214,7 +214,7 @@ function BarFrameIconMixin:SetExIconName(db)
 		else
 			self.name:SetTextColor(1, 1, 1)
 		end
-		self.name:SetText(unitName)
+		self.name:SetText(nameWithoutRealm)
 		self.name:Show()
 	end
 end

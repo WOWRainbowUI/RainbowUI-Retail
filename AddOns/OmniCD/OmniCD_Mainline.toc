@@ -2,7 +2,7 @@
 ## Title: OmniCD
 ## Notes: Party cooldown tracker. /oc
 ## Author: Treebonker
-## Version: v2.8.9
+## Version: v2.8.10
 ## DefaultState: Enabled
 ## SavedVariables: OmniCDDB
 ## OptionalDeps: Ace3, LibOmniCDC, LibDeflate, LibSharedMedia-3.0, UTF8, LibDualSpec-1.0

@@ -433,9 +433,11 @@ for i = 1, #talentRanks do
 		for j = 2, #t do
 			local rankN = t[j]
 			E.spell_merged[rankN] = rank1
-
-
-
+			--[==[@debug@
+			if not C_Spell.DoesSpellExist(rankN) then
+				print("Invalid rank" .. j .. "talent ID:", rankN)
+			end
+			--@end-debug@]==]
 		end
 
 
@@ -449,8 +451,10 @@ for i = 1, #talentRanks do
 		else
 			E.talentNameToRankIDs[name] = t
 		end
-
-
+	--[==[@debug@
+	else
+		print("Invalid rank1 talent ID:", rank1)
+	--@end-debug@]==]
 	end
 end
 

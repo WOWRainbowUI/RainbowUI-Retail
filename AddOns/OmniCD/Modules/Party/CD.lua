@@ -145,7 +145,7 @@ local function ResetCdByCast(info, reset)
 							icon:ResetCooldown()
 						end
 					elseif resetID ~= 120 or not info.talentData[417493] then
-						icon:ResetCooldown()
+						icon:ResetCooldown(resetID ~= 322507)
 					end
 				end
 			end
