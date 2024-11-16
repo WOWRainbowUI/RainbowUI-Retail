@@ -86,7 +86,7 @@ do
 		end
 
 		self.UnitIDs.HasAllyUnitID = false
-		self:UNIT_AURA()
+		self:WipeAllAuras()
 		self:DispatchEvent("UnitIdUpdate")
 	end
 
@@ -134,8 +134,21 @@ do
 		parent:StopMovingOrSizing()
 		if not InCombatLockdown() then
 			local scale = self:GetEffectiveScale()
-			self.playerCountConfig.Position_X = parent:GetLeft() * scale
-			self.playerCountConfig.Position_Y = parent:GetTop() * scale
+
+			local growDownwards = (self.playerCountConfig.BarVerticalGrowdirection == "downwards")
+			local growRightwards = (self.playerCountConfig.BarHorizontalGrowdirection == "rightwards")
+
+			if growDownwards then
+				self.playerCountConfig.Position_Y = parent:GetTop() * scale
+			else
+				self.playerCountConfig.Position_Y = parent:GetBottom() * scale
+			end
+
+			if growRightwards then
+				self.playerCountConfig.Position_X = parent:GetLeft() * scale
+			else
+				self.playerCountConfig.Position_X = parent:GetRight() * scale
+			end
 		end
 	end
 
@@ -645,9 +658,12 @@ do
 			else
 				self:PlayerIsAlive()
 			end
-		elseif health == 0 then
-			-- we are in testmode
-			self:PlayerIsDead()
+		else -- we are in testmode
+			if health == 0 then
+				self:PlayerIsDead()
+			else
+				self:PlayerIsAlive()
+			end
 		end
 	end
 
@@ -860,6 +876,26 @@ do
 		return aura
 	end
 
+	function buttonFunctions:WipeAllAuras()
+		self.Auras = self.Auras or {}
+		for i = 1, #auraFilters do
+			local filter = auraFilters[i]
+			self.Auras[filter] = {}
+		end
+		self:SendAllAurasToModules()
+	end
+
+	function buttonFunctions:SendAllAurasToModules(unitID)
+		for i = 1, #auraFilters do
+			local filter = auraFilters[i]
+			self:DispatchEvent("BeforeFullAuraUpdate", filter)
+			for _, aura in pairs(self.Auras[filter]) do
+				self:DispatchEvent("NewAura", unitID, filter, CopyTable(aura))
+			end
+			self:DispatchEvent("AfterFullAuraUpdate", filter)
+		end
+	end
+
 	---comment
 	---@param unitID UnitToken
 	---@param second UnitAuraUpdateInfo?
@@ -935,7 +971,9 @@ do
 
 			for i = 1, #auraFilters do
 				local filter = auraFilters[i]
-				wipe(self.Auras[filter])
+
+				self.Auras[filter] = {}
+
 				if unitID then
 					shouldQueryAuras = self:DispatchUntilTrue("ShouldQueryAuras", unitID, filter) --ask all subscribers/modules if Aura Scanning is necessary for this filter
 					if shouldQueryAuras then
@@ -1017,14 +1055,8 @@ do
 			end
 		end
 
-		for i = 1, #auraFilters do
-			local filter = auraFilters[i]
-			self:DispatchEvent("BeforeFullAuraUpdate", filter)
-			for _, aura in pairs(self.Auras[filter]) do
-				self:DispatchEvent("NewAura", unitID, filter, aura)
-			end
-			self:DispatchEvent("AfterFullAuraUpdate", filter)
-		end
+		self:SendAllAurasToModules(unitID)
+	
 		self.lastAuraUpdate = now
 	end
 
@@ -1160,12 +1192,6 @@ function BattleGroundEnemies:CreatePlayerButton(mainframe, num)
 
 
 	playerButton.ButtonEvents = playerButton.ButtonEvents or {}
-	playerButton.UnitIDs = { TargetedByEnemy = {} }
-	playerButton.Auras = {
-		HELPFUL = {},
-		HARMFUL = {}
-	}
-
 
 	playerButton.PlayerType = mainframe.PlayerType
 	playerButton.PlayerIsEnemy = playerButton.PlayerType == BattleGroundEnemies.consts.PlayerTypes.Enemies and true or false
