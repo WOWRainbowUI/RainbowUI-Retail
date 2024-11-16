@@ -262,7 +262,7 @@ function IUF:SetActiveObject(object)
 					object:SetAttribute("unitsuffix", "none")
 					object:Hide()
 				else
-					RegisterStateDriver(object, "hideraid", self.db.hideInRaid and "[group:raid]hide;show" or "show")
+					RegisterStateDriver(object, "hideraid", self.db.hideInRaid and "[group:party]show;hide" or "show")
 					if self.db.hideInRaid and IsInGroup() and IsInRaid() then
 
 						object:SetAttribute("unitsuffix", "none")

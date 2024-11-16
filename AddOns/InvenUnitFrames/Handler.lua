@@ -379,17 +379,6 @@ function handlers:PLAYER_ENTERING_WORLD()
 	end
 
 
---LFG입장시 보정코드
-if not InCombatLockdown() then
-if  IUF.db.hidePartyFrame or (IUF.db.hideInRaid and IsInGroup() and IsInRaid() )then 
-	if InvenUnitFrames_Party1:IsShown() then InvenUnitFrames_Party1:Hide() end
-	if InvenUnitFrames_Party2:IsShown() then InvenUnitFrames_Party2:Hide() end
-	if InvenUnitFrames_Party3:IsShown() then InvenUnitFrames_Party3:Hide() end
-	if InvenUnitFrames_Party4:IsShown() then InvenUnitFrames_Party4:Hide() end
-
-
-end
-end
 
 end
 
