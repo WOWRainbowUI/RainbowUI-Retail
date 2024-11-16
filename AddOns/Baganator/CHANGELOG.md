@@ -1,7 +1,6 @@
 # Baganator
 
-## [505](https://github.com/Baganator/Baganator/tree/505) (2024-11-14)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/504...505) 
+## [507](https://github.com/Baganator/Baganator/tree/507) (2024-11-16)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/506...507) 
 
-- Fix guild bank tabs not fading when no search matches contained in them  
-- [Fixes #339] Classic: Fix bank container bags not showing bag icons  
+- Fix transfer button not hiding in cached bag views if at a transfer location  
