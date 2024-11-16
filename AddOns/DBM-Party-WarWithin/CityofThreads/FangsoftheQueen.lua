@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2595, "DBM-Party-WarWithin", 8, 1274)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241106060442")
+mod:SetRevision("20241114153405")
 mod:SetCreatureID(216648, 216649)--Nx, Vx
 mod:SetEncounterID(2908)
 mod:SetHotfixNoticeRev(20240818000000)
@@ -44,8 +44,8 @@ local timerNextSwapCD						= mod:NewCDCountTimer(44.9, 439989, nil, nil, nil, 6)
 mod:AddTimerLine(DBM:EJ_GetSectionInfo(28876))
 local warnIceSickles						= mod:NewTargetNoFilterAnnounce(440238, 3, nil, "RemoveMagic")
 
-local specWarnShadeSlash					= mod:NewSpecialWarningDodgeCount(439621, nil, nil, nil, 1, 2)
-local specWarnDuskbringer					= mod:NewSpecialWarningDodgeCount(439692, nil, nil, nil, 2, 2)
+local specWarnShadeSlash					= mod:NewSpecialWarningDodgeCount(439621, nil, nil, nil, 1, 15)
+local specWarnDuskbringer					= mod:NewSpecialWarningDodgeCount(439692, nil, nil, nil, 2, 15)
 --local specWarnGTFO						= mod:NewSpecialWarningGTFO(372820, nil, nil, nil, 1, 8)
 
 local timerShadeSlashCD						= mod:NewCDCountTimer(7.8, 439621, nil, "Tank|Healer", nil, 5)
@@ -120,7 +120,7 @@ function mod:SPELL_CAST_START(args)
 		end
 		if self:IsTanking("player", nil, nil, true, args.sourceGUID) then
 			specWarnShadeSlash:Show(self.vb.tankCount)
-			specWarnShadeSlash:Play("defensive")
+			specWarnShadeSlash:Play("frontal")
 		end
 	elseif spellId == 440468 then
 		self.vb.tankCount = self.vb.tankCount + 1
@@ -130,7 +130,7 @@ function mod:SPELL_CAST_START(args)
 		end
 		if self:IsTanking("player", nil, nil, true, args.sourceGUID) then
 			specWarnRimeDagger:Show()
-			specWarnRimeDagger:Play("defensive")
+			specWarnRimeDagger:Play("frontal")
 		end
 	elseif spellId == 439692 then
 		self.vb.duskCount = self.vb.duskCount + 1
