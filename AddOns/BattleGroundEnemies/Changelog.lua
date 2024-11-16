@@ -5,6 +5,31 @@ local Data = select(2, ...)
 
 Data.changelog = {
 	{
+		Version = "11.0.5.4",
+		General = "This version mostly is just a minor bugfix and beautifying update after release of 11.0.5.1. Please read its changelog to know more about that major update.",
+		Sections = {
+			{
+				Header = "Changes:",
+				Entries = {
+					"Hide tab for non existing module specfic settings. Thanks to Squimbert from GitHub for the feedback",
+					"Borders for my target and focus are now shown around enemies at beginning of the testmode. Thanks to Squimbert from GitHub for the feedback",
+					"Label the button to delete the custom player count profile with Delete instead of X. Thanks to Squimbert from GitHub for the feedback.",
+					"Correctly label the settings for the button horizontal grow direction"
+				}
+			},
+			{
+				Header = "Bugfix",
+				Entries = {
+					"Auras will now be reset once no available unitID is assigned to a player",
+					"Fixed bug regarding dead players in testmode",
+					"Fixed typo which caused respawn timer to not show up in solo rbg",
+					"Fixed bug which caused button positions not getting saved properly when not growing down and right",
+					"Fixed a bug regarding the option to hide raidframes, which caused raidframes to be enabled on login. Thanks to TheCheat54 from Curseforge for the report"
+				}
+			}
+		}
+	},
+	{
 		Version = "11.0.5.3",
 		General = "This version mostly is just a minor update after release of 11.0.5.1. Please read its changelog to know more about that major update.",
 		Sections = {

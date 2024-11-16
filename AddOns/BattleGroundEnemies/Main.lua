@@ -138,9 +138,7 @@ BattleGroundEnemies.consts.PlayerTypes = {
 	Enemies = "Enemies"
 }
 
-local previousCvarRaidOptionIsShown = GetCVar("raidOptionIsShown")
-
-
+local previousCvarRaidOptionIsShown
 
 --variables used in multiple functions, if a variable is only used by one function its declared above that function
 BattleGroundEnemies.currentTarget = false
@@ -1446,8 +1444,15 @@ function BattleGroundEnemies:Debug(...)
 end
 
 function BattleGroundEnemies:LogTablesToSavedVariables(...)
+	if not self.db then return end
+	if not self.db.profile then return end
+	if not self.db.profile.Debug then return end
+	self.db.profile.log = self.db.profile.log or {}
 	local tables = { ... }
-	table.insert(self.db.profile.log, { timestamp = getTimestamp(), data = tables })
+	local copy= CopyTable(tables, false)
+
+
+	table.insert(self.db.profile.log, { timestamp = getTimestamp(), data = copy })
 end
 
 function BattleGroundEnemies:LogToSavedVariables(...)
@@ -1711,9 +1716,7 @@ local function IamTargetcaller()
 	end
 end
 
-
-function BattleGroundEnemies:PLAYER_TARGET_CHANGED()
-	local playerButton = self:GetPlayerbuttonByUnitID("target")
+function BattleGroundEnemies:HandleTargetChanged(newTarget)
 	--BattleGroundEnemies:LogToSavedVariables("playerButton target", playerButton, GetUnitName("target", true))
 	if BattleGroundEnemies.currentTarget then
 		if BattleGroundEnemies.currentTarget.PlayerIsEnemy then
@@ -1725,15 +1728,15 @@ function BattleGroundEnemies:PLAYER_TARGET_CHANGED()
 		BattleGroundEnemies.currentTarget.MyTarget:Hide()
 	end
 
-	if playerButton then --i target an existing player
+	if newTarget then --i target an existing player
 		if self.UserButton then
-			if playerButton.PlayerIsEnemy then
-				playerButton:UpdateEnemyUnitID("Target", "target")
+			if newTarget.PlayerIsEnemy then
+				newTarget:UpdateEnemyUnitID("Target", "target")
 			end
-			self.UserButton:IsNowTargeting(playerButton)
+			self.UserButton:IsNowTargeting(newTarget)
 		end
-		playerButton.MyTarget:Show()
-		BattleGroundEnemies.currentTarget = playerButton
+		newTarget.MyTarget:Show()
+		BattleGroundEnemies.currentTarget = newTarget
 
 
 		if BattleGroundEnemies.states.isRatedBG and self.db.profile.RBG.TargetCalling_SetMark and IamTargetcaller() then -- i am the target caller
@@ -1744,10 +1747,12 @@ function BattleGroundEnemies:PLAYER_TARGET_CHANGED()
 	end
 end
 
+function BattleGroundEnemies:PLAYER_TARGET_CHANGED()
+	self:HandleTargetChanged(self:GetPlayerbuttonByUnitID("target"))
+end
 
+function BattleGroundEnemies:HandleFocusChanged(newFocus)
 
-function BattleGroundEnemies:PLAYER_FOCUS_CHANGED()
-	local playerButton = self:GetPlayerbuttonByUnitID("focus")
 	--BattleGroundEnemies:LogToSavedVariables("playerButton focus", playerButton, GetUnitName("focus", true))
 	if BattleGroundEnemies.currentFocus then
 		if BattleGroundEnemies.currentFocus.PlayerIsEnemy then
@@ -1755,15 +1760,19 @@ function BattleGroundEnemies:PLAYER_FOCUS_CHANGED()
 		end
 		BattleGroundEnemies.currentFocus.MyFocus:Hide()
 	end
-	if playerButton then
-		if playerButton.PlayerIsEnemy then
-			playerButton:UpdateEnemyUnitID("Focus", "focus")
+	if newFocus then
+		if newFocus.PlayerIsEnemy then
+			newFocus:UpdateEnemyUnitID("Focus", "focus")
 		end
-		playerButton.MyFocus:Show()
-		BattleGroundEnemies.currentFocus = playerButton
+		newFocus.MyFocus:Show()
+		BattleGroundEnemies.currentFocus = newFocus
 	else
 		BattleGroundEnemies.currentFocus = false
 	end
+end
+
+function BattleGroundEnemies:PLAYER_FOCUS_CHANGED()
+	self:HandleFocusChanged(self:GetPlayerbuttonByUnitID("focus"))
 end
 
 
@@ -1952,11 +1961,14 @@ function BattleGroundEnemies:ToggleArenaFrames()
 end
 
 local function restoreShowRaidFrameCVar()
+	if not previousCvarRaidOptionIsShown then return end --we didn't modify it so no need to restore it
 	SetCVar("raidOptionIsShown", previousCvarRaidOptionIsShown)
 end
 
 local function disableRaidFrames()
-	previousCvarRaidOptionIsShown = GetCVar("raidOptionIsShown")
+	if previousCvarRaidOptionIsShown == nil then
+		previousCvarRaidOptionIsShown =  GetCVar("raidOptionIsShown")
+	end
 	SetCVar("raidOptionIsShown", false)
 end
 
@@ -2112,7 +2124,7 @@ function BattleGroundEnemies:UPDATE_BATTLEFIELD_SCORE()
 
 	--self:Debug("IsRatedBG", IsRatedBG)
 
-	self:SetAllyFaction(self.AllyFaction or 0) --set fallback value, have to investigate why self.EnemyFaction is not set inside PLAYER_ENTERING_WORLD event handler
+	self:SetAllyFaction(self.AllyFaction or 0) --set fallback value
 
 	local _, _, _, _, numEnemies = GetBattlefieldTeamInfo(self.EnemyFaction)
 	local _, _, _, _, numAllies = GetBattlefieldTeamInfo(self.AllyFaction)
@@ -2250,7 +2262,7 @@ function BattleGroundEnemies:PLAYER_ENTERING_WORLD()
 				C_Timer.After(5,
 					function()        --Delay this check, since its happening sometimes that this data is not ready yet
 						self.states.isRatedBG = IsRatedBattleground()
-						self.states.IsSoloRBG = C_PvP and C_PvP.IsSoloRBG and C_PvP.IsSoloRBG()
+						self.states.isSoloRBG = C_PvP and C_PvP.IsSoloRBG and C_PvP.IsSoloRBG()
 
 						self:UPDATE_BATTLEFIELD_SCORE() --trigger the function again because since 10.0.0 UPDATE_BATTLEFIELD_SCORE doesnt fire reguralry anymore and RequestBattlefieldScore doesnt trigger the event
 					end)

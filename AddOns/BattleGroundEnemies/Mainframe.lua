@@ -138,7 +138,7 @@ local function CreateMainFrame(playerType)
 	end
 
 	function mainframe:AddPlayerToSource(source, playerT)
-		--BattleGroundEnemies:LogTablesToSavedVariables("AddPlayerToSource", self.PlayerType, playerT.name)
+		--BattleGroundEnemies:LogToSavedVariables("AddPlayerToSource", self.PlayerType, playerT.name)
 		if playerT.name then
 			if playerT.name == "" then return end
 		else
@@ -310,6 +310,13 @@ local function CreateMainFrame(playerType)
 			playerButton:DispatchEvent("OnTestmodeEnabled")
 		end
 		self.ActiveProfile:Show()
+
+		if self.CurrentPlayerOrder[1] then
+			BattleGroundEnemies:HandleTargetChanged(self.CurrentPlayerOrder[1])
+		end
+		if self.CurrentPlayerOrder[2] then
+			BattleGroundEnemies:HandleFocusChanged(self.CurrentPlayerOrder[2])
+		end
 	end
 
 	function mainframe:OnTestmodeDisabled()
@@ -317,6 +324,8 @@ local function CreateMainFrame(playerType)
 			playerButton:DispatchEvent("OnTestmodeDisabled")
 		end
 		self:RemoveAllPlayersFromSource(BattleGroundEnemies.consts.PlayerSources.FakePlayers)
+
+
 		self.ActiveProfile:Hide()
 	end
 
@@ -559,23 +568,14 @@ local function CreateMainFrame(playerType)
 					playerButton:DeleteActiveUnitID()
 				end
 			end
-
-			if playerButton.Auras then
-				if playerButton.Auras.HELPFUL then
-					wipe(playerButton.Auras.HELPFUL)
-				end
-				if playerButton.Auras.HARMFUL then
-					wipe(playerButton.Auras.HARMFUL)
-				end
-			end
-
-			playerButton.unitID = nil
-			playerButton.unit = nil
 		else --no recycleable buttons remaining => create a new one
 			self.buttonCounter = (self.buttonCounter or 0) + 1
 			playerButton = BattleGroundEnemies:CreatePlayerButton(self, self.buttonCounter)
 		end
 
+		playerButton.UnitIDs = { TargetedByEnemy = {} }
+		playerButton.unitID = nil
+		playerButton.unit = nil
 
 		playerButton.PlayerDetails = playerDetails
 		-- BattleGroundEnemies:LogToSavedVariables("PlayerDetailsChanged")
@@ -623,8 +623,11 @@ local function CreateMainFrame(playerType)
 			end
 		end
 
-		playerButton:UNIT_AURA()
+
 		playerButton:Show()
+
+		playerButton:WipeAllAuras()
+
 
 		self.Players[playerButton.PlayerDetails.PlayerName] = playerButton
 
@@ -742,36 +745,16 @@ local function CreateMainFrame(playerType)
 
 		local rowsPerColumn = math.ceil(playerCount / columns)
 
-		local pointX, offsetX, offsetY, pointY, relPointY, offsetDirectionX, offsetDirectionY
+		local offsetX, offsetY
 
-		if growRightwards then
-			pointX = "LEFT"
-			offsetDirectionX = 1
-		else
-			pointX = "RIGHT"
-			offsetDirectionX = -1
-		end
+		local point, offsetDirectionX, offsetDirectionY = Data.Helpers.getContainerAnchorPointForConfig(growRightwards, growDownwards)
 
 		self:SetScale(config.Framescale)
 		self:ClearAllPoints()
 
 		local scale = self:GetEffectiveScale()
 
-		self:ClearAllPoints()
-		if growDownwards then
-			pointY = "TOP"
-			relPointY = "TOP"
-			offsetDirectionY = -1
-			self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", config.Position_X / scale, config.Position_Y / scale)
-		else
-			pointY = "BOTTOM"
-			relPointY = "BOTTOM"
-			offsetDirectionY = 1
-			self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", config.Position_X / scale, config.Position_Y / scale)
-		end
-
-		local point = pointY .. pointX
-		local relpoint = relPointY .. pointX
+		self:SetPoint(point, UIParent, "BOTTOMLEFT", config.Position_X / scale, config.Position_Y / scale)
 
 		local column = 1
 		local row = 1
@@ -794,7 +777,7 @@ local function CreateMainFrame(playerType)
 
 
 				playerButton:ClearAllPoints()
-				playerButton:SetPoint(point, self, relpoint, offsetX, offsetY)
+				playerButton:SetPoint(point, self, point, offsetX, offsetY)
 
 				playerButton:SetModulePositions()
 
@@ -811,8 +794,8 @@ local function CreateMainFrame(playerType)
 			local lastButton = orderedPlayers[playerCount]
 			local firstButton = orderedPlayers[1]
 
-			local topButton = orderedPlayers[playerCount]
-			local bottomButton = orderedPlayers[1]
+			local topButton
+			local bottomButton
 
 			if growDownwards then
 				topButton = firstButton
