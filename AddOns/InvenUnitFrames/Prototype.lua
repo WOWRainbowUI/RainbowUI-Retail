@@ -179,7 +179,7 @@ function IUF:CreateObject(unit, parent)
 	unit = unit:lower()
 	local frameName = ("InvenUnitFrames_%s%s"):format(unit:sub(1, 1):upper(), unit:sub(2):gsub("target", "Target"))
 	local frameParent = (parent and self.units[parent]) and self.units[parent] or self
-	local object = CreateFrame("Button", frameName, frameParent, "SecureUnitButtonTemplate")
+	local object = CreateFrame("Button", frameName, frameParent, "SecureUnitButtonTemplate,SecureHandlerStateTemplate")
 	tinsert(self.objectOrder, unit)
 	object.buff, object.debuff = { filters = {} }, { filters = {} }
 	object.values = setmetatable({ parent = object }, valuesMetaTable)
@@ -217,7 +217,7 @@ function IUF:CreateObject(unit, parent)
 		object:SetAttribute("_onstate-vehicleui", "self:SetAttribute('unit', self:GetAttribute(newstate == 'vehicle' and 'vehicleunit' or 'realunit'))")
 		RegisterStateDriver(object, "vehicleui", "[@"..unit..",unithasvehicleui]vehicle;none")
 		object.petunit = object:GetAttribute("vehicleunit")
-		object:SetAttribute("_onstate-hideraid", "self:SetAttribute('unitsuffix', newstate == 'hide' and 'none' or nil)")
+		object:SetAttribute("_onstate-hideraid", "self:SetAttribute('unitsuffix', newstate == 'hide' and 'none' or nil) if newstate=='hide' then self:Hide() else self:Show() end")
 	elseif object.objectType == "partypet" then
 		-- 파티원이 탈것 탑승시 펫 프레임 숨김
 		object:SetAttribute("vehicleunit", unit:gsub("pet", "") or nil)
@@ -262,7 +262,7 @@ function IUF:SetActiveObject(object)
 					object:SetAttribute("unitsuffix", "none")
 					object:Hide()
 				else
-					RegisterStateDriver(object, "hideraid", self.db.hideInRaid and "[group:party]show;hide" or "show")
+					RegisterStateDriver(object, "hideraid", self.db.hideInRaid and "[@raid1,exists]hide;show" or "show")
 					if self.db.hideInRaid and IsInGroup() and IsInRaid() then
 
 						object:SetAttribute("unitsuffix", "none")
