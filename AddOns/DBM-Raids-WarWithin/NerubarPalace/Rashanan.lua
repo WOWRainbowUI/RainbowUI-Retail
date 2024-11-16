@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2609, "DBM-Raids-WarWithin", 1, 1273)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241115055452")
+mod:SetRevision("20241115064251")
 mod:SetCreatureID(214504)
 mod:SetEncounterID(2918)
 mod:SetHotfixNoticeRev(20241115000000)
@@ -493,6 +493,7 @@ function mod:OnTimerRecovery()
 	end
 end
 
+---@param self DBMMod
 local function delayedTankCheck(self)
 	local bossTarget = self:GetBossTarget(214504) or DBM_COMMON_L.UNKNOWN
 	specWarnSavageAssaultTaunt:Show(bossTarget)
