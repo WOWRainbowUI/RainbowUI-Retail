@@ -29,6 +29,8 @@ local races = {
     [35] = "Vulpera",
     [36] = "MagharOrc", -- "MagharOrc",
     [37] = "Mechagnome",
+	[84] = "Earthen",
+    [85] = "Earthen", 
 }
 local fallback_races = {
     Nightborne = "NightElf", -- Nightborne -> male Blood Elf / female Night Elf
