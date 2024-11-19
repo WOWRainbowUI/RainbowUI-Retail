@@ -639,6 +639,15 @@ do
 		return maxHealths[self]
 	end
 
+	function buttonFunctions:UpdateHealth(unitID, health, maxHealth)
+		self:DispatchEvent("UpdateHealth", unitID, health, maxHealth)
+		if unitID and UnitIsDeadOrGhost(unitID) or health == 0 then
+			self:PlayerIsDead()
+		else
+			self:PlayerIsAlive()
+		end
+	end
+
 	function buttonFunctions:UNIT_HEALTH(unitID) --gets health of nameplates, player, target, focus, raid1 to raid40, partymember
 		if not self.isShown then return end
 		local health
@@ -651,20 +660,7 @@ do
 			maxHealth = UnitHealthMax(unitID)
 		end
 
-		self:DispatchEvent("UpdateHealth", unitID, health, maxHealth)
-		if unitID then
-			if UnitIsDeadOrGhost(unitID) then
-				self:PlayerIsDead()
-			else
-				self:PlayerIsAlive()
-			end
-		else -- we are in testmode
-			if health == 0 then
-				self:PlayerIsDead()
-			else
-				self:PlayerIsAlive()
-			end
-		end
+		self:UpdateHealth(unitID, health, maxHealth)
 	end
 
 	function buttonFunctions:ApplyRangeIndicatorSettings()
@@ -678,7 +674,7 @@ do
 			end
 		end
 		self:SetAlpha(1)
-		self:UpdateRange(not self.wasInRange)
+		self:UpdateRange(self.wasInRange, true)
 	end
 
 	function buttonFunctions:ArenaOpponentShown(unitID)
@@ -738,12 +734,12 @@ do
 		end
 	end
 
-	function buttonFunctions:UpdateRange(inRange)
+	function buttonFunctions:UpdateRange(inRange, forceUpdate)
 		--BattleGroundEnemies:Information("UpdateRange", inRange, self.PlayerName, self.config.RangeIndicator_Enabled, self.config.RangeIndicator_Alpha)
 
 		if not self.config.RangeIndicator_Enabled then return end
 
-		if inRange ~= self.wasInRange then
+		if forceUpdate or inRange ~= self.wasInRange then
 			local alpha = inRange and 1 or self.config.RangeIndicator_Alpha
 			if self.config.RangeIndicator_Everything then
 				self:SetAlpha(alpha)
@@ -890,7 +886,7 @@ do
 			local filter = auraFilters[i]
 			self:DispatchEvent("BeforeFullAuraUpdate", filter)
 			for _, aura in pairs(self.Auras[filter]) do
-				self:DispatchEvent("NewAura", unitID, filter, CopyTable(aura))
+				self:DispatchEvent("NewAura", unitID, filter, aura)
 			end
 			self:DispatchEvent("AfterFullAuraUpdate", filter)
 		end
@@ -902,7 +898,13 @@ do
 	function buttonFunctions:UNIT_AURA(unitID, second)
 		if not self.isShown then return end
 		local now = GetTime()
-		if self.lastAuraUpdate and self.lastAuraUpdate == now then return end --this event will fire for the same player multiple times if lets say he is shown on nameplate and on target frame
+		if self.lastAuraUpdate and self.lastAuraUpdate == now then  --this event will fire for the same player multiple times if lets say he is shown on nameplate and on target frame
+			if unitID and BattleGroundEnemies.ArenaIDToPlayerButton[unitID] then
+				return self:SendAllAurasToModules(unitID)
+			else
+				return
+			end
+		end
 
 		local updatedAuraInfos = {
 			addedAuras = {},
@@ -1056,7 +1058,7 @@ do
 		end
 
 		self:SendAllAurasToModules(unitID)
-	
+
 		self.lastAuraUpdate = now
 	end
 
@@ -1264,6 +1266,10 @@ function BattleGroundEnemies:CreatePlayerButton(mainframe, num)
 			playerButton[moduleName].GetConfig = function(self)
 				self.config = playerButton.playerCountConfig.ButtonModules[moduleName]
 				return self.config
+			end
+
+			playerButton[moduleName].Debug = function(self, ...)
+				BattleGroundEnemies:Debug(moduleName, playerButton.PlayerDetails and playerButton.PlayerDetails.PlayerName, ...)
 			end
 
 			playerButton[moduleName].GetOptionsPath = function(self)
