@@ -1244,12 +1244,14 @@ spec:RegisterAuras( {
     bt_swipe = {
         duration = 4,
         max_stack = 1,
-        generate = bt_generator
+        generate = bt_generator,
+        copy = "bt_swipe_cat"
     },
     bt_thrash = {
         duration = 4,
         max_stack = 1,
-        generate = bt_generator
+        generate = bt_generator,
+        copy = "bt_thrash_cat"
     },
     bt_triggers = {
         alias = { "bt_brutal_slash", "bt_moonfire", "bt_rake", "bt_shred", "bt_swipe", "bt_thrash" },
@@ -2700,7 +2702,7 @@ spec:RegisterAbilities( {
             gain( talent.berserk.enabled and 2 or 1 + ( allow_crit_prediction and crit_pct_current * active_enemies >= 230 and 1 or 0 ), "combo_points" )
 
             if talent.bloodtalons.enabled then
-                applyBuff( "bt_swipe_cat" )
+                applyBuff( "bt_swipe" )
                 check_bloodtalons()
             end
 

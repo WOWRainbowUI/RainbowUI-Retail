@@ -909,7 +909,7 @@ spec:RegisterCombatLogEvent( function( _, subtype, _,  sourceGUID, sourceName, _
                     alpha_expires = 0
                 }
 
-                C_Timer.After( 15, function()
+                C_Timer.After( ( state.talent.flowing_spirits.enabled and 8 or 15 ), function()
                     actual_spirits[ destGUID ] = nil
                 end )
 
@@ -2898,7 +2898,7 @@ spec:RegisterOptions( {
     damage = true,
     damageExpiration = 8,
 
-    potion = "potion_of_spectral_agility",
+    potion = "tempered_potion",
 
     package = "Enhancement",
 } )

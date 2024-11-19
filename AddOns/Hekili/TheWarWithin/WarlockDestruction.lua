@@ -2025,7 +2025,7 @@ spec:RegisterOptions( {
     damageDots = false,
     damageExpiration = 6,
 
-    potion = "spectral_intellect",
+    potion = "tempered_potion",
 
     package = "Destruction",
 } )

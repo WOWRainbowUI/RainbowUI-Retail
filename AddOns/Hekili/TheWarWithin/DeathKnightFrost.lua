@@ -1964,7 +1964,7 @@ spec:RegisterOptions( {
     damageDots = false,
     damageExpiration = 8,
 
-    potion = "potion_of_spectral_strength",
+    potion = "tempered_potion",
 
     package = "Frost DK",
 } )
