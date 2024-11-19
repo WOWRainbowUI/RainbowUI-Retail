@@ -59,6 +59,7 @@ function Addon.EnableGuideMode(noZoom)
 
     -- Hide frames
     Addon.ToggleHideFrames()
+    Addon.HideDungeonButtons()
 
     -- Resize
     main:SetResizeBounds(Addon.MIN_HEIGHT * Addon.RATIO, Addon.MIN_HEIGHT)
@@ -241,12 +242,19 @@ function Addon.ToggleHideFrames()
         main.toolbar.toggleButton,
         main.maximizeButton,
         main.HelpButton,
-        main.DungeonSelectionGroup
+        main.DungeonSelectionGroup,
     }
 
     for _, f in pairs(hideFrames) do
         f = f.frame or f
         f[fn](f)
+    end
+end
+
+function Addon.HideDungeonButtons()
+    for i=1,100 do
+        local f = _G["MDTDungeonButton" .. i]
+        if f then f:Hide() else break end
     end
 end
 
@@ -569,10 +577,9 @@ function Addon.GetEnemyForces()
     local n = select(3, C_Scenario.GetStepInfo())
     if not n or n == 0 then return end
 
-    ---@type number, _, _, string
-    local total, _, _, curr = select(5, C_ScenarioInfo.GetCriteriaInfo(n)) --[[@as any]]
+    local info = C_ScenarioInfo.GetCriteriaInfo(n)
 
-    return tonumber((curr:gsub("%%", ""))), total
+    return tonumber((info.quantityString:gsub("%%", ""))), info.totalQuantity
 end
 
 ---@param encounterID number
@@ -585,9 +592,9 @@ function Addon.IsEncounterDefeated(encounterID)
     if not assetID or not n or n == 0 then return end
 
     for i = 1, n - 1 do
-        local isDead, _, _, _, stepAssetID = select(3, C_ScenarioInfo.GetCriteriaInfo(i))
-        if stepAssetID == assetID then
-            return isDead
+        local info = C_ScenarioInfo.GetCriteriaInfo(i)
+        if info.assetID == assetID then
+            return info.completed
         end
     end
 end
@@ -625,12 +632,13 @@ function Addon.ZoomToCurrentPull(refresh)
         Addon.UpdateRoute(true)
     elseif Addon.IsActive() then
         local n, pull = Addon.GetCurrentPull()
-        if n then ---@cast pull -?
-            MDT:SetSelectionToPull(n)
-            if MDT:GetCurrentSubLevel() ~= Addon.GetBestSubLevel(pull) then
-                Addon.ZoomToPull(n)
-            end
-        end
+        if not n then return end ---@cast pull -?
+
+        MDT:SetSelectionToPull(n)
+
+        if MDT:GetCurrentSubLevel() == Addon.GetBestSubLevel(pull) then return end
+
+        Addon.ZoomToPull(n)
     end
 end
 
@@ -719,6 +727,7 @@ local OnEvent = function(_, ev, ...)
 
                     main.maximizeButton:SetPoint("RIGHT", main.closeButton, "LEFT", 0, 0)
                     toggleBtn:SetPoint("RIGHT", main.maximizeButton, "LEFT", 0, 0)
+                    main.sidePanel.WidgetGroup.PresetDropDown.frame:SetWidth(145)
                 end
 
                 -- Insert current pull button
@@ -805,6 +814,12 @@ local OnEvent = function(_, ev, ...)
                     toggleBtn:Show()
                     main.maximizeButton:SetPoint("RIGHT", main.closeButton, "LEFT", 0, 0)
                 end
+            end)
+
+            -- Hook dungeon button update
+            hooksecurefunc(MDT, "UpdateDungeonDropDown", function ()
+                if not Addon.IsActive() then return end
+                Addon.HideDungeonButtons()
             end)
 
             -- Hook dungeon selection
@@ -905,7 +920,7 @@ local OnEvent = function(_, ev, ...)
             isHidden = false
             if not isShown then
                 MDT:ShowInterface()
-                Addon.ZoomToCurrentPull(true)
+                C_Timer.After(0.1, function () Addon.ZoomToCurrentPull(true) end)
             end
         end
     end

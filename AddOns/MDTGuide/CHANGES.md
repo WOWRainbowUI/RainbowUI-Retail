@@ -1,2 +1,3 @@
-- Updated for patch 11.0.5
-- Fix hull drawing hook in Necrotic Wake
+- Fix zooming to current pull when using enemy forces mode or when auto-hiding is enabled
+- Adjust preset selection dropdown width to make the settings button visible
+- Hide dungeon selection buttons in guide mode

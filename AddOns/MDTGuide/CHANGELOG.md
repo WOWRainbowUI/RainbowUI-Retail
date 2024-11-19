@@ -1,3 +1,8 @@
+Version 1.35
+
+- Updated for patch 11.0.5
+- Fix hull drawing hook in Necrotic Wake
+
 Version 1.34
 
 - Fixed trying out announcing pulls without a group
