@@ -78,10 +78,10 @@ end
 
 -- binding definitions
 --BINDING_HEADER_BATTLEGROUNDENEMIES = "BattleGroundEnemies"
-_G["BINDING_NAME_CLICK BGEAllies:Button4"] = L.TargetNextAlly
-_G["BINDING_NAME_CLICK BGEAllies:Button5"] = L.TargetPreviousAlly
-_G["BINDING_NAME_CLICK BGEEnemies:Button4"] = L.TargetNextEnemy
-_G["BINDING_NAME_CLICK BGEEnemies:Button5"] = L.TargetPreviousEnemy
+_G["BINDING_NAME_CLICK BGEAllies:Button4"] = L.TargetPreviousAlly
+_G["BINDING_NAME_CLICK BGEAllies:Button5"] = L.TargetNextAlly
+_G["BINDING_NAME_CLICK BGEEnemies:Button4"] = L.TargetPreviousEnemy
+_G["BINDING_NAME_CLICK BGEEnemies:Button5"] = L.TargetNextEnemy
 
 
 if not GetUnitName then
@@ -564,14 +564,10 @@ function BattleGroundEnemies:NewButtonModule(moduleSetupTable)
 
 
 	--not used
-	--[[ moduleFrame:SetScript("OnEvent", function(self, event, ...)
-		BattleGroundEnemies:Debug("BattleGroundEnemies module event", moduleName, event, ...)
-		self[event](self, ...)
-	end)
-
-	moduleFrame.Debug = function(self, ...)
-		BattleGroundEnemies:Debug("UnitInCombat module debug", moduleName, ...)
-	end ]]
+	-- moduleFrame:SetScript("OnEvent", function(self, event, ...)
+	-- 	BattleGroundEnemies:Debug("BattleGroundEnemies module event", moduleName, event, ...)
+	-- 	self[event](self, ...)
+	-- end)
 
 	self.ButtonModules[moduleName] = moduleFrame
 	return moduleFrame
@@ -605,10 +601,10 @@ function BattleGroundEnemies:ShowTooltip(owner, func)
 	end
 end
 
-function BattleGroundEnemies:GetColoredName(playerDetails)
-	local name = playerDetails.PlayerName
-	local classToken = playerDetails.PlayerClass
-	local tbl = CUSTOM_CLASS_COLORS and CUSTOM_CLASS_COLORS[classToken] or RAID_CLASS_COLORS[classToken] or GRAY_FONT_COLOR
+function BattleGroundEnemies:GetColoredName(playerButton)
+	if not playerButton.PlayerDetails then return end
+	local name = playerButton.PlayerDetails.PlayerName
+	local tbl = playerButton.PlayerDetails.PlayerClassColor
 	return ("|cFF%02x%02x%02x%s|r"):format(tbl.r * 255, tbl.g * 255, tbl.b * 255, name)
 end
 
@@ -1437,7 +1433,13 @@ function BattleGroundEnemies:Debug(...)
 			self.debugFrame = CreatedebugFrame()
 		end
 
-		local text = stringifyMultitArgs(getTimestamp(), ...)
+		local text
+		if self.db.profile.DebugToChat_AddTimestamp then
+			text = stringifyMultitArgs(getTimestamp(), ...)
+		else
+			text = stringifyMultitArgs(...)
+		end
+
 
 		self.debugFrame:AddMessage(text)
 	end
@@ -1445,9 +1447,8 @@ function BattleGroundEnemies:Debug(...)
 	if self.db.profile.DebugToSV then
 		self.db.profile.log = self.db.profile.log or {}
 		local t = { ... }
-		local copy= CopyTable(t, false)
 
-		table.insert(self.db.profile.log, {[getTimestamp()] = copy })
+		table.insert(self.db.profile.log, {[getTimestamp()] = t })
 	end
 end
 
@@ -1469,7 +1470,7 @@ end
 function BattleGroundEnemies:ARENA_OPPONENT_UPDATE(unitID, unitEvent)
 	BattleGroundEnemies:Debug("ARENA_OPPONENT_UPDATE", unitID, unitEvent, UnitName(unitID))
 	--unitEvent can be: "seen", "unseen", "destroyed", "cleared"
-	--self:Debug("ARENA_OPPONENT_UPDATE", unitID, unitEvent, UnitName(unitID))
+	self:Debug("ARENA_OPPONENT_UPDATE", unitID, unitEvent, UnitName(unitID))
 
 	if unitEvent == "cleared" then --"unseen", "cleared" or "destroyed"
 		local playerButton = self.ArenaIDToPlayerButton[unitID]
@@ -1587,7 +1588,7 @@ function CombatLogevents.UNIT_DIED(self, srcGUID, srcName, destGUID, destName, _
 	--self:Debug("subevent", destName, "UNIT_DIED")
 	local playerButton = self:GetPlayerbuttonByGUID(destGUID)
 	if playerButton then
-		playerButton:PlayerIsDead()
+		playerButton:UpdateHealth(nil, 0, 1)
 	end
 end
 
@@ -1981,10 +1982,10 @@ function BattleGroundEnemies:UpdateArenaPlayers()
 	if #BattleGroundEnemies.Enemies.CurrentPlayerOrder > 1 or #BattleGroundEnemies.Allies.CurrentPlayerOrder > 1 then --this ensures that we checked for enemies and the flag carrier will be shown (if its an enemy)
 		for i = 1, GetNumArenaOpponents() do
 			local unitID = "arena" .. i
-			--BattleGroundEnemies:Debug(UnitName(unitID))
+			BattleGroundEnemies:Debug(unitID, UnitName(unitID))
 			local playerButton = BattleGroundEnemies:GetPlayerbuttonByUnitID(unitID)
 			if playerButton then
-				--BattleGroundEnemies:Debug("Button exists")
+				BattleGroundEnemies:Debug("Button exists for", unitID)
 				playerButton:ArenaOpponentShown(unitID)
 			end
 		end
