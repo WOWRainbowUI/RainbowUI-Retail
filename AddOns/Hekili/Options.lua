@@ -5855,53 +5855,8 @@ found = true end
 						}, ]]
 
 						performance = {
-							type = "group",
-							name = "效能",
-							order = 10,
-							args = {
-								throttleRefresh = {
-									type = "toggle",
-									name = "設定更新週期",
-									desc = "勾選時，可以指定新建議生成的頻率，包括戰鬥中和非戰鬥中。\n\n"
-										.. "更頻繁的更新可能會使用更多的 CPU 時間，但會增加回應速度。在某些關鍵的戰鬥"
-										.. "事件之後，將會永遠提早更新建議，無視這些設定。",
-									order = 1,
-									width = "full",
-								},
-
-								regularRefresh = {
-									type = "range",
-									name = "非戰鬥中週期",
-									desc = "在非戰鬥中，每個技能組會按照指定的頻率更新其建議。 "
-										.. "指定較低的數字意味著更頻繁地生成更新，可能會使用更多的 CPU 時間。\n\n"
-										.. "某些關鍵事件，例如生成資源，將會強制更新提早發生，無視此設定。\n\n"
-										.. "預設值: |cffffd1000.5|r 秒。",
-									order = 1.1,
-									width = 1.5,
-									min = 0.05,
-									max = 1,
-									step = 0.05,
-									hidden = function () return self.DB.profile.specs[ id ].throttleRefresh == false end,
-								},
-
-								combatRefresh = {
-									type = "range",
-									name = "戰鬥中週期",
-									desc = "在戰鬥中，每個技能組會按照指定的頻率更新其建議。\n\n"
-									.. "指定較低的數字意味著更頻繁地生成更新，可能會使用更多的 CPU 時間。\n\n"
-									.. "某些關鍵事件，例如生成資源，將會強制更新提早發生，無視此設定。\n\n"
-									.. "預設值: |cffffd1000.25|r 秒。",
-									order = 1.2,
-									width = 1.5,
-									min = 0.05,
-									max = 0.5,
-									step = 0.05,
-									hidden = function () return self.DB.profile.specs[ id ].throttleRefresh == false end,
-								},
-
-                        performance = {
                             type = "group",
-                            name = "Performance",
+                            name = "表現",
                             order = 10,
                             args = {
                                 --[[ forecastingSection = {
@@ -6069,8 +6024,8 @@ found = true end
 
                                 placeboBar = {
                                     type = "range",
-                                    name = "Not a Placebo",
-                                    desc = "This adjusts the VROOOM of your current specialization.",
+                                    name = "不是安慰劑",
+                                    desc = "這會調整當前專精的虛擬實境。",
                                     order = 100,
                                     width = "full",
                                     min = 3,
