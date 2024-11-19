@@ -1472,9 +1472,10 @@ me:RegisterAbilities( {
         talent = "clawing_shadows",
         startsCombat = true,
 
-        aura = "festering_wound",
         texture = function() return ( buff.vampiric_strike.up or buff.gift_of_the_sanlayn.up ) and 5927645 or 615099 end,
-        cycle_to = true,
+
+        --[[ cycle = "festering_wound",
+        cycle_to = true, ]]
 
         handler = function ()
             if debuff.festering_wound.up then
@@ -1871,9 +1872,7 @@ me:RegisterAbilities( {
         talent = "festering_strike",
         startsCombat = true,
 
-        aura = "festering_wound",
-        cycle = "festering_wound",
-
+        cycle = function() if debuff.festering_wound.stack_pct > 60 then return "festering_wound" end end,
         min_ttd = function () return min( cooldown.death_and_decay.remains + 3, 8 ) end, -- don't try to cycle onto targets that will die too fast to get consumed.
 
         handler = function ()
@@ -2091,7 +2090,12 @@ me:RegisterAbilities( {
             if buff.vampiric_strike.up or buff.gift_of_the_sanlayn.up then return end
             return "clawing_shadows"
         end,
-        aura = "festering_wound",
+
+        cycle = function()
+            if debuff.festering_wound.down and active_dot.festering_wound > 0 then return "festering_wound" end
+            if debuff.chains_of_ice_trollbane_slow.down and active_dot.chains_of_ice_trollbane_slow > 0 then return "chains_of_ice_trollbane_slow" end
+        end,
+        min_ttd = function () return min( cooldown.death_and_decay.remains + 3, 8 ) end, -- don't try to cycle onto targets that will die too fast to get consumed.
         cycle_to = true,
 
         handler = function ()
@@ -2324,7 +2328,7 @@ me:RegisterOptions( {
     cycle = true,
     cycleDebuff = "festering_wound",
 
-    potion = "potion_of_spectral_strength",
+    potion = "tempered_potion",
 
     package = "Unholy",
 } )

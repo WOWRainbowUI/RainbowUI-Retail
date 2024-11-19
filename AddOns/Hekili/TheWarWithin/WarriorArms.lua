@@ -1798,7 +1798,7 @@ spec:RegisterOptions( {
     damageDots = false,
     damageExpiration = 8,
 
-    potion = "spectral_strength",
+    potion = "tempered_potion",
 
     package = "Arms",
 } )

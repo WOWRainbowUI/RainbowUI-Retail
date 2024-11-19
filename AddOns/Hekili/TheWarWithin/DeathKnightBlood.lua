@@ -795,6 +795,11 @@ spec:RegisterAuras( {
         duration = 8,
         max_stack = 5
     },
+    ossuary = {
+        id = 219788,
+        duration = 3600,
+        max_stack = 1
+    },
     -- Grants the ability to walk across water.
     -- https://wowhead.com/beta/spell=3714
     path_of_frost = {
@@ -828,7 +833,7 @@ spec:RegisterAuras( {
         max_stack = 1
     },
     reaper_of_souls = {
-        id = 440002,
+        id = 469172,
         duration = 12,
         max_stack = 1
     },
@@ -2310,7 +2315,7 @@ spec:RegisterOptions( {
     damage = true,
     damageExpiration = 8,
 
-    potion = "potion_of_phantom_fire",
+    potion = "tempered_potion",
 
     package = "Blood",
 } )
