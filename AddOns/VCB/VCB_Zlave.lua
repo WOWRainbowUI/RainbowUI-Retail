@@ -157,7 +157,7 @@ local function FirstTimeSavedVariables()
 	if VCBrFocus["CurrentTimeText"]["Decimals"] == nil then VCBrFocus["CurrentTimeText"]["Decimals"] = 2 end
 	if VCBrFocus["TotalTimeText"]["Decimals"] == nil then VCBrFocus["TotalTimeText"]["Decimals"] = 2 end
 	if VCBrFocus["BothTimeText"]["Decimals"] == nil then VCBrFocus["BothTimeText"]["Decimals"] = 2 end
-	if VCBrPlayer["GCD"] == nil then VCBrPlayer["GCD"] = {ClassicTexture = "Class Icon",} end
+	if VCBrPlayer["GCD"] == nil then VCBrPlayer["GCD"] = {ClassicTexture = "隱藏",} end
 	if VCBrPlayer["QueueBar"] == nil then VCBrPlayer["QueueBar"] = "顯示" end
 end
 -- Events Time --
