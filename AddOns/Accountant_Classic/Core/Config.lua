@@ -71,26 +71,45 @@ local function to_confirm_character_removal(value)
 	local classToken = Accountant_ClassicSaveData[selected_srv][selected_char]["options"].class or nil
 	class_color = classToken and "|c"..RAID_CLASS_COLORS[classToken]["colorStr"] or ""
 
+	--[[removed by kamusis
+		-- Confirm box
+		LibDialog:Register("ACCLOC_CHARREMOVE", {
+			text = L["The selected character is about to be removed.\nAre you sure you want to remove the following character from Accountant Classic?"].."\n|r"..faction_icon..class_color..selected_srv.." - "..selected_char,
+			buttons = {
+				{
+					text = OKAY,
+					on_click = function() addon:CharacterRemovalProceed(selected_srv, selected_char) end,
+				},
+				{
+					text = CANCEL,
+					on_click = function(self, mouseButton, down) LibDialog:Dismiss("ACCLOC_CHARREMOVE") end,
+				},
+			},
+			show_while_dead = true,
+			hide_on_escape = true,
+			is_exclusive = true,
+			show_during_cinematic = false,
+			
+		})
+		LibDialog:Spawn("ACCLOC_CHARREMOVE")
+	]]
+
+	-- Using native StaticPopupDialogs to show the confirm box. updated by kamusis.
 	-- Confirm box
-	LibDialog:Register("ACCLOC_CHARREMOVE", {
+	StaticPopupDialogs["ACCOUNTANT_CLASSIC_CONFIRM_REMOVE"] = {
 		text = L["The selected character is about to be removed.\nAre you sure you want to remove the following character from Accountant Classic?"].."\n|r"..faction_icon..class_color..selected_srv.." - "..selected_char,
-		buttons = {
-			{
-				text = OKAY,
-				on_click = function() addon:CharacterRemovalProceed(selected_srv, selected_char) end,
-			},
-			{
-				text = CANCEL,
-				on_click = function(self, mouseButton, down) LibDialog:Dismiss("ACCLOC_CHARREMOVE") end,
-			},
-		},
-		show_while_dead = true,
-		hide_on_escape = true,
-		is_exclusive = true,
-		show_during_cinematic = false,
-		
-	})
-	LibDialog:Spawn("ACCLOC_CHARREMOVE")
+		button1 = OKAY,
+		button2 = CANCEL,
+		OnAccept = function()
+			addon:CharacterRemovalProceed(selected_srv, selected_char)
+		end,
+		timeout = 0,
+		whileDead = true,
+		hideOnEscape = true,
+		preferredIndex = 3,
+	}
+
+	StaticPopup_Show("ACCOUNTANT_CLASSIC_CONFIRM_REMOVE")
 end
 
 local options, moduleOptions = nil, {}
@@ -357,7 +376,10 @@ local function getOptions()
 									end,
 									set = function(info, value)
 										to_confirm_character_removal(value)
-										SettingsPanel:Hide()
+										-- Close options window after deletion
+										if SettingsPanel then
+											SettingsPanel:Hide()
+										end
 									end,
 								},
 							},
@@ -377,16 +399,8 @@ end
 
 function addon:OpenOptions() 
 	-- open the profiles tab before, so the menu expands
-	if _G.InterfaceOptionsFrame_OpenToCategory then
-		InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.Profiles)
-		InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.Profiles)
-		InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.General)
-	elseif Settings and Settings.OpenToCategory then
-		Settings.OpenToCategory(addon.LocName, "general")
-	end
-	if InterfaceOptionsFrame then
-		InterfaceOptionsFrame:Raise()
-	end
+	Settings.OpenToCategory(addon.LocName)
+	Settings.OpenToCategory(addon.optionsFrames.General)
 end
 
 local function giveProfiles()

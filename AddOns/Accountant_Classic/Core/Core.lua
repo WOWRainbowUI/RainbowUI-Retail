@@ -22,6 +22,9 @@ $Id: Core.lua 399 2022-11-06 13:25:42Z arithmandar $
   v2.4 - v2.12:
      Updated by: Arith
      Tntdruid for adding Garrison, Barber shop, Void, and Transform logging in v2.5.22
+  v2.13 - v2.14:
+	 Updated by: kamusis
+	 Bug fixes and improvements: Add sort function in All Chars tab
 ]]
 -----------------------------------------------------------------------
 -- Upvalued Lua API.
@@ -373,6 +376,70 @@ local function createACFrames()
 		end
 		f[name] = sf
 	end]]
+
+    -- Add header click areas
+    f.HeaderSource = CreateFrame("Button", parentName.."HeaderSource", f)
+    f.HeaderSource:SetPoint("TOPLEFT", f.Source, "TOPLEFT", 0, 0)
+    f.HeaderSource:SetPoint("BOTTOMRIGHT", f.Source, "BOTTOMRIGHT", 0, 0)
+    f.HeaderSource:SetScript("OnClick", function() 
+        if AC_SORT_BY == "name" then
+            AC_SORT_ASC = not AC_SORT_ASC
+        else
+            AC_SORT_BY = "name"
+            AC_SORT_ASC = true
+        end
+        AccountantClassic_OnShow()
+    end)
+
+    f.HeaderIn = CreateFrame("Button", parentName.."HeaderIn", f)
+    f.HeaderIn:SetPoint("TOPLEFT", f.In, "TOPLEFT", 0, 0) 
+    f.HeaderIn:SetPoint("BOTTOMRIGHT", f.In, "BOTTOMRIGHT", 0, 0)
+    f.HeaderIn:SetScript("OnClick", function()
+        if AC_SORT_BY == "money" then
+            AC_SORT_ASC = not AC_SORT_ASC
+        else
+            AC_SORT_BY = "money"
+            AC_SORT_ASC = true
+        end
+        AccountantClassic_OnShow()
+    end)
+
+    f.HeaderOut = CreateFrame("Button", parentName.."HeaderOut", f)
+    f.HeaderOut:SetPoint("TOPLEFT", f.Out, "TOPLEFT", 0, 0)
+    f.HeaderOut:SetPoint("BOTTOMRIGHT", f.Out, "BOTTOMRIGHT", 0, 0)
+    f.HeaderOut:SetScript("OnClick", function()
+        if AC_SORT_BY == "date" then
+            AC_SORT_ASC = not AC_SORT_ASC
+        else
+            AC_SORT_BY = "date"
+            AC_SORT_ASC = true
+        end
+        AccountantClassic_OnShow()
+    end)
+
+    -- Add header mouse hover effects
+    local function OnEnter(self)
+        -- Create or get highlight background
+        if not self.highlightTexture then
+            self.highlightTexture = self:CreateTexture(nil, "BACKGROUND")
+            self.highlightTexture:SetAllPoints()
+            self.highlightTexture:SetColorTexture(1, 1, 1, 0.2) -- White semi-transparent background
+        end
+        self.highlightTexture:Show()
+    end
+    
+    local function OnLeave(self)
+        if self.highlightTexture then
+            self.highlightTexture:Hide()
+        end
+    end
+
+    f.HeaderSource:SetScript("OnEnter", OnEnter)
+    f.HeaderSource:SetScript("OnLeave", OnLeave)
+    f.HeaderIn:SetScript("OnEnter", OnEnter)
+    f.HeaderIn:SetScript("OnLeave", OnLeave)
+    f.HeaderOut:SetScript("OnEnter", OnEnter)
+    f.HeaderOut:SetScript("OnLeave", OnLeave)
 end
 
 local function setLabels()
@@ -381,9 +448,21 @@ local function setLabels()
 	if (AC_CURRTAB == AC_TABS) then
 		AccountantClassicFrameResetButton:Hide()
 
+		-- Basic text settings
 		f.Source:SetText(L["Character"])
 		f.In:SetText(L["Money"])
 		f.Out:SetText(L["Updated"])
+		
+		-- Add sort indicators
+		local arrow = AC_SORT_ASC and " ▲" or " ▼"
+		if AC_SORT_BY == "name" then
+			f.Source:SetText(L["Character"]..arrow)
+		elseif AC_SORT_BY == "money" then
+			f.In:SetText(L["Money"]..arrow)
+		elseif AC_SORT_BY == "date" then
+			f.Out:SetText(L["Updated"]..arrow)
+		end
+
 		f.TotalIn:SetText(L["Total Incomings"]..":")
 		f.TotalOut:SetText(L["Total Outgoings"]..":")
 		f.TotalFlow:SetText(L["Sum Total"]..":")
@@ -425,6 +504,14 @@ local function setLabels()
 		if ( header ) then
 			header:SetText(L["Accountant Classic"])
 		end
+
+        -- If on All Chars tab, add sort indicators
+        if AC_CURRTAB == AC_TABS then
+            local arrow = AC_SORT_ASC and "▲" or "▼"
+            f.Source:SetText(L["Character"].." "..arrow)
+            f.In:SetText(L["Money"].." "..arrow)
+            f.Out:SetText(L["Updated"].." "..arrow)
+        end
 	end
 end
 
@@ -449,43 +536,43 @@ local function settleTabText()
 end
 
 function addon:PopulateCharacterList(server, faction)
-	local i = 1
-	local serverkey, servervalue, charkey, charvalue
+    local i = 1
+    local serverkey, servervalue, charkey, charvalue
 
-	-- Clean up AC_CHARSCROLL_LIST
-	if (#AC_CHARSCROLL_LIST > 0) then
-		AC_CHARSCROLL_LIST = {}
-	end
-	if (not server or server == "All") then
-		for serverkey, servervalue in orderedpairs(Accountant_ClassicSaveData) do
-			for charkey, charvalue in orderedpairs(Accountant_ClassicSaveData[serverkey]) do
-				if (not faction or faction == "All") then
-					AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
-					i = i + 1
-				else
-					if (charvalue.options.faction == faction) then
-						AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
-						i = i + 1
-					end
-				end
-			end
-		end
-	else
-		serverkey = server or AC_SERVER
-		for charkey, charvalue in orderedpairs(Accountant_ClassicSaveData[serverkey]) do
-			if (not faction or faction == "All") then
-				AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
-				i = i + 1
-			else
-				if (charvalue.options.faction == faction) then
-					AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
-					i = i + 1
-				end
-			end
-		end
-	end
-	AC_CURR_LINES = i - 1
-
+    -- Clean up AC_CHARSCROLL_LIST
+    if (#AC_CHARSCROLL_LIST > 0) then
+        AC_CHARSCROLL_LIST = {}
+    end
+    if (not server or server == "All") then
+        for serverkey, servervalue in orderedpairs(Accountant_ClassicSaveData) do
+            for charkey, charvalue in orderedpairs(Accountant_ClassicSaveData[serverkey]) do
+                if (not faction or faction == "All") then
+                    AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
+                    i = i + 1
+                else
+                    if (charvalue.options.faction == faction) then
+                        AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
+                        i = i + 1
+                    end
+                end
+            end
+        end
+    else
+        serverkey = server or AC_SERVER
+        for charkey, charvalue in orderedpairs(Accountant_ClassicSaveData[serverkey]) do
+            if (not faction or faction == "All") then
+                AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
+                i = i + 1
+            else
+                if (charvalue.options.faction == faction) then
+                    AC_CHARSCROLL_LIST[i] = { serverkey, charkey }
+                    i = i + 1
+                end
+            end
+        end
+    end
+    AC_CURR_LINES = i - 1
+    
 	-- Create and align any new entry buttons that we need
 	for i = 1, AC_CURR_LINES do
 		if (not _G["AccountantClassicCharacterEntry"..i]) then
@@ -497,6 +584,46 @@ function addon:PopulateCharacterList(server, faction)
 			end
 		end
 	end
+
+    -- 如果在All Chars标签页并且需要排序
+    if AC_CURRTAB == AC_TABS and AC_SORT_BY then
+        table.sort(AC_CHARSCROLL_LIST, function(a, b)
+            local aServer, aChar = a[1], a[2]
+            local bServer, bChar = b[1], b[2]
+            
+            -- 获取角色数据
+            local aData = Accountant_ClassicSaveData[aServer][aChar]
+            local bData = Accountant_ClassicSaveData[bServer][bChar]
+            
+            if AC_SORT_BY == "name" then
+                local aName = aServer.."-"..aChar
+                local bName = bServer.."-"..bChar
+                if AC_SORT_ASC then
+                    return aName < bName
+                else
+                    return aName > bName
+                end
+            elseif AC_SORT_BY == "money" then
+                local aMoney = aData.options.totalcash or 0
+                local bMoney = bData.options.totalcash or 0
+                if AC_SORT_ASC then
+                    return aMoney < bMoney
+                else
+                    return aMoney > bMoney
+                end
+            elseif AC_SORT_BY == "date" then
+                local aDate = aData.options.lastsessiondate or ""
+                local bDate = bData.options.lastsessiondate or ""
+                if AC_SORT_ASC then
+                    return aDate < bDate
+                else
+                    return aDate > bDate
+                end
+            end
+        end)
+    end
+
+    AC_CURR_LINES = #AC_CHARSCROLL_LIST
 end
 
 
@@ -896,8 +1023,12 @@ end
 
 local function updateLog()
 	-- if it's first time loaded this addon, then we don't need to update logs.
+	-- @kamusis. Need to consider optimizing this behavior later. Currently, when a character loads the addon for the first time (when there is no character data in WTF), the current total money will be calculated as one income value, which will result in overall income statistics that do not match the actual situation. Therefore, the log is not updated on first load.
+	-- @kamusis. However, when any character loads this addon for the first time, even if money changes occur during this period, they will not be recorded. This needs optimization.
 	if AC_FIRSTLOADED then
-		return
+		ACC_Print("Accountant_Classic: First loaded for this character.")
+		-- AC_FIRSTLOADED = false
+		return		
 	end
 
 	local cdate = date("%d/%m/%y");
@@ -961,7 +1092,6 @@ local function updateLog()
 				end
 				-- ZoneDB
 				if (profile.trackzone == true) then
-					Accountant_ClassicZoneDB[AC_SERVER][AC_PLAYER]["data"][logmode][logtype] = Accountant_ClassicZoneDB[AC_SERVER][AC_PLAYER]["data"][logmode][logtype] or {}
 					if (Accountant_ClassicZoneDB[AC_SERVER][AC_PLAYER]["data"][logmode][logtype][zoneText] == nil) then
 						Accountant_ClassicZoneDB[AC_SERVER][AC_PLAYER]["data"][logmode][logtype][zoneText] = { In = 0, Out = 0 };
 					end
@@ -1275,7 +1405,7 @@ function AccountantClassic_OnEvent(self, event, ...)
 			AC_LOGTYPE = "REPAIRS";
 		end
 	elseif event == "TAXIMAP_OPENED" then
-		AC_LOGTYPE = "TAXI";
+			AC_LOGTYPE = "TAXI";
 	elseif event == "TAXIMAP_CLOSED" then
 		-- Commented out due to taximap closing before money transaction
 		-- AC_LOGTYPE = "";
@@ -1309,6 +1439,9 @@ function AccountantClassic_OnEvent(self, event, ...)
 	elseif event == "CHAT_MSG_MONEY" then
 		AccountantClassic_OnShareMoney(arg1);
 	elseif event == "PLAYER_MONEY" then
+		if AccountantClassic_Verbose then	
+			ACC_Print("Player money changed, starting to update money log ...")
+		end
 		updateLog();
 	end
 
@@ -1336,7 +1469,7 @@ function AccountantClassic_OnShow(self)
 		AccountantClassicFrameServerDropDown:Hide()
 		AccountantClassicFrameFactionDropDown:Hide()
 		AccountantClassicScrollBar:Hide()
-		for i = 1, AC_CURR_LINES do
+    for i = 1, AC_CURR_LINES do
 			if (_G["AccountantClassicCharacterEntry"..i]) then
 				_G["AccountantClassicCharacterEntry"..i]:Hide()
 			end
@@ -1404,8 +1537,8 @@ function AccountantClassic_OnShow(self)
 							end
 						end
 					end
-				end
-			end
+    end
+end
 
 			TotalIn = TotalIn + mIn
 			TotalOut = TotalOut + mOut
@@ -2051,3 +2184,7 @@ function AccountantClassicTabButtonMixin:OnClick()
 	PlaySound(841)
 	AccountantClassic_OnShow()
 end
+
+-- 在文件开头的局部变量区域添加排序状态变量
+local AC_SORT_BY = "money" -- 默认按金钱排序
+local AC_SORT_ASC = false  -- 默认降序(从大到小)
