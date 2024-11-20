@@ -53,7 +53,7 @@ function func:Load_Settings()
 
 		-- 核取按鈕
 		do
-			local name = "根據距離縮放名條";
+			local name = "根據距離縮放名條大小";
 			local tooltip = "隨著距離越遠，名條縮小";
 			local cfg = "ScaleWithDistance";
 			local default = true;
@@ -132,7 +132,7 @@ function func:Load_Settings()
 			local name = "等級";
 			local tooltip = "";
 			local cfg = "ShowLevel";
-			local default = true;
+			local default = false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -165,7 +165,7 @@ function func:Load_Settings()
 			local name = "大型名字";
 			local tooltip = "";
 			local cfg = "LargeName";
-			local default = true;
+			local default = false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -173,7 +173,7 @@ function func:Load_Settings()
 
 		-- 核取按鈕
 		do
-			local name = "大型會名稱";
+			local name = "大型公會名稱";
 			local tooltip = "";
 			local cfg = "LargeGuildName";
 			local default = false;
@@ -243,7 +243,7 @@ function func:Load_Settings()
 
 		-- 滑桿
 		do
-			local name = "最大名條距離";
+			local name = "可以看見名條的最遠距離";
 			local tooltip = "必須在非戰鬥狀態下才能生效";
 			local cfg = "MaxNameplateDistance";
 			local default = 60;
@@ -319,7 +319,7 @@ function func:Load_Settings()
 		-- 核取按鈕
 		do
 			local name = "個人資源條";
-			local tooltip = not data.isRetail and "要移動個人資源條，請按住 " .. green .. "CTRL" .. yellow .. " 並用 " .. green .. "滑鼠左鍵" .. yellow .. " 拖動它" or "";
+			local tooltip = not data.isRetail and "要移動個人資源條，請按住 " .. green .. "CTRL" .. yellow .. " 並用 " .. green .. "滑鼠左鍵" .. yellow .. " 拖曳它" or "";
 			local cfg = "PersonalNameplate";
 			local default = true;
 			local flair = { classicEra = true, cata = true, retail = false };
@@ -342,7 +342,7 @@ function func:Load_Settings()
 		-- 核取按鈕
 		do
 			local name = "特殊能量";
-			local tooltip = "客製化特殊能量條: " .. white .. "圖騰" .. yellow .. "\n之後會新增更多";
+			local tooltip = "自訂特殊能量條: " .. white .. "圖騰" .. yellow .. "\n之後會新增更多";
 			local cfg = "SpecialPower";
 			local default = true;
 			local flair = { classicEra = true, cata = true, retail = true };
@@ -399,7 +399,7 @@ function func:Load_Settings()
 			local name = "數值";
 			local tooltip = "顯示血量和能量數值";
 			local cfg = "NumericValue";
-			local default = true;
+			local default = false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -418,10 +418,10 @@ function func:Load_Settings()
 
 		-- 核取按鈕
 		do
-			local name = "切換數值位置";
+			local name = "對調數值位置";
 			local tooltip = "交換數值和百分比的位置";
 			local cfg = "PercentageAsMainValue";
-			local default = false;
+			local default = true;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -432,7 +432,7 @@ function func:Load_Settings()
 			local name = "總血量";
 			local tooltip = "顯示你的總血量\n(僅顯示在個人資源條上)";
 			local cfg = "PersonalNameplateTotalHealth";
-			local default = true;
+			local default = false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -443,7 +443,7 @@ function func:Load_Settings()
 			local name = "總能量";
 			local tooltip = "顯示你的總能量\n" .. white .. "範例: " .. yellow .. "法力, 怒氣, 能量, 等等...\n(僅顯示在個人資源條上)";
 			local cfg = "PersonalNameplateTotalPower";
-			local default = true;
+			local default = false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -454,7 +454,7 @@ function func:Load_Settings()
 			local name = "大型主要血量";
 			local tooltip = "";
 			local cfg = "LargeMainValue";
-			local default = true;
+			local default = false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -564,7 +564,7 @@ function func:Load_Settings()
 			local name = "只顯示名字";
 			local tooltip = "";
 			local cfg = "NamesOnly";
-			local default = 1;
+			local default = 2;
 			local options = {
 				[1] = "無",
 				[2] = "友方",
@@ -645,7 +645,7 @@ function func:Load_Settings()
 			local name = "威脅值百分比";
 			local tooltip = "顯示產生的威脅值數量";
 			local cfg = "ThreatPercentage";
-			local default = true;
+			local default = false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -746,7 +746,7 @@ function func:Load_Settings()
 			local name = "隱藏被動光環";
 			local tooltip = "隱藏沒有持續時間的光環";
 			local cfg = "AurasHidePassive";
-			local default = 1;
+			local default = 2;
 			local options = {
 				[1] = "無",
 				[2] = "全部",
@@ -762,7 +762,7 @@ function func:Load_Settings()
 			local name = "倒數計時";
 			local tooltip = "";
 			local cfg = "AurasCountdown";
-			local default = true;
+			local default = false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);

@@ -701,6 +701,20 @@ end
 ----------------------------------------
 -- Update health
 ----------------------------------------
+local function AbbreviateNumbers(value)
+	local abs_value = (value > 0 and value) or (-1 * value)
+
+    if abs_value >= 1e8 then
+      return format("%.2f億", value / 1e8)
+    elseif abs_value >= 1e4 then
+      return format("%.0f萬", value / 1e4)
+    elseif abs_value >= 1e3 then
+      return format("%.2f千", value / 1e3)
+    else
+      return format("%i", value)
+    end
+end
+
 function func:Update_Health(unit)
     if unit then
         local healthMax = UnitHealthMax(unit);

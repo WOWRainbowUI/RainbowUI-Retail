@@ -106,7 +106,7 @@ function func:Nameplate_Created(nameplate)
 
         -- Secondary
         unitFrame.healthSecondary = unitFrame.parent:CreateFontString(nil, "overlay", "GameFontNormalOutline");
-        unitFrame.healthSecondary:SetScale(0.8);
+        unitFrame.healthSecondary:SetScale(0.6); -- 暫時修正
 
         --------------------------------
         -- Powerbar
