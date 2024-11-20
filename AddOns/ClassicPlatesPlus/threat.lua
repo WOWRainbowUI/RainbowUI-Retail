@@ -1,0 +1,106 @@
+----------------------------------------
+-- CORE
+----------------------------------------
+local myAddon, core = ...;
+local func = core.func;
+local data = core.data;
+
+----------------------------------------
+-- Check if other tank is tanking
+----------------------------------------
+function func:OtherTank(unit)
+    if unit and not UnitIsPlayer(unit) or UnitIsOtherPlayersPet(unit) then
+        for k in pairs(data.tanks) do
+            if k then
+                local status = UnitThreatSituation(k, unit);
+
+                if status == 2 or status == 3 then
+                    return true;
+                end
+            end
+        end
+    end
+end
+
+----------------------------------------
+-- Threat
+----------------------------------------
+function func:Update_Threat(unit)
+    if unit and string.match(unit, "nameplate") then
+        local nameplate = C_NamePlate.GetNamePlateForUnit(unit);
+
+        if nameplate then
+            local unitFrame = nameplate.unitFrame;
+            local ThreatPercentageOfLead = UnitThreatPercentageOfLead("player", unit) or 0;
+            local status = UnitThreatSituation("player", unit);
+            local r,g,b = func:GetUnitColor(unit, ThreatPercentageOfLead, status);
+            --[[local Rs,Gs,Bs = UnitSelectionColor(unit, true);
+            local Rb,Gb,Bb = data.colors.border.r, data.colors.border.g, data.colors.border.b;
+
+            if (UnitIsPlayer(unit) or UnitIsOtherPlayersPet(unit)) and (UnitIsPVP(unit) or UnitIsPVPFreeForAll(unit)) then
+                local R2,G2,B2 = Rs,Gs,Bs;
+
+                if UnitIsFriend(unit, "player") and string.format("%.2f", Rs) ~= "0.38" then
+                    R2,G2,B2 = 0, 0.85, 0;
+                end
+
+                unitFrame.portrait.highlight:SetVertexColor(R2,G2,B2);
+                unitFrame.healthbar.highlight:SetVertexColor(R2,G2,B2);
+                unitFrame.level.highlight:SetVertexColor(R2,G2,B2);
+                unitFrame.powerbar.highlight:SetVertexColor(R2,G2,B2);
+            else
+                unitFrame.portrait.highlight:SetVertexColor(Rb,Gb,Bb);
+                unitFrame.healthbar.highlight:SetVertexColor(Rb,Gb,Bb);
+                unitFrame.level.highlight:SetVertexColor(Rb,Gb,Bb);
+                unitFrame.powerbar.highlight:SetVertexColor(Rb,Gb,Bb);
+            end]]
+
+            -- Coloring highlights
+            unitFrame.portrait.highlight:SetVertexColor(r,g,b);
+            unitFrame.healthbar.highlight:SetVertexColor(r,g,b);
+            unitFrame.level.highlight:SetVertexColor(r,g,b);
+            unitFrame.powerbar.highlight:SetVertexColor(r,g,b);
+            unitFrame.threatPercentage.highlight:SetVertexColor(r,g,b);
+
+            -- Coloring rest
+            unitFrame.healthbar:SetStatusBarColor(r,g,b);
+            unitFrame.threatPercentage.background:SetVertexColor(r,g,b);
+
+            --Swapping healthbar's highlight so that it won't show underneath the powerbar's background.
+            if unitFrame.powerbar:IsShown() then
+                if CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].Portrait then
+                    unitFrame.healthbar.highlight:SetTexture("Interface\\addons\\ClassicPlatesPlus\\media\\highlights\\healthbar_2");
+                else
+                    unitFrame.healthbar.highlight:SetTexture("Interface\\addons\\ClassicPlatesPlus\\media\\highlights\\healthbar_3");
+                end
+            else
+                unitFrame.healthbar.highlight:SetTexture("Interface\\addons\\ClassicPlatesPlus\\media\\highlights\\healthbar");
+            end
+
+            -- Updating threat percentage
+            if CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].ThreatPercentage and ThreatPercentageOfLead > 0 then
+                if ThreatPercentageOfLead > 999 then
+                    ThreatPercentageOfLead = 999;
+                end
+
+                unitFrame.threatPercentage.value:SetText(math.floor(ThreatPercentageOfLead) .. "%");
+            end
+            unitFrame.threatPercentage:SetShown(CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].ThreatPercentage and ThreatPercentageOfLead and ThreatPercentageOfLead > 0);
+
+            -- Toggle for highlights
+            local ShowHighlight = CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].ThreatHighlight
+                and (ThreatPercentageOfLead > CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].ThreatWarningThreshold -- Above threat threshold
+                or (UnitIsUnit(unit.."target", "player") and UnitIsEnemy(unit, "player") and (UnitIsPlayer(unit) or UnitIsOtherPlayersPet)) -- Enemy player or pet targeting you
+                or (status == 3 or status == 2) -- Tanking
+                or GetPartyAssignment("MainTank", "player", true) and func:OtherTank(unit) -- Other tank tanking
+            );
+
+            -- Toggling frames:
+            unitFrame.portrait.highlight:SetShown(ShowHighlight and unitFrame.portrait:IsShown());
+            unitFrame.healthbar.highlight:SetShown(ShowHighlight);
+            unitFrame.level.highlight:SetShown(ShowHighlight and unitFrame.level:IsShown());
+            unitFrame.powerbar.highlight:SetShown(ShowHighlight and unitFrame.powerbar:IsShown());
+            unitFrame.threatPercentage.highlight:SetShown(false) --ShowHighlight and unitFrame.threatPercentage:IsShown());
+        end
+    end
+end
