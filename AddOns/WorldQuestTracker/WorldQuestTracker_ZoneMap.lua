@@ -906,8 +906,8 @@ function WorldQuestTracker.UpdateZoneWidgets(forceUpdate)
 		local needAnotherUpdate = false
 
 		for i, info  in ipairs(taskInfo) do
-			if info.questID then -- 暫時修正
-				local questID = info.questID
+			local questID = info.questID
+			if (questID) then
 				local isWorldQuest = isWorldQuest(questID)
 				if (isWorldQuest) then
 					if (HaveQuestData(questID)) then
@@ -1172,7 +1172,23 @@ function WorldQuestTracker.UpdateZoneWidgets(forceUpdate)
 						WorldQuestTracker.ShowDefaultPinForQuest(questID)
 					end
 				end --end isWorldQuest
-			end --end info.questID
+			else
+				if (WorldQuestTracker.__debug) then
+					local questName = C_QuestLog.GetTitleForQuestID(questID)
+					WorldQuestTracker:Msg("questID is nil for taskinfo", questID, questName)
+				end
+
+				local title, factionID, tagID, tagName, worldQuestType, rarity, isElite, tradeskillLineIndex = WorldQuestTracker.GetQuest_Info(questID)
+				if (title) then
+					if (UpdateDebug) then print("NeedUpdate 2") end
+					quest_bugged [title] =(quest_bugged [title] or 0) + 1
+
+					if (quest_bugged [title] <= 2) then
+						questFailed = true
+						WorldQuestTracker.ScheduleZoneMapUpdate(1, true)
+					end
+				end
+			end --end questID
 		end --end foreach taskinfo
 
 		if (needAnotherUpdate) then
