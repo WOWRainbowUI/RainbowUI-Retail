@@ -523,7 +523,7 @@ D["CalReminder"] = {
 };
 D["Cell"] = {
 	defaultEnable = 0,
-	tags = { "BOSSRAID" },
+	tags = { "UNITFRAME" },
 	title = "團隊框架 (Cell)",
 	desc = "簡單好用又美觀的團隊框架，載入即可使用，幾乎不用設定。``有提供自訂外觀、增益/減益圖示和其他功能。對於補師，還有滑鼠點一下快速施法的功能。`",
 	modifier = "BSN, 彩虹ui",
@@ -539,6 +539,27 @@ D["Cell"] = {
         text = "恢復為預設值",
         callback = function() SlashCmdList["CELL"]("resetall") end,
     },
+};
+D["ClassicPlatesPlus"] = {
+	defaultEnable = 0,
+	tags = { "UNITFRAME" },
+	title = "經典血條 Plus",
+	desc = "還原並美化經典版本的血條，有超清楚的個人資源條和簡單的自訂選項。`",
+	modifier = "彩虹ui",
+	{
+        text = "設定選項",
+        callback = function() 
+			Settings.OpenToCategory("ClassicPlatesPlus")
+		end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+	{
+		type = "text",
+        text = "|cffFF2D2D請勿和 '威力血條' 同時載入使用。|r",       
+	},
 };
 D["ClearMapPin"] = {
 	defaultEnable = 1,
@@ -2040,7 +2061,7 @@ D["PrettyReps"] = {
 };
 D["Quartz"] = {
 	defaultEnable = 0,
-	tags = { "ENHANCEMENT" },
+	tags = { "UNITFRAME" },
 	title = "Quartz 施法條",
 	desc = "功能增強、模組化、可自訂外觀的施法條。``包括玩家、寵物的施法條，還有 GCD、揮擊、增益/減益效果和環境對應的計時條，都可以自訂調整。``|cffFF2D2D特別注意：請勿和 '內建施法條增強' 插件一起使用。|r`",
 	modifier = "a9012456, Adavak, alpha2009, Adavak, Ananhaid, nevcairiel, Seelerv, Whyv, YuiFAN, 半熟魷魚, 彩虹ui",
@@ -2463,7 +2484,7 @@ D["TeleportMenu"] = {
 };
 D["TidyPlates_ThreatPlates"] = {
     defaultEnable = 1,
-	tags = { "ENHANCEMENT" },
+	tags = { "UNITFRAME" },
 	title = "威力血條",
 	desc = "威力強大、能夠根據仇恨值變化血條、提供更多自訂選項的血條。還可以幫指定的怪自訂血條樣式，讓血條更清楚明顯。`",
 	modifier = "彩虹ui",
@@ -2483,7 +2504,7 @@ D["TidyPlates_ThreatPlates"] = {
 	},
 	{
 		type = "text",
-        text = "|cffFF2D2D放大炸藥血條：從設定選項 > 自訂血條，按下 '轉換自訂血條設定'。|r\n",       
+        text = "|cffFF2D2D請勿和 '經典血條 Plus' 同時載入使用。|r",       
 	},
 	{
 		type = "text",
@@ -2611,7 +2632,7 @@ D["UnlimitedMapPinDistance"] = {
 };
 D["VCB"] = {
     defaultEnable = 1,
-	tags = { "ENHANCEMENT" },
+	tags = { "UNITFRAME" },
 	title = "內建施法條增強",
 	desc = "幫遊戲內建的施法條加入一些巫毒魔法，顯示法術圖示、時間、延遲和施法斷點。``|cffFF2D2D特別注意：請勿和 'Quartz 施法條' 插件一起使用。|r`",
 	icon = "Interface\\Icons\\spell_holy_surgeoflight_shadow",
@@ -2623,7 +2644,7 @@ D["VCB"] = {
 };
 D["VuhDo"] = {
     defaultEnable = 0,
-	tags = { "BOSSRAID" },
+	tags = { "UNITFRAME" },
 	title = "團隊框架 (巫毒)",
 	desc = "功能強大的補血框架，可用來取代內建的隊伍/團隊框架，滑鼠點一下就能快速施放法術/補血，是補師的好朋友!``可以自訂框架的外觀、順序，提供治療、驅散、施放增益效果、使用飾品、距離檢查和仇恨提示和更多功能。``還有精美且清楚的 HOT 和動畫效果提醒驅散的 DEBUFF 圖示。`",
 	img = true,
