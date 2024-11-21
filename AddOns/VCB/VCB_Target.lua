@@ -1,22 +1,3 @@
--- function for the texts --
-local function VCBtexts(var1)
-	VCBnameTextTarget = var1:CreateFontString(nil, "OVERLAY", nil)
-	VCBnameTextTarget:SetFontObject("SystemFont_Shadow_Small")
-	VCBnameTextTarget:SetHeight(var1.Text:GetHeight())
-	VCBnameTextTarget:Hide()
-	VCBcurrentTimeTextTarget = var1:CreateFontString(nil, "OVERLAY", nil)
-	VCBcurrentTimeTextTarget:SetFontObject("SystemFont_Shadow_Small")
-	VCBcurrentTimeTextTarget:SetHeight(var1.Text:GetHeight())
-	VCBcurrentTimeTextTarget:Hide()
-	VCBtotalTimeTextTarget = var1:CreateFontString(nil, "OVERLAY", nil)
-	VCBtotalTimeTextTarget:SetFontObject("SystemFont_Shadow_Small")
-	VCBtotalTimeTextTarget:SetHeight(var1.Text:GetHeight())
-	VCBtotalTimeTextTarget:Hide()
-	VCBbothTimeTextTarget = var1:CreateFontString(nil, "OVERLAY", nil)
-	VCBbothTimeTextTarget:SetFontObject("SystemFont_Shadow_Small")
-	VCBbothTimeTextTarget:SetHeight(var1.Text:GetHeight())
-	VCBbothTimeTextTarget:Hide()
-end
 -- Position of the Name Text --
 local function NameTextPosition(self, var1, var2)
 	if VCBrTarget[var1] == "Top Left" then
@@ -320,7 +301,23 @@ local function CastBarColor(self)
 end
 -- hooking time --
 local function AloneTargetSpellBar()
-	VCBtexts(TargetFrameSpellBar)
+-- Text --
+	VCBnameTextTarget = TargetFrameSpellBar:CreateFontString(nil, "OVERLAY", nil)
+	VCBnameTextTarget:SetFontObject("SystemFont_Shadow_Small")
+	VCBnameTextTarget:SetHeight(TargetFrameSpellBar.Text:GetHeight())
+	VCBnameTextTarget:Hide()
+	VCBcurrentTimeTextTarget = TargetFrameSpellBar:CreateFontString(nil, "OVERLAY", nil)
+	VCBcurrentTimeTextTarget:SetFontObject("SystemFont_Shadow_Small")
+	VCBcurrentTimeTextTarget:SetHeight(TargetFrameSpellBar.Text:GetHeight())
+	VCBcurrentTimeTextTarget:Hide()
+	VCBtotalTimeTextTarget = TargetFrameSpellBar:CreateFontString(nil, "OVERLAY", nil)
+	VCBtotalTimeTextTarget:SetFontObject("SystemFont_Shadow_Small")
+	VCBtotalTimeTextTarget:SetHeight(TargetFrameSpellBar.Text:GetHeight())
+	VCBtotalTimeTextTarget:Hide()
+	VCBbothTimeTextTarget = TargetFrameSpellBar:CreateFontString(nil, "OVERLAY", nil)
+	VCBbothTimeTextTarget:SetFontObject("SystemFont_Shadow_Small")
+	VCBbothTimeTextTarget:SetHeight(TargetFrameSpellBar.Text:GetHeight())
+	VCBbothTimeTextTarget:Hide()
 -- Hooking Time part 1 --
 	TargetFrameSpellBar:HookScript("OnShow", function(self)
 		NameTextPosition(self, "NameText", VCBnameTextTarget)
@@ -357,16 +354,32 @@ local function AloneTargetSpellBar()
 end
 -- SUF interaction --
 local function vcbSufCoOp_Traget()
-	SUFUnittarget.vcbCastbar = CreateFrame("StatusBar", nil, UIParent, "SmallCastingBarFrameTemplate")
-	SUFUnittarget.vcbCastbar:SetSize(150, 10)
-	SUFUnittarget.vcbCastbar:ClearAllPoints()
-	SUFUnittarget.vcbCastbar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrTarget["Position"]["X"], VCBrTarget["Position"]["Y"])
-	SUFUnittarget.vcbCastbar:SetScale(VCBrTarget["Scale"]/100)
-	SUFUnittarget.vcbCastbar:SetUnit("target", true, true)
-	SUFUnittarget.vcbCastbar:UpdateShownState(true)
-	VCBtexts(SUFUnittarget.vcbCastbar)
+-- castbar --
+	SUFUnittargetvcbCastbar = CreateFrame("StatusBar", "SUFUnittargetvcbCastbar", SUFUnittarget, "SmallCastingBarFrameTemplate")
+	SUFUnittargetvcbCastbar:SetSize(150, 10)
+	SUFUnittargetvcbCastbar:ClearAllPoints()
+	SUFUnittargetvcbCastbar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrTarget["Position"]["X"], VCBrTarget["Position"]["Y"])
+	SUFUnittargetvcbCastbar:SetScale(VCBrTarget["Scale"]/100)
+	SUFUnittargetvcbCastbar:OnLoad("target", true, true)
+-- Text --
+	VCBnameTextTarget = SUFUnittargetvcbCastbar:CreateFontString(nil, "OVERLAY", nil)
+	VCBnameTextTarget:SetFontObject("SystemFont_Shadow_Small")
+	VCBnameTextTarget:SetHeight(SUFUnittargetvcbCastbar.Text:GetHeight())
+	VCBnameTextTarget:Hide()
+	VCBcurrentTimeTextTarget = SUFUnittargetvcbCastbar:CreateFontString(nil, "OVERLAY", nil)
+	VCBcurrentTimeTextTarget:SetFontObject("SystemFont_Shadow_Small")
+	VCBcurrentTimeTextTarget:SetHeight(SUFUnittargetvcbCastbar.Text:GetHeight())
+	VCBcurrentTimeTextTarget:Hide()
+	VCBtotalTimeTextTarget = SUFUnittargetvcbCastbar:CreateFontString(nil, "OVERLAY", nil)
+	VCBtotalTimeTextTarget:SetFontObject("SystemFont_Shadow_Small")
+	VCBtotalTimeTextTarget:SetHeight(SUFUnittargetvcbCastbar.Text:GetHeight())
+	VCBtotalTimeTextTarget:Hide()
+	VCBbothTimeTextTarget = SUFUnittargetvcbCastbar:CreateFontString(nil, "OVERLAY", nil)
+	VCBbothTimeTextTarget:SetFontObject("SystemFont_Shadow_Small")
+	VCBbothTimeTextTarget:SetHeight(SUFUnittargetvcbCastbar.Text:GetHeight())
+	VCBbothTimeTextTarget:Hide()
 -- Hooking Time part 1 --
-	SUFUnittarget.vcbCastbar:HookScript("OnShow", function(self)
+	SUFUnittargetvcbCastbar:HookScript("OnShow", function(self)
 		self:ClearAllPoints()
 		self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrTarget["Position"]["X"], VCBrTarget["Position"]["Y"])
 		self:SetScale(VCBrTarget["Scale"]/100)
@@ -377,7 +390,7 @@ local function vcbSufCoOp_Traget()
 		CastingTextPosition(self, "TotalTimeText", VCBtotalTimeTextTarget)
 	end)
 -- Hooking Time part 2 --
-	SUFUnittarget.vcbCastbar:HookScript("OnUpdate", function(self)
+	SUFUnittargetvcbCastbar:HookScript("OnUpdate", function(self)
 		self.Text:SetAlpha(0)
 		VCBnameTextTarget:SetText(self.Text:GetText())
 		AscendingDescendingSec(self)
@@ -402,38 +415,34 @@ local function vcbSufCoOp_Traget()
 		end
 	end)
 end
--- loading saved variables --
-local function LoadSavedVariables1()
-	if VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" and VCBrTarget["Unlock"] then
-		SUFUnittarget:HookScript("OnShow", function(self)
-			local classFilename = UnitClassBase("target")
-			if classFilename ~= nil then vcbClassColorTarget = C_ClassColor.GetClassColor(classFilename) end
-		end)
-		vcbSufCoOp_Traget()
-	elseif VCBrTarget["otherAdddon"] == "None" and VCBrTarget["Unlock"] then
-		AloneTargetSpellBar()
-		-- extra hooking --
-		TargetFrameSpellBar:HookScript("OnUpdate", function(self)
-			self:SetScale(VCBrTarget["Scale"]/100)
-			self:ClearAllPoints()
-			self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrTarget["Position"]["X"], VCBrTarget["Position"]["Y"])
-		end)
-	elseif VCBrTarget["otherAdddon"] == "None" and not VCBrTarget["Unlock"] then
-		AloneTargetSpellBar()
-	end
-end
 -- Events Time --
 local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 	if event == "PLAYER_LOGIN" then
-		LoadSavedVariables1()
+		if not VCBrTarget["Unlock"] and VCBrTarget["otherAdddon"] == "None" then
+			AloneTargetSpellBar()
+		elseif VCBrTarget["Unlock"] and VCBrTarget["otherAdddon"] == "None" then
+			-- extra hooking --
+			TargetFrameSpellBar:HookScript("OnUpdate", function(self)
+				self:SetScale(VCBrTarget["Scale"]/100)
+				self:ClearAllPoints()
+				self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrTarget["Position"]["X"], VCBrTarget["Position"]["Y"])
+			end)
+			AloneTargetSpellBar()
+		elseif VCBrTarget["Unlock"] and VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" then
+			SUFUnittarget:HookScript("OnShow", function(self)
+				local classFilename = UnitClassBase("target")
+				if classFilename ~= nil then vcbClassColorTarget = C_ClassColor.GetClassColor(classFilename) end
+			end)
+			vcbSufCoOp_Traget()
+		end
 	elseif event == "PLAYER_TARGET_CHANGED" then
 		if TargetFrame:IsShown() then
 			local classFilename = UnitClassBase("target")
 			if classFilename ~= nil then vcbClassColorTarget = C_ClassColor.GetClassColor(classFilename) end
 		elseif SUFUnittarget ~= nil and VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" and SUFUnittarget:IsShown() then
-			SUFUnittarget.vcbCastbar:SetUnit(nil, true, true)
-			SUFUnittarget.vcbCastbar:PlayFinishAnim()
-			SUFUnittarget.vcbCastbar:SetUnit("target", true, true)
+			SUFUnittargetvcbCastbar:SetUnit(nil, true, true)
+			SUFUnittargetvcbCastbar:PlayFinishAnim()
+			SUFUnittargetvcbCastbar:SetUnit("target", true, true)
 			local classFilename = UnitClassBase("target")
 			if classFilename ~= nil then vcbClassColorTarget = C_ClassColor.GetClassColor(classFilename) end
 		end

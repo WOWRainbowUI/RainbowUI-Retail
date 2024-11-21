@@ -1,22 +1,3 @@
--- function for the texts --
-local function VCBtexts(var1)
-	VCBnameTextFocus = var1:CreateFontString(nil, "OVERLAY", nil)
-	VCBnameTextFocus:SetFontObject("SystemFont_Shadow_Small")
-	VCBnameTextFocus:SetHeight(var1.Text:GetHeight())
-	VCBnameTextFocus:Hide()
-	VCBcurrentTimeTextFocus = var1:CreateFontString(nil, "OVERLAY", nil)
-	VCBcurrentTimeTextFocus:SetFontObject("SystemFont_Shadow_Small")
-	VCBcurrentTimeTextFocus:SetHeight(var1.Text:GetHeight())
-	VCBcurrentTimeTextFocus:Hide()
-	VCBtotalTimeTextFocus = var1:CreateFontString(nil, "OVERLAY", nil)
-	VCBtotalTimeTextFocus:SetFontObject("SystemFont_Shadow_Small")
-	VCBtotalTimeTextFocus:SetHeight(var1.Text:GetHeight())
-	VCBtotalTimeTextFocus:Hide()
-	VCBbothTimeTextFocus = var1:CreateFontString(nil, "OVERLAY", nil)
-	VCBbothTimeTextFocus:SetFontObject("SystemFont_Shadow_Small")
-	VCBbothTimeTextFocus:SetHeight(var1.Text:GetHeight())
-	VCBbothTimeTextFocus:Hide()
-end
 -- Position of the Name Text --
 local function NameTextPosition(self, var1, var2)
 	if VCBrFocus[var1] == "Top Left" then
@@ -320,15 +301,31 @@ local function CastBarColor(self)
 end
 -- hooking time --
 local function AloneFocusSpellBar()
-	VCBtexts(FocusFrameSpellBar)
-	-- Hooking Time part 1 --
+-- texts --
+	VCBnameTextFocus = FocusFrameSpellBar:CreateFontString("VCBnameTextFocus", "OVERLAY", nil)
+	VCBnameTextFocus:SetFontObject("SystemFont_Shadow_Small")
+	VCBnameTextFocus:SetHeight(FocusFrameSpellBar.Text:GetHeight())
+	VCBnameTextFocus:Hide()
+	VCBcurrentTimeTextFocus = FocusFrameSpellBar:CreateFontString("VCBcurrentTimeTextFocus", "OVERLAY", nil)
+	VCBcurrentTimeTextFocus:SetFontObject("SystemFont_Shadow_Small")
+	VCBcurrentTimeTextFocus:SetHeight(FocusFrameSpellBar.Text:GetHeight())
+	VCBcurrentTimeTextFocus:Hide()
+	VCBtotalTimeTextFocus = FocusFrameSpellBar:CreateFontString("VCBtotalTimeTextFocus", "OVERLAY", nil)
+	VCBtotalTimeTextFocus:SetFontObject("SystemFont_Shadow_Small")
+	VCBtotalTimeTextFocus:SetHeight(FocusFrameSpellBar.Text:GetHeight())
+	VCBtotalTimeTextFocus:Hide()
+	VCBbothTimeTextFocus = FocusFrameSpellBar:CreateFontString("VCBbothTimeTextFocus", "OVERLAY", nil)
+	VCBbothTimeTextFocus:SetFontObject("SystemFont_Shadow_Small")
+	VCBbothTimeTextFocus:SetHeight(FocusFrameSpellBar.Text:GetHeight())
+	VCBbothTimeTextFocus:Hide()
+-- Hooking Time part 1 --
 	FocusFrameSpellBar:HookScript("OnShow", function(self)
 		NameTextPosition(self, "NameText", VCBnameTextFocus)
 		CastingTextPosition(self, "CurrentTimeText", VCBcurrentTimeTextFocus)
 		CastingTextPosition(self, "BothTimeText", VCBbothTimeTextFocus)
 		CastingTextPosition(self, "TotalTimeText", VCBtotalTimeTextFocus)
 	end)
-	-- Hooking Time part 2 --
+-- Hooking Time part 2 --
 	FocusFrameSpellBar:HookScript("OnUpdate", function(self)
 		self.Text:SetAlpha(0)
 		VCBnameTextFocus:SetText(self.Text:GetText())
@@ -357,18 +354,35 @@ local function AloneFocusSpellBar()
 end
 -- SUF interaction --
 local function vcbSufCoOp_Focus()
-	SUFUnitfocus.vcbCastbar = CreateFrame("StatusBar", nil, UIParent, "SmallCastingBarFrameTemplate")
-	SUFUnitfocus.vcbCastbar:SetSize(150, 10)
-	SUFUnitfocus.vcbCastbar:ClearAllPoints()
-	SUFUnitfocus.vcbCastbar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrFocus["Position"]["X"], VCBrFocus["Position"]["Y"])
-	SUFUnitfocus.vcbCastbar:SetScale(VCBrFocus["Scale"]/100)
-	SUFUnitfocus.vcbCastbar:OnLoad("focus", true, true)
-	VCBtexts(SUFUnitfocus.vcbCastbar)
+-- castbar --
+	SUFUnitfocusvcbCastbar = CreateFrame("StatusBar", "SUFUnitfocusvcbCastbar", SUFUnitfocus, "SmallCastingBarFrameTemplate")
+	SUFUnitfocusvcbCastbar:SetSize(150, 10)
+	SUFUnitfocusvcbCastbar:ClearAllPoints()
+	SUFUnitfocusvcbCastbar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrFocus["Position"]["X"], VCBrFocus["Position"]["Y"])
+	SUFUnitfocusvcbCastbar:SetScale(VCBrFocus["Scale"]/100)
+	SUFUnitfocusvcbCastbar:OnLoad("focus", true, true)
+-- texts --
+	VCBnameTextFocus = SUFUnitfocusvcbCastbar:CreateFontString("VCBnameTextFocus", "OVERLAY", nil)
+	VCBnameTextFocus:SetFontObject("SystemFont_Shadow_Small")
+	VCBnameTextFocus:SetHeight(SUFUnitfocusvcbCastbar.Text:GetHeight())
+	VCBnameTextFocus:Hide()
+	VCBcurrentTimeTextFocus = SUFUnitfocusvcbCastbar:CreateFontString("VCBcurrentTimeTextFocus", "OVERLAY", nil)
+	VCBcurrentTimeTextFocus:SetFontObject("SystemFont_Shadow_Small")
+	VCBcurrentTimeTextFocus:SetHeight(SUFUnitfocusvcbCastbar.Text:GetHeight())
+	VCBcurrentTimeTextFocus:Hide()
+	VCBtotalTimeTextFocus = SUFUnitfocusvcbCastbar:CreateFontString("VCBtotalTimeTextFocus", "OVERLAY", nil)
+	VCBtotalTimeTextFocus:SetFontObject("SystemFont_Shadow_Small")
+	VCBtotalTimeTextFocus:SetHeight(SUFUnitfocusvcbCastbar.Text:GetHeight())
+	VCBtotalTimeTextFocus:Hide()
+	VCBbothTimeTextFocus = SUFUnitfocusvcbCastbar:CreateFontString("VCBbothTimeTextFocus", "OVERLAY", nil)
+	VCBbothTimeTextFocus:SetFontObject("SystemFont_Shadow_Small")
+	VCBbothTimeTextFocus:SetHeight(SUFUnitfocusvcbCastbar.Text:GetHeight())
+	VCBbothTimeTextFocus:Hide()
 -- Hooking Time part 1 --
-	SUFUnitfocus.vcbCastbar:HookScript("OnShow", function(self)
-		SUFUnitfocus.vcbCastbar:ClearAllPoints()
-		SUFUnitfocus.vcbCastbar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrFocus["Position"]["X"], VCBrFocus["Position"]["Y"])
-		SUFUnitfocus.vcbCastbar:SetScale(VCBrFocus["Scale"]/100)
+	SUFUnitfocusvcbCastbar:HookScript("OnShow", function(self)
+		SUFUnitfocusvcbCastbar:ClearAllPoints()
+		SUFUnitfocusvcbCastbar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrFocus["Position"]["X"], VCBrFocus["Position"]["Y"])
+		SUFUnitfocusvcbCastbar:SetScale(VCBrFocus["Scale"]/100)
 		CastBarColor(self)
 		NameTextPosition(self, "NameText", VCBnameTextFocus)
 		CastingTextPosition(self, "CurrentTimeText", VCBcurrentTimeTextFocus)
@@ -376,7 +390,7 @@ local function vcbSufCoOp_Focus()
 		CastingTextPosition(self, "TotalTimeText", VCBtotalTimeTextFocus)
 	end)
 -- Hooking Time part 2 --
-	SUFUnitfocus.vcbCastbar:HookScript("OnUpdate", function(self)
+	SUFUnitfocusvcbCastbar:HookScript("OnUpdate", function(self)
 		self.Text:SetAlpha(0)
 		VCBnameTextFocus:SetText(self.Text:GetText())
 		AscendingDescendingSec(self)
@@ -401,37 +415,34 @@ local function vcbSufCoOp_Focus()
 		end
 	end)
 end
--- loading saved variables --
-local function LoadSavedVariables2()
-	if VCBrFocus["otherAdddon"] == "Shadowed Unit Frame" and VCBrFocus["Unlock"] then
-		SUFUnitfocus:HookScript("OnShow", function(self)
-			local classFilename = UnitClassBase("focus")
-			if classFilename ~= nil then vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename) end
-		end)
-		vcbSufCoOp_Focus()
-	elseif VCBrFocus["otherAdddon"] == "None" and VCBrFocus["Unlock"] then
-		AloneFocusSpellBar()
-		FocusFrameSpellBar:HookScript("OnUpdate", function(self)
-			self:SetScale(VCBrFocus["Scale"]/100)
-			self:ClearAllPoints()
-			self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrFocus["Position"]["X"], VCBrFocus["Position"]["Y"])
-		end)
-	elseif VCBrFocus["otherAdddon"] == "None" and not VCBrFocus["Unlock"] then
-		AloneFocusSpellBar()
-	end
-end
 -- Events Time --
 local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 	if event == "PLAYER_LOGIN" then
-		LoadSavedVariables2()
+		if not VCBrFocus["Unlock"] and VCBrFocus["otherAdddon"] == "None" then
+			AloneFocusSpellBar()
+		elseif VCBrFocus["Unlock"] and VCBrFocus["otherAdddon"] == "None" then
+			-- extra hooking --
+			FocusFrameSpellBar:HookScript("OnUpdate", function(self)
+				self:SetScale(VCBrFocus["Scale"]/100)
+				self:ClearAllPoints()
+				self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrFocus["Position"]["X"], VCBrFocus["Position"]["Y"])
+			end)
+			AloneFocusSpellBar()
+		elseif VCBrFocus["Unlock"] and VCBrFocus["otherAdddon"] == "Shadowed Unit Frame" then
+			SUFUnitfocus:HookScript("OnShow", function(self)
+				local classFilename = UnitClassBase("focus")
+				if classFilename ~= nil then vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename) end
+			end)
+			vcbSufCoOp_Focus()
+		end
 	elseif event == "PLAYER_FOCUS_CHANGED" then
 		if FocusFrame:IsShown() then
 			local classFilename = UnitClassBase("focus")
 			if classFilename ~= nil then vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename) end
 		elseif SUFUnitfocus ~= nil and VCBrFocus["otherAdddon"] == "Shadowed Unit Frame" and SUFUnitfocus:IsShown() then
-			SUFUnitfocus.vcbCastbar:SetUnit(nil, true, true)
-			SUFUnitfocus.vcbCastbar:PlayFinishAnim()
-			SUFUnitfocus.vcbCastbar:SetUnit("focus", true, true)
+			SUFUnitfocusvcbCastbar:SetUnit(nil, true, true)
+			SUFUnitfocusvcbCastbar:PlayFinishAnim()
+			SUFUnitfocusvcbCastbar:SetUnit("focus", true, true)
 			local classFilename = UnitClassBase("focus")
 			if classFilename ~= nil then vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename) end
 		end
