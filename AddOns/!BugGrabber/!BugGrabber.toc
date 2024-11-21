@@ -1,6 +1,6 @@
-## Interface: 11504, 30403, 40400, 110002, 110005
+## Interface: 11505, 30403, 40401, 110002, 110005
 ## Title: BugGrabber
-## Version: v11.0.0
+## Version: v11.0.1
 ## Notes: Grabs bugs for the bug sack.
 ## Author: Funkydude
 ## X-Credits: Rabbit, Rowne, Ramble, kergoth, ckknight, Fritti
