@@ -1,3 +1,23 @@
+Version 3.179  
+  
+  
+Known issues:  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed Druid 'Swiftmend' cooldown tracking  
+  
+  
+Improvements:  
+-- Added option to play sound for removable standard debuffs  
+  
+  
+--------------------------------------------------------------  
 Version 3.178  
   
   
