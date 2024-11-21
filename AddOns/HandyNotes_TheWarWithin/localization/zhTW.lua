@@ -372,5 +372,8 @@ L['3_dirt_caked_celebration_crate_note'] = '{note:無需從 {npc:226683} 附近�
 L['4_sandy_celebration_crate'] = '1. 從 {location:卡林多} 的 {location:千針石林} {location:沉沒的挖掘場} 收集 {item:228768}。\n\n2. 在 {location:艾蘇納} 的東邊道路上找到游蕩的 {npc:91079}。\n\n3. 花費 %s 購買 {item:228767}。'
 L['5_battered_celebration_crate'] = '靠在 {npc:24026} 附近洞穴的岩石上。'
 L['6_waterlogged_celebration_crate'] = '位於地精建築二樓的水下。\n\n{note:不要觸碰電梯。當前它會導致游戲崩潰。}'
+L['7_charred_celebration_crate'] = '藏在 {location:呼嘯林地} 的蹦床底部。'
+L['8_mildewed_celebration_crate'] = '1. 在 {location:梣谷} 的 {location:雷鳴峰} 頂部的 {npc:34295} 後面找到並喝下 {object:真相藥水}。\n\n2. 在 {location:菲拉斯} 的 {location:厄運之槌} 中拾取 {object:發霉的慶典箱子}。\n\n{note:{spell:463368} 僅持續30分鐘。必須手動飛往 {location:菲拉斯}。更改大陸、使用傳送門或使用 {item:6948} 將移除該增益效果。}'
+L['9_crystalized_celebration_crate'] = '在 {location:納格蘭} 的 {location:沃舒古} 內。'
 
 L['water_resistant_receipt_note'] = '1. 進入充滿 {npc:47390} 的隧道，右轉從管道後面的 {object:防水的銷售收據} 中收集 {item:228768}。\n\n2. 在 {location:破碎群島} 的 {location:艾蘇納} 找到 {npc:91079}。'
