@@ -189,7 +189,7 @@ mainFrame.edges[1] = CreateEdge(1,4)
 mainFrame.markbuts = {}
 do
 	local markbuts_backdrop = {bgFile = ExRT.F.barImg,edgeFile = ExRT.F.defBorder,tile = false,edgeSize = 8}
-	for i=1,16 do
+	for i=1,8 do
 		local frame = CreateFrame("Frame",nil,mainFrame, BackdropTemplateMixin and "BackdropTemplate")
 		mainFrame.markbuts[i] = frame
 		frame:SetSize(26,26)
@@ -600,17 +600,17 @@ local function modifymarkbars()
 		
 		mainFrame.edges[1]:SetPoint("TOPLEFT",4,0)
 		if not VMRT.MarksBar.Show[1] then
-			for i=1,16 do
+			for i=1,8 do
 				mainFrame.markbuts[i]:Hide()
 			end
 		else
 			for i=1,8 do
 				mainFrame.markbuts[i]:Show()
 			end
-			local showExtraMarks = RAID_TARGET_USE_EXTRA
-			for i=9,16 do
-				mainFrame.markbuts[i]:SetShown(showExtraMarks)
-			end
+			local showExtraMarks = false
+			--for i=9,16 do
+			--	mainFrame.markbuts[i]:SetShown(showExtraMarks)
+			--end
 			
 			posX = posX + 222 + (showExtraMarks and 224 or 0)
 			totalWidth = totalWidth + 222 + (showExtraMarks and 224 or 0)
@@ -747,17 +747,17 @@ local function modifymarkbars()
 		
 		mainFrame.edges[1]:SetPoint("TOPLEFT",0,-posX)
 		if not VMRT.MarksBar.Show[1] then
-			for i=1,16 do
+			for i=1,8 do
 				mainFrame.markbuts[i]:Hide()
 			end
 		else
 			for i=1,8 do
 				mainFrame.markbuts[i]:Show()
 			end
-			local showExtraMarks = RAID_TARGET_USE_EXTRA
-			for i=9,16 do
-				mainFrame.markbuts[i]:SetShown(showExtraMarks)
-			end
+			local showExtraMarks = false
+			--for i=9,16 do
+			--	mainFrame.markbuts[i]:SetShown(showExtraMarks)
+			--end
 			
 			posX = posX + 224 + (showExtraMarks and 224 or 0)
 			totalWidth = totalWidth + 224 + (showExtraMarks and 224 or 0)

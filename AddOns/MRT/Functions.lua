@@ -797,8 +797,11 @@ function ExRT.F.CreateAddonMsg(...)
 	return result
 end
 
-function ExRT.F.GetPlayerRole()
+function ExRT.F.GetPlayerRole(checkNotInGroup)
 	local role = UnitGroupRolesAssigned('player')
+	if (not role or role == "NONE") and checkNotInGroup and GetSpecializationInfo then
+		role = select(5,GetSpecializationInfo(GetSpecialization() or 0))
+	end
 	if role == "HEALER" then
 		local _,class = UnitClass('player')
 		return role, (class == "PALADIN" or class == "MONK") and "MHEALER" or "RHEALER"
@@ -1644,6 +1647,82 @@ do
 		exportWindow:Show()
 	end
 end
+---------------> Profiling Window <---------------
+do
+	local profilingWindow
+	function ExRT.F:ProfilingWindow()
+		if not profilingWindow then
+			profilingWindow = ExRT.lib:Popup("Profiling"):Size(700,300)
+			local self = profilingWindow
+
+			profilingWindow.decorationLine = ELib:DecorationLine(self,true,"BACKGROUND",-5):Point("TOPLEFT",self,0,-15):Point("BOTTOMRIGHT",self,"TOPRIGHT",0,-35)
+		
+			profilingWindow.list = ELib:ScrollTableList(self,300,80,80,80,80,0):Size(700,300-35-25):Point("TOP",0,-35):FontSize(11):HideBorders()
+		
+			profilingWindow.headertext1 = ELib:Text(self,"  Event"):Point("LEFT",self.list,2,0):Point("TOP",self.decorationLine,0,0):Size(300,20):Left():Middle():Color():Shadow()
+			profilingWindow.headertext2 = ELib:Text(self,"Total, ms"):Point("LEFT",self.headertext1,"RIGHT",0,0):Point("TOP",self.decorationLine,0,0):Size(80,20):Left():Middle():Color():Shadow()
+			profilingWindow.headertext3 = ELib:Text(self,"Count"):Point("LEFT",self.headertext2,"RIGHT",0,0):Point("TOP",self.decorationLine,0,0):Size(80,20):Left():Middle():Color():Shadow()
+			profilingWindow.headertext4 = ELib:Text(self,"Peak"):Point("LEFT",self.headertext3,"RIGHT",0,0):Point("TOP",self.decorationLine,0,0):Size(80,20):Left():Middle():Color():Shadow()
+			profilingWindow.headertext5 = ELib:Text(self,"Per 1, ms"):Point("LEFT",self.headertext4,"RIGHT",0,0):Point("TOP",self.decorationLine,0,0):Size(80,20):Left():Middle():Color():Shadow()
+			profilingWindow.headertext6 = ELib:Text(self,"Per sec, ms"):Point("LEFT",self.headertext5,"RIGHT",0,0):Point("TOP",self.decorationLine,0,0):Size(80,20):Left():Middle():Color():Shadow()
+
+			local t = 0
+			profilingWindow:SetScript("OnUpdate",function(self,elapsed)
+				t = t + elapsed
+				if t < 0.5 then
+					return
+				end
+				t = t % 0.5
+
+				profilingWindow.nextBoss:SetEnabled(not ExRT.F:IsProfilingBoss())
+
+				if not ExRT.Profiling.Start then
+					return
+				end
+
+				local r,total = {},{"Total",0,"","","",0}
+				local now = (ExRT.Profiling.End or debugprofilestop()) - ExRT.Profiling.Start
+				for event in pairs(ExRT.Profiling.T) do
+					local t = ExRT.Profiling.T[event]
+					local c = ExRT.Profiling.C[event]
+					local m = ExRT.Profiling.M[event]
+			
+					r[#r+1] = {event,format("%.1f",t),c,format("%.1f",m),format("%.1f",t/c),format("%.1f",t/now*1000),sort=t}
+
+					total[2] = total[2] + t
+				end
+				sort(r,function(a,b) return a.sort>b.sort end)
+				total[6] = format("%.1f",total[2] / now*1000)
+				total[2] = format("%.1f",total[2])
+				tinsert(r,1,total)
+
+				if ExRT.F:IsProfilingBoss() and not ExRT.Profiling.BossStarted then
+					wipe(r)
+				end
+		
+				profilingWindow.list.L = r
+				profilingWindow.list:Update()
+
+				profilingWindow.startBut:SetText(ExRT.Profiling.Enabled and "Stop profiling" or "Start profiling")
+			end)
+
+			profilingWindow.startBut = ELib:Button(profilingWindow,"Start profiling"):Size(200,20):Point("BOTTOMLEFT",2,2):OnClick(function()
+				ExRT.F:StartStopProfiling()
+				t = 0.5
+			end)
+			profilingWindow.exportBut = ELib:Button(profilingWindow,"Export to string"):Size(200,20):Point("LEFT",profilingWindow.startBut,"RIGHT",2,0):OnClick(function()
+				ExRT.F:GetProfiling()
+			end)
+			profilingWindow.nextBoss = ELib:Button(profilingWindow,"Next boss encounter"):Size(200,20):Point("LEFT",profilingWindow.exportBut,"RIGHT",2,0):OnClick(function()
+				ExRT.F:StartProfilingBoss()
+			end)
+		end
+
+		profilingWindow:NewPoint("TOPLEFT",UIParent,5,-5)
+		profilingWindow:Show()
+	end
+end
+
 
 ---------------> Import/Export data <---------------
 do

@@ -2210,7 +2210,29 @@ function module.frame:UpdateFont()
 	self.timeLeftLine.time:SetFont(font,fontsize,"")
 
 end
-module.frame:Create()
+--module.frame:Create()
+
+do
+	local scheduledUpdate
+	local function zoneCheck()
+		scheduledUpdate = nil
+		local zoneName, instanceType, difficultyID, _, _, _, _, zoneID = GetInstanceInfo()
+		if instanceType == "raid" then
+			module.frame:Create()
+		end
+	end
+	function module.main:ZONE_CHANGED_NEW_AREA()
+		if module.frame.isCreated then 
+			module:UnregisterEvents('ZONE_CHANGED_NEW_AREA')
+			return
+		end
+		zoneCheck()
+		if not scheduledUpdate then
+			scheduledUpdate = C_Timer.NewTimer(1,zoneCheck)
+		end
+	end
+end
+
 
 do
 	local line = CreateFrame("Frame",nil,module.frame)
@@ -3076,7 +3098,7 @@ function module.main:ADDON_LOADED()
 		VMRT.RaidCheck.WeaponEnch = {}
 	end
 
-	module:RegisterEvents('READY_CHECK')
+	module:RegisterEvents('READY_CHECK','ZONE_CHANGED_NEW_AREA')
 
 	module:RegisterSlash()
 	module:RegisterAddonMessage()
