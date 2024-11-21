@@ -354,5 +354,10 @@ L['3_dirt_caked_celebration_crate_note'] = nil
 L['4_sandy_celebration_crate'] = nil
 L['5_battered_celebration_crate'] = nil
 L['6_waterlogged_celebration_crate'] = nil
+L['7_charred_celebration_crate'] = nil
+L['8_mildewed_celebration_crate'] = nil
+L['9_crystalized_celebration_crate'] = nil
+L['10_surprisingly_pristine_celebration_crate'] = nil
 
 L['water_resistant_receipt_note'] = nil
+L['mysterious_bones_note'] = nil
