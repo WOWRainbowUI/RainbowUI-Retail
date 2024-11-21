@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("AraKaraTrash", "DBM-Party-WarWithin", 6)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241105185406")
+mod:SetRevision("20241118073917")
 --mod:SetModelID(47785)
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
@@ -209,7 +209,7 @@ function mod:UNIT_DIED(args)
 end
 
 --All timers subject to a ~0.5 second clipping due to ScanEngagedUnits
-function mod:StartNameplateTimers(guid, cid)
+function mod:StartEngageTimers(guid, cid)
 	if cid == 217531 then--Ixin
 		timerWebSprayCD:Start(4.4, guid)--4.4-7
 		timerHorrifyingShrillCD:Start(12.7, guid)

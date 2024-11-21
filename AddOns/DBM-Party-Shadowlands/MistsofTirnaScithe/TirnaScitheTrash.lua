@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("TirnaScitheTrash", "DBM-Party-Shadowlands", 3)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241104125135")
+mod:SetRevision("20241118073917")
 mod:SetZone(2290)
 mod:RegisterZoneCombat(2290)
 --mod:SetModelID(47785)
@@ -424,7 +424,7 @@ function mod:UNIT_DIED(args)
 end
 
 --All timers subject to a ~0.5 second clipping due to ScanEngagedUnits
-function mod:StartNameplateTimers(guid, cid)
+function mod:StartEngageTimers(guid, cid)
 	if cid == 166304 then--Mistveil Stinger
 		timerAnimaInjectionCD:Start(4, guid)
 	elseif cid == 166276 then--Mistveil Guardian

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("BoralusTrash", "DBM-Party-BfA", 5)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241104104210")
+mod:SetRevision("20241118073917")
 --mod:SetModelID(47785)
 
 mod.isTrashMod = true
@@ -324,7 +324,7 @@ end
 --]]
 
 --All timers subject to a ~0.5 second clipping due to ScanEngagedUnits
-function mod:StartNameplateTimers(guid, cid)
+function mod:StartEngageTimers(guid, cid)
 	if cid == 129374 then--Scrimshaw Enforcer
 --		timerSlobberknockerCD:Start(16.8, guid)--Might be 10ish, wait for improved logs
 	elseif cid == 129372 then--Blacktar Bomber

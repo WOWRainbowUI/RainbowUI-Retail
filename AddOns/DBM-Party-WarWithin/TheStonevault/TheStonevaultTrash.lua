@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("TheStonevaultTrash", "DBM-Party-WarWithin", 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241104104210")
+mod:SetRevision("20241118073917")
 --mod:SetModelID(47785)
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
@@ -280,7 +280,7 @@ function mod:UNIT_DIED(args)
 end
 
 --All timers subject to a ~0.5 second clipping due to ScanEngagedUnits
-function mod:StartNameplateTimers(guid, cid)
+function mod:StartEngageTimers(guid, cid)
 	if cid == 210109 then--Earth Infused Golem
 		timerSeismicWaveCD:Start(4.6, guid)--4.6-9.4
 	elseif cid == 212389 or cid == 212403 then--Cursedheart Invader
