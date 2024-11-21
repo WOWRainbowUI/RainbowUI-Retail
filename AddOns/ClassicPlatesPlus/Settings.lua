@@ -132,7 +132,7 @@ function func:Load_Settings()
 			local name = "等級";
 			local tooltip = "";
 			local cfg = "ShowLevel";
-			local default = false;
+			local default = true;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -165,7 +165,7 @@ function func:Load_Settings()
 			local name = "大型名字";
 			local tooltip = "";
 			local cfg = "LargeName";
-			local default = false;
+			local default = true;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -209,7 +209,7 @@ function func:Load_Settings()
 			local name = "陣營徽章";
 			local tooltip = "";
 			local cfg = "ShowFaction";
-			local default = true;
+			local default = false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -399,7 +399,7 @@ function func:Load_Settings()
 			local name = "數值";
 			local tooltip = "顯示血量和能量數值";
 			local cfg = "NumericValue";
-			local default = false;
+			local default = true;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -421,7 +421,7 @@ function func:Load_Settings()
 			local name = "對調數值位置";
 			local tooltip = "交換數值和百分比的位置";
 			local cfg = "PercentageAsMainValue";
-			local default = true;
+			local default = false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -454,7 +454,7 @@ function func:Load_Settings()
 			local name = "大型主要血量";
 			local tooltip = "";
 			local cfg = "LargeMainValue";
-			local default = false;
+			local default = true;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -645,7 +645,7 @@ function func:Load_Settings()
 			local name = "威脅值百分比";
 			local tooltip = "顯示產生的威脅值數量";
 			local cfg = "ThreatPercentage";
-			local default = false;
+			local default = true;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
