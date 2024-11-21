@@ -560,6 +560,10 @@ D["ClassicPlatesPlus"] = {
 		type = "text",
         text = "|cffFF2D2D請勿和 '威力血條' 同時載入使用。|r",       
 	},
+	{
+		type = "text",
+        text = "按住 Ctrl 鍵可以拖曳移動腳下的個人資源條。",       
+	},
 };
 D["ClearMapPin"] = {
 	defaultEnable = 1,
