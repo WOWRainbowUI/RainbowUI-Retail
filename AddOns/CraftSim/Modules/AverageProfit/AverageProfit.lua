@@ -9,7 +9,7 @@ CraftSim.AVERAGEPROFIT.frame = nil
 ---@type GGUI.Frame
 CraftSim.AVERAGEPROFIT.frameWO = nil
 
-local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.AVERAGE_PROFIT)
+local print = CraftSim.DEBUG:RegisterDebugID("Modules.AverageProfit")
 
 local statIncreaseFactor = 5
 
