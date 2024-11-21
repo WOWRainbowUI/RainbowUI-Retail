@@ -6043,7 +6043,15 @@ found = true end
                                 vroom = {
                                     type = "header",
                                     name = function()
-                                        return format( "VR%sM!", string.rep( "O", self.DB.profile.specs[ id ].placeboBar or 5 ) )
+                                        local amount = self.DB.profile.specs[ id ].placeboBar or 5
+
+                                        if amount > 19 then
+                                            return "|cFFFF0000MAXIMAL VROOM|r - Secret Optimal Mode Unlocked"
+                                        elseif amount > 14 then
+                                            return "|cFFFF0000DANGER|r - Approaching Maximum VROOOM"
+                                        end
+
+                                        return format( "VR%sM!", string.rep( "O", amount ) )
                                     end,
                                     order = 101,
                                     width = "full"
@@ -7810,6 +7818,8 @@ n = tonumber( n ) + 1
 
                                                         -- Let's load variables, just in case.
                                                         for name, alist in pairs( apack.lists ) do
+                                                            state.this_list = name
+
                                                             for i, entry in ipairs( alist ) do
                                                                 if name ~= list or i ~= action then
                                                                     if entry.action == "variable" and entry.var_name then
@@ -7823,6 +7833,7 @@ n = tonumber( n ) + 1
                                                         entry = entry and entry[ action ]
 
                                                         state.this_action = entry.action
+                                                        state.this_list = list
 
                                                         local scriptID = pack .. ":" .. list .. ":" .. action
                                                         state.scriptID = scriptID
@@ -7850,6 +7861,7 @@ n = tonumber( n ) + 1
 
                                                         -- Let's load variables, just in case.
                                                         for name, alist in pairs( apack.lists ) do
+                                                            state.this_list = name
                                                             for i, entry in ipairs( alist ) do
                                                                 if name ~= list or i ~= action then
                                                                     if entry.action == "variable" and entry.var_name then
@@ -7863,6 +7875,7 @@ n = tonumber( n ) + 1
                                                         entry = entry and entry[ action ]
 
                                                         state.this_action = entry.action
+                                                        state.this_list = list
 
                                                         local scriptID = pack .. ":" .. list .. ":" .. action
                                                         state.scriptID = scriptID
@@ -7894,6 +7907,7 @@ n = tonumber( n ) + 1
 
                                                         -- Let's load variables, just in case.
                                                         for name, alist in pairs( apack.lists ) do
+                                                            state.this_list = name
                                                             for i, entry in ipairs( alist ) do
                                                                 if name ~= list or i ~= action then
                                                                     if entry.action == "variable" and entry.var_name then
@@ -7907,6 +7921,7 @@ n = tonumber( n ) + 1
                                                         entry = entry and entry[ action ]
 
                                                         state.this_action = entry.action
+                                                        state.this_list = list
 
                                                         local scriptID = pack .. ":" .. list .. ":" .. action
                                                         state.scriptID = scriptID

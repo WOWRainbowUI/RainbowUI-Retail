@@ -1868,6 +1868,7 @@ do
         selection = 1,
         selection_time = 1,
         this_action = 1,
+        this_list = 1,
 
         -- Calculated from event data.
         aggro = 1,
@@ -2066,6 +2067,7 @@ do
             elseif k == "selection" then return t.selection_time < 60
             elseif k == "selection_time" then t[k] = 60
             elseif k == "this_action" then t[k] = "wait"
+            elseif k == "this_list" then t[k] = "default"
 
             -- Calculated from real event data.
             elseif k == "aggro" then t[k] = ( UnitThreatSituation( "player" ) or 0 ) > 1

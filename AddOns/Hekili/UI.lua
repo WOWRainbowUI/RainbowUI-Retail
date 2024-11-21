@@ -2332,14 +2332,42 @@ do
                 self.activeThreadFrames = 0
 
                 if not self.firstThreadCompleted then
-                    Hekili.maxFrameTime = InCombatLockdown() and 10 or 50
+                    Hekili.maxFrameTime = 16.67
                 else
-                    local spf = GetFramerate()
-                    spf = 950 / ( spf > 0 and spf or 60 )
+                    local rate = GetFramerate()
+                    local spf = 1000 / ( rate > 0 and rate or 60 )
+
                     if HekiliEngine.threadUpdates then
                         Hekili.maxFrameTime = min( spf, HekiliEngine.threadUpdates.meanFrameTime )
+
+                        --[[ local mode = Hekili:GetActiveSpecOption( "updateMode" ) or "auto"
+
+                        if mode == "auto" then
+                            -- Adjust throttle to 90% of frame time vs. time spent in thread; constrained to range of 60 to ~144 FPS.
+                            Hekili.maxFrameTime = max( 7, min( 16.67, 0.9 * HekiliEngine.threadUpdates.meanClockTime / HekiliEngine.threadUpdates.meanFrames ) )
+                        elseif mode == "percent" then
+                            local percent = Hekili:GetActiveSpecOption( "updatePercent" ) or 0.9
+                            -- Adjust throttle to X% of current frame rate, constrained to range of 30 to 200 FPS.
+                            Hekili.maxFrameTime = max( 5, min( 33.33, spf * percent ) )
+                        elseif mode == "scaled" then
+                            local lowFrame = 1000 / ( Hekili:GetActiveSpecOption( "lowFPS" ) or 30 )
+                            local lowPercent = Hekili:GetActiveSpecOption( "lowPercent" ) or 0.5
+                            local highFrame = 1000 / ( Hekili:GetActiveSpecOption( "highFPS" ) or 200 )
+                            local highPercent = Hekili:GetActiveSpecOption( "highPercent" ) or 0.9
+
+                            -- Adjust throttle to X percent of current frame rate, scaled linearly from lowFPS to highFPS.
+                            if rate < lowFrame then spf = lowPercent * lowFrame
+                            elseif rate > highFrame then spf = highPercent * highFrame
+                            else spf = lowPercent + ( rate - lowFrame ) * ( highPercent - lowPercent ) / ( highFrame - lowFrame ) end
+                            spf = min( 33.33 * ercent, min( ) )
+
+
+                            local maxPercent = Hekili:GetActiveSpecOption( "maxPercent" ) or 0.9
+                            local minPercent = Hekili:GetActiveSpecOption( "minPercent" ) or 0.5
+
+                            ... ]]
                     else
-                        Hekili.maxFrameTime = spf
+                        Hekili.maxFrameTime = max( 7, min( 16.67, 0.9 * spf ) )
                     end
                 end
 

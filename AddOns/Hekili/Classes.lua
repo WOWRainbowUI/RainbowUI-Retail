@@ -80,6 +80,8 @@ local specTemplate = {
         }
     },
 
+    placeboBar = 3,
+
     ranges = {},
     settings = {},
     phases = {},

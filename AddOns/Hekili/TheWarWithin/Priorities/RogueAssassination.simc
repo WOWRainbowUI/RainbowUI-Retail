@@ -144,8 +144,8 @@ actions.stealthed+=/variable,name=scent_saturation,value=buff.scent_of_blood.sta
 actions.stealthed+=/pool_resource,for_next=1
 # Apply Deathstalkers Mark if it has fallen off
 actions.stealthed+=/ambush,if=talent.deathstalkers_mark&!debuff.deathstalkers_mark.up&active_dot.deathstalkers_mark=0&(time=0|buff.darkest_night.down)
-# Make sure to have Shiv up during Kingsbane as a final check
-actions.stealthed+=/shiv,if=talent.kingsbane&(dot.kingsbane.ticking|cooldown.kingsbane.up)&(!debuff.shiv.up&debuff.shiv.remains<1)&buff.envenom.up
+# Make sure to have Shiv up during Kingsbane as a final check [Hekili] with Lightweight Shiv only
+actions.stealthed+=/shiv,if=talent.lightweight_shiv&talent.kingsbane&(dot.kingsbane.ticking|cooldown.kingsbane.up)&(!debuff.shiv.up&debuff.shiv.remains<1)&buff.envenom.up
 # Envenom to maintain the buff during Subterfuge
 actions.stealthed+=/envenom,if=effective_combo_points>=variable.effective_spend_cp&dot.kingsbane.ticking&buff.envenom.remains<=3&(debuff.deathstalkers_mark.up|buff.cold_blood.up)
 # Envenom during Master Assassin in single target
