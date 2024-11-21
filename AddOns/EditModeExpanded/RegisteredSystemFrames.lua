@@ -82,12 +82,14 @@ function addon:registerSecureFrameHideable(frame)
     local onResetFunctionHide = lib:RegisterCustomCheckbox(frame, HIDE,
         function()
             hidden = true
+            if InCombatLockdown() then return end
             if not EditModeManagerFrame.editModeActive then
                 hide()
             end
         end,
         function()
             hidden = false
+            if InCombatLockdown() then return end
             show()
         end,
         "HidePermanently")
@@ -167,13 +169,16 @@ local parentparent = CreateFrame("Frame", nil, UIParent)
 local parent = CreateFrame("Frame", nil, parentparent)
 
 function addon.unlinkClassResourceFrame(frame)
+    local wasChecked
     lib:RegisterCustomCheckbox(frame, L["UNLINK_CLASS_RESOURCE_DESCRIPTION"], 
         --onChecked
         function()
             frame:SetParent(parent)
+            wasChecked = true
         end,
         --onUnchecked
         function()
+            if not wasChecked then return end
             frame:SetParent(PlayerFrameBottomManagedFramesContainer)
         end
     )
