@@ -1,5 +1,5 @@
-## Interface: 110005, 110000, 110002
-## Version: v11.0.4
+## Interface: 110005, 110007, 110002
+## Version: v11.0.5
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-deDE: Spice up your minimap with some sexy options.
