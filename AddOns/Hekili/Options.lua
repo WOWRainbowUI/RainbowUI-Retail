@@ -6025,7 +6025,7 @@ found = true end
                                 placeboBar = {
                                     type = "range",
                                     name = "不是安慰劑",
-                                    desc = "這會調整當前專精的虛擬實境。",
+                                    desc = "這會調整當前專精的 VROOM。",
                                     order = 100,
                                     width = "full",
                                     min = 3,
@@ -6036,7 +6036,15 @@ found = true end
                                 vroom = {
                                     type = "header",
                                     name = function()
-                                        return format( "VR%sM!", string.rep( "O", self.DB.profile.specs[ id ].placeboBar or 5 ) )
+                                        local amount = self.DB.profile.specs[ id ].placeboBar or 5
+
+                                        if amount > 19 then
+                                            return "|cFFFF0000最大 VROOM|r - 解鎖秘密最佳化模式"
+                                        elseif amount > 14 then
+                                            return "|cFFFF0000危險|r - 接近最大 VROOM"
+                                        end
+
+                                        return format( "VR%sM!", string.rep( "O", amount ) )
                                     end,
                                     order = 101,
                                     width = "full"
@@ -7801,6 +7809,8 @@ n = tonumber( n ) + 1
 
                                                         -- 載入變數，以防萬一。
                                                         for name, alist in pairs( apack.lists ) do
+                                                            state.this_list = name
+
                                                             for i, entry in ipairs( alist ) do
                                                                 if name ~= list or i ~= action then
                                                                     if entry.action == "variable" and entry.var_name then
@@ -7814,6 +7824,7 @@ n = tonumber( n ) + 1
                                                         entry = entry and entry[ action ]
 
                                                         state.this_action = entry.action
+                                                        state.this_list = list
 
                                                         local scriptID = pack .. ":" .. list .. ":" .. action
                                                         state.scriptID = scriptID
@@ -7841,6 +7852,7 @@ n = tonumber( n ) + 1
 
                                                         -- 載入變數，以防萬一。
                                                         for name, alist in pairs( apack.lists ) do
+                                                            state.this_list = name
                                                             for i, entry in ipairs( alist ) do
                                                                 if name ~= list or i ~= action then
                                                                     if entry.action == "variable" and entry.var_name then
@@ -7854,6 +7866,7 @@ n = tonumber( n ) + 1
                                                         entry = entry and entry[ action ]
 
                                                         state.this_action = entry.action
+                                                        state.this_list = list
 
                                                         local scriptID = pack .. ":" .. list .. ":" .. action
                                                         state.scriptID = scriptID
@@ -7885,6 +7898,7 @@ n = tonumber( n ) + 1
 
                                                         -- 載入變數，以防萬一。
                                                         for name, alist in pairs( apack.lists ) do
+                                                            state.this_list = name
                                                             for i, entry in ipairs( alist ) do
                                                                 if name ~= list or i ~= action then
                                                                     if entry.action == "variable" and entry.var_name then
@@ -7898,6 +7912,7 @@ n = tonumber( n ) + 1
                                                         entry = entry and entry[ action ]
 
                                                         state.this_action = entry.action
+                                                        state.this_list = list
 
                                                         local scriptID = pack .. ":" .. list .. ":" .. action
                                                         state.scriptID = scriptID
