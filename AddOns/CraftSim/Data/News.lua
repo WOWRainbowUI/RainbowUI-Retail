@@ -5,7 +5,7 @@ local GUTIL = CraftSim.GUTIL
 
 CraftSim.NEWS = {}
 
-local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.NEWS)
+local print = CraftSim.DEBUG:RegisterDebugID("Data.News")
 
 ---@param itemMap table<string, ItemMixin>
 function CraftSim.NEWS:GET_NEWS(itemMap)
@@ -17,6 +17,11 @@ function CraftSim.NEWS:GET_NEWS(itemMap)
     local news = {
         f.bb("                   Hello and thank you for using CraftSim!\n"),
         f.bb("                                 ( You are awesome! )"),
+        newP("19.6.2"),
+        f.s .. f.bb("Craft Log"),
+        f.a .. "- Fixed not updating the graph",
+        f.a .. "- Anchored Log and Advanced Log independently",
+        f.p .. "Refactored " .. f.grey("Debug ID Creation"),
         newP("19.6.1"),
         f.p .. "Fixed " .. f.bb("Craft Log") .. " not account for salvage crafting cost",
         newP("19.6.0"),

@@ -2,7 +2,7 @@
 local CraftSim = select(2, ...)
 
 
-local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.DATAEXPORT)
+local print = CraftSim.DEBUG:RegisterDebugID("Classes.RecipeData.ResultData")
 
 ---@class CraftSim.ResultData : CraftSim.CraftSimObject
 CraftSim.ResultData = CraftSim.CraftSimObject:extend()

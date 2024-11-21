@@ -10,7 +10,7 @@ local GUTIL = CraftSim.GUTIL
 
 CraftSim.FRAME.frames = {}
 
-local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.FRAMES)
+local print = CraftSim.DEBUG:RegisterDebugID("Util.Frames")
 
 function CraftSim.FRAME:FormatStatDiffpercentText(statDiff, roundTo, suffix)
     if statDiff == nil then
@@ -58,8 +58,8 @@ function CraftSim.FRAME:RestoreModulePositions()
     infoFrame:RestoreSavedConfig(UIParent)
     debugFrame:RestoreSavedConfig(UIParent)
     CraftSim.RECIPE_SCAN.frame:RestoreSavedConfig(ProfessionsFrame)
-    CraftSim.CRAFT_LOG.logFrame:RestoreSavedConfig(ProfessionsFrame)
-    CraftSim.CRAFT_LOG.advFrame:RestoreSavedConfig(CraftSim.CRAFT_LOG.logFrame.frame)
+    CraftSim.CRAFT_LOG.logFrame:RestoreSavedConfig(UIParent)
+    CraftSim.CRAFT_LOG.advFrame:RestoreSavedConfig(UIParent)
     CraftSim.CUSTOMER_HISTORY.frame:RestoreSavedConfig(ProfessionsFrame)
     priceOverrideFrame:RestoreSavedConfig(ProfessionsFrame)
     priceOverrideFrameWO:RestoreSavedConfig(ProfessionsFrame)
