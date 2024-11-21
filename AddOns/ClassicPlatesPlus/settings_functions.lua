@@ -1143,7 +1143,7 @@ function func:Create_AurasList(panel, name, cfg)
                 table.insert(a, n);
             end
 
-            -- table.sort(a); -- 暫時修正
+            table.sort(a);
 
             local i = 0;
             local function iter()
@@ -1162,7 +1162,12 @@ function func:Create_AurasList(panel, name, cfg)
         data.settings[cfg] = {};
         for k in pairs(CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile][cfg]) do
             if k then
-                local spellName, _, icon = C_Spell.GetSpellInfo(k);  -- 暫時修正
+                local spellName, icon  -- 暫時修正
+				local spellInfo  = C_Spell.GetSpellInfo(k)
+				if spellInfo then
+					spellName = spellInfo.name
+					icon = spellInfo.iconID
+				end
 
                 if spellName then
                     sorter[spellName] = { icon = icon, id = k };
@@ -1173,7 +1178,7 @@ function func:Create_AurasList(panel, name, cfg)
 
         for k,v in pairsByKeys(sorter) do
             if pairsByKeys then
-                local aura = { name = k.name, icon = v.icon, id = v.id };  -- 暫時修正
+                local aura = { name = k, icon = v.icon, id = v.id };
                 table.insert(sorted, aura);
             end
         end
