@@ -397,7 +397,7 @@ function mod:PLAYER_LOGIN()
 
 	-- Setup config
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(name, mod.options, true)
-	local _, categoryID = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(name L["SexyMap"])
+	local _, categoryID = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(name, L["SexyMap"])
 
 	-- Configure slash handler
 	SlashCmdList.SexyMap = function()
