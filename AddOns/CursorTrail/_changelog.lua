@@ -7,6 +7,21 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.0.5.3
+Released 2024-11-20
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.5.3 for Retail WoW
+Version 4.4.1.2 for Classic Cataclysm
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No changes.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 1.15.5.1 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Classic WoW 1.15.5.
+
+=======================================
 RELEASE 11.0.5.2
 Released 2024-10-29
 
@@ -570,39 +585,6 @@ Version 3.4.3.5 for Classic WotLK
 Version 1.15.1.2 for Classic WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 - Updated for WoW 10.2.6.
-- Updated the UI controls library.  (Should not cause any noticeable changes.)
-
-=======================================
-RELEASE 10.2.5.3
-Released 2024-03-15
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.2.5.3 for Retail WoW
-Version 3.4.3.4 for Classic WotLK
-Version 1.15.1.1 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated the UI controls library.  (Should not cause any noticeable changes.)
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 1.15.1.1 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Classic WoW 1.15.1.
-- Fixed color picker error that occurred when trying to change shape color.
-- Fixed the "Cloud, Purple (Soft)" model so it correctly follows the mouse cursor.
-- Fixed the "Glow, Cloud, Flame" model so it correctly follows the mouse cursor.
-
-=======================================
-RELEASE 10.2.5.2
-Released 2024-01-24
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.2.5.2 for Retail WoW
-Version 3.4.3.3 for Classic WotLK
-Version 1.15.0.2 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Changed color picker implementation so the custom color palette only appears for CursorTrail.  All other addons and system options will use the original color picker.  (Prevents future Blizzard color picker design changes from being covered up by the CursorTrail custom color palette.)
-- Fixed errors caused by calling the SetPropagateKeyboardInput() function during combat.
-- Clicking outside of an open dropdown menu will now close that menu.
 - Updated the UI controls library.  (Should not cause any noticeable changes.)
 
 ]]
