@@ -1,5 +1,15 @@
 # OmniCC Changelog
 
+## 11.0.5
+
+* Fix an error that could ocurr when updating timer settings while active timers are present
+
+## 11.0.4
+
+* Update TOCs
+* Update cooldown calculations
+* Add typings
+
 ## 11.0.3
 
 * Add modRate to display duration calculations
