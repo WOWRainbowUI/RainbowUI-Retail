@@ -1297,14 +1297,25 @@ do
 				((data[8] and data[8][1] and data[8][2] and data[8][3]) or not data[8])
 			then
 				spellDB[#spellDB+1] = data
-				if data.itemID and data[2] and strsplit(",",data[2]) == "ITEMS" then
-					_db.itemsToSpells[data.itemID] = data[1]
-					if data.isEquip then
-						_db.spell_isTalent[ data[1] ] = true
-					end
-				end
+				local icon
 				if data.isTalent then
 					_db.spell_isTalent[ data[1] ] = true
+				else
+					_db.spell_isTalent[ data[1] ] = nil
+				end
+				if data.itemID and data[2] and strsplit(",",data[2]) == "ITEMS" then
+					_db.itemsToSpells[data.itemID] = data[1]
+					icon = select(5,GetItemInfoInstant(data.itemID))
+					_db.itemsToSpells[data.itemID] = data[1]
+					_db.spell_isTalent[ data[1] ] = true
+				end
+				if data.icon then
+					icon = tonumber(data.icon) or data.icon
+				end
+				if icon then
+					module.db.differentIcons[ data[1] ] = icon
+				else
+					module.db.differentIcons[ data[1] ] = nil
 				end
 			end
 		end
@@ -3172,6 +3183,7 @@ do
 		timerATFReset = 100
 	end
 
+	local slow_rf = 0
 	function module:timer(elapsed)
 		local forceUpdateAllData
 
@@ -3192,6 +3204,11 @@ do
 			module:toggleCombatVisibility(false,1)
 		end
 
+		slow_rf = slow_rf - 1
+		if slow_rf > 0 then
+			return
+		end
+		slow_rf = 2
 
 		---------> Check status
 		statusTimer2 = statusTimer2 + elapsed
@@ -3813,6 +3830,7 @@ local function UpdateRoster()
 							if spellData[l] then
 								local h = (ExRT.isClassic and not ExRT.isCata) and _db.cdsNav[name][GetSpellName(spellData[l][1])] or _db.cdsNav[name][spellData[l][1]]
 								if h then
+									local needUpdate
 									h.db = spellData
 									if lastUse ~= 0 and nowCd ~= 0 and h.lastUse == 0 and h.cd == 0 then
 										h.cd = nowCd
@@ -3821,6 +3839,9 @@ local function UpdateRoster()
 									h.sort = prior
 									h.sort2 = secondPrior
 									h.spellName = spellName
+									if h.icon ~= spellTexture then
+										needUpdate = true
+									end
 									h.icon = spellTexture
 									h.column = spellColumn
 									h.guid = h.guid or UnitGUID(name)
@@ -3838,6 +3859,10 @@ local function UpdateRoster()
 										_db.vars.isMage[h.guid] = true
 									elseif spellClass == "HUNTER" and h.guid then
 										_db.vars.isHunter[h.guid] = true
+									end
+
+									if needUpdate and h.bar then
+										h.bar:Update()
 									end
 								end
 							end
@@ -7078,7 +7103,7 @@ function module.options:Load()
 			else
 				local spellName = GetSpellName(data[1])
 				local spellTexture = GetSpellTexture(data[1])
-				line.icon:SetTexture(spellTexture)
+				line.icon:SetTexture(data.icon or spellTexture)
 				line.spellName:SetText(spellName or "Removed spell #"..data[1])
 
 				line.tooltipFrame.link = nil
@@ -7343,7 +7368,7 @@ function module.options:Load()
 	self.searchEditBox:SetTextColor(0,1,0,1)
 
 
-	self.addModSpellFrame = ELib:Popup():Size(570,275)
+	self.addModSpellFrame = ELib:Popup():Size(570,300)
 
 	self.addModSpellFrame.Save = ELib:Button(self.addModSpellFrame,L.BossmodsKromogSetupsSave):Size(558,20):Point("BOTTOM",0,1):OnClick(function(self)
 		local parent = self:GetParent()
@@ -7412,27 +7437,56 @@ function module.options:Load()
 		--self.Save:Click()
 	end)
 
-	self.addModSpellFrame.spellIDIcon = ELib:Edit(self.addModSpellFrame):Size(100,20):Point("TOPLEFT",150,-50):LeftText("Spell ID (for icon):"):OnChange(function(self,isUser)
+	self.addModSpellFrame.spellIDIcon = ELib:Edit(self.addModSpellFrame):Size(180,20):Point("TOPLEFT",150,-50):LeftText("Spell ID (for icon):"):OnChange(function(self,isUser)
 		local text = self:GetText() or ""
 		if not tonumber(text) then
 			text = "0"
 		end
 		local spellID = tonumber(text)
 		local parent = self:GetParent()
-		parent.data[1] = spellID
+		if isUser then
+			parent.data[1] = spellID
+		end
 		parent.Save:Check()
 
 		local spellName,_,spellIcon = GetSpellInfo(spellID)
 		self.RightText:SetText((spellIcon and "|T"..spellIcon..":20|t " or "")..(spellName or ""))
+	end):Tooltip(function(self)
+		local parent = self:GetParent()
+		local spellID = parent.data[1]
+		if not spellID or not GetSpellName(spellID) then
+			return "Spell does not exist"
+		end
+		local AllSpells = module.options:GetAllSpells(true)
+		for _,line in pairs(AllSpells) do
+			if line[1] == spellID and line ~= parent.data then
+				return "Spell already found in cooldowns list"
+			end
+		end
 	end)
 	self.addModSpellFrame.spellIDIcon.leftText:Color():Shadow()
 	self.addModSpellFrame.spellIDIcon.RightText = ELib:Text(self.addModSpellFrame.spellIDIcon,"",12):Point("LEFT",self.addModSpellFrame.spellIDIcon,"RIGHT",5,0):Color():Shadow()
 
-	self.addModSpellFrame.chkSpellIsTalent = ELib:Check(self.addModSpellFrame,L.cd2SpellIsTalent):Tooltip(L.cd2SpellIsTalentTip):Point(150,-75):OnClick(function(self) 
+	self.addModSpellFrame.chkSpellIsTalent = ELib:Check(self.addModSpellFrame,L.cd2SpellIsTalent):Tooltip(L.cd2SpellIsTalentTip):Point(150,-100):OnClick(function(self) 
 		local parent = self:GetParent()
 		parent.data.isTalent = self:GetChecked()
 		parent.Save:Check()
 	end)
+
+	self.addModSpellFrame.customIcon = ELib:Edit(self.addModSpellFrame):Size(180,20):Point("TOPLEFT",150,-75):LeftText("Custom icon:"):OnChange(function(self,isUser)
+		local text = self:GetText() or ""
+		if text:trim() == "" then
+			text = nil
+		end
+		if isUser then
+			local parent = self:GetParent()
+			parent.data.icon = text
+		end
+
+		self.RightText:SetText((text and "|T"..text..":20|t " or ""))
+	end):Tooltip("Icon ID or icon path.\nLeave empty to use icon from item or spell")
+	self.addModSpellFrame.customIcon.leftText:Color():Shadow()
+	self.addModSpellFrame.customIcon.RightText = ELib:Text(self.addModSpellFrame.customIcon,"",12):Point("LEFT",self.addModSpellFrame.customIcon,"RIGHT",5,0):Color():Shadow()
 
 	local function addModSpellFrameEditCLEU(self)
 		local text = self:GetText() or ""
@@ -7448,7 +7502,7 @@ function module.options:Load()
 	end
 
 	for i=1,5 do
-		self.addModSpellFrame["spellIDCLEU"..i] = ELib:Edit(self.addModSpellFrame):Size(180,20):Point("TOPLEFT",150,-125-(i-1)*25):OnChange(addModSpellFrameEditCLEU):Tooltip("Leave empty for ignoring"):LeftText("")
+		self.addModSpellFrame["spellIDCLEU"..i] = ELib:Edit(self.addModSpellFrame):Size(180,20):Point("TOPLEFT",150,-150-(i-1)*25):OnChange(addModSpellFrameEditCLEU):Tooltip("Leave empty for ignoring"):LeftText("")
 		self.addModSpellFrame["spellIDCLEU"..i].leftText:Color():Shadow()
 
 		self.addModSpellFrame["cd"..i] = ELib:Edit(self.addModSpellFrame):Size(100,20):Point("LEFT",self.addModSpellFrame["spellIDCLEU"..i],"RIGHT",10,0):OnChange(addModSpellFrameEditCD)
@@ -7459,7 +7513,7 @@ function module.options:Load()
 	self.addModSpellFrame.cdtext = ELib:Text(self.addModSpellFrame,L.cd2EditBoxCDTooltip,12):Point("BOTTOM",self.addModSpellFrame.cd1,"TOP",0,2):Color():Shadow()
 	self.addModSpellFrame.durtext = ELib:Text(self.addModSpellFrame,L.cd2EditBoxDurationTooltip,12):Point("BOTTOM",self.addModSpellFrame.dur1,"TOP",0,2):Color():Shadow()
 
-	self.addModSpellFrame.dropDown = ELib:DropDown(self.addModSpellFrame,200,10):Size(210):Point("TOPLEFT",150,-25)
+	self.addModSpellFrame.dropDown = ELib:DropDown(self.addModSpellFrame,200,10):Size(180):Point("TOPLEFT",150,-25)
 	self.addModSpellFrame.dropDown.LeftText = ELib:Text(self.addModSpellFrame.dropDown,L.cd2Class..":",12):Point("RIGHT",self.addModSpellFrame.dropDown,"LEFT",-5,0):Color():Shadow()
 
 	function self.addModSpellFrame.dropDown:SetValue(newValue)
@@ -7486,7 +7540,7 @@ function module.options:Load()
 	end
 
 	self.addModSpellFrame.dropDown.List[#self.addModSpellFrame.dropDown.List + 1] = {
-		text = L.cd2CatItems,
+		text = BANK_TAB_ASSIGN_EQUIPMENT_CHECKBOX or L.cd2CatItems,
 		justifyH = "CENTER",
 		func = self.addModSpellFrame.dropDown.SetValue,
 		arg1 = "ITEMS",
@@ -7519,17 +7573,6 @@ function module.options:Load()
 		parent:Hide()
 	end)
 
-	self.addModSpellFrame.isEquip = ELib:Check(self.addModSpellFrame,"|cffffffffIs Equipment:"):Left():Point("LEFT",self.addModSpellFrame["spellIDCLEU3"],"LEFT",0,0):OnClick(function(self)
-		local parent = self:GetParent()
-		local data = parent.data
-
-		if self:GetChecked() then
-			data.isEquip = true
-		else
-			data.isEquip = nil
-		end
-	end)
-
 	self.addModSpellFrame.itemToSpell = ELib:Edit(self.addModSpellFrame,nil,true):Size(180,20):Point("LEFT",self.addModSpellFrame["spellIDCLEU4"],"LEFT",0,0):OnChange(function(self,isUser)
 		local parent = self:GetParent()
 		local data = parent.data
@@ -7537,8 +7580,11 @@ function module.options:Load()
 		self.RightText:SetText("")
 		local itemID = tonumber(self:GetText() or "")
 
-		data.itemID = itemID
-		parent.Save:Check()
+		local class = strsplit(",",module.options.addModSpellFrame.data[2])
+		if class ~= "OTHER" then
+			data.itemID = itemID
+			parent.Save:Check()
+		end
 
 		if itemID then
 			local itemName, _, _, _, _, _, _, _, _, itemIcon = GetItemInfo(itemID)
@@ -7556,6 +7602,11 @@ function module.options:Load()
 	end):LeftText("Item ID:"):Run(function(self) 
 		self.leftText:Color() 
 		self.RightText = ELib:Text(self,"",12):Point("TOPLEFT",self,"BOTTOMLEFT",3,-3):Color():Shadow()
+	end):Tooltip(function()
+		local class = strsplit(",",module.options.addModSpellFrame.data[2])
+		if class == "OTHER" then
+			return "This field is only for helping to find out spell id for usable item."
+		end
 	end)
 
 
@@ -7607,10 +7658,14 @@ function module.options:Load()
 		end
 
 		self.itemToSpell:SetText(data.itemID or "")
-		self.isEquip:SetChecked(data.isEquip)
-		self.itemToSpell:SetShown(class == "ITEMS")
-		self.isEquip:SetShown(class == "ITEMS")
+		self.itemToSpell:SetShown(class == "ITEMS" or class == "OTHER")
+		self.itemToSpell:LeftText(class == "ITEMS" and "Item ID:" or "Get spell ID from item ID:")
+		self.customIcon:SetText(data.icon or "")
+		self.customIcon:SetShown(true)
 		self.chkSpellIsTalent:SetShown(class ~= "ITEMS")
+		self.spellIDIcon:LeftText(class == "ITEMS" and "Spell ID (for options):" or "Spell ID (for icon):")
+
+		self.Save:Check()
 
 		local isNew = true
 		local AllSpells = module.options:GetAllSpells(true)
@@ -14704,7 +14759,7 @@ module.db.AllSpells = {
 		item={181333,185304}},
 	{307192,"ITEMS",3,--Духовное зелье исцеления
 		{307192,300,0},
-		sameSpell={307192,213664,216431,216802,216468,338447,301308}},
+		sameSpell={307192,213664,216431,216802,216468,338447,301308,431416}},
 	{6262,	"ITEMS",3,--Камень здоровья
 		{6262,60,0}},
 	{355327,"ITEMS",3,--Зажим черной души
@@ -14782,6 +14837,9 @@ module.db.AllSpells = {
 	{427113,"ITEMS",3,--Dreambinder
 		{427113,120,4},
 		item=208616},
+	{431416,"ITEMS",3,--Algari Healing Potion
+		{431416,300,0},
+		sameSpell={307192,213664,216431,216802,216468,338447,301308,431416,431418},icon=5931169},
 
 
 	{295373,"ESSENCES",3,--Сосредоточенный огонь

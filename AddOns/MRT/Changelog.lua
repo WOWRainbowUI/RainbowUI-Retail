@@ -1,6 +1,14 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5100
+* Reminder: you can directly select only boss from recorded m+ run 
+* Reminder: added players from custom roster to advanced settings window if it opened via shift-click on assignments page with "custom roster" selected
+* Raid Cooldowns: added custom icon option for spells that was added by users
+* Loot History: added icon for roll type (need/greed/transmog/pass)
+* Added profiling
+* Fixes
+
 v.5080
 * Reminder: changed load conditions logic for reminders with both boss+zone load
 * Reminder: "assignments"/"timeline": added dungeon bosses to list

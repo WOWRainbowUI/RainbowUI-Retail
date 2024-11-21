@@ -470,6 +470,8 @@ MRT.F.menuTable = {
 { text = L.minimapmenuset, func = MRT.Options.Open, notCheckable = true, keepShownOnClick = true, },
 { text = " ", isTitle = true, notCheckable = true, notClickable = true },
 { text = " ", isTitle = true, notCheckable = true, notClickable = true },
+{ text = "Profiling", func = function() CloseDropDownMenus() ELib.ScrollDropDown.Close() MRT.F:ProfilingWindow() end, notCheckable = true },
+{ text = " ", isTitle = true, notCheckable = true, notClickable = true },
 { text = L.minimapmenuclose, func = function() CloseDropDownMenus() ELib.ScrollDropDown.Close() end, notCheckable = true },
 }
 

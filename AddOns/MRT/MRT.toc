@@ -1,9 +1,9 @@
-## Interface: 11504, 30403, 40401, 110002, 110005
+## Interface: 11505, 30403, 40401, 110002, 110005
 ## Title: Method Raid Tools
 ## Author: ykiigor
 ## Notes: Method Raid Tools
 ## SavedVariables: VMRT
-## Version: 5080
+## Version: 5100
 ## AddonCompartmentFunc: MRT_MinimapClickFunction
 ## IconTexture: Interface\AddOns\MRT\media\MiniMap.tga
 
