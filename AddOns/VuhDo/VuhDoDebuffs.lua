@@ -70,6 +70,7 @@ local sIsMiBuColorsInFight;
 local sStdDebuffSound;
 local sAllDebuffSettings;
 local sIsShowOnlyForFriendly;
+local sIsDebuffSoundRemovableOnly;
 local sEmpty = { };
 local sCurChosenColor = { };
 --local sColorArray = nil;
@@ -91,6 +92,7 @@ function VUHDO_debuffsInitLocalOverrides()
 	sStdDebuffSound = VUHDO_CONFIG["SOUND_DEBUFF"];
 	sAllDebuffSettings = VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"];
 	sIsShowOnlyForFriendly = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isShowOnlyForFriendly"];
+	sIsDebuffSoundRemovableOnly = VUHDO_CONFIG["SOUND_DEBUFF_REMOVABLE_ONLY"];
 
 	VUHDO_DEBUFF_COLORS = {
 		[1] = VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF1"],
@@ -1004,6 +1006,8 @@ local tName;
 local tSpellIdStr;
 local tDebuffSettings;
 local tCurChosenInfo;
+local tType;
+local tAbility;
 local function VUHDO_updateDebuffs(aUnit)
 
 	tInfo = (VUHDO_RAID or sEmpty)[aUnit];
@@ -1046,14 +1050,21 @@ local function VUHDO_updateDebuffs(aUnit)
 
 					tCurChosenInfo = sCurChosenInfo[aUnit][tAuraInstanceId];
 
-					if sStdDebuffSound and tCurChosenInfo
-						and (tCurChosenInfo[1] ~= VUHDO_DEBUFF_TYPE_NONE or tCurChosenInfo[4])
-						and tCurChosenInfo[1] ~= VUHDO_DEBUFF_TYPE_CUSTOM
-						and tCurChosenInfo[1] ~= VUHDO_LAST_UNIT_DEBUFFS[aUnit]
-						and tInfo["range"] then
-							VUHDO_LAST_UNIT_DEBUFFS[aUnit] = tCurChosenInfo[1];
+					if sStdDebuffSound and tCurChosenInfo and tInfo["range"] then
+						tType = tCurChosenInfo[1];
+
+						if sIsDebuffSoundRemovableOnly then
+							tAbility = VUHDO_PLAYER_ABILITIES[tType] and UnitIsFriend("player", aUnit);
+
+							if tAbility then
+								tDoStdSound = true;
+							end
+						elseif (tType ~= VUHDO_DEBUFF_TYPE_NONE or tCurChosenInfo[4])
+							and tType ~= VUHDO_DEBUFF_TYPE_CUSTOM and tType ~= VUHDO_LAST_UNIT_DEBUFFS[aUnit] then
+							VUHDO_LAST_UNIT_DEBUFFS[aUnit] = tType;
 
 							tDoStdSound = true;
+						end
 					end
 
 					VUHDO_updateBouquetsForEvent(aUnit, 29); -- VUHDO_UPDATE_CUSTOM_DEBUFF

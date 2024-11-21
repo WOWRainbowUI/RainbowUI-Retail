@@ -652,6 +652,7 @@ VUHDO_I18N_TT.K593 = "Select a size for your private aura icons.";
 VUHDO_I18N_TT.K594 = "Check to sort pet units last.";
 VUHDO_I18N_TT.K595 = "Show effective HP (health including shields) of player.";
 VUHDO_I18N_TT.K596 = "Click to change color to indicate players afflicted by bleed debuffs.";
+VUHDO_I18N_TT.K597 = "Only play a sound if the debuff is removable by yourself.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Default Profile";
 VUHDO_I18N_DEFAULT_LAYOUT = "Default Layout";

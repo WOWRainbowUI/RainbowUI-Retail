@@ -372,7 +372,7 @@
 
 			<Frame name="$parentSoundPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="180" y="70" />
+					<AbsDimension x="180" y="110" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -408,6 +408,22 @@
 							</Layer>
 						</Layers>
 					</Frame>
+
+					<CheckButton name="$parentSoundRemovableCheckButton" text="VUHDO_I18N_REMOVABLE_ONLY" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-69" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.SOUND_DEBUFF_REMOVABLE_ONLY");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K597);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
 
 				</Frames>
 			</Frame>
