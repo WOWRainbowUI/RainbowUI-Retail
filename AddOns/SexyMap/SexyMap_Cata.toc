@@ -1,5 +1,5 @@
 ## Interface: 40400, 40401
-## Version: v11.0.5
+## Version: v11.0.6
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-deDE: Spice up your minimap with some sexy options.
