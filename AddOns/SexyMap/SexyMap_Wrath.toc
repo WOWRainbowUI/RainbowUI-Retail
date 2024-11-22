@@ -1,5 +1,5 @@
 ## Interface: 30403
-## Version: v11.0.6
+## Version: v11.0.7
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-zhCN: 为你的小地图增趣添彩，并包含一些性感选项。
