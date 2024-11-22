@@ -269,7 +269,12 @@ L["Centered Vertical, then Right"] = "По вертикали по центру 
 L["Changed"] = "Изменен"
 L["Channel"] = "Канал"
 L["Channel (Spell)"] = "Потоковое"
+--[[Translation missing --]]
+L["Character GUID"] = "Character GUID"
+L["Character Name"] = "Имя персонажа"
 L["Character Stats"] = "Характеристики персонажа"
+--[[Translation missing --]]
+L["Character Transferred Quantity"] = "Character Transferred Quantity"
 L["Character Type"] = "Тип персонажа"
 L["Charge gained/lost"] = "Событие заряда"
 --[[Translation missing --]]
@@ -289,6 +294,8 @@ L["Class and Specialization"] = "Класс и специализация"
 L["Classic"] = "Classic"
 L["Classification"] = "Классификация"
 L["Clockwise"] = "По часовой стрелке"
+--[[Translation missing --]]
+L["Clone per Character"] = "Clone per Character"
 L["Clone per Event"] = "Клонировать для каждого события"
 L["Clone per Match"] = "Клонировать для каждого совпадения"
 L["Color"] = "Цвет"
@@ -745,6 +752,7 @@ L["Lucifron"] = "Люцифрон"
 L["Maexxna"] = "Мексна"
 L["Magic"] = "Магия"
 L["Magmadar"] = "Магмадар"
+L["Main Character"] = "Главный персонаж"
 L["Main Stat"] = "Основная характеристика"
 L["Majordomo Executus"] = "Мажордом Экзекутус"
 L["Malformed WeakAuras link"] = "Неверная ссылка WeakAuras"
@@ -1264,6 +1272,10 @@ L["The effective level differs from the level in e.g. Time Walking dungeons."] =
 L["The Four Horsemen"] = "Четыре всадника"
 L["The 'ID' value can be found in the BigWigs options of a specific spell"] = "Значение ID можно найти в параметрах BigWigs для конкретного заклинания"
 L["The Prophet Skeram"] = "Пророк Скерам"
+--[[Translation missing --]]
+L["The total quantity a warband character can transfer after paying the transfer cost"] = "The total quantity a warband character can transfer after paying the transfer cost"
+--[[Translation missing --]]
+L["The total quantity after transferring everything to your current character and paying the transfer cost"] = "The total quantity after transferring everything to your current character and paying the transfer cost"
 L["The War Within"] = "Война Внутри"
 L["There are %i updates to your auras ready to be installed!"] = "Готово к применению %i |4обновление:обновления:обновлений;."
 L["Thick Outline"] = "Толстый контур"
@@ -1388,6 +1400,12 @@ L["Vertical"] = "Вертикальная"
 L["Viscidus"] = "Нечистотон"
 L["Visibility"] = "Видимость"
 L["Visions of N'Zoth"] = "Видения Н'Зота"
+--[[Translation missing --]]
+L["Warband Quantity Total"] = "Warband Quantity Total"
+--[[Translation missing --]]
+L["Warband Transfer Percentage"] = "Warband Transfer Percentage"
+--[[Translation missing --]]
+L["Warband Transferred Quantity"] = "Warband Transferred Quantity"
 L["Warfront (Heroic)"] = "Фронт (героический)"
 L["Warfront (Normal)"] = "Фронт (обычный)"
 L["Warlords of Draenor"] = "Warlords of Draenor"
