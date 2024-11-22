@@ -705,7 +705,7 @@ function GUTIL:EquipItemByLink(link)
 end
 
 function GUTIL:isItemSoulbound(itemID)
-    return select(14, C_Item.GetItemInfo(itemID)) == 1
+    return select(14, C_Item.GetItemInfo(itemID)) == Enum.ItemBind.OnAcquire
 end
 
 --> GGUI or keep here?
