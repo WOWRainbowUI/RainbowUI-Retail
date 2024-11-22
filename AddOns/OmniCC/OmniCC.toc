@@ -8,7 +8,7 @@
 ## Notes-frFR: Compte à rebours du temps de recharge
 ## Notes-ruRU: Время восстановления абилок и т.п.
 ## Author: Tuller
-## Version: 11.0.5
+## Version: 11.0.6
 ## SavedVariables: OmniCCDB, OmniCC4Config
 ## IconTexture: Interface/Icons/spell_nature_timestop
 ## AddonCompartmentFunc: OmniCC_Launch
