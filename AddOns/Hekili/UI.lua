@@ -34,7 +34,7 @@ local GetSpellCooldown = function(spellID)
     return 0, 0, false, 0
 end
 
-local format, insert = string.format, table.insert
+local floor, format, insert = math.floor, string.format, table.insert
 
 local HasVehicleActionBar, HasOverrideActionBar, IsInPetBattle, UnitHasVehicleUI, UnitOnTaxi = HasVehicleActionBar, HasOverrideActionBar, C_PetBattles.IsInBattle, UnitHasVehicleUI, UnitOnTaxi
 local Tooltip = ns.Tooltip
@@ -2310,7 +2310,7 @@ do
 
         if Hekili.DB.profile.enabled and not Hekili.Pause then
             self.refreshRate = self.refreshRate or 0.5
-            self.combatRate = self.combatRate or 0.25
+            self.combatRate = self.combatRate or 0.2
 
             local thread = self.activeThread
 
@@ -2335,39 +2335,12 @@ do
                     Hekili.maxFrameTime = 16.67
                 else
                     local rate = GetFramerate()
-                    local spf = 1000 / ( rate > 0 and rate or 60 )
+                    local spf = 1000 / ( rate > 0 and rate or 100 )
 
                     if HekiliEngine.threadUpdates then
-                        Hekili.maxFrameTime = min( spf, HekiliEngine.threadUpdates.meanFrameTime )
-
-                        --[[ local mode = Hekili:GetActiveSpecOption( "updateMode" ) or "auto"
-
-                        if mode == "auto" then
-                            -- Adjust throttle to 90% of frame time vs. time spent in thread; constrained to range of 60 to ~144 FPS.
-                            Hekili.maxFrameTime = max( 7, min( 16.67, 0.9 * HekiliEngine.threadUpdates.meanClockTime / HekiliEngine.threadUpdates.meanFrames ) )
-                        elseif mode == "percent" then
-                            local percent = Hekili:GetActiveSpecOption( "updatePercent" ) or 0.9
-                            -- Adjust throttle to X% of current frame rate, constrained to range of 30 to 200 FPS.
-                            Hekili.maxFrameTime = max( 5, min( 33.33, spf * percent ) )
-                        elseif mode == "scaled" then
-                            local lowFrame = 1000 / ( Hekili:GetActiveSpecOption( "lowFPS" ) or 30 )
-                            local lowPercent = Hekili:GetActiveSpecOption( "lowPercent" ) or 0.5
-                            local highFrame = 1000 / ( Hekili:GetActiveSpecOption( "highFPS" ) or 200 )
-                            local highPercent = Hekili:GetActiveSpecOption( "highPercent" ) or 0.9
-
-                            -- Adjust throttle to X percent of current frame rate, scaled linearly from lowFPS to highFPS.
-                            if rate < lowFrame then spf = lowPercent * lowFrame
-                            elseif rate > highFrame then spf = highPercent * highFrame
-                            else spf = lowPercent + ( rate - lowFrame ) * ( highPercent - lowPercent ) / ( highFrame - lowFrame ) end
-                            spf = min( 33.33 * ercent, min( ) )
-
-
-                            local maxPercent = Hekili:GetActiveSpecOption( "maxPercent" ) or 0.9
-                            local minPercent = Hekili:GetActiveSpecOption( "minPercent" ) or 0.5
-
-                            ... ]]
+                        Hekili.maxFrameTime = 0.9 * max( 7, min( 16.667, spf, 1.1 * HekiliEngine.threadUpdates.meanWorkTime / floor( HekiliEngine.threadUpdates.meanFrames ) ) )
                     else
-                        Hekili.maxFrameTime = max( 7, min( 16.67, 0.9 * spf ) )
+                        Hekili.maxFrameTime = 0.9 * max( 7, min( 16.667, spf ) )
                     end
                 end
 
@@ -2382,6 +2355,7 @@ do
                 self.activeThreadFrames = self.activeThreadFrames + 1
                 Hekili.activeFrameStart = debugprofilestop()
 
+                -- if HekiliEngine.threadUpdates then print( 1000 * elapsed, Hekili.maxFrameTime, HekiliEngine.threadUpdates.meanWorkTime, HekiliEngine.threadUpdates.meanFrames ) end
                 local ok, err = coroutine.resume( thread )
 
                 if not ok then
