@@ -14,12 +14,9 @@ local PTR = ns.PTR
 local strformat = string.format
 
 local me = Hekili:NewSpecialization( 252 )
-
 me:RegisterResource( Enum.PowerType.Runes, {
     rune_regen = {
-        last = function ()
-            return state.query_time
-        end,
+        last = function () return state.query_time end,
 
         interval = function( time, val )
             local r = state.runes
@@ -29,10 +26,7 @@ me:RegisterResource( Enum.PowerType.Runes, {
             return r.expiry[ val + 1 ] - time
         end,
 
-        stop = function( x )
-            return x == 6
-        end,
-
+        stop = function( x ) return x == 6 end,
         value = 1,
     },
 }, setmetatable( {
@@ -51,10 +45,8 @@ me:RegisterResource( Enum.PowerType.Runes, {
 
         for i = 1, 6 do
             local start, duration, ready = GetRuneCooldown( i )
-
             start = start or 0
             duration = duration or ( 10 * state.haste )
-
             start = roundUp( start, 3 )
 
             t.expiry[ i ] = ready and 0 or start + duration
@@ -62,8 +54,7 @@ me:RegisterResource( Enum.PowerType.Runes, {
         end
 
         table.sort( t.expiry )
-
-        t.actual = nil
+        t.actual = nil -- Reset actual to force recalculation
     end,
 
     gain = function( amount )
@@ -73,8 +64,7 @@ me:RegisterResource( Enum.PowerType.Runes, {
             t.expiry[ 7 - i ] = 0
         end
         table.sort( t.expiry )
-
-        t.actual = nil
+        t.actual = nil -- Reset actual to force recalculation
     end,
 
     spend = function( amount )
@@ -90,21 +80,23 @@ me:RegisterResource( Enum.PowerType.Runes, {
         end
 
         if amount > 0 then
+            -- Handle Runic Power gain
             state.gain( amount * 10, "runic_power" )
 
+            -- Handle Tier 20 4-piece set bonus
             if state.set_bonus.tier20_4pc == 1 then
                 state.cooldown.army_of_the_dead.expires = max( 0, state.cooldown.army_of_the_dead.expires - 1 )
             end
         end
 
-        t.actual = nil
+        t.actual = nil -- Reset actual to force recalculation
     end,
 
     timeTo = function( x )
         return state:TimeToResource( state.runes, x )
     end,
 }, {
-    __index = function( t, k, v )
+    __index = function( t, k )
         if k == "actual" then
             local amount = 0
 
@@ -117,30 +109,19 @@ me:RegisterResource( Enum.PowerType.Runes, {
             return amount
 
         elseif k == "current" then
-            -- If this is a modeled resource, use our lookup system.
+            -- Use forecasted values if available, fallback to `actual`
             if t.forecast and t.fcount > 0 then
                 local q = state.query_time
-                local index, slice
-
-                if t.values[ q ] then return t.values[ q ] end
-
-                for i = 1, t.fcount do
-                    local v = t.forecast[ i ]
-                    if v.t <= q then
-                        index = i
-                        slice = v
-                    else
-                        break
-                    end
-                end
-
-                -- We have a slice.
-                if index and slice then
-                    t.values[ q ] = max( 0, min( t.max, slice.v ) )
+                if t.values[ q ] then
                     return t.values[ q ]
                 end
+                for i = 1, t.fcount do
+                    local slice = t.forecast[ i ]
+                    if slice.t <= q then
+                        return max( 0, min( t.max, slice.v ) )
+                    end
+                end
             end
-
             return t.actual
 
         elseif k == "deficit" then
@@ -150,20 +131,17 @@ me:RegisterResource( Enum.PowerType.Runes, {
             return t[ "time_to_" .. t.current + 1 ]
 
         elseif k == "time_to_max" then
-            return t.current == 6 and 0 or max( 0, t.expiry[6] - state.query_time )
-
-
-        elseif k == "add" then
-            return t.gain
+            return t.current == t.max and 0 or max( 0, t.expiry[ 6 ] - state.query_time )
 
         else
             local amount = k:match( "time_to_(%d+)" )
             amount = amount and tonumber( amount )
-
             if amount then return state:TimeToResource( t, amount ) end
         end
     end
-} ) )
+}))
+
+
 me:RegisterResource( Enum.PowerType.RunicPower )
 
 

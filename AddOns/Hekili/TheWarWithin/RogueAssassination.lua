@@ -409,6 +409,8 @@ local death_events = {
 local envenom1 = 0
 local envenom2 = 0
 
+local last = 0
+
 spec:RegisterCombatLogEvent( function( _, subtype, _,  sourceGUID, sourceName, _, _, destGUID, destName, destFlags, _, spellID, spellName )
     if sourceGUID == state.GUID then
         if removal_events[ subtype ] then
@@ -420,8 +422,13 @@ spec:RegisterCombatLogEvent( function( _, subtype, _,  sourceGUID, sourceName, _
 
         if spellID == 32645 and destGUID == state.GUID and application_events[ subtype ] then
             local now = GetTime()
-            last = last or now
 
+            if now - last < 0.5 then
+                last = now
+                return
+            end
+
+            last = now
             local buff = UA_GetPlayerAuraBySpellID( 32645 )
 
             if not buff then
@@ -437,10 +444,10 @@ spec:RegisterCombatLogEvent( function( _, subtype, _,  sourceGUID, sourceName, _
             end
 
             local exp = buff.expirationTime or 0
-            envenom2 = min( exp, envenom1 )
+            envenom2 = envenom1 > now and min( envenom1, exp ) or 0
             envenom1 = exp
 
-            --[[ print( format( "Updated Envenom at %.2f, %.2f (%.2f), [1] %.2f (%.2f), [2] %.2f (%.2f)", now, exp, exp - now,
+            --[[ print( format( "%20s - Updated Envenom at %.2f, %.2f (%.2f), [1] %.2f (%.2f), [2] %.2f (%.2f)", subtype, now, exp, exp - now,
                 envenom1, envenom1 - now,
                 envenom2, envenom2 - now ) ) ]]
             return
