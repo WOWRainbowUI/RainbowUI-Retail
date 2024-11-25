@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 9
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 10
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -343,7 +343,6 @@ local function DropDownMenuButton_OnClick(self)
 		if self.keepShownOnClick then
 			self.GroupCheck:Hide()
 			self.Check:SetShown(self._checked)
-			self.UnCheck:SetShown(not self._checked)
 		end
 	end
 
@@ -492,20 +491,13 @@ function v.dropDownMenuButtonInit(btn)
 		btn.highlight:SetBlendMode("ADD")
 		btn.highlight:SetAllPoints()
 
-		btn.Check = btn:CreateTexture(nil, "ARTWORK")
-		btn.Check:SetTexture("Interface/Common/UI-DropDownRadioChecks")
-		btn.Check:SetSize(16, 16)
+		btn.Check = btn:CreateTexture(nil, "ARTWORK", nil, 2)
 		btn.Check:SetPoint("LEFT")
-		btn.Check:SetTexCoord(0, .5, .5, 1)
 
-		btn.UnCheck = btn:CreateTexture(nil, "ARTWORK")
-		btn.UnCheck:SetTexture("Interface/Common/UI-DropDownRadioChecks")
-		btn.UnCheck:SetSize(16, 16)
+		btn.UnCheck = btn:CreateTexture(nil, "ARTWORK", nil, 1)
 		btn.UnCheck:SetPoint("LEFT")
-		btn.UnCheck:SetTexCoord(.5, 1, .5, 1)
 
 		btn.Icon = btn:CreateTexture(nil, "BACKGROUND")
-		btn.Icon:SetSize(16, 16)
 
 		btn.ExpandArrow = btn:CreateTexture(nil, "ARTWORK")
 		btn.ExpandArrow:SetTexture("Interface/ChatFrame/ChatFrameExpandArrow")
@@ -517,10 +509,10 @@ function v.dropDownMenuButtonInit(btn)
 	end
 
 	if not btn.GroupCheck then
-		btn.GroupCheck = btn:CreateTexture(nil, "ARTWORK", nil, 1)
+		btn.GroupCheck = btn:CreateTexture(nil, "ARTWORK", nil, 2)
 		btn.GroupCheck:SetColorTexture(1, .8, 0)
 		btn.GroupCheck:SetSize(8, 8)
-		btn.GroupCheck:SetPoint("CENTER", btn.UnCheck, -1, -1)
+		btn.GroupCheck:SetPoint("CENTER", btn.UnCheck)
 	end
 end
 
@@ -550,7 +542,7 @@ local function widget_OnEnter(self)
 		self.OnEnter(parent, parent.arg1, parent.arg2)
 	end
 
-	DropDownMenuButton_OnEnterInit(self:GetParent())
+	DropDownMenuButton_OnEnterInit(parent)
 end
 
 
@@ -907,16 +899,16 @@ local function DropDownMenuSearchButtonInit(btn, info)
 		end
 
 		if btn.isNotRadio or btn._checked == 2 then
-			btn.Check:SetTexCoord(0, .5, 0, .5)
-			btn.UnCheck:SetTexCoord(.5, 1, 0, .5)
+			btn.Check:SetAtlas("common-dropdown-icon-checkmark-yellow", true)
+			btn.UnCheck:SetAtlas("common-dropdown-ticksquare", true)
 		else
-			btn.Check:SetTexCoord(0, .5, .5, 1)
-			btn.UnCheck:SetTexCoord(.5, 1, .5, 1)
+			btn.Check:SetAtlas("common-dropdown-icon-radialtick-yellow", true)
+			btn.UnCheck:SetAtlas("common-dropdown-tickradial", true)
 		end
 
 		local checked = btn._checked and btn._checked ~= 2
 		btn.Check:SetShown(checked)
-		btn.UnCheck:SetShown(not checked)
+		btn.UnCheck:Show()
 		btn.GroupCheck:SetShown(btn._checked == 2)
 	end
 end
@@ -1512,7 +1504,7 @@ do
 			end
 			local checked = btn._checked and btn._checked ~= 2
 			btn.Check:SetShown(checked)
-			btn.UnCheck:SetShown(not checked)
+			btn.UnCheck:Show()
 			btn.GroupCheck:SetShown(btn._checked == 2)
 
 			if setText and btn._checked and not btn.isNotRadio then
@@ -1731,16 +1723,16 @@ function DropDownButtonMixin:ddAddButton(info, level)
 		end
 
 		if btn.isNotRadio or btn._checked == 2 then
-			btn.Check:SetTexCoord(0, .5, 0, .5)
-			btn.UnCheck:SetTexCoord(.5, 1, 0, .5)
+			btn.Check:SetAtlas("common-dropdown-icon-checkmark-yellow", true)
+			btn.UnCheck:SetAtlas("common-dropdown-ticksquare", true)
 		else
-			btn.Check:SetTexCoord(0, .5, .5, 1)
-			btn.UnCheck:SetTexCoord(.5, 1, .5, 1)
+			btn.Check:SetAtlas("common-dropdown-icon-radialtick-yellow", true)
+			btn.UnCheck:SetAtlas("common-dropdown-tickradial", true)
 		end
 
 		local checked = btn._checked and btn._checked ~= 2
 		btn.Check:SetShown(checked)
-		btn.UnCheck:SetShown(not checked)
+		btn.UnCheck:Show()
 		btn.GroupCheck:SetShown(btn._checked == 2)
 	end
 
@@ -2173,5 +2165,36 @@ if oldminor < 9 then
 		local widget = v.widgetFrames[i]
 		widget:SetScript("OnEnter", widget_OnEnter)
 		widget:SetScript("OnLeave", widget_OnLeave)
+	end
+end
+
+
+if oldminor < 10 then
+	local function updateButton(btn)
+		btn:SetScript("OnClick", DropDownMenuButton_OnClick)
+
+		btn.Check:SetDrawLayer("ARTWORK", 2)
+		btn.Check:SetTexCoord(0, 1, 0, 1)
+
+		btn.UnCheck:SetDrawLayer("ARTWORK", 1)
+		btn.UnCheck:SetTexCoord(0, 1, 0, 1)
+
+		btn.GroupCheck:SetDrawLayer("ARTWORK", 2)
+		btn.GroupCheck:SetPoint("CENTER", btn.UnCheck)
+	end
+
+	for i = 1, #v.dropDownMenusList do
+		local buttonsList = v.dropDownMenusList[i].buttonsList
+		for j = 1, #buttonsList do
+			updateButton(buttonsList[j])
+		end
+	end
+
+	for i = 1, #dropDownSearchFrames do
+		local f = dropDownSearchFrames[i]
+		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
+		for j, btn in ipairs(f.view:GetFrames()) do
+			updateButton(btn)
+		end
 	end
 end
