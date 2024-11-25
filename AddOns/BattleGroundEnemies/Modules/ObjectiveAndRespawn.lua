@@ -111,6 +111,7 @@ function objectiveAndRespawn:AttachToPlayerButton(playerButton)
 	-- end)
 
 	function frame:Reset()
+		self:Debug("Reset")
 		self:Hide()
 		self.Icon:SetTexture()
 		if self.AuraText:GetFont() then self:HideText() end
@@ -118,12 +119,14 @@ function objectiveAndRespawn:AttachToPlayerButton(playerButton)
 	end
 
 	function frame:HideText()
+		self:Debug("HideText")
 		self.AuraText:SetText("")
 		self.shownValue = false
 	end
 
 
 	function frame:ApplyAllSettings()
+		if not self.config then return end
 		local conf = self.config
 		self.AuraText:ApplyFontStringSettings(conf.Text)
 		self.Cooldown:ApplyCooldownSettings(conf.Cooldown, true, {0, 0, 0, 0.75})
@@ -141,7 +144,7 @@ function objectiveAndRespawn:AttachToPlayerButton(playerButton)
 						if aura.points and type(aura.points) == "table" then
 							if aura.points[2] then
 								if not self.shownValue then
-									self:Debug("hier")
+									--self:Debug("hier")
 									--player just got the debuff
 									self.Icon:SetTexture(GetSpellTexture(aura.spellId))
 									self:Show()
@@ -184,7 +187,6 @@ function objectiveAndRespawn:AttachToPlayerButton(playerButton)
 	end
 
 	function frame:BeforeFullAuraUpdate(filter)
-		self:Debug("BeforeFullAuraUpdate")
 		if filter == "HARMFUL" then
 			self.continue = true
 		end
@@ -196,14 +198,14 @@ function objectiveAndRespawn:AttachToPlayerButton(playerButton)
 		if filter ~= "HARMFUL" then return end
 		if not self.continue then return end
 
-		self:Debug("NewAura", 2)
+		--self:Debug("NewAura", 2)
 
 		if not BattleGroundEnemies.ArenaIDToPlayerButton[unitID] then return end -- This player is not shown on arena enemy so we dont care
 		if BattleGroundEnemies.states.battleGroundDebuffs then self:SearchForDebuffs(aura) end
 	end
 
 	function frame:UnitRevived()
-		self:Debug("UnitRevived")
+		--self:Debug("UnitRevived")
 
 		--BattleGroundEnemies:Debug("UnitRevived")
 		if self.ActiveRespawnTimer then
@@ -215,7 +217,7 @@ function objectiveAndRespawn:AttachToPlayerButton(playerButton)
 	function frame:UnitDied()
 		self:Debug("UnitDied")
 
-		if (BattleGroundEnemies.states.isRatedBG or BattleGroundEnemies.states.isSoloRBG or (BattleGroundEnemies.Testmode.Active)) then
+		if (BattleGroundEnemies.states.isRatedBG or BattleGroundEnemies.states.isSoloRBG or BattleGroundEnemies:IsTestmodeOrEditmodeActive()) then
 			self:Debug("UnitIsDead SetCooldown")
 			if not self.ActiveRespawnTimer then
 				self:Show()
@@ -228,7 +230,9 @@ function objectiveAndRespawn:AttachToPlayerButton(playerButton)
 				respawmTime = 45
 			else
 				if BattleGroundEnemies.states.isSoloRBG then
-					respawmTime = 15
+					if BattleGroundEnemies.states.currentMapID ~= 2345 then
+						respawmTime = 16
+					end
 				end
 			end
 			self.Cooldown:SetCooldown(GetTime(), respawmTime) --overwrite an already active timer
@@ -239,8 +243,12 @@ function objectiveAndRespawn:AttachToPlayerButton(playerButton)
 		self:Debug("ArenaOpponentShown")
 		if BattleGroundEnemies.states.battlegroundBuff then
 			self:Debug("has battlegroundBuff")
-			self.Icon:SetTexture(GetSpellTexture(BattleGroundEnemies.states.battlegroundBuff[playerButton.PlayerIsEnemy and BattleGroundEnemies.EnemyFaction or BattleGroundEnemies.AllyFaction]))
-			self:Show()
+			local spellId = BattleGroundEnemies.states.battlegroundBuff[playerButton.PlayerIsEnemy and BattleGroundEnemies.EnemyFaction or BattleGroundEnemies.AllyFaction]
+			if spellId then
+				self.Icon:SetTexture(GetSpellTexture(spellId))
+				self:Show()
+			end
+			
 		end
 
 		self:HideText()

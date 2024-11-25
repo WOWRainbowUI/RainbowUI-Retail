@@ -6,6 +6,35 @@ local Data = select(2, ...)
 
 Data.changelog = {
 	{
+		Version = "11.0.5.8",
+		General = "This version mostly is just a minor update after release of 11.0.5.1. Please read its changelog to know more about that major update.",
+		Sections = {
+			{
+				Header = "New features:",
+				Entries = {
+					"Added debug logging capability to the options panel.",
+					"Edit and testmode can now be used inside arena or battlegrounds while not in combat"
+				}
+			},
+			{
+				Header = "Bugfix",
+				Entries = {
+					"Resetting a custom player count profile to default will no longer overwrite the player count",
+					"Fixed enemies not loading on classic/cataclysm. Thanks to shmagey73 and b1ghead3d from curseforge for the help",
+				}
+			},
+			{
+				Header = "Changes",
+				Entries = {
+					"Increased respawm time in solo rated battlegrounds by 1 second to 16 seconds",
+					"Increased repawm time in solo rated battleground Deephaul Ravine to 26 seconds",
+					"When custom player count profiles are enabled, they will still be shown but be disabled, this is to avoid confusion since they still can be used to copy settings from",
+					"Improved editmode by making it more static and less jumpy",
+				}
+			}
+		}
+	},
+	{
 		Version = "11.0.5.7",
 		General = "This version mostly is just a minor update after release of 11.0.5.1. Please read its changelog to know more about that major update.",
 		Sections = {

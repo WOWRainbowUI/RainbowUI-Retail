@@ -125,6 +125,10 @@ do
         end
 	end
 
+	function buttonFunctions:Debug(...)
+		return BattleGroundEnemies:Debug(self.PlayerDetails.PlayerName, ...)
+	end 
+
 	function buttonFunctions:OnDragStart()
 		return BattleGroundEnemies.db.profile.Locked or self:GetParent():StartMoving()
 	end
@@ -222,7 +226,7 @@ do
 
 	function buttonFunctions:PlayerDetailsChanged()
 		self:SetBindings()
-		self:DispatchEvent("PlayerDetailsChanged")
+		self:CallExistingFuncOnAllEnabledButtonModuleFrames("ApplyAllSettings")
 	end
 
 	function buttonFunctions:UpdateRaidTargetIcon(forceIndex)
@@ -307,6 +311,19 @@ do
 		end
 	end
 
+	function buttonFunctions:CallExistingFuncOnAllEnabledButtonModuleFrames(funcName, ...)
+		for moduleName, moduleFrame in pairs(BattleGroundEnemies.ButtonModules) do
+			local moduleFrameOnButton = self[moduleName]
+			if moduleFrameOnButton then
+				if moduleFrameOnButton.Enabled then
+					if type(moduleFrameOnButton[funcName]) == "function" then
+						moduleFrameOnButton[funcName](moduleFrameOnButton, ...)
+					end
+				end
+ 			end
+		end
+	end
+
 	function buttonFunctions:CallFuncOnAllButtonModuleFrames(func)
 		for moduleName, moduleFrame in pairs(BattleGroundEnemies.ButtonModules) do
 			local moduleFrameOnButton = self[moduleName]
@@ -316,14 +333,24 @@ do
 		end
 	end
 
-	function buttonFunctions:SetModulePositions()
-		self:SetConfigShortCuts()
+	function buttonFunctions:CallFuncOnAllEnabledButtonModuleFrames(func)
+		for moduleName, moduleFrame in pairs(BattleGroundEnemies.ButtonModules) do
+			local moduleFrameOnButton = self[moduleName]
+			if moduleFrameOnButton then
+				if moduleFrameOnButton.Enabled then
+					func(self, moduleFrameOnButton)
+				end
+ 			end
+		end
+	end
+
+	function buttonFunctions:ApplyModuleSettings()
+		self:SetAllModuleConfigs()
 		if not self:GetRect() then return end --the position of the button is not set yet
 		local i = 1
 		repeat                          -- we basically run this roop to get out of the anchring hell (making sure all the frames that a module is depending on is set)
 			local allModulesSet = true
 			for moduleName, moduleFrame in pairs(BattleGroundEnemies.ButtonModules) do
-				self:SetModuleConfig(moduleName)
 				local moduleFrameOnButton = self[moduleName]
 
 				local config = moduleFrameOnButton.config
@@ -390,27 +417,50 @@ do
 					end
 				end
 			end
-
-			self.MyTarget:SetParent(self.healthBar)
-			self.MyTarget:SetPoint("TOPLEFT", self.healthBar, "TOPLEFT")
-			self.MyTarget:SetPoint("BOTTOMRIGHT", self.Power, "BOTTOMRIGHT")
-			self.MyFocus:SetParent(self.healthBar)
-			self.MyFocus:SetPoint("TOPLEFT", self.healthBar, "TOPLEFT")
-			self.MyFocus:SetPoint("BOTTOMRIGHT", self.Power, "BOTTOMRIGHT")
-
 			i = i + 1
 
-			-- if i > 10 then
-			-- 	BattleGroundEnemies:Debug("something went wrong in SetModulePositions")
-			-- end
+			if i > 10 then
+				self:Debug("something went wrong in ApplyModuleSettings")
+			end
 		until allModulesSet or i > 10 --maxium of 10 tries
+
+		self.MyTarget:SetParent(self.healthBar)
+		self.MyTarget:SetPoint("TOPLEFT", self.healthBar, "TOPLEFT")
+		self.MyTarget:SetPoint("BOTTOMRIGHT", self.Power, "BOTTOMRIGHT")
+		self.MyFocus:SetParent(self.healthBar)
+		self.MyFocus:SetPoint("TOPLEFT", self.healthBar, "TOPLEFT")
+		self.MyFocus:SetPoint("BOTTOMRIGHT", self.Power, "BOTTOMRIGHT")
+
+		for moduleName, moduleFrame in pairs(BattleGroundEnemies.ButtonModules) do
+			local moduleFrameOnButton = self[moduleName]
+
+			if moduleFrameOnButton.Enabled then
+				if moduleFrame.events then
+					for i = 1, #moduleFrame.events do
+						local event = moduleFrame.events[i]
+						self.ButtonEvents[event] = self.ButtonEvents[event] or {}
+
+						table_insert(self.ButtonEvents[event], moduleFrameOnButton)
+					end
+				end
+				moduleFrameOnButton.Enabled = true
+				moduleFrameOnButton:Show()
+				if moduleFrameOnButton.Enable then moduleFrameOnButton:Enable() end
+				if moduleFrameOnButton.ApplyAllSettings then moduleFrameOnButton:ApplyAllSettings() end
+			else
+				moduleFrameOnButton.Enabled = false
+				moduleFrameOnButton:Hide()
+				if moduleFrameOnButton.Disable then moduleFrameOnButton:Disable() end
+				if moduleFrameOnButton.Reset then moduleFrameOnButton:Reset() end
+			end
+		end
 	end
 
 	function buttonFunctions:SetConfigShortCuts()
 		self.config = BattleGroundEnemies.db.profile[self.PlayerType]
 		self.playerCountConfig = BattleGroundEnemies[self.PlayerType].playerCountConfig
 		if self.playerCountConfig then
-			self.basePath = {"BattleGroundEnemies", self.PlayerIsEnemy and "EnemySettings" or "AllySettings", self.MainFrame:GetPlayerCountConfigName(self.playerCountConfig) }
+			self.basePath = {"BattleGroundEnemies", self.PlayerIsEnemy and "EnemySettings" or "AllySettings", BattleGroundEnemies:GetPlayerCountConfigName(self.playerCountConfig) }
 		else
 			self.basePath = {}
 		end
@@ -456,32 +506,10 @@ do
 
 
 		wipe(self.ButtonEvents)
-		self:SetAllModuleConfigs()
-		self:SetModulePositions()
+		self:ApplyModuleSettings()
 
-		for moduleName, moduleFrame in pairs(BattleGroundEnemies.ButtonModules) do
-			local moduleFrameOnButton = self[moduleName]
-
-			if moduleFrameOnButton.Enabled then
-				if moduleFrame.events then
-					for i = 1, #moduleFrame.events do
-						local event = moduleFrame.events[i]
-						self.ButtonEvents[event] = self.ButtonEvents[event] or {}
-
-						table_insert(self.ButtonEvents[event], moduleFrameOnButton)
-					end
-				end
-				moduleFrameOnButton.Enabled = true
-				moduleFrameOnButton:Show()
-				if moduleFrameOnButton.Enable then moduleFrameOnButton:Enable() end
-				if moduleFrameOnButton.ApplyAllSettings then moduleFrameOnButton:ApplyAllSettings() end
-			else
-				moduleFrameOnButton.Enabled = false
-				moduleFrameOnButton:Hide()
-				if moduleFrameOnButton.Disable then moduleFrameOnButton:Disable() end
-				if moduleFrameOnButton.Reset then moduleFrameOnButton:Reset() end
-			end
-		end
+	
+		self:SetBindings()
 	end
 
 	do
@@ -492,6 +520,8 @@ do
 		}
 
 		function buttonFunctions:SetBindings()
+			self:Debug("SetBindings")
+			if not self.config then return end
 			local setupUsualAttributes = true
 			--use a table to track changes and compare them to GetAttribute
 			--set baseline
@@ -735,6 +765,7 @@ do
 	end
 
 	function buttonFunctions:UpdateRange(inRange, forceUpdate)
+		if not self.config then return end
 		--BattleGroundEnemies:Information("UpdateRange", inRange, self.PlayerName, self.config.RangeIndicator_Enabled, self.config.RangeIndicator_Alpha)
 
 		if not self.config.RangeIndicator_Enabled then return end
@@ -1281,7 +1312,5 @@ function BattleGroundEnemies:CreatePlayerButton(mainframe, num)
 			playerButton[moduleName].moduleName = moduleName
 		end
 	end
-
-	playerButton:ApplyButtonSettings()
 	return playerButton
 end
