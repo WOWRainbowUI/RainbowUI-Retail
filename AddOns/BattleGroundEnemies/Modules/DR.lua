@@ -197,8 +197,6 @@ local options = function(location)
 			order = 5,
 			args = Data.AddCooldownSettings(location.Cooldown)
 		},
-		Fake1 = Data.AddVerticalSpacing(6),
-
 	}
 end
 
@@ -348,7 +346,6 @@ function dRTracking:AttachToPlayerButton(playerButton)
 
 		input.startTime = GetTime()
 		self:Display()
-	
 	end
 
 	playerButton.DRTracking = container

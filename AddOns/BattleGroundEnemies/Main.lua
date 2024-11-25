@@ -40,6 +40,7 @@ local GetSpecializationInfoByID = GetSpecializationInfoByID
 local GetSpellBookItemName = C_SpellBook and C_SpellBook.GetSpellBookItemName or GetSpellBookItemName
 local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellName
 local GetSpellTabInfo = GetSpellTabInfo
+local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 local C_SpellBook = C_SpellBook
 local GetTime = GetTime
 local GetUnitName = GetUnitName
@@ -47,7 +48,6 @@ local InCombatLockdown = InCombatLockdown
 local IsInBrawl = C_PvP.IsInBrawl
 local IsInInstance = IsInInstance
 local IsInRaid = IsInRaid
-local IsItemInRange = IsItemInRange
 local IsRatedBattleground = C_PvP.IsRatedBattleground
 local RequestBattlefieldScoreData = RequestBattlefieldScoreData
 local RequestCrowdControlSpell = C_PvP.RequestCrowdControlSpell
@@ -149,7 +149,8 @@ BattleGroundEnemies.Testmode = {
 	Active = false,
 	FakePlayerAuras = {}, --key = playerbutton, value = {}
 	FakePlayerDRs = {},   --key = playerButtonTable, value = {categoryname = {state = 0, expirationTime}
-	FakeRaidTargetIcons = {} --key = playerButtonTable, value = {categoryname = {state = 0, expirationTime}}
+	RandomRacials = false, -- key = number, value = spellId-- key = number, value = spellId
+	RandomTrinkets = false, -- key = number, value = spellId-- key = number, value = spellId
 }
 BattleGroundEnemies.Editmode = {
 	Active = false
@@ -157,6 +158,7 @@ BattleGroundEnemies.Editmode = {
 
 BattleGroundEnemies.ButtonModules = {}   --contains moduleFrames, key is the module name
 BattleGroundEnemies.states = {
+	WOW_PROJECT_ID = WOW_PROJECT_ID,
 	isInArena = false,
 	isInBattleground = false,
 	userIsAlive = false,
@@ -171,49 +173,10 @@ BattleGroundEnemies.UserFaction = UnitFactionGroup("player")
 BattleGroundEnemies.UserButton = false   --the button of the Player himself
 BattleGroundEnemies.specCache = {} -- key = GUID, value = specName (localized)
 
---[[  from wowpedia
-1	IconSmall RaidStar.png 		Yellow 4-point Star
-2	IconSmall RaidCircle.png 	Orange Circle
-3	IconSmall RaidDiamond.png 	Purple Diamond
-4	IconSmall RaidTriangle.png 	Green Triangle
-5	IconSmall RaidMoon.png 		White Crescent Moon
-6	IconSmall RaidSquare.png 	Blue Square
-7	IconSmall RaidCross.png 	Red "X" Cross
-8	IconSmall RaidSkull.png 	White Skull
- ]]
 
-
-local function UpdateFakeRaidTargetIcons(playerButton)
-	local testmode = BattleGroundEnemies.Testmode
-	local fakeRaidTargetIcons = testmode.FakeRaidTargetIcons
-	local somethingChanged = false
-
-	if fakeRaidTargetIcons[playerButton] then
-		fakeRaidTargetIcons[playerButton] = nil --player lost the raidtargeticon
-		somethingChanged = true
-	else
-		local randomIndex = math_random(1, 8)
-		local indexAlreadyUsed = false
-		for playerBtn, targetIcon in pairs(testmode.FakeRaidTargetIcons) do
-			if targetIcon == randomIndex then
-				indexAlreadyUsed = true
-				--can't asign this one, another player already has it
-				break -- move on to the next index
-			end
-		end
-
-		if not indexAlreadyUsed then
-			fakeRaidTargetIcons[playerButton] = randomIndex
-			somethingChanged = true
-		end
-
-		--see which icons arent used yet
-	end
-	if somethingChanged then
-		playerButton:UpdateRaidTargetIcon(fakeRaidTargetIcons[playerButton])
-	end
-end
-
+local playerSpells
+local priorityAuras = {}
+local nonPriorityAuras = {}
 
 function BattleGroundEnemies:IsTestmodeOrEditmodeActive()
 	return self.Testmode.Active or self.Editmode.Active
@@ -287,39 +250,29 @@ function BattleGroundEnemies:FlipSettingsHorizontallyRecursive(dblocation)
 end
 
 
-local function CreateFakeAura(filter, durationFactor)
-	local foundA = Data.FoundAuras[filter]
-
-	local auraTable
-	local addDRAura
-	if filter == "HARMFUL" then
-		addDRAura = math_random(1, 5) == 1 -- 20% probability to get diminishing Aura Applied
-	end
-
-	local unitCaster, canApplyAura, castByPlayer
-
-	if addDRAura and #foundA.foundDRAuras > 0 then
-		auraTable = foundA.foundDRAuras
-	else
-		local addPlayerAura = math_random(1, 5) == 1 --20% probablility to add a player Aura if no DR was applied
-		if addPlayerAura then
-			unitCaster = "player"
-			canApplyAura = true
-			castByPlayer = true
-
-			auraTable = foundA.foundPlayerAuras
-		else
-			auraTable = foundA.foundNonPlayerAuras
-		end
-	end
+local function selectRandomAuraFromTable(auraTable, filter, forEditmode, unitCaster, canApplyAura, castByPlayer)
 	if not auraTable or (#auraTable < 1) then return end
 	local whichAura = math_random(1, #auraTable)
-	local auraToSend = auraTable[whichAura]
-
+	local auraToSend
+	if type(auraTable[whichAura]) == "number" then
+		auraToSend = {
+			spellId = auraTable[whichAura],
+			icon = GetSpellTexture(auraTable[whichAura])
+		}
+	else
+		auraToSend = auraTable[whichAura]
+	end
 
 	local spellName = GetSpellName(auraToSend.spellId)
 
 	if not spellName then return end
+
+	local duration
+	if forEditmode then
+		duration = 60 * 60
+	else
+		duration = auraToSend.duration
+	end
 
 	local newAura = {
 		applications = auraToSend.applications,
@@ -328,8 +281,8 @@ local function CreateFakeAura(filter, durationFactor)
 		canApplyAura = canApplyAura or auraToSend.canApplyAura,
 		charges = nil,
 		dispelName = auraToSend.dispelName,
-		duration = auraToSend.duration * durationFactor,
-		expirationTime = GetTime() + (auraToSend.duration * durationFactor),
+		duration = duration,
+		expirationTime = GetTime() + duration,
 		icon = auraToSend.icon,
 		isBossAura = auraToSend.isBossAura,
 		isFromPlayerOrPlayerPet = castByPlayer or auraToSend.isFromPlayerOrPlayerPet,
@@ -350,7 +303,98 @@ local function CreateFakeAura(filter, durationFactor)
 	return newAura
 end
 
-local function UpdateFakeAuras(playerButton)
+local function CreateFakeAura(filter, forEditmode)
+	local foundA = Data.FoundAuras[filter]
+
+	local auraTable
+	local addDRAura
+
+	if forEditmode then
+		return selectRandomAuraFromTable(priorityAuras[filter], filter, forEditmode), selectRandomAuraFromTable(nonPriorityAuras[filter], filter, forEditmode, "player", true, true)
+	else
+
+		if filter == "HARMFUL" then
+			addDRAura = math_random(1, 5) == 1 -- 20% probability to get diminishing Aura Applied
+		end
+
+		local unitCaster, canApplyAura, castByPlayer
+
+		if addDRAura and #foundA.foundDRAuras > 0 then
+			auraTable = foundA.foundDRAuras
+		else
+			local addPlayerAura = math_random(1, 5) == 1 --20% probablility to add a player Aura if no DR was applied
+			if addPlayerAura then
+				unitCaster = "player"
+				canApplyAura = true
+				castByPlayer = true
+
+				auraTable = foundA.foundPlayerAuras
+			else
+				auraTable = foundA.foundNonPlayerAuras
+			end
+		end
+		return selectRandomAuraFromTable(auraTable, filter, forEditmode, unitCaster, canApplyAura, castByPlayer)
+	end
+end
+
+local drCategorySpells
+local function GetAllDrCategorySpells()
+	local categories = DRList:GetCategories()
+	if drCategorySpells then return drCategorySpells end
+	local categorySpells = {}
+	local order = 1
+	for engCategory, localCategory in pairs(categories) do
+		categorySpells[engCategory] = {}
+
+		for spellID, category in DRList:IterateSpellsByCategory(engCategory) do
+			local spellName = GetSpellName(spellID)
+			if spellName then
+				table.insert(categorySpells[engCategory], spellID)
+			end
+		end
+	end
+	drCategorySpells = categorySpells
+	return categorySpells
+end
+
+function BattleGroundEnemies:UpdateDRsEditMode(playerButton)
+	local drCatSpells = GetAllDrCategorySpells()
+	for categoryName, spellIDs in pairs(drCatSpells) do
+		local resetTime = DRList:GetResetTime(categoryName)
+		local spellId = spellIDs[math_random(1, #spellIDs)]
+		local random = math.random(1,3)
+		if random == 1 then
+			playerButton:AuraRemoved(spellId, GetSpellName(spellId))
+		end
+	end
+end
+
+function BattleGroundEnemies:UpdateFakeAurasEditmode(playerButton)
+	local testmode = BattleGroundEnemies.Testmode
+	local fakePlayerAuras = testmode.FakePlayerAuras
+	fakePlayerAuras[playerButton] = fakePlayerAuras[playerButton] or {}
+
+	for i = 1, #auraFilters do
+		local filter = auraFilters[i]
+		fakePlayerAuras[playerButton][filter] = {}
+
+		local createNewAura = not playerButton.isDead
+		if createNewAura then
+			for j = 1, (4 ) do
+				local newFakeAura1, newFakeAura2 = CreateFakeAura(filter, BattleGroundEnemies.Editmode.Active)
+				if newFakeAura1 then
+					table_insert(fakePlayerAuras[playerButton][filter], newFakeAura1)
+				end
+				if newFakeAura2 then
+					table_insert(fakePlayerAuras[playerButton][filter], newFakeAura2)
+				end
+			end
+		end
+	end
+	playerButton:UNIT_AURA()
+end
+
+function BattleGroundEnemies:UpdateFakeAurasTestmode(playerButton)
 	local currentTime = GetTime()
 
 	local testmode = BattleGroundEnemies.Testmode
@@ -365,10 +409,9 @@ local function UpdateFakeAuras(playerButton)
 
 		local createNewAura = not playerButton.isDead
 		if createNewAura then
-			local newFakeAura = CreateFakeAura(filter, BattleGroundEnemies.Editmode.Active and 5 or 1)
+			local newFakeAura = CreateFakeAura(filter)
 			if newFakeAura then
-				local categoryNewAura = DRList:GetCategoryBySpellID(IsClassic and newFakeAura.name or newFakeAura
-					.spellId)
+				local categoryNewAura = DRList:GetCategoryBySpellID(IsClassic and newFakeAura.name or newFakeAura.spellId)
 
 				local dontAddNewAura
 				for j = 1, #fakePlayerAuras[playerButton][filter] do
@@ -460,7 +503,24 @@ local function UpdateFakeAuras(playerButton)
 	playerButton:UNIT_AURA()
 end
 
+function BattleGroundEnemies:GetPlayerCountsFromConfig(playerCountConfig)
+	if type(playerCountConfig) ~= "table" then
+		error("playerCountConfig must be a table")
+	end
+	local minPlayers = playerCountConfig.minPlayerCount
+	local maxPlayers = playerCountConfig.maxPlayerCount
+	return minPlayers, maxPlayers
+end
 
+function BattleGroundEnemies:GetPlayerCountConfigNameLocalized(playerCountConfig, isCustom)
+	local minPlayers, maxPlayers = self:GetPlayerCountsFromConfig(playerCountConfig)
+	return (isCustom and "*" or "") .. minPlayers.."–"..maxPlayers.. " ".. L.players
+end
+
+function BattleGroundEnemies:GetPlayerCountConfigName(playerCountConfig)
+	local minPlayers, maxPlayers = self:GetPlayerCountsFromConfig(playerCountConfig)
+	return minPlayers.."–"..maxPlayers.. " ".. "players"
+end
 
 -- returns true if <frame> or one of the frames that <frame> is dependent on is anchored to <otherFrame> and nil otherwise
 -- dont ancher to otherframe is
@@ -670,94 +730,173 @@ function BattleGroundEnemies:ShowAuraTooltip(playerButton, displayedAura)
 	end
 end
 
-local randomTrinkets = {} -- key = number, value = spellId
-local randomRacials = {}  -- key = number, value = spellId
-local FakePlayersOnUpdateFrame = CreateFrame("frame")
-FakePlayersOnUpdateFrame:Hide()
+---@type FunctionContainer
+BattleGroundEnemies.FakePlayersUpdateTicker = nil
+
+local function stopFakePlayersTicker()
+	if BattleGroundEnemies.FakePlayersUpdateTicker then
+		BattleGroundEnemies.FakePlayersUpdateTicker:Cancel()
+		BattleGroundEnemies.FakePlayersUpdateTicker = nil
+	end
+end
+
+local function createFakePlayersTicker(seconds, callback)
+	local ticker = CTimerNewTicker(seconds, callback)
+	stopFakePlayersTicker()
+	BattleGroundEnemies.FakePlayersUpdateTicker = ticker
+	return ticker
+end
 
 
-local function SetupTrinketAndRacialData()
-	do
-		local count = 1
+
+Data.FoundAuras = {
+	HELPFUL = {
+		foundPlayerAuras = {},
+		foundNonPlayerAuras = {},
+	},
+	HARMFUL = {
+		foundPlayerAuras = {},
+		foundNonPlayerAuras = {},
+		foundDRAuras = {}
+	}
+}
+
+
+function BattleGroundEnemies:SetupTestmode()
+
+	if not self.Testmode.RandomRacials then
+		self.Testmode.RandomRacials = {}
+		for racialSpelliD, data in pairs(Data.RacialSpellIDtoCooldown) do
+			local spellExists = GetSpellName(racialSpelliD)
+
+			if spellExists and spellExists ~= "" then
+				table.insert(self.Testmode.RandomRacials, racialSpelliD)
+			end
+		end
+	end
+
+	if not self.Testmode.RandomTrinkets then
+		self.Testmode.RandomTrinkets = {}
 		for triggerSpellID, trinketData in pairs(Data.TrinketData) do
 			if type(triggerSpellID) == "string" then --support for classic, IsClassic
-				randomTrinkets[count] = triggerSpellID
-				count = count + 1
+				table.insert(self.Testmode.RandomTrinkets, triggerSpellID)
 			else
 				local spellExists = GetSpellName(triggerSpellID)
 
 				if spellExists and spellExists ~= "" then
-					randomTrinkets[count] = triggerSpellID
-					count = count + 1
+					table.insert(self.Testmode.RandomTrinkets, triggerSpellID)
 				end
 			end
 		end
 	end
 
-	do
-		local count = 1
-		for racialSpelliD, data in pairs(Data.RacialSpellIDtoCooldown) do
-			local spellExists = GetSpellName(racialSpelliD)
+	wipe(self.Testmode.FakePlayerAuras)
+	wipe(self.Testmode.FakePlayerDRs)
+
+	local mapIDs = {}
+	for mapID, data in pairs(Data.BattlegroundspezificDebuffs) do
+		table.insert(mapIDs, mapID)
+	end
+	local mandomm = math_random(1, #mapIDs)
+	local randomMapID = mapIDs[mandomm]
+
+	BattleGroundEnemies:UpdateMapID(randomMapID)
+
+	for i = 1, #auraFilters do
+		local filter = auraFilters[i]
+		priorityAuras[filter] = {}
+		nonPriorityAuras[filter] = {}
+
+		for spellID, spellData in pairs(Data.PriorityAuras[filter]) do
+			local spellExists = GetSpellName(spellID)
+			if spellExists then
+				if BattleGroundEnemies:GetSpellPriority(spellID) then
+					table.insert(priorityAuras[filter], spellID)
+				else
+					table.insert(nonPriorityAuras[filter], spellID)
+				end
+			end
+		end
+
+
+		local auras = Data.FakeAuras[filter]
+		local foundA = Data.FoundAuras[filter]
+		if not playerSpells then
+			playerSpells = {}
+
+			if C_SpellBook and C_SpellBook.GetNumSpellBookSkillLines then
+				local numSkillLines = C_SpellBook.GetNumSpellBookSkillLines()
+				for j = 1, numSkillLines do
+					if GetSpellTabInfo then
+						local name, texture, offset, numSpells = GetSpellTabInfo(j)
+						for k = 1, numSpells do
+							local id = k + offset
+							local spellName, _, spelliD = GetSpellBookItemName(id, 'spell')
+							if spelliD and IsSpellKnown(spelliD) then
+								playerSpells[spelliD] = true
+							end
+						end
+					elseif C_SpellBook and C_SpellBook.GetSpellBookSkillLineInfo then
+						local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(j)
+						local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
+						for k = offset + 1, offset + numSlots do
+							local name, subName = C_SpellBook.GetSpellBookItemName(k, Enum.SpellBookSpellBank.Player)
+							local spellID = select(2,C_SpellBook.GetSpellBookItemType(k, Enum.SpellBookSpellBank.Player))
+							if spellID and IsSpellKnown(spellID) then
+								playerSpells[spellID] = true
+							end
+						end
+					end
+				end
+			else
+				local numTabs = GetNumSpellTabs()
+				for j = 1, numTabs do
+					if GetSpellTabInfo then
+						local name, texture, offset, numSpells = GetSpellTabInfo(j)
+						for k = 1, numSpells do
+							local id = k + offset
+							local spellName, _, spelliD = GetSpellBookItemName(id, 'spell')
+							if spelliD and IsSpellKnown(spelliD) then
+								playerSpells[spelliD] = true
+							end
+						end
+					elseif C_SpellBook and C_SpellBook.GetSpellBookSkillLineInfo then
+						local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(j)
+						local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
+						for k = offset + 1, offset + numSlots do
+							local name, subName = C_SpellBook.GetSpellBookItemName(k, Enum.SpellBookSpellBank.Player)
+							local spellID = select(2,C_SpellBook.GetSpellBookItemType(k, Enum.SpellBookSpellBank.Player))
+							if spellID and IsSpellKnown(spellID) then
+								playerSpells[spellID] = true
+							end
+						end
+					end
+				end
+			end
+		end
+
+
+		for spellId, auraDetails in pairs(auras) do
+
+			local spellExists = GetSpellName(spellId)
 
 			if spellExists and spellExists ~= "" then
-				randomRacials[count] = racialSpelliD
-				count = count + 1
+				if filter == "HARMFUL" and DRList:GetCategoryBySpellID(IsClassic and auraDetails.name or spellId) then
+					foundA.foundDRAuras[#foundA.foundDRAuras + 1] = auraDetails
+				elseif playerSpells[spellId] then
+					foundA.foundPlayerAuras[#foundA.foundPlayerAuras + 1] = auraDetails
+					-- this buff could be applied from the player
+				else
+					foundA.foundNonPlayerAuras[#foundA.foundNonPlayerAuras + 1] = auraDetails
+				end
 			end
 		end
 	end
-end
 
 
 
-function BattleGroundEnemies.ToggleTestmodeOnUpdate()
-	local enabled = not FakePlayersOnUpdateFrame:IsShown()
-	FakePlayersOnUpdateFrame:SetShown(enabled)
-	if enabled then
-		BattleGroundEnemies:Information(L.FakeEventsEnabled)
-	else
-		BattleGroundEnemies:Information(L.FakeEventsDisabled)
-	end
-end
-
-function BattleGroundEnemies.ToggleTestmode()
-	if BattleGroundEnemies.Testmode.Active then --disable testmode
-		BattleGroundEnemies:DisableTestMode()
-	else                                     --enable Testmode
-		BattleGroundEnemies:EnableTestMode()
-	end
-end
-
-function BattleGroundEnemies.ToggleEditmode()
-	if BattleGroundEnemies.Editmode.Active then --disable testmode
-		BattleGroundEnemies:DisableEditmode()
-	else                                     --enable Testmode
-		BattleGroundEnemies:EnableEditmode()
-	end
-end
-
-function BattleGroundEnemies:EnableEditmode()
-	self.Editmode.Active = true
-	self:EnableTestMode()
-	BattleGroundEnemies.EditMode.EditModeManager:OpenEditmode()
-	self:Information(L.EditmodeEnabled)
-	self:Information(L.EditModeIntroduction)
-end
-
-function BattleGroundEnemies:DisableEditmode()
-	self.Editmode.Active = false
-	self:DisableTestMode()
-	BattleGroundEnemies.EditMode.EditModeManager:CloseEditmode()
-	self:Information(L.EditmodeDisabled)
-end
-
-function BattleGroundEnemies:DisableTestMode()
-	self.Testmode.Active = false
-	self.states.battlegroundBuff = false
-	FakePlayersOnUpdateFrame:Hide()
-	self.Allies:OnTestmodeDisabled()
-	self.Enemies:OnTestmodeDisabled()
-	self:Disable()
-	self:Information(L.TestmodeDisabled)
+	self:CreateFakePlayers()
+	self:Enable()
 end
 
 do
@@ -824,182 +963,123 @@ do
 			end
 		end
 	end
+end
 
-	Data.FoundAuras = {
-		HELPFUL = {
-			foundPlayerAuras = {},
-			foundNonPlayerAuras = {},
-		},
-		HARMFUL = {
-			foundPlayerAuras = {},
-			foundNonPlayerAuras = {},
-			foundDRAuras = {}
-		}
-	}
-
-	local TestmodeRanOnce = false
-	function BattleGroundEnemies:EnableTestMode()
-		if InCombatLockdown() then
-			return BattleGroundEnemies:Information(L.ErrorTestmodeInCombat)
-		end
-		self.Testmode.Active = true
-
-		if not TestmodeRanOnce then
-			SetupTrinketAndRacialData()
-			TestmodeRanOnce = true
-		end
-
-		wipe(self.Testmode.FakePlayerAuras)
-		wipe(self.Testmode.FakePlayerDRs)
-		wipe(self.Testmode.FakeRaidTargetIcons)
-
-		local mapIDs = {}
-		for mapID, data in pairs(Data.BattlegroundspezificBuffs) do
-			mapIDs[#mapIDs + 1] = mapID
-		end
-		local mandomm = math_random(1, #mapIDs)
-		local randomMapID = mapIDs[mandomm]
-
-		self.states.battlegroundBuff = Data.BattlegroundspezificBuffs[randomMapID]
-
-		for i = 1, #auraFilters do
-			local filter = auraFilters[i]
-
-			local auras = Data.FakeAuras[filter]
-			local foundA = Data.FoundAuras[filter]
-			local playerSpells = {}
-			local numTabs = GetNumSpellTabs()
-			for j = 1, numTabs do
-				if GetSpellTabInfo then
-					local name, texture, offset, numSpells = GetSpellTabInfo(j)
-					for k = 1, numSpells do
-						local id = k + offset
-						local spellName, _, spelliD = GetSpellBookItemName(id, 'spell')
-						if spelliD and IsSpellKnown(spelliD) then
-							playerSpells[spelliD] = true
-						end
-					end
-				elseif C_SpellBook and C_SpellBook.GetSpellBookSkillLineInfo then
-					local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(j)
-					local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
-					for k = offset + 1, offset + numSlots do
-						local name, subName = C_SpellBook.GetSpellBookItemName(k, Enum.SpellBookSpellBank.Player)
-						local spellID = select(2,C_SpellBook.GetSpellBookItemType(k, Enum.SpellBookSpellBank.Player))
-						if spellID and IsSpellKnown(spellID) then
-							playerSpells[spellID] = true
-						end
-					end
-
-				end
-
-			end
-
-			for spellId, auraDetails in pairs(auras) do
-
-				local spellExists = GetSpellName(spellId)
-
-				if spellExists and spellExists ~= "" then
-					if filter == "HARMFUL" and DRList:GetCategoryBySpellID(IsClassic and auraDetails.name or spellId) then
-						foundA.foundDRAuras[#foundA.foundDRAuras + 1] = auraDetails
-					elseif playerSpells[spellId] then
-						foundA.foundPlayerAuras[#foundA.foundPlayerAuras + 1] = auraDetails
-						-- this buff could be applied from the player
-					else
-						foundA.foundNonPlayerAuras[#foundA.foundNonPlayerAuras + 1] = auraDetails
-					end
-				end
-			end
-		end
-
-
-		self:CreateFakePlayers()
-
-		self:Enable()
-
-		FakePlayersOnUpdateFrame:Show()
-		self.Allies:OnTestmodeEnabled()
-		self.Enemies:OnTestmodeEnabled()
-		self:Information(L.TestmodeEnabled)
+local function fakePlayersTestmodeTicker()
+	for number, mainFrame in pairs({ BattleGroundEnemies.Allies, BattleGroundEnemies.Enemies }) do
+		mainFrame:OnTestmodeTick()
 	end
 end
 
+local function fakePlayersEditmodeTicker()
+	for number, mainFrame in pairs({ BattleGroundEnemies.Allies, BattleGroundEnemies.Enemies }) do
+		mainFrame:OnEditmodeTick()
+	end
+end
 
-do
-	local holdsflag
-	local TimeSinceLastOnUpdate = 0
-	local UpdatePeroid = 1                  --update every second
-
-	local function FakeOnUpdate(self, elapsed) --OnUpdate runs if the frame FakePlayersOnUpdateFrame is shown
-		TimeSinceLastOnUpdate = TimeSinceLastOnUpdate + elapsed
-		if TimeSinceLastOnUpdate > UpdatePeroid then
-			for number, mainFrame in pairs({ BattleGroundEnemies.Allies, BattleGroundEnemies.Enemies }) do
-				local hasFlag = false
-				for name, playerButton in pairs(mainFrame.Players) do
-					if playerButton.PlayerDetails.isFakePlayer then
-						local n = math_random(1, 10)
-						--self:Debug("number", number)
-
-						--self:Debug(playerButton.ObjectiveAndRespawn.Cooldown:GetCooldownDuration())
-
-						if not playerButton.isDead then
-							if n == 1 and not hasFlag then --this guy has a objective now
-								-- hide old flag carrier
-								local oldFlagholder = holdsflag
-								if oldFlagholder then
-									oldFlagholder:DispatchEvent("ArenaOpponentHidden")
-								end
-
-								playerButton:ArenaOpponentShown()
-
-								holdsflag = playerButton
-								hasFlag = true
-							elseif n == 2 and playerButton.Racial.Cooldown:GetCooldownDuration() == 0 then -- racial used
-								BattleGroundEnemies.CombatLogevents.SPELL_CAST_SUCCESS(BattleGroundEnemies, nil,
-									playerButton.PlayerDetails.PlayerName, nil, nil,
-									randomRacials[math_random(1, #randomRacials)])
-							elseif n == 3 and playerButton.Trinket.Cooldown:GetCooldownDuration() == 0 then -- trinket used
-								BattleGroundEnemies.CombatLogevents.SPELL_CAST_SUCCESS(BattleGroundEnemies, nil,
-									playerButton.PlayerDetails.PlayerName, nil, nil,
-									randomTrinkets[math_random(1, #randomTrinkets)])
-							elseif n == 4 then --power simulation
-								playerButton:UNIT_POWER_FREQUENT()
-							elseif n == 5 then
-								--let the player changed target or target someone if he didnt have a target before
-								if playerButton.Target then
-									playerButton:IsNoLongerTarging(playerButton.Target)
-								end
-
-								local oppositeMainFrame = playerButton:GetOppositeMainFrame()
-								if oppositeMainFrame then --this really should never be nil
-									local randomPlayer = oppositeMainFrame:GetRandomPlayer()
-
-									if randomPlayer then
-										playerButton:IsNowTargeting(randomPlayer)
-									end
-								end
-							elseif n == 6 then
-								UpdateFakeRaidTargetIcons(playerButton)
-							end
-
-
-
-							UpdateFakeAuras(playerButton)
-						end
-						playerButton:UNIT_HEALTH()
-
-						if n == 6 then --toggle range
-							playerButton:UpdateRange(not playerButton.wasInRange)
-						end
-						playerButton:DispatchEvent("OnTestmodeTick")
-					end
-				end
-			end
-
-			TimeSinceLastOnUpdate = 0
+local function setupFakePlayersEditmodeTicker()
+	local lowestDrResetTime
+	local drCatSpells = GetAllDrCategorySpells()
+	for categoryName, spellIDs in pairs(drCatSpells) do
+		local resetTime = DRList:GetResetTime(categoryName)
+		if not lowestDrResetTime or resetTime < lowestDrResetTime then
+			lowestDrResetTime = resetTime
 		end
 	end
-	FakePlayersOnUpdateFrame:SetScript("OnUpdate", FakeOnUpdate)
+	createFakePlayersTicker(lowestDrResetTime, fakePlayersEditmodeTicker)
 end
+
+local function setupFakePlayersTestmodeTicker()
+	createFakePlayersTicker(1, fakePlayersTestmodeTicker)
+end
+
+function BattleGroundEnemies.ToggleTestmodeOnUpdate()
+	local enabled = not BattleGroundEnemies.FakePlayersUpdateTicker
+	if enabled then
+		setupFakePlayersTestmodeTicker()
+		BattleGroundEnemies:Information(L.FakeEventsEnabled)
+	else
+		stopFakePlayersTicker()
+		BattleGroundEnemies:Information(L.FakeEventsDisabled)
+	end
+end
+
+function BattleGroundEnemies:EnableTestMode()
+	if InCombatLockdown() then
+		return BattleGroundEnemies:Information(L.ErrorTestmodeInCombat)
+	end
+	self.Testmode.Active = true
+	self:SetupTestmode()
+
+	self.Allies:OnTestmodeEnabled()
+	self.Enemies:OnTestmodeEnabled()
+	self:Information(L.TestmodeEnabled)
+end
+
+function BattleGroundEnemies:DisableTestMode()
+	self.Testmode.Active = false
+	self:Information(L.TestmodeDisabled)
+	self.Allies:OnTestmodeDisabled()
+	self.Enemies:OnTestmodeDisabled()
+	self:PLAYER_ENTERING_WORLD()
+end
+
+function BattleGroundEnemies.ToggleTestmode()
+	if BattleGroundEnemies.Editmode.Active then
+		BattleGroundEnemies:DisableEditmode()
+	end
+	if BattleGroundEnemies.Testmode.Active then --disable testmode
+		BattleGroundEnemies:DisableTestMode()
+	else                                     --enable Testmode
+		BattleGroundEnemies:EnableTestMode()
+	end
+end
+
+function BattleGroundEnemies:EnableEditmode()
+	if InCombatLockdown() then
+		return BattleGroundEnemies:Information(L.ErrorTestmodeInCombat)
+	end
+	self.Editmode.Active = true
+	self:SetupTestmode()
+	self:OnEditmodeEnabled()
+
+	BattleGroundEnemies.EditMode.EditModeManager:OpenEditmode()
+	self:Information(L.EditmodeEnabled)
+	self:Information(L.EditModeIntroduction)
+end
+
+function BattleGroundEnemies:OnEditmodeEnabled()
+	self.Allies:OnEditmodeEnabled()
+	self.Enemies:OnEditmodeEnabled()
+end
+
+function BattleGroundEnemies:DisableEditmode()
+	self.Editmode.Active = false
+	self:Information(L.EditmodeDisabled)
+	BattleGroundEnemies.EditMode.EditModeManager:CloseEditmode()
+	self:PLAYER_ENTERING_WORLD()
+end
+
+function BattleGroundEnemies.ToggleEditmode()
+	if BattleGroundEnemies.Testmode.Active then
+		BattleGroundEnemies:DisableTestMode()
+	end
+	if BattleGroundEnemies.Editmode.Active then --disable testmode
+		BattleGroundEnemies:DisableEditmode()
+	else                                     --enable Testmode
+		BattleGroundEnemies:EnableEditmode()
+	end
+end
+
+function BattleGroundEnemies:DisableTestOrEditmode()
+	if self.Editmode.Active then
+		return self:DisableEditmode()
+	end
+	if self.Testmode.Active then
+		return self:DisableTestMode()
+	end
+end
+
 
 local RequestFrame = CreateFrame("Frame", nil, BattleGroundEnemies)
 RequestFrame:Hide()
@@ -1018,19 +1098,21 @@ end
 
 
 
-local function CreatedebugFrame()
-	local f = FCF_OpenTemporaryWindow("FILTERED")
-	f:SetMaxLines(2500)
-	FCF_UnDockFrame(f);
-	f:ClearAllPoints();
-	f:SetPoint("CENTER", "UIParent", "CENTER", 0, 0);
-	FCF_SetTabPosition(f, 0);
-	f:Show();
-	f.Tab = _G[f:GetName() .. "Tab"]
-	f.Tab.conversationIcon:Hide()
-	FCF_SetWindowName(f, "BGE_DebugFrame")
-
-	return f
+function BattleGroundEnemies:GetDebugFrame()
+	if not self.DebugFrame then
+		local f = FCF_OpenTemporaryWindow("FILTERED")
+		f:SetMaxLines(2500)
+		FCF_UnDockFrame(f);
+		f:ClearAllPoints();
+		f:SetPoint("CENTER", "UIParent", "CENTER", 0, 0);
+		FCF_SetTabPosition(f, 0);
+		f:Show();
+		f.Tab = _G[f:GetName() .. "Tab"]
+		f.Tab.conversationIcon:Hide()
+		FCF_SetWindowName(f, "BGE_DebugFrame")
+		self.DebugFrame = f
+	end
+	return self.DebugFrame
 end
 
 BattleGroundEnemies.ArenaIDToPlayerButton = {} --key = arenaID: arenaX, value = playerButton of that unitID
@@ -1241,7 +1323,7 @@ function BattleGroundEnemies:Disable()
 	self:UnregisterEvents()
 	self:Hide()
 	RequestFrame:Hide()
-	FakePlayersOnUpdateFrame:Hide()
+	stopFakePlayersTicker()
 	self.Allies:Disable()
 	self.Enemies:Disable()
 end
@@ -1251,12 +1333,16 @@ function BattleGroundEnemies:Enable()
 	self.enabled = true
 
 	self:RegisterEvents()
-	if self.Testmode.Active then
+	if BattleGroundEnemies:IsTestmodeOrEditmodeActive() then
+		if self.Editmode.Active then
+			setupFakePlayersEditmodeTicker()
+		else
+			setupFakePlayersTestmodeTicker()
+		end
 		RequestFrame:Hide()
-		FakePlayersOnUpdateFrame:Show()
 	else
 		RequestFrame:Show()
-		FakePlayersOnUpdateFrame:Hide()
+		stopFakePlayersTicker()
 	end
 	self:Show()
 	self.Allies:CheckEnableState()
@@ -1295,7 +1381,9 @@ do
 		self.db.RegisterCallback(self, "OnProfileReset", "ProfileReset")
 
 		if self.db.profile then
-			self.db.profile.log = nil
+			if self.db.profile.DebugToSV_ResetOnPlayerLogin then
+				self.db.profile.log = nil
+			end
 		end
 
 		BattleGroundEnemies:UpgradeProfiles(self.db)
@@ -1376,6 +1464,23 @@ function BattleGroundEnemies:ApplyAllSettingsDebounce()
 	end, 1)
 end
 
+local playerCountChangedTimer = nil
+function BattleGroundEnemies:TestModePlayerCountChanged(value)
+	if playerCountChangedTimer then playerCountChangedTimer:Cancel() end -- use a timer to apply changes after 0.2 second, this prevents the UI from getting laggy when the user uses a slider option
+	self.Testmode.PlayerCountTestmode = value
+	playerCountChangedTimer = CTimerNewTicker(0.2, function()
+		if self:IsTestmodeOrEditmodeActive() then
+			self:CreateFakePlayers()
+		end
+		if self.Editmode.Active then
+			self:OnEditmodeEnabled()
+			BattleGroundEnemies.EditMode.EditModeManager:OpenEditmode()
+		end
+		playerCountChangedTimer = nil
+	end, 1)
+end
+
+
 
 function BattleGroundEnemies:ApplyAllSettings()
 	BattleGroundEnemies.Allies:SelectPlayerCountProfile(true)
@@ -1383,9 +1488,6 @@ function BattleGroundEnemies:ApplyAllSettings()
 	BattleGroundEnemies:ToggleArenaFrames()
 	BattleGroundEnemies:ToggleRaidFrames()
 end
-
-BattleGroundEnemies.DebugText = BattleGroundEnemies.DebugText or ""
-
 
 local function stringifyMultitArgs(...)
 	local args = { ... }
@@ -1405,22 +1507,10 @@ end
 
 local sentDebugMessages = {}
 function BattleGroundEnemies:OnetimeDebug(...)
-
 	local message = table.concat({ ... }, ", ")
 	if sentDebugMessages[message] then return end
-
-	if not self.db then return end
-	if not self.db.profile then return end
-	if not self.db.profile.Debug then return end
-
-	if not self.debugFrame then
-		self.debugFrame = CreatedebugFrame()
-	end
-
-	local text = stringifyMultitArgs(getTimestamp(), ...)
-
-	self.debugFrame:AddMessage(text)
 	sentDebugMessages[message] = true
+	self:Debug(...)
 end
 
 function BattleGroundEnemies:Debug(...)
@@ -1428,9 +1518,11 @@ function BattleGroundEnemies:Debug(...)
 	if not self.db.profile then return end
 	if not self.db.profile.Debug then return end
 
+	self:OnetimeInformation("Debugging is enabled. Depending on the amount of messages or debug settings it can cause decrased performance. Please disable it after you are done debugging.")
+
 	if self.db.profile.DebugToChat then
-		if not self.debugFrame then
-			self.debugFrame = CreatedebugFrame()
+		if not self.DebugFrame then
+			self.DebugFrame = self:GetDebugFrame()
 		end
 
 		local text
@@ -1440,8 +1532,7 @@ function BattleGroundEnemies:Debug(...)
 			text = stringifyMultitArgs(...)
 		end
 
-
-		self.debugFrame:AddMessage(text)
+		self.DebugFrame:AddMessage(text)
 	end
 
 	if self.db.profile.DebugToSV then
@@ -1450,6 +1541,11 @@ function BattleGroundEnemies:Debug(...)
 
 		table.insert(self.db.profile.log, {[getTimestamp()] = t })
 	end
+end
+
+function BattleGroundEnemies:EnableDebugging()
+	self.db.profile.Debug = true
+	self:NotifyChange()
 end
 
 local sentMessages = {}
@@ -1933,7 +2029,7 @@ local function checkEffectiveEnableStateForArenaFrames()
 end
 
 function BattleGroundEnemies:ResetCombatLogScanniningTables()
-	self.SearchedGUIDs = self.SearchedGUIDs or {}
+	self.SearchedGUIDs = {}
 	self.PlayerGUIDs = {}
 end
 
@@ -2009,9 +2105,9 @@ end
 BattleGroundEnemies.PLAYER_UNGHOST = BattleGroundEnemies.PlayerAlive --player is alive again
 
 
-function BattleGroundEnemies:UpdateMapID()
+function BattleGroundEnemies:UpdateMapID(forceMapId)
 	--	SetMapToCurrentZone() apparently removed in 8.0
-	local mapID = GetBestMapForUnit('player')
+	local mapID = forceMapId or GetBestMapForUnit('player')
 	BattleGroundEnemies:Debug("UpdateMapID", mapID)
 
 	if mapID and mapID ~= -1 and mapID ~= 0 then -- when this values occur the map ID is not real
@@ -2233,9 +2329,8 @@ BattleGroundEnemies.PARTY_LEADER_CHANGED = BattleGroundEnemies.GROUP_ROSTER_UPDA
 function BattleGroundEnemies:PLAYER_ENTERING_WORLD()
 	BattleGroundEnemies:Debug("PLAYER_ENTERING_WORLD")
 	self:ResetCombatLogScanniningTables()
-	if self.Testmode.Active then --disable testmode
-		self:DisableTestMode()
-	end
+	self:DisableTestOrEditmode()
+	
 
 	self.Enemies:RemoveAllPlayersFromAllSources()
 	self.Allies:RemoveAllPlayersFromSource(self.consts.PlayerSources.Scoreboard)
