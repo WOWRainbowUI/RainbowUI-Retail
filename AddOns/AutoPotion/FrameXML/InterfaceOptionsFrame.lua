@@ -1,3 +1,4 @@
+local L = LibStub("AceLocale-3.0"):GetLocale("AutoPotion")
 local addonName, ham = ...
 local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
@@ -25,7 +26,7 @@ function ham.settingsFrame:updateConfig(option, value)
         ham.options[option] = value  -- Update in-memory
         HAMDB[option] = value        -- Persist to DB
     else
-        print("無效的選項: " .. tostring(option))
+        print(L["Invalid option: "] .. tostring(option))
     end
 	-- Rebuild the macro and update priority frame
 	ham.checkTinker()
@@ -39,7 +40,7 @@ function ham.settingsFrame:OnEvent(event, addOnName)
 		if event == "ADDON_LOADED" then
 			HAMDB = HAMDB or CopyTable(ham.defaults)
 			if HAMDB.activatedSpells == nil then
-				print("因為插件大改版的關係，一鍵吃糖/喝紅水的設定已被重置。")
+				print(L["The Settings of AutoPotion were reset due to breaking changes."])
 				HAMDB = CopyTable(ham.defaults)
 			end
 			self:InitializeOptions()
@@ -193,13 +194,13 @@ function ham.settingsFrame:InitializeOptions()
 
 	-- Create the main panel inside the Interface Options container
 	self.panel = CreateFrame("Frame", addonName, InterfaceOptionsFramePanelContainer)
-	self.panel.name = "一鍵吃糖"
+	self.panel.name = L["AutoPotion"]
 
 	-- Register with Interface Options
     if InterfaceOptions_AddCategory then
         InterfaceOptions_AddCategory(self.panel)
     else
-        local category = Settings.RegisterCanvasLayoutCategory(self.panel, "一鍵吃糖")
+        local category = Settings.RegisterCanvasLayoutCategory(self.panel, L["AutoPotion"])
         Settings.RegisterAddOnCategory(category)
         self.panel.categoryID = category:GetID() -- for OpenToCategory use
     end
@@ -212,30 +213,30 @@ function ham.settingsFrame:InitializeOptions()
 	-- title
     local title = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
     title:SetPoint("TOP", 0, 0)
-    title:SetText("一鍵吃糖/喝紅水")
+    title:SetText(L["Auto Potion Settings"])
 
     -- subtitle
     local subtitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     subtitle:SetPoint("TOPLEFT", 0, -40)
-    subtitle:SetText("這裡可以調整插件的功能，例如也能使用職業法術。")
+    subtitle:SetText(L["Configure the behavior of the addon. IE: if you want to include class spells"])
 
     -- behavior title
     local behaviourTitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
     behaviourTitle:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -30)
-    behaviourTitle:SetText("插件功能")
+    behaviourTitle:SetText(L["Addon Behaviour"])
 
 	-------------  Stop Casting  -------------	
 	local stopCastButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 	stopCastButton:SetPoint("TOPLEFT", behaviourTitle, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
-	stopCastButton.Text:SetText("巨集中包含 /stopcasting")
+	stopCastButton.Text:SetText(L["Include /stopcasting in the macro"])
 	stopCastButton:HookScript("OnClick", function(_, btn, down)
 		ham.settingsFrame:updateConfig("stopCast", stopCastButton:GetChecked())
 	end)
 	stopCastButton:HookScript("OnEnter", function(_, btn, down)
 		---@diagnostic disable-next-line: param-type-mismatch
 		GameTooltip:SetOwner(stopCastButton, "ANCHOR_TOPRIGHT")
-		GameTooltip:SetText("Useful for casters.")
+		GameTooltip:SetText(L["Useful for casters."])
 		GameTooltip:Show()
 	end)
 	stopCastButton:HookScript("OnLeave", function(_, btn, down)
@@ -248,7 +249,7 @@ function ham.settingsFrame:InitializeOptions()
 	local cdResetButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 	cdResetButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
-	cdResetButton.Text:SetText("連續施放的重置條件使用最短的冷卻時間。!!請謹慎使用!!")
+	cdResetButton.Text:SetText(L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"])
 	cdResetButton:HookScript("OnClick", function(_, btn, down)
 		ham.settingsFrame:updateConfig("cdReset", cdResetButton:GetChecked())
 	end)
@@ -259,14 +260,14 @@ function ham.settingsFrame:InitializeOptions()
 	local raidStoneButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 	raidStoneButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
-	raidStoneButton.Text:SetText("治療石的優先順序較低")
+	raidStoneButton.Text:SetText(L["Low Priority Healthstones"])
 	raidStoneButton:HookScript("OnClick", function(_, btn, down)
 		ham.settingsFrame:updateConfig("raidStone", raidStoneButton:GetChecked())
 	end)
 	raidStoneButton:HookScript("OnEnter", function(_, btn, down)
 		---@diagnostic disable-next-line: param-type-mismatch
 		GameTooltip:SetOwner(raidStoneButton, "ANCHOR_TOPRIGHT")
-		GameTooltip:SetText("治療藥水會比治療石優先使用")
+		GameTooltip:SetText(L["Prioritize health potions over a healthstone."])
 		GameTooltip:Show()
 	end)
 	raidStoneButton:HookScript("OnLeave", function(_, btn, down)
@@ -284,13 +285,13 @@ function ham.settingsFrame:InitializeOptions()
 	if isRetail then
 		local itemsTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 		itemsTitle:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING_CATERGORY)
-		itemsTitle:SetText("物品")
+		itemsTitle:SetText(L["Items"])
 
 		---Withering Potion---
 		witheringPotionButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 		witheringPotionButton:SetPoint("TOPLEFT", itemsTitle, 0, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
-		witheringPotionButton.Text:SetText("凋萎活力藥水")
+		witheringPotionButton.Text:SetText(L["Potion of Withering Vitality"])
 		witheringPotionButton:HookScript("OnClick", function(_, btn, down)
 			ham.settingsFrame:updateConfig("witheringPotion", witheringPotionButton:GetChecked())
 		end)
@@ -309,7 +310,7 @@ function ham.settingsFrame:InitializeOptions()
 		witheringDreamsPotionButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 		witheringDreamsPotionButton:SetPoint("TOPLEFT", itemsTitle, 220, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
-		witheringDreamsPotionButton.Text:SetText("枯萎夢境藥水")
+		witheringDreamsPotionButton.Text:SetText(L["Potion of Withering Dreams"])
 		witheringDreamsPotionButton:HookScript("OnClick", function(_, btn, down)
 			ham.settingsFrame:updateConfig("witheringDreamsPotion", witheringDreamsPotionButton:GetChecked())
 		end)
@@ -328,7 +329,7 @@ function ham.settingsFrame:InitializeOptions()
 		cavedwellerDelightButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 		cavedwellerDelightButton:SetPoint("TOPLEFT", itemsTitle, 440, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
-		cavedwellerDelightButton.Text:SetText("穴居者之喜")
+		cavedwellerDelightButton.Text:SetText(L["Cavedweller's Delight"])
 		cavedwellerDelightButton:HookScript("OnClick", function(_, btn, down)
 			ham.settingsFrame:updateConfig("cavedwellerDelight", cavedwellerDelightButton:GetChecked())
 		end)
@@ -347,7 +348,7 @@ function ham.settingsFrame:InitializeOptions()
 		heartseekingButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 		heartseekingButton:SetPoint("TOPLEFT", itemsTitle, 0, -60)
 		---@diagnostic disable-next-line: undefined-field
-		heartseekingButton.Text:SetText("覓心生命注射器 (技工裝置)")
+		heartseekingButton.Text:SetText(L["Heartseeking Health Injector (tinker)"])
 		heartseekingButton:HookScript("OnClick", function(_, btn, down)
 			ham.settingsFrame:updateConfig("heartseekingInjector", heartseekingButton:GetChecked())
 		end)
@@ -371,13 +372,13 @@ function ham.settingsFrame:InitializeOptions()
 	-------------  CURRENT PRIORITY  -------------
 	currentPrioTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 	currentPrioTitle:SetPoint("BOTTOMLEFT", 0, PADDING_PRIO_CATEGORY)
-	currentPrioTitle:SetText("目前的優先順序")
+	currentPrioTitle:SetText(L["Current Priority"])
 
 
 	-------------  RESET BUTTON  -------------
 	local btn = CreateFrame("Button", nil, self.content, "UIPanelButtonTemplate")
 	btn:SetPoint("BOTTOMLEFT", 2, 3)
-	btn:SetText("重置為預設值")
+	btn:SetText(L["Reset to Default"])
 	btn:SetWidth(120)
 	btn:SetScript("OnClick", function()
 		HAMDB = CopyTable(ham.defaults)
@@ -399,7 +400,7 @@ function ham.settingsFrame:InitializeOptions()
 		ham.updateHeals()
 		ham.updateMacro()
 		self:updatePrio()
-		print("重置成功!")
+		print(L["Reset successful!"])
 	end)
 end
 
@@ -407,7 +408,7 @@ function ham.settingsFrame:InitializeClassSpells(relativeTo)
 	-------------  CLASS / RACIALS  -------------
 	local myClassTitle = self.content:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 	myClassTitle:SetPoint("TOPLEFT", relativeTo, 0, -PADDING_CATERGORY)
-	myClassTitle:SetText("職業/種族技能")
+	myClassTitle:SetText(L["Class/Racial Spells"])
 
 	local lastbutton = nil
 	local posy = -PADDING
@@ -474,7 +475,7 @@ SlashCmdList.HAM = function(msg, editBox)
 
     -- Open settings if no "debug" keyword was passed
     if InterfaceOptions_AddCategory then
-        InterfaceOptionsFrame_OpenToCategory("一鍵吃糖")
+        InterfaceOptionsFrame_OpenToCategory(L["AutoPotion"])
     else
         local settingsCategoryID = _G[addonName].categoryID
         Settings.OpenToCategory(settingsCategoryID)
