@@ -1395,7 +1395,7 @@ do
     -- Increase max forecast duration because Assassination is pooling hard this tier.
     local FORECAST_DURATION = 10.01
 
-    forecastResources = function ( resource )
+    forecastResources = function( resource )
         if not resource then return end
 
         -- Initialize or wipe tables
@@ -1418,9 +1418,9 @@ do
         -- Initialize forecast tables
         remains[ resource ] = timeout
 
-
         wipe( r.times )
         wipe( r.values )
+
         r.forecast[ 1 ] = r.forecast[ 1 ] or {}
         r.forecast[ 1 ].t = now
         r.forecast[ 1 ].v = r.actual
@@ -1443,8 +1443,8 @@ do
                    ( not v.channel or state.buff.casting.up and state.buff.casting.v3 == 1 and state.buff.casting.v1 == class.abilities[ v.channel ].id ) then
 
                     local l = v.last()
-                    local i = type( v.interval ) == "number" and v.interval or 
-                              ( type( v.interval ) == "function" and v.interval( now, r.actual ) or 
+                    local i = type( v.interval ) == "number" and v.interval or
+                              ( type( v.interval ) == "function" and v.interval( now, r.actual ) or
                               ( type( v.interval ) == "string" and state[ v.interval ] or 0 ) )
 
                     v.next = l + i
@@ -3499,7 +3499,7 @@ function state:TimeToResource( t, amount )
     local queryTime = state.query_time
     local deficit = amount - t.current
 
-    -- Handle rune-specific logic.
+    --[[ Handle rune-specific logic.
     if t.resource == "runes" then
         local totalTime = 0
 
@@ -3512,7 +3512,7 @@ function state:TimeToResource( t, amount )
             end
         end
         return totalTime
-    end
+    end ]]
 
     -- Handle tick-based resources (e.g., energy, focus).
     if t.resource == "energy" or t.resource == "focus" then

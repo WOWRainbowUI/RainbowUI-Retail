@@ -98,30 +98,40 @@ me:RegisterResource( Enum.PowerType.Runes, {
 }, {
     __index = function( t, k )
         if k == "actual" then
+            -- Calculate the number of runes available based on `expiry`.
             local amount = 0
-
             for i = 1, 6 do
                 if t.expiry[ i ] <= state.query_time then
                     amount = amount + 1
                 end
             end
-
             return amount
 
         elseif k == "current" then
-            -- Use forecasted values if available, fallback to `actual`
+            -- If this is a modeled resource, use our lookup system.
             if t.forecast and t.fcount > 0 then
                 local q = state.query_time
-                if t.values[ q ] then
-                    return t.values[ q ]
-                end
+                local index, slice
+
+                if t.values[ q ] then return t.values[ q ] end
+
                 for i = 1, t.fcount do
-                    local slice = t.forecast[ i ]
-                    if slice.t <= q then
-                        return max( 0, min( t.max, slice.v ) )
+                    local v = t.forecast[ i ]
+                    if v.t <= q and v.v ~= nil then
+                        index = i
+                        slice = v
+                    else
+                        break
                     end
                 end
+
+                -- We have a slice.
+                if index and slice and slice.v then
+                    t.values[ q ] = max( 0, min( t.max, slice.v ) )
+                    return t.values[ q ]
+                end
             end
+
             return t.actual
 
         elseif k == "deficit" then

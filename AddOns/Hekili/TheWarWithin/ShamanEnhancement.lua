@@ -1160,6 +1160,10 @@ spec:RegisterHook( "reset_precast", function ()
         reduceCooldown( "lava_lash", latency * 2 )
     end
 
+    if talent.ascendance.enabled and buff.ascendance.up then
+        setCooldown( "ascendance", buff.ascendance.applied + ( talent.thorims_invocation.enabled and 120 or 180 ) - now )
+    end
+
     if vesper_expires > 0 and now > vesper_expires then
         vesper_expires = 0
         vesper_heal = 0
@@ -1176,12 +1180,12 @@ spec:RegisterHook( "reset_precast", function ()
     end
 
     if buff.feral_spirit.up then
-        local next_mw = query_time + 3 - ( ( query_time - buff.feral_spirit.applied ) % 3 )
+        --[[ local next_mw = query_time + 3 - ( ( query_time - buff.feral_spirit.applied ) % 3 )
 
         while ( next_mw <= buff.feral_spirit.expires ) do
             state:QueueAuraEvent( "feral_maelstrom", TriggerFeralMaelstrom, next_mw, "AURA_PERIODIC" )
             next_mw = next_mw + 3
-        end
+        end ]]
 
         if talent.alpha_wolf.enabled then
             local last_trigger = max( action.chain_lightning.lastCast, action.crash_lightning.lastCast )
@@ -1248,14 +1252,14 @@ spec:RegisterHook( "reset_precast", function ()
         if active_earthen_weapons > 0 then Hekili:Debug( "Earthen Weapons: " .. active_earthen_weapons ) end
     end
 
-    if buff.ascendance.up and talent.static_accumulation.enabled then
+    --[[ if buff.ascendance.up and talent.static_accumulation.enabled then
         local next_mw = query_time + 1 - ( ( query_time - buff.ascendance.applied ) % 1 )
 
         while ( next_mw <= buff.ascendance.expires ) do
             state:QueueAuraEvent( "ascendance_maelstrom", TriggerStaticAccumulation, next_mw, "AURA_PERIODIC" )
             next_mw = next_mw + 1
         end
-    end
+    end ]]
 
     tiSpell = action.lightning_bolt.lastCast >= action.chain_lightning.lastCast and "lightning_bolt" or "chain_lightning"
     if action.tempest.lastCast > action[ tiSpell ].lastCast then tiSpell = true_active_enemies > 1 and "chain_lightning" or "lightning_bolt" end
@@ -1416,11 +1420,11 @@ spec:RegisterAbilities( {
         handler = function ()
             -- trigger ascendance [344548], windstrike [115356]
             applyBuff( "ascendance" )
-            if talent.static_accumulation.enabled then
+            --[[ if talent.static_accumulation.enabled then
                 for i = 1, 15 do
                     state:QueueAuraEvent( "ascendance_maelstrom", TriggerStaticAccumulation, query_time + i, "AURA_PERIODIC" )
                 end
-            end
+            end ]]
         end,
     },
 
