@@ -7,12 +7,14 @@ vcbOptions2Box2.TitleTxt:SetText("Current Cast Time")
 vcbOptions2Box3.TitleTxt:SetText("Current & Total Cast Time")
 vcbOptions2Box4.TitleTxt:SetText("Total Cast Time")
 vcbOptions2Box5.TitleTxt:SetText("Spell's Name & Cast Bar's Color")
+vcbOptions2Box6.TitleTxt:SetText("Spell's Icon")
 -- positioning the boxes --
 vcbOptions2Box1:SetPoint("TOPLEFT", vcbOptions2Box0, "BOTTOMLEFT", 0, 0)
 vcbOptions2Box2:SetPoint("TOPRIGHT", vcbOptions2Box0, "BOTTOMRIGHT", 0, 0)
 vcbOptions2Box3:SetPoint("TOPLEFT", vcbOptions2Box1, "BOTTOMLEFT", 0, 0)
 vcbOptions2Box4:SetPoint("TOPRIGHT", vcbOptions2Box2, "BOTTOMRIGHT", 0, 0)
-vcbOptions2Box5:SetPoint("TOP", vcbOptions2Box4, "BOTTOM", 0, 0)
+vcbOptions2Box5:SetPoint("TOPLEFT", vcbOptions2Box3, "BOTTOMLEFT", 0, 0)
+vcbOptions2Box6:SetPoint("TOPRIGHT", vcbOptions2Box4, "BOTTOMRIGHT", 0, 0)
 -- fuction for Available --
 local function vcbAvailable()
 	vcbOptions2Box1CheckButton1:SetChecked(true)
@@ -61,6 +63,7 @@ local function CheckSavedVariables()
 	vcbOptions2Box4PopOut3:SetText(VCBrTarget["TotalTimeText"]["Decimals"])
 	vcbOptions2Box5PopOut1:SetText(VCBrTarget["NameText"])
 	vcbOptions2Box5PopOut2:SetText(VCBrTarget["Color"])
+	vcbOptions2Box6PopOut1:SetText(VCBrTarget["Icon"])
 end
 -- taking care of the target preview --
 TargetFrame.CBpreview:SetScript("OnEnter", function(self)
@@ -90,6 +93,19 @@ local function MouseWheelSlider(self, delta)
 	elseif delta == -1 then
 		PlaySound(858, "Master")
 		self:SetValue(self:GetValue() - 1)
+	end
+end
+-- icon and shield visibility --
+local function IconShieldVisibility()
+	if VCBrTarget["Icon"] == "Show Icon & Shiled" then
+		if not TargetFrameSpellBar.Icon:IsShown() then TargetFrameSpellBar.Icon:Show() end
+		if not TargetFrameSpellBar.showShield then TargetFrameSpellBar.showShield = true end
+	elseif VCBrTarget["Icon"] == "Hide Icon & Shiled" then
+		if TargetFrameSpellBar.Icon:IsShown() then TargetFrameSpellBar.Icon:Hide() end
+		if TargetFrameSpellBar.showShield then TargetFrameSpellBar.showShield = false end
+	elseif VCBrTarget["Icon"] == "Hide Only Icon" then
+		if TargetFrameSpellBar.Icon:IsShown() then TargetFrameSpellBar.Icon:Hide() end
+		if not TargetFrameSpellBar.showShield then TargetFrameSpellBar.showShield = true end
 	end
 end
 -- Box 0 Read me! --
@@ -435,7 +451,7 @@ end
 -- enter --
 vcbOptions2Box5PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nLatency's Bar to be shown?") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nSpell's Name to be shown?") 
 end)
 -- parent & sort --
 vcbOptions2Box5PopOut1Choice1:SetParent(vcbOptions2Box5PopOut1Choice0)
@@ -479,7 +495,37 @@ for i = 0, 1, 1 do
 		end
 	end)
 end
-
+-- Box 6, Icon --
+-- Pop Out Button 1, Icon, visibility --
+-- drop down --
+vcbClickPopOut(vcbOptions2Box6PopOut1, vcbOptions2Box6PopOut1Choice0)
+-- enter --
+vcbOptions2Box6PopOut1:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nSpell's Icon to be shown?") 
+end)
+-- leave --
+vcbOptions2Box6PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- parent & sort --
+for i = 1, 2, 1 do
+	_G["vcbOptions2Box6PopOut1Choice"..i]:SetParent(vcbOptions2Box6PopOut1Choice0)
+	_G["vcbOptions2Box6PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions2Box6PopOut1Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- naming --
+vcbOptions2Box6PopOut1Choice0.Text:SetText("Show Icon & Shiled")
+vcbOptions2Box6PopOut1Choice1.Text:SetText("Hide Icon & Shiled")
+vcbOptions2Box6PopOut1Choice2.Text:SetText("Hide Only Icon")
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions2Box6PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrTarget["Icon"] = self.Text:GetText()
+			vcbOptions2Box6PopOut1.Text:SetText(self:GetText())
+			vcbOptions2Box6PopOut1Choice0:Hide()
+			IconShieldVisibility()
+		end
+	end)
+end
 TargetFrame.CBpreview:SetScript("OnLeave", vcbLeavingMenus)
 vcbOptions2Box1CheckButton1:SetScript("OnLeave", vcbLeavingMenus)
 vcbOptions2Box1Slider1.Slider:SetScript("OnLeave", vcbLeavingMenus)

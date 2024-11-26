@@ -159,6 +159,9 @@ local function FirstTimeSavedVariables()
 	if VCBrFocus["BothTimeText"]["Decimals"] == nil then VCBrFocus["BothTimeText"]["Decimals"] = 2 end
 	if VCBrPlayer["GCD"] == nil then VCBrPlayer["GCD"] = {ClassicTexture = "Class Icon",} end
 	if VCBrPlayer["QueueBar"] == nil then VCBrPlayer["QueueBar"] = "Show" end
+	if VCBrTarget["Icon"] == nil then VCBrTarget["Icon"] = "Show Icon & Shiled" end
+	if VCBrFocus["Icon"] == nil then VCBrFocus["Icon"] = "Show Icon & Shiled" end
+	if VCBrBoss["Icon"] == nil then VCBrBoss["Icon"] = "Show Icon & Shiled" end
 end
 -- Events Time --
 local function EventsTime(self, event, arg1, arg2, arg3, arg4)
