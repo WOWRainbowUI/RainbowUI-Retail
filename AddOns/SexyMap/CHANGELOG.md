@@ -1,6 +1,6 @@
 # SexyMap
 
-## [v11.0.7](https://github.com/funkydude/SexyMap/tree/v11.0.7) (2024-11-22)
-[Full Changelog](https://github.com/funkydude/SexyMap/compare/v11.0.6...v11.0.7) [Previous Releases](https://github.com/funkydude/SexyMap/releases)
+## [v11.0.8](https://github.com/funkydude/SexyMap/tree/v11.0.8) (2024-11-26)
+[Full Changelog](https://github.com/funkydude/SexyMap/compare/v11.0.7...v11.0.8) [Previous Releases](https://github.com/funkydude/SexyMap/releases)
 
-- Buttons: Compensate for another bad addon, closes #390  
+- Buttons: Better fix for #390 and #391  
