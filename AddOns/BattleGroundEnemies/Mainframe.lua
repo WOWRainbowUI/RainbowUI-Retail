@@ -116,9 +116,9 @@ local testEvents = {
 }
 
 ---@class MainFrame : Button
----@field Players table<string, Button>
----@field CurrentPlayerOrder table<number, Button>
----@field InactivePlayerButtons table<number, Button>
+---@field Players table<string, PlayerButton>
+---@field CurrentPlayerOrder table<number, PlayerButton>
+---@field InactivePlayerButtons table<number, PlayerButton>
 ---@field NewPlayersDetails table<number, table>
 ---@field PlayerType string
 ---@field PlayerSources table<string, table>
@@ -168,7 +168,6 @@ local function CreateMainFrame(playerType)
 		self:SetAttribute("playerIndex", nextPlayerIndex)
 	]])
 
-	--@class: PlayerButton[]
 	mainframe.Players = {}            --index = name, value = button(table), contains enemyButtons
 	mainframe.CurrentPlayerOrder = {} --index = number, value = playerButton(table)
 	mainframe.InactivePlayerButtons = {} --index = number, value = button(table)
@@ -386,6 +385,7 @@ local function CreateMainFrame(playerType)
 			local classToken = newPlayer.classToken
 			local specName = newPlayer.specName
 			local additionalData = newPlayer.additionalData
+			self:Debug("AfterPlayer", name, raceName, classToken, specName, additionalData)
 			self:CreateOrUpdatePlayerDetails(name, raceName, classToken, specName, additionalData)
 		end
 		self:SetPlayerCount(#newPlayers)
@@ -680,6 +680,7 @@ local function CreateMainFrame(playerType)
 		playerButton.unit = nil
 
 		playerButton.PlayerDetails = playerDetails
+		playerButton:PlayerDetailsChanged()
 
 		self.Target = nil
 
@@ -1062,7 +1063,9 @@ local function CreateMainFrame(playerType)
 			if not (playerA and playerB) then return end
 			local detailsPlayerA = playerA.PlayerDetails
 			local detailsPlayerB = playerB.PlayerDetails
-			if not (detailsPlayerA.unitID and detailsPlayerB.unitID) then return true end
+			if not (detailsPlayerA.unitID and detailsPlayerB.unitID) then
+				if detailsPlayerA.PlayerName < detailsPlayerB.PlayerName then return true end --for enabling testmode in arena since fake players don't have unitid
+			end
 			if (detailsPlayerA.unitID == "player") then
 				return true;
 			elseif (detailsPlayerB.unitID == "player") then
@@ -1104,7 +1107,18 @@ local function CreateMainFrame(playerType)
 						table.sort(newPlayerOrder, PlayerSortingByRoleClassName)
 					end
 				else
-					table.sort(newPlayerOrder, CRFSort_Group_)
+					local usePlayerSortingByUnitID = true -- fake players don't have unitid
+					for i = 1, #newPlayerOrder do
+						if not newPlayerOrder[i].PlayerDetails.unitID then
+							usePlayerSortingByUnitID = false
+							break
+						end
+					end
+					if usePlayerSortingByUnitID then
+						table.sort(newPlayerOrder, CRFSort_Group_)
+					else
+						table.sort(newPlayerOrder, PlayerSortingByRoleClassName)
+					end
 				end
 			else
 				table.sort(newPlayerOrder, PlayerSortingByRoleClassName)

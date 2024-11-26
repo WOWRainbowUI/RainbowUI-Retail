@@ -1,4 +1,4 @@
-## Interface: 110002, 110005
+## Interface: 11505
 ## Title: BattleGroundEnemies
 ## Version: 11.0.5.9
 ## Author: Bullsei
@@ -19,7 +19,6 @@
 embeds.xml
 #@end-no-lib-strip@
 
-Libs\LibGroupInSpecT-1.1\lib.xml
 Locales.lua
 
 Helpers.lua

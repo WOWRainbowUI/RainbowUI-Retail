@@ -622,6 +622,9 @@ L["DurationFilter_OnlyShowWhenDuration"] = "仅当持续时间较短或相同时
 L["DurationFilter_OnlyShowWhenDuration_Desc"] = "任何持续时间超过所选持续时间的光环都会被过滤"
 L["Editmode_Toggle"] = "切换编辑模式"
 L["Editmode_Toggle_Desc"] = "开启/关闭编辑模式。基本上编辑模式就是测试模式，但是它可以让你移动所有的框体。选择一个框体时插件会自动跳转到对应的设置页面。你可以微调偏移量，或者到综合设置中为特定框体进行设置。"
+L["EditmodeDisabled"] = "编辑模式关闭"
+L[ [=[EditmodeEnabled
+]=] ] = "编辑模式开启"
 L["EditModeIntroduction"] = "欢迎进入编辑模式。这个功能可以让你按照自己的想法轻松地排布各种模块。点击一个蓝色模块以选中，然后你可以拖动到你想摆放的位置。如果你把它放到另一个模块的附近，它会自动锚定到临近的模块。当你选中一个模块时，它会显示为黄色高亮，同时选项菜单跳转到这个模块的设置页面。"
 L["Enable_DrawSwipe"] = "开启冷却计时效果"
 L["Enable_DrawSwipe_Desc"] = "在冷却计时时显示效果"
@@ -1054,6 +1057,9 @@ L["DurationFilter_OnlyShowWhenDuration"] = "只有持續時間較短或相同時
 L["DurationFilter_OnlyShowWhenDuration_Desc"] = "任何比選擇的持續時間長的光環都會被過濾掉"
 L["Editmode_Toggle"] = "切換編輯模式"
 L["Editmode_Toggle_Desc"] = "啟用/停用編輯模式。此模式基本上是測試模式，但能移動所有框架。選擇框架後，選項面板將自動跳到對應的設定。您也可以微調偏移量或跳到該特定框架的一般設定。"
+L["EditmodeDisabled"] = "編輯模式已停用"
+L[ [=[EditmodeEnabled
+]=] ] = "編輯模式已啟用"
 L["EditModeIntroduction"] = "歡迎使用編輯模式。此功能可讓您輕鬆地按照想要的方式排列各個模組。為此，只需點一下其中一個藍色模組來選取它，然後只要將它移動到所需位置即可。如果將它移動到另一個模組附近，它就會將自己固定在該模組上。一旦選擇了一個模組，將以黃色顯著標示，並且選項選單將跳到其設定。"
 L["Enable_DrawSwipe"] = "啟用轉圈倒數材質"
 L["Enable_DrawSwipe_Desc"] = "冷卻時間的剩餘部分顯示去色、較暗的材質"

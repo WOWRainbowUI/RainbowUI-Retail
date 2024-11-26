@@ -1,53 +1,11 @@
 # BattleGroundEnemies
 
-## [11.0.5.8](https://github.com/BullseiWoWAddons/BattleGroundEnemies/tree/11.0.5.8) (2024-11-24)
-[Full Changelog](https://github.com/BullseiWoWAddons/BattleGroundEnemies/compare/11.0.5.7...11.0.5.8) [Previous Releases](https://github.com/BullseiWoWAddons/BattleGroundEnemies/releases)
+## [11.0.5.9](https://github.com/BullseiWoWAddons/BattleGroundEnemies/tree/11.0.5.9) (2024-11-25)
+[Full Changelog](https://github.com/BullseiWoWAddons/BattleGroundEnemies/compare/11.0.5.8...11.0.5.9) [Previous Releases](https://github.com/BullseiWoWAddons/BattleGroundEnemies/releases)
 
-- refactor: add C\_SpecializationInfo to luacheck globals  
-- refactor: update changelog for version 11.0.5.8 with new features and bug fixes  
-- refactor: simplify player count configuration naming in Options.lua  
-- refactor: hide debug options based on user settings in BattleGroundEnemies  
-- refactor: edit and testmode can now be used while the frames are shown when in arena or a battleground  
-- refactor: update FakePlayersUpdateTicker to be a property of BattleGroundEnemies, and fix issue with guid scanning when resetting tables  
-- refactor: comment out debug logging in ObjectiveAndRespawn module  
-- refactor: disable debug logging for OnEvent in BattleGroundEnemies  
-- refactor: planername is in details..  
-- fix: update Interface-Classic version to 11505  
-- refactor: restructure debugging options into grouped categories for better organization  
-- refactor: undo change  
-- refactor: consolidate debug frame creation and management in BattleGroundEnemies  
-- refactor: enhance player name matching logic in arena and scoreboard handling  
-- refactor: More static modules for editmode for nicer usability  
-- refactor: use fake event ticker instead of onupdate  
-- feat: add GetSpellTexture function for improved spell handling  
-- feat: rewrite test mode event handling and player button updates  
-- refactor: replace BattleGroundEnemies debug calls with self debug method for consistency  
-- refactor: replace BattleGroundEnemies debug calls with self debug method for consistency, remove unsuded PlayerDetailsChanged Event  
-- feat: streamline player count test mode handling and add nil check for debug chat frame  
-- refactor: remove unnecessary blank line in AttachToPlayerButton function  
-- refactor: simplify specialization check by replacing GetSpecializationInfoByID with GetSpecialization  
-- feat: replace PlayerDetailsChanged event dispatch with ApplyAllSettings call and add utility functions for invoking methods on enabled button modules  
-- feat: add nil checks for config in ApplyAllSettings functions across multiple modules also merge playerDetailsChange into ApplyAllSettings  
-- feat: reorganize debug options in setup and add new toggle for showing debug chat frame  
-- feat: add nil check for battlegroundBuff before setting icon texture  
-- feat: remove unnecessary call to FakePlayersOnUpdateFrame in Testmode activation  
-- feat: enhance debugging output in AfterPlayerSourceUpdate and improve comments for clarity  
-- feat: add function to check for edit and testmode and rework a bit of editmode/testmode  
-- feat: add changelog entries for version 11.0.5.8 including bugfixes and changes  
-- feat: update bug report issue template for clarity  
-- feat: add bug report issue template for BattleGroundEnemies  
-- refactor: unify test mode checks and improve handling to apply settings  
-- fix: ensure compatibility with C\_SpecializationInfo for GetNumSpecializationsForClassID  
-- refactor: simplify test mode check in UnitDied function  
-- refactor: update option names for clarity in Debug settings  
-- refactor: remove unused DebugText initialization in ApplyAllSettings function  
-- fix: conditionally reset log profile on player login based on DebugToSV\_ResetOnPlayerLogin setting  
-- Added debug options to options panel  
-- refactor: streamline player button settings application and enhance debug logging in reset and hide functions, set repawm time of Deephaul Ravine to be 26 seconds in solo RBG  
-- feat: add debug function to PlayerButton and improve error logging in SetModulePositions  
-- feat: add debug logging to mainframe and improve player count configuration handling  
-- refactor: move player count configuration functions to BattleGroundEnemies also improve usability by not hiding the basic profiles  
-- increase respawn time in solo RBG to 16 seconds  
-- fix: update reset button names to use SETTINGS\_DEFAULTS constant to save space  
-- refactor: remove unnecessary vertical spacing in DR module options  
-- feat: add WOW\_PROJECT\_ID to BattleGroundEnemies states  
+- changelog: update to version 11.0.5.9 with bug fixes for ally updates, test mode errors, and respawn timer  
+- refactor: add debug logging for player details and trigger PlayerDetailsChanged on update to fix bug mostly prominent in solo shuffle(buton order didn't change but there were new players on that button)  
+- refactor: streamline module settings application and update button position handling  
+- refactor: update PlayerButton class annotation to inherit from Button  
+- refactor: fix issue respawn timer not resetting  
+- refactor: update PlayerButton type annotations and improve sorting logic in MainFrame to fix bug when testmode in arena  
