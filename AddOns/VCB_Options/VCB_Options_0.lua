@@ -38,6 +38,7 @@ vcbOptions00:SetScript("OnShow", function(self)
 	if C_AddOns.IsAddOnLoaded("Stuf") or C_AddOns.IsAddOnLoaded("InvenUnitFrames") then
 		vcbOptions00Tab2:Hide()
 		vcbOptions00Tab3:Hide()
+		vcbOptions00Tab4:Hide()
 	end
 end)
 -- hiding the tabs --

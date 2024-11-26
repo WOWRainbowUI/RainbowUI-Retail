@@ -7,12 +7,14 @@ vcbOptions2Box2.TitleTxt:SetText("目前施法時間")
 vcbOptions2Box3.TitleTxt:SetText("目前 & 總共施法時間")
 vcbOptions2Box4.TitleTxt:SetText("總共施法時間")
 vcbOptions2Box5.TitleTxt:SetText("法術名稱 & 施法條顏色")
+vcbOptions2Box6.TitleTxt:SetText("法術圖示")
 -- positioning the boxes --
 vcbOptions2Box1:SetPoint("TOPLEFT", vcbOptions2Box0, "BOTTOMLEFT", 0, 0)
 vcbOptions2Box2:SetPoint("TOPRIGHT", vcbOptions2Box0, "BOTTOMRIGHT", 0, 0)
 vcbOptions2Box3:SetPoint("TOPLEFT", vcbOptions2Box1, "BOTTOMLEFT", 0, 0)
 vcbOptions2Box4:SetPoint("TOPRIGHT", vcbOptions2Box2, "BOTTOMRIGHT", 0, 0)
-vcbOptions2Box5:SetPoint("TOP", vcbOptions2Box4, "BOTTOM", 0, 0)
+vcbOptions2Box5:SetPoint("TOPLEFT", vcbOptions2Box3, "BOTTOMLEFT", 0, 0)
+vcbOptions2Box6:SetPoint("TOPRIGHT", vcbOptions2Box4, "BOTTOMRIGHT", 0, 0)
 -- fuction for Available --
 local function vcbAvailable()
 	vcbOptions2Box1CheckButton1:SetChecked(true)
@@ -61,6 +63,7 @@ local function CheckSavedVariables()
 	vcbOptions2Box4PopOut3:SetText(VCBrTarget["TotalTimeText"]["Decimals"])
 	vcbOptions2Box5PopOut1:SetText(VCBrTarget["NameText"])
 	vcbOptions2Box5PopOut2:SetText(VCBrTarget["Color"])
+	vcbOptions2Box6PopOut1:SetText(VCBrTarget["Icon"])
 end
 -- taking care of the target preview --
 TargetFrame.CBpreview:SetScript("OnEnter", function(self)
@@ -90,6 +93,19 @@ local function MouseWheelSlider(self, delta)
 	elseif delta == -1 then
 		PlaySound(858, "Master")
 		self:SetValue(self:GetValue() - 1)
+	end
+end
+-- icon and shield visibility --
+local function IconShieldVisibility()
+	if VCBrTarget["Icon"] == "顯示圖示 & 盾牌" then
+		if not TargetFrameSpellBar.Icon:IsShown() then TargetFrameSpellBar.Icon:Show() end
+		if not TargetFrameSpellBar.showShield then TargetFrameSpellBar.showShield = true end
+	elseif VCBrTarget["Icon"] == "隱藏圖示 & 盾牌" then
+		if TargetFrameSpellBar.Icon:IsShown() then TargetFrameSpellBar.Icon:Hide() end
+		if TargetFrameSpellBar.showShield then TargetFrameSpellBar.showShield = false end
+	elseif VCBrTarget["Icon"] == "只隱藏圖示" then
+		if TargetFrameSpellBar.Icon:IsShown() then TargetFrameSpellBar.Icon:Hide() end
+		if not TargetFrameSpellBar.showShield then TargetFrameSpellBar.showShield = true end
 	end
 end
 -- Box 0 Read me! --
@@ -479,7 +495,37 @@ for i = 0, 1, 1 do
 		end
 	end)
 end
-
+-- Box 6, Icon --
+-- Pop Out Button 1, Icon, visibility --
+-- drop down --
+vcbClickPopOut(vcbOptions2Box6PopOut1, vcbOptions2Box6PopOut1Choice0)
+-- enter --
+vcbOptions2Box6PopOut1:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("是否要顯示法術圖示?") 
+end)
+-- leave --
+vcbOptions2Box6PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- parent & sort --
+for i = 1, 2, 1 do
+	_G["vcbOptions2Box6PopOut1Choice"..i]:SetParent(vcbOptions2Box6PopOut1Choice0)
+	_G["vcbOptions2Box6PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions2Box6PopOut1Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- naming --
+vcbOptions2Box6PopOut1Choice0.Text:SetText("顯示圖示 & 盾牌")
+vcbOptions2Box6PopOut1Choice1.Text:SetText("隱藏圖示 & 盾牌")
+vcbOptions2Box6PopOut1Choice2.Text:SetText("只隱藏圖示")
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions2Box6PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrTarget["Icon"] = self.Text:GetText()
+			vcbOptions2Box6PopOut1.Text:SetText(self:GetText())
+			vcbOptions2Box6PopOut1Choice0:Hide()
+			IconShieldVisibility()
+		end
+	end)
+end
 TargetFrame.CBpreview:SetScript("OnLeave", vcbLeavingMenus)
 vcbOptions2Box1CheckButton1:SetScript("OnLeave", vcbLeavingMenus)
 vcbOptions2Box1Slider1.Slider:SetScript("OnLeave", vcbLeavingMenus)

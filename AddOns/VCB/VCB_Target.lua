@@ -299,6 +299,19 @@ local function CastBarColor(self)
 		self:SetStatusBarColor(1, 1, 1, 1)
 	end
 end
+-- icon and shield visibility --
+local function IconShieldVisibility()
+	if VCBrTarget["Icon"] == "顯示圖示 & 盾牌" then
+		if not TargetFrameSpellBar.Icon:IsShown() then TargetFrameSpellBar.Icon:Show() end
+		if not TargetFrameSpellBar.showShield then TargetFrameSpellBar.showShield = true end
+	elseif VCBrTarget["Icon"] == "隱藏圖示 & 盾牌" then
+		if TargetFrameSpellBar.Icon:IsShown() then TargetFrameSpellBar.Icon:Hide() end
+		if TargetFrameSpellBar.showShield then TargetFrameSpellBar.showShield = false end
+	elseif VCBrTarget["Icon"] == "只隱藏圖示" then
+		if TargetFrameSpellBar.Icon:IsShown() then TargetFrameSpellBar.Icon:Hide() end
+		if not TargetFrameSpellBar.showShield then TargetFrameSpellBar.showShield = true end
+	end
+end
 -- hooking time --
 local function AloneTargetSpellBar()
 -- Text --
@@ -418,6 +431,7 @@ end
 -- Events Time --
 local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 	if event == "PLAYER_LOGIN" then
+		IconShieldVisibility()
 		if not VCBrTarget["Unlock"] and VCBrTarget["otherAdddon"] == "無" then
 			AloneTargetSpellBar()
 		elseif VCBrTarget["Unlock"] and VCBrTarget["otherAdddon"] == "無" then

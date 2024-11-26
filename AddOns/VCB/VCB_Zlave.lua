@@ -157,8 +157,11 @@ local function FirstTimeSavedVariables()
 	if VCBrFocus["CurrentTimeText"]["Decimals"] == nil then VCBrFocus["CurrentTimeText"]["Decimals"] = 2 end
 	if VCBrFocus["TotalTimeText"]["Decimals"] == nil then VCBrFocus["TotalTimeText"]["Decimals"] = 2 end
 	if VCBrFocus["BothTimeText"]["Decimals"] == nil then VCBrFocus["BothTimeText"]["Decimals"] = 2 end
-	if VCBrPlayer["GCD"] == nil then VCBrPlayer["GCD"] = {ClassicTexture = "隱藏",} end
+	if VCBrPlayer["GCD"] == nil then VCBrPlayer["GCD"] = {ClassicTexture = "職業圖示",} end
 	if VCBrPlayer["QueueBar"] == nil then VCBrPlayer["QueueBar"] = "顯示" end
+	if VCBrTarget["Icon"] == nil then VCBrTarget["Icon"] = "顯示圖示 & 盾牌" end
+	if VCBrFocus["Icon"] == nil then VCBrFocus["Icon"] = "顯示圖示 & 盾牌" end
+	if VCBrBoss["Icon"] == nil then VCBrBoss["Icon"] = "顯示圖示 & 盾牌" end
 end
 -- Events Time --
 local function EventsTime(self, event, arg1, arg2, arg3, arg4)

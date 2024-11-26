@@ -7,12 +7,14 @@ vcbOptions3Box2.TitleTxt:SetText("目前施法時間")
 vcbOptions3Box3.TitleTxt:SetText("目前 & 總共施法時間")
 vcbOptions3Box4.TitleTxt:SetText("總共施法時間")
 vcbOptions3Box5.TitleTxt:SetText("法術名稱 & 施法條顏色")
+vcbOptions3Box6.TitleTxt:SetText("法術圖示")
 -- positioning the boxes --
 vcbOptions3Box1:SetPoint("TOPLEFT", vcbOptions3Box0, "BOTTOMLEFT", 0, 0)
 vcbOptions3Box2:SetPoint("TOPRIGHT", vcbOptions3Box0, "BOTTOMRIGHT", 0, 0)
 vcbOptions3Box3:SetPoint("TOPLEFT", vcbOptions3Box1, "BOTTOMLEFT", 0, 0)
 vcbOptions3Box4:SetPoint("TOPRIGHT", vcbOptions3Box2, "BOTTOMRIGHT", 0, 0)
-vcbOptions3Box5:SetPoint("TOP", vcbOptions3Box4, "BOTTOM", 0, 0)
+vcbOptions3Box5:SetPoint("TOPLEFT", vcbOptions3Box3, "BOTTOMLEFT", 0, 0)
+vcbOptions3Box6:SetPoint("TOPRIGHT", vcbOptions3Box4, "BOTTOMRIGHT", 0, 0)
 -- fuction for Available --
 local function vcbAvailable()
 	vcbOptions3Box1CheckButton1:SetChecked(true)
@@ -61,6 +63,7 @@ local function CheckSavedVariables()
 	vcbOptions3Box4PopOut3:SetText(VCBrFocus["TotalTimeText"]["Decimals"])
 	vcbOptions3Box5PopOut1:SetText(VCBrFocus["NameText"])
 	vcbOptions3Box5PopOut2:SetText(VCBrFocus["Color"])
+	vcbOptions3Box6PopOut1:SetText(VCBrFocus["Icon"])
 end
 -- taking care of the target preview --
 FocusFrame.CBpreview:SetScript("OnEnter", function(self)
@@ -90,6 +93,19 @@ local function MouseWheelSlider(self, delta)
 	elseif delta == -1 then
 		PlaySound(858, "Master")
 		self:SetValue(self:GetValue() - 1)
+	end
+end
+-- icon and shield visibility --
+local function IconShieldVisibility()
+	if VCBrFocus["Icon"] == "顯示圖示 & 盾牌" then
+		if not FocusFrameSpellBar.Icon:IsShown() then FocusFrameSpellBar.Icon:Show() end
+		if not FocusFrameSpellBar.showShield then FocusFrameSpellBar.showShield = true end
+	elseif VCBrFocus["Icon"] == "隱藏圖示 & 盾牌" then
+		if FocusFrameSpellBar.Icon:IsShown() then FocusFrameSpellBar.Icon:Hide() end
+		if FocusFrameSpellBar.showShield then FocusFrameSpellBar.showShield = false end
+	elseif VCBrFocus["Icon"] == "只隱藏圖示" then
+		if FocusFrameSpellBar.Icon:IsShown() then FocusFrameSpellBar.Icon:Hide() end
+		if not FocusFrameSpellBar.showShield then FocusFrameSpellBar.showShield = true end
 	end
 end
 -- Box 0 Read me! --
@@ -478,7 +494,37 @@ for i = 0, 1, 1 do
 		end
 	end)
 end
-
+-- Box 6, Icon --
+-- Pop Out Button 1, Icon, visibility --
+-- drop down --
+vcbClickPopOut(vcbOptions3Box6PopOut1, vcbOptions3Box6PopOut1Choice0)
+-- enter --
+vcbOptions3Box6PopOut1:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("是否要顯示法術圖示?") 
+end)
+-- leave --
+vcbOptions3Box6PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- parent & sort --
+for i = 1, 2, 1 do
+	_G["vcbOptions3Box6PopOut1Choice"..i]:SetParent(vcbOptions3Box6PopOut1Choice0)
+	_G["vcbOptions3Box6PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions3Box6PopOut1Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- naming --
+vcbOptions3Box6PopOut1Choice0.Text:SetText("顯示圖示 & 盾牌")
+vcbOptions3Box6PopOut1Choice1.Text:SetText("隱藏圖示 & 盾牌")
+vcbOptions3Box6PopOut1Choice2.Text:SetText("只隱藏圖示")
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions3Box6PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrFocus["Icon"] = self.Text:GetText()
+			vcbOptions3Box6PopOut1.Text:SetText(self:GetText())
+			vcbOptions3Box6PopOut1Choice0:Hide()
+			IconShieldVisibility()
+		end
+	end)
+end
 FocusFrame.CBpreview:SetScript("OnLeave", vcbLeavingMenus)
 vcbOptions3Box1CheckButton1:SetScript("OnLeave", vcbLeavingMenus)
 vcbOptions3Box1Slider1.Slider:SetScript("OnLeave", vcbLeavingMenus)
