@@ -68,9 +68,6 @@ spec:RegisterResource( Enum.PowerType.Runes, {
             table.insert( t.expiry, 0 )
             t.expiry[ 7 ] = nil
         end
-        --[[while #t.expiry > 6 do
-            table.remove( t.expiry )
-        end--]]
         table.sort( t.expiry )
         t.actual = nil -- Reset actual to force recalculation
     end,
@@ -92,6 +89,7 @@ spec:RegisterResource( Enum.PowerType.Runes, {
         if state.talent.gathering_storm.enabled and state.buff.remorseless_winter.up then
             state.buff.remorseless_winter.expires = state.buff.remorseless_winter.expires + ( 0.5 * amount )
         end
+
         t.actual = nil -- Reset actual to force recalculation
     end,
 
@@ -111,19 +109,30 @@ spec:RegisterResource( Enum.PowerType.Runes, {
             return amount
 
         elseif k == "current" then
-            -- Use forecasted values if available, fallback to `actual`.
+            -- If this is a modeled resource, use our lookup system.
             if t.forecast and t.fcount > 0 then
                 local q = state.query_time
-                if t.values[ q ] then
-                    return t.values[ q ]
-                end
+                local index, slice
+
+                if t.values[ q ] then return t.values[ q ] end
+
                 for i = 1, t.fcount do
-                    local slice = t.forecast[ i ]
-                    if slice.t <= q then
-                        return max( 0, min( t.max, slice.v ) )
+                    local v = t.forecast[ i ]
+                    if v.t <= q and v.v ~= nil then
+                        index = i
+                        slice = v
+                    else
+                        break
                     end
                 end
+
+                -- We have a slice.
+                if index and slice and slice.v then
+                    t.values[ q ] = max( 0, min( t.max, slice.v ) )
+                    return t.values[ q ]
+                end
             end
+
             return t.actual
 
         elseif k == "deficit" then
@@ -151,7 +160,6 @@ spec:RegisterStateExpr( "breath_ticks_left", function()
 end )
 
 spec:RegisterResource( Enum.PowerType.RunicPower, {
-
     breath_of_sindragosa = {
         aura = "breath_of_sindragosa",
         stop = function( x )
