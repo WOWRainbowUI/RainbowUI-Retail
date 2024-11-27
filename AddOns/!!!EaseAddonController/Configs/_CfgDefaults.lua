@@ -76,6 +76,12 @@ D["Accountant_Classic"] = {
 		text = "點小地圖按鈕的 '個人會計' 按鈕也可以打開主視窗。",
 	}
 };
+D["AchievementsBackButton"] = {
+	defaultEnable = 1,
+	tags = { "COLLECTION" },
+	title = "成就回上一頁",
+	desc = "在成就視窗上方、成就點數右側新增返回上一頁的按鈕，方便瀏覽。`",
+};
 D["ActionCamPlus"] = {
 	defaultEnable = 0,
 	tags = { "MISC" },

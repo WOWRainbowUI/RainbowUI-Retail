@@ -1,0 +1,17 @@
+## Interface: 30403, 40401, 110002, 110005
+## Version: 1.5.6
+## Title: Achievements Back Button
+## Author: LudiusMaximus
+## Notes: Adds a back button to the achievements frame that works like a browser history.
+## X-Curse-Project-ID: 1007342
+## X-WoWI-ID: 26723
+## X-Donate: PayPal:ludiusmaximus@gmail.com
+## X-License: The MIT License (MIT)
+
+## Title-zhTW: |cffFFCC99[成就]|r 回上一頁
+## Notes-zhTW: Achievements Back Button |n在成就視窗上方、成就點數右側新增返回上一頁的按鈕，方便瀏覽。
+## IconTexture: interface\icons\misc_arrowleft
+## X-Category-zhTW: 收藏
+
+main.lua
+
