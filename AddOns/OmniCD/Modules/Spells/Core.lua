@@ -70,7 +70,7 @@ function E:ProcessSpellDB()
 			else
 				tremove(v, i)
 				--[==[@debug@
-				E.write("Removing invalid spell_db ID:" , id)
+				print("Removing invalid spell_db ID:" , id)
 				--@end-debug@]==]
 			end
 		end

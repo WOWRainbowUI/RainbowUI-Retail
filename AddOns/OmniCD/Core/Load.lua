@@ -26,7 +26,6 @@ local function OmniCD_OnEvent(self, event, ...)
 			self:SetScript("OnEvent", nil)
 		end
 	elseif event == 'PET_BATTLE_CLOSE' then
-		self.isInPetBattle = nil
 		for moduleName in pairs(E.moduleOptions) do
 			local module = E[moduleName]
 			local func = module.Refresh
@@ -42,12 +41,11 @@ local function OmniCD_OnEvent(self, event, ...)
 			if type(func) == "function" and module.isInTestMode then
 				func(module)
 			end
-			func = module.HideAll
+			func = module.ReleaseAll
 			if type(func) == "function" then
 				func(module)
 			end
 		end
-		self.isInPetBattle = true
 		self:RegisterEvent('PET_BATTLE_CLOSE')
 	end
 end
@@ -88,9 +86,13 @@ function E:OnInitialize()
 	self.DB.RegisterCallback(self, "OnProfileCopied", "Refresh")
 	self.DB.RegisterCallback(self, "OnProfileReset", "Refresh")
 
+	self.global = self.DB.global
+	self.profile = self.DB.profile
+	local _, instanceType = IsInInstance()
+	self.db = self:GetCurrentZoneSettings(instanceType)
+
 	self:CreateFontObjects()
 	self:UpdateSpellList(true)
-	self:SetupBlizzardOptions()
 	self:SetupOptions()
 
 end
@@ -126,7 +128,6 @@ function E:SetPixelMult()
 end
 
 function E:OnEnable()
-	self.enabled = true
 	self:LoadAddOns()
 	self:SetPixelMult()
 	self:Refresh()
@@ -134,16 +135,12 @@ function E:OnEnable()
 	if self.global.loginMessage then
 		print(self.LoginMessage)
 	end
+
+	self.enabled = true
 end
 
 function E:Refresh(arg)
-	if not self.enabled then
-		return
-	end
-
-	self.global = self.DB.global
 	self.profile = self.DB.profile
-	self.db = self.profile.arena
 
 	self:UpdateFontObjects()
 
