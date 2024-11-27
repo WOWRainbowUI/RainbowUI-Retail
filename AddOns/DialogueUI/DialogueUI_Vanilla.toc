@@ -1,5 +1,5 @@
 ## Interface: 11504, 11505
-## Version: 0.5.3
+## Version: 0.5.4
 
 ## Title: Dialogue UI
 
@@ -20,6 +20,7 @@ API.xml
 Code\Utility\Utility.xml
 Code\Sound.lua
 Code\Camera.lua
+Code\SharedUITemplates\SharedUITemplates.xml
 Code\Tooltip\Tooltip.xml
 Code\Scroll\Scroll.xml
 Code\Settings\Settings.xml
