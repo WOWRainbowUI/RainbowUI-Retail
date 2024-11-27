@@ -1,6 +1,6 @@
 # Auctionator
 
-## [11.0.17](https://github.com/Auctionator/Auctionator/tree/11.0.17) (2024-11-25)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/11.0.16...11.0.17) 
+## [11.0.18](https://github.com/Auctionator/Auctionator/tree/11.0.18) (2024-11-26)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/11.0.17...11.0.18) 
 
-- [Fixes #1605] Classic: Error from nil rowData  
+- Add Support Auctionator message on the the about tab  
