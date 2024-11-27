@@ -1,10 +1,10 @@
 # Auto Potion
 
-## [3.8.1](https://github.com/ollidiemaus/AutoPotion/tree/3.8.1) (2024-11-25)
-[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.8.0...3.8.1) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
+## [3.8.2](https://github.com/ollidiemaus/AutoPotion/tree/3.8.2) (2024-11-27)
+[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.8.1...3.8.2) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
 
-- Update AutoPotion.toc  
-- Fix not loading (#70)  
-    * Update embeds.xml  
-    * Update embeds.xml  
-- toc updates  
+- fixed LibStub error  
+- Update InterfaceOptionsFrame.lua (#72)  
+    * Update InterfaceOptionsFrame.lua  
+    * Update zhCN.lua  
+- added vampiric blood  
