@@ -475,7 +475,7 @@ function P:CreateExtraBarFrames()
 		frame.key = key
 		frame.icons = {}
 		frame.numIcons = 0
-		frame.db = E.db.extraBars[key]
+
 
 		frame.anchor.text:SetFontObject(E.AnchorFont)
 		local name = i == 1 and L["Interrupts"] or i

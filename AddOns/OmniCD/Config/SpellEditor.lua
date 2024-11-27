@@ -595,7 +595,7 @@ function E:AddSpellEditor()
 		if not C_Spell.DoesSpellExist(id) then
 			OmniCDDB.cooldowns[id] = nil
 			--[==[@debug@
-			print("Removing invalid custom ID:" , id)
+			E.write("Removing invalid custom ID:" , id)
 			--@end-debug@]==]
 		else
 			id = tostring(id)
