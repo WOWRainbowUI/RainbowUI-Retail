@@ -359,7 +359,7 @@ local talentRanks = {
 	{ 19577 },
 	{ 23989 },
 	{ 19503 },
-	{ 34490 },
+
 	{ 19434, 20900, 20901, 20902, 20903, 20904 },
 	{ 19306, 20909, 20910 },
 	{ 19386, 24132, 24133 },
@@ -435,7 +435,7 @@ for i = 1, #talentRanks do
 			E.spell_merged[rankN] = rank1
 			--[==[@debug@
 			if not C_Spell.DoesSpellExist(rankN) then
-				print("Invalid rank" .. j .. "talent ID:", rankN)
+				E.write("Invalid rank" .. j .. "talent ID:", rankN)
 			end
 			--@end-debug@]==]
 		end
@@ -453,7 +453,7 @@ for i = 1, #talentRanks do
 		end
 	--[==[@debug@
 	else
-		print("Invalid rank1 talent ID:", rank1)
+		E.write("Invalid rank1 talent ID:", rank1)
 	--@end-debug@]==]
 	end
 end

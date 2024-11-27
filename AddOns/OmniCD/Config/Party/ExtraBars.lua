@@ -281,7 +281,7 @@ local extraBarsInfo = {
 						local key = info[2]
 						local value = state and P.extraBars[ info[4] ].index or 0
 						E.profile.Party[key].frame[k] = value
-
+						
 						for id, v in pairs(E.profile.Party[key].spellFrame) do
 							if E.hash_spelldb[id].type == k and v == value then
 								E.profile.Party[key].spellFrame[id] = nil
@@ -314,7 +314,7 @@ local extraBarsInfo = {
 						return sortByValues[ info[4] ] or sortByValues.raidBar2
 					end,
 					sorting = function(info)
-						return info[4] == "raidBar1" and {1,5,6,15,2,7,8,16} or nil
+						return info[4] == "raidBar1" and {1,5,6,15,2,7,8,16} or nil 
 					end,
 				},
 				sortDirection = {
@@ -566,7 +566,7 @@ local extraBarsInfo = {
 					type = "range",
 					min = 50, max = 999, softMax = 300, step = 1,
 				},
-
+				
 				textOfsX = {
 					name = L["Name Offset X"],
 					order = 18,
@@ -597,7 +597,7 @@ local extraBarsInfo = {
 								end
 								local statusBar = icon.statusBar
 								local castingBar = statusBar.CastingBar
-								statusBar.name = name
+								statusBar.name = name 
 								castingBar.name = name
 								statusBar.Text:SetText(name)
 								castingBar.Text:SetText(name)
@@ -674,7 +674,7 @@ local extraBarsInfo = {
 					func = function(info)
 						local key, bar = info[2], info[4]
 						E.profile.Party[key].extraBars[bar] = E:DeepCopy(C.Party[key].extraBars[bar])
-						E:RefreshProfile()
+						E:RefreshProfile() 
 					end,
 					confirm = E.ConfirmAction,
 				},

@@ -1972,7 +1972,7 @@ registeredEvents['SPELL_CAST_SUCCESS'][44614] = function(info)
 	if info.auras.excessFrost then
 		local icon = info.spellIcons[153595]
 		if icon and icon.active then
-			icon:UpdateCooldown(5)
+			icon:UpdateCooldown(P.isPvP and 5 or 10)
 		end
 	end
 end
@@ -1980,7 +1980,7 @@ registeredEvents['SPELL_CAST_SUCCESS'][257541] = function(info, _,_, destGUID)
 	if info.auras.excessFrost then
 		local icon = info.spellIcons[153561]
 		if icon and icon.active then
-			icon:UpdateCooldown(5)
+			icon:UpdateCooldown(P.isPvP and 5 or 10)
 		end
 	end
 	info.auras.phoenixFlameTargetGUID = destGUID
