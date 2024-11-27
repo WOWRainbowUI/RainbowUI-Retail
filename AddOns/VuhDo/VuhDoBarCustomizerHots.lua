@@ -18,6 +18,10 @@ local sClipL, sClipR, sClipT, sClipB = 0, 1, 0, 1;
 local sIsPlayerKnowsSwiftmend = false;
 local sSwiftmendUnits = { };
 local sIsPlayerCanCastSwiftmend;
+local sSwiftmendCooldown = {
+	-- <cooldown start time>,
+	-- <cooldown duration>,
+};
 
 VUHDO_UNIT_HOT_TYPE_MINE = 1;
 VUHDO_UNIT_HOT_TYPE_OTHERS = 2;
@@ -82,6 +86,7 @@ local VUHDO_HOT_CFGS = { "HOT1", "HOT2", "HOT3", "HOT4", "HOT5", "HOT6", "HOT7",
 
 local floor = floor;
 local table = table;
+local GetSpellCooldown = GetSpellCooldown or VUHDO_getSpellCooldown;
 local GetSpellCharges = C_Spell.GetSpellCharges;
 local GetSpellName = C_Spell.GetSpellName;
 local GetTime = GetTime;
@@ -1330,6 +1335,8 @@ end
 
 
 --
+local tStart;
+local tDuration;
 local tChargeInfo;
 local function VUHDO_updateSwiftmendCooldown()
 
@@ -1339,7 +1346,25 @@ local function VUHDO_updateSwiftmendCooldown()
 
 	tChargeInfo = GetSpellCharges(VUHDO_SPELL_ID.SWIFTMEND);
 
-	if tChargeInfo and tChargeInfo.currentCharges > 0 then
+	if tChargeInfo then
+		if tChargeInfo.currentCharges > 0 then
+			sIsPlayerCanCastSwiftmend = true;
+		else
+			sIsPlayerCanCastSwiftmend = false;
+		end
+	elseif not sSwiftmendCooldown[0] or not sSwiftmendCooldown[1] then
+		tStart, tDuration = GetSpellCooldown(VUHDO_SPELL_ID.SWIFTMEND);
+
+		if (tStart == nil and tDuration == nil) or (tStart > 0 and tDuration > 1.5) then
+			sSwiftmendCooldown[0], sSwiftmendCooldown[1] = tStart, tDuration;
+
+			sIsPlayerCanCastSwiftmend = false;
+		else
+			sIsPlayerCanCastSwiftmend = true;
+		end
+	elseif (sSwiftmendCooldown[0] + sSwiftmendCooldown[1] - GetTime()) <= 0 then
+		sSwiftmendCooldown[0], sSwiftmendCooldown[1] = nil, nil;
+
 		sIsPlayerCanCastSwiftmend = true;
 	else
 		sIsPlayerCanCastSwiftmend = false;
