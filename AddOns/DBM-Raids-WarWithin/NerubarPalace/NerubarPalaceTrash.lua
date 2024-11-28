@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("NerubarPalaceTrash", "DBM-Raids-WarWithin", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241122050902")
+mod:SetRevision("20241124210318")
 --mod:SetModelID(47785)
 mod.isTrashMod = true
 mod:SetZone(2657)
@@ -167,7 +167,7 @@ end
 
 function mod:GOSSIP_SHOW()
 	local gossipOptionID = self:GetGossipID()
-	if gossipOptionID then
+	if gossipOptionID and not DBM:UnitDebuff("player", 461763, 461766) then
 		if self.Options.AutoGossipBuff and gossipOptionID == 123878 then--Potion at entrance
 			self:SelectGossip(gossipOptionID)
 		end
