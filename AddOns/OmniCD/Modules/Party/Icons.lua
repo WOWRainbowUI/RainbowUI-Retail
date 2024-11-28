@@ -221,19 +221,16 @@ end
 
 
 local pendingPassThroughButtons = {}
-
 function P:UpdatePassThroughButtons()
-	if #pendingPassThroughButtons > 0 then
-		local showTooltip = E.db.icons.showTooltip
-		for i = #pendingPassThroughButtons, 1, -1 do
-			local icon = pendingPassThroughButtons[i]
-			icon:SetPassThroughButtons("LeftButton", "RightButton")
-			icon.isPassThrough = true
-			if showTooltip then
-				icon:EnableMouse(true)
-			end
-			pendingPassThroughButtons[i] = nil
+	local showTooltip = E.db.icons.showTooltip
+	for i = #pendingPassThroughButtons, 1, -1 do
+		local icon = pendingPassThroughButtons[i]
+		icon:SetPassThroughButtons("LeftButton", "RightButton")
+		icon.isPassThrough = true
+		if showTooltip then
+			icon:EnableMouse(true)
 		end
+		pendingPassThroughButtons[i] = nil
 	end
 end
 
