@@ -1,6 +1,6 @@
 # Syndicator
 
-## [136](https://github.com/Baganator/Syndicator/tree/136) (2024-11-24)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/135...136) 
+## [137](https://github.com/Baganator/Syndicator/tree/137) (2024-11-27)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/136...137) 
 
-- Fix guild name being removed from current character during some loading screens  
+- Fix /syns search breaking when guild bank pets with no data exist in storage  
