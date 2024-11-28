@@ -1270,18 +1270,18 @@ L["ALL_CHARACTERS"] = "Todos los personajes"
 L["ALT_CLICK"] = "Alt+Clic"
 L["ALWAYS"] = "Siempre"
 L["ARRANGE_ITEMS"] = "Ordenar los objetos"
-L["AT_THE_BOTTOM"] = "Hacia abajo"
-L["AT_THE_TOP"] = "Hacia arriba"
+L["AT_THE_BOTTOM"] = "Hasta abajo"
+L["AT_THE_TOP"] = "Hasta arriba"
 L["ATT_ADDON"] = "ATT"
 L["ATTACHED_DIRECTLY_TO_X"] = "Se adjunta directamente %s"
 L["AUCTION_HOUSE"] = "Casa de subastas"
 L["AUTO_OPEN"] = "Abrir automáticamente"
-L["BAG_COLUMNS"] = "Número de columnas para las bolsas"
+L["BAG_COLUMNS"] = "Columnas para las bolsas"
 L["BAG_SLOTS"] = "Casillas de bolsas"
 L["BAG_VIEW_TYPE"] = "Tipo de vista de bolsas"
 L["BAGANATOR"] = "Baganator"
 L["BANK"] = "Banco"
-L["BANK_COLUMNS"] = "Número de columnas para bolsas del banco"
+L["BANK_COLUMNS"] = "Columnas para bolsas del banco"
 L["BANK_DATA_MISSING_HINT"] = "Faltan datos del banco. Visita un banquero con %s para poder completar el contenido de esta pestaña."
 L["BANK_VIEW_TYPE"] = "Tipo de vista de banco"
 L["BATTLE_PET_BREEDID"] = "BreedID de mascota de batalla"
@@ -1330,7 +1330,7 @@ L["CATEGORY_TOY"] = "Juguetes"
 L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
 L["CHANGE_WINDOW_ANCHORS"] = "Cambiar el anclaje de la ventana"
 L["CHARACTER"] = "Personaje"
-L["CHARACTER_PANEL"] = "Panel de personajes"
+L["CHARACTER_PANEL"] = "Panel de personaje"
 L["CHOOSE"] = "Selección"
 L["COMBINE_STACKS_ONLY"] = "Solo combinar en pilas"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "¿Deseas transferir TODOS los objetos de tus bolsas?"
@@ -1349,7 +1349,7 @@ L["DEPOSIT_REAGENTS"] = "Depositar componentes"
 L["DEPOSIT_WARBOUND"] = "Depositar objetos relacionados con la banda guerrera"
 L["DISABLED"] = "desactivado"
 L["DISCORD_DESCRIPTION"] = "Actualizaciones, sugerencias de funciones y asistencia"
-L["DRAGGING"] = "Al Arrastrar"
+L["DRAGGING"] = "Al arrastrar"
 L["DRAGGING_THEN_ALT"] = "Arrastrar y presiona Alt"
 L["EDIT"] = "Editar"
 L["EMPTY"] = "Libre"
@@ -1372,10 +1372,10 @@ L["GEMS"] = "Gemas"
 L["GENERAL"] = "General"
 L["GREY_JUNK_ITEMS"] = "Eliminar los objetos chatarra"
 L["GROUP_BY"] = "Agrupar por"
-L["GROUP_EMPTY_SLOTS"] = "Agrupar en ranuras libres"
+L["GROUP_EMPTY_SLOTS"] = "Agrupar en ranuras vacías"
 L["GROUP_IDENTICAL_ITEMS"] = "Agrupar objetos idénticos"
 L["GUILD_BANK"] = "Banco de hermandad"
-L["GUILD_BANK_COLUMNS"] = "Número de columnas para el banco de hermandad"
+L["GUILD_BANK_COLUMNS"] = "Columnas para el banco de hermandad"
 L["GUILD_BANK_DATA_MISSING_HINT"] = "El banco de hermandad aún no ha sido visitado"
 L["GUILD_BANK_NO_TABS"] = "No hay pestañas en el banco de hermandad."
 L["GUILD_BANK_SORT_METHOD"] = "Método de organización del banco de hermandad"
@@ -1400,12 +1400,12 @@ L["HELP_SEARCH_OPERATORS_LINE_2"] = "Los operadores se evalúan en el siguiente 
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Ejemplo: !A & B | C se evalúa como ((!A) & B) | C."
 L["HERBALISM"] = "Herboristería"
 L["HIDDEN"] = "Oculto"
-L["HIDE_BOE_STATUS_ON_COMMON_2"] = "Ocultar el estado BoE en basura/común"
+L["HIDE_BOE_STATUS_ON_COMMON_2"] = "Ocultar el estado BoE en chatarra/común"
 L["HIDE_ICON_BACKGROUNDS"] = "Ocultar fondos de iconos"
 L["HIGH"] = "Alto"
 L["HIGHER"] = "Más alto"
-L["HIGHEST"] = "Al máximo"
-L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Mantén pulsada la tecla mayús para mostrar el total de la cuenta>"
+L["HIGHEST"] = "Altísimo"
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Mantén presionada la tecla mayús para mostrar el total de la cuenta>"
 L["ICON_CORNERS"] = "Esquina de los iconos"
 L["ICON_SIZE"] = "Tamaño de los iconos"
 L["ICON_TEXT_FONT_SIZE"] = "Tamaño de fonte de los iconos"
@@ -1445,7 +1445,7 @@ L["MULTIPLE_TABS"] = "Múltiples pestañas"
 L["NEVER"] = "Nunca"
 L["NEW_CATEGORY"] = "Nueva categoría"
 L["NEW_SECTION"] = "Nueva sección"
-L["NO_TRANSACTIONS_AVAILABLE"] = "Transacciones no disponibles"
+L["NO_TRANSACTIONS_AVAILABLE"] = "No hay transacciones disponibles"
 L["NONE"] = "Ninguno"
 L["NORMAL"] = "Normal"
 L["OPEN_OPTIONS"] = "Abrir opciones"
@@ -1461,11 +1461,11 @@ L["PRIORITY"] = "Prioridad"
 L["QUALITY"] = "Calidad"
 L["QUANTITY"] = "Cantidad"
 L["REAGENTS"] = "Componentes"
-L["REALM_WIDE_GOLD_X"] = "Oro en el reino: %s"
+L["REALM_WIDE_GOLD_X"] = "Oro del reino: %s"
 L["REALM_X_X_X"] = "%s (x%s)"
-L["RECENT_CHARACTER_TABS"] = "Inventarios de personajes recientes"
+L["RECENT_CHARACTER_TABS"] = "Pestaña de personajes recientes"
 L["RECENT_HEADER_CLICK_MESSAGE"] = "Haz clic en el título para eliminarlo inmediatamente."
-L["RECENT_TIMER"] = "Nuevo temporizador"
+L["RECENT_TIMER"] = "Temporizador reciente"
 L["REDUCE_UI_SPACING"] = "Reducir el espaciado de la IU"
 L["REMOVE_BORDERS"] = "Eliminar bordes"
 L["REMOVE_FROM_CATEGORY"] = "Eliminar de la categoría"
@@ -1478,7 +1478,7 @@ L["SCRAP"] = "Scrap"
 L["SCRAPPING_MACHINE"] = "Máquina de desguace"
 L["SEARCH_EVERYWHERE"] = "Buscar en todas partes"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Muestra el resultado de la búsqueda en el chat."
-L["SEARCH_HELP"] = "Ayuda en la búsqueda"
+L["SEARCH_HELP"] = "Ayuda de búsqueda"
 L["SEARCH_TRY_X"] = "Buscar, ejemplo: %s"
 L["SECTION_CRAFTING"] = "Fabricación"
 L["SECTION_EQUIPMENT"] = "Equipamiento"
@@ -1495,11 +1495,11 @@ L["SKINS"] = "Estilos"
 L["SLOT"] = "Casilla"
 L["SOCKET_INTERFACE"] = "Interfaz de ranura"
 L["SORT"] = "Ordenar"
-L["SORT_METHOD_2"] = "Método de ordenar"
-L["SORT_METHOD_RESET_FOR_CATEGORIES"] = "Restablecer el método de ordenar con categorías"
+L["SORT_METHOD_2"] = "Método de ordenación"
+L["SORT_METHOD_RESET_FOR_CATEGORIES"] = "Restablecer el método de ordenación con categorías"
 L["SORT_ON_OPEN"] = "Ordenar al abrir"
 L["SORTBAGS"] = "OrdenarBolsas"
-L["SORTING"] = "Ordenar"
+L["SORTING"] = "Ordenación"
 L["SOUL"] = "Alma"
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r es necesario para utilizar Baganator."
 L["SYNDICATOR_INSTALL_MESSAGE"] = "Usa tu sitio web/cliente de addons para instalar |cffd1b219Syndicator|r para poder usar Baganator."
@@ -1517,7 +1517,7 @@ L["TIPS_SKINS_2"] = "Haz que Baganator coincida con tu interfaz de usuario con t
 L["TIPS_TRANSFER"] = "Busca objetos y, a continuación, utilice el botón de transferencia para trasladarlos fácilmente a tu banco, a un mensaje de correo, a la ventana de comercio o a un vendedor."
 L["TL"] = "TL"
 L["TO_OPEN_OPTIONS_X"] = "Acceder a las opciones con /bgr"
-L["TOOLTIP_SETTINGS"] = "Configuración de tooltip"
+L["TOOLTIP_SETTINGS"] = "Configuración de información"
 L["TRACKED"] = "Seguimiento"
 L["TRADE"] = "Comercio"
 L["TRADEABLE_LOOT"] = "Botín comerciable"
@@ -1547,558 +1547,314 @@ L["WARBAND_BANK_TEMPORARILY_DISABLED_HINT"] = "El banco de la banda guerrera ha 
 L["WARBOUND_UNTIL_EQUIPPED"] = "Ligada a la banda guerrera hasta equipado"
 L["WELCOME_DESCRIPTION"] = "Decide el tipo de bolsas que quieres. Esto se puede cambiar más tarde."
 L["WELCOME_TO_BAGANATOR"] = "Bienvenido a Baganator"
-L["WHEN_HOLDING_ALT"] = "Al mantener pulsada la tecla Alt"
-L["WUE"] = "WuE"
-L["X_INFORMATION"] = "%s Información"
-L["X_LOGS"] = "%s Registros"
-L["XS_BAGS"] = "%s's Bolsas"
-L["XS_BANK"] = "%s's Banco"
-L["XS_BANK_AND_BAGS"] = "%s's Banco y bolsas"
-L["XS_GUILD_BANK"] = "%s's Banco de Hermandad"
-
-
-local L = Locales.esMX
-L["ACCOUNT_GOLD_X"] = "Oro en cuenta: %s"
---[[Translation missing --]]
-L["ACTION_TO_TRACK_TEXT"] = "Shift-click currency or drop item"
---[[Translation missing --]]
-L["ADD_FROM_ATT_MESSAGE"] = "Use items from All The Things popout mini-list windows to add into this category."
---[[Translation missing --]]
-L["ADD_FROM_ATT_POPUP_COMPLETE"] = "Added %s items (from %s popouts)"
---[[Translation missing --]]
-L["ADD_IDS"] = "Add IDs"
-L["ADD_ITEM"] = "Agregar objeto"
---[[Translation missing --]]
-L["ADD_ITEM_IDS_MESSAGE"] = "Add a list of items by item ID"
-L["ADD_TO_CATEGORY"] = "Agregar a categoría"
-L["ALL_CHARACTERS"] = "Todos los personajes"
-L["ALT_CLICK"] = "Alt + Clic"
-L["ALWAYS"] = "Siempre"
-L["ARRANGE_ITEMS"] = "Organizar objetos"
-L["AT_THE_BOTTOM"] = "Hasta abajo"
-L["AT_THE_TOP"] = "Hasta arriba"
---[[Translation missing --]]
-L["ATT_ADDON"] = "ATT"
---[[Translation missing --]]
-L["ATTACHED_DIRECTLY_TO_X"] = "Attached directly %s"
-L["AUCTION_HOUSE"] = "Casa de Subasta"
-L["AUTO_OPEN"] = "Abrir automáticamente"
---[[Translation missing --]]
-L["BAG_COLUMNS"] = "Bag columns"
---[[Translation missing --]]
-L["BAG_SLOTS"] = "Bag Slots"
---[[Translation missing --]]
-L["BAG_VIEW_TYPE"] = "Bag view type"
-L["BAGANATOR"] = "Baganator"
-L["BANK"] = "Banco"
---[[Translation missing --]]
-L["BANK_COLUMNS"] = "Bank columns"
---[[Translation missing --]]
-L["BANK_DATA_MISSING_HINT"] = "Bank data missing. Visit a banker with %s to populate this view."
---[[Translation missing --]]
-L["BANK_VIEW_TYPE"] = "Bank view type"
---[[Translation missing --]]
-L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
---[[Translation missing --]]
-L["BATTLE_PET_LEVEL"] = "Battle Pet Level"
---[[Translation missing --]]
-L["BIND_ON_ACCOUNT"] = "Bind on Account"
---[[Translation missing --]]
-L["BIND_ON_EQUIP"] = "Bind on Equip"
---[[Translation missing --]]
-L["BIND_ON_USE"] = "Bind on Use"
---[[Translation missing --]]
-L["BINDING_QUICK_SEARCH"] = "Quick Search"
---[[Translation missing --]]
-L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
---[[Translation missing --]]
-L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Toggle Currency Panel"
---[[Translation missing --]]
-L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
---[[Translation missing --]]
-L["BINDING_TOGGLE_WARBAND_BANK"] = "Toggle Warband Bank"
---[[Translation missing --]]
-L["BLANK_SPACE"] = "Blank space"
-L["BLIZZARD"] = "Blizzard"
---[[Translation missing --]]
-L["BOA"] = "BoA"
---[[Translation missing --]]
-L["BOE"] = "BoE"
---[[Translation missing --]]
-L["BOU"] = "BoU"
---[[Translation missing --]]
-L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(category view only)"
---[[Translation missing --]]
-L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
---[[Translation missing --]]
-L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
---[[Translation missing --]]
-L["BY_PLUSMOUSE"] = "by plusmouse"
---[[Translation missing --]]
-L["CAN_I_MOG_IT"] = "Can I Mog It"
---[[Translation missing --]]
-L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
---[[Translation missing --]]
-L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
---[[Translation missing --]]
-L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
-L["CATEGORIES"] = "Categorías"
---[[Translation missing --]]
-L["CATEGORIES_FAILED_WARNING"] = [=[Something went wrong when displaying the categories.
-
-Failed search was "%s". The following items failed:
-%s
-
-Screenshot this and visit the discord:]=]
---[[Translation missing --]]
-L["CATEGORIES_IN_TOOLTIPS_X"] = "Category matches in bag item tooltips now %s"
---[[Translation missing --]]
-L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Equipment Sets"
---[[Translation missing --]]
-L["CATEGORY_BAG"] = "Bag"
---[[Translation missing --]]
-L["CATEGORY_EQUIPMENT_SET"] = "Equipment Set"
---[[Translation missing --]]
-L["CATEGORY_EQUIPMENT_SETS_AUTO"] = "Equipment Sets (Auto)"
---[[Translation missing --]]
-L["CATEGORY_FOOD"] = "Food"
---[[Translation missing --]]
-L["CATEGORY_GROUPS"] = "Category groups"
---[[Translation missing --]]
-L["CATEGORY_GROUPS_DESCRIPTION"] = "Group items by type, with features to add new custom categories."
---[[Translation missing --]]
-L["CATEGORY_HEARTHSTONE"] = "Hearthstone"
---[[Translation missing --]]
-L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Inventory Slots (Auto)"
---[[Translation missing --]]
-L["CATEGORY_JUNK"] = "Junk"
---[[Translation missing --]]
-L["CATEGORY_KEYSTONE"] = "Keystone"
---[[Translation missing --]]
-L["CATEGORY_OTHER"] = "Other"
---[[Translation missing --]]
-L["CATEGORY_POTION"] = "Potion"
---[[Translation missing --]]
-L["CATEGORY_RECENT"] = "Recent"
---[[Translation missing --]]
-L["CATEGORY_RECENT_AUTO"] = "Recent (Auto)"
---[[Translation missing --]]
-L["CATEGORY_SPACING"] = "Category spacing"
---[[Translation missing --]]
-L["CATEGORY_TOY"] = "Toy"
---[[Translation missing --]]
-L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
---[[Translation missing --]]
-L["CHANGE_WINDOW_ANCHORS"] = "Change window anchors"
---[[Translation missing --]]
-L["CHARACTER"] = "Character"
---[[Translation missing --]]
-L["CHARACTER_PANEL"] = "Character Panel"
---[[Translation missing --]]
-L["CHOOSE"] = "Choose"
---[[Translation missing --]]
-L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
---[[Translation missing --]]
-L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
---[[Translation missing --]]
-L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items from the bank?"
---[[Translation missing --]]
-L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Do you want to transfer ALL items from the guild bank?"
---[[Translation missing --]]
-L["COOKING"] = "Cooking"
---[[Translation missing --]]
-L["CRAFTING_WINDOW"] = "Crafting Window"
---[[Translation missing --]]
-L["CREATE_NEW_CATEGORY"] = "Create new category..."
---[[Translation missing --]]
-L["CREATE_NEW_DIVIDER"] = "Create new divider..."
---[[Translation missing --]]
-L["CREATE_NEW_SECTION"] = "Create new section..."
---[[Translation missing --]]
-L["CTRL_C_TO_COPY"] = "Ctrl+C to copy"
---[[Translation missing --]]
-L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-click to transfer>"
---[[Translation missing --]]
-L["CURRENCIES"] = "Currencies"
---[[Translation missing --]]
-L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
---[[Translation missing --]]
-L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
---[[Translation missing --]]
-L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
---[[Translation missing --]]
-L["DISABLED"] = "disabled"
---[[Translation missing --]]
-L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
---[[Translation missing --]]
-L["DRAGGING"] = "Dragging"
---[[Translation missing --]]
-L["DRAGGING_THEN_ALT"] = "Dragging then Alt"
-L["EDIT"] = "Editar"
-L["EMPTY"] = "Vacío"
---[[Translation missing --]]
-L["ENABLE_CATEGORY_MODE_WARNING"] = "You need to enable category view if you want to use categories"
---[[Translation missing --]]
-L["ENABLED"] = "enabled"
---[[Translation missing --]]
-L["ENCHANTING"] = "Enchanting"
-L["ENGINEERING"] = "Ingeniería"
---[[Translation missing --]]
-L["ENGRAVED_RUNE"] = "Engraved Rune"
---[[Translation missing --]]
-L["EQUIPMENT_SET"] = "Equipment Set"
---[[Translation missing --]]
-L["EVERYTHING"] = "Everything"
-L["EXPANSION"] = "Expansión"
-L["EXPORT"] = "Exportar"
---[[Translation missing --]]
-L["FISHING"] = "Fishing"
---[[Translation missing --]]
-L["FLASH_DUPLICATE_ITEMS"] = "Flash duplicate items"
---[[Translation missing --]]
-L["FOREVER"] = "Forever"
---[[Translation missing --]]
-L["FORGE_OF_BONDS"] = "Forge of Bonds"
---[[Translation missing --]]
-L["FROM_THE_BOTTOM"] = "From the bottom"
---[[Translation missing --]]
-L["FROM_THE_TOP"] = "From the top"
-L["GEMS"] = "Gemas"
---[[Translation missing --]]
-L["GENERAL"] = "General"
---[[Translation missing --]]
-L["GREY_JUNK_ITEMS"] = "Grey out junk items"
---[[Translation missing --]]
-L["GROUP_BY"] = "Group by"
---[[Translation missing --]]
-L["GROUP_EMPTY_SLOTS"] = "Group empty slots"
---[[Translation missing --]]
-L["GROUP_IDENTICAL_ITEMS"] = "Group identical items"
-L["GUILD_BANK"] = "Banco de Hermandad"
---[[Translation missing --]]
-L["GUILD_BANK_COLUMNS"] = "Guild bank columns"
---[[Translation missing --]]
-L["GUILD_BANK_DATA_MISSING_HINT"] = "This guild bank hasn't been visited yet."
---[[Translation missing --]]
-L["GUILD_BANK_NO_TABS"] = "There are no tabs in this guild bank."
---[[Translation missing --]]
-L["GUILD_BANK_SORT_METHOD"] = "Guild Bank Sort Method"
---[[Translation missing --]]
-L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of money for the guild bank"
-L["GUILD_MONEY_X"] = "Oro - Total: %s"
---[[Translation missing --]]
-L["GUILD_MONEY_X_X"] = "Gold - Withdraw: %s | Total: %s"
---[[Translation missing --]]
-L["GUILD_NO_TABS_PURCHASED"] = "No guild bank tabs purchased"
---[[Translation missing --]]
-L["GUILD_TAB_INFO_TOOLTIP_TEXT"] = "See any stored information about this tab"
---[[Translation missing --]]
-L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of items for this tab"
---[[Translation missing --]]
-L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Items - Withdraw: %s | Deposit: %s"
---[[Translation missing --]]
-L["HELP"] = "Help"
---[[Translation missing --]]
-L["HELP_COLON_SEARCH"] = "Help: Search"
---[[Translation missing --]]
-L["HELP_SEARCH_ITEM_LEVEL"] = "Item Level"
---[[Translation missing --]]
-L["HELP_SEARCH_ITEM_LEVEL_LINE_1"] = "123 (exact level), <123 (levels lower), >123 (levels higher), 123-234 (levels between)"
---[[Translation missing --]]
-L["HELP_SEARCH_ITEM_LEVEL_LINE_2"] = "Example: #gear&>242"
---[[Translation missing --]]
-L["HELP_SEARCH_KEYWORDS"] = "Keywords"
---[[Translation missing --]]
-L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Your search will look for matches in two places: within a set of specified keywords and within the item name and tooltip descriptions. To search for an exact keyword only, use a hashtag (#) before the keyword."
---[[Translation missing --]]
-L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Example: #gear&explorer"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS"] = "Operators"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (and), | (or), ! (not), # (exact keyword)"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "The operators are evaluated in the following order of precedence: ! (not), & (and), and | (or)."
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_3"] = "Example: !A & B | C is evaluated as ((!A) & B) | C."
---[[Translation missing --]]
-L["HERBALISM"] = "Herbalism"
-L["HIDDEN"] = "Oculto"
---[[Translation missing --]]
-L["HIDE_BOE_STATUS_ON_COMMON_2"] = "Hide BoE status on junk/common"
---[[Translation missing --]]
-L["HIDE_ICON_BACKGROUNDS"] = "Hide icon backgrounds"
-L["HIGH"] = "Alto"
-L["HIGHER"] = "Más alto"
-L["HIGHEST"] = "Altísimo"
---[[Translation missing --]]
-L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Hold shift to show account total>"
-L["ICON_CORNERS"] = "Essquinas de ícono"
-L["ICON_SIZE"] = "Tamaño de íconos"
-L["ICON_TEXT_FONT_SIZE"] = "Tamaño de texto de ícono"
-L["ICONS"] = "Íconos"
---[[Translation missing --]]
-L["IGNORED_BAG_SLOTS"] = "Ignored bag slots (character specific)"
---[[Translation missing --]]
-L["IGNORED_BANK_SLOTS"] = "Ignored bank slots (character specific)"
---[[Translation missing --]]
-L["IGNORED_SLOTS"] = "Ignored slots"
---[[Translation missing --]]
-L["IMMEDIATE"] = "Immediate"
-L["IMPORT"] = "Importar"
---[[Translation missing --]]
-L["INCLUDE_REAGENTS"] = "Include Reagents"
-L["INSCRIPTION"] = "Inscripción"
---[[Translation missing --]]
-L["INSERT_OR_CREATE"] = "Insert or create"
---[[Translation missing --]]
-L["INVALID_CATEGORY_IMPORT_FORMAT"] = "Invalid category import format"
---[[Translation missing --]]
-L["ITEM_INFORMATION_MISSING"] = "Item information missing"
-L["ITEM_LEVEL"] = "Nivel de Objeto"
-L["ITEM_QUALITY"] = "Calidad de Objeto"
---[[Translation missing --]]
-L["ITEM_QUALITY_TEXT_COLORS"] = "Item quality text colors"
---[[Translation missing --]]
-L["ITEM_TYPE"] = "Item Type"
---[[Translation missing --]]
-L["ITEMS"] = "Items"
---[[Translation missing --]]
-L["JEWELCRAFTING"] = "Jewelcrafting"
---[[Translation missing --]]
-L["JOIN_THE_DISCORD"] = "Join the Discord"
-L["JUNK"] = "Basura"
---[[Translation missing --]]
-L["JUNK_DETECTION_2"] = "Junk detection"
-L["KEYS"] = "Llaves"
---[[Translation missing --]]
-L["KEYSTONE_LEVEL"] = "Keystone Level"
---[[Translation missing --]]
-L["KEYWORDS_IN_TOOLTIPS_X"] = "Keywords in bag item tooltips now %s"
---[[Translation missing --]]
-L["LAYOUT"] = "Layout"
-L["LEATHERWORKING"] = "Peletería"
---[[Translation missing --]]
-L["LOCK_WINDOWS"] = "Lock windows"
-L["LOW"] = "Bajo"
-L["MAIL"] = "Correo"
---[[Translation missing --]]
-L["MANAGE_CHARACTERS"] = "Manage Characters"
---[[Translation missing --]]
-L["MINING"] = "Mining"
---[[Translation missing --]]
-L["MONEY_LOGS"] = "Money Logs"
---[[Translation missing --]]
-L["MOVE"] = "Move"
---[[Translation missing --]]
-L["MULTIPLE_TABS"] = "Multiple tabs"
---[[Translation missing --]]
-L["NEVER"] = "Never"
-L["NEW_CATEGORY"] = "Nueva Categoría"
---[[Translation missing --]]
-L["NEW_SECTION"] = "New Section"
---[[Translation missing --]]
-L["NO_TRANSACTIONS_AVAILABLE"] = "No Transactions Available"
---[[Translation missing --]]
-L["NONE"] = "None"
-L["NORMAL"] = "Normal"
---[[Translation missing --]]
-L["OPEN_OPTIONS"] = "Open Options"
---[[Translation missing --]]
-L["OPEN_SYNDICATOR"] = "Open Syndicator"
---[[Translation missing --]]
-L["PASTE_YOUR_IMPORT_STRING_HERE"] = "Paste your import string here"
---[[Translation missing --]]
-L["PAWN"] = "Pawn"
---[[Translation missing --]]
-L["PEDDLER"] = "Peddler"
---[[Translation missing --]]
-L["PERCENTAGE_PATTERN"] = "%s%%"
---[[Translation missing --]]
-L["PIXEL_PATTERN"] = "%spx"
---[[Translation missing --]]
-L["PLUGINS"] = "Plugins"
---[[Translation missing --]]
-L["POOR_QUALITY"] = "Poor quality"
-L["PRIORITY"] = "Prioridad"
---[[Translation missing --]]
-L["QUALITY"] = "Quality"
-L["QUANTITY"] = "Calidad"
-L["REAGENTS"] = "Reagentes"
-L["REALM_WIDE_GOLD_X"] = "Oro del reino: %s"
-L["REALM_X_X_X"] = "%s (X%s)"
---[[Translation missing --]]
-L["RECENT_CHARACTER_TABS"] = "Recent character tabs"
---[[Translation missing --]]
-L["RECENT_HEADER_CLICK_MESSAGE"] = "Click heading to clear immediately."
---[[Translation missing --]]
-L["RECENT_TIMER"] = "Recent timer"
---[[Translation missing --]]
-L["REDUCE_UI_SPACING"] = "Reduce UI spacing"
---[[Translation missing --]]
-L["REMOVE_BORDERS"] = "Remove borders"
---[[Translation missing --]]
-L["REMOVE_FROM_CATEGORY"] = "Remove from category"
---[[Translation missing --]]
-L["REMOVED_UNUSED_CATEGORIES"] = "All unused custom categories removed"
---[[Translation missing --]]
-L["RESET_POSITIONS"] = "Reset Positions"
---[[Translation missing --]]
-L["REVERSE_GROUPS_SORT_ORDER"] = "Reverse groups sort order"
---[[Translation missing --]]
-L["REVERT_CHANGES"] = "Revert Changes"
---[[Translation missing --]]
-L["RIGHT_CLICK_TO_REMOVE"] = "<Right click to remove>"
---[[Translation missing --]]
-L["SCRAP"] = "Scrap"
---[[Translation missing --]]
-L["SCRAPPING_MACHINE"] = "Scrapping Machine"
---[[Translation missing --]]
-L["SEARCH_EVERYWHERE"] = "Search Everywhere"
---[[Translation missing --]]
-L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your chat."
---[[Translation missing --]]
-L["SEARCH_HELP"] = "Search Help"
---[[Translation missing --]]
-L["SEARCH_TRY_X"] = "Search, try %s"
---[[Translation missing --]]
-L["SECTION_CRAFTING"] = "Crafting"
---[[Translation missing --]]
-L["SECTION_EQUIPMENT"] = "Equipment"
-L["SELLJUNK"] = "Vender Basura"
---[[Translation missing --]]
-L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
---[[Translation missing --]]
-L["SHOW_ADD_BUTTONS"] = "Show add buttons"
-L["SHOW_BUTTONS"] = "Mostrar botones"
---[[Translation missing --]]
-L["SHOW_NAME_PREFIX"] = "Show name prefix"
---[[Translation missing --]]
-L["SHOW_SORT_BUTTON"] = "Show sort button"
---[[Translation missing --]]
-L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
-L["SINGLE_BAG"] = "Una bolsa"
---[[Translation missing --]]
-L["SINGLE_BAG_DESCRIPTION_2"] = "Arrange items by slot. Keeps your items in one large container."
---[[Translation missing --]]
-L["SKINS"] = "Skins"
---[[Translation missing --]]
-L["SLOT"] = "Slot"
---[[Translation missing --]]
-L["SOCKET_INTERFACE"] = "Socket Interface"
---[[Translation missing --]]
-L["SORT"] = "Sort"
---[[Translation missing --]]
-L["SORT_METHOD_2"] = "Sort method"
---[[Translation missing --]]
-L["SORT_METHOD_RESET_FOR_CATEGORIES"] = "Sort method reset to be used with categories"
---[[Translation missing --]]
-L["SORT_ON_OPEN"] = "Sort on open"
---[[Translation missing --]]
-L["SORTBAGS"] = "SortBags"
---[[Translation missing --]]
-L["SORTING"] = "Sorting"
-L["SOUL"] = "Alma"
---[[Translation missing --]]
-L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
---[[Translation missing --]]
-L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
---[[Translation missing --]]
-L["TAB_INFO"] = "Tab Information"
---[[Translation missing --]]
-L["TAB_LOGS"] = "Tab Logs"
---[[Translation missing --]]
-L["THAT_ITEM_IS_EQUIPPED"] = "That item is equipped"
---[[Translation missing --]]
-L["THAT_ITEM_IS_IN_A_MAILBOX"] = "That item is in a mailbox"
---[[Translation missing --]]
-L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "That item is in void storage"
---[[Translation missing --]]
-L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "That item is listed on the auction house"
---[[Translation missing --]]
-L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
-L["THEME"] = "Tema"
---[[Translation missing --]]
-L["TIPS_PLUGINS"] = "Enhance Baganator with additional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
---[[Translation missing --]]
-L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
---[[Translation missing --]]
-L["TIPS_SKINS_2"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option. Installed separately."
---[[Translation missing --]]
-L["TIPS_TRANSFER"] = "Search for items, then use the transfer button to easily move them to your bank, a mail message, the trade window, or a vendor."
---[[Translation missing --]]
-L["TL"] = "TL"
---[[Translation missing --]]
-L["TO_OPEN_OPTIONS_X"] = "Access options with /bgr"
---[[Translation missing --]]
-L["TOOLTIP_SETTINGS"] = "Tooltip settings"
---[[Translation missing --]]
-L["TRACKED"] = "Tracked"
---[[Translation missing --]]
-L["TRADE"] = "Trade"
---[[Translation missing --]]
-L["TRADEABLE_LOOT"] = "Tradeable Loot"
-L["TRANSFER"] = "Transferir"
---[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the bank into the bags."
---[[Translation missing --]]
-L["TRANSFER_GUILD_VIEW_TOOLTIP_TEXT"] = [=[Move searched for items out from the guild bank into the bags.
-
-Transfers are slow due to the underlying guild bank being slow.]=]
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_GUILD_TOOLTIP_TEXT"] = [=[Move searched for items out from the bags into the guild bank.
-
-Transfers are slow due to the underlying guild bank being slow.]=]
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT_2"] = "Sell searched for items to the merchant (max 6)."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
-L["TRANSPARENCY"] = "Transparencia"
---[[Translation missing --]]
-L["TYPE"] = "Type"
---[[Translation missing --]]
-L["UNLIMITED"] = "Unlimited"
---[[Translation missing --]]
-L["UPGRADE_DETECTION"] = "Upgrade detection"
---[[Translation missing --]]
-L["USE_DEFAULT"] = "Use Default"
---[[Translation missing --]]
-L["USING_X"] = "Using %s"
-L["VENDOR"] = "Vendedor"
---[[Translation missing --]]
-L["VERSION_COLON_X"] = "Version: %s"
---[[Translation missing --]]
-L["VOID_STORAGE"] = "Void Storage"
---[[Translation missing --]]
-L["WARBAND"] = "Warband"
---[[Translation missing --]]
-L["WARBAND_BANK_COLUMNS"] = "Warband bank columns"
---[[Translation missing --]]
-L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
---[[Translation missing --]]
-L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
---[[Translation missing --]]
-L["WARBAND_BANK_TEMPORARILY_DISABLED_HINT"] = "Warband Bank temporarily disabled by Blizzard."
---[[Translation missing --]]
-L["WARBOUND_UNTIL_EQUIPPED"] = "Warbound until Equipped"
---[[Translation missing --]]
-L["WELCOME_DESCRIPTION"] = "Decide which kind of bags you want. This can be changed later."
---[[Translation missing --]]
-L["WELCOME_TO_BAGANATOR"] = "Welcome to Baganator"
-L["WHEN_HOLDING_ALT"] = "Cuando se Mantiene presionado Alt"
---[[Translation missing --]]
+L["WHEN_HOLDING_ALT"] = "Al mantener presionada la tecla Alt"
 L["WUE"] = "WuE"
 L["X_INFORMATION"] = "Información de %s"
 L["X_LOGS"] = "Registros de %s"
 L["XS_BAGS"] = "Bolsas de %s"
 L["XS_BANK"] = "Banco de %s"
-L["XS_BANK_AND_BAGS"] = "Banco y Bolsas de %s"
-L["XS_GUILD_BANK"] = "Banco de Hermandad de %s"
+L["XS_BANK_AND_BAGS"] = "Banco y bolsas de %s"
+L["XS_GUILD_BANK"] = "Banco de hermandad de %s"
+
+
+local L = Locales.esMX
+L["ACCOUNT_GOLD_X"] = "Oro en cuenta: %s"
+L["ACTION_TO_TRACK_TEXT"] = "Mayús-clic en moneda o soltar objeto"
+L["ADD_FROM_ATT_MESSAGE"] = "Utiliza los objetos de todas las ventanas emergentes de mini-listas para añadirlos a esta categoría."
+L["ADD_FROM_ATT_POPUP_COMPLETE"] = "Añadido %s objetos (%s desde ventana emergente)"
+L["ADD_IDS"] = "Añadir IDs"
+L["ADD_ITEM"] = "Añadir objeto"
+L["ADD_ITEM_IDS_MESSAGE"] = "Añadir una lista de objetos utilizando ID de objetos"
+L["ADD_TO_CATEGORY"] = "Añadir a categoría"
+L["ALL_CHARACTERS"] = "Todos los personajes"
+L["ALT_CLICK"] = "Alt+Clic"
+L["ALWAYS"] = "Siempre"
+L["ARRANGE_ITEMS"] = "Ordenar los objetos"
+L["AT_THE_BOTTOM"] = "Hasta abajo"
+L["AT_THE_TOP"] = "Hasta arriba"
+L["ATT_ADDON"] = "ATT"
+L["ATTACHED_DIRECTLY_TO_X"] = "Se adjunta directamente %s"
+L["AUCTION_HOUSE"] = "Casa de subastas"
+L["AUTO_OPEN"] = "Abrir automáticamente"
+L["BAG_COLUMNS"] = "Columnas para las bolsas"
+L["BAG_SLOTS"] = "Casillas de bolsas"
+L["BAG_VIEW_TYPE"] = "Tipo de vista de bolsas"
+L["BAGANATOR"] = "Baganator"
+L["BANK"] = "Banco"
+L["BANK_COLUMNS"] = "Columnas para bolsas del banco"
+L["BANK_DATA_MISSING_HINT"] = "Faltan datos del banco. Visita un banquero con %s para poder completar el contenido de esta pestaña."
+L["BANK_VIEW_TYPE"] = "Tipo de vista de banco"
+L["BATTLE_PET_BREEDID"] = "BreedID de mascota de batalla"
+L["BATTLE_PET_LEVEL"] = "Nivel de mascota de batalla"
+L["BIND_ON_ACCOUNT"] = "Se liga a la cuenta"
+L["BIND_ON_EQUIP"] = "Se liga al equiparlo"
+L["BIND_ON_USE"] = "Se liga al usarlo"
+L["BINDING_QUICK_SEARCH"] = "Búsqueda rápida"
+L["BINDING_TOGGLE_BANK"] = "Alternar banco"
+L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Alternar panel de monedas"
+L["BINDING_TOGGLE_GUILD_BANK"] = "Alternar banco de hermandad"
+L["BINDING_TOGGLE_WARBAND_BANK"] = "Alternar banco de tropa"
+L["BLANK_SPACE"] = "Espacio vacío"
+L["BLIZZARD"] = "Blizzard"
+L["BOA"] = "BoA"
+L["BOE"] = "BoE"
+L["BOU"] = "BoU"
+L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(solo vista por categorías)"
+L["BUY_REAGENT_BANK"] = "Comprar banco de componentes"
+L["BUY_WARBAND_BANK_TAB"] = "¿Comprar pestaña de tropa?"
+L["BY_PLUSMOUSE"] = "por plusmouse"
+L["CAN_I_MOG_IT"] = "Can I Mog It"
+L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "No se pueden añadir más objetos a este intercambio"
+L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "No tienes permisos para editar esta pestaña"
+L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "No se pueden retirar más objetos del banco de hermandad"
+L["CATEGORIES"] = "Categorías"
+L["CATEGORIES_FAILED_WARNING"] = "Algo ha fallado al mostrar las categorías. La búsqueda fallida fue «%s». Los siguientes objetos fallaron: %s Haz una captura de pantalla y visita el discord:"
+L["CATEGORIES_IN_TOOLTIPS_X"] = "Ahora las categorías coinciden con los objetos de la bolsa %s"
+L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Conjunto de equipamiento"
+L["CATEGORY_BAG"] = "Bolsas"
+L["CATEGORY_EQUIPMENT_SET"] = "Conjuntos de equipamiento"
+L["CATEGORY_EQUIPMENT_SETS_AUTO"] = "Conjuntos de equipamiento (Auto)"
+L["CATEGORY_FOOD"] = "Comida"
+L["CATEGORY_GROUPS"] = "Grupos de categoría"
+L["CATEGORY_GROUPS_DESCRIPTION"] = "Agrupar los objetos por tipo, con funciones para añadir nuevas categorías personalizadas."
+L["CATEGORY_HEARTHSTONE"] = "Piedra de hogar"
+L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Ranuras de inventario (Auto)"
+L["CATEGORY_JUNK"] = "Chatarra"
+L["CATEGORY_KEYSTONE"] = "Piedra angular"
+L["CATEGORY_OTHER"] = "Otros"
+L["CATEGORY_POTION"] = "Pociones"
+L["CATEGORY_RECENT"] = "Recientes"
+L["CATEGORY_RECENT_AUTO"] = "Recientes (Auto)"
+L["CATEGORY_SPACING"] = "Espacio entre categorías"
+L["CATEGORY_TOY"] = "Juguetes"
+L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
+L["CHANGE_WINDOW_ANCHORS"] = "Cambiar el anclaje de la ventana"
+L["CHARACTER"] = "Personaje"
+L["CHARACTER_PANEL"] = "Panel de personaje"
+L["CHOOSE"] = "Selección"
+L["COMBINE_STACKS_ONLY"] = "Solo combinar en pilas"
+L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "¿Deseas transferir TODOS los objetos de tus bolsas?"
+L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "¿Deseas transferir TODOS los objetos del banco?"
+L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "¿Deseas transferir TODOS los objetos del banco de hermandad?"
+L["COOKING"] = "Cocina"
+L["CRAFTING_WINDOW"] = "Ventana de profesión"
+L["CREATE_NEW_CATEGORY"] = "Crear nueva categoría..."
+L["CREATE_NEW_DIVIDER"] = "Crear un nuevo divisor..."
+L["CREATE_NEW_SECTION"] = "Crear nueva sección..."
+L["CTRL_C_TO_COPY"] = "Ctrl+C para copiar"
+L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-clic para transferir>"
+L["CURRENCIES"] = "Monedas"
+L["CUSTOMISE_BAGANATOR"] = "Personalizar Baganator"
+L["DEPOSIT_REAGENTS"] = "Depositar componentes"
+L["DEPOSIT_WARBOUND"] = "Depositar objetos relacionados con la tropa"
+L["DISABLED"] = "desactivado"
+L["DISCORD_DESCRIPTION"] = "Actualizaciones, sugerencias de funciones y asistencia"
+L["DRAGGING"] = "Al arrastrar"
+L["DRAGGING_THEN_ALT"] = "Arrastrar y presiona Alt"
+L["EDIT"] = "Editar"
+L["EMPTY"] = "Vacío"
+L["ENABLE_CATEGORY_MODE_WARNING"] = "Debes activar la vista por categorías si desea utilizarlas"
+L["ENABLED"] = "activado"
+L["ENCHANTING"] = "Encantamiento"
+L["ENGINEERING"] = "Ingeniería"
+L["ENGRAVED_RUNE"] = "Runas grabadas"
+L["EQUIPMENT_SET"] = "Conjunto de equipamiento"
+L["EVERYTHING"] = "Todo"
+L["EXPANSION"] = "Expansión"
+L["EXPORT"] = "Exportar"
+L["FISHING"] = "Pesca"
+L["FLASH_DUPLICATE_ITEMS"] = "Destellar objetos duplicados"
+L["FOREVER"] = "Para siempre"
+L["FORGE_OF_BONDS"] = "Forja de vínculos"
+L["FROM_THE_BOTTOM"] = "Desde abajo"
+L["FROM_THE_TOP"] = "Desde arriba"
+L["GEMS"] = "Gemas"
+L["GENERAL"] = "General"
+L["GREY_JUNK_ITEMS"] = "Eliminar los objetos chatarra"
+L["GROUP_BY"] = "Agrupar por"
+L["GROUP_EMPTY_SLOTS"] = "Agrupar en ranuras vacías"
+L["GROUP_IDENTICAL_ITEMS"] = "Agrupar objetos idénticos"
+L["GUILD_BANK"] = "Banco de hermandad"
+L["GUILD_BANK_COLUMNS"] = "Columnas para el banco de hermandad"
+L["GUILD_BANK_DATA_MISSING_HINT"] = "El banco de hermandad aún no ha sido visitado"
+L["GUILD_BANK_NO_TABS"] = "No hay pestañas en el banco de hermandad."
+L["GUILD_BANK_SORT_METHOD"] = "Método de organización del banco de hermandad"
+L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = "Ver retiros y depósitos del dinero en el banco de hermandad"
+L["GUILD_MONEY_X"] = "Oro - Total: %s"
+L["GUILD_MONEY_X_X"] = "Oro - Retirado: %s | Total: %s"
+L["GUILD_NO_TABS_PURCHASED"] = "No se han comprado pestañas del banco de hermandad"
+L["GUILD_TAB_INFO_TOOLTIP_TEXT"] = "Ver cualquier información almacenada en esta pestaña"
+L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "Ver retiradas y depósitos de objetos en esta pestaña"
+L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Objetos - Retirado: %s | Depósito: %s"
+L["HELP"] = "Ayuda"
+L["HELP_COLON_SEARCH"] = "Ayuda: Búsqueda"
+L["HELP_SEARCH_ITEM_LEVEL"] = "Nivel del objeto"
+L["HELP_SEARCH_ITEM_LEVEL_LINE_1"] = "123 (nivel exacto), <123 (niveles inferiores), >123 (niveles superiores), 123-234 (niveles intermedios)"
+L["HELP_SEARCH_ITEM_LEVEL_LINE_2"] = "Ejemplo: #equipo&>242"
+L["HELP_SEARCH_KEYWORDS"] = "Palabras clave"
+L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Tu búsqueda buscará coincidencias en dos lugares: dentro de un conjunto de palabras clave especificadas y dentro del nombre del objeto y las descripciones. Para buscar solo una palabra clave exacta, utiliza un hashtag (#) antes de la palabra clave."
+L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Ejemplo: #equipo&explorer"
+L["HELP_SEARCH_OPERATORS"] = "Operadores"
+L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (y), | (o), ! (no), # (palabra clave exacta)"
+L["HELP_SEARCH_OPERATORS_LINE_2"] = "Los operadores se evalúan en el siguiente orden de prioridad: ! (no), & (y), y | (o)."
+L["HELP_SEARCH_OPERATORS_LINE_3"] = "Ejemplo: !A & B | C se evalúa como ((!A) & B) | C."
+L["HERBALISM"] = "Herboristería"
+L["HIDDEN"] = "Oculto"
+L["HIDE_BOE_STATUS_ON_COMMON_2"] = "Ocultar el estado BoE en chatarra/común"
+L["HIDE_ICON_BACKGROUNDS"] = "Ocultar fondos de iconos"
+L["HIGH"] = "Alto"
+L["HIGHER"] = "Más alto"
+L["HIGHEST"] = "Altísimo"
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Mantén presionada la tecla mayús para mostrar el total de la cuenta>"
+L["ICON_CORNERS"] = "Esquina de los iconos"
+L["ICON_SIZE"] = "Tamaño de los iconos"
+L["ICON_TEXT_FONT_SIZE"] = "Tamaño de fonte de los iconos"
+L["ICONS"] = "Iconos"
+L["IGNORED_BAG_SLOTS"] = "Ranuras de bolsa ignoradas (específica al personaje)"
+L["IGNORED_BANK_SLOTS"] = "Ranuras de banco ignoradas (específica al personaje)"
+L["IGNORED_SLOTS"] = "Ranuras ignoradas"
+L["IMMEDIATE"] = "Inmediatamente"
+L["IMPORT"] = "Importar"
+L["INCLUDE_REAGENTS"] = "Incluir componentes"
+L["INSCRIPTION"] = "Inscripción"
+L["INSERT_OR_CREATE"] = "Introducir o crear"
+L["INVALID_CATEGORY_IMPORT_FORMAT"] = "Formato de importación de categoría no válido"
+L["ITEM_INFORMATION_MISSING"] = "Falta información del objeto"
+L["ITEM_LEVEL"] = "Nivel de objeto"
+L["ITEM_QUALITY"] = "Calidad de objeto"
+L["ITEM_QUALITY_TEXT_COLORS"] = "Colores de texto de calidad del objeto"
+L["ITEM_TYPE"] = "Tipo de objeto"
+L["ITEMS"] = "Objetos"
+L["JEWELCRAFTING"] = "Joyería"
+L["JOIN_THE_DISCORD"] = "Únete a Discord"
+L["JUNK"] = "Chatarra"
+L["JUNK_DETECTION_2"] = "Detección de chatarra"
+L["KEYS"] = "Llaves"
+L["KEYSTONE_LEVEL"] = "Nivel de Piedra angular"
+L["KEYWORDS_IN_TOOLTIPS_X"] = "Palabras clave en la información sobre objetos en la bolsa %s"
+L["LAYOUT"] = "Diseño"
+L["LEATHERWORKING"] = "Peletería"
+L["LOCK_WINDOWS"] = "Bloquear ventanas"
+L["LOW"] = "Bajo"
+L["MAIL"] = "Correo"
+L["MANAGE_CHARACTERS"] = "Gestionar personajes"
+L["MINING"] = "Minería"
+L["MONEY_LOGS"] = "Registro de dinero"
+L["MOVE"] = "Mover"
+L["MULTIPLE_TABS"] = "Múltiples pestañas"
+L["NEVER"] = "Nunca"
+L["NEW_CATEGORY"] = "Nueva categoría"
+L["NEW_SECTION"] = "Nueva sección"
+L["NO_TRANSACTIONS_AVAILABLE"] = "No hay transacciones disponibles"
+L["NONE"] = "Ninguno"
+L["NORMAL"] = "Normal"
+L["OPEN_OPTIONS"] = "Abrir opciones"
+L["OPEN_SYNDICATOR"] = "Abrir Syndicator"
+L["PASTE_YOUR_IMPORT_STRING_HERE"] = "Pega aquí tu código de importación"
+L["PAWN"] = "Pawn"
+L["PEDDLER"] = "Peddler"
+L["PERCENTAGE_PATTERN"] = "%s%%"
+L["PIXEL_PATTERN"] = "%spx"
+L["PLUGINS"] = "Plugins"
+L["POOR_QUALITY"] = "Poca calidad"
+L["PRIORITY"] = "Prioridad"
+L["QUALITY"] = "Calidad"
+L["QUANTITY"] = "Cantidad"
+L["REAGENTS"] = "Componentes"
+L["REALM_WIDE_GOLD_X"] = "Oro del reino: %s"
+L["REALM_X_X_X"] = "%s (x%s)"
+L["RECENT_CHARACTER_TABS"] = "Pestaña de personajes recientes"
+L["RECENT_HEADER_CLICK_MESSAGE"] = "Haz clic en el título para eliminarlo inmediatamente."
+L["RECENT_TIMER"] = "Temporizador reciente"
+L["REDUCE_UI_SPACING"] = "Reducir el espaciado de la IU"
+L["REMOVE_BORDERS"] = "Eliminar bordes"
+L["REMOVE_FROM_CATEGORY"] = "Eliminar de la categoría"
+L["REMOVED_UNUSED_CATEGORIES"] = "Eliminación de todas las categorías personalizadas no utilizadas"
+L["RESET_POSITIONS"] = "Restablecer posiciones"
+L["REVERSE_GROUPS_SORT_ORDER"] = "Invertir el orden de clasificación de los grupos"
+L["REVERT_CHANGES"] = "Revertir cambios"
+L["RIGHT_CLICK_TO_REMOVE"] = "<Clic derecho para eliminar>"
+L["SCRAP"] = "Scrap"
+L["SCRAPPING_MACHINE"] = "Máquina de desguace"
+L["SEARCH_EVERYWHERE"] = "Buscar en todas partes"
+L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Muestra el resultado de la búsqueda en el chat."
+L["SEARCH_HELP"] = "Ayuda de búsqueda"
+L["SEARCH_TRY_X"] = "Buscar, ejemplo: %s"
+L["SECTION_CRAFTING"] = "Fabricación"
+L["SECTION_EQUIPMENT"] = "Equipamiento"
+L["SELLJUNK"] = "VenderChatarra"
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-clic para seguir/dejar seguir>"
+L["SHOW_ADD_BUTTONS"] = "Mostrar botones de añadir"
+L["SHOW_BUTTONS"] = "Mostrar botones"
+L["SHOW_NAME_PREFIX"] = "Mostrar prefijo del nombre"
+L["SHOW_SORT_BUTTON"] = "Mostrar botón de ordenar"
+L["SHOW_TRANSFERABLE_ONLY"] = "Mostrar solo transferibles"
+L["SINGLE_BAG"] = "Una sola bolsa"
+L["SINGLE_BAG_DESCRIPTION_2"] = "Ordena los objetos por ranuras. Guarda tus objetos en un gran contenedor."
+L["SKINS"] = "Estilos"
+L["SLOT"] = "Casilla"
+L["SOCKET_INTERFACE"] = "Interfaz de ranura"
+L["SORT"] = "Ordenar"
+L["SORT_METHOD_2"] = "Método de ordenación"
+L["SORT_METHOD_RESET_FOR_CATEGORIES"] = "Restablecer el método de ordenación con categorías"
+L["SORT_ON_OPEN"] = "Ordenar al abrir"
+L["SORTBAGS"] = "OrdenarBolsas"
+L["SORTING"] = "Ordenación"
+L["SOUL"] = "Alma"
+L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r es necesario para utilizar Baganator."
+L["SYNDICATOR_INSTALL_MESSAGE"] = "Usa tu sitio web/cliente de addons para instalar |cffd1b219Syndicator|r para poder usar Baganator."
+L["TAB_INFO"] = "Información de pestaña"
+L["TAB_LOGS"] = "Registros de pestaña"
+L["THAT_ITEM_IS_EQUIPPED"] = "Ese objeto está equipado"
+L["THAT_ITEM_IS_IN_A_MAILBOX"] = "Ese objeto está en el buzón"
+L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "Ese objeto está en el depósito del vacío"
+L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "Ese objeto está listado en la casa de subastas"
+L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "El mercader no está interesado en estos objetos"
+L["THEME"] = "Tema"
+L["TIPS_PLUGINS"] = "Mejora Baganator con funciones adicionales gracias a la integración con addons populares como AllTheThings, CanIMogIt, Pawn, Dejunk y muchos más..."
+L["TIPS_SEARCH"] = "Potente, flexible y rápido. ¡Utilice los operadores de consulta & (y), | (o) y ! (no) para encontrar exactamente lo que necesitas."
+L["TIPS_SKINS_2"] = "Haz que Baganator coincida con tu interfaz de usuario con temas para ElvUI, GW2, o una simple opción oscura. Se instala por separado."
+L["TIPS_TRANSFER"] = "Busca objetos y, a continuación, utilice el botón de transferencia para trasladarlos fácilmente a tu banco, a un mensaje de correo, a la ventana de comercio o a un vendedor."
+L["TL"] = "TL"
+L["TO_OPEN_OPTIONS_X"] = "Acceder a las opciones con /bgr"
+L["TOOLTIP_SETTINGS"] = "Configuración de información"
+L["TRACKED"] = "Seguimiento"
+L["TRADE"] = "Comercio"
+L["TRADEABLE_LOOT"] = "Botín comerciable"
+L["TRANSFER"] = "Transferir"
+L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Mueve los objetos buscados del banco a las bolsas."
+L["TRANSFER_GUILD_VIEW_TOOLTIP_TEXT"] = "Transfiere los objetos que buscas del banco de hermandad a las bolsas. Las transferencias son lentas debido a la lentitud del banco de hermandad."
+L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Mueve los objetos buscados de las bolsas al banco."
+L["TRANSFER_MAIN_VIEW_GUILD_TOOLTIP_TEXT"] = "Transfiere los objetos que buscas de las bolsas al banco de hermandad. Las transferencias son lentas debido a la lentitud del banco de hermandad."
+L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Adjunta los objetos buscados a un correo para enviarlos."
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT_2"] = "Vende los objetos buscados al comerciante (máx. 6)."
+L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Coloca los objetos buscados como chatarra en la máquina de desguace."
+L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Añade los objetos buscados a la ventana de intercambio (máx. 6)."
+L["TRANSPARENCY"] = "Transparencia"
+L["TYPE"] = "Tipo"
+L["UNLIMITED"] = "Ilimitado"
+L["UPGRADE_DETECTION"] = "Detección de actualización"
+L["USE_DEFAULT"] = "Utilizar predeterminado"
+L["USING_X"] = "Utilizando %s"
+L["VENDOR"] = "Vendedor"
+L["VERSION_COLON_X"] = "Versión: %s"
+L["VOID_STORAGE"] = "Depósito del vacío"
+L["WARBAND"] = "Tropa"
+L["WARBAND_BANK_COLUMNS"] = "Número de columnas para banco de tropa"
+L["WARBAND_BANK_DATA_MISSING_HINT"] = "Faltan datos del banco de tropa. Visita un banquero con cualquier personaje para completar el contenido de esta ventana."
+L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "El espacio del banco de tropa no ha sido comprado. Utiliza el botón de nueva pestaña a la derecha para comprar una pestaña"
+L["WARBAND_BANK_TEMPORARILY_DISABLED_HINT"] = "El banco de tropa ha sido desactivado temporalmente por Blizzard."
+L["WARBOUND_UNTIL_EQUIPPED"] = "Ligada a la tropa hasta equipado"
+L["WELCOME_DESCRIPTION"] = "Decide el tipo de bolsas que quieres. Esto se puede cambiar más tarde."
+L["WELCOME_TO_BAGANATOR"] = "Bienvenido a Baganator"
+L["WHEN_HOLDING_ALT"] = "Al mantener presionada la tecla Alt"
+L["WUE"] = "WuE"
+L["X_INFORMATION"] = "Información de %s"
+L["X_LOGS"] = "Registros de %s"
+L["XS_BAGS"] = "Bolsas de %s"
+L["XS_BANK"] = "Banco de %s"
+L["XS_BANK_AND_BAGS"] = "Banco y bolsas de %s"
+L["XS_GUILD_BANK"] = "Banco de hermandad de %s"
 
 
 local L = Locales.zhTW
