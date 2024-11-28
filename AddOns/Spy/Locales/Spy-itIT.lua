@@ -79,6 +79,8 @@ L["Rustbolt"] = "Bullonaccio"
 L["Oribos"] = "Oribos"
 L["Valdrakken"] = "Valdrakken"
 L["The Roasted Ram"] = "Montone Arrosto"
+L["Dornogal"] = "Dornogal"
+L["Stonelight Rest"] = "Stonelight Rest"
 
 -- Display
 L["DisplayOptions"] = "Display"
@@ -127,6 +129,7 @@ L["TooltipDisplayLastSeenDescription"] = "Set this to display the last known tim
 L["DisplayListData"] = "Seleziona i dati nemici da visualizzare"
 L["Name"] = "Nome"
 L["Class"] = "Classe"
+L["Rank"] = "Rank"
 L["SelectFont"] = "Select a Font"
 L["SelectFontDescription"] = "Select a Font for the Spy Window."
 L["RowHeight"] = "Select the Row Height"
@@ -500,6 +503,7 @@ L["Zandalari Troll"] = "Troll Zandalari"
 L["Mechagnome"] = "Meccagnomo"
 L["Vulpera"] = "Vulpera"
 L["Dracthyr"] = "Dracthyr"
+L["Earthen"] = "Terrigeno"
  
 --Abilità stealth
 L["Stealth"] = "Furtività"

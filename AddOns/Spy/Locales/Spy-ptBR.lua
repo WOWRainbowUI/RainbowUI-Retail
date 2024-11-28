@@ -79,6 +79,8 @@ L["Rustbolt"] = "Ferrúgia"
 L["Oribos"] = "Oribos"
 L["Valdrakken"] = "Valdrakken"
 L["The Roasted Ram"] = "O Carneiro Assado"
+L["Dornogal"] = "Dornogal"
+L["Stonelight Rest"] = "Stonelight Rest"
 
 -- Display
 L["DisplayOptions"] = "Exibição"
@@ -501,6 +503,7 @@ L["Zandalari Troll"] = "Troll Zandalari"
 L["Mechagnome"] = "Gnomecânico"
 L["Vulpera"] = "Vulpera"
 L["Dracthyr"] = "Dracthyr"
+L["Earthen"] = "Terrano"
 
 -- Stealth abilities
 L["Stealth"] = "Furtividade"

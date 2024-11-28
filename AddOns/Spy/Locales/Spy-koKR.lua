@@ -79,6 +79,8 @@ L["Rustbolt"] = "녹슨나사"
 L["Oribos"] = "오리보스"
 L["Valdrakken"] = "발드라켄"
 L["The Roasted Ram"] = "양꼬치 주점"
+L["Dornogal"] = "도르노갈"
+L["Stonelight Rest"] = "Stonelight Rest"
 
 -- Display
 L["DisplayOptions"] = "디스플레이"
@@ -501,6 +503,7 @@ L["Zandalari Troll"] = "잔달라 트롤"
 L["Mechagnome"] = "기계노움"
 L["Vulpera"] = "불페라"
 L["Dracthyr"] = "드랙티르"
+L["Earthen"] = "토석인"
 
 -- Stealth abilities
 L["Stealth"] = "은신"

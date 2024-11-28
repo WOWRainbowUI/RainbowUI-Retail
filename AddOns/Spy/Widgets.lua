@@ -67,7 +67,8 @@ function Spy:CreateFrame(Name, Title, Height, Width, ShowFunc, HideFunc)
 	end
 
 --	theFrame.TitleBar = CreateFrame("Frame", "TestFrame", theFrame)
-	theFrame.TitleBar = CreateFrame("Frame", "TestFrame", theFrame, "BackdropTemplate")	
+--	theFrame.TitleBar = CreateFrame("Frame", "TestFrame", theFrame, "BackdropTemplate")	
+	theFrame.TitleBar = CreateFrame("Frame", "SpyTitleBarFrame", theFrame, "BackdropTemplate")
 	theFrame.TitleBar:SetFrameStrata("BACKGROUND")
 	if not Spy.db.profile.InvertSpy then	
 		theFrame.TitleBar:SetPoint("TOPLEFT", theFrame, "TOPLEFT", 0, -11)

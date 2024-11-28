@@ -7,7 +7,7 @@ local fonts = SM:List("font")
 local _
 
 Spy = LibStub("AceAddon-3.0"):NewAddon("Spy", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceTimer-3.0")
-Spy.Version = "3.11.0"
+Spy.Version = "3.11.1"
 Spy.DatabaseVersion = "1.1"
 Spy.Signature = "[Spy]"
 Spy.ButtonLimit = 15
@@ -164,7 +164,7 @@ Spy.options = {
 						["Area 52"] = L["Area 52"],
 						["Dalaran"] = L["Dalaran"],
 						["Bogpaddle"] = L["Bogpaddle"],
-						["Dalaran (Northrend)"] = L["Dalaran (Northrend)"],						
+						["Dalaran (Northrend)"] = L["Dalaran (Northrend)"],
 						["The Vindicaar"] = L["The Vindicaar"],
 						["Krasus' Landing"] = L["Krasus' Landing"],
 						["The Violet Gate"] = L["The Violet Gate"],
@@ -173,6 +173,8 @@ Spy.options = {
 						["Oribos"] = L["Oribos"],
 						["Valdrakken"] = L["Valdrakken"],
 						["The Roasted Ram"] = L["The Roasted Ram"],
+						["Dornogal"] = L["Dornogal"],						
+						["Stonelight Rest"] = L["Stonelight Rest"],
 					},
 				},
 				ShowOnDetection = {
@@ -773,6 +775,7 @@ Spy.options = {
 								["Kul Tiran"] = L["Kul Tiran"],
 								["Mechagnome"] = L["Mechagnome"],
 								["Dracthyr"] = L["Dracthyr"],
+								["Earthen"] = L["Earthen"],
 							},
 							Horde = {
 								["None"] = L["None"],
@@ -789,6 +792,7 @@ Spy.options = {
 								["Zandalari Troll"] = L["Zandalari Troll"],
 								["Vulpera"] = L["Vulpera"],
 								["Dracthyr"] = L["Dracthyr"],
+								["Earthen"] = L["Earthen"],
 							},
 						}
 						if Spy.EnemyFactionName == "Alliance" then
@@ -1456,6 +1460,8 @@ local Default_Profile = {
 			["Oribos"] = false,
 			["Valdrakken"] = false,
 			["The Roasted Ram"] = false,
+			["Dornogal"] = false,				
+			["Stonelight Rest"] = false,			
 		},
 	},
 }
@@ -1681,8 +1687,10 @@ end
 
 function Spy:ShowConfig()
 	-- Opens the profile tab first so the menu expands
-	InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.Profiles)
-	InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.Spy)
+--	InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.Profiles)
+	Settings.OpenToCategory('Profiles') 	
+--	InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.Spy)
+	Settings.OpenToCategory('Spy')
 end
 
 function Spy:OnEnable(first)
@@ -1817,6 +1825,7 @@ function Spy:OnInitialize()
 		["Mechagnome"] = true,
 		["Vulpera"] = true,
 		["Dracthyr"] = true,
+		["Earthen"] = true,
 	}
 
 	local acedb = LibStub:GetLibrary("AceDB-3.0")

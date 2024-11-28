@@ -79,6 +79,8 @@ L["Rustbolt"] = "Ржавый болт"
 L["Oribos"] = "Орибос"
 L["Valdrakken"] = "Вальдраккен"
 L["The Roasted Ram"] = "Жареный барашек"
+L["Dornogal"] = "Дорногал"
+L["Stonelight Rest"] = "Stonelight Rest"
 
 -- Display
 L["DisplayOptions"] = "дисплей"
@@ -501,6 +503,7 @@ L["Zandalari Troll"] = "Зандалар"
 L["Mechagnome"] = "Механогном"
 L["Vulpera"] = "Вульпера"
 L["Dracthyr"] = "Драктир"
+L["Earthen"] = "Земельник"
  
 -- Stealth abilities
 L["Stealth"] = "Незаметность"
