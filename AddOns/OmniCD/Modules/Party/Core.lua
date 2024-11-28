@@ -15,12 +15,12 @@ function P:Enable()
 		self:RegisterEvent('CVAR_UPDATE')
 	end
 	self:RegisterEvent('UI_SCALE_CHANGED')
+	self:RegisterEvent('PLAYER_REGEN_ENABLED')
+	self:RegisterEvent('PLAYER_REGEN_DISABLED')
 	self:RegisterEvent('PLAYER_ENTERING_WORLD')
 	self:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 	self:RegisterEvent('GROUP_ROSTER_UPDATE')
 	self:RegisterEvent('GROUP_JOINED')
-	self:RegisterEvent('PLAYER_REGEN_ENABLED')
-	self:RegisterEvent('PLAYER_REGEN_DISABLED')
 	self:SetScript("OnEvent", function(self, event, ...)
 		self[event](self, ...)
 	end)
@@ -31,6 +31,7 @@ function P:Enable()
 	CM:InspectUser()
 	self:SetHooks()
 	self:CreateExtraBarFrames()
+
 	self:Refresh()
 end
 
@@ -318,11 +319,28 @@ function P:IsEquipped(info, item, item2)
 	return info.itemData[item] or info.itemData[item2]
 end
 
+
 function P:UI_SCALE_CHANGED()
 	E:SetPixelMult()
+	if self.disabled then
+		return
+	end
 	self:ConfigSize()
 	for key in pairs(self.extraBars) do
 		self:ConfigExSize(key)
+	end
+end
+
+function P:PLAYER_REGEN_ENABLED()
+	self.inLockdown = false
+	self:UpdatePassThroughButtons()
+end
+
+function P:PLAYER_REGEN_DISABLED()
+	self.inLockdown = true
+	if self.callbackTimers.arenaTicker then
+		self.callbackTimers.arenaTicker:Cancel()
+		self.callbackTimers.arenaTicker = nil
 	end
 end
 

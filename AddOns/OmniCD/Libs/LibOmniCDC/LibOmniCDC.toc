@@ -2,7 +2,7 @@
 
 ## Title: Lib: OmniCDC
 ## Author: Treebonker
-## Version: @project-version@
+## Version: v2.8.12
 ## X-License: Limited BSD
 
 LibStub\LibStub.lua

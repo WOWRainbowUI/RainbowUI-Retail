@@ -77,7 +77,7 @@ end
 function BarFrameMixin:ReleaseExtraBarIcons()
 	local guid = self.guid
 	for _, frame in pairs(P.extraBars) do
-		if frame.db.enabled then
+		if frame.db and frame.db.enabled then
 			local icons, n, shouldUpdateLayout = frame.icons, 0
 			for j = frame.numIcons, 1, -1 do
 				local icon = icons[j]

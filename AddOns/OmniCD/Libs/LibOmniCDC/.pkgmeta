@@ -1,7 +1,0 @@
-package-as: LibOmniCDC
-
-externals:
-    LibStub: https://repos.curseforge.com/wow/libstub/trunk
-
-ignore:
-  - "*.md"

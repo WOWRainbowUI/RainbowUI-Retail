@@ -998,7 +998,7 @@ for i = 1, #talentRanks do
 			E.spell_merged[rankN] = rank1
 			--[==[@debug@
 			if not C_Spell.DoesSpellExist(rankN) then
-				print("Invalid rank" .. j .. "talent ID:", rankN)
+				E.write("Invalid rank" .. j .. "talent ID:", rankN)
 			end
 			--@end-debug@]==]
 		end
@@ -1016,7 +1016,7 @@ for i = 1, #talentRanks do
 		end
 	--[==[@debug@
 	else
-		print("Invalid rank1 talent ID:", rank1)
+		E.write("Invalid rank1 talent ID:", rank1)
 	--@end-debug@]==]
 	end
 end

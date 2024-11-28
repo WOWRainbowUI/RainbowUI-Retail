@@ -6,7 +6,7 @@ for k, v in pairs(E.spell_marked) do
 	if not C_Spell.DoesSpellExist(k) or (v ~= true and not C_Spell.DoesSpellExist(v)) then
 		E.spell_marked[k] = nil
 		--[==[@debug@
-		print("Removing invalid spell_marked ID:" , k)
+		E.write("Removing invalid spell_marked ID:" , k)
 		--@end-debug@]==]
 	else
 		local id = v == true and k or v
