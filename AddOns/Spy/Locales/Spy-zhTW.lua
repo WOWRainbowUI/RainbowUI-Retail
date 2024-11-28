@@ -78,6 +78,8 @@ L["Rustbolt"] = "鏽栓鎮"
 L["Oribos"] = "奧睿博司"
 L["Valdrakken"] = "沃卓肯"
 L["The Roasted Ram"] = "炙烤公羊旅店"
+L["Dornogal"] = "多恩諾加"
+L["Stonelight Rest"] = "石光之眠"
 
 -- Display
 L["DisplayOptions"] = "顯示"
@@ -502,6 +504,7 @@ L["Zandalari Troll"] = "贊達拉食人妖"
 L["Mechagnome"] = "機械地精"
 L["Vulpera"] = "狐狸人"
 L["Dracthyr"] = "半龍人"
+L["Earthen"] = "土靈"
 
 -- Stealth abilities
 L["Stealth"] = "隱形"
