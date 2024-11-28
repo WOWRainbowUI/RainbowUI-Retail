@@ -141,44 +141,46 @@ function E:OpenOptionPanel()
 	self.Libs.ACD:SelectGroup(self.AddOn, "Home")
 end
 
-local interfaceOptionPanel = CreateFrame("Frame", nil, UIParent)
-interfaceOptionPanel.name = E.AddOn
-interfaceOptionPanel:Hide()
+function E:SetupBlizzardOptions()
+	local interfaceOptionPanel = CreateFrame("Frame", nil, UIParent)
+	interfaceOptionPanel.name = E.AddOn
+	interfaceOptionPanel:Hide()
 
-interfaceOptionPanel:SetScript("OnShow", function(self)
-	local title = self:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-	title:SetPoint("TOPLEFT", 16, -16)
-	title:SetText(E.AddOn)
+	interfaceOptionPanel:SetScript("OnShow", function(self)
+		local title = self:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+		title:SetPoint("TOPLEFT", 16, -16)
+		title:SetText(E.AddOn)
 
-	local context = self:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-	context:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
-	context:SetText("Type /oc or /omnicd to open the option panel.")
+		local context = self:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+		context:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
+		context:SetText("Type /oc or /omnicd to open the option panel.")
 
-	local open = CreateFrame("Button", nil, self, "UIPanelButtonTemplate")
-	open:SetText("Open Option Panel")
-	open:SetWidth(177)
-	open:SetHeight(24)
-	open:SetPoint("TOPLEFT", context, "BOTTOMLEFT", 0, -30)
-	open.tooltipText = ""
-	open:SetScript("OnClick", function()
-		E:OpenOptionPanel()
+		local open = CreateFrame("Button", nil, self, "UIPanelButtonTemplate")
+		open:SetText("Open Option Panel")
+		open:SetWidth(177)
+		open:SetHeight(24)
+		open:SetPoint("TOPLEFT", context, "BOTTOMLEFT", 0, -30)
+		open.tooltipText = ""
+		open:SetScript("OnClick", function()
+			E:OpenOptionPanel()
+		end)
+
+		self:SetScript("OnShow", nil)
 	end)
 
-	self:SetScript("OnShow", nil)
-end)
-
-if Settings and Settings.RegisterCanvasLayoutCategory then
-	local category, layout = Settings.RegisterCanvasLayoutCategory(interfaceOptionPanel, E.AddOn)
-	Settings.RegisterAddOnCategory(category)
+	if Settings and Settings.RegisterCanvasLayoutCategory then
+		local category, layout = Settings.RegisterCanvasLayoutCategory(interfaceOptionPanel, E.AddOn)
+		Settings.RegisterAddOnCategory(category)
 
 
 
-else
-	InterfaceOptions_AddCategory(interfaceOptionPanel)
+	else
+		InterfaceOptions_AddCategory(interfaceOptionPanel)
+	end
+
+	SLASH_OmniCD1 = "/oc"
+	SLASH_OmniCD2 = "/omnicd"
+	SlashCmdList[E.AddOn] = E.SlashHandler
 end
-
-SLASH_OmniCD1 = "/oc"
-SLASH_OmniCD2 = "/omnicd"
-SlashCmdList[E.AddOn] = E.SlashHandler
 
 E["addOnCommands"] = addOnCommands

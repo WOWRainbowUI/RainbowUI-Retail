@@ -226,11 +226,7 @@ do
 	end
 
 	function P:HookFunc()
-		--[==[@debug@
-		assert(E.db)
-		assert(E.db.position)
-		--@end-debug@]==]
-		if self.enabled and E.db.position and not E.db.position.detached then
+		if self.enabled and not self.disabled and not E.db.position.detached then
 			if not hookTimer then
 				hookTimer = C_Timer.NewTimer(0.5, UpdatePosition_OnTimerEnd)
 			end
@@ -272,7 +268,7 @@ do
 			return
 		end
 		local isHooked = self:IsHooked(CompactPartyFrame, "RefreshMembers")
-		if not isHooked and self.isInArena then
+		if not isHooked and self.isInArena and not disable then
 			if CompactPartyFrame_RefreshMembers then
 				self:SecureHook("CompactPartyFrame_RefreshMembers", OnRefreshMemebers)
 			else

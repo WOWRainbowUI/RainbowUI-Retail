@@ -109,7 +109,7 @@ end
 
 local function UpdateRosterInfo(force, clearSession)
 	local size = P:GetEffectiveNumGroupMembers()
-	P.disabled = not P.isInTestMode and (P.disabledZone or size == 0
+	P.disabled = not P.isInTestMode and (P.disabledZone or size == 0 or E.isInPetBattle
 		or (size == 1 and P.isUserDisabled)
 		or (GetNumGroupMembers(LE_PARTY_CATEGORY_HOME) == 0 and not E.profile.Party.visibility.finder)
 		or (size > E.profile.Party.groupSize[P.zone]))
@@ -343,6 +343,10 @@ end
 
 
 function P:GROUP_JOINED()
+	if self.disabled then
+		return
+	end
+
 	self.joinedNewGroup = true
 	if self.isInArena and C_PvP_IsRatedSoloShuffle() then
 		self:ResetAllIcons("joinedPvP", true)
@@ -368,13 +372,16 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 	self.isInPvPInstance = self.isInArena or instanceType == "pvp"
 	self.disabledZone = not self.isInTestMode and not E.profile.Party.visibility[instanceType]
 	if self.disabledZone then
-		self:ResetModule()
+		if not self.disabled then
+			self:ResetModule()
+		end
 		return
 	end
 
 	if not isRefresh and self.isInTestMode then
 		self:Test()
 	end
+
 
 	local zone = self.isInTestMode and self.testZone or instanceType
 	E.db = E:GetCurrentZoneSettings(zone)
@@ -427,19 +434,6 @@ function P:UPDATE_UI_WIDGET(widgetInfo)
 			self:UnregisterZoneEvents()
 			C_Timer.After(.5, inspectAllGroupMembers)
 		end
-	end
-end
-
-function P:PLAYER_REGEN_ENABLED()
-	self.inLockdown = false
-	self:UpdatePassThroughButtons()
-end
-
-function P:PLAYER_REGEN_DISABLED()
-	self.inLockdown = true
-	if self.callbackTimers.arenaTicker then
-		self.callbackTimers.arenaTicker:Cancel()
-		self.callbackTimers.arenaTicker = nil
 	end
 end
 

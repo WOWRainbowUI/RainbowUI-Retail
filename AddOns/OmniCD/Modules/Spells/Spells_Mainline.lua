@@ -154,7 +154,6 @@ E.spell_db = {
 		{ ["class"]="MONK",["type"]="movement",["buff"]=109132,["name"]="Roll",["charges"]=2,["duration"]=20,["icon"]=574574,["spellID"]=109132,["talent"]=115008, },
 		{ ["class"]="MONK",["type"]="offensive",["buff"]=388193,["spec"]={388193,321077},["name"]="Jadefire Stomp",["charges"]=1,["duration"]=15,["icon"]=6035313,["spellID"]=388193, },
 		{ ["class"]="MONK",["type"]="cc",["buff"]=198898,["spec"]=true,["name"]="Song of Chi-Ji",["duration"]=30,["icon"]=332402,["spellID"]=198898, },
-		{ ["class"]="MONK",["type"]="heal",["buff"]=196725,["spec"]=true,["name"]="Refreshing Jade Wind",["duration"]=45,["icon"]=606549,["spellID"]=196725, },
 		{ ["class"]="MONK",["type"]="offensive",["buff"]=124081,["spec"]=true,["name"]="Zen Pulse",["duration"]=30,["icon"]=613397,["spellID"]=124081, },
 		{ ["class"]="MONK",["type"]="raidDefensive",["buff"]=388615,["spec"]=true,["name"]="Restoral",["charges"]=1,["duration"]=180,["icon"]=1381300,["spellID"]=388615, },
 		{ ["class"]="MONK",["type"]="raidDefensive",["buff"]=115310,["spec"]=true,["name"]="Revival",["charges"]=1,["duration"]=180,["icon"]=1020466,["spellID"]=115310, },
@@ -545,10 +544,10 @@ E.spell_db = {
 		{ ["class"]="PALADIN",["type"]="cc",["buff"]=20066,["spec"]=true,["name"]="Repentance",["duration"]=15,["icon"]=135942,["spellID"]=20066, },
 		{ ["class"]="PALADIN",["type"]="freedom",["buff"]=1044,["spec"]=true,["name"]="Blessing of Freedom",["charges"]=1,["duration"]=25,["icon"]=135968,["spellID"]=1044, },
 		{ ["class"]="PALADIN",["type"]="interrupt",["buff"]=96231,["spec"]=true,["name"]="Rebuke",["duration"]=15,["icon"]=523893,["spellID"]=96231, },
-		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=31884,["spec"]=true,["name"]="Avenging Wrath",["duration"]={[70]=60,["default"]=120},["icon"]=135875,["spellID"]=31884,["talent"]={216331,231895,389539,458359}, -- Radiant Glory (makes it passive)
+		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=31884,["spec"]=true,["name"]="Avenging Wrath",["duration"]={[70]=60,["default"]=120},["icon"]=135875,["spellID"]=31884,["talent"]={216331,231895,389539,458359},
 		disabledSpec={[65]={arena=true,pvp=true,party=true,raid=true,scenario=true,none=true}} },
 
-		{ ["class"]="PALADIN",["type"]="heal",["buff"]=31884,["spec"]=31884,["name"]="Avenging Wrath",["duration"]=120,["icon"]=135875,["spellID"]=384376,["talent"]={216331,231895,389539,458359}, -- Holy
+		{ ["class"]="PALADIN",["type"]="heal",["buff"]=31884,["spec"]=31884,["name"]="Avenging Wrath",["duration"]=120,["icon"]=135875,["spellID"]=384376,["talent"]={216331,231895,389539,458359},
 		disabledSpec={[66]={arena=true,pvp=true,party=true,raid=true,scenario=true,none=true},[70]={arena=true,pvp=true,party=true,raid=true,scenario=true,none=true}} },
 		{ ["class"]="PALADIN",["type"]="externalDefensive",["buff"]=6940,["spec"]=true,["name"]="Blessing of Sacrifice",["charges"]=1,["duration"]=120,["icon"]=135966,["spellID"]=6940,["talent"]=199452, },
 		{ ["class"]="PALADIN",["type"]="externalDefensive",["buff"]=1022,["spec"]=true,["name"]="Blessing of Protection",["charges"]=1,["duration"]=300,["icon"]=135964,["spellID"]=1022, },
