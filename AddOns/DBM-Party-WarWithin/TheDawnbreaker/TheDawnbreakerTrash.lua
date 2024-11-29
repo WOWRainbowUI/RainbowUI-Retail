@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("TheDawnbreakerTrash", "DBM-Party-WarWithin", 5)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241123091724")
+mod:SetRevision("20241128001105")
 --mod:SetModelID(47785)
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
@@ -355,5 +355,5 @@ end
 --Abort timers when all players out of combat, so NP timers clear on a wipe
 --Caveat, it won't calls top with GUIDs, so while it might terminate bar objects, it may leave lingering nameplate icons
 function mod:LeavingZoneCombat()
-	self:Stop()
+	self:Stop(true)
 end

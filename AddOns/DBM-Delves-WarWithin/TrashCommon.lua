@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("DelveTrashCommon", "DBM-Delves-WarWithin")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241118073917")
+mod:SetRevision("20241128001105")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)--Stays active in all zones for zone change handlers, but registers events based on dungeon ids
 --2664, 2679, 2680, 2681, 2683, 2684, 2685, 2686, 2687, 2688, 2689, 2690, 2767, 2768
 mod:RegisterZoneCombat(2664)
@@ -666,5 +666,5 @@ end
 --Abort timers when all players out of combat, so NP timers clear on a wipe
 --Caveat, it won't calls top with GUIDs, so while it might terminate bar objects, it may leave lingering nameplate icons
 function mod:LeavingZoneCombat()
-	self:Stop()
+	self:Stop(true)
 end
