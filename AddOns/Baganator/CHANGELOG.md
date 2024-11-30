@@ -1,6 +1,6 @@
 # Baganator
 
-## [514](https://github.com/Baganator/Baganator/tree/514) (2024-11-28)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/513...514) 
+## [515](https://github.com/Baganator/Baganator/tree/515) (2024-11-29)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/514...515) 
 
-- Categories: Fix items skipping recents, properly this time.  
+- Add "W" widget for icon corners for items that are Warbound, but not WuE  
