@@ -86,20 +86,31 @@ end
 
 local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference do
 	local COMMA_LIST_COMMAND_TYPES, CAST_ESCAPE_COMMAND_TYPES = {[2]=1, [3]=1}, {[0]=1, [1]=1, [3]=1}
+	local function parseListEntryPrefix(s, p)
+		local sp, spc = p, p
+		while spc do
+			sp, spc = spc, s:match("^%s*<[^<]->()", sp)
+		end
+		return sp > p and s:sub(p, sp-1), sp
+	end
 	local genParser do
 		local doRewrite, replaceFunc, critFail, critLine
 		local function replaceAlternatives(ctype, args)
-			local ret, alt2, rfCtx
-			for alt, cpos in (args .. ","):gmatch("(.-),()") do
-				alt2, rfCtx = replaceFunc(ctype, alt, rfCtx, args, cpos)
-				if alt == alt2 or (alt2 and alt2:match("%S")) then
-					if doRewrite then
-						alt2 = alt2:match("^%s*(.-)%s*$")
-						ret = ret and ret .. ", " .. alt2 or alt2
-					else
-						ret = ret and ret .. "," .. alt2 or alt2
-					end
+			local sp, ret, alt, alt2, altPrefix, rfCtx = 1
+			repeat
+				if ctype == 3 then
+					altPrefix, sp = parseListEntryPrefix(args, sp)
 				end
+				alt, sp = args:match("([^,]*),?()", sp)
+				alt2, rfCtx = replaceFunc(ctype, alt, rfCtx, args, sp)
+				if alt == alt2 or (alt2 and alt2:match("%S")) then
+					alt2 = doRewrite and " " .. alt2:match("^%s*(.-)%s*$") or alt2
+					alt2 = altPrefix and altPrefix .. alt2 or alt2
+					ret = ret and ret .. "," .. alt2 or alt2
+				end
+			until sp > #args
+			if not doRewrite and args:sub(-1) == "," then
+				ret = ret and ret .. "," or ret
 			end
 			return ret
 		end
@@ -306,6 +317,8 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 		local abMountTokens = {["Ground Mount"]="{{mount:ground}}", ["Flying Mount"]="{{mount:air}}", ["Dragonriding Mount"]=MODERN and "{{mount:dragon}}" or nil}
 		toImpText = genParser(function(ctype, value, skipCount, args, cpos)
 			if type(skipCount) == "number" and skipCount > 0 then
+				-- This replaceAlternatives interaction would get bamboozled by
+				-- a castable token matching ",%s*<[^<]-,[^<]*>".
 				return nil, skipCount-1
 			end
 			local commaList, noEscapes = COMMA_LIST_COMMAND_TYPES[ctype], not CAST_ESCAPE_COMMAND_TYPES[ctype]
