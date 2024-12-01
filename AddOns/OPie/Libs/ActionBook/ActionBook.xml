@@ -6,8 +6,8 @@
 	<Script file="Rewire.lua" />
 	<Script file="FlagMast.lua" />
 	<Script file="Conditionals.lua" />
-	<Script file="Handlers.lua" />
 	<Script file="Imp.lua" />
+	<Script file="Handlers.lua" />
 	<Script file="Quirks.lua" />
 	<Script file="Categories.lua" />
 	<Script file="Editors.lua" />

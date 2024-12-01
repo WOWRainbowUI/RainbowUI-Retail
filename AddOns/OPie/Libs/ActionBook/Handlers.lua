@@ -9,7 +9,8 @@ local EV = T.Evie
 local AB = T.ActionBook:compatible(2,43)
 local RW = T.ActionBook:compatible("Rewire", 1,27)
 local KR = T.ActionBook:compatible("Kindred", 1,14)
-assert(EV and AB and RW and KR and 1, "Incompatible library bundle")
+local IM = T.ActionBook:compatible("Imp", 1,0)
+assert(EV and AB and RW and KR and IM and 1, "Incompatible library bundle")
 local L = T.ActionBook.L
 local FORCED_MOUNT_SPELLS = {}
 local spellFeedback, itemHint, toyHint, mountHint
@@ -501,51 +502,91 @@ do -- macrotext
 			return RW:GetCommandAction("/use", clause, target)
 		end
 	end)
-	do -- /userandom
+	do -- /userandom + /qsequence
 		local f = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 		f:SetFrameRef("RW", RW:seclib())
-		f:Execute("seed, t, RW = math.random(2^30), newtable(), self:GetFrameRef('RW'); self:SetAttribute('frameref-RW', nil)")
+		f:SetFrameRef("KR", KR:seclib())
+		f:Execute([[-- AB_userandom_init 
+			seed, crState, qsState = math.random(2^30), newtable(), newtable()
+			RW = self:GetFrameRef('RW'), self:SetAttribute('frameref-RW', nil)
+			KR = self:GetFrameRef('KR'), self:SetAttribute('frameref-KR', nil)
+		]])
 		f:SetAttribute("RunSlashCmd", [=[-- AB_userandom 
 			local cmd, v, target, s, q = ...
+			local isRand = cmd ~= "/qsequence"
+			local tv, i, vt, _ = (isRand and crState or qsState)[v]
 			if v == "" or not v then
 				return
-			elseif not t[v] then
-				local tv, tn = newtable(), 1
-				for f in v:gmatch("[^,]+") do
-					tv[tn], tn = f:match("^%s*(.-)%s*$"), tn + 1
+			elseif not tv then
+				local iv, tn, np = newtable(), 1, 1 --@init_clause_start
+				while np do
+					local sp, spc, ev, eo = np, np
+					repeat
+						sp, spc = spc, v:match("^%s*<[^<]->()%s*", sp)
+					until not spc
+					eo = sp > np and v:sub(np, sp-1):gsub("<(.-)>", "[%1]") or nil
+					ev, np = v:match("^%s*([^%s,][^,]*),?%s*()", sp)
+					ev = ev and ev:match("^%s*(.-)%s*$") or ""
+					if ev ~= "" then
+						iv[-tn], iv[tn], tn = eo, ev, tn + 1
+					end
 				end
-				t[v], tv[0] = tv, tv[1 + seed % #tv]
+				tv, (isRand and crState or qsState)[v], iv[0] = iv, iv, isRand and 1 + seed % #iv or 1 --@init_clause_end
 			end
-			v = t[v]
-			v, v[0] = v[0], v[math.random(#v)]
+			i = tv[0]
+			v, vt, tv[0] = tv[i], tv[-i], isRand and math.random(#tv) or (1 + i % #tv)
 			if v then
-				return RW:RunAttribute("RunSlashCmd", "/cast", v, target, "opt-into-cr-fallback")
+				if vt then
+					_, vt = KR:RunAttribute("EvaluateCmdOptions", vt)
+				end
+				return RW:RunAttribute("RunSlashCmd", "/cast", v, vt or target, isRand and "opt-into-cr-fallback")
 			end
 		]=])
+		local getNextCast do -- (kind, v, target) -> (v, target)
+			local senv = GetManagedEnvironment(f)
+			local uenv = setmetatable({qsState={}, crState={}, newtable=function() return {} end}, {__index=senv})
+			local initF = setfenv(loadstring("return function(isRand, v)\n" .. f:GetAttribute("RunSlashCmd"):match("[^\n]+@init_clause_start.-@init_clause_end") .. "\nreturn iv end"), {})
+			initF = setfenv(initF(), uenv)
+			function getNextCast(k, c, target)
+				local t1, ucache, tv, i, v, vt = senv[k][c], uenv[k]
+				tv = t1 or ucache[c] or initF(k == "crState", c)
+				if t1 then
+					ucache[c] = nil
+				end
+				i = tv[0]
+				v, vt = tv[i], tv[-i]
+				if vt then
+					_, vt = KR:EvaluateCmdOptions(vt)
+				end
+				return v, vt or target
+			end
+		end
 		RW:RegisterCommand(SLASH_USERANDOM1, true, true, f)
-		local secenv, ic = GetManagedEnvironment(f), {}
-		RW:SetCommandHint(SLASH_USERANDOM1, 50, function(_, _, clause, target)
-			if not clause or clause == "" then return end
-			local t1, t, n = secenv.t[clause]
-			t = t1 or ic[clause]
-			if t1 then
-				ic[clause] = nil
-			elseif not t then
-				t, n = {}, 1
-				for s in clause:gmatch("[^,]+") do
-					t[n], n = s, n + 1
-				end
-				ic[clause], t[0] = t, t[1 + secenv.seed % #t]
-			end
-			t = t[0]
-			if t then
-				local nextN = tonumber(t)
+		local function hintCastRandom(_, _, clause, target)
+			if (clause or "") == "" then return end
+			local v, vt = getNextCast("crState", clause, target)
+			if v then
+				local nextN = tonumber(v)
 				if nextN and nextN > 20 and C_Item.GetItemNameByID(nextN) then
-					t = "item:" .. t
+					v = "item:" .. v
 				end
-				return RW:GetCommandAction("/use", t, target, nil, "castrandom-fallback")
+				return RW:GetCommandAction("/use", v, vt or target, nil, "castrandom-fallback")
 			end
-		end)
+		end
+		local function hintQuickSequence(_slash, _unparsed, clause, target)
+			if (clause or "") == "" then return end
+			local v, vt = getNextCast("qsState", clause, target)
+			if v then
+				return RW:GetCommandAction("/cast", v, vt)
+			end
+		end
+		RW:SetCommandHint(SLASH_USERANDOM1, 50, hintCastRandom)
+		SLASH_ACTIONBOOK_QSEQUENCE1, SLASH_ACTIONBOOK_QSEQUENCE2 = "/qsequence", "/quicksequence"
+		RW:RegisterCommand(SLASH_ACTIONBOOK_QSEQUENCE1, true, true, f)
+		RW:AddCommandAliases(SLASH_ACTIONBOOK_QSEQUENCE1, SLASH_ACTIONBOOK_QSEQUENCE2)
+		RW:SetCommandHint(SLASH_ACTIONBOOK_QSEQUENCE1, 100, hintQuickSequence)
+		IM:AddTokenizableCommand("ACTIONBOOK_QSEQUENCE", SLASH_CASTRANDOM1)
+		SLASH_ACTIONBOOK_QSEQUENCE1, SLASH_ACTIONBOOK_QSEQUENCE2 = nil, nil
 	end
 end
 do -- macro: name
