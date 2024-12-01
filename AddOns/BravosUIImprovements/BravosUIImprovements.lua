@@ -219,9 +219,9 @@ function BUII_OnEventHandler(self, event, arg1, ...)
   if event == "ADDON_LOADED" and arg1 == "BravosUIImprovements" then
     if BUIIDatabase == nil then
       BUIIDatabase = {}
-      BUIIDatabase["class_color"] = false
-      BUIIDatabase["castbar_timers"] = true
-      BUIIDatabase["castbar_icon"] = true
+      BUIIDatabase["class_color"] = true -- 更改預設值
+      BUIIDatabase["castbar_timers"] = false
+      BUIIDatabase["castbar_icon"] = false
       BUIIDatabase["castbar_on_top"] = false
       BUIIDatabase["sane_bag_sort"] = false
       BUIIDatabase["quick_keybind_shortcut"] = false
