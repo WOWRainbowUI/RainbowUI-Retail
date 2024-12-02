@@ -1,4 +1,4 @@
-## Interface: 11504, 40401, 110002, 110005
+## Interface: 11505, 40401, 110002, 110005
 ## Title: Dominos Roll
 ## Title-zhCN: Dominos Roll 窗口模块
 ## Notes: Makes the set of frames for rolling on items when in a group movable
