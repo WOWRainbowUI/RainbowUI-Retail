@@ -1,9 +1,9 @@
-## Interface: 110007, 110005, 40401, 11504
+## Interface: 110007, 110005, 40401, 11505
 ## Title: Dominos
 ## Notes: A main actionbar replacement
 ## Notes-zhCN: 一种动作条替换方案
 ## Author: Tuller
-## Version: 11.0.7
+## Version: 11.0.8
 ## SavedVariables: DominosDB
 ## OptionalDeps: Ace3, LibKeyBound-1.0, LibSharedMedia-3.0, Masque, FlyPaper, LibDualSpec-1.0
 ## IconTexture: Interface/AddOns/Dominos/Dominos
