@@ -44,20 +44,20 @@ VCBshieldSpellRight:SetAlpha(0.85)
 VCBshieldSpellRight:Hide()
 -- icon & shield --
 local function IconShieldVisibility()
-	PlayerCastingBarFrame.Icon:SetScale(1.3)
+	PlayerCastingBarFrame.Icon:SetScale(2.5) -- 圖示大小
 	if PlayerCastingBarFrame.showShield then PlayerCastingBarFrame.showShield = false end
 	if VCBrPlayer["Icon"] == "左" then
 		function vcbPlayerIconVisibility(self)
 			self.Icon:ClearAllPoints()
-			self.Icon:SetPoint("RIGHT", self, "LEFT", -2, -4)
+			self.Icon:SetPoint("RIGHT", self, "LEFT", -2, -2) -- 圖示位置
 			if not self.Icon:IsShown() then self.Icon:Show() end
 			if self.barType == "uninterruptable" then
 				self.Icon:ClearAllPoints()
-				self.Icon:SetPoint("RIGHT", self, "LEFT", -8, -4)
+				self.Icon:SetPoint("RIGHT", self, "LEFT", -8, -2) -- 圖示位置
 				if not VCBshieldSpellLeft:IsShown() then VCBshieldSpellLeft:Show() end
 			else
 				self.Icon:ClearAllPoints()
-				self.Icon:SetPoint("RIGHT", self, "LEFT", -2, -4)
+				self.Icon:SetPoint("RIGHT", self, "LEFT", -2, -2) -- 圖示位置
 				if VCBshieldSpellLeft:IsShown() then VCBshieldSpellLeft:Hide() end
 			end
 			if VCBiconSpell:IsShown() then VCBiconSpell:Hide() end
