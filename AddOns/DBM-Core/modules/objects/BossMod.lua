@@ -208,9 +208,13 @@ function bossModPrototype:DisableMod()
 	self.Options.Enabled = false
 end
 
-function bossModPrototype:Stop()
+---@param killNameplates boolean? Should only be called by trash mods. Bosses should never call this
+function bossModPrototype:Stop(killNameplates)
 	for _, v in ipairs(self.timers) do
 		v:Stop()
+	end
+	if killNameplates then
+		DBM:FireEvent("DBM_NameplateStopAll")
 	end
 	self:Unschedule()
 end
@@ -858,9 +862,7 @@ function bossModPrototype:EnablePrivateAuraSound(auraspellId, voice, voiceVersio
 			local isVoicePackUsed
 			--Vet if user has voice pack enabled by sound ID
 			if type(soundId) == "number" and soundId < 5 then--Value 1-4 are SW1 defaults, otherwise it's file data ID and handled by Custom
-				isVoicePackUsed = DBM.Options["VPReplacesSA" .. soundId]
-			else
-				isVoicePackUsed = DBM.Options.VPReplacesCustom
+				isVoicePackUsed = DBM.Options.VPReplacesSADefault
 			end
 			if isVoicePackUsed then
 				mediaPath = "Interface\\AddOns\\DBM-VP" .. chosenVoice .. "\\" .. voice .. ".ogg"
