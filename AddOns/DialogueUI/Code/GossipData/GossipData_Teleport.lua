@@ -10,6 +10,9 @@ local GossipDataProvider = addon.GossipDataProvider;
 local IsTeleportNPC = {
     --[creatureID] = true,
 
+    [231541] = true,        --Sky-Captain Cableclamp (Siren Isle to Dornogal)
+    [475936] = true,        --Mole Machine Transport (Siren Isle to Gundargaz)
+
     --Wormhole
     [35646] = true,         --Northrend
     [81205] = true,         --Draenor
@@ -55,6 +58,13 @@ local IsTeleportNPC = {
     [116670] = true,        --Suramar Portal (Nighthold)
     [116819] = true,        --Suramar Portal (Nighthold)
     [116820] = true,        --Suramar Portal (Nighthold)
+
+    [125720] = true,        --Lightforged Beacon (Antorus) First
+    [128303] = true,        --Lightforged Beacon (Antorus) Exhaust (Moved to Kin'garoth after defeat)
+    [128304] = true,        --Lightforged Beacon (Antorus) Burning Throne Entrance (Can move to Argus)
+    [129876] = true,        --Grand Artificer Romuul (Antorus) After Argus
+
+    [194569] = true,        --Ulduar Teleporter
 };
 
 do

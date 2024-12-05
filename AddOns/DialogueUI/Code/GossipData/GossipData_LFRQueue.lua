@@ -3,12 +3,21 @@ if not (C_RaidLocks and C_LFGInfo and EJ_GetEncounterInfo) then return end;
 local _, addon = ...
 if not addon.IsToCVersionEqualOrNewerThan(100000) then return end;
 
-local IsEncounterComplete = C_RaidLocks.IsEncounterComplete;
+local IsEncounterComplete = C_RaidLocks.IsEncounterComplete;        --RequestRaidInfo(), UPDATE_INSTANCE_INFO
 local GetDungeonInfo = C_LFGInfo.GetDungeonInfo;
 local EJ_GetEncounterInfo = EJ_GetEncounterInfo;
+local GetDungeonDifficultyID = GetDungeonDifficultyID;
+local GetRaidDifficultyID = GetRaidDifficultyID;
 
-local GossipOptions = {};
+local LFRGossipOptions = {};
+local InstanceTeleporterOptions = {};
 local DataSource = {};
+
+local Locale = {};
+Locale.BOSS_DEAD = BOSS_DEAD;
+Locale.BOSS_ALIVE = BOSS_ALIVE;
+Locale.Red = RED_FONT_COLOR;
+Locale.Green = GREEN_FONT_COLOR;
 
 function DataSource:OnInteractWithNPC(npcName)
 
@@ -19,11 +28,11 @@ function DataSource:OnInteractStopped()
 end
 
 function DataSource:IsSupportedOption(gossipOptionID)
-    return gossipOptionID and GossipOptions[gossipOptionID] ~= nil
+    return gossipOptionID and LFRGossipOptions[gossipOptionID] ~= nil
 end
 
 function DataSource:SetupTooltipByGossipOptionID(tooltip, gossipOptionID)
-    local data = GossipOptions[gossipOptionID];
+    local data = LFRGossipOptions[gossipOptionID];
     if data then
         tooltip:Hide();
         tooltip:SetOwner(nil, "ANCHOR_NONE");
@@ -31,7 +40,7 @@ function DataSource:SetupTooltipByGossipOptionID(tooltip, gossipOptionID)
         local dungeonID = data[1];
         local mapID = data[2];
         local difficultyID = data[3];
-        local journalEncounteID, encounterID, bossName, hasDefeated;
+        local journalEncounteID, encounterID, bossName;
         local dungeonInfo = GetDungeonInfo(dungeonID);
         local dungeonName = dungeonInfo and dungeonInfo.name;
 
@@ -39,27 +48,62 @@ function DataSource:SetupTooltipByGossipOptionID(tooltip, gossipOptionID)
             return false
         end
 
-        tooltip:SetTitle(dungeonName, 1, 0.82, 0);
+        local info = {};
+        local index = 0;
+        info.dungeonName = dungeonName;
+        info.encounters = {};
 
         for i = 4, #data do
+            index = index + 1;
             journalEncounteID = data[i][1];
             encounterID = data[i][2];
             bossName = EJ_GetEncounterInfo(journalEncounteID);
-            hasDefeated = IsEncounterComplete(mapID, encounterID, difficultyID);
-            if hasDefeated then
-                tooltip:AddDoubleLine(bossName, BOSS_DEAD, 1, 1, 1, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
-            else
-                tooltip:AddDoubleLine(bossName, BOSS_ALIVE,  1, 1, 1, GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b, GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b);
-            end
+            info.encounters[index] = {
+                bossName = bossName,
+                mapID = mapID,
+                encounterID = encounterID,
+                difficultyID = difficultyID,
+            };
         end
+
+        local noRequestFromServer = false;
+        tooltip:DisplayRaidLocks(info, noRequestFromServer);
+
+        return true
+    end
+
+    data = InstanceTeleporterOptions[gossipOptionID];
+    if data then
+        tooltip:Hide();
+        tooltip:SetOwner(nil, "ANCHOR_NONE");
+
+        local bossName, journalEncounteID, mapID, encounterID;
+        local difficultyID = GetRaidDifficultyID();
+
+        local info = {};
+        info.encounters = {};
+
+        for i, v in ipairs(data) do
+            mapID = v[1];
+            journalEncounteID = v[2];
+            encounterID = v[3];
+            bossName = EJ_GetEncounterInfo(journalEncounteID);
+            info.encounters[i] = {
+                bossName = bossName,
+                mapID = mapID,
+                encounterID = encounterID,
+                difficultyID = difficultyID,
+            };
+        end
+
+        tooltip:DisplayRaidLocks(info);
 
         return true
     end
 end
 
 
-do
-    --Legacy Raid (LFR) show boss name and status in this wing
+do  --Legacy Raid (LFR) show boss name and status in this wing
     --See https://wago.tools/db2/LFGDungeons
     --C_LFGInfo.GetDungeonInfo: icon, name, JournalLink
     --C_RaidLocks.IsEncounterComplete(mapID, dungeonEncounterID, difficultyID)
@@ -67,8 +111,8 @@ do
     local DIFFICULTY_LFR = 17;  --difficultyID of old raids is different  EJ_GetDifficulty
 
 
-    GossipOptions = {
-        --[gossipOptionID] = {dungeonID, mapID, difficultyID, {journalEncounteID1, encounterID1}, {journalEncounteID2, encounterID2}, ...}
+    LFRGossipOptions = {
+        --[gossipOptionID] = {dungeonID, mapID, difficultyID, {journalEncounteID1, dungeonEncounterID1}, {journalEncounteID2, dungeonEncounterID2}, ...}
 
         --Shadowlands (npc: 205959)
         [110020] = {2090, 2296, DIFFICULTY_LFR, {2429, 2418}, {2428, 2383}, {2420, 2406}},      --The Leeching Vaults
@@ -183,9 +227,82 @@ do
 
     local dungeonInfo, dungeonName;
 
-    for gossipOptionID, data in pairs(GossipOptions) do
+    for gossipOptionID, data in pairs(LFRGossipOptions) do
         dungeonInfo = GetDungeonInfo(data[1]);
         dungeonName = dungeonInfo and dungeonInfo.name;
         GossipDataProvider:SetOverrideName(gossipOptionID, dungeonName);
+    end
+end
+
+
+do  --Instance Teleporter Option Tooltip
+    local Data = {
+        -- (d)ata  = { {mapID, journalEncounteID, dungeonEncounterID}, }
+        -- (o)nwer = { gossipOptionID1, gossipOptionID2, ... }
+    };
+
+    Data.Nighthold = {
+        {
+            d = {{1530, 1743, 1872}},   --Nightspire
+            o = {47106, 47119, 47124},
+        },
+        {
+            d = {{1530, 1737, 1866}},   --Font Of Night
+            o = {47121, 47126, 47108, 47113},
+        },
+    };
+
+    Data.Antorus = {
+        {
+            d = {{1712, 2009, 2082}, {1712, 2004, 2088}},     --Exhaust
+            o = {47848, 47868},
+        },
+        {
+            d = {{1712, 1983, 2069}, {1712, 1986, 2073}, {1712, 1984, 2063}},     --Burning Throne
+            o = {47865, },
+        },
+    };
+
+    Data.Ulduar = {
+        {
+            d = {{603, 1637, 1132}},     --Formation Grounds
+            o = {37961},
+        },
+        {
+            d = {{603, 1638, 1136}, {603, 1639, 1139}, {603, 1640, 1142}},     --Colossal Forge
+            o = {37962},
+        },
+        {
+            d = {{603, 1640, 1142}},     --Scrapyard
+            o = {37963},
+        },
+        {
+            d = {{603, 1641, 1140}, {603, 1642, 1137}, {603, 1650, 1130}},     --Antechamber of Ulduar
+            o = {37964},
+        },
+        {
+            d = {{603, 1642, 1137}, {603, 1643, 1131}, {603, 1644, 1135}, {603, 1645, 1141}},     --Shattered Walkway
+            o = {37965},
+        },
+        {
+            d = {{603, 1646, 1133}, {603, 1644, 1135}, {603, 1645, 1141}},     --Conservatory of Life
+            o = {37967},
+        },
+        {
+            d = {{603, 1647, 1138}},     --Spark of Imagination
+            o = {37969},
+        },
+        {
+            d = {{603, 1649, 1143}},     --Prison of Yogg-Saron
+            o = {37971},
+        },
+    };
+
+    for raid, m in pairs(Data) do
+        for _, n in ipairs(m) do
+            for _, gossipOptionID in ipairs(n.o) do
+                InstanceTeleporterOptions[gossipOptionID] = n.d;
+            end
+        end
     end
 end

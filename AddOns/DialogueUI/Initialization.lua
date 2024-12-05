@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.5.4";
-local VERSION_DATE = 1732600000;
+local VERSION_TEXT = "v0.5.5";
+local VERSION_DATE = 1733300000;
 
 
 local addonName, addon = ...
@@ -44,6 +44,7 @@ local DefaultValues = {
     RightClickToCloseUI = true,
     CycleRewardHotkeyEnabled = false,           --Press Tab to cycle through choosable rewards
     DisableHotkeyForTeleport = false,           --Disable gossip hotkey when select teleportation
+    GamePadClickFirstObject = false,            --If true, when starting a new interaction, pressing PAD1 will click the first object
     EmulateSwipe = true,
     MobileDeviceMode = false,
 

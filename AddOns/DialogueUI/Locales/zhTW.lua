@@ -198,9 +198,11 @@ L["Disable Hokey For Teleport Desc"] = "當你選擇傳送目的地的時候停�
 L["Experimental Features"] = "實驗性";
 L["Emulate Swipe"] = "模擬滑動手勢";
 L["Emulate Swipe Desc"] = "拖曳視窗內容來上下捲動。";
-L["Mobile Device Mode"] = "手機模式";
+L["Mobile Device Mode"] = "行動裝置模式";
 L["Mobile Device Mode Desc"] = "實驗性功能:\n\n加大介面和文字大小，讓小螢幕裝置更容易閱讀。";
-L["Mobile Device Mode Override Option"] = "此選項目前沒有效果，因為在控制設定中啟用了 \"手機模式\"。";
+L["Mobile Device Mode Override Option"] = "此選項目前沒有效果，因為在控制設定中啟用了 \"行動裝置模式\"。";
+L["GamePad Click First Object"] = "選擇第一個對話選項";
+L["GamePad Click First Object Desc"] = "開始與 NPC 進行新的互動時，按確認按鈕會選擇第一個對話選項。";
 
 L["Key Space"] = "空白";
 L["Key Interact"] = "互動";
