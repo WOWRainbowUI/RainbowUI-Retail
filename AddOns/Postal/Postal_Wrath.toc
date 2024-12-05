@@ -1,9 +1,9 @@
 ## Interface: 30403
 ## Title: Postal
-## Version: v4.2.1
-## X-Build: 636
-## X-ReleaseDate: 2024-10-30T1:57:24Z
-## X-Revision: 636
+## Version: v4.2.2
+## X-Build: 638
+## X-ReleaseDate: 2024-12-04T14:21:32Z
+## X-Revision: 638
 ## Author: Xinhuan
 ## X-Credits: Ammo, Rabbit, Grennon, Mikk, oscarucb, Jonny aka The_Original_Manbot
 ## X-Category: Mail
