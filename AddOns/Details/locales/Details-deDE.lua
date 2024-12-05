@@ -699,8 +699,7 @@ L["STRING_OPTIONS_EXTERNALS_TITLE"] = "Externe Widgets"
 L["STRING_OPTIONS_EXTERNALS_TITLE2"] = "Diese Optionen bestimmen das Verhalten vieler fremder Widgets."
 L["STRING_OPTIONS_GENERAL"] = "Allgemeine Einstellungen"
 L["STRING_OPTIONS_GENERAL_ANCHOR"] = "Allgemein:"
---[[Translation missing --]]
-L["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP"] = "\"Space Between Windows\""
+L["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP"] = "Abstand zwischen den Fenstern"
 L["STRING_OPTIONS_HIDE_ICON"] = "Symbol verstecken"
 L["STRING_OPTIONS_HIDE_ICON_DESC"] = [=[Aktiviert: Das Symbol des entsprechenden Fensters wird nicht gezeigt.
 
@@ -1413,7 +1412,7 @@ L["STRING_OPTIONSMENU_TITLETEXT"] = "Titelleiste: Text"
 L["STRING_OPTIONSMENU_TOOLTIP"] = "Tooltips"
 L["STRING_OPTIONSMENU_WALLPAPER"] = "Fenster: Hintergrund"
 L["STRING_OPTIONSMENU_WINDOW"] = "Fenster: Allgemein"
-L["STRING_OPTIONSMENU_WINDOWBODY"] = "Fenster-Körper"
+L["STRING_OPTIONSMENU_WINDOWBODY"] = "Fenster: Allgemein"
 L["STRING_OVERALL"] = "Gesamt"
 L["STRING_OVERHEAL"] = "Überheilung"
 L["STRING_OVERHEALED"] = "überheilt"

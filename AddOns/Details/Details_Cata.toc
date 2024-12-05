@@ -1,15 +1,15 @@
-## Interface: 40400
+## Interface: 40401
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
 ## Notes-ruRU: Незаменимый инструмент, чтобы произвести впечатление на цыпочку в вашем рейде.
 ## SavedVariables: _detalhes_global, __details_backup, __details_debug
 ## SavedVariablesPerCharacter: _detalhes_database
 ## OptionalDeps: Ace3, LibSharedMedia-3.0, LibWindow-1.1, LibDBIcon-1.0, NickTag-1.0, LibDataBroker-1.1, LibGraph-2.0
-## Version: #Details.20241117.13191.161
+## Version: #Details.20241204.13303.161
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Curse-Project-ID: 61284
-## X-Wago-ID: 25NRDlK3
+## X-Wago-ID: qv63A7Gb
 
 #@no-lib-strip@
 Libs\libs.xml
