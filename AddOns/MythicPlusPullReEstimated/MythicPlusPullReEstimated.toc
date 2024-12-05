@@ -1,6 +1,6 @@
 ## Interface: 110002, 110005
 ## Title: Mythic Plus Pull
-## Version: v1.10.6
+## Version: v1.11.0
 ## Notes: Tracks and displays % progress gained from individual mobs or entire pulls in Mythic+ dungeons. /mpp for options
 ## Notes-ruRU: Отслеживает и отображает % прогресса, полученного от отдельных мобов или всех пуллов в подземельях М+ режима. Введите /mpp для вызова настроек
 ## Author: Numy
@@ -8,7 +8,7 @@
 ## SavedVariables: MMPEDB
 ## X-Curse-Project-ID: 431246
 ## X-Wago-ID: anKWEqNE
-## OptionalDeps: MythicDungeonTools
+## OptionalDeps: MythicDungeonTools,TidyPlates
 
 ## Title-zhTW: |cffFF7F00[M+]|r 小怪%
 ## Notes-zhTW: Mythic Plus Pull ReEstimated |n|n預設在畫面右側、任務清單上方顯示拉怪的預估%，在滑鼠指向的浮動提示資訊中顯示每一隻小怪的%，也可以在敵人的血條旁顯示% (需要在選項中啟用)。|n|n|cffffd200使用方法: |r從Esc>選項>插件>M+ 小怪%，進行設定。
