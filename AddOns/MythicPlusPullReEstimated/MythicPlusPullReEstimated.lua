@@ -83,6 +83,30 @@ do
     end});
 end
 
+local nameplateAccessor = function(unit)
+    return C_NamePlate.GetNamePlateForUnit(unit);
+end
+do
+    local defaultAccessor = nameplateAccessor
+    local nameplateAddons = {
+        {
+            addonName = 'TidyPlates',
+            nameplateAccessor = function(unit)
+                local plate = defaultAccessor(unit);
+                
+                return plate and plate.extended or plate;
+            end,
+        },
+    };
+    for _, info in ipairs(nameplateAddons) do
+        if C_AddOns.IsAddOnLoaded(info.addonName) then
+            nameplateAccessor = info.nameplateAccessor;
+
+            break;
+        end
+    end
+end
+
 ns.addon = MMPE
 ns.data = {}
 MMPE.ns = ns
@@ -266,6 +290,8 @@ function MMPE:GetValue(npcID)
         end
     end
     -- self:DebugPrint("GetValue failed to find NPC. Args:", npcID)
+
+    if self.simulationActive then return 3; end
 end
 
 function MMPE:DeleteEntry(npcID)
@@ -654,7 +680,7 @@ function MMPE:CreateNameplateText(unit)
         if self.activeNameplates[unit] then
             self.activeNameplates[unit]:Hide() -- This should never happen...
         end
-        local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
+        local nameplate = nameplateAccessor(unit)
         if nameplate then
             self.activeNameplates[unit] = nameplate:CreateFontString(unit .."mppProgress", "OVERLAY", "GameFontHighlightSmall")
             self.activeNameplates[unit]:SetText("+?%")
@@ -708,7 +734,7 @@ function MMPE:UpdateNameplatePosition(unit)
     if nameplate and nameplate.UnitFrame and nameplate.UnitFrame.unitExists and self.activeNameplates[unit] ~= nil then
         local offsetx = self:GetSetting('offsetx')
         local offsety = self:GetSetting('offsety')
-        self.activeNameplates[unit]:SetPoint("LEFT", nameplate.UnitFrame.name, "LEFT", nameplate.UnitFrame.name:GetWidth() + offsetx, 0 + offsety)
+        self.activeNameplates[unit]:SetPoint("LEFT", self.activeNameplates[unit]:GetParent(), "RIGHT", offsetx, offsety)
     else
         self:RemoveNameplateText(unit)
         self:DebugPrint("Unit", unit, "does not seem to exist. Why are we trying to update it?")
