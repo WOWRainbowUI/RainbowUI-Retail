@@ -492,7 +492,7 @@ BackdropTemplateMixin = {}
 ---@field GetRight fun(self: uiobject): number
 ---@field GetTop fun(self: uiobject): number
 ---@field GetBottom fun(self: uiobject): number
----@field SetPoint fun(self: uiobject, point: anchorpoint, relativeFrame: uiobject, relativePoint: anchorpoint, xOffset: number, yOffset: number)
+---@field SetPoint fun(self: uiobject, point: anchorpoint, relativeFrame: uiobject?, relativePoint: anchorpoint?, xOffset: number?, yOffset: number?)
 ---@field ClearAllPoints fun(self: uiobject)
 ---@field CreateAnimationGroup fun(self: uiobject, name: string|nil, templateName: string|nil) : animationgroup
 ---@field SetIgnoreParentAlpha fun(self: region, ignore: boolean)
@@ -668,9 +668,8 @@ BackdropTemplateMixin = {}
 ---@field ClearPointsOffset fun(self: frame)
 ---@field GetPoint fun(self: frame, anchorIndex: number?, resolveCollapsed: boolean?) : string, frame, string, number, number
 ---@field GetPointByName fun(self: frame, point: string, resolveCollapsed: boolean?) : string, frame, string, number, number
----@field SetAllPoints fun(self: frame, relativeTo: frame?, doResize: boolean?)
+---@field SetAllPoints fun(self: frame, relativeTo: uiobject?, doResize: boolean?)
 ---@field SetHeight fun(self: frame, height: number)
----@field SetPoint fun(self: frame, point: string, relativeTo: frame?, relativePoint: string?, offsetX: number?, offsetY: number?)
 ---@field SetSize fun(self: frame, x: number, y: number)
 ---@field SetWidth fun(self: frame, width: number)
 ---@field CreateAnimationGroup fun(self: frame, name: string?, templateName: string?) : animationgroup
@@ -891,6 +890,12 @@ BackdropTemplateMixin = {}
 ---@field SetObeyStepOnDrag fun(self: slider, obeyStep: boolean)
 ---@field SetThumbTexture fun(self: slider, texture: textureid|texturepath)
 ---@field SetStepsPerPage fun(self: slider, steps: number)
+
+---get all frames under the cursor that has mouse focus
+---@return uiobject[]
+function GetMouseFoci()
+    return {}
+end
 
 ---@return number
 function debugprofilestop() return 0 end
