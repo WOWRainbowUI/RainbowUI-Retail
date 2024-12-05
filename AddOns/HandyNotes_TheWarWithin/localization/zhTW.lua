@@ -285,8 +285,18 @@ L['skittershaw_spin_note'] = '在這區搭乘 {npc:224973} 一整圈.\n\n{npc:22
 
 L['options_icons_no_harm_from_reading'] = '{achievement:40632}'
 L['options_icons_no_harm_from_reading_desc'] = '顯示成就 {achievement:40632} 所需的 {npc:227421} 位置.'
-L['no_harm_from_reading_note'] = nil
-L['another_you_4_note'] = nil
+L['no_harm_from_reading_note'] = [[
+進入洞窟 ({dot:Yellow}), 往 ({dot:Red}) 移動並爬上有三隻蜘蛛所在的牆上後跳下最上方蜘蛛後方的洞口.
+
+當你掉下來後, 和附近的 {object:血腥魔典} 互動來召喚4個 {npc:227421}.
+
+{npc:227421} 會消失並重新出現在地圖上.
+
+追蹤每個 {npc:227421} 並和他們互動來讓它們回到 {object:血腥魔典}.
+
+當你找到所有4個 {npc:227421} 後, 回到 {object:血腥魔典} 並和 {npc:227421} 交談.
+]]
+L['another_you_4_note'] = '在標記的路徑上巡邏.'
 
 L['concealed_contraband_note'] = nil
 L['memory_cache_note'] = '從附近的 ({dot:Red}) {object:吸取器儲藏室} 獲得 {spell:420847}. 殺掉 {npc:223908} 後取得 {item:223870} 來開啟 {object:記憶寶箱}.'
@@ -307,9 +317,9 @@ L['you_cant_hang_with_us_note'] = nil
 L['kej_pet_vendor_note'] = nil
 
 L['options_icons_back_to_the_wall'] = '{achievement:40620}'
-L['options_icons_back_to_the_wall_desc'] = nil
-L['arathi_prisoner_suffix'] = nil
-L['arathi_prisoner_note'] = nil
+L['options_icons_back_to_the_wall_desc'] = '顯示成就 {achievement:40620} 所需的 {npc:222119} 的位置.'
+L['arathi_prisoner_suffix'] = '阿拉希俘虜已拯救'
+L['arathi_prisoner_note'] = '在 {wq:特殊任務: A Pound of Cure} 中釋放被網包住的 {npc:222119}.'
 
 -------------------------------------------------------------------------------
 ----------------------------------- DELVES ------------------------------------
@@ -340,13 +350,13 @@ L['tuk_chest_3_note'] = '{note:只能在 "逃跑者進化" 和 "織絲者救援"
 ----------------------------- SECRETS OF AZEROTH ------------------------------
 -------------------------------------------------------------------------------
 
-L['options_icons_secrets_of_azeroth'] = nil
-L['options_icons_secrets_of_azeroth_desc'] = nil
+L['options_icons_secrets_of_azeroth'] = '艾澤拉斯祕聞'
+L['options_icons_secrets_of_azeroth_desc'] = '顯示 {location:艾澤拉斯祕聞} 的位置.'
 
-L['alyx_kickoff_note'] = nil
+L['alyx_kickoff_note'] = '和 {npc:226683} 說話來啟動新的艾澤拉斯祕聞謎題.'
 
-L['celebration_crates_label'] = nil
-L['celebration_crates_note'] = nil
+L['celebration_crates_label'] = '節慶木箱'
+L['celebration_crates_note'] = '在 {location:艾澤拉斯} 找到並返還所有的 {object:節慶木箱}.'
 
 L['1_soggy_celebration_crate_note'] = nil
 L['2_hazy_celebration_crate_note'] = nil
@@ -358,6 +368,142 @@ L['7_charred_celebration_crate'] = nil
 L['8_mildewed_celebration_crate'] = nil
 L['9_crystalized_celebration_crate'] = nil
 L['10_surprisingly_pristine_celebration_crate'] = nil
+L['11_ghostly_celebration_crate'] = nil
 
 L['water_resistant_receipt_note'] = nil
 L['mysterious_bones_note'] = nil
+
+-------------------------------------------------------------------------------
+------------------------------- RATT'S REVENGE --------------------------------
+-------------------------------------------------------------------------------
+
+L['options_icons_ratts_revenge'] = nil
+L['options_icons_ratts_revenge_desc'] = nil
+
+-- INERT PECULIAR KEY
+L['inert_peculiar_key_note'] = nil
+
+-- PECULIAR GEM
+L['carefully_penned_note'] = nil
+L['unfinished_note'] = nil
+L['hastily_scrawled_note'] = nil
+L['water_resistant_note'] = nil
+L['peculiar_gem_note'] = nil
+
+-- KARAZHAN CATACOMBS
+L['karazhan_catacombs_label'] = nil
+L['karazhan_catacombs_entrance_note'] = nil
+
+-- ORB 1
+L['orb_1_label'] = nil
+L['orb_1_note'] = nil
+L['orb_1_locations'] = nil
+L['humble_monument'] = nil
+L['olgra_location'] = nil
+
+-- ORB 2
+L['orb_2_label'] = nil
+L['orb_2_note'] = nil
+
+-- ORB 3
+L['orb_3_label'] = nil
+
+L['astral_soup_label'] = nil
+L['astral_chest_label'] = nil
+L['astral_rewards_note'] = nil
+
+L['decryption_machine_label'] = nil
+L['decryption_console_label'] = nil
+L['rubensteins_console'] = nil
+
+L['code_machine_note_1'] = nil
+L['code_machine_note_2'] = nil
+L['code_machine_note_3'] = nil
+L['code_machine_note_4'] = nil
+L['code_machine_note_5'] = nil
+L['code_machine_note_6'] = nil
+L['code_machine_note_7'] = nil
+L['code_machine_note_8'] = nil
+
+L['slot_machine_label'] = nil
+L['slot_machine_note_a'] = nil
+L['slot_machine_note_b'] = nil
+L['slot_machine_note_c'] = nil
+L['slot_machine_note_d'] = nil
+L['slot_machine_note_e'] = nil
+L['slot_machine_vendor_note'] = nil
+
+-- ORB 4
+L['orb_4_label'] = nil
+L['vashti_note'] = nil
+L['uthers_tomb_label'] = nil
+L['uthers_tomb_note'] = nil
+
+-- ORB 5
+L['orb_5_label'] = nil
+L['jeremy_feasel_note'] = nil
+L['zarhym_note'] = nil
+L['pointless_treasure_salesman_location'] = nil
+L['pointless_treasure_salesman_note'] = nil
+
+-- ORB 6
+L['orb_6_label'] = nil
+L['blood_altar_label'] = nil
+L['corrupt_altar_label'] = nil
+L['lust_altar_label'] = nil
+L['sin_altar_label'] = nil
+L['void_altar_label'] = nil
+
+L['altar_note'] = nil
+L['blood_altar_note'] = nil
+L['corrupt_altar_note'] = nil
+L['lust_altar_note'] = nil
+L['sin_altar_note'] = nil
+L['void_altar_note'] = nil
+
+L['chest_of_acquisitions_label'] = nil
+L['chest_of_acquisitions_note'] = nil
+
+-- Orb 7
+L['orb_7_label'] = nil
+L['orb_7_summary'] = nil
+
+L['marin_bladewing_note'] = nil
+L['owl_of_the_watchers_label'] = nil
+L['owl_of_the_watchers_note'] = nil
+
+L['sentry_statue_note'] = nil
+L['sentry_note'] = nil
+
+-- Orb 8
+L['orb_8_label'] = nil
+
+L['enigma_machine_label'] = nil
+L['enigma_machine_note'] = nil
+
+L['lock_statue_note'] = nil
+L['lock_platform_note'] = nil
+
+L['platform_1_label'] = nil
+L['platform_2_label'] = nil
+L['platform_3_label'] = nil
+L['platform_4_label'] = nil
+L['platform_5_label'] = nil
+L['platform_6_label'] = nil
+L['platform_7_label'] = nil
+
+L['rats_label'] = nil
+L['lock_label'] = nil
+L['code_label'] = nil
+
+-- Orb 9
+L['orb_9_label'] = nil
+
+-- Orb 10
+L['orb_10_label'] = nil
+
+-- Orb 11
+L['orb_11_label'] = nil
+
+-- Orb 12
+L['orb_12_label'] = nil

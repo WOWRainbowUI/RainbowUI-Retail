@@ -49,6 +49,7 @@ L['zone_drops_label'] = 'Zonenbeute'
 L['zone_drops_note'] = 'Die unten aufgeführten Gegenstände können von mehreren Gegnern in dieser Zone fallen gelassen werden.'
 
 L['poi_entrance_label'] = 'Eingang'
+L['change_map'] = 'Karte wechseln'
 
 L['requires'] = 'Benötigt'
 L['ranked_research'] = '%s (Rang %d/%d)'
@@ -103,6 +104,7 @@ L['toy'] = 'Spielzeug'
 L['currency'] = 'Währung'
 L['rep'] = 'Ruf'
 L['buff'] = 'Stärkungszauber'
+L['transmog'] = nil
 
 ---------------------------------- FOLLOWERS ----------------------------------
 L['follower_type_follower'] = 'Anhänger'

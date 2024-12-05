@@ -369,6 +369,142 @@ L['7_charred_celebration_crate'] = 'Située à la base du trampoline au {locatio
 L['8_mildewed_celebration_crate'] = '1. Trouvez et buvez la {object:Potion de vérité} derrière le {npc:34295} au sommet du {location:Pic-Tonnerre} à {location:Orneval}.\n\n2. Récupérez la {object:Caisse d\'anniversaire moisie} située dans {location:Hache-tripes} à {location:Feralas}.\n\n{note:La {spell:463368} ne dure que 30 minutes. Vous devrez voler directement jusqu\'à {location:Feralas}. Changer de continent, emprunter des portails ou utiliser votre {item:6948} supprimera le buff.}'
 L['9_crystalized_celebration_crate'] = 'A l\'intérieur d\'{location:Oshu\'gun} à {location:Nagrand}.'
 L['10_surprisingly_pristine_celebration_crate'] = '1. Ramassez les {item:228772} dans la grotte à {location:Ahn\'Qiraj} en {location:Kalimdor}.\n\n2. Placez les {item:228772} près de la {object:Tombe sans nom} à {location:Tornheim} sur les {location:Îles Brisées}.'
+L['11_ghostly_celebration_crate'] = 'Au sommet du {location:Siège du Primat} à droite du portail.'
 
 L['water_resistant_receipt_note'] = '1. Entrez dans le tunnel rempli de {npc:47390}, tournez à droite et récupérez le {item:228768} à partir du {object:Récépissé de vente imperméable} derrière le tuyau.\n\n2. Trouvez le {npc:91079} à {location:Azsuna} sur les {location:Îles Brisées}.'
 L['mysterious_bones_note'] = 'Ramassez les {item:228772} cachés derrière {npc:71533} dans la grotte.\n\nUtilisez une mascotte de type canin tel que le {item:136925} ou {item:49912} pour déterrer les os.'
+
+-------------------------------------------------------------------------------
+------------------------------- RATT'S REVENGE --------------------------------
+-------------------------------------------------------------------------------
+
+L['options_icons_ratts_revenge'] = '{achievement:40967}'
+L['options_icons_ratts_revenge_desc'] = 'Afficher les emplacements des énigmes pour le haut-fait {achievement:40967}.'
+
+-- INERT PECULIAR KEY
+L['inert_peculiar_key_note'] = 'Cachée dans le tronc d\'un grand arbre derrière la caisse.\n\n{note:Lieu suivant :}\nSi vous {bug:n\'avez pas} la {item:228938}, allez à {location:Dornogal} à {location:Khaz Algar}.\n\nSi vous |cFF00FF00avez|r la {item:228938}, allez au {location:Défilé de Deuillevent} dans les {location:Royaumes de l\'Est}.'
+
+-- PECULIAR GEM
+L['carefully_penned_note'] = 'Parlez à la {npc:230042} en portant le titre {title:Inspecteur} pour recevoir la quête {quest:84684}.\n\n{note:Lieu suivant :} {location:Azj-Kahet}'
+L['unfinished_note'] = 'Dans une petite grotte au {location:Défilé des Marche-Fonds}, au milieu d\'un groupe de {npc:229596}.\n\n{note:Lieu suivant :} {location:Cité des Fils}'
+L['hastily_scrawled_note'] = 'En haut de la corniche surplombant la {location:Cité des Fils}.\n\n{note:Lieu suivant :} {location:Sainte-Chute}'
+L['water_resistant_note'] = 'Au centre d\'un lac caché en haut de la falaise entre {location:Azj-Kahet} et {location:Sainte-Chute}.\n\n{note:Lieu suivant :} {location:l\'Avancée de Faerin} à {location:Azj-Kahet}'
+L['peculiar_gem_note'] = 'Descendez par le trou dissimulé dans la grotte jusqu\'au {location:Nid du pilier Vosh}.\n\n{note:Le trou est caché contre la paroi et nécessite quelques sauts précis.}\n\nApprochez-vous de {npc:233550} et elle s\'enfuira en laissant tomber la {item:228938}.\n\n{note:Lieu suivant :}\nSi vous {bug:n\'avez pas} la {item:228941}, allez au {location:Cratère d\'Un\'Goro} en {location:Kalimdor}.\n\nSi vous |cFF00FF00avez|r la {item:228941}, allez au {location:Défilé de Deuillevent} dans les {location:Royaumes de l’Est}.'
+
+-- KARAZHAN CATACOMBS
+L['karazhan_catacombs_label'] = 'Catacombes de Karazhan'
+L['karazhan_catacombs_entrance_note'] = 'Récupérez la {item:44124} en partant du {location:Cratère d\'Un\'Goro} en {location:Kalimdor}\n\nRécupérez la {item:228938} en partant de {location:Dornogal} en {location:Khaz Algar}\n\nCombinez la gemme et la clé pour obtenir la {item:44124}.\n\nUne fois la {item:44124} dans vos sacs et la {item:208092} active, approchez de la porte pour révéler une entrée d\'instance rouge.'
+
+-- ORB 1
+L['orb_1_label'] = 'Orbe 1'
+L['orb_1_note'] = 'Utilisez la {item:208092} à chaque endroit lié à {npc:228249} pour obtenir 1 des 3 charges du buff {spell:153715}.'
+L['orb_1_locations'] = '1. {location:Tarides du Nord} en {location:Kalimdor}\n2. {location:Nagrand} en {location:Draenor}\n3. {location:Maldraxxus} en {location:Ombreterre}'
+L['humble_monument'] = 'Humble monument'
+L['olgra_location'] = '{note:L\'emplacement change en fonction de la réalisation de la quête {quest:35170}.}'
+
+-- ORB 2
+L['orb_2_label'] = 'Orbe 2'
+L['orb_2_note'] = '{note:Vous devez être dans la version du {location:Val de l’Éternel printemps} lié à l\'extension {location:Battle for Azeroth}.}\n\nPlacez-vous à côté du {npc:153297} en utilisant l\'un des dons de {npc:147393} suivants :\n\n{item:168123}\n{item:175140}\n{item:168004}\n\nInvoquez {item:49912} et utilisez l\'un des costumes suivants :\n\n{item:229413}\n{item:116812}\n\nTapez {emote:/prier} et attendez de recevoir la {item:53156}.\n\nRetournez aux {location:Catacombes de Karazhan} et utilisez la clé pour ouvrir les deux portes dans la pièce avec la fontaine.'
+
+-- ORB 3
+L['orb_3_label'] = 'Orbe 3'
+
+L['astral_soup_label'] = 'Soupe astrale'
+L['astral_chest_label'] = 'Coffre astral'
+L['astral_rewards_note'] = 'Pêchez dans la {object:Soupe astrale} pour recevoir la {item:228965}.\n\nUtilisez la {item:228965} pour ouvrir le {object:Coffre astral} et recevoir les {item:228966}.\n\nVous pouvez maintenant récupérer des {item:228967} sur les machines situées dans les {location:Catacombes de Karazhan}.'
+
+L['decryption_machine_label'] = 'Machine de décryptage'
+L['decryption_console_label'] = 'Console de décryptage'
+L['rubensteins_console'] = 'Console de Rubenstein'
+
+L['code_machine_note_1'] = 'Entrez le code et ouvrez la {object:Propriété de l\'ancien Ko\'nani} pour recevoir un {item:228967}.\n\n{object:Code}: 88224646'
+L['code_machine_note_2'] = 'Entrez le code et ouvrez le {object:Coffre codé} pour recevoir un {item:228967}.\n\n{object:Code}: 10638'
+L['code_machine_note_3'] = 'Entrez le code et ouvrez le {object:Coffre codé} pour recevoir un {item:228967}.\n\n{object:Code}: 5661'
+L['code_machine_note_4'] = 'Entrez le code et ouvrez le {object:Coffre-fort de Rubenstein} pour recevoir un {item:228967}.\n\n{object:Code}: 52233'
+L['code_machine_note_5'] = 'Entrez le code et ouvrez le {object:Coffre codé} pour recevoir un {item:228967}.\n\n{object:Code}: 51567'
+L['code_machine_note_6'] = 'Entrez le code et ouvrez le {object:Coffre codé} pour recevoir un {item:228967}.\n\n{object:Code}: 115'
+L['code_machine_note_7'] = 'Entrez le code et ouvrez le {object:Boite à secret codée} pour recevoir un {item:228967}.\n\n{object:Code}: 17112317'
+L['code_machine_note_8'] = 'Entrez le code et ouvrez le {object:Coffre codé} pour recevoir un {item:228967}.\n\n{object:Code}: 19019'
+
+L['slot_machine_label'] = 'Machine à sous « en veine ? »'
+L['slot_machine_note_a'] = 'Rassemblez cinq objets porte-bonheur et entrez le code :\n\n'
+L['slot_machine_note_b'] = '{npc:2795} à {location:Hurlevent} :\n'
+L['slot_machine_note_c'] = '{npc:219197} à {location:Dornogal}:\n'
+L['slot_machine_note_d'] = 'La {npc:186650} dans les {location:Plaines d’Ohn’ahra}\n'
+L['slot_machine_note_e'] = '{object:Code}: 777, 77777 ou 7777777'
+L['slot_machine_vendor_note'] = 'Achetez ces objets pour la {object:Machine à sous « en veine ? »}.'
+
+-- ORB 4
+L['orb_4_label'] = 'Orbe 4'
+L['vashti_note'] = 'Achetez un {item:228987} au {npc:91079} contre %s.'
+L['uthers_tomb_label'] = 'Tombeau d’Uther'
+L['uthers_tomb_note'] = 'Invoquez un {npc:231482} au {location:Tombeau d\'Uther} dans les {location:Maleterres de l\'ouest}.\n\nUtilisez un {item:228987} vendu par le {npc:91079} à {location:Azsuna} ou demandez à un Démoniste d\'utiliser {spell:342601}.\n\nUne fois mort puis revenu à la vie, lisez les graffitis cachés.\n\n{note:Les graffitis resteront tant que le {npc:231482} sera en vie, ne le tuez donc pas !}'
+
+-- ORB 5
+L['orb_5_label'] = 'Orbe 5'
+L['jeremy_feasel_note'] = '{npc:232048} est caché dans la {location:Caverne des Esprits perdus} sur l\'{location:île du Temps figé}.\n\nBattez {npc:232048} dans un combat de mascottes en utilisant uniquement les mascottes des secrets passés.%s\n\nUne fois que vous avez gagné, terminez la quête {quest:84781} pour recevoir le {item:228995}.\n\nVous pouvez désormais rendre visite au {npc:230310} à {location:Baie-du-Butin}.'
+L['zarhym_note'] = 'Parlez à {npc:71876} dans la grotte pour passer dans le monde des esprits.'
+L['pointless_treasure_salesman_location'] = 'Caché dans la statue gobeline au {location:Cap Janeiro}.'
+L['pointless_treasure_salesman_note'] = 'Achetez la {item:228996} :'
+
+-- ORB 6
+L['orb_6_label'] = 'Orbe 6'
+L['blood_altar_label'] = 'Autel de Sang'
+L['corrupt_altar_label'] = 'Autel Corrompu'
+L['lust_altar_label'] = 'Autel de Luxure'
+L['sin_altar_label'] = 'Autel du Vice'
+L['void_altar_label'] = 'Autel du Vide'
+
+L['altar_note'] = 'Utilisez la {item:208092} pour invoquer l\'esprit. Utilisez certaines montures, mascottes, jouets ou transmogrifications pour l\'apaiser :'
+L['blood_altar_note'] = '{object:%s} : N\'importe quelle monture dont le nom comporte "Sang".\n\n{object:%s} : N\'importe quelle mascotte dont le nom comporte "Sang".\n\n{object:%s} : {item:127709}'
+L['corrupt_altar_note'] = '{object:%s} : N\'importe quelle monture dont le nom comporte "Corrompu".\n\n{object:%s} : N\'importe quelle mascotte dont le nom comporte "Corrompu".\n\n{object:%s} : {item:116067}\n\n{object:%s} : N\'importe quelle cape ayant la même apparence que la {item:86316}'
+L['lust_altar_note'] = '{object:%s} : {pet:1628}\n\n{object:%s} : {item:129211}\n\n{object:%s} : Personnage nu sans équipement ou bien sous l\'effet du {item:119092}'
+L['sin_altar_note'] = '{object:%s} : {pet:2966}\n\n{object:%s} : {item:183986}\n\n{object:%s} : N\'importe quelle apparence de cape transmogrifiable comprenant le nom "Stèle du vice"'
+L['void_altar_note'] = '{object:%s} : {pet:1234}, {pet:2434}, ou {pet:4543}\n\n{object:%s} : {item:119003} et {item:174830}\n\n{object:%s} : N\'importe quelle cape ayant la même apparence que la {item:24252}'
+
+L['chest_of_acquisitions_label'] = 'Coffre des acquisitions'
+L['chest_of_acquisitions_note'] = '1. Apaisez tous les esprits présents aux autels de {location:Zul\'Gurub} en {location:Strangleronce septentrionale}.\n\n2. Equipez vos {item:228966} et fouillez le {object:Coffre des acquisitions} pour obtenir le {item:229007}.'
+
+-- Orb 7
+L['orb_7_label'] = 'Orbe 7'
+L['orb_7_summary'] = '1. Rendez-vous d\'abord sur l\'{location:île du Guet} à {location:Azsuna}.\n\n2. Renforcez votre {pet:1716} avec les différentes statues de {object:Hiboux des guetteurs} situées sur l\'île.\n\n3. Entrez dans le {location:Caveau des Gardiennes} et battez les boss pour révéler une {item:229046} secrète.\n\n4. Utilisez la {item:229046} pour commencer un puzzle de logique complexe et finalement faire apparaître un coffre contenant le {item:229054}.'
+
+L['marin_bladewing_note'] = 'Achetez le {pet:1716} à {npc:107379} contre %s après être devenu %s avec les {faction:1894}, ou bien à l\'{location:Hôtel des ventes}.'
+L['owl_of_the_watchers_label'] = 'Hibou des guetteurs'
+L['owl_of_the_watchers_note'] = '{note:Seules 3 statues sont actives à la fois.}\n\nPlacez-vous près d\'une statue active avec votre {pet:1716} invoqué pour obtenir les 4 améliorations :\n\n{spell:225049} {dot:Red}\n{spell:225038} {dot:Purple}\n{spell:223160} {dot:Green}\n{spell:225059} {dot:Blue}\n\nUne fois que votre {pet:1716} aura été renforcé ({note:Un effet blanc lumineux sera présent au-dessus de lui}), entrez dans le donjon {location:Caveau des Gardiennes}.'
+
+L['sentry_statue_note'] = '1. Vainquez {npc:95885} pour ouvrir la pièce secrète dans la {location:Chambre de la Nuit}.\n\n2. Vainquez les autres boss, y compris {npc:95888}.\n\n3. Ramenez la {spell:204481} et votre {pet:1716} dans la pièce secrète pour faire apparaître la {item:229046}.\n\n4. Apportez la {item:229046} dans la salle de {npc:95887}.'
+L['sentry_note'] = '1. Placez la {item:229046} ici à l\'entrée pour faire apparaître un {npc:109300}.\n\n2. Interagissez avec le {npc:109300} pour commencer le puzzle. Le but est de faire descendre tous les {npc:98082} dans le sol.\n\n3. Une fois terminé, fouillez le {object:Trésor des gardiens} pour recevoir le {item:229054}.'
+
+-- Orb 8
+L['orb_8_label'] = 'Orbe 8'
+
+L['enigma_machine_label'] = 'Machine à énigme'
+L['enigma_machine_note'] = '1. Insérez le {item:229007} et le {item:229054} dans la {object:Machine à énigme}.\n\n2. Cliquez sur COMMENCER, puis sur ENVOYER. Vous devez maintenant débloquer 7 verrous cachés.\n\n3. Débloquez un verrou en comptant chaque {npc:230596} dans l\'instance, puis en déplaçant le bon nombre de statues sur la bonne plateforme, et enfin en cliquant à nouveau sur ENVOYER.\n\n{note:Il est recommandé de tuer, mais pas de compter, chaque {npc:230599} pour les empêcher de marcher sur les plateformes.}'
+
+L['lock_statue_note'] = 'Déplacez cette statue jusqu\'à une plate-forme.'
+L['lock_platform_note'] = 'Déplacez des statues jusqu\'à cette plate-forme.'
+
+L['platform_1_label'] = 'Plateforme 1'
+L['platform_2_label'] = 'Plateforme 2'
+L['platform_3_label'] = 'Plateforme 3'
+L['platform_4_label'] = 'Plateforme 4'
+L['platform_5_label'] = 'Plateforme 5'
+L['platform_6_label'] = 'Plateforme 6'
+L['platform_7_label'] = 'Plateforme 7'
+
+L['rats_label'] = 'Rats'
+L['lock_label'] = 'Verrou %d'
+L['code_label'] = '%d sur %s'
+
+-- Orb 9
+L['orb_9_label'] = 'Orbe 9'
+
+-- Orb 10
+L['orb_10_label'] = 'Orbe 10'
+
+-- Orb 11
+L['orb_11_label'] = 'Orbe 11'
+
+-- Orb 12
+L['orb_12_label'] = 'Orbe 12'

@@ -368,6 +368,142 @@ L['7_charred_celebration_crate'] = 'Tucked at the base of the trampoline in the 
 L['8_mildewed_celebration_crate'] = '1. Find and drink the {object:Potion of Truth} behind {npc:34295} on top of {location:Thunder Peak} in {location:Ashenvale}.\n\n2. Loot the {object:Mildewed Celebration Crate} in {location:Dire Maul} in {location:Feralas}.\n\n{note:The {spell:463368} only lasts 30 minutes. You must manually fly to {location:Feralas}. Changing continents, taking portals, or using your {item:6948} will remove the buff.}'
 L['9_crystalized_celebration_crate'] = 'Inside of {location:Oshu\'gun} in {location:Nagrand}.'
 L['10_surprisingly_pristine_celebration_crate'] = '1. Collect the {item:228772} from within the cave in {location:Ahn\'Qiraj} in {location:Kalimdor}.\n\n2. Place the {item:228772} at the {object:Unmarked Grave} in {location:Stormheim} in the {location:Broken Isles}.'
+L['11_ghostly_celebration_crate'] = 'On top of the {location:Seat of the Primus} to the right of the portal.'
 
 L['water_resistant_receipt_note'] = '1. Enter the tunnel filled with {npc:47390}, turn right, and collect the {item:228768} from the {object:Water-Resistant Receipt of Sale} behind the pipe.\n\n2. Find {npc:91079} in {location:Azsuna} in the {location:Broken Isles}.'
 L['mysterious_bones_note'] = 'Collect the {item:228772} hidden behind {npc:71533} within the cave.\n\nUse a dog battle pet such as {item:136925} or {item:49912} to dig up the bones.'
+
+-------------------------------------------------------------------------------
+------------------------------- RATT'S REVENGE --------------------------------
+-------------------------------------------------------------------------------
+
+L['options_icons_ratts_revenge'] = '{achievement:40967}'
+L['options_icons_ratts_revenge_desc'] = 'Display secret locations for {achievement:40967}.'
+
+-- INERT PECULIAR KEY
+L['inert_peculiar_key_note'] = 'Hidden within the trunk of large hollow tree behind the crate.\n\n{note:Next Location:}\nIf you {bug:do not} have {item:228938} go to {location:Dornogal} in {location:Khaz Algar}.\n\nIf you |cFF00FF00do|r have the {item:228938} go to {location:Deadwind Pass} in {location:Eastern Kingdoms}.'
+
+-- PECULIAR GEM
+L['carefully_penned_note'] = 'Talk with the {npc:230042} while wearing the {title:Detective} title to receive {quest:84684}.\n\n{note:Next Location:} {location:Azj-Kahet}'
+L['unfinished_note'] = 'In a small cave in {location:Deepwalker Pass} surrounded by a ring of {npc:229596}.\n\n{note:Next Location:} {location:City of Threads}'
+L['hastily_scrawled_note'] = 'High up on the ledge overlooking the {location:City of Threads}.\n\n{note:Next Location:} {location:Hallowfall}'
+L['water_resistant_note'] = 'In the center of a hidden lake high up in the cliff between {location:Azj-Kahet} and {location:Hallowfall}.\n\n{note:Next Location:} {location:Faerin\'s Advance} in {location:Azj-Kahet}'
+L['peculiar_gem_note'] = 'Take the hidden hole entrance within the cave down to {location:Pillar-nest Vosh}.\n\n{note:The hole is hidden against the wall and requires some clever jumping.}\n\nApproach {npc:233550} and she will run away dropping the {item:228938}.\n\n{note:Next Location:}\nIf you {bug:do not} have {item:228941} go to {location:Un\'Goro Crater} in {location:Kalimdor}.\n\nIf you |cFF00FF00do|r have the {item:228941} go to {location:Deadwind Pass} in {location:Eastern Kingdoms}.'
+
+-- KARAZHAN CATACOMBS
+L['karazhan_catacombs_label'] = 'Karazhan Catacombs'
+L['karazhan_catacombs_entrance_note'] = 'Collect the {item:44124} starting in {location:Un\'Goro Crater} in {location:Kalimdor}\n\nCollect the {item:228938} starting in {location:Dornogal} in {location:Khaz Algar}\n\nCombine the gem and the key to form the {item:44124}.\n\nWith the {item:44124} in your bag and the {item:208092} active approach the gate to reveal a red instance entrance.'
+
+-- ORB 1
+L['orb_1_label'] = 'Orb 1'
+L['orb_1_note'] = 'Use the {item:208092} at each location involving {npc:228249} and gain 1 of 3 stacks of {spell:153715}.'
+L['orb_1_locations'] = '1. {location:Northern Barrens} in {location:Kalimdor}\n2. {location:Nagrand} in {location:Draenor}\n3. {location:Maldraxxus} in {location:The Shadowlands}'
+L['humble_monument'] = 'Humble Monument'
+L['olgra_location'] = '{note:Location changes based on the completion of {quest:35170}.}'
+
+-- ORB 2
+L['orb_2_label'] = 'Orb 2'
+L['orb_2_note'] = '{note:You must be in the {location:Battle for Azeroth} phase of {location:Vale of Eternal Blossoms}.}\n\nStand next to the {npc:153297} using one of the following gifts of {npc:147393}:\n\n{item:168123}\n{item:175140}\n{item:168004}\n\nSummon {item:49912} and using one of the following costumes:\n\n{item:229413}\n{item:116812}\n\nType {emote:/pray} and wait to receive the {item:53156}.\n\n{note:Other players around completing the above steps you can also obtain {item:53156}.}\n\nReturn to the {location:Karazhan Catacombs} and use the key to open both doors in the room with the fountain.'
+
+-- ORB 3
+L['orb_3_label'] = 'Orb 3'
+
+L['astral_soup_label'] = 'Astral Soup'
+L['astral_chest_label'] = 'Astral Chest'
+L['astral_rewards_note'] = 'Go fishing in the {object:Astral Soup} to receive the {item:228965}.\n\nUse the {item:228965} to open the {object:Astral Chest} and recieve the {item:228966}.\n\nYou may now collect {item:228967} from machines around {location:Karazhan Catacombs}.'
+
+L['decryption_machine_label'] = 'Decryption Machine'
+L['decryption_console_label'] = 'Decryption Console'
+L['rubensteins_console'] = 'Rubenstein\'s Console'
+
+L['code_machine_note_1'] = 'Enter the code and open the {object:Property of Elder Ko\'nani} to recieve a {item:228967}.\n\n{object:Code}: 88224646'
+L['code_machine_note_2'] = 'Enter the code and open the {object:Encrypted Chest} to recieve a {item:228967}.\n\n{object:Code}: 10638'
+L['code_machine_note_3'] = 'Enter the code and open the {object:Encrypted Chest} to recieve a {item:228967}.\n\n{object:Code}: 5661'
+L['code_machine_note_4'] = 'Enter the code and open {object:Rubenstein\'s Safe} to recieve a {item:228967}.\n\n{object:Code}: 52233'
+L['code_machine_note_5'] = 'Enter the code and open the {object:Encrypted Chest} to recieve a {item:228967}.\n\n{object:Code}: 51567'
+L['code_machine_note_6'] = 'Enter the code and open the {object:Encrypted Chest} to recieve a {item:228967}.\n\n{object:Code}: 115'
+L['code_machine_note_7'] = 'Enter the code and open the {object:Encrypted Puzzle Box} to recieve a {item:228967}.\n\n{object:Code}: 17112317'
+L['code_machine_note_8'] = 'Enter the code and open the {object:Encrypted Chest} to recieve a {item:228967}.\n\n{object:Code}: 19019'
+
+L['slot_machine_label'] = '"Feeling Lucky?" Slot Machine'
+L['slot_machine_note_a'] = 'Collect five of the lucky items then enter the code:\n\n'
+L['slot_machine_note_b'] = '{npc:2795} in {location:Stormwind}:\n'
+L['slot_machine_note_c'] = '{npc:219197} in {location:Dornogal}:\n'
+L['slot_machine_note_d'] = '{npc:186650} in {location:Ohn\'ahran Plains}\n'
+L['slot_machine_note_e'] = '{object:Code}: 777, 77777 or 7777777'
+L['slot_machine_vendor_note'] = 'Purchase these items for the {object:"Feeling Lucky?" Slot Machine}.'
+
+-- ORB 4
+L['orb_4_label'] = 'Orb 4'
+L['vashti_note'] = 'Purchase {item:228987} from {npc:91079} for %s.'
+L['uthers_tomb_label'] = 'Uther\'s Tomb'
+L['uthers_tomb_note'] = 'Summon a {npc:231482} to {location:Uther\'s Tomb} in the {location:Western Plaguelands}.\n\nUse a {item:228987} sold by {npc:91079} in {location:Azsuna} or have a Warlock use {spell:342601}.\n\nOnce you die and resurrect, read the hidden graffiti.\n\n{note:The graffiti will remain as long as the {npc:231482} stays alive, so do not kill it!}'
+
+-- ORB 5
+L['orb_5_label'] = 'Orb 5'
+L['jeremy_feasel_note'] = '{npc:232048} is hidden in the {location:Cavern of Lost Spirits} in the {location:Timeless Isle}.\n\nDefeat {npc:232048} in a pet battle using only battle pets from past secrets.%s\n\nOnce you win, complete {quest:84781} to receive the {item:228995}.\n\nYou can now visit the {npc:230310} in {location:Booty Bay}.'
+L['zarhym_note'] = 'Speak with {npc:71876} within the cave to enter the spirit realm.'
+L['pointless_treasure_salesman_location'] = 'Hidden within the goblin statue at {location:Janeiro\'s Point}.'
+L['pointless_treasure_salesman_note'] = 'Purchase the {item:228996}:'
+
+-- ORB 6
+L['orb_6_label'] = 'Orb 6'
+L['blood_altar_label'] = 'Blood Altar'
+L['corrupt_altar_label'] = 'Corrupt Altar'
+L['lust_altar_label'] = 'Lust Altar'
+L['sin_altar_label'] = 'Sin Altar'
+L['void_altar_label'] = 'Void Altar'
+
+L['altar_note'] = 'Use the {item:208092} to summon the spirit. Equip certain mounts, pets, toys or transmogs to appease it:'
+L['blood_altar_note'] = '{object:%s}: Any mount with "Blood" in the name.\n\n{object:%s}: Any pet with "Blood" in the name.\n\n{object:%s}: {item:127709}'
+L['corrupt_altar_note'] = '{object:%s}: Any mount with "Corrupt" in the name.\n\n{object:%s}: Any pet with "Corrupt" in the name.\n\n{object:%s}: {item:116067}\n\n{object:%s}: Any cloak with the same appearance as {item:86316}'
+L['lust_altar_note'] = '{object:%s}: {pet:1628}\n\n{object:%s}: {item:129211}\n\n{object:%s}: Completely naked or under the effects of {item:119092}'
+L['sin_altar_note'] = '{object:%s}: {pet:2966}\n\n{object:%s}: {item:183986}\n\n{object:%s}: Any Venthyr Sinstone cloak transmog'
+L['void_altar_note'] = '{object:%s}: {pet:1234}, {pet:2434}, or {pet:4543}\n\n{object:%s}: {item:119003} and {item:174830}\n\n{object:%s}: Any cloak with the same appearance as {item:24252}'
+
+L['chest_of_acquisitions_label'] = 'Chest of Acquisitions'
+L['chest_of_acquisitions_note'] = '1. Appease all the spirits at the altars in {location:Zul\'Gurub} in {location:Northern Stranglethorn}.\n\n2. Equip the {item:228966} and loot the {object:Chest of Acquisitions} to receive the {item:229007}.'
+
+-- Orb 7
+L['orb_7_label'] = 'Orb 7'
+L['orb_7_summary'] = '1. Begin at on the {location:Isle of the Watchers} in {location:Azsuna}.\n\n2. Empower your {pet:1716} with the various {object:Owl of the Watchers} statues around the island.\n\n3. Enter the {location:Vault of the Wardens} and defeat the bosses to reveal a secret {item:229046}.\n\n4. Use the {item:229046} to begin a challenging logic puzzle and ultimately reveal a chest containing the {item:229054}.'
+
+L['marin_bladewing_note'] = 'Purchase the {pet:1716} from {npc:107379} for %s after reaching %s with {faction:1894} or from the {location:Auction House}.'
+L['owl_of_the_watchers_label'] = 'Owl of the Watchers'
+L['owl_of_the_watchers_note'] = '{note:Only 3 statues are active at one time.}\n\nStand near an active statue with your {pet:1716} summoned to collect all 4 buffs:\n\n{spell:225049} {dot:Red}\n{spell:225038} {dot:Purple}\n{spell:223160} {dot:Green}\n{spell:225059} {dot:Blue}\n\nOnce your {pet:1716} is empowered,\n\n{note:{pet:1716} is followed by white smoke}\n\nEnter the {location:Vault of the Wardens} dungeon.'
+
+L['sentry_statue_note'] = '1. Defeat {npc:95885} to open the secret room within the {location:Chamber of Night}.\n\n2. Defeat the remaining bosses including {npc:95888}.\n\n3. Bring the {spell:204481} back to the secret room along with your {pet:1716} to spawn the {item:229046}.\n\n4. Bring the {item:229046} to {npc:95887} room.'
+L['sentry_note'] = '1. Place the {item:229046} here at the entrance to spawn a {npc:109300}.\n\n2. Interact with the {npc:109300} to begin the puzzle. The goal is to lower all {npc:98082} into the floor.\n\n3. Once complete, loot the {object:Treasure of the Wardens} to recieve the {item:229054}.'
+
+-- Orb 8
+L['orb_8_label'] = 'Orb 8'
+
+L['enigma_machine_label'] = 'Enigma Machine'
+L['enigma_machine_note'] = '1. Insert the {item:229007} and {item:229054} into the {object:Enigma Machine}.\n\n2. Click Begin and then click Submit. You must now unlock 7 hidden locks.\n\n3. Unlock a lock by counting each {npc:230596} in the instance, dragging the correct amount of statues to the correct platform, and clicking Submit again.\n\n{note:It is recommended to kill, but not count, each {npc:230599} to prevent them from standing on the platforms.}'
+
+L['lock_statue_note'] = 'Drag this statue to a platform.'
+L['lock_platform_note'] = 'Drag statues to this platform.'
+
+L['platform_1_label'] = 'Platform 1'
+L['platform_2_label'] = 'Platform 2'
+L['platform_3_label'] = 'Platform 3'
+L['platform_4_label'] = 'Platform 4'
+L['platform_5_label'] = 'Platform 5'
+L['platform_6_label'] = 'Platform 6'
+L['platform_7_label'] = 'Platform 7'
+
+L['rats_label'] = 'Rats'
+L['lock_label'] = 'Lock %d'
+L['code_label'] = '%d on %s'
+
+-- Orb 9
+L['orb_9_label'] = 'Orb 9'
+
+-- Orb 10
+L['orb_10_label'] = 'Orb 10'
+
+-- Orb 11
+L['orb_11_label'] = 'Orb 11'
+
+-- Orb 12
+L['orb_12_label'] = 'Orb 12'
