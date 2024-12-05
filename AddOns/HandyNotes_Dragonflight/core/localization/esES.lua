@@ -49,6 +49,7 @@ L['zone_drops_label'] = 'Zonas de caídas'
 L['zone_drops_note'] = 'Los objetos listados debajo los pueden soltar varios enemigos en esta zona.'
 
 L['poi_entrance_label'] = 'Entrada'
+L['change_map'] = 'Cambiar mapa'
 
 L['requires'] = 'Requiere'
 L['ranked_research'] = '%s (Rango %d/%d)'
@@ -103,6 +104,7 @@ L['toy'] = 'Juguete'
 L['currency'] = 'Moneda'
 L['rep'] = 'Reputación'
 L['buff'] = 'Buff'
+L['transmog'] = 'Transfiguración'
 
 ---------------------------------- FOLLOWERS ----------------------------------
 L['follower_type_follower'] = 'Seguidor'
