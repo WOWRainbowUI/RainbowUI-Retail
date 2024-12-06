@@ -1495,11 +1495,12 @@ local function updateBarTypePosition()
 	main.ombIcon:SetEnabled(main.bConfig.barTypePosition == 2)
 	main.ombIconCustom:SetEnabled(main.bConfig.barTypePosition == 2)
 	main.ombShowToCombobox:SetEnabled(main.bConfig.barTypePosition == 2)
-	main.ombSize:setEnabled(main.bConfig.barTypePosition == 2)
+	main.ombSize:setEnabled(main.bConfig.barTypePosition == 2 and not main.bConfig.omb.canGrabbed)
 	main.distanceFromButtonToBar:setEnabled(main.bConfig.barTypePosition == 2)
 	main.ombBarDisplacement:setEnabled(main.bConfig.barTypePosition == 2)
 	main.canGrabbed:SetEnabled(main.bConfig.barTypePosition == 2)
 	main.buttonHide:SetEnabled(main.bConfig.barTypePosition == 2 and not main.bConfig.omb.canGrabbed)
+	main.ombFade:setEnabled(main.bConfig.barTypePosition == 2 and not main.bConfig.omb.canGrabbed)
 end
 
 -- BAR ATTACHED TO THE SIDE
@@ -1774,7 +1775,10 @@ main.canGrabbed.tooltipText = L["If a suitable bar exists then the button will b
 main.canGrabbed:SetScript("OnClick", function(btn)
 	local checked = btn:GetChecked()
 	PlaySound(checked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
+	main.ombSize:setEnabled(not checked)
 	main.buttonHide:SetEnabled(not checked)
+	main.ombFade:setEnabled(not checked)
+
 	local omb = main.barFrame.omb
 	main.bConfig.omb.canGrabbed = checked
 	if checked then
@@ -1806,6 +1810,19 @@ main.buttonHide:SetScript("OnClick", function(btn)
 	PlaySound(checked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
 	main.bConfig.ombHide = checked
 	main.barFrame:setBarTypePosition()
+end)
+
+
+-- THE BUTTON FADE
+main.ombFade = CreateFrame("FRAME", nil, main.positionBarPanel, "HidingBarAddonSliderFrameTemplate")
+main.ombFade:SetPoint("LEFT", main.buttonHide.Text, "RIGHT", 20, 5)
+main.ombFade:SetPoint("RIGHT", -10, 0)
+main.ombFade:setMinMax(0, 1)
+main.ombFade:setStep(.05)
+main.ombFade:setText(L["Opacity"])
+main.ombFade:setMaxLetters(4)
+main.ombFade:setOnChanged(function(frame, value)
+	main.barFrame:setOMBFade(value)
 end)
 
 
@@ -2280,6 +2297,7 @@ function main:setBar(bar)
 		self.ombBarDisplacement:setValue(self.bConfig.omb.barDisplacement)
 		self.canGrabbed:SetChecked(self.bConfig.omb.canGrabbed)
 		self.buttonHide:SetChecked(self.bConfig.ombHide)
+		self.ombFade:setValue(self.bConfig.omb.fadeOpacity)
 
 		updateBarTypePosition()
 	end

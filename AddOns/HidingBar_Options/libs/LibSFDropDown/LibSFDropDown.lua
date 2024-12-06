@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 10
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 11
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -16,7 +16,7 @@ if oldminor < 1 then
 	lib._v = {
 		-- DROPDOWNBUTTON = nil,
 		defaultStyle = "backdrop",
-		menuStyle = "menuBackdrop",
+		menuStyle = "modernMenu",
 		menuStyles = {},
 		widgetFrames = {},
 		colorSwatchFrames = {},
@@ -155,23 +155,16 @@ end
 menuStyles.menuBackdrop = function(parent)
 	return CreateFrame("FRAME", nil, parent, "TooltipBackdropTemplate")
 end
-
-if oldminor < 9 then
-	if C_Texture.GetAtlasInfo("common-dropdown-bg") then
-		menuStyles.modernMenu = function(parent)
-			local f = CreateFrame("FRAME", nil, parent)
-			f.bg = f:CreateTexture(nil, "BACKGROUND")
-			f.bg:SetAtlas("common-dropdown-bg")
-			f.bg:SetPoint("TOPLEFT", -5, 2)
-			f.bg:SetPoint("BOTTOMRIGHT", 5, -8)
-			f.bg:SetAlpha(.925)
-			return f
-		end
-		if lib._v.menuStyle == "menuBackdrop" then
-			lib._v.menuStyle = "modernMenu"
-		end
-	end
+menuStyles.modernMenu = function(parent)
+	local f = CreateFrame("FRAME", nil, parent)
+	f.bg = f:CreateTexture(nil, "BACKGROUND")
+	f.bg:SetAtlas("common-dropdown-bg")
+	f.bg:SetPoint("TOPLEFT", -5, 2)
+	f.bg:SetPoint("BOTTOMRIGHT", 5, -8)
+	f.bg:SetAlpha(.925)
+	return f
 end
+
 
 function v.createMenuStyle(menu, name, frameFunc)
 	local f = frameFunc(menu)
@@ -906,8 +899,7 @@ local function DropDownMenuSearchButtonInit(btn, info)
 			btn.UnCheck:SetAtlas("common-dropdown-tickradial", true)
 		end
 
-		local checked = btn._checked and btn._checked ~= 2
-		btn.Check:SetShown(checked)
+		btn.Check:SetShown(btn._checked and btn._checked ~= 2)
 		btn.UnCheck:Show()
 		btn.GroupCheck:SetShown(btn._checked == 2)
 	end
@@ -1502,8 +1494,7 @@ do
 			elseif self.ddAutoSetText and btn.checked == nil and not btn.isNotRadio then
 				btn._checked = btn.value == self:ddGetSelectedValue()
 			end
-			local checked = btn._checked and btn._checked ~= 2
-			btn.Check:SetShown(checked)
+			btn.Check:SetShown(btn._checked and btn._checked ~= 2)
 			btn.UnCheck:Show()
 			btn.GroupCheck:SetShown(btn._checked == 2)
 
@@ -1730,8 +1721,7 @@ function DropDownButtonMixin:ddAddButton(info, level)
 			btn.UnCheck:SetAtlas("common-dropdown-tickradial", true)
 		end
 
-		local checked = btn._checked and btn._checked ~= 2
-		btn.Check:SetShown(checked)
+		btn.Check:SetShown(btn._checked and btn._checked ~= 2)
 		btn.UnCheck:Show()
 		btn.GroupCheck:SetShown(btn._checked == 2)
 	end
@@ -2065,6 +2055,8 @@ end
 ---------------------------------------------------
 -- UPDATE OLD VERSION
 ---------------------------------------------------
+if oldminor == 0 then return end
+
 if oldminor < 4 then
 	for i = 1, #v.dropDownMenusList do
 		local menu = v.dropDownMenusList[i]
@@ -2140,6 +2132,10 @@ end
 
 
 if oldminor < 9 then
+	if lib._v.menuStyle == "menuBackdrop" then
+		lib._v.menuStyle = "modernMenu"
+	end
+
 	for i = 1, #v.dropDownMenusList do
 		local menu = v.dropDownMenusList[i]
 		if not menu:IsShown() then
