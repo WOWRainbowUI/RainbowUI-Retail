@@ -143,7 +143,9 @@ function addonTable.CategoryViews.BagLayoutMixin:SettingChanged(settingName)
     self.ItemsPreparation:ResetCaches()
     self.CategoryFilter:ResetCaches()
   end
-  self.composed = nil
+  if settingName ~= addonTable.Config.Options.CATEGORY_SECTION_TOGGLED then
+    self.composed = nil
+  end
 end
 
 -- Called in response to the ContentRefreshRequired event triggered when items
@@ -248,12 +250,10 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
         end
       end
       details.results = entries
-      details.any = #entries > 0 and not hidden[details.source] -- used to determine showing section headers
       if hidden[details.source] or sectionToggled[details.section] then
         for _, entry in ipairs(details.results) do
           table.insert(self.notShown, entry)
         end
-        details.results = {}
       end
     end
   end
@@ -316,7 +316,11 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
       if details.results and #details.results > 0 then
         local layout = FindValueInTableIf(container.LiveLayouts, function(a) return a.sourceKey == details.sourceKey end)
         if layout then
-          layout:DeallocateUnusedButtons(details.results)
+          if hidden[details.source] or sectionToggled[details.section] then
+            layout:DeallocateUnusedButtons({})
+          else
+            layout:DeallocateUnusedButtons(details.results)
+          end
         end
       end
     end
@@ -360,7 +364,7 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
           local d = composed.details[i]
           if d.section ~= details.label then
             break
-          elseif d.type == "category" and d.any then
+          elseif d.type == "category" and #d.results > 0 and not hidden[d.source] then
             any = true
             break
           end
@@ -386,7 +390,7 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
         table.insert(layoutsShown, {}) -- {} causes the packing code to ignore this
       end
     elseif details.type == "category" then
-      if #details.results > 0 then
+      if #details.results > 0 and not hidden[details.source] and not sectionToggled[details.section] then
         local searchResults = details.results
         local layout = FindValueInTableIf(activeLayouts, function(a) return a.sourceKey == details.sourceKey end)
         if not layout then
