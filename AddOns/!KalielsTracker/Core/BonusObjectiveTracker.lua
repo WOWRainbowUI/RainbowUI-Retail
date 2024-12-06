@@ -674,6 +674,7 @@ function KT_BonusObjectiveBlockMixin:TryShowRewardsTooltip()
 	end
 
 	GameTooltip:Show();
+	EventRegistry:TriggerEvent("BonusObjectiveBlock.QuestRewardTooltipShown", self, self.id, true);
 	self.hasRewardsTooltip = true;
 end
 KT.BackupMixin("KT_BonusObjectiveBlockMixin", "TryShowRewardsTooltip")  -- MSA
@@ -711,6 +712,7 @@ function KT_ObjectiveTrackerTopBannerMixin:DisplayForQuest(questID, module)
 	self.questID = questID;
 	self.module = module;
 	self.questTitle = questTitle;
+	self.showWorldQuests = module.showWorldQuests;
 	TopBannerManager_Show(KT_ObjectiveTrackerTopBannerFrame);
 	return true;
 end

@@ -4,8 +4,10 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
-local addonName, KT = ...
-local M = KT:NewModule(addonName.."_AddonPetTracker")
+---@type KT
+local _, KT = ...
+
+local M = KT:NewModule("AddonPetTracker")
 KT.AddonPetTracker = M
 
 local LSM = LibStub("LibSharedMedia-3.0")

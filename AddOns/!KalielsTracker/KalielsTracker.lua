@@ -5,7 +5,9 @@
 --- This file is part of addon Kaliel's Tracker.
 
 local addonName, addon = ...
-local KT = LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "LibSink-2.0", "MSA-Event-1.0", "MSA-ProtRouter-1.0", "MSA-EditMode-1.0")
+
+---@class KT
+local KT = LibStub("MSA-AceAddon-3.0"):NewAddon(addon, addonName, "LibSink-2.0", "MSA-Event-1.0", "MSA-ProtRouter-1.0", "MSA-EditMode-1.0")
 KT:SetDefaultModuleState(false)
 KT.title = C_AddOns.GetAddOnMetadata(addonName, "Title")
 KT.version = C_AddOns.GetAddOnMetadata(addonName, "Version")
@@ -187,18 +189,12 @@ local function SetMsgPatterns()
 	end
 end
 
-local function ToggleHiddenTracker()
-	KT.hidden = not KT.hidden
-	KT.locked = KT.hidden
-	OTF:SetCollapsed(KT.hidden)
-end
-
 local function SlashHandler(msg)
 	local cmd = msg:match("^(%S*)%s*(.-)$")
 	if cmd == "config" then
 		KT:OpenOptions()
 	elseif cmd == "hide" then
-		ToggleHiddenTracker()
+		KT.ToggleTracker()
 	else
 		KT:MinimizeButton_OnClick()
 	end
@@ -528,7 +524,7 @@ local function SetFrames()
 	KT_ScenarioObjectiveTracker.lineSpacing = 4
 	KT_ScenarioObjectiveTracker.ObjectivesBlock.offsetX = 40
 	KT_ScenarioObjectiveTracker.ObjectivesBlock.HeaderButton:EnableMouse(false)
-	KT_ScenarioObjectiveTracker.StageBlock.offsetX = 24
+	KT_ScenarioObjectiveTracker.StageBlock.offsetX = 22
 	KT_ScenarioObjectiveTracker.ProvingGroundsBlock.offsetX = 27
 	KT_ScenarioObjectiveTracker.MawBuffsBlock.offsetX = 0
 	KT_ScenarioObjectiveTracker.TopWidgetContainerBlock.offsetX = 28
@@ -1593,10 +1589,10 @@ local function SetHooks()
 			self.KTtooltipOffsetYmod = 0
 		elseif widgetSetID == 842 then
 			self.offsetX = 17
-			self.KTtooltipOffsetXmod = -7
-			self.KTtooltipOffsetYmod = 3
+			self.KTtooltipOffsetXmod = -5
+			self.KTtooltipOffsetYmod = 2
 		else
-			self.offsetX = 24
+			self.offsetX = 22
 			self.KTtooltipOffsetXmod = 0
 			self.KTtooltipOffsetYmod = 0
 		end
@@ -1606,7 +1602,7 @@ local function SetHooks()
 	UIWidgetTemplateScenarioHeaderDelvesMixin.UpdateSpellFrameEffects = function() end
 
 	KT_ScenarioObjectiveTracker.StageBlock:HookScript("OnEnter", function(self)
-		TooltipPosition(self, 19, -1, -26 - self.KTtooltipOffsetXmod, -1 - self.KTtooltipOffsetYmod, true)
+		TooltipPosition(self, 19, -2 - self.KTtooltipOffsetYmod, -24 - self.KTtooltipOffsetXmod, -2 - self.KTtooltipOffsetYmod, true)
 	end)
 
 	hooksecurefunc(OTF.Header, "SetCollapsed", function(self, collapsed)
@@ -2352,6 +2348,18 @@ end
 -- External --
 --------------
 
+---ToggleTracker
+---@param show boolean|nil @show / hide / toggle
+function KT.ToggleTracker(show)
+	if show ~= nil then
+		KT.hidden = not show
+	else
+		KT.hidden = not KT.hidden
+	end
+	KT.locked = KT.hidden
+	OTF:SetCollapsed(KT.hidden)
+end
+
 function KT:Update(forced)
 	if forced then
 		self.skinID = self.skinID + 1
@@ -2966,7 +2974,7 @@ function KT:OnEnable()
 		text = self.title,
 		icon = KT.MEDIA_PATH.."KT_logo",
 		notCheckable = true,
-		func = ToggleHiddenTracker,
+		func = KT.ToggleTracker,
 	})
 
 	self:RegEvent("PLAYER_ENTERING_WORLD", function(eventID, ...)

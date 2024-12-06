@@ -4,6 +4,7 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
+---@type KT
 local addonName, KT = ...
 
 local ACD = LibStub("MSA-AceConfigDialog-3.0")
@@ -1691,7 +1692,7 @@ local options = {
 									"function SetPassThroughButtons. When the hack is inactive World Map display causes errors. "..
 									"It is not possible to get rid of these errors, since the tracker has a lot of interaction "..
 									"with the game frames.\n\n"..
-									cWarning2.."Negative impacts:|r unknown in WoW 11.0.2\n",
+									cWarning2.."Negative impacts:|r unknown in WoW 11.0.5\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",
@@ -1764,6 +1765,7 @@ function KT:SetupOptions()
 
 	options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
 	options.args.profiles.confirm = true
+	options.args.profiles.args.current.width = "double"
 	options.args.profiles.args.reset.confirmText = warning
 	options.args.profiles.args.new.confirmText = warning
 	options.args.profiles.args.choose.confirmText = warning

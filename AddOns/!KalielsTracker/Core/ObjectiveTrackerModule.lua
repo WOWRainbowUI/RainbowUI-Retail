@@ -58,6 +58,10 @@ function KT_ObjectiveTrackerModuleMixin:OnEvent(event, ...)
 	-- override in your mixin
 end
 
+function KT_ObjectiveTrackerModuleMixin:OnHide()
+	self:EndSlide();
+end
+
 function KT_ObjectiveTrackerModuleMixin:SetContainer(container)
 	self.parentContainer = container;
 	self:SetParent(container);
@@ -122,7 +126,9 @@ end
 
 -- returns heightUsed, isTruncated
 function KT_ObjectiveTrackerModuleMixin:Update(availableHeight, dirtyUpdate)
-	if not self:CanUpdate() then
+	-- If the parent container is collapsed, the update must run, otherwise funky things can happen.
+	-- Specifically, if the scenario module is sliding, it will not disappear when its container is collapsed until the slide is over.
+	if not self:CanUpdate() and not self.parentContainer:IsCollapsed() then
 		return self:GetContentsHeight(), self:IsTruncated();
 	end
 
@@ -450,6 +456,8 @@ function KT_ObjectiveTrackerModuleMixin:SetCollapsed(collapsed)
 	self.ContentsFrame:SetShown(not collapsed);
 	-- update the header
 	self.Header:SetCollapsed(collapsed);
+	-- cancel any slide
+	self:EndSlide();
 	-- update contents
 	self:MarkDirty();
 end

@@ -4,8 +4,10 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
+---@type KT
 local addonName, KT = ...
-local M = KT:NewModule(addonName.."_Filters")
+
+local M = KT:NewModule("Filters")
 KT.Filters = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
