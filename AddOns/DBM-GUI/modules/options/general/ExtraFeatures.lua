@@ -26,3 +26,4 @@ inviteArea:CreateCheckButton(L.AutoAcceptGuildInvite, true, nil, "AutoAcceptGuil
 
 local advancedArea	= extraFeaturesPanel:CreateArea(L.Area_Advanced)
 advancedArea:CreateCheckButton(L.FakeBW, true, nil, "FakeBWVersion")
+advancedArea:CreateCheckButton(L.AITimer, true, nil, "AITimer")
