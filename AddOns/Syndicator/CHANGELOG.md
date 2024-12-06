@@ -1,7 +1,6 @@
 # Syndicator
 
-## [139](https://github.com/Baganator/Syndicator/tree/139) (2024-11-29)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/138...139) 
+## [140](https://github.com/Baganator/Syndicator/tree/140) (2024-12-05)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/139...140) 
 
-- Split WuE and just Warbound tooltip constants properly  
-- Retail: Ignore undiscovered currencies when caching currency data for character  
+-  Add missing ptBR to Locales.lua  
