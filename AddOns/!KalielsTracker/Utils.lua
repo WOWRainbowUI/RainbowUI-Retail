@@ -4,7 +4,9 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
+---@type KT
 local addonName, KT = ...
+
 KT.title = C_AddOns.GetAddOnMetadata(addonName, "Title")
 
 -- Lua API

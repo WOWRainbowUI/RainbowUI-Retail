@@ -1,11 +1,13 @@
 # Kaliel's Tracker changelog
-### 7.5.0
-- ADDED - support for WoW 11.0.2.56513
-- ADDED - addon support - Auctionator 11.0.11 (search button inside the Profession module header)
-- ADDED - Edit Mode - new positioning system inside Options (with drag and drop and scaling)
-- CHANGED - Masque - initialization
-- CHANGED (filter) - minor improvements
-- CHANGED (quests) - improvement of zone filtering (instance quests)
-- FIXED - bug during init phase with more addons
-- PERFORMANCE (quests) - optimization of sorting code
-- PERFORMANCE (quests) - improve detect of data for reward information in the tooltip
+### 7.6.0
+- ADDED - support for WoW 11.0.5.57689
+- ADDED - public API - for show / hide / toggle the tracker ... KalielsTracker:Toggle(true|false|nil)
+- CHANGED (help) - Active Patrons
+- CHANGED - addon support - Auctionator 11.0.18
+- CHANGED - addon support - ElvUI 13.81, Tukui 20.456
+- CHANGED - addon support - Masque 11.0.2
+- CHANGED - addon support - TomTom 4.0.6
+- CHANGED - TomTom - show waypoint info for WQ in another zone
+- CHANGED - Edit Mode - improve positioning of Active Button
+- REMOVED - Hack - Encounter Journal
+- REMOVED - Hack - Edit Mode

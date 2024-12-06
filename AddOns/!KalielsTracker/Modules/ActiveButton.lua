@@ -4,8 +4,10 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
+---@type KT
 local addonName, KT = ...
-local M = KT:NewModule(addonName.."_ActiveButton")
+
+local M = KT:NewModule("ActiveButton")
 KT.ActiveButton = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
@@ -64,6 +66,24 @@ local function ActiveFrame_SetPosition()
 	local point, relativeTo, relativePoint, xOfs, yOfs = "BOTTOM", UIParent, "BOTTOM", 0, 285
 	if db.qiActiveButtonPosition then
 		point, relativeTo, relativePoint, xOfs, yOfs = unpack(db.qiActiveButtonPosition)
+		if point ~= "CENTER" then
+			if point ~= "TOP" and point ~= "BOTTOM" then
+				local xOfsMod = activeFrame:GetWidth() / 2
+				if point == "TOPLEFT" or point == "BOTTOMLEFT" or point == "LEFT" then
+					xOfs = max(xOfs, -1 * xOfsMod)
+				else
+					xOfs = min(xOfs, xOfsMod)
+				end
+			end
+			if point ~= "LEFT" and point ~= "RIGHT" then
+				local yOfsMod = activeFrame:GetHeight() / 2
+				if point == "TOPLEFT" or point == "TOPRIGHT" or point == "TOP" then
+					yOfs = min(yOfs, yOfsMod)
+				else
+					yOfs = max(yOfs, -1 * yOfsMod)
+				end
+			end
+		end
 	else
 		if isBartender then
 			yOfs = yOfs - 40
@@ -132,7 +152,6 @@ local function SetFrames()
 	if not KTF.ActiveFrame then
 		activeFrame = CreateFrame("Frame", nil, UIParent)
 		activeFrame:SetSize(256, 120)
-		activeFrame:SetClampedToScreen(true)
 		activeFrame:Hide()
 		KTF.ActiveFrame = activeFrame
 	else

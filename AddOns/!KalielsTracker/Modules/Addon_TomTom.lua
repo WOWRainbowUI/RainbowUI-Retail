@@ -4,8 +4,10 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
+---@type KT
 local addonName, KT = ...
-local M = KT:NewModule(addonName.."_AddonTomTom")
+
+local M = KT:NewModule("AddonTomTom")
 KT.AddonTomTom = M
 
 local ACD = LibStub("MSA-AceConfigDialog-3.0")
@@ -14,7 +16,11 @@ local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 -- Lua API
 local ipairs = ipairs
 
+-- WoW API
+local HaveQuestData = HaveQuestData
+
 local db
+local tomtomArrow
 local questWaypoint
 local superTrackedQuestID = 0
 local stopUpdate = false
@@ -89,21 +95,30 @@ local function QuestPOIGetIconInfo(questID)
 	return mapID, x, y, completed, waypointText
 end
 
-local function WorldQuestPOIGetIconInfo(mapID, questID)
-	local x, y
-	local taskInfo = GetQuestsForPlayerByMapIDCached(mapID)
-	if taskInfo then
-		for _, info  in ipairs(taskInfo) do
-			if HaveQuestData(info.questId) then
-				if info.questId == questID then
-					x = info.x
-					y = info.y
-					break
+local function WorldQuestPOIGetIconInfo(questID)
+	local x, y, waypointText
+	local mapID = C_TaskQuest.GetQuestZoneID(questID)
+	if mapID then
+		local currentMapID = KT.GetCurrentMapAreaID()
+		if mapID == currentMapID then
+			local taskInfo = GetTasksOnMapCached(mapID)
+			if taskInfo then
+				for _, info  in ipairs(taskInfo) do
+					if HaveQuestData(info.questID) then
+						if info.questID == questID then
+							x = info.x
+							y = info.y
+							break
+						end
+					end
 				end
 			end
+		else
+			waypointText = "Travel to "..KT.GetMapNameByID(mapID)
+			mapID, x, y = currentMapID, 0, 0
 		end
 	end
-	return x, y
+	return mapID, x, y, waypointText
 end
 
 local function SetWaypointTag(button, show)
@@ -133,28 +148,46 @@ local function SetWaypointTag(button, show)
 	end
 end
 
+local function TomTomArrowSetShown(show)
+	if tomtomArrow then
+		tomtomArrow.arrow:SetShown(show)
+		tomtomArrow.status:SetShown(show)
+		tomtomArrow.tta:SetShown(show)
+	else
+		C_Timer.After(0, function()
+			TomTomArrowSetShown(show)
+		end)
+	end
+end
+
 local function AddWaypoint(questID)
 	if C_QuestLog.IsQuestCalling(questID) then
 		return false
 	end
 
 	local title, mapID, x, y, completed, waypointText
+	local isWorldQuest = false
 	if QuestUtils_IsQuestWorldQuest(questID) then
 		title = C_TaskQuest.GetQuestInfoByQuestID(questID)
-		mapID = C_TaskQuest.GetQuestZoneID(questID)
-		if mapID then
-			x, y = WorldQuestPOIGetIconInfo(mapID, questID)
-		end
+		mapID, x, y, waypointText = WorldQuestPOIGetIconInfo(questID)
+		isWorldQuest = true
 	else
 		title = C_QuestLog.GetTitleForQuestID(questID)
 		mapID, x, y, completed, waypointText = QuestPOIGetIconInfo(questID)
-		if waypointText then
-			title = title.."\n("..waypointText..")"
-		end
 	end
 
 	if not mapID or not x or not y or not title then
 		return false
+	end
+
+	if waypointText then
+		title = title.."\n|cff00ff00("..waypointText..")"
+	end
+
+	if isWorldQuest and waypointText then
+		TomTomArrowSetShown(false)
+	else
+		TomTomArrowSetShown(true)
 	end
 
 	if completed then
@@ -225,6 +258,11 @@ local function SetHooks()
 		if superTrackedQuestID > 0 then
 			RemoveWaypoint(superTrackedQuestID)
 		end
+	end)
+
+	TomTom:HijackCrazyArrow(function(self)
+		tomtomArrow = self
+		TomTom:ReleaseCrazyArrow()
 	end)
 
 	-- Blizzard
@@ -337,6 +375,15 @@ local function SetEvents()
 		local questID = C_SuperTrack.GetSuperTrackedQuestID()
 		if questID then
 			SetSuperTrackedQuestWaypoint(questID, true)
+			OTF:Update()
+		end
+	end)
+
+	-- Updates waypint while change zone
+	KT:RegEvent("ZONE_CHANGED_NEW_AREA", function()
+		local questID = C_SuperTrack.GetSuperTrackedQuestID()
+		if questID then
+			SetSuperTrackedQuestWaypoint(questID, true)
 		end
 	end)
 
@@ -359,7 +406,7 @@ end
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
-	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.0.3-release") and db.addonTomTom)
+	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.0.6-release") and db.addonTomTom)
 
 	if self.isLoaded then
 		KT:Alert_IncompatibleAddon("TomTom", "v4.0.1-release")

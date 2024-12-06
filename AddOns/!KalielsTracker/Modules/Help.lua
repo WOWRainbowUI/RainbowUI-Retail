@@ -4,8 +4,10 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
-local addonName, KT = ...
-local M = KT:NewModule(addonName.."_Help")
+---@type KT
+local _, KT = ...
+
+local M = KT:NewModule("Help")
 KT.Help = M
 
 local T = LibStub("MSA-Tutorials-1.0")
@@ -36,7 +38,7 @@ local KTF = KT.frame
 local function AddonInfo(name)
 	local info = "\n插件 "..name
 	if C_AddOns.IsAddOnLoaded(name) then
-		info = info.." |cff00ff00is installed|r. Support you can enable/disable in Options."
+		info = info.." |cff00ff00已安裝|r，可以在設定選項中啟用/停用支援性。"
 	else
 		info = info.." |cffff0000未安裝|r。"
 	end
@@ -252,7 +254,7 @@ local function SetupTutorials()
 					"這個駭客工具移除了對受限函數 SetPassThroughButtons 的呼叫。"..
 					"停用駭客工具時，世界地圖顯示會導致錯誤。"..
 					"由於任務追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-					cWarning2.."負面影響:|r 在魔獸世界 11.0.2 尚未可知。",
+					cWarning2.."負面影響:|r 在魔獸世界 11.0.5 尚未可知。",
 			textY = -20,
 		},
 		{	-- 12
@@ -265,16 +267,18 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."版本 7.5.0|r\n"..
-					"- 新增 - 支援魔獸世界 11.0.2.56513\n"..
-					"- 新增 - 支援插件 - Auctionator 11.0.11 (在專業模組標題列裡面顯示搜尋按鈕)\n"..
-					"- 新增 - 編輯模式 - 設定選項中新的的調整位置系統 (提供拖曳移動和縮放)\n"..
-					"- 變更 - Masque - 初始化\n"..
-					"- 變更 (過濾方式) - 次要增強\n"..
-					"- 變更 (任務) - 增強區域過濾方式 (副本任務)\n"..
-					"- 修正 - 更多插件初始化階段的錯誤\n"..
-					"- 效能 (任務) - 最佳化排序程式碼\n"..
-					"- 效能 (任務) - 改進偵測浮動提示中獎勵資訊的資料\n"..
+					cTitle.."版本 7.6.0|r\n"..
+					"- 新增 - 支援魔獸世界 11.0.5.57689\n"..
+					"- 新增 - 公開 API - 用來顯示/隱藏/切換任務追蹤清單 ... KalielsTracker:Toggle(true|false||nil)\n"..
+					"- 變更 (說明) - Active Patrons\n"..
+					"- 變更 - 支援插件 - Auctionator 11.0.18\n"..
+					"- 變更 - 支援插件 - ElvUI 13.81, Tukui 20.456\n"..
+					"- 變更 - 支援插件 - Masque 11.0.2\n"..
+					"- 變更 - 支援插件 - TomTom 4.0.6\n"..
+					"- 變更 - TomTom - 顯示另一各區域的世界任務導航資訊\n"..
+					"- 變更 - 編輯模式 - 改善當前任務物品按鈕的定位\n"..
+					"- 移除 - 駭客工具 - 冒險指南\n"..
+					"- 移除 - 駭客工具 - 編輯模式\n"..
 					"\n"..
 
 					cTitle.."回報問題|r\n"..
@@ -352,14 +356,13 @@ local function SetupTutorials()
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
 					SetFormatedPatronName("Rare", "A")..
 					SetFormatedPatronName("Uncommon", "Anaara", "Auchindoun")..
-					SetFormatedPatronName("Uncommon", "Calvin Jones")..
 					SetFormatedPatronName("Uncommon", "Charles Howarth")..
 					SetFormatedPatronName("Uncommon", "Flex (drantor)")..
 					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
-					SetFormatedPatronName("Uncommon", "Jeffrey Hofer")..
 					SetFormatedPatronName("Uncommon", "Mystekal")..
 					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
 					SetFormatedPatronName("Uncommon", "Sopleb")..
+					SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
 					SetFormatedPatronName("Common", "Darren Divecha")..
 					"\n"..
 					cTitle.."Testers|r\n"..

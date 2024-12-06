@@ -4,8 +4,10 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
+---@type KT
 local addonName, KT = ...
-local M = KT:NewModule(addonName.."_AddonOthers")
+
+local M = KT:NewModule("AddonOthers")
 KT.AddonOthers = M
 
 local MSQ = LibStub("Masque", true)
@@ -26,7 +28,7 @@ local KTwarning = "  |cff00ffff插件 "..KT.title.." 已啟用。  "
 
 -- Masque
 local function Masque_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Masque", "11.0.1") and db.addonMasque)
+    local isLoaded = (KT:CheckAddOn("Masque", "11.0.2") and db.addonMasque)
     if isLoaded then
         KT:Alert_IncompatibleAddon("Masque", "11.0.1")
         msqGroup1 = MSQ:Group(KT.title, "任務物品按鈕")
@@ -50,7 +52,7 @@ end
 
 -- Auctionator
 local function Auctionator_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Auctionator", "11.0.11") and db.addonAuctionator)
+    local isLoaded = (KT:CheckAddOn("Auctionator", "11.0.18") and db.addonAuctionator)
     if isLoaded then
         hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
             local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame
@@ -63,7 +65,7 @@ end
 
 -- ElvUI
 local function ElvUI_SetSupport()
-    if KT:CheckAddOn("ElvUI", "v13.74", true) then
+    if KT:CheckAddOn("ElvUI", "v13.81", true) then
         local E = unpack(_G.ElvUI)
         local B = E:GetModule("Blizzard")
         B.ObjectiveTracker_Setup = function() end  -- preventive
@@ -88,7 +90,7 @@ end
 
 -- Tukui
 local function Tukui_SetSupport()
-    if KT:CheckAddOn("Tukui", "v20.443", true) then
+    if KT:CheckAddOn("Tukui", "v20.456", true) then
         local T = unpack(_G.Tukui)
         T.Miscellaneous.ObjectiveTracker.Enable = function() end
     end

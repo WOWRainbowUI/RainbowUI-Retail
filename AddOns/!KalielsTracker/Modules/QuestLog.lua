@@ -4,8 +4,10 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
+---@type KT
 local addonName, KT = ...
-local M = KT:NewModule(addonName.."_QuestLog")
+
+local M = KT:NewModule("QuestLog")
 KT.QuestLog = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end

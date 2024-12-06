@@ -4,8 +4,10 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
-local addonName, KT = ...
-local M = KT:NewModule(addonName.."_Hacks")
+---@type KT
+local _, KT = ...
+
+local M = KT:NewModule("Hacks")
 KT.Hacks = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
@@ -56,7 +58,7 @@ end
 -- Affects World Map and removes taint errors. The hack removes call of restricted function SetPassThroughButtons.
 -- When the hack is inactive World Map display causes errors. It is not possible to get rid of these errors, since
 -- the tracker has a lot of interaction with the game frames.
--- Negative impacts: unknown in WoW 11.0.2
+-- Negative impacts: unknown in WoW 11.0.5
 local function Hack_WorldMap()
     if db.hackWorldMap then
         -- Blizzard_MapCanvas.lua
@@ -127,54 +129,6 @@ local function Hack_WorldMap()
             return pin;
         end
     end
-end
-
--- Edit Mode
--- Affects Edit Mode and removes errors.
--- Negative impacts: none
-local function Hack_EditMode()
-    if not ObjectiveTrackerFrame:IsInDefaultPosition() then
-        KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
-            ShowUIPanel(EditModeManagerFrame)
-            ObjectiveTrackerFrame:ResetToDefaultPosition()
-            C_Timer.After(0.1, function()
-                EditModeManagerFrame:SaveLayouts()
-                HideUIPanel(EditModeManagerFrame)
-            end)
-            KT:UnregEvent(eventID)
-        end)
-    end
-
-    GameMenuFrame:HookScript("OnShow", function(self)
-        local button
-        local frames = { self:GetChildren() }
-        for _, frame in ipairs(frames) do
-            if frame.layoutIndex and frame:GetText() == HUD_EDIT_MODE_MENU then
-                button = frame
-                break
-            end
-        end
-
-        if button and self.KTeditModeButton ~= button then
-            button:HookScript("PreClick", function(self)
-                if self:GetText() == HUD_EDIT_MODE_MENU then
-                    -- Clean DropDownList
-                    local dropdown = LFDQueueFrameTypeDropdown
-                    local parent = dropdown:GetParent()
-                    dropdown:SetParent(nil)
-                    dropdown:SetParent(parent)
-                end
-            end)
-            self.KTeditModeButton = button
-        end
-    end)
-end
-
--- EncounterJournal (from 10.1.0)
--- Affects Encounter Journal (Adventure Guide) and removes taint errors.
--- Negative impacts: unknown
-local function Hack_EncounterJournal()
-    --C_EncounterJournal.OnOpen = function() end
 end
 
 -- Open/Close tainted frames during combat
@@ -251,7 +205,5 @@ function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
     Hack_LFG()
     Hack_WorldMap()
-    --Hack_EditMode()
-    Hack_EncounterJournal()
     Hack_TaintedFrames()
 end

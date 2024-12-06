@@ -4,6 +4,7 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
+---@type KT
 local addonName, KT = ...
 
 local ACD = LibStub("MSA-AceConfigDialog-3.0")
@@ -1691,7 +1692,7 @@ local options = {
 									"這個駭客工具移除了對受限函數 SetPassThroughButtons 的呼叫。"..
 									"停用駭客工具時，世界地圖顯示會導致錯誤。"..
 									"由於追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-									cWarning2.."負面影響:|r 在魔獸世界 11.0.2 尚未可知。\n",
+									cWarning2.."負面影響:|r 在魔獸世界 11.0.5 尚未可知。\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",
@@ -1764,6 +1765,7 @@ function KT:SetupOptions()
 
 	options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
 	options.args.profiles.confirm = true
+	options.args.profiles.args.current.width = "double"
 	options.args.profiles.args.reset.confirmText = warning
 	options.args.profiles.args.new.confirmText = warning
 	options.args.profiles.args.choose.confirmText = warning
