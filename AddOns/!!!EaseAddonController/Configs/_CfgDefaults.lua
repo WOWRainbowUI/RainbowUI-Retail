@@ -2271,9 +2271,9 @@ D["SilverDragon"] = {
 };
 D["SilverPlateTweaks"] = {
 	defaultEnable = 1,
-	tags = { "ENHANCEMENT" },
+	tags = { "UNITFRAME" },
 	title = "血條距離微調",
-	desc = "自動調整血條的視野距離 (可以看見距離多遠範圍內的血條) 和堆疊時的間距。``|cffFF2D2D若要手動調整血條距離時 (從 Esc > 介面 > 插件 > 進階)，請關閉這個插件。|r`",
+	desc = "自動調整血條的視野距離 (可以看見距離多遠範圍內的血條) 和堆疊時的間距，以及一些其他的 CVar 遊戲參數。``|cffFF2D2D若要手動調整血條距離時 (從 Esc > 介面 > 插件 > 進階)，請關閉這個插件。|r`",
 	icon = "Interface\\Icons\\spell_misc_hellifrepvpcombatmorale",
 	img = true,
 };
