@@ -1175,18 +1175,21 @@ state.removeDebuff = removeDebuff
 
 local function removeDebuffStack( unit, aura, stacks )
     stacks = stacks or 1
-
     local d = state.debuff[ aura ]
+    if not d then return 0 end
 
-    if not d then return end
+    local removed = min( stacks, d.count )
 
     if d.count > stacks then
         d.lastCount = d.count
-        d.count = max( 1, d.count - stacks )
+        d.count = max( 0, d.count - stacks )
     else
         removeDebuff( unit, aura )
     end
+
+    return removed
 end
+
 state.removeDebuffStack = removeDebuffStack
 
 

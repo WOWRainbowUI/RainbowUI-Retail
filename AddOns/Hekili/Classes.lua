@@ -584,8 +584,6 @@ local HekiliSpecMixin = {
         end
     end,
 
-
-
     RegisterPotion = function( self, potion, data )
         self.potions[ potion ] = data
 
@@ -1017,16 +1015,17 @@ local HekiliSpecMixin = {
 
     RegisterPet = function( self, token, id, spell, duration, ... )
         CommitKey( token )
-
+    
+        -- Register the main pet.
         self.pets[ token ] = {
             id = type( id ) == "function" and setfenv( id, state ) or id,
             token = token,
             spell = spell,
             duration = type( duration ) == "function" and setfenv( duration, state ) or duration
         }
-
+    
+        -- Process copies.
         local n = select( "#", ... )
-
         if n and n > 0 then
             for i = 1, n do
                 local copy = select( i, ... )
@@ -1034,14 +1033,70 @@ local HekiliSpecMixin = {
             end
         end
     end,
+    
 
-    RegisterTotem = function( self, token, id )
+    RegisterPets = function( self, pets )
+        for token, data in pairs( pets ) do
+            -- Extract fields from the pet definition.
+            local id = data.id
+            local spell = data.spell
+            local duration = data.duration
+            local copy = data.copy
+    
+            -- Register the pet and handle the copy field if it exists.
+            if copy then
+                self:RegisterPet( token, id, spell, duration, copy )
+            else
+                self:RegisterPet( token, id, spell, duration )
+            end
+        end
+    end,
+
+
+    RegisterTotem = function( self, token, id, ... )
+        -- Register the primary totem.
         self.totems[ token ] = id
         self.totems[ id ] = token
-
+    
+        -- Handle copies if provided.
+        local n = select( "#", ... )
+        if n and n > 0 then
+            for i = 1, n do
+                local copy = select( i, ... )
+                self.totems[ copy ] = id
+                self.totems[ id ] = copy
+            end
+        end
+    
+        -- Commit the primary token.
         CommitKey( token )
     end,
 
+    RegisterTotems = function( self, totems )
+        for token, data in pairs( totems ) do
+            local id = data.id
+            local copy = data.copy
+    
+            -- Register the primary totem.
+            self.totems[ token ] = id
+            self.totems[ id ] = token
+    
+            -- Register any copies (aliases).
+            if copy then
+                if type( copy ) == "string" then
+                    self.totems[ copy ] = id
+                    self.totems[ id ] = copy
+                elseif type( copy ) == "table" then
+                    for _, alias in ipairs( copy ) do
+                        self.totems[ alias ] = id
+                        self.totems[ id ] = alias
+                    end
+                end
+            end
+    
+            CommitKey( token )
+        end
+    end,
 
     GetSetting = function( self, info )
         local setting = info[ #info ]
