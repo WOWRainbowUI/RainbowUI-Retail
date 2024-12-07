@@ -1,13 +1,11 @@
 # CraftSim
 
-## [19.7.1](https://github.com/derfloh205/CraftSim/tree/19.7.1) (2024-11-29)
-[Full Changelog](https://github.com/derfloh205/CraftSim/compare/19.7.0...19.7.1) [Previous Releases](https://github.com/derfloh205/CraftSim/releases)
+## [19.7.2](https://github.com/derfloh205/CraftSim/tree/19.7.2) (2024-12-06)
+[Full Changelog](https://github.com/derfloh205/CraftSim/compare/19.7.1...19.7.2) [Previous Releases](https://github.com/derfloh205/CraftSim/releases)
 
-- Fix/#758 kp cost (#759)  
-    * fixed kp cost calculation  
-    * version and news  
-- Update issue templates  
-- Create FUNDING.yml  
-- Update new-issue.yml  
-- Update new-issue.yml  
-- Create new-issue.yml  
+- quickbuy fix  
+- News Update for #744  
+- Update esES.lua (#744)  
+    locale change for #654  
+- Version Increase to 19.7.2  
+- fixed (#766)  
