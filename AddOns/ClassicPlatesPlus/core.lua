@@ -25,7 +25,8 @@ core.data = {
     isCata    = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC,
     cvars = {},
     classBarHeight = 0,
-    hooks = {}
+    hooks = {},
+    tooltip = {},
 };
 
 local func = core.func;
@@ -367,6 +368,25 @@ function func:TrimEmptySpaces(text)
 end
 
 ----------------------------------------
+-- Abbreviate numbers
+----------------------------------------
+function func:AbbreviateNumbers(num)
+    if num then
+        if num >= 1e8 then
+            return string.format("%.2f億", num / 1e8):gsub("%.00", "");
+        elseif num >= 1e4 then
+            return string.format("%.0f萬", num / 1e4) --:gsub("%.0", "");
+        -- elseif num >= 1e3 then
+        --    return string.format("%.1fK", num / 1e3):gsub("%.0", "");
+        else
+            return tostring(num);
+        end
+    else
+        return nil;
+    end
+end
+
+----------------------------------------
 -- Format time
 ----------------------------------------
 function func:formatTime(value)
@@ -414,7 +434,7 @@ function func:InteractIcon(nameplate)
     if nameplate and data.isRetail then
         local unitFrame = nameplate.unitFrame;
         local interactIcon = nameplate.UnitFrame and nameplate.UnitFrame.SoftTargetFrame and nameplate.UnitFrame.SoftTargetFrame.Icon;
-        local auras = unitFrame and unitFrame.buffs["auras"] and (unitFrame.buffs["auras"][1] or unitFrame.debuffs["auras"][1]);
+        local auras = unitFrame and unitFrame.auras.list and (unitFrame.auras.list[1]);
         local resourceOnTarget = data.cvars.nameplateResourceOnTarget;
 
         if interactIcon then
@@ -701,20 +721,6 @@ end
 ----------------------------------------
 -- Update health
 ----------------------------------------
-local function AbbreviateNumbers(value)
-	local abs_value = (value > 0 and value) or (-1 * value)
-
-    if abs_value >= 1e8 then
-      return format("%.2f億", value / 1e8)
-    elseif abs_value >= 1e4 then
-      return format("%.0f萬", value / 1e4)
-    -- elseif abs_value >= 1e3 then
-    --  return format("%.1f千", value / 1e3)
-    else
-      return format("%i", value)
-    end
-end
-
 function func:Update_Health(unit)
     if unit then
         local healthMax = UnitHealthMax(unit);
@@ -723,7 +729,7 @@ function func:Update_Health(unit)
         local percentageAsMainValue = CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].PercentageAsMainValue and CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].NumericValue and CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].Percentage;
         local player = UnitIsPlayer(unit);
         local otherPlayersPet = UnitIsOtherPlayersPet(unit);
-        local hp = AbbreviateNumbers(health);
+        local hp = func:AbbreviateNumbers(health);
         local showSecondary = true;
 
         if UnitIsUnit(unit, "player") then
@@ -743,7 +749,7 @@ function func:Update_Health(unit)
                 nameplate.healthSecondary:SetShown(CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].NumericValue and CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].Percentage);
 
                 -- Total health
-                data.nameplate.healthTotal:SetText(AbbreviateNumbers(healthMax));
+                data.nameplate.healthTotal:SetText(func:AbbreviateNumbers(healthMax));
 
                 -- Updating Health bar
                 nameplate.healthbar:SetMinMaxValues(0, healthMax);
@@ -758,7 +764,7 @@ function func:Update_Health(unit)
             if data.isClassic then
                 if (not player and not otherPlayersPet) or UnitPlayerOrPetInParty(unit) then
                     showSecondary = true;
-                    hp = AbbreviateNumbers(health);
+                    hp = func:AbbreviateNumbers(health);
                 else
                     showSecondary = false ;
                     hp = health .. "%";
@@ -894,16 +900,16 @@ function func:Update_Power(unit)
                 if powerType == 0 then
                     if CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].PercentageAsMainValue and CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].NumericValue and CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].Percentage then
                         nameplate.powerMain:SetText(powerPercent);
-                        nameplate.power:SetText(AbbreviateNumbers(power));
+                        nameplate.power:SetText(func:AbbreviateNumbers(power));
                         nameplate.power:Show();
                         nameplate.powerMain:Show();
                     elseif CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].NumericValue and CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].Percentage then
-                        nameplate.powerMain:SetText(AbbreviateNumbers(power));
+                        nameplate.powerMain:SetText(func:AbbreviateNumbers(power));
                         nameplate.power:SetText(powerPercent);
                         nameplate.power:Show();
                         nameplate.powerMain:Show();
                     elseif CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].NumericValue then
-                        nameplate.powerMain:SetText(AbbreviateNumbers(power));
+                        nameplate.powerMain:SetText(func:AbbreviateNumbers(power));
                         nameplate.powerMain:SetShown(powerType == 0);
                         nameplate.power:Hide();
                     elseif CFG_Account_ClassicPlatesPlus.Profiles[CFG_ClassicPlatesPlus.Profile].Percentage then
@@ -919,7 +925,7 @@ function func:Update_Power(unit)
                     nameplate.power:Hide();
                 end
 
-                data.nameplate.powerTotal:SetText(AbbreviateNumbers(powerMax));
+                data.nameplate.powerTotal:SetText(func:AbbreviateNumbers(powerMax));
 
                 -- Toggling spark
                 func:ToggleSpark(power, powerMax, nameplate.powerbarSpark);
@@ -1081,7 +1087,7 @@ function func:Update_ClassPower(unit, var1)
                         local function work(frame)
                             if hover and keyCheck() then
                                 GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMLEFT", 0, -2);
-                                GameTooltip:SetTotem(i)
+                                GameTooltip:SetTotem(i);
                                 GameTooltip:Show();
                             end
                         end

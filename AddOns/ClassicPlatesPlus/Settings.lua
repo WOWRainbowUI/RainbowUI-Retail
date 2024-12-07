@@ -99,23 +99,6 @@ function func:Load_Settings()
 			func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
 		end
 
-		-- 下拉式選單
-		do
-			local name = "浮動提示資訊";
-			local tooltip = "";
-			local cfg = "Tooltip";
-			local default = 1;
-			local options = {
-				[1] = "按住 SHIFT",
-				[2] = "按住 CTRL",
-				[3] = "按住 ALT",
-				[4] = "停用"
-			}
-			local flair = { classicEra = true, cata = true, retail = true };
-
-			func:Create_DropDownMenu(panel, flair, name, tooltip, cfg, default, options);
-		end
-
 		-- 核取按鈕
 		do
 			local name = "頭像";
@@ -132,7 +115,7 @@ function func:Load_Settings()
 			local name = "等級";
 			local tooltip = "";
 			local cfg = "ShowLevel";
-			local default = true;
+			local default = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -399,7 +382,7 @@ function func:Load_Settings()
 			local name = "數值";
 			local tooltip = "顯示血量和能量數值";
 			local cfg = "NumericValue";
-			local default = true;
+			local default = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -454,7 +437,7 @@ function func:Load_Settings()
 			local name = "大型主要血量";
 			local tooltip = "";
 			local cfg = "LargeMainValue";
-			local default = true;
+			local default = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -645,7 +628,7 @@ function func:Load_Settings()
 			local name = "威脅值百分比";
 			local tooltip = "顯示產生的威脅值數量";
 			local cfg = "ThreatPercentage";
-			local default = true;
+			local default = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false;
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -727,19 +710,35 @@ function func:Load_Settings()
 		func:Create_SubCategory(panel, "一般");
 
 		-- DropDownMenu
-		do
-			local name = "光環來源";
-			local tooltip = white .. "你: " .. yellow .. "顯示你施放的光環\n".. white .. "全部: " .. yellow .. "顯示所有光環";
-			local cfg = "AurasShow";
-			local default = 1;
-			local options = {
-				[1] = "你",
-				[2] = "全部"
-			}
-			local flair = { classicEra = true, cata = true, retail = true };
+        do
+            local name = "過濾友方身上的光環";
+            local tooltip = "";
+            local cfg = "AurasFilterFriendly";
+            local default = 3;
+            local options = {
+                [1] = "顯示所有光環",
+                [2] = "顯示你施放的光環",
+                [3] = "顯示你能施放和驅散的光環"
+            }
+            local flair = { classicEra = true, cata = true, retail = true };
 
-			func:Create_DropDownMenu(panel, flair, name, tooltip, cfg, default, options);
-		end
+            func:Create_DropDownMenu(panel, flair, name, tooltip, cfg, default, options);
+        end
+
+        -- DropDownMenu
+        do
+            local name = "過濾敵方身上的光環";
+            local tooltip = "";
+            local cfg = "AurasFilterEnemy";
+            local default = 2;
+            local options = {
+                [1] = "顯示所有光環",
+                [2] = "顯示你施放的光環"
+            }
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_DropDownMenu(panel, flair, name, tooltip, cfg, default, options);
+        end
 
 		-- DropDownMenu
 		do
@@ -792,6 +791,34 @@ function func:Load_Settings()
 			local flair = { classicEra = true, cata = true, retail = true };
 
 			func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+		end
+
+		-- CheckButton
+        do
+            local name = "標示可偷的增益";
+            local tooltip = "將可偷取的增益標視為藍色，並且排列在其他增益的前面。";
+            local cfg = "MarkStealableAuras";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+		-- DropDownMenu
+		do
+			local name = "浮動提示資訊";
+			local tooltip = "";
+			local cfg = "Tooltip";
+			local default = 1;
+			local options = {
+				[1] = "按住 SHIFT",
+				[2] = "按住 CTRL",
+				[3] = "按住 ALT",
+				[4] = "停用"
+			}
+			local flair = { classicEra = true, cata = true, retail = true };
+
+			func:Create_DropDownMenu(panel, flair, name, tooltip, cfg, default, options);
 		end
 
 		-- CheckButton
@@ -928,19 +955,35 @@ function func:Load_Settings()
 		func:Create_SubCategory(panel, "個人光環");
 
 		-- DropDownMenu
-		do
-			local name = "增益來源";
-			local tooltip = white .. "你: " .. yellow .. "顯示你施放的增益\n".. white .. "全部: " .. yellow .. "顯示任何人施放的增益";
-			local cfg = "AurasSourcePersonal";
-			local default = 1;
-			local options = {
-				[1] = "你",
-				[2] = "全部"
-			}
-			local flair = { classicEra = true, cata = true, retail = true };
+        do
+            local name = "增益過濾方式";
+            local tooltip = "";
+            local cfg = "BuffsFilterPersonal";
+            local default = 2;
+            local options = {
+                [1] = "顯示所有增益",
+                [2] = "顯示你施放的增益",
+                [3] = "顯示你能施放和你施放的增益"
+            }
+            local flair = { classicEra = true, cata = true, retail = true };
 
-			func:Create_DropDownMenu(panel, flair, name, tooltip, cfg, default, options);
-		end
+            func:Create_DropDownMenu(panel, flair, name, tooltip, cfg, default, options);
+        end
+
+        -- DropDownMenu
+        do
+            local name = "減益過濾方式";
+            local tooltip = "";
+            local cfg = "DebuffsFilterPersonal";
+            local default = 1;
+            local options = {
+                [1] = "顯示所有減益",
+                [2] = "顯示你能驅散的減益"
+            }
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_DropDownMenu(panel, flair, name, tooltip, cfg, default, options);
+        end
 
 		-- CheckButton
 		do
