@@ -77,6 +77,37 @@ local function setOMBPoint(self, point, rFrame, rPoint, x, y)
 end
 
 
+-------------------------------------------
+-- FRAME FADE
+-------------------------------------------
+local function fade(self, elapsed)
+	self.timer = self.timer - elapsed
+	if self.timer <= 0 then
+		self:SetScript("OnUpdate", nil)
+		self:SetAlpha(self.endAlpha)
+	else
+		self:SetAlpha(self.endAlpha - self.deltaAlpha * self.timer)
+	end
+end
+
+
+local function frameFade(self, delay, endAlpha)
+	self.timer = delay
+	self.endAlpha = endAlpha
+	self.deltaAlpha = (endAlpha - self:GetAlpha()) / delay
+	self:SetScript("OnUpdate", fade)
+end
+
+
+local function frameFadeStop(self, alpha)
+	self:SetScript("OnUpdate", nil)
+	self:SetAlpha(alpha)
+end
+
+
+-------------------------------------------
+-- MASQUE
+-------------------------------------------
 if MSQ then
 	local _, defSkin = MSQ:GetDefaultSkin()
 	local defNormal = defSkin.Normal
@@ -379,6 +410,9 @@ if MSQ then
 end
 
 
+-------------------------------------------
+-- CORE
+-------------------------------------------
 hb:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 hb:RegisterEvent("ADDON_LOADED")
 
@@ -453,6 +487,25 @@ function hb:ADDON_LOADED(addonName)
 			xpcall(self.setProfile, CallErrorHandler, self)
 			self.cb:Fire("INIT")
 			self.init = nil
+
+			-- MINIMAP HOOKS
+			Minimap:HookScript("OnEnter", function()
+				for i = 1, #hb.currentProfile.bars do
+					local bar = hb.bars[i]
+					if bar.config.barTypePosition == 2 and bar.omb and not bar.omb.isGrabbed and bar.config.omb.fadeOpacity ~= 1 then
+						frameFadeStop(bar.omb, 1)
+					end
+				end
+			end)
+
+			Minimap:HookScript("OnLeave", function()
+				for i = 1, #hb.currentProfile.bars do
+					local bar = hb.bars[i]
+					if bar.config.barTypePosition == 2 and bar.omb and not bar.omb.isGrabbed and bar.config.omb.fadeOpacity ~= 1 then
+						bar.omb:GetScript("OnLeave")(bar.omb)
+					end
+				end
+			end)
 		end)
 	end
 end
@@ -1869,57 +1922,6 @@ function hb:setClipButtons()
 		end
 	end
 end
-
-
--------------------------------------------
--- FRAME FADE
--------------------------------------------
-local function fade(self, elapsed)
-	self.timer = self.timer - elapsed
-	if self.timer <= 0 then
-		self:SetScript("OnUpdate", nil)
-		self:SetAlpha(self.endAlpha)
-	else
-		self:SetAlpha(self.endAlpha - self.deltaAlpha * self.timer)
-	end
-end
-
-
-local function frameFade(self, delay, endAlpha)
-	self.timer = delay
-	self.endAlpha = endAlpha
-	self.deltaAlpha = (endAlpha - self:GetAlpha()) / delay
-	self:SetScript("OnUpdate", fade)
-end
-
-
-local function frameFadeStop(self, alpha)
-	self:SetScript("OnUpdate", nil)
-	self:SetAlpha(alpha)
-end
-
-
--------------------------------------------
--- MINIMAP
--------------------------------------------
-Minimap:HookScript("OnEnter", function()
-	for i = 1, #hb.currentProfile.bars do
-		local bar = hb.bars[i]
-		if bar.config.barTypePosition == 2 and bar.omb and not bar.omb.isGrabbed and bar.config.omb.fadeOpacity ~= 1 then
-			frameFadeStop(bar.omb, 1)
-		end
-	end
-end)
-
-
-Minimap:HookScript("OnLeave", function()
-	for i = 1, #hb.currentProfile.bars do
-		local bar = hb.bars[i]
-		if bar.config.barTypePosition == 2 and bar.omb and not bar.omb.isGrabbed and bar.config.omb.fadeOpacity ~= 1 then
-			bar.omb:GetScript("OnLeave")(bar.omb)
-		end
-	end
-end)
 
 
 -------------------------------------------
