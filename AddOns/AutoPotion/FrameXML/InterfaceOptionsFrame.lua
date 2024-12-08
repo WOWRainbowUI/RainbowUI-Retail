@@ -192,13 +192,13 @@ end
 function ham.settingsFrame:InitializeOptions()
 	-- Create the main panel inside the Interface Options container
 	self.panel = CreateFrame("Frame", addonName, InterfaceOptionsFramePanelContainer)
-	self.panel.name = L["AutoPotion"]
+	self.panel.name = L["Auto Potion"]
 
 	-- Register with Interface Options
 	if InterfaceOptions_AddCategory then
 		InterfaceOptions_AddCategory(self.panel)
 	else
-		local category = Settings.RegisterCanvasLayoutCategory(self.panel, L["AutoPotion"])
+		local category = Settings.RegisterCanvasLayoutCategory(self.panel, L["Auto Potion"])
 		Settings.RegisterAddOnCategory(category)
 		self.panel.categoryID = category:GetID() -- for OpenToCategory use
 	end
@@ -473,7 +473,7 @@ SlashCmdList.HAM = function(msg, editBox)
 
 	-- Open settings if no "debug" keyword was passed
 	if InterfaceOptions_AddCategory then
-		InterfaceOptionsFrame_OpenToCategory(L["AutoPotion"])
+		InterfaceOptionsFrame_OpenToCategory(L["Auto Potion"])
 	else
 		local settingsCategoryID = _G[addonName].categoryID
 		Settings.OpenToCategory(settingsCategoryID)

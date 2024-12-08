@@ -23,4 +23,7 @@ L["The Settings of AutoPotion were reset due to breaking changes."] = "因為插
 L["Useful for casters."] = "對於需要唱法的職業很有用。"
 
 -- code
-L["AutoPotion"] = "一鍵吃糖"
+L["AutoPotion"] = "治療"
+
+-- 自行加入
+L["Auto Potion"] = "一鍵吃糖"

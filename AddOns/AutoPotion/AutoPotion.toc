@@ -9,7 +9,7 @@
 ## SavedVariables: HAMDB
 
 ## Title-zhTW: |cffB973CC[物品]|r 一鍵吃糖/喝紅水
-## Notes-zhTW: Auto Potion |n|n只要按一個按鈕或快速鍵，便能使用治療石或治療藥水。|n會自動選用背包中的物品，有糖先吃糖，有水喝水，節省快捷列格子又方便!|n|n|cffffd200使用方法: |r新增一個巨集，名稱為 HAMHealthPot，內容留空白不要填寫。將巨集拉到快捷列上後重新載入介面即可。
+## Notes-zhTW: Auto Potion |n|n只要按一個按鈕或快速鍵，便能使用治療石或治療藥水。|n會自動選用背包中的物品，有糖先吃糖，有水喝水，節省快捷列格子又方便!|n|n|cffffd200使用方法: |r從 Esc > 巨集設定，將名稱為 '治療' 巨集拉到快捷列上，然後重新載入介面。
 ## X-Category-zhTW: 物品
 ## IconTexture: Interface\Icons\inv_alchemy_80_potion01red
 ## DefaultState: disabled
