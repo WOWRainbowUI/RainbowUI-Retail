@@ -1,5 +1,5 @@
 <Bindings>
-  <Binding name="使用一鍵吃糖巨集" header="Auto Potion" category="ADDONS">
+  <Binding name="使用巨集: 治療" header="Auto Potion" category="ADDONS">
     -- AutoPotion
   </Binding>
 </Bindings>
