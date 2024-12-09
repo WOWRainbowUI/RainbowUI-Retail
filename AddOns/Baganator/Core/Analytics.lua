@@ -99,6 +99,8 @@ function addonTable.Core.RunAnalytics()
     [addonTable.Config.Options.CATEGORY_GROUP_EMPTY_SLOTS] = true,
     [addonTable.Config.Options.ADD_TO_CATEGORY_BUTTONS] = true,
     [addonTable.Config.Options.RECENT_TIMEOUT] = true,
+
+    [addonTable.Config.Options.CURRENT_SKIN] = true,
   }
 
   local frame = CreateFrame("Frame")
@@ -129,7 +131,7 @@ function addonTable.Core.RunAnalytics()
   end)
 
   do
-    local sortMethod = addonTable.Config.Get(addonTable.Config.SORT_METHOD)
+    local sortMethod = addonTable.Config.Get(addonTable.Config.Options.SORT_METHOD)
     local possibleSortMethods = {
       "type",
       "quality",
