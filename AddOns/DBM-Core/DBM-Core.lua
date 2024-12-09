@@ -134,6 +134,7 @@ DBM.DefaultOptions = {
 	PullVoice = "Meicn",
 	ChosenVoicePack2 = (GetLocale() == "enUS" or GetLocale() == "enGB") and "VEM" or "SahaJh",
 	VPReplacesAnnounce = true,
+	VPReplacesSADefault = true, -- 自行加入
 	VPReplacesSA1 = true,
 	VPReplacesSA2 = true,
 	VPReplacesSA3 = true,
