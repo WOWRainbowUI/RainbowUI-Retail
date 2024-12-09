@@ -288,7 +288,7 @@ local blockedSkins = {
 }
 for _, skin in ipairs(blockedSkins) do
   if C_AddOns.DoesAddOnExist(skin) then
-    addonTable.Utilities.Message("You have a legacy skin. Please remove " .. RED_FONT_COLOR:WrapTextInColorCode(skin) .. " it is no longer needed - the skin is included with the Baganator package")
+    addonTable.Utilities.Message(BAGANATOR_L_LEGACY_SKIN .. RED_FONT_COLOR:WrapTextInColorCode(skin) .. BAGANATOR_L_NO_LONGER_NEEDED)
     C_AddOns.DisableAddOn(skin)
   end
 end

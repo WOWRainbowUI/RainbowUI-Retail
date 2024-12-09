@@ -358,6 +358,8 @@ L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cff
 
 -- 自行加入
 L["BAGANATOR_NAME"] = "Baganator"
+L["LEGACY_SKIN"] = "You have a legacy skin. Please remove "
+L["NO_LONGER_NEEDED"] = " it is no longer needed - the skin is included with the Baganator package"
 
 local L = Locales.zhTW
 L["ACCOUNT_GOLD_X"] = "帳號金幣：%s"
@@ -679,6 +681,8 @@ L["THEME"] = "外觀主題"
 
 -- 自行加入
 L["BAGANATOR_NAME"] = "多角色背包"
+L["LEGACY_SKIN"] = "你有舊的外觀插件 "
+L["NO_LONGER_NEEDED"] = " 已經不再需要了，請將它刪除。多角色背包本身現已包含外觀。"
 
 local L = Locales.zhCN
 L["ACCOUNT_GOLD_X"] = "帐号金币：%s"
