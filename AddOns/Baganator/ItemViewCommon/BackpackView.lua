@@ -5,15 +5,12 @@ local classicTabObjectCounter = 0
 BaganatorItemViewCommonBackpackViewMixin = {}
 
 local function PreallocateItemButtons(pool, buttonCount)
-  local frame = CreateFrame("Frame")
-  frame:RegisterEvent("PLAYER_LOGIN")
-  frame:SetScript("OnEvent", function()
-    for i = 1, buttonCount do
-      local button = pool:Acquire()
-      addonTable.Skins.AddFrame("ItemButton", button)
-    end
-    pool:ReleaseAll()
-  end)
+  assert(not InCombatLockdown())
+  for i = 1, buttonCount do
+    local button = pool:Acquire()
+    addonTable.Skins.AddFrame("ItemButton", button)
+  end
+  pool:ReleaseAll()
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:OnLoad()
@@ -55,11 +52,7 @@ function BaganatorItemViewCommonBackpackViewMixin:OnLoad()
     if not self.lastCharacter then
       return
     end
-    if tIndexOf(addonTable.Config.VisualsFrameOnlySettings, settingName) ~= nil then
-      if self:IsVisible() then
-        addonTable.Utilities.ApplyVisuals(self)
-      end
-    elseif tIndexOf(addonTable.Config.ItemButtonsRelayoutSettings, settingName) ~= nil then
+    if tIndexOf(addonTable.Config.ItemButtonsRelayoutSettings, settingName) ~= nil then
       for _, layout in ipairs(self.Container.Layouts) do
         layout:InformSettingChanged(settingName)
       end
@@ -133,9 +126,9 @@ function BaganatorItemViewCommonBackpackViewMixin:OnLoad()
   self.TopButtons[1]:ClearAllPoints()
   self.TopButtons[1]:SetPoint("TOPLEFT", self, "TOPLEFT", addonTable.Constants.ButtonFrameOffset + 2, -1)
 
-  self.BagSlots:SetPoint("BOTTOMLEFT", self, "TOPLEFT", addonTable.Constants.ButtonFrameOffset, 0)
-
   addonTable.Skins.AddFrame("ButtonFrame", self, {"backpack"})
+
+  self:SetLiveCharacter(Syndicator.API.GetCurrentCharacter())
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:OnShow()
@@ -153,6 +146,9 @@ end
 
 function BaganatorItemViewCommonBackpackViewMixin:SetLiveCharacter(character)
   self.liveCharacter = character
+  if self.lastCharacter == nil then
+    self.lastCharacter = self.liveCharacter
+  end
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:OnDragStart()
@@ -304,7 +300,6 @@ end
 
 function BaganatorItemViewCommonBackpackViewMixin:UpdateForCharacter(character, isLive)
   local start = debugprofilestop()
-  addonTable.Utilities.ApplyVisuals(self)
 
   local characterData = Syndicator.API.GetCharacter(character)
 
@@ -342,6 +337,8 @@ function BaganatorItemViewCommonBackpackViewMixin:UpdateForCharacter(character, 
   if self.tabsSetup then -- Not ready immediately on PLAYER_ENTERING_WORLD
     self.Tabs[1]:SetPoint("LEFT", self, "LEFT", sideSpacing + addonTable.Constants.ButtonFrameOffset, 0)
   end
+
+  self.BagSlots:SetPoint("BOTTOMLEFT", self, "TOPLEFT", addonTable.Constants.ButtonFrameOffset, 0)
 
   self.SearchWidget:SetSpacing(sideSpacing)
 

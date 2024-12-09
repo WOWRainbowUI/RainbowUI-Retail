@@ -77,36 +77,10 @@ function BaganatorSliderMixin:OnMouseWheel(delta)
   self.Slider:SetValue(self.Slider:GetValue() + delta)
 end
 
-BaganatorDropDownMixin = {}
-
-function BaganatorDropDownMixin:Init(details)
-  Mixin(self, details)
-  local function GetOptions()
-    local container = Settings.CreateControlTextContainer();
-    for index, option in ipairs(self.entries) do
-      container:Add(self.values[index], option);
-    end
-    return container:GetData();
-  end
-  self.Label:SetText(self.text)
-  self.DropDown:SetupSelections(GetOptions(), 1)
-  self.OnEntrySelected = function(_, option)
-    addonTable.Config.Set(self.option, option.value)
-  end
-  addonTable.Skins.AddFrame("DropDownWithPopout", self.DropDown)
-end
-
-function BaganatorDropDownMixin:SetValue(value)
-  self.DropDown:SetSelectedIndex(tIndexOf(self.values, value))
-end
-
 BaganatorHeaderMixin = {}
 
 function BaganatorHeaderMixin:Init(details)
   self.Label:SetText(details.text);
-end
-
-function BaganatorHeaderMixin:SetValue(value)
 end
 
 function addonTable.CustomiseDialog.GetDraggable(callback, movedCallback)
@@ -237,6 +211,7 @@ function addonTable.CustomiseDialog.GetDropdown(parent)
   end
   dropdown.disableSelectionText = true
   dropdown.OnEntryClicked = function() end
+  addonTable.Skins.AddFrame("Dropdown", dropdown)
   return dropdown
 end
 
@@ -253,6 +228,7 @@ function addonTable.CustomiseDialog.GetBasicDropdown(parent)
   frame:SetPoint("LEFT", 30, 0)
   frame:SetPoint("RIGHT", -30, 0)
   frame.Init = function(_, option)
+    frame.option = option.option
     label:SetText(option.text)
     local entries = {}
     for index = 1, #option.entries do
@@ -270,6 +246,7 @@ function addonTable.CustomiseDialog.GetBasicDropdown(parent)
   end
   frame.DropDown = dropdown
   frame:SetHeight(40)
+  addonTable.Skins.AddFrame("Dropdown", frame.DropDown)
 
   return frame
 end
