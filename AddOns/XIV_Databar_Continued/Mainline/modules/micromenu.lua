@@ -61,7 +61,7 @@ function MenuModule:OnInitialize()
         },
 		
         WTCG = {
-            text = L['Hearthstone']
+            text = L['Hearthstone ']
         },
         Hero = {
             text = L['Heroes of the Storm']

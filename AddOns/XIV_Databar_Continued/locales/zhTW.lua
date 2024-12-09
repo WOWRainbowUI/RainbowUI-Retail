@@ -24,12 +24,24 @@ L['Bar Color'] = "資訊列顏色";
 L['Use Class Color for Bar'] = "使用職業顏色";
 L["Miscellaneous"] = "其他";
 L['Hide Bar in combat'] = "戰鬥中隱藏";
+L["Hide when in flight"] = true;
 L['Bar Padding'] = "資訊列內距";
 L['Module Spacing'] = "模組間距";
 L['Bar Margin'] = "資訊列間距";
 L["Leftmost and rightmost margin of the bar modules"] = "資訊列模組最左邊和最右邊的間距";
 L['Hide order hall bar'] = "隱藏職業大廳列";
 L['Use ElvUI for tooltips'] = "使用ElvUI浮動提示";
+L["Lock Bar"] = "鎖定資訊列";
+L["Lock the bar in place"] = "鎖定在此位置";
+L["Lock the bar to prevent dragging"] = "鎖定避免拖動";
+L["Makes the bar span the entire screen width"] = "讓資訊列橫跨整個畫面";
+L["Position the bar at the top or bottom of the screen"] = "將資訊列顯示在畫面的最上方或最下方";
+L["X Offset"] = "水平位移";
+L["Y Offset"] = "垂直位移";
+L["Horizontal position of the bar"] = "資訊列的水平位置";
+L["Vertical position of the bar"] = "資訊列的垂直位置";
+L["Behavior"] = "行為";
+L["Spacing"] = "間距";
 
 -- Positioning Options
 L['Positioning Options'] = "位置選項";
@@ -113,6 +125,9 @@ L['Ready'] = "完成";
 L['Travel Cooldowns'] = "旅行傳送冷卻";
 L['Change Port Option'] = "變更傳送選項";
 
+L["Registered characters"] = "已記錄的角色";
+L['Show Free Bag Space'] = "顯示背包剩餘空間";
+L['Show Other Realms'] = "顯示其他伺服器";
 L['Always Show Silver and Copper'] = "總是顯示銀和銅";
 L['Shorten Gold'] = "金額縮寫";
 L['Toggle Bags'] = "打開/關閉背包";
@@ -154,6 +169,8 @@ L['Available Ranks'] = "神兵武器等級";
 L['Artifact Knowledge'] = "神兵知識等級";
 
 -- Travel
+L['Hearthstone'] = "爐石";
+L['Hearthstones'] = "爐石";
 L['M+ Teleports'] = "M+ 傳送門";
 L['Only show current season'] = "只顯示當前賽季";
 L["Mythic+ Teleports"] = "M+ 傳送門";
@@ -183,11 +200,10 @@ L['Money'] = "金錢"
 L['Enable in combat'] = "戰鬥中可使用"
 L["Gold rounded values"] = "只顯示金的部分"
 L['Daily Total'] = "本日總計"
-L["Registered characters"] = "記錄的角色"
-L["All the characters listed above are currently registered in the gold database. To delete one or several character, plase uncheck the box correponding to the character(s) to delete.\nThe boxes will remain unchecked for the deleted character(s), untill you reload or logout/login"] = "上方列出金錢資料庫中有記錄的所有角色。\n\n要刪除角色的記錄，請取消勾選角色前方的核取方塊。\n\n取消勾選的角色會暫時保存，直到重新載入介面或重新登入遊戲才會刪除。"
+L["All the characters listed above are currently registered in the gold database. To delete one or several character, please uncheck the box corresponding to the character(s) to delete.\nThe boxes will remain unchecked for the deleted character(s), until you reload or logout/login"] = "\n上方列出的是金錢資料庫中有記錄的所有角色。\n\n要刪除角色的記錄，請取消勾選角色前方的核取方塊。\n\n取消勾選的角色會暫時保存，直到重新載入介面或重新登出/登入遊戲後才會刪除。"
 L["Overwatch"] = "鬥陣特攻"
 L["Heroes of the Storm"] = "暴雪英霸"
-L["Hearthstone"] = "爐石戰記"
+L["Hearthstone "] = "爐石戰記"
 L["Starcraft 2"] = "星海爭霸II"
 L["Diablo 3"] = "暗黑破壞神III"
 L['Starcraft Remastered'] = "星海爭霸 高畫質重製版"
@@ -209,7 +225,25 @@ L["Diablo 4"] = "暗黑破壞神IV"
 L["Blizzard Arcade Collection"] = "暴雪遊樂場典藏系列"
 L["Crash Bandicoot 4"] = "袋狼大進擊4"
 L["Hide Friends Playing Other Games"] = "隱藏其他遊戲好友"; -- used for the friend list function I added myself
-L["Hearthstones"] = "爐石"
+
+-- Profile Import/Export
+L["Profile Sharing"] = "分享設定檔";
+
+L["Invalid import string"] = "無效的匯入字串";
+L["Failed to decode import string"] = "無法解碼匯入字串";
+L["Failed to decompress import string"] = "無法解壓縮匯入字串";
+L["Failed to deserialize import string"] = "無法反序列化匯入字串";
+L["Invalid profile format"] = "無效的設定檔格式";
+L["Profile imported successfully as"] = "成功匯入設定檔為";
+
+L["Copy the export string below:"] = "複製下方的匯出字串:";
+L["Paste the import string below:"] = "在下方貼上匯入字串:";
+L["Import or export your profiles to share them with other players."] = "匯入或匯出你的設定檔以便與其他玩家分享。";
+L["Profile Import/Export"] = "匯入/匯出設定檔";
+L["Export Profile"] = "匯出設定檔";
+L["Export your current profile settings"] = "匯出當前設定檔中的設定";
+L["Import Profile"] = "匯入設定檔";
+L["Import a profile from another player"] = "匯入來自其他玩家的設定檔";
 
 -- Changelog
 L["%month%-%day%-%year%"] = "%year%年%month%月%day%日"

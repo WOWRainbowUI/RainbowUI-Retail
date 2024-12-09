@@ -330,7 +330,7 @@ function listAllCharactersByFactionRealm()
             order = 0
         },
         footer = {
-            name = L["All the characters listed above are currently registered in the gold database. To delete one or several character, plase uncheck the box correponding to the character(s) to delete.\nThe boxes will remain unchecked for the deleted character(s), untill you reload or logout/login"],
+            name = L["All the characters listed above are currently registered in the gold database. To delete one or several character, please uncheck the box corresponding to the character(s) to delete.\nThe boxes will remain unchecked for the deleted character(s), until you reload or logout/login"],
             type = "description",
             order = -1
         }

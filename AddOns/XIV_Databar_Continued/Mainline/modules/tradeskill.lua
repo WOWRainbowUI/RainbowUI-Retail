@@ -504,17 +504,17 @@ function TradeskillModule:ShowTooltip()
 end
 
 -- Function to handle tooltip clicks
-local function OnTooltipClick()
-    local spellButton = CreateFrame("Button", "MySecureSpellButton", UIParent,
-                                    "SecureActionButtonTemplate")
-    spellButton:SetAttribute("type", "spell") -- Set the button to cast a spell
-    spellButton:SetAttribute("spell", "2656") -- Set the spell name (or use a spell ID)
-    spellButton:SetSize(1, 1) -- Make it effectively invisible
-    spellButton:SetPoint("CENTER") -- Position it off-screen
-    spellButton:Hide() -- Hide the button
-    -- Secure buttons can only be clicked in response to secure actions, so we simulate the button click
-    spellButton:Click()
-end
+-- local function OnTooltipClick()
+--     local spellButton = CreateFrame("Button", "MySecureSpellButton", UIParent,
+--                                     "SecureActionButtonTemplate")
+--     spellButton:SetAttribute("type", "spell") -- Set the button to cast a spell
+--     spellButton:SetAttribute("spell", "2656") -- Set the spell name (or use a spell ID)
+--     spellButton:SetSize(1, 1) -- Make it effectively invisible
+--     spellButton:SetPoint("CENTER") -- Position it off-screen
+--     spellButton:Hide() -- Hide the button
+--     -- Secure buttons can only be clicked in response to secure actions, so we simulate the button click
+--     spellButton:Click()
+-- end
 
 -- function TradeskillModule:ListTooltipProfession(prefix, r, g, b, tooltip)
 --     local left = "|T" .. self[prefix].defIcon .. ":0|t " .. self[prefix].name
