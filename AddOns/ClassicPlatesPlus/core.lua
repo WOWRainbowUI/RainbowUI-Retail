@@ -372,12 +372,12 @@ end
 ----------------------------------------
 function func:AbbreviateNumbers(num)
     if num then
-        if num >= 1e8 then
-            return string.format("%.2f億", num / 1e8):gsub("%.00", "");
-        elseif num >= 1e4 then
-            return string.format("%.0f萬", num / 1e4) --:gsub("%.0", "");
-        -- elseif num >= 1e3 then
-        --    return string.format("%.1fK", num / 1e3):gsub("%.0", "");
+        if num >= 1e9 then
+            return string.format("%.2fB", num / 1e9):gsub("%.00", "");
+        elseif num >= 1e6 then
+            return string.format("%.2fM", num / 1e6):gsub("%.00", "");
+        elseif num >= 1e3 then
+            return string.format("%.1fK", num / 1e3):gsub("%.0", "");
         else
             return tostring(num);
         end
@@ -434,7 +434,7 @@ function func:InteractIcon(nameplate)
     if nameplate and data.isRetail then
         local unitFrame = nameplate.unitFrame;
         local interactIcon = nameplate.UnitFrame and nameplate.UnitFrame.SoftTargetFrame and nameplate.UnitFrame.SoftTargetFrame.Icon;
-        local auras = unitFrame and unitFrame.auras.list and (unitFrame.auras.list[1]);
+        local auras = unitFrame and unitFrame.auras and unitFrame.auras.list and (unitFrame.auras.list[1]); -- 暫時修正
         local resourceOnTarget = data.cvars.nameplateResourceOnTarget;
 
         if interactIcon then
