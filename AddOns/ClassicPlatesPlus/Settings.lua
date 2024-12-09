@@ -820,6 +820,17 @@ function func:Load_Settings()
 
 			func:Create_DropDownMenu(panel, flair, name, tooltip, cfg, default, options);
 		end
+		
+		-- CheckButton
+        do
+            local name = "在浮動提示中顯示法術 ID";
+            local tooltip = "";
+            local cfg = "TooltipSpellID";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
 
 		-- CheckButton
 		do
