@@ -1,36 +1,38 @@
 # DBM - Core
 
-## [11.0.33](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.33) (2024-11-27)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.32...11.0.33) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.0.34](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.34) (2024-12-04)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.33...11.0.34) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- cleanup and bump version  
-- Revert "just delete LuaLS check, it works locally that's what counts"  
-- Fix a bug where timers started with a value of 0 for some reason just inherited self.timer instead which underminded many mods like rashanan which need to use table based timer starting. This fixes several bogus timers appearing on boss fights for phases or platforms that should have no timer.  
-    Added GTFO for sikran puddles, since to be honest they can be hard to see sometimes.  
-- just delete LuaLS check, it works locally that's what counts  
-- disable absolutely annoying nitpicks  
-- Fix BW syncs not working through chatthrottlelib  
-- fix ignores?  
-- Update localization.fr.lua (#1391)  
-- Also use ChatThrottleLib for bnet sync  
-- fix CTL errors  
-- update ignores  
-- try the decade out of date url instead  
-- Switch to ChatThrottleLib for sending all syncs in DBM  
-- Remove echowigs option, since maybe that's what's confusing users. that option was mostly added as a favor for RWF but that's long over. DBM should just focus on public BW (default) and color blind friendly options for the raids not using using BW  
-- Update localization.es.lua (#1389)  
-- Update localization.ru.lua (#1388)  
-- clarify option text  
-- Update localization.es.lua (#1385)  
-- Update localization.fr.lua (#1387)  
-- Update localization.br.lua (#1386)  
-- Update localization.tw.lua (#1384)  
-- Update koKR (#1383)  
-- Update localization.ru.lua (#1382)  
-- Also don't activate unstable potion if it's already activated  
-- Fix a bug causing Globald isable for gossip not to globally disable due to bossmodprototype having a different definition for self than core calls  
-- Merge branch 'master' of https://github.com/DeadlyBossMods/DBM-Retail  
-- Fix lua errors on br and fr localizations  
-- Core: Fix spell ID filtering for direct events on CLEU events without arg tables  
-- Tests: Add support for persisting playground mode logs  
-- bump alpha and fix a bug where BW syncs could show errors on trial accounts (but to be fair, that bug existed prior to refactor too  
+- adjust this real quick too  
+- prep new tag  
+- couple micro adjustments and defaults tweaks  
+- Update localization.es.lua (#1405)  
+- Update localization.fr.lua (#1406)  
+- Update localization.br.lua (#1407)  
+- Update localization.tw.lua (#1404)  
+- Update koKR (#1403)  
+- Update localization.ru.lua (#1402)  
+- Update localization.ru.lua (#1401)  
+- Fix typo  
+- more option clarifiction  
+- more wording updates  
+- Update localization.ru.lua (#1400)  
+- if plater is installed, also redirect to plater options in global disables as well instead of incorrectly showing internal DBM options that'd do nothing for plater users.  
+- Update localization.ru.lua (#1398)  
+- Update localization.ru.lua (#1399)  
+- Continue culling of Trap options:  
+     - Consolidated the voice pack options from 8 options down to 2, eliminating some confusion and redundancies  
+     - Removed ability to disable AI timers. They should never be disabled.  
+- option clearification  
+- Update localization.es.lua (#1396)  
+- Update koKR (#1397)  
+- Removed Trap options that were meant for experienced users but constantly get toggled by users who don't know what they do.  
+     - Removed ability to turn off tank filter. users too often turn this off and then get confused why they're told to taunt boss when not a tank when they disabled the option that checks spec (and was thoroughly worded as such)  
+     - Removed ability to always play all voice pack sounds regardless of option settings. Again, this is a case where users clicked box then were confused when they were told to taunt, dispel, or interrupt every mechanic regardless of option settings. This option (which was very specifically worded as such) was meant for raid leaders that want to know every time a dispel or tank swap or interrupt is needed. It just didn't get used that way. it was always misused instead.  
+- Update koKR (#1392)  
+- Update localization.fr.lua (#1393)  
+- Update localization.fr.lua (#1394)  
+- Update localization.br.lua (#1395)  
+- Adjust stop call on nerubar trash mod  
+- Add callback and functionality to cleanup nameplate timers in absence of GUIDs such as AOE stopping all nameplate timers on a trash wipe  
+- bump alpha  
