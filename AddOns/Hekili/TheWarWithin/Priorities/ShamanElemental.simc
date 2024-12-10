@@ -43,7 +43,7 @@ actions.aoe+=/ascendance
 actions.aoe+=/flame_shock,cycle_targets=1,if=refreshable&buff.surge_of_power.up&dot.flame_shock.remains<target.time_to_die-16&active_dot.flame_shock<(spell_targets.chain_lightning>?6)&!talent.liquid_magma_totem.enabled
 # Spread and refresh Flame Shock using Surge of Power (if talented) up to 6.
 actions.aoe+=/flame_shock,cycle_targets=1,if=refreshable&talent.fire_elemental.enabled&(buff.surge_of_power.up|!talent.surge_of_power.enabled)&dot.flame_shock.remains<target.time_to_die-5&(active_dot.flame_shock<6|dot.flame_shock.remains>0)
-+# Buff Tempest with SoP or LB if two target
+# Buff Tempest with SoP or LB if two target
 actions.aoe+=/tempest,cycle_targets=1,if=!buff.arc_discharge.up&(buff.surge_of_power.up|!talent.surge_of_power.enabled)
 actions.aoe+=/lightning_bolt,if=buff.stormkeeper.up&buff.surge_of_power.up&spell_targets.chain_lightning=2
 # Consume Primordial Wave buff immediately if you have Stormkeeper buff, fighting 6+ enemies and need maelstrom to spend.
@@ -98,7 +98,7 @@ actions.single_target+=/earth_shock,if=maelstrom>variable.mael_cap-15|buff.maste
 # Use Icefury to proc Fusion of Elements.
 actions.single_target+=/icefury,if=!(buff.fusion_of_elements_nature.up|buff.fusion_of_elements_fire.up)
 # Use Lava Burst to proc Master of the Elements.
-+actions.single_target+=/lava_burst,cycle_targets=1,if=dot.flame_shock.remains>execute_time&(!buff.master_of_the_elements.up&(!talent.master_of_the_elements|buff.lava_surge.up|cooldown.lava_burst.charges_fractional>1.5|maelstrom>82-10*talent.eye_of_the_storm|maelstrom>52-5*talent.eye_of_the_storm&(buff.echoes_of_great_sundering_eb.up|!talent.elemental_blast)))
+actions.single_target+=/lava_burst,cycle_targets=1,if=dot.flame_shock.remains>execute_time&(!buff.master_of_the_elements.up&(!talent.master_of_the_elements|buff.lava_surge.up|cooldown.lava_burst.charges_fractional>1.5|maelstrom>82-10*talent.eye_of_the_storm|maelstrom>52-5*talent.eye_of_the_storm&(buff.echoes_of_great_sundering_eb.up|!talent.elemental_blast)))
 # Spend to activate Surge of Power buff for Tempest or Stormkeeper.
 actions.single_target+=/earthquake,if=(buff.echoes_of_great_sundering_es.up|buff.echoes_of_great_sundering_eb.up)&(buff.tempest.up|buff.stormkeeper.up)&talent.surge_of_power&!talent.master_of_the_elements
 actions.single_target+=/elemental_blast,if=(buff.tempest.up|buff.stormkeeper.up)&talent.surge_of_power&!talent.master_of_the_elements
