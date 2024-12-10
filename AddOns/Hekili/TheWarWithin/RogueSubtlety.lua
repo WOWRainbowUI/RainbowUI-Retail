@@ -374,17 +374,19 @@ spec:RegisterAuras( {
         duration = 10,
         max_stack = 1,
     },
-    -- Talent: Your next Shadowstrike or $?s200758[Gloomblade][Backstab] deals $s3% increased damage, generates $s1 additional combo points, and is guaranteed to critically strike.
-    -- https://wowhead.com/beta/spell=394203
-    the_first_dance_prep = {
-        id = 470678,
-        duration = 3600,
-        max_stack = 1,
-    },
     the_first_dance_prep = {
         id = 470677,
         duration = 6,
         max_stack = 1,
+        copy = "first_dance_prep"
+    },
+    -- Talent: Your next Shadowstrike or $?s200758[Gloomblade][Backstab] deals $s3% increased damage, generates $s1 additional combo points, and is guaranteed to critically strike.
+    -- https://wowhead.com/beta/spell=394203
+    the_first_dance = {
+        id = 470678,
+        duration = 3600,
+        max_stack = 1,
+        copy = "first_dance",
     },
     the_rotten = {
         id = 394203,
@@ -778,6 +780,13 @@ spec:RegisterHook( "reset_precast", function( amt, resource )
         state:QueueAuraEvent( "lingering_shadow", TriggerLingeringShadow, buff.shadow_dance.expires, "AURA_EXPIRATION" )
     end
 
+    if buff.first_dance_prep.up then
+        applyBuff( "first_dance" )
+        buff.first_dance.applied = query_time + buff.first_dance_prep.remains
+    end
+
+    if prev_gcd[1].coup_de_grace then removeBuff( "coup_de_grace" ); removeBuff( "escalating_blade" ) end
+    if buff.escalating_blade.stack == 4 then applyBuff( "coup_de_grace" ); removeBuff( "escalating_blade" ) end
 end )
 
 spec:RegisterHook( "step", function()
@@ -1011,8 +1020,7 @@ spec:RegisterAbilities( {
 
     -- Finishing move that disembowels the target, causing damage per combo point. Targets with Find Weakness suffer an additional 20% damage as Shadow. 1 point : 273 damage 2 points: 546 damage 3 points: 818 damage 4 points: 1,091 damage 5 points: 1,363 damage 6 points: 1,636 damage
     eviscerate = {
-        id = function() return buff.coup_de_grace.up and 441776 or 196819 end,
-        known = 196819,
+        id = 196819,
         cast = 0,
         cooldown = 0,
         gcd = "totem",
@@ -1026,6 +1034,8 @@ spec:RegisterAbilities( {
 
         startsCombat = true,
         usable = function () return combo_points.current > 0, "requires combo points" end,
+        nobuff = "coup_de_grace",
+        texture = 132292,
 
         used_for_danse = function()
             if not talent.danse_macabre.enabled or buff.shadow_dance.down then return false end
@@ -1034,12 +1044,6 @@ spec:RegisterAbilities( {
 
         handler = function ()
             removeBuff( "masterful_finish" )
-
-            if buff.coup_de_grace.up then
-                if debuff.fazed.up then addStack( "flawless_form", nil, 5 ) end
-                removeBuff( "coup_de_grace" )
-            end
-
             removeBuff( "nights_vengeance" )
 
             if buff.finality_eviscerate.up then removeBuff( "finality_eviscerate" )
@@ -1062,8 +1066,46 @@ spec:RegisterAbilities( {
             if talent.deeper_daggers.enabled or conduit.deeper_daggers.enabled then applyBuff( "deeper_daggers" ) end
         end,
 
-        copy = { 196819, 328082, "coup_de_grace", 441776 }
+        bind = "coup_de_grace",
+        copy = { 196819, 328082 }
     },
+
+    -- Finishing move that disembowels the target, causing damage per combo point. Targets with Find Weakness suffer an additional 20% damage as Shadow. 1 point : 273 damage 2 points: 546 damage 3 points: 818 damage 4 points: 1,091 damage 5 points: 1,363 damage 6 points: 1,636 damage
+    coup_de_grace = {
+        id = 441776,
+        known = 196819,
+        cast = 0,
+        cooldown = 0,
+        gcd = "totem",
+        school = "physical",
+
+        spend = function ()
+            if buff.goremaws_bite.up then return 0 end
+            return 35 * ( ( talent.shadow_focus.enabled and ( buff.shadow_dance.up or buff.stealth.up ) ) and 0.95 or 1 )
+        end,
+        spendType = "energy",
+
+        startsCombat = true,
+        usable = function () return combo_points.current > 0, "requires combo points" end,
+        buff = "coup_de_grace",
+        texture = 5927656,
+
+        used_for_danse = function()
+            if not talent.danse_macabre.enabled or buff.shadow_dance.down then return false end
+            return danse_macabre_tracker.eviscerate
+        end,
+
+        handler = function ()
+            if debuff.fazed.up then addStack( "flawless_form", nil, 5 ) end
+            removeBuff( "coup_de_grace" )
+
+            class.abilities.eviscerate.handler()
+        end,
+
+        bind = "eviscerate"
+    },
+
+
 
     -- TODO: Does Flagellation generate combo points with Shadow Blades?
     flagellation = {
