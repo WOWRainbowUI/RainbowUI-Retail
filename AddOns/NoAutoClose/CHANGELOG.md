@@ -1,6 +1,7 @@
 # NoAutoClose
 
-## [v1.3.6](https://github.com/NumyAddon/NoAutoClose/tree/v1.3.6) (2024-11-21)
-[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.3.5...v1.3.6) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
+## [v1.3.7](https://github.com/NumyAddon/NoAutoClose/tree/v1.3.7) (2024-12-09)
+[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.3.6...v1.3.7) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
 
-- Classic TOC Bump  
+- Add Wago release  
+- Fix a small rare error in the release script  
