@@ -68,7 +68,7 @@ function BaganatorItemViewCommonBackpackViewMixin:OnLoad()
         end
       end
       self:OnFinished()
-    elseif settingName == addonTable.Config.Options.MAIN_VIEW_SHOW_BAG_SLOTS then
+    elseif settingName == addonTable.Config.Options.MAIN_VIEW_SHOW_BAG_SLOTS and self:IsVisible() then
       self.BagSlots:Update(self.lastCharacter, self.isLive)
       self:OnFinished()
     end
@@ -88,7 +88,7 @@ function BaganatorItemViewCommonBackpackViewMixin:OnLoad()
     end
   end)
 
-  addonTable.CallbackRegistry:RegisterCallback("SpecialBagToggled", function(_, character)
+  addonTable.CallbackRegistry:RegisterCallback("LayoutUpdateRequired", function()
     if self:IsVisible() and self.lastCharacter ~= nil then
       self:UpdateForCharacter(self.lastCharacter, self.isLive)
     end
