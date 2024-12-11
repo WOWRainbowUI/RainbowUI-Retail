@@ -1,8 +1,12 @@
 # DBM - Core
 
-## [11.0.35](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.35) (2024-12-11)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.34...11.0.35) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.0.36](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.36) (2024-12-11)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.34...11.0.36) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
+- Fix another bug where combat voice packs were not playing TTS when available on classic  
+- Fix health warnings so they now work for non combat deaths (like drowning)  
+    Bump version again  
+- bump alpha  
 - Fix nightmare grove not being properly detected by missing modules check or trivial difficulty check  
 - Fix defaults bugs with infoframe and bar colors where defaults were set to incorrect default values  
 - VS code can be dogshit sometimes  
