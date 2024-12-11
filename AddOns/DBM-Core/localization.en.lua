@@ -6,8 +6,12 @@ DBM_CORE_L = L
 L.DEADLY_BOSS_MODS						= "Deadly Boss Mods" -- NO TRANSLATE
 L.DBM									= "DBM" -- NO TRANSLATE
 
+local guild = GetGuildInfo("player")
 local dateTable = date("*t")
-if dateTable.day and dateTable.month and dateTable.day == 1 and dateTable.month == 4 then
+if C_Seasons and C_Seasons.GetActiveSeason and C_Seasons.GetActiveSeason() == 12 and guild == "OnlyFangs" then
+	L.DEADLY_BOSS_MODS					= "Deadly Boss Lua"
+	L.DBM								= "Boss Loa"
+elseif dateTable.day and dateTable.month and dateTable.day == 1 and dateTable.month == 4 then
 	L.DEADLY_BOSS_MODS					= "Harmless Minion Mods"
 	L.DBM								= "HMM"
 end
@@ -79,12 +83,15 @@ L.TRANSCRIPTOR_LOG_START				= "Transcriptor logging started."
 L.TRANSCRIPTOR_LOG_END					= "Transcriptor logging ended."
 
 L.MOVIE_SKIPPED							= L.DBM .. " has attempted to skip a cut scene automatically."
-L.MOVIE_NOTSKIPPED							= L.DBM .. " has detected a skipable cut scene but has NOT skipped it due to a blizzard bug. When this bug is fixed, skipping will be re-enabled"
+L.MOVIE_NOTSKIPPED						= L.DBM .. " has detected a skipable cut scene but has NOT skipped it due to a blizzard bug. When this bug is fixed, skipping will be re-enabled"
 L.BONUS_SKIPPED							= L.DBM .. " has automatically closed bonus loot frame. If you need to get this frame back, type /dbmbonusroll within 3 minutes"
 
 L.AFK_WARNING							= "You are AFK and in combat (%d percent health remaining), firing sound alert. If you are not AFK, clear your AFK flag or disable this option in 'extra features'."
+L.LOWHEALTH_WARNING						= "Low Health (%d percent health remaining), firing sound alert. You can disable this option in 'extra features'."
+L.ENTERING_COMBAT						= "Entering combat"
+L.LEAVING_COMBAT						= "Leaving combat"
 
-L.COMBAT_STARTED_AI_TIMER				= "My CPU is a neural net processor; a learning computer. (This fight will use the new timer AI feature to generate timer approximations)"
+L.COMBAT_STARTED_AI_TIMER				= "My CPU is a neural net processor; a learning computer. (This fight will use timer AI feature to generate timer approximations)"
 
 L.PROFILE_NOT_FOUND						= "<" .. L.DBM .. "> Your current profile is corrupted. " .. L.DBM .. " will load 'Default' profile."
 L.PROFILE_CREATED						= "'%s' profile created."
@@ -698,8 +705,10 @@ L.DBM_INSTALL_REMINDER_DL_WAGO	= "Press " .. (IsMacClient() and "Cmd-C" or "Ctrl
 L.DBM_INSTALL_REMINDER_DL_CURSE	= "Press " .. (IsMacClient() and "Cmd-C" or "Ctrl-C")  ..  " to copy the Curseforge link to your clipboard."
 --"Press " .. (IsMacClient() and "Cmd-C" or "Ctrl-C")  ..  "
 L.DBM_INSTALL_PACKAGE_VANILLA	= "Vanilla and Season of Discovery package"
+L.DBM_INSTALL_PACKAGE_BCC		= "Burning Crusade package"
 L.DBM_INSTALL_PACKAGE_WRATH		= "Wrath package"
 L.DBM_INSTALL_PACKAGE_CATA		= "Cataclysm package"
+L.DBM_INSTALL_PACKAGE_MOP		= "Mist of Pandaria package"
 L.DBM_INSTALL_PACKAGE_DUNGEON	= "Dungeons, Delves, and Events package"
 
 -- Tests
