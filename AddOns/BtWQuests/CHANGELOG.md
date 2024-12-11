@@ -1,3 +1,7 @@
+# v2.50.0
+
+- Fixed an issue handling player auras
+
 # v2.49.0
 
 - Fixed an issue with Chromie Time 
