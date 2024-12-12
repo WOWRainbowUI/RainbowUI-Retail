@@ -1,6 +1,6 @@
 # Auctionator
 
-## [11.0.18](https://github.com/Auctionator/Auctionator/tree/11.0.18) (2024-11-26)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/11.0.17...11.0.18) 
+## [11.0.19](https://github.com/Auctionator/Auctionator/tree/11.0.19) (2024-12-11)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/11.0.18...11.0.19) 
 
-- Add Support Auctionator message on the the about tab  
+- [Fixes #1609] Classic: Error when sorting by Quantity column in Cancelling tab  
