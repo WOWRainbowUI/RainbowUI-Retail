@@ -1,6 +1,6 @@
 # Baganator
 
-## [542](https://github.com/Baganator/Baganator/tree/542) (2024-12-10)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/541...542) 
+## [544](https://github.com/Baganator/Baganator/tree/544) (2024-12-11)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/543...544) 
 
-- Themes: Dark: Fix square icons being enabled unexpectedly  
+- [Fixes #375] Don't show Blizzard slot background when using ElvUI/NDui/GW2 skins  
