@@ -215,6 +215,12 @@ L["CONFIRM_PURCHASE_OF_X_FOR_X"] = "確認購買 %s 總價 %s？"
 L["CONFIRM_UNHIDE_ALL"] = "是否確定要取消隱藏所有隱藏物品？"
 L["CONFIRM_X_TOTAL_PRICE_X"] = "確認 %s，總價格 %s"
 L["CONTINUE"] = "繼續"
+--[[Translation missing --]]
+L["CONTRIBUTE_HEADER"] = "|cff04cca4Development is time consuming. Consider supporting|r"
+--[[Translation missing --]]
+L["CONTRIBUTE_TOOLTIP_HEADER"] = "About donating"
+--[[Translation missing --]]
+L["CONTRIBUTE_TOOLTIP_TEXT"] = "Auctionator has had thousands of hours spent on development and support to get it to its current state in just the last few years. Donating is one way of supporting this indefinitely."
 L["CONTRIBUTORS_HEADER"] = "貢獻者"
 L["COPY_ITEM_ADDED"] = "已複製 %s 到 %s"
 L["COPY_NO_LIST_SELECTED"] = "無法複製物品。沒有選擇購物清單。"

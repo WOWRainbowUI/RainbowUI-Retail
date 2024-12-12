@@ -216,6 +216,12 @@ L["CONFIRM_PURCHASE_OF_X_FOR_X"] = "Kauf von %s für %s bestätigen?"
 L["CONFIRM_UNHIDE_ALL"] = "Sicher, dass alle ausgeblendeten Gegenstände wieder eingeblendet werden sollen?"
 L["CONFIRM_X_TOTAL_PRICE_X"] = "Bestätigen %s, Gesamtpreis %s"
 L["CONTINUE"] = "Fortsetzen"
+--[[Translation missing --]]
+L["CONTRIBUTE_HEADER"] = "|cff04cca4Development is time consuming. Consider supporting|r"
+--[[Translation missing --]]
+L["CONTRIBUTE_TOOLTIP_HEADER"] = "About donating"
+--[[Translation missing --]]
+L["CONTRIBUTE_TOOLTIP_TEXT"] = "Auctionator has had thousands of hours spent on development and support to get it to its current state in just the last few years. Donating is one way of supporting this indefinitely."
 L["CONTRIBUTORS_HEADER"] = "Mitwirkende"
 L["COPY_ITEM_ADDED"] = "Kopierte %s in %s"
 L["COPY_NO_LIST_SELECTED"] = "Gegenstand kann nicht kopiert werden. Keine Einkaufsliste ausgewählt"
