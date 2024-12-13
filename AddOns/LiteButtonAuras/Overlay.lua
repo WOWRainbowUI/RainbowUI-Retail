@@ -181,7 +181,9 @@ function LiteButtonAurasOverlayMixin:GetMatchingAura(t)
                 return t[extraAuraName]
             end
         end
-    elseif not self:IsIgnoreSpell() and t[self.name] then
+    elseif self:IsIgnoreSpell() then
+        return
+    elseif LBA.db.profile.defaultNameMatching and t[self.name] then
         return t[self.name]
     end
 end
@@ -222,9 +224,9 @@ function LiteButtonAurasOverlayMixin:Update(stateOnly)
             --     show = true
             elseif self:TrySetAsBuff('player') then
                 show = true
-            elseif LBA.PlayerPetBuffs[self.name] and self:TrySetAsBuff('pet') then
-                show = true
             elseif self:TrySetAsDebuff('target') then
+                show = true
+            elseif self:TrySetAsPetBuff('pet') then
                 show = true
             elseif self:TrySetAsWeaponEnchant() then
                 show = true
@@ -285,6 +287,14 @@ function LiteButtonAurasOverlayMixin:SetAsBuff(auraData)
     self:SetAsAura(auraData)
 end
 
+function LiteButtonAurasOverlayMixin:SetAsPetBuff(auraData)
+    local color = LBA.db.profile.color.petBuff
+    local alpha = LBA.db.profile.glowAlpha
+    self.Glow:SetVertexColor(color.r, color.g, color.b, alpha)
+    -- self.Stacks:SetTextColor(color.r, color.g, color.b, 1.0)
+    self:SetAsAura(auraData)
+end
+
 function LiteButtonAurasOverlayMixin:SetAsDebuff(auraData)
     local color = LBA.db.profile.color.debuff
     local alpha = LBA.db.profile.glowAlpha
@@ -298,6 +308,16 @@ function LiteButtonAurasOverlayMixin:TrySetAsBuff(unit)
     if aura then
         self:SetAsBuff(aura)
         return true
+    end
+end
+
+function LiteButtonAurasOverlayMixin:TrySetAsPetBuff(unit)
+    if LBA.db.profile.playerPetBuffs then
+        local aura = self:GetMatchingAura(LBA.state[unit].buffs)
+        if aura and aura.sourceUnit == 'player' then
+            self:SetAsPetBuff(aura)
+            return true
+        end
     end
 end
 
@@ -327,7 +347,9 @@ function LiteButtonAurasOverlayMixin:SetAsTotem(expireTime)
 end
 
 function LiteButtonAurasOverlayMixin:TrySetAsTotem()
-    if LBA.state.player.totems[self.name] and not self:IsIgnoreSpell() then
+    if self:IsIgnoreSpell() or not LBA.db.profile.defaultNameMatching then
+        return
+    elseif LBA.state.player.totems[self.name] then
         self:SetAsTotem(LBA.state.player.totems[self.name])
         return true
     end
