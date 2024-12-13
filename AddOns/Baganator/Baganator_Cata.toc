@@ -1,6 +1,6 @@
 ## Interface: 40401
 ## Title: Baganator
-## Version: 544
+## Version: 546
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -22,6 +22,7 @@ Core\Welcome.lua
 Core\Analytics.lua
 Core\Main.lua
 
+Skins\Utilities.lua
 Skins\Main.lua
 Skins\Blizzard.lua
 Skins\Dark.lua

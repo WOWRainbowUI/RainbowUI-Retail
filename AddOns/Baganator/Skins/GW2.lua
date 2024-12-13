@@ -51,7 +51,7 @@ local function SkinContainerFrame(frame, topButtons, topRightButtons)
   end
   hooksecurefunc(frame.SearchWidget, "SetSpacing", function(_, sideSpacing)
     frame.SearchWidget:ClearAllPoints()
-    frame.SearchWidget.SearchBox:SetPoint("RIGHT", frame, -sideSpacing - 71, 0)
+    frame.SearchWidget.SearchBox:SetPoint("RIGHT", frame, -sideSpacing - 106, 0)
     frame.SearchWidget.SearchBox:SetPoint("TOPLEFT", frame, "TOPLEFT", buttonFrameOffset, - 28)
   end)
   frame.SearchWidget.SearchBox:SetHeight(22)
@@ -389,6 +389,6 @@ local function LoadSkin()
   HideBagButtons()
 end
 
-if (select(4, C_AddOns.GetAddOnInfo("GW2_UI"))) then
+if addonTable.Skins.IsAddOnLoading("GW2_UI") then
   addonTable.Skins.RegisterSkin(BAGANATOR_L_GW2_UI, "gw2_ui", LoadSkin, SkinFrame, SetConstants, {}, true)
 end
