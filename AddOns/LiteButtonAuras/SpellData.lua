@@ -29,11 +29,12 @@ LBA.Interrupts = {
     [  2139] = true,    -- Counterspell (Mage)
     [116705] = true,    -- Spear Hand Strike (Monk)
     [ 96231] = true,    -- Rebuke (Paladin)
-    [ 31935] = true,    -- Avenger's Shield (Paladin)
+--  [ 31935] = true,    -- Avenger's Shield (Paladin)
     [ 15487] = true,    -- Silence (Priest)
     [  1766] = true,    -- Kick (Rogue)
     [ 57994] = true,    -- Wind Shear (Shaman)
     [ 19647] = true,    -- Spell Lock (Warlock Felhunter Pet)
+    [ 89766] = true,    -- Axe Toss (Warlock Felguard Pet)
     [  6552] = true,    -- Pummel (Warrior)
     [351338] = true,    -- Quell (Evoker)
 }
@@ -64,10 +65,6 @@ LBA.HostileDispels = {
 --  [155145] = { Magic = true },    -- Arcane Torrent (Blood Elf Paladin)
 --  [202719] = { Magic = true },    -- Arcane Torrent (Blood Elf Demon Hunter)
 --  [232633] = { Magic = true },    -- Arcane Torrent (Blood Elf Priest)
-}
-
-LBA.PlayerPetBuffs = {
-    [   136] = true,                -- Mend Pet
 }
 
 LBA.Taunts = {
@@ -148,7 +145,6 @@ do
     AddSpellNames(LBA.Interrupts)
     AddSpellNames(LBA.Soothes)
     AddSpellNames(LBA.HostileDispels)
-    AddSpellNames(LBA.PlayerPetBuffs)
     AddSpellNames(LBA.Taunts)
 end
 

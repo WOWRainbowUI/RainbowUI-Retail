@@ -92,6 +92,19 @@ local options = {
                     width = "full",
                     order = order(),
                 },
+                defaultNameMatching = {
+                    type = "toggle",
+                    name = L["Automatically match auras to abilities by name."],
+                    desc = L['If you disable this option, only auras explicitly configured under "Extra aura displays" will be shown.'],
+                    order = order(),
+                    width = "full",
+                },
+                playerPetBuffs = {
+                    type = "toggle",
+                    name = L["Display buffs cast by you on your pet."],
+                    order = order(),
+                    width = "full",
+                },
                 showTimers = {
                     type = "toggle",
                     name = L["Display aura duration timers."],
