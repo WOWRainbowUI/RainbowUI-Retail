@@ -1,9 +1,9 @@
 # Baganator
 
-## [546](https://github.com/Baganator/Baganator/tree/546) (2024-12-12)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/545...546) 
+## [547](https://github.com/Baganator/Baganator/tree/547) (2024-12-13)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/546...547) 
 
-- Classic: Dark Theme: Fix missing top corner borders  
-- Tweaks to saved searches button  
-- Add new "Saved Searches" button for quick access to more complicated terms  
-- Fix UsingSkinRaw analytics flag (as always opt-in only)  
+- Fixes for alt toggle buttons for separate issues on GW2 skin and saved searches  
+- Include buttons next to search box in effects of "Show when holding Alt" option  
+- Permit second row of currencies tracked to extend above buttons at bottom of bag  
+- [Fixes #378] Fix Auto Open: Character Panel option erroring  
