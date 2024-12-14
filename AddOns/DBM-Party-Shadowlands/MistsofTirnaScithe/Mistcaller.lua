@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2402, "DBM-Party-Shadowlands", 3, 1184)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241121095732")
+mod:SetRevision("20241214043728")
 mod:SetCreatureID(164501)
 mod:SetEncounterID(2392)
 mod:SetHotfixNoticeRev(20240808000000)
@@ -41,9 +41,9 @@ local specWarnFixate				= mod:NewSpecialWarningRun(321891, nil, nil, nil, 4, 2)
 local specWarnPattyCake				= mod:NewSpecialWarningInterrupt(321828, nil, nil, nil, 3, 2)
 --local specWarnGTFO					= mod:NewSpecialWarningGTFO(257274, nil, nil, nil, 1, 8)
 
-local timerDodgeBallCD				= mod:NewCDCountTimer(12.1, 321834, nil, nil, nil, 3)--12.1-18
-local timerFreezeTagCD				= mod:NewCDCountTimer(21.8, 321873, nil, nil, nil, 3)--21.8-25
-local timerPattyCakeCD				= mod:NewCDCountTimer(19.4, 321828, nil, nil, nil, 4, nil, DBM_COMMON_L.TANK_ICON..DBM_COMMON_L.INTERRUPT_ICON)--20-26
+local timerDodgeBallCD				= mod:NewVarCountTimer("v12.1-18", 321834, nil, nil, nil, 3)--12.1-18
+local timerFreezeTagCD				= mod:NewVarCountTimer("v21.8-25", 321873, nil, nil, nil, 3)--21.8-25
+local timerPattyCakeCD				= mod:NewVarCountTimer("v19.4-26", 321828, nil, nil, nil, 4, nil, DBM_COMMON_L.TANK_ICON..DBM_COMMON_L.INTERRUPT_ICON)--20-26
 local timerPattyCake				= mod:NewCastTimer(2.5, 321828, nil, nil, nil, 5, nil, DBM_COMMON_L.DEADLY_ICON..DBM_COMMON_L.INTERRUPT_ICON)
 
 mod:AddNamePlateOption("NPAuraOnFixate", 321891)--Sets NP icon if you're target of fixate
@@ -64,8 +64,8 @@ function mod:OnCombatStart(delay)
 	self.vb.tagCount = 0
 	self.vb.pattyCount = 0
 	timerDodgeBallCD:Start(6-delay, 1)
-	timerPattyCakeCD:Start(12.2-delay, 1)--12.2-14.3
-	timerFreezeTagCD:Start(15.9-delay, 1)--15.9-18.5, Sometimes cast is skipped?
+	timerPattyCakeCD:Start("v12.2-14.3", 1)--12.2-14.3
+	timerFreezeTagCD:Start("v15.9-18.5", 1)--15.9-18.5, Sometimes cast is skipped?
 	if self.Options.NPAuraOnFixate or self.Options.NPAuraOnFreezeTag2 then
 		DBM:FireEvent("BossMod_EnableHostileNameplates")
 	end
