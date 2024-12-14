@@ -75,15 +75,15 @@ end
 ---@class DBM
 local DBM = private:GetPrototype("DBM")
 _G.DBM = DBM
-DBM.Revision = parseCurseDate("20241211014610")
+DBM.Revision = parseCurseDate("20241214041041")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 local fakeBWVersion, fakeBWHash = 368, "fc06f51"--368.0
 local PForceDisable
 -- The string that is shown as version
-DBM.DisplayVersion = "11.0.36"--Core version
+DBM.DisplayVersion = "11.0.37"--Core version
 DBM.classicSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2024, 12, 10) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2024, 12, 13) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 PForceDisable = 15--When this is incremented, trigger force disable regardless of major patch
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
@@ -1887,7 +1887,7 @@ do
 				"LOADING_SCREEN_DISABLED",
 				"ZONE_CHANGED_NEW_AREA"
 			)
-			if private.newShit then
+			if not private.isWrath then
 				self:RegisterEvents(
 					"START_PLAYER_COUNTDOWN",
 					"CANCEL_PLAYER_COUNTDOWN"
@@ -4503,7 +4503,7 @@ do
 	---@param blizzardTimer boolean?
 	local function pullTimerStart(self, sender, timer, blizzardTimer)
 		if not timer then return end
-		if private.newShit and not blizzardTimer then return end--Ignore old DBM version comms
+		if not private.isWrath and not blizzardTimer then return end--Ignore old DBM version comms
 		local unitId
 		if sender then--Blizzard cancel events triggered by system (such as encounter start) have no sender
 			if blizzardTimer then
@@ -4586,14 +4586,14 @@ do
 		end
 	end
 	syncHandlers["PT"] = function(sender, _, timer)
-		if DBM.Options.DontShowUserTimers or private.newShit then return end
+		if DBM.Options.DontShowUserTimers or not private.isWrath then return end
 		pullTimerStart(DBM, sender, timer)
 	end
 
 	do
 		local dummyMod2 -- dummy mod for the break timer
 		function breakTimerStart(self, timer, sender)--, blizzardTimer, isRecovery
-	--		if private.newShit and not blizzardTimer and not isRecovery then return end
+	--		if not private.isWrath and not blizzardTimer and not isRecovery then return end
 			--if sender then--Blizzard cancel events triggered by system (such as encounter start) have no sender
 			--	if blizzardTimer then
 			--		local unitId = self:GetUnitIdFromGUID(sender)
@@ -4650,7 +4650,7 @@ do
 	end
 
 	syncHandlers["BT"] = function(sender, _, timer)
-		if DBM.Options.DontShowUserTimers then return end--or private.newShit
+		if DBM.Options.DontShowUserTimers then return end--or not private.isWrath
 		timer = tonumber(timer or 0)
 		if timer > 3600 then return end
 		if (DBM:GetRaidRank(sender) == 0 and IsInGroup()) or select(2, IsInInstance()) == "pvp" or private.IsEncounterInProgress() then
@@ -7520,7 +7520,7 @@ do
 			testSpecialWarning2 = testMod:NewSpecialWarning(" %s ", nil, nil, nil, 2, 2)
 			testSpecialWarning3 = testMod:NewSpecialWarning("  %s  ", nil, nil, nil, 3, 2) -- hack: non auto-generated special warnings need distinct names (we could go ahead and give them proper names with proper localization entries, but this is much easier)
 		end
-		testTimer1:Stop("Test Bar")
+		testTimer1:Stop("Test Bar showing 5s Variance")
 		testTimer2:Stop("Adds")
 		testTimer3:Stop("Evil Debuff")
 		testTimer4:Stop("Important Interrupt")
@@ -7528,12 +7528,12 @@ do
 		testTimer6:Stop("Handle your Role")
 		testTimer7:Stop("Next Stage")
 		testTimer8:Stop("Custom User Bar")
-		testTimer1:Start(10, "Test Bar")
-		testTimer2:Start(30, "Adds")
+		testTimer1:Start("v5-10", "Test Bar showing 5s Variance")
+		testTimer2:Start("v25-30", "Adds")
 		testTimer3:Start(43, "Evil Debuff")
 		testTimer4:Start(20, "Important Interrupt")
 		testTimer5:Start(60, "Boom!")
-		testTimer6:Start(35, "Handle your Role")
+		testTimer6:Start("v32-35", "Handle your Role")
 		testTimer7:Start(50, "Next Stage")
 		testTimer8:Start(55, "Custom User Bar")
 		testWarning1:Cancel()
@@ -7551,7 +7551,7 @@ do
 		testWarning3:Schedule(20, "Pew Pew Laser Owl!")
 		testWarning2:Schedule(38, "Evil Spell in 5 sec!")
 		testWarning2:Schedule(43, "Evil Spell!")
-		testWarning1:Schedule(10, "Test bar expired!")
+		testWarning1:Schedule(10, "Test Bar expired!")
 		testSpecialWarning1:Schedule(20, "Pew Pew Laser Owl")
 		testSpecialWarning1:ScheduleVoice(20, "runaway")
 		testSpecialWarning2:Schedule(43, "Fear!")
@@ -9242,7 +9242,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20241211013243" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20241214041041" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
