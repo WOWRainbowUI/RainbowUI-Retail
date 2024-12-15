@@ -46,19 +46,19 @@ local PARTY_UNIT = {
 
 local INSTANCETYPE_EVENTS = {
 	party = {
-		'CHALLENGE_MODE_START'
+		'CHALLENGE_MODE_START' 
 	},
 	raid = {
-		'ENCOUNTER_END'
+		'ENCOUNTER_END' 
 	},
 	none = {
-		'PLAYER_FLAGS_CHANGED'
+		'PLAYER_FLAGS_CHANGED' 
 	},
 	arena = {
 		'UPDATE_UI_WIDGET'
 	},
 	pvp = {
-		'CHAT_MSG_BG_SYSTEM_NEUTRAL',
+		'CHAT_MSG_BG_SYSTEM_NEUTRAL', 
 		'UPDATE_UI_WIDGET'
 	}
 }
@@ -165,7 +165,7 @@ local function UpdateRosterInfo(force, clearSession)
 
 		local isAdminObsForMDI
 		if P.zone == "party" then
-
+			
 			local _,_, subgroup = GetRaidRosterInfo(i)
 			isAdminObsForMDI = subgroup and subgroup > 1
 		end
@@ -189,9 +189,9 @@ local function UpdateRosterInfo(force, clearSession)
 				frame.anchor.text:SetText(index)
 			end
 
-
-
-
+			
+			
+			
 			if force or not info.spec or (info.isAdminObsForMDI ~= isAdminObsForMDI) then
 				info.isAdminObsForMDI = isAdminObsForMDI
 				if not isUser then
@@ -232,7 +232,7 @@ local function UpdateRosterInfo(force, clearSession)
 			end
 		elseif class then
 			local _,_, race = UnitRace(unit)
-			local name1 = GetUnitName(unit, true)
+			local name1 = GetUnitName(unit, true) 
 			local name2 = UnitName(unit)
 			local level = UnitLevel(unit)
 			level = level > 0 and level or 200
@@ -302,7 +302,7 @@ local function UpdateRosterInfo(force, clearSession)
 	P.callbackTimers.anchorBackup = C_Timer.NewTicker(6, AnchorFix, (E.customUF.active == "VuhDo" or E.customUF.active == "HealBot") and 2 or 1)
 end
 
-local function IsInShadowlands()
+function P:IsInShadowlands()
 	local mapID = C_Map and C_Map.GetBestMapForUnit("player")
 	if mapID then
 		local mapInfo = C_Map.GetMapInfo(mapID)
@@ -315,22 +315,24 @@ local function IsInShadowlands()
 	end
 end
 
-function P:GROUP_ROSTER_UPDATE(isPEW, isRefresh)
+function P:GROUP_ROSTER_UPDATE(isPEW, isRefresh) 
 	if self.callbackTimers.rosterDelay then
 		self.callbackTimers.rosterDelay:Cancel()
 		self.callbackTimers.rosterDelay = nil
 	end
 
 	if isRefresh or GetNumGroupMembers() == 0 then
+		
 		UpdateRosterInfo(true)
 	elseif isPEW then
-
+		
 		C_Timer.After(E.customUF.delay or 0.5, function()
-			self.isInShadowlands = E.isSL or (E.postBFA and not self.isInPvPInstance and IsInShadowlands())
+			
+			self.isInShadowlands = E.isSL or (E.postBFA and not self.isInPvPInstance and self:IsInShadowlands())
 			UpdateRosterInfo(true, true)
 		end)
 	else
-
+		
 		self.callbackTimers.rosterDelay = C_Timer.NewTimer(E.customUF.delay or 0.5, function()
 			UpdateRosterInfo()
 		end)
@@ -382,7 +384,7 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 		self:Test()
 	end
 
-
+	
 	local zone = self.isInTestMode and self.testZone or instanceType
 	E.db = E:GetCurrentZoneSettings(zone)
 	for key, frame in pairs(self.extraBars) do
@@ -415,7 +417,7 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 			self.callbackTimers.arenaTicker = nil
 		end
 	end
-
+	
 	self:GROUP_ROSTER_UPDATE(true, isRefresh)
 end
 
