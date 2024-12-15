@@ -1,2 +1,2 @@
-## Other Changes
-- TOC interface version updated.
+## Improvements
+- Minimap button is now a DataBroker if the requirements are right
