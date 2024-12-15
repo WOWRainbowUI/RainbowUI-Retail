@@ -23,8 +23,11 @@ local C_AddOns_GetAddOnEnableState = API.C_AddOns_GetAddOnEnableState
 local C_AddOns_EnableAddOn = API.C_AddOns_EnableAddOn
 local C_AddOns_DisableAddOn = API.C_AddOns_DisableAddOn
 local C_ChatInfo_RegisterAddonMessagePrefix = API.C_ChatInfo_RegisterAddonMessagePrefix
+local C_Timer_After = API.C_Timer_After
 
 local measureFontString = UIParent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+
+local editMode = false
 
 local tip = ''
 -- 更新显示 FontString 位置的函数
@@ -152,6 +155,8 @@ local function getLastUTF8Char(s)
 	return s:sub(lastCharStart)
 end
 
+local C_Word = {}
+
 local function FindHis(his, patt)
 	if not his or #his <= 0 or not patt or #patt <= 0 then return '' end
 	patt = patt:gsub("%|c.-(%[.-%]).-%|r", function(a1)
@@ -159,6 +164,10 @@ local function FindHis(his, patt)
 	end)
 	local lastChat = getLastUTF8Char(patt)
 	local pattp = U:CutWord(patt)
+	-- LOG:Debug('pattp: ', pattp[#pattp])
+	-- for i, v in ipairs(U:CutWord('不会 找jason')) do
+	-- 	LOG:Debug('pattp2: ', v)
+	-- end
 	if not pattp or #pattp <= 0 then return '' end
 	for i = #his, 1, -1 do
 		local h = his[i]
@@ -167,9 +176,8 @@ local function FindHis(his, patt)
 				-- LOG:Debug(a1)
 				return a1
 			end)
-			-- LOG:Debug(h)
+			-- LOG:Debug('h: ', h)
 			local hisp = U:CutWord(h)
-
 			for h_index, h2 in ipairs(hisp) do
 				-- 先按分词匹配
 				local patt2 = pattp[#pattp]
@@ -186,27 +194,51 @@ local function FindHis(his, patt)
 						end
 					end
 				end
-				-- 再使用最后一个字符匹配
-				patt2 = lastChat
-				start, _end = strfind(h2, patt2, 1, true)
-				if start and start > 0 then
-					-- LOG:Debug(patt2)
-					if _end ~= # h2 then
-						return strsub(h2, _end + 1)
-					else
-						local pnex = hisp[h_index + 1]
-						if pnex and #pnex > 0 then
-							return pnex
-						end
-					end
-				end
 			end
+		end
+	end
+	-- for i = #his, 1, -1 do
+	-- 	local h = his[i]
+	-- 	if h and #h > 0 then
+	-- 		h = h:gsub("%|c.-(%[.-%]).-%|r", function(a1)
+	-- 			-- LOG:Debug(a1)
+	-- 			return a1
+	-- 		end)
+	-- 		-- LOG:Debug('h: ', h)
+	-- 		local hisp = U:CutWord(h)
+	-- 		for h_index, h2 in ipairs(hisp) do
+	-- 			-- 再使用最后一个字符匹配分词
+	-- 			local patt2 = lastChat
+	-- 			local start, _end = strfind(h2, patt2, 1, true)
+	-- 			if start and start > 0 then
+	-- 				-- LOG:Debug(patt2)
+	-- 				if _end ~= # h2 then
+	-- 					return strsub(h2, _end + 1)
+	-- 				else
+	-- 					local pnex = hisp[h_index + 1]
+	-- 					if pnex and #pnex > 0 then
+	-- 						return pnex
+	-- 					end
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 	end
+	-- end
+	-- 匹配常用词
+	local c_w = U:FindMaxValue(C_Word, pattp[#pattp])
+	if c_w then
+		return c_w
+	end
+	for i = #his, 1, -1 do
+		local h = his[i]
+		if h and #h > 0 then
 			-- 如果分词匹配不到，使用输入的最后一个字符匹配
-			local start, _end = strfind(h, lastChat, 1, true)
-			if start and start > 0 and _end ~= #h then
-				return strsub(h, _end + 1)
-			end
+			-- local start, _end = strfind(h, lastChat, 1, true)
+			-- if start and start > 0 and _end ~= #h then
+			-- 	return strsub(h, _end + 1)
+			-- end
 			-- LOG:Debug(lastChat)
+			-- 匹配角色名字和地区名字
 			local playerTip = U:PlayerTip(patt, pattp[#pattp])
 			if playerTip then
 				return playerTip
@@ -292,7 +324,8 @@ local chat_h = 1
 function LoadSize(scale, editBox, backdropFrame2, channel_name, II_TIP, II_LANG)
 	editBox:SetWidth(480 * scale)
 	local font, _, flags = editBox:GetFont()
-	editBox:SetFont(font, newFontSize * scale, flags)
+	local newH = newFontSize * scale
+	editBox:SetFont(font, newH < 0 and 0 or newH, flags)
 
 	-- 确保光标可见
 	-- editBox.cursorOffset = 0
@@ -328,6 +361,7 @@ local isInit = false
 function MAIN:Init()
 	scale = D:ReadDB('input_size', 1)
 	messageHistory = D:ReadDB('messageHistory', {}, true)
+	C_Word = D:ReadDB('C_Word', {}, true)
 	U:InitWordCache(messageHistory)
 	historyIndex = #messageHistory + 1
 	-- 获取默认的聊天输入框
@@ -506,6 +540,7 @@ function FormatMSG(channel, senderGUID, msg, isChannel, sender, isPlayer)
 
 	local classColor = RAID_CLASS_COLORS[class]
 	if not classColor then
+		---@diagnostic disable-next-line: missing-fields
 		classColor = {
 			colorStr = 'FF' .. channelColor
 		}
@@ -607,7 +642,7 @@ function HideEuiBorder(editBox)
 end
 
 function HideLS_GLASSBorder(editBox)
-	if ls_Glass then
+	if ls_Glass and editBox and editBox.Backdrop then
 		LoadPostion(editBox)
 		---@diagnostic disable-next-line: undefined-field
 		editBox.Backdrop:SetBackdropColor(0, 0, 0, 0)
@@ -796,6 +831,8 @@ local function chatEventHandler(event, arg1, arg2, arg3, arg4, arg5, arg6, arg7,
 	return false, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16,
 		arg17
 end
+local autoHide = true
+
 local last_text = ''
 
 ---@param editBox EditBox
@@ -834,7 +871,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 		end
 	end
 	editBox:HookScript("OnDragStart", function(...)
-		if IsShiftKeyDown() then
+		if IsShiftKeyDown() and not editMode then
 			editBox.StartMoving(...)
 		end
 	end);
@@ -847,7 +884,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 	end);
 	-- resize repoint
 	editBox:HookScript("OnMouseDown", function(self, button)
-		if IsShiftKeyDown() and button == "RightButton" then
+		if IsShiftKeyDown() and button == "RightButton" and not editMode then
 			editBox:ClearAllPoints()
 			editBox:SetPoint("CENTER", UIParent, "BOTTOM", 0, 330)
 			local point, _, relativePoint, xOfs, yOfs = editBox:GetPoint(1)
@@ -892,7 +929,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 	end)
 
 	UIParent:HookScript("OnUpdate", function(self, button)
-		if not InCombatLockdown() then
+		if not InCombatLockdown() and not editMode then
 			if IsShiftKeyDown() then
 				resizeButton:Show()
 			else
@@ -914,6 +951,20 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 		-- 检查输入框是否有内容
 		if message and message ~= "" then
 			U:AddOrMoveToEnd(messageHistory, message)
+			local patt = message:gsub("%|c.-(%[.-%]).-%|r", function(a1)
+				return a1
+			end)
+			if patt and patt ~= "" then
+				-- 常用词
+				local hisp = U:CutWord(patt)
+				if hisp and #hisp > 0 then
+					for _, word in ipairs(hisp) do
+						if word and #word > 1 then
+							U:AddOrAddOne(C_Word, word)
+						end
+					end
+				end
+			end
 		end
 		local temp = {}
 		if #messageHistory > 100 then
@@ -925,6 +976,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 		end
 		messageHistory = temp
 		D:SaveDB('messageHistory', messageHistory, true)
+		D:SaveDB('C_Word', C_Word, true)
 
 		-- 重置历史索引
 		historyIndex = #messageHistory + 1
@@ -1041,12 +1093,16 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 		ChatChange = true
 		self:SetText(last_text)
 	end)
-
 	editBox:HookScript("OnEditFocusLost", function(self)
-		self:Hide()
-		ChatChange = false
-		if not self:GetText() or #self:GetText() <= 0 then
-			M.HISTORY:clearHistory()
+		if not autoHide then
+			self:Show()  -- 强制显示
+			self:SetFocus()  -- 保持焦点
+		else
+			self:Hide()
+			ChatChange = false
+			if not self:GetText() or #self:GetText() <= 0 then
+				M.HISTORY:clearHistory()
+			end
 		end
 	end)
 
@@ -1112,6 +1168,24 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 						ChannelChange(editBox, bg, bg3, border, backdropFrame2, texture_btn, channel_name, II_LANG)
 					end
 					break
+				end
+			end
+			-- 记录聊天频道的信息作为提示
+			if event == 'CHAT_MSG_WHISPER' or event == 'CHAT_MSG_GUILD' or event == 'CHAT_MSG_OFFICER' or event == 'CHAT_MSG_BN_WHISPER' then
+				local patt = (msg or ''):gsub("%|c.-(%[.-%]).-%|r", function(a1)
+					return a1
+				end)
+				if patt and patt ~= "" then
+					-- 常用词
+					local hisp = U:CutWord(patt)
+					if hisp and #hisp > 0 then
+						for _, word in ipairs(hisp) do
+							if word and #word > 1 then
+								U:AddOrAddOne(C_Word, word)
+							end
+						end
+					end
+					D:SaveDB('C_Word', C_Word, true)
 				end
 			end
 		end)
@@ -1184,6 +1258,60 @@ frame:HookScript("OnEvent", function(self_f, event, ...)
 		editBox, bg, border, backdropFrame2, resizeButton, resizeBtnTexture, channel_name, II_TIP, II_LANG, bg3 =
 			MAIN:Init()
 		C_ChatInfo_RegisterAddonMessagePrefix('INPUTINPUT_V')
+		C_Timer_After(5, function()
+			U:InitFriends()
+			U:InitGuilds()
+			U:InitGroupMembers()
+		end)
+
+		-- 正式服编辑模式
+		if W.ClientVersion >= 100000 then
+			local LEM = LibStub('LibEditMode')
+			editBox.editModeName = L['InputBox']
+			LEM:AddFrame(editBox, function(f, layoutName, point, x, y)
+				local _, _, relativePoint, _, _ = editBox:GetPoint(1)
+				D:SaveDB('editBoxPosition', {
+					point, relativePoint, x, y
+				})
+			end, {
+				point = 'BOTTOM',
+				x = 0,
+				y = 315,
+			})
+
+			LEM:RegisterCallback('enter', function()
+				editBox:Show()
+				autoHide = false
+				editMode = true
+			end)
+			LEM:RegisterCallback('exit', function()
+				editBox:Hide()
+				autoHide = true
+				editMode = false
+				editBox:SetMovable(true)
+			end)
+
+			LEM:AddFrameSettings(editBox, {
+				{
+					name = L['scale'],
+					kind = LEM.SettingType.Slider,
+					default = 1,
+					get = function(layoutName)
+						return scale
+					end,
+					set = function(layoutName, value)
+						scale = value
+						LoadSize(scale, editBox, backdropFrame2, channel_name, II_TIP, II_LANG)
+					end,
+					minValue = 0.1,
+					maxValue = 10,
+					valueStep = 0.1,
+					formatter = function(value)
+						return FormatPercentage(value, true)
+					end,
+				}
+			})
+		end
 	end
 	if event == 'PLAYER_ENTERING_WORLD' or strfind(event, "WHISPER", 0, true) then
 		for _, chatFrameName in pairs(CHAT_FRAMES) do
@@ -1216,6 +1344,7 @@ frame:HookScript("OnEvent", function(self_f, event, ...)
 				self:SetText(temp)
 			end
 		end)
+
 		U:InitZones()
 		if not SendMessageWaiting then
 			SendMessageWaiting = U:Delay(10, U.SendVersionMsg)
@@ -1316,9 +1445,7 @@ frame:HookScript("OnEvent", function(self_f, event, ...)
 					end
 				end
 			end)
-			U:InitFriends()
-			U:InitGuilds()
-			U:InitGroupMembers()
+
 			LoadSize(scale, editBox, backdropFrame2, channel_name, II_TIP, II_LANG)
 			LoadPostion(editBox)
 

@@ -96,3 +96,13 @@ L['Login Information 2'] = "Enter %s or %s to open the settings panel"
 L['Not enabled, enter/ii to enable'] = 'Not enabled, enter%s to enable'
 
 L['New Version Discovered'] = '%s Discovered a new version %s'
+
+L['READ ME'] = '- move (Shift+left button), zoom (Shift+right arrow), reset (Shift+right button), The retail can enter editing mode for editing\
+- Tab to switch channel\
+- Historical records（↑ ↓）\
+- automatic supplementation（Control+Enter）\
+- undo（Control+Z）redo（Control+Shift+Z）'
+
+L['scale'] = 'scale'
+
+L['InputBox'] = 'ChatInputBox'
