@@ -22,10 +22,10 @@ local options = CreateFrame("FRAME")
 options.name = L['InputInput']
 options:Hide()
 
-local texture = options:CreateTexture(nil, "BACKGROUND")
-texture:SetPoint("RIGHT", options, "RIGHT", -50, 0)
-texture:SetTexture("Interface/AddOns/InputInput/Media/pet_type_dragon")
-texture:SetSize(150, 150)
+-- local texture = options:CreateTexture(nil, "BACKGROUND")
+-- texture:SetPoint("TOPLEFT", options, "TOPLEFT", 220, -20)
+-- texture:SetTexture("Interface/AddOns/InputInput/Media/pet_type_dragon")
+-- texture:SetSize(100, 100)
 
 local title = options:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 title:SetPoint("TOPLEFT", options, "TOPLEFT", 20, -20)
@@ -33,6 +33,14 @@ title:SetText(L['Input Input'].." "..W.colorName)
 local font, fontsize, flags = title:GetFont()
 ---@diagnostic disable-next-line: param-type-mismatch
 title:SetFont(font, 28, flags)
+
+local rm = options:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+rm:SetPoint("TOPLEFT", 16, -400)
+rm:SetText('|cff909399' .. L['READ ME'] .. '|r')
+rm:SetJustifyH('LEFT')
+rm:SetTextColor(1, 1, 1)
+rm:SetWordWrap(true)  -- 启用换行
+rm:SetWidth(600)
 
 local button = CreateFrame("Button", nil, options, "UIPanelButtonTemplate")
 button:SetSize(120, 25)
@@ -84,7 +92,7 @@ local function GetAddonMemory(addonName)
     if memoryUsageMB == 0 then
         return ''
     else
-        return '(' .. math.floor(memoryUsageMB) .. 'MB)'
+        return '(' .. (math.floor(memoryUsageMB * 100) / 100) .. 'MB)'
     end
 end
 
@@ -188,6 +196,7 @@ function OPT:loadOPT()
             showLines:Show()
             showChannel:SetPoint("TOPLEFT", 16, -304)
             enableIL_zh:SetPoint("TOPLEFT", 16, -336)
+            rm:SetPoint("TOPLEFT", 16, -400)
         else
             showTime:Hide()
             showbg:Hide()
@@ -196,6 +205,7 @@ function OPT:loadOPT()
             showLines:Hide()
             showChannel:SetPoint("TOPLEFT", 16, -98)
             enableIL_zh:SetPoint("TOPLEFT", 16, -136)
+            rm:SetPoint("TOPLEFT", 16, -194)
         end
     end)
     showChannel:SetScript("OnClick", function(self)
@@ -259,6 +269,7 @@ function OPT:loadOPT()
             showLines:Show()
             showChannel:SetPoint("TOPLEFT", 16, -304)
             enableIL_zh:SetPoint("TOPLEFT", 16, -336)
+			rm:SetPoint("TOPLEFT", 16, -400)
         else
             showTime:Hide()
             showbg:Hide()
@@ -267,6 +278,7 @@ function OPT:loadOPT()
             showLines:Hide()
             showChannel:SetPoint("TOPLEFT", 16, -98)
             enableIL_zh:SetPoint("TOPLEFT", 16, -136)
+			rm:SetPoint("TOPLEFT", 16, -194)
         end
         showTime:SetChecked(settings.showTime)
         showbg:SetChecked(settings.showbg)
