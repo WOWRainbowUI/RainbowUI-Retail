@@ -207,6 +207,9 @@ function timerPrototype:Start(timer, ...)
 		hasVariance = true
 		timerStringWithVariance = timer -- cache timer string
 		timer, minTimer = parseVarianceFromTimer(timer) -- use highest possible value as the actual End timer
+		if DBM.Options.DebugMode then
+			self.keep = true -- keep variance timers for debug purposes
+		end
 	end
 	if timer and type(timer) ~= "number" then
 		return self:Start(nil, timer, ...) -- first argument is optional!
@@ -229,7 +232,7 @@ function timerPrototype:Start(timer, ...)
 				end
 			end
 		end
-		timer = timer or self.timer--what the shit was "and ((timer > 0 and timer) or self.timer + timer)" even for? all that was doing was breaking mods that purposely start timers of 0
+		timer = timer and ((timer >= 0 and timer) or self.timer + timer) or self.timer
 		if isCountTimer and not self.allowdouble then--remove previous timer.
 			for i = #self.startedTimers, 1, -1 do
 				if DBM.Options.BadTimerAlert or DBM.Options.DebugMode and DBM.Options.DebugLevel > 1 then

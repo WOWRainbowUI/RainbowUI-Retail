@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "story,lfr,normal,heroic,mythic"
 
-mod:SetRevision("20241213050845")
+mod:SetRevision("20241214213120")
 mod:SetCreatureID(218370)
 mod:SetEncounterID(2922)
 mod:SetUsedIcons(1, 2, 3, 4, 5, 6, 7, 8)
@@ -313,19 +313,19 @@ local allTimers = {
 	["story"] = {
 		[1] = {
 			--Reactive Toxin
-			[437592] = {0},--Not used in Story
+			[437592] = {0.000001},--Not used in Story
 			--Venom Nova
 			[437417] = {34.4},
 			--Silken Tomb
 			[439814] = {20.5, 38.0},
 			--Liquefy
-			[440899] = {0},--Not used in Story
+			[440899] = {0.000001},--Not used in Story
 			--Web Blades
 			[439299] = {7.5, 38.0}
 		},
 		[3] = {
 			--Abyssal Infusion
-			[443888] = {0},--Not used in story
+			[443888] = {0.000001},--Not used in story
 			--Frothing Gluttony
 			[445422] = {62.4, 53.0},
 			--Queen's Summons
@@ -333,11 +333,11 @@ local allTimers = {
 			--Royal Condemnation
 			[438976] = {35.9, 53.0},
 			--Infest
-			[443325] = {0},--Not used in story
+			[443325] = {0.000001},--Not used in story
 			--Gorge
-			[443336] = {0},--Not used in story
+			[443336] = {0.000001},--Not used in story
 			--Web Blades
-			[439299] = {0}--Probably used but too late to ever see
+			[439299] = {0.000001}--Probably used but too late to ever see
 		},
 	},
 }
