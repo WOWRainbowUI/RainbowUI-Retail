@@ -23,4 +23,4 @@ Translate['Highlighting'] = '顯著標示';
 Translate['No Stats'] = '沒有屬性';
 
 -- 自行加入
-Translate['KeystoneLoot'] = "裝備查詢"
+Translate['KeystoneLoot'] = "職業適合裝備查詢"

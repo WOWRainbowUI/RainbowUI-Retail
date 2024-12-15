@@ -1408,7 +1408,7 @@ D["KeyMaster"] = {
 D["KeystoneLoot"] = {
     defaultEnable = 0,
 	tags = { "ITEM" },
-	title = "裝備查詢",
+	title = "職業適合裝備查詢",
 	desc = "方便尋找在 M+ 地城、團隊和寶庫可取得的裝備，可以依照職業、專精、部位和物品等級來找裝備，還能加入我的最愛。`",
     {
         text = "打開主視窗",
@@ -1416,7 +1416,7 @@ D["KeystoneLoot"] = {
     },
 	{
 		type = "text",
-        text = "點小地圖按鈕的 '裝備查詢' 按鈕也可以打開主視窗。",
+        text = "點小地圖按鈕的 '職業適合裝備查詢' 按鈕也可以打開主視窗。",
     },
 };
 D["Krowi_ExtendedVendorUI"] = {
