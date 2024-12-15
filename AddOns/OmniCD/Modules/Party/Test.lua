@@ -139,6 +139,7 @@ function TM:Test(key)
 
 		self:RegisterEvent('PLAYER_LEAVING_WORLD')
 
+		P.isInShadowlands = E.isSL or (E.postBFA and not P.isInPvPInstance and P:IsInShadowlands())
 		P:Refresh()
 
 		if not P.groupInfo[E.userGUID] then return end -- 暫時修正
