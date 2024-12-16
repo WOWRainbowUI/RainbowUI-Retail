@@ -1,6 +1,12 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r175](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r175) (2024-12-14)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r174...r175) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r176](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r176) (2024-12-16)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r175...r176) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- work around annoying core bug where starting a timer of 0 uses self.timer instead. But that annoying bug has to stay since over a decade worth of mods has assumed that to be valid  
+- Fix target warning not being used  
+- Fix this a better way  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/337  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/334  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/336 which was caused by double registered combat log handler  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/338  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/342  
