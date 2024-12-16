@@ -1,6 +1,7 @@
 # Syndicator
 
-## [140](https://github.com/Baganator/Syndicator/tree/140) (2024-12-05)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/139...140) 
+## [141](https://github.com/Baganator/Syndicator/tree/141) (2024-12-14)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/140...141) 
 
--  Add missing ptBR to Locales.lua  
+- Remove "lockbox" keyword and cleanup "locked" keyword code  
+- Add "lockbox" and "locked" search keywords  
