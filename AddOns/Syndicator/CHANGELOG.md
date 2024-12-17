@@ -1,7 +1,6 @@
 # Syndicator
 
-## [141](https://github.com/Baganator/Syndicator/tree/141) (2024-12-14)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/140...141) 
+## [142](https://github.com/Baganator/Syndicator/tree/142) (2024-12-15)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/141...142) 
 
-- Remove "lockbox" keyword and cleanup "locked" keyword code  
-- Add "lockbox" and "locked" search keywords  
+- When another account has warbank open prevent Warband bank data getting wiped  
