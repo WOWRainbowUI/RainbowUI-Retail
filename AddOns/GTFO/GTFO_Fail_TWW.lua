@@ -380,6 +380,44 @@ GTFO.SpellID["464508"] = {
   sound = 3;
 };
 
+GTFO.SpellID["465368"] = {
+  --desc = "War Stomp (Ossirian the Unscarred)";
+  sound = 3;
+};
+
+GTFO.SpellID["465658"] = {
+  --desc = "Harsh Winds (Ossirian the Unscarred)";
+  sound = 3;
+};
+
+GTFO.SpellID["465373"] = {
+  --desc = "Curse of Locusts (Ossirian the Unscarred)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["465369"] = {
+  --desc = "Curse of Locusts (Ossirian the Unscarred)";
+  applicationOnly = true;
+  sound = 1;
+};
+
+GTFO.SpellID["466187"] = {
+  --desc = "Curse of Boils (Ossirian the Unscarred)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["455925"] = {
+  --desc = "Precision Impale (Deepcrawler Tx'kesh)";
+  sound = 3;
+};
+
+GTFO.SpellID["450675"] = {
+  --desc = "Grimweave Burst (Sureki Priestess)";
+  sound = 3;
+};
+
 
 --- ****************************
 --- * Ara-Kara, City of Echoes *
@@ -1668,6 +1706,11 @@ GTFO.SpellID["439408"] = {
 
 GTFO.SpellID["442495"] = {
   --desc = "Eclipse (Nexus-Princess Ky'veza)";
+  sound = 3;
+};
+
+GTFO.SpellID["448176"] = {
+  --desc = "Gloom Orbs (Ascended Voidspeaker)";
   sound = 3;
 };
 

@@ -2172,3 +2172,18 @@ Change Log:
 * Added The War Within spells (world)
 * Added Vanilla spells (world)
 * Added TWW spells for Blackrock Depths (Raid)
+
+5.15
+* Updated for patch 11.0.7
+* Updated TOC for WoW Cataclysm 4.4.1
+* Updated TOC for WoW Classic 1.15.5
+* Added support for ignoring periodic damage
+* Added The War Within spells (world)
+* Added TWW spells for Nerub-ar Palace
+* Added TWW spells for TWW Delves 
+* Added Dragonflight spells (world)
+* Added Battle for Azeroth spells (world)
+* Added BFA spells for Battle of Dazar'alor
+* Added BFA spells for The Eternal Palace
+* Added BFA spells for Ny'alotha, the Waking City
+* Added Classic spells for Azeroth (world)

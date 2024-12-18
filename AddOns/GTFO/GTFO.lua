@@ -26,13 +26,13 @@ GTFO = {
 		SoundOverrides = { "", "", "", "" }; -- Override table for GTFO sounds
 		IgnoreSpellList = { };
 	};
-	Version = "5.14.2"; -- Version number (text format)
+	Version = "5.15"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 51402; -- Numeric version number for checking out-of-date clients (retail)
-	ClassicVersionNumber = 51400; -- Numeric version number for checking out-of-date clients (Vanilla classic)
+	RetailVersionNumber = 51500; -- Numeric version number for checking out-of-date clients (retail)
+	ClassicVersionNumber = 51500; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 50000; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 50503; -- Numeric version number for checking out-of-date clients (Wrath classic)
-	CataclysmVersionNumber = 51300; -- Numeric version number for checking out-of-date clients (Wrath classic)
+	CataclysmVersionNumber = 51500; -- Numeric version number for checking out-of-date clients (Wrath classic)
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
 	DataCode = "4"; -- Saved Variable versioning, change this value to force a reset to default
 	CanTank = nil; -- The active character is capable of tanking
@@ -543,6 +543,13 @@ function GTFO_OnEvent(self, event, ...)
 					-- Ignore event code found
 					return;
 				end
+
+				if (GTFO.SpellID[SpellID].ignorePeriodic and (SpellType == "SPELL_PERIODIC_DAMAGE" or SpellType == "SPELL_PERIODIC_MISSED")) then
+					--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Ignore periodic event");
+					-- Lingering damage and "Ignore Periodic" is set
+					return;					
+				end
+
 				if (GTFO.SpellID[SpellID].negatingDebuffSpellID and GTFO_HasDebuff("player", GTFO.SpellID[SpellID].negatingDebuffSpellID)) then
 					--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Negating debuff ("..GTFO.SpellID[SpellID].negatingDebuffSpellID..") is active");
 					-- Player has a spell negating debuff
