@@ -1,7 +1,7 @@
 # Baganator
 
-## [552](https://github.com/Baganator/Baganator/tree/552) (2024-12-16)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/551...552) 
+## [554](https://github.com/Baganator/Baganator/tree/554) (2024-12-17)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/553...554) 
 
-- Add TWW to Expansion icon corner option  
-- Hide Warband bank tabs when bank locked due to use on another account  
+- Change text on donate button  
+- Update donation link  

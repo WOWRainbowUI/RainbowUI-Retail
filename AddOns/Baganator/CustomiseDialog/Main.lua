@@ -682,7 +682,7 @@ function BaganatorCustomiseDialogMixin:SetupGeneral()
       button1 = DONE,
       hasEditBox = 1,
       OnShow = function(self)
-        self.editBox:SetText("https://buymeacoffee.com/plusmouse")
+        self.editBox:SetText("https://linktr.ee/plusmouse")
         self.editBox:HighlightText()
       end,
       EditBoxOnEnterPressed = function(self)
@@ -695,7 +695,7 @@ function BaganatorCustomiseDialogMixin:SetupGeneral()
     }
 
     local button = CreateFrame("Button", nil, donateFrame, "UIPanelDynamicResizeButtonTemplate")
-    button:SetText("Buy Me A Coffee")
+    button:SetText(BAGANATOR_L_LINK)
     DynamicResizeButton_Resize(button)
     button:SetPoint("LEFT", donateFrame, "CENTER", -35, 0)
     button:SetScript("OnClick", function()
