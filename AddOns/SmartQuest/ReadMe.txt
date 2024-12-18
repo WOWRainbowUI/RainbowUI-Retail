@@ -215,3 +215,9 @@ Change Log:
 
 1.29.1
 * Updated TOC to 11.0.2
+
+1.30
+* Updated TOC to 11.0.7
+* Updated TOC for Cataclysm 4.4.1
+* Updated TOC for Classic 1.15.5
+* Fixed issues with Cataclysm Classic
