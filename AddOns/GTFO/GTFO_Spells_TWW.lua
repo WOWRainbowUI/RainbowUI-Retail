@@ -138,6 +138,22 @@ GTFO.SpellID["459545"] = {
   sound = 1;
 };
 
+GTFO.SpellID["419210"] = {
+  --desc = "Defiling Breath (Scourge Abomination)";
+  sound = 1;
+};
+
+GTFO.SpellID["465284"] = {
+  --desc = "Nether Zone (Tichondrius)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["458512"] = {
+  --desc = "Spore Cloud (Parasidious)";
+  ignoreApplication = true;
+  sound = 1;
+};
 
 --- ****************************
 --- * Ara-Kara, City of Echoes *
@@ -551,6 +567,7 @@ GTFO.SpellID["454725"] = {
 GTFO.SpellID["452750"] = {
   --desc = "Necrotic Bubble (Air Bubble)";
   sound = 1;
+  ignorePeriodic = true;
 };
 
 GTFO.SpellID["455931"] = {
@@ -613,6 +630,7 @@ GTFO.SpellID["414523"] = {
 GTFO.SpellID["452041"] = {
   --desc = "Grimweave Orb (Ascended Webfriar)";
   sound = 1;
+  ignorePeriodic = true;
 };
 
 GTFO.SpellID["440939"] = {
@@ -748,6 +766,7 @@ GTFO.SpellID["443403"] = {
 GTFO.SpellID["441958"] = {
   --desc = "Grasping Silk (Queen Ansurek)";
   sound = 1;
+  ignoreApplication = true;
 };
 
 GTFO.SpellID["445818"] = {
@@ -765,6 +784,18 @@ GTFO.SpellID["446253"] = {
   --desc = "Slime Trail (Congealed Mass)";
   sound = 1;
 };
+
+GTFO.SpellID["447175"] = {
+  --desc = "Predation Threads (Queen Ansurek)";
+  soundFunction = function() -- Warn only if you get hit more than once within 1.5 seconds
+	if (GTFO_FindEvent("PredationThreads")) then
+		return 4;
+	end
+	GTFO_AddEvent("PredationThreads", 1);
+	return 0;
+  end;
+};
+
 
 --- ***************************
 --- * Blackrock Depths (Raid) *

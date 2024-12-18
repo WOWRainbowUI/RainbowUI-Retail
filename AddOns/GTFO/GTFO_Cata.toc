@@ -1,8 +1,8 @@
-## Interface: 40400, 40401
+## Interface: 40401, 40401
 ## Title: GTFO
 ## Notes: GTFO, you're dying!
 ## Author: Zensunim of Dragonblight
-## Version: 5.14.2
+## Version: 5.15
 ## DefaultState: Enabled
 ## SavedVariables: GTFOData
 ## X-WoWI-ID: 17996 
