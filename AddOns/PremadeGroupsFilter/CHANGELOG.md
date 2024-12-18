@@ -1,9 +1,6 @@
 # Premade Groups Filter
 
-## [6.5.7](https://github.com/0xbs/premade-groups-filter/tree/6.5.7) (2024-12-08)
-[Full Changelog](https://github.com/0xbs/premade-groups-filter/compare/6.5.6...6.5.7) [Previous Releases](https://github.com/0xbs/premade-groups-filter/releases)
+## [6.5.8](https://github.com/0xbs/premade-groups-filter/tree/6.5.8) (2024-12-17)
+[Full Changelog](https://github.com/0xbs/premade-groups-filter/compare/6.5.7...6.5.8) [Previous Releases](https://github.com/0xbs/premade-groups-filter/releases)
 
-- Fall back to DPS role if role not available (fixes #301)  
-- Prepare for TWW Season 2  
-- Merge pull request #300 from Machou/fr  
-- Update frFR.lua  
+- Fix matchingid for Nerub-ar Palace (see #303)  
