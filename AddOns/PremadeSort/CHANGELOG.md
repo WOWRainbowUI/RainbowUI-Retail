@@ -1,3 +1,7 @@
+### 1.3.0
+- Update for Patch
+- Sorting is back to newest to oldest for all content, except Dungeons where it's not applied
+
 ### 1.2.23
 - Fix error properly
 
