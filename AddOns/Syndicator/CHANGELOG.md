@@ -1,6 +1,6 @@
 # Syndicator
 
-## [142](https://github.com/Baganator/Syndicator/tree/142) (2024-12-15)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/141...142) 
+## [143](https://github.com/Baganator/Syndicator/tree/143) (2024-12-17)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/142...143) 
 
-- When another account has warbank open prevent Warband bank data getting wiped  
+- Update toc for 11.0.7  
