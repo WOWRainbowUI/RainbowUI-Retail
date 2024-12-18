@@ -324,13 +324,25 @@ function Addon:PrintTradeLog(ListMode, AltName, SelectedDate)
 	end
 	-- 寻找起始点
 	local StartPoint, Count = 1, 0
-	for i = #TradeLog, 1, -1 do
-		if ListMode == "ALL" or ListMode == "TRADE" and TradeLog[i].Result == "completed" or ListMode == "MAIL" and (TradeLog[i].Result == "sent" or TradeLog[i].Result == "received") or ListMode == "SMAIL" and TradeLog[i].Result == "sent" or ListMode == "RMAIL" and TradeLog[i].Result == "received" then
-			Count = Count + 1
+	if AltName then
+		for i = #TradeLog, 1, -1 do
+			if TradeLog[i].PlayerName == AltName then
+				Count = Count + 1
+			end
+			if Count > 512 then
+				StartPoint = i
+				break
+			end
 		end
-		if Count > 255 then
-			StartPoint = i
-			break
+	elseif not SelectedDate then
+		for i = #TradeLog, 1, -1 do
+			if ListMode == "ALL" or ListMode == "TRADE" and TradeLog[i].Result == "completed" or ListMode == "MAIL" and (TradeLog[i].Result == "sent" or TradeLog[i].Result == "received") or ListMode == "SMAIL" and TradeLog[i].Result == "sent" or ListMode == "RMAIL" and TradeLog[i].Result == "received" then
+				Count = Count + 1
+			end
+			if Count > 512 then
+				StartPoint = i
+				break
+			end
 		end
 	end
 	-- 輸出字符串
