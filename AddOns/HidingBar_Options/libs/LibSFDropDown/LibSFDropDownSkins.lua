@@ -1,5 +1,5 @@
 local lsfdd = LibStub("LibSFDropDown-1.5")
-local cur_ver, ver = lsfdd._sv, 4
+local cur_ver, ver = lsfdd._sv, 5
 if cur_ver and cur_ver >= ver then return end
 lsfdd._sv = ver
 local pairs, pcall = pairs, pcall
@@ -10,7 +10,7 @@ local skins = {
 	ElvUI = function(name)
 		local E = ElvUI[1]
 		if E.private.skins.blizzard.misc ~= true then return end
-		local S = E:GetModule('Skins')
+		local S = E:GetModule("Skins")
 		local m = lsfdd._m.__index
 
 		lsfdd:CreateMenuStyle(name, nil, function(parent)
@@ -24,13 +24,15 @@ local skins = {
 
 		local function skinButton(btn)
 			if btn.isSkinned then return end
-			btn:StripTextures()
+			btn.Left:SetTexture()
+			btn.Right:SetTexture()
+			btn.Middle:SetTexture()
 			btn:CreateBackdrop()
 			btn:SetFrameLevel(btn:GetFrameLevel() + 2)
 			btn.backdrop:Point("TOPLEFT", 3, 1)
 			btn.backdrop:Point("BOTTOMRIGHT", 1, 2)
 			btn.Button.SetPoint = E.noop
-			S:HandleNextPrevButton(btn.Button, 'down', nil, true)
+			S:HandleNextPrevButton(btn.Button, "down", nil, true)
 			btn.isSkinned = true
 		end
 
@@ -43,6 +45,37 @@ local skins = {
 			local status, err = pcall(skinButton, btn)
 			if not status then
 				self.CreateButton = nil
+			end
+			return btn
+		end
+
+		local function skinModernButton(btn)
+			if btn.isSkinned then return end
+			btn.Background:SetTexture()
+			if not btn.backdrop then
+				btn:CreateBackdrop(template)
+				btn:SetFrameLevel(btn:GetFrameLevel() + 2)
+			end
+			btn.backdrop:Point("TOPLEFT", 0, -2)
+			btn.backdrop:Point("BOTTOMRIGHT", 0, 2)
+			btn.Arrow:SetAlpha(0)
+			local tex = btn:CreateTexture(nil, "ARTWORK")
+			tex:SetTexture(E.Media.Textures.ArrowUp)
+			tex:SetRotation(3.14)
+			tex:Point("RIGHT", btn.backdrop, -3, 0)
+			tex:Size(14)
+			btn.isSkinned = true
+		end
+
+		for i, btn in lsfdd:IterateCreatedModernButtons() do
+			skinModernButton(btn)
+		end
+
+		function lsfdd:CreateModernButton(...)
+			local btn = m.CreateModernButton(self, ...)
+			local status, err = pcall(skinButton, btn)
+			if not status then
+				self.CreateModernButton = nil
 			end
 			return btn
 		end

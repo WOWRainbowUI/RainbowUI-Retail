@@ -1,5 +1,5 @@
 local lsfdd = LibStub("LibSFDropDown-1.5")
-local cur_ver, ver = lsfdd._mbv, 4
+local cur_ver, ver = lsfdd._mbv, 6
 if cur_ver and cur_ver >= ver then return end
 lsfdd._mbv = ver
 local menu1 = lsfdd:GetMenu(1)
@@ -85,6 +85,20 @@ do
 		local btn = self:CreateButton(...)
 		return mediaBackgroundInit(btn)
 	end
+
+
+	function libMethods:CreateMediaBackgroundModernButtonOriginal(...)
+		self.CreateMediaBackgroundModernButtonOriginal = nil
+
+		local btn = self:CreateModernButtonOriginal(...)
+		return mediaBackgroundInit(btn)
+	end
+
+
+	function libMethods:CreateMediaBackgroundModernButton(...)
+		local btn = self:CreateModernButton(...)
+		return mediaBackgroundInit(btn)
+	end
 end
 
 
@@ -136,6 +150,20 @@ do
 		local btn = self:CreateButton(...)
 		return mediaBorderInit(btn)
 	end
+
+
+	function libMethods:CreateMediaBorderModernButtonOriginal(...)
+		self.CreateMediaBorderModernButtonOriginal = nil
+
+		local btn = self:CreateModernButtonOriginal(...)
+		return mediaBorderInit(btn)
+	end
+
+
+	function libMethods:CreateMediaBorderModernButton(...)
+		local btn = self:CreateModernButton(...)
+		return mediaBorderInit(btn)
+	end
 end
 
 
@@ -153,7 +181,7 @@ do
 		local info = {list = {}}
 		local iconInfo = {
 			tSizeX = 0,
-			tSizeY = 14,
+			tSizeY = lsfdd._v.dropDownMenuButtonHeight - 2,
 		}
 		local statusbars = self.media:HashTable("statusbar")
 		for i, name in ipairs(self.media:List("statusbar")) do
@@ -176,7 +204,7 @@ do
 		local icon = self.media:Fetch("statusbar", value)
 		local iconInfo = {
 			tSizeX = 0,
-			tSizeY = 14,
+			tSizeY = self.ddTSizeY or 14,
 		}
 		self:ddSetSelectedText(value, icon, iconInfo, true, fontObject)
 	end
@@ -202,6 +230,22 @@ do
 
 	function libMethods:CreateMediaStatusbarButton(...)
 		local btn = self:CreateButton(...)
+		return mediaStatusbarInit(btn)
+	end
+
+
+	function libMethods:CreateMediaStatusbarModernButtonOriginal(...)
+		self.CreateMediaStatusbarModernButtonOriginal = nil
+
+		local btn = self:CreateModernButtonOriginal(...)
+		btn.ddTSizeY = 19
+		return mediaStatusbarInit(btn)
+	end
+
+
+	function libMethods:CreateMediaStatusbarModernButton(...)
+		local btn = self:CreateModernButton(...)
+		btn.ddTSizeY = 19
 		return mediaStatusbarInit(btn)
 	end
 end
@@ -247,8 +291,23 @@ do
 		return mediaFontInit(btn)
 	end
 
+
 	function libMethods:CreateMediaFontButton(...)
 		local btn = self:CreateButton(...)
+		return mediaFontInit(btn)
+	end
+
+
+	function libMethods:CreateMediaFontModernButtonOriginal(...)
+		self.CreateMediaFontModernButtonOriginal = nil
+
+		local btn = self:CreateModernButtonOriginal(...)
+		return mediaFontInit(btn)
+	end
+
+
+	function libMethods:CreateMediaFontModernButton(...)
+		local btn = self:CreateModernButton(...)
 		return mediaFontInit(btn)
 	end
 end
@@ -301,6 +360,20 @@ do
 
 	function libMethods:CreateMediaSoundButton(...)
 		local btn = self:CreateButton(...)
+		return mediaSoundInit(btn)
+	end
+
+
+	function libMethods:CreateMediaSoundModernButtonOriginal(...)
+		self.CreateMediaSoundModernButtonOriginal = nil
+
+		local btn = self:CreateModernButtonOriginal(...)
+		return mediaSoundInit(btn)
+	end
+
+
+	function libMethods:CreateMediaSoundModernButton(...)
+		local btn = self:CreateModernButton(...)
 		return mediaSoundInit(btn)
 	end
 end
