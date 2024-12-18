@@ -1,4 +1,4 @@
-## Interface: 30403, 40400, 110002, 110005
+## Interface: 30403, 40400, 110005, 110007
 ## Title: RangeDisplay Options
 ## Author: mitch0
 ## Version: v6.1.4

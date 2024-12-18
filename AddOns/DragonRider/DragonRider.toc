@@ -1,4 +1,4 @@
-## Interface: 110002, 110005
+## Interface: 110005, 110007
 ## Author: Keyboardturner
 ## Version: 0.5.0
 ## Title: Dragon Rider

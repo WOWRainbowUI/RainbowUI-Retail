@@ -1,4 +1,4 @@
-## Interface: 110002, 110005
+## Interface: 110005, 110007
 ## Author: Jordy141
 ## Notes: Enhances shift-click interface at vendors, making it easier to buy large amounts of items at once.
 ## Title: BuyEmAll

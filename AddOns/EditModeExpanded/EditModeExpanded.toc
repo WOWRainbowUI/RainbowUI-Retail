@@ -1,4 +1,4 @@
-## Interface: 110002, 110005
+## Interface: 110005, 110007
 ## Title: Edit Mode Expanded
 ## Version: 11.0-032
 ## Notes: Expands Edit Mode to apply to other frames

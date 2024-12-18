@@ -1,4 +1,4 @@
-## Interface: 11505, 30403, 40401, 110002, 110005
+## Interface: 11505, 30403, 40401, 110005, 110007
 ## Version: 11.0.7.0
 ## Title: Masque Blizzard Bars
 ## Notes: Enables Masque to skin the built-in action bars

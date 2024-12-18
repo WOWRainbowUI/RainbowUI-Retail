@@ -1,4 +1,4 @@
-## Interface: 11505, 30403, 40401, 110002, 110005
+## Interface: 11505, 30403, 40401, 110005, 110007
 ## Title: NoAutoClose
 ## Version: v1.3.7
 ## Notes: Stop frames from auto-closing when you open a new one

@@ -1,4 +1,4 @@
-## Interface: 110002, 110005
+## Interface: 110005, 110007
 ## Title: Premade Groups Filter
 ## Version: 6.5.7
 ## IconTexture: 397907

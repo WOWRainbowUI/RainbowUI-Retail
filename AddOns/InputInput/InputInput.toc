@@ -1,4 +1,4 @@
-## Interface: 11505, 30403, 40401, 110002, 110005
+## Interface: 11505, 30403, 40401, 110005, 110007
 ## IconTexture: Interface\AddOns\InputInput\Media\pet_type_dragon
 
 ## Title: |cff409EFF|cffF56C6Ci|rnput|cffF56C6Ci|rnput|r
