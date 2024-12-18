@@ -22,6 +22,9 @@ L['options_icons_khaz_algar_lore_hunter_desc'] = 'Display lore object locations 
 L['options_icons_flight_master'] = '{achievement:40430}'
 L['options_icons_flight_master_desc'] = 'Display {npc:Flight Master} locations for {achievement:40430}.'
 
+L['options_icons_worldsoul_memories'] = 'Worldsoul Memories'
+L['options_icons_worldsoul_memories_desc'] = 'Display rewards for {object:Worldsoul Memories}.'
+
 -------------------------------------------------------------------------------
 -------------------------------- ISLE OF DORN ---------------------------------
 -------------------------------------------------------------------------------
@@ -347,6 +350,62 @@ L['tuk_chest_2_note'] = '{note:Only available in the "Runaway Evolution" and "To
 L['tuk_chest_3_note'] = '{note:Only available in the "Runaway Evolution" and "Weaver Rescue" story variants.}'
 
 -------------------------------------------------------------------------------
+--------------------------------- SIREN ISLE ----------------------------------
+-------------------------------------------------------------------------------
+
+L['the_drowned_lair_note'] = 'Contribute {currency:3090} to {location:The Drowned Lair} at the {object:Siren Isle Command Map} to open this cave and spawn the rare.'
+L['the_drain_note'] = 'Contribute {currency:3090} to {location:The Drain} at the {object:Siren Isle Command Map} to open this cave and spawn the rare.'
+L['shuddering_hollow_note'] = 'Contribute {currency:3090} to {location:Shuddering Hollow} at the {object:Siren Isle Command Map} to open this cave and spawn the rare.'
+
+L['vykrul_sublabel'] = '{note:Only available with {npc:Bloodwake Vykrul} on the island.}'
+L['naga_sublabel'] = '{note:Only available with {npc:Naga} on the island.}'
+L['pirate_sublabel'] = '{note:Only available with {npc:pirates} on the island.}'
+
+L['storm_required'] = 'Requires active %s storm on {location:Siren Isle}.' -- %s becomes "(icon) [Seafury Tempest]"
+L['slaughtershell_location'] = 'Roams around the entire {location:Siren Isle}.'
+
+L['within_the_forgotten_vault'] = 'Within {location:The Forgotten Vault}. Use the {object:Singing Tablet} within {location:The Sacred Hollow} to enter the vault.'
+
+L['options_icons_runed_storm_chest'] = '{achievement:41131}'
+L['options_icons_runed_storm_chest_desc'] = 'Display {object:Runed Storm Cache} locations for {achievement:41131}.'
+
+L['runed_storm_chest_label'] = 'Runed Storm Cache'
+L['runed_storm_chest_suffix'] = 'caches opened'
+L['runed_storm_chest_note'] = 'Follow the wind to a hidden {object:Runed Storm Cache} and reveal it with {spell:472051}.'
+
+L['mouldy_sea_ledger_label'] = 'Mouldy Sea Ledger'
+L['mouldy_sea_ledger_location'] = 'On the floor of the {location:Salt and Shanty} inn near the fireplace.'
+
+L['scholars_of_the_sea_label'] = 'Scholars of the Sea: Siren Isle Synopsis'
+L['scholars_of_the_sea_location'] = 'On the second floor of the {location:Salt and Shanty} inn near the window.'
+
+L['flame_blessed_iron_item'] = 'Return this item for bonus {currency:3090}.'
+
+L['barnacle_encrusted_chest'] = 'Barnacle-Encrusted Chest'
+
+L['soweezi_note'] = 'Exchange {currency:3090} for a mount, toy, pet, or transmog.'
+
+L['krolusk_burrow_label'] = 'Krolusk Burrow'
+
+L['thrayir_note_start'] = 'Collect 5x runestone keys from around the {location:Siren Isle} and complete the ritual within {location:The Forgotten Vault} to recieve {item:232639}:'
+
+L['whirling_runekey_note'] = 'Drops from the {npc:231368} in the {location:The Forgotten Vault} during a storm.'
+L['torrential_runekey_note'] = 'Drops from any mob (normal, elite, or rare) on {location:Siren Isle} during a storm.'
+L['thunderous_runekey_note'] = 'Requires 5x {item:232605} found with {note:any} chest on the {location:Siren Isle}. {note:Does not require a storm}.'
+L['cyclonic_runekey_note'] = 'Drops from {npc:231357} in the {location:Deadfin Mire} on {location:Siren Isle} during a storm.'
+L['turbulent_runekey_note'] = 'Requires 3x {item:234327} found scattered around {location:Siren Isle} during a storm.'
+
+L['turbulent_fragment_a'] = 'Hidden in a {object:Dirt Pile} behind the {location:Salt and Shany} inn near the digging {npc:Kul Tiran} ghost.'
+L['turbulent_fragment_b'] = 'Loot the {object:Runic Fragment} in front of the cowering {npc:Kul Tiran} ghost inside a cave in the {location:Rotting Hole}.'
+L['turbulent_fragment_c'] = 'Loot the {object:Runic Fragment} held by the {npc:Kul Tiran} ghost inside the {location:Spirit Scarred Cave}.'
+
+L['prismatic_snapdragon_note_start'] = 'Over the course of 8 days, help save the {npc:235216} in the {location:Flotsam Shoal} to recieve {item:233489}.\n\n{note:You can miss a day but there is no catch-up mechanic}.'
+L['prismatic_day'] = 'Day %d' -- "Day 1" or "Day 4" or "Day 7"
+
+L['unsolved_amethyst_runelock'] = 'Unsolved Amethyst Runelock'
+L['bilge_rat_supply_chest'] = 'Bilge Rat Supply Chest'
+
+-------------------------------------------------------------------------------
 ----------------------------- SECRETS OF AZEROTH ------------------------------
 -------------------------------------------------------------------------------
 
@@ -403,7 +462,7 @@ L['olgra_location'] = '{note:Location changes based on the completion of {quest:
 
 -- ORB 2
 L['orb_2_label'] = 'Orb 2'
-L['orb_2_note'] = '{note:You must be in the {location:Battle for Azeroth} phase of {location:Vale of Eternal Blossoms}.}\n\nStand next to the {npc:153297} using one of the following gifts of {npc:147393}:\n\n{item:168123}\n{item:175140}\n{item:168004}\n\nSummon {item:49912} and using one of the following costumes:\n\n{item:229413}\n{item:116812}\n\nType {emote:/pray} and wait to receive the {item:53156}.\n\n{note:Other players around completing the above steps you can also obtain {item:53156}.}\n\nReturn to the {location:Karazhan Catacombs} and use the key to open both doors in the room with the fountain.'
+L['orb_2_note'] = 'Stand next to the {npc:153297} using one of the following gifts of {npc:147393}:\n\n{item:168123}\n{item:175140}\n{item:168004}\n\nSummon {item:49912} and using one of the following costumes:\n\n{item:229413}\n{item:116812}\n\nType {emote:/pray} and wait to receive the {item:53156}.\n\n{note:Other players around completing the above steps you can also obtain {item:53156}.}\n\nReturn to the {location:Karazhan Catacombs} and use the key to open both doors in the room with the fountain.'
 
 -- ORB 3
 L['orb_3_label'] = 'Orb 3'
@@ -479,7 +538,7 @@ L['sentry_note'] = '1. Place the {item:229046} here at the entrance to spawn a {
 L['orb_8_label'] = 'Orb 8'
 
 L['enigma_machine_label'] = 'Enigma Machine'
-L['enigma_machine_note'] = '1. Insert the {item:229007} and {item:229054} into the {object:Enigma Machine}.\n\n2. Click Begin and then click Submit. You must now unlock 7 hidden locks.\n\n3. Unlock a lock by counting each {npc:230596} in the instance, dragging the correct amount of statues to the correct platform, and clicking Submit again.\n\n{note:It is recommended to kill, but not count, each {npc:230599} to prevent them from standing on the platforms.}'
+L['enigma_machine_note'] = '1. Insert the {item:229007} and {item:229054} into the {object:Enigma Machine}.\n\n2. Click Begin and then click Submit. You must now unlock 3 hidden locks.\n\n3. Unlock a lock by counting each {npc:230596} in the instance, dragging the correct amount of statues to the correct platform, and clicking Submit again.\n\n{note:It is recommended to kill, but not count, each {npc:230599} to prevent them from standing on the platforms.}'
 
 L['lock_statue_note'] = 'Drag this statue to a platform.'
 L['lock_platform_note'] = 'Drag statues to this platform.'
@@ -499,11 +558,4 @@ L['code_label'] = '%d on %s'
 -- Orb 9
 L['orb_9_label'] = 'Orb 9'
 
--- Orb 10
-L['orb_10_label'] = 'Orb 10'
-
--- Orb 11
-L['orb_11_label'] = 'Orb 11'
-
--- Orb 12
-L['orb_12_label'] = 'Orb 12'
+L['ak_decryption_console_note'] = 'Back to the hidden hole, entrance within the cave down to {location:Pillar-nest Vosh} in {location:Azj-Kahet}.\n\nEquip your {item:228966} to reveal a hidden platform.\n\nTarget the {npc:230383} and use the {item:228996} to reach platform. Enter the code and open the {object:Encrypted Chest} to recieve the {item:229348}.\n\n{object:Code}: 84847078'
