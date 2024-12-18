@@ -43,7 +43,7 @@ end
 local settings = {
 	hasDisplayPriority = true,
 	headerText = TRACKER_HEADER_SCENARIO,
-	events = { "SCENARIO_UPDATE", "SCENARIO_CRITERIA_UPDATE", "SCENARIO_SPELL_UPDATE", "PLAYER_ENTERING_WORLD", "SCENARIO_COMPLETED", "SCENARIO_CRITERIA_SHOW_STATE_UPDATE", "UNIT_AURA", "SPELL_UPDATE_COOLDOWN" },
+	events = { "SCENARIO_UPDATE", "SCENARIO_CRITERIA_UPDATE", "SCENARIO_SPELL_UPDATE", "SCENARIO_COMPLETED", "SCENARIO_CRITERIA_SHOW_STATE_UPDATE", "UNIT_AURA", "SPELL_UPDATE_COOLDOWN" },
 	fromHeaderOffsetY = 0,
 	blockOffsetX = 20,
 	lineSpacing = 12,
@@ -68,9 +68,8 @@ function KT_ScenarioObjectiveTrackerMixin:InitModule()
 	self.ObjectivesBlock:Reset();
 	
 	self.spellFramePool = CreateFramePool("FRAME", self.ObjectivesBlock, "KT_ScenarioSpellFrameTemplate");
-	
-	self.TopWidgetContainerBlock.WidgetContainer:SetScript("OnSizeChanged", GenerateClosure(self.MarkDirty, self));
-	self.BottomWidgetContainerBlock.WidgetContainer:SetScript("OnSizeChanged", GenerateClosure(self.MarkDirty, self));
+
+	self:SetupWidgetContainers();
 
 	self.shouldShowCriteria = C_Scenario.ShouldShowCriteria();
 
@@ -95,6 +94,14 @@ local function WidgetsLayoutWithOffset(widgetContainerFrame, sortedWidgets, cont
 	KT_ScenarioObjectiveTracker:MarkDirty();
 end
 
+function KT_ScenarioObjectiveTrackerMixin:SetupWidgetContainers()
+	self.BottomWidgetContainerBlock.WidgetContainer:SetScript("OnSizeChanged", GenerateClosure(self.MarkDirty, self));
+	self.TopWidgetContainerBlock.WidgetContainer:SetScript("OnSizeChanged", GenerateClosure(self.MarkDirty, self));
+
+	self.BottomWidgetContainerBlock.WidgetContainer:RegisterForWidgetSet(SCENARIO_TRACKER_WIDGET_SET, WidgetsLayoutWithOffset);
+	self.TopWidgetContainerBlock.WidgetContainer:RegisterForWidgetSet(SCENARIO_TRACKER_TOP_WIDGET_SET, WidgetsLayoutWithOffset);
+end
+
 function KT_ScenarioObjectiveTrackerMixin:OnEvent(event, ...)
 	if event == "UNIT_AURA" then
 		local isShowingMawBuffs = self:IsShown() and self.MawBuffsBlock:IsShown();
@@ -110,16 +117,13 @@ function KT_ScenarioObjectiveTrackerMixin:OnEvent(event, ...)
 	elseif event == "SCENARIO_CRITERIA_UPDATE" or event == "SCENARIO_SPELL_UPDATE" then
 		self:MarkDirty();
 	elseif event == "SCENARIO_CRITERIA_SHOW_STATE_UPDATE" then
-    	local shouldShow = ...;
-    	self:SetShouldShowCriteria(show);
+		local shouldShow = ...;  -- FIXME: wrong variable name
+		self:SetShouldShowCriteria(show);
 	elseif event == "SCENARIO_COMPLETED" then
 		local rewardQuestID, xp, money = ...;
 		if (xp and xp > 0 and not IsPlayerAtEffectiveMaxLevel()) or (money and money > 0) then
 			KT_ScenarioRewardsFrame:DisplayRewards(xp, money);
-		end		
-	elseif event == "PLAYER_ENTERING_WORLD" then
-		self.BottomWidgetContainerBlock.WidgetContainer:RegisterForWidgetSet(SCENARIO_TRACKER_WIDGET_SET, WidgetsLayoutWithOffset);
-		self.TopWidgetContainerBlock.WidgetContainer:RegisterForWidgetSet(SCENARIO_TRACKER_TOP_WIDGET_SET, WidgetsLayoutWithOffset);
+		end
 	end
 end
 
@@ -505,9 +509,10 @@ end
 function KT_ScenarioObjectiveTrackerStageMixin:UpdateStageBlock(scenarioID, scenarioType, widgetSetID, textureKit, flags, currentStage, stageName, numStages)
 	local normalBGAtlas, finalBGAtlas = self:GetBGAtlases(scenarioType, textureKit);
 
+	local stageTextWidth = textureKit == "evergreen-scenario" and 210 or 172;
 	if bit.band(flags, SCENARIO_FLAG_SUPRESS_STAGE_TEXT) == SCENARIO_FLAG_SUPRESS_STAGE_TEXT then
 		self.Stage:SetText(stageName);
-		self.Stage:SetSize(172, 36);
+		self.Stage:SetSize(stageTextWidth, 36);
 		self.Stage:SetPoint("TOPLEFT", 15, -18);
 		self.FinalBG:Hide();
 		self.Name:SetText("");
@@ -519,7 +524,7 @@ function KT_ScenarioObjectiveTrackerStageMixin:UpdateStageBlock(scenarioID, scen
 			self.Stage:SetFormattedText(SCENARIO_STAGE, currentStage);
 			self.FinalBG:Hide();
 		end
-		self.Stage:SetSize(172, 18);
+		self.Stage:SetSize(stageTextWidth, 18);
 		self.Name:SetText(stageName);
 		if self.Name:GetStringWidth() > self.Name:GetWrappedWidth() then
 			self.Stage:SetPoint("TOPLEFT", 15, -10);

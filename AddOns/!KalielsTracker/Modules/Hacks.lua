@@ -58,7 +58,7 @@ end
 -- Affects World Map and removes taint errors. The hack removes call of restricted function SetPassThroughButtons.
 -- When the hack is inactive World Map display causes errors. It is not possible to get rid of these errors, since
 -- the tracker has a lot of interaction with the game frames.
--- Negative impacts: unknown in WoW 11.0.5
+-- Negative impacts: unknown in WoW 11.0.7
 local function Hack_WorldMap()
     if db.hackWorldMap then
         -- Blizzard_MapCanvas.lua
@@ -78,7 +78,7 @@ local function Hack_WorldMap()
 
         function WorldMapFrame:AcquirePin(pinTemplate, ...)  -- R
             if not self.pinPools[pinTemplate] then
-                local pinTemplateType = self.pinTemplateTypes[pinTemplate] or "FRAME";
+                local pinTemplateType = self:GetPinTemplateType(pinTemplate);
                 self.pinPools[pinTemplate] = CreateFramePool(pinTemplateType, self:GetCanvas(), pinTemplate, OnPinReleased);
             end
 
@@ -199,10 +199,7 @@ end
 function M:OnInitialize()
     _DBG("|cffffff00Init|r - "..self:GetName(), true)
     db = KT.db.profile
-end
 
-function M:OnEnable()
-    _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
     Hack_LFG()
     Hack_WorldMap()
     Hack_TaintedFrames()

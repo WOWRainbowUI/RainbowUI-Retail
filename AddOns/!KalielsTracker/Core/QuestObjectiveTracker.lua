@@ -22,6 +22,7 @@ local settings = {
 KT_QuestObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin, settings, KT_AutoQuestPopupTrackerMixin);
 
 function KT_QuestObjectiveTrackerMixin:InitModule()
+	self:AddTag("quest");
 	self:WatchMoney(false);
 end
 

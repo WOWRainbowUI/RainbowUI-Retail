@@ -37,6 +37,9 @@ function KT_QuestObjectiveItemButtonMixin:OnEvent(event, ...)
 		self.rangeTimer = -1;
 	elseif event == "BAG_UPDATE_COOLDOWN" then
 		KT_QuestObjectiveItemButtonMixin.UpdateCooldown(self);  -- MSA (fix)
+	elseif event == "PLAYER_INSIDE_QUEST_BLOB_STATE_CHANGED" then
+		local questID, inside = ...;
+		KT_QuestObjectiveItemButtonMixin.UpdateInsideBlob(self, questID, inside);  -- MSA (fix)
 	end
 end
 
@@ -44,15 +47,16 @@ function KT_QuestObjectiveItemButtonMixin:OnUpdate(elapsed)
 	-- Handle range indicator
 	local rangeTimer = self.rangeTimer;
 	if rangeTimer then
+		local questLogIndex = self:GetAttribute("questLogIndex");
 		rangeTimer = rangeTimer - elapsed;
 		if rangeTimer <= 0 then
-			local link, item, charges, showItemWhenComplete = GetQuestLogSpecialItemInfo(self.questLogIndex);
+			local link, item, charges, showItemWhenComplete = GetQuestLogSpecialItemInfo(questLogIndex);
 			if not charges or charges ~= self.charges then
 				KT_QuestObjectiveTracker:MarkDirty();
 				return;
 			end
 			local count = self.HotKey;
-			local valid = IsQuestLogSpecialItemInRange(self.questLogIndex);
+			local valid = IsQuestLogSpecialItemInRange(questLogIndex);
 			if valid == 0 then
 				count:Show();
 				count:SetVertexColor(1.0, 0.1, 0.1);
@@ -72,49 +76,72 @@ end
 function KT_QuestObjectiveItemButtonMixin:OnShow()
 	self:RegisterEvent("PLAYER_TARGET_CHANGED");
 	self:RegisterEvent("BAG_UPDATE_COOLDOWN");
+	self:RegisterEvent("PLAYER_INSIDE_QUEST_BLOB_STATE_CHANGED");
 end
 
 function KT_QuestObjectiveItemButtonMixin:OnHide()
 	self:UnregisterEvent("PLAYER_TARGET_CHANGED");
 	self:UnregisterEvent("BAG_UPDATE_COOLDOWN");
+	self:UnregisterEvent("PLAYER_INSIDE_QUEST_BLOB_STATE_CHANGED");
 end
 
 function KT_QuestObjectiveItemButtonMixin:OnEnter()
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-	GameTooltip:SetQuestLogSpecialItem(self.questLogIndex);
+	local questLogIndex = self:GetAttribute("questLogIndex");
+	GameTooltip:SetQuestLogSpecialItem(questLogIndex);
 end
 
 function KT_QuestObjectiveItemButtonMixin:OnClick(button)
+	local questLogIndex = self:GetAttribute("questLogIndex");
 	if IsModifiedClick("CHATLINK") and ChatEdit_GetActiveWindow() then
-		local link, item, charges, showItemWhenComplete = GetQuestLogSpecialItemInfo(self.questLogIndex);
+		local link, item, charges, showItemWhenComplete = GetQuestLogSpecialItemInfo(questLogIndex);
 		if link then
 			ChatEdit_InsertLink(link);
 		end
 	else
-		UseQuestLogSpecialItem(self.questLogIndex);
+		UseQuestLogSpecialItem(questLogIndex);
 	end
 end
 
 function KT_QuestObjectiveItemButtonMixin:SetUp(questLogIndex)
 	local link, item, charges, showItemWhenComplete = GetQuestLogSpecialItemInfo(questLogIndex);
-	self.questLogIndex = questLogIndex;
+	self:SetAttribute("questLogIndex", questLogIndex);
+	self:SetAttribute("questID", C_QuestLog.GetQuestIDForLogIndex(questLogIndex));
 	self.charges = charges;
 	self.rangeTimer = -1;
 	SetItemButtonTexture(self, item);
 	SetItemButtonCount(self, charges);
 	self:UpdateCooldown(self);
+	self:CheckUpdateInsideBlob();
 end
 
 function KT_QuestObjectiveItemButtonMixin:UpdateCooldown()
-	if not self.questLogIndex then return end  -- MSA
+	local questLogIndex = self:GetAttribute("questLogIndex");
+	if not questLogIndex then return end  -- MSA
 
-	local start, duration, enable = GetQuestLogSpecialItemCooldown(self.questLogIndex);
+	local start, duration, enable = GetQuestLogSpecialItemCooldown(questLogIndex);
 	if start then
 		CooldownFrame_Set(self.Cooldown, start, duration, enable);
 		if duration > 0 and enable == 0 then
 			SetItemButtonTextureVertexColor(self, 0.4, 0.4, 0.4);
 		else
 			SetItemButtonTextureVertexColor(self, 1, 1, 1);
+		end
+	end
+end
+
+function KT_QuestObjectiveItemButtonMixin:CheckUpdateInsideBlob()
+	local questID = self:GetAttribute("questID");
+	KT_QuestObjectiveItemButtonMixin.UpdateInsideBlob(self, questID, C_Minimap.IsInsideQuestBlob(questID));  -- MSA (fix)
+end
+
+function KT_QuestObjectiveItemButtonMixin:UpdateInsideBlob(questID, inside)
+	if questID == self:GetAttribute("questID") then
+		self.Glow:SetShown(inside); -- maybe fade out anim and then stop glow
+		if inside then
+			self.GlowAnim:Play();
+		else
+			self.GlowAnim:Stop();
 		end
 	end
 end
@@ -126,7 +153,7 @@ end
 KT_QuestObjectiveFindGroupButtonMixin = { };
 
 function KT_QuestObjectiveFindGroupButtonMixin:SetUp(questID)
-	self.questID = questID;
+	self:SetAttribute("questID", questID);
 end
 
 function KT_QuestObjectiveFindGroupButtonMixin:OnMouseDown()
@@ -150,8 +177,9 @@ end
 
 function KT_QuestObjectiveFindGroupButtonMixin:OnClick()
 	local isFromGreenEyeButton = true;
+	local questID = self:GetAttribute("questID");
 	-- We only want green eye button groups to display the create a group button if there are already groups there.
-	LFGListUtil_FindQuestGroup(self.questID, isFromGreenEyeButton);
+	LFGListUtil_FindQuestGroup(questID, isFromGreenEyeButton);
 end
 
 -- *****************************************************************************************************

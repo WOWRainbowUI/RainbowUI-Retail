@@ -151,7 +151,7 @@ function KT_AchievementObjectiveTrackerMixin:AddAchievement(achievementID, achie
 						_, criteriaString = GetAchievementInfo(assetID);
 					end
 				end
-				local line = block:AddObjective(criteriaIndex, criteriaString, nil, nil, KT_OBJECTIVE_DASH_STYLE_SHOW, colorStyle);
+				local line = block:AddObjective(criteriaIndex, criteriaString, nil, true, KT_OBJECTIVE_DASH_STYLE_SHOW, colorStyle);  -- fix Blizz bug
 				numShownCriteria = numShownCriteria + 1;
 				-- timer bar
 				if duration and elapsed and elapsed < duration then
@@ -180,7 +180,7 @@ function KT_AchievementObjectiveTrackerMixin:AddAchievement(achievementID, achie
 			end
 		end
 		local colorStyle = (not timerFailed and IsAchievementEligible(achievementID)) and KT_OBJECTIVE_TRACKER_COLOR["Normal"] or KT_OBJECTIVE_TRACKER_COLOR["Failed"];
-		local line = block:AddObjective(1, description, nil, nil, KT_OBJECTIVE_DASH_STYLE_SHOW, colorStyle);
+		local line = block:AddObjective(1, description, nil, true, KT_OBJECTIVE_DASH_STYLE_SHOW, colorStyle);  -- fix Blizz bug
 		if timerShown then
 			block:AddTimerBar(timerCriteriaDuration, timerCriteriaStartTime);
 		end

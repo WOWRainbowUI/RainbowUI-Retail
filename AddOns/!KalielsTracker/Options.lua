@@ -1202,7 +1202,7 @@ local options = {
 							set = function()
 								db.qiActiveButtonBindingShow = not db.qiActiveButtonBindingShow
 								KTF.ActiveFrame:Hide()
-								KT.ActiveButton:Update()
+								KT:Update()
 							end,
 							order = 5.5,
 						},
@@ -1692,7 +1692,7 @@ local options = {
 									"這個駭客工具移除了對受限函數 SetPassThroughButtons 的呼叫。"..
 									"停用駭客工具時，世界地圖顯示會導致錯誤。"..
 									"由於追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-									cWarning2.."負面影響:|r 在魔獸世界 11.0.5 尚未可知。\n",
+									cWarning2.."負面影響:|r 在魔獸世界 11.0.7 尚未可知。\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",

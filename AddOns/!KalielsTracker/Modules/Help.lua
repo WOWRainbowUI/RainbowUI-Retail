@@ -254,7 +254,7 @@ local function SetupTutorials()
 					"這個駭客工具移除了對受限函數 SetPassThroughButtons 的呼叫。"..
 					"停用駭客工具時，世界地圖顯示會導致錯誤。"..
 					"由於任務追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-					cWarning2.."負面影響:|r 在魔獸世界 11.0.5 尚未可知。",
+					cWarning2.."負面影響:|r 在魔獸世界 11.0.7 尚未可知。",
 			textY = -20,
 		},
 		{	-- 12
@@ -267,18 +267,11 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."版本 7.6.0|r\n"..
-					"- 新增 - 支援魔獸世界 11.0.5.57689\n"..
-					"- 新增 - 公開 API - 用來顯示/隱藏/切換任務追蹤清單 ... KalielsTracker:Toggle(true|false||nil)\n"..
-					"- 變更 (說明) - Active Patrons\n"..
-					"- 變更 - 支援插件 - Auctionator 11.0.18\n"..
-					"- 變更 - 支援插件 - ElvUI 13.81, Tukui 20.456\n"..
-					"- 變更 - 支援插件 - Masque 11.0.2\n"..
-					"- 變更 - 支援插件 - TomTom 4.0.6\n"..
-					"- 變更 - TomTom - 顯示另一各區域的世界任務導航資訊\n"..
-					"- 變更 - 編輯模式 - 改善當前任務物品按鈕的定位\n"..
-					"- 移除 - 駭客工具 - 冒險指南\n"..
-					"- 移除 - 駭客工具 - 編輯模式\n"..
+					cTitle.."版本 7.7.0|r\n"..
+					"- 新增 - 支援魔獸世界 11.0.7.58162\n"..
+					"- 變更 - 任務物品按鈕 – 重製當前任務物品按鈕\n"..
+					"- 變更 - 任務物品按鈕 – 玩家在該任務區域時會發光\n"..
+					"- 修正 - 清單物品高度的錯誤 (遊戲 bug)\n"..
 					"\n"..
 
 					cTitle.."回報問題|r\n"..
