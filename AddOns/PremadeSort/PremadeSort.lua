@@ -54,8 +54,8 @@ end
 local function SortRules(searchResultID1, searchResultID2)
 	local searchResultInfo1 = C_LFGList.GetSearchResultInfo(searchResultID1);
 	local searchResultInfo2 = C_LFGList.GetSearchResultInfo(searchResultID2);
-	local hasRemainingRole1 = HasRemainingSlotsForLocalPlayerRole(searchResultID1);
-	local hasRemainingRole2 = HasRemainingSlotsForLocalPlayerRole(searchResultID2);
+	-- local hasRemainingRole1 = HasRemainingSlotsForLocalPlayerRole(searchResultID1);
+	-- local hasRemainingRole2 = HasRemainingSlotsForLocalPlayerRole(searchResultID2);
     local _, appStatus1, pendingStatus1, appDuration1 = C_LFGList.GetApplicationInfo(searchResultID1);
     local _, appStatus2, pendingStatus2, appDuration2 = C_LFGList.GetApplicationInfo(searchResultID2);
 	local isDeclined1 = IsDeclined(appStatus1);
@@ -72,9 +72,9 @@ local function SortRules(searchResultID1, searchResultID2)
 	end
 
 	-- Groups with your current role available are preferred
-	if (hasRemainingRole1 ~= hasRemainingRole2) then
+--[[ 	if (hasRemainingRole1 ~= hasRemainingRole2) then
 		return hasRemainingRole1;
-	end
+	end ]]
 
     if Settings.FriendsEnabled then
         if ( searchResultInfo1.numBNetFriends ~= searchResultInfo2.numBNetFriends ) then
@@ -109,7 +109,10 @@ function SortSearchResults(result)
     -- No longer sort anything on unsecured accounts due taints
     if not IsAccountSecured() then return end
     if not result or (result and next(result.results) == nil) then return end
-    table.sort(result.results, SortRules)
+
+    if LFGListFrame.SearchPanel.categoryID ~= 2 then
+        table.sort(result.results, SortRules)
+    end
 end
 
 local LFGListDisplayType = Enum.LFGListDisplayType
@@ -123,7 +126,7 @@ local function OnLFGListSearchEntryUpdate(self)
     if not self.resultID then return end
 
     local searchResultInfo = C_LFGList.GetSearchResultInfo(self.resultID);
-    local activityInfo = C_LFGList.GetActivityInfoTable(searchResultInfo.activityID, nil, searchResultInfo.isWarMode);
+    local activityInfo = C_LFGList.GetActivityInfoTable(searchResultInfo.activityIDs[1], nil, searchResultInfo.isWarMode);
     if not activityInfo then return end
 
 --[[
