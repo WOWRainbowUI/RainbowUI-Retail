@@ -6,94 +6,94 @@ if not L then return end
 --------------------------------- KHAZ ALGAR ----------------------------------
 -------------------------------------------------------------------------------
 
-L['options_icons_delve_rewards'] = 'Delve Rewards'
-L['options_icons_delve_rewards_desc'] = 'Display {location:Delve} rewards on tooltips.'
+L['options_icons_delve_rewards'] = 'Награды в Вылазках'
+L['options_icons_delve_rewards_desc'] = 'Отображать награды в подсказках {location:Вылазки}.'
 
-L['skyriding_glyph'] = 'Skyriding Glyph'
-L['options_icons_skyriding_glyph'] = 'Skyriding Glyphs'
-L['options_icons_skyriding_glyph_desc'] = 'Display the location of all skyriding glyphs.'
+L['skyriding_glyph'] = 'Символы высшего пилотажа'
+L['options_icons_skyriding_glyph'] = 'Символы высшего пилотажа'
+L['options_icons_skyriding_glyph_desc'] = 'Отображение местоположения всех символов высшего пилотажа.'
 
-L['options_icons_profession_treasures'] = 'Profession Treasures'
-L['options_icons_profession_treasures_desc'] = 'Display locations of treasures which grant profession knowledge.'
+L['options_icons_profession_treasures'] = 'Сокровища профессии'
+L['options_icons_profession_treasures_desc'] = 'Показать местоположение сокровищ, дающих знания к профессиям.'
 
 L['options_icons_khaz_algar_lore_hunter'] = '{achievement:40762}'
-L['options_icons_khaz_algar_lore_hunter_desc'] = 'Display lore object locations for {achievement:40762} achievement.'
+L['options_icons_khaz_algar_lore_hunter_desc'] = 'Отображение местоположений предметов для достижения {achievement:40762}.'
 
 L['options_icons_flight_master'] = '{achievement:40430}'
-L['options_icons_flight_master_desc'] = 'Display {npc:Flight Master} locations for {achievement:40430}.'
+L['options_icons_flight_master_desc'] = 'Показать местоположения {npc:Распорядителей Полета} для {achievement:40430}.'
 
-L['options_icons_worldsoul_memories'] = 'Worldsoul Memories'
-L['options_icons_worldsoul_memories_desc'] = 'Display rewards for {object:Worldsoul Memories}.'
+L['options_icons_worldsoul_memories'] = nil
+L['options_icons_worldsoul_memories_desc'] = nil
 
 -------------------------------------------------------------------------------
 -------------------------------- ISLE OF DORN ---------------------------------
 -------------------------------------------------------------------------------
 
-L['alunira_note'] = 'Collect 10x {item:224025} from mobs on the {location:Isle of Dorn} and combine them into a {item:224026} to remove her {spell:451570}.'
-L['violet_hold_prisoner'] = 'Violet Hold Prisoner'
+L['alunira_note'] = 'Соберите 10x {item:224025} с монстров на {location:Острове Дорн} и объедините их в {item:224026}, чтобы убрать ее {spell:451570}.'
+L['violet_hold_prisoner'] = 'Пленник Аметистовой крепости'
 
-L['elemental_geode_label'] = 'Elemental Geode'
-L['magical_treasure_chest_note'] = 'Push {npc:223104} back into the water then collect 5x {npc:223159s} nearby.'
-L['mosswool_flower_note'] = 'Click on the {npc:222956} and follow him.'
-L['mushroom_cap_note'] = 'Collect a {object:Boskroot Cap} in the nearby forest and bring it back to {npc:222894}.'
-L['mysterious_orb_note'] = 'Bring the {object:Elemental Pearl} back to the {npc:222847}.'
-L['thaks_treasure_note'] = 'Speak with {npc:223227} and follow him.'
-L['trees_treasure_note'] = 'Speak with {npc:222940} to get a {item:224185}. Guide 6x {npc:224548s} ({dot:Green}) around the {location:Isle of Dorn} back to {npc:222940}. When you have guided all the crabs back, go back in the cave to {npc:222940} and speak with her.'
-L['trees_treasure_crab_1_note'] = 'Under the tree.'
-L['trees_treasure_crab_2_note'] = 'On a branch in the tree.'
-L['trees_treasure_crab_3_note'] = 'Under the tree.'
-L['trees_treasure_crab_4_note'] = 'Under a root of the tree.'
-L['trees_treasure_crab_5_note'] = 'On a ledge.'
-L['trees_treasure_crab_6_note'] = 'On a root of the tree.'
-L['turtles_thanks_1_note'] = 'Hand in 5x {item:220143} (can be fished from {object:Calm Surfacing Ripple} pools or bought from the auction house). {note:Leave the area and return immediately to hand in the next fish.}'
-L['turtles_thanks_2_note'] = 'Hand in 1x {item:222533} (can be fished from {object:Glimmerpool}, {object:Festering Rotpool}, {object:Infused Ichor Spill} pool or bought from the auction house).'
-L['turtles_thanks_3_note'] = 'Meet the {npc:223338} in {location:Dornogal} and speak with her to reveal the treasure.'
-L['web_wrapped_axe_note'] = 'On the first floor.\n\n{note:Have 1-2 Hours spawn time.}'
+L['elemental_geode_label'] = 'Стихийная жеода'
+L['magical_treasure_chest_note'] = 'Толкните {npc:223104} обратно в воду, затем соберите 5x {npc:223159} поблизости.'
+L['mosswool_flower_note'] = 'Нажмите на {npc:222956} и следуйте за ним.'
+L['mushroom_cap_note'] = 'Соберите {object:Корнеплодник} в ближайшем лесу и принесите его {npc:222894}.'
+L['mysterious_orb_note'] = 'Верните {object:Жемчужина стихии} обратно {npc:222847}.'
+L['thaks_treasure_note'] = 'Поговорите с {npc:223227} и следуйте за ним.'
+L['trees_treasure_note'] = 'Поговорите с {npc:222940}, чтобы получить {item:224185}. Приведите 6x {npc:224548} ({dot:Green}) на {location:Острове Дорн} обратно к {npc:222940}. Когда вы отведете всех крабов обратно, вернитесь в пещеру к {npc:222940} и поговорите с ней.'
+L['trees_treasure_crab_1_note'] = 'Под деревом.'
+L['trees_treasure_crab_2_note'] = 'На ветке дерева.'
+L['trees_treasure_crab_3_note'] = 'Под деревом.'
+L['trees_treasure_crab_4_note'] = 'Под корнем дерева.'
+L['trees_treasure_crab_5_note'] = 'На выступе.'
+L['trees_treasure_crab_6_note'] = 'На корне дерева.'
+L['turtles_thanks_1_note'] = 'Сдайте 5x {item:220143} (можно выловить в {object:Тихой рябе} или купить на аукционе). {note:Покиньте это место и немедленно вернитесь, чтобы сдать следующую рыбу.}'
+L['turtles_thanks_2_note'] = 'Сдайте 1 предмет {item:222533} (можно выловить в {object:Мерцающем омуте}, {object:Пагубном омуте гнили}, {object:Пятне насыщенного гноя} или купить на аукционе).'
+L['turtles_thanks_3_note'] = 'Встретьтесь с {npc:223338} в {location:Дорногале} и поговорите с ней, чтобы узнать о сокровище.'
+L['web_wrapped_axe_note'] = 'На первом этаже.\n\n{note:Время появления 1-2 часа.}'
 L['faithful_dog_note'] = [[
-1. Find the {npc:59533} in {location:The Heartland} in {map:376} in {map:424} and complete {quest:30526}.
-2. Build the {object:Herb Garden} in your {area:7490} in {map:572}.
-3. Find a {item:147420} in the {map:619} {map:627} then talk with {npc:87553} in your {area:7490} {object:Herb Garden}.
-The {npc:87553} will now be at the {location:Magical Menagerie} in {map:627}
-4. Interact with the {object:Half-Buried Dog Bowl} in {map:2248} then pet the {npc:87553} to receive the pet.
+1. Найдите {npc:59533} в {location:Плодородных землях} на {map:376} в {map:424} и выполните {quest:30526}.
+2. Постройте {object:Травяной сад} в вашем {area:7490} на {map:572}.
+3. Найдите {item:147420} на {map:619} {map:627}, затем поговорите с {npc:87553} в вашем {area:7490} {object:Травяном саду}.
+{npc:87553} теперь будет в {location:Волшебный зверинец} на {map:627}
+4. Взаимодействуйте с {object:Полузакопанной собачьей миской} на {map:2248}, затем погладьте {npc:87553}, чтобы получить питомца.
 ]]
 
-L['cendvin_note'] = 'Farm 900x {item:225557} in {location:Cinderwold} from elite mobs to purchase the {item:223153} mount from {npc:226205}.'
+L['cendvin_note'] = 'Соберите 900x {item:225557} в {location:Пепловольде} с элитных монстров, чтобы купить средство передвижения {item:223153} у {npc:226205}.'
 
 L['options_icons_flat_earthen'] = '{achievement:40606}'
-L['options_icons_flat_earthen_desc'] = 'Display location for {achievement:40606} achievement.'
+L['options_icons_flat_earthen_desc'] = 'Отображение местоположения для достижения {achievement:40606}.'
 
-L['tome_of_polymorph_mosswool'] = 'Enter the tunnel and continue to {location:The Kindling Parlor}.\n\nAccept {quest:84438} from {npc:229128} to receive the {item:227710}.'
+L['tome_of_polymorph_mosswool'] = 'Enter the tunnel and continue to {location:The Kindling Parlor}.\n\nПримите {quest:84438} от {npc:229128}, чтобы получить {item:227710}.'
 
-L['aradan_note_start'] = '{npc:213428} can be found in the dungeon {location:The Rookery} in {location:Dornogal} in the {location:Isle of Dorn}.\n\n{note:{npc:213428} can be tamed while in Follower Dungeon mode.}'
-L['aradan_note_step_1'] = '1. Collect {item:220770} from the deep in the water outside of {location:Isle of Dorn.}'
-L['aradan_note_step_2'] = '2. ({dot:Blue}) Enter {location:The Rookery} and defeat {npc:209230}.'
-L['aradan_note_step_3'] = '3. ({dot:Red}) Jump down the shaft then run up the stairs from where {npc:215967} spawns.'
-L['aradan_note_step_4'] = '4. ({dot:Green}) Run to the edge of the cliff and use the {item:220770} while targeting {npc:213428}.'
-L['aradan_note_step_5'] = '5. {npc:213428} will recognize the hammer and fly down, allowing you to tame him.'
-L['aradan_note_end'] = '{note:{item:220770} is not consumed on use so you can tame all 5 model variations or help a fellow hunter.}'
+L['aradan_note_start'] = '{npc:213428} можно найти в подземелье {location:Гнездовье} в {location:Дорногале} на {location:Острове Дорн}.\n\n{note:{npc:213428} можно приручить в режиме Подземелья с соратниками.}'
+L['aradan_note_step_1'] = '1. Соберите {item:220770} из глубин вод за пределами {location:Острова Дорн.}'
+L['aradan_note_step_2'] = '2. ({dot:Blue}) Войдите в {location:Гнездовье} и победите {npc:209230}.'
+L['aradan_note_step_3'] = '3. ({dot:Red}) Спрыгните в шахту, затем бегите вверх по лестнице, откуда появляется {npc:215967}.'
+L['aradan_note_step_4'] = '4. ({dot:Green}) Подбегите к краю обрыва и используйте {item:220770}, взяв в цель {npc:213428}.'
+L['aradan_note_step_5'] = '5. {npc:213428} узнает молот и полетит вниз, позволяя вам приручить его.'
+L['aradan_note_end'] = '{note:{item:220770} не расходуется при использовании, так что вы можете приручить все 5 вариаций модели или помочь товарищу-охотнику.}'
 
 -------------------------------------------------------------------------------
 -------------------------------- RINGING DEEPS --------------------------------
 -------------------------------------------------------------------------------
 
-L['forgotten_treasure_note'] = 'Open {object:Buried Treasure}s nearby to get the {item:217960}.'
-L['kaja_cola_machine_note'] = 'Purchase drinks in the following order: {item:223741} > {item:223743} > {item:223744} > {item:223742}.'
+L['forgotten_treasure_note'] = 'Откройте {object:Зарытое сокровище} поблизости, чтобы получить {item:217960}.'
+L['kaja_cola_machine_note'] = 'Приобретайте напитки в следующем порядке: {item:223741} > {item:223743} > {item:223744} > {item:223742}.'
 
 L['options_icons_i_only_need_one_trip'] = '{achievement:40623}'
-L['options_icons_i_only_need_one_trip_desc'] = 'Display location for the {achievement:40623} achievement.'
-L['i_only_need_one_trip_note'] = 'Deposit all 10 ore at once in the {wq:Courier Mission: Ore Recovery} world quest.'
+L['options_icons_i_only_need_one_trip_desc'] = 'Отображение местоположения для достижения {achievement:40623}.'
+L['i_only_need_one_trip_note'] = 'Внесите 10 руды одновременно в локальном задании {wq:Миссия по доставке: поиски руды}.'
 
 L['options_icons_not_so_quick_fix'] = '{achievement:40473}'
-L['options_icons_not_so_quick_fix_desc'] = 'Display console locations for {achievement:40473} achievement.'
+L['options_icons_not_so_quick_fix_desc'] = 'Отображение расположения консолей для достижения {achievement:40473}.'
 
-L['not_so_quick_fix_note'] = 'Repair the busted earthen console.'
-L['water_console_location'] = 'Next to the stairs.'
-L['abyssal_console_location'] = 'In an alcove.'
-L['taelloch_console_location'] = 'On a bridge between the barrels.'
-L['lost_console_location'] = 'In an alcove.'
+L['not_so_quick_fix_note'] = 'Ремонт сломанной земляной консоли.'
+L['water_console_location'] = 'Рядом с лестницей.'
+L['abyssal_console_location'] = 'В нише.'
+L['taelloch_console_location'] = 'На мосту между бочками.'
+L['lost_console_location'] = 'В нише.'
 
 L['options_icons_notable_machines'] = '{achievement:40628}'
-L['options_icons_notable_machines_desc'] = 'Display note locations for {achievement:40628} achievement.'
+L['options_icons_notable_machines_desc'] = 'Показать расположение заметок для достижения {achievement:40628}.'
 
 L['notable_machines_note'] = 'Read the note.'
 L['fragment_I_location'] = 'On the ground.'
@@ -538,7 +538,7 @@ L['sentry_note'] = '1. Place the {item:229046} here at the entrance to spawn a {
 L['orb_8_label'] = 'Orb 8'
 
 L['enigma_machine_label'] = 'Enigma Machine'
-L['enigma_machine_note'] = '1. Insert the {item:229007} and {item:229054} into the {object:Enigma Machine}.\n\n2. Click Begin and then click Submit. You must now unlock 3 hidden locks.\n\n3. Unlock a lock by counting each {npc:230596} in the instance, dragging the correct amount of statues to the correct platform, and clicking Submit again.\n\n{note:It is recommended to kill, but not count, each {npc:230599} to prevent them from standing on the platforms.}'
+L['enigma_machine_note'] = '1. Insert the {item:229007} and {item:229054} into the {object:Enigma Machine}.\n\n2. Click Begin and then click Submit. You must now unlock 7 hidden locks.\n\n3. Unlock a lock by counting each {npc:230596} in the instance, dragging the correct amount of statues to the correct platform, and clicking Submit again.\n\n{note:It is recommended to kill, but not count, each {npc:230599} to prevent them from standing on the platforms.}'
 
 L['lock_statue_note'] = 'Drag this statue to a platform.'
 L['lock_platform_note'] = 'Drag statues to this platform.'
@@ -558,4 +558,4 @@ L['code_label'] = '%d on %s'
 -- Orb 9
 L['orb_9_label'] = 'Orb 9'
 
-L['ak_decryption_console_note'] = 'Back to the hidden hole, entrance within the cave down to {location:Pillar-nest Vosh} in {location:Azj-Kahet}.\n\nEquip your {item:228966} to reveal a hidden platform.\n\nTarget the {npc:230383} and use the {item:228996} to reach platform. Enter the code and open the {object:Encrypted Chest} to recieve the {item:229348}.\n\n{object:Code}: 84847078'
+L['ak_decryption_console_note'] = nil

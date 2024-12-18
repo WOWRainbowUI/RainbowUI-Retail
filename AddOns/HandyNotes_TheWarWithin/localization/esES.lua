@@ -22,6 +22,9 @@ L['options_icons_khaz_algar_lore_hunter_desc'] = 'Muestra dónde están los obje
 L['options_icons_flight_master'] = '{achievement:40430}'
 L['options_icons_flight_master_desc'] = 'Muestra los {npc:Maestro de Vuelo} para el logro {achievement:40430}.'
 
+L['options_icons_worldsoul_memories'] = 'Recuerdos del alma-mundo'
+L['options_icons_worldsoul_memories_desc'] = 'Muestra las recompensas para  {object:Recuerdos del alma-mundo}.'
+
 -------------------------------------------------------------------------------
 -------------------------------- ISLE OF DORN ---------------------------------
 -------------------------------------------------------------------------------
@@ -347,6 +350,62 @@ L['tuk_chest_2_note'] = '{note:Sólo disponible en las variantes de la historia 
 L['tuk_chest_3_note'] = '{note:Sólo disponible en las variantes de la historia "Evolución Incontrolable" y "Rescate de la Tejedora".}'
 
 -------------------------------------------------------------------------------
+--------------------------------- SIREN ISLE ----------------------------------
+-------------------------------------------------------------------------------
+
+L['the_drowned_lair_note'] = 'Contribuye con {currency:3090} para la {location:Guarida Sumergida} en el {object:Mapa de mando de la Isla de la Sirena} para abrir esta cueva y hacer aparecer el raro.'
+L['the_drain_note'] = 'Contribuye con {currency:3090} para {location:El Sumidero} en el {object:Mapa de mando de la Isla de la Sirena} para abrir esta cueva y hacer aparecer el raro.'
+L['shuddering_hollow_note'] = 'Contribuye con {currency:3090} para la {location:Cuenca Estremecedora} en el {object:Mapa de mando de la Isla de la Sirena} para abrir esta cueva y hacer aparecer el raro.'
+
+L['vykrul_sublabel'] = '{note:Sólo disponible con {npc:Vykrul Rastrosangre} en la isla.}'
+L['naga_sublabel'] = '{note:Sólo disponible con {npc:Naga} en la isla.}'
+L['pirate_sublabel'] = '{note:Sólo disponible con {npc:pirates} en la isla.}'
+
+L['storm_required'] = 'Requiere una tormenta %s activa en la {location:Isla de la Sirena}.'
+L['slaughtershell_location'] = 'Deambula por toda la {location:Isla de la Sirena}.'
+
+L['within_the_forgotten_vault'] = 'Dentro de la {location:Cámara Olvidada}. Usa la {object:Tablilla canto} dentro de la {location:Hondonada Sacra} para entrar en la cámara.'
+
+L['options_icons_runed_storm_chest'] = '{achievement:41131}'
+L['options_icons_runed_storm_chest_desc'] = 'Muestra dónde estan los {object:Alijo de tormenta con runas} para el logro {achievement:41131}.'
+
+L['runed_storm_chest_label'] = 'Alijo de tormenta con runas'
+L['runed_storm_chest_suffix'] = 'alijos abiertos'
+L['runed_storm_chest_note'] = 'Sigue el viento hasta un {object:Alijo de tormenta con runas} escondido y revélalo con {spell:472051}.'
+
+L['mouldy_sea_ledger_label'] = 'Libro del mar mohoso'
+L['mouldy_sea_ledger_location'] = 'En el suelo de la posada {location:Sal y Chabolas} junto a la chimenea.'
+
+L['scholars_of_the_sea_label'] = 'Eruditos del Mar: La Isla de las Sirenas'
+L['scholars_of_the_sea_location'] = 'En el segundo piso de la posada {location:Sal y Chabolas} junto a la ventana.'
+
+L['flame_blessed_iron_item'] = 'Devuelve este objeto para {currency:3090} extra.'
+
+L['barnacle_encrusted_chest'] = 'Cofre con incrustaciones de percebes'
+
+L['soweezi_note'] = 'Cambia {currency:3090} por una montura, juguete, mascota, o transfiguración.'
+
+L['krolusk_burrow_label'] = 'Madriguera de Krolusk'
+
+L['thrayir_note_start'] = 'Consigue 5x llaves de piedra rúnica alrededor de la {location:Isla de la Sirena} y completa el ritual dentro de la {location:Cámara Olvidada} para conseguir {item:232639}:'
+
+L['whirling_runekey_note'] = 'Botín de {npc:231368} en la {location:Cámara Olvidada} durante una tormenta.'
+L['torrential_runekey_note'] = 'Botín de cualquier enemigo (normal, élite, o raro) en la {location:Isla de la Sirena} durante una tormenta.'
+L['thunderous_runekey_note'] = 'Requiere 5x {item:232605} encontrados en {note:cualquier} cofre de la {location:Isla de la Sirena}. {note:No requiere una tormenta}.'
+L['cyclonic_runekey_note'] = 'Botín de {npc:231357} en el {location:Fangal Aletamuerte} de la {location:Isla de la Sirena} durante una tormenta.'
+L['turbulent_runekey_note'] = 'Requiere 3x {item:234327} encontrados dispersos a lo largo de la {location:Isla de la Sirena} durante una tormenta.'
+
+L['turbulent_fragment_a'] = 'Escondido en un {object:Montón de tierra} detrás de la posada {location:Sal y Chabolas}, junto al fantasma {npc:Kul Tiran} cavando.'
+L['turbulent_fragment_b'] = 'Despoja el {object:Fragmento rúnico} frente a los fantasmas {npc:Kul Tiran} acobardados dentro de una cueva en el {location:Hoyo Hediondo}.'
+L['turbulent_fragment_c'] = 'Despoja el {object:Fragmento rúnico} retenido por el fantasma {npc:Kul Tiran} dentro de la {location:Cueva del Espíritu Marcado}.'
+
+L['prismatic_snapdragon_note_start'] = 'A lo largo de 8 días, ayuda a salvar a {npc:235216} en la {location:Marisma de Derrelicto} para conseguir {item:233489}.\n\n{note:Puedes perderte un día pero no hay ningún mecanismo de recuperación}.'
+L['prismatic_day'] = 'Día %d'
+
+L['unsolved_amethyst_runelock'] = 'Bloqueo de runas amatista'
+L['bilge_rat_supply_chest'] = 'Cofre de suministros de las Ratas de Pantoque'
+
+-------------------------------------------------------------------------------
 ----------------------------- SECRETS OF AZEROTH ------------------------------
 -------------------------------------------------------------------------------
 
@@ -403,7 +462,7 @@ L['olgra_location'] = '{note:Hay cambios de ubicación según la finalización d
 
 -- ORB 2
 L['orb_2_label'] = 'Orbe 2'
-L['orb_2_note'] = '{note:Tienes que estar en la fase de {location:Battle for Azeroth} del {location:Valle de la Flor Eterna}.}\n\nEspera junto a {npc:153297} usando uno de los siguientes regalos de {npc:147393}:\n\n{item:168123}\n{item:175140}\n{item:168004}\n\nInvoca al {item:49912} y usa uno de los siguientes disfraces:\n\n{item:229413}\n{item:116812}\n\nEscribe {emote:/rezar} y espera a recibir la {item:53156}.\n\n{note:Otros jugadores alrededor que completen los pasos anteriores también pueden conseguir la {item:53156}.}\n\nVuelve a las {location:Catacumbas de Karazhan} y usa la llave para abrir ambas puertas en la sala con la fuente.'
+L['orb_2_note'] = 'Espera junto a {npc:153297} usando uno de los siguientes regalos de {npc:147393}:\n\n{item:168123}\n{item:175140}\n{item:168004}\n\nInvoca al {item:49912} y usa uno de los siguientes disfraces:\n\n{item:229413}\n{item:116812}\n\nEscribe {emote:/rezar} y espera a recibir la {item:53156}.\n\n{note:Otros jugadores alrededor que completen los pasos anteriores también pueden conseguir la {item:53156}.}\n\nVuelve a las {location:Catacumbas de Karazhan} y usa la llave para abrir ambas puertas en la sala con la fuente.'
 
 -- ORB 3
 L['orb_3_label'] = 'Orbe 3'
@@ -479,7 +538,8 @@ L['sentry_note'] = '1. Coloca la {item:229046} aquí en la entrada para hacer ap
 L['orb_8_label'] = 'Orbe 8'
 
 L['enigma_machine_label'] = 'Máquina de enigmas'
-L['enigma_machine_note'] = '1. Inserta la {item:229007} y el {item:229054} dentro de la {object:Máquina de enigmas}.\n\n2. Haz click en Empezar y después click en Enviar. Debes abrir 7 cerraduras ocultas.\n\n3. Abre una cerradura contando cada {npc:230596} de la instancia, arrastrando la cantidad correcta de estatuas a la plataforma correcta, y haciendo click en Enviar de nuevo.\n\n{note:Se recomienda matar, pero no contar, cada {npc:230599} para evitar que se paren en las plataformas.}'
+L['enigma_machine_note'] = '1. Inserta la {item:229007} y el {item:229054} dentro de la {object:Máquina de enigmas}.\n\n2. Haz click en Empezar y después click en Enviar. Debes abrir 3 cerraduras ocultas.\n\n3. Abre una cerradura contando cada {npc:230596} de la instancia, arrastrando la cantidad correcta de estatuas a la plataforma correcta, y haciendo click en Enviar de nuevo.\n\n{note:Se recomienda matar, pero no contar, cada {npc:230599} para evitar que se paren en las plataformas.}'
+
 L['lock_statue_note'] = 'Arrastra esta estatua a una plataforma.'
 L['lock_platform_note'] = 'Arrastra estatuas a esta plataforma.'
 
@@ -498,11 +558,4 @@ L['code_label'] = '%d en la %s'
 -- Orb 9
 L['orb_9_label'] = 'Orbe 9'
 
--- Orb 10
-L['orb_10_label'] = 'Orbe 10'
-
--- Orb 11
-L['orb_11_label'] = 'Orbe 11'
-
--- Orb 12
-L['orb_12_label'] = 'Orbe 12'
+L['ak_decryption_console_note'] = 'Regresa a la entrada del agujero oculto dentro de la cueva hasta el {location:Pilar-Nido Vosh} de {location:Azj-Kahet}.\n\nEquípate tus {item:228966} para revelar una plataforma oculta.\n\nSeñala el {npc:230383} y usa las {item:228996} para alcanzar la plataforma. Teclea el código y abre el {object:Cofre cifrado} para recibir las {item:229348}.\n\n{object:Código}: 84847078'

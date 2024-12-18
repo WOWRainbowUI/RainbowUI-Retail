@@ -23,6 +23,9 @@ L['options_icons_khaz_algar_lore_hunter_desc'] = 'Zeigt die Positionen der Gesch
 L['options_icons_flight_master'] = '{achievement:40430}'
 L['options_icons_flight_master_desc'] = 'Zeigt die Positionen der {npc:Flugmeister} für den Erfolg {achievement:40430} an.'
 
+L['options_icons_worldsoul_memories'] = 'Weltenseelenerinnerung'
+L['options_icons_worldsoul_memories_desc'] = 'Zeigt die Positionen der {object:Weltenseelenerinnerungen} an.'
+
 -------------------------------------------------------------------------------
 -------------------------------- ISLE OF DORN ---------------------------------
 -------------------------------------------------------------------------------
@@ -350,6 +353,62 @@ L['tuk_chest_2_note'] = '{note:Nur in den Geschichtenvariantionen "Ausreißersev
 L['tuk_chest_3_note'] = '{note:Nur in den Geschichtenvariantionen "Ausreißersevolution" und "Weberrettung" verfügbar.}'
 
 -------------------------------------------------------------------------------
+--------------------------------- SIREN ISLE ----------------------------------
+-------------------------------------------------------------------------------
+
+L['the_drowned_lair_note'] = 'Steuere {currency:3090} dem {location:Der Versunkene Hort} an der {object:Sireneninsel-Befehlskarte} bei, um diese Höhle zu öffnen und den seltenen Gegner erscheinen zu lassen.' -- review
+L['the_drain_note'] = 'Steuere {currency:3090} dem {location:Der Abfluss} an der {object:Sireneninsel-Befehlskarte} bei, um diese Höhle zu öffnen und den seltenen Gegner erscheinen zu lassen.' -- review
+L['shuddering_hollow_note'] = 'Steuere {currency:3090} der {location:Schauderhöhle} an der {object:Sireneninsel-Befehlskarte} bei, um diese Höhle zu öffnen und den seltenen Gegner erscheinen zu lassen.' -- review
+
+L['vykrul_sublabel'] = '{note:Nur verfügbar, wenn {npc:Bloodwake Vykrul} auf der Insel sind.}' -- review
+L['naga_sublabel'] = '{note:Nur verfügbar, wenn {npc:Naga} auf der Insel sind.}' -- review
+L['pirate_sublabel'] = '{note:Nur verfügbar, wenn {npc:Piraten} auf der Insel sind.}' -- review
+
+L['storm_required'] = 'Benötigt ein aktives %s auf der {location:Sireneninsel}.'
+L['slaughtershell_location'] = 'Wandert auf der gesamten {location:Sireneninsel} umher.'
+
+L['within_the_forgotten_vault'] = 'In {location:Die Vergessene Kammer}. Benutze das {object:Singing Tablet} in {location:Die Heilige Höhle}, um die Kammer zu betreten.' -- review
+
+L['options_icons_runed_storm_chest'] = '{achievement:41131}'
+L['options_icons_runed_storm_chest_desc'] = 'Zeigt die Positionen von {object:Runenverzierte Sturmtruhe} für den Erfolg {achievement:41131} an.'
+
+L['runed_storm_chest_label'] = 'Runenverzierte Sturmtruhe'
+L['runed_storm_chest_suffix'] = 'Truhen geöffnet'
+L['runed_storm_chest_note'] = 'Folge dem Wind zu einer versteckten {object:Runenverzierte Sturmtruhe} und offenbare diese mit dem {spell:472051}.'
+
+L['mouldy_sea_ledger_label'] = nil
+L['mouldy_sea_ledger_location'] = nil
+
+L['scholars_of_the_sea_label'] = nil
+L['scholars_of_the_sea_location'] = nil
+
+L['flame_blessed_iron_item'] = 'Bringe diesen Gegenstand für Bonus {currency:3090} zurück.'
+
+L['barnacle_encrusted_chest'] = nil
+
+L['soweezi_note'] = 'Tausche {currency:3090} gegen ein Reittier, ein Haustier, ein Spielzeug oder Ausrüstungsvorlagen ein.'
+
+L['krolusk_burrow_label'] = nil
+
+L['thrayir_note_start'] = 'Sammle 5x Runenschlüssel auf der {location:Sireneninsel} und schließe das Ritual in {location:Die Vergessene Kammer} ab, um das Reittier {item:232639} zu erhalten:'
+
+L['whirling_runekey_note'] = 'Kann von {npc:231368} in {location:Die Vergessene Kammer} während eines Unwetters geplündert werden.'
+L['torrential_runekey_note'] = 'Kann von allen Gegnern auf der {location:Sireneninsel} während eines Unwetters geplündert werden.'
+L['thunderous_runekey_note'] = 'Benötigt 5x {item:232605}, die in {note:jegliche} Truhen auf der {location:Sireneninsel} gefunden werden können. {note:Benötigt kein Unwetter}.'
+L['cyclonic_runekey_note'] = 'Kann von {npc:231357} im {location:Totfinnenmorast} auf der {location:Sireneninsel} während eines Unwetters geplündert werden.'
+L['turbulent_runekey_note'] = 'Benötigt 3x {item:234327}, die während eines Unwetters auf der ganzen {location:Sireneninsel} verstreut gefunden werden können.'
+
+L['turbulent_fragment_a'] = 'In einem {object:Dirt Pile} hinter dem Gasthaus {location:Salt and Shany} in der Nähe des grabenden Geistes versteckt.' -- review
+L['turbulent_fragment_b'] = 'Plündere das {object:Runic Fragment} vor dem kauernden Geist in einer Höhle in {location:Das Verrottende Loch}.' -- review
+L['turbulent_fragment_c'] = 'Plündere das {object:Runic Fragment}, das der Geist in der {location:Geisternarbenhöhle} in seiner Hand hält.' -- review
+
+L['prismatic_snapdragon_note_start'] = 'Helfe im Verlauf von 8 Tagen das {npc:235216} zu retten, um das Reittier {item:233489} zu erhalten.\n\n{note:Du kannst einen Tag verpassen, aber es gibt keine Aufholmechanik}.'
+L['prismatic_day'] = 'Tag %d'
+
+L['unsolved_amethyst_runelock'] = nil
+L['bilge_rat_supply_chest'] = nil
+
+-------------------------------------------------------------------------------
 ----------------------------- SECRETS OF AZEROTH ------------------------------
 -------------------------------------------------------------------------------
 
@@ -398,115 +457,108 @@ L['karazhan_catacombs_label'] = 'Die Katakomben von Karazhan'
 L['karazhan_catacombs_entrance_note'] = 'Sammle den {item:44124} im {location:Krater von Un\'Goro} ({location:Kalimdor})\n\nSammle den {item:228938} beginnend in {location:Dornogal} ({location:Khaz Algar}, {location:Insel von Dorn})\n\nKombiniere den Schlüssel und Edelstein, um den {item:44124} zu erhalten.\n\nMit dem {item:44124} in deinen Taschen und der {item:208092} aktiv nähere dich dem Gitter, um einen roten Instanzeingang zu offenbaren.'
 
 -- ORB 1
-L['orb_1_label'] = nil
-L['orb_1_note'] = nil
-L['orb_1_locations'] = nil
-L['humble_monument'] = nil
-L['olgra_location'] = nil
+L['orb_1_label'] = 'Kugel 1'
+L['orb_1_note'] = 'Benutze die {item:208092} an jedem Ort mit {npc:228249}, um einen von drei Stapeln {spell:153715} zu erhalten.'
+L['orb_1_locations'] = '1. {location:Nördliches Brachland} in {location:Kalimdor}\n2. {location:Nagrand} in {location:Draenor}\n3. {location:Maldraxxus} in {location:Die Schattenlande}'
+L['humble_monument'] = 'Einfaches Denkmal'
+L['olgra_location'] = '{note:Die Position ändert sich je nach Abschluss der Quest {quest:35170}.}'
 
 -- ORB 2
-L['orb_2_label'] = nil
-L['orb_2_note'] = nil
+L['orb_2_label'] = 'Kugel 2'
+L['orb_2_note'] = 'Stelle dich neben den {npc:153297} und benutze eines der Geschenke von {npc:147393}:\n\n{item:168123}\n{item:175140}\n{item:168004}\n\nBeschwöre dein Haustier {item:49912} und ziehe ihm eines der folgenden Kostüme an:\n\n{item:229413}\n{item:116812}\n\nBete ({emote:/beten}) und warte, den {item:53156} zu erhalten.\n\n{note:Du kannst den {item:53156} auch erhalten, wenn andere Spieler die oben genannten Schritte ausführen und du neben dem Obelisk stehst.}\n\nKehre in die {location:Katakomben von Karazhan} zurück und öffne die zwei Türen in dem Raum mit dem Brunnen.'
 
 -- ORB 3
-L['orb_3_label'] = nil
+L['orb_3_label'] = 'Kugel 3'
 
-L['astral_soup_label'] = nil
-L['astral_chest_label'] = nil
-L['astral_rewards_note'] = nil
+L['astral_soup_label'] = 'Astralsuppe'
+L['astral_chest_label'] = 'Astraltruhe'
+L['astral_rewards_note'] = 'Angle in der {object:Astralsuppe}, um den {item:228965} zu erhalten.\n\nBenutze den {item:228965}, um die {object:Astraltruhe} zu öffnen und eine {item:228966} zu erhalten.\n\nSammle 9x {item:228967} in den {location:Katakomben von Karazhan}.'
 
-L['decryption_machine_label'] = nil
-L['decryption_console_label'] = nil
-L['rubensteins_console'] = nil
+L['decryption_machine_label'] = 'Entschlüsselungskonsole' -- ???
+L['decryption_console_label'] = 'Entschlüsselungskonsole'
+L['rubensteins_console'] = 'Rubensteins Konsole'
 
-L['code_machine_note_1'] = nil
-L['code_machine_note_2'] = nil
-L['code_machine_note_3'] = nil
-L['code_machine_note_4'] = nil
-L['code_machine_note_5'] = nil
-L['code_machine_note_6'] = nil
-L['code_machine_note_7'] = nil
-L['code_machine_note_8'] = nil
+L['code_machine_note_1'] = 'Gibt den Code ein, um aus dem {object:Eigentum von Ältester Ko\'nani} ein {item:228967} zu erhalten.\n\n{object:Code}: 88224646'
+L['code_machine_note_2'] = 'Gibt den Code ein, um aus der {object:Verschlüsselte Truhe} ein {item:228967} zu erhalten.\n\n{object:Code}: 10638'
+L['code_machine_note_3'] = 'Gibt den Code ein, um aus der {object:Verschlüsselte Truhe} ein {item:228967} zu erhalten.\n\n{object:Code}: 5661'
+L['code_machine_note_4'] = 'Gibt den Code ein, um aus {object:Rubensteins Tresor} ein {item:228967} zu erhalten.\n\n{object:Code}: 52233'
+L['code_machine_note_5'] = 'Gibt den Code ein, um aus der {object:Verschlüsselte Truhe} ein {item:228967} zu erhalten.\n\n{object:Code}: 51567'
+L['code_machine_note_6'] = 'Gibt den Code ein, um aus der {object:Verschlüsselte Truhe} ein {item:228967} zu erhalten.\n\n{object:Code}: 115'
+L['code_machine_note_7'] = 'Gibt den Code ein, um aus der {object:Verschlüsselte Puzzlebox} ein {item:228967} zu erhalten.\n\n{object:Code}: 17112317'
+L['code_machine_note_8'] = 'Gibt den Code ein, um aus der {object:Verschlüsselte Truhe} ein {item:228967} zu erhalten.\n\n{object:Code}: 19019'
 
-L['slot_machine_label'] = nil
-L['slot_machine_note_a'] = nil
-L['slot_machine_note_b'] = nil
-L['slot_machine_note_c'] = nil
-L['slot_machine_note_d'] = nil
-L['slot_machine_note_e'] = nil
-L['slot_machine_vendor_note'] = nil
+L['slot_machine_label'] = '"Glück gefällig?"-Spielautomat'
+L['slot_machine_note_a'] = 'Kaufe fünf der Glücksgegenstände und gebe dann den Code ein:\n\n'
+L['slot_machine_note_b'] = '{npc:2795} in {location:Sturmwind}:\n{note:(Nur Allianz; Für Horde im AH zu kaufen)}\n'
+L['slot_machine_note_c'] = '{npc:219197} in {location:Dornogal}:\n'
+L['slot_machine_note_d'] = '{npc:186650} in {location:Ebenen von Ohn\'ahra}\n'
+L['slot_machine_note_e'] = '{object:Code}: 777, 77777 oder 7777777'
+L['slot_machine_vendor_note'] = 'Kaufe diese Gegenstände für den {object:"Glück gefällig?"-Spielautomat}.'
 
 -- ORB 4
-L['orb_4_label'] = nil
-L['vashti_note'] = nil
-L['uthers_tomb_label'] = nil
-L['uthers_tomb_note'] = nil
+L['orb_4_label'] = 'Kugel 4'
+L['vashti_note'] = 'Kaufe {item:228987} von {npc:91079} für %s.'
+L['uthers_tomb_label'] = 'Uthers Grabmal'
+L['uthers_tomb_note'] = 'Beschwöre eine {npc:231482} bei {location:Uthers Grabmal} ({location:Die Östlichen Königreiche}, {location:Westliche Pestländer}), damit verborgene Graffiti erscheinen, die du lesen musst.\n\nZum Beschwören einer {npc:231482} kaufe eine {item:228987} von {npc:91079} in {location:Azsuna} ({location:Die Verheerten Inseln}) ({note:Beim Benutzen der Schriftrolle wirst du sterben}) oder lass einen Hexenmeister seine Fähigkeit {spell:342601} benutzen.\n\n{note:Die verborgenen Graffiti bleiben solange sichtbar, wie die {npc:231482} am Leben ist, also töte diese nicht!}'
 
 -- ORB 5
-L['orb_5_label'] = nil
-L['jeremy_feasel_note'] = nil
-L['zarhym_note'] = nil
-L['pointless_treasure_salesman_location'] = nil
-L['pointless_treasure_salesman_note'] = nil
+L['orb_5_label'] = 'Kugel 5'
+L['jeremy_feasel_note'] = '{npc:232048} ist in der {location:Höhle der Verlorenen Geister} ({location:Pandaria}, {location:Zeitlose Insel}).\n\nBesiege {npc:232048} in einem Haustierkampf, bei dem du nur Haustiere von vorherigen Geheimnissen benutzt.%s\n\nSobald du gewonnen hast, schließe die Quest {quest:84781} ab, um {item:228995} zu erhalten.\n\nGehe dann zum {npc:230310} in {location:Beutebucht} ({location:Die Östlichen Königreiche}, {location:Schlingendorntal}) und kaufe das {item:228996}.'
+L['zarhym_note'] = 'Sprich mit {npc:71876} in der Höhle, um in die Geisterwelt zu gelangen.'
+L['pointless_treasure_salesman_location'] = 'Im inneren der Goblinstatue versteckt.'
+L['pointless_treasure_salesman_note'] = 'Kaufe das {item:228996}:'
 
 -- ORB 6
-L['orb_6_label'] = nil
-L['blood_altar_label'] = nil
-L['corrupt_altar_label'] = nil
-L['lust_altar_label'] = nil
-L['sin_altar_label'] = nil
-L['void_altar_label'] = nil
+L['orb_6_label'] = 'Kugel 6'
+L['blood_altar_label'] = 'Altar des Blutes'
+L['corrupt_altar_label'] = 'Altar der Verderbtheit'
+L['lust_altar_label'] = 'Altar der Begierde'
+L['sin_altar_label'] = 'Altar der Sünde'
+L['void_altar_label'] = 'Altar der Leere'
 
-L['altar_note'] = nil
-L['blood_altar_note'] = nil
-L['corrupt_altar_note'] = nil
-L['lust_altar_note'] = nil
-L['sin_altar_note'] = nil
-L['void_altar_note'] = nil
+L['altar_note'] = 'Benutze die {item:208092}, um den Geist zu beschwören. Verwende bestimmte Reittiere, Haustiere, Spielzeuge oder Transmoggs, um den Geist zu besänftigen:'
+L['blood_altar_note'] = '{object:%s}: Ein Reittier mit "Blut" im Namen.\n\n{object:%s}: Ein Haustier mit "Blut" im Namen.\n\n{object:%s}: {item:127709}'
+L['corrupt_altar_note'] = '{object:%s}: Ein Reittier mit "Verderbt" im Namen.\n\n{object:%s}: Ein Haustier mit "Verderbt" im Namen.\n\n{object:%s}: {item:116067}\n\n{object:%s}: Ein Umhang mit der selben Vorlage wie {item:86316}.'
+L['lust_altar_note'] = '{object:%s}: {pet:1628}\n\n{object:%s}: {item:129211}\n\n{object:%s}: Komplett nackt oder unter dem Effekt von {item:119092}.'
+L['sin_altar_note'] = '{object:%s}: {pet:2966}\n\n{object:%s}: {item:183986}\n\n{object:%s}: Ein Venthyr-Sündenstein-Umhang.'
+L['void_altar_note'] = '{object:%s}: {pet:1234}, {pet:2434} oder {pet:4543}\n\n{object:%s}: {item:119003} oder {item:174830}\n\n{object:%s}: Ein Umhang mit der selben Vorlage wie {item:24252}'
 
-L['chest_of_acquisitions_label'] = nil
-L['chest_of_acquisitions_note'] = nil
+L['chest_of_acquisitions_label'] = 'Truhe der Aneignungen'
+L['chest_of_acquisitions_note'] = '1. Besänftige alle Geister an den Altären in {location:Zul\'Gurub} ({location:Die Östlichen Königreiche}, {location:Nördliches Schlingendorntal}).\n\n2. Verwende die {item:228966} und plündere die {object:Truhe der Aneignungen}, um {item:229007} zu erhalten.'
 
 -- Orb 7
-L['orb_7_label'] = nil
-L['orb_7_summary'] = nil
+L['orb_7_label'] = 'Kugel 7'
+L['orb_7_summary'] = '1. Gehe zur {location:Die Insel der Behüter} ({location:Die Verheerten Inseln}, {location:Azsuna}).\n\n2. Ermächtige dein {pet:1716} Haustier mit verschiedenen Stärkungszaubern von einer {object:Eule der Behüter}-Statue.\n\n3. Betrete den Dungeon {location:Das Verlies der Wächterinnen} und besiege die Bosse, um eine geheime {item:229046} zu enthüllen.\n\n4. Benutze die {item:229046}, um ein Rätsel zu beginnen, bei dem du einen {item:229054} erhältst.'
 
-L['marin_bladewing_note'] = nil
-L['owl_of_the_watchers_label'] = nil
-L['owl_of_the_watchers_note'] = nil
+L['marin_bladewing_note'] = 'Kaufe ein {pet:1716} von {npc:107379} für %s nach dem erreichen von %s bei den {faction:1894} oder im {location:Auktionshaus}.'
+L['owl_of_the_watchers_label'] = 'Eule der Behüter'
+L['owl_of_the_watchers_note'] = '{note:Nur 3 Statuen sind gleichzeitg aktiv.}\n\nStelle dich neben eine aktive Statue mit deinem beschworenen {pet:1716}, um jeweils einen der vier Stärkungszauber einmal zu erhalten:\n\n{spell:225049} {dot:Red}\n{spell:225038} {dot:Purple}\n{spell:223160} {dot:Green}\n{spell:225059} {dot:Blue}\n\nWenn dein {pet:1716} ermächtigt ist, wird es von {note:einer weißen Rauchwolke verfolgt}.\n\nBetrete den Dungeon {location:Das Verlies der Wächterinnen}.'
 
-L['sentry_statue_note'] = nil
-L['sentry_note'] = nil
+L['sentry_statue_note'] = '1. Besiege {npc:95885}, um diesen geheimen Raum in der {location:Die Kammer der Nacht} zu öffnen.\n\n2. Besiege alle anderen Bosse.\n\n3. Bringe {spell:204481} vom Endboss {npc:95888} zu diesem geheimen Raum mit deinem {pet:1716}, damit eine {item:229046} erscheint.\n\n4. Bringe die {item:229046} zum Bossraum von {npc:95887}.'
+L['sentry_note'] = '1. Platziere die {item:229046} hier beim Eingang, um den {npc:109300} erscheinen zu lassen.\n\n2. Interagiere mit dem {npc:109300}, um das Rätsel zu beginnen. Das Ziel ist es, dass jede {npc:98082} im Boden verschwunden ist.\n\n3. Plündere den {object:Schatz der Wächter}, um den {item:229054} zu erhalten.'
 
 -- Orb 8
-L['orb_8_label'] = nil
+L['orb_8_label'] = 'Kugel 8'
 
-L['enigma_machine_label'] = nil
-L['enigma_machine_note'] = nil
+L['enigma_machine_label'] = 'Rätselmaschine'
+L['enigma_machine_note'] = '1. Interagiere mit der {object:Rätselmaschine}, fülle den arkanen Katalysator mit dem {item:229007} auf und setze den {item:229054} in die Lichtbox ein.\n\n2. Betätige den "START"-Hebel und dann den "EINGABE"-Hebel der Maschine.\n\n3. Sperre drei mal einen verstecken Mechanismus auf, indem du zählst, wie oft die {npc:230596} in diesem Dungeon vorhandenen ist. {note:(Die {npc:230599} zählen NICHT dazu.)} Ziehe je nach Anzahl der Ratten die korrekte Anzahl an Statuen zu einer Plattform und betätige dann den "EINGABE"-Hebel erneut.\n\n{note:Es wird empfohlen alle Ratten ({npc:230599} und {npc:230596}) zu töten, um diese davon abzuhalten, ausversehen auf die Plattformen zu laufen und diese damit zu aktiveren.}'
 
-L['lock_statue_note'] = nil
-L['lock_platform_note'] = nil
+L['lock_statue_note'] = 'Ziehe diese Statue zu einer Plattform.'
+L['lock_platform_note'] = 'Ziehe Statuen zu dieser Plattform je nach dem wie oft die {npc:230596} in diesem Dungeon vorkommt.'
 
-L['platform_1_label'] = nil
-L['platform_2_label'] = nil
-L['platform_3_label'] = nil
-L['platform_4_label'] = nil
-L['platform_5_label'] = nil
-L['platform_6_label'] = nil
-L['platform_7_label'] = nil
+L['platform_1_label'] = 'Plattform 1'
+L['platform_2_label'] = 'Plattform 2'
+L['platform_3_label'] = 'Plattform 3'
+L['platform_4_label'] = 'Plattform 4'
+L['platform_5_label'] = 'Plattform 5'
+L['platform_6_label'] = 'Plattform 6'
+L['platform_7_label'] = 'Plattform 7'
 
-L['rats_label'] = nil
-L['lock_label'] = nil
-L['code_label'] = nil
+L['rats_label'] = 'Ratten'
+L['lock_label'] = 'Mechanismus %d'
+L['code_label'] = '%d zu %s'
 
 -- Orb 9
-L['orb_9_label'] = nil
+L['orb_9_label'] = 'Kugel 9'
 
--- Orb 10
-L['orb_10_label'] = nil
-
--- Orb 11
-L['orb_11_label'] = nil
-
--- Orb 12
-L['orb_12_label'] = nil
+L['ak_decryption_console_note'] = 'Zurück in der versteckten Höhle im {location:Stütznest Vosh} in {location:Azj-Kahet}.\n\nSetze deine {item:228966} auf, um eine versteckte Plattform zu offenbaren.\n\nVisiere den {npc:230383} an und verwende das {item:228996}, um die Plattform zu erreichen. Gibt den Code ein und öffne die {object:Verschlüsselte Truhe}, um das Reittier {item:229348} zu erhalten.\n\n{object:Code}: 84847078'

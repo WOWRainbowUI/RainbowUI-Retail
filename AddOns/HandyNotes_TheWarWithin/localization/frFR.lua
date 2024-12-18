@@ -23,6 +23,9 @@ L['options_icons_khaz_algar_lore_hunter_desc'] = 'Afficher les emplacements des 
 L['options_icons_flight_master'] = '{achievement:40430}'
 L['options_icons_flight_master_desc'] = 'Afficher les emplacements des {npc:Maîtres de vol} pour le haut-fait {achievement:40430}.'
 
+L['options_icons_worldsoul_memories'] = 'Souvenirs de l\'Âme-monde'
+L['options_icons_worldsoul_memories_desc'] = 'Afficher les récompenses liées aux {object:Souvenirs de l\'Âme-monde}.'
+
 -------------------------------------------------------------------------------
 -------------------------------- ISLE OF DORN ---------------------------------
 -------------------------------------------------------------------------------
@@ -348,6 +351,62 @@ L['tuk_chest_2_note'] = '{note:Disponible uniquement pendant les variantes d’h
 L['tuk_chest_3_note'] = '{note:Disponible uniquement pendant les variantes d’histoires "Évolution incontrôlable" et "Sauvetage de tisserande".}'
 
 -------------------------------------------------------------------------------
+--------------------------------- SIREN ISLE ----------------------------------
+-------------------------------------------------------------------------------
+
+L['the_drowned_lair_note'] = 'Contribuez à l\'événement {location:L\'antre Englouti} sur la {object:Carte de commandement de l\'île aux Sirènes} grâce à vos {currency:3090} pour ouvrir cette grotte et faire apparaître le rare.'
+L['the_drain_note'] = 'Contribuez à l\'événement {location:La Vidange} sur la {object:Carte de commandement de l\'île aux Sirènes} grâce à vos {currency:3090} pour ouvrir cette grotte et faire apparaître le rare.'
+L['shuddering_hollow_note'] = 'Contribuez à l\'événement {location:Creux Frissonnant} sur la {object:Carte de commandement de l\'île aux Sirènes} grâce à vos {currency:3090} pour ouvrir cette grotte et faire apparaître le rare.'
+
+L['vykrul_sublabel'] = '{note:Uniquement disponible lorsque des {npc:Vrykuls sillage-de-sang} sont présents sur l\'île.}'
+L['naga_sublabel'] = '{note:Uniquement disponible lorsque des {npc:Nagas} sont présents sur l\'île.}'
+L['pirate_sublabel'] = '{note:Uniquement disponible lorsque des {npc:Pirates} sont présents sur l\'île.}'
+
+L['storm_required'] = 'Requiert une %s active sur l\'{location:Île aux Sirènes}.'
+L['slaughtershell_location'] = 'Parcourt la totalité de l\'{location:Île aux Sirènes}.'
+
+L['within_the_forgotten_vault'] = 'À l\'intérieur de {location:La chambre Oubliée}. Utilisez la {object:Tablette chantonnante} dans {location:Le creux Sacré} pour entrer dans le caveau'
+
+L['options_icons_runed_storm_chest'] = '{achievement:41131}'
+L['options_icons_runed_storm_chest_desc'] = 'Afficher les emplacements des {object:Caches de la tempête runiques} pour le haut-fait {achievement:41131}.'
+
+L['runed_storm_chest_label'] = 'Cache de la tempête runique'
+L['runed_storm_chest_suffix'] = 'caches ouvertes'
+L['runed_storm_chest_note'] = 'Suivez le vent jusqu\'à une {object:Cache de la tempête runique} dissimulée et révélez-la avec l\'{spell:472051}.'
+
+L['mouldy_sea_ledger_label'] = 'Registre maritime moisi'
+L['mouldy_sea_ledger_location'] = 'Sur le sol de l\'auberge {location:Le Bloc de sel}, près de la cheminée.'
+
+L['scholars_of_the_sea_label'] = 'Érudits de la mer : synopsis de l\'île aux Sirènes'
+L['scholars_of_the_sea_location'] = 'Au premier étage de l\'auberge {location:Le Bloc de sel}, près de la fenêtre.'
+
+L['flame_blessed_iron_item'] = 'Rapportez cet objet pour obtenir des {currency:3090} supplémentaires.'
+
+L['barnacle_encrusted_chest'] = 'Coffre incrustré de bigorneaux'
+
+L['soweezi_note'] = 'Échangez vos {currency:3090} contre une monture, un jouet, une mascotte ou des objets de transmogrification.'
+
+L['krolusk_burrow_label'] = 'Terrier de krolusk'
+
+L['thrayir_note_start'] = 'Récupérez 5 clés runiques dispersées sur l\'{location:Île aux Sirènes} et accomplissez le rituel dans {location:La chambre Oubliée} pour recevoir {item:232639} :'
+
+L['whirling_runekey_note'] = 'Lâchée par {npc:231368} dans {location:La chambre Oubliée} lors d\'une tempête.'
+L['torrential_runekey_note'] = 'Lâchée par n\'importe quel monstre (normal, élite ou rare) sur l\'{location:Île aux Sirènes} lors d\'une tempête.'
+L['thunderous_runekey_note'] = 'Nécessite 5x {item:232605} trouvés dans {note:n\'importe quel} coffre sur l\'{location:Île aux Sirènes}. {note:Ne nécessite pas de tempête}.'
+L['cyclonic_runekey_note'] = 'Lâchée par {npc:231357} dans le {location:Bourbier Nageffroi} sur l\'{location:Île aux Sirènes} lors d\'une tempête.'
+L['turbulent_runekey_note'] = 'Nécessite 3x {item:234327} dispersés sur l\'{location:Île aux Sirènes} lors d\'une tempête.'
+
+L['turbulent_fragment_a'] = 'Caché dans un {object:Tas de terre} derrière l\'auberge {location:Le Bloc de sel} près du {npc:Kultirassien} fantôme en train de creuser.'
+L['turbulent_fragment_b'] = 'Récupérez le {object:Fragment runique} près du {npc:Kultirassien} fantôme recroquevillé se trouvant dans une grotte au {location:Compostier}.'
+L['turbulent_fragment_c'] = 'Récupérez le {object:Fragment runique} détenu par le {npc:Kultirassien} fantôme à l\'intérieur de la {location:Grotte ravagée par les esprits}.'
+
+L['prismatic_snapdragon_note_start'] = 'Pendant 8 jours, contribuez à sauver le {npc:235216} au {location:Brisants des Débris} pour recevoir le {item:233489}.\n\n{note:Vous pouvez manquer un jour mais il n\'y a pas de système de rattrapage}.'
+L['prismatic_day'] = 'Jour %d'
+
+L['unsolved_amethyst_runelock'] = 'Verrou runique en améthyste non résolu'
+L['bilge_rat_supply_chest'] = 'Coffre de fournitures des Soutaillons'
+
+-------------------------------------------------------------------------------
 ----------------------------- SECRETS OF AZEROTH ------------------------------
 -------------------------------------------------------------------------------
 
@@ -404,7 +463,7 @@ L['olgra_location'] = '{note:L\'emplacement change en fonction de la réalisatio
 
 -- ORB 2
 L['orb_2_label'] = 'Orbe 2'
-L['orb_2_note'] = '{note:Vous devez être dans la version du {location:Val de l’Éternel printemps} lié à l\'extension {location:Battle for Azeroth}.}\n\nPlacez-vous à côté du {npc:153297} en utilisant l\'un des dons de {npc:147393} suivants :\n\n{item:168123}\n{item:175140}\n{item:168004}\n\nInvoquez {item:49912} et utilisez l\'un des costumes suivants :\n\n{item:229413}\n{item:116812}\n\nTapez {emote:/prier} et attendez de recevoir la {item:53156}.\n\nRetournez aux {location:Catacombes de Karazhan} et utilisez la clé pour ouvrir les deux portes dans la pièce avec la fontaine.'
+L['orb_2_note'] = 'Placez-vous à côté du {npc:153297} en utilisant l\'un des dons de {npc:147393} suivants :\n\n{item:168123}\n{item:175140}\n{item:168004}\n\nInvoquez {item:49912} et utilisez l\'un des costumes suivants :\n\n{item:229413}\n{item:116812}\n\nTapez {emote:/prier} et attendez de recevoir la {item:53156}.\n\nRetournez aux {location:Catacombes de Karazhan} et utilisez la clé pour ouvrir les deux portes dans la pièce avec la fontaine.'
 
 -- ORB 3
 L['orb_3_label'] = 'Orbe 3'
@@ -480,7 +539,7 @@ L['sentry_note'] = '1. Placez la {item:229046} ici à l\'entrée pour faire appa
 L['orb_8_label'] = 'Orbe 8'
 
 L['enigma_machine_label'] = 'Machine à énigme'
-L['enigma_machine_note'] = '1. Insérez le {item:229007} et le {item:229054} dans la {object:Machine à énigme}.\n\n2. Cliquez sur COMMENCER, puis sur ENVOYER. Vous devez maintenant débloquer 7 verrous cachés.\n\n3. Débloquez un verrou en comptant chaque {npc:230596} dans l\'instance, puis en déplaçant le bon nombre de statues sur la bonne plateforme, et enfin en cliquant à nouveau sur ENVOYER.\n\n{note:Il est recommandé de tuer, mais pas de compter, chaque {npc:230599} pour les empêcher de marcher sur les plateformes.}'
+L['enigma_machine_note'] = '1. Insérez le {item:229007} et le {item:229054} dans la {object:Machine à énigme}.\n\n2. Cliquez sur COMMENCER, puis sur ENVOYER. Vous devez maintenant débloquer 3 verrous cachés.\n\n3. Débloquez un verrou en comptant chaque {npc:230596} dans l\'instance, puis en déplaçant le bon nombre de statues sur la bonne plateforme, et enfin en cliquant à nouveau sur ENVOYER.\n\n{note:Il est recommandé de tuer, mais pas de compter, chaque {npc:230599} pour les empêcher de marcher sur les plateformes.}'
 
 L['lock_statue_note'] = 'Déplacez cette statue jusqu\'à une plate-forme.'
 L['lock_platform_note'] = 'Déplacez des statues jusqu\'à cette plate-forme.'
@@ -500,11 +559,4 @@ L['code_label'] = '%d sur %s'
 -- Orb 9
 L['orb_9_label'] = 'Orbe 9'
 
--- Orb 10
-L['orb_10_label'] = 'Orbe 10'
-
--- Orb 11
-L['orb_11_label'] = 'Orbe 11'
-
--- Orb 12
-L['orb_12_label'] = 'Orbe 12'
+L['ak_decryption_console_note'] = 'Retournez à l\'entrée du trou caché dans la grotte du {location:Nid du pilier Vosh} à {location:Azj-Kahet}.\n\nÉquipez vos {item:228966} pour faire apparaître une plateforme cachée.\n\nCiblez le {npc:230383} et utilisez la {item:228996} pour accéder à la plateforme. Entrez le code et ouvrez le {object:Coffre codé} pour recevoir les {item:229348}.\n\n{object:Code}: 84847078'
