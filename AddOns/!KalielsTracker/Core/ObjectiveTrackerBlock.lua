@@ -157,7 +157,7 @@ KT.BackupMixin("KT_ObjectiveTrackerBlockMixin", "SetStringText")  -- MSA
 
 function KT_ObjectiveTrackerBlockMixin:SetHeader(text)
 	self.HeaderText:SetPoint("RIGHT", self.rightEdgeOffset, 0);
-	local height = self:SetStringText(self.HeaderText, text, nil, KT_OBJECTIVE_TRACKER_COLOR["Header"], self.isHighlighted);
+	local height = self:SetStringText(self.HeaderText, text, true, KT_OBJECTIVE_TRACKER_COLOR["Header"], self.isHighlighted);  -- fix Blizz bug
 	self.height = height;
 end
 KT.BackupMixin("KT_ObjectiveTrackerBlockMixin", "SetHeader")  -- MSA

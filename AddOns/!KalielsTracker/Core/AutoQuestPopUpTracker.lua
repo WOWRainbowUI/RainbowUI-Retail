@@ -118,7 +118,7 @@ end
 
 function KT_AutoQuestPopupBlockMixin:UpdateIcon(questID, popUpType)
 	local contents = self.Contents;
-	local isCampaign = QuestUtil.ShouldQuestIconsUseCampaignAppearance(questID);
+	local isCampaign = C_QuestInfoSystem.GetQuestClassification(questID) == Enum.QuestClassification.Campaign;
 	contents.QuestIconBadgeBorder:SetShown(not isCampaign);
 
 	local isComplete = popUpType == "COMPLETE";

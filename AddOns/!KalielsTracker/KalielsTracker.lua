@@ -677,7 +677,6 @@ local function SetHooks()
 			else
 				KTF.Buttons:SetShown(not KT.locked)
 			end
-			KT.ActiveButton:Update()
 		end
 		if dbChar.collapsed or KTF.Buttons.num == 0 then
 			KTF.Buttons:SetAlpha(0)
@@ -1175,6 +1174,18 @@ local function SetHooks()
 				button.text:SetJustifyH("LEFT")
 				button.text:SetPoint("TOPLEFT", button.icon, 1, -3)
 
+				button.Glow = button:CreateTexture(nil, "BACKGROUND")
+				button.Glow:SetAtlas("UI-QuestTrackerButton-QuestItem-Frame-Glow", true)
+				button.Glow:SetPoint("CENTER")
+				button.Glow:Hide()
+
+				button.GlowAnim = button.Glow:CreateAnimationGroup()
+				button.GlowAnim:SetLooping("BOUNCE")
+				local anim = button.GlowAnim:CreateAnimation("Alpha")
+				anim:SetFromAlpha(0)
+				anim:SetToAlpha(1)
+				anim:SetDuration(1)
+
 				button:RegisterForClicks("AnyDown", "AnyUp")
 
 				button:SetNormalTexture("Interface\\Buttons\\UI-Quickslot2")
@@ -1226,7 +1237,8 @@ local function SetHooks()
 			CreateFixedTag(block, x, y)
 			local button = CreateFixedButton(block)
 			if not InCombatLockdown() then
-				button.questLogIndex = questLogIndex
+				button:SetAttribute("questLogIndex", questLogIndex)
+				button:SetAttribute("questID", block.id)
 				button.charges = charges
 				button.rangeTimer = -1
 				button.item = item
@@ -1234,11 +1246,8 @@ local function SetHooks()
 				SetItemButtonTexture(button, item)
 				SetItemButtonCount(button, charges)
 				KT.ItemButton.UpdateCooldown(button)
+				KT.ItemButton.CheckUpdateInsideBlob(button)
 				button:SetAttribute("item", link)
-
-				if db.qiActiveButton and KTF.ActiveButton.questID == block.id then
-					KT.ActiveButton:Update(block.id)
-				end
 			end
 		else
 			KT:RemoveFixedButton(block)
@@ -1250,21 +1259,23 @@ local function SetHooks()
 	KT.ItemButton.OnShow = KT_QuestObjectiveItemButtonMixin.OnShow
 	KT.ItemButton.OnHide = KT_QuestObjectiveItemButtonMixin.OnHide
 	KT.ItemButton.UpdateCooldown = KT_QuestObjectiveItemButtonMixin.UpdateCooldown
+	KT.ItemButton.CheckUpdateInsideBlob = KT_QuestObjectiveItemButtonMixin.CheckUpdateInsideBlob
 
 	function KT_QuestObjectiveItemButtonMixin:OnUpdate(elapsed)  -- R
-		if not self.questLogIndex then return end  -- for EditMode
+		local questLogIndex = self:GetAttribute("questLogIndex");
+		if not questLogIndex then return end  -- for EditMode
 
 		local rangeTimer = self.rangeTimer
 		if rangeTimer then
 			rangeTimer = rangeTimer - elapsed
 			if rangeTimer <= 0 then
-				local link, item, charges, showItemWhenComplete = GetQuestLogSpecialItemInfo(self.questLogIndex)
+				local link, item, charges, showItemWhenComplete = GetQuestLogSpecialItemInfo(questLogIndex)
 				if not charges or charges ~= self.charges then
 					KT_QuestObjectiveTracker:MarkDirty()
 					return
 				end
 				local count = self.HotKey
-				local valid = IsQuestLogSpecialItemInRange(self.questLogIndex)
+				local valid = IsQuestLogSpecialItemInRange(questLogIndex)
 				if count:GetText() == RANGE_INDICATOR then
 					if valid == 0 then
 						count:Show()
@@ -1286,22 +1297,6 @@ local function SetHooks()
 			end
 			self.rangeTimer = rangeTimer
 		end
-
-		if db.qiActiveButton and not InCombatLockdown() and self.block then
-			if KT.ActiveButton.timerID then
-				if KT.ActiveButton.timerID ~= self.block.id then
-					return
-				end
-			else
-				KT.ActiveButton.timerID = self.block.id
-			end
-			if KT.ActiveButton.timer > 50 then
-				KT.ActiveButton:Update()
-			else
-				--_DBG("... "..KT.ActiveButton.timer.." ... "..self.block.id)
-				KT.ActiveButton.timer = KT.ActiveButton.timer + TOOLTIP_UPDATE_TIME
-			end
-		end
 	end
 	KT.ItemButton.OnUpdate = KT_QuestObjectiveItemButtonMixin.OnUpdate
 
@@ -1313,7 +1308,8 @@ local function SetHooks()
 		else
 			GameTooltip:SetOwner(self, "ANCHOR_LEFT", db.frameScale * -3)
 		end
-		GameTooltip:SetQuestLogSpecialItem(self.questLogIndex)
+		local questLogIndex = self:GetAttribute("questLogIndex");
+		GameTooltip:SetQuestLogSpecialItem(questLogIndex)
 	end
 	KT.ItemButton.OnEnter = KT_QuestObjectiveItemButtonMixin.OnEnter
 
@@ -1560,10 +1556,6 @@ local function SetHooks()
 				button.Icon:SetTexture(spellInfo.spellIcon)
 				spellFrame.SpellButton.UpdateCooldown(button)
 				button:SetAttribute("spell", spellInfo.spellID)
-
-				if db.qiActiveButton and KTF.ActiveButton.questID == spellFrame.id then
-					KT.ActiveButton:Update(spellFrame.id)
-				end
 			end
 			spellFrame.KTSpellButton = button
 			i = i + 1
@@ -2729,9 +2721,6 @@ function KT:RemoveFixedButton(block)
 				KTF.ActiveButton.text:SetText("")
 			end
 		end
-		if self.ActiveButton.timerID == questID then
-			self.ActiveButton.timerID = nil
-		end
 	else
 		for questID, button in pairs(self.fixedButtons) do
 			_DBG(" - REMOVE button "..questID)
@@ -2943,7 +2932,6 @@ function KT:OnEnable()
 	SetFrames()
 	SetHooks()
 
-	self.Hacks:Enable()
 	self.QuestLog:Enable()
 	self.Filters:Enable()
 	if self.AddonPetTracker.isLoaded then self.AddonPetTracker:Enable() end

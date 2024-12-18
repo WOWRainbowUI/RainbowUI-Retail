@@ -1202,7 +1202,7 @@ local options = {
 							set = function()
 								db.qiActiveButtonBindingShow = not db.qiActiveButtonBindingShow
 								KTF.ActiveFrame:Hide()
-								KT.ActiveButton:Update()
+								KT:Update()
 							end,
 							order = 5.5,
 						},
@@ -1692,7 +1692,7 @@ local options = {
 									"function SetPassThroughButtons. When the hack is inactive World Map display causes errors. "..
 									"It is not possible to get rid of these errors, since the tracker has a lot of interaction "..
 									"with the game frames.\n\n"..
-									cWarning2.."Negative impacts:|r unknown in WoW 11.0.5\n",
+									cWarning2.."Negative impacts:|r unknown in WoW 11.0.7\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",

@@ -254,7 +254,7 @@ local function SetupTutorials()
 					cBold.."Affects World Map|r and removes taint errors. The hack removes call of restricted function "..
 					"SetPassThroughButtons. When the hack is inactive World Map display causes errors. It is not possible "..
 					"to get rid of these errors, since the tracker has a lot of interaction with the game frames.\n\n"..
-					cWarning2.."Negative impacts:|r unknown in WoW 11.0.5",
+					cWarning2.."Negative impacts:|r unknown in WoW 11.0.7",
 			textY = -20,
 		},
 		{	-- 12
@@ -267,18 +267,11 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."Version 7.6.0|r\n"..
-					"- ADDED - support for WoW 11.0.5.57689\n"..
-					"- ADDED - public API - for show / hide / toggle the tracker ... KalielsTracker:Toggle(true|false||nil)\n"..
-					"- CHANGED (help) - Active Patrons\n"..
-					"- CHANGED - addon support - Auctionator 11.0.18\n"..
-					"- CHANGED - addon support - ElvUI 13.81, Tukui 20.456\n"..
-					"- CHANGED - addon support - Masque 11.0.2\n"..
-					"- CHANGED - addon support - TomTom 4.0.6\n"..
-					"- CHANGED - TomTom - show waypoint info for WQ in another zone\n"..
-					"- CHANGED - Edit Mode - improve positioning of Active Button\n"..
-					"- REMOVED - Hack - Encounter Journal\n"..
-					"- REMOVED - Hack - Edit Mode\n"..
+					cTitle.."Version 7.7.0|r\n"..
+					"- ADDED - support for WoW 11.0.7.58162\n"..
+					"- CHANGED - Quest Item button – Active Button reworked\n"..
+					"- CHANGED - Quest Item button – add glow when player is at relevant location\n"..
+					"- FIXED - wrong height of tracker items (Blizz bug)\n"..
 					"\n"..
 
 					cTitle.."Issue reporting|r\n"..
