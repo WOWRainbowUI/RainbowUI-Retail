@@ -37,7 +37,7 @@ SmartQuest = {
 	--
 	-- **********************************************************************************************
 
-	Version = "1.29.1";
+	Version = "1.30";
 	ModCode = "KSQ";
 	DataCode = "1";
 	Quest = { };
@@ -711,7 +711,7 @@ function SmartQuest_Command(arg1)
 end
 
 function SmartQuest_Command_Options()
-	if (SmartQuest.DragonflightMode) then
+	if (not InterfaceOptions_AddCategory) then
 		Settings.OpenToCategory("SmartQuest");
 	else
 		InterfaceOptionsFrame_OpenToCategory("SmartQuest");
@@ -768,7 +768,7 @@ function SmartQuest_RenderOptions()
 	
 	local ConfigurationPanel = CreateFrame("FRAME","SmartQuest_MainFrame");
 	ConfigurationPanel.name = "任務-通報";
-	if (SmartQuest.DragonflightMode) then
+	if (not InterfaceOptions_AddCategory) then
 		category, layout = Settings.RegisterCanvasLayoutCategory(ConfigurationPanel, ConfigurationPanel.name);
 		category.ID = "SmartQuest"
 		Settings.RegisterAddOnCategory(category);
