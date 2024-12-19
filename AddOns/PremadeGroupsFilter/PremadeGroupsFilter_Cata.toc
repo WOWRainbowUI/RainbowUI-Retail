@@ -1,6 +1,6 @@
 ## Interface: 40400
 ## Title: Premade Groups Filter
-## Version: 6.5.9
+## Version: 6.5.10
 ## IconTexture: 397907
 ## X-Flavor: Cata
 ## Notes: Allows filtering of premade groups using an UI or advanced filter expressions.
@@ -17,6 +17,7 @@
 ## OptionalDeps: PremadeRegions, RaiderIO
 
 Init.lua
+Compat.lua
 Localization\enUS.lua
 Localization\frFR.lua
 Localization\deDE.lua
