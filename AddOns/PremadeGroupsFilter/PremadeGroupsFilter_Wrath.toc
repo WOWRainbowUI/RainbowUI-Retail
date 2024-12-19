@@ -1,6 +1,6 @@
 ## Interface: 30403
 ## Title: Premade Groups Filter
-## Version: 6.5.9
+## Version: 6.5.10
 ## IconTexture: 397907
 ## X-Flavor: Wrath
 ## Notes: Allows filtering of premade groups using an UI or advanced filter expressions.
@@ -21,6 +21,7 @@
 ## X-Category-zhTW: 團隊
 
 Init.lua
+Compat.lua
 Localization\enUS.lua
 Localization\zhCN.lua
 Localization\zhTW.lua

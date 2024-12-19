@@ -27,7 +27,7 @@ PGF.softDeclinedGroups = {}
 PGF.canceledGroups = {}
 
 function PGF.GetAppStatus(resultID, optionalSearchResultInfo)
-    local searchResultInfo = optionalSearchResultInfo or C_LFGList.GetSearchResultInfo(resultID)
+    local searchResultInfo = optionalSearchResultInfo or PGF.GetSearchResultInfo(resultID)
     local _, appStatus, pendingStatus, appDuration = C_LFGList.GetApplicationInfo(resultID)
     local isApplication = appStatus ~= "none" or pendingStatus
     local isDeclined = appStatus == "declined" or appStatus == "declined_delisted" or appStatus == "declined_full"
@@ -44,7 +44,7 @@ function PGF.GetGroupKey(searchResultInfo)
     if searchResultInfo.partyGUID then -- retail now provides a partyGUID
         return searchResultInfo.partyGUID
     elseif searchResultInfo.leaderName then -- leaderName is not available for very new groups
-        return searchResultInfo.activityIDs[1] .. searchResultInfo.leaderName
+        return searchResultInfo.activityID .. searchResultInfo.leaderName
     else
         return nil
     end
@@ -81,7 +81,7 @@ end
 
 function PGF.OnLFGListApplicationStatusUpdated(id, newStatus)
     -- possible newStatus: declined, declined_full, declined_delisted, timedout
-    local searchResultInfo = C_LFGList.GetSearchResultInfo(id)
+    local searchResultInfo = PGF.GetSearchResultInfo(id)
     local key = PGF.GetGroupKey(searchResultInfo)
     if not key then return end
     if newStatus == "declined" then
