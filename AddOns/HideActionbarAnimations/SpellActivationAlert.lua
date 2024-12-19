@@ -4,6 +4,9 @@ local ApplyActionBarSkinOnLogin = CreateFrame("Frame")
 ApplyActionBarSkinOnLogin:RegisterEvent("PLAYER_LOGIN")
 ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 
+	local IsAddOnEnabled = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
+	if IsAddOnEnabled("HideButtonGlow") then return end
+
 	local function CreateGoldenBorder(button) -- hooksecurefunc("ActionButton_SetupOverlayGlow", function(button)
 
 		if button.HideActionbarAnimations_SpellActivationAlert then return end
