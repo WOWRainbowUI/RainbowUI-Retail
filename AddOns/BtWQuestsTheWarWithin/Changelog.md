@@ -1,3 +1,8 @@
+# v6.0
+
+- Added Lingering Shadows questline
+- Added A Song of Secrets questline
+
 # v5.4
 
 - Updated for 11.0.7
