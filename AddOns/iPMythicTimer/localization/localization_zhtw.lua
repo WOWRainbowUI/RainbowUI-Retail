@@ -5,6 +5,7 @@ local AddonName, Addon = ...
 Addon.localization.ADDELEMENT = "加入元素"
 
 Addon.localization.BACKGROUND = "背景"
+Addon.localization.BGCOLOR    = "背景顏色"
 Addon.localization.BORDER     = "邊框"
 Addon.localization.BORDERLIST = "從函數庫中選擇一個邊框"
 Addon.localization.BOTTOM     = "底部"
@@ -34,7 +35,7 @@ Addon.localization.CORRUPTED  = {
     [161243] = "山姆雷克，混沌召喚者 (恐懼)",
     [161244] = "腐化者之血 (軟泥)",
 }
-Addon.localization.CURSEASON  = "當前賽季" -- need correct
+Addon.localization.CURSEASON  = "當前賽季"
 
 Addon.localization.DAMAGE     = "傷害"
 Addon.localization.DBCLEANED  = "怪物百分比數據庫已清除"
@@ -68,6 +69,7 @@ Addon.localization.ELEMENT    = {
     PROGRESS  = "已擊殺小怪",
     PROGNOSIS = "擊殺拉怪後的百分比",
     TIMER     = "鑰石計時器",
+    TIMERBAR  = "計時條",
     TORMENT   = "折磨副官",
 }
 Addon.localization.ELEMACTION =  {
@@ -101,6 +103,7 @@ Addon.localization.HELP = {
     PROGRESS   = "已擊殺小怪",
     TIMER      = "剩餘的時間",
 }
+Addon.localization.HORIZONTAL = "水平"
 
 Addon.localization.ICONSIZE   = "圖示大小"
 Addon.localization.IMPORT     = "匯入"
@@ -108,7 +111,7 @@ Addon.localization.IMPORT     = "匯入"
 Addon.localization.JUSTIFYH   = "水平文字對齊"
 Addon.localization.JUSTIFYV   = "垂直文字對齊"
 
-Addon.localization.KEYSNAME   = "鑰石名稱" -- need correct
+Addon.localization.KEYSNAME   = "鑰石名稱"
 
 Addon.localization.LAYER      = "層級"
 Addon.localization.LEFT       = "左"
@@ -119,8 +122,11 @@ Addon.localization.MAPBUT     = "滑鼠左鍵 (單擊) - 設定選項\n" ..
 Addon.localization.MAPBUTOPT  = "顯示/隱藏小地圖按鈕"
 Addon.localization.MELEEATACK = "近戰攻擊"
 
+Addon.localization.OK         = "Ok"
 Addon.localization.OPTIONS    = "M+ 時間 - 設定選項"
+Addon.localization.ORIENT     = "方向"
 
+Addon.localization.PADDING    = "鋪墊"
 Addon.localization.POINT      = "位置"
 Addon.localization.PRECISEPOS = "右鍵單擊以精確定位"
 Addon.localization.PROGFORMAT = {
@@ -131,8 +137,8 @@ Addon.localization.PROGRESS   = "進度格式"
 
 Addon.localization.RELPOINT   = "相對位置"
 Addon.localization.RIGHT      = "右"
-Addon.localization.RNMKEYSBT  = "重新命名鑰石" -- need correct
-Addon.localization.RNMKEYSTT  = "這裡可以更改計時器的鑰石名稱。" -- need correct
+Addon.localization.RNMKEYSBT  = "重新命名鑰石"
+Addon.localization.RNMKEYSTT  = "這裡可以更改計時器的鑰石名稱。"
 
 Addon.localization.SCALE      = "縮放"
 Addon.localization.SEASONOPTS = "賽季選項"
@@ -181,8 +187,11 @@ Addon.localization.TIMERCHCKP = "計時器檢查點"
 
 Addon.localization.UNKNOWN    = "未知"
 
+Addon.localization.VERTICAL   = "垂直"
+
 Addon.localization.WAVEALERT  = '每過{percent}%警告'
 Addon.localization.WIDTH      = "寬度"
+Addon.localization.WHATSNEW   = "更新說明"
 Addon.localization.WHODIED    = "誰死了"
 
 -- 自行加入
