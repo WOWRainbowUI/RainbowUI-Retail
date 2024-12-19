@@ -1,7 +1,7 @@
 # Baganator
 
-## [554](https://github.com/Baganator/Baganator/tree/554) (2024-12-17)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/553...554) 
+## [555](https://github.com/Baganator/Baganator/tree/555) (2024-12-18)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/554...555) 
 
-- Change text on donate button  
-- Update donation link  
+- Update LICENSE  
+- Code cleanup  
