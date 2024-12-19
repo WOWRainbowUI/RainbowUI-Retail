@@ -1,6 +1,6 @@
 # Syndicator
 
-## [143](https://github.com/Baganator/Syndicator/tree/143) (2024-12-17)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/142...143) 
+## [144](https://github.com/Baganator/Syndicator/tree/144) (2024-12-18)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/143...144) 
 
-- Update toc for 11.0.7  
+- Update LICENSE  
