@@ -182,11 +182,9 @@ function Player:PlayerFrame_ToPlayerArt()
 
     -- Update other stuff
     local playerFrameTargetContextual = PlayerFrame_GetPlayerFrameContentContextual();
-    playerFrameTargetContextual.GroupIndicator:SetPoint("TOPLEFT", 13, 0);
-
-    PlayerFrameGroupIndicatorLeft:SetAlpha(0);
-    PlayerFrameGroupIndicatorRight:SetAlpha(0);
-    PlayerFrameGroupIndicatorMiddle:SetAlpha(0);
+    playerFrameTargetContextual.GroupIndicator:SetPoint("BOTTOMRIGHT", PlayerFrame, "TOPLEFT", 95, -15);
+    playerFrameTargetContextual.GroupIndicator.GroupIndicatorLeft:SetAlpha(0);
+    playerFrameTargetContextual.GroupIndicator.GroupIndicatorRight:SetAlpha(0);
 
     playerFrameTargetContextual.RoleIcon:SetPoint("TOPLEFT", 28, -63);
 
@@ -206,10 +204,6 @@ function Player:PlayerFrame_ToVehicleArt()
 
     PlayerFrame.PlayerFrameContainer.FrameFlash:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1); -- Default state.
     PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1); -- Default state.
-
-    PlayerFrameGroupIndicatorLeft:SetAlpha(0.3);
-    PlayerFrameGroupIndicatorRight:SetAlpha(0.3);
-    PlayerFrameGroupIndicatorMiddle:SetAlpha(0.3);
 end
 
 function Player:PlayerFrame_UpdatePlayerNameTextAnchor()
