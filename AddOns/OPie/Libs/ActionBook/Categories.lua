@@ -304,8 +304,10 @@ if MODERN or CF_WRATH then -- toys
 	end)
 end
 do -- misc
-	if MODERN then
+	if MODERN or CF_CATA then
 		AB:AddActionToCategory(L"Miscellaneous", "extrabutton", 1)
+	end
+	if MODERN then
 		AB:AddActionToCategory(L"Miscellaneous", "zoneability", 0)
 	end
 	AB:AddActionToCategory(L"Miscellaneous", "imptext", "")

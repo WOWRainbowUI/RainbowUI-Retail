@@ -603,9 +603,11 @@ local function ringIterator(isDeleted, k)
 	local nk, v = next(isDeleted and RK_DeletedRings or RK_RingDesc, k)
 	if nk and RK_FluxRings[nk] then
 		return ringIterator(isDeleted, nk)
-	elseif nk and isDeleted then
-		return RK_IsRelevantRingDescription(queue[nk]) and nk or ringIterator(isDeleted, nk)
 	elseif nk then
+		v = isDeleted and queue[nk] or v
+		if isDeleted and not RK_IsRelevantRingDescription(v) then
+			return ringIterator(isDeleted, nk)
+		end
 		return nk, v.name or nk, RK_CollectionIDs[nk] ~= nil, #v, v.internal, v.limit
 	end
 end
@@ -765,6 +767,7 @@ function private:RestoreDefaults(name)
 		end
 	elseif queue[name] then
 		self:SetRing(name, queue[name])
+		return true
 	end
 end
 function private:GetDefaultDescription(name)
