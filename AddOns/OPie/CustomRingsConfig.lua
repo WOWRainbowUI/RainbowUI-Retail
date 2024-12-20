@@ -961,7 +961,7 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 	newSlice.desc:SetJustifyV("TOP") newSlice.desc:SetJustifyH("CENTER")
 	newSlice.desc:SetText(L"Select an action by double clicking.")
 	
-	newSlice.close = CreateFrame("Button", "RKC_CloseNewSliceBrowser", newSlice, "UIPanelCloseButton")
+	newSlice.close = CreateFrame("Button", nil, newSlice, "UIPanelCloseButton")
 	newSlice.close:SetPoint("TOPRIGHT", 3, 4)
 	newSlice.close:SetSize(30, 30)
 	newSlice.close:SetFrameLevel(newSlice:GetFrameLevel()+120)
@@ -1240,17 +1240,24 @@ function ringDropDown:initialize(level, nameList)
 	local playerFullName = playerName .. "-" .. playerServer
 	local info = {func=api.selectRing, minWidth=level == 1 and (self:GetWidth()-40) or nil}
 	if level == 1 then
-		ringNames = {hidden={}, other={}}
+		ringNames = {hidden={}, other={}, deleted={}}
 		for name, dname, active, _slices, internal, limit in RK:GetManagedRings() do
 			table.insert(active and (internal and ringNames.hidden or ringNames) or ringNames.other, name)
 			local isFactionLimit = (limit == "Alliance" or limit == "Horde") and limit:upper() or nil
 			local rtype = type(limit) ~= "string" and "GLOBAL" or limit == playerFullName and "MINE" or isFactionLimit or limit:match("[^A-Z]") and "PERSONAL" or limit
 			ringNameMap[name], ringOrderMap[name], ringTypeMap[name] = dname, (not active and (rtype == "PERSONAL" and 12 or 10)) or isFactionLimit and 4 or (limit and (limit:match("[^A-Z]") and 0 or 2)), rtype
 		end
+		for name, dname, _, _, _, limit in RK:GetDeletedRings() do
+			table.insert(ringNames.deleted, name)
+			local isFactionLimit = (limit == "Alliance" or limit == "Horde") and limit:upper() or nil
+			local rtype = type(limit) ~= "string" and "GLOBAL" or limit == playerFullName and "MINE" or isFactionLimit or limit:match("[^A-Z]") and "PERSONAL" or limit
+			ringNameMap[name], ringOrderMap[name], ringTypeMap[name] = dname, 0, rtype
+		end
 		table.sort(ringNames, sortNames)
 		table.sort(ringNames.hidden, sortNames)
 		table.sort(ringNames.other, sortNames)
-		if #ringNames == 0 and #ringNames.hidden == 0 and #ringNames.other == 0 then
+		table.sort(ringNames.deleted, sortNames)
+		if #ringNames == 0 and #ringNames.hidden == 0 and #ringNames.other == 0 and #ringNames.deleted == 0 then
 			btnNewRing:Click()
 			return
 		end
@@ -1260,6 +1267,7 @@ function ringDropDown:initialize(level, nameList)
 	end
 	local hasHidden = ringNames.hidden and #ringNames.hidden > 0
 	local hasOther = ringNames.other and #ringNames.other > 0
+	local hasDeleted = ringNames.deleted and #ringNames.deleted > 0
 	XU:Create("ScrollableDropDownList", 1, ringNames, ringDropDown_EntryFormat, api.selectRing, hasHidden or hasOther)
 	info.hasArrow, info.notCheckable, info.padding, info.fontObject = 1, 1, 32, GameFontNormalSmall
 	info.text, info.func, info.checked = nil
@@ -1269,6 +1277,10 @@ function ringDropDown:initialize(level, nameList)
 	end
 	if hasOther then
 		info.menuList, info.text = ringNames.other, L"Inactive rings"
+		UIDropDownMenu_AddButton(info, level)
+	end
+	if hasDeleted then
+		info.menuList, info.text = ringNames.deleted, L"Restore deleted ring"
 		UIDropDownMenu_AddButton(info, level)
 	end
 end
@@ -1312,7 +1324,14 @@ function api.selectRing(_, name)
 	ringContainer.newSlice:SetChecked(nil)
 	local desc = RK:GetRingDescription(name)
 	currentRing, currentRingName, repickSlice = nil
-	if not desc then return end
+	if not desc then
+		desc = name and RK:RestoreDefaults(name) and RK:GetRingDescription(name)
+		if desc then
+			SaveRingVersion(name, false)
+		else
+			return
+		end
+	end
 	RK:SoftSync(name)
 	UIDropDownMenu_SetText(ringDropDown, desc.name or name)
 	ringDetail.rotation:SetValue(desc.offset or 0)

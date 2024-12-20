@@ -2,8 +2,8 @@ local COMPAT, _, T = select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
-local EV, AB, RW = T.Evie, T.ActionBook:compatible(2,38), T.ActionBook:compatible("Rewire", 1,27)
-assert(EV and AB and RW and 1, "Incompatible library bundle")
+local EV, AB, KR, RW = T.Evie, T.ActionBook:compatible(2,38), T.ActionBook:compatible("Kindred", 1,26), T.ActionBook:compatible("Rewire", 1,27)
+assert(EV and AB and KR and RW and 1, "Incompatible library bundle")
 local MODERN, CI_ERA, CF_CATA = COMPAT >= 10e4, COMPAT < 2e4, COMPAT < 10e4 and COMPAT > 4e4
 local playerClass, _, playerRace = UnitClassBase("player"), UnitRace("player")
 
@@ -320,13 +320,24 @@ if MODERN and playerRace ~= "Draenei" and playerRace ~= "LightforgedDraenei" the
 	AB:SetPlayerHasToyOverride(210455, false)
 end
 
-if MODERN then -- Travel form usability/outcome feedback
+local MAYBE_FLYABLE = true -- [anyflyable]
+if MODERN and (playerClass == "DRUID" or playerRace == "Dracthyr") then
+	local f = CreateFrame("Frame", nil, nil, "SecureFrameTemplate")
+	f:SetScript("OnAttributeChanged", function(_, a, v)
+		if a == "state-anyflyable" then
+			MAYBE_FLYABLE = v == 1
+		end
+	end)
+	KR:RegisterStateDriver(f, "anyflyable", "[anyflyable] 1;")
+end
+
+if MODERN and playerClass == "DRUID" then -- Travel form usability/outcome feedback
 	local CAN_FLY, CAN_SWIM = false, false
 	AB:SetSpellIconOverride(783, function()
 		if CAN_SWIM and IsSwimming() then
 			return 132112
 		end
-		return CAN_FLY and (IsFlyableArea() or IsAdvancedFlyableArea()) and not InCombatLockdown() and 132128 or 132144, not IsIndoors()
+		return CAN_FLY and MAYBE_FLYABLE and not InCombatLockdown() and 132128 or 132144, not IsIndoors()
 	end)
 	local function syncLevel(ev)
 		local lv = UnitLevel("player") or 0
@@ -336,4 +347,11 @@ if MODERN then -- Travel form usability/outcome feedback
 	end
 	EV.PLAYER_LEVEL_UP = syncLevel
 	EV.PLAYER_LOGIN = syncLevel
+end
+if MODERN and playerRace == "Dracthyr" then -- Soar usability on Siren Isle
+	AB:SetSpellIconOverride(369536, function()
+		if not MAYBE_FLYABLE then
+			return nil, false
+		end
+	end)
 end

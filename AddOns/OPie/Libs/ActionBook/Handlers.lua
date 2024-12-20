@@ -454,7 +454,7 @@ do -- macrotext
 	local function checkCountReturn(pri, ...)
 		if select("#", ...) > 0 then
 			local _, _, _, _, nc = ...
-			return nc == 0 and pri - 1 or pri, ...
+			return nc == 0 and pri - 5 or pri, ...
 		end
 	end
 	local function canUseViaSCUI(clause)
@@ -888,7 +888,7 @@ if MODERN or CF_CATA then -- worldmarker
 	end)
 end
 do -- extrabutton
-	local slot = MODERN and (GetExtraBarIndex()*12 - 11)
+	local slot = (MODERN or CF_CATA) and (GetExtraBarIndex()*12 - 11)
 	local function extrabuttonHint()
 		if not HasExtraActionBar() then
 			return false, 0, "Interface/Icons/temp", "", 0, 0, 0
@@ -907,22 +907,22 @@ do -- extrabutton
 		usable = not not (usable and inRange and (cdLeft == 0 or enabled == 0 or charges > 0))
 		return usable, state, GetActionTexture(slot), GetActionText(slot) or (at == "spell" and GetSpellInfo(aid)), count <= 1 and charges or count, cdLeft, cdLength, callMethod.SetAction, slot
 	end
-	local aid = MODERN and AB:CreateActionSlot(extrabuttonHint, nil, "conditional", "[extrabar]", "attribute", "type","action", "action",slot)
-	local aid2 = MODERN and AB:CreateActionSlot(extrabuttonHint, nil, "attribute", "type","action", "action",slot)
+	local aid = slot and AB:CreateActionSlot(extrabuttonHint, nil, "conditional", "[extrabar]", "attribute", "type","action", "action",slot)
+	local aid2 = slot and AB:CreateActionSlot(extrabuttonHint, nil, "attribute", "type","action", "action",slot)
 	local function createExtraButton(id, flags)
 		local forceShow = flags == 1
 		return id == 1 and (forceShow and aid2 or aid) or nil
 	end
 	local function describeExtraButton(_id)
 		local name, tex = L"Extra Action Button", "Interface/Icons/Spell_Shadow_Teleport"
-		if MODERN and HasExtraActionBar() then
+		if slot and HasExtraActionBar() then
 			local at, aid = GetActionInfo(slot)
 			name, tex = GetActionText(slot) or (at == "spell" and GetSpellInfo(aid)) or name, GetActionTexture(slot) or tex
 		end
 		return L"Extra Action Button", name, tex
 	end
 	AB:RegisterActionType("extrabutton", createExtraButton, describeExtraButton, 2)
-	if MODERN then
+	if slot then
 		RW:SetClickHint("ExtraActionButton1", 95, function()
 			if HasExtraActionBar() then
 				return true, extrabuttonHint()
