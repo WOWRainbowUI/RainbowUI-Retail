@@ -1,7 +1,6 @@
 # Baganator
 
-## [555](https://github.com/Baganator/Baganator/tree/555) (2024-12-18)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/554...555) 
+## [557](https://github.com/Baganator/Baganator/tree/557) (2024-12-21)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/556...557) 
 
-- Update LICENSE  
-- Code cleanup  
+- Fix possible nil reference error when updating quest item visuals  
