@@ -357,14 +357,14 @@ L['the_drowned_lair_note'] = 'Contribute {currency:3090} to {location:The Drowne
 L['the_drain_note'] = 'Contribute {currency:3090} to {location:The Drain} at the {object:Siren Isle Command Map} to open this cave and spawn the rare.'
 L['shuddering_hollow_note'] = 'Contribute {currency:3090} to {location:Shuddering Hollow} at the {object:Siren Isle Command Map} to open this cave and spawn the rare.'
 
-L['vykrul_sublabel'] = '{note:Only available with {npc:Bloodwake Vykrul} on the island.}'
+L['vrykul_sublabel'] = '{note:Only available with {npc:Bloodwake Vrykul} on the island.}'
 L['naga_sublabel'] = '{note:Only available with {npc:Naga} on the island.}'
 L['pirate_sublabel'] = '{note:Only available with {npc:pirates} on the island.}'
 
 L['storm_required'] = 'Requires active %s storm on {location:Siren Isle}.' -- %s becomes "(icon) [Seafury Tempest]"
 L['slaughtershell_location'] = 'Roams around the entire {location:Siren Isle}.'
 
-L['within_the_forgotten_vault'] = 'Within {location:The Forgotten Vault}. Use the {object:Singing Tablet} within {location:The Sacred Hollow} to enter the vault.'
+L['within_the_forgotten_vault'] = 'Use the {object:Singing Tablet} within {location:The Sacred Hollow} to enter the vault.\n\nThe vault contains treasures, a toy, a mount, and {npc:231368}.'
 
 L['options_icons_runed_storm_chest'] = '{achievement:41131}'
 L['options_icons_runed_storm_chest_desc'] = 'Display {object:Runed Storm Cache} locations for {achievement:41131}.'
@@ -373,37 +373,38 @@ L['runed_storm_chest_label'] = 'Runed Storm Cache'
 L['runed_storm_chest_suffix'] = 'caches opened'
 L['runed_storm_chest_note'] = 'Follow the wind to a hidden {object:Runed Storm Cache} and reveal it with {spell:472051}.'
 
-L['mouldy_sea_ledger_label'] = 'Mouldy Sea Ledger'
-L['mouldy_sea_ledger_location'] = 'On the floor of the {location:Salt and Shanty} inn near the fireplace.'
-
-L['scholars_of_the_sea_label'] = 'Scholars of the Sea: Siren Isle Synopsis'
-L['scholars_of_the_sea_location'] = 'On the second floor of the {location:Salt and Shanty} inn near the window.'
-
 L['flame_blessed_iron_item'] = 'Return this item for bonus {currency:3090}.'
 
 L['barnacle_encrusted_chest'] = 'Barnacle-Encrusted Chest'
 
 L['soweezi_note'] = 'Exchange {currency:3090} for a mount, toy, pet, or transmog.'
 
-L['krolusk_burrow_label'] = 'Krolusk Burrow'
-
 L['thrayir_note_start'] = 'Collect 5x runestone keys from around the {location:Siren Isle} and complete the ritual within {location:The Forgotten Vault} to recieve {item:232639}:'
 
 L['whirling_runekey_note'] = 'Drops from the {npc:231368} in the {location:The Forgotten Vault} during a storm.'
-L['torrential_runekey_note'] = 'Drops from any mob (normal, elite, or rare) on {location:Siren Isle} during a storm.'
-L['thunderous_runekey_note'] = 'Requires 5x {item:232605} found with {note:any} chest on the {location:Siren Isle}. {note:Does not require a storm}.'
-L['cyclonic_runekey_note'] = 'Drops from {npc:231357} in the {location:Deadfin Mire} on {location:Siren Isle} during a storm.'
+L['torrential_runekey_note'] = 'Requires 7x {item:234328} dropped from {note:any} mob (normal, elite, or rare) on {location:Siren Isle} during {spell:458069}.'
+L['thunderous_runekey_note'] = 'Requires 5x {item:232605} found with {note:any} chest on the {location:Siren Isle}. {note:Does not require a {spell:458069}}.'
+L['cyclonic_runekey_note'] = 'Drops from {npc:231357} in the {location:Deadfin Mire} on {location:Siren Isle} during a storm. Or get it from fishing nearby.'
 L['turbulent_runekey_note'] = 'Requires 3x {item:234327} found scattered around {location:Siren Isle} during a storm.'
 
 L['turbulent_fragment_a'] = 'Hidden in a {object:Dirt Pile} behind the {location:Salt and Shany} inn near the digging {npc:Kul Tiran} ghost.'
 L['turbulent_fragment_b'] = 'Loot the {object:Runic Fragment} in front of the cowering {npc:Kul Tiran} ghost inside a cave in the {location:Rotting Hole}.'
 L['turbulent_fragment_c'] = 'Loot the {object:Runic Fragment} held by the {npc:Kul Tiran} ghost inside the {location:Spirit Scarred Cave}.'
 
-L['prismatic_snapdragon_note_start'] = 'Over the course of 8 days, help save the {npc:235216} in the {location:Flotsam Shoal} to recieve {item:233489}.\n\n{note:You can miss a day but there is no catch-up mechanic}.'
+L['prismatic_snapdragon_note_start'] = 'Over the course of 10 days, help save the {npc:235216} in the {location:Flotsam Shoal} to recieve {item:233489}.\n\n{note:You can miss a day but there is no catch-up mechanic}.'
 L['prismatic_day'] = 'Day %d' -- "Day 1" or "Day 4" or "Day 7"
+
+L['pris_quest_1'] = 'A Lifeline' -- 86482
+L['pris_quest_2'] = 'Snap To It' -- 86483
+L['pris_quest_3'] = 'Temper Like A Tempest' -- 86484
+L['pris_quest_4'] = 'A Loyal Friend' -- 86485
 
 L['unsolved_amethyst_runelock'] = 'Unsolved Amethyst Runelock'
 L['bilge_rat_supply_chest'] = 'Bilge Rat Supply Chest'
+
+L['stone_carvers_scamseax_note'] = 'Collect a {object:Radiant Citrine} ({dot:Yellow}) to recieve the {spell:1216785} buff for 2 minutes allowing you to loot the {item:233834}.'
+
+L['marmaduke_note'] = '1. Collect the {item:233027} from the top floor of the {location:Salt and Shanty} inn and bring it to {npc:234365}.\n\n{note:{npc:234365} patrols between the cliff and the {location:Flotsam Shoal}.}\n\n2. After giving him the toy, head back to {location:Flotsam Shoal} and complete {quest:86261} to receive {item:233056}.'
 
 -------------------------------------------------------------------------------
 ----------------------------- SECRETS OF AZEROTH ------------------------------
@@ -431,6 +432,8 @@ L['11_ghostly_celebration_crate'] = 'On top of the {location:Seat of the Primus}
 
 L['water_resistant_receipt_note'] = '1. Enter the tunnel filled with {npc:47390}, turn right, and collect the {item:228768} from the {object:Water-Resistant Receipt of Sale} behind the pipe.\n\n2. Find {npc:91079} in {location:Azsuna} in the {location:Broken Isles}.'
 L['mysterious_bones_note'] = 'Collect the {item:228772} hidden behind {npc:71533} within the cave.\n\nUse a dog battle pet such as {item:136925} or {item:49912} to dig up the bones.'
+
+L['crates_found'] = 'crates found'
 
 -------------------------------------------------------------------------------
 ------------------------------- RATT'S REVENGE --------------------------------

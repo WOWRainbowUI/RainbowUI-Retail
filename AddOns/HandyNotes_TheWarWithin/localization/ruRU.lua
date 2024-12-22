@@ -95,27 +95,27 @@ L['lost_console_location'] = 'В нише.'
 L['options_icons_notable_machines'] = '{achievement:40628}'
 L['options_icons_notable_machines_desc'] = 'Показать расположение заметок для достижения {achievement:40628}.'
 
-L['notable_machines_note'] = 'Read the note.'
-L['fragment_I_location'] = 'On the ground.'
-L['fragment_II_location'] = 'On a ledge.'
-L['fragment_III_location'] = 'On top of the building.'
-L['fragment_IV_location'] = 'High up on the wooden tower (Steady Flying is recommended to get this).'
-L['fragment_V_location'] = 'On the archway at the top of the stairs.'
-L['fragment_VI_location'] = 'On the ground, next to the street light.'
+L['notable_machines_note'] = 'Прочитать заметку.'
+L['fragment_I_location'] = 'На земле.'
+L['fragment_II_location'] = 'На выступе.'
+L['fragment_III_location'] = 'На крыше здания.'
+L['fragment_IV_location'] = 'Высоко на деревянной башне (для этого рекомендуется использовать Спокойный Полет).'
+L['fragment_V_location'] = 'На арке наверху лестницы.'
+L['fragment_VI_location'] = 'На земле, рядом с уличным фонарем.'
 
 L['options_icons_rocked_to_sleep'] = '{achievement:40504}'
-L['options_icons_rocked_to_sleep_desc'] = 'Display plaque locations for {achievement:40504} achievement.'
+L['options_icons_rocked_to_sleep_desc'] = 'Показать расположение табличек для достижения {achievement:40504}.'
 
 L['rocked_to_sleep_note'] = 'Read the plaque of the inert earthen.'
-L['attwogaz_location'] = 'On a ledge.'
-L['halthaz_location'] = 'On a ledge at the base of the pillar.'
-L['krattdaz_location'] = 'On a ledge between two waterfalls.'
-L['uisgaz_location'] = 'On a ledge.'
-L['venedaz_location'] = 'On a platform next to the pipe.'
-L['merunth_location'] = 'On the pipe above the stairs.'
-L['varerko_location'] = 'On a ledge.'
-L['alfritha_location'] = 'Sitting on the edge of the cliff.'
-L['gundrig_location'] = 'Sitting on top of a ledge.'
+L['attwogaz_location'] = 'На выступе.'
+L['halthaz_location'] = 'На выступе у основания столба.'
+L['krattdaz_location'] = 'На уступе между двумя водопадами.'
+L['uisgaz_location'] = 'На выступе.'
+L['venedaz_location'] = 'На платформе рядом с трубой.'
+L['merunth_location'] = 'На трубе над лестницей.'
+L['varerko_location'] = 'На выступе.'
+L['alfritha_location'] = 'Сидит на краю обрыва.'
+L['gundrig_location'] = 'Сидит на вершине уступа.'
 L['sathilga_location'] = 'On a ledge near an Earthen mining machine building.'
 
 L['trungal_note'] = 'Kill the {npc:220615} that spawn around the entrance and down in the cave to spawn.'
@@ -156,12 +156,12 @@ L['illuminated_footlocker_note'] = 'Catch 5x falling {spell:442389} from the {np
 L['illusive_kobyss_lure_note'] = 'Combine all 4 items to create {item:225641}:'
 L['sunless_lure_location'] = 'Dropped by {npc:215653} on the {location:Sunless Strand}. They are camouflaged and use an {npc:215623} as bait.'
 L['sky_captains_sunken_cache_note'] = [[
-Speak with four different Sky-Captains on their airships to reveal the treasure.
+Поговорите с четырьмя разными Небесными Капитанами на их воздушных кораблях, чтобы узнать, где находится сокровище.
 
-{npc:222333} ({dot:Green}) flies counterclockwise.
-{npc:222311} ({dot:Yellow}) flies counterclockwise.
-{npc:222323} ({dot:Red}) flies clockwise.
-{npc:222337} ({dot:Orange}) flies counterclockwise.
+{npc:222333} ({dot:Green}) летит против часовой стрелки.
+{npc:222311} ({dot:Yellow}) летит против часовой стрелки.
+{npc:222323} ({dot:Red}) летит по часовой стрелке.
+{npc:222337} ({dot:Orange}) летит против часовой стрелки.
 ]]
 L['murkfin_lure_location'] = 'Dropped by {npc:213622} on {location:Velhan\'s Claim}. They are camouflaged and use an {npc:215623} as bait.'
 L['hungering_shimmerfin_location'] = 'Dropped by {npc:215243} in {location:The Hungering Pool}. They are camouflaged and use an {npc:219210} as bait.'
@@ -175,22 +175,22 @@ L['coral_fused_clam'] = 'Coral-Fused Clam'
 L['coral_fused_clam_note'] = 'Loot {item:218354} from the {object:Clammer\'s Kit} to open the Clam.'
 
 L['options_icons_biblo_archivist'] = '{achievement:40622}'
-L['options_icons_biblo_archivist_desc'] = 'Display book locations for {achievement:40622} achievement.'
+L['options_icons_biblo_archivist_desc'] = 'Показать расположение книг для достижения {achievement:40622}.'
 
-L['biblo_book_01_location'] = 'Inside the building on the table behind {npc:222811}.'
-L['biblo_book_02_location'] = 'Inside the building on a table by the door.'
-L['biblo_book_03_location'] = 'In the stable with all of the {npc:217606}.'
-L['biblo_book_04_location'] = 'On the center of the bridge.'
-L['biblo_book_05_location'] = 'On the beach below the airship.'
-L['biblo_book_06_location'] = 'Inside the building in a bookshelf on the back wall.'
-L['biblo_book_07_location'] = 'Inside the building on the table behind the {npc:206096}.'
-L['biblo_book_08_location'] = 'Inside the ruins.'
-L['biblo_book_09_location'] = 'Inside the large tent on the table.'
-L['biblo_book_10_location'] = 'In the captain\'s quarters aboard {location:The Dawnbreaker}.'
-L['biblo_book_11_location'] = 'Inside the building on a table.'
+L['biblo_book_01_location'] = 'Внутри здания на столе позади {npc:222811}.'
+L['biblo_book_02_location'] = 'Внутри здания на столе у ​​двери.'
+L['biblo_book_03_location'] = 'В конюшне со всеми {npc:217606}.'
+L['biblo_book_04_location'] = 'В центре моста.'
+L['biblo_book_05_location'] = 'На пляже под дирижаблем.'
+L['biblo_book_06_location'] = 'Внутри здания на книжной полке на задней стене.'
+L['biblo_book_07_location'] = 'Внутри здания на столе позади {npc:206096}.'
+L['biblo_book_08_location'] = 'Внутри руин.'
+L['biblo_book_09_location'] = 'Внутри большой палатки на столе.'
+L['biblo_book_10_location'] = 'В каюте капитана на борту {location:Сияющего Рассвета}.'
+L['biblo_book_11_location'] = 'Внутри здания на столе.'
 
 L['options_icons_lost_and_found'] = '{achievement:40618}'
-L['options_icons_lost_and_found_desc'] = 'Display memento locations for {achievement:40618} achievement.'
+L['options_icons_lost_and_found_desc'] = 'Показать расположение памятных вещей для достижения {achievement:40618}.'
 
 L['lost_and_found_note'] = 'Progress the Memories of the Sky storyline starting with the quest {quest:80673} from ({dot:Red}) {npc:220718}. {note:The quests unlock weekly}.\n\n3 mementos can be completed each week, until complete the quest {quest:82813}.'
 L['broken_bracelet_location'] = 'Hand in the item {item:219810} to {npc:215527}.'
@@ -357,14 +357,14 @@ L['the_drowned_lair_note'] = 'Contribute {currency:3090} to {location:The Drowne
 L['the_drain_note'] = 'Contribute {currency:3090} to {location:The Drain} at the {object:Siren Isle Command Map} to open this cave and spawn the rare.'
 L['shuddering_hollow_note'] = 'Contribute {currency:3090} to {location:Shuddering Hollow} at the {object:Siren Isle Command Map} to open this cave and spawn the rare.'
 
-L['vykrul_sublabel'] = '{note:Only available with {npc:Bloodwake Vykrul} on the island.}'
+L['vrykul_sublabel'] = '{note:Only available with {npc:Bloodwake Vykrul} on the island.}'
 L['naga_sublabel'] = '{note:Only available with {npc:Naga} on the island.}'
 L['pirate_sublabel'] = '{note:Only available with {npc:pirates} on the island.}'
 
 L['storm_required'] = 'Requires active %s storm on {location:Siren Isle}.' -- %s becomes "(icon) [Seafury Tempest]"
 L['slaughtershell_location'] = 'Roams around the entire {location:Siren Isle}.'
 
-L['within_the_forgotten_vault'] = 'Within {location:The Forgotten Vault}. Use the {object:Singing Tablet} within {location:The Sacred Hollow} to enter the vault.'
+L['within_the_forgotten_vault'] = nil
 
 L['options_icons_runed_storm_chest'] = '{achievement:41131}'
 L['options_icons_runed_storm_chest_desc'] = 'Display {object:Runed Storm Cache} locations for {achievement:41131}.'
@@ -373,19 +373,11 @@ L['runed_storm_chest_label'] = 'Runed Storm Cache'
 L['runed_storm_chest_suffix'] = 'caches opened'
 L['runed_storm_chest_note'] = 'Follow the wind to a hidden {object:Runed Storm Cache} and reveal it with {spell:472051}.'
 
-L['mouldy_sea_ledger_label'] = 'Mouldy Sea Ledger'
-L['mouldy_sea_ledger_location'] = 'On the floor of the {location:Salt and Shanty} inn near the fireplace.'
-
-L['scholars_of_the_sea_label'] = 'Scholars of the Sea: Siren Isle Synopsis'
-L['scholars_of_the_sea_location'] = 'On the second floor of the {location:Salt and Shanty} inn near the window.'
-
 L['flame_blessed_iron_item'] = 'Return this item for bonus {currency:3090}.'
 
 L['barnacle_encrusted_chest'] = 'Barnacle-Encrusted Chest'
 
 L['soweezi_note'] = 'Exchange {currency:3090} for a mount, toy, pet, or transmog.'
-
-L['krolusk_burrow_label'] = 'Krolusk Burrow'
 
 L['thrayir_note_start'] = 'Collect 5x runestone keys from around the {location:Siren Isle} and complete the ritual within {location:The Forgotten Vault} to recieve {item:232639}:'
 
@@ -402,8 +394,17 @@ L['turbulent_fragment_c'] = 'Loot the {object:Runic Fragment} held by the {npc:K
 L['prismatic_snapdragon_note_start'] = 'Over the course of 8 days, help save the {npc:235216} in the {location:Flotsam Shoal} to recieve {item:233489}.\n\n{note:You can miss a day but there is no catch-up mechanic}.'
 L['prismatic_day'] = 'Day %d' -- "Day 1" or "Day 4" or "Day 7"
 
+L['pris_quest_1'] = nil -- https://www.wowhead.com/quest=86482/a-lifeline
+L['pris_quest_2'] = nil -- https://www.wowhead.com/ptr/quest=86483/snap-to-it
+L['pris_quest_3'] = nil -- https://www.wowhead.com/ptr/quest=86484/temper-like-a-tempest
+L['pris_quest_4'] = nil -- https://www.wowhead.com/ptr/quest=86485/a-loyal-friend
+
 L['unsolved_amethyst_runelock'] = 'Unsolved Amethyst Runelock'
 L['bilge_rat_supply_chest'] = 'Bilge Rat Supply Chest'
+
+L['stone_carvers_scamseax_note'] = nil
+
+L['marmaduke_note'] = nil
 
 -------------------------------------------------------------------------------
 ----------------------------- SECRETS OF AZEROTH ------------------------------
@@ -431,6 +432,8 @@ L['11_ghostly_celebration_crate'] = 'On top of the {location:Seat of the Primus}
 
 L['water_resistant_receipt_note'] = '1. Enter the tunnel filled with {npc:47390}, turn right, and collect the {item:228768} from the {object:Water-Resistant Receipt of Sale} behind the pipe.\n\n2. Find {npc:91079} in {location:Azsuna} in the {location:Broken Isles}.'
 L['mysterious_bones_note'] = 'Collect the {item:228772} hidden behind {npc:71533} within the cave.\n\nUse a dog battle pet such as {item:136925} or {item:49912} to dig up the bones.'
+
+L['crates_found'] = nil
 
 -------------------------------------------------------------------------------
 ------------------------------- RATT'S REVENGE --------------------------------
@@ -543,13 +546,13 @@ L['enigma_machine_note'] = '1. Insert the {item:229007} and {item:229054} into t
 L['lock_statue_note'] = 'Drag this statue to a platform.'
 L['lock_platform_note'] = 'Drag statues to this platform.'
 
-L['platform_1_label'] = 'Platform 1'
-L['platform_2_label'] = 'Platform 2'
-L['platform_3_label'] = 'Platform 3'
-L['platform_4_label'] = 'Platform 4'
-L['platform_5_label'] = 'Platform 5'
-L['platform_6_label'] = 'Platform 6'
-L['platform_7_label'] = 'Platform 7'
+L['platform_1_label'] = 'Платформа 1'
+L['platform_2_label'] = 'Платформа 2'
+L['platform_3_label'] = 'Платформа 3'
+L['platform_4_label'] = 'Платформа 4'
+L['platform_5_label'] = 'Платформа 5'
+L['platform_6_label'] = 'Платформа 6'
+L['platform_7_label'] = 'Платформа 7'
 
 L['rats_label'] = 'Rats'
 L['lock_label'] = 'Lock %d'

@@ -358,14 +358,14 @@ L['the_drowned_lair_note'] = 'Contribuez à l\'événement {location:L\'antre En
 L['the_drain_note'] = 'Contribuez à l\'événement {location:La Vidange} sur la {object:Carte de commandement de l\'île aux Sirènes} grâce à vos {currency:3090} pour ouvrir cette grotte et faire apparaître le rare.'
 L['shuddering_hollow_note'] = 'Contribuez à l\'événement {location:Creux Frissonnant} sur la {object:Carte de commandement de l\'île aux Sirènes} grâce à vos {currency:3090} pour ouvrir cette grotte et faire apparaître le rare.'
 
-L['vykrul_sublabel'] = '{note:Uniquement disponible lorsque des {npc:Vrykuls sillage-de-sang} sont présents sur l\'île.}'
+L['vrykul_sublabel'] = '{note:Uniquement disponible lorsque des {npc:Vrykuls sillage-de-sang} sont présents sur l\'île.}'
 L['naga_sublabel'] = '{note:Uniquement disponible lorsque des {npc:Nagas} sont présents sur l\'île.}'
 L['pirate_sublabel'] = '{note:Uniquement disponible lorsque des {npc:Pirates} sont présents sur l\'île.}'
 
 L['storm_required'] = 'Requiert une %s active sur l\'{location:Île aux Sirènes}.'
 L['slaughtershell_location'] = 'Parcourt la totalité de l\'{location:Île aux Sirènes}.'
 
-L['within_the_forgotten_vault'] = 'À l\'intérieur de {location:La chambre Oubliée}. Utilisez la {object:Tablette chantonnante} dans {location:Le creux Sacré} pour entrer dans le caveau'
+L['within_the_forgotten_vault'] = 'Utilisez la {object:Tablette chantonnante} dans {location:Le creux Sacré} pour entrer dans le caveau.\n\nLa chambre contient des trésors, un jouet, une monture et {npc:231368}.'
 
 L['options_icons_runed_storm_chest'] = '{achievement:41131}'
 L['options_icons_runed_storm_chest_desc'] = 'Afficher les emplacements des {object:Caches de la tempête runiques} pour le haut-fait {achievement:41131}.'
@@ -374,37 +374,38 @@ L['runed_storm_chest_label'] = 'Cache de la tempête runique'
 L['runed_storm_chest_suffix'] = 'caches ouvertes'
 L['runed_storm_chest_note'] = 'Suivez le vent jusqu\'à une {object:Cache de la tempête runique} dissimulée et révélez-la avec l\'{spell:472051}.'
 
-L['mouldy_sea_ledger_label'] = 'Registre maritime moisi'
-L['mouldy_sea_ledger_location'] = 'Sur le sol de l\'auberge {location:Le Bloc de sel}, près de la cheminée.'
-
-L['scholars_of_the_sea_label'] = 'Érudits de la mer : synopsis de l\'île aux Sirènes'
-L['scholars_of_the_sea_location'] = 'Au premier étage de l\'auberge {location:Le Bloc de sel}, près de la fenêtre.'
-
 L['flame_blessed_iron_item'] = 'Rapportez cet objet pour obtenir des {currency:3090} supplémentaires.'
 
 L['barnacle_encrusted_chest'] = 'Coffre incrustré de bigorneaux'
 
 L['soweezi_note'] = 'Échangez vos {currency:3090} contre une monture, un jouet, une mascotte ou des objets de transmogrification.'
 
-L['krolusk_burrow_label'] = 'Terrier de krolusk'
-
 L['thrayir_note_start'] = 'Récupérez 5 clés runiques dispersées sur l\'{location:Île aux Sirènes} et accomplissez le rituel dans {location:La chambre Oubliée} pour recevoir {item:232639} :'
 
 L['whirling_runekey_note'] = 'Lâchée par {npc:231368} dans {location:La chambre Oubliée} lors d\'une tempête.'
-L['torrential_runekey_note'] = 'Lâchée par n\'importe quel monstre (normal, élite ou rare) sur l\'{location:Île aux Sirènes} lors d\'une tempête.'
-L['thunderous_runekey_note'] = 'Nécessite 5x {item:232605} trouvés dans {note:n\'importe quel} coffre sur l\'{location:Île aux Sirènes}. {note:Ne nécessite pas de tempête}.'
-L['cyclonic_runekey_note'] = 'Lâchée par {npc:231357} dans le {location:Bourbier Nageffroi} sur l\'{location:Île aux Sirènes} lors d\'une tempête.'
+L['torrential_runekey_note'] = 'Nécessite 7x {item:234328} lâchés par {note:n\'importe quel} monstre (normal, élite ou rare) sur l\'{location:Île aux Sirènes} lors d\'une {spell:458069}.'
+L['thunderous_runekey_note'] = 'Nécessite 5x {item:232605} trouvés dans {note:n\'importe quel} coffre sur l\'{location:Île aux Sirènes}. {note:Ne nécessite pas de {spell:458069}}.'
+L['cyclonic_runekey_note'] = 'Lâchée par {npc:231357} dans le {location:Bourbier Nageffroi} sur l\'{location:Île aux Sirènes} lors d\'une tempête. Vous pouvez également l\'obtenir en pêchant à proximité.'
 L['turbulent_runekey_note'] = 'Nécessite 3x {item:234327} dispersés sur l\'{location:Île aux Sirènes} lors d\'une tempête.'
 
 L['turbulent_fragment_a'] = 'Caché dans un {object:Tas de terre} derrière l\'auberge {location:Le Bloc de sel} près du {npc:Kultirassien} fantôme en train de creuser.'
 L['turbulent_fragment_b'] = 'Récupérez le {object:Fragment runique} près du {npc:Kultirassien} fantôme recroquevillé se trouvant dans une grotte au {location:Compostier}.'
 L['turbulent_fragment_c'] = 'Récupérez le {object:Fragment runique} détenu par le {npc:Kultirassien} fantôme à l\'intérieur de la {location:Grotte ravagée par les esprits}.'
 
-L['prismatic_snapdragon_note_start'] = 'Pendant 8 jours, contribuez à sauver le {npc:235216} au {location:Brisants des Débris} pour recevoir le {item:233489}.\n\n{note:Vous pouvez manquer un jour mais il n\'y a pas de système de rattrapage}.'
+L['prismatic_snapdragon_note_start'] = 'Pendant 10 jours, contribuez à sauver le {npc:235216} au {location:Brisants des Débris} pour recevoir le {item:233489}.\n\n{note:Vous pouvez manquer un jour mais il n\'y a pas de système de rattrapage}.'
 L['prismatic_day'] = 'Jour %d'
+
+L['pris_quest_1'] = 'Une planche de salut'
+L['pris_quest_2'] = 'Mordre la vie à pleines dents'
+L['pris_quest_3'] = 'Tempête prodigue'
+L['pris_quest_4'] = 'Un ami loyal'
 
 L['unsolved_amethyst_runelock'] = 'Verrou runique en améthyste non résolu'
 L['bilge_rat_supply_chest'] = 'Coffre de fournitures des Soutaillons'
+
+L['stone_carvers_scamseax_note'] = 'Ramassez une {object:Citrine radieuse} ({dot:Yellow}) pour bénéficier de l\'amélioration {spell:1216785} pendant 2 minutes, ce qui vous permet de récupérer le {item:233834}.'
+
+L['marmaduke_note'] = '1. Ramassez le {item:233027} au dernier étage de l\'auberge {location:Le Bloc de sel} et apportez-le à {npc:234365}.\n\n{note:{npc:234365} patrouille entre la falaise et le {location:Brisants des Débris}.}\n\n2. Après lui avoir donné le jouet, retournez au {location:Brisants des Débris} et complétez la quête {quest:86261} pour recevoir {item:233056}.'
 
 -------------------------------------------------------------------------------
 ----------------------------- SECRETS OF AZEROTH ------------------------------
@@ -432,6 +433,8 @@ L['11_ghostly_celebration_crate'] = 'Au sommet du {location:Siège du Primat} à
 
 L['water_resistant_receipt_note'] = '1. Entrez dans le tunnel rempli de {npc:47390}, tournez à droite et récupérez le {item:228768} à partir du {object:Récépissé de vente imperméable} derrière le tuyau.\n\n2. Trouvez le {npc:91079} à {location:Azsuna} sur les {location:Îles Brisées}.'
 L['mysterious_bones_note'] = 'Ramassez les {item:228772} cachés derrière {npc:71533} dans la grotte.\n\nUtilisez une mascotte de type canin tel que le {item:136925} ou {item:49912} pour déterrer les os.'
+
+L['crates_found'] = 'caisses trouvées'
 
 -------------------------------------------------------------------------------
 ------------------------------- RATT'S REVENGE --------------------------------
