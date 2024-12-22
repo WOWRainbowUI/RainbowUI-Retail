@@ -1,5 +1,5 @@
-## Changed in v2024.31
+## Changed in v2024.32
 
-* Add vignettes and achievement status for The Originals
-* Avoid a potential error when checking achievement status for some unusual criteria
+* Updated for 11.0.7 / 1.15.5
+* Partial data for Siren Isle
 
