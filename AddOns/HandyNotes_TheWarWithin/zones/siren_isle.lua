@@ -7,7 +7,6 @@ local L = ns.locale
 local Map = ns.Map
 
 local Collectible = ns.node.Collectible
-local Node = ns.node.Node
 local Rare = ns.node.Rare
 local Treasure = ns.node.Treasure
 local Vendor = ns.node.Vendor
@@ -36,7 +35,7 @@ local QuestStatus = ns.tooltip.QuestStatus
 -- ------|-------------|-----------|---------------|
 --   1   |     NO      |    YES    |      YES      | Rares, Treasures, Fragments
 -- ------|-------------|-----------|---------------|
---   2   |     YES     |    YES    |      YES      | Thrayir, Eyes of the Siren
+--   2   |     YES     |    YES    |      YES      | Thrayir, Eyes of the Siren, Runed Treasure Cache
 -- ------|-------------|-----------|---------------|
 --   3   |     YES     |    YES    |      NO       | Prismatic Snapdragon
 -- ------|-------------|-----------|---------------|
@@ -77,30 +76,28 @@ local map = StormMap({id = 2369, patch = 110007, settings = true})
 local tfv = StormMap({id = 2375, patch = 110007, settings = false}) -- The Forgotten Vault
 
 -------------------------------------------------------------------------------
---------------------------------- VAULT NODES ---------------------------------
+----------------------------- THE FORGOTTEN VAULT -----------------------------
 -------------------------------------------------------------------------------
 
-local tfv_parent = {
-    id = map.id,
-    pois = {
-        Entrance({45992076}), Path({Circle({origin = 45992076, radius = 2})})
-    }
-}
-
-local VaultRare = Class('VaultRare', Rare, {
-    location = L['within_the_forgotten_vault'],
-    parent = tfv_parent
-}) -- Vault Rare
-
-local VaultTreasure = Class('VaultTreasure', Treasure, {
-    location = L['within_the_forgotten_vault'],
-    parent = tfv_parent
-}) -- Vault Treasure
-
-local VaultCollectible = Class('VaultCollectible', Collectible, {
-    location = L['within_the_forgotten_vault'],
-    parent = tfv_parent
-}) -- Vault Collectible
+map.nodes[45992076] = Collectible({
+    clabel = L['change_map'],
+    icon = 'peg_yw',
+    scale = 2,
+    label = C_Map.GetMapInfo(tfv.id).name,
+    note = L['within_the_forgotten_vault'],
+    OnClick = function() WorldMapFrame:SetMapID(tfv.id) end,
+    rewards = {
+        Achievement({
+            id = 41046,
+            criteria = {
+                70798, -- Gunnlod the Sea-Drinker
+                70795 -- Shardsong
+            }
+        }), Toy({item = 235017}), -- Glittering Vault Shard
+        Mount({item = 232639, id = 2322}) -- Thrayir, Eyes of the Siren
+    },
+    storm = 3
+}) -- The Forgotten Vault
 
 -------------------------------------------------------------------------------
 ------------------------------------ RARES ------------------------------------
@@ -113,7 +110,7 @@ map.nodes[26206546] = Rare({
     location = L['in_cave'],
     note = L['the_drowned_lair_note'],
     pois = {Entrance({31756503})},
-    quest = nil, -- hidden
+    quest = 85672, -- hidden, also 84874 also 85938, not 85760 ![The Drowned Lair]
     rewards = {Achievement({id = 41046, criteria = 70791})},
     vignette = 6754
 }) -- Nerathor
@@ -123,7 +120,7 @@ map.nodes[57726612] = Rare({
     location = L['in_cave'],
     note = L['the_drain_note'],
     pois = {Entrance({61477357})},
-    quest = nil, -- hidden
+    quest = 85669, -- hidden, also 85937, not 85753 ![The Drain]
     rewards = {Achievement({id = 41046, criteria = 70792})},
     vignette = 6517
 }) -- Gravesludge
@@ -133,7 +130,7 @@ map.nodes[37115497] = Rare({
     location = L['in_cave'],
     note = L['shuddering_hollow_note'],
     pois = {Entrance({42785666})},
-    quest = nil, -- hidden
+    quest = 85437, -- hidden
     rewards = {Achievement({id = 41046, criteria = 70793})},
     vignette = 6610
 }) -- Stalagnarok
@@ -207,17 +204,23 @@ map.nodes[46787812] = Rare({
     vignette = 6526
 }) -- Wreckwater
 
-tfv.nodes[66465635] = VaultRare({
+tfv.nodes[66465635] = Rare({
     id = 228159,
-    quest = 84797, -- hidden
-    rewards = {Achievement({id = 41046, criteria = 70798})},
+    quest = 84797, -- hidden, also 85956 (on kill)
+    rewards = {
+        Achievement({id = 41046, criteria = 70798}), --
+        Toy({item = 235017}) -- Glittering Vault Shard
+    },
     vignette = 6527
 }) -- Gunnlod the Sea-Drinker
 
-tfv.nodes[28072475] = VaultRare({
+tfv.nodes[28072475] = Rare({
     id = 227550,
     quest = 86779, -- hidden
-    rewards = {Achievement({id = 41046, criteria = 70795})},
+    rewards = {
+        Achievement({id = 41046, criteria = 70795}), --
+        Toy({item = 235017}) -- Glittering Vault Shard
+    },
     vignette = 6666
 }) -- Shardsong
 
@@ -225,17 +228,17 @@ tfv.nodes[28072475] = VaultRare({
 
 map.nodes[32457405] = Rare({
     id = 227545,
-    quest = nil, -- hidden
+    quest = 84792, -- hidden
     rewards = {Achievement({id = 41046, criteria = 70805})},
-    sublabel = L['vykrul_sublabel'],
+    sublabel = L['vrykul_sublabel'],
     vignette = 6525
 }) -- Ikir the Flotsurge
 
 map.nodes[63948729] = Rare({
     id = 230137,
-    quest = nil, -- hidden
+    quest = 84805, -- hidden, also 84840 (on kill)
     rewards = {Achievement({id = 41046, criteria = 70806})},
-    sublabel = L['vykrul_sublabel'],
+    sublabel = L['vrykul_sublabel'],
     vignette = 6590
 }) -- Asbjorn the Bloodsoaked
 
@@ -251,7 +254,7 @@ map.nodes[36147261] = Rare({
 
 map.nodes[61758953] = Rare({
     id = 229852,
-    quest = nil, -- hidden
+    quest = 84802, -- hidden
     rewards = {Achievement({id = 41046, criteria = 70801})},
     sublabel = L['naga_sublabel'],
     vignette = 6581
@@ -301,16 +304,19 @@ map.nodes[55968404] = Rare({
 
 map.nodes[33027359] = Rare({
     id = 231357,
-    quest = nil, -- hidden
+    quest = 85405, -- hidden, also 85113 (on kill)
     rewards = {Item({item = 232569})}, -- Cyclonic Runekey
     storm = 1,
     vignette = 6617
 }) -- Zek'ul the Shipbreaker
 
-tfv.nodes[37967648] = VaultRare({
+tfv.nodes[37967648] = Rare({
     id = 231368,
     quest = 85406, -- hidden
-    rewards = {Item({item = 232571})}, -- Whirling Runekey
+    rewards = {
+        Toy({item = 235017}), -- Glittering Vault Shard
+        Item({item = 232571}) -- Whirling Runekey
+    },
     storm = 1,
     vignette = 6619
 }) -- Ksvir the Forgotten
@@ -328,7 +334,7 @@ map.nodes[42976324] = Rare({
             40316325, 40016158, 39446012, 38505913, 37455844
         })
     },
-    quest = nil, -- hidden
+    quest = 85403, -- hidden
     storm = 1,
     vignette = 6615
 }) -- Tempest Talon
@@ -350,6 +356,7 @@ map.nodes[50005000] = Rare({
 
 map.nodes[36925304] = Treasure({
     label = '{item:233955}',
+    quest = 87446, -- hidden
     location = L['in_cave'],
     pois = {Entrance({42785666})},
     rewards = {Transmog({item = 233955, slot = L['2h_axe']})} -- Iron Mining Pick
@@ -357,25 +364,20 @@ map.nodes[36925304] = Treasure({
 
 map.nodes[40284188] = Treasure({
     label = '{item:233957}',
+    quest = 86764, -- hidden
     rewards = {Transmog({item = 233957, slot = L['offhand']})} -- Kul Tiran Lumberer's Hatchet
 }) -- Kul Tiran Lumberer's Hatchet
 
-tfv.nodes[26502340] = VaultTreasure({
+tfv.nodes[26502340] = Treasure({
     label = '{item:233834}',
-    rewards = {Transmog({item = 233834, slot = L['dagger']})} -- Stone Carver's Scramseax
+    note = L['stone_carvers_scamseax_note'],
+    quest = 86732, -- hidden
+    requires = ns.requirement.Spell(1216785), -- Glittering Vault Shard
+    rewards = {Transmog({item = 233834, slot = L['dagger']})}, -- Stone Carver's Scramseax
+    pois = {
+        POI({points = {28037055, 32197949, 35487877}, color = 'Yellow'}) -- Radiant Citrine
+    }
 }) -- Stone Carver's Scramseax
-
-------------------- MYSTERIOUS BOOKS (NO REWARD / NO QUEST) -------------------
-
-map.nodes[39785249] = Treasure({
-    label = L['mouldy_sea_ledger_label'],
-    location = L['mouldy_sea_ledger_location']
-}) -- Mouldy Sea Ledger
-
-map.nodes[39095103] = Treasure({
-    label = L['scholars_of_the_sea_label'],
-    location = L['scholars_of_the_sea_location']
-}) -- Scholars of the Sea: Siren Isle Synopsis
 
 ------------ FLAME-BLESSED IRON QUEST ITEMS (GOLD ITEMS IN WORLD) -------------
 
@@ -395,20 +397,18 @@ map.nodes[60726280] = Treasure({
 
 ------------------------------- MISC TREASURES --------------------------------
 
-tfv.nodes[32137944] = VaultTreasure({
-    label = '{item:235017}',
-    rewards = {Toy({item = 235017})} -- Glittering Vault Shard
-}) -- Glittering Vault Shard
-
 map.nodes[67557351] = Treasure({
     label = L['unsolved_amethyst_runelock'],
     location = L['in_small_cave'],
+    quest = 84839, -- hidden, also 84792 (on solve)
     rewards = {Transmog({item = 229026, type = L['leather']})} -- Earthen Deckhand's Bindings
 }) -- Unsolved Amethyst Runelock
 
 map.nodes[74035329] = Treasure({
     label = L['barnacle_encrusted_chest'],
-    location = L['in_water']
+    location = L['in_water'],
+    quest = 86765, -- hidden
+    rewards = {Transmog({item = 233910})} -- Salt-Stained Sweatcap
 }) -- Barnacle-Encrusted Chest
 
 map.nodes[62449084] = Treasure({
@@ -444,12 +444,12 @@ end
 function ThunderousFragmentItem:IsObtained()
     if ns.PlayerHasItem(232605, 5) then return true end -- Thunderous Fragment
     if ns.PlayerHasItem(232573, 1) then return true end -- Thunderous Runekey
-    if select(11, C_MountJournal.GetMountInfoByID(2322)) then return true end -- Thrayir, Eyes of the Siren
+    if C_QuestLog.IsQuestFlaggedCompleted(85803) then return true end -- hidden
     return false
 end
 
 local RunedStormChest = Class('RunedStormChest', Collectible, {
-    icon = 'chest_yw',
+    icon = 'chest_rd',
     group = ns.groups.RUNED_STORM_CHEST,
     scale = 1.3,
     label = L['runed_storm_chest_label'],
@@ -471,12 +471,17 @@ map.nodes[37327537] = RunedStormChest()
 map.nodes[39094415] = RunedStormChest()
 map.nodes[42131643] = RunedStormChest()
 map.nodes[49201734] = RunedStormChest()
+map.nodes[49667597] = RunedStormChest()
 map.nodes[51906550] = RunedStormChest()
 map.nodes[52887066] = RunedStormChest()
+map.nodes[53145443] = RunedStormChest()
+map.nodes[57548578] = RunedStormChest()
 map.nodes[59632015] = RunedStormChest()
 map.nodes[59736908] = RunedStormChest()
 map.nodes[60675264] = RunedStormChest()
+map.nodes[61076286] = RunedStormChest()
 map.nodes[61944401] = RunedStormChest()
+map.nodes[67956202] = RunedStormChest()
 
 map.nodes[51523734] = RunedStormChest({
     location = L['in_cave'],
@@ -488,47 +493,38 @@ map.nodes[50211220] = RunedStormChest({
     pois = {Entrance({45992076})}
 })
 
+map.nodes[30217601] = RunedStormChest({storm = 1})
 map.nodes[38782007] = RunedStormChest({storm = 1})
 map.nodes[38924068] = RunedStormChest({storm = 1})
 map.nodes[39965215] = RunedStormChest({storm = 1})
 map.nodes[42244737] = RunedStormChest({storm = 1})
+map.nodes[44087329] = RunedStormChest({storm = 1})
+map.nodes[45096265] = RunedStormChest({storm = 1})
 map.nodes[49297262] = RunedStormChest({storm = 1})
+map.nodes[51564836] = RunedStormChest({storm = 1})
+map.nodes[55596719] = RunedStormChest({storm = 1})
+map.nodes[56555508] = RunedStormChest({storm = 1})
+map.nodes[61964466] = RunedStormChest({storm = 1})
 map.nodes[63708514] = RunedStormChest({storm = 1})
 
-local VaultChest = Class('VaultChest', RunedStormChest, {
-    location = L['within_the_forgotten_vault'],
-    parent = tfv_parent
+map.nodes[67317820] = RunedStormChest({
+    storm = 1,
+    location = L['in_small_cave'],
+    pois = {Entrance({66227823})}
 })
 
-tfv.nodes[29207358] = VaultChest({storm = 1})
-tfv.nodes[44406609] = VaultChest({storm = 1})
-tfv.nodes[31792774] = VaultChest({storm = 1})
-tfv.nodes[64005061] = VaultChest({storm = 1})
+tfv.nodes[29207358] = RunedStormChest({storm = 2})
+tfv.nodes[31792774] = RunedStormChest({storm = 2})
+tfv.nodes[44406609] = RunedStormChest({storm = 2})
+tfv.nodes[64005061] = RunedStormChest({storm = 2})
 
 -------------------------------------------------------------------------------
 -------------------------------- MISCELLEANOUS --------------------------------
 -------------------------------------------------------------------------------
 
-local GrapplingHold = Class('GrapplingHold', Node, {
-    label = '{npc:233171}',
-    icon = 'peg_bk',
-    scale = 1.5
-}) -- Grappling Hold
-
-map.nodes[52592426] = GrapplingHold()
-map.nodes[50322016] = GrapplingHold()
-
-map.nodes[55621466] = Node({
-    icon = 'peg_rd',
-    label = L['krolusk_burrow_label'],
-    location = L['in_small_cave'],
-    scale = 1.5,
-    pois = {Entrance({56121287})}
-}) -- Krolusk Burrow
-
 ---------------------- MOUNT: THRAYIR, EYES OF THE SIREN ----------------------
 
-local Thrayir = Class('Thrayir', VaultCollectible, {
+local Thrayir = Class('Thrayir', Collectible, {
     icon = 897087,
     label = '{item:232639}',
     rewards = {Mount({item = 232639, id = 2322})}, -- Thrayir, Eyes of the Siren
@@ -547,11 +543,11 @@ function Thrayir.getters:note()
     end
 
     local runekeys = {
-        [232569] = {note = L['cyclonic_runekey_note'], quest = nil},
+        [232569] = {note = L['cyclonic_runekey_note'], quest = 85800},
         [232570] = {note = L['turbulent_runekey_note'], quest = 85799},
         [232571] = {note = L['whirling_runekey_note'], quest = 85802},
-        [232572] = {note = L['torrential_runekey_note'], quest = nil},
-        [232573] = {note = L['thunderous_runekey_note'], quest = nil}
+        [232572] = {note = L['torrential_runekey_note'], quest = 85801},
+        [232573] = {note = L['thunderous_runekey_note'], quest = 85803}
     }
 
     local note = L['thrayir_note_start']
@@ -572,27 +568,27 @@ function TurbulentFragmentItem:GetStatus()
     return count >= 3 and Green(count .. '/3') or Red(count .. '/3')
 end
 
-local TurbulentFragment = Class('TurbulentFragment', Collectible, {
+local TurbulentFragment = Class('TurbulentFragment', ns.node.Node, {
     icon = 1385913,
     label = '{item:234327}',
     storm = 1,
     rewards = {TurbulentFragmentItem()}
 }) -- Turbulent Fragment
 
-function TurbulentFragment:IsCollected()
-    if ns.PlayerHasItem(234327, 3) then return true end -- Turbulent Fragment
-    if ns.PlayerHasItem(232570, 1) then return true end -- Turbulent Runekey
-    if C_QuestLog.IsQuestFlaggedCompleted(85799) then return true end -- Turbulent Runestone
-    if select(11, C_MountJournal.GetMountInfoByID(2322)) then return true end -- Thrayir, Eyes of the Siren
-    return false
-end
+map.nodes[38195178] = TurbulentFragment({
+    location = L['turbulent_fragment_a'],
+    quest = 86436 -- hidden
+})
 
-map.nodes[38195178] = TurbulentFragment({location = L['turbulent_fragment_a']})
-map.nodes[67087844] = TurbulentFragment({location = L['turbulent_fragment_b']})
+map.nodes[67087844] = TurbulentFragment({
+    location = L['turbulent_fragment_b'],
+    quest = 86437 -- hidden
+})
 
 map.nodes[52393859] = TurbulentFragment({
     location = L['turbulent_fragment_c'],
-    pois = {Entrance({50644142})}
+    pois = {Entrance({50644142})},
+    quest = 86435 -- hidden
 })
 
 ------------------------ MOUNT: PRISTMATIC SNAPDRAGON -------------------------
@@ -602,7 +598,8 @@ local PristmaticSnapdragon = Class('PristmaticSnapdragon', Collectible, {
     quest = {
         86482, -- ![A Lifeline]
         86483, -- ![Snap To It]
-        86484 -- ![Temper Like A Tempest]
+        86484, -- ![Temper Like A Tempest]
+        86485 -- ![A Loyal Friend]
     },
     requires = ns.requirement.Quest(84726), -- ![Uncovered Mysteries]
     rewards = {
@@ -625,17 +622,61 @@ function PristmaticSnapdragon.getters:label()
 end
 
 function PristmaticSnapdragon.getters:note()
-    local quest1 = format('{quest:%d}', self.quest[1])
-    local quest2 = format('{quest:%d}', self.quest[2])
-    local quest3 = format('{quest:%d}', self.quest[3])
+    local function getText(questName)
+        local icon = ns.GetIconLink('quest_ay', 12)
+        local name = ns.color.Yellow('[' .. questName .. ']')
+        return icon .. name
+    end
+
+    local quest1 = getText(L['pris_quest_1'])
+    local quest2 = getText(L['pris_quest_2'])
+    local quest3 = getText(L['pris_quest_3'])
+    local quest4 = getText(L['pris_quest_4'])
     local day1 = format(L['prismatic_day'], 1)
     local day4 = format(L['prismatic_day'], 4)
     local day7 = format(L['prismatic_day'], 7)
+    local day10 = format(L['prismatic_day'], 10)
     local note = L['prismatic_snapdragon_note_start'] .. '\n'
     note = note .. QuestStatus(self.quest[1], day1, quest1)
     note = note .. QuestStatus(self.quest[2], day4, quest2)
     note = note .. QuestStatus(self.quest[3], day7, quest3)
+    note = note .. QuestStatus(self.quest[4], day10, quest4)
     return note
 end
 
 map.nodes[71004862] = PristmaticSnapdragon()
+
+------------------------------- PET: MARMADUKE --------------------------------
+
+map.nodes[39305424] = Collectible({
+    fgroup = 'marmaduke',
+    icon = 4048816,
+    label = '{item:233027}',
+    note = L['marmaduke_note'],
+    quest = 86240, -- hidden
+    requires = ns.requirement.Quest(85573), -- ![Laid to Rest at Last]
+    rewards = {Item({item = 233027, bag = true})} -- Well Loved Squeaky Toy
+}) -- Well Loved Squeaky Toy
+
+map.nodes[52834591] = Collectible({
+    fgroup = 'marmaduke',
+    icon = 5279603,
+    label = '{npc:234365}',
+    note = L['marmaduke_note'],
+    quest = 86240, -- hidden
+    requires = ns.requirement.Quest(85573) -- ![Laid to Rest at Last]
+}) -- Marmaduke (Item Turn In)
+
+map.nodes[68324496] = Collectible({
+    fgroup = 'marmaduke',
+    icon = 5279603,
+    label = '{npc:234365}',
+    note = L['marmaduke_note'],
+    quest = 86261, -- ![Homeward Bound to Safer Shores]
+    requires = ns.requirement.Quest(85573), -- ![Laid to Rest at Last]
+    rewards = {Pet({item = 233056, id = 4708})}, -- Marmaduke
+    pois = {
+        Path({Circle({origin = 39305424, radius = 2})}), -- Well Loved Squeaky Toy
+        Path({Circle({origin = 52834591, radius = 2})}) -- Marmaduke (Item Turn In)
+    }
+}) -- Marmaduke (Quest Turn In)
