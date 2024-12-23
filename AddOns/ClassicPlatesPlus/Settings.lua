@@ -856,6 +856,17 @@ function func:Load_Settings()
         end
 
 		-- CheckButton
+        do
+            local name = "標記你施放的光環";
+            local tooltip = "";
+            local cfg = "AurasMarkYours";
+            local default = false;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+		-- CheckButton
 		do
 			local name = "倒數計時";
 			local tooltip = "";
