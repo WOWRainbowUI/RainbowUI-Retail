@@ -776,19 +776,20 @@ function WorldQuestTracker.UpdateZoneWidgets(forceUpdate)
 				---@field worldX number
 				---@field worldY number
 				---@field tooltipSetId number
+				if worldPosition then -- 暫時修正
+					local pointOfInterestData = {
+						["poiID"] = poiId,
+						["mapID"] = mapId,
+						["zoneX"] = pin.normalizedX,
+						["zoneY"] = pin.normalizedY,
+						["continentID"] = parentMapInfo.mapID,
+						["worldX"] = worldPosition.x,
+						["worldY"] = worldPosition.y,
+						["tooltipSetId"] = poiInfo.tooltipWidgetSet,
+					}
 
-				local pointOfInterestData = {
-					["poiID"] = poiId,
-					["mapID"] = mapId,
-					["zoneX"] = pin.normalizedX,
-					["zoneY"] = pin.normalizedY,
-					["continentID"] = parentMapInfo.mapID,
-					["worldX"] = worldPosition.x,
-					["worldY"] = worldPosition.y,
-					["tooltipSetId"] = poiInfo.tooltipWidgetSet,
-				}
-
-				WorldQuestTracker.db.profile.pins_discovered["worldquest-Capstone-questmarker-epic-Locked"][poiId] = pointOfInterestData
+					WorldQuestTracker.db.profile.pins_discovered["worldquest-Capstone-questmarker-epic-Locked"][poiId] = pointOfInterestData
+				end
 			end
 
 			pin.Texture:SetScale(1.2)
