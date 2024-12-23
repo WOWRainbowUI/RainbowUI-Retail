@@ -235,7 +235,8 @@ spec:RegisterAuras( {
     bok_proc = {
         id = 116768,
         type = "Magic",
-        max_stack = 1,
+        duration = 15,
+        max_stack = 2,
     },
     bounce_back = {
         id = 390239,
@@ -1106,7 +1107,7 @@ spec:RegisterAbilities( {
                 end
             end
             if buff.bok_proc.up then
-                removeBuff( "bok_proc" )
+                removeStack( "bok_proc" )
                 if talent.energy_burst.enabled then gain( 1, "chi" ) end
                 if set_bonus.tier21_4pc > 0 then gain( 1, "chi" ) end
             end
@@ -1765,7 +1766,7 @@ spec:RegisterAbilities( {
             removeBuff( "chi_energy" )
             if buff.dance_of_chiji.up then
                 if set_bonus.tier31_2pc > 0 then applyBuff( "blackout_reinforcement" ) end
-                if talent.sequenced_strikes.enabled then applyBuff( "bok_proc" ) end
+                if talent.sequenced_strikes.enabled then addStack( "bok_proc" ) end
                 removeStack( "dance_of_chiji" )
             end
 
@@ -1794,6 +1795,9 @@ spec:RegisterAbilities( {
         talent = "storm_earth_and_fire",
         startsCombat = false,
         nobuff = "storm_earth_and_fire",
+        texture = function()
+            return buff.storm_earth_and_fire.up and 236188 or 136038
+        end,
 
         toggle = function ()
             if settings.sef_one_charge then

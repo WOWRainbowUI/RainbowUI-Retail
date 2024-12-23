@@ -2388,6 +2388,14 @@ do
         {
             name = "elemental_potion_of_power",
             items = { 191907, 191906, 191905, 191389, 191388, 191387 }
+        },
+        {
+            name = "algari_healing_potion",
+            items = { 211878, 211879, 211880 }
+        },
+        {
+            name = "cavedwellers_delight",
+            items = { 212242, 212243, 212244 }
         }
     }
 
