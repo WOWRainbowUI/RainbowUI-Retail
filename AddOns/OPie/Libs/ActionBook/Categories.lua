@@ -304,7 +304,7 @@ if MODERN or CF_WRATH then -- toys
 	end)
 end
 do -- misc
-	if MODERN or CF_CATA then
+	if (MODERN or CF_CATA) and GetExtraBarIndex then
 		AB:AddActionToCategory(L"Miscellaneous", "extrabutton", 1)
 	end
 	if MODERN then
