@@ -66,7 +66,12 @@ local function toCooldown(now, start, duration, enabled)
 	return duration > 0 and enabled ~= 0 and start+duration-now or 0, duration, enabled
 end
 
-if MODERN_MOUNTS then -- mount: mount ID
+securecall(function() -- mount: mount ID
+	if not MODERN_MOUNTS then
+		function mountHint()
+		end
+		return
+	end
 	local function callSummonMount(mountID)
 		C_MountJournal.SummonByID(mountID)
 	end
@@ -133,11 +138,8 @@ if MODERN_MOUNTS then -- mount: mount ID
 		AB:NotifyObservers("mount")
 	end
 	EV.NEW_MOUNT_ADDED, EV.PLAYER_ENTERING_WORLD, EV.COMPANION_LEARNED = mountSync, mountSync, mountSync
-else
-	function mountHint()
-	end
-end
-do -- spell: spell ID + mount spell ID
+end)
+securecall(function() -- spell: spell ID + mount spell ID
 	local actionMap, spellMap = {}, {}
 	local function isCurrentForm(q, qsid)
 		local id = GetShapeshiftForm()
@@ -316,8 +318,8 @@ do -- spell: spell ID + mount spell ID
 		end
 		iconOverrideHandlers[id] = f
 	end
-end
-do -- item: items ID/inventory slot
+end)
+securecall(function() -- item: items ID/inventory slot
 	local actionMap, itemIdMap, LAST_EQUIP_SLOT = {}, {}, INVSLOT_LAST_EQUIPPED
 	local function containerTip(self, bagslot)
 		local slot = bagslot % 100
@@ -429,8 +431,8 @@ do -- item: items ID/inventory slot
 			return RW:GetCommandAction(SLASH_EQUIP1, item)
 		end
 	end)
-end
-do -- macrotext
+end)
+securecall(function() -- macrotext
 	local map = {}
 	local function macroHint(mtext, modLockState)
 		return RW:GetMacroAction(mtext, modLockState)
@@ -588,8 +590,8 @@ do -- macrotext
 		IM:AddTokenizableCommand("ACTIONBOOK_QSEQUENCE", SLASH_CASTRANDOM1)
 		SLASH_ACTIONBOOK_QSEQUENCE1, SLASH_ACTIONBOOK_QSEQUENCE2 = nil, nil
 	end
-end
-do -- macro: name
+end)
+securecall(function() -- macro: name
 	local map, sm = {}, {} do
 		local wmSynced, owner = true, RW:RegisterNamedMacroTextOwner("ab-macro-wrapper", 10)
 		local function syncWMacros()
@@ -646,8 +648,11 @@ do -- macro: name
 		return L"Macro", name, ico
 	end
 	AB:RegisterActionType("macro", createNamedMacro, describeMacro, 2)
-end
-if MODERN or CF_WRATH then -- battlepet: pet ID, species ID
+end)
+securecall(function() -- battlepet: pet ID, species ID
+	if not (MODERN or CF_WRATH) then
+		return
+	end
 	local petAction, special = {}, {}
 	local BPET_ATYPE_NAME, SummonCompanion = not MODERN and COMPANIONS or L"Battle Pet"
 	local function SetBattlePetByID(self, id)
@@ -745,8 +750,11 @@ if MODERN or CF_WRATH then -- battlepet: pet ID, species ID
 			end
 		end
 	end)
-end
-if MODERN or CF_WRATH then -- equipmentset: equipment sets by name
+end)
+securecall(function() -- equipmentset: equipment sets by name
+	if not (MODERN or CF_WRATH) then
+		return
+	end
 	local setMap = {}
 	local function resolveIcon(fid)
 		return type(fid) == "number" and fid or ("Interface/Icons/" .. (fid or "INV_Misc_QuestionMark"))
@@ -794,8 +802,8 @@ if MODERN or CF_WRATH then -- equipmentset: equipment sets by name
 			return wrapCommandHint(equipmentsetHint(clause))
 		end
 	end)
-end
-do -- raidmark
+end)
+securecall(function() -- raidmark
 	local map, waitingToClearSelf = {}
 	local function CanChangeRaidTargets(unit)
 		return not not ((not IsInRaid() or UnitIsGroupLeader("player") or UnitIsGroupAssistant("player")) and not (unit and UnitIsPlayer(unit) and UnitIsEnemy("player", unit)))
@@ -848,8 +856,11 @@ do -- raidmark
 			return true, raidmarkHint(clause, nil, target)
 		end
 	end)
-end
-if MODERN or CF_CATA then -- worldmarker
+end)
+securecall(function() -- worldmarker
+	if not (MODERN or CF_CATA) then
+		return
+	end
 	local NUM_WORLD_MARKERS = MODERN and 8 or 5
 	local map, icons = {}, {[0]="Interface/Icons/INV_Misc_PunchCards_White",
 		"Interface/Icons/INV_Misc_QirajiCrystal_04","Interface/Icons/INV_Misc_QirajiCrystal_03",
@@ -886,9 +897,9 @@ if MODERN or CF_CATA then -- worldmarker
 			return true, worldmarkHint(clause)
 		end
 	end)
-end
-do -- extrabutton
-	local slot = (MODERN or CF_CATA) and (GetExtraBarIndex()*12 - 11)
+end)
+securecall(function() -- extrabutton
+	local slot = (MODERN or CF_CATA) and GetExtraBarIndex and (GetExtraBarIndex()*12 - 11)
 	local function extrabuttonHint()
 		if not HasExtraActionBar() then
 			return false, 0, "Interface/Icons/temp", "", 0, 0, 0
@@ -929,12 +940,12 @@ do -- extrabutton
 			end
 		end)
 	end
-end
-do -- zoneability auto-collection
+end)
+securecall(function() -- zoneability auto-collection
 	local skipZoneAbilities = {
 		[436521]=1, [436524]=1, -- Pandaria remix: Extract Gem + Unraveling Sands
 	}
-	local col, tpos, colId = {__embed=true}, {}
+	local col, tpos, colId = MODERN and {__embed=true} or nil, {}
 	local function createZoneAbility(id)
 		return id == 0 and colId or nil
 	end
@@ -964,16 +975,16 @@ do -- zoneability auto-collection
 			AB:UpdateActionSlot(colId, col)
 		end
 	end
-	colId = MODERN and AB:CreateActionSlot(nil,nil, "collection",col)
+	colId = col and AB:CreateActionSlot(nil,nil, "collection",col)
 	AB:RegisterActionType("zoneability", createZoneAbility, describeZoneAbility, 1)
-	if MODERN then
+	if col then
 		AB:AddObserver("internal.collection.preopen", onZoneCollectionOpen)
 		function EV:PLAYER_REGEN_DISABLED()
 			onZoneCollectionOpen(nil, "internal.collection.preopen", colId)
 		end
 	end
-end
-do -- petspell: spell ID
+end)
+securecall(function() -- petspell: spell ID
 	local actionInfo = {
 		stay={"Interface\\Icons\\Spell_Nature_TimeStop", "PET_ACTION_WAIT"},
 		move={"Interface\\Icons\\Ability_Hunter_Pet_Goto", "PET_ACTION_MOVE_TO", 1},
@@ -1080,8 +1091,11 @@ do -- petspell: spell ID
 			addPetCommand(SLASH_PET_AGGRESSIVE1, "assist")
 		end
 	end
-end
-if MODERN or CF_WRATH then -- toy: item ID, flags[FORCE_SHOW]
+end)
+securecall(function() -- toy: item ID, flags[FORCE_SHOW]
+	if not (MODERN or CF_WRATH) then
+		return
+	end
 	local map, lastUsability, uq, whinedAboutGIIR = {}, {}, {}
 	local OVERRIDE_TOY_ACQUIRED, IGNORE_TOY_USABILITY = {}, {
 		[129149]=1, [129279]=1, [129367]=1, [130157]="[in:broken isles]", [130158]=1, [130170]=1,
@@ -1194,8 +1208,8 @@ if MODERN or CF_WRATH then -- toy: item ID, flags[FORCE_SHOW]
 		end
 		OVERRIDE_TOY_ACQUIRED[id] = filter
 	end
-end
-do -- disenchant: iid
+end)
+securecall(function() -- disenchant: iid
 	local map, DISENCHANT_SID = {}, 13262
 	local DISENCHANT_SN = GetSpellInfo(DISENCHANT_SID)
 	local ICON_PREFIX = "|TInterface/Buttons/UI-GroupLoot-DE-Up:0:0|t "
@@ -1253,8 +1267,11 @@ do -- disenchant: iid
 		return DISENCHANT_SN, name or ("item:" .. iid), icon, nil, disenchantTip, iid
 	end
 	AB:RegisterActionType("disenchant", createDisenchant, describeDisenchant, 1)
-end
-if MODERN then -- /ping
+end)
+securecall(function() -- /ping
+	if not MODERN then
+		return
+	end
 	local TOKENS, INFO = {}, {
 		{PING, "Ping_Marker_Icon_NonThreat"},
 		{PING, "Ping_Marker_Icon_Threat"},
@@ -1278,8 +1295,8 @@ if MODERN then -- /ping
 			return true, perm and cd == 0 or false, 262144, ci[2], ci[1], 0, cd, cd > 0 and (cdInfo.endTimeMs-cdInfo.startTimeMs)/1000 or 0
 		end
 	end)
-end
-do -- uipanel: token
+end)
+securecall(function() -- uipanel: token
 	local CLICK, pyCLICK, widgetClickCommand, widgetAttrCommand = SLASH_CLICK1 .. " " do
 		local pyName, attrCounter = newWidgetName("AB:PY!"), 500
 		local py = CreateFrame("Button", pyName, nil, "SecureActionButtonTemplate")
@@ -1529,4 +1546,4 @@ do -- uipanel: token
 		return L"Interface Panel"
 	end
 	AB:RegisterActionType("uipanel", createPanel, describePanel, 1)
-end
+end)
