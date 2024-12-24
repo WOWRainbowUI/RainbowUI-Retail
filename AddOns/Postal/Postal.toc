@@ -1,9 +1,9 @@
-## Interface: 110005
+## Interface: 110007
 ## Title: Postal
-## Version: v4.2.2
-## X-Build: 638
-## X-ReleaseDate: 2024-12-04T14:21:32Z
-## X-Revision: 638
+## Version: v4.2.3
+## X-Build: 640
+## X-ReleaseDate: 2024-12-23T22:40:05Z
+## X-Revision: 640
 ## Author: Xinhuan
 ## X-Credits: Ammo, Rabbit, Grennon, Mikk, oscarucb, Jonny aka The_Original_Manbot
 ## X-Category: Mail
