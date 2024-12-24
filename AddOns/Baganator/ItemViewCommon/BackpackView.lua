@@ -299,8 +299,6 @@ function BaganatorItemViewCommonBackpackViewMixin:HideExtraTabs()
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:UpdateForCharacter(character, isLive)
-  addonTable.ReportEntry()
-
   local start = debugprofilestop()
 
   local characterData = Syndicator.API.GetCharacter(character)

@@ -45,7 +45,6 @@ local function Prearrange(isLive, bagID, bag, bagType)
   end
   for slotIndex, slot in ipairs(bag) do
     local info = Syndicator.Search.GetBaseInfo(slot)
-    info.bagType = bagType
     if isLive then
       if addonTable.Constants.IsClassic then
         if bagID == Syndicator.Constants.AllBankIndexes[1] then
@@ -236,13 +235,8 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
         local entriesByKey = {}
         for _, item in ipairs(details.results) do
           local groupingKey = item.key
-          local existingItem = entriesByKey[groupingKey]
-          if existingItem then
-            existingItem.itemCount = existingItem.itemCount + item.itemCount
-            if existingItem.bagType ~= item.bagType then
-              existingItem.bagType = "?"
-            end
-
+          if entriesByKey[groupingKey] then
+            entriesByKey[groupingKey].itemCount = entriesByKey[groupingKey].itemCount + item.itemCount
             -- Used to clear new item status on items that are hidden in a stack
             table.insert(self.notShown, {bagID = item.bagID, slotID = item.slotID})
           else
