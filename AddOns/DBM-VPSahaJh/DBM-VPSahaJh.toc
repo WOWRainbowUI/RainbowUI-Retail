@@ -5,7 +5,7 @@
 ## DefaultState: enabled
 ## RequiredDeps: DBM-Core
 ## Author: 安格斯
-## Version: 24-1218
+## Version: 24-1225
 ## IconTexture: Interface\AddOns\DBM-VPSahaJh\z_ags
 ## X-DBM-Voice: 1
 ## X-DBM-Voice-Name: 家豪 (中文男音)
