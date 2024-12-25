@@ -45,6 +45,7 @@ local function Prearrange(isLive, bagID, bag, bagType)
   end
   for slotIndex, slot in ipairs(bag) do
     local info = Syndicator.Search.GetBaseInfo(slot)
+    info.bagType = bagType
     if isLive then
       if addonTable.Constants.IsClassic then
         if bagID == Syndicator.Constants.AllBankIndexes[1] then
@@ -235,8 +236,13 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
         local entriesByKey = {}
         for _, item in ipairs(details.results) do
           local groupingKey = item.key
-          if entriesByKey[groupingKey] then
-            entriesByKey[groupingKey].itemCount = entriesByKey[groupingKey].itemCount + item.itemCount
+          local existingItem = entriesByKey[groupingKey]
+          if existingItem then
+            existingItem.itemCount = existingItem.itemCount + item.itemCount
+            if existingItem.bagType ~= item.bagType then
+              existingItem.bagType = "?"
+            end
+
             -- Used to clear new item status on items that are hidden in a stack
             table.insert(self.notShown, {bagID = item.bagID, slotID = item.slotID})
           else
@@ -351,6 +357,8 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
     activeLayouts = container.CachedLayouts
   end
 
+  container.layoutsBySourceKey = {}
+
   local layoutsShown, activeLabels = {}, {}
   local inactiveSections = {}
   for index, details in ipairs(composed.details) do
@@ -408,9 +416,10 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
         local label = self.labelsPool:Acquire()
         addonTable.Skins.AddFrame("CategoryLabel", label)
         label:SetText(details.label)
-        label.categorySearch = index
+        label.index = index
         label.source = details.source
-        label.groupLabel = details.groupLabel
+        label.sourceKey = details.sourceKey
+        container.layoutsBySourceKey[details.sourceKey] = layout
         activeLabels[index] = label
         layout.type = details.type
       else
