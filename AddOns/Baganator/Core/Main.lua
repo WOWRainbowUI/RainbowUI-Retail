@@ -3,8 +3,6 @@ addonTable.CallbackRegistry = CreateFromMixins(CallbackRegistryMixin)
 addonTable.CallbackRegistry:OnLoad()
 addonTable.CallbackRegistry:GenerateCallbackEvents(addonTable.Constants.Events)
 
-addonTable.lastFrameTime = 0
-
 Baganator.CallbackRegistry = addonTable.CallbackRegistry
 
 local syndicatorEnableDialog = "BaganatorSyndicatorRequiredInstalledDialog"
@@ -78,9 +76,12 @@ addonTable.Utilities.OnAddonLoaded("Baganator", function()
   end
 
   addonTable.Core.RunAnalytics()
-
-  local frame = CreateFrame("Frame")
-  frame:SetScript("OnUpdate", function()
-    addonTable.lastFrameTime = GetTimePreciseSec()
-  end)
 end)
+
+function addonTable.ReportEntry()
+  addonTable.lastEntryTime = GetTimePreciseSec()
+end
+
+function addonTable.CheckTimeout()
+  return GetTimePreciseSec() - addonTable.lastEntryTime > 0.1
+end

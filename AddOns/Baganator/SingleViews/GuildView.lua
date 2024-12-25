@@ -286,6 +286,8 @@ function BaganatorSingleViewGuildViewMixin:OpenTabEditor()
 end
 
 function BaganatorSingleViewGuildViewMixin:UpdateTabs(guildData)
+  addonTable.ReportEntry()
+
   local tabScaleFactor = 37
   if addonTable.Config.Get(addonTable.Config.Options.REDUCE_SPACING) then
     tabScaleFactor = 40
@@ -452,6 +454,7 @@ function BaganatorSingleViewGuildViewMixin:UpdateForGuild(guild, isLive)
   if self.isLive then
     if self.currentTab ~= 0 and self.currentTab ~= GetCurrentGuildBankTab() then
       self.currentTab = GetCurrentGuildBankTab()
+      addonTable.Config.Set(addonTable.Config.Options.GUILD_CURRENT_TAB, self.currentTab)
       if GuildBankPopupFrame:IsShown() then
         self:OpenTabEditor()
       end
