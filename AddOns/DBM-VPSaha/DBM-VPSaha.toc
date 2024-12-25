@@ -1,11 +1,11 @@
-﻿## Interface: 11505, 30403, 40401, 110005, 110007
-## Title:|cffffe00a<|r|cffff7d0aDBM Media|r|cffffe00a>|r |cff69ccf0Voicepack Saha|r
-## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Media|r|cffffe00a>|r |cff69ccf0安格斯語音包|r
+﻿## Interface: 11505, 20504, 30403, 40401, 110007, 110100
+## Title:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff69ccf0Voicepack Saha|r
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff69ccf0安格斯語音包|r
 ## Notes-zhTW: 這是臺灣男生錄製的DBM語音包，需搭配DBM主程式使用，可以提醒副本和團本該注意的地方。
 ## DefaultState: enabled
 ## RequiredDeps: DBM-Core
 ## Author: 安格斯
-## Version: 24-1218
+## Version: 24-1225
 ## IconTexture: Interface\AddOns\DBM-VPSaha\z_ags
 ## X-DBM-Voice: 1
 ## X-DBM-Voice-Name: 安格斯 (中文男音)
