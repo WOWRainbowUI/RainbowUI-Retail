@@ -1619,7 +1619,9 @@ local function SetHooks()
 
 	function KT_ObjectiveTrackerQuestPOIBlockMixin:AddPOIButton(questID, isComplete, isSuperTracked, isWorldQuest)  -- R
 		local style
-		if self.poiIsWorldQuest then
+		if self.poiInfo then
+			style = POIButtonUtil.Style[self.poiInfo.areaPoiID and "AreaPOI" or "BonusObjective"]
+		elseif self.poiIsWorldQuest then
 			style = POIButtonUtil.Style.WorldQuest
 		elseif self.poiIsComplete then
 			style = POIButtonUtil.Style.QuestComplete
@@ -1678,11 +1680,6 @@ local function SetHooks()
 		OpenQuestLog(mapID);  -- fix Blizz bug
 		QuestMapFrame_ShowQuestDetails(questID);
 	end]]
-
-	-- POIButton.lua
-	hooksecurefunc(POIButtonMixin, "UpdateButtonStyle", function(self)
-		self.Glow:SetShown(false)
-	end)
 
 	-- QuestUtils.lua
 	local function ShouldShowWarModeBonus(questID, currencyID, firstInstance)
@@ -2010,6 +2007,12 @@ local function SetHooks()
 		end
 	end
 
+	local function SetSuperTrackedEventPoiID(poiID)
+		if poiID then
+			C_SuperTrack.SetSuperTrackedMapPin(Enum.SuperTrackingMapPinType.AreaPOI, poiID)
+		end
+	end
+
 	function KT_BonusObjectiveTracker:OnBlockHeaderClick(block, button)  -- R
 		local questID = block.id;
 		local isThreatQuest = C_QuestLog.IsThreatQuest(questID);
@@ -2022,8 +2025,9 @@ local function SetHooks()
 				elseif IsModifiedClick(db.menuWowheadURLModifier) then
 					KT:Alert_WowheadURL("quest", questID)
 				else
-					local mapID = C_TaskQuest.GetQuestZoneID(questID);
-					if mapID then
+					local mapID = (self.showWorldQuests or isThreatQuest) and C_TaskQuest.GetQuestZoneID(questID) or GetQuestUiMapID(questID)
+					if mapID and mapID > 0 then
+						QuestMapFrame_CloseQuestDetails()
 						OpenQuestLog(mapID);
 						WorldMapPing_StartPingQuest(questID);
 					end
@@ -2049,15 +2053,33 @@ local function SetHooks()
 		info = MSA_DropDownMenu_CreateInfo();
 		info.notCheckable = 1;
 
-		if C_SuperTrack.GetSuperTrackedQuestID() ~= questID then
-			info.text = SUPER_TRACK_QUEST
-			info.func = function()
-				C_SuperTrack.SetSuperTrackedQuestID(questID)
+		local isWorldQuest = block.parentModule.showWorldQuests
+		local isThreatQuest = C_QuestLog.IsThreatQuest(questID)
+		local areaPoiID = KT.GetAreaPoiID(block.poiInfo)
+		if isWorldQuest or isThreatQuest or not areaPoiID then
+			if C_SuperTrack.GetSuperTrackedQuestID() ~= questID then
+				info.text = SUPER_TRACK_QUEST
+				info.func = function()
+					C_SuperTrack.SetSuperTrackedQuestID(questID)
+				end
+			else
+				info.text = STOP_SUPER_TRACK_QUEST
+				info.func = function()
+					C_SuperTrack.SetSuperTrackedQuestID(0)
+				end
 			end
 		else
-			info.text = STOP_SUPER_TRACK_QUEST
-			info.func = function()
-				C_SuperTrack.SetSuperTrackedQuestID(0)
+			local _, superTrackedPoiID = C_SuperTrack.GetSuperTrackedMapPin()
+			if areaPoiID ~= superTrackedPoiID then
+				info.text = SUPER_TRACK_QUEST
+				info.func = function()
+					SetSuperTrackedEventPoiID(areaPoiID)
+				end
+			else
+				info.text = STOP_SUPER_TRACK_QUEST
+				info.func = function()
+					C_SuperTrack.ClearSuperTrackedMapPin()
+				end
 			end
 		end
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
@@ -2334,6 +2356,17 @@ local function SetHooks()
 	MawBuffs.UpdateHelptip = function() end
 
 	Default_UpdateMixins()
+end
+
+local function SetHooks_Init()
+	-- POIButton.lua
+	hooksecurefunc(POIButtonMixin, "UpdateButtonStyle", function(self)
+		self.questTagInfo = nil  -- fix Blizz bug
+		if self.Display.SubTypeIcon and self.hideSubTypeIcon then
+			self.Display.SubTypeIcon:Hide()
+		end
+		self.Glow:SetShown(false)
+	end)
 end
 
 --------------
@@ -2921,6 +2954,8 @@ function KT:OnInitialize()
 	self.hidden = false
 	self.locked = false
 	self.initialized = false
+
+	SetHooks_Init()
 end
 
 function KT:OnEnable()
@@ -2932,7 +2967,6 @@ function KT:OnEnable()
 	SetFrames()
 	SetHooks()
 
-	self.QuestLog:Enable()
 	self.Filters:Enable()
 	if self.AddonPetTracker.isLoaded then self.AddonPetTracker:Enable() end
 	if self.AddonTomTom.isLoaded then self.AddonTomTom:Enable() end

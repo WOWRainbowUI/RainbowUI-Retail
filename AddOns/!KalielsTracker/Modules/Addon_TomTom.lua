@@ -121,6 +121,17 @@ local function WorldQuestPOIGetIconInfo(questID)
 	return mapID, x, y, waypointText
 end
 
+local function AreaPOIGetIconInfo(poiID)
+	local x, y, title
+	local mapID = KT.GetCurrentMapAreaID()
+	local info = C_AreaPoiInfo.GetAreaPOIInfo(mapID, poiID)
+	if info then
+		title = info.name
+		x, y = info.position:GetXY()
+	end
+	return mapID, x, y, title
+end
+
 local function SetWaypointTag(button, show)
 	local tag = button.Display.KTtomtom
 	if show then
@@ -160,14 +171,16 @@ local function TomTomArrowSetShown(show)
 	end
 end
 
-local function AddWaypoint(questID)
+local function AddWaypoint(questID, isPin)
 	if C_QuestLog.IsQuestCalling(questID) then
 		return false
 	end
 
 	local title, mapID, x, y, completed, waypointText
 	local isWorldQuest = false
-	if QuestUtils_IsQuestWorldQuest(questID) then
+	if isPin then
+		mapID, x, y, title = AreaPOIGetIconInfo(questID)
+	elseif QuestUtil.IsQuestTrackableTask(questID) then
 		title = C_TaskQuest.GetQuestInfoByQuestID(questID)
 		mapID, x, y, waypointText = WorldQuestPOIGetIconInfo(questID)
 		isWorldQuest = true
@@ -229,6 +242,16 @@ local function SetSuperTrackedQuestWaypoint(questID, force)
 	end
 end
 
+local function SetSuperTrackedMapPinWaypoint(poiID, force)
+	if poiID ~= superTrackedQuestID or force then
+		RemoveWaypoint(superTrackedQuestID)
+		if poiID > 0 then
+			AddWaypoint(poiID, true)
+			superTrackedQuestID = poiID
+		end
+	end
+end
+
 local function SetHooks()
 	-- TomTom
 	if TomTom.EnableDisablePOIIntegration then
@@ -267,7 +290,7 @@ local function SetHooks()
 
 	-- Blizzard
 	hooksecurefunc(C_SuperTrack, "SetSuperTrackedQuestID", function(questID)
-		stopUpdate = questID > 0 and not QuestUtils_IsQuestWatched(questID) and not C_QuestLog.IsWorldQuest(questID)
+		stopUpdate = questID > 0 and not QuestUtils_IsQuestWatched(questID) and not QuestUtil.IsQuestTrackableTask(questID)
 		if stopUpdate then
 			-- after focus on Unwatched Quests or Bonus Objectives
 			RemoveWaypoint(superTrackedQuestID)
@@ -290,10 +313,20 @@ local function SetHooks()
 	end)
 
 	hooksecurefunc(C_SuperTrack, "SetSuperTrackedMapPin", function(type, typeID)
+		SetSuperTrackedMapPinWaypoint(typeID)
+	end)
+
+	hooksecurefunc(C_SuperTrack, "ClearSuperTrackedMapPin", function()
 		if superTrackedQuestID > 0 then
 			RemoveWaypoint(superTrackedQuestID)
 		end
-		superTrackedQuestID = typeID
+	end)
+
+	hooksecurefunc(C_SuperTrack, "SetSuperTrackedVignette", function(vignetteGUID)
+		-- Do not set superTrackedQuestID, because vignetteGUID is a string
+		if superTrackedQuestID > 0 then
+			RemoveWaypoint(superTrackedQuestID)
+		end
 	end)
 
 	hooksecurefunc(C_SuperTrack, "SetSuperTrackedUserWaypoint", function(superTracked)
@@ -317,15 +350,22 @@ local function SetHooks()
 		end
 	end)
 
+	-- Only for Events
+	hooksecurefunc(KT_BonusObjectiveTracker, "OnQuestRemoved", function(self, questID)
+		C_SuperTrack.ClearSuperTrackedMapPin()
+	end)
+
 	-- Only for World Quests
 	hooksecurefunc(KT_WorldQuestObjectiveTracker, "OnQuestTurnedIn", function(self, questID)
 		RemoveWaypoint(questID)
 	end)
+end
 
+local function SetHooks_Init()
+	-- Blizzard
 	hooksecurefunc(POIButtonMixin, "UpdateButtonStyle", function(self)
-		if self.questID then
-			SetWaypointTag(self, superTrackedQuestID == self.questID)
-		end
+		local show = (superTrackedQuestID == self.questID or superTrackedQuestID == self.areaPOIID)
+		SetWaypointTag(self, show)
 	end)
 
 	hooksecurefunc(POIButtonMixin, "OnClick", function(self)
@@ -338,8 +378,13 @@ local function SetEvents()
 	-- Update waypoint after reload with supertracking
 	KT:RegEvent("QUEST_LOG_UPDATE", function(eventID)
 		local questID = C_SuperTrack.GetSuperTrackedQuestID()
-		if questID and (QuestUtils_IsQuestWatched(questID) or C_QuestLog.IsWorldQuest(questID)) then
+		if questID and (QuestUtils_IsQuestWatched(questID) or QuestUtil.IsQuestTrackableTask(questID)) then
 			SetSuperTrackedQuestWaypoint(questID)
+		else
+			local _, superTrackedPoiID = C_SuperTrack.GetSuperTrackedMapPin()
+			if superTrackedPoiID then
+				SetSuperTrackedMapPinWaypoint(superTrackedPoiID)
+			end
 		end
 		KT:UnregEvent(eventID)
 	end)
@@ -410,14 +455,16 @@ function M:OnInitialize()
 
 	if self.isLoaded then
 		KT:Alert_IncompatibleAddon("TomTom", "v4.0.1-release")
-	end
 
-	local defaults = KT:MergeTables({
-		profile = {
-			tomtomArrival = 20,
-		}
-	}, KT.db.defaults)
-	KT.db:RegisterDefaults(defaults)
+		local defaults = KT:MergeTables({
+			profile = {
+				tomtomArrival = 20,
+			}
+		}, KT.db.defaults)
+		KT.db:RegisterDefaults(defaults)
+
+		SetHooks_Init()
+	end
 end
 
 function M:OnEnable()

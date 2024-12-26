@@ -128,10 +128,6 @@ end
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
-end
-
-function M:OnEnable()
-	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
 	SetHooks()
 	SetFrames()
 end

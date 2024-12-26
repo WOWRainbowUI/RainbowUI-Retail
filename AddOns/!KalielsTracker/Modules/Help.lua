@@ -267,11 +267,13 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."Version 7.7.0|r\n"..
-					"- ADDED - support for WoW 11.0.7.58162\n"..
-					"- CHANGED - Quest Item button – Active Button reworked\n"..
-					"- CHANGED - Quest Item button – add glow when player is at relevant location\n"..
-					"- FIXED - wrong height of tracker items (Blizz bug)\n"..
+					cTitle.."Version 7.8.0|r\n"..
+					"- ADDED - Bonus Objective - show timer if exists (specially for Siren Isle, but it's pretty buggy on server)\n"..
+					"- ADDED - Bonus Objective - show POI buttons\n"..
+					"- ADDED (achievements) - filter support for Siren Isle\n"..
+					"- FIXED - POI buttons not updating in Quest Log / World Map\n"..
+					"- FIXED - sometimes is displayed the wrong underlay for POI buttons (Blizz bug)\n"..
+					"- PERFORMANCE - Bonus Objective - improve data retrieval for POI buttons\n"..
 					"\n"..
 
 					cTitle.."Issue reporting|r\n"..

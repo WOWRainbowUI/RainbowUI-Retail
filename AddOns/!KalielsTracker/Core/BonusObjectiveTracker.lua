@@ -3,7 +3,7 @@ local _, KT = ...
 local settings = {
 	hasDisplayPriority = true,
 	headerText = TRACKER_HEADER_BONUS_OBJECTIVES,
-	events = { "CRITERIA_COMPLETE", "QUEST_TURNED_IN", "QUEST_LOG_UPDATE", "QUEST_WATCH_LIST_CHANGED", "SCENARIO_BONUS_VISIBILITY_UPDATE", "SCENARIO_CRITERIA_UPDATE", "SCENARIO_UPDATE", "QUEST_ACCEPTED", "QUEST_REMOVED" },
+	events = { "CRITERIA_COMPLETE", "QUEST_TURNED_IN", "QUEST_LOG_UPDATE", "QUEST_WATCH_LIST_CHANGED", "SCENARIO_BONUS_VISIBILITY_UPDATE", "SCENARIO_CRITERIA_UPDATE", "SCENARIO_UPDATE", "QUEST_ACCEPTED", "QUEST_REMOVED", "SUPER_TRACKING_CHANGED" },  -- MSA
 	progressBarTemplate = "KT_BonusTrackerProgressBarTemplate",
 	lineTemplate = "KT_ObjectiveTrackerAnimLineTemplate",
 	blockTemplate = "KT_BonusObjectiveTrackerBlockTemplate",
@@ -23,6 +23,47 @@ local settings = {
 };
 
 KT_BonusObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin, settings);
+
+-- MSA (begin)
+-- Bonus POI info cache
+local bonusPoiInfoCache = {}
+
+local function BonusPoiInfoCache_Get(questID)
+	return bonusPoiInfoCache[questID]
+end
+
+local function BonusPoiInfoCache_Add(questID)
+	if not bonusPoiInfoCache[questID] then
+		local poiInfo
+		local mapID = GetQuestUiMapID(questID)
+		if mapID then
+			local tasks = GetTasksOnMapCached(mapID)
+			if tasks then
+				for _, info in ipairs(tasks) do
+					if questID == info.questID then
+						poiInfo = info
+						break
+					end
+				end
+			end
+			if not poiInfo then
+				local taskName = select(4, GetTaskInfo(questID))
+				local events = C_AreaPoiInfo.GetEventsForMap(mapID)
+				for _, poiID in ipairs(events) do
+					local info = C_AreaPoiInfo.GetAreaPOIInfo(mapID, poiID)
+					if info then
+						if taskName == info.name then
+							poiInfo = info
+							break
+						end
+					end
+				end
+			end
+		end
+		bonusPoiInfoCache[questID] = poiInfo
+	end
+end
+-- MSA (end)
 
 local function GetScenarioSupersedingStep(index)
 	local supersededObjectives = C_Scenario.GetSupersededObjectives();
@@ -46,6 +87,7 @@ function KT_BonusObjectiveTrackerMixin:OnFreeBlock(block)
 	block.taskName = nil;
 	block.numObjectives = nil;
 	--block:EnableMouse(false);  -- MSA
+	block.timeLeftWidgetID = nil  -- MSA
 end
 
 function KT_BonusObjectiveTrackerMixin:OnBlockHeaderEnter(block)
@@ -337,6 +379,34 @@ function KT_BonusObjectiveTrackerMixin:ProcessScenarioBonusObjectives()
 	end
 end
 
+-- MSA
+function KT_BonusObjectiveTrackerMixin:TryAddingExpirationWarningLine(block, questID)
+	if block.poiInfo and block.poiInfo.tooltipWidgetSet then
+		if self.tickerSeconds then
+			local newTimer = false
+			if not block.timeLeftWidgetID then
+				local widgets = C_UIWidgetManager.GetAllWidgetsBySetID(block.poiInfo.tooltipWidgetSet)
+				for _, widgetInfo in ipairs(widgets) do
+					if widgetInfo.widgetType == Enum.UIWidgetVisualizationType.TextWithState then
+						block.timeLeftWidgetID = widgetInfo.widgetID
+						newTimer = (self.tickerSeconds == 0)
+						break
+					end
+				end
+			end
+			local info = C_UIWidgetManager.GetTextWithStateWidgetVisualizationInfo(block.timeLeftWidgetID)
+			if info then
+				local timeLeft = string.gsub(info.text, ".*: (%d+) .*", "%1")
+				if timeLeft ~= "0" then
+					self.tickerSeconds = newTimer and 1.3 or 1
+					local line = block:AddObjective("State", info.text, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["TimeLeft2"], true)
+					line.Icon:Hide()
+				end
+			end
+		end
+	end
+end
+
 function KT_BonusObjectiveTrackerMixin:SetUpQuestBlock(block, forceShowCompleted)
 	local questID = block.id;
 	local questLogIndex = C_QuestLog.GetLogIndexForQuestID(questID);
@@ -360,6 +430,16 @@ function KT_BonusObjectiveTrackerMixin:SetUpQuestBlock(block, forceShowCompleted
 		block:SetPOIInfo(questID, isComplete, isSuperTracked, isWorldQuest);
 	elseif C_QuestLog.IsThreatQuest(questID) then
 		isThreatQuest = true;
+	elseif QuestUtil.IsQuestTrackableTask(questID) then
+		-- MSA
+		local isComplete = false
+		local isSuperTracked = (questID == C_SuperTrack.GetSuperTrackedQuestID())
+		local poiInfo = BonusPoiInfoCache_Get(questID)
+		if poiInfo and poiInfo.areaPoiID then
+			local _, superTrackedPoiID = C_SuperTrack.GetSuperTrackedMapPin()
+			isSuperTracked = (poiInfo.areaPoiID == superTrackedPoiID)
+		end
+		block:SetPOIInfo(questID, isComplete, isSuperTracked, isWorldQuest, poiInfo)
 	end
 
 	local showAsCompleted = isThreatQuest and isQuestComplete;
@@ -410,7 +490,7 @@ function KT_BonusObjectiveTrackerMixin:SetUpQuestBlock(block, forceShowCompleted
 		local completionText = isThreatQuest and questLogIndex and GetQuestLogCompletionText(questLogIndex) or QUEST_WATCH_QUEST_READY;
 		block:AddObjective("QuestComplete", completionText, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["Complete"]);
 	end
-	if isWorldQuest and not hasAddedTimeLeft then
+	if QuestUtil.IsQuestTrackableTask(questID) and not hasAddedTimeLeft then  -- MSA
 		-- No progress bar, try adding it at the end
 		self:TryAddingExpirationWarningLine(block, questID);
 	end
@@ -438,6 +518,11 @@ function KT_BonusObjectiveTrackerMixin:AddQuest(questID, isTrackedWorldQuest)
 		block.taskName = taskName;
 		block.numObjectives = numObjectives;
 
+		-- MSA
+		if QuestUtils_IsQuestBonusObjective(questID) then
+			BonusPoiInfoCache_Add(questID)
+		end
+
 		local forceShowCompleted = false;
 		self:SetUpQuestBlock(block, forceShowCompleted);
 
@@ -457,6 +542,13 @@ function KT_BonusObjectiveTrackerMixin:AddQuest(questID, isTrackedWorldQuest)
 end
 
 function KT_BonusObjectiveTrackerMixin:LayoutContents()
+	-- MSA
+	if self.ticker then
+		self.ticker:Cancel();
+		self.ticker = nil;
+	end
+	self.tickerSeconds = 0;
+
 	-- reset header text, could be overriden
 	self.headerText = TRACKER_HEADER_BONUS_OBJECTIVES;
 
@@ -474,6 +566,13 @@ function KT_BonusObjectiveTrackerMixin:LayoutContents()
 
 	if self:HasContents() then
 		self:SetHeader(self.headerText);
+	end
+
+	-- MSA
+	if self.tickerSeconds > 0 then
+		self.ticker = C_Timer.NewTicker(self.tickerSeconds, function()
+			self:MarkDirty();
+		end);
 	end
 end
 

@@ -191,7 +191,9 @@ local function SetHooks()
 			QuestLogPopupDetailFrame.TrackButton:Enable()
 		end
 	end)
+end
 
+local function SetHooks_Init()
 	-- POI - POIButton.lua
 	local bck_POIButtonMixin_OnClick = POIButtonMixin.OnClick
 	function POIButtonMixin:OnClick(button)
@@ -446,7 +448,8 @@ local function GetCategoryByZone()
 	local categoryAlt = ""
 	local mapID = KT.GetCurrentMapAreaID()
 	-- 10 - The War Within
-	if continent.mapID == 2274 then
+	if continent.mapID == 2274 or         -- Khaz Algar
+			continent.mapID == 2369 then  -- Siren Isle
 		category = strsub(EXPANSION_NAME10, 5)
 		categoryAlt = EXPANSION_NAME10
 	-- 9 - Dragonflight
@@ -1204,6 +1207,8 @@ function M:OnInitialize()
 		}
     }, KT.db.defaults)
 	KT.db:RegisterDefaults(defaults)
+
+	SetHooks_Init()
 end
 
 function M:OnEnable()
