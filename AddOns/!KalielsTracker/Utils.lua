@@ -115,7 +115,8 @@ end
 
 function KT.GetMapContinent(mapID)
     if mapID then
-        if mapID == 1355 then   -- Nazjatar
+        if mapID == 2369 or         -- Siren Isle
+                mapID == 1355 then  -- Nazjatar
             return C_Map.GetMapInfo(mapID) or {}
         else
             return MapUtil.GetMapParentInfo(mapID, Enum.UIMapType.Continent, true) or {}
@@ -439,7 +440,16 @@ function KT.QuestSuperTracking_ChooseClosestQuest()
         end
     end
 
-    C_SuperTrack.SetSuperTrackedQuestID(closestQuestID)
+    if closestQuestID > 0 then
+        C_SuperTrack.SetSuperTrackedQuestID(closestQuestID)
+    else
+        C_SuperTrack.ClearAllSuperTracked()
+    end
+end
+
+-- Bonus Objective
+function KT.GetAreaPoiID(info)
+    return info and info.areaPoiID
 end
 
 -- Scenario

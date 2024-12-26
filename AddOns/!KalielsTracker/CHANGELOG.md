@@ -1,6 +1,8 @@
 # Kaliel's Tracker changelog
-### 7.7.0
-- ADDED - support for WoW 11.0.7.58162
-- CHANGED - Quest Item button – Active Button reworked
-- CHANGED - Quest Item button – add glow when player is at relevant location
-- FIXED - wrong height of tracker items (Blizz bug)
+### 7.8.0
+- ADDED - Bonus Objective - show timer if exists (specially for Siren Isle, but it&#x27;s pretty buggy on server)
+- ADDED - Bonus Objective - show POI buttons
+- ADDED (achievements) - filter support for Siren Isle
+- FIXED - POI buttons not updating in Quest Log / World Map
+- FIXED - sometimes is displayed the wrong underlay for POI buttons (Blizz bug)
+- PERFORMANCE - Bonus Objective - improve data retrieval for POI buttons

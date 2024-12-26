@@ -38,7 +38,19 @@ function KT_ObjectiveTrackerQuestPOIBlockMixin:GetPOIButton(style)
 	if not button then
 		button = g_questPOIButtonPool:Acquire();
 		button:SetParent(self);
-		button:SetQuestID(self.poiQuestID);
+		-- MSA (begin)
+		if style ~= POIButtonUtil.Style.AreaPOI then
+			-- Quest / World Quest / Bonus Objective
+			button:SetQuestID(self.poiQuestID);
+			button.areaPOIID = nil
+		else
+			-- Event
+			if self.poiInfo then
+				button:SetAreaPOIInfo(self.poiInfo)
+			end
+			button.questID = nil
+		end
+		-- MSA (end)
 		self.poiButton = button;
 		self:SetExtraAddAnimation(button.AddAnim);
 	end
@@ -50,11 +62,12 @@ function KT_ObjectiveTrackerQuestPOIBlockMixin:GetPOIButton(style)
 	return button;
 end
 
-function KT_ObjectiveTrackerQuestPOIBlockMixin:SetPOIInfo(questID, isComplete, isSuperTracked, isWorldQuest)
+function KT_ObjectiveTrackerQuestPOIBlockMixin:SetPOIInfo(questID, isComplete, isSuperTracked, isWorldQuest, poiInfo)  -- MSA
 	self.poiQuestID = questID;
 	self.poiIsComplete = isComplete;
 	self.poiIsSuperTracked = isSuperTracked;
 	self.poiIsWorldQuest = isWorldQuest;
+	self.poiInfo = poiInfo  -- MSA
 end
 
 -- overrides inherited

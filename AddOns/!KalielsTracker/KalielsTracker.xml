@@ -44,6 +44,9 @@
     </Frame>
 
     <Button name="KT2_ObjectiveTrackerPOIButtonTemplate" inherits="KT_ObjectiveTrackerPOIButtonTemplate" virtual="true">
+        <KeyValues>
+            <KeyValue key="hideSubTypeIcon" value="true" type="boolean"/>
+        </KeyValues>
         <Frames>
             <Frame parentKey="Display" inherits="POIButtonDisplayLayerTemplate">
                 <Layers>
