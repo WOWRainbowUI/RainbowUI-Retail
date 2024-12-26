@@ -1,4 +1,8 @@
-﻿11.0.24 - 18th December 2024
+﻿11.0.25 - 25th December 2024
+- Merry Christmas!
+- Updated translations.
+
+11.0.24 - 18th December 2024
 - Fixed the map reveal data for 'Isle of Dorn'.
 
 11.0.23 - 18th December 2024
