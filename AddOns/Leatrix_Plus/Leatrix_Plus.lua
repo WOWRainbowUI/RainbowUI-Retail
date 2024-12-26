@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.0.23 (18th December 2024)
+-- 	Leatrix Plus 11.0.25 (25th December 2024)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.0.23"
+	LeaPlusLC["AddonVer"] = "11.0.25"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -13890,6 +13890,12 @@
 			elseif str == "tags" then
 				-- Print open menu tags (such as dropdown menus)
 				Menu.PrintOpenMenuTags()
+				return
+			elseif str == "editmode" then
+				-- Open Edit Mode (useful for new player experience)
+				if not LeaPlusLC:PlayerInCombat() then
+					RunScript('ShowUIPanel(EditModeManagerFrame)')
+				end
 				return
 			elseif str == "admin" then
 				-- Preset profile (used for testing)

@@ -1,4 +1,9 @@
-﻿11.0.23 - 18th December 2024
+﻿11.0.25 - 25th December 2024
+- Merry Christmas!
+- For 'Media', added zone music for 'The Great Sea', 'The Maddening Deep' and 'Siren Isle' ('Khaz Algar') and 'Amirdrassil', 'Tyrhold Cavern' and 'Zaralek Cavern' ('Dragon Isles').
+- Updated translations.
+
+11.0.23 - 18th December 2024
 - Updated for game patch 11.0.7.
 - For 'Media', added movie 'Orweyna's Vision'.  You can watch in Movies and listen in Various > Cinematics.  Also added cinematic audio for 'Confronting Xal'atath'.
 - Updated translations.
