@@ -1,7 +1,8 @@
 # Baganator
 
-## [565](https://github.com/Baganator/Baganator/tree/565) (2024-12-24)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/564...565) 
+## [566](https://github.com/Baganator/Baganator/tree/566) (2024-12-25)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/565...566) 
 
-- Categories: Fix grouping/ungrouping items breaking transfer when opening vendors  
-- Fix transfers not moving all category items if Recent category just cleared  
+- Customise: Categories: Remove frame strata changes making faded fields editable  
+- Transfer: Fill up partial stacks even if the whole stack can't be transferred  
+- Transfers: Prevent race condition getting items swapped  
