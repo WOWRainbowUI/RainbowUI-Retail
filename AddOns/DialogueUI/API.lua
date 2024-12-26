@@ -708,6 +708,27 @@ do  -- NPC Interaction
     end
     API.GetCurrentNPCInfo = GetCurrentNPCInfo;
 
+    local SkippedNPC = {
+        [94398] = true,     --Fleet Command Table
+        [94399] = true,     --Fleet Command Table
+        [138704] = true,    --Mission Command Table
+        [138706] = true,    --Mission Command Table
+        [147244] = true,    --Mission Command Table
+        [215758] = true,    --Mission Command Table
+    };
+    local function IsInteractingWithGameObject()
+        local guid = UnitGUID("npc");
+        if guid then
+            local unitType, id = match(guid, "^(%a+)%-0%-%d*%-%d*%-%d*%-(%d*)");
+            if unitType == "GameObject" or unitType == "Vehicle" then
+                return true
+            elseif unitType == "Creature" and id then
+                id = tonumber(id) or 0;
+                return SkippedNPC[id]
+            end
+        end
+    end
+    API.IsInteractingWithGameObject = IsInteractingWithGameObject;
 
     local SCOUTING_MAP = ADVENTURE_MAP_TITLE or "Scouting Map";
     local UnitClass = UnitClass;
@@ -1094,10 +1115,12 @@ do  -- Quest
         ["QuestBG-Storm"] = "TWW-Storm.png",
         ["QuestBG-Web"] = "TWW-Web.png",
         ["QuestBG-1027"] = "TWW-Azeroth.png",
+        ["QuestBG-Rocket"] = "TWW-Rocket.png",
     };
 
     local function GetQuestBackgroundDecor(questID)
         local theme = GetQuestDetailsTheme(questID);
+        --print(theme.background)
         --theme = {background = "QuestBG-Web"};    --debug
         if theme and theme.background and BackgroundDecors[theme.background] then
             return DECOR_PATH..BackgroundDecors[theme.background]
