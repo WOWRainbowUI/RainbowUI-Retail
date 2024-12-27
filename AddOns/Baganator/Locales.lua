@@ -318,8 +318,8 @@ L["SHOW_NAME_PREFIX"] = "Show name prefix"
 L["HELP_COLON_SEARCH"] = "Help: Search"
 L["HELP"] = "Help"
 L["HELP_SEARCH_OPERATORS"] = "Operators"
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (and), | (or), ! (not), # (exact keyword)"
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "The operators are evaluated in the following order of precedence: ! (not), & (and), and | (or)."
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Example: !A & B | C is evaluated as ((!A) & B) | C."
 L["HELP_SEARCH_ITEM_LEVEL"] = "Item Level"
 L["HELP_SEARCH_ITEM_LEVEL_LINE_1"] = "123 (exact level), <123 (levels lower), >123 (levels higher), 123-234 (levels between)"
@@ -530,7 +530,11 @@ L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Votre recherche recherchera des correspondan
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Exemple : #équipement&explorer"
 L["HELP_SEARCH_OPERATORS"] = "Opérateurs"
 L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (et), | (ou), ! (not), # (mot-clé exact)"
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
 L["HELP_SEARCH_OPERATORS_LINE_2"] = "Les opérateurs sont évalués dans l’ordre de priorité suivant : ! (not), & (et), et | (ou)."
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Exemple:! A & B | C est évalué comme (( ! A) et B) | C."
 L["HERBALISM"] = "Herboristerie "
 L["HIDDEN"] = "Caché"
@@ -865,7 +869,11 @@ L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Die Suche sucht an zwei Stellen nach Überei
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Beispiel: #ausrüstung&seelengebunden"
 L["HELP_SEARCH_OPERATORS"] = "Operatoren"
 L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (und), | (oder), ! (nicht), # (\"exaktes Schlüsselwort\")"
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
 L["HELP_SEARCH_OPERATORS_LINE_2"] = "Die Operatoren werden in der folgenden Reihenfolge ausgewertet: ! (nicht), & (und) und | (oder)."
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Beispiel: !A & B | C wird ausgewertet als ((!A) & B) | C."
 L["HERBALISM"] = "Kräuterkunde"
 L["HIDDEN"] = "Versteckt"
@@ -1206,7 +1214,11 @@ L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Поиск будет искать совп�
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Пример: #снаряжение&голова"
 L["HELP_SEARCH_OPERATORS"] = "Операторы"
 L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (И), | (ИЛИ), ! (НЕТ), # (точное ключевое слово)."
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
 L["HELP_SEARCH_OPERATORS_LINE_2"] = "Операторы обрабатываются в следующем порядке приоритета: ! (НЕТ), & (И), and | (ИЛИ)."
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Пример: !A & B | C обработается как ((!A) & B) | C."
 L["HERBALISM"] = "Травничество"
 L["HIDDEN"] = "Скрыто"
@@ -1539,7 +1551,11 @@ L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Sua procura buscará correspondências em do
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Exemplo: #equipamento&explorador"
 L["HELP_SEARCH_OPERATORS"] = "Operadores"
 L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (e), | (ou), ! (não), # (palavra-chave exata)"
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
 L["HELP_SEARCH_OPERATORS_LINE_2"] = "Os operadores são avaliados na seguinte ordem de precedência: ! (não), & (e) e | (ou)."
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Exemplo: !A & B | C é avaliado como ((!A) & B) | C."
 L["HERBALISM"] = "Herborismo"
 L["HIDDEN"] = "Oculto"
@@ -1868,7 +1884,11 @@ L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Tu búsqueda buscará coincidencias en dos l
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Ejemplo: #equipo&explorer"
 L["HELP_SEARCH_OPERATORS"] = "Operadores"
 L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (y), | (o), ! (no), # (palabra clave exacta)"
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
 L["HELP_SEARCH_OPERATORS_LINE_2"] = "Los operadores se evalúan en el siguiente orden de prioridad: ! (no), & (y), y | (o)."
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Ejemplo: !A & B | C se evalúa como ((!A) & B) | C."
 L["HERBALISM"] = "Herboristería"
 L["HIDDEN"] = "Oculto"
@@ -2197,7 +2217,11 @@ L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Tu búsqueda buscará coincidencias en dos l
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Ejemplo: #equipo&explorer"
 L["HELP_SEARCH_OPERATORS"] = "Operadores"
 L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (y), | (o), ! (no), # (palabra clave exacta)"
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
 L["HELP_SEARCH_OPERATORS_LINE_2"] = "Los operadores se evalúan en el siguiente orden de prioridad: ! (no), & (y), y | (o)."
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Ejemplo: !A & B | C se evalúa como ((!A) & B) | C."
 L["HERBALISM"] = "Herboristería"
 L["HIDDEN"] = "Oculto"
@@ -2526,7 +2550,11 @@ L["HELP_SEARCH_KEYWORDS_LINE_1"] = "您的搜尋將在兩個位置尋找匹配�
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "範例：#裝備&探險者"
 L["HELP_SEARCH_OPERATORS"] = "運算符"
 L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (和), | (或), ! (非), # (精確關鍵字)"
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
 L["HELP_SEARCH_OPERATORS_LINE_2"] = "運算符依下列優先順序求值： ! （非）、&（和）、以及 | （或）。"
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "範例：!A & B | C 被評定為 ((!A) & B) | C。"
 L["HERBALISM"] = "草藥"
 L["HIDDEN"] = "隱藏"
@@ -2850,7 +2878,11 @@ L["HELP_SEARCH_KEYWORDS_LINE_1"] = "您的搜索将在两个地方搜索匹配�
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "例如：#装备&发现"
 L["HELP_SEARCH_OPERATORS"] = "运算符"
 L["HELP_SEARCH_OPERATORS_LINE_1"] = "&（与）， |（或）， !（非）， #（精准关键字）"
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
 L["HELP_SEARCH_OPERATORS_LINE_2"] = "运算符的优先级顺序如下：!（非），&（与）， 和 |（或）。"
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "例如：!A & B | C 的计算结果为 ((!A) & B) | C。"
 L["HERBALISM"] = "草药"
 L["HIDDEN"] = "隐藏"
@@ -3197,7 +3229,11 @@ L["HELP_SEARCH_KEYWORDS_LINE_1"] = "검색은 지정된 키워드 집합 내 및
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "예시: #gear&explorer"
 L["HELP_SEARCH_OPERATORS"] = "연산자"
 L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (and), | (or), ! (not), # (exact keyword)"
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
 L["HELP_SEARCH_OPERATORS_LINE_2"] = "연산자는 !(not), &(and), |(또는)의 우선 순위로 평가됩니다."
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "예시: !A & B | C is evaluated as ((!A) & B) | C."
 L["HERBALISM"] = "약초채집"
 L["HIDDEN"] = "숨김"
@@ -3703,7 +3739,11 @@ L["HELP_SEARCH_OPERATORS"] = "Operators"
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (and), | (or), ! (not), # (exact keyword)"
 --[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
+--[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_2"] = "The operators are evaluated in the following order of precedence: ! (not), & (and), and | (or)."
+--[[Translation missing --]]
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Example: !A & B | C is evaluated as ((!A) & B) | C."
 --[[Translation missing --]]
