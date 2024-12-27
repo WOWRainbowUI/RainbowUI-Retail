@@ -1,6 +1,6 @@
 # BlizzMove
 
-## [v3.6.4](https://github.com/Kiatra/BlizzMove/tree/v3.6.4) (2024-11-21)
-[Full Changelog](https://github.com/Kiatra/BlizzMove/compare/v3.6.3...v3.6.4) [Previous Releases](https://github.com/Kiatra/BlizzMove/releases)
+## [v3.6.6](https://github.com/Kiatra/BlizzMove/tree/v3.6.6) (2024-12-26)
+[Full Changelog](https://github.com/Kiatra/BlizzMove/compare/v3.6.5...v3.6.6) [Previous Releases](https://github.com/Kiatra/BlizzMove/releases)
 
-- Classic TOC Bump  
+- Add compatibility warnings if incompatible addons are detected  
