@@ -267,6 +267,9 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
+					cTitle.."版本 7.8.1|r\n"..
+					"- 修正 - 任務物品按鈕 (當前任務) 進入和離開戰鬥時會造成錯誤\n"..
+					"\n"..
 					cTitle.."版本 7.8.0|r\n"..
 					"- 新增 - 獎勵目標 - 顯示計時器，如果有的話 (特別是海妖島，但它在伺服器上有很多 bug)\n"..
 					"- 新增 - 獎勵目標 - 顯示 POI 按鈕\n"..
