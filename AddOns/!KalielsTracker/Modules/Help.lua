@@ -267,6 +267,9 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
+					cTitle.."Version 7.8.1|r\n"..
+					"- FIXED - Quest Item button (Active Button) cause an error when entering and exiting combat\n"..
+					"\n"..
 					cTitle.."Version 7.8.0|r\n"..
 					"- ADDED - Bonus Objective - show timer if exists (specially for Siren Isle, but it's pretty buggy on server)\n"..
 					"- ADDED - Bonus Objective - show POI buttons\n"..

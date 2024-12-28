@@ -93,8 +93,8 @@ local function ActiveFrame_SetPosition()
 			yOfs = yOfs + 26
 		end
 	end
-	KT:protStop("ClearAllPoints", activeFrame)
-	KT:protStop("SetPoint", activeFrame, point, relativeTo, relativePoint, xOfs, yOfs)
+	KT:prot("ClearAllPoints", activeFrame)
+	KT:prot("SetPoint", activeFrame, point, relativeTo, relativePoint, xOfs, yOfs)
 end
 
 local function ActiveFrame_Hide()
@@ -125,7 +125,7 @@ local function SetHooks()
 	hooksecurefunc(KT_QuestObjectiveItemButtonMixin, "UpdateInsideBlob", function(self, questID, inside)
 		if questID == self:GetAttribute("questID") then
 			C_Timer.After(0, function()
-				M:Update((not dbChar.collapsed and inside) and questID or nil)
+				KT:prot("Update", M, (not dbChar.collapsed and inside) and questID or nil)
 			end)
 		end
 	end)

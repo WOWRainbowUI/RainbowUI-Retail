@@ -1,61 +1,32 @@
 --- MSA-ProtRouter-1.0 - Router for Protected functions
---- Copyright (c) 2019-2021, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2019-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
----
---- https://www.curseforge.com/wow/addons/msa-protrouter-10
 
-local name, version = "MSA-ProtRouter-1.0", 3
+local name, version = "MSA-ProtRouter-1.0", 4
 
-local lib, oldVersion = LibStub:NewLibrary(name, version)
+local lib = LibStub:NewLibrary(name, version)
 if not lib then return end
 
-local forceUpdate = (oldVersion and oldVersion <= 0)
-
 -- Lua API
-local ipairs = ipairs
-local tinsert = table.insert
-local tremove = table.remove
+local next = next
 local type = type
 local unpack = unpack
-
--- WoW API
-local InCombatLockdown = InCombatLockdown
 
 local combatLockdown = InCombatLockdown()
 
 lib.protectedActions = {}
 
 local function protRunStoredActions()
-    while #lib.protectedActions > 0 do
+    local func, params = next(lib.protectedActions)
+    while func do
         if combatLockdown then break end
-        local func, params = unpack(lib.protectedActions[1])
         func(unpack(params))
-        tremove(lib.protectedActions, 1)
+        lib.protectedActions[func] = nil
+        func, params = next(lib.protectedActions)
     end
 end
 
 function lib:prot(method, object, ...)
-    local func, region
-    if type(method) == "string" then
-        func = object[method]
-        region = object
-    else
-        func = method
-    end
-    local params = { object, ... }
-    local isProtected = false
-    if region and region.IsProtected then
-        isProtected = region:IsProtected()
-    end
-
-    if combatLockdown and isProtected then
-        tinsert(lib.protectedActions, { func, params })
-    else
-        func(unpack(params))
-    end
-end
-
-function lib:protStop(method, object, ...)
     local func
     if type(method) == "string" then
         func = object[method]
@@ -65,16 +36,7 @@ function lib:protStop(method, object, ...)
     local params = { object, ... }
 
     if combatLockdown then
-        local stored = false
-        for _, action in ipairs(lib.protectedActions) do
-            if action[1] == func then
-                stored = true
-                break
-            end
-        end
-        if not stored then
-            tinsert(lib.protectedActions, { func, params })
-        end
+        lib.protectedActions[func] = params
     else
         func(unpack(params))
     end
@@ -100,8 +62,7 @@ lib.eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 lib.embeds = lib.embeds or {}
 
 local mixins = {
-    "prot",
-    "protStop"
+    "prot"
 }
 
 function lib:Embed(target)
