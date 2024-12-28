@@ -149,6 +149,7 @@ L["IGNORED_BAG_SLOTS"] = "Ignored bag slots (character specific)"
 L["IGNORED_BANK_SLOTS"] = "Ignored bank slots (character specific)"
 L["SORT_ON_OPEN"] = "Sort on open"
 L["GUILD_BANK_SORT_METHOD"] = "Guild Bank Sort Method"
+L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
 
 L["SEARCH_TRY_X"] = "Search, try %s"
 
@@ -376,9 +377,6 @@ L["NOTHING_TO_SAVE"] = "Nothing to save"
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
 
-L["NO_PASTE_MESSAGE"] = "You have the Paste addon installed, this will cause search and visual issues with Baganator. Use PasteNG instead."
-
-
 local L = Locales.frFR
 L["ACCOUNT_GOLD_X"] = "Or du compte : %s"
 L["ACTION_TO_TRACK_TEXT"] = "Maj+clic sur la monnaie ou l'objet à déposer."
@@ -431,6 +429,8 @@ L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Impossible d’ajouter d’autres objets à cet échange"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Vous n’êtes pas autorisé à modifier cet onglet"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Impossible de retirer d’autres objets de la banque de guilde"
+--[[Translation missing --]]
+L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
 L["CATEGORIES"] = "Catégories"
 L["CATEGORIES_FAILED_WARNING"] = "Quelque chose s'est mal passé pendant l'affichage des catégories. La recherche qui a échoué \"%s\". Les objets suivants ont échoué : %s. Capture cet écran et visite ce Discord :"
 L["CATEGORIES_IN_TOOLTIPS_X"] = "Correspondances de catégories dans les infobulles des objets du sac : %s"
@@ -529,10 +529,8 @@ L["HELP_SEARCH_KEYWORDS"] = "Mots-clés"
 L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Votre recherche recherchera des correspondances à deux endroits : dans un ensemble de mots-clés spécifiés et dans le nom de l’élément et les descriptions des infobulles. Pour rechercher un mot-clé exact uniquement, utilisez un hashtag (#) avant le mot-clé."
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Exemple : #équipement&explorer"
 L["HELP_SEARCH_OPERATORS"] = "Opérateurs"
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (et), | (ou), ! (not), # (mot-clé exact)"
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "Les opérateurs sont évalués dans l’ordre de priorité suivant : ! (not), & (et), et | (ou)."
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Exemple:! A & B | C est évalué comme (( ! A) et B) | C."
@@ -766,6 +764,8 @@ L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Es können keine weiteren Gegenstände zu diesem Handel hinzugefügt werden"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Du hast keine Berechtigung diesen Tab zu bearbeiten"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Es können keine weiteren Gegenstände aus der Gildenbank entnommen werden"
+--[[Translation missing --]]
+L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
 L["CATEGORIES"] = "Kategorien"
 L["CATEGORIES_FAILED_WARNING"] = "Bei der Anzeige der Kategorien ist etwas schief gelaufen. Die fehlgeschlagene Suche lautete „%s“. Die folgenden Elemente sind fehlgeschlagen: „%s“. Mache einen Screenshot davon und besuche den Discord:"
 L["CATEGORIES_IN_TOOLTIPS_X"] = "Kategorieübereinstimmungen in den Tooltips von Taschen-Gegenständen jetzt %s"
@@ -868,10 +868,8 @@ L["HELP_SEARCH_KEYWORDS"] = "Schlüsselwörter"
 L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Die Suche sucht an zwei Stellen nach Übereinstimmungen: in einer Reihe von angegebenen Schlüsselwörtern und in den Gegenstandsnamen und Tooltip-Beschreibungen. Um nur nach einem exakten Stichwort zu suchen, verwenden Sie ein Hashtag (#) vor dem Schlüsselwort."
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Beispiel: #ausrüstung&seelengebunden"
 L["HELP_SEARCH_OPERATORS"] = "Operatoren"
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (und), | (oder), ! (nicht), # (\"exaktes Schlüsselwort\")"
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "Die Operatoren werden in der folgenden Reihenfolge ausgewertet: ! (nicht), & (und) und | (oder)."
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Beispiel: !A & B | C wird ausgewertet als ((!A) & B) | C."
@@ -1117,6 +1115,8 @@ L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Превышен лимит на добавление предметов для обмена"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "У вас нет разрешения на редактирование этой ячейки"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Превышен лимит на съем предметов из банка гильдии"
+--[[Translation missing --]]
+L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
 L["CATEGORIES"] = "Категории"
 L["CATEGORIES_FAILED_WARNING"] = "Что-то пошло не так при отображении категорий. Проблемным поиском было - '%s'. Следующие предметы не прошли проверку: %s. Сделайте скриншот и посетите Discord:"
 L["CATEGORIES_IN_TOOLTIPS_X"] = "Соответствие категорий в подсказках предметов сумки - %s"
@@ -1213,10 +1213,8 @@ L["HELP_SEARCH_KEYWORDS"] = "Ключевые слова"
 L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Поиск будет искать совпадения в двух местах: в комбинации заданных ключевых слов, а также в названии предмета и в описании всплывающей подсказки. Чтобы найти только точное ключевое слово, используйте хештег (#) перед ключевым словом."
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Пример: #снаряжение&голова"
 L["HELP_SEARCH_OPERATORS"] = "Операторы"
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (И), | (ИЛИ), ! (НЕТ), # (точное ключевое слово)."
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "Операторы обрабатываются в следующем порядке приоритета: ! (НЕТ), & (И), and | (ИЛИ)."
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Пример: !A & B | C обработается как ((!A) & B) | C."
@@ -1454,6 +1452,8 @@ L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Não é possível adicionar mais itens a esta troca"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Você não tem permissão para editar esta aba."
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Não é possível retirar mais itens do banco da guilda"
+--[[Translation missing --]]
+L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
 L["CATEGORIES"] = "Categorias"
 L["CATEGORIES_FAILED_WARNING"] = "Algo deu errado ao exibir as categorias. A pesquisa falhou foi \"%s\". Os seguintes itens falharam: %s. Faça uma captura de tela e visite o Discord:"
 L["CATEGORIES_IN_TOOLTIPS_X"] = "Agora as correspondências de categoria nas dicas de ferramenta dos itens da bolsa são %s"
@@ -1550,10 +1550,8 @@ L["HELP_SEARCH_KEYWORDS"] = "Palavras-chave"
 L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Sua procura buscará correspondências em dois lugares: dentro de um conjunto de palavras-chave especificadas e dentro do nome do item e das descrições das dicas. Para procurar apenas uma palavra-chave exata, use um hashtag (#) antes da palavra-chave."
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Exemplo: #equipamento&explorador"
 L["HELP_SEARCH_OPERATORS"] = "Operadores"
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (e), | (ou), ! (não), # (palavra-chave exata)"
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "Os operadores são avaliados na seguinte ordem de precedência: ! (não), & (e) e | (ou)."
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Exemplo: !A & B | C é avaliado como ((!A) & B) | C."
@@ -1787,6 +1785,8 @@ L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "No se pueden añadir más objetos a este intercambio"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "No tienes permisos para editar esta pestaña"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "No se pueden retirar más objetos del banco de hermandad"
+--[[Translation missing --]]
+L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
 L["CATEGORIES"] = "Categorías"
 L["CATEGORIES_FAILED_WARNING"] = "Algo ha fallado al mostrar las categorías. La búsqueda fallida fue «%s». Los siguientes objetos fallaron: %s Haz una captura de pantalla y visita el discord:"
 L["CATEGORIES_IN_TOOLTIPS_X"] = "Ahora las categorías coinciden con los objetos de la bolsa %s"
@@ -1883,10 +1883,8 @@ L["HELP_SEARCH_KEYWORDS"] = "Palabras clave"
 L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Tu búsqueda buscará coincidencias en dos lugares: dentro de un conjunto de palabras clave especificadas y dentro del nombre del objeto y las descripciones. Para buscar solo una palabra clave exacta, utiliza un hashtag (#) antes de la palabra clave."
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Ejemplo: #equipo&explorer"
 L["HELP_SEARCH_OPERATORS"] = "Operadores"
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (y), | (o), ! (no), # (palabra clave exacta)"
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "Los operadores se evalúan en el siguiente orden de prioridad: ! (no), & (y), y | (o)."
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Ejemplo: !A & B | C se evalúa como ((!A) & B) | C."
@@ -2120,6 +2118,8 @@ L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "No se pueden añadir más objetos a este intercambio"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "No tienes permisos para editar esta pestaña"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "No se pueden retirar más objetos del banco de hermandad"
+--[[Translation missing --]]
+L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
 L["CATEGORIES"] = "Categorías"
 L["CATEGORIES_FAILED_WARNING"] = "Algo ha fallado al mostrar las categorías. La búsqueda fallida fue «%s». Los siguientes objetos fallaron: %s Haz una captura de pantalla y visita el discord:"
 L["CATEGORIES_IN_TOOLTIPS_X"] = "Ahora las categorías coinciden con los objetos de la bolsa %s"
@@ -2216,10 +2216,8 @@ L["HELP_SEARCH_KEYWORDS"] = "Palabras clave"
 L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Tu búsqueda buscará coincidencias en dos lugares: dentro de un conjunto de palabras clave especificadas y dentro del nombre del objeto y las descripciones. Para buscar solo una palabra clave exacta, utiliza un hashtag (#) antes de la palabra clave."
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Ejemplo: #equipo&explorer"
 L["HELP_SEARCH_OPERATORS"] = "Operadores"
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (y), | (o), ! (no), # (palabra clave exacta)"
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "Los operadores se evalúan en el siguiente orden de prioridad: ! (no), & (y), y | (o)."
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Ejemplo: !A & B | C se evalúa como ((!A) & B) | C."
@@ -2453,6 +2451,8 @@ L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "無法在此交易加入更多物品"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您沒有權限編輯此標籤頁"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "無法從公會銀行提取更多物品"
+--[[Translation missing --]]
+L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
 L["CATEGORIES"] = "分類"
 L["CATEGORIES_FAILED_WARNING"] = "顯示分類時出現報錯。\"%s\"搜尋失敗。以下物品失敗：%s 截圖並訪問 discord："
 L["CATEGORIES_IN_TOOLTIPS_X"] = "背包物品提示中的分類匹配現為%s"
@@ -2549,12 +2549,8 @@ L["HELP_SEARCH_KEYWORDS"] = "關鍵字"
 L["HELP_SEARCH_KEYWORDS_LINE_1"] = "您的搜尋將在兩個位置尋找匹配：在一組指定的關鍵字中以及在物品名稱和工具提示描述中。若要只搜尋精確的關鍵字，請在關鍵字前使用井號標誌 (#)。"
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "範例：#裝備&探險者"
 L["HELP_SEARCH_OPERATORS"] = "運算符"
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (和), | (或), ! (非), # (精確關鍵字)"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "運算符依下列優先順序求值： ! （非）、&（和）、以及 | （或）。"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (以及), | (或), ! (非), # (精確關鍵字), ( ) (群組)"
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "運算依下列優先順序求值：( ) (群組)、! (非)、& (以及)、和 | (或)。"
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "範例：!A & B | C 被評定為 ((!A) & B) | C。"
 L["HERBALISM"] = "草藥"
 L["HIDDEN"] = "隱藏"
@@ -2781,6 +2777,8 @@ L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "无法添加更多物品到此交易"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您无权编辑此选项"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "无法从公会银行提取更多物品"
+--[[Translation missing --]]
+L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
 L["CATEGORIES"] = "分类"
 L["CATEGORIES_FAILED_WARNING"] = "显示分类时出现错误。搜索失败的是\"%s\"。以下物品失败：%s。请截图并反馈到 Discord："
 L["CATEGORIES_IN_TOOLTIPS_X"] = "背包物品鼠标提示中的分类匹配现在为 %s"
@@ -2877,12 +2875,8 @@ L["HELP_SEARCH_KEYWORDS"] = "关键词"
 L["HELP_SEARCH_KEYWORDS_LINE_1"] = "您的搜索将在两个地方搜索匹配项：一组指定的关键词以及物品名称和鼠标提示的描述。二是只搜索准确的关键词，请在关键词前使用标签 (#)。"
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "例如：#装备&发现"
 L["HELP_SEARCH_OPERATORS"] = "运算符"
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "&（与）， |（或）， !（非）， #（精准关键字）"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "运算符的优先级顺序如下：!（非），&（与）， 和 |（或）。"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "&（与）， |（或）， !（非）， #（精准关键字），( ) （组）"
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "运算符的优先级顺序如下：( ) （组）,!（非），&（与）， 和 |（或）。"
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "例如：!A & B | C 的计算结果为 ((!A) & B) | C。"
 L["HERBALISM"] = "草药"
 L["HIDDEN"] = "隐藏"
@@ -3116,6 +3110,8 @@ L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "거래에 아이템을 더이상 추가할 수 없습니다."
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "이 탭을 편집할 권한이 없습니다."
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "길드은행에서 더이상 아이템을 인출할 수 없습니다."
+--[[Translation missing --]]
+L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
 L["CATEGORIES"] = "카테고리"
 L["CATEGORIES_FAILED_WARNING"] = [=[카테고리를 표시하는 중에 문제가 발생했습니다.
 
@@ -3228,10 +3224,8 @@ L["HELP_SEARCH_KEYWORDS"] = "키워드"
 L["HELP_SEARCH_KEYWORDS_LINE_1"] = "검색은 지정된 키워드 집합 내 및 항목 이름 및 도구 설명 내 두 곳에서 일치하는 항목을 찾습니다. 정확한 키워드만 검색하려면 키워드 앞에 해시태그(#)를 사용하십시오"
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "예시: #gear&explorer"
 L["HELP_SEARCH_OPERATORS"] = "연산자"
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (and), | (or), ! (not), # (exact keyword)"
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "연산자는 !(not), &(and), |(또는)의 우선 순위로 평가됩니다."
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "예시: !A & B | C is evaluated as ((!A) & B) | C."
@@ -3540,6 +3534,8 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit thi
 --[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
 --[[Translation missing --]]
+L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
+--[[Translation missing --]]
 L["CATEGORIES"] = "Categories"
 --[[Translation missing --]]
 L["CATEGORIES_FAILED_WARNING"] = [=[Something went wrong when displaying the categories.
@@ -3737,11 +3733,7 @@ L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Example: #gear&explorer"
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS"] = "Operators"
 --[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (and), | (or), ! (not), # (exact keyword)"
---[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "The operators are evaluated in the following order of precedence: ! (not), & (and), and | (or)."
 --[[Translation missing --]]
 L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
 --[[Translation missing --]]
