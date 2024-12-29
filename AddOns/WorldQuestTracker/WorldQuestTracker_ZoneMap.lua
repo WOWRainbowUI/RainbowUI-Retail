@@ -603,6 +603,10 @@ function WorldQuestTracker.AdjustThatThingInTheBottomLeftCorner()
 	end
 end
 
+local specialPinsMapBans = {
+	[2369] = true, --Siren Isle
+}
+
 --atualiza as quest do mapa da zona ~updatezone ~zoneupdate
 function WorldQuestTracker.UpdateZoneWidgets(forceUpdate)
 	--get the map shown in the map frame
@@ -746,37 +750,38 @@ function WorldQuestTracker.UpdateZoneWidgets(forceUpdate)
 	WorldQuestTracker.HideAllPOIPins()
 
 	--~locked ~poi ~areapoi
-    for pin in map:EnumeratePinsByTemplate("AreaPOIPinTemplate") do
-        local atlasName = pin.Texture:GetAtlas()
-		pin.Texture:SetAlpha(0.934)
-        if (atlasName == "worldquest-Capstone-questmarker-epic-Locked") then
-			--how to identify the point of interest?
-			if (not WorldQuestTracker.db.profile.pins_discovered["worldquest-Capstone-questmarker-epic-Locked"][pin.areaPoiID]) then
-				local poiInfo = pin:GetPoiInfo() --table
-				local mapData = pin:GetMap() --function
+	if (not specialPinsMapBans[mapId]) then
+		for pin in map:EnumeratePinsByTemplate("AreaPOIPinTemplate") do
+			local atlasName = pin.Texture:GetAtlas()
+			pin.Texture:SetAlpha(0.934)
+			if (atlasName == "worldquest-Capstone-questmarker-epic-Locked") then
+				--how to identify the point of interest?
+				if (not WorldQuestTracker.db.profile.pins_discovered["worldquest-Capstone-questmarker-epic-Locked"][pin.areaPoiID]) then
+					local poiInfo = pin:GetPoiInfo() --table
+					local mapData = pin:GetMap() --function
 
-				local poiId = poiInfo.areaPoiID
-				local mapId = mapData:GetMapID()
-				local position = poiInfo.position
-				local mapInfo = C_Map.GetMapInfo(mapId)
-				local parentMapInfo = C_Map.GetMapInfo(mapInfo.parentMapID)
+					local poiId = poiInfo.areaPoiID
+					local mapId = mapData:GetMapID()
+					local position = poiInfo.position
+					local mapInfo = C_Map.GetMapInfo(mapId)
+					local parentMapInfo = C_Map.GetMapInfo(mapInfo.parentMapID)
 
-				--need check if a waypoint already exists
-				local mapPoint = UiMapPoint.CreateFromCoordinates(mapId, position.x, position.y)
-				C_Map.SetUserWaypoint(mapPoint)
-				local worldPosition = C_Map.GetUserWaypointPositionForMap(parentMapInfo.mapID)
-				C_Map.ClearUserWaypoint()
+					--need check if a waypoint already exists
+					local mapPoint = UiMapPoint.CreateFromCoordinates(mapId, position.x, position.y)
+					C_Map.SetUserWaypoint(mapPoint)
+					local worldPosition = C_Map.GetUserWaypointPositionForMap(parentMapInfo.mapID)
+					C_Map.ClearUserWaypoint()
 
-				---@class wqt_poidata
-				---@field poiID number
-				---@field mapID number
-				---@field zoneX number
-				---@field zoneY number
-				---@field continentID number
-				---@field worldX number
-				---@field worldY number
-				---@field tooltipSetId number
-				if worldPosition then -- 暫時修正
+					---@class wqt_poidata
+					---@field poiID number
+					---@field mapID number
+					---@field zoneX number
+					---@field zoneY number
+					---@field continentID number
+					---@field worldX number
+					---@field worldY number
+					---@field tooltipSetId number
+
 					local pointOfInterestData = {
 						["poiID"] = poiId,
 						["mapID"] = mapId,
@@ -790,13 +795,13 @@ function WorldQuestTracker.UpdateZoneWidgets(forceUpdate)
 
 					WorldQuestTracker.db.profile.pins_discovered["worldquest-Capstone-questmarker-epic-Locked"][poiId] = pointOfInterestData
 				end
-			end
 
-			pin.Texture:SetScale(1.2)
-		else
-			pin.Texture:SetScale(1)
-        end
-    end
+				pin.Texture:SetScale(1.2)
+			else
+				pin.Texture:SetScale(1)
+			end
+		end
+	end
 
 	for pin in map:EnumeratePinsByTemplate("QuestPinTemplate") do
 		pin:SetAlpha(0.923)
