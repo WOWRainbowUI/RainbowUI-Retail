@@ -1,6 +1,6 @@
 # Baganator
 
-## [573](https://github.com/Baganator/Baganator/tree/573) (2024-12-28)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/572...573) 
+## [576](https://github.com/Baganator/Baganator/tree/576) (2024-12-28)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/575...576) 
 
-- [Fixes #389, Fixes #390] Revert change to moving items between categories  
+- Fix welcome screen showing repeatedly on first load  
