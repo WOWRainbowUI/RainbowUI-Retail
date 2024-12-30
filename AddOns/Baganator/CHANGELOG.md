@@ -1,6 +1,7 @@
 # Baganator
 
-## [576](https://github.com/Baganator/Baganator/tree/576) (2024-12-28)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/575...576) 
+## [577](https://github.com/Baganator/Baganator/tree/577) (2024-12-29)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/576...577) 
 
-- Fix welcome screen showing repeatedly on first load  
+- [Fixes #391] Categories: Fix error when sorting with "Group identical items" off  
+- Categories: Fix sections only containing empty slots disappearing  
