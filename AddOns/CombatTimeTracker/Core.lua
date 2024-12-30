@@ -71,7 +71,8 @@ local defaults = {
             xpacKey = 1,
             expansion = "Classic",
             resetCounterOnEndOfCombat = true,
-            selectedTab = "options"
+            selectedTab = "options",
+            clickThrough = true
         }
     }
 }
@@ -86,7 +87,8 @@ local xpacs = {
     -- "Legion",
     -- "Battle for Azeroth",
     L["Shadowlands"],
-	L["DragonFlight"]
+	L["DragonFlight"],
+	L["The War Within"]
 }
 
 local raidInstanceZones = {
@@ -119,6 +121,10 @@ local raidInstanceZones = {
         L["Vault of the Incarnates"],
         L["Aberrus, the Shadowed Crucible"],
         L["Amirdrassil, the Dream's Hope"]
+    },
+    -- TWW
+    {
+        L["Nerub-ar Palace"]
     }
 }
 
@@ -321,6 +327,20 @@ local raidBosses = {
             "Tindral Sageswift, Seer of the Flame",
             "Fyrakk the Blazing"
         }
+    },
+    -- TWW
+    {
+        --  Nerub-ar Palace
+        {
+            "Ulgrax the Devourer",
+            "The Bloodbound Horror",
+            "Sikran, Captain of the Sureki",
+            "Rasha'nan",
+            "Broodtwister Ovi'nax",
+            "Nexus-Princess Ky'veza",
+            "The Silken Court",
+            "Queen Ansurek"
+        }
     }
 }
 
@@ -395,20 +415,27 @@ local raidEncounterIDs = {
         }
     },
     -- DF
-	{
-		-- Vault of the Incarnates
-		{
-			2587, 2639, 2590, 2592, 2635, 2605, 2614, 2607
-		},
-		-- Aberrus, the Shadowed Crucible
-		{
-			2688, 2687, 2693, 2682, 2680, 2689, 2683, 2684, 2685
-		},
-		-- Amirdrassil, the Dream's Hope
-		{
-			2820, 2709, 2737, 2728, 2731, 2708, 2824, 2786, 2677
-		}
-	}
+    {
+        -- Vault of the Incarnates
+        {
+            2587, 2639, 2590, 2592, 2635, 2605, 2614, 2607
+        },
+        -- Aberrus, the Shadowed Crucible
+        {
+            2688, 2687, 2693, 2682, 2680, 2689, 2683, 2684, 2685
+        },
+        -- Amirdrassil, the Dream's Hope
+        {
+            2820, 2709, 2737, 2728, 2731, 2708, 2824, 2786, 2677
+        }
+    },
+    -- TWW
+    {
+        -- Nerub-ar Palance
+        {
+            2902, 2917, 2898, 2918, 2919, 2920, 2921, 2922
+        }
+    }
 }
 
 local instanceTypes = {
@@ -1470,6 +1497,15 @@ function CTT_ToggleTargetCheckButton(widget, event, value)
     end
 end
 
+function CTT_ToggleClickThroughCheckButton(widget, event, value)
+    db.profile.cttMenuOptions.clickThrough = value
+    if db.profile.cttMenuOptions.clickThrough then
+        cttStopwatchGui:EnableMouse(value)
+    else
+        cttStopwatchGui:EnableMouse(value)
+    end
+end
+
 function CTT_TogglePrintCheckButton(widget, event, value)
     db.profile.cttMenuOptions.togglePrint = value;
 end
@@ -1749,6 +1785,7 @@ local function OptionsMenu(container)
     container:AddChild(lockFrameCheckButton)
     container.lockFrameCheckButton = lockFrameCheckButton
 
+    -- minimap icon check button
     local minimapIconCheckButton = AceGUI:Create("CheckBox")
     minimapIconCheckButton:SetLabel(L["Hide Minimap"])
     minimapIconCheckButton:SetWidth(150)
@@ -1766,9 +1803,10 @@ local function OptionsMenu(container)
     container:AddChild(minimapIconCheckButton)
     container.minimapIconCheckButton = minimapIconCheckButton
 
+    -- toggle target checkbox
     local toggleTarget = AceGUI:Create("CheckBox")
     toggleTarget:SetLabel(L["Show Target"])
-    toggleTarget:SetWidth(100)
+    toggleTarget:SetWidth(115)
     toggleTarget:SetHeight(22)
     toggleTarget:SetType("checkbox")
     toggleTarget:ClearAllPoints()
@@ -1785,7 +1823,7 @@ local function OptionsMenu(container)
     -- toggle printing
     local togglePrint = AceGUI:Create("CheckBox")
     togglePrint:SetLabel(L["Toggle Messages"])
-    togglePrint:SetWidth(140)
+    togglePrint:SetWidth(150)
     togglePrint:SetHeight(22)
     togglePrint:SetType("checkbox")
     togglePrint:ClearAllPoints()
@@ -1816,6 +1854,7 @@ local function OptionsMenu(container)
     container:AddChild(textColorPicker)
     container.textColorPicker = textColorPicker
 
+    -- checkbox for text outline
     local textFlagsButton = AceGUI:Create("CheckBox")
     textFlagsButton:SetLabel(L["TextOutline"])
     textFlagsButton:SetWidth(125)
@@ -1831,7 +1870,7 @@ local function OptionsMenu(container)
     -- Checkbox for not resetting tracter after combat
     local resetTrackerOnCombatEnding = AceGUI:Create("CheckBox")
     resetTrackerOnCombatEnding:SetLabel(L["Reset After Combat"])
-    resetTrackerOnCombatEnding:SetWidth(140)
+    resetTrackerOnCombatEnding:SetWidth(160)
     resetTrackerOnCombatEnding:SetHeight(22)
     resetTrackerOnCombatEnding:SetType("checkbox")
     resetTrackerOnCombatEnding:ClearAllPoints()
@@ -1880,8 +1919,7 @@ local function OptionsMenu(container)
     if db.profile.cttMenuOptions.backDropAlphaSlider ~= nil then
         backDropAlphaSlider:SetValue(db.profile.cttMenuOptions.backDropAlphaSlider)
     else
-        backDropAlphaSlider
-            :SetValue(1)
+        backDropAlphaSlider:SetValue(1)
     end
     backDropAlphaSlider:SetSliderValues(0, 1, .01)
     backDropAlphaSlider:ClearAllPoints()
@@ -1891,10 +1929,30 @@ local function OptionsMenu(container)
     container:AddChild(backDropAlphaSlider)
     container.backDropAlphaSlider = backDropAlphaSlider
 
+    -- toggle click through
+    local clickThrough = AceGUI:Create("CheckBox")
+    clickThrough:SetLabel(L["Click Through"])
+    clickThrough:SetWidth(120)
+    clickThrough:SetHeight(22)
+    clickThrough:SetType("checkbox")
+    clickThrough:ClearAllPoints()
+    if db.profile.cttMenuOptions.clickThrough ~= nil then
+        clickThrough:SetValue(db.profile.cttMenuOptions.clickThrough)
+    else
+        db.profile.cttMenuOptions.clickThrough = true
+        clickThrough:SetValue(true)
+    end
+    cttStopwatchGui:EnableMouse(db.profile.cttMenuOptions.clickThrough)
+    clickThrough:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 0)
+    clickThrough:SetCallback("OnValueChanged", CTT_ToggleClickThroughCheckButton)
+    container:AddChild(clickThrough)
+    container.clickThrough = clickThrough
+
+
     -- Dropdown for different font options
     local fontPickerDropDown = AceGUI:Create("Dropdown")
     fontPickerDropDown:SetLabel(L["Choose Font"])
-    fontPickerDropDown:SetWidth(250)
+    fontPickerDropDown:SetWidth(270)
     fontPickerDropDown:SetMultiselect(false)
     fontPickerDropDown:ClearAllPoints()
     fontPickerDropDown:SetList(LSM:List("font"))
@@ -1909,6 +1967,25 @@ local function OptionsMenu(container)
     fontPickerDropDown:SetCallback("OnValueChanged", CTT_FontPickerDropDownState)
     container:AddChild(fontPickerDropDown)
     container.fontPickerDropDown = fontPickerDropDown
+
+    -- Dropdown for different sound options
+    local soundPickerDropDown = AceGUI:Create("Dropdown")
+    soundPickerDropDown:SetLabel(L["Choose Sound"])
+    soundPickerDropDown:SetWidth(270)
+    soundPickerDropDown:SetMultiselect(false)
+    soundPickerDropDown:ClearAllPoints()
+    soundPickerDropDown:SetList(LSM:List("sound"))
+    if db.profile.cttMenuOptions.soundName ~= nil and db.profile.cttMenuOptions.soundDropDownValue ~= nil then
+        soundPickerDropDown:SetText(soundTableOptions[db.profile.cttMenuOptions.soundDropDownValue])
+        soundPickerDropDown:SetValue(db.profile.cttMenuOptions.soundDropDownValue)
+    else
+        soundPickerDropDown:SetText("")
+        soundPickerDropDown:SetValue(1)
+    end
+    soundPickerDropDown:SetPoint("LEFT", container.tab, "LEFT", 6, 0)
+    soundPickerDropDown:SetCallback("OnValueChanged", CTT_PlaySoundOnDropDownSelect)
+    container:AddChild(soundPickerDropDown)
+    container.soundPickerDropDown = soundPickerDropDown
 
     -- Dropdown for different options to show the tracker
     local instanceType = AceGUI:Create("Dropdown")
@@ -1930,25 +2007,7 @@ local function OptionsMenu(container)
     container:AddChild(instanceType)
     container.instanceType = instanceType
 
-    -- Dropdown for different sound options
-    local soundPickerDropDown = AceGUI:Create("Dropdown")
-    soundPickerDropDown:SetLabel(L["Choose Sound"])
-    soundPickerDropDown:SetWidth(250)
-    soundPickerDropDown:SetMultiselect(false)
-    soundPickerDropDown:ClearAllPoints()
-    soundPickerDropDown:SetList(LSM:List("sound"))
-    if db.profile.cttMenuOptions.soundName ~= nil and db.profile.cttMenuOptions.soundDropDownValue ~= nil then
-        soundPickerDropDown:SetText(soundTableOptions[db.profile.cttMenuOptions.soundDropDownValue])
-        soundPickerDropDown:SetValue(db.profile.cttMenuOptions.soundDropDownValue)
-    else
-        soundPickerDropDown:SetText("")
-        soundPickerDropDown:SetValue(1)
-    end
-    soundPickerDropDown:SetPoint("LEFT", container.tab, "LEFT", 6, 0)
-    soundPickerDropDown:SetCallback("OnValueChanged", CTT_PlaySoundOnDropDownSelect)
-    container:AddChild(soundPickerDropDown)
-    container.soundPickerDropDown = soundPickerDropDown
-
+    -- Editbox for entering profile name
     local profileName = AceGUI:Create("EditBox")
     profileName:SetLabel(L["New Profile Name"])
     profileName:ClearAllPoints()
@@ -1957,6 +2016,7 @@ local function OptionsMenu(container)
     container:AddChild(profileName)
     container.profileName = profileName
 
+    -- button to actually create the profile
     local profileAddButton = AceGUI:Create("Button")
     profileAddButton:SetText(L["Create Profile"])
     profileAddButton:SetWidth(125)
@@ -1966,6 +2026,7 @@ local function OptionsMenu(container)
     container:AddChild(profileAddButton)
     container.profileAddButton = profileAddButton
 
+    -- dropdown to choose from existing profiles
     local profileDropDownPicker = AceGUI:Create("Dropdown")
     profileDropDownPicker:SetLabel(L["Choose Profile"])
     profileDropDownPicker:SetMultiselect(false)
@@ -1978,6 +2039,7 @@ local function OptionsMenu(container)
     container:AddChild(profileDropDownPicker)
     container.profileDropDownPicker = profileDropDownPicker
 
+    -- dropdown to copy settings from an existing profile to current profile
     local profileCopyDropdown = AceGUI:Create("Dropdown")
     profileCopyDropdown:SetLabel(L["Copy Profile"])
     profileCopyDropdown:SetMultiselect(false)
@@ -1988,6 +2050,7 @@ local function OptionsMenu(container)
     container:AddChild(profileCopyDropdown)
     container.profileCopyDropdown = profileCopyDropdown
 
+    -- dropdown to delete existing profiles
     local profileDeleteDropdown = AceGUI:Create("Dropdown")
     profileDeleteDropdown:SetLabel(L["Delete Profile"])
     profileDeleteDropdown:SetMultiselect(false)

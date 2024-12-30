@@ -96,6 +96,8 @@ L[", Raid: "] = "秒，團隊: "
 L[", Boss: "] = "，首領: "
 L["Alert Times"] = "通知時間"
 L["Toggle Messages"] = "顯示訊息"
+L["Click Through"] = "點擊穿透"
+L["Choose Sound"] = "選擇音效"
 
 L["Castle Nathria"] = "納撒亞城"
 L["Shriekwing"] = "石嘯翼蝠"
@@ -138,7 +140,9 @@ L["Classic"] = "經典版"
 L["Burning Crusade"] = "燃燒的遠征"
 L["Shadowlands"] = "暗影之境"
 L["DragonFlight"] = "巨龍崛起"
+L["The War Within"] = "地心之戰"
 
--- L["Vault of the Incarnates"],
--- L["Aberrus, the Shadowed Crucible"],
--- L["Amirdrassil, the Dream's Hope"]
+L["Vault of the Incarnates"] = "洪荒化身牢獄"
+L["Aberrus, the Shadowed Crucible"] = "『朧影實驗場』亞貝魯斯"
+L["Amirdrassil, the Dream's Hope"] = "『夢境希望』埃達希爾"
+L["Nerub-ar Palace"] = "奈幽巴宮殿"

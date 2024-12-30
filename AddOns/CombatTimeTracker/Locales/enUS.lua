@@ -96,6 +96,8 @@ L[", Raid: "] = true
 L[", Boss: "] = true
 L["Alert Times"] = true
 L["Toggle Messages"] = true
+L["Click Through"] = true
+L["Choose Sound"] = true
 
 L["Castle Nathria"] = true
 L["Shriekwing"] = true
@@ -138,7 +140,9 @@ L["Classic"] = true
 L["Burning Crusade"] = true
 L["Shadowlands"] = true
 L["DragonFlight"] = true
+L["The War Within"] = true
 
 L["Vault of the Incarnates"] = true
 L["Aberrus, the Shadowed Crucible"] = true
 L["Amirdrassil, the Dream's Hope"] = true
+L["Nerub-ar Palace"] = true
