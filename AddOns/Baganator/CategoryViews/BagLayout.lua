@@ -62,10 +62,11 @@ local function Prearrange(isLive, bagID, bag, bagType, isGrouping)
       if info.itemID ~= nil then
         local location = {bagID = bagID, slotIndex = slotIndex}
         info.setInfo = addonTable.ItemViewCommon.GetEquipmentSetInfo(location, info.itemLink)
-        if info.setInfo or not isGrouping then -- force ungrouping when appropriate
+        if info.setInfo then
           info.guid = C_Item.GetItemGUID(location)
-        end
-        if info.hasLoot and not info.isBound then
+        elseif not isGrouping and C_Item.DoesItemExist(location) then
+          info.guid = C_Item.GetItemGUID(location)
+        elseif info.hasLoot and not info.isBound then
           -- Ungroup lockboxes always
           local classID, subClassID = select(6, C_Item.GetItemInfoInstant(info.itemID))
           if classID == Enum.ItemClass.Miscellaneous and subClassID == 0 then
@@ -372,6 +373,7 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
     elseif details.type == "section" then
       -- Check whether the section has any non-empty items in it
       local itemCount = 0
+      local any = false
       if index < #composed.details then
         for i = index + 1, #composed.details do
           local d = composed.details[i]
@@ -379,11 +381,12 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
             break
           elseif d.type == "category" and #d.results > 0 and not hidden[d.source] then
             itemCount = itemCount + (d.oldLength or #d.results)
+            any = true -- keep section active if blank slots in it
           end
         end
       end
       inactiveSections[details.label] = itemCount == 0 -- saved to hide any inside dividers
-      if itemCount > 0 then
+      if itemCount > 0 or any then
         local button = self.sectionButtonPool:Acquire()
         if sectionToggled[details.label] then
           button:SetText(details.label .. " " .. LIGHTGRAY_FONT_COLOR:WrapTextInColorCode("(" .. itemCount .. ")"))
