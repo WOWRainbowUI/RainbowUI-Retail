@@ -14,8 +14,7 @@
         </KeyValues>
         <Layers>
             <Layer level="BACKGROUND">
-                <Texture setAllPoints="true">
-                </Texture>
+                <Texture setAllPoints="true"/>
             </Layer>
             <Layer level="OVERLAY">
                 <Texture name="$parentTargetIcon" file="Interface/TargetingFrame/UI-RaidTargetingIcon_8" hidden="true">
@@ -23,7 +22,7 @@
                     <Anchors>
                         <Anchor point="TOPLEFT">
                             <Offset>
-                                <AbsDimension x="25" y="-5" />
+                                <AbsDimension x="25" y="-5"/>
                             </Offset>
                         </Anchor>
                     </Anchors>
@@ -33,7 +32,7 @@
                     <Anchors>
                         <Anchor point="TOPRIGHT">
                             <Offset>
-                                <AbsDimension x="-25" y="-5" />
+                                <AbsDimension x="-25" y="-5"/>
                             </Offset>
                         </Anchor>
                     </Anchors>

@@ -1,7 +1,8 @@
 # Combat Time Tracker
 
-## [v10.2.5.7](https://github.com/gkute/CombatTimeTracker/tree/v10.2.5.7) (2024-04-20)
-[Full Changelog](https://github.com/gkute/CombatTimeTracker/compare/v10.2.5.6...v10.2.5.7) [Previous Releases](https://github.com/gkute/CombatTimeTracker/releases)
+## [V11.0.7.2](https://github.com/gkute/CombatTimeTracker/tree/V11.0.7.2) (2024-12-29)
+[Full Changelog](https://github.com/gkute/CombatTimeTracker/compare/v11.0.7.1...V11.0.7.2) [Previous Releases](https://github.com/gkute/CombatTimeTracker/releases)
 
-- clarify comment  
-- add new feature to store boss kills  
+- revert release yml change  
+- Merge pull request #9 from gkute/feature/InitialWarWithinUpdates  
+    Initial the war within updates including new toggle for frame click through  

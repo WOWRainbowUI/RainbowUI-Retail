@@ -1,3 +1,4 @@
 ##Changelog:
-###v10.2.5.7
-* New feature to track boss kills from raid and store info
+###V11.0.7.2
+* Add feature to allow toggling if frame is click through
+* Add TWW raids
