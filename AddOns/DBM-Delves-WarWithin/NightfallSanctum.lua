@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("z2686", "DBM-Delves-WarWithin")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241216013303")
+mod:SetRevision("20241220035749")
 mod:SetHotfixNoticeRev(20240422000000)
 mod:SetMinSyncRevision(20240422000000)
 mod:SetZone(2686)
@@ -126,6 +126,8 @@ function mod:ENCOUNTER_START(eID)
 		DBM:AddMsg("Boss alerts/timers not yet implemented for Speaker Pelzeth")
 --	elseif eID == 3050 then--Cult Leaders
 
+	elseif eID == 3147 then--Speaker Wicke
+		DBM:AddMsg("Boss alerts/timers not yet implemented for Speaker Wicke")
 	end
 end
 
@@ -155,6 +157,12 @@ function mod:ENCOUNTER_END(eID, _, _, _, success)
 			--Stop Timers manually
 		end
 	elseif eID == 3050 then--Cult Leaders
+		if success == 1 then
+			DBM:EndCombat(self)
+--		else
+			--Stop Timers manually
+		end
+	elseif eID == 3147 then--Speaker Wicke
 		if success == 1 then
 			DBM:EndCombat(self)
 --		else
