@@ -1,9 +1,9 @@
-local mod	= DBM:NewMod(2602, "DBM-Raids-WarWithin", 1, 1273)
+local mod	= DBM:NewMod(2602, "DBM-Raids-WarWithin", 2, 1273)
 local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "story,lfr,normal,heroic,mythic"
 
-mod:SetRevision("20241214213120")
+mod:SetRevision("20241220032423")
 mod:SetCreatureID(218370)
 mod:SetEncounterID(2922)
 mod:SetUsedIcons(1, 2, 3, 4, 5, 6, 7, 8)
@@ -748,7 +748,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		end
 	elseif spellId == 443903 then
 		infusionIcons[#infusionIcons+1] = args.destName
-		self:Unschedule(sortToxin)
+		self:Unschedule(SortRifts)
 		if #infusionIcons == 2 then
 			SortRifts(self)
 		else

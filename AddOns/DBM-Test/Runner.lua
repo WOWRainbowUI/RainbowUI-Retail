@@ -288,7 +288,19 @@ function test:Trace(mod, event, ...)
 				geterrorhandler()("trace of type " .. event .. " without warning object ")
 			end
 			if not obj.testUseCount then
-				self.reporter:Taint("StrayObjects")
+				local allowedMods = self.testData.otherMods
+				local isAllowedStray = allowedMods == obj.mod.id
+				if type(allowedMods) == "table" then
+					for _, v in ipairs(allowedMods) do
+						if v == obj.mod.id then
+							isAllowedStray = true
+							break
+						end
+					end
+				end
+				if not isAllowedStray then
+					self.reporter:Taint("StrayObjects")
+				end
 				injectTestDataIntoWarningObject(obj)
 			end
 			obj.testUseCount = obj.testUseCount + 1
@@ -751,6 +763,10 @@ function test:Playback(testData, timeWarp, testOptions)
 			if bit.band(trials, DBM.Difficulties.SOD_BWL_TRIAL_RED) ~= 0 then
 				self.Mocks:ApplyUnitAura(UnitName("player"), UnitGUID("player"), 466261, "Red Trial", "BUFF")
 			end
+		elseif testData.instanceInfo.instanceID == 186 then -- Naxx
+			if testData.instanceInfo.difficultyModifier and testData.instanceInfo.difficultyModifier > 0 then
+				self.Mocks:ApplyUnitAura(UnitName("player"), UnitGUID("player"), 1218278, DBM:GetSpellName(1218278), "DEBUFF", testData.instanceInfo.difficultyModifier)
+			end
 		end
    end
 	local maxTimestamp = testData.log[#testData.log][1]
@@ -828,9 +844,7 @@ function test:Playback(testData, timeWarp, testOptions)
 	end
 end
 
-local frame = CreateFrame("Frame")
-frame:Show()
-frame:SetScript("OnUpdate", function(self)
+function test:OnUpdate()
 	if currentThread then
 		if coroutine.status(currentThread) == "dead" then
 			currentThread = nil
@@ -850,16 +864,23 @@ frame:SetScript("OnUpdate", function(self)
 				if test.testCallback then
 					xpcall(test.testCallback, realErrorHandler, "TestFinish", test.testData, test.testOptions, test.reporter)
 				end
+			else
+				return true -- Important for DBM-Offline to know that it's still alive
 			end
 		end
 	end
-end)
+end
+
+local frame = CreateFrame("Frame")
+frame:Show()
+frame:SetScript("OnUpdate", function() test:OnUpdate() end)
 
 ---@class TestDefinition
 ---@field name string Unique test ID.
 ---@field gameVersion GameVersion Required version of the game to run the test.
 ---@field addon string AddOn in which the mod under test is located.
 ---@field mod string|integer The boss mod being tested.
+---@field otherMods ((string|integer)[]|(string|integer))? List of other mods that are allowed to trigger warnings/timers during test execution, useful for trash mods that are active during bosses.
 ---@field ignoreWarnings? TestIgnoreWarnings Acknowledge findings to remove them from the report.
 ---@field instanceInfo DBMInstanceInfo Fake GetInstanceInfo() data for the test.
 ---@field playerName string? (Deprecated, no longer required) Name of the player who recorded the log.
