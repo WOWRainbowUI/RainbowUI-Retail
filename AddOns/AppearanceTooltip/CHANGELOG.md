@@ -1,6 +1,6 @@
 # AppearanceTooltip
 
-## [v55](https://github.com/kemayo/wow-appearancetooltip/tree/v55) (2024-11-16)
-[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v54...v55) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
+## [v56](https://github.com/kemayo/wow-appearancetooltip/tree/v56) (2024-12-29)
+[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v55...v56) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
 
-- Fix overlays showing on the merchant buyback tab  
+- TOC for 11.0.7, 4.4.1  
