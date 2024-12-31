@@ -1,7 +1,13 @@
 # Baganator
 
-## [577](https://github.com/Baganator/Baganator/tree/577) (2024-12-29)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/576...577) 
+## [578](https://github.com/Baganator/Baganator/tree/578) (2024-12-30)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/577...578) 
 
-- [Fixes #391] Categories: Fix error when sorting with "Group identical items" off  
-- Categories: Fix sections only containing empty slots disappearing  
+- Categories: Fix recents clearing unexpected when virtual stack active  
+- Remove 11.0.5 from toc  
+- Add error message when transferring items and no space left to finish  
+- Support many sections with the same name and deleting outer sections properly  
+- Remove leftover print  
+- Support sections and dividers inside sections  
+- Customise: Categories: Make dropdowns/buttons line up better  
+- Customise: Categories: Consistent scroll bars in settings  
