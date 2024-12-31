@@ -52,7 +52,7 @@ end
 
 -- Auctionator
 local function Auctionator_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Auctionator", "11.0.18") and db.addonAuctionator)
+    local isLoaded = (KT:CheckAddOn("Auctionator", "11.0.20") and db.addonAuctionator)
     if isLoaded then
         hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
             local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame
@@ -70,7 +70,7 @@ local function ElvUI_SetSupport()
         local B = E:GetModule("Blizzard")
         B.ObjectiveTracker_Setup = function() end  -- preventive
         if E.private.skins.blizzard.objectiveTracker then
-            StaticPopup_Show(addonName.."_ReloadUI", nil, "Activate changes for |cff00ffe3ElvUI|r.")
+            StaticPopup_Show(addonName.."_ReloadUI", nil, "啟用 |cff00ffe3ElvUI|r 的變更。")
         end
         hooksecurefunc(E, "CheckIncompatible", function(self)
             self.private.skins.blizzard.objectiveTracker = false

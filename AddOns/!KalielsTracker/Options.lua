@@ -703,10 +703,9 @@ local options = {
 							set = function(_, value)
 								db.progressBar = value
 								KT:Update(true)
-								-- TODO: Update
-								--[[if PetTracker then
+								if PetTracker then
 									PetTracker.Objectives:Update()
-								end]]
+								end
 							end,
 							order = 2.9,
 						},
@@ -727,10 +726,9 @@ local options = {
 								db.font = value
 								KT:SetText(true)
 								KT:Update()
-								-- TODO: Update
-								--[[if PetTracker then
+								if PetTracker then
 									PetTracker.Objectives:Update()
-								end]]
+								end
 							end,
 							order = 3.1,
 						},
@@ -744,10 +742,9 @@ local options = {
 								db.fontSize = value
 								KT:SetText(true)
 								KT:Update()
-								-- TODO: Update
-								--[[if PetTracker then
+								if PetTracker then
 									PetTracker.Objectives:Update()
-								end]]
+								end
 							end,
 							order = 3.2,
 						},
@@ -766,10 +763,9 @@ local options = {
 								db.fontFlag = value
 								KT:SetText(true)
 								KT:Update()
-								-- TODO: Update
-								--[[if PetTracker then
+								if PetTracker then
 									PetTracker.Objectives:Update()
-								end]]
+								end
 							end,
 							order = 3.3,
 						},
@@ -1032,10 +1028,9 @@ local options = {
 							end,
 							order = 4.05,
 						},
-						-- TODO: Update
-						--[[hdrPetTrackerTitleAppend = {	-- Addon - PetTracker
+						hdrPetTrackerTitleAppend = {  -- Addon - PetTracker
 							name = "顯示已收藏的戰寵數量",
-							desc = "在戰寵助手 PetTracker 的標題中顯示已收藏的戰寵數量。",
+							desc = "在戰寵助手 PetTracker 的標題列中顯示已收藏的戰寵數量。",
 							type = "toggle",
 							width = "normal+half",
 							disabled = function()
@@ -1046,7 +1041,7 @@ local options = {
 								KT.AddonPetTracker:SetPetsHeaderText(true)
 							end,
 							order = 4.06,
-						},]]
+						},
 						sec4SpacerMid2 = {
 							name = " ",
 							type = "description",
@@ -1550,19 +1545,20 @@ local options = {
 							confirm = true,
 							confirmText = warning,
 							disabled = function()
-								-- TODO: Update
-								return true
+								return not C_AddOns.IsAddOnLoaded("PetTracker")
 							end,
 							set = function()
-								-- TODO: Update
-								db.addonPetTracker = false
+								db.addonPetTracker = not db.addonPetTracker
+								if PetTracker.sets then
+									PetTracker.sets.zoneTracker = db.addonPetTracker
+								end
+								db.modulesOrder = nil
 								ReloadUI()
 							end,
 							order = 1.21,
 						},
 						addonPetTrackerDesc = {
-							name = "支援在任務追蹤清單增強裡面顯示 PetTracker 的區域寵物追蹤，同時也修正了顯示上的一些問題。"..
-								cWarning2.."暫時停用",
+							name = "支援在任務追蹤清單增強裡面顯示 PetTracker 的區域寵物追蹤，同時也修正了一些顯示上的問題。",
 							type = "description",
 							width = "double",
 							order = 1.22,
@@ -1591,8 +1587,8 @@ local options = {
 							order = 1.32,
 						},
 						addonAuctionator = {
-							name = "Auctionator",
-							desc = "Version: %s",
+							name = "拍賣小幫手 Auctionator",
+							desc = "版本: %s",
 							descStyle = "inline",
 							type = "toggle",
 							width = 1.05,
@@ -1608,7 +1604,7 @@ local options = {
 							order = 1.41,
 						},
 						addonAuctionatorDesc = {
-							name = "Support for Auctionator search button inside the Profession module header.",
+							name = "支援在專業模組標題列中顯示拍賣小幫手的搜尋按鈕。",
 							type = "description",
 							width = "double",
 							order = 1.42,

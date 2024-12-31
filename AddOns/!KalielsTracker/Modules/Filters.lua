@@ -935,9 +935,8 @@ function DropDown_Initialize(self, level)
 		info.func = Filter_Menu_AutoTrack
 		MSA_DropDownMenu_AddButton(info)
 
-		-- TODO: Update
 		-- Addon - PetTracker
-		--[[if KT.AddonPetTracker.isLoaded then
+		if KT.AddonPetTracker.isLoaded then
 			MSA_DropDownMenu_AddSeparator(info)
 
 			info.text = PETS
@@ -951,7 +950,7 @@ function DropDown_Initialize(self, level)
 			info.text = KT.AddonPetTracker.Texts.TrackPets
 			info.checked = (PetTracker.sets.zoneTracker)
 			info.func = function()
-				PetTracker.Tracker:Toggle()
+				PetTracker.ToggleOption("zoneTracker")
 				if dbChar.collapsed and PetTracker.sets.zoneTracker then
 					KT:MinimizeButton_OnClick()
 				end
@@ -961,7 +960,7 @@ function DropDown_Initialize(self, level)
 			info.text = KT.AddonPetTracker.Texts.CapturedPets
 			info.checked = (PetTracker.sets.capturedPets)
 			info.func = function()
-				PetTracker.Tracker:ToggleCaptured()
+				PetTracker.ToggleOption("capturedPets")
 			end
 			MSA_DropDownMenu_AddButton(info)
 
@@ -973,7 +972,7 @@ function DropDown_Initialize(self, level)
 			info.value = 3
 			info.func = nil
 			MSA_DropDownMenu_AddButton(info)
-		end]]
+		end
 	elseif level == 2 then
 		info.notCheckable = true
 
@@ -1039,9 +1038,8 @@ function DropDown_Initialize(self, level)
 			-- Addon - PetTracker
 			info.notCheckable = false
 			info.isNotRadio = false
-			info.func = function(self, arg)
-				self.quality = arg
-				PetTracker.Tracker.SetGoal(self)
+			info.func = function(_, arg)
+				PetTracker.SetOption("targetQuality", arg)
 				DropDown_Toggle()
 			end
 
