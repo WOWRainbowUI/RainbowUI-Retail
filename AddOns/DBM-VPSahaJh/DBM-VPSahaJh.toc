@@ -10,5 +10,5 @@
 ## X-DBM-Voice: 1
 ## X-DBM-Voice-Name: 家豪 (中文男音)
 ## X-DBM-Voice-ShortName: SahaJh
-## X-DBM-Voice-Version: 17
+## X-DBM-Voice-Version: 18
 ## X-DBM-Voice-HasCount: 1
