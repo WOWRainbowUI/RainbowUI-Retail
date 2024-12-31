@@ -267,16 +267,10 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."Version 7.8.1|r\n"..
-					"- FIXED - Quest Item button (Active Button) cause an error when entering and exiting combat\n"..
-					"\n"..
-					cTitle.."Version 7.8.0|r\n"..
-					"- ADDED - Bonus Objective - show timer if exists (specially for Siren Isle, but it's pretty buggy on server)\n"..
-					"- ADDED - Bonus Objective - show POI buttons\n"..
-					"- ADDED (achievements) - filter support for Siren Isle\n"..
-					"- FIXED - POI buttons not updating in Quest Log / World Map\n"..
-					"- FIXED - sometimes is displayed the wrong underlay for POI buttons (Blizz bug)\n"..
-					"- PERFORMANCE - Bonus Objective - improve data retrieval for POI buttons\n"..
+					cTitle.."Version 7.9.0|r\n"..
+					"- CHANGED - addon support - Auctionator 11.0.20\n"..
+					"- CHANGED - addon support - TomTom 4.0.7\n"..
+					"- CHANGED - addon support - PetTracker 11.0.9\n"..
 					"\n"..
 
 					cTitle.."Issue reporting|r\n"..

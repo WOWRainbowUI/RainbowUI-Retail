@@ -703,10 +703,9 @@ local options = {
 							set = function(_, value)
 								db.progressBar = value
 								KT:Update(true)
-								-- TODO: Update
-								--[[if PetTracker then
+								if PetTracker then
 									PetTracker.Objectives:Update()
-								end]]
+								end
 							end,
 							order = 2.9,
 						},
@@ -727,10 +726,9 @@ local options = {
 								db.font = value
 								KT:SetText(true)
 								KT:Update()
-								-- TODO: Update
-								--[[if PetTracker then
+								if PetTracker then
 									PetTracker.Objectives:Update()
-								end]]
+								end
 							end,
 							order = 3.1,
 						},
@@ -744,10 +742,9 @@ local options = {
 								db.fontSize = value
 								KT:SetText(true)
 								KT:Update()
-								-- TODO: Update
-								--[[if PetTracker then
+								if PetTracker then
 									PetTracker.Objectives:Update()
-								end]]
+								end
 							end,
 							order = 3.2,
 						},
@@ -766,10 +763,9 @@ local options = {
 								db.fontFlag = value
 								KT:SetText(true)
 								KT:Update()
-								-- TODO: Update
-								--[[if PetTracker then
+								if PetTracker then
 									PetTracker.Objectives:Update()
-								end]]
+								end
 							end,
 							order = 3.3,
 						},
@@ -1032,8 +1028,7 @@ local options = {
 							end,
 							order = 4.05,
 						},
-						-- TODO: Update
-						--[[hdrPetTrackerTitleAppend = {	-- Addon - PetTracker
+						hdrPetTrackerTitleAppend = {  -- Addon - PetTracker
 							name = "Show number of owned Pets",
 							desc = "Show number of owned Pets inside the PetTracker header.",
 							type = "toggle",
@@ -1046,7 +1041,7 @@ local options = {
 								KT.AddonPetTracker:SetPetsHeaderText(true)
 							end,
 							order = 4.06,
-						},]]
+						},
 						sec4SpacerMid2 = {
 							name = " ",
 							type = "description",
@@ -1550,19 +1545,20 @@ local options = {
 							confirm = true,
 							confirmText = warning,
 							disabled = function()
-								-- TODO: Update
-								return true
+								return not C_AddOns.IsAddOnLoaded("PetTracker")
 							end,
 							set = function()
-								-- TODO: Update
-								db.addonPetTracker = false
+								db.addonPetTracker = not db.addonPetTracker
+								if PetTracker.sets then
+									PetTracker.sets.zoneTracker = db.addonPetTracker
+								end
+								db.modulesOrder = nil
 								ReloadUI()
 							end,
 							order = 1.21,
 						},
 						addonPetTrackerDesc = {
-							name = "PetTracker support adjusts display of zone pet tracking inside the tracker. It also fix some visual bugs. "..
-								cWarning2.."Temporarily disabled.",
+							name = "PetTracker support adjusts display of zone pet tracking inside the tracker. It also fix some visual bugs.",
 							type = "description",
 							width = "double",
 							order = 1.22,

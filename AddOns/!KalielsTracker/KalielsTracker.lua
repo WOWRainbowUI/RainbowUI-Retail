@@ -2840,8 +2840,7 @@ function KT:IsTrackerEmpty(noaddon)
 			self.GetNumTrackedActivities() == 0 and
 			self.GetNumTrackedCollectibles() == 0)
 	if not noaddon then
-		-- TODO: Update
-		--result = (result and not self.AddonPetTracker:IsShown())
+		result = (result and not self.AddonPetTracker:IsShown())
 	end
 	return result
 end
