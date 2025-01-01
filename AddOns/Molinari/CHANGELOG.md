@@ -1,5 +1,5 @@
-### Changes in 110000.127-Release:
+### Changes in 110000.128-Release:
 
-- Changed: Update Interface version (retail)
-- Changed: Update Interface version (classic)
+- Changed: Update item database for retail
+- Fixed: Taint issue while holding modifier in combat
 
