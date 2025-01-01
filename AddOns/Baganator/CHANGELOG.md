@@ -1,13 +1,9 @@
 # Baganator
 
-## [578](https://github.com/Baganator/Baganator/tree/578) (2024-12-30)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/577...578) 
+## [580](https://github.com/Baganator/Baganator/tree/580) (2024-12-31)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/579...580) 
 
-- Categories: Fix recents clearing unexpected when virtual stack active  
-- Remove 11.0.5 from toc  
-- Add error message when transferring items and no space left to finish  
-- Support many sections with the same name and deleting outer sections properly  
-- Remove leftover print  
-- Support sections and dividers inside sections  
-- Customise: Categories: Make dropdowns/buttons line up better  
-- Customise: Categories: Consistent scroll bars in settings  
+- Remove unneeded FullUpdate call to ScrollBoxList  
+- Move fix for character arrow being set wrong inside if statement  
+- Fix issue with arrow not resetting if the character is changed between bag opens  
+- Character Select: Fix arrow for character not changing when it is reset to live  
