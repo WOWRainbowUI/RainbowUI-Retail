@@ -259,11 +259,6 @@ L['options_icons_itsy_bitsy_spider'] = '{achievement:40624}'
 L['options_icons_itsy_bitsy_spider_desc'] = '顯示成就 {achievement:40624} 所需的小織蛛位置。'
 
 L['itsy_bitsy_spider_note'] = '向小織蛛揮手 ({emote:/wave})。'
-L['spindle_location'] = '占位符'
-L['swift_location'] = '占位符'
-L['rumurh_location'] = '占位符'
-L['thimble_location'] = '占位符'
-L['scampering_weave_rat_location'] = '占位符'
 
 L['options_icons_bookworm'] = '{achievement:40629}'
 L['options_icons_bookworm_desc'] = '顯示 {achievement:40629} 成就中書籍的位置。'
@@ -328,7 +323,7 @@ L['you_cant_hang_with_us_note'] = '找到一個帶有 {spell:434734} 增益效�
 L['kej_pet_vendor_note'] = '每個寵物的庫存有限，費用為2250{currency:3056}。\n\n{注意：任何商人的寵物物品的估計重生時間為3-4小時。}'
 L['options_icons_back_to_the_wall'] = '{achievement:40620}'
 L['options_icons_back_to_the_wall_desc'] = '顯示 {achievement:40620} 成就中 {npc:222119} 的位置。'
-L['arathi_prisoner_suffix'] = '已營救阿拉希囚犯'
+L['arathi_prisoner_suffix'] = '阿拉希俘虜已拯救'
 L['arathi_prisoner_note'] = '在 {wq:特別任務：些許治愈} 期間釋放被蛛網包裹的 {npc:222119}。'
 
 -------------------------------------------------------------------------------
@@ -338,95 +333,94 @@ L['arathi_prisoner_note'] = '在 {wq:特別任務：些許治愈} 期間釋放�
 L['sturdy_chest'] = '結實的箱子'
 L['sturdy_chest_suffix'] = '結實的箱子已發現'
 
-L['ecm_chest_3_location'] = '在起重機上。從上層跳。'
+L['ecm_chest_3_location'] = '在鷹架上. 從樓上跳下來。'
 L['fol_chest_1_location'] = '在灌木叢中的蘑菇下面的岩石上。'
 L['fol_chest_3_location'] = '在瀑布的底部。'
 L['fol_use_mushrooms'] = '沿著路徑的蘑菇跳躍。。'
-L['kvr_chest_2_location'] = '在木製支架的頂部。'
+L['kvr_chest_2_location'] = '在木製鷹架的頂端。'
 L['nfs_chest_2_location'] = '在植物上。'
 L['nfs_chest_3_location'] = '建築物內部。'
 L['nfs_chest_4_location'] = '從飛船上跳下來。'
-L['ski_chest_3_location'] = '建築物內部。'
-L['tra_chest_2_location'] = '在珊瑚之上。'
-L['tsw_chest_2_location'] = '高高的在光束上。'
-L['tsw_chest_2_note'] = '{note:僅在“紡絲者愛的問候”故事變種。}'
-L['tsw_chest_3_location'] = '在通往寶藏室的下拉欄附近的柱子上。'
-L['tsw_chest_4_location'] = '在橫梁上。從另一個寶箱附近的柱子上掉下來。'
-L['tuk_chest_1_note'] = '雕像後面。'
-L['tuk_chest_2_note'] = '{note:僅在“逃亡的進化體”和“煎熬受害者”故事變種。}'
-L['tuk_chest_3_note'] = '{note:僅在“逃亡的進化體”和“紡絲者救援”故事變種。}'
+L['ski_chest_3_location'] = '在岩架上。'
+L['tra_chest_2_location'] = '在珊瑚頂端。'
+L['tsw_chest_2_location'] = '在橫樑上。'
+L['tsw_chest_2_note'] = '{note:只能在 "來自織絲者的愛" 故事劇情取得。}'
+L['tsw_chest_3_location'] = '在往藏寶室下方入口旁的柱子上方'
+L['tsw_chest_4_location'] = '在橫樑上. 從有其他箱子的柱子往下。'
+L['tuk_chest_1_note'] = '在雕像後方。'
+L['tuk_chest_2_note'] = '{note:只能在 "逃跑者進化" 和 "折磨受害者" 故事劇情取得。}'
+L['tuk_chest_3_note'] = '{note:只能在 "逃跑者進化" 和 "織絲者救援" 故事劇情取得。}'
 
 -------------------------------------------------------------------------------
 --------------------------------- SIREN ISLE ----------------------------------
 -------------------------------------------------------------------------------
 
-L['the_drowned_lair_note'] = '向 {object:海妖島指揮圖} 上的 {location:沉淪之巢} 捐獻 {currency:3090} 來打開這個洞穴並將出現稀有物品。'
-L['the_drain_note'] = '向 {object:海妖島指揮圖} 上的 {location:排水道} 捐獻 {currency:3090} 來打開這個洞穴並將出現稀有物品。'
-L['shuddering_hollow_note'] = '向 {object:海妖島指揮圖} 上的 {location:戰栗窟} 捐獻 {currency:3090} 來打開這個洞穴並將出現稀有物品。'
+L['the_drowned_lair_note'] = '在 {object:海妖島指揮圖} 捐獻 {currency:3090} 給 {location:沉溺巢穴} 來開啟這個洞窟並刷新稀有。'
+L['the_drain_note'] = '在 {object:海妖島指揮圖} 捐獻 {currency:3090} 給 {location:排水之地} 來開啟這個洞窟並刷新稀有。'
+L['shuddering_hollow_note'] = '在 {object:海妖島指揮圖} 捐獻 {currency:3090} 給 {location:震顫窪地} 來開啟這個洞窟並刷新稀有。'
 
-L['vykrul_sublabel'] = '{note:僅在島上有 {npc:赤潮維庫人} 時可用。}'
-L['naga_sublabel'] = '{note:僅在島上有 {npc:娜迦} 時可用。'
-L['pirate_sublabel'] = '{note:僅在島上有 {npc:海盜} 時可用。}'
+L['vrykul_sublabel'] = '{note:只有在 {npc:血喚維酷人} 在島上時會出現。}'
+L['naga_sublabel'] = '{note:只有在 {npc:納迦} 在島上時會出現。}'
+L['pirate_sublabel'] = '{note:只有在 {npc:海盜} 在島上時會出現。}'
 
-L['storm_required'] = '需要在 {location:海妖島} 上激活 %s 風暴。' -- %s becomes "(icon) [Seafury Tempest]"
-L['slaughtershell_location'] = '在整個 {location:海妖島} 游蕩。'
+L['storm_required'] = '需要 %s 在 {location:海妖島} 上作用時。'
+L['slaughtershell_location'] = '在整個 {location:海妖島} 上閒逛。'
 
-L['within_the_forgotten_vault'] = '在 {location:被遺忘的寶庫} 內。使用 {location:聖禮窟} 內的 {object:歌唱石板} 進入寶庫。'
+L['within_the_forgotten_vault'] = '使用在 {location:聖谷} 內的 {object:歌唱石板} 來進入保險庫.\n\n保險庫內有寶藏,一個玩具, 一隻坐騎和 {npc:231368}.'
 
 L['options_icons_runed_storm_chest'] = '{achievement:41131}'
-L['options_icons_runed_storm_chest_desc'] = '顯示 {achievement:41131} 成就中 {object:符文風暴寶箱} 的位置。'
+L['options_icons_runed_storm_chest_desc'] = '顯示成就 {achievement:41131} 所需的 {object:符文風暴儲藏箱} 位置。'
 
-L['runed_storm_chest_label'] = '符文風暴寶箱'
-L['runed_storm_chest_suffix'] = '寶箱已打開'
-L['runed_storm_chest_note'] = '跟隨風找到一個隱藏的 {object:符文風暴寶箱}，並用 {spell:472051} 揭示它。'
+L['runed_storm_chest_label'] = '符文風暴儲藏箱'
+L['runed_storm_chest_suffix'] = '箱子已開啟'
+L['runed_storm_chest_note'] = '跟著風來找到隱藏的 {object:符文風暴儲藏箱} 並使用 {spell:472051} 來揭示他。'
 
-L['mouldy_sea_ledger_label'] = '發霉的海上賬簿'
-L['mouldy_sea_ledger_location'] = '在 {location:Salt and Shanty} 旅館的地板上，靠近壁爐。'
+L['flame_blessed_iron_item'] = '繳回這個物品來取得獎勵的 {currency:3090}。'
 
-L['scholars_of_the_sea_label'] = 'Scholars of the Sea: Siren Isle Synopsis'
-L['scholars_of_the_sea_location'] = '在 {location:Salt and Shanty} 旅館二樓靠近窗戶的位置。'
+L['barnacle_encrusted_chest'] = '嵌滿藤壺的箱子'
+L['pilfered_earthen_chest'] = '掠奪的土靈寶箱'
 
-L['flame_blessed_iron_item'] = '帶回此商品可獲得獎勵 {currency:3090}。'
+L['soweezi_note'] = '使用 {currency:3090} 交換1個坐騎, 玩具, 戰寵和塑形。'
 
-L['barnacle_encrusted_chest'] = 'Barnacle-Encrusted Chest'
+L['thrayir_note_start'] = '從 {location:海妖島} 收集5個符文鑰匙並在 {location:遺忘保險庫} 內完成儀式來取得 {item:232639}。'
 
-L['soweezi_note'] = '用 {currency:3090} 換取坐騎、玩具、寵物和幻化。'
+L['whirling_runekey_note'] = '在風暴時從 {location:遺忘保險庫} 內的 {npc:231368} 掉落。'
+L['torrential_runekey_note'] = '需要在 {location:海妖島} 在 {spell:458069} 時由 {note:任何} 怪物 (普通, 菁英或稀有) 掉落的7個 {item:234328}。'
+L['thunderous_runekey_note'] = '需要在 {location:海妖島} 由 {note:任何} 箱子找到的5個 {item:232605}. {note:不需要 {spell:458069}}。'
+L['cyclonic_runekey_note'] = '在風暴時由 {location:海妖島} 上的 {location:亡鰭爛泥} 的 {npc:231357} 掉落. 或是從附近釣魚得到。'
+L['turbulent_runekey_note'] = '需要3個在風暴時散佈在 {location:海妖島} 上的 {item:234327。.'
 
-L['krolusk_burrow_label'] = 'Krolusk Burrow'
+L['turbulent_fragment_a'] = '藏在 {location:鹽與船歌小屋} 旅館後方的 {npc:235134} 內, 靠近正在挖掘的 {npc:庫爾提拉斯人} 鬼魂。'
+L['turbulent_fragment_b'] = '在 {location:腐臭坑洞} 的山洞內蹲著的 {npc:庫爾提拉斯人} 鬼魂前拾取 {npc:234934}。'
+L['turbulent_fragment_c'] = '拾取在 {location:靈痕洞穴} 內的 {npc:庫爾提拉斯人} 鬼魂握著的 {npc:234934}。'
 
-L['thrayir_note_start'] = '從 {location:海妖島} 周圍收集5個符石鑰匙，並完成 {location:被遺忘的寶庫} 內的儀式以獲得 {item:232639}：'
+L['prismatic_snapdragon_note_start'] = '在10天的過程中, 幫助拯救在 {location:漂流物淺灘} 的 {npc:235216} 來取得  {item:233489}.\n\n{note:你可以錯過天數但是沒有追趕機制}。'
+L['prismatic_day'] = '第 %d 天'
 
-L['whirling_runekey_note'] = '風暴期間 {location:被遺忘的寶庫} 的 {npc:231368} 掉落。'
-L['torrential_runekey_note'] = '風暴期間 {location:海妖島} 上的任何怪物（普通、精英或稀有）掉落。'
-L['thunderous_runekey_note'] = '需要在 {location:海妖島} 上的 {note:任意} 箱子中找到5個 {item:232605}。{note:不需要風暴}。'
-L['cyclonic_runekey_note'] = '風暴期間 {location:海妖島} 的 {location:亡鰭沼地} 中的 {npc:231357} 掉落。'
-L['turbulent_runekey_note'] = '需要在風暴期間 {location:海妖島} 周圍發現3個 {item:234327}。'
+L['pris_quest_1'] = '生命線' -- https://www.wowhead.com/quest=86482/a-lifeline
+L['pris_quest_2'] = nil -- https://www.wowhead.com/ptr/quest=86483/snap-to-it
+L['pris_quest_3'] = '暴風壞脾氣' -- https://www.wowhead.com/ptr/quest=86484/temper-like-a-tempest
+L['pris_quest_4'] = nil -- https://www.wowhead.com/ptr/quest=86485/a-loyal-friend
 
-L['turbulent_fragment_a'] = '廢棄旅館後面，挖掘花園。'
-L['turbulent_fragment_b'] = '位於 {location:腐爛坑洞} 的一個洞穴內。'
-L['turbulent_fragment_c'] = '在 {location:魂裂洞穴} 內。'
+L['unsolved_amethyst_runelock'] = '未解的紫晶符文鎖'
+L['bilge_rat_supply_chest'] = '污鼠會補給箱'
+L['bilge_rat_supply_chest_note'] = '從附近的 {npc:228582} 收集 {item:228621} 來打開寶箱。'
 
-L['prismatic_snapdragon_note_start'] = '在8天的時間裡，幫助拯救 {location:漂流淺灘} 中的 {npc:235216} 以獲得 {item:233489}。\n\n{note:可以錯過，但沒有追趕機制}。'
-L['prismatic_day'] = '第%d天' -- "Day 1" or "Day 4" or "Day 7"
+L['stone_carvers_scamseax_note'] = '收集一個 {object:璀璨黃水晶} ({dot:Yellow}) 來獲得2分鐘的增益 {spell:1216785} 以允許你拾取 {item:233834}。'
 
-L['unsolved_amethyst_runelock'] = '未破解的紫晶符文鎖'
-L['bilge_rat_supply_chest'] = '水鼠幫補給箱'
-
-L['stone_carvers_scamseax_note'] = '收集一個 {object:璀璨黃水晶} ({dot:Yellow}) 來獲得2分鐘的增益 {spell:1216785} 以允許你拾取 {item:233834}.'
-
-L['marmaduke_note'] = '1.從 {location:鹽與船歌小屋} 旅館二樓收集 {item:233027} 並帶給 {npc:234365}.\n\n{note:{npc:234365}會在懸崖和 {location:漂流物淺灘} 之間巡邏.}\n\n2.在給他玩具後, 回到 {location:漂流物淺灘} 並完成 {quest:86261} 後取得 {item:233056}.'
+L['marmaduke_note'] = '1.從 {location:鹽與船歌小屋} 旅館二樓收集 {item:233027} 並帶給 {npc:234365}.\n\n{note:{npc:234365}會在懸崖和 {location:漂流物淺灘} 之間巡邏.}\n\n2.在給他玩具後, 回到 {location:漂流物淺灘} 並完成 {quest:86261} 後取得 {item:233056}。'
 
 -------------------------------------------------------------------------------
 ----------------------------- SECRETS OF AZEROTH ------------------------------
 -------------------------------------------------------------------------------
 
-L['options_icons_secrets_of_azeroth'] = '艾澤拉斯之秘'
-L['options_icons_secrets_of_azeroth_desc'] = '顯示 {location:艾澤拉斯之秘} 線索的位置。'
+L['options_icons_secrets_of_azeroth'] = '艾澤拉斯祕聞'
+L['options_icons_secrets_of_azeroth_desc'] = '顯示 {location:艾澤拉斯祕聞} 的位置.'
 
-L['alyx_kickoff_note'] = '與 {npc:226683} 交談以啟用新的艾澤拉斯之秘謎題。'
+L['alyx_kickoff_note'] = '和 {npc:226683} 說話來啟動新的艾澤拉斯祕聞謎題.'
 
-L['celebration_crates_label'] = '慶典箱子'
-L['celebration_crates_note'] = '找到並交還隱藏在 {location:艾澤拉斯} 中的所有 {object:慶典箱子}。'
+L['celebration_crates_label'] = '節慶木箱'
+L['celebration_crates_note'] = '在 {location:艾澤拉斯} 找到並返還所有的 {object:節慶木箱}.'
 
 L['1_soggy_celebration_crate_note'] = '從 {location:深潛酒吧} 的 {npc:143029}（{dot:Blue}）購買 {item:225996} 並將其交給 {npc:189119} 以揭示 {item:226200}。'
 L['2_hazy_celebration_crate_note'] = '活著的時候，尋找發出綠光的區域。{note:但是，必須死了才能揭示 {item:232263}。}'
@@ -442,8 +436,7 @@ L['11_ghostly_celebration_crate'] = '位於 {location:兵主之座} 頂部傳送
 
 L['water_resistant_receipt_note'] = '1. 進入充滿 {npc:47390} 的隧道，右轉從管道後面的 {object:防水的銷售收據} 中收集 {item:228768}。\n\n2. 在 {location:破碎群島} 的 {location:艾蘇納} 找到 {npc:91079}。'
 L['mysterious_bones_note'] = '收集洞穴中隱藏在 {npc:71533} 後面的 {item:228772}。\n\n使用狗類戰鬥寵物（例如 {item:136925} 或 {item:49912}）挖出骨頭。'
-
-L['crates_found'] = nil
+L['crates_found'] = '已找到箱子'
 
 -------------------------------------------------------------------------------
 ------------------------------- RATT'S REVENGE --------------------------------
