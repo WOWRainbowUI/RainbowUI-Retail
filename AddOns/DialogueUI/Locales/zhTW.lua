@@ -255,6 +255,9 @@ L["Compatibility"] = "相容性";
 L["Disable DUI In Instance"] = "副本中使用魔獸預設介面。";
 L["Disable DUI In Instance Desc"] = "在副本或團隊中停用任務對話插件，改用遊戲內建介面。\n\n如果無法和允許你開始或跳過首領戰的 NPC 互動時，請啟用此選項。";
 
+L["Disable UI Motions"] = "減少介面移動";
+L["Disable UI Motions Desc"] = "減少介面移動，例如展開介面或輕推按鈕文字。";
+
 L["TTS"] = TEXT_TO_SPEECH or "文字轉語音";
 L["TTS Desc"] = "點一下介面左上方的按鈕將對話內容文字大聲唸出來。";
 L["TTS Use Hotkey"] = "使用快速鍵";
@@ -310,8 +313,10 @@ L["BookUI TTS Click To Read Desc"] = "點一下段落將它唸出來。\n\n點�
 
 --Keybinding Action
 L["Bound To"] = "綁定到: ";
+L["Hotkey Colon"] = "快速鍵: ";
 L["Not Bound"] = NOT_BOUND or "沒有綁定";
 L["Action Confirm"] = "確認";
+L["Action Settings"] = "打開設定";
 L["Action Option1"] = "選項 1";
 L["Action Option2"] = "選項 2";
 L["Action Option3"] = "選項 3";
@@ -325,8 +330,13 @@ L["Action Option9"] = "選項 9";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 打開設定";
 L["Tutorial Settings Hotkey Console"] = "按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 打開設定";   --Use this if gamepad enabled
-L["Instuction Open Settings"] = "要打開設定選項，請在和 NPC 互動時按下 [KEY:PC:F1]。 ";    --Used in Game Menu - AddOns
-L["Instuction Open Settings Console"] = "要打開設定選項，請在和 NPC 互動時按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU]。";
+L["Instruction Open Settings"] = "當任務對話視窗顯示時，按下 [KEY:PC:F1] 可以打開設定。";    --Used in Game Menu - AddOns
+L["Instruction Open Settings Console"] = "當任務對話視窗顯示時，按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 可以打開設定。";
+L["Instruction Open Settings Keybind Format"] = "當任務對話視窗顯示時，按下 [%s] 可以打開設定。";
+L["Instruction Open Settings No Keybind"] = "還沒有設定打開設定的按鍵綁定。";
+L["HelpTip Warband Completed Quest"] = "此圖示代表任務已經由戰隊完成了。";
+L["Got It"] = HELP_TIP_BUTTON_GOT_IT or "知道了";
+L["Open Settings"] = "打開設定";
 
 L["Show Answer"] = "顯示正確答案。";
 L["Quest Failed Pattern"] = "才能完成此任務。$";

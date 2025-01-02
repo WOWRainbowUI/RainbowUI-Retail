@@ -194,7 +194,7 @@ function DUIDialogSettingsMixin:LoadTheme()
         end);
     end);
 
-    local file5 =filePath.."Settings-Keybinding.png";
+    local file5 = filePath.."Settings-Keybinding.png";
     self.keybindingPool:ProcessAllObjects(function(widget)
         widget:LoadTexture(file5);
     end);
@@ -599,6 +599,9 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["BookUI Show Location"], description = L["BookUI Show Location Desc"], dbKey = "BookShowLocation", requireSameParentValue = true},
             {type = "Checkbox", name = L["BookUI Show Item Description"], description = L["BookUI Show Item Description Desc"], dbKey = "BookUIItemDescription", requireSameParentValue = true},
             {type = "Checkbox", name = L["BookUI Darken Screen"], description = L["BookUI Darken Screen Desc"], dbKey = "BookDarkenScreen", requireSameParentValue = true},
+
+            {type = "Subheader", name = L["Accessibility"]},
+            {type = "Checkbox", name = L["Disable UI Motions"], description = L["Disable UI Motions Desc"], dbKey = "DisableUIMotion"},
         },
     },
 
@@ -644,7 +647,8 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["Use Custom Bindings"], description = L["Use Custom Bindings Desc"], dbKey = "UseCustomBindings", requiredParentValueAnd = {InputDevice = 1}},
             {type = "Keybinding", branchLevel = 2, action = "Confirm", name = L["Action Confirm"], description = L["Primary Control Key Desc"], requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = true}},
             {type = "Keybinding", branchLevel = 2, action = "TTS", name = L["TTS"], description = L["TTS"], requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = true, TTSUseHotkey = true}},
-            {type = "Keybinding", branchLevel = 2, action = "Option1", name = L["Action Option1"], description = L["Action Option1"], requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = true}},
+            {type = "Keybinding", branchLevel = 2, action = "Settings", name = L["Action Settings"], description = L["Action Settings"], requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = true}},
+            {type = "Keybinding", branchLevel = 2, action = "Option1", name = L["Action Option1"], description = L["Action Option1"], requireSameParentValue = true},
             {type = "Keybinding", branchLevel = 2, action = "Option2", name = L["Action Option2"], description = L["Action Option2"], requireSameParentValue = true},
             {type = "Keybinding", branchLevel = 2, action = "Option3", name = L["Action Option3"], description = L["Action Option3"], requireSameParentValue = true},
             {type = "Keybinding", branchLevel = 2, action = "Option4", name = L["Action Option4"], description = L["Action Option4"], requireSameParentValue = true},
@@ -710,6 +714,9 @@ local Schematic = { --Scheme
     {
         tabName = L["Accessibility"],  --Cate5
         options = {
+            {type = "Checkbox", name = L["Disable UI Motions"], description = L["Disable UI Motions Desc"], dbKey = "DisableUIMotion"},
+
+            {type = "Subheader", name = L["TTS"]},
             {type = "Checkbox", name = L["TTS"], description = L["TTS Desc"], dbKey = "TTSEnabled", preview = "TTSButton", ratio = 1},
             {type = "Checkbox", name = L["TTS Use Hotkey"], description = L["TTS Use Hotkey Desc"], tooltip = TTSHotkey_TooltipFunc, dbKey = "TTSUseHotkey", requiredParentValueAnd = {TTSEnabled = true}},
             {type = "Keybinding", branchLevel = 2, action = "TTS", name = L["TTS"], description = L["TTS"], requiredParentValueAnd = {TTSEnabled = true, TTSUseHotkey = true, UseCustomBindings = true}},
@@ -2278,6 +2285,15 @@ do  --Create an entrance to settings in Blizzard addon settings window
         f:SetSize(8, 8);    --will be changed by API
 
         local paddingV = 96;
+        local offsetY = -32;
+
+        local RedButton = CreateFrame("Button", nil, f, "UIPanelButtonTemplate");
+        RedButton:SetWidth(200);
+        RedButton:SetText(L["Open Settings"]);
+        RedButton:SetPoint("TOPLEFT", f, "TOPLEFT", 16, -16);
+        RedButton:SetScript("OnClick", function()
+            DialogueUI_ShowSettingsFrame();
+        end);
 
         local bg = f:CreateTexture(nil, "BACKGROUND");
         bg:SetPoint("BOTTOM", f, "BOTTOM", 0, paddingV);
@@ -2295,10 +2311,19 @@ do  --Create an entrance to settings in Blizzard addon settings window
         Text:SetPoint("CENTER", f, "TOP", 0, 0);
 
         local function SetupInstruction()
-            if C_CVar.GetCVarBool("GamePadEnable") then
-                Text:SetText(L["Instuction Open Settings Console"]);
+            if addon.GetDBBool("UseCustomBindings") then
+                local key = addon.BindingUtil:GetActiveActionKey("Settings");
+                if key then
+                    Text:SetText(L["Instruction Open Settings Keybind Format"]:format(key));
+                else
+                    Text:SetText(L["Instruction Open Settings No Keybind"]);
+                end
             else
-                Text:SetText(L["Instuction Open Settings"]);
+                if C_CVar.GetCVarBool("GamePadEnable") then
+                    Text:SetText(L["Instruction Open Settings Console"]);
+                else
+                    Text:SetText(L["Instruction Open Settings"]);
+                end
             end
         end
 
@@ -2312,11 +2337,11 @@ do  --Create an entrance to settings in Blizzard addon settings window
 
             Text:SetWidth(width - 64);
             Text:ClearAllPoints();
-            Text:SetPoint("CENTER", f, "TOP", 0, -paddingV);
+            Text:SetPoint("CENTER", f, "TOP", 0, -paddingV + offsetY);
 
             bg:SetSize(width, imageHeight);
             bg:ClearAllPoints();
-            bg:SetPoint("CENTER", f, "BOTTOM", 0, paddingV + imageHeight * 0.5);
+            bg:SetPoint("CENTER", f, "BOTTOM", 0, paddingV + imageHeight * 0.5 + offsetY);
 
             ThemeUtil:SetFontColor(Text, "DarkModeGoldDim");
 
@@ -2333,5 +2358,12 @@ do  --Create an entrance to settings in Blizzard addon settings window
 
         local category = Settings.RegisterCanvasLayoutCategory(f, L["Dialogue UI"]);
         Settings.RegisterAddOnCategory(category);
+
+
+        CallbackRegistry:Register("CustomBindingChanged", function()
+            if f:IsVisible() then
+                SetupInstruction();
+            end
+        end);
     end
 end

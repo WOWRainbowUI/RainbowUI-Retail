@@ -243,6 +243,9 @@ L["Compatibility"] = "兼容性";
 L["Disable DUI In Instance"] = "在副本内使用游戏原始对话界面";
 L["Disable DUI In Instance Desc"] = "当你进入地下城或团本时使用游戏原始对话界面。\n\n推荐勾选此选项如果你无法与开始或跳过Boss战的NPC交互。";
 
+L["Disable UI Motions"] = "减少界面动画";
+L["Disable UI Motions Desc"] = "减少界面动画例如主界面展开和按钮文字右移。";
+
 L["TTS"] = TEXT_TO_SPEECH or "文字转语音";
 L["TTS Desc"] = "点击位于任务界面左上角的按钮来朗读文本。\n\n语音，音量大小和速度将跟随魔兽自带的文字转语音设置。";
 L["TTS Use Hotkey"] = "使用快捷键";
@@ -299,8 +302,10 @@ L["BookUI TTS Click To Read Desc"] = "左键点击某个段落来朗读它。\n\
 
 --Keybinding Action
 L["Bound To"] = "绑定到：";
+L["Hotkey Colon"] = "快捷键：";
 L["Not Bound"] = "未绑定";
 L["Action Confirm"] = "确认键";
+L["Action Settings"] = "打开/关闭设置界面";
 L["Action Option1"] = "对话选项 1";
 L["Action Option2"] = "对话选项 2";
 L["Action Option3"] = "对话选项 3";
@@ -314,8 +319,12 @@ L["Action Option9"] = "对话选项 9";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 来打开或关闭设置";
 L["Tutorial Settings Hotkey Console"] = "按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开或关闭设置";   --Use this if gamepad enabled
-L["Instuction Open Settings"] = "在与NPC交互时按下 [KEY:PC:F1] 来打开设置";    --Used in Game Menu - AddOns
-L["Instuction Open Settings Console"] = "在与NPC交互时按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开设置";
+L["Instruction Open Settings"] = "在对话界面可见时按 [KEY:PC:F1] 来打开设置";    --Used in Game Menu - AddOns
+L["Instruction Open Settings Console"] = "在对话界面可见时按 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开设置";
+L["Instruction Open Settings Keybind Format"] = "在对话界面可见时按 [%s] 来打开设置";
+L["Instruction Open Settings No Keybind"] = "你未设定打开设置界面的快捷键";
+L["HelpTip Warband Completed Quest"] = "这个图标表示你战团里的角色完成过此任务。";
+L["Got It"] = "我悟了";     --HELP_TIP_BUTTON_GOT_IT
 
 --DO NOT TRANSLATE
 L["Abbrev Breakpoint 1000"] = "千";     --1,000 = 1K
