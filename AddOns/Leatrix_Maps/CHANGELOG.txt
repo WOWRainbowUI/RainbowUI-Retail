@@ -1,4 +1,8 @@
-﻿11.0.25 - 25th December 2024
+﻿11.0.26 - 1st January 2025
+- Happy New Year!
+- Updated translations.
+
+11.0.25 - 25th December 2024
 - Merry Christmas!
 - Updated translations.
 
