@@ -1284,6 +1284,6 @@ L["Sets the priority of interrupts (as compared to regular Class Icon auras)"] =
 L["EVOKER:short"] = "喚能師"
 L["specID:1467:short"] = "破滅"
 L["specID:1468:short"] = "護存"
-
+L["specID:1473:short"] = "強化"
 
 end
