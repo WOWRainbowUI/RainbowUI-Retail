@@ -5090,886 +5090,446 @@ end
 
 L = locale:NewLocale("GladiusEx", "koKR")
 if L then
---[[Translation missing --]]
-L[" |T%s:20|t %s [%ss] %s"] = " |T%s:20|t %s [%ss] %s"
---[[Translation missing --]]
-L["%s settings"] = "%s settings"
---[[Translation missing --]]
-L["** If this is not your first run please lock or move the frame to prevent this from happening **"] = "** If this is not your first run please lock or move the frame to prevent this from happening **"
---[[Translation missing --]]
-L["Absorbs"] = "Absorbs"
---[[Translation missing --]]
-L["Absorbs bar color"] = "Absorbs bar color"
---[[Translation missing --]]
-L["Absorbs color"] = "Absorbs color"
---[[Translation missing --]]
-L["Absorbs settings"] = "Absorbs settings"
---[[Translation missing --]]
-L["absorbs:shortTag"] = "Absorbs (short)"
---[[Translation missing --]]
-L["absorbsTag"] = "Absorbs"
---[[Translation missing --]]
-L["Action"] = "Action"
---[[Translation missing --]]
-L["Active"] = "Active"
---[[Translation missing --]]
-L["Add"] = "Add"
---[[Translation missing --]]
-L["Add click action"] = "Add click action"
---[[Translation missing --]]
-L["Add cooldowns group"] = "Add cooldowns group"
---[[Translation missing --]]
-L["Add new aura"] = "Add new aura"
---[[Translation missing --]]
-L["Add new aura filter"] = "Add new aura filter"
---[[Translation missing --]]
-L["Add new cast"] = "Add new cast"
---[[Translation missing --]]
-L["Add tag"] = "Add tag"
---[[Translation missing --]]
-L["Add text"] = "Add text"
---[[Translation missing --]]
-L["Adjust size"] = "Adjust size"
---[[Translation missing --]]
-L["Adjust size to the frame size"] = "Adjust size to the frame size"
---[[Translation missing --]]
-L["Advanced font rendering"] = "Advanced font rendering"
---[[Translation missing --]]
-L["Advanced options"] = "Advanced options"
---[[Translation missing --]]
-L["Alert animation"] = "Alert animation"
---[[Translation missing --]]
-L["Alert animation settings"] = "Alert animation settings"
---[[Translation missing --]]
-L["Alert color"] = "Alert color"
---[[Translation missing --]]
-L["Alert overlay color"] = "Alert overlay color"
---[[Translation missing --]]
-L["Alert priority"] = "Alert priority"
---[[Translation missing --]]
-L["Alerts"] = "Alerts"
---[[Translation missing --]]
-L["Align of the text"] = "Align of the text"
---[[Translation missing --]]
-L["Alpha high"] = "Alpha high"
---[[Translation missing --]]
-L["Alpha low"] = "Alpha low"
---[[Translation missing --]]
-L["Alpha of the icon border while the spell is being used"] = "Alpha of the icon border while the spell is being used"
---[[Translation missing --]]
-L["Alpha of the icon border while the spell is not on cooldown"] = "Alpha of the icon border while the spell is not on cooldown"
---[[Translation missing --]]
-L["Alpha of the icon border while the spell is on cooldown"] = "Alpha of the icon border while the spell is on cooldown"
---[[Translation missing --]]
-L["Alpha of the icon while the spell is being used"] = "Alpha of the icon while the spell is being used"
---[[Translation missing --]]
-L["Alpha of the icon while the spell is not on cooldown"] = "Alpha of the icon while the spell is not on cooldown"
---[[Translation missing --]]
-L["Alpha of the icon while the spell is on cooldown"] = "Alpha of the icon while the spell is on cooldown"
---[[Translation missing --]]
-L["alt-"] = "alt-"
---[[Translation missing --]]
-L["Anchor"] = "Anchor"
---[[Translation missing --]]
-L["Anchor of the frame"] = "Anchor of the frame"
---[[Translation missing --]]
-L["Animation ease function"] = "Animation ease function"
---[[Translation missing --]]
-L["Animation ease method"] = "Animation ease method"
---[[Translation missing --]]
-L["Animation ease mode"] = "Animation ease mode"
---[[Translation missing --]]
-L["Announcement toggles"] = "Announcement toggles"
---[[Translation missing --]]
-L["Announcements"] = "Announcements"
---[[Translation missing --]]
-L["Announces when an enemy drops below a certain health threshold"] = "Announces when an enemy drops below a certain health threshold"
---[[Translation missing --]]
-L["Announces when an enemy tries to resurrect a teammate"] = "Announces when an enemy tries to resurrect a teammate"
---[[Translation missing --]]
-L["Announces when enemies sit down to drink"] = "Announces when enemies sit down to drink"
---[[Translation missing --]]
-L["Announces when the spec of an enemy was detected"] = "Announces when the spec of an enemy was detected"
---[[Translation missing --]]
-L["Apply filter to"] = "Apply filter to"
---[[Translation missing --]]
-L["Arena"] = "Arena"
---[[Translation missing --]]
-L["Attach text to module bar"] = "Attach text to module bar"
---[[Translation missing --]]
-L["Attach to"] = "Attach to"
---[[Translation missing --]]
-L["Attach to the given frame"] = "Attach to the given frame"
---[[Translation missing --]]
-L["Aura name"] = "Aura name"
---[[Translation missing --]]
-L["Auras"] = "Auras"
---[[Translation missing --]]
-L["Auras alerts"] = "Auras alerts"
---[[Translation missing --]]
-L["Auras per row"] = "Auras per row"
---[[Translation missing --]]
-L["Available"] = "Available"
---[[Translation missing --]]
-L["Background color"] = "Background color"
---[[Translation missing --]]
-L["Background padding"] = "Background padding"
---[[Translation missing --]]
-L["Bar"] = "Bar"
---[[Translation missing --]]
-L["Bar height"] = "Bar height"
---[[Translation missing --]]
-L["Bar order"] = "Bar order"
---[[Translation missing --]]
-L["Bar settings"] = "Bar settings"
---[[Translation missing --]]
-L["Bar texture"] = "Bar texture"
---[[Translation missing --]]
-L["Bar width"] = "Bar width"
---[[Translation missing --]]
-L["Bars height"] = "Bars height"
---[[Translation missing --]]
-L["Blacklist"] = "Blacklist"
---[[Translation missing --]]
-L["Blend"] = "Blend"
---[[Translation missing --]]
-L["Blend mode"] = "Blend mode"
---[[Translation missing --]]
-L["Blizzard's Floating Combat Text"] = "Blizzard's Floating Combat Text"
---[[Translation missing --]]
-L["Border color for spells in this category"] = "Border color for spells in this category"
---[[Translation missing --]]
-L["Border size"] = "Border size"
---[[Translation missing --]]
-L["Border transparency"] = "Border transparency"
---[[Translation missing --]]
-L["Border transparency settings"] = "Border transparency settings"
---[[Translation missing --]]
-L["Both"] = "Both"
---[[Translation missing --]]
-L["Bottom"] = "Bottom"
---[[Translation missing --]]
-L["Bottom left"] = "Bottom left"
---[[Translation missing --]]
-L["Bottom right"] = "Bottom right"
---[[Translation missing --]]
-L["Buffs"] = "Buffs"
---[[Translation missing --]]
-L["Button 4"] = "Button 4"
---[[Translation missing --]]
-L["Button 5"] = "Button 5"
---[[Translation missing --]]
-L["Cast spell"] = "Cast spell"
---[[Translation missing --]]
-L["Cast text"] = "Cast text"
---[[Translation missing --]]
-L["Cast time text"] = "Cast time text"
---[[Translation missing --]]
-L["CastBar"] = "Cast Bar"
---[[Translation missing --]]
-L["Casts"] = "Casts"
---[[Translation missing --]]
-L["Casts alerts"] = "Casts alerts"
---[[Translation missing --]]
+L[" |T%s:20|t %s [%ss] %s"] = "|T%s:20|t %s [%ss] %s"
+L["%s settings"] = "%s 설정"
+L["** If this is not your first run please lock or move the frame to prevent this from happening **"] = "** 처음 실행하는 것이 아니라면 프레임을 잠그거나 이동하여 이런 일이 발생하지 않도록 하세요 **."
+L["Absorbs"] = "흡수"
+L["Absorbs bar color"] = "흡수 바 색상"
+L["Absorbs color"] = "흡수 색상"
+L["Absorbs settings"] = "흡수 설정"
+L["absorbs:shortTag"] = "흡수 (약어)"
+L["absorbsTag"] = "흡수 태그"
+L["Action"] = "동작"
+L["Active"] = "활성화"
+L["Add"] = "추가"
+L["Add click action"] = "클릭 동작 추가"
+L["Add cooldowns group"] = "재사용 대기시간 그룹 추가"
+L["Add new aura"] = "새 오라 추가"
+L["Add new aura filter"] = "새 오라 필터 추가"
+L["Add new cast"] = "새로운 주문 시전 추가"
+L["Add tag"] = "태그 추가"
+L["Add text"] = "텍스트 추가"
+L["Adjust size"] = "크기 조정"
+L["Adjust size to the frame size"] = "프레임 크기에 맞게 크기 조정"
+L["Advanced font rendering"] = "고급 글꼴 렌더링"
+L["Advanced options"] = "고급 옵션"
+L["Alert animation"] = "알림 애니메이션"
+L["Alert animation settings"] = "알림 애니메이션 설정"
+L["Alert color"] = "알림 색상"
+L["Alert overlay color"] = "알림 오버레이 색상"
+L["Alert priority"] = "알림 우선순위"
+L["Alerts"] = "알림"
+L["Align of the text"] = "텍스트 정렬"
+L["Alpha high"] = "투명도 높음"
+L["Alpha low"] = "투명도 낮음"
+L["Alpha of the icon border while the spell is being used"] = "주문 사용 중 아이콘 테두리의 투명도"
+L["Alpha of the icon border while the spell is not on cooldown"] = "주문이 재사용 대기시간이 아닐 때 아이콘 테두리의 투명도"
+L["Alpha of the icon border while the spell is on cooldown"] = "주문 재사용 대기시간 동안 아이콘 테두리의 투명도"
+L["Alpha of the icon while the spell is being used"] = "주문 사용 중 아이콘의 투명도"
+L["Alpha of the icon while the spell is not on cooldown"] = "주문 재사용 대기시간이 없는 동안 아이콘의 투명도"
+L["Alpha of the icon while the spell is on cooldown"] = "주문 재사용 대기시간 동안 아이콘의 투명도"
+L["alt-"] = true
+L["Anchor"] = "앵커"
+L["Anchor of the frame"] = "프레임에 고정"
+L["Animation ease function"] = "애니메이션 전환 효과 기능"
+L["Animation ease method"] = "애니메이션 전환 효과 방법"
+L["Animation ease mode"] = "애니메이션 전환 효과 모드"
+L["Announcement toggles"] = "알림 활성화"
+L["Announcements"] = "알림"
+L["Announces when an enemy drops below a certain health threshold"] = "적의 체력이 일정 수준 이하로 떨어지면 알림"
+L["Announces when an enemy tries to resurrect a teammate"] = "적이 팀원을 부활시키려 할 때 알림"
+L["Announces when enemies sit down to drink"] = "적이 앉아서 음식 먹을 때 알림"
+L["Announces when the spec of an enemy was detected"] = "적의 전문화가 감지되면 알림"
+L["Apply filter to"] = "필터 적용 대상"
+L["Arena"] = "투기장"
+L["Attach text to module bar"] = "모듈 바에 텍스트 추가"
+L["Attach to"] = "다음에 부착"
+L["Attach to the given frame"] = "지정된 프레임에 부착"
+L["Aura name"] = "오라 이름"
+L["Auras"] = "오라"
+L["Auras alerts"] = "오라 알림"
+L["Auras per row"] = "행당 오라"
+L["Available"] = "사용 가능"
+L["Background color"] = "배경 색상"
+L["Background padding"] = "배경 채우기"
+L["Bar"] = "바"
+L["Bar height"] = "바 높이"
+L["Bar order"] = "바 정렬"
+L["Bar settings"] = "바 설정"
+L["Bar texture"] = "바 텍스처"
+L["Bar width"] = "바 너비"
+L["Bars height"] = "바 높이"
+L["Blacklist"] = "블랙리스트"
+L["Blend"] = "혼합"
+L["Blend mode"] = "혼합 모드"
+L["Blizzard's Floating Combat Text"] = "블리자드 전투 문자"
+L["Border color for spells in this category"] = "이 카테고리의 주문 테두리 색상"
+L["Border size"] = "테두리 크기"
+L["Border transparency"] = "테두리 투명도"
+L["Border transparency settings"] = "테두리 투명도 설정"
+L["Both"] = "모두"
+L["Bottom"] = "아래"
+L["Bottom left"] = "왼쪽 아래"
+L["Bottom right"] = "오른쪽 아래"
+L["Buffs"] = "버프"
+L["Button 4"] = "버튼 4"
+L["Button 5"] = "버튼 5"
+L["Cast spell"] = "주문 시전"
+L["Cast text"] = "시전 텍스트"
+L["Cast time text"] = "시전 시간 텍스트"
+L["CastBar"] = "시전바"
+L["Casts"] = "시전"
+L["Casts alerts"] = "시전 알림"
 L["cat:cc"] = "CC"
---[[Translation missing --]]
-L["cat:defensive"] = "Defensive"
---[[Translation missing --]]
-L["cat:dispel"] = "Dispel"
---[[Translation missing --]]
-L["cat:heal"] = "Heal"
---[[Translation missing --]]
-L["cat:immune"] = "Immune"
---[[Translation missing --]]
-L["cat:interrupt"] = "Interrupt"
---[[Translation missing --]]
-L["cat:knockback"] = "Knockback"
---[[Translation missing --]]
-L["cat:mass_dispel"] = "Mass Dispel"
---[[Translation missing --]]
-L["cat:offensive"] = "Offensive"
---[[Translation missing --]]
-L["cat:pvp_trinket"] = "PvP Trinket"
---[[Translation missing --]]
-L["cat:silence"] = "Silence"
---[[Translation missing --]]
-L["cat:stun"] = "Stun"
---[[Translation missing --]]
-L["cat:uncat"] = "Uncategorized"
---[[Translation missing --]]
-L["Categories"] = "Categories"
---[[Translation missing --]]
-L["Category"] = "Category"
---[[Translation missing --]]
-L["Category settings"] = "Category settings"
---[[Translation missing --]]
-L["Center"] = "Center"
---[[Translation missing --]]
-L["Center left"] = "Center left"
---[[Translation missing --]]
-L["Center right"] = "Center right"
---[[Translation missing --]]
-L["Charges: %i"] = "Charges: %i"
---[[Translation missing --]]
-L["Choose how low an enemy must be before low health is announced"] = "Choose how low an enemy must be before low health is announced"
---[[Translation missing --]]
-L["Choose how your announcements are displayed"] = "Choose how your announcements are displayed"
---[[Translation missing --]]
-L["Class"] = "Class"
---[[Translation missing --]]
-L["Class color"] = "Class color"
---[[Translation missing --]]
-L["Class icon"] = "Class icon"
---[[Translation missing --]]
-L["class:shortTag"] = "Class (Short)"
---[[Translation missing --]]
-L["ClassIcon"] = "ClassIcon"
---[[Translation missing --]]
-L["classTag"] = "Class"
---[[Translation missing --]]
-L["Click actions"] = "Click actions"
---[[Translation missing --]]
-L["Clicks"] = "Clicks"
---[[Translation missing --]]
-L["Color"] = "Color"
---[[Translation missing --]]
-L["Color of the background"] = "Color of the background"
---[[Translation missing --]]
-L["Color of the cast bar"] = "Color of the cast bar"
---[[Translation missing --]]
-L["Color of the cast bar background"] = "Color of the cast bar background"
---[[Translation missing --]]
-L["Color of the cast bar when the spell can't be interrupted"] = "Color of the cast bar when the spell can't be interrupted"
---[[Translation missing --]]
-L["Color of the frame background"] = "Color of the frame background"
---[[Translation missing --]]
-L["Color of the frames background"] = "Color of the frames background"
---[[Translation missing --]]
-L["Color of the gloss"] = "Color of the gloss"
---[[Translation missing --]]
-L["Color of the health bar"] = "Color of the health bar"
---[[Translation missing --]]
-L["Color of the health bar background"] = "Color of the health bar background"
---[[Translation missing --]]
-L["Color of the highlight"] = "Color of the highlight"
---[[Translation missing --]]
-L["Color of the power bar"] = "Color of the power bar"
---[[Translation missing --]]
-L["Color of the power bar background"] = "Color of the power bar background"
---[[Translation missing --]]
-L["Color of the text"] = "Color of the text"
---[[Translation missing --]]
-L["Cooldown reverse"] = "Cooldown reverse"
---[[Translation missing --]]
-L["Cooldown spiral"] = "Cooldown spiral"
---[[Translation missing --]]
-L["Cooldown starts on dispel"] = "Cooldown starts on dispel"
---[[Translation missing --]]
-L["Cooldown starts when aura fades"] = "Cooldown starts when aura fades"
---[[Translation missing --]]
-L["Cooldowns"] = "Cooldowns"
---[[Translation missing --]]
-L["Cooldowns group %i"] = "Cooldowns group %i"
---[[Translation missing --]]
-L["Copy all settings from arena to party"] = "Copy all settings from arena to party"
---[[Translation missing --]]
-L["Copy all settings from party to arena"] = "Copy all settings from party to arena"
---[[Translation missing --]]
-L["Copy from arena"] = "Copy from arena"
---[[Translation missing --]]
-L["Copy from party"] = "Copy from party"
---[[Translation missing --]]
-L["Copy settings"] = "Copy settings"
---[[Translation missing --]]
-L["Crop borders"] = "Crop borders"
---[[Translation missing --]]
-L["ctrl-"] = "ctrl-"
---[[Translation missing --]]
-L["Cubic"] = "Cubic"
---[[Translation missing --]]
-L["DEAD"] = "DEAD"
---[[Translation missing --]]
-L["Dead alpha"] = "Dead alpha"
---[[Translation missing --]]
-L["DEATHKNIGHT:short"] = "DK"
---[[Translation missing --]]
-L["Debuffs"] = "Debuffs"
---[[Translation missing --]]
-L["Decrease the priority of spells in this category"] = "Decrease the priority of spells in this category"
---[[Translation missing --]]
-L["Default color"] = "Default color"
---[[Translation missing --]]
-L["Delete"] = "Delete"
---[[Translation missing --]]
-L["Delete click action"] = "Delete click action"
---[[Translation missing --]]
-L["Delete tag"] = "Delete tag"
---[[Translation missing --]]
-L["Delete text"] = "Delete text"
---[[Translation missing --]]
-L["Destination"] = "Destination"
---[[Translation missing --]]
-L["Detach the group from the unit frames, showing the cooldowns of all the units and allowing you to move it freely"] = "Detach the group from the unit frames, showing the cooldowns of all the units and allowing you to move it freely"
---[[Translation missing --]]
-L["Detached group"] = "Detached group"
---[[Translation missing --]]
-L["Disable"] = "Disable"
---[[Translation missing --]]
-L["Disable all"] = "Disable all"
---[[Translation missing --]]
-L["Disable all the spells"] = "Disable all the spells"
---[[Translation missing --]]
-L["Disable all the spells in this category"] = "Disable all the spells in this category"
---[[Translation missing --]]
-L["Disable this if you are experiencing problems with the texts (requires a UI reload to take effect)"] = "Disable this if you are experiencing problems with the texts (requires a UI reload to take effect)"
---[[Translation missing --]]
-L["Disable this to be able to move the frames separately"] = "Disable this to be able to move the frames separately"
---[[Translation missing --]]
-L["Disabled"] = "Disabled"
---[[Translation missing --]]
-L["Display the cooldown spiral for the drTracker icons"] = "Display the cooldown spiral for the drTracker icons"
---[[Translation missing --]]
-L["Display the cooldown spiral for the important auras"] = "Display the cooldown spiral for the important auras"
---[[Translation missing --]]
-L["Down"] = "Down"
---[[Translation missing --]]
-L["Down left"] = "Down left"
---[[Translation missing --]]
-L["Down right"] = "Down right"
---[[Translation missing --]]
-L["Drinking"] = "Drinking"
---[[Translation missing --]]
-L["DRINKING: %s (%s)"] = "DRINKING: %s (%s)"
---[[Translation missing --]]
-L["DRTracker"] = "DRTracker"
---[[Translation missing --]]
-L["DRUID:short"] = "Druid"
---[[Translation missing --]]
-L["Duration"] = "Duration"
---[[Translation missing --]]
-L["Duration of each animation cycle, in seconds"] = "Duration of each animation cycle, in seconds"
---[[Translation missing --]]
-L["Duration of the enter animation, in seconds"] = "Duration of the enter animation, in seconds"
---[[Translation missing --]]
-L["Duration of the fade out animation, in seconds"] = "Duration of the fade out animation, in seconds"
---[[Translation missing --]]
-L["Duration: %is"] = "Duration: %is"
---[[Translation missing --]]
-L["Ease"] = "Ease"
---[[Translation missing --]]
-L["Ease function"] = "Ease function"
---[[Translation missing --]]
-L["Ease mode"] = "Ease mode"
---[[Translation missing --]]
-L["Enable all"] = "Enable all"
---[[Translation missing --]]
-L["Enable all the spells"] = "Enable all the spells"
---[[Translation missing --]]
-L["Enable all the spells in this category"] = "Enable all the spells in this category"
---[[Translation missing --]]
-L["Enable module"] = "Enable module"
---[[Translation missing --]]
-L["Enemy spec: %s (%s/%s)"] = "Enemy spec: %s (%s/%s)"
---[[Translation missing --]]
-L["Enlarge mine"] = "Enlarge mine"
---[[Translation missing --]]
-L["Enlarged scale"] = "Enlarged scale"
---[[Translation missing --]]
-L["Enter animation"] = "Enter animation"
---[[Translation missing --]]
-L["Enter animation settings"] = "Enter animation settings"
---[[Translation missing --]]
-L["Events"] = "Events"
---[[Translation missing --]]
-L["Events which update the tag"] = "Events which update the tag"
---[[Translation missing --]]
-L["Example Spell Name"] = "Example Spell Name"
---[[Translation missing --]]
-L["Fade out duration"] = "Fade out duration"
---[[Translation missing --]]
-L["Filter type"] = "Filter type"
---[[Translation missing --]]
-L["Filters"] = "Filters"
---[[Translation missing --]]
-L["First run has been detected, displaying test frame"] = "First run has been detected, displaying test frame"
---[[Translation missing --]]
-L["Font"] = "Font"
---[[Translation missing --]]
-L["Font outline"] = "Font outline"
---[[Translation missing --]]
-L["Font settings"] = "Font settings"
---[[Translation missing --]]
-L["Font shadow color"] = "Font shadow color"
---[[Translation missing --]]
-L["Font size"] = "Font size"
---[[Translation missing --]]
-L["Frame"] = "Frame"
---[[Translation missing --]]
-L["Frame background color"] = "Frame background color"
---[[Translation missing --]]
-L["Frame grouping"] = "Frame grouping"
---[[Translation missing --]]
-L["Frame height"] = "Frame height"
---[[Translation missing --]]
-L["Frame level"] = "Frame level"
---[[Translation missing --]]
-L["Frame level of the frame"] = "Frame level of the frame"
---[[Translation missing --]]
-L["Frame scale"] = "Frame scale"
---[[Translation missing --]]
-L["Frame width"] = "Frame width"
---[[Translation missing --]]
-L["Function"] = "Function"
---[[Translation missing --]]
-L["General"] = "General"
---[[Translation missing --]]
-L["General settings"] = "General settings"
---[[Translation missing --]]
-L["GladiusEx Enemy Anchor - click to move"] = "GladiusEx Enemy Anchor - click to move"
---[[Translation missing --]]
-L["GladiusEx Party Anchor - click to move"] = "GladiusEx Party Anchor - click to move"
---[[Translation missing --]]
-L["Global font size"] = "Global font size"
---[[Translation missing --]]
-L["Global font, used by the modules"] = "Global font, used by the modules"
---[[Translation missing --]]
-L["Global settings"] = "Global settings"
---[[Translation missing --]]
-L["Global texture of the bars"] = "Global texture of the bars"
---[[Translation missing --]]
-L["Gloss"] = "Gloss"
---[[Translation missing --]]
-L["Gloss color"] = "Gloss color"
---[[Translation missing --]]
-L["Group"] = "Group"
---[[Translation missing --]]
-L["Group %i anchor (%s)"] = "Group %i anchor (%s)"
---[[Translation missing --]]
-L["Group background color"] = "Group background color"
---[[Translation missing --]]
-L["Group by unit"] = "Group by unit"
---[[Translation missing --]]
-L["Group unit frames"] = "Group unit frames"
---[[Translation missing --]]
-L["Grouping"] = "Grouping"
---[[Translation missing --]]
-L["Grow direction"] = "Grow direction"
---[[Translation missing --]]
-L["Grow direction of the icons"] = "Grow direction of the icons"
---[[Translation missing --]]
-L["health:percentageTag"] = "Health (Percentage)"
---[[Translation missing --]]
-L["health:shortTag"] = "Health (Short)"
---[[Translation missing --]]
-L["healthabsorbs:shortTag"] = "Health plus Absorbs (short)"
---[[Translation missing --]]
-L["healthabsorbsTag"] = "Health plus Absorbs"
---[[Translation missing --]]
-L["HealthBar"] = "HealthBar"
---[[Translation missing --]]
-L["healthTag"] = "Health"
---[[Translation missing --]]
-L["Height"] = "Height"
---[[Translation missing --]]
-L["Height of the bars"] = "Height of the bars"
---[[Translation missing --]]
-L["Height of the cast bar"] = "Height of the cast bar"
---[[Translation missing --]]
-L["Height of the health bar"] = "Height of the health bar"
---[[Translation missing --]]
-L["Height of the power bar"] = "Height of the power bar"
---[[Translation missing --]]
-L["Hide talents until detected"] = "Hide talents until detected"
---[[Translation missing --]]
-L["High transparency alpha value of the animation"] = "High transparency alpha value of the animation"
---[[Translation missing --]]
-L["Highlight"] = "Highlight"
---[[Translation missing --]]
-L["Highlight border width"] = "Highlight border width"
---[[Translation missing --]]
-L["Highlight color"] = "Highlight color"
---[[Translation missing --]]
-L["Highlight focus target"] = "Highlight focus target"
---[[Translation missing --]]
-L["Highlight frame on mouseover"] = "Highlight frame on mouseover"
---[[Translation missing --]]
-L["Highlight on mouseover"] = "Highlight on mouseover"
---[[Translation missing --]]
-L["Highlight raid assist target"] = "Highlight raid assist target"
---[[Translation missing --]]
-L["Highlight the player target"] = "Highlight the player target"
---[[Translation missing --]]
-L["Horizontal padding"] = "Horizontal padding"
---[[Translation missing --]]
-L["Horizontal padding of the icons"] = "Horizontal padding of the icons"
---[[Translation missing --]]
-L["Horizontal spacing"] = "Horizontal spacing"
---[[Translation missing --]]
-L["Horizontal spacing of the icons"] = "Horizontal spacing of the icons"
---[[Translation missing --]]
-L["Hover"] = "Hover"
---[[Translation missing --]]
-L["Hover settings"] = "Hover settings"
---[[Translation missing --]]
-L["How much the absorbs bar can grow outside the health bar, as a proportion of the unit's total health"] = "How much the absorbs bar can grow outside the health bar, as a proportion of the unit's total health"
---[[Translation missing --]]
-L["How much the incoming heals bar can grow outside the health bar, as a proportion of the unit's total health"] = "How much the incoming heals bar can grow outside the health bar, as a proportion of the unit's total health"
---[[Translation missing --]]
-L["HUNTER:short"] = "Hunter"
---[[Translation missing --]]
-L["Icon"] = "Icon"
---[[Translation missing --]]
-L["Icon border size"] = "Icon border size"
---[[Translation missing --]]
-L["Icon position"] = "Icon position"
---[[Translation missing --]]
-L["Icon size"] = "Icon size"
---[[Translation missing --]]
-L["Icon transparency"] = "Icon transparency"
---[[Translation missing --]]
-L["Icon transparency settings"] = "Icon transparency settings"
---[[Translation missing --]]
-L["Icons max"] = "Icons max"
---[[Translation missing --]]
-L["Icons per column"] = "Icons per column"
---[[Translation missing --]]
-L["Important auras"] = "Important auras"
---[[Translation missing --]]
-L["In"] = "In"
---[[Translation missing --]]
-L["Incoming heals"] = "Incoming heals"
---[[Translation missing --]]
-L["Incoming heals bar color"] = "Incoming heals bar color"
---[[Translation missing --]]
-L["Incoming heals color"] = "Incoming heals color"
---[[Translation missing --]]
-L["Incoming heals settings"] = "Incoming heals settings"
---[[Translation missing --]]
-L["Increase the priority of spells in this category"] = "Increase the priority of spells in this category"
---[[Translation missing --]]
-L["In-Out"] = "In-Out"
---[[Translation missing --]]
-L["Inside frame"] = "Inside frame"
---[[Translation missing --]]
-L["Interrupts"] = "Interrupts"
---[[Translation missing --]]
-L["Inverse"] = "Inverse"
---[[Translation missing --]]
-L["Invert the bar colors"] = "Invert the bar colors"
---[[Translation missing --]]
-L["Invert the dark/bright part of the cooldown spiral"] = "Invert the dark/bright part of the cooldown spiral"
---[[Translation missing --]]
-L["Items"] = "Items"
---[[Translation missing --]]
-L["Left"] = "Left"
---[[Translation missing --]]
-L["Left and right"] = "Left and right"
---[[Translation missing --]]
-L["Left bottom"] = "Left bottom"
---[[Translation missing --]]
-L["Left top"] = "Left top"
---[[Translation missing --]]
-L["Lock frames"] = "Lock frames"
---[[Translation missing --]]
-L["Lock the frames to hide"] = "Lock the frames to hide"
---[[Translation missing --]]
-L["Lock the group to hide"] = "Lock the group to hide"
---[[Translation missing --]]
-L["Locked"] = "Locked"
---[[Translation missing --]]
-L["Low health"] = "Low health"
---[[Translation missing --]]
-L["Low health alert"] = "Low health alert"
---[[Translation missing --]]
-L["Low health settings"] = "Low health settings"
---[[Translation missing --]]
-L["Low health threshold"] = "Low health threshold"
---[[Translation missing --]]
-L["LOW HEALTH: %s (%s)"] = "LOW HEALTH: %s (%s)"
---[[Translation missing --]]
-L["Low transparency alpha value of the animation"] = "Low transparency alpha value of the animation"
---[[Translation missing --]]
-L["MAGE:short"] = "Mage"
---[[Translation missing --]]
-L["Margin"] = "Margin"
---[[Translation missing --]]
-L["Margin between each button"] = "Margin between each button"
---[[Translation missing --]]
-L["Margin between each module"] = "Margin between each module"
---[[Translation missing --]]
-L["Max number of rows"] = "Max number of rows"
---[[Translation missing --]]
-L["maxhealth:shortTag"] = "Max Health (Short)"
---[[Translation missing --]]
-L["maxhealthTag"] = "Max Health"
---[[Translation missing --]]
-L["maxpower:shortTag"] = "Max Power (Short)"
---[[Translation missing --]]
-L["maxpowerTag"] = "Max Power"
---[[Translation missing --]]
-L["Middle"] = "Middle"
---[[Translation missing --]]
-L["MikScrollingBattleText"] = "MikScrollingBattleText"
---[[Translation missing --]]
-L["Minimum health percent to fire the alert"] = "Minimum health percent to fire the alert"
---[[Translation missing --]]
-L["Mod margin"] = "Mod margin"
---[[Translation missing --]]
-L["Modifier"] = "Modifier"
---[[Translation missing --]]
-L["MONK:short"] = "Monk"
---[[Translation missing --]]
-L["Mouse button"] = "Mouse button"
---[[Translation missing --]]
-L["Name"] = "Name"
---[[Translation missing --]]
-L["Name of the aura"] = "Name of the aura"
---[[Translation missing --]]
-L["Name of the cast"] = "Name of the cast"
---[[Translation missing --]]
-L["Name of the cast spell"] = "Name of the cast spell"
---[[Translation missing --]]
-L["Name of the tag"] = "Name of the tag"
---[[Translation missing --]]
-L["Name of the text element"] = "Name of the text element"
---[[Translation missing --]]
-L["name:statusTag"] = "Name/Status"
---[[Translation missing --]]
-L["nameTag"] = "Name"
---[[Translation missing --]]
-L["New aura"] = "New aura"
---[[Translation missing --]]
-L["New cast"] = "New cast"
---[[Translation missing --]]
-L["None"] = "None"
---[[Translation missing --]]
-L["Not interruptible color"] = "Not interruptible color"
---[[Translation missing --]]
-L["Number of auras per row"] = "Number of auras per row"
---[[Translation missing --]]
-L["Number of icons per column"] = "Number of icons per column"
---[[Translation missing --]]
-L["Number of max icons"] = "Number of max icons"
---[[Translation missing --]]
-L["Number of rows"] = "Number of rows"
---[[Translation missing --]]
-L["OFFLINE"] = "OFFLINE"
---[[Translation missing --]]
-L["Offset X"] = "Offset X"
---[[Translation missing --]]
-L["Offset Y"] = "Offset Y"
---[[Translation missing --]]
-L["On cooldown"] = "On cooldown"
---[[Translation missing --]]
-L["Options"] = "Options"
---[[Translation missing --]]
-L["Out"] = "Out"
---[[Translation missing --]]
-L["Out of range alpha"] = "Out of range alpha"
---[[Translation missing --]]
-L["Outline"] = "Outline"
---[[Translation missing --]]
-L["Outside bar limit"] = "Outside bar limit"
---[[Translation missing --]]
-L["Overlay blend mode"] = "Overlay blend mode"
---[[Translation missing --]]
-L["Padding of the background"] = "Padding of the background"
---[[Translation missing --]]
-L["PALADIN:short"] = "Pala"
---[[Translation missing --]]
-L["Parrot"] = "Parrot"
---[[Translation missing --]]
-L["Party"] = "Party"
---[[Translation missing --]]
-L["Pet"] = "Pet"
---[[Translation missing --]]
-L["PetBar"] = "Pet"
---[[Translation missing --]]
-L["Player focus target"] = "Player focus target"
---[[Translation missing --]]
-L["Player focus target settings"] = "Player focus target settings"
---[[Translation missing --]]
-L["Player target"] = "Player target"
---[[Translation missing --]]
-L["Player target settings"] = "Player target settings"
---[[Translation missing --]]
-L["Portrait 2D"] = "Portrait 2D"
---[[Translation missing --]]
-L["Portrait 3D"] = "Portrait 3D"
---[[Translation missing --]]
-L["Position"] = "Position"
---[[Translation missing --]]
-L["Position of the cast bar icon"] = "Position of the cast bar icon"
---[[Translation missing --]]
-L["Position of the class icon"] = "Position of the class icon"
---[[Translation missing --]]
-L["Position of the frame"] = "Position of the frame"
---[[Translation missing --]]
-L["Position settings"] = "Position settings"
---[[Translation missing --]]
-L["Power type"] = "Power type"
---[[Translation missing --]]
-L["power:percentageTag"] = "Power (Percentage)"
---[[Translation missing --]]
-L["power:shortTag"] = "Power (Short)"
---[[Translation missing --]]
-L["PowerBar"] = "PowerBar"
---[[Translation missing --]]
-L["powerTag"] = "Power"
---[[Translation missing --]]
-L["PRIEST:short"] = "Priest"
---[[Translation missing --]]
-L["Priority"] = "Priority"
---[[Translation missing --]]
-L["Priority of the highlight"] = "Priority of the highlight"
---[[Translation missing --]]
-L["Quadratic"] = "Quadratic"
---[[Translation missing --]]
-L["Race"] = "Race"
---[[Translation missing --]]
-L["raceTag"] = "Race"
---[[Translation missing --]]
-L["Raid assist settings"] = "Raid assist settings"
---[[Translation missing --]]
-L["Raid assist target"] = "Raid assist target"
---[[Translation missing --]]
-L["Raid icon target %i"] = "Raid icon target %i"
---[[Translation missing --]]
-L["Raid icon targets"] = "Raid icon targets"
---[[Translation missing --]]
-L["Raid Warning"] = "Raid Warning"
---[[Translation missing --]]
-L["Relative point"] = "Relative point"
---[[Translation missing --]]
-L["Relative point of the frame"] = "Relative point of the frame"
---[[Translation missing --]]
-L["Remaining time"] = "Remaining time"
---[[Translation missing --]]
-L["Remove this cooldowns group"] = "Remove this cooldowns group"
---[[Translation missing --]]
-L["Replaces: %s"] = "Replaces: %s"
---[[Translation missing --]]
-L["Required aura: %s"] = "Required aura: %s"
---[[Translation missing --]]
-L["Reset all arena settings to their default values"] = "Reset all arena settings to their default values"
---[[Translation missing --]]
-L["Reset all party settings to their default values"] = "Reset all party settings to their default values"
---[[Translation missing --]]
-L["Reset arena settings"] = "Reset arena settings"
---[[Translation missing --]]
-L["Reset module"] = "Reset module"
---[[Translation missing --]]
-L["Reset party settings"] = "Reset party settings"
---[[Translation missing --]]
-L["Reset settings"] = "Reset settings"
---[[Translation missing --]]
-L["Resets: %s"] = "Resets: %s"
---[[Translation missing --]]
-L["RESURRECTING: %s (%s)"] = "RESURRECTING: %s (%s)"
---[[Translation missing --]]
-L["Resurrection"] = "Resurrection"
---[[Translation missing --]]
-L["Right"] = "Right"
---[[Translation missing --]]
-L["Right bottom"] = "Right bottom"
---[[Translation missing --]]
-L["Right top"] = "Right top"
---[[Translation missing --]]
-L["ROGUE:short"] = "Rogue"
---[[Translation missing --]]
-L["Role"] = "Role"
---[[Translation missing --]]
-L["Say"] = "Say"
---[[Translation missing --]]
-L["Scale of the enlarged auras"] = "Scale of the enlarged auras"
---[[Translation missing --]]
-L["Scale of the frame"] = "Scale of the frame"
---[[Translation missing --]]
-L["Scrolling Combat Text"] = "Scrolling Combat Text"
---[[Translation missing --]]
-L["Select a modifier for this click action"] = "Select a modifier for this click action"
---[[Translation missing --]]
-L["Select what priority the alert should have - higher equals more priority"] = "Select what priority the alert should have - higher equals more priority"
---[[Translation missing --]]
-L["Select what priority the aura should have - higher equals more priority"] = "Select what priority the aura should have - higher equals more priority"
---[[Translation missing --]]
-L["Select what priority the cast should have - higher equals more priority"] = "Select what priority the cast should have - higher equals more priority"
---[[Translation missing --]]
-L["Select what this click action does"] = "Select what this click action does"
---[[Translation missing --]]
-L["Select which mouse button this click action uses"] = "Select which mouse button this click action uses"
---[[Translation missing --]]
-L["Self"] = "Self"
---[[Translation missing --]]
-L["SHAMAN:short"] = "Shaman"
---[[Translation missing --]]
-L["Shared cooldown: %s (%is)"] = "Shared cooldown: %s (%is)"
---[[Translation missing --]]
-L["Shield icon"] = "Shield icon"
---[[Translation missing --]]
-L["shift-"] = "shift-"
---[[Translation missing --]]
-L["Show"] = "Show"
---[[Translation missing --]]
-L["Show absorbs"] = "Show absorbs"
---[[Translation missing --]]
-L["Show border around focus target"] = "Show border around focus target"
---[[Translation missing --]]
-L["Show border around raid assist"] = "Show border around raid assist"
---[[Translation missing --]]
-L["Show border around raid target %i"] = "Show border around raid target %i"
---[[Translation missing --]]
-L["Show Buffs"] = "Show Buffs"
---[[Translation missing --]]
-L["Show cast time"] = "Show cast time"
---[[Translation missing --]]
-L["Show Debuffs"] = "Show Debuffs"
---[[Translation missing --]]
-L["Show delay"] = "Show delay"
---[[Translation missing --]]
-L["Show important auras instead of the class icon"] = "Show important auras instead of the class icon"
---[[Translation missing --]]
-L["Show incoming heals"] = "Show incoming heals"
---[[Translation missing --]]
-L["Show only dispellable"] = "Show only dispellable"
---[[Translation missing --]]
-L["Show only mine"] = "Show only mine"
---[[Translation missing --]]
-L["Show party frames"] = "Show party frames"
---[[Translation missing --]]
-L["Show spark"] = "Show spark"
---[[Translation missing --]]
-L["Show tooltips"] = "Show tooltips"
---[[Translation missing --]]
-L["Show total time"] = "Show total time"
---[[Translation missing --]]
-L["Size"] = "Size"
---[[Translation missing --]]
-L["Size of the aura icons"] = "Size of the aura icons"
---[[Translation missing --]]
-L["Size of the cooldown icon borders"] = "Size of the cooldown icon borders"
---[[Translation missing --]]
-L["Size of the cooldown icons"] = "Size of the cooldown icons"
---[[Translation missing --]]
-L["Size of the frames border"] = "Size of the frames border"
---[[Translation missing --]]
-L["Size of the icons"] = "Size of the icons"
---[[Translation missing --]]
-L["Size of the text"] = "Size of the text"
---[[Translation missing --]]
-L["Size settings"] = "Size settings"
---[[Translation missing --]]
-L["SkillHistory"] = "Skill History"
---[[Translation missing --]]
-L["Space between the icons"] = "Space between the icons"
---[[Translation missing --]]
-L["Spacing"] = "Spacing"
---[[Translation missing --]]
-L["Spec"] = "Spec"
---[[Translation missing --]]
-L["Spec detection"] = "Spec detection"
---[[Translation missing --]]
-L["spec:shortTag"] = "Spec (Short)"
+L["cat:defensive"] = "방어"
+L["cat:dispel"] = "해제"
+L["cat:heal"] = "치유"
+L["cat:immune"] = "면역"
+L["cat:interrupt"] = "차단"
+L["cat:knockback"] = "넉백"
+L["cat:mass_dispel"] = "대규모 해제"
+L["cat:offensive"] = "공격"
+L["cat:pvp_trinket"] = "PvP 장신구"
+L["cat:silence"] = "침묵"
+L["cat:stun"] = "기절"
+L["cat:uncat"] = "분류되지 않음"
+L["Categories"] = "카테고리"
+L["Category"] = "카테고리"
+L["Category settings"] = "카테고리 설정"
+L["Center"] = "중앙"
+L["Center left"] = "왼쪽"
+L["Center right"] = "오른쪽"
+L["Charges: %i"] = "충전량: %i"
+L["Choose how low an enemy must be before low health is announced"] = "적의 체력이 얼마나 낮을 때 알릴지 선택"
+L["Choose how your announcements are displayed"] = "알림 표시 방법을 선택"
+L["Class"] = "직업"
+L["Class color"] = "직업 색상"
+L["Class icon"] = "직업 아이콘"
+L["class:shortTag"] = "직업 (약어)"
+L["ClassIcon"] = "직업 아이콘"
+L["classTag"] = "직업 태그"
+L["Click actions"] = "클릭 동작"
+L["Clicks"] = "클릭"
+L["Color"] = "색상"
+L["Color of the background"] = "배경 색상"
+L["Color of the cast bar"] = "시전 바 색상"
+L["Color of the cast bar background"] = "시전 바 배경 색상"
+L["Color of the cast bar when the spell can't be interrupted"] = "차단할 수 없을 때 시전 바 색상"
+L["Color of the frame background"] = "프레임 배경 색상"
+L["Color of the frames background"] = "프레임 배경 색상"
+L["Color of the gloss"] = "광택 색상"
+L["Color of the health bar"] = "체력 바 색상"
+L["Color of the health bar background"] = "체력 바 배경 색상"
+L["Color of the highlight"] = "강조 표시 색상"
+L["Color of the power bar"] = "자원 바 색상"
+L["Color of the power bar background"] = "자원 바 배경 색상"
+L["Color of the text"] = "텍스트 색상"
+L["Cooldown reverse"] = "재사용 대기시간 반전"
+L["Cooldown spiral"] = "재사용 대기시간 소용돌이"
+L["Cooldown starts on dispel"] = "해제 시 재사용 대기시간 시작"
+L["Cooldown starts when aura fades"] = "오라가 사라질 때 재사용 대기시간 시작"
+L["Cooldowns"] = "재사용 대기시간"
+L["Cooldowns group %i"] = "재사용 대기시간 그룹 %i"
+L["Copy all settings from arena to party"] = "투기장의 모든 설정을 파티로 복사"
+L["Copy all settings from party to arena"] = "파티의 모든 설정을 투기장으로 복사"
+L["Copy from arena"] = "투기장에서 복사"
+L["Copy from party"] = "파티에서 복사"
+L["Copy settings"] = "설정 복사"
+L["Crop borders"] = "테두리 자르기"
+L["ctrl-"] = true
+L["Cubic"] = true
+L["DEAD"] = "죽음"
+L["Dead alpha"] = "죽음 투명도"
+L["DEATHKNIGHT:short"] = "죽기"
+L["Debuffs"] = "디버프"
+L["Decrease the priority of spells in this category"] = "이 카테고리에서 주문의 우선순위를 낮춥니다."
+L["Default color"] = "기본 색상"
+L["Delete"] = "삭제"
+L["Delete click action"] = "클릭 동작 삭제"
+L["Delete tag"] = "태그 삭제"
+L["Delete text"] = "텍스트 삭제"
+L["Destination"] = "목표"
+L["Detach the group from the unit frames, showing the cooldowns of all the units and allowing you to move it freely"] = "유닛 프레임에서 그룹을 분리하여 모든 유닛의 재사용 대기 시간을 표시하고 자유롭게 이동할 수 있습니다."
+L["Detached group"] = "개별 그룹화"
+L["Disable"] = "비활성화"
+L["Disable all"] = "모두 비활성화"
+L["Disable all the spells"] = "모든 주문 비활성화"
+L["Disable all the spells in this category"] = "이 카테고리의 모든 주문 비활성화"
+L["Disable this if you are experiencing problems with the texts (requires a UI reload to take effect)"] = "텍스트에 문제가 있는 경우 이 기능을 비활성화하세요(적용되려면 UI를 다시 로드해야 함)"
+L["Disable this to be able to move the frames separately"] = "프레임을 개별적으로 이동할 수 있게 하려면 이 기능을 비활성화하세요."
+L["Disabled"] = "비활성화"
+L["Display the cooldown spiral for the drTracker icons"] = "점감 아이콘의 재사용 대기시간 소용돌이 표시"
+L["Display the cooldown spiral for the important auras"] = "중요한 오라에 대한 재사용 대기시간 소용돌이 표시"
+L["Down"] = "아래"
+L["Down left"] = "왼쪽 아래"
+L["Down right"] = "오른쪽 아래"
+L["Drinking"] = "음식"
+L["DRINKING: %s (%s)"] = "음식: %s (%s)"
+L["DRTracker"] = "DR 추적기"
+L["DRUID:short"] = "드루"
+L["Duration"] = "지속 시간"
+L["Duration of each animation cycle, in seconds"] = "각 애니메이션 주기의 지속 시간(초)"
+L["Duration of the enter animation, in seconds"] = "애니메이션 시작 시간(초)"
+L["Duration of the fade out animation, in seconds"] = "애니메이션 서서히 사라짐(초)"
+L["Duration: %is"] = "지속 시간: %is"
+L["Ease"] = "전환 효과"
+L["Ease function"] = "전환 효과 기능"
+L["Ease mode"] = "전환 효과 모드"
+L["Enable all"] = "모두 활성화"
+L["Enable all the spells"] = "모든 주문 활성화"
+L["Enable all the spells in this category"] = "이 카테고리의 모든 주문 활성화"
+L["Enable module"] = "모듈 활성화"
+L["Enemy spec: %s (%s/%s)"] = "적 전문화: %s (%s/%s)"
+L["Enlarge mine"] = "시전 확대"
+L["Enlarged scale"] = "크기 확대"
+L["Enter animation"] = "애니메이션"
+L["Enter animation settings"] = "애니메이션 설정"
+L["Events"] = "이벤트"
+L["Events which update the tag"] = "태그가 업데이트되는 이벤트"
+L["Example Spell Name"] = "주문 이름 예시"
+L["Fade out duration"] = "사라지는 지속 시간"
+L["Filter type"] = "필터 종류"
+L["Filters"] = "필터"
+L["First run has been detected, displaying test frame"] = "처음 실행 중임을 감지하고 테스트 프레임을 표시합니다."
+L["Font"] = "글꼴"
+L["Font outline"] = "글꼴 외곽선"
+L["Font settings"] = "글꼴 설정"
+L["Font shadow color"] = "글꼴 그림자 색상"
+L["Font size"] = "글꼴 크기"
+L["Frame"] = "프레임"
+L["Frame background color"] = "프레임 배경 색상"
+L["Frame grouping"] = "프레임 그룹화"
+L["Frame height"] = "프레임 높이"
+L["Frame level"] = "프레임 레벨"
+L["Frame level of the frame"] = "프레임의 프레임 레벨"
+L["Frame scale"] = "프레임 크기"
+L["Frame width"] = "프레임 너비"
+L["Function"] = "기능"
+L["General"] = "일반"
+L["General settings"] = "일반 설정"
+L["GladiusEx Enemy Anchor - click to move"] = "GladiusEx Enemy Anchor - 클릭하여 이동"
+L["GladiusEx Party Anchor - click to move"] = "GladiusEx Party Anchor - 클릭하여 이동"
+L["Global font size"] = "전역 글꼴 크기"
+L["Global font, used by the modules"] = "모듈에서 사용하는 전역 글꼴"
+L["Global settings"] = "전역 설정"
+L["Global texture of the bars"] = "바의 전역 텍스처"
+L["Gloss"] = "광택"
+L["Gloss color"] = "광택 색상"
+L["Group"] = "그룹"
+L["Group %i anchor (%s)"] = "그룹 %i 앵커 (%s)"
+L["Group background color"] = "그룹 배경 색상"
+L["Group by unit"] = "유닛별 그룹화"
+L["Group unit frames"] = "그룹 단위 프레임"
+L["Grouping"] = "그룹화"
+L["Grow direction"] = "성장 방향"
+L["Grow direction of the icons"] = "아이콘 성장 방향"
+L["health:percentageTag"] = "체력 (백분율)"
+L["health:shortTag"] = "체력 (약어)"
+L["healthabsorbs:shortTag"] = "체력과 흡수 (약어)"
+L["healthabsorbsTag"] = "체력과 흡수"
+L["HealthBar"] = "체력 바"
+L["healthTag"] = "체력"
+L["Height"] = "높이"
+L["Height of the bars"] = "바 높이"
+L["Height of the cast bar"] = "시전 바 높이"
+L["Height of the health bar"] = "체력 바 높이"
+L["Height of the power bar"] = "자원 바 높이"
+L["Hide talents until detected"] = "감지될 때까지 특성 숨기기"
+L["High transparency alpha value of the animation"] = "애니메이션 높은 투명도 설정"
+L["Highlight"] = "강조 표시"
+L["Highlight border width"] = "강조 표시 테두리 너비"
+L["Highlight color"] = "강조 표시 색상"
+L["Highlight focus target"] = "주시 대상 강조 표시"
+L["Highlight frame on mouseover"] = "마우스 오버 시 프레임 강조 표시"
+L["Highlight on mouseover"] = "마우스 오버 시 강조 표시"
+L["Highlight raid assist target"] = "지원 대상 강조 표시"
+L["Highlight the player target"] = "플레이어 대상 강조 표시"
+L["Horizontal padding"] = "가로 채우기"
+L["Horizontal padding of the icons"] = "아이콘 가로 채우기"
+L["Horizontal spacing"] = "가로 간격"
+L["Horizontal spacing of the icons"] = "아이콘 가로 간격"
+L["Hover"] = "마우스 오버"
+L["Hover settings"] = "마우스 오버 설정"
+L["How much the absorbs bar can grow outside the health bar, as a proportion of the unit's total health"] = "흡수 바가 체력 바를 초과할 수 있는 허용량"
+L["How much the incoming heals bar can grow outside the health bar, as a proportion of the unit's total health"] = "유닛의 총 체력에 대한 비율로, 체력 바 밖에서 예상 치유 바가 얼마나 커질 수 있는지"
+L["HUNTER:short"] = "냥꾼"
+L["Icon"] = "아이콘"
+L["Icon border size"] = "아이콘 테두리 크기"
+L["Icon position"] = "아이콘 위치"
+L["Icon size"] = "아이콘 크기"
+L["Icon transparency"] = "아이콘 투명도"
+L["Icon transparency settings"] = "아이콘 투명도 설정"
+L["Icons max"] = "최대 아이콘 수"
+L["Icons per column"] = "열당 아이콘 수"
+L["Important auras"] = "중요 오라"
+L["In"] = true
+L["Incoming heals"] = "예상 치유"
+L["Incoming heals bar color"] = "예상 치유 바 색상"
+L["Incoming heals color"] = "예상 치유 색상"
+L["Incoming heals settings"] = "예상 치유 설정"
+L["Increase the priority of spells in this category"] = "이 카테고리에서 주문의 우선순위를 높입니다."
+L["In-Out"] = true
+L["Inside frame"] = "프레임 내부"
+L["Interrupts"] = "차단"
+L["Inverse"] = "반전"
+L["Invert the bar colors"] = "바 색상 반전"
+L["Invert the dark/bright part of the cooldown spiral"] = "재사용 대기시간 소용돌이의 어두운/밝은 부분 반전"
+L["Items"] = "아이템"
+L["Left"] = "왼쪽"
+L["Left and right"] = "왼쪽/오른쪽"
+L["Left bottom"] = "왼쪽 아래"
+L["Left top"] = "왼쪽 위"
+L["Lock frames"] = "프레임 잠금"
+L["Lock the frames to hide"] = "프레임 잠금 후 숨기기"
+L["Lock the group to hide"] = "그룹 잠금 후 숨기기"
+L["Locked"] = "잠금"
+L["Low health"] = "낮은 체력"
+L["Low health alert"] = "낮은 체력 알림"
+L["Low health settings"] = "낮은 체력 알림 설정"
+L["Low health threshold"] = "낮은 체력값"
+L["LOW HEALTH: %s (%s)"] = "낮은 체력: %s (%s)"
+L["Low transparency alpha value of the animation"] = "애니메이션 낮은 투명도 설정"
+L["MAGE:short"] = "법사"
+L["Margin"] = "간격"
+L["Margin between each button"] = "각 버튼 사이의 간격"
+L["Margin between each module"] = "각 모듈 간 간격"
+L["Max number of rows"] = "최대 줄 수"
+L["maxhealth:shortTag"] = "최대 체력 (약어)"
+L["maxhealthTag"] = "최대 체력"
+L["maxpower:shortTag"] = "최대 자원 (약어)"
+L["maxpowerTag"] = "최대 자원"
+L["Middle"] = "가운데"
+L["MikScrollingBattleText"] = "MSBT"
+L["Minimum health percent to fire the alert"] = "알림을 발동하기 위한 최소 체력 비율"
+L["Mod margin"] = "모듈 간격"
+L["Modifier"] = "수정자"
+L["MONK:short"] = "도사"
+L["Mouse button"] = "마우스 버튼"
+L["Name"] = "이름"
+L["Name of the aura"] = "오라 이름"
+L["Name of the cast"] = "시전 이름"
+L["Name of the cast spell"] = "시전 주문 이름"
+L["Name of the tag"] = "태그 이름"
+L["Name of the text element"] = "텍스트 요소 이름"
+L["name:statusTag"] = "이름/상태"
+L["nameTag"] = "이름 태그"
+L["New aura"] = "새로운 오라"
+L["New cast"] = "새로운 시전"
+L["None"] = "없음"
+L["Not interruptible color"] = "차단 불가능한 색상"
+L["Number of auras per row"] = "줄당 오라 수"
+L["Number of icons per column"] = "행당 아이콘 수"
+L["Number of max icons"] = "최대 아이콘 수"
+L["Number of rows"] = "줄 수"
+L["OFFLINE"] = "오프라인"
+L["Offset X"] = "X 위치 조정"
+L["Offset Y"] = "Y 위치 조정"
+L["On cooldown"] = "재사용 대기시간 중"
+L["Options"] = "옵션"
+L["Out"] = true
+L["Out of range alpha"] = "사정거리 밖 투명도"
+L["Outline"] = "외곽선"
+L["Outside bar limit"] = "외부 바 제한"
+L["Overlay blend mode"] = "혼합 모드 오버레이"
+L["Padding of the background"] = "배경 채우기"
+L["PALADIN:short"] = "기사"
+L["Parrot"] = "반복"
+L["Party"] = "파티"
+L["Pet"] = "소환수"
+L["PetBar"] = "소환수"
+L["Player focus target"] = "플레이어 주시 대상"
+L["Player focus target settings"] = "플레이어 주시 대상 설정"
+L["Player target"] = "플레이어 대상"
+L["Player target settings"] = "플레이어 대상 설정"
+L["Portrait 2D"] = "초상화 2D"
+L["Portrait 3D"] = "초상화 3D"
+L["Position"] = "위치"
+L["Position of the cast bar icon"] = "시전바 아이콘 위치"
+L["Position of the class icon"] = "직업 아이콘 위치"
+L["Position of the frame"] = "프레임 위치"
+L["Position settings"] = "위치 설정"
+L["Power type"] = "자원 유형"
+L["power:percentageTag"] = "자원 (백분율)"
+L["power:shortTag"] = "자원 (약어)"
+L["PowerBar"] = "자원 바"
+L["powerTag"] = "자원"
+L["PRIEST:short"] = "사제"
+L["Priority"] = "우선순위"
+L["Priority of the highlight"] = "강조 표시의 우선순위"
+L["Quadratic"] = true
+L["Race"] = "종족"
+L["raceTag"] = "종족 태그"
+L["Raid assist settings"] = "지원 대상 설정"
+L["Raid assist target"] = "지원 대상"
+L["Raid icon target %i"] = "공격대 징표 대상 %i"
+L["Raid icon targets"] = "공격대 징표 대상"
+L["Raid Warning"] = "공격대 경보"
+L["Relative point"] = "상대적 위치"
+L["Relative point of the frame"] = "프레임의 상대적 위치"
+L["Remaining time"] = "남은 시간"
+L["Remove this cooldowns group"] = "이 재사용 대기시간 그룹 제거"
+L["Replaces: %s"] = "대체 항목: %s"
+L["Required aura: %s"] = "필요한 오라: %s"
+L["Reset all arena settings to their default values"] = "모든 투기장 설정을 기본값으로 초기화"
+L["Reset all party settings to their default values"] = "모든 파티 설정을 기본값으로 초기화"
+L["Reset arena settings"] = "투기장 설정 초기화"
+L["Reset module"] = "모듈 초기화"
+L["Reset party settings"] = "파티 설정 초기화"
+L["Reset settings"] = "설정 초기화"
+L["Resets: %s"] = "초기화: %s"
+L["RESURRECTING: %s (%s)"] = "부활 중: %s (%s)"
+L["Resurrection"] = "부활"
+L["Right"] = "오른쪽"
+L["Right bottom"] = "오른쪽 아래"
+L["Right top"] = "오른쪽 위"
+L["ROGUE:short"] = "도적"
+L["Role"] = "역할"
+L["Say"] = "일반 대화"
+L["Scale of the enlarged auras"] = "확대된 오라의 크기"
+L["Scale of the frame"] = "프레임 크기"
+L["Scrolling Combat Text"] = "SCT"
+L["Select a modifier for this click action"] = "이 클릭 동작의 수정자를 선택하세요."
+L["Select what priority the alert should have - higher equals more priority"] = "알림의 우선 순위를 선택합니다(높을수록 우선 순위가 높습니다)."
+L["Select what priority the aura should have - higher equals more priority"] = "오라의 우선 순위를 선택합니다 - 높을수록 우선 순위가 높습니다."
+L["Select what priority the cast should have - higher equals more priority"] = "시전 우선순위를 선택합니다 - 높을수록 우선순위가 높습니다."
+L["Select what this click action does"] = "이 클릭 동작이 수행해야 하는 작업을 선택하세요."
+L["Select which mouse button this click action uses"] = "이 클릭 동작에 사용되는 마우스 버튼을 선택하세요."
+L["Self"] = "자신"
+L["SHAMAN:short"] = "술사"
+L["Shared cooldown: %s (%is)"] = "공유 재사용 대기시간: %s (%is)"
+L["Shield icon"] = "방패 아이콘"
+L["shift-"] = true
+L["Show"] = "표시"
+L["Show absorbs"] = "흡수 표시"
+L["Show border around focus target"] = "주시 대상 주위에 테두리 표시"
+L["Show border around raid assist"] = "지원 대상 테두리 표시"
+L["Show border around raid target %i"] = "레이드 대상 %i 주변 테두리 표시"
+L["Show Buffs"] = "버프 표시"
+L["Show cast time"] = "시전 시간 표시"
+L["Show Debuffs"] = "디버프 표시"
+L["Show delay"] = "지연 표시"
+L["Show important auras instead of the class icon"] = "직업 아이콘 대신 중요 오라 표시"
+L["Show incoming heals"] = "예상 치유 표시"
+L["Show only dispellable"] = "해제 가능한 것만 표시"
+L["Show only mine"] = "내 것만 표시"
+L["Show party frames"] = "파티 프레임 표시"
+L["Show spark"] = "섬광 표시"
+L["Show tooltips"] = "툴팁 표시"
+L["Show total time"] = "전체 시간 표시"
+L["Size"] = "크기"
+L["Size of the aura icons"] = "오라 아이콘 크기"
+L["Size of the cooldown icon borders"] = "재사용 대기시간 아이콘 테두리 크기"
+L["Size of the cooldown icons"] = "재사용 대기시간 아이콘 크기"
+L["Size of the frames border"] = "프레임 테두리 크기"
+L["Size of the icons"] = "아이콘 크기"
+L["Size of the text"] = "텍스트 크기"
+L["Size settings"] = "크기 설정"
+L["SkillHistory"] = "스킬 기록"
+L["Space between the icons"] = "아이콘 사이 간격"
+L["Spacing"] = "간격"
+L["Spec"] = "전문화"
+L["Spec detection"] = "전문화 감지"
+L["spec:shortTag"] = "전문화 (약어)"
 L["specID:102:short"] = "조화"
 L["specID:103:short"] = "야성"
 L["specID:104:short"] = "수호"
@@ -5983,7 +5543,7 @@ L["specID:255:short"] = "생존"
 L["specID:256:short"] = "수양"
 L["specID:257:short"] = "신성"
 L["specID:258:short"] = "암흑"
-L["specID:259:short"] = "암살"
+L["specID:259:short"] = "암살 "
 L["specID:260:short"] = "전투"
 L["specID:261:short"] = "잠행"
 L["specID:262:short"] = "정기"
@@ -5992,12 +5552,9 @@ L["specID:264:short"] = "복원"
 L["specID:265:short"] = "고통"
 L["specID:266:short"] = "악마"
 L["specID:267:short"] = "파괴"
---[[Translation missing --]]
-L["specID:268:short"] = "Brew"
---[[Translation missing --]]
-L["specID:269:short"] = "Wind"
---[[Translation missing --]]
-L["specID:270:short"] = "Mist"
+L["specID:268:short"] = "양조"
+L["specID:269:short"] = "풍운"
+L["specID:270:short"] = "운무"
 L["specID:62:short"] = "비전"
 L["specID:63:short"] = "화염"
 L["specID:64:short"] = "냉기"
@@ -6007,242 +5564,124 @@ L["specID:70:short"] = "징벌"
 L["specID:71:short"] = "무기"
 L["specID:72:short"] = "분노"
 L["specID:73:short"] = "방어"
---[[Translation missing --]]
-L["specTag"] = "Spec"
---[[Translation missing --]]
-L["Spell name"] = "Spell name"
---[[Translation missing --]]
-L["Spell name / Macro text"] = "Spell name / Macro text"
---[[Translation missing --]]
-L["Stealth alpha"] = "Stealth alpha"
---[[Translation missing --]]
-L["Stop testing"] = "Stop testing"
---[[Translation missing --]]
-L["Tag"] = "Tag"
---[[Translation missing --]]
-L["Tag settings"] = "Tag settings"
---[[Translation missing --]]
-L["Tag: %s"] = "Tag: %s"
---[[Translation missing --]]
-L["Tags"] = "Texts Tags"
---[[Translation missing --]]
-L["Talent"] = "Talent"
---[[Translation missing --]]
-L["TargetBar"] = "TargetBar"
---[[Translation missing --]]
-L["Test 2v2"] = "Test 2v2"
---[[Translation missing --]]
-L["Test 3v3"] = "Test 3v3"
---[[Translation missing --]]
-L["Test 5v5"] = "Test 5v5"
---[[Translation missing --]]
-L["Test frames"] = "Test frames"
---[[Translation missing --]]
-L["Test units"] = "Test units"
---[[Translation missing --]]
-L["Testing"] = "Testing"
---[[Translation missing --]]
-L["Testing settings"] = "Testing settings"
---[[Translation missing --]]
-L["Text"] = "Text"
---[[Translation missing --]]
-L["Text align"] = "Text align"
---[[Translation missing --]]
-L["Text align of the cast text"] = "Text align of the cast text"
---[[Translation missing --]]
-L["Text align of the cast time text"] = "Text align of the cast time text"
---[[Translation missing --]]
-L["Text color"] = "Text color"
---[[Translation missing --]]
-L["Text color of the cast text"] = "Text color of the cast text"
---[[Translation missing --]]
-L["Text color of the cast time text"] = "Text color of the cast time text"
---[[Translation missing --]]
-L["Text outline of the global font"] = "Text outline of the global font"
---[[Translation missing --]]
-L["Text settings"] = "Text settings"
---[[Translation missing --]]
-L["Text shadow color of the global font"] = "Text shadow color of the global font"
---[[Translation missing --]]
-L["Text size"] = "Text size"
---[[Translation missing --]]
-L["Text size of the cast text"] = "Text size of the cast text"
---[[Translation missing --]]
-L["Text size of the cast time text"] = "Text size of the cast time text"
---[[Translation missing --]]
-L["Text size of the DR text"] = "Text size of the DR text"
---[[Translation missing --]]
-L["Text size of the global font"] = "Text size of the global font"
---[[Translation missing --]]
-L["Text to be displayed"] = "Text to be displayed"
---[[Translation missing --]]
-L["Texts"] = "Texts"
---[[Translation missing --]]
-L["Texture"] = "Texture"
---[[Translation missing --]]
-L["Texture of the cast bar"] = "Texture of the cast bar"
---[[Translation missing --]]
-L["Texture of the health bar"] = "Texture of the health bar"
---[[Translation missing --]]
-L["Texture of the power bar"] = "Texture of the power bar"
---[[Translation missing --]]
-L["The direction you want the frames to grow in"] = "The direction you want the frames to grow in"
---[[Translation missing --]]
-L["Thick outline"] = "Thick outline"
---[[Translation missing --]]
-L["Timeout"] = "Timeout"
---[[Translation missing --]]
-L["Timeout settings"] = "Timeout settings"
---[[Translation missing --]]
-L["Timeout, in seconds"] = "Timeout, in seconds"
---[[Translation missing --]]
-L["Toggle alerts when some auras are active"] = "Toggle alerts when some auras are active"
---[[Translation missing --]]
-L["Toggle alerts when some spells are being cast"] = "Toggle alerts when some spells are being cast"
---[[Translation missing --]]
-L["Toggle aura buffs"] = "Toggle aura buffs"
---[[Translation missing --]]
-L["Toggle aura debuffs"] = "Toggle aura debuffs"
---[[Translation missing --]]
-L["Toggle cast text"] = "Toggle cast text"
---[[Translation missing --]]
-L["Toggle cast time"] = "Toggle cast time"
---[[Translation missing --]]
-L["Toggle cast time text"] = "Toggle cast time text"
---[[Translation missing --]]
-L["Toggle default color"] = "Toggle default color"
---[[Translation missing --]]
-L["Toggle delay"] = "Toggle delay"
---[[Translation missing --]]
-L["Toggle display of absorbs in the health bar"] = "Toggle display of absorbs in the health bar"
---[[Translation missing --]]
-L["Toggle display of advanced options"] = "Toggle display of advanced options"
---[[Translation missing --]]
-L["Toggle display of incoming heals in the health bar"] = "Toggle display of incoming heals in the health bar"
---[[Translation missing --]]
-L["Toggle gloss on the icon"] = "Toggle gloss on the icon"
---[[Translation missing --]]
-L["Toggle health bar class color"] = "Toggle health bar class color"
---[[Translation missing --]]
-L["Toggle if the auras should show the aura tooltip when hovered"] = "Toggle if the auras should show the aura tooltip when hovered"
---[[Translation missing --]]
-L["Toggle if the cooldowns in the detached group should be grouped by unit"] = "Toggle if the cooldowns in the detached group should be grouped by unit"
---[[Translation missing --]]
-L["Toggle if the detached group can be moved"] = "Toggle if the detached group can be moved"
---[[Translation missing --]]
-L["Toggle if the frames can be moved"] = "Toggle if the frames can be moved"
---[[Translation missing --]]
-L["Toggle if the icon borders should be cropped or not"] = "Toggle if the icon borders should be cropped or not"
---[[Translation missing --]]
-L["Toggle if the icons should show the spell tooltip when hovered"] = "Toggle if the icons should show the spell tooltip when hovered"
---[[Translation missing --]]
-L["Toggle if you want the cast bar to be part of the frame or if you want to position it freely"] = "Toggle if you want the cast bar to be part of the frame or if you want to position it freely"
---[[Translation missing --]]
-L["Toggle if your auras should be enlarged"] = "Toggle if your auras should be enlarged"
---[[Translation missing --]]
-L["Toggle low health alerts"] = "Toggle low health alerts"
---[[Translation missing --]]
-L["Toggle remaining time instead of cast time"] = "Toggle remaining time instead of cast time"
---[[Translation missing --]]
-L["Toggle the cast bar shield icon for not interruptible spells"] = "Toggle the cast bar shield icon for not interruptible spells"
---[[Translation missing --]]
-L["Toggle the cast bar spark"] = "Toggle the cast bar spark"
---[[Translation missing --]]
-L["Toggle the cast bar spell icon"] = "Toggle the cast bar spell icon"
---[[Translation missing --]]
-L["Toggle the class icon"] = "Toggle the class icon"
---[[Translation missing --]]
-L["Toggle to show your party frames"] = "Toggle to show your party frames"
---[[Translation missing --]]
-L["Toggle total time"] = "Toggle total time"
---[[Translation missing --]]
-L["Top"] = "Top"
---[[Translation missing --]]
-L["Top left"] = "Top left"
---[[Translation missing --]]
-L["Top right"] = "Top right"
---[[Translation missing --]]
-L["Transparency"] = "Transparency"
---[[Translation missing --]]
-L["Transparency for dead units"] = "Transparency for dead units"
---[[Translation missing --]]
-L["Transparency for units in stealth"] = "Transparency for units in stealth"
---[[Translation missing --]]
-L["Transparency for units out of range"] = "Transparency for units out of range"
---[[Translation missing --]]
-L["Transparency settings"] = "Transparency settings"
---[[Translation missing --]]
-L["Unit frames"] = "Unit frames"
---[[Translation missing --]]
-L["Unit frames settings"] = "Unit frames settings"
---[[Translation missing --]]
-L["Unit power type"] = "Unit power type"
---[[Translation missing --]]
-L["Unit race"] = "Unit race"
---[[Translation missing --]]
-L["Unit talent specialization"] = "Unit talent specialization"
---[[Translation missing --]]
-L["Up"] = "Up"
---[[Translation missing --]]
-L["Up and down"] = "Up and down"
---[[Translation missing --]]
-L["Up left"] = "Up left"
---[[Translation missing --]]
-L["Up right"] = "Up right"
---[[Translation missing --]]
-L["Use global texture"] = "Use global texture"
---[[Translation missing --]]
-L["Use the global bar texture"] = "Use the global bar texture"
---[[Translation missing --]]
-L["Use the global font size"] = "Use the global font size"
---[[Translation missing --]]
-L["Valid slash commands are:"] = "Valid slash commands are:"
---[[Translation missing --]]
-L["Vertical padding"] = "Vertical padding"
---[[Translation missing --]]
-L["Vertical padding of the icons"] = "Vertical padding of the icons"
---[[Translation missing --]]
-L["Vertical spacing"] = "Vertical spacing"
---[[Translation missing --]]
-L["Vertical spacing of the icons"] = "Vertical spacing of the icons"
---[[Translation missing --]]
-L["WARLOCK:short"] = "Lock"
---[[Translation missing --]]
-L["WARRIOR:short"] = "Warr"
---[[Translation missing --]]
-L["Welcome to GladiusEx!"] = "Welcome to GladiusEx!"
---[[Translation missing --]]
-L["What auras to filter"] = "What auras to filter"
---[[Translation missing --]]
-L["When available, show specialization instead of class icons"] = "When available, show specialization instead of class icons"
---[[Translation missing --]]
-L["Whitelist"] = "Whitelist"
---[[Translation missing --]]
-L["Widget"] = "Widget"
---[[Translation missing --]]
-L["Widget settings"] = "Widget settings"
---[[Translation missing --]]
-L["Width"] = "Width"
---[[Translation missing --]]
-L["Width of the bars"] = "Width of the bars"
---[[Translation missing --]]
-L["Width of the cast bar"] = "Width of the cast bar"
---[[Translation missing --]]
-L["X offset"] = "X offset"
---[[Translation missing --]]
-L["X offset of the cast text"] = "X offset of the cast text"
---[[Translation missing --]]
-L["X offset of the cast time text"] = "X offset of the cast time text"
---[[Translation missing --]]
-L["X offset of the frame"] = "X offset of the frame"
---[[Translation missing --]]
-L["Y offset"] = "Y offset"
---[[Translation missing --]]
-L["Y offset of the cast text"] = "Y offset of the cast text"
---[[Translation missing --]]
-L["Y offset of the cast time text"] = "Y offset of the cast time text"
---[[Translation missing --]]
-L["Y offset of the frame"] = "Y offset of the frame"
+L["specTag"] = "전문화"
+L["Spell name"] = "주문 이름"
+L["Spell name / Macro text"] = "주문 이름 / 매크로 텍스트"
+L["Stealth alpha"] = "은신 투명도"
+L["Stop testing"] = "테스트 중지"
+L["Tag"] = "태그"
+L["Tag settings"] = "태그 설정"
+L["Tag: %s"] = "태그: %s"
+L["Tags"] = "태그"
+L["Talent"] = "특성"
+L["TargetBar"] = "대상 바"
+L["Test 2v2"] = "2v2 테스트"
+L["Test 3v3"] = "3v3 테스트"
+L["Test 5v5"] = "5v5 테스트"
+L["Test frames"] = "테스트 프레임"
+L["Test units"] = "테스트 유닛"
+L["Testing"] = "테스트"
+L["Testing settings"] = "테스트 설정"
+L["Text"] = "텍스트"
+L["Text align"] = "텍스트 정렬"
+L["Text align of the cast text"] = "시전 텍스트 정렬"
+L["Text align of the cast time text"] = "시전 시간 텍스트 정렬"
+L["Text color"] = "텍스트 색상"
+L["Text color of the cast text"] = "시전 텍스트의 텍스트 색상"
+L["Text color of the cast time text"] = "시전 시간 텍스트의 텍스트 색상"
+L["Text outline of the global font"] = "전역 글꼴의 텍스트 외곽선"
+L["Text settings"] = "텍스트 설정"
+L["Text shadow color of the global font"] = "전역 글꼴의 텍스트 그림자 색상"
+L["Text size"] = "텍스트 크기"
+L["Text size of the cast text"] = "시전 텍스트의 텍스트 크기"
+L["Text size of the cast time text"] = "시전 시간 텍스트의 텍스트 크기"
+L["Text size of the DR text"] = "점감 텍스트 크기"
+L["Text size of the global font"] = "전역 글꼴의 텍스트 크기"
+L["Text to be displayed"] = "표시할 텍스트"
+L["Texts"] = "텍스트"
+L["Texture"] = "텍스처"
+L["Texture of the cast bar"] = "시전바 텍스처"
+L["Texture of the health bar"] = "체력 바 텍스처"
+L["Texture of the power bar"] = "자원 바 텍스처"
+L["The direction you want the frames to grow in"] = "프레임 성장 방향"
+L["Thick outline"] = "두꺼운 외곽선"
+L["Timeout"] = "시간 초과"
+L["Timeout settings"] = "시간 초과 설정"
+L["Timeout, in seconds"] = "시간 초과(초)"
+L["Toggle alerts when some auras are active"] = "특정 오라가 활성화되면 알림"
+L["Toggle alerts when some spells are being cast"] = "특정 주문 시전 시 알림"
+L["Toggle aura buffs"] = "버프 오라"
+L["Toggle aura debuffs"] = "디버프 오라"
+L["Toggle cast text"] = "시전 텍스트 활성화"
+L["Toggle cast time"] = "시전 시간 활성화"
+L["Toggle cast time text"] = "시전 시간 텍스트 활성화"
+L["Toggle default color"] = "기본 색상 사용"
+L["Toggle delay"] = "지연 활성화"
+L["Toggle display of absorbs in the health bar"] = "체력바에 흡수 표시"
+L["Toggle display of advanced options"] = "고급 설정 표시"
+L["Toggle display of incoming heals in the health bar"] = "체력바에 예상 치유 표시"
+L["Toggle gloss on the icon"] = "아이콘 광택 효과 활성화"
+L["Toggle health bar class color"] = "체력바 직업 색상 활성화"
+L["Toggle if the auras should show the aura tooltip when hovered"] = "마우스 오버 시 오라 툴팁 표시 활성화"
+L["Toggle if the cooldowns in the detached group should be grouped by unit"] = "분리된 그룹의 재사용 대기시간을 유닛별로 그룹화"
+L["Toggle if the detached group can be moved"] = "분리된 그룹을 이동할 수 있는지 여부"
+L["Toggle if the frames can be moved"] = "프레임 이동 가능 여부"
+L["Toggle if the icon borders should be cropped or not"] = "아이콘 테두리 자르기"
+L["Toggle if the icons should show the spell tooltip when hovered"] = "마우스 오버 시 주문 툴팁 표시 활성화"
+L["Toggle if you want the cast bar to be part of the frame or if you want to position it freely"] = "시전바를 프레임의 일부로 만들거나 자유롭게 배치하려는 경우"
+L["Toggle if your auras should be enlarged"] = "오라를 확대해야 하는 경우"
+L["Toggle low health alerts"] = "낮은 체력 알림"
+L["Toggle remaining time instead of cast time"] = "시전 시간 대신 남은 시간"
+L["Toggle the cast bar shield icon for not interruptible spells"] = "차단 불가 주문의 시전바 방패 아이콘"
+L["Toggle the cast bar spark"] = "시전바 섬광"
+L["Toggle the cast bar spell icon"] = "시전바 주문 아이콘"
+L["Toggle the class icon"] = "직업 아이콘"
+L["Toggle to show your party frames"] = "파티 프레임 표시"
+L["Toggle total time"] = "총 활성화 시간"
+L["Top"] = "상단"
+L["Top left"] = "왼쪽 위"
+L["Top right"] = "오른쪽 위"
+L["Transparency"] = "투명도"
+L["Transparency for dead units"] = "죽은 유닛의 투명도"
+L["Transparency for units in stealth"] = "은신 중인 유닛의 투명도"
+L["Transparency for units out of range"] = "사정거리를 벗어난 유닛의 투명도"
+L["Transparency settings"] = "투명도 설정"
+L["Unit frames"] = "유닛 프레임"
+L["Unit frames settings"] = "유닛 프레임 설정"
+L["Unit power type"] = "유닛 자원 유형"
+L["Unit race"] = "유닛 종족"
+L["Unit talent specialization"] = "유닛 특성 전문화"
+L["Up"] = "위"
+L["Up and down"] = "위/아래"
+L["Up left"] = "왼쪽 위"
+L["Up right"] = "오른쪽 위"
+L["Use global texture"] = "전역 텍스처 사용"
+L["Use the global bar texture"] = "전역 바 텍스처 사용"
+L["Use the global font size"] = "전역 글꼴 크기 사용"
+L["Valid slash commands are:"] = "유효한 슬래시 명령은 다음과 같습니다."
+L["Vertical padding"] = "세로 채우기"
+L["Vertical padding of the icons"] = "아이콘 세로 채우기"
+L["Vertical spacing"] = "세로 간격"
+L["Vertical spacing of the icons"] = "아이콘 세로 간격"
+L["WARLOCK:short"] = "흑마"
+L["WARRIOR:short"] = "전사"
+L["Welcome to GladiusEx!"] = "GladiusEx에 오신 것을 환영합니다!"
+L["What auras to filter"] = "필터링할 오라"
+L["When available, show specialization instead of class icons"] = "가능한 경우 직업 아이콘 대신 전문화 표시"
+L["Whitelist"] = "허용 목록"
+L["Widget"] = "위젯"
+L["Widget settings"] = "위젯 설정"
+L["Width"] = "너비"
+L["Width of the bars"] = "바 너비"
+L["Width of the cast bar"] = "시전바 너비"
+L["X offset"] = "X 위치 조정"
+L["X offset of the cast text"] = "시전 텍스트의 X 위치 조정"
+L["X offset of the cast time text"] = "시전 시간 텍스트의 X 위치 조정"
+L["X offset of the frame"] = "프레임의 X 위치 조정"
+L["Y offset"] = "Y 위치 조정"
+L["Y offset of the cast text"] = "시전 텍스트의 Y 위치 조정"
+L["Y offset of the cast time text"] = "시전 시간 텍스트의 Y 위치 조정"
+L["Y offset of the frame"] = "프레임의 Y 위치 조정"
 
 end
 
