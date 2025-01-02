@@ -1,9 +1,7 @@
 # Baganator
 
-## [580](https://github.com/Baganator/Baganator/tree/580) (2024-12-31)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/579...580) 
+## [592](https://github.com/Baganator/Baganator/tree/592) (2025-01-01)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/591...592) 
 
-- Remove unneeded FullUpdate call to ScrollBoxList  
-- Move fix for character arrow being set wrong inside if statement  
-- Fix issue with arrow not resetting if the character is changed between bag opens  
-- Character Select: Fix arrow for character not changing when it is reset to live  
+- Cutomise: Categories: Highlight when adding from the bottom of a section into it  
+- Customise: Categories: Adjust visual for highlight showing insert point  
