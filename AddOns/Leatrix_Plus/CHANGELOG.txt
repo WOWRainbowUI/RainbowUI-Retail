@@ -1,6 +1,11 @@
-﻿11.0.25 - 25th December 2024
+﻿11.0.26 - 1st January 2025
+- Happy New Year!
+- For 'Media', added zone music for 'The Great Sea (Dragon Isles)' and 'Traitor's Rest' ('Dragonflight') and 'Sinfall' ('Shadowlands').
+- Updated translations.
+
+11.0.25 - 25th December 2024
 - Merry Christmas!
-- For 'Media', added zone music for 'The Great Sea', 'The Maddening Deep' and 'Siren Isle' ('Khaz Algar') and 'Amirdrassil', 'Tyrhold Cavern' and 'Zaralek Cavern' ('Dragon Isles').
+- For 'Media', added zone music for 'The Great Sea (Khaz Algar)', 'The Maddening Deep' and 'Siren Isle' ('Khaz Algar') and 'Amirdrassil', 'Tyrhold Cavern' and 'Zaralek Cavern' ('Dragon Isles').
 - Updated translations.
 
 11.0.23 - 18th December 2024

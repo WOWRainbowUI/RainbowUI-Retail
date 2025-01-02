@@ -181,14 +181,99 @@
 	-- Zones: Shadowlands
 	Zn(L["Zones"], L["Shadowlands"], "|cffffd800", {""})
 	Zn(L["Zones"], L["Shadowlands"], "|cffffd800" .. L["Shadowlands"], {""})
-	Zn(L["Zones"], L["Shadowlands"], L["Exile's Reach"]							, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Exile's Reach"], prefol, "MUS_NPE_GeneralWalk#136278", "MUS_NPE_BattleIntro#136271", "MUS_NPE_BoatIntro#136272", "MUS_NPE_BoatWalk#136273", "MUS_NPE_Camp#136274", "MUS_NPE_DarkmaulCitadel#136277", "MUS_NPE_Harpy#136279", "MUS_NPE_OnFire#136276", "MUS_NPE_Outro#136270", "MUS_NPE_Quillboar#136280", "MUS_NPE_RTC_Attack(NYI)#136297",})
-	Zn(L["Zones"], L["Shadowlands"], L["Ardenweald"]							, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Ardenweald"], prefol, "ZONE_90_AW_Tree_Withered#173914", "ZONE_90_AW_Tree_WinterQueenRoom#173966", "ZONE_90_AW_Tree_InDanger#173913", "ZONE_90_AW_Tree_Healthy#173969", "ZONE_90_AW_Tree_Drust#173912", "ZONE_90_AW_Serene#173964", "ZONE_90_AW_Mischief_GossamerCliffs#173977", "ZONE_90_AW_Mischief#173976", "ZONE_90_AW_MelancholyDream_GeneralWalk#173962", "ZONE_90_AW_Hunger#173909", "ZONE_90_AW_Hollow_Drust#173911", "ZONE_90_AW_Hollow#173908", "ZONE_90_AW_HeartofTheForest#174034", "ZONE_90_AW_GroveofAwakening#173967", "ZONE_90_AW_Dreamer#173968", "ZONE_90_AW_Devious#173975", "ZONE_90_AW_Amphitheater#173970",})
-	Zn(L["Zones"], L["Shadowlands"], L["Bastion"]								, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Bastion"], prefol, "ZONE_90_BA_Broker_Walk#173825", "ZONE_90_BA_ElysianHold_Kyrian_Walk#173691", "ZONE_90_BA_Forsworn_HEAVY_Walk#173688", "ZONE_90_BA_Forsworn_LIGHT_Walk#173687", "ZONE_90_BA_Forsworn_MEDIUM_Walk#173686", "ZONE_90_BA_Garden_Walk#173684", "ZONE_90_BA_General_Walk#173683", "ZONE_90_BA_Kyrian_Meditative_Walk#173685", "ZONE_90_BA_Kyrian_Temple_Walk#173758", "ZONE_90_BA_Kyrian_Training_GardenWalk#173826", "ZONE_90_BA_Kyrian_Training_Walk#173689", "ZONE_90_BA_Maldraxxus_Walk#173847", "ZONE_90_BA_MirisChapel#173850",})
-	Zn(L["Zones"], L["Shadowlands"], L["Korthia"]								, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Korthia"], prefol, "MUS_91_Korthia_1#184640", "MUS_91_Korthia_2#184641", "MUS_91_Korthia_3#184632",})
-	Zn(L["Zones"], L["Shadowlands"], L["Maldraxxus"]							, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Maldraxxus"], prefol, "ZONE_90_MX_Maldraxxus_GeneralWalk#174450",  "ZONE_90_MX_HouseofConstructs_Walk#174451", "ZONE_90_MX_HouseoftheChosen_Walk#174452", "ZONE_90_MX_HouseofEyes_Walk#174455", "ZONE_90_MX_HouseofPlagues_Walk#174453", "ZONE_90_MX_HouseofRituals_Walk#174454", "ZONE_90_MX_HouseofRituals_Domination#174531", "ZONE_90_MX_Necropolis_Walk#174457", "ZONE_90_MX_TheaterofPain_Walk#174456" --[["ZONE_90_MX_Cov_SeatofthePrimus_Walk#174529", "ZONE_90_MX_Cov_SeatofthePrimus_BleakRedoubt#177748", "ZONE_90_MX_Cov_SeatofthePrimus_Halls#177753"]],})
-	Zn(L["Zones"], L["Shadowlands"], L["Maw"]									, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Maw"], prefol, "ZONE_90_MAW_Wilds_GeneralWalk#174983", "ZONE_90_MAW_Crystal_Walk#175583", "ZONE_90_MAW_Fortress_Walk#175584", "ZONE_90_MAW_Torghast_InteriorWalk#175661", "ZONE_90_MAW_Prologue_General_Walk#176906", "ZONE_90_MAW_Prologue_Hero_Action#176908", "ZONE_90_MAW_Prologue_Hero_Ambient#176909", "ZONE_90_MAW_AW_CovCh2_TyrandeInMaw_Walk#177217", "ZONE_90_MAW_AW_CovCh2_TyrandeInTorghast_Walk#177218",})
-	Zn(L["Zones"], L["Shadowlands"], L["Oribos"]								, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Oribos"], prefol, "ZONE_90_OR_RingofFates#173954", "ZONE_90_OR_RingofTransference#173953",})
-	Zn(L["Zones"], L["Shadowlands"], L["Revendreth"]							, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Revendreth"], prefol, "Zone_90_RD_EmberCourt_GeneralWalk#172764", "ZONE_90_RD_Forest_GeneralWalk#174072", "ZONE_90_RD_Ruins#174073", "ZONE_90_RD_Courtyard#174074", "ZONE_90_RD_Decadence#174075", "ZONE_90_RD_Sinister#174077", "ZONE_90_RD_Swamp#174078", "ZONE_90_RD_Sinfall#174079", --[["ZONE_90_RD_Interior#174080",]] "ZONE_90_RD_Scortched#174076",})
+	Zn(L["Zones"], L["Shadowlands"], L["Exile's Reach"]							, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Exile's Reach"], prefol,
+		"MUS_NPE_GeneralWalk#136278",
+		"MUS_NPE_BattleIntro#136271",
+		"MUS_NPE_BoatIntro#136272",
+		"MUS_NPE_BoatWalk#136273",
+		"MUS_NPE_Camp#136274",
+		"MUS_NPE_DarkmaulCitadel#136277",
+		"MUS_NPE_Harpy#136279",
+		"MUS_NPE_OnFire#136276",
+		"MUS_NPE_Outro#136270",
+		"MUS_NPE_Quillboar#136280",
+		"MUS_NPE_RTC_Attack(NYI)#136297",
+	})
+	Zn(L["Zones"], L["Shadowlands"], L["Ardenweald"]							, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Ardenweald"], prefol,
+		"ZONE_90_AW_Tree_Withered#173914",
+		"ZONE_90_AW_Tree_WinterQueenRoom#173966",
+		"ZONE_90_AW_Tree_InDanger#173913",
+		"ZONE_90_AW_Tree_Healthy#173969",
+		"ZONE_90_AW_Tree_Drust#173912",
+		"ZONE_90_AW_Serene#173964",
+		"ZONE_90_AW_Mischief_GossamerCliffs#173977",
+		"ZONE_90_AW_Mischief#173976",
+		"ZONE_90_AW_MelancholyDream_GeneralWalk#173962",
+		"ZONE_90_AW_Hunger#173909",
+		"ZONE_90_AW_Hollow_Drust#173911",
+		"ZONE_90_AW_Hollow#173908",
+		"ZONE_90_AW_HeartofTheForest#174034",
+		"ZONE_90_AW_GroveofAwakening#173967",
+		"ZONE_90_AW_Dreamer#173968",
+		"ZONE_90_AW_Devious#173975",
+		"ZONE_90_AW_Amphitheater#173970",
+	})
+	Zn(L["Zones"], L["Shadowlands"], L["Bastion"]								, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Bastion"], prefol,
+		"ZONE_90_BA_Broker_Walk#173825",
+		"ZONE_90_BA_ElysianHold_Kyrian_Walk#173691",
+		"ZONE_90_BA_Forsworn_HEAVY_Walk#173688",
+		"ZONE_90_BA_Forsworn_LIGHT_Walk#173687",
+		"ZONE_90_BA_Forsworn_MEDIUM_Walk#173686",
+		"ZONE_90_BA_Garden_Walk#173684",
+		"ZONE_90_BA_General_Walk#173683",
+		"ZONE_90_BA_Kyrian_Meditative_Walk#173685",
+		"ZONE_90_BA_Kyrian_Temple_Walk#173758",
+		"ZONE_90_BA_Kyrian_Training_GardenWalk#173826",
+		"ZONE_90_BA_Kyrian_Training_Walk#173689",
+		"ZONE_90_BA_Maldraxxus_Walk#173847",
+		"ZONE_90_BA_MirisChapel#173850",
+	})
+	Zn(L["Zones"], L["Shadowlands"], L["Korthia"]								, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Korthia"], prefol,
+		"MUS_91_Korthia_1#184640",
+		"MUS_91_Korthia_2#184641",
+		"MUS_91_Korthia_3#184632",
+	})
+	Zn(L["Zones"], L["Shadowlands"], L["Maldraxxus"]							, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Maldraxxus"], prefol,
+		"ZONE_90_MX_Maldraxxus_GeneralWalk#174450",
+		"ZONE_90_MX_HouseofConstructs_Walk#174451",
+		"ZONE_90_MX_HouseoftheChosen_Walk#174452",
+		"ZONE_90_MX_HouseofEyes_Walk#174455",
+		"ZONE_90_MX_HouseofPlagues_Walk#174453",
+		"ZONE_90_MX_HouseofRituals_Walk#174454",
+		"ZONE_90_MX_HouseofRituals_Domination#174531",
+		"ZONE_90_MX_Necropolis_Walk#174457",
+		"ZONE_90_MX_TheaterofPain_Walk#174456",
+		--"ZONE_90_MX_Cov_SeatofthePrimus_Walk#174529",
+		--"ZONE_90_MX_Cov_SeatofthePrimus_BleakRedoubt#177748",
+		--"ZONE_90_MX_Cov_SeatofthePrimus_Halls#177753",
+	})
+	Zn(L["Zones"], L["Shadowlands"], L["Maw"]									, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Maw"], prefol,
+		"ZONE_90_MAW_Wilds_GeneralWalk#174983",
+		"ZONE_90_MAW_Crystal_Walk#175583",
+		"ZONE_90_MAW_Fortress_Walk#175584",
+		"ZONE_90_MAW_Torghast_InteriorWalk#175661",
+		"ZONE_90_MAW_Prologue_General_Walk#176906",
+		"ZONE_90_MAW_Prologue_Hero_Action#176908",
+		"ZONE_90_MAW_Prologue_Hero_Ambient#176909",
+		"ZONE_90_MAW_AW_CovCh2_TyrandeInMaw_Walk#177217",
+		"ZONE_90_MAW_AW_CovCh2_TyrandeInTorghast_Walk#177218",
+	})
+	Zn(L["Zones"], L["Shadowlands"], L["Oribos"]								, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Oribos"], prefol,
+		"ZONE_90_OR_RingofFates#173954",
+		"ZONE_90_OR_RingofTransference#173953",
+	})
+	Zn(L["Zones"], L["Shadowlands"], L["Revendreth"]							, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Revendreth"], prefol,
+		"Zone_90_RD_EmberCourt_GeneralWalk#172764",
+		"ZONE_90_RD_Forest_GeneralWalk#174072",
+		"ZONE_90_RD_Ruins#174073", "ZONE_90_RD_Courtyard#174074",
+		"ZONE_90_RD_Decadence#174075", "ZONE_90_RD_Sinister#174077",
+		"ZONE_90_RD_Swamp#174078", "ZONE_90_RD_Sinfall#174079",
+		--"ZONE_90_RD_Interior#174080",
+		"ZONE_90_RD_Scortched#174076",
+	})
+	Zn(L["Zones"], L["Shadowlands"], L["Sinfall"]								, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Sinfall"], prefol, 
+		"tempmono_3min#174034",
+	})
 	Zn(L["Zones"], L["Shadowlands"], L["Zereth Mortis"]							, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Zereth Mortis"], prefol, "MUS_92_ZerethMortis#193503", "MUS_92_ZerethMortis_Broker_Enlightened#192905", "MUS_92_ZerethMortis_Endless_Sands#192900", "MUS_92_ZerethMortis_First_Ones#192899", "MUS_92_ZerethMortis_Forge_Of_Afterlives_Ambient#192988", "MUS_92_ZerethMortis_Genesis_Fields#192909", "MUS_92_ZerethMortis_Grand_Design#193506", "MUS_92_ZerethMortis_Grand_Design_Domination#192901", "MUS_92_ZerethMortis_Sepulcher#192906", "MUS_92_ZerethMortis_Terrace_Of_Creation#193822",})
 
 	-- Zones: Dragonflight
@@ -219,7 +304,6 @@
 		"zone_100_ohnahranplains_outdoor_walk_plains_1#217082",
 		"zone_100_ohnahranplains_outdoor_walk_plains_2#217200",
 	})
-
 	Zn(L["Zones"], L["Dragon Isles"], L["Thaldraszus"]							, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Thaldraszus"], prefol,
 		"zone_100_thaldraszus_outdoor_walk#217092",
 		"zone_100_thaldraszus_outdoor_walk_titan_1#217093",
@@ -240,6 +324,9 @@
 		"zone_100_forbiddenreach_primalist_postvaultbattle#217686",
 		"intro_100_forbiddenreach_vaultdefense#217702",
 	})
+	Zn(L["Zones"], L["Dragon Isles"], L["The Great Sea (Dragon Isles)"]			, {	"|cffffd800" .. L["Zones"] .. ": " .. L["The Great Sea (Dragon Isles)"], prefol,
+		"mus_100_great_sea#217687",
+	})
 	Zn(L["Zones"], L["Dragon Isles"], L["The Waking Shores"]					, {	"|cffffd800" .. L["Zones"] .. ": " .. L["The Waking Shores"], prefol,
 		"zone_100_wakingshore_outdoor_walk_djaradin#217095",
 		"zone_100_wakingshore_outdoor_walk_lifepools#217079",
@@ -248,6 +335,9 @@
 		"zone_100_wakingshore_outdoor_walk_tuskarr#217098",
 		"zone_100_wakingshore_outdoor_walk_volcanic#217081",
 		"zone_100_wakingshore_outdoor_walk_wilds#217080",
+	})
+	Zn(L["Zones"], L["Dragon Isles"], L["Traitor's Rest"]					, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Traitor's Rest"], prefol,
+		"mus_100_azurespan#217096",
 	})
 	Zn(L["Zones"], L["Dragon Isles"], L["Tyrhold Reservoir"]					, {	"|cffffd800" .. L["Zones"] .. ": " .. L["Tyrhold Reservoir"], prefol,
 		"mus_100_titan_ageofthetitans#218065",
@@ -334,7 +424,7 @@
 		"sirenisle_general_island_walk_3#275692",
 		"sirenisle_general_island_walk_4#275831",
 	})
-	Zn(L["Zones"], L["Khaz Algar"], L["The Great Sea"]						, {	"|cffffd800" .. L["Zones"] .. ": " .. L["The Great Sea"], prefol,
+	Zn(L["Zones"], L["Khaz Algar"], L["The Great Sea (Khaz Algar)"]				, {	"|cffffd800" .. L["Zones"] .. ": " .. L["The Great Sea (Khaz Algar)"], prefol,
 		"mus_vashjirnaga_#119317",
 	})
 	Zn(L["Zones"], L["Khaz Algar"], L["The Maddening Deep"]						, {	"|cffffd800" .. L["Zones"] .. ": " .. L["The Maddening Deep"], prefol,
