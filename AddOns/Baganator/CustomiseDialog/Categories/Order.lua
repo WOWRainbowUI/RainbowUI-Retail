@@ -276,7 +276,7 @@ function addonTable.CustomiseDialog.GetCategoriesOrganiser(parent)
   local categoryOrder
   local highlightContainer = CreateFrame("Frame", nil, container)
   local highlight = highlightContainer:CreateTexture(nil, "OVERLAY", nil, 7)
-  highlight:SetSize(200, 20)
+  highlight:SetSize(235, 20)
   highlight:SetAtlas("128-RedButton-Highlight")
   highlight:Hide()
   local draggable
@@ -291,6 +291,9 @@ function addonTable.CustomiseDialog.GetCategoriesOrganiser(parent)
           insertIndex = index + 1
         end
       end
+      if insertIndex == 0 then
+        insertIndex = 1
+      end
 
       if draggable.value:match("^_") then
         table.insert(categoryOrder.elements, insertIndex, draggable.value)
@@ -303,19 +306,48 @@ function addonTable.CustomiseDialog.GetCategoriesOrganiser(parent)
       end
       addonTable.Config.Set(addonTable.Config.Options.CATEGORY_DISPLAY_ORDER, categoryOrder.elements)
     end
+    for _, frame in categoryOrder.ScrollBox:EnumerateFrames() do
+      frame:UnlockHighlight()
+    end
     highlight:Hide()
   end, function()
     highlight:ClearAllPoints()
     highlight:Hide()
+    for _, frame in categoryOrder.ScrollBox:EnumerateFrames() do
+      frame:UnlockHighlight()
+    end
     if categoryOrder:IsMouseOver() then
       highlight:Show()
-      local f, isTop = addonTable.CustomiseDialog.GetMouseOverInContainer(categoryOrder)
-      if f and isTop then
-        highlight:SetPoint("BOTTOMLEFT", f, "TOPLEFT", 0, -10)
-      elseif f then
-        highlight:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 0, 10)
-      else
+      local hoverFrame, isTop, hoverIndex = addonTable.CustomiseDialog.GetMouseOverInContainer(categoryOrder)
+      if hoverFrame and ((categoryOrder.elements[hoverIndex] == addonTable.CategoryViews.Constants.SectionEnd and isTop) or (categoryOrder.elements[hoverIndex + 1] == addonTable.CategoryViews.Constants.SectionEnd and not isTop)) then
+        local level = 1
+        local startIndex = 1
+        for i = hoverIndex - 1, 1, -1 do
+          local value = categoryOrder.elements[i]
+          if value == addonTable.CategoryViews.Constants.SectionEnd then
+            level = level + 1
+          elseif value:match("^_") then
+            level = level - 1
+          end
+          if level == 0 then
+            startIndex = i
+            break
+          end
+        end
+        for _, frame in categoryOrder.ScrollBox:EnumerateFrames() do
+          if frame.indexValue <= hoverIndex and frame.indexValue >= startIndex then
+            frame:LockHighlight()
+          end
+        end
+      end
+      if hoverFrame and isTop then
+        highlight:SetPoint("BOTTOMLEFT", hoverFrame, "TOPLEFT", 0, -10)
+      elseif hoverFrame then
+        highlight:SetPoint("TOPLEFT", hoverFrame, "BOTTOMLEFT", 0, 10)
+      elseif #categoryOrder.elements > 0 then
         highlight:SetPoint("BOTTOMLEFT", categoryOrder, 0, 0)
+      else
+        highlight:SetPoint("TOPLEFT", categoryOrder, 0, 0)
       end
     end
   end)
