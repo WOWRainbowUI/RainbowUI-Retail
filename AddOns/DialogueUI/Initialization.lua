@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.5.8";
-local VERSION_DATE = 1735100000;
+local VERSION_TEXT = "v0.5.9";
+local VERSION_DATE = 1735700000;
 
 
 local addonName, addon = ...
@@ -66,6 +66,8 @@ local DefaultValues = {
 
     NameplateDialogEnabled = false,             --Experimental. Not in the settings
 
+    DisableUIMotion = false,
+
     TTSEnabled = false,
         TTSUseHotkey = true,    --Default key R
         TTSAutoPlay = false,
@@ -117,6 +119,7 @@ local TutorialFlags = {
     --Saved in the DB, prefix: Tutorial_
     --e.g. Tutorial_OpenSettings = true
     "OpenSettings",
+    "WarbandCompletedQuest",
 };
 
 local function GetDBValue(dbKey)
