@@ -376,6 +376,7 @@ L['runed_storm_chest_note'] = '跟随风找到一个隐藏的 {object:符文风�
 L['flame_blessed_iron_item'] = '带回此商品可获得奖励 {currency:3090}。'
 
 L['barnacle_encrusted_chest'] = '长满藤壶的宝箱'
+L['pilfered_earthen_chest'] = '掠夺的土灵宝箱'
 
 L['soweezi_note'] = '用 {currency:3090} 换取坐骑、玩具、宠物和幻化。'
 
@@ -395,12 +396,13 @@ L['prismatic_snapdragon_note_start'] = '在10天的时间里，帮助拯救 {loc
 L['prismatic_day'] = '第%d天' -- "Day 1" or "Day 4" or "Day 7"
 
 L['pris_quest_1'] = '生命线' -- 86482
-L['pris_quest_2'] = nil -- https://www.wowhead.com/ptr/quest=86483/snap-to-it
-L['pris_quest_3'] = nil -- https://www.wowhead.com/ptr/quest=86484/temper-like-a-tempest
-L['pris_quest_4'] = nil -- https://www.wowhead.com/ptr/quest=86485/a-loyal-friend
+L['pris_quest_2'] = '速战速决' -- 86483
+L['pris_quest_3'] = '风卷残云' -- 86484
+L['pris_quest_4'] = '忠诚伙伴' -- 86485
 
 L['unsolved_amethyst_runelock'] = '未破解的紫晶符文锁'
 L['bilge_rat_supply_chest'] = '水鼠帮补给箱'
+L['bilge_rat_supply_chest_note'] = '从附近的 {npc:228582} 收集 {item:228621} 来打开宝箱。'
 
 L['stone_carvers_scamseax_note'] = '收集 {object:光耀黄水晶}（{dot:Yellow}）以获得 {spell:1216785} 增益，持续2分钟，可以拾取 {item:233834}。'
 

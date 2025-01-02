@@ -1,5 +1,5 @@
 local ADDON_NAME, ns = ...
-local L = ns.NewLocale('enUS')
+local L = ns.NewLocale('ruRU')
 if not L then return end
 
 -------------------------------------------------------------------------------
@@ -22,8 +22,8 @@ L['options_icons_khaz_algar_lore_hunter_desc'] = 'Отображение мес�
 L['options_icons_flight_master'] = '{achievement:40430}'
 L['options_icons_flight_master_desc'] = 'Показать местоположения {npc:Распорядителей Полета} для {achievement:40430}.'
 
-L['options_icons_worldsoul_memories'] = nil
-L['options_icons_worldsoul_memories_desc'] = nil
+L['options_icons_worldsoul_memories'] = 'Воспоминание души мира'
+L['options_icons_worldsoul_memories_desc'] = 'Показать награды за {object:Воспоминание души мира}.'
 
 -------------------------------------------------------------------------------
 -------------------------------- ISLE OF DORN ---------------------------------
@@ -62,7 +62,7 @@ L['cendvin_note'] = 'Соберите 900x {item:225557} в {location:Пепло
 L['options_icons_flat_earthen'] = '{achievement:40606}'
 L['options_icons_flat_earthen_desc'] = 'Отображение местоположения для достижения {achievement:40606}.'
 
-L['tome_of_polymorph_mosswool'] = 'Enter the tunnel and continue to {location:The Kindling Parlor}.\n\nПримите {quest:84438} от {npc:229128}, чтобы получить {item:227710}.'
+L['tome_of_polymorph_mosswool'] = 'Войдите в туннель и продолжайте движение {location:The Kindling Parlor}.\n\nПримите {quest:84438} от {npc:229128}, чтобы получить {item:227710}.'
 
 L['aradan_note_start'] = '{npc:213428} можно найти в подземелье {location:Гнездовье} в {location:Дорногале} на {location:Острове Дорн}.\n\n{note:{npc:213428} можно приручить в режиме Подземелья с соратниками.}'
 L['aradan_note_step_1'] = '1. Соберите {item:220770} из глубин вод за пределами {location:Острова Дорн.}'
@@ -106,7 +106,7 @@ L['fragment_VI_location'] = 'На земле, рядом с уличным фо�
 L['options_icons_rocked_to_sleep'] = '{achievement:40504}'
 L['options_icons_rocked_to_sleep_desc'] = 'Показать расположение табличек для достижения {achievement:40504}.'
 
-L['rocked_to_sleep_note'] = 'Read the plaque of the inert earthen.'
+L['rocked_to_sleep_note'] = 'Прочитайте табличку неподвижного земельника.'
 L['attwogaz_location'] = 'На выступе.'
 L['halthaz_location'] = 'На выступе у основания столба.'
 L['krattdaz_location'] = 'На уступе между двумя водопадами.'
@@ -116,45 +116,45 @@ L['merunth_location'] = 'На трубе над лестницей.'
 L['varerko_location'] = 'На выступе.'
 L['alfritha_location'] = 'Сидит на краю обрыва.'
 L['gundrig_location'] = 'Сидит на вершине уступа.'
-L['sathilga_location'] = 'On a ledge near an Earthen mining machine building.'
+L['sathilga_location'] = 'На уступе возле горнодобывающей машины земельников.'
 
-L['trungal_note'] = 'Kill the {npc:220615} that spawn around the entrance and down in the cave to spawn.'
-L['disturbed_earthgorger_note'] = 'Use the extra action spell to {spell:437003} the ground 3 times to spawn.'
-L['deepflayer_broodmother_note'] = 'Flies around high up.'
-L['lurker_note'] = '{note:Requires 5 players to spawn}\n\nActivate the 5 {dot:Red}{object:Inconspicuous Lever} within 10 seconds of each other to spawn.\nYou will see a zone wide message when successfully triggered.'
+L['trungal_note'] = 'Убейте {npc:220615}, которые появляются вокруг входа и внизу пещеры, чтобы появился редкий монстр.'
+L['disturbed_earthgorger_note'] = 'Используйте заклинание дополнительного действия, чтобы {spell:437003} коснуться земли 3 раза, чтобы появиться редкий монстр.'
+L['deepflayer_broodmother_note'] = 'Летает высоко-высоко.'
+L['lurker_note'] = '{note:Для появления требуется 5 игроков}\n\nАктивировать 5 {dot:Red}{object:Неприметных рычагов} в пределах 10 секунд, чтобы появился редкий монстр.\nПри успешном срабатывании вы увидите сообщение для всей зоны.'
 
-L['gnawbles_ruby_vendor_note'] = [[Gather {item:212493} from {object:Disturbed Earth} and bring it to {npc:225166}.
+L['gnawbles_ruby_vendor_note'] = [[Соберите {item:212493} из {object:Потревоженной земли} и отнесите его {npc:225166}.
 
-Once you've done 10 contributions or contributed a total of 50x {item:212493} you will receive 1x {item:224642}.
+После того, как вы сделаете 10 взносов или внесете в общей сложности 50x {item:212493}, вы получите 1x {item:224642}.
 
-Each item costs 1x {item:224642}.]]
-L['options_icons_disturbed_earth'] = 'Disturbed Earth'
-L['options_icons_disturbed_earth_desc'] = 'Display locations of {object:Disturbed Earth}.'
+Каждый предмет стоит 1x {item:224642}.]]
+L['options_icons_disturbed_earth'] = 'Потревоженная земля'
+L['options_icons_disturbed_earth_desc'] = 'Показать местоположения {object:Потревоженной земли}.'
 
 L['options_icons_gobblin_with_glublurp'] = '{achievement:40614}'
-L['options_icons_gobblin_with_glublurp_desc'] = 'Display locations for {achievement:40614} achievement.'
-L['gobblin_with_glublurp_note'] = 'Click on a {dot:Red}{object:Glimmering Crystal} to gain {spell:456739}. Catch a {npc:227138} flying in the ' .. ns.color.Orange('Orange Circle') .. ' and bring it to {npc:227132}.\n\n(Steady Flying is recommended to get this).'
+L['options_icons_gobblin_with_glublurp_desc'] = 'Показать местоположения для достижения {achievement:40614}.'
+L['gobblin_with_glublurp_note'] = 'Нажмите на {dot:Red}{object:Сияющий кристалл} чтобы получить {spell:456739}. Поймайте {npc:227138}, летящего в ' .. ns.color.Orange('Оранжевом круге') .. ' и довести его до {npc:227132}.\n\n(Для этого рекомендуется использовать Спокойные Полеты).'
 
-L['critter_love_note'] = 'You must use the emote {emote:/love} on critters, not battle pets.'
+L['critter_love_note'] = 'Вы должны использовать эмоцию {emote:/любовь} на зверьках, а не на боевых питомцах.'
 L['options_icons_critter_love'] = '{achievement:40475}'
-L['options_icons_critter_love_desc'] = 'Display critter locations for {achievement:40475} achievement.'
+L['options_icons_critter_love_desc'] = 'Показать местоположение существ для достижения {achievement:40475}.'
 
-L['for_the_collective_note'] = 'Requires {wq:Courier Mission: Ore Recovery}\n\nContribute up to 20x {npc:224281} at each {npc:228056}.\n\n{note:Contribution progress is realm-wide and resets after 2 hours.}'
-L['for_the_collective_suffix'] = 'ore contributed'
-L['for_the_collective_location'] = 'On top of the building. Use the nearby {object:Wooden Plank} to build a ramp.'
+L['for_the_collective_note'] = 'Требуется {wq:Миссия по доставке: поиски руды}\n\nВносите до 20x {npc:224281} в каждый {npc:228056}.\n\n{note:Прогресс вклада распространяется на всю область и сбрасывается через 2 часа.}'
+L['for_the_collective_suffix'] = 'внесенная руда'
+L['for_the_collective_location'] = 'На крыше здания. Используйте близлежащую {object:Деревянную доску}, чтобы построить пандус.'
 L['options_icons_for_the_collective'] = '{achievement:40630}'
-L['options_icons_for_the_collective_desc'] = 'Display {npc:228056} locations for {achievement:40630}.'
+L['options_icons_for_the_collective_desc'] = 'Показать {npc:228056} в места для {achievement:40630}.'
 
 -------------------------------------------------------------------------------
 --------------------------------- HALLOWFALL ----------------------------------
 -------------------------------------------------------------------------------
 
-L['arathi_loremaster_note'] = 'Speak with {npc:221630} within {location:Mereldar} and answer several questions correctly to receive {item:225659}.\n\nAnswers can be found within books located around {location:Hallowfall}.'
-L['caesper_note'] = 'Purchase {item:225238} from ({dot:Blue}) {npc:217645} in {location:Dunelle\'s Kindness}, {location:Hallowfall}.\n\nFeed it to {npc:225948} and follow him to the treasure.'
-L['dark_ritual_note'] = 'Interact with the {object:Dark Ritual} and defeat all the {npc:226059}, {npc:226052}, and {npc:226062} to loot the {object:Shadowed Essence}.'
-L['illuminated_footlocker_note'] = 'Catch 5x falling {spell:442389} from the {npc:220703} to receive {spell:442529} and reveal the {object:Illuminated Footlocker}.'
-L['illusive_kobyss_lure_note'] = 'Combine all 4 items to create {item:225641}:'
-L['sunless_lure_location'] = 'Dropped by {npc:215653} on the {location:Sunless Strand}. They are camouflaged and use an {npc:215623} as bait.'
+L['arathi_loremaster_note'] = 'Поговорите с {npc:221630} в {location:Мерельдаре} и ответьте правильно на несколько вопросов, чтобы получить {item:225659}.\n\nОтветы можно найти в книгах, расположенных по всему {location:Тайносводью}.'
+L['caesper_note'] = 'Купите {item:225238} у ({dot:Blue}) {npc:217645} в {location:Милости Данель}, что в {location:Тайносводье}.\n\nСкормите его {npc:225948} и следуйте за ним к сокровищу.'
+L['dark_ritual_note'] = 'Взаимодействуйте с {object:Темным ритуалом} и победите всех {npc:226059}, {npc:226052} и {npc:226062}, чтобы получить {object:Затененную сущность}.'
+L['illuminated_footlocker_note'] = 'Поймайте 5 падающих {spell:442389} из {npc:220703}, чтобы получить {spell:442529} и открыть {object:Сияющий сундук}.'
+L['illusive_kobyss_lure_note'] = 'Объедините все 4 предмета, чтобы создать {item:225641}:'
+L['sunless_lure_location'] = 'Падает с {npc:215653} на {location:Бессолнечном берегу}. Они замаскированы и используют {npc:215623} в качестве приманки.'
 L['sky_captains_sunken_cache_note'] = [[
 Поговорите с четырьмя разными Небесными Капитанами на их воздушных кораблях, чтобы узнать, где находится сокровище.
 
@@ -163,16 +163,16 @@ L['sky_captains_sunken_cache_note'] = [[
 {npc:222323} ({dot:Red}) летит по часовой стрелке.
 {npc:222337} ({dot:Orange}) летит против часовой стрелки.
 ]]
-L['murkfin_lure_location'] = 'Dropped by {npc:213622} on {location:Velhan\'s Claim}. They are camouflaged and use an {npc:215623} as bait.'
-L['hungering_shimmerfin_location'] = 'Dropped by {npc:215243} in {location:The Hungering Pool}. They are camouflaged and use an {npc:219210} as bait.'
-L['ragefin_necrostaff_location'] = 'Dropped by {npc:213406} at the {location:Veneration Grounds}.'
-L['jewel_of_the_cliffs_location'] = 'Extremely high up in the stone wall.'
-L['lost_necklace_note'] = 'Loot the {object:Lost Momento} on the edge of the shrine.'
-L['priory_satchel_location'] = 'Loot the {object:Windswept Satchel} hanging from the corner of the {location:Priory of the Sacred Flame} cathedral.'
-L['smugglers_treasure_note'] = 'Loot the required {item:225335} from the ({dot:Blue}) {npc:226025} below the cliff.'
-L['smugglers_treasure_location'] = 'High on the cliff between several rocks.'
-L['coral_fused_clam'] = 'Coral-Fused Clam'
-L['coral_fused_clam_note'] = 'Loot {item:218354} from the {object:Clammer\'s Kit} to open the Clam.'
+L['murkfin_lure_location'] = 'Падает с {npc:213622} в {location:уделе Велхана}. Они замаскированы и используют {npc:215623} в качестве приманки.'
+L['hungering_shimmerfin_location'] = 'Падает из {npc:215243} в {location:Алчущем омуте}. Они замаскированы и используют {npc:219210} в качестве приманки.'
+L['ragefin_necrostaff_location'] = 'Падает с {npc:213406} в {location:Землях Преклонения}.'
+L['jewel_of_the_cliffs_location'] = 'Очень высоко в каменной стене.'
+L['lost_necklace_note'] = 'Найдите {object:Потерянный памятный предмет} на краю святилища.'
+L['priory_satchel_location'] = 'Возьмите {object:Обветренный мешочек}, висящий на углу собора {location:Приорат Священного Пламени}.'
+L['smugglers_treasure_note'] = 'Возьмите нужный {item:225335} из ({dot:Blue}) {npc:226025} под скалой.'
+L['smugglers_treasure_location'] = 'Высоко на скале между несколькими скалами.'
+L['coral_fused_clam'] = 'Покрытый кораллами моллюск'
+L['coral_fused_clam_note'] = 'Возьмите {item:218354} из {object:Набора собирателя моллюсков}, чтобы открыть моллюска.'
 
 L['options_icons_biblo_archivist'] = '{achievement:40622}'
 L['options_icons_biblo_archivist_desc'] = 'Показать расположение книг для достижения {achievement:40622}.'
@@ -192,200 +192,202 @@ L['biblo_book_11_location'] = 'Внутри здания на столе.'
 L['options_icons_lost_and_found'] = '{achievement:40618}'
 L['options_icons_lost_and_found_desc'] = 'Показать расположение памятных вещей для достижения {achievement:40618}.'
 
-L['lost_and_found_note'] = 'Progress the Memories of the Sky storyline starting with the quest {quest:80673} from ({dot:Red}) {npc:220718}. {note:The quests unlock weekly}.\n\n3 mementos can be completed each week, until complete the quest {quest:82813}.'
-L['broken_bracelet_location'] = 'Hand in the item {item:219810} to {npc:215527}.'
-L['stuffed_lynx_toy_location'] = 'Hand in the item {item:219809} to {npc:218486}.'
-L['tarnished_compass_location'] = 'Hand in the item {item:219524} to {object:Grave Offering Location}.'
-L['sturdy_locket_location'] = 'Hand in the item {item:224274} to {npc:220859}.'
-L['wooden_figure_location'] = 'Hand in the item {item:224273} to {npc:217609}.'
-L['calcified_journal_location'] = 'Hand in the item {item:224272} to {npc:222813}.'
-L['ivory_tinderbox_location'] = 'Hand in the item {item:224266} to {npc:226051}.'
-L['dented_spear_location'] = 'Hand in the item {item:224267} to {npc:213145}.'
-L['filigreed_cleric_location'] = 'Hand in the item {item:224268} to {npc:217813}.'
+L['lost_and_found_note'] = 'Продвигайтесь по сюжетной линии Воспоминания о небе, начав с задания {quest:80673} от ({dot:Red}) {npc:220718}. {note:Задания открываются еженедельно.}.\n\nКаждую неделю можно получить 3 сувенира, пока не завершите задание {quest:82813}.'
+L['broken_bracelet_location'] = 'Отнесите предмет {item:219810} к {npc:215527}.'
+L['stuffed_lynx_toy_location'] = 'Отнесите предмет {item:219809} к {npc:218486}.'
+L['tarnished_compass_location'] = 'Отнесите предмет {item:219524} к {object:Месту подношения}.'
+L['sturdy_locket_location'] = 'Отнесите предмет {item:224274} к {npc:220859}.'
+L['wooden_figure_location'] = 'Отнесите предмет {item:224273} к {npc:217609}.'
+L['calcified_journal_location'] = 'Отнесите предмет {item:224272} к {npc:222813}.'
+L['ivory_tinderbox_location'] = 'Отнесите предмет {item:224266} к {npc:226051}.'
+L['dented_spear_location'] = 'Отнесите предмет {item:224267} к {npc:213145}.'
+L['filigreed_cleric_location'] = 'Отнесите предмет {item:224268} к {npc:217813}.'
 
 L['options_icons_missing_lynx'] = '{achievement:40625}'
-L['options_icons_missing_lynx_desc'] = 'Display lynx locations for {achievement:40625} achievement.'
+L['options_icons_missing_lynx_desc'] = 'Показать местоположение рысей для достижения {achievement:40625}.'
 
-L['missing_lynx_note'] = 'Pet the ferocious warcat.'
-L['magpie_location'] = 'On the ground next to the banner.'
-L['nightclaw_location'] = 'Light the {object:Lesser Keyflame} nearby.'
-L['purrlock_location'] = 'Light the {object:Light\'s Blooming Keyflame} nearby.'
-L['shadowpouncer_location'] = 'Light the {object:Light\'s Blooming Keyflame} nearby.'
-L['miral_murder_mittens_location'] = 'Outside.'
-L['fuzzy_location'] = 'On the ground near the {object:Lesser Keyflame}.'
-L['furball_location'] = 'Inside the ruined building.'
-L['dander_location'] = 'Outside.'
-L['gobbo_location'] = 'Inside the building on the bed.'
+L['missing_lynx_note'] = 'Погладьте свирепого боевого кота.'
+L['magpie_location'] = 'На земле рядом с баннером.'
+L['nightclaw_location'] = 'Зажгите {object:Малый ключевой огонь} поблизости.'
+L['purrlock_location'] = 'Зажгите {object:Ключевой огонь из Цветка Света} поблизости.'
+L['shadowpouncer_location'] = 'Зажгите {object:Ключевой огонь из Цветка Света} поблизости.'
+L['miral_murder_mittens_location'] = 'Снаружи.'
+L['fuzzy_location'] = 'На земле возле {object:Малого ключевого огоня}.'
+L['furball_location'] = 'Внутри разрушенного здания.'
+L['dander_location'] = 'Снаружи.'
+L['gobbo_location'] = 'Внутри здания на кровати.'
 
-L['beledars_spawn_note'] = 'This rare spawns at one of several locations at a fixed interval.\n\nNext spawn in:\n{note:%s (%s)}'
-L['croakit_note'] = 'Fish up 10x {item:211474} from a nearby {object:Shadowblind Grouper School} (or purchase from the auction house) and throw them to him to make the rare attackable.'
-L['deathtide_note'] = 'Collect an {item:220122} {dot:Red} and a {item:220124} {dot:Green}. Combine them to {item:220123} to summon the rare at the {object:Ominous Altar}.'
-L['murkshade_note'] = 'Interact with the {npc:218455}.'
-L['spreading_the_light_rares_note'] = 'Rare spawns after the lit {object:Keyflame} at the current location is extinguished.'
+L['beledars_spawn_note'] = 'Этот редкий монстр появляется в одном из нескольких мест с фиксированным интервалом.\n\nСледующее появление в:\n{note:%s (%s)}'
+L['croakit_note'] = 'Выловите 10 штук {item:211474} из близлежащей {object:Косяк окуня темной слепоты} (или купите их в аукционном доме) и бросьте их ему, чтобы сделать редкого монстра активным.'
+L['deathtide_note'] = 'Соберите {item:220122} {dot:Red} и {item:220124} {dot:Green}. Объедините их в {item:220123}, чтобы призвать редкого монстра на {object:Зловещем алтаре}.'
+L['murkshade_note'] = 'Взаимодействуйте с {npc:218455}.'
+L['spreading_the_light_rares_note'] = 'Редкий монстр появляется после того, как горящий {object:Ключевой огонь} в текущем местоположении погаснет.'
 
 L['options_icons_mereldar_menace'] = '{achievement:40151}'
-L['options_icons_mereldar_menace_desc'] = 'Display target locations for {achievement:40151} achievement.'
+L['options_icons_mereldar_menace_desc'] = 'Показать местоположения для достижения {achievement:40151}.'
 
-L['mereldar_menace_note'] = 'Interact with {object:Throwing Stone} and throw it at the targets.'
-L['light_and_flame_location'] = 'Aim towards the {npc:218472} east of the {object:Throwing Stone}.'
-L['lamplighter_doorway_location'] = 'Aim at the doorway of the building to the east.'
-L['barracks_doorway_location'] = 'Aim at the doorway of the red and gold tent to the west.'
+L['mereldar_menace_note'] = 'Взаимодействуйте с {object:Метательным каменем} и бросайте его в цели.'
+L['light_and_flame_location'] = 'Направляйтесь к {npc:218472} к востоку от {object:Метательного каменя}.'
+L['lamplighter_doorway_location'] = 'Цельтесь в дверной проем здания на востоке.'
+L['barracks_doorway_location'] = 'Цельтесь в дверь красно-золотой палатки на западе.'
 
 L['options_icons_beacon_of_hope'] = '{achievement:40308}'
-L['options_icons_beacon_of_hope_desc'] = 'Display lesser keyflame locations for the {achievement:40308} achievement.'
+L['options_icons_beacon_of_hope_desc'] = 'Отображение малых ключевых огней для достижения {achievement:40308}.'
 
-L['beacon_of_hope_note'] = 'Contribute {item:206350} to light lesser keyflames and complete the following quests.'
+L['beacon_of_hope_note'] = 'Внесите вклад {item:206350}, чтобы зажечь малые ключевые огни и выполнить следующие задания.'
 
-L['parasidious_note'] = 'Purchase 1x {item:206670} from {npc:206533} (light up the {object:Lesser Keyflame} to spawn him) then go to the {location:Duskrise Acreage} and pull {npc:206870} until the rare spawns. {note: Only spawns if the {npc:206978} is in this location}.'
+L['parasidious_note'] = 'Купите 1x {item:206670} у {npc:206533} (зажгите {object:Малый ключевой огонь}, чтобы вызвать его), затем идите на {location:подъем Сумерек} и тяните {npc:206870}, пока не появится редкий монстр. {note: Появляется только если {npc:206978} находится в этом месте}.'
 
 L['options_icons_flamegards_hope'] = '{achievement:20594}'
-L['options_icons_flamegards_hope_desc'] = 'Display location for the {achievement:20594} achievement.'
-L['flamegards_hope_note'] = 'Help out {npc:213319} for 20 Days healing the {npc:220225s}.\n\nYou can also use a {spell:372009} or {item:211878} if your class can\'t heal.'
+L['options_icons_flamegards_hope_desc'] = 'Отображение местоположения для достижения {achievement:20594}.'
+L['flamegards_hope_note'] = 'Помогайте {npc:213319} в течении 20 дней исцелять {npc:220225}.\n\nВы также можете использовать {spell:372009} или {item:211878}, если ваш класс не может лечить.'
 
-L['hallowfall_sparkfly_label'] = 'Hallowfall Sparkfly'
-L['hallowfall_sparkfly_note'] = 'Use 3x {item:206350} at the {object:Lesser Keyflame} in {location:Stillstone Pond} to summon {npc:215956}.\n\nPurchase {item:218107} for 2x {item:206350} and use it to reveal {npc:222308} nearby until {object:Hallowfall Sparkfly} appears.'
+L['hallowfall_sparkfly_label'] = 'Искромуха Тайносводья'
+L['hallowfall_sparkfly_note'] = 'Используйте 3x {item:206350} на {object:Малом ключевом огоне} в {location:пруду Тихих камней}, чтобы призвать {npc:215956}.\n\nКупите {item:218107} за 2x {item:206350} и используйте его, чтобы обнаружить {npc:222308} поблизости, пока не появится {object:Искромуха Тайносводья}.'
 
-L['nightfarm_growthling_note'] = 'Use 3x {item:206350} at the {object:Lesser Keyflame} in {location:The Whirring Field} to summon {npc:208186}.\n\nPurchase {item:219148} for 2x {item:206350} and use it to reveal {item:221546}.'
+L['nightfarm_growthling_note'] = 'Используйте 3x {item:206350} на {object:Малом ключевом огоне} в {location:Жужжащем поле}, чтобы призвать {npc:208186}.\n\nКупите {item:219148} за 2x {item:206350} и используйте его, чтобы открыть {item:221546}.'
 
-L['thunder_lynx_note'] = '1. Use 3x {item:206350} at the {object:Lesser Keyflame} in {location:Torchlight Mine} to summon {npc:212419}.\n\n2. Speak with {npc:212419} and follow all extra dialog prompts to reveal {quest:82007}.\n\n3. Locate each baby lynx: {npc:222373} ({dot:Blue}), {npc:222372} ({dot:Green}), {npc:222375} ({dot:Orange}), and {npc:222374} ({dot:Red}).\n\n{note:Be sure to start {quest:76169} at the same to to receive {item:219198} or use a similar item such as {item:219148}. You\'ll need a light to reveal {npc:222373} within {location:Coldshadow Cave}.}\n\n4. Rescue each lynx kitten and return to {npc:212419}.'
+L['thunder_lynx_note'] =
+    '1. Используйте 3x {item:206350} на {object:Малом ключевом огоне} в {location:шахтах Факельных огней}, чтобы призвать {npc:212419}.\n\n2. Поговорите с {npc:212419} и следуйте всем дополнительным диалоговым подсказкам, чтобы открыть задание {quest:82007}.\n\n3. Найдите каждого детеныша рыси: {npc:222373} ({dot:Blue}), {npc:222372} ({dot:Green}), {npc:222375} ({dot:Orange}), и {npc:222374} ({dot:Red}).\n\n{note:Обязательно начните задание {quest:76169} в то же время, чтобы получить {item:219198} или используйте аналогичный предмет, например {item:219148}. Вам понадобится свет, чтобы обнаружить {npc:222373} в {location:пещере Хладной Тени}.}\n\n4. Спасите каждого рысенка и верните их к {npc:212419}.'
 
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------
 -------------------------------------------------------------------------------
 
 L['options_icons_itsy_bitsy_spider'] = '{achievement:40624}'
-L['options_icons_itsy_bitsy_spider_desc'] = 'Display weave-rat locations for {achievement:40624} achievement.'
+L['options_icons_itsy_bitsy_spider_desc'] = 'Показать местоположение плетенышей для достижения {achievement:40624}.'
 
-L['itsy_bitsy_spider_note'] = '{emote:/wave} to the {npc:weave-rat}.'
+L['itsy_bitsy_spider_note'] = '{emote:/помахать} {npc:плетенышам}.'
 
 L['options_icons_bookworm'] = '{achievement:40629}'
-L['options_icons_bookworm_desc'] = 'Display book locations for the {achievement:40629} achievement.'
+L['options_icons_bookworm_desc'] = 'Показать расположение книг для достижения {achievement:40629}.'
 
-L['nerubian_potion_note'] = 'Purchase a {item:225784} ({note:buff lasts 10 minutes}) from {npc:218192} for 33x {currency:3056}.'
-L['bookworm_note'] = '{note:You can also complete the achievement {achievement:40542} with the {item:225784}.}'
-L['bookworm_1_location'] = 'At the entrance of the small cave.'
+L['nerubian_potion_note'] = 'Купите {item:225784} ({note:бафф длится 10 минут}) у {npc:218192} за 33x {currency:3056}.'
+L['bookworm_note'] = '{note:Вы также можете выполнить достижение {achievement:40542} с помощью {item:225784}.}'
+L['bookworm_1_location'] = 'У входа в маленькую пещеру.'
 
 L['options_icons_smelling_history'] = '{achievement:40542}'
-L['options_icons_smelling_history_desc'] = 'Display book locations for {achievement:40542} achievement.'
+L['options_icons_smelling_history_desc'] = 'Показать расположение книг для достижения {achievement:40542}.'
 
-L['smelling_history_note'] = '{note:You can also complete the achievement {achievement:40629} with the {item:225784}.}'
-L['smelling_history_1_location'] = 'Inside the building on the counter.'
-L['smelling_history_2_location'] = 'The scroll is on a chest.'
-L['smelling_history_3_location'] = 'The scroll is on a table.'
-L['smelling_history_4_location'] = 'Inside the building on a table.'
-L['smelling_history_5_location'] = 'Inside the building on a table.'
-L['smelling_history_6_location'] = 'On the bed on the south side of the room.'
-L['smelling_history_7_location'] = 'On top of a pile of books.'
-L['smelling_history_8_location'] = 'On the table next to the bed on the north side of the room.'
-L['smelling_history_9_location'] = 'Behind the desk leaning against it right next to {npc:226024}.'
-L['smelling_history_10_location'] = 'On a bench.'
-L['smelling_history_11_location'] = 'Book is on a table next to the bed. Entrance is above the fountain.'
-L['smelling_history_12_location'] = 'Inside the building on a table.'
+L['smelling_history_note'] = '{note:Вы также можете выполнить достижение {achievement:40629} с помощью {item:225784}.}'
+L['smelling_history_1_location'] = 'Внутри здания на прилавке.'
+L['smelling_history_2_location'] = 'Свиток находится на сундуке.'
+L['smelling_history_3_location'] = 'Свиток лежит на столе.'
+L['smelling_history_4_location'] = 'Внутри здания на столе.'
+L['smelling_history_5_location'] = 'Внутри здания на столе.'
+L['smelling_history_6_location'] = 'На кровати на южной стороне комнаты.'
+L['smelling_history_7_location'] = 'На вершине стопки книг.'
+L['smelling_history_8_location'] = 'На столе рядом с кроватью в северной части комнаты.'
+L['smelling_history_9_location'] = 'За столом, прислонившись к нему, прямо рядом с {npc:226024}.'
+L['smelling_history_10_location'] = 'На скамейке.'
+L['smelling_history_11_location'] = 'Книга на столике возле кровати. Вход над фонтаном.'
+L['smelling_history_12_location'] = 'Внутри здания на столе.'
 
 L['options_icons_skittershaw_spin'] = '{achievement:40727}'
-L['options_icons_skittershaw_spin_desc'] = 'Display Skittershaw route locations for {achievement:40727} achievement.'
-L['skittershaw_spin_note'] = 'Ride the {npc:224973} for a full lap around the district.\n\nThe {npc:224973} will stop at the {dot:Red} points along the route.'
+L['options_icons_skittershaw_spin_desc'] = 'Показать расположение маршрутов быстрохода для достижения {achievement:40727}.'
+L['skittershaw_spin_note'] = 'Прокатитесь на {npc:224973} по всему району.\n\n{npc:224973} остановится в точках {dot:Red} вдоль маршрута.'
 
 L['options_icons_no_harm_from_reading'] = '{achievement:40632}'
-L['options_icons_no_harm_from_reading_desc'] = 'Display {npc:227421} locations for {achievement:40632} achievement.'
+L['options_icons_no_harm_from_reading_desc'] = 'Показать {npc:227421} для достижения {achievement:40632}.'
 L['no_harm_from_reading_note'] = [[
-Enter the ({dot:Yellow}) Cave, and head to the ({dot:Red}) and climb the wall where the 3 spiders are located and enter the hole behind the spider at the top.
+Войдите в ({dot:Yellow}) пещеру, направляйтесь в ({dot:Red}) и поднимитесь по стене, где находятся 3 паука, и войдите в отверстие позади паука наверху.
 
-Once you have fallen through interact with the nearby {object:Fleshy Grimoire} to spawn the 4 {npc:227421}.
+После того, как вы провалитесь, взаимодействуйте с ближайшим {object:Гримуаром плоти}, чтобы вызвать 4 {npc:227421}.
 
-The {npc:227421} will then disappear and reappear around the map.
+Затем {npc:227421} исчезнут и снова появится на карте.
 
-Track down each {npc:227421} and interact with them to return them back to the {object:Fleshy Grimoire}.
+Выследите каждого {npc:227421} и взаимодействуйте с ними, чтобы вернуть их обратно в {object:Гримуар плоти}.
 
-Once you have found all 4 {npc:227421}, head back to the {object:Fleshy Grimoire} and talk to the {npc:227421}.
+Как только вы найдете все 4 {npc:227421}, возвращайтесь к {object:Гримуару плоти} и поговорите с {npc:227421}.
 ]]
-L['another_you_4_note'] = 'Patrols along the marked path.'
+L['another_you_4_note'] = 'Патрули по обозначенному маршруту.'
 
-L['concealed_contraband_note'] = 'Remove the {object:Web Cocoon} from the Treasure to reveal it.'
-L['memory_cache_note'] = 'Get {spell:420847} from a nearby ({dot:Red}) {object:Extractor Storage}. After kill the {npc:223908} to get the {item:223870} to open the {object:Memory Cache}.'
-L['niffen_stash_note'] = 'Located under the bridge.'
-L['trapped_trove_note'] = 'In a building that hangs from the ceiling. Avoid the spiderwebs on the floor.'
-L['weaving_supplies_note'] = 'Collect silk scraps from the nearby platform to open the treasure.\n\n{item:223901} ({dot:Purple})\n{item:223903} ({dot:Yellow})\n{item:223902} ({dot:Red})'
+L['concealed_contraband_note'] = 'Удалите {object:Кокон из паутины} из Сокровища, чтобы увидеть его.'
+L['memory_cache_note'] = 'Получите {spell:420847} из ближайшего ({dot:Red}) {object:Хранилища экстрактора}. После убейте {npc:223908}, чтобы получить {item:223870} и открыть {object:Хранилище памяти}.'
+L['niffen_stash_note'] = 'Расположен под мостом.'
+L['trapped_trove_note'] = 'В здании, которое висит под потолком. Избегайте паутины на полу..'
+L['weaving_supplies_note'] = 'Соберите лоскуты шелка с близлежащей платформы, чтобы открыть сокровище.\n\n{item:223901} ({dot:Purple})\n{item:223903} ({dot:Yellow})\n{item:223902} ({dot:Red})'
 
-L['tkaktath_note'] = 'Starts a quest chain to get the {item:224150} mount.'
+L['tkaktath_note'] = 'Начинает цепочку заданий, чтобы получить средство передвижения {item:224150}.'
 
 L['options_icons_the_unseeming'] = '{achievement:40633}'
-L['options_icons_the_unseeming_desc'] = 'Display location for the {achievement:40633} achievement.'
-L['the_unseeming_note'] = 'Stand in the pool until you have 100x stacks {spell:420847}.'
+L['options_icons_the_unseeming_desc'] = 'Отображение местоположения для достижения {achievement:40633}.'
+L['the_unseeming_note'] = 'Стойте в бассейне, пока не наберете 100x стаков {spell:420847}.'
 
 L['options_icons_you_cant_hang_with_us'] = '{achievement:40634}'
-L['options_icons_you_cant_hang_with_us_desc'] = 'Display locations for the {achievement:40634} achievement.'
-L['you_cant_hang_with_us_note'] = 'Find a {npc:211816} with the {spell:434734} buff and attack him, to get the {spell:443190} debuff (1 minute). A {npc:225408} ({note:Do not kill him!}) will interfere and stack the {spell:454666} debuff on you. At 10 stacks, you will be forcibly removed from the City.'
+L['options_icons_you_cant_hang_with_us_desc'] = 'Показать места для достижения {achievement:40634}.'
+L['you_cant_hang_with_us_note'] = 'Найдите {npc:211816} с баффом {spell:434734} и атакуйте его, чтобы получить дебафф {spell:443190} (1 минута). {npc:225408} ({note:Не убивайте его!}) вмешается и наложит на вас дебафф {spell:454666}. При накоплении 10 стаков вы будете принудительно выкинуты из города.'
 
-L['kej_pet_vendor_note'] = 'Each pet has a limited stock and costs 2,250x {currency:3056}.\n\n{note:Estimated respawn time is 3-4 hours for each pet item at any vendor.}'
+L['kej_pet_vendor_note'] = 'Количество питомцев ограничено, и его стоимость составляет 2250x {currency:3056}.\n\n{note:Расчетное время возрождения составляет 3-4 часа для каждого предмета для питомца у любого торговца.}'
 
 L['options_icons_back_to_the_wall'] = '{achievement:40620}'
-L['options_icons_back_to_the_wall_desc'] = 'Display {npc:222119} locations for {achievement:40620}.'
-L['arathi_prisoner_suffix'] = 'Arathi prisoners saved'
-L['arathi_prisoner_note'] = 'Free webbed-wrapped {npc:222119} during the {wq:Special Assignment: A Pound of Cure}.'
+L['options_icons_back_to_the_wall_desc'] = 'Показать {npc:222119} места для {achievement:40620}.'
+L['arathi_prisoner_suffix'] = 'Спасены пленные Арати'
+L['arathi_prisoner_note'] = 'Освободить обернутого паутиной {npc:222119} во время {wq:Особое поручение: профилактика лучше лечения}.'
 
 -------------------------------------------------------------------------------
 ----------------------------------- DELVES ------------------------------------
 -------------------------------------------------------------------------------
 
-L['sturdy_chest'] = 'Sturdy Chest'
-L['sturdy_chest_suffix'] = 'Sturdy Chest found'
+L['sturdy_chest'] = 'Прочный сундук'
+L['sturdy_chest_suffix'] = 'Найден прочный сундук'
 
-L['ecm_chest_3_location'] = 'On the crane. Jump from the upper level.'
-L['fol_chest_1_location'] = 'On the rock under the mushrooms in the bushes.'
-L['fol_chest_3_location'] = 'At the bottom of the waterfall.'
-L['fol_use_mushrooms'] = 'Jump on the mushrooms along the path.'
-L['kvr_chest_2_location'] = 'On top of the wooden scaffold.'
+L['ecm_chest_3_location'] = 'На кране. Прыжок с верхнего уровня.'
+L['fol_chest_1_location'] = 'На камне под грибами в кустах.'
+L['fol_chest_3_location'] = 'У подножия водопада.'
+L['fol_use_mushrooms'] = 'Прыгай по грибам вдоль тропинки.'
+L['kvr_chest_2_location'] = 'На вершине деревянных лесов.'
 L['nfs_chest_2_location'] = 'On the plant.'
-L['nfs_chest_3_location'] = 'Inside the building.'
-L['nfs_chest_4_location'] = 'Jump down from the skyship.'
-L['ski_chest_3_location'] = 'On a ledge.'
-L['tra_chest_2_location'] = 'On top of the coral.'
-L['tsw_chest_2_location'] = 'High up on the beam.'
-L['tsw_chest_2_note'] = '{note:Only available in the "From the Weaver with Love" story variant.}'
-L['tsw_chest_3_location'] = 'High up on a pillar near the dropdown to the treasure room.'
-L['tsw_chest_4_location'] = 'High up on a beam. Drop down from the pillar near the other chest.'
-L['tuk_chest_1_note'] = 'Behind the Statue.'
-L['tuk_chest_2_note'] = '{note:Only available in the "Runaway Evolution" and "Torture Victims" story variants.}'
-L['tuk_chest_3_note'] = '{note:Only available in the "Runaway Evolution" and "Weaver Rescue" story variants.}'
+L['nfs_chest_3_location'] = 'Внутри здания.'
+L['nfs_chest_4_location'] = 'Спрыгни с небесного корабля.'
+L['ski_chest_3_location'] = 'На выступе.'
+L['tra_chest_2_location'] = 'На вершине коралла.'
+L['tsw_chest_2_location'] = 'Высоко на балке.'
+L['tsw_chest_2_note'] = '{note:Доступно только в варианте истории "От Прядильщицы с любовью".}'
+L['tsw_chest_3_location'] = 'Высоко на колонне возле спуска в сокровищницу.'
+L['tsw_chest_4_location'] = 'Высоко на балке. Спрыгни со столба около другого сундука.'
+L['tuk_chest_1_note'] = 'За статуей.'
+L['tuk_chest_2_note'] = '{note:Доступно только в вариантах сюжета "Ошеломительная эволюция" и "Жертвы пыток".}'
+L['tuk_chest_3_note'] = '{note:Доступно только в вариантах сюжета "Ошеломительная эволюция" и "Спасение Прядильщицы".}'
 
 -------------------------------------------------------------------------------
 --------------------------------- SIREN ISLE ----------------------------------
 -------------------------------------------------------------------------------
 
-L['the_drowned_lair_note'] = 'Contribute {currency:3090} to {location:The Drowned Lair} at the {object:Siren Isle Command Map} to open this cave and spawn the rare.'
-L['the_drain_note'] = 'Contribute {currency:3090} to {location:The Drain} at the {object:Siren Isle Command Map} to open this cave and spawn the rare.'
-L['shuddering_hollow_note'] = 'Contribute {currency:3090} to {location:Shuddering Hollow} at the {object:Siren Isle Command Map} to open this cave and spawn the rare.'
+L['the_drowned_lair_note'] = 'Внесите {currency:3090} на раскопки {location:Затопленной берлоги} используя {object:Стратегическую карту острова Сирен}, чтобы открыть эту пещеру и призвать редкого монстра.'
+L['the_drain_note'] = 'Внесите {currency:3090} на раскопки {location:Стоков} используя {object:Стратегическую карту острова Сирен}, чтобы открыть эту пещеру и призвать редкого монстра.'
+L['shuddering_hollow_note'] = 'Внесите {currency:3090} на раскопки {location:Трясучей лощины} используя {object:Стратегическую карту острова Сирен}, чтобы открыть эту пещеру и призвать редкого монстра.'
 
-L['vrykul_sublabel'] = '{note:Only available with {npc:Bloodwake Vykrul} on the island.}'
-L['naga_sublabel'] = '{note:Only available with {npc:Naga} on the island.}'
-L['pirate_sublabel'] = '{note:Only available with {npc:pirates} on the island.}'
+L['vrykul_sublabel'] = '{note:Доступно только с вторжением {npc:врайкулов} на остров.}'
+L['naga_sublabel'] = '{note:Доступно только с вторжением {npc:наг} на остров.}'
+L['pirate_sublabel'] = '{note:Доступно только с вторжением {npc:пиратов} на остров.}'
 
-L['storm_required'] = 'Requires active %s storm on {location:Siren Isle}.' -- %s becomes "(icon) [Seafury Tempest]"
-L['slaughtershell_location'] = 'Roams around the entire {location:Siren Isle}.'
+L['storm_required'] = 'Требуется активная буря %s на {location:Острове Сирен}.' -- %s becomes "(icon) [Seafury Tempest]"
+L['slaughtershell_location'] = 'Бродит по всему {location:Острову Сирен}.'
 
 L['within_the_forgotten_vault'] = nil
 
 L['options_icons_runed_storm_chest'] = '{achievement:41131}'
-L['options_icons_runed_storm_chest_desc'] = 'Display {object:Runed Storm Cache} locations for {achievement:41131}.'
+L['options_icons_runed_storm_chest_desc'] = 'Показать местоположения {object:Рунных сундуков бурь} для {achievement:41131}.'
 
-L['runed_storm_chest_label'] = 'Runed Storm Cache'
-L['runed_storm_chest_suffix'] = 'caches opened'
-L['runed_storm_chest_note'] = 'Follow the wind to a hidden {object:Runed Storm Cache} and reveal it with {spell:472051}.'
+L['runed_storm_chest_label'] = 'Рунный сундук бурь'
+L['runed_storm_chest_suffix'] = 'сундук открылся'
+L['runed_storm_chest_note'] = 'Следуйте за ветром к скрытому {object:Рунному сундуку бурь} и откройте его с помощью {spell:472051}.'
 
-L['flame_blessed_iron_item'] = 'Return this item for bonus {currency:3090}.'
+L['flame_blessed_iron_item'] = 'Верните этот предмет и получите {currency:3090}.'
 
-L['barnacle_encrusted_chest'] = 'Barnacle-Encrusted Chest'
+L['barnacle_encrusted_chest'] = 'Покрытый ракушками сундук'
+L['pilfered_earthen_chest'] = nil
 
-L['soweezi_note'] = 'Exchange {currency:3090} for a mount, toy, pet, or transmog.'
+L['soweezi_note'] = 'Обменяйте {currency:3090} на средства передвижения, игрушку, питомца или трансмогрификации.'
 
-L['thrayir_note_start'] = 'Collect 5x runestone keys from around the {location:Siren Isle} and complete the ritual within {location:The Forgotten Vault} to recieve {item:232639}:'
+L['thrayir_note_start'] = 'Соберите 5 ключей из рунного камня по всему {location:Острову Сирен} и завершите ритуал в {location:Забытом хранилище}, чтобы получить {item:232639}:'
 
-L['whirling_runekey_note'] = 'Drops from the {npc:231368} in the {location:The Forgotten Vault} during a storm.'
-L['torrential_runekey_note'] = 'Drops from any mob (normal, elite, or rare) on {location:Siren Isle} during a storm.'
-L['thunderous_runekey_note'] = 'Requires 5x {item:232605} found with {note:any} chest on the {location:Siren Isle}. {note:Does not require a storm}.'
-L['cyclonic_runekey_note'] = 'Drops from {npc:231357} in the {location:Deadfin Mire} on {location:Siren Isle} during a storm.'
-L['turbulent_runekey_note'] = 'Requires 3x {item:234327} found scattered around {location:Siren Isle} during a storm.'
+L['whirling_runekey_note'] = 'Выпадает из {npc:231368} в {location:Забытом хранилище} во время бури.'
+L['torrential_runekey_note'] = 'Выпадает из любого монстра (обычного, элитного или редкого) на {location:Острове Сирен} во время бури.'
+L['thunderous_runekey_note'] = 'Требуется 5x {item:232605}, найденных в {note:любом} сундуке на {location:Острове Сирен}. {note:Не требует бури}.'
+L['cyclonic_runekey_note'] = 'Выпадает из {npc:231357} в {location:Топи Мертвого Плавника} на {location:Острове Сирен} во время бури.'
+L['turbulent_runekey_note'] = 'Требуется 3x {item:234327}, найденных разбросанными вокруг {location:Острова Сирен} во время бури.'
 
 L['turbulent_fragment_a'] = 'Hidden in a {object:Dirt Pile} behind the {location:Salt and Shany} inn near the digging {npc:Kul Tiran} ghost.'
 L['turbulent_fragment_b'] = 'Loot the {object:Runic Fragment} in front of the cowering {npc:Kul Tiran} ghost inside a cave in the {location:Rotting Hole}.'
@@ -394,15 +396,16 @@ L['turbulent_fragment_c'] = 'Loot the {object:Runic Fragment} held by the {npc:K
 L['prismatic_snapdragon_note_start'] = 'Over the course of 8 days, help save the {npc:235216} in the {location:Flotsam Shoal} to recieve {item:233489}.\n\n{note:You can miss a day but there is no catch-up mechanic}.'
 L['prismatic_day'] = 'Day %d' -- "Day 1" or "Day 4" or "Day 7"
 
-L['pris_quest_1'] = nil -- https://www.wowhead.com/quest=86482/a-lifeline
+L['pris_quest_1'] = 'Спасение диких животных' -- 86482
 L['pris_quest_2'] = nil -- https://www.wowhead.com/ptr/quest=86483/snap-to-it
 L['pris_quest_3'] = nil -- https://www.wowhead.com/ptr/quest=86484/temper-like-a-tempest
 L['pris_quest_4'] = nil -- https://www.wowhead.com/ptr/quest=86485/a-loyal-friend
 
-L['unsolved_amethyst_runelock'] = 'Unsolved Amethyst Runelock'
-L['bilge_rat_supply_chest'] = 'Bilge Rat Supply Chest'
+L['unsolved_amethyst_runelock'] = 'Неразгаданный Аметистовый рунический замок'
+L['bilge_rat_supply_chest'] = 'Сундук с припасами братства Трюмных Крыс'
+L['bilge_rat_supply_chest_note'] = nil
 
-L['stone_carvers_scamseax_note'] = nil
+L['stone_carvers_scamseax_note'] = 'Соберите {object:Сияющий цитрин} ({dot:Yellow}), чтобы получить бафф {spell:1216785} на 2 минуты, позволяющий вам добыть {item:233834}.'
 
 L['marmaduke_note'] = nil
 

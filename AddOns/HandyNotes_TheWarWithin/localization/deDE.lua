@@ -379,6 +379,7 @@ L['runed_storm_chest_note'] = 'Folge dem Wind zu einer versteckten {object:Runen
 L['flame_blessed_iron_item'] = 'Bringe diesen Gegenstand für Bonus {currency:3090} zurück.'
 
 L['barnacle_encrusted_chest'] = 'Seepockenverkrustete Truhe'
+L['pilfered_earthen_chest'] = nil
 
 L['soweezi_note'] = 'Tausche {currency:3090} gegen ein Reittier, ein Haustier, ein Spielzeug oder Ausrüstungsvorlagen ein.'
 
@@ -404,6 +405,7 @@ L['pris_quest_4'] = nil -- https://www.wowhead.com/ptr/quest=86485/a-loyal-frien
 
 L['unsolved_amethyst_runelock'] = 'Ungelöstes Amethystrunenschloss'
 L['bilge_rat_supply_chest'] = 'Vorratstruhe der Bilgeratten'
+L['bilge_rat_supply_chest_note'] = nil
 
 L['stone_carvers_scamseax_note'] = 'Sammle den {object:Strahlender Citrin} ({dot:Yellow}), um den Stärkungszauber {spell:1216785} (2 Minuten) zu erhalten, der es dir erlaubt die {item:233834} zu plündern.'
 

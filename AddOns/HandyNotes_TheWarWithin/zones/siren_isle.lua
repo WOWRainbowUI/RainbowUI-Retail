@@ -368,6 +368,20 @@ map.nodes[40284188] = Treasure({
     rewards = {Transmog({item = 233957, slot = L['offhand']})} -- Kul Tiran Lumberer's Hatchet
 }) -- Kul Tiran Lumberer's Hatchet
 
+map.nodes[39405340] = Treasure({
+    label = '{item:233831}',
+    quest = 86767, -- hidden
+    location = L['in_building'],
+    rewards = {Transmog({item = 233831, slot = L['dagger']})} -- Minnow's Favorite Blade
+}) -- Minnow's Favorite Blade
+
+map.nodes[41704600] = Treasure({
+    label = '{item:233916}',
+    quest = 86766, -- hidden
+    location = L['in_building'],
+    rewards = {Transmog({item = 233916})} -- Ashvane Issued Workboots
+}) -- Ashvane Issued Workboots
+
 tfv.nodes[26502340] = Treasure({
     label = '{item:233834}',
     note = L['stone_carvers_scamseax_note'],
@@ -413,8 +427,23 @@ map.nodes[74035329] = Treasure({
 
 map.nodes[62449084] = Treasure({
     label = L['bilge_rat_supply_chest'],
+    note = L['bilge_rat_supply_chest_note'],
+    pois = {
+        POI({59796910}), -- First Mate Shellshock
+        Path({59796910, 62449084})
+    },
+    quest = 84529, -- hidden
+    sublabel = L['pirate_sublabel'],
     requires = ns.requirement.Item(228621) -- Bilge Rat Supply Key
 }) -- Bilge Rat Supply Chest
+
+map.nodes[68409440] = Treasure({
+    label = L['pilfered_earthen_chest'],
+    location = L['in_water'],
+    quest = 84527, -- hidden
+    sublabel = L['naga_sublabel'],
+    rewards = {Transmog({item = 229181, slot = L['2h_mace']})} -- Ordained Forge Maul
+}) -- Pilfered Earthen Chest
 
 -------------------------------------------------------------------------------
 ----------------------------------- VENDOR ------------------------------------
