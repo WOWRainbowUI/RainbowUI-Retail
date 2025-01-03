@@ -168,6 +168,9 @@ function BaganatorCustomiseDialogCategoriesEditorMixin:OnLoad()
   end
 
   addonTable.CallbackRegistry:RegisterCallback("EditCategory", function(_, value)
+    if not self:GetParent():IsVisible() then
+      return
+    end
     SetState(value)
   end)
 
@@ -243,6 +246,7 @@ function BaganatorCustomiseDialogCategoriesEditorMixin:OnLoad()
   self.Blocker:SetScript("OnMouseWheel", function() end)
   self.Blocker:SetPoint("TOPLEFT", self.CategoryName)
   self.Blocker:SetFrameStrata("DIALOG")
+  self.Blocker:SetFrameLevel(10000)
 
   self.CategoryName:SetScript("OnEditFocusLost", Save)
   self.CategorySearch:SetScript("OnEditFocusLost", Save)
@@ -554,6 +558,7 @@ function BaganatorCustomiseDialogCategoriesEditorMixin:MakeItemsGrid(container)
   local scrollBar = CreateFrame("EventFrame", nil, container, "MinimalScrollBar")
   scrollBar:SetPoint("TOPLEFT", scrollBox, "TOPRIGHT", 8, 0)
   scrollBar:SetPoint("BOTTOMLEFT", scrollBox, "BOTTOMRIGHT", 8, 0)
+  addonTable.Skins.AddFrame("TrimScrollBar", scrollBar)
   local view = CreateScrollBoxListLinearView()
 
   local inset =  CreateFrame("Frame", nil, container, "InsetFrameTemplate")

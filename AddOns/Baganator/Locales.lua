@@ -378,6 +378,22 @@ L["NOTHING_TO_SAVE"] = "Nothing to save"
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
 
+L["SLASH_RESET"] = "reset"
+L["SLASH_RESET_HELP"] = "Reset all Baganator settings, then reload."
+L["SLASH_RESETCATEGORIES"] = "resetcategories"
+L["SLASH_RESETCATEGORIES_HELP"] = "Reset category settings to the default, then reload."
+L["SLASH_REMOVEUNUSEDCATEGORIES"] = "removeunusedcategories"
+L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "Remove any categories not currently in use."
+L["SLASH_HELP"] = "Open the Baganator settings."
+L["SLASH_SEARCH"] = "search"
+L["SLASH_SEARCH_EXTENDED"] = "search [text]"
+L["SLASH_SEARCH_HELP"] = "Open and then search the bags."
+L["SLASH_KEYWORDS"] = "keywords"
+L["SLASH_KEYWORDS_HELP"] = "Show keywords matching bag items in their tooltips."
+L["SLASH_CATEGORIES"] = "categories"
+L["SLASH_CATEGORIES_HELP"] = "Show categories matching or not matching items in their tooltips."
+L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
+
 local L = Locales.frFR
 L["ACCOUNT_GOLD_X"] = "Or du compte : %s"
 L["ACTION_TO_TRACK_TEXT"] = "Maj+clic sur la monnaie ou l'objet à déposer."
@@ -428,6 +444,8 @@ L["BY_PLUSMOUSE"] = "par plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Impossible d’ajouter d’autres objets à cet échange"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Vous n’êtes pas autorisé à modifier cet onglet"
+--[[Translation missing --]]
+L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "Cannot move items as no space left"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Impossible de retirer d’autres objets de la banque de guilde"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "Impossible : Vous êtes en combat"
 L["CATEGORIES"] = "Catégories"
@@ -635,6 +653,36 @@ L["SHOW_SORT_BUTTON"] = "Afficher le bouton de tri"
 L["SHOW_TRANSFERABLE_ONLY"] = "Afficher uniquement les transférables"
 L["SINGLE_BAG"] = "Un seul sac"
 L["SINGLE_BAG_DESCRIPTION_2"] = "Organise les objets par emplacement. Regroupe vos objets dans un grand conteneur."
+--[[Translation missing --]]
+L["SLASH_CATEGORIES"] = "categories"
+--[[Translation missing --]]
+L["SLASH_CATEGORIES_HELP"] = "Show categories matching or not matching items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_HELP"] = "Open the Baganator settings."
+--[[Translation missing --]]
+L["SLASH_KEYWORDS"] = "keywords"
+--[[Translation missing --]]
+L["SLASH_KEYWORDS_HELP"] = "Show keywords matching bag items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES"] = "removeunusedcategories"
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "Remove any categories not currently in use."
+--[[Translation missing --]]
+L["SLASH_RESET"] = "reset"
+--[[Translation missing --]]
+L["SLASH_RESET_HELP"] = "Reset all Baganator settings, then reload."
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES"] = "resetcategories"
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES_HELP"] = "Reset category settings to the default, then reload."
+--[[Translation missing --]]
+L["SLASH_SEARCH"] = "search"
+--[[Translation missing --]]
+L["SLASH_SEARCH_EXTENDED"] = "search [text]"
+--[[Translation missing --]]
+L["SLASH_SEARCH_HELP"] = "Open and then search the bags."
+--[[Translation missing --]]
+L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 L["SLOT"] = "Emplacements"
 L["SOCKET_INTERFACE"] = "Interface des châsses "
 L["SORT"] = "Tri"
@@ -726,8 +774,7 @@ L["AUCTION_HOUSE"] = "Auktionshaus"
 L["AUTO_OPEN"] = "Automatisch öffnen"
 L["BAG_COLUMNS"] = "Taschen Spalten"
 L["BAG_SLOTS"] = "Taschenplätze"
---[[Translation missing --]]
-L["BAG_TYPE_CATEGORIES"] = "Bag Type (Categories)"
+L["BAG_TYPE_CATEGORIES"] = "Taschen-Typ (Kategorien)"
 L["BAG_VIEW_TYPE"] = "Taschenansicht Typ"
 L["BAGANATOR"] = "Baganator"
 L["BANK"] = "Bank"
@@ -744,7 +791,7 @@ L["BINDING_TOGGLE_BANK"] = "Bank umschalten"
 L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Währungsleiste aktivieren"
 L["BINDING_TOGGLE_GUILD_BANK"] = "Gilden-Bank umschalten"
 L["BINDING_TOGGLE_WARBAND_BANK"] = "Kriegsmeuten-Bank umschalten"
-L["BLANK_SPACE"] = "Leere Stelle"
+L["BLANK_SPACE"] = "Leere Taschenplätze"
 L["BLIZZARD"] = "Blizzard"
 L["BOA"] = "BoA"
 L["BOE"] = "BoE"
@@ -756,42 +803,41 @@ L["BY_PLUSMOUSE"] = "von plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Es können keine weiteren Gegenstände zu diesem Handel hinzugefügt werden"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Du hast keine Berechtigung diesen Tab zu bearbeiten"
+L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "Gegenstandsbewegungen fehlgeschlagen: Kein Platz mehr"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Es können keine weiteren Gegenstände aus der Gildenbank entnommen werden"
---[[Translation missing --]]
-L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
+L["CANNOT_YOU_ARE_IN_COMBAT"] = "Nicht möglich: Im Kampf"
 L["CATEGORIES"] = "Kategorien"
 L["CATEGORIES_FAILED_WARNING"] = "Bei der Anzeige der Kategorien ist etwas schief gelaufen. Die fehlgeschlagene Suche lautete „%s“. Die folgenden Elemente sind fehlgeschlagen: „%s“. Mache einen Screenshot davon und besuche den Discord:"
 L["CATEGORIES_IN_TOOLTIPS_X"] = "Kategorieübereinstimmungen in den Tooltips von Taschen-Gegenständen jetzt %s"
-L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Ausrüstungs-Sets"
+L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "DELETEME: replaced by CATEGORY_EQUIPMENT_SETS_AUTO"
 L["CATEGORY_BAG"] = "Tasche"
 L["CATEGORY_EQUIPMENT_SET"] = "Ausrüstungs-Set"
-L["CATEGORY_EQUIPMENT_SETS_AUTO"] = "Ausrüstungs-Set (Auto)"
+L["CATEGORY_EQUIPMENT_SETS_AUTO"] = "Ausrüstungs-Set (automatisch)"
 L["CATEGORY_FOOD"] = "Essen & Trinken"
 L["CATEGORY_GROUPS"] = "Kategorie Gruppen"
 L["CATEGORY_GROUPS_DESCRIPTION"] = "Gruppiert Artikel nach Typ, mit Funktionen zum Hinzufügen neuer benutzerdefinierter Kategorien."
 L["CATEGORY_HEARTHSTONE"] = "Ruhestein"
-L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Inventarplätze (Auto)"
+L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Inventarplätze (automatisch)"
 L["CATEGORY_JUNK"] = "Schrott"
 L["CATEGORY_KEYSTONE"] = "Schlüsselstein"
 L["CATEGORY_OTHER"] = "Andere"
 L["CATEGORY_POTION"] = "Tränke"
 L["CATEGORY_RECENT"] = "Zuletzt"
-L["CATEGORY_RECENT_AUTO"] = "Zuletzt (Auto)"
+L["CATEGORY_RECENT_AUTO"] = "Zuletzt (automatisch)"
 L["CATEGORY_SPACING"] = "Kategorie Abstände"
 L["CATEGORY_TOY"] = "Spielzeug"
-L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
+L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (automatisch)"
 L["CHANGE_WINDOW_ANCHORS"] = "Fenster-Anker ändern"
 L["CHARACTER"] = "Charakter"
 L["CHARACTER_PANEL"] = "Charakterfenster"
 L["CHOOSE"] = "Wähle"
---[[Translation missing --]]
-L["CHOOSE_A_LABEL_FOR_THIS_SEARCH"] = "Choose a label for this search"
+L["CHOOSE_A_LABEL_FOR_THIS_SEARCH"] = "Wähle einen Namen für diese Suche"
 L["CLICK_TO_CLEAR_RECENT"] = "<Klick zum Löschen>"
 L["COMBINE_STACKS_ONLY"] = "Nur Stapel zusammenfassen"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Wirklich ALLE Gegenstände in deine Taschen transferieren ?"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Wirklich ALLE Gegenstände aus der Bank transferieren?"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Wirklich ALLE Gegenstände aus der Gildenbank transferieren?"
-L["CONSIDER_SUPPORTING_DEVELOPMENT"] = "|cff04cca4Unterstützung der Entwicklung in Betracht ziehen|r"
+L["CONSIDER_SUPPORTING_DEVELOPMENT"] = "|cff04cca4Willst du die Entwicklung von Baganator unterstützen?|r"
 L["COOKING"] = "Kochen"
 L["CRAFTING_WINDOW"] = "Handwerks-Fenster"
 L["CREATE_NEW_CATEGORY"] = "Erstelle neue Kategorie"
@@ -801,8 +847,7 @@ L["CTRL_C_TO_COPY"] = "Strg+C zum Kopieren"
 L["CTRL_CLICK_TO_TRANSFER"] = "<Strg-Klick zum Übertragen>"
 L["CURRENCIES"] = "Abzeichen"
 L["CUSTOMISE_BAGANATOR"] = "Baganator anpassen"
---[[Translation missing --]]
-L["DARK"] = "Dark"
+L["DARK"] = "Dunkel"
 L["DEPOSIT_REAGENTS"] = "Reagenzien einlagern"
 L["DEPOSIT_WARBOUND"] = "Kriegsgebundene Gegenstände einlagern"
 L["DISABLED"] = "deaktiviert"
@@ -811,7 +856,6 @@ L["DONATE"] = "Spende"
 L["DRAGGING"] = "Ziehen"
 L["DRAGGING_THEN_ALT"] = "Ziehen, dann Alt"
 L["EDIT"] = "Bearbeiten"
---[[Translation missing --]]
 L["ELVUI"] = "ElvUI"
 L["EMPTY"] = "Leer"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "Um Kategorien zu verwenden, muss die Kategorieansicht aktiviert werden"
@@ -820,8 +864,7 @@ L["ENCHANTING"] = "Verzauberkunst"
 L["ENGINEERING"] = "Ingenieurskunst"
 L["ENGRAVED_RUNE"] = "Eingravierte Runen"
 L["EQUIPMENT_SET"] = "Ausrüstungs-Set"
---[[Translation missing --]]
-L["EQUIPMENT_SET_ICON"] = "Equipment Set Icon"
+L["EQUIPMENT_SET_ICON"] = "Ausrüstungs-Set Icon"
 L["EVERYTHING"] = "Alles"
 L["EXPANSION"] = "Erweiterung"
 L["EXPORT"] = "Exportieren"
@@ -850,7 +893,6 @@ L["GUILD_NO_TABS_PURCHASED"] = "Es wurden keine Gildenbank-Tabs erworben"
 L["GUILD_TAB_INFO_TOOLTIP_TEXT"] = "Alle gespeicherten Informationen über diesen Tab anzeigen"
 L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "Entnahmen und Einlagerungen von Gegenständen für diesen Tab einsehen"
 L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Gegenstände - Entnahme: %s | Einlage: %s"
---[[Translation missing --]]
 L["GW2_UI"] = "GW2 UI"
 L["HELP"] = "Hilfe"
 L["HELP_COLON_SEARCH"] = "Hilfe: Suche"
@@ -861,10 +903,8 @@ L["HELP_SEARCH_KEYWORDS"] = "Schlüsselwörter"
 L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Die Suche sucht an zwei Stellen nach Übereinstimmungen: in einer Reihe von angegebenen Schlüsselwörtern und in den Gegenstandsnamen und Tooltip-Beschreibungen. Um nur nach einem exakten Stichwort zu suchen, verwenden Sie ein Hashtag (#) vor dem Schlüsselwort."
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Beispiel: #ausrüstung&seelengebunden"
 L["HELP_SEARCH_OPERATORS"] = "Operatoren"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (and), | (or), ! (not), # (exact keyword), ( ) (group)"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "The operators are evaluated in the following order of precedence: ( ) (group), ! (not), & (and), and | (or)."
+L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "& (und), | (oder), ! (Negation), # (genaues Schlüsselwort), ( ) (Gruppe)"
+L["HELP_SEARCH_OPERATORS_LINE_2_V2"] = "Die Operatoren werden in der folgenden Reihenfolge ausgewertet: ( ) (Gruppe), ! (Negation), & (und), und | (oder)."
 L["HELP_SEARCH_OPERATORS_LINE_3"] = "Beispiel: !A & B | C wird ausgewertet als ((!A) & B) | C."
 L["HERBALISM"] = "Kräuterkunde"
 L["HIDDEN"] = "Versteckt"
@@ -889,8 +929,7 @@ L["INSERT_OR_CREATE"] = "Einfügen oder erstellen"
 L["INVALID_CATEGORY_IMPORT_FORMAT"] = "Ungültiges Kategorie-Importformat"
 L["ITEM_INFORMATION_MISSING"] = "Gegenstand Informationen fehlen"
 L["ITEM_LEVEL"] = "Gegenstandsstufe"
---[[Translation missing --]]
-L["ITEM_NAME"] = "Item Name"
+L["ITEM_NAME"] = "Gegenstandsname"
 L["ITEM_QUALITY"] = "Gegenstandsqualität"
 L["ITEM_QUALITY_TEXT_COLORS"] = "Gegenstandsqualität Textfarben"
 L["ITEM_TYPE"] = "Gegenstandstyp"
@@ -904,7 +943,6 @@ L["KEYSTONE_LEVEL"] = "Schlüsselsteinstufe"
 L["KEYWORDS_IN_TOOLTIPS_X"] = "Schlüsselwörter in den Tooltips für Gegenstände in Taschen jetzt %s"
 L["LAYOUT"] = "Layout"
 L["LEATHERWORKING"] = "Lederverarbeitung"
---[[Translation missing --]]
 L["LINK"] = "Link"
 L["LOCK_WINDOWS"] = "Fenster sperren"
 L["LOW"] = "Tief"
@@ -914,18 +952,15 @@ L["MINING"] = "Bergbau"
 L["MONEY_LOGS"] = "Währungs-Logs"
 L["MOVE"] = "Bewegen"
 L["MULTIPLE_TABS"] = "Mehrere Tabs"
---[[Translation missing --]]
 L["NDUI"] = "NDui"
 L["NEVER"] = "Nie"
 L["NEW_CATEGORY"] = "Neue Kategorie"
 L["NEW_SECTION"] = "Neuer Abschnitt"
---[[Translation missing --]]
-L["NO_PASTE_MESSAGE"] = "You have the Paste addon installed, this will cause search and visual issues with Baganator. Use PasteNG instead."
+L["NO_PASTE_MESSAGE"] = "Du hast das Addon \"Paste\" installiert. Das wird Probleme mit Suche und Anzeige in Baganator verursachen. Bitte installiere stattdessen \"PasteNG\"."
 L["NO_TRANSACTIONS_AVAILABLE"] = "Keine Transaktionen vorhanden"
 L["NONE"] = "Nichts"
 L["NORMAL"] = "Normal"
---[[Translation missing --]]
-L["NOTHING_TO_SAVE"] = "Nothing to save"
+L["NOTHING_TO_SAVE"] = "Nichts zu speichern."
 L["OPEN_OPTIONS"] = "Optionen öffnen"
 L["OPEN_SYNDICATOR"] = "Öffne Syndicator"
 L["PASTE_YOUR_IMPORT_STRING_HERE"] = "Füge hier die Importzeichenfolge ein"
@@ -941,12 +976,11 @@ L["QUANTITY"] = "Menge"
 L["REAGENTS"] = "Reagenzien"
 L["REALM_WIDE_GOLD_X"] = "Server Gold: %s"
 L["REALM_X_X_X"] = "%s (x%s)"
-L["RECENT_CHARACTER_TABS"] = "Letzte Charakter-Tabs"
+L["RECENT_CHARACTER_TABS"] = "Tabs für die letzten Charaktere"
 L["RECENT_HEADER_CLICK_MESSAGE"] = "Zum sofortigen Entfernen auf die Überschrift klicken."
 L["RECENT_TIMER"] = "Neuer Timer"
 L["REDUCE_UI_SPACING"] = "UI-Abstände verringern"
---[[Translation missing --]]
-L["RELOAD_REQUIRED"] = "Reload required"
+L["RELOAD_REQUIRED"] = "Neuladen erforderlich"
 L["REMOVE_BORDERS"] = "Rahmen entfernen"
 L["REMOVE_FROM_CATEGORY"] = "Aus Kategorie entfernen"
 L["REMOVED_UNUSED_CATEGORIES"] = "Alle unbenutzten benutzerdefinierten Kategorien wurden entfernt"
@@ -955,12 +989,9 @@ L["REVERSE_GROUPS_SORT_ORDER"] = "Umkehrung der Gruppensortierung"
 L["REVERT_CHANGES"] = "Rückgängig"
 L["RIGHT_CLICK_TO_REMOVE"] = "<Rechtsklick zum Entfernen>"
 L["RIGHT_CLICK_TO_TRANSFER"] = "<Rechtsklick zum Transferieren>"
---[[Translation missing --]]
-L["RIGHT_CLICK_TO_VENDOR_6"] = "<Right-click to vendor (limit of 6 items)>"
---[[Translation missing --]]
-L["SAVE_SEARCH"] = "Save Search"
---[[Translation missing --]]
-L["SAVED_SEARCHES"] = "Saved Searches"
+L["RIGHT_CLICK_TO_VENDOR_6"] = "<Rechtsklicken zum Verkaufen (Limit von 6 Gegenständen)>"
+L["SAVE_SEARCH"] = "Suche speichern"
+L["SAVED_SEARCHES"] = "Gespeicherte Suchen"
 L["SCRAP"] = "Verschrotten"
 L["SCRAPPING_MACHINE"] = "Verschrottungsmaschine"
 L["SEARCH_EVERYWHERE"] = "Überall suchen"
@@ -971,8 +1002,7 @@ L["SECTION_CRAFTING"] = "Handwerk"
 L["SECTION_EQUIPMENT"] = "Ausrüstung"
 L["SELLJUNK"] = "Schrott verkaufen"
 L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Umschalt-Klick zum Verfolgen/Aufheben der Verfolgung>"
---[[Translation missing --]]
-L["SHIFT_CLICK_TO_VENDOR_ALL"] = "<Use Shift to bypass limit>"
+L["SHIFT_CLICK_TO_VENDOR_ALL"] = "<Nutze Umschalt (Shift) um das Limit zu ignorieren>"
 L["SHOW_ADD_BUTTONS"] = "Hinzufügen Buttons anzeigen"
 L["SHOW_BUTTONS"] = "Zeige Buttons"
 L["SHOW_NAME_PREFIX"] = "Namenspräfix anzeigen"
@@ -980,6 +1010,21 @@ L["SHOW_SORT_BUTTON"] = "Sortieren Button anzeigen"
 L["SHOW_TRANSFERABLE_ONLY"] = "Nur wenn übertragbar anzeigen"
 L["SINGLE_BAG"] = "Einzelne Tasche"
 L["SINGLE_BAG_DESCRIPTION_2"] = "Ordnen Sie die Gegenstände nach Plätzen. Bringt Ihre Gegenstände in einem einzelnen großen Behälter unter."
+L["SLASH_CATEGORIES"] = "kategorien"
+L["SLASH_CATEGORIES_HELP"] = "Zeige welche Kategorien (nicht) zutreffen in den Gegenstandstooltips."
+L["SLASH_HELP"] = "Öffne die Baganator Einstellungen."
+L["SLASH_KEYWORDS"] = "schlüsselworte"
+L["SLASH_KEYWORDS_HELP"] = "Zeige zutreffende Schlüsselworte in den Gegenstandstooltips."
+L["SLASH_REMOVEUNUSEDCATEGORIES"] = "unbenutztekategorienentfernen"
+L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "Entferne alle Kategorien, die derzeit nicht genutzt werden."
+L["SLASH_RESET"] = "zurücksetzen"
+L["SLASH_RESET_HELP"] = "Setze alle Baganator Einstellungen zurück, und lade das UI neu."
+L["SLASH_RESETCATEGORIES"] = "kategorienzurücksetzen"
+L["SLASH_RESETCATEGORIES_HELP"] = "Setze alle Kategorie Einstellungen auf den Standard zurück, und lade das UI neu."
+L["SLASH_SEARCH"] = "suche"
+L["SLASH_SEARCH_EXTENDED"] = "suche [Text]"
+L["SLASH_SEARCH_HELP"] = "Öffne die Taschen und suche."
+L["SLASH_UNKNOWN_COMMAND"] = "Unbekannte Aktion '%s'"
 L["SLOT"] = "Slot"
 L["SOCKET_INTERFACE"] = "Sockel Oberfläche"
 L["SORT"] = "Sortieren"
@@ -989,8 +1034,7 @@ L["SORT_ON_OPEN"] = "Beim Öffnen sortieren"
 L["SORTBAGS"] = "SortBags"
 L["SORTING"] = "Sortieren"
 L["SOUL"] = "Seele"
---[[Translation missing --]]
-L["SQUARE_ICONS"] = "Square icons"
+L["SQUARE_ICONS"] = "Rechteckige Icons"
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r wird benötigt um Baganator zu verwenden."
 L["SYNDICATOR_INSTALL_MESSAGE"] = "Für die Nutzung von Baganator ist zuvor die Installation von |cffd1b219Syndicator|r über die Addon-Webseite bzw. den Addon-Client erforderlich."
 L["TAB_INFO"] = "Tab Information"
@@ -1000,13 +1044,11 @@ L["THAT_ITEM_IS_IN_A_MAILBOX"] = "Dieser Gegenstand ist im Briefkasten"
 L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "Dieser Gegenstand ist im Leerenlager"
 L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "Dieser Gegenstand ist im Auktionshaus gelistet"
 L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "Der Händler will keinen dieser Gegenstände"
-L["THEME"] = "Template"
---[[Translation missing --]]
-L["THEMES"] = "Themes"
+L["THEME"] = "Aussehen"
+L["THEMES"] = "Aussehen"
 L["TIPS_PLUGINS"] = "Erweitere Baganator mit zusätzlichen Funktionen, basierend auf Integrationen von beliebten Addons wie AllTheThings, CanIMogIt, Pawn, Dejunk, und anderen..."
 L["TIPS_SEARCH"] = "Leistungsstark, flexibel und schnell. Verwende die flexiblen Abfrageoperatoren & (und), | (oder) und ! (nicht), um genau das zu finden, was du brauchst."
---[[Translation missing --]]
-L["TIPS_THEMES"] = "Make Baganator match your UI with automatic themes for ElvUI and GW2, or a simple dark option."
+L["TIPS_THEMES"] = "Lass Baganator wie der Rest deines UI aussehen mit den automatischen Skins für ElvUI, GW2, oder einer einfachen dunklen Option."
 L["TIPS_TRANSFER"] = "Suche nach Gegenständen und verwende dann die Transfer-Schaltfläche, um sie ganz einfach zu deiner Bank, einer Mail, dem Handelsfenster oder einem Verkäufer zu übertragen."
 L["TL"] = "TL"
 L["TO_OPEN_OPTIONS_X"] = "Optionen anzeigen mit /bgr"
@@ -1022,16 +1064,13 @@ L["TRANSFER_MAIN_VIEW_GUILD_TOOLTIP_TEXT"] = "Verschiebe gesuchte Gegenstände a
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Hänge die gesuchten Artikel zum Senden an eine Brief an."
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Verschrottungsfähige Gegenstände in die Verschrottungsmaschine legen"
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Füge gesuchte Gegenstände in das Handelsfenster ein (max. 6)."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_VENDOR_TOOLTIP_TEXT"] = [=[Sell searched for items to the vendor;
-Limit of 6, hold shift to bypass limit.]=]
+L["TRANSFER_MAIN_VIEW_VENDOR_TOOLTIP_TEXT"] = "Verkaufe die gesuchten Gegenstände an den Händler; Limit von 6, halte Umschalt (Shift) um Limit zu umgehen."
 L["TRANSPARENCY"] = "Transparenz"
 L["TYPE"] = "Typ"
 L["UNLIMITED"] = "Unbegrenzt"
 L["UPGRADE_DETECTION"] = "Erkennung von Upgrades"
 L["USE_DEFAULT"] = "Voreinstellung"
---[[Translation missing --]]
-L["USE_EXPRESSWAY_FONT_ON_ITEMS"] = "Use EXPRESSWAY font on items"
+L["USE_EXPRESSWAY_FONT_ON_ITEMS"] = "Nutze die EXPRESSWAY Schriftart für Gegenstände"
 L["USING_X"] = "Benutze %s"
 L["VENDOR"] = "Händler"
 L["VERSION_COLON_X"] = "Version: %s"
@@ -1106,6 +1145,8 @@ L["BY_PLUSMOUSE"] = "(автор - plusmouse)"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Превышен лимит на добавление предметов для обмена"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "У вас нет разрешения на редактирование этой ячейки"
+--[[Translation missing --]]
+L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "Cannot move items as no space left"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Превышен лимит на съем предметов из банка гильдии"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "Нельзя: вы находитесь в бою"
 L["CATEGORIES"] = "Категории"
@@ -1311,6 +1352,36 @@ L["SHOW_SORT_BUTTON"] = "Отображать кнопку сортировки"
 L["SHOW_TRANSFERABLE_ONLY"] = "Только перемещаемые"
 L["SINGLE_BAG"] = "Единая сумка"
 L["SINGLE_BAG_DESCRIPTION_2"] = "Упорядочение предметов по слотам. Ваши предметы находятся в большой единой сумке."
+--[[Translation missing --]]
+L["SLASH_CATEGORIES"] = "categories"
+--[[Translation missing --]]
+L["SLASH_CATEGORIES_HELP"] = "Show categories matching or not matching items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_HELP"] = "Open the Baganator settings."
+--[[Translation missing --]]
+L["SLASH_KEYWORDS"] = "keywords"
+--[[Translation missing --]]
+L["SLASH_KEYWORDS_HELP"] = "Show keywords matching bag items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES"] = "removeunusedcategories"
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "Remove any categories not currently in use."
+--[[Translation missing --]]
+L["SLASH_RESET"] = "reset"
+--[[Translation missing --]]
+L["SLASH_RESET_HELP"] = "Reset all Baganator settings, then reload."
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES"] = "resetcategories"
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES_HELP"] = "Reset category settings to the default, then reload."
+--[[Translation missing --]]
+L["SLASH_SEARCH"] = "search"
+--[[Translation missing --]]
+L["SLASH_SEARCH_EXTENDED"] = "search [text]"
+--[[Translation missing --]]
+L["SLASH_SEARCH_HELP"] = "Open and then search the bags."
+--[[Translation missing --]]
+L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 L["SLOT"] = "Ячейка"
 L["SOCKET_INTERFACE"] = "Окно инкрустации"
 L["SORT"] = "Сортировка"
@@ -1435,6 +1506,8 @@ L["BY_PLUSMOUSE"] = "por plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Não é possível adicionar mais itens a esta troca"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Você não tem permissão para editar esta aba."
+--[[Translation missing --]]
+L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "Cannot move items as no space left"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Não é possível retirar mais itens do banco da guilda"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "Impossível: Você está em combate"
 L["CATEGORIES"] = "Categorias"
@@ -1640,6 +1713,36 @@ L["SHOW_SORT_BUTTON"] = "Exibir botão de ordenação"
 L["SHOW_TRANSFERABLE_ONLY"] = "Exibir apenas transferíveis"
 L["SINGLE_BAG"] = "Bolsa única"
 L["SINGLE_BAG_DESCRIPTION_2"] = "Organiza itens por espaço. Mantém seus itens em um único recipiente grande."
+--[[Translation missing --]]
+L["SLASH_CATEGORIES"] = "categories"
+--[[Translation missing --]]
+L["SLASH_CATEGORIES_HELP"] = "Show categories matching or not matching items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_HELP"] = "Open the Baganator settings."
+--[[Translation missing --]]
+L["SLASH_KEYWORDS"] = "keywords"
+--[[Translation missing --]]
+L["SLASH_KEYWORDS_HELP"] = "Show keywords matching bag items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES"] = "removeunusedcategories"
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "Remove any categories not currently in use."
+--[[Translation missing --]]
+L["SLASH_RESET"] = "reset"
+--[[Translation missing --]]
+L["SLASH_RESET_HELP"] = "Reset all Baganator settings, then reload."
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES"] = "resetcategories"
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES_HELP"] = "Reset category settings to the default, then reload."
+--[[Translation missing --]]
+L["SLASH_SEARCH"] = "search"
+--[[Translation missing --]]
+L["SLASH_SEARCH_EXTENDED"] = "search [text]"
+--[[Translation missing --]]
+L["SLASH_SEARCH_HELP"] = "Open and then search the bags."
+--[[Translation missing --]]
+L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 L["SLOT"] = "Espaço"
 L["SOCKET_INTERFACE"] = "Interface de engaste"
 L["SORT"] = "Ordenar"
@@ -1760,6 +1863,8 @@ L["BY_PLUSMOUSE"] = "Por plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "No se pueden añadir más objetos a este intercambio"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "No tienes permisos para editar esta pestaña"
+--[[Translation missing --]]
+L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "Cannot move items as no space left"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "No se pueden retirar más objetos del banco de hermandad"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "No se puede: Estás en combate"
 L["CATEGORIES"] = "Categorías"
@@ -1965,6 +2070,36 @@ L["SHOW_SORT_BUTTON"] = "Mostrar botón de ordenación"
 L["SHOW_TRANSFERABLE_ONLY"] = "Mostrar solo transferibles"
 L["SINGLE_BAG"] = "Una sola bolsa"
 L["SINGLE_BAG_DESCRIPTION_2"] = "Ordena los objetos por ranuras. Guarda tus objetos en un gran contenedor."
+--[[Translation missing --]]
+L["SLASH_CATEGORIES"] = "categories"
+--[[Translation missing --]]
+L["SLASH_CATEGORIES_HELP"] = "Show categories matching or not matching items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_HELP"] = "Open the Baganator settings."
+--[[Translation missing --]]
+L["SLASH_KEYWORDS"] = "keywords"
+--[[Translation missing --]]
+L["SLASH_KEYWORDS_HELP"] = "Show keywords matching bag items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES"] = "removeunusedcategories"
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "Remove any categories not currently in use."
+--[[Translation missing --]]
+L["SLASH_RESET"] = "reset"
+--[[Translation missing --]]
+L["SLASH_RESET_HELP"] = "Reset all Baganator settings, then reload."
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES"] = "resetcategories"
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES_HELP"] = "Reset category settings to the default, then reload."
+--[[Translation missing --]]
+L["SLASH_SEARCH"] = "search"
+--[[Translation missing --]]
+L["SLASH_SEARCH_EXTENDED"] = "search [text]"
+--[[Translation missing --]]
+L["SLASH_SEARCH_HELP"] = "Open and then search the bags."
+--[[Translation missing --]]
+L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 L["SLOT"] = "Casilla"
 L["SOCKET_INTERFACE"] = "Interfaz de ranura"
 L["SORT"] = "Ordenar"
@@ -2085,6 +2220,8 @@ L["BY_PLUSMOUSE"] = "por plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "No se pueden añadir más objetos a este intercambio"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "No tienes permisos para editar esta pestaña"
+--[[Translation missing --]]
+L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "Cannot move items as no space left"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "No se pueden retirar más objetos del banco de hermandad"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "No se puede: Estás en combate"
 L["CATEGORIES"] = "Categorías"
@@ -2291,6 +2428,36 @@ L["SHOW_SORT_BUTTON"] = "Mostrar botón de ordenación"
 L["SHOW_TRANSFERABLE_ONLY"] = "Mostrar solo transferibles"
 L["SINGLE_BAG"] = "Una sola bolsa"
 L["SINGLE_BAG_DESCRIPTION_2"] = "Ordena los objetos por ranuras. Guarda tus objetos en un gran contenedor."
+--[[Translation missing --]]
+L["SLASH_CATEGORIES"] = "categories"
+--[[Translation missing --]]
+L["SLASH_CATEGORIES_HELP"] = "Show categories matching or not matching items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_HELP"] = "Open the Baganator settings."
+--[[Translation missing --]]
+L["SLASH_KEYWORDS"] = "keywords"
+--[[Translation missing --]]
+L["SLASH_KEYWORDS_HELP"] = "Show keywords matching bag items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES"] = "removeunusedcategories"
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "Remove any categories not currently in use."
+--[[Translation missing --]]
+L["SLASH_RESET"] = "reset"
+--[[Translation missing --]]
+L["SLASH_RESET_HELP"] = "Reset all Baganator settings, then reload."
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES"] = "resetcategories"
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES_HELP"] = "Reset category settings to the default, then reload."
+--[[Translation missing --]]
+L["SLASH_SEARCH"] = "search"
+--[[Translation missing --]]
+L["SLASH_SEARCH_EXTENDED"] = "search [text]"
+--[[Translation missing --]]
+L["SLASH_SEARCH_HELP"] = "Open and then search the bags."
+--[[Translation missing --]]
+L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 L["SLOT"] = "Casilla"
 L["SOCKET_INTERFACE"] = "Interfaz de ranura"
 L["SORT"] = "Ordenar"
@@ -2411,6 +2578,8 @@ L["BY_PLUSMOUSE"] = "作者：plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "無法在此交易加入更多物品"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您沒有權限編輯此標籤頁"
+--[[Translation missing --]]
+L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "Cannot move items as no space left"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "無法從公會銀行提取更多物品"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "不能：你正在戰鬥中"
 L["CATEGORIES"] = "分類"
@@ -2616,6 +2785,36 @@ L["SHOW_SORT_BUTTON"] = "顯示整理按鈕"
 L["SHOW_TRANSFERABLE_ONLY"] = "僅顯示可轉移的"
 L["SINGLE_BAG"] = "單一大背包"
 L["SINGLE_BAG_DESCRIPTION_2"] = "按部位排列物品。將您的物品存放在單一大背包中。"
+--[[Translation missing --]]
+L["SLASH_CATEGORIES"] = "categories"
+--[[Translation missing --]]
+L["SLASH_CATEGORIES_HELP"] = "Show categories matching or not matching items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_HELP"] = "Open the Baganator settings."
+--[[Translation missing --]]
+L["SLASH_KEYWORDS"] = "keywords"
+--[[Translation missing --]]
+L["SLASH_KEYWORDS_HELP"] = "Show keywords matching bag items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES"] = "removeunusedcategories"
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "Remove any categories not currently in use."
+--[[Translation missing --]]
+L["SLASH_RESET"] = "reset"
+--[[Translation missing --]]
+L["SLASH_RESET_HELP"] = "Reset all Baganator settings, then reload."
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES"] = "resetcategories"
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES_HELP"] = "Reset category settings to the default, then reload."
+--[[Translation missing --]]
+L["SLASH_SEARCH"] = "search"
+--[[Translation missing --]]
+L["SLASH_SEARCH_EXTENDED"] = "search [text]"
+--[[Translation missing --]]
+L["SLASH_SEARCH_HELP"] = "Open and then search the bags."
+--[[Translation missing --]]
+L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 L["SLOT"] = "部位"
 L["SOCKET_INTERFACE"] = "插槽介面"
 L["SORT"] = "整理"
@@ -2736,6 +2935,7 @@ L["BY_PLUSMOUSE"] = "作者：plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "无法添加更多物品到此交易"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您无权编辑此选项"
+L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "由于没有剩余空间，无法移动物品"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "无法从公会银行提取更多物品"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "不能： 您正在战斗中"
 L["CATEGORIES"] = "分类"
@@ -2830,8 +3030,8 @@ L["HELP_COLON_SEARCH"] = "帮助：搜索"
 L["HELP_SEARCH_ITEM_LEVEL"] = "装备等级"
 L["HELP_SEARCH_ITEM_LEVEL_LINE_1"] = "123（准确装等），<123（装等低于），>123（装等高于），123-234（装等介于之间）"
 L["HELP_SEARCH_ITEM_LEVEL_LINE_2"] = "例如：#装备&>242"
-L["HELP_SEARCH_KEYWORDS"] = "关键词"
-L["HELP_SEARCH_KEYWORDS_LINE_1"] = "您的搜索将在两个地方搜索匹配项：一组指定的关键词以及物品名称和鼠标提示的描述。二是只搜索准确的关键词，请在关键词前使用标签 (#)。"
+L["HELP_SEARCH_KEYWORDS"] = "关键字"
+L["HELP_SEARCH_KEYWORDS_LINE_1"] = "您的搜索将在两个地方搜索匹配项：一是指定的关键字以及物品名称和鼠标提示的描述。二是只搜索准确的关键字，请在关键字前使用标签 (#)。"
 L["HELP_SEARCH_KEYWORDS_LINE_2"] = "例如：#装备&发现"
 L["HELP_SEARCH_OPERATORS"] = "运算符"
 L["HELP_SEARCH_OPERATORS_LINE_1_V2"] = "&（与）， |（或）， !（非）， #（精准关键字），( ) （组）"
@@ -2871,7 +3071,7 @@ L["JUNK"] = "垃圾"
 L["JUNK_DETECTION_2"] = "垃圾检测"
 L["KEYS"] = "钥匙"
 L["KEYSTONE_LEVEL"] = "钥石等级"
-L["KEYWORDS_IN_TOOLTIPS_X"] = "背包物品鼠标提示中的关键词现在为%s"
+L["KEYWORDS_IN_TOOLTIPS_X"] = "背包物品鼠标提示中的关键字现在为%s"
 L["LAYOUT"] = "布局"
 L["LEATHERWORKING"] = "制皮"
 L["LINK"] = "链接"
@@ -2941,6 +3141,21 @@ L["SHOW_SORT_BUTTON"] = "显示整理按键"
 L["SHOW_TRANSFERABLE_ONLY"] = "仅显示可转移"
 L["SINGLE_BAG"] = "大背包"
 L["SINGLE_BAG_DESCRIPTION_2"] = "按部位排列物品。将您的物品存放在大背包中。"
+L["SLASH_CATEGORIES"] = "分类"
+L["SLASH_CATEGORIES_HELP"] = "在鼠标提示中显示匹配或不匹配物品的分类。"
+L["SLASH_HELP"] = "打开 Baganator 设置。"
+L["SLASH_KEYWORDS"] = "关键字"
+L["SLASH_KEYWORDS_HELP"] = "在鼠标提示中显示与背包物品匹配的关键字。"
+L["SLASH_REMOVEUNUSEDCATEGORIES"] = "删除未使用的分类"
+L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "删除当前不使用的任何分类。"
+L["SLASH_RESET"] = "重置"
+L["SLASH_RESET_HELP"] = "重置所有 Baganator 设置，然后重新加载。"
+L["SLASH_RESETCATEGORIES"] = "重置分类"
+L["SLASH_RESETCATEGORIES_HELP"] = "将分类设置重置为默认设置，然后重新加载。"
+L["SLASH_SEARCH"] = "搜索"
+L["SLASH_SEARCH_EXTENDED"] = "搜索 [文本]"
+L["SLASH_SEARCH_HELP"] = "打开背包，然后搜索。"
+L["SLASH_UNKNOWN_COMMAND"] = "未知命令 '%s'"
 L["SLOT"] = "装备栏"
 L["SOCKET_INTERFACE"] = "插槽界面"
 L["SORT"] = "整理"
@@ -3068,6 +3283,8 @@ L["BY_PLUSMOUSE"] = "by plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "거래에 아이템을 더이상 추가할 수 없습니다."
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "이 탭을 편집할 권한이 없습니다."
+--[[Translation missing --]]
+L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "Cannot move items as no space left"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "길드은행에서 더이상 아이템을 인출할 수 없습니다."
 --[[Translation missing --]]
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
@@ -3306,6 +3523,36 @@ L["SHOW_SORT_BUTTON"] = "정렬 버튼 표시"
 L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
 L["SINGLE_BAG"] = "싱글 가방"
 L["SINGLE_BAG_DESCRIPTION_2"] = "슬롯별로 아이템을 정렬합니다. 하나의 큰 항목에 물품을 보관합니다."
+--[[Translation missing --]]
+L["SLASH_CATEGORIES"] = "categories"
+--[[Translation missing --]]
+L["SLASH_CATEGORIES_HELP"] = "Show categories matching or not matching items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_HELP"] = "Open the Baganator settings."
+--[[Translation missing --]]
+L["SLASH_KEYWORDS"] = "keywords"
+--[[Translation missing --]]
+L["SLASH_KEYWORDS_HELP"] = "Show keywords matching bag items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES"] = "removeunusedcategories"
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "Remove any categories not currently in use."
+--[[Translation missing --]]
+L["SLASH_RESET"] = "reset"
+--[[Translation missing --]]
+L["SLASH_RESET_HELP"] = "Reset all Baganator settings, then reload."
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES"] = "resetcategories"
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES_HELP"] = "Reset category settings to the default, then reload."
+--[[Translation missing --]]
+L["SLASH_SEARCH"] = "search"
+--[[Translation missing --]]
+L["SLASH_SEARCH_EXTENDED"] = "search [text]"
+--[[Translation missing --]]
+L["SLASH_SEARCH_HELP"] = "Open and then search the bags."
+--[[Translation missing --]]
+L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 L["SLOT"] = "슬롯"
 L["SOCKET_INTERFACE"] = "보석 장착"
 L["SORT"] = "정렬"
@@ -3491,7 +3738,9 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to thi
 --[[Translation missing --]]
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 --[[Translation missing --]]
-L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
+L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "Cannot move items as no space left"
+--[[Translation missing --]]
+L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdraw any more items from the guild bank"
 --[[Translation missing --]]
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
 --[[Translation missing --]]
@@ -3905,6 +4154,36 @@ L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
 L["SINGLE_BAG"] = "Single bag"
 --[[Translation missing --]]
 L["SINGLE_BAG_DESCRIPTION_2"] = "Arrange items by slot. Keeps your items in one large container."
+--[[Translation missing --]]
+L["SLASH_CATEGORIES"] = "categories"
+--[[Translation missing --]]
+L["SLASH_CATEGORIES_HELP"] = "Show categories matching or not matching items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_HELP"] = "Open the Baganator settings."
+--[[Translation missing --]]
+L["SLASH_KEYWORDS"] = "keywords"
+--[[Translation missing --]]
+L["SLASH_KEYWORDS_HELP"] = "Show keywords matching bag items in their tooltips."
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES"] = "removeunusedcategories"
+--[[Translation missing --]]
+L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "Remove any categories not currently in use."
+--[[Translation missing --]]
+L["SLASH_RESET"] = "reset"
+--[[Translation missing --]]
+L["SLASH_RESET_HELP"] = "Reset all Baganator settings, then reload."
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES"] = "resetcategories"
+--[[Translation missing --]]
+L["SLASH_RESETCATEGORIES_HELP"] = "Reset category settings to the default, then reload."
+--[[Translation missing --]]
+L["SLASH_SEARCH"] = "search"
+--[[Translation missing --]]
+L["SLASH_SEARCH_EXTENDED"] = "search [text]"
+--[[Translation missing --]]
+L["SLASH_SEARCH_HELP"] = "Open and then search the bags."
+--[[Translation missing --]]
+L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 --[[Translation missing --]]
 L["SLOT"] = "Slot"
 --[[Translation missing --]]

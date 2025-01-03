@@ -1,7 +1,9 @@
 # Baganator
 
-## [592](https://github.com/Baganator/Baganator/tree/592) (2025-01-01)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/591...592) 
+## [594](https://github.com/Baganator/Baganator/tree/594) (2025-01-02)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/593...594) 
 
-- Cutomise: Categories: Highlight when adding from the bottom of a section into it  
-- Customise: Categories: Adjust visual for highlight showing insert point  
+- [Fixes #395] Add help for slash commands when entering /bgr help  
+- [Fixes #396] Automatically enable /bgr keywords when editing categories  
+- Categories: Include cached views when showing keywords/categories tooltips  
+- Classic Era/SoD/Anni: Fix missing divider in default layout below recents  
