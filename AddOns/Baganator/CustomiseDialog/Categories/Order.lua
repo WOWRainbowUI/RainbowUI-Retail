@@ -135,6 +135,8 @@ local function GetCategoryContainer(parent, pickupCallback)
           addonTable.CallbackRegistry:TriggerEvent("EditCategory", self.value)
         end
       end)
+      frame:SetText(" ")
+      frame:GetFontString():SetWordWrap(false)
       local button = CreateFrame("Button", nil, frame)
       button:SetSize(28, 22)
       local tex = button:CreateTexture(nil, "ARTWORK")
@@ -364,7 +366,7 @@ function addonTable.CustomiseDialog.GetCategoriesOrganiser(parent)
       table.remove(categoryOrder.elements, index)
       if value:match("^_") then -- section
         local level = 1
-        while level ~= 0 do
+        while level ~= 0 and #categoryOrder.elements > 0 do
           local tmp = categoryOrder.elements[index]
           table.insert(draggable.sectionValues, tmp)
           table.remove(categoryOrder.elements, index)
@@ -410,7 +412,7 @@ function addonTable.CustomiseDialog.GetCategoriesOrganiser(parent)
     end
   end)
   dropdown:SetPoint("BOTTOMLEFT", categoryOrder, "TOPLEFT", 0, 8)
-  dropdown:SetPoint("RIGHT", -17, 0)
+  dropdown:SetPoint("RIGHT", categoryOrder.ScrollBar, 5, 0)
 
   addonTable.CallbackRegistry:RegisterCallback("SettingChanged", function(_, settingName)
     if settingName == addonTable.Config.Options.CATEGORY_DISPLAY_ORDER or settingName == addonTable.Config.Options.CATEGORY_HIDDEN or settingName == addonTable.Config.Options.CUSTOM_CATEGORIES then
