@@ -62,9 +62,8 @@ local function Prearrange(isLive, bagID, bag, bagType, isGrouping)
       if info.itemID ~= nil then
         local location = {bagID = bagID, slotIndex = slotIndex}
         info.setInfo = addonTable.ItemViewCommon.GetEquipmentSetInfo(location, info.itemLink)
-        if info.setInfo then
-          info.guid = C_Item.GetItemGUID(location)
-        elseif not isGrouping then
+        info.refundable = C_Item.CanBeRefunded(location)
+        if info.setInfo or not isGrouping or info.refundable then
           info.guid = C_Item.GetItemGUID(location)
         elseif info.hasLoot and not info.isBound then
           -- Ungroup lockboxes always
@@ -156,6 +155,7 @@ function addonTable.CategoryViews.BagLayoutMixin:SettingChanged(settingName)
   end
   if settingName ~= addonTable.Config.Options.CATEGORY_SECTION_TOGGLED then
     self.composed = nil
+    self.wasGrouping = nil
   end
 end
 
@@ -269,7 +269,7 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
 
   local oldComposed = self.composed
   self.composed = composed
-  if oldComposed then
+  if oldComposed and self.wasGrouping == container.isGrouping then
     local anyNew = #composed.details ~= #oldComposed.details
     for index, old in ipairs(oldComposed.details) do
       local current = composed.details[index]
@@ -483,6 +483,9 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
       error("unrecognised layout type")
     end
   end
+
+  self.wasGrouping = container.isGrouping
+
   if addonTable.Config.Get(addonTable.Config.Options.DEBUG_TIMERS) then
     addonTable.Utilities.DebugOutput("category group show", debugprofilestop() - start2)
   end
