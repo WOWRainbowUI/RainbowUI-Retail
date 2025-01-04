@@ -63,6 +63,42 @@ function addonTable.ItemButtonUtil.UpdateSettings()
     end)
   end
 
+  local markUnusable = addonTable.Config.Get("icon_mark_unusable")
+  if markUnusable then
+    table.insert(itemCallbacks, function(self)
+      if not self.BGR.tooltipInfo then
+        self.BGR.tooltipInfo = self.BGR.tooltipGetter()
+      end
+      self.icon:SetVertexColor(1, 1, 1)
+      self.BGR.markUnusable = false
+      if not self.icon.hooked then
+        self.icon.hooked = true
+        local inHook = false
+        hooksecurefunc(self.icon,"SetVertexColor", function()
+          if not inHook and self.BGR.markUnusable then
+            inHook = true
+            self.icon:SetVertexColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
+            inHook = false
+          end
+        end)
+      end
+      if self.BGR.tooltipInfo then
+        for _, row in ipairs(self.BGR.tooltipInfo.lines) do
+          if row.leftColor.r == 1 and row.leftColor.g < 0.2 and row.leftColor.b < 0.2 and row.leftText ~= ITEM_SCRAPABLE_NOT or
+             row.rightColor and row.rightColor.r == 1 and row.rightColor.g < 0.2 and row.rightColor.b < 0.2 then
+            self.BGR.markUnusable = true
+            self.icon:SetVertexColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
+          end
+        end
+      end
+    end)
+  else
+    table.insert(itemCallbacks, function(self)
+      self.BGR.markUnusable = false
+      self.icon:SetVertexColor(1, 1, 1)
+    end)
+  end
+
   local upgradePluginID = addonTable.Config.Get("upgrade_plugin")
   local upgradePlugin = addonTable.API.UpgradePlugins[upgradePluginID]
   if upgradePlugin and upgradePluginID ~= "poor_quality" then
@@ -414,7 +450,7 @@ local function SetItemContextMatch(self, callback)
     elseif addonTable.Constants.IsRetail and C_PlayerInteractionManager.IsInteractingWithNpcOfType(Enum.PlayerInteractionType.MailInfo) and addonTable.Compatibility.SendMailShowing then
       self.BGR.contextMatch = not self.BGR.isBound or C_Bank.IsItemAllowedInBankType(Enum.BankType.Account, self.BGR.itemLocation)
     elseif C_PlayerInteractionManager.IsInteractingWithNpcOfType(Enum.PlayerInteractionType.Merchant) then
-      self.BGR.contextMatch = not self.BGR.hasNoValue or C_Item.CanBeRefunded(self.BGR.itemLocation)
+      self.BGR.contextMatch = not self.BGR.hasNoValue or (C_Item.DoesItemExist(self.BGR.itemLocation) and C_Item.CanBeRefunded(self.BGR.itemLocation))
     elseif C_PlayerInteractionManager.IsInteractingWithNpcOfType(Enum.PlayerInteractionType.GuildBanker) then
       self.BGR.contextMatch = not self.BGR.isBound and (not addonTable.Constants.IsRetail or not C_Item.IsBoundToAccountUntilEquip(self.BGR.itemLocation))
     elseif addonTable.Compatibility.SocketInterfaceOpen then
