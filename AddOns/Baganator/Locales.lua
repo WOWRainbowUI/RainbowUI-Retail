@@ -2578,8 +2578,7 @@ L["BY_PLUSMOUSE"] = "作者：plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "無法在此交易加入更多物品"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您沒有權限編輯此標籤頁"
---[[Translation missing --]]
-L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "Cannot move items as no space left"
+L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "沒有剩餘空間無法移動物品"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "無法從公會銀行提取更多物品"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "不能：你正在戰鬥中"
 L["CATEGORIES"] = "分類"
@@ -2785,36 +2784,21 @@ L["SHOW_SORT_BUTTON"] = "顯示整理按鈕"
 L["SHOW_TRANSFERABLE_ONLY"] = "僅顯示可轉移的"
 L["SINGLE_BAG"] = "單一大背包"
 L["SINGLE_BAG_DESCRIPTION_2"] = "按部位排列物品。將您的物品存放在單一大背包中。"
---[[Translation missing --]]
-L["SLASH_CATEGORIES"] = "categories"
---[[Translation missing --]]
-L["SLASH_CATEGORIES_HELP"] = "Show categories matching or not matching items in their tooltips."
---[[Translation missing --]]
-L["SLASH_HELP"] = "Open the Baganator settings."
---[[Translation missing --]]
-L["SLASH_KEYWORDS"] = "keywords"
---[[Translation missing --]]
-L["SLASH_KEYWORDS_HELP"] = "Show keywords matching bag items in their tooltips."
---[[Translation missing --]]
-L["SLASH_REMOVEUNUSEDCATEGORIES"] = "removeunusedcategories"
---[[Translation missing --]]
-L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "Remove any categories not currently in use."
---[[Translation missing --]]
-L["SLASH_RESET"] = "reset"
---[[Translation missing --]]
-L["SLASH_RESET_HELP"] = "Reset all Baganator settings, then reload."
---[[Translation missing --]]
-L["SLASH_RESETCATEGORIES"] = "resetcategories"
---[[Translation missing --]]
-L["SLASH_RESETCATEGORIES_HELP"] = "Reset category settings to the default, then reload."
---[[Translation missing --]]
-L["SLASH_SEARCH"] = "search"
---[[Translation missing --]]
-L["SLASH_SEARCH_EXTENDED"] = "search [text]"
---[[Translation missing --]]
-L["SLASH_SEARCH_HELP"] = "Open and then search the bags."
---[[Translation missing --]]
-L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
+L["SLASH_CATEGORIES"] = "分類"
+L["SLASH_CATEGORIES_HELP"] = "在滑鼠提示中顯示匹配或不匹配物品的分類。"
+L["SLASH_HELP"] = "開啟 Baganator 的設定選項。"
+L["SLASH_KEYWORDS"] = "關鍵字"
+L["SLASH_KEYWORDS_HELP"] = "在滑鼠提示中顯示與背包物品匹配的關鍵字。"
+L["SLASH_REMOVEUNUSEDCATEGORIES"] = "刪除未使用分類"
+L["SLASH_REMOVEUNUSEDCATEGORIES_HELP"] = "刪除目前未使用的分類。"
+L["SLASH_RESET"] = "重置"
+L["SLASH_RESET_HELP"] = "重置所有 Baganator 設置，然後重新載入。"
+L["SLASH_RESETCATEGORIES"] = "重置分類"
+L["SLASH_RESETCATEGORIES_HELP"] = "重置分類設定為預設，並重新載入。"
+L["SLASH_SEARCH"] = "搜尋"
+L["SLASH_SEARCH_EXTENDED"] = "搜尋 [文字]"
+L["SLASH_SEARCH_HELP"] = "開啟然後搜尋背包。"
+L["SLASH_UNKNOWN_COMMAND"] = "未知指令 '%s'"
 L["SLOT"] = "部位"
 L["SOCKET_INTERFACE"] = "插槽介面"
 L["SORT"] = "整理"
