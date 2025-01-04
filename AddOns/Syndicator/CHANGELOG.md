@@ -1,7 +1,6 @@
 # Syndicator
 
-## [147](https://github.com/Baganator/Syndicator/tree/147) (2024-12-25)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/146...147) 
+## [149](https://github.com/Baganator/Syndicator/tree/149) (2025-01-03)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/148...149) 
 
-- Use global constant for anima keyword translations  
-- Search: Add "anima" keyword for Shadowlands anima items  
+- Classic: Fix "usable" search including usable items  
