@@ -555,7 +555,7 @@ core.RegisterCallback("SD Announce Sink", "Announce", function(callback, id, zon
 		else
 			source = source .. (" @ %.1f, %.1f"):format(x * 100, y * 100)
 			if zone ~= HBD:GetPlayerZone() then
-				source = source .. " in " .. (core.zone_names[zone] or UNKNOWN)
+				source = source .. " 在 " .. (core.zone_names[zone] or UNKNOWN)
 			end
 			if module.db.profile.sink_opts.sink20OutputSink == "ChatFrame" and MAP_PIN_HYPERLINK then
 				pin = (" |cffffff00|Hworldmap:%d:%d:%d|h[%s]|h|r"):format(
