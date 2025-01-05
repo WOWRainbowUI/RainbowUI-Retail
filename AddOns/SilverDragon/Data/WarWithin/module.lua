@@ -2200,6 +2200,13 @@ ns.RegisterPoints(ns.SIRENISLE, {
 		npc=228151,
 		vignette=6526,
 	},
+	[31757154] = {
+		label="Bloodbrine",
+		criteria=70794,
+		quest=84795, -- 84875
+		npc=228154,
+		vignette=6530,
+	},
 	-- Project quests
 	[37105499] = {
 		label="Stalagnarok",
@@ -2261,13 +2268,6 @@ ns.RegisterPoints(ns.SIRENISLE, {
 		vignette=6590,
 	},
 	-- Naga phase
-	[31757154] = {
-		label="Bloodbrine",
-		criteria=70794,
-		quest=84795, -- 84875
-		npc=228154,
-		vignette=6530,
-	},
 	[61708967] = {
 		label="Coralweaver Calliso",
 		criteria=70801,
@@ -2288,6 +2288,9 @@ ns.RegisterPoints(ns.SIRENISLE, {
 		criteria=70803,
 		quest=84800,
 		npc=228583,
+		loot={
+			{166358, pet=true}, -- Proper Parrot
+		},
 		vignette=6580,
 	},
 	[60568904] = {
@@ -2295,6 +2298,9 @@ ns.RegisterPoints(ns.SIRENISLE, {
 		criteria=70804,
 		quest=84799,
 		npc=228580,
+		loot={
+			{166358, pet=true}, -- Proper Parrot
+		},
 		vignette=6577,
 	},
 }, {
@@ -2377,7 +2383,7 @@ ns.RegisterPoints(ns.FORGOTTENVAULT, {
 	[26402300] = {
 		label="Shardsong",
 		criteria=70795,
-		quest=nil,
+		quest=86779,
 		npc=227550,
 		loot={
 			{235017,toy=true,}, -- Glittering Vault Shard
@@ -2387,7 +2393,7 @@ ns.RegisterPoints(ns.FORGOTTENVAULT, {
 	[64805460] = {
 		label="Gunnlod the Sea-Drinker",
 		criteria=70798,
-		quest=nil,
+		quest=84797,
 		npc=228159,
 		loot={
 			229019, -- Earthen Deckhand's Cape
