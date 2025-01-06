@@ -1,7 +1,8 @@
 # Baganator
 
-## [598](https://github.com/Baganator/Baganator/tree/598) (2025-01-04)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/597...598) 
+## [601](https://github.com/Baganator/Baganator/tree/601) (2025-01-05)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/600...601) 
 
-- Fix fast purchases of refundable items not tagging all items as refundable  
-- Categories: Group identical refundable items  
+- Fix closing Warband bank not always resetting context  
+- Fix socket fade context not triggering  
+- Update "Support development" message  
