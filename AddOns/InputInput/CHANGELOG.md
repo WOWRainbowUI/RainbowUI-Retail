@@ -1,6 +1,6 @@
-# inputinput_Libraries_zh
+# inputinput
 
-## [v1.0.14-release](https://github.com/CvCn/InputInput/tree/v1.0.14-release) (2024-12-14)
-[Full Changelog](https://github.com/CvCn/InputInput/compare/v1.0.13-release...v1.0.14-release) [Previous Releases](https://github.com/CvCn/InputInput/releases)
+## [v1.0.15-release-02](https://github.com/CvCn/InputInput/tree/v1.0.15-release-02) (2025-01-05)
+[Full Changelog](https://github.com/CvCn/InputInput/compare/v1.0.15-release...v1.0.15-release-02) [Previous Releases](https://github.com/CvCn/InputInput/releases)
 
-- 新增正式服编辑模式支持  
+- 现在使用新的主题啦，修复了一些设置上的问题  
