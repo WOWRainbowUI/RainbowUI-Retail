@@ -134,7 +134,8 @@ L["How many buffs you can see on target/focus frames"] = "在目標/專注目標
 L["Max debuffs count"] = "最多減益數量"
 L["How many debuffs you can see on target/focus frames"] = "在目標/專注目標框架最多能夠看到幾個減益效果。"
 
-L["Class portraits"] = "職業頭像"
+L["Class portraits (old style)"] = "職業頭像 (舊風格)"
+L["Class portraits (new style)"] = "職業頭像 (新風格)"
 L["Replaces the unit-frame portrait with their class icon"] = "使用職業圖示取代單位框架的頭像。"
 L["Hide frames out of combat"] = "非戰鬥中隱藏框架"
 L["Hide frames out of combat (for example in resting)"] = "非戰鬥中隱藏框架 (例如休息時)。"
