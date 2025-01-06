@@ -338,6 +338,13 @@ L["HelpTip Warband Completed Quest"] = "此圖示代表任務已經由戰隊完�
 L["Got It"] = HELP_TIP_BUTTON_GOT_IT or "知道了";
 L["Open Settings"] = "打開設定";
 
+--AddOn Compatibility for Language Translator
+L["Translator"] = "翻譯";
+L["Translator Source"] = "原始: ";
+L["Translator No Quest Data Format"] = "沒有找到項目 [任務: %s]";
+L["Translator Click To Hide Translation"] = "點一下隱藏翻譯";
+L["Translator Click To Show Translation"] = "點一下顯示翻譯";
+
 L["Show Answer"] = "顯示正確答案。";
 L["Quest Failed Pattern"] = "才能完成此任務。$";
 L["AutoCompleteQuest HallowsEnd"] = "糖果桶";     --Quest:28981
