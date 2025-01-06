@@ -701,19 +701,41 @@ function EasyFrames.Utils.SetTextColor(string, colors)
     string:SetTextColor(colors[1], colors[2], colors[3])
 end
 
-function EasyFrames.Utils.ClassPortraits(frame)
-    local _, unitClass = UnitClass(frame.unit)
+function EasyFrames.Utils.ClassPortraitsOldSyle(frame)
+    local _, unitClass = UnitClass(frame.unit);
     if (unitClass and UnitIsPlayer(frame.unit)) then
-        frame.portrait:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
-        frame.portrait:SetTexCoord(unpack(CLASS_ICON_TCOORDS[unitClass]))
+        frame.portrait:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles");
+        frame.portrait:SetTexCoord(unpack(CLASS_ICON_TCOORDS[string.upper(unitClass)]));
     else
-        frame.portrait:SetTexCoord(0, 1, 0, 1)
+        EasyFrames.Utils.DefaultPortraits(frame);
+    end
+end
+
+function EasyFrames.Utils.ClassPortraitsNewStyle(frame, fixPlayerPortraitMask)
+    if (frame.portrait) then
+        local _, class = UnitClass(frame.unit);
+        if (class and UnitIsPlayer(frame.unit)) then
+            local classIconAtlas = GetClassAtlas(class);
+            if (classIconAtlas) then
+                frame.portrait:SetAtlas(classIconAtlas, false, false, true);
+
+                if (fixPlayerPortraitMask and db.general.useEFTextures) then
+                    PlayerFrame.PlayerFrameContainer.PlayerPortraitMask:SetAtlas("CircleMask");
+                end
+            end
+        else
+            EasyFrames.Utils.DefaultPortraits(frame);
+        end
     end
 end
 
 function EasyFrames.Utils.DefaultPortraits(frame)
-    SetPortraitTexture(frame.portrait, frame.unit)
-    frame.portrait:SetTexCoord(0, 1, 0, 1)
+    if (db.general.useEFTextures) then
+        SetPortraitTexture(frame.portrait, frame.unit);
+        frame.portrait:SetTexCoord(0, 1, 0, 1);
+    else
+        SetPortraitTexture(frame.portrait, frame.unit, frame.disablePortraitMask);
+    end
 end
 
 EasyFrames.Helpers = {};

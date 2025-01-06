@@ -26,8 +26,9 @@ local db
 
 local UpdateHealthValues = EasyFrames.Utils.UpdateHealthValues
 local UpdateManaValues = EasyFrames.Utils.UpdateManaValues
-local ClassPortraits = EasyFrames.Utils.ClassPortraits
-local DefaultPortraits = EasyFrames.Utils.DefaultPortraits
+local ClassPortraitsOldSyle = EasyFrames.Utils.ClassPortraitsOldSyle;
+local ClassPortraitsNewStyle = EasyFrames.Utils.ClassPortraitsNewStyle;
+local DefaultPortraits = EasyFrames.Utils.DefaultPortraits;
 
 local targetFrameContentMain = EasyFrames.Utils.GetTargetFrameContentMain();
 local GetTargetHealthBar = EasyFrames.Utils.GetTargetHealthBar;
@@ -123,6 +124,8 @@ function Target:PlayerEnteringWorld()
 
     -- PvP icon
     TargetFrame.TargetFrameContent.TargetFrameContentContextual.PrestigePortrait:SetPoint("TOPRIGHT", 4, -16);
+    TargetFrame.TargetFrameContent.TargetFrameContentContextual.PvpIcon:SetPoint("RIGHT", -8, -16);
+    TargetFrame.TargetFrameContent.TargetFrameContentContextual.PvpIcon:SetPoint("TOP", 4, -20);
 
     -- LevelText
     targetFrameContentMain.LevelText:ClearAllPoints();
@@ -207,9 +210,11 @@ end
 function Target:MakeClassPortraits(frame)
     if (frame.portrait and (frame.unit == "target" or frame.unit == "targettarget")) then
         if (db.target.portrait == "2") then
-            ClassPortraits(frame)
+            ClassPortraitsOldSyle(frame);
+        elseif (db.target.portrait == "3") then
+            ClassPortraitsNewStyle(frame);
         else
-            DefaultPortraits(frame)
+            DefaultPortraits(frame);
         end
     end
 end

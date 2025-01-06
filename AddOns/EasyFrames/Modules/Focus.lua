@@ -26,8 +26,9 @@ local db
 
 local UpdateHealthValues = EasyFrames.Utils.UpdateHealthValues
 local UpdateManaValues = EasyFrames.Utils.UpdateManaValues
-local ClassPortraits = EasyFrames.Utils.ClassPortraits
-local DefaultPortraits = EasyFrames.Utils.DefaultPortraits
+local ClassPortraitsOldSyle = EasyFrames.Utils.ClassPortraitsOldSyle;
+local ClassPortraitsNewStyle = EasyFrames.Utils.ClassPortraitsNewStyle;
+local DefaultPortraits = EasyFrames.Utils.DefaultPortraits;
 
 local targetFrameContentMain = EasyFrames.Utils.GetFocusFrameContentMain();
 local GetFocusHealthBar = EasyFrames.Utils.GetFocusHealthBar;
@@ -123,6 +124,8 @@ function Focus:PlayerEnteringWorld()
 
     -- PvP icon
     FocusFrame.TargetFrameContent.TargetFrameContentContextual.PrestigePortrait:SetPoint("TOPRIGHT", 4, -16);
+    FocusFrame.TargetFrameContent.TargetFrameContentContextual.PvpIcon:SetPoint("RIGHT", -8, -16);
+    FocusFrame.TargetFrameContent.TargetFrameContentContextual.PvpIcon:SetPoint("TOP", 4, -20);
 
     -- LevelText
     targetFrameContentMain.LevelText:ClearAllPoints();
@@ -136,7 +139,7 @@ function Focus:PlayerEnteringWorld()
     FocusFrame.TargetFrameContent.TargetFrameContentContextual.PetBattleIcon:SetPoint(point, relativeTo, relativePoint, xOffset + 5, yOffset + 20);
 
     -- Threat Frame
-        local numericalThreat = FocusFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat;
+    local numericalThreat = FocusFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat;
     numericalThreat:SetScale(0.8);
     numericalThreat:SetFrameLevel(FocusFrame:GetFrameLevel());
     CoreModule:MoveRegion(numericalThreat, "BOTTOMRIGHT", FocusFrame, "RIGHT", -45, 48);
@@ -207,9 +210,11 @@ end
 function Focus:MakeClassPortraits(frame)
     if (frame.portrait and (frame.unit == "focus" or frame.unit == "focustarget")) then
         if (db.focus.portrait == "2") then
-            ClassPortraits(frame)
+            ClassPortraitsOldSyle(frame);
+        elseif (db.focus.portrait == "3") then
+            ClassPortraitsNewStyle(frame);
         else
-            DefaultPortraits(frame)
+            DefaultPortraits(frame);
         end
     end
 end
