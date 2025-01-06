@@ -129,7 +129,8 @@ L["How many buffs you can see on target/focus frames"] = true
 L["Max debuffs count"] = true
 L["How many debuffs you can see on target/focus frames"] = true
 
-L["Class portraits"] = true
+L["Class portraits (old style)"] = true
+L["Class portraits (new style)"] = true
 L["Replaces the unit-frame portrait with their class icon"] = true
 L["Hide frames out of combat"] = true
 L["Hide frames out of combat (for example in resting)"] = true

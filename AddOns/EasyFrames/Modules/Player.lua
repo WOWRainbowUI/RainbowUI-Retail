@@ -26,8 +26,9 @@ local db
 
 local UpdateHealthValues = EasyFrames.Utils.UpdateHealthValues
 local UpdateManaValues = EasyFrames.Utils.UpdateManaValues
-local ClassPortraits = EasyFrames.Utils.ClassPortraits
-local DefaultPortraits = EasyFrames.Utils.DefaultPortraits
+local ClassPortraitsOldSyle = EasyFrames.Utils.ClassPortraitsOldSyle;
+local ClassPortraitsNewStyle = EasyFrames.Utils.ClassPortraitsNewStyle;
+local DefaultPortraits = EasyFrames.Utils.DefaultPortraits;
 local isNeedsUpdateFrame = false;
 
 local OnShowHookScript = function(frame)
@@ -303,16 +304,18 @@ end
 
 function Player:MakeClassPortraits(frame)
     if (frame.unit == "vehicle") then
-        DefaultPortraits(frame)
+        DefaultPortraits(frame);
 
         return
     end
 
     if (frame.unit == "player" and frame.portrait) then
         if (db.player.portrait == "2") then
-            ClassPortraits(frame)
+            ClassPortraitsOldSyle(frame);
+        elseif (db.player.portrait == "3") then
+            ClassPortraitsNewStyle(frame, true);
         else
-            DefaultPortraits(frame)
+            DefaultPortraits(frame);
         end
     end
 end

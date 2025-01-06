@@ -91,7 +91,8 @@ local fontStyle = {
 
 local portrait = {
     ["1"] = L["Default"],
-    ["2"] = L["Class portraits"],
+    ["2"] = L["Class portraits (old style)"],
+    ["3"] = L["Class portraits (new style)"],
 --    ["3"] = L["Hide"],
 }
 
