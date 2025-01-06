@@ -1,6 +1,7 @@
 # Syndicator
 
-## [149](https://github.com/Baganator/Syndicator/tree/149) (2025-01-03)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/148...149) 
+## [150](https://github.com/Baganator/Syndicator/tree/150) (2025-01-05)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/149...150) 
 
-- Classic: Fix "usable" search including usable items  
+- Commenting: Document fields for search data  
+- [Fixes #63] Avoid potential error when showing tooltip data  
