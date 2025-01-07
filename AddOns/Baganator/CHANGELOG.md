@@ -1,8 +1,7 @@
 # Baganator
 
-## [601](https://github.com/Baganator/Baganator/tree/601) (2025-01-05)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/600...601) 
+## [603](https://github.com/Baganator/Baganator/tree/603) (2025-01-06)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/602...603) 
 
-- Fix closing Warband bank not always resetting context  
-- Fix socket fade context not triggering  
-- Update "Support development" message  
+- Fix error if bank refreshing while using hearthstone to leave  
+- Fix Upgrades category leaving blank slots behind after refresh  
