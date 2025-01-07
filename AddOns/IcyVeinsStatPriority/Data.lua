@@ -18,8 +18,8 @@ local data = {
 
     -- 577 - Demon Hunter: Havoc -- https://www.icy-veins.com/wow/havoc-demon-hunter-pve-dps-stat-priority
     [577] = {
-        {"Mastery = Critical Strike > Agility > Haste > Versatility", "Fel-Scarred"},
-        {"Critical Strike = Agility > Mastery > Versatility > Haste", "Aldrachi"},
+        {"Mastery = Critical Strike > Agility > Haste > Versatility", "魔痕"},
+        {"Critical Strike = Agility > Mastery > Versatility > Haste", "奧達奇劫奪者"},
     },
     -- 581 - Demon Hunter: Vengeance -- https://www.icy-veins.com/wow/vengeance-demon-hunter-pve-tank-stat-priority
     [581] = {
@@ -76,7 +76,7 @@ local data = {
     [255] = {
         {"Agility > Critical Strike > Mastery > Haste > Versatility", "獸群領袖 (單目標)"},
         {"Agility > Critical Strike > Haste = Mastery > Versatility", "獸群領袖 (多目標)"},
-        {"Agility > Mastery > Haste = Critical Strike > Versatility", "Sentinel"},
+        {"Agility > Mastery > Haste = Critical Strike > Versatility", "哨兵"},
     },
 
     -- 62 - Mage: Arcane -- https://www.icy-veins.com/wow/arcane-mage-pve-dps-stat-priority
