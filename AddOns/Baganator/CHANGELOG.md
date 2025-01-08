@@ -1,7 +1,7 @@
 # Baganator
 
-## [603](https://github.com/Baganator/Baganator/tree/603) (2025-01-06)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/602...603) 
+## [604](https://github.com/Baganator/Baganator/tree/604) (2025-01-07)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/603...604) 
 
-- Fix error if bank refreshing while using hearthstone to leave  
-- Fix Upgrades category leaving blank slots behind after refresh  
+- Retail: Auto open bags when at item upgrade NPC (configurable)  
+- Fix race condition triggering error due to item having moved  
