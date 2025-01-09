@@ -240,6 +240,7 @@
 ---|"phasechange"
 ---|"polarityshift"
 ---|"pone" 12
+---|"poolyou" 18
 ---|"positive" 13
 ---|"pthree"
 ---|"ptran"
@@ -266,6 +267,7 @@
 ---|"safenow"
 ---|"scatter"
 ---|"scattersoon"
+---|"screwup" 18
 ---|"securityguardcoming" 12
 ---|"seedyou" 15
 ---|"shadowrun"
@@ -282,6 +284,7 @@
 ---|"south"
 ---|"southeast"
 ---|"southwest"
+---|"sparktowater" 18
 ---|"spear"
 ---|"specialsoon"
 ---|"speedup"
