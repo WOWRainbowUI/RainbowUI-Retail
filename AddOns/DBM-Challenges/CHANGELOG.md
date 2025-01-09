@@ -1,6 +1,9 @@
 # <DBM Mod> Challenges
 
-## [r166](https://github.com/DeadlyBossMods/DBM-Challenges/tree/r166) (2024-11-03)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Challenges/compare/r165...r166) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Challenges/releases)
+## [r167](https://github.com/DeadlyBossMods/DBM-Challenges/tree/r167) (2025-01-08)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Challenges/compare/r166...r167) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Challenges/releases)
 
-- remove game version 11.0.2 and add game version 11.0.7  
+- Fix bug  
+- Assign groups and categories for new addon manager in 11.1  
+- remove 11.0.5 and Add 11.1  
+- give PoA a better chance of picking up win check by simply scanning ALL units instead of default units  

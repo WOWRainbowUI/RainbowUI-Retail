@@ -1,5 +1,6 @@
-## Interface: 110005, 110007
+## Interface: 110007, 110100
 ## X-Min-Interface: 80000
+## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Challenges|r
 ## Title-deDE:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Herausforderungen|r
 ## Title-esES:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Terreno de Pruebas|r
@@ -34,7 +35,7 @@
 ## X-DBM-Mod-MinExpansion: 4
 ## X-Curse-Project-ID: 61621
 ## X-Wago-ID: Rn6VLLGd
-## Version: r166
+## Version: r167
 
 localization.en.lua
 localization.de.lua

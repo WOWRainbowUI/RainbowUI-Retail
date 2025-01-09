@@ -3,7 +3,7 @@ local mod	= DBM:NewMod("Splinterbark", "DBM-Challenges", 1)
 
 mod.statTypes = "normal,heroic,mythic,challenge"
 
-mod:SetRevision("20221023055051")
+mod:SetRevision("20241112083409")
 mod:SetCreatureID(172682)--Guessed
 mod.soloChallenge = true
 
@@ -17,7 +17,7 @@ mod:RegisterEventsInCombat(
 --	"SPELL_AURA_APPLIED_DOSE",
 --	"SPELL_AURA_REMOVED",
 --	"UNIT_DIED"
-	"UNIT_SPELLCAST_SUCCEEDED",
+	"UNIT_SPELLCAST_SUCCEEDED_UNFILTERED",
 	"CRITERIA_COMPLETE"
 )
 
@@ -37,7 +37,7 @@ function mod:SPELL_AURA_APPLIED(args)
 	end
 end
 
-function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, spellId)
+function mod:UNIT_SPELLCAST_SUCCEEDED_UNFILTERED(uId, _, spellId)
 	if spellId == 333198 then--[DNT] Set World State: Win Encounter-
 		DBM:EndCombat(self)
 	end

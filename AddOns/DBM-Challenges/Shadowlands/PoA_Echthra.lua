@@ -3,7 +3,7 @@ local mod	= DBM:NewMod("Echthra", "DBM-Challenges", 1)
 
 mod.statTypes = "normal,heroic,mythic,challenge"
 
-mod:SetRevision("20221023053638")
+mod:SetRevision("20241112083409")
 mod:SetCreatureID(172177)
 mod.soloChallenge = true
 
@@ -13,7 +13,7 @@ mod:SetWipeTime(30)
 
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START 336096 336715 336709",
-	"UNIT_SPELLCAST_SUCCEEDED",
+	"UNIT_SPELLCAST_SUCCEEDED_UNFILTERED",
 	"CRITERIA_COMPLETE"
 )
 
@@ -53,7 +53,7 @@ function mod:SPELL_CAST_START(args)
 	end
 end
 
-function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, spellId)
+function mod:UNIT_SPELLCAST_SUCCEEDED_UNFILTERED(uId, _, spellId)
 	if spellId == 333198 then--[DNT] Set World State: Win Encounter-
 		DBM:EndCombat(self)
 	end
