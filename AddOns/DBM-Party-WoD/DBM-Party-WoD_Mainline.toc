@@ -1,5 +1,7 @@
 ## Interface: 110007, 110100
 ## X-Min-Interface: 80000
+## Category: DBM
+
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (WoD)|r
 ## Title-koKR:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0던전 (드군)|r
 ## Title-deDE:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Gruppe-WoD|r
@@ -33,7 +35,7 @@
 ## X-DBM-Mod-MinCoreRevision: 20200524142133
 ## X-Curse-Project-ID: 314994
 ## X-WoWI-ID: 24904
-## Version: r179
+## Version: r180
 ## X-DBM-Mod-MinExpansion: 5
 localization.en.lua
 localization.kr.lua

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("MotherloadTrash", "DBM-Party-BfA", 7)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241220023833")
+mod:SetRevision("20250105060420")
 mod:SetZone(1594)
 mod:RegisterZoneCombat(1594)
 --mod:SetModelID(47785)
@@ -114,7 +114,7 @@ function mod:SPELL_CAST_SUCCESS(args)
 end
 
 --All timers subject to a ~0.5 second clipping due to ScanEngagedUnits
-function mod:StartEngageTimers(guid, cid)
+function mod:StartEngageTimers(guid, cid, delay)
 
 end
 

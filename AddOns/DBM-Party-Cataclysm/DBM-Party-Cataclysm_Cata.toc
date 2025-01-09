@@ -1,5 +1,7 @@
-## Interface: 40401
+## Interface: 40401, 40402
 ## X-Min-Interface-Cata: 40400
+## Category: DBM
+
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Cata)|r
 ## Title-frFR:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Groupe-Cata|r
 ## Title-deDE:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Gruppe-Cata|r
@@ -36,7 +38,7 @@
 ## X-DBM-Mod-MinExpansion: 3
 ## X-Curse-Project-ID: 314994
 ## X-WoWI-ID: 24904
-## Version: r179
+## Version: r180
 
 localization.en.lua
 localization.de.lua
