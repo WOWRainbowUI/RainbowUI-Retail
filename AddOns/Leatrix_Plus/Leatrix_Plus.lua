@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.0.26 (1st January 2025)
+-- 	Leatrix Plus 11.0.27 (8th January 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.0.26"
+	LeaPlusLC["AddonVer"] = "11.0.27"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -34,11 +34,8 @@
 			end)
 			return
 		end
-		if gametocversion and gametocversion >= 110002 then -- 11.0.2
+		if gametocversion and gametocversion >= 110100 then -- 11.1.0
 			LeaPlusLC.NewPatch = true
-		end
-		if gametocversion and gametocversion >= 110005 then -- 11.0.5
-			LeaPlusLC.NewPatch1105 = true
 		end
 	end
 
@@ -477,7 +474,7 @@
 		-- Update friends list
 		C_FriendList.ShowFriends()
 
-		-- Remove realm
+		-- Remove realm (since we have GUID checking)
 		name = strsplit("-", name, 2)
 
 		-- Check character friends
@@ -945,8 +942,18 @@
 				if (not UnitExists("party1") or UnitIsGroupLeader("player") or UnitIsGroupAssistant("player")) and strlower(strtrim(arg1)) == strlower(LeaPlusLC["InvKey"]) then
 					if not LeaPlusLC:IsInLFGQueue() then
 						if event == "CHAT_MSG_WHISPER" then
-						local void, void, void, void, viod, void, void, void, void, guid = ...
+							local void, void, void, void, viod, void, void, void, void, guid = ...
 							if LeaPlusLC:FriendCheck(arg2, guid) or LeaPlusLC["InviteFriendsOnly"] == "Off" then
+								-- If whisper name is same realm, remove realm name
+								local theWhisperName, theWhisperRealm = strsplit("-", arg2, 2)
+								if theWhisperRealm then
+									local void, theCharRealm = UnitFullName("player")
+									if theCharRealm then
+										if theWhisperRealm == theCharRealm then arg2 = theWhisperName end
+									end
+								end
+
+								-- Invite whisper player
 								C_PartyInfo.InviteUnit(arg2)
 							end
 						elseif event == "CHAT_MSG_BN_WHISPER" then
@@ -1081,8 +1088,8 @@
 			local frame = CreateFrame("FRAME")
 			frame:SetScript("OnEvent", function(self, event, arg1, ...)
 
-				-- If a friend, accept if you're accepting friends and not in Dungeon Finder
-				local void, void, void, void, guid = ...
+				-- If a friend, accept if you're accepting friends and not queued
+				local void, void, void, void, void, guid = ...
 				if (LeaPlusLC["AcceptPartyFriends"] == "On" and LeaPlusLC:FriendCheck(arg1, guid)) then
 					if not LeaPlusLC:IsInLFGQueue() then
 						AcceptGroup()
@@ -1129,8 +1136,9 @@
 		do
 
 			local frame = CreateFrame("FRAME")
-			frame:SetScript("OnEvent", function(self, event, arg1)
+			frame:SetScript("OnEvent", function(self, event, arg1, ...)
 				-- If not a friend and you're blocking invites, decline
+				local void, void, void, void, void, guid = ...
 				if LeaPlusLC["NoPartyInvites"] == "On" then
 					if LeaPlusLC:FriendCheck(arg1, guid) then
 						return
@@ -3616,6 +3624,9 @@
 				whiteList[200592] = "Dirty Old Satchel"
 				whiteList[200606] = "Previously Owned Map"
 
+				-- Rock Buddy (item cannot be sold but sell price is reported as 1)
+				whiteList[228431] = "Rock Buddy"
+
 				-- End of whitelist
 
 				local whiteString = eb.Text:GetText()
@@ -3847,6 +3858,22 @@
 
 			end
 
+			-- These values can change with a new game patch
+			local errorCodeVendorDoesNotBuy = 47 -- ERR_VENDOR_DOESNT_BUY
+			local errorCodeTooMuchGold = 644 -- ERR_TOO_MUCH_GOLD
+
+			if LeaPlusLC.NewPatch then -- 11.1.0
+				errorCodeTooMuchGold = 645
+			end
+
+			-- Report in chat if UI error codes have changed so code above needs to be updated
+			if GetGameMessageInfo(errorCodeVendorDoesNotBuy) ~= "ERR_VENDOR_DOESNT_BUY" then
+				LeaPlusLC:Print("Leatrix Plus: ERR_VENDOR_DOESNT_BUY.")
+			end
+			if GetGameMessageInfo(errorCodeTooMuchGold) ~= "ERR_TOO_MUCH_GOLD" then
+				LeaPlusLC:Print("Leatrix Plus: ERR_TOO_MUCH_GOLD.")
+			end
+
 			-- Event handler
 			SellJunkFrame:RegisterEvent("MERCHANT_SHOW")
 			SellJunkFrame:RegisterEvent("MERCHANT_CLOSED")
@@ -3870,9 +3897,9 @@
 					-- If merchant frame is closed, stop selling
 					StopSelling()
 				elseif event == "UI_ERROR_MESSAGE" then
-					if arg1 == 47 then
+					if arg1 == errorCodeVendorDoesNotBuy then
 						StopSelling() -- Vendor refuses to buy items (ERR_VENDOR_DOESNT_BUY)
-					elseif arg1 == 644 then
+					elseif arg1 == errorCodeTooMuchGold then
 						StopSelling() -- At gold limit (ERR_TOO_MUCH_GOLD)
 					end
 				end
@@ -3886,14 +3913,6 @@
 			-- for i = 100, 2000 do
 			--   if GetGameMessageInfo(i) == "ERR_TOO_MUCH_GOLD" then print(i) end
 			-- end
-
-			-- Report in chat if UI error codes have changed so code above needs to be updated
-			if GetGameMessageInfo(47) ~= "ERR_VENDOR_DOESNT_BUY" then
-				LeaPlusLC:Print("Leatrix Plus: ERR_VENDOR_DOESNT_BUY.")
-			end
-			if GetGameMessageInfo(644) ~= "ERR_TOO_MUCH_GOLD" then
-				LeaPlusLC:Print("Leatrix Plus: ERR_TOO_MUCH_GOLD.")
-			end
 
 		end
 
@@ -8833,7 +8852,8 @@
 		-- Lockout sharing
 		----------------------------------------------------------------------
 
-		if LeaPlusLC["LockoutSharing"] == "On" then
+		-- LeaPlusLC.NewPatch - Remove in 11.1.0
+		if LeaPlusLC["LockoutSharing"] == "On" and not LeaLockList["LockoutSharing"] then
 			-- Set the social menu option (sharing will be disabled but the checkbox will be set on next reload)
 			ShowAccountAchievements(true)
 		end
@@ -11156,8 +11176,8 @@
 					end
 				end
 
-				if LeaPlusLC.NewPatch1105 then
-					-- LockDF("CharAddonList", "This option is now built into the game.")
+				if LeaPlusLC.NewPatch then
+					LockDF("LockoutSharing", "This option is no longer available in the game.  The achievements window now always shows warband achievement points.")
 				end
 
 				-- Run other startup items
@@ -12505,11 +12525,13 @@
 					LeaPlusLC:Print("GetAllowLowLevelRaid: |cffffffff" .. "False")
 				end
 				-- Show achievement sharing
-				local achhidden = AreAccountAchievementsHidden()
-				if achhidden then
-					LeaPlusLC:Print("Account achievements are hidden.")
-				else
-					LeaPlusLC:Print("Account achievements are being shared.")
+				if not LeaPlusLC.NewPatch then -- Removed in 11.1.0
+					local achhidden = AreAccountAchievementsHidden()
+					if achhidden then
+						LeaPlusLC:Print("Account achievements are hidden.")
+					else
+						LeaPlusLC:Print("Account achievements are being shared.")
+					end
 				end
 				return
 			elseif str == "move" then
