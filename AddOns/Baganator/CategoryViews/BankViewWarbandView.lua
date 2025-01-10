@@ -90,16 +90,8 @@ function BaganatorCategoryViewBankViewWarbandViewMixin:TransferCategory(sourceKe
   self:RemoveSearchMatches(function() return self.layoutsBySourceKey[sourceKey] and self.layoutsBySourceKey[sourceKey].SearchMonitor:GetMatches() or {} end)
 end
 
-function BaganatorCategoryViewBankViewWarbandViewMixin:ApplySearch(text)
-  if not self:IsVisible() then
-    return
-  end
-
-  for _, layout in ipairs(self.Container.Layouts) do
-    if layout:IsVisible() then
-      layout:ApplySearch(text)
-    end
-  end
+function BaganatorCategoryViewBankViewWarbandViewMixin:GetActiveLayouts()
+  return self.activeLayouts
 end
 
 function BaganatorCategoryViewBankViewWarbandViewMixin:NotifyBagUpdate(updatedBags)
