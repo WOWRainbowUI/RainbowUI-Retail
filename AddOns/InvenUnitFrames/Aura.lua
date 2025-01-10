@@ -452,6 +452,7 @@ auraSpellID = aurainfo and aurainfo.spellId or nil
 	-- 디버프 검색
 	numDebuff = 0
 	if object.debuff.num > 0 then
+
 		if isHarm then
 			if object.debuff.filters.harmMine or object.debuff.filters.harmCast or object.debuff.filters.harmOhter then
 				for i = 1, 40 do

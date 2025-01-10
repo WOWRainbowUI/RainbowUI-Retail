@@ -22,6 +22,11 @@
 			</OnMouseDown>
 		</Scripts>
 	</Button>
+	<Frame name="InvenUnitFramesprivateIconTemplate" virtual="true" enableMouse="false">
+
+ 
+	</Frame>
+
 	<Button name="InvenUnitFrames3MemberBaseTemplate" inherits="SecureUnitButtonTemplate,InvenUnitFrames3BaseTemplate" hidden="true" virtual="true">
 		<Size x="0.1" y="0.1"/>
 		<Attributes>
@@ -85,6 +90,7 @@
 			<StatusBar name="$parentMyHealPredictionBar" parentKey="myHealPredictionBar" useParentLevel="true"/>
 			<StatusBar name="$parentOtherHealPredictionBar" parentKey="otherHealPredictionBar" useParentLevel="true"/>
 			<StatusBar name="$parentAbsorbPredictionBar" parentKey="absorbPredictionBar" useParentLevel="true"/>
+			<Frame name="$parentprivateIcon1" parentKey="privateIcon1" inherits="InvenUnitFramesprivateIconTemplate"/>
 			<Frame name="$parentDebuffIcon1" parentKey="debuffIcon1" inherits="InvenUnitFrames3DebuffIconTemplate"/>
 			<Frame name="$parentDebuffIcon2" parentKey="debuffIcon2" inherits="InvenUnitFrames3DebuffIconTemplate"/>
 			<Frame name="$parentDebuffIcon3" parentKey="debuffIcon3" inherits="InvenUnitFrames3DebuffIconTemplate"/>
