@@ -375,6 +375,7 @@ end
 local skinvalue, objectType, backdrop, isfuncvalue
 
 local function setupAura(object, aura)
+
 	if object.db[aura.."Use"] and object.db[aura.."Num"] > 0 then
 		object[aura].num = object.db[aura.."Num"]
 		object[aura].pos = object.db[aura.."Pos"]
@@ -403,9 +404,11 @@ local function setupAura(object, aura)
 			object[aura].filters.harmOhterBig = object.db[aura.."FilterHarmOhterBig"]
 			object[aura].cduse = object.db[aura.."CooldownTextUse"]
 			object[aura].big = object[aura].small * object.db[aura.."BigScale"]
+
 		else
 			object[aura].cduse = nil
 			object[aura].big = object[aura].small
+
 		end
 		object[aura].lp2, object[aura].np2 = nil
 		if object[aura].pos == "LEFT" then
@@ -724,6 +727,64 @@ function IUF:SetObjectSkin(object)
 	-- 버프/디버프 설정값 세팅
 	setupAura(object, "buff")
 	setupAura(object, "debuff")
+
+--[[Edit mode오류로 임시 제거
+	--Private Aura
+if object.PrivateAuraAnchor then 
+
+	RemovePrivateAuraAnchor(object.PrivateAuraAnchor)
+ 	object.PrivateAuraAnchor=nil
+ 
+end
+
+object.privateIcon1=CreateFrame("Frame", nil, object)
+
+object.privateIcon1:SetSize(10,10) --private aura
+object.privateIcon1:ClearAllPoints()
+object.privateIcon1:SetPoint("CENTER",object,"CENTER",0,0)
+object.privateIcon1:EnableMouse(false)
+
+local auraAnchor = {
+    unitToken = object.unit,
+    auraIndex = 1,
+
+    -- The parent frame of an aura anchor must have a valid rect with a non-zero
+    -- size. Each private aura will anchor to all points on its parent,
+    -- providing a tooltip when mouseovered.
+    parent = object.privateIcon1,
+
+    -- An optional cooldown spiral can be configured to represent duration.
+    showCountdownFrame = true,
+    showCountdownNumbers = true,
+
+    -- An optional icon can be created and shown for the aura. Omitting this
+    -- will display no icon.
+    iconInfo = {
+        iconWidth = 10,
+        iconHeight = 10,
+        iconAnchor = {
+            point = "CENTER",
+            relativeTo = object.privateIcon1,
+            relativePoint = "CENTER",
+            offsetX = 0,
+            offsetY = 0,
+        },
+    },
+
+    -- An optional icon duration fontstring can also be configured.
+--    durationAnchor = {
+--        point = "BOTTOM",
+--        relativeTo = self.privateIcon1,
+--        relativePoint = "BOTTOM",
+--       offsetX = 0,
+--        offsetY = 0,
+--    },
+}
+
+local anchorIndex = C_UnitAuras.AddPrivateAuraAnchor(auraAnchor)
+object.PrivateAuraAnchor = anchorIndex
+--]]
+
 	self:UpdateAllCallbacks(object)
 	refreshAnchors(object)
 	if object.objectType == "player" then
