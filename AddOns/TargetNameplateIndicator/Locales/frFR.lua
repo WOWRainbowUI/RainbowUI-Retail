@@ -64,21 +64,31 @@ L["Dropdown.Texture.bluearrow1.Desc"] = "Abstract style blue arrow pointing down
 --[[Translation missing --]]
 L["Dropdown.Texture.circles_target.Desc"] = "Red concentric circles in the style of a target"
 --[[Translation missing --]]
+L["Dropdown.Texture.CyanChevronArrow.Desc"] = "Cyan inverted triple chevron"
+--[[Translation missing --]]
 L["Dropdown.Texture.gearsofwar.Desc"] = "Gears of War logo"
 --[[Translation missing --]]
 L["Dropdown.Texture.green_arrow_down_11384.Desc"] = "Green arrow pointing downwards"
 --[[Translation missing --]]
 L["Dropdown.Texture.greenarrowtarget.Desc"] = "Neon green arrow with a red target"
 --[[Translation missing --]]
+L["Dropdown.Texture.GreenChevronArrow.Desc"] = "Green inverted triple chevron"
+--[[Translation missing --]]
 L["Dropdown.Texture.Hunters_Mark.Desc"] = "Red Hunter's Mark Arrow"
 --[[Translation missing --]]
 L["Dropdown.Texture.malthael.Desc"] = "Malthael (Diablo) logo"
 --[[Translation missing --]]
+L["Dropdown.Texture.NeonCyanArrow.Desc"] = "Neon cyan arrow pointing downwards"
+--[[Translation missing --]]
 L["Dropdown.Texture.NeonGreenArrow.Desc"] = "Green version of the neon red arrow"
+--[[Translation missing --]]
+L["Dropdown.Texture.NeonPurpleArrow.Desc"] = "Neon purple arrow pointing downwards"
 --[[Translation missing --]]
 L["Dropdown.Texture.NeonRedArrow.Desc"] = "Neon version of the red arrow"
 --[[Translation missing --]]
 L["Dropdown.Texture.NeonReticule.Desc"] = "Neon version of the reticule"
+--[[Translation missing --]]
+L["Dropdown.Texture.NeonYellowArrow.Desc"] = "Neon yellow arrow pointing downwards"
 --[[Translation missing --]]
 L["Dropdown.Texture.NewRedArrow.Desc"] = "Red arrow pointing downwards"
 --[[Translation missing --]]
@@ -87,6 +97,8 @@ L["Dropdown.Texture.NewSkull.Desc"] = "Skull with gas mask"
 L["Dropdown.Texture.PaleRedChevronArrow.Desc"] = "Pale red version of the chevron"
 --[[Translation missing --]]
 L["Dropdown.Texture.PurpleArrow.Desc"] = "Abstract style purple arrow pointing downwards"
+--[[Translation missing --]]
+L["Dropdown.Texture.PurpleChevronArrow.Desc"] = "Purple inverted triple chevron"
 --[[Translation missing --]]
 L["Dropdown.Texture.Q_FelFlamingSkull.Desc"] = "Fel green flaming skull"
 --[[Translation missing --]]
@@ -117,6 +129,8 @@ L["Dropdown.Texture.Reticule.Desc"] = "Red targeting reticule"
 L["Dropdown.Texture.Shield.Desc"] = "Kite shield with sword and crossed spears/polearms"
 --[[Translation missing --]]
 L["Dropdown.Texture.skull.Desc"] = "Skull and crossbones"
+--[[Translation missing --]]
+L["Dropdown.Texture.YellowChevronArrow.Desc"] = "Yellow inverted triple chevron"
 --[[Translation missing --]]
 L["Group.focus.friendly.Desc"] = "These options are used for friendly focuses"
 --[[Translation missing --]]

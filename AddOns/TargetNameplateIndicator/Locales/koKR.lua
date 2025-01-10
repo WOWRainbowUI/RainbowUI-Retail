@@ -59,18 +59,28 @@ L["Dropdown.Texture.BlueArrow.Desc"] = "아래쪽을 가리키는 파란색 화�
 L["Dropdown.Texture.bluearrow1.Desc"] = "아래쪽을 가리키는 추상 스타일 파란색 화살표"
 --[[Translation missing --]]
 L["Dropdown.Texture.circles_target.Desc"] = "Red concentric circles in the style of a target"
+--[[Translation missing --]]
+L["Dropdown.Texture.CyanChevronArrow.Desc"] = "Cyan inverted triple chevron"
 L["Dropdown.Texture.gearsofwar.Desc"] = "기어스 오브 워 로고"
 --[[Translation missing --]]
 L["Dropdown.Texture.green_arrow_down_11384.Desc"] = "Green arrow pointing downwards"
 --[[Translation missing --]]
 L["Dropdown.Texture.greenarrowtarget.Desc"] = "Neon green arrow with a red target"
 --[[Translation missing --]]
+L["Dropdown.Texture.GreenChevronArrow.Desc"] = "Green inverted triple chevron"
+--[[Translation missing --]]
 L["Dropdown.Texture.Hunters_Mark.Desc"] = "Red Hunter's Mark Arrow"
 L["Dropdown.Texture.malthael.Desc"] = "말티엘 (디아블로) 로고"
+--[[Translation missing --]]
+L["Dropdown.Texture.NeonCyanArrow.Desc"] = "Neon cyan arrow pointing downwards"
 L["Dropdown.Texture.NeonGreenArrow.Desc"] = "네온 빨간색 화살표 녹색 버전"
+--[[Translation missing --]]
+L["Dropdown.Texture.NeonPurpleArrow.Desc"] = "Neon purple arrow pointing downwards"
 L["Dropdown.Texture.NeonRedArrow.Desc"] = "빨간색 화살표 네온 버전"
 --[[Translation missing --]]
 L["Dropdown.Texture.NeonReticule.Desc"] = "Neon version of the reticule"
+--[[Translation missing --]]
+L["Dropdown.Texture.NeonYellowArrow.Desc"] = "Neon yellow arrow pointing downwards"
 --[[Translation missing --]]
 L["Dropdown.Texture.NewRedArrow.Desc"] = "Red arrow pointing downwards"
 --[[Translation missing --]]
@@ -78,6 +88,8 @@ L["Dropdown.Texture.NewSkull.Desc"] = "Skull with gas mask"
 --[[Translation missing --]]
 L["Dropdown.Texture.PaleRedChevronArrow.Desc"] = "Pale red version of the chevron"
 L["Dropdown.Texture.PurpleArrow.Desc"] = "아래쪽을 가리키는 추상 스타일 보라색 화살표"
+--[[Translation missing --]]
+L["Dropdown.Texture.PurpleChevronArrow.Desc"] = "Purple inverted triple chevron"
 --[[Translation missing --]]
 L["Dropdown.Texture.Q_FelFlamingSkull.Desc"] = "Fel green flaming skull"
 L["Dropdown.Texture.Q_GreenGPS.Desc"] = "녹색 지도 핀/GPS 기호"
@@ -100,6 +112,8 @@ L["Dropdown.Texture.Reticule.Desc"] = "Red targeting reticule"
 L["Dropdown.Texture.Shield.Desc"] = "Kite shield with sword and crossed spears/polearms"
 --[[Translation missing --]]
 L["Dropdown.Texture.skull.Desc"] = "Skull and crossbones"
+--[[Translation missing --]]
+L["Dropdown.Texture.YellowChevronArrow.Desc"] = "Yellow inverted triple chevron"
 L["Group.focus.friendly.Desc"] = "이 옵션은 우호적인 주시 대상에 사용됩니다."
 L["Group.focus.hostile.Desc"] = "이 옵션은 적대적인 주시 대상에 사용됩니다."
 L["Group.focus.Name"] = "주시 대상"
