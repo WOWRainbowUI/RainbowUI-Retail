@@ -1,3 +1,11 @@
+# 1.59
+- Add recoloured textures from Tushar Saxena
+- Add green_arrow_down_11384 to CONTRIBUTORS.md
+- Bump TOC Interface version for Retail
+
+# 1.58
+- Bump TOC Interface version for Retail, Classic and Cataclysm Classic
+
 # 1.57
 - Clean up code slightly
 - Bump TOC Interface version for Retail and Classic
