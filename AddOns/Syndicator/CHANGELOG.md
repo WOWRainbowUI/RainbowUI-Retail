@@ -1,8 +1,7 @@
 # Syndicator
 
-## [151](https://github.com/Baganator/Syndicator/tree/151) (2025-01-09)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/150...151) 
+## [153](https://github.com/Baganator/Syndicator/tree/153) (2025-01-10)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/152...153) 
 
-- Update LICENSE year  
-- Search: New #knowledge keyword for profession knowledge items (Retail)  
-- Rename Search.MegaSearch to Search.SearchEverywhere  
+- Fix gold coin icon used in options being missing from classic (vanilla)  
+- Update icons used for toggling inventory tooltip status on characters/guilds  
