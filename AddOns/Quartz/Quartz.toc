@@ -1,8 +1,8 @@
 ## Title: Quartz
-## Interface: 11504, 30403, 40400, 110005, 110007
+## Interface: 11504, 30403, 40401, 110005, 110007
 ## Notes: Modular casting bar.
 ## Author: Nevcairiel, Nymbia
-## Version: 3.7.13 Fix
+## Version: 3.7.14
 ## X-License: GPL v2
 ## X-Credits: Ammo (some code based on PitBull_CastBar), kergoth (Tradeskill Merge module idea), Roartindon (Lag Embed mode for Latency module)
 ## X-Curse-Project-ID: 4558
