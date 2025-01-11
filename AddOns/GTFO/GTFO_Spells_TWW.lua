@@ -155,6 +155,36 @@ GTFO.SpellID["458512"] = {
   sound = 1;
 };
 
+GTFO.SpellID["469060"] = {
+  --desc = "Breath of Death (Nerathor)";
+  applicationOnly = true;
+  sound = 1;
+  trivialLevel = 90;
+};
+
+GTFO.SpellID["472198"] = {
+  --desc = "Stormcast (Zek'ul the Shipbreaker)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["469833"] = {
+  --desc = "Mega Lava Barrage (Haywire MEK IV)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["471424"] = {
+  --desc = "Focused Storm (Storm-Touched Clawfiend)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["458835"] = {
+  --desc = "Toxic Sludge";
+  sound = 1;
+};
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -854,8 +884,56 @@ GTFO.SpellID["466382"] = {
   sound = 1;
 };
 
+--- ************************
+--- * Operation: Floodgate *
+--- ************************
 
+GTFO.SpellID["464469"] = {
+  --desc = "Taking Aim";
+  applicationOnly = true;
+  sound = 1;
+};
 
+GTFO.SpellID["474350"] = {
+  --desc = "Shreddation Sawblade (Shreddinator 3000)";
+  sound = 1;
+};
+
+GTFO.SpellID["474388"] = {
+  --desc = "Flamethrower (Shreddinator 3000)";
+  sound = 1;
+};
+
+GTFO.SpellID["465128"] = {
+  --desc = "Wind Up (Loaderbot)";
+  sound = 1;
+};
+
+GTFO.SpellID["1215071"] = {
+  --desc = "Electrified Water (Electrified Water)";
+  negatingDebuffSpellID = 1215089; -- Electrified Water
+  sound = 1;
+};
+
+GTFO.SpellID["473224"] = {
+  --desc = "Sonic Boom (Big M.O.M.M.A.)";
+  sound = 1;
+};
+
+GTFO.SpellID["1213790"] = {
+  --desc = "Zeppelin Barrage (Zeppelin)";
+  sound = 1;
+};
+
+GTFO.SpellID["472338"] = {
+  --desc = "Surveyed Ground (Venture Co. Surveyor)";
+  sound = 1;
+};
+
+GTFO.SpellID["473051"] = {
+  --desc = "Rushing Tide (Swampface)";
+  sound = 1;
+};
 
 end
 

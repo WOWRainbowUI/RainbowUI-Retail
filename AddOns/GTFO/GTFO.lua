@@ -26,9 +26,9 @@ GTFO = {
 		SoundOverrides = { "", "", "", "" }; -- Override table for GTFO sounds
 		IgnoreSpellList = { };
 	};
-	Version = "5.15"; -- Version number (text format)
+	Version = "5.15.1"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 51500; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 51501; -- Numeric version number for checking out-of-date clients (retail)
 	ClassicVersionNumber = 51500; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 50000; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 50503; -- Numeric version number for checking out-of-date clients (Wrath classic)
@@ -546,6 +546,12 @@ function GTFO_OnEvent(self, event, ...)
 
 				if (GTFO.SpellID[SpellID].ignorePeriodic and (SpellType == "SPELL_PERIODIC_DAMAGE" or SpellType == "SPELL_PERIODIC_MISSED")) then
 					--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Ignore periodic event");
+					-- Lingering damage and "Ignore Periodic" is set
+					return;					
+				end
+
+				if (GTFO.SpellID[SpellID].ignoreRefresh and SpellType == "SPELL_AURA_REFRESH") then
+					--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Ignore refresh event");
 					-- Lingering damage and "Ignore Periodic" is set
 					return;					
 				end

@@ -1300,6 +1300,7 @@ GTFO.SpellID["314430"] = {
 GTFO.SpellID["309704"] = {
   --desc = "Caustic Coating";
   sound = 1;
+  ignoreApplication = true;
 };
 
 GTFO.SpellID["310406"] = {
