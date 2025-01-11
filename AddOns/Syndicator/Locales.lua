@@ -31,10 +31,12 @@ L["SHOW_GUILD_BANKS"] = "Show guild banks"
 L["SHOW_EQUIPPED"] = "Show equipped"
 L["SHOW_CURRENCY"] = "Show currency"
 L["SHOW_RACE_ICONS"] = "Show race icons"
-L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
+L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
+L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
+L["SHOW_IN_GOLD_SUMMARY"] = "Show in gold summary"
 L["DELETE_CHARACTER"] = "Delete Character"
 L["DELETE_GUILD"] = "Delete Guild"
-L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
 L["CHARACTERS"] = "Characters"
 L["GUILDS"] = "Guilds"
 
@@ -171,6 +173,10 @@ L["GROUP_WEAPON_TYPE"] = "Type d'arme"
 L["GUILD_LOWER"] = "guilde"
 L["GUILD_X"] = "Guilde: %s"
 L["GUILDS"] = "Guildes"
+--[[Translation missing --]]
+L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
+--[[Translation missing --]]
+L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 L["HIDE_IN_TOOLTIPS"] = "Cacher dans l'infobulle"
 L["HOLD_SHIFT_TO_DISPLAY"] = "Maintenir MAJ pour afficher"
 L["INVENTORY"] = "Inventaire"
@@ -245,6 +251,10 @@ L["SEARCHED_EVERYWHERE_COLON"] = "Recherche Globale:"
 L["SHOW_CURRENCY"] = "Afficher les monnaies"
 L["SHOW_EQUIPPED"] = "Afficher équipé"
 L["SHOW_GUILD_BANKS"] = "Afficher la banque de guilde"
+--[[Translation missing --]]
+L["SHOW_IN_GOLD_SUMMARY"] = "Show in gold summary"
+--[[Translation missing --]]
+L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
 L["SHOW_IN_TOOLTIPS"] = "Afficher dans l'infobulle"
 L["SHOW_INVENTORY"] = "Afficher l'inventaire"
 L["SHOW_RACE_ICONS"] = "Afficher les icônes de race"
@@ -291,6 +301,10 @@ L["GROUP_WEAPON_TYPE"] = "Waffenart"
 L["GUILD_LOWER"] = "gilde"
 L["GUILD_X"] = "Gilde: %s"
 L["GUILDS"] = "Gilde"
+--[[Translation missing --]]
+L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
+--[[Translation missing --]]
+L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 L["HIDE_IN_TOOLTIPS"] = "In Tooltips ausblenden"
 L["HOLD_SHIFT_TO_DISPLAY"] = "Gedrückte Umschalttaste = zeigt Tooltip"
 L["INVENTORY"] = "Inventar"
@@ -367,6 +381,10 @@ L["SEARCHED_EVERYWHERE_COLON"] = "Überall gesucht:"
 L["SHOW_CURRENCY"] = "Währung anzeigen"
 L["SHOW_EQUIPPED"] = "Ausgerüstet anzeigen"
 L["SHOW_GUILD_BANKS"] = "Gilden-Bank anzeigen"
+--[[Translation missing --]]
+L["SHOW_IN_GOLD_SUMMARY"] = "Show in gold summary"
+--[[Translation missing --]]
+L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
 L["SHOW_IN_TOOLTIPS"] = "In Tooltips anzeigen"
 L["SHOW_INVENTORY"] = "Inventar anzeigen"
 L["SHOW_RACE_ICONS"] = "Rassensymbole anzeigen"
@@ -413,6 +431,10 @@ L["GROUP_WEAPON_TYPE"] = "Тип оружия"
 L["GUILD_LOWER"] = "Банк гильдии -"
 L["GUILD_X"] = "Банк гильдии: %s"
 L["GUILDS"] = "Гильдии"
+--[[Translation missing --]]
+L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
+--[[Translation missing --]]
+L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 L["HIDE_IN_TOOLTIPS"] = "Скрыть в подсказках"
 L["HOLD_SHIFT_TO_DISPLAY"] = "Только при зажатом Shift"
 L["INVENTORY"] = "Инвентарь"
@@ -488,6 +510,10 @@ L["SEARCHED_EVERYWHERE_COLON"] = "Результаты глобального п
 L["SHOW_CURRENCY"] = "Отображать валюту"
 L["SHOW_EQUIPPED"] = "Отображать экипированное"
 L["SHOW_GUILD_BANKS"] = "Отображать банк гильдии"
+--[[Translation missing --]]
+L["SHOW_IN_GOLD_SUMMARY"] = "Show in gold summary"
+--[[Translation missing --]]
+L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
 L["SHOW_IN_TOOLTIPS"] = "Отображать в подсказках"
 L["SHOW_INVENTORY"] = "Отображать инвентарь"
 L["SHOW_RACE_ICONS"] = "Отображать иконку расы персонажа"
@@ -534,6 +560,10 @@ L["GROUP_WEAPON_TYPE"] = "Tipo de arma"
 L["GUILD_LOWER"] = "guilda"
 L["GUILD_X"] = "Guilda: %s"
 L["GUILDS"] = "Guildas"
+--[[Translation missing --]]
+L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
+--[[Translation missing --]]
+L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 L["HIDE_IN_TOOLTIPS"] = "Ocultar nas dicas de ferramenta"
 L["HOLD_SHIFT_TO_DISPLAY"] = "Manter pressionado shift para exibir"
 L["INVENTORY"] = "Inventário"
@@ -608,6 +638,10 @@ L["SEARCHED_EVERYWHERE_COLON"] = "Procurar em todo lugar:"
 L["SHOW_CURRENCY"] = "Exibir moeda"
 L["SHOW_EQUIPPED"] = "Exibir equipado"
 L["SHOW_GUILD_BANKS"] = "Exibir bancos da guilda"
+--[[Translation missing --]]
+L["SHOW_IN_GOLD_SUMMARY"] = "Show in gold summary"
+--[[Translation missing --]]
+L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
 L["SHOW_IN_TOOLTIPS"] = "Exibir nas dicas de ferramenta"
 L["SHOW_INVENTORY"] = "Exibir inventário"
 L["SHOW_RACE_ICONS"] = "Exibir ícones de raça"
@@ -654,6 +688,10 @@ L["GROUP_WEAPON_TYPE"] = "Tipo de arma"
 L["GUILD_LOWER"] = "hermandad"
 L["GUILD_X"] = "Hermandad: %s"
 L["GUILDS"] = "Hermandades"
+--[[Translation missing --]]
+L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
+--[[Translation missing --]]
+L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 L["HIDE_IN_TOOLTIPS"] = "Ocultar la información"
 L["HOLD_SHIFT_TO_DISPLAY"] = "Mantener presionada la tecla mayús para mostrar"
 L["INVENTORY"] = "Inventario"
@@ -728,6 +766,10 @@ L["SEARCHED_EVERYWHERE_COLON"] = "Buscado en todas partes:"
 L["SHOW_CURRENCY"] = "Mostrar moneda"
 L["SHOW_EQUIPPED"] = "Mostrar equipado"
 L["SHOW_GUILD_BANKS"] = "Mostrar bancos de hermandad"
+--[[Translation missing --]]
+L["SHOW_IN_GOLD_SUMMARY"] = "Show in gold summary"
+--[[Translation missing --]]
+L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
 L["SHOW_IN_TOOLTIPS"] = "Mostrar en información"
 L["SHOW_INVENTORY"] = "Mostrar inventario"
 L["SHOW_RACE_ICONS"] = "Mostrar iconos de raza"
@@ -774,6 +816,10 @@ L["GROUP_WEAPON_TYPE"] = "Tipo de arma"
 L["GUILD_LOWER"] = "hermandad"
 L["GUILD_X"] = "Hermandad: %s"
 L["GUILDS"] = "Hermandades"
+--[[Translation missing --]]
+L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
+--[[Translation missing --]]
+L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 L["HIDE_IN_TOOLTIPS"] = "Ocultar la información"
 L["HOLD_SHIFT_TO_DISPLAY"] = "Mantener presionada la tecla mayús para mostrar"
 L["INVENTORY"] = "Inventario"
@@ -848,6 +894,10 @@ L["SEARCHED_EVERYWHERE_COLON"] = "Buscado en todas partes:"
 L["SHOW_CURRENCY"] = "Mostrar moneda"
 L["SHOW_EQUIPPED"] = "Mostrar equipado"
 L["SHOW_GUILD_BANKS"] = "Mostrar bancos de hermandad"
+--[[Translation missing --]]
+L["SHOW_IN_GOLD_SUMMARY"] = "Show in gold summary"
+--[[Translation missing --]]
+L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
 L["SHOW_IN_TOOLTIPS"] = "Mostrar en información"
 L["SHOW_INVENTORY"] = "Mostrar inventario"
 L["SHOW_RACE_ICONS"] = "Mostrar iconos de raza"
@@ -894,6 +944,10 @@ L["GROUP_WEAPON_TYPE"] = "武器類型"
 L["GUILD_LOWER"] = "公會"
 L["GUILD_X"] = "公會：%s"
 L["GUILDS"] = "公會"
+--[[Translation missing --]]
+L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
+--[[Translation missing --]]
+L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 L["HIDE_IN_TOOLTIPS"] = "提示中隱藏"
 L["HOLD_SHIFT_TO_DISPLAY"] = "按下Shift來顯示"
 L["INVENTORY"] = "庫存"
@@ -926,8 +980,7 @@ L["KEYWORD_HELM"] = "頭"
 L["KEYWORD_JUNK"] = "垃圾"
 L["KEYWORD_KEY"] = "鑰匙"
 L["KEYWORD_KEYSTONE"] = "鑰石"
---[[Translation missing --]]
-L["KEYWORD_KNOWLEDGE"] = "knowledge"
+L["KEYWORD_KNOWLEDGE"] = "知識"
 L["KEYWORD_LOCKED"] = "已鎖"
 L["KEYWORD_MACE"] = "錘"
 L["KEYWORD_MY_CLASS"] = "我的職業"
@@ -968,6 +1021,10 @@ L["SEARCHED_EVERYWHERE_COLON"] = "廣泛搜尋："
 L["SHOW_CURRENCY"] = "顯示兌換通貨"
 L["SHOW_EQUIPPED"] = "顯示裝備"
 L["SHOW_GUILD_BANKS"] = "顯示公會銀行"
+--[[Translation missing --]]
+L["SHOW_IN_GOLD_SUMMARY"] = "Show in gold summary"
+--[[Translation missing --]]
+L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
 L["SHOW_IN_TOOLTIPS"] = "提示中顯示"
 L["SHOW_INVENTORY"] = "顯示庫存"
 L["SHOW_RACE_ICONS"] = "顯示種族圖示"
@@ -1014,6 +1071,10 @@ L["GROUP_WEAPON_TYPE"] = "武器类型"
 L["GUILD_LOWER"] = "公会"
 L["GUILD_X"] = "公会：%s"
 L["GUILDS"] = "公会"
+--[[Translation missing --]]
+L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
+--[[Translation missing --]]
+L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 L["HIDE_IN_TOOLTIPS"] = "在鼠标提示中隐藏"
 L["HOLD_SHIFT_TO_DISPLAY"] = "按住Shift键显示"
 L["INVENTORY"] = "库存"
@@ -1046,8 +1107,7 @@ L["KEYWORD_HELM"] = "头部"
 L["KEYWORD_JUNK"] = "垃圾"
 L["KEYWORD_KEY"] = "钥匙"
 L["KEYWORD_KEYSTONE"] = "钥石"
---[[Translation missing --]]
-L["KEYWORD_KNOWLEDGE"] = "knowledge"
+L["KEYWORD_KNOWLEDGE"] = "知识"
 L["KEYWORD_LOCKED"] = "已锁"
 L["KEYWORD_MACE"] = "锤"
 L["KEYWORD_MY_CLASS"] = "我的职业"
@@ -1088,6 +1148,10 @@ L["SEARCHED_EVERYWHERE_COLON"] = "扩大搜索："
 L["SHOW_CURRENCY"] = "显示货币"
 L["SHOW_EQUIPPED"] = "显示物品"
 L["SHOW_GUILD_BANKS"] = "显示公会银行"
+--[[Translation missing --]]
+L["SHOW_IN_GOLD_SUMMARY"] = "Show in gold summary"
+--[[Translation missing --]]
+L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
 L["SHOW_IN_TOOLTIPS"] = "显示在鼠标提示中"
 L["SHOW_INVENTORY"] = "显示物品栏"
 L["SHOW_RACE_ICONS"] = "显示种族图标"
@@ -1159,6 +1223,10 @@ L["GUILD_LOWER"] = "guild"
 L["GUILD_X"] = "길드: %s"
 --[[Translation missing --]]
 L["GUILDS"] = "Guilds"
+--[[Translation missing --]]
+L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
+--[[Translation missing --]]
+L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
 --[[Translation missing --]]
@@ -1280,6 +1348,10 @@ L["SHOW_EQUIPPED"] = "Show equipped"
 --[[Translation missing --]]
 L["SHOW_GUILD_BANKS"] = "Show guild banks"
 --[[Translation missing --]]
+L["SHOW_IN_GOLD_SUMMARY"] = "Show in gold summary"
+--[[Translation missing --]]
+L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
+--[[Translation missing --]]
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
 --[[Translation missing --]]
 L["SHOW_INVENTORY"] = "Show inventory"
@@ -1365,6 +1437,10 @@ L["GUILD_LOWER"] = "guild"
 L["GUILD_X"] = "Guild: %s"
 --[[Translation missing --]]
 L["GUILDS"] = "Guilds"
+--[[Translation missing --]]
+L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
+--[[Translation missing --]]
+L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
 --[[Translation missing --]]
@@ -1511,6 +1587,10 @@ L["SHOW_CURRENCY"] = "Show currency"
 L["SHOW_EQUIPPED"] = "Show equipped"
 --[[Translation missing --]]
 L["SHOW_GUILD_BANKS"] = "Show guild banks"
+--[[Translation missing --]]
+L["SHOW_IN_GOLD_SUMMARY"] = "Show in gold summary"
+--[[Translation missing --]]
+L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
 --[[Translation missing --]]
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
 --[[Translation missing --]]
