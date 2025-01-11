@@ -2187,3 +2187,19 @@ Change Log:
 * Added BFA spells for The Eternal Palace
 * Added BFA spells for Ny'alotha, the Waking City
 * Added Classic spells for Azeroth (world)
+
+5.15.1
+* Updated for patch 11.1 (PTR)
+* Added The War Within spells (world)
+* Added Wrath spells for Gundrak (Thanks Zindex)
+* Added TWW spells for TWW Delves 
+* Added TWW spells for Operation: Floodgate
+* Fixed TWW spells for Nerub-ar Palace
+* Fixed WoD spells for Blackrock Foundry
+* Fixed Legion spells for The Emerald Nightmare
+* Fixed Legion spells for Nighthold
+* Fixed Legion spells for Antorus, The Burning Throne
+* Fixed BFA spells for Ny'alotha, the Waking City
+* Fixed Shadowlands spells (world)
+* Fixed SL spells for Castle Nathria
+* Fixed SL spells for Sanctum of Domination
