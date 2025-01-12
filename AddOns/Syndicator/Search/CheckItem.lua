@@ -73,8 +73,12 @@ local function EngravedCheck(details)
 end
 
 local function RefundableCheck(details)
-  local refundable = details.refundable == true
-  return refundable, refundable
+  if details.refundable == nil and details.itemLocation and C_Item.DoesItemExist(details.itemLocation) then
+    details.refundable = C_Item.CanBeRefunded(details.itemLocation)
+  elseif details.refundable == nil then
+    details.refundable = false
+  end
+  return details.refundable, details.refundable
 end
 
 local function EquipmentCheck(details)
@@ -635,14 +639,51 @@ local function LockedCheck(details)
 
   GetTooltipInfoSpell(details)
 
-  if details.tooltipInfoSpell then
-    for _, row in ipairs(details.tooltipInfoSpell.lines) do
-      if row.leftText == LOCKED then
-        return true, true
-      end
+  if not details.tooltipInfoSpell then
+    return
+  end
+
+  for _, row in ipairs(details.tooltipInfoSpell.lines) do
+    if row.leftText == LOCKED then
+      return true, true
     end
+  end
+  return false
+end
+
+local CRAFTED_PATTERN = ITEM_CREATED_BY:gsub("%%s", ".+")
+
+local function CraftedCheck(details)
+  return details.quality ~= 7 and details.classID ~= Enum.ItemClass.Questitem and details.itemLink:match("Player-") ~= nil
+end
+
+local function SetBonusCheck(details)
+  if not Syndicator.Utilities.IsEquipment(details.itemLink) then
     return false
   end
+
+  if C_Item.IsCosmeticItem then
+    local result = CosmeticCheck(details)
+    if result then
+      return false
+    elseif result == nil then
+      return nil
+    end
+  end
+
+  if not C_Item.IsItemDataCachedByID(details.itemID) then
+    C_Item.RequestLoadItemDataByID(details.itemID)
+    return nil
+  end
+
+  -- We would use the specID in the item link, but that doesn't always
+  -- correspond to the class that can use the item
+  for _, specID in ipairs(Syndicator.Search.Constants.AllClassSpecializations) do
+    if C_Item.GetSetBonusesForSpecializationByItemID(specID, details.itemID) ~= nil then
+      return true
+    end
+  end
+  return false
 end
 
 local function UseATTInfo(details)
@@ -765,6 +806,7 @@ AddKeywordLocalised("KEYWORD_PVP", PvPCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeywordManual(ITEM_UNIQUE:lower(), "unique", UniqueCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeywordLocalised("KEYWORD_LOCKED", LockedCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeywordLocalised("KEYWORD_REFUNDABLE", RefundableCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
+AddKeywordLocalised("KEYWORD_CRAFTED", CraftedCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 
 if Syndicator.Constants.IsRetail then
   AddKeywordLocalised("KEYWORD_COSMETIC", CosmeticCheck, SYNDICATOR_L_GROUP_QUALITY)
@@ -772,6 +814,7 @@ if Syndicator.Constants.IsRetail then
   AddKeywordLocalised("KEYWORD_KEYSTONE", KeystoneCheck, SYNDICATOR_L_GROUP_ITEM_TYPE)
   AddKeywordManual(WORLD_QUEST_REWARD_FILTERS_ANIMA:lower(), "anima", AnimaCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
   AddKeywordLocalised("KEYWORD_KNOWLEDGE", KnowledgeCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
+  AddKeywordLocalised("KEYWORD_SET_BONUS", SetBonusCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
   if Syndicator.Constants.WarbandBankActive then
     AddKeywordManual(ITEM_ACCOUNTBOUND:lower(), "warbound", BindOnAccountCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
     AddKeywordManual(ITEM_ACCOUNTBOUND_UNTIL_EQUIP:lower(), "warbound until equipped", WarboundUntilEquippedCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
