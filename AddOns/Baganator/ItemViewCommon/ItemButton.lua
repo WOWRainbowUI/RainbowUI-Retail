@@ -472,7 +472,11 @@ local function GetItemContextMatch(self)
     end
 
     if needsData then -- Missing item/spell data
+      local BGR = self.BGR
       QueueWidget(function()
+        if self.BGR ~= BGR then
+          return
+        end
         self:UpdateItemContextMatching()
       end)
       return false
@@ -723,7 +727,6 @@ function BaganatorRetailLiveContainerItemButtonMixin:SetItemDetails(cacheData)
     if C_Item.DoesItemExist(itemLocation) then
       self.BGR.setInfo = addonTable.ItemViewCommon.GetEquipmentSetInfo(itemLocation, self.BGR.itemLink)
       self.BGR.itemLocation = itemLocation
-      self.BGR.refundable = C_Item.CanBeRefunded(itemLocation)
     end
 
     self.BGR.hasNoValue = noValue
