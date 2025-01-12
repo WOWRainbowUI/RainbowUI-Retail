@@ -451,8 +451,7 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Vous n’êtes pas autorisé à modifie
 L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "Impossible de déplacer les objets, car il n'y a plus de place"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Impossible de retirer d’autres objets de la banque de guilde"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "Impossible : Vous êtes en combat"
---[[Translation missing --]]
-L["CATALYST"] = "Catalyst"
+L["CATALYST"] = "Catalyseur"
 L["CATEGORIES"] = "Catégories"
 L["CATEGORIES_FAILED_WARNING"] = "Quelque chose s'est mal passé pendant l'affichage des catégories. La recherche qui a échoué \"%s\". Les objets suivants ont échoué : %s. Capture cet écran et visite ce Discord :"
 L["CATEGORIES_IN_TOOLTIPS_X"] = "Correspondances de catégories dans les infobulles des objets du sac : %s"
@@ -1517,8 +1516,7 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Você não tem permissão para editar e
 L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "Não é possível mover os itens, pois não há espaço disponível"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Não é possível retirar mais itens do banco da guilda"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "Impossível: Você está em combate"
---[[Translation missing --]]
-L["CATALYST"] = "Catalyst"
+L["CATALYST"] = "Catalisador"
 L["CATEGORIES"] = "Categorias"
 L["CATEGORIES_FAILED_WARNING"] = "Algo deu errado ao exibir as categorias. A pesquisa falhou foi \"%s\". Os seguintes itens falharam: %s. Faça uma captura de tela e visite o Discord:"
 L["CATEGORIES_IN_TOOLTIPS_X"] = "Agora as correspondências de categoria nas dicas de ferramenta dos itens da bolsa são %s"
@@ -1862,8 +1860,7 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "No tienes permisos para editar esta pes
 L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "No se pueden mover objetos porque no queda espacio"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "No se pueden retirar más objetos del banco de hermandad"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "No se puede: Estás en combate"
---[[Translation missing --]]
-L["CATALYST"] = "Catalyst"
+L["CATALYST"] = "Catalizador"
 L["CATEGORIES"] = "Categorías"
 L["CATEGORIES_FAILED_WARNING"] = "Algo ha fallado al mostrar las categorías. La búsqueda fallida fue «%s». Los siguientes objetos fallaron: %s Haz una captura de pantalla y visita el discord:"
 L["CATEGORIES_IN_TOOLTIPS_X"] = "Ahora las categorías coinciden con los objetos de la bolsa %s"
@@ -2207,8 +2204,7 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "No tienes permisos para editar esta pes
 L["CANNOT_MOVE_ITEMS_AS_NO_SPACE_LEFT"] = "No se pueden mover objetos porque no queda espacio"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "No se pueden retirar más objetos del banco de hermandad"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "No se puede: Estás en combate"
---[[Translation missing --]]
-L["CATALYST"] = "Catalyst"
+L["CATALYST"] = "Catalizador"
 L["CATEGORIES"] = "Categorías"
 L["CATEGORIES_FAILED_WARNING"] = "Algo ha fallado al mostrar las categorías. La búsqueda fallida fue «%s». Los siguientes objetos fallaron: %s Haz una captura de pantalla y visita el discord:"
 L["CATEGORIES_IN_TOOLTIPS_X"] = "Ahora las categorías coinciden con los objetos de la bolsa %s"
