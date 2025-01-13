@@ -1205,7 +1205,7 @@ function TravelModule:ShowTooltip()
         local hearthstoneId = 6948 -- Regular Hearthstone ID
         if C_Item.DoesItemExistByID(hearthstoneId) then
             local startTime, duration = GetItemCooldown(hearthstoneId)
-            local remainingCooldown = (startTime + duration - GetTime())
+            local remainingCooldown = ((startTime or 0) + duration - GetTime()) -- 暫時修正
             local cdString = self:FormatCooldown(remainingCooldown)
             GameTooltip:AddDoubleLine(L['Hearthstone'], cdString, r, g, b, 1, 1, 1)
         end
