@@ -1,8 +1,7 @@
 # Baganator
 
-## [614](https://github.com/Baganator/Baganator/tree/614) (2025-01-11)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/613...614) 
+## [616](https://github.com/Baganator/Baganator/tree/616) (2025-01-12)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/615...616) 
 
-- Remove unneeded check in last commit  
-- Fix error when toggling "Recent character tabs" option  
-- Prevent race condition causing items to be context faded/highlighted incorrectly  
+- Customise: Reorder "Icons" options  
+- Currencies: Fix transfer currency shortcut when using GW2 UI overhaul  
