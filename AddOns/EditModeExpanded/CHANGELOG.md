@@ -1,6 +1,7 @@
 # Edit Mode Expanded
 
-## [11.0-034](https://github.com/teelolws/EditModeExpanded/tree/11.0-034) (2024-12-19)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.0-033...11.0-034) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [11.0-036](https://github.com/teelolws/EditModeExpanded/tree/11.0-036) (2025-01-12)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.0-035...11.0-036) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
-- Update main.yml  
+- Add hide options to Pet Frame  
+    Closes: https://github.com/teelolws/EditModeExpanded/issues/158  
