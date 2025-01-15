@@ -1,11 +1,9 @@
 # CraftSim
 
-## [19.7.2](https://github.com/derfloh205/CraftSim/tree/19.7.2) (2024-12-06)
-[Full Changelog](https://github.com/derfloh205/CraftSim/compare/19.7.1...19.7.2) [Previous Releases](https://github.com/derfloh205/CraftSim/releases)
+## [19.8.0](https://github.com/derfloh205/CraftSim/tree/19.8.0) (2025-01-14)
+[Full Changelog](https://github.com/derfloh205/CraftSim/compare/19.7.5...19.8.0) [Previous Releases](https://github.com/derfloh205/CraftSim/releases)
 
-- quickbuy fix  
-- News Update for #744  
-- Update esES.lua (#744)  
-    locale change for #654  
-- Version Increase to 19.7.2  
-- fixed (#766)  
+- Bump version to 19.8.0 and update news for the new release  
+- Remove debug inspection logs from SetAllReagentsBySchematicForm function  
+- Add support for custom Reagent Bag Value and commission profit calculation (#798)  
+- Fix SetCheapestQualityReagentsMax call and update news for version 19.7.6 (#797)  
