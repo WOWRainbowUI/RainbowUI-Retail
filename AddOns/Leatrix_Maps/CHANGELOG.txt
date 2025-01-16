@@ -1,4 +1,7 @@
-﻿11.0.26 - 1st January 2025
+﻿11.0.28 - 15th January 2025
+- PTR (11.1.0): The 'Hide filter reset button' option will now also hide the filter counter.
+
+11.0.26 - 1st January 2025
 - Happy New Year!
 - Updated translations.
 

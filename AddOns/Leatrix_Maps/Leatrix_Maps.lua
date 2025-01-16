@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 11.0.27 (8th January 2025)
+	-- 	Leatrix Maps 11.0.28 (15th January 2025)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "11.0.27"
+	LeaMapsLC["AddonVer"] = "11.0.28"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -104,6 +104,10 @@
 			for i, v in pairs({WorldMapFrame:GetChildren()}) do
 				if v.ResetButton then
 					v.ResetButton:SetParent(hiddenFrame)
+				end
+				if v.FilterCounter then
+					v.FilterCounter:HookScript("OnShow", function() v.FilterCounter:Hide() end)
+					v.FilterCounterBanner:HookScript("OnShow", function() v.FilterCounterBanner:Hide() end)
 				end
 			end
 		end
