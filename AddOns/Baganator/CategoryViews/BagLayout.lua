@@ -273,8 +273,10 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
     local anyNew = #composed.details ~= #oldComposed.details
     for index, old in ipairs(oldComposed.details) do
       local current = composed.details[index]
-      if current.source ~= old.source or
-        (current.source and (current.source ~= addonTable.CategoryViews.Constants.RecentItemsCategory)
+      if current.source ~= old.source then
+        anyNew = true
+        break
+      elseif (current.source and (current.source ~= addonTable.CategoryViews.Constants.RecentItemsCategory)
           and not old.emptySlots and (old.oldLength or #old.results) < #current.results) then
         for _, item in ipairs(current.results) do -- Put returning items back where they were before
           -- Check if the exact item existed before, or at least a similar one
@@ -348,7 +350,7 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
 
   for _, details in ipairs(composed.details) do
     if details.results then
-      details.sourceKey = details.source .. "_" .. details.label .. "_" .. (details.groupLabel or "")
+      details.sourceKey = details.source .. "_" .. details.label .. "_" .. (details.groupLabel or "") .. (details.autoIndex or "")
       if #details.results > 0 then
         sourceKeysInUse[details.sourceKey] = details
       end
