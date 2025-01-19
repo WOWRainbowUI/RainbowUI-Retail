@@ -1,6 +1,6 @@
 ## Interface: 110007
 ## Title: HandyNotes: The War Within
-## Version: 112
+## Version: 113
 ## Notes: The War Within Notes
 ## OptionalDeps: Ace3
 ## RequiredDeps: HandyNotes
