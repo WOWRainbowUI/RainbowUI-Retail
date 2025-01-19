@@ -1,6 +1,6 @@
 ## Interface: 11505, 40401, 110007
 ## Title: OPie
-## Version: Ørred 4a
+## Version: Ånd 1
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
 ## X-Website: https://www.townlong-yak.com/addons/opie
@@ -28,7 +28,7 @@ Libs\ActionBook\ActionBook.xml
 Libs\Mirage.lua
 Libs\TenSettings.lua
 Libs\NotGameTooltip.lua
-Meta\PackTag-1.lua
+Meta\PackTag-2.lua
 Meta\Widgets.lua
 Locale.lua
 OPieCore.lua
@@ -40,7 +40,9 @@ CustomRingsConfig.lua
 Meta\StanceBar.lua
 Meta\SpecSet.lua
 Meta\DataBroker.lua
+Meta\EQSet2.lua
 Meta\PSConfig.lua
 Bundle\QuestItems.lua
+Bundle\ExtraActions.lua
 Bundle\Tracking.lua
 Bundle\Editable.lua
