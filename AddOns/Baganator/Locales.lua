@@ -840,6 +840,7 @@ L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "你想转移背包内的所有物品
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "你想转移银行内的所有物品？"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "您想从公会银行转移所有物品吗？"
 L["COOKING"] = "烹饪"
+L["COST_X"] = "花费：%s"
 L["CRAFTING_WINDOW"] = "专业窗口"
 L["CREATE_NEW_CATEGORY"] = "创建新分类..."
 L["CREATE_NEW_DIVIDER"] = "创建新分隔线..."
