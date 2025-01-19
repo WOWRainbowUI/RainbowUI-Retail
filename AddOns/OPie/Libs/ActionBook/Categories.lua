@@ -160,6 +160,11 @@ AB:AugmentCategory(L"Items", function(_, add)
 		end
 	end
 end)
+AB:AugmentCategory(L"Equipped", function(_, add)
+	for w in ("head neck shoulders back chest tabard shirt wrist hands waist legs feet finger1 finger2 trinket1 trinket2"):gmatch("%S+") do
+		add("peq", w)
+	end
+end)
 if MODERN or CF_WRATH then -- Battle pets/Companions
 	local running, sourceFilters, typeFilters, flagFilters, search = false, {}, {}, {[LE_PET_JOURNAL_FILTER_COLLECTED]=1, [LE_PET_JOURNAL_FILTER_NOT_COLLECTED]=1}, ""
 	hooksecurefunc(C_PetJournal, "SetSearchFilter", function(filter) search = filter end)

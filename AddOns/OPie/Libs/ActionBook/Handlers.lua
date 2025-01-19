@@ -321,6 +321,7 @@ securecall(function() -- spell: spell ID + mount spell ID
 end)
 securecall(function() -- item: items ID/inventory slot
 	local actionMap, itemIdMap, LAST_EQUIP_SLOT = {}, {}, INVSLOT_LAST_EQUIPPED
+	local countOverrideHandlers = {}
 	local function containerTip(self, bagslot)
 		local slot = bagslot % 100
 		self:SetBagItem((bagslot-slot)/100, slot)
@@ -394,8 +395,17 @@ securecall(function() -- item: items ID/inventory slot
 		local qual = MODERN and ident and (C_TradeSkillUI.GetItemReagentQualityByItemInfo(ident) or C_TradeSkillUI.GetItemCraftedQualityByItemInfo(ident))
 		qual = qual and qual > 0 and qual < 8 and (qual * 16384) or 0
 		local state = (C_Item.IsCurrentItem(ident) and 1 or 0) + (inRange and 0 or 16) + (slot and C_Item.IsEquippableItem(ident) and (bag and (purpose == "equip" and 128 or 0) or (slot and 256 or 0)) or 0) + (hasRange and 512 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0) + qual
-		return not not (usable and inRange and cdLeft == 0), state, icon or C_Item.GetItemIconByID(ident), name or ident, nCharge,
-			cdLeft, cdLength or 0, tip, tipArg
+		usable = not not (usable and inRange and cdLeft == 0)
+		icon = icon or C_Item.GetItemIconByID(ident)
+		local oh = countOverrideHandlers[iid]
+		if oh then
+			local ohCharge, ohUsable = oh(iid, nCharge)
+			nCharge = ohCharge or nCharge
+			if ohUsable == true or ohUsable == false then
+				usable = ohUsable
+			end
+		end
+		return usable, state, icon, name or ident, nCharge, cdLeft, cdLength or 0, tip, tipArg
 	end
 	local function createItem(id, flags)
 		local byName, forceShow, onlyEquipped
@@ -431,6 +441,43 @@ securecall(function() -- item: items ID/inventory slot
 			return RW:GetCommandAction(SLASH_EQUIP1, item)
 		end
 	end)
+	function AB.HUM:SetItemCountOverride(id, f)
+		if not (type(id) == "number" and (f == nil or type(f) == "function")) then
+			error('SetItemCountOverride: invalid arguments', 2)
+		end
+		countOverrideHandlers[id] = f
+	end
+end)
+securecall(function() -- peq: slot token
+	local slots = {
+		head="HEADSLOT", neck="NECKSLOT", shoulders="SHOULDERSLOT", shirt="SHIRTSLOT", chest="CHESTSLOT",
+		waist="WAISTSLOT", legs="LEGSSLOT", feet="FEETSLOT", wrist="WRISTSLOT", hands="HANDSSLOT",
+		finger1="FINGER0SLOT", finger2="FINGER1SLOT", trinket1="TRINKET0SLOT", trinket2="TRINKET1SLOT",
+		back="BACKSLOT", tabard="TABARDSLOT",
+	}
+	for tk, sk in pairs(slots) do
+		local sn, suf, ok, slot = _G[sk], tk:match("%d+$"), pcall(GetInventorySlotInfo, sk)
+		slots[tk] = ok and slot and {sk, sn and suf and (sn .. " " .. suf) or sn or sk} or nil
+		if ok and slot then
+			RW:SetCastAlias(tk, tostring(slot), false)
+		end
+	end
+	local function describePlayerEquipmentSlot(tk)
+		local si = slots[tk]
+		if si then
+			local _, tex = GetInventorySlotInfo(si[1])
+			return L"Equipment Slot", si[2], tex
+		end
+	end
+	local function createPlayerEquipmentSlot(tk)
+		local si = slots[tk]
+		if si and not si[3] then
+			local slot = GetInventorySlotInfo(si[1])
+			si[3] = AB:CreateActionSlot(itemHint, slot, "conditional","[uslot:" .. tk .. "]", "attribute", "type","item", "item",slot)
+		end
+		return si and si[3]
+	end
+	AB:RegisterActionType("peq", createPlayerEquipmentSlot, describePlayerEquipmentSlot, 1)
 end)
 securecall(function() -- macrotext
 	local map = {}
@@ -1104,7 +1151,7 @@ securecall(function() -- toy: item ID, flags[FORCE_SHOW]
 		[153039]=1, [119421]=1, [128462]="[alliance]", [128471]="[horde]", [95589]="[alliance]", [95590]="[horde]",
 		[89222]=1, [63141]="[alliance]", [64997]="[horde]", [66888]=1, [89869]=1, [90175]=1,
 		[103685]=1, [115468]="[horde]", [115472]="[alliance]", [119160]="[horde]", [119182]="[alliance]",
-		[122283]=1, [142531]=1, [142532]=1,
+		[122283]=1, [142531]=1, [142532]=1, [163211]=1,
 		[85500]="[fish5]",
 		[182773]="[coven:necro][acoven80:necro]", [184353]="[coven:kyrian][acoven80:kyrian]", [180290]="[coven:fae][acoven80:fae]", [183716]="[coven:venthyr][acoven80:venthyr]", [190237] = 1,
 	}

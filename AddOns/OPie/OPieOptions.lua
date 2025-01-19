@@ -216,6 +216,7 @@ do -- config.bind
 		local parent = self:GetParent()
 		GameTooltip:SetOwner(self, self.tooltipOwnerPoint or "ANCHOR_BOTTOMRIGHT")
 		GameTooltip:AddLine(header)
+		GameTooltip:AddLine(L"Left click to set assign binding", hc.r, hc.g, hc.b)
 		if parent.OnBindingAltClick then
 			GameTooltip:AddLine(L"Alt click to set conditional binding", hc.r, hc.g, hc.b)
 		end
@@ -398,8 +399,8 @@ local OPC_Options = {
 		{"twof", tag="OnLeft", caption=L"On left click:", menuOption="NoClose", depOn="InteractionMode", depValue=2, otherwise=DISABLED_TEXT},
 		{"twof", tag="OnRight", caption=L"On right click:"},
 		{"twof", "QuickAction", caption=L"Quick action repeat trigger:", depOn="InteractionMode", depValueSet=REQ_POINTER, otherwise=DISABLED_TEXT},
-		{"twof", "PadSupportMode", caption=L"Controller directional input:", reqFeature="GamePad", depOn="InteractionMode", depValueSet=REQ_POINTER, otherwise=DISABLED_TEXT, menu={"freelook", "freelook1", "cursor", "none", freelook=L"Camera analog stick", freelook1=L"Movement analog stick", cursor=L"Virtual mouse cursor", none=L"None"}},
-		{"twof", "SliceBinding", caption=L"Per-slice bindings:", depOn="InteractionMode"},
+		{"twof", "PadSupportMode", caption=L"Controller directional input:", reqFeature="GamePad", depOn="InteractionMode", depValueSet=REQ_POINTER, otherwise=DISABLED_TEXT, globalOnly=true, menu={"freelook", "freelook1", "cursor", "none", freelook=L"Camera analog stick", freelook1=L"Movement analog stick", cursor=L"Virtual mouse cursor", none=L"None"}},
+		{"twof", "SliceBinding", caption="Per-slice bindings:", depOn="InteractionMode"},
 		{"bool", "ClickPriority", caption=L"Prevent other UI interactions", captionTop=L"While a ring is open:", depOn="InteractionMode", depValueSet=REQ_POINTER, otherwise=false},
 		{"navi", tag="InRingBindingNav", caption=L"Customize in-ring bindings"},
 	{ "section", caption=L"Behavior" },
@@ -489,17 +490,26 @@ local widgetControl, optionControl = {}, {} do -- Widget construction
 		end
 	end
 	local function onTwofRefresh(c, v)
-		if c.menu and c.menu[v] then
+		local text = c.menu and c.menu[v]
+		if text then
 			c.cv = v
-			c.text:SetText(not c.widget:IsEnabled() and c.otherwise or c.menu[v])
+			if not c.widget:IsEnabled() then
+				text = not c.outOfScope and c.otherwise or ("|cffa0a0a0" .. text)
+			end
+			c.text:SetText(text)
 		end
 	end
 	local function onTwofEnter(self)
 		local c = widgetControl[self]
-		if c.label:IsTruncated() and (UIDROPDOWNMENU_OPEN_MENU ~= sharedDrop or sharedDrop.owner ~= self or not DropDownList1:IsVisible()) then
+		local isOutOfScope = c.outOfScope and not self:IsEnabled()
+		if (c.label:IsTruncated() or isOutOfScope) and (UIDROPDOWNMENU_OPEN_MENU ~= sharedDrop or sharedDrop.owner ~= self or not DropDownList1:IsVisible()) then
 			GameTooltip:SetOwner(self, "ANCHOR_NONE")
 			GameTooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -1)
-			GameTooltip:SetText(c.label:GetText())
+			GameTooltip:SetText((c.label:GetText():gsub("%s*:%s*$", "")))
+			if isOutOfScope then
+				local c = HIGHLIGHT_FONT_COLOR
+				GameTooltip:AddLine(L"Not configurable per-ring.", c.r, c.g, c.b, 1)
+			end
 			GameTooltip:Show()
 		end
 	end
@@ -532,6 +542,7 @@ local widgetControl, optionControl = {}, {} do -- Widget construction
 		b:SetScript("OnEnter", config.ui.ShowControlTooltip)
 		b:SetScript("OnLeave", config.ui.HideTooltip)
 		b:SetMotionScriptsWhileDisabled(true)
+		b.tooltipOwnerPoint = "ANCHOR_RIGHT"
 		if v.captionTop then
 			local fs = b:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 			fs:SetText(v.captionTop)
@@ -612,6 +623,7 @@ local widgetControl, optionControl = {}, {} do -- Widget construction
 		tb:SetScript("OnClick", onTwofClick)
 		tb:SetScript("OnEnter", onTwofEnter)
 		tb:SetScript("OnLeave", config.ui.HideTooltip)
+		tb:SetMotionScriptsWhileDisabled(true)
 		local label = tb:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		label:SetPoint("BOTTOMLEFT", tb, "TOPLEFT", 2.5, -1.5)
 		label:SetWidth(285)
@@ -684,6 +696,9 @@ do -- customized widgets
 		function offsetPanel:OnSetOwningButton()
 			getmetatable(self).__index.ClearAllPoints(self)
 			self:SetPoint("TOPRIGHT", self.owningButton)
+		end
+		function offsetPanel:GetPreferredEntryWidth()
+			return 200
 		end
 		function offsetPanel:ClearAllPoints()
 			-- called by UIDropDownMenu_CheckAddCustomFrame after OnSetOwningButton runs; keep our TOPRIGHT to size panel with button/dropdown
@@ -894,7 +909,10 @@ T.OPC_RingScopePrefixes = {
 }
 
 function OPC_UpdateControlReqs(v)
-	local enabled, disabledHint = true, nil
+	local enabled, globalOnly, disabledHint = true, v.globalOnly, nil
+	local outOfScope, scopeEnabled = globalOnly and OR_CurrentOptionsDomain
+	local optionScope = not globalOnly and OR_CurrentOptionsDomain or nil
+	v.outOfScope = outOfScope and true or nil
 	if v.depOn then
 		local dv = PC:GetOption(v.depOn, OR_CurrentOptionsDomain)
 		enabled = v.depValueSet and v.depValueSet[dv] or (v.depValueSet or v.depValue) == nil or dv == v.depValue
@@ -905,16 +923,19 @@ function OPC_UpdateControlReqs(v)
 	if enabled and v.reqFeature == "GamePad" and not C_GamePad.IsEnabled() then
 		enabled, disabledHint = false, nil
 	end
+	if enabled and outOfScope then
+		scopeEnabled, enabled, disabledHint = enabled, false, HIGHLIGHT_FONT_COLOR_CODE .. L"Not configurable per-ring."
+	end
 	v.widget:SetEnabled(enabled)
 	if v.refresh then
-		v:refresh(v[2] and PC:GetOption(v[2], OR_CurrentOptionsDomain))
-	elseif v[1] ~= "bool" then
-	elseif enabled then
-		v.widget:SetChecked(PC:GetOption(v[2], OR_CurrentOptionsDomain) or nil)
-		v.widget.tooltipText = nil
-	else
-		v.widget:SetChecked(v.otherwise or nil)
-		v.widget.tooltipText = disabledHint
+		v:refresh(v[2] and PC:GetOption(v[2], optionScope))
+	elseif v[1] == "bool" then
+		local checked, disabled = v.otherwise, not enabled or nil
+		if enabled or scopeEnabled then
+			checked = PC:GetOption(v[2], optionScope)
+		end
+		v.widget:SetChecked(checked or nil)
+		v.widget.tooltipText, v.widget.tooltipTitle = disabled and disabledHint, disabled and disabledHint and v.caption or nil
 	end
 end
 function OPC_AlterOptionW(widget, newval, ...)
@@ -1136,7 +1157,6 @@ function frame.refresh()
 	OPC_Profile:text()
 	OPC_AppearanceFactory:text()
 	OPC_AppearanceFactory:SetShown(T.OPieUI:HasMultipleIndicatorConstructors())
-	local isViewOfGlobalDomain = OR_CurrentOptionsDomain == nil
 	for _, control in ipairs(OPC_Options) do
 		local widget, ctype, option = control.widget, control[1], control[2]
 		if control.refresh then
@@ -1153,11 +1173,8 @@ function frame.refresh()
 			widget:SetChecked(PC:GetOption(option, OR_CurrentOptionsDomain) or nil)
 			control.text:SetText(control.caption)
 		end
-		if control.depOn or control.depIndicatorFeature or control.reqFeature then
+		if control.depOn or control.depIndicatorFeature or control.reqFeature or control.globalOnly then
 			OPC_UpdateControlReqs(control)
-		end
-		if control.globalOnly then
-			widget:SetEnabled(isViewOfGlobalDomain)
 		end
 	end
 	OPC_BlockInput = false

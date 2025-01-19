@@ -40,16 +40,12 @@ do
 		name=L"Trade Skills", hotkey="ALT-T", _u="OPCCT", v=3
 	})
 end
-R:AddDefaultRing("TrinketSlots", {
-	{id="/use 13", _u="t"},
-	{id="/use 14", _u="b"},
-	name=L"Trinkets", _u="OPCTS", v=1
-})
 R:AddDefaultRing("OPieAutoQuest", {
 	{"extrabutton", 1, _u="EB", fastClick=true},
+	{"opie.ext", "xact", _u="CX"},
 	{"zoneability", 0, _u="ZA"},
 	{"opie.autoquest", 1, _u="AC"},
-	name=L"Quest Items", hotkey="ALT-Q", _u="OPbQI", v=2
+	name=L"Quest Items", hotkey="ALT-Q", _u="OPbQI", v=3
 })
 if MODERN or CF_CATA then
 	local clearMark = {"worldmark", 0, c="ccd8e5", _u="c"}
@@ -277,7 +273,8 @@ R:AddDefaultRing("SpecMenu", {
 	{"toy", 110560, _u="g"},
 	{"toy", 140192, _u="d"},
 	{"item", 217930, _u="x"},
+	{id=436854, _u="f", show="[level:20]"},
 	{"ring", "CommonHearth", rotationMode="shuffle", _u="t"},
 	{"item", 141605, _u="w", show="[in:broken isles/argus/bfa]"}, -- flight master's whistle
-	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=3
+	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=4
 })

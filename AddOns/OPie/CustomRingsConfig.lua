@@ -813,9 +813,6 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		function f:OnActionChanged(ed)
 			return editorHost:IsCurrentEditor(ed) and api.setSliceAction()
 		end
-		function f:SaveAction() -- DEPRECATED [2303/Y8]
-			api.setSliceAction()
-		end
 		function f:SetVerticalOffset(ofsY)
 			f:SetPoint("TOPLEFT", sliceDetail.fastClick.label, "BOTTOMLEFT", 0, -6-ofsY)
 		end
@@ -1336,6 +1333,7 @@ function api.selectRing(_, name)
 	UIDropDownMenu_SetText(ringDropDown, desc.name or name)
 	ringDetail.rotation:SetValue(desc.offset or 0)
 	ringDetail.name:SetText(desc.name or name)
+	ringDetail.name:SetCursorPosition(0)
 	ringDetail.hiddenRing:SetChecked(desc.internal)
 	ringDetail.embedRing:SetChecked(desc.embed)
 	currentRing, currentRingName, sliceBaseIndex, currentSliceIndex = desc, name, 1

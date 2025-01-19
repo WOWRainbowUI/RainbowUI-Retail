@@ -132,8 +132,6 @@ do -- EditorUI
 		local p = bg:GetParent()
 		if p and type(p.OnActionChanged) == "function" then
 			p:OnActionChanged(bg)
-		elseif p and type(p.SaveAction) == "function" then -- DEPRECATED [2303/Y8]
-			p:SaveAction()
 		end
 	end
 	function drop:initialize()
