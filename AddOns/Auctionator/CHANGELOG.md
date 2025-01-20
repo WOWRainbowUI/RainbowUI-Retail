@@ -1,10 +1,9 @@
 # Auctionator
 
-## [11.0.22](https://github.com/Auctionator/Auctionator/tree/11.0.22) (2025-01-13)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/11.0.21...11.0.22) 
+## [255](https://github.com/Auctionator/Auctionator/tree/255) (2025-01-19)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/254...255) 
 
-- Retail: Show auction prices on optional reagents too  
-- Retail: Apply allocated quantities to AH prices shown in recipe reagent tooltips  
-- Show per-quality auction values in tooltips in professions window  
-- Add price tooltips to profession shatter/scrap/etc. owned items to choose from  
-- Remove accidentally embedded json library  
+- Remove unneeded dropdown library (fully replaced with Blizz dropdowns)  
+- Remove legacy "Popout" code for Selling tab  
+- Move to newer Blizzard dropdowns for Selling tab quick-buy context menu  
+- Change customise results listing context menu to use newer Blizzard system  
