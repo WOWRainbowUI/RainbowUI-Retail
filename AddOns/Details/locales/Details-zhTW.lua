@@ -1858,6 +1858,7 @@ L["Aura Name"] = "光環名稱"
 L["Spell Id"] = "法術ID"
 L["Lua Table"] = "Lua Table"
 L["Payload (Points)"] = "有效載荷 (點數)"
+L["Last Cast"] = "上次施放"
 
 -- frames\window_benchmark.lua
 L["Details! Benchmark"] = "Details! 效能測試"

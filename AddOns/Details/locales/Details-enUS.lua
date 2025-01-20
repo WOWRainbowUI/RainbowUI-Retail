@@ -4520,3 +4520,4 @@ L["|rcheck if it is enabled in the addons control panel."] = "|rcheck if it is e
 L["Hide Yellow Helptips"] = "Hide Yellow Helptips"
 L["Those yellow boxes with an arrow and a text showing a text with tips."] = "Those yellow boxes with an arrow and a text showing a text with tips."
 L["New expansion detected, clearing data..."] = "New expansion detected, clearing data..."
+L["Last Cast"] = "Last Cast"
