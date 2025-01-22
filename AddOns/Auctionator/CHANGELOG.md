@@ -1,6 +1,6 @@
 # Auctionator
 
-## [256](https://github.com/Auctionator/Auctionator/tree/256) (2025-01-20)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/255...256) 
+## [257](https://github.com/Auctionator/Auctionator/tree/257) (2025-01-20)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/256...257) 
 
-- [Fixes #1626] Warning about missing template  
+- Classic: Fix disenchant odds to use greater magic on weapons ilvl 21-30  
