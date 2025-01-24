@@ -1,5 +1,5 @@
 local MAJOR_VERSION = "LibGetFrame-1.0"
-local MINOR_VERSION = 62
+local MINOR_VERSION = 63
 if not LibStub then
   error(MAJOR_VERSION .. " requires LibStub.")
 end
@@ -667,7 +667,8 @@ function lib.GetUnitNameplate(unit)
       return nameplate.unitFrame.Health
     elseif nameplate.unitFramePlater and nameplate.unitFramePlater.healthBar then
       -- plater
-      return nameplate.unitFramePlater.healthBar
+      -- fallback to default nameplate in case plater is not on screen and uses blizzard default (module disabled, force-blizzard functionality)
+      return nameplate.unitFramePlater.PlaterOnScreen and nameplate.unitFramePlater.healthBar or (nameplate.UnitFrame and nameplate.UnitFrame.healthBar) or nameplate
     elseif nameplate.kui and nameplate.kui.HealthBar then
       -- kui
       return nameplate.kui.HealthBar

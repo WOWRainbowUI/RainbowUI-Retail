@@ -1,7 +1,7 @@
 ## Interface: 40401
 ## Title: WeakAuras
 ## Author: The WeakAuras Team
-## Version: 5.18.1
+## Version: 5.19.0
 ## X-Flavor: Cata
 ## Notes: A powerful, comprehensive utility for displaying graphics and information based on buffs, debuffs, and other triggers.
 ## Notes-esES: Potente y completa aplicación que te permitirá mostrar por pantalla múltiples diseños, basados en beneficios, perjuicios y otros activadores.
@@ -67,13 +67,19 @@ DebugLog.lua
 # Region support
 RegionTypes\SmoothStatusBarMixin.lua
 RegionTypes\RegionPrototype.lua
+RegionTypes\Empty.lua
+BaseRegions\TextureCoords.lua
+BaseRegions\CircularProgressTexture.lua
+BaseRegions\LinearProgressTexture.lua
 RegionTypes\ProgressTexture.lua
+BaseRegions\Texture.lua
 RegionTypes\Texture.lua
 RegionTypes\AuraBar.lua
 RegionTypes\Icon.lua
 RegionTypes\Text.lua
 RegionTypes\Group.lua
 RegionTypes\DynamicGroup.lua
+BaseRegions\StopMotion.lua
 RegionTypes\StopMotion.lua
 RegionTypes\Model.lua
 
@@ -84,6 +90,10 @@ SubRegionTypes\Border.lua
 SubRegionTypes\Glow.lua
 SubRegionTypes\Tick.lua
 SubRegionTypes\Model.lua
+SubRegionTypes\StopMotion.lua
+SubRegionTypes\Texture.lua
+SubRegionTypes\CircularProgressTexture.lua
+SubRegionTypes\LinearProgressTexture.lua
 
 #Misc
 DiscordList.lua
