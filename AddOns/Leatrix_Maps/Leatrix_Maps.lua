@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 11.0.28 (15th January 2025)
+	-- 	Leatrix Maps 11.0.29 (22nd January 2025)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "11.0.28"
+	LeaMapsLC["AddonVer"] = "11.0.29"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -28,7 +28,7 @@
 			end)
 			return
 		end
-		if gametocversion and gametocversion >= 110000 then -- 11.0.0
+		if gametocversion and gametocversion >= 110100 then -- 11.1.0
 			LeaMapsLC.NewPatch = true
 		end
 	end
@@ -110,6 +110,15 @@
 					v.FilterCounterBanner:HookScript("OnShow", function() v.FilterCounterBanner:Hide() end)
 				end
 			end
+		end
+
+		----------------------------------------------------------------------
+		-- Hide world map tabs
+		----------------------------------------------------------------------
+
+		if LeaMapsLC["NoMapTabs"] == "On" then
+			QuestMapFrame.QuestsTab:Hide()
+			QuestMapFrame.MapLegendTab:Hide()
 		end
 
 		----------------------------------------------------------------------
@@ -1777,6 +1786,7 @@
 		or	(LeaMapsLC["HideTownCity"] ~= LeaMapsDB["HideTownCity"])			-- Hide town and city icons
 		or	(LeaMapsLC["EnhanceBattleMap"] ~= LeaMapsDB["EnhanceBattleMap"])	-- Enhance battlefield map
 		or	(LeaMapsLC["NoFilterResetBtn"] ~= LeaMapsDB["NoFilterResetBtn"])	-- Hide filte reset button
+		or	(LeaMapsLC["NoMapTabs"] ~= LeaMapsDB["NoMapTabs"])					-- Hide world map tabs
 		then
 			-- Enable the reload button
 			LeaMapsLC:LockItem(LeaMapsCB["ReloadUIButton"], false)
@@ -2057,6 +2067,7 @@
 				LeaMapsDB["NoMapFade"] = "On"
 				LeaMapsDB["NoMapEmote"] = "On"
 				LeaMapsDB["NoFilterResetBtn"] = "On"
+				LeaMapsDB["NoMapTabs"] = "On"
 
 				LeaMapsDB["MapPosA"] = "TOPLEFT"
 				LeaMapsDB["MapPosR"] = "TOPLEFT"
@@ -2157,6 +2168,8 @@
 			LeaMapsLC:LoadVarChk("NoMapFade", "On")						-- Disable map fade
 			LeaMapsLC:LoadVarChk("NoMapEmote", "On")					-- Disable map emote
 			LeaMapsLC:LoadVarChk("NoFilterResetBtn", "On")				-- Hide filter reset button
+			LeaMapsLC:LoadVarChk("NoMapTabs", "Off")					-- Hide world map tabs
+
 			LeaMapsLC:LoadVarAnc("MapPosA", "TOPLEFT")					-- Windowed map anchor
 			LeaMapsLC:LoadVarAnc("MapPosR", "TOPLEFT")					-- Windowed map relative
 			LeaMapsLC:LoadVarNum("MapPosX", 16, -5000, 5000)			-- Windowed map X
@@ -2218,7 +2231,7 @@
 
 			if LeaMapsLC.NewPatch then
 			else
-				-- LockDF("NoFilterResetBtn", "This is for The War Within.")
+				LockDF("NoMapTabs", "This is for game patch 11.1.0.")
 			end
 
 		elseif event == "PLAYER_LOGIN" then
@@ -2237,6 +2250,8 @@
 			LeaMapsDB["NoMapFade"] = LeaMapsLC["NoMapFade"]
 			LeaMapsDB["NoMapEmote"] = LeaMapsLC["NoMapEmote"]
 			LeaMapsDB["NoFilterResetBtn"] = LeaMapsLC["NoFilterResetBtn"]
+			LeaMapsDB["NoMapTabs"] = LeaMapsLC["NoMapTabs"]
+
 			LeaMapsDB["MapPosA"] = LeaMapsLC["MapPosA"]
 			LeaMapsDB["MapPosR"] = LeaMapsLC["MapPosR"]
 			LeaMapsDB["MapPosX"] = LeaMapsLC["MapPosX"]
@@ -2381,7 +2396,8 @@
 	LeaMapsLC:MakeCB(PageF, "NoMapFade", "Disable map fade", 225, -232, false, "If checked, the map will not fade while your character is moving.")
 	LeaMapsLC:MakeCB(PageF, "NoMapEmote", "Disable reading emote", 225, -252, false, "If checked, your character will not perform the reading emote when you open the map.")
 	LeaMapsLC:MakeCB(PageF, "NoFilterResetBtn", "Hide filter reset button", 225, -272, true, "If checked, the world map filter reset button will be hidden.")
-	LeaMapsLC:MakeCB(PageF, "ShowMinimapIcon", "Show minimap button", 225, -292, false, "If checked, the minimap button will be shown.")
+	LeaMapsLC:MakeCB(PageF, "NoMapTabs", "Hide world map tabs", 225, -292, true, "If checked, world map tabs will be hidden.|n|nThis includes the quests tab and the map legend tab.")
+	LeaMapsLC:MakeCB(PageF, "ShowMinimapIcon", "Show minimap button", 225, -312, false, "If checked, the minimap button will be shown.")
 
 	LeaMapsLC:CfgBtn("ScaleWorldMapBtn", LeaMapsCB["ScaleWorldMap"])
 	LeaMapsLC:CfgBtn("RevTintBtn", LeaMapsCB["RevealMap"])
