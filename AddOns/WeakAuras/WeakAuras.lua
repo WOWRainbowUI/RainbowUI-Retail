@@ -3,7 +3,7 @@ local AddonName = ...
 ---@class Private
 local Private = select(2, ...)
 
-local internalVersion = 79
+local internalVersion = 82
 
 -- Lua APIs
 local insert = table.insert
@@ -602,7 +602,8 @@ end
 ---@param name string
 ---@param createFunction function
 ---@param description string
-function WeakAuras.RegisterSubRegionOptions(name, createFunction, description)
+---@param getAnchors function?
+function WeakAuras.RegisterSubRegionOptions(name, createFunction, description, getAnchors)
   if not(name) then
     error("Improper arguments to WeakAuras.RegisterSubRegionOptions - name is not defined", 2);
   elseif(type(name) ~= "string") then
@@ -611,11 +612,14 @@ function WeakAuras.RegisterSubRegionOptions(name, createFunction, description)
     error("Improper arguments to WeakAuras.RegisterSubRegionOptions - creation function is not defined", 2);
   elseif(type(createFunction) ~= "function") then
     error("Improper arguments to WeakAuras.RegisterSubRegionOptions - creation function is not a function", 2);
+  elseif(getAnchors and type(getAnchors) ~= "function") then
+    error("Improper arguments to WeakAuras.RegisterSubRegionOptions - getAnchors function is not a function", 2);
   elseif(subRegionOptions[name]) then
     error("Improper arguments to WeakAuras.RegisterSubRegionOptions - region type \""..name.."\" already defined", 2);
   else
     subRegionOptions[name] = {
       create = createFunction,
+      getAnchors = getAnchors,
       description = description,
     };
   end
@@ -1360,7 +1364,6 @@ loadedFrame:SetScript("OnEvent", function(self, event, addon)
       db.migrationCutoff = db.migrationCutoff or 730
       db.historyCutoff = db.historyCutoff or 730
 
-      Private.UpdateCurrentInstanceType();
       Private.SyncParentChildRelationships();
       local isFirstUIDValidation = db.dbVersion == nil or db.dbVersion < 26;
       Private.ValidateUniqueDataIds(isFirstUIDValidation);
@@ -1415,7 +1418,6 @@ loadedFrame:SetScript("OnEvent", function(self, event, addon)
           timer:ScheduleTimer(function() squelch_actions = false; end, remainingSquelch); -- No sounds while loading
         end
         CreateTalentCache() -- It seems that GetTalentInfo might give info about whatever class was previously being played, until PLAYER_ENTERING_WORLD
-        Private.UpdateCurrentInstanceType();
         Private.InitializeEncounterAndZoneLists()
       end
       Private.PostAddCompanion()
@@ -1541,48 +1543,6 @@ local function CreateEncounterTable(encounter_id)
   timer:ScheduleTimer(StoreBossGUIDs, 2)
 
   return WeakAuras.CurrentEncounter
-end
-
-local encounterScriptsDeferred = {}
-local function LoadEncounterInitScriptsImpl(id)
-  if (currentInstanceType ~= "raid") then
-    return
-  end
-  if (id) then
-    local data = db.displays[id]
-    if (data and data.load.use_encounterid and not Private.IsEnvironmentInitialized(id) and data.actions.init and data.actions.init.do_custom) then
-      Private.ActivateAuraEnvironment(id)
-      Private.ActivateAuraEnvironment(nil)
-    end
-    encounterScriptsDeferred[id] = nil
-  else
-    for id, data in pairs(db.displays) do
-      if (data.load.use_encounterid and not Private.IsEnvironmentInitialized(id) and data.actions.init and data.actions.init.do_custom) then
-        Private.ActivateAuraEnvironment(id)
-        Private.ActivateAuraEnvironment(nil)
-      end
-    end
-  end
-end
-
-local function LoadEncounterInitScripts(id)
-  if not WeakAuras.IsLoginFinished() then
-    if encounterScriptsDeferred[id] then
-      return
-    end
-    loginQueue[#loginQueue + 1] = {LoadEncounterInitScriptsImpl, {id}}
-    encounterScriptsDeferred[id] = true
-    return
-  end
-  LoadEncounterInitScriptsImpl(id)
-end
-
-function Private.UpdateCurrentInstanceType(instanceType)
-  if (not IsInInstance()) then
-    currentInstanceType = "none"
-  else
-    currentInstanceType = instanceType or select (2, GetInstanceInfo())
-  end
 end
 
 local pausedOptionsProcessing = false;
@@ -1732,18 +1692,13 @@ local function scanForLoadsImpl(toCheck, event, arg1, ...)
     specId, role, position = Private.LibSpecWrapper.SpecRolePositionForUnit("player")
   end
 
-  local size, difficulty, instanceType, instanceId, difficultyIndex= GetInstanceTypeAndSize()
-  Private.UpdateCurrentInstanceType(instanceType)
+  local size, difficulty, instanceType, instanceId, difficultyIndex = GetInstanceTypeAndSize()
 
   if (WeakAuras.CurrentEncounter) then
     if (instanceId ~= WeakAuras.CurrentEncounter.zone_id and not inCombat) then
       encounter_id = 0
       DestroyEncounterTable()
     end
-  end
-
-  if (event == "ZONE_CHANGED_NEW_AREA") then
-    LoadEncounterInitScripts();
   end
 
   local group = Private.ExecEnv.GroupType()
@@ -3275,8 +3230,6 @@ function pAdd(data, simpleChange)
         triggerCount = 0,
         activatedConditions = {},
       };
-
-      LoadEncounterInitScripts(id);
 
       if (WeakAuras.IsOptionsOpen()) then
         Private.FakeStatesFor(id, visible)

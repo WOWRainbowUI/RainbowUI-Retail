@@ -1206,6 +1206,16 @@ function WeakAuras.GetEffectiveAttackPower()
   return base + pos + neg
 end
 
+--- @type fun(): number
+function WeakAuras.GetEffectiveSpellPower()
+  -- Straight from the PaperDoll
+  local spellPower = 0
+  for i = 2, MAX_SPELL_SCHOOLS or 7 do
+    spellPower = max(spellPower, GetSpellBonusDamage(i))
+  end
+  return spellPower
+end
+
 local function valuesForTalentFunction(trigger)
   return function()
     local single_class = Private.checkForSingleLoadCondition(trigger, "class")
@@ -2421,7 +2431,7 @@ Private.event_prototypes = {
         store = true,
         conditionType = "select",
         enable = function(trigger)
-          return WeakAuras.IsCataOrRetail() and (trigger.unit == "group" or trigger.unit == "raid" or trigger.unit == "party")
+          return trigger.unit == "group" or trigger.unit == "raid" or trigger.unit == "party"
         end
       },
       {
@@ -3417,7 +3427,7 @@ Private.event_prototypes = {
         store = true,
         conditionType = "select",
         enable = function(trigger)
-          return WeakAuras.IsCataOrRetail() and (trigger.unit == "group" or trigger.unit == "raid" or trigger.unit == "party")
+          return trigger.unit == "group" or trigger.unit == "raid" or trigger.unit == "party"
         end
       },
       {
@@ -3987,7 +3997,7 @@ Private.event_prototypes = {
         store = true,
         conditionType = "select",
         enable = function(trigger)
-          return WeakAuras.IsCataOrRetail() and (trigger.unit == "group" or trigger.unit == "raid" or trigger.unit == "party")
+          return trigger.unit == "group" or trigger.unit == "raid" or trigger.unit == "party"
         end
       },
       {
@@ -8009,6 +8019,32 @@ Private.event_prototypes = {
         conditionType = "string",
       },
       {
+        -- flags
+      },
+      {
+        -- zone Channel id
+      },
+      {
+        -- channel index
+      },
+      {
+        -- channel base name
+      },
+      {
+        -- language id
+      },
+      {
+        -- line id
+      },
+      {
+        name = "sourceGUID",
+        display = L["Source GUID"],
+        init = "arg",
+        store = true,
+        hidden = true,
+        test = "true",
+      },
+      {
         name = "cloneId",
         display = L["Clone per Event"],
         type = "toggle",
@@ -9728,7 +9764,7 @@ Private.event_prototypes = {
         store = true,
         conditionType = "select",
         enable = function(trigger)
-          return WeakAuras.IsCataOrRetail() and (trigger.unit == "group" or trigger.unit == "raid" or trigger.unit == "party")
+          return trigger.unit == "group" or trigger.unit == "raid" or trigger.unit == "party"
                  and not trigger.use_inverse
         end
       },
@@ -10366,6 +10402,20 @@ Private.event_prototypes = {
           operator = "and",
           limit = 2
         },
+      },
+      {
+        name = "spellpower",
+        display = L["Spell Power"],
+        type = "number",
+        init = "WeakAuras.GetEffectiveSpellPower()",
+        store = true,
+        conditionType = "number",
+        multiEntry = {
+          operator = "and",
+          limit = 2
+        },
+        enable = WeakAuras.IsClassicOrCata(),
+        hidden = not WeakAuras.IsClassicOrCata(),
       },
       {
         type = "header",
@@ -11271,6 +11321,73 @@ Private.event_prototypes = {
     },
     automaticrequired = true,
     progressType = "none"
+  },
+  ["Money"] = {
+    type = "unit",
+    statesParameter = "one",
+    progressType = "none",
+    automaticrequired = true,
+    events = {
+      ["events"] = {"PLAYER_MONEY"}
+    },
+    internal_events = {"WA_DELAYED_PLAYER_ENTERING_WORLD"},
+    force_events = "WA_DELAYED_PLAYER_ENTERING_WORLD",
+    name = WeakAuras.newFeatureString..L["Player Money"],
+    init = function()
+      return [=[
+        local money = GetMoney()
+        local gold = floor(money / 1e4)
+        local silver = floor(money / 100 % 100)
+        local copper = money % 100
+      ]=]
+    end,
+    args = {
+      {
+        name = "money",
+        init = "money",
+        type = "number",
+        display = L["Money"],
+        store = true,
+        hidden = true,
+        test = "true",
+      },
+      {
+        name = "gold",
+        init = "gold",
+        type = "number",
+        display = Private.coin_icons.gold .. L["Gold"],
+        store = true,
+        conditionType = "number",
+      },
+      {
+        name = "silver",
+        init = "silver",
+        type = "number",
+        display = Private.coin_icons.silver .. L["Silver"],
+        store = true,
+        hidden = true,
+        test = "true",
+      },
+      {
+        name = "copper",
+        init = "copper",
+        type = "number",
+        display = Private.coin_icons.copper .. L["Copper"],
+        store = true,
+        hidden = true,
+        test = "true",
+      },
+      {
+        name = "icon",
+        init = "C_CurrencyInfo.GetCoinIcon(money)",
+        store = true,
+        hidden = true,
+        test = "true",
+      },
+    },
+    GetNameAndIcon = function()
+      return MONEY, C_CurrencyInfo.GetCoinIcon(GetMoney())
+    end,
   },
   ["Currency"] = {
     type = "unit",

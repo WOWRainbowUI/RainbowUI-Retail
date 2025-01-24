@@ -37,7 +37,7 @@ Private.DiscordList = {
   [=[Luckyone]=],
   [=[Luxthos]=],
   [=[m33shoq]=],
-  [=[Max rdv 2026 pour TBC cla]=],
+  [=[Marcelian]=],
   [=[MetalMusicMan]=],
   [=[Murph]=],
   [=[Mynze]=],
@@ -48,6 +48,7 @@ Private.DiscordList = {
   [=[Ora]=],
   [=[phoenix7700]=],
   [=[Pseiko]=],
+  [=[reggie]=],
   [=[Reloe]=],
   [=[Spaten]=],
   [=[Tollo]=],
@@ -56,7 +57,6 @@ Private.DiscordList = {
   [=[vozochris]=],
   [=[Wizeowel]=],
   [=[Xepheris]=],
-  [=[Мектран]=],
 }
 Private.DiscordListCJ = {
 }

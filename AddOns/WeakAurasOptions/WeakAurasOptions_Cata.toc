@@ -1,7 +1,7 @@
 ## Interface: 40401
 ## Title: WeakAuras Options
 ## Author: The WeakAuras Team
-## Version: 5.18.1
+## Version: 5.19.0
 ## Notes: Options for WeakAuras
 ## Notes-esES: Opciones para WeakAuras
 ## Notes-deDE: Optionen für WeakAuras
@@ -25,6 +25,7 @@ locales.xml
 
 ForAllIndentsAndPurposes.lua
 
+RegionOptions\Empty.lua
 RegionOptions\AuraBar.lua
 RegionOptions\Texture.lua
 RegionOptions\Icon.lua
@@ -42,6 +43,10 @@ SubRegionOptions\Border.lua
 SubRegionOptions\Glow.lua
 SubRegionOptions\Tick.lua
 SubRegionOptions\Model.lua
+SubRegionOptions\StopMotion.lua
+SubRegionOptions\Texture.lua
+SubRegionOptions\CircularProgressTexture.lua
+SubRegionOptions\LinearProgressTexture.lua
 
 Cache.lua
 
@@ -60,6 +65,8 @@ GenericTrigger.lua
 WeakAurasOptions.lua
 ConditionOptions.lua
 AuthorOptions.lua
+
+Changelog.lua
 
 OptionsFrames\OptionsFrame.lua
 
