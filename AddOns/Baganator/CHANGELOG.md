@@ -1,6 +1,7 @@
 # Baganator
 
-## [624](https://github.com/Baganator/Baganator/tree/624) (2025-01-18)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/623...624) 
+## [625](https://github.com/Baganator/Baganator/tree/625) (2025-01-22)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/624...625) 
 
-- Fix priority not applying to items added to TSM (Auto) category  
+- [Fixes #410] Ensure heirlooms get their corner ilvl updated on level up  
+- Use keywords groups order from Syndicator if available  
