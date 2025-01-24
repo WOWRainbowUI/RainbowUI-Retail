@@ -1,6 +1,10 @@
 # Syndicator
 
-## [157](https://github.com/Baganator/Syndicator/tree/157) (2025-01-11)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/156...157) 
+## [158](https://github.com/Baganator/Syndicator/tree/158) (2025-01-21)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/157...158) 
 
-- Make "#set bonus" keyword retail only, as only retail supports the needed APIs  
+- Keep keyword group order in Syndicator  
+- Update for LibBattlePetTooltip folder rearrangement  
+- Add Syndicator to "Inventory" category ready for 11.1  
+- Github: Remove unused issue template  
+- Github: Disable blank issues  
