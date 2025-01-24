@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.0.28 (15th January 2025)
+-- 	Leatrix Plus 11.0.29 (22nd January 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.0.28"
+	LeaPlusLC["AddonVer"] = "11.0.29"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -5927,20 +5927,6 @@
 						myButton:HookScript("OnLeave", function()
 							_G[name]:GetScript("OnLeave")()
 						end)
-					elseif name == "Narci_MinimapButton" then
-						-- Narcissus
-						local myButton = LibStub("LibDBIcon-1.0"):GetMinimapButton("LeaPlusCustomIcon_" .. name)
-						myButton.icon:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Minimap\\LOGO-Dragonflight")
-						myButton:HookScript("OnEnter", function()
-							GameTooltip:SetOwner(myButton, "ANCHOR_TOP")
-							GameTooltip:AddLine("Narcissus")
-							GameTooltip:Show()
-							ReanchorTooltip(GameTooltip, myButton)
-						end)
-						hooksecurefunc(myButton.icon, "UpdateCoord", function()
-							myButton.icon:SetTexCoord(0, 0.25, 0.75, 1)
-						end)
-						myButton.icon:SetTexCoord(0, 0.25, 0.75, 1)
 					elseif name == "WIM3MinimapButton" then
 						-- WIM
 						local myButton = LibStub("LibDBIcon-1.0"):GetMinimapButton("LeaPlusCustomIcon_" .. name)
@@ -6024,6 +6010,7 @@
 				-- Do not create LibDBIcon buttons for these special case buttons
 				local BypassButtonTable = {
 					"SexyMapZoneTextButton", -- SexyMap
+					"Narci_MinimapButton", -- Narcissus
 				}
 
 				-- Some buttons have less than 3 regions.  These need to be manually defined below.
