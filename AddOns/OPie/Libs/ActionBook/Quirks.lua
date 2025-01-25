@@ -375,11 +375,57 @@ securecall(function() -- MAYBE_FLYABLE: [anyflyable] mirror
 	end)
 	KR:RegisterStateDriver(f, "anyflyable", "[anyflyable] 1;")
 end)
-securecall(function() -- Siren Isle flight restriction
+securecall(function() -- Siren Isle flight restrictions
 	if not MODERN then
 		return
 	end
-	-- TODO: Siren Isle eventually becomes flyable under some conditions; this will need relaxing
+	local SIREN_ISLE_STORM_SID, inStorm, noPendingUpdate, onSirenIsle = 458069, 0, 1
+	local checkSIStormTimer
+	local function checkSIStorm(e)
+		if e == "PLAYER_ENTERING_WORLD" then
+			local _,_,_,_, _,_,_,imid = GetInstanceInfo()
+			onSirenIsle = imid == 2127
+		elseif e == 'RAID_BOSS_EMOTE' then
+			EV.After(0.25, checkSIStormTimer)
+		end
+		local nv = onSirenIsle and C_UnitAuras.GetPlayerAuraBySpellID(SIREN_ISLE_STORM_SID) and 1 or 0
+		if nv == inStorm then
+		elseif not InCombatLockdown() then
+			inStorm = nv
+			FLIGHT_BLOCKER:SetAttribute("state-sirenislestorm", nv)
+		elseif noPendingUpdate then
+			EV.PLAYER_REGEN_ENABLED, noPendingUpdate = checkSIStorm
+		end
+		if e == "PLAYER_REGEN_ENABLED" then
+			noPendingUpdate = 1
+			return "remove"
+		end
+	end
+	function checkSIStormTimer()
+		checkSIStorm('TIMER')
+	end
+	local SIREN_ISLE_FLIGHT_QID, disarm = 85657
+	local function disarmSIFBlock()
+		if not InCombatLockdown() and disarm ~= 2 then
+			KR:RegisterStateDriver(FLIGHT_BLOCKER, "sirenisle", nil)
+			FLIGHT_BLOCKER:SetAttribute("state-sirenisle", 0)
+			disarm = 2
+			EV.PLAYER_ENTERING_WORLD, EV.RAID_BOSS_EMOTE = checkSIStorm, checkSIStorm
+			checkSIStorm("PLAYER_ENTERING_WORLD")
+		elseif not disarm then
+			disarm, EV.PLAYER_REGEN_ENABLED = 1, disarmSIFBlock
+		end
+		return "remove"
+	end
+	local function checkSIFBlock(ev, qid)
+		if ev == "QUEST_TURNED_IN" and qid == SIREN_ISLE_FLIGHT_QID or
+		   ev == "PLAYER_ENTERING_WORLD" and C_QuestLog.IsQuestFlaggedCompletedOnAccount(SIREN_ISLE_FLIGHT_QID) then
+			return disarmSIFBlock()
+		end
+		return disarm and "remove"
+	end
+	EV.QUEST_TURNED_IN = checkSIFBlock
+	EV.PLAYER_ENTERING_WORLD = checkSIFBlock
 	KR:RegisterStateDriver(FLIGHT_BLOCKER, "sirenisle", "[in:siren isle] 1;0")
 end)
 securecall(function() -- Oribos/Tazavesh flight restriction

@@ -118,12 +118,12 @@ function ringBindings:shiftClick()
 end
 
 local subBindings = { name=L"In-Ring Bindings",
-	options={"ScrollNestedRingUpButton", "ScrollNestedRingDownButton", "OpenNestedRingButton", "SelectedSliceBind", "SelectedCloseBind"},
-	optionNames={L"Scroll nested ring (up)", L"Scroll nested ring (down)", L"Open nested ring", L"Selected slice (keep ring open)", L"Selected slice (close ring)"},
+	options={"ScrollNestedRingUpButton", "ScrollNestedRingDownButton", "OpenNestedRingButton", "SelectedSliceBind", "SelectedCloseBind", "CloseRingBind"},
+	optionNames={L"Scroll nested ring (up)", L"Scroll nested ring (down)", L"Open nested ring", L"Selected slice (keep ring open)", L"Selected slice (close ring)", L"Close ring"},
 	count=0, t={}
 }
 local function adjustBindingID(scope, id)
-	local prefixLength = scope and 2 or 5
+	local prefixLength = scope and 3 or 6
 	if id <= prefixLength then
 		return true, id + (scope and 3 or 0), prefixLength
 	end
@@ -140,7 +140,8 @@ function subBindings:refresh(scope)
 	for s, s2 in PC:GetOption("SliceBindingString", scope):gmatch("([^%s\31]+)\31?(%S*)") do
 		t[ni], t[ni+0.5], ni = s, s2, ni + 1
 	end
-	subBindings.t, subBindings.count = t, ni+(scope and 2 or 5)
+	local _, _, prefixLength = adjustBindingID(scope, 1)
+	subBindings.t, subBindings.count = t, ni+prefixLength
 end
 function subBindings:get(id)
 	local inPrefix, id = adjustBindingID(self.scope, id)
@@ -349,14 +350,16 @@ frame:SetScript("OnHide", function()
 	end
 end)
 
-T.AddSlashSuffix(function() frame:OpenPanel() end, "bind", "binding", "bindings")
-
 function T.ShowSliceBindingPanel(ringKey)
 	frame:OpenPanel()
 	bindSet.set(nil, subBindings, ringKey)
 	frame.resetOnHide = true
 	config.pulseDropdown(bindSet)
 end
+
+T.AddSlashSuffix(function() frame:OpenPanel() end, "bind", "binding", "bindings")
+T.AddSlashSuffix(function() T.ShowSliceBindingPanel(nil) end, "irbind")
+
 function EV:OPIE_PROFILE_SWITCHED()
 	if frame:IsVisible() then
 		frame.refresh()

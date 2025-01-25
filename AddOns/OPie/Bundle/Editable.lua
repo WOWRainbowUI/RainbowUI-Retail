@@ -188,11 +188,11 @@ R:AddDefaultRing("PaladinTools", {
 	{id="#imp critical\n/cast [anyflyable,outdoors,nocombat,nomod] {{mount:air}}; [outdoors,nocombat,nomod:shift] {{mount:ground}}; {{spell:190784}}\n/changeactionbar [anyflyable,advflyable,nocombat,outdoors,nomod] 1", fastClick=true, _u="s"}, --steed
 	{id=465, _u="d"}, --devotion
 	{id=317920, _u="c"}, --concentration
-	{id=322223, _u="u"}, --crusader
 	{id=183435, _u="r"}, --retribution
 	{id=31821, _u="m"}, --mastery
-	{id="/cast [help,dead,nocombat][nocombat,mod] {{spell:7328}}; {{spell:213644}}; {{spell:7328}}", _u="l"}, -- cleanse/res
-	name=L"Utility", limit="PALADIN", hotkey="BUTTON4", _u="OPCPT", v=3
+	{id=96231, _u="k"}, -- rebuke
+	{id="/cast [help,dead,nocombat][nocombat,mod] {{spell:7328}}; [help,dead,combat] {{spell:391054}}; {{spell:213644}}; {{spell:7328}}", _u="l"}, -- cleanse/res
+	name=L"Utility", limit="PALADIN", hotkey="BUTTON4", _u="OPCPT", v=4
 })
 R:AddDefaultRing("WarlockLTS", {
 	{id="/cast [anyflyable,outdoors,nocombat,nomod] {{mount:air}}; [outdoors,nocombat,nomod:shift] {{mount:ground}}; {{spell:126}}", fastClick=true, _u="e"}, -- mount/eye
