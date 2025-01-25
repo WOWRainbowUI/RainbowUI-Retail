@@ -3,11 +3,11 @@ local _, T = ...
 
 local C, z, V, K = GetLocale(), nil
 V =
-    C == "zhCN" and { -- 206/206 (100%)
+    C == "zhCN" and { -- 206/214 (96%)
       "%d 分钟前 (%s)", "%s取消", "%s在当前结果内搜索", "(默认)", "（输入图标名称或路径）", "添加环", "添加一个新功能", "使用后进阶显示", "所有%s角色", "%s的所有专精",
       "所有设置", "全部角色", "允许作为快捷动作", "Alt单击设置条件绑定", "动画过渡", "动画", "外观", "守护", "分配到所有专精", "在环中心",
-      "按功能显示", "行为", "快捷键冲突", "快捷键：", "视角模拟摇杆", "取消", "改变行为", "修改将不被保存", "为此环绑定快捷键，或在OPie设置中启用%s选项。", "执行快速动作后关闭环",
-      "关闭环", "颜色：", "战斗", "条件快捷键", "条件可见", "快捷键冲突：%s", "手柄方向输入：", "创建配置文件", "创建一份新的配置文件", "创建一个新的环",
+      "按功能显示", "行为", "快捷键冲突", "快捷键：", "视角模拟摇杆", "取消", "改变行为", "修改将不被保存", "为此环绑定快捷键，或在OPie设置中启用%s选项。", "关闭环",
+      "执行快速动作后关闭环", "颜色：", "战斗", "条件快捷键", "条件可见", "快捷键冲突：%s", "手柄方向输入：", "创建配置文件", "创建一份新的配置文件", "创建一个新的环",
       "创建新配置", "自定义环", "自定义功能", "修改已有环或创建你自己的环来个性化OPie。", "在下面自定义OPie快捷键。|cffa0a0a0灰色|r和|cffFA2800红色|r分别代表按键绑定有冲突和当前未激活。", "自定义OPie的外观和行为。右键点击选项框可将该项恢复为默认值。", "自定义绑定", "自定义环内按键绑定", "自定义选项", "自定义图标",
       "默认按键已禁用", "默认", "全局默认", "删除当前配置", "删除环", "删除功能", "召唤恶魔", "已停用", "显示跳跃功能", "显示为嵌套环",
       "显示为：", "什么也不做", "您想要将所有 %s 设置重置为其默认值，还是仅重置 %s 类别中的设置？", "默认嵌入其它环", "嵌入这个环中的功能", "空环", "放大选中的功能", "套装方案", "例如：%s.", "更多传送门",
@@ -26,11 +26,11 @@ V =
       "打开时使用第一个功能", "使用全局设定", "使用功能", "使用功能并关闭环", "工具", "虚拟鼠标光标", "可见条件：", "术士战斗", "术士通用", "环展开时：",
       "世界标记", "由于内存不足，魔兽世界不能加载已保存的OPie变量。请尝试禁用其他插件。现在你所做的任何改动都不会被保存。", "您可以稍后取消或恢复到之前的设置。", "你可以使用扩展的宏条件；详情见%s。", "必须为此环启用%s选项，以使用快捷动作。", "默认",
     }
-    or C == "zhTW" and { -- 205/206 (99%)
+    or C == "zhTW" and { -- 205/214 (95%)
       "%d 分鐘前 (%s)", "%s取消", "%s在目前的結果內搜尋", "(預設)", "(在此輸入圖示名稱或路徑)", "新增環", "加入一個新的功能", "使用後進階顯示", "所有 %s 角色", "所有 %s 專精",
       "所有設定", "所有角色", "設為快速動作", "Alt+左鍵 設定條件式綁定", "轉換動畫", "動畫", "外觀", "守護", "給所有專精使用", "在環中心",
-      "依據自身的功能顯示圖示", "行為", "按鍵已被使用", "按鍵綁定:", "移動視角用的類比搖桿", "取消", "更改動作", "不會儲存變更", "選擇這個環的按鍵綁定，或是在 OPie 選項中啟用 %s。", "執行快速動作後關閉環",
-      "關閉環", "顏色:", "戰鬥", "條件式綁定", "條件式顯示", "按鍵已被使用: %s", "搖桿互動模式", "建立設定檔", "建立新的設定檔", "建立新的環",
+      "依據自身的功能顯示圖示", "行為", "按鍵已被使用", "按鍵綁定:", "移動視角用的類比搖桿", "取消", "更改動作", "不會儲存變更", "選擇這個環的按鍵綁定，或是在 OPie 選項中啟用 %s。", "關閉環",
+      "執行快速動作後關閉環", "顏色:", "戰鬥", "條件式綁定", "條件式顯示", "按鍵已被使用: %s", "搖桿互動模式", "建立設定檔", "建立新的設定檔", "建立新的環",
       "建立新的設定檔", "自訂環", "自訂功能", "修改已有的環來自訂 OPie，或是建立新的環。", "自訂下列的 OPie 按鍵綁定。滑鼠指向綁定按鈕時會顯示額外的資訊和選項。", "自訂 OPie 的外觀和行為，右鍵點擊核取方塊可恢復為預設值。", "自訂按鍵綁定", "自訂環內按鍵綁定", "自訂選項", "自訂圖示",
       "預設的按鍵綁定已停用", "預設值", "所有環的預設值", "刪除目前的設定檔", "刪除環", "刪除功能", "惡魔", "已停用", "顯示跳躍功能", "顯示為環中環",
       "顯示為:", "不做任何事", "是否要重置 %s 的所有設定，恢復成預設值，還是只要重置 %s 類別中的設定?", "預設嵌入其他環裡面", "這個環中啟用的功能", "空的環", "放大選取的圖示", "裝備設定:", "範例: %s。", "額外傳送門",
@@ -53,8 +53,8 @@ V =
 K = V and {
       "%d |4minute:minutes; ago (%s)", "%s to cancel", "%s to search within current results", "(default)", "(enter an icon name or path here)", "Add Ring", "Add a new slice", "Advance rotation after use", "All %s characters", "All %s specializations",
       "All Settings", "All characters", "Allow as quick action", "Alt click to set conditional binding", "Animate transitions", "Animation", "Appearance", "Aspects", "Assign to all specializations", "At ring center",
-      "Based on slice action", "Behavior", "Binding conflict", "Binding:", "Camera analog stick", "Cancel", "Change action", "Changes will not be saved", "Choose a binding for this ring, or enable the %s option in OPie options.", "Close after quick action",
-      "Close ring", "Color:", "Combat", "Conditional Bindings", "Conditional Visibility", "Conflicts with: %s", "Controller directional input:", "Create Profile", "Create a New Profile", "Create a New Ring",
+      "Based on slice action", "Behavior", "Binding conflict", "Binding:", "Camera analog stick", "Cancel", "Change action", "Changes will not be saved", "Choose a binding for this ring, or enable the %s option in OPie options.", "Close ring",
+      "Close ring after quick action", "Color:", "Combat", "Conditional Bindings", "Conditional Visibility", "Conflicts with: %s", "Controller directional input:", "Create Profile", "Create a New Profile", "Create a New Ring",
       "Create a new profile", "Custom Rings", "Custom slice", "Customize OPie by modifying existing rings, or creating your own.", "Customize OPie key bindings below. Hover over a binding button for additional information and options.", "Customize OPie's appearance and behavior. Right clicking a checkbox restores it to its default state.", "Customize bindings", "Customize in-ring bindings", "Customize options", "Customized icon",
       "Default binding disabled", "Defaults", "Defaults for all rings", "Delete current profile", "Delete ring", "Delete slice", "Demons", "Disabled", "Display a jump slice", "Display as a nested ring",
       "Display as:", "Do nothing", "Do you want to reset all %s settings to their defaults, or only the settings in the %s category?", "Embed into other rings by default", "Embed slices in this ring", "Empty ring", "Enlarge selected slice", "Equip set:", "Example: %s.", "Extra Portals",

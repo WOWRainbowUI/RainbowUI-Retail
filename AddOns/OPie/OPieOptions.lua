@@ -395,7 +395,7 @@ local OPC_Options = {
 	{ "section", caption=L"Interaction" },
 		{"radio", "InteractionMode", {L"Quick", L"Relaxed", L"Mouse-less"}},
 		{"twof", tag="OnPrimaryPress", caption=L"On ring binding press:", menuOption="RingAtMouse"},
-		{"twof", tag="OnPrimaryRelease", caption=L"On ring binding release:", menuOption="QuickActionOnRelease", depOn="InteractionMode", depValue=2},
+		{"twof", tag="OnPrimaryRelease", caption=L"On ring binding release:", menuOption="QuickActionOnRelease", depOn="InteractionMode", depValueSet={nil, 2, 3}},
 		{"twof", tag="OnLeft", caption=L"On left click:", menuOption="NoClose", depOn="InteractionMode", depValue=2, otherwise=DISABLED_TEXT},
 		{"twof", tag="OnRight", caption=L"On right click:"},
 		{"twof", "QuickAction", caption=L"Quick action repeat trigger:", depOn="InteractionMode", depValueSet=REQ_POINTER, otherwise=DISABLED_TEXT},
@@ -796,24 +796,39 @@ do -- customized widgets
 	local function currentDomainHasQA()
 		return PC:GetOption("CenterAction", OR_CurrentOptionsDomain) or PC:GetOption("MotionAction", OR_CurrentOptionsDomain)
 	end
+	local function onPrimaryReleaseOption(_, pref)
+		local c = optionControl.OnPrimaryRelease
+		if pref == "close" or pref == "no-close" then
+			OPC_AlterOption(c, "CloseOnRelease", pref == "close")
+		elseif pref == "qa-close" or pref == "no-qa-close" then
+			OPC_AlterOption(c, "QuickActionOnRelease", pref == "qa-close")
+		end
+	end
 	function optionControl.OnPrimaryRelease:refresh()
+		local im = PC:GetOption("InteractionMode", OR_CurrentOptionsDomain)
 		self.text:SetText(not self.widget:IsEnabled() and self.otherwise
-		                  or PC:GetOption("QuickActionOnRelease", OR_CurrentOptionsDomain) and currentDomainHasQA() and L"Close after quick action"
+		                  or im == 3 and PC:GetOption("CloseOnRelease", OR_CurrentOptionsDomain) and L"Close ring"
+		                  or im == 2 and PC:GetOption("QuickActionOnRelease", OR_CurrentOptionsDomain) and currentDomainHasQA() and L"Close ring after quick action"
 		                  or L"Do nothing")
 	end
 	function optionControl.OnPrimaryRelease.menuInitializer()
-		local c = optionControl.OnPrimaryRelease
-		local info = {func=onMenuOptionSetClick, arg2=c.widget, minWidth=240, tooltipWhileDisabled=true, tooltipOnButton=true}
+		local info = {func=onPrimaryReleaseOption, minWidth=240, tooltipWhileDisabled=true, tooltipOnButton=true}
 		local qaOnRelease = PC:GetOption("QuickActionOnRelease", OR_CurrentOptionsDomain)
-		local hasQA = currentDomainHasQA()
-		info.text, info.arg1, info.checked = L"Close after quick action", true, hasQA and qaOnRelease
-		if not hasQA then
-			local opt = "|cffffffff" .. (L"Quick action repeat trigger:"):gsub("%s*:%s*$", "") .. "|r"
-			info.disabled, info.tooltipTitle, info.tooltipText = true, info.text, (L"Select a %s interaction to enable this option."):format(opt)
+		local closeOnRelease = PC:GetOption("CloseOnRelease", OR_CurrentOptionsDomain)
+		local im, hasQA = PC:GetOption("InteractionMode", OR_CurrentOptionsDomain), currentDomainHasQA()
+		if im == 3 then
+			info.text, info.arg1, info.checked = L"Close ring", "close", closeOnRelease
+			UIDropDownMenu_AddButton(info)
+		else
+			info.text, info.arg1, info.checked = L"Close ring after quick action", "qa-close", hasQA and qaOnRelease
+			if not hasQA then
+				local opt = "|cffffffff" .. (L"Quick action repeat trigger:"):gsub("%s*:%s*$", "") .. "|r"
+				info.disabled, info.tooltipTitle, info.tooltipText = true, info.text, (L"Select a %s interaction to enable this option."):format(opt)
+			end
+			UIDropDownMenu_AddButton(info)
+			info.disabled, info.tooltipTitle, info.tooltipText = nil
 		end
-		UIDropDownMenu_AddButton(info)
-		info.text, info.arg1, info.checked = L"Do nothing", false, not qaOnRelease
-		info.disabled, info.tooltipTitle, info.tooltipText = nil
+		info.text, info.arg1, info.checked = L"Do nothing", im == 3 and "no-close" or "no-qa-close", not (im == 3 and closeOnRelease or im ~= 3 and qaOnRelease)
 		UIDropDownMenu_AddButton(info)
 	end
 	function optionControl.QuickAction.menuInitializer()
@@ -862,21 +877,31 @@ do -- customized widgets
 		end
 		OPC_AlterOption(widgetControl[owner], "NoCloseOnSlice", pref == "UseNoClose")
 	end
+	local function onRunOnDownClick(_, pref, owner)
+		OPC_AlterOption(widgetControl[owner], "RunBindingsOnDown", pref == "OnDown")
+	end
 	function optionControl.SliceBinding.menuInitializer()
 		local c = optionControl.SliceBinding
 		local info = {func=onSliceBindingOptionClick, arg2=c.widget, minWidth=240}
 		local noClose = PC:GetOption("NoCloseOnSlice", OR_CurrentOptionsDomain)
+		local runOnDown = PC:GetOption("RunBindingsOnDown", OR_CurrentOptionsDomain)
 		if c.forced then
 			info.text, info.arg1, info.checked, info.isNotRadio = L"Leave open after use", "ToggleNoClose", noClose, true
 			UIDropDownMenu_AddButton(info)
-			return
+		else
+			local doBind = PC:GetOption("SliceBinding", OR_CurrentOptionsDomain)
+			info.text, info.arg1, info.checked = L"Use slice and close ring", "UseClose", doBind and not noClose
+			UIDropDownMenu_AddButton(info)
+			info.text, info.arg1, info.checked = L"Use slice", "UseNoClose", doBind and noClose
+			UIDropDownMenu_AddButton(info)
+			info.text, info.arg1, info.checked = L"Do nothing", "None", not doBind
+			UIDropDownMenu_AddButton(info)
 		end
-		local doBind = c.forced or PC:GetOption("SliceBinding", OR_CurrentOptionsDomain)
-		info.text, info.arg1, info.checked = L"Use slice and close ring", "UseClose", doBind and not noClose
+		UIDropDownMenu_AddSeparator()
+		info.func, info.isNotRadio = onRunOnDownClick, nil
+		info.text, info.arg1, info.checked = L"Trigger on binding press", "OnDown", runOnDown
 		UIDropDownMenu_AddButton(info)
-		info.text, info.arg1, info.checked = L"Use slice", "UseNoClose", doBind and noClose
-		UIDropDownMenu_AddButton(info)
-		info.text, info.arg1, info.checked = L"Do nothing", "None", not doBind
+		info.text, info.arg1, info.checked = L"Trigger on binding release", "OnUp", not runOnDown
 		UIDropDownMenu_AddButton(info)
 	end
 	function optionControl.SliceBinding:refresh()

@@ -1,4 +1,4 @@
-local MAJ, REV, _, T = 3, 61, ...
+local MAJ, REV, _, T = 3, 62, ...
 local EV, ORI, PC = T.Evie, OPie.UI, T.OPieCore
 local AB, RW, IM = T.ActionBook:compatible(2,37), T.ActionBook:compatible("Rewire", 1,10), T.ActionBook:compatible("Imp", 1, 0)
 assert(ORI and AB and RW and IM and EV and PC and 1, "Missing required libraries")
@@ -604,9 +604,11 @@ local function ringIterator(isDeleted, k)
 	if nk and RK_FluxRings[nk] then
 		return ringIterator(isDeleted, nk)
 	elseif nk then
-		v = isDeleted and queue[nk] or v
-		if isDeleted and not RK_IsRelevantRingDescription(v) then
-			return ringIterator(isDeleted, nk)
+		if isDeleted then
+			v = queue[nk]
+			if not RK_IsRelevantRingDescription(v) then
+				return ringIterator(isDeleted, nk)
+			end
 		end
 		return nk, v.name or nk, RK_CollectionIDs[nk] ~= nil, #v, v.internal, v.limit
 	end
