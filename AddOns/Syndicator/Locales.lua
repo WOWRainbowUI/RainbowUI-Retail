@@ -144,8 +144,32 @@ L["AUCTIONS_LOWER"] = "auctions"
 L["GUILD_LOWER"] = "guild"
 L["WARBAND_LOWER"] = "warband"
 
+L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
+L["ALL_TOOLTIP_TEXT"] = "All the entries apply"
+L["NOT_TOOLTIP_TEXT"] = "Not this entry"
+L["ANY_UPPER"] = "ANY"
+L["ALL_UPPER"] = "ALL"
+L["NOT_UPPER"] = "NOT"
+L["INSERT"] = "Insert"
+L["WRAP_WITH"] = "Wrap with"
+L["UNWRAP"] = "Unwrap"
+L["SWAP"] = "Swap"
+L["COPY"] = "Copy"
+L["CUT"] = "Cut"
+L["PASTE"] = "Paste"
+L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
+L["CUSTOM_SEARCH"] = "Custom search"
+
 local L = Locales.frFR
 L["ALL_CHARACTERS_COLON"] = "Tous les personnages :"
+--[[Translation missing --]]
+L["ALL_TOOLTIP_TEXT"] = "All the entries apply"
+--[[Translation missing --]]
+L["ALL_UPPER"] = "ALL"
+--[[Translation missing --]]
+L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
+--[[Translation missing --]]
+L["ANY_UPPER"] = "ANY"
 L["AUCTIONS_LOWER"] = "enchères "
 L["AUCTIONS_X"] = "Enchères : %s"
 L["BAGS_LOWER"] = "sacs"
@@ -154,6 +178,12 @@ L["BANK_LOWER"] = "banque"
 L["BANK_X"] = "Banque : %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Impossible d’effectuer une recherche par lien d’objet"
 L["CHARACTERS"] = "Personnages"
+--[[Translation missing --]]
+L["COPY"] = "Copy"
+--[[Translation missing --]]
+L["CUSTOM_SEARCH"] = "Custom search"
+--[[Translation missing --]]
+L["CUT"] = "Cut"
 L["DELETE_CHARACTER"] = "Supprimer le personnage"
 L["DELETE_GUILD"] = "Supprimer la guilde"
 L["EQUIPPED_LOWER"] = "équipé "
@@ -178,6 +208,8 @@ L["GUILDS"] = "Guildes"
 L["HIDE_IN_GOLD_SUMMARY"] = "Cacher dans le résumé d'or"
 L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Cacher dans les infobulles de l'inventaire"
 L["HOLD_SHIFT_TO_DISPLAY"] = "Maintenir MAJ pour afficher"
+--[[Translation missing --]]
+L["INSERT"] = "Insert"
 L["INVENTORY"] = "Inventaire"
 L["KEYWORD_ACCOUNT_BOUND"] = "lié au compte"
 L["KEYWORD_AXE"] = "hache"
@@ -244,7 +276,15 @@ L["KEYWORD_USE"] = "utiliser"
 L["KEYWORD_WUE"] = "wue"
 L["MAIL_LOWER"] = "courrier"
 L["MAIL_X"] = "Courrier : %s"
+--[[Translation missing --]]
+L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
 L["NO_RESULTS_FOUND"] = "Aucun résultat trouvé"
+--[[Translation missing --]]
+L["NOT_TOOLTIP_TEXT"] = "Not this entry"
+--[[Translation missing --]]
+L["NOT_UPPER"] = "NOT"
+--[[Translation missing --]]
+L["PASTE"] = "Paste"
 L["SAME_CONNECTED_REALMS"] = "même serveur"
 L["SAME_FACTION"] = "même faction"
 L["SEARCHED_EVERYWHERE_COLON"] = "Recherche Globale:"
@@ -256,19 +296,33 @@ L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Afficher dans les infobulles de l'inventaire"
 L["SHOW_INVENTORY"] = "Afficher l'inventaire"
 L["SHOW_RACE_ICONS"] = "Afficher les icônes de race"
 L["SORT_BY_NAME"] = "Trier par nom"
+--[[Translation missing --]]
+L["SWAP"] = "Swap"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "Options des infobulles"
 L["TOTAL_X"] = "Total: %s"
+--[[Translation missing --]]
+L["UNWRAP"] = "Unwrap"
 L["VERSION_COLON_X"] = "Version: %s"
 L["VOID_LOWER"] = "vide"
 L["VOID_X"] = "Vide: %s"
 L["WARBAND"] = "Bataillon"
 L["WARBAND_LOWER"] = "bataillon"
+--[[Translation missing --]]
+L["WRAP_WITH"] = "Wrap with"
 L["X_CHARACTERS_SHOWN"] = "%s Personnages affichés"
 
 
 local L = Locales.deDE
 L["ALL_CHARACTERS_COLON"] = "Alle Charaktere:"
+--[[Translation missing --]]
+L["ALL_TOOLTIP_TEXT"] = "All the entries apply"
+--[[Translation missing --]]
+L["ALL_UPPER"] = "ALL"
+--[[Translation missing --]]
+L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
+--[[Translation missing --]]
+L["ANY_UPPER"] = "ANY"
 L["AUCTIONS_LOWER"] = "auktionen"
 L["AUCTIONS_X"] = "Auktionen: %s"
 L["BAGS_LOWER"] = "taschen"
@@ -277,6 +331,12 @@ L["BANK_LOWER"] = "bank"
 L["BANK_X"] = "Bank: %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Suche nach Gegenstands-Link nicht möglich"
 L["CHARACTERS"] = "Charaktere"
+--[[Translation missing --]]
+L["COPY"] = "Copy"
+--[[Translation missing --]]
+L["CUSTOM_SEARCH"] = "Custom search"
+--[[Translation missing --]]
+L["CUT"] = "Cut"
 L["DELETE_CHARACTER"] = "Charakter löschen"
 L["DELETE_GUILD"] = "Gilde löschen"
 L["EQUIPPED_LOWER"] = "ausgerüstet"
@@ -303,6 +363,8 @@ L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
 --[[Translation missing --]]
 L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 L["HOLD_SHIFT_TO_DISPLAY"] = "Gedrückte Umschalttaste = zeigt Tooltip"
+--[[Translation missing --]]
+L["INSERT"] = "Insert"
 L["INVENTORY"] = "Inventar"
 L["KEYWORD_ACCOUNT_BOUND"] = "accountgebunden"
 L["KEYWORD_AXE"] = "axt"
@@ -374,7 +436,15 @@ L["KEYWORD_USE"] = "benutzen"
 L["KEYWORD_WUE"] = "wue"
 L["MAIL_LOWER"] = "post"
 L["MAIL_X"] = "Post: %s"
+--[[Translation missing --]]
+L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
 L["NO_RESULTS_FOUND"] = "Keine Ergebnisse gefunden"
+--[[Translation missing --]]
+L["NOT_TOOLTIP_TEXT"] = "Not this entry"
+--[[Translation missing --]]
+L["NOT_UPPER"] = "NOT"
+--[[Translation missing --]]
+L["PASTE"] = "Paste"
 L["SAME_CONNECTED_REALMS"] = "Gleiche verbundene Server"
 L["SAME_FACTION"] = "Gleiche Fraktion"
 L["SEARCHED_EVERYWHERE_COLON"] = "Überall gesucht:"
@@ -388,19 +458,33 @@ L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
 L["SHOW_INVENTORY"] = "Inventar anzeigen"
 L["SHOW_RACE_ICONS"] = "Rassensymbole anzeigen"
 L["SORT_BY_NAME"] = "Nach Namen sortieren"
+--[[Translation missing --]]
+L["SWAP"] = "Swap"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "Tooltip-Einstellungen"
 L["TOTAL_X"] = "Insgesamt: %s"
+--[[Translation missing --]]
+L["UNWRAP"] = "Unwrap"
 L["VERSION_COLON_X"] = "Version: %s"
 L["VOID_LOWER"] = "ungültig"
 L["VOID_X"] = "Ungültig: %s"
 L["WARBAND"] = "Kriegsmeute"
 L["WARBAND_LOWER"] = "kriegsmeute"
+--[[Translation missing --]]
+L["WRAP_WITH"] = "Wrap with"
 L["X_CHARACTERS_SHOWN"] = "%s Angezeigte Charaktere"
 
 
 local L = Locales.ruRU
 L["ALL_CHARACTERS_COLON"] = "На всех персонажах:"
+--[[Translation missing --]]
+L["ALL_TOOLTIP_TEXT"] = "All the entries apply"
+--[[Translation missing --]]
+L["ALL_UPPER"] = "ALL"
+--[[Translation missing --]]
+L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
+--[[Translation missing --]]
+L["ANY_UPPER"] = "ANY"
 L["AUCTIONS_LOWER"] = "Аукционы -"
 L["AUCTIONS_X"] = "Аукционы: %s"
 L["BAGS_LOWER"] = "Сумки -"
@@ -409,6 +493,12 @@ L["BANK_LOWER"] = "Банк -"
 L["BANK_X"] = "Банк: %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Невозможно выполнить поиск по ссылке на предмет"
 L["CHARACTERS"] = "Персонажи"
+--[[Translation missing --]]
+L["COPY"] = "Copy"
+--[[Translation missing --]]
+L["CUSTOM_SEARCH"] = "Custom search"
+--[[Translation missing --]]
+L["CUT"] = "Cut"
 L["DELETE_CHARACTER"] = "Удалить персонажа"
 L["DELETE_GUILD"] = "Удалить гильдию"
 L["EQUIPPED_LOWER"] = "Экипировано -"
@@ -433,6 +523,8 @@ L["GUILDS"] = "Гильдии"
 L["HIDE_IN_GOLD_SUMMARY"] = "Скрыть в сводке золота"
 L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Скрыть в подсказках инвентаря"
 L["HOLD_SHIFT_TO_DISPLAY"] = "Только при зажатом Shift"
+--[[Translation missing --]]
+L["INSERT"] = "Insert"
 L["INVENTORY"] = "Инвентарь"
 L["KEYWORD_ACCOUNT_BOUND"] = "привязано"
 L["KEYWORD_AXE"] = "топор"
@@ -499,7 +591,15 @@ L["KEYWORD_USE"] = "использование"
 L["KEYWORD_WUE"] = "отряд"
 L["MAIL_LOWER"] = "Почта -"
 L["MAIL_X"] = "Почта: %s"
+--[[Translation missing --]]
+L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
 L["NO_RESULTS_FOUND"] = "Результаты не найдены"
+--[[Translation missing --]]
+L["NOT_TOOLTIP_TEXT"] = "Not this entry"
+--[[Translation missing --]]
+L["NOT_UPPER"] = "NOT"
+--[[Translation missing --]]
+L["PASTE"] = "Paste"
 L["SAME_CONNECTED_REALMS"] = "Только тот же игровой мир"
 L["SAME_FACTION"] = "Только та же фракция"
 L["SEARCHED_EVERYWHERE_COLON"] = "Результаты глобального поиска:"
@@ -511,19 +611,33 @@ L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Показать в подсказках ин
 L["SHOW_INVENTORY"] = "Отображать инвентарь"
 L["SHOW_RACE_ICONS"] = "Отображать иконку расы персонажа"
 L["SORT_BY_NAME"] = "Сортировать персонажей по имени"
+--[[Translation missing --]]
+L["SWAP"] = "Swap"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "Настройка отображения в подсказках"
 L["TOTAL_X"] = "Всего: %s"
+--[[Translation missing --]]
+L["UNWRAP"] = "Unwrap"
 L["VERSION_COLON_X"] = "Версия: %s"
 L["VOID_LOWER"] = "Хранилище Бездны -"
 L["VOID_X"] = "Хранилище Бездны: %s"
 L["WARBAND"] = "Отряд"
 L["WARBAND_LOWER"] = "Отряд -"
+--[[Translation missing --]]
+L["WRAP_WITH"] = "Wrap with"
 L["X_CHARACTERS_SHOWN"] = "Отображать персонажей - %s"
 
 
 local L = Locales.ptBR
 L["ALL_CHARACTERS_COLON"] = "Todos os personagens:"
+--[[Translation missing --]]
+L["ALL_TOOLTIP_TEXT"] = "All the entries apply"
+--[[Translation missing --]]
+L["ALL_UPPER"] = "ALL"
+--[[Translation missing --]]
+L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
+--[[Translation missing --]]
+L["ANY_UPPER"] = "ANY"
 L["AUCTIONS_LOWER"] = "leilões"
 L["AUCTIONS_X"] = "Leilões: %s"
 L["BAGS_LOWER"] = "bolsas"
@@ -532,6 +646,12 @@ L["BANK_LOWER"] = "banco"
 L["BANK_X"] = "Banco: %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Não é possível procurar por link de item"
 L["CHARACTERS"] = "Personagens"
+--[[Translation missing --]]
+L["COPY"] = "Copy"
+--[[Translation missing --]]
+L["CUSTOM_SEARCH"] = "Custom search"
+--[[Translation missing --]]
+L["CUT"] = "Cut"
 L["DELETE_CHARACTER"] = "Excluir personagem"
 L["DELETE_GUILD"] = "Excluir guilda"
 L["EQUIPPED_LOWER"] = "equipado"
@@ -556,6 +676,8 @@ L["GUILDS"] = "Guildas"
 L["HIDE_IN_GOLD_SUMMARY"] = "Ocultar no resumo de ouro"
 L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Ocultar nas dicas de ferramenta do inventário"
 L["HOLD_SHIFT_TO_DISPLAY"] = "Manter pressionado shift para exibir"
+--[[Translation missing --]]
+L["INSERT"] = "Insert"
 L["INVENTORY"] = "Inventário"
 L["KEYWORD_ACCOUNT_BOUND"] = "vinculado à conta"
 L["KEYWORD_AXE"] = "machado"
@@ -622,7 +744,15 @@ L["KEYWORD_USE"] = "use"
 L["KEYWORD_WUE"] = "wue"
 L["MAIL_LOWER"] = "correio"
 L["MAIL_X"] = "Correio: %s"
+--[[Translation missing --]]
+L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
 L["NO_RESULTS_FOUND"] = "Nenhum resultado encontrado"
+--[[Translation missing --]]
+L["NOT_TOOLTIP_TEXT"] = "Not this entry"
+--[[Translation missing --]]
+L["NOT_UPPER"] = "NOT"
+--[[Translation missing --]]
+L["PASTE"] = "Paste"
 L["SAME_CONNECTED_REALMS"] = "Mesmos reinos conectados"
 L["SAME_FACTION"] = "Mesma facção"
 L["SEARCHED_EVERYWHERE_COLON"] = "Procurar em todo lugar:"
@@ -634,19 +764,33 @@ L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Exibir nas dicas de ferramenta do inventário
 L["SHOW_INVENTORY"] = "Exibir inventário"
 L["SHOW_RACE_ICONS"] = "Exibir ícones de raça"
 L["SORT_BY_NAME"] = "Ordenar por nome"
+--[[Translation missing --]]
+L["SWAP"] = "Swap"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "Configurações das dicas de ferramenta"
 L["TOTAL_X"] = "Total: %s"
+--[[Translation missing --]]
+L["UNWRAP"] = "Unwrap"
 L["VERSION_COLON_X"] = "Versão: %s"
 L["VOID_LOWER"] = "etéreo"
 L["VOID_X"] = "Etéreo: %s"
 L["WARBAND"] = "Bando de Guerra"
 L["WARBAND_LOWER"] = "bando de guerra"
+--[[Translation missing --]]
+L["WRAP_WITH"] = "Wrap with"
 L["X_CHARACTERS_SHOWN"] = "%s personagens exibidos"
 
 
 local L = Locales.esES
 L["ALL_CHARACTERS_COLON"] = "Todos los personajes:"
+--[[Translation missing --]]
+L["ALL_TOOLTIP_TEXT"] = "All the entries apply"
+--[[Translation missing --]]
+L["ALL_UPPER"] = "ALL"
+--[[Translation missing --]]
+L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
+--[[Translation missing --]]
+L["ANY_UPPER"] = "ANY"
 L["AUCTIONS_LOWER"] = "subastas"
 L["AUCTIONS_X"] = "Subastas: %s"
 L["BAGS_LOWER"] = "bolsas"
@@ -655,6 +799,12 @@ L["BANK_LOWER"] = "banco"
 L["BANK_X"] = "Banco: %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Imposible buscar por enlace de objeto"
 L["CHARACTERS"] = "Personajes"
+--[[Translation missing --]]
+L["COPY"] = "Copy"
+--[[Translation missing --]]
+L["CUSTOM_SEARCH"] = "Custom search"
+--[[Translation missing --]]
+L["CUT"] = "Cut"
 L["DELETE_CHARACTER"] = "Borrar personaje"
 L["DELETE_GUILD"] = "Borrar hermandad"
 L["EQUIPPED_LOWER"] = "equipado"
@@ -679,6 +829,8 @@ L["GUILDS"] = "Hermandades"
 L["HIDE_IN_GOLD_SUMMARY"] = "Ocultar en el resumen de oro"
 L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Ocultar en los tooltips del inventario"
 L["HOLD_SHIFT_TO_DISPLAY"] = "Mantener presionada mayús para mostrar"
+--[[Translation missing --]]
+L["INSERT"] = "Insert"
 L["INVENTORY"] = "Inventario"
 L["KEYWORD_ACCOUNT_BOUND"] = "ligada a la cuenta"
 L["KEYWORD_AXE"] = "hacha"
@@ -745,7 +897,15 @@ L["KEYWORD_USE"] = "uso"
 L["KEYWORD_WUE"] = "wue"
 L["MAIL_LOWER"] = "correo"
 L["MAIL_X"] = "Correo: %s"
+--[[Translation missing --]]
+L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
 L["NO_RESULTS_FOUND"] = "No se encontraron resultados"
+--[[Translation missing --]]
+L["NOT_TOOLTIP_TEXT"] = "Not this entry"
+--[[Translation missing --]]
+L["NOT_UPPER"] = "NOT"
+--[[Translation missing --]]
+L["PASTE"] = "Paste"
 L["SAME_CONNECTED_REALMS"] = "Los mismos reinos conectados"
 L["SAME_FACTION"] = "Misma facción"
 L["SEARCHED_EVERYWHERE_COLON"] = "Buscado en todas partes:"
@@ -757,19 +917,33 @@ L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Mostrar en los tooltips del inventario"
 L["SHOW_INVENTORY"] = "Mostrar inventario"
 L["SHOW_RACE_ICONS"] = "Mostrar iconos de raza"
 L["SORT_BY_NAME"] = "Ordenar por nombre"
+--[[Translation missing --]]
+L["SWAP"] = "Swap"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "Configuración de tooltips"
 L["TOTAL_X"] = "Total: %s"
+--[[Translation missing --]]
+L["UNWRAP"] = "Unwrap"
 L["VERSION_COLON_X"] = "Versión: %s"
 L["VOID_LOWER"] = "vacío"
 L["VOID_X"] = "Vacío: %s"
 L["WARBAND"] = "Banda guerrera"
 L["WARBAND_LOWER"] = "banda guerrera"
+--[[Translation missing --]]
+L["WRAP_WITH"] = "Wrap with"
 L["X_CHARACTERS_SHOWN"] = "%s personajes mostrados"
 
 
 local L = Locales.esMX
 L["ALL_CHARACTERS_COLON"] = "Todos los personajes:"
+--[[Translation missing --]]
+L["ALL_TOOLTIP_TEXT"] = "All the entries apply"
+--[[Translation missing --]]
+L["ALL_UPPER"] = "ALL"
+--[[Translation missing --]]
+L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
+--[[Translation missing --]]
+L["ANY_UPPER"] = "ANY"
 L["AUCTIONS_LOWER"] = "subastas"
 L["AUCTIONS_X"] = "Subastas: %s"
 L["BAGS_LOWER"] = "bolsas"
@@ -778,6 +952,12 @@ L["BANK_LOWER"] = "banco"
 L["BANK_X"] = "Banco: %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Imposible buscar por enlace de objeto"
 L["CHARACTERS"] = "Personajes"
+--[[Translation missing --]]
+L["COPY"] = "Copy"
+--[[Translation missing --]]
+L["CUSTOM_SEARCH"] = "Custom search"
+--[[Translation missing --]]
+L["CUT"] = "Cut"
 L["DELETE_CHARACTER"] = "Borrar personaje"
 L["DELETE_GUILD"] = "Borrar hermandad"
 L["EQUIPPED_LOWER"] = "equipado"
@@ -802,6 +982,8 @@ L["GUILDS"] = "Hermandades"
 L["HIDE_IN_GOLD_SUMMARY"] = "Ocultar en el resumen de oro"
 L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Ocultar en los tooltips del inventario"
 L["HOLD_SHIFT_TO_DISPLAY"] = "Mantener presionada mayús para mostrar"
+--[[Translation missing --]]
+L["INSERT"] = "Insert"
 L["INVENTORY"] = "Inventario"
 L["KEYWORD_ACCOUNT_BOUND"] = "ligada a la cuenta"
 L["KEYWORD_AXE"] = "hacha"
@@ -868,7 +1050,15 @@ L["KEYWORD_USE"] = "uso"
 L["KEYWORD_WUE"] = "wue"
 L["MAIL_LOWER"] = "correo"
 L["MAIL_X"] = "Correo: %s"
+--[[Translation missing --]]
+L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
 L["NO_RESULTS_FOUND"] = "No se encontraron resultados"
+--[[Translation missing --]]
+L["NOT_TOOLTIP_TEXT"] = "Not this entry"
+--[[Translation missing --]]
+L["NOT_UPPER"] = "NOT"
+--[[Translation missing --]]
+L["PASTE"] = "Paste"
 L["SAME_CONNECTED_REALMS"] = "Los mismos reinos conectados"
 L["SAME_FACTION"] = "Misma facción"
 L["SEARCHED_EVERYWHERE_COLON"] = "Buscado en todas partes:"
@@ -880,19 +1070,33 @@ L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Mostrar en los tooltips del inventario"
 L["SHOW_INVENTORY"] = "Mostrar inventario"
 L["SHOW_RACE_ICONS"] = "Mostrar iconos de raza"
 L["SORT_BY_NAME"] = "Ordenar por nombre"
+--[[Translation missing --]]
+L["SWAP"] = "Swap"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "Configuración de tooltips"
 L["TOTAL_X"] = "Total: %s"
+--[[Translation missing --]]
+L["UNWRAP"] = "Unwrap"
 L["VERSION_COLON_X"] = "Versión: %s"
 L["VOID_LOWER"] = "vacío"
 L["VOID_X"] = "Vacío: %s"
 L["WARBAND"] = "Tropa"
 L["WARBAND_LOWER"] = "tropa"
+--[[Translation missing --]]
+L["WRAP_WITH"] = "Wrap with"
 L["X_CHARACTERS_SHOWN"] = "%s personajes mostrados"
 
 
 local L = Locales.zhTW
 L["ALL_CHARACTERS_COLON"] = "全部角色："
+--[[Translation missing --]]
+L["ALL_TOOLTIP_TEXT"] = "All the entries apply"
+--[[Translation missing --]]
+L["ALL_UPPER"] = "ALL"
+--[[Translation missing --]]
+L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
+--[[Translation missing --]]
+L["ANY_UPPER"] = "ANY"
 L["AUCTIONS_LOWER"] = "拍賣"
 L["AUCTIONS_X"] = "拍賣：%s"
 L["BAGS_LOWER"] = "背包"
@@ -901,6 +1105,12 @@ L["BANK_LOWER"] = "銀行"
 L["BANK_X"] = "銀行：%s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "無法透過物品連結搜尋"
 L["CHARACTERS"] = "角色"
+--[[Translation missing --]]
+L["COPY"] = "Copy"
+--[[Translation missing --]]
+L["CUSTOM_SEARCH"] = "Custom search"
+--[[Translation missing --]]
+L["CUT"] = "Cut"
 L["DELETE_CHARACTER"] = "刪除角色"
 L["DELETE_GUILD"] = "刪除公會"
 L["EQUIPPED_LOWER"] = "裝備"
@@ -925,6 +1135,8 @@ L["GUILDS"] = "公會"
 L["HIDE_IN_GOLD_SUMMARY"] = "在金幣總計隱藏"
 L["HIDE_IN_INVENTORY_TOOLTIPS"] = "在背包提示隱藏"
 L["HOLD_SHIFT_TO_DISPLAY"] = "按下Shift來顯示"
+--[[Translation missing --]]
+L["INSERT"] = "Insert"
 L["INVENTORY"] = "庫存"
 L["KEYWORD_ACCOUNT_BOUND"] = "帳號綁定"
 L["KEYWORD_AXE"] = "斧"
@@ -991,7 +1203,15 @@ L["KEYWORD_USE"] = "使用"
 L["KEYWORD_WUE"] = "裝前戰綁"
 L["MAIL_LOWER"] = "郵件"
 L["MAIL_X"] = "信箱：%s"
+--[[Translation missing --]]
+L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
 L["NO_RESULTS_FOUND"] = "沒找到結果"
+--[[Translation missing --]]
+L["NOT_TOOLTIP_TEXT"] = "Not this entry"
+--[[Translation missing --]]
+L["NOT_UPPER"] = "NOT"
+--[[Translation missing --]]
+L["PASTE"] = "Paste"
 L["SAME_CONNECTED_REALMS"] = "相同連結伺服器"
 L["SAME_FACTION"] = "相同陣營"
 L["SEARCHED_EVERYWHERE_COLON"] = "廣泛搜尋："
@@ -1003,19 +1223,29 @@ L["SHOW_IN_INVENTORY_TOOLTIPS"] = "在背包提示顯示"
 L["SHOW_INVENTORY"] = "顯示庫存"
 L["SHOW_RACE_ICONS"] = "顯示種族圖示"
 L["SORT_BY_NAME"] = "根據名字排序"
+--[[Translation missing --]]
+L["SWAP"] = "Swap"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "工具提示設定"
 L["TOTAL_X"] = "總計：%s"
+--[[Translation missing --]]
+L["UNWRAP"] = "Unwrap"
 L["VERSION_COLON_X"] = "版本：%s"
 L["VOID_LOWER"] = "虛空倉庫"
 L["VOID_X"] = "虛空倉庫: %s"
 L["WARBAND"] = "戰隊"
 L["WARBAND_LOWER"] = "戰隊"
+--[[Translation missing --]]
+L["WRAP_WITH"] = "Wrap with"
 L["X_CHARACTERS_SHOWN"] = "%s 角色顯示"
 
 
 local L = Locales.zhCN
 L["ALL_CHARACTERS_COLON"] = "全部角色："
+L["ALL_TOOLTIP_TEXT"] = "全部条目均适用"
+L["ALL_UPPER"] = "全部"
+L["ANY_TOOLTIP_TEXT"] = "任何条目均有效"
+L["ANY_UPPER"] = "任意"
 L["AUCTIONS_LOWER"] = "拍卖"
 L["AUCTIONS_X"] = "拍卖： %s"
 L["BAGS_LOWER"] = "背包"
@@ -1024,6 +1254,9 @@ L["BANK_LOWER"] = "银行"
 L["BANK_X"] = "银行：%s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "无法通过物品链接搜索"
 L["CHARACTERS"] = "角色"
+L["COPY"] = "复制"
+L["CUSTOM_SEARCH"] = "自定义搜索"
+L["CUT"] = "剪切"
 L["DELETE_CHARACTER"] = "删除角色"
 L["DELETE_GUILD"] = "删除公会"
 L["EQUIPPED_LOWER"] = "装备"
@@ -1048,6 +1281,7 @@ L["GUILDS"] = "公会"
 L["HIDE_IN_GOLD_SUMMARY"] = "隐藏金币摘要"
 L["HIDE_IN_INVENTORY_TOOLTIPS"] = "隐藏物品栏鼠标提示"
 L["HOLD_SHIFT_TO_DISPLAY"] = "按住Shift键显示"
+L["INSERT"] = "Insert"
 L["INVENTORY"] = "库存"
 L["KEYWORD_ACCOUNT_BOUND"] = "帐号绑定"
 L["KEYWORD_AXE"] = "斧"
@@ -1114,7 +1348,11 @@ L["KEYWORD_USE"] = "使用（use）"
 L["KEYWORD_WUE"] = "装前战绑"
 L["MAIL_LOWER"] = "信箱"
 L["MAIL_X"] = "信箱：%s"
+L["NO_MATCHING_KEYWORDS"] = "没有匹配的关键词"
 L["NO_RESULTS_FOUND"] = "未找到结果"
+L["NOT_TOOLTIP_TEXT"] = "不是这条目"
+L["NOT_UPPER"] = "不"
+L["PASTE"] = "粘贴"
 L["SAME_CONNECTED_REALMS"] = "互连的其他服务器"
 L["SAME_FACTION"] = "同阵营"
 L["SEARCHED_EVERYWHERE_COLON"] = "扩大搜索："
@@ -1126,19 +1364,30 @@ L["SHOW_IN_INVENTORY_TOOLTIPS"] = "显示物品栏鼠标提示"
 L["SHOW_INVENTORY"] = "显示物品栏"
 L["SHOW_RACE_ICONS"] = "显示种族图标"
 L["SORT_BY_NAME"] = "按名称排序"
+L["SWAP"] = "替换"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "鼠标提示设置"
 L["TOTAL_X"] = "总计：%s"
+L["UNWRAP"] = "解包"
 L["VERSION_COLON_X"] = "版本：%s"
 L["VOID_LOWER"] = "虚空仓库"
 L["VOID_X"] = "虚空仓库：%s"
 L["WARBAND"] = "战团"
 L["WARBAND_LOWER"] = "战团"
+L["WRAP_WITH"] = "封包"
 L["X_CHARACTERS_SHOWN"] = "显示角色 ：%s （注：仅限鼠标提示显示）"
 
 
 local L = Locales.koKR
 L["ALL_CHARACTERS_COLON"] = "모든 캐릭터:"
+--[[Translation missing --]]
+L["ALL_TOOLTIP_TEXT"] = "All the entries apply"
+--[[Translation missing --]]
+L["ALL_UPPER"] = "ALL"
+--[[Translation missing --]]
+L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
+--[[Translation missing --]]
+L["ANY_UPPER"] = "ANY"
 --[[Translation missing --]]
 L["AUCTIONS_LOWER"] = "auctions"
 --[[Translation missing --]]
@@ -1153,6 +1402,12 @@ L["BANK_X"] = "은행: %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
 L["CHARACTERS"] = "Characters"
+--[[Translation missing --]]
+L["COPY"] = "Copy"
+--[[Translation missing --]]
+L["CUSTOM_SEARCH"] = "Custom search"
+--[[Translation missing --]]
+L["CUT"] = "Cut"
 --[[Translation missing --]]
 L["DELETE_CHARACTER"] = "Delete Character"
 --[[Translation missing --]]
@@ -1199,6 +1454,8 @@ L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
 L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 --[[Translation missing --]]
 L["HOLD_SHIFT_TO_DISPLAY"] = "Hold shift to display"
+--[[Translation missing --]]
+L["INSERT"] = "Insert"
 L["INVENTORY"] = "가방"
 --[[Translation missing --]]
 L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
@@ -1306,7 +1563,15 @@ L["KEYWORD_WUE"] = "wue"
 L["MAIL_LOWER"] = "mail"
 L["MAIL_X"] = "우편함: %s"
 --[[Translation missing --]]
+L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
+--[[Translation missing --]]
 L["NO_RESULTS_FOUND"] = "No results found"
+--[[Translation missing --]]
+L["NOT_TOOLTIP_TEXT"] = "Not this entry"
+--[[Translation missing --]]
+L["NOT_UPPER"] = "NOT"
+--[[Translation missing --]]
+L["PASTE"] = "Paste"
 --[[Translation missing --]]
 L["SAME_CONNECTED_REALMS"] = "Same connected realms"
 --[[Translation missing --]]
@@ -1330,10 +1595,14 @@ L["SHOW_RACE_ICONS"] = "Show race icons"
 --[[Translation missing --]]
 L["SORT_BY_NAME"] = "Sort by name"
 --[[Translation missing --]]
+L["SWAP"] = "Swap"
+--[[Translation missing --]]
 L["SYNDICATOR"] = "Syndicator"
 --[[Translation missing --]]
 L["TOOLTIP_SETTINGS"] = "Tooltip Settings"
 L["TOTAL_X"] = "합계: %s"
+--[[Translation missing --]]
+L["UNWRAP"] = "Unwrap"
 --[[Translation missing --]]
 L["VERSION_COLON_X"] = "Version: %s"
 --[[Translation missing --]]
@@ -1343,12 +1612,22 @@ L["VOID_X"] = "공허 보관소: %s"
 L["WARBAND"] = "Warband"
 --[[Translation missing --]]
 L["WARBAND_LOWER"] = "warband"
+--[[Translation missing --]]
+L["WRAP_WITH"] = "Wrap with"
 L["X_CHARACTERS_SHOWN"] = "%s 의 캐릭터 표시"
 
 
 local L = Locales.itIT
 --[[Translation missing --]]
 L["ALL_CHARACTERS_COLON"] = "All Characters:"
+--[[Translation missing --]]
+L["ALL_TOOLTIP_TEXT"] = "All the entries apply"
+--[[Translation missing --]]
+L["ALL_UPPER"] = "ALL"
+--[[Translation missing --]]
+L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
+--[[Translation missing --]]
+L["ANY_UPPER"] = "ANY"
 --[[Translation missing --]]
 L["AUCTIONS_LOWER"] = "auctions"
 --[[Translation missing --]]
@@ -1365,6 +1644,12 @@ L["BANK_X"] = "Bank: %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
 L["CHARACTERS"] = "Characters"
+--[[Translation missing --]]
+L["COPY"] = "Copy"
+--[[Translation missing --]]
+L["CUSTOM_SEARCH"] = "Custom search"
+--[[Translation missing --]]
+L["CUT"] = "Cut"
 --[[Translation missing --]]
 L["DELETE_CHARACTER"] = "Delete Character"
 --[[Translation missing --]]
@@ -1413,6 +1698,8 @@ L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
 L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
 --[[Translation missing --]]
 L["HOLD_SHIFT_TO_DISPLAY"] = "Hold shift to display"
+--[[Translation missing --]]
+L["INSERT"] = "Insert"
 --[[Translation missing --]]
 L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
@@ -1546,7 +1833,15 @@ L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
+L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
+--[[Translation missing --]]
 L["NO_RESULTS_FOUND"] = "No results found"
+--[[Translation missing --]]
+L["NOT_TOOLTIP_TEXT"] = "Not this entry"
+--[[Translation missing --]]
+L["NOT_UPPER"] = "NOT"
+--[[Translation missing --]]
+L["PASTE"] = "Paste"
 --[[Translation missing --]]
 L["SAME_CONNECTED_REALMS"] = "Same connected realms"
 --[[Translation missing --]]
@@ -1570,11 +1865,15 @@ L["SHOW_RACE_ICONS"] = "Show race icons"
 --[[Translation missing --]]
 L["SORT_BY_NAME"] = "Sort by name"
 --[[Translation missing --]]
+L["SWAP"] = "Swap"
+--[[Translation missing --]]
 L["SYNDICATOR"] = "Syndicator"
 --[[Translation missing --]]
 L["TOOLTIP_SETTINGS"] = "Tooltip Settings"
 --[[Translation missing --]]
 L["TOTAL_X"] = "Total: %s"
+--[[Translation missing --]]
+L["UNWRAP"] = "Unwrap"
 --[[Translation missing --]]
 L["VERSION_COLON_X"] = "Version: %s"
 --[[Translation missing --]]
@@ -1585,6 +1884,8 @@ L["VOID_X"] = "Void: %s"
 L["WARBAND"] = "Warband"
 --[[Translation missing --]]
 L["WARBAND_LOWER"] = "warband"
+--[[Translation missing --]]
+L["WRAP_WITH"] = "Wrap with"
 --[[Translation missing --]]
 L["X_CHARACTERS_SHOWN"] = "%s Characters Shown"
 
