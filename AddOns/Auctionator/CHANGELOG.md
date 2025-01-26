@@ -1,6 +1,6 @@
 # Auctionator
 
-## [257](https://github.com/Auctionator/Auctionator/tree/257) (2025-01-20)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/256...257) 
+## [258](https://github.com/Auctionator/Auctionator/tree/258) (2025-01-24)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/257...258) 
 
-- Classic: Fix disenchant odds to use greater magic on weapons ilvl 21-30  
+- Shopping: Move search term tooltip to avoid overlapping search results  
