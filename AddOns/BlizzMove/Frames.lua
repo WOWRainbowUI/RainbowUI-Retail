@@ -259,6 +259,34 @@ BlizzMoveAPI:RegisterFrames(
     {
         MinVersion = 0,
     },
+    ["GroupLootContainer"] =
+    {
+        MinVersion = 0,
+        DefaultDisabled = true,
+        SubFrames =
+        {
+            ["GroupLootFrame1"] =
+            {
+                MinVersion = 0,
+                ManuallyScaleWithParent = true,
+            },
+            ["GroupLootFrame2"] =
+            {
+                MinVersion = 0,
+                ManuallyScaleWithParent = true,
+            },
+            ["GroupLootFrame3"] =
+            {
+                MinVersion = 0,
+                ManuallyScaleWithParent = true,
+            },
+            ["GroupLootFrame4"] =
+            {
+                MinVersion = 0,
+                ManuallyScaleWithParent = true,
+            },
+        },
+    },
     ["GuildInviteFrame"] =
     {
         MinVersion = 50000, -- Added when?
@@ -415,14 +443,14 @@ BlizzMoveAPI:RegisterFrames(
     {
         MinVersion = 0,
     },
-    ["QuestLogFrame"] =
-    {
-        MinVersion = 0,
-        MaxVersion = 70300, -- Removed when?
-    },
     ["QuestLogDetailFrame"] =
     {
         MinVersion = 30000,
+        MaxVersion = 70300, -- Removed when?
+    },
+    ["QuestLogFrame"] =
+    {
+        MinVersion = 0,
         MaxVersion = 70300, -- Removed when?
     },
     ["QuestLogPopupDetailFrame"] =
@@ -804,7 +832,6 @@ BlizzMoveAPI:RegisterAddOnFrames(
                 { Min = 40000 },
             },
         },
-        -- ["CommunitiesAddDialog"] = {}, -- Frame is protected, similar to the Store frame
         ["CommunitiesFrame"] =
         {
             MinVersion = 0, -- Backported into classic from retail (with limited functionality)
@@ -835,10 +862,6 @@ BlizzMoveAPI:RegisterAddOnFrames(
                 { Min = 40000 },
             },
         },
-        ["CommunitiesSettingsDialog"] =
-        {
-            MinVersion = 0, -- Added when?
-        },
         ["CommunitiesGuildLogFrame"] =
         {
             VersionRanges =
@@ -862,6 +885,10 @@ BlizzMoveAPI:RegisterAddOnFrames(
                 { Min = 11503, Max = 20000 },
                 { Min = 40000 },
             },
+        },
+        ["CommunitiesSettingsDialog"] =
+        {
+            MinVersion = 0, -- Added when?
         },
     },
     ["Blizzard_Contribution"] =
@@ -1010,6 +1037,27 @@ BlizzMoveAPI:RegisterAddOnFrames(
     },
     ["Blizzard_GarrisonUI"] =
     {
+        ["BFAMissionFrame"] =
+        {
+            MinVersion = 80000,
+        },
+        ["CovenantMissionFrame"] =
+        {
+            MinVersion = 90000,
+            SubFrames =
+            {
+                ["CovenantMissionFrame.FollowerList.listScroll"] =
+                {
+                    MaxVersion = 100000,
+                },
+                ["CovenantMissionFrame.FollowerList.MaterialFrame"] = {},
+                ["CovenantMissionFrame.MissionTab"] = {},
+                ["CovenantMissionFrame.MissionTab.MissionList.MaterialFrame"] = {},
+                ["CovenantMissionFrame.MissionTab.MissionPage"] = {},
+                ["CovenantMissionFrame.MissionTab.MissionPage.CostFrame"] = {},
+                ["CovenantMissionFrame.MissionTab.MissionPage.StartMissionFrame"] = {},
+            },
+        },
         ["GarrisonBuildingFrame"] =
         {
             MinVersion = 60000,
@@ -1056,27 +1104,6 @@ BlizzMoveAPI:RegisterAddOnFrames(
         ["OrderHallMissionFrame"] =
         {
             MinVersion = 70000,
-        },
-        ["BFAMissionFrame"] =
-        {
-            MinVersion = 80000,
-        },
-        ["CovenantMissionFrame"] =
-        {
-            MinVersion = 90000,
-            SubFrames =
-            {
-                ["CovenantMissionFrame.MissionTab"] = {},
-                ["CovenantMissionFrame.MissionTab.MissionPage"] = {},
-                ["CovenantMissionFrame.MissionTab.MissionPage.CostFrame"] = {},
-                ["CovenantMissionFrame.MissionTab.MissionPage.StartMissionFrame"] = {},
-                ["CovenantMissionFrame.MissionTab.MissionList.MaterialFrame"] = {},
-                ["CovenantMissionFrame.FollowerList.listScroll"] =
-                {
-                    MaxVersion = 100000,
-                },
-                ["CovenantMissionFrame.FollowerList.MaterialFrame"] = {},
-            },
         },
     },
     ["Blizzard_GenericTraitUI"] =
@@ -1306,12 +1333,19 @@ BlizzMoveAPI:RegisterAddOnFrames(
             MinVersion = 70000, -- Added when?
         },
     },
+    ["Blizzard_PlayerChoice"] =
+    {
+        ["PlayerChoiceFrame"] =
+        {
+            MinVersion = 100000, -- Moved from Blizzard_PlayerChoiceUI
+        },
+    },
     ["Blizzard_PlayerChoiceUI"] =
     {
         ["PlayerChoiceFrame"] =
         {
             MinVersion = 90000,
-            MaxVersion = 100000,
+            MaxVersion = 100000, -- Moved to Blizzard_PlayerChoice
         },
     },
     ["Blizzard_PlayerSpells"] =
@@ -1441,15 +1475,15 @@ BlizzMoveAPI:RegisterAddOnFrames(
     },
     ["Blizzard_TalentUI"] =
     {
-        ["TalentFrame"] =
-        {
-            MinVersion = 0,
-            MaxVersion = 11401,
-        },
         ["PlayerTalentFrame"] =
         {
             MinVersion = 11401,
             MaxVersion = 110000, -- Unused in DF, but only removed in TWW
+        },
+        ["TalentFrame"] =
+        {
+            MinVersion = 0,
+            MaxVersion = 11401,
         },
     },
     ["Blizzard_TalkingHeadUI"] =
