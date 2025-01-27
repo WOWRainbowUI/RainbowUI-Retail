@@ -1,10 +1,9 @@
 # Baganator
 
-## [626](https://github.com/Baganator/Baganator/tree/626) (2025-01-25)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/625...626) 
+## [628](https://github.com/Baganator/Baganator/tree/628) (2025-01-26)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/627...628) 
 
-- Add new visual search builder into Categories settings  
-    > GUI to add search terms, options for typing and not typing  
-    > No syntax knowledge required  
-    > Button to revert to previous text input  
-- Update auctionable check ready for Cata 4.4.2  
+- Fix "Show name prefix" being default unticked on default categories  
+- Refresh search state when changing settings to avoid breaking transfers  
+- Retail: Transfer: Fix guild/warband warnings when moving not matching item  
+- Prevent transferring items not matching the current situation (if enabled)  
