@@ -1,6 +1,6 @@
 # Syndicator
 
-## [162](https://github.com/Baganator/Syndicator/tree/162) (2025-01-25)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/161...162) 
+## [163](https://github.com/Baganator/Syndicator/tree/163) (2025-01-26)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/162...163) 
 
-- Search Builder: Fix parsing of terms involving ! as a starting element  
+- Guild tracking: Track moving an item to the bags after changing tabs again  
