@@ -179,7 +179,9 @@ function ClockModule:RegisterFrameEvents()
             date(ClockModule.timeFormats[xb.db.profile.modules.clock.timeFormat], clockTime), r, g, b, 1, 1, 1)
         GameTooltip:AddDoubleLine(L['Realm Time'], realmTime, r, g, b, 1, 1, 1)
         GameTooltip:AddLine(" ")
-		GameTooltip:AddDoubleLine('<' .. L['Left-Click'] .. '>', L['Open Calendar'], r, g, b, 1, 1, 1)
+        if (ToggleCalendar and type(ToggleCalendar) == "function") or C_AddOns.IsAddOnLoaded("ClassicCalendar") then -- 支援 ClassicCalendar
+            GameTooltip:AddDoubleLine('<' .. L['Left-Click'] .. '>', L['Open Calendar'], r, g, b, 1, 1, 1)
+        end
         GameTooltip:AddDoubleLine('<' .. L['Right-Click'] .. '>', L['Open Clock'], r, g, b, 1, 1, 1)
         GameTooltip:Show()
     end)
@@ -197,13 +199,11 @@ function ClockModule:RegisterFrameEvents()
             return;
         end
         if button == 'LeftButton' then
-            if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then -- 自行加入
-				if IsAddOnLoaded("ClassicCalendar") then
-					Calendar_Toggle()
-				end
-			else
-				ToggleCalendar()
-			end
+            if ToggleCalendar and type(ToggleCalendar) == "function" then
+                ToggleCalendar()
+            elseif C_AddOns.IsAddOnLoaded("ClassicCalendar") then -- 支援 ClassicCalendar
+            	Calendar_Toggle()
+            end
         elseif button == 'RightButton' then
             if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
                 ToggleTimeManager()

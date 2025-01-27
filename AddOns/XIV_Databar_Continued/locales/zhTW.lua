@@ -165,6 +165,8 @@ L['Enable Loadout Switcher'] = "啟用切換天賦配置";
 L['Talent Minimum Width'] = "天賦最小寬度";
 L['Open Artifact'] = "檢視神兵武器";
 L['Remaining'] = "還需要";
+L['Kills to level'] = "隻便會升級";
+L['Last xp gain'] = "上次獲得經驗值";
 L['Available Ranks'] = "神兵武器等級";
 L['Artifact Knowledge'] = "神兵知識等級";
 
