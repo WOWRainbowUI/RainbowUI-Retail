@@ -1318,13 +1318,15 @@ function BaganatorUnifiedGuildLayoutMixin:ShowGuild(guild, rowWidth)
   local guildData = Syndicator.API.GetGuild(guild)
 
   local availableTabs = 0
+  local wantedButtonCount = 0
   for _, tabData in ipairs(guildData.bank) do
     if tabData.isViewable then
+      wantedButtonCount = wantedButtonCount + #tabData.slots
       availableTabs = availableTabs + 1
     end
   end
 
-  if #self.buttons ~= availableTabs * #guildData.bank then
+  if #self.buttons ~= wantedButtonCount then
     self.refreshContent = true
     self:RebuildLayout(availableTabs, rowWidth)
   elseif self.reflow or rowWidth ~= self.oldRowWidth then
@@ -1671,12 +1673,13 @@ BaganatorBagSearchLayoutMonitorMixin = CreateFromMixins(BaganatorSearchLayoutMon
 function BaganatorBagSearchLayoutMonitorMixin:GetMatches()
   local matches = {}
   for _, itemButton in ipairs(self:GetParent().buttons) do
-    if itemButton.BGR and itemButton.BGR.itemID and itemButton.BGR.matchesSearch then
+    if itemButton.BGR and itemButton.BGR.itemID and itemButton.BGR.matchesSearch and itemButton.BGR.contextMatch ~= false then
       table.insert(matches, {
         bagID = itemButton:GetParent():GetID(),
         slotID = itemButton:GetID(),
         itemCount = itemButton.BGR.itemCount,
         itemID = itemButton.BGR.itemID,
+        itemLink = itemButton.BGR.itemLink,
         hasNoValue = itemButton.BGR.hasNoValue,
         isBound = itemButton.BGR.isBound,
       })
@@ -1690,12 +1693,13 @@ BaganatorGuildSearchLayoutMonitorMixin = CreateFromMixins(BaganatorSearchLayoutM
 function BaganatorGuildSearchLayoutMonitorMixin:GetMatches()
   local matches = {}
   for _, itemButton in ipairs(self:GetParent().buttons) do
-    if itemButton.BGR and itemButton.BGR.itemID and itemButton.BGR.matchesSearch then
+    if itemButton.BGR and itemButton.BGR.itemID and itemButton.BGR.matchesSearch and itemButton.BGR.contextMatch ~= false then
       table.insert(matches, {
         tabIndex = self:GetParent().prevState.tabIndex,
         slotID = itemButton:GetID(),
         itemCount = itemButton.BGR.itemCount,
         itemID = itemButton.BGR.itemID,
+        itemLink = itemButton.BGR.itemLink,
       })
     end
   end
