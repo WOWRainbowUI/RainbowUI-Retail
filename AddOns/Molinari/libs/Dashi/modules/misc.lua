@@ -8,8 +8,8 @@ local _, namespace = ...
 ```
 --]]
 
---[[ namespace:ArgCheck(arg, argIndex, type[, type...])
-Checks if the argument `arg` at position `argIndex` is of type(s).
+--[[ namespace:ArgCheck(arg, argIndex, type[, type...]) ![](https://img.shields.io/badge/function-blue)
+Checks if the argument `arg` at position `argIndex` is of `type`(s).
 --]]
 function addon:ArgCheck(arg, argIndex, ...)
 	assert(type(argIndex) == 'number', 'Bad argument #2 to \'ArgCheck\' (number expected, got ' .. type(argIndex) .. ')')
@@ -41,7 +41,7 @@ do
 	end
 end
 
---[[ namespace:GetUnitID(_unit_)
+--[[ namespace:GetUnitID(_unit_) ![](https://img.shields.io/badge/function-blue)
 Returns the integer `id` of the given [`unit`](https://warcraft.wiki.gg/wiki/UnitId).
 --]]
 function addon:GetUnitID(unit)
@@ -51,7 +51,7 @@ function addon:GetUnitID(unit)
 	end
 end
 
---[[ namespace:GetNPCName(_npcID_)
+--[[ namespace:GetNPCName(_npcID_) ![](https://img.shields.io/badge/function-blue)
 Returns the name for the NPC by the given `npcID`.
 
 Warning: this depends on the cache, and might not yield results the first time.
@@ -75,7 +75,7 @@ end
 
 do
 	local ITEM_LINK_FORMAT = '|Hitem:%d|h'
-	--[[ namespace:GetItemLinkFromID(_itemID_)
+	--[[ namespace:GetItemLinkFromID(_itemID_) ![](https://img.shields.io/badge/function-blue)
 	Generates an [item link](https://warcraft.wiki.gg/wiki/ItemLink) from an `itemID`.  
 	This is a crude generation and won't have valid data for complex items.
 	--]]
@@ -84,7 +84,7 @@ do
 	end
 end
 
---[[ namespace:GetPlayerMapID()
+--[[ namespace:GetPlayerMapID() ![](https://img.shields.io/badge/function-blue)
 Returns the ID of the current map the zone the player is located in.
 --]]
 function addon:GetPlayerMapID()
@@ -92,7 +92,7 @@ function addon:GetPlayerMapID()
 	return C_Map.GetBestMapForUnit('player') or -1
 end
 
---[[ namespace:GetPlayerPosition(_mapID_)
+--[[ namespace:GetPlayerPosition(_mapID_) ![](https://img.shields.io/badge/function-blue)
 Returns the `x` and `y` coordinates for the player in the given `mapID` (if they are valid).
 --]]
 function addon:GetPlayerPosition(mapID)
@@ -116,12 +116,9 @@ do
 		return token
 	end
 
-	--[[ namespace:GetUnitAura(_unit_, _spellID_, _filter_)
-	Returns the aura by `spellID` on the [`unit`](https://warcraft.wiki.gg/wiki/UnitId), if it exists.
-
-	* [`unitID`](https://warcraft.wiki.gg/wiki/UnitId)
-	* `spellID` - spell ID to check for
-	* `filter` - aura filter, see [UnitAura](https://warcraft.wiki.gg/wiki/API_C_UnitAuras.GetAuraDataByIndex#Filters)
+	--[[ namespace:GetUnitAura(_unitID_, _spellID_[, _filter_]) ![](https://img.shields.io/badge/function-blue)
+	Returns the aura by `spellID` on the [`unitID`](https://warcraft.wiki.gg/wiki/UnitId), if it exists.  
+	See [UnitAura](https://warcraft.wiki.gg/wiki/API_C_UnitAuras.GetAuraDataByIndex#Filters) for the `filter` arg.
 	--]]
 	function addon:GetUnitAura(unit, spellID, filter)
 		local token, data
@@ -133,11 +130,11 @@ do
 	end
 end
 
---[[ namespace:CreateColor(r, g, b[, a])
+--[[ namespace:CreateColor(r, g, b[, a]) ![](https://img.shields.io/badge/function-blue)
 Wrapper for CreateColor that can handle >1-255 range as well.  
 Alpha (`a`) will always be in the 0-1 range.
 --]]
---[[ namespace:CreateColor(hex)
+--[[ namespace:CreateColor(hex) ![](https://img.shields.io/badge/function-blue)
 Wrapper for CreateColor that can handle hex colors (both `RRGGBB` and `AARRGGBB`).
 --]]
 function addon:CreateColor(r, g, b, a)
@@ -175,7 +172,7 @@ do
 	local timeFormatter = CreateFromMixins(SecondsFormatterMixin)
 	timeFormatter:Init(1, SecondsFormatter.Abbreviation.OneLetter)
 	timeFormatter:SetStripIntervalWhitespace(true)
-	--[[ namespace:FormatTime(_timeInSeconds_)
+	--[[ namespace:FormatTime(_timeInSeconds_) ![](https://img.shields.io/badge/function-blue)
 	Formats the given `timeInSeconds` to a readable, but abbreviated format.
 	--]]
 	function addon:FormatTime(timeInSeconds)
