@@ -8,8 +8,7 @@ end
 -- 	setting:SetValue(value, true)
 -- end
 
-local createCanvas
-do
+local createCanvas; do
 	local canvasMixin = {}
 	function canvasMixin:SetDefaultsHandler(callback)
 		local button = self:GetParent().Header.DefaultsButton
@@ -54,8 +53,7 @@ do
 	end
 end
 
-local createColorPicker -- I wish Settings.CreateColorPicker was a thing
-do
+local createColorPicker; do -- I wish Settings.CreateColorPicker was a thing
 	local colorPickerMixin = {}
 	function colorPickerMixin:OnSettingValueChanged(setting, value)
 		local r, g, b, a = addon:CreateColor(value):GetRGBA()
@@ -136,6 +134,7 @@ do
 		init.InitFrame = initFrame
 		init:AddSearchTags(setting:GetName())
 		SettingsPanel:GetLayout(category):AddInitializer(init)
+		return init
 	end
 end
 
@@ -147,13 +146,15 @@ local function registerSetting(category, savedvariable, info)
 	addon:ArgCheck(info.key, 3, 'string')
 	addon:ArgCheck(info.title, 3, 'string')
 	addon:ArgCheck(info.type, 3, 'string')
+	addon:ArgCheck(info.requires, 3, 'string', 'nil')
 	assert(info.default ~= nil, "default must be set")
 
 	local uniqueKey = savedvariable .. '_' .. info.key
 	local setting = Settings.RegisterAddOnSetting(category, uniqueKey, info.key, _G[savedvariable], type(info.default), info.title, info.default)
 
+	local initializer
 	if info.type == 'toggle' then
-		Settings.CreateCheckbox(category, setting, info.tooltip)
+		initializer = Settings.CreateCheckbox(category, setting, info.tooltip)
 	elseif info.type == 'slider' then
 		addon:ArgCheck(info.minValue, 3, 'number')
 		addon:ArgCheck(info.maxValue, 3, 'number')
@@ -166,7 +167,7 @@ local function registerSetting(category, savedvariable, info)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, info.valueFormat)
 		end
 
-		Settings.CreateSlider(category, setting, options, info.tooltip)
+		initializer = Settings.CreateSlider(category, setting, options, info.tooltip)
 	elseif info.type == 'menu' then
 		addon:ArgCheck(info.options, 3, 'table')
 		local options = function()
@@ -176,9 +177,10 @@ local function registerSetting(category, savedvariable, info)
 			end
 			return container:GetData()
 		end
-		Settings.CreateDropdown(category, setting, options, info.tooltip)
+
+		initializer = Settings.CreateDropdown(category, setting, options, info.tooltip)
 	elseif info.type == 'color' or info.type == 'colorpicker' then -- TODO: remove in 12.x, compat
-		createColorPicker(category, setting, nil, info.tooltip)
+		initializer = createColorPicker(category, setting, nil, info.tooltip)
 	else
 		error('type is invalid') -- TODO: make this prettier
 		return
@@ -226,6 +228,12 @@ local function registerSetting(category, savedvariable, info)
 
 	-- trigger load callback
 	addon:TriggerOptionCallback(info.key, setting:GetValue())
+
+	return initializer
+end
+
+local function isSettingEnabled(parentInitializer)
+	return not not parentInitializer:GetSetting():GetValue()
 end
 
 local function registerSettings(savedvariable, settings, title)
@@ -241,12 +249,32 @@ local function registerSettings(savedvariable, settings, title)
 		firstInstall = true
 	end
 
-	for _, setting in next, settings do
+	local keys = {}
+	local initializers = {}
+	local dependents = addon.T{}
+	for index, setting in next, settings do
 		if firstInstall then
 			setting.firstInstall = true
 		end
 
-		registerSetting(category, savedvariable, setting)
+		local initializer = registerSetting(category, savedvariable, setting)
+		keys[setting.key] = index
+		initializers[setting.key] = initializer
+
+		if setting.requires then
+			dependents[setting.key] = setting.requires
+		end
+	end
+
+	if dependents:size() > 0 then
+		for key, requires in next, dependents do
+			-- check if there are bad dependencies
+			assert(not not keys[requires], string.format("setting '%s' can't depend on invalid setting '%s'", key, requires))
+			assert(settings[keys[requires]].type == 'toggle', string.format("setting '%s' can't depend on a non-toggle setting", key))
+
+			-- depend on "parent" setting
+			initializers[key]:SetParentInitializer(initializers[requires], GenerateClosure(isSettingEnabled, initializers[requires]))
+		end
 	end
 
 	-- sub-categories
@@ -274,7 +302,7 @@ local function registerSettings(savedvariable, settings, title)
 	end
 end
 
---[[ namespace:RegisterSettings(_savedvariables_, _settings_)
+--[[ namespace:RegisterSettings(_savedvariables_, _settings_) ![](https://img.shields.io/badge/function-blue)
 Registers a set of `settings` with the interface options panel.  
 The values will be stored by the `settings`' objects' `key` in `savedvariables`.
 
@@ -298,8 +326,9 @@ namespace:RegisterSettings('MyAddOnDB', {
         default = 0.5,
         minValue = 0.1,
         maxValue = 1.0,
-        valueStep = 0.01,
+        valueStep = 0.01, -- (optional) step value, defaults to 1
         valueFormat = formatter, -- callback function or a string for string.format
+        requires = 'myToggle', -- (optional) dependency on another setting (must be a "toggle")
     },
     {
         key = 'myMenu',
@@ -312,13 +341,15 @@ namespace:RegisterSettings('MyAddOnDB', {
             {value = key2, label = 'Second option'},
             {value = key3, label = 'Third option'},
         },
+        requires = 'myToggle', -- (optional) dependency on another setting (must be a "toggle")
     },
     {
         key = 'myColor',
         type = 'color',
         title = 'My Color',
         tooltip = 'Longer description of the color in a tooltip',
-        default = 'ff00ff', -- either "RRGGBB" or "AARRGGBB" format
+        default = 'ff00ff', -- either "RRGGBB" or "AARRGGBB" format, the latter enables opacity
+        requires = 'myToggle', -- (optional) dependency on another setting (must be of type "toggle")
     }
 })
 ```
@@ -348,7 +379,7 @@ function addon:RegisterSettings(savedvariable, settings, title) -- 暫時修正
 	end
 end
 
---[[ namespace:RegisterSubSettings(_name_, _settings_)
+--[[ namespace:RegisterSubSettings(_name_, _settings_) ![](https://img.shields.io/badge/function-blue)
 Registers a set of `settings` as a sub-category. `name` must be unique.  
 The savedvariables will be stored under the main savedvariables in a table entry named after `name`.
 
@@ -365,7 +396,7 @@ function addon:RegisterSubSettings(name, settings)
 	}
 end
 
---[[ namespace:RegisterSubSettingsCanvas(_name_, _callback_)
+--[[ namespace:RegisterSubSettingsCanvas(_name_, _callback_) ![](https://img.shields.io/badge/function-blue)
 Registers a canvas sub-category. This does not handle savedvariables.
 
 `name` must be unique, and `callback` is called with a canvas `frame` as payload.
@@ -384,7 +415,7 @@ function addon:RegisterSubSettingsCanvas(name, callback)
 	}
 end
 
---[[ namespace:RegisterSettingsSlash(_..._)
+--[[ namespace:RegisterSettingsSlash(_..._) ![](https://img.shields.io/badge/function-blue)
 Wrapper for `namespace:RegisterSlash(...)`, except the callback is provided and will open the settings panel for this addon.
 --]]
 function addon:RegisterSettingsSlash(...)
@@ -408,7 +439,7 @@ function addon:RegisterSettingsSlash(...)
 	addon:RegisterSlash(unpack(data))
 end
 
---[[ namespace:GetOption(_key_)
+--[[ namespace:GetOption(_key_) ![](https://img.shields.io/badge/function-blue)
 Returns the value for the given option `key`.
 --]]
 function addon:GetOption(key)
@@ -418,7 +449,7 @@ function addon:GetOption(key)
 	return _G[self.registeredVariables][key]
 end
 
---[[ namespace:SetOption(_key_, _value_)
+--[[ namespace:SetOption(_key_, _value_) ![](https://img.shields.io/badge/function-blue)
 Sets a new `value` to the given options `key`.
 --]]
 function addon:SetOption(key, value)
@@ -430,14 +461,14 @@ function addon:SetOption(key, value)
 	addon:TriggerOptionCallback(key, value)
 end
 
---[[ namespace:AreOptionsLoaded()
+--[[ namespace:AreOptionsLoaded() ![](https://img.shields.io/badge/function-blue)
 Checks to see if the savedvariables has been loaded in the game.
 --]]
 function addon:AreOptionsLoaded()
 	return (not not self.registeredVariables) and (not not _G[self.registeredVariables])
 end
 
---[[ namespace:RegisterOptionCallback(_key_, _callback_)
+--[[ namespace:RegisterOptionCallback(_key_, _callback_) ![](https://img.shields.io/badge/function-blue)
 Register a `callback` function with the option `key`.
 --]]
 function addon:RegisterOptionCallback(key, callback)
@@ -455,7 +486,7 @@ function addon:RegisterOptionCallback(key, callback)
 	table.insert(self.settingsCallbacks[key], callback)
 end
 
---[[ namespace:TriggerOptionCallbacks(_key_, _value_)
+--[[ namespace:TriggerOptionCallbacks(_key_, _value_) ![](https://img.shields.io/badge/function-blue)
 Trigger all registered option callbacks for the given `key`, supplying the `value`.
 --]]
 function addon:TriggerOptionCallback(key, value)
@@ -610,11 +641,11 @@ do
 		end)
 	end
 
-	--[[ namespace:RegisterMapSettings(_savedvariable_, _settings_)
-	Registers a set of `settings` to inject into the world map tracking menu.
+	--[[ namespace:RegisterMapSettings(_savedvariable_, _settings_) ![](https://img.shields.io/badge/function-blue)
+	Registers a set of `settings` to inject into the world map tracking menu.  
 	The values will be stored by the `settings`' objects' `key` in `savedvariables`.
 
-	The `settings` object is identical to the one for [RegisterSetting](namespaceregistersettingssavedvariables-settings).  
+	The `settings` object is identical to the one for [namespace:RegisterSetting()](#namespaceregistersettingssavedvariables-settings-).
 	--]]
 	function addon:RegisterMapSettings(savedvariable, settings)
 		addon:ArgCheck(savedvariable, 1, 'string')

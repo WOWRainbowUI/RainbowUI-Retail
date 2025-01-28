@@ -4,9 +4,16 @@ local _, addon = ...
 local hidden = CreateFrame('Frame')
 hidden:Hide()
 
---[[ namespace:Hide(_object_[, _child_,...])
+--[[ namespace:Hide(_object_[, _child_,...]) ![](https://img.shields.io/badge/function-blue)
 Forcefully hide an `object`, or its `child`.  
 It will recurse down to the last child if provided.
+
+Usage:
+```lua
+namespace:Hide('ChatFrame2')
+namespace:Hide('MinimapCluster', 'InstanceDifficulty')
+namespace:Hide(someFrame, 'ResetButton')
+```
 --]]
 function addon:Hide(object, ...)
 	if type(object) == 'string' then
