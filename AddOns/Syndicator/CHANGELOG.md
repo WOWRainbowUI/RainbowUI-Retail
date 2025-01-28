@@ -1,6 +1,7 @@
 # Syndicator
 
-## [163](https://github.com/Baganator/Syndicator/tree/163) (2025-01-26)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/162...163) 
+## [165](https://github.com/Baganator/Syndicator/tree/165) (2025-01-27)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/164...165) 
 
-- Guild tracking: Track moving an item to the bags after changing tabs again  
+- Search Builder: Add item level input option, less, more, range and equals  
+- Tweak condition for checking if a custom term has had text set  
