@@ -159,6 +159,11 @@ L["CUT"] = "Cut"
 L["PASTE"] = "Paste"
 L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
 L["CUSTOM_SEARCH"] = "Custom search"
+L["ITEM_LEVEL"] = "Item level"
+L["ITEM_LEVEL_LESS"] = "Less than, <"
+L["ITEM_LEVEL_MORE"] = "More than, >"
+L["ITEM_LEVEL_RANGE"] = "Range, -"
+L["ITEM_LEVEL_EQUALS"] = "Equal to, ="
 
 local L = Locales.frFR
 L["ALL_CHARACTERS_COLON"] = "Tous les personnages :"
@@ -211,6 +216,16 @@ L["HOLD_SHIFT_TO_DISPLAY"] = "Maintenir MAJ pour afficher"
 --[[Translation missing --]]
 L["INSERT"] = "Insert"
 L["INVENTORY"] = "Inventaire"
+--[[Translation missing --]]
+L["ITEM_LEVEL"] = "Item level"
+--[[Translation missing --]]
+L["ITEM_LEVEL_EQUALS"] = "Equal to, ="
+--[[Translation missing --]]
+L["ITEM_LEVEL_LESS"] = "Less than, <"
+--[[Translation missing --]]
+L["ITEM_LEVEL_MORE"] = "More than, >"
+--[[Translation missing --]]
+L["ITEM_LEVEL_RANGE"] = "Range, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "lié au compte"
 L["KEYWORD_AXE"] = "hache"
 L["KEYWORD_AZERITE"] = "azérite"
@@ -366,6 +381,16 @@ L["HOLD_SHIFT_TO_DISPLAY"] = "Gedrückte Umschalttaste = zeigt Tooltip"
 --[[Translation missing --]]
 L["INSERT"] = "Insert"
 L["INVENTORY"] = "Inventar"
+--[[Translation missing --]]
+L["ITEM_LEVEL"] = "Item level"
+--[[Translation missing --]]
+L["ITEM_LEVEL_EQUALS"] = "Equal to, ="
+--[[Translation missing --]]
+L["ITEM_LEVEL_LESS"] = "Less than, <"
+--[[Translation missing --]]
+L["ITEM_LEVEL_MORE"] = "More than, >"
+--[[Translation missing --]]
+L["ITEM_LEVEL_RANGE"] = "Range, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "accountgebunden"
 L["KEYWORD_AXE"] = "axt"
 L["KEYWORD_AZERITE"] = "azerit"
@@ -526,6 +551,16 @@ L["HOLD_SHIFT_TO_DISPLAY"] = "Только при зажатом Shift"
 --[[Translation missing --]]
 L["INSERT"] = "Insert"
 L["INVENTORY"] = "Инвентарь"
+--[[Translation missing --]]
+L["ITEM_LEVEL"] = "Item level"
+--[[Translation missing --]]
+L["ITEM_LEVEL_EQUALS"] = "Equal to, ="
+--[[Translation missing --]]
+L["ITEM_LEVEL_LESS"] = "Less than, <"
+--[[Translation missing --]]
+L["ITEM_LEVEL_MORE"] = "More than, >"
+--[[Translation missing --]]
+L["ITEM_LEVEL_RANGE"] = "Range, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "привязано"
 L["KEYWORD_AXE"] = "топор"
 L["KEYWORD_AZERITE"] = "азерит"
@@ -679,6 +714,16 @@ L["HOLD_SHIFT_TO_DISPLAY"] = "Manter pressionado shift para exibir"
 --[[Translation missing --]]
 L["INSERT"] = "Insert"
 L["INVENTORY"] = "Inventário"
+--[[Translation missing --]]
+L["ITEM_LEVEL"] = "Item level"
+--[[Translation missing --]]
+L["ITEM_LEVEL_EQUALS"] = "Equal to, ="
+--[[Translation missing --]]
+L["ITEM_LEVEL_LESS"] = "Less than, <"
+--[[Translation missing --]]
+L["ITEM_LEVEL_MORE"] = "More than, >"
+--[[Translation missing --]]
+L["ITEM_LEVEL_RANGE"] = "Range, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "vinculado à conta"
 L["KEYWORD_AXE"] = "machado"
 L["KEYWORD_AZERITE"] = "azerita"
@@ -832,6 +877,16 @@ L["HOLD_SHIFT_TO_DISPLAY"] = "Mantener presionada mayús para mostrar"
 --[[Translation missing --]]
 L["INSERT"] = "Insert"
 L["INVENTORY"] = "Inventario"
+--[[Translation missing --]]
+L["ITEM_LEVEL"] = "Item level"
+--[[Translation missing --]]
+L["ITEM_LEVEL_EQUALS"] = "Equal to, ="
+--[[Translation missing --]]
+L["ITEM_LEVEL_LESS"] = "Less than, <"
+--[[Translation missing --]]
+L["ITEM_LEVEL_MORE"] = "More than, >"
+--[[Translation missing --]]
+L["ITEM_LEVEL_RANGE"] = "Range, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "ligada a la cuenta"
 L["KEYWORD_AXE"] = "hacha"
 L["KEYWORD_AZERITE"] = "azerita"
@@ -985,6 +1040,16 @@ L["HOLD_SHIFT_TO_DISPLAY"] = "Mantener presionada mayús para mostrar"
 --[[Translation missing --]]
 L["INSERT"] = "Insert"
 L["INVENTORY"] = "Inventario"
+--[[Translation missing --]]
+L["ITEM_LEVEL"] = "Item level"
+--[[Translation missing --]]
+L["ITEM_LEVEL_EQUALS"] = "Equal to, ="
+--[[Translation missing --]]
+L["ITEM_LEVEL_LESS"] = "Less than, <"
+--[[Translation missing --]]
+L["ITEM_LEVEL_MORE"] = "More than, >"
+--[[Translation missing --]]
+L["ITEM_LEVEL_RANGE"] = "Range, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "ligada a la cuenta"
 L["KEYWORD_AXE"] = "hacha"
 L["KEYWORD_AZERITE"] = "azerita"
@@ -1089,14 +1154,10 @@ L["X_CHARACTERS_SHOWN"] = "%s personajes mostrados"
 
 local L = Locales.zhTW
 L["ALL_CHARACTERS_COLON"] = "全部角色："
---[[Translation missing --]]
-L["ALL_TOOLTIP_TEXT"] = "All the entries apply"
---[[Translation missing --]]
-L["ALL_UPPER"] = "ALL"
---[[Translation missing --]]
-L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
---[[Translation missing --]]
-L["ANY_UPPER"] = "ANY"
+L["ALL_TOOLTIP_TEXT"] = "全部條目都適用"
+L["ALL_UPPER"] = "全部"
+L["ANY_TOOLTIP_TEXT"] = "任何條目皆有效"
+L["ANY_UPPER"] = "任意"
 L["AUCTIONS_LOWER"] = "拍賣"
 L["AUCTIONS_X"] = "拍賣：%s"
 L["BAGS_LOWER"] = "背包"
@@ -1105,12 +1166,9 @@ L["BANK_LOWER"] = "銀行"
 L["BANK_X"] = "銀行：%s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "無法透過物品連結搜尋"
 L["CHARACTERS"] = "角色"
---[[Translation missing --]]
-L["COPY"] = "Copy"
---[[Translation missing --]]
-L["CUSTOM_SEARCH"] = "Custom search"
---[[Translation missing --]]
-L["CUT"] = "Cut"
+L["COPY"] = "複製"
+L["CUSTOM_SEARCH"] = "自訂搜尋"
+L["CUT"] = "剪下"
 L["DELETE_CHARACTER"] = "刪除角色"
 L["DELETE_GUILD"] = "刪除公會"
 L["EQUIPPED_LOWER"] = "裝備"
@@ -1135,9 +1193,18 @@ L["GUILDS"] = "公會"
 L["HIDE_IN_GOLD_SUMMARY"] = "在金幣總計隱藏"
 L["HIDE_IN_INVENTORY_TOOLTIPS"] = "在背包提示隱藏"
 L["HOLD_SHIFT_TO_DISPLAY"] = "按下Shift來顯示"
---[[Translation missing --]]
-L["INSERT"] = "Insert"
+L["INSERT"] = "插入"
 L["INVENTORY"] = "庫存"
+--[[Translation missing --]]
+L["ITEM_LEVEL"] = "Item level"
+--[[Translation missing --]]
+L["ITEM_LEVEL_EQUALS"] = "Equal to, ="
+--[[Translation missing --]]
+L["ITEM_LEVEL_LESS"] = "Less than, <"
+--[[Translation missing --]]
+L["ITEM_LEVEL_MORE"] = "More than, >"
+--[[Translation missing --]]
+L["ITEM_LEVEL_RANGE"] = "Range, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "帳號綁定"
 L["KEYWORD_AXE"] = "斧"
 L["KEYWORD_AZERITE"] = "艾澤萊"
@@ -1203,15 +1270,11 @@ L["KEYWORD_USE"] = "使用"
 L["KEYWORD_WUE"] = "裝前戰綁"
 L["MAIL_LOWER"] = "郵件"
 L["MAIL_X"] = "信箱：%s"
---[[Translation missing --]]
-L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
+L["NO_MATCHING_KEYWORDS"] = "無匹配的關鍵字"
 L["NO_RESULTS_FOUND"] = "沒找到結果"
---[[Translation missing --]]
-L["NOT_TOOLTIP_TEXT"] = "Not this entry"
---[[Translation missing --]]
-L["NOT_UPPER"] = "NOT"
---[[Translation missing --]]
-L["PASTE"] = "Paste"
+L["NOT_TOOLTIP_TEXT"] = "不是此條目"
+L["NOT_UPPER"] = "不是"
+L["PASTE"] = "貼上"
 L["SAME_CONNECTED_REALMS"] = "相同連結伺服器"
 L["SAME_FACTION"] = "相同陣營"
 L["SEARCHED_EVERYWHERE_COLON"] = "廣泛搜尋："
@@ -1223,20 +1286,17 @@ L["SHOW_IN_INVENTORY_TOOLTIPS"] = "在背包提示顯示"
 L["SHOW_INVENTORY"] = "顯示庫存"
 L["SHOW_RACE_ICONS"] = "顯示種族圖示"
 L["SORT_BY_NAME"] = "根據名字排序"
---[[Translation missing --]]
-L["SWAP"] = "Swap"
+L["SWAP"] = "替換"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "工具提示設定"
 L["TOTAL_X"] = "總計：%s"
---[[Translation missing --]]
-L["UNWRAP"] = "Unwrap"
+L["UNWRAP"] = "解開"
 L["VERSION_COLON_X"] = "版本：%s"
 L["VOID_LOWER"] = "虛空倉庫"
 L["VOID_X"] = "虛空倉庫: %s"
 L["WARBAND"] = "戰隊"
 L["WARBAND_LOWER"] = "戰隊"
---[[Translation missing --]]
-L["WRAP_WITH"] = "Wrap with"
+L["WRAP_WITH"] = "包裹"
 L["X_CHARACTERS_SHOWN"] = "%s 角色顯示"
 
 
@@ -1283,6 +1343,11 @@ L["HIDE_IN_INVENTORY_TOOLTIPS"] = "隐藏物品栏鼠标提示"
 L["HOLD_SHIFT_TO_DISPLAY"] = "按住Shift键显示"
 L["INSERT"] = "Insert"
 L["INVENTORY"] = "库存"
+L["ITEM_LEVEL"] = "物品等级"
+L["ITEM_LEVEL_EQUALS"] = "等于，="
+L["ITEM_LEVEL_LESS"] = "小于，<"
+L["ITEM_LEVEL_MORE"] = "大于，>"
+L["ITEM_LEVEL_RANGE"] = "范围，-"
 L["KEYWORD_ACCOUNT_BOUND"] = "帐号绑定"
 L["KEYWORD_AXE"] = "斧"
 L["KEYWORD_AZERITE"] = "艾泽里特"
@@ -1457,6 +1522,16 @@ L["HOLD_SHIFT_TO_DISPLAY"] = "Hold shift to display"
 --[[Translation missing --]]
 L["INSERT"] = "Insert"
 L["INVENTORY"] = "가방"
+--[[Translation missing --]]
+L["ITEM_LEVEL"] = "Item level"
+--[[Translation missing --]]
+L["ITEM_LEVEL_EQUALS"] = "Equal to, ="
+--[[Translation missing --]]
+L["ITEM_LEVEL_LESS"] = "Less than, <"
+--[[Translation missing --]]
+L["ITEM_LEVEL_MORE"] = "More than, >"
+--[[Translation missing --]]
+L["ITEM_LEVEL_RANGE"] = "Range, -"
 --[[Translation missing --]]
 L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
 L["KEYWORD_AXE"] = "도끼"
@@ -1702,6 +1777,16 @@ L["HOLD_SHIFT_TO_DISPLAY"] = "Hold shift to display"
 L["INSERT"] = "Insert"
 --[[Translation missing --]]
 L["INVENTORY"] = "Inventory"
+--[[Translation missing --]]
+L["ITEM_LEVEL"] = "Item level"
+--[[Translation missing --]]
+L["ITEM_LEVEL_EQUALS"] = "Equal to, ="
+--[[Translation missing --]]
+L["ITEM_LEVEL_LESS"] = "Less than, <"
+--[[Translation missing --]]
+L["ITEM_LEVEL_MORE"] = "More than, >"
+--[[Translation missing --]]
+L["ITEM_LEVEL_RANGE"] = "Range, -"
 --[[Translation missing --]]
 L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
 --[[Translation missing --]]
