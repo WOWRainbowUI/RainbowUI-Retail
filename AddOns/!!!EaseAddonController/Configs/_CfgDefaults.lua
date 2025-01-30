@@ -939,7 +939,7 @@ D["EnhBloodlust"] = {
 	defaultEnable = 1,
 	tags = { "COMBAT" },
 	title = "嗜血音樂",
-	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`APT`by ROSÉ & Bruno Mars``https://www.youtube.com/watch?v=ekr2nIex040",
+	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`蛇出來了 DJ MJ 2025 Remix`by 黃明志 Ft. 王彩樺``https://www.youtube.com/watch?v=1Hh-BVgz2gY",
 	icon = "Interface\\Icons\\spell_nature_bloodlust",
 	img = true,
 	{
