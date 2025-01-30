@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 11.0.29 (22nd January 2025)
+	-- 	Leatrix Maps 11.0.30 (29th January 2025)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "11.0.29"
+	LeaMapsLC["AddonVer"] = "11.0.30"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -119,6 +119,7 @@
 		if LeaMapsLC["NoMapTabs"] == "On" then
 			QuestMapFrame.QuestsTab:Hide()
 			QuestMapFrame.MapLegendTab:Hide()
+			QuestMapFrame.EventsTab:Hide()
 		end
 
 		----------------------------------------------------------------------
@@ -2396,7 +2397,7 @@
 	LeaMapsLC:MakeCB(PageF, "NoMapFade", "Disable map fade", 225, -232, false, "If checked, the map will not fade while your character is moving.")
 	LeaMapsLC:MakeCB(PageF, "NoMapEmote", "Disable reading emote", 225, -252, false, "If checked, your character will not perform the reading emote when you open the map.")
 	LeaMapsLC:MakeCB(PageF, "NoFilterResetBtn", "Hide filter reset button", 225, -272, true, "If checked, the world map filter reset button will be hidden.")
-	LeaMapsLC:MakeCB(PageF, "NoMapTabs", "Hide world map tabs", 225, -292, true, "If checked, world map tabs will be hidden.|n|nThis includes the quests tab and the map legend tab.")
+	LeaMapsLC:MakeCB(PageF, "NoMapTabs", "Hide world map tabs", 225, -292, true, "If checked, world map tabs will be hidden.")
 	LeaMapsLC:MakeCB(PageF, "ShowMinimapIcon", "Show minimap button", 225, -312, false, "If checked, the minimap button will be shown.")
 
 	LeaMapsLC:CfgBtn("ScaleWorldMapBtn", LeaMapsCB["ScaleWorldMap"])
