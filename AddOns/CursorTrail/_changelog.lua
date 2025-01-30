@@ -7,6 +7,25 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.0.7.2
+Released 2025-01-29
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.7.2 for Retail WoW
+Version 4.4.1.4 for Classic Cataclysm
+Version 1.15.6.1 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Added new defaults:
+        Ring Dark Edges
+        Star Dark Edge
+        Star Doubled
+        
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 1.15.6.1 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Classic WoW 1.15.6.
+
+=======================================
 RELEASE 11.0.7.1
 Released 2024-12-17
 
