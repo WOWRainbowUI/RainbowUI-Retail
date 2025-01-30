@@ -375,6 +375,46 @@ kDefaultConfig["環形和閃電"] = {
     },
 }
 ----------------________________________-----------------------------------
+kDefaultConfig["環形-黑邊"] = {
+    MasterScale = 0.9,
+    Layers = {
+        [1] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Ring 2.tga",
+            ModelID = 0,
+            ShapeColorR = 0.992, ShapeColorG = 0.792, ShapeColorB = 0.635,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0.3,
+            UserScale = 0.9,
+            UserAlpha = 1,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
+        },
+        [2] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Ring Soft 4.tga",
+            ModelID = 0,
+            ShapeColorR = 0, ShapeColorG = 0, ShapeColorB = 0,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 0.98,
+            UserAlpha = 0.65,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
+        },
+    },
+}
+----------------________________________-----------------------------------
 kDefaultConfig["環形-閃爍"] = {
     MasterScale = 1,
     Layers = {
@@ -398,7 +438,121 @@ kDefaultConfig["環形-閃爍"] = {
     },
 }
 ----------------________________________-----------------------------------
-kDefaultConfig["星星綠光"] = {
+kDefaultConfig["星星-黑邊"] = {
+    MasterScale = 1.25,
+    Layers = {
+        [1] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Star 1.tga",
+            ModelID = 0,
+            ShapeColorR = 0.992, ShapeColorG = 0.792, ShapeColorB = 0.635,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 1.14,
+            UserAlpha = 1,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
+        },
+        [2] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Star 1.tga",
+            ModelID = 0,
+            ShapeColorR = 0, ShapeColorG = 0, ShapeColorB = 0,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 0.83,
+            UserAlpha = 1,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
+        },
+        [3] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kShape_None,
+            ModelID = 0,
+            ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0.1,
+            UserScale = 0.75,
+            UserAlpha = 1,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
+        },
+    },
+}
+----------------________________________-----------------------------------
+kDefaultConfig["星星-雙重"] = {
+    MasterScale = 1.25,
+    Layers = {
+        [1] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Star 1.tga",
+            ModelID = 0,
+            ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 1.14,
+            UserAlpha = 1,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
+        },
+        [2] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Star 1.tga",
+            ModelID = 0,
+            ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 0.83,
+            UserAlpha = 1,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
+        },
+        [3] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kShape_None,
+            ModelID = 0,
+            ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0.2,
+            UserScale = 0.75,
+            UserAlpha = 1,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
+        },
+    },
+}
+----------------________________________-----------------------------------
+kDefaultConfig["星星-綠光"] = {
     MasterScale = 1,
     Layers = {
         [1] = {
@@ -974,7 +1128,7 @@ if isRetailWoW() then
         },
     }
     ----------------________________________-----------------------------------
-    kDefaultConfig["Star Flame"] = {
+    kDefaultConfig["星星-火焰"] = {
         MasterScale = 1,
         Layers = {
             [1] = {
