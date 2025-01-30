@@ -34,7 +34,9 @@
 ## X-DBM-Mod-MinExpansion: 0
 ## X-Curse-Project-ID: 314994
 ## X-WoWI-ID: 24904
-## Version: r181
+## Version: r182
+
+locale.generated.lua
 
 Retail\localization.en.lua
 Retail\localization.es.lua

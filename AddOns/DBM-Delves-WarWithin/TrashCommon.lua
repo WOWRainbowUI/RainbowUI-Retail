@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("DelveTrashCommon", "DBM-Delves-WarWithin")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250105060420")
+mod:SetRevision("20250126155301")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)--Stays active in all zones for zone change handlers, but registers events based on dungeon ids
 --2664, 2679, 2680, 2681, 2683, 2684, 2685, 2686, 2687, 2688, 2689, 2690, 2767, 2768
 mod:RegisterZoneCombat(2664)
@@ -654,7 +654,7 @@ function mod:StartEngageTimers(guid, cid, delay)
 	elseif cid == 207450 then--Fungal Stabber
 --		timerDebilitatingVenomCD:Start(13.3-delay, guid)
 	elseif cid == 211062 then--Bill
-		timerBladeTossCD:Start(6.5-delay, guid)
+		timerBladeTossCD:Start(4.7-delay, guid)
 --	elseif cid == 207455 then--Fungal Speartender
 --		timerVineSpearCD:Start(14.9-delay, guid)
 	elseif cid == 213434 then--Sporesong

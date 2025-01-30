@@ -2,7 +2,7 @@ if not DBM:IsSeasonal("SeasonOfDiscovery") then return end
 local mod	= DBM:NewMod("KarazhanCriminal", "DBM-Party-Vanilla", 22)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241229223205")
+mod:SetRevision("20250129185705")
 mod:SetEncounterID(3142)
 --mod:SetCreatureID()
 mod:SetZone(2875)
@@ -11,6 +11,8 @@ mod:RegisterCombat("combat")
 
 mod:RegisterEventsInCombat(
 )
+
+-- TODO: confirm this still exists, Kaigy Maryla (new encounter ID) might have replaced it?
 
 function mod:OnCombatStart()
 	self:AddMsg("This DBM mod is a placeholder for new content, there are no timers or warnings yet.")
