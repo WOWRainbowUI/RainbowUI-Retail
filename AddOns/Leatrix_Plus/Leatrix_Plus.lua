@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.0.29 (22nd January 2025)
+-- 	Leatrix Plus 11.0.30 (29th January 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.0.29"
+	LeaPlusLC["AddonVer"] = "11.0.30"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -3858,26 +3858,10 @@
 
 			end
 
-			-- These values can change with a new game patch
-			local errorCodeVendorDoesNotBuy = 47 -- ERR_VENDOR_DOESNT_BUY
-			local errorCodeTooMuchGold = 644 -- ERR_TOO_MUCH_GOLD
-
-			if LeaPlusLC.NewPatch then -- 11.1.0
-				errorCodeTooMuchGold = 645
-			end
-
-			-- Report in chat if UI error codes have changed so code above needs to be updated
-			if GetGameMessageInfo(errorCodeVendorDoesNotBuy) ~= "ERR_VENDOR_DOESNT_BUY" then
-				LeaPlusLC:Print("Leatrix Plus: ERR_VENDOR_DOESNT_BUY.")
-			end
-			if GetGameMessageInfo(errorCodeTooMuchGold) ~= "ERR_TOO_MUCH_GOLD" then
-				LeaPlusLC:Print("Leatrix Plus: ERR_TOO_MUCH_GOLD.")
-			end
-
 			-- Event handler
 			SellJunkFrame:RegisterEvent("MERCHANT_SHOW")
 			SellJunkFrame:RegisterEvent("MERCHANT_CLOSED")
-			SellJunkFrame:SetScript("OnEvent", function(self, event, arg1)
+			SellJunkFrame:SetScript("OnEvent", function(self, event, arg1, arg2)
 				if event == "MERCHANT_SHOW" then
 					-- Check for vendors that refuse to buy items
 					SellJunkFrame:RegisterEvent("UI_ERROR_MESSAGE")
@@ -3897,22 +3881,12 @@
 					-- If merchant frame is closed, stop selling
 					StopSelling()
 				elseif event == "UI_ERROR_MESSAGE" then
-					if arg1 == errorCodeVendorDoesNotBuy then
-						StopSelling() -- Vendor refuses to buy items (ERR_VENDOR_DOESNT_BUY)
-					elseif arg1 == errorCodeTooMuchGold then
-						StopSelling() -- At gold limit (ERR_TOO_MUCH_GOLD)
+					if arg2 and (arg2 == ERR_VENDOR_DOESNT_BUY or arg2 == ERR_TOO_MUCH_GOLD) then
+						-- Vendor refuses to buy items or player at gold limit
+						StopSelling()
 					end
 				end
 			end)
-
-			-- Find updated error strings
-			-- print(GetGameMessageInfo(635))
-			-- print(GetGameMessageInfo(46))
-
-			-- Find updated error codes
-			-- for i = 100, 2000 do
-			--   if GetGameMessageInfo(i) == "ERR_TOO_MUCH_GOLD" then print(i) end
-			-- end
 
 		end
 
