@@ -1,4 +1,7 @@
-﻿11.0.29 - 22nd January 2025
+﻿11.0.30 - 29th January 2025
+- For 'Sell junk automatically', fixed an issue where selling would continue for vendors that refuse to buy items or where the player has reached the gold limit.
+
+11.0.29 - 22nd January 2025
 - For 'Enhance minimap' ('Interface'), Leatrix Plus will no longer create a standard minimap button for Narcissus as Narcissus now creates its own standard button.
 
 11.0.28 - 15th January 2025
