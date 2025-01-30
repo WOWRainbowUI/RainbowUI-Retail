@@ -173,6 +173,7 @@ BlizzMoveAPI:RegisterFrames(
                     ["RaidInfoScrollFrame"] =
                     {
                         MaxVersion = 100000,
+						MinVersion = 40000, -- 暫時修正
                     },
                 },
             },
