@@ -1,7 +1,6 @@
 # Syndicator
 
-## [165](https://github.com/Baganator/Syndicator/tree/165) (2025-01-27)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/164...165) 
+## [167](https://github.com/Baganator/Syndicator/tree/167) (2025-01-29)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/166...167) 
 
-- Search Builder: Add item level input option, less, more, range and equals  
-- Tweak condition for checking if a custom term has had text set  
+- Vanilla: Update toc for 1.15.6  

@@ -1195,16 +1195,11 @@ L["HIDE_IN_INVENTORY_TOOLTIPS"] = "在背包提示隱藏"
 L["HOLD_SHIFT_TO_DISPLAY"] = "按下Shift來顯示"
 L["INSERT"] = "插入"
 L["INVENTORY"] = "庫存"
---[[Translation missing --]]
-L["ITEM_LEVEL"] = "Item level"
---[[Translation missing --]]
-L["ITEM_LEVEL_EQUALS"] = "Equal to, ="
---[[Translation missing --]]
-L["ITEM_LEVEL_LESS"] = "Less than, <"
---[[Translation missing --]]
-L["ITEM_LEVEL_MORE"] = "More than, >"
---[[Translation missing --]]
-L["ITEM_LEVEL_RANGE"] = "Range, -"
+L["ITEM_LEVEL"] = "物品等級"
+L["ITEM_LEVEL_EQUALS"] = "等於，="
+L["ITEM_LEVEL_LESS"] = "小於，<"
+L["ITEM_LEVEL_MORE"] = "大於，>"
+L["ITEM_LEVEL_RANGE"] = "範圍，-"
 L["KEYWORD_ACCOUNT_BOUND"] = "帳號綁定"
 L["KEYWORD_AXE"] = "斧"
 L["KEYWORD_AZERITE"] = "艾澤萊"
