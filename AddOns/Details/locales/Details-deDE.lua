@@ -834,16 +834,13 @@ L["STRING_OPTIONS_MINIMAP_ANCHOR"] = "Minikarte:"
 L["STRING_OPTIONS_MINIMAP_DESC"] = "Minikartensymbol anzeigen/verstecken"
 L["STRING_OPTIONS_MISCTITLE"] = "Sonstige Einstellungen"
 L["STRING_OPTIONS_MISCTITLE2"] = "Dies kontrolliert etliche Optionen."
---[[Translation missing --]]
-L["STRING_OPTIONS_MPLUS_AUTO_CLOSE_TIME"] = "Time To Auto Close"
+L["STRING_OPTIONS_MPLUS_AUTO_CLOSE_TIME"] = "Zeit bis zum automatischen Schließen"
 --[[Translation missing --]]
 L["STRING_OPTIONS_MPLUS_AUTO_CLOSE_TIME_DESC"] = "Time to auto close the Show End of M+ Panel automatically."
---[[Translation missing --]]
-L["STRING_OPTIONS_MPLUS_BOSSNEWCOMBAT"] = "New Combat on Boss Pull"
+L["STRING_OPTIONS_MPLUS_BOSSNEWCOMBAT"] = "Neuer Kampf bei Boss Pull"
 --[[Translation missing --]]
 L["STRING_OPTIONS_MPLUS_BOSSNEWCOMBAT_DESC"] = "If a boss is pulled while in combat, this option closes the current combat encounter and initiates a new one for the boss."
---[[Translation missing --]]
-L["STRING_OPTIONS_MPLUS_DPS_ANCHOR"] = "Overall Segment DPS Calculation"
+L["STRING_OPTIONS_MPLUS_DPS_ANCHOR"] = "DPS-Berechnung für das gesamte Segment"
 --[[Translation missing --]]
 L["STRING_OPTIONS_MPLUS_MAKEOVERALL"] = "Make Overall Segment"
 --[[Translation missing --]]
@@ -1474,7 +1471,6 @@ L["STRING_REPORT_SINGLE_BUFFUPTIME"] = "Stärkungszauberlaufzeit für"
 L["STRING_REPORT_SINGLE_COOLDOWN"] = "Cooldown benutzt von"
 L["STRING_REPORT_SINGLE_DEATH"] = "Tod von"
 L["STRING_REPORT_SINGLE_DEBUFFUPTIME"] = "Schwächungszauberlaufzeit für"
---[[Translation missing --]]
 L["STRING_REPORT_TEXT"] = "Report"
 L["STRING_REPORT_TOOLTIP"] = "Ergebnisbericht"
 L["STRING_REPORTFRAME_COPY"] = "Kopieren & Einfügen"
