@@ -182,8 +182,8 @@ Enable this setting if you want this timer to be hidden, or when using a WeakAur
 	L["Anchor Mode"] = "Anchor Mode"
 	L["Anchor Point"] = "Ankerpunkt"
 	L["Anchored To"] = "Angeheftet an"
-	L["and"] = "und"
 	L["And "] = "Und"
+	L["and"] = "und"
 	--[[Translation missing --]]
 	L["and %s"] = "and %s"
 	L["and aligned left"] = "und links ausgerichtet"
@@ -329,8 +329,6 @@ Off Screen]=]
 	--[[Translation missing --]]
 	L["Clipped by Foreground"] = "Clipped by Foreground"
 	--[[Translation missing --]]
-	L["Clipped by Progress"] = "Clipped by Progress"
-	--[[Translation missing --]]
 	L["Clockwise"] = "Clockwise"
 	L["Close"] = "Schließen"
 	--[[Translation missing --]]
@@ -342,8 +340,8 @@ Off Screen]=]
 	L["Collapse all pending Import"] = "Collapse all pending Import"
 	--[[Translation missing --]]
 	L["Collapsible Group"] = "Collapsible Group"
-	L["color"] = "Farbe"
 	L["Color"] = "Farbe"
+	L["color"] = "Farbe"
 	L["Column Height"] = "Spaltenhöhe"
 	L["Column Space"] = "Spaltenabstand"
 	--[[Translation missing --]]
@@ -353,8 +351,6 @@ Off Screen]=]
 	L["Combinations"] = "Kombinationen"
 	--[[Translation missing --]]
 	L["Combine Matches Per Unit"] = "Combine Matches Per Unit"
-	--[[Translation missing --]]
-	L["Commits"] = "Commits"
 	--[[Translation missing --]]
 	L["Common Text"] = "Common Text"
 	--[[Translation missing --]]
@@ -1413,6 +1409,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	--[[Translation missing --]]
 	L["This setting controls what widget is generated in user mode."] = "This setting controls what widget is generated in user mode."
 	--[[Translation missing --]]
+	L["Thumbnail Icon"] = "Thumbnail Icon"
+	--[[Translation missing --]]
 	L["Tick %s"] = "Tick %s"
 	--[[Translation missing --]]
 	L["Tick Area %s"] = "Tick Area %s"
@@ -1502,9 +1500,9 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	--[[Translation missing --]]
 	L["Use Texture"] = "Use Texture"
 	--[[Translation missing --]]
-	L["Used in auras:"] = "Used in auras:"
-	--[[Translation missing --]]
 	L["Used in Auras:"] = "Used in Auras:"
+	--[[Translation missing --]]
+	L["Used in auras:"] = "Used in auras:"
 	--[[Translation missing --]]
 	L["Uses Texture Coordinates to rotate the texture."] = "Uses Texture Coordinates to rotate the texture."
 	--[[Translation missing --]]
@@ -1546,16 +1544,16 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["X Offset"] = "X-Versatz"
 	L["X Rotation"] = "X-Rotation"
 	L["X Scale"] = "Skalierung (X)"
-	L["X-Offset"] = "X-Versatz"
 	--[[Translation missing --]]
 	L["x-Offset"] = "x-Offset"
+	L["X-Offset"] = "X-Versatz"
 	L["Y Offset"] = "Y-Versatz"
 	L["Y Rotation"] = "Y-Rotation"
 	L["Y Scale"] = "Skalierung (Y)"
 	L["Yellow Rune"] = "Gelbe Rune"
+	L["Y-Offset"] = "Y-Versatz"
 	--[[Translation missing --]]
 	L["y-Offset"] = "y-Offset"
-	L["Y-Offset"] = "Y-Versatz"
 	--[[Translation missing --]]
 	L["You already have this group/aura. Importing will create a duplicate."] = "You already have this group/aura. Importing will create a duplicate."
 	L["You are about to delete %d aura(s). |cFFFF0000This cannot be undone!|r Would you like to continue?"] = "Du bist im Begriff %d Aura/Auren zu löschen. |cFFFF0000Das Löschen kann nicht rückgängig gemacht werden!|r Willst du fortfahren?"

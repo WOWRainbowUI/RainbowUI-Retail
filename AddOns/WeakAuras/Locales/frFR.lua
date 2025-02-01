@@ -897,9 +897,9 @@ L["Icon Function"] = "Icon Function"
 --[[Translation missing --]]
 L["Icon Function (fallback state)"] = "Icon Function (fallback state)"
 --[[Translation missing --]]
-L["ID"] = "ID"
---[[Translation missing --]]
 L["Id"] = "Id"
+--[[Translation missing --]]
+L["ID"] = "ID"
 --[[Translation missing --]]
 L["If you require additional assistance, please open a ticket on GitHub or visit our Discord at https://discord.gg/weakauras!"] = "If you require additional assistance, please open a ticket on GitHub or visit our Discord at https://discord.gg/weakauras!"
 L["Ignore Dead"] = "Ignorer la mort"
@@ -1007,6 +1007,8 @@ L["Item Slot"] = "Item Slot"
 L["Item Slot String"] = "Item Slot String"
 L["Item Type"] = "Type d'objet"
 L["Item Type Equipped"] = "Type d'objet équipé"
+--[[Translation missing --]]
+L["ItemId"] = "ItemId"
 --[[Translation missing --]]
 L["Jin'do the Hexxer"] = "Jin'do the Hexxer"
 --[[Translation missing --]]

@@ -252,7 +252,6 @@ Off Screen]=] ] = [=[Индикация за
 	L["Clip Overlays"] = "Обрезать наложения"
 	--[[Translation missing --]]
 	L["Clipped by Foreground"] = "Clipped by Foreground"
-	L["Clipped by Progress"] = "Ограничить прогрессом"
 	L["Clockwise"] = "По часовой стрелке"
 	L["Close"] = "Закрыть"
 	L["Code Editor"] = "Редактор кода"
@@ -269,8 +268,6 @@ Off Screen]=] ] = [=[Индикация за
 	L["COMBAT_LOG_EVENT_UNFILTERED with no filter can trigger frame drops in raid environment."] = "Событие COMBAT_LOG_EVENT_UNFILTERED без фильтра может вызвать потерю кадров в условиях рейда."
 	L["Combinations"] = "Комбинации"
 	L["Combine Matches Per Unit"] = "Объединить совпадения для каждой единицы"
-	--[[Translation missing --]]
-	L["Commits"] = "Commits"
 	L["Common Text"] = "Общие параметры текста"
 	L["Compare against the number of units affected."] = "Сравнение с количеством единиц, находящихся под действием эффекта."
 	L["Compatibility Options"] = "Параметры совместимости"
@@ -961,6 +958,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["This is a modified version of your group: |cff9900FF%s|r"] = "Это изменённая версия вашей группы индикаций |cFF9900FF%s|r"
 	L["This region of type \"%s\" is not supported."] = "Регион типа \"%s\" не поддерживается."
 	L["This setting controls what widget is generated in user mode."] = "Настройка определяет, какой примитив графического интерфейса (виджет) создается для этого параметра в режиме пользователя."
+	--[[Translation missing --]]
+	L["Thumbnail Icon"] = "Thumbnail Icon"
 	L["Tick %s"] = "Такт %s"
 	--[[Translation missing --]]
 	L["Tick Area %s"] = "Tick Area %s"
@@ -1021,8 +1020,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["Use Display Info Id"] = "Использовать ID отображения существа"
 	L["Use SetTransform"] = "Использовать ф. SetTransform"
 	L["Use Texture"] = "Использовать текстуру"
-	L["Used in auras:"] = "Использовано в индикациях:"
 	L["Used in Auras:"] = "Использовано в индикациях:"
+	L["Used in auras:"] = "Использовано в индикациях:"
 	L["Uses Texture Coordinates to rotate the texture."] = "Использует координаты текстуры для её вращения."
 	L["Uses UnitInRange() to check if in range. Matches default raid frames out of range behavior, which is between 25 to 40 yards depending on your class and spec."] = "Использует функцию UnitInRange для проверки, находится ли указанная единица рядом с игроком. В этом смысле соответствует поведению стандартных рамок рейда (raid frames). Расстояние составляет от 25 до 40 метров в зависимости от вашего класса и специализации."
 	L["Uses UnitIsVisible() to check if game client has loaded a object for this unit. This distance is around 100 yards. This is polled every second."] = "Использует функцию UnitIsVisible для проверки, может ли клиент игры видеть указанную единицу (загружен ли объект). Не определяет, находится ли единица в поле зрения. Расстояние составляет 100 метров. Опрос происходит каждую секунду."
@@ -1048,8 +1047,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["X Offset"] = "Смещение по X"
 	L["X Rotation"] = "Поворот по X"
 	L["X Scale"] = "Масштаб по X"
-	L["X-Offset"] = "Смещение по X"
 	L["x-Offset"] = "Смещение по X"
+	L["X-Offset"] = "Смещение по X"
 	L["Y Offset"] = "Смещение по Y"
 	L["Y Rotation"] = "Поворот по Y"
 	L["Y Scale"] = "Масштаб по Y"

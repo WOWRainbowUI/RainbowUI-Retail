@@ -356,8 +356,6 @@ Off Screen]=] ] = "Aura está fora da tela"
 	--[[Translation missing --]]
 	L["Clipped by Foreground"] = "Clipped by Foreground"
 	--[[Translation missing --]]
-	L["Clipped by Progress"] = "Clipped by Progress"
-	--[[Translation missing --]]
 	L["Clockwise"] = "Clockwise"
 	L["Close"] = "Fechar"
 	--[[Translation missing --]]
@@ -371,8 +369,8 @@ Off Screen]=] ] = "Aura está fora da tela"
 	L["Collapse all pending Import"] = "Collapse all pending Import"
 	--[[Translation missing --]]
 	L["Collapsible Group"] = "Collapsible Group"
-	L["color"] = "cor"
 	L["Color"] = "Cor"
+	L["color"] = "cor"
 	--[[Translation missing --]]
 	L["Column Height"] = "Column Height"
 	--[[Translation missing --]]
@@ -384,8 +382,6 @@ Off Screen]=] ] = "Aura está fora da tela"
 	L["Combinations"] = "Combinações"
 	--[[Translation missing --]]
 	L["Combine Matches Per Unit"] = "Combine Matches Per Unit"
-	--[[Translation missing --]]
-	L["Commits"] = "Commits"
 	--[[Translation missing --]]
 	L["Common Text"] = "Common Text"
 	--[[Translation missing --]]
@@ -1533,6 +1529,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	--[[Translation missing --]]
 	L["This setting controls what widget is generated in user mode."] = "This setting controls what widget is generated in user mode."
 	--[[Translation missing --]]
+	L["Thumbnail Icon"] = "Thumbnail Icon"
+	--[[Translation missing --]]
 	L["Tick %s"] = "Tick %s"
 	--[[Translation missing --]]
 	L["Tick Area %s"] = "Tick Area %s"
@@ -1640,9 +1638,9 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	--[[Translation missing --]]
 	L["Use Texture"] = "Use Texture"
 	--[[Translation missing --]]
-	L["Used in auras:"] = "Used in auras:"
-	--[[Translation missing --]]
 	L["Used in Auras:"] = "Used in Auras:"
+	--[[Translation missing --]]
+	L["Used in auras:"] = "Used in auras:"
 	--[[Translation missing --]]
 	L["Uses Texture Coordinates to rotate the texture."] = "Uses Texture Coordinates to rotate the texture."
 	--[[Translation missing --]]
@@ -1692,9 +1690,9 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	--[[Translation missing --]]
 	L["X Scale"] = "X Scale"
 	--[[Translation missing --]]
-	L["X-Offset"] = "X-Offset"
-	--[[Translation missing --]]
 	L["x-Offset"] = "x-Offset"
+	--[[Translation missing --]]
+	L["X-Offset"] = "X-Offset"
 	L["Y Offset"] = "Y Posicionamento"
 	--[[Translation missing --]]
 	L["Y Rotation"] = "Y Rotation"
@@ -1703,9 +1701,9 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	--[[Translation missing --]]
 	L["Yellow Rune"] = "Yellow Rune"
 	--[[Translation missing --]]
-	L["y-Offset"] = "y-Offset"
-	--[[Translation missing --]]
 	L["Y-Offset"] = "Y-Offset"
+	--[[Translation missing --]]
+	L["y-Offset"] = "y-Offset"
 	--[[Translation missing --]]
 	L["You already have this group/aura. Importing will create a duplicate."] = "You already have this group/aura. Importing will create a duplicate."
 	--[[Translation missing --]]

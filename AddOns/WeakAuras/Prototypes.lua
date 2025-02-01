@@ -2430,9 +2430,6 @@ Private.event_prototypes = {
         values = "role_types",
         store = true,
         conditionType = "select",
-        enable = function(trigger)
-          return trigger.unit == "group" or trigger.unit == "raid" or trigger.unit == "party"
-        end
       },
       {
         name = "raid_role",
@@ -6163,6 +6160,16 @@ Private.event_prototypes = {
         test = "true",
         store = true,
         conditionType = "string"
+      },
+      {
+        name = "itemId",
+        display = L["ItemId"],
+        hidden = true,
+        init = "item",
+        test = "true",
+        store = true,
+        conditionType = "number",
+        operator_types = "only_equal",
       },
       {
         name = "icon",

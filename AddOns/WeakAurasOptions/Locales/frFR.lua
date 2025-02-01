@@ -316,8 +316,6 @@ Off Screen]=]
 	--[[Translation missing --]]
 	L["Clipped by Foreground"] = "Clipped by Foreground"
 	--[[Translation missing --]]
-	L["Clipped by Progress"] = "Clipped by Progress"
-	--[[Translation missing --]]
 	L["Clockwise"] = "Clockwise"
 	L["Close"] = "Fermer"
 	--[[Translation missing --]]
@@ -329,8 +327,8 @@ Off Screen]=]
 	L["Collapse all pending Import"] = "Collapse all pending Import"
 	--[[Translation missing --]]
 	L["Collapsible Group"] = "Collapsible Group"
-	L["color"] = "couleur"
 	L["Color"] = "Couleur"
+	L["color"] = "couleur"
 	L["Column Height"] = "Hauteur de colonne"
 	L["Column Space"] = "Espace de colonne"
 	L["Columns"] = "Colonnes"
@@ -338,8 +336,6 @@ Off Screen]=]
 	L["COMBAT_LOG_EVENT_UNFILTERED with no filter can trigger frame drops in raid environment."] = "COMBAT_LOG_EVENT_UNFILTERED with no filter can trigger frame drops in raid environment."
 	L["Combinations"] = "Combinaisons"
 	L["Combine Matches Per Unit"] = "Combiner toutes les Correspondances Par Unité"
-	--[[Translation missing --]]
-	L["Commits"] = "Commits"
 	L["Common Text"] = "Texte commun"
 	L["Compare against the number of units affected."] = "Comparer contre le nombre d'unités affectées."
 	--[[Translation missing --]]
@@ -1293,6 +1289,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["This is a modified version of your group: |cff9900FF%s|r"] = "This is a modified version of your group: |cff9900FF%s|r"
 	L["This region of type \"%s\" is not supported."] = "Cette région de type \"%s\" n'est pas supportée."
 	L["This setting controls what widget is generated in user mode."] = "Ce paramètre contrôle le widget généré en mode utilisateur."
+	--[[Translation missing --]]
+	L["Thumbnail Icon"] = "Thumbnail Icon"
 	L["Tick %s"] = "Coche %s"
 	--[[Translation missing --]]
 	L["Tick Area %s"] = "Tick Area %s"
@@ -1370,8 +1368,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["Use Display Info Id"] = "Utiliser les informations d'identifiant de l'affichage"
 	L["Use SetTransform"] = "Utiliser SetTransform"
 	L["Use Texture"] = "Utiliser une texture"
-	L["Used in auras:"] = "Utilisé dans les auras:"
 	L["Used in Auras:"] = "Utilisé(e) dans les Auras:"
+	L["Used in auras:"] = "Utilisé dans les auras:"
 	--[[Translation missing --]]
 	L["Uses Texture Coordinates to rotate the texture."] = "Uses Texture Coordinates to rotate the texture."
 	--[[Translation missing --]]
@@ -1411,14 +1409,14 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["X Offset"] = "Décalage X"
 	L["X Rotation"] = "Rotation X"
 	L["X Scale"] = "Echelle X"
-	L["X-Offset"] = "Décalage X"
 	L["x-Offset"] = "x-Décalage"
+	L["X-Offset"] = "Décalage X"
 	L["Y Offset"] = "Décalage Y"
 	L["Y Rotation"] = "Rotation Y"
 	L["Y Scale"] = "Echelle Y"
 	L["Yellow Rune"] = "Rune jaune"
-	L["y-Offset"] = "y-Décalage"
 	L["Y-Offset"] = "Décalage Y"
+	L["y-Offset"] = "y-Décalage"
 	--[[Translation missing --]]
 	L["You already have this group/aura. Importing will create a duplicate."] = "You already have this group/aura. Importing will create a duplicate."
 	L["You are about to delete %d aura(s). |cFFFF0000This cannot be undone!|r Would you like to continue?"] = "Vous êtes sur le point de supprimer %d aura(s). |cFFFF0000Cela ne peut pas être annulé !|r Voulez-vous continuer ?"
