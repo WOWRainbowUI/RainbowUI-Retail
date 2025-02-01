@@ -1,8 +1,6 @@
 # Baganator
 
-## [634](https://github.com/Baganator/Baganator/tree/634) (2025-01-29)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/633...634) 
+## [635](https://github.com/Baganator/Baganator/tree/635) (2025-01-30)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/634...635) 
 
-- Vanilla: Update toc for 1.15.6  
-- Fix bank theme for cached view not swapping properly when theme changed  
-- Code cleanup  
+- Warband Bank: If alt to show buttons used fix deposit/withdraw buttons display  
