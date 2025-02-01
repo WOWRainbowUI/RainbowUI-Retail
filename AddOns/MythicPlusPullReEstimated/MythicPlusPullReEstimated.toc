@@ -1,6 +1,6 @@
 ## Interface: 110007,110100
 ## Title: Mythic Plus Pull
-## Version: v1.11.3
+## Version: v1.11.4
 ## Notes: Tracks and displays % progress gained from individual mobs or entire pulls in Mythic+ dungeons. /mpp for options
 ## Notes-ruRU: Отслеживает и отображает % прогресса, полученного от отдельных мобов или всех пуллов в подземельях М+ режима. Введите /mpp для вызова настроек
 ## Author: Numy
@@ -9,6 +9,17 @@
 ## X-Curse-Project-ID: 431246
 ## X-Wago-ID: anKWEqNE
 ## OptionalDeps: MythicDungeonTools,TidyPlates
+## Category-enUS: Dungeons & Raids
+## Category-deDE: Dungeons & Schlachtzüge
+## Category-esES: Mazmorras y bandas
+## Category-esMX: Calabozos y bandas
+## Category-frFR: Donjons et raids
+## Category-itIT: Spedizioni e incursioni
+## Category-koKR: 던전 및 공격대
+## Category-ptBR: Masmorras e Raides
+## Category-ruRU: Подземелья и рейды
+## Category-zhCN: 地下城和团队副本
+## Category-zhTW: 地城與團隊
 
 
 Libs\embeds.xml
