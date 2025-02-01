@@ -1,6 +1,7 @@
 # Syndicator
 
-## [167](https://github.com/Baganator/Syndicator/tree/167) (2025-01-29)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/166...167) 
+## [168](https://github.com/Baganator/Syndicator/tree/168) (2025-01-31)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/167...168) 
 
-- Vanilla: Update toc for 1.15.6  
+- Move currency tooltips all characters total to the right hand side  
+- Use internal APIs instead of raw data access  
