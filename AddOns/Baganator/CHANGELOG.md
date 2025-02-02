@@ -1,6 +1,7 @@
 # Baganator
 
-## [635](https://github.com/Baganator/Baganator/tree/635) (2025-01-30)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/634...635) 
+## [636](https://github.com/Baganator/Baganator/tree/636) (2025-02-01)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/635...636) 
 
-- Warband Bank: If alt to show buttons used fix deposit/withdraw buttons display  
+- Fix gold missing from summary tooltip when using an old version of Syndicator  
+- [Fixes #417] Classic: Moving a section duplicates another section  
