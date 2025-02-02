@@ -3,10 +3,17 @@ function VUHDO_activateLayout(aName)
 	VUHDO_SPELL_ASSIGNMENTS = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["MOUSE"]);
 	VUHDO_HOSTILE_SPELL_ASSIGNMENTS = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["HOSTILE_MOUSE"]);
 
-	if VUHDO_SPELL_LAYOUTS[aName]["HOTS"]	and VUHDO_SPELL_CONFIG["IS_LOAD_HOTS"]
-		and not VUHDO_SPELL_LAYOUTS[aName]["HOTS"][1] then
-		VUHDO_PANEL_SETUP["HOTS"] = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["HOTS"]);
+	if VUHDO_SPELL_LAYOUTS[aName]["HOTS"] and VUHDO_SPELL_CONFIG["IS_LOAD_HOTS"] then
+		for tPanelNum = 1, VUHDO_MAX_PANELS do
+			-- support for pre per-panel HoTs
+			if type(VUHDO_SPELL_LAYOUTS["HOTS"]) == "table" then
+				VUHDO_PANEL_SETUP[tPanelNum]["HOTS"] = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["HOTS"][tPanelNum]);
+			else
+				VUHDO_PANEL_SETUP[tPanelNum]["HOTS"] = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["HOTS"]);
+			end
+		end
 	end
+
 	VUHDO_SPELLS_KEYBOARD = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["KEYS"]);
 
 	if VUHDO_SPELL_LAYOUTS[aName]["FIRE"] then

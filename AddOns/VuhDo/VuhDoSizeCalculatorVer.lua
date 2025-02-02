@@ -292,11 +292,13 @@ local tNumBars;
 local tCurrHeight;
 local tRowHeight;
 function VUHDO_getHealButtonPosVer(aPlaceNum, aRowNo, aPanelNum)
+
 	tButtonX = VUHDO_getColumnPos(aPlaceNum, aPanelNum, aRowNo);
 	tButtonY = VUHDO_getRowPos(aPlaceNum, aPanelNum) + VUHDO_getRowOffset(aRowNo, aPanelNum);
 
 	if not VUHDO_isConfigPanelShowing() then
-		tHots = VUHDO_PANEL_SETUP["HOTS"];
+		tHots = VUHDO_PANEL_SETUP[aPanelNum]["HOTS"];
+
 		if tHots["radioValue"] == 1 then
 			tHotslots = VUHDO_getNumHotSlots(aPanelNum);
 			tButtonX = tButtonX + VUHDO_PANEL_SETUP[aPanelNum]["SCALING"]["barHeight"] * VUHDO_PANEL_SETUP[aPanelNum]["HOTS"]["size"] * 0.01 * tHotslots;
@@ -325,7 +327,9 @@ function VUHDO_getHealButtonPosVer(aPlaceNum, aRowNo, aPanelNum)
 			end
 		end
 	end
+
 	return tButtonX, tButtonY;
+
 end
 
 

@@ -471,19 +471,24 @@ function VUHDO_registerAllBouquets(aDoCompress)
 	if not VUHDO_BOUQUETS["STORED"] then return; end
 	if (aDoCompress) then VUHDO_compressAllBouquets(); end
 
-	-- Hot Icons+Bars
-	tHotSlots = VUHDO_PANEL_SETUP["HOTS"]["SLOTS"];
-
-	for tIndex, tHotName in pairs(tHotSlots) do
-		if tHotName and "BOUQUET_" == strsub(tHotName, 1, 8) then
-			VUHDO_registerForBouquet(strsub(tHotName, 9), "HoT " .. tIndex, VUHDO_hotBouquetCallback);
-		end
-	end
-
 	twipe(tAlreadyRegistered);
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		if VUHDO_PANEL_MODELS[tPanelNum] then
+			-- Hot Icons+Bars
+			tHotSlots = VUHDO_PANEL_SETUP[tPanelNum]["HOTS"]["SLOTS"];
+
+			for _, tHotName in pairs(tHotSlots) do
+				if tHotName and "BOUQUET_" == strsub(tHotName, 1, 8) then
+					VUHDO_registerForBouquetUnique(
+						strsub(tHotName, 9),
+						"HoT",
+						VUHDO_hotBouquetCallback,
+						tAlreadyRegistered
+					);
+				end
+			end
+
 			-- Bar (=Outer) Border
 			VUHDO_registerForBouquetUnique(
 				VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["BAR_BORDER"],
@@ -789,17 +794,6 @@ end
 
 
 --
-local function VUHDO_isInAnyHotSlot(aHotName)
-	for tSlotNum = 1, 10 do
-		if VUHDO_PANEL_SETUP["HOTS"]["SLOTS"][tSlotNum] == aHotName then return true; end
-	end
-
-	return false;
-end
-
-
-
---
 function VUHDO_isAnyoneInterestedIn(anUpdateMode)
 
 	if (VUHDO_isAnyBouquetInterestedIn(anUpdateMode) or VUHDO_isAnyTextIndicatorInterestedIn(anUpdateMode)) then
@@ -810,7 +804,7 @@ function VUHDO_isAnyoneInterestedIn(anUpdateMode)
 		elseif 7 == anUpdateMode then -- VUHDO_UPDATE_AGGRO
 			return VUHDO_CONFIG["THREAT"]["AGGRO_USE_TEXT"];
 		elseif 16 == anUpdateMode then -- VUHDO_UPDATE_NUM_CLUSTER
-			return VUHDO_isInAnyHotSlot("CLUSTER");
+			return VUHDO_getIsClusterSlotActive();
 		elseif 22 == anUpdateMode then -- VUHDO_UPDATE_UNIT_TARGET
 			for tCnt = 1, 10 do -- VUHDO_MAX_PANELS
 				if VUHDO_PANEL_MODELS[tCnt] then

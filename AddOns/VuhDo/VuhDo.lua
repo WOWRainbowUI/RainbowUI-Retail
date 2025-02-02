@@ -56,7 +56,7 @@ BACKDROP_VUHDO_TOOLTIP = {
 	tile = true,
 	tileSize = 8,
 	edgeSize = 8,
-	insets = {  left = 3, right = 3, top = 3, bottom = 3 },
+	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 };
 
 -- BURST CACHE ---------------------------------------------------

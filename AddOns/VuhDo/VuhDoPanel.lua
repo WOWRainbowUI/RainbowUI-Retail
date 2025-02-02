@@ -20,7 +20,7 @@ BACKDROP_VUHDO_PLAYER_TARGET_FRAME = {
 	tile = false,
 	tileSize = 16,
 	edgeSize = 1,
-	insets = {  left = 10, right = 10, top = 10, bottom = 10 },
+	insets = { left = 10, right = 10, top = 10, bottom = 10 },
 };
 
 BACKDROP_BORDER_COLOR_VUHDO_PLAYER_TARGET_FRAME = CreateColor(0.6, 0.6, 0.6);
@@ -31,7 +31,7 @@ BACKDROP_VUHDO_HEAL_PANEL = {
 	tile = true,
 	tileSize = 8,
 	edgeSize = 8,
-	insets = {  left = 1, right = 1, top = 1, bottom = 1 },
+	insets = { left = 1, right = 1, top = 1, bottom = 1 },
 };
 
 

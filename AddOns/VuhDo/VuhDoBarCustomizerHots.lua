@@ -5,14 +5,14 @@ local sIsFade;
 local sIsFlashWhenLow;
 local sIsWarnColor;
 local sIsSwiftmend;
-local sHotSetup;
+local sHotSetup = { };
+local sHotSlots = { };
+local sIsHotShowIcon = { };
+local sIsChargesIcon = { };
+local sHotSlotCfgs = { };
+local sHotSlotBouquets = { };
 local sHotCols;
-local sHotSlots;
 local sBarColors;
-local sIsHotShowIcon;
-local sHotSlotCfgs;
-local sHotSlotBouquets;
-local sIsChargesIcon;
 local sClipL, sClipR, sClipT, sClipB = 0, 1, 0, 1;
 
 local sIsPlayerKnowsSwiftmend = false;
@@ -78,7 +78,7 @@ local VUHDO_SHIELD_TEXTURES = {
 
 local VUHDO_CHARGE_COLORS = { "HOT_CHARGE_1", "HOT_CHARGE_2", "HOT_CHARGE_3", "HOT_CHARGE_4" };
 
-local VUHDO_HOT_CFGS = { "HOT1", "HOT2", "HOT3", "HOT4", "HOT5", "HOT6", "HOT7", "HOT8", "HOT9", "HOT10", };
+local VUHDO_HOT_CFGS = { "HOT1", "HOT2", "HOT3", "HOT4", "HOT5", "HOT6", "HOT7", "HOT8", "HOT9", "HOT10", "HOT11", "HOT12" };
 
 
 -- BURST CACHE -------------------------------------------------
@@ -155,23 +155,27 @@ function VUHDO_customHotsInitLocalOverrides()
 	sIsFade = sHotCols["isFadeOut"];
 	sIsFlashWhenLow = sHotCols["isFlashWhenLow"];
 	sIsWarnColor = sHotCols["WARNING"]["enabled"];
-	sHotSetup = VUHDO_PANEL_SETUP["HOTS"];
-	sHotSlots = VUHDO_PANEL_SETUP["HOTS"]["SLOTS"];
-	sIsHotShowIcon = sHotSetup["iconRadioValue"] == 1;
-	sIsChargesIcon = sHotSetup["stacksRadioValue"] == 3;
 	sIsClusterIcons = VUHDO_INTERNAL_TOGGLES[16] or VUHDO_INTERNAL_TOGGLES[18]; -- -- VUHDO_UPDATE_NUM_CLUSTER -- VUHDO_UPDATE_MOUSEOVER_CLUSTER
 	sIsOthersHots = VUHDO_ACTIVE_HOTS["OTHER"];
 
-	sHotSlotCfgs = { };
-	sHotSlotBouquets = { };
+	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
+		sHotSetup[tPanelNum] = VUHDO_PANEL_SETUP[tPanelNum]["HOTS"];
+		sHotSlots[tPanelNum] = sHotSetup[tPanelNum]["SLOTS"];
 
-	for tCnt = 1, 10 do
-		sHotSlotCfgs[tCnt] = VUHDO_PANEL_SETUP["HOTS"]["SLOTCFG"][tostring(tCnt)];
+		sIsHotShowIcon[tPanelNum] = sHotSetup[tPanelNum]["iconRadioValue"] == 1;
+		sIsChargesIcon[tPanelNum] = sHotSetup[tPanelNum]["stacksRadioValue"] == 3;
 
-		local tHotName = sHotSlots[tCnt];
+		sHotSlotCfgs[tPanelNum] = { };
+		sHotSlotBouquets[tPanelNum] = { };
 
-		if tHotName and not VUHDO_strempty(tHotName) and strfind(tHotName, "BOUQUET_") then
-			sHotSlotBouquets[tCnt] = true;
+		for tCnt = 1, 12 do -- VUHDO_MAX_HOTS
+			sHotSlotCfgs[tPanelNum][tCnt] = sHotSetup[tPanelNum]["SLOTCFG"][tostring(tCnt)];
+
+			local tHotName = sHotSlots[tPanelNum][tCnt];
+
+			if tHotName and not VUHDO_strempty(tHotName) and strfind(tHotName, "BOUQUET_") then
+				sHotSlotBouquets[tPanelNum][tCnt] = true;
+			end
 		end
 	end
 
@@ -234,6 +238,7 @@ end
 local tHotName;
 local tDuration2;
 local tChargeTexture;
+local tIsHotShowIcon;
 local tIsChargeShown;
 local tIcon;
 local tTimer;
@@ -248,7 +253,7 @@ local tClockDuration;
 local tOpacity, tTextOpacity;
 local tHotColor;
 local tTimes;
-local function VUHDO_customizeHotIcons(aButton, aHotName, aRest, aTimes, anIcon, aDuration, aShieldCharges, aColor, anIndex, aClipL, aClipR, aClipT, aClipB)
+local function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTimes, anIcon, aDuration, aShieldCharges, aColor, anIndex, aClipL, aClipR, aClipT, aClipB)
 
 	tHotCfg = sBarColors[VUHDO_HOT_CFGS[anIndex]];
 	tIcon = VUHDO_getBarIcon(aButton, anIndex);
@@ -279,7 +284,9 @@ local function VUHDO_customizeHotIcons(aButton, aHotName, aRest, aTimes, anIcon,
 		tCounter:SetTextColor(VUHDO_textColor(aColor));
 	end
 
-	if anIcon and (sIsHotShowIcon or aColor) then
+	tIsHotShowIcon = sIsHotShowIcon[aPanelNum];
+
+	if anIcon and (tIsHotShowIcon or aColor) then
 		if VUHDO_ATLAS_TEXTURES[anIcon] then
 			tIcon:SetAtlas(anIcon);
 
@@ -291,7 +298,7 @@ local function VUHDO_customizeHotIcons(aButton, aHotName, aRest, aTimes, anIcon,
 	tIcon:SetTexCoord(aClipL or sClipL, aClipR or sClipR, aClipT or sClipT, aClipB or sClipB);
 	
 	aTimes = aTimes or 0;
-	tIsChargeShown = sIsChargesIcon and aTimes > 0;
+	tIsChargeShown = sIsChargesIcon[aPanelNum] and aTimes > 0;
 	
 	--@TESTING
 	--aTimes = floor(aRest / 3.5);
@@ -303,7 +310,7 @@ local function VUHDO_customizeHotIcons(aButton, aHotName, aRest, aTimes, anIcon,
 	-- FIXME: useSlotColor no longer has a clear purpose
 	if aColor and aColor["useSlotColor"] then
 		tHotColor = VUHDO_copyColor(tHotCfg);
-	elseif aColor and (not aColor["isDefault"] or not sIsHotShowIcon) then
+	elseif aColor and (not aColor["isDefault"] or not tIsHotShowIcon) then
 		tHotColor = aColor;
 
 		if tTimes > 1 and not aColor["noStacksColor"] then
@@ -319,7 +326,7 @@ local function VUHDO_customizeHotIcons(aButton, aHotName, aRest, aTimes, anIcon,
 			end
 		end
 
-		if tHotColor["useText"] and not sIsHotShowIcon then
+		if tHotColor["useText"] and not tIsHotShowIcon then
 			tTimer:SetTextColor(VUHDO_textColor(tHotColor));
 		end
 
@@ -340,7 +347,7 @@ local function VUHDO_customizeHotIcons(aButton, aHotName, aRest, aTimes, anIcon,
 			tHotColor["useOpacity"] = true;
 		end
 
-		if sIsHotShowIcon then
+		if tIsHotShowIcon then
 			if aColor then
 				tHotColor = aColor;
 			else
@@ -455,12 +462,12 @@ local function VUHDO_customizeHotIcons(aButton, aHotName, aRest, aTimes, anIcon,
 	end
 
 	-- FIXME: this whole function needs refactored to logically group (and dedupe) setting the icon, timer and charges colors
-	if aColor and (not aColor["isDefault"] or not sIsHotShowIcon) then
+	if aColor and (not aColor["isDefault"] or not tIsHotShowIcon) then
 		-- respect the default timer text color set above based on remaining duration
 	elseif sIsWarnColor and aRest < sHotCols["WARNING"]["lowSecs"] then
 		tTimer:SetTextColor(VUHDO_textColor(tHotColor));
 	else
-		if not sIsHotShowIcon and (tTimes <= 1 or not sHotCols["useColorText"]) then
+		if not tIsHotShowIcon and (tTimes <= 1 or not sHotCols["useColorText"]) then
 			tTimer:SetTextColor(VUHDO_textColor(tHotColor));
 		end
 
@@ -475,7 +482,7 @@ local function VUHDO_customizeHotIcons(aButton, aHotName, aRest, aTimes, anIcon,
 		
 		tChargeTexture:Show();
 	elseif aShieldCharges > 0 then
-		if sIsHotShowIcon then
+		if tIsHotShowIcon then
 			tHotColor = tHotCfg;
 		end
 
@@ -495,13 +502,20 @@ end
 
 
 --
+local tResolvedUnit;
 local tAllButtons;
 local tShieldCharges, tShieldName;
 local tIsMatch;
 local tIsMine, tIsOthers;
+local tPanelUnitButtons;
 local function VUHDO_updateHotIcons(aUnit, aHotName, aRest, aTimes, anIcon, aDuration, aMode, aColor, aHotSpellName, aClipL, aClipR, aClipT, aClipB)
-	tAllButtons = VUHDO_getUnitButtons(VUHDO_resolveVehicleUnit(aUnit));
-	if not tAllButtons then return; end
+
+	tResolvedUnit = VUHDO_resolveVehicleUnit(aUnit);
+
+	tAllButtons = VUHDO_getUnitButtons(tResolvedUnit);
+	if not tAllButtons then
+		return;
+	end
 
 	tShieldName = aHotSpellName or aHotName;
 
@@ -511,27 +525,32 @@ local function VUHDO_updateHotIcons(aUnit, aHotName, aRest, aTimes, anIcon, aDur
 
 	tShieldCharges = VUHDO_getShieldLeftCount(aUnit, tShieldName, aMode) or 0; -- if not our shield don't show remaining absorption
 
-	for tIndex, tHotName in pairs(sHotSlots) do
-		if aHotName == tHotName then
+	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
+		tPanelUnitButtons = VUHDO_getUnitButtonsPanel(tResolvedUnit, tPanelNum);
 
-			if aMode == 0 or aColor then
-				tIsMatch = true; -- Bouquet => aColor ~= nil
-			else
-				tIsMine, tIsOthers = sHotSlotCfgs[tIndex]["mine"], sHotSlotCfgs[tIndex]["others"];
+		if tPanelUnitButtons then
+			for tIndex, tHotName in pairs(sHotSlots[tPanelNum]) do
+				if aHotName == tHotName then
+					if aMode == 0 or aColor then
+						tIsMatch = true; -- Bouquet => aColor ~= nil
+					else
+						tIsMine, tIsOthers = sHotSlotCfgs[tPanelNum][tIndex]["mine"], sHotSlotCfgs[tPanelNum][tIndex]["others"];
 
-				tIsMatch = (aMode == 1 and tIsMine and not tIsOthers)
-					or (aMode == 2 and not tIsMine and tIsOthers)
-					or (aMode == 3 and tIsMine and tIsOthers);
-			end
-
-			if tIsMatch then
-				if tIndex >= 6 and tIndex <= 8 then
-					for _, tButton in pairs(tAllButtons) do
-						VUHDO_customizeHotBar(tButton, aRest, tIndex, aDuration, aColor);
+						tIsMatch = (aMode == 1 and tIsMine and not tIsOthers)
+							or (aMode == 2 and not tIsMine and tIsOthers)
+							or (aMode == 3 and tIsMine and tIsOthers);
 					end
-				else
-					for _, tButton in pairs(tAllButtons) do
-						VUHDO_customizeHotIcons(tButton, aHotName, aRest, aTimes, anIcon, aDuration, tShieldCharges, aColor, tIndex, aClipL, aClipR, aClipT, aClipB);
+
+					if tIsMatch then
+						if tIndex >= 6 and tIndex <= 8 then
+							for _, tButton in pairs(tPanelUnitButtons) do
+								VUHDO_customizeHotBar(tButton, aRest, tIndex, aDuration, aColor);
+							end
+						else
+							for _, tButton in pairs(tPanelUnitButtons) do
+								VUHDO_customizeHotIcons(tPanelNum, tButton, aHotName, aRest, aTimes, anIcon, aDuration, tShieldCharges, aColor, tIndex, aClipL, aClipR, aClipT, aClipB);
+							end
+						end
 					end
 				end
 			end
@@ -551,7 +570,7 @@ local function VUHDO_removeButtonHots(aButton)
 		if tHotIconFrame then tHotIconFrame:Hide(); end
 	end
 
-	for tCnt = 9, 10 do
+	for tCnt = 9, 12 do -- VUHDO_MAX_HOTS
 		VUHDO_UIFrameFlashStop(VUHDO_getBarIcon(aButton, tCnt));
 		tHotIconFrame = VUHDO_getBarIconFrame(aButton, tCnt);
 		if tHotIconFrame then tHotIconFrame:Hide(); end
@@ -819,7 +838,7 @@ end
 
 
 --
-local tUnitHotCnt;
+local tUnitHotCount;
 function VUHDO_hasUnitHot(aUnit, aSpellName, aSourceType)
 
 	if not aUnit or not aSpellName then
@@ -932,27 +951,27 @@ end
 
 
 --
-local tAllButtons;
+local tPanelUnitButtons;
 local tIcon;
 local tBarIconFrame;
-function VUHDO_removeHotIcon(aUnit, anIndex)
+function VUHDO_removeHotIcon(aPanelNum, aUnit, anIndex)
 
 	if not aUnit or not anIndex then
 		return;
 	end
 
-	tAllButtons = VUHDO_getUnitButtons(VUHDO_resolveVehicleUnit(aUnit));
+	tPanelUnitButtons = VUHDO_getUnitButtonsPanel(VUHDO_resolveVehicleUnit(aUnit), aPanelNum);
 
-	if not tAllButtons then
+	if not tPanelUnitButtons then
 		return;
 	end
 
 	if anIndex >= 6 and anIndex <= 8 then
-		for _, tButton in pairs(tAllButtons) do
+		for _, tButton in pairs(tPanelUnitButtons) do
 			VUHDO_customizeHotBar(tButton, nil, anIndex);
 		end
 	else
-		for _, tButton in pairs(tAllButtons) do
+		for _, tButton in pairs(tPanelUnitButtons) do
 			tIcon = VUHDO_getBarIcon(tButton, anIndex);
 
 			if tIcon then
@@ -1084,23 +1103,24 @@ end
 
 
 --
-local tAllButtons;
+local tPanelUnitButtons;
 local tUnitHot;
 local tUnitHotCount;
+local tPanelUnitButtons;
 local tUnitHotInfo;
 local tRest;
 local tStacks;
 local tDuration;
 local tShieldCharges;
-local function VUHDO_updateHot(aUnit, anIndex, aSpellName, aSourceType, aNow)
+local function VUHDO_updateHot(aPanelNum, aUnit, anIndex, aSpellName, aSourceType, aNow)
 
 	if not aUnit then
 		return;
 	end
 
-	tAllButtons = VUHDO_getUnitButtons(VUHDO_resolveVehicleUnit(aUnit));
+	tPanelUnitButtons = VUHDO_getUnitButtonsPanel(VUHDO_resolveVehicleUnit(aUnit), aPanelNum);
 
-	if not tAllButtons then
+	if not tPanelUnitButtons then
 		return;
 	end
 
@@ -1128,15 +1148,16 @@ local function VUHDO_updateHot(aUnit, anIndex, aSpellName, aSourceType, aNow)
 			end
 
 			if anIndex >= 6 and anIndex <= 8 then
-				for _, tButton in pairs(tAllButtons) do
+				for _, tButton in pairs(tPanelUnitButtons) do
 					VUHDO_customizeHotBar(tButton, tRest, anIndex, tDuration, nil);
 				end
 			else
 				-- if not our shield don't show remaining absorption
 				tShieldCharges = VUHDO_getShieldLeftCount(aUnit, tUnitHotInfo[6], aSourceType) or 0;
 
-				for _, tButton in pairs(tAllButtons) do
+				for _, tButton in pairs(tPanelUnitButtons) do
 					VUHDO_customizeHotIcons(
+						aPanelNum,
 						tButton,
 						aSpellName,
 						tRest,
@@ -1151,8 +1172,8 @@ local function VUHDO_updateHot(aUnit, anIndex, aSpellName, aSourceType, aNow)
 				end
 			end
 		end
-	elseif not sHotSlotBouquets[anIndex] then
-		VUHDO_removeHotIcon(aUnit, anIndex);
+	elseif not sHotSlotBouquets[aPanelNum][anIndex] then
+		VUHDO_removeHotIcon(aPanelNum, aUnit, anIndex);
 	end
 
 end
@@ -1160,8 +1181,11 @@ end
 
 
 --
+local tResolvedUnit;
+local tAllButtons;
 local tSpellIdStr;
 local tNow;
+local tPanelUnitButtons;
 local tSourceType;
 local tIsMine;
 local tIsOthers;
@@ -1186,34 +1210,47 @@ function VUHDO_updateHots(aUnit, anInfo, aSpellName, aSpellId)
 		return;
 	end
 
+	tResolvedUnit = VUHDO_resolveVehicleUnit(aUnit);
+	tAllButtons = VUHDO_getUnitButtons(tResolvedUnit);
+
+	if not tAllButtons then
+		return;
+	end
+
 	if aSpellId then
 		tSpellIdStr = tostring(aSpellId);
 	end
 
 	tNow = GetTime();
 
-	for tIndex, tHotName in pairs(sHotSlots) do
-		if not VUHDO_strempty(tHotName) and
-			((aSpellId and tSpellIdStr == tHotName) or (aSpellName and aSpellName == tHotName) or
-			(not aSpellName and not aSpellId and not sHotSlotBouquets[tIndex])) then
-			tSourceType = 0;
+	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
+		tPanelUnitButtons = VUHDO_getUnitButtonsPanel(tResolvedUnit, tPanelNum);
 
-			if sIsOthersHots and tHotName == "OTHER" then
-				tSourceType = VUHDO_UNIT_HOT_TYPE_OTHERSHOTS;
-			else
-				tIsMine, tIsOthers = sHotSlotCfgs[tIndex]["mine"], sHotSlotCfgs[tIndex]["others"];
+		if tPanelUnitButtons then
+			for tIndex, tHotName in pairs(sHotSlots[tPanelNum]) do
+				if not VUHDO_strempty(tHotName) and
+					((aSpellId and tSpellIdStr == tHotName) or (aSpellName and aSpellName == tHotName) or
+					(not aSpellName and not aSpellId and not sHotSlotBouquets[tPanelNum][tIndex])) then
+					tSourceType = 0;
 
-				if tIsMine and not tIsOthers then
-					tSourceType = VUHDO_UNIT_HOT_TYPE_MINE;
-				elseif not tIsMine and tIsOthers then
-					tSourceType = VUHDO_UNIT_HOT_TYPE_OTHERS;
-				elseif tIsMine and tIsOthers then
-					tSourceType = VUHDO_UNIT_HOT_TYPE_BOTH;
+					if sIsOthersHots and tHotName == "OTHER" then
+						tSourceType = VUHDO_UNIT_HOT_TYPE_OTHERSHOTS;
+					else
+						tIsMine, tIsOthers = sHotSlotCfgs[tPanelNum][tIndex]["mine"], sHotSlotCfgs[tPanelNum][tIndex]["others"];
+
+						if tIsMine and not tIsOthers then
+							tSourceType = VUHDO_UNIT_HOT_TYPE_MINE;
+						elseif not tIsMine and tIsOthers then
+							tSourceType = VUHDO_UNIT_HOT_TYPE_OTHERS;
+						elseif tIsMine and tIsOthers then
+							tSourceType = VUHDO_UNIT_HOT_TYPE_BOTH;
+						end
+					end
+
+					if tSourceType > 0 then
+						VUHDO_updateHot(tPanelNum, aUnit, tIndex, tHotName, tSourceType, tNow);
+					end
 				end
-			end
-
-			if tSourceType > 0 then
-				VUHDO_updateHot(aUnit, tIndex, tHotName, tSourceType, tNow);
 			end
 		end
 	end
@@ -1311,7 +1348,7 @@ end
 function VUHDO_removeAllHots()
 	local tButton;
 	local tCnt2;
-	for tCnt = 1, 10 do
+	for tCnt = 1, 10 do -- VUHDO_MAX_PANELS
 		if VUHDO_getActionPanel(tCnt) then
 			if VUHDO_isPanelVisible(tCnt) then
 

@@ -103,6 +103,7 @@ local VUHDO_shouldDisplayArrow = VUHDO_shouldDisplayArrow;
 
 
 --
+local tPanelNum;
 local tUnit;
 local tDirection;
 local tCell;
@@ -113,21 +114,28 @@ local tDistance;
 local tHeight;
 local tDestR, tDestG;
 function VUHDO_updateDirectionFrame(aButton)
-	if aButton then tButton = aButton;
-	elseif not tButton then return; end
+
+	if aButton then
+		tButton = aButton;
+	elseif not tButton then
+		return;
+	end
 
 	tUnit = tButton:GetAttribute("unit");
 
 	if not VUHDO_shouldDisplayArrow(tUnit) then
 		VuhDoDirectionFrame["shown"] = false;
 		VuhDoDirectionFrame:Hide();
+
 		return;
 	end
 
 	tDirection = VUHDO_getUnitDirection(tUnit);
+
 	if not tDirection then
 		VuhDoDirectionFrame["shown"] = false;
 		VuhDoDirectionFrame:Hide();
+
 		return;
 	end
 
@@ -159,10 +167,16 @@ function VUHDO_updateDirectionFrame(aButton)
 	if sOldButton ~= tButton then
 		sOldButton = tButton;
 		tHeight = tButton:GetHeight() * sScale * tButton:GetEffectiveScale();
+
 		VuhDoDirectionFrame:SetPoint("CENTER", tButton:GetName(), "CENTER", 0, 0);
 		VuhDoDirectionFrame:SetWidth(tHeight);
 		VuhDoDirectionFrame:SetHeight(tHeight);
+
+		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
+		VuhDoDirectionFrameText:SetFont(VUHDO_getFont(VUHDO_PANEL_SETUP[tPanelNum]["HOTS"]["TIMER_TEXT"]["FONT"]), 6, "OUTLINE");
 	end
+
 	VuhDoDirectionFrame:Show();
 	VuhDoDirectionFrame["shown"] = true;
+
 end

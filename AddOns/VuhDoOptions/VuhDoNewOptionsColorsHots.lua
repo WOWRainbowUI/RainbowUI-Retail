@@ -51,7 +51,9 @@ end
 --
 local tHotName;
 function VUHDO_colorsHotsSetSwatchHotName(aTexture, aHotNum)
-	tHotName = VUHDO_PANEL_SETUP["HOTS"]["SLOTS"][aHotNum] or "";
+
+	-- use first panel's slot assignments as example HoT name
+	tHotName = VUHDO_PANEL_SETUP[1]["HOTS"]["SLOTS"][aHotNum] or "";
 
 	if (not VUHDO_strempty(tHotName)) then
 		_G[aTexture:GetName() .. "TitleString"]:SetText(gsub(tHotName, "BOUQUET_", ""));
