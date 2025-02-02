@@ -46,7 +46,7 @@ BACKDROP_VUHDO_BUFF_WATCH_MAIN_FRAME_16_16_5555 = {
 	tile = true,
 	tileSize = 16,
 	edgeSize = 16,
-	insets = {  left = 5, right = 5, top = 5, bottom = 5 },
+	insets = { left = 5, right = 5, top = 5, bottom = 5 },
 };
 
 

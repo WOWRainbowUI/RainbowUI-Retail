@@ -50,6 +50,7 @@ local VUHDO_DEBUFF_COLORS = { };
 local VUHDO_DEBUFF_BLACKLIST = { };
 
 local UnitIsFriend = UnitIsFriend;
+local UnitIsEnemy = UnitIsEnemy;
 local table = table;
 local GetTime = GetTime;
 local InCombatLockdown = InCombatLockdown;
@@ -69,7 +70,10 @@ local sIsUseDebuffIconBossOnly;
 local sIsMiBuColorsInFight;
 local sStdDebuffSound;
 local sAllDebuffSettings;
-local sIsShowOnlyForFriendly;
+local sIsShowOnFriendly;
+local sIsShowOnHostile;
+local sIsShowHostileMine;
+local sIsShowHostileOthers;
 local sIsDebuffSoundRemovableOnly;
 local sEmpty = { };
 local sCurChosenColor = { };
@@ -91,7 +95,10 @@ function VUHDO_debuffsInitLocalOverrides()
 	sIsMiBuColorsInFight = VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_IN_FIGHT"];
 	sStdDebuffSound = VUHDO_CONFIG["SOUND_DEBUFF"];
 	sAllDebuffSettings = VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"];
-	sIsShowOnlyForFriendly = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isShowOnlyForFriendly"];
+	sIsShowOnFriendly = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isShowFriendly"];
+	sIsShowOnHostile = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isShowHostile"];
+	sIsShowHostileMine = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isHostileMine"];
+	sIsShowHostileOthers = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isHostileOthers"];
 	sIsDebuffSoundRemovableOnly = VUHDO_CONFIG["SOUND_DEBUFF_REMOVABLE_ONLY"];
 
 	VUHDO_DEBUFF_COLORS = {
@@ -783,6 +790,8 @@ local tIsShown;
 local tIsCustomColorShown;
 local tInfo;
 local tType;
+local tFriend;
+local tHostile;
 local tAbility;
 local tIsRelevant;
 local function VUHDO_determineDebuffPredicate(anAuraInstanceId, aName, anIcon, aStacks, aTypeString, aDuration, anExpiry, aUnitCaster, aSpellId, anIsBossDebuff, anIsUpdate)
@@ -821,7 +830,8 @@ local function VUHDO_determineDebuffPredicate(anAuraInstanceId, aName, anIcon, a
 	end
 
 	tType = VUHDO_DEBUFF_BLEED_SPELLS[aSpellId] and VUHDO_DEBUFF_TYPE_BLEED or VUHDO_DEBUFF_TYPES[aTypeString];
-	tAbility = VUHDO_PLAYER_ABILITIES[tType] and UnitIsFriend("player", sUnit);
+	tFriend = UnitIsFriend("player", sUnit);
+	tAbility = VUHDO_PLAYER_ABILITIES[tType] and tFriend;
 	tIsRelevant = not VUHDO_IGNORE_DEBUFF_NAMES[aName]
 		and not (VUHDO_IGNORE_DEBUFFS_BY_CLASS[tInfo["class"] or ""] or sEmpty)[aName];
 
@@ -830,8 +840,13 @@ local function VUHDO_determineDebuffPredicate(anAuraInstanceId, aName, anIcon, a
 	end
 
 	if not tIsCustomColorShown and not VUHDO_DEBUFF_BLACKLIST[aName] and not VUHDO_DEBUFF_BLACKLIST[tostring(aSpellId)] and tIsRelevant then
-		if not tIsShown and sIsUseDebuffIcon and (anIsBossDebuff or not sIsUseDebuffIconBossOnly)
-			and (sIsNotRemovableOnlyIcons or tAbility ~= nil) then
+		tHostile = UnitIsEnemy("player", sUnit);
+
+		if not tIsShown and sIsUseDebuffIcon
+			and (anIsBossDebuff or not sIsUseDebuffIconBossOnly) and (sIsNotRemovableOnlyIcons or tAbility ~= nil)
+			and ((sIsShowOnFriendly and not tHostile) or (sIsShowOnHostile and not tFriend)) and
+			(tFriend or (sIsShowOnHostile and (sIsShowHostileMine and aUnitCaster == "player")
+				or (sIsShowHostileOthers and aUnitCaster ~= "player"))) then
 			sCurIcons[sUnit][anAuraInstanceId] = VUHDO_getOrCreateIconArray(sUnit, anIcon, anExpiry, aStacks, aDuration, false, aSpellId, anAuraInstanceId, aName);
 
 			if not anIsUpdate then
@@ -841,7 +856,7 @@ local function VUHDO_determineDebuffPredicate(anAuraInstanceId, aName, anIcon, a
 
 		-- Entweder Fähigkeit vorhanden ODER noch keiner gewählt UND auch nicht entfernbare
 		-- Either ability available OR none selected AND not removable (DETECT_DEBUFFS_REMOVABLE_ONLY)
-		if not anIsUpdate and tType and (tAbility or sIsNotRemovableOnly) then -- VUHDO_DEBUFF_TYPE_NONE
+		if not anIsUpdate and tType and (tAbility or (sIsNotRemovableOnly and tFriend)) then -- VUHDO_DEBUFF_TYPE_NONE
 			VUHDO_addCurChosen(sUnit, anAuraInstanceId, tType, nil, nil, nil);
 			VUHDO_addUnitDebuffInfo(sUnit, "CHOSEN", anAuraInstanceId, anIcon, anExpiry, aStacks, aDuration);
 		end
@@ -1026,49 +1041,47 @@ local function VUHDO_updateDebuffs(aUnit)
 			tSpellIdStr = tostring(tDebuffInfo[6]);
 
 			if not VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit][tAuraInstanceId] then
-				if not sIsShowOnlyForFriendly or UnitIsFriend("player", aUnit) then
-					-- tExpiry, tStacks, tIcon, tAuraInstanceId, tName
-					VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit][tAuraInstanceId] = {
-						tDebuffInfo[2], tDebuffInfo[3], tDebuffInfo[1], tDebuffInfo[7], tName, tDebuffInfo[6]
-					};
+				-- tExpiry, tStacks, tIcon, tAuraInstanceId, tName
+				VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit][tAuraInstanceId] = {
+					tDebuffInfo[2], tDebuffInfo[3], tDebuffInfo[1], tDebuffInfo[7], tName, tDebuffInfo[6]
+				};
 
-					VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tName] = (VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tName] or 0) + 1;
-					VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tSpellIdStr] = (VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tSpellIdStr] or 0) + 1;
+				VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tName] = (VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tName] or 0) + 1;
+				VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tSpellIdStr] = (VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tSpellIdStr] or 0) + 1;
 
-					VUHDO_addDebuffIcon(aUnit, tDebuffInfo[1], tName, tDebuffInfo[2], tDebuffInfo[3], tDebuffInfo[4], tDebuffInfo[5], tDebuffInfo[6], tDebuffInfo[7]);
+				VUHDO_addDebuffIcon(aUnit, tDebuffInfo[1], tName, tDebuffInfo[2], tDebuffInfo[3], tDebuffInfo[4], tDebuffInfo[5], tDebuffInfo[6], tDebuffInfo[7]);
 
-					if not VUHDO_IS_CONFIG and VUHDO_MAY_DEBUFF_ANIM then
-						-- the key used to store the debuff settings is either the debuff name or spell ID
-						tDebuffSettings = sAllDebuffSettings[tName] or sAllDebuffSettings[tostring(tDebuffInfo[6])];
+				if not VUHDO_IS_CONFIG and VUHDO_MAY_DEBUFF_ANIM then
+					-- the key used to store the debuff settings is either the debuff name or spell ID
+					tDebuffSettings = sAllDebuffSettings[tName] or sAllDebuffSettings[tostring(tDebuffInfo[6])];
 
-						if tDebuffSettings then -- particular custom debuff sound?
-							VUHDO_playDebuffSound(tDebuffSettings["SOUND"], tName);
-						elseif VUHDO_CONFIG["CUSTOM_DEBUFF"]["SOUND"] then -- default custom debuff sound?
-							VUHDO_playDebuffSound(VUHDO_CONFIG["CUSTOM_DEBUFF"]["SOUND"], tName);
-						end
+					if tDebuffSettings then -- particular custom debuff sound?
+						VUHDO_playDebuffSound(tDebuffSettings["SOUND"], tName);
+					elseif VUHDO_CONFIG["CUSTOM_DEBUFF"]["SOUND"] then -- default custom debuff sound?
+						VUHDO_playDebuffSound(VUHDO_CONFIG["CUSTOM_DEBUFF"]["SOUND"], tName);
 					end
+				end
 
-					tCurChosenInfo = sCurChosenInfo[aUnit][tAuraInstanceId];
+				tCurChosenInfo = sCurChosenInfo[aUnit][tAuraInstanceId];
 
-					if sStdDebuffSound and tCurChosenInfo and tInfo["range"] then
-						tType = tCurChosenInfo[1];
+				if sStdDebuffSound and tCurChosenInfo and tInfo["range"] then
+					tType = tCurChosenInfo[1];
 
-						if sIsDebuffSoundRemovableOnly then
-							tAbility = VUHDO_PLAYER_ABILITIES[tType] and UnitIsFriend("player", aUnit);
+					if sIsDebuffSoundRemovableOnly then
+						tAbility = VUHDO_PLAYER_ABILITIES[tType] and UnitIsFriend("player", aUnit);
 
-							if tAbility then
-								tDoStdSound = true;
-							end
-						elseif (tType ~= VUHDO_DEBUFF_TYPE_NONE or tCurChosenInfo[4])
-							and tType ~= VUHDO_DEBUFF_TYPE_CUSTOM and tType ~= VUHDO_LAST_UNIT_DEBUFFS[aUnit] then
-							VUHDO_LAST_UNIT_DEBUFFS[aUnit] = tType;
-
+						if tAbility then
 							tDoStdSound = true;
 						end
-					end
+					elseif (tType ~= VUHDO_DEBUFF_TYPE_NONE or tCurChosenInfo[4])
+						and tType ~= VUHDO_DEBUFF_TYPE_CUSTOM and tType ~= VUHDO_LAST_UNIT_DEBUFFS[aUnit] then
+						VUHDO_LAST_UNIT_DEBUFFS[aUnit] = tType;
 
-					VUHDO_updateBouquetsForEvent(aUnit, 29); -- VUHDO_UPDATE_CUSTOM_DEBUFF
+						tDoStdSound = true;
+					end
 				end
+
+				VUHDO_updateBouquetsForEvent(aUnit, 29); -- VUHDO_UPDATE_CUSTOM_DEBUFF
 			-- update number of stacks?
 			elseif VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit][tAuraInstanceId] and
 				(VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit][tAuraInstanceId][1] ~= tDebuffInfo[2]

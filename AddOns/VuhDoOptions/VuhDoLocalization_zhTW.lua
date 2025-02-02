@@ -655,6 +655,12 @@ VUHDO_I18N_TT.K594 = "將寵物排列在最後面。";
 VUHDO_I18N_TT.K595 = "顯示玩家的有效血量 (包含護盾的血量)。";
 VUHDO_I18N_TT.K596 = "更改表示玩家受到流血減益效果影響的顏色。";
 VUHDO_I18N_TT.K597 = "只有當減益效果可自行移除時才播放聲音。";
+VUHDO_I18N_TT.K598 = "選擇持續性治療方塊8的顏色。";
+VUHDO_I18N_TT.K599 = "選擇持續性治療方塊9的顏色。";
+VUHDO_I18N_TT.K600 = "友方單位顯示減益圖示。";
+VUHDO_I18N_TT.K601 = "敵方單位顯示減益圖示。";
+VUHDO_I18N_TT.K602 = "敵方單位顯示你施放的減益。";
+VUHDO_I18N_TT.K603 = "敵方單位顯示其他人施放的減益。";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1164,9 +1170,6 @@ VUHDO_I18N_BLACKLIST_KEY_MODIFIES = "忽略清單組合按鍵";
 
 VUHDO_I18N_NICKNAME = "Details!\n暱稱"
 
-VUHDO_I18N_DEBUFF_SHOW_ONLY_FOR_FRIENDLY_TEXT = "只顯示\n友方";
-VUHDO_I18N_DEBUFF_SHOW_ONLY_FOR_FRIENDLY_TOOLTIP = "只顯示友方單位的減益";
-
 VUHDO_I18N_SHOW_OVERSHIELD = "顯示\n過量護盾";
 VUHDO_I18N_OVERSHIELD_BAR = "過量護盾條";
 
@@ -1176,7 +1179,7 @@ VUHDO_I18N_HEAL_ABSORB_BAR = "治療吸收量條";
 VUHDO_I18N_PLAYER = "玩家單位";
 VUHDO_I18N_TARGET = "目標單位"
 VUHDO_I18N_TARGET_TARGET = "目標的目標單位"
-VUHDO_I18N_FOCUS = "專注目標單位";
+VUHDO_I18N_FOCUS_UNIT = "專注目標單位";
 VUHDO_I18N_MOUSEOVER = "滑鼠指向單位";
 VUHDO_I18N_MOUSEOVER_TARGET = "滑鼠指向單位的目標";
 VUHDO_I18N_MOUSEOVER_TARGET_TARGET = "滑鼠指向單位的目標的目標";
@@ -1207,3 +1210,9 @@ VUHDO_I18N_SHOW_EFFECTIVE = "有效血量";
 VUHDO_I18N_DEBUFF_IGNORE_IMPORTED = "減益效果忽略清單已匯入成功。";
 
 VUHDO_I18N_BLEED = "流血";
+
+VUHDO_I18N_SQUARE_8 = "方塊 8";
+VUHDO_I18N_SQUARE_9 = "方塊 9";
+VUHDO_I18N_SHOW_ON_FRIENDLY = "友方\n顯示";
+VUHDO_I18N_SHOW_ON_HOSTILE = "敵方\n顯示";
+VUHDO_I18N_HOSTILE_SPELL_SOURCE = "敵方單位法術來源";

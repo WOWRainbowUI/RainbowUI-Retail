@@ -2,7 +2,6 @@ VUHDO_MAY_DEBUFF_ANIM = true;
 
 local VUHDO_DEBUFF_ICONS = { };
 local sIsName;
-local sIsShowOnlyForFriendly;
 
 -- BURST CACHE ---------------------------------------------------
 
@@ -54,7 +53,6 @@ function VUHDO_customDebuffIconsInitLocalOverrides()
 		sMaxIcons = 1;
 	end
 	sIsName = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isName"];
-	sIsShowOnlyForFriendly = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isShowOnlyForFriendly"];
 
 	sStaticConfig = {
 		["isStaticConfig"] = true,
@@ -334,7 +332,7 @@ function VUHDO_updateDebuffIcon(aUnit, anIcon, aName, anExpiry, aStacks, aDurati
 		end
 	end
 
-	if not tFound and (not sIsShowOnlyForFriendly or UnitIsFriend("player", aUnit)) then
+	if not tFound then
 		VUHDO_addDebuffIcon(aUnit, anIcon, aName, anExpiry, aStacks, aDuration, anIsBuff, aSpellId, anAuraInstanceId);
 	end
 

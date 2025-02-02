@@ -1,3 +1,27 @@
+Version 3.182  
+  
+  
+Known issues:  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed incorrectly showing non-friendly units as dispelable  
+  
+  
+Improvements:  
+-- Added per panel HoT Icon and HoT Bar settings  
+-- Added two more HoT Icon slots 8 and 9  
+-- Added more defensives to default bouquet 'Raid Cooldowns'  
+-- Added standard debuff filters for source and destination  
+-- Added new default bouquet 'Spell Trace (Incoming)'  
+  
+  
+--------------------------------------------------------------  
 Version 3.181  
   
   

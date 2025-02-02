@@ -173,8 +173,12 @@ function VUHDO_saveKeyLayoutCallback(aDecision)
 				["I1U"] = VUHDO_SPELL_CONFIG["custom1Unit"],
 				["I2U"] = VUHDO_SPELL_CONFIG["custom2Unit"],
 			},
-			["HOTS"] = VUHDO_compressTable(VUHDO_PANEL_SETUP["HOTS"]),
+			["HOTS"] = { },
 		};
+
+		for tPanelNum = 1, VUHDO_MAX_PANELS do
+			VUHDO_SPELL_LAYOUTS[VUHDO_CURR_LAYOUT]["HOTS"][tPanelNum] = VUHDO_compressTable(VUHDO_PANEL_SETUP[tPanelNum]["HOTS"]);
+		end
 
 		VUHDO_SPEC_LAYOUTS["selected"] = VUHDO_CURR_LAYOUT;
 

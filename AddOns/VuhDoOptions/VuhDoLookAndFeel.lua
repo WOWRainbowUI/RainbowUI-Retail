@@ -43,7 +43,7 @@ BACKDROP_VUHDO_H_SLIDER_8_8_1111 = {
 	tile = true,
 	tileSize = 8,
 	edgeSize = 8,
-	insets = {  left = 1, right = 1, top = 1, bottom = 1 },
+	insets = { left = 1, right = 1, top = 1, bottom = 1 },
 };
 
 BACKDROP_VUHDO_FRAME_16_16_1111 = {
@@ -52,7 +52,7 @@ BACKDROP_VUHDO_FRAME_16_16_1111 = {
 	tile = true,
 	tileSize = 16,
 	edgeSize = 16,
-	insets = {  left = 1, right = 1, top = 1, bottom = 1 },
+	insets = { left = 1, right = 1, top = 1, bottom = 1 },
 };
 
 BACKDROP_VUHDO_PANEL_16_16_3333 = {
@@ -61,7 +61,7 @@ BACKDROP_VUHDO_PANEL_16_16_3333 = {
 	tile = true,
 	tileSize = 16,
 	edgeSize = 16,
-	insets = {  left = 3, right = 3, top = 3, bottom = 3 },
+	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 };
 
 BACKDROP_VUHDO_WHITE_PANEL_16_16_3333 = {
@@ -70,7 +70,7 @@ BACKDROP_VUHDO_WHITE_PANEL_16_16_3333 = {
 	tile = true,
 	tileSize = 16,
 	edgeSize = 16,
-	insets = {  left = 3, right = 3, top = 3, bottom = 3 },
+	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 };
 
 BACKDROP_VUHDO_WHITE_SQUARE_16_16_0000 = {
@@ -111,7 +111,7 @@ BACKDROP_VUHDO_PANEL_APPEND_BOTTOM_16_16_1111 = {
 	tile = true,
 	tileSize = 16,
 	edgeSize = 16,
-	insets = {  left = 1, right = 1, top = 1, bottom = 1 },
+	insets = { left = 1, right = 1, top = 1, bottom = 1 },
 };
 
 local tIsInCustomFunction = false;

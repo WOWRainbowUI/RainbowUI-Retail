@@ -654,6 +654,12 @@ VUHDO_I18N_TT.K594 = "Check to sort pet units last.";
 VUHDO_I18N_TT.K595 = "Show effective HP (health including shields) of player.";
 VUHDO_I18N_TT.K596 = "Click to change color to indicate players afflicted by bleed debuffs.";
 VUHDO_I18N_TT.K597 = "Only play a sound if the debuff is removable by yourself.";
+VUHDO_I18N_TT.K598 = "Select a color for HoT Square 8";
+VUHDO_I18N_TT.K599 = "Select a color for HoT Square 9";
+VUHDO_I18N_TT.K600 = "Show debuff icons on friendly units.";
+VUHDO_I18N_TT.K601 = "Show debuff icons on hostile units.";
+VUHDO_I18N_TT.K602 = "Show debuffs cast by you on hostile units.";
+VUHDO_I18N_TT.K603 = "Show debuffs cast by others on hostile units.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "预设存档";
 VUHDO_I18N_DEFAULT_LAYOUT = "预设按键配置";
@@ -1171,7 +1177,7 @@ VUHDO_I18N_HEAL_ABSORB_BAR = "治疗吸收条";
 VUHDO_I18N_PLAYER = "自己";
 VUHDO_I18N_TARGET = "目标单位"
 VUHDO_I18N_TARGET_TARGET = "目标的目标单位"
-VUHDO_I18N_FOCUS = "焦点单位";
+VUHDO_I18N_FOCUS_UNIT = "焦点单位";
 VUHDO_I18N_MOUSEOVER = "鼠标指向单位";
 VUHDO_I18N_MOUSEOVER_TARGET = "鼠标指向的目标单位";
 VUHDO_I18N_MOUSEOVER_TARGET_TARGET = "鼠标指向目标的目标单位";
@@ -1202,3 +1208,9 @@ VUHDO_I18N_SHOW_EFFECTIVE = "Show\nEffective";
 VUHDO_I18N_DEBUFF_IGNORE_IMPORTED = "Debuff ignore list successfully imported.";
 
 VUHDO_I18N_BLEED = "Bleed";
+
+VUHDO_I18N_SQUARE_8 = "Square 8";
+VUHDO_I18N_SQUARE_9 = "Square 9";
+VUHDO_I18N_SHOW_ON_FRIENDLY = "Show on\nfriendly";
+VUHDO_I18N_SHOW_ON_HOSTILE = "Show on\nhostile";
+VUHDO_I18N_HOSTILE_SPELL_SOURCE = "Hostile Unit Spell Source";
