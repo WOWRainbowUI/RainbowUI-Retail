@@ -2628,7 +2628,7 @@ D["tullaRange"] = {
     {
         text = "設定選項",
         callback = function() 
-			Settings.OpenToCategory("快捷列-著色")
+			Settings.OpenToCategory("tullaRange")
 		end,
     },
 };

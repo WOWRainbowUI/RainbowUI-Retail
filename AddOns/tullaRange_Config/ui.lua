@@ -183,7 +183,7 @@ header:SetPoint("TOPRIGHT")
 local headerTitle = header:CreateFontString(nil, "ARTWORK", "GameFontHighlightHuge")
 headerTitle:SetJustifyH("LEFT")
 headerTitle:SetPoint("TOPLEFT", 7, -22)
-headerTitle:SetFormattedText("%s - %s", "tullaRange", COLORS)
+headerTitle:SetFormattedText("%s - %s", L.ColorSettingsTitle, COLORS)
 
 local headerDivider = header:CreateTexture(nil, "ARTWORK")
 headerDivider:SetAtlas("Options_HorizontalDivider", true)
@@ -202,7 +202,7 @@ for i, type in ipairs{'oor', 'oom', 'unusable'} do
     selector:SetPoint("TOPRIGHT", -21, y)
 end
 
-local category = Settings.RegisterCanvasLayoutCategory(AddonSettingsFrame, "tullaRange")
+local category = Settings.RegisterCanvasLayoutCategory(AddonSettingsFrame, L.AddonNameLoc)
 
 category.ID = "tullaRange"
 
