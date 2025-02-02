@@ -1,6 +1,6 @@
 # BlizzMove
 
-## [v3.6.10](https://github.com/Kiatra/BlizzMove/tree/v3.6.10) (2025-01-31)
-[Full Changelog](https://github.com/Kiatra/BlizzMove/compare/v3.6.9...v3.6.10) [Previous Releases](https://github.com/Kiatra/BlizzMove/releases)
+## [v3.6.11](https://github.com/Kiatra/BlizzMove/tree/v3.6.11) (2025-02-01)
+[Full Changelog](https://github.com/Kiatra/BlizzMove/compare/v3.6.10...v3.6.11) [Previous Releases](https://github.com/Kiatra/BlizzMove/releases)
 
-- Added category information in preparation for 11.1.0  
+- Fix a warning showing up on classic (fixes #141)  
