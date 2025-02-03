@@ -636,8 +636,13 @@ spec:RegisterHook( "reset_precast", function()
     end
 
     if talent.holy_armaments.enabled then
-        if IsSpellKnownOrOverridesKnown( 432472 ) then applyBuff( "sacred_weapon_ready" )
-        else applyBuff( "holy_bulwark_ready" ) end
+        if IsSpellKnownOrOverridesKnown( 432472 ) then
+            applyBuff( "sacred_weapon_ready" )
+            removeBuff( "holy_bulwark_ready" )
+        else
+            applyBuff( "holy_bulwark_ready" )
+            removeBuff( "sacred_weapon_ready" )
+            end
     end
 end )
 
