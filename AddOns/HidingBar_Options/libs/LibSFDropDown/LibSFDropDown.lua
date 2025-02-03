@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 15
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 18
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -331,6 +331,7 @@ local function CreateDropDownMenuList(parent)
 	for name, frameFunc in next, menuStyles do
 		v.createMenuStyle(menu, name, frameFunc)
 	end
+	menu.activeStyle = menu.styles[v.defaultStyle]
 
 	return menu
 end
@@ -855,8 +856,10 @@ local function DropDownMenuSearchButtonInit(btn, info)
 		v.setIcon(btn.Icon, btn.icon, btn.iconInfo, menuButtonHeight)
 
 		if btn.iconOnly then
+			btn.Icon:SetDrawLayer("BACKGROUND")
 			btn.Icon:SetPoint("RIGHT")
 		else
+			btn.Icon:SetDrawLayer("ARTWORK")
 			btn.Icon:ClearAllPoints()
 		end
 		btn.Icon:Show()
@@ -1441,7 +1444,7 @@ function DropDownButtonMixin:ddHideWhenButtonHidden(frame)
 end
 
 
-function DropDownButtonMixin:ddToggle(level, value, anchorFrame, xOffset, yOffset)
+function DropDownButtonMixin:ddToggle(level, value, anchorFrame, point, rPoint, xOffset, yOffset)
 	if not level then level = 1 end
 	local menu = dropDownMenusList[level]
 
@@ -1476,6 +1479,17 @@ function DropDownButtonMixin:ddToggle(level, value, anchorFrame, xOffset, yOffse
 	end
 	menu:SetSize(menu.width, menu.height)
 
+	if type(point) == "number" then
+		xOffset = point
+		yOffset = rPoint
+		point = nil
+		rPoint = nil
+	elseif type(rPoint) == "number" then
+		yOffset = xOffset
+		xOffset = rPoint
+		rPoint = point
+	end
+
 	if anchorFrame == "cursor" then
 		anchorFrame = UIParent
 		local x, y = GetCursorPosition()
@@ -1483,37 +1497,35 @@ function DropDownButtonMixin:ddToggle(level, value, anchorFrame, xOffset, yOffse
 		xOffset = (xOffset or 0) + x / scale
 		yOffset = (yOffset or 0) + y / scale
 		if self:ddIsOpenMenuUp() then yOffset = yOffset - UIParent:GetHeight() end
-	elseif not xOffset or not yOffset then
-		xOffset = 0
-		yOffset = 0
 	end
 
 	if level == 1 then
-		local point, relativePoint = "TOPLEFT", "BOTTOMLEFT"
-		if self:ddIsOpenMenuUp() then point, relativePoint = relativePoint, point end
-		menu:SetPoint(point, anchorFrame, relativePoint, xOffset, yOffset)
+		if not point then
+			point, rPoint = "TOPLEFT", "BOTTOMLEFT"
+			if self:ddIsOpenMenuUp() then point, rPoint = rPoint, point end
+		end
+		menu:SetPoint(point, anchorFrame, rPoint or point, xOffset or 0, yOffset or 0)
 	else
-		local point, relativePoint, y
-		if anchorFrame.hasArrowUp then
-			point, relativePoint, y = "BOTTOMLEFT", "BOTTOMRIGHT", -14
-		else
-			point, relativePoint, y = "TOPLEFT", "TOPRIGHT", 14
+		if not point then
+			if anchorFrame.hasArrowUp then
+				point, rPoint = "BOTTOMLEFT", "BOTTOMRIGHT"
+			else
+				point, rPoint = "TOPLEFT", "TOPRIGHT"
+			end
 		end
 		if GetScreenWidth() - anchorFrame:GetRight() - 2 < menu.width then
-			point, relativePoint = relativePoint, point
+			point, rPoint = rPoint, point
 		end
-		menu:SetPoint(point, anchorFrame, relativePoint, 0, y)
+		menu:SetPoint(point, anchorFrame, rPoint or point, xOffset or 0, yOffset or anchorFrame.hasArrowUp and -15 or 15)
 	end
 
-	if menu.activeStyle then
-		menu.activeStyle:Hide()
-	end
 	local style = v.DROPDOWNBUTTON.ddDisplayMode
 	if style == "menu" then
 		style = v.menuStyle
 	elseif not menu.styles[style] then
 		style = v.defaultStyle
 	end
+	menu.activeStyle:Hide()
 	menu.activeStyle = menu.styles[style]
 	menu.activeStyle:Show()
 end
@@ -1705,8 +1717,10 @@ function DropDownButtonMixin:ddAddButton(info, level)
 		v.setIcon(btn.Icon, btn.icon, btn.iconInfo, menuButtonHeight)
 
 		if btn.iconOnly then
+			btn.Icon:SetDrawLayer("BACKGROUND")
 			btn.Icon:SetPoint("RIGHT")
 		else
+			btn.Icon:SetDrawLayer("ARTWORK")
 			btn.Icon:ClearAllPoints()
 			width = width + btn.Icon:GetWidth() + 2
 		end
@@ -2251,14 +2265,11 @@ end
 if oldminor < 5 then
 	for i = 1, #dropDownSearchFrames do
 		local f = dropDownSearchFrames[i]
-		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
-		f.addButton = DropDownMenuSearchMixin.addButton
 
 		for callbackType, callbackTable in pairs(f.view:GetCallbackTables()) do
 			local callbacks = callbackTable[f.view.Event.OnAcquiredFrame]
 			if callbacks then wipe(callbacks) end
 		end
-		f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired, f)
 	end
 end
 
@@ -2284,8 +2295,6 @@ if oldminor < 7 then
 
 	for i = 1, #dropDownSearchFrames do
 		local f = dropDownSearchFrames[i]
-		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
-		f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired, f)
 
 		for i, btn in ipairs(f.view:GetFrames()) do
 			if not btn.GroupCheck then v.dropDownMenuButtonInit(btn) end
@@ -2300,13 +2309,6 @@ if oldminor < 8 then
 
 	for i = 1, #v.dropDownCreatedStretchButtons do
 		lib:SetMixin(v.dropDownCreatedStretchButtons[i])
-	end
-
-	for i = 1, #dropDownSearchFrames do
-		local f = dropDownSearchFrames[i]
-		for k, v in next, DropDownMenuSearchMixin do
-			f[k] = v
-		end
 	end
 end
 
@@ -2366,7 +2368,6 @@ if oldminor < 10 then
 
 	for i = 1, #dropDownSearchFrames do
 		local f = dropDownSearchFrames[i]
-		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
 		for j, btn in ipairs(f.view:GetFrames()) do
 			updateButton(btn)
 		end
@@ -2383,7 +2384,6 @@ if oldminor < 12 then
 
 	for i = 1, #dropDownSearchFrames do
 		local f = dropDownSearchFrames[i]
-		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
 		for k, v in next, DropDownMenuSearchMixin do
 			f[k] = v
 		end
@@ -2393,18 +2393,32 @@ if oldminor < 12 then
 	end
 end
 
-if oldminor < 13 then
-	for i = 1, #dropDownSearchFrames do
-		local f = dropDownSearchFrames[i]
-		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
-	end
-end
-
 if oldminor < 15 then
 	v.dropDownCreatedModernButtons = {}
 
 	for i = 1, #dropDownSearchFrames do
 		local f = dropDownSearchFrames[i]
 		f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired, f)
+	end
+end
+
+if oldminor < 16 then
+	for i = 1, #dropDownSearchFrames do
+		local f = dropDownSearchFrames[i]
+		f.buttonsList = f.buttonsList or {}
+	end
+end
+
+if oldminor < 17 then
+	for i = 1, #v.dropDownMenusList do
+		local menu = v.dropDownMenusList[i]
+		if not menu.activeStyle then
+			menu.activeStyle = menu.styles[v.defaultStyle]
+		end
+	end
+
+	for i = 1, #dropDownSearchFrames do
+		local f = dropDownSearchFrames[i]
+		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
 	end
 end
