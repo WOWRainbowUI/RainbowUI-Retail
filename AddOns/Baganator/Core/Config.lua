@@ -76,6 +76,7 @@ addonTable.Config.Options = {
 
   CUSTOM_CATEGORIES = "custom_categories",
   CATEGORY_MODIFICATIONS = "category_modifications",
+  CATEGORY_SECTIONS = "category_sections",
   CATEGORY_MIGRATION = "category_migration",
   CATEGORY_DEFAULT_IMPORT = "category_default_import",
   AUTOMATIC_CATEGORIES_ADDED = "automatic_categories_added",
@@ -191,6 +192,7 @@ addonTable.Config.Defaults = {
   [addonTable.Config.Options.AUTOMATIC_CATEGORIES_ADDED] = {},
   [addonTable.Config.Options.CATEGORY_DISPLAY_ORDER] = {},
   [addonTable.Config.Options.CATEGORY_HIDDEN] = {},
+  [addonTable.Config.Options.CATEGORY_SECTIONS] = {},
   [addonTable.Config.Options.CATEGORY_SECTION_TOGGLED] = {},
   [addonTable.Config.Options.CATEGORY_HORIZONTAL_SPACING] = 0.30,
   [addonTable.Config.Options.CATEGORY_ITEM_GROUPING] = false, -- 更改預設值,
@@ -254,7 +256,7 @@ function addonTable.Config.Create(constant, name, defaultValue)
   end
 end
 
-function addonTable.Config.Set(name, value)
+local function RawSet(name, value)
   local tree = {strsplit(".", name)}
   if BAGANATOR_CONFIG == nil then
     error("JOURNALATOR_CONFIG not initialized")
@@ -271,8 +273,7 @@ function addonTable.Config.Set(name, value)
       BAGANATOR_CONFIG[name] = value
     end
     if value ~= oldValue then
-      addonTable.CallbackRegistry:TriggerEvent("SettingChangedEarly", name)
-      addonTable.CallbackRegistry:TriggerEvent("SettingChanged", name)
+      return true
     end
   else
     local root = BAGANATOR_CONFIG
@@ -289,9 +290,32 @@ function addonTable.Config.Set(name, value)
     local oldValue = root[tail]
     root[tail] = value
     if value ~= oldValue then
-      addonTable.CallbackRegistry:TriggerEvent("SettingChangedEarly", name)
-      addonTable.CallbackRegistry:TriggerEvent("SettingChanged", name)
+      return true
     end
+  end
+  return false
+end
+
+function addonTable.Config.Set(name, value)
+  if RawSet(name, value) then
+    addonTable.CallbackRegistry:TriggerEvent("SettingChangedEarly", name)
+    addonTable.CallbackRegistry:TriggerEvent("SettingChanged", name)
+  end
+end
+
+-- Set multiple settings at once and after all are set fire the setting changed
+-- events
+function addonTable.Config.MultiSet(nameValueMap)
+  local changed = {}
+  for name, value in pairs(nameValueMap) do
+    if RawSet(name, value) then
+      table.insert(changed, name)
+    end
+  end
+
+  for _, name in ipairs(changed) do
+    addonTable.CallbackRegistry:TriggerEvent("SettingChangedEarly", name)
+    addonTable.CallbackRegistry:TriggerEvent("SettingChanged", name)
   end
 end
 
