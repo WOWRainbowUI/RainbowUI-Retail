@@ -1,5 +1,5 @@
 local lsfdd = LibStub("LibSFDropDown-1.5")
-local cur_ver, ver = lsfdd._sv, 5
+local cur_ver, ver = lsfdd._sv, 6
 if cur_ver and cur_ver >= ver then return end
 lsfdd._sv = ver
 local pairs, pcall = pairs, pcall
@@ -73,7 +73,7 @@ local skins = {
 
 		function lsfdd:CreateModernButton(...)
 			local btn = m.CreateModernButton(self, ...)
-			local status, err = pcall(skinButton, btn)
+			local status, err = pcall(skinModernButton, btn)
 			if not status then
 				self.CreateModernButton = nil
 			end
