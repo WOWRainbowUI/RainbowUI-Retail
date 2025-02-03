@@ -1,15 +1,14 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r185](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r185) (2025-01-31)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r184...r185) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r186](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r186) (2025-02-02)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r185...r186) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Update localization.ru.lua (#385)  
-- Update koKR (#388)  
-- KarazhanCrypts/Kharon: Upgrade MC warning to special warning  
-    I initially thought the MC would be obvious enough to not warrant that, but from my experience with pugs, it seems to be necessary.  
-- KarazhanCrypts/Kharon: Add 5 minute enrage timer  
-- KarazhanCrypts/Kharon: Stop yelling when MC is broken early  
-- KarazhanCrypts/Trash: Fix special warnings for standing in fire being filtered by "easy" dungeon filters  
-- KarazhanCrypts/DarkRider: Fix warning to attack mirror images  
-    Update text from "Ghost" to "Mirror Image" because they don't really look like ghosts  
-- KarazhanCrypts/DarkRider: Fix spammy warning for last horse phase  
+- Update localization.ru.lua  
+- KarazhanCrypts/Kharon: Add timer and warning for fear  
+- KarazhanCrypts/Harbinger: Change text for inferno warning, trigger voice later  
+- KarazhanCrypts/Dark Rider: Set icon on real horse in phase 2  
+- KarazhanCrypts/Opera: Fix pull timer for Hänsel and Gretel, add pull timer for engineers  
+- Update GeneralUmbriss.lua (#391)  
+- CI: Fix pushing full results to DBM-Test-Results@main  
+- Update koKR (#390)  
+- timers cd fix (#386)  
