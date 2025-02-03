@@ -1,17 +1,16 @@
-## Interface: 11505, 40401, 110005, 110007
+## Interface: 11506, 40401, 110005, 110007
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
-## Notes-koKR: 모든 것을 위한 쿨다운 카운트
 ## Notes-esMX: Contador de tiempo de reutilización
 ## Notes-esES: Contador de tiempo de reutilización
 ## Notes-ptBR: Contagem de tempo de recarga
 ## Notes-frFR: Compte à rebours du temps de recharge
-## Notes-ruRU: Время восстановления абилок и т.п.
+## Notes-ruRU: Время восстановления способностей и т.п.
 ## Author: Tuller
-## Version: 11.0.6
+## Category: Combat
+## Version: 11.0.7
 ## SavedVariables: OmniCCDB, OmniCC4Config
 ## IconTexture: Interface/Icons/spell_nature_timestop
-## AddonCompartmentFunc: OmniCC_Launch
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 冷卻時間
 ## Notes-zhTW: OmniCC |n|n所有東西的冷卻倒數計時，冷卻完畢會顯示動畫效果提示。|n|n|cffffd200使用方法: |r輸入 /occ 打開設定選項。
