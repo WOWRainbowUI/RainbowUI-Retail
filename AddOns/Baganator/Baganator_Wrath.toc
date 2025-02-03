@@ -1,6 +1,6 @@
 ## Interface: 30403
 ## Title: Baganator
-## Version: 636
+## Version: 637
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -139,6 +139,7 @@ CustomiseDialog\Categories\DividerEditor.lua
 CustomiseDialog\Categories\DividerEditor.xml
 CustomiseDialog\Categories\RecentEditor.lua
 CustomiseDialog\Categories\EmptyEditor.lua
+CustomiseDialog\Categories\Utilities.lua
 CustomiseDialog\Categories\ImportExport.lua
 CustomiseDialog\Main.lua
 CustomiseDialog\Main.xml
