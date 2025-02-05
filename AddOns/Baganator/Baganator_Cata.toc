@@ -1,6 +1,6 @@
 ## Interface: 40401
 ## Title: Baganator
-## Version: 637
+## Version: 640
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA

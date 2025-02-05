@@ -144,7 +144,6 @@ addonTable.Constants.SampleSearchTerms = {
   ITEM_QUALITY3_DESC:lower(),
   ITEM_QUALITY2_DESC:lower(),
   SYNDICATOR_L_KEYWORD_BOA,
-  SYNDICATOR_L_KEYWORD_REPUTATION,
   SYNDICATOR_L_KEYWORD_AXE,
   SYNDICATOR_L_KEYWORD_SWORD,
   MOUNT:lower(),
@@ -167,7 +166,6 @@ if addonTable.Constants.IsRetail then
     SYNDICATOR_L_KEYWORD_EQUIPMENT .. "&" .. "classic",
     SYNDICATOR_L_KEYWORD_COSMETIC,
     SYNDICATOR_L_KEYWORD_REAGENT,
-    SYNDICATOR_L_KEYWORD_MANUSCRIPT,
     TOY:lower(),
   }
   tAppendAll(addonTable.Constants.SampleSearchTerms, retailSearchTerms)
