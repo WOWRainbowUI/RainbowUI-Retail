@@ -1,3 +1,4 @@
+local _, addonTable = ...
 local Locales = {
   enUS = {},
   zhTW = {},
