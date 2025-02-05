@@ -1,5 +1,5 @@
-## Interface: 11504, 30403, 40400, 110005, 110007
-## Version: 1.42 Fix
+## Interface: 11506, 30403, 40401, 110005, 110007
+## Version: 1.43
 ## Title: NameplateSCT
 ## Author: mpstark, Justwait
 ## SavedVariables: NameplateSCTDB
