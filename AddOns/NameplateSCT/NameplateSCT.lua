@@ -752,7 +752,7 @@ if NameplateSCT.db.global.personalOnly and NameplateSCT.db.global.personal and p
 	if playerGUID == sourceGUID or (NameplateSCT.db.global.personal and playerGUID == destGUID) then -- Player events
 		local destUnit = guidToUnit[destGUID]
 		if (destUnit) or (destGUID == playerGUID and NameplateSCT.db.global.personal) then
-			if (string.find(clue, "_DAMAGE")) then
+			if string.find(clue, "_DAMAGE") or string.find(clue, "DAMAGE_SHIELD") then
 				local spellName, amount, overkill, school, critical, spellId, absorbed
 				if (string.find(clue, "SWING")) then
 					spellName, amount, overkill, _, _, _, absorbed, critical = "melee", ...
@@ -802,7 +802,7 @@ if NameplateSCT.db.global.personalOnly and NameplateSCT.db.global.personal and p
 	elseif (bit.band(sourceFlags, COMBATLOG_OBJECT_TYPE_GUARDIAN) > 0 or bit.band(sourceFlags, COMBATLOG_OBJECT_TYPE_PET) > 0)	and bit.band(sourceFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) > 0 then -- Pet/Guardian events
 		local destUnit = guidToUnit[destGUID]
 		if (destUnit) or (destGUID == playerGUID and NameplateSCT.db.global.personal) then
-			if (string.find(clue, "_DAMAGE")) then
+			if string.find(clue, "_DAMAGE") or string.find(clue, "DAMAGE_SHIELD") then
 				local spellName, amount, overkill, critical, spellId, absorbed
 				if (string.find(clue, "SWING")) then
 					spellName, amount, overkill, _, _, _, absorbed, critical, _, _, _ = "pet", ...
@@ -1014,7 +1014,7 @@ function NameplateSCT:DamageEvent(guid, spellName, amount, overkill, school, cri
 	end
 
 	if (overkill > 0 and self.db.global.shouldDisplayOverkill) then
-		text = self:ColorText(L["%s (O: %s)"]:format(text, overkill), guid, playerGUID, school, spellName, crit)
+		text = self:ColorText(L["%s (O: %s)"]:format(text, self:truncateText(overkill)), guid, playerGUID, school, spellName, crit)
 		self:DisplayTextOverkill(guid, text, size, animation, spellId, pow, spellName)
 	else
 		self:DisplayText(guid, text, size, animation, spellId, pow, spellName)
@@ -1999,5 +1999,5 @@ function NameplateSCT:RegisterMenu()
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("NameplateSCT", menu)
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("Filters", filters)
 	_, optionsMenuName = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("NameplateSCT", "NameplateSCT")
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Filters", "Filters", "NameplateSCT")
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Filters", L["Filters"], "NameplateSCT")
 end
