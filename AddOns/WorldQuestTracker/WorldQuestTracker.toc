@@ -8,7 +8,7 @@
 ## X-Curse-Project-ID: 100610
 ## X-Wago-ID: lQNlrEKe
 
-## Version: v11.0.7.525-Retail
+## Version: v11.0.7.526-Retail
 
 
 #@no-lib-strip@
