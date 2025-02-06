@@ -10,6 +10,7 @@
 ## X-DBM-Test: true
 
 Vanilla/KarazhanCrypts/KaigyMaryla.lua
+Vanilla/KarazhanCrypts/SairuhMaryla.lua
 Vanilla/KarazhanCrypts/OperaOfMalediction.lua
 Vanilla/KarazhanCrypts/CreepingMalison.lua
 Vanilla/KarazhanCrypts/HarbingerOfSin.lua
@@ -24,11 +25,3 @@ Vanilla/DemonFallCanyon/Azgaloth.lua
 Vanilla/DemonFallCanyon/Pyranis.lua
 Vanilla/DemonFallCanyon/Diathorus.lua
 Vanilla/DemonFallCanyon/HellscreamsPhantom.lua
-
-Vanilla/DemonFallCanyon/Reports/Grimroot.lua
-Vanilla/DemonFallCanyon/Reports/DestructorsWraith.lua
-Vanilla/DemonFallCanyon/Reports/Zilbagob.lua
-Vanilla/DemonFallCanyon/Reports/Azgaloth.lua
-Vanilla/DemonFallCanyon/Reports/Pyranis.lua
-Vanilla/DemonFallCanyon/Reports/Diathorus.lua
-Vanilla/DemonFallCanyon/Reports/HellscreamsPhantom.lua
