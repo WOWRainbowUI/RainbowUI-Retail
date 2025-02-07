@@ -2,7 +2,7 @@ if DBM:GetTOC() < 110100 then return end
 local mod	= DBM:NewMod(2644, "DBM-Raids-WarWithin", 1, 1296)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250124224515")
+mod:SetRevision("20250205192534")
 mod:SetCreatureID(228458)
 mod:SetEncounterID(3014)
 mod:SetHotfixNoticeRev(20250118000000)
@@ -15,7 +15,8 @@ mod:RegisterCombat("combat")
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START 461060 464806 464801 464804 472178 464772 464809 464810 460582 471930 472197 460181 469993 460472 465432 465322 465580 465587 465761",--460847
 	"SPELL_CAST_SUCCESS 465309 465765",--460181
-	"SPELL_AURA_APPLIED 461060 471720 472832 472837 472828 472783 461068 465009 460973 473278 471927 460430 460472",
+	"SPELL_AURA_APPLIED 461060 471720 472832 472837 472828 472783 461068 465009 460973 473278 471927 460430 460472 473195",
+	"SPELL_AURA_REFRESH 473195",
 --	"SPELL_AURA_APPLIED_DOSE",
 	"SPELL_AURA_REMOVED 461060 471720 465009 460973 473278 471927",
 	"SPELL_PERIODIC_DAMAGE 460576",
@@ -105,6 +106,7 @@ local specWarnCheatToWin						= mod:NewSpecialWarningCount(465309, nil, nil, nil
 local specWarnScatteredPayout					= mod:NewSpecialWarningSwitch(465580, "Dps", nil, nil, 1, 2)
 
 local timerCheatToWinCD							= mod:NewVarCountTimer("v25.2-26.7", 465309, nil, nil, nil, 6)
+local timerLinkedMachinesCast					= mod:NewCastTimer(7.5, 465432, 28405, nil, nil, 5)--Shorttext knockback
 local timerExplosiveJackpot						= mod:NewCastTimer(30, 465587, nil, nil, nil, 2, nil, DBM_COMMON_L.DEADLY_ICON)
 
 mod:AddPrivateAuraSoundOption(465325, true, 465322, 1)
@@ -113,6 +115,7 @@ mod.vb.spinCount = 0
 mod.vb.paylineCount = 0
 mod.vb.foulExhaustCount = 0
 mod.vb.bigHitCount = 0
+mod.vb.linkedCount = 0
 local castsPerGUID = {}
 
 function mod:OnCombatStart(delay)
@@ -231,7 +234,9 @@ function mod:SPELL_CAST_START(args)
 		end
 		timerTheBigHitCD:Start(self:GetStage(2) and "v14.5-20.6" or "v18.6-40.5", self.vb.bigHitCount+1)
 	elseif spellId == 465432 then
+		self.vb.linkedCount = 1
 		warnLinkedMachines:Show()
+		timerLinkedMachinesCast:Start(7.5, self.vb.linkedCount)
 	elseif spellId == 465322 then
 		warnHotHotHeat:Show()
 	elseif spellId == 465580 then
@@ -244,10 +249,10 @@ function mod:SPELL_CAST_START(args)
 	--"<400.42 21:30:24> [CLEU] SPELL_CAST_START#Vehicle-0-5769-2769-2058-228458-00000ABC32#One-Armed Bandit(34.7%-0.0%)##nil#465761#Rig the Game!#nil#nil#nil#nil#nil#nil",
 	elseif spellId == 465761 and self:GetStage(1) then--Rig the game (stage 2 trigger)
 		--Disabled resetting for now to match BW/Weak auras
-		self.vb.spinCount = 0--Still reset this one since BW doesn't count it
---		self.vb.paylineCount = 0
---		self.vb.foulExhaustCount = 0
---		self.vb.bigHitCount = 0
+		self.vb.spinCount = 0
+		self.vb.paylineCount = 0
+		self.vb.foulExhaustCount = 0
+		self.vb.bigHitCount = 0
 		self:SetStage(2)
 		warnPhase2:Show()
 		warnPhase2:Play("ptwo")
@@ -276,12 +281,12 @@ function mod:SPELL_CAST_SUCCESS(args)
 		end
 --	elseif spellId == 460181 then
 --		self.vb.paylineCount = self.vb.paylineCount + 1
-	elseif spellId == 465765 and self:GetStage(1) then--Rig the game (stage 2 trigger)
+	elseif spellId == 465765 and self:GetStage(1) then--Maintenance Cycle (stage 2 pre-trigger)
 		--Disabled resetting for now to match BW/Weak auras
-		self.vb.spinCount = 0--Still reset this one since BW doesn't count it
---		self.vb.paylineCount = 0
---		self.vb.foulExhaustCount = 0
---		self.vb.bigHitCount = 0
+		self.vb.spinCount = 0
+		self.vb.paylineCount = 0
+		self.vb.foulExhaustCount = 0
+		self.vb.bigHitCount = 0
 		self:SetStage(2)
 		warnPhase2:Show()
 		warnPhase2:Play("ptwo")
@@ -300,7 +305,7 @@ end
 function mod:SPELL_AURA_APPLIED(args)
 	local spellId = args.spellId
 	if spellId == 461060 then--Spin to win on main boss
-		timerSpintoWin:Start(30)
+		timerSpintoWin:Start(self:IsEasy() and 35 or 30)
 	elseif spellId == 471720 then--Spin to win on adds
 		if not castsPerGUID[args.destGUID] then
 			castsPerGUID[args.destGUID] = 0
@@ -343,9 +348,20 @@ function mod:SPELL_AURA_APPLIED(args)
 	elseif spellId == 460472 and not args:IsPlayer() then
 		specWarnBigHitTaunt:Show(args.destName)
 		specWarnBigHitTaunt:Play("tauntboss")
+	elseif spellId == 473195 then
+		self.vb.linkedCount = self.vb.linkedCount + 1
+		timerLinkedMachinesCast:Start(10, self.vb.linkedCount)
 	end
 end
 --mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
+
+function mod:SPELL_AURA_REFRESH(args)
+	local spellId = args.spellId
+	if spellId == 473195 then
+		self.vb.linkedCount = self.vb.linkedCount + 1
+		timerLinkedMachinesCast:Start(10, self.vb.linkedCount)
+	end
+end
 
 function mod:SPELL_AURA_REMOVED(args)
 	local spellId = args.spellId

@@ -2,7 +2,7 @@ if DBM:GetTOC() < 110100 then return end
 local mod	= DBM:NewMod(2639, "DBM-Raids-WarWithin", 1, 1296)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250123195150")
+mod:SetRevision("20250205032240")
 mod:SetCreatureID(225821)--Gear Grinder, 225822 Vexie
 mod:SetEncounterID(3009)
 mod:SetHotfixNoticeRev(20250122000000)
@@ -163,7 +163,7 @@ function mod:OnCombatStart(delay)
 	timerUnrelentingcarnageCD:Start(1-delay)--No Table
 	timerCallbikersCD:Start(allTimers[savedDifficulty][459943][1]-delay, 1)
 	timerSpewOilCD:Start(allTimers[savedDifficulty][459671][1]-delay, 1)
-	timerIncendiaryFireCD:Start(allTimers[savedDifficulty][468216][1]-delay, 1)
+	timerIncendiaryFireCD:Start(allTimers[savedDifficulty][468487][1]-delay, 1)
 	timerBombVoyageCD:Start(allTimers[savedDifficulty][459974][1]-delay, 1)
 	timerTankBusterCD:Start(allTimers[savedDifficulty][459627][1]-delay, 1)
 end

@@ -2,7 +2,7 @@ if DBM:GetTOC() < 110100 then return end
 local mod	= DBM:NewMod(2653, "DBM-Raids-WarWithin", 1, 1296)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250124211704")
+mod:SetRevision("20250205032240")
 mod:SetCreatureID(230583)
 mod:SetEncounterID(3013)
 mod:SetHotfixNoticeRev(20250117000000)
@@ -404,7 +404,7 @@ function mod:SPELL_AURA_REMOVED(args)
 		if self:IsHard() then
 			timerFootBlastersCD:Start(allTimers[savedDifficulty][1217231][1], 1)
 			if self:IsMythic() then
-				timerPolarizationGeneratorCD(allTimers[savedDifficulty][1217231][1], 1)
+				timerPolarizationGeneratorCD:Start(allTimers[savedDifficulty][1217231][1], 1)
 			end
 		end
 		timerPyroPartyPackCD:Start(allTimers[savedDifficulty][1214872][1], 1)
