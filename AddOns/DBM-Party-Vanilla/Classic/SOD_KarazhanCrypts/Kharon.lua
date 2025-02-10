@@ -2,7 +2,7 @@ if not DBM:IsSeasonal("SeasonOfDiscovery") then return end
 local mod	= DBM:NewMod("Kharon", "DBM-Party-Vanilla", 22)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250205234116")
+mod:SetRevision("20250208113351")
 mod:SetEncounterID(3143)
 --mod:SetCreatureID()
 mod:SetZone(2875)
@@ -106,6 +106,7 @@ end
 
 -- Something about SetIcon in dungeons seems fishy, at least on SoD, using this instead
 local function setIcon(name, icon)
+	if DBM.Options.DontSetIcons then return end
 	local uId = DBM:GetRaidUnitId(name)
 	if not uId or not UnitExists(uId) then
 		return

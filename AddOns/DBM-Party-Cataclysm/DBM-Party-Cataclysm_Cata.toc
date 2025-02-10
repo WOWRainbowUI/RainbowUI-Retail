@@ -38,7 +38,7 @@
 ## X-DBM-Mod-MinExpansion: 3
 ## X-Curse-Project-ID: 314994
 ## X-WoWI-ID: 24904
-## Version: r187
+## Version: r188
 
 localization.en.lua
 localization.de.lua
@@ -51,7 +51,7 @@ localization.cn.lua
 localization.br.lua
 BlackrockCaverns\RomoggBonecrusher.lua
 BlackrockCaverns\Corla.lua
-BlackrockCaverns\KarshSteelBender.lua
+BlackrockCaverns\KarshSteelbender.lua
 BlackrockCaverns\Beauty.lua
 BlackrockCaverns\AscendantLordObsidius.lua
 BlackrockCaverns\BlackrockCavernsTrash.lua
