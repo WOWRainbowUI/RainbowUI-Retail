@@ -82,8 +82,8 @@ function func:Nameplate_Added(unit, visuals)
                 unitFrame.raidTarget.icon:ClearAllPoints();
 
                 -- Auras counters
-                unitFrame.buffsCounter:SetScale(CFG.AurasScale);
-                unitFrame.debuffsCounter:SetScale(CFG.AurasScale);
+                unitFrame.buffsCounter:SetScale(CFG.AurasScale - 0.2);
+                unitFrame.debuffsCounter:SetScale(CFG.AurasScale - 0.2);
 
                 -- powerbar
                 unitFrame.powerbar:ClearAllPoints();
@@ -196,7 +196,9 @@ function func:Nameplate_Added(unit, visuals)
                 func:Update_Name(unit);
                 func:Update_Guild(unit);
                 func:Update_Classification(unit);
-                func:Update_Portrait(unit);
+                if CFG.Portrait then
+                    func:Update_Portrait(unit);
+                end
                 func:Update_FellowshipBadge(unit);
                 func:Update_PVP_Flag(unit);
                 func:Update_Level(unit);
