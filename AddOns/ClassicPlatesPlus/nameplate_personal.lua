@@ -93,6 +93,56 @@ function func:PersonalNameplateCreate()
         nameplate.healthbar:SetStatusBarColor(0,1,0);
         nameplate.healthbar:SetFrameLevel(1);
 
+        nameplate.healthbarChange = nameplate.main:CreateTexture();
+        nameplate.healthbarChange:SetParent(nameplate.healthbar);
+        nameplate.healthbarChange:SetHeight(28);
+        nameplate.healthbarChange:SetTexture("Interface\\TargetingFrame\\UI-StatusBar");
+        nameplate.healthbarChange:SetVertexColor(1, 0, 0, 1);
+        nameplate.healthbarChange:SetDrawLayer("background", 3);
+        nameplate.healthbarChange:Hide();
+
+        nameplate.healthbarChange.animation_group = nameplate.healthbarChange:CreateAnimationGroup();
+        nameplate.healthbarChange.animation_group.scale = nameplate.healthbarChange.animation_group:CreateAnimation("Scale");
+        nameplate.healthbarChange.animation_group.scale:SetDuration(0.5);
+        nameplate.healthbarChange.animation_group.scale:SetScaleFrom(1, 1);
+        nameplate.healthbarChange.animation_group.scale:SetScale(0, 1);
+        nameplate.healthbarChange.animation_group.scale:SetSmoothing("IN_OUT");
+        nameplate.healthbarChange.animation_group.scale:SetOrigin("left", 0, 0);
+        nameplate.healthbarChange.animation_group:SetScript("OnFinished", function(self)
+            nameplate.healthbarChange:Hide();
+        end);
+        nameplate.healthbar:SetScript("OnValueChanged", function(self, newValue)
+            if CFG.PersonalHealthBarAnimation then
+                local prevValue = data.nameplate.prevHealthValue;
+
+                if prevValue then
+                    local healthMax = UnitHealthMax("player");
+
+                    local function GetWidth(difference)
+                        return difference / healthMax * self:GetWidth();
+                    end
+
+                    if newValue < prevValue then
+                        local difference = prevValue - newValue;
+
+                        if difference > 1 and prevValue <= healthMax then
+                            local diffWidth = GetWidth(difference);
+                            local valWidth = GetWidth(newValue)
+                            local percentage = (difference / healthMax) * 100;
+
+                            if percentage > CFG.PersonalHealthBarAnimationThreshold then
+                                nameplate.healthbarChange:ClearAllPoints();
+                                nameplate.healthbarChange:SetPoint("left", nameplate.healthbar, "right", -(nameplate.healthbar:GetWidth() - valWidth), 0);
+                                nameplate.healthbarChange:SetWidth(diffWidth);
+                                nameplate.healthbarChange:Show();
+                                nameplate.healthbarChange.animation_group:Restart();
+                            end
+                        end
+                    end
+                end
+            end
+        end);
+
         nameplate.healthbarSpark = nameplate.main:CreateTexture();
         nameplate.healthbarSpark:SetPoint("center", nameplate.healthbar:GetStatusBarTexture(), "right");
         nameplate.healthbarSpark:SetSize(10, 32);
@@ -106,7 +156,7 @@ function func:PersonalNameplateCreate()
         nameplate.healthbarBackground:SetColorTexture(0.18, 0.18, 0.18, 0.85);
         nameplate.healthbarBackground:SetParent(nameplate.healthbar);
         nameplate.healthbarBackground:SetAllPoints();
-        nameplate.healthbarBackground:SetDrawLayer("background");
+        nameplate.healthbarBackground:SetDrawLayer("background", 2);
 
         nameplate.healPrediction = nameplate.main:CreateTexture(nil, "background");
         nameplate.healPrediction:SetPoint("left", nameplate.healthbar:GetStatusBarTexture(), "right");
@@ -187,34 +237,34 @@ function func:PersonalNameplateCreate()
         nameplate.powerbar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar");
         nameplate.powerbar:SetFrameLevel(1);
 
-        nameplate.powerbarCost = nameplate.main:CreateTexture(nil, "background");
-        nameplate.powerbarCost:SetHeight(18);
-        nameplate.powerbarCost:SetTexture("Interface\\Buttons\\WHITE8x8");
-        nameplate.powerbarCost:SetVertexColor(0.75, 0.75, 1, 1);
-        nameplate.powerbarCost:SetBlendMode("ADD");
-        nameplate.powerbarCost:Hide();
+        nameplate.powerbarChange = nameplate.main:CreateTexture(nil, "background");
+        nameplate.powerbarChange:SetHeight(18);
+        nameplate.powerbarChange:SetTexture("Interface\\Buttons\\WHITE8x8");
+        nameplate.powerbarChange:SetVertexColor(0.75, 0.75, 1, 1);
+        nameplate.powerbarChange:SetBlendMode("ADD");
+        nameplate.powerbarChange:Hide();
 
-        nameplate.powerbarCost.animationShrink = nameplate.powerbarCost:CreateAnimationGroup();
-        nameplate.powerbarCost.animationShrink.scale = nameplate.powerbarCost.animationShrink:CreateAnimation("Scale");
-        nameplate.powerbarCost.animationShrink.scale:SetDuration(0.5);
-        nameplate.powerbarCost.animationShrink.scale:SetScaleFrom(1, 1);
-        nameplate.powerbarCost.animationShrink.scale:SetScale(0, 1);
-        nameplate.powerbarCost.animationShrink.scale:SetSmoothing("IN");
-        nameplate.powerbarCost.animationShrink.scale:SetOrigin("right", 0, 0);
+        nameplate.powerbarChange.animation_group_1 = nameplate.powerbarChange:CreateAnimationGroup();
+        nameplate.powerbarChange.animation_group_1.scale = nameplate.powerbarChange.animation_group_1:CreateAnimation("Scale");
+        nameplate.powerbarChange.animation_group_1.scale:SetDuration(0.5);
+        nameplate.powerbarChange.animation_group_1.scale:SetScaleFrom(1, 1);
+        nameplate.powerbarChange.animation_group_1.scale:SetScale(0, 1);
+        nameplate.powerbarChange.animation_group_1.scale:SetSmoothing("IN");
+        nameplate.powerbarChange.animation_group_1.scale:SetOrigin("right", 0, 0);
 
-        nameplate.powerbarCost.animationDepletion = nameplate.powerbarCost:CreateAnimationGroup();
-        nameplate.powerbarCost.animationDepletion.alpha = nameplate.powerbarCost.animationDepletion:CreateAnimation("Alpha");
-        nameplate.powerbarCost.animationDepletion.alpha:SetDuration(0.5);
-        nameplate.powerbarCost.animationDepletion.alpha:SetFromAlpha(1);
-        nameplate.powerbarCost.animationDepletion.alpha:SetToAlpha(0);
-        nameplate.powerbarCost.animationDepletion.alpha:SetSmoothing("IN_OUT");
+        nameplate.powerbarChange.animation_group_2 = nameplate.powerbarChange:CreateAnimationGroup();
+        nameplate.powerbarChange.animation_group_2.alpha = nameplate.powerbarChange.animation_group_2:CreateAnimation("Alpha");
+        nameplate.powerbarChange.animation_group_2.alpha:SetDuration(0.5);
+        nameplate.powerbarChange.animation_group_2.alpha:SetFromAlpha(1);
+        nameplate.powerbarChange.animation_group_2.alpha:SetToAlpha(0);
+        nameplate.powerbarChange.animation_group_2.alpha:SetSmoothing("IN_OUT");
 
-        nameplate.powerbarCost.animationShrink:SetScript("OnFinished", function(self)
-            nameplate.powerbarCost:Hide();
+        nameplate.powerbarChange.animation_group_1:SetScript("OnFinished", function(self)
+            nameplate.powerbarChange:Hide();
         end);
 
-        nameplate.powerbarCost.animationDepletion:SetScript("OnFinished", function(self)
-            nameplate.powerbarCost:Hide();
+        nameplate.powerbarChange.animation_group_2:SetScript("OnFinished", function(self)
+            nameplate.powerbarChange:Hide();
         end);
 
         nameplate.powerbar:SetScript("OnValueChanged", function(self, newValue)
@@ -239,13 +289,13 @@ function func:PersonalNameplateCreate()
                                 local valWidth = GetWidth(newValue)
                                 local percentage = (difference / powerMax) * 100;
 
-                                if percentage > 10 then
-                                    nameplate.powerbarCost:ClearAllPoints();
-                                    nameplate.powerbarCost:SetPoint("left", nameplate.powerbar, "right", -(nameplate.powerbar:GetWidth() - valWidth), 0);
-                                    nameplate.powerbarCost:SetWidth(diffWidth);
-                                    nameplate.powerbarCost:Show();
-                                    nameplate.powerbarCost.animationDepletion:Restart();
-                                    nameplate.powerbarCost.animationShrink:Stop();
+                                if percentage > CFG.PersonalPowerBarAnimationThreshold then
+                                    nameplate.powerbarChange:ClearAllPoints();
+                                    nameplate.powerbarChange:SetPoint("left", nameplate.powerbar, "right", -(nameplate.powerbar:GetWidth() - valWidth), 0);
+                                    nameplate.powerbarChange:SetWidth(diffWidth);
+                                    nameplate.powerbarChange:Show();
+                                    nameplate.powerbarChange.animation_group_2:Restart();
+                                    nameplate.powerbarChange.animation_group_1:Stop();
                                 end
                             end
                         elseif newValue > prevValue then
@@ -259,13 +309,13 @@ function func:PersonalNameplateCreate()
                                     diffWidth = nameplate.powerbar:GetWidth();
                                 end
 
-                                if percentage > 10 then
-                                    nameplate.powerbarCost:ClearAllPoints();
-                                    nameplate.powerbarCost:SetPoint("right", self:GetStatusBarTexture(), "right");
-                                    nameplate.powerbarCost:SetWidth(diffWidth);
-                                    nameplate.powerbarCost:SetShown(diffWidth > 0);
-                                    nameplate.powerbarCost.animationShrink:Restart();
-                                    nameplate.powerbarCost.animationDepletion:Stop();
+                                if percentage > CFG.PersonalPowerBarAnimationThreshold then
+                                    nameplate.powerbarChange:ClearAllPoints();
+                                    nameplate.powerbarChange:SetPoint("right", self:GetStatusBarTexture(), "right");
+                                    nameplate.powerbarChange:SetWidth(diffWidth);
+                                    nameplate.powerbarChange:SetShown(diffWidth > 0);
+                                    nameplate.powerbarChange.animation_group_1:Restart();
+                                    nameplate.powerbarChange.animation_group_2:Stop();
                                 end
                             end
                         end
@@ -444,8 +494,8 @@ function func:PersonalNameplateAdd()
             nameplate.healthMain:SetScale(0.9 + scaleOffset);
         end
 
-        nameplate.buffsCounter:SetScale(CFG.PersonalNameplatesScale + 0.5);
-        nameplate.debuffsCounter:SetScale(CFG.PersonalNameplatesScale + 0.5);
+        nameplate.buffsCounter:SetScale(CFG.AurasScale + 0.2);
+        nameplate.debuffsCounter:SetScale(CFG.AurasScale + 0.2);
 
         nameplate.classPower:SetPoint("top", dummyAnchor, "bottom", 0, -4);
         nameplate.classPower:SetHeight(data.classBarHeight);
