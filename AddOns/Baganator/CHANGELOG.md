@@ -1,6 +1,8 @@
 # Baganator
 
-## [643](https://github.com/Baganator/Baganator/tree/643) (2025-02-05)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/642...643) 
+## [644](https://github.com/Baganator/Baganator/tree/644) (2025-02-08)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/643...644) 
 
-- Refresh searches when item widgets refresh clearing searched state visual  
+- [Fixes #423] Categories: Resolve recent items not clearing automatically  
+- Forgot a "not"  
+- Categories: Fix empty slots resetting (again) due to bounce-back when vendoring  
