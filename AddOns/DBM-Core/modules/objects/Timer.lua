@@ -206,7 +206,7 @@ function timerPrototype:Start(timer, ...)
 		if DBM.Options.DontShowTrashTimers and self.mod.isTrashMod then return end
 	end
 	local isDelayed = type(timer) == "number" and (isNegativeZero(timer) or timer < 0)
-	local hasVariance = type(timer) == "number" and timer > 0 and false or not timer and self.hasVariance -- account for metavariant timers that were fired with a fixed timer start, like timer:Start(10). Does not account for timer:Start(-delay), which is parsed below after variance started timers	local timerStringWithVariance, minTimer
+	local hasVariance = type(timer) == "number" and timer > 0 and false or not timer and self.hasVariance -- account for metavariant timers that were fired with a fixed timer start, like timer:Start(10). Does not account for timer:Start(-delay), which is parsed below after variance started timers
 	local timerStringWithVariance, maxTimer, minTimer
 	if type(timer) == "string" and timer:match("^v%d+%.?%d*-%d+%.?%d*$") then -- catch "timer variance" pattern, expressed like v10.5-20.5
 		hasVariance = true
@@ -421,7 +421,6 @@ function timerPrototype:Start(timer, ...)
 		end
 		msg = msg:gsub(">.-<", stringUtils.stripServerName)
 		bar:SetText(msg, self.inlineIcon)
-		bar.hasVariance = hasVariance
 		-- FIXME: i would prefer to trace this directly in DBT, but since I want to rewrite DBT... meh.
 		test:Trace(self.mod, "StartTimer", self, timer, msg)
 		--ID (string) Internal DBM timer ID
