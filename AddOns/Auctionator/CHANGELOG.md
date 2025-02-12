@@ -1,6 +1,8 @@
 # Auctionator
 
-## [259](https://github.com/Auctionator/Auctionator/tree/259) (2025-01-28)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/258...259) 
+## [260](https://github.com/Auctionator/Auctionator/tree/260) (2025-02-11)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/259...260) 
 
-- Vanilla: Update toc for 1.15.6  
+- [Fixes #1631] Cata Classic: Workaround to let users post  
+- Revert "Update for Cata 4.4.2 changes to AH" (update not out yet)  
+- Update for Cata 4.4.2 changes to AH  
