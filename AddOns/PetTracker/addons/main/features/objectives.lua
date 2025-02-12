@@ -1,5 +1,5 @@
 --[[
-	Copyright 2012-2024 João Cardoso
+	Copyright 2012-2025 João Cardoso
 	All Rights Reserved
 --]]
 
@@ -45,15 +45,17 @@ end
 
 function Objectives:GetContent()
 	if Addon.sets.zoneTracker then
+		local parent = self:GetParent()
 		local used = 0
-		for i, module in ipairs(self:GetParent().modules) do
+
+		for i, module in ipairs(parent.modules or {}) do
 			local height = module:GetContentsHeight()
 			if height > 0 then
 				used = used + height + 10
 			end
 		end
 
-		local free = self:GetParent():GetAvailableHeight() - used
+		local free = parent:GetAvailableHeight() - used
 		if free >= 103 then
 			self.MaxEntries = floor((free - 103) / 19)
 			self:Update()
