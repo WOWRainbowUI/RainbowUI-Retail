@@ -571,7 +571,8 @@ local function svInitializer(event, _name, sv)
 		local onOpenFlush, updateZ3 = storageVersion < 2, storageVersion < 3
 		RK_FlagStore.StoreVersion, RK_FlagStore.FlushedDefaultColors = 3, nil
 
-		loadLock = 1; EV.After(0, unlockSync)
+		loadLock = 1
+		EV.After(0, unlockSync)
 		for k, v in pairs(queue) do
 			if v.hotkey then v.hotkey = v.hotkey:gsub("[^-; ]+", mousemap) end
 			if deleted[k] == nil and SV[k] == nil then

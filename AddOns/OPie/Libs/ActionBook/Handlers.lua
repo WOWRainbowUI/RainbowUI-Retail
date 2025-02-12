@@ -1344,7 +1344,7 @@ securecall(function() -- /ping
 	end)
 end)
 securecall(function() -- uipanel: token
-	local CLICK, pyCLICK, widgetClickCommand, widgetAttrCommand = SLASH_CLICK1 .. " " do
+	local CLICK, pyCLICK, widgetClickCommand, widgetAttrCommand, closeButton = SLASH_CLICK1 .. " " do
 		local pyName, attrCounter = newWidgetName("AB:PY!"), 500
 		local py = CreateFrame("Button", pyName, nil, "SecureActionButtonTemplate")
 		py:SetAttribute("type", "click")
@@ -1373,9 +1373,75 @@ securecall(function() -- uipanel: token
 			end
 			return r
 		end
+		function closeButton(p, reg)
+			local r = CreateFrame("Button", nil, p, "UIPanelCloseButton")
+			r:Hide()
+			return r, reg and widgetClickCommand(reg, r)
+		end
 	end
-	local function duckStore()
-		return StoreFrame_IsShown and StoreFrame_IsShown() and StoreFrame_SetShown and StoreFrame_SetShown(false)
+	local ShowVaultTip if MODERN then
+		local unlockedRewards, needRefresh
+		function EV:WEEKLY_REWARDS_UPDATE()
+			unlockedRewards = nil
+		end
+		local function genRewardPreview()
+			needRefresh = nil
+			if C_WeeklyRewards.HasGeneratedRewards() then
+				local a, ni = C_WeeklyRewards.GetActivities(), 1
+				local getRewardLink, getItemLevel = C_WeeklyRewards.GetItemHyperlink, C_Item.GetDetailedItemLevelInfo
+				for i=1, a and #a or 0 do
+					local ai = a[i]
+					if ai and ai.rewards and ai.rewards[1] then
+						local ilink, q = getRewardLink(ai.rewards[1].itemDBID), ai.rewards[1].quantity
+						local ilvl = (ilink and getItemLevel(ilink) or -1)
+						local suf = (q or 1) > 1 and " (x" .. q .. ")" or (" (" .. ITEM_LEVEL_ABBR .. " " .. ilvl .. ")")
+						a[ni], ni, needRefresh = ilink .. suf, ni + 1, needRefresh or ilvl == -1
+					end
+				end
+				unlockedRewards = table.concat(a, "\n", 1, ni-1) or ""
+				return
+			end
+			local getExampleReward, getItemLevel = C_WeeklyRewards.GetExampleRewardItemHyperlinks, C_Item.GetDetailedItemLevelInfo
+			local a, ni = not C_WeeklyRewards.HasAvailableRewards() and C_WeeklyRewards.GetActivities(), 1
+			for i=1,a and #a or 0 do
+				local ai = a[i]
+				if ai and ai.progress >= ai.threshold then
+					local ilink = getExampleReward(ai.id)
+					local ilvl = ilink and getItemLevel(ilink) or -1
+					a[ni], ni, needRefresh = ilvl, ni + 1, needRefresh or ilvl == -1
+				end
+			end
+			unlockedRewards = ""
+			if ni > 1 then
+				for i=#a, ni, -1 do
+					a[i] = nil
+				end
+				table.sort(a)
+				local ec = ITEM_QUALITY_COLORS[4].hex
+				local si, j, ilvl, sj = ni, ni-1
+				while j > 0 do
+					ilvl, sj = a[j], j
+					repeat j = j - 1 until a[j] ~= ilvl
+					a[ni], ni = ec .. ITEM_LEVEL:format(ilvl) .. (sj > j+1 and "|r (x" .. (sj-j) .. ")" or "|r"), ni + 1
+				end
+				unlockedRewards = table.concat(a, "\n", si, ni-1)
+			end
+		end
+		function ShowVaultTip(GameTooltip)
+			local hc = HIGHLIGHT_FONT_COLOR
+			GameTooltip:SetText(DELVES_GREAT_VAULT_LABEL)
+			if unlockedRewards == nil or needRefresh then
+				genRewardPreview()
+			end
+			if (unlockedRewards or "") ~= "" then
+				GameTooltip:AddLine(unlockedRewards, hc.r, hc.g, hc.b)
+			elseif C_WeeklyRewards.HasAvailableRewards() then
+				GameTooltip:AddLine(GREAT_VAULT_REWARDS_WAITING, 0.1, 0.9, 0.1, 1)
+			else
+				GameTooltip:AddLine(WEEKLY_REWARDS_ADD_ITEMS, 0.75, 0.75, 0.75, 1)
+			end
+			GameTooltip:Show()
+		end
 	end
 	local panelMap, panels = {}, {
 		character={CHARACTER, icon="Interface/PVPFrame/Icons/prestige-icon-7-3", gw=PaperDollFrame, tw=CharacterFrameTab1},
@@ -1388,88 +1454,25 @@ securecall(function() -- uipanel: token
 		groupfinder={DUNGEONS_BUTTON, icon=MODERN and "Interface/Icons/LEVELUPICON-LFD" or "Interface/LFGFrame/BattlenetWorking0", gw=PVEFrame, tw=LFDMicroButton},
 		collections=MODERN and {COLLECTIONS, icon="Interface/Icons/INV_Box_01", gn="CollectionsJournal", tw=CollectionsMicroButton},
 		adventureguide=MODERN and {ADVENTURE_JOURNAL, icon="Interface/EncounterJournal/UI-EJ-PortraitIcon", gn="EncounterJournal", tw=EJMicroButton},
-		guild=MODERN and {GUILD_AND_COMMUNITIES, icon="Interface/Icons/INV_Shirt_GuildTabard_01", gn="CommunitiesFrame", tw=GuildMicroButton},
+		guild=MODERN and {GUILD_AND_COMMUNITIES, icon="Interface/Icons/INV_Shirt_GuildTabard_01", gn="CommunitiesFrame", tw=GuildMicroButton}
+		              or {title=GUILD, icon="Interface/Icons/INV_Shirt_GuildTabard_01", gw=GuildFrame, ow=FriendsFrameTab3, cw=FriendsFrameCloseButton, req=IsInGuild},
 		map={WORLD_MAP, icon=CI_ERA and "Interface/Worldmap/WorldMap-Icon" or "Interface/Icons/Inv_Misc_Map08", gw=WorldMapFrame, tw=MODERN and MinimapCluster.ZoneTextButton or MiniMapWorldMapButton},
 		social={SOCIAL_BUTTON, icon=MODERN and "Interface/Icons/UI_Chat" or "Interface/Icons/INV_Scroll_03", gw=FriendsFrame, tw=MODERN and QuickJoinToastButton or FriendsMicroButton},
 		calendar={L"Calendar", icon="Interface/Icons/Spell_Holy_BorrowedTime", gn="CalendarFrame", tw=GameTimeFrame},
 		options={OPTIONS, icon=MODERN and "Interface/Icons/Misc_RnRWrenchButtonRight" or "Interface/Icons/INV_Misc_Wrench_01", gw=SettingsPanel, noduck=1, open=function() Settings.OpenToCategory(nil) end},
-		macro={MACROS, icon="Interface/Icons/INV_Misc_Note_06", gn="MacroFrame", tmt=SLASH_MACRO1},
+		macro={MACROS, icon="Interface/Icons/INV_Misc_Note_06", gn="MacroFrame", tmt=SLASH_MACRO1, cw=closeButton(MacroFrame), postmt=pyCLICK .. "csp 1\n" .. pyCLICK .. "cgm 1"},
 		profs=MODERN and {TRADE_SKILLS, icon="interface/icons/inv_pick_02", tw=ProfessionMicroButton},
 		gamemenu={MAINMENU_BUTTON, icon=CF_CLASSIC and "Interface/Icons/INV_Misc_PunchCards_Red", atlas="UI-HUD-MicroMenu-GameMenu-Up", gw=GameMenuFrame, tmt="/click GameMenuButtonContinue", noduck=1, pre=function() return not GameMenuFrame:IsShown() or nil end, post=function() RatingMenuFrame:Show() RatingMenuFrame:Hide() PlaySound(SOUNDKIT.IG_MAINMENU_OPEN) end},
-		csp={gw=SettingsPanel, cpreamble=true},
-		cgm={gw=GameMenuFrame, cpreamble=true},
-		csf={pre=duckStore, cpreamble=true},
+		vault=MODERN and {DELVES_GREAT_VAULT_LABEL, icon="Interface/Icons/INV_Cape_Special_Treasure_C_01", gn="WeeklyRewardsFrame", skipCloseSound=169062, req=function() return UnitLevel("player") == 80 end, tip=ShowVaultTip},
+		csp={gw=SettingsPanel, cpreamble=true, cw=closeButton(SettingsPanel, "csp")},
+		cgm={gw=GameMenuFrame, cpreamble=true, cw=closeButton(GameMenuFrame, "cgm")},
+		csf={pre=function() return StoreFrame_IsShown and StoreFrame_SetShown and StoreFrame_IsShown() and StoreFrame_SetShown(false) end, cpreamble=true},
 	}
-	do -- further panels init
-		local function closeButton(p)
-			local r = CreateFrame("Button", nil, p, "UIPanelCloseButton")
-			r:Hide()
-			return r, r
-		end
-		panels.macro.cw = closeButton(nil)
-		panels.csp.cw, panels.options.cw = closeButton(SettingsPanel)
-		panels.cgm.cw = closeButton(GameMenuFrame)
-		panels.options.postmt = pyCLICK .. "csp 1\n" .. pyCLICK .. "cgm 1"
-		panels.macro.postmt = widgetClickCommand("cmf", panels.macro.cw)
-		if MODERN then
-			panels.gamemenu.cw, panels.gamemenu.tmt = panels.cgm.cw, nil
-			panels.spellbook.tmt, panels.spellbook.cwrap, panels.spellbook.cw, panels.spellbook.ow = "/click PlayerSpellsFrameCloseButton\n/click PlayerSpellsMicroButton\n" .. pyCLICK .. " spelltab 1", 1, nil
-			panels.talents.tmt, panels.talents.cwrap, panels.talents.tw = "/click PlayerSpellsFrameCloseButton\n/click PlayerSpellsMicroButton\n" .. pyCLICK .. " talenttab 1", 1, nil
-			function EV.PLAYER_LOGIN()
-				pcall(C_AddOns.LoadAddOn, "Blizzard_PlayerSpells")
-				panels.spellbook.gw = PlayerSpellsFrame.SpellBookFrame
-				panels.talents.gw, panels.talents.gn = PlayerSpellsFrame.TalentsFrame, nil
-				panels.spellbook.ow, panels.talents.ow = PlayerSpellsFrameCloseButton, PlayerSpellsFrameCloseButton
-				if PlayerSpellsFrame and PlayerSpellsFrame.tabSystem and PlayerSpellsFrame.tabSystem.tabs then
-					widgetClickCommand("spelltab", PlayerSpellsFrame.tabSystem.tabs[PlayerSpellsFrame.spellBookTabID])
-					widgetClickCommand("talenttab", PlayerSpellsFrame.tabSystem.tabs[PlayerSpellsFrame.talentTabID])
-				end
-			end
-		else -- not MODERN
-			panels.guild = {title=GUILD, icon="Interface/Icons/INV_Shirt_GuildTabard_01", gw=GuildFrame, ow=FriendsFrameTab3, cw=FriendsFrameCloseButton, req=IsInGuild}
-			if CF_WRATH then
-				panels.achievements.icon = "Interface/PvPFrame/Icons/prestige-icon-4"
-				local fpd = securecall(function()
-					local tf, x2, x = CreateFrame("Frame"), EnumerateFrames(), nil
-					tf:SetAttribute("UIPanelLayout-defined", 1)
-					tf:SetAttribute("UIPanelLayout-area", "none")
-					HideUIPanel(tf)
-					repeat
-						x, x2 = EnumerateFrames(x), x2 and EnumerateFrames(x2)
-						x2 = x2 and (x2 == x and x2 or EnumerateFrames(x2))
-						if x and x.ShowUIPanel and x.GetAttribute and not x:IsForbidden() and x:GetAttribute("panel-frame") == tf then
-							return x
-						end
-					until x == nil or x == x2
-				end)
-				if fpd then
-					local gfp = panels.groupfinder
-					gfp.tw, gfp.cw, gfp.skipCloseSound = nil, closeButton(gfp.gw), 839
-					gfp.premt = widgetClickCommand("groupfinder", gfp.cw) .. widgetAttrCommand(fpd, "panel-force",false, "panel-frame",gfp.gw, "panel-show",true) .. CLICK .. "GroupFinderFrameGroupButton1"
-				else
-					panels.groupfinder = nil
-				end
-				function panels.currency.req()
-					return GetCurrencyListSize() > 0
-				end
-			else
-				panels.achievements = nil
-				panels.groupfinder = nil
-				panels.currency = nil
-				panels.calendar = nil
-				panels.reputation.icon = "Interface/Icons/INV_MISC_NOTE_02"
-			end
-		end
-		function EV.ADDON_LOADED()
-			if MacroFrame then
-				panels.macro.cw:SetParent(MacroFrame)
-				return "remove"
-			end
-		end
-	end
-	local cmdPrefix, cmdDuckPrefix do
+	do
 		local exName = newWidgetName("AB:PX!")
 		local clickEx = CLICK .. " " .. exName .. " "
+		local cmdPrefix = clickEx .. "csf 1\n" .. clickEx
+		local cmdDuckPrefix = cmdPrefix .. "csp 1\n" .. clickEx .. "cgm 1\n" .. clickEx
 		local ex = CreateFrame("Button", exName, nil, "SecureActionButtonTemplate")
 		ex:SetAttribute("type", "macro")
 		ex:SetAttribute("pressAndHoldAction", 1)
@@ -1523,18 +1526,7 @@ securecall(function() -- uipanel: token
 				i.post(bp, pm)
 			end
 		end)
-		local pmeta = {__index=function(t, k)
-			local r, saveGlobal, n
-			if k == "gw" then
-				saveGlobal, n = true, t.gn
-			end
-			if saveGlobal then
-				r = _G[n]
-				t[k] = r or n ~= nil and nil
-				return r
-			end
-		end}
-		for k,v in pairs(panels) do
+		local function prepareMacroText(k, v)
 			local tmt = v.tmt
 			if tmt then
 				tmt = tmt:gsub("/click ", CLICK)
@@ -1555,15 +1547,99 @@ securecall(function() -- uipanel: token
 			if v.post then
 				tmt = tmt .. (tmt:sub(-1) ~= "\n" and "\n" or "") .. clickEx .. "post-" .. k
 			end
-			if v.cpreamble then
-				ex:SetAttribute("type-" .. k, "click")
-				ex:SetAttribute("clickbutton-" .. k, v.cw)
-			end
-			setmetatable(v, pmeta)
-			panels[k], v.mainText = v, tmt
+			tmt = tmt and ((v.noduck and cmdPrefix or cmdDuckPrefix) .. k .. " 1\n" .. tmt)
+			return tmt
 		end
-		cmdPrefix = clickEx .. "csf 1\n" .. clickEx
-		cmdDuckPrefix = cmdPrefix .. "csp 1\n" .. clickEx .. "cgm 1\n" .. clickEx
+		local pmeta = {__index=function(t, k)
+			local n, r = k == "gw" and t.gn
+			if n then
+				r = _G[n]
+			elseif k == "mainText" then
+				r = prepareMacroText(t.pk, t)
+			end
+			if k ~= nil then
+				t[k] = r
+			end
+			return r
+		end}
+		for k,v in pairs(panels) do
+			v.pk = k
+			setmetatable(v, pmeta)
+		end
+	end
+	do -- further panels init
+		local fpd = (MODERN or CF_WRATH) and securecall(function()
+			local tf, x2, x = CreateFrame("Frame"), EnumerateFrames(), nil
+			tf:SetAttribute("UIPanelLayout-defined", 1)
+			tf:SetAttribute("UIPanelLayout-area", "none")
+			HideUIPanel(tf)
+			repeat
+				x, x2 = EnumerateFrames(x), x2 and EnumerateFrames(x2)
+				x2 = x2 and (x2 == x and x2 or EnumerateFrames(x2))
+				if x and x.ShowUIPanel and x.GetAttribute and x:GetAttribute("panel-frame") == tf then
+					return x
+				end
+			until x == nil or x == x2
+		end)
+		panels.options.cw = panels.csp.cw
+		panels.macro.postmt = widgetClickCommand("cmf", panels.macro.cw)
+		if MODERN then
+			panels.gamemenu.cw, panels.gamemenu.tmt = panels.cgm.cw, nil
+			panels.spellbook.tmt, panels.spellbook.cwrap, panels.spellbook.cw, panels.spellbook.ow = "/click PlayerSpellsFrameCloseButton\n/click PlayerSpellsMicroButton\n" .. pyCLICK .. " spelltab 1", 1, nil
+			panels.talents.tmt, panels.talents.cwrap, panels.talents.tw = "/click PlayerSpellsFrameCloseButton\n/click PlayerSpellsMicroButton\n" .. pyCLICK .. " talenttab 1", 1, nil
+			function EV.PLAYER_LOGIN()
+				pcall(C_AddOns.LoadAddOn, "Blizzard_PlayerSpells")
+				panels.spellbook.gw = PlayerSpellsFrame.SpellBookFrame
+				panels.talents.gw, panels.talents.gn = PlayerSpellsFrame.TalentsFrame, nil
+				panels.spellbook.ow, panels.talents.ow = PlayerSpellsFrameCloseButton, PlayerSpellsFrameCloseButton
+				if PlayerSpellsFrame and PlayerSpellsFrame.tabSystem and PlayerSpellsFrame.tabSystem.tabs then
+					widgetClickCommand("spelltab", PlayerSpellsFrame.tabSystem.tabs[PlayerSpellsFrame.spellBookTabID])
+					widgetClickCommand("talenttab", PlayerSpellsFrame.tabSystem.tabs[PlayerSpellsFrame.talentTabID])
+				end
+				if (UnitLevel("player") or 0) < 80 then
+					function EV:PLAYER_LEVEL_UP(nlvl)
+						if nlvl == 80 then
+							AB:NotifyObservers("uipanel")
+							return "remove"
+						end
+					end
+				end
+				return "remove"
+			end
+			if fpd then
+				pcall(C_AddOns.LoadAddOn, "Blizzard_WeeklyRewards")
+				panels.vault.cw = closeButton(panels.vault.gw)
+				panels.vault.premt = widgetClickCommand("vault", panels.vault.cw) .. widgetAttrCommand(fpd, "panel-force",false, "panel-frame",panels.vault.gw, "panel-show",true)
+			else
+				panels.vault = nil
+			end
+		else -- not MODERN
+			if CF_WRATH then
+				panels.achievements.icon = "Interface/PvPFrame/Icons/prestige-icon-4"
+				if fpd then
+					local gfp = panels.groupfinder
+					gfp.tw, gfp.cw, gfp.skipCloseSound = nil, closeButton(gfp.gw), 839
+					gfp.premt = widgetClickCommand("groupfinder", gfp.cw) .. widgetAttrCommand(fpd, "panel-force",false, "panel-frame",gfp.gw, "panel-show",true) .. CLICK .. "GroupFinderFrameGroupButton1"
+				else
+					panels.groupfinder = nil
+				end
+				function panels.currency.req()
+					return GetCurrencyListSize() > 0
+				end
+			else
+				panels.achievements = nil
+				panels.groupfinder = nil
+				panels.currency = nil
+				panels.calendar = nil
+				panels.reputation.icon = "Interface/Icons/INV_MISC_NOTE_02"
+			end
+		end
+		function EV.ADDON_LOADED()
+			if MacroFrame then
+				panels.macro.cw:SetParent(MacroFrame)
+				return "remove"
+			end
+		end
 	end
 	local function panelHint(tk)
 		local i = panels[tk]
@@ -1573,14 +1649,14 @@ securecall(function() -- uipanel: token
 		if icon == nil then
 			icon, s = i.atlas, s + 262144
 		end
-		return tk == "gamemenu" or not (MODERN and AreAllPanelsDisallowed()), s, icon, i[1]
+		local tf = i.tip or nil
+		return tk == "gamemenu" or not (MODERN and AreAllPanelsDisallowed()), s, icon, i[1], nil, nil, nil, tf, tf and tk
 	end
 	local function createPanel(tk)
 		local r = panelMap[tk]
 		local pi = r == nil and panels[tk]
 		if pi and pi[1] and pi.mainText and (pi.req == nil or pi.req()) then
-			local mt = (pi.noduck and cmdPrefix or cmdDuckPrefix) .. tk .. " 1\n" .. pi.mainText
-			r = AB:CreateActionSlot(panelHint, tk, "macrotext", mt)
+			r = AB:CreateActionSlot(panelHint, tk, "macrotext", pi.mainText)
 			panelMap[tk] = r
 		end
 		return r
