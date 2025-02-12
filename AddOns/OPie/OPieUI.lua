@@ -386,11 +386,21 @@ local function applyExtIconVertexColor(self, ext)
 		return true
 	end
 end
-local function anchorTooltip(tt, owner, _at, _angle)
+local function anchorTooltip(tt, owner, at, angle)
 	if tt:IsOwned(owner) then
 		tt:ClearLines()
+	elseif at == "side" then
+		tt:SetOwner(owner, "ANCHOR_NONE")
 	else
 		GameTooltip_SetDefaultAnchor(tt, owner)
+	end
+	if at == "side" then
+		local left, s = angle < 280 and angle > 80, configCache.RingScale
+		if vis[left and "noTL" or "noTR"] then
+			left = not left
+		end
+		tt:ClearAllPoints()
+		tt:SetPoint(left and "LEFT" or "RIGHT", proxyFrame, "CENTER", (vis.radius+60)*(left and s or -s), 0)
 	end
 end
 local function updateCentralElements(_self, si, _, tok, usable, state, icon, caption, _, _, _, tipFunc, tipArg, _, stext)
@@ -578,7 +588,8 @@ local function OnUpdate_Main(self, elapsed)
 		for i=1,count do
 			local s, new = Slices[i], i == si and miScaleAdd+1 or 1
 			local old = s:GetScale()
-			s:SetScale(old + min(limit, max(-limit, new-old)))
+			local d = new-old
+			s:SetScale(d <= limit and -d <= limit and new or d < 0 and (old - limit) or (old + limit))
 		end
 	end
 	OnUpdate_CheckAlpha(self, count)
@@ -655,7 +666,7 @@ end)
 
 function iapi:Show(_, _, fastOpen)
 	local _, count, offset = PC:GetOpenRing(configCache)
-	local baseSize, radius = configCache.MIReserveSize
+	local baseSize, scale, radius = configCache.MIReserveSize, max(0.1, configCache.RingScale)
 	radius = calculateRingRadius(count or 3, baseSize, baseSize, configCache.MIMinRadius, 90-(offset or 0))
 	vis.count, vis.offset, vis.radius = count, offset, radius
 	vis.oldSlice, vis.angle, vis.omState, vis.oldIsGlowing, vis.rotPeriod, vis.lastConAngle, vis.oldEA = -1
@@ -679,8 +690,8 @@ function iapi:Show(_, _, fastOpen)
 	end
 	updateSliceBindings(nil)
 
-	configCache.RingScale = max(0.1, configCache.RingScale)
-	setIndicationScale(configCache.RingScale)
+	configCache.RingScale = scale
+	setIndicationScale(scale)
 	if fastOpen ~= "inplace-switch" then
 		local atMouse, ox, oy = configCache.RingAtMouse, configCache.IndicationOffsetX, -configCache.IndicationOffsetY
 		if atMouse then
@@ -688,6 +699,11 @@ function iapi:Show(_, _, fastOpen)
 			ox, oy = cx + ox, cy + oy
 		end
 		setIndicationPosition(atMouse and "BOTTOMLEFT" or "CENTER", ox, oy)
+	end
+	if configCache.TooltipAnchor == "side" then
+		local sw, sr =  GetScreenWidth(), proxyFrame:GetCenter()
+		local sl, rw = sw/scale - sr, radius + 60 + 220/scale
+		vis.noTL, vis.noTR = sl < rw and sr > rw, sr < rw and sl > rw
 	end
 	setupTransitionAnimation(fastOpen and "fast-in" or "in", OnUpdate_ZoomIn)
 	setIndicationShown(true)
@@ -755,7 +771,7 @@ function api:RegisterIndicatorConstructor(key, info)
 end
 
 for k,v in pairs({IndicatorFactory="_",
-	ShowCooldowns=false, ShowRecharge=false, UseGameTooltip=true, ShowKeys=true, ShowOneCount=false, ShowShortLabels=true, TooltipAnchor="auto",
+	ShowCooldowns=false, ShowRecharge=false, UseGameTooltip=true, ShowKeys=true, ShowOneCount=false, ShowShortLabels=true, TooltipAnchor="hud",
 	MIScale=true, MISpinOnHide=true, GhostMIRings=true,
 	XTPointerSnap=false, XTAnimation=true, XTRotationPeriod=4,
 	MIReserveSize=54, MIMinRadius=110, GhostShowDelay=0.25,

@@ -460,6 +460,19 @@ securecall(function() -- Oribos/Tazavesh flight restriction
 		end
 	end
 end)
+securecall(function() -- Darkmoon Fairegrounds flight restriction
+	if not MODERN then
+		return
+	end
+	KR:RegisterStateDriver(FLIGHT_BLOCKER, "dmf", "[in:darkmoon faire] 1; 0")
+end)
+securecall(function() -- TWW dungeon flight restriction
+	if not MODERN then
+		return
+	end
+	KR:RegisterStateDriver(FLIGHT_BLOCKER, "dung", "[in:dungeon,noin:nokhud/dawnbreaker] 1; 0")
+end)
+
 securecall(function() -- Travel form outcome feedback
 	if not (MODERN and playerClass == "DRUID") then
 		return
