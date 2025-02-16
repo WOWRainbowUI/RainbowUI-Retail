@@ -1033,9 +1033,6 @@ function func:Load_Settings()
         -- Panel
         local panel = func:CreatePanel(panelMain.name, "增益 & 減益");
 
-        -- Spacer
-        func:Create_Spacer(panel);
-
         -- Sub-Category
         func:Create_SubCategory(panel, "一般");
 
@@ -1103,7 +1100,7 @@ function func:Load_Settings()
             local name = "標示位置";
             local tooltip = "隱藏沒有到期時間的光環";
             local cfg = "AurasMarkLocation";
-            local default = 2;
+            local default = 1;
             local options = {
                 [1] = "左上",
                 [2] = "左下",
