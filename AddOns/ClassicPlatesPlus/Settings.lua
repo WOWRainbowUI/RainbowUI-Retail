@@ -1041,7 +1041,7 @@ function func:Load_Settings()
             local name = "倒數計時";
             local tooltip = "";
             local cfg = "AurasCountdown";
-            local default = true;
+            local default = false; -- 更改預設值
             local flair = { classicEra = true, cata = true, retail = true };
 
             func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -1078,7 +1078,7 @@ function func:Load_Settings()
             local name = "標示你的光環";
             local tooltip = "";
             local cfg = "AurasMarkYours";
-            local default = true;
+            local default = false; -- 更改預設值
             local flair = { classicEra = true, cata = true, retail = true };
 
             func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -1226,7 +1226,7 @@ function func:Load_Settings()
             local name = "被動光環";
             local tooltip = "隱藏沒有到期時間的光環";
             local cfg = "AurasHidePassive";
-            local default = 1;
+            local default = 2; -- 更改預設值
             local options = {
                 [1] = "顯示全部",
                 [2] = "隱藏全部",
@@ -1242,7 +1242,7 @@ function func:Load_Settings()
             local name = "友方身上的光環";
             local tooltip = "";
             local cfg = "AurasFilterFriendly";
-            local default = 1;
+            local default = 3; -- 更改預設值
             local options = {
                 [1] = "顯示所有光環",
                 [2] = "顯示你施放的光環",
@@ -1258,7 +1258,7 @@ function func:Load_Settings()
             local name = "敵方身上的光環";
             local tooltip = "";
             local cfg = "AurasFilterEnemy";
-            local default = 1;
+            local default = 2; -- 更改預設值
             local options = {
                 [1] = "顯示所有光環",
                 [2] = "顯示你施放的光環"
