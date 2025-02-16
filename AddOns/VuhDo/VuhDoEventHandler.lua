@@ -881,7 +881,7 @@ function VUHDO_slashCmd(aCommand)
 	if strfind(tCommandWord, "opt") then
 		if VuhDoNewOptionsTabbedFrame then
 			if InCombatLockdown() and not VuhDoNewOptionsTabbedFrame:IsShown() then
-				VUHDO_Msg("Options not available in combat!", 1, 0.4, 0.4);
+				VUHDO_Msg("戰鬥中無法使用設定選項!", 1, 0.4, 0.4);
 			else
 				VUHDO_CURR_LAYOUT = VUHDO_SPEC_LAYOUTS["selected"];
 				VUHDO_CURRENT_PROFILE = VUHDO_CONFIG["CURRENT_PROFILE"];
