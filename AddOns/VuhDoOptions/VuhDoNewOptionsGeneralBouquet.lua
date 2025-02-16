@@ -377,7 +377,7 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 
 		tSlider = _G[tInnerPanel:GetName() .. "ClassColorBrightnessSlider"];
 		VUHDO_lnfSetModel(tSlider, tModel .. ".custom.bright");
-		VUHDO_lnfSliderOnLoad(tSlider, VUHDO_I18N_BRIGHTNESS, 0, 4, "x", 0.05);
+		VUHDO_lnfSliderOnLoad(tSlider, VUHDO_I18N_BRIGHTNESS, 0, 1.6, "x", 0.05);
 
 		tSwatch = _G[tInnerPanel:GetName() .. "ColorTexture"];
 		VUHDO_lnfSetModel(tSwatch, tModel .. ".color");
@@ -443,7 +443,7 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 				tSubPanel = _G[tInnerPanel:GetName() .. "PercentFrame"];
 				tSlider = _G[tSubPanel:GetName() .. "Slider"];
 				VUHDO_lnfSetModel(tSlider, tModel .. ".custom.bright");
-				VUHDO_lnfSliderOnLoad(tSlider, VUHDO_I18N_BRIGHTNESS, 0, 4, "x", 0.1);
+				VUHDO_lnfSliderOnLoad(tSlider, VUHDO_I18N_BRIGHTNESS, 0, 1.6, "x", 0.05);
 				tSubPanel:Show();
 			elseif (VUHDO_BOUQUET_BUFFS_SPECIAL[tBuffName]["custom_type"] == VUHDO_BOUQUET_CUSTOM_TYPE_PERCENT) then
 				tSubPanel = _G[tInnerPanel:GetName() .. "PercentFrame"];

@@ -1,12 +1,13 @@
 --
-function VUHDO_activateLayout(aName)
+function VUHDO_activateLayoutNoInit(aName)
+
 	VUHDO_SPELL_ASSIGNMENTS = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["MOUSE"]);
 	VUHDO_HOSTILE_SPELL_ASSIGNMENTS = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["HOSTILE_MOUSE"]);
 
 	if VUHDO_SPELL_LAYOUTS[aName]["HOTS"] and VUHDO_SPELL_CONFIG["IS_LOAD_HOTS"] then
 		for tPanelNum = 1, VUHDO_MAX_PANELS do
 			-- support for pre per-panel HoTs
-			if type(VUHDO_SPELL_LAYOUTS["HOTS"]) == "table" then
+			if type(VUHDO_SPELL_LAYOUTS[aName]["HOTS"]) == "table" then
 				VUHDO_PANEL_SETUP[tPanelNum]["HOTS"] = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["HOTS"][tPanelNum]);
 			else
 				VUHDO_PANEL_SETUP[tPanelNum]["HOTS"] = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["HOTS"]);
@@ -31,6 +32,15 @@ function VUHDO_activateLayout(aName)
 	VUHDO_SPEC_LAYOUTS["selected"] = aName;
 	VUHDO_Msg("Key layout \"" .. aName .. "\" loaded.");
 
+end
+
+
+
+--
+function VUHDO_activateLayout(aName)
+
+	VUHDO_activateLayoutNoInit(aName);
+
 	VUHDO_loadVariables();
 	VUHDO_initAllBurstCaches();
 	VUHDO_initFromSpellbook();
@@ -39,5 +49,5 @@ function VUHDO_activateLayout(aName)
 	VUHDO_initDebuffs();
 	VUHDO_initKeyboardMacros();
 	VUHDO_timeReloadUI(1);
-end
 
+end

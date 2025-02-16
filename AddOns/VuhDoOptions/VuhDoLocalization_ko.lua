@@ -1218,3 +1218,5 @@ VUHDO_I18N_SQUARE_9 = "Square 9";
 VUHDO_I18N_SHOW_ON_FRIENDLY = "Show on\nfriendly";
 VUHDO_I18N_SHOW_ON_HOSTILE = "Show on\nhostile";
 VUHDO_I18N_HOSTILE_SPELL_SOURCE = "Hostile Unit Spell Source";
+
+VUHDO_I18N_SEARCH_OPTIONS = "Search Options";

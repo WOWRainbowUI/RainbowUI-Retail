@@ -1646,6 +1646,7 @@ local tPvPFlags = {
 	23335, -- Alliance Flag
 	34976, -- Netherstorm Flag
 	127163, -- Power Orb
+	121164, -- Orb of Power
 };
 
 
