@@ -2336,6 +2336,7 @@ end
 
 --
 function VUHDO_createNewLayoutName(aName, aUnitName)
+
 	local tIdx = 1;
 	local tLayout = { };
 	local tPrefix = aUnitName .. ": ";
@@ -2349,7 +2350,12 @@ function VUHDO_createNewLayoutName(aName, aUnitName)
 		tPrefix = aUnitName .. "(" .. tIdx .. "): ";
 	end
 
+	if VUHDO_strempty(aName) then
+		tNewName = strtrim(tNewName);
+	end
+
 	return tNewName;
+
 end
 
 
@@ -2691,6 +2697,7 @@ end
 
 --
 function VUHDO_loadProfile(aName)
+
 	VUHDO_loadProfileNoInit(aName);
 	VUHDO_initAllBurstCaches();
 	VUHDO_loadVariables();
@@ -2718,7 +2725,8 @@ function VUHDO_loadProfile(aName)
 		VUHDO_spellTraceUpdateEditBox(VuhDoNewOptionsGeneralSpellTraceStorePanelEditBox);
 	end
 
-	collectgarbage('collect');
+	collectgarbage("collect");
+
 end
 
 

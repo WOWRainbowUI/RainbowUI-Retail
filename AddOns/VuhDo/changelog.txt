@@ -1,3 +1,28 @@
+Version 3.183  
+  
+  
+Known issues:  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed loading of HoTs from legacy key layouts  
+-- Fixed key layout naming when copying imported profiles on a fresh character  
+-- Fixed loading of currently selected key layout on login  
+-- Fixed DC shield for characters over the legacy macro limit  
+-- Fixed default bouquet 'PvP Flag Carriers' in Temple of Kotmogu  
+-- Fixed maximum brightness for class color text and status bars  
+  
+  
+Improvements:  
+-- Added settings search to VuhDo Options  
+  
+  
+--------------------------------------------------------------  
 Version 3.182  
   
   
