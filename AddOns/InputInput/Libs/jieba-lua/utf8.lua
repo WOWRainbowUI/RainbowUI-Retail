@@ -248,6 +248,7 @@ function utf8.codes(s)
       local start_pos, end_pos = next_char(s, i)
       if start_pos == nil then
          -- LOG:Error("invalid UTF-8 code", 2)
+         return 0, nil
       end
 
       i = end_pos + 1
@@ -295,6 +296,7 @@ function utf8.codepoint(s, i, j)
       local start_pos, end_pos = next_char(s, i)
       if start_pos == nil then
          -- LOG:Error("invalid UTF-8 code")
+         return -1
       end
 
       i = end_pos + 1

@@ -1,6 +1,6 @@
 # inputinput
 
-## [v1.0.15-release-03](https://github.com/CvCn/InputInput/tree/v1.0.15-release-03) (2025-01-07)
-[Full Changelog](https://github.com/CvCn/InputInput/compare/v1.0.15-release-02...v1.0.15-release-03) [Previous Releases](https://github.com/CvCn/InputInput/releases)
+## [1.0.16-release](https://github.com/CvCn/InputInput/tree/1.0.16-release) (2025-02-16)
+[Full Changelog](https://github.com/CvCn/InputInput/compare/v1.0.15-release-03...1.0.16-release) [Previous Releases](https://github.com/CvCn/InputInput/releases)
 
-- 其他更新  
+- 修复一些问题  
