@@ -12,6 +12,7 @@ local green  = "|cff" .. "7CFC00";
 local orange = "|cff" .. "FF5600";
 local blue   = "|cff" .. "0072CA";
 local purple = "|cff" .. "FF00FF";
+local gray   = "|cff" .. "808080";
 
 -- Panels table
 data.settings = {
@@ -49,7 +50,7 @@ function func:Load_Settings()
         -- Sub-Category
         do
             local title = "聯絡我";
-            local description = "歡迎留下回饋、尋求協助或提出你的想法。";
+            local description = "隨時提供反饋、尋求幫助或提出您的想法。";
 
             func:Create_SubCategory(panelMain, title, description);
         end
@@ -84,8 +85,8 @@ function func:Load_Settings()
 
         -- Sub-Category
         do
-            local title = "考慮贊助此專案";
-            local description = "此專案的開發佔用了我 99% 的魔獸世界時間。\n如果你喜歡它，請考慮贊助。";
+            local title = "考慮贊助這個專案";
+            local description = "這個專案的開發佔用了我 99% 的魔獸世界時間。\n如果您喜歡它，請考慮贊助。";
 
             func:Create_SubCategory(panelMain, title, description);
         end
@@ -110,12 +111,12 @@ function func:Load_Settings()
         -- Panel
         local panel = func:CreatePanel(panelMain.name, "一般");
 
-        -- Spacer
-        func:Create_Spacer(panel);
+        -- Sub-Category
+        func:Create_SubCategory(panel, "一般");
 
         -- CheckButton
         do
-            local name = "根據距離縮放名條大小";
+            local name = "依距離縮放名條大小";
             local tooltip = "隨著距離越遠，名條縮小";
             local cfg = "ScaleWithDistance";
             local default = true;
@@ -161,6 +162,65 @@ function func:Load_Settings()
             func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
         end
 
+        -- Slider
+        do
+            local name = "名條縮放大小";
+            local tooltip = "必須脫離戰鬥才能生效";
+            local cfg = "NameplatesScale";
+            local default = 1.00;
+            local step = 0.01;
+            local minValue = 0.75;
+            local maxValue = 1.25;
+            local decimals = 2;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
+        end
+
+        -- Slider
+        do
+            local name = "最遠可以看見名條的距離";
+            local tooltip = "必須脫離戰鬥才能生效";
+            local cfg = "MaxNameplateDistance";
+            local default = 60;
+            local step = 1;
+            local minValue = 10;
+            local maxValue = 60;
+            local decimals = 0;
+            local flair = { classicEra = false, cata = false, retail = true };
+
+            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
+        end
+
+        -- Slider
+        do
+            local name = "連擊點數縮放大小";
+            local tooltip = "";
+            local cfg = "ComboPointsScaleClassless" --"ClassPowerScale";
+            local default = 1;
+            local step = 0.01;
+            local minValue = 0.50;
+            local maxValue = 1.50;
+            local decimals = 2;
+            local flair = { classicEra = true, cata = true, retail = false };
+
+            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
+        end
+
+        -- Sub-Category
+        func:Create_SubCategory(panel, "部件");
+
+        -- CheckButton
+        do
+            local name = "能量條";
+            local tooltip = "";
+            local cfg = "Powerbar";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
         -- CheckButton
         do
             local name = "頭像";
@@ -196,41 +256,8 @@ function func:Load_Settings()
 
         -- CheckButton
         do
-            local name = "名稱 & 公會外框";
-            local tooltip = "";
-            local cfg = "NameAndGuildOutline";
-            local default = true;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- CheckButton
-        do
-            local name = "放大名字文字";
-            local tooltip = "";
-            local cfg = "LargeName";
-            local default = true;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- CheckButton
-        do
-            local name = "放大公會名稱文字";
-            local tooltip = "";
-            local cfg = "LargeGuildName";
-            local default = false;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- CheckButton
-        do
             local name = "NPC 類別";
-            local tooltip = "生物類別: " .. white .. "精英, 稀有, 稀有精英, 世界首領";
+            local tooltip = "生物類別：" .. white .. "精英、稀有、稀有精英、世界首領";
             local cfg = "Classification";
             local default = true;
             local flair = { classicEra = true, cata = true, retail = true };
@@ -240,21 +267,10 @@ function func:Load_Settings()
 
         -- CheckButton
         do
-            local name = "任務標記";
-            local tooltip = "生物類別: " .. white .. "精英, 稀有, 稀有精英, 世界首領";
-            local cfg = "QuestMark";
-            local default = true;
-            local flair = { classicEra = false, cata = false, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- CheckButton
-        do
             local name = "陣營徽章";
             local tooltip = "";
             local cfg = "ShowFaction";
-            local default = false;
+            local default = false; -- 更改預設值
             local flair = { classicEra = true, cata = true, retail = true };
 
             func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -263,7 +279,7 @@ function func:Load_Settings()
         -- CheckButton
         do
             local name = "成員徽章";
-            local tooltip = "徽章顏色: " .. purple .. "好友、" .. green .. "公會成員、" .. blue .. "隊伍成員、" .. orange .. "團隊成員";
+            local tooltip = "徽章顏色：" .. purple .. "好友、" .. green .. "公會成員、" .. blue .. "隊伍成員、" .. orange .. "團隊成員";
             local cfg = "FellowshipBadge";
             local default = true;
             local flair = { classicEra = true, cata = true, retail = true };
@@ -271,66 +287,24 @@ function func:Load_Settings()
             func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
         end
 
-        -- Slider
-        do
-            local name = "名條縮放大小";
-            local tooltip = "必須在非戰鬥狀態下才能生效";
-            local cfg = "NameplatesScale";
-            local default = 1.00;
-            local step = 0.01;
-            local minValue = 0.75;
-            local maxValue = 1.25;
-            local decimals = 2;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
-        end
-
-        -- Slider
-        do
-            local name = "可以看見名條的最遠距離";
-            local tooltip = "必須在非戰鬥狀態下才能生效";
-            local cfg = "MaxNameplateDistance";
-            local default = 60;
-            local step = 1;
-            local minValue = 10;
-            local maxValue = 60;
-            local decimals = 0;
-            local flair = { classicEra = false, cata = false, retail = true };
-
-            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
-        end
-
-        -- Spacer
-        func:Create_Spacer(panel);
-
-        -- Anchoring settings
-        func:AnchorFrames(panel);
-    end
-
-    -- CATEGORY: Health & Power
-    do
-        -- Panel
-        local panel = func:CreatePanel(panelMain.name, "血量 & 能量");
-
-        -- Spacer
-        func:Create_Spacer(panel);
-
         -- CheckButton
         do
-            local name = "能量條";
-            local tooltip = "";
-            local cfg = "Powerbar";
+            local name = "任務標記";
+            local tooltip = "生物類別：" .. white .. "精英、稀有、稀有精英、世界首領";
+            local cfg = "QuestMark";
             local default = true;
-            local flair = { classicEra = true, cata = true, retail = true };
+            local flair = { classicEra = false, cata = false, retail = true };
 
             func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
         end
 
+        -- Sub-Category
+        func:Create_SubCategory(panel, "數值", nil, "small");
+
         -- CheckButton
         do
             local name = "數值";
-            local tooltip = "顯示血量和能量的數值";
+            local tooltip = "顯示血量和能量數值";
             local cfg = "NumericValue";
             local default = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false;
             local flair = { classicEra = true, cata = true, retail = true };
@@ -341,7 +315,7 @@ function func:Load_Settings()
         -- CheckButton
         do
             local name = "百分比";
-            local tooltip = "顯示血量和能量的百分比";
+            local tooltip = "顯示血量和能量百分比";
             local cfg = "Percentage";
             local default = true;
             local flair = { classicEra = true, cata = true, retail = true };
@@ -360,6 +334,9 @@ function func:Load_Settings()
             func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
         end
 
+        -- Spacer
+        func:Create_Spacer(panel, "small");
+
         -- CheckButton
         do
             local name = "最大血量";
@@ -374,49 +351,12 @@ function func:Load_Settings()
         -- CheckButton
         do
             local name = "最大能量";
-            local tooltip = "顯示你的最大能量\n" .. white .. "例如: " .. yellow .. "法力、怒氣、能量...\n(只會顯示於個人資源條)";
+            local tooltip = "顯示你的最大能量\n" .. white .. "例如：" .. yellow .. "法力、怒氣、能量...等\n（只會顯示於個人資源條）";
             local cfg = "PersonalNameplateTotalPower";
             local default = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false;
             local flair = { classicEra = true, cata = true, retail = true };
 
             func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- CheckButton
-        do
-            local name = "放大主要血量文字";
-            local tooltip = "";
-            local cfg = "LargeMainValue";
-            local default = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- Slider
-        do
-            local name = "連擊點數縮放大小";
-            local tooltip = "";
-            local cfg = "ComboPointsScaleClassless" --"ClassPowerScale";
-            local default = 1;
-            local step = 0.01;
-            local minValue = 0.50;
-            local maxValue = 1.50;
-            local decimals = 2;
-            local flair = { classicEra = true, cata = true, retail = false };
-
-            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
-        end
-
-        -- ColorPicker
-        do
-            local name = "文字顏色";
-            local tooltip = "";
-            local cfg = "HealthFontColor";
-            local default = {r = 1, g = 0.82, b = 0, a = 1};
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_ColorPicker(panel, flair, name, tooltip, cfg, default);
         end
 
         -- Spacer
@@ -431,13 +371,13 @@ function func:Load_Settings()
         -- Panel
         local panel = func:CreatePanel(panelMain.name, "個人資源條");
 
-        -- Spacer
-        func:Create_Spacer(panel);
+        -- Sub-Category
+        func:Create_SubCategory(panel, "一般");
 
         -- CheckButton
         do
-             local name = "啟用";
-            local tooltip = not data.isRetail and "要移動個人資源條，按住 " .. green .. "CTRL" .. yellow .. " 不放，同時使用 " .. green .. "滑鼠左鍵拖曳" or "";
+            local name = "啟用個人資源條";
+            local tooltip = not data.isRetail and "要移動個人資源條，請按住 " .. green .. "CTRL" .. yellow .. " 並用 " .. green .. "滑鼠左鍵" .. yellow .. " 拖曳它" or "";
             local cfg = "PersonalNameplate";
             local default = true;
             local flair = { classicEra = true, cata = true, retail = false };
@@ -447,8 +387,8 @@ function func:Load_Settings()
 
         -- CheckButton
         do
-            local name = "總是顯示個人資源條";
-            local tooltip = "";
+            local name = "總是顯示";
+            local tooltip = "即使在脫離戰鬥時也顯示個人資源條";
             local cfg = "PersonalNameplateAlwaysShow";
             local default = false;
             local flair = { classicEra = true, cata = true, retail = true };
@@ -459,94 +399,7 @@ function func:Load_Settings()
 
         -- CheckButton
         do
-            local name = "特殊能量";
-            local tooltip = "自製的特殊能量條: " .. white .. "圖騰" .. yellow .. "\n之後會加入更多種";
-            local cfg = "SpecialPower";
-            local default = true;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- Slider
-        do
-            local name = "特殊能量縮放大小";
-            local tooltip = "";
-            local cfg = "SpecialPowerScale";
-            local default = 1.00;
-            local step = 0.01;
-            local minValue = 0.75;
-            local maxValue = 1.25;
-            local decimals = 2;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
-        end
-
-        -- Spacer
-        func:Create_Spacer(panel, "small");
-
-        -- CheckButton
-        do
-            local name = "血量條動畫";
-            local tooltip = "顯示血量條耗盡和恢復的動畫";
-            local cfg = "PersonalHealthBarAnimation";
-            local default = true;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- Slider
-        do
-            local name = "血量條動畫閾值";
-            local tooltip = "動畫閾值 (百分比)";
-            local cfg = "PersonalHealthBarAnimationThreshold";
-            local default = 1.00;
-            local step = 1;
-            local minValue = 1;
-            local maxValue = 99;
-            local decimals = 0;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
-        end
-
-        -- Spacer
-        func:Create_Spacer(panel, "small");
-
-        -- CheckButton
-        do
-            local name = "能量條動畫";
-            local tooltip = "顯示能量條耗盡和恢復的動畫";
-            local cfg = "PersonalPowerBarAnimation";
-            local default = true;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- Slider
-        do
-            local name = "能量條動畫閾值";
-            local tooltip = "動畫閾值 (百分比)";
-            local cfg = "PersonalPowerBarAnimationThreshold";
-            local default = 10.00;
-            local step = 1;
-            local minValue = 1;
-            local maxValue = 99;
-            local decimals = 0;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
-        end
-
-        -- Spacer
-        func:Create_Spacer(panel, "small");
-
-        -- CheckButton
-        do
-            local name = "淡出個人資源條";
+            local name = "淡出";
             local tooltip = "脫離戰鬥時淡出個人資源條";
             local cfg = "PersonalNameplateFade";
             local default = true;
@@ -570,6 +423,108 @@ function func:Load_Settings()
             func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
         end
 
+        -- Slider
+        do
+            local name = "個人資源條位置";
+            local tooltip = "";
+            local cfg = "PersonalNameplatePointY";
+            local default = 380;
+            local step = 1;
+            local minValue = 1;
+            local maxValue = 2000;
+            local decimals = 0;
+            local flair = { classicEra = false, cata = false, retail = false };
+
+            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
+        end
+
+        -- Sub-Category
+        func:Create_SubCategory(panel, "特殊能量");
+
+        -- CheckButton
+        do
+            local name = "特殊能量";
+            local tooltip = "自訂特殊能量條：" .. white .. "圖騰" .. gray .. "\n日後會新增更多";
+            local cfg = "SpecialPower";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- Slider
+        do
+            local name = "特殊能量縮放大小";
+            local tooltip = "";
+            local cfg = "SpecialPowerScale";
+            local default = 1.00;
+            local step = 0.01;
+            local minValue = 0.75;
+            local maxValue = 1.25;
+            local decimals = 2;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
+        end
+
+        -- Sub-Category
+        func:Create_SubCategory(panel, "血量條動畫");
+
+        -- CheckButton
+        do
+            local name = "血量條動畫";
+            local tooltip = "顯示血量條減少和恢復的動畫";
+            local cfg = "PersonalHealthBarAnimation";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- Slider
+        do
+            local name = "血量條動畫閾值";
+            local tooltip = "動畫閾值（百分比）";
+            local cfg = "PersonalHealthBarAnimationThreshold";
+            local default = 1.00;
+            local step = 1;
+            local minValue = 1;
+            local maxValue = 99;
+            local decimals = 0;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
+        end
+
+        -- Sub-Category
+        func:Create_SubCategory(panel, "能量條動畫");
+
+        -- CheckButton
+        do
+            local name = "能量條動畫";
+            local tooltip = "顯示能量條減少和恢復的動畫";
+            local cfg = "PersonalPowerBarAnimation";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- Slider
+        do
+            local name = "能量條動畫閾值";
+            local tooltip = "動畫閾值（百分比）";
+            local cfg = "PersonalPowerBarAnimationThreshold";
+            local default = 10.00;
+            local step = 1;
+            local minValue = 1;
+            local maxValue = 99;
+            local decimals = 0;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
+        end
+
         -- Spacer
         func:Create_Spacer(panel);
 
@@ -583,7 +538,35 @@ function func:Load_Settings()
         local panel = func:CreatePanel(panelMain.name, "職業相關");
 
         -- Spacer
-        func:Create_Spacer(panel);
+        --func:Create_Spacer(panel);
+
+        -- Sub-Category
+        func:Create_SubCategory(panel, "名字 & 公會", nil, "large");
+
+        -- CheckButton
+        do
+            local name = "友方玩家職業顏色";
+            local tooltip = "友方名字 & 公會職業顏色";
+            local cfg = "FriendlyClassColorNamesAndGuild";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- CheckButton
+        do
+            local name = "敵方玩家職業顏色";
+            local tooltip = "敵方名字 & 公會職業顏色";
+            local cfg = "EnemyClassColorNamesAndGuild";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- Sub-Category
+        func:Create_SubCategory(panel, "圖示", nil, "large");
 
         -- CheckButton
         do
@@ -607,9 +590,12 @@ function func:Load_Settings()
             func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
         end
 
+        -- Sub-Category
+        func:Create_SubCategory(panel, "血量條", nil, "large");
+
         -- CheckButton
         do
-            local name = "友方血條職業顏色";
+            local name = "友方玩家血量條職業顏色";
             local tooltip = "";
             local cfg = "HealthBarClassColorsFriendly";
             local default = true;
@@ -620,61 +606,13 @@ function func:Load_Settings()
 
         -- CheckButton
         do
-            local name = "敵方血條職業顏色";
+            local name = "敵方玩家血量條職業顏色";
             local tooltip = "";
             local cfg = "HealthBarClassColorsEnemy";
             local default = true;
             local flair = { classicEra = true, cata = true, retail = true };
 
             func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- CheckButton
-        do
-            local name = "友方名字 & 公會階級顏色";
-            local tooltip = "";
-            local cfg = "FriendlyClassColorNamesAndGuild";
-            local default = true;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- CheckButton
-        do
-            local name = "敵方名字 & 公會階級顏色";
-            local tooltip = "";
-            local cfg = "EnemyClassColorNamesAndGuild";
-            local default = true;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- Spacer
-        func:Create_Spacer(panel);
-
-        -- Anchoring settings
-        func:AnchorFrames(panel);
-    end
-
-    -- CATEGORY: Border
-    do
-        -- Panel
-        local panel = func:CreatePanel(panelMain.name, "外框");
-
-        -- Spacer
-        func:Create_Spacer(panel);
-
-        -- ColorPicker
-        do
-            local name = "顏色";
-            local tooltip = "";
-            local cfg = "BorderColor";
-            local default = {r = 0.75, g = 0.60, b = 0, a = 1};
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_ColorPicker(panel, flair, name, tooltip, cfg, default);
         end
 
         -- Spacer
@@ -851,187 +789,10 @@ function func:Load_Settings()
         func:AnchorFrames(panel);
     end
 
-    -- CATEGORY: Cast Bar
+    -- CATEGORY: Auras
     do
         -- Panel
-        local panel = func:CreatePanel(panelMain.name, "施法條");
-
-        -- Spacer
-        func:Create_Spacer(panel);
-
-        -- CheckButton
-        do
-            local name = "顯示施法條";
-            local tooltip = "";
-            local cfg = "CastbarShow";
-            local default = true;
-            local flair = { classicEra = true, cata = false, retail = false };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- CheckButton
-        do
-            local name = "顯示施法條圖示";
-            local tooltip = "";
-            local cfg = "CastbarIconShow";
-            local default = true;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- Slider
-        do
-            local name = "施法條縮放大小";
-            local tooltip = "";
-            local cfg = "CastbarScale";
-            local default = 1;
-            local step = 0.01;
-            local minValue = 0.75;
-            local maxValue = 1.25;
-            local decimals = 2;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
-        end
-
-        -- Slider
-        do
-            local name = "施法條位置 (垂直)";
-            local tooltip = "";
-            local cfg = "CastbarPositionY";
-            local default = 2;
-            local step = 1;
-            local minValue = 0;
-            local maxValue = 50;
-            local decimals = 0;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
-        end
-
-        -- Spacer
-        func:Create_Spacer(panel);
-
-        -- Anchoring settings
-        func:AnchorFrames(panel);
-    end
-
-    -- CATEGORY: Threat
-    do
-        -- Panel
-        local panel = func:CreatePanel(panelMain.name, "仇恨值");
-
-        -- Spacer
-        func:Create_Spacer(panel);
-
-        -- CheckButton
-        do
-            local name = "仇恨百分比";
-            local tooltip = "顯示產生的仇恨值";
-            local cfg = "ThreatPercentage";
-            local default = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- CheckButton
-        do
-            local name = "依仇恨值百分比變更顏色";
-            local tooltip = "仇恨值越低，顏色越淺";
-            local cfg = "ThreatColorBasedOnPercentage";
-            local default = true;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- CheckButton
-        do
-            local name = "顯著標示";
-            local tooltip = "根據仇恨情況顯著標示血條";
-            local cfg = "ThreatHighlight";
-            local default = true;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- ColorPicker
-        do
-            local name = "獲得仇恨顏色";
-            local tooltip = "當怪的目標是你時的顏色";
-            local cfg = "ThreatAggroColor";
-            local default = {r = 1, g = 0, b = 1, a = 1};
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_ColorPicker(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- ColorPicker
-        do
-            local name = "其他坦克顏色";
-            local tooltip = "當其他坦克在坦怪時的顏色";
-            local cfg = "ThreatOtherTankColor";
-            local default = {r = 0, g = 0.58, b = 1, a = 1};
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_ColorPicker(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- Sub-Category
-        func:Create_SubCategory(panel, "仇恨警告");
-
-        -- CheckButton
-        do
-            local name = "啟用";
-            local tooltip = "";
-            local cfg = "ThreatWarning";
-            local default = true;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- Slider
-        do
-            local name = "閾值";
-            local tooltip = "";
-            local cfg = "ThreatWarningThreshold";
-            local default = 75;
-            local step = 1;
-            local minValue = 1;
-            local maxValue = 100;
-            local decimals = 0;
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
-        end
-
-        -- ColorPicker
-        do
-            local name = "警告顏色";
-            local tooltip = "";
-            local cfg = "ThreatWarningColor";
-            local default = {r = 1, g = 0.6, b = 0, a = 1};
-            local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_ColorPicker(panel, flair, name, tooltip, cfg, default);
-        end
-
-        -- Spacer
-        func:Create_Spacer(panel);
-
-        -- Anchoring settings
-        func:AnchorFrames(panel);
-    end
-
-    -- CATEGORY: Buffs & Debuffs
-    do
-        -- Panel
-        local panel = func:CreatePanel(panelMain.name, "增益 & 減益");
+        local panel = func:CreatePanel(panelMain.name, "光環");
 
         -- Sub-Category
         func:Create_SubCategory(panel, "一般");
@@ -1137,10 +898,10 @@ function func:Load_Settings()
 
         -- CheckButton
         do
-            local name = "只在目標上顯示光環";
+            local name = "只在當前目標上顯示光環";
             local tooltip = "";
             local cfg = "AurasOnTarget";
-            local default = true;
+            local default = false; -- 更改預設值
             local flair = { classicEra = true, cata = true, retail = true };
 
             func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
@@ -1304,7 +1065,7 @@ function func:Load_Settings()
 
         -- DropDownMenu
         do
-            local name = "群組過濾方式";
+            local name = "隊伍過濾方式";
             local tooltip = "";
             local cfg = "AurasGroupFilter";
             local default = 1;
@@ -1322,7 +1083,7 @@ function func:Load_Settings()
         -- CheckButton
         do
             local name = "排除目標";
-            local tooltip = "從群組過濾中排除目標";
+            local tooltip = "從隊伍過濾中排除目標";
             local cfg = "AurasGroupFilterExcludeTarget";
             local default = true;
             local flair = { classicEra = true, cata = true, retail = true };
@@ -1352,7 +1113,7 @@ function func:Load_Settings()
 
         -- CheckButton
         do
-            local name = "在浮動提示資訊中顯示法術 ID";
+            local name = "在浮動提示中顯示法術 ID";
             local tooltip = "";
             local cfg = "TooltipSpellID";
             local default = true;
@@ -1362,11 +1123,11 @@ function func:Load_Settings()
         end
 
         -- Sub-Category
-        func:Create_SubCategory(panel, "光環限制");
+        func:Create_SubCategory(panel, "光環數量");
 
         -- CheckButton
         do
-            local name = "光環溢出計數器";
+            local name = "光環超出數量";
             local tooltip = "";
             local cfg = "AurasOverFlowCounter";
             local default = true;
@@ -1375,12 +1136,12 @@ function func:Load_Settings()
             func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
         end
 
-        -- Spacer
-        func:Create_Spacer(panel, "small");
+        -- Sub-Category
+        func:Create_SubCategory(panel, "友方", nil, "small");
 
         -- Slider
         do
-            local name = "友方身上的最大增益數量";
+            local name = "最大增益數量";
             local tooltip = "";
             local cfg = "AurasMaxBuffsFriendly";
             local default = 4;
@@ -1395,7 +1156,7 @@ function func:Load_Settings()
 
         -- Slider
         do
-            local name = "友方身上的最大減益數量";
+            local name = "最大減益數量";
             local tooltip = "";
             local cfg = "AurasMaxDebuffsFriendly";
             local default = 2;
@@ -1408,9 +1169,12 @@ function func:Load_Settings()
             func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
         end
 
+        -- Sub-Category
+        func:Create_SubCategory(panel, "敵方", nil, "small");
+
         -- Slider
         do
-            local name = "敵方身上的最大增益數量";
+            local name = "最大增益數量";
             local tooltip = "";
             local cfg = "AurasMaxBuffsEnemy";
             local default = 2;
@@ -1425,7 +1189,7 @@ function func:Load_Settings()
 
         -- Slider
         do
-            local name = "敵方身上的最大減益數量";
+            local name = "最大減益數量";
             local tooltip = "";
             local cfg = "AurasMaxDebuffsEnemy";
             local default = 4;
@@ -1438,12 +1202,12 @@ function func:Load_Settings()
             func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
         end
 
-        -- Spacer
-        func:Create_Spacer(panel, "small");
+        -- Sub-Category
+        func:Create_SubCategory(panel, "個人資源條光環", nil, "small");
 
         -- Slider
         do
-            local name = "個人資源條上的最大增益數量";
+            local name = "最大增益數量";
             local tooltip = "";
             local cfg = "AurasPersonalMaxBuffs";
             local default = 6;
@@ -1458,7 +1222,7 @@ function func:Load_Settings()
 
         -- Slider
         do
-            local name = "個人資源條上的最大減益數量";
+            local name = "最大減益數量";
             local tooltip = "";
             local cfg = "AurasPersonalMaxDebuffs";
             local default = 6;
@@ -1504,8 +1268,327 @@ function func:Load_Settings()
             func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
         end
 
+        -- Spacer
+        func:Create_Spacer(panel);
+
+        -- Anchoring settings
+        func:AnchorFrames(panel);
+    end
+
+    -- CATEGORY: Important Auras
+    do
+        -- Panel
+        local panel = func:CreatePanel(panelMain.name, "重要光環清單");
+
+        -- Spacer
+        func:Create_Spacer(panel);
+
+        -- Auras List
+        do
+            local name = "重要光環";
+            local cfg = "AurasImportantList";
+
+            func:Create_AurasList(panel, name, cfg);
+        end
+
+        -- Anchoring settings
+        func:AnchorFrames(panel);
+    end
+
+    -- CATEGORY: Blacklisted Auras
+    do
+        -- Panel
+        local panel = func:CreatePanel(panelMain.name, "黑名單光環清單");
+
+        -- Spacer
+        func:Create_Spacer(panel);
+
+        -- Auras List
+        do
+            local name = "黑名單光環";
+            local cfg = "AurasBlacklist";
+
+            func:Create_AurasList(panel, name, cfg);
+        end
+
+        -- Anchoring settings
+        func:AnchorFrames(panel);
+    end
+
+    -- CATEGORY: Threat
+    do
+        -- Panel
+        local panel = func:CreatePanel(panelMain.name, "仇恨值");
+
         -- Sub-Category
-        func:Create_SubCategory(panel, "增益邊框顏色");
+        func:Create_SubCategory(panel, "一般");
+
+        -- CheckButton
+        do
+            local name = "仇恨百分比";
+            local tooltip = "顯示產生的仇恨值";
+            local cfg = "ThreatPercentage";
+            local default = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- CheckButton
+        do
+            local name = "根據仇恨值變換顏色";
+            local tooltip = "仇恨值越低，顏色越淺";
+            local cfg = "ThreatColorBasedOnPercentage";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- CheckButton
+        do
+            local name = "顯著標示";
+            local tooltip = "根據仇恨值情況顯著標示血條";
+            local cfg = "ThreatHighlight";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- ColorPicker
+        do
+            local name = "獲得仇恨顏色";
+            local tooltip = "怪的目標是你時的顏色";
+            local cfg = "ThreatAggroColor";
+            local default = {r = 1, g = 0, b = 1, a = 1};
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_ColorPicker(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- ColorPicker
+        do
+            local name = "其他坦克顏色";
+            local tooltip = "其他坦克正在坦怪時的顏色";
+            local cfg = "ThreatOtherTankColor";
+            local default = {r = 0, g = 0.58, b = 1, a = 1};
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_ColorPicker(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- Sub-Category
+        func:Create_SubCategory(panel, "仇恨值警告");
+
+        -- CheckButton
+        do
+            local name = "啟用";
+            local tooltip = "";
+            local cfg = "ThreatWarning";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- Slider
+        do
+            local name = "閾值";
+            local tooltip = "";
+            local cfg = "ThreatWarningThreshold";
+            local default = 75;
+            local step = 1;
+            local minValue = 1;
+            local maxValue = 100;
+            local decimals = 0;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
+        end
+
+        -- ColorPicker
+        do
+            local name = "警告顏色";
+            local tooltip = "";
+            local cfg = "ThreatWarningColor";
+            local default = {r = 1, g = 0.6, b = 0, a = 1};
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_ColorPicker(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- Spacer
+        func:Create_Spacer(panel);
+
+        -- Anchoring settings
+        func:AnchorFrames(panel);
+    end
+
+    -- CATEGORY: Cast Bar
+    do
+        -- Panel
+        local panel = func:CreatePanel(panelMain.name, "施法條");
+
+        -- Spacer
+        func:Create_Spacer(panel);
+
+        -- CheckButton
+        do
+            local name = "顯示施法條";
+            local tooltip = "";
+            local cfg = "CastbarShow";
+            local default = true;
+            local flair = { classicEra = true, cata = false, retail = false };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- CheckButton
+        do
+            local name = "顯示施法條圖示";
+            local tooltip = "";
+            local cfg = "CastbarIconShow";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- Slider
+        do
+            local name = "施法條縮放大小";
+            local tooltip = "";
+            local cfg = "CastbarScale";
+            local default = 1;
+            local step = 0.01;
+            local minValue = 0.75;
+            local maxValue = 1.25;
+            local decimals = 2;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
+        end
+
+        -- Slider
+        do
+            local name = "施法條位置（垂直）";
+            local tooltip = "";
+            local cfg = "CastbarPositionY";
+            local default = 2;
+            local step = 1;
+            local minValue = 0;
+            local maxValue = 50;
+            local decimals = 0;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
+        end
+
+        -- Spacer
+        func:Create_Spacer(panel);
+
+        -- Anchoring settings
+        func:AnchorFrames(panel);
+    end
+
+    -- CATEGORY: Fonts
+    do
+        -- Panel
+        local panel = func:CreatePanel(panelMain.name, "文字");
+
+        -- Sub-Category
+        func:Create_SubCategory(panel, "一般");
+
+        -- CheckButton
+        do
+            local name = "名字和公會外框";
+            local tooltip = "";
+            local cfg = "NameAndGuildOutline";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- CheckButton
+        do
+            local name = "放大名字文字";
+            local tooltip = "";
+            local cfg = "LargeName";
+            local default = true;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- CheckButton
+        do
+            local name = "放大公會名稱文字";
+            local tooltip = "";
+            local cfg = "LargeGuildName";
+            local default = false;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- Sub-Category
+        func:Create_SubCategory(panel, "血量和能量");
+
+        -- CheckButton
+        do
+            local name = "放大主要血量文字";
+            local tooltip = "";
+            local cfg = "LargeMainValue";
+            local default = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false;
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- ColorPicker
+        do
+            local name = "文字顏色";
+            local tooltip = "";
+            local cfg = "HealthFontColor";
+            local default = {r = 1, g = 0.82, b = 0, a = 1};
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_ColorPicker(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- Spacer
+        func:Create_Spacer(panel);
+
+        -- Anchoring settings
+        func:AnchorFrames(panel);
+    end
+
+    -- CATEGORY: Border
+    do
+        -- Panel
+        local panel = func:CreatePanel(panelMain.name, "邊框");
+
+        -- Sub-Category
+        func:Create_SubCategory(panel, "名條邊框顏色");
+
+        -- ColorPicker
+        do
+            local name = "顏色";
+            local tooltip = "";
+            local cfg = "BorderColor";
+            local default = {r = 0.75, g = 0.60, b = 0, a = 1};
+            local flair = { classicEra = true, cata = true, retail = true };
+
+            func:Create_ColorPicker(panel, flair, name, tooltip, cfg, default);
+        end
+
+        -- Sub-Category
+        func:Create_SubCategory(panel, "光環邊框顏色");
+
+        -- Sub-Category
+        func:Create_SubCategory(panel, "增益", nil, "small");
 
         -- ColorPicker
         do
@@ -1530,7 +1613,7 @@ function func:Load_Settings()
         end
 
         -- Sub-Category
-        func:Create_SubCategory(panel, "減益邊框顏色");
+        func:Create_SubCategory(panel, "減益", nil, "small");
 
         -- ColorPicker
         do
@@ -1588,7 +1671,7 @@ function func:Load_Settings()
         end
 
         -- Sub-Category
-        func:Create_SubCategory(panel, "個人減益邊框顏色");
+        func:Create_SubCategory(panel, "個人資源條減益", nil, "small");
 
         -- ColorPicker
         do
@@ -1652,46 +1735,6 @@ function func:Load_Settings()
         func:AnchorFrames(panel);
     end
 
-    -- CATEGORY: Important Auras
-    do
-        -- Panel
-        local panel = func:CreatePanel(panelMain.name, "重要光環清單");
-
-        -- Spacer
-        func:Create_Spacer(panel);
-
-        -- Auras List
-        do
-            local name = "重要光環";
-            local cfg = "AurasImportantList";
-
-            func:Create_AurasList(panel, name, cfg);
-        end
-
-        -- Anchoring settings
-        func:AnchorFrames(panel);
-    end
-
-    -- CATEGORY: Blacklisted Auras
-    do
-        -- Panel
-        local panel = func:CreatePanel(panelMain.name, "黑名單光環清單");
-
-        -- Spacer
-        func:Create_Spacer(panel);
-
-        -- Auras List
-        do
-            local name = "黑名單光環";
-            local cfg = "AurasBlacklist";
-
-            func:Create_AurasList(panel, name, cfg);
-        end
-
-        -- Anchoring settings
-        func:AnchorFrames(panel);
-    end
-
     -- CATEGORY: Profiles
     do
         -- Panel
@@ -1704,7 +1747,7 @@ function func:Load_Settings()
         do
             local name = "設定檔";
             local cfg = "Profiles";
-            local default = "Default";
+            local default = "預設";
 
             func:Create_Profiles(panel, name, cfg, default);
         end
