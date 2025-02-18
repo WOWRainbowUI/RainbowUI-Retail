@@ -1514,6 +1514,7 @@ frame:HookScript("OnEvent", function(self_f, event, ...)
 		if fristInstallVersion == nil then
 			D:SaveDB('fristInstallVersion', W.version, true)
 		end
+		--[[
 		if W:getVersion(updateTip) <= W:getVersion(W.version) then
 			local updateTipframe = CreateFrame("Frame", nil, UIParent)
 			updateTipframe:SetSize(1000, 200)  -- 设置框的大小
@@ -1550,7 +1551,7 @@ frame:HookScript("OnEvent", function(self_f, event, ...)
 			-- 创建“下次不再提示”复选框
 			local checkBox = CreateFrame("CheckButton", nil, updateTipframe, "UICheckButtonTemplate")
 			checkBox:SetPoint("TOPRIGHT", updateTipframe, "TOPRIGHT", 30, 0)
-			checkBox.text:SetText(L['nextNoTip'])
+			checkBox.Text:SetText(L['nextNoTip'])
 			checkBox:SetChecked(false)
 
 			-- 关闭按钮点击事件
@@ -1562,6 +1563,7 @@ frame:HookScript("OnEvent", function(self_f, event, ...)
 				updateTipframe:Hide()
 			end)
 		end
+		--]]
 	end
 	if event == 'PLAYER_ENTERING_WORLD' or strfind(event, "WHISPER", 0, true) then
 		
