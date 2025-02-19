@@ -2,21 +2,34 @@
 local CraftSim = select(2, ...)
 
 local GUTIL = CraftSim.GUTIL
+local f = GUTIL:GetFormatter()
 
 CraftSim.NEWS = {}
 
+CraftSim.NEWS.GITHUB_COLLABS = {
+ AVILENE = "https://github.com/avilene",
+}
+
 local print = CraftSim.DEBUG:RegisterDebugID("Data.News")
+local function newP(v) return f.l("\n                                   --- Version " .. v .. " ---\n") end
+local function collab(gl) return f.a .. "- Thanks to " .. f.bb(gl) end
 
 ---@param itemMap table<string, ItemMixin>
 function CraftSim.NEWS:GET_NEWS(itemMap)
-    -- minimize names to make manual formatting easier :p
-    local f = GUTIL:GetFormatter()
-    local function newP(v) return f.l("\n                                   --- Version " .. v .. " ---\n") end
+    
     local supporterListUpdate = f.p .. f.patreon("Supporter List Update ") ..
         CraftSim.MEDIA:GetAsTextIcon(CraftSim.MEDIA.IMAGES.PIXEL_HEART, 0.15)
     local news = {
         f.bb("                   Hello and thank you for using CraftSim!\n"),
         f.bb("                                 ( You are awesome! )"),
+        newP("19.8.3"),
+        f.p .. f.bb("Customer History"),
+        f.a .. "Now shows total amount of tips received",
+        collab(self.GITHUB_COLLABS.AVILENE),
+        f.p .. f.bb("CraftQueue"),
+        f.a .. "Added option for max crafting cost for patron orders",
+        collab(self.GITHUB_COLLABS.AVILENE),
+        f.p .. "11.0.7.59207 Data Update",
         newP("19.8.2"),
         f.p .. f.bb("CraftBuffs"),
         f.a .. "Fixed Ignition Buff Base Stats",
