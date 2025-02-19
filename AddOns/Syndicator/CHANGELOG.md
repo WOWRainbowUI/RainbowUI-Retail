@@ -1,7 +1,7 @@
 # Syndicator
 
-## [170](https://github.com/Baganator/Syndicator/tree/170) (2025-02-03)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/169...170) 
+## [171](https://github.com/Baganator/Syndicator/tree/171) (2025-02-18)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/170...171) 
 
-- Remove unused locale string  
-- Search Builder: Fix translation string and frame strata issue  
+- Cata: Update toc for 4.4.2  
+- Search Builder: Reset to default insert menu if typed text is deleted  
