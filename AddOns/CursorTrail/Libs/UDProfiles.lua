@@ -1,4 +1,4 @@
-local PROFILESUI_VERSION = "2024-10-16"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
+local PROFILESUI_VERSION = "2025-02-15"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
 
 --[[---------------------------------------------------------------------------
     FILE:   UDProfiles.lua
@@ -164,6 +164,13 @@ local PROFILESUI_VERSION = "2024-10-16"  -- Version (date) of this file.  Stored
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Feb 15, 2025
+        - Renamed "@Original" backup to "Original" so it can be deleted by users.
+        - No longer create a backup named "@Original" (L.BackupName_Orig) since the latest data format
+          changes have been working okay.
+        - Fixed minor bugs in ProfilesDB:exists() and ProfilesDB:backupExists().  They now return nil
+          when appropriate (instead of returning nothing).
+        - Added ProfilesDB:renameBackup().
     Oct 16, 2024
         - Fixed various problems that occurred while typing the addon's slash command to open/close its
           main UI while a message was still being displayed about saving or canceling previous changes.
@@ -1290,6 +1297,7 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
             assert(nameFound)
             return nameFound  -- SUCCESS
         end
+        return nil
     end,
     -------------------------------------------------------------------------------
     usingAccountProfile = function(self)  -- ProfilesDB:usingAccountProfile()
@@ -1361,8 +1369,8 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
         if name and type(name) == "string" then
             name = name:trim()
             if name ~= ""
-                and namesDiffer(name, L.BackupName_Login)
-                and namesDiffer(name, L.BackupName_Orig)
+                and namesDiffer(name, L.BackupName_Login)  -- i.e.  "@Login"
+                and namesDiffer(name, L.BackupName_Orig)  -- i.e.  "@Original"
               then
                 return true
             end
@@ -1463,7 +1471,7 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
         backupName = self:_validateName(backupName)
         if backupName == "" then return false end
 
-        local profiles = self:getProfiles()
+        local profiles = self:getProfiles()  -- TODO: Remove this line?
         local backups = self:getBackups()
         if tGet(backups, backupName) then
             tSet(backups, backupName, nil)  -- Delete all matching names (case-insensitive).
@@ -1483,6 +1491,31 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
                 return nameFound  -- SUCCESS
             end
         end
+        return nil
+    end,
+    -------------------------------------------------------------------------------
+    renameBackup = function(self, oldName, newName)  -- ProfilesDB:renameBackup()
+    -- Returns true if successful, or false if the specified name was not found.
+        assert(self == ProfilesDB)  -- Fails if function called using '.' instead of ':'.
+        assert(oldName and type(newName)=="string")
+        assert(newName and type(newName)=="string")
+
+        oldName = oldName:trim()
+        newName = newName:trim()
+        if newName == oldName then return true end  -- Trivial case.  Just return.
+
+        assert(self:backupExists(oldName))
+        local existingName = self:backupExists(newName)
+        if existingName and namesDiffer(newName, oldName) then
+            return false  -- FAILED!  New name already exists.
+        end
+
+        -- Rename backup.
+        local backups = self:getBackups()
+        local backupData = backups[oldName]
+        tSet(backups, newName, CopyTable(backupData))  -- Copy backup data to newName key.
+        tSet(backups, oldName, nil)  -- Delete oldName key.
+        return true
     end,
     -------------------------------------------------------------------------------
     countBackups = function(self)  -- ProfilesDB:countBackups()
@@ -2629,12 +2662,17 @@ local function UDProfiles_CreateUI(info)
             end
         end
 
-        -- Create a one-time backup so we always have something to restore.
-        if not DB:backupExists(L.BackupName_Orig) then
-            if DB:backup(L.BackupName_Orig) then
-            ----    printProfilesMsg( L.CreatedBackup:format(L.BackupName_Orig) )
-            ----else printProfilesMsg('WARNING - Failed to create a one-time backup of your profiles.')
-            end
+        ------ Create a one-time backup so we always have something to restore.
+        ----if not DB:backupExists(L.BackupName_Orig) then
+        ----    if DB:backup(L.BackupName_Orig) then
+        ----    ----    printProfilesMsg( L.CreatedBackup:format(L.BackupName_Orig) )
+        ----    ----else printProfilesMsg('WARNING - Failed to create a one-time backup of your profiles.')
+        ----    end
+        ----end
+
+        -- Rename existing "@Original" backup to "Original" so it can be deleted by users.
+        if DB:backupExists(L.BackupName_Orig) then
+            DB:renameBackup( L.BackupName_Orig, L.BackupName_Orig:sub(2) )
         end
     else -- No profiles exist.
         if gbInitialLogin then
@@ -3471,7 +3509,7 @@ function ProfilesUI:renameProfile(oldName, newName, options)
     --`````````````````````````````````````````````````````````
     ----tracePUI("IN renameProfile,", oldName, ",", newName, ",", options)
     assert(self)  -- Fails if function called using '.' instead of ':'.
-    assert(oldName and type(newName)=="string")
+    assert(oldName and type(oldName)=="string")
     assert(newName and type(newName)=="string")
     assert(options==nil or type(options)=="string")
     options = options or ""

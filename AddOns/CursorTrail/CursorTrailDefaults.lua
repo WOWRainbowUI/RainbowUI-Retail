@@ -415,6 +415,62 @@ kDefaultConfig["環形-黑邊"] = {
     },
 }
 ----------------________________________-----------------------------------
+kDefaultConfig["環形-黯淡"] = {
+    MasterScale = 0.9,
+    Layers = {
+        [1] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Ring 2.tga",
+            ModelID = 0,
+            ShapeColorR = 0.992, ShapeColorG = 0.792, ShapeColorB = 0.635,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 0.9,
+            UserAlpha = 1,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = false,
+        },
+        [2] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Ring Soft 2.tga",
+            ModelID = 0,
+            ShapeColorR = 0.992, ShapeColorG = 0.792, ShapeColorB = 0.635,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0.05,
+            UserScale = 0.9,
+            UserAlpha = 0.3,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = true,
+        },
+        [3] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Ring Soft 4.tga",
+            ModelID = 0,
+            ShapeColorR = 0, ShapeColorG = 0, ShapeColorB = 0,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 0.99,
+            UserAlpha = 0.65,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = true,
+        },
+    },
+}----------------________________________-----------------------------------
 kDefaultConfig["環形-閃爍"] = {
     MasterScale = 1,
     Layers = {

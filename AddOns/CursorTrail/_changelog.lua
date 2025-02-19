@@ -7,6 +7,34 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.0.7.3
+Released 2025-02-18
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.7.3 for Retail WoW
+Version 4.4.2.1 for Classic Cataclysm
+Version 1.15.6.2 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW FEATURES:
+- Added new defaults:
+        Ring Dim Mouse Look
+
+- Added slash command:
+        /ct combat      (Toggles the 'Show only in combat' setting.  All layers set same as first layer.)
+
+CHANGES:
+- Fixed "Show during Mouse Look" so it works properly while the options window is open.
+
+- No longer create a backup named "@Original".  Renamed existing "@Original" backup to "Original" so it can be deleted.
+
+- Removed "New" feature indicators for master scale and layer tabs.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 4.4.2.1 for Classic Cataclysm
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Classic Cataclysm 4.4.2.
+
+=======================================
 RELEASE 11.0.7.2
 Released 2025-01-29
 
@@ -19,7 +47,7 @@ Version 1.15.6.1 for Classic WoW
         Ring Dark Edges
         Star Dark Edge
         Star Doubled
-        
+
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 1.15.6.1 for Classic WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -608,18 +636,6 @@ Version 1.15.2.1 for Classic WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 - Updated for Classic WoW and Classic Cataclysm.  (No changes to retail version.)
 (Some model FX in Cataclysm are offset from cursor position.  They will be fixed at a later data.)
-
-=======================================
-RELEASE 10.2.6.1
-Released 2024-03-20
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.2.6.1 for Retail WoW
-Version 3.4.3.5 for Classic WotLK
-Version 1.15.1.2 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for WoW 10.2.6.
-- Updated the UI controls library.  (Should not cause any noticeable changes.)
 
 ]]
 

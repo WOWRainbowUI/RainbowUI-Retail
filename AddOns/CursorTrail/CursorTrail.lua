@@ -133,9 +133,10 @@ kScreenBottomFourthMult = 1.077
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 kNewFeatures =  -- For flagging new features in the UI.
 {
-    -- Added in release 11.0.2.8 ...
-    {anchor="RIGHT", relativeTo="MasterScaleLabel", relativeAnchor="LEFT", x=-2, y=1},
-    {anchor="BOTTOM", relativeTo="Tabs.3", relativeAnchor="TOP", x=0, y=-11},
+--~ Disabled this notification in 11.0.7.3 ...
+--~     -- Added in release 11.0.2.8 ...
+--~     {anchor="RIGHT", relativeTo="MasterScaleLabel", relativeAnchor="LEFT", x=-2, y=1},
+--~     {anchor="BOTTOM", relativeTo="Tabs.3", relativeAnchor="TOP", x=0, y=-11},
 
 --~ Disabled this notification in 11.0.2.6 ...
 --~     -- Added in release 11.0.2.4 ...
@@ -454,6 +455,7 @@ function printUsageMsg()
     printMsg(kAddonFolderName.." "..kAddonVersion.." 指令:")
     printMsg("(注意: 輸入 "..BLUE.."/ct|r".." or "..BLUE.."/"..kAddonFolderName.."|r 都可以使用這些指令。)")
     printMsg(BLUE.."  /ct"..GREEN2.." - 顯示/隱藏選項視窗。")
+    printMsg(BLUE.."  /ct combat"..GREEN2.." - 開/關 '只在戰鬥中顯示' 設定。 (所有圖層組合都和第一個圖層相同。)")
     printMsg(BLUE.."  /ct help"..GREEN2.." - 顯示這段說明內容。")
     printMsg(BLUE.."  /ct off"..GREEN2.." - 暫時停用滑鼠特效以改善遊戲效能。"
         .."  (下次重新載入介面，或是輸入 "..BLUE.."/ct on"..GREEN2.." 來重新啟用。))")
@@ -544,8 +546,21 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
 --~         ----gCommand = kRefreshForced
 --~         CursorTrail_Refresh(true)
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif cmd == "combat"
-        or cmd == "mouselook"
+    elseif cmd == "combat" then
+        bOptionsModified = true
+
+        local layerNum = findFirstEnabledLayer(PlayerConfig) or 1
+        local layerCfg = PlayerConfig.Layers[layerNum]
+        local bShowOnlyInCombat = not layerCfg.UserShowOnlyInCombat
+        for i = 1, kMaxLayers do
+            layerCfg = PlayerConfig.Layers[i]
+            layerCfg.UserShowOnlyInCombat = bShowOnlyInCombat
+        end
+
+        printMsg(kAddonFolderName..GREEN2.." 'Show only in combat' |r= "
+            ..ORANGE..(bShowOnlyInCombat and "ON" or "OFF"))
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+    elseif cmd == "mouselook"
         or cmd == "fade"
         or cmd == "sparkle"
       then
@@ -1079,6 +1094,7 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
             ----DebugText("gMotionIntensity fo: "..gMotionIntensity, 270)
         end
     end
+    ----DebugText("gMotionIntensity: "..gMotionIntensity)
 
     if self.throttleLevelSecs then
         self.throttleSum = self.throttleSum + elapsedSeconds
@@ -1104,7 +1120,7 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
             -- Hide cursor FX during mouselook, if appropriate.
             --_________________________________________________
             if isGameCursorHidden and layerCfg.UserShowMouseLook and layerCfg.FadeOut then
-                gMotionIntensity = 1.0  -- Force show during mouselook.
+                gMotionIntensity = 1.0  -- Force show during mouselook if fading is set.
             end
 
             --_________________________________________________
@@ -1147,10 +1163,10 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
                         return
                     end
 
+                    -- Keep FX along top side of options window while mouse is over it (so user can see changes better).
                     if doesAncestryInclude(OptionsFrame, mouseFocus)
                        or (ColorPickerFrame:IsShown() and doesAncestryInclude(ColorPickerFrame, mouseFocus))
                       then
-                        -- Keep FX along top side of options window while mouse is over it (so user can see changes better).
                         local ofs = gLayers:getLargestShapeSize() * 0.5
                         cursorY = (OptionsFrame.HeaderTexture:GetTop() + ofs - 2) * ScreenScale
                         --------ofs = ofs - (math.sin(cursorY*0.04) - 1) * 50  -- Wobble left/right as mouse moves up/down.
@@ -1164,6 +1180,7 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
                 tY = ((cursorY - ScreenMidY) / ScreenScale)
                 gAnchorFrame:SetPoint("CENTER", tX, tY)
 
+                --.................................................................................
                 -- Update test model position (if it exists).
                 if TestModel and TestModel:GetModelFileID() then
                     if TestModel.UseSetTransform then
@@ -1184,6 +1201,7 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
                         TestModel:SetPosition(TestModel.OfsZ, modelX, modelY) -- Probably won't follow mouse without custom step sizes.
                     end
                 end
+                --.................................................................................
 
                 -- Update position of cursor model.
                 if cursorModel.Constants.UseSetTransform then
@@ -1651,10 +1669,10 @@ function CursorTrail_Refresh(bForcePositionUpdate)  -- Show cursor FX for all la
 
         if not layerCfg.IsLayerEnabled then
             bShowFX = false
+        elseif isGameCursorHidden and not layerCfg.UserShowMouseLook then
+            bShowFX = false
         elseif not bOptionsShown then
-            if isGameCursorHidden and not layerCfg.UserShowMouseLook then
-                bShowFX = false
-            elseif layerCfg.UserShowOnlyInCombat and not bInCombat then
+            if layerCfg.UserShowOnlyInCombat and not bInCombat then
                 bShowFX = false
             end
         end
