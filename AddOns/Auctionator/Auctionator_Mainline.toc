@@ -1,6 +1,6 @@
 ## Interface: 110005, 110007
 ## Title: Auctionator
-## Version: 260
+## Version: 263
 ## Author: Borjamacare, plusmouse
 ## X-Website: https://www.curseforge.com/wow/addons/auctionator
 ## X-Category: Auction/Economy
@@ -30,12 +30,13 @@
 ## X-Category-zhTW: 交易
 
 Libs\Manifest.xml
-Libs_Mainline\Manifest.xml
+Libs_ModernAH\Manifest.xml
 
 Locales\Manifest.xml
 
-Imports_Mainline\Manifest.xml
-Assets_Mainline.xml
+Imports_ModernAH\Manifest.xml
+Assets_ModernAH.xml
 
 Source\Manifest.xml
 Source_Mainline\Manifest.xml
+Source_ModernAH\Manifest.xml
