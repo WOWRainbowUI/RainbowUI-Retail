@@ -127,7 +127,7 @@ function func:Load_Settings()
 
         -- CheckButton
         do
-            local name = "放大當前目標的名條";
+            local name = "放大當前目標的血條";
             local tooltip = "";
             local cfg = "EnlargeSelected";
             local default = true;
@@ -377,7 +377,7 @@ function func:Load_Settings()
         -- CheckButton
         do
             local name = "啟用個人資源條";
-            local tooltip = not data.isRetail and "要移動個人資源條，請按住 " .. green .. "CTRL" .. yellow .. " 並用 " .. green .. "滑鼠左鍵" .. yellow .. " 拖曳它" or "";
+            local tooltip = "";
             local cfg = "PersonalNameplate";
             local default = true;
             local flair = { classicEra = true, cata = true, retail = false };
@@ -387,10 +387,10 @@ function func:Load_Settings()
 
         -- CheckButton
         do
-            local name = "總是顯示";
-            local tooltip = "即使在脫離戰鬥時也顯示個人資源條";
+            local name = "非戰鬥中也要顯示";
+            local tooltip = "即時不在戰鬥中，也要顯示個人資源條。";
             local cfg = "PersonalNameplateAlwaysShow";
-            local default = false;
+            local default = true;
             local flair = { classicEra = true, cata = true, retail = true };
             local cvar = "NameplatePersonalShowAlways";
 
@@ -410,6 +410,36 @@ function func:Load_Settings()
 
         -- Slider
         do
+            local name = "淡出程度";
+            local tooltip = "";
+            local cfg = "PersonalNameplateFadeIntensity";
+            local default = 0.5;
+            local step = 0.01;
+            local minValue = 0.0;
+            local maxValue = 1.0;
+            local decimals = 2;
+            local flair = { classicEra = true, cata = true, retail = false };
+
+            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
+        end
+
+        -- Slider
+        do
+            local name = "個人資源條位置";
+            local tooltip = "也可以按住 " .. green .. "CTRL" .. yellow .. " 不放，用" .. green .. "滑鼠左鍵拖曳移動。";
+            local cfg = "PersonalNameplatePointY";
+            local default = 380;
+            local step = 1;
+            local minValue = 1;
+            local maxValue = 1500;
+            local decimals = 0;
+            local flair = { classicEra = true, cata = true, retail = false };
+
+            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
+        end
+
+        -- Slider
+        do
             local name = "個人資源條縮放大小";
             local tooltip = "";
             local cfg = "PersonalNameplatesScale";
@@ -419,21 +449,6 @@ function func:Load_Settings()
             local maxValue = 1.25;
             local decimals = 2;
             local flair = { classicEra = true, cata = true, retail = true };
-
-            func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
-        end
-
-        -- Slider
-        do
-            local name = "個人資源條位置";
-            local tooltip = "";
-            local cfg = "PersonalNameplatePointY";
-            local default = 380;
-            local step = 1;
-            local minValue = 1;
-            local maxValue = 2000;
-            local decimals = 0;
-            local flair = { classicEra = false, cata = false, retail = false };
 
             func:Create_Slider(panel, flair, name, tooltip, cfg, default, step, minValue, maxValue, decimals);
         end
@@ -632,10 +647,10 @@ function func:Load_Settings()
 
         -- CheckButton
         do
-            local name = "總是顯示當前目標的名條";
+            local name = "總是顯示當前目標的血條";
             local tooltip = "";
             local cfg = "NamesOnlyAlwaysShowTargetsNameplate";
-            local default = true;
+            local default = false; -- 更改預設值
             local flair = { classicEra = true, cata = true, retail = true };
 
             func:Create_CheckButton(panel, flair, name, tooltip, cfg, default);
