@@ -1,45 +1,46 @@
-# [5.19.1](https://github.com/WeakAuras/WeakAuras2/tree/5.19.1) (2025-01-30)
+# [5.19.2](https://github.com/WeakAuras/WeakAuras2/tree/5.19.2) (2025-02-20)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.19.0...5.19.1)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.19.1...5.19.2)
 
 ## Highlights
 
-This is mainly a release to bump the TOC version for classic.
+This is mainly a release to bump the TOC version for Cata.
 
-Some minor features:
-
-- Empty region learned how to take an icon to display in the left side options pane (no more transparent squares!)
-- Circular & Linear Progress Texture subregions learned the inverse option
-- Unit Characteristics Trigger now allows "Assigned Role" for non-group units
-- In game changelog (hi again!) is less prone to producing text boxes that tower over the edge of your screen
-
-And some bug fiixes:
-
-- Expanding the options for Glow/Border subregions should no longer produce errors
-- Classic: "Clipped Progress" option for model subregions should function identically to retail now
-- WeakAuras.ScanEvents is less prone to vomiting if called with garbage data
-- Designing a TSU trigger to populate state with garbage timed progress data should no longer brick Options
+Otherwise it contains minor fixes
 
 ## Commits
 
-InfusOnWoW (10):
+InfusOnWoW (7):
 
-- Tweak Changelog display
-- Modernize: Fix lua error if there are no authorOptions
-- Also remove "Clipped Progress" on Classic
-- Empty Base Region: Add a thumbnail icon
-- Sanity check WeakAuras.ScanEvents event's type
-- CircularProgressTexture: Add inverse option
-- Linear Progress Texture: Add an inverse setting
-- Fix Glow/Border anchor_area lua error in Options
-- Guard against expirationTime/duration being strings in various places
-- Unit Characteristics: Allow "Assigned Role" check for non-group units
+- Update Atlas File List from wago.tools
+- Regions\Text.lua: Add types
+- Fix font justify missing after update
+- Fix lua error if a group contains an aura with a texture sub element
+- Classic Era: Fix Minimize Button
+- Update Atlas File List from wago.tools
+- Update Discord List
 
-Stanzilla (1):
+Stanzilla (3):
 
 - Update WeakAurasModelPaths from wago.tools
+- Update WeakAurasModelPaths from wago.tools
+- Update WeakAurasModelPaths from wago.tools
 
-mrbuds (1):
+dependabot[bot] (1):
 
-- classic_era toc update
+- Bump cbrgm/mastodon-github-action from 2.1.10 to 2.1.12
+
+emptyrivers (1):
+
+- only nag user on /reload or /camp, instead of every loading screen
+
+its-riece (1):
+
+- Add itemInRange condition support to more Item Triggers (#5639)
+
+mrbuds (3):
+
+- Fix integer overflow error with SpellKnow checks
+- Update toc files for Cataclysm new patch
+- smoll fix (#5678)
 
