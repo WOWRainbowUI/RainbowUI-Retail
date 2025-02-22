@@ -223,9 +223,9 @@ Enable this setting if you want this timer to be hidden, or when using a WeakAur
 	L["Anchor Mode"] = "Anchor Mode"
 	L["Anchor Point"] = "Ponto da âncora"
 	L["Anchored To"] = "Ancorado a"
-	L["And "] = "E"
 	--[[Translation missing --]]
 	L["and"] = "and"
+	L["And "] = "E"
 	--[[Translation missing --]]
 	L["and %s"] = "and %s"
 	L["and aligned left"] = "e alinhado à esquerda"
@@ -369,8 +369,8 @@ Off Screen]=] ] = "Aura está fora da tela"
 	L["Collapse all pending Import"] = "Collapse all pending Import"
 	--[[Translation missing --]]
 	L["Collapsible Group"] = "Collapsible Group"
-	L["Color"] = "Cor"
 	L["color"] = "cor"
+	L["Color"] = "Cor"
 	--[[Translation missing --]]
 	L["Column Height"] = "Column Height"
 	--[[Translation missing --]]
@@ -1701,9 +1701,9 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	--[[Translation missing --]]
 	L["Yellow Rune"] = "Yellow Rune"
 	--[[Translation missing --]]
-	L["Y-Offset"] = "Y-Offset"
-	--[[Translation missing --]]
 	L["y-Offset"] = "y-Offset"
+	--[[Translation missing --]]
+	L["Y-Offset"] = "Y-Offset"
 	--[[Translation missing --]]
 	L["You already have this group/aura. Importing will create a duplicate."] = "You already have this group/aura. Importing will create a duplicate."
 	--[[Translation missing --]]
