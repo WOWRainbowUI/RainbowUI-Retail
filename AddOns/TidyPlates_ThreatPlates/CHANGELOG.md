@@ -1,3 +1,3 @@
-# 12.0.14 (2025-02-16)
+# 12.0.15 (2025-02-23)
 
-* Updated TOC version for Patch 1.15.6 for WoW Classic.
+* Fixed a bug that caused supercharged combo points to not be displayed in the Combo Points widget [GH-567].
