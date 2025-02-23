@@ -1,7 +1,7 @@
 # Baganator
 
-## [648](https://github.com/Baganator/Baganator/tree/648) (2025-02-21)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/647...648) 
+## [649](https://github.com/Baganator/Baganator/tree/649) (2025-02-22)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/648...649) 
 
-- Fix guild view logs/text dialog position changing when "Lock windows" is enabled  
-- Categories: Fix bug causing blank slots to reset unexpectedly  
+- Raise guild bank logs dialog to front when clicking on an item link  
+- [Fixes #428] Item button font changes on reloads/widget refreshes on ElvUI skin  
