@@ -1,6 +1,6 @@
-## Interface: 110005, 110007
+## Interface: 110007, 110100
 ## Title: BtWQuests: Dragonflight
-## Version: v12.4
+## Version: v12.5
 ## Notes: Dragonflight quest data for BtWQuests
 ## Author: Breen
 ## Dependencies: BtWQuests
