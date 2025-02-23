@@ -1,6 +1,7 @@
 # Syndicator
 
-## [172](https://github.com/Baganator/Syndicator/tree/172) (2025-02-19)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/171...172) 
+## [173](https://github.com/Baganator/Syndicator/tree/173) (2025-02-22)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/172...173) 
 
-- Cata: Track auctions on the new AH  
+- Open syndicator options with /syn or /syndicator slash commands  
+- Fix missing "return" when doing blank /syns search  
