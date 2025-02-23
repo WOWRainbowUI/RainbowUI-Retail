@@ -1,6 +1,6 @@
-## Interface: 110005, 110007
+## Interface: 110007, 110100
 ## Title: BtWQuests: The War Within
-## Version: 6.0
+## Version: 7.0
 ## Notes: The War Within quest data for BtWQuests
 ## Author: Breen
 ## Dependencies: BtWQuests
@@ -50,6 +50,7 @@ Database/Objects.zhTW.lua
 Database/Index.enUS.lua
 Database/Index.zhCN.lua
 Database/Index.zhTW.lua
+Database/Index.11.1.lua
 
 General.lua
 IsleOfDorn.lua
@@ -57,3 +58,4 @@ TheRingingDeeps.lua
 Hallowfall.lua
 AzjKahet.lua
 SirenIsle.lua
+11.1.lua
