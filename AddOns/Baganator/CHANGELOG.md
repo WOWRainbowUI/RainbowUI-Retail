@@ -1,7 +1,7 @@
 # Baganator
 
-## [649](https://github.com/Baganator/Baganator/tree/649) (2025-02-22)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/648...649) 
+## [651](https://github.com/Baganator/Baganator/tree/651) (2025-02-23)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/650...651) 
 
-- Raise guild bank logs dialog to front when clicking on an item link  
-- [Fixes #428] Item button font changes on reloads/widget refreshes on ElvUI skin  
+- Skins: ElvUI: Fix item button borders resetting on ElvUI profile change  
+- Fix error when loading categories for first time after a long break  
