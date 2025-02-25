@@ -31,9 +31,9 @@ VUHDO_UNIT_HOT_TYPE_OTHERSHOTS = 4;
 VUHDO_UNIT_HOT_INFOS = {
 	-- [<unit ID>] = {
 	--	[<aura instance ID>] = {
+	--		<aura icon>,
 	--		<aura expiration time>,
 	--		<aura stacks>,
-	--		<aura icon>,
 	--		<aura total duration>,
 	--		<aura source is player: true|false>,
 	--		<aura name>,

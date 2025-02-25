@@ -11,8 +11,6 @@ VUHDO_BOUQUET_CUSTOM_TYPE_SPELL_TRACE = 10;
 
 VUHDO_FORCE_RESET = false;
 
-local floor = floor;
-local select = select;
 local GetTexCoordsForRole = GetTexCoordsForRole or VUHDO_getTexCoordsForRole;
 local _;
 
@@ -20,13 +18,11 @@ local VUHDO_RAID = { };
 local VUHDO_USER_CLASS_COLORS;
 local VUHDO_PANEL_SETUP;
 
-local VUHDO_getOtherPlayersHotInfo;
 local VUHDO_getChosenDebuffInfo;
 local VUHDO_getCurrentPlayerTarget;
 local VUHDO_getCurrentPlayerFocus;
 local VUHDO_getCurrentMouseOver;
 local VUHDO_isUnitSwiftmendable;
-local VUHDO_getIsInHiglightCluster;
 local VUHDO_getDebuffColor;
 local VUHDO_getIsCurrentBouquetActive;
 local VUHDO_getCurrentBouquetColor;
@@ -34,8 +30,6 @@ local VUHDO_getIncHealOnUnit;
 local VUHDO_getUnitDebuffSchoolInfos;
 local VUHDO_getCurrentBouquetStacks;
 local VUHDO_getSpellTraceForUnit;
-local VUHDO_getSpellTraceTrailOfLightForUnit;
-local VUHDO_getAoeAdviceForUnit;
 local VUHDO_getCurrentBouquetTimer;
 local VUHDO_getRaidTargetIconTexture;
 local VUHDO_getUnitGroupPrivileges;
@@ -55,13 +49,11 @@ function VUHDO_bouquetValidatorsInitLocalOverrides()
 	VUHDO_USER_CLASS_COLORS = _G["VUHDO_USER_CLASS_COLORS"];
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
 
-	VUHDO_getOtherPlayersHotInfo = _G["VUHDO_getOtherPlayersHotInfo"];
 	VUHDO_getChosenDebuffInfo = _G["VUHDO_getChosenDebuffInfo"];
 	VUHDO_getCurrentPlayerTarget = _G["VUHDO_getCurrentPlayerTarget"];
 	VUHDO_getCurrentPlayerFocus = _G["VUHDO_getCurrentPlayerFocus"];
 	VUHDO_getCurrentMouseOver = _G["VUHDO_getCurrentMouseOver"];
 	VUHDO_isUnitSwiftmendable = _G["VUHDO_isUnitSwiftmendable"];
-	VUHDO_getIsInHiglightCluster = _G["VUHDO_getIsInHiglightCluster"];
 	VUHDO_getDebuffColor = _G["VUHDO_getDebuffColor"];
 	VUHDO_getCurrentBouquetColor = _G["VUHDO_getCurrentBouquetColor"];
 	VUHDO_getIncHealOnUnit = _G["VUHDO_getIncHealOnUnit"];
@@ -69,8 +61,6 @@ function VUHDO_bouquetValidatorsInitLocalOverrides()
 	VUHDO_getCurrentBouquetStacks = _G["VUHDO_getCurrentBouquetStacks"];
 	VUHDO_getIsCurrentBouquetActive = _G["VUHDO_getIsCurrentBouquetActive"];
 	VUHDO_getSpellTraceForUnit = _G["VUHDO_getSpellTraceForUnit"];
-	VUHDO_getSpellTraceTrailOfLightForUnit = _G["VUHDO_getSpellTraceTrailOfLightForUnit"];
-	VUHDO_getAoeAdviceForUnit = _G["VUHDO_getAoeAdviceForUnit"];
 	VUHDO_getCurrentBouquetTimer = _G["VUHDO_getCurrentBouquetTimer"];
 	VUHDO_getRaidTargetIconTexture = _G["VUHDO_getRaidTargetIconTexture"];
 	VUHDO_getUnitGroupPrivileges = _G["VUHDO_getUnitGroupPrivileges"];
@@ -1486,6 +1476,74 @@ end
 
 
 --
+local VUHDO_chiHarmonyIconValidator;
+do
+	local tUnitHotList;
+	local tUnitHotCount;
+	local tUnitHotInfo;
+	local tTimer;
+	local tDuration;
+	VUHDO_chiHarmonyIconValidator = function(anInfo, aSourceType)
+
+		tUnitHotList, tUnitHotCount = VUHDO_getUnitHot(anInfo["unit"], "Renewing Mist", aSourceType);
+
+		if tUnitHotList and tUnitHotCount and tUnitHotCount > 0 then
+			-- tUnitHotInfo: aura icon, expiration, stacks, duration, isMine, name, spell ID
+			tUnitHotInfo = VUHDO_getUnitHotInfo(anInfo["unit"], tUnitHotList["auraInstanceId"]);
+
+			-- Renewing Mist icon when empowered with Chi Harmony is 5901829
+			if tUnitHotInfo and tUnitHotInfo[1] == 5901829 then
+				tTimer = floor((GetTime() - tUnitHotInfo[2] + tUnitHotInfo[4]) * 10) * 0.1;
+
+				-- 6 sec duration Renewing Mist from Rapid Diffusion extended up to 8 sec via Rising Mist   
+				if tUnitHotInfo[4] >= 8 then
+					tDuration = 8;
+				else
+					tDuration = tUnitHotInfo[4];
+				end
+
+				if tTimer <= tDuration then
+					-- Chi Harmony icon is 1381294
+					return true, 1381294, tDuration - tTimer, 1, tDuration;
+				end
+			end
+		end
+
+		return false, nil, -1, -1, -1;
+
+	end
+end
+
+
+
+--
+local function VUHDO_chiHarmonyIconMineValidator(anInfo, _)
+
+	return VUHDO_chiHarmonyIconValidator(anInfo, VUHDO_UNIT_HOT_TYPE_MINE);
+
+end
+
+
+
+--
+local function VUHDO_chiHarmonyIconOthersValidator(anInfo, _)
+
+	return VUHDO_chiHarmonyIconValidator(anInfo, VUHDO_UNIT_HOT_TYPE_OTHERS);
+
+end
+
+
+
+--
+local function VUHDO_chiHarmonyIconBothValidator(anInfo, _)
+
+	return VUHDO_chiHarmonyIconValidator(anInfo, VUHDO_UNIT_HOT_TYPE_BOTH);
+
+end
+
+
+
+--
 VUHDO_BOUQUET_BUFFS_SPECIAL = {
 	["AGGRO"] = {
 		["displayName"] = VUHDO_I18N_BOUQUET_AGGRO,
@@ -2176,6 +2234,27 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 	["ALWAYS"] = {
 		["displayName"] = VUHDO_I18N_BOUQUET_ALWAYS,
 		["validator"] = VUHDO_alwaysTrueValidator,
+		["interests"] = { },
+	},
+
+	["CHI_HARMONY_ICON_MINE"] = {
+		["displayName"] = VUHDO_I18N_BOUQUET_CHI_HARMONY_ICON_MINE,
+		["validator"] = VUHDO_chiHarmonyIconMineValidator,
+		["updateCyclic"] = true,
+		["interests"] = { },
+	},
+
+	["CHI_HARMONY_ICON_OTHERS"] = {
+		["displayName"] = VUHDO_I18N_BOUQUET_CHI_HARMONY_ICON_OTHERS,
+		["validator"] = VUHDO_chiHarmonyIconOthersValidator,
+		["updateCyclic"] = true,
+		["interests"] = { },
+	},
+
+	["CHI_HARMONY_ICON_BOTH"] = {
+		["displayName"] = VUHDO_I18N_BOUQUET_CHI_HARMONY_ICON_BOTH,
+		["validator"] = VUHDO_chiHarmonyIconBothValidator,
+		["updateCyclic"] = true,
 		["interests"] = { },
 	},
 
