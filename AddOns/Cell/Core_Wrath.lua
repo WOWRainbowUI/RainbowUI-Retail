@@ -31,8 +31,8 @@ local L = Cell.L
 -- sharing version check
 Cell.MIN_VERSION = 239
 Cell.MIN_CLICKCASTINGS_VERSION = 239
-Cell.MIN_LAYOUTS_VERSION = 244
-Cell.MIN_INDICATORS_VERSION = 244
+Cell.MIN_LAYOUTS_VERSION = 245
+Cell.MIN_INDICATORS_VERSION = 245
 Cell.MIN_DEBUFFS_VERSION = 239
 
 --[==[@debug@
@@ -636,7 +636,7 @@ function eventFrame:PLAYER_ENTERING_WORLD()
         inInstance = true
 
         -- NOTE: delayed raid difficulty check
-        if Cell.vars.groupType == "raid" and iType == "raid" then
+        if iType == "raid" then
             C_Timer.After(0.5, function()
                 --! can't get difficultyID, difficultyName immediately after entering an instance
                 local _, _, difficultyID, difficultyName, maxPlayers = GetInstanceInfo()
