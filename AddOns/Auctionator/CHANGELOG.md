@@ -1,6 +1,6 @@
 # Auctionator
 
-## [264](https://github.com/Auctionator/Auctionator/tree/264) (2025-02-22)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/263...264) 
+## [265](https://github.com/Auctionator/Auctionator/tree/265) (2025-02-25)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/264...265) 
 
-- Cata: Show coppers in AH listings  
+- Update tocs for retail 11.1.0 and cata 4.4.2  
