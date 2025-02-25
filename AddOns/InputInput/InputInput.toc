@@ -1,4 +1,4 @@
-## Interface: 11506, 30403, 40401, 110005, 110007
+## Interface: 11506, 30403, 40402, 110005, 110007
 ## IconTexture: Interface\AddOns\InputInput\Media\icon
 
 ## Title: |cff409EFF|cffffff00i|rnput|cffffff00i|rnput|r
