@@ -11,10 +11,10 @@ select(2, ...).L = setmetatable({
     ["togglemenu"] = "Menu",
     ["togglemenu_nocombat"] = "Menu (not in combat)",
     ["T"] = "Talent",
-    ["C"] = "Class Talent",
-    ["S"] = "Spec Talent",
-    ["H"] = "Hero Talent",
-    ["P"] = "PvP Talent",
+    ["C"] = "Class",
+    ["S"] = "Spec",
+    ["H"] = "Hero",
+    ["P"] = "PvP",
     ["notBound"] = "|cff777777".._G.NOT_BOUND,
 
     ["PET"] = "Pet",
@@ -46,6 +46,7 @@ select(2, ...).L = setmetatable({
     ["showAllSpells"] = "Show all spells",
     ["enableBlacklistShortcut"] = "Blacklist: Alt+Ctrl+RightClick",
     ["smooth"] = "Smooth",
+    ["onlyEnableNotInCombat"] = "Only when I'm not in combat",
 
     ["BOTTOM"] = "Bottom",
     ["BOTTOMLEFT"] = "Bottom Left",
@@ -87,6 +88,26 @@ select(2, ...).L = setmetatable({
     ["CHANGELOGS"] = [[
         <h1>If there are any issues after an update, check through all code snippets first.</h1>
         <p>(Retail) Enable "Always Update Auras" in General tab, if indicators do not update correctly.</p>
+        <br/>
+
+        <h1>r244-release (Feb 24, 2025, 21:40 GMT+8)</h1>
+        <p>+ (Classic) Added downranking spells support for Click-Castings.</p>
+        <p>* Updated "Drinking" list (#279, #306).</p>
+        <p>* Updated range check.</p>
+        <p>* Updated Dispel Request text flipbook animation.</p>
+        <p>* Refactor HealthText indicator.</p>
+        <p>+ (Classic) Updated RaidDebuffs to include the Naxxramas raid (#294).</p>
+        <p>+ (TWW) Updated debuffs for season 2 (Thanks 钛锬).</p>
+        <p>+ (TWW) Updated Liberation of Undermine debuffs (Thanks Reat).</p>
+        <p>+ (Classic) Updated RoleIcon indicator and PowerBarFilters.</p>
+        <p>+ Implemented CombatIcon indicator.</p>
+        <p>+ Updated AoEHealings indicator.</p>
+        <p>+ Added "Relative" for indicator position settings.</p>
+        <p>+ Added class/role filter for PowerText indicator.</p>
+        <p>+ Added functions for "installer" addons.</p>
+        <p>* Fixed texture selector.</p>
+        <p>* Converted colon methods to dot notation, so some code snippets need to be updated.</p>
+        <p>* Updated locales.</p>
         <br/>
 
         <h1>r243-release (Oct 13, 2024, 21:37 GMT+8)</h1>
