@@ -90,12 +90,22 @@ select(2, ...).L = setmetatable({
         <p>(Retail) Enable "Always Update Auras" in General tab, if indicators do not update correctly.</p>
         <br/>
 
+        <h1>r245-release (Feb 25, 2025, 19:35 GMT+8)</h1>
+        <p>* Fixed a layout auto switch issue.</p>
+        <p>* Fixed issues caused by spotlight on Classic.</p>
+        <p>* Fixed import.</p>
+        <p>+ Added "Health 2" for HealthText.</p>
+        <p>* HealthText no longer hides when dead/ghost.</p>
+        <p>* SpellRequest now supports nickname.</p>
+        <p>* Updated deDE, zhTW.</p>
+        <br/>
+
         <h1>r244-release (Feb 24, 2025, 21:40 GMT+8)</h1>
         <p>+ (Classic) Added downranking spells support for Click-Castings.</p>
         <p>* Updated "Drinking" list (#279, #306).</p>
         <p>* Updated range check.</p>
         <p>* Updated Dispel Request text flipbook animation.</p>
-        <p>* Refactor HealthText indicator.</p>
+        <p>* Refactored HealthText indicator.</p>
         <p>+ (Classic) Updated RaidDebuffs to include the Naxxramas raid (#294).</p>
         <p>+ (TWW) Updated debuffs for season 2 (Thanks 钛锬).</p>
         <p>+ (TWW) Updated Liberation of Undermine debuffs (Thanks Reat).</p>
@@ -161,6 +171,11 @@ select(2, ...).L = setmetatable({
         <p>+ Updated locales: deDE, frFR, ptBR, ruRU, zhTW.</p>
         <br/>
 
+        <p><a href="older">Click to view older changelogs</a></p>
+        <br/>
+    ]],
+
+    ["OLDER_CHANGELOGS"] = [[
         <h1>r238-release (Aug 7, 2024, 15:25 GMT+8)</h1>
         <p>* Fixed missing indicators.</p>
         <p>* Updated deDE and zhTW.</p>
@@ -478,11 +493,6 @@ select(2, ...).L = setmetatable({
         <p>* Updated zhTW.</p>
         <br/>
 
-        <p><a href="older">Click to view older changelogs</a></p>
-        <br/>
-    ]],
-
-    ["OLDER_CHANGELOGS"] = [[
         <h1>r199-release (Oct 21, 2023, 15:40 GMT+8)</h1>
         <p>* Updated spells of Defensives and Externals.</p>
         <p>+ Added "Cast By" option to custom buff indicators.</p>
