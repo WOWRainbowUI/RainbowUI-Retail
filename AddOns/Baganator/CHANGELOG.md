@@ -1,7 +1,7 @@
 # Baganator
 
-## [651](https://github.com/Baganator/Baganator/tree/651) (2025-02-23)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/650...651) 
+## [652](https://github.com/Baganator/Baganator/tree/652) (2025-02-25)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/651...652) 
 
-- Skins: ElvUI: Fix item button borders resetting on ElvUI profile change  
-- Fix error when loading categories for first time after a long break  
+- Update toc for 11.1.0  
+- Add scroll bar on currency panel to skins  
