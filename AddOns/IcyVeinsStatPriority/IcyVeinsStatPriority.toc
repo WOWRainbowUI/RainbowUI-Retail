@@ -1,4 +1,4 @@
-## Interface: 110005, 110007
+## Interface: 110007, 110100
 ## Title: |cff69CCF0Icy Veins|r Stat Priority
 ## Version: 2025-01-02
 ## Author: enderneko

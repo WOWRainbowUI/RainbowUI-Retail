@@ -1,4 +1,4 @@
-## Interface: 110005, 110007
+## Interface: 110007, 110100
 #@non-debug@
 ## Title: Accountant Classic
 ## Title-deDE: Accountant Classic

@@ -1,4 +1,4 @@
-## Interface: 11506, 40401, 110005, 110007
+## Interface: 11506, 40401, 110007, 110100
 ## Title: OPie
 ## Version: Ånd 3
 ## Author: foxlit

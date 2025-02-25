@@ -1,4 +1,4 @@
-## Interface: 30403, 40400, 110005, 110007
+## Interface: 30403, 40400, 110007, 110100
 
 ## Title: Lib: Ace3
 ## Notes: AddOn development framework

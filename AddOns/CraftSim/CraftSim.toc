@@ -1,4 +1,4 @@
-## Interface: 110005, 110007
+## Interface: 110007, 110100
 
 ## Title: CraftSim
 ## Notes: Calculates the average profit based on your profession stats and other tools for the war within gold making

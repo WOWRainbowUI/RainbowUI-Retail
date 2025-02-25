@@ -1,4 +1,4 @@
-## Interface: 11503, 40400, 110005, 110007
+## Interface: 11503, 40400, 110007, 110100
 ## Title: ColorPickerPlus
 ## Notes: Hooks into the standard Color Picker to provide text entry for colors (RGB and hex values), starting color and chosen color swatches
 ## Author: jaslm

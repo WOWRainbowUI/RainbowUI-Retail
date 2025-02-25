@@ -1,4 +1,4 @@
-## Interface: 110005, 110007
+## Interface: 110007, 110100
 ## Author: lightspark
 ## Version: 110005.01
 ## Title: LS: |cff00cc99Toasts|r

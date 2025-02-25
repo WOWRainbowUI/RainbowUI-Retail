@@ -1,4 +1,4 @@
-## Interface: 11503, 30403, 40400, 110005, 110007
+## Interface: 11503, 30403, 40400, 110007, 110100
 ## Title: Masque: |cffffffffRaeli|r
 ## Notes: Raeli's skins for Masque.
 ## Version: 27.2

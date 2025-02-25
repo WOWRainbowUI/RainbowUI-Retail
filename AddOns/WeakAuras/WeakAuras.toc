@@ -1,4 +1,4 @@
-## Interface: 110005, 110007
+## Interface: 110007, 110100
 ## Title: WeakAuras
 ## Author: The WeakAuras Team
 ## Version: 5.19.3

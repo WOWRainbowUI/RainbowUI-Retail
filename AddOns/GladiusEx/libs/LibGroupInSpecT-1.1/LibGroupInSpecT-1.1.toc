@@ -1,4 +1,4 @@
-## Interface: 110000, 110005, 110007
+## Interface: 110000, 110007, 110100
 ## Title: Lib: GroupInSpecT-1.1
 ## Notes: Keeps track of group members and keeps an up-to-date cache of their specialization and talents.
 ## Version: 1.5.1

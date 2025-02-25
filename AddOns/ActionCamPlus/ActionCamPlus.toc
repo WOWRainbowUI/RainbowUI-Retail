@@ -1,4 +1,4 @@
-## Interface: 11504, 30403, 40400, 110005, 110007
+## Interface: 11504, 30403, 40400, 110007, 110100
 ## Title: ActionCamPlus
 ## Notes: Makes Blizzard's experimental Action Camera more usable.
 ## Author: Anorian

@@ -1,4 +1,4 @@
-## Interface: 11504, 30403, 40400, 110005, 110007
+## Interface: 11504, 30403, 40400, 110007, 110100
 
 ## Author: StormFX
 ## Title: Masque: Entropy
