@@ -383,12 +383,14 @@ if LibStub then
     local masqueGroup = Masque:Group(BAGANATOR_L_BAGANATOR_NAME, BAGANATOR_L_CATEGORY_BAG)
 
     addonTable.Utilities.MasqueRegistration = function(button)
-      if button.masqueApplied then
-        masqueGroup:ReSkin(button)
-      else
-        button.masqueApplied = true
-        masqueGroup:AddButton(button, nil, "Item")
-      end
+      xpcall(function()
+        if button.masqueApplied then
+          masqueGroup:ReSkin(button)
+        else
+          button.masqueApplied = true
+          masqueGroup:AddButton(button, nil, "Item")
+        end
+      end, CallErrorHandler)
     end
   end
 end

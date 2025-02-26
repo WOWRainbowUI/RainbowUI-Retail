@@ -1,7 +1,7 @@
 # Baganator
 
-## [652](https://github.com/Baganator/Baganator/tree/652) (2025-02-25)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/651...652) 
+## [653](https://github.com/Baganator/Baganator/tree/653) (2025-02-25)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/652...653) 
 
-- Update toc for 11.1.0  
-- Add scroll bar on currency panel to skins  
+- [Fixes #432] Workaround to prevent Masque bug breaking bag view  
+- [Fixes #430] Update item level widget after entering/leaving timewalking raid  
