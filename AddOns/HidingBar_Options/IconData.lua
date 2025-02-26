@@ -5,16 +5,15 @@ iconData:Hide()
 
 
 local function fillOutExtraIconsWithSpells(extraIcons, icons)
-	for i = 1, GetNumSpellTabs() do
-		local tab, tabTex, offset, numSpells = GetSpellTabInfo(i)
-		offset = offset + 1
-		local tabEnd = offset + numSpells
-		for j = offset, tabEnd - 1 do
-			local spellType, ID = GetSpellBookItemInfo(j, "player")
+	for skillLineIndex = 1, C_SpellBook.GetNumSpellBookSkillLines() do
+		local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(skillLineIndex)
+		for i = 1, skillLineInfo.numSpellBookItems do
+			local spellIndex = skillLineInfo.itemIndexOffset + i
+			local spellType, ID = C_SpellBook.GetSpellBookItemType(spellIndex, Enum.SpellBookSpellBank.Player)
 			if spellType ~= "FUTURESPELL" then
-				local fileID = GetSpellBookItemTexture(j, "player")
+				local fileID = C_SpellBook.GetSpellBookItemTexture(spellIndex, Enum.SpellBookSpellBank.Player)
 				if fileID ~= nil and not icons[fileID] then
-					local name = GetSpellBookItemName(j, "player")
+					local name = C_SpellBook.GetSpellBookItemName(spellIndex, Enum.SpellBookSpellBank.Player)
 					extraIcons[#extraIcons + 1] = {type = "spell", name = name, icon = fileID}
 					icons[fileID] = true
 				end
@@ -34,6 +33,35 @@ local function fillOutExtraIconsWithSpells(extraIcons, icons)
 							end
 						end
 					end
+				end
+			end
+		end
+	end
+end
+
+
+local function fillOutExtraIconsWithTalents(extraIcons, icons)
+	local isInspect = false
+	for specIndex = 1, GetNumSpecGroups(isInspect) do
+		for tier = 1, MAX_TALENT_TIERS do
+			for column = 1, NUM_TALENT_COLUMNS do
+				local spellID, name, icon = GetTalentInfo(tier, column, specIndex)
+				if icon ~= nil and not icons[icon] then
+					extraIcons[#extraIcons + 1] = {type = "spell", name = name, icon = icon}
+					icons[icon] = true
+				end
+			end
+		end
+	end
+
+	for pvpTalentSlot = 1, 3 do
+		local slotInfo = C_SpecializationInfo.GetPvpTalentSlotInfo(pvpTalentSlot)
+		if slotInfo ~= nil then
+			for i, pvpTalentID in ipairs(slotInfo.availableTalentIDs) do
+				local spellID, name, icon = GetPvpTalentInfoByID(pvpTalentID)
+				if icon ~= nil and not icons[icon] then
+					extraIcons[#extraIcons + 1] = {type = "spell", name = name, icon = icon}
+					icons[icon] = true
 				end
 			end
 		end
@@ -90,6 +118,7 @@ iconData:SetScript("OnShow", function(self)
 	self.extraIcons = {}
 	self.filtredIcons = {}
 	fillOutExtraIconsWithSpells(self.extraIcons, self.icons)
+	fillOutExtraIconsWithTalents(self.extraIcons, self.icons)
 	fillOutExtraIconsWithEquipment(self.extraIcons, self.icons)
 	self.icons = nil
 	sort(self.extraIcons, function(a, b)
@@ -97,7 +126,7 @@ iconData:SetScript("OnShow", function(self)
 		elseif a.type ~= "spell" and b.type == "spell" then return false end
 		return a.name < b.name
 	end)
-	tinsert(self.extraIcons, 1, {type = "other", name = HidingBarAddon.ombDefIcon, icon = 651945})
+	tinsert(self.extraIcons, 1, {type = "other", name = HidingBarAddon.ombDefIcon, icon = 450906})
 
 	-- SELECTED ICON
 	self.selectedIconBtn = CreateFrame("BUTTON", nil, self, "HidingBarAddonIconButtonTemplate")

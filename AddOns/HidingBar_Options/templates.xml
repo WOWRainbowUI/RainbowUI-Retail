@@ -521,11 +521,11 @@
 					</OnLeave>
 					<OnMouseDown>
 						if self:IsEnabled() then
-							self.texture:SetPoint("CENTER", 1, -1)
+							self.texture:SetPoint("TOPLEFT", 4, -4)
 						end
 					</OnMouseDown>
 					<OnMouseUp>
-						self.texture:SetPoint("CENTER")
+						self.texture:SetPoint("TOPLEFT", 3, -3)
 					</OnMouseUp>
 					<OnClick function="SearchBoxTemplateClearButton_OnClick"/>
 				</Scripts>
@@ -684,7 +684,12 @@
 			</Layer>
 		</Layers>
 		<NormalTexture parentKey="icon"/>
-		<HighlightTexture parentKey="highlight" file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+		<HighlightTexture atlas="UI-HUD-ActionBar-IconFrame-Mouseover" parentKey="HighlightTexture">
+			<Size x="35" y="34"/>
+			<Anchors>
+				<Anchor point="CENTER" x="1" y="0"/>
+			</Anchors>
+		</HighlightTexture>
 		<Scripts>
 			<OnDisable>self.icon:SetDesaturated(true)</OnDisable>
 			<OnEnable>self.icon:SetDesaturated()</OnEnable>
