@@ -54,6 +54,7 @@ end
 local function SortRules(searchResultID1, searchResultID2)
 	local searchResultInfo1 = C_LFGList.GetSearchResultInfo(searchResultID1);
 	local searchResultInfo2 = C_LFGList.GetSearchResultInfo(searchResultID2);
+    local activityID = searchResultInfo1.activityIDs[1]
 	-- local hasRemainingRole1 = HasRemainingSlotsForLocalPlayerRole(searchResultID1);
 	-- local hasRemainingRole2 = HasRemainingSlotsForLocalPlayerRole(searchResultID2);
     local _, appStatus1, pendingStatus1, appDuration1 = C_LFGList.GetApplicationInfo(searchResultID1);
@@ -90,12 +91,14 @@ local function SortRules(searchResultID1, searchResultID2)
         end
     end
 
-    if Settings.SortWarMode and ( searchResultInfo1.isWarMode ~= searchResultInfo2.isWarMode ) then
-        return searchResultInfo1.isWarMode == C_PvP.IsWarModeDesired();
-    end
-
     if (appStatus1 ~= appStatus2) then
         return (appStatus1 ~= "none") and (appStatus2 == "none" or appStatus1 > appStatus2)
+    end
+
+    if (activityID == 16 or activityID == 17) and Settings.SortWarMode then
+        if searchResultInfo1.isWarMode ~= searchResultInfo2.isWarMode then
+            return searchResultInfo1.isWarMode == C_PvP.IsWarModeDesired()
+        end
     end
 
     if ( searchResultInfo1.age ~= searchResultInfo2.age ) then
@@ -140,7 +143,7 @@ local function OnLFGListSearchEntryUpdate(self)
 ]]
     self.ActivityName:SetWidth(258);
     local fullName = activityInfo.fullName
-    if (searchResultInfo.isWarMode and (searchResultInfo.activityID == 16 or searchResultInfo.activityID == 17)) then
+    if (searchResultInfo.isWarMode and (searchResultInfo.activityIDs[1] == 16 or searchResultInfo.activityIDs[1] == 17)) then
         fullName = activityInfo.fullName:gsub("%((.-)%)", "(|cFFFF282E%1|r)");
     end
 
