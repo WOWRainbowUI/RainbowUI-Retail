@@ -5,9 +5,9 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1738062691,
+        timestamp = 1739650623,
         version = '11.1.0',
-        build = 58774,
+        build = 59184,
     }
 end
 
@@ -130,8 +130,8 @@ function data:GetNPCData()
         [131858] = { name = "Thornguard", count = 4 },
         [132126] = { name = "Gilded Priestess", count = 4 },
         [133345] = { name = "Feckless Assistant", count = 5 },
-        [133430] = { name = "Venture Co. Mastermind", count = 14 },
-        [133432] = { name = "Venture Co. Alchemist", count = 5 },
+        [133430] = { name = "Venture Co. Mastermind", count = 10 },
+        [133432] = { name = "Venture Co. Alchemist", count = 3 },
         [133436] = { name = "Venture Co. Skyscorcher", count = 5 },
         [133463] = { name = "Venture Co. War Machine", count = 22 },
         [133482] = { name = "Crawler Mine", count = 1 },
@@ -220,7 +220,7 @@ function data:GetNPCData()
         [136643] = { name = "Azerite Extractor", count = 16 },
         [136665] = { name = "Ashvane Spotter", count = 7 },
         [136735] = { name = "Ashvane Marine", count = 7 },
-        [136934] = { name = "Weapons Tester", count = 7 },
+        [136934] = { name = "Weapons Tester", count = 5 },
         [137029] = { name = "Ordnance Specialist", count = 5 },
         [137048] = { name = "Beguiled Villager", count = 1 },
         [137473] = { name = "Guard Captain Atu", count = 4 },
