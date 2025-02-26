@@ -2,6 +2,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale("TeleportMenu", "zhTW")
 if not L then return end
 
 L["AddonNamePrint"] = "\124cFFFF0000傳送選單:\124r " -- 1 space after the :
+L["Common:Loading"] = "載入中"
 L["Not In Combat Tooltip"] = "\124cFFFF0000<戰鬥中不可使用>\124r"
 L["Random Hearthstone"] = "隨機爐石"
 L["Random Hearthstone Tooltip"] = "\124cFF34B7EB點擊後，會隨機使用一個爐石。\n重新打開主選單時，會選擇一個新的爐石。\124r"
@@ -39,6 +40,7 @@ L["Darkheart Thicket"] = "暗心"
 L["Freehold"] = "自由"
 L["The Underrot"] = "幽腐"
 L["Mechagon"] = "機械"
+L["The MOTHERLODE!!"] = "晶喜"
 L["Waycrest Manor"] = "莊園"
 L["Atal'Dazar"] = "阿塔"
 L["Siege of Boralus"] = "圍城"
@@ -74,6 +76,7 @@ L["Cinderbrew Meadery"] = "酒莊"
 L["Priory of the Sacred Flame"] = "聖焰"
 L["Ara-Kara, City of Echoes"] = "回音"
 L["Darkflame Cleft"] = "暗焰"
+L["Operation: Floodgate"] = "水閘"
 
 -- expansion abreviated Text
 L["Cataclysm"] = "浩劫重生"
@@ -87,6 +90,9 @@ L["Dragonflight"] = "巨龍"
 L["Dragonflight Raids"] = "巨龍 團"
 L["The War Within"] = "地心"
 L["Season 1"] = "賽季1"
+L["Season 2"] = "賽季2"
+L["Season 3"] = "賽季3"
+L["Season 4"] = "賽季4"
 
 -- Mage teleport/portal abreviated text
 -- Alliance
@@ -120,7 +126,7 @@ L["Hall of the Guardian"] = "守衛廳"
 L["Dornogal"] = "多恩"
 
 -- Options
-L["Opening Options Menu"] = "打開選項選單"
+L["Opening Options Menu"] = "打開設定選單"
 L["Enabled"] = "啟用"
 L["Enable Tooltip"] = "啟用/停用 此傳送選單。"
 L["Hearthstone Toy"] = "爐石玩具"
@@ -140,6 +146,20 @@ L["%s px"] = "%s 像素"
 L["Icons Per Flyout Row"] = "彈出選單每行幾個圖示"
 L["Icons Per Flyout Row Tooltip"] = "設定彈出式選單的圖示最大數量，超過會換行。"
 L["%s icons"] = "%s 個圖示"
+L["Item Teleports"] = "物品傳送"
+L["Item Teleports Tooltip"] = "\124cFF34B7EB所有你擁有的傳送的物品\124r\n\n\124cFFFF0000陣營披風等物品需要點擊兩次！\124r"
+L["Teleports:Items:Filters:Held_Items"] = "你擁有的物品"
+L["Teleports:Items:Filters:Items_To_Be_Obtained"] = "你未擁有的物品"
 
--- 自行加入
-L["TeleportMenu"] = "傳送選單"
+-- Settings
+L["ADDON_NAME"] = "傳送選單"
+L["TITLE"] = "傳送選單設定"
+L["GENERAL"] = "一般設定"
+L["BUTTON_SETTINGS"] = "按鈕設定"
+L["TELEPORT_SETTINGS"] = "傳送設定"
+L["HEARTHSTONE_SETTINGS"] = "爐石設定"
+L["BUTTON_FONT_SIZE"] = "按鈕文字大小"
+L["BUTTON_FONT_SIZE_TOOLTIP"] = "設定圖示上面縮寫名稱的文字大小"
+L["Teleports:Items:Filters"] = "物品過濾"
+L["ABOUT_ADDON"] = "|CFFFFFFFF此插件將你可用的爐石和傳送加到 Esc 遊戲選單。\n\n可以通過鍵入 /tpm gngame 和以下命令來更改使用的爐石。\n\n如果存在問題或疑問，或者缺少傳送/爐石，請隨時在 Github 上與我聯繫。\n\n支援的物品:\n\n 爐石\n 法師傳送門/傳送門\n 工程學蟲洞\n 英雄之路傳送\n 所有職業傳送 (Zen Pilgramige, Death Gate, Astral Recall etc.)  \n\n \n\n未來計畫支援:  \n\n背包中的傳送物品 (使用、裝備)。|r"
+L["ABOUT_CONTRIBUTORS"] = "貢獻者: |CFFFFFFFF\n\n%s\n\n|r"
