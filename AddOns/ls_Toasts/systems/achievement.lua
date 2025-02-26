@@ -37,13 +37,13 @@ local function Toast_OnEnter(self)
 	end
 end
 
-local function Toast_SetUp(event, achievementID, alreadyEarned, criteriaDescription)
+local function Toast_SetUp(event, achievementID, eventArg, isCriteria) -- eventArg is alreadyEarned or criteriaString
 	local _, name, points, _, _, _, _, _, _, icon, _, isGuildAchievement = GetAchievementInfo(achievementID)
 	local toast = E:GetToast()
 
-	if criteriaDescription then
+	if isCriteria then
 		toast.Title:SetText(L["ACHIEVEMENT_PROGRESSED"])
-		toast.Text:SetText(criteriaDescription)
+		toast.Text:SetText(eventArg)
 
 		toast.IconText1:SetText("")
 	else
@@ -54,7 +54,7 @@ local function Toast_SetUp(event, achievementID, alreadyEarned, criteriaDescript
 			toast:ShowLeaves()
 		end
 
-		if alreadyEarned then
+		if eventArg then
 			toast.IconText1:SetText("")
 		else
 			if C.db.profile.colors.border then
@@ -85,19 +85,11 @@ local function Toast_SetUp(event, achievementID, alreadyEarned, criteriaDescript
 end
 
 local function ACHIEVEMENT_EARNED(achievementID, alreadyEarned)
-	if alreadyEarned and not C.db.profile.types.achievement.earned then
-		return
-	end
-
 	Toast_SetUp("ACHIEVEMENT_EARNED", achievementID, alreadyEarned)
 end
 
-local function CRITERIA_EARNED(achievementID, criteriaDescription, achievementAlreadyEarned)
-	if achievementAlreadyEarned and not C.db.profile.types.achievement.earned then
-		return
-	end
-
-	Toast_SetUp("CRITERIA_EARNED", achievementID, achievementAlreadyEarned, criteriaDescription)
+local function CRITERIA_EARNED(achievementID, criteriaString)
+	Toast_SetUp("CRITERIA_EARNED", achievementID, criteriaString, true)
 end
 
 local function Enable()
@@ -128,7 +120,6 @@ E:RegisterOptions("achievement", {
 	anchor = 1,
 	dnd = false,
 	tooltip = true,
-	earned = false,
 }, {
 	name = L["TYPE_ACHIEVEMENT"],
 	get = function(info)
@@ -162,11 +153,6 @@ E:RegisterOptions("achievement", {
 			order = 3,
 			type = "toggle",
 			name = L["TOOLTIPS"],
-		},
-		earned = {
-			order = 4,
-			type = "toggle",
-			name = L["EARNED"],
 		},
 		test = {
 			type = "execute",
