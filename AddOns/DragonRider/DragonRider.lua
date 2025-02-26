@@ -134,6 +134,82 @@ function DR.DragonRidingZoneCheck()
 	end
 end
 
+---------------------------------------------------------------------------------------------------------------
+-- DRIVE system
+---------------------------------------------------------------------------------------------------------------
+
+local DRIVE_LAST_TIME;
+local DRIVE_LAST_POS;
+local DriveUtils = {};
+
+function DriveUtils.GetPosition()
+    local map = C_Map.GetBestMapForUnit("player");
+    local pos = C_Map.GetPlayerMapPosition(map, "player");
+    local _, worldPos = C_Map.GetWorldPosFromMapPos(map, pos);
+    return worldPos;
+end
+
+function DriveUtils.GetSpeed()
+	if not IsPlayerMoving() then
+		return 0;
+	end
+
+	local currentPos = DriveUtils.GetPosition();
+	if not currentPos then
+		return 0;
+	end
+
+	if not DRIVE_LAST_POS then
+		DRIVE_LAST_POS = CreateVector2D(currentPos:GetXY());
+		return 0;
+	end
+
+	local currentTime = GetTime();
+	if not DRIVE_LAST_TIME then
+		DRIVE_LAST_TIME = currentTime;
+		return 0;
+	end
+
+	local dx, dy = Vector2D_Subtract(currentPos.x, currentPos.y, DRIVE_LAST_POS.x, DRIVE_LAST_POS.y);
+	local distance = sqrt(dx^2 + dy^2);
+	local speed = distance / (currentTime - DRIVE_LAST_TIME);
+
+	DRIVE_LAST_TIME = currentTime;
+	DRIVE_LAST_POS:SetXY(currentPos:GetXY());
+
+	return speed;
+end
+
+local DRIVE_MAX_SAMPLES = 3;
+local SPEED_SAMPLES = CreateCircularBuffer(DRIVE_MAX_SAMPLES);
+
+function DriveUtils.GetSmoothedSpeed()
+	if not IsPlayerMoving() then
+		return 0;
+	end
+
+	local currentSpeed = DriveUtils.GetSpeed();
+	SPEED_SAMPLES:PushFront(currentSpeed);
+
+	local total = 0;
+	for _, speed in SPEED_SAMPLES:EnumerateIndexedEntries() do
+		total = total + speed;
+	end
+
+	return total / SPEED_SAMPLES:GetNumElements();
+end
+
+local CAR_SPELL_ID = 460013;
+function DriveUtils.IsDriving()
+    local aura = C_UnitAuras.GetPlayerAuraBySpellID(CAR_SPELL_ID);
+    return aura and true or false;
+end
+
+---------------------------------------------------------------------------------------------------------------
+-- DRIVE system
+---------------------------------------------------------------------------------------------------------------
+
+
 DR.statusbar = CreateFrame("StatusBar", "DRStatusBar", UIParent)
 DR.statusbar:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 DR.statusbar:SetWidth(305/1.25)
@@ -421,11 +497,14 @@ end
 local DRAGON_RACE_AURA_ID = 369968;
 
 function DR.updateSpeed()
-	if not LibAdvFlight.IsAdvFlyEnabled() then
+	if not LibAdvFlight.IsAdvFlyEnabled() and not DriveUtils.IsDriving() then
 		return;
 	end
 
 	local forwardSpeed = LibAdvFlight.GetForwardSpeed();
+	if not LibAdvFlight.IsAdvFlyEnabled() then
+		forwardSpeed = DriveUtils.GetSmoothedSpeed()
+	end
 	local racing = C_UnitAuras.GetPlayerAuraBySpellID(DRAGON_RACE_AURA_ID)
 
 	local THRESHOLD_HIGH;
@@ -436,6 +515,11 @@ function DR.updateSpeed()
 	if DR.DragonRidingZoneCheck() == true or racing then
 		THRESHOLD_HIGH = 65;
 		THRESHOLD_LOW = 60;
+		MIN_BAR_VALUE = 0;
+		MAX_BAR_VALUE = 100;
+	elseif DriveUtils.IsDriving() then
+		THRESHOLD_HIGH = 100 * .55;
+		THRESHOLD_LOW = 100 * .40;
 		MIN_BAR_VALUE = 0;
 		MAX_BAR_VALUE = 100;
 	else
@@ -462,6 +546,9 @@ function DR.updateSpeed()
 
 	textColor = CreateColor(textColor.r, textColor.g, textColor.b, textColor.a);
 	local text = format("|c%s%.1f%s|r", textColor:GenerateHexColor(), DR:convertUnits(forwardSpeed), DR.useUnits());
+	if DriveUtils.IsDriving() then
+		text = format("|c%s%.0f%s|r", textColor:GenerateHexColor(), DR:convertUnits(forwardSpeed), DR.useUnits());
+	end
 	DR.glide:SetText(text);
 	DR.statusbar:SetStatusBarColor(barColor.r, barColor.g, barColor.b, barColor.a);
 
@@ -575,6 +662,10 @@ function DR.SetTheme()
 		DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (65 / 100) * DR.statusbar:GetWidth(), 5)
 		DR.tick2:SetSize(17,DR.statusbar:GetHeight()*1.5)
 		DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (60 / 100) * DR.statusbar:GetWidth(), 5)
+		if DriveUtils.IsDriving() then
+			DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (40 / 100) * DR.statusbar:GetWidth(), 5)
+			DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (55 / 100) * DR.statusbar:GetWidth(), 5)
+		end
 
 		DR.backdropL:SetAtlas("widgetstatusbar-borderleft")
 		DR.backdropR:SetAtlas("widgetstatusbar-borderright")
@@ -663,6 +754,10 @@ function DR.SetTheme()
 		DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (65 / 100) * DR.statusbar:GetWidth(), 5)
 		DR.tick2:SetSize(17,DR.statusbar:GetHeight()*1.5)
 		DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (60 / 100) * DR.statusbar:GetWidth(), 5)
+		if DriveUtils.IsDriving() then
+			DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (40 / 100) * DR.statusbar:GetWidth(), 5)
+			DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (55 / 100) * DR.statusbar:GetWidth(), 5)
+		end
 
 		DR.backdropL:SetWidth(70)
 		DR.backdropL:SetHeight(75)
@@ -698,6 +793,10 @@ function DR.SetTheme()
 		DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (65 / 100) * DR.statusbar:GetWidth(), 0)
 		DR.tick2:SetSize(1,DR.statusbar:GetHeight())
 		DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (60 / 100) * DR.statusbar:GetWidth(), 0)
+		if DriveUtils.IsDriving() then
+			DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (40 / 100) * DR.statusbar:GetWidth(), 5)
+			DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (55 / 100) * DR.statusbar:GetWidth(), 5)
+		end
 		DR.tick1:SetColorTexture(1, 1, 1, 1)
 		DR.tick2:SetColorTexture(1, 1, 1, 1)
 
@@ -740,6 +839,10 @@ function DR.SetTheme()
 		DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (65 / 100) * DR.statusbar:GetWidth(), 5)
 		DR.tick2:SetSize(17,DR.statusbar:GetHeight()*1.5)
 		DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (60 / 100) * DR.statusbar:GetWidth(), 5)
+		if DriveUtils.IsDriving() then
+			DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (40 / 100) * DR.statusbar:GetWidth(), 5)
+			DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (55 / 100) * DR.statusbar:GetWidth(), 5)
+		end
 
 		DR.backdropL:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Alliance\\Alliance_L.blp")
 		DR.backdropR:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Alliance\\Alliance_R.blp")
@@ -782,6 +885,10 @@ function DR.SetTheme()
 		DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (65 / 100) * DR.statusbar:GetWidth(), 5)
 		DR.tick2:SetSize(17,DR.statusbar:GetHeight()*1.5)
 		DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (60 / 100) * DR.statusbar:GetWidth(), 5)
+		if DriveUtils.IsDriving() then
+			DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (40 / 100) * DR.statusbar:GetWidth(), 5)
+			DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (55 / 100) * DR.statusbar:GetWidth(), 5)
+		end
 
 		DR.backdropL:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Horde\\Horde_L.blp")
 		DR.backdropR:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Horde\\Horde_R.blp")
@@ -1029,7 +1136,7 @@ DR.fadeOutBar:SetDuration(.1) -- Duration of the fade out animation
 
 -- Set scripts for when animations start and finish
 DR.fadeOutBarGroup:SetScript("OnFinished", function()
-	if LibAdvFlight.IsAdvFlying() then
+	if LibAdvFlight.IsAdvFlying() or DriveUtils.IsDriving() then
 		return
 	end
 	DR.statusbar:ClearAllPoints();
@@ -1682,14 +1789,36 @@ function DR.OnAddonLoaded()
 		LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_ENABLED, OnAdvFlyEnabled);
 		LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_DISABLED, OnAdvFlyDisabled);
 
+		local function OnDriveStart()
+			if DriveUtils.IsDriving() then
+				OnAdvFlyStart();
+			end
+		end
+
+		local function OnDriveEnd()
+			if not DriveUtils.IsDriving() then
+				OnAdvFlyEnd();
+			end
+		end
+
+		local f = CreateFrame("Frame");
+		f:SetScript("OnEvent", function(self, event, ...)
+			if event == "PLAYER_GAINS_VEHICLE_DATA" then
+				OnDriveStart();
+			elseif event == "PLAYER_LOSES_VEHICLE_DATA" then
+				OnDriveEnd();
+			end
+		end);
+		f:RegisterEvent("PLAYER_GAINS_VEHICLE_DATA");
+		f:RegisterEvent("PLAYER_LOSES_VEHICLE_DATA");
+
 		-- this will run every frame, forever :)
 		-- put anything that needs to run every frame in here
 		local function OnUpdate()
 			DR.updateSpeed();
-			RunNextFrame(OnUpdate);
 		end
 
-		OnUpdate();
+		C_Timer.NewTicker(0.1, OnUpdate);
 
 		DR.SetupVigorToolip();
 	end
