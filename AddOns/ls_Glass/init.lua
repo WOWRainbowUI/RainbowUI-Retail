@@ -82,6 +82,7 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 			if not C_AddOns.IsAddOnLoaded("InputInput") then -- InputInput 相容性修正
 				E:HandleEditBox(_G["ChatFrame" .. i .. "EditBox"])
 			end
+			E:HandleButtonFrame(_G["ChatFrame" .. i .. "ButtonFrame"], _G["ChatFrame" .. i])
 			E:HandleMinimizeButton(_G["ChatFrame" .. i .. "ButtonFrameMinimizeButton"], _G["ChatFrame" .. i .. "Tab"])
 
 			if i == 1 then
@@ -115,6 +116,7 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 					if not C_AddOns.IsAddOnLoaded("InputInput") then -- InputInput 相容性修正
 						E:HandleEditBox(_G[chatFrame:GetName() .. "EditBox"])
 					end
+					E:HandleButtonFrame(_G[chatFrame:GetName() .. "ButtonFrame"], _G[chatFrame:GetName()])
 					E:HandleMinimizeButton(_G[chatFrame:GetName() .. "ButtonFrameMinimizeButton"], _G[chatFrame:GetName() .. "Tab"])
 
 					tempChatFrames[frame] = true
@@ -205,8 +207,6 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 		AddonCompartmentFrame:RegisterAddon({
 			text = C_AddOns.GetAddOnMetadata(addonName, "Title"),
 			icon = "Interface\\AddOns\\ls_Glass\\assets\\logo-32",
-			notCheckable = true,
-			registerForAnyClick = true,
 			func = function()
 				if not InCombatLockdown() then
 					if not C.options then
