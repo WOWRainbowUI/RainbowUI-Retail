@@ -119,6 +119,7 @@ function LiteButtonAurasOverlayMixin:SetUpAction()
     end
 
     if type == 'item' then
+        LBA.buttonItemIDs[id] = true
         self.name, self.spellID = C_Item.GetItemSpell(id)
         return
     end
@@ -164,6 +165,17 @@ function LiteButtonAurasOverlayMixin:SetUpAction()
 
     self.spellID = nil
     self.name = nil
+end
+
+function LiteButtonAurasOverlayMixin:IsPlayerOrPetSpell()
+    -- This is trying to account for Pet spells as well which don't count
+    -- as IsPlayerSpell() or IsSpellKnown(). I am very much hoping this is not
+    -- super slow.
+    if C_SpellBook and C_SpellBook.FindSpellBookSlotForSpell then
+        return C_SpellBook.FindSpellBookSlotForSpell(self.spellID) ~= nil
+    else
+        return true
+    end
 end
 
 function LiteButtonAurasOverlayMixin:IsIgnoreSpell()
@@ -362,7 +374,10 @@ end
 -- https://wowpedia.fandom.com/wiki/API_GetSpellCooldown
 
 function LiteButtonAurasOverlayMixin:ReadyBefore(endTime)
-    if endTime == 0 then
+    if not self:IsPlayerOrPetSpell() then
+        -- You can have spells on your bars you don't know
+        return false
+    elseif endTime == 0 then
         -- Indefinite enrage, such as from the Raging M+ affix
         return true
     else
