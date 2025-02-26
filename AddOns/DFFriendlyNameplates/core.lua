@@ -223,7 +223,7 @@ httpsxNamePlatesSettings.closeButton:SetScript("OnClick", function(self) self:Ge
 
 httpsxNamePlatesSettings.VersionText =  httpsxNamePlatesSettings:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 httpsxNamePlatesSettings.VersionText:SetPoint("BOTTOM",  httpsxNamePlatesSettings, "BOTTOM", 0, 10)
-httpsxNamePlatesSettings.VersionText:SetText("DF Friendly Nameplates 1.0.13")
+httpsxNamePlatesSettings.VersionText:SetText("DF Friendly Nameplates 1.0.14")
 httpsxNamePlatesSettings.VersionText:SetFont(fontMain, 12, "OUTLINE")
 
 httpsxNamePlatesSettings.header = CreateFrame('Frame', nil, httpsxNamePlatesSettings, 'BackdropTemplate')
