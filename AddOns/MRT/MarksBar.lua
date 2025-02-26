@@ -367,7 +367,7 @@ do
 		
 		if i < MAX_WM_BUTTONS then
 			frame:RegisterForClicks("AnyDown", "AnyUp")
-			if ExRT.is11 then
+			if true then
 				frame:SetAttribute("type", "worldmarker")
 				frame:SetAttribute("marker", tostring(i))
 				frame:SetAttribute("action1", "set")
@@ -443,7 +443,7 @@ for i=1,MAX_WM_BUTTONS do
 
 	if i < MAX_WM_BUTTONS then
 		frame:RegisterForClicks("AnyDown", "AnyUp")
-		if ExRT.is11 then
+		if true then
 			frame:SetAttribute("type", "worldmarker")
 			frame:SetAttribute("marker", tostring(i))
 			frame:SetAttribute("action1", "set")

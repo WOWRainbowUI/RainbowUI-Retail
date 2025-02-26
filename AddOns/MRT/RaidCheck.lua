@@ -91,6 +91,9 @@ module.db.tableFlask = not ExRT.isClassic and {
 	[79471]=true,	[79470]=true,	[79472]=true,	[92731]=true,	[79469]=true,	[92729]=true,	[94160]=true,	[92730]=true,	
 	[92725]=true,
 
+	--sod
+	[1213886]=true,	[1213892]=true,	[1213901]=true,	[1213897]=true,
+	[1213904]=true,	[1213914]=true,
 }
 module.db.tableFlask_headers = ExRT.isClassic and {0,1} or {0,25,38}
 module.db.tablePotion = {
@@ -665,7 +668,7 @@ local function GetFood(checkType)
 					local spellId = auraData.spellId
 					local stats = auraData.points and auraData.points[1]
 					local foodType = module.db.tableFood[spellId]
-					if foodType or auraData.icon == 136000 then
+					if foodType or auraData.icon == 136000 or auraData.icon == 132805 or auraData.icon == 133950 then
 						local _,unitRace = UnitRace(name)
 
 						if unitRace == "Pandaren" and stats then
@@ -692,7 +695,7 @@ local function GetFood(checkType)
 						if ExRT.isClassic then
 							stats = 375
 						end
-						if auraData.icon == 136000 then
+						if auraData.icon == 136000 or auraData.icon == 132805 or auraData.icon == 133950 then
 							stats = true
 						end
 						if type(stats) ~= "number" then
@@ -2629,7 +2632,7 @@ function module.frame:UpdateData(onlyLine)
 						end
 
 						buffCount = buffCount + 1
-					elseif auraData.icon == 134062 or auraData.icon == 132805 then
+					elseif auraData.icon == 134062 or auraData.icon == 132805 or auraData.icon == 133950 then
 						line.food.texture:SetTexture(134062)
 						line.food.text:SetText("")
 					elseif auraData.icon == 136000 then

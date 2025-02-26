@@ -1168,7 +1168,7 @@ OptionsFrame.dateChecks:SetScript("OnShow",function(self)
 			isSnowDay = true
 		end
 	end
-	if (today.wday == 6 and today.day % 2 == 0) then
+	if (today.wday == 6 and today.day % 2 == 0) and not MRT.isClassic then
 		isFrierenFriday = true
 	end	
 	
