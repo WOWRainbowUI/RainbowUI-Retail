@@ -33,7 +33,7 @@ L['options_icons_worldsoul_memories_desc'] = 'Zeigt die Positionen der {object:W
 L['alunira_note'] = 'Sammle 10x {item:224025} von Gegnern auf der {location:Insel fon Dorn} und kombiniere diese zu einem {item:224026}, um den Schwächungszauber {spell:451570} zu entfernen.'
 L['violet_hold_prisoner'] = 'Gefangener der Violetten Festung'
 
-L['elemental_geode_label'] = nil
+L['elemental_geode_label'] = 'Elementargeode'
 L['magical_treasure_chest_note'] = 'Schubse {npc:223104} zurück ins Wasser und sammle dann 5x {npc:223159s} in der Nähe.'
 L['mosswool_flower_note'] = 'Berühre {npc:222956} und folge ihm.'
 L['mushroom_cap_note'] = 'Sammle eine {object:Holzwurzelkappe} in dem nahegelegenen Wald und bringe diese zu {npc:222894}.'
@@ -351,6 +351,7 @@ L['tsw_chest_4_location'] = 'Oben auf dem Balken. Springe von der Säule runter,
 L['tuk_chest_1_note'] = 'Hinter der Statue.'
 L['tuk_chest_2_note'] = '{note:Nur in den Geschichtenvariantionen "Ausreißersevolution" und "Folteropfer" verfügbar.}'
 L['tuk_chest_3_note'] = '{note:Nur in den Geschichtenvariantionen "Ausreißersevolution" und "Weberrettung" verfügbar.}'
+L['sss_chest_2_location'] = 'Über dem Metallträger.' -- review
 
 -------------------------------------------------------------------------------
 --------------------------------- SIREN ISLE ----------------------------------
@@ -361,8 +362,8 @@ L['the_drain_note'] = 'Steuere {currency:3090} dem {location:Abfluss} an der {ob
 L['shuddering_hollow_note'] = 'Steuere {currency:3090} der {location:Schauderhöhle} an der {object:Schlachtkarte der Sireneninsel} bei, damit sich diese Höhle öffnet und der seltenen Gegner erscheint.'
 
 L['vrykul_sublabel'] = '{note:Nur verfügbar, wenn sich {npc:Vrykul der Blutgischt} auf der Insel befinden.}'
-L['naga_sublabel'] = '{note:Nur verfügbar, wenn sich {npc:Naga} auf der Insel befinden.}' -- review
-L['pirate_sublabel'] = '{note:Nur verfügbar, wenn sich {npc:Piraten} auf der Insel befinden.}' -- review
+L['naga_sublabel'] = '{note:Nur verfügbar, wenn sich {npc:Naga} auf der Insel befinden.}'
+L['pirate_sublabel'] = '{note:Nur verfügbar, wenn sich {npc:Piraten} auf der Insel befinden.}'
 
 L['storm_required'] = 'Benötigt ein aktives %s auf der {location:Sireneninsel}.'
 L['slaughtershell_location'] = 'Wandert auf der gesamten {location:Sireneninsel} umher.'
@@ -379,7 +380,7 @@ L['runed_storm_chest_note'] = 'Folge dem Wind zu einer versteckten {object:Runen
 L['flame_blessed_iron_item'] = 'Bringe diesen Gegenstand für Bonus {currency:3090} zurück.'
 
 L['barnacle_encrusted_chest'] = 'Seepockenverkrustete Truhe'
-L['pilfered_earthen_chest'] = nil
+L['pilfered_earthen_chest'] = 'Geplünderte Kiste der Irdenen'
 
 L['soweezi_note'] = 'Tausche {currency:3090} gegen ein Reittier, ein Haustier, ein Spielzeug oder Ausrüstungsvorlagen ein.'
 
@@ -399,13 +400,13 @@ L['prismatic_snapdragon_note_start'] = 'Helfe im Verlauf von 10 Tagen das {npc:2
 L['prismatic_day'] = 'Tag %d'
 
 L['pris_quest_1'] = 'Ein Rettungsanker' -- https://www.wowhead.com/quest=86482/a-lifeline
-L['pris_quest_2'] = nil -- https://www.wowhead.com/ptr/quest=86483/snap-to-it
-L['pris_quest_3'] = nil -- https://www.wowhead.com/ptr/quest=86484/temper-like-a-tempest
-L['pris_quest_4'] = nil -- https://www.wowhead.com/ptr/quest=86485/a-loyal-friend
+L['pris_quest_2'] = 'Dann mal schnipp schnapp' -- https://www.wowhead.com/ptr/quest=86483/snap-to-it
+L['pris_quest_3'] = 'Das Temperament eines Unwetters' -- https://www.wowhead.com/ptr/quest=86484/temper-like-a-tempest
+L['pris_quest_4'] = 'Ein treuer Freund' -- https://www.wowhead.com/ptr/quest=86485/a-loyal-friend
 
 L['unsolved_amethyst_runelock'] = 'Ungelöstes Amethystrunenschloss'
 L['bilge_rat_supply_chest'] = 'Vorratstruhe der Bilgeratten'
-L['bilge_rat_supply_chest_note'] = nil
+L['bilge_rat_supply_chest_note'] = 'Plündere den {item:228621} von {npc:228582}, um die Truhe öffnen zu können.'
 
 L['stone_carvers_scamseax_note'] = 'Sammle den {object:Strahlender Citrin} ({dot:Yellow}), um den Stärkungszauber {spell:1216785} (2 Minuten) zu erhalten, der es dir erlaubt die {item:233834} zu plündern.'
 
@@ -567,3 +568,48 @@ L['code_label'] = '%d zu %s'
 L['orb_9_label'] = 'Kugel 9'
 
 L['ak_decryption_console_note'] = 'Zurück in der versteckten Höhle im {location:Stütznest Vosh} in {location:Azj-Kahet}.\n\nSetze deine {item:228966} auf, um eine versteckte Plattform zu offenbaren.\n\nVisiere den {npc:230383} an und verwende das {item:228996}, um die Plattform zu erreichen. Gibt den Code ein und öffne die {object:Verschlüsselte Truhe}, um das Reittier {item:229348} zu erhalten.\n\n{object:Code}: 84847078'
+
+-------------------------------------------------------------------------------
+---------------------------------- UNDERMINE ----------------------------------
+-------------------------------------------------------------------------------
+
+L['requires_ally'] = '{note:Benötigt ein Bündnis mit |cFFFFFF00{faction:%d}|r.}' -- review
+L['complete_event'] = 'Spreche mit {npc:%d} und schließe das Event ab, damit der seltene Gegner erscheint.'
+L['in_sewer'] = 'In der Kanalisation. Betrete diese durch das {object:Kanalisationgitter} in der Nähe.'
+L['and_slimesby'] = 'und {npc:230947}'
+
+L['inert_plunger_label'] = 'Inaktiver Zünder?'
+L['exploded_plunger_label'] = 'Explodierter Zünder'
+
+L['unexploded_fireworks_location'] = 'Auf dem Dach des Gebäudes.'
+L['suspicious_book_note'] = 'Im Bürcherregal ({dot:Red}) in der ersten Etage versteckt. Wenn du versuchst, das Buch einzusammeln, fliegt es zu einem anderen Bücherregal ({dot:Green}) in der zweiten Etage. Auch hier fliegt das Buch ein letztes Mal weg, wenn du versuchst, es einzusammeln, und landet auf dem Schreibtisch in der dritten Etage.'
+L['fireworks_hat_note'] = 'Versuche den Hut zu greifen, damit er vom Dach hier landet.'
+L['blackened_dice_note'] = 'Drehe das {object:Rohrventil}, damit mder Würfel scheint.'
+L['lonely_tub_note'] = 'Hebe den {object:Feuerlöscher} ({dot:Blue}) in der Nähe auf, um das Feuer der {object:Einsame Wanne} zu löschen.'
+L['impotent_potable_location'] = 'Unterhalb des Stegs.'
+L['abandoned_toolbox_location'] = 'Ganz oben auf dem Dach des {location:Der Schrottladen}.\n\nNimm die Treppen nach oben.'
+L['trick_deck_of_cards_location'] = 'Auf dem Tisch neben {npc:231045} im {location:Hotel Inkontinental}.'
+
+L['ditty_fuzeboy_note'] = 'Tausche {item:234741} gegen Haustiere ein.'
+L['angelo_rustbin_note'] = 'Tausche {currency:3220} gegen Haustiere und {object:99-G-Genickbrecher} Anpassungen ein.'
+
+L['options_icons_nine_tenths'] = '{achievement:40948}'
+L['options_icons_nine_tenths_desc'] = 'Zeigt die Positionen von {object:Muffs Selbstschließern} für den Erfolg {achievement:40948} an.'
+L['muffs_auto_locker_label'] = 'Muffs Selbstschließer'
+L['muffs_auto_locker_note'] = 'Sammle alle Gorillionteile und schließe die Quest {quest:87406} ab, um {item:232843} zu erhalten.' -- review
+L['muffs_auto_locker_suffix'] = 'Muffs Selbstschließer geöffnet'
+
+L['options_icons_between_the_lines'] = '{achievement:41588}'
+L['options_icons_between_the_lines_desc'] = 'Zeigt die Positionen der Geschichtsbücher für den Erfolg {achievement:41588} an.'
+L['a_threatening_letter_location'] = 'Auf der unteren Etage der {location:Dampfdrucklabore}, unter der Treppe.'
+L['gallywixs_notes_location'] = 'Auf einem Tisch im hinteren Teil des {location:Der Hortraum}.'
+
+L['options_icons_can_do_attitude'] = '{achievement:41589}'
+L['options_icons_can_do_attitude_desc'] = 'Zeigt mögliche Positionen der {npc:237103} für den Erfolg {achievement:41589} an.'
+L['discarded_can_label'] = '{npc:237103}'
+L['discarded_can_note'] = 'Kick die {npc:237103} herum.'
+L['discarded_can_suffix'] = 'Dosen herumgekickt'
+
+L['options_icons_scrap_rewards'] = 'S.C.H.R.O.T.T.-Haufen'
+L['options_icons_scrap_rewards_desc'] = 'Zeigt die Belohnungen für {object:S.C.H.R.O.T.T.-Haufen} an.' -- review
+L['scrap_heap_suffix'] = 'S.C.H.R.O.T.T.-Aufträge abgeschlossen.'
