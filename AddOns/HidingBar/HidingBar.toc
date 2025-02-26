@@ -1,12 +1,29 @@
 ## Interface: 110007, 110100
 ## Title: HidingBar
 ## Author: sfmict
-## Version: v11.0.14
+## Version: v11.1.0
 ## IconTexture: Interface\AddOns\HidingBar\media\icon
 ## Notes: Convenient hiding panel
+## Notes-esES: Panel de ocultación conveniente
+## Notes-esMX: Panel de ocultación conveniente
+## Notes-frFR: Panneau de dissimulation pratique
+## Notes-ptBR: Painel de ocultação conveniente
+## Notes-ruRU: Удобная скрывающаяся панель
+## Category-enUS: User Interface
+## Category-deDE: Benutzerinterface
+## Category-esES: Interfaz de usuario
+## Category-esMX: Interfaz de usuario
+## Category-frFR: Interface utilisateur
+## Category-itIT: Interfaccia utente
+## Category-koKR: 사용자 인터페이스
+## Category-ptBR: Interface do usuário
+## Category-ruRU: Интерфейс пользователя
+## Category-zhCN: 用户界面
+## Category-zhTW: 使用者介面
 ## SavedVariables: HidingBarDB
 ## SavedVariablesPerCharacter: HidingBarDBChar
-## OptionalDeps: Masque
+## OptionalDeps: LibStub, CallbackHandler-1.0, LibDataBroker-1.1, LibDBIcon-1.0, LibSharedMedia-3.0, Masque
+embeds.xml
 
 ## Title-zhTW: |cff4DFF4D[地圖]|r 小地圖按鈕整合
 ## Notes-zhTW: HidingBar |n|n將小地圖周圍的按鈕，整合成一個彈出式按鈕選單!|n可以自訂按鈕選單的位置、樣式和將按鈕分組。|n|n|cffffd200使用方法：|r從Esc>選項>插件>小地圖-按鈕，進行設定。
