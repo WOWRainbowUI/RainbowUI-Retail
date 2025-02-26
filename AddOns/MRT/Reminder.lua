@@ -16,14 +16,13 @@ local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
 local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 
 local senderVersion = 4
-local addonVersion = 60
+local addonVersion = 62
 
 local options = module.options
 
 --[[
 todo:
 second activation
-send history after pull
 ]]
 
 module.db.timers = {}
@@ -2667,7 +2666,7 @@ function options:Load()
 	end
 
 	function options:GetZoneName(zoneID)
-		local name = VMRT.Reminder2.zoneNames[zoneID] or "Zone ID "..(zoneID)
+		local name = GetRealZoneText(zoneID) or VMRT.Reminder2.zoneNames[zoneID] or "Zone ID "..(zoneID)
 		local journalInstance = ExRT.GDB.MapIDToJournalInstance[zoneID]
 		if journalInstance and EJ_GetInstanceInfo then
 			name = EJ_GetInstanceInfo(journalInstance) or name
@@ -3252,108 +3251,7 @@ function options:Load()
 		end
 	end
 
-	function options.timeLine:CreateCustomTimelineFromHistory(fight)
-		local data = {}
-
-		local var = {spell = {}, aura = {}}
-
-		local function add(spell,spellType,time,dur,cast)
-			if data[spell] and data[spell].spellType == 2 and spellType == 1 then
-				data[spell] = {spellType = spellType}
-			end
-			if data[spell] and data[spell].spellType ~= spellType then
-				return
-			end
-			if not data[spell] then 
-				data[spell] = {spellType = spellType} 
-			end
-			local r = time
-			if dur or cast then r = {r} end
-			if dur then r.d = dur end
-			if cast then r.c = cast end
-			data[spell][ #data[spell]+1 ] = r
-		end
-
-		local start = fight[1] and fight[1][1]
-		local isChallenge = fight[1] and fight[1][2] == 22
-		for i=1,#fight do
-			local hline = fight[i]
-			if hline[2] == 1 and false then
-				if 
-				 (hline[3] == "SPELL_CAST_SUCCESS" or hline[3] == "SPELL_CAST_START") or
-				 (hline[3] == "SPELL_AURA_APPLIED" or hline[3] == "SPELL_AURA_REMOVED")
-				then
-					local spell = hline[12]
-					if not data[spell] then data[spell] = {} end
-					data[spell][ #data[spell]+1 ] = hline[1] - start
-				end
-			elseif hline[2] == 1 then
-				if hline[3] == "SPELL_CAST_START" then
-					var.spell[#var.spell+1] = hline
-				elseif hline[3] == "SPELL_CAST_SUCCESS" then
-					local s, cast, dur = hline[1] - start
-					for j=#var.spell,1,-1 do
-						if var.spell[j][4] == hline[4] and var.spell[j][12] == hline[12] then
-							cast = hline[1]-var.spell[j][1]
-							if cast >= 10 then
-								--dur, cast = cast
-								--s = var.spell[j][1] - start
-							end
-							if cast > 10 then
-								cast = nil
-							end
-							tremove(var.spell,j)
-							break
-						end
-					end
-					add(hline[12],1,s,dur,cast)
-				elseif hline[3] == "SPELL_AURA_APPLIED" then
-					var.aura[#var.aura+1] = hline
-				elseif hline[3] == "SPELL_AURA_REMOVED" then
-					local s, dur = hline[1] - start
-					for j=1,#var.aura do
-						if var.aura[j][4] == hline[4] and var.aura[j][8] == hline[8] and var.aura[j][12] == hline[12] then
-							dur = hline[1]-var.aura[j][1]
-							s = var.aura[j][1] - start
-							tremove(var.aura,j)
-							break
-						end
-					end
-					add(hline[12],2,s,dur)
-				end
-			elseif hline[2] == 2 and not isChallenge then
-				if (hline[1] - start) > 2 then	--filter stage on pull
-					if not data.p then data.p = {n={}} end
-					data.p[ #data.p+1 ] = hline[1] - start
-					data.p.n[ #data.p ] = tonumber(hline[3] or "-")
-				end
-			elseif hline[2] == 3 and isChallenge then
-				if not data.p then data.p = {n={}} end
-				data.p[ #data.p+1 ] = hline[1] - start
-				data.p.n[ #data.p ] = -hline[3]
-			elseif hline[2] == 0 and isChallenge then
-				if not data.p then data.p = {n={}} end
-				data.p[ #data.p+1 ] = hline[1] - start
-				data.p.n[ #data.p ] = 0
-			end
-		end
-		--for i=1,#var.spell do add(var.spell[i][12],1,var.spell[i][1] - start) end
-		--for i=1,#var.aura do add(var.aura[i][12],2,var.aura[i][1] - start) end
-		for _,list in pairs(data) do
-			sort(list,function(a,b)
-				if type(a) == type(b) and type(a) == "table" then
-					return a[1] < b[1]
-				elseif type(a) == type(b) then
-					return a < b
-				elseif type(a) == "table" then
-					return a[1] < b
-				else
-					return a < b[1]
-				end
-			end)
-		end
-		return data
-	end
+	options.timeLine.CreateCustomTimelineFromHistory = module.CreateCustomTimelineFromHistory
 
 	options.timeLine.historyImportWindow, options.timeLine.historyExportWindow = ExRT.F.CreateImportExportWindows()
 	options.timeLine.historyImportWindow:SetFrameStrata("FULLSCREEN")
@@ -3454,23 +3352,6 @@ function options:Load()
 			options.timeLine.BOSS_ID = arg1
 			options.timeLine.CUSTOM_TIMELINE = arg4.tl
 			VMRT.Reminder2.TLBoss = arg4.id
-			--[[
-			if IsShiftKeyDown() and IsAltKeyDown() then
-				local data = self.data
-				if data.subMenu then
-					for j=1,#data.subMenu do
-						if type(data.subMenu[j].arg4)=="table" then
-							if data.subMenu[j].arg4 ~= arg4 and not options.timeLine.CUSTOM_TIMELINE_CMP then
-								options.timeLine.CUSTOM_TIMELINE_CMP = data.subMenu[j].arg4.tl
-								print('added for comparsion',data.subMenu[j].text)
-							elseif data.subMenu[j].arg4 == arg4 then
-								print('main fight',data.subMenu[j].text)
-							end
-						end
-					end
-				end
-			end
-			]]
 		elseif arg3 == 4 then
 			options.timeLine.ZONE_ID = arg1
 			options.timeLine.CUSTOM_TIMELINE = arg4 and arg4.tl
@@ -3498,6 +3379,35 @@ function options:Load()
 				end
 			end
 		end
+	end
+
+	local SORT_DUNG_LIST = {
+		[2661] = 2,
+		[2651] = 2,
+		[2097] = 2,
+		[2649] = 2,
+		[2773] = 2,
+		[2648] = 2,
+		[1594] = 2,
+		[2293] = 2,
+	}
+
+	function options:GetHistoryTimelineString()
+		local t = {}
+		for _, h_key in pairs({"history","historySession"}) do
+			local sepAdded
+			for i=1,#module.db[h_key] do
+				local fight = module.db[h_key][i]
+
+				local timelineData = options.timeLine:CreateCustomTimelineFromHistory(fight)
+				t[#t+1] = timelineData
+			end
+		end
+
+		local strlist = ExRT.F.TableToText(t)
+		local str = table.concat(strlist)
+
+		return str
 	end
 
 	function self.timeLineBoss:PreUpdate()
@@ -3584,6 +3494,35 @@ function options:Load()
 			end
 		end
 
+		if module.db.historyTL then
+			if #subMenu > 0 then
+				subMenu[#subMenu+1] = {
+					text = " ",
+					isTitle = true,
+				}
+			end
+			local syncSubMenu = {}
+			subMenu[#subMenu+1] = {
+				text = "Synced history",
+				subMenu = syncSubMenu,
+			}
+			for i=1,#module.db.historyTL do
+				local data = module.db.historyTL[i]
+				local bossID = data.bossID or 0
+				local text = ExRT.L.bossName[bossID]..(data.len and format(" %d:%02d",data.len/60,data.len%60) or "")
+				local boss_list = {
+					text = text,
+					arg1 = bossID,
+					arg2 = text,
+					arg3 = 3,
+					arg4 = {tl = data[1],id = bossID},
+					tooltip = data.player,
+					func = self.SetValue,
+				}
+				syncSubMenu[#syncSubMenu+1] = boss_list
+			end
+		end
+
 		if #subMenu == 0 then
 			subMenu[#subMenu+1] = {
 				text = L.ReminderRecordsYet,
@@ -3601,6 +3540,7 @@ function options:Load()
 				ELib:DropDownClose()
 
 				local str = options:GetHistoryString()
+				--local str = options:GetHistoryTimelineString()
 
 				local compressed
 				if #str < 1000000 then
@@ -3670,6 +3610,7 @@ function options:Load()
 						local text = GetMapNameByID(zone[1])
 
 						local zoneImg
+						local zoneMapID
 						local ej_bossID = ExRT.GDB.encounterIDtoEJ[bossID]
 						if ej_bossID and EJ_GetEncounterInfo then
 							local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, instanceID = EJ_GetEncounterInfo(ej_bossID)
@@ -3677,10 +3618,11 @@ function options:Load()
 								local name, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID, link, shouldDisplayDifficulty, mapID = EJ_GetInstanceInfo(journalInstanceID)
 								zoneImg = buttonImage1
 								text = name or text
+								zoneMapID = mapID
 							end
 						end
 
-						toadd = {text = text, arg3 = zone[1], subMenu = {}, zonemd = zone, prio = 40000+zone[1], icon = zoneImg}
+						toadd = {text = text, arg3 = zone[1], subMenu = {}, zonemd = zone, prio = 40000+zone[1]+(zoneMapID and SORT_DUNG_LIST[ zoneMapID ] and SORT_DUNG_LIST[ zoneMapID ]*5000 or 0), icon = zoneImg}
 						if not isDung then
 							self.List[#self.List+1] = toadd
 						else
@@ -3719,7 +3661,7 @@ function options:Load()
 			if isZone then
 				boss_list.arg1 = -bossID
 				boss_list.arg3 = 4
-				local name = VMRT.Reminder2.zoneNames[-bossID] or "Zone ID "..(-bossID)
+				local name = GetRealZoneText(zoneID) or VMRT.Reminder2.zoneNames[-bossID] or "Zone ID "..(-bossID)
 				local journalInstance = ExRT.GDB.MapIDToJournalInstance[-bossID]
 				if journalInstance and EJ_GetInstanceInfo then
 					local iname = EJ_GetInstanceInfo(journalInstance)
@@ -3729,7 +3671,7 @@ function options:Load()
 				end
 				boss_list.text = name
 				boss_list.arg2 = name
-				boss_list.prio = -10000-bossID
+				boss_list.prio = -100000-bossID+(SORT_DUNG_LIST[-bossID] and SORT_DUNG_LIST[-bossID]*5000 or 0)
 			end
 			if not (boss_list.text == "" and ExRT.isClassic) then
 				toadd[#toadd+1] = boss_list
@@ -3743,7 +3685,7 @@ function options:Load()
 				boss_list.subMenu = subMenu
 				for i=1,#bossData do
 					local bossData_i = bossData[i]
-					local text = (bossData_i.d[1] == 4 and (PLAYER_DIFFICULTY6 or "Mythic") or bossData_i.d[1] == 3 and (PLAYER_DIFFICULTY2 or "Heroic") or bossData_i.d[1] == 2 and (PLAYER_DIFFICULTY1 or "Normal") or "") .. (bossData_i.d.k and "+"..bossData_i.d.k or "") .. " ".. module:FormatTime(bossData_i.d[2])
+					local text = (bossData_i.d[1] == 4 and (PLAYER_DIFFICULTY6 or "Mythic") or bossData_i.d[1] == 3 and (PLAYER_DIFFICULTY2 or "Heroic") or bossData_i.d[1] == 2 and (PLAYER_DIFFICULTY1 or "Normal") or "") .. (bossData_i.d.k and "+"..bossData_i.d.k or "") .. (bossData_i.d.name and " "..bossData_i.d.name or "") .. " ".. module:FormatTime(bossData_i.d[2])
 					local newEntry = {
 						arg1 = bossID,
 						arg2 = boss_list.text .. " ".. module:FormatTime(bossData_i.d[2]),
@@ -3794,6 +3736,9 @@ function options:Load()
 				sort(list.subMenu,function(a,b) return (ExRT.F.table_find(list.zonemd,a.arg1) or 0) > (ExRT.F.table_find(list.zonemd,b.arg1) or 0) end)
 			end
 		end
+		sort(listDung,function(a,b)
+			return (a.prio or 0) > (b.prio or 0) 
+		end)
 		self.List[#self.List+1] = {
 			text = L.ReminderCustom.." encounter ID",
 			func = function() ELib:DropDownClose() ExRT.F.ShowInput(L.ReminderEncounterID,function(_,id) id=tonumber(id) if not id then return end self:SetValue(id,L.bossName[id]) end,nil,true) end,
@@ -3931,6 +3876,7 @@ function options:Load()
 			module:TriggerMplusStart() 
 		else
 			module:TriggerBossPull()
+			module:TriggerBossPhase("1")
 		end
 		local timeLineData = options.timeLine:GetTimeLineData()
 		if timeLineData and not options.timeLine.ZONE_ID and timeLineData.p then
@@ -6365,7 +6311,7 @@ function options:Load()
 					line.header.cmpbg:Hide()
 				end
 
-				local color = spell_times.c or self.saved_colors[spell] or {math.random(1,100)/100,math.random(1,100)/100,math.random(1,100)/100,1}
+				local color = spell_times.color or self.saved_colors[spell] or {math.random(1,100)/100,math.random(1,100)/100,math.random(1,100)/100,1}
 				self.saved_colors[spell] = color
 				local t_c = 0
 				if not isOff then
@@ -6673,7 +6619,7 @@ function options:Load()
 		local name = L.bossName[ bossID ] or ("boss id"..bossID)
 
 		if bossID < 0 then
-			name = VMRT.Reminder2.zoneNames[-bossID] or "Zone ID "..(-bossID)
+			name = GetRealZoneText(zoneID) or VMRT.Reminder2.zoneNames[-bossID] or "Zone ID "..(-bossID)
 			local journalInstance = ExRT.GDB.MapIDToJournalInstance[-bossID]
 			if journalInstance and EJ_GetInstanceInfo then
 				name = EJ_GetInstanceInfo(journalInstance) or name
@@ -11664,7 +11610,7 @@ function options:Load()
 				local zoneData = ExRT.F.table_find3(Mdata,zoneID,"zoneID")
 				if not zoneData then
 					local journalInstance = ExRT.GDB.MapIDToJournalInstance[tonumber(zoneID)]
-					local fieldName = L.ReminderZone..(VMRT.Reminder2.zoneNames[zoneID] and ": "..VMRT.Reminder2.zoneNames[zoneID].." |cffcccccc("..zoneID..")|r" or " "..zoneID)..(currZoneID == zoneID and " |cff00ff00("..L.ReminderNow..")|r" or "")
+					local fieldName = L.ReminderZone..((GetRealZoneText(zoneID) or VMRT.Reminder2.zoneNames[zoneID]) and ": "..(GetRealZoneText(zoneID) or VMRT.Reminder2.zoneNames[zoneID]).." |cffcccccc("..zoneID..")|r" or " "..zoneID)..(currZoneID == zoneID and " |cff00ff00("..L.ReminderNow..")|r" or "")
 					if journalInstance and EJ_GetInstanceInfo then
 						local name, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID, link, shouldDisplayDifficulty, mapID = EJ_GetInstanceInfo(journalInstance)
 						if name then
@@ -11875,6 +11821,7 @@ function options:Load()
 		[2166] = 2569,	--a
 		[2232] = 2549,	--adh
 		[2292] = 2657,	--n
+		[2406] = 2769,	--lod
 	}
 
 	self.SyncButton = ELib:Button(self.tab.tabs[1],L.ReminderSend):Point("TOPLEFT",self.AddButton,"BOTTOMLEFT",0,-5):Size(100,20):OnClick(function(self)
@@ -16577,7 +16524,7 @@ function options:Load()
 	self.options_tab:SetBackdropBorderColor(0,0,0,0)
 	self.options_tab:SetBackdropColor(0,0,0,0)
 
-	self.chkLock = ELib:Check(self.options_tab.tabs[1],L.ReminderTestMode..":",false):Point(250,-10):Left(5):OnClick(function(self) 
+	self.chkLock = ELib:Check(self.options_tab.tabs[1],L.ReminderTestMode..":",false):Point(310,-10):Left(5):OnClick(function(self) 
 		frame.unlocked = self:GetChecked()
 		module:UpdateVisual()
 
@@ -16595,7 +16542,7 @@ function options:Load()
 		frameBars:SetPoint("CENTER",UIParent,"TOP",0,-250)
 	end)
 
-	self.chkDebug = ELib:Check(self.options_tab.tabs[1],"Debug mode",false):Point(450,-10):OnClick(function(self) 
+	self.chkDebug = ELib:Check(self.options_tab.tabs[1],"Debug mode",false):Point(450,-40):OnClick(function(self) 
 		module:ToggleDebugMode()
 
 		self:SetChecked(module.db.debug)
@@ -16957,8 +16904,16 @@ function options:Load()
 		end
 	end)
 
+	self.chkHistorySync = ELib:Check(self.options_tab.tabs[1],L.ReminderHistorySync..":",VMRT.Reminder2.HistorySync):Point("TOPLEFT",self.chkHistoryMPlusSessionDisabled,"BOTTOMLEFT",0,-5):Left(5):OnClick(function(self) 
+		if self:GetChecked() then
+			VMRT.Reminder2.HistorySync = true
+		else
+			VMRT.Reminder2.HistorySync = nil
+		end
+	end)
 
-	self.sliderHistoryNumSaved = ELib:Slider(self.options_tab.tabs[1],""):Size(320):Point("TOPLEFT",self.chkHistoryMPlusSessionDisabled,"BOTTOMLEFT",0,-10):Range(1,10):SetTo(VMRT.Reminder2.HistoryNumSaved or 1):SetObey(true):OnChange(function(self,event) 
+
+	self.sliderHistoryNumSaved = ELib:Slider(self.options_tab.tabs[1],""):Size(320):Point("TOPLEFT",self.chkHistorySync,"BOTTOMLEFT",0,-10):Range(1,10):SetTo(VMRT.Reminder2.HistoryNumSaved or 1):SetObey(true):OnChange(function(self,event) 
 		event = floor(event + .5)
 		VMRT.Reminder2.HistoryNumSaved = event
 		self.tooltipText = event
@@ -18035,27 +17990,51 @@ do
 		elseif remType == REM.TYPE_NAMEPLATE then
 			if params.guid then
 				if reminder.nameplateguid then
-					module:NameplateRemoveHighlight(reminder.nameplateguid)
+				--	module:NameplateRemoveHighlight(reminder.nameplateguid)
 				end
+				module:NameplateRemoveHighlight(params.guid, data.uid)
 				local frame = module:NameplateAddHighlight(params.guid,data,params)
 				if not data.copy then
 				--	reminder.nameplateguid = params.guid
 				end
-				if reminderDuration ~= 0 then
-					module.db.timers[#module.db.timers+1] = ScheduleTimer(module.NameplateRemoveHighlight, reminderDuration, module, params.guid, data.uid)
+				if reminderDuration ~= 0 and frame then
+					if not module.db.frameHLtimers then
+						module.db.frameHLtimers = {}
+					end
+					if not module.db.frameHLtimers[frame] then
+						module.db.frameHLtimers[frame] = {}
+					end
+					if module.db.frameHLtimers[frame][data.uid or 1] then
+						module.db.frameHLtimers[frame][data.uid or 1]:Cancel()
+					end
+					local t = ScheduleTimer(module.NameplateRemoveHighlight, reminderDuration, module, params.guid, data.uid)
+					module.db.frameHLtimers[frame][data.uid or 1] = t
+					module.db.timers[#module.db.timers+1] = t
 				end
 			end
 		elseif remType == REM.TYPE_RAIDFRAME then
 			if params.guid then
 				if reminder.frameguid then
-					module:FrameRemoveHighlight(reminder.frameguid)
+				--	module:FrameRemoveHighlight(reminder.frameguid)
 				end
+				module:FrameRemoveHighlight(params.guid, data.uid)
 				local frame = module:FrameAddHighlight(params.guid,data,params)
 				if not data.copy then
 				--	reminder.frameguid = params.guid
 				end
-				if reminderDuration ~= 0 then
-					module.db.timers[#module.db.timers+1] = ScheduleTimer(module.FrameRemoveHighlight, reminderDuration, module, params.guid, data.uid)
+				if reminderDuration ~= 0 and frame then
+					if not module.db.frameHLtimers then
+						module.db.frameHLtimers = {}
+					end
+					if not module.db.frameHLtimers[frame] then
+						module.db.frameHLtimers[frame] = {}
+					end
+					if module.db.frameHLtimers[frame][data.uid or 1] then
+						module.db.frameHLtimers[frame][data.uid or 1]:Cancel()
+					end
+					local t = ScheduleTimer(module.FrameRemoveHighlight, reminderDuration, module, params.guid, data.uid)
+					module.db.frameHLtimers[frame][data.uid or 1] = t
+					module.db.timers[#module.db.timers+1] = t
 				end
 			end
 		elseif remType == REM.TYPE_WA then
@@ -21046,9 +21025,12 @@ function module:FrameAddHighlight(guid,data,params)
 	module.db.frameHL[guid][data and data.uid or 1] = t
 
 	module:RaidframeUpdate(frame, guid, module.db.frameHL[guid])
+
+	return frame
 end
 
 function module:FrameRemoveHighlight(guid, uid)
+	if module.db.debug then	print('FrameRemoveHighlight',guid) end
 	local hl_data = module.db.frameHL[guid]
 	if hl_data then
 		for c_uid,data in pairs(hl_data) do
@@ -21348,6 +21330,7 @@ function module:SaveHistorySegment(ignoreFightLen)
 				tinsert(module.db.history,1,module.db.historyNow)
 			end
 		end
+		local tosend = module.db.historyNow
 		module.db.historyNow = {}
 		for i=(VMRT.Reminder2.HistoryNumSaved or 1)+1,#module.db.history do
 			module.db.history[i] = nil
@@ -21355,7 +21338,145 @@ function module:SaveHistorySegment(ignoreFightLen)
 		for i=(VMRT.Reminder2.HistoryNumSaved or 1)+1,#module.db.historySession do
 			module.db.historySession[i] = nil
 		end
+
+		if enoughLength and tosend and VMRT.Reminder2.HistorySync and IsInRaid() then
+			C_Timer.After(2,function()
+				module:SendLastHistory(tosend)
+			end)
+		end
 	end
+end
+function module:SendLastHistory(history)
+	history = history or module.db.history[1]
+	if not history then
+		return
+	end
+	local customtl,bossID,len = module:CreateCustomTimelineFromHistory(history)
+	customtl = {customtl}
+	customtl.bossID = bossID
+	customtl.len = len
+
+	local strlist = ExRT.F.TableToText(customtl)
+	local str = table.concat(strlist)
+
+	if not str or #str > 500000 then
+		return
+	end
+	local compressed = LibDeflate:CompressDeflate(str,{level = 5})
+	if not compressed then
+		return
+	end
+
+	local encoded = LibDeflate:EncodeForPrint(compressed).."##F##"
+
+	local parts = ceil(#encoded / 246)
+	for i=1,parts do
+		local msg = encoded:sub( (i-1)*246+1 , i*246 )
+		ExRT.F.SendExMsg("rmd","H\t3\t"..msg)
+	end
+end
+
+function module:CreateCustomTimelineFromHistory(fight)
+	local data = {}
+
+	local var = {spell = {}, aura = {}}
+
+	local function add(spell,spellType,time,dur,cast)
+		if data[spell] and data[spell].spellType == 2 and spellType == 1 then
+			data[spell] = {spellType = spellType}
+		end
+		if data[spell] and data[spell].spellType ~= spellType then
+			return
+		end
+		if not data[spell] then 
+			data[spell] = {spellType = spellType} 
+		end
+		local r = time
+		if dur or cast then r = {r} end
+		if dur then r.d = dur end
+		if cast then r.c = cast end
+		data[spell][ #data[spell]+1 ] = r
+	end
+
+	local start = fight[1] and fight[1][1]
+	local isChallenge = fight[1] and fight[1][2] == 22
+	for i=1,#fight do
+		local hline = fight[i]
+		if hline[2] == 1 and false then
+			if 
+			 (hline[3] == "SPELL_CAST_SUCCESS" or hline[3] == "SPELL_CAST_START") or
+			 (hline[3] == "SPELL_AURA_APPLIED" or hline[3] == "SPELL_AURA_REMOVED")
+			then
+				local spell = hline[12]
+				if not data[spell] then data[spell] = {} end
+				data[spell][ #data[spell]+1 ] = hline[1] - start
+			end
+		elseif hline[2] == 1 then
+			if hline[3] == "SPELL_CAST_START" then
+				var.spell[#var.spell+1] = hline
+			elseif hline[3] == "SPELL_CAST_SUCCESS" then
+				local s, cast, dur = hline[1] - start
+				for j=#var.spell,1,-1 do
+					if var.spell[j][4] == hline[4] and var.spell[j][12] == hline[12] then
+						cast = hline[1]-var.spell[j][1]
+						if cast >= 10 then
+							--dur, cast = cast
+							--s = var.spell[j][1] - start
+						end
+						if cast > 10 then
+							cast = nil
+						end
+						tremove(var.spell,j)
+						break
+					end
+				end
+				add(hline[12],1,s,dur,cast)
+			elseif hline[3] == "SPELL_AURA_APPLIED" then
+				var.aura[#var.aura+1] = hline
+			elseif hline[3] == "SPELL_AURA_REMOVED" then
+				local s, dur = hline[1] - start
+				for j=1,#var.aura do
+					if var.aura[j][4] == hline[4] and var.aura[j][8] == hline[8] and var.aura[j][12] == hline[12] then
+						dur = hline[1]-var.aura[j][1]
+						s = var.aura[j][1] - start
+						tremove(var.aura,j)
+						break
+					end
+				end
+				add(hline[12],2,s,dur)
+			end
+		elseif hline[2] == 2 and not isChallenge then
+			if (hline[1] - start) > 2 then	--filter stage on pull
+				if not data.p then data.p = {n={}} end
+				data.p[ #data.p+1 ] = hline[1] - start
+				data.p.n[ #data.p ] = tonumber(hline[3] or "-")
+			end
+		elseif hline[2] == 3 and isChallenge then
+			if not data.p then data.p = {n={}} end
+			data.p[ #data.p+1 ] = hline[1] - start
+			data.p.n[ #data.p ] = -hline[3]
+		elseif hline[2] == 0 and isChallenge then
+			if not data.p then data.p = {n={}} end
+			data.p[ #data.p+1 ] = hline[1] - start
+			data.p.n[ #data.p ] = 0
+		end
+	end
+	--for i=1,#var.spell do add(var.spell[i][12],1,var.spell[i][1] - start) end
+	--for i=1,#var.aura do add(var.aura[i][12],2,var.aura[i][1] - start) end
+	for _,list in pairs(data) do
+		sort(list,function(a,b)
+			if type(a) == type(b) and type(a) == "table" then
+				return a[1] < b[1]
+			elseif type(a) == type(b) then
+				return a < b
+			elseif type(a) == "table" then
+				return a[1] < b
+			else
+				return a < b[1]
+			end
+		end)
+	end
+	return data, fight[1] and fight[1][3], #fight > 1 and fight[#fight][1] - fight[1][1]
 end
 
 function module.main:ENCOUNTER_END(encounterID, encounterName, difficultyID, groupSize)
@@ -21372,34 +21493,6 @@ function module.main:ENCOUNTER_END(encounterID, encounterName, difficultyID, gro
 
 	module:ResetPrevZone()
 	module:LoadForCurrentZone()
-
-	if VMRT.Reminder2.HistoryEnabled and false then	---temp disabled
-		module.db.sendHistoryByMe = true
-		ExRT.F.ScheduleTimer(ExRT.F.SendExMsg, 0.1, "rmd","H\t2\t"..addonVersion)
-		C_Timer.After(5,function()
-			if not module.db.sendHistoryByMe then
-				return
-			end
-
-			local str = options:GetHistoryString(true)
-
-			if not str or #str > 500000 then
-				return
-			end
-			local compressed = LibDeflate:CompressDeflate(str,{level = 5})
-			if not compressed then
-				return
-			end
-
-			local encoded = "EXRTREMH1"..LibDeflate:EncodeForPrint(compressed).."##F##"
-
-			local parts = ceil(#encoded / 246)
-			for i=1,parts do
-				local msg = encoded:sub( (i-1)*246+1 , i*246 )
-				ExRT.F.SendExMsg("rmd","H\t1\t"..msg)
-			end
-		end)
-	end
 end
 
 function module:ReloadAll()
@@ -22540,6 +22633,34 @@ do
 			end
 		end
 	end
+
+	function module:ProcessTimelineHistoryTextToData(str, sender)
+		local decoded = LibDeflate:DecodeForPrint(str)
+		if not decoded then return end
+		local decompressed
+		if uncompressed then
+			decompressed = decoded
+		else
+			decompressed = LibDeflate:DecompressDeflate(decoded)
+		end
+		decoded = nil
+		if not decompressed then return end
+
+		local successful, res = pcall(ExRT.F.TextToTable,decompressed)
+		decompressed = nil
+		if successful and res then
+			if not module.db.historyTL then
+				module.db.historyTL = {}
+			end
+			res.player = sender
+			tinsert(module.db.historyTL,1,res)
+			for i=21,#module.db.historyTL do
+				module.db.historyTL[i] = nil
+			end
+
+			--print('added history from',sender)
+		end
+	end
 end
 
 
@@ -22972,34 +23093,26 @@ function module:addonMessage(sender, prefix, subprefix, arg1, ...)
 				end
 			end
 		elseif subprefix == "H" then
-			if true then return end	--temp disabled
 			if sender == ExRT.SDB.charKey then
 				return
 			end
-			if VMRT.Reminder2.disableUpdates or VMRT.Reminder2.disableHistoryUpdates or not VMRT.Reminder2.HistoryEnabled or not IsInRaid() then
+			if VMRT.Reminder2.disableUpdates or not IsInRaid() then
 				return
 			end
 
-			if tostring(arg1) == "1" then
-				if select(4,UnitPosition'player') == select(4,UnitPosition(sender)) then
-					return
-				end
-
+			if tostring(arg1) == "3" then
 				local currMsg = table.concat({...}, "\t")
-				module.db.synqHText = (module.db.synqHText or "") .. currMsg
+				if not module.db.synqHText then
+					module.db.synqHText = {}
+				end
+				module.db.synqHText[sender] = (module.db.synqHText[sender] or "") .. currMsg
 
-				if type(module.db.synqHText)=='string' and module.db.synqHText:find("##F##$") then
-					module:ProcessHistoryTextToData(module.db.synqHText:sub(1,-6), sender)
-					module.db.synqHText = nil
-				end
-			elseif tostring(arg1) == "2" then
-				local senderVer = ...
-				if senderVer and (tonumber(senderVer) or 0) > addonVersion then
-					module.db.sendHistoryByMe = false
-					return
-				end
-				if sender < ExRT.SDB.charName and senderVer and (tonumber(senderVer) or 0) >= addonVersion then
-					module.db.sendHistoryByMe = false
+				if type(module.db.synqHText[sender])=='string' and module.db.synqHText[sender]:find("##F##$") then
+					if not module.db.synqHTLast or GetTime() - module.db.synqHTLast > 2 then
+						module:ProcessTimelineHistoryTextToData(module.db.synqHText[sender]:sub(1,-6), sender)
+						module.db.synqHTLast = GetTime()
+					end
+					module.db.synqHText[sender] = nil
 				end
 			end
 		elseif subprefix == "V" then
@@ -23279,6 +23392,7 @@ function module:Test_BW(phase)
 	module.db.simrun = GetTime()
 	module:LoadReminders(bossID,-1)
 	module:TriggerBossPull()
+	module:TriggerBossPhase("1")
 	module:BigWigsRecallEncounterStartEvents()
 end
 --/run GMRT.A.Reminder2:Test_BW()
@@ -23332,6 +23446,7 @@ function module:Test_DBM(phase,boss)
 	module.db.simrun = GetTime()
 	module:LoadReminders(bossID,-1)
 	module:TriggerBossPull()
+	module:TriggerBossPhase("1")
 	module:DBMRecallEncounterStartEvents()
 end
 --/run GMRT.A.Reminder2:Test_DBM()
