@@ -1,4 +1,9 @@
-﻿11.0.30 - 29th January 2025
+﻿11.1.00 - 26th February 2025
+- Updated for game patch 11.1.0.
+- Added map reveal data for Undermine.
+- Updated map reveal data for Ringing Deeps.
+
+11.0.30 - 29th January 2025
 - PTR (11.1.0): Added the events tab for the 'Hide world map tabs' option.
 
 11.0.29 - 22nd January 2025
