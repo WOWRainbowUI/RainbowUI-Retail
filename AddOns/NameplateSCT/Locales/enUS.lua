@@ -28,6 +28,8 @@ L["Deflected"] = true
 L["Dialog"] = true
 L["Disabled"] = true
 L["Display Icon"] = true
+L["Display Icon Only"] = true
+L["Display only the icon for damage.\nWill not change Miss, Dodge, Parry, etc displays"] = true
 L["Display Off-Target Text"] = true
 L["Display Overkill"] = true
 L["Display your overkill for a target over your own nameplate"] = true
@@ -100,7 +102,7 @@ L["Show Truncated Letter"] = true
 L["Size"] = true
 L["Sizing Modifiers"] = true
 L["Small Hits Scale"] = true
-L["Spellid/Spellname seperated by line\n\nWhite hits/melee = melee"] = true
+L["Spellid/Spellname seperated by line\n\nWhite hits/melee = melee\nMiss/Parry/Dodge/etc = missed"] = true
 L["Spells"] = true
 L["Target Strata"] = true
 L["Text Formatting"] = true
