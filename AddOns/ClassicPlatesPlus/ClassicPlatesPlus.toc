@@ -7,9 +7,9 @@
 ## SavedVariables: CFG_Account_ClassicPlatesPlus
 ## SavedVariablesPerCharacter: CFG_ClassicPlatesPlus
 
-## Title-zhTW: |cff4DD2FF[頭像]|r 經典血條 Plus
+## Title-zhTW: |cff0099FF[介面]|r 經典血條 Plus
 ## Notes-zhTW: ClassicPlates Plus|r |n|n還原並美化經典版本的血條，有超清楚的個人資源條和簡單的自訂選項。|n|n|cffffd200使用方法: |r從Esc>選項>插件>血條，進行設定。
-## Category-zhTW: 介面
+## Category-zhTW: 血條
 ## IconTexture: Interface/Addons/ClassicPlatesPlus/media/icons/ClassicPlatesPlus_icon
 
 core.lua
