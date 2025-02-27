@@ -17,7 +17,8 @@ config.sound = {
 	-- 最後一首歌 (最後一行) 的結尾不要加逗號。
 	-- 每一行前面加上兩條橫線的歌曲不會播放。
 	-- "Interface/AddOns/EnhBloodlust/音樂檔案名稱.副檔名",
-	"Interface/AddOns/EnhBloodlust/music.mp3"
+	"Interface/AddOns/EnhBloodlust/music.mp3",
+	"Interface/AddOns/EnhBloodlust/music1.mp3"
 }
 
 config.soundShort = {
