@@ -1,6 +1,7 @@
 # Auctionator
 
-## [265](https://github.com/Auctionator/Auctionator/tree/265) (2025-02-25)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/264...265) 
+## [266](https://github.com/Auctionator/Auctionator/tree/266) (2025-02-26)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/265...266) 
 
-- Update tocs for retail 11.1.0 and cata 4.4.2  
+- [Fixes #1653] Cata: Full Scan: Workaround for missing FrameXML global  
+    Now uses internal item data loading code  
