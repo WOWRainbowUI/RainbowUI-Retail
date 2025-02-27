@@ -28,7 +28,7 @@ local L = Core.Locale
 local API_VERSION = 110000
 
 -- Skin Info
-local Version = "11.0.2"
+local Version = "11.1.0"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Fusion",
 	"https://www.curseforge.com/wow/addons/masque-fusion",
