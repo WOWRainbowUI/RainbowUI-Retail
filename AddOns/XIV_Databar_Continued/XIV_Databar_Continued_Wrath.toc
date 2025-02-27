@@ -15,7 +15,7 @@
 
 ## Title-zhTW: |cff0099FF[介面]|r 功能資訊列
 ## Notes-zhTW: XIV_Databar Continued |n|n在畫面最下方顯示一排遊戲功能小圖示，取代原本的微型選單和背包按鈕。還會顯示時間、耐久度、天賦、專業、兌換通貨、金錢、傳送和系統資訊等等。可以自行選擇要顯示哪些資訊、調整位置和顏色。|n|n|cffffd200使用方法: |r從Esc>選項>插件>資訊列，進行設定。
-## X-Category-zhTW: 介面
+## Category-zhTW: 介面
 ## IconTexture: Interface\Addons\XIV_Databar_Continued\icon.png
 
 ## embeds.xml

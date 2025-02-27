@@ -14,7 +14,7 @@
 
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r 血量/法力過低音效
 ## Notes-zhTW: xanSoundAlerts |n|n血量或法力/能量太低時，會發出音效來提醒。|n|cffffd200使用方法：|r從Esc>介面>插件>音效-血量/法力，進行設定。
-## X-Category-zhTW: 戰鬥
+## Category-zhTW: 戰鬥
 
 locale\enUS.lua
 locale\zhCN.lua

@@ -11,7 +11,7 @@
 
 ## Title-zhTW: |cffffffff[不要關閉]|r Ace3 共用函式庫
 ## Notes-zhTW: Lib: Ace3 |n|n大部分插件都會使用到的函式庫。|n|cffFF2D2D請千萬千萬不要關閉！|r
-## X-Category-zhTW: 系統
+## Category-zhTW: 系統
 ## DefaultState: Enabled
 
 LibStub\LibStub.lua

@@ -17,7 +17,7 @@
 
 ## Title-zhTW: |cff00FFFF[任務]|r 指南-巨龍崛起
 ## Notes-zhTW: BtWQuests: Dragonflight |n|n提供巨龍崛起的任務資料。
-## X-Category-zhTW: 任務
+## Category-zhTW: 任務
 ## IconTexture: Interface\QuestFrame\UI-QuestLog-BookIcon
 ## DefaultState: disabled
 

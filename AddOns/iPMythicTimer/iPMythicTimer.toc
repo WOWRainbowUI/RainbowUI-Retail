@@ -11,7 +11,7 @@
 
 ## Title-zhTW: |cffFF7F00[M+]|r 時間
 ## Notes-zhTW: iP Mythic+ Timer |n|n在傳奇鑰石的副本中，顯示兩箱、三箱的時間和小怪進度。|n|n|cffffd200使用方法: 拖曳框架移動位置，點小地圖按鈕打開設定。
-## X-Category-zhTW: 團隊
+## Category-zhTW: 團隊
 
 Localization\localization.lua
 Localization\localization_zhtw.lua

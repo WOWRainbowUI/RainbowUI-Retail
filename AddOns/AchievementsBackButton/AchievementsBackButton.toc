@@ -11,7 +11,7 @@
 ## Title-zhTW: |cffFFCC99[成就]|r 回上一頁
 ## Notes-zhTW: Achievements Back Button |n在成就視窗上方、成就點數右側新增返回上一頁的按鈕，方便瀏覽。
 ## IconTexture: interface\icons\misc_arrowleft
-## X-Category-zhTW: 收藏
+## Category-zhTW: 收藏
 
 main.lua
 

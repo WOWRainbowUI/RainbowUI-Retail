@@ -11,7 +11,7 @@
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 更多
 ## Notes-zhTW: Button Forge |n|n讓你可以打造出更多快捷列和按鈕。|n|n|cffffd200使用方法: |r從Esc>選項>插件>快捷列-更多，開啟快捷列製作工具。
-## X-Category-zhTW: 介面
+## Category-zhTW: 介面
 ## DefaultState: disabled
 
 Declares.lua

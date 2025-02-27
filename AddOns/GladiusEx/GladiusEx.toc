@@ -9,6 +9,6 @@
 ## Title-zhTW: |cffFF0000[PvP]|r 競技場頭像Ex
 ## Notes-zhTW: GladiusEx |n|n加強版的競技場專用單位框架，提供友方和敵方框架以及更多功能。|n|n|cffffd200使用方法: |r從 Esc>選項>插件>PvP競技場頭像Ex，進行設定。
 ## IconTexture: Interface\Icons\achievement_pvp_a_12
-## X-Category-zhTW: PvP
+## Category-zhTW: PvP
 ## DefaultState: disabled
 ## Version: 2.10.3

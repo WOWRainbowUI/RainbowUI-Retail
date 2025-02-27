@@ -9,7 +9,7 @@
 
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r MSBT捲動戰鬥文字
 ## Notes-zhTW: Mik's Scrolling Battle Text |n|n讓打怪的傷害數字和系統訊息，整齊的在角色周圍捲動。可以自訂顯示的位置、大小和要顯示哪些戰鬥文字。|n|n|cffffd200使用方法: |r從Esc>選項>插件>戰鬥-捲動文字，或輸入 /msbt 進行設定。
-## X-Category-zhTW: 戰鬥
+## Category-zhTW: 戰鬥
 ## IconTexture: Interface\Icons\ability_warrior_challange
 ## DefaultState: disabled
 

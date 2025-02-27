@@ -10,7 +10,7 @@
 ## Title-zhTW: |cffFF0000[PvP]|r 敵方技能監控 (血條)
 ## Notes-zhTW: NameplateCooldowns |n在血條上方顯示敵人的技能冷卻時間。|n|cffffd200使用方法：|r從Esc>選項>插件>PVP血條技能，進行設定。
 ## IconTexture: Interface\Icons\achievement_pvp_a_01
-## X-Category-zhTW: PvP
+## Category-zhTW: PvP
 ## DefaultState: disabled
 
 embeds.xml

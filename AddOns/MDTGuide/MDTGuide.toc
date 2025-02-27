@@ -8,7 +8,7 @@
 
 ## Title-zhTW: |cffFF7F00[M+]|r 地城規劃工具-導覽視窗
 ## Notes-zhTW: MDT Guide |n|n傳奇+ 地城規劃工具的迷你導覽視窗。|n|n|cffffd200使用方法: |r點主視窗右上角的縮小箭頭切換成迷你導覽視窗。
-## X-Category-zhTW: 團隊
+## Category-zhTW: 團隊
 ## IconTexture: Interface\AddOns\MythicDungeonTools\Textures\Nnoggie
 ## DefaultState: disabled
 ## Dependencies: MythicDungeonTools

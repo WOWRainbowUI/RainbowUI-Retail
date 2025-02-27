@@ -19,7 +19,7 @@
 
 ## Title-zhTW: |cffB973CC[物品]|r 多角色物品統計
 ## Notes-zhTW: Syndicator |n|n在物品的浮動提示資訊中顯示所有角色擁有此物品的數量。|n|n|cffffd200使用方法: |r從Esc>選項>插件>物品統計，進行設定。
-## X-Category-zhTW: 物品
+## Category-zhTW: 物品
 
 Locales.lua
 

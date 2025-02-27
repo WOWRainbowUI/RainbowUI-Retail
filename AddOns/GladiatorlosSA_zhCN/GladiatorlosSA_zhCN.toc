@@ -11,7 +11,7 @@
 
 ## Title-zhTW: |cffFF0000[PvP]|r 敵方技能監控 (語音)-中文語音
 ## Notes-zhTW: GladiatorlosSA_zhCN(Yike_Xia)|n|nGSA夏一可中文語音包插件
-## X-Category-zhTW: PvP
+## Category-zhTW: PvP
 ## IconTexture: interface\icons\spell_misc_emotionangry.blp
 ## DefaultState: disabled
 ## Dependencies: GladiatorlosSA2

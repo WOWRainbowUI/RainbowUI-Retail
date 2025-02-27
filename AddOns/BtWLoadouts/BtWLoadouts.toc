@@ -12,7 +12,7 @@
 
 ## Title-zhTW: |cffFF9900[進階]|r 快速切換
 ## Notes-zhTW: BtWLoadouts |n|n更改專精、天賦、裝備和快捷列，一次全部搞定！還可以依據不同的區域，快速切換所有設定。|n|n|cffffd200使用方法: |r點小地圖按鈕。
-## X-Category-zhTW: 進階
+## Category-zhTW: 進階
 ## IconTexture: Interface\Icons\Ability_marksmanship
 ## DefaultState: disabled
 

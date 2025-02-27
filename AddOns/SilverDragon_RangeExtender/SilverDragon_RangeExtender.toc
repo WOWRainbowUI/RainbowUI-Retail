@@ -13,7 +13,7 @@
 
 ## Title-zhTW: |cff4DFF4D[地圖]|r 稀有怪通知-偵測範圍加大
 ## Notes-zhTW: SilverDragon - Range Extender |n|n加大地圖的偵測範圍，能夠早一點看到地圖上的稀有怪。
-## X-Category-zhTW: 地圖
+## Category-zhTW: 地圖
 ## DefaultState: disabled
 
 module.xml

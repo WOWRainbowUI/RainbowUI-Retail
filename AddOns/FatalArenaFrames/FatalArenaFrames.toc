@@ -7,7 +7,7 @@
 
 ## Title-zhTW: |cffFF0000[PvP]|r 隱藏內建競技場頭像
 ## Notes-zhTW: FatalArenaFrames |n|n競技場頭像插件有時不會自動隱藏遊戲內建的競技場頭像，如果你遇到這個問題，請使用這個插件來隱藏遊戲內建的競技場頭像。
-## X-Category-zhTW: PvP
+## Category-zhTW: PvP
 ## DefaultState: disabled
 
 FatalArenaFrames.lua

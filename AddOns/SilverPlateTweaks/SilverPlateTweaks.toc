@@ -3,6 +3,6 @@
 ## Author: Lad-Lightbringer | SilverrWolf
 ## Title-zhTW: |cff0099FF[介面]|r 血條距離微調
 ## Notes-zhTW: SilverPlateTweaks |n|n自動調整血條的視野距離和堆疊時的間距。|n|n|cffFF2D2D特別注意: |r若要使用威力血條或進階介面選項插件來調整血條距離時，請先關閉這個插件。
-## X-Category-zhTW: 介面
+## Category-zhTW: 介面
 ## Version: 1.1
 SilverPlateTweaks.lua

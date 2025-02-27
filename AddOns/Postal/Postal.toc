@@ -24,7 +24,7 @@
 
 ## Title-zhTW: |cffB973CC[物品]|r 超強信箱 
 ## Notes-zhTW: Postal |n|n強化信箱功能。收件人可以快速地選擇分身，避免寄錯；一次收取所有信件，還有更多功能。
-## X-Category-zhTW: 物品
+## Category-zhTW: 物品
 
 Localization.lua
 Postal.lua

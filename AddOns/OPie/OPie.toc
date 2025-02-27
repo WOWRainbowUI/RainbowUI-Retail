@@ -23,7 +23,7 @@
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 環形
 ## Notes-zhTW: OPie |n|n按下快速鍵時顯示圓環形的技能群組，可以做為輔助的快捷列使用，十分方便!|n|n|cffffd200使用方法: |r從Esc>選項>插件>快捷列-環形，進行設定。
-## X-Category-zhTW: 介面
+## Category-zhTW: 介面
 ## DefaultState: disabled
 
 Libs\Evie.lua

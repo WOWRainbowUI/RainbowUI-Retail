@@ -15,7 +15,7 @@
 ## Title-zhTW: |cffFF9900[進階]|r 遊戲選項
 ## Notes-zhTW: Advanced Interface Options |n|n讓你可以使用一些被移除的遊戲選項，以及修改 CVars 參數值。|n|n|cffffd200使用方法: |r從Esc>選項>插件>進階選項，進行設定。
 ## DefaultState: disabled
-## X-Category-zhTW: 進階
+## Category-zhTW: 進階
 
 semlib\semlib.xml
 

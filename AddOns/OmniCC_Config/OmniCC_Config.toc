@@ -15,7 +15,7 @@
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 冷卻時間-設定選項
 ## Notes-zhTW: OmniCC Config |n|n冷卻倒數計時的設定選項。|n|n|cffffd200使用方法: |r輸入 /occ 打開設定選項。
-## X-Category-zhTW: 介面
+## Category-zhTW: 介面
 
 ## embeds.xml
 localization\localization.xml

@@ -13,7 +13,7 @@
 
 ## Title-zhTW: |cff4DFF4D[地圖]|r 稀有怪通知-地圖圖示
 ## Notes-zhTW: SilverDragon - Map Overlays |n|n在地圖上面顯示稀有怪。
-## X-Category-zhTW: 地圖
+## Category-zhTW: 地圖
 ## DefaultState: disabled
 
 module.xml

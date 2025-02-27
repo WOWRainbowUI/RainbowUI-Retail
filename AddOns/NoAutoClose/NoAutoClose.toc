@@ -24,7 +24,7 @@ libs\LibVersionCheck-1.0\LibVersionCheck-1.0.xml
 
 ## Title-zhTW: |cff0099FF[介面]|r 同時打開多個視窗
 ## Notes-zhTW: NoAutoClose |n|n打開新視窗時，讓其他視窗不會自動關閉。
-## X-Category-zhTW: 介面
+## Category-zhTW: 介面
 ## DefaultState: disabled
 
 NoAutoclose.lua

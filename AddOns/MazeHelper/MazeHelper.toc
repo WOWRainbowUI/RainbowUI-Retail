@@ -16,7 +16,7 @@
 
 ## Title-zhTW: |cffFF7F00[副本]|r 迷霧助手
 ## Notes-zhTW: Maze Helper [|cff235be8Mists of Tirna Scithe|r] |n|n幫忙快速解答特那希迷霧的猜猜看遊戲，平時也可以當作小遊戲玩來練習。|n|n|cffffd200使用方法: |r進入副本後會出現包含各種圖案的小視窗，|n你在遊戲中看到的哪個圖案，|n就點一下小視窗中相同的圖案，|n都點完了之後會幫你選出正確答案。
-## X-Category-zhTW: 團隊
+## Category-zhTW: 團隊
 
 Libraries\Load_Libraries.xml
 

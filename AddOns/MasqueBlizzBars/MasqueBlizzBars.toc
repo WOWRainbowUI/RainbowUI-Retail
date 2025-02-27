@@ -17,7 +17,7 @@
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 按鈕外觀-內建快捷列
 ## Notes-zhTW: Masque Blizzard Bars |n|n讓遊戲內建的快捷列支援按鈕外觀插件，也能更換按鈕外觀。
-## X-Category-zhTW: 介面
+## Category-zhTW: 介面
 ## DefaultState: disabled
 
 Locales\Locales.xml

@@ -11,7 +11,7 @@
 
 ## Title-zhTW: |cff00FFFF[任務]|r 追蹤清單增強
 ## Notes-zhTW: Kaliel's Tracker |n|n增強畫面右方任務追蹤清單的功能。|n|n|cffffd200使用方法: |r從Esc>選項>插件>任務-追蹤清單，進行設定和移動位置。
-## X-Category-zhTW: 任務
+## Category-zhTW: 任務
 ## DefaultState: disabled
 
 Core\Core.xml

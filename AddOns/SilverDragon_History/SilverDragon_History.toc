@@ -13,7 +13,7 @@
 
 ## Title-zhTW: |cff4DFF4D[地圖]|r 稀有怪通知-歷史記錄
 ## Notes-zhTW: SilverDragon - History |n|n顯示曾經遇過的稀有怪記錄。
-## X-Category-zhTW: 地圖
+## Category-zhTW: 地圖
 ## DefaultState: disabled
 
 module.xml

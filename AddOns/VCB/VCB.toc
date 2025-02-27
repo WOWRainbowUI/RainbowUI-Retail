@@ -11,7 +11,7 @@
 
 ## Title-zhTW: |cff0099FF[介面]|r 內建施法條增強
 ## Notes-zhTW: Voodoo |cff9ACD32Casting|r Bar |n|n幫遊戲內建的施法條加入一些巫毒魔法，顯示法術圖示、時間、延遲和施法斷點。|n|n|cffffd200使用方法: |r輸入 /vcb 打開設定選項。
-## X-Category-zhTW: 介面
+## Category-zhTW: 介面
 ## IconTexture: Interface\Icons\spell_holy_surgeoflight_shadow
 
 VCB_Zlave.xml

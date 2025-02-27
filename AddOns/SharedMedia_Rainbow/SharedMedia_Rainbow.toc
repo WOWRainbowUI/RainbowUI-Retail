@@ -7,7 +7,7 @@
 ## Version: 3.1.1-r199
 ## Author: Elkano
 ## X-Category: Miscellaneous
-## X-Category-zhTW: 進階
+## Category-zhTW: 進階
 
 ## X-Revision: 191
 ## X-Date: 2018-07-17T19:41:06Z

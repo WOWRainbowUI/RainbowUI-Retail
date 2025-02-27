@@ -24,7 +24,7 @@
 
 ## Title-zhTW: |cff0099FF[介面]|r 傳送選單
 ## Notes-zhTW: Teleport Menu |n|n在 Esc 遊戲選單旁邊顯示各種爐石/傳送法術的按鈕。
-## X-Category-zhTW: 介面
+## Category-zhTW: 介面
 
 Locales\Locales.xml
 Data\Data.xml

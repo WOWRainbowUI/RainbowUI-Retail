@@ -9,6 +9,6 @@
 
 ## Title-zhTW: |cffFF7F00[副本]|r 進度 (冒險指南)
 ## Notes-zhTW: Adventure Guide Lockouts |n|n在冒險指南中顯示副本首領和世界王的擊殺進度，方便查看否已經打過。
-## X-Category-zhTW: 團隊
+## Category-zhTW: 團隊
 
 AdventureGuideLockouts.lua

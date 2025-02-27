@@ -28,7 +28,7 @@
 
 ## Title-zhTW: |cffffffee[系統]|r 錯誤訊息袋
 ## Notes-zhTW: BugSack |n|n集中顯示錯誤訊息，避免中斷遊戲。|n|n|cffffd200使用方法: |r點小地圖按鈕的紅色小袋子查看錯誤訊息。從Esc>選項>插件>錯誤訊息，開關錯誤提示音效和進行設定。
-## X-Category-zhTW: 系統
+## Category-zhTW: 系統
 
 embeds.xml
 

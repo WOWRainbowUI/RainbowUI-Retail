@@ -22,7 +22,7 @@
 
 ## Title-zhTW: |cffFF9900[進階]|r WA技能提醒
 ## Notes-zhTW: WeakAuras 2 |n|n輕量級，但功能強大實用、全面性的技能提醒工具，會依據增益、減益和各種觸發效果顯示圖形和資訊，以便做醒目的提醒。|n|n|cffffd200使用方法: |r輸入 /wa 開啟設定。
-## X-Category-zhTW: 進階
+## Category-zhTW: 進階
 ## DefaultState: Disabled
 
 # External code + initialization

@@ -18,7 +18,7 @@
 ## Notes-zhTW: WoWGatheringNodes |n|n由 Wowhead 轉存至採集助手的資料庫。|n|n|cffffd200使用方法: |r從Esc>選項>插件>專業-採集>匯入資料>勾選草藥、採礦...等>匯入 WoWGatheringNodes，將草礦等各種採集點的資料匯入使用。
 ## Dependencies: GatherMate2
 ## DefaultState: disabled
-## X-Category-zhTW: 交易
+## Category-zhTW: 交易
 
 #Localization
 Localization\objectNames.enUS.lua

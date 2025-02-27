@@ -11,7 +11,7 @@
 
 ## Title-zhTW: |cffFF0000[PvP]|r 大型控場圖示
 ## Notes-zhTW: BigDebuffs |n|n放大控制技能的減益圖示，更容易看到。|n|n|cffffd200使用方法: |r從Esc>選項>插件>PvP 控場圖示，進行設定。
-## X-Category-zhTW: PvP
+## Category-zhTW: PvP
 ## DefaultState: disabled
 
 Locales\Locales.xml

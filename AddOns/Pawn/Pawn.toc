@@ -12,7 +12,7 @@
 
 ## Title-zhTW: |cffB973FF[裝備]|r 屬性比較
 ## Notes-zhTW: Pawn |n|n計算屬性EP值並給予裝備提升百分比的建議。|n此建議適用於大部分的情況，但因為天賦和派系的不同，所需求的屬性可能不太一樣，這時可以自訂屬性權重分數，完全符合個人需求。|n|n|cffffd200使用方法: |r滑鼠指向比較好的裝備時會顯示提升%。|n從Esc>選項>插件>裝備-比較，進行設定。
-## X-Category-zhTW: 物品
+## Category-zhTW: 物品
 ## IconTexture: Interface\Icons\achievement_garrisonfollower_levelup
 
 VgerCore\VgerCore.lua

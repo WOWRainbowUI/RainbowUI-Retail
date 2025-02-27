@@ -28,7 +28,7 @@
 ## Title-zhTW: |cff00CCFF[快捷列]|r 按鈕外觀主題-融合
 ## Notes-zhTW: Masque: Fusion|n|n較大的銀白色金屬按鈕外觀佈景主題。
 ## DefaultState: disabled
-## X-Category-zhTW: 介面
+## Category-zhTW: 介面
 
 # Locales
 Locales.lua

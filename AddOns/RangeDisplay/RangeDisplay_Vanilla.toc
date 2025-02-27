@@ -17,7 +17,7 @@
 
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r 顯示距離
 ## Notes-zhTW: RangeDisplay |n|n顯示你和目標之間的距離，包括當前目標、寵物、滑鼠指向對象。還可以依據距離遠近來設定警告音效。|n|n|cffffd200使用方法: |r從Esc>選項>插件>距離，鎖定/解鎖框架位置和進行設定。
-## X-Category-zhTW: 戰鬥
+## Category-zhTW: 戰鬥
 ## IconTexture: Interface\Icons\ability_hunter_pathfinding
 
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua

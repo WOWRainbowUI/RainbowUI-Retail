@@ -31,7 +31,7 @@
 
 ## Title-zhTW: |cffFF7F00[M+]|r 鑰石大師
 ## Notes-zhTW: |cffb09c60Key Master|r |n|n顯示你和隊友的 M+ 詳細資訊。|n|n|cffffd200使用方法: |r點小地圖按鈕。
-## X-Category-zhTW: 團隊
+## Category-zhTW: 團隊
 
 Embeds.xml
 Core\Localization\Localization.lua

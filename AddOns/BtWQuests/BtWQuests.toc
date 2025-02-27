@@ -24,7 +24,7 @@
 
 ## Title-zhTW: |cff00FFFF[任務]|r 指南
 ## Notes-zhTW: BtWQuests |n|n列出所有主線和支線任務串、需要什麼前置條件、記錄每個角色完成了哪些任務，並且可以地圖上顯示接任務的位置。|n|n要清光任務拿名望或成就時非常實用。|n|n|cffffd200使用方法: |r點小地圖按鈕。
-## X-Category-zhTW: 任務
+## Category-zhTW: 任務
 ## DefaultState: disabled
 
 Defines.lua

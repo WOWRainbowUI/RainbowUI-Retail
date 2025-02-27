@@ -21,7 +21,7 @@
 
 ## Title-zhTW: |cffFF7F00[M+]|r 地城規劃工具
 ## Notes-zhTW: Mythic Dungeon Tools |n|n幫助你計算 M+ 的小怪%，規劃出最佳拉怪路線。|n|n|cffffd200使用方法: |r點小地圖按鈕開啟主視窗。
-## X-Category-zhTW: 團隊
+## Category-zhTW: 團隊
 ## DefaultState: disabled
 
 libs\load_libs.xml

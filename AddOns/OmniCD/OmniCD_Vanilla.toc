@@ -14,7 +14,7 @@
 
 ## Title-zhTW: |cffFF7F00[副本]|r 隊友技能冷卻監控
 ## Notes-zhTW: OmniCD |n|n在隊伍框架旁顯示隊友的技能、斷法冷卻時間。PvP/PvE都適用!|n|n|cffffd200使用方法：|r從Esc>選項>插件>隊友技能監控，進行設定。
-## X-Category-zhTW: 團隊
+## Category-zhTW: 團隊
 ## DefaultState: Disabled
 
 Embeds.xml
