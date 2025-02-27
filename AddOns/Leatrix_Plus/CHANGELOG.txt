@@ -1,4 +1,7 @@
-﻿11.1.00 - 26th February 2025
+﻿11.1.01 - 26th February 2025
+- For 'Enhance tooltip', fixed the issue with anchor tooltip to cursor, cursor left or cursor right.
+
+11.1.00 - 26th February 2025
 - Updated for game patch 11.1.0.
 - For 'Media', added cinematic 'Gallywix and Xal'atath' (watch in Movies and listen in Various > Cinematics).
 
