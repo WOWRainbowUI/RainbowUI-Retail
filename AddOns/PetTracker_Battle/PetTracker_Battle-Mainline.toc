@@ -10,7 +10,7 @@
 
 ## Title-zhTW: |cff96FF73[戰寵]|r 助手-對戰介面
 ## Notes-zhTW: PetTracker Battle |n|n需要時才會載入的寵物對戰介面調整。
-## Category-zhTW: 收藏
+## Category-zhTW: 戰寵
 ## DefaultState: disabled
 
 ..\PetTracker\addons\battle\battle.xml
