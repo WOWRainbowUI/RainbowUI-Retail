@@ -161,12 +161,15 @@ function UI_SetValues(config, reason) -- Copies config data into UI widgets.  If
     -- Copy all values in "config" to "PlayerConfig" if they are different tables.
     if config ~= PlayerConfig then
         if reason == kReasons.LoadingDefault then
-            -- First, convert special kNoChange values when loading a default.
+            -- Convert special kNoChange values when loading a default.
             local specialSettings = {"FadeOut", "UserShowOnlyInCombat", "UserShowMouseLook"}
+            local firstLayerNum = findFirstEnabledLayer(config) or 1
             for i = 1, kMaxLayers do
                 for _, key in ipairs(specialSettings) do
                     if config.Layers[i][key] == kNoChange then
-                        config.Layers[i][key] = PlayerConfig.Layers[1][key]  -- Set all layers to first layer's value.
+                        -- Set all layers to the value from first enabled layer.
+                        config.Layers[i][key] = PlayerConfig.Layers[firstLayerNum][key]
+                        ----print("UI_SetValues() set layer", i, "key '"..key.."' to", config.Layers[i][key])
                     end
                 end
             end
@@ -2182,19 +2185,25 @@ function OptionsFrame_CreateDividerLine(x, y, width, height)
 end
 
 -------------------------------------------------------------------------------
-function OptionsFrame_CreateLabel(labelText, x, y, fontName)
+function OptionsFrame_CreateLabel(labelText, x, y, fontName, deltaFontSize)
     --|traceCfg("IN OptionsFrame_CreateLabel("..labelText..").")
-    local labelFrame = OptionsFrame:CreateFontString(nil, "ARTWORK", fontName or "GameFontNormal")
-    labelFrame:ClearAllPoints()
-    ----labelFrame:SetPoint("TOPRIGHT", OptionsFrame, "TOPLEFT", kFrameMargin+kColumnWidth1, y)
-    ----labelFrame:SetPoint("LEFT", OptionsFrame, "LEFT", kFrameMargin, 0)
-    labelFrame:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x, y)
-    labelFrame:SetPoint("RIGHT", OptionsFrame, "LEFT", kFrameMargin+kColumnWidth1, 0)
-    labelFrame:SetJustifyH("RIGHT")
-    labelFrame:SetWordWrap(false)
-    labelFrame:SetText(labelText)
+    fontName = fontName or "GameFontNormal"
+    local fontString = OptionsFrame:CreateFontString(nil, "ARTWORK", fontName)
+    fontString:ClearAllPoints()
+    ----fontString:SetPoint("TOPRIGHT", OptionsFrame, "TOPLEFT", kFrameMargin+kColumnWidth1, y)
+    ----fontString:SetPoint("LEFT", OptionsFrame, "LEFT", kFrameMargin, 0)
+    fontString:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x, y)
+    fontString:SetPoint("RIGHT", OptionsFrame, "LEFT", kFrameMargin+kColumnWidth1, 0)
+    fontString:SetJustifyH("RIGHT")
+    fontString:SetWordWrap(false)
+    fontString:SetText(labelText)
+
+    if deltaFontSize and deltaFontSize ~= 0 then
+        local fontFileName, fontSize = fontString:GetFont()
+        fontString:SetFont(fontFileName, fontSize+deltaFontSize)
+    end
     --|traceCfg("OUT OptionsFrame_CreateLabel("..labelText..").")
-    return labelFrame
+    return fontString
 end
 
 -------------------------------------------------------------------------------
@@ -2446,13 +2455,15 @@ function OptionsFrame_CreateShapeDropDown(x, y, width)
 
     dropdown:SetChangeHandler(  -- [ Keywords: OnSelectShape() ]
         function(self, selectedID)
-            --|traceCfg("IN dropdown:changeHandler("..(selectedID or "nil")..").")
-            local shapeFileName = selectedID
-            OptionsFrame_Value("shape", shapeFileName)
-            gLayers:getSelectedLayer():setShape( shapeFileName )
-            OptionsFrame.ProfilesUI:OnValueChanged()
-            OptionsFrame_UpdateButtonStates()
-            --|traceCfg("OUT dropdown:changeHandler("..(selectedID or "nil")..").")
+            Globals.C_Timer.After(0.01, function() -- Allow time for dropdown to close and we can get frame at mouse.
+                --|traceCfg("IN dropdown:changeHandler("..(selectedID or "nil")..").")
+                local shapeFileName = selectedID
+                OptionsFrame_Value("shape", shapeFileName)
+                gLayers:getSelectedLayer():setShape( shapeFileName )
+                OptionsFrame.ProfilesUI:OnValueChanged()
+                OptionsFrame_UpdateButtonStates()
+                --|traceCfg("OUT dropdown:changeHandler("..(selectedID or "nil")..").")
+            end)
         end
     )
 
