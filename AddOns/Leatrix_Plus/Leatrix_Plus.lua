@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.1.00 (26th February 2025)
+-- 	Leatrix Plus 11.1.01 (26th February 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.1.00"
+	LeaPlusLC["AddonVer"] = "11.1.01"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -677,7 +677,6 @@
 		or	(LeaPlusLC["FasterMovieSkip"]		~= LeaPlusDB["FasterMovieSkip"])		-- Faster movie skip
 		or	(LeaPlusLC["CombatPlates"]			~= LeaPlusDB["CombatPlates"])			-- Combat plates
 		or	(LeaPlusLC["EasyItemDestroy"]		~= LeaPlusDB["EasyItemDestroy"])		-- Easy item destroy
-		or	(LeaPlusLC["LockoutSharing"]		~= LeaPlusDB["LockoutSharing"])			-- Lockout sharing
 		or	(LeaPlusLC["SetAddtonOptions"]		~= LeaPlusDB["SetAddtonOptions"])		-- Set additional options
 		or	(LeaPlusLC["AddOptNoCombatBox"]		~= LeaPlusDB["AddOptNoCombatBox"])		-- Uncheck combat animation checkbox
 
@@ -8841,16 +8840,6 @@
 		end
 
 		----------------------------------------------------------------------
-		-- Lockout sharing
-		----------------------------------------------------------------------
-
-		-- LeaPlusLC.NewPatch - Remove in 11.1.0
-		if LeaPlusLC["LockoutSharing"] == "On" and not LeaLockList["LockoutSharing"] then
-			-- Set the social menu option (sharing will be disabled but the checkbox will be set on next reload)
-			ShowAccountAchievements(true)
-		end
-
-		----------------------------------------------------------------------
 		-- Combat plates
 		----------------------------------------------------------------------
 
@@ -8978,14 +8967,26 @@
 					LeaPlusCB["TipCursorX"]:SetScript("OnEnter", LeaPlusLC.TipSee)
 					LeaPlusCB["TipCursorY"]:SetScript("OnEnter", LeaPlusLC.TipSee)
 				end
+				-- Set world frame mouse hover events
+				if LeaPlusLC["TooltipAnchorMenu"] == 1 then
+					-- Anchor is none so disable mouse hover events for world frame
+					WorldFrame:EnableMouseMotion(false)
+				else
+					-- Anchor is cursor so enable mouse hover events for world frame
+					WorldFrame:EnableMouseMotion(true)
+				end
 			end
 
 			-- Set controls when dropdown menu is changed and on startup
-			LeaPlusCB["TooltipAnchorMenu"]:RegisterCallback("OnMenuClose", SetAnchorControls)
+			LeaPlusCB["TooltipAnchorMenu"]:RegisterCallback("OnMenuClose", function()
+				if not UnitAffectingCombat("player") then
+					SetAnchorControls()
+				end
+			end)
 			SetAnchorControls()
 
 			-- Help button hidden
-			SideTip.h:Hide()
+			SideTip.h.tiptext = L["This panel will close automatically if you enter combat."]
 
 			-- Back button handler
 			SideTip.b:SetScript("OnClick", function()
@@ -9016,37 +9017,47 @@
 
 			--	Move the tooltip
 			LeaPlusCB["MoveTooltipButton"]:SetScript("OnClick", function()
-				if IsShiftKeyDown() and IsControlKeyDown() then
-					-- Preset profile
-					LeaPlusLC["TipShowRank"] = "On"
-					LeaPlusLC["TipShowOtherRank"] = "Off"
-					LeaPlusLC["TipShowTarget"] = "On"
-					--LeaPlusLC["TipShowMythic"] = "On"
-					LeaPlusLC["TipBackSimple"] = "On"
-					LeaPlusLC["TipHideInCombat"] = "Off"; SetTipHideShiftOverrideFunc()
-					LeaPlusLC["TipHideShiftOverride"] = "On"
-					LeaPlusLC["LeaPlusTipSize"] = 1.25
-					LeaPlusLC["TooltipAnchorMenu"] = 1
-					LeaPlusLC["TipCursorX"] = 0
-					LeaPlusLC["TipCursorY"] = 0
-					SetAnchorControls()
-					LeaPlusLC:SetTipScale()
-					LeaPlusLC:SetDim()
-					LeaPlusLC:ReloadCheck()
-					SideTip:Show(); SideTip:Hide() -- Needed to update tooltip scale
-					LeaPlusLC["PageF"]:Hide(); LeaPlusLC["PageF"]:Show()
+				if LeaPlusLC:PlayerInCombat() then
+					return
 				else
-					-- Show tooltip configuration panel
-					LeaPlusLC:HideFrames()
-					SideTip:Show()
+					if IsShiftKeyDown() and IsControlKeyDown() then
+						-- Preset profile
+						LeaPlusLC["TipShowRank"] = "On"
+						LeaPlusLC["TipShowOtherRank"] = "Off"
+						LeaPlusLC["TipShowTarget"] = "On"
+						--LeaPlusLC["TipShowMythic"] = "On"
+						LeaPlusLC["TipBackSimple"] = "On"
+						LeaPlusLC["TipHideInCombat"] = "Off"; SetTipHideShiftOverrideFunc()
+						LeaPlusLC["TipHideShiftOverride"] = "On"
+						LeaPlusLC["LeaPlusTipSize"] = 1.25
+						LeaPlusLC["TooltipAnchorMenu"] = 1
+						LeaPlusLC["TipCursorX"] = 0
+						LeaPlusLC["TipCursorY"] = 0
+						SetAnchorControls()
+						LeaPlusLC:SetTipScale()
+						LeaPlusLC:SetDim()
+						LeaPlusLC:ReloadCheck()
+						SideTip:Show(); SideTip:Hide() -- Needed to update tooltip scale
+						LeaPlusLC["PageF"]:Hide(); LeaPlusLC["PageF"]:Show()
+					else
+						-- Show tooltip configuration panel
+						LeaPlusLC:HideFrames()
+						SideTip:Show()
+					end
 				end
-
 			end)
 
 			-- Hide health bar
 			if LeaPlusLC["TipNoHealthBar"] == "On" then
 				GameTooltipStatusBarTexture:SetTexture("")
 			end
+
+			-- Hide the configuration panel if combat starts (needed due to EnableMouseMotion)
+			SideTip:SetScript("OnUpdate", function()
+				if UnitAffectingCombat("player") then
+					SideTip:Hide()
+				end
+			end)
 
 			---------------------------------------------------------------------------------------------------------
 			-- Tooltip scale settings
@@ -11030,7 +11041,6 @@
 				LeaPlusLC:LoadVarChk("FasterMovieSkip", "Off")				-- Faster movie skip
 				LeaPlusLC:LoadVarChk("CombatPlates", "Off")					-- Combat plates
 				LeaPlusLC:LoadVarChk("EasyItemDestroy", "Off")				-- Easy item destroy
-				LeaPlusLC:LoadVarChk("LockoutSharing", "Off")				-- Lockout sharing
 				LeaPlusLC:LoadVarChk("NoTransforms", "Off")					-- Remove transforms
 				LeaPlusLC:LoadVarChk("SetAddtonOptions", "Off")				-- Set additional options
 				LeaPlusLC:LoadVarChk("AddOptNoCombatBox", "Off")			-- Uncheck combat animation checkbox
@@ -11174,7 +11184,7 @@
 				end
 
 				if LeaPlusLC.NewPatch then
-					LockDF("LockoutSharing", "This option is no longer available in the game.  The achievements window now always shows warband achievement points.")
+					-- LockDF("LockoutSharing", "This option is no longer available in the game.  The achievements window now always shows warband achievement points.")
 				end
 
 				-- Run other startup items
@@ -11394,7 +11404,6 @@
 			LeaPlusDB["FasterMovieSkip"] 		= LeaPlusLC["FasterMovieSkip"]
 			LeaPlusDB["CombatPlates"]			= LeaPlusLC["CombatPlates"]
 			LeaPlusDB["EasyItemDestroy"]		= LeaPlusLC["EasyItemDestroy"]
-			LeaPlusDB["LockoutSharing"] 		= LeaPlusLC["LockoutSharing"]
 			LeaPlusDB["NoTransforms"] 			= LeaPlusLC["NoTransforms"]
 			LeaPlusDB["SetAddtonOptions"] 		= LeaPlusLC["SetAddtonOptions"]
 			LeaPlusDB["AddOptNoCombatBox"] 		= LeaPlusLC["AddOptNoCombatBox"]
@@ -12520,15 +12529,6 @@
 					LeaPlusLC:Print("GetAllowLowLevelRaid: |cffffffff" .. "True")
 				else
 					LeaPlusLC:Print("GetAllowLowLevelRaid: |cffffffff" .. "False")
-				end
-				-- Show achievement sharing
-				if not LeaPlusLC.NewPatch then -- Removed in 11.1.0
-					local achhidden = AreAccountAchievementsHidden()
-					if achhidden then
-						LeaPlusLC:Print("Account achievements are hidden.")
-					else
-						LeaPlusLC:Print("Account achievements are being shared.")
-					end
 				end
 				return
 			elseif str == "move" then
@@ -14082,7 +14082,6 @@
 				LeaPlusDB["FasterMovieSkip"] = "On"				-- Faster movie skip
 				LeaPlusDB["CombatPlates"] = "On"				-- Combat plates
 				LeaPlusDB["EasyItemDestroy"] = "On"				-- Easy item destroy
-				LeaPlusDB["LockoutSharing"] = "On"				-- Lockout sharing
 				LeaPlusDB["NoTransforms"] = "On"				-- Remove transforms
 				LeaPlusDB["SetAddtonOptions"] = "On"			-- Set additional options
 				LeaPlusDB["AddOptNoCombatBox"] = "On"			-- Uncheck combat animation checkbox
@@ -14512,9 +14511,8 @@
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "FasterMovieSkip"			, 	"Faster movie skip"				,	340, -192, 	true,	"If checked, you will be able to cancel movies without being prompted for confirmation.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "CombatPlates"				, 	"Combat plates"					,	340, -212, 	true,	"If checked, enemy nameplates will be shown during combat and hidden when combat ends.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "EasyItemDestroy"			, 	"Easy item destroy"				,	340, -232, 	true,	"If checked, you will no longer need to type delete when destroying a superior quality item.|n|nIn addition, item links will be shown in all item destroy confirmation windows.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "LockoutSharing"			, 	"Lockout sharing"				, 	340, -252, 	true, 	"If checked, the 'Display only character achievements to others' setting in the game options panel ('Social' menu) will be permanently checked and locked.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoTransforms"				, 	"Remove transforms"				, 	340, -272, 	false, 	"If checked, you will be able to have certain transforms removed automatically when they are applied to your character.|n|nYou can choose the transforms in the configuration panel.|n|nExamples include Weighted Jack-o'-Lantern and Hallowed Wand.|n|nTransforms applied during combat will be removed when combat ends.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "SetAddtonOptions"			, 	"Set additional options"		, 	340, -292, 	true, 	"If checked, you will be able to set some additional options.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoTransforms"				, 	"Remove transforms"				, 	340, -252, 	false, 	"If checked, you will be able to have certain transforms removed automatically when they are applied to your character.|n|nYou can choose the transforms in the configuration panel.|n|nExamples include Weighted Jack-o'-Lantern and Hallowed Wand.|n|nTransforms applied during combat will be removed when combat ends.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "SetAddtonOptions"			, 	"Set additional options"		, 	340, -272, 	true, 	"If checked, you will be able to set some additional options.")
 
 	LeaPlusLC:CfgBtn("SetWeatherDensityBtn", LeaPlusCB["SetWeatherDensity"])
 	LeaPlusLC:CfgBtn("MuteGameSoundsBtn", LeaPlusCB["MuteGameSounds"])
