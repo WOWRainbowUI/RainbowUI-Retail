@@ -1,3 +1,9 @@
+Version 1.36
+
+- Fix zooming to current pull when using enemy forces mode or when auto-hiding is enabled
+- Adjust preset selection dropdown width to make the settings button visible
+- Hide dungeon selection buttons in guide mode
+
 Version 1.35
 
 - Updated for patch 11.0.5
