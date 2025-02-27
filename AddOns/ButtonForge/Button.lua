@@ -122,7 +122,7 @@ end
 
 function Button.CreateButtonWidget(Parent)
 	local Name = Const.ButtonNaming..Const.ButtonSeq;
-	local Widget = CreateFrame("CheckButton", Name, Parent, "SecureActionButtonTemplate, ActionButtonTemplate");
+	local Widget = CreateFrame("CheckButton", Name, Parent, "ActionButtonTemplate, SecureActionButtonTemplate");
 	Widget.TextOverlayContainer:SetFrameLevel(Widget:GetFrameLevel() + 1)
 	Const.ButtonSeq = Const.ButtonSeq + 1;
 	Widget:SetAttribute("checkselfcast", true);
