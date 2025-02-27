@@ -1,4 +1,5 @@
 ﻿## Interface: 11505, 30403, 40401, 110007, 110100
+## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Media|r|cffffe00a>|r |cff69ccf0Voicepack Saha Jh|r
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Media|r|cffffe00a>|r |cff69ccf0家豪語音包|r
 ## Notes-zhTW: 你好，我是家豪，搭配主程式DBM使用，我就能提醒你副本該注意的地方，啾咪。
