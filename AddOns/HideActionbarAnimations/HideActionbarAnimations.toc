@@ -5,7 +5,7 @@
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 隱藏動畫特效
 ## Notes-zhTW: HideActionbarAnimations |n|n不要顯示快捷列新的施法讀條效果和完成閃光動畫。
-## Category-zhTW: 介面
+## Category-zhTW: 快捷列
 ## DefaultState: disabled
 ## Version: 2.6
 

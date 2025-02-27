@@ -14,7 +14,7 @@
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 冷卻時間
 ## Notes-zhTW: OmniCC |n|n所有東西的冷卻倒數計時，冷卻完畢會顯示動畫效果提示。|n|n|cffffd200使用方法: |r輸入 /occ 打開設定選項。
-## Category-zhTW: 介面
+## Category-zhTW: 快捷列
 
 ## embeds.xml
 localization\localization.xml
