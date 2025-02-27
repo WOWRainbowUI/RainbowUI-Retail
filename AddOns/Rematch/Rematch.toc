@@ -2,10 +2,21 @@
 ## Title: Rematch
 ## Notes: A pet journal alternative for managing pets and teams
 ## Author: Gello
-## Version: 5.2.6
+## Version: 5.2.7
 ## SavedVariables: Rematch5Settings, Rematch5SavedTeams, Rematch5SavedGroups, Rematch5SavedTargets, Rematch4Saved, Rematch4Settings, RematchSaved, RematchSettings
 ## IconTexture: Interface\AddOns\Rematch\textures\icon
 ## AddonCompartmentFunc: RematchToggleWindow
+## Category-enUS: Pet Battles
+## Category-deDE: Haustierkämpfe
+## Category-esES: Duelos de mascotas
+## Category-esMX: Duelos de mascotas
+## Category-frFR: Combats de mascottes
+## Category-itIT: Mostra allenatori di mascotte
+## Category-koKR: 애완동물 대전
+## Category-ptBR: Batalhas de mascotes
+## Category-ruRU: Битвы питомцев
+## Category-zhCN: 宠物对战
+## Category-zhTW: 寵物對戰
 
 ## Title-zhTW: |cff96FF73[戰寵]|r 寵物再戰
 ## Notes-zhTW: Rematch |n|n寵物日誌介面增強，可以儲存對戰隊伍，對戰時快速載入隊伍，管理和升級戰寵更方便。

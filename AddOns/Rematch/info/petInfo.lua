@@ -434,11 +434,11 @@ function funcs:Breed()
                 breedID = BPBID_Internal.breedCache[self.battleIndex + (self.battleOwner==2 and 3 or 0)]
             end
         elseif source=="PetTracker" then
-            if idType=="pet" then
+            if idType=="pet" and PetTracker and PetTracker.Pet then
                 breedID = PetTracker.Pet(self.petID):GetBreed()
-            elseif idType=="link" then
+            elseif idType=="link" and PetTracker and PetTracker.Predict then
                 breedID = PetTracker.Predict:Breed(self.speciesID,self.level,self.rarity,self.maxHealth,self.power,self.speed)
-            elseif idType=="battle" and PetTracker.Battle then
+            elseif idType=="battle" and PetTracker and PetTracker.Battle then
                 breedID = PetTracker.Battle(self.battleOwner,self.battleIndex):GetBreed()
             end
         end
