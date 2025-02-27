@@ -24,7 +24,7 @@
 
 ## Title-zhTW: |cffFFFF99[專業]|r 採集助手
 ## Notes-zhTW: GatherMate2 |n|n採草、挖礦、釣魚的好幫手。收集草、礦、考古學、寶藏和釣魚的位置，在世界地圖和小地圖上顯示採集點的位置。|n|n|cffffd200使用方法: |r從Esc>選項>插件>專業-採集，進行設定。
-## Category-zhTW: 交易
+## Category-zhTW: 專業
 ## DefaultState: disabled
 
 Locales\GatherMate2-enUS.lua
