@@ -29,7 +29,7 @@ local API_VERSION = 110000
 
 -- Skin Info
 local Authors = {"StormFX", "|cff999999Sairen|r"}
-local Version = "11.0.2"
+local Version = "11.1.0"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Serenity",
 	"https://www.curseforge.com/wow/addons/masque-serenity",
