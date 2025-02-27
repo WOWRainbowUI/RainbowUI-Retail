@@ -845,6 +845,8 @@ Note: This trigger will use BigWigs or DBM, in that order if both are installed.
 L["No Extend"] = "Sin extender"
 L["No Instance"] = "Fuera de Instancia"
 L["No Profiling information saved."] = "No hay información de perfil guardada."
+--[[Translation missing --]]
+L["No Progress Information available."] = "No Progress Information available."
 L["None"] = "Nada"
 L["Non-player Character"] = "Personaje No Jugador"
 L["Normal"] = "Normal"
@@ -1032,6 +1034,8 @@ L["Reagent Quality Texture"] = "Textura de calidad de componente"
 L["Realm"] = "Reino"
 L["Realm Name"] = "Nombre de reino"
 L["Realm of Caster's Target"] = "Reino del objetivo del lanzador"
+--[[Translation missing --]]
+L["Receiving %s Bytes"] = "Receiving %s Bytes"
 L["Receiving display information"] = "Recibiendo información de aura de %s..."
 L["Reflect"] = "Reflejar"
 L["Region type %s not supported"] = "No se admite el tipo de región %s"

@@ -1418,6 +1418,8 @@ L["No Instance"] = "No Instance"
 --[[Translation missing --]]
 L["No Profiling information saved."] = "No Profiling information saved."
 --[[Translation missing --]]
+L["No Progress Information available."] = "No Progress Information available."
+--[[Translation missing --]]
 L["None"] = "None"
 --[[Translation missing --]]
 L["Non-player Character"] = "Non-player Character"
@@ -1791,6 +1793,8 @@ L["Realm"] = "Realm"
 L["Realm Name"] = "Realm Name"
 --[[Translation missing --]]
 L["Realm of Caster's Target"] = "Realm of Caster's Target"
+--[[Translation missing --]]
+L["Receiving %s Bytes"] = "Receiving %s Bytes"
 --[[Translation missing --]]
 L["Receiving display information"] = "Receiving display information"
 --[[Translation missing --]]

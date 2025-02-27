@@ -1326,6 +1326,8 @@ L["No Extend"] = "No Extend"
 L["No Instance"] = "Keine Instanz"
 --[[Translation missing --]]
 L["No Profiling information saved."] = "No Profiling information saved."
+--[[Translation missing --]]
+L["No Progress Information available."] = "No Progress Information available."
 L["None"] = "Keine(r)"
 L["Non-player Character"] = "Nicht-Spieler-Charakter (NPC)"
 L["Normal"] = "Normal"
@@ -1639,6 +1641,8 @@ L["Realm"] = "Realm"
 L["Realm Name"] = "Realm Name"
 --[[Translation missing --]]
 L["Realm of Caster's Target"] = "Realm of Caster's Target"
+--[[Translation missing --]]
+L["Receiving %s Bytes"] = "Receiving %s Bytes"
 L["Receiving display information"] = "Erhalte Anzeigeinformationen von %s"
 L["Reflect"] = "Reflektieren (REFLECT)"
 L["Region type %s not supported"] = "Regiontyp %s wird nicht unterstützt"

@@ -876,6 +876,8 @@ Note: This trigger will use BigWigs or DBM, in that order if both are installed.
 L["No Extend"] = "Без расширения"
 L["No Instance"] = "Не в подземелье (instance)"
 L["No Profiling information saved."] = "Нет данных профилирования."
+--[[Translation missing --]]
+L["No Progress Information available."] = "No Progress Information available."
 L["None"] = "Нет"
 L["Non-player Character"] = "Неигровой персонаж (NPC)"
 L["Normal"] = "Обычный"
@@ -1063,6 +1065,8 @@ L["Reagent Quality Texture"] = "Текстура качества реагент
 L["Realm"] = "Игровой мир"
 L["Realm Name"] = "Название игрового мира"
 L["Realm of Caster's Target"] = "Игровой мир цели заклинателя"
+--[[Translation missing --]]
+L["Receiving %s Bytes"] = "Receiving %s Bytes"
 L["Receiving display information"] = "Получение информации об индикации от %s ..."
 L["Reflect"] = "Отражение"
 L["Region type %s not supported"] = "Тип региона \"%s\" не поддерживается"
