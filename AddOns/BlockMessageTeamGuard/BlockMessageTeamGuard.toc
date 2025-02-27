@@ -8,7 +8,7 @@
 
 ## Title-zhTW: |cffFF9999[聊天]|r 廣告守衛
 ## Notes-zhTW: BlockMessage & TeamGuard |n|n過濾掉聊天訊息中的廣告、自動拒絕陌生人的組隊邀請。|n|n|cffffd200使用方法: |rEsc>選項>插件>過濾廣告>進行設定。
-## Category-zhTW: 社交
+## Category-zhTW: 聊天
 
 enUS.lua
 zhTW.lua
