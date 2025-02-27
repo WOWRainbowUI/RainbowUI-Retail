@@ -510,3 +510,26 @@ securecall(function() -- Siren Isle Research Journal requires pages to use
 		end)
 	end
 end)
+
+securecall(function() -- Modern: some mounts aren't castable by spell IDs
+	if not MODERN then
+		return
+	end
+	local BROKEN_SPELL_IDS, lockdown = {366962, 471562}
+	local function pushMountCasts(ev)
+		if InCombatLockdown() then
+			lockdown = 1
+		elseif ev ~= "PLAYER_REGEN_ENABLED" or lockdown then
+			local gsn, ei = C_Spell.GetSpellName, #BROKEN_SPELL_IDS
+			for i=ei, 1, -1 do
+				local sn = gsn(BROKEN_SPELL_IDS[i])
+				if sn and gsn(sn) then
+					RW:SetCastAlias("spell:" .. BROKEN_SPELL_IDS[i], sn)
+					BROKEN_SPELL_IDS[i], ei, BROKEN_SPELL_IDS[ei] = i ~= ei and BROKEN_SPELL_IDS[ei] or nil, ei - 1
+				end
+			end
+		end
+		return (#BROKEN_SPELL_IDS == 0 or ev == "PLAYER_LOGIN") and "remove"
+	end
+	EV.NEW_MOUNT_ADDED, EV.PLAYER_REGEN_ENABLED, EV.PLAYER_LOGIN = pushMountCasts, pushMountCasts, pushMountCasts
+end)

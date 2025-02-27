@@ -17,7 +17,7 @@ do -- action handler
 			local syncGen, actionGen, actionPattern = 200, {}, {}
 			setNames, col = {}, {__embed=true}
 			local function bufferSetNames()
-				local ni, ocStale = 1, colsStale
+				local ni, namesChanged = 1
 				for _,id in pairs(C_EquipmentSet.GetEquipmentSetIDs()) do
 					setNamesB[ni], ni = C_EquipmentSet.GetEquipmentSetInfo(id), ni + 1
 				end
@@ -25,15 +25,16 @@ do -- action handler
 					setNamesB[i] = nil
 				end
 				table.sort(setNamesB, cmpSetName)
-				namesStale, colsStale, setNames, setNamesB = false, colsStale or #setNames ~= #setNamesB, setNamesB, setNames
-				for i=1, colsStale and 0 or #setNames do
+				namesStale, setNames, setNamesB = false, setNamesB, setNames
+				namesChanged = #setNames ~= #setNamesB
+				for i=1, namesChanged and 0 or #setNames do
 					if setNames[i] ~= setNamesB[i] then
-						colsStale = true
+						namesChanged = true
 						break
 					end
 				end
-				if colsStale ~= ocStale then
-					syncGen = syncGen + 1
+				if namesChanged then
+					syncGen, colsStale = syncGen + 1, true
 				end
 			end
 			function isCurrent(id)
@@ -54,7 +55,9 @@ do -- action handler
 				end
 				if colsStale then
 					for id, fp in pairs(actionPattern) do
-						syncSetSet(fp, id)
+						if actionGen[id] ~= syncGen then
+							syncSetSet(fp, id)
+						end
 					end
 					colsStale = false
 				end

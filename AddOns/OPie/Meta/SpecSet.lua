@@ -18,7 +18,7 @@ do -- /opiespecset
 		local sid, sname = msg:match("^(%d+) {(.*)}$")
 		sid = tonumber(sid)
 		if sid and GetSpecialization() ~= sid and not InCombatLockdown() then
-			SetSpecialization(sid)
+			C_SpecializationInfo.SetSpecialization(sid)
 			if sname ~= "" then
 				esSpec, esSet, esDeadline = sid, sname, GetTime()+9
 			end

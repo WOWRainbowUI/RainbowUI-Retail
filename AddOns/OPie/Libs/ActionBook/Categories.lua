@@ -259,9 +259,10 @@ if COMPAT >= 3e4 then -- equipmentset
 	end)
 end
 AB:AugmentCategory(L"Raid markers", function(_, add)
+	local NUM_WORLD_MARKERS = CF_CATA and NUM_WORLD_RAID_MARKERS_CATA == 5 and 5 or 8
 	for k=0, (MODERN or CF_CATA) and 1 or 0 do
 		k = k == 0 and "raidmark" or "worldmark"
-		for i=0, k == "worldmark" and CF_CATA and 5 or 8 do
+		for i=0, k == "worldmark" and NUM_WORLD_MARKERS or 8 do
 			add(k, i)
 		end
 	end

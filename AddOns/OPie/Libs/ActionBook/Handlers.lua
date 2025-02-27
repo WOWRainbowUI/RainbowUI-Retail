@@ -908,12 +908,15 @@ securecall(function() -- worldmarker
 	if not (MODERN or CF_CATA) then
 		return
 	end
-	local NUM_WORLD_MARKERS = MODERN and 8 or 5
+	local NUM_WORLD_MARKERS = CF_CATA and NUM_WORLD_RAID_MARKERS_CATA == 5 and 5 or 8
 	local map, icons = {}, {[0]="Interface/Icons/INV_Misc_PunchCards_White",
 		"Interface/Icons/INV_Misc_QirajiCrystal_04","Interface/Icons/INV_Misc_QirajiCrystal_03",
 		"Interface/Icons/INV_Misc_QirajiCrystal_05","Interface/Icons/INV_Misc_QirajiCrystal_02",
-		"Interface/Icons/INV_Misc_QirajiCrystal_01","Interface/Icons/INV_Elemental_Primal_Fire",
-		"Interface/Icons/INV_jewelcrafting_taladiterecrystal","Interface/Icons/INV_jewelcrafting_taladitecrystal"}
+		"Interface/Icons/INV_Misc_QirajiCrystal_01",
+		MODERN and "Interface/Icons/INV_Elemental_Primal_Fire" or 'Interface/TargetingFrame/UI-RaidTargetingIcon_2',
+		MODERN and "Interface/Icons/INV_jewelcrafting_taladiterecrystal" or 'Interface/TargetingFrame/UI-RaidTargetingIcon_5',
+		MODERN and "Interface/Icons/INV_jewelcrafting_taladitecrystal" or 'Interface/TargetingFrame/UI-RaidTargetingIcon_8'
+	}
 	local function Tooltip_SetWorldMark(tip, i)
 		tip:SetText(i == 0 and REMOVE_WORLD_MARKERS or _G["WORLD_MARKER" .. i])
 		if not IsInGroup() then
@@ -1008,7 +1011,7 @@ securecall(function() -- zoneability auto-collection
 			local asid = za[i].spellID
 			if asid and not (skipZoneAbilities[asid] or IsPassiveSpell(asid)) then
 				local tk, aid = "INTZAs" .. asid, AB:GetActionSlot("spell", asid)
-				if aid then
+				if aid and not ((tpos[tk] or ni) < ni and col[tpos[tk]] == tk) then
 					changed = changed or col[ni] ~= tk or col[tk] ~= aid
 					col[ni], col[tk], tpos[tk], ni = tk, aid, ni, ni + 1
 				end
