@@ -287,7 +287,7 @@ else
 end
 
 function BagBarModule:RegisterKeyRingButton()
-    if Addon:IsBuild("cata") or not KeyRingButton then
+    if not (Addon:IsBuild("classic", "bcc") and KeyRingButton) then
         return
     end
 

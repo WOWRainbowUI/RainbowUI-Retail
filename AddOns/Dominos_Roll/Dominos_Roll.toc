@@ -1,4 +1,4 @@
-## Interface: 11506, 40401, 110007, 110100
+## Interface: 11506, 40402, 110007, 110100
 ## Title: Dominos Roll
 ## Title-zhCN: Dominos Roll 窗口模块
 ## Notes: Makes the set of frames for rolling on items when in a group movable
@@ -8,7 +8,7 @@
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 達美樂-骰子面板
 ## Notes-zhTW:  Dominos Roll |n|n讓在隊伍中擲骰子和通知面板可以移動。
-## Category-zhTW: 介面
+## Category-zhTW: 快捷列
 ## DefaultState: disabled
 
 rollBar.lua
