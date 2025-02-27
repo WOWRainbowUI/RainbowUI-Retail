@@ -1,6 +1,7 @@
 # Teleport Menu
 
-## [v10.2](https://github.com/Justw8/TeleportMenu/tree/v10.2) (2025-02-26)
-[Full Changelog](https://github.com/Justw8/TeleportMenu/compare/v10.1...v10.2) [Previous Releases](https://github.com/Justw8/TeleportMenu/releases)
+## [v10.3](https://github.com/Justw8/TeleportMenu/tree/v10.3) (2025-02-27)
+[Full Changelog](https://github.com/Justw8/TeleportMenu/compare/v10.2...v10.3) [Previous Releases](https://github.com/Justw8/TeleportMenu/releases)
 
-- Fix a regression error when in combat (#90)  
+- Fix: Wormhole teleport error when checking usableWormholes length (#94)  
+- Add Kirin Tor rings (#92)  
