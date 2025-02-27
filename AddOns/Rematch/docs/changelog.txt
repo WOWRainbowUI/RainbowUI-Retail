@@ -1,3 +1,8 @@
+02/26/2025 version 5.2.7
+- Fix for journal not showing due to interaction with an older version of PetTracker
+- Added to Pet Battles category per https://warcraft.wiki.gg/wiki/Addon_Categories
+- toc update for 11.1 patch
+
 12/26/2024 version 5.2.6
 - toc update for 11.0.7 patch
 - I'm on a break but will be back. If anything is seriously broken reach out to me on wowinterface
