@@ -1,8 +1,9 @@
 ------------------------------------------------------------------------
-r642 | Zimzarina | 2025-01-29 13:49:20 +0000 (Wed, 29 Jan 2025) | 1 line
+r644 | Zimzarina | 2025-02-26 15:49:23 +0000 (Wed, 26 Feb 2025) | 1 line
 Changed paths:
-   M /trunk/Postal_Vanilla.toc
+   M /trunk/Postal.toc
+   M /trunk/Postal_Cata.toc
 
-TOC Update classic.
+TOC Update Cataclysm and TWW.
 ------------------------------------------------------------------------
 
