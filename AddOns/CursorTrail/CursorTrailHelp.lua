@@ -33,7 +33,7 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 kHelpText_Options = [[
-The main options window can be opened from the standard addons window, or by typing "/ct" or "/cursortrail".  Settings are saved separately for each of your WoW characters, so your tank (for example) can have different cursor effects than your other characters.
+The main options window can be opened from the standard addons window, or by typing "/ct" or "/cursortrail".  Settings are saved separately for each of your WoW characters, so your tank (for example) can have different cursor FX than your other characters.
 
 * Master Scale %: Controls the size of all models, shapes, and sizes on all layers.  Leave this at 100% when designing a new set of FX, then use it later to make everything bigger or smaller as desired.
 Note: Master scale is combined with each layer's scale value to calculate the final size of each FX.
@@ -43,11 +43,11 @@ If layers have the same "Layer Strata" setting, layer 1 FX are drawn on top of l
 
 * Enable Layer:  When on, the current layer's FX will be drawn on screen.
 
-* Shape:  A list of shape effects to choose from.
+* Shape:  A list of shapes to choose from.
 The shape's color can be changed by clicking the color swatch button to the right of the Shape selection.
 When "Sparkle" is turn on, the chosen shape color is ignored and the shape "sparkles" instead.  (Sparkle does not affect model color.)
 
-* Model:  A list of animated cursor effects to choose from.  Models can be repositioned using "Model Offsets" described below.
+* Model:  A list of animated cursor FX to choose from.  Models can be repositioned using "Model Offsets" described below.
 
 * Shadow %:  Controls how intense the black background circle is.  99% is darkest, while 0% is invisible (off).
 
@@ -59,13 +59,13 @@ When "Sparkle" is turn on, the chosen shape color is ignored and the shape "spar
 
 * Model Offsets:  Moves the center of the Model effect.  The first number box moves it horizontally (negative numbers move left, positive move right).  The second number box moves it vertically (negative numbers move down, positive move up).
 
-* Fade out when idle:  When on, the cursor effects fade out when the mouse stops moving.
+* Fade out when idle:  When on, the cursor FX fade out when the mouse stops moving.
 
-* Show only in combat:  When on, the cursor effects will only appear during combat.
+* Show only in combat:  When on, the cursor FX will only appear during combat.
 
-* Show during Mouse Look:  When on, the cursor effects will remain visible while using the mouse to look around.
+* Show during Mouse Look:  When on, the cursor FX will remain visible while using the mouse to look around.
 
-* Defaults:  Each default has different preset options.  You can use them as a starting point for your own effects.  To save a default, select "Save as" from the profiles menu.
+* Defaults:  Each default has different preset options.  You can use them as a starting point for your own FX.  To save a default, select "Save as" from the profiles menu.
 ]]
 
 kHelpText_Tips = [[
@@ -125,7 +125,7 @@ Type "/ct help" to see a list of all slash commands.
 kHelpText_Troubleshooting = [[
 - Some models disappear if scaling is set too low.  If you select a model and it doesn't show up, try a larger Scale %.  (All models work at 100% scale.)
 
-- If the cursor effects unexpectedly disappear, you can quickly get them back by typing "/ct reload".
+- If the cursor FX unexpectedly disappear, you can quickly get them back by typing "/ct reload".
 
 - If shapes and shadows do not follow the mouse cursor properly, and you are using an addon to change the game's UI scale below the normal minimum (64%), type "/ct reload" (or do a normal game reload) so CursorTrail uses the new scale value.
 

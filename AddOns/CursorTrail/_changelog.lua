@@ -7,6 +7,25 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.1.0.1
+Released 2025-02-26
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.1.0.1 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Retail WoW 11.1.0.
+- Fixed bug that caused cursor FX to not move while CursorTrail settings were open and the mouse was over the world background.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.1.0.1 for Retail WoW
+Version 4.4.2.3 for Classic Cataclysm
+Version 1.15.6.4 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Changed the "Electric" default.  ("Fade out when idle" is now on.)
+- Minor improvements to error handling.
+- Minor changes to help text.
+
+=======================================
 RELEASE 11.0.7.3
 Released 2025-02-18
 
@@ -611,31 +630,6 @@ CHANGES:
 - Updated the UI controls library, renamed that file to "UDControls.lua" (was "Controls.lua"), and moved it to the "Lib" folder.
 - Fixed color swatch button sometimes showing wrong color after "Sparkle" checkbox was turned off.
 - Disable "Sparkle" checkbox whenever "Shape" is set to none.
-
-=======================================
-RELEASE 10.2.7.1
-Released 2024-05-07
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.2.7.1 for Retail WoW
-Version 4.4.0.2 for Classic Cata
-Version 1.15.2.2 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for WoW 10.2.7.
-- Updated available models for Classic Cataclysm.  (No changes to other WoW versions.)
-- Added "/ct memory" slash command.  It prints the amount of memory currently used by the addon.
-
-=======================================
-RELEASE 10.2.6.2
-Released 2024-05-02
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.2.6.2 for Retail WoW
-Version 4.4.0.1 for Classic Cata
-Version 1.15.2.1 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Classic WoW and Classic Cataclysm.  (No changes to retail version.)
-(Some model FX in Cataclysm are offset from cursor position.  They will be fixed at a later data.)
 
 ]]
 

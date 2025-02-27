@@ -70,7 +70,7 @@ kDefaultConfig["Electric"] = {  -- [ Keywords: kDefaultConfigKey ]
             Strata = kDefaultStrata,
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
-            FadeOut = false,
+            FadeOut = true,
             UserShowOnlyInCombat = kNoChange,
             UserShowMouseLook = kNoChange,
         },
