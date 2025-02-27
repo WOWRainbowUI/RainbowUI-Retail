@@ -1,4 +1,4 @@
-## Interface: 40401
+## Interface: 40402
 ## Title: GladiusEx
 ## Notes: Arena unit frames and more
 ## SavedVariables: GladiusExDB
@@ -11,7 +11,7 @@
 ## IconTexture: Interface\Icons\achievement_pvp_a_12
 ## Category-zhTW: PvP
 ## DefaultState: disabled
-## Version: 2.10.3
+## Version: 2.10.4
 
 embeds-cata.xml
 templates.xml

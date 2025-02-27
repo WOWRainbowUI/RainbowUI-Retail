@@ -10,3 +10,11 @@
 libs\LibStub\LibStub.lua
 DRList-1.0.xml
 
+#@do-not-package@
+tests\engine.lua
+tests\test-retail.lua
+tests\test-classic.lua
+tests\test-tbc.lua
+tests\test-wotlk.lua
+tests\test-cata.lua
+#@end-do-not-package@

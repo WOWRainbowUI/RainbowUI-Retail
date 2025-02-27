@@ -1104,7 +1104,7 @@ D["GladiatorlosSA2"] = {
 };
 D["GladiusEx"] = {
 	defaultEnable = 0,
-	title = "(暫時停用) 競技場頭像Ex",
+	title = "競技場頭像Ex",
 	desc = "加強版的競技場專用單位框架，提供友方和敵方框架以及更多功能。`",
 	author = "slaren, vendethiel64928",
 	modifier = "HouMuYi, jyzjl, 彩虹ui",
