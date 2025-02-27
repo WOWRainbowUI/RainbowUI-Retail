@@ -51,17 +51,18 @@ R:AddDefaultRing("OPieAutoQuest", {
 })
 if MODERN or CF_CATA then
 	local clearMark = {"worldmark", 0, c="ccd8e5", _u="c"}
+	local FULL_WORLD_MARKERS = MODERN or NUM_WORLD_RAID_MARKERS_CATA ~= 5
 	R:AddDefaultRing("WorldMarkers", {
 		{"worldmark", 1, _u="b"},
 		{"worldmark", 2, _u="g"},
 		{"worldmark", 3, _u="p"},
 		{"worldmark", 4, _u="r"},
 		{"worldmark", 5, _u="y"},
-		MODERN and {"worldmark", 6, _u="o"} or clearMark,
-		MODERN and {"worldmark", 7, _u="s"},
-		MODERN and {"worldmark", 8, _u="w"},
-		MODERN and clearMark,
-		name=L"World Markers", hotkey="[group] ALT-Y", _u="OPCWM", v=1
+		FULL_WORLD_MARKERS and {"worldmark", 6, _u="o"} or clearMark,
+		FULL_WORLD_MARKERS and {"worldmark", 7, _u="s"},
+		FULL_WORLD_MARKERS and {"worldmark", 8, _u="w"},
+		FULL_WORLD_MARKERS and clearMark,
+		name=L"World Markers", hotkey="[group] ALT-Y", _u="OPCWM", v=2
 	})
 end
 
