@@ -1,4 +1,6 @@
-## Changed in v2025.2
+## Changed in v2025.3
 
-* Siren Isle: update the storm phase mobs
+* Updated for 11.1.0
+* Rares for Undermine
+* Transform all Ringing Deeps coords because 11.1.0 shrunk it horizontally
 

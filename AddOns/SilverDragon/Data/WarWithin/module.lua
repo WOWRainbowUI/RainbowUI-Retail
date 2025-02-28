@@ -53,6 +53,7 @@ ns.CITYOFTHREADS = 2213
 ns.CITYOFTHREADSLOWER = 2216
 ns.SIRENISLE = 2369
 ns.FORGOTTENVAULT = 2375
+ns.UNDERMINE = 2346
 
 ns.WORLDQUESTS = ns.conditions.QuestComplete(79573)
 -- ns.MAXLEVEL = {ns.conditions.QuestComplete(67030), ns.conditions.Level(70)}
@@ -664,7 +665,7 @@ core:RegisterMobData("WarWithin", {
 		quest=83466,
 		worldquest=82653,
 		locations={
-			-- [ns.RINGINGDEEPS]={65008760},
+			-- [ns.RINGINGDEEPS]={60868760},
 			[ns.RINGINGDEEPS]={},
 		},
 		loot={
@@ -1069,7 +1070,7 @@ ns.RegisterPoints(ns.ISLEOFDORN, {
 -- Ringing Deeps
 
 ns.RegisterPoints(ns.RINGINGDEEPS, {
-	[52591991] = {
+	[49241991] = {
 		label="Automaxor",
 		criteria=69634,
 		quest=81674, -- 84046
@@ -1081,7 +1082,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		},
 		vignette=6128,
 	},
-	[41361692] = {
+	[38731692] = {
 		label="Charmonger",
 		criteria=69632,
 		quest=81562, -- 84044
@@ -1093,7 +1094,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		},
 		vignette=6104,
 	},
-	[42773508] = {
+	[40053508] = {
 		label="King Splash",
 		criteria=69624,
 		quest=80547,
@@ -1108,7 +1109,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		--tameable=true, -- hopper
 		vignette=6088,
 	},
-	[66002840] = {
+	[61802840] = {
 		label="Candleflyer Captain",
 		criteria=69623,
 		quest=80505,
@@ -1123,7 +1124,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		note="Patrols the area",
 		vignette=6080,
 	},
-	[50864651] = {
+	[47624651] = {
 		label="Cragmund",
 		criteria=69630,
 		quest=80560, -- 84042
@@ -1136,7 +1137,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		},
 		vignette=6090,
 	},
-	[55060843] = {
+	[51560843] = {
 		label="Deepflayer Broodmother",
 		criteria=69636,
 		quest=80536, -- 85162
@@ -1149,13 +1150,13 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		},
 		note="Flys around anticlockwise",
 		route={
-			55060843, 53000880, 49560836, 49121007, 45290955, 43790822, 42650871, 44220973, 44331083, 45151312,
-			43171750, 48681919, 53022244, 53751761, 56091023,
+			51560843, 49630880, 46410836, 45991007, 42410955, 41000822, 39940871, 41410973, 41511083, 42281312,
+			40421750, 45581919, 49652244, 50331761, 52521023,
 			loop=true,
 		},
 		vignette=6082,
 	},
-	[49556619] = {
+	[46406619] = {
 		label="Aquellion",
 		criteria=69625,
 		quest=80557,
@@ -1169,7 +1170,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		},
 		vignette=6089,
 	},
-	[52022657] = {
+	[48712657] = {
 		label="Zilthara",
 		criteria=69629,
 		quest=80506, -- 84041
@@ -1184,7 +1185,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		},
 		vignette=6079,
 	},
-	[57903813] = {
+	[54213813] = {
 		label="Coalesced Monstrosity",
 		criteria=69633,
 		quest=81511, -- 84045
@@ -1196,7 +1197,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		},
 		vignette=6101,
 	},
-	[46701209] = {
+	[43731209] = {
 		label="Terror of the Forge",
 		criteria=69628,
 		quest=80507, -- 84040
@@ -1212,7 +1213,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		vignette=6081,
 		note="Walking in the lava",
 	},
-	[47224696] = {
+	[44214696] = {
 		label="Kelpmire",
 		criteria=69635,
 		quest=81485, -- 84047
@@ -1227,7 +1228,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		},
 		vignette=6099,
 	},
-	[57025480] = {
+	[53395480] = {
 		label="Rampaging Blight",
 		criteria=69626,
 		quest=81563,
@@ -1241,7 +1242,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		},
 		vignette=6105,
 	},
-	[71654629] = {
+	[67094629] = {
 		label="Trungal",
 		criteria=69631,
 		quest=80574, -- 84043
@@ -1255,10 +1256,10 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 			223005, -- String of Fungal Fruits
 		},
 		note="Kill the {npc:220615:Root of Trungal} to spawn",
-		path={72534569, 72844444},
+		path={67914569, 68204444},
 		vignette=6126,
 	},
-	[68404754] = {
+	[64054754] = {
 		label="Spore-infused Shalewing",
 		criteria=69638,
 		quest=81652, -- 84049
@@ -1272,13 +1273,13 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		vignette=6121,
 		note="Flies around clockwise",
 		route={
-			68604852, 68735012, 68675047, 68215137, 68055156, 67745171, 67535176, 67225176, 67075174, 66585120, 66244896,
-			66264870, 66404840, 66234817, 65724779, 65564760, 65474737, 65534711, 65724669, 65834655, 66044644, 66944640,
-			67624608, 67774620, 68094659, 68214680, 68404754,
+			64234852, 64365012, 64305047, 63875137, 63725156, 63435171, 63235176, 62945176, 62805174, 62345120, 62024896,
+			62044870, 62174840, 62014817, 61544779, 61394760, 61304737, 61364711, 61544669, 61644655, 61844644, 62684640,
+			63324608, 63464620, 63764659, 63874680, 64054754,
 			loop=true,
 		},
 	},
-	[65364949] = {
+	[61204949] = {
 		label="Hungerer of the Deeps",
 		criteria=69639,
 		quest=81648, -- 84048
@@ -1293,7 +1294,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		},
 		vignette=6119,
 	},
-	[67085262] = {
+	[62815262] = {
 		label="Disturbed Earthgorger",
 		criteria=69640,
 		quest=80003,
@@ -1307,7 +1308,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		note="Stand in the dust cloud and use {spell:437003:Stomp} several times",
 		vignette=6031,
 	},
-	[66716881] = {
+	[62466881] = {
 		label="Deathbound Husk",
 		criteria=69627,
 		quest=81566,
@@ -1318,9 +1319,9 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		},
 		vignette=6106,
 		note="In cave",
-		path=67056796,
+		path=62786796,
 	},
-	[60887682] = {
+	[57017682] = {
 		label="Lurker of the Deeps",
 		criteria=69637,
 		quest=81633, -- 85163
@@ -1336,11 +1337,11 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		vignette=6110,
 		note="Pull 5 levers across the zone at the same time to summon; they stay activated for ~10 seconds, so you'll need a group",
 		related={
-			[49470882] = {label="Inconspicuous Lever", note="Pull all 5 levers simultaneously to summon {npc:220285:Lurker of the Deeps}"},
-			[53912530] = {label="Inconspicuous Lever", note="Pull all 5 levers simultaneously to summon {npc:220285:Lurker of the Deeps}"},
-			[57612358] = {label="Inconspicuous Lever", note="Pull all 5 levers simultaneously to summon {npc:220285:Lurker of the Deeps}"},
-			[59079239] = {label="Inconspicuous Lever", note="Pull all 5 levers simultaneously to summon {npc:220285:Lurker of the Deeps}"},
-			[62854464] = {label="Inconspicuous Lever", note="Pull all 5 levers simultaneously to summon {npc:220285:Lurker of the Deeps}"},
+			[46320882] = {label="Inconspicuous Lever", note="Pull all 5 levers simultaneously to summon {npc:220285:Lurker of the Deeps}"},
+			[50482530] = {label="Inconspicuous Lever", note="Pull all 5 levers simultaneously to summon {npc:220285:Lurker of the Deeps}"},
+			[53942358] = {label="Inconspicuous Lever", note="Pull all 5 levers simultaneously to summon {npc:220285:Lurker of the Deeps}"},
+			[55319239] = {label="Inconspicuous Lever", note="Pull all 5 levers simultaneously to summon {npc:220285:Lurker of the Deeps}"},
+			[58854464] = {label="Inconspicuous Lever", note="Pull all 5 levers simultaneously to summon {npc:220285:Lurker of the Deeps}"},
 		},
 	},
 }, {
@@ -1348,7 +1349,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 })
 
 ns.RegisterPoints(ns.RINGINGDEEPS, {
-	[62805000] = {
+	[58805000] = {
 		label="Slatefang",
 		quest=nil,
 		npc=228439,
@@ -2436,5 +2437,282 @@ ns.RegisterPoints(ns.FORGOTTENVAULT, {
 		},
 		vignette=6619,
 		requires=TEMPEST,
+	},
+})
+
+ns.RegisterPoints(ns.UNDERMINE, {
+	[42007460] = {
+		label="Candy Stickemup",
+		-- [42007460, 42207640, 42207700, 42207820]
+		criteria=71599,
+		quest=84927, --v
+		npc=231012, -- 238119
+		loot={
+			235304, -- Gutter Rat Mask
+			{234380, quest=85783}, -- Steamboil Fuel Tank
+		},
+		vignette=6605,
+	},
+	[65803340] = {
+		label="Grimewick",
+		-- [65803340, 67003160, 67003280, 67003360]
+		criteria=71600,
+		quest=84928, --v
+		npc=231017,
+		loot={
+			235303, -- Seafused Brimstone Band
+			235319, -- Tidebomb Chestpiece
+			235323, -- Blastshell Bracers
+			{234386, quest=85784}, -- Handcrank Fuel Injector
+			{234420, quest=85784}, -- Handcrank Mounting System
+		},
+		vignette=6606,
+	},
+	[36604140] = {
+		label="Tally Doublespeak",
+		-- [36604140, 36604540, 37404160, 37604240, 37604500, 37804260]
+		criteria=71593,
+		quest=84919,
+		npc=230940,
+		loot={
+			234218, -- Goo-blin Grenade
+			{234380, quest=85783}, -- Steamboil Fuel Tank
+			{234420, quest=85784}, -- Handcrank Mounting System
+		},
+		vignette=6600,
+	},
+	[37207820] = {
+		label="V.V. Goosworth",
+		-- [37207820, 37607880, 38007820]
+		criteria=71595,
+		quest=84920, --v
+		npc=230946,
+		loot={
+			234741, -- Miscellaneous Mechanica
+			235347, -- 100% Sharp Glimmerblade
+			{234380, quest=85783}, -- Steamboil Fuel Tank
+			{234418, quest=85783}, -- Steamboil Gears
+			{234381, quest=85784}, -- Handcrank Fuel Tank
+		},
+		vignette=6601,
+		note="Accompanied by {npc:230947:Slimesby}",
+	},
+	[37207900] = {
+		label="Slimesby",
+		criteria=71594,
+		quest=84920, --v for V.V.
+		npc=230947,
+		loot={},
+		vignette=6601, -- V.V.
+		note="Accompanies {npc:230946:V.V. Goosworth}",
+	},
+	[25606840] = {
+		label="Ephemeral Agent Lathyd",
+		-- [25606840, 26006720]
+		criteria=71602,
+		quest=84877, --v
+		npc=230746,
+		loot={
+			{234416, quest=85783}, -- Steamboil Casing
+			{234417, quest=85784}, -- Handcrank Gears
+		},
+		vignette=6593,
+	},
+	[68408060] = {
+		label="Scrapbeak",
+		-- [68408060, 69207980, 69408080, 69608080, 69808040]
+		criteria=71591,
+		quest=84917, --v
+		npc=230931,
+		loot={
+			235305, -- Golfer's Truestrike Gloves
+			{234419, quest=85783}, -- Steamboil Mounting System
+			{234386, quest=85784}, -- Handcrank Fuel Injector
+		},
+		vignette=6598,
+	},
+	[46605740] = {
+		label="Nitro",
+		-- [46605740, 46805620, 47005520, 48205660, 48405580]
+		criteria=71598,
+		quest=84926, --v
+		npc=230995,
+		loot={
+			235325, -- Rusthide Gloves
+			{234418, quest=85783}, -- Steamboil Gears
+			{234419, quest=85783}, -- Steamboil Mounting System
+			{234381, quest=85784}, -- Handcrank Fuel Tank
+		},
+		vignette=6604,
+	},
+	[50603960] = {
+		label="Slugger the Smart",
+		-- [50603960, 52004120, 52604120]
+		criteria=71604,
+		quest=84895, --v
+		npc=230800,
+		loot={
+			{234380, quest=85783}, -- Steamboil Fuel Tank
+			{234417, quest=85784}, -- Handcrank Gears
+		},
+		vignette=6595,
+	},
+	[57808640] = {
+		label="Chief Foreman Gutso",
+		-- [57808640, 59008760, 59208340]
+		criteria=71605,
+		quest=84907, --v
+		npc=230828,
+		loot={
+			{234380, quest=85783}, -- Steamboil Fuel Tank
+		},
+		vignette=6596,
+	},
+	[57207860] = {
+		label="Scrapchewer",
+		criteria=71610,
+		quest=85778, --v
+		npc=233471,
+		loot={
+			235829, -- Welded Scrap Hood
+		},
+		vignette=6667, -- 6752
+		note="Talk to {npc:236035:Scrapminer Krazzik} to summon",
+	},
+	[63204920] = {
+		label="The Junk-Wall",
+		-- [63204920, 63604920, 64205020]
+		criteria=71603,
+		quest=84884, --v
+		npc=230793,
+		loot={
+			{234420, quest=85784}, -- Handcrank Mounting System
+		},
+		vignette=6594,
+	},
+	[60200880] = {
+		label="Flyboy Snooty",
+		-- [60200880, 60600980]
+		criteria=71606,
+		quest=84911, --v
+		npc=230840,
+		loot={
+			235312, -- Snooty's Aviator Bindings
+		},
+		vignette=6597,
+	},
+	[41404300] = {
+		label="Swigs Farsight",
+		-- [41404300, 41404380, 41604380]
+		criteria=71601,
+		quest=85004, --v
+		npc=231288,
+		loot={
+			235307, -- Smoketrail Belt
+			235314, -- Knightrider's Steelfists
+			{234415, quest=85784}, -- Handcrank Casing
+			{234420, quest=85784}, -- Handcrank Mounting System
+		},
+		vignette=6609,
+	},
+	[52004940] = {
+		label="Thwack",
+		-- [52004940, 52605260, 52805180, 53805040, 54005080, 54605060, 54805160]
+		criteria=71596,
+		quest=84921, --v
+		npc=230951,
+		loot={
+			235317, -- Chestplate of the Ultimatum
+			{234419, quest=85783}, -- Steamboil Mounting System
+		},
+		vignette=6602,
+	},
+	[40002680] = {
+		label="S.A.L.",
+		-- [40002680, 40402620, 40802400, 41202540, 41402560, 41602520, 41802560]
+		criteria=71597,
+		quest=84922, --v
+		npc=230979,
+		loot={
+			235356, -- Sapper's Spark Reactor
+			{234381, quest=85784}, -- Handcrank Fuel Tank
+			{234386, quest=85784}, -- Handcrank Fuel Injector
+			{234417, quest=85784}, -- Handcrank Gears
+			{234420, quest=85784}, -- Handcrank Mounting System
+			{234416, quest=85783}, -- Steamboil Casing
+			{234418, quest=85783}, -- Steamboil Gears
+		},
+		vignette=6603,
+	},
+	[39602200] = {
+		label="M.A.G.N.O.",
+		criteria=71608,
+		quest=86298, --v
+		npc=234480,
+		loot={
+			235318, -- Ironfang Plate Legguards
+		},
+		vignette=6689,
+	},
+	[25203680] = {
+		label="Ratspit",
+		-- [25203680, 25603540, 25803560]
+		criteria=71592,
+		quest=84918,
+		npc=230934, -- accompanied by Grease (230935) and Grime (230936)
+		loot={
+			235326, -- Ratspit's Heirloom Wristwraps
+			{234381, quest=85784}, -- Handcrank Fuel Tank
+			{234419, quest=85783}, -- Steamboil Mounting System
+			{234420, quest=85784}, -- Handcrank Mounting System
+		},
+		vignette=6599, -- Court of Rats
+	},
+	[32027652] = {
+		label="Giovante",
+		criteria=71609,
+		quest=86307, -- v
+		npc=234499,
+		vignette=6694, -- Noggenfogger Nuisance + 6710
+		note="Talk to {npc:234751:Noggenfogger Recall Technician} to summon",
+	},
+	[61472520] = {
+		label="Voltstrike the Charged",
+		criteria=71611,
+		quest=85777, --v
+		npc=233472,
+		loot={
+			235827, -- Statically Charged Vest
+		},
+		vignette=6668, -- 6753
+		note="Talk to {npc:234834:Boatwright Frankle} to summon",
+	},
+	[40209190] = {
+		label="Darkfuse Precipitant",
+		criteria=71612,
+		quest=85010, --v
+		npc=231310,
+		loot={
+			{229955, mount=true}, -- Darkfuse Spy-Eye
+		},
+		vignette=6613, -- 6614
+		note="Talk to {npc:231329:De-Pollution Station X1119} with a {item:229823:Canister of Darkfuse Solution} to summon",
+	},
+}, {
+	achievement=41216,
+})
+
+ns.RegisterPoints(ns.UNDERMINE, {
+	[38808080] = {
+		label="Gallagio Garbage",
+		achievement=41594,
+		quest=nil,
+		npc=234621,
+		loot={
+			{229953, mount=true}, -- Salvaged Goblin Gazillionaire's Flying Machine
+			235819, -- Lucky Penny Locket
+			235910, -- Mint Condition Gallagio Anniversary Coin
+		},
+		notes="Appears during S.C.R.A.P. jobs",
 	},
 })
