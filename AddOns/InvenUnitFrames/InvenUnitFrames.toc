@@ -2,7 +2,7 @@
 ## Title: I|cffa2e665nven|r Unit Frames
 ## Notes: 인벤 유닛 프레임
 ## Author: Inven - InTheBlue
-## Version: 2.2.4(53)
+## Version: 2.2.4(54)
 ## SavedVariables: InvenUnitFramesDB
 ## SavedVariablesPerCharacter: InvenUnitFramesCharDB
 ## OptionalDeps: LibSharedMedia-3.0
