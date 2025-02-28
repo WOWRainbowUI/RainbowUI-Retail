@@ -610,3 +610,8 @@ L['discarded_can_suffix'] = 'latas pateadas'
 L['options_icons_scrap_rewards'] = 'Montón de C.H.A.T.A.R.R.A.'
 L['options_icons_scrap_rewards_desc'] = 'Muestra las recompensas para {object:Montón de C.H.A.T.A.R.R.A.}.'
 L['scrap_heap_suffix'] = 'C.H.A.T.A.R.R.A. trabajos completados'
+
+L['options_icons_youre_my_friend_now'] = '{achievement:41708}'
+L['options_icons_youre_my_friend_now_desc'] = 'Muestra dónde están las {npc:239248} para el logro {achievement:41708}.'
+L['rat_in_building_rail'] = 'En el riel dentro del edificio.'
+L['rat_2nd_floor_trash_can'] = 'En la papelera en el segundo piso dentro del edificio.'

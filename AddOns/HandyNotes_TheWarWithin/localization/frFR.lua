@@ -611,3 +611,8 @@ L['discarded_can_suffix'] = 'canettes frappées'
 L['options_icons_scrap_rewards'] = 'Tas de D.E.B.R.I.S.'
 L['options_icons_scrap_rewards_desc'] = 'Afficher les récompenses liées aux {object:Tas de D.E.B.R.I.S.}.'
 L['scrap_heap_suffix'] = 'Missions de D.E.B.R.I.S. terminées'
+
+L['options_icons_youre_my_friend_now'] = '{achievement:41708}'
+L['options_icons_youre_my_friend_now_desc'] = 'Afficher les emplacements des {npc:239248} pour le haut-fait {achievement:41708}.'
+L['rat_in_building_rail'] = 'A l\'intérieur du bâtiment sur le rail.'
+L['rat_2nd_floor_trash_can'] = 'A l\'intérieur du bâtiment, au deuxième étage, sur la poubelle.'
