@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("DelveTrashCommon", "DBM-Delves-WarWithin")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250214052628")
+mod:SetRevision("20250228093504")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)--Stays active in all zones for zone change handlers, but registers events based on dungeon ids
 local validZones = {[2664] = true, [2679] = true, [2680] = true, [2681] = true, [2683] = true, [2684] = true, [2685] = true, [2686] = true, [2687] = true, [2688] = true, [2689] = true, [2690] = true, [2767] = true, [2768] = true, [2815] = true, [2826] = true}
 for v, _ in pairs(validZones) do
@@ -189,7 +189,7 @@ end
 
 ---@param self DBMMod
 local function workAroundLuaLimitation(self, spellId, sourceName, sourceGUID)
-	if spellId == 474223 then
+	if spellId == 474223 and self:IsValidWarning(sourceGUID) then
 		timerConcussiveSmashCD:Start(nil, sourceGUID)
 		if self:AntiSpam(3, 5) then
 			warnConcussiveSmash:Show()
@@ -446,7 +446,7 @@ function mod:SPELL_CAST_START(args)
 			specWarnBubbleSurge:Show()
 			specWarnBubbleSurge:Play("watchstep")
 		end
-	elseif args.spellId == 474004 then
+	elseif args.spellId == 474004 and self:IsValidWarning(args.sourceGUID) then
 		if self:AntiSpam(3, 2) then
 			specWarnDrillQuake:Show()
 			specWarnDrillQuake:Play("watchstep")

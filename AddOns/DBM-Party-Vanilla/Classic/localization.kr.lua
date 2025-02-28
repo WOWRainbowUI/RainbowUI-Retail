@@ -1647,8 +1647,8 @@ L:SetGeneralLocalization{
 
 L:SetMiscLocalization {
 	PullTrizivast = "오늘 저녁에 선보일 무대는 생존과 상실, 신념이 뒤얽힌 대담한 이야기입니다.",
-	PullHanselAndGretel1 = "For your evenings entertainment, comes the lost fable of two children attempting to find their way!",
-	PullHanselAndGretel2 = "We're sorry grandmother. Your time has expired.",
+	PullHanselAndGretel1 = "오늘 저녁에 선보일 무대는 길을 찾아 방황하는 두 아이의 이야기입니다!",
+	PullHanselAndGretel2 = "죄송해요, 할머니... 이제 끝낼 때가 됐거든.",
 	PullEngineers = "오늘 저녁에 선보일 무대는 추방자 신세가 된 어느 초라한 기술자의 비극적인 이야기입니다!",
 }
 
@@ -1665,7 +1665,7 @@ L:SetOptionLocalization{
 
 L:SetMiscLocalization{
 	MirrorImage = "환영",
-	EnabledNameplates = "DBM이 카라잔에 있는 동안 적 하수인 이름표를 자동으로 활성화 했으며 이는 환영 감지에 도움이 됩니다. 끄려면 던전/카라잔 납골당의 암흑 기수 모드 설정으로 들어가세요."
+	EnabledNameplates = "DBM이 이 전투에서 이름표를 자동으로 활성화 했으며 이는 환영 감지에 도움이 됩니다. 끄려면 던전/카라잔 납골당의 암흑 기수 모드 설정으로 들어가세요."
 }
 
 -- Creeping Malison

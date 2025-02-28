@@ -3,14 +3,13 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,mythic"--Best way to really call it
 
-mod:SetRevision("20250214052628")
+mod:SetRevision("20250225124647")
 mod:SetCreatureID(225204)--Non hard one placeholder on load. Real one set in OnCombatStart
 mod:SetEncounterID(2987, 2985)
 mod:SetHotfixNoticeRev(20240914000000)
 mod:SetMinSyncRevision(20240914000000)
 mod:SetZone(2682)
 
---mod:RegisterCombat("scenario", 2682)
 mod:RegisterCombat("combat")
 
 mod:RegisterEventsInCombat(
