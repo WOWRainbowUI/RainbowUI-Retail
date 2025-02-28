@@ -565,3 +565,53 @@ L['code_label'] = '將 %d 個雕像置於 %s'
 L['orb_9_label'] = '9號球'
 
 L['ak_decryption_console_note'] = '回到隱藏的洞穴，入口位於 {location:艾基-卡赫特} 的 {location:沃什柱巢} 洞穴內。\n\n裝備 {item:228966} 將揭示一個隱藏的平台。\n\n目標為 {npc:230383} 並使用 {item:228996} 到達那裡。輸入密碼解鎖並打開 {object:加密的寶箱} 從中獲得 {item:229348}。\n\n{object:密碼}：84847078'
+
+-------------------------------------------------------------------------------
+---------------------------------- UNDERMINE ----------------------------------
+-------------------------------------------------------------------------------
+
+L['requires_ally'] = nil
+L['complete_event'] = nil
+L['in_sewer'] = nil
+L['and_slimesby'] = nil
+
+L['inert_plunger_label'] = nil
+L['exploded_plunger_label'] = nil
+
+L['unexploded_fireworks_location'] = nil
+L['suspicious_book_note'] = nil
+L['fireworks_hat_note'] = nil
+L['blackened_dice_note'] = nil
+L['lonely_tub_note'] = nil
+L['impotent_potable_location'] = nil
+L['abandoned_toolbox_location'] = nil
+L['trick_deck_of_cards_location'] = nil
+
+L['ditty_fuzeboy_note'] = nil
+L['angelo_rustbin_note'] = nil
+
+L['options_icons_nine_tenths'] = '{achievement:40948}'
+L['options_icons_nine_tenths_desc'] = nil
+L['muffs_auto_locker_label'] = nil
+L['muffs_auto_locker_note'] = nil
+L['muffs_auto_locker_suffix'] = nil
+
+L['options_icons_between_the_lines'] = '{achievement:41588}'
+L['options_icons_between_the_lines_desc'] = nil
+L['a_threatening_letter_location'] = nil
+L['gallywixs_notes_location'] = nil
+
+L['options_icons_can_do_attitude'] = '{achievement:41589}'
+L['options_icons_can_do_attitude_desc'] = nil
+L['discarded_can_label'] = '{npc:237103}'
+L['discarded_can_note'] = nil
+L['discarded_can_suffix'] = nil
+
+L['options_icons_scrap_rewards'] = nil
+L['options_icons_scrap_rewards_desc'] = nil
+L['scrap_heap_suffix'] = nil
+
+L['options_icons_youre_my_friend_now'] = '{achievement:41708}'
+L['options_icons_youre_my_friend_now_desc'] = nil
+L['rat_in_building_rail'] = nil
+L['rat_2nd_floor_trash_can'] = nil
