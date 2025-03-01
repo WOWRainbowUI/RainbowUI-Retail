@@ -1,6 +1,7 @@
 # AppearanceTooltip
 
-## [v56](https://github.com/kemayo/wow-appearancetooltip/tree/v56) (2024-12-29)
-[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v55...v56) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
+## [v57](https://github.com/kemayo/wow-appearancetooltip/tree/v57) (2025-02-28)
+[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v56...v57) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
 
-- TOC for 11.0.7, 4.4.1  
+- Bump TOC and add a category  
+- Add Earthen race id  
