@@ -1,7 +1,7 @@
 ## Interface: 110007, 110100
 
 ## Title: Focus Interrupt Sounds |cff7fff7f -Ace3-|r
-## Version: r156
+## Version: r157
 ## Author: Corg
 ## X-Category: Combat
 ## X-Website: https://www.curseforge.com/wow/addons/focus-interrupt-sounds
