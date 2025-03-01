@@ -2203,3 +2203,9 @@ Change Log:
 * Fixed Shadowlands spells (world)
 * Fixed SL spells for Castle Nathria
 * Fixed SL spells for Sanctum of Domination
+
+5.15.2
+* Updated for patch 11.1
+* Updated TOC for WoW Cataclysm 4.4.2
+* Updated TOC for WoW Classic 1.15.6
+* Added The War Within spells (world)

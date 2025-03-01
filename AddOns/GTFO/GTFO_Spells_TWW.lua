@@ -185,6 +185,17 @@ GTFO.SpellID["458835"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1217648"] = {
+  --desc = "Defiling Breath (Lady of the Lake)";
+  sound = 1;
+};
+
+GTFO.SpellID["1222515"] = {
+  --desc = "Leaking Fluid (Gallagio Security)";
+  sound = 1;
+  ignoreApplication = true;
+};
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
