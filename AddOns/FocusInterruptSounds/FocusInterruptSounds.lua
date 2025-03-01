@@ -1206,7 +1206,7 @@ function FocusInterruptSounds:COMBAT_LOG_EVENT_UNFILTERED(event)
 	) then
 		if (nil ~= self.strAntiCCSpellName
 			and self:FIsPlayerSpellAvailable(self.strAntiCCSpellName)
-			and (IsActiveBattlefieldArena() or 1 == IsSpellInRange(self.str30YardSpellName, strTarget))
+			and (IsActiveBattlefieldArena() or 1 == C_Spell.IsSpellInRange(self.str30YardSpellName, strTarget))
 		) then
 			self:CheckAndPrintMessage(strSourceName .. " is casting CC: |cffffcc44" .. varParam2 .. "|r.");
 			if (not fHandled) then
