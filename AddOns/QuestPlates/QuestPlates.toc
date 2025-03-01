@@ -1,0 +1,16 @@
+## Interface: 110100
+## Title: |cff40bc92Q|r|cffffffffuest|r|cff40bc92P|r|cfffffffflates|r
+## Notes: Adds quest progress to nameplates
+## Version: v5.4.8
+## Author: Semlar, DonnieDice
+## SavedVariables: QuestPlateSettings
+## IconTexture: Interface\AddOns\QuestPlates\images\icon
+
+## X-Category: UI Media, Questing & Leveling, Audio & Video, Miscellaneous
+## X-Website: https://github.com/donniedice/QuestPlates
+## X-Curse-Project-ID: 1110009
+## X-Wago-ID: 
+## X-WoWI-ID: 
+
+semlib\semlib.xml
+QuestPlates.lua
