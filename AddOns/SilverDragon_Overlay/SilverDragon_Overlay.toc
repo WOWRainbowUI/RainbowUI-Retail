@@ -1,7 +1,7 @@
 ## Interface: 110100, 40402, 11506
 ## Title: SilverDragon: Map Overlays
 ## Notes: Mobs on the maps
-## Version: v2025.3
+## Version: v2025.4
 ## Author: Kemayo
 ## eMail: kemayo at gmail dot com
 ## IconTexture: Interface\Icons\INV_Misc_Head_Dragon_01
