@@ -836,6 +836,33 @@ GTFO.SpellID["422414"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1217603"] = {
+  --desc = "Earthsplitter (The Stone)";
+  sound = 3;
+};
+
+GTFO.SpellID["471929"] = {
+  --desc = "Back Off (Warehouse Muscle)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["470333"] = {
+  --desc = "Back Off (Stationed Labguard)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["470035"] = {
+  --desc = "Detonate (Volatile Blastbot)";
+  sound = 3;
+};
+
+GTFO.SpellID["464682"] = {
+  --desc = "Explosion!";
+  sound = 3;
+};
+
 --- ******************************
 --- * Priory of the Scared Flame *
 --- ******************************
