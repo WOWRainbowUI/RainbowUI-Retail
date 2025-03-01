@@ -221,3 +221,8 @@ Change Log:
 * Updated TOC for Cataclysm 4.4.1
 * Updated TOC for Classic 1.15.5
 * Fixed issues with Cataclysm Classic
+
+1.30.1
+* Updated TOC to 11.1
+* Updated TOC for Cataclysm 4.4.2
+* Updated TOC for WoW Classic 1.15.6
