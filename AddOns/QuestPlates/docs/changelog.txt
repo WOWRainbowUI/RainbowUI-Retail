@@ -1,0 +1,32 @@
+v5.4.8--------------------------------------------------------------------
+- Updated - Retail TOC to reflect version 110100 [QuestPlates.toc]
+- Updated - Retail BLU version number to v5.4.8 in TOC [QuestPlates.toc]
+v5.4.7--------------------------------------------------------------------
+- Updated - Added note about Semlar - [README.md] 
+- Updated - Added color to AddOn Menu Title - [QuestPlates.toc]
+v5.4.6--------------------------------------------------------------------
+- Updated - Added note about Semlar - [README.md] 
+- Updated - Added color to AddOn Menu Title - [QuestPlates.toc]
+v5.4.5--------------------------------------------------------------------
+- Updated - ToC for _retail_ - [ToC.110007]
+v5.4.4--------------------------------------------------------------------
+- Fixed - Package as - [.pkgmeta]
+v5.4.3--------------------------------------------------------------------
+- Added - [.pkgmeta]
+v5.4.2--------------------------------------------------------------------
+- Added - New Folder - [/docs]
+- Added - changelog.txt - [/docs]
+- Moved - [CHANGES.md] - [/docs]
+v5.4.1--------------------------------------------------------------------
+- Added - [release.yml] - [/.github/workflows/]
+- Added - [README.md]
+- Updated - Project information - [QuestPlates.toc]
+- Fixed - Version Numbering - [QuestPlates.toc]
+v11.0.2-------------------------------------------------------------------
+- Fixed - Resolved an issue where `TooltipUtil.SurfaceArgs` was called without proper checks, leading to Lua errors
+- Fixed - Corrected quest tracking when using the `QUEST_ACCEPTED`, `QUEST_REMOVED`, and `QUEST_WATCH_LIST_CHANGED` events
+- Added - Fallback logic for tooltip processing in `GetQuestProgress` to handle cases where `TooltipUtil.SurfaceArgs` is unavailable
+- Updated - Enhanced `UpdateQuestIcon` function to better handle quest progress updates and ensure icons display correctly for all quest states
+- Updated - Refined event handling for `PLAYER_LOGIN` to correctly populate the `ActiveWorldQuests` table based on the player's current map
+- Improved - Re-anchored quest icons on nameplates during the `ADDON_LOADED` event to ensure settings are correctly applied
+- Updated - ToC for _retail_ - The War Within Expansion Release Patch (10.2.0.56110) [ToC.110002]

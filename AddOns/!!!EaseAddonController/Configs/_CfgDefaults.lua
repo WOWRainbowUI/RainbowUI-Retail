@@ -939,7 +939,7 @@ D["EnhBloodlust"] = {
 	defaultEnable = 1,
 	tags = { "COMBAT" },
 	title = "嗜血音樂",
-	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`水晶晶 สวยจริงๆ DJ-YOYO REMIX`by 嘻小瓜 KUAKUA``https://www.youtube.com/watch?v=OsOmgCwfp8c",
+	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`水晶晶 DJ-YOYO REMIX`by 嘻小瓜 KUAKUA``https://www.youtube.com/watch?v=OsOmgCwfp8c",
 	icon = "Interface\\Icons\\spell_nature_bloodlust",
 	img = true,
 	{
@@ -2093,7 +2093,7 @@ D["QuestPlates"] = {
 	tags = { "QUEST" },
 	title = "任務怪提示",
 	desc = "在任務怪名字和血條的左側顯示任務目標進度的提示圖示，開啟敵方血條就會出現。``圖示內的數字表示完成任務還需要多少數量或百分比。",
-	icon = "Interface\\Icons\\achievement_garrisonquests_0100",
+	-- icon = "Interface\\Icons\\achievement_garrisonquests_0100",
 	img = true,
 };
 D["QuickTargets"] = {

@@ -1,6 +1,5 @@
 --------------------
 -- ICON SETTINGS
-
 -- Settings can be referenced by typing "QuestPlateSettings." followed by the name of the setting.
 -- For example, to move the icon 10 pixels down, you can type the following into the chat:
 --   /run QuestPlateSettings.OffsetY = -10
@@ -11,119 +10,102 @@
 -- If you wish to wipe out any changes you've made and return to the default settings, you can type:
 --   /run QuestPlateSettings = nil
 -- And then /reload your ui
-
 QuestPlateSettings = {
-	AnchorPoint = 'RIGHT', -- Point of icon to anchor to nameplate (CENTER, LEFT, RIGHT, TOP, BOTTOM)
-	RelativeTo = 'LEFT', -- Point of nameplate to anchor icon to (CENTER, LEFT, RIGHT, TOP, BOTTOM)
-	OffsetX = 0, -- Horizontal offset for icon (from anchor point)
-	OffsetY = 0, -- Vertical offset for icon
-	IconScale = 1, -- Scale for icon
+    AnchorPoint = 'RIGHT', -- Point of icon to anchor to nameplate (CENTER, LEFT, RIGHT, TOP, BOTTOM)
+    RelativeTo = 'LEFT',   -- Point of nameplate to anchor icon to (CENTER, LEFT, RIGHT, TOP, BOTTOM)
+    OffsetX = 0,           -- Horizontal offset for icon (from anchor point)
+    OffsetY = 0,           -- Vertical offset for icon
+    IconScale = 1,         -- Scale for icon
 }
-
 -- Uncomment these lines if you want to enable them, or set to 0 to turn them off
 -- SetCVar('showQuestUnitCircles', 1) -- Enables subtle glow under quest mobs
 -- SetCVar('UnitNameFriendlySpecialNPCName', 1) -- Show name for quest objectives, even out of range of nameplates
 
 -- END OF SETTINGS
 --------------------
-
 local addonName, addon = ...
-
 local E = addon:Eve()
 
--- function E:VARIABLES_LOADED()
-	-- SetCVar('showQuestTrackingTooltips', '1') -- Required for this addon to function, don't turn this off
--- end
-
 local TextureAtlases = {
-	['item'] = 'Banker', -- bag icon, you have to loot something for this quest
-	--['monster'] = '', -- you must kill or interact with units for this quest
+    ['item'] = 'Banker', -- bag icon, you have to loot something for this quest
 }
 
--- C_TaskQuest.GetQuestsForPlayerByMapID(GetCurrentMapAreaID())
-local ActiveWorldQuests = {
-	-- [questName] = questID ?
-}
+local ActiveWorldQuests = {}
+
+
 
 do
-	function E:PLAYER_LOGIN()
-		-- local areaID = GetCurrentMapAreaID()
-		local uiMapID = C_Map.GetBestMapForUnit('player')
-		if uiMapID then
-			for k, task in pairs(C_TaskQuest.GetQuestsForPlayerByMapID(uiMapID) or {}) do
-				if task.inProgress and task.questID then -- 暫時修正
-					-- track active world quests
-					local questID = task.questID
-					local questName = C_TaskQuest.GetQuestInfoByQuestID(questID)
-					if questName then
-						-- print(k, questID, questName)
-						ActiveWorldQuests[ questName ] = questID
-					end
-				end
-			end
-		end
-	end
+    function E:PLAYER_LOGIN()
+        local uiMapID = C_Map.GetBestMapForUnit('player')
+        if uiMapID then
+            for _, task in pairs(C_TaskQuest.GetQuestsForPlayerByMapID(uiMapID) or {}) do
+                if task.inProgress then
+                    local questID = task.questId
+                    local questName = C_TaskQuest.GetQuestInfoByQuestID(questID)
+                    if questName then
+                        ActiveWorldQuests[questName] = questID
+                    end
+                end
+            end
+        end
+    end
 
-	function E:QUEST_ACCEPTED(questLogIndex, questID, ...)
-		if questID and C_QuestLog.IsQuestTask(questID) then
-			-- print('TASK_QUEST_ACCEPTED', questID, questLogIndex, GetQuestLogTitle(questLogIndex))
-			local questName = C_TaskQuest.GetQuestInfoByQuestID(questID)
-			if questName then
-				ActiveWorldQuests[ questName ] = questID
-			end
-		else
-			-- print('QUEST_ACCEPTED', questID, questLogIndex, GetQuestLogTitle(questLogIndex))
-		end
-		E:UNIT_QUEST_LOG_CHANGED()
-	end
-	
-	function E:QUEST_REMOVED(questID)
-		local questName = C_TaskQuest.GetQuestInfoByQuestID(questID)
-		if questName and ActiveWorldQuests[ questName ] then
-			ActiveWorldQuests[ questName ] = nil
-			-- print('TASK_QUEST_REMOVED', questID, questName)
-			-- get task progress when it's updated to display on the nameplate
-			-- C_TaskQuest.GetQuestProgressBarInfo
-		end
-		E:UNIT_QUEST_LOG_CHANGED()
-	end
-	
-	function E:QUEST_WATCH_LIST_CHANGED(questID, added)
-		E:QUEST_ACCEPTED(nil, questID)
-	end
+    function E:QUEST_ACCEPTED(questLogIndex, questID, ...)
+        if questID and C_QuestLog.IsQuestTask(questID) then
+            local questName = C_TaskQuest.GetQuestInfoByQuestID(questID)
+            if questName then
+                ActiveWorldQuests[questName] = questID
+            end
+        end
+        E:UNIT_QUEST_LOG_CHANGED()
+    end
+    
+    function E:QUEST_REMOVED(questID)
+        local questName = C_TaskQuest.GetQuestInfoByQuestID(questID)
+        if questName and ActiveWorldQuests[questName] then
+            ActiveWorldQuests[questName] = nil
+        end
+        E:UNIT_QUEST_LOG_CHANGED()
+    end
+    
+    function E:QUEST_WATCH_LIST_CHANGED(questID, added)
+        E:QUEST_ACCEPTED(nil, questID)
+    end
 end
 
+
+
 local OurName = UnitName('player')
---local QuestPlateTooltip = CreateFrame('GameTooltip', 'QuestPlateTooltip', nil, 'GameTooltipTemplate')
-QuestLogIndex = {} -- [questName] = questLogIndex, this is to "quickly" look up quests from its name in the tooltip
+QuestLogIndex = {}
 
 function GetQuestProgress(unitID)
-	-- TODO: Refactor this mess
 	if not C_QuestLog.UnitIsRelatedToActiveQuest(unitID) then return end
 
 	local tooltipData = C_TooltipInfo.GetUnit(unitID)
-	local progressGlob -- concatenated glob of quest text
-	local questType -- 1 for player, 2 for group
+	local progressGlob
+	local questType
 	local objectiveCount = 0
-	local questTexture -- if usable item
-	local questLogIndex -- should generally be set, index usable with questlog functions
+	local questLogIndex
 	local questID
+
 	for i = 3, #tooltipData.lines do
 		local line = tooltipData.lines[i]
-		-- TooltipUtil.SurfaceArgs(line)
 
-		if line.type == 17 and line.id then -- Tooltip line is a quest header..?
-			--if not text then return end
+		-- Check if TooltipUtil.SurfaceArgs exists
+		if TooltipUtil and TooltipUtil.SurfaceArgs then
+			TooltipUtil.SurfaceArgs(line)
+		else
+			-- Fallback logic if SurfaceArgs is not available
+		end
+
+		if line.type == 17 and line.id then
 			local text, objectiveType, finished = GetQuestObjectiveInfo(line.id, 1, false)
-			questID = questID or line.id or text and ActiveWorldQuests[ text ]
-			--local playerName, progressText = strmatch(text, '^(.-)(.+)$') -- nil or '' if 1 is missing but 2 is there
+			questID = questID or line.id or text and ActiveWorldQuests[text]
 			local playerName = ""
 			local progressText = text
 			local isQuestText = not not progressText
-			
-			-- todo: if multiple entries are present, ONLY read the quest objectives for the player
-			-- if a name is listed in the pattern then we must be in a group
-			if playerName and playerName ~= '' and playerName ~= OurName then -- quest is for another group member
+
+			if playerName and playerName ~= '' and playerName ~= OurName then
 				if not questType then
 					questType = 2
 				end
@@ -132,26 +114,24 @@ function GetQuestProgress(unitID)
 					local x, y = strmatch(progressText, '(%d+)/(%d+)')
 					if x and y then
 						local numLeft = y - x
-						if numLeft > objectiveCount then -- track highest number of objectives
+						if numLeft > objectiveCount then
 							objectiveCount = numLeft
 						end
 					else
-						local progress = tonumber(strmatch(progressText, '([%d%.]+)%%')) -- tooltip actually contains progress %
+						local progress = tonumber(strmatch(progressText, '([%d%.]+)%%'))
 						if progress and progress <= 100 then
-							local questID = ActiveWorldQuests[ text ] -- not a guarantee
 							local questType = 3
 							return text, questType, ceil(100 - progress), questID
 						end
 					end
-					--local x, y = strmatch(progressText, '(%d+)/(%d+)$')
+
 					if not x or (x and y and x ~= y) then
 						progressGlob = progressGlob and progressGlob .. '\n' .. progressText or progressText
 					end
 				elseif ActiveWorldQuests[text] then
-					local questID = ActiveWorldQuests[ text ]
-					local progress = C_TaskQuest.GetQuestProgressBarInfo(questID) -- or GetQuestProgressBarPercent(questID) -- not sure what the difference is between these functions
+					local progress = C_TaskQuest.GetQuestProgressBarInfo(questID)
 					if progress then
-						local questType = 3 -- progress bar
+						local questType = 3
 						return text, questType, ceil(100 - progress), questID
 					end
 				elseif QuestLogIndex[text] then
@@ -163,6 +143,7 @@ function GetQuestProgress(unitID)
 	
 	return progressGlob, progressGlob and 1 or questType, objectiveCount, questLogIndex, questID
 end
+
 
 local QuestPlates = {} -- [plate] = f
 function E:OnNewPlate(f, plate)
