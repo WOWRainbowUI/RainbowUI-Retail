@@ -1,6 +1,6 @@
 # Battle Pet BreedID
 
-## [v1.33.0](https://github.com/MMOSimca/BattlePetBreedID/tree/v1.33.0) (2025-02-27)
-[Full Changelog](https://github.com/MMOSimca/BattlePetBreedID/compare/v1.32.3...v1.33.0) [Previous Releases](https://github.com/MMOSimca/BattlePetBreedID/releases)
+## [v1.33.1](https://github.com/MMOSimca/BattlePetBreedID/tree/v1.33.1) (2025-03-01)
+[Full Changelog](https://github.com/MMOSimca/BattlePetBreedID/compare/v1.33.0...v1.33.1) [Previous Releases](https://github.com/MMOSimca/BattlePetBreedID/releases)
 
-- Updated Interface version for Patch 11.1.0.  
+- Updated base stat data and known breed data for Patch 11.1.0 pets found so far.  
