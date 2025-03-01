@@ -1,6 +1,6 @@
 <Bindings>
-  <Binding name="BAGANATOR_TOGGLE_BANK" category="ADDONS">
-    Baganator.CallbackRegistry:TriggerEvent("BankToggle")
+  <Binding name="BAGANATOR_TOGGLE_BANK" header="Baganator" category="ADDONS">
+    Baganator.CallbackRegistry:TriggerEvent("BankToggle", Syndicator.API.GetCurrentCharacter())
   </Binding>
   <Binding name="BAGANATOR_TOGGLE_GUILD_BANK" category="ADDONS">
     Baganator.CallbackRegistry:TriggerEvent("GuildToggle")
