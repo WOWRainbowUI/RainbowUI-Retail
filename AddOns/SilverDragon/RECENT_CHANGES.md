@@ -1,6 +1,5 @@
-## Changed in v2025.3
+## Changed in v2025.4
 
-* Updated for 11.1.0
-* Rares for Undermine
-* Transform all Ringing Deeps coords because 11.1.0 shrunk it horizontally
+* Undermine: update rare coordinates, add loot to the treasure vignettes
+* Bump the TOC for the SilverDragon_History plugin specifically (thanks Adal!)
 

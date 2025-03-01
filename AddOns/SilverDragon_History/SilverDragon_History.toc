@@ -1,7 +1,7 @@
 ## Interface: 11506, 30403, 40402, 110007, 110100
 ## Title: SilverDragon: History
 ## Notes: Show the history of seen rares
-## Version: v2025.3
+## Version: v2025.4
 ## Author: Kemayo
 ## eMail: kemayo at gmail dot com
 ## IconTexture: Interface\Icons\INV_Misc_Head_Dragon_01
