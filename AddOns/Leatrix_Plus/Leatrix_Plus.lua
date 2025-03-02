@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.1.01 (26th February 2025)
+-- 	Leatrix Plus 11.1.02 (1st March 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.1.01"
+	LeaPlusLC["AddonVer"] = "11.1.02"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -679,6 +679,7 @@
 		or	(LeaPlusLC["EasyItemDestroy"]		~= LeaPlusDB["EasyItemDestroy"])		-- Easy item destroy
 		or	(LeaPlusLC["SetAddtonOptions"]		~= LeaPlusDB["SetAddtonOptions"])		-- Set additional options
 		or	(LeaPlusLC["AddOptNoCombatBox"]		~= LeaPlusDB["AddOptNoCombatBox"])		-- Uncheck combat animation checkbox
+		or	(LeaPlusLC["AddOptNoMountBox"]		~= LeaPlusDB["AddOptNoMountBox"])		-- Uncheck mount special animation checkbox
 
 		then
 			-- Enable the reload button
@@ -713,6 +714,7 @@
 			-- Add checkboxes
 			row = row + 2; LeaPlusLC:MakeTx(addOptPanel.scrollChild, "Trading post", 16, -((row - 1) * 20) - 2)
 			row = row + 1; LeaPlusLC:MakeCB(addOptPanel.scrollChild, "AddOptNoCombatBox", "Uncheck combat animation checkbox", 16, -((row - 1) * 20) - 2, true, "If checked, the trading post combat animation checkbox will be unchecked by default.")
+			row = row + 1; LeaPlusLC:MakeCB(addOptPanel.scrollChild, "AddOptNoMountBox", "Uncheck mount special animation checkbox", 16, -((row - 1) * 20) - 2, true, "If checked, the mount special animation checkbox will be unchecked by default.")
 
 			-- Help button hidden
 			addOptPanel.h:Hide()
@@ -746,6 +748,8 @@
 
 			-- Run options on startup
 			do
+
+				-- Uncheck combat animation checkbox
 				if LeaPlusLC["AddOptNoCombatBox"] == "On" then
 					EventUtil.ContinueOnAddOnLoaded("Blizzard_PerksProgram", function()
 						hooksecurefunc(PerksProgramFrame.FooterFrame.ToggleAttackAnimation, "SetChecked", function(self)
@@ -753,6 +757,21 @@
 						end)
 					end)
 				end
+
+				-- Uncheck mount special animation checkbox
+				if LeaPlusLC["AddOptNoMountBox"] == "On" then
+					EventUtil.ContinueOnAddOnLoaded("Blizzard_PerksProgram", function()
+						hooksecurefunc(PerksProgramFrame.FooterFrame.ToggleMountSpecial, "SetChecked", function(self)
+							if self:GetChecked() then
+								self:Click()
+								RunNextFrame(function()
+									PerksProgramFrame:SetMountSpecialPreviewOnClick(false)
+								end)
+							end
+						end)
+					end)
+				end
+
 			end
 
 		end
@@ -8867,6 +8886,9 @@
 
 		if LeaPlusLC["TipModEnable"] == "On" and not LeaLockList["TipModEnable"] then
 
+			-- Enable mouse hover events for world frame (required for hide tooltips, cursor anchor and maybe other addons)
+			WorldFrame:EnableMouseMotion(true)
+
 			----------------------------------------------------------------------
 			--	Position the tooltip
 			----------------------------------------------------------------------
@@ -8970,14 +8992,6 @@
 					LeaPlusCB["TipCursorX"]:SetScript("OnEnter", LeaPlusLC.TipSee)
 					LeaPlusCB["TipCursorY"]:SetScript("OnEnter", LeaPlusLC.TipSee)
 				end
-				-- Set world frame mouse hover events
-				if LeaPlusLC["TooltipAnchorMenu"] == 1 then
-					-- Anchor is none so disable mouse hover events for world frame
-					WorldFrame:EnableMouseMotion(false)
-				else
-					-- Anchor is cursor so enable mouse hover events for world frame
-					WorldFrame:EnableMouseMotion(true)
-				end
 			end
 
 			-- Set controls when dropdown menu is changed and on startup
@@ -8989,7 +9003,7 @@
 			SetAnchorControls()
 
 			-- Help button hidden
-			SideTip.h.tiptext = L["This panel will close automatically if you enter combat."]
+			SideTip.h:Hide()
 
 			-- Back button handler
 			SideTip.b:SetScript("OnClick", function()
@@ -9020,33 +9034,29 @@
 
 			--	Move the tooltip
 			LeaPlusCB["MoveTooltipButton"]:SetScript("OnClick", function()
-				if LeaPlusLC:PlayerInCombat() then
-					return
+				if IsShiftKeyDown() and IsControlKeyDown() then
+					-- Preset profile
+					LeaPlusLC["TipShowRank"] = "On"
+					LeaPlusLC["TipShowOtherRank"] = "Off"
+					LeaPlusLC["TipShowTarget"] = "On"
+					--LeaPlusLC["TipShowMythic"] = "On"
+					LeaPlusLC["TipBackSimple"] = "On"
+					LeaPlusLC["TipHideInCombat"] = "Off"; SetTipHideShiftOverrideFunc()
+					LeaPlusLC["TipHideShiftOverride"] = "On"
+					LeaPlusLC["LeaPlusTipSize"] = 1.25
+					LeaPlusLC["TooltipAnchorMenu"] = 1
+					LeaPlusLC["TipCursorX"] = 0
+					LeaPlusLC["TipCursorY"] = 0
+					SetAnchorControls()
+					LeaPlusLC:SetTipScale()
+					LeaPlusLC:SetDim()
+					LeaPlusLC:ReloadCheck()
+					SideTip:Show(); SideTip:Hide() -- Needed to update tooltip scale
+					LeaPlusLC["PageF"]:Hide(); LeaPlusLC["PageF"]:Show()
 				else
-					if IsShiftKeyDown() and IsControlKeyDown() then
-						-- Preset profile
-						LeaPlusLC["TipShowRank"] = "On"
-						LeaPlusLC["TipShowOtherRank"] = "Off"
-						LeaPlusLC["TipShowTarget"] = "On"
-						--LeaPlusLC["TipShowMythic"] = "On"
-						LeaPlusLC["TipBackSimple"] = "On"
-						LeaPlusLC["TipHideInCombat"] = "Off"; SetTipHideShiftOverrideFunc()
-						LeaPlusLC["TipHideShiftOverride"] = "On"
-						LeaPlusLC["LeaPlusTipSize"] = 1.25
-						LeaPlusLC["TooltipAnchorMenu"] = 1
-						LeaPlusLC["TipCursorX"] = 0
-						LeaPlusLC["TipCursorY"] = 0
-						SetAnchorControls()
-						LeaPlusLC:SetTipScale()
-						LeaPlusLC:SetDim()
-						LeaPlusLC:ReloadCheck()
-						SideTip:Show(); SideTip:Hide() -- Needed to update tooltip scale
-						LeaPlusLC["PageF"]:Hide(); LeaPlusLC["PageF"]:Show()
-					else
-						-- Show tooltip configuration panel
-						LeaPlusLC:HideFrames()
-						SideTip:Show()
-					end
+					-- Show tooltip configuration panel
+					LeaPlusLC:HideFrames()
+					SideTip:Show()
 				end
 			end)
 
@@ -9054,13 +9064,6 @@
 			if LeaPlusLC["TipNoHealthBar"] == "On" then
 				GameTooltipStatusBarTexture:SetTexture("")
 			end
-
-			-- Hide the configuration panel if combat starts (needed due to EnableMouseMotion)
-			SideTip:SetScript("OnUpdate", function()
-				if UnitAffectingCombat("player") then
-					SideTip:Hide()
-				end
-			end)
 
 			---------------------------------------------------------------------------------------------------------
 			-- Tooltip scale settings
@@ -11047,6 +11050,7 @@
 				LeaPlusLC:LoadVarChk("NoTransforms", "Off")					-- Remove transforms
 				LeaPlusLC:LoadVarChk("SetAddtonOptions", "Off")				-- Set additional options
 				LeaPlusLC:LoadVarChk("AddOptNoCombatBox", "Off")			-- Uncheck combat animation checkbox
+				LeaPlusLC:LoadVarChk("AddOptNoMountBox", "Off")				-- Uncheck mount special animation checkbox
 
 				-- Settings
 				LeaPlusLC:LoadVarChk("ShowMinimapIcon", "On")				-- Show minimap button
@@ -11410,6 +11414,7 @@
 			LeaPlusDB["NoTransforms"] 			= LeaPlusLC["NoTransforms"]
 			LeaPlusDB["SetAddtonOptions"] 		= LeaPlusLC["SetAddtonOptions"]
 			LeaPlusDB["AddOptNoCombatBox"] 		= LeaPlusLC["AddOptNoCombatBox"]
+			LeaPlusDB["AddOptNoMountBox"] 		= LeaPlusLC["AddOptNoMountBox"]
 
 			-- Settings
 			LeaPlusDB["ShowMinimapIcon"] 		= LeaPlusLC["ShowMinimapIcon"]
@@ -14088,6 +14093,7 @@
 				LeaPlusDB["NoTransforms"] = "On"				-- Remove transforms
 				LeaPlusDB["SetAddtonOptions"] = "On"			-- Set additional options
 				LeaPlusDB["AddOptNoCombatBox"] = "On"			-- Uncheck combat animation checkbox
+				LeaPlusDB["AddOptNoMountBox"] = "On"			-- Uncheck mount special animation checkbox
 
 				-- Function to assign cooldowns
 				local function setIcon(pclass, pspec, sp1, pt1, sp2, pt2, sp3, pt3, sp4, pt4, sp5, pt5)
