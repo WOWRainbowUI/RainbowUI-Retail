@@ -564,6 +564,11 @@ function DR.vigorCounter(vigorCurrent)
 		return;
 	end
 
+	if not LibAdvFlight.IsAdvFlyEnabled() or DriveUtils.IsDriving() then
+		DR.toggleModels()
+		return
+	end
+
 	if not DragonRider_DB.toggleModels then
 		DR.toggleModels()
 		return
@@ -1772,6 +1777,7 @@ function DR.OnAddonLoaded()
 				DR.HideWithFadeBar();
 			end
 			DR.setPositions();
+			C_Timer.After(.5, function() DR.statusbar:Hide() end)
 		end
 
 		-- when the player dismounts
@@ -1782,6 +1788,7 @@ function DR.OnAddonLoaded()
 				DR.statusbar:SetAlpha(1)
 			end
 			DR.clearPositions();
+			C_Timer.After(.5, function() DR.statusbar:Hide() end)
 		end
 
 		LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_START, OnAdvFlyStart);
