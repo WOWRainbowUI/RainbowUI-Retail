@@ -1,8 +1,9 @@
 # Baganator
 
-## [655](https://github.com/Baganator/Baganator/tree/655) (2025-02-27)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/654...655) 
+## [656](https://github.com/Baganator/Baganator/tree/656) (2025-03-02)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/655...656) 
 
-- Retail: Bank: Show warband in offline view if that was used last  
-- Single: Bank: Fix layout glitch after hiding reagents and viewing not live bank  
-- Retail: Remember last used bank tab (Character or Warband)  
+- Customise: Categories: Fail import if non-existent categories referenced  
+- Prevent importing broken categories layouts  
+- Customise: Categories: Fix cancelling color picker sometimes setting wrong color  
+- Customise: Categories: When selecting colour revert change if "Cancel" clicked  
