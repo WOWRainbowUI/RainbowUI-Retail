@@ -1,6 +1,6 @@
 # Syndicator
 
-## [174](https://github.com/Baganator/Syndicator/tree/174) (2025-02-25)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/173...174) 
+## [175](https://github.com/Baganator/Syndicator/tree/175) (2025-03-02)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/174...175) 
 
-- Update toc for 11.1.0  
+- Search Builder: Focus custom input box after swapping from a keyword  
