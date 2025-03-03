@@ -45,13 +45,15 @@ function TravelModule:OnInitialize()
         166746, -- Fire Eater's Hearthstone
         166747, -- Brewfest Reveler's Hearthstone
         40582, -- Scourgestone (Death Knight Starting Campaign)
+        172179, -- Eternal Traveler's Hearthstone
         142543, -- Scroll of Town Portal
         37118, -- Scroll of Recall 1
         44314, -- Scroll of Recall 2
         44315, -- Scroll of Recall 3
         556, -- Astral Recall
         168907, -- Holographic Digitalization Hearthstone
-        142298 -- Astonishingly Scarlet Slippers
+        142298, -- Astonishingly Scarlet Slippers
+        210455 -- Draenic Hologem
     }
 
     self.portButtons = {}
