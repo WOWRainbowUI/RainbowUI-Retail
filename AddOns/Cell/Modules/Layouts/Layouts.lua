@@ -1,7 +1,10 @@
 local _, Cell = ...
 local L = Cell.L
+---@type CellFuncs
 local F = Cell.funcs
+---@type CellUnitButtonFuncs
 local B = Cell.bFuncs
+---@type PixelPerfectFuncs
 local P = Cell.pixelPerfectFuncs
 
 local layoutsTab = Cell.CreateFrame("CellOptionsFrame_LayoutsTab", Cell.frames.optionsFrame, nil, nil, true)
@@ -125,7 +128,7 @@ local function CreateLayoutPreview()
     layoutPreview:Hide()
 
     layoutPreviewAnchor = CreateFrame("Frame", "CellLayoutPreviewAnchorFrame", layoutPreview, "BackdropTemplate")
-    -- layoutPreviewAnchor:SetPoint("TOPLEFT", UIParent, "CENTER")
+    -- layoutPreviewAnchor:SetPoint("TOPLEFT", CellParent, "CENTER")
     P.Size(layoutPreviewAnchor, 20, 10)
     layoutPreviewAnchor:SetMovable(true)
     layoutPreviewAnchor:EnableMouse(true)
@@ -289,61 +292,13 @@ local function UpdateLayoutPreview()
     else
         if not P.LoadPosition(layoutPreviewAnchor, selectedLayoutTable["main"]["position"]) then
             layoutPreviewAnchor:ClearAllPoints()
-            layoutPreviewAnchor:SetPoint("TOPLEFT", UIParent, "CENTER")
+            layoutPreviewAnchor:SetPoint("TOPLEFT", CellParent, "CENTER")
         end
     end
     layoutPreviewName:SetText(L["Layout"]..": "..selectedLayout)
 
     -- re-arrange
-    local spacingX = selectedLayoutTable["main"]["spacingX"]
-    local spacingY = selectedLayoutTable["main"]["spacingY"]
-    local point, anchorPoint, groupAnchorPoint, unitSpacing, groupSpacing, verticalSpacing, horizontalSpacing
-
-    if selectedLayoutTable["main"]["orientation"] == "vertical" then
-        if selectedLayoutTable["main"]["anchor"] == "BOTTOMLEFT" then
-            point, anchorPoint, groupAnchorPoint = "BOTTOMLEFT", "TOPLEFT", "BOTTOMRIGHT"
-            unitSpacing = spacingY
-            groupSpacing = spacingX
-            verticalSpacing = spacingY+selectedLayoutTable["main"]["groupSpacing"]
-        elseif selectedLayoutTable["main"]["anchor"] == "BOTTOMRIGHT" then
-            point, anchorPoint, groupAnchorPoint = "BOTTOMRIGHT", "TOPRIGHT", "BOTTOMLEFT"
-            unitSpacing = spacingY
-            groupSpacing = -spacingX
-            verticalSpacing = spacingY+selectedLayoutTable["main"]["groupSpacing"]
-        elseif selectedLayoutTable["main"]["anchor"] == "TOPLEFT" then
-            point, anchorPoint, groupAnchorPoint = "TOPLEFT", "BOTTOMLEFT", "TOPRIGHT"
-            unitSpacing = -spacingY
-            groupSpacing = spacingX
-            verticalSpacing = -spacingY-selectedLayoutTable["main"]["groupSpacing"]
-        elseif selectedLayoutTable["main"]["anchor"] == "TOPRIGHT" then
-            point, anchorPoint, groupAnchorPoint = "TOPRIGHT", "BOTTOMRIGHT", "TOPLEFT"
-            unitSpacing = -spacingY
-            groupSpacing = -spacingX
-            verticalSpacing = -spacingY-selectedLayoutTable["main"]["groupSpacing"]
-        end
-    else
-        if selectedLayoutTable["main"]["anchor"] == "BOTTOMLEFT" then
-            point, anchorPoint, groupAnchorPoint = "BOTTOMLEFT", "BOTTOMRIGHT", "TOPLEFT"
-            unitSpacing = spacingX
-            groupSpacing = spacingY
-            horizontalSpacing = spacingX+selectedLayoutTable["main"]["groupSpacing"]
-        elseif selectedLayoutTable["main"]["anchor"] == "BOTTOMRIGHT" then
-            point, anchorPoint, groupAnchorPoint = "BOTTOMRIGHT", "BOTTOMLEFT", "TOPRIGHT"
-            unitSpacing = -spacingX
-            groupSpacing = spacingY
-            horizontalSpacing = -spacingX-selectedLayoutTable["main"]["groupSpacing"]
-        elseif selectedLayoutTable["main"]["anchor"] == "TOPLEFT" then
-            point, anchorPoint, groupAnchorPoint = "TOPLEFT", "TOPRIGHT", "BOTTOMLEFT"
-            unitSpacing = spacingX
-            groupSpacing = -spacingY
-            horizontalSpacing = spacingX+selectedLayoutTable["main"]["groupSpacing"]
-        elseif selectedLayoutTable["main"]["anchor"] == "TOPRIGHT" then
-            point, anchorPoint, groupAnchorPoint = "TOPRIGHT", "TOPLEFT", "BOTTOMRIGHT"
-            unitSpacing = -spacingX
-            groupSpacing = -spacingY
-            horizontalSpacing = -spacingX-selectedLayoutTable["main"]["groupSpacing"]
-        end
-    end
+    local point, anchorPoint, groupAnchorPoint, unitSpacing, groupSpacing, _, _, verticalSpacing, horizontalSpacing = F.GetRaidFramePoints(selectedLayoutTable["main"])
 
     if selectedLayoutTable["main"]["combineGroups"] and previewMode ~= 1 then
         -- hide separatedHeaders
@@ -366,7 +321,7 @@ local function UpdateLayoutPreview()
         -- end
 
         if selectedLayoutTable["main"]["orientation"] == "vertical" then
-            P.Size(layoutPreview.combinedHeader,
+            layoutPreview.combinedHeader:SetSize(
                 selectedLayoutTable["main"]["size"][1]*maxColumns+abs(groupSpacing)*(maxColumns-1),
                 selectedLayoutTable["main"]["size"][2]*unitsPerColumn+abs(unitSpacing)*(unitsPerColumn-1))
 
@@ -383,7 +338,7 @@ local function UpdateLayoutPreview()
                 end
             end
         else
-            P.Size(layoutPreview.combinedHeader,
+            layoutPreview.combinedHeader:SetSize(
                 selectedLayoutTable["main"]["size"][1]*unitsPerColumn+abs(unitSpacing)*(unitsPerColumn-1),
                 selectedLayoutTable["main"]["size"][2]*maxColumns+abs(groupSpacing)*(maxColumns-1))
 
@@ -403,7 +358,7 @@ local function UpdateLayoutPreview()
 
         -- hide unused
         for i = 1, 40 do
-            P.Size(layoutPreview.combinedHeader[i], selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2])
+            layoutPreview.combinedHeader[i]:SetSize(selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2])
             if i > units then
                 layoutPreview.combinedHeader[i]:Hide()
                 layoutPreview.combinedHeader[i].tex:Hide()
@@ -445,9 +400,9 @@ local function UpdateLayoutPreview()
             header:ClearAllPoints()
 
             if selectedLayoutTable["main"]["orientation"] == "vertical" then
-                P.Size(header, selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2]*5+abs(unitSpacing)*4)
+                header:SetSize(selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2]*5+abs(unitSpacing)*4)
                 for j = 1, 5 do
-                    P.Size(header[j], selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2])
+                    header[j]:SetSize(selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2])
                     header[j]:ClearAllPoints()
 
                     if j == 1 then
@@ -460,16 +415,16 @@ local function UpdateLayoutPreview()
                 if i == 1 then
                     header:SetPoint(point)
                 else
-                    if i / selectedLayoutTable["main"]["maxColumns"] > 1 then -- not the first row
-                        header:SetPoint(point, layoutPreview.separatedHeaders[shownGroups[i-selectedLayoutTable["main"]["maxColumns"]]], anchorPoint, 0, verticalSpacing)
+                    if i % selectedLayoutTable["main"]["maxColumns"] == 1 then -- first column on each row
+                        header:SetPoint(point, layoutPreview.separatedHeaders[shownGroups[i-selectedLayoutTable["main"]["maxColumns"]]], 0, verticalSpacing)
                     else
                         header:SetPoint(point, layoutPreview.separatedHeaders[shownGroups[i-1]], groupAnchorPoint, groupSpacing, 0)
                     end
                 end
             else
-                P.Size(header, selectedLayoutTable["main"]["size"][1]*5+abs(unitSpacing)*4, selectedLayoutTable["main"]["size"][2])
+                header:SetSize(selectedLayoutTable["main"]["size"][1]*5+abs(unitSpacing)*4, selectedLayoutTable["main"]["size"][2])
                 for j = 1, 5 do
-                    P.Size(header[j], selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2])
+                    header[j]:SetSize(selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2])
                     header[j]:ClearAllPoints()
 
                     if j == 1 then
@@ -482,8 +437,8 @@ local function UpdateLayoutPreview()
                 if i == 1 then
                     header:SetPoint(point)
                 else
-                    if i / selectedLayoutTable["main"]["maxColumns"] > 1 then -- not the first column
-                        header:SetPoint(point, layoutPreview.separatedHeaders[shownGroups[i-selectedLayoutTable["main"]["maxColumns"]]], anchorPoint, horizontalSpacing, 0)
+                    if i % selectedLayoutTable["main"]["maxColumns"] == 1 then -- first row on each column
+                        header:SetPoint(point, layoutPreview.separatedHeaders[shownGroups[i-selectedLayoutTable["main"]["maxColumns"]]], horizontalSpacing, 0)
                     else
                         header:SetPoint(point, layoutPreview.separatedHeaders[shownGroups[i-1]], groupAnchorPoint, 0, groupSpacing)
                     end
@@ -667,7 +622,7 @@ local function UpdateNPCPreview()
 
     if not P.LoadPosition(npcPreviewAnchor, selectedLayoutTable["npc"]["position"]) then
         npcPreviewAnchor:ClearAllPoints()
-        npcPreviewAnchor:SetPoint("TOPLEFT", UIParent, "CENTER")
+        npcPreviewAnchor:SetPoint("TOPLEFT", CellParent, "CENTER")
     end
     npcPreviewAnchor:Show()
     npcPreviewName:SetText(L["Layout"]..": "..selectedLayout.." (NPC)")
@@ -760,89 +715,91 @@ local function UpdateNPCPreview()
 end
 
 -------------------------------------------------
--- raidpet preview
+-- pet preview
 -------------------------------------------------
-local raidPetPreview, raidPetPreviewAnchor, raidPetPreviewName
-local raidPetNums = Cell.isRetail and 20 or 25
-local function CreateRaidPetPreview()
-    raidPetPreview = Cell.CreateFrame("CellRaidPetPreviewFrame", Cell.frames.mainFrame, nil, nil, true)
-    raidPetPreview:EnableMouse(false)
-    raidPetPreview:SetFrameStrata("HIGH")
-    raidPetPreview:SetToplevel(true)
-    raidPetPreview:Hide()
+local petPreview, petPreviewAnchor, petPreviewName
+local petNums = Cell.isRetail and 20 or 25
+local function CreatePetPreview()
+    petPreview = Cell.CreateFrame("CellPetPreviewFrame", Cell.frames.mainFrame, nil, nil, true)
+    petPreview:EnableMouse(false)
+    petPreview:SetFrameStrata("HIGH")
+    petPreview:SetToplevel(true)
+    petPreview:Hide()
 
-    raidPetPreviewAnchor = CreateFrame("Frame", "CellRaidPetPreviewAnchorFrame", raidPetPreview, "BackdropTemplate")
-    P.Size(raidPetPreviewAnchor, 20, 10)
-    raidPetPreviewAnchor:SetMovable(true)
-    raidPetPreviewAnchor:EnableMouse(true)
-    raidPetPreviewAnchor:RegisterForDrag("LeftButton")
-    raidPetPreviewAnchor:SetClampedToScreen(true)
-    Cell.StylizeFrame(raidPetPreviewAnchor, {0, 1, 0, 0.4})
-    raidPetPreviewAnchor:Hide()
-    raidPetPreviewAnchor:SetScript("OnDragStart", function()
-        raidPetPreviewAnchor:StartMoving()
-        raidPetPreviewAnchor:SetUserPlaced(false)
+    petPreviewAnchor = CreateFrame("Frame", "CellPetPreviewAnchorFrame", petPreview, "BackdropTemplate")
+    P.Size(petPreviewAnchor, 20, 10)
+    petPreviewAnchor:SetMovable(true)
+    petPreviewAnchor:EnableMouse(true)
+    petPreviewAnchor:RegisterForDrag("LeftButton")
+    petPreviewAnchor:SetClampedToScreen(true)
+    Cell.StylizeFrame(petPreviewAnchor, {0, 1, 0, 0.4})
+    petPreviewAnchor:Hide()
+    petPreviewAnchor:SetScript("OnDragStart", function()
+        petPreviewAnchor:StartMoving()
+        petPreviewAnchor:SetUserPlaced(false)
     end)
-    raidPetPreviewAnchor:SetScript("OnDragStop", function()
-        raidPetPreviewAnchor:StopMovingOrSizing()
-        P.SavePosition(raidPetPreviewAnchor, selectedLayoutTable["pet"]["position"])
+    petPreviewAnchor:SetScript("OnDragStop", function()
+        petPreviewAnchor:StopMovingOrSizing()
+        P.SavePosition(petPreviewAnchor, selectedLayoutTable["pet"]["position"])
     end)
 
-    raidPetPreviewName = raidPetPreviewAnchor:CreateFontString(nil, "OVERLAY", "CELL_FONT_CLASS_TITLE")
+    petPreviewName = petPreviewAnchor:CreateFontString(nil, "OVERLAY", "CELL_FONT_CLASS_TITLE")
 
-    raidPetPreview.fadeIn = raidPetPreview:CreateAnimationGroup()
-    local fadeIn = raidPetPreview.fadeIn:CreateAnimation("alpha")
+    petPreview.fadeIn = petPreview:CreateAnimationGroup()
+    local fadeIn = petPreview.fadeIn:CreateAnimation("alpha")
     fadeIn:SetFromAlpha(0)
     fadeIn:SetToAlpha(1)
     fadeIn:SetDuration(0.5)
     fadeIn:SetSmoothing("OUT")
     fadeIn:SetScript("OnPlay", function()
-        raidPetPreview:Show()
+        petPreview:Show()
     end)
 
-    raidPetPreview.fadeOut = raidPetPreview:CreateAnimationGroup()
-    local fadeOut = raidPetPreview.fadeOut:CreateAnimation("alpha")
+    petPreview.fadeOut = petPreview:CreateAnimationGroup()
+    local fadeOut = petPreview.fadeOut:CreateAnimation("alpha")
     fadeOut:SetFromAlpha(1)
     fadeOut:SetToAlpha(0)
     fadeOut:SetDuration(0.5)
     fadeOut:SetSmoothing("IN")
     fadeOut:SetScript("OnFinished", function()
-        raidPetPreview:Hide()
+        petPreview:Hide()
     end)
 
-    raidPetPreview.header = CreateFrame("Frame", "CellRaidPetPreviewFrameHeader", raidPetPreview)
+    petPreview.header = CreateFrame("Frame", "CellPetPreviewFrameHeader", petPreview)
 
-    for i = 1, raidPetNums do
-        raidPetPreview.header[i] = raidPetPreview.header:CreateTexture(nil, "BACKGROUND")
-        raidPetPreview.header[i]:SetColorTexture(0, 0, 0)
-        raidPetPreview.header[i]:SetAlpha(0.555)
+    for i = 1, petNums do
+        petPreview.header[i] = petPreview.header:CreateTexture(nil, "BACKGROUND")
+        petPreview.header[i]:SetColorTexture(0, 0, 0)
+        petPreview.header[i]:SetAlpha(0.555)
 
-        raidPetPreview.header[i].tex = raidPetPreview.header:CreateTexture(nil, "ARTWORK")
-        raidPetPreview.header[i].tex:SetTexture(Cell.vars.whiteTexture)
+        petPreview.header[i].tex = petPreview.header:CreateTexture(nil, "ARTWORK")
+        petPreview.header[i].tex:SetTexture(Cell.vars.whiteTexture)
 
-        raidPetPreview.header[i].tex:SetPoint("TOPLEFT", raidPetPreview.header[i], "TOPLEFT", P.Scale(1), P.Scale(-1))
-        raidPetPreview.header[i].tex:SetPoint("BOTTOMRIGHT", raidPetPreview.header[i], "BOTTOMRIGHT", P.Scale(-1), P.Scale(1))
+        petPreview.header[i].tex:SetPoint("TOPLEFT", petPreview.header[i], "TOPLEFT", P.Scale(1), P.Scale(-1))
+        petPreview.header[i].tex:SetPoint("BOTTOMRIGHT", petPreview.header[i], "BOTTOMRIGHT", P.Scale(-1), P.Scale(1))
 
-        raidPetPreview.header[i].tex:SetVertexColor(F.ConvertRGB(127, 127, 255, desaturation[i%5==0 and 5 or i%5]))
-        raidPetPreview.header[i].tex:SetAlpha(0.555)
+        petPreview.header[i].tex:SetVertexColor(F.ConvertRGB(127, 127, 255, desaturation[i%5==0 and 5 or i%5]))
+        petPreview.header[i].tex:SetAlpha(0.555)
     end
 end
 
-local function UpdateRaidPetPreview()
-    if not raidPetPreview then
-        CreateRaidPetPreview()
+local function UpdatePetPreview()
+    if not petPreview then
+        CreatePetPreview()
     end
 
-    if not selectedLayoutTable["pet"]["raidEnabled"] then
-        if raidPetPreview.timer then
-            raidPetPreview.timer:Cancel()
-            raidPetPreview.timer = nil
+    if (not (selectedLayoutTable["pet"]["partyEnabled"] and selectedLayoutTable["pet"]["partyDetached"]) and not selectedLayoutTable["pet"]["raidEnabled"])
+    or ((previewMode == 1) and not (selectedLayoutTable["pet"]["partyEnabled"] and selectedLayoutTable["pet"]["partyDetached"]))
+    or ((previewMode == 2) and not selectedLayoutTable["pet"]["raidEnabled"]) then
+        if petPreview.timer then
+            petPreview.timer:Cancel()
+            petPreview.timer = nil
         end
-        if raidPetPreview.fadeIn:IsPlaying() then
-            raidPetPreview.fadeIn:Stop()
+        if petPreview.fadeIn:IsPlaying() then
+            petPreview.fadeIn:Stop()
         end
-        if not raidPetPreview.fadeOut:IsPlaying() then
-            raidPetPreview.fadeOut:Play()
+        if not petPreview.fadeOut:IsPlaying() then
+            petPreview.fadeOut:Play()
         end
         return
     end
@@ -854,7 +811,7 @@ local function UpdateRaidPetPreview()
     else
         width, height = unpack(selectedLayoutTable["pet"]["size"])
     end
-    P.Size(raidPetPreview, width, height)
+    P.Size(petPreview, width, height)
 
     -- arrangement
     local orientation, anchor, spacingX, spacingY
@@ -870,60 +827,60 @@ local function UpdateRaidPetPreview()
         spacingY = selectedLayoutTable["pet"]["spacingY"]
     end
 
-    -- update raidPetPreview point
-    raidPetPreview:ClearAllPoints()
-    raidPetPreviewName:ClearAllPoints()
+    -- update petPreview point
+    petPreview:ClearAllPoints()
+    petPreviewName:ClearAllPoints()
 
     if CellDB["general"]["menuPosition"] == "top_bottom" then
-        P.Size(raidPetPreviewAnchor, 20, 10)
+        P.Size(petPreviewAnchor, 20, 10)
         if anchor == "BOTTOMLEFT" then
-            raidPetPreview:SetPoint("BOTTOMLEFT", raidPetPreviewAnchor, "TOPLEFT", 0, 4)
-            raidPetPreviewName:SetPoint("LEFT", raidPetPreviewAnchor, "RIGHT", 5, 0)
+            petPreview:SetPoint("BOTTOMLEFT", petPreviewAnchor, "TOPLEFT", 0, 4)
+            petPreviewName:SetPoint("LEFT", petPreviewAnchor, "RIGHT", 5, 0)
         elseif anchor == "BOTTOMRIGHT" then
-            raidPetPreview:SetPoint("BOTTOMRIGHT", raidPetPreviewAnchor, "TOPRIGHT", 0, 4)
-            raidPetPreviewName:SetPoint("RIGHT", raidPetPreviewAnchor, "LEFT", -5, 0)
+            petPreview:SetPoint("BOTTOMRIGHT", petPreviewAnchor, "TOPRIGHT", 0, 4)
+            petPreviewName:SetPoint("RIGHT", petPreviewAnchor, "LEFT", -5, 0)
         elseif anchor == "TOPLEFT" then
-            raidPetPreview:SetPoint("TOPLEFT", raidPetPreviewAnchor, "BOTTOMLEFT", 0, -4)
-            raidPetPreviewName:SetPoint("LEFT", raidPetPreviewAnchor, "RIGHT", 5, 0)
+            petPreview:SetPoint("TOPLEFT", petPreviewAnchor, "BOTTOMLEFT", 0, -4)
+            petPreviewName:SetPoint("LEFT", petPreviewAnchor, "RIGHT", 5, 0)
         elseif anchor == "TOPRIGHT" then
-            raidPetPreview:SetPoint("TOPRIGHT", raidPetPreviewAnchor, "BOTTOMRIGHT", 0, -4)
-            raidPetPreviewName:SetPoint("RIGHT", raidPetPreviewAnchor, "LEFT", -5, 0)
+            petPreview:SetPoint("TOPRIGHT", petPreviewAnchor, "BOTTOMRIGHT", 0, -4)
+            petPreviewName:SetPoint("RIGHT", petPreviewAnchor, "LEFT", -5, 0)
         end
     else
-        P.Size(raidPetPreviewAnchor, 10, 20)
+        P.Size(petPreviewAnchor, 10, 20)
         if anchor == "BOTTOMLEFT" then
-            raidPetPreview:SetPoint("BOTTOMLEFT", raidPetPreviewAnchor, "BOTTOMRIGHT", 4, 0)
-            raidPetPreviewName:SetPoint("TOPLEFT", raidPetPreviewAnchor, "BOTTOMLEFT", 0, -5)
+            petPreview:SetPoint("BOTTOMLEFT", petPreviewAnchor, "BOTTOMRIGHT", 4, 0)
+            petPreviewName:SetPoint("TOPLEFT", petPreviewAnchor, "BOTTOMLEFT", 0, -5)
         elseif anchor == "BOTTOMRIGHT" then
-            raidPetPreview:SetPoint("BOTTOMRIGHT", raidPetPreviewAnchor, "BOTTOMLEFT", -4, 0)
-            raidPetPreviewName:SetPoint("TOPRIGHT", raidPetPreviewAnchor, "BOTTOMRIGHT", 0, -5)
+            petPreview:SetPoint("BOTTOMRIGHT", petPreviewAnchor, "BOTTOMLEFT", -4, 0)
+            petPreviewName:SetPoint("TOPRIGHT", petPreviewAnchor, "BOTTOMRIGHT", 0, -5)
         elseif anchor == "TOPLEFT" then
-            raidPetPreview:SetPoint("TOPLEFT", raidPetPreviewAnchor, "TOPRIGHT", 4, 0)
-            raidPetPreviewName:SetPoint("BOTTOMLEFT", raidPetPreviewAnchor, "TOPLEFT", 0, 5)
+            petPreview:SetPoint("TOPLEFT", petPreviewAnchor, "TOPRIGHT", 4, 0)
+            petPreviewName:SetPoint("BOTTOMLEFT", petPreviewAnchor, "TOPLEFT", 0, 5)
         elseif anchor == "TOPRIGHT" then
-            raidPetPreview:SetPoint("TOPRIGHT", raidPetPreviewAnchor, "TOPLEFT", -4, 0)
-            raidPetPreviewName:SetPoint("BOTTOMRIGHT", raidPetPreviewAnchor, "TOPRIGHT", 0, 5)
+            petPreview:SetPoint("TOPRIGHT", petPreviewAnchor, "TOPLEFT", -4, 0)
+            petPreviewName:SetPoint("BOTTOMRIGHT", petPreviewAnchor, "TOPRIGHT", 0, 5)
         end
     end
 
     -- update anchor point
     if selectedLayout == Cell.vars.currentLayout then
         -- NOTE: move anchor with preview
-        CellRaidPetAnchorFrame:SetAllPoints(raidPetPreviewAnchor)
+        CellPetAnchorFrame:SetAllPoints(petPreviewAnchor)
     else
-        P.LoadPosition(CellRaidPetAnchorFrame, Cell.vars.currentLayoutTable["pet"]["position"])
+        P.LoadPosition(CellPetAnchorFrame, Cell.vars.currentLayoutTable["pet"]["position"])
     end
 
-    if not P.LoadPosition(raidPetPreviewAnchor, selectedLayoutTable["pet"]["position"]) then
-        raidPetPreviewAnchor:ClearAllPoints()
-        raidPetPreviewAnchor:SetPoint("TOPLEFT", UIParent, "CENTER")
+    if not P.LoadPosition(petPreviewAnchor, selectedLayoutTable["pet"]["position"]) then
+        petPreviewAnchor:ClearAllPoints()
+        petPreviewAnchor:SetPoint("TOPLEFT", CellParent, "CENTER")
     end
-    raidPetPreviewAnchor:Show()
-    raidPetPreviewName:SetText(L["Layout"]..": "..selectedLayout.." ("..L["Raid Pets"]..")")
-    raidPetPreviewName:Show()
+    petPreviewAnchor:Show()
+    petPreviewName:SetText(L["Layout"]..": "..selectedLayout.." ("..L["Pets"]..")")
+    petPreviewName:Show()
 
     -- re-arrange
-    local header = raidPetPreview.header
+    local header = petPreview.header
     header:ClearAllPoints()
 
     if orientation == "vertical" then
@@ -950,7 +907,7 @@ local function UpdateRaidPetPreview()
         P.Size(header, width*4+abs(unitSpacing)*3, height*5+abs(unitSpacing)*4)
         header:SetPoint(point)
 
-        for i = 1, raidPetNums do
+        for i = 1, petNums do
             P.Size(header[i], width, height)
             header[i]:ClearAllPoints()
 
@@ -986,7 +943,7 @@ local function UpdateRaidPetPreview()
         P.Size(header, width*5+abs(unitSpacing)*4, height*4+abs(unitSpacing)*3)
         header:SetPoint(point)
 
-        for i = 1, raidPetNums do
+        for i = 1, petNums do
             P.Size(header[i], width, height)
             header[i]:ClearAllPoints()
 
@@ -1000,22 +957,40 @@ local function UpdateRaidPetPreview()
         end
     end
 
-    if not raidPetPreview:IsShown() then
-        raidPetPreview.fadeIn:Play()
+    for i = 6, petNums do
+        if previewMode == 0 then
+            if selectedLayoutTable["pet"]["raidEnabled"] then
+                header[i]:Show()
+                header[i].tex:Show()
+            else
+                header[i]:Hide()
+                header[i].tex:Hide()
+            end
+        elseif previewMode == 1 then
+            header[i]:Hide()
+            header[i].tex:Hide()
+        else
+            header[i]:Show()
+            header[i].tex:Show()
+        end
     end
 
-    if raidPetPreview.fadeOut:IsPlaying() then
-        raidPetPreview.fadeOut:Stop()
+    if not petPreview:IsShown() then
+        petPreview.fadeIn:Play()
     end
 
-    if raidPetPreview.timer then
-        raidPetPreview.timer:Cancel()
+    if petPreview.fadeOut:IsPlaying() then
+        petPreview.fadeOut:Stop()
+    end
+
+    if petPreview.timer then
+        petPreview.timer:Cancel()
     end
 
     if previewMode == 0 then
-        raidPetPreview.timer = C_Timer.NewTimer(1, function()
-            raidPetPreview.fadeOut:Play()
-            raidPetPreview.timer = nil
+        petPreview.timer = C_Timer.NewTimer(1, function()
+            petPreview.fadeOut:Play()
+            petPreview.timer = nil
         end)
     end
 end
@@ -1173,7 +1148,7 @@ local function UpdateSpotlightPreview()
     else
         spotlightPreviewAnchor:EnableMouse(true)
         if not P.LoadPosition(spotlightPreviewAnchor, selectedLayoutTable["spotlight"]["position"]) then
-            spotlightPreviewAnchor:SetPoint("TOPLEFT", UIParent, "CENTER")
+            spotlightPreviewAnchor:SetPoint("TOPLEFT", CellParent, "CENTER")
         end
     end
     spotlightPreviewAnchor:Show()
@@ -1280,6 +1255,10 @@ end
 -- hide previews
 -------------------------------------------------
 local function HidePreviews()
+    if not layoutPreview then
+        return
+    end
+
     if layoutPreview.timer then
         layoutPreview.timer:Cancel()
         layoutPreview.timer = nil
@@ -1302,15 +1281,15 @@ local function HidePreviews()
         npcPreview.fadeOut:Play()
     end
 
-    if raidPetPreview.timer then
-        raidPetPreview.timer:Cancel()
-        raidPetPreview.timer = nil
+    if petPreview.timer then
+        petPreview.timer:Cancel()
+        petPreview.timer = nil
     end
-    if raidPetPreview.fadeIn:IsPlaying() then
-        raidPetPreview.fadeIn:Stop()
+    if petPreview.fadeIn:IsPlaying() then
+        petPreview.fadeIn:Stop()
     end
-    if not raidPetPreview.fadeOut:IsPlaying() then
-        raidPetPreview.fadeOut:Play()
+    if not petPreview.fadeOut:IsPlaying() then
+        petPreview.fadeOut:Play()
     end
 
     if spotlightPreview.timer then
@@ -1343,7 +1322,8 @@ local LoadLayoutDB, UpdateButtonStates, LoadLayoutAutoSwitchDB
 
 local function IsValidLayoutName(name)
     return name and name ~= ""
-        and strlower(name) ~= "default"and name ~= _G.DEFAULT
+        and strlower(name) ~= "default" and name ~= _G.DEFAULT
+        and strlower(name) ~= "hide"
         -- and not strfind(name, ":") and not strfind(name, "!")
         and not CellDB["layouts"][name]
 end
@@ -1857,8 +1837,8 @@ LoadAutoSwitchDropdowns = function()
         end
     end
     table.sort(indices)
-    -- tinsert(indices, 1, "hide") -- make hide first
-    tinsert(indices, 1, "default") -- make default second
+    tinsert(indices, 1, "hide") -- make hide first
+    tinsert(indices, 2, "default") -- make default second
 
     -- soloDropdown
     soloDropdown:SetItems(GetDropdownItems(indices, "solo"))
@@ -1949,8 +1929,8 @@ local function CreateGroupFilterPane()
             if npcPreview:IsShown() then
                 npcPreview.fadeOut:Play()
             end
-            if raidPetPreview:IsShown() then
-                raidPetPreview.fadeOut:Play()
+            if petPreview:IsShown() then
+                petPreview.fadeOut:Play()
             end
             if spotlightPreview:IsShown() then
                 spotlightPreview.fadeOut:Play()
@@ -1959,15 +1939,13 @@ local function CreateGroupFilterPane()
             previewModeButton:SetText(L["Preview"]..": "..L["Party"])
             UpdateLayoutPreview()
             UpdateNPCPreview()
-            if raidPetPreview:IsShown() then
-                raidPetPreview.fadeOut:Play()
-            end
+            UpdatePetPreview()
             UpdateSpotlightPreview()
         else
             previewModeButton:SetText(L["Preview"]..": "..L["Raid"])
             UpdateLayoutPreview()
             UpdateNPCPreview()
-            UpdateRaidPetPreview()
+            UpdatePetPreview()
             UpdateSpotlightPreview()
         end
     end)
@@ -1993,7 +1971,8 @@ local orientationDropdown, anchorDropdown, spacingXSlider, spacingYSlider
 
 local sameSizeAsMainCB, sameArrangementAsMainCB
 local combineGroupsCB, sortByRoleCB, roleOrderWidget, hideSelfCB
-local showNpcCB, separateNpcCB, spotlightCB, hidePlaceholderCB, spotlightOrientationDropdown, partyPetsCB, raidPetsCB
+local showNpcCB, separateNpcCB, spotlightCB, hidePlaceholderCB, spotlightOrientationDropdown
+local soloPetCB, partyPetsCB, partyPetsDetachedCB, raidPetsCB
 
 local function UpdateSize()
     if selectedLayout == Cell.vars.currentLayout then
@@ -2004,7 +1983,7 @@ local function UpdateSize()
         UpdatePreviewButton("size")
         UpdateLayoutPreview()
         if selectedLayoutTable["pet"]["sameSizeAsMain"] then
-            UpdateRaidPetPreview()
+            UpdatePetPreview()
         end
         if selectedLayoutTable["npc"]["sameSizeAsMain"] then
             UpdateNPCPreview()
@@ -2013,7 +1992,7 @@ local function UpdateSize()
             UpdateSpotlightPreview()
         end
     elseif selectedPage == "pet" then
-        UpdateRaidPetPreview()
+        UpdatePetPreview()
     elseif selectedPage == "npc" then
         UpdateNPCPreview()
     elseif selectedPage == "spotlight" then
@@ -2029,7 +2008,7 @@ local function UpdateArrangement()
     if selectedPage == "main" then
         UpdateLayoutPreview()
         if selectedLayoutTable["pet"]["sameArrangementAsMain"] then
-            UpdateRaidPetPreview()
+            UpdatePetPreview()
         end
         if selectedLayoutTable["npc"]["sameArrangementAsMain"] then
             UpdateNPCPreview()
@@ -2038,7 +2017,7 @@ local function UpdateArrangement()
             UpdateSpotlightPreview()
         end
     elseif selectedPage == "pet" then
-        UpdateRaidPetPreview()
+        UpdatePetPreview()
     elseif selectedPage == "npc" then
         UpdateNPCPreview()
     elseif selectedPage == "spotlight" then
@@ -2394,27 +2373,58 @@ local function CreateLayoutSetupPane()
     pages.pet:SetAllPoints(layoutSetupPane)
     pages.pet:Hide()
 
-    partyPetsCB = Cell.CreateCheckButton(pages.pet, L["Show Party/Arena Pets"], function(checked)
-        selectedLayoutTable["pet"]["partyEnabled"] = checked
+    soloPetCB = Cell.CreateCheckButton(pages.pet, L["Show Solo Pet"], function(checked)
+        selectedLayoutTable["pet"]["soloEnabled"] = checked
         if selectedLayout == Cell.vars.currentLayout then
             Cell.Fire("UpdateLayout", selectedLayout, "pet")
         end
     end)
-    partyPetsCB:SetPoint("TOPLEFT", 5, -27)
+    soloPetCB:SetPoint("TOPLEFT", 5, -27)
 
-    raidPetsCB = Cell.CreateCheckButton(pages.pet, L["Show Raid Pets"], function(checked)
-        selectedLayoutTable["pet"]["raidEnabled"] = checked
-        if checked then
-            UpdateRaidPetPreview()
+    partyPetsCB = Cell.CreateCheckButton(pages.pet, L["Show Party/Arena Pets"], function(checked)
+        selectedLayoutTable["pet"]["partyEnabled"] = checked
+        partyPetsDetachedCB:SetEnabled(checked)
+        if checked and selectedLayoutTable["pet"]["partyDetached"] then
+            UpdatePetPreview()
         else
-            if raidPetPreview:IsShown() then
-                UpdateRaidPetPreview()
+            if petPreview:IsShown() then
+                UpdatePetPreview()
             end
         end
         if selectedLayout == Cell.vars.currentLayout then
             Cell.Fire("UpdateLayout", selectedLayout, "pet")
         end
-    end, L["Show Raid Pets"], L["You can move it in Preview mode"])
+    end)
+    partyPetsCB:SetPoint("TOPLEFT", soloPetCB, "BOTTOMLEFT", 0, -8)
+
+    partyPetsDetachedCB = Cell.CreateCheckButton(pages.pet, L["Detached"], function(checked)
+        selectedLayoutTable["pet"]["partyDetached"] = checked
+        if checked and selectedLayoutTable["pet"]["partyEnabled"] then
+            UpdatePetPreview()
+        else
+            if petPreview:IsShown() then
+                UpdatePetPreview()
+            end
+        end
+        if selectedLayout == Cell.vars.currentLayout then
+            Cell.Fire("UpdateLayout", selectedLayout, "pet")
+        end
+    end, L["Detached"], L["Show pets in a separate frame"], L["You can move it in Preview mode"])
+    partyPetsDetachedCB:SetPoint("TOPLEFT", partyPetsCB, "TOPRIGHT", 203, 0)
+
+    raidPetsCB = Cell.CreateCheckButton(pages.pet, L["Show Raid Pets"], function(checked)
+        selectedLayoutTable["pet"]["raidEnabled"] = checked
+        if checked then
+            UpdatePetPreview()
+        else
+            if petPreview:IsShown() then
+                UpdatePetPreview()
+            end
+        end
+        if selectedLayout == Cell.vars.currentLayout then
+            Cell.Fire("UpdateLayout", selectedLayout, "pet")
+        end
+    end, L["Show Raid Pets"], L["Show pets in a separate frame"], L["You can move it in Preview mode"])
     raidPetsCB:SetPoint("TOPLEFT", partyPetsCB, "BOTTOMLEFT", 0, -8)
 
     --* npc -------------------------------------
@@ -2593,7 +2603,7 @@ local barOrientationDropdown, rotateTexCB
 
 local function CreateBarOrientationPane()
     local barOrientationPane = Cell.CreateTitledPane(layoutsTab, L["Bar Orientation"], 205, 80)
-    barOrientationPane:SetPoint("TOPLEFT", 5, -425)
+    barOrientationPane:SetPoint("TOPLEFT", 5, -445)
 
     local function SetOrientation(orientation)
         selectedLayoutTable["barOrientation"][1] = orientation
@@ -2653,7 +2663,7 @@ end
 -------------------------------------------------
 local function CreateMiscPane()
     local miscPane = Cell.CreateTitledPane(layoutsTab, L["Misc"], 205, 80)
-    miscPane:SetPoint("TOPLEFT", 222, -425)
+    miscPane:SetPoint("TOPLEFT", 222, -445)
 
     local powerFilterBtn = Cell.CreateButton(miscPane, L["Power Bar Filters"], "accent-hover", {195, 20})
     Cell.frames.layoutsTab.powerFilterBtn = powerFilterBtn
@@ -2727,10 +2737,16 @@ LoadPageDB = function(page)
 end
 
 LoadLayoutDB = function(layout, dontShowPreview)
-    F.Debug("LoadLayoutDB:", layout, dontShowPreview)
+    if layout == "hide" then
+        selectedLayout = "default"
+        selectedLayoutTable = CellDB["layouts"]["default"]
+        dontShowPreview = true
+    else
+        selectedLayout = layout
+        selectedLayoutTable = CellDB["layouts"][layout]
+    end
 
-    selectedLayout = layout
-    selectedLayoutTable = CellDB["layouts"][layout]
+    F.Debug("LoadLayoutDB:", layout, dontShowPreview)
 
     layoutDropdown:SetSelectedValue(selectedLayout)
 
@@ -2758,7 +2774,10 @@ LoadLayoutDB = function(layout, dontShowPreview)
     end
     roleOrderWidget:Load(selectedLayoutTable["main"]["roleOrder"])
     hideSelfCB:SetChecked(selectedLayoutTable["main"]["hideSelf"])
+    soloPetCB:SetChecked(selectedLayoutTable["pet"]["soloEnabled"])
     partyPetsCB:SetChecked(selectedLayoutTable["pet"]["partyEnabled"])
+    partyPetsDetachedCB:SetEnabled(selectedLayoutTable["pet"]["partyEnabled"])
+    partyPetsDetachedCB:SetChecked(selectedLayoutTable["pet"]["partyDetached"])
     raidPetsCB:SetChecked(selectedLayoutTable["pet"]["raidEnabled"])
     showNpcCB:SetChecked(selectedLayoutTable["npc"]["enabled"])
     separateNpcCB:SetChecked(selectedLayoutTable["npc"]["separate"])
@@ -2771,7 +2790,7 @@ LoadLayoutDB = function(layout, dontShowPreview)
     if not dontShowPreview then
         UpdateLayoutPreview()
         UpdateNPCPreview()
-        UpdateRaidPetPreview()
+        UpdatePetPreview()
         UpdateSpotlightPreview()
     end
 end

@@ -1811,17 +1811,23 @@ local function UpdateAppearance(which)
 
     -- scale
     if not which or which == "scale" then
-        P.SetRelativeScale(CellDB["appearance"]["scale"])
-        P.SetEffectiveScale(Cell.frames.mainFrame)
-        if Cell.frames.changelogsFrame then P.SetEffectiveScale(Cell.frames.changelogsFrame) end
-        if Cell.frames.codeSnippetsFrame then P.SetEffectiveScale(Cell.frames.codeSnippetsFrame) end
-        P.SetEffectiveScale(CellTooltip)
-        P.SetEffectiveScale(CellSpellTooltip)
-        -- P.SetEffectiveScale(CellScanningTooltip)
+        CellParent:SetScale(CellDB["appearance"]["scale"])
+
         CellTooltip:UpdatePixelPerfect()
         CellSpellTooltip:UpdatePixelPerfect()
-        -- CellScanningTooltip:UpdatePixelPerfect()
         Cell.menu:UpdatePixelPerfect()
+
+        if Cell.frames.changelogsFrame then
+            Cell.frames.changelogsFrame:UpdatePixelPerfect()
+        end
+
+        if Cell.frames.codeSnippetsFrame then
+            Cell.frames.codeSnippetsFrame:UpdatePixelPerfect()
+        end
+
+        if CellColorPicker then
+            CellColorPicker:UpdatePixelPerfect()
+        end
     end
 
     -- strata

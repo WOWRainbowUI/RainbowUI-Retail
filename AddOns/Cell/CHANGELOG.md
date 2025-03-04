@@ -1,9 +1,6 @@
-[Full Changelog](https://github.com/enderneko/Cell/compare/r244-release...106ad398539e0bcb5821fa5722d2a38147c61a4d)
+[Full Changelog](https://github.com/enderneko/Cell/compare/r246-release...f826e89c98b803da8297e172d4a110fbe30967fd)
 
-- Fix a layout auto switch issue
-- Fix issues caused by spotlight on Classic
-- Fix import
-- Add nickname support for SpellRequest
-- Add "health2" for HealthText
-- HealthText no longer hide when dead/ghost
-- Update deDE, zhTW
+- Update TWW season 2 debuffs (Thanks 钛锬)
+- Fix scaling issue
+- Fix positioning issue
+- Fix Glow indicator
