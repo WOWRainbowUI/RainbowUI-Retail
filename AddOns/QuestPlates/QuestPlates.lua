@@ -41,10 +41,12 @@ do
             for _, task in pairs(C_TaskQuest.GetQuestsForPlayerByMapID(uiMapID) or {}) do
                 if task.inProgress then
                     local questID = task.questId
-                    local questName = C_TaskQuest.GetQuestInfoByQuestID(questID)
-                    if questName then
-                        ActiveWorldQuests[questName] = questID
-                    end
+                    if questID then -- 暫時修正
+						local questName = C_TaskQuest.GetQuestInfoByQuestID(questID)
+						if questName then
+							ActiveWorldQuests[questName] = questID
+						end
+					end
                 end
             end
         end
