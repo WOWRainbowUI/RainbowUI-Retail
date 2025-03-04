@@ -181,7 +181,7 @@ local defaultSavedVars = {
       customPaletteValues = {},
       numberCustomColors = 12,
     },
-    currentDungeonIdx = 31, -- set this one every new season
+    currentDungeonIdx = 115, -- set this one every new season
     latestDungeonSeen = 0,
     selectedDungeonList = 1,
     knownAffixWeeks = {},
@@ -2919,7 +2919,9 @@ end
 
 function MDT:ImportPreset(preset, fromLiveSession)
   --change dungeon to dungeon of the new preset
-  self:UpdateToDungeon(preset.value.currentDungeonIdx, true)
+  MDT:SetDungeonList(nil, preset.value.currentDungeonIdx)
+  MDT:UpdateDungeonDropDown()
+  MDT:UpdateToDungeon(preset.value.currentDungeonIdx, true)
   --search for uid
   local updateIndex
   local duplicatePreset
