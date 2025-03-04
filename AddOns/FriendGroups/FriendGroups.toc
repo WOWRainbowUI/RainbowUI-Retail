@@ -1,17 +1,29 @@
 ## Interface: 110007, 110100
-## Version: 11.0.7
+## Version: 11.1.0
 ## Title: Friend Groups
 ## Author: Mikeprod
 ## Edited by Thainii
 ## Edited by Hayato
-
+## IconTexture: Interface/Icons/Achievement_guildperk_everybodysfriend.blp
 ## Notes: Addon managing your contact list with groups
 ## SavedVariables: FriendGroups_SavedVars
+
+## Category: User Interface
+## Category-enUS: User Interface
+## Category-deDE: Benutzerinterface
+## Category-esES: Interfaz de usuario
+## Category-esMX: Interfaz de usuario
+## Category-frFR: Interface utilisateur
+## Category-itIT: Interfaccia utente
+## Category-koKR: 사용자 인터페이스
+## Category-ptBR: Interface do usuário
+## Category-ruRU: Интерфейс пользователя
+## Category-zhCN: 用户界面
+## Category-zhTW: 使用者介面
 
 ## Title-zhTW: |cffFF9999[社交]|r 好友群組
 ## Notes-zhTW: FriendGroups |n|n增強遊戲內建的好友名單，可以建立多個不同的群組來分類管理好友名單、顯示職業顏色、搜尋好友、還有更多自訂選項。|n|n|cffffd200使用方法: |r在好友名字上點右鍵來新增或加入群組，在群組名稱或[沒有群組]上面點右鍵進入設定選項。
 ## Category-zhTW: 聊天
-## IconTexture: Interface\Icons\inv_misc_groupneedmore
 
 FriendGroups.lua
 FriendGroups.xml
