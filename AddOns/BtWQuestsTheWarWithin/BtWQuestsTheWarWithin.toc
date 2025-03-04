@@ -1,6 +1,6 @@
 ## Interface: 110007, 110100
 ## Title: BtWQuests: The War Within
-## Version: 7.0
+## Version: 7.1
 ## Notes: The War Within quest data for BtWQuests
 ## Author: Breen
 ## Dependencies: BtWQuests
@@ -11,9 +11,6 @@
 ## X-BtWQuests-Expansion-Image: UI-Expansion 0 0.90625 0 0.8125
 ## X-BtWQuests-AutoLoad: 1
 ## X-Part-Of: BtWQuests
-## X-Curse-Project-ID: 1010391
-## X-WoWI-ID: 26776
-## X-Wago-ID: bGoMAr60
 
 Defines.lua
 
