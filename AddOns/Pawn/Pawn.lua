@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1009
+PawnVersion = 2.1010
 
 -- Pawn requires this version of VgerCore:
 local PawnVgerCoreVersionRequired = 1.18
@@ -3225,9 +3225,9 @@ function PawnCorrectScaleErrors(ScaleName)
 	if not (VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm) then
 		ThisScale.SpellPenetration = nil
 		ThisScale.IsRelic = nil
+		ThisScale.ExpertiseRating = nil
 	end
 	if not (VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm) then
-		ThisScale.ExpertiseRating = nil
 		ThisScale.ResilienceRating = nil
 	end
 
