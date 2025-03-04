@@ -29,7 +29,7 @@ Cell.frames.separateNpcFrameAnchor = separateAnchor
 separateAnchor:SetMovable(true)
 separateAnchor:SetClampedToScreen(true)
 P.Size(separateAnchor, 20, 10)
-PixelUtil.SetPoint(separateAnchor, "TOPLEFT", UIParent, "CENTER", 1, -1)
+PixelUtil.SetPoint(separateAnchor, "TOPLEFT", CellParent, "CENTER", 1, -1)
 -- Cell.StylizeFrame(separateAnchor, {0, 1, 0, 0.4})
 
 local hoverFrame = CreateFrame("Frame", nil, npcFrame)
@@ -436,6 +436,15 @@ local function NPCFrame_UpdateLayout(layout, which)
     -- if previousLayout == layout and not which then return end
     -- previousLayout = layout
 
+    -- visibility
+    if layout == "hide" then
+        UnregisterAttributeDriver(npcFrame, "state-visibility")
+        npcFrame:Hide()
+        return
+    end
+    RegisterAttributeDriver(npcFrame, "state-visibility", "[@raid1,exists] show;[@party1,exists] show;show")
+
+    -- update
     layout = Cell.vars.currentLayoutTable
 
     if not which or strfind(which, "size$") then
@@ -471,12 +480,12 @@ local function NPCFrame_UpdateLayout(layout, which)
     end
 
     if not which or which == "pet" then
-        if layout["pet"]["partyEnabled"] then
-            npcFrame:SetFrameRef("party", CellPartyFrameHeaderUnitButton1Pet)
-            anchors["party"] = CellPartyFrameHeaderUnitButton1Pet
-        else
+        if not layout["pet"]["partyEnabled"] or layout["pet"]["partyDetached"] then
             npcFrame:SetFrameRef("party", CellPartyFrameHeaderUnitButton1)
             anchors["party"] = CellPartyFrameHeaderUnitButton1
+        else
+            npcFrame:SetFrameRef("party", CellPartyFrameHeaderUnitButton1Pet)
+            anchors["party"] = CellPartyFrameHeaderUnitButton1Pet
         end
     end
 
@@ -635,12 +644,12 @@ local function NPCFrame_UpdateLayout(layout, which)
 end
 Cell.RegisterCallback("UpdateLayout", "NPCFrame_UpdateLayout", NPCFrame_UpdateLayout)
 
-local function NPCFrame_UpdateVisibility(which)
-    if not which or which == "solo" or which == "party" then
-        local showSolo = CellDB["general"]["showSolo"] and "show" or "hide"
-        local showParty = CellDB["general"]["showParty"] and "show" or "hide"
-        -- RegisterAttributeDriver(npcFrame, "state-visibility", "[group:raid] show; [group:party] "..showParty.."; "..showSolo)
-        RegisterAttributeDriver(npcFrame, "state-visibility", "[@raid1,exists] show;[@party1,exists] "..showParty..";"..showSolo)
-    end
-end
-Cell.RegisterCallback("UpdateVisibility", "NPCFrame_UpdateVisibility", NPCFrame_UpdateVisibility)
+-- local function NPCFrame_UpdateVisibility(which)
+--     if not which or which == "solo" or which == "party" then
+--         local showSolo = CellDB["general"]["showSolo"] and "show" or "hide"
+--         local showParty = CellDB["general"]["showParty"] and "show" or "hide"
+--         -- RegisterAttributeDriver(npcFrame, "state-visibility", "[group:raid] show; [group:party] "..showParty.."; "..showSolo)
+--         RegisterAttributeDriver(npcFrame, "state-visibility", "[@raid1,exists] show;[@party1,exists] "..showParty..";"..showSolo)
+--     end
+-- end
+-- Cell.RegisterCallback("UpdateVisibility", "NPCFrame_UpdateVisibility", NPCFrame_UpdateVisibility)

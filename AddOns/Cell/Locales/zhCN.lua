@@ -3,7 +3,7 @@ if not LOCALE_zhCN then return end
 local L = select( 2, ...).L
 
 L["New version found (%s). Please visit %s to get the latest version."] = "发现新版本 (%s)。 请访问 %s 下载最新版本。"
-L["ABOUT"] = "Cell 团队框架的灵感来主要来自 CompactRaid 与 Grid2，同时也稍微参考了 Aptechka 和 VuhDo。\nCell 不轻量，也并非全能，其目标是提供相比以往更好的用户体验。\n希望你能喜欢。"
+L["ABOUT"] = "Cell 团队框架的灵感来主要来自 CompactRaid 与 Grid2，同时也稍微参考了 Aptechka 和 VuhDo。\nCell 不轻量，也并非全能，其目标是提供相比以往更好的用户体验。"
 L["RESET"] = "从过旧的版本更新，需要重置Cell"
 L["RESET_CHARACTER"] = "从过旧的版本更新，需要重置Cell的角色配置"
 L["RESET_INCLUDES"] = "这仅包括点击施法与布局自动切换"
@@ -280,7 +280,7 @@ L["Tip: Every layout has its own position setting"] = "提示：每个布局都�
 
 -- layout preview
 L["Party"] = "小队"
-L["Raid Pets"] = "团队宠物"
+L["Pets"] = "宠物"
 L["Friendly NPC Frame"] = "友方 NPC 框体"
 
 -- layout auto switch
@@ -322,8 +322,11 @@ L["%s is required"] = "需要%s"
 L["Use Same Size As Main"] = "使用与主框体相同的尺寸"
 L["Use Same Arrangement As Main"] = "使用与主框体相同的排列"
 
+L["Show Solo Pet"] = "显示单人宠物"
 L["Show Party/Arena Pets"] = "显示小队/竞技场宠物"
+L["Detached"] = "分离"
 L["Show Raid Pets"] = "显示团队宠物"
+L["Show pets in a separate frame"] = "将宠物显示在一个单独的框体中"
 
 L["Show NPC Frame"] = "显示 NPC 框体"
 L["Separate NPC Frame"] = "分离 NPC 框体"
@@ -874,6 +877,27 @@ L["Click to view older changelogs"] = "点击查看远古更新记录"
 L["CHANGELOGS"] = [[
     <h1>更新后如果有各种问题，先排查代码片段。</h1>
     <p>（正式服）如果指示器不能正常刷新，尝试启用常规页面下的“总是更新增益/减益”选项。</p>
+    <br/>
+
+    <h1>r247-release (Mar 4, 2025, 17:50 GMT+8)</h1>
+    <p>! 由于缩放行为的变更，你可能需要重新调节Cell的尺寸与位置。</p>
+    <p>* 更新地心之战第2赛季的副本减益（感谢 钛锬）。</p>
+    <p>* 修复缩放问题。</p>
+    <p>* 修复定位偏移。</p>
+    <p>* 修复“发光”类型的自定义指示器。</p>
+    <br/>
+
+    <h1>r246-release (Mar 4, 2025, 13:00 GMT+8)</h1>
+    <p>! Cell 现在随 UIParent 缩放。</p>
+    <p>+ 为进度条类型的自定义指示器添加了“最大值”的选项（#337）。</p>
+    <p>+ 为部分指示器添加了发光。</p>
+    <p>+ 实现布局隐藏（在布局自动切换下），常规页面下的旧选项已被移除。</p>
+    <p>+ 单人宠物现在可以隐藏。</p>
+    <p>* 修复菜单的鼠标穿透问题。</p>
+    <p>* 修复驱散检查。</p>
+    <p>* 战复计时器与小队宠物现在可以从主框体分离。</p>
+    <p>* 间距选项现在对单人/小队宠物有效。</p>
+    <p>* 更新本地化。</p>
     <br/>
 
     <h1>r245-release (Feb 25, 2025, 19:35 GMT+8)</h1>

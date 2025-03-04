@@ -22,7 +22,7 @@ Cell.frames.spotlightFrame = spotlightFrame
 
 local anchorFrame = CreateFrame("Frame", "CellSpotlightAnchorFrame", spotlightFrame)
 Cell.frames.spotlightFrameAnchor = anchorFrame
-PixelUtil.SetPoint(anchorFrame, "TOPLEFT", UIParent, "CENTER", 1, -1)
+PixelUtil.SetPoint(anchorFrame, "TOPLEFT", CellParent, "CENTER", 1, -1)
 anchorFrame:SetMovable(true)
 anchorFrame:SetClampedToScreen(true)
 
@@ -92,10 +92,10 @@ targetFrame:EnableMouse(false)
 
 function targetFrame:StartMoving()
     targetFrame:Show()
-    local scale = P.GetEffectiveScale()
+    local scale = targetFrame:GetEffectiveScale()
     targetFrame:SetScript("OnUpdate", function()
         local x, y = GetCursorPosition()
-        targetFrame:SetPoint("BOTTOMLEFT", UIParent, x/scale, y/scale)
+        targetFrame:SetPoint("BOTTOMLEFT", CellParent, x/scale, y/scale)
         targetFrame:SetWidth(targetFrame.label:GetWidth() + 10)
     end)
 end
@@ -752,6 +752,14 @@ local function UpdateLayout(layout, which)
     -- if previousLayout == layout and not which then return end
     -- previousLayout = layout
 
+    -- visibility
+    if layout == "hide" then
+        spotlightFrame:Hide()
+        menu:Hide()
+        return
+    end
+
+    -- update
     layout = Cell.vars.currentLayoutTable
 
     if not which or strfind(which, "size$") then
@@ -949,7 +957,7 @@ local function UpdateLayout(layout, which)
     if not P.LoadPosition(anchorFrame, layout["spotlight"]["position"]) then
         P.ClearPoints(anchorFrame)
         -- no position, use default
-        anchorFrame:SetPoint("TOPLEFT", UIParent, "CENTER")
+        anchorFrame:SetPoint("TOPLEFT", CellParent, "CENTER")
     end
 end
 Cell.RegisterCallback("UpdateLayout", "SpotlightFrame_UpdateLayout", UpdateLayout)
