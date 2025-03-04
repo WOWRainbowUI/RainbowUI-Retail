@@ -1,7 +1,7 @@
 # Auctionator
 
-## [266](https://github.com/Auctionator/Auctionator/tree/266) (2025-02-26)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/265...266) 
+## [267](https://github.com/Auctionator/Auctionator/tree/267) (2025-03-03)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/266...267) 
 
-- [Fixes #1653] Cata: Full Scan: Workaround for missing FrameXML global  
-    Now uses internal item data loading code  
+- Cata: Fix setting default undercut to 1c not working  
+- Cata: Fix showing default tab not working  
