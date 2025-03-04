@@ -328,9 +328,6 @@ L["Bound Water Elemental"] = "Elémentaire d'eau lié"
 L["Bounty Hunter"] = "Bounty Hunter"
 L[ [=[Bounty stacks 
 after this pull]=] ] = "Les primes se cumulent après ce pull"
-L["Bounty stacks after this pull"] = "Les primes se cumulent après ce pull"
-L[ [=[Bounty stacks
-after this pull]=] ] = "Les primes se cumulent après ce pull"
 L["Bracken Warscourge"] = "Fléau-de-guerre des fougères"
 L["Brackenhide Shaper"] = "Façonneuse fougerobe"
 --[[Translation missing --]]
@@ -363,7 +360,6 @@ L["Brutal Spire of Ny'alotha"] = "Flèche féroce de Ny'alotha"
 L["Bubbles"] = "Bubbles"
 --[[Translation missing --]]
 L["Bubbling Ooze"] = "Bubbling Ooze"
-L["Bubbling Sapling"] = "Arbrisseau frémissant"
 L["Burly Deckhand"] = "Matelot costaud"
 L["Burly Rock-Thrower"] = "Lance-pierres costaud"
 L["Burning Geode"] = "Géode ardente"
@@ -911,7 +907,6 @@ L["Ethereal Restorer"] = "Restaurateur éthéré"
 L["Everbloom Cultivator"] = "Everbloom Cultivator"
 L["Everbloom Mender"] = "Soigneur de la Flore éternelle"
 L["Everbloom Naturalist"] = "Naturaliste de la Flore éternelle"
-L["Everbloom Tender"] = "Guérisseur de la Flore éternelle"
 --[[Translation missing --]]
 L["everbloomShortName"] = "EB"
 L["Executioner Varruth"] = "Exécuteur Varruth"
@@ -987,7 +982,6 @@ L["Flashfrost Chillweaver"] = "Tisse-glace givréclair"
 L["Flashfrost Earthshaper"] = "Sculpte-terre givréclair"
 --[[Translation missing --]]
 L["Flavor Scientist"] = "Flavor Scientist"
-L["Fledgling Slasher"] = "Jeune déchiqueteuse"
 L["Fleeting Manifestation"] = "Manifestation fuyante"
 L["Flesh Crafter"] = "Façonneur de chair"
 L["Flesheating Ghoul"] = "Goule mangeuse de chair"
@@ -1492,7 +1486,6 @@ L["Lakesis"] = "Lakésis"
 L["Language"] = "Langue "
 L["LargePresetWarning"] = "Vous essayez de partager une très grande route (durée : %.1fs)%sIl est recommandé d'utiliser la fonction d'exportation et de partager de grandes routes via des sites externes ou de supprimer les dessins de la route.%sÊtes-vous sûr de vouloir partager cette route ?%s"
 L["Lashing Voidling"] = "Engeance du Vide flagellante"
-L["Latosius"] = "Latosius"
 L["Lava Flare"] = "Embrasement de lave"
 L["Lavanthor"] = "Lavanthor"
 L["Legion"] = "Légion"
@@ -1722,7 +1715,6 @@ L["Naz'jar Oracle"] = "Naz'jar Oracle"
 --[[Translation missing --]]
 L["Naz'jar Ravager"] = "Naz'jar Ravager"
 L["Naz'jar Sentinel"] = "Sentinelle naz'jar"
-L["Naz'jar Spiritmender"] = "Soignesprit naz'jar"
 L["Naz'jar Tempest Witch"] = "Sorcière des tempêtes naz'jar"
 L["Necro Knight"] = "Nécrochevalier"
 L["Necrotic"] = "Nécrotique  "
@@ -2786,8 +2778,6 @@ L["Twilight Beguiler"] = "Twilight Beguiler"
 --[[Translation missing --]]
 L["Twilight Brute"] = "Twilight Brute"
 L["Twilight Darkcaster"] = "Invocateur noir du Crépuscule"
---[[Translation missing --]]
-L["Twilight Decapitator"] = ""
 --[[Translation missing --]]
 L["Twilight Destroyer"] = "Twilight Destroyer"
 --[[Translation missing --]]

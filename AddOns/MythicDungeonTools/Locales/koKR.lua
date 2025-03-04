@@ -355,11 +355,6 @@ L["Bounty Hunter"] = "Bounty Hunter"
 L[ [=[Bounty stacks 
 after this pull]=] ] = [=[Bounty stacks 
 after this pull]=]
---[[Translation missing --]]
-L["Bounty stacks after this pull"] = ""
---[[Translation missing --]]
-L[ [=[Bounty stacks
-after this pull]=] ] = ""
 L["Bracken Warscourge"] = "담쟁이 전쟁파멸자"
 L["Brackenhide Shaper"] = "담쟁이가죽 구체자"
 --[[Translation missing --]]
@@ -393,7 +388,6 @@ L["Brutal Spire of Ny'alotha"] = "잔혹한 나이알로사의 첨탑"
 L["Bubbles"] = "Bubbles"
 --[[Translation missing --]]
 L["Bubbling Ooze"] = "Bubbling Ooze"
-L["Bubbling Sapling"] = "부글거리는 묘목"
 L["Burly Deckhand"] = "건장한 갑판원"
 L["Burly Rock-Thrower"] = "우람한 투석병"
 L["Burning Geode"] = "불타는 청동석"
@@ -991,7 +985,6 @@ L["Ethereal Restorer"] = "실체 없는 구원자"
 L["Everbloom Cultivator"] = "Everbloom Cultivator"
 L["Everbloom Mender"] = "상록숲 치유사"
 L["Everbloom Naturalist"] = "상록숲 식물학자"
-L["Everbloom Tender"] = "상록숲 화원관리인"
 --[[Translation missing --]]
 L["everbloomShortName"] = "EB"
 L["Executioner Varruth"] = "집행자 바루스"
@@ -1071,7 +1064,6 @@ L["Flashfrost Chillweaver"] = "섬광서리 한기술사"
 L["Flashfrost Earthshaper"] = "섬광서리 대지창조자"
 --[[Translation missing --]]
 L["Flavor Scientist"] = "Flavor Scientist"
-L["Fledgling Slasher"] = "새끼 난도질꾼"
 L["Fleeting Manifestation"] = "찰나의 현신"
 L["Flesh Crafter"] = "살점 공예가"
 L["Flesheating Ghoul"] = "굶주린 식인 구울"
@@ -1616,7 +1608,6 @@ L["Lakesis"] = "라케시스"
 L["Language"] = "언어"
 L["LargePresetWarning"] = "매우 큰 길을 공유하려고 합니다 (%d characters)%s대신에 내보내기 기능을 사용하여 external websites를 통해 큰 길을 공유하기를 추천합니다.%s정말 이 길을 공유하고 싶나요?%s"
 L["Lashing Voidling"] = "채찍 공허괴물"
-L["Latosius"] = "라토시우스"
 L["Lava Flare"] = "용암 섬광"
 L["Lavanthor"] = "라반토르"
 L["Legion"] = "군단"
@@ -1854,7 +1845,6 @@ L["Naz'jar Oracle"] = "Naz'jar Oracle"
 --[[Translation missing --]]
 L["Naz'jar Ravager"] = "Naz'jar Ravager"
 L["Naz'jar Sentinel"] = "나즈자르 파수꾼"
-L["Naz'jar Spiritmender"] = "나즈자르 정신치유사"
 L["Naz'jar Tempest Witch"] = "나즈자르 폭풍우 마녀"
 L["Necro Knight"] = "해골 기사"
 L["Necrotic"] = "괴저"
@@ -2946,8 +2936,6 @@ L["Twilight Beguiler"] = "Twilight Beguiler"
 --[[Translation missing --]]
 L["Twilight Brute"] = "Twilight Brute"
 L["Twilight Darkcaster"] = "황혼의 암흑술사"
---[[Translation missing --]]
-L["Twilight Decapitator"] = ""
 --[[Translation missing --]]
 L["Twilight Destroyer"] = "Twilight Destroyer"
 --[[Translation missing --]]

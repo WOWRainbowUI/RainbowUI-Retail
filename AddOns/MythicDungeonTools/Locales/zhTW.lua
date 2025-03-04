@@ -425,10 +425,6 @@ L["Bounty Hunter"] = "Bounty Hunter"
 L[ [=[Bounty stacks 
 after this pull]=] ] = [=[這波拉怪後
 連帶幾堆]=]
-L["Bounty stacks after this pull"] = "此次拉怪也會引到"
---[[Translation missing --]]
-L[ [=[Bounty stacks
-after this pull]=] ] = ""
 --[[Translation missing --]]
 L["Bracken Warscourge"] = "Bracken Warscourge"
 --[[Translation missing --]]
@@ -466,8 +462,6 @@ L["Brutal Spire of Ny'alotha"] = "严酷之尼奥罗萨尖塔"
 L["Bubbles"] = "Bubbles"
 --[[Translation missing --]]
 L["Bubbling Ooze"] = "Bubbling Ooze"
---[[Translation missing --]]
-L["Bubbling Sapling"] = ""
 L["Burly Deckhand"] = "肌肉虬结的水手"
 --[[Translation missing --]]
 L["Burly Rock-Thrower"] = "Burly Rock-Thrower"
@@ -1160,8 +1154,6 @@ L["Everbloom Mender"] = "Everbloom Mender"
 --[[Translation missing --]]
 L["Everbloom Naturalist"] = "Everbloom Naturalist"
 --[[Translation missing --]]
-L["Everbloom Tender"] = ""
---[[Translation missing --]]
 L["everbloomShortName"] = "EB"
 L["Executioner Varruth"] = "刽子手瓦卢斯"
 --[[Translation missing --]]
@@ -1256,8 +1248,6 @@ L["Flashfrost Chillweaver"] = "Flashfrost Chillweaver"
 L["Flashfrost Earthshaper"] = "Flashfrost Earthshaper"
 --[[Translation missing --]]
 L["Flavor Scientist"] = "Flavor Scientist"
---[[Translation missing --]]
-L["Fledgling Slasher"] = ""
 --[[Translation missing --]]
 L["Fleeting Manifestation"] = "Fleeting Manifestation"
 L["Flesh Crafter"] = "血肉工匠"
@@ -1874,8 +1864,6 @@ L["Language"] = "語言"
 L["LargePresetWarning"] = "你正嘗試分享非常龐大的路線 (傳輸時間: %.1f秒)%s建議使用匯出的功能，將大型的路線改為分享到 外部網站，或是移除路線中的繪圖。%s是否確定要分享這個路線?%s"
 L["Lashing Voidling"] = "鞭笞虚空幼体"
 --[[Translation missing --]]
-L["Latosius"] = ""
---[[Translation missing --]]
 L["Lava Flare"] = "Lava Flare"
 --[[Translation missing --]]
 L["Lavanthor"] = "Lavanthor"
@@ -2160,8 +2148,6 @@ L["Naz'jar Oracle"] = "Naz'jar Oracle"
 L["Naz'jar Ravager"] = "Naz'jar Ravager"
 --[[Translation missing --]]
 L["Naz'jar Sentinel"] = "Naz'jar Sentinel"
---[[Translation missing --]]
-L["Naz'jar Spiritmender"] = ""
 --[[Translation missing --]]
 L["Naz'jar Tempest Witch"] = "Naz'jar Tempest Witch"
 --[[Translation missing --]]
@@ -3467,8 +3453,6 @@ L["Twilight Beguiler"] = "Twilight Beguiler"
 L["Twilight Brute"] = "Twilight Brute"
 --[[Translation missing --]]
 L["Twilight Darkcaster"] = "Twilight Darkcaster"
---[[Translation missing --]]
-L["Twilight Decapitator"] = ""
 --[[Translation missing --]]
 L["Twilight Destroyer"] = "Twilight Destroyer"
 --[[Translation missing --]]

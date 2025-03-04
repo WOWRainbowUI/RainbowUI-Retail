@@ -355,11 +355,6 @@ L["Bounty Hunter"] = "Bounty Hunter"
 L[ [=[Bounty stacks 
 after this pull]=] ] = [=[Bounty stacks 
 after this pull]=]
---[[Translation missing --]]
-L["Bounty stacks after this pull"] = ""
---[[Translation missing --]]
-L[ [=[Bounty stacks
-after this pull]=] ] = ""
 L["Bracken Warscourge"] = "Flagelo de Guerra das Samambaias"
 L["Brackenhide Shaper"] = "Moldadora de Courambaia"
 --[[Translation missing --]]
@@ -393,7 +388,6 @@ L["Brutal Spire of Ny'alotha"] = "Pináculo Brutal de Ny'alotha"
 L["Bubbles"] = "Bubbles"
 --[[Translation missing --]]
 L["Bubbling Ooze"] = "Bubbling Ooze"
-L["Bubbling Sapling"] = "Broto Borbulhante"
 L["Burly Deckhand"] = "Marujo Parrudo"
 L["Burly Rock-Thrower"] = "Lança-pedras Parrudo"
 L["Burning Geode"] = "Geodo Ardente"
@@ -983,7 +977,6 @@ L["Ethereal Restorer"] = "Restaurador Etéreo"
 L["Everbloom Cultivator"] = "Everbloom Cultivator"
 L["Everbloom Mender"] = "Reparador de Floretérnia"
 L["Everbloom Naturalist"] = "Naturalista de Floretérnia"
-L["Everbloom Tender"] = "Conservador de Floretérnia"
 --[[Translation missing --]]
 L["everbloomShortName"] = "EB"
 L["Executioner Varruth"] = "Carrasco Varruth"
@@ -1062,7 +1055,6 @@ L["Flashfrost Chillweaver"] = "Tecefrio Gelo Súbito"
 L["Flashfrost Earthshaper"] = "Moldaterra Gelo Súbito"
 --[[Translation missing --]]
 L["Flavor Scientist"] = "Flavor Scientist"
-L["Fledgling Slasher"] = "Rasgadora Aprendiz"
 L["Fleeting Manifestation"] = "Manifestação Fugaz"
 L["Flesh Crafter"] = "Artesão de Carne"
 L["Flesheating Ghoul"] = "Carniçal Devora-carne"
@@ -1610,7 +1602,6 @@ L["Lakesis"] = "Lakesis"
 L["Language"] = "Idioma"
 L["LargePresetWarning"] = "Você está tentando compartilhar uma rota muito grande (%d caracteres)%s Ao invés disso é recomendado usar a função de exportar e compartilhar rotas grandes através do websites externos.%s Tem certeza que quer compartilhar essa rota?%s"
 L["Lashing Voidling"] = "Filho do Caos Açoitante"
-L["Latosius"] = "Latosius"
 L["Lava Flare"] = "Sinalizador de Lava"
 L["Lavanthor"] = "Lavanthor"
 --[[Translation missing --]]
@@ -1855,7 +1846,6 @@ L["Naz'jar Oracle"] = "Naz'jar Oracle"
 --[[Translation missing --]]
 L["Naz'jar Ravager"] = "Naz'jar Ravager"
 L["Naz'jar Sentinel"] = "Sentinela Naz'jar"
-L["Naz'jar Spiritmender"] = "Cura-espíritos Naz'jar"
 L["Naz'jar Tempest Witch"] = "Bruxa da Tempestade Naz'jar"
 L["Necro Knight"] = "Necro-cavaleiro"
 L["Necrotic"] = "Necrótica"
@@ -3116,8 +3106,6 @@ L["Twilight Beguiler"] = "Twilight Beguiler"
 --[[Translation missing --]]
 L["Twilight Brute"] = "Twilight Brute"
 L["Twilight Darkcaster"] = "Taumaturgo do Crepúsculo"
---[[Translation missing --]]
-L["Twilight Decapitator"] = ""
 --[[Translation missing --]]
 L["Twilight Destroyer"] = "Twilight Destroyer"
 --[[Translation missing --]]
