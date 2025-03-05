@@ -20,8 +20,7 @@ L["A UI reload is required.\nDo it now?"] = [=[需要重新載入介面。
 是否要現在立即重新載入?]=]
 L["About"] = "關於"
 L["ABOUT"] = [=[Cell 團隊框架的靈感來主要來自 CompactRaid 與 Grid2，同時也稍微參考了 Aptechka 和 VuhDo。
-Cell 不輕量，也並非全能，其目標是提供良好的用戶體驗。
-希望你能喜歡。]=]
+Cell 不輕量，也並非全能，其目標是提供良好的用戶體驗。]=]
 L["ACCEPTED"] = "已接受"
 L["Action"] = "動作"
 L["Add"] = "新增"
@@ -49,6 +48,7 @@ L["Any Spells"] = "所有法術"
 L["Anyone"] = "任何人"
 L["AoE Healing"] = "範圍治療 (團補)"
 L["Appearance"] = "外觀"
+L["Apply Recommended Scale"] = "套用建議的縮放大小"
 L["Arena"] = "競技場"
 L["assist"] = "協助"
 L["Assist"] = "協助"
@@ -438,7 +438,7 @@ L["PENDING"] = "等候"
 L["Percentage"] = "百分比"
 L["Pet"] = "寵物"
 L["PET"] = "寵物"
-L["Pets"] = "團隊寵物"
+L["Pets"] = "寵物"
 L["Pixel"] = "像素"
 L["Pixel Perfect"] = "完美細緻模式"
 L["Play animation when the unit uses a specific spell/item. The list is global shared, not layout-specific."] = "當單位使用特定的法術/物品時，播放動畫。這個清單是整體共用的，而非每個版面配置專用。"
@@ -570,7 +570,7 @@ L["Show friendly NPCs in a separate frame"] = "將友方 NPC 顯示在一個獨�
 L["Show NPC Frame"] = "顯示 NPC 框架"
 L["Show Party"] = "5人隊伍時要顯示"
 L["Show Party/Arena Pets"] = "顯示隊伍/競技場寵物"
-L["Show pets in a separate frame"] = "將寵物顯示在單獨的視窗"
+L["Show pets in a separate frame"] = "將寵物顯示在單獨的視窗中"
 L["Show Raid"] = "團隊時要顯示"
 L["Show Raid Pets"] = "顯示團隊寵物"
 L["Show Solo"] = "單人時要顯示"

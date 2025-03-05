@@ -75,11 +75,11 @@ end)
 
 function F.UpdateLayout(layoutGroupType)
     if InCombatLockdown() then
-        F.Debug("|cFF7CFC00F:UpdateLayout(\""..layoutGroupType.."\") DELAYED")
+        F.Debug("|cFF7CFC00F.UpdateLayout(\""..layoutGroupType.."\") DELAYED")
         delayedLayoutGroupType = layoutGroupType
         delayedFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
     else
-        F.Debug("|cFF7CFC00F:UpdateLayout(\""..layoutGroupType.."\")")
+        F.Debug("|cFF7CFC00F.UpdateLayout(\""..layoutGroupType.."\")")
 
         Cell.vars.layoutAutoSwitch = CellCharacterDB["layoutAutoSwitch"][Cell.vars.activeTalentGroup]
 
@@ -320,20 +320,7 @@ function eventFrame:ADDON_LOADED(arg1)
 
         -- appearance -----------------------------------------------------------------------------
         if type(CellDB["appearance"]) ~= "table" then
-            -- get recommended scale
-            local pScale = P.GetPixelPerfectScale()
-            local scale
-            if pScale >= 0.7 then
-                scale = 1
-            elseif pScale >= 0.5 then
-                scale = 1.4
-            else
-                scale = 2
-            end
-
             CellDB["appearance"] = F.Copy(Cell.defaults.appearance)
-            -- update recommended scale
-            CellDB["appearance"]["scale"] = scale
         end
 
         -- color ---------------------------------------------------------------------------------
@@ -467,7 +454,7 @@ function eventFrame:ADDON_LOADED(arg1)
         -- validate layout
         for talent, t in pairs(CellCharacterDB["layoutAutoSwitch"]) do
             for groupType, layout in pairs(t) do
-                if not CellDB["layouts"][layout] then
+                if layout ~= "hide" and not CellDB["layouts"][layout] then
                     t[groupType] = "default"
                 end
             end
@@ -726,6 +713,10 @@ function SlashCmdList.CELL(msg, editbox)
     elseif command == "healers" then
         F.FirstRun()
 
+    elseif command == "rescale" then
+        CellDB["appearance"]["scale"] = P.GetRecommendedScale()
+        ReloadUI()
+
     elseif command == "reset" then
         if rest == "position" then
             Cell.frames.anchorFrame:ClearAllPoints()
@@ -790,6 +781,7 @@ function SlashCmdList.CELL(msg, editbox)
         F.Print(L["Available slash commands"]..":\n"..
             "|cFFFFB5C5/cell options|r, |cFFFFB5C5/cell opt|r: "..L["show Cell options frame"]..".\n"..
             "|cFFFFB5C5/cell healers|r: "..L["create a \"Healers\" indicator"]..".\n"..
+            "|cFFFFB5C5/cell rescale|r: "..strlower(L["Apply Recommended Scale"])..".\n"..
             "|cFFFF7777"..L["These \"reset\" commands below affect all your characters in this account"]..".|r\n"..
             "|cFFFFB5C5/cell reset position|r: "..L["reset Cell position"]..".\n"..
             "|cFFFFB5C5/cell reset layouts|r: "..L["reset all Layouts and Indicators"]..".\n"..
