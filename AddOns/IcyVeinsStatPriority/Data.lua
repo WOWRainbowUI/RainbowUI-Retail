@@ -128,7 +128,7 @@ local data = {
     -- 256 - Priest: Discipline -- https://www.icy-veins.com/wow/discipline-priest-pve-healing-stat-priority
     [256] = {
         {"Intellect > Haste > Mastery > Critical Strike > Versatility", "虛織者"},
-        {"Intellect > Haste (25%) > Critical Strike = Mastery > Haste (<25%) > Versatility", "神喻者"},
+        {"Intellect > Haste (25%) > Critical Strike = Mastery > Haste (超過25%) > Versatility", "神喻者"},
     },
     -- 257 - Priest: Holy -- https://www.icy-veins.com/wow/holy-priest-pve-healing-stat-priority
     [257] = {
