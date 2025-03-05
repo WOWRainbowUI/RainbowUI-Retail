@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2173, "DBM-Party-BfA", 5, 1023)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250225034104")
+mod:SetRevision("20250302235657")
 mod:SetCreatureID(129208)
 mod:SetEncounterID(2109)
 mod:SetHotfixNoticeRev(20240807000000)
@@ -58,7 +58,7 @@ function mod:OnCombatStart(delay)
 	timerCleartheDeckCD:Start(3.5-delay, 1)
 	timerRicochetCD:Start(9.0-delay, 1)--Could be shorter, but most people trigger gutshot on pull
 	if self:IsMythic() then
-		timerMassBombardmentCD:Start("v1.3-10.1"-delay, 1)
+		timerMassBombardmentCD:Start("v1.3-10.1", 1)
 	end
 --	timerWithdrawCD:Start(13.1-delay, 1)
 end
