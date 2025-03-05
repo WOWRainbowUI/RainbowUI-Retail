@@ -322,8 +322,8 @@ local function UpdateLayoutPreview()
 
         if selectedLayoutTable["main"]["orientation"] == "vertical" then
             layoutPreview.combinedHeader:SetSize(
-                selectedLayoutTable["main"]["size"][1]*maxColumns+abs(groupSpacing)*(maxColumns-1),
-                selectedLayoutTable["main"]["size"][2]*unitsPerColumn+abs(unitSpacing)*(unitsPerColumn-1))
+                P.Scale(selectedLayoutTable["main"]["size"][1]) * maxColumns + abs(groupSpacing) * (maxColumns - 1),
+                P.Scale(selectedLayoutTable["main"]["size"][2]) * unitsPerColumn + abs(unitSpacing) * (unitsPerColumn - 1))
 
             for i = 1, min(40, units) do
                 local header = layoutPreview.combinedHeader
@@ -339,8 +339,8 @@ local function UpdateLayoutPreview()
             end
         else
             layoutPreview.combinedHeader:SetSize(
-                selectedLayoutTable["main"]["size"][1]*unitsPerColumn+abs(unitSpacing)*(unitsPerColumn-1),
-                selectedLayoutTable["main"]["size"][2]*maxColumns+abs(groupSpacing)*(maxColumns-1))
+                P.Scale(selectedLayoutTable["main"]["size"][1]) * unitsPerColumn + abs(unitSpacing) * (unitsPerColumn - 1),
+                P.Scale(selectedLayoutTable["main"]["size"][2]) * maxColumns + abs(groupSpacing) * (maxColumns - 1))
 
             for i = 1, min(40, units) do
                 local header = layoutPreview.combinedHeader
@@ -358,7 +358,7 @@ local function UpdateLayoutPreview()
 
         -- hide unused
         for i = 1, 40 do
-            layoutPreview.combinedHeader[i]:SetSize(selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2])
+            P.Size(layoutPreview.combinedHeader[i], selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2])
             if i > units then
                 layoutPreview.combinedHeader[i]:Hide()
                 layoutPreview.combinedHeader[i].tex:Hide()
@@ -400,9 +400,9 @@ local function UpdateLayoutPreview()
             header:ClearAllPoints()
 
             if selectedLayoutTable["main"]["orientation"] == "vertical" then
-                header:SetSize(selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2]*5+abs(unitSpacing)*4)
+                header:SetSize(P.Scale(selectedLayoutTable["main"]["size"][1]), P.Scale(selectedLayoutTable["main"]["size"][2]) * 5 + abs(unitSpacing) * 4)
                 for j = 1, 5 do
-                    header[j]:SetSize(selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2])
+                    P.Size(header[j], selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2])
                     header[j]:ClearAllPoints()
 
                     if j == 1 then
@@ -415,16 +415,20 @@ local function UpdateLayoutPreview()
                 if i == 1 then
                     header:SetPoint(point)
                 else
-                    if i % selectedLayoutTable["main"]["maxColumns"] == 1 then -- first column on each row
-                        header:SetPoint(point, layoutPreview.separatedHeaders[shownGroups[i-selectedLayoutTable["main"]["maxColumns"]]], 0, verticalSpacing)
+                    local headersPerRow = selectedLayoutTable["main"]["maxColumns"]
+                    local headerCol = i % headersPerRow
+                    headerCol = headerCol == 0 and headersPerRow or headerCol
+
+                    if headerCol == 1 then -- first column on each row
+                        header:SetPoint(point, layoutPreview.separatedHeaders[shownGroups[i-headersPerRow]], 0, verticalSpacing)
                     else
                         header:SetPoint(point, layoutPreview.separatedHeaders[shownGroups[i-1]], groupAnchorPoint, groupSpacing, 0)
                     end
                 end
             else
-                header:SetSize(selectedLayoutTable["main"]["size"][1]*5+abs(unitSpacing)*4, selectedLayoutTable["main"]["size"][2])
+                header:SetSize(P.Scale(selectedLayoutTable["main"]["size"][1]) * 5 + abs(unitSpacing) * 4, P.Scale(selectedLayoutTable["main"]["size"][2]))
                 for j = 1, 5 do
-                    header[j]:SetSize(selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2])
+                    P.Size(header[j], selectedLayoutTable["main"]["size"][1], selectedLayoutTable["main"]["size"][2])
                     header[j]:ClearAllPoints()
 
                     if j == 1 then
@@ -437,8 +441,12 @@ local function UpdateLayoutPreview()
                 if i == 1 then
                     header:SetPoint(point)
                 else
-                    if i % selectedLayoutTable["main"]["maxColumns"] == 1 then -- first row on each column
-                        header:SetPoint(point, layoutPreview.separatedHeaders[shownGroups[i-selectedLayoutTable["main"]["maxColumns"]]], horizontalSpacing, 0)
+                    local headersPerCol = selectedLayoutTable["main"]["maxColumns"]
+                    local headerRow = i % headersPerRow
+                    headerRow = headerRow == 0 and headersPerCol or headerRow
+
+                    if headerRow == 1 then -- first row on each column
+                        header:SetPoint(point, layoutPreview.separatedHeaders[shownGroups[i-headersPerCol]], horizontalSpacing, 0)
                     else
                         header:SetPoint(point, layoutPreview.separatedHeaders[shownGroups[i-1]], groupAnchorPoint, 0, groupSpacing)
                     end
@@ -649,7 +657,7 @@ local function UpdateNPCPreview()
             unitSpacing = -spacingY
         end
 
-        P.Size(header, width, height*5+abs(unitSpacing)*4)
+        header:SetSize(P.Scale(width), P.Scale(height) * 5 + abs(P.Scale(unitSpacing)) * 4)
         header:SetPoint(point)
 
         for i = 1, 5 do
@@ -659,7 +667,7 @@ local function UpdateNPCPreview()
             if i == 1 then
                 header[i]:SetPoint(point)
             else
-                header[i]:SetPoint(point, header[i-1], anchorPoint, 0, unitSpacing)
+                header[i]:SetPoint(point, header[i-1], anchorPoint, 0, P.Scale(unitSpacing))
             end
         end
     else
@@ -679,7 +687,7 @@ local function UpdateNPCPreview()
             unitSpacing = -spacingX
         end
 
-        P.Size(header, width*5+abs(unitSpacing)*4, height)
+        header:SetSize(P.Scale(width) * 5 + abs(P.Scale(unitSpacing)) * 4, P.Scale(height))
         header:SetPoint(point)
 
         for i = 1, 5 do
@@ -689,7 +697,7 @@ local function UpdateNPCPreview()
             if i == 1 then
                 header[i]:SetPoint(point)
             else
-                header[i]:SetPoint(point, header[i-1], anchorPoint, unitSpacing, 0)
+                header[i]:SetPoint(point, header[i-1], anchorPoint, P.Scale(unitSpacing), 0)
             end
         end
     end
@@ -904,7 +912,7 @@ local function UpdatePetPreview()
             groupSpacing = -spacingX
         end
 
-        P.Size(header, width*4+abs(unitSpacing)*3, height*5+abs(unitSpacing)*4)
+        header:SetSize(P.Scale(width) * 4 + abs(P.Scale(unitSpacing)) * 3, P.Scale(height) * 5 + abs(P.Scale(unitSpacing))*4)
         header:SetPoint(point)
 
         for i = 1, petNums do
@@ -914,9 +922,9 @@ local function UpdatePetPreview()
             if i == 1 then
                 header[i]:SetPoint(point)
             elseif i % 5 == 1 then
-                header[i]:SetPoint(point, header[i-5], groupAnchorPoint, groupSpacing, 0)
+                header[i]:SetPoint(point, header[i-5], groupAnchorPoint, P.Scale(groupSpacing), 0)
             else
-                header[i]:SetPoint(point, header[i-1], anchorPoint, 0, unitSpacing)
+                header[i]:SetPoint(point, header[i-1], anchorPoint, 0, P.Scale(unitSpacing))
             end
         end
     else
@@ -940,7 +948,7 @@ local function UpdatePetPreview()
                 groupSpacing = -spacingY
             end
 
-        P.Size(header, width*5+abs(unitSpacing)*4, height*4+abs(unitSpacing)*3)
+        header:SetSize(P.Scale(width) * 5 + abs(P.Scale(unitSpacing)) * 4, P.Scale(height) * 4 + abs(P.Scale(unitSpacing)) * 3)
         header:SetPoint(point)
 
         for i = 1, petNums do
@@ -950,9 +958,9 @@ local function UpdatePetPreview()
             if i == 1 then
                 header[i]:SetPoint(point)
             elseif i % 5 == 1 then
-                header[i]:SetPoint(point, header[i-5], groupAnchorPoint, 0, groupSpacing)
+                header[i]:SetPoint(point, header[i-5], groupAnchorPoint, 0, P.Scale(groupSpacing))
             else
-                header[i]:SetPoint(point, header[i-1], anchorPoint, unitSpacing, 0)
+                header[i]:SetPoint(point, header[i-1], anchorPoint, P.Scale(unitSpacing), 0)
             end
         end
     end
@@ -1217,15 +1225,15 @@ local function UpdateSpotlightPreview()
         else
             if strfind(orientation, "^vertical") then
                 if i % 5 == 1 and orientation == "vertical" then
-                    header[i]:SetPoint(point, header[i-5], groupPoint, unitSpacingX, 0)
+                    header[i]:SetPoint(point, header[i-5], groupPoint, P.Scale(unitSpacingX), 0)
                 else
-                    header[i]:SetPoint(point, header[i-1], anchorPoint, 0, unitSpacingY)
+                    header[i]:SetPoint(point, header[i-1], anchorPoint, 0, P.Scale(unitSpacingY))
                 end
             else
                 if i % 5 == 1 and orientation == "horizontal" then
-                    header[i]:SetPoint(point, header[i-5], groupPoint, 0, unitSpacingY)
+                    header[i]:SetPoint(point, header[i-5], groupPoint, 0, P.Scale(unitSpacingY))
                 else
-                    header[i]:SetPoint(point, header[i-1], anchorPoint, unitSpacingX, 0)
+                    header[i]:SetPoint(point, header[i-1], anchorPoint, P.Scale(unitSpacingX), 0)
                 end
             end
         end
@@ -1807,7 +1815,7 @@ local function GetDropdownItems(indices, groupType)
         if value == "default" then
             name = _G.DEFAULT
         elseif value == "hide" then
-            name = L["Hide"]
+            name = "|cffababab" .. L["Hide"] .. "|r"
         else
             name = value
         end
@@ -2358,7 +2366,7 @@ local function CreateLayoutSetupPane()
     groupSpacingSlider:SetPoint("TOPLEFT", spacingYSlider, 0, -55)
 
     -- unitsPerColumn
-    unitsSlider = Cell.CreateSlider(L["Units Per Column"], pages.main, 2, 20, 117, 1, function(value)
+    unitsSlider = Cell.CreateSlider(L["Units Per Column"], pages.main, 2, Cell.isRetail and 20 or 25, 117, 1, function(value)
         selectedLayoutTable["main"]["unitsPerColumn"] = value
         if selectedLayout == Cell.vars.currentLayout then
             Cell.Fire("UpdateLayout", selectedLayout, "unitsPerColumn")
