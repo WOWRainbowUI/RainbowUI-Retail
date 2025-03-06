@@ -1,6 +1,8 @@
 # Syndicator
 
-## [175](https://github.com/Baganator/Syndicator/tree/175) (2025-03-02)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/174...175) 
+## [176](https://github.com/Baganator/Syndicator/tree/176) (2025-03-05)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/175...176) 
 
-- Search Builder: Focus custom input box after swapping from a keyword  
+- Search: Add "ring" keyword  
+- Search: Fix the "staff" keyword  
+- Search: Move binding type keywords into their own group  
