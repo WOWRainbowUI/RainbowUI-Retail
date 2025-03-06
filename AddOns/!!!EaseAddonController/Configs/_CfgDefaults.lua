@@ -956,7 +956,7 @@ D["EnhBloodlust"] = {
 	},
 	{
 		type = "text",
-		text = "調整音量：從 Esc > 系統 > 音效，調整遊戲的主音量。\n\n自訂音樂：將長度為40秒的 MP3 或 OGG 音樂檔案放到 AddOns\\EnhBloodlust 資料夾內。然後用記事本或 Notepad++ 開啟 hawayconfig.lua，依照裡面的說明來修改。\n\n更詳細的說明請看\nhttp://wp.me/p7DTni-Fp \n",
+		text = "調整音量：調整遊戲的主音量。\n\n自訂音樂：把你的音樂檔案重新命名為 music.mp3 和 music1.mp3（有兩首音樂），放到 EnhBloodlust 資料夾內，覆蓋取代原有的檔案即可。\n",
 	}
 };
 D["Exlist"] = {
