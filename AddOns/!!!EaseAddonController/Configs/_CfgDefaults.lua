@@ -234,7 +234,7 @@ D["Auctionator"] = {
 };
 D["AutoPotion"] = {
 	defaultEnable = 0,
-	tags = { "ITEM" },
+	tags = { "COMBAT" },
 	title = "一鍵吃糖/喝紅水",
 	desc = "只要按一個按鈕或快速鍵，便能使用治療石、治療藥水或自己的補血技能。``會自動選用背包中的物品，有糖先吃糖，有水喝水，節省快捷列格子又方便!`",
 	modifier = "彩虹ui",
