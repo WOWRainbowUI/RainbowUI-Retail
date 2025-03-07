@@ -1,5 +1,5 @@
 ## Interface: 110100
-## Version: 3.8.13
+## Version: 3.8.14
 ## Title: Auto Potion
 ## Author: ollidiemaus
 ## Notes: Updates the Macro AutoPotion to use either Healthstone or the highest Potion found in Bags 
@@ -7,6 +7,17 @@
 ## X-Curse-Project-ID: 312940
 ## X-Wago-ID: yQKybBG7
 ## SavedVariables: HAMDB
+## Category-enUS: Combat
+## Category-deDE: Kampf
+## Category-esES: Combate
+## Category-esMX: Combate
+## Category-frFR: Combat
+## Category-itIT: Combattimento
+## Category-koKR: 전투
+## Category-ptBR: Combate
+## Category-ruRU: Бой
+## Category-zhCN: 战斗
+## Category-zhTW: 戰鬥
 
 embeds.xml
 Locales\Locales.xml
