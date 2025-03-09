@@ -1,4 +1,7 @@
-﻿11.1.00 - 26th February 2025
+﻿11.1.03 - 7th March 2025
+- PTR (11.1.5): Preliminary udpate for game patch 11.1.5.
+
+11.1.00 - 26th February 2025
 - Updated for game patch 11.1.0.
 - Added map reveal data for Undermine.
 - Updated map reveal data for Ringing Deeps.
