@@ -1,20 +1,20 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r191](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r191) (2025-03-04)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r190...r191) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r192](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r192) (2025-03-08)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r191...r192) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- significant update to cinderbrew Meadery trash  
-     - adding most missing abilities from tactyiks spreadsheet  
-     - Fixing bug that cuased one nameplate not to show  
-     - Updated all existing abilities to S2 timer values  
-     - Added initial timers for all abilities  
-- Cinder brew S2 bosses update  
-- Rookery bosses update  
-- updated all priory of flame bosses for S2  
-    Also changed how captain dailcry's minions work by making timers hybrid timers (both timers AND nameplate timers) instead of just nameplate timers. this helps them behave more as expected when pulled with boss.  
-- Mechabugged S2 updates  
-- downgrade inhale vapors to tone down spam for very large pulls  
-- lock down motherload trash with more strict validation checks to avoid false dispel alerts from RP mobs  
-    Improve mogul razzdunks timers further.  
-- fix lua error in siege of boralus  
-- Preliminary Update to motherload bosses for S2  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/437  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/436  
+- fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/435  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/433  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/432  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/434 and https://github.com/DeadlyBossMods/DBM-Dungeons/issues/431  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/430  
+- Update PrioressMurrpray.lua (#429)  
+- Update MechagonTrash.lua (#428)  
+    fix  
+- Because DBT can't get it's shit together, all 77 (and counting) mods that do this just need to work around core bug  
+- Fix target scanning lua errors. Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/427  
+- Fix bug that caused swampface icons to never reset  
+    Changed holy smite to off by default  
+- Fix blatent typo  

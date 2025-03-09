@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2586, "DBM-Party-WarWithin", 7, 1272)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250304122134")
+mod:SetRevision("20250308071527")
 mod:SetCreatureID(210271)
 mod:SetEncounterID(2900)
 mod:SetHotfixNoticeRev(20240425000000)
@@ -54,8 +54,8 @@ function mod:OnCombatStart(delay)
 	self.vb.belchCount = 0
 	self.vb.cinderbrewCount = 0
 	self.vb.kegCount = 0
-	timerKegSmashCD:Start(5.8, 1)
-	timerThrowCinderbrewCD:Start(10.6, 1)
+	timerKegSmashCD:Start(5.2, 1)
+	timerThrowCinderbrewCD:Start(10.1, 1)
 	timerBlazingBelchCD:Start(14.3, 1)
 	if self.Options.NPAuraOnThirsty then
 		DBM:FireEvent("BossMod_EnableHostileNameplates")
