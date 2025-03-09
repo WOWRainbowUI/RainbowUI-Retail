@@ -159,7 +159,10 @@ L["Grim Batol"] = "格瑞姆巴托"
 L["Siege of Boralus"] = "波拉勒斯圍城戰"
 L["Mists of Tirna Scithe"] = "特那希迷霧"
 L["The Necrotic Wake"] = "死靈戰地"
-
+L["Priory of the Sacred Flame"] = "聖焰隱修院"
+L["Theater of Pain"] = "苦痛劇場"
+L["The MOTHERLODE!!"] = "晶喜鎮"
+L["Operation: Floodgate"] = "水閘行動"
 
 -- 自行加入
 L["Astral Keys"] = "M+ 鑰石名單"
