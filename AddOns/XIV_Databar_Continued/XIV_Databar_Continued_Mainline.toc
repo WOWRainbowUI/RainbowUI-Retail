@@ -1,7 +1,7 @@
 ## Interface: 110007, 110100
 ## Title: XIV_Databar Continued
 ## Author: ZelionGG
-## Version: 3.5
+## Version: 3.5.1
 ## IconTexture: Interface\Addons\XIV_Databar_Continued\icon.png
 ## AddonCompartmentFunc: XIV_Databar_Continued_OnAddonCompartmentClick
 
@@ -26,4 +26,8 @@ locales\locales.xml
 core.lua
 Core\changelog\Load_Changelog.xml
 Core\modules\load_modules.xml
+
+Core\mythicteleports\expansions.xml
+Core\mythicteleports\seasons.xml
+
 Mainline\modules\load_modules.xml
