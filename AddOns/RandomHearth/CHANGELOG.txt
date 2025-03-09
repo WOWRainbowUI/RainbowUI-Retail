@@ -1,2 +1,3 @@
-Remove unique check for Notorious Thread's Hearthstone due to item now being a toy.
-Thank you Saintscar!
+Added Explosive Hearthstone
+Added category information
+Thanks nanjuekaien1!

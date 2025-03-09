@@ -1,10 +1,21 @@
 ## Interface: 110007, 110100
 ## Title: Random Hearthstone
 ## Author: JamienAU
-## Version: r25
+## Version: r26
 ## Notes: Uses a random hearthstone toy
 ## SavedVariables: rhDB
 ## IconTexture: Interface\Icons\Inv_misc_rune_01
+## Category-enUS: Inventory
+## Category-deDE: Inventar
+## Category-esES: Inventario
+## Category-esMX: Inventario
+## Category-frFR: Inventaire
+## Category-itIT: Inventario
+## Category-koKR: 소지품
+## Category-ptBR: Inventário
+## Category-ruRU: Предметы
+## Category-zhCN: 物品栏
+## Category-zhTW: 物品欄
 
 ## Title-zhTW: |cffB973CC[物品]|r 隨機爐石
 ## Notes-zhTW: Random Hearthstone |n|n隨機使用你有的爐石玩具。|n|n|cffffd200使用方法: 會自動產生一個叫做 "爐石" 的巨集，將這個巨集拖曳到快捷列上使用即可。|n|n從Esc>選項>插件>爐石，選擇要隨機使用哪些爐石玩具。
