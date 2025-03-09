@@ -1,4 +1,0 @@
-<Ui>
-    <Script file="LibDataBroker-1.1.lua"/>
-    <Script file="ChatThrottleLib.lua"/>
-</Ui>
