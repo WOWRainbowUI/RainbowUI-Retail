@@ -13,7 +13,9 @@ XIVBar.Changelog[3510] = {
     },
     new = {
         ["zhCN"] = {},
-        ["zhTW"] = {},
+        ["zhTW"] = {
+            "[正式服] 重新製作 [M+] 功能，讓 [當前賽季] 更容易維護和動態使用賽季開始日期。",
+        },
         ["enUS"] = {
             "[Retail] Rework of the [Mythic+] functionnality to make the [Current Season] easier to maintain and dynamic using season start dates.",
         },
@@ -25,7 +27,9 @@ XIVBar.Changelog[3510] = {
     },
     improvment = {
         ["zhCN"] = {},
-        ["zhTW"] = {},
+        ["zhTW"] = {
+            "[正式服] 修正 [M+] 功能中的字母排序。",
+        },
         ["enUS"] = {
             "[Retail] Fixed the alphabetical ordering of dungeons in the [Mythic+] functionnality.",
         },
