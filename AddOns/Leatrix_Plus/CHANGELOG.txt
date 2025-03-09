@@ -1,4 +1,7 @@
-﻿11.1.02 - 1st March 2025
+﻿11.1.03 - 7th March 2025
+- PTR (11.1.5): Preliminary update for game patch 11.1.5.
+
+11.1.02 - 1st March 2025
 - For 'Set additional options' ('System'), added a new setting to uncheck mount special animations by default.
 - For 'Enhance tooltip' ('Interface'), fixed the issue with hide tooltips for world units during combat.
 
