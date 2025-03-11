@@ -8,6 +8,19 @@
 ## SavedVariables: IPMTDB, IPMTOptions, IPMTDungeon, IPMTTheme
 ## X-eMail: ipzaur@gmail.com
 ## IconTexture: Interface\AddOns\iPMythicTimer\media\icon.png
+## X-Curse-Project-ID: 320393
+## X-Wago-ID: RqGZQKdl
+## Category-enUS: Mythic+ Dungeons
+## Category-deDE: Mythic+ Dungeons
+## Category-esES: Mythic+ Dungeons
+## Category-esMX: Mythic+ Dungeons
+## Category-frFR: Donjons Mythique+
+## Category-itIT: Mythic+ Dungeons
+## Category-koKR: Mythic+ Dungeons
+## Category-ptBR: Mythic+ Dungeons
+## Category-ruRU: Подземелья М+
+## Category-zhCN: Mythic+ Dungeons
+## Category-zhTW: Mythic+ Dungeons
 
 ## Title-zhTW: |cffFF7F00[M+]|r 時間
 ## Notes-zhTW: iP Mythic+ Timer |n|n在傳奇鑰石的副本中，顯示兩箱、三箱的時間和小怪進度。|n|n|cffffd200使用方法: 拖曳框架移動位置，點小地圖按鈕打開設定。
