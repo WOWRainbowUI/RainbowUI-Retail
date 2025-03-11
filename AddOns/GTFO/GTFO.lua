@@ -26,9 +26,9 @@ GTFO = {
 		SoundOverrides = { "", "", "", "" }; -- Override table for GTFO sounds
 		IgnoreSpellList = { };
 	};
-	Version = "5.15.2"; -- Version number (text format)
+	Version = "5.15.4"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 51502; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 51504; -- Numeric version number for checking out-of-date clients (retail)
 	ClassicVersionNumber = 51500; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 50000; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 50503; -- Numeric version number for checking out-of-date clients (Wrath classic)
@@ -407,7 +407,7 @@ function GTFO_OnEvent(self, event, ...)
 							end
 
 							if (GTFO.FFSpellID[SpellID].test) then
-								GTFO_ScanPrint("TEST ALERT: Spell ID #"..SpellID, true);
+								GTFO_ScanPrint("TEST FF ALERT: Spell ID #"..SpellID, true);
 							end
 							alertID = GTFO_GetAlertID(GTFO.FFSpellID[SpellID]);
 							GTFO_PlaySound(alertID);
@@ -1117,28 +1117,39 @@ function GTFO_PlaySound(iSound, bOverride, bForceVibrate)
 			GTFO_UnmuteSound(GTFO.SoundTimes[iSound], soundChannel);
 		end
 		
-		local overrideSound = tostring(GTFO.Settings.SoundOverrides[iSound] or "");
-		if (overrideSound ~= "") then
-			GTFO_PlaySoundFile(GTFO.Settings.SoundOverrides[iSound], soundChannel);
+		local soundFile = tostring(GTFO.Settings.SoundOverrides[iSound] or "");
+		if (soundFile == "") then
+			-- Sad, this only works if the dialog channel is unmuted, will need to investigate further
+			if (GTFO.BrannMode and iSound == 1) then
+				soundFile = GTFO.BrannModeSounds[1][math.random(#GTFO.BrannModeSounds[1])];
+			elseif (GTFO.BrannMode and iSound == 3) then
+				soundFile = GTFO.BrannModeSounds[2][math.random(#GTFO.BrannModeSounds[2])];
+			else
+				soundFile = GTFO.Sounds[iSound];
+			end
+		end
+
+		if (tonumber(soundFile) or 0 > 0) then
+			GTFO_PlaySoundId(soundFile, soundChannel);
 		else
-			GTFO_PlaySoundFile(GTFO.Sounds[iSound], soundChannel);
+			GTFO_PlaySoundFile(soundFile, soundChannel);
 		end
 		
 		-- Play 2 times if the volume is at louder
 		if (GTFO.Settings.Volume >= 4) then
-			if (overrideSound ~= "") then
-				GTFO_PlaySoundFile(GTFO.Settings.SoundOverrides[iSound], soundChannel);
+			if (tonumber(soundFile) or 0 > 0) then
+				GTFO_PlaySoundId(soundFile, soundChannel);
 			else
-				GTFO_PlaySoundFile(GTFO.Sounds[iSound], soundChannel);
+				GTFO_PlaySoundFile(soundFile, soundChannel);
 			end
 		end
 		
 		-- Play 3 times if the volume is at max
 		if (GTFO.Settings.Volume >= 5) then
-			if (overrideSound ~= "") then
-				GTFO_PlaySoundFile(GTFO.Settings.SoundOverrides[iSound], soundChannel);
+			if (tonumber(soundFile) or 0 > 0) then
+				GTFO_PlaySoundId(soundFile, soundChannel);
 			else
-				GTFO_PlaySoundFile(GTFO.Sounds[iSound], soundChannel);
+				GTFO_PlaySoundFile(soundFile, soundChannel);
 			end
 		end
 	end
@@ -1150,6 +1161,14 @@ end
 
 function GTFO_PlaySoundFile(sFile, sChannel)
 	local willPlay, handle = PlaySoundFile(sFile, sChannel);
+	if (willPlay) then
+		-- Stop the sound automatically after 3 seconds in case someone trolls you with a 10 minute song
+		GTFO_AddEvent("Sound"..handle, 3, function() StopSound(handle, 250); end);
+	end
+end
+
+function GTFO_PlaySoundId(iSound, sChannel)
+	local willPlay, handle = PlaySound(iSound, sChannel, false);
 	if (willPlay) then
 		-- Stop the sound automatically after 3 seconds in case someone trolls you with a 10 minute song
 		GTFO_AddEvent("Sound"..handle, 3, function() StopSound(handle, 250); end);

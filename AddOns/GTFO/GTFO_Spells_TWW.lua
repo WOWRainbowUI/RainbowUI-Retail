@@ -196,6 +196,18 @@ GTFO.SpellID["1222515"] = {
   ignoreApplication = true;
 };
 
+GTFO.SpellID["1214845"] = {
+  --desc = "Filthy Pool (Dockmaster Skeez)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1218158"] = {
+  --desc = "Molten Gold (Gallagio Garbage)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -684,6 +696,27 @@ GTFO.SpellID["453152"] = {
   sound = 1;
 };
 
+GTFO.BrannModeSounds = {
+	{
+		247551, -- You got to dodge
+		247550, -- Don't stand there!
+		247549, -- Get out of the way!
+		--247559, -- Keepers preserve ye!
+		247563, -- Hey, be careful!
+	},
+	{
+		247551, -- You got to dodge
+		247550, -- Don't stand there!
+		247549, -- Get out of the way!
+		--247559, -- Keepers preserve ye!
+		247563, -- Hey, be careful!
+
+		247606, -- Little too close for my taste
+		--247573, -- I know you can do better than that
+		247558, -- Don't go dying on me
+		--247560, -- It can't end like this!
+	},
+};
 
 --- *******************
 --- * Nerub-ar Palace *
@@ -945,6 +978,63 @@ GTFO.SpellID["473051"] = {
   --desc = "Rushing Tide (Swampface)";
   sound = 1;
 };
+
+--- ***************************
+--- * Liberation of Undermine *
+--- ***************************
+
+GTFO.SpellID["467048"] = {
+  --desc = "Faulty Zap (Rik Reverb)";
+  ignoreSelfInflicted = true;
+  sound = 4;
+};
+
+GTFO.SpellID["1219448"] = {
+  --desc = "Fire Starters (Darkfuse Shredder)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["465826"] = {
+  --desc = "Crossfire (Darkfuse Crossfire)";
+  sound = 1;
+  tankSound = 0;
+  test = true;
+};
+
+GTFO.SpellID["467177"] = {
+  --desc = "Blistering Roar (King Flamespite)";
+  sound = 1;
+  tankSound = 0;
+};
+
+GTFO.SpellID["464248"] = {
+  --desc = "Hot Garbage (Stix Bunkjunker)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["470245"] = {
+  --desc = "Stormfury Finger Gun (Mug'Zee)";
+  sound = 1;
+  tankSound = 0;
+  test = true;
+};
+
+GTFO.SpellID["470089"] = {
+  --desc = "Molten Gold Pool (Mug'Zee)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["472057"] = {
+  --desc = "Hot Mess (Mug'Zee)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+
+
 
 end
 
