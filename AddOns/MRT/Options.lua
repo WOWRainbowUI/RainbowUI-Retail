@@ -889,6 +889,10 @@ function OptionsFrame:AddChest(chestType)
 			if self.tmr > data.s then
 				self.tmr = 0
 				self.frame = self.frame + 1
+
+				if not Options:IsShown() then
+					self:Hide()
+				end
 		
 				if self.frame > self.frame_max then
 					self.frame = 0

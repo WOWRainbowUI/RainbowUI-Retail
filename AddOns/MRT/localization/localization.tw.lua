@@ -137,6 +137,7 @@ L.NoteBossAutoLoadSendAsRL = "發送自動載入註記到團隊 (只限團隊隊
 L.NoteUndo = "撤銷"
 L.NoteUndoTip = "撤銷最近更新"
 L.NoteBossAutoLoadPersonal = "個人註記使用自動載入"
+L.NoteFontTextAlign = "文字對齊"
 
 L.setminimap1 = "隱藏小地圖圖示"
 L.setauthor = "作者"
@@ -1136,6 +1137,10 @@ L.RaidGroupsExport = "匯出當前群組"
 L.RaidGroupsKeepPosInGroup = "保持隊伍位置"
 L.RaidGroupsSaveCurrent = "保留變更"
 L.RaidGroupsSaveCurrentTip = "自動保存當前選擇的預設的任何編輯。"
+L.RaidGroupsSplitRoster = "分離陣容"
+L.RaidGroupsSplitGroups = "分隊受排序影響"
+L.RaidGroupsSplitParts = "分離小隊數量"
+L.RaidGroupsSplitRule = "分離規則"
 
 L.panelmarks = "自動標記"
 L.panelmarksclear = "清除"
@@ -1687,6 +1692,7 @@ L.ReminderSearchStringTip = "使用 \"|cff00ff00=|r\" 在字串開始以精確�
 L.ReminderSoundDelay = "聲音延遲"
 L.ReminderSoundDelayTip = "Delay in seconds before playing sound after reminder is triggered.\nYou can specify more than one comma separated.\nLeave empty for immediately sound activation."
 L.ReminderRecent = "最近"
+L.ReminderHistorySync = "在最近的首領戰鬥之後，將時間軸歷史發送給團隊"
 
 L.OtherCovHelper = "幫助我選擇"
 
