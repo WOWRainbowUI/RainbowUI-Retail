@@ -1,6 +1,6 @@
 ## Interface: 11506, 30403, 40402, 110007, 110100
 ## Title: Baganator
-## Version: 658
+## Version: 660
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -145,6 +145,7 @@ CustomiseDialog\Categories\RecentEditor.lua
 CustomiseDialog\Categories\EmptyEditor.lua
 CustomiseDialog\Categories\Utilities.lua
 CustomiseDialog\Categories\ImportExport.lua
+CustomiseDialog\Categories\ImportDialog.lua
 CustomiseDialog\Main.lua
 CustomiseDialog\Main.xml
 CustomiseDialog\Initialize.lua
