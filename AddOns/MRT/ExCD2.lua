@@ -12547,7 +12547,7 @@ module.db.AllSpells = {
 		isTalent=true},
 	{246287,"PRIEST,HEAL",3,--Проповедь
 		nil,{246287,90,0},nil,nil,
-		isTalent=true},
+		isTalent=true,sameSpell={246287,472433},sameTalent={246287,472433}},
 	{120517,"PRIEST",3,--Сияние
 		nil,{120517,60,0},{120517,60,0},{120644,60,0},
 		isTalent=true},

@@ -16,7 +16,7 @@ local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
 local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 
 local senderVersion = 4
-local addonVersion = 62
+local addonVersion = 63
 
 local options = module.options
 
@@ -7175,7 +7175,7 @@ function options:Load()
 		custom_phase = {},
 		reminder_hide = {},
 		custom_line = {},
-		custom_cd = {},
+		custom_cd = type(VMRT.Reminder2.OptAssigCustomCD) == "table" and VMRT.Reminder2.OptAssigCustomCD or {},
 		custom_charges = {},
 		custom_spells = {},
 
@@ -7214,6 +7214,7 @@ function options:Load()
 	VMRT.Reminder2.OptAssigQFClass = self.assign.QFILTER_CLASS
 	VMRT.Reminder2.OptAssigQFRole = self.assign.QFILTER_ROLE
 	VMRT.Reminder2.OptAssigQFSpell = self.assign.QFILTER_SPELL
+	VMRT.Reminder2.OptAssigCustomCD = self.assign.custom_cd
 
 	options.assign.GetTimeLineData = options.timeLine.GetTimeLineData
 
@@ -17705,6 +17706,11 @@ function module:RunTrigger(trigger, vars, printLog)
 	local triggerData = trigger._trigger
 	if trigger.DdelayTime then
 		for i=1,#trigger.DdelayTime do
+			if trigger._data.durrev and trigger.DdelayTime[i] < (trigger._data.dur or 0) and trigger.DdelayTime[i] > 0.1 then
+				vars = vars or {}
+				vars._customDuration = trigger.DdelayTime[i]
+			end
+
 			local t = ScheduleTimer(module.ActivateTrigger, max(trigger.DdelayTime[i]-(trigger._data.durrev and (trigger._data.dur or 0) or 0),0.01) / (module.db.simrun and module.db.simrunspeed or 1), 0, trigger, vars, printLog)
 			module.db.timers[#module.db.timers+1] = t
 			if trigger.delays then

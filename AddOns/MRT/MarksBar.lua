@@ -332,7 +332,7 @@ ELib:FixPreloadFont(mainFrame.del,mainFrame.del.html,ExRT.F.defFont, 10)
 mainFrame.edges[3] = CreateEdge(3,383)
 
 mainFrame.wmarksbuts = CreateFrame("Frame",nil,mainFrame)
-mainFrame.wmarksbuts:SetSize(ExRT.isCata and 14*3 or 14*5,26)
+mainFrame.wmarksbuts:SetSize(14*5,26)
 local function MainFrameWMOnEnter(self)
 	self:SetBackdropBorderColor(0.7,0.7,0.7,1)
 end
@@ -350,7 +350,7 @@ mainFrame.wmarksbuts:SetScript("OnLeave",function()
 	mainFrame:OnLeave()
 end)
 
-local MAX_WM_BUTTONS = ExRT.isCata and 6 or 9
+local MAX_WM_BUTTONS = 9
 mainFrame.wmarksbuts.bnum = MAX_WM_BUTTONS
 
 do
@@ -579,7 +579,7 @@ local function modifymarkbars()
 			end
 		end
 		
-		mainFrame.wmarksbuts.b:SetSize(123+19*(ExRT.isCata and 0 or 3),26)
+		mainFrame.wmarksbuts.b:SetSize(123+19*(3),26)
 		mainFrame.wmarksbuts.b:SetPoint("TOPLEFT", mainFrame,"BOTTOMLEFT",20, 3)
 		for i=1,mainFrame.wmarksbuts.bnum do
 			if VMRT.MarksBar.WMarksReverse then
@@ -726,7 +726,7 @@ local function modifymarkbars()
 			end
 		end
 		
-		mainFrame.wmarksbuts.b:SetSize(26,123+19*(ExRT.isCata and 0 or 3))
+		mainFrame.wmarksbuts.b:SetSize(26,123+19*(3))
 		mainFrame.wmarksbuts.b:SetPoint("TOPLEFT", mainFrame,"TOPRIGHT",-3,-20)
 		for i=1,mainFrame.wmarksbuts.bnum do
 			if VMRT.MarksBar.WMarksReverse then
