@@ -8,6 +8,19 @@
 ## SavedVariables: IPMTDB, IPMTOptions, IPMTDungeon, IPMTTheme
 ## X-eMail: ipzaur@gmail.com
 ## IconTexture: Interface\AddOns\iPMythicTimer\media\icon.png
+## X-Curse-Project-ID: 320393
+## X-Wago-ID: RqGZQKdl
+## Category-enUS: Mythic+ Dungeons
+## Category-deDE: Mythic+ Dungeons
+## Category-esES: Mythic+ Dungeons
+## Category-esMX: Mythic+ Dungeons
+## Category-frFR: Donjons Mythique+
+## Category-itIT: Mythic+ Dungeons
+## Category-koKR: Mythic+ Dungeons
+## Category-ptBR: Mythic+ Dungeons
+## Category-ruRU: Подземелья М+
+## Category-zhCN: Mythic+ Dungeons
+## Category-zhTW: Mythic+ Dungeons
 
 Localization\localization.lua
 Localization\localization_ru.lua
