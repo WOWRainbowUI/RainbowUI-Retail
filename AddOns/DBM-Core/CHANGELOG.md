@@ -1,94 +1,48 @@
 # DBM - Core
 
-## [11.1.7](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.1.7) (2025-03-07)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.1.6...11.1.7) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.1.8](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.1.8) (2025-03-11)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.1.7...11.1.8) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- Prep new tag  
-- Add user request to auto mark gaol targets. Should be combat with BW users  
-- add heroic gallywix timer data  
-- Mythic timer tweaks for carnage  
-- Add a lot more gallywix normal data and fixed up taunt warnings on fight a little bit  
-    Updated rik heroic timers with some mid weak changes from blizzard.  
-    tweaked tank warnings on rik again to be further aggressive at minimizing stacks  
-- nearly perfect now in structure and functionality, just needs some data fill in now.  
-- Because DBT can't get it's shit together, all 77 (and counting) mods that do this just need to work around core bug  
-- gallywix mod restructure work. needs data population but it's quite a bit more ready now  
-    Fix infoframe not hiding on combat end iwth carnage for real this time  
-- add some nil error filler timers though  
-- preliminary gallywix stuff, but only stage 1 timers. there is a gross lacking of sufficient stage 2 and stage 3 data on any difficulty due to normal being radically undertuned and phase 2 lasting like 30 seconds, and heroic parses being scarce (only kills are again those that just overgear it and steamroll it too fast).  
-- Fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1556  
-- Attempt to fix random vexie timer error. Closes https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1557  
-- rework mugzee timers for normal and heroic on live  
-- fix cauldron lua error  
-- Update RU locale (#1552)  
-    * Update commonlocal.ru.lua  
-    * Update localization.ru.lua  
-- Update commonlocal.tw.lua (#1553)  
-- Update koKR (#1551)  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Revert  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR stings in tocs  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    * Update koKR  
-    ---------  
-    Co-authored-by: Adam <MysticalOS@users.noreply.github.com>  
-- Update lockenstock normal and heroic timers from live  
-    Closes https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1555  
-- Rework one armed bandit timers with the changes on live.  
-- Micro adjust some heroic timrs on Cauldron.  
-    Fixed bug on caudron that caused Salvo timer not to start after first  
-    Fixed a bug on mugzee causing surging arc to give unknown target  
-    Fixed some minor timer incorrectness on Rik Reverb normal'  
-    Fixed initial timers on Vexie and scrapped Bomb voyage timer  
-    Closes https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1554  
-- local luacheck doesn't error on that :D  
-- Fix 3 bad tank swaps  
-     - Tweak rik taunt behavior to be more often  
-     - Fix bad taunt behavior on lockenstock. this boss does NOT permit swapping targets mid cast.  
-     - remove bad taunt warning from stix for demolish, you only swap for balls  
-- posisbly fix lua error? taht value shouldn't be nil though...  
-- Timer fixes to rik reverb and cauldron for LFR difficulty at least  
+- prep new tag  
+- Fix some test category bugs  
+- Fix up test defines  
+- scrap all PTR data for Undermine and replace with live data  
+- Gallywix Update:  
+     - Added more normal and heroic timer data to stage 3  
+     - Adde Ego Check timer for heroic gallywix  
+     - Fixed a bug where variance timers could cause lua error due to nil check performing numeric action on a string  
+     - Added prints if useres encounter pulls that exceed built in timer data  
+- Stix update:  
+     - Disable icon setting on balls by default  
+     - Enable icon setting on scrapmasters by default  
+     - Scrapped dumpster dive timer, it's just not reliable  
+- Fix a bug that caused timers to break in stage 1 of gallywix after a wipe  
+-  fix to last  
+- Update localization.fr.lua (#1572)  
+- Update localization.br.lua (#1573)  
+    * Update localization.br.lua  
+    * Update localization.br.lua  
+    * Update localization.br.lua  
+- Update localization.es.lua (#1571)  
+    * Update localization.es.lua  
+    * Update localization.es.lua  
+    * Update localization.es.lua  
+- Compat updates to gallywix icon marking  
+-  CI: Split DBM-Offline into two parts to fix permission issues  
+- Core: Fix isName in DBM:IsTanking() (#1575)  
+- Tweak difficulties to try and fix some delve difficulty odness that might occur  
+- update most mythic rik timers  
+- fix world boss loading for gobfather  
+- Update commonlocal.fr.lua (#1559)  
+    * Update commonlocal.fr.lua  
+    * Update commonlocal.fr.lua  
+- Update commonlocal.br.lua (#1560)  
+    * Update commonlocal.br.lua  
+    * Update commonlocal.br.lua  
+- Update commonlocal.es.lua (#1558)  
+    * Update commonlocal.es.lua  
+    * Update commonlocal.es.lua  
+- Reenable luals (#1568)  
+    * LuaLS: Ignore new color picker frame global  
+    * Revert "temporarly remove luaLS workflow for now. will be restored when it can be fixed, but right now I don't want to be spammed emails for failed builds for next two weeks."  
 - bump alpha  
