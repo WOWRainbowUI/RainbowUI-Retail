@@ -47,6 +47,7 @@ local portalSpellIds = {
     [404] = 393276,     -- Neltharus
     [405] = 393267,     -- Brackenhide Hollow
     [406] = 393283,      -- Halls of Infusion
+    -- TWW S1
     [503] = 445417,      -- Ara-Kara, City of Echoes - 442929
     [502] = 445416,      -- City of Threads - 442927
     [505] = 445414,      -- The Dawnbreaker - 442931
@@ -54,8 +55,16 @@ local portalSpellIds = {
     [353] = 445418,      -- Siege of Boralus - (A) 445418 - (H) 464256 - 272264
     [507] = 445424,      -- The Grim Batol - 396121
     [375] = 354464,      -- Mists of Tirna Scithe - 348533
-    [376] = 354462       -- The Necrotic Wake - 348529
-
+    [376] = 354462,      -- The Necrotic Wake - 348529
+    -- TWW S2
+    [500] = 445443,      -- The Rookery
+    [525] = 1216786,     -- Floodgate
+    [247] = 467553,      -- The MOTHERLODE!!
+    [370] = 373274,      -- Mechagon - Workshop
+    [504] = 445441,      -- Darkflame Cleft
+    [382] = 354467,      -- Theater of Pain
+    [506] = 445440,      -- Cinderbrew Meadery
+    [499] = 445444       -- Priory of the Sacred Flame
 }
 
 -- add only horde specific portals here.
@@ -379,6 +388,26 @@ local function getRatingCalcValues()
             twoChestSpeed = 0.8, -- timer % at which a dungeon is 2 chested.
             threeChestSpeed = 0.6, -- timer % at which a dungeon is 3 chested
             bonusTimerRating = 15 -- Bonus/Penalty for timers
+        },
+        [14] = { -- TWW S2 --- TO BE VERIFIED ------
+            baseRating = 125, -- Base score for dungeon completion
+            firstAffixLevel = 4, -- lowest M+ Key possible
+            fistAffixValue = 15, -- Value of the first affix
+            secondAffixLevel = 7, -- Key level the second affix is added
+            secondAffixValue = 15, -- Value of the second affix
+            thirdAffixLevel = 10, -- Key level the third affix is added
+            thirdAffixValue = 15, -- Value of the thrid affix
+            fourthAffixLevel = 12, -- Key level the third affix is added
+            fourthAffixValue = 15, -- Value of the thrid affix
+            fifthAffixLevel = 12, -- Key level the third affix is added
+            fifthAffixValue = 0, -- Value of the thrid affix
+            thresholdLevel = 1, -- Threshold after which the value of the key changes due to level
+            preThresholdValue = 15, -- Value of the pre-threshold levels
+            postThresholdValue = 15, -- Value of the post threshold levels
+            untimedBaseLevel = 10, -- The level after which untimed keys have no additional value
+            twoChestSpeed = 0.8, -- timer % at which a dungeon is 2 chested.
+            threeChestSpeed = 0.6, -- timer % at which a dungeon is 3 chested
+            bonusTimerRating = 15 -- Bonus/Penalty for timers
         }
     }
 
@@ -425,11 +454,14 @@ function DungeonTools:CalculateChest(dungeonID, keyLevel, timeCompleted)
     end
     local timeLimit = currentSeasonMaps[dungeonID].timeLimit
     if keyLevel >= seasonVars.thirdAffixLevel then
-        timeLimit = timeLimit + 90
+        if(timeCompleted <= (timeLimit * seasonVars.threeChestSpeed)) then return "+++" end
+        if(timeCompleted <= (timeLimit * seasonVars.twoChestSpeed)) then return "++" end
+        if(timeCompleted <= timeLimit) then return "+" end
+    else
+        if(timeCompleted <= (timeLimit * seasonVars.threeChestSpeed)) then return "+++" end
+        if(timeCompleted <= (timeLimit * seasonVars.twoChestSpeed)) then return "++" end
+        if(timeCompleted <= timeLimit) then return "+" end
     end
-    if(timeCompleted <= (timeLimit * seasonVars.threeChestSpeed)) then return "+++" end
-    if(timeCompleted <= (timeLimit * seasonVars.twoChestSpeed)) then return "++" end
-    if(timeCompleted <= timeLimit) then return "+" end
     return ""
 end
 
@@ -519,18 +551,17 @@ function DungeonTools:CalculateRating(dungeonID, keyLevel, runTime)
         return 0
     end
     
-    if (keyLevel < seasonVars.firstAffixLevel) then
+    -- In Season 2 of TWW they moved based affix to level 4. So this is removed.
+    --[[ if (keyLevel < seasonVars.firstAffixLevel) then
         return 0
-    end
+    end ]]
 
     if currentSeasonMaps == nil then
         currentSeasonMaps = DungeonTools:GetCurrentSeasonMaps()
     end
     local bonusRating = 0
     local dungeonTimeLimit = currentSeasonMaps[dungeonID].timeLimit
-    if keyLevel >= seasonVars.thirdAffixLevel then
-        dungeonTimeLimit = dungeonTimeLimit + 90
-    end
+    
     -- Runs over time by 40% are a 0 score.
     if(runTime > (dungeonTimeLimit + (dungeonTimeLimit * maxModifier))) then
         return 0

@@ -33,13 +33,15 @@ local function setWhatsNewContent(parent)
                 <br/>
                 <h2>|cff]]..h2Color..[[Updates:|r</h2>
                 <br/>
-                <p>]]..textBullet..[[None</p>          
-                <br/>
+                <p>]]..textBullet..[[Added simplified Chinese translations for S2 dungeons.  (Thanks vj234013 on github)</p>
                 <br/>
                 <h2>|cff]]..h2Color..[[Fixes:|r</h2>
                 <br/>
-                <p>]]..textBullet..[[Fixed an error with Simplified Chinese that stoped KM from loading.</p>
-                <p>]]..textBullet..[[Fixed miscalculations with IO and chest levels (+1, +2, +3) for dungeon runs due to addition of 90s to level 7 affix.</p>
+                <p>]]..textBullet..[[Fixed score calulations for TWW S2 (special thanks to OMGTotem).</p>
+                <br/>
+                <p>]]..textBullet..[[Fixed chest ++ calculation for dungeons since the 90s addition to dungeon timers is gone.</p>
+                <br/>
+                <p>]]..textBullet..[[Fixed portal spell ids for Motherlode and Operation: Floodgate dungeons.  (Thanks snaysix on github)</p>
                 <br/>
                 <br/>
                 <h2>|cff]]..h2Color..[[Known Bugs/Issues:|r</h2>
