@@ -26,9 +26,9 @@ GTFO = {
 		SoundOverrides = { "", "", "", "" }; -- Override table for GTFO sounds
 		IgnoreSpellList = { };
 	};
-	Version = "5.15.4"; -- Version number (text format)
+	Version = "5.16"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 51504; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 51600; -- Numeric version number for checking out-of-date clients (retail)
 	ClassicVersionNumber = 51500; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 50000; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 50503; -- Numeric version number for checking out-of-date clients (Wrath classic)
@@ -116,6 +116,8 @@ elseif (buildNumber <= 50000) then
 else
 	GTFO.RetailMode = true;
 	GTFO.VersionNumber = GTFO.RetailVersionNumber;
+	local currentDate = date("*t");
+	GTFO.AprilFoolsDay = (currentDate.month == 4 and currentDate.day == 1);
 end
 
 StaticPopupDialogs["GTFO_POPUP_MESSAGE"] = {
@@ -195,6 +197,7 @@ function GTFO_OnEvent(self, event, ...)
 			Volume = GTFOData.Volume or 3;
 			TrivialDamagePercent = GTFOData.TrivialDamagePercent or GTFO.DefaultSettings.TrivialDamagePercent;
 			SoundChannel = GTFOData.SoundChannel or GTFO.DefaultSettings.SoundChannel;
+			BrannMode = GTFOData.BrannMode;
 			IgnoreOptions = { };
 			SoundOverrides = { "", "", "", "" };
 			IgnoreSpellList = { };
@@ -879,6 +882,8 @@ function GTFO_Command(arg1)
 		GTFO_Command_Vibrate();
 	elseif (Command == "HELP" or Command == "") then
 		GTFO_Command_Help();
+	elseif (Command == "BRANN") then
+		GTFO_Command_BrannMode();
 	elseif (Command == "IGNORE") then
 		GTFO_Command_IgnoreSpell(Description);
 	else
@@ -1069,6 +1074,20 @@ function GTFO_Command_Vibrate()
 	GTFO_SaveSettings();
 end
 
+function GTFO_Command_BrannMode(bForceOff)
+	if (bForceOff or GTFO.Settings.BrannMode == 2 or (not GTFO.Settings.BrannMode and GTFO.AprilFoolsDay)) then
+		GTFO.Settings.BrannMode = 0;
+		GTFO_ChatPrint(GTFOLocal.BrannMode_Off);
+	elseif (GTFO.Settings.BrannMode == 1) then
+		GTFO.Settings.BrannMode = 2;
+		GTFO_ChatPrint(GTFOLocal.BrannMode_On);
+	else
+		GTFO.Settings.BrannMode = 1;
+		GTFO_ChatPrint(GTFOLocal.BrannMode_OnWithDefault);
+	end
+	GTFO_SaveSettings();
+end
+
 function GTFO_Command_VersionReminder()
 	if (GTFO.Settings.NoVersionReminder) then
 		GTFO.Settings.NoVersionReminder = nil;
@@ -1118,14 +1137,20 @@ function GTFO_PlaySound(iSound, bOverride, bForceVibrate)
 		end
 		
 		local soundFile = tostring(GTFO.Settings.SoundOverrides[iSound] or "");
+		local soundFile2 = "";
+		local aprilFools = GTFO.AprilFoolsDay and not GTFO.Settings.BrannMode;
+		local brannSound = (GTFO.Settings.BrannMode or 0) > 0 or aprilFools;
 		if (soundFile == "") then
 			-- Sad, this only works if the dialog channel is unmuted, will need to investigate further
-			if (GTFO.BrannMode and iSound == 1) then
+			if (brannSound and iSound == 1) then
 				soundFile = GTFO.BrannModeSounds[1][math.random(#GTFO.BrannModeSounds[1])];
-			elseif (GTFO.BrannMode and iSound == 3) then
+			elseif (brannSound and iSound == 3) then
 				soundFile = GTFO.BrannModeSounds[2][math.random(#GTFO.BrannModeSounds[2])];
 			else
 				soundFile = GTFO.Sounds[iSound];
+			end
+			if (GTFO.Settings.BrannMode == 1 or aprilFools) then
+				soundFile2 = GTFO.Sounds[iSound];
 			end
 		end
 
@@ -1150,6 +1175,33 @@ function GTFO_PlaySound(iSound, bOverride, bForceVibrate)
 				GTFO_PlaySoundId(soundFile, soundChannel);
 			else
 				GTFO_PlaySoundFile(soundFile, soundChannel);
+			end
+		end
+		
+		-- Play secondary soundfile 
+		if (soundFile2 ~= "") then
+			if (tonumber(soundFile2) or 0 > 0) then
+				GTFO_PlaySoundId(soundFile2, soundChannel);
+			else
+				GTFO_PlaySoundFile(soundFile2, soundChannel);
+			end
+			
+			-- Play 2 times if the volume is at louder
+			if (GTFO.Settings.Volume >= 4) then
+				if (tonumber(soundFile2) or 0 > 0) then
+					GTFO_PlaySoundId(soundFile2, soundChannel);
+				else
+					GTFO_PlaySoundFile(soundFile2, soundChannel);
+				end
+			end
+			
+			-- Play 3 times if the volume is at max
+			if (GTFO.Settings.Volume >= 5) then
+				if (tonumber(soundFile2) or 0 > 0) then
+					GTFO_PlaySoundId(soundFile2, soundChannel);
+				else
+					GTFO_PlaySoundFile(soundFile2, soundChannel);
+				end
 			end
 		end
 	end
@@ -1360,6 +1412,15 @@ function GTFO_RenderOptions()
 		getglobal(VibrationButton:GetName().."Text"):SetText(GTFOLocal.UI_Vibration);
 		VibrationButton.optionKey = "Vibration";
 		VibrationButton:SetScript("OnClick", GTFO.ToggleCheckboxOption);
+
+		if (GTFO.AprilFoolsDay and not GTFO.Settings.BrannMode) then
+			local AprilFoolsDayButton = CreateFrame("CheckButton", "GTFO_AprilFoolsDayButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
+			AprilFoolsDayButton:SetPoint("TOPLEFT", 10, -410)
+			AprilFoolsDayButton.tooltip = GTFOLocal.UI_AprilFoolsDayDescription;
+			getglobal(AprilFoolsDayButton:GetName().."Text"):SetText(GTFOLocal.UI_AprilFoolsDay);
+			AprilFoolsDayButton.optionKey = "AprilFoolsDay";
+			AprilFoolsDayButton:SetScript("OnClick", GTFO.ToggleCheckboxOption);
+		end
 
 		-- Special Alerts frame
 		local IgnoreOptionsPanel = CreateFrame("FRAME","GTFO_IgnoreOptionsFrame");
@@ -1632,6 +1693,9 @@ function GTFO.ToggleCheckboxOption(self)
 		GTFO.Settings.TrivialMode = checked;
 	elseif (optionKey == "Vibration") then
 		GTFO.Settings.EnableVibration = checked;
+	elseif (optionKey == "AprilFoolsDay") then
+		GTFO.Settings.BrannMode = 0;
+		getglobal("GTFO_AprilFoolsDayButton"):Hide();
 	end
 	
 	for key, option in pairs(GTFO.IgnoreSpellCategory) do
@@ -2148,6 +2212,29 @@ function GTFO_GetSounds()
 			"Interface\\AddOns\\GTFO\\Sounds\\alarmbuzz.ogg",
 		};
 	end
+	
+	if not (GTFO.BrannModeSounds) then
+		GTFO.BrannModeSounds = {
+			{
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_33_M.ogg", -- Get out of the way!
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_34_M.ogg", -- Don't stand there!
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_35_M.ogg", -- You got to dodge
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_43_M.ogg", -- Keepers preserve ye!
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_47_M.ogg", -- Hey, be careful!
+			},
+			{
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_33_M.ogg", -- Get out of the way!
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_34_M.ogg", -- Don't stand there!
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_35_M.ogg", -- You got to dodge
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_42_M.ogg", -- Don't go dying on me
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_43_M.ogg", -- Keepers preserve ye!
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_44_M.ogg", -- It can't end like this!
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_47_M.ogg", -- Hey, be careful!
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_57_M.ogg", -- I know you can do better than that
+				"Interface\\AddOns\\GTFO\\Sounds\\Brann\\VO_110_Brann_Bronzebeard_89_M.ogg", -- Little too close for my taste
+			},
+		};
+	end
 end
 
 -- Save settings to persistant storage, refresh UI options
@@ -2171,6 +2258,7 @@ function GTFO_SaveSettings()
 	GTFOData.NoVersionReminder = GTFO.Settings.NoVersionReminder;
 	GTFOData.EnableVibration = GTFO.Settings.EnableVibration;
 	GTFOData.SoundChannel = GTFO.Settings.SoundChannel;
+	GTFOData.BrannMode = GTFO.Settings.BrannMode;
 	GTFOData.IgnoreOptions = { };
 	if (GTFO.Settings.IgnoreOptions) then
 		for key, option in pairs(GTFO.Settings.IgnoreOptions) do
@@ -2222,6 +2310,9 @@ function GTFO_SaveSettings()
 		getglobal("GTFO_UnmuteButton"):SetChecked(GTFO.Settings.UnmuteMode);
 		getglobal("GTFO_TrivialButton"):SetChecked(GTFO.Settings.TrivialMode);
 		getglobal("GTFO_VibrationButton"):SetChecked(GTFO.Settings.EnableVibration);
+		if (GTFO.AprilFoolsDay and not GTFO.Settings.BrannMode) then
+			getglobal("GTFO_AprilFoolsDayButton"):SetChecked(GTFO.AprilFoolsDay and not GTFO.Settings.BrannMode);
+		end
 
 		for key, option in pairs(GTFO.IgnoreSpellCategory) do
 			getglobal("GTFO_IgnoreAlertButton_"..key):SetChecked(not GTFO.Settings.IgnoreOptions[key]);
@@ -2258,6 +2349,7 @@ function GTFO_SetDefaults()
 	GTFO.Settings.IgnoreOptions = GTFO.DefaultSettings.IgnoreOptions;
 	GTFO.Settings.SoundOverrides = GTFO.DefaultSettings.SoundOverrides;
 	GTFO.Settings.IgnoreSpellList = GTFO.DefaultSettings.IgnoreSpellList;
+	GTFO.Settings.BrannMode = nil;
 	GTFO_SaveSettings();
 end
 
