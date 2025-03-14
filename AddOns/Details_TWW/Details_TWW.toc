@@ -4,8 +4,8 @@
 ## Author: Karl-Heinz Schneider
 ## X-Website: https://github.com/Karl-HeinzSchneider/WoW-Details-Skin-TheWarWithin
 ## X-Curse-Project-ID: 1083704
-## Version: v1.3
-## X-Date: 20240830190827
+## Version: v1.3.3
+## X-Date: 20250313230407
 ## Dependencies: Details
 ## OptionalDeps: Ace3
 
