@@ -13,7 +13,6 @@ local sScale;
 local VuhDoDirectionFrame;
 local VuhDoDirectionFrameArrow;
 local VuhDoDirectionFrameText;
-local VUHDO_setMapToCurrentZone;
 local VUHDO_getDistanceBetween;
 local VUHDO_getUnitDirection;
 
@@ -31,7 +30,6 @@ function VUHDO_directionsInitLocalOverrides()
 	VuhDoDirectionFrame = _G["VuhDoDirectionFrame"];
 	VuhDoDirectionFrameArrow = _G["VuhDoDirectionFrameArrow"];
 	VuhDoDirectionFrameText = _G["VuhDoDirectionFrameText"];
-	VUHDO_setMapToCurrentZone = _G["VUHDO_setMapToCurrentZone"];
 	VUHDO_getDistanceBetween = _G["VUHDO_getDistanceBetween"];
 	VUHDO_getUnitDirection = _G["VUHDO_getUnitDirection"];
 end
@@ -111,7 +109,6 @@ local sLastCell = nil;
 local tButton = nil;
 local tHeight;
 local tDistance;
-local tHeight;
 local tDestR, tDestG;
 function VUHDO_updateDirectionFrame(aButton)
 

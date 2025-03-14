@@ -70,8 +70,6 @@ end
 
 --
 local function VUHDO_getFirstBuffCategoryVariant(aCategorySpec)
-	local tFirstVariant = nil;
-
 	for _, tFirstVariant in pairs(VUHDO_getPlayerClassBuffs()[aCategorySpec]) do
 		if VUHDO_BUFFS[tFirstVariant[1]] ~= nil then
 			return tFirstVariant;

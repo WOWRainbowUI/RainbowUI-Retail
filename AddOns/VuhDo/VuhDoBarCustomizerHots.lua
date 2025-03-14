@@ -4,7 +4,6 @@ local format = format;
 local sIsFade;
 local sIsFlashWhenLow;
 local sIsWarnColor;
-local sIsSwiftmend;
 local sHotSetup = { };
 local sHotSlots = { };
 local sIsHotShowIcon = { };
@@ -60,7 +59,6 @@ local VUHDO_UNIT_HOT_LISTS = VUHDO_UNIT_HOT_LISTS;
 
 local VUHDO_ACTIVE_HOTS = { };
 local VUHDO_ACTIVE_HOTS_OTHERS = { };
-local sOthersHotsInfo = { };
 
 local VUHDO_IGNORE_HOT_IDS = {
 	[67358] = true, -- "Rejuvenating" proc has same name in russian and spanish as rejuvenation
@@ -85,17 +83,13 @@ local VUHDO_HOT_CFGS = { "HOT1", "HOT2", "HOT3", "HOT4", "HOT5", "HOT6", "HOT7",
 
 
 local floor = floor;
-local table = table;
 local GetSpellCooldown = GetSpellCooldown or VUHDO_getSpellCooldown;
 local GetSpellCharges = C_Spell.GetSpellCharges;
 local GetSpellName = C_Spell.GetSpellName;
 local GetTime = GetTime;
 local strfind = strfind;
 local pairs = pairs;
-local twipe = table.wipe;
 local tostring = tostring;
-local ForEachAura = AuraUtil.ForEachAura or VUHDO_forEachAura;
-local UnpackAuraData = AuraUtil.UnpackAuraData or VUHDO_unpackAuraData;
 
 local _G = _G;
 
@@ -113,11 +107,10 @@ local VUHDO_getBarIconTimer;
 local VUHDO_getBarIconCounter;
 local VUHDO_getBarIconCharge;
 local VUHDO_getBarIconClockOrStub;
-local VUHDO_backColor;
+local VUHDO_backColorWithFallback;
 local VUHDO_textColor;
 
 local VUHDO_PANEL_SETUP;
-local VUHDO_CAST_ICON_DIFF;
 local VUHDO_HEALING_HOTS;
 local VUHDO_RAID;
 local sIsClusterIcons;
@@ -127,7 +120,6 @@ function VUHDO_customHotsInitLocalOverrides()
 
 	-- variables
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
-	VUHDO_CAST_ICON_DIFF = _G["VUHDO_CAST_ICON_DIFF"];
 	VUHDO_HEALING_HOTS = _G["VUHDO_HEALING_HOTS"];
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_ACTIVE_HOTS = _G["VUHDO_ACTIVE_HOTS"];
@@ -147,7 +139,7 @@ function VUHDO_customHotsInitLocalOverrides()
 	VUHDO_getBarIconCounter = _G["VUHDO_getBarIconCounter"];
 	VUHDO_getBarIconCharge = _G["VUHDO_getBarIconCharge"];
 	VUHDO_getBarIconClockOrStub = _G["VUHDO_getBarIconClockOrStub"];
-	VUHDO_backColor = _G["VUHDO_backColor"];
+	VUHDO_backColorWithFallback = _G["VUHDO_backColorWithFallback"];
 	VUHDO_textColor = _G["VUHDO_textColor"];
 
 	sBarColors = VUHDO_PANEL_SETUP["BAR_COLORS"];
@@ -235,7 +227,6 @@ end
 
 
 --
-local tHotName;
 local tDuration2;
 local tChargeTexture;
 local tIsHotShowIcon;
@@ -1106,7 +1097,6 @@ end
 local tPanelUnitButtons;
 local tUnitHot;
 local tUnitHotCount;
-local tPanelUnitButtons;
 local tUnitHotInfo;
 local tRest;
 local tStacks;

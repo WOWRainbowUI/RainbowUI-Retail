@@ -224,7 +224,6 @@ end
 
 
 --
-local tPrefixes = { "SPEC_1", "SPEC_2", "SPEC_3", "SPEC_4" };
 local tExistIndex;
 local tIsGroupFound;
 local tIsSpecSelected;

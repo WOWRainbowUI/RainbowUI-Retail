@@ -763,6 +763,9 @@ VUHDO_I18N_TT.K600 = "Show debuff icons on friendly units.";
 VUHDO_I18N_TT.K601 = "Show debuff icons on hostile units.";
 VUHDO_I18N_TT.K602 = "Show debuffs cast by you on hostile units.";
 VUHDO_I18N_TT.K603 = "Show debuffs cast by others on hostile units.";
+VUHDO_I18N_TT.K604 = "Check this to use gradient class colors.";
+VUHDO_I18N_TT.K605 = "Check this to use gradient color.";
+VUHDO_I18N_TT.K606 = "Select the maximum gradient color.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Стандартный\nпрофиль";
 VUHDO_I18N_DEFAULT_LAYOUT = "Стандартная раскладка клавиш ";
@@ -1391,3 +1394,8 @@ VUHDO_I18N_SHOW_ON_HOSTILE = "Show on\nhostile";
 VUHDO_I18N_HOSTILE_SPELL_SOURCE = "Hostile Unit Spell Source";
 
 VUHDO_I18N_SEARCH_OPTIONS = "Search Options";
+
+VUHDO_I18N_CLASS_GRADIENT_COLORS = "Class Gradient Colors";
+VUHDO_I18N_CLASS_GRADIENTS = "Class\nGradients";
+VUHDO_I18N_LIFE_GRADIENT = "Life\nGradient";
+VUHDO_I18N_MAX_COLOR = "Max Color";

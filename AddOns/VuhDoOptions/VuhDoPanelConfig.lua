@@ -9,7 +9,6 @@ local sMaxDragDistance = 60;
 --
 function VUHDO_positionAllGroupConfigPanels(aPanelNum)
 	local tIsShowOrder;
-	local tModel;
 	local tXPos, tYPos;
 	local tOrderPanel, tSelectPanel;
 
@@ -30,7 +29,6 @@ function VUHDO_positionAllGroupConfigPanels(aPanelNum)
 		tOrderPanel:SetScale(tScale);
 		tXPos, tYPos = VUHDO_getHealButtonPos(tCnt, 1, aPanelNum);
 
-		tModel = VUHDO_PANEL_MODELS[aPanelNum][tCnt];
 		tIsShowOrder = true;
 
 		tOrderPanel:ClearAllPoints(); -- parent könnte gewechselt haben
@@ -175,7 +173,6 @@ local tCurrentDistance, tLowestDistance;
 local tLowPanelNum, tLowOrderNum;
 local tIsLeft;
 local tMaxOrderPanels;
-local tPanel;
 local tPanelX;
 local tPanelY;
 local tDragX;

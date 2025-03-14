@@ -75,7 +75,6 @@ local VUHDO_updateHealthBarsFor;
 local VUHDO_trimInspected;
 
 local VUHDO_getPlayerRaidUnit;
-local VUHDO_getModelType;
 local VUHDO_isConfigDemoUsers;
 local VUHDO_updateBouquetsForEvent;
 local VUHDO_resetClusterCoordDeltas;
@@ -85,7 +84,6 @@ local VUHDO_isAltPowerActive;
 local VUHDO_isModelConfigured;
 local VUHDO_determineRole;
 local VUHDO_getUnitHealthPercent;
-local VUHDO_isUnitInModel;
 local VUHDO_isUnitInModelIterative;
 local VUHDO_isUnitInPanel;
 local VUHDO_initDynamicPanelModels;
@@ -98,7 +96,6 @@ local UnitExists = UnitExists;
 local UnitHealth = UnitHealth;
 -- Disable local alias so function can be overloaded by Velhari Health Fix addon
 --local UnitHealthMax = UnitHealthMax; 
-local string = string;
 local UnitIsAFK = UnitIsAFK;
 local UnitIsConnected = UnitIsConnected;
 local UnitIsCharmed = UnitIsCharmed;
@@ -148,12 +145,10 @@ function VUHDO_vuhdoInitLocalOverrides()
 	VUHDO_tableUniqueAdd = _G["VUHDO_tableUniqueAdd"];
 	VUHDO_trimInspected = _G["VUHDO_trimInspected"];
 	VUHDO_getTargetUnit = _G["VUHDO_getTargetUnit"];
-	VUHDO_getModelType = _G["VUHDO_getModelType"];
 	VUHDO_isModelInPanel = _G["VUHDO_isModelInPanel"];
 	VUHDO_isAltPowerActive = _G["VUHDO_isAltPowerActive"];
 	VUHDO_getPlayerRaidUnit = _G["VUHDO_getPlayerRaidUnit"];
 	VUHDO_isModelConfigured = _G["VUHDO_isModelConfigured"];
-	VUHDO_isUnitInModel = _G["VUHDO_isUnitInModel"];
 	VUHDO_isUnitInModelIterative = _G["VUHDO_isUnitInModelIterative"];
 	VUHDO_isUnitInPanel = _G["VUHDO_isUnitInPanel"];
 	VUHDO_initDynamicPanelModels = _G["VUHDO_initDynamicPanelModels"];
@@ -868,14 +863,11 @@ local tUnitType = "foo";
 local tPetUnitType;
 local tInfo;
 local tIsDcChange;
-local tName, tRealm;
-local tOldUnitType;
 local tPet;
 function VUHDO_refreshRaidMembers()
 	VUHDO_PLAYER_RAID_ID = VUHDO_getPlayerRaidUnit();
 	VUHDO_IN_COMBAT_RELOG = false;
 
-	tOldUnitType = tUnitType;
 	tUnitType, tPetUnitType = VUHDO_getUnitIds();
 
 	tMaxMembers = ("raid" == tUnitType) and 40 or ("party" == tUnitType) and 4 or 0;

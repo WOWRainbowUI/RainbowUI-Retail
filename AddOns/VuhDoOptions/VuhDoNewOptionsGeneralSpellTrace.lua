@@ -7,8 +7,6 @@ local VUHDO_SPELL_TRACE_SORTABLE = { };
 
 
 --
-local tStoredName;
-local tIndex;
 local tSpellNameById;
 function VUHDO_initSpellTraceComboModel()
 
@@ -72,7 +70,6 @@ local tIndex;
 local tModel;
 local tPanelName;
 local tCheckButton;
-local tComboBox;
 local tDurationFrame;
 local tSlider;
 function VUHDO_spellTraceUpdateEditBox(anEditBox)

@@ -134,8 +134,6 @@ local VUHDO_SHIELD_LAST_SOURCE_GUID = { };
 setmetatable(VUHDO_SHIELD_LAST_SOURCE_GUID, VUHDO_META_NEW_ARRAY);
 
 
-local VUHDO_PLAYER_SHIELDS = { };
-
 
 --
 local pairs = pairs;

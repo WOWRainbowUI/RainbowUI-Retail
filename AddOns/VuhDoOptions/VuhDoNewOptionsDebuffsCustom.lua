@@ -4,8 +4,6 @@ local VUHDO_DEBUFFS_SORTABLE = { };
 
 
 --
-local tStoredName;
-local tIndex;
 local tSpellNameById;
 function VUHDO_initCustomDebuffComboModel()
   -- Nicht die saved variables direkt sortieren, wird sonst inkonsistent
@@ -78,7 +76,6 @@ local tPanelName;
 local tCheckButton;
 local tComboBox;
 local tColorSwatch;
-
 function VUHDO_customDebuffUpdateEditBox(anEditBox)
 	tValue = anEditBox:GetText();
 	tIndex = VUHDO_tableGetKeyFromValue(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"], tValue);
@@ -310,7 +307,6 @@ local tCheckButton;
 local tPanelName;
 local tComboBox;
 local tSoundName;
-local tColor;
 function VUHDO_saveCustomDebuffOnClick(aButton)
 	tEditBox = _G[aButton:GetParent():GetName() .. "EditBox"];
 	tValue = strtrim(tEditBox:GetText());

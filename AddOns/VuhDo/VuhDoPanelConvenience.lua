@@ -533,12 +533,22 @@ function VUHDO_refactorStatusbar(tBar)
 
 
 
-	tBar["SetVuhDoColor"] = function(self, aColor)
-		if aColor and aColor["R"] and aColor["G"] and aColor["B"] and aColor["O"] then
+	tBar["SetVuhDoColor"] = function(self, aColor, aMaxColor)
+
+		if aColor and aMaxColor and
+			aColor["R"] and aColor["G"] and aColor["B"] and aColor["O"] and
+			aMaxColor["R"] and aMaxColor["G"] and aMaxColor["B"] and aMaxColor["O"] then
+			self["texture"]:SetGradient(
+				"HORIZONTAL",
+				VUHDO_getOrCreateCachedColor(aColor["R"], aColor["G"], aColor["B"], aColor["O"]),
+				VUHDO_getOrCreateCachedColor(aMaxColor["R"], aMaxColor["G"], aMaxColor["B"], aMaxColor["O"])
+			);
+		elseif aColor and aColor["R"] and aColor["G"] and aColor["B"] and aColor["O"] then
 			self["texture"]:SetVertexColor(aColor["R"], aColor["G"], aColor["B"], aColor["O"]);
 		elseif aColor and aColor["R"] and aColor["G"] and aColor["B"] then
 			self["texture"]:SetVertexColor(aColor["R"], aColor["G"], aColor["B"]);
 		end
+
 	end
 
 

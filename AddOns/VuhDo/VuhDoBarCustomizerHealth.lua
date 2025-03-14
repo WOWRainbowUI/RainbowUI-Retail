@@ -22,7 +22,6 @@ local VUHDO_getOverhealPanel;
 local VUHDO_getOverhealText;
 local VUHDO_getUnitButtons;
 local VUHDO_getUnitButtonsSafe;
-local VUHDO_getUnitButtonsPanel;
 local VUHDO_getBarRoleIcon;
 local VUHDO_getBarIconFrame;
 local VUHDO_updateClusterHighlights;
@@ -69,7 +68,6 @@ function VUHDO_customHealthInitLocalOverrides()
 	VUHDO_INTERNAL_TOGGLES = _G["VUHDO_INTERNAL_TOGGLES"];
 
 	VUHDO_getUnitButtons = _G["VUHDO_getUnitButtons"];
-	VUHDO_getUnitButtonsPanel = _G["VUHDO_getUnitButtonsPanel"];
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getBarText = _G["VUHDO_getBarText"];
 	VUHDO_getIncHealOnUnit = _G["VUHDO_getIncHealOnUnit"];
@@ -514,7 +512,6 @@ local tAmountInc;
 local tInfo;
 local tOpacity;
 local tHealthBar;
-local tIncBar;
 local function VUHDO_updateIncHeal(aUnit)
 	tInfo = VUHDO_RAID[aUnit];
 	tAllButtons = VUHDO_getUnitButtons(VUHDO_resolveVehicleUnit(aUnit));
@@ -857,7 +854,7 @@ end
 local tHealthBar;
 local tPanelNum;
 local tQuota;
-local function VUHDO_updateHealthBarValueForUnit(aUnit, aQuota, anInvertedQuota, aColor, aBouquetName)
+local function VUHDO_updateHealthBarValueForUnit(aUnit, aQuota, anInvertedQuota, aColor, aMaxColor, aBouquetName)
 
 	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
 		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
@@ -873,7 +870,7 @@ local function VUHDO_updateHealthBarValueForUnit(aUnit, aQuota, anInvertedQuota,
 
 			if tQuota > 0 then
 				if aColor then
-					tHealthBar:SetVuhDoColor(aColor);
+					tHealthBar:SetVuhDoColor(aColor, aMaxColor);
 
 					if aColor["useText"] then
 						VUHDO_getBarText(tHealthBar):SetTextColor(VUHDO_textColor(aColor));
@@ -893,9 +890,9 @@ end
 
 
 --
-local tAllButtons, tHealthBar, tQuota, tInfo;
+local tAllButtons, tQuota, tInfo;
 local tHealth, tHealthQuota;
-function VUHDO_healthBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCounter, aMaxValue, aColor, aBuffName, aBouquetName, aLevel, aCurrValue2)
+function VUHDO_healthBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCounter, aMaxValue, aColor, aBuffName, aBouquetName, aLevel, aCurrValue2, aClipL, aClipR, aCLipT, aClipB, aMaxColor)
 
 	aMaxValue = aMaxValue or 0;
 	aCurrValue = aCurrValue or 0;
@@ -913,7 +910,7 @@ function VUHDO_healthBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, a
 	tQuota = (aCurrValue == 0 and aMaxValue == 0) and 0 or aMaxValue > 1 and aCurrValue / aMaxValue or 0;
 	tHealthQuota = (tHealth == 0 and aMaxValue == 0) and 0 or aMaxValue > 1 and tHealth / aMaxValue or 0;
 
-	VUHDO_updateHealthBarValueForUnit(aUnit, tQuota, tHealthQuota, aColor, aBouquetName);
+	VUHDO_updateHealthBarValueForUnit(aUnit, tQuota, tHealthQuota, aColor, aMaxColor, aBouquetName);
 
 	tInfo = VUHDO_RAID[aUnit]
 

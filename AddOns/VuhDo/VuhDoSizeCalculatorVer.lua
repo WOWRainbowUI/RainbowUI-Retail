@@ -1,5 +1,4 @@
 -- BURST CACHE ---------------------------------------------------
-local VUHDO_CONFIG;
 local VUHDO_PANEL_SETUP;
 
 local VUHDO_isTableHeadersShowing;
@@ -12,11 +11,9 @@ local VUHDO_getNumHotSlots;
 local ceil = ceil;
 local floor = floor;
 local twipe = table.wipe;
-local strfind = strfind;
 local ipairs = ipairs;
 
 function VUHDO_sizeCalculatorInitLocalOverridesVer()
-	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
 
 	VUHDO_isTableHeadersShowing = _G["VUHDO_isTableHeadersShowing"];
@@ -373,7 +370,6 @@ local tHeight;
 local tLastPlace;
 local tLastHeaderY;
 local tLastRowHeight;
-local tHeight;
 function VUHDO_getHealPanelHeightVer(aPanelNum)
 	tBarScaling = VUHDO_PANEL_SETUP[aPanelNum]["SCALING"];
 	if VUHDO_isLooseOrderingShowing(aPanelNum) then

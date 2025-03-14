@@ -1,5 +1,4 @@
 -- BURST CACHE ---------------------------------------------------
-local VUHDO_CONFIG;
 local VUHDO_PANEL_SETUP;
 
 local VUHDO_isTableHeadersShowing;
@@ -11,11 +10,9 @@ local VUHDO_getNumHotSlots;
 
 local ceil = ceil;
 local floor = floor;
-local strfind = strfind;
 local ipairs = ipairs;
 
 function VUHDO_sizeCalculatorInitLocalOverridesHor()
-	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
 
 	VUHDO_isTableHeadersShowing = _G["VUHDO_isTableHeadersShowing"];
