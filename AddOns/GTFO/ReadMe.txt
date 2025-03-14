@@ -2221,3 +2221,12 @@ Change Log:
 5.15.4
 * Fixed TWW spells for Liberation of Undermine
 * Added TWW spells for Liberation of Undermine
+
+5.16
+* Added The War Within spells (world)
+* Added TWW spells for Liberation of Undermine
+* Added TWW spells for TWW Delves
+* Added TWW spells for Cinderbrew Meadery
+* Added TWW spells for Operation: Floodgate
+* Added BFA spells for The MOTHERLODE!!
+* Added BFA spells for Operation: Mechagon

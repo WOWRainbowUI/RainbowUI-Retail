@@ -295,6 +295,12 @@ GTFO.SpellID["436640"] = {
   test = true; -- Need verification of negating debuff working
 };
 
+GTFO.SpellID["440087"] = {
+  --desc = "Oozing Honey (Brew Drop)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
 
 --- *******************
 --- * City of Threads *
@@ -696,27 +702,36 @@ GTFO.SpellID["453152"] = {
   sound = 1;
 };
 
-GTFO.BrannModeSounds = {
-	{
-		247551, -- You got to dodge
-		247550, -- Don't stand there!
-		247549, -- Get out of the way!
-		--247559, -- Keepers preserve ye!
-		247563, -- Hey, be careful!
-	},
-	{
-		247551, -- You got to dodge
-		247550, -- Don't stand there!
-		247549, -- Get out of the way!
-		--247559, -- Keepers preserve ye!
-		247563, -- Hey, be careful!
-
-		247606, -- Little too close for my taste
-		--247573, -- I know you can do better than that
-		247558, -- Don't go dying on me
-		--247560, -- It can't end like this!
-	},
+GTFO.SpellID["1213374"] = {
+  --desc = "Massive Shock";
+  ignoreApplication = true;
+  sound = 1;
 };
+
+GTFO.SpellID["1215912"] = {
+  --desc = "Black Blood (Geargrave)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["473700"] = {
+  --desc = "Molotov Cocktail (Flinging Flicker)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["474230"] = {
+  --desc = "Shadow Blast (Silent Slitherer - Residue)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["474155"] = {
+  --desc = "Slime Trail (Coagulated Mass)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
 
 --- *******************
 --- * Nerub-ar Palace *
@@ -979,9 +994,22 @@ GTFO.SpellID["473051"] = {
   sound = 1;
 };
 
+GTFO.SpellID["473287"] = {
+  --desc = "Excessive Electrification (Big M.O.M.M.A.)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
 --- ***************************
 --- * Liberation of Undermine *
 --- ***************************
+
+GTFO.SpellID["459683"] = {
+  --desc = "Oil Slick (Vexie)";
+  ignoreApplication = true;
+  sound = 1;
+  test = true;
+};
 
 GTFO.SpellID["467048"] = {
   --desc = "Faulty Zap (Rik Reverb)";
@@ -1014,10 +1042,27 @@ GTFO.SpellID["464248"] = {
   sound = 1;
 };
 
+GTFO.SpellID["474554"] = {
+  --desc = "Shaken Earth (Mug'Zee)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["466509"] = {
+  --desc = "Stormfury Finger Gun (Mug'Zee)";
+  applicationOnly = true;
+  soundFunction = function() 
+	GTFO_AddEvent("StormfuryFingerGun", 6);
+	return 0;
+  end;
+};
+
 GTFO.SpellID["470245"] = {
   --desc = "Stormfury Finger Gun (Mug'Zee)";
   sound = 1;
   tankSound = 0;
+  ignoreEvent = "StormfuryFingerGun";
+  negatingDebuffSpellID = 466509; -- Stormfury Finger Gun 
   test = true;
 };
 
@@ -1033,7 +1078,11 @@ GTFO.SpellID["472057"] = {
   sound = 1;
 };
 
-
+GTFO.SpellID["1215209"] = {
+  --desc = "Sabotage Zone (Chrome King Gallywix)";
+  ignoreApplication = true;
+  sound = 1;
+};
 
 
 end

@@ -508,6 +508,22 @@ GTFO.SpellID["1215618"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1216467"] = {
+  --desc = "Lacerated";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1216577"] = {
+  --desc = "Bomb Voyage (The Gobfather)";
+  sound = 3;
+};
+
+GTFO.SpellID["1216747"] = {
+  --desc = "Death From Above (The Gobfather)";
+  sound = 3;
+};
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -603,6 +619,12 @@ GTFO.SpellID["432198"] = {
   sound = 3;
 };
 
+GTFO.SpellID["445180"] = {
+  --desc = "Crawling Brawl (Brew Master Aldryr)";
+  applicationOnly = true;
+  sound = 3;
+};
+
 GTFO.SpellID["439991"] = {
   --desc = "Spouting Stout (I'pa - Swirl)";
   sound = 3;
@@ -642,6 +664,10 @@ GTFO.SpellID["435788"] = {
   sound = 3;
 };
 
+GTFO.SpellID["448920"] = {
+  --desc = "Reckless Delivery (Careless Hopgoblin)";
+  sound = 3;
+};
 
 --- *******************
 --- * City of Threads *
@@ -1640,6 +1666,52 @@ GTFO.SpellID["1217369"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1216806"] = {
+  --desc = "There's the Door (Malfunctioning Pummeler)";
+  sound = 3;
+};
+
+GTFO.SpellID["1215909"] = {
+  --desc = "Carnage Cannon (Geargrave)";
+  sound = 3;
+};
+
+GTFO.SpellID["473699"] = {
+  --desc = "Molotov Cocktail (Flinging Flicker)";
+  sound = 3;
+};
+
+GTFO.SpellID["473556"] = {
+  --desc = "Rocket Barrage (Aerial Support Bot)";
+  sound = 3;
+};
+
+GTFO.SpellID["474004"] = {
+  --desc = "Drill Quake (Drill Sergeant)";
+  sound = 3;
+};
+
+GTFO.SpellID["1214889"] = {
+  --desc = "Chilled Steps";
+  ignoreApplication = true;
+  sound = 3;
+};
+
+GTFO.SpellID["473995"] = {
+  --desc = "Bloodbath (Masked Freelancer)";
+  sound = 3;
+};
+
+GTFO.SpellID["1217303"] = {
+  --desc = "Heedless Charge (Aggressively Lost Hobgoblin)";
+  sound = 3;
+};
+
+GTFO.SpellID["474229"] = {
+  --desc = "Shadow Blast (Silent Slitherer - Impact)";
+  sound = 3;
+};
+
 --- *******************
 --- * Nerub-ar Palace *
 --- *******************
@@ -2102,12 +2174,6 @@ GTFO.SpellID["472454"] = {
   test = true;
 };
 
-GTFO.SpellID["473836"] = {
-  --desc = "Electrocrush (Big M.O.M.M.A.)";
-  applicationOnly = true;
-  sound = 3;
-};
-
 GTFO.SpellID["465682"] = {
   --desc = "Surprise Inspection (Darkfuse Inspector)";
   sound = 3;
@@ -2128,6 +2194,12 @@ GTFO.SpellID["473526"] = {
   sound = 3;
 };
 
+GTFO.SpellID["460965"] = {
+  --desc = "Barreling Charge (Bront)";
+  applicationOnly = true;
+  sound = 3;
+};
+
 GTFO.SpellID["1214341"] = {
   --desc = "Bomb Pile Explosion (Bomb Pile)";
   sound = 3;
@@ -2141,7 +2213,16 @@ GTFO.SpellID["473126"] = {
 GTFO.SpellID["469819"] = {
   --desc = "Bubble (Bubbles)";
   sound = 3;
-  test = true; -- NPC died too quickly to see what it does
+};
+
+GTFO.SpellID["1217496"] = {
+  --desc = "Splish Splash (Bubbles)";
+  sound = 3;
+};
+
+GTFO.SpellID["465487"] = {
+  --desc = "Bubbles Smash (Bubbles)";
+  sound = 3;
 };
 
 GTFO.SpellID["465604"] = {
@@ -2166,8 +2247,14 @@ GTFO.SpellID["468723"] = {
   sound = 3;
 };
 
-GTFO.SpellID["468616"] = {
+GTFO.SpellID["468647"] = {
   --desc = "Leaping Spark (Leaping Spark)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["257371"] = {
+  --desc = "Tear Gas (Mechanized Peacekeeper)";
   applicationOnly = true;
   sound = 3;
 };
@@ -2352,8 +2439,58 @@ GTFO.SpellID["1213696"] = {
   sound = 3;
 };
 
+GTFO.SpellID["466517"] = {
+  --desc = "Stormfury Cloud (Mug'Zee)";
+  applicationOnly = true;
+  sound = 3;
+};
 
+GTFO.SpellID["472659"] = {
+  --desc = "Shakedown (Gallagio Goon)";
+  sound = 3;
+  tankSound = 0;
+  test = true;
+};
 
+GTFO.SpellID["1218124"] = {
+  --desc = "Incinerate (The Junkmaker)";
+  sound = 3;
+  test = true;
+};
+
+GTFO.SpellID["1218140"] = {
+  --desc = "Junksaws (The Junkmaker)";
+  sound = 3;
+  applicationOnly = true;
+  test = true;
+};
+
+GTFO.SpellID["465938"] = {
+  --desc = "Big Bad Buncha Bombs (Chrome King Gallywix)";
+  sound = 3;
+};
+
+GTFO.SpellID["466153"] = {
+  --desc = "Bad Belated Boom (Chrome King Gallywix)";
+  sound = 3;
+};
+
+GTFO.SpellID["467184"] = {
+  --desc = "Suppression (Chrome King Gallywix)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["1223126"] = {
+  --desc = "Party Crashing Rocket (Party Rocket)";
+  sound = 3;
+};
+
+GTFO.SpellID["1214611"] = {
+  --desc = "Bigger Badder Bomb Blast (Chrome King Gallywix)";
+  sound = 3;
+  tankSound = 0;
+};
 
 
 end

@@ -7,9 +7,10 @@
 ## Title: GTFO
 ## Notes: GTFO, you're dying!
 ## Author: Zensunim of Dragonblight
-## Version: 5.15.4
+## Version: 5.16
 ## DefaultState: Enabled
 ## SavedVariables: GTFOData
+## Category: Combat
 ## X-WoWI-ID: 17996
 ## X-Curse-Project-ID: 20697
 ## X-Wago-ID: PANz0MK4
