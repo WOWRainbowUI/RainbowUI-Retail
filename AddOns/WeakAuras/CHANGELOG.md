@@ -1,54 +1,38 @@
-# [5.19.4](https://github.com/WeakAuras/WeakAuras2/tree/5.19.4) (2025-02-26)
+# [5.19.5](https://github.com/WeakAuras/WeakAuras2/tree/5.19.5) (2025-03-10)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.19.3...5.19.4)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.19.4...5.19.5)
 
 ## Highlights
 
-Update for The War Within 11.1
-
-New in this version:
-
-- models now have an alpha slider to set transparency
-- TSU-type custom triggers have some new convenience functions available. Documentation is avaliable at https://github.com/WeakAuras/WeakAuras2/wiki/Trigger-State-Updater-(TSU)#all-states-
-helper-methods
-  - this is unlikely to matter, but note that the choice of plumbing used means this is techni
-cally a breaking change if you ever created a state with the "__changed" key.
-
-Fixes:
-
-- x-realm transfer of auras should fail less often
-- improve performance
-cally a breaking change if you ever created a state with the "__changed" key.
-
-Fixes:
-
-- x-realm transfer of auras should fail less often
-- improve performance
-- large, deply nested groups should load significantly faster (i.e. https://wago.io/twwdungeons should be less prone to throw errors when you start an encounter)
-- "Hide Cooldown Text" condition property remembered how to function
-- x-realm data transfer (for sharing auras) should be more likely to actually succeed now
+No new features this release, just fixes to some minor bugs
 
 ## Commits
 
-InfusOnWoW (6):
+InfusOnWoW (9):
 
-- Use Chomp for cross-realm transfer
-- Fix EnsureRegion repeately creating parents
-- Group: Don't calculate group size if not needed
-- Fix Hide Cooldown Text condition
-- Models: Fix Alpha animations
-- Be extra picky on noValidation spell inputs
+- Update Discord List
+- Update Discord List
+- Stop Motion Sub Element: Fix setting of custom row/colum etc settings
+- Partially revert 4e628f546befa7
+- Being in Excavation Site 9 IsInInstance() returns false
+- Texture Sub Element: Don't resize main aura on atlas selection
+- Workaround boss unit stupidity by Blizzard
+- Workaround INSTANCE_ENGAGE_UNIT with incosistent UnitGUID/UnitExists
+- Remove Stop Motion texture data
 
-Stanzilla (1):
+Stanzilla (2):
 
-- chore(toc): bump version for retail
+- Update WeakAurasModelPaths from wago.tools
+- Update WeakAurasModelPaths from wago.tools
+
+dependabot[bot] (4):
+
+- Bump cbrgm/mastodon-github-action from 2.1.12 to 2.1.13
+- Bump tsickert/discord-webhook from 6.0.0 to 7.0.0
+- Bump leafo/gh-actions-luarocks from 4 to 5
+- Bump leafo/gh-actions-lua from 10 to 11
 
 emptyrivers (1):
 
-- put the mixins in private exec_env too
-
-mrbuds (2):
-
-- cache buildup optimization for 11.1
-- Add alpha setting for model region
+- remove spurious enUS translations
 
