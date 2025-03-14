@@ -40,7 +40,6 @@ local VUHDO_parseCombatLogEvent;
 local VUHDO_updateAllOutRaidTargetButtons;
 local VUHDO_updateAllRaidTargetIndices;
 local VUHDO_updateDirectionFrame;
-local VUHDO_checkInteractDistance;
 local VUHDO_updateHealth;
 local VUHDO_updateManaBars;
 local VUHDO_updateTargetBars;
@@ -60,7 +59,6 @@ local VUHDO_UIFrameFlash_OnUpdate = function() end;
 
 local GetTime = GetTime;
 local UnitInRange = UnitInRange;
-local IsSpellInRange = IsSpellInRange or VUHDO_isSpellInRange;
 local UnitDetailedThreatSituation = UnitDetailedThreatSituation;
 local UnitIsCharmed = UnitIsCharmed;
 local UnitCanAttack = UnitCanAttack;
@@ -74,9 +72,6 @@ local UnitThreatSituation = UnitThreatSituation;
 local InCombatLockdown = InCombatLockdown;
 local type = type;
 
-local sRangeSpell;
-local sIsHelpfulRangeKnown = false;
-local sIsHarmfulRangeKnown = false;
 local sIsHealerMode;
 local sIsDirectionArrow = false;
 local VuhDoGcdStatusBar;
@@ -114,19 +109,11 @@ local function VUHDO_eventHandlerInitLocalOverrides()
 	VuhDoGcdStatusBar = _G["VuhDoGcdStatusBar"];
 	VuhDoDirectionFrame = _G["VuhDoDirectionFrame"];
 	VUHDO_updateDirectionFrame = _G["VUHDO_updateDirectionFrame"];
-	VUHDO_checkInteractDistance = _G["VUHDO_checkInteractDistance"];
 	VUHDO_getUnitZoneName = _G["VUHDO_getUnitZoneName"];
 	VUHDO_updateClusterHighlights = _G["VUHDO_updateClusterHighlights"];
 	VUHDO_updateCustomDebuffTooltip = _G["VUHDO_updateCustomDebuffTooltip"];
 	VUHDO_getCurrentMouseOver = _G["VUHDO_getCurrentMouseOver"];
 	VUHDO_UIFrameFlash_OnUpdate = _G["VUHDO_UIFrameFlash_OnUpdate"];
-
-	-- FIXME: why can't model sanity be run prior to burst cache initialization?
-	if type(VUHDO_CONFIG["RANGE_SPELL"]) == "table" and type(VUHDO_CONFIG["RANGE_PESSIMISTIC"]) == "table" then
-		sRangeSpell = VUHDO_CONFIG["RANGE_SPELL"];
-		sIsHelpfulRangeKnown = not VUHDO_CONFIG["RANGE_PESSIMISTIC"]["HELPFUL"] and GetSpellName(sRangeSpell["HELPFUL"]) ~= nil;
-		sIsHarmfulRangeKnown = not VUHDO_CONFIG["RANGE_PESSIMISTIC"]["HARMFUL"] and GetSpellName(sRangeSpell["HARMFUL"]) ~= nil;
-	end
 
 	sIsHealerMode = not VUHDO_CONFIG["THREAT"]["IS_TANK_MODE"];
 
@@ -1235,32 +1222,7 @@ local function VUHDO_updateAllRange()
 			VUHDO_updateHealthBarsFor(tUnit, 4); -- VUHDO_UPDATE_DEBUFF
 		end
 
-		-- Check if unit is phased
-		if VUHDO_unitPhaseReason(tUnit) then
-			tIsInRange = false;
-		else
-			-- Check if unit is in range
-			if UnitCanAttack("player", tUnit) then
-				tIsRangeKnown = sIsHarmfulRangeKnown;
-				tUnitReaction = "HARMFUL";
-			else
-				tIsRangeKnown = sIsHelpfulRangeKnown;
-				tUnitReaction = "HELPFUL";
-			end
-
-			tRangeSpell = sRangeSpell[tUnitReaction];
-
-			if tIsRangeKnown then
-				tIsInRange = tInfo["connected"] and 
-					((tRangeSpell and 1 == IsSpellInRange(tRangeSpell, tUnit, tUnitReaction)) or 
-						((tInfo["dead"] or tInfo["charmed"]) and tInfo["baseRange"]) or "player" == tUnit or 
-						(VUHDO_isSpecialUnit(tUnit) and VUHDO_checkInteractDistance(tUnit, 1)));
-			else
-				tIsInRange = tInfo["connected"] and 
-					(tInfo["baseRange"] or 
-						(VUHDO_isSpecialUnit(tUnit) and VUHDO_checkInteractDistance(tUnit, 1)));
-			end
-		end
+		tIsInRange = VUHDO_isInRange(tUnit);
 
 		if tInfo["range"] ~= tIsInRange then
 			tInfo["range"] = tIsInRange;

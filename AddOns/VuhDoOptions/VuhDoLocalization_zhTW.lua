@@ -661,6 +661,9 @@ VUHDO_I18N_TT.K600 = "友方單位顯示減益圖示。";
 VUHDO_I18N_TT.K601 = "敵方單位顯示減益圖示。";
 VUHDO_I18N_TT.K602 = "敵方單位顯示你施放的減益。";
 VUHDO_I18N_TT.K603 = "敵方單位顯示其他人施放的減益。";
+VUHDO_I18N_TT.K604 = "使用漸層的職業顏色。";
+VUHDO_I18N_TT.K605 = "使用漸層色。";
+VUHDO_I18N_TT.K606 = "使用最多漸層色。";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1218,3 +1221,8 @@ VUHDO_I18N_SHOW_ON_HOSTILE = "敵方\n顯示";
 VUHDO_I18N_HOSTILE_SPELL_SOURCE = "敵方單位法術來源";
 
 VUHDO_I18N_SEARCH_OPTIONS = "搜尋選項";
+
+VUHDO_I18N_CLASS_GRADIENT_COLORS = "職業漸層色";
+VUHDO_I18N_CLASS_GRADIENTS = "職業\n漸層";
+VUHDO_I18N_LIFE_GRADIENT = "血量\n漸層";
+VUHDO_I18N_MAX_COLOR = "最多顏色";

@@ -2512,6 +2512,11 @@ local VUHDO_DEFAULT_PANEL_SETUP = {
 			["useBackground"] = true, ["useOpacity"] = true,
 		},
 		["classColorsName"] = false,
+		["isSolidGradient"] = false,
+		["solidMaxColor"] = {
+			["R"] = 1, ["G"] = 1, ["B"] = 1, ["O"] = 1,
+			["useBackground"] = true, ["useOpacity"] = true,
+		},
 	},
 
 	["BAR_COLORS"] = {
@@ -3085,15 +3090,117 @@ VUHDO_DEFAULT_USER_CLASS_COLORS = {
 	["petClassColor"] = false,
 }
 
+-- Gradient Color "min":
+
+-- DK: 0.498, 0.075, 0.149
+-- DH: 0.365, 0.137, 0.573
+-- DD: 1, 0.239, 0.008
+-- EV: 0.196, 0.467, 0.537
+-- HU: 0.404, 0.537, 0.224
+-- MA: 0, 0.333, 0.537
+-- MO: 0.016, 0.608, 0.369
+-- PA: 1, 0.267, 0.537
+-- PR: 0.357, 0.357, 0.357
+-- SH: 0, 0.259, 0.51
+-- WA: 0.263, 0.267, 0.467
+-- WR: 0.427, 0.137, 0.09
+-- RO: 1, 0.686, 0
+
+-- Gradient Color 'max":
+
+-- DK: 1, 0.184, 0.239
+-- DH: 0.745, 0.192, 1
+-- DD: 1, 0.486, 0.039
+-- EV: 0.2, 0.576, 0.498
+-- HU: 0.671, 0.929, 0.31
+-- MA: 0.49, 0.871, 1
+-- MO: 0, 1, 0.588
+-- PA: 0.957, 0.549, 0.729
+-- PR: 0.988, 0.988, 0.988
+-- SH: 0, 0.439, 0.871
+-- WA: 0.663, 0.392, 0.784
+-- WR: 0.565, 0.431, 0.247
+-- RO: 1, 0.831, 0.255
+
+VUHDO_DEFAULT_USER_CLASS_GRADIENT_COLORS = {
+	[VUHDO_ID_DRUIDS] = {
+		["min"] = VUHDO_makeFullColor(1,    0.24, 0.01, 1,   1,    0.6,  0.04, 1),
+		["max"] = VUHDO_makeFullColor(1,    0.49, 0.04, 1,   1,    0.6,  0.04, 1),
+	},
+	[VUHDO_ID_HUNTERS] = {
+		["min"] = VUHDO_makeFullColor(0.40, 0.54, 0.22, 1,   0.77, 0.93, 0.55, 1),
+		["max"] = VUHDO_makeFullColor(0.67, 0.93, 0.31, 1,   0.77, 0.93, 0.55, 1),
+	},
+	[VUHDO_ID_MAGES] = {
+		["min"] = VUHDO_makeFullColor(0,    0.33, 0.54, 1,   0.51, 0.9,  1,    1),
+		["max"] = VUHDO_makeFullColor(0.49, 0.87, 1,    1,   0.51, 0.9,  1,    1),
+	},
+	[VUHDO_ID_PALADINS] = {
+		["min"] = VUHDO_makeFullColor(1,    0.28, 0.54, 1,   1,    0.65, 0.83, 1),
+		["max"] = VUHDO_makeFullColor(0.96, 0.55, 0.73, 1,   1,    0.65, 0.83, 1),
+	},
+	[VUHDO_ID_PRIESTS] = {
+		["min"] = VUHDO_makeFullColor(0.36, 0.36, 0.36, 1,   1,    1,    1,    1),
+		["max"] = VUHDO_makeFullColor(0.99, 0.99, 0.99, 1,   1,    1,    1,    1),
+	},
+	[VUHDO_ID_ROGUES] = {
+		["min"] = VUHDO_makeFullColor(1,    0.69, 0,    1,   1,    1,    0.51, 1),
+		["max"] = VUHDO_makeFullColor(1,    0.83, 0.26, 1,   1,    1,    0.51, 1),
+	},
+	[VUHDO_ID_SHAMANS] = {
+		["min"] = VUHDO_makeFullColor(0,    0.26, 0.51, 1,   0.24, 0.45, 1,    1),
+		["max"] = VUHDO_makeFullColor(0,    0.44, 0.87, 1,   0.24, 0.45, 1,    1),
+	},
+	[VUHDO_ID_WARLOCKS] = {
+		["min"] = VUHDO_makeFullColor(0.26, 0.27, 0.47, 1,   0.68, 0.61, 0.89, 1),
+		["max"] = VUHDO_makeFullColor(0.66, 0.39, 0.78, 1,   0.68, 0.61, 0.89, 1),
+	},
+	[VUHDO_ID_WARRIORS] = {
+		["min"] = VUHDO_makeFullColor(0.43, 0.14, 0.09, 1,   0.88, 0.71, 0.53, 1),
+		["max"] = VUHDO_makeFullColor(0.57, 0.43, 0.25, 1,   0.88, 0.71, 0.53, 1),
+	},
+	[VUHDO_ID_DEATH_KNIGHT] = {
+		["min"] = VUHDO_makeFullColor(0.5,  0.08, 0.15, 1,   0.87, 0.22, 0.33, 1),
+		["max"] = VUHDO_makeFullColor(1,    0.18, 0.24, 1,   0.87, 0.22, 0.33, 1),
+	},
+	[VUHDO_ID_MONKS] = {
+		["min"] = VUHDO_makeFullColor(0.02, 0.61, 0.37, 1,   0,    1,    0.69, 1),
+		["max"] = VUHDO_makeFullColor(0,    1,    0.59, 1,   0,    1,    0.69, 1),
+	},
+	[VUHDO_ID_DEMON_HUNTERS] = {
+		["min"] = VUHDO_makeFullColor(0.37, 0.14, 0.57, 1,   0.64, 0.19, 0.79, 1),
+		["max"] = VUHDO_makeFullColor(0.75, 0.19, 1,    1,   0.64, 0.19, 0.79, 1),
+	},
+	[VUHDO_ID_EVOKERS] = {
+		["min"] = VUHDO_makeFullColor(0.2,  0.47, 0.54, 1,   0.20, 0.58, 0.50, 1),
+		["max"] = VUHDO_makeFullColor(0.2,  0.58, 0.5,  1,   0.20, 0.58, 0.50, 1),
+	},
+	[VUHDO_ID_PETS] = {
+		["min"] = VUHDO_makeFullColor(0.4,  0.6,  0.4,  1,   0.5,  0.9,  0.5,  1),
+		["max"] = VUHDO_makeFullColor(0.4,  0.6,  0.4,  1,   0.5,  0.9,  0.5,  1),
+	},
+	["isClassGradient"] = false,
+};
+
 
 
 --
 function VUHDO_initClassColors()
+
 	if not VUHDO_USER_CLASS_COLORS then
 		VUHDO_USER_CLASS_COLORS = VUHDO_decompressOrCopy(VUHDO_DEFAULT_USER_CLASS_COLORS);
 	end
+
 	VUHDO_USER_CLASS_COLORS = VUHDO_ensureSanity("VUHDO_USER_CLASS_COLORS", VUHDO_USER_CLASS_COLORS, VUHDO_DEFAULT_USER_CLASS_COLORS);
 	VUHDO_DEFAULT_USER_CLASS_COLORS = VUHDO_compressAndPackTable(VUHDO_DEFAULT_USER_CLASS_COLORS);
+
+	if not VUHDO_USER_CLASS_GRADIENT_COLORS then
+		VUHDO_USER_CLASS_GRADIENT_COLORS = VUHDO_decompressOrCopy(VUHDO_DEFAULT_USER_CLASS_GRADIENT_COLORS);
+	end
+
+	VUHDO_USER_CLASS_GRADIENT_COLORS = VUHDO_ensureSanity("VUHDO_USER_CLASS_GRADIENT_COLORS", VUHDO_USER_CLASS_GRADIENT_COLORS, VUHDO_DEFAULT_USER_CLASS_GRADIENT_COLORS);
+	VUHDO_DEFAULT_USER_CLASS_GRADIENT_COLORS = VUHDO_compressAndPackTable(VUHDO_DEFAULT_USER_CLASS_GRADIENT_COLORS);
+
 end
 
 

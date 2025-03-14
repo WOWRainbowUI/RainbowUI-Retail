@@ -415,7 +415,7 @@ function VuhDoTooltipOnMouseUp(aTooltip)
 
 	local tX, tY, tRelative, tOrientation;
 	local tPosition = VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["TOOLTIP"];
-	local tOrientation, _, tRelative, tX, tY = aTooltip:GetPoint();
+	tOrientation, _, tRelative, tX, tY = aTooltip:GetPoint();
 
 	tPosition["x"], tPosition["y"], tPosition["point"], tPosition["relativePoint"]
 		= tX, tY, tOrientation, tRelative;

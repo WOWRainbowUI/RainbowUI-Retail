@@ -1,0 +1,527 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+<Script file="VuhDoNewOptionsColorsClassGradients.lua" />
+
+	<Frame name="VuhDoNewOptionsColorsClassGradientsTemplate" virtual="true">
+		<Frames>
+			<Frame name="$parentClassColorsPanel" inherits="VuhDoPanelTemplate">
+				<Size>
+					<AbsDimension x="448" y="342" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="20" y="-20" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<CheckButton name="$parentClassGradientCheckButton" text="VUHDO_I18N_ENABLE" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-301" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.isClassGradient");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K605);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<Frame name="$parentGradientTitleLabel" inherits="VuhDoLabelFrameTemplate">
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_CLASS_GRADIENT_COLORS" inherits="VuDoDefaultTitleFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Frame name="$parentWarriorsMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-35" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##20.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_WARRIORS, VUHDO_I18N_WARRIORS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K606);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentWarriorsMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="119" y="-35" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##20.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_WARRIORS, VUHDO_I18N_WARRIORS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K607);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentWarlocksMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="225" y="-35" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##25.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_WARLOCKS, VUHDO_I18N_WARLOCKS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K608);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentWarlocksMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="331" y="-35" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##25.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_WARLOCKS, VUHDO_I18N_WARLOCKS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K609);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentRoguesMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-73" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##21.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_ROGUES, VUHDO_I18N_ROGUES);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K610);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentRoguesMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="119" y="-73" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##21.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_ROGUES, VUHDO_I18N_ROGUES);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K611);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentShamansMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="225" y="-73" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##26.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_SHAMANS, VUHDO_I18N_SHAMANS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K612);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentShamansMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="331" y="-73" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##26.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_SHAMANS, VUHDO_I18N_SHAMANS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K613);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentHuntersMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-111" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##22.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_HUNTERS, VUHDO_I18N_HUNTERS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K614);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentHuntersMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="119" y="-111" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##22.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_HUNTERS, VUHDO_I18N_HUNTERS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K615);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentDruidsMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="225" y="-111" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##27.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DRUIDS, VUHDO_I18N_DRUIDS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K616);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentDruidsMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="331" y="-111" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##27.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DRUIDS, VUHDO_I18N_DRUIDS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K617);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+
+					<Frame name="$parentPaladinMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-149" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##23.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PALADINS, VUHDO_I18N_PALADINS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K618);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentPaladinMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="119" y="-149" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##23.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PALADINS, VUHDO_I18N_PALADINS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K619);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentPriestsMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="225" y="-149" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##28.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PRIESTS, VUHDO_I18N_PRIESTS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K620);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentPriestsMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="331" y="-149" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##28.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PRIESTS, VUHDO_I18N_PRIESTS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K621);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentMagesMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-187" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##24.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_MAGES, VUHDO_I18N_MAGES);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K622);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentMagesMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="119" y="-187" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##24.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_MAGES, VUHDO_I18N_MAGES);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K623);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentDeathKnightsMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="225" y="-187" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##29.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DEATH_KNIGHT, VUHDO_I18N_DEATH_KNIGHT);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K624);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentDeathKnightsMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="331" y="-187" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##29.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DEATH_KNIGHT, VUHDO_I18N_DEATH_KNIGHT);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K625);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentMonksMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-225" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##30.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_MONKS, VUHDO_I18N_MONKS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K626);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentMonksMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="119" y="-225" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##30.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_MONKS, VUHDO_I18N_MONKS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K627);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentDemonHuntersMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="225" y="-225" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##31.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DEMON_HUNTERS, VUHDO_I18N_DEMON_HUNTERS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K628);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentDemonHuntersMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="331" y="-225" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##31.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DEMON_HUNTERS, VUHDO_I18N_DEMON_HUNTERS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K629);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentEvokersMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-263" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##32.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_EVOKERS, VUHDO_I18N_EVOKERS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K630);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentEvokersMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="119" y="-263" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##32.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_EVOKERS, VUHDO_I18N_EVOKERS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K631);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentPetsMinTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="225" y="-263" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##40.min");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PETS, VUHDO_I18N_PETS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K632);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentPetsMaxTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="331" y="-263" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##40.max");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PETS, VUHDO_I18N_PETS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K633);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+				</Frames>
+
+			</Frame>
+
+		</Frames>
+	</Frame>
+</Ui>

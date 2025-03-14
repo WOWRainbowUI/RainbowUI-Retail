@@ -1,10 +1,8 @@
 VUHDO_COMMS_VERSION = 1;
 
 local sReceiveMode = 1;
-local sLastCmd = nil;
 
 local sMaxPacketSize = 254;
-local sPacketSendInterval = 0.1;
 local sTrivialTimeout = 3;
 local sUserDialogTimeout = 15;
 local sMaxReceiveSize = 100000;

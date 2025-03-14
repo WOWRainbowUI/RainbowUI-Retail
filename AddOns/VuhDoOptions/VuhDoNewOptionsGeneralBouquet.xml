@@ -428,7 +428,6 @@
 						</Layers>
 					</Frame>
 
-
 					<Button name="$parentAddButton" text="VUHDO_I18N_ADD" inherits="VuhDoAddItemButtonTemplate">
 						<Size>
 							<AbsDimension x="90" y="32" />
@@ -565,7 +564,6 @@
 							</OnTextChanged>
 						</Scripts>
 					</EditBox>
-
 
 					<Frame name="$parentBuffOrIndicatorFrame" hidden="true">
 						<Size>
@@ -920,8 +918,6 @@
 						</Frames>
 					</Frame>
 
-
-
 					<Frame name="$parentStatusbarFrame" hidden="true">
 						<Size>
 							<AbsDimension x="200" y="272" />
@@ -1003,7 +999,7 @@
 								</Anchors>
 							</Frame>
 
-							<CheckButton name="$parentGradientRadioButton" text="VUHDO_I18N_GRADIENT" inherits="VuhDoRadioButtonTemplate">
+							<CheckButton name="$parentGradientRadioButton" text="VUHDO_I18N_LIFE_GRADIENT" inherits="VuhDoRadioButtonTemplate">
 								<Anchors>
 									<Anchor point="TOPLEFT">
 										<Offset>
@@ -1088,10 +1084,59 @@
 								</Scripts>
 							</Frame>
 
+							<CheckButton name="$parentSolidGradientCheckButton" text="VUHDO_I18N_GRADIENT" inherits="VuhDoCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="10" y="-219" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K605);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<Frame name="$parentMaxColorTexture" inherits="VuhDoColorSwatchTexture">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="120" y="-219" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnMouseDown>
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
+										VUHDO_setColorManuallyChanged();
+									</OnMouseDown>
+									<OnLoad>
+										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_MAX_COLOR, VUHDO_I18N_MAX_COLOR);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K606);
+										self:SetAttribute("custom_function_post", VUHDO_bouquetsBuffColorChanged);
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
+							<CheckButton name="$parentClassGradientCheckButton" text="VUHDO_I18N_GRADIENT" inherits="VuhDoCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="10" y="-219" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K605);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
 						</Frames>
 					</Frame>
-
-
 
 				</Frames>
 			</Frame>

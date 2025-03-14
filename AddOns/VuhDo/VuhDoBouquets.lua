@@ -3,7 +3,6 @@ local _;
 local table = table;
 local floor = floor;
 local select = select;
-local strfind = strfind;
 local twipe = table.wipe;
 local pairs = pairs;
 local sPlayerArray = { };
@@ -92,22 +91,63 @@ local tR2, tG2, tB2, tO2;
 local tGood, tFair, tLow;
 local tDestColor = { ["useBackground"] = true, ["useOpacity"] = true };
 local tRadio;
+local tIsGradient;
+local tClassId;
+local tMaxColor;
+local tDestMaxColor = { ["useBackground"] = true, ["useOpacity"] = true };
 local function VUHDO_getBouquetStatusBarColor(anEntry, anInfo, aValue, aMaxValue)
 	tRadio = anEntry["custom"]["radio"];
 
 	if 1 == tRadio then -- solid
 		tColor = anEntry["color"];
+		tIsGradient = anEntry["custom"]["isSolidGradient"];
 
-		tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"] = tColor["R"], tColor["G"], tColor["B"], tColor["O"];
+		if tIsGradient then
+			tMaxColor = anEntry["custom"]["maxColor"];
 
-		return tDestColor;
+			tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"] = tColor["R"], tColor["G"], tColor["B"], tColor["O"];
+
+			if tMaxColor then
+				tDestMaxColor["R"], tDestMaxColor["G"], tDestMaxColor["B"], tDestMaxColor["O"]
+					= tMaxColor["R"], tMaxColor["G"], tMaxColor["B"], tMaxColor["O"];
+
+				return tDestColor, tDestMaxColor;
+			else
+				return tDestColor, nil;
+			end
+		else
+			tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"] = tColor["R"], tColor["G"], tColor["B"], tColor["O"];
+
+			return tDestColor, nil;
+		end
 	elseif 2 == tRadio then -- class color
-
-		tColor = VUHDO_USER_CLASS_COLORS[anInfo["classId"]] or anEntry["color"];
+		tClassId = anInfo["classId"];
 		tFactor = anEntry["custom"]["bright"];
-		tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"]
-			= tColor["R"] * tFactor, tColor["G"] * tFactor, tColor["B"] * tFactor, tColor["O"];
-		return tDestColor;
+		tIsGradient = anEntry["custom"]["isClassGradient"];
+
+		if tIsGradient then
+			tColor = VUHDO_USER_CLASS_GRADIENT_COLORS[tClassId]["min"] or anEntry["color"];
+			tMaxColor = VUHDO_USER_CLASS_GRADIENT_COLORS[tClassId]["max"] or anEntry["custom"]["maxColor"];
+
+			tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"]
+				= tColor["R"] * tFactor, tColor["G"] * tFactor, tColor["B"] * tFactor, tColor["O"];
+
+			if tMaxColor then
+				tDestMaxColor["R"], tDestMaxColor["G"], tDestMaxColor["B"], tDestMaxColor["O"]
+					= tMaxColor["R"] * tFactor, tMaxColor["G"] * tFactor, tMaxColor["B"] * tFactor, tMaxColor["O"];
+
+				return tDestColor, tDestMaxColor;
+			else
+				return tDestColor, nil;
+			end
+		else
+			tColor = VUHDO_USER_CLASS_COLORS[tClassId] or anEntry["color"];
+
+			tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"]
+				= tColor["R"] * tFactor, tColor["G"] * tFactor, tColor["B"] * tFactor, tColor["O"];
+
+			return tDestColor, nil;
+		end
 	elseif aMaxValue ~= 0 then -- 3 == gradient
 
 		tModi = ((aValue / aMaxValue) ^ 1.7) * 2;
@@ -127,13 +167,14 @@ local function VUHDO_getBouquetStatusBarColor(anEntry, anInfo, aValue, aMaxValue
 		tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"]
 			= tR2 * tInvModi + tR1 * tModi, tG2 * tInvModi + tG1 * tModi,
 		 		tB2 * tInvModi + tB1 * tModi, tO2 * tInvModi + tO1 * tModi;
-		return tDestColor;
+
+		return tDestColor, nil;
 	else
 		tColor = anEntry["color"];
 
 		tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"] = tColor["R"], tColor["G"], tColor["B"], tColor["O"];
 
-		return tDestColor;
+		return tDestColor, nil;
 	end
 end
 
@@ -157,6 +198,20 @@ function VUHDO_getCurrentBouquetColor()
 	return txColor;
 end
 
+
+
+--
+local txMaxColor = { };
+local tIsTxMaxColorInit = false;
+function VUHDO_getCurrentBouquetMaxColor()
+
+	if (not tIsTxMaxColorInit) then
+		twipe(txMaxColor);
+	end
+
+	return txMaxColor;
+
+end
 
 
 --
@@ -203,7 +258,6 @@ local tTimer2
 local tClipL, tClipR, tClipT, tClipB;
 local tAnzInfos;
 local tColor;
-local sEmpty = { };
 local txIcon;
 local txDuration;
 local txName;
@@ -211,6 +265,7 @@ local txLevel;
 local txTimer2;
 local txClipL, txClipR, txClipT, txClipB;
 local tFactor;
+local tMaxColor;
 local tInfo, tUnit;
 local tEmptyInfo = { };
 
@@ -243,7 +298,13 @@ local function VUHDO_evaluateBouquet(aUnit, aBouquetName, anInfo)
 				if tInfos["icon"] ~= 1 then	tIcon = VUHDO_CUSTOM_ICONS[tInfos["icon"]][2]; end
 
 				if not tColor then
-					tColor = 3 == tSpecial["custom_type"] and VUHDO_getBouquetStatusBarColor(tInfos, tInfo, tTimer, tDuration) or tInfos["color"]; -- VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR
+					if 3 == tSpecial["custom_type"] then
+						tColor, tMaxColor = VUHDO_getBouquetStatusBarColor(tInfos, tInfo, tTimer, tDuration);
+					end
+
+					if not tColor then
+						tColor = tInfos["color"]; -- VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR
+					end
 				elseif 4 == tSpecial["custom_type"] then -- VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS
 					tFactor = tInfos["custom"]["bright"];
 					if (tColor["useBackground"]) then
@@ -325,13 +386,17 @@ local function VUHDO_evaluateBouquet(aUnit, aBouquetName, anInfo)
 				txClipL, txClipR, txClipT, txClipB = tClipL, tClipR, tClipT, tClipB;
 			end
 
-			if tIcon then txIcon = tIcon; end
+			if tIcon then
+				txIcon = tIcon;
+			end
+
 			-- Color
 			if tColor then
 				if not tIsTxColorInit then
 					twipe(txColor);
 					tIsTxColorInit = true;
 				end
+
 				if tColor["useText"] then
 					txColor["useText"], txColor["TR"], txColor["TG"], txColor["TB"], txColor["TO"] = true, tColor["TR"], tColor["TG"], tColor["TB"], tColor["TO"];
 				end
@@ -342,16 +407,55 @@ local function VUHDO_evaluateBouquet(aUnit, aBouquetName, anInfo)
 
 				if tColor["useOpacity"] then
 					txColor["useOpacity"] = true;
-					if tColor["TO"] ~= nil then	txColor["TO"]	= (txColor["TO"] or 1) * tColor["TO"]; end
-					if tColor["O"] ~= nil then txColor["O"] = (txColor["O"] or 1) * tColor["O"]; end
+
+					if tColor["TO"] ~= nil then
+						txColor["TO"] = (txColor["TO"] or 1) * tColor["TO"];
+					end
+
+					if tColor["O"] ~= nil then
+						txColor["O"] = (txColor["O"] or 1) * tColor["O"];
+					end
 				end
 
 				txColor["isDefault"] = tColor["isDefault"];
 				txColor["noStacksColor"] = tColor["noStacksColor"];
 				txColor["useSlotColor"] = tColor["useSlotColor"];
+
+				if tMaxColor then
+					if not tIsTxMaxColorInit then
+						twipe(txMaxColor);
+						tIsTxMaxColorInit = true;
+					end
+
+					if tMaxColor["useText"] then
+						txMaxColor["useText"], txMaxColor["TR"], txMaxColor["TG"], txMaxColor["TB"], txMaxColor["TO"] =
+							true, tMaxColor["TR"], tMaxColor["TG"], tMaxColor["TB"], tMaxColor["TO"];
+					end
+
+					if tMaxColor["useBackground"] then
+						txMaxColor["useBackground"], txMaxColor["R"], txMaxColor["G"], txMaxColor["B"], txMaxColor["O"] =
+							true, tMaxColor["R"], tMaxColor["G"], tMaxColor["B"], tMaxColor["O"];
+					end
+
+					if tMaxColor["useOpacity"] then
+						txMaxColor["useOpacity"] = true;
+
+						if tMaxColor["TO"] ~= nil then
+							txMaxColor["TO"] = (txMaxColor["TO"] or 1) * tMaxColor["TO"];
+						end
+
+						if tMaxColor["O"] ~= nil then
+							txMaxColor["O"] = (txMaxColor["O"] or 1) * tMaxColor["O"];
+						end
+					end
+				else
+					tIsTxMaxColorInit = false;
+				end
 			else
 				tIsTxColorInit = false;
+				tIsTxMaxColorInit = false;
 			end
+
 			-- Stacks
 			tCounter = tCounter or 0;
 			if tCounter >= 0 then txCounter = tCounter;	end
@@ -366,17 +470,20 @@ local function VUHDO_evaluateBouquet(aUnit, aBouquetName, anInfo)
 	if txActive then
 		if not tIsTxColorInit then
 			txColor["R"], txColor["G"], txColor["B"], txColor["O"], txColor["TR"], txColor["TG"], txColor["TB"], txColor["TO"],
-			txColor["useText"], txColor["useBackground"], txColor["useOpacity"] =	1,1,1,1, 1,1,1,1, true,true,true;
-
+				txColor["useText"], txColor["useBackground"], txColor["useOpacity"] = 1,1,1,1, 1,1,1,1, true,true,true;
 		elseif not txColor["useOpacity"] then
 			txColor["TO"], txColor["O"] = 1, 1;
 		end
 
+		if tIsTxMaxColorInit and not txMaxColor["useOpacity"] then
+			txMaxColor["TO"], txMaxColor["O"] = 1, 1;
+		end
+
 		return true, txIcon, txTimer, txCounter, txDuration, txColor, txName,
 			VUHDO_hasBouquetChanged(aUnit, aBouquetName, true, txIcon, txTimer, txCounter, txDuration, VUHDO_getColorHash(txColor), txClipL, txClipR, txClipT, txClipB),
-			tAnzInfos - txLevel, txTimer2, txClipL, txClipR, txClipT, txClipB;
+			tAnzInfos - txLevel, txTimer2, txClipL, txClipR, txClipT, txClipB, tIsTxMaxColorInit and txMaxColor or nil;
 	else
-		return false, nil, nil, nil, nil, nil, nil,	VUHDO_hasBouquetChanged(aUnit, aBouquetName, false), 0, 0;
+		return false, nil, nil, nil, nil, nil, nil, VUHDO_hasBouquetChanged(aUnit, aBouquetName, false), 0, 0;
 	end
 
 end
@@ -631,10 +738,11 @@ end
 --
 local tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, tHasChanged, tImpact, tTimer2;
 local tClipL, tClipR, tClipT, tClipB;
+local tMaxColor;
 local function VUHDO_updateEventBouquet(aUnit, aBouquetName)
 
 	tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName,
-		tHasChanged, tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB
+		tHasChanged, tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor
 		= VUHDO_evaluateBouquet(aUnit, aBouquetName, nil);
 
 	if not tHasChanged then
@@ -644,14 +752,14 @@ local function VUHDO_updateEventBouquet(aUnit, aBouquetName)
 	if tHasChanged or tIsActive then
 		for _, tDelegate in pairs(VUHDO_REGISTERED_BOUQUETS[aBouquetName]) do
 			tDelegate(aUnit, tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, aBouquetName,
-				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB);
+				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor);
 		end
 		VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] = true;
 
 	elseif VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] then
 		for _, tDelegate in pairs(VUHDO_REGISTERED_BOUQUETS[aBouquetName]) do
 			tDelegate(aUnit, tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, aBouquetName,
-				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB);
+				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor);
 		end
 		VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] = false;
 	end
@@ -662,19 +770,20 @@ end
 --
 local tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, _, tImpact, tTimer2;
 local tClipL, tClipR, tClipT, tClipB;
+local tMaxColor;
 function VUHDO_invokeCustomBouquet(aButton, aUnit, anInfo, aBouquetName, aDelegate)
 	tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName,
-		_, tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB
+		_, tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor
 		= VUHDO_evaluateBouquet(aUnit, aBouquetName, anInfo);
 
 	-- Do not check "hasChanged" because this is button-wise
 	if tIsActive then
 		aDelegate(aButton, aUnit, tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, aBouquetName,
-			tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB);
+			tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor);
 		VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] = true;
 	elseif VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] then
 		aDelegate(aButton, aUnit, tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, aBouquetName,
-			tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB);
+			tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor);
 		VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] = false;
 	end
 end
@@ -758,6 +867,7 @@ end
 local tAllListeners;
 local tIsActive, tIcon, tTimer, tCounter, tDuration, tBuffName, tHasChanged, tImpact;
 local tClipL, tClipR, tClipT, tClipB;
+local tMaxColor;
 local tDestArray;
 function VUHDO_updateAllCyclicBouquets(anIsPlayerOnly)
 	tDestArray = anIsPlayerOnly and sPlayerArray or VUHDO_RAID;
@@ -767,12 +877,12 @@ function VUHDO_updateAllCyclicBouquets(anIsPlayerOnly)
 
 		for tUnit, _ in pairs(tDestArray) do
 			tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, tHasChanged,
-				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB = VUHDO_evaluateBouquet(tUnit, tBouquetName, nil);
+				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor = VUHDO_evaluateBouquet(tUnit, tBouquetName, nil);
 
 			if tHasChanged and (tIsActive or VUHDO_ACTIVE_BOUQUETS[tUnit][tBouquetName]) then
 				for _, tDelegate in pairs(tAllListeners) do
 					tDelegate(tUnit, tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, tBouquetName,
-						tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB);
+						tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor);
 				end
 				VUHDO_ACTIVE_BOUQUETS[tUnit][tBouquetName] = tIsActive;
 			end

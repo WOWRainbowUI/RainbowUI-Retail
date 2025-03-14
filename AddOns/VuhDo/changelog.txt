@@ -1,3 +1,25 @@
+Version 3.185  
+  
+  
+Known issues:  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed binding of spells and abilities to the '\' key  
+-- Fixed range checking during Mug'Zee encounter  
+  
+  
+Improvements:  
+-- Added gradient color options for status (health) bars  
+-- Added Druid 'Symbiotic Relationship' to Buff Watch  
+  
+  
+--------------------------------------------------------------  
 Version 3.184  
   
   

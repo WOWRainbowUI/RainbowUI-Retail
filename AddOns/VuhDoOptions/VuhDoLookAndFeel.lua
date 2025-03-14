@@ -24,12 +24,6 @@ local VUHDO_NORMAL_LABEL_COLOR = {
 
 
 
-local VUHDO_ACTIVE_LABEL_COLOR_DISA = {
-	["TR"] = 0.3,	["TG"] = 0.3,	["TB"] = 0.7,	["TO"] = 1,
-};
-
-
-
 local VUHDO_NORMAL_LABEL_COLOR_DISA = {
 	["TR"] = 0.2,	["TG"] = 0.2,	["TB"] = 0.6,	["TO"] = 1,
 };
@@ -1436,11 +1430,8 @@ do
 
 	end
 
-	local tSearchPattern;
-	local tComponentString;
 	local tIsMatch;
 	local tName;
-	local tChild;
 	function VUHDO_lnfIsVisibleBySearch(aComponent)
 
 		if not VUHDO_strempty(VUHDO_COMPONENT_SEARCH) then

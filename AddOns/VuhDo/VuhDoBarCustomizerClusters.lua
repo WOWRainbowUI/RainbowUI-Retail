@@ -5,7 +5,6 @@ local VUHDO_HIGLIGHT_CLUSTER = { };
 local VUHDO_HIGLIGHT_NUM = 0;
 local VUHDO_ICON_CLUSTER = { };
 local VUHDO_NUM_IN_UNIT_CLUSTER = { };
-local VUHDO_ACTIVE_HOTS = { };
 local sClusterConfig;
 
 local VUHDO_CLUSTER_UNIT = nil;
@@ -19,7 +18,6 @@ local VUHDO_RAID = { };
 local VUHDO_getUnitsInRadialClusterWith;
 local VUHDO_getUnitsInChainClusterWith;
 local VUHDO_getUnitButtons;
-local VUHDO_getHealthBar;
 local VUHDO_getClusterBorderFrame;
 local VUHDO_updateBouquetsForEvent;
 local VUHDO_getBarIcon;
@@ -47,12 +45,10 @@ local sAreTargetsRandom;
 function VUHDO_customClustersInitLocalOverrides()
 
 	VUHDO_RAID = _G["VUHDO_RAID"];
-	VUHDO_ACTIVE_HOTS = _G["VUHDO_ACTIVE_HOTS"];
 
 	VUHDO_getUnitsInRadialClusterWith = _G["VUHDO_getUnitsInRadialClusterWith"];
 	VUHDO_getUnitsInChainClusterWith = _G["VUHDO_getUnitsInChainClusterWith"];
 	VUHDO_getUnitButtons = _G["VUHDO_getUnitButtons"];
-	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getClusterBorderFrame = _G["VUHDO_getClusterBorderFrame"];
 	VUHDO_updateBouquetsForEvent = _G["VUHDO_updateBouquetsForEvent"];
 	VUHDO_getBarIcon = _G["VUHDO_getBarIcon"];
@@ -99,7 +95,7 @@ end
 
 --
 local tDestCluster = { };
-local tInfo, tSrcInfo, tNumArray;
+local tInfo, tSrcInfo;
 local tSrcGroup;
 function VUHDO_getCustomDestCluster(aUnit, anArray, anIsSourcePlayer, anIsRadial, aRangePow, aNumMaxTargets, aHealthLimit, anIsRaid, aCdSpell, aCone, aJumpRangePow, aAreTargetsRandom)
 	-- If targets are random, return ALL targets in range, so the caller can determine the average heals

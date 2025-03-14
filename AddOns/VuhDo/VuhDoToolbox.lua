@@ -27,6 +27,8 @@ local GetSpellName = C_Spell.GetSpellName;
 local CheckInteractDistance = CheckInteractDistance;
 local UnitIsUnit = UnitIsUnit;
 local UnitInRange = UnitInRange;
+local UnitPlayerOrPetInParty = UnitPlayerOrPetInParty;
+local UnitCanAttack = UnitCanAttack;
 local IsAltKeyDown = IsAltKeyDown;
 local IsControlKeyDown = IsControlKeyDown;
 local IsShiftKeyDown = IsShiftKeyDown;
@@ -306,11 +308,9 @@ end
 
 
 ----------------------------------------------------
-local VUHDO_RAID_NAMES;
 local VUHDO_RAID;
 local VUHDO_UNIT_BUTTONS;
 local VUHDO_CONFIG;
-local VUHDO_GROUPS_BUFFS;
 local VUHDO_BOSS_UNITS;
 local sRangeSpell;
 local sIsHelpfulGuessRange = true;
@@ -320,15 +320,11 @@ local sZeroRange = "";
 
 
 --
-local VUHDO_updateBouquetsForEvent;
 function VUHDO_toolboxInitLocalOverrides()
-	VUHDO_RAID_NAMES = _G["VUHDO_RAID_NAMES"];
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_UNIT_BUTTONS = _G["VUHDO_UNIT_BUTTONS"];
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
-	VUHDO_GROUPS_BUFFS = _G["VUHDO_GROUPS_BUFFS"];
 	VUHDO_BOSS_UNITS = _G["VUHDO_BOSS_UNITS"];
-	VUHDO_updateBouquetsForEvent = _G["VUHDO_updateBouquetsForEvent"];
 	sScanRange = tonumber(VUHDO_CONFIG["SCAN_RANGE"]);
 
 	-- FIXME: why can't model sanity be run prior to burst cache initialization?
@@ -436,6 +432,8 @@ end
 
 
 --
+local tIsInRange;
+local tIsChecked;
 function VUHDO_checkInteractDistance(aUnit, aDistIndex)
 
 	if not InCombatLockdown() then
@@ -446,27 +444,21 @@ function VUHDO_checkInteractDistance(aUnit, aDistIndex)
 		elseif not sIsHelpfulGuessRange then
 			return (VUHDO_isSpellInRange(sRangeSpell["HELPFUL"], aUnit, "HELPFUL") == 1) and true or false;
 		else
-			-- default to showing in-range when we don't know any better
-			return true;
+			tIsInRange, tIsChecked = UnitInRange(aUnit);
+
+			if tIsChecked and not tIsInRange then
+				return false;
+			else
+				return true;
+			end
 		end
 	end
-	
+
 end
-local VUHDO_checkInteractDistance = VUHDO_checkInteractDistance;
 
 
 
 --
-function VUHDO_isTargetInRange(aUnit)
-
-	return UnitIsUnit("player", aUnit) or VUHDO_checkInteractDistance(aUnit, 1);
-
-end
-local VUHDO_isTargetInRange = VUHDO_isTargetInRange;
-
-
-
--- FIXME: workaround for Blizzard API bug: https://github.com/Stanzilla/WoWUIBugs/issues/49
 function VUHDO_unitPhaseReason(aUnit) 
 
 	if not aUnit then
@@ -475,6 +467,7 @@ function VUHDO_unitPhaseReason(aUnit)
 
 	local tPhaseReason = UnitPhaseReason(aUnit);
 
+	-- FIXME: workaround for Blizzard API bug: https://github.com/Stanzilla/WoWUIBugs/issues/49
 	if (tPhaseReason == Enum.PhaseReason.WarMode or tPhaseReason == Enum.PhaseReason.ChromieTime) and UnitIsVisible(aUnit) then
 		return nil;
 	else
@@ -486,18 +479,30 @@ end
 
 
 -- returns whether or not a unit is in range
+local tIsInRange;
+local tIsChecked;
 local tIsGuessRange;
 local tRangeSpell;
 local tUnitReaction;
 function VUHDO_isInRange(aUnit)
-	
-	if "player" == aUnit then 
+
+	if not aUnit then
+		return;
+	end
+
+	if "player" == aUnit or UnitIsUnit(aUnit, "player") then
 		return true;
-	elseif VUHDO_isSpecialUnit(aUnit) then 
-		return VUHDO_isTargetInRange(aUnit);
 	elseif VUHDO_unitPhaseReason(aUnit) then
 		return false;
 	else
+		if UnitPlayerOrPetInParty(aUnit) then
+			tIsInRange, tIsChecked = UnitInRange(aUnit);
+
+			if tIsChecked then
+				return tIsInRange;
+			end
+		end
+
 		if UnitCanAttack("player", aUnit) then
 			tIsGuessRange = sIsHarmfulGuessRange;
 			tUnitReaction = "HARMFUL";
@@ -509,7 +514,13 @@ function VUHDO_isInRange(aUnit)
 		tRangeSpell = sRangeSpell[tUnitReaction];
 
 		if tIsGuessRange or not tRangeSpell then
-			return UnitInRange(aUnit);
+			tIsInRange, tIsChecked = UnitInRange(aUnit);
+
+			if tIsChecked and not tIsInRange then
+				return false;
+			else
+				return true;
+			end
 		end
 
 		local tIsSpellInRange = VUHDO_isSpellInRange(tRangeSpell, aUnit, tUnitReaction);
@@ -517,7 +528,13 @@ function VUHDO_isInRange(aUnit)
 		if tIsSpellInRange ~= nil then
 			return (tIsSpellInRange == 1) and true or false;
 		else
-			return UnitInRange(aUnit);
+			tIsInRange, tIsChecked = UnitInRange(aUnit);
+
+			if tIsChecked and not tIsInRange then
+				return false;
+			else
+				return true;
+			end
 		end
 	end
 
@@ -647,7 +664,6 @@ function VUHDO_getPlayerRaidUnit()
 	end
 	return "player";
 end
-local VUHDO_getPlayerRaidUnit = VUHDO_getPlayerRaidUnit;
 
 
 
@@ -1605,7 +1621,7 @@ function VUHDO_radixTreeAdd(aTree, aString)
 		tChar = string.sub(aString, 1, 1);
 
 		tFound = false;
-		for tChildChar, tChild in pairs(aTree["children"]) do
+		for tChildChar, _ in pairs(aTree["children"]) do
 			if tChildChar == tChar then
 				tFound = true;
 			end

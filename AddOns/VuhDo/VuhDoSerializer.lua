@@ -1,20 +1,10 @@
 local pairs = pairs;
 local type = type;
-local tostring = tostring;
 local tonumber = tonumber;
 local strsub = strsub;
 local strfind = strfind;
 local strbyte = strbyte;
-local floor = floor;
 local format = format;
-local tinsert = tinsert;
-local tsort = table.sort;
-local strchar = strchar;
-local bor = bit.bor;
-local band = bit.band;
-local lshift = bit.lshift;
-local rshift = bit.rshift;
-local next = next;
 
 -- Sabc=S5+abcde
 -- Sabc=N3+1.3

@@ -136,7 +136,6 @@ end
 
 --
 local tSourceColor;
-local tDebuffSettings;
 local tDebuff;
 local tColor = { };
 local tEmpty = { };
