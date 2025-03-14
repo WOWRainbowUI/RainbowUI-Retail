@@ -1,48 +1,19 @@
 # DBM - Core
 
-## [11.1.8](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.1.8) (2025-03-11)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.1.7...11.1.8) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.1.9](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.1.9) (2025-03-12)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.1.8...11.1.9) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
 - prep new tag  
-- Fix some test category bugs  
-- Fix up test defines  
-- scrap all PTR data for Undermine and replace with live data  
-- Gallywix Update:  
-     - Added more normal and heroic timer data to stage 3  
-     - Adde Ego Check timer for heroic gallywix  
-     - Fixed a bug where variance timers could cause lua error due to nil check performing numeric action on a string  
-     - Added prints if useres encounter pulls that exceed built in timer data  
-- Stix update:  
-     - Disable icon setting on balls by default  
-     - Enable icon setting on scrapmasters by default  
-     - Scrapped dumpster dive timer, it's just not reliable  
-- Fix a bug that caused timers to break in stage 1 of gallywix after a wipe  
--  fix to last  
-- Update localization.fr.lua (#1572)  
-- Update localization.br.lua (#1573)  
-    * Update localization.br.lua  
-    * Update localization.br.lua  
-    * Update localization.br.lua  
-- Update localization.es.lua (#1571)  
-    * Update localization.es.lua  
-    * Update localization.es.lua  
-    * Update localization.es.lua  
-- Compat updates to gallywix icon marking  
--  CI: Split DBM-Offline into two parts to fix permission issues  
-- Core: Fix isName in DBM:IsTanking() (#1575)  
-- Tweak difficulties to try and fix some delve difficulty odness that might occur  
-- update most mythic rik timers  
-- fix world boss loading for gobfather  
-- Update commonlocal.fr.lua (#1559)  
-    * Update commonlocal.fr.lua  
-    * Update commonlocal.fr.lua  
-- Update commonlocal.br.lua (#1560)  
-    * Update commonlocal.br.lua  
-    * Update commonlocal.br.lua  
-- Update commonlocal.es.lua (#1558)  
-    * Update commonlocal.es.lua  
-    * Update commonlocal.es.lua  
-- Reenable luals (#1568)  
-    * LuaLS: Ignore new color picker frame global  
-    * Revert "temporarly remove luaLS workflow for now. will be restored when it can be fixed, but right now I don't want to be spammed emails for failed builds for next two weeks."  
+- Vexie is still a vexing boss on heroic and mythuc. restore stage 1 fuckery timers and in fact extend fuckery even more  
+- Gallywix  
+     - Fixed a bug where false messages about missing timers were displayed. the checks are more robust now and should only report actual missing timers  
+     - Fixed a bug where Ecocheck subcount wasn't a recoverable variable on mid fight reload  
+     - Fixed a bug that caused canisters timers to break mid fight due to typo in resetting of variable name on phase change  
+- update vexie normal test to new golden data that has march 11th hotfixes  
+- Blizzard appears to have hotfixed vexie to fix issue where her cds were longer in initial stage 1. Fixes and closes https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1577  
+- turn this infoframe off by default  
+- Fix redundant/bad taunt warnings on gallywix  
+    Fix iniital timers after inventions being too long by 2 sec on lockenstock  
+- Hard disable timers in story mode. it's literally impossible to wipe or die in story mode and you can ignore every single mechanic and go afk and still win, so wasting any time on even supporting story mode timers is pointless.  
 - bump alpha  
+    Fix a bug where stix could start phase change timers on wipe if wipe occured mid overdrive.  
