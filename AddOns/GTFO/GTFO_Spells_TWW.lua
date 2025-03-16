@@ -360,8 +360,15 @@ GTFO.SpellID["424223"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1218133"] = {
+  --desc = "Burning Candles (Sootsnout)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
 GTFO.SpellID["440653"] = {
   --desc = "Surging Wax (Wandering Candle - Wax puddle)";
+  ignoreApplication = true;
   sound = 1;
 };
 
@@ -1005,10 +1012,21 @@ GTFO.SpellID["473287"] = {
 --- ***************************
 
 GTFO.SpellID["459683"] = {
-  --desc = "Oil Slick (Vexie)";
+  --desc = "Oil Slick (The Geargrinder)";
   ignoreApplication = true;
   sound = 1;
-  test = true;
+};
+
+GTFO.SpellID["1214039"] = {
+  --desc = "Molten Pool (Flarendo)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["463925"] = {
+  --desc = "Lingering Electricity (Torq)";
+  ignoreApplication = true;
+  sound = 1;
 };
 
 GTFO.SpellID["467048"] = {
@@ -1023,13 +1041,6 @@ GTFO.SpellID["1219448"] = {
   sound = 1;
 };
 
-GTFO.SpellID["465826"] = {
-  --desc = "Crossfire (Darkfuse Crossfire)";
-  sound = 1;
-  tankSound = 0;
-  test = true;
-};
-
 GTFO.SpellID["467177"] = {
   --desc = "Blistering Roar (King Flamespite)";
   sound = 1;
@@ -1038,6 +1049,57 @@ GTFO.SpellID["467177"] = {
 
 GTFO.SpellID["464248"] = {
   --desc = "Hot Garbage (Stix Bunkjunker)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["467138"] = {
+  --desc = "Forever Chemicals";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["464854"] = {
+  --desc = "Garbage Pile (Stix Bunkjunker)";
+  sound = 1;
+  negatingDebuffSpellID = 461536; -- Rolling Rubbish
+};
+
+GTFO.SpellID["472849"] = {
+  --desc = "Incineration (Stix Bunkjunker)";
+  sound = 4;
+}
+
+GTFO.SpellID["466235"] = {
+  --desc = "Wire Transfer (Sprocketmonger Lockenstock)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1221320"] = {
+  --desc = "Activate Inventions! (Sprocketmonger Lockenstock)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1216415"] = {
+  --desc = "Blazing Beam (Beam Turret)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1216679"] = {
+  --desc = "Jumbo Void Beam (Void Turret)";
+  sound = 1;
+};
+
+GTFO.SpellID["474072"] = {
+  --desc = "Noxious Spew (Darkfuse Growler)";
+  sound = 1;
+};
+
+GTFO.SpellID["460576"] = {
+  --desc = "Shocking Field (One-Armed Bandit)";
   ignoreApplication = true;
   sound = 1;
 };

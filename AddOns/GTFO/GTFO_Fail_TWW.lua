@@ -780,7 +780,6 @@ GTFO.SpellID["439481"] = {
 --- *******************
 
 -- TODO: Extinguishing Gust (Blazikon) - Mythic
--- TODO: Cursed Wax (The Candle King) - Mythic
 -- TODO: Eternal Darkness (The Darkness) - Mythic
 
 GTFO.SpellID["423501"] = {
@@ -826,6 +825,12 @@ GTFO.SpellID["428650"] = {
 
 GTFO.SpellID["440652"] = {
   --desc = "Surging Wax (Wandering Candle)";
+  sound = 3;
+};
+
+GTFO.SpellID["421653"] = {
+  --desc = "Cursed Wax (The Candle King)";
+  applicationOnly = true;
   sound = 3;
 };
 
@@ -1712,6 +1717,12 @@ GTFO.SpellID["474229"] = {
   sound = 3;
 };
 
+GTFO.SpellID["472850"] = {
+  --desc = "Destroy (Bomb Bot)";
+  sound = 3;
+};
+
+
 --- *******************
 --- * Nerub-ar Palace *
 --- *******************
@@ -2263,7 +2274,22 @@ GTFO.SpellID["257371"] = {
 --- * Liberation of Undermine *
 --- ***************************
 
+GTFO.SpellID["469794"] = {
+  --desc = "Red Asphalt (The Geargrinder)";
+  sound = 3;
+};
+
+GTFO.SpellID["468872"] = {
+  --desc = "Red Asphalt (The Geargrinder)";
+  sound = 3;
+};
+
 GTFO.SpellID["1217939"] = {
+  --desc = "Hot Wheels (Geargrinder Biker)";
+  sound = 3;
+};
+
+GTFO.SpellID["460021"] = {
   --desc = "Hot Wheels (Geargrinder Biker)";
   sound = 3;
 };
@@ -2272,6 +2298,12 @@ GTFO.SpellID["471477"] = {
   --desc = "Ankle Snapper (Darkfuse Houndmaster)";
   applicationOnly = true;
   sound = 3;
+};
+
+GTFO.SpellID["468229"] = {
+  --desc = "Slashing Prices (Shifty Scalper)";
+  sound = 3;
+  applicationOnly = true;
 };
 
 GTFO.SpellID["467174"] = {
@@ -2409,8 +2441,62 @@ GTFO.SpellID["1217261"] = {
   sound = 3;
 };
 
+GTFO.SpellID["473921"] = {
+  --desc = "Lob Glob (Globlin)";
+  sound = 3;
+};
+
+GTFO.SpellID["473958"] = {
+  --desc = "Fire Laser (Flame Laser)";
+  sound = 3;
+};
+
+GTFO.SpellID["467135"] = {
+  --desc = "Trash Compactor (Stix Bunkjunker)";
+  sound = 3;
+  test = true; -- Damage radius
+};
+
+GTFO.SpellID["466743"] = {
+  --desc = "Dumpster Dive (Scrapmaster)";
+  sound = 3;
+};
+
 GTFO.SpellID["463796"] = {
   --desc = "Concussion Charge (Darkfuse Gunner)";
+  sound = 3;
+};
+
+GTFO.SpellID["1214267"] = {
+  --desc = "Black Bloodsplatter (Sprocketmonger Lockenstock)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["1216661"] = {
+  --desc = "Rocket Barrage (Rocket Launcher)";
+  sound = 3;
+};
+
+GTFO.SpellID["465979"] = {
+  --desc = "Scatter Shot (Darkfuse Skyfire)";
+  sound = 3;
+};
+
+GTFO.SpellID["471308"] = {
+  --desc = "Blisterizer Mk. II (Fire Trap)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1216661"] = {
+  --desc = "Rocket Barrage (Sprocketmonger Lockenstock)";
+  sound = 3;
+};
+
+GTFO.SpellID["1216509"] = {
+  --desc = "Screw Up (Sprocketmonger Lockenstock)";
+  applicationOnly = true;
   sound = 3;
 };
 
@@ -2426,6 +2512,11 @@ GTFO.SpellID["473973"] = {
 
 GTFO.SpellID["1214621"] = {
   --desc = "Pool Bomb";
+  sound = 3;
+};
+
+GTFO.SpellID["1223999"] = {
+  --desc = "Traveling Flames (One-Armed Bandit)";
   sound = 3;
 };
 
@@ -2445,24 +2536,38 @@ GTFO.SpellID["466517"] = {
   sound = 3;
 };
 
+GTFO.SpellID["467225"] = {
+  --desc = "Solid Gold (Mug'Zee)";
+  applicationOnly = true;
+  sound = 3;
+};
+
 GTFO.SpellID["472659"] = {
   --desc = "Shakedown (Gallagio Goon)";
   sound = 3;
   tankSound = 0;
-  test = true;
 };
 
 GTFO.SpellID["1218124"] = {
   --desc = "Incinerate (The Junkmaker)";
   sound = 3;
-  test = true;
 };
 
 GTFO.SpellID["1218140"] = {
   --desc = "Junksaws (The Junkmaker)";
   sound = 3;
   applicationOnly = true;
-  test = true;
+};
+
+GTFO.SpellID["469326"] = {
+  --desc = "Giga Blast (Chrome King Gallywix)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["1214226"] = {
+  --desc = "Cratering (Chrome King Gallywix)";
+  sound = 3;
 };
 
 GTFO.SpellID["465938"] = {
