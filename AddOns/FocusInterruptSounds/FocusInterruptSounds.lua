@@ -86,6 +86,12 @@ local DEFAULT_LOW_PRIORITY_SPELLS =
 76369; GB Shadowflame Bolt
 257063; SOB Brackish Bolt
 272581; SOB Water Bolt
+; TWW S2
+427357; POTSF Holy Smite
+427469; POTSF Fireball (Risen Mage)
+424421; POTSF Fireball (Taener Duelmal)
+330784; TOP Necrotic Bolt
+330703; TOP Decaying Filth
 ]];
 -- 376399; ignore test
 -- 392279; ignore test
@@ -193,6 +199,10 @@ local DEFAULT_PVE_PURGE =
 256957; SOB Watertight Shell
 275826; SOB Bolstering Shout
 335141; NW Dark Shroud
+; TWW S2
+441627; CM Rejuvenating Honey
+471733; O:F Restorative Algae
+444728; POTSF Templar's Wrath
 ]];
 
 ------------------------------
