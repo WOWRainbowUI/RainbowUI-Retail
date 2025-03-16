@@ -1,10 +1,10 @@
-lightweight tag f88d214a038c4d4220a29af0a63c8a8435e1c2bb r157
+lightweight tag 6ed8b26718991e4b0e3e283bed61694041b6d58c r158
 Author:	Brian Tsang <13686151+corgatag@users.noreply.github.com>
-Date:	Fri Feb 28 18:01:42 2025 -0800
+Date:	Sat Mar 15 17:38:32 2025 -0700
 
-commit f88d214a038c4d4220a29af0a63c8a8435e1c2bb
+commit 6ed8b26718991e4b0e3e283bed61694041b6d58c
 Author: Brian Tsang <13686151+corgatag@users.noreply.github.com>
-Date:   Fri Feb 28 18:01:42 2025 -0800
+Date:   Sat Mar 15 17:38:32 2025 -0700
 
-    Update .toc and fix error in PvP
+    Add dispel and low-priority interrupt settings for TWW S2
 
