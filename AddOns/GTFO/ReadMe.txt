@@ -2230,3 +2230,10 @@ Change Log:
 * Added TWW spells for Operation: Floodgate
 * Added BFA spells for The MOTHERLODE!!
 * Added BFA spells for Operation: Mechagon
+
+5.16.1
+* Added TWW spells for Liberation of Undermine
+* Added TWW spells for TWW Delves
+* Added TWW spells for Darkflame Cleft
+* Added Pandaria spells for Temple of the Jade Serpent
+* Fixed WoD spells for Hellfire Citadel
