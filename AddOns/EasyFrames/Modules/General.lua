@@ -140,16 +140,16 @@ end
 function General:OnEnable()
     if db.general.useEFTextures then
         -- Bug 'Update_MaxHealthLoss'
-        --hooksecurefunc(TargetFrame, "UpdateAuras", function(unitAuraUpdateInfo)
-        --    self:UpdateAuras(TargetFrame)
-        --end)
+        hooksecurefunc(TargetFrame, "UpdateAuras", function(unitAuraUpdateInfo)
+           self:UpdateAuras(TargetFrame);
+        end)
 
-        --hooksecurefunc(FocusFrame, "UpdateAuras", function(unitAuraUpdateInfo)
-        --    self:UpdateAuras(FocusFrame)
-        --end)
+        hooksecurefunc(FocusFrame, "UpdateAuras", function(unitAuraUpdateInfo)
+           self:UpdateAuras(FocusFrame);
+        end)
 
-        --self:SecureHook("TargetFrame_UpdateBuffAnchor", "TargetFrame_UpdateBuffAnchor")
-        --self:SecureHook("TargetFrame_UpdateDebuffAnchor", "TargetFrame_UpdateDebuffAnchor")
+        -- self:SecureHook("TargetFrame_UpdateBuffAnchor", "TargetFrame_UpdateBuffAnchor")
+        -- self:SecureHook("TargetFrame_UpdateDebuffAnchor", "TargetFrame_UpdateDebuffAnchor")
     end
 
     self:SecureHook("UnitFrameHealthBar_Update", "MakeFramesColored")
@@ -167,8 +167,8 @@ function General:OnEnable()
 
     self:SetBrightFramesBorder(db.general.brightFrameBorder)
 
-    --self:SetMaxBuffCount(db.general.maxBuffCount)
-    --self:SetMaxDebuffCount(db.general.maxDebuffCount)
+    self:SetMaxBuffCount(db.general.maxBuffCount);
+    self:SetMaxDebuffCount(db.general.maxDebuffCount);
 end
 
 function General:OnProfileChanged(newDB)
@@ -185,8 +185,8 @@ function General:OnProfileChanged(newDB)
 
     self:SetCustomBuffSize(db.general.customBuffSize)
 
-    --self:SetMaxBuffCount(db.general.maxBuffCount)
-    --self:SetMaxDebuffCount(db.general.maxDebuffCount)
+    self:SetMaxBuffCount(db.general.maxBuffCount);
+    self:SetMaxDebuffCount(db.general.maxDebuffCount);
 end
 
 
@@ -579,15 +579,21 @@ function General:TargetFrame_UpdateDebuffAnchor(frame, buff, index, numBuffs, an
 end
 
 function General:SetMaxBuffCount(value)
-    TargetFrame.maxBuffs = value
-    FocusFrame.maxBuffs = value
+    if (db.general.limitBuffsDebuffs) then
+        MAX_TARGET_BUFFS = value;
+        -- TargetFrame.maxBuffs = value
+        -- FocusFrame.maxBuffs = value
 
-    self:UpdateFrames()
+        self:UpdateFrames();
+    end
 end
 
 function General:SetMaxDebuffCount(value)
-    TargetFrame.maxDebuffs = value
-    FocusFrame.maxDebuffs = value
+    if (db.general.limitBuffsDebuffs) then
+        MAX_TARGET_DEBUFFS = value;
+        -- TargetFrame.maxDebuffs = value
+        -- FocusFrame.maxDebuffs = value
 
-    self:UpdateFrames()
+        self:UpdateFrames()
+    end
 end

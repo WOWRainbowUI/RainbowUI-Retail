@@ -93,6 +93,7 @@ local portrait = {
     ["1"] = L["Default"],
     ["2"] = L["Class portraits (old style)"],
     ["3"] = L["Class portraits (new style)"],
+    ["SPEC_ICON"] = L["Specialization icon"],
 --    ["3"] = L["Hide"],
 }
 
@@ -290,7 +291,6 @@ local generalOptions = {
             name = "",
             get = getOpt,
             set = setOpt,
-            disabled = true,
             args = {
                 header = {
                     type = "header",
@@ -301,7 +301,8 @@ local generalOptions = {
                 description = {
                     type = "description",
                     order = 2,
-                    name = "[IN DEVELOPING. Temporarily disabled due to API bug. Coming soon]\n\n" .. L["Buffs settings (like custom buffsize, max buffs count, etc)"],
+                    name = L["WARNING: These functions are experimental and may cause errors in logs, such as 'StatusBar:SetWidth()', 'StatusBar:Show()', 'Update_MaxHealthLoss'.\n\n"]
+                        .. L["Buffs settings (like custom buffsize, max buffs count, etc)"],
                 },
 
                 customBuffSize = {
@@ -328,12 +329,12 @@ local generalOptions = {
                         setOpt(info, value)
                         EasyFrames:GetModule("General"):SetCustomBuffSize(true)
                     end,
-                    --disabled = function()
-                    --    local diabled = EasyFrames.db.profile.general.customBuffSize
-                    --    if (diabled == false) then
-                    --        return true
-                    --    end
-                    --end,
+                    disabled = function()
+                       local diabled = EasyFrames.db.profile.general.customBuffSize
+                       if (diabled == false) then
+                           return true
+                       end
+                    end,
                     arg = "general",
                 },
 
@@ -349,26 +350,23 @@ local generalOptions = {
                         setOpt(info, value)
                         EasyFrames:GetModule("General"):SetCustomBuffSize(true)
                     end,
-                    --disabled = function()
-                    --    local diabled = EasyFrames.db.profile.general.customBuffSize
-                    --    if (diabled == false) then
-                    --        return true
-                    --    end
-                    --end,
+                    disabled = function()
+                       local diabled = EasyFrames.db.profile.general.customBuffSize
+                       if (diabled == false) then
+                           return true
+                       end
+                    end,
                     arg = "general",
                 },
 
-                showOnlyMyDebuff = {
+                limitBuffsDebuffs = {
                     type = "toggle",
                     order = 9,
-                    name = L["Show only my debuffs"],
-                    desc = L["When you change this option you need to reload your UI (because it's Blizzard config variable). \n\nCommand /reload"],
+                    name = L["Limit the number of buffs/debuffs"],
+                    desc = L["Limit the number of displayed buffs/debuffs on the Target and Focus frames."],
                     set = function(info, value)
-                        setOpt(info, value)
-
-                        SetCVar("noBuffDebuffFilterOnTarget", not value)
+                        setOpt(info, value);
                     end,
-                    disabled = false,
                     arg = "general"
                 },
 
@@ -384,6 +382,11 @@ local generalOptions = {
                         setOpt(info, value)
                         EasyFrames:GetModule("General"):SetMaxBuffCount(value)
                     end,
+                    disabled = function()
+                        if (not EasyFrames.db.profile.general.limitBuffsDebuffs) then
+                            return true
+                        end
+                    end,
                     arg = "general"
                 },
 
@@ -398,6 +401,24 @@ local generalOptions = {
                     set = function(info, value)
                         setOpt(info, value)
                         EasyFrames:GetModule("General"):SetMaxDebuffCount(value)
+                    end,
+                    disabled = function()
+                        if (not EasyFrames.db.profile.general.limitBuffsDebuffs) then
+                            return true
+                        end
+                    end,
+                    arg = "general"
+                },
+
+                showOnlyMyDebuff = {
+                    type = "toggle",
+                    order = 12,
+                    name = L["Show only my debuffs"],
+                    desc = L["When you change this option you need to reload your UI (because it's Blizzard config variable). \n\nCommand /reload"],
+                    set = function(info, value)
+                        setOpt(info, value)
+
+                        SetCVar("noBuffDebuffFilterOnTarget", not value)
                     end,
                     arg = "general"
                 },
