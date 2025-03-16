@@ -109,6 +109,7 @@ L["Healthbar color is based on the current health value"] = true
 L["Healthbar color is based on the current health value.\n\n" ..
     "This option excludes the option 'Class colored healthbars'"] = true
 L["Custom buffsize"] = true
+L["WARNING: These functions are experimental and may cause errors in logs, such as 'StatusBar:SetWidth()', 'StatusBar:Show()', 'Update_MaxHealthLoss'.\n\n"] = true
 L["Buffs settings (like custom buffsize, max buffs count, etc)"] = true
 L["Turn on custom buffsize"] = true
 L["Turn on custom target and focus frames buffsize"] = true
@@ -122,6 +123,8 @@ L["Dispelled buff scale"] = true
 L["Dispelled buff scale that can be dispelled from target frame"] = true
 L["Only if player can dispel them"] = true
 L["Highlight dispelled buffs only if player can dispel them"] = true
+L["Limit the number of buffs/debuffs"] = true
+L["Limit the number of displayed buffs/debuffs on the Target and Focus frames."] = true
 L["Show only my debuffs"] = true
 L["Show only my debuffs (which the player creates)"] = true
 L["Max buffs count"] = true
@@ -131,6 +134,7 @@ L["How many debuffs you can see on target/focus frames"] = true
 
 L["Class portraits (old style)"] = true
 L["Class portraits (new style)"] = true
+L["Specialization icon"] = true
 L["Replaces the unit-frame portrait with their class icon"] = true
 L["Hide frames out of combat"] = true
 L["Hide frames out of combat (for example in resting)"] = true

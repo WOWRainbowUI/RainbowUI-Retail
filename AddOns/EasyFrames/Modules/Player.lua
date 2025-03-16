@@ -26,8 +26,9 @@ local db
 
 local UpdateHealthValues = EasyFrames.Utils.UpdateHealthValues
 local UpdateManaValues = EasyFrames.Utils.UpdateManaValues
-local ClassPortraitsOldSyle = EasyFrames.Utils.ClassPortraitsOldSyle;
-local ClassPortraitsNewStyle = EasyFrames.Utils.ClassPortraitsNewStyle;
+local SetClassPortraitsOldSyle = EasyFrames.Utils.SetClassPortraitsOldSyle;
+local SetClassPortraitsNewStyle = EasyFrames.Utils.SetClassPortraitsNewStyle;
+local SetClassPortraitToSpecIcon = EasyFrames.Utils.SetClassPortraitToSpecIcon;
 local DefaultPortraits = EasyFrames.Utils.DefaultPortraits;
 local isNeedsUpdateFrame = false;
 
@@ -84,6 +85,10 @@ function Player:OnEnable()
     end)
 
     self:SecureHook("UnitFramePortrait_Update", "MakeClassPortraits");
+
+    if (db.player.portrait == "SPEC_ICON") then
+        self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED", "PlayerSpecializationChanged");
+    end
 end
 
 function Player:OnProfileChanged(newDB)
@@ -207,6 +212,10 @@ function Player:PlayerFrame_ToVehicleArt()
     PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1); -- Default state.
 end
 
+function Player:PlayerSpecializationChanged()
+    self:MakeClassPortraits(PlayerFrame);
+end
+
 function Player:PlayerFrame_UpdatePlayerNameTextAnchor()
     if db.general.useEFTextures then
         local xOffset = -13;
@@ -311,9 +320,11 @@ function Player:MakeClassPortraits(frame)
 
     if (frame.unit == "player" and frame.portrait) then
         if (db.player.portrait == "2") then
-            ClassPortraitsOldSyle(frame);
+            SetClassPortraitsOldSyle(frame);
         elseif (db.player.portrait == "3") then
-            ClassPortraitsNewStyle(frame, true);
+            SetClassPortraitsNewStyle(frame, true);
+        elseif (db.player.portrait == "SPEC_ICON") then
+            SetClassPortraitToSpecIcon(frame, true);
         else
             DefaultPortraits(frame);
         end
@@ -441,7 +452,7 @@ function Player:ShowRestIcon(value)
             self:Unhook(frame, "Show")
 
             if (value) then
-                if (IsResting("player")) then
+                if (IsResting()) then
                     frame:Show()
                 end
             else
@@ -461,7 +472,7 @@ function Player:ShowStatusTexture(value)
             self:Unhook(frame, "Show")
 
             if (value) then
-                if (IsResting("player") or UnitAffectingCombat("player")) then
+                if (IsResting() or UnitAffectingCombat("player")) then
                     frame:Show()
                 end
             else

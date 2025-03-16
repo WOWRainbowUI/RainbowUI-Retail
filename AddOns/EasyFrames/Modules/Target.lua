@@ -26,8 +26,8 @@ local db
 
 local UpdateHealthValues = EasyFrames.Utils.UpdateHealthValues
 local UpdateManaValues = EasyFrames.Utils.UpdateManaValues
-local ClassPortraitsOldSyle = EasyFrames.Utils.ClassPortraitsOldSyle;
-local ClassPortraitsNewStyle = EasyFrames.Utils.ClassPortraitsNewStyle;
+local SetClassPortraitsOldSyle = EasyFrames.Utils.SetClassPortraitsOldSyle;
+local SetClassPortraitsNewStyle = EasyFrames.Utils.SetClassPortraitsNewStyle;
 local DefaultPortraits = EasyFrames.Utils.DefaultPortraits;
 
 local targetFrameContentMain = EasyFrames.Utils.GetTargetFrameContentMain();
@@ -210,9 +210,9 @@ end
 function Target:MakeClassPortraits(frame)
     if (frame.portrait and (frame.unit == "target" or frame.unit == "targettarget")) then
         if (db.target.portrait == "2") then
-            ClassPortraitsOldSyle(frame);
+            SetClassPortraitsOldSyle(frame);
         elseif (db.target.portrait == "3") then
-            ClassPortraitsNewStyle(frame);
+            SetClassPortraitsNewStyle(frame);
         else
             DefaultPortraits(frame);
         end

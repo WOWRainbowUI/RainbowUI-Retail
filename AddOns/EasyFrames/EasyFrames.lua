@@ -63,7 +63,7 @@ local function CustomReadableNumber(num, format, useFullValues)
     else
         ret = num -- num < 1000
     end
-    return ret
+    return ret;
 end
 
 local function CustomChineseReadableNumber(num, format)
@@ -119,10 +119,11 @@ local defaults = {
             classColored = true,
             colorBasedOnCurrentHealth = false,
 
-            customBuffSize = true,
+            customBuffSize = false,
             buffSize = 22,
             selfBuffSize = 28,
             showOnlyMyDebuff = false,
+            limitBuffsDebuffs = false,
             maxBuffCount = 32,
             maxDebuffCount = 16,
 
@@ -143,7 +144,7 @@ local defaults = {
 
         player = {
             scaleFrame = 1.2,
-            portrait = "2",
+            portrait = "3",
             -- Custom HP format.
             healthFormat = "custom",
             healthBarFontStyle = DEFAULT_BAR_FONT_STYLE,
@@ -184,7 +185,7 @@ local defaults = {
 
         target = {
             scaleFrame = 1.2,
-            portrait = "2",
+            portrait = "3",
             -- Custom HP format.
             healthFormat = "custom",
             healthBarFontStyle = DEFAULT_BAR_FONT_STYLE,
@@ -221,7 +222,7 @@ local defaults = {
 
         focus = {
             scaleFrame = 1.2,
-            portrait = "2",
+            portrait = "4",
             -- Custom HP format.
             healthFormat = "custom",
             healthBarFontStyle = DEFAULT_BAR_FONT_STYLE,
@@ -422,7 +423,7 @@ function EasyFrames.Utils.UpdateHealthValues(frame, healthFormat, customHealthFo
 
             local useFullValues = false
             if (useHealthFormatFullValues) then
-                useFullValues = 1
+                useFullValues = 1;
             end
 
             if not useChineseNumeralsHealthFormat then
@@ -532,7 +533,7 @@ function EasyFrames.Utils.UpdateManaValues(frame, manaFormat, customManaFormat, 
 
             local useFullValues = false
             if (useManaFormatFullValues) then
-                useFullValues = 1
+                useFullValues = 1;
             end
 
             if not useChineseNumeralsManaFormat then
@@ -701,7 +702,7 @@ function EasyFrames.Utils.SetTextColor(string, colors)
     string:SetTextColor(colors[1], colors[2], colors[3])
 end
 
-function EasyFrames.Utils.ClassPortraitsOldSyle(frame)
+function EasyFrames.Utils.SetClassPortraitsOldSyle(frame)
     local _, unitClass = UnitClass(frame.unit);
     if (unitClass and UnitIsPlayer(frame.unit)) then
         frame.portrait:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles");
@@ -711,7 +712,7 @@ function EasyFrames.Utils.ClassPortraitsOldSyle(frame)
     end
 end
 
-function EasyFrames.Utils.ClassPortraitsNewStyle(frame, fixPlayerPortraitMask)
+function EasyFrames.Utils.SetClassPortraitsNewStyle(frame, fixPlayerPortraitMask)
     if (frame.portrait) then
         local _, class = UnitClass(frame.unit);
         if (class and UnitIsPlayer(frame.unit)) then
@@ -727,6 +728,18 @@ function EasyFrames.Utils.ClassPortraitsNewStyle(frame, fixPlayerPortraitMask)
             EasyFrames.Utils.DefaultPortraits(frame);
         end
     end
+end
+
+function EasyFrames.Utils.SetClassPortraitToSpecIcon(frame, fixPlayerPortraitMask)
+	local specialization = GetSpecialization();
+	local icon = specialization ~= nil and select(4, GetSpecializationInfo(specialization));
+	if not icon then
+		EasyFrames.Utils.SetClassPortraitsNewStyle(frame, fixPlayerPortraitMask);
+		return;
+	end
+
+    frame.portrait:SetTexCoord(0, 1, 0, 1);
+    SetPortraitToTexture(frame.portrait, icon);
 end
 
 function EasyFrames.Utils.DefaultPortraits(frame)
