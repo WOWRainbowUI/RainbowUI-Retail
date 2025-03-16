@@ -691,6 +691,27 @@ local function SetBonusCheck(details)
   return false
 end
 
+local classRestrictionsPattern = ITEM_CLASSES_ALLOWED:gsub("%%s", ".+")
+local function TierTokenCheck(details)
+  GetInvType(details)
+  GetClassSubClass(details)
+
+  if details.invType ~= "INVTYPE_NON_EQUIP_IGNORE" or (details.classID ~= Enum.ItemClass.Consumable and details.classID ~= Enum.ItemClass.Armor and details.classID ~= Enum.ItemClass.Weapon and details.classID ~= Enum.ItemClass.Miscellaneous and details.classID ~= Enum.ItemClass.Reagent) then
+    return false
+  end
+
+  GetTooltipInfoSpell(details)
+
+  if details.tooltipInfoSpell then
+    for _, row in ipairs(details.tooltipInfoSpell.lines) do
+      if row.leftText:match(classRestrictionsPattern) then
+        return true
+      end
+    end
+    return false
+  end
+end
+
 local function UseATTInfo(details)
   if details.ATTInfoAcquired or not ATTC or not ATTC.SearchForField then -- All The Things
     return
@@ -813,6 +834,7 @@ AddKeywordManual(ITEM_UNIQUE:lower(), "unique", UniqueCheck, SYNDICATOR_L_GROUP_
 AddKeywordLocalised("KEYWORD_LOCKED", LockedCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeywordLocalised("KEYWORD_REFUNDABLE", RefundableCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeywordLocalised("KEYWORD_CRAFTED", CraftedCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
+AddKeywordLocalised("KEYWORD_TIER_TOKEN", TierTokenCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 
 if Syndicator.Constants.IsRetail then
   AddKeywordLocalised("KEYWORD_COSMETIC", CosmeticCheck, SYNDICATOR_L_GROUP_QUALITY)
@@ -1454,11 +1476,13 @@ local function GetTooltipSpecialTerms(details)
     for _, line in ipairs(details.tooltipInfoSpell.lines) do
       local term = line.leftText:match("^|cFF......(.*)|r$")
       if term then
-        table.insert(details.searchKeywords, term:lower())
+        -- Cleanup special characters that interfere with typing in text for
+        -- tooltip search
+        table.insert(details.searchKeywords, (term:lower():gsub("\226\128\147", "-"):gsub("\194\160", " ")))
       else
         local match = line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONUSE) or line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONEQUIP) or (UPGRADE_PATH_PATTERN and line.leftText:match(UPGRADE_PATH_PATTERN))
         if details.classID ~= Enum.ItemClass.Recipe and match then
-          table.insert(details.searchKeywords, line.leftText:lower())
+          table.insert(details.searchKeywords, (line.leftText:lower():gsub("\226\128\147", "-"):gsub("\194\160", " ")))
         end
       end
     end
@@ -1466,7 +1490,7 @@ local function GetTooltipSpecialTerms(details)
     if #details.tooltipInfoSpell.lines > 1 then
       local color = details.tooltipInfoSpell.lines[2].leftColor
       if color ~= nil and math.floor(color.r * 100) == 52 and math.floor(color.g * 100) == 67 and color.b == 1 then
-        table.insert(details.searchKeywords, details.tooltipInfoSpell.lines[2].leftText:lower())
+        table.insert(details.searchKeywords, (details.tooltipInfoSpell.lines[2].leftText:lower():gsub("\226\128\147", "-"):gsub("\194\160", " ")))
       end
     end
 
