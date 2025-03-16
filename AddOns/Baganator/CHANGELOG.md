@@ -1,8 +1,9 @@
 # Baganator
 
-## [660](https://github.com/Baganator/Baganator/tree/660) (2025-03-10)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/659...660) 
+## [662](https://github.com/Baganator/Baganator/tree/662) (2025-03-15)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/661...662) 
 
-- Customise: Categories: Finish skinning new import dialog for GW2 and NDui  
-- Customise: Categories: Make import dialog act more like a static popup  
-- [Fixes #436] Avoid freeze when pasting to import large categories profile  
+- [Fixes #439] Prevent shortcut getting typed when using Quick Search keybinding  
+- Categories: Add missing "Adventurer" to "Upgrade Track" grouping  
+- Fix error on login due to new "Group by" "Upgrade Track"  
+- Categories: New Group by, Upgrade Track  
