@@ -2494,12 +2494,6 @@ GTFO.SpellID["1216661"] = {
   sound = 3;
 };
 
-GTFO.SpellID["1216509"] = {
-  --desc = "Screw Up (Sprocketmonger Lockenstock)";
-  applicationOnly = true;
-  sound = 3;
-};
-
 GTFO.SpellID["1219418"] = {
   --desc = "Brutal Club (Gallagio Security)";
   sound = 3;
@@ -2546,6 +2540,7 @@ GTFO.SpellID["472659"] = {
   --desc = "Shakedown (Gallagio Goon)";
   sound = 3;
   tankSound = 0;
+
 };
 
 GTFO.SpellID["1218124"] = {

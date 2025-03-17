@@ -1068,6 +1068,7 @@ GTFO.SpellID["464854"] = {
 GTFO.SpellID["472849"] = {
   --desc = "Incineration (Stix Bunkjunker)";
   sound = 4;
+  ignoreSelfInflicted = true;
 }
 
 GTFO.SpellID["466235"] = {
