@@ -1,9 +1,6 @@
 # Baganator
 
-## [662](https://github.com/Baganator/Baganator/tree/662) (2025-03-15)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/661...662) 
+## [664](https://github.com/Baganator/Baganator/tree/664) (2025-03-17)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/663...664) 
 
-- [Fixes #439] Prevent shortcut getting typed when using Quick Search keybinding  
-- Categories: Add missing "Adventurer" to "Upgrade Track" grouping  
-- Fix error on login due to new "Group by" "Upgrade Track"  
-- Categories: New Group by, Upgrade Track  
+- Restore Mac OS crash prevention code, as it isn't fixed by Blizzard  
