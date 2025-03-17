@@ -268,7 +268,7 @@ local tString;
 local function VUHDO_getInternalKeyString()
 	tString = "";
 	for tIndex, tEntries in pairs(VUHDO_SPELLS_KEYBOARD["INTERNAL"]) do
-		tString = format("%sself:SetBindingClick(0, [[%s]], self:GetName(), \"ik%d\");", tString, tEntries[2] or "", tIndex);
+		tString = format("%sself:SetBindingClick(0, [=[%s]=], self:GetName(), \"ik%d\");", tString, tEntries[2] or "", tIndex);
 	end
 	return tString;
 end
