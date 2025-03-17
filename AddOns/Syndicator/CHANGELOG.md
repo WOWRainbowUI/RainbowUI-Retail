@@ -1,7 +1,8 @@
 # Syndicator
 
-## [178](https://github.com/Baganator/Syndicator/tree/178) (2025-03-14)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/177...178) 
+## [179](https://github.com/Baganator/Syndicator/tree/179) (2025-03-16)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/178...179) 
 
-- Search: Add missing tier token item class to check  
-- Search: New keyword "tier token" for items which are used to get tier gear  
+- Search: Ignore sourceIDs for transmogs when they can't be ever collected  
+- Search: Fallback for #uncollected/#collected when appearance id missing in APIs  
+- Change "tier token" tag to "Item Type"  
