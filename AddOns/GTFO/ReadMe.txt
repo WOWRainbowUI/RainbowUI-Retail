@@ -2237,3 +2237,6 @@ Change Log:
 * Added TWW spells for Darkflame Cleft
 * Added Pandaria spells for Temple of the Jade Serpent
 * Fixed WoD spells for Hellfire Citadel
+
+5.16.2
+* Added TWW spells for Liberation of Undermine
