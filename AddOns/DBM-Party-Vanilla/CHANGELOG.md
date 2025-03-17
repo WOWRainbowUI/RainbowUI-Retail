@@ -1,11 +1,22 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r193](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r193) (2025-03-09)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r192...r193) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r194](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r194) (2025-03-17)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r193...r194) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Finish ?? support  
-- Fix ?? spellIds  
-- Push preliminary underpin boss mod  
-- CI: Split DBM-Offline into two parts to fix permission issues  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/438  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/439  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/453  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/444  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/443  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/451  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/452  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/441  
+- Add stop casting alert. Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/449  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/448  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/442  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/446  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/447  
+- fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/450  
+- Add Maklin Drillstab abilities  
+- Delves Update:  
+     - Fix a few misc timer issues  
+     - Fix some timers starting on non engaged units  
+- Scrap adds timer in machine scenario. it doesn't matter much in "hard" mode which is waht everyone does now  
