@@ -1,6 +1,6 @@
 # Syndicator
 
-## [180](https://github.com/Baganator/Syndicator/tree/180) (2025-03-17)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/179...180) 
+## [181](https://github.com/Baganator/Syndicator/tree/181) (2025-03-17)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/180...181) 
 
-- Search: Avoid Glyphs in the wrong item class from matching #tier token  
+- Fix "#tier token" not matching soulbound tokens that match current character  
