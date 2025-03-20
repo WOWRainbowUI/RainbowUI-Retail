@@ -14,6 +14,8 @@ local name = ... or "BlizzMove";
 local BlizzMove = LibStub("AceAddon-3.0"):GetAddon(name);
 if not BlizzMove then return; end
 
+local L = LibStub("AceLocale-3.0"):GetLocale(name);
+
 ---@type BlizzMoveAPI
 local BlizzMoveAPI = _G.BlizzMoveAPI;
 
@@ -24,54 +26,57 @@ BlizzMove.Config = Config;
 Config.version = GetAddOnMetadata(name, "Version") or "unknown";
 
 function Config:GetOptions()
-    local count = 1;
-    local function increment() count = count + 1; return count end;
+    local leftClick = CreateAtlasMarkup('NPE_LeftClick', 18, 18);
+    local rightClick = CreateAtlasMarkup('NPE_RightClick', 18, 18);
+    local increment = CreateCounter();
+
     return {
         type = "group",
         childGroups = "tab",
-		name = "移動暴雪視窗",
+		name = L["Blizz Move"],
         args = {
             version = {
                 order = increment(),
                 type = "description",
-                name = "版本: " .. self.version
+                name = L["Version:"] .. " " .. self.version
             },
             mainTab = {
                 order = increment(),
-                name = "說明",
+                name = L["Info"],
                 type = "group",
                 args = {
                     description = {
                         order = increment(),
                         type = "description",
-                        name = [[
-這個插件讓遊戲內建的視窗可以移動。
-
-要暫時移動窗口，只需左鍵點擊視窗並將其拖動到你希望的位置，這個位置會在這次登入期間中保持。
-
-按住 CTRL 並滾動滑鼠滾輪可以調整視窗的縮放比例。
-
-按住 ALT 並左鍵拖曳可分離的子視窗會將其從父視窗中分離出來。 分離後的視窗可以獨立於父視窗移動和調整大小。
-
-重置視窗：
-  SHIFT + 右鍵重置位置。
-  CTRL + 右鍵重置視窗縮放大小。
-  ALT + 右鍵重新附加子視窗。
-
-插件作者可以通過使用 BlizzMoveAPI 函數來支援他們自己的自訂視窗。
-]],
+                        name =
+                            L["This addon makes the Blizzard windows movable."] .. "\n"
+                            .. "\n"
+                            .. L["To temporarily move a window just %s the window and drag it to where you want it for the current game session."]:format(leftClick) .. "\n"
+                            .. "\n"
+                            .. L["CTRL + SCROLL over a window to adjust the scale of the window."] .. "\n"
+                            .. "\n"
+                            .. L["ALT + %s while dragging a detachable child window will detach it from the parent"]:format(leftClick) .. "\n"
+                            .. L["Detached windows can be moved and resized independently from the parent."] .. "\n"
+                            .. "\n"
+                            .. L["Resetting a frame:"] .. "\n"
+                            .. "  " .. L["SHIFT + %s to reset the position."]:format(rightClick) .. "\n"
+                            .. "  " .. L["CTRL + %s to reset the scale of a window."]:format(rightClick) .. "\n"
+                            .. "  " .. L["ALT + %s to re-attach a child window."]:format(rightClick) .. "\n"
+                            .. "\n"
+                            .. L["Addon authors can enable support for their own custom frames by utilizing the BlizzMoveAPI functions"],
                     },
                     plugins = {
                         order = increment(),
                         type = "execute",
-                        name = "搜尋外掛套件",
+                        name = L["Search for plugins here"],
                         func = function() Config:ShowURLPopup("https://www.curseforge.com/wow/addons/search?search=BlizzMove+plugin"); end,
+                        width = 1.5,
                     },
                 },
             },
             fullFramesTab = {
                 order = increment(),
-                name = "框架清單",
+                name = L["List of frames"],
                 type = "group",
                 childGroups = "tree",
                 get = function(info, frameName) return not BlizzMoveAPI:IsFrameDisabled(info[#info], frameName); end,
@@ -80,7 +85,7 @@ function Config:GetOptions()
             },
             disabledFramesTab = {
                 order = increment(),
-                name = "預設停用的框架",
+                name = L["Default disabled frames"],
                 type = "group",
                 childGroups = "tree",
                 get = function(info, frameName) return not BlizzMoveAPI:IsFrameDisabled(info[#info], frameName); end,
@@ -89,16 +94,17 @@ function Config:GetOptions()
             },
             globalConfigTab = {
                 order = increment(),
-                name = "整體設定",
+                name = L["Global Config"],
                 type = "group",
                 get = function(info) return Config:GetConfig(info[#info]); end,
                 set = function(info, value) return Config:SetConfig(info[#info], value); end,
                 args = {
                     requireMoveModifier = {
                         order = increment(),
-                        name = "按輔助鍵才能移動",
-                        desc = "啟用時，需要按住 Shift 鍵才能移動視窗。",
+                        name = L["Require move modifier"],
+                        desc = L["If enabled BlizzMove requires to hold SHIFT to move frames."],
                         type = "toggle",
+                        width = "full",
                     },
                     newline1 = {
                         order = increment(),
@@ -108,30 +114,32 @@ function Config:GetOptions()
                     savePosStrategy = {
                         order = increment(),
                         width = 1.5,
-                        name = "是否要記憶視窗位置?",
-                        desc = [[不要記憶 >> 關閉和重新打開視窗時都會重置位置
-
-登入期間 >> 會保存視窗位置，直到重新載入介面後會重置
-
-永久保存 >> 會一直保存視窗位置，直到你移動到其他位置、按下重置按鈕或停用此插件。]],
+                        name = L["How should frame positions be remembered?"],
+                        desc =
+                            L["Do not remember"] .. " >> " .. L["frame positions are reset when you close and reopen them"] .. "\n"
+                            .. "\n"
+                            .. L["In Session"] .. " >> " .. L["frame positions are saved until you reload your UI"] .. "\n"
+                            .. "\n"
+                            .. L["Remember Permanently"] .. " >> " .. L["frame positions are remembered until you switch to another option, click the reset button, or disable BlizzMove"],
                         type = "select",
                         values = {
-                            off = "不要記憶",
-                            session = "登入期間，直到重新載入介面",
-                            permanent = "永久保存",
+                            off = L["Do not remember"],
+                            session = L["In Session, until you reload"],
+                            permanent = L["Remember Permanently"],
                         },
                     },
                     saveScaleStrategy = {
                         order = increment(),
                         width = 1.5,
-                        name = "是否要記憶視窗縮放大小?",
-                        desc = [[登入期間 >> 會保存視窗縮放大小，直到重新載入介面後會重置
-
-永久保存 >> 會一直保存視窗縮放大小，直到你調整縮放、按下重置按鈕或停用此插件。]],
+                        name = L["How should frame scales be remembered?"],
+                        desc =
+                            L["In Session"] .. " >> " .. L["frame scales are saved until you reload your UI"] .. "\n"
+                            .. "\n"
+                            .. L["Remember Permanently"] .. " >> " .. L["frame scales are remembered until you switch to another option, click the reset button, or disable BlizzMove"],
                         type = "select",
                         values = {
-                            session = "登入期間，直到重新載入介面",
-                            permanent = "永久保存",
+                            session = L["In Session, until you reload"],
+                            permanent = L["Remember Permanently"],
                         },
                     },
                     newline2 = {
@@ -142,20 +150,20 @@ function Config:GetOptions()
                     resetPositions = {
                         order = increment(),
                         width = 1.5,
-                        name = "重置位置",
-                        desc = "重置永久保存的位置",
+                        name = L["Reset Permanent Positions"],
+                        desc = L["Reset permanently stored positions"],
                         type = "execute",
                         func = function() BlizzMove:ResetPointStorage(); ReloadUI(); end,
-                        confirm = function() return "是否確定要重置永久保存的位置? 將會重新載入介面。" end,
+                        confirm = function() return L["Are you sure you want to reset permanently stored positions? This will reload the UI."] end,
                     },
                     resetScales = {
                         order = increment(),
                         width = 1.5,
-                        name = "重置縮放大小",
-                        desc = "重置永久保存的縮放大小",
+                        name = L["Reset Permanent Scales"],
+                        desc = L["Reset permanently stored scales"],
                         type = "execute",
                         func = function() BlizzMove:ResetScaleStorage(); ReloadUI(); end,
-                        confirm = function() return "是否確定要重置永久保存的縮放大小? 將會重新載入介面。" end,
+                        confirm = function() return L["Are you sure you want to reset permanently stored scales? This will reload the UI."] end,
                     },
                 },
             },
@@ -174,24 +182,24 @@ function Config:GetFramesTables()
 
     local allFrames = {
         ["0"] = {
-            name = "過濾方式",
+            name = L["Filter"],
             type = "input",
-            desc = "搜尋框架名稱，或 '-' 是已停用的框架，或 '+' 是已啟用的框架。",
+            desc = L["Search by frame name, or '-' for disabled frames, or '+' for enabled frames."],
             order = 1,
             get = function() return self.search; end,
             set = function(_, value) self.search = value; end
         },
         ["1"] = {
-            name = "清空",
+            name = L["Clear"],
             type = "execute",
-            desc = "清空搜尋過濾方式。",
+            desc = L["Clear the search filter."],
             order = 2,
             func = function() self.search = ""; end,
             width = 0.5,
         },
     }
     listOfFrames["0"] = {
-        name = "所有框架",
+        name = L["All frames"],
         type = "group",
         order = 1,
         args = allFrames,
@@ -204,14 +212,14 @@ function Config:GetFramesTables()
             order = addonOrder,
             args = {
                 [addOnName] = {
-                    name = addOnName .. " 可移動的框架",
+                    name = L["Movable frames for %s"]:format(addOnName),
                     type = "multiselect",
                     values = function(info) return BlizzMoveAPI:GetRegisteredFrames(info[#info]); end,
                 },
             },
         };
         allFrames[addOnName] = {
-            name = addOnName .. " 可移動的框架",
+            name = L["Movable frames for %s"]:format(addOnName),
             type = "multiselect",
             order = addonOrder,
             values = function(info) return self:GetFilteredFrames(info[#info], self.search); end,
@@ -225,7 +233,7 @@ function Config:GetFramesTables()
                     order = addonOrder,
                     args = {
                         [addOnName] = {
-                            name = addOnName .. " 可移動的框架",
+                            name = L["Movable frames for %s"]:format(addOnName),
                             type = "multiselect",
                             values = function(info) return self:GetDefaultDisabledFrames(info[#info]); end,
                         },
@@ -270,11 +278,11 @@ end
 function Config:Initialize()
     self.search = "";
     self:RegisterOptions();
-    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("BlizzMove", "移動視窗");
+    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("BlizzMove", L["BlizzMove"]);
 
     StaticPopupDialogs["BlizzMoveURLDialog"] = {
-        text = "按 CTRL+C 複製",
-        button1 = "關閉",
+        text = L["CTRL-C to copy"],
+        button1 = CLOSE,
         OnShow = function(dialog, data)
             local function HidePopup()
                 dialog:Hide();

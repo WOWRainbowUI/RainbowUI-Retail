@@ -1,6 +1,6 @@
 # BlizzMove
 
-## [v3.6.13](https://github.com/Kiatra/BlizzMove/tree/v3.6.13) (2025-02-26)
-[Full Changelog](https://github.com/Kiatra/BlizzMove/compare/v3.6.12...v3.6.13) [Previous Releases](https://github.com/Kiatra/BlizzMove/releases)
+## [v3.6.14](https://github.com/Kiatra/BlizzMove/tree/v3.6.14) (2025-03-19)
+[Full Changelog](https://github.com/Kiatra/BlizzMove/compare/v3.6.13...v3.6.14) [Previous Releases](https://github.com/Kiatra/BlizzMove/releases)
 
-- TOC Bump  
+- Added localization support, go to https://legacy.curseforge.com/wow/addons/blizzmove/localization to help translate BlizzMove  
