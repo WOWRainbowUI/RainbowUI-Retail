@@ -1,8 +1,9 @@
 ## Interface: 110007, 110100
-## Title: |cff40bc92Q|r|cffffffffuest|r|cff40bc92P|r|cfffffffflates|r
-## Notes: Adds quest progress to nameplates
-## Version: v5.4.8 Fix
+## Title: - |cff58be81Q|r|cffffffffuest|r|cff58be81P|r|cfffffffflates|r
+## Notes: Adds quest progress to nameplates.|n|r   |cff58be81By Semlar, DonnieDice|r
+## Version: v5.4.9
 ## Author: Semlar, DonnieDice
+## Email: joseph@donniedice.com
 ## SavedVariables: QuestPlateSettings
 ## IconTexture: Interface\AddOns\QuestPlates\images\icon
 

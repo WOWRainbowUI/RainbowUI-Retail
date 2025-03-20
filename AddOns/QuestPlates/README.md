@@ -50,8 +50,6 @@ To customize icon position and size, use the following commands:
 1. Download the addon from [CurseForge](https://legacy.curseforge.com/wow/addons/questplates-tww).
 2. Extract the downloaded file into the appropriate World of Warcraft AddOns directory:
    - For **The War Within**: `World of Warcraft/_retail_/Interface/AddOns`
-   - For **Classic Cataclysm**: `World of Warcraft/_classic_/Interface/AddOns`
-   - For **Classic WoW**: `World of Warcraft/_classic_era_/Interface/AddOns`
 3. Restart World of Warcraft and enable the addon in the AddOns menu.
 
 ---
