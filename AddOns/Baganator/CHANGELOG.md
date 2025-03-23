@@ -1,6 +1,6 @@
 # Baganator
 
-## [665](https://github.com/Baganator/Baganator/tree/665) (2025-03-17)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/664...665) 
+## [667](https://github.com/Baganator/Baganator/tree/667) (2025-03-22)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/666...667) 
 
-- Fix typo IsItemDataCached => IsItemDataCachedByID  
+- Tag for China Wrath 3.4.4 support  

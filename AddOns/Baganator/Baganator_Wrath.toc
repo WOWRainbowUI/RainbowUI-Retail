@@ -1,4 +1,4 @@
-## Interface: 11506, 30403, 40402, 110007, 110100
+## Interface: 30404
 ## Title: Baganator
 ## Version: 667
 ## Author: plusmouse
@@ -18,10 +18,6 @@
 ## Category-ruRU: Предметы
 ## Category-zhCN: 物品栏
 ## Category-zhTW: 物品欄
-
-## Title-zhTW: |cffB973CC[背包]|r 多角色背包
-## Notes-zhTW: Baganator |n|n可以選擇要使用不分類合併背包，也可以是分類背包。隨時隨地都能查看銀行，還可以查看分身的背包/銀行。|n|n|cffffd200使用方法: |r點背包視窗右上角的小齒輪按鈕打開設定選項。
-## Category-zhTW: 物品
 
 Embeds\json.lua
 
