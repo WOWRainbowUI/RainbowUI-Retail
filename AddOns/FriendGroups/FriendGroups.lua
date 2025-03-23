@@ -261,6 +261,7 @@ expansionMaxLevel[LE_EXPANSION_LEGION] = 110
 expansionMaxLevel[LE_EXPANSION_BATTLE_FOR_AZEROTH] = 120
 expansionMaxLevel[LE_EXPANSION_SHADOWLANDS] = 60
 expansionMaxLevel[LE_EXPANSION_DRAGONFLIGHT] = 70
+expansionMaxLevel[LE_EXPANSION_WAR_WITHIN] = 80
 
 currentExpansionMaxLevel = expansionMaxLevel[GetExpansionLevel()]
 
