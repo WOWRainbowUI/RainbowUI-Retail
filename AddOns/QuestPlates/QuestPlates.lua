@@ -35,7 +35,7 @@ local ActiveWorldQuests = {}
 do
     function E:PLAYER_LOGIN()
         -- Display welcome message
-        print("|TInterface\\AddOns\\QuestPlates\\images\\icon:16:16|t - [|cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r] |cff58be81Loaded!|r |cff8080ff(v5.4.9)|r")
+        -- print("|TInterface\\AddOns\\QuestPlates\\images\\icon:16:16|t - [|cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r] |cff58be81Loaded!|r |cff8080ff(v5.4.9)|r")
 
         -- Existing quest loading logic with previous fixes
         local uiMapID = C_Map.GetBestMapForUnit('player')
