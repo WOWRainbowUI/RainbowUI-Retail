@@ -63,10 +63,10 @@ end
 
 function E:SetFontProperties(fontString, db)
 	local ofsX, flag = db.ofsX, db.flag
-	if db.font == "Homespun" then
+	if db.font == "Homespun" then 
 		ofsX, flag = 0, "MONOCHROMEOUTLINE"
 	end
-	fontString:SetShadowOffset(ofsX, -ofsX)
+	fontString:SetShadowOffset(ofsX, -ofsX) 
 	fontString:SetShadowColor(db.r, db.g, db.b, ofsX == 0 and 0 or 1)
 	fontString:SetFont(LSM:Fetch("font", db.font), db.size, flag == "NONE" and "" or flag)
 end
@@ -105,8 +105,8 @@ local fontInfo = {
 		name = L["Font"],
 		order = 1,
 		type = "select",
-
-
+		
+		
 		values = LSM_Font,
 	},
 	size = {
@@ -192,16 +192,16 @@ local General = {
 							name = L["Bar"],
 							order = 1,
 							type = "select",
-
-
+							
+							
 							values = LSM_Statusbar,
 						},
 						BG = {
 							name = L["BG"],
 							order = 2,
 							type = "select",
-
-
+							
+							
 							values = LSM_Statusbar,
 						},
 					}
@@ -222,7 +222,7 @@ local General = {
 					inline = true,
 					args = {
 						useElvUICooldownTimer = {
-							disabled = function() return not _G.ElvUI end,
+							disabled = function() return not _G.ElvUI end, 
 							name = L["Use ElvUI Timer"],
 							desc = L["[Show Numbers for Cooldowns] must be disabled in Blizzard's \'Options/Action Bars\' menu."],
 							type = "toggle",
@@ -281,13 +281,13 @@ local General = {
 }
 
 function E:AddGeneral()
-
+	
 	self.dummyFontString = self.dummyFontString or self:CreateFontString()
 	for fontName, fontPath in pairs(LSM:HashTable("font")) do
 		self.dummyFontString:SetFont(fontPath, 22)
 		LSM_Font[fontName] = fontName
 	end
-
+	
 	for _, fontName in ipairs(LSM:List("statusbar")) do
 		LSM_Statusbar[fontName] = fontName
 	end

@@ -9,7 +9,7 @@ local priority = {
 	set = function(info, value)
 		local key, type = info[2], info[#info]
 		E.profile.Party[key].priority[type] = value
-
+		
 		for id, v in pairs(E.profile.Party[key].spellPriority) do
 			if E.hash_spelldb[id].type == type and v == value then
 				E.profile.Party[key].spellPriority[id] = nil
@@ -21,8 +21,10 @@ local priority = {
 	end,
 	args = {
 		desc = {
-			name = format("|TInterface\\FriendsFrame\\InformationIcon:14:14:0:0|t %s %s\n\n", L["Set the priority of spell types for sorting."],
-			L["You can override this setting on individual spells from the Spells tab."]), order = 0, type = "description",
+			name = format("|TInterface\\FriendsFrame\\InformationIcon:14:14:0:0|t %s %s\n\n",
+			L["Set the priority of spell types for sorting."],
+			L["You can override this setting on individual spells from the Spells tab."]),
+		order = 0, type = "description",
 		},
 	},
 }

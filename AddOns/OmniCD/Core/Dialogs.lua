@@ -19,7 +19,7 @@ OmniCDC.StaticPopupDialogs["OMNICD_RELOADUI"] = {
 	text = "%s",
 	button1 = ACCEPT,
 	button2 = CANCEL,
-	OnAccept = function()
+	OnAccept = function() 
 		C_AddOns.EnableAddOn("Blizzard_CompactRaidFrames")
 		C_AddOns.EnableAddOn("Blizzard_CUFProfiles")
 		C_UI.Reload()

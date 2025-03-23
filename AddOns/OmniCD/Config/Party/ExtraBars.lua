@@ -48,7 +48,7 @@ local isRaidCDBar = function(info)
 end
 
 local notInterruptBar = function(info)
-	return E.preMoP or info[4] ~= "raidBar1"
+	return E.preCata or info[4] ~= "raidBar1"
 end
 
 local isEnabled = function(info)
@@ -185,9 +185,9 @@ local extraBarsInfo = {
 	end,
 	name = function(info)
 		local bar = info[4]
-		return E.profile.Party[ info[2] ].extraBars[bar].name or bar == "raidBar1" and L["Interrupts"] or P.extraBars[bar].index
+		return E.profile.Party[ info[2] ].extraBars[bar].name or bar == "raidBar1" and L["Interrupts"] or strsub(info[4], 8)
 	end,
-	order = function(info) return P.extraBars[ info[4] ].index end,
+	order = function(info) return tonumber(strsub(info[4], 8)) end,
 	type = "group",
 	args = {
 		enabled = {
@@ -223,6 +223,42 @@ local extraBarsInfo = {
 			desc = L["Lock frame position"],
 			order = 4,
 			type = "toggle",
+		},
+		addOnsSettings = {
+			hidden = notUnitBar,
+			name = L["Anchor"],
+			type = "group",
+			inline = true,
+			order = 5,
+			args = {
+				uf = {
+					name = ADDONS,
+					desc = L["Select addon to override auto anchoring"],
+					order = 1,
+					type = "select",
+					values = function() return E.customUF.optionTable end,
+					set = function(info, value)
+						local key, bar = info[2], info[4]
+						local db = E.profile.Party[key].extraBars[bar]
+						if P:IsCurrentZone(key) then
+							if value == "blizz" and not ( C_AddOns.IsAddOnLoaded("Blizzard_CompactRaidFrames") and C_AddOns.IsAddOnLoaded("Blizzard_CUFProfiles") ) then
+								E.Libs.OmniCDC.StaticPopup_Show("OMNICD_RELOADUI", E.STR.ENABLE_BLIZZARD_CRF)
+							else
+								if P.isInTestMode then
+									P:Test()
+									db.uf = value
+									P:Test(key)
+								else
+									db.uf = value
+									P:Refresh()
+								end
+							end
+						else
+							db.uf = value
+						end
+					end,
+				},
+			}
 		},
 		positionSettings = {
 			hidden = notUnitBar,
@@ -276,10 +312,10 @@ local extraBarsInfo = {
 					type = "multiselect",
 					dialogControl = "Dropdown-OmniCDC",
 					values = E.L_PRIORITY,
-					get = function(info, k) return E.profile.Party[ info[2] ].frame[k] == P.extraBars[ info[4] ].index end,
+					get = function(info, k) return E.profile.Party[ info[2] ].frame[k] == tonumber(strsub(info[4], 8)) end,
 					set = function(info, k, state)
 						local key = info[2]
-						local value = state and P.extraBars[ info[4] ].index or 0
+						local value = state and tonumber(strsub(info[4], 8)) or 0
 						E.profile.Party[key].frame[k] = value
 						
 						for id, v in pairs(E.profile.Party[key].spellFrame) do
@@ -388,7 +424,10 @@ local extraBarsInfo = {
 						local key, bar, option = info[2], info[4], info[#info]
 						E.profile.Party[key].extraBars[bar].scale = value
 						if P:IsCurrentZone(key) then
-							P:ConfigExSize(bar)
+							local exBar = P.activeExBars[bar]
+							if exBar then
+								P:ConfigExSize(exBar)
+							end
 						end
 					end
 				},
@@ -590,17 +629,20 @@ local extraBarsInfo = {
 						local key, bar = info[2], info[4]
 						E.profile.Party[key].extraBars[bar].truncateStatusBarName = value
 						if P:IsCurrentZone(key) then
-							for _, icon in pairs(P.extraBars[bar].icons) do
-								local name = P.groupInfo[icon.guid].name
-								if value > 0 then
-									name = string.utf8sub(name, 1, value)
+							local icons = P.activeExBars[bar] and P.activeExBars[bar].icons
+							if icons then
+								for _, icon in ipairs(icons) do
+									local name = P.groupInfo[icon.guid].nameWithoutRealm
+									if value > 0 then
+										name = string.utf8sub(name, 1, value)
+									end
+									local statusBar = icon.statusBar
+									local castingBar = statusBar.CastingBar
+									statusBar.name = name 
+									castingBar.name = name
+									statusBar.Text:SetText(name)
+									castingBar.Text:SetText(name)
 								end
-								local statusBar = icon.statusBar
-								local castingBar = statusBar.CastingBar
-								statusBar.name = name 
-								castingBar.name = name
-								statusBar.Text:SetText(name)
-								castingBar.Text:SetText(name)
 							end
 						end
 					end,
@@ -615,7 +657,7 @@ local extraBarsInfo = {
 			}
 		},
 		miscSettings = {
-			hidden = isUnitBar,
+			hidden = isDisabled,
 			name = MISCELLANEOUS,
 			type = "group",
 			inline = true,
@@ -641,26 +683,29 @@ local extraBarsInfo = {
 						end
 						E.profile.Party[key].extraBars[bar].name = value
 						if P:IsCurrentZone(key) then
-							local frame = P.extraBars[bar]
-							P:UpdateExBarPositionValues()
-							frame:SetExAnchor()
+							local exBar = P.activeExBars[bar]
+							if exBar then
+								exBar:UpdatePositionValues()
+								exBar:SetAnchor()
+							end
 						end
 					end,
 				},
-				reset = {
+				resetPos = {
+					hidden = isUnitBar,
 					name = RESET_POSITION,
 					desc = L["Reset frame position"],
 					order = 2,
 					type = "execute",
 					func = function(info)
 						local key, bar = info[2], info[4]
-						local frame = P.extraBars[bar]
-						if frame then
+						local exBar = P.activeExBars[bar]
+						if exBar then
 							if E.profile.Party[key].extraBars[bar].manualPos[bar] then
 								wipe(E.profile.Party[key].extraBars[bar].manualPos[bar])
 							end
 							if P:IsCurrentZone(key) then
-								E.LoadPosition(frame)
+								E.LoadPosition(exBar)
 							end
 						end
 					end,
@@ -683,28 +728,25 @@ local extraBarsInfo = {
 	}
 }
 for i = 1, 8 do
-	local bar = "raidBar" .. i
+	local bar = P.extraBarKeys[i]
 	extraBars.args[bar] = extraBarsInfo
 end
 
 local sliderTimer = {}
-local updatePixelObj = function(key, frame, db, noDelay)
-	frame:UpdateExBarBackdrop(db)
-	frame:UpdateLayout()
-	frame:SetExAnchor()
-	if not noDelay then
-		sliderTimer[key] = nil
-	end
+local updatePixelObj = function(exBar)
+	exBar:UpdateExBarBackdrop()
+	exBar:UpdateLayout()
+	exBar:SetAnchor()
+	sliderTimer[exBar.key] = nil
 end
 
-function P:ConfigExSize(key)
-	self:UpdateExBarPositionValues()
-	local frame = self.extraBars[key]
-	local db = E.db.extraBars[key]
-	frame:SetExScale()
-	if E.db.icons.displayBorder or (db.layout == "vertical" and db.progressBar) then
-		if not sliderTimer[key] then
-			sliderTimer[key] = E.TimerAfter(0.3, updatePixelObj, key, frame, db)
+function P:ConfigExSize(exBar)
+	exBar:UpdatePositionValues()
+	exBar:SetContainerSize()
+	exBar:SetUnitBarOffset()
+	if E.db.icons.displayBorder or (exBar.db.layout == "vertical" and exBar.db.progressBar) then
+		if not sliderTimer[exBar.key] then
+			sliderTimer[exBar.key] = E.TimerAfter(0.3, updatePixelObj, exBar)
 		end
 	end
 end

@@ -3,7 +3,7 @@ local E, L = select(2, ...):unpack()
 local GetNumSpecializationsForClassID = GetNumSpecializationsForClassID
 local GetSpecializationInfoForClassID = GetSpecializationInfoForClassID
 local GetSpecializationInfoByID = GetSpecializationInfoByID
-if E.preMoP then
+if E.preCata then
 	GetNumSpecializationsForClassID = function() return 0 end
 	GetSpecializationInfoForClassID = E.Noop
 	GetSpecializationInfoByID = E.Noop
@@ -23,16 +23,16 @@ for i = 1, MAX_CLASSES do
 end
 classValues["TRINKET"] = format("|T%s:16|t %s", E.TEXTURES.TRINKET, L["Trinket, Main Hand"])
 
-function E:UpdateSpell(id, isInit, oldClass, oldType)
+function E:UpdateSpell(id, isInit, oldClass, oldType) 
 	local spellInfo = self.hash_spelldb[id]
 	local v = OmniCDDB.cooldowns[id]
 
-
+	
 	if v then
-
+		
 		if not spellInfo then
 			self.hash_spelldb[id] = v
-
+		
 		elseif not v.custom and not defaultBackup[id] then
 			defaultBackup[id] = self:DeepCopy(self.hash_spelldb[id])
 			self.hash_spelldb[id] = v
@@ -41,21 +41,21 @@ function E:UpdateSpell(id, isInit, oldClass, oldType)
 			end
 			return
 		end
-
+		
 
 		if self.L_HIGHLIGHTS[v.type] then
 			self.Cooldowns:RegisterRemoveHighlightByCLEU(v.buff or id)
 		end
-
+	
 	else
-
+		
 		v = defaultBackup[id]
 		if v then
 			self.hash_spelldb[id] = self:DeepCopy(v)
-
+		
 		else
 			self.hash_spelldb[id] = nil
-
+			
 		end
 	end
 
@@ -89,7 +89,7 @@ end
 
 local isClassCategory = function(info)
 	local id = GetSpellID(info)
-	return OmniCDDB.cooldowns[id].class ~= "TRINKET"
+	return OmniCDDB.cooldowns[id].class ~= "TRINKET" 
 end
 
 local getGlobalDurationCharge = function(info)
@@ -142,7 +142,7 @@ local function CreateClassSpecTable(id)
 			tinsert(t, specIDs[i])
 		end
 	end
-	return #t > 0 and t or nil
+	return #t > 0 and t or nil 
 end
 
 local customSpellInfo = {
@@ -199,7 +199,7 @@ local customSpellInfo = {
 			OmniCDDB.cooldowns[id].duration = { default = OmniCDDB.cooldowns[id].duration.default }
 			OmniCDDB.cooldowns[id].charges = { default = OmniCDDB.cooldowns[id].charges.default }
 			OmniCDDB.cooldowns[id].class = value
-			OmniCDDB.cooldowns[id].spec = CreateClassSpecTable(id)
+			OmniCDDB.cooldowns[id].spec = CreateClassSpecTable(id) 
 
 			E:UpdateSpell(id, nil, oldClass, oldType)
 		end,
@@ -348,7 +348,7 @@ local customSpellInfo = {
 	},
 }
 
-if not E.preMoP then
+if E.postMoP then
 	local customSpellSpecInfo = {
 		enabled = {
 			name = L["Always Show"],
@@ -430,7 +430,9 @@ if not E.preMoP then
 	local customSpellSpecGroup = {
 		hidden = function(info)
 			local specID = GetSpecID(info, 0)
-			if not specID then return end
+			if not specID then 
+				return
+			end
 			local id = GetSpellID(info)
 			local class = OmniCDDB.cooldowns[id].class
 			if class == "TRINKET" then return true end
@@ -482,12 +484,12 @@ local customSpellGroup = {
 		local id = GetSpellID(info, 0)
 		return C_Spell.GetSpellName(id)
 	end,
-
+	
 	desc = E.isClassic and function(info)
 		local id = GetSpellID(info, 0)
 		return C_Spell.GetSpellDescription(GetSpellID(info, 0))
 	end or nil,
-
+	
 	tooltipHyperlink = not E.isClassic and function(info)
 		local id = GetSpellID(info, 0)
 		return C_Spell.GetSpellLink(id)

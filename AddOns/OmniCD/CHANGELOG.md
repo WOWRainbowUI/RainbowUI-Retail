@@ -1,0 +1,14 @@
+### v2.8.14
+-   Update for Patch 11.1
+-   Verify CD/R
+-   Anchor attached extrabars individually for multiframe users
+-   Hide NPC units in group unless in test mode
+-   Retain inspect order by added time
+-   Ignore inspect request from units already in queue
+-   Update BM Hunter 4-pc set bonus CDR amount (March 3, 2025 hotfix)
+-   Update Human Racial shared CD for healer spec (March 11, 2025 hotfix)
+-   Fix Empowered Renew to benefit from Naaru/Apo (March 12, 2025 hotfix)
+-   Fix sync request being made before collecting all unit info
+-   Fix brief event-to-unit dissociation caused by delay
+-   Fix units being flagged as NPC or offline in a raid
+-   Fix anchoring when joining a raid during Edit Mode

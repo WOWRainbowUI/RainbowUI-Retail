@@ -1,6 +1,6 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("OmniCD", "zhTW")
+if not L then return end
 
-L = L or {}
 L[ [=[%d: spellID.
 %d-%d: spellID-talentID (Mark spell if talent is selected).]=] ] = [=[%d: spellID。
 %d-%d: spellID-talentID (選擇天賦後標記法術)。]=]
