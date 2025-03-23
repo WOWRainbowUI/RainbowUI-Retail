@@ -104,6 +104,7 @@ L['currency'] = '貨幣'
 L['rep'] = '聲望'
 L['buff'] = '增益'
 L['transmog'] = '塑形'
+L['hunter_pet'] = '獵人寵物'
 
 ---------------------------------- FOLLOWERS ----------------------------------
 L['follower_type_follower'] = '追隨者'
