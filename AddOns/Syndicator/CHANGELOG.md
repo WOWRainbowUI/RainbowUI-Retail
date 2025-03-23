@@ -1,6 +1,6 @@
 # Syndicator
 
-## [181](https://github.com/Baganator/Syndicator/tree/181) (2025-03-17)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/180...181) 
+## [183](https://github.com/Baganator/Syndicator/tree/183) (2025-03-22)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/182...183) 
 
-- Fix "#tier token" not matching soulbound tokens that match current character  
+- Fix spurious guild roster requests on classic era due to wrong returns order  
