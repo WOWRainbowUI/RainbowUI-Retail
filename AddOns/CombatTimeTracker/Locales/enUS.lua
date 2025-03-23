@@ -146,3 +146,4 @@ L["Vault of the Incarnates"] = true
 L["Aberrus, the Shadowed Crucible"] = true
 L["Amirdrassil, the Dream's Hope"] = true
 L["Nerub-ar Palace"] = true
+L["Liberation of Undermine"] = true
