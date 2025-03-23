@@ -1,4 +1,4 @@
-## Interface: 110007, 110100
+## Interface: 30404
 ## Title: Syndicator
 ## Version: 183
 ## Author: plusmouse
