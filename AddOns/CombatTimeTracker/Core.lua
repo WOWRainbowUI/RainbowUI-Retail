@@ -123,7 +123,8 @@ local raidInstanceZones = {
     },
     -- TWW
     {
-        "Nerub-ar Palace"
+        "Nerub-ar Palace",
+        "Liberation of Undermine"
     }
 }
 
@@ -339,6 +340,17 @@ local raidBosses = {
             "Nexus-Princess Ky'veza",
             "The Silken Court",
             "Queen Ansurek"
+        },
+        -- Liberation of Undermine
+        {
+            "Vexie and the Geargrinders",
+            "Cauldron of Carnage",
+            "Rik Reverb",
+            "Stix Bunkjunker",
+            "Sprocketmonger Lockenstock",
+            "The One-Armed Bandit",
+            "Mug'Zee, Heads of Security",
+            "Chrome King Gallywix"
         }
     }
 }
@@ -433,6 +445,10 @@ local raidEncounterIDs = {
         -- Nerub-ar Palance
         {
             2902, 2917, 2898, 2918, 2919, 2920, 2921, 2922
+        },
+        -- Liberation of Undermine
+        {
+            3009, 3010, 3011, 3012, 3013, 3014, 3015, 3016
         }
     }
 }
@@ -489,7 +505,22 @@ local instanceZones = {
     "The Shattered Halls",
     "The Slave Pens",
     "The Steamvault",
-    "The Underbog"
+    "The Underbog",
+    "Ara-Kara, City of Echoes",
+    "Cinderbrew Meadery",
+    "City of Threads",
+    "Darkflame Cleft",
+    "Priory of the Sacred Flame",
+    "The Dawnbreaker",
+    "The Stonevault",
+    "Operation: Floodgate",
+    "Theater of Pain",
+    "Operation: Mechagon",
+    "The MOTHERLODE!!",
+    "The Necrotic Wake",
+    "Mists of Tirna Scithe",
+    "Siege of Boralus",
+    "Grim Batol"
 }
 
 local backdropSettings = {
