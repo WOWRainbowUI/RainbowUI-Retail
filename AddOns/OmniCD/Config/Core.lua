@@ -16,7 +16,7 @@ do
 	localization = localization:gsub("ruRU", RURU):gsub("zhCN", ZHCN)
 	localization = localization:gsub("zhTW", ZHTW)
 	localization = localization:gsub("itIT", LFG_LIST_LANGUAGE_ITIT)
-
+	
 	fieldText.localizations = localization
 
 	local t = {}
@@ -35,14 +35,6 @@ local getFieldText = function(info)
 	return E[label] or fieldText[label] or ""
 end
 
-local isFound
-local changelog = E.changelog:gsub("^[ \t\n]*", E.HEX_C[WOW_PROJECT_ID or 1]):gsub("\n\nv([%d%.]+)", function(ver)
-	if not isFound and ver ~= E.Version then
-		isFound = true
-		return "|cff808080\n\nv" .. ver
-	end
-end):gsub("\t", "\32\32\32\32\32\32\32\32")
-
 local getGlobalOption = function(info) return E.global[ info[#info] ] end
 local setGlobalOption = function(info, value) E.global[ info[#info] ] = value end
 
@@ -54,7 +46,7 @@ local function GetOptions()
 			type = "group",
 			args = {
 				Home = {
-
+					
 					name = format("|T%s:18|t %s", E.Libs.OmniCDC.texture.logo, E.AddOn),
 					order = 0,
 					type = "group",
@@ -127,9 +119,9 @@ local function GetOptions()
 							get = getGlobalOption,
 							set = setGlobalOption,
 						},
-
+						
 						minusScale = {
-							disabled = function() return E.global.optionPanelScale < 0.84 end,
+							disabled = function() return E.global.optionPanelScale < 0.84 end, 
 							image = E.Libs.OmniCDC.texture.minus, imageWidth = 18, imageHeight = 18,
 							name = "",
 							order = 13,
@@ -179,8 +171,8 @@ local function GetOptions()
 						notice1 = {
 							name = format("|cffff2020* %s", ((E.isWOTLKC or E.isCata) and L["Group member must have OmniCD to detect cooldown reduction by Glyphs."])
 								or (E.isSL and L["Group member must have OmniCD to detect cooldown reduction with a chance to proc and Soulbind Conduits."])
-								or (E.isDF and L["Group member must have OmniCD to detect cooldown reduction with a chance to proc."])
-
+								or (E.postDF and L["Group member must have OmniCD to detect cooldown reduction with a chance to proc."])
+								
 								or ""),
 							order = 18,
 							type = "description",
@@ -197,7 +189,7 @@ local function GetOptions()
 									name = "\n", order = 0, type = "description",
 								},
 								changelog = {
-									name = changelog,
+									name = E.changelog,
 									order = 1,
 									type = "description",
 								},
@@ -266,7 +258,7 @@ local function GetOptions()
 								},
 							}
 						},
-						plugins = E.isDF and {
+						plugins = E.postDF and {
 							name = L["Plugins"],
 							order = 50,
 							type = "group",
@@ -291,7 +283,7 @@ local function GetOptions()
 								]]
 							}
 						} or nil,
-						otherAddOns = E.isDF and {
+						otherAddOns = E.postDF and {
 							name = ADDONS,
 							order = 60,
 							type = "group",
@@ -350,7 +342,8 @@ local function GetOptions()
 		E:AddSpellEditor()
 		E:AddProfileSharing()
 	end
-	E:AddSpellPickers()
+
+	E:AddSpellPickers() 
 	return E.options
 end
 
@@ -365,13 +358,13 @@ function E:SetupOptions()
 		arrowb	= [[Interface\AddOns\OmniCD\Libs\LibOmniCDC\Media\omnicd-bg-gnav2-dn-b]],
 	}
 	self.Libs.OmniCDC.SetOptionFontDefaults(nil, nil)
-	self.Libs.ACR:RegisterOptionsTable(self.AddOn, GetOptions, true)
-
+	self.Libs.ACR:RegisterOptionsTable(self.AddOn, GetOptions, true) 
+	
 
 	self.optionsFrames.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.DB)
 	self.optionsFrames.profiles.order = 1000
 
-	if not self.preMoP then
+	if self.postMoP then
 		local LDS = LibStub("LibDualSpec-1.0")
 		LDS:EnhanceDatabase(self.DB, "OmniCDDB")
 		LDS:EnhanceOptions(self.optionsFrames.profiles, self.DB)
@@ -393,7 +386,7 @@ end
 
 function E:RefreshProfile(currentProfile)
 	currentProfile = currentProfile or self.DB:GetCurrentProfile()
-
+	
 	self.DB.keys.profile = ""
 	self.DB:SetProfile(currentProfile)
 end

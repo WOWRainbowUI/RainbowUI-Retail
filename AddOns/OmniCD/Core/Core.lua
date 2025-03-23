@@ -167,7 +167,7 @@ E.OmniCDAnchor_OnMouseUp = function(self, button)
 		self.isMoving = false
 		SavePosition(self)
 	end
-
+	
 end
 
 E.TimerAfter = function(delay, func, ...)

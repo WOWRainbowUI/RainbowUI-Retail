@@ -1,9 +1,8 @@
-local E, L = select(2, ...):unpack()
+local E, L, C = select(2, ...):unpack()
 
 local addOnCommands = {}
 
 local spellTypeStr
-
 E.SlashHandler = function(msg)
 	if msg then
 		msg = strlower(msg)
@@ -22,17 +21,18 @@ E.SlashHandler = function(msg)
 		E:Refresh()
 	elseif command == "t" or command == "test" then
 		if E:GetModuleEnabled("Party") then
-			local key = not P.isInTestMode and P.zone
+			local key = not P.isInTestMode and select(2, IsInInstance())
 			P:Test(key)
 		else
 			E.write("Module not enabled!")
 		end
+		E:ACR_NotifyChange()
 	elseif command == "rt" or command == "reset" then
 		if value == "" then
 			P:ResetAllIcons()
 			E.write("Timers reset.")
 		elseif value == "db" or value == "database" then
-
+			
 			E.Libs.OmniCDC.StaticPopup_Show("OMNICD_WIPE_DB")
 		elseif value == "pf" or value == "profile" then
 			E.DB:ResetProfile()
@@ -45,13 +45,6 @@ E.SlashHandler = function(msg)
 		else
 			E.write("Invalid <value>.", value)
 		end
-	elseif command == "m" or command =="manual" then
-		local key = E.L_CFG_ZONE[value] and value or "arena"
-		E.profile.Party[key].position.detached = not E.profile.Party[key].position.detached
-		local state = E.profile.Party[key].position.detached and VIDEO_OPTIONS_ENABLED or VIDEO_OPTIONS_DISABLED
-		E.write(key, L["Manual Mode"], state)
-		P:Refresh()
-		E:ACR_NotifyChange()
 	elseif command == "s" or command == "spell" or E.L_CFG_ZONE[command] then
 		local zone = E.L_CFG_ZONE[command] and command or "arena"
 		if value == "?" then
@@ -66,8 +59,8 @@ E.SlashHandler = function(msg)
 				end
 				spellTypeStr = "Spell Types:\n" .. spellTypeStr
 			end
-			E.write("/oc <s[zone]> <spell type||all|clear| default>")
-			E.write("/oc <f[zone]> <spell type||all|default> <-1~8>")
+			E.write("/oc <s[zone]> <spelltype|all|default|clear>")
+			E.write("/oc <f[zone]> <spelltype|all|default> <1~8>")
 			E.write(spellTypeStr)
 		elseif value == "clear" then
 			P:ResetOption(zone, "spells")
@@ -90,11 +83,28 @@ E.SlashHandler = function(msg)
 		end
 		P:Refresh()
 		E:ACR_NotifyChange()
-	elseif command == "f" or command == "spellframe" or E.L_CFG_ZONE[gsub(command, "^f", "")] then
+	elseif command == "f" or command == "frame" or command == "spellframe" or E.L_CFG_ZONE[gsub(command, "^f", "")] then
 		subvalue = tonumber(subvalue)
 		subvalue = subvalue and min(max(subvalue, 0), 8) or 0
 		local zone = gsub(command, "^f", "")
 		zone = E.L_CFG_ZONE[zone] and zone or "arena"
+		
+		if value == "default" then
+			P:ResetOption(zone, "Frame")
+		elseif subvalue then
+			for type in pairs(C.Party.arena.priority) do
+				if value == "all" or value == type then
+					E.profile.Party[zone].frame[type] = subvalue
+				end
+				
+				for id, v in pairs(E.profile.Party[zone].spellFrame) do
+					if E.hash_spelldb[id].type == type and v == subvalue then
+						E.profile.Party[zone].spellFrame[id] = nil
+					end
+				end
+			end
+		end
+		--[[ on spellFrame
 		if value == "default" then
 			P:ResetOption(zone, "spellFrame")
 		elseif subvalue then
@@ -105,6 +115,7 @@ E.SlashHandler = function(msg)
 				end
 			end
 		end
+		]]
 		P:Refresh()
 		E:ACR_NotifyChange()
 	elseif command == "g" or command == "spellglow" or E.L_CFG_ZONE[gsub(command, "^g", "")] then
@@ -124,6 +135,18 @@ E.SlashHandler = function(msg)
 		E:ACR_NotifyChange()
 	elseif command == "tt" then
 		E.TooltipID:Enable()
+	elseif command == "nosync" then
+		wipe(E.Comm.syncedGroupMembers)
+		E.Comm.CopySendComm = E.Comm.SendComm
+		E.Comm.COPY_CHAT_MSG_ADDON = E.Comm.CHAT_MSG_ADDON
+		E.Comm.SendComm = E.Noop
+		E.Comm.CHAT_MSG_ADDON = E.Noop
+	elseif command == "sync" then
+		if not E.Comm.CopySendComm then
+			return
+		end
+		E.Comm.SendComm = E.Comm.CopySendComm
+		E.Comm.CHAT_MSG_ADDON = E.Comm.COPY_CHAT_MSG_ADDON
 	elseif addOnCommands[command] then
 		addOnCommands[command](value, subvalue)
 	else
@@ -134,7 +157,7 @@ end
 function E:OpenOptionPanel()
 	self.Libs.ACD:SetDefaultSize(self.AddOn, 940, 627, self.global.optionPanelScale)
 	self.Libs.ACD:Open(self.AddOn)
-
+	
 	for moduleName in pairs(E.moduleOptions) do
 		self.Libs.ACD:SelectGroup(self.AddOn, moduleName)
 	end
@@ -168,12 +191,12 @@ function E:SetupBlizzardOptions()
 		self:SetScript("OnShow", nil)
 	end)
 
-	if Settings and Settings.RegisterCanvasLayoutCategory then
+	if Settings and Settings.RegisterCanvasLayoutCategory then 
 		local category, layout = Settings.RegisterCanvasLayoutCategory(interfaceOptionPanel, E.AddOn)
 		Settings.RegisterAddOnCategory(category)
-
-
-
+		
+		
+		
 	else
 		InterfaceOptions_AddCategory(interfaceOptionPanel)
 	end

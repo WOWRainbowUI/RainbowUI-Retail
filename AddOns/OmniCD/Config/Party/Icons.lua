@@ -134,7 +134,7 @@ local icons = {
 					order = 3,
 					type = "toggle",
 				},
-
+				
 				displayInactive = {
 					name = L["Display Inactive Icons"],
 					desc = L["Display icons not on cooldown"],
@@ -157,20 +157,18 @@ local icons = {
 
 local sliderTimer
 local function UpdatePixelObjects()
-	for _, info in pairs(P.groupInfo) do
-		local frame = info.bar
-		frame:SetBarBackdrop()
-		frame:UpdateLayout()
+	for bar in P.BarPool:EnumerateActive() do
+		bar:SetBarBackdrop()
+		bar:UpdateLayout()
 	end
 	sliderTimer = nil
 end
 
 function P:ConfigSize()
 	self:UpdatePositionValues()
-	for _, info in pairs(self.groupInfo) do
-		local frame = info.bar
-		frame:SetContainerSize()
-		frame:SetContainerOffset()
+	for bar in P.BarPool:EnumerateActive() do
+		bar:SetContainerSize()
+		bar:SetContainerOffset()
 	end
 	if E.db.icons.displayBorder then
 		if not sliderTimer then

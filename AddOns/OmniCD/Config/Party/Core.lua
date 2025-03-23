@@ -87,7 +87,7 @@ local noCfgZone = {
 			values = E.L_CFG_ZONE,
 			get = function(info) return E.profile.Party[info[2] == "none" and "noneZoneSetting" or "scenarioZoneSetting"] end,
 			set = function(info, value) E.profile.Party[info[2] == "none" and "noneZoneSetting" or "scenarioZoneSetting"] = value
-				P:Refresh()
+				P:Refresh() 
 			end,
 		},
 	}
