@@ -1,6 +1,6 @@
 # Syndicator
 
-## [184](https://github.com/Baganator/Syndicator/tree/184) (2025-03-23)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/183...184) 
+## [185](https://github.com/Baganator/Syndicator/tree/185) (2025-03-24)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/184...185) 
 
-- Fixes for China Wrath, 3.4.4  
+- Add "Wands" to "my class" keyword check for appropriate classes  
