@@ -21,13 +21,13 @@ local function AppendID(tooltip, id, strType)
 		local text = frame and frame:GetText()
 
 		if not text then break end
-		if strmatch(text, strType) then 
+		if strmatch(text, strType) then
 			return
 		end
 	end
 
 	tooltip:AddLine("\n" .. strType .. " |cff33ff99" .. id, 1, 1, 1, true)
-	tooltip:Show() 
+	tooltip:Show()
 end
 
 local AddAuraID = E.postDF and function(self, unit, slotNumber, auraType)

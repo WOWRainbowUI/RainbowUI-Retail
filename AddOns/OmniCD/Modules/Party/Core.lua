@@ -153,12 +153,12 @@ if AuraUtil_ForEachAura then
 		return dur, expTime
 	end
 else
-	
+
 	function P:GetBuffDuration(unit, spellID)
 		for i = 1, 50 do
-			local _,_,_,_, duration, expirationTime, _,_,_, id = UnitBuff(unit, i) 
+			local _,_,_,_, duration, expirationTime, _,_,_, id = UnitBuff(unit, i)
 			if not id then return end
-			
+
 			if id == spellID then
 				return duration, expirationTime
 			end

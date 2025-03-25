@@ -1,6 +1,16 @@
 local _, NS = ...
 
 local changelog = [=[
+### v2.8.16
+-   Fix compatibility issue with old profile (pre 2.7.8000)
+-   Fix Show Player not updating while in a group
+-   Fix Greater Invisibility highlighting
+-   Remove NPC unit CDs when Test Mode ends
+-   Add Harrier's Cry to haste CDR
+
+### v2.8.15
+-   Classic nil err fix
+
 ### v2.8.14
 -   Update for Patch 11.1
 -   Verify CD/R

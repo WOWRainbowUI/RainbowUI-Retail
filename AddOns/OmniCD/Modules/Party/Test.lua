@@ -40,7 +40,7 @@ function TM:Test(zone)
 		P.UpdateDelayedZoneData()
 		P:Refresh()
 
-		self:UndateIndicator(zone) 
+		self:UndateIndicator(zone)
 		self:RegisterEvent("PLAYER_LEAVING_WORLD")
 		self:UselessBling()
 	else
@@ -63,7 +63,7 @@ function TM:ShouldShowBlizzardFrames()
 			return true
 		end
 	end
-	return not E.db.position.detached and E.db.position.uf == "blizz" or E.db.position.uf == "auto"
+	return E.db.position.uf == "blizz" or E.db.position.uf == "auto"
 end
 
 function TM:ShowBlizzardFrames()
@@ -81,7 +81,7 @@ function TM:ShowBlizzardFrames()
 			and C_AddOns.IsAddOnLoaded("Blizzard_CUFProfiles") then
 			CompactRaidFrameManager:Show()
 			CompactRaidFrameContainer:Show()
-		else 
+		else
 			E.Libs.OmniCDC.StaticPopup_Show("OMNICD_RELOADUI", E.STR.ENABLE_BLIZZARD_CRF)
 		end
 	end
@@ -89,7 +89,7 @@ end
 
 function TM:HideBlizzardFrames()
 	if E.postDF then
-		
+
 		if P.isInEditMode then
 			if P.inLockdown then
 				self:EndTestOOC()
@@ -185,7 +185,7 @@ end
 
 
 function TM:PLAYER_LEAVING_WORLD()
-	
+
 	if P.isInTestMode then
 		self:ToggleAddOnTestFrames(P.isInTestMode)
 	end

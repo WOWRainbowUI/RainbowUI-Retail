@@ -134,7 +134,7 @@ local icons = {
 					order = 3,
 					type = "toggle",
 				},
-				
+
 				displayInactive = {
 					name = L["Display Inactive Icons"],
 					desc = L["Display icons not on cooldown"],

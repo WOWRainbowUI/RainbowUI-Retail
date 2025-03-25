@@ -22,19 +22,19 @@ local PARTY_UNIT = {
 
 local INSTANCETYPE_EVENTS = {
 	party = {
-		"CHALLENGE_MODE_START" 
+		"CHALLENGE_MODE_START"
 	},
 	raid = {
-		"ENCOUNTER_END" 
+		"ENCOUNTER_END"
 	},
 	none = {
-		"PLAYER_FLAGS_CHANGED" 
+		"PLAYER_FLAGS_CHANGED"
 	},
 	arena = {
 		"UPDATE_UI_WIDGET"
 	},
 	pvp = {
-		"CHAT_MSG_BG_SYSTEM_NEUTRAL", 
+		"CHAT_MSG_BG_SYSTEM_NEUTRAL",
 		"UPDATE_UI_WIDGET"
 	}
 }
@@ -118,7 +118,7 @@ end
 
 local function GetRosterInfo(i, unit)
 	local _, name, subgroup, level, fileName, online, isDead
-	if unit == true then 
+	if unit == true then
 		name, _, subgroup, level, _, fileName, _, online, isDead = GetRaidRosterInfo(i)
 	else
 		name = GetUnitName(unit, true)
@@ -141,9 +141,9 @@ local function RequestSync_OnDelayEnd()
 end
 
 local function ScheduleSyncRequest(force)
-	
-	
-	
+
+
+
 	if callbackTimers.syncDelay then
 		callbackTimers.syncDelay:Cancel()
 	end
@@ -156,7 +156,7 @@ local function UpdateAnchor_OnDelayEnd()
 end
 
 local function ScheduleAnchorUpdate()
-	
+
 	if callbackTimers.anchorBackup then
 		callbackTimers.anchorBackup:Cancel()
 	end
@@ -164,7 +164,7 @@ local function ScheduleAnchorUpdate()
 end
 
 local function ScheduleRosterUpdate()
-	
+
 	if callbackTimers.rosterDelay then
 		callbackTimers.rosterDelay:Cancel()
 	end
@@ -213,7 +213,7 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 		self:ResetAllIcons("joinedPvP")
 	end
 
-	
+
 	if self.isInArena then
 		if not callbackTimers.arenaTicker then
 			callbackTimers.arenaTicker = C_Timer.NewTicker(12, InspectAllGroupMembers, 6)
@@ -227,22 +227,22 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 	self:RefreshExBarFrames()
 	self:HookRefreshMembers()
 
-	
+
 	self:GROUP_ROSTER_UPDATE(true)
 end
 
-P.ZONE_CHANGED_NEW_AREA = P.PLAYER_ENTERING_WORLD 
+P.ZONE_CHANGED_NEW_AREA = P.PLAYER_ENTERING_WORLD
 
 function P:GROUP_JOINED()
-	
+
 	self.groupJoined = true
 
-	
+
 	if self.disabled then
 		return
 	end
 
-	
+
 	if self.isInArena and C_PvP_IsRatedSoloShuffle() then
 		self:ResetAllIcons("joinedPvP", true)
 		if not callbackTimers.arenaTicker then
@@ -251,7 +251,7 @@ function P:GROUP_JOINED()
 	end
 end
 
-function P:GROUP_ROSTER_UPDATE(force) 
+function P:GROUP_ROSTER_UPDATE(force)
 	local size = P:GetEffectiveNumGroupMembers()
 
 	local wasDisabled = P.disabled
@@ -279,9 +279,9 @@ function P:GROUP_ROSTER_UPDATE(force)
 	local isCallback = type(self) == "userdata"
 	local isReadyForSync = isCallback and P.groupJoined
 
-	if not isCallback and size < (P.size or 0) then
+	if not isCallback and size < (P.size or 0) or force then
 		for guid, info in pairs(groupInfo) do
-			if not UnitExists(info.name) or guid == E.userGUID and P.isUserDisabled then
+			if not UnitExists(info.name) or (guid == E.userGUID and P.isUserDisabled) or (not P.isInTestMode and info.isNPC) then
 				info:Delete()
 			end
 		end
@@ -293,18 +293,19 @@ function P:GROUP_ROSTER_UPDATE(force)
 		local unit = isInRaid and RAID_UNIT[index] or PARTY_UNIT[index]
 		local guid = UnitGUID(unit)
 		local info = groupInfo[guid]
-		local name, subgroup, level, fileName, online, isDead = GetRosterInfo(i, isInRaid or unit) 
+		local name, subgroup, level, fileName, online, isDead = GetRosterInfo(i, isInRaid or unit)
 		local isDeadOrOffline = isDead or not online
 		local notUser = guid ~= E.userGUID
+		local isNPC = strsub(guid, 1, 6) ~= "Player"
 
-		
+
 		local isAdminForMDI = false
 		if P.zone == "party" and subgroup then
 			isAdminForMDI = subgroup > 1
 		end
 
 		if info and not isCallback then
-			
+
 			if force or info.isAdminForMDI ~= isAdminForMDI then
 				info:SetUnit(unit, index, isDead, isDeadOrOffline, isAdminForMDI)
 				info:SetupBar(true)
@@ -318,20 +319,19 @@ function P:GROUP_ROSTER_UPDATE(force)
 					info.bar:SetUnit(info, unit, index)
 					info.bar:UpdatePosition()
 				end
-				
+
 				if not info.spec then
 					CM:AddToInspectList(guid)
 				end
-				
+
 				if info.isDeadOrOffline ~= isDeadOrOffline then
 					info.isDead = isDead
 					info.isDeadOrOffline = isDeadOrOffline
 					info:UpdateColorScheme()
 				end
 			end
-		elseif not info and (isCallback or force) and (not P.isUserDisabled or notUser)
-			and (P.isInTestMode or strsub(guid, 1, 6) == "Player") then
-			
+		elseif not info and (isCallback or force) and (not P.isUserDisabled or notUser) and (P.isInTestMode or not isNPC) then
+
 			if fileName then
 				local petGUID = (fileName == "WARLOCK" or fileName == "HUNTER" or fileName == "DEATHKNIGHT")
 					and E.UNIT_TO_PET[unit]
@@ -345,12 +345,13 @@ function P:GROUP_ROSTER_UPDATE(force)
 				info = P:GetUnitInfo(unit, guid, name, level, fileName)
 				info:SetUnit(unit, index, isDead, isDeadOrOffline, isAdminForMDI)
 				info.petGUID = petGUID
+				info.isNPC = isNPC
 				info:SetupBar(true)
 				if notUser then
 					CM:AddToInspectList(guid)
 				end
 			else
-				
+
 				ScheduleRosterUpdate()
 				isReadyForSync = false
 			end
@@ -362,7 +363,7 @@ function P:GROUP_ROSTER_UPDATE(force)
 	CM:EnqueueInspect()
 	CM:ToggleCooldownSync()
 
-	
+
 	if force then
 		CM.PLAYER_TALENT_UPDATE()
 	elseif isReadyForSync then
@@ -382,8 +383,8 @@ function P:CHAT_MSG_BG_SYSTEM_NEUTRAL(arg1)
 	if self.disabled then
 		return
 	end
-	
-	
+
+
 	if strfind(arg1, "!$") then
 		CM:EnqueueInspect(true)
 	end

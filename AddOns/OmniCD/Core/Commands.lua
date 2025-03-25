@@ -32,7 +32,7 @@ E.SlashHandler = function(msg)
 			P:ResetAllIcons()
 			E.write("Timers reset.")
 		elseif value == "db" or value == "database" then
-			
+
 			E.Libs.OmniCDC.StaticPopup_Show("OMNICD_WIPE_DB")
 		elseif value == "pf" or value == "profile" then
 			E.DB:ResetProfile()
@@ -88,7 +88,7 @@ E.SlashHandler = function(msg)
 		subvalue = subvalue and min(max(subvalue, 0), 8) or 0
 		local zone = gsub(command, "^f", "")
 		zone = E.L_CFG_ZONE[zone] and zone or "arena"
-		
+
 		if value == "default" then
 			P:ResetOption(zone, "Frame")
 		elseif subvalue then
@@ -96,7 +96,7 @@ E.SlashHandler = function(msg)
 				if value == "all" or value == type then
 					E.profile.Party[zone].frame[type] = subvalue
 				end
-				
+
 				for id, v in pairs(E.profile.Party[zone].spellFrame) do
 					if E.hash_spelldb[id].type == type and v == subvalue then
 						E.profile.Party[zone].spellFrame[id] = nil
@@ -157,7 +157,7 @@ end
 function E:OpenOptionPanel()
 	self.Libs.ACD:SetDefaultSize(self.AddOn, 940, 627, self.global.optionPanelScale)
 	self.Libs.ACD:Open(self.AddOn)
-	
+
 	for moduleName in pairs(E.moduleOptions) do
 		self.Libs.ACD:SelectGroup(self.AddOn, moduleName)
 	end
@@ -191,12 +191,12 @@ function E:SetupBlizzardOptions()
 		self:SetScript("OnShow", nil)
 	end)
 
-	if Settings and Settings.RegisterCanvasLayoutCategory then 
+	if Settings and Settings.RegisterCanvasLayoutCategory then
 		local category, layout = Settings.RegisterCanvasLayoutCategory(interfaceOptionPanel, E.AddOn)
 		Settings.RegisterAddOnCategory(category)
-		
-		
-		
+
+
+
 	else
 		InterfaceOptions_AddCategory(interfaceOptionPanel)
 	end

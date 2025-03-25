@@ -50,7 +50,7 @@ end
 
 P.setFrame = function(info, value)
 	local key, id = info[2], tonumber(info[#info-1])
-	
+
 	if E.profile.Party[key].frame[E.hash_spelldb[id].type] == value then
 		value = nil
 	end
@@ -123,7 +123,7 @@ local function GetSpellsTbl()
 			confirm = E.ConfirmAction,
 		},
 		showForbearanceCounter = {
-			hidden = E.isClassic, 
+			hidden = E.isClassic,
 			name = L["Show Forbearance CD"],
 			desc = L["Show timer on spells while under the effect of Forbearance or Hypothermia. Spells castable to others will darken instead"],
 			order = 3,
@@ -163,7 +163,7 @@ end
 
 local itemsOrdered = {
 	[-1] = "R",
-	[0] = "I", 
+	[0] = "I",
 	[1] = 1,
 	[2] = 2,
 	[3] = 3,
@@ -180,7 +180,7 @@ local header = {
 	order = 0,
 	type = "group", dialogControl = "InlineGroupList2-OmniCDC", inline = true,
 	args = {
-		li0 = { 
+		li0 = {
 			name = L["Spells"],
 			desc = L["CTRL+click to edit spell."],
 			order = 0, type = "description", dialogControl = "InlineGroupList2Label-OmniCDC", width = 1, justifyH = "CENTER",
@@ -205,7 +205,7 @@ local header = {
 
 function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, itemID)
 	local sId = tostring(spellID)
-	
+
 	local classFileName = LOCALIZED_CLASS_NAMES_MALE[class]
 	local category = (type == "covenant" and "COVENANT") or class
 
@@ -220,7 +220,7 @@ function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, item
 			}
 		}
 
-		t[category].args[sId] = { 
+		t[category].args[sId] = {
 			name = name,
 			order = type == "covenant" and E.BOOKTYPE_CATEGORY[class] or nil,
 			type = "group", dialogControl = "InlineGroupList2-OmniCDC", inline = true,
@@ -340,7 +340,7 @@ function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, item
 				local itemName = item:GetItemName()
 				if itemName then
 					t[type].args[sId].args.spells.name = itemName
-					
+
 					if E.hash_spelldb[spellID] then
 						E.hash_spelldb[spellID].name = itemName
 					end
@@ -348,7 +348,7 @@ function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, item
 			end)
 		end
 	end
-	local spell = Spell:CreateFromSpellID(spellID) 
+	local spell = Spell:CreateFromSpellID(spellID)
 	spell:ContinueOnSpellLoad(function()
 		if E.isClassic then
 			local tooltip = spell:GetSpellDescription()
@@ -410,8 +410,8 @@ function P:AddSpellPickerSpells(spells)
 end
 
 function P:UpdateSpellsOption(spellID, oldClass, oldType, v, force)
-	local spells = E.spellsOptionTbl 
-	
+	local spells = E.spellsOptionTbl
+
 	if oldClass then
 		local oldtab = spellTabs[oldType]
 		oldClass = (oldType == "covenant" and "COVENANT") or oldClass
@@ -436,7 +436,7 @@ function P:UpdateSpellsOption(spellID, oldClass, oldType, v, force)
 			if not found then t[oldType] = nil end
 		end
 	end
-	
+
 	if v then
 		local tab = spellTabs[v.type]
 		self:AddSpellTypeSpell(spells, "list_" .. tab, spellID, v.class, v.type, v.icon, v.name, v.item)
@@ -451,8 +451,8 @@ function P:UpdateSpellsOption(spellID, oldClass, oldType, v, force)
 end
 
 function P:AddSpellPicker()
-	
-	
+
+
 	if not E.spellsOptionTbl or next(E.spellsOptionTbl) == nil then
 		local spells = GetSpellsTbl()
 		self:AddSpellPickerSpells(spells)

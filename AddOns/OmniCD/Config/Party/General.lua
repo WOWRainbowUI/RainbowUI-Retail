@@ -41,14 +41,14 @@ local general = {
 				if src then
 					E.profile.Party[key] = E:DeepCopy(E.profile.Party[src])
 					E.profile.Party[key].general.zoneSelected = src
-					
+
 					for sId in pairs(C.Party[key].spells) do
 						if not E.profile.Party[src].spells[sId] then
 							E.profile.Party[key].spells[sId] = false
 						end
 					end
 				end
-				P:Refresh() 
+				P:Refresh()
 			end,
 			confirm = E.ConfirmAction,
 		},
@@ -92,7 +92,7 @@ local general = {
 		},
 		showTooltip = {
 			name = L["Show Tooltip"],
-			
+
 			desc = L["Show spell information when you mouseover an icon"],
 			order = 13,
 			type = "toggle",

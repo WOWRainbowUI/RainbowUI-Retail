@@ -28,7 +28,7 @@ function BarFrameIconMixin:ResetCooldown(resetAllCharges)
 		return
 	end
 
-	
+
 	if (self.spellID == 45438 or self.spellID == 414658) and E.db.icons.showForbearanceCounter then
 		local duration, expTime = P:GetDebuffDuration(info.unit, 41425)
 		if duration and duration > 0 then
@@ -40,16 +40,16 @@ function BarFrameIconMixin:ResetCooldown(resetAllCharges)
 		end
 	end
 
-	
+
 	local maxcharges = self.maxcharges
 	local currCharges = active.charges
 	local statusBar = self.statusBar
 	if maxcharges and currCharges and currCharges + 1 < maxcharges then
 		if resetAllCharges then
-			active.charges = maxcharges 
+			active.charges = maxcharges
 			self.cooldown:Clear()
 			if statusBar then
-				
+
 				statusBar.CastingBar:OnEvent("UNIT_SPELLCAST_FAILED")
 			end
 			return
@@ -91,19 +91,19 @@ function BarFrameIconMixin:UpdateCooldown(reducedTime, updateActiveTimer)
 	local modRate = active.modRate or 1
 	local now = GetTime()
 
-	
-	
-	
-	
-	reducedTime = reducedTime * modRate 
 
-	
-	
+
+
+
+	reducedTime = reducedTime * modRate
+
+
+
 	if updateActiveTimer then
 		local elapsed = (now - startTime) * updateActiveTimer
 		startTime = now - elapsed
 		duration = duration * updateActiveTimer
-		
+
 	end
 
 	startTime = startTime - reducedTime
@@ -132,8 +132,8 @@ function BarFrameIconMixin:StartCooldown(cd, isRecharge, noGlow, reducedStartTim
 
 	local spellID = self.spellID
 
-	
-	
+
+
 	local multiplier
 	local auraMult = E.spell_cdmod_by_aura_mult[spellID]
 	if auraMult then
@@ -142,7 +142,7 @@ function BarFrameIconMixin:StartCooldown(cd, isRecharge, noGlow, reducedStartTim
 			if info.auras[auraString] then
 				local mult = auraMult[i]
 				if mult == 0 and not isRecharge then
-					if self.active and info.auras.mult_premonitionOfInsight then 
+					if self.active and info.auras.mult_premonitionOfInsight then
 						self:UpdateCooldown(info.talentData[440743] and 9.8 or 7)
 					end
 					return
@@ -152,32 +152,32 @@ function BarFrameIconMixin:StartCooldown(cd, isRecharge, noGlow, reducedStartTim
 		end
 	end
 
-	
+
 	cd = cd or self.duration
 	local ocd = cd
 	local reduceStartTimeInstead
 	if not isRecharge and self.isBookType then
-		if info.auras.glimpseOfClarity then 
+		if info.auras.glimpseOfClarity then
 			cd = cd - 3
 		end
-		if spellID ~= 428933 and info.auras.mult_premonitionOfInsight then 
+		if spellID ~= 428933 and info.auras.mult_premonitionOfInsight then
 			reduceStartTimeInstead = true
-			cd = cd - (info.talentData[440743] and 9.8 or 7) 
+			cd = cd - (info.talentData[440743] and 9.8 or 7)
 		end
 	end
 
-	
+
 	if multiplier then
 		cd = cd * multiplier
 	end
-	
+
 	if E.spell_cdmod_by_haste[spellID] and info.auras.mult_lust then
 		cd = cd * 0.7
 	end
 
-	
+
 	local modRate = self.modRate
-	cd = cd * modRate 
+	cd = cd * modRate
 
 	info.active[spellID] = info.active[spellID] or {}
 	local active = info.active[spellID]
@@ -188,15 +188,15 @@ function BarFrameIconMixin:StartCooldown(cd, isRecharge, noGlow, reducedStartTim
 		now = now - reducedStartTime
 	end
 
-	
-	
-	
-	
-	
-	
 
-	
-	
+
+
+
+
+
+
+
+
 	if currCharges then
 		if isRecharge then
 			if active.queuedCdrOnRecharge then
@@ -212,7 +212,7 @@ function BarFrameIconMixin:StartCooldown(cd, isRecharge, noGlow, reducedStartTim
 				cd = ocd * modRate
 			end
 			self.cooldown:SetCooldown(now, cd, modRate)
-		elseif currCharges == 0 then 
+		elseif currCharges == 0 then
 			self.cooldown:SetCooldown(now, cd, modRate)
 		else
 			if reduceStartTimeInstead then
@@ -251,7 +251,7 @@ function BarFrameIconMixin:StartCooldown(cd, isRecharge, noGlow, reducedStartTim
 	local statusBar = self.statusBar
 	if info.preactiveIcons[spellID] then
 		info.preactiveIcons[spellID] = nil
-		
+
 		if statusBar then
 			statusBar:SetColors()
 		end
@@ -283,7 +283,7 @@ function BarFrameIconMixin:StartCooldown(cd, isRecharge, noGlow, reducedStartTim
 	end
 end
 
-local MIN_RESET_DURATION = ((E.isWOTLKC or E.isCata) or E.TocVersion > 90100) and 120 or 180 
+local MIN_RESET_DURATION = ((E.isWOTLKC or E.isCata) or E.TocVersion > 90100) and 120 or 180
 function P:ResetAllIcons(reason, clearSession)
 	local notEncounterEnd = reason ~= "encounterEnd"
 	for guid, info in pairs(self.groupInfo) do
@@ -293,7 +293,7 @@ function P:ResetAllIcons(reason, clearSession)
 			if notEncounterEnd or not E.spell_noreset_onencounterend[spellID] and icon.baseCooldown >= MIN_RESET_DURATION then
 				local statusBar = icon.statusBar
 				if icon.active then
-					info.active[spellID] = nil 
+					info.active[spellID] = nil
 					icon.active = nil
 					icon.cooldown:Clear()
 					if icon.maxcharges then
@@ -304,7 +304,7 @@ function P:ResetAllIcons(reason, clearSession)
 					end
 				end
 
-				if info.preactiveIcons[spellID] then 
+				if info.preactiveIcons[spellID] then
 					info.preactiveIcons[spellID] = nil
 					if statusBar then
 						statusBar:SetColors()

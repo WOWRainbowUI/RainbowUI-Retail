@@ -10,14 +10,14 @@ local unitFrameData = {
 	]]
 	{
 		[1] = "VuhDo",
-		[2] = "Vd%dH", 
+		[2] = "Vd%dH",
 		[3] = "raidid",
 		[4] = 2,
 		[5] = 40,
 	},
 	{
 		[1] = "Grid2",
-		[2] = "Grid2LayoutHeader%dUnitButton", 
+		[2] = "Grid2LayoutHeader%dUnitButton",
 		[3] = "unit",
 		[4] = 1,
 		[5] = 5,
@@ -40,7 +40,7 @@ local unitFrameData = {
 		[3] = "unit",
 		[4] = 1,
 		[5] = 5,
-		[6] = 0, 
+		[6] = 0,
 	},
 	{
 		[1] = "Lime",
@@ -62,7 +62,7 @@ local unitFrameData = {
 		[2] = "PlexusLayoutHeader1UnitButton",
 		[3] = "unit",
 		[4] = 1,
-		[5] = 40, 
+		[5] = 40,
 	},
 	{
 		[1] = "HealBot",
@@ -124,7 +124,7 @@ local unitFrameData = {
 	},
 	{
 		[1] = "AshToAsh",
-		[2] = "AshToAshUnit%dUnit", 
+		[2] = "AshToAshUnit%dUnit",
 		[3] = "unit",
 		[4] = 1,
 		[5] = 40
@@ -168,7 +168,7 @@ local unitFrameData = {
 		[5] = 40,
 	},
 	{
-		[1] = "ShadowUF-Raid1", 
+		[1] = "ShadowUF-Raid1",
 		[2] = "SUFHeaderraid%dUnitButton",
 		[3] = "unit",
 	},
@@ -183,7 +183,7 @@ local unitFrameData = {
 		[3] = "partyid",
 	},
 	{
-		[1] = "PitBull4", 
+		[1] = "PitBull4",
 		[2] = "PitBull4_Groups_PartyUnitButton",
 		[3] = "unit",
 		[4] = 1,
@@ -210,7 +210,7 @@ local unitFrameData = {
 		[3] = "unit",
 	},
 	{
-		[1] = "RUF", 
+		[1] = "RUF",
 		[2] = "oUF_RUF_PartyUnitButton",
 		[3] = "unit",
 	},
@@ -345,11 +345,11 @@ function E:UnitFrames()
 				for j = 1, 3 do
 					for k = 1, 8 do
 						local formatted = format(frame, j, k)
-						insertFrame(formatted, k == 1 and 40) 
+						insertFrame(formatted, k == 1 and 40)
 					end
 				end
 			elseif strfind(frame, "%%d") then
-				for j = minGroup, 8 do 
+				for j = minGroup, 8 do
 					local formatted = format(frame, j)
 					insertFrame(formatted)
 				end
@@ -362,7 +362,7 @@ function E:UnitFrames()
 		end
 	end
 
-	
+
 	for zone in pairs(self.L_CFG_ZONE) do
 		local uf = self.profile.Party[zone].position.uf
 		if uf ~= "auto" and uf ~= "blizz" and (not customUF.enabledList or not customUF.enabledList[uf]) then
@@ -380,7 +380,7 @@ function E:Counters()
 	if C_AddOns.IsAddOnLoaded("OmniCC") then
 		self.OmniCC = OmniCC
 	elseif not GetCVarBool("countdownForCooldowns") and E.profile.General.cooldownText.useElvUICooldownTimer then
-		
+
 		local ElvUI1 = ElvUI and ElvUI[1]
 		self.ElvUI1 = ElvUI1 and type(ElvUI1.CooldownEnabled) == "function" and ElvUI1:CooldownEnabled()
 			and type(ElvUI1.RegisterCooldown) == "function" and ElvUI1

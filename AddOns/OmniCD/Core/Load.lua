@@ -1,4 +1,4 @@
-local E, L = select(2, ...):unpack()
+local E, L, C = select(2, ...):unpack()
 
 local DB_VERSION = 4
 
@@ -8,7 +8,7 @@ local function OmniCD_OnEvent(self, event, ...)
 		if addon == E.AddOn then
 			if E.isClassic then
 				local seasonID = C_Seasons.GetActiveSeason()
-				
+
 				if seasonID == 1 or seasonID == 2 then
 					E.write("Seasonal Classic WoW isn't supported.")
 				end
@@ -26,7 +26,7 @@ local function OmniCD_OnEvent(self, event, ...)
 		if not self.postMoP then
 			self:SetScript("OnEvent", nil)
 		end
-	elseif event == "PET_BATTLE_CLOSE" then 
+	elseif event == "PET_BATTLE_CLOSE" then
 		self.isInPetBattle = nil
 		for moduleName in pairs(E.moduleOptions) do
 			local module = E[moduleName]
@@ -57,6 +57,22 @@ end
 E:RegisterEvent("ADDON_LOADED")
 E:SetScript("OnEvent", OmniCD_OnEvent)
 
+function E.FixOldProfile(profile)
+	if type(profile) ~= "table" or type(profile.Party) ~= "table" then
+		return
+	end
+
+	for _, db in pairs(profile.Party) do
+		if type(db.extraBars) == "table" then
+			for k in pairs(db.extraBars) do
+				if not C.Party.arena.extraBars[k] then
+					db.extraBars[k] = nil
+				end
+			end
+		end
+	end
+end
+
 function E:OnInitialize()
 	if not OmniCDDB or not OmniCDDB.version or OmniCDDB.version < 2.51 then
 		OmniCDDB = { version = DB_VERSION }
@@ -82,6 +98,12 @@ function E:OnInitialize()
 			end
 		end
 		OmniCDDB.version = DB_VERSION
+	else
+		if OmniCDDB.profiles then
+			for _, profile in pairs(OmniCDDB.profiles) do
+				self.FixOldProfile(profile)
+			end
+		end
 	end
 	OmniCDDB.cooldowns = OmniCDDB.cooldowns or {}
 
@@ -92,14 +114,14 @@ function E:OnInitialize()
 
 	self.global = self.DB.global
 	self.profile = self.DB.profile
-	
+
 	self.db = E:GetCurrentZoneSettings(select(2, IsInInstance()))
 
 	self:CreateFontObjects()
 	self:UpdateSpellList(true)
 	self:SetupBlizzardOptions()
 	self:SetupOptions()
-	
+
 end
 
 function E:GetCurrentZoneSettings(instanceType)
@@ -144,7 +166,7 @@ function E:SetPixelMult()
 end
 
 function E:Refresh(arg)
-	if not self.isEnabled then 
+	if not self.isEnabled then
 		return
 	end
 
