@@ -5,23 +5,23 @@ local spellcast_all = {}
 local hash_spelldb = {}
 
 E.wwDamageSpells = {
-	[100780] = true, 
-	[100784] = true, 
-	[107428] = true, 
-	[113656] = true, 
-	[152175] = true, 
-	[392983] = true, 
-	[322109] = true, 
-	[117952] = true, 
-	[101546] = true, 
-	[388193] = true, 
-	[1217413] = true, 
+	[100780] = true,
+	[100784] = true,
+	[107428] = true,
+	[113656] = true,
+	[152175] = true,
+	[392983] = true,
+	[322109] = true,
+	[117952] = true,
+	[101546] = true,
+	[388193] = true,
+	[1217413] = true,
 }
 
 E.specTalentChangeIDs = {
-	[63644] = true, 
-	[63645] = true, 
-	[384255] = true, 
+	[63644] = true,
+	[63645] = true,
+	[384255] = true,
 }
 
 
@@ -33,7 +33,7 @@ function E:ProcessSpellDB()
 			local id, itemID, stype = t.spellID, t.item, t.type
 			if C_Spell.DoesSpellExist(id) then
 				t.class = t.class or k
-				
+
 				local name
 				if k == "TRINKET" and itemID and itemID > 0 then
 					name = C_Item.GetItemNameByID(itemID) or C_Spell.GetSpellName(id)
@@ -42,26 +42,26 @@ function E:ProcessSpellDB()
 				end
 				t.name = name or ""
 
-				
+
 				if k == "TRINKET" or k == "PVPTRINKET" then
-					if itemID == 37864 and self.userFaction == "Horde" then 
+					if itemID == 37864 and self.userFaction == "Horde" then
 						itemID = 37865
 					end
 					t.icon = t.icon or C_Item.GetItemIconByID(itemID)
 				else
-					if id == 2825 and self.userFaction ~= "Horde" then 
+					if id == 2825 and self.userFaction ~= "Horde" then
 						t.icon = 132313
 					end
 					t.icon = t.icon or select(2, C_Spell.GetSpellTexture(id))
 				end
 
-				
+
 				t.buff = t.buff or self.buffFix[id] or id
 				if self.L_HIGHLIGHTS[stype] then
 					spell_highlighted[t.buff] = true
 				end
 
-				if self.spell_requiredLevel then 
+				if self.spell_requiredLevel then
 					self.spell_requiredLevel[id] = t.rlvl
 				end
 
@@ -76,8 +76,8 @@ function E:ProcessSpellDB()
 		end
 	end
 
-	
-	
+
+
 	for castID in pairs(self.spellcast_merged) do
 		spell_highlighted[castID] = true
 	end

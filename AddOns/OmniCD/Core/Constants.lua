@@ -103,7 +103,7 @@ E.TEXTURES = E.preCata and {
 	["White8x8"] = "Interface\\BUTTONS\\White8x8",
 	["CLASS"] = "Interface\\Icons\\classicon_",
 	["DEATHKNIGHT"] = "Interface\\Icons\\spell_deathknight_classicon",
-	["PVPTRINKET"] = "Interface\\Icons\\inv_jewelry_trinketpvp_01", 
+	["PVPTRINKET"] = "Interface\\Icons\\inv_jewelry_trinketpvp_01",
 	["RACIAL"] = "Interface\\Icons\\achievement_character_troll_male",
 	["TRINKET"] = "Interface\\Icons\\inv_misc_armorkit_10",
 } or {
@@ -131,11 +131,11 @@ E.STR = {
 }
 
 E.HEX_C = {
-	[1] = "|cff99cdff",	
-	[2] = "|cff0291b0",	
-	[5] = "|cff7bbb4e",	
-	[11] = "|cff99cdff",	
-	[14] = "|cffA63416",	
+	[1] = "|cff99cdff",
+	[2] = "|cff0291b0",
+	[5] = "|cff7bbb4e",
+	[11] = "|cff99cdff",
+	[14] = "|cffA63416",
 	["CURSE_ORANGE"] = "|cfff16436",
 	["TWITCH_PURPLE"] = "|cff9146ff",
 }
@@ -166,24 +166,24 @@ E.OTHER_SORT_ORDER = {
 }
 
 E.RAID_TARGET_MARKERS = {
-	[0x00000001] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_1:0|t",	
-	[0x00000002] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_2:0|t",	
-	[0x00000004] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_3:0|t",	
-	[0x00000008] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_4:0|t",	
-	[0x00000010] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_5:0|t",	
-	[0x00000020] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_6:0|t",	
-	[0x00000040] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_7:0|t",	
-	[0x00000080] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:0|t",	
+	[0x00000001] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_1:0|t",
+	[0x00000002] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_2:0|t",
+	[0x00000004] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_3:0|t",
+	[0x00000008] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_4:0|t",
+	[0x00000010] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_5:0|t",
+	[0x00000020] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_6:0|t",
+	[0x00000040] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_7:0|t",
+	[0x00000080] = "|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:0|t",
 }
 
 E.HEALER_SPEC = {
-	[65] = 90,	
-	[105] = 90,	
-	[256] = 90,	
-	[257] = 90,	
-	[264] = 90,	
-	[270] = 90,	
-	[1468] = 90,	
+	[65] = 90,
+	[105] = 90,
+	[256] = 90,
+	[257] = 90,
+	[264] = 90,
+	[270] = 90,
+	[1468] = 90,
 	["default"] = 120,
 }
 

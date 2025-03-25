@@ -67,7 +67,7 @@ function BarFrameIconMixin:SetMarker()
 end
 
 function BarFrameIconMixin:SetOpacity()
-	
+
 	local statusBar = self.statusBar
 	if self.isHighlighted or (statusBar and not E.db.extraBars[statusBar.key].useIconAlpha) then
 		self:SetAlpha(1.0)
@@ -85,7 +85,7 @@ function BarFrameIconMixin:SetColorSaturation()
 		self.icon:SetVertexColor(1, 1, 1)
 		self.icon:SetDesaturated(false)
 	else
-		
+
 		local c = info.preactiveIcons[self.spellID] and 0.4 or 1
 		self.icon:SetVertexColor(c, c, c)
 		self.icon:SetDesaturated(E.db.icons.desaturateActive and self.active == 0)
@@ -170,12 +170,12 @@ local function OmniCDCooldown_OnHide(self)
 	local icon = self:GetParent()
 
 	local info = P.groupInfo[icon.guid]
-	if not info then 
+	if not info then
 		return
 	end
 
 	local active = info.active[icon.spellID]
-	if not active then 
+	if not active then
 		return
 	end
 
@@ -192,7 +192,7 @@ local function OmniCDCooldown_OnHide(self)
 	info.active[icon.spellID] = nil
 	icon.active = nil
 
-	
+
 	if info.talentData[434249] then
 		local auraString = E.controlOfTheDreamIDs[icon.spellID]
 		if auraString then
@@ -271,12 +271,12 @@ function P:CreateIconFramePool()
 
 		icon.name:SetFontObject(E.IconFont)
 		if E.ElvUI1 then
-			E.ElvUI1:RegisterCooldown(icon.cooldown, "OmniCD") 
+			E.ElvUI1:RegisterCooldown(icon.cooldown, "OmniCD")
 		end
 		icon.cooldown:SetScript("OnHide", OmniCDCooldown_OnHide)
 		icon:SetScript("OnEnter", OmniCDIcon_OnEnter)
 		icon:SetScript("OnLeave", OmniCDIcon_OnLeave)
-		if icon.SetPassThroughButtons then 
+		if icon.SetPassThroughButtons then
 			if self.inLockdown then
 				tinsert(pendingPassThroughButtons, icon)
 			else

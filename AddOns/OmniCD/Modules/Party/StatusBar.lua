@@ -155,7 +155,7 @@ function CastingBarFrameMixin:OnHide()
 	statusBar.Text:Show()
 	statusBar.BG:Show()
 
-	
+
 	local icon = statusBar.parent
 	if ( icon.tooltipID ) then
 		icon.icon:SetTexture(icon.iconTexture)
@@ -244,7 +244,7 @@ function CastingBarFrameMixin:OnEvent(event)
 		self.maxValue = (endTime - startTime)
 		self:SetMinMaxValues(0, self.maxValue)
 		self:SetValue(self.value)
-		self.nextTextUpdate = 0 
+		self.nextTextUpdate = 0
 		if ( self.Text ) then
 			self.Text:SetText(text)
 		end
@@ -281,10 +281,10 @@ function CastingBarFrameMixin:OnEvent(event)
 			self.holdTime = 0
 			self.nextTextUpdate = 0
 		end
-	elseif ( event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED" ) then 
+	elseif ( event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED" ) then
 		if ( self:IsShown() and (self.casting or self.channeling) and not self.fadeOut ) then
 			self:SetValue(self.maxValue)
-			self:SetStatusBarColor(self.failedCastColor:GetRGB()) 
+			self:SetStatusBarColor(self.failedCastColor:GetRGB())
 			if ( self.isSparkEnabled ) then
 				self.Spark:Hide()
 			end
@@ -297,7 +297,7 @@ function CastingBarFrameMixin:OnEvent(event)
 			self.holdTime = GetTime() + CASTING_BAR_HOLD_TIME
 			self.nextTextUpdate = 0
 		end
-	elseif ( event == "UNIT_SPELLCAST_DELAYED" ) then 
+	elseif ( event == "UNIT_SPELLCAST_DELAYED" ) then
 		if ( self:IsShown() ) then
 			local now = GetTime()
 			local startTime, endTime = self:FindStartEndTime(now)
@@ -390,7 +390,7 @@ function CastingBarFrameMixin:OnEvent(event)
 			self:SetValue(self.value)
 			self.nextTextUpdate = 0
 		end
-	elseif ( event == "UNIT_SPELLCAST_INTERRUPTIBLE" or event == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" ) then 
+	elseif ( event == "UNIT_SPELLCAST_INTERRUPTIBLE" or event == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" ) then
 		self:UpdateInterruptibleState(event == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
 	end
 end
@@ -404,7 +404,7 @@ end
 
 local function TimeFormat(value)
 	if ( value > SECONDS_PER_MIN ) then
-		if ( value <= P.mmss ) then 
+		if ( value <= P.mmss ) then
 			local secRemaining = value%SECONDS_PER_MIN
 			local sec = ceil(secRemaining)
 			if ( sec == SECONDS_PER_MIN ) then
@@ -412,7 +412,7 @@ local function TimeFormat(value)
 			else
 				return format("%d:%02d", floor(value/SECONDS_PER_MIN), sec), secRemaining%1
 			end
-		else 
+		else
 			return format("%dm", ceil(value/SECONDS_PER_MIN)), min(value%SECONDS_PER_MIN, value - P.mmss)
 		end
 	else
@@ -502,7 +502,7 @@ function CastingBarFrameMixin:FinishSpell()
 	if ( self.isSparkEnabled ) then
 		self.Spark:Hide()
 	end
-	
+
 	if ( not E.db.extraBars[self.parent.key].shouldRearrangeInterrupts ) then
 		self.fadeOut = true
 	end
@@ -596,7 +596,7 @@ function StatusBarFrameMixin:SetBorder(db, edgeSize, r, g, b)
 	end
 
 	self:EnableDrawLayer("BORDER")
-	
+
 	self.borderTop:Hide()
 	self.borderTop:ClearAllPoints()
 	self.borderTop:SetPoint("TOPLEFT", self, "TOPLEFT")

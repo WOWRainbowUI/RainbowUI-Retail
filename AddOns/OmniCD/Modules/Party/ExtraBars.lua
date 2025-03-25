@@ -51,14 +51,14 @@ end
 local roleValues = { MAINTANK = 1, MAINASSIST = 2, TANK = 3, HEALER = 4, DAMAGER = 5, NONE = 6 }
 local sorters
 sorters = {
-	
+
 	function(a, b)
 		if a.duration == b.duration then
 			return a.unitName < b.unitName
 		end
 		return a.duration < b.duration
 	end,
-	
+
 	function(a, b)
 		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
 		if info1.isDeadOrOffline == info2.isDeadOrOffline then
@@ -72,7 +72,7 @@ sorters = {
 		end
 		return info2.isDeadOrOffline
 	end,
-	
+
 	function(a, b)
 		if a.priority == b.priority then
 			if a.class == b.class then
@@ -85,7 +85,7 @@ sorters = {
 		end
 		return a.priority > b.priority
 	end,
-	
+
 	function(a, b)
 		if a.class == b.class then
 			if a.priority == b.priority then
@@ -98,7 +98,7 @@ sorters = {
 		end
 		return a.class < b.class
 	end,
-	
+
 	function(a, b)
 		local token1, token2 = a.unit, b.unit
 		if ( token1 == token2 ) then
@@ -125,10 +125,10 @@ sorters = {
 			return value1 < value2
 		end
 
-		
+
 		return a.unitName < b.unitName
 	end,
-	
+
 	function(a, b)
 		if ( a.unit == b.unit ) then
 			if ( a.priority == b.priority ) then
@@ -142,7 +142,7 @@ sorters = {
 		end
 		return a.class < b.class
 	end,
-	
+
 	function(a, b)
 		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
 		if info1.isDeadOrOffline == info2.isDeadOrOffline then
@@ -156,7 +156,7 @@ sorters = {
 		end
 		return info2.isDeadOrOffline
 	end,
-	
+
 	function(a, b)
 		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
 		if info1.isDeadOrOffline == info2.isDeadOrOffline then
@@ -170,7 +170,7 @@ sorters = {
 		end
 		return info2.isDeadOrOffline
 	end,
-	
+
 	function(a, b)
 		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
 		if info1.isDeadOrOffline == info2.isDeadOrOffline then
@@ -194,7 +194,7 @@ sorters = {
 		end
 		return info2.isDeadOrOffline
 	end,
-	
+
 	function(a, b)
 		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
 		if info1.isDeadOrOffline == info2.isDeadOrOffline then
@@ -218,7 +218,7 @@ sorters = {
 		end
 		return info2.isDeadOrOffline
 	end,
-	
+
 	function(a, b)
 		local token1, token2 = a.unit, b.unit
 		if ( token1 == token2 ) then
@@ -243,7 +243,7 @@ sorters = {
 				return subgroup1 < subgroup2
 			end
 
-			
+
 			return id1 < id2
 		else
 			if ( token1 == "player" ) then
@@ -251,11 +251,11 @@ sorters = {
 			elseif ( token2 == "player" ) then
 				return false
 			else
-				return token1 < token2	
+				return token1 < token2
 			end
 		end
 	end,
-	
+
 	function(a, b)
 		if ( a.unit == b.unit ) then
 			if ( a.priority == b.priority ) then
@@ -265,7 +265,7 @@ sorters = {
 		end
 		return a.unitName < b.unitName
 	end,
-	
+
 	function(a, b)
 		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
 		if info1.isDeadOrOffline == info2.isDeadOrOffline then
@@ -279,7 +279,7 @@ sorters = {
 		end
 		return info2.isDeadOrOffline
 	end,
-	
+
 	function(a, b)
 		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
 		if info1.isDeadOrOffline == info2.isDeadOrOffline then
@@ -293,14 +293,14 @@ sorters = {
 		end
 		return info2.isDeadOrOffline
 	end,
-	
+
 	function(a, b)
 		if a.priority == b.priority then
 			return a.unitName < b.unitName
 		end
 		return a.priority > b.priority
 	end,
-	
+
 	function(a, b)
 		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
 		if info1.isDeadOrOffline == info2.isDeadOrOffline then
@@ -324,7 +324,7 @@ local ReverseSorter = function(a, b)
 end
 
 function ExtraBarFrameMixin:UpdateLayout(sortOrder, updateIcons)
-	
+
 	if updateIcons then
 		local n = 0
 		for i = self.numIcons, 1, -1 do
@@ -391,7 +391,7 @@ function ExtraBarFrameMixin:UpdateSettings()
 
 	local numIcons = self.numIcons
 	for i = 1, numIcons do
-		
+
 		local icon = self.icons[i]
 		icon:SetBorder(db, pixel)
 		icon:SetExIconName(db)
@@ -399,7 +399,7 @@ function ExtraBarFrameMixin:UpdateSettings()
 		if statusBar then
 			statusBar:UpdateSettings(db)
 		end
-		
+
 		icon:SetMarker()
 		icon:SetOpacity()
 		icon:SetColorSaturation()
@@ -500,7 +500,7 @@ function ExtraBarFrameMixin:UpdatePositionValues()
 	self.shouldRearrangeInterrupts = not isUnitBar and db.enabled and (sortBy == 2 or sortBy >= 7)
 end
 
-function ExtraBarFrameMixin:UpdateExBarBackdrop() 
+function ExtraBarFrameMixin:UpdateExBarBackdrop()
 	local icons = self.icons
 	local db = self.db
 	local pixel = self.pixel
@@ -510,7 +510,7 @@ function ExtraBarFrameMixin:UpdateExBarBackdrop()
 	end
 end
 
-function ExtraBarFrameMixin:SetUnitBarOffset() 
+function ExtraBarFrameMixin:SetUnitBarOffset()
 	for bar in P.BarPool:EnumerateActive() do
 		local unitBar = bar.activeUnitBars[self.index]
 		if unitBar then
@@ -530,7 +530,7 @@ function P:RearrangeExBarIcons()
 end
 
 function P:UpdateExBars()
-	
+
 	for exBar in self.ExBarPool:EnumerateActive() do
 		exBar:UpdatePosition()
 		exBar:UpdateLayout(true, true)
@@ -550,10 +550,10 @@ function P:CreateExBarFramePool()
 		exBar.icons = {}
 		exBar.numIcons = 0
 		exBar.anchor.text:SetFontObject(E.AnchorFont)
-		exBar.anchor.text:SetTextColor(1, 0.824, 0) 
+		exBar.anchor.text:SetTextColor(1, 0.824, 0)
 		exBar.anchor.background:SetColorTexture(0, 0, 0, 1)
 		exBar.anchor.background:SetGradient("HORIZONTAL", CreateColor(1, 1, 1, 1), CreateColor(1, 1, 1, .05))
-		
+
 		exBar.anchor:SetScript("OnMouseUp", E.OmniCDAnchor_OnMouseUp)
 		exBar.anchor:SetScript("OnMouseDown", E.OmniCDAnchor_OnMouseDown)
 		Mixin(exBar, ExtraBarFrameMixin)
@@ -575,7 +575,7 @@ local function GetExBarFrame(key)
 	exBar.index = exBarIndex
 	exBar.key = key
 	exBar.anchor.text:SetText(exBarIndex == 1 and L["Interrupts"] or exBarIndex)
-	exBar.anchor.text:SetTextColor(1, 0.824, 0) 
+	exBar.anchor.text:SetTextColor(1, 0.824, 0)
 
 	activeExBars[key] = exBar
 	return exBar
@@ -593,7 +593,7 @@ function P:RefreshExBarFrames()
 			exBar.db = E.db.extraBars[key]
 			exBar.effectivePixelMult = nil
 			--[[ We're not going to remember not to use cached values in SetupBar
-			
+
 			if not db.unitBar or not E.db.general.showRange then
 				exBar:UpdatePositionValues()
 			end
@@ -624,7 +624,7 @@ function UnitBarFrameMixin:UpdatePosition()
 			if self.parent ~= relFrame then
 				self:SetParent(relFrame)
 				self.parent = relFrame
-				self:SetFrameLevel(10) 
+				self:SetFrameLevel(10)
 			end
 		else
 			if self.parent ~= UIParent then

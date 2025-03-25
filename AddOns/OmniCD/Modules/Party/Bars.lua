@@ -18,10 +18,10 @@ local BarFrameMixin = {}
 function BarFrameMixin:OnEvent(event, ...)
 	local info = self.info
 	if event == "UNIT_SPELLCAST_SUCCEEDED" then
-		
-		
+
+
 		local unit, _, spellID = ...
-		if unit ~= self.unit and unit ~= UNIT_TO_PET[self.unit] then 
+		if unit ~= self.unit and unit ~= UNIT_TO_PET[self.unit] then
 			return
 		end
 		if E.spellcast_all[spellID] then
@@ -32,16 +32,16 @@ function BarFrameMixin:OnEvent(event, ...)
 		if unit ~= self.unit then
 			return
 		end
-		
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
+
 		if not UnitIsDeadOrGhost(unit) then
 			if E.preCata then
-				local icon = info.spellIcons[20608] 
+				local icon = info.spellIcons[20608]
 				if icon then
 					local mult = info.talentData[16184] and 0.3 or (info.talentData[16209] and 0.4) or 0.2
 					if UnitHealth(unit) == floor(UnitHealthMax(unit) * mult) then
@@ -63,7 +63,7 @@ function BarFrameMixin:OnEvent(event, ...)
 			return
 		end
 
-		local icon = info.glowIcons[125174] 
+		local icon = info.glowIcons[125174]
 		if icon then
 			if not P:GetBuffDuration(unit, 125174) then
 				icon:RemoveHighlight()
@@ -75,7 +75,7 @@ function BarFrameMixin:OnEvent(event, ...)
 			return
 		end
 
-		icon = info.preactiveIcons[5384] 
+		icon = info.preactiveIcons[5384]
 		if icon then
 			if not P:GetBuffDuration(unit, 5384) then
 				icon:RemoveHighlight()
@@ -95,8 +95,8 @@ function BarFrameMixin:OnEvent(event, ...)
 			CM:EnqueueInspect(nil, self.guid)
 		end
 	elseif event == "UNIT_CONNECTION" then
-		
-		
+
+
 		local unit, isConnected = ...
 		if unit ~= self.unit then
 			return
@@ -104,7 +104,7 @@ function BarFrameMixin:OnEvent(event, ...)
 		info.isDead = UnitIsDeadOrGhost(unit)
 		info.isDeadOrOffline = info.isDead or not isConnected
 		info:UpdateColorScheme()
-		
+
 		if isConnected and not info.spec then
 			CM:EnqueueInspect(nil, self.guid)
 		end
@@ -113,7 +113,7 @@ function BarFrameMixin:OnEvent(event, ...)
 		if unit ~= self.unit then
 			return
 		end
-		
+
 		if spellID == 391528 then
 			self:UnregisterEvent(event)
 		end
@@ -215,7 +215,7 @@ function BarFrameMixin:UpdatePosition()
 			if self.parent ~= relFrame then
 				self:SetParent(relFrame)
 				self.parent = relFrame
-				self:SetFrameLevel(10) 
+				self:SetFrameLevel(10)
 			end
 		else
 			if self.parent ~= UIParent then
@@ -282,7 +282,7 @@ function BarFrameMixin:UpdateLayout(sortOrder)
 				count = count + 1
 				if not P.multiline and count == P.columns or (P.multiline and
 				(rows == 1 and iconPrio <= P.breakPoint or (P.tripleline and rows == 2 and iconPrio <= P.breakPoint2))) then
-					if P.tripleline and rows == 1 and iconPrio <= P.breakPoint2 then 
+					if P.tripleline and rows == 1 and iconPrio <= P.breakPoint2 then
 						rows = rows + 1
 					end
 					icon:SetPoint(P.point, self.container, P.ofsX * rows, P.ofsY * rows)
@@ -344,7 +344,7 @@ function BarFrameMixin:SetContainerSize()
 	self.container:SetScale(scale)
 end
 
-function BarFrameMixin:SetBarBackdrop() 
+function BarFrameMixin:SetBarBackdrop()
 	local icons = self.icons
 	for i = 1, self.numIcons do
 		local icon = icons[i]
@@ -436,7 +436,7 @@ function P:CreateBarFramePool()
 		bar:UnregisterAllEvents()
 
 		bar.info = nil
-		
+
 		if bar.guid == E.userGUID then
 			P.userInfo.bar = nil
 		end

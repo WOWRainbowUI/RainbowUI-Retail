@@ -9,7 +9,7 @@ local frame = {
 	set = function(info, value)
 		local key, type = info[2], info[#info]
 		E.profile.Party[key].frame[type] = value
-		
+
 		for id, v in pairs(E.profile.Party[key].spellFrame) do
 			if E.hash_spelldb[id].type == type and v == value then
 				E.profile.Party[key].spellFrame[id] = nil

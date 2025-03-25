@@ -55,7 +55,7 @@ end
 
 function PS:ShowProfileDialog(text)
 	if not Dialog then
-		
+
 		Dialog = CreateFrame("Frame", "OmniCD_ProfileDialog", UIParent, "DialogBoxFrame")
 		Dialog:SetPoint("CENTER")
 		Dialog:SetSize(600, 400)
@@ -65,9 +65,9 @@ function PS:ShowProfileDialog(text)
 		Dialog:SetBackdropBorderColor(0.3, 0.3, 0.3)
 		Dialog:SetMovable(true)
 		Dialog:SetClampedToScreen(true)
-		
+
 		Dialog:SetResizable(true)
-		if Dialog.SetResizeBounds then 
+		if Dialog.SetResizeBounds then
 			Dialog:SetResizeBounds(180, 100)
 		else
 			Dialog:SetMinResize(180, 100)
@@ -79,14 +79,14 @@ function PS:ShowProfileDialog(text)
 			self.EditBox:HighlightText()
 		end)
 
-		
+
 		local Label = Dialog:CreateFontString(nil, "ARTWORK", "GameFontNormal-OmniCDC")
 		Label:SetPoint("TOP", 0, -1)
 
-		
+
 		_G.OmniCD_ProfileDialogButton:Hide()
 
-		local CloseButton = E.Libs.OmniCDC.CreateFlashButton(Dialog, CLOSE) 
+		local CloseButton = E.Libs.OmniCDC.CreateFlashButton(Dialog, CLOSE)
 		CloseButton:SetPoint("BOTTOM", 0, 16)
 		CloseButton:SetScript("OnClick", function(self)
 			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
@@ -107,7 +107,7 @@ function PS:ShowProfileDialog(text)
 			end
 		end)
 
-		
+
 		local Resizer = CreateFrame("Button", "OmniCD_ProfileDialogResizeButton", Dialog)
 		--[[ TODO: highlight/pushed texture
 		Resizer:SetPoint("BOTTOMRIGHT", -6, 7)
@@ -129,10 +129,10 @@ function PS:ShowProfileDialog(text)
 		end)
 		Resizer:SetScript("OnMouseUp", function(self, button)
 			Dialog:StopMovingOrSizing()
-			
+
 		end)
 
-		
+
 		local ScrollContainer = CreateFrame("Frame", "OmniCD_ProfileDialogScrollContainer", Dialog, BackdropTemplateMixin and "BackdropTemplate" or nil)
 		ScrollContainer:SetPoint("TOPLEFT", 18, -28)
 		ScrollContainer:SetPoint("BOTTOMRIGHT", -38, 50)
@@ -140,7 +140,7 @@ function PS:ShowProfileDialog(text)
 		ScrollContainer:SetBackdropColor(0.1, 0.1, 0.1, 0.9)
 		ScrollContainer:SetBackdropBorderColor(0, 0, 0)
 
-		
+
 		local ScrollFrame = CreateFrame("ScrollFrame", "OmniCD_ProfileDialogScrollFrame", ScrollContainer, "UIPanelScrollFrameTemplate")
 		ScrollFrame:SetPoint("TOPLEFT", 5, -10)
 		ScrollFrame:SetPoint("BOTTOMRIGHT", -5, 10)
@@ -148,7 +148,7 @@ function PS:ShowProfileDialog(text)
 			Dialog.EditBox:SetFocus()
 		end)
 		ScrollFrame:SetScript("OnSizeChanged", function(self)
-			if Dialog.EditBox then 
+			if Dialog.EditBox then
 				Dialog.EditBox:SetWidth(self:GetWidth())
 			end
 		end)
@@ -156,17 +156,17 @@ function PS:ShowProfileDialog(text)
 			ACD_Tooltip:Hide()
 		end)
 
-		
+
 		local ScrollBar = _G["OmniCD_ProfileDialogScrollFrameScrollBar"]
 		ScrollBar:ClearAllPoints()
 		ScrollBar:SetPoint("TOPLEFT", ScrollContainer, "TOPRIGHT", 4, -1)
 		ScrollBar:SetPoint("BOTTOMLEFT", ScrollContainer, "BOTTOMRIGHT", 4, 1)
-		
+
 		--[[
 		ScrollBar.ScrollUpButton:Hide()
 		ScrollBar.ScrollDownButton:Hide()
 		]]
-		ScrollBar.ScrollUpButton:SetNormalTexture(0) 
+		ScrollBar.ScrollUpButton:SetNormalTexture(0)
 		ScrollBar.ScrollUpButton:SetPushedTexture(0)
 		ScrollBar.ScrollUpButton:SetDisabledTexture(0)
 		ScrollBar.ScrollUpButton:SetHighlightTexture(0)
@@ -182,12 +182,12 @@ function PS:ShowProfileDialog(text)
 		ScrollBar.BG:SetAllPoints()
 		ScrollBar.BG:SetColorTexture(0, 0, 0, 0.4)
 
-		
+
 		local EditBox = CreateFrame("EditBox", "OmniCD_ProfileDialogEditBox", ScrollFrame)
 		EditBox:SetSize(ScrollFrame:GetSize())
 		EditBox:SetMultiLine(true)
 		EditBox:SetAutoFocus(false)
-		EditBox:SetFontObject("GameFontHighlight-OmniCDC") 
+		EditBox:SetFontObject("GameFontHighlight-OmniCDC")
 		EditBox:SetScript("OnEscapePressed", function(self)
 			self:ClearFocus()
 		end)
@@ -211,22 +211,22 @@ function PS:ShowProfileDialog(text)
 	end
 
 	if text then
-		
-		
+
+
 		Dialog.Label:SetText(L["Export Profile"])
 		Dialog.DecodeButton:Hide()
 		Dialog.CloseButton:ClearAllPoints()
 		Dialog.CloseButton:SetPoint("BOTTOM", 0, 16)
 		Dialog.EditBox:SetText(text)
-		Dialog.EditBox:SetFocus() 
+		Dialog.EditBox:SetFocus()
 		Dialog.EditBox:HighlightText()
 		Dialog.EditBox:SetScript("OnTextChanged", ExportEditBox_OnTextChanged)
 		Dialog.EditBox:SetScript("OnChar", EditBox_OnChar)
 		Dialog.EditBox:SetScript("OnEnter", ExportEditBox_OnEnter)
 		Dialog.ScrollFrame:SetScript("OnEnter", nil)
 	else
-		
-		
+
+
 		Dialog.Label:SetText(L["Import Profile"])
 		Dialog.DecodeButton:Show()
 		Dialog.CloseButton:ClearAllPoints()
@@ -295,7 +295,7 @@ function PS:CopyProfile(profileType, profileKey, profileData)
 	if profileType == "all" then
 		OmniCDDB.profiles[profileKey] = profileData
 	else
-		
+
 		local currentProfile = E.DB:GetCurrentProfile()
 		OmniCDDB.profiles[profileKey] = E:DeepCopy(OmniCDDB.profiles[currentProfile])
 		OmniCDDB.profiles[profileKey].Party[profileType] = profileData
@@ -309,6 +309,8 @@ function PS:ImportProfile(encodedData)
 	if not profileData then
 		return
 	end
+
+	E.FixOldProfile(profileData)
 
 	local prefix = "[IMPORT-%s]%s"
 	local n = 1
@@ -347,7 +349,7 @@ function PS:ExportProfile(profileType)
 		profileData = E:DeepCopy(OmniCDDB.profiles[profileKey], blackList)
 		profileData = E:RemoveEmptyDuplicateTables(profileData, C)
 	else
-		
+
 		profileData = E:DeepCopy(OmniCDDB.profiles[profileKey].Party[profileType])
 		profileData = E:RemoveEmptyDuplicateTables(profileData, C.Party[profileType])
 	end

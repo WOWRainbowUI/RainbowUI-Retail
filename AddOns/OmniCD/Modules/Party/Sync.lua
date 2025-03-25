@@ -5,7 +5,7 @@ local pairs, tonumber, abs, floor, format, gsub, strmatch, strsplit = pairs, ton
 local GetTime = GetTime
 
 local GetSpellCooldown = GetSpellCooldown or function(spellID)
-	local spellCooldownInfo = C_Spell.GetSpellCooldown(spellID) 
+	local spellCooldownInfo = C_Spell.GetSpellCooldown(spellID)
 	if spellCooldownInfo then
 		return spellCooldownInfo.startTime, spellCooldownInfo.duration, spellCooldownInfo.isEnabled and 1 or 0, spellCooldownInfo.modRate
 	end
@@ -62,7 +62,7 @@ function CM:IsVersionIncompatible(serializationVersion)
 	return serializationVersion ~= self.SERIALIZATION_VERSION
 end
 
-local aceUserNameFix = CM.ACECOMM and E.userName or gsub(E.userNameWithRealm, " ", "") 
+local aceUserNameFix = CM.ACECOMM and E.userName or gsub(E.userNameWithRealm, " ", "")
 
 function CM:CHAT_MSG_ADDON(prefix, message, _, sender)
 	if prefix ~= self.AddonPrefix or sender == aceUserNameFix then
@@ -99,7 +99,7 @@ function CM:CHAT_MSG_ADDON(prefix, message, _, sender)
 			self.SyncStrivePvpTalentCD(guid, tonumber(spellID), tonumber(cd))
 		end
 		return
-	elseif header ~= E.userGUID then 
+	elseif header ~= E.userGUID then
 		return
 	end
 
@@ -151,10 +151,10 @@ function CM:CHAT_MSG_ADDON(prefix, message, _, sender)
 						end
 					elseif ( src == "ae" ) then
 						info.talentData["essStriveMult"] = spellID
-					else 
+					else
 						info.talentData[spellID] = value
 					end
-				else 
+				else
 					info.talentData[-spellID] = value
 				end
 			end
@@ -194,7 +194,7 @@ function CM:CHAT_MSG_ADDON(prefix, message, _, sender)
 			end
 		else
 			k = tonumber(k)
-			if ( not k or self:IsVersionIncompatible(k) ) then 
+			if ( not k or self:IsVersionIncompatible(k) ) then
 				return
 			end
 			info.spec = tonumber(v)
@@ -240,7 +240,7 @@ local SendUserSyncData_OnTimerEnd = function()
 end
 
 function CM:PLAYER_EQUIPMENT_CHANGED()
-	
+
 	if not equipmentTimer then
 		equipmentTimer = C_Timer.NewTicker(0.1, SendUserSyncData_OnTimerEnd, 1)
 	end
@@ -298,18 +298,18 @@ function CM.SyncCooldowns(guid, encodedData)
 				duration, remainingTime, modRate = tonumber(duration), tonumber(remainingTime), tonumber(modRate)
 				charges = charges ~= "-1" and tonumber(charges) or nil
 				local active = icon.active and info.active[iconSpellID]
-				
-				if ( active and duration == 0 ) then 
+
+				if ( active and duration == 0 ) then
 					if iconSpellID == 6262 then
-						SetHealthstoneCD(info, icon, charges, now - active.startTime < 10) 
+						SetHealthstoneCD(info, icon, charges, now - active.startTime < 10)
 					end
 					icon:ResetCooldown(true)
 					info.spellModRates[iconSpellID] = modRate
 					icon.modRate = modRate
-				
+
 				elseif ( active and (abs(active.duration - (now - active.startTime) - remainingTime) > 1 or active.charges ~= charges) )
-					or ( not active and duration > 0 and E.sync_reset[spellID] ) then 
-					
+					or ( not active and duration > 0 and E.sync_reset[spellID] ) then
+
 					local startTime = now - (duration - remainingTime)
 					icon.cooldown:SetCooldown(startTime, duration, modRate)
 					if not active then
@@ -318,10 +318,10 @@ function CM.SyncCooldowns(guid, encodedData)
 					end
 					active.startTime = startTime
 					active.duration = duration
-					active.modRate = modRate 
-					
+					active.modRate = modRate
+
 					if charges and not icon.maxcharges then
-						icon.maxcharges = charges + 1 
+						icon.maxcharges = charges + 1
 					elseif not charges and icon.maxcharges then
 						icon.maxcharges = nil
 					end
@@ -356,17 +356,17 @@ local function GetCooldownFix(spellID)
 	local start, duration, enabled, modRate = GetSpellCooldown(spellID)
 	local currentCharges, maxCharges, cooldownStart, cooldownDuration, chargeModRate = GetSpellCharges(spellID)
 	local charges = maxCharges and maxCharges > 1 and currentCharges or -1
-	if enabled == 1 then 
+	if enabled == 1 then
 		if start and start > 0 then
-			if duration < 1.5 or (currentCharges and currentCharges > 0) then 
+			if duration < 1.5 or (currentCharges and currentCharges > 0) then
 				return nil
 			end
-			return start, duration, modRate, charges 
+			return start, duration, modRate, charges
 		elseif maxCharges and maxCharges > currentCharges then
-			return cooldownStart, cooldownDuration, chargeModRate, charges 
+			return cooldownStart, cooldownDuration, chargeModRate, charges
 		end
 	end
-	return 0, 0, 1, charges, enabled 
+	return 0, 0, 1, charges, enabled
 end
 
 local cooldownData = {}
@@ -390,7 +390,7 @@ local function CooldownSyncFrame_OnUpdate(_, elapsed)
 			local prevStart, prevCharges = cooldownInfo[1], cooldownInfo[2]
 			local isSyncResetID = E.sync_reset[id]
 			if duration == 0 then
-				if isSyncResetID and (prevStart ~= 0 or enabled == 0) then 
+				if isSyncResetID and (prevStart ~= 0 or enabled == 0) then
 					cooldownInfo[1] = start
 					cooldownInfo[2] = charges
 					cooldownData[c + 1] = id
@@ -399,14 +399,14 @@ local function CooldownSyncFrame_OnUpdate(_, elapsed)
 					c = c + 3
 				end
 			else
-				
-				if prevStart == 0 or abs(start - prevStart) > .49 or charges > prevCharges then 
+
+				if prevStart == 0 or abs(start - prevStart) > .49 or charges > prevCharges then
 					cooldownInfo[1] = start
 					cooldownInfo[2] = charges
 					local remainingTime = start + duration - now
 					if modRate == 1 then
 						remainingTime = floor(remainingTime)
-					else 
+					else
 						duration = format(THIRD_DECIMAL, duration):gsub(TRUNCATE_ZEROS, NULL)
 						modRate = format(THIRD_DECIMAL, modRate):gsub(TRUNCATE_ZEROS, NULL)
 						remainingTime = format(THIRD_DECIMAL, remainingTime):gsub(TRUNCATE_ZEROS, NULL)
@@ -417,7 +417,7 @@ local function CooldownSyncFrame_OnUpdate(_, elapsed)
 					cooldownData[c + 4] = modRate
 					cooldownData[c + 5] = charges
 					c = c + 5
-				elseif start == prevStart and charges > -1 and charges < prevCharges then 
+				elseif start == prevStart and charges > -1 and charges < prevCharges then
 					cooldownInfo[2] = charges
 				end
 			end
@@ -472,7 +472,7 @@ function CM.SendStrivePvpTalentCD(spellID)
 		return
 	end
 
-	
+
 	cd = cd/modRate
 	if not P.isUserDisabled then
 		CM.SyncStrivePvpTalentCD(E.userGUID, spellID, cd)

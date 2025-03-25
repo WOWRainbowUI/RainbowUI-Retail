@@ -16,7 +16,7 @@ do
 	localization = localization:gsub("ruRU", RURU):gsub("zhCN", ZHCN)
 	localization = localization:gsub("zhTW", ZHTW)
 	localization = localization:gsub("itIT", LFG_LIST_LANGUAGE_ITIT)
-	
+
 	fieldText.localizations = localization
 
 	local t = {}
@@ -46,7 +46,7 @@ local function GetOptions()
 			type = "group",
 			args = {
 				Home = {
-					
+
 					name = format("|T%s:18|t %s", E.Libs.OmniCDC.texture.logo, E.AddOn),
 					order = 0,
 					type = "group",
@@ -119,9 +119,9 @@ local function GetOptions()
 							get = getGlobalOption,
 							set = setGlobalOption,
 						},
-						
+
 						minusScale = {
-							disabled = function() return E.global.optionPanelScale < 0.84 end, 
+							disabled = function() return E.global.optionPanelScale < 0.84 end,
 							image = E.Libs.OmniCDC.texture.minus, imageWidth = 18, imageHeight = 18,
 							name = "",
 							order = 13,
@@ -172,7 +172,7 @@ local function GetOptions()
 							name = format("|cffff2020* %s", ((E.isWOTLKC or E.isCata) and L["Group member must have OmniCD to detect cooldown reduction by Glyphs."])
 								or (E.isSL and L["Group member must have OmniCD to detect cooldown reduction with a chance to proc and Soulbind Conduits."])
 								or (E.postDF and L["Group member must have OmniCD to detect cooldown reduction with a chance to proc."])
-								
+
 								or ""),
 							order = 18,
 							type = "description",
@@ -343,7 +343,7 @@ local function GetOptions()
 		E:AddProfileSharing()
 	end
 
-	E:AddSpellPickers() 
+	E:AddSpellPickers()
 	return E.options
 end
 
@@ -358,8 +358,8 @@ function E:SetupOptions()
 		arrowb	= [[Interface\AddOns\OmniCD\Libs\LibOmniCDC\Media\omnicd-bg-gnav2-dn-b]],
 	}
 	self.Libs.OmniCDC.SetOptionFontDefaults(nil, nil)
-	self.Libs.ACR:RegisterOptionsTable(self.AddOn, GetOptions, true) 
-	
+	self.Libs.ACR:RegisterOptionsTable(self.AddOn, GetOptions, true)
+
 
 	self.optionsFrames.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.DB)
 	self.optionsFrames.profiles.order = 1000
@@ -386,7 +386,7 @@ end
 
 function E:RefreshProfile(currentProfile)
 	currentProfile = currentProfile or self.DB:GetCurrentProfile()
-	
+
 	self.DB.keys.profile = ""
 	self.DB:SetProfile(currentProfile)
 end

@@ -59,7 +59,7 @@ RemoveHighlight_OnTimerEnd = function(icon)
 		return
 	end
 
-	
+
 	local duration, expTime = P:GetBuffDuration(info.unit, icon.buff)
 	if duration and duration > 0 then
 		duration = expTime - GetTime()
@@ -110,7 +110,7 @@ function BarFrameIconMixin:ShowOverlayGlow(duration, isRefresh)
 	if type(self.isHighlighted) == "userdata" then
 		self.isHighlighted:Cancel()
 	end
-	
+
 	self.isHighlighted = C_Timer.NewTimer(duration + 0.1, function() RemoveHighlight_OnTimerEnd(self) end)
 end
 
@@ -137,7 +137,7 @@ function BarFrameIconMixin:HideOverlayGlow()
 	if type(self.isHighlighted) == "userdata" then
 		self.isHighlighted:Cancel()
 	end
-	
+
 	self.isHighlighted = nil
 end
 
@@ -169,7 +169,7 @@ function BarFrameIconMixin:SetHighlight(isRefresh)
 	local duration, expTime = E.summonedBuffDuration[spellID]
 
 	if duration then
-		
+
 		local active = info.active[spellID]
 		if active then
 			duration = duration - GetTime() + active.startTime
