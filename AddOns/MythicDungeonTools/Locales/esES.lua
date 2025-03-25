@@ -2202,6 +2202,9 @@ L["Rook Spiderling"] = "Arañita del torreón"
 L["Rook Spinner"] = "Hiladora del torreón"
 --[[Translation missing --]]
 L["rookeryShortname"] = "ROOK"
+--[[Translation missing --]]
+L["rookItemDescription"] = [=[After defeating |cFFFF0000Kyrioss|r loot |cFF00FF00Stormrook Feather|r 
+Use it on a nearby |cFF00FF00Chained Stormrook|r to gain this buff for 5 minutes.]=]
 L["Root"] = "Raíz"
 L["Rotation"] = "Rotación"
 --[[Translation missing --]]

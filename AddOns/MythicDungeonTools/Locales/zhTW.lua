@@ -2657,6 +2657,9 @@ L["Rook Spiderling"] = "鸦堡小蜘蛛"
 L["Rook Spinner"] = "鸦堡织网蛛"
 --[[Translation missing --]]
 L["rookeryShortname"] = "ROOK"
+--[[Translation missing --]]
+L["rookItemDescription"] = [=[After defeating |cFFFF0000Kyrioss|r loot |cFF00FF00Stormrook Feather|r 
+Use it on a nearby |cFF00FF00Chained Stormrook|r to gain this buff for 5 minutes.]=]
 L["Root"] = "定身"
 L["Rotation"] = "循環"
 --[[Translation missing --]]

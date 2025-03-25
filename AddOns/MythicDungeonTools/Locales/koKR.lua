@@ -2252,6 +2252,9 @@ L["Rook Spiderling"] = "탑 새끼거미"
 L["Rook Spinner"] = "탑 그물거미"
 --[[Translation missing --]]
 L["rookeryShortname"] = "ROOK"
+--[[Translation missing --]]
+L["rookItemDescription"] = [=[After defeating |cFFFF0000Kyrioss|r loot |cFF00FF00Stormrook Feather|r 
+Use it on a nearby |cFF00FF00Chained Stormrook|r to gain this buff for 5 minutes.]=]
 L["Root"] = "묶임"
 L["Rotation"] = "로테이션"
 --[[Translation missing --]]
