@@ -63,7 +63,7 @@ function E.FixOldProfile(profile)
 	end
 
 	for _, db in pairs(profile.Party) do
-		if type(db.extraBars) == "table" then
+		if type(db) == "table" and type(db.extraBars) == "table" then
 			for k in pairs(db.extraBars) do
 				if not C.Party.arena.extraBars[k] then
 					db.extraBars[k] = nil

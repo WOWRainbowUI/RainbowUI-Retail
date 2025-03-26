@@ -1,6 +1,9 @@
 local _, NS = ...
 
 local changelog = [=[
+### v2.8.17
+-   Fix nil err
+
 ### v2.8.16
 -   Fix compatibility issue with old profile (pre 2.7.8000)
 -   Fix Show Player not updating while in a group
