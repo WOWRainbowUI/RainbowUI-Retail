@@ -4,7 +4,7 @@ if ExRT.locale ~= "zhTW" then
 	return
 end
 
--- 18:48 08.26.2023  補充翻譯:：三皈依-暗影之月
+-- 17:14 03.26.2025  補充翻譯:：三皈依-暗影之月
 
 local L = ExRT.L
 local PH = ExRT.L
@@ -304,6 +304,7 @@ L.RaidCheckOwnOilItem = "使用自己的武器增益物品"
 L.RaidCheckOwnOilItemTip = "輸入物品ID，此選項是每個角色個人的"
 L.RaidCheckOnlyUnlimRune = "僅使用無限符文"
 L.RaidCheckMinRank = "最低等級"
+L.RaidCheckSortByName = "根據名字排序"
 
 L.marksbarstart = "清除標記"
 L.marksbardel = "解除鎖定"
