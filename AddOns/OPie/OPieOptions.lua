@@ -418,7 +418,7 @@ local OPC_Options = {
 	{ "section", caption=L"Animation"},
 		{"bool", "XTAnimation", caption=L"Animate transitions"},
 		{"bool", "MISpinOnHide", caption=L"Outward spiral on hide", depOn="XTAnimation", depValue=true, otherwise=false},
-		{"bool", "XTPointerSnap", caption=L"Snap pointer to mouse cursor"},
+		{"bool", "XTPointerSnap", caption=L"Instant pointer rotation"},
 		{"bool", "MIScale", caption=L"Enlarge selected slice"},
 }
 

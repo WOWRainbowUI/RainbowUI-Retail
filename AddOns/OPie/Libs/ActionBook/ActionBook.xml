@@ -8,7 +8,7 @@
 	<Script file="Conditionals.lua" />
 	<Script file="Imp.lua" />
 	<Script file="Handlers.lua" />
-	<Script file="Quirks.lua" />
 	<Script file="Categories.lua" />
 	<Script file="Editors.lua" />
+	<Script file="Quirks.lua" />
 </Ui>
