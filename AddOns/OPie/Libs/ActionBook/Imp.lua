@@ -1,4 +1,4 @@
-local MAJ, REV, COMPAT, _, T = 1, 11, select(4,GetBuildInfo()), ...
+local MAJ, REV, COMPAT, _, T = 1, 12, select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
@@ -104,7 +104,7 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 				alt, sp = args:match("([^,]*),?()", sp)
 				alt2, rfCtx = replaceFunc(ctype, alt, rfCtx, args, sp)
 				if alt == alt2 or (alt2 and alt2:match("%S")) then
-					alt2 = doRewrite and " " .. alt2:match("^%s*(.-)%s*$") or alt2
+					alt2 = doRewrite and alt2:match("^%s*(.-)%s*$") or alt2
 					alt2 = altPrefix and altPrefix .. alt2 or alt2
 					ret = ret and ret .. "," .. alt2 or alt2
 				end
@@ -240,6 +240,9 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 		end
 		local function findMount(prefSID, mtype, ctype)
 			local wantDragonriding, escapeContext = mtype == 402, ctype == 2 and 0 or 1
+			if prefSID and RW:IsSpellCastable(prefSID, escapeContext) then
+				return prefSID
+			end
 			local idm, myFactionId, nc, cs = C_MountJournal.GetMountIDs(), UnitFactionGroup("player") == "Horde" and 0 or 1, 0
 			local gmi, gmiex = C_MountJournal.GetMountInfoByID, C_MountJournal.GetMountInfoExtraByID
 			for i=1, #idm do
@@ -279,13 +282,14 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 		if not (MODERN or CF_WRATH) then
 			replaceMountTag = function () end
 		end
-		local function editPreference(orig, new)
-			return type(new) == "number" and new or new ~= false and orig or nil
+		local function editPreference(orig, new, cached)
+			local v = type(new) == "number" and new or new ~= false and orig or nil
+			return v, v == orig and cached or nil
 		end
 		function setMountPreference(groundSpellID, flyingSpellID, dragonSpellID)
-			gmPref = editPreference(gmPref, groundSpellID)
-			fmPref = editPreference(fmPref, flyingSpellID)
-			drPref = editPreference(drPref, dragonSpellID)
+			gmPref, gmSid = editPreference(gmPref, groundSpellID, gmSid)
+			fmPref, fmSid = editPreference(fmPref, flyingSpellID, fmSid)
+			drPref, drSid = editPreference(drPref, dragonSpellID, drSid)
 			return gmPref, fmPref, drPref
 		end
 	end
@@ -313,7 +317,7 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 		return value
 	end)
 	local toImpText, prepareQuantizer do
-		local spells, specialTokens, OTHER_SPELL_IDS = {}, {}, {150544, 243819}
+		local spells, specialTokens, OTHER_SPELL_IDS = {}, {}, {150544, 243819, 460013}
 		local abMountTokens = {["Ground Mount"]="{{mount:ground}}", ["Flying Mount"]="{{mount:air}}", ["Dragonriding Mount"]=MODERN and "{{mount:dragon}}" or nil}
 		toImpText = genParser(function(ctype, value, skipCount, args, cpos)
 			if type(skipCount) == "number" and skipCount > 0 then

@@ -2,8 +2,8 @@ local COMPAT, _, T = select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
-local EV, AB, KR, RW = T.Evie, T.ActionBook:compatible(2,38), T.ActionBook:compatible("Kindred", 1,26), T.ActionBook:compatible("Rewire", 1,27)
-assert(EV and AB and KR and RW and 1, "Incompatible library bundle")
+local EV, AB, KR, RW, IM = T.Evie, T.ActionBook:compatible(2,38), T.ActionBook:compatible("Kindred", 1,26), T.ActionBook:compatible("Rewire", 1,27), T.ActionBook:compatible("Imp", 1,11)
+assert(EV and AB and KR and RW and IM and 1, "Incompatible library bundle")
 local MODERN, CI_ERA, CF_CATA = COMPAT >= 10e4, COMPAT < 2e4, COMPAT < 10e4 and COMPAT > 4e4
 local playerClass, _, playerRace = UnitClassBase("player"), UnitRace("player")
 
@@ -348,7 +348,7 @@ securecall(function() -- Draenic Hologem usability limitation
 end)
 
 local MAYBE_FLYABLE, FLIGHT_BLOCKER = true
-securecall(function()
+securecall(function() -- FLIGHT_BLOCKER init
 	if not MODERN then
 		return
 	end
@@ -375,6 +375,7 @@ securecall(function() -- MAYBE_FLYABLE: [anyflyable] mirror
 	end)
 	KR:RegisterStateDriver(f, "anyflyable", "[anyflyable] 1;")
 end)
+
 securecall(function() -- Siren Isle flight restrictions
 	if not MODERN then
 		return
@@ -466,13 +467,12 @@ securecall(function() -- Darkmoon Fairegrounds flight restriction
 	end
 	KR:RegisterStateDriver(FLIGHT_BLOCKER, "dmf", "[in:darkmoon faire] 1; 0")
 end)
-securecall(function() -- TWW dungeon flight restriction
+securecall(function() -- TWW dungeon/delve flight restriction
 	if not MODERN then
 		return
 	end
-	KR:RegisterStateDriver(FLIGHT_BLOCKER, "dung", "[in:dungeon,noin:nokhud/dawnbreaker] 1; 0")
+	KR:RegisterStateDriver(FLIGHT_BLOCKER, "dung", "[in:dungeon,noin:nokhud/dawnbreaker][in:delve] 1; 0")
 end)
-
 securecall(function() -- Travel form outcome feedback
 	if not (MODERN and playerClass == "DRUID") then
 		return
@@ -510,7 +510,6 @@ securecall(function() -- Siren Isle Research Journal requires pages to use
 		end)
 	end
 end)
-
 securecall(function() -- Modern: some mounts aren't castable by spell IDs
 	if not MODERN then
 		return
@@ -532,4 +531,49 @@ securecall(function() -- Modern: some mounts aren't castable by spell IDs
 		return (#BROKEN_SPELL_IDS == 0 or ev == "PLAYER_LOGIN") and "remove"
 	end
 	EV.NEW_MOUNT_ADDED, EV.PLAYER_REGEN_ENABLED, EV.PLAYER_LOGIN = pushMountCasts, pushMountCasts, pushMountCasts
+end)
+securecall(function() -- Modern: G-99 Breakneck is a fake mount
+	if not MODERN then
+		return
+	end
+	local G99_SPELL_ID, G99_QUEST_ID, questOK = 460013, 84352
+	local inUndermine, wf = false, CreateFrame("Frame", nil, nil, "SecureFrameTemplate")
+	local function hasUnlockedG99()
+		if not questOK and C_QuestLog.IsQuestFlaggedCompletedOnAccount(G99_QUEST_ID) then
+			questOK = true
+			RW:SetCastAlias("spell:" .. G99_SPELL_ID, C_Spell.GetSpellName(G99_SPELL_ID))
+		end
+		return questOK
+	end
+	local function updateGroundMount()
+		IM:SetMountPreference(inUndermine and G99_SPELL_ID or false)
+		AB:NotifyObservers("imptext")
+	end
+	wf:SetScript("OnAttributeChanged", function(_, a, v)
+		if a ~= "state-um" or (v == 1) == inUndermine then
+			return
+		end
+		inUndermine = v == 1
+		return hasUnlockedG99() and updateGroundMount()
+	end)
+	wf:Hide()
+	KR:RegisterStateDriver(wf, 'um', '[in:undermine] 1; 0')
+	RW:SetSpellCastableChecker(G99_SPELL_ID, function()
+		if hasUnlockedG99() and inUndermine then
+			return true, "g99-quirk"
+		end
+		return false, "g99-quirk"
+	end)
+	AB:AugmentCategory(AB.L"Mounts", function(_, add)
+		if hasUnlockedG99() then
+			add("spell", G99_SPELL_ID)
+		end
+	end)
+	function EV:QUEST_TURNED_IN(qid)
+		if qid == G99_QUEST_ID then
+			questOK = true
+			updateGroundMount()
+		end
+		return questOK and "remove"
+	end
 end)

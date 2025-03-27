@@ -73,22 +73,28 @@ if MODERN or CF_WRATH then
 			[199192]=have1, [204359]=have1, [205226]=have1, [210549]=have1, [227450]=have1,  -- racer's purse
 			[224292]=-81691, [224913]=-81691, -- radiant fuel shard/cache
 			[228741]=have1, -- lamplighter supply satchel
-			[229899]=c100_lv80, -- coffer key shard
+			[229899]=c100_lv80, [236096]=c100_lv80, -- coffer key shard
 			[217011]=have1, [217012]=have1, [217013]=have1, -- (isle of dorn) actor's chest
+			[235151]=have1, -- distinguished actor's chest
 			[227792]=have1, -- everyday cache
 			[227713]=have1, -- art consortium payout
-			[226263]=have1, -- theater troupe's trove
-			[226264]=have1, -- radiant cache
-			[226273]=have1, -- awakened mechanical cache
-			[225571]=have1, [225572]=have1, [225573]=have1, -- weaver/general/vizier caches
-			[226103]=have1, [226045]=have1, [226100]=have1, -- weaver/general/vizier troves
-			[225247]=have1, [225246]=have1, [225239]=have1, [225245]=have1, -- overflowing troves [11.0]
+			[226263]=have1, [239128]=have1, -- theater troupe's trove
+			[226264]=have1, [239126]=have1, -- radiant cache
+			[226273]=have1, [239121]=have1, -- awakened mechanical cache
+			[225571]=have1, [225572]=have1, [225573]=have1, -- weaver/general/vizier weekly caches
+			[239125]=have1, [239122]=have1, [239124]=have1, -- ditto, s2
+			[226103]=have1, [226045]=have1, [226100]=have1, -- weaver/general/vizier rep troves
+			[225247]=have1, [225246]=have1, [225239]=have1, [225245]=have1, [232463]=have1, -- overflowing troves [11.x]
 			[229354]=have1, -- algari adventurer's cache
-			[228361]=have1_lv80, -- seasoned adventurer's cache
-			[224784]=have1_lv80, -- pinnacle cache
+			[228361]=have1_lv80, [239120]=have1_lv80, [235610]=have1_lv80, [235639]=have1_lv80, -- seasoned adventurer's cache
+			[224784]=have1_lv80, [239118]=have1_lv80, -- pinnacle cache
 			[169219]=c1, -- brewfest sampler
 			[225249]=c1, -- bag o' gold
 			[235548]=have1, [232372]=have1, [234816]=c1, -- siren isle cache, bygone riches, bag of iron
+			[236756]=c1, [236757]=c1, [236758]=c1, -- undermine tip chests
+			[238207]=have1, [238208]=have1, -- surge dividends
+			[229129]=have1, -- delver's spoils
+			[220152]=c1, -- cursed ghoulfish
 		}
 		filtered = {
 			[228988]=ebIsNotRockReviver, -- siren isle rock reviver

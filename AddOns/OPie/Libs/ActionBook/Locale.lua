@@ -16,15 +16,15 @@ V =
       "Montura", "Monturas", "Nueva macro", "Mostrar sólo al equipar", "Habilidad de mascota", "Habilidades de mascota", "Marcador de objetivo", "Marcador del mundo", "Marcadores del mundo", "Mostrar un marcador cuando no esté disponible",
       "Hechizo", "Juguete", "Juguetes", "Paneles de IU", "Usar el rango mas alto", "Habilidades de zona",
     }
-    or C == "esMX" and { -- 30/36 (83%)
-      "Habilidades", "Usar otros artículos con el mismo nombre", "Mascota de duelo", "Mascotas de duelo", "Calendario", "Macro personalizado", z, "Conjunto de equipamientos", z, "Conjuntos de equipamientos",
-      z, "Botón de acción extra", "Montura voladora", "Monutra de tierra", z, "Artículo", "Artículos", "Macro", "Macros", "Misceláneo",
-      "Montura", "Monturas", "Nueva Macro", "Mostrar sólo al equipar", "Hablidad de mascota", "Habilidades de mascota", "Marcador del mundo", "Marcador del mundo", "Marcadores del mundo", "Mostrar esta rodaja siempre",
-      "Hechizo", "Juegete", "Juguetes", z, z, "Habilidades de area",
+    or C == "esMX" and { -- 36/36 (100%)
+      "Habilidades", "Usar otros artículos con el mismo nombre", "Mascota de duelo", "Mascotas de duelo", "Calendario", "Macro personalizado", "Montura de vuelo de dragón", "Conjunto de equipamientos", "Ranura de equipo", "Conjuntos de equipamientos",
+      "Equipado", "Botón de acción extra", "Montura voladora", "Monutra de tierra", "Panel de interfaz", "Artículo", "Artículos", "Macro", "Macros", "Misceláneo",
+      "Montura", "Monturas", "Nueva Macro", "Mostrar sólo al equipar", "Hablidad de mascota", "Habilidades de mascota", "Marcador del mundo", "Marcador del mundo", "Marcadores del mundo", "Mostrar un sustituto cuando no esté disponible",
+      "Hechizo", "Juegete", "Juguetes", "Paneles de interfaz de usuario", "Usar el rango más alto conocido", "Habilidades de area",
     }
-    or C == "frFR" and { -- 34/36 (94%)
+    or C == "frFR" and { -- 35/36 (97%)
       "Compétences", "Également utiliser l'élément avec le même nom", "Mascotte de combat", "Mascottes de combat", "Calendrier", "Macro personnalisée", "Monture draconique", "Set d'équipement", z, "Équipement de sets",
-      z, "Bouton d'action supplémentaire", "Montures volantes", "Monture terrestre", "Fenêtre", "Objet", "Objets", "Macro", "Macros", "Divers",
+      "Équipés", "Bouton d'action supplémentaire", "Montures volantes", "Monture terrestre", "Fenêtre", "Objet", "Objets", "Macro", "Macros", "Divers",
       "Monture", "Montures", "Nouvelle Macro", "Afficher seulement quand équipé", "Compétence du Familier", "Compétences du familier", "Marqueur de Raid", "Marqueur de Terrain", "Marqueurs de Raid", "Afficher un remplacement quand indisponible",
       "Sort", "Jouet", "Jouets", "Fenêtres de l'interface", "Utiliser le rang le plus élevé connu", "Compétences de zone",
     }
@@ -52,9 +52,9 @@ V =
       "坐騎", "坐騎", "新增巨集", "只有裝備在身上時才顯示", "寵物技能", "寵物技能", "團隊標記圖示", "團隊世界標記圖示", "團隊標記圖示", "無法使用時顯示暫代圖示",
       "技能", "玩具", "玩具", "介面視窗", "使用已學會的最高等級", "區域能力",
     }
-    or C == "ptBR" and { -- 34/36 (94%)
-      "Habilidades", "Também usar itens com o mesmo nome", "Batalha de mascote", "Mascotes de batalha", "Calendário", "Macro Personalizada", "Montaria de Dragonaria", "Conjunto de equipamento", z, "Conjuntos de equipamentos",
-      z, "Botão de ação extra", "Montaria Voadora", "Montaria Terrestre", "Painel de Interface", "Item", "Itens", "Macro", "Macros", "Variados",
+    or C == "ptBR" and { -- 36/36 (100%)
+      "Habilidades", "Também usar itens com o mesmo nome", "Batalha de mascote", "Mascotes de batalha", "Calendário", "Macro Personalizada", "Montaria de Dragonaria", "Conjunto de equipamento", "Slot de Equipamento", "Conjuntos de equipamentos",
+      "Equipado", "Botão de ação extra", "Montaria Voadora", "Montaria Terrestre", "Painel de Interface", "Item", "Itens", "Macro", "Macros", "Variados",
       "Montaria", "Montarias", "Novo Macro", "Apenas mostrar quando equipado", "Habilidade de Mascote", "Habilidades de Mascote", "Marcadores de Raide", "Marcadores Globais de Raide", "Marcadores de raide", "Sempre mostrar essa fatia quando indisponível",
       "Feitiço", "Brinquedo", "Bringquedos", "Painéis de UI", "Usar o mais alto ranque conhecido", "Habilidades da Zona",
     } or nil

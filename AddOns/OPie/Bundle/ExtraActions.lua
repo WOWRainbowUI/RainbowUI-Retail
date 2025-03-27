@@ -29,7 +29,7 @@ do -- action handler
 	end
 	local function syncZoneContextActions()
 		local _,_,_,_, _,_,_,imid = GetInstanceInfo()
-		local wantDrop = imid == 2681 and 1 or imid == 2683 and 2 or imid == 2127 and PlayerHasBuff(458069) and 3
+		local wantDrop = imid == 2127 and PlayerHasBuff(458069) and 1
 		local wantGoPack = imid == 2127 and C_Item.GetItemCount(230728) > 0 and not PlayerHasBuff(469809) and 8
 		local newState, ni = (wantDrop or 0) + (wantGoPack or 0), 1
 		if state == newState then
@@ -59,8 +59,6 @@ do -- action handler
 		cid = AB:CreateActionSlot(nil,nil, "collection",col)
 		col.OPZCAxSIGP = AB:GetActionSlot("item", 230728, 1)
 		dropInfo = {
-			{469853, 424956, GetSpellTexture(469853), GetSpellInfo(469853), "OPZCAxDrEC"}, -- Enchanted Candle (Kriegval's Rest)
-			{469854, 443880, GetSpellTexture(469854), GetSpellInfo(469854), "OPZCAxDrAT"}, -- Air Totem (The Waterworks)
 			{470530, 458069, GetSpellTexture(470530), GetSpellInfo(470530), "OPZCAxDrST"}, -- Seafury Tempest (Siren Isle)
 		}
 		for i=1,#dropInfo do
