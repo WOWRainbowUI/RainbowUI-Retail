@@ -1,4 +1,4 @@
-## Interface: 30403
+## Interface: 30404
 ## X-Min-Interface-Wrath: 30400
 ## Category: DBM
 
@@ -34,7 +34,7 @@
 ## X-Curse-Project-ID: 314994
 ## X-WoWI-ID: 24904
 ## X-Wago-ID: xZKxZENk
-## Version: r194
+## Version: r195
 
 localization.en.lua
 localization.de.lua
