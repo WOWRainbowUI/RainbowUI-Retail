@@ -522,12 +522,14 @@ function Frame:ADDON_LOADED(Name)
 	print(string.format(L["|cFFBA55D3MailLogger|r v%s|cFFB0C4DE has been loaded.|r"], Addon.Version))
 
 	-- 数据格式修复(为不带-的数据添加-)
-	for i = 1, #TradeLog do
-		if not string.find(TradeLog[i].PlayerName, "%-") then
-			TradeLog[i].PlayerName = TradeLog[i].PlayerName .. "-" .. GetRealmName()
-		end
-		if not string.find(TradeLog[i].TargetName, "%-") then
-			TradeLog[i].TargetName = TradeLog[i].TargetName .. "-" .. GetRealmName()
+	if #TradeLog >= 1 then
+		for i = 1, #TradeLog do
+			if not string.find(TradeLog[i].PlayerName, "%-") then
+				TradeLog[i].PlayerName = TradeLog[i].PlayerName .. "-" .. GetRealmName()
+			end
+			if not string.find(TradeLog[i].TargetName, "%-") then
+				TradeLog[i].TargetName = TradeLog[i].TargetName .. "-" .. GetRealmName()
+			end
 		end
 	end
 end

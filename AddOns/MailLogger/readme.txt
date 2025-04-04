@@ -59,3 +59,5 @@ MailLogger：
 2.0.6 Mails received using Shift are now recorded as expected. Characters with the same name on different servers will no longer be confused with each other.
 2.0.7 Fix the issue where MinimapIcon can't save its position when using the LDBIcon library, and add functionality to sort by both character and date.
 2.0.8 Fix line command errors.
+2.0.9 I forgot what I did
+2.1.1 Fix a old 'no records' error.

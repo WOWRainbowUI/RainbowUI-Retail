@@ -1,5 +1,5 @@
 ## Interface: 40400
-## Version: 2.0.9
+## Version: 2.1.1
 ## Title: MailLogger
 ## Author: Aoikaze
 ## SavedVariables: MailLoggerDB
