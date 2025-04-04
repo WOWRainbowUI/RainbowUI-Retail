@@ -1,7 +1,7 @@
 ## Interface: 11506
 ## Title: WeakAuras Templates
 ## Author: The WeakAuras Team
-## Version: 5.19.5
+## Version: 5.19.6
 ## Notes: Templates for WeakAuras
 ## Notes-esES: Plantillas para WeakAuras
 ## Notes-esMX: Plantillas para WeakAuras
