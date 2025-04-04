@@ -816,6 +816,8 @@ Bleed classification via LibDispel]=]
 	--[[Translation missing --]]
 	L["Linked aura: "] = "Linked aura: "
 	--[[Translation missing --]]
+	L["Linked Auras"] = "Linked Auras"
+	--[[Translation missing --]]
 	L["Load"] = "Load"
 	L["Loaded"] = "Carregado"
 	--[[Translation missing --]]

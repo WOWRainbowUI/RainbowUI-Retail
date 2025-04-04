@@ -527,6 +527,7 @@ Bleed classification via LibDispel]=] ] = "仅过滤给定类型的可驱散的�
 	L["Line"] = "行"
 	L["Linear Texture %s"] = "线性材质%s"
 	L["Linked aura: "] = "关联光环："
+	L["Linked Auras"] = "连结的光环"
 	L["Load"] = "载入"
 	L["Loaded"] = "已载入"
 	L["Loaded/Standby"] = "已载入/已就绪"

@@ -528,6 +528,8 @@ Bleed classification via LibDispel]=] ] = "Фильтровать только �
 	L["Line"] = "Строка"
 	L["Linear Texture %s"] = "Линейная текстура %s"
 	L["Linked aura: "] = "Связанная индикация: "
+	--[[Translation missing --]]
+	L["Linked Auras"] = "Linked Auras"
 	L["Load"] = "Загрузка"
 	L["Loaded"] = "Загружено"
 	L["Loaded/Standby"] = "Загружен/Ожидает"

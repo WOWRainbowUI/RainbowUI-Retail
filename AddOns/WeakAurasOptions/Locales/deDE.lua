@@ -758,6 +758,8 @@ Falls die Zahl als Dezimalzahl (z.B. 0.5), Bruch (z.B. 1/2) oder Prozentsatz (z.
 	L["Linear Texture %s"] = "Linear Texture %s"
 	--[[Translation missing --]]
 	L["Linked aura: "] = "Linked aura: "
+	--[[Translation missing --]]
+	L["Linked Auras"] = "Linked Auras"
 	L["Load"] = "Laden"
 	L["Loaded"] = "Geladen"
 	--[[Translation missing --]]
