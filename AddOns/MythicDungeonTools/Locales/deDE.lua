@@ -1843,9 +1843,7 @@ L["Rokmora"] = "Rokmora"
 L["Rook Spiderling"] = "Rabenspinnling"
 L["Rook Spinner"] = "Rabenspinner"
 L["rookeryShortname"] = "ROOK"
---[[Translation missing --]]
-L["rookItemDescription"] = [=[After defeating |cFFFF0000Kyrioss|r loot |cFF00FF00Stormrook Feather|r 
-Use it on a nearby |cFF00FF00Chained Stormrook|r to gain this buff for 5 minutes.]=]
+L["rookItemDescription"] = "Nach dem Besiegen von |cFFFF0000Kyrioss|r |cFF00FF00Sturmkrähenfeder|r aufnehmen. Wende sie auf eine in der Nähe befindliche |cFF00FF00Angekettete Sturmkrähe|r an, um diesen Buff für 5 Minuten zu erhalten."
 L["Root"] = "Bewegungsunfähig"
 L["Rotation"] = "Rotation"
 L["Rotbow Ranger"] = "Fäulnisbogenwaldläufer"
@@ -2025,7 +2023,6 @@ L["Sister Malady"] = "Schwester Gebrecht"
 L["Sister Solena"] = "Schwester Solena"
 L["Sjonnir The Ironshaper"] = "Sjonnir der Eisenformer"
 L["Skadi the Ruthless"] = "Skadi der Skrupellose"
---[[Translation missing --]]
 L["Skardyn Monstrosity"] = "Skardyn Monstrosity"
 L["Skarmorak"] = "Skarmorak"
 L["Skarvald the Constructor"] = "Skarvald der Konstrukteur"
