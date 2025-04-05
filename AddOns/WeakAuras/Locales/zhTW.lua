@@ -1276,7 +1276,7 @@ L["Supports multiple entries, separated by commas"] = "支援輸入多個項目�
 L[ [=[Supports multiple entries, separated by commas
 ]=] ] = "支援輸入多個項目，使用逗號分隔。"
 L["Supports multiple entries, separated by commas. Escape ',' with \\. Prefix with '-' for negation."] = "支援輸入多個項目，使用逗號分隔。用 \\ 跳脫 ','。前面加上 '-' 表示否定。"
-L["Supports multiple entries, separated by commas. Escape with \\. Prefix with '-' for negation."] = "支援輸入多個項目，使用逗號分隔。用 \\ 跳脫 。前面加上 '-' 表示否定。"
+L["Supports multiple entries, separated by commas. Escape with \\. Prefix with '-' for negation."] = "支援輸入多個項目，使用逗號分隔。用 \\ 跳脫。前面加上 '-' 表示否定。"
 L["Supports multiple entries, separated by commas. Prefix with '-' for negation."] = "支援輸入多個項目，使用逗號分隔。前面加上 '-' 表示否定。"
 L[ [=[Supports multiple entries, separated by commas. To include child zone ids, prefix with 'c', e.g. 'c2022'.
 Group Zone IDs must be prefixed with 'g', e.g. 'g277'. 
