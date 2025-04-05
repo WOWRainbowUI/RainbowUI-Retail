@@ -134,7 +134,7 @@ L["At Percent"] = "在百分比"
 L["At Value"] = "在數值"
 L["At War"] = "戰爭中"
 L["Attach to End"] = "附加到結尾"
-L["Attach to End, backwards"] = "往後黏附到末端"
+L["Attach to End, backwards"] = "附加到結尾，向後"
 L["Attach to Point"] = "附加到點"
 L["Attach to Start"] = "附加到開頭"
 L["Attack Power"] = "攻擊強度"
@@ -779,8 +779,8 @@ L[ [=[Matches stage number of encounter journal.
 Intermissions are .5
 E.g. 1;2;1;2;2.5;3]=] ] = "匹配戰鬥日誌的階段號碼。中場為 0.5 例如1;2;1;2;2.5;3"
 L["Max Char "] = "最多字元數"
-L["Max Char"] = "最大字元"
-L["Max Charges"] = "最大可用次數"
+L["Max Char"] = "最多字元數"
+L["Max Charges"] = "最多可用次數"
 L["Max Health"] = "最大血量"
 L["Max Power"] = "最大能量"
 L["Max Quantity"] = "最大數量"
@@ -1276,7 +1276,7 @@ L["Supports multiple entries, separated by commas"] = "支援輸入多個項目�
 L[ [=[Supports multiple entries, separated by commas
 ]=] ] = "支援輸入多個項目，使用逗號分隔。"
 L["Supports multiple entries, separated by commas. Escape ',' with \\. Prefix with '-' for negation."] = "支援輸入多個項目，使用逗號分隔。用 \\ 跳脫 ','。前面加上 '-' 表示否定。"
-L["Supports multiple entries, separated by commas. Escape with \\. Prefix with '-' for negation."] = "支持多個條目，由逗號隔開。用\\換行。前綴為“ - ”進行否定。"
+L["Supports multiple entries, separated by commas. Escape with \\. Prefix with '-' for negation."] = "支援輸入多個項目，使用逗號分隔。用 \\ 跳脫。前面加上 '-' 表示否定。"
 L["Supports multiple entries, separated by commas. Prefix with '-' for negation."] = "支援輸入多個項目，使用逗號分隔。前面加上 '-' 表示否定。"
 L[ [=[Supports multiple entries, separated by commas. To include child zone ids, prefix with 'c', e.g. 'c2022'.
 Group Zone IDs must be prefixed with 'g', e.g. 'g277'. 
