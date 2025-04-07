@@ -1,8 +1,6 @@
 # Auctionator
 
-## [269](https://github.com/Auctionator/Auctionator/tree/269) (2025-03-22)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/268...269) 
+## [270](https://github.com/Auctionator/Auctionator/tree/270) (2025-04-06)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/269...270) 
 
-- Change wording Quality -> Rarity  
-- Update for China Wrath 3.4.4  
-- Replace shopping lists when imported, rather than appending  
+- Fix "Unhide all" button in Selling settings not working  
