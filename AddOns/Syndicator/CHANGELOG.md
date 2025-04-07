@@ -1,6 +1,6 @@
 # Syndicator
 
-## [185](https://github.com/Baganator/Syndicator/tree/185) (2025-03-24)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/184...185) 
+## [186](https://github.com/Baganator/Syndicator/tree/186) (2025-04-05)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/185...186) 
 
-- Add "Wands" to "my class" keyword check for appropriate classes  
+- Sort characters consistently in /syns search  
