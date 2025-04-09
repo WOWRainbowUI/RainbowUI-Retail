@@ -1,6 +1,6 @@
 # Auctionator
 
-## [270](https://github.com/Auctionator/Auctionator/tree/270) (2025-04-06)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/269...270) 
+## [272](https://github.com/Auctionator/Auctionator/tree/272) (2025-04-09)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/271...272) 
 
-- Fix "Unhide all" button in Selling settings not working  
+- Update toc for Classic Era/SoD 1.15.7  
