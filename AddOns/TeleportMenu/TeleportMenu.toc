@@ -16,7 +16,7 @@
 ## Category-zhTW: 使用者介面
 
 ## Author: Justwait
-## Version: v10.3
+## Version: v10.4
 ## SavedVariables: TeleportMenuDB
 ## Dependencies: Blizzard_Collections
 
