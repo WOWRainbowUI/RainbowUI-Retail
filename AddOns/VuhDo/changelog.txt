@@ -1,3 +1,29 @@
+Version 3.187  
+  
+  
+Known issues:  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed mouse and key binding of trinkets  
+-- Fixed loading of HoT settings on profile application  
+-- Fixed icon detection by spell name in VuhDo Options  
+  
+  
+Improvements:  
+-- Added display of purgeable debuffs on enemy units  
+-- Added default custom debuffs for TWW S2 dungeon encounters  
+-- Added default custom debuffs for Undermine raid encounters  
+-- Added new debuff type for 'Enrage' effects  
+-- Added new bouquet validator 'Flag: Debuff Enrage'  
+  
+  
+--------------------------------------------------------------  
 Version 3.186  
   
   

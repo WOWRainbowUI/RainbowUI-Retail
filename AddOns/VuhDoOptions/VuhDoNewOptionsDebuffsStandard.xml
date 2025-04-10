@@ -107,6 +107,22 @@
 						</Scripts>
 					</CheckButton>
 
+					<CheckButton name="$parentPurgeableBuffsCheckButton" text="VUHDO_I18N_PURGEABLE_BUFFS" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="12" y="-31" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.DETECT_DEBUFFS_IGNORE_PURGEABLE_BUFFS");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K608);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
 				</Frames>
 			</Frame>
 

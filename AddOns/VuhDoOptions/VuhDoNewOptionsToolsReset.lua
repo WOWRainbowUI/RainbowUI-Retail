@@ -63,6 +63,7 @@ function VUHDO_newOptionsToolsResetDebuffColorsClicked()
 				VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF4"] = nil;
 				VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF6"] = nil;
 				VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF8"] = nil;
+				VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF9"] = nil;
 				VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF_BAR_GLOW"] = nil;
 				VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF_ICON_GLOW"] = nil;
 				ReloadUI();

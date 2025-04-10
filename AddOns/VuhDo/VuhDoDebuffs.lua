@@ -7,7 +7,8 @@ local VUHDO_UNIT_CUSTOM_DEBUFFS = { };
 setmetatable(VUHDO_UNIT_CUSTOM_DEBUFFS, VUHDO_META_NEW_ARRAY);
 local VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS = { };
 local VUHDO_LAST_UNIT_DEBUFFS = { };
-local VUHDO_PLAYER_ABILITIES = { };
+local VUHDO_PLAYER_DISPEL_ABILITIES = { };
+local VUHDO_PLAYER_PURGE_ABILITIES = { };
 
 
 
@@ -21,7 +22,8 @@ local VUHDO_DEBUFF_TYPES = {
 	["Magic"] = VUHDO_DEBUFF_TYPE_MAGIC,
 	["Disease"] = VUHDO_DEBUFF_TYPE_DISEASE,
 	["Poison"] = VUHDO_DEBUFF_TYPE_POISON,
-	["Curse"] = VUHDO_DEBUFF_TYPE_CURSE
+	["Curse"] = VUHDO_DEBUFF_TYPE_CURSE,
+	[""] = VUHDO_DEBUFF_TYPE_ENRAGE,
 };
 
 
@@ -75,6 +77,7 @@ local sIsShowOnHostile;
 local sIsShowHostileMine;
 local sIsShowHostileOthers;
 local sIsDebuffSoundRemovableOnly;
+local sIsShowPurgeableBuffs;
 local sEmpty = { };
 local sCurChosenColor = { };
 --local sColorArray = nil;
@@ -100,6 +103,7 @@ function VUHDO_debuffsInitLocalOverrides()
 	sIsShowHostileMine = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isHostileMine"];
 	sIsShowHostileOthers = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isHostileOthers"];
 	sIsDebuffSoundRemovableOnly = VUHDO_CONFIG["SOUND_DEBUFF_REMOVABLE_ONLY"];
+	sIsShowPurgeableBuffs = not VUHDO_CONFIG["DETECT_DEBUFFS_IGNORE_PURGEABLE_BUFFS"];
 
 	VUHDO_DEBUFF_COLORS = {
 		[1] = VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF1"],
@@ -108,6 +112,7 @@ function VUHDO_debuffsInitLocalOverrides()
 		[4] = VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF4"],
 		[6] = VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF6"],
 		[8] = VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF8"],
+		[9] = VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF9"],
 	};
 
 	--[[if not sColorArray then
@@ -226,6 +231,7 @@ setmetatable(VUHDO_UNIT_DEBUFF_INFOS, {
 			[VUHDO_DEBUFF_TYPE_MAGIC] = { },
 			[VUHDO_DEBUFF_TYPE_CURSE] = { },
 			[VUHDO_DEBUFF_TYPE_BLEED] = { },
+			[VUHDO_DEBUFF_TYPE_ENRAGE] = { },
 --			["listHeads"] = {
 --				[<CHOSEN|VUHDO_DEBUFF_TYPE>] = {
 --					["auraInstanceId"] = <aura instance ID>,
@@ -442,7 +448,7 @@ local VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT = { VUHDO_DEBUFF_TYPE_NONE, "", nil, false
 local sCurChosenInfo = {
 	-- [<unit ID>] = {
 	--	[<aura instance ID>] = {
-	--		VUHDO_DEBUFF_TYPE_<NONE|POISON|DISEASE|MAGIC|CURSE|CUSTOM|MISSING_BUFF|BLEED>,
+	--		VUHDO_DEBUFF_TYPE_<NONE|POISON|DISEASE|MAGIC|CURSE|CUSTOM|MISSING_BUFF|BLEED|ENRAGE>,
 	--		<aura spell Id>,
 	--		<aura name>,
 	--		<isStandard: true|false>,
@@ -465,7 +471,7 @@ local function VUHDO_updateCurChosenColor(aUnit, aType)
 		return;
 	end
 
-	if (aType or 6) ~= 6 and VUHDO_DEBUFF_COLORS[aType] then -- VUHDO_DEBUFF_TYPE_<POISON|DISEASE|MAGIC|CURSE|BLEED>
+	if (aType or 6) ~= 6 and VUHDO_DEBUFF_COLORS[aType] then -- VUHDO_DEBUFF_TYPE_<POISON|DISEASE|MAGIC|CURSE|BLEED|ENRAGE>
 		tSourceColor = VUHDO_DEBUFF_COLORS[aType];
 
 		if tSourceColor["useBackground"] then
@@ -674,6 +680,7 @@ local function VUHDO_initDebuffInfos(aUnit)
 	tUnitDebuffInfo[3][2] = nil; -- VUHDO_DEBUFF_TYPE_MAGIC
 	tUnitDebuffInfo[4][2] = nil; -- VUHDO_DEBUFF_TYPE_CURSE
 	tUnitDebuffInfo[8][2] = nil; -- VUHDO_DEBUFF_TYPE_BLEED
+	tUnitDebuffInfo[9][2] = nil; -- VUHDO_DEBUFF_TYPE_ENRAGE
 
 	if not tUnitDebuffInfo["listHeads"] then
 		tUnitDebuffInfo["listHeads"] = { };
@@ -685,6 +692,7 @@ local function VUHDO_initDebuffInfos(aUnit)
 	tUnitDebuffInfo["listHeads"][3] = nil; -- VUHDO_DEBUFF_TYPE_MAGIC
 	tUnitDebuffInfo["listHeads"][4] = nil; -- VUHDO_DEBUFF_TYPE_CURSE
 	tUnitDebuffInfo["listHeads"][8] = nil; -- VUHDO_DEBUFF_TYPE_BLEED
+	tUnitDebuffInfo["listHeads"][9] = nil; -- VUHDO_DEBUFF_TYPE_ENRAGE
 
 	if not tUnitDebuffInfo["typeAuras"] then
 		tUnitDebuffInfo["typeAuras"] = { };
@@ -829,8 +837,12 @@ local function VUHDO_determineDebuffPredicate(anAuraInstanceId, aName, anIcon, a
 	end
 
 	tType = VUHDO_DEBUFF_BLEED_SPELLS[aSpellId] and VUHDO_DEBUFF_TYPE_BLEED or VUHDO_DEBUFF_TYPES[aTypeString];
+
 	tFriend = UnitIsFriend("player", sUnit);
-	tAbility = VUHDO_PLAYER_ABILITIES[tType] and tFriend;
+	tHostile = UnitIsEnemy("player", sUnit);
+
+	tAbility = VUHDO_PLAYER_DISPEL_ABILITIES[tType] and tFriend and not tHostile;
+
 	tIsRelevant = not VUHDO_IGNORE_DEBUFF_NAMES[aName]
 		and not (VUHDO_IGNORE_DEBUFFS_BY_CLASS[tInfo["class"] or ""] or sEmpty)[aName];
 
@@ -839,12 +851,10 @@ local function VUHDO_determineDebuffPredicate(anAuraInstanceId, aName, anIcon, a
 	end
 
 	if not tIsCustomColorShown and not VUHDO_DEBUFF_BLACKLIST[aName] and not VUHDO_DEBUFF_BLACKLIST[tostring(aSpellId)] and tIsRelevant then
-		tHostile = UnitIsEnemy("player", sUnit);
-
 		if not tIsShown and sIsUseDebuffIcon
 			and (anIsBossDebuff or not sIsUseDebuffIconBossOnly) and (sIsNotRemovableOnlyIcons or tAbility ~= nil)
-			and ((sIsShowOnFriendly and not tHostile) or (sIsShowOnHostile and not tFriend)) and
-			(tFriend or (sIsShowOnHostile and (sIsShowHostileMine and aUnitCaster == "player")
+			and ((sIsShowOnFriendly and not tHostile) or (sIsShowOnHostile and (not tFriend or tHostile)))
+			and (tFriend or (sIsShowOnHostile and (sIsShowHostileMine and aUnitCaster == "player")
 				or (sIsShowHostileOthers and aUnitCaster ~= "player"))) then
 			sCurIcons[sUnit][anAuraInstanceId] = VUHDO_getOrCreateIconArray(sUnit, anIcon, anExpiry, aStacks, aDuration, false, aSpellId, anAuraInstanceId, aName);
 
@@ -855,7 +865,7 @@ local function VUHDO_determineDebuffPredicate(anAuraInstanceId, aName, anIcon, a
 
 		-- Entweder Fähigkeit vorhanden ODER noch keiner gewählt UND auch nicht entfernbare
 		-- Either ability available OR none selected AND not removable (DETECT_DEBUFFS_REMOVABLE_ONLY)
-		if not anIsUpdate and tType and (tAbility or (sIsNotRemovableOnly and tFriend)) then -- VUHDO_DEBUFF_TYPE_NONE
+		if not anIsUpdate and tType and (tAbility or (sIsNotRemovableOnly and tFriend and not tHostile)) then -- VUHDO_DEBUFF_TYPE_NONE
 			VUHDO_addCurChosen(sUnit, anAuraInstanceId, tType, nil, nil, nil);
 			VUHDO_addUnitDebuffInfo(sUnit, "CHOSEN", anAuraInstanceId, anIcon, anExpiry, aStacks, aDuration);
 		end
@@ -866,20 +876,57 @@ end
 
 
 --
-local function VUHDO_determineBuffPredicate(anAuraInstanceId, aName, anIcon, aStacks, aDuration, anExpiry, aUnitCaster, aSpellId, anIsUpdate)
+local tType;
+local tFriend;
+local tHostile;
+local tAbility;
+local tDebuffConfig;
+local tIsShown;
+local tIsCustomColorShown;
+local function VUHDO_determineBuffPredicate(anAuraInstanceId, aName, anIcon, aStacks, aTypeString, aDuration, anExpiry, aUnitCaster, aSpellId, anIsUpdate)
 
 	if not anIcon then
 		return;
 	end
 
+	tType = VUHDO_DEBUFF_BLEED_SPELLS[aSpellId] and VUHDO_DEBUFF_TYPE_BLEED or VUHDO_DEBUFF_TYPES[aTypeString];
+
+	tFriend = UnitIsFriend("player", sUnit);
+	tHostile = not tFriend or UnitIsEnemy("player", sUnit);
+
+	tAbility = sIsShowPurgeableBuffs and VUHDO_PLAYER_PURGE_ABILITIES[tType] and tHostile;
+
 	tDebuffConfig = VUHDO_CUSTOM_DEBUFF_CONFIG[aName] or VUHDO_CUSTOM_DEBUFF_CONFIG[tostring(aSpellId)] or sEmpty;
+	tIsShown, tIsCustomColorShown = false, false;
 
 	if not anIsUpdate and tDebuffConfig[1] and ((tDebuffConfig[3] and aUnitCaster == "player") or (tDebuffConfig[4] and aUnitCaster ~= "player")) then -- Color?
 		VUHDO_addCurChosen(sUnit, anAuraInstanceId, 6, aName, aSpellId, false); -- VUHDO_DEBUFF_TYPE_CUSTOM
+
+		tIsShown, tIsCustomColorShown = true, true;
 	end
 
+	aStacks = aStacks or 0;
+
 	if tDebuffConfig[2] and ((tDebuffConfig[3] and aUnitCaster == "player") or (tDebuffConfig[4] and aUnitCaster ~= "player")) then -- Icon?
-		sCurIcons[sUnit][anAuraInstanceId] = VUHDO_getOrCreateIconArray(sUnit, anIcon, anExpiry, aStacks or 0, aDuration, true, aSpellId, anAuraInstanceId, aName);
+		sCurIcons[sUnit][anAuraInstanceId] = VUHDO_getOrCreateIconArray(sUnit, anIcon, anExpiry, aStacks, aDuration, true, aSpellId, anAuraInstanceId, aName);
+
+		tIsShown = true;
+	end
+
+	if not tIsCustomColorShown and tType and tAbility then
+		if not tIsShown and sIsUseDebuffIcon and (sIsShowOnHostile and tHostile) then
+			sCurIcons[sUnit][anAuraInstanceId] = VUHDO_getOrCreateIconArray(sUnit, anIcon, anExpiry, aStacks, aDuration, true, aSpellId, anAuraInstanceId, aName);
+
+			if not anIsUpdate then
+				VUHDO_addCurChosen(sUnit, anAuraInstanceId, nil, nil, nil, true);
+			end
+		end
+
+		-- Either ability available OR none selected AND not removable (DETECT_DEBUFFS_REMOVABLE_ONLY)
+		if not anIsUpdate and (tAbility or (sIsNotRemovableOnly and tHostile)) then -- VUHDO_DEBUFF_TYPE_NONE
+			VUHDO_addCurChosen(sUnit, anAuraInstanceId, tType, nil, nil, nil);
+			VUHDO_addUnitDebuffInfo(sUnit, "CHOSEN", anAuraInstanceId, anIcon, anExpiry, aStacks, aDuration);
+		end
 	end
 
 end
@@ -923,6 +970,7 @@ function VUHDO_determineAuraPredicate(anAuraData, anIsUpdate)
 			anAuraData.name,
 			anAuraData.icon,
 			anAuraData.applications,
+			anAuraData.dispelName,
 			anAuraData.duration,
 			anAuraData.expirationTime,
 			anAuraData.sourceUnit,
@@ -1022,6 +1070,7 @@ local tDebuffSettings;
 local tCurChosenInfo;
 local tType;
 local tAbility;
+local tFriend;
 local function VUHDO_updateDebuffs(aUnit)
 
 	tInfo = (VUHDO_RAID or sEmpty)[aUnit];
@@ -1067,7 +1116,11 @@ local function VUHDO_updateDebuffs(aUnit)
 					tType = tCurChosenInfo[1];
 
 					if sIsDebuffSoundRemovableOnly then
-						tAbility = VUHDO_PLAYER_ABILITIES[tType] and UnitIsFriend("player", aUnit);
+						tFriend = UnitIsFriend("player", aUnit);
+						tHostile = UnitIsEnemy("player", aUnit);
+
+						tAbility = (VUHDO_PLAYER_DISPEL_ABILITIES[tType] and tFriend and not tHostile) or
+							(VUHDO_PLAYER_PURGE_ABILITIES[tType] and (not tFriend or tHostile));
 
 						if tAbility then
 							tDoStdSound = true;
@@ -1238,12 +1291,15 @@ end
 
 -- Remove debuffing abilities individually not known to the player
 function VUHDO_initDebuffs()
+
 	local tAbility;
 
 	local _, tClass = UnitClass("player");
-	twipe(VUHDO_PLAYER_ABILITIES);
 
-	for tDebuffType, tAbilities in pairs(VUHDO_INIT_DEBUFF_ABILITIES[tClass] or sEmpty) do
+	twipe(VUHDO_PLAYER_DISPEL_ABILITIES);
+	twipe(VUHDO_PLAYER_PURGE_ABILITIES);
+
+	for tDebuffType, tAbilities in pairs(VUHDO_INIT_DISPEL_ABILITIES[tClass] or sEmpty) do
 		for tCnt = 1, #tAbilities do
 			tAbility = tAbilities[tCnt];
 
@@ -1255,16 +1311,36 @@ function VUHDO_initDebuffs()
 					tAbility = GetSpellName(tAbility);
 				end
 
-				VUHDO_PLAYER_ABILITIES[tDebuffType] = tAbility;
+				VUHDO_PLAYER_DISPEL_ABILITIES[tDebuffType] = tAbility;
 
---				VUHDO_Msg("KEEP: Type " .. tDebuffType .. " because of spell " .. VUHDO_PLAYER_ABILITIES[tDebuffType]);
+--				VUHDO_Msg("KEEP: Type " .. tDebuffType .. " because of spell " .. VUHDO_PLAYER_DISPEL_ABILITIES[tDebuffType]);
 				break;
 			end
 		end
 	end
 --	VUHDO_Msg("---");
 
-	if not VUHDO_CONFIG then VUHDO_CONFIG = _G["VUHDO_CONFIG"]; end
+	for tDebuffType, tAbilities in pairs(VUHDO_INIT_PURGE_ABILITIES[tClass] or sEmpty) do
+		for tCnt = 1, #tAbilities do
+			tAbility = tAbilities[tCnt];
+
+			if VUHDO_isSpellKnown(tAbility) or tAbility == "*" then
+				if VUHDO_SPEC_TO_DEBUFF_ABIL[tAbility] then
+					tAbility = VUHDO_SPEC_TO_DEBUFF_ABIL[tAbility];
+				elseif type(tAbility) == "number" then
+					tAbility = GetSpellName(tAbility);
+				end
+
+				VUHDO_PLAYER_PURGE_ABILITIES[tDebuffType] = tAbility;
+
+				break;
+			end
+		end
+	end
+
+	if not VUHDO_CONFIG then
+		VUHDO_CONFIG = _G["VUHDO_CONFIG"];
+	end
 
 	twipe(VUHDO_CUSTOM_DEBUFF_CONFIG);
 
@@ -1311,13 +1387,25 @@ function VUHDO_initDebuffs()
 	if VUHDO_CONFIG["DETECT_DEBUFFS_IGNORE_DURATION"] then
 		VUHDO_tableAddAllKeys(VUHDO_IGNORE_DEBUFF_NAMES, VUHDO_INIT_IGNORE_DEBUFFS_DURATION);
 	end
+
 end
 
 
 
 --
-function VUHDO_getDebuffAbilities()
-	return VUHDO_PLAYER_ABILITIES;
+function VUHDO_getDispelAbilities()
+
+	return VUHDO_PLAYER_DISPEL_ABILITIES;
+
+end
+
+
+
+--
+function VUHDO_getPurgeAbilities()
+
+	return VUHDO_PLAYER_PURGE_ABILITIES;
+
 end
 
 

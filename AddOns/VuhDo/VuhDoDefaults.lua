@@ -534,23 +534,23 @@ end
 
 
 --
-local function VUHDO_addCustomSpellIds(aVersion, ...)
-	if ((VUHDO_CONFIG["CUSTOM_DEBUFF"].version or 0) < aVersion) then
+local tName;
+local function VUHDO_addCustomSpellIds(aVersion, aDebuffs)
+
+	if (VUHDO_CONFIG["CUSTOM_DEBUFF"].version or 0) < aVersion then
 		VUHDO_CONFIG["CUSTOM_DEBUFF"].version = aVersion;
 
-		local tArg;
-		for tCnt = 1, select("#", ...) do
-			tArg = select(tCnt, ...);
-
-			if (type(tArg) == "number") then
-				-- make sure the spell ID is still added as a string
-				-- otherwise getKeyFromValue look-ups w/ spell ID string fail later
-				tArg = tostring(tArg);
+		for tSpellId, tIsAddBySpellId in pairs(aDebuffs) do
+			if tIsAddBySpellId then
+				tName = tostring(tSpellId);
+			else
+				tName = GetSpellName(tSpellId);
 			end
 
-			VUHDO_tableUniqueAdd(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"], tArg);
+			VUHDO_tableUniqueAdd(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"], tName);
 		end
 	end
+
 end
 
 
@@ -636,6 +636,7 @@ local VUHDO_DEFAULT_CONFIG = {
 	["DETECT_DEBUFFS_IGNORE_NO_HARM"] = true,
 	["DETECT_DEBUFFS_IGNORE_MOVEMENT"] = true,
 	["DETECT_DEBUFFS_IGNORE_DURATION"] = true,
+	["DETECT_DEBUFFS_IGNORE_PURGEABLE_BUFFS"] = false,
 
 	["SMARTCAST_RESURRECT"] = true,
 	["SMARTCAST_CLEANSE"] = false,
@@ -2381,52 +2382,167 @@ function VUHDO_loadDefaultConfig()
 	-- );
 
 	-- 10.0.2 Dragonflight
-	VUHDO_addCustomSpellIds(53,
-		-- [[ Vault of the Incarnates ]]
-		-- Eranog
-		394917, -- Leaping Flames
-		370597, -- Kill Order
-		396023, -- Incinerating Roar
-		-- Terros
-		381315, -- Awakened Earth
-		380487, -- Rock Blast
-		381595, -- Seismic Assault
-		382458, -- Resonant Aftermath
-		391592, -- Infused Fallout
-		-- The Primal Council
-		371624, -- Conductive Mark
-		371836, -- Primal Blizzard
-		374039, -- Meteor Axes
-		-- Sennarth the Cold Breath
-		372044, -- Wrapped in Webs
-		371976, -- Chilling Blast
-		372082, -- Enveloping Webs
-		373048, -- Suffocating Webs
-		373027, -- Suffocating Webs
-		-- Dathea Ascended
-		391686, -- Conductive Mark
-		-- Kurog Grimtotem
-		372044, -- Absolute Zero
-		382563, -- Magma Burst
-		391696, -- Lethal Current
-		391019, -- Frigid Torrent
-		396106, -- Dominance
-		372517, -- Frozen Solid
-		391056, -- Enveloping Earth
-		391055, -- Enveloping Earth
-		373487, -- Lightning Crash
-		374623, -- Frost Binds
-		-- Broodkeeper Diurna
-		388716, -- Icy Shroud
-		388717, -- Icy Shroud
-		388920, -- Frozen Shroud
-		388918, -- Frozen Shroud
-		375575, -- Flame Sentry
-		-- Raszageth
-		381615, -- Static Charge
-		399713, -- Fulminating Charge
-		377467  -- Magnetic Charge
-	);
+	-- VUHDO_addCustomSpellIds(53,
+	--	-- [[ Vault of the Incarnates ]]
+	--	-- Eranog
+	--	394917, -- Leaping Flames
+	--	370597, -- Kill Order
+	--	396023, -- Incinerating Roar
+	--	-- Terros
+	--	381315, -- Awakened Earth
+	--	380487, -- Rock Blast
+	--	381595, -- Seismic Assault
+	--	382458, -- Resonant Aftermath
+	--	391592, -- Infused Fallout
+	--	-- The Primal Council
+	--	371624, -- Conductive Mark
+	--	371836, -- Primal Blizzard
+	--	374039, -- Meteor Axes
+	--	-- Sennarth the Cold Breath
+	--	372044, -- Wrapped in Webs
+	--	371976, -- Chilling Blast
+	--	372082, -- Enveloping Webs
+	--	373048, -- Suffocating Webs
+	--	373027, -- Suffocating Webs
+	--	-- Dathea Ascended
+	--	391686, -- Conductive Mark
+	--	-- Kurog Grimtotem
+	--	372044, -- Absolute Zero
+	--	382563, -- Magma Burst
+	--	391696, -- Lethal Current
+	--	391019, -- Frigid Torrent
+	--	396106, -- Dominance
+	--	372517, -- Frozen Solid
+	--	391056, -- Enveloping Earth
+	--	391055, -- Enveloping Earth
+	--	373487, -- Lightning Crash
+	--	374623, -- Frost Binds
+	--	-- Broodkeeper Diurna
+	--	388716, -- Icy Shroud
+	--	388717, -- Icy Shroud
+	--	388920, -- Frozen Shroud
+	--	388918, -- Frozen Shroud
+	--	375575, -- Flame Sentry
+	--	-- Raszageth
+	--	381615, -- Static Charge
+	--	399713, -- Fulminating Charge
+	--	377467  -- Magnetic Charge
+	-- );
+
+	-- 11.1.0 The War Within Season 2 Dungeons
+	VUHDO_addCustomSpellIds(54, {
+		[302477] = false,
+		[323437] = false,
+		[285440] = false,
+		[387151] = false,
+		[106113] = false,
+		[381862] = false,
+		[374789] = false,
+		[372087] = false,
+		[384953] = false,
+		[144519] = false,
+		[263943] = false,
+		[254959] = false,
+		[428542] = false,
+		[416139] = false,
+		[409266] = false,
+		[204611] = false,
+		[201399] = false,
+		[260741] = false,
+		[333492] = false,
+		[427329] = false,
+		[327393] = false,
+		[427378] = false,
+		[460135] = false,
+		[448064] = false,
+		[451107] = false,
+		[431349] = false,
+		[473540] = false,
+		[447272] = false,
+		[422245] = false,
+		[466190] = false,
+		[426619] = false,
+		[259940] = false,
+		[468815] = false,
+		[447439] = false,
+		[228958] = true,
+		[227985] = true,
+		[323406] = true,
+		[324154] = true,
+		[356666] = true,
+		[319626] = true,
+		[356925] = true,
+		[168398] = true,
+		[162415] = true,
+		[346962] = true,
+		[154469] = true,
+		[375937] = true,
+		[376864] = true,
+		[193660] = true,
+		[397907] = true,
+		[397908] = true,
+		[373693] = true,
+		[372718] = true,
+		[373735] = true,
+		[265019] = true,
+		[377222] = true,
+		[372566] = true,
+		[372224] = true,
+		[372570] = true,
+		[381770] = true,
+		[256363] = true,
+		[377017] = true,
+		[377018] = true,
+		[197546] = true,
+		[415436] = true,
+		[250096] = true,
+		[260551] = true,
+		[200238] = true,
+		[267907] = true,
+		[255445] = true,
+		[255421] = true,
+		[273470] = true,
+		[451395] = true,
+		[451396] = true,
+		[433740] = true,
+		[449169] = true,
+		[322486] = true,
+		[331288] = true,
+	} );
+
+	-- 11.1.0 The War Within Liberation of Undermine
+	VUHDO_addCustomSpellIds(55, {
+		-- Vexie Fullthrottle
+		[459978] = false,
+		[468216] = false,
+		[459683] = true,
+		-- Cauldron of Carnage
+		[1213690] = false,
+		[1214009] = false,
+		-- Rik Reverb
+		[467044] = false,
+		[469380] = false,
+		[468119] = false,
+		[1214598] = true,
+		-- Stix Bunkjunker
+		[461536] = false,
+		[472893] = true,
+		[466748] = true,
+		-- Sprocketmonger Lockenstock
+		[1217261] = false,
+		-- One-Armed Bandit
+		[471927] = true,
+		-- Mug'Zee
+		[466476] = false,
+		-- Chrome King Gallywix
+		[1220761] = false,
+		[1214755] = false,
+		[466154] = false,
+		[466751] = false,
+		[466834] = false,
+		[469297] = false,
+		[467182] = true,
+	} );
 
 	local debuffRemovalList = {};
 
@@ -2586,6 +2702,7 @@ local VUHDO_DEFAULT_PANEL_SETUP = {
 		["DEBUFF" .. VUHDO_DEBUFF_TYPE_MAGIC] = VUHDO_makeFullColor(0.4, 0.4, 0.8, 1,   0.329, 0.957, 1, 1),
 		["DEBUFF" .. VUHDO_DEBUFF_TYPE_CUSTOM] = VUHDO_makeFullColor(0.6, 0.3, 0, 1,   0.8, 0.5, 0, 1),
 		["DEBUFF" .. VUHDO_DEBUFF_TYPE_BLEED] = VUHDO_makeFullColor(1, 0.2, 0, 1,   1, 0.2, 0.4, 1),
+		["DEBUFF" .. VUHDO_DEBUFF_TYPE_ENRAGE] = VUHDO_makeFullColor(0.95, 0.95, 0.32, 1,   1, 1, 0, 1),
 		["DEBUFF_BAR_GLOW"] = VUHDO_makeFullColor(0.95, 0.95, 0.32, 1,   1, 1, 0, 1),
 		["DEBUFF_ICON_GLOW"] = VUHDO_makeFullColor(0.95, 0.95, 0.32, 1,   1, 1, 0, 1),
 		["CHARMED"] = VUHDO_makeFullColor(0.51, 0.082, 0.263, 1,   1, 0.31, 0.31, 1),
