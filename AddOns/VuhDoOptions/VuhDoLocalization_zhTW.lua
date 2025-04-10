@@ -664,6 +664,8 @@ VUHDO_I18N_TT.K603 = "敵方單位顯示其他人施放的減益。";
 VUHDO_I18N_TT.K604 = "使用漸層的職業顏色。";
 VUHDO_I18N_TT.K605 = "使用漸層色。";
 VUHDO_I18N_TT.K606 = "使用最多漸層色。";
+VUHDO_I18N_TT.K607 = "更改有狂怒增益的敵人的顏色。";
+VUHDO_I18N_TT.K608 = "忽略敵人身上可驅散的增益。";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
