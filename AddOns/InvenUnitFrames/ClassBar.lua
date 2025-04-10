@@ -317,7 +317,7 @@ if playerClass == "DRUID" then
 		if not InCombatLockdown() then PlayerFrameAlternateManaBar:Hide() end
 
 		local hideMana = false
-		if (GetShapeshiftFormID() == DRUID_CAT_FORM or GetShapeshiftFormID() == DRUID_BEAR_FORM) then
+		if (GetShapeshiftFormID() == DRUID_CAT_FORM or GetShapeshiftFormID() == DRUID_BEAR_FORM or GetShapeshiftForm() > 3) then
 			if IUF.db.classBar.druidManaDisible then
 				hideMana = true
 				if not IUF.units.player.classBar.addOn.mana:IsShown() then
@@ -406,7 +406,7 @@ if playerClass == "DRUID" then
 		object.mana.text:SetPoint("CENTER", 0, 0)
 		object.mana:SetScript("OnEvent", function(self, event, _, powerType)
 			local druidManaDisible = false
-			if IUF.db.classBar.druidManaDisible and (GetShapeshiftFormID() == DRUID_CAT_FORM or GetShapeshiftFormID() == DRUID_BEAR_FORM) then
+			if IUF.db.classBar.druidManaDisible and (GetShapeshiftFormID() == DRUID_CAT_FORM or  GetShapeshiftForm() > 3 ) then
 				druidManaDisible = true
 			end
 			if event == "UNIT_POWER_FREQUENT" or event == "UNIT_POWER_UPDATE" then
