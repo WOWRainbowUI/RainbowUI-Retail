@@ -1,4 +1,4 @@
-## Interface: 11506, 30403, 40401, 110007, 110100
+## Interface: 11507, 30404, 40402, 110007, 110100
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Media|r|cffffe00a>|r |cff308530Voicepack Yike|r
 ## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Media|r|cffffe00a>|r |cff308530夏一可语音包|r
@@ -6,7 +6,7 @@
 ## DefaultState: enabled
 ## RequiredDeps: DBM-Core
 ## Author: 夏一可, Mini_Dragon
-## Version: 20250218
+## Version: 20250102
 ## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## Notes: https://github.com/Mini-Dragon/DBM-VoicePack-Yike
 ## X-DBM-Voice: 1
