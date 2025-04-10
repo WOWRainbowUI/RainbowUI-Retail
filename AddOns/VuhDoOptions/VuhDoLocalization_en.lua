@@ -177,7 +177,7 @@ VUHDO_I18N_TT.K049 = "Automatically resurrect dead players out of combat.";
 VUHDO_I18N_TT.K053 = "Select general heal visualization. Prefere \"neutral\" unless you do raid healing in big raids.";
 VUHDO_I18N_TT.K054 = "Sets maximum number of players with lowest life shown at once. Irrelevant if mode is set to \"neutral\"";
 VUHDO_I18N_TT.K055 = "Set a max. hitpoint percentage above which players are considered healthy, which means, they will faded out a bit (configurable).";
-VUHDO_I18N_TT.K056 = "Check to ignore non harmful debuffs (due tue their nature).";
+VUHDO_I18N_TT.K056 = "Check to ignore non harmful debuffs (due to their nature).";
 VUHDO_I18N_TT.K057 = "Check to ignore debuffs only slowing movement.";
 VUHDO_I18N_TT.K058 = "Check to ignore debuffs with very low duration.";
 VUHDO_I18N_TT.K059 = "Check to ignore debuffs irrelevant by class (eg. mana burn on rogues).";
@@ -661,6 +661,8 @@ VUHDO_I18N_TT.K603 = "Show debuffs cast by others on hostile units.";
 VUHDO_I18N_TT.K604 = "Check this to use gradient class colors.";
 VUHDO_I18N_TT.K605 = "Check this to use gradient color.";
 VUHDO_I18N_TT.K606 = "Select the maximum gradient color.";
+VUHDO_I18N_TT.K607 = "Click to change color to indicate enemies affected by enrage buffs.";
+VUHDO_I18N_TT.K608 = "Check to ignore purgeable buffs on enemies.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Default Profile";
 VUHDO_I18N_DEFAULT_LAYOUT = "Default Layout";
@@ -1219,3 +1221,6 @@ VUHDO_I18N_CLASS_GRADIENT_COLORS = "Class Gradient Colors";
 VUHDO_I18N_CLASS_GRADIENTS = "Class\nGradients";
 VUHDO_I18N_LIFE_GRADIENT = "Life\nGradient";
 VUHDO_I18N_MAX_COLOR = "Max Color";
+
+VUHDO_I18N_ENRAGE = "Enrage";
+VUHDO_I18N_PURGEABLE_BUFFS = "Purgeable\nBuffs";

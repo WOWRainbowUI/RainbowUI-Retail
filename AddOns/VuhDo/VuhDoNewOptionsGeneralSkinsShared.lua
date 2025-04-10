@@ -2652,6 +2652,7 @@ end
 function VUHDO_loadProfileNoInit(aName)
 	local tIndex, tProfile = VUHDO_getProfileNamed(aName);
 	local tPanelPositions;
+
 	if not tIndex then
 		VUHDO_Msg(VUHDO_I18N_ERROR_NO_PROFILE .. "\"" .. aName .. "\" !", 1, 0.4, 0.4);
 		return;
@@ -2669,10 +2670,24 @@ function VUHDO_loadProfileNoInit(aName)
 	VUHDO_INDICATOR_CONFIG  = VUHDO_smartLoadFromProfile(VUHDO_INDICATOR_CONFIG,  tProfile["INDICATOR_CONFIG"],  VUHDO_PROFILE_MODEL["INDICATOR_CONFIG"],  VUHDO_PROFILE_MODEL_MATCH_ALL);
 
 	tPanelPositions = tProfile["PANEL_POSITIONS"];
-	if tPanelPositions then
-		for tCnt = 1, 10 do -- VUHDO_MAX_PANELS
-			if tPanelPositions[tCnt] then
-				VUHDO_PANEL_SETUP[tCnt]["POSITION"] = VUHDO_deepCopyTable(tPanelPositions[tCnt]);
+
+	local tLayoutName;
+
+	if VUHDO_SPEC_LAYOUTS then
+		tLayoutName = VUHDO_SPEC_LAYOUTS["selected"];
+	end
+
+	for tPanelNum = 1, VUHDO_MAX_PANELS do
+		if tPanelPositions and tPanelPositions[tPanelNum] then
+			VUHDO_PANEL_SETUP[tPanelNum]["POSITION"] = VUHDO_deepCopyTable(tPanelPositions[tPanelNum]);
+		end
+
+		if VUHDO_SPELL_CONFIG["IS_LOAD_HOTS"] and tLayoutName and VUHDO_SPELL_LAYOUTS and VUHDO_SPELL_LAYOUTS[tLayoutName] then
+			-- support for pre per-panel HoTs
+			if type(VUHDO_SPELL_LAYOUTS[tLayoutName]["HOTS"]) == "table" then
+				VUHDO_PANEL_SETUP[tPanelNum]["HOTS"] = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[tLayoutName]["HOTS"][tPanelNum]);
+			else
+				VUHDO_PANEL_SETUP[tPanelNum]["HOTS"] = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[tLayoutName]["HOTS"]);
 			end
 		end
 	end
