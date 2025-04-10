@@ -5,10 +5,14 @@
 ## Title-zhTW: Leatrix Plus [|cffeda55f功能百寶箱|r]
 
 ## Notes: Quality of life addon.
+## Notes-esES: Addon para calidad de vida.
+## Notes-esMX: Addon para calidad de vida.
+## Notes-frFR: Add-on pour la qualité de vie.
+## Notes-ptBR: Addon para qualidade de vida.
 ## Notes-zhCN: 哆啦A梦的百宝袋
 ## Notes-zhTW: 哆啦A夢的百寶袋
 
-## Version: 11.1.07
+## Version: 11.1.08
 ## Author: Leatrix
 ## SavedVariables: LeaPlusDB
 ## AddonCompartmentFunc:LeaPlusGlobalMiniBtnClickFunc
