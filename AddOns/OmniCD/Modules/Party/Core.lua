@@ -36,7 +36,6 @@ function P:Enable()
 	if InCombatLockdown() then
 		self:PLAYER_REGEN_DISABLED()
 	end
-	CM:InspectUser()
 	self:SetHooks()
 	self:Refresh()
 end

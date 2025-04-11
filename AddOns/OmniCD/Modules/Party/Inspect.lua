@@ -26,7 +26,7 @@ local inspectOrderList = {}
 local queueEntries = {}
 local staleEntries = {}
 
-CM.SERIALIZATION_VERSION = 6
+CM.SERIALIZATION_VERSION = E.preWOTLKC and 6 or 7
 CM.ACECOMM = LibStub("AceComm-3.0"):Embed(CM)
 
 function CM:Enable()
@@ -74,7 +74,7 @@ function CM:Disable()
 	end
 	self:UnregisterAllEvents()
 	self:DisableInspect()
-	self:DesyncFromGroup()
+	self:DesyncUserFromGroup()
 	self.isEnabled = false
 end
 
@@ -128,6 +128,10 @@ local function PendingInspect(guid)
 end
 
 function CM:AddToInspectList(guid)
+
+
+
+
 	if not PendingInspect(guid) then
 		inspectOrderList[#inspectOrderList + 1] = guid
 	end
@@ -992,53 +996,6 @@ local function GetCovenantSoulbindData(info, list)
 	end
 end
 
-local function FindValidSpellID(info, v)
-	if type(v) ~= "table" then
-		return info.spec == v or (info:IsTalentForPvpStatus(v) and true)
-	end
-	if v[1] > 0 then
-
-		for _, id in pairs(v) do
-			if info.spec == id or info:IsTalentForPvpStatus(id) then
-				return true
-			end
-		end
-	else
-
-		local spellID
-		for i = 1, #v, 2 do
-			local tid, sid = v[i], v[i + 1]
-			tid = i == 1 and -tid or tid
-			spellID = info:IsTalentForPvpStatus(tid) and sid
-		end
-		return spellID or true
-	end
-end
-
-function CM:UpdateCooldownSyncIDs(info)
-	wipe(self.cooldownSyncIDs)
-
-	if info.isAdminForMDI then
-		return
-	end
-
-	local notRaid = P.zone ~= "raid"
-	for id, t in E.pairs(E.sync_cooldowns.ALL, E.sync_cooldowns[E.userClass]) do
-		if notRaid or E.sync_in_raid[id] then
-			local spellID
-			for i = 1, #t do
-				local v = t[i]
-				spellID = not v or FindValidSpellID(info, v)
-				if not spellID then break end
-			end
-			if spellID then
-				self.cooldownSyncIDs[spellID == true and id or spellID] = { 0, -1 }
-			end
-		end
-	end
-	self:ToggleCooldownSync()
-end
-
 function CM:InspectUser()
 	local info = P.userInfo
 	local specID
@@ -1049,10 +1006,10 @@ function CM:InspectUser()
 		local specIndex = GetSpecialization()
 		specID = GetSpecializationInfo(specIndex)
 	end
+
 	if not specID or specID == 0 then
 		return false
 	end
-
 	info.spec = specID
 
 	wipe(info.talentData)
@@ -1078,12 +1035,11 @@ function CM:InspectUser()
 	local encodedData = LibDeflate:EncodeForWoWAddonChannel(compressedData)
 	self.serializedSyncData = encodedData
 
-	if not E.preWOTLKC then
-		self:UpdateCooldownSyncIDs(info)
-	end
 
-	if P.groupInfo[E.userGUID] then
+	if P.groupInfo[info.guid] then
+		CM:RefreshCooldownSyncIDs(info)
 		info:SetupBar()
+		CM:AssignSpellIDsToCooldownSyncIDs(info)
 	end
 
 	return true

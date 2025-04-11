@@ -37,13 +37,7 @@ function ExtraBarFrameMixin:ReleaseIcons()
 end
 
 function ExtraBarFrameMixin:UpdatePosition()
-	local db = self.db
-	if db.unitBar then
-		for bar in P.BarPool:EnumerateActive() do
-			local unitBar = bar.activeUnitBars[self.index]
-			unitBar:UpdatePosition()
-		end
-	else
+	if not self.db.unitBar then
 		E.LoadPosition(self)
 	end
 end
@@ -349,8 +343,10 @@ function ExtraBarFrameMixin:UpdateLayout(sortOrder, updateIcons)
 	if db.unitBar then
 		for bar in P.BarPool:EnumerateActive() do
 			local unitBar = bar.activeUnitBars[self.index]
-			unitBar:UpdateLayout(sortOrder)
-			unitBar:Show()
+			if unitBar then
+				unitBar:UpdateLayout(sortOrder)
+				unitBar:Show()
+			end
 		end
 	else
 		if sortOrder then

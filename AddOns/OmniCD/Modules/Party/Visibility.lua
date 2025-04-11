@@ -99,8 +99,8 @@ local function IsInShadowlands()
 	end
 end
 
-function P.UpdateDelayedZoneData()
-	P.isInShadowlands = E.isSL or (E.postDF and not P.isInPvPInstance and IsInShadowlands())
+function P:UpdateDelayedZoneData()
+	self.isInShadowlands = E.isSL or (E.postDF and not self.isInPvPInstance and IsInShadowlands())
 end
 
 local function InspectAllGroupMembers()
@@ -109,7 +109,7 @@ end
 
 local function IsExtraBarDisabled()
 	for key, db in pairs(E.db.extraBars) do
-		if db.enabled then
+		if db.enabled and db.showPlayer then
 			return false
 		end
 	end
@@ -140,7 +140,7 @@ local function RequestSync_OnDelayEnd()
 	end
 end
 
-local function ScheduleSyncRequest(force)
+local function ScheduleSyncRequest()
 
 
 
@@ -168,7 +168,7 @@ local function ScheduleRosterUpdate()
 	if callbackTimers.rosterDelay then
 		callbackTimers.rosterDelay:Cancel()
 	end
-	callbackTimers.rosterDelay = C_Timer.NewTimer(2, P.GROUP_ROSTER_UPDATE)
+	callbackTimers.rosterDelay = C_Timer.NewTimer(2, P.UpdateRosterInfo)
 end
 
 function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
@@ -191,7 +191,7 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 
 	E.db = E:GetCurrentZoneSettings(self.isInTestMode and self.testZone or instanceType)
 	self.isUserHidden = not self.isInTestMode and not E.db.general.showPlayer
-	self.isUserDisabled = self.isUserHidden and (not E.db.general.showPlayerEx or IsExtraBarDisabled())
+	self.isUserDisabled = self.isUserHidden and IsExtraBarDisabled()
 	self.isHighlightEnabled = E.db.highlight.glowBuffs
 	self.zone = instanceType
 	self.isInArena = instanceType == "arena"
@@ -199,15 +199,9 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 	self.isPvP = E.preCata or self.isInPvPInstance or (instanceType == "none" and C_PvP.IsWarModeDesired())
 	self.effectivePixelMult = nil
 
-	C_Timer.After(1, self.UpdateDelayedZoneData)
-
 	self:RegisterZoneEvents()
 	self:UpdateEnabledSpells()
 	self:UpdatePositionValues()
-
-	for guid, info in pairs(groupInfo) do
-		info:ClearSessionItemData()
-	end
 
 	if self.isInPvPInstance then
 		self:ResetAllIcons("joinedPvP")
@@ -228,7 +222,8 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 	self:HookRefreshMembers()
 
 
-	self:GROUP_ROSTER_UPDATE(true)
+
+	self:GROUP_ROSTER_UPDATE(true, isRefresh)
 end
 
 P.ZONE_CHANGED_NEW_AREA = P.PLAYER_ENTERING_WORLD
@@ -251,7 +246,7 @@ function P:GROUP_JOINED()
 	end
 end
 
-function P:GROUP_ROSTER_UPDATE(force)
+function P:UpdateRosterInfo(force, clearSession)
 	local size = P:GetEffectiveNumGroupMembers()
 
 	local wasDisabled = P.disabled
@@ -279,14 +274,15 @@ function P:GROUP_ROSTER_UPDATE(force)
 	local isCallback = type(self) == "userdata"
 	local isReadyForSync = isCallback and P.groupJoined
 
-	if not isCallback and size < (P.size or 0) or force then
-		for guid, info in pairs(groupInfo) do
-			if not UnitExists(info.name) or (guid == E.userGUID and P.isUserDisabled) or (not P.isInTestMode and info.isNPC) then
-				info:Delete()
-			end
+
+
+	for guid, info in pairs(groupInfo) do
+		if not UnitExists(info.name) or (not P.isInTestMode and info.isNPC) then
+			info:Delete()
+		elseif clearSession then
+			info:ClearSessionItemData()
 		end
 	end
-	P.size = size
 
 	for i = 1, size do
 		local index = not isInRaid and i == size and 5 or i
@@ -295,7 +291,6 @@ function P:GROUP_ROSTER_UPDATE(force)
 		local info = groupInfo[guid]
 		local name, subgroup, level, fileName, online, isDead = GetRosterInfo(i, isInRaid or unit)
 		local isDeadOrOffline = isDead or not online
-		local notUser = guid ~= E.userGUID
 		local isNPC = strsub(guid, 1, 6) ~= "Player"
 
 
@@ -309,10 +304,9 @@ function P:GROUP_ROSTER_UPDATE(force)
 			if force or info.isAdminForMDI ~= isAdminForMDI then
 				info:SetUnit(unit, index, isDead, isDeadOrOffline, isAdminForMDI)
 				info:SetupBar(true)
-				if notUser then
-					CM:AddToInspectList(guid)
-				end
+				CM:AddToInspectList(guid)
 			else
+
 				if info.unit ~= unit then
 					info:SetUnit(unit, index)
 					info.bar:UnregisterAllEvents()
@@ -325,12 +319,15 @@ function P:GROUP_ROSTER_UPDATE(force)
 				end
 
 				if info.isDeadOrOffline ~= isDeadOrOffline then
+					if not online then
+						CM.syncedGroupMembers[guid] = nil
+					end
 					info.isDead = isDead
 					info.isDeadOrOffline = isDeadOrOffline
 					info:UpdateColorScheme()
 				end
 			end
-		elseif not info and (isCallback or force) and (not P.isUserDisabled or notUser) and (P.isInTestMode or not isNPC) then
+		elseif not info and (isCallback or force) and (P.isInTestMode or not isNPC) then
 
 			if fileName then
 				local petGUID = (fileName == "WARLOCK" or fileName == "HUNTER" or fileName == "DEATHKNIGHT")
@@ -347,9 +344,7 @@ function P:GROUP_ROSTER_UPDATE(force)
 				info.petGUID = petGUID
 				info.isNPC = isNPC
 				info:SetupBar(true)
-				if notUser then
-					CM:AddToInspectList(guid)
-				end
+				CM:AddToInspectList(guid)
 			else
 
 				ScheduleRosterUpdate()
@@ -364,11 +359,12 @@ function P:GROUP_ROSTER_UPDATE(force)
 	CM:ToggleCooldownSync()
 
 
-	if force then
-		CM.PLAYER_TALENT_UPDATE()
-	elseif isReadyForSync then
-		ScheduleSyncRequest(force)
-		P.groupJoined = nil
+
+	if force or isReadyForSync then
+		if isReadyForSync then
+			P.groupJoined = nil
+		end
+		ScheduleSyncRequest()
 	end
 
 	if isCallback then
@@ -379,11 +375,25 @@ function P:GROUP_ROSTER_UPDATE(force)
 	end
 end
 
+function P:GROUP_ROSTER_UPDATE(isPEW, isRefresh)
+	if isRefresh or GetNumGroupMembers() == 0 then
+		self:UpdateRosterInfo(true)
+	elseif isPEW then
+		C_Timer.After(1, function()
+			self:UpdateDelayedZoneData()
+			self:UpdateRosterInfo(true, true)
+		end)
+	else
+		C_Timer.After(0, function()
+			self:UpdateRosterInfo()
+		end)
+	end
+end
+
 function P:CHAT_MSG_BG_SYSTEM_NEUTRAL(arg1)
 	if self.disabled then
 		return
 	end
-
 
 	if strfind(arg1, "!$") then
 		CM:EnqueueInspect(true)

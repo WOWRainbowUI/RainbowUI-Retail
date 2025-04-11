@@ -45,6 +45,13 @@ E.SlashHandler = function(msg)
 		else
 			E.write("Invalid <value>.", value)
 		end
+	elseif command == "m" or command =="manual" then
+		local key = E.L_CFG_ZONE[value] and value or "arena"
+		E.profile.Party[key].position.detached = not E.profile.Party[key].position.detached
+		local state = E.profile.Party[key].position.detached and VIDEO_OPTIONS_ENABLED or VIDEO_OPTIONS_DISABLED
+		E.write(key, L["Manual Mode"], state)
+		P:Refresh()
+		E:ACR_NotifyChange()
 	elseif command == "s" or command == "spell" or E.L_CFG_ZONE[command] then
 		local zone = E.L_CFG_ZONE[command] and command or "arena"
 		if value == "?" then

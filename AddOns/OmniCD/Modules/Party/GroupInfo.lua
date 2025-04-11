@@ -299,6 +299,31 @@ function GroupInfoMixin:FindIconFromCastID(spellID)
 	return nil
 end
 
+function GroupInfoMixin:AddOnCast(spellID, itemID, castID)
+
+	castID = castID or spellID
+	local isUser = self.guid == E.userGUID
+	local isSyncSpell = E.sync_cooldowns[self.class][castID] or E.sync_cooldowns.ALL[castID]
+
+	if not P.spell_enabled[spellID] and (not isUser or not isSyncSpell) then
+		return
+	end
+
+	if itemID then
+		self.sessionItemData[itemID] = true
+	end
+
+
+	if isUser and isSyncSpell then
+		CM.cooldownSyncIDs[castID] = spellID
+		CM.cooldownSyncSpellIDs[spellID] = true
+		CM:ToggleCooldownSync()
+	end
+	self:SetupBar()
+
+	return self.spellIcons[spellID]
+end
+
 local twwHeroTalents = {
 	[436358] = true,
 	[439843] = true,
@@ -314,17 +339,21 @@ local twwHeroTalents = {
 
 function GroupInfoMixin:SetupBar(isUpdateBarsOrGRU)
 	local guid, index, unit, raceID, specID, class, name, lvl = self.guid, self.index, self.unit, self.raceID, self.spec, self.class, self.name, self.level
-	local notUser = guid ~= E.userGUID
+	local isUser = guid == E.userGUID
 
 	wipe(self.spellIcons)
 
 	local bar = self.bar or self:GetBarFrame()
-	bar:RefreshUnitBarFrames()
 	bar:UnregisterAllEvents()
 	bar:SetUnit(self, unit, index)
+	bar:RefreshUnitBarFrames()
 
 	if self.isAdminForMDI then
+		if isUser then
+			CM.CooldownSyncFrame:ReleaseIcons()
+		end
 		bar:ReleaseIcons()
+		bar.anchor:Hide()
 		return
 	end
 
@@ -334,17 +363,30 @@ function GroupInfoMixin:SetupBar(isUpdateBarsOrGRU)
 	self:SetClassVariables()
 
 	local iconIndex = 0
+	local syncIndex = 0
 	for spellID, spell in pairs(E.hash_spelldb) do
 		local cat, spellType, spec, race, item, talent, disabledSpec = spell.class, spell.type, spell.spec, spell.race, spell.item, spell.talent, spell.disabledSpec
-		if not disabledSpec or not disabledSpec[specID] or not disabledSpec[specID][P.zone] then
+
+		local isDisabledSpec = disabledSpec and disabledSpec[specID] and disabledSpec[specID][P.zone]
+		if not isDisabledSpec or isUser then
 			local isValidSpell
 			local enabledSpell = P.spell_enabled[spellID]
+
 			local extraBarKey, extraBarFrame
 			if enabledSpell and enabledSpell > 0 then
 				extraBarKey = P.extraBarKeys[enabledSpell]
 				extraBarFrame = P.activeExBars[extraBarKey]
 			end
-			if enabledSpell and (notUser or not P.isUserHidden or (extraBarFrame and not extraBarFrame.db.unitBar)) then
+
+			local isUserEnabled, isUserSyncOnly
+			if isUser then
+				isUserEnabled = not isDisabledSpec and enabledSpell and (enabledSpell > 0 and extraBarFrame.db.showPlayer or enabledSpell == 0 and not P.isUserHidden)
+				if not isUserEnabled then
+					isUserSyncOnly = CM.cooldownSyncSpellIDs[spellID]
+				end
+			end
+
+			if not isUser and enabledSpell or isUserEnabled or isUserSyncOnly then
 				if cat == "RACIAL" then
 					if type(race) == "table" then
 						for k = 1, #race do
@@ -375,7 +417,7 @@ function GroupInfoMixin:SetupBar(isUpdateBarsOrGRU)
 					elseif cat == "COVENANT" then
 						isValidSpell = P.isInShadowlands and sessionData and sessionData[spec]
 					elseif cat == "TRINKET" then
-						isValidSpell = not item or self.sessionItemData[item]
+						isValidSpell = not item or self.sessionItemData[item] and (item ~= 5512 or class ~= "WARLOCK")
 					end
 				end
 			end
@@ -533,7 +575,22 @@ function GroupInfoMixin:SetupBar(isUpdateBarsOrGRU)
 					ch = ch > 1 and ch
 
 					local icon
-					if extraBarFrame then
+					if isUserSyncOnly then
+						syncIndex = syncIndex + 1
+						icon = CM.CooldownSyncFrame.icons[syncIndex]
+						if not icon then
+							icon = P.IconPool:Acquire()
+							CM.CooldownSyncFrame.icons[syncIndex] = icon
+							icon:SetParent(CM.CooldownSyncFrame)
+							icon.parent = CM.CooldownSyncFrame
+							icon:ClearAllPoints()
+							icon:SetPoint("BOTTOMLEFT", CM.CooldownSyncFrame, "BOTTOMLEFT", syncIndex * 36, 0)
+							--[==[@debug@
+							icon:HideBorder()
+							--@end-debug@]==]
+							icon:Show()
+						end
+					elseif extraBarFrame then
 						icon = P.IconPool:Acquire()
 						if extraBarFrame.db.unitBar then
 							local unitBar = bar.activeUnitBars[enabledSpell]
@@ -576,6 +633,7 @@ function GroupInfoMixin:SetupBar(isUpdateBarsOrGRU)
 					iconTexture = spellID == 371032 and (self.talentData[403631] and 5199622 or 4622450) or iconTexture
 					icon.icon:SetTexture(iconTexture)
 					icon.iconTexture = iconTexture
+					icon.isUserSyncOnly = isUserSyncOnly
 
 					icon.active = nil
 					icon.tooltipID = nil
@@ -603,18 +661,27 @@ function GroupInfoMixin:SetupBar(isUpdateBarsOrGRU)
 
 
 					if self.preactiveIcons[spellID] then
-						self.preactiveIcons[spellID] = icon
+
+						if spellID == 642 and self.talentData[146956] then
+							self.preactiveIcons[spellID] = nil
+						else
+							self.preactiveIcons[spellID] = icon
+						end
 						icon:SetHighlight(true)
 					end
 					self.spellIcons[spellID] = icon
 
 
-					if extraBarFrame and extraBarFrame.shouldShowProgressBar then
+					if extraBarFrame and extraBarFrame.shouldShowProgressBar and not isUserSyncOnly then
 						P:GetStatusBarFrame(icon, extraBarKey, self.nameWithoutRealm)
 					end
 				end
 			end
 		end
+	end
+
+	if isUser then
+		CM.CooldownSyncFrame:ReleaseIcons(syncIndex)
 	end
 	bar:ReleaseIcons(iconIndex)
 
@@ -730,6 +797,9 @@ function GroupInfoMixin:IsSpecOrTalentForPvpStatus(talentID, isLearnedLevel)
 			end
 		end
 	else
+		if talentID < 0 then
+			return not self.talentData[-talentID]
+		end
 		if specIDs[talentID] then
 			return isLearnedLevel and self.spec == talentID
 		end
@@ -829,6 +899,9 @@ function GroupInfoMixin:Delete()
 	P.groupInfo[guid] = nil
 
 	if guid == E.userGUID then
+
+
+		wipe(P.userInfo.active)
 		wipe(P.userInfo.sessionItemData)
 	end
 end

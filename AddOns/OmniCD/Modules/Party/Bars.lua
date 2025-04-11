@@ -166,6 +166,12 @@ function BarFrameMixin:ReleaseUnitBars()
 	end
 end
 
+function BarFrameMixin:UpdateUnitBarPosition()
+	for _, unitBar in pairs(self.activeUnitBars) do
+		unitBar:UpdatePosition()
+	end
+end
+
 function BarFrameMixin:ReleaseIcons(n)
 	n = n or 0
 	for i = #self.icons, n + 1, -1 do
@@ -206,30 +212,47 @@ end
 
 function BarFrameMixin:UpdatePosition()
 	self:Hide()
-	local relFrame = P:FindRelativeFrame(self.guid, E.db.position.uf)
-	if relFrame then
-		if E.db.general.showRange then
-			if not P.effectivePixelMult then
-				SetEffectivePixelMult(relFrame)
-			end
-			if self.parent ~= relFrame then
-				self:SetParent(relFrame)
-				self.parent = relFrame
-				self:SetFrameLevel(10)
-			end
-		else
-			if self.parent ~= UIParent then
-				self:SetParent(UIParent)
-				self.parent = UIParent
-			end
+
+	if E.db.position.detached then
+		if self.parent ~= UIParent then
+			self:SetParent(UIParent)
+			self.parent = UIParent
 		end
-		self.relativeFrame = relFrame
-		self:ClearAllPoints()
-		self:SetPoint(P.point, relFrame, P.relativePoint)
+		E.LoadPosition(self)
 		self:Show()
+	else
+		local relFrame = P:FindRelativeFrame(self.guid, E.db.position.uf)
+		if relFrame then
+			if E.db.general.showRange then
+				if not P.effectivePixelMult then
+					SetEffectivePixelMult(relFrame)
+				end
+				if self.parent ~= relFrame then
+					self:SetParent(relFrame)
+					self.parent = relFrame
+					self:SetFrameLevel(10)
+				end
+			else
+				if self.parent ~= UIParent then
+					self:SetParent(UIParent)
+					self.parent = UIParent
+				end
+			end
+			self.relativeFrame = relFrame
+			self:ClearAllPoints()
+			self:SetPoint(P.point, relFrame, P.relativePoint)
+			self:Show()
+		end
 	end
+
+	self:UpdateUnitBarPosition()
+
 	self:SetContainerOffset()
 	self:SetAnchorPosition()
+end
+
+function BarFrameMixin:UpdatePosition_OnDelayEnd()
+	C_Timer.After(0, function() self:UpdatePosition() end)
 end
 
 function BarFrameMixin:SetContainerOffset()
@@ -335,7 +358,19 @@ function BarFrameMixin:UpdateSettings()
 end
 
 function BarFrameMixin:SetAnchor()
-	self.anchor:SetShown(E.db.general.showAnchor and (self.guid ~= E.userGUID or not P.isUserHidden))
+	local showMovableAnchor = E.db.position.detached and not E.db.position.locked
+	if showMovableAnchor or E.db.general.showAnchor and (self.guid ~= E.userGUID or not P.isUserHidden) then
+		self.anchor:Show()
+	else
+		self.anchor:Hide()
+	end
+	if showMovableAnchor then
+		self.anchor:EnableMouse(true)
+		self.anchor.background:SetColorTexture(0, 0.8, 0, 1)
+	else
+		self.anchor:EnableMouse(false)
+		self.anchor.background:SetColorTexture(0.756, 0, 0.012, 0.7)
+	end
 end
 
 function BarFrameMixin:SetContainerSize()
@@ -354,7 +389,7 @@ end
 
 function P:UpdatePositionValues()
 	local db = E.db.position
-	local pixelMult = E.db.general.showRange and self.effectivePixelMult or E.PixelMult
+	local pixelMult = (E.db.general.showRange and not db.detached) and self.effectivePixelMult or E.PixelMult
 
 	local size = E.BASE_ICON_HEIGHT * E.db.icons.scale
 	self.iconScale = (size - size % pixelMult) / E.BASE_ICON_HEIGHT
@@ -439,6 +474,7 @@ function P:CreateBarFramePool()
 
 		if bar.guid == E.userGUID then
 			P.userInfo.bar = nil
+			CM.CooldownSyncFrame:ReleaseIcons()
 		end
 	end
 

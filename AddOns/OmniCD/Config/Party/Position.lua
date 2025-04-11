@@ -72,11 +72,12 @@ local position = {
 		end
 	end,
 	args = {
-		addOnsSettings = {
-			name = L["Anchor"],
+		positionSettings = {
+			disabled = function(info) return E.profile.Party[ info[2] ].position.detached end,
+			name = L["Position"],
 			type = "group",
 			inline = true,
-			order = 1,
+			order = 2,
 			args = {
 				uf = {
 					name = ADDONS,
@@ -88,9 +89,9 @@ local position = {
 						local key = info[2]
 						local db = E.profile.Party[key].position
 						if P:IsCurrentZone(key) then
-							if value == "blizz"
-								and (not C_AddOns.IsAddOnLoaded("Blizzard_CompactRaidFrames")
-								or not C_AddOns.IsAddOnLoaded("Blizzard_CUFProfiles")) then
+							if not db.detached
+								and (not E.customUF.enabledList or value == "blizz")
+								and not E:IsBlizzardCUFLoaded() then
 								E.Libs.OmniCDC.StaticPopup_Show("OMNICD_RELOADUI", E.STR.ENABLE_BLIZZARD_CRF)
 							else
 								if P.isInTestMode then
@@ -107,14 +108,6 @@ local position = {
 						end
 					end,
 				},
-			}
-		},
-		positionSettings = {
-			name = L["Position"],
-			type = "group",
-			inline = true,
-			order = 2,
-			args = {
 				preset = {
 					name = L["Position"],
 					desc = L["Set the spell bar position"],
@@ -130,7 +123,7 @@ local position = {
 					disabled = isPreset,
 					name = L["Anchor Point"],
 					desc = format("%s\n\n%s", L["Set the anchor point on the spell bar"],
-					L["Having \"RIGHT\" in the anchor point, icons grow left, otherwise right"]),
+						L["Having \"RIGHT\" in the anchor point, icons grow left, otherwise right"]),
 					order = 3,
 					type = "select",
 					values = L_POINTS,
@@ -237,7 +230,8 @@ local position = {
 					type = "range", min = 0, max = 100, step = 1,
 					confirm = function(info, value)
 						return value >= E.profile.Party[ info[2] ].position.breakPoint3
-						and L["Select a value lower than Breakpoint1"] end,
+							and L["Select a value lower than Breakpoint1"]
+					end,
 				},
 				lb1 = {
 					name = "", order = 15, type = "description",
@@ -252,7 +246,7 @@ local position = {
 					end,
 					desc = function(info)
 						return E.profile.Party[ info[2] ].position.layout == "vertical"
-						and L["Set the number of icons per column"] or L["Set the number of icons per row"]
+							and L["Set the number of icons per column"] or L["Set the number of icons per row"]
 					end,
 					order = 16,
 					type = "range",
@@ -293,6 +287,65 @@ local position = {
 					desc = L["Toggle the grow direction of icon rows"],
 					order = 22,
 					type = "toggle",
+				},
+			}
+		},
+		manualModeSettings = {
+			disabled = function(info)
+				return info[5] and not E.profile.Party[ info[2] ].position.detached
+			end,
+			name = L["Manual Mode"],
+			order = 4,
+			type = "group",
+			inline = true,
+			args = {
+				detached = {
+					disabled = false,
+					name = ENABLE,
+					desc = L["Detach from raid frames and set position manually"],
+					order = 1,
+					type = "toggle",
+					set = function(info, state)
+						local key = info[2]
+						E.profile.Party[key].position.detached = state
+
+						if P:IsCurrentZone(key) then
+							if not state
+								and (not E.customUF.enabledList or E.profile.Party[key].position.uf == "blizz")
+								and not E:IsBlizzardCUFLoaded() then
+								E.Libs.OmniCDC.StaticPopup_Show("OMNICD_RELOADUI", E.STR.ENABLE_BLIZZARD_CRF)
+							end
+							P:Refresh()
+						end
+
+						if E.postDF and P.isInTestMode then
+							local testZone = P.testZone
+							P:Test()
+							P:Test(testZone)
+						end
+					end,
+				},
+				locked = {
+					name = LOCK_FRAME,
+					desc = L["Lock frame position"],
+					order = 2,
+					type = "toggle",
+				},
+				reset = {
+					name = RESET_POSITION,
+					desc = L["Reset frame position"],
+					order = 5,
+					type = "execute",
+					func = function(info)
+						local key = info[2]
+						for k in pairs(E.profile.Party[key].manualPos) do
+							if type(k) == "number" then
+								E.profile.Party[key].manualPos[k] = nil
+							end
+						end
+						P:Refresh()
+					end,
+					confirm = E.ConfirmAction,
 				},
 			}
 		},

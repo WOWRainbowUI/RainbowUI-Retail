@@ -117,7 +117,8 @@ local highlight = {
 				glowBorder = {
 					disabled = false,
 					name = ENABLE,
-					desc = format("%s.\n\n|cffff2020%s", L["Glow Border"], L["Only applies to spells that have Glow enabled in the Spells tab"]),
+					desc = format("%s.\n\n|cffff2020%s", L["Glow Border"],
+						L["Only applies to spells that have Glow enabled in the Spells tab"]),
 					order = 1,
 					type = "toggle",
 				},

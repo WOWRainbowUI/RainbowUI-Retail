@@ -12,8 +12,6 @@ local COMPACT_RAID = {
 	"CompactRaidFrame26", "CompactRaidFrame27", "CompactRaidFrame28", "CompactRaidFrame29", "CompactRaidFrame30",
 	"CompactRaidFrame31", "CompactRaidFrame32", "CompactRaidFrame33", "CompactRaidFrame34", "CompactRaidFrame35",
 	"CompactRaidFrame36", "CompactRaidFrame37", "CompactRaidFrame38", "CompactRaidFrame39", "CompactRaidFrame40",
-	"CompactRaidFrame41", "CompactRaidFrame42", "CompactRaidFrame43", "CompactRaidFrame44", "CompactRaidFrame45",
-	"CompactRaidFrame46", "CompactRaidFrame47", "CompactRaidFrame48", "CompactRaidFrame49", "CompactRaidFrame50",
 
 	"CompactRaidFrame41", "CompactRaidFrame42", "CompactRaidFrame43", "CompactRaidFrame44", "CompactRaidFrame45",
 	"CompactRaidFrame46", "CompactRaidFrame47", "CompactRaidFrame48", "CompactRaidFrame49", "CompactRaidFrame50",
@@ -111,6 +109,7 @@ function P:FindRelativeFrame(guid, uf)
 				local f = _G[name]
 				local unit = f and f.unit
 				if unit and UnitGUID(unit) == guid then
+
 					return f:IsVisible() and f
 				end
 			end
@@ -159,7 +158,7 @@ function P:UpdatePosition()
 
 	if isColdStartDC then
 		isColdStartDC = nil
-		if C_AddOns.IsAddOnLoaded("Blizzard_CompactRaidFrames") and C_AddOns.IsAddOnLoaded("Blizzard_CUFProfiles") then
+		if E:IsBlizzardCUFLoaded() then
 			self:UpdateCompactFrameSystemSettings()
 		end
 	end
@@ -204,7 +203,7 @@ function P:CVAR_UPDATE(cvar, value)
 end
 
 function P:SetHooks()
-	if self.hooked or not C_AddOns.IsAddOnLoaded("Blizzard_CompactRaidFrames") or not C_AddOns.IsAddOnLoaded("Blizzard_CUFProfiles") then
+	if self.hooked or not E:IsBlizzardCUFLoaded() then
 		return
 	end
 
@@ -311,12 +310,12 @@ local function OnRefreshMemebers()
 		) == 1 then
 		return
 	end
-	P:UpdatePosition(true)
+	P:UpdatePosition()
 	pauseTimer = C_Timer.NewTimer(6, ResetPause)
 end
 
 function P:HookRefreshMembers()
-	if not E.postDF or not C_AddOns.IsAddOnLoaded("Blizzard_CompactRaidFrames") or not C_AddOns.IsAddOnLoaded("Blizzard_CUFProfiles") then
+	if not E.postDF or not E:IsBlizzardCUFLoaded() then
 		return
 	end
 	if self.isInArena and not self:IsHooked(CompactPartyFrame, "RefreshMembers") then
@@ -329,7 +328,7 @@ function P:HookRefreshMembers()
 end
 
 function P:UnhookRefreshMembers()
-	if not E.postDF or not C_AddOns.IsAddOnLoaded("Blizzard_CompactRaidFrames") or not C_AddOns.IsAddOnLoaded("Blizzard_CUFProfiles") then
+	if not E.postDF or not E:IsBlizzardCUFLoaded() then
 		return
 	end
 	if self:IsHooked(CompactPartyFrame, "RefreshMembers") then

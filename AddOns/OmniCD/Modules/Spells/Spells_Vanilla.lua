@@ -202,6 +202,11 @@ E.spell_db = {
 		{ spellID = 355,	duration = 10,	type = "other"	},
 	},
 	["PVPTRINKET"] = {
+		{ spellID = 5579,	duration = 300,	type = "pvptrinket",	item = 18834	},
+		{ spellID = 23274,	duration = 300,	type = "pvptrinket",	item = 18850	},
+		{ spellID = 23276,	duration = 300,	type = "pvptrinket",	item = 18851	},
+		{ spellID = 23273,	duration = 300,	type = "pvptrinket",	item = 18852	},
+		{ spellID = 23277,	duration = 300,	type = "pvptrinket",	item = 18853	},
 	},
 	["RACIAL"] = {
 		{ spellID = 26297,	duration = 180,	type = "racial",	race = 8	},
@@ -222,7 +227,7 @@ E.buffFixNoCLEU = E.BLANK
 E.summonedBuffDuration = E.BLANK
 
 E.spellDefaults = {
-	42292,
+	5579,
 	28730,
 	26297,
 	28880,

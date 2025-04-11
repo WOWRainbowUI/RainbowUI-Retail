@@ -485,7 +485,7 @@ local function Constructor()
 	check:SetAllPoints(checkbg)
 	check:SetTexture(130751) -- Interface\\Buttons\\UI-CheckBox-Check
 	]]
-	local checkbg = CreateFrame("Frame", nil, frame, BackdropTemplateMixin and "BackdropTemplate" or nil)
+	local checkbg = CreateFrame("Frame", nil, frame, "BackdropTemplate")
 	checkbg:SetWidth(14)
 	checkbg:SetHeight(14)
 	checkbg:SetPoint("LEFT")
@@ -540,7 +540,7 @@ local function Constructor()
 	]]
 	local imagebg, image
 	if USE_ICON_BACKDROP then
-		imagebg = CreateFrame("Frame", nil, frame, BackdropTemplateMixin and "BackdropTemplate" or nil)
+		imagebg = CreateFrame("Frame", nil, frame, "BackdropTemplate")
 		imagebg:SetHeight(DEFAULT_ICON_SIZE) -- 24 is frames full height
 		imagebg:SetWidth(DEFAULT_ICON_SIZE)
 		imagebg:SetPoint("LEFT", checkbg, "RIGHT", 2, 0)
