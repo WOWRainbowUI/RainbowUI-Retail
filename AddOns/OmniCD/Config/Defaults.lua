@@ -5,6 +5,8 @@ G.notifyNew = false
 G.optionPanelScale = 1
 
 C.tooltipID = false
+
+
 C.Party = {
 	["visibility"] = {
 		["arena"] = true,
@@ -31,7 +33,7 @@ C.Party.arena = {
 	["general"] = {
 		["showAnchor"] = false,
 		["showPlayer"] = false,
-		["showPlayerEx"] = true,
+		--["showPlayerEx"] = true,
 		["showRange"] = false,
 		--["zoneSelected"] = false,
 	},
@@ -54,6 +56,8 @@ C.Party.arena = {
 		["displayInactive"] = true,
 		["growUpward"] = false,
 		["maxNumIcons"] = 0,
+		["detached"] = false,
+		["locked"] = false,
 	},
 	["icons"] = {
 		["showTooltip"] = false,
@@ -169,6 +173,7 @@ for i = 1, 8 do
 		["redirect"] = true,
 		["unitBar"] = false,
 		["locked"] = false,
+		["showPlayer"] = true,
 		["uf"] = "auto",
 		["anchor"] = "TOPRIGHT",
 		["attach"] = "TOPLEFT",
@@ -267,6 +272,8 @@ end
 if not E.isRetail then
 	return
 end
+
+
 
 C.Party.arena.spells = {
 	["*"] = false,

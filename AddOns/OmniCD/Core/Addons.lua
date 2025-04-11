@@ -387,6 +387,10 @@ function E:Counters()
 	end
 end
 
+function E:IsBlizzardCUFLoaded()
+	return C_AddOns.IsAddOnLoaded("Blizzard_CompactRaidFrames") and C_AddOns.IsAddOnLoaded("Blizzard_CUFProfiles")
+end
+
 function E:LoadAddOns()
 	self:Counters()
 	self:UnitFrames()

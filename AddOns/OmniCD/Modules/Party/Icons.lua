@@ -15,6 +15,10 @@ function BarFrameIconMixin:HideBorder()
 end
 
 function BarFrameIconMixin:SetBorder(settings, edgeSize)
+	if self.isUserSyncOnly then
+		return
+	end
+
 	local db = E.db.icons
 	local statusBar = self.statusBar
 
@@ -58,6 +62,10 @@ function BarFrameIconMixin:SetBorder(settings, edgeSize)
 end
 
 function BarFrameIconMixin:SetMarker()
+	if self.isUserSyncOnly then
+		return
+	end
+
 	local mark = E.spell_marked[self.spellID]
 	if not mark or self.statusBar then
 		self.hotKey:Hide()
@@ -67,6 +75,10 @@ function BarFrameIconMixin:SetMarker()
 end
 
 function BarFrameIconMixin:SetOpacity()
+	if self.isUserSyncOnly then
+		return
+	end
+
 
 	local statusBar = self.statusBar
 	if self.isHighlighted or (statusBar and not E.db.extraBars[statusBar.key].useIconAlpha) then
@@ -77,6 +89,10 @@ function BarFrameIconMixin:SetOpacity()
 end
 
 function BarFrameIconMixin:SetColorSaturation()
+	if self.isUserSyncOnly then
+		return
+	end
+
 	local info = P.groupInfo[self.guid]
 	if info.isDeadOrOffline then
 		self.icon:SetVertexColor(0.3, 0.3, 0.3)
@@ -93,6 +109,10 @@ function BarFrameIconMixin:SetColorSaturation()
 end
 
 function BarFrameIconMixin:SetSwipeCounter()
+	if self.isUserSyncOnly then
+		return
+	end
+
 	if self.active then
 		self:SetCooldownElements()
 	end
@@ -103,15 +123,21 @@ function BarFrameIconMixin:SetSwipeCounter()
 end
 
 function BarFrameIconMixin:SetChargeScale()
+	if self.isUserSyncOnly then
+		return
+	end
 	self.count:SetScale(E.db.icons.chargeScale)
 end
 
 function BarFrameIconMixin:SetTooltip()
+	if self.isUserSyncOnly then
+		return
+	end
 	self:EnableMouse((not self.SetPassThroughButtons or self.isPassThrough) and (E.db.icons.showTooltip or self.tooltipID))
 end
 
 function BarFrameIconMixin:SetBorderGlow(isDeadOrOffline, condition)
-	if not self.glowBorder then
+	if self.isUserSyncOnly or not self.glowBorder then
 		return
 	end
 
@@ -168,13 +194,15 @@ local function OmniCDCooldown_OnHide(self)
 	end
 
 	local icon = self:GetParent()
-
 	local info = P.groupInfo[icon.guid]
+
 	if not info then
 		return
 	end
 
-	local active = info.active[icon.spellID]
+	local spellID = icon.spellID
+	local active = info.active[spellID]
+
 	if not active then
 		return
 	end
@@ -189,12 +217,12 @@ local function OmniCDCooldown_OnHide(self)
 		icon.count:SetText(maxcharges)
 	end
 
-	info.active[icon.spellID] = nil
+	info.active[spellID] = nil
 	icon.active = nil
 
 
 	if info.talentData[434249] then
-		local auraString = E.controlOfTheDreamIDs[icon.spellID]
+		local auraString = E.controlOfTheDreamIDs[spellID]
 		if auraString then
 			info.auras[auraString] = GetTime()
 		end

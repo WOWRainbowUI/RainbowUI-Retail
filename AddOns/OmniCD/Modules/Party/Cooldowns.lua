@@ -3,6 +3,10 @@ local P = E.Party
 local BarFrameIconMixin = P.BarFrameIconMixin
 
 function BarFrameIconMixin:SetCooldownElements()
+	if self.isUserSyncOnly then
+		return
+	end
+
 	local noSwipe = self.isHighlighted or self.active ~= 0 or (self.statusBar and not E.db.extraBars[self.statusBar.key].nameBar)
 	local noCount = noSwipe or not E.db.icons.showCounter
 	self.cooldown:SetDrawEdge(not self.isHighlighted and self.maxcharges)
@@ -59,6 +63,10 @@ function BarFrameIconMixin:ResetCooldown(resetAllCharges)
 		active.charges = currCharges
 		self.count:SetText(currCharges)
 		self.active = currCharges
+
+		if self.isUserSyncOnly then
+			return
+		end
 
 		self:SetCooldownElements()
 		self:SetOpacity()
@@ -258,6 +266,10 @@ function BarFrameIconMixin:StartCooldown(cd, isRecharge, noGlow, reducedStartTim
 	end
 
 	self.active = currCharges or 0
+
+	if self.isUserSyncOnly then
+		return
+	end
 
 	local frame = self:GetParent():GetParent()
 	local key = frame.key

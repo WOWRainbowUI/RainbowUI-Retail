@@ -151,7 +151,7 @@ function BarFrameIconMixin:RemoveHighlight()
 end
 
 function BarFrameIconMixin:SetHighlight(isRefresh)
-	if not E.db.highlight.glowBuffs or not E.db.highlight.glowBuffTypes[self.type] then
+	if not E.db.highlight.glowBuffs or not E.db.highlight.glowBuffTypes[self.type] or self.isUserSyncOnly then
 		return
 	end
 

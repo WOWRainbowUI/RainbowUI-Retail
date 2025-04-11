@@ -169,11 +169,12 @@ local function GetOptions()
 							type = "description",
 						},
 						notice1 = {
-							name = format("|cffff2020* %s", ((E.isWOTLKC or E.isCata) and L["Group member must have OmniCD to detect cooldown reduction by Glyphs."])
-								or (E.isSL and L["Group member must have OmniCD to detect cooldown reduction with a chance to proc and Soulbind Conduits."])
-								or (E.postDF and L["Group member must have OmniCD to detect cooldown reduction with a chance to proc."])
+							name = format("|cffff2020* %s",
+							((E.isWOTLKC or E.isCata) and L["Group member must have OmniCD to detect cooldown reduction by Glyphs."])
+							or (E.isSL and L["Group member must have OmniCD to detect cooldown reduction with a chance to proc and Soulbind Conduits."])
+							or (E.postDF and L["Group member must have OmniCD to detect cooldown reduction with a chance to proc."])
 
-								or ""),
+							or ""),
 							order = 18,
 							type = "description",
 						},
@@ -230,7 +231,9 @@ local function GetOptions()
 									order = 8,
 									type = "input",
 									dialogControl = "Info-OmniCDC",
-									get = function() return L["Clean wipe the savedvariable file. |cffff2020Warning|r: This can not be undone!"] end,
+									get = function()
+										return L["Clean wipe the savedvariable file. |cffff2020Warning|r: This can not be undone!"]
+									end,
 								},
 
 							}

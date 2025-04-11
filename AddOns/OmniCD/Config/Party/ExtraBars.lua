@@ -2,7 +2,7 @@ local E, L, C = select(2, ...):unpack()
 local P = E.Party
 
 local extraBars = {
-	name = L["Extra Bars"],
+	name = E.STR.WHATS_NEW_ESCSEQ .. L["Extra Bars"],
 	type = "group",
 	childGroups = "tab",
 	order = 80,
@@ -114,9 +114,7 @@ local progressBarColorInfo = {
 	lb1 = {
 		name = function(info)
 			local opt = info[#info-1]
-			return opt == "textColors" and NAME
-			or (opt == "barColors" and L["Bar"])
-			or (opt == "bgColors" and L["BG"])
+			return opt == "textColors" and NAME or (opt == "barColors" and L["Bar"]) or (opt == "bgColors" and L["BG"])
 		end,
 		order = 0,
 		type = "description",
@@ -142,11 +140,8 @@ local progressBarColorInfo = {
 	inactiveColor = {
 		disabled = function(info)
 			local db = E.profile.Party[ info[2] ].extraBars[ info[4] ]
-			return not db.enabled
-			or not db.progressBar
-			or db.layout == "horizontal"
-			or info[#info-1] == "bgColors"
-			or (info[#info-1] == "barColors" and db.nameBar)
+			return not db.enabled or not db.progressBar or db.layout == "horizontal"
+				or info[#info-1] == "bgColors" or (info[#info-1] == "barColors" and db.nameBar)
 		end,
 		name = "",
 		order = 3,
@@ -195,8 +190,12 @@ local extraBarsInfo = {
 			name = ENABLE,
 			--[[
 			desc = function(info)
-				return info[4] == "raidBar1" and format("%s\n\n|cffffd200%s", L["Move your group's Interrupt spells to the Interrupt Bar."], L["Interrupt spell types are automatically added to this bar."])
-				or format("%s\n\n|cffffd200%s", L["Move your group's Raid Cooldowns to the Raid Bar."], L["Select the spells you want to move from the \'Raid CD\' tab. The spell must be enabled from the \'Spells\' tab first."])
+				return info[4] == "raidBar1" and format("%s\n\n|cffffd200%s",
+				L["Move your group's Interrupt spells to the Interrupt Bar."],
+				L["Interrupt spell types are automatically added to this bar."])
+				or format("%s\n\n|cffffd200%s",
+				L["Move your group's Raid Cooldowns to the Raid Bar."],
+				L["Select the spells you want to move from the \'Raid CD\' tab. The spell must be enabled from the \'Spells\' tab first."])
 			end,
 			]]
 			order = 1,
@@ -210,29 +209,35 @@ local extraBarsInfo = {
 			order = 2,
 			type = "toggle",
 		},
+		showPlayer = {
+			hidden = isDisabled,
+			name = E.STR.WHATS_NEW_ESCSEQ .. L["Show Player"],
+			order = 3,
+			type = "toggle",
+		},
 		unitBar = {
 			hidden = isDisabled,
 			name = L["Attach to Raid Frame"],
 			desc = L["Convert to additional CD bars that attach to each unit's raid frame."],
-			order = 3,
+			order = 4,
 			type = "toggle",
 		},
 		locked = {
 			hidden = isUnitBar,
 			name = LOCK_FRAME,
 			desc = L["Lock frame position"],
-			order = 4,
+			order = 5,
 			type = "toggle",
 		},
-		addOnsSettings = {
+		positionSettings = {
 			hidden = notUnitBar,
-			name = L["Anchor"],
+			name = L["Position"],
 			type = "group",
 			inline = true,
-			order = 5,
+			order = 10,
 			args = {
 				uf = {
-					name = ADDONS,
+					name = E.STR.WHATS_NEW_ESCSEQ .. ADDONS,
 					desc = L["Select addon to override auto anchoring"],
 					order = 1,
 					type = "select",
@@ -241,7 +246,7 @@ local extraBarsInfo = {
 						local key, bar = info[2], info[4]
 						local db = E.profile.Party[key].extraBars[bar]
 						if P:IsCurrentZone(key) then
-							if value == "blizz" and not ( C_AddOns.IsAddOnLoaded("Blizzard_CompactRaidFrames") and C_AddOns.IsAddOnLoaded("Blizzard_CUFProfiles") ) then
+							if (not E.customUF.enabledList or value == "blizz") and not E:IsBlizzardCUFLoaded() then
 								E.Libs.OmniCDC.StaticPopup_Show("OMNICD_RELOADUI", E.STR.ENABLE_BLIZZARD_CRF)
 							else
 								if P.isInTestMode then
@@ -258,41 +263,32 @@ local extraBarsInfo = {
 						end
 					end,
 				},
-			}
-		},
-		positionSettings = {
-			hidden = notUnitBar,
-			name = L["Position"],
-			type = "group",
-			inline = true,
-			order = 10,
-			args = {
 				anchor = {
 					name = L["Anchor Point"],
 					desc = format("%s\n\n%s", L["Set the anchor point on the spell bar"],
-					L["Having \"RIGHT\" in the anchor point, icons grow left, otherwise right"]),
-					order = 3,
+						L["Having \"RIGHT\" in the anchor point, icons grow left, otherwise right"]),
+					order = 2,
 					type = "select",
 					values = L_POINTS,
 				},
 				attach = {
 					name = L["Attachment Point"],
 					desc = L["Set the anchor attachment point on the party/raid frame"],
-					order = 4,
+					order = 3,
 					type = "select",
 					values = L_POINTS,
 				},
 				offsetX = {
 					name = L["Offset X"],
 					desc = E.STR.MAX_RANGE,
-					order = 6,
+					order = 5,
 					type = "range",
 					min = -999, max = 999, softMin = -100, softMax = 100, step = 1,
 				},
 				offsetY = {
 					name = L["Offset Y"],
 					desc = E.STR.MAX_RANGE,
-					order = 7,
+					order = 6,
 					type = "range",
 					min = -999, max = 999, softMin = -100, softMax = 100, step = 1,
 				},
@@ -307,7 +303,8 @@ local extraBarsInfo = {
 			args = {
 				spellType = {
 					name = format("%s (%s)", L["Spell Types"], L["Multiselect"]),
-					desc = format("%s\n\n%s", L["Select the spell types you want to display on this column."], L["You can mangage spell types for all bars from the Frame option"]),
+					desc = format("%s\n\n%s", L["Select the spell types you want to display on this column."],
+						L["You can mangage spell types for all bars from the Frame option"]),
 					order = 1,
 					type = "multiselect",
 					dialogControl = "Dropdown-OmniCDC",
@@ -367,11 +364,11 @@ local extraBarsInfo = {
 				columns = {
 					name = function(info)
 						return E.profile.Party[ info[2] ].extraBars[ info[4] ].layout == "horizontal"
-						and L["Column"] or L["Row"]
+							and L["Column"] or L["Row"]
 					end,
 					desc = function(info)
 						return E.profile.Party[ info[2] ].extraBars[ info[4] ].layout == "horizontal"
-						and L["Set the number of icons per row"] or L["Set the number of icons per column"]
+							and L["Set the number of icons per row"] or L["Set the number of icons per column"]
 					end,
 					order = 5,
 					type = "range",
@@ -581,9 +578,8 @@ local extraBarsInfo = {
 					hidden = notInterruptBar,
 					disabled = isDisabledProgressBarOrNameBar,
 					name = L["Interrupted Spell Icon"],
-					desc = format("%s\n\n|cffff2020%s",
-					L["Show the interrupted spell icon."],
-					L["Mouseovering the icon will show the interrupted spell information regardless of \'Show Tooltip\' option."]),
+					desc = format("%s\n\n|cffff2020%s", L["Show the interrupted spell icon."],
+						L["Mouseovering the icon will show the interrupted spell information regardless of \'Show Tooltip\' option."]),
 					order = 14,
 					type = "toggle",
 				},

@@ -119,7 +119,8 @@ local setItem = function(info, v)
 	local id = GetSpellID(info)
 	if v == "" then
 		if option == "icon" then
-			OmniCDDB.cooldowns[id][option] = OmniCDDB.cooldowns[id].item and C_Item.GetItemIconByID(OmniCDDB.cooldowns[id].item) or select(2, C_Spell.GetSpellTexture(id))
+			local itemTexture = OmniCDDB.cooldowns[id].item
+			OmniCDDB.cooldowns[id][option] = itemTexture and C_Item.GetItemIconByID(itemTexture) or select(2, C_Spell.GetSpellTexture(id))
 		else
 			OmniCDDB.cooldowns[id][option] = nil
 		end
@@ -245,8 +246,9 @@ local customSpellInfo = {
 	talentId = {
 		hidden = isOthersCategory,
 		name = L["Talent ID"],
-		desc = format("%s\n\n%s", L["Enter talent ID if the spell is a talent ability in any of the class specializations. This ensures proper spell detection."],
-		L["Use a semi-colon(;) to seperate multiple IDs."]),
+		desc = format("%s\n\n%s",
+			L["Enter talent ID if the spell is a talent ability in any of the class specializations. This ensures proper spell detection."],
+			L["Use a semi-colon(;) to seperate multiple IDs."]),
 		order = 10,
 		type = "input",
 		get = function(info)

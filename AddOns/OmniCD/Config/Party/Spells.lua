@@ -154,7 +154,7 @@ local function GetSpellsTbl()
 			order = 50,
 			type = "group",
 			args = {
-				lb0 = { name = L["Healthstone and Demonic Gateway are added on cast"], order = 1, type = "description" }
+				lb0 = { name = "|CFF20FF20"..L["Healthstone and Demonic Gateway are added on cast"], order = 1, type = "description" }
 			}
 		},
 	}
