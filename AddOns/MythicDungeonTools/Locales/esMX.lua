@@ -169,6 +169,8 @@ L["Aspiring Forgehand"] = "Aspiring Forgehand"
 L["Aspix"] = "Aspix"
 L["Asset Manager"] = "Responsable de activos"
 --[[Translation missing --]]
+L["assignmentWarning"] = "MDT will NOT automatically set target markers on enemies in the game world."
+--[[Translation missing --]]
 L["Assistant Unnaturaler"] = "Assistant Unnaturaler"
 L["Astral Attendant"] = "Auxiliar astral"
 L["Astronos"] = "Astronos"
@@ -1935,6 +1937,8 @@ L["Off-Duty Laborer"] = "Obrero fuera de servicio"
 L["Officer Quarters"] = "Cuartel de los Oficiales"
 L["Ogron Laborer"] = "Obrero ogron"
 --[[Translation missing --]]
+L["Okay"] = "Okay"
+--[[Translation missing --]]
 L["Ol' Waxbeard"] = "Ol' Waxbeard"
 L["Olaf"] = "Olaf"
 L["Olmyr the Enlightened"] = "Olmyr el Iluminado"
@@ -3203,6 +3207,8 @@ L["War Lynx"] = "War Lynx"
 L["War Ohuna"] = "Ohuna de guerra"
 L["Warlord Parjesh"] = "Señor de la guerra Parjesh"
 L["Warlord Sargha"] = "Señora de la guerra Sargha"
+--[[Translation missing --]]
+L["Warning"] = "Warning"
 L["Warp Shade"] = "Sombra de distorsión"
 L["Warp Stalker"] = "Acechador de distorsión"
 L["Waste Pipes"] = "Tubos de Desagüe"
