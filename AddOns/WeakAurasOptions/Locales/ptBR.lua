@@ -428,6 +428,8 @@ Off Screen]=] ] = "Aura está fora da tela"
 	--[[Translation missing --]]
 	L["Disallow Entry Reordering"] = "Disallow Entry Reordering"
 	--[[Translation missing --]]
+	L["Discord"] = "Discord"
+	--[[Translation missing --]]
 	L["Display Name"] = "Display Name"
 	L["Display Text"] = "Texto do mostruário"
 	--[[Translation missing --]]
@@ -778,8 +780,6 @@ Bleed classification via LibDispel]=]
 	L["Is Stealable"] = "É Roubável"
 	--[[Translation missing --]]
 	L["Is Unit"] = "Is Unit"
-	--[[Translation missing --]]
-	L["Join Discord"] = "Join Discord"
 	L["Justify"] = "Justificar"
 	--[[Translation missing --]]
 	L["Keep Aspect Ratio"] = "Keep Aspect Ratio"

@@ -297,6 +297,8 @@ UNIT_POWER, UNIT_AURA PLAYER_TARGET_CHANGED]=]
 	L["Determines how many entries can be in the table."] = "决定表格中可以有多少条目"
 	L["Differences"] = "差异"
 	L["Disallow Entry Reordering"] = "不允许重新排列条目"
+	--[[Translation missing --]]
+	L["Discord"] = "Discord"
 	L["Display Name"] = "图示名称"
 	L["Display Text"] = "图示文本"
 	L["Displays a text, works best in combination with other displays"] = "显示一条文本，最好与其他显示效果结合运用"
@@ -508,7 +510,6 @@ Bleed classification via LibDispel]=] ] = "仅过滤给定类型的可驱散的�
 	L["Is Boss Debuff"] = "首领施放的减益效果"
 	L["Is Stealable"] = "可偷取"
 	L["Is Unit"] = "是单位"
-	L["Join Discord"] = "加入 Discord"
 	L["Justify"] = "对齐"
 	L["Keep Aspect Ratio"] = "保持比例不变"
 	L["Keep your Wago imports up to date with the Companion App."] = "利用Companion应用程序保持你的Wago导入最新。"

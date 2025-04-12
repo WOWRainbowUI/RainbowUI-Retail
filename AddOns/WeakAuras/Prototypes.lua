@@ -2042,8 +2042,9 @@ Private.load_prototype = {
       multiEntry = {
         operator = "or"
       },
-      test = "C_Item.IsEquippedItem(C_Item.GetItemInfo(%s) or '')",
-      events = { "UNIT_INVENTORY_CHANGED", "PLAYER_EQUIPMENT_CHANGED"}
+      test = "C_Item.IsEquippedItem(%s or '')",
+      events = { "UNIT_INVENTORY_CHANGED", "PLAYER_EQUIPMENT_CHANGED"},
+      only_exact = true,
     },
     {
       name = "not_itemequiped",
@@ -2052,8 +2053,9 @@ Private.load_prototype = {
       multiEntry = {
         operator = "or"
       },
-      test = "not C_Item.IsEquippedItem(C_Item.GetItemInfo(%s) or '')",
-      events = { "UNIT_INVENTORY_CHANGED", "PLAYER_EQUIPMENT_CHANGED"}
+      test = "not C_Item.IsEquippedItem(%s or '')",
+      events = { "UNIT_INVENTORY_CHANGED", "PLAYER_EQUIPMENT_CHANGED"},
+      only_exact = true,
     },
     {
       name = "itemtypeequipped",
@@ -8010,6 +8012,9 @@ Private.event_prototypes = {
         if Private.chat_message_leader_event[trigger.messageType] then
           table.insert(events, Private.chat_message_leader_event[trigger.messageType])
         end
+        if trigger.messageType == "CHAT_MSG_EMOTE" then
+          table.insert(events, "CHAT_MSG_TEXT_EMOTE")
+        end
         return { events = events }
       end
       return {
@@ -8055,7 +8060,7 @@ Private.event_prototypes = {
         if (event == 'CHAT_MSG_TEXT_EMOTE') then
           event = 'CHAT_MSG_EMOTE';
         end
-         local use_cloneId = %s;
+        local use_cloneId = %s;
       ]];
       return ret:format(trigger.use_cloneId and "true" or "false");
     end,
@@ -8739,17 +8744,10 @@ Private.event_prototypes = {
         local itemSlot = %s
       ]]
 
-      if trigger.use_exact_itemName then
-        ret = ret ..[[
-          local itemName = triggerItemName
-          local equipped = WeakAuras.CheckForItemEquipped(triggerItemName, itemSlot)
-        ]]
-      else
-        ret = ret ..[[
-          local itemName = C_Item.GetItemInfo(triggerItemName)
-          local equipped = WeakAuras.CheckForItemEquipped(itemName, itemSlot)
-        ]]
-      end
+      ret = ret ..[[
+        local itemName = triggerItemName
+        local equipped = WeakAuras.CheckForItemEquipped(triggerItemName, itemSlot)
+      ]]
 
       return ret:format(trigger.use_inverse and "true" or "false", itemName, trigger.use_itemSlot and trigger.itemSlot or "nil");
     end,
@@ -8766,7 +8764,7 @@ Private.event_prototypes = {
         type = "item",
         required = true,
         test = "true",
-        showExactOption = true
+        only_exact = true
       },
       {
         name = "itemId",
@@ -12039,6 +12037,7 @@ if WeakAuras.IsClassicEra() then
   Private.event_prototypes["Death Knight Rune"] = nil
   Private.event_prototypes["Currency"] = nil
   Private.event_prototypes["Alternate Power"] = nil
+  Private.event_prototypes["Spell Activation Overlay"] = nil
 end
 if WeakAuras.IsCataClassic() then
   Private.event_prototypes["Swing Timer"] = nil
@@ -12049,7 +12048,6 @@ if WeakAuras.IsClassicOrCata() then
   end
   Private.event_prototypes["Evoker Essence"] = nil
   Private.event_prototypes["Equipment Set"] = nil
-  Private.event_prototypes["Spell Activation Overlay"] = nil
   Private.event_prototypes["PvP Talent Selected"] = nil
   Private.event_prototypes["Class/Spec"] = nil
   Private.event_prototypes["Loot Specialization"] = nil
