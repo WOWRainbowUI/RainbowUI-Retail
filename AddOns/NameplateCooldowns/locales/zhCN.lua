@@ -53,6 +53,9 @@ L["msg:question:import-existing-spells"] = [=[NameplateCooldowns
 L["New spell has been added: %s"] = "新的法术已添加：%s"
 L["Options are not available in combat!"] = "选项在战斗中不可用！"
 L["options:borders:show-blizz-borders"] = "在图标周围显示暴雪原生边框"
+--[[Translation missing --]]
+L["options:building-cache"] = [=[Loading spells info (%s%%)...
+Some functions may be unavailable]=]
 L["options:category:borders"] = "边框"
 L["options:category:spells"] = "法术"
 L["options:category:text"] = "文字"
@@ -78,6 +81,8 @@ L["options:profiles"] = "配置"
 L["options:spells:add-new-spell"] = "添加新的法术 (名称或ID):"
 L["options:spells:add-spell"] = "添加法术"
 L["options:spells:click-to-select-spell"] = "点击以选择法术"
+--[[Translation missing --]]
+L["options:spells:click-to-select-spell:test-mode"] = "You can't edit spells in test mode"
 L["options:spells:cooldown-time"] = "冷却时间"
 L["options:spells:custom-cooldown"] = "自定义冷却"
 L["options:spells:custom-cooldown-value"] = "冷却（秒）"

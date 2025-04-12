@@ -70,6 +70,9 @@ L["Options are not available in combat!"] = "Les options sont indisponibles dura
 --[[Translation missing --]]
 L["options:borders:show-blizz-borders"] = "Show Blizzard's borders around icons"
 --[[Translation missing --]]
+L["options:building-cache"] = [=[Loading spells info (%s%%)...
+Some functions may be unavailable]=]
+--[[Translation missing --]]
 L["options:category:borders"] = "Borders"
 L["options:category:spells"] = "Sorts."
 --[[Translation missing --]]
@@ -117,6 +120,8 @@ L["options:profiles"] = "Profiles"
 L["options:spells:add-new-spell"] = "Ajouter nouveau sort (nom ou id):"
 L["options:spells:add-spell"] = "Ajouter sort "
 L["options:spells:click-to-select-spell"] = "Cliquer pour sélectionner le sort"
+--[[Translation missing --]]
+L["options:spells:click-to-select-spell:test-mode"] = "You can't edit spells in test mode"
 L["options:spells:cooldown-time"] = "Temps de recharge "
 --[[Translation missing --]]
 L["options:spells:custom-cooldown"] = "Custom cooldown value"

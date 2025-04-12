@@ -54,6 +54,9 @@ L["msg:question:import-existing-spells"] = [=[NameplateCooldowns
 L["New spell has been added: %s"] = "Добавлено новое заклинание: %s"
 L["Options are not available in combat!"] = "Настройки недоступны, пока идет бой!"
 L["options:borders:show-blizz-borders"] = "Показывать стандартные границы иконок"
+--[[Translation missing --]]
+L["options:building-cache"] = [=[Loading spells info (%s%%)...
+Some functions may be unavailable]=]
 L["options:category:borders"] = "Границы"
 L["options:category:spells"] = "Заклинания"
 L["options:category:text"] = "Текст"
@@ -87,6 +90,8 @@ L["options:profiles"] = "Profiles"
 L["options:spells:add-new-spell"] = "Добавить заклинание (название или id):"
 L["options:spells:add-spell"] = "Добавить"
 L["options:spells:click-to-select-spell"] = "Нажмите, чтобы выбрать заклинание"
+--[[Translation missing --]]
+L["options:spells:click-to-select-spell:test-mode"] = "You can't edit spells in test mode"
 L["options:spells:cooldown-time"] = "Значение кулдауна"
 --[[Translation missing --]]
 L["options:spells:custom-cooldown"] = "Custom cooldown value"

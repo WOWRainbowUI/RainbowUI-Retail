@@ -54,6 +54,9 @@ Es gibt aktualisierte Abklingzeiten für manche deiner Zauber. Möchtest du sie 
 L["New spell has been added: %s"] = "Ein neuer Zauber wurde hinzugefügt: %s"
 L["Options are not available in combat!"] = "Einstellungen sind nicht im Kampf verfügbar"
 L["options:borders:show-blizz-borders"] = "Blizzards Rahmen um Symbole anzeigen"
+--[[Translation missing --]]
+L["options:building-cache"] = [=[Loading spells info (%s%%)...
+Some functions may be unavailable]=]
 L["options:category:borders"] = "Rahmen"
 L["options:category:spells"] = "Zauber"
 L["options:category:text"] = "Text"
@@ -81,6 +84,8 @@ L["options:profiles"] = "Profile"
 L["options:spells:add-new-spell"] = "Füge neuen Zauber hinzu (Name oder ID):"
 L["options:spells:add-spell"] = "Zauber hinzufügen"
 L["options:spells:click-to-select-spell"] = "Klicke, um einen Zauber auszuwählen"
+--[[Translation missing --]]
+L["options:spells:click-to-select-spell:test-mode"] = "You can't edit spells in test mode"
 L["options:spells:cooldown-time"] = "Abklingzeit"
 L["options:spells:custom-cooldown"] = "Benutzerdefinierter Abklingzeitwert"
 L["options:spells:custom-cooldown-value"] = "Abklingzeit (Sek.)"

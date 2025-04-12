@@ -53,6 +53,8 @@ There are updated cooldowns for some of your spells. Do you want to apply update
 L["New spell has been added: %s"] = "New spell has been added: %s"
 L["Options are not available in combat!"] = "Options are not available in combat!"
 L["options:borders:show-blizz-borders"] = "Show Blizzard's borders around icons"
+L["options:building-cache"] = [=[Loading spells info (%s%%)...
+Some functions may be unavailable]=]
 L["options:category:borders"] = "Borders"
 L["options:category:spells"] = "Spells"
 L["options:category:text"] = "Text"
@@ -81,6 +83,7 @@ L["options:profiles"] = "Profiles"
 L["options:spells:add-new-spell"] = "Add new spell (name or id):"
 L["options:spells:add-spell"] = "Add spell"
 L["options:spells:click-to-select-spell"] = "Click to select spell"
+L["options:spells:click-to-select-spell:test-mode"] = "You can't edit spells in test mode"
 L["options:spells:cooldown-time"] = "Cooldown time"
 L["options:spells:custom-cooldown"] = "Custom cooldown value"
 L["options:spells:custom-cooldown-value"] = "Cooldown (sec)"
@@ -220,4 +223,6 @@ L["options:general:inverse-logic"] = "Inverse logic"
 L["options:general:inverse-logic:tooltip"] = "Display icon if player IS ABLE to cast certain spell"
 L["options:general:show-cooldown-animation"] = "Enable cooldown animation"
 L["options:general:show-cooldown-animation:tooltip"] = "Enables spin animation on cooldown icons"
+L["options:spells:click-to-select-spell:test-mode"] = "You can't edit spells in test mode"
+L["options:building-cache"] = "Loading spells info (%s%%)...\nSome functions may be unavailable"
 --@end-debug@]==]

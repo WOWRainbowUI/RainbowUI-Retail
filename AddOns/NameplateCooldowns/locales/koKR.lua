@@ -52,6 +52,9 @@ L["msg:question:import-existing-spells"] = "NameplateCooldowns 일부 주문의 
 L["New spell has been added: %s"] = "새로운 주문이 추가되었습니다: %s"
 L["Options are not available in combat!"] = "전투 중에는 옵션을 사용할 수 없습니다!"
 L["options:borders:show-blizz-borders"] = "아이콘 주위에 Blizzard 테두리 표시"
+--[[Translation missing --]]
+L["options:building-cache"] = [=[Loading spells info (%s%%)...
+Some functions may be unavailable]=]
 L["options:category:borders"] = "테두리"
 L["options:category:spells"] = "주문"
 L["options:category:text"] = "문자"
@@ -77,6 +80,8 @@ L["options:profiles"] = "프로필"
 L["options:spells:add-new-spell"] = "새 주문 (이름 또는 ID) 추가:"
 L["options:spells:add-spell"] = "주문 추가"
 L["options:spells:click-to-select-spell"] = "주문을 고르려면 클릭"
+--[[Translation missing --]]
+L["options:spells:click-to-select-spell:test-mode"] = "You can't edit spells in test mode"
 L["options:spells:cooldown-time"] = "재사용 대기시간"
 L["options:spells:custom-cooldown"] = "사용자 정의 재사용 대기시간 값"
 L["options:spells:custom-cooldown-value"] = "재사용 대기시간 (초)"

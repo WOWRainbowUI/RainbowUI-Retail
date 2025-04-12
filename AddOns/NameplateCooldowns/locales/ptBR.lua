@@ -71,6 +71,9 @@ L["Options are not available in combat!"] = "Opções não estão disponíveis e
 --[[Translation missing --]]
 L["options:borders:show-blizz-borders"] = "Show Blizzard's borders around icons"
 --[[Translation missing --]]
+L["options:building-cache"] = [=[Loading spells info (%s%%)...
+Some functions may be unavailable]=]
+--[[Translation missing --]]
 L["options:category:borders"] = "Borders"
 L["options:category:spells"] = "Feitiços"
 --[[Translation missing --]]
@@ -117,6 +120,8 @@ L["options:profiles"] = "Profiles"
 L["options:spells:add-new-spell"] = "Adicionar novo feitiço (nome ou id):"
 L["options:spells:add-spell"] = "Adicionar feitiço"
 L["options:spells:click-to-select-spell"] = "Clique para selecionar feitiço"
+--[[Translation missing --]]
+L["options:spells:click-to-select-spell:test-mode"] = "You can't edit spells in test mode"
 L["options:spells:cooldown-time"] = "Tempo de Recarga"
 --[[Translation missing --]]
 L["options:spells:custom-cooldown"] = "Custom cooldown value"

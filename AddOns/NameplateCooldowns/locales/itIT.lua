@@ -73,6 +73,9 @@ L["Options are not available in combat!"] = "Non è possibile accedere alle opzi
 --[[Translation missing --]]
 L["options:borders:show-blizz-borders"] = "Show Blizzard's borders around icons"
 --[[Translation missing --]]
+L["options:building-cache"] = [=[Loading spells info (%s%%)...
+Some functions may be unavailable]=]
+--[[Translation missing --]]
 L["options:category:borders"] = "Borders"
 --[[Translation missing --]]
 L["options:category:spells"] = "Spells"
@@ -125,6 +128,8 @@ L["options:spells:add-new-spell"] = "Add new spell (name or id):"
 L["options:spells:add-spell"] = "Add spell"
 --[[Translation missing --]]
 L["options:spells:click-to-select-spell"] = "Click to select spell"
+--[[Translation missing --]]
+L["options:spells:click-to-select-spell:test-mode"] = "You can't edit spells in test mode"
 --[[Translation missing --]]
 L["options:spells:cooldown-time"] = "Cooldown time"
 --[[Translation missing --]]
