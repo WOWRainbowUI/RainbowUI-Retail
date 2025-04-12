@@ -117,6 +117,23 @@ L["KEYWORD_SET_BONUS"] = "set bonus"
 L["KEYWORD_CRAFTED"] = "crafted"
 L["KEYWORD_RING"] = "ring"
 L["KEYWORD_TIER_TOKEN"] = "tier token"
+L["KEYWORD_SUBCLASS_POTION"] = "potion"
+L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
+L["KEYWORD_SUBCLASS_FLASK"] = "flask"
+L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
+L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
+L["KEYWORD_SUBCLASS_PARTS"] = "parts"
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
+L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
+L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
+L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
+L["KEYWORD_SUBCLASS_MEAT"] = "meat"
+L["KEYWORD_SUBCLASS_HERB"] = "herb"
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
 
 L["GROUP_ARMOR_TYPE"] = "Armor Type"
 L["GROUP_BATTLE_PET"] = "Battle Pet Type"
@@ -269,6 +286,40 @@ L["KEYWORD_SOULBOUND"] = "lié"
 L["KEYWORD_STACKABLE"] = "empilable "
 L["KEYWORD_STACKS"] = "piles"
 L["KEYWORD_STAFF"] = "bâton "
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FLASK"] = "flask"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_HERB"] = "herb"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_MEAT"] = "meat"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_PARTS"] = "parts"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_POTION"] = "potion"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
 L["KEYWORD_SWORD"] = "épée"
 L["KEYWORD_TIER_TOKEN"] = "jeton de tier"
 L["KEYWORD_TRADABLE_LOOT"] = "butin échangeable"
@@ -435,6 +486,40 @@ L["KEYWORD_SOULBOUND"] = "seelengebunden"
 L["KEYWORD_STACKABLE"] = "stapelbar"
 L["KEYWORD_STACKS"] = "stapel"
 L["KEYWORD_STAFF"] = "stab"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FLASK"] = "flask"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_HERB"] = "herb"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_MEAT"] = "meat"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_PARTS"] = "parts"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_POTION"] = "potion"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
 L["KEYWORD_SWORD"] = "schwert"
 --[[Translation missing --]]
 L["KEYWORD_TIER_TOKEN"] = "tier token"
@@ -588,6 +673,40 @@ L["KEYWORD_SOULBOUND"] = "персональный"
 L["KEYWORD_STACKABLE"] = "складываемое"
 L["KEYWORD_STACKS"] = "стаки"
 L["KEYWORD_STAFF"] = "посох"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FLASK"] = "flask"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_HERB"] = "herb"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_MEAT"] = "meat"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_PARTS"] = "parts"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_POTION"] = "potion"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
 L["KEYWORD_SWORD"] = "меч"
 L["KEYWORD_TIER_TOKEN"] = "уровень токена"
 L["KEYWORD_TRADABLE_LOOT"] = "персональный"
@@ -732,6 +851,40 @@ L["KEYWORD_SOULBOUND"] = "alma atada"
 L["KEYWORD_STACKABLE"] = "empilhável"
 L["KEYWORD_STACKS"] = "pilhas"
 L["KEYWORD_STAFF"] = "cajado"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FLASK"] = "flask"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_HERB"] = "herb"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_MEAT"] = "meat"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_PARTS"] = "parts"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_POTION"] = "potion"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
 L["KEYWORD_SWORD"] = "espada"
 L["KEYWORD_TIER_TOKEN"] = "ficha de tier"
 L["KEYWORD_TRADABLE_LOOT"] = "saque negociável"
@@ -876,6 +1029,40 @@ L["KEYWORD_SOULBOUND"] = "ligado al ama"
 L["KEYWORD_STACKABLE"] = "apilable"
 L["KEYWORD_STACKS"] = "pilas"
 L["KEYWORD_STAFF"] = "bastón"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FLASK"] = "flask"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_HERB"] = "herb"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_MEAT"] = "meat"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_PARTS"] = "parts"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_POTION"] = "potion"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
 L["KEYWORD_SWORD"] = "espada"
 L["KEYWORD_TIER_TOKEN"] = "ficha de tier"
 L["KEYWORD_TRADABLE_LOOT"] = "botín comerciable"
@@ -1020,6 +1207,40 @@ L["KEYWORD_SOULBOUND"] = "ligado al ama"
 L["KEYWORD_STACKABLE"] = "apilable"
 L["KEYWORD_STACKS"] = "pilas"
 L["KEYWORD_STAFF"] = "bastón"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FLASK"] = "flask"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_HERB"] = "herb"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_MEAT"] = "meat"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_PARTS"] = "parts"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_POTION"] = "potion"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
 L["KEYWORD_SWORD"] = "espada"
 L["KEYWORD_TIER_TOKEN"] = "ficha de tier"
 L["KEYWORD_TRADABLE_LOOT"] = "botín comerciable"
@@ -1164,6 +1385,23 @@ L["KEYWORD_SOULBOUND"] = "靈魂綁定"
 L["KEYWORD_STACKABLE"] = "可堆疊"
 L["KEYWORD_STACKS"] = "堆疊"
 L["KEYWORD_STAFF"] = "法杖"
+L["KEYWORD_SUBCLASS_BANDAGES"] = "繃帶"
+L["KEYWORD_SUBCLASS_CLOTH"] = "布料"
+L["KEYWORD_SUBCLASS_DEVICES"] = "裝置"
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "元素材料"
+L["KEYWORD_SUBCLASS_ELIXIR"] = "藥劑"
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "附魔"
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "爆炸物"
+L["KEYWORD_SUBCLASS_FLASK"] = "精鍊"
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "食物和飲料"
+L["KEYWORD_SUBCLASS_HERB"] = "草藥"
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "物品附魔"
+L["KEYWORD_SUBCLASS_LEATHER"] = "皮革"
+L["KEYWORD_SUBCLASS_MEAT"] = "肉類"
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "金屬與礦石"
+L["KEYWORD_SUBCLASS_PARTS"] = "零件"
+L["KEYWORD_SUBCLASS_POTION"] = "藥水"
+L["KEYWORD_SUBCLASS_SCROLL"] = "卷軸"
 L["KEYWORD_SWORD"] = "劍"
 L["KEYWORD_TIER_TOKEN"] = "套裝貨幣"
 L["KEYWORD_TRADABLE_LOOT"] = "可交易拾取"
@@ -1308,6 +1546,23 @@ L["KEYWORD_SOULBOUND"] = "灵魂绑定"
 L["KEYWORD_STACKABLE"] = "可堆叠"
 L["KEYWORD_STACKS"] = "堆叠"
 L["KEYWORD_STAFF"] = "法杖"
+L["KEYWORD_SUBCLASS_BANDAGES"] = "绷带"
+L["KEYWORD_SUBCLASS_CLOTH"] = "布料"
+L["KEYWORD_SUBCLASS_DEVICES"] = "装置"
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "元素材料"
+L["KEYWORD_SUBCLASS_ELIXIR"] = "药剂"
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "附魔"
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "爆炸物"
+L["KEYWORD_SUBCLASS_FLASK"] = "合剂"
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "食物与饮料"
+L["KEYWORD_SUBCLASS_HERB"] = "草药"
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "物品强化"
+L["KEYWORD_SUBCLASS_LEATHER"] = "皮革"
+L["KEYWORD_SUBCLASS_MEAT"] = "肉类"
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "金属与矿石"
+L["KEYWORD_SUBCLASS_PARTS"] = "零件"
+L["KEYWORD_SUBCLASS_POTION"] = "药水"
+L["KEYWORD_SUBCLASS_SCROLL"] = "卷轴"
 L["KEYWORD_SWORD"] = "剑"
 L["KEYWORD_TIER_TOKEN"] = "套装货币"
 L["KEYWORD_TRADABLE_LOOT"] = "可交易拾取（时限）"
@@ -1526,6 +1781,40 @@ L["KEYWORD_STACKABLE"] = "stackable"
 --[[Translation missing --]]
 L["KEYWORD_STACKS"] = "stacks"
 L["KEYWORD_STAFF"] = "지팡이"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FLASK"] = "flask"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_HERB"] = "herb"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_MEAT"] = "meat"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_PARTS"] = "parts"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_POTION"] = "potion"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
 L["KEYWORD_SWORD"] = "도검"
 --[[Translation missing --]]
 L["KEYWORD_TIER_TOKEN"] = "tier token"
@@ -1806,6 +2095,40 @@ L["KEYWORD_STACKABLE"] = "stackable"
 L["KEYWORD_STACKS"] = "stacks"
 --[[Translation missing --]]
 L["KEYWORD_STAFF"] = "staff"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FLASK"] = "flask"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_HERB"] = "herb"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_MEAT"] = "meat"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_PARTS"] = "parts"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_POTION"] = "potion"
+--[[Translation missing --]]
+L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
 --[[Translation missing --]]
 L["KEYWORD_SWORD"] = "sword"
 --[[Translation missing --]]
