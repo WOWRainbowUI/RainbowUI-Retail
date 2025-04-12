@@ -206,6 +206,8 @@ L["Aspiring Forgehand"] = "Aspiring Forgehand"
 L["Aspix"] = "阿斯匹克斯"
 L["Asset Manager"] = "资产经理"
 --[[Translation missing --]]
+L["assignmentWarning"] = "MDT「不會」在遊戲內自動設定目標圖示。"
+--[[Translation missing --]]
 L["Assistant Unnaturaler"] = "Assistant Unnaturaler"
 --[[Translation missing --]]
 L["Astral Attendant"] = "Astral Attendant"
@@ -514,7 +516,7 @@ L["Chaotic Rift"] = "Chaotic Rift"
 L["Chargath, Bane of Scales"] = "Chargath, Bane of Scales"
 L["Charged Dust Devil"] = "充能的沙尘恶魔"
 --[[Translation missing --]]
-L["chatNoninteractiveWarning"] = "Chat frame is currently set to noninteractive, you will not be able to click on MDT routes."
+L["chatNoninteractiveWarning"] = "聊天視窗目前設定為無法互動，您將無法點擊 MDT 路線。"
 --[[Translation missing --]]
 L["Chef Chewie"] = "Chef Chewie"
 L["Choose Enemy Forces Format"] = "選擇敵方部隊格式"
@@ -2258,6 +2260,8 @@ L["Off-Duty Laborer"] = "下班的劳工"
 L["Officer Quarters"] = "勤務室"
 L["Ogron Laborer"] = "独眼魔工人"
 --[[Translation missing --]]
+L["Okay"] = "確定"
+--[[Translation missing --]]
 L["Ol' Waxbeard"] = "Ol' Waxbeard"
 --[[Translation missing --]]
 L["Olaf"] = "Olaf"
@@ -3726,6 +3730,8 @@ L["War Ohuna"] = "War Ohuna"
 L["Warlord Parjesh"] = "督军帕杰什"
 --[[Translation missing --]]
 L["Warlord Sargha"] = "Warlord Sargha"
+--[[Translation missing --]]
+L["Warning"] = "警告"
 L["Warp Shade"] = "迁跃之影"
 L["Warp Stalker"] = "迁跃兽"
 L["Waste Pipes"] = "廢棄管線"
@@ -3873,3 +3879,6 @@ L["Zuramat the Obliterator"] = "Zuramat the Obliterator"
 -- 自行加入
 L["Mythic Dungeon Tools"] = "傳奇+ 地城規劃工具"
 L["MythicDungeonTools"] = "地城規劃工具"
+L["Set Target Marker"] = "設定目標圖示"
+L["Open Enemy Info"] = "打開敵人資訊"
+L["None"] = "無"
