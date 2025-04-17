@@ -1,7 +1,7 @@
 # Syndicator
 
-## [188](https://github.com/Baganator/Syndicator/tree/188) (2025-04-11)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/187...188) 
+## [189](https://github.com/Baganator/Syndicator/tree/189) (2025-04-14)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/188...189) 
 
-- Remove leftover print  
-- Classic Era: Workaround missing consumable/trade goods subtypes  
+- Fix rare junk getting tagged as a tier token  
+- Expose getting tooltip data cached  

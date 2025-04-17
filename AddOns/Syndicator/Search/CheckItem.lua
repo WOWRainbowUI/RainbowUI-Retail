@@ -406,6 +406,9 @@ local function GetTooltipInfoSpell(details)
   details.tooltipInfoSpell = details.tooltipGetter() or {lines={}}
 end
 
+Syndicator.Search.GetTooltipInfoLink = GetTooltipInfoLink
+Syndicator.Search.GetTooltipInfoSpell = GetTooltipInfoSpell
+
 local JUNK_PATTERN = "^" .. SELL_PRICE
 local function JunkCheck(details)
   if details.isJunk ~= nil then
@@ -740,7 +743,7 @@ local function TierTokenCheck(details)
   GetInvType(details)
   GetClassSubClass(details)
 
-  if details.quality == 1 or details.invType ~= "INVTYPE_NON_EQUIP_IGNORE" or (details.classID ~= Enum.ItemClass.Consumable and details.classID ~= Enum.ItemClass.Armor and details.classID ~= Enum.ItemClass.Weapon and details.classID ~= Enum.ItemClass.Miscellaneous and details.classID ~= Enum.ItemClass.Reagent) then
+  if details.quality <= 1 or details.invType ~= "INVTYPE_NON_EQUIP_IGNORE" or (details.classID ~= Enum.ItemClass.Consumable and details.classID ~= Enum.ItemClass.Armor and details.classID ~= Enum.ItemClass.Weapon and details.classID ~= Enum.ItemClass.Miscellaneous and details.classID ~= Enum.ItemClass.Reagent) then
     return false
   end
 
