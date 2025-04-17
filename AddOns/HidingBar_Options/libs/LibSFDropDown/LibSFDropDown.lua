@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 18
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 19
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -43,6 +43,23 @@ if oldminor < 12 then
 	lib._v.dropDownSearchListMaxSize = 20
 end
 
+if oldminor < 19 then
+	local frameDummy = CreateFrame("FRAME")
+	local function onHide(region) lib._v.fontStringRightPool:Release(region) end
+	local function poolReset(pool, region, new)
+		region:Hide()
+		region:ClearAllPoints()
+		if new then
+			region:SetScript("OnHide", onHide)
+		else
+			region:GetParent().rightString = nil
+			region:SetParent(frameDummy)
+		end
+	end
+	lib._v.frameDummy = frameDummy
+	lib._v.fontStringRightPool = CreateFontStringPool(frameDummy, "ARTWORK", 1, nil, poolReset)
+end
+
 local v = lib._v
 local menuStyles = v.menuStyles
 
@@ -50,6 +67,7 @@ local menuStyles = v.menuStyles
 List of button attributes (examples: https://github.com/sfmict/LibSFDropDown/wiki/Examples)
 ====================================================================================================
 info.text = [string, function(self, arg1, arg2)] -- The text of the button or function that returns the text
+info.rightText = [string, function(self, arg1, arg2)] -- The text on the right side of the button or function that returns the text
 info.value = [anything] -- The value that is set to button.value
 info.func = [function(self, arg1, arg2, checked)] -- The function that is called when you click the button
 info.checked = [nil, true, 2, function(self, arg1, arg2)] -- Check the button if true or function returns true (2 for square)
@@ -92,7 +110,9 @@ info.opacityFunc = [function] -- Function called by the opacity slider when you 
 info.cancelFunc = [function(previousValues)] -- Function called by the colorpicker when you click the cancel button (it takes the previous values as its argument)
 info.justifyH = [nil, "CENTER", "RIGHT"] -- Justify button text
 info.fontObject = [fontObject] -- The font object replacement for Normal and Highlight
-info.font = [font] -- The font replacement for Normal and HighLight.
+info.rightFontObject = [fontObject] -- The font object replacement for info.rightText
+info.font = [font] -- The font replacement for Normal and HighLight
+info.rightFont = [font] -- The font replacement for info.rightText
 info.OnEnter = [function(self, arg1, arg2)] -- Handler OnEnter
 info.OnLeave = [function(self, arg1, arg2)] -- Handler OnLeave
 info.tooltipWhileDisabled = [nil, true] -- Show the tooltip, even when the button is disabled
@@ -118,6 +138,7 @@ info.list = [table] -- The table of info buttons, if there are more than 20 (def
 ]]
 v.dropDownOptions = {
 	"text",
+	"rightText",
 	"value",
 	"func",
 	"checked",
@@ -148,7 +169,9 @@ v.dropDownOptions = {
 	"cancelFunc",
 	"justifyH",
 	"fontObject",
+	"rightFontObject",
 	"font",
+	"rightFont",
 	"OnEnter",
 	"OnLeave",
 	"tooltipWhileDisabled",
@@ -232,6 +255,15 @@ function v.setButtonFont(btn)
 	end
 	btn:SetNormalFontObject(fontObject)
 	btn:SetHighlightFontObject(fontObject)
+end
+
+
+function v.setRightFont(btn)
+	local fontObject = btn.rightFontObject or GameFontHighlightRight
+	if btn.rightFont then
+		fontObject = v.getFontObject(btn.rightString, btn.rightFont, fontObject)
+	end
+	btn.rightString:SetFontObject(fontObject)
 end
 
 
@@ -817,6 +849,38 @@ local function DropDownMenuSearchButtonInit(btn, info)
 	end
 	btn.ExpandArrow:SetShown(btn.hasArrow)
 
+	if btn.hasColorSwatch then
+		if not btn.colorSwatch then
+			btn.colorSwatch = GetColorSwatchFrame()
+			btn.colorSwatch:SetParent(btn)
+		end
+		btn.colorSwatch:SetPoint("RIGHT", textPos, 0)
+		textPos = textPos - 17
+		btn.colorSwatch.color:SetVertexColor(btn.r, btn.g, btn.b)
+		btn.colorSwatch:Show()
+		if not btn.func then
+			btn.func = function() btn.colorSwatch:Click() end
+		end
+	elseif btn.colorSwatch then
+		btn.colorSwatch:Hide()
+		btn.colorSwatch = nil
+	end
+
+	if btn.rightString then btn.rightString:Hide() end
+
+	btn._rightText = btn.rightText
+	if btn._rightText then
+		btn.rightString = v.fontStringRightPool:Acquire()
+		btn.rightString:SetParent(btn)
+		btn.rightString:SetPoint("RIGHT", textPos, 0)
+		v.setRightFont(btn)
+		if type(btn._rightText) == "function" then btn._rightText = btn:_rightText(btn.arg1, btn.arg2) end
+		btn.rightString:SetText(btn._rightText)
+		btn.rightString:SetJustifyH("RIGHT")
+		btn.rightString:Show()
+		textPos = textPos - btn.rightString:GetWidth()
+	end
+
 	if btn.remove then
 		btn.removePostion = textPos
 		textPos = textPos - 17
@@ -833,23 +897,6 @@ local function DropDownMenuSearchButtonInit(btn, info)
 		for i = 1, #btn.widgets do
 			textPos = textPos - (btn.widgets[i].width or menuButtonHeight)
 		end
-	end
-
-	if btn.hasColorSwatch then
-		if not btn.colorSwatch then
-			btn.colorSwatch = GetColorSwatchFrame()
-			btn.colorSwatch:SetParent(btn)
-		end
-		btn.colorSwatch:SetPoint("RIGHT", textPos, 0)
-		textPos = textPos - 17
-		btn.colorSwatch.color:SetVertexColor(btn.r, btn.g, btn.b)
-		btn.colorSwatch:Show()
-		if not btn.func then
-			btn.func = function() btn.colorSwatch:Click() end
-		end
-	elseif btn.colorSwatch then
-		btn.colorSwatch:Hide()
-		btn.colorSwatch = nil
 	end
 
 	if btn.icon then
@@ -1019,7 +1066,12 @@ do
 		for i = 1, #self.buttons do
 			local info = self.buttons[i]
 			local infoText = type(info.text) == "function" and info:text(info.arg1, info.arg2) or info.text
-			if #text == 0 or info.text == nil or find(infoText, text) then
+			local infoRightText = type(info.rightText) == "function" and info:rightText(info.arg1, info.arg2) or info.rightText
+			if #text == 0
+			or not infoText and not infoRightText
+			or infoText and find(infoText, text)
+			or infoRightText and find(infoRightText, text)
+			then
 				self.dataProvider:Insert(info)
 			end
 		end
@@ -1059,6 +1111,14 @@ function DropDownMenuSearchMixin:addButton(info)
 
 		v.setButtonFont(btn)
 		btn:SetText(type(btn.text) == "function" and btn:text(btn.arg1, btn.arg2) or btn.text)
+		width = width + btn.NormalText:GetWidth()
+	end
+
+	if btn.rightText then
+		btn.rightString = btn.NormalText
+		v.setRightFont(btn)
+		btn.rightString = nil
+		btn:SetText(type(btn.rightText) == "function" and btn:rightText(btn.arg1, btn.arg2) or btn.rightText)
 		width = width + btn.NormalText:GetWidth()
 	end
 
@@ -1684,6 +1744,31 @@ function DropDownButtonMixin:ddAddButton(info, level)
 	end
 	btn.ExpandArrow:SetShown(btn.hasArrow)
 
+	if btn.hasColorSwatch then
+		btn.colorSwatch = GetColorSwatchFrame()
+		btn.colorSwatch:SetParent(btn)
+		btn.colorSwatch:SetPoint("RIGHT", textPos, 0)
+		textPos = textPos - 17
+		btn.colorSwatch.color:SetVertexColor(btn.r, btn.g, btn.b)
+		btn.colorSwatch:Show()
+		if not btn.func then
+			btn.func = function() btn.colorSwatch:Click() end
+		end
+	end
+
+	btn._rightText = btn.rightText
+	if btn._rightText then
+		btn.rightString = v.fontStringRightPool:Acquire()
+		btn.rightString:SetParent(btn)
+		btn.rightString:SetPoint("RIGHT", textPos, 0)
+		v.setRightFont(btn)
+		if type(btn._rightText) == "function" then btn._rightText = btn:_rightText(btn.arg1, btn.arg2) end
+		btn.rightString:SetText(btn._rightText)
+		btn.rightString:SetJustifyH("RIGHT")
+		btn.rightString:Show()
+		textPos = textPos - btn.rightString:GetWidth()
+	end
+
 	if btn.remove then
 		btn.removePostion = textPos
 		textPos = textPos - 17
@@ -1698,18 +1783,6 @@ function DropDownButtonMixin:ddAddButton(info, level)
 		btn.widgetPosition = textPos
 		for i = 1, #btn.widgets do
 			textPos = textPos - (btn.widgets[i].width or menuButtonHeight)
-		end
-	end
-
-	if btn.hasColorSwatch then
-		btn.colorSwatch = GetColorSwatchFrame()
-		btn.colorSwatch:SetParent(btn)
-		btn.colorSwatch:SetPoint("RIGHT", textPos, 0)
-		textPos = textPos - 17
-		btn.colorSwatch.color:SetVertexColor(btn.r, btn.g, btn.b)
-		btn.colorSwatch:Show()
-		if not btn.func then
-			btn.func = function() btn.colorSwatch:Click() end
 		end
 	end
 
@@ -2416,9 +2489,13 @@ if oldminor < 17 then
 			menu.activeStyle = menu.styles[v.defaultStyle]
 		end
 	end
+end
 
+if oldminor < 19 then
 	for i = 1, #dropDownSearchFrames do
 		local f = dropDownSearchFrames[i]
+		f.addButton = DropDownMenuSearchMixin.addButton
+		f.updateFilters = DropDownMenuSearchMixin.updateFilters
 		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
 	end
 end
