@@ -2,8 +2,12 @@
 
 ## Title: Leatrix Maps
 ## Notes: Enhancements for your maps.
+## Notes-esES: Mejoras para el mapa.
+## Notes-esMX: Mejoras para el mapa.
+## Notes-frFR: Améliorations pour la carte.
+## Notes-ptBR: Melhorias para o mapa.
 
-## Version: 11.1.08
+## Version: 11.1.09
 ## Author: Leatrix
 ## SavedVariables: LeaMapsDB
 
