@@ -1,7 +1,6 @@
 # Baganator
 
-## [672](https://github.com/Baganator/Baganator/tree/672) (2025-04-11)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/671...672) 
+## [675](https://github.com/Baganator/Baganator/tree/675) (2025-04-15)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/674...675) 
 
-- Classic Era: Use new data to sort/group trade goods/consumables better  
-    Requires updated Syndicator  
+- [Fixes #456] Error when computing matching charges patterns on koKR locale  
