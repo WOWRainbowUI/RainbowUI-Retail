@@ -1,6 +1,6 @@
 ## Interface: 110100
 ## Title: Baganator
-## Version: 672
+## Version: 675
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -114,6 +114,7 @@ CategoryViews\CategoryFilter.lua
 CategoryViews\CategoryGrouping.lua
 CategoryViews\CategorySort.lua
 CategoryViews\ItemsPreparation.lua
+CategoryViews\SpecialisedSplitting.lua
 CategoryViews\Components.lua
 CategoryViews\Components.xml
 CategoryViews\BankViewCharacterView.lua
