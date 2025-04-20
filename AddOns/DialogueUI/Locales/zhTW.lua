@@ -256,7 +256,7 @@ L["Nameplate Dialog"] = "在名條上顯示對話";
 L["Nameplate Dialog Desc"] = "如果 NPC 沒有提供選擇，則在 NPC 名條上顯示對話。\n\n此選項會修改 CVar \"SoftTarget Nameplate Interact\"。";
 L["Compatibility"] = "相容性";
 L["Disable DUI In Instance"] = "副本中使用魔獸預設介面。";
-L["Disable DUI In Instance Desc"] = "在副本或團隊中停用任務對話插件，改用遊戲內建介面。\n\n如果無法和允許你開始或跳過首領戰的 NPC 互動時，請啟用此選項。";
+L["Disable DUI In Instance Desc"] = "在副本或團隊中停用任務對話插件，改用遊戲內建介面。";
 
 L["Disable UI Motions"] = "減少介面移動";
 L["Disable UI Motions Desc"] = "減少介面移動，例如展開介面或輕推按鈕文字。";
