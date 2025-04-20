@@ -162,6 +162,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [226255] = {
         name = "Cipollina",
     },
+    [226273] = {
+        name = "Monte Sparachiodi",
+    },
     [226569] = {
         name = "Snap Vellunto",
     },

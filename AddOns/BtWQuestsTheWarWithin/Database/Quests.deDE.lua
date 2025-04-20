@@ -2526,6 +2526,21 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83497] = {
         name = "Ein besorgter Freund",
     },
+    [83519] = {
+        name = "Aber was ist mit dem Casino?",
+    },
+    [83522] = {
+        name = "Schuld begleichen, Freiheit einstreichen",
+    },
+    [83524] = {
+        name = "Des einen Müll, des anderen Gold",
+    },
+    [83527] = {
+        name = "Gewinnen ist sowieso was für Verlierer",
+    },
+    [83528] = {
+        name = "Alles Teil des Spiels",
+    },
     [83529] = {
         name = "Angelfest von Heilsturz",
     },
@@ -2535,11 +2550,29 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83532] = {
         name = "Angelfest von Heilsturz",
     },
+    [83534] = {
+        name = "Keine Aufwärmübung",
+    },
+    [83535] = {
+        name = "Plunderparty-Erdbeben",
+    },
     [83537] = {
         name = "Geothermale Edelsteinbehandlung",
     },
+    [83540] = {
+        name = "Vordrängeln",
+    },
+    [83541] = {
+        name = "Es hagelt Kritik",
+    },
+    [83542] = {
+        name = "Schnelle Kiemen gegen Gold",
+    },
     [83543] = {
         name = "Abenteuer in Khaz Algar",
+    },
+    [83546] = {
+        name = "Verantwortung",
     },
     [83548] = {
         name = "Insel von Dorn",
@@ -2549,6 +2582,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [83551] = {
         name = "Heilsturz",
+    },
+    [83558] = {
+        name = "Casinohof",
+    },
+    [83563] = {
+        name = "Kaffee für den Erfolg",
+    },
+    [83566] = {
+        name = "Oh, das Casino!",
+    },
+    [83569] = {
+        name = "Tod und Steuern",
     },
     [83587] = {
         name = "Unsere Chance, zuzuschlagen",
@@ -2649,6 +2694,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84218] = {
         name = "Der Fluchtwagen",
     },
+    [84221] = {
+        name = "Papierkram lässt die Lore sinken",
+    },
+    [84242] = {
+        name = "Haldentauchgang",
+    },
+    [84244] = {
+        name = "Schwarzmeerstrandwelle",
+    },
+    [84249] = {
+        name = "Ein Fass mit Boden",
+    },
     [84298] = {
         name = "AUSHILFE GESUCHT: Kaja'Kuriositäten",
     },
@@ -2727,6 +2784,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [85174] = {
         name = "Raus wagen",
     },
+    [85189] = {
+        name = "Unser Tag am Gericht",
+    },
+    [85190] = {
+        name = "Der Staub legt sich",
+    },
+    [85191] = {
+        name = "Schnitt für Schnitt",
+    },
+    [85192] = {
+        name = "Heimkehr",
+    },
     [85409] = {
         name = "Wer petzt, wird verletzt",
     },
@@ -2801,6 +2870,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [87008] = {
         name = "Spontaner Hochzeitsplaner",
+    },
+    [87297] = {
+        name = "Scheck einlösen",
+    },
+    [87321] = {
+        name = "Unerledigte Dinge",
     },
 })
 ]])()

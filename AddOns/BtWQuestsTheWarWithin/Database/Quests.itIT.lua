@@ -2526,6 +2526,21 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83497] = {
         name = "Un amico preoccupato",
     },
+    [83519] = {
+        name = "E il Casinò, invece?",
+    },
+    [83522] = {
+        name = "Indebitarsi per vivere",
+    },
+    [83524] = {
+        name = "C'è oro in quella spazzatura",
+    },
+    [83527] = {
+        name = "Vincere è roba da perdenti, comunque",
+    },
+    [83528] = {
+        name = "Tutto è parte del gioco",
+    },
     [83529] = {
         name = "Gara di pesca dei Precipizi Sacri",
     },
@@ -2535,11 +2550,29 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83532] = {
         name = "Gara di pesca dei Precipizi Sacri",
     },
+    [83534] = {
+        name = "Altro che numero di apertura",
+    },
+    [83535] = {
+        name = "Rissa rock alla Pista del Saccheggio",
+    },
     [83537] = {
         name = "Trattamento di gemme geotermali",
     },
+    [83540] = {
+        name = "Infila la fila",
+    },
+    [83541] = {
+        name = "Bombardamento di recensioni",
+    },
+    [83542] = {
+        name = "Branchie facili in cambio d'oro",
+    },
     [83543] = {
         name = "All'avventura a Khaz Algar",
+    },
+    [83546] = {
+        name = "Responsabilità",
     },
     [83548] = {
         name = "Isola di Dorn",
@@ -2549,6 +2582,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [83551] = {
         name = "Precipizi Sacri",
+    },
+    [83558] = {
+        name = "Corte del casinò",
+    },
+    [83563] = {
+        name = "Dichiaro questo caffè amaro",
+    },
+    [83566] = {
+        name = "Oh, che casinò!",
+    },
+    [83569] = {
+        name = "La morte e le tasse",
     },
     [83587] = {
         name = "L'occasione per colpire",
@@ -2649,6 +2694,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84218] = {
         name = "La fuga",
     },
+    [84221] = {
+        name = "Una scartoffia al giorno toglie l'asta di torno",
+    },
+    [84242] = {
+        name = "Cumuli in cui accumulare",
+    },
+    [84244] = {
+        name = "Spettacolo alla Spiaggia Acquanera",
+    },
+    [84249] = {
+        name = "Una cucina che è la morte sua",
+    },
     [84298] = {
         name = "CERCASI PERSONALE: kaja'curiosità",
     },
@@ -2727,6 +2784,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [85174] = {
         name = "Azione sul campo",
     },
+    [85189] = {
+        name = "Giornata in aula",
+    },
+    [85190] = {
+        name = "Acque calme",
+    },
+    [85191] = {
+        name = "Taglio dopo taglio",
+    },
+    [85192] = {
+        name = "Tornare a casa",
+    },
     [85409] = {
         name = "O è un Goblin o è una spia",
     },
@@ -2801,6 +2870,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [87008] = {
         name = "Organizzatore di matrimoni ad hoc",
+    },
+    [87297] = {
+        name = "Incasso dell'assegno",
+    },
+    [87321] = {
+        name = "Cose lasciate in sospeso",
     },
 })
 ]])()

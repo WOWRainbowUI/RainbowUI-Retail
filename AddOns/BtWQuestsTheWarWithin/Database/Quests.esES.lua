@@ -2517,6 +2517,21 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83497] = {
         name = "Una amistad preocupada",
     },
+    [83519] = {
+        name = "¿Y qué hay del casino?",
+    },
+    [83522] = {
+        name = "Trabajar para endeudarse más",
+    },
+    [83524] = {
+        name = "Hay oro en esa basura",
+    },
+    [83527] = {
+        name = "De todos modos, ganar es de débiles",
+    },
+    [83528] = {
+        name = "Todo forma parte del juego",
+    },
     [83529] = {
         name = "Competición de pesca de Santificación",
     },
@@ -2526,11 +2541,29 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83532] = {
         name = "Competición de pesca de Santificación",
     },
+    [83534] = {
+        name = "Calentar motores sin tonterías",
+    },
+    [83535] = {
+        name = "Saqueo fiestero a tope",
+    },
     [83537] = {
         name = "Tratamiento de gemas geotérmicas",
     },
+    [83540] = {
+        name = "A la cola",
+    },
+    [83541] = {
+        name = "Bombardeo de opiniones",
+    },
+    [83542] = {
+        name = "Agallas por oro",
+    },
     [83543] = {
         name = "Aventuras en Khaz Algar",
+    },
+    [83546] = {
+        name = "Responsabilidad",
     },
     [83548] = {
         name = "La Isla de Dorn",
@@ -2540,6 +2573,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [83551] = {
         name = "Santificación",
+    },
+    [83558] = {
+        name = "El casino a juicio",
+    },
+    [83563] = {
+        name = "Lo que se empieza, se termina",
+    },
+    [83566] = {
+        name = "¡Ah, ese casino!",
+    },
+    [83569] = {
+        name = "La muerte y Hacienda",
     },
     [83587] = {
         name = "Nuestra oportunidad de actuar",
@@ -2640,6 +2685,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84218] = {
         name = "La huida",
     },
+    [84221] = {
+        name = "El papeleo hundirá la mina",
+    },
+    [84242] = {
+        name = "A las Chatarrerías se ha dicho",
+    },
+    [84244] = {
+        name = "Desmadre en la Playa de Aguasnegras",
+    },
+    [84249] = {
+        name = "Entre cazuelas",
+    },
     [84298] = {
         name = "SE BUSCA AYUDA: Curiosidad de Kaja",
     },
@@ -2718,6 +2775,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [85174] = {
         name = "Sal ahí fuera",
     },
+    [85189] = {
+        name = "Un día en los tribunales",
+    },
+    [85190] = {
+        name = "Polvo asentado",
+    },
+    [85191] = {
+        name = "Un corte tras otro",
+    },
+    [85192] = {
+        name = "Vuelta a casa",
+    },
     [85409] = {
         name = "Muerte a los chivatos",
     },
@@ -2792,6 +2861,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [87008] = {
         name = "Planificación de bodas a medida",
+    },
+    [87297] = {
+        name = "Cobrar el cheque",
+    },
+    [87321] = {
+        name = "Cosas por hacer",
     },
 })
 ]])()

@@ -153,6 +153,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [226255] = {
         name = "Ciboulette",
     },
+    [226273] = {
+        name = "Monte Gazleu",
+    },
     [226569] = {
         name = "Snap Graissevelin",
     },

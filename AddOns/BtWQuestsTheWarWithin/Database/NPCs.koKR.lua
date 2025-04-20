@@ -321,6 +321,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [226255] = {
         name = "치브",
     },
+    [226273] = {
+        name = "몬테 가즈로",
+    },
     [226569] = {
         name = "스냅 벨럼그리즈",
     },

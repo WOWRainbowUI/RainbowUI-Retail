@@ -183,6 +183,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [226255] = {
         name = "Cebolita",
     },
+    [226273] = {
+        name = "Monte Gasganete",
+    },
     [226569] = {
         name = "Estalo Graxavelino",
     },

@@ -2520,6 +2520,21 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83497] = {
         name = "Un amigo preocupado",
     },
+    [83519] = {
+        name = "¿Y qué pasa con el casino?",
+    },
+    [83522] = {
+        name = "Adeudados por un sueño",
+    },
+    [83524] = {
+        name = "Un tesoro en la basura",
+    },
+    [83527] = {
+        name = "Ganar es para perdedores",
+    },
+    [83528] = {
+        name = "Todo es parte del juego",
+    },
     [83529] = {
         name = "Competición de pesca de Cristalia",
     },
@@ -2529,11 +2544,29 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83532] = {
         name = "Competición de pesca de Cristalia",
     },
+    [83534] = {
+        name = "No soy un bocadillo, soy el plato principal",
+    },
+    [83535] = {
+        name = "Gran espectáculo de Fiesta del Saqueo",
+    },
     [83537] = {
         name = "Tratamiento de gemas geotermales",
     },
+    [83540] = {
+        name = "Todo por la fila",
+    },
+    [83541] = {
+        name = "Bombardeo de reseñas",
+    },
+    [83542] = {
+        name = "Sartén por liebre",
+    },
     [83543] = {
         name = "Aventuras en Khaz Algar",
+    },
+    [83546] = {
+        name = "Responsabilidad",
     },
     [83548] = {
         name = "Isla de Dorn",
@@ -2543,6 +2576,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [83551] = {
         name = "Cristalia",
+    },
+    [83558] = {
+        name = "Tribunal de casino",
+    },
+    [83563] = {
+        name = "Caso cerrado",
+    },
+    [83566] = {
+        name = "¡Ah, ese casino!",
+    },
+    [83569] = {
+        name = "Muerte e impuestos",
     },
     [83587] = {
         name = "La oportunidad de atacar",
@@ -2643,6 +2688,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84218] = {
         name = "La huida",
     },
+    [84221] = {
+        name = "Honda burocracia",
+    },
+    [84242] = {
+        name = "De cabeza al Basural",
+    },
+    [84244] = {
+        name = "Asombro en la arena de Aguasnegras",
+    },
+    [84249] = {
+        name = "La sartén al mango",
+    },
     [84298] = {
         name = "SE BUSCA EMPLEADO: Kaja'Singularidad",
     },
@@ -2721,6 +2778,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [85174] = {
         name = "Manos a la obra",
     },
+    [85189] = {
+        name = "Ya habrá tiempo para dar explicaciones",
+    },
+    [85190] = {
+        name = "Descanso eterno",
+    },
+    [85191] = {
+        name = "Cortes que no cierran",
+    },
+    [85192] = {
+        name = "Regreso a casa",
+    },
     [85409] = {
         name = "Para soplones, moretones",
     },
@@ -2795,6 +2864,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [87008] = {
         name = "Planificación de bodas amateur",
+    },
+    [87297] = {
+        name = "Más billetes para la cuenta",
+    },
+    [87321] = {
+        name = "Las cosas inconclusas",
     },
 })
 ]])()

@@ -2514,6 +2514,21 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83497] = {
         name = "É para uma amiga",
     },
+    [83519] = {
+        name = "Mas e o cassino?",
+    },
+    [83522] = {
+        name = "Dívida é vida",
+    },
+    [83524] = {
+        name = "Esse lixo vale ouro",
+    },
+    [83527] = {
+        name = "Quem gosta de ganhar é trouxa",
+    },
+    [83528] = {
+        name = "Tudo parte do jogo",
+    },
     [83529] = {
         name = "Torneio de Pesca de Pouso Santo",
     },
@@ -2523,11 +2538,29 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83532] = {
         name = "Torneio de Pesca de Pouso Santo",
     },
+    [83534] = {
+        name = "Entrando com tudo",
+    },
+    [83535] = {
+        name = "Arrombando a Festa do Butim",
+    },
     [83537] = {
         name = "Tratamento de gema geotérmica",
     },
+    [83540] = {
+        name = "Encara a fila",
+    },
+    [83541] = {
+        name = "Situação crítica",
+    },
+    [83542] = {
+        name = "Guelras que valem ouro",
+    },
     [83543] = {
         name = "Aventurando-se em Khaz Algar",
+    },
+    [83546] = {
+        name = "Responsabilidade",
     },
     [83548] = {
         name = "Ilha de Dorn",
@@ -2537,6 +2570,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [83551] = {
         name = "Pouso Santo",
+    },
+    [83558] = {
+        name = "Juizado de cassino",
+    },
+    [83563] = {
+        name = "Café é para quem merece",
+    },
+    [83566] = {
+        name = "Ah, esse cassino!",
+    },
+    [83569] = {
+        name = "Morte e impostos",
     },
     [83587] = {
         name = "Nossa chance de atacar",
@@ -2637,6 +2682,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84218] = {
         name = "A fuga",
     },
+    [84221] = {
+        name = "Papelada pra que te quero",
+    },
+    [84242] = {
+        name = "Mergulho nas Montoeiras",
+    },
+    [84244] = {
+        name = "Batidão na Aguanegra",
+    },
+    [84249] = {
+        name = "No frigir dos tanques",
+    },
     [84298] = {
         name = "PRECISA-SE: Jaka'Curiosidade",
     },
@@ -2715,6 +2772,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [85174] = {
         name = "Vá lá fora",
     },
+    [85189] = {
+        name = "Nosso dia no tribunal",
+    },
+    [85190] = {
+        name = "A poeira baixou",
+    },
+    [85191] = {
+        name = "Cortes atrás de corte",
+    },
+    [85192] = {
+        name = "Voltando para casa",
+    },
     [85409] = {
         name = "X-9 = 0",
     },
@@ -2789,6 +2858,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [87008] = {
         name = "Cerimonialista por acaso",
+    },
+    [87297] = {
+        name = "Descontando o cheque",
+    },
+    [87321] = {
+        name = "Pendências",
     },
 })
 ]])()

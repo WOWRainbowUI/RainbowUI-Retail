@@ -4289,6 +4289,28 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [226273] = {
+        name = "Monte Gazlowe",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.637296,
+                    y = 0.446015,
+                },
+            },
+        },
+    },
+    [226277] = {
+        name = "Marty Zoomcart",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.506344,
+                    y = 0.701623,
+                },
+            },
+        },
+    },
     [226336] = {
         name = "Prospera Cogwail",
         locations = {
@@ -4439,6 +4461,72 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.442247,
                     y = 0.61584,
+                },
+            },
+        },
+    },
+    [226894] = {
+        name = "Marty Zoomcart",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.557331,
+                    y = 0.349512,
+                },
+            },
+        },
+    },
+    [226899] = {
+        name = "Chancellor Gnome",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.570636,
+                    y = 0.352155,
+                },
+            },
+        },
+    },
+    [226932] = {
+        name = "Marty Zoomcart",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.326664,
+                    y = 0.803527,
+                },
+            },
+        },
+    },
+    [226934] = {
+        name = "Jojo Gobdre",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.368139,
+                    y = 0.880237,
+                },
+            },
+        },
+    },
+    [227018] = {
+        name = "Marty Zoomcart",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.387945,
+                    y = 0.339179,
+                },
+            },
+        },
+    },
+    [227032] = {
+        name = "Marty Zoomcart",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.567754,
+                    y = 0.442909,
                 },
             },
         },
@@ -4663,6 +4751,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [228369] = {
+        name = "Marty Zoomcart",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.387097,
+                    y = 0.337845,
+                },
+            },
+        },
+    },
     [228393] = {
         name = "Bruxie Slyhook",
         locations = {
@@ -4670,6 +4769,39 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.329605,
                     y = 0.520754,
+                },
+            },
+        },
+    },
+    [228420] = {
+        name = "Tarbonara Fizzlecrank",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.527281,
+                    y = 0.730835,
+                },
+            },
+        },
+    },
+    [228473] = {
+        name = "Fantastic Davey",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.557847,
+                    y = 0.757909,
+                },
+            },
+        },
+    },
+    [228474] = {
+        name = "Kayjay",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.557407,
+                    y = 0.759183,
                 },
             },
         },
@@ -4927,6 +5059,28 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [231812] = {
+        name = "Marty Zoomcart",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.368153,
+                    y = 0.87857,
+                },
+            },
+        },
+    },
+    [232005] = {
+        name = "Chancellor Gnome",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.709607,
+                    y = 0.239152,
+                },
+            },
+        },
+    },
     [232132] = {
         name = "Dawn",
         locations = {
@@ -4967,6 +5121,28 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.29466,
                     y = 0.694733,
+                },
+            },
+        },
+    },
+    [232822] = {
+        name = "Monte Gazlowe",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.425929,
+                    y = 0.515467,
+                },
+            },
+        },
+    },
+    [232823] = {
+        name = "Marty Zoomcart",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.564142,
+                    y = 0.655281,
                 },
             },
         },
@@ -5092,6 +5268,28 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [234783] = {
+        name = "Master Mathias Shaw",
+        locations = {
+            [52] = {
+                {
+                    x = 0.300181,
+                    y = 0.860522,
+                },
+            },
+        },
+    },
+    [234801] = {
+        name = "Monte Gazlowe",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.391192,
+                    y = 0.232573,
+                },
+            },
+        },
+    },
     [235216] = {
         name = "Starving Snapdragon Runt",
         locations = {
@@ -5121,6 +5319,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.639675,
                     y = 0.171629,
+                },
+            },
+        },
+    },
+    [238006] = {
+        name = "Marin Noggenfogger",
+        locations = {
+            [2346] = {
+                {
+                    x = 0.273657,
+                    y = 0.709666,
                 },
             },
         },

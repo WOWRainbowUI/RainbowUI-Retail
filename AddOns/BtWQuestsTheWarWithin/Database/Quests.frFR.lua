@@ -2520,6 +2520,21 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83497] = {
         name = "Un ami préoccupé",
     },
+    [83519] = {
+        name = "Et le casino dans tout ça ?",
+    },
+    [83522] = {
+        name = "Une vie de créances",
+    },
+    [83524] = {
+        name = "Des déchets qui valent de l’or",
+    },
+    [83527] = {
+        name = "Gagner c’est nul, de toute façon",
+    },
+    [83528] = {
+        name = "Un jeu à grande échelle",
+    },
     [83529] = {
         name = "Tournoi de pêche de Sainte-Chute",
     },
@@ -2529,11 +2544,29 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83532] = {
         name = "Tournoi de pêche de Sainte-Chute",
     },
+    [83534] = {
+        name = "Pas là pour faire la première partie",
+    },
+    [83535] = {
+        name = "Pogo à la Pille-en-Fête",
+    },
     [83537] = {
         name = "Traitement de gemme géothermique",
     },
+    [83540] = {
+        name = "Chacun son tour",
+    },
+    [83541] = {
+        name = "Des avis comme s’il en pleuvait",
+    },
+    [83542] = {
+        name = "Un poisson qui vaut de l’or",
+    },
     [83543] = {
         name = "Aventures en Khaz Algar",
+    },
+    [83546] = {
+        name = "Responsabilité",
     },
     [83548] = {
         name = "Île de Dorn",
@@ -2543,6 +2576,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [83551] = {
         name = "Sainte-Chute",
+    },
+    [83558] = {
+        name = "Tribunal du casino",
+    },
+    [83563] = {
+        name = "La café, c’est pour les clients",
+    },
+    [83566] = {
+        name = "Oh, ce casino !",
+    },
+    [83569] = {
+        name = "Droits de succession",
     },
     [83587] = {
         name = "L’occasion de frapper",
@@ -2643,6 +2688,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84218] = {
         name = "La fuite",
     },
+    [84221] = {
+        name = "La paperasse qui a mangé la mine",
+    },
+    [84242] = {
+        name = "Pile au bon endroit",
+    },
+    [84244] = {
+        name = "Explosion sur la plage des Flots noirs",
+    },
+    [84249] = {
+        name = "Une cuve à la poêle",
+    },
     [84298] = {
         name = "OFFRE D’EMPLOI : Kaja’Curiosité",
     },
@@ -2721,6 +2778,18 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [85174] = {
         name = "Allez-y.",
     },
+    [85189] = {
+        name = "Justice est rendue",
+    },
+    [85190] = {
+        name = "La poussière retombe",
+    },
+    [85191] = {
+        name = "Entaille après entaille",
+    },
+    [85192] = {
+        name = "Retour chez lui",
+    },
     [85409] = {
         name = "Si tu poucaves, on te marave",
     },
@@ -2795,6 +2864,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [87008] = {
         name = "Mariage aux petits oignons",
+    },
+    [87297] = {
+        name = "Un chèque à encaisser",
+    },
+    [87321] = {
+        name = "Choses inachevées",
     },
 })
 ]])()
