@@ -12067,6 +12067,11 @@ BtWQuestsDatabase:AddQuestsTable({
         rewards = {
             {
                 type = "currency",
+                id = 1602,
+                amount = 5000,
+            },
+            {
+                type = "currency",
                 id = 1792,
                 amount = 500,
             },
@@ -12074,16 +12079,6 @@ BtWQuestsDatabase:AddQuestsTable({
                 type = "currency",
                 id = 2123,
                 amount = 100000,
-            },
-            {
-                type = "currency",
-                id = 2815,
-                amount = 50,
-            },
-            {
-                type = "reputation",
-                id = 2594,
-                amount = 250,
             },
         },
     },
@@ -12735,20 +12730,12 @@ BtWQuestsDatabase:AddQuestsTable({
     },
     [82124] = {
         name = "The Beginning of the End",
-        contentTuningID = 2762,
+        contentTuningID = 2942,
         source = {
             type = "npc",
             id = 208782,
         },
         rewards = {
-            {
-                type = "experience",
-                amounts = {
-                    11600, 11750, 
-                },
-                minLevel = 78,
-                maxLevel = 79,
-            },
             {
                 type = "money",
                 amount = 234000,
@@ -17090,6 +17077,76 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [83519] = {
+        name = "But What About the Casino?",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 226273,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [83522] = {
+        name = "Debting For A Living",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 226277,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [83524] = {
+        name = "Gold In Them There Trash",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 228420,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [83527] = {
+        name = "Winning is for Losers, Anyway",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 228473,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [83528] = {
+        name = "All Part of the Game",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 228474,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
     [83529] = {
         name = "Hallowfall Fishing Derby",
         contentTuningID = 2862,
@@ -17110,6 +17167,34 @@ BtWQuestsDatabase:AddQuestsTable({
         name = "Hallowfall Fishing Derby",
         contentTuningID = 2862,
     },
+    [83534] = {
+        name = "Ain't No Warm Up Act",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 226899,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [83535] = {
+        name = "Plunder Party Rockin' Rumble",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 232005,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
     [83536] = {
     },
     [83537] = {
@@ -17119,6 +17204,48 @@ BtWQuestsDatabase:AddQuestsTable({
     [83538] = {
         name = "Excavation Liberation",
         contentTuningID = 2869,
+    },
+    [83540] = {
+        name = "Work the Line",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 226932,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [83541] = {
+        name = "Review Bombed",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 226934,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [83542] = {
+        name = "Quick Gills for Gold Now",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 226934,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
     },
     [83543] = {
         name = "Adventuring in Khaz Algar",
@@ -17139,6 +17266,20 @@ BtWQuestsDatabase:AddQuestsTable({
                 },
                 minLevel = 70,
                 maxLevel = 71,
+            },
+        },
+    },
+    [83546] = {
+        name = "Responsibility",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 227018,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
             },
         },
     },
@@ -17227,6 +17368,78 @@ BtWQuestsDatabase:AddQuestsTable({
                 },
                 minLevel = 70,
                 maxLevel = 71,
+            },
+        },
+    },
+    [83558] = {
+        name = "Casino Court",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 227032,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [83563] = {
+        name = "Coffee is for Closers",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 227032,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [83566] = {
+        name = "Oh, That Casino!",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 226894,
+            locations = {
+                [2346] = {
+                    {
+                        x = 0.567783,
+                        y = 0.442953,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [83569] = {
+        name = "Death and Taxes",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 226273,
+            locations = {
+                [2346] = {
+                    {
+                        x = 0.670844,
+                        y = 0.444615,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
             },
         },
     },
@@ -17600,7 +17813,7 @@ BtWQuestsDatabase:AddQuestsTable({
     },
     [83769] = {
         name = "Delver's Call: Mycomancer Cavern",
-        contentTuningID = 2677,
+        contentTuningID = 2882,
         source = {
             type = "object",
             id = 455690,
@@ -17609,7 +17822,7 @@ BtWQuestsDatabase:AddQuestsTable({
             {
                 type = "experience",
                 amounts = {
-                    15650, 15850, 16100, 16300, 16550, 16750, 17000, 17200, 17450, 17650, 
+                    62550, 63450, 64350, 65250, 66150, 67050, 67950, 68850, 69750, 70650, 
                 },
                 minLevel = 70,
                 maxLevel = 79,
@@ -17617,7 +17830,7 @@ BtWQuestsDatabase:AddQuestsTable({
             {
                 type = "money",
                 amounts = {
-                    842700, 702000, 
+                    3370800, 2808000, 
                 },
                 minLevel = 70,
                 maxLevel = 71,
@@ -17835,6 +18048,70 @@ BtWQuestsDatabase:AddQuestsTable({
             {
                 type = "money",
                 amount = 468000,
+            },
+        },
+    },
+    [84221] = {
+        name = "Paperwork Makes the Mine Go Under",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 228369,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [84242] = {
+        name = "Diving into the Heaps",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 228369,
+            locations = {
+                [2346] = {
+                    {
+                        x = 0.388954,
+                        y = 0.340927,
+                    },
+                },
+            },
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [84244] = {
+        name = "Blackwater Beach Blast",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 231812,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [84249] = {
+        name = "A Vat in the Pan",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 232823,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
             },
         },
     },
@@ -18430,6 +18707,62 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [85189] = {
+        name = "Our Day in Court",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 226894,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [85190] = {
+        name = "Settled Dust",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 232822,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [85191] = {
+        name = "Cut After Cut",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 234783,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [85192] = {
+        name = "Coming Home",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 234783,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
     [85409] = {
         name = "Snitches Get Stitches",
         contentTuningID = 2888,
@@ -18765,6 +19098,7 @@ BtWQuestsDatabase:AddQuestsTable({
     [86484] = {
     },
     [86485] = {
+        name = "A Loyal Friend",
     },
     [86575] = {
         name = "Rocket Roll",
@@ -18813,6 +19147,34 @@ BtWQuestsDatabase:AddQuestsTable({
             {
                 type = "money",
                 amount = 234000,
+            },
+        },
+    },
+    [87297] = {
+        name = "Cashing the Check",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 234801,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [87321] = {
+        name = "Things Left Undone",
+        contentTuningID = 2888,
+        source = {
+            type = "npc",
+            id = 238006,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
             },
         },
     },

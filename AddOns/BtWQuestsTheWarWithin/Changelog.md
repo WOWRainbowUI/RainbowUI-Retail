@@ -1,3 +1,8 @@
+# v8.0
+
+- Added the Homecoming questline in Undermine
+- Added the Hard Ways at the Gallagio questline in Undermine
+
 # v7.1
 
 - Fixed an issue preventing uploads to Wago.io

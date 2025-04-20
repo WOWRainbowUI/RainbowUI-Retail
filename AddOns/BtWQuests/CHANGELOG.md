@@ -1,6 +1,13 @@
-# v2.51.1
+# v2.52.1
 
-- Fixed an issue preventing uploads to Wago.io
+- Added the Homecoming questline in Undermine
+- Added the Hard Ways at the Gallagio questline in Undermine
+
+# v2.52.0
+
+- Updated for 4.4.2
+- Fixed error showing experience tooltips in 4.4.2
+- Fixed error showing with the main gui in 4.4.2
 
 # v2.51.0
 

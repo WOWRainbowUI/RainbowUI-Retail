@@ -321,6 +321,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [226255] = {
         name = "小蔥",
     },
+    [226273] = {
+        name = "蒙特‧加茲魯維",
+    },
     [226569] = {
         name = "斯納普‧皮油",
     },
