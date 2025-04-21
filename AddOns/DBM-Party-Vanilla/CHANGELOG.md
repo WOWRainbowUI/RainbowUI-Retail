@@ -1,22 +1,28 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r195](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r195) (2025-03-30)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r194...r195) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r196](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r196) (2025-04-21)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r195...r196) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/466  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/465  
-- Add interrupt alert and dnameplate timer for harden shell. Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/463  
-    Also add Nameplate timer for Crushing Pinch while at it  
-- Add uppercut alert/timers, closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/461  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/462  
-- copy and paste Spinshroom mechanica into Shroomspew  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/458  
-- Priory Update:  
-     - Fix reported timer errors and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/456  
-     - Reworked Braunpyke timers per recent hotfixes.  
-- fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/457  
-- Fix two copilot mistakes  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/455  
-- Bump wrath tocs  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/454  
-- Adjustments based on feedback  
+- Add alert for bombs and harpoons. Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/475  
+- Change TTS. Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/479  
+- Fix bad text. Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/480  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/482  
+- Mechagon timer fixes  
+- Fix some rookery timers  
+- Update many meadery timers. probably missed some. this instance had a lot of errors  
+- Some prioriy timer fixes  
+- Update localization.es.lua (#481)  
+- Timer fixes in motherload and floodgate  
+- Update several timers in ToP and DC  
+- Restore removed args from dungeons packaging  
+- Switch xav to variance timers for now  
+- Finally update ToP mini bosses, at least based on logs I have available. 2 still missing  
+- fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/476  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/472#issuecomment-2799791427  
+    Add and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/474  
+- fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/473  
+- Add reckless charge alert. Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/470  
+- Fix wrong dispel type. closes https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1614  
+- streamline dungeon ci as well to remove deprecated testing measures and combine luaLS with main CI  
+- bump vanilla toc  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/467  
