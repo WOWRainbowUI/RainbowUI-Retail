@@ -558,40 +558,23 @@ L["GREY_JUNK_ITEMS"] = "Griser les objets indésirables"
 L["GROUP_BY"] = "Grouper par"
 L["GROUP_EMPTY_SLOTS"] = "En déplacement"
 L["GROUP_IDENTICAL_ITEMS"] = "Grouper les objets identiques"
---[[Translation missing --]]
 L["GROUPING_ERA_0_1"] = "Potion"
---[[Translation missing --]]
 L["GROUPING_ERA_0_2"] = "Elixir"
---[[Translation missing --]]
-L["GROUPING_ERA_0_3"] = "Flask"
---[[Translation missing --]]
-L["GROUPING_ERA_0_4"] = "Scroll"
---[[Translation missing --]]
-L["GROUPING_ERA_0_5"] = "Food & Drink"
---[[Translation missing --]]
-L["GROUPING_ERA_0_6"] = "Item Enhancement"
---[[Translation missing --]]
+L["GROUPING_ERA_0_3"] = "Flacon"
+L["GROUPING_ERA_0_4"] = "Parchemin"
+L["GROUPING_ERA_0_5"] = "Nourriture et boisson"
+L["GROUPING_ERA_0_6"] = "Amélioration d'objet"
 L["GROUPING_ERA_0_7"] = "Bandages"
---[[Translation missing --]]
-L["GROUPING_ERA_7_1"] = "Parts"
---[[Translation missing --]]
-L["GROUPING_ERA_7_10"] = "Elemental"
---[[Translation missing --]]
-L["GROUPING_ERA_7_12"] = "Enchanting"
---[[Translation missing --]]
-L["GROUPING_ERA_7_2"] = "Explosives"
---[[Translation missing --]]
-L["GROUPING_ERA_7_3"] = "Devices"
---[[Translation missing --]]
-L["GROUPING_ERA_7_5"] = "Cloth"
---[[Translation missing --]]
-L["GROUPING_ERA_7_6"] = "Leather"
---[[Translation missing --]]
-L["GROUPING_ERA_7_7"] = "Metal & Stone"
---[[Translation missing --]]
-L["GROUPING_ERA_7_8"] = "Meat"
---[[Translation missing --]]
-L["GROUPING_ERA_7_9"] = "Herb"
+L["GROUPING_ERA_7_1"] = "Parties"
+L["GROUPING_ERA_7_10"] = "Élémentaire"
+L["GROUPING_ERA_7_12"] = "Enchantement"
+L["GROUPING_ERA_7_2"] = "Explosifs"
+L["GROUPING_ERA_7_3"] = "Dispositifs"
+L["GROUPING_ERA_7_5"] = "Tissu"
+L["GROUPING_ERA_7_6"] = "Cuir"
+L["GROUPING_ERA_7_7"] = "Métal et pierre"
+L["GROUPING_ERA_7_8"] = "Viande"
+L["GROUPING_ERA_7_9"] = "Herbe"
 L["GUILD_BANK"] = "Banque de guilde"
 L["GUILD_BANK_COLUMNS"] = "Colonnes de la banque de Guilde"
 L["GUILD_BANK_DATA_MISSING_HINT"] = "La banque de guilde n'a pas encore été visitée"
@@ -1721,40 +1704,23 @@ L["GREY_JUNK_ITEMS"] = "Desbotar itens de lixo"
 L["GROUP_BY"] = "Agrupar por"
 L["GROUP_EMPTY_SLOTS"] = "Agrupar espaços vazios"
 L["GROUP_IDENTICAL_ITEMS"] = "Agrupar itens idênticos"
---[[Translation missing --]]
-L["GROUPING_ERA_0_1"] = "Potion"
---[[Translation missing --]]
+L["GROUPING_ERA_0_1"] = "Poção"
 L["GROUPING_ERA_0_2"] = "Elixir"
---[[Translation missing --]]
-L["GROUPING_ERA_0_3"] = "Flask"
---[[Translation missing --]]
-L["GROUPING_ERA_0_4"] = "Scroll"
---[[Translation missing --]]
-L["GROUPING_ERA_0_5"] = "Food & Drink"
---[[Translation missing --]]
-L["GROUPING_ERA_0_6"] = "Item Enhancement"
---[[Translation missing --]]
-L["GROUPING_ERA_0_7"] = "Bandages"
---[[Translation missing --]]
-L["GROUPING_ERA_7_1"] = "Parts"
---[[Translation missing --]]
+L["GROUPING_ERA_0_3"] = "Frasco"
+L["GROUPING_ERA_0_4"] = "Pergaminho"
+L["GROUPING_ERA_0_5"] = "Comes e bebes"
+L["GROUPING_ERA_0_6"] = "Melhoria de item"
+L["GROUPING_ERA_0_7"] = "Bandagens"
+L["GROUPING_ERA_7_1"] = "Partes"
 L["GROUPING_ERA_7_10"] = "Elemental"
---[[Translation missing --]]
-L["GROUPING_ERA_7_12"] = "Enchanting"
---[[Translation missing --]]
-L["GROUPING_ERA_7_2"] = "Explosives"
---[[Translation missing --]]
-L["GROUPING_ERA_7_3"] = "Devices"
---[[Translation missing --]]
-L["GROUPING_ERA_7_5"] = "Cloth"
---[[Translation missing --]]
-L["GROUPING_ERA_7_6"] = "Leather"
---[[Translation missing --]]
-L["GROUPING_ERA_7_7"] = "Metal & Stone"
---[[Translation missing --]]
-L["GROUPING_ERA_7_8"] = "Meat"
---[[Translation missing --]]
-L["GROUPING_ERA_7_9"] = "Herb"
+L["GROUPING_ERA_7_12"] = "Encantamento"
+L["GROUPING_ERA_7_2"] = "Explosivos"
+L["GROUPING_ERA_7_3"] = "Dispositivos"
+L["GROUPING_ERA_7_5"] = "Tecido"
+L["GROUPING_ERA_7_6"] = "Couro"
+L["GROUPING_ERA_7_7"] = "Metal e pedra"
+L["GROUPING_ERA_7_8"] = "Carne"
+L["GROUPING_ERA_7_9"] = "Planta"
 L["GUILD_BANK"] = "Banco da guilda"
 L["GUILD_BANK_COLUMNS"] = "Colunas do banco de guilda"
 L["GUILD_BANK_DATA_MISSING_HINT"] = "Este banco de guilda ainda não foi visitado."
@@ -2109,40 +2075,23 @@ L["GREY_JUNK_ITEMS"] = "Eliminar los objetos chatarra"
 L["GROUP_BY"] = "Agrupar por"
 L["GROUP_EMPTY_SLOTS"] = "Agrupar en ranuras vacías"
 L["GROUP_IDENTICAL_ITEMS"] = "Agrupar objetos idénticos"
---[[Translation missing --]]
-L["GROUPING_ERA_0_1"] = "Potion"
---[[Translation missing --]]
+L["GROUPING_ERA_0_1"] = "Poción"
 L["GROUPING_ERA_0_2"] = "Elixir"
---[[Translation missing --]]
-L["GROUPING_ERA_0_3"] = "Flask"
---[[Translation missing --]]
-L["GROUPING_ERA_0_4"] = "Scroll"
---[[Translation missing --]]
-L["GROUPING_ERA_0_5"] = "Food & Drink"
---[[Translation missing --]]
-L["GROUPING_ERA_0_6"] = "Item Enhancement"
---[[Translation missing --]]
-L["GROUPING_ERA_0_7"] = "Bandages"
---[[Translation missing --]]
-L["GROUPING_ERA_7_1"] = "Parts"
---[[Translation missing --]]
+L["GROUPING_ERA_0_3"] = "Frasco"
+L["GROUPING_ERA_0_4"] = "Pergamino"
+L["GROUPING_ERA_0_5"] = "Comida y bebida"
+L["GROUPING_ERA_0_6"] = "Mejora de objeto"
+L["GROUPING_ERA_0_7"] = "Vendajes"
+L["GROUPING_ERA_7_1"] = "Piezas"
 L["GROUPING_ERA_7_10"] = "Elemental"
---[[Translation missing --]]
-L["GROUPING_ERA_7_12"] = "Enchanting"
---[[Translation missing --]]
-L["GROUPING_ERA_7_2"] = "Explosives"
---[[Translation missing --]]
-L["GROUPING_ERA_7_3"] = "Devices"
---[[Translation missing --]]
-L["GROUPING_ERA_7_5"] = "Cloth"
---[[Translation missing --]]
-L["GROUPING_ERA_7_6"] = "Leather"
---[[Translation missing --]]
-L["GROUPING_ERA_7_7"] = "Metal & Stone"
---[[Translation missing --]]
-L["GROUPING_ERA_7_8"] = "Meat"
---[[Translation missing --]]
-L["GROUPING_ERA_7_9"] = "Herb"
+L["GROUPING_ERA_7_12"] = "Encantamiento"
+L["GROUPING_ERA_7_2"] = "Explosivos"
+L["GROUPING_ERA_7_3"] = "Dispositivos"
+L["GROUPING_ERA_7_5"] = "Tela"
+L["GROUPING_ERA_7_6"] = "Cuero"
+L["GROUPING_ERA_7_7"] = "Metal y piedra"
+L["GROUPING_ERA_7_8"] = "Carne"
+L["GROUPING_ERA_7_9"] = "Hierba"
 L["GUILD_BANK"] = "Banco de hermandad"
 L["GUILD_BANK_COLUMNS"] = "Columnas para el banco de hermandad"
 L["GUILD_BANK_DATA_MISSING_HINT"] = "El banco de hermandad aún no ha sido visitado"
@@ -2497,40 +2446,23 @@ L["GREY_JUNK_ITEMS"] = "Eliminar los objetos chatarra"
 L["GROUP_BY"] = "Agrupar por"
 L["GROUP_EMPTY_SLOTS"] = "Agrupar en ranuras vacías"
 L["GROUP_IDENTICAL_ITEMS"] = "Agrupar objetos idénticos"
---[[Translation missing --]]
-L["GROUPING_ERA_0_1"] = "Potion"
---[[Translation missing --]]
+L["GROUPING_ERA_0_1"] = "Poción"
 L["GROUPING_ERA_0_2"] = "Elixir"
---[[Translation missing --]]
-L["GROUPING_ERA_0_3"] = "Flask"
---[[Translation missing --]]
-L["GROUPING_ERA_0_4"] = "Scroll"
---[[Translation missing --]]
-L["GROUPING_ERA_0_5"] = "Food & Drink"
---[[Translation missing --]]
-L["GROUPING_ERA_0_6"] = "Item Enhancement"
---[[Translation missing --]]
-L["GROUPING_ERA_0_7"] = "Bandages"
---[[Translation missing --]]
-L["GROUPING_ERA_7_1"] = "Parts"
---[[Translation missing --]]
+L["GROUPING_ERA_0_3"] = "Frasco"
+L["GROUPING_ERA_0_4"] = "Pergamino"
+L["GROUPING_ERA_0_5"] = "Comida y bebida"
+L["GROUPING_ERA_0_6"] = "Mejora de objeto"
+L["GROUPING_ERA_0_7"] = "Vendas"
+L["GROUPING_ERA_7_1"] = "Piezas"
 L["GROUPING_ERA_7_10"] = "Elemental"
---[[Translation missing --]]
-L["GROUPING_ERA_7_12"] = "Enchanting"
---[[Translation missing --]]
-L["GROUPING_ERA_7_2"] = "Explosives"
---[[Translation missing --]]
-L["GROUPING_ERA_7_3"] = "Devices"
---[[Translation missing --]]
-L["GROUPING_ERA_7_5"] = "Cloth"
---[[Translation missing --]]
-L["GROUPING_ERA_7_6"] = "Leather"
---[[Translation missing --]]
-L["GROUPING_ERA_7_7"] = "Metal & Stone"
---[[Translation missing --]]
-L["GROUPING_ERA_7_8"] = "Meat"
---[[Translation missing --]]
-L["GROUPING_ERA_7_9"] = "Herb"
+L["GROUPING_ERA_7_12"] = "Encantamiento"
+L["GROUPING_ERA_7_2"] = "Explosivos"
+L["GROUPING_ERA_7_3"] = "Dispositivos"
+L["GROUPING_ERA_7_5"] = "Tela"
+L["GROUPING_ERA_7_6"] = "Cuero"
+L["GROUPING_ERA_7_7"] = "Metal y piedra"
+L["GROUPING_ERA_7_8"] = "Carne"
+L["GROUPING_ERA_7_9"] = "Hierba"
 L["GUILD_BANK"] = "Banco de hermandad"
 L["GUILD_BANK_COLUMNS"] = "Columnas para el banco de hermandad"
 L["GUILD_BANK_DATA_MISSING_HINT"] = "El banco de hermandad aún no ha sido visitado"
@@ -3563,7 +3495,7 @@ L["CATEGORY_GROUPS"] = "카테고리 그룹"
 L["CATEGORY_GROUPS_DESCRIPTION"] = "새로운 사용자 정의 카테고리를 추가하여 항목을 유형별로 그룹화 합니다."
 L["CATEGORY_HEARTHSTONE"] = "귀환석"
 L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "재고 (자동)"
-L["CATEGORY_JUNK"] = "쓰레기"
+L["CATEGORY_JUNK"] = "잡동사니"
 L["CATEGORY_KEYSTONE"] = "쐐기돌"
 L["CATEGORY_OTHER"] = "기타"
 L["CATEGORY_POTION"] = "물약"
@@ -3625,7 +3557,7 @@ L["FROM_THE_BOTTOM"] = "하단에서"
 L["FROM_THE_TOP"] = "상단에서"
 L["GEMS"] = "보석"
 L["GENERAL"] = "일반"
-L["GREY_JUNK_ITEMS"] = "쓰레기 회색 표시"
+L["GREY_JUNK_ITEMS"] = "잡동사니 회색 표시"
 L["GROUP_BY"] = "그룹화 기준"
 L["GROUP_EMPTY_SLOTS"] = "그룹 빈 칸"
 L["GROUP_IDENTICAL_ITEMS"] = "동일한 아이템 그룹화"
@@ -3702,8 +3634,8 @@ L["ITEM_UPGRADE"] = "아이템 업그레이드"
 L["ITEMS"] = "아이템"
 L["JEWELCRAFTING"] = "보석세공"
 L["JOIN_THE_DISCORD"] = "디스코드 참여"
-L["JUNK"] = "쓰레기"
-L["JUNK_DETECTION_2"] = "쓰레기 감지"
+L["JUNK"] = "잡동사니"
+L["JUNK_DETECTION_2"] = "잡동사니 감지"
 L["KEYS"] = "열쇠"
 L["KEYSTONE_LEVEL"] = "쐐기돌 레벨"
 L["KEYWORDS_IN_TOOLTIPS_X"] = "가방 아이템 툴팁의 키워드는 이제 %s입니다."
@@ -3770,7 +3702,7 @@ L["SEARCH_HELP"] = "도움말 검색"
 L["SEARCH_TRY_X"] = "검색, %s 시도"
 L["SECTION_CRAFTING"] = "제작"
 L["SECTION_EQUIPMENT"] = "장비"
-L["SELLJUNK"] = "쓰레기 판매"
+L["SELLJUNK"] = "잡동사니 판매"
 L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-클릭 추적/추적 해제>"
 L["SHIFT_CLICK_TO_VENDOR_ALL"] = "<Shift 키를 사용하여 제한 무시>"
 L["SHOW_ADD_BUTTONS"] = "추가 버튼 표시"
