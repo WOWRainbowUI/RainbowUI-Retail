@@ -38,6 +38,7 @@ L["TOP"] = "上方"
 L["X_PADDING"] = "水平內邊界"
 L["Y_PADDING"] = "垂直內邊界"
 
+L["MULTILINE"] = "多行"
 
 -- 自行加入
 L["LS_GLASS"] = "聊天-視窗"

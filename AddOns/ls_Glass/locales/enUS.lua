@@ -55,5 +55,7 @@ L["TOP"] = "Top"
 L["X_PADDING"] = "Horizontal Padding"
 L["Y_PADDING"] = "Vertical Padding"
 
+L["MULTILINE"] = "Multiline"
+
 -- 自行加入
 L["LS GLASS"] = "LS: |cffe0bc5bGlass|r"
