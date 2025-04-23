@@ -1,4 +1,4 @@
-## Interface: 11506, 40401, 110100, 110105
+## Interface: 11507, 40402, 110100, 110105
 ## Title: tullaRange Config
 ## Author: Tuller
 ## Notes: tullaRange's configuration interface
