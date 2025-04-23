@@ -1,7 +1,6 @@
 # Syndicator
 
-## [189](https://github.com/Baganator/Syndicator/tree/189) (2025-04-14)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/188...189) 
+## [190](https://github.com/Baganator/Syndicator/tree/190) (2025-04-22)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/189...190) 
 
-- Fix rare junk getting tagged as a tier token  
-- Expose getting tooltip data cached  
+- Update toc for 11.1.5  

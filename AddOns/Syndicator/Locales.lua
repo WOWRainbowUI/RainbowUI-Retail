@@ -286,40 +286,23 @@ L["KEYWORD_SOULBOUND"] = "lié"
 L["KEYWORD_STACKABLE"] = "empilable "
 L["KEYWORD_STACKS"] = "piles"
 L["KEYWORD_STAFF"] = "bâton "
---[[Translation missing --]]
 L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
---[[Translation missing --]]
+L["KEYWORD_SUBCLASS_CLOTH"] = "tissu"
+L["KEYWORD_SUBCLASS_DEVICES"] = "dispositifs"
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "élémentaire"
 L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_FLASK"] = "flask"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_HERB"] = "herb"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_MEAT"] = "meat"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_PARTS"] = "parts"
---[[Translation missing --]]
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchantement"
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosifs"
+L["KEYWORD_SUBCLASS_FLASK"] = "flacon"
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "nourriture et boisson"
+L["KEYWORD_SUBCLASS_HERB"] = "herbe"
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "amélioration d'objet"
+L["KEYWORD_SUBCLASS_LEATHER"] = "cuir"
+L["KEYWORD_SUBCLASS_MEAT"] = "viande"
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "métal et pierre"
+L["KEYWORD_SUBCLASS_PARTS"] = "parties"
 L["KEYWORD_SUBCLASS_POTION"] = "potion"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
+L["KEYWORD_SUBCLASS_SCROLL"] = "parchemin"
 L["KEYWORD_SWORD"] = "épée"
 L["KEYWORD_TIER_TOKEN"] = "jeton de tier"
 L["KEYWORD_TRADABLE_LOOT"] = "butin échangeable"
@@ -673,40 +656,23 @@ L["KEYWORD_SOULBOUND"] = "персональный"
 L["KEYWORD_STACKABLE"] = "складываемое"
 L["KEYWORD_STACKS"] = "стаки"
 L["KEYWORD_STAFF"] = "посох"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_FLASK"] = "flask"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_HERB"] = "herb"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_MEAT"] = "meat"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_PARTS"] = "parts"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_POTION"] = "potion"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
+L["KEYWORD_SUBCLASS_BANDAGES"] = "бинты"
+L["KEYWORD_SUBCLASS_CLOTH"] = "ткань"
+L["KEYWORD_SUBCLASS_DEVICES"] = "устройства"
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "стихии"
+L["KEYWORD_SUBCLASS_ELIXIR"] = "эликсир"
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "наложение чар"
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "взрывчатое"
+L["KEYWORD_SUBCLASS_FLASK"] = "настой"
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "еда и питье"
+L["KEYWORD_SUBCLASS_HERB"] = "трава"
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "улучшение предмета"
+L["KEYWORD_SUBCLASS_LEATHER"] = "кожа"
+L["KEYWORD_SUBCLASS_MEAT"] = "мясо"
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "металл и камень"
+L["KEYWORD_SUBCLASS_PARTS"] = "части"
+L["KEYWORD_SUBCLASS_POTION"] = "зелье"
+L["KEYWORD_SUBCLASS_SCROLL"] = "свиток"
 L["KEYWORD_SWORD"] = "меч"
 L["KEYWORD_TIER_TOKEN"] = "уровень токена"
 L["KEYWORD_TRADABLE_LOOT"] = "персональный"
@@ -851,40 +817,23 @@ L["KEYWORD_SOULBOUND"] = "alma atada"
 L["KEYWORD_STACKABLE"] = "empilhável"
 L["KEYWORD_STACKS"] = "pilhas"
 L["KEYWORD_STAFF"] = "cajado"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
---[[Translation missing --]]
+L["KEYWORD_SUBCLASS_BANDAGES"] = "bandagens"
+L["KEYWORD_SUBCLASS_CLOTH"] = "tecido"
+L["KEYWORD_SUBCLASS_DEVICES"] = "dispositivos"
 L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
---[[Translation missing --]]
 L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_FLASK"] = "flask"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_HERB"] = "herb"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_MEAT"] = "meat"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_PARTS"] = "parts"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_POTION"] = "potion"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "encantamento"
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosivos"
+L["KEYWORD_SUBCLASS_FLASK"] = "frasco"
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "comes e bebes"
+L["KEYWORD_SUBCLASS_HERB"] = "planta"
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "melhoria de item"
+L["KEYWORD_SUBCLASS_LEATHER"] = "couro"
+L["KEYWORD_SUBCLASS_MEAT"] = "carne"
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal e pedra"
+L["KEYWORD_SUBCLASS_PARTS"] = "partes"
+L["KEYWORD_SUBCLASS_POTION"] = "poção"
+L["KEYWORD_SUBCLASS_SCROLL"] = "pergaminho"
 L["KEYWORD_SWORD"] = "espada"
 L["KEYWORD_TIER_TOKEN"] = "ficha de tier"
 L["KEYWORD_TRADABLE_LOOT"] = "saque negociável"
@@ -1029,40 +978,23 @@ L["KEYWORD_SOULBOUND"] = "ligado al ama"
 L["KEYWORD_STACKABLE"] = "apilable"
 L["KEYWORD_STACKS"] = "pilas"
 L["KEYWORD_STAFF"] = "bastón"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
---[[Translation missing --]]
+L["KEYWORD_SUBCLASS_BANDAGES"] = "vendajes"
+L["KEYWORD_SUBCLASS_CLOTH"] = "tela"
+L["KEYWORD_SUBCLASS_DEVICES"] = "dispositivos"
 L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
---[[Translation missing --]]
 L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_FLASK"] = "flask"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_HERB"] = "herb"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_MEAT"] = "meat"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_PARTS"] = "parts"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_POTION"] = "potion"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "encantamiento"
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosivos"
+L["KEYWORD_SUBCLASS_FLASK"] = "frasco"
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "comida y bebida"
+L["KEYWORD_SUBCLASS_HERB"] = "hierba"
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "mejora de objeto"
+L["KEYWORD_SUBCLASS_LEATHER"] = "cuero"
+L["KEYWORD_SUBCLASS_MEAT"] = "carne"
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal y piedra"
+L["KEYWORD_SUBCLASS_PARTS"] = "piezas"
+L["KEYWORD_SUBCLASS_POTION"] = "poción"
+L["KEYWORD_SUBCLASS_SCROLL"] = "pergamino"
 L["KEYWORD_SWORD"] = "espada"
 L["KEYWORD_TIER_TOKEN"] = "ficha de tier"
 L["KEYWORD_TRADABLE_LOOT"] = "botín comerciable"
@@ -1207,40 +1139,23 @@ L["KEYWORD_SOULBOUND"] = "ligado al ama"
 L["KEYWORD_STACKABLE"] = "apilable"
 L["KEYWORD_STACKS"] = "pilas"
 L["KEYWORD_STAFF"] = "bastón"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
---[[Translation missing --]]
+L["KEYWORD_SUBCLASS_BANDAGES"] = "vendas"
+L["KEYWORD_SUBCLASS_CLOTH"] = "tela"
+L["KEYWORD_SUBCLASS_DEVICES"] = "dispositivos"
 L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
---[[Translation missing --]]
 L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_FLASK"] = "flask"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_HERB"] = "herb"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_MEAT"] = "meat"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_PARTS"] = "parts"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_POTION"] = "potion"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "encantamiento"
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosivos"
+L["KEYWORD_SUBCLASS_FLASK"] = "frasco"
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "comida y bebida"
+L["KEYWORD_SUBCLASS_HERB"] = "hierba"
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "mejora de objeto"
+L["KEYWORD_SUBCLASS_LEATHER"] = "cuero"
+L["KEYWORD_SUBCLASS_MEAT"] = "carne"
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal y piedra"
+L["KEYWORD_SUBCLASS_PARTS"] = "piezas"
+L["KEYWORD_SUBCLASS_POTION"] = "poción"
+L["KEYWORD_SUBCLASS_SCROLL"] = "pergamino"
 L["KEYWORD_SWORD"] = "espada"
 L["KEYWORD_TIER_TOKEN"] = "ficha de tier"
 L["KEYWORD_TRADABLE_LOOT"] = "botín comerciable"
@@ -1606,288 +1521,163 @@ L["X_CHARACTERS_SHOWN"] = "显示角色 ：%s （注：仅限鼠标提示显示�
 
 local L = Locales.koKR
 L["ALL_CHARACTERS_COLON"] = "모든 캐릭터:"
---[[Translation missing --]]
-L["ALL_TOOLTIP_TEXT"] = "All the entries apply"
---[[Translation missing --]]
-L["ALL_UPPER"] = "ALL"
---[[Translation missing --]]
-L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
---[[Translation missing --]]
-L["ANY_UPPER"] = "ANY"
---[[Translation missing --]]
-L["AUCTIONS_LOWER"] = "auctions"
---[[Translation missing --]]
-L["AUCTIONS_X"] = "Auctions: %s"
---[[Translation missing --]]
-L["BAGS_LOWER"] = "bags"
-L["BAGS_X"] = " 가방: %s"
---[[Translation missing --]]
-L["BANK_LOWER"] = "bank"
+L["ALL_TOOLTIP_TEXT"] = "모든 항목 적용"
+L["ALL_UPPER"] = "모두"
+L["ANY_TOOLTIP_TEXT"] = "모든 항목이 유효합니다."
+L["ANY_UPPER"] = "모든 것"
+L["AUCTIONS_LOWER"] = "경매"
+L["AUCTIONS_X"] = "경매: %s"
+L["BAGS_LOWER"] = "가방"
+L["BAGS_X"] = "가방: %s"
+L["BANK_LOWER"] = "은행"
 L["BANK_X"] = "은행: %s"
---[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
---[[Translation missing --]]
-L["CHARACTERS"] = "Characters"
---[[Translation missing --]]
-L["COPY"] = "Copy"
---[[Translation missing --]]
-L["CUSTOM_SEARCH"] = "Custom search"
---[[Translation missing --]]
-L["CUT"] = "Cut"
---[[Translation missing --]]
-L["DELETE_CHARACTER"] = "Delete Character"
---[[Translation missing --]]
-L["DELETE_GUILD"] = "Delete Guild"
---[[Translation missing --]]
-L["EQUIPPED_LOWER"] = "equipped"
-L["EQUIPPED_X"] = "착용함: %s"
---[[Translation missing --]]
-L["GROUP_ARMOR_TYPE"] = "Armor Type"
---[[Translation missing --]]
-L["GROUP_BATTLE_PET"] = "Battle Pet Type"
---[[Translation missing --]]
-L["GROUP_BINDING_TYPE"] = "Binding Type"
---[[Translation missing --]]
-L["GROUP_CONSUMABLE"] = "Consumable"
---[[Translation missing --]]
-L["GROUP_EXPANSION"] = "Expansion"
---[[Translation missing --]]
-L["GROUP_GLYPH"] = "Glyph"
---[[Translation missing --]]
-L["GROUP_ITEM_DETAIL"] = "Item Detail"
---[[Translation missing --]]
-L["GROUP_ITEM_TYPE"] = "Item Type"
---[[Translation missing --]]
-L["GROUP_QUALITY"] = "Quality"
---[[Translation missing --]]
-L["GROUP_RECIPE"] = "Recipe"
---[[Translation missing --]]
-L["GROUP_SLOT"] = "Equipment Slot"
---[[Translation missing --]]
-L["GROUP_SOCKET"] = "Socket"
---[[Translation missing --]]
-L["GROUP_STAT"] = "Stat"
---[[Translation missing --]]
-L["GROUP_TRADE_GOODS"] = "Trade Goods"
---[[Translation missing --]]
-L["GROUP_WEAPON_TYPE"] = "Weapon Type"
---[[Translation missing --]]
-L["GUILD_LOWER"] = "guild"
+L["CANNOT_SEARCH_BY_ITEM_LINK"] = "아이템 링크로 검색할 수 없습니다."
+L["CHARACTERS"] = "캐릭터"
+L["COPY"] = "복사"
+L["CUSTOM_SEARCH"] = "사용자 정의 검색"
+L["CUT"] = "잘라내기"
+L["DELETE_CHARACTER"] = "캐릭터 삭제"
+L["DELETE_GUILD"] = "길드 삭제"
+L["EQUIPPED_LOWER"] = "착용"
+L["EQUIPPED_X"] = "착용: %s"
+L["GROUP_ARMOR_TYPE"] = "방어구 유형"
+L["GROUP_BATTLE_PET"] = "애완동물 유형"
+L["GROUP_BINDING_TYPE"] = "바인딩 유형"
+L["GROUP_CONSUMABLE"] = "소모품"
+L["GROUP_EXPANSION"] = "확장"
+L["GROUP_GLYPH"] = "문양"
+L["GROUP_ITEM_DETAIL"] = "아이템 세부 정보"
+L["GROUP_ITEM_TYPE"] = "아이템 유형"
+L["GROUP_QUALITY"] = "품질"
+L["GROUP_RECIPE"] = "도안"
+L["GROUP_SLOT"] = "장비 칸"
+L["GROUP_SOCKET"] = "소켓"
+L["GROUP_STAT"] = "스탯"
+L["GROUP_TRADE_GOODS"] = "거래 상품"
+L["GROUP_WEAPON_TYPE"] = "무기 유형"
+L["GUILD_LOWER"] = "길드"
 L["GUILD_X"] = "길드: %s"
---[[Translation missing --]]
-L["GUILDS"] = "Guilds"
---[[Translation missing --]]
-L["HIDE_IN_GOLD_SUMMARY"] = "Hide in gold summary"
---[[Translation missing --]]
-L["HIDE_IN_INVENTORY_TOOLTIPS"] = "Hide in inventory tooltips"
---[[Translation missing --]]
-L["HOLD_SHIFT_TO_DISPLAY"] = "Hold shift to display"
---[[Translation missing --]]
-L["INSERT"] = "Insert"
+L["GUILDS"] = "길드"
+L["HIDE_IN_GOLD_SUMMARY"] = "골드 정보 숨기기"
+L["HIDE_IN_INVENTORY_TOOLTIPS"] = "가방 툴팁 숨기기"
+L["HOLD_SHIFT_TO_DISPLAY"] = "shift 키를 누르면 표시"
+L["INSERT"] = "추가"
 L["INVENTORY"] = "가방"
---[[Translation missing --]]
-L["ITEM_LEVEL"] = "Item level"
---[[Translation missing --]]
-L["ITEM_LEVEL_EQUALS"] = "Equal to, ="
---[[Translation missing --]]
-L["ITEM_LEVEL_LESS"] = "Less than, <"
---[[Translation missing --]]
-L["ITEM_LEVEL_MORE"] = "More than, >"
---[[Translation missing --]]
-L["ITEM_LEVEL_RANGE"] = "Range, -"
---[[Translation missing --]]
-L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
+L["ITEM_LEVEL"] = "아이템 레벨"
+L["ITEM_LEVEL_EQUALS"] = "같음, ="
+L["ITEM_LEVEL_LESS"] = "미만, <"
+L["ITEM_LEVEL_MORE"] = "초과, >"
+L["ITEM_LEVEL_RANGE"] = "범위, -"
+L["KEYWORD_ACCOUNT_BOUND"] = "계정 연결"
 L["KEYWORD_AXE"] = "도끼"
---[[Translation missing --]]
-L["KEYWORD_AZERITE"] = "azerite"
-L["KEYWORD_BATTLE_PET"] = "전투 애완 동물"
+L["KEYWORD_AZERITE"] = "아제라이트"
+L["KEYWORD_BATTLE_PET"] = "전투 애완동물"
 L["KEYWORD_BELT"] = "허리"
 L["KEYWORD_BOA"] = "계정 귀속"
 L["KEYWORD_BOE"] = "착용 시 귀속"
 L["KEYWORD_BOOTS"] = "신발"
---[[Translation missing --]]
-L["KEYWORD_BOP"] = "bop"
---[[Translation missing --]]
-L["KEYWORD_BOU"] = "bou"
+L["KEYWORD_BOP"] = "획득 시 귀속"
+L["KEYWORD_BOU"] = "사용 시 귀속"
 L["KEYWORD_BRACERS"] = "손목"
---[[Translation missing --]]
 L["KEYWORD_BWE"] = "bwe"
 L["KEYWORD_CLOAK"] = "망토"
---[[Translation missing --]]
-L["KEYWORD_COLLECTED"] = "collected"
---[[Translation missing --]]
-L["KEYWORD_COSMETIC"] = "cosmetic"
---[[Translation missing --]]
-L["KEYWORD_CRAFTED"] = "crafted"
---[[Translation missing --]]
-L["KEYWORD_CURRENCY"] = "currency"
+L["KEYWORD_COLLECTED"] = "수집"
+L["KEYWORD_COSMETIC"] = "장식"
+L["KEYWORD_CRAFTED"] = "제작 아이템"
+L["KEYWORD_CURRENCY"] = "화폐"
 L["KEYWORD_DRINK"] = "음료"
---[[Translation missing --]]
-L["KEYWORD_ENGRAVABLE"] = "engravable"
---[[Translation missing --]]
-L["KEYWORD_ENGRAVED"] = "engraved"
-L["KEYWORD_EQUIPMENT"] = "착용"
---[[Translation missing --]]
-L["KEYWORD_EQUIPMENT_SET"] = "equipment set"
---[[Translation missing --]]
-L["KEYWORD_FISH"] = "fish"
+L["KEYWORD_ENGRAVABLE"] = "각인 가능"
+L["KEYWORD_ENGRAVED"] = "각인"
+L["KEYWORD_EQUIPMENT"] = "장비"
+L["KEYWORD_EQUIPMENT_SET"] = "장비 세트"
+L["KEYWORD_FISH"] = "물고기"
 L["KEYWORD_FOOD"] = "음식"
---[[Translation missing --]]
-L["KEYWORD_GEAR"] = "gear"
+L["KEYWORD_GEAR"] = "장비"
 L["KEYWORD_GLOVES"] = "장갑"
 L["KEYWORD_HELM"] = "투구"
---[[Translation missing --]]
-L["KEYWORD_JUNK"] = "junk"
---[[Translation missing --]]
-L["KEYWORD_KEY"] = "key"
---[[Translation missing --]]
-L["KEYWORD_KEYSTONE"] = "keystone"
---[[Translation missing --]]
-L["KEYWORD_KNOWLEDGE"] = "knowledge"
---[[Translation missing --]]
-L["KEYWORD_LOCKED"] = "locked"
+L["KEYWORD_JUNK"] = "잡동사니"
+L["KEYWORD_KEY"] = "열쇠"
+L["KEYWORD_KEYSTONE"] = "쐐기돌"
+L["KEYWORD_KNOWLEDGE"] = "지식"
+L["KEYWORD_LOCKED"] = "잠김"
 L["KEYWORD_MACE"] = "둔기"
---[[Translation missing --]]
-L["KEYWORD_MY_CLASS"] = "my class"
---[[Translation missing --]]
-L["KEYWORD_OBJECTIVE"] = "objective"
-L["KEYWORD_OFF_HAND"] = "보조장비"
---[[Translation missing --]]
-L["KEYWORD_OPEN"] = "open"
-L["KEYWORD_PET"] = "소환수"
+L["KEYWORD_MY_CLASS"] = "내 직업"
+L["KEYWORD_OBJECTIVE"] = "목표"
+L["KEYWORD_OFF_HAND"] = "보조"
+L["KEYWORD_OPEN"] = "열기"
+L["KEYWORD_PET"] = "애완동물"
 L["KEYWORD_POTION"] = "물약"
---[[Translation missing --]]
 L["KEYWORD_PVP"] = "pvp"
---[[Translation missing --]]
-L["KEYWORD_READ"] = "read"
+L["KEYWORD_READ"] = "읽기"
 L["KEYWORD_REAGENT"] = "재료"
---[[Translation missing --]]
-L["KEYWORD_REFUNDABLE"] = "refundable"
---[[Translation missing --]]
-L["KEYWORD_RELIC"] = "relic"
---[[Translation missing --]]
-L["KEYWORD_RING"] = "ring"
---[[Translation missing --]]
-L["KEYWORD_RX"] = "r%s"
+L["KEYWORD_REFUNDABLE"] = "환불 가능"
+L["KEYWORD_RELIC"] = "유물"
+L["KEYWORD_RING"] = "반지"
+L["KEYWORD_RX"] = "요구 레벨 %s"
 L["KEYWORD_SET"] = "세트"
---[[Translation missing --]]
-L["KEYWORD_SET_BONUS"] = "set bonus"
+L["KEYWORD_SET_BONUS"] = "세트 효과"
 L["KEYWORD_SOCKET"] = "소켓"
---[[Translation missing --]]
-L["KEYWORD_SOCKETED"] = "socketed"
-L["KEYWORD_SOULBOUND"] = "영혼석"
---[[Translation missing --]]
-L["KEYWORD_STACKABLE"] = "stackable"
---[[Translation missing --]]
-L["KEYWORD_STACKS"] = "stacks"
+L["KEYWORD_SOCKETED"] = "소켓"
+L["KEYWORD_SOULBOUND"] = "귀속"
+L["KEYWORD_STACKABLE"] = "중첩 가능"
+L["KEYWORD_STACKS"] = "중첩"
 L["KEYWORD_STAFF"] = "지팡이"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_BANDAGES"] = "bandages"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_CLOTH"] = "cloth"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_DEVICES"] = "devices"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ELEMENTAL"] = "elemental"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ELIXIR"] = "elixir"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ENCHANTING"] = "enchanting"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "explosives"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_FLASK"] = "flask"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "food & drink"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_HERB"] = "herb"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "item enhancement"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_LEATHER"] = "leather"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_MEAT"] = "meat"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "metal & stone"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_PARTS"] = "parts"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_POTION"] = "potion"
---[[Translation missing --]]
-L["KEYWORD_SUBCLASS_SCROLL"] = "scroll"
+L["KEYWORD_SUBCLASS_BANDAGES"] = "붕대"
+L["KEYWORD_SUBCLASS_CLOTH"] = "천"
+L["KEYWORD_SUBCLASS_DEVICES"] = "장치"
+L["KEYWORD_SUBCLASS_ELEMENTAL"] = "원소"
+L["KEYWORD_SUBCLASS_ELIXIR"] = "비약"
+L["KEYWORD_SUBCLASS_ENCHANTING"] = "마법부여"
+L["KEYWORD_SUBCLASS_EXPLOSIVES"] = "폭발물"
+L["KEYWORD_SUBCLASS_FLASK"] = "영약"
+L["KEYWORD_SUBCLASS_FOOD_AND_DRINK"] = "음식 및 음료"
+L["KEYWORD_SUBCLASS_HERB"] = "약초"
+L["KEYWORD_SUBCLASS_ITEM_ENHANCEMENT"] = "아이템 강화"
+L["KEYWORD_SUBCLASS_LEATHER"] = "가죽"
+L["KEYWORD_SUBCLASS_MEAT"] = "고기"
+L["KEYWORD_SUBCLASS_METAL_AND_STONE"] = "광석 & 주괴"
+L["KEYWORD_SUBCLASS_PARTS"] = "부품"
+L["KEYWORD_SUBCLASS_POTION"] = "물약"
+L["KEYWORD_SUBCLASS_SCROLL"] = "두루마리"
 L["KEYWORD_SWORD"] = "도검"
---[[Translation missing --]]
-L["KEYWORD_TIER_TOKEN"] = "tier token"
---[[Translation missing --]]
-L["KEYWORD_TRADABLE_LOOT"] = "tradable loot"
---[[Translation missing --]]
-L["KEYWORD_TRADEABLE_LOOT"] = "tradeable loot"
---[[Translation missing --]]
-L["KEYWORD_TRASH"] = "trash"
---[[Translation missing --]]
-L["KEYWORD_UNCOLLECTED"] = "uncollected"
---[[Translation missing --]]
-L["KEYWORD_UPGRADE"] = "upgrade"
---[[Translation missing --]]
-L["KEYWORD_USABLE"] = "usable"
---[[Translation missing --]]
-L["KEYWORD_USE"] = "use"
---[[Translation missing --]]
-L["KEYWORD_WUE"] = "wue"
---[[Translation missing --]]
-L["MAIL_LOWER"] = "mail"
-L["MAIL_X"] = "우편함: %s"
---[[Translation missing --]]
-L["NO_MATCHING_KEYWORDS"] = "No matching keywords"
---[[Translation missing --]]
-L["NO_RESULTS_FOUND"] = "No results found"
---[[Translation missing --]]
-L["NOT_TOOLTIP_TEXT"] = "Not this entry"
---[[Translation missing --]]
-L["NOT_UPPER"] = "NOT"
---[[Translation missing --]]
-L["PASTE"] = "Paste"
---[[Translation missing --]]
-L["SAME_CONNECTED_REALMS"] = "Same connected realms"
---[[Translation missing --]]
-L["SAME_FACTION"] = "Same faction"
---[[Translation missing --]]
-L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
---[[Translation missing --]]
-L["SHOW_CURRENCY"] = "Show currency"
---[[Translation missing --]]
-L["SHOW_EQUIPPED"] = "Show equipped"
---[[Translation missing --]]
-L["SHOW_GUILD_BANKS"] = "Show guild banks"
---[[Translation missing --]]
-L["SHOW_IN_GOLD_SUMMARY"] = "Show in gold summary"
---[[Translation missing --]]
-L["SHOW_IN_INVENTORY_TOOLTIPS"] = "Show in inventory tooltips"
---[[Translation missing --]]
-L["SHOW_INVENTORY"] = "Show inventory"
---[[Translation missing --]]
-L["SHOW_RACE_ICONS"] = "Show race icons"
---[[Translation missing --]]
-L["SORT_BY_NAME"] = "Sort by name"
---[[Translation missing --]]
+L["KEYWORD_TIER_TOKEN"] = "티어 토큰"
+L["KEYWORD_TRADABLE_LOOT"] = "거래 가능 전리품"
+L["KEYWORD_TRADEABLE_LOOT"] = "거래 가능 전리품"
+L["KEYWORD_TRASH"] = "잡동사니"
+L["KEYWORD_UNCOLLECTED"] = "미수집"
+L["KEYWORD_UPGRADE"] = "업그레이드"
+L["KEYWORD_USABLE"] = "사용 가능"
+L["KEYWORD_USE"] = "사용"
+L["KEYWORD_WUE"] = "착용 시 귀속"
+L["MAIL_LOWER"] = "우편"
+L["MAIL_X"] = "우편: %s"
+L["NO_MATCHING_KEYWORDS"] = "일치하는 키워드 없음"
+L["NO_RESULTS_FOUND"] = "결과 없음"
+L["NOT_TOOLTIP_TEXT"] = "해당 항목 아님"
+L["NOT_UPPER"] = "아님"
+L["PASTE"] = "붙여넣기"
+L["SAME_CONNECTED_REALMS"] = "연합 서버"
+L["SAME_FACTION"] = "동일 진영"
+L["SEARCHED_EVERYWHERE_COLON"] = "확장 검색:"
+L["SHOW_CURRENCY"] = "화폐 표시"
+L["SHOW_EQUIPPED"] = "아이템 표시"
+L["SHOW_GUILD_BANKS"] = "길드 은행 표시"
+L["SHOW_IN_GOLD_SUMMARY"] = "골드 요약에 표시"
+L["SHOW_IN_INVENTORY_TOOLTIPS"] = "가방 툴팁에 표시"
+L["SHOW_INVENTORY"] = "가방 표시"
+L["SHOW_RACE_ICONS"] = "종족 아이콘 표시"
+L["SORT_BY_NAME"] = "이름순 정렬"
 L["SYNDICATOR"] = "Syndicator"
---[[Translation missing --]]
-L["TOOLTIP_SETTINGS"] = "Tooltip Settings"
+L["TOOLTIP_SETTINGS"] = "툴팁 설정"
 L["TOTAL_X"] = "합계: %s"
---[[Translation missing --]]
-L["UNWRAP"] = "Unwrap"
---[[Translation missing --]]
-L["VERSION_COLON_X"] = "Version: %s"
---[[Translation missing --]]
-L["VOID_LOWER"] = "void"
+L["UNWRAP"] = "포장 풀기"
+L["VERSION_COLON_X"] = "버전: %s"
+L["VOID_LOWER"] = "공허 보관소"
 L["VOID_X"] = "공허 보관소: %s"
---[[Translation missing --]]
-L["WARBAND"] = "Warband"
---[[Translation missing --]]
-L["WARBAND_LOWER"] = "warband"
---[[Translation missing --]]
-L["WRAP_WITH"] = "Wrap with"
-L["X_CHARACTERS_SHOWN"] = "%s 의 캐릭터 표시"
+L["WARBAND"] = "전투부대"
+L["WARBAND_LOWER"] = "전투부대"
+L["WRAP_WITH"] = "포장"
+L["X_CHARACTERS_SHOWN"] = "%s 캐릭터 표시 중"
 
 
 local L = Locales.itIT
