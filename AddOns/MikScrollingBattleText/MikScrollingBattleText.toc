@@ -1,4 +1,4 @@
-## Interface: 11504, 40400, 110007, 110100
+## Interface: 11504, 40400, 110100, 110105
 ## Version: 6.0.3
 ## Title: Mik's Scrolling Battle Text
 ## Author: Mikord

@@ -1,4 +1,4 @@
-## Interface: 11504, 40400, 40401, 110007, 110100
+## Interface: 11504, 40400, 40401, 110100, 110105
 
 ## Author: StormFX
 ## Title: AceGUI-3.0: SFX Widgets

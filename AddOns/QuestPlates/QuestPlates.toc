@@ -1,4 +1,4 @@
-## Interface: 110007, 110100
+## Interface: 110100, 110105
 ## Title: - |cff58be81Q|r|cffffffffuest|r|cff58be81P|r|cfffffffflates|r
 ## Notes: Adds quest progress to nameplates.|n|r   |cff58be81By Semlar, DonnieDice|r
 ## Version: v5.4.9

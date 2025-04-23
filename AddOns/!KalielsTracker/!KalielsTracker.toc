@@ -1,4 +1,4 @@
-## Interface: 110007, 110100
+## Interface: 110100, 110105
 ## Title: Kaliel's Tracker
 ## Notes: Improved Blizzard Objective Tracker
 ## Version: 7.9.0

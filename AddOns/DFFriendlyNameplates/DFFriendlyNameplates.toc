@@ -1,4 +1,4 @@
-## Interface: 110007, 110100
+## Interface: 110100, 110105
 ## Title: DF Friendly Nameplates
 ## Author: Httpsx
 ## Version: 1.0.14
