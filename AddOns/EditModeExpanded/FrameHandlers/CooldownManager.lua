@@ -80,7 +80,7 @@ local function initFrame(frame)
         end
     end)
     libDD:UIDropDownMenu_SetWidth(dropdown, 200)
-    libDD:UIDropDownMenu_SetText(dropdown, "隱藏這些法術")
+    libDD:UIDropDownMenu_SetText(dropdown, L["Hide These Spells"])
     
     libDD:UIDropDownMenu_Initialize(rearrangeDropdown, function(self, level, menuList)
         local db = getRearrangeSettingDB()
@@ -91,7 +91,7 @@ local function initFrame(frame)
             local cooldownInfo = C_CooldownViewer.GetCooldownViewerCooldownInfo(cooldownID)
             local name = C_Spell.GetSpellName(cooldownInfo.spellID)
             
-            info.text = "上移 "..name.." ("..(cooldownIndex + (db[cooldownID] or 0))..")"
+            info.text = L["Move "]..name.." ("..(cooldownIndex + (db[cooldownID] or 0))..")"..L[" Up"]
             info.func = function()
                 if db[cooldownID] then
                     db[cooldownID] = db[cooldownID] - 1
@@ -102,7 +102,7 @@ local function initFrame(frame)
             end
             libDD:UIDropDownMenu_AddButton(info)
             
-            info.text = "下移 "..name
+            info.text = L["Move "]..name..L[" Down"]
             info.func = function()
                 if db[cooldownID] then
                     db[cooldownID] = db[cooldownID] + 1
@@ -115,7 +115,7 @@ local function initFrame(frame)
         end
     end)
     libDD:UIDropDownMenu_SetWidth(rearrangeDropdown, 200)
-    libDD:UIDropDownMenu_SetText(rearrangeDropdown, "重新排列這些法術")
+    libDD:UIDropDownMenu_SetText(rearrangeDropdown, L["Rearrange These Spells"])
     
 end
 

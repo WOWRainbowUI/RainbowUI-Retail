@@ -368,8 +368,8 @@ local options = {
             type = "toggle",
         },
         cooldownManager = {
-            name = "Cooldown Manager",
-            desc = "Cooldown Manager options",
+            name = L["Cooldown Manager"],
+            desc = L["Cooldown Manager options"],
             type = "toggle",
         },
     },
