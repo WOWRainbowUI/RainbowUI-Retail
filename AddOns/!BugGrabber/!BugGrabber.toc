@@ -1,6 +1,6 @@
-## Interface: 11506, 30403, 40401, 110100, 110105
+## Interface: 11507, 30404, 40402, 110100, 110105
 ## Title: BugGrabber
-## Version: v11.1.0
+## Version: v11.1.1
 ## Notes: Grabs bugs for the bug sack.
 ## Notes-deDE: Grabs bugs for the bug sack.
 ## Notes-ruRU: Grabs bugs for the bug sack.
