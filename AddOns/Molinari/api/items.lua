@@ -14,7 +14,7 @@ function addon:IsProspectable(itemID)
 		return skillRequired and addon:GetProfessionSkillLevel(755) >= skillRequired and C_Item.GetItemCount(itemID) >= 5 and 31252, addon.colors.prospectable
 	elseif addon:IsRetail() then
 		local info = addon.data.prospectable[itemID]
-		if info then
+		if info and IsPlayerSpell(info[1]) then
 			return info[1], addon.colors.prospectable, info[2]
 		end
 	end
@@ -27,7 +27,7 @@ function addon:IsMillable(itemID)
 		return skillRequired and addon:GetProfessionSkillLevel(773) >= skillRequired and C_Item.GetItemCount(itemID) >= 5 and 51005, addon.colors.millable
 	elseif addon:IsRetail() then
 		local info = addon.data.millable[itemID]
-		if info then
+		if info and IsPlayerSpell(info[1]) then
 			return info[1], addon.colors.millable, info[2]
 		end
 	end
@@ -37,7 +37,7 @@ function addon:IsCrushable(itemID)
 	-- returns the spell used to crush the item
 	if addon:IsRetail() then
 		local info = addon.data.crushable[itemID]
-		if info then
+		if info and IsPlayerSpell(info[1]) then
 			return info[1], addon.colors.crushable, info[2]
 		end
 	end
@@ -47,7 +47,7 @@ function addon:IsScrappable(itemID)
 	-- returns the spell used to scrap the item
 	if addon:IsRetail() then
 		local info = addon.data.scrappable[itemID]
-		if info then
+		if info and IsPlayerSpell(info[1]) then
 			return info[1], addon.colors.scrappable, info[2]
 		end
 	end
@@ -56,8 +56,17 @@ end
 function addon:IsShatterable(itemID)
 	if addon:IsRetail() then
 		local info = addon.data.shatterable[itemID]
-		if info then
+		if info and IsPlayerSpell(info[1]) then
 			return info[1], addon.colors.disenchantable, info[2]
+		end
+	end
+end
+
+function addon:IsTransmutable(itemID)
+	if addon:IsRetail() then
+		local info = addon.data.transmutable[itemID]
+		if info and IsPlayerSpell(info[1]) then
+			return info[1], addon.colors.transmutable, info[2]
 		end
 	end
 end
@@ -67,6 +76,10 @@ function addon:NonDisenchantable(itemID)
 end
 
 function addon:IsDisenchantable(itemID)
+	if not IsPlayerSpell(13262) then
+		return
+	end
+
 	-- returns the spell used to disenchant the item if it can be disenchanted
 	if addon:IsRetail() and addon.data.disenchantable[itemID] then
 		-- special items
@@ -133,6 +146,10 @@ function addon:IsSalvagable(itemID)
 		return spellID, color, numItems
 	end
 	spellID, color, numItems = addon:IsShatterable(itemID)
+	if spellID then
+		return spellID, color, numItems
+	end
+	spellID, color, numItems = addon:IsTransmutable(itemID)
 	if spellID then
 		return spellID, color, numItems
 	end

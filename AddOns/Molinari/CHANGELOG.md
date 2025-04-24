@@ -1,7 +1,10 @@
-### Changes in 110000.130-Release:
+### Changes in 110100.131-Release:
 
-- Changed: Update Interface version (classic)
-- Changed: Update item database (classic era)
-- Fixed: Lockbox opening with keys not checking for key quantity
-- Fixed: Lockbox opening with keys showing incorrect tooltip
+- Added: Support for alchemy thaumaturgy/transmutions
+- Changed: Update Interface versions
+- Changed: Update item databases
+- Changed: Moved translations to CurseForge
+- Fixed: Unable to logout
+- Fixed: Missing savedvariable (vanilla)
+- Removed: Compatibility for really old savedvariables
 
