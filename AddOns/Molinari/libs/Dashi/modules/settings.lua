@@ -186,38 +186,38 @@ local function registerSetting(category, savedvariable, info)
 		return
 	end
 
-	if info.firstInstall then
-		-- we don't want to add "new" tags to a freshly installed addon
-		_G[savedvariable][info.key .. '_seen'] = true
-	elseif not _G[savedvariable][info.key .. '_seen'] then
-		-- add new tag to the settings panel until it's been observed by the player
-		-- possibly tainty, definitely  ugly
-		local version = GetBuildInfo()
-		if not NewSettings[version] then
-			NewSettings[version] = {}
-		end
+	-- if info.firstInstall then
+	-- 	-- we don't want to add "new" tags to a freshly installed addon
+	-- 	_G[savedvariable][info.key .. '_seen'] = true
+	-- elseif not _G[savedvariable][info.key .. '_seen'] then
+	-- 	-- add new tag to the settings panel until it's been observed by the player
+	-- 	-- possibly tainty, definitely  ugly
+	-- 	local version = GetBuildInfo()
+	-- 	if not NewSettings[version] then
+	-- 		NewSettings[version] = {}
+	-- 	end
 
-		table.insert(NewSettings[version], uniqueKey)
+	-- 	table.insert(NewSettings[version], uniqueKey)
 
-		-- remove once seen
-		EventRegistry:RegisterCallback('Settings.CategoryChanged', function(_, cat)
-			if cat == category and not _G[savedvariable][info.key .. '_seen'] then
-				_G[savedvariable][info.key .. '_seen'] = true
+	-- 	-- remove once seen
+	-- 	EventRegistry:RegisterCallback('Settings.CategoryChanged', function(_, cat)
+	-- 		if cat == category and not _G[savedvariable][info.key .. '_seen'] then
+	-- 			_G[savedvariable][info.key .. '_seen'] = true
 
-				local settingIndex
-				for index, key in next, NewSettings[version] do
-					if key == uniqueKey then
-						settingIndex = index
-						break
-					end
-				end
+	-- 			local settingIndex
+	-- 			for index, key in next, NewSettings[version] do
+	-- 				if key == uniqueKey then
+	-- 					settingIndex = index
+	-- 					break
+	-- 				end
+	-- 			end
 
-				if settingIndex then
-					table.remove(NewSettings[version], settingIndex)
-				end
-			end
-		end)
-	end
+	-- 			if settingIndex then
+	-- 				table.remove(NewSettings[version], settingIndex)
+	-- 			end
+	-- 		end
+	-- 	end)
+	-- end
 
 	-- callback when settings change something
 	setting:SetValueChangedCallback(onSettingChanged)
@@ -236,25 +236,30 @@ local function isSettingEnabled(parentInitializer)
 	return not not parentInitializer:GetSetting():GetValue()
 end
 
+local function alwaysEnabled()
+	return true
+end
+
 local function registerSettings(savedvariable, settings)
 	local categoryName = C_AddOns.GetAddOnMetadata(addonName, 'Title')
 	local category = Settings.RegisterVerticalLayoutCategory(categoryName)
 	Settings.RegisterAddOnCategory(category)
 
-	local firstInstall
+	-- local firstInstall
 	if not _G[savedvariable] then
 		-- for some dumb reason RegisterAddOnSetting doesn't initialize the savedvariables table
 		_G[savedvariable] = {}
-		firstInstall = true
+		-- firstInstall = true
 	end
 
 	local keys = {}
 	local initializers = {}
 	local dependents = addon.T{}
+	local children = addon.T{}
 	for index, setting in next, settings do
-		if firstInstall then
-			setting.firstInstall = true
-		end
+		-- if firstInstall then
+		-- 	setting.firstInstall = true
+		-- end
 
 		local initializer = registerSetting(category, savedvariable, setting)
 		keys[setting.key] = index
@@ -262,6 +267,8 @@ local function registerSettings(savedvariable, settings)
 
 		if setting.requires then
 			dependents[setting.key] = setting.requires
+		elseif setting.parent then
+			children[setting.key] = setting.parent
 		end
 	end
 
@@ -273,6 +280,16 @@ local function registerSettings(savedvariable, settings)
 
 			-- depend on "parent" setting
 			initializers[key]:SetParentInitializer(initializers[requires], GenerateClosure(isSettingEnabled, initializers[requires]))
+		end
+	end
+
+	if children:size() > 0 then
+		for key, parent in next, children do
+			-- check if there are bad dependencies
+			assert(not not keys[parent], string.format("setting '%s' can't depend on invalid setting '%s'", key, parent))
+
+			-- set "parent" setting
+			initializers[key]:SetParentInitializer(initializers[parent], alwaysEnabled)
 		end
 	end
 
@@ -340,7 +357,7 @@ namespace:RegisterSettings('MyAddOnDB', {
             {value = key2, label = 'Second option'},
             {value = key3, label = 'Third option'},
         },
-        requires = 'myToggle', -- (optional) dependency on another setting (must be a "toggle")
+        parent = 'mySlider', -- (optional) set another setting as its parent (indents this setting)
     },
     {
         key = 'myColor',
@@ -348,7 +365,6 @@ namespace:RegisterSettings('MyAddOnDB', {
         title = 'My Color',
         tooltip = 'Longer description of the color in a tooltip',
         default = 'ff00ff', -- either "RRGGBB" or "AARRGGBB" format, the latter enables opacity
-        requires = 'myToggle', -- (optional) dependency on another setting (must be of type "toggle")
     }
 })
 ```
@@ -509,9 +525,7 @@ do
 
 	local function createSlider(root, name, getter, setter, minValue, maxValue, steps, formatter)
 		local element = root:CreateButton(name):CreateFrame()
-		if addon:HasBuild(57361, 110007) then
-			element:AddResetter(resetSlider)
-		end
+		element:AddResetter(resetSlider)
 		element:AddInitializer(function(frame)
 			local slider = frame:AttachTemplate('MinimalSliderWithSteppersTemplate')
 			slider:SetPoint('TOPLEFT', 0, -1)
@@ -521,16 +535,6 @@ do
 				[MinimalSliderWithSteppersMixin.Label.Right] = formatter
 			})
 			frame.slider = slider -- ref for resetter
-
-			if not addon:HasBuild(57361, 110007) then
-				-- there's no way to properly reset an element from the menu, so we'll need to use
-				-- a dummy element we can hook OnHide onto
-				-- https://github.com/Stanzilla/WoWUIBugs/issues/652
-				local dummy = frame:AttachFrame('Frame')
-				dummy:SetScript('OnHide', function()
-					resetSlider(frame)
-				end)
-			end
 
 			local pad = 30 -- for the label
 			return slider:GetWidth() + pad, slider:GetHeight()
