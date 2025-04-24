@@ -494,7 +494,7 @@ function MMPE:InitConfig()
 
     self.configCategory = "MythicPlusProgress"
     LibStub("AceConfig-3.0"):RegisterOptionsTable(self.configCategory, options)
-    LibStub("AceConfigDialog-3.0"):AddToBlizOptions(self.configCategory, L["Mythic Plus Progress"])
+    LibStub("AceConfigDialog-3.0"):AddToBlizOptions(self.configCategory, L["Mythic Plus Pull"])
 end
 
 function MMPE:OpenConfig()
