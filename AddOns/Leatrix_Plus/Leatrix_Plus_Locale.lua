@@ -92,6 +92,7 @@ L["Astranaar"] = "阿斯特兰纳"
 L["Astravar Harbor"] = "阿斯塔瓦港"
 L["Atal'Dazar"] = "阿塔达萨"
 L["Atomic Recalibrator"] = "原子重校器"
+L["Atomic Regoblinator"] = "原子地精重塑器"
 L["Auberdine"] = "奥伯丁"
 L["Auchenai Crypts"] = "奥金尼地穴"
 L["Auchindoun"] = "奥金顿"
@@ -767,6 +768,8 @@ L["If checked, the Aqir Egg Cluster transform will be removed when applied."] = 
 L["If checked, the Arcanite Ripper guitar sound will be muted."] = "勾选后，奥金利斧吉他声音将被屏蔽。"
 L["If checked, the Artist's Duds transform will be removed when applied."] = "如果选中此选项，艺术家的旧衣服（铭文）专业装备幻化将在生效时被自动移除。"
 L["If checked, the Atomic Recalibrator transform will be removed when applied."] = "勾选后，原子重校器玩具的变形外观将在生效后被自动移除。"
+L["If checked, the Atomic Regoblinator transform will be removed when applied."] = [=[如果选中此选项，则自动移除原子地精重塑器变形。
+]=]
 L["If checked, the backpack clean-up button and the bank frame clean-up button will not be shown."] = "勾选后，背包及银行的整理按钮不再显示。"
 L["If checked, the boss banner will not be shown.|n|nThe boss banner appears when a boss is defeated.  It shows the name of the boss and the loot that was distributed."] = "勾选后，BOSS的横幅信息条将不再弹出。|n|n该信息通常在BOSS被击败后弹出。它将显示BOSS的名字以及掉落。"
 L["If checked, the BugSack addon minimap button will always be visible if you have BugSack installed and the minimap button enabled."] = "勾选后，BugSack图标将始终可见，不会被收纳进图标收集。"
