@@ -462,6 +462,8 @@ L["CityOfThreads"] = "City of Threads"
 --[[Translation missing --]]
 L["cityOfThreadsShortName"] = "COT"
 L["Claw Fighter"] = "Combattente dell'Artiglio"
+--[[Translation missing --]]
+L["Clear all Markers"] = "Clear all Markers"
 L["Click the fullscreen button for a maximized view of MDT."] = "Clicca il pulsante della modalità schermo intero per visualizzare MDT a tutto schermo."
 L["Click to adjust color settings"] = "Clicca per cambiare le impostazioni del colore"
 --[[Translation missing --]]

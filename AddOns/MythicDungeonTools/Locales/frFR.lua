@@ -410,6 +410,8 @@ L["CityOfThreads"] = "Cité des Fils"
 --[[Translation missing --]]
 L["cityOfThreadsShortName"] = "COT"
 L["Claw Fighter"] = "Combattant griffu"
+--[[Translation missing --]]
+L["Clear all Markers"] = "Clear all Markers"
 L["Click the fullscreen button for a maximized view of MDT."] = "Cliquez sur le bouton plein écran pour une vue agrandie de MDT."
 L["Click to adjust color settings"] = "Cliquez pour ajuster les paramètres de couleur"
 L["Click to assign player"] = "Cliquez pour attribuer un joueur"
