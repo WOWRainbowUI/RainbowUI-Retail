@@ -27,7 +27,9 @@ EventUtil.ContinueOnAddOnLoaded(AddonName, function(addonName)
                 Addon.db.global.disableBlizzardCooldownText = true
             end
             C_UI.Reload()
-        elseif cmd == 'config' or cmd == '' then -- 暫時修正
+        elseif cmd == 'config' then
+            Addon:ShowOptionsFrame()
+        else
             Addon:ShowOptionsFrame()
         end
     end
