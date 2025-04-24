@@ -240,7 +240,7 @@ local function alwaysEnabled()
 	return true
 end
 
-local function registerSettings(savedvariable, settings)
+local function registerSettings(savedvariable, settings, title)
 	local categoryName = title or C_AddOns.GetAddOnMetadata(addonName, 'Title') -- 暫時修正
 	local category = Settings.RegisterVerticalLayoutCategory(categoryName)
 	category.ID = addonName  -- 暫時修正
