@@ -927,6 +927,8 @@
 		"|Cffffffff" .. L["Confronting Xal'atath"] .. " |r#6036524#199", -- 1019
 		"|Cffffffff" .. L["Orweyna's Vision"] .. " |r#6253369#44", -- 1030
 		"|Cffffffff" .. L["Gallywix and Xal'atath"] .. " |r#6638480#169", -- 1028
+		"|Cffffffff" .. L["Undermined"] .. " |r#6641605#77", -- 1029
+
 	})
 
 	Zn(L["Various"], L["Various"], L["Class Trials"]							, {	"|cffffd800" .. L["Various"] .. ": " .. L["Class Trials"], prefol, "MUS_70_ClassTrial_Horde_BattleWalk#71954", "MUS_70_ClassTrial_Alliance_BattleWalk#71959",})
@@ -1095,6 +1097,7 @@
 		L["Confronting Xal'atath"] .. " |r(1019)",
 		L["Orweyna's Vision"] .. " |r(1030)",
 		L["Gallywix and Xal'atath"] .. " |r(1028)",
+		L["Undermined"] .. " |r(1029)",
 	})
 
 	----------------------------------------------------------------------
