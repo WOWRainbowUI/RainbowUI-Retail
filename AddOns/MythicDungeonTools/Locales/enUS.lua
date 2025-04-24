@@ -3,6 +3,7 @@ local addonName, MDT = ...
 local L = MDT.L
 L = L or {}
 
+L["Clear all Markers"] = "Clear all Markers"
 L["Okay"] = "Okay"
 L["Warning"] = "Warning"
 L["assignmentWarning"] = "MDT will NOT automatically set target markers on enemies in the game world."
@@ -3197,6 +3198,7 @@ L["CityofEchoes"] = "CityofEchoes"
 L["CityOfThreads"] = "City of Threads"
 L["cityOfThreadsShortName"] = "COT"
 L["Claw Fighter"] = "Claw Fighter"
+L["Clear all Markers"] = "Clear all Markers"
 L["Click the fullscreen button for a maximized view of MDT."] = "Click the fullscreen button for a maximized view of MDT."
 L["Click to adjust color settings"] = "Click to adjust color settings"
 L["Click to assign player"] = "Click to assign player"

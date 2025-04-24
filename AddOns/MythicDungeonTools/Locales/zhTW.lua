@@ -205,7 +205,6 @@ L["Ashvane Warden"] = "艾什凡卫士"
 L["Aspiring Forgehand"] = "Aspiring Forgehand"
 L["Aspix"] = "阿斯匹克斯"
 L["Asset Manager"] = "资产经理"
---[[Translation missing --]]
 L["assignmentWarning"] = "MDT「不會」在遊戲內自動設定目標圖示。"
 --[[Translation missing --]]
 L["Assistant Unnaturaler"] = "Assistant Unnaturaler"
@@ -515,7 +514,6 @@ L["Chaotic Rift"] = "Chaotic Rift"
 --[[Translation missing --]]
 L["Chargath, Bane of Scales"] = "Chargath, Bane of Scales"
 L["Charged Dust Devil"] = "充能的沙尘恶魔"
---[[Translation missing --]]
 L["chatNoninteractiveWarning"] = "聊天視窗目前設定為無法互動，您將無法點擊 MDT 路線。"
 --[[Translation missing --]]
 L["Chef Chewie"] = "Chef Chewie"
@@ -547,6 +545,8 @@ L["CityOfThreads"] = "蛛絲城"
 L["cityOfThreadsShortName"] = "COT"
 --[[Translation missing --]]
 L["Claw Fighter"] = "Claw Fighter"
+--[[Translation missing --]]
+L["Clear all Markers"] = "清除所有標記"
 L["Click the fullscreen button for a maximized view of MDT."] = "點一下全螢幕按鈕來最大化 MDT 的畫面"
 L["Click to adjust color settings"] = "點一下調整顏色設定"
 L["Click to assign player"] = "點一下指派玩家"
@@ -2259,7 +2259,6 @@ L["Odyn"] = "奥丁"
 L["Off-Duty Laborer"] = "下班的劳工"
 L["Officer Quarters"] = "勤務室"
 L["Ogron Laborer"] = "独眼魔工人"
---[[Translation missing --]]
 L["Okay"] = "確定"
 --[[Translation missing --]]
 L["Ol' Waxbeard"] = "Ol' Waxbeard"
@@ -3730,7 +3729,6 @@ L["War Ohuna"] = "War Ohuna"
 L["Warlord Parjesh"] = "督军帕杰什"
 --[[Translation missing --]]
 L["Warlord Sargha"] = "Warlord Sargha"
---[[Translation missing --]]
 L["Warning"] = "警告"
 L["Warp Shade"] = "迁跃之影"
 L["Warp Stalker"] = "迁跃兽"
