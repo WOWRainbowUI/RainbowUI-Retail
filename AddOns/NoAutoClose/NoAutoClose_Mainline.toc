@@ -1,6 +1,6 @@
-## Interface: 110100,110105
+## Interface: 110105
 ## Title: NoAutoClose
-## Version: v1.3.16
+## Version: v1.3.17
 ## Notes: Stop frames from auto-closing when you open a new one
 ## Author: Numy
 ## IconTexture: Interface\Addons\NoAutoClose\media\icon
