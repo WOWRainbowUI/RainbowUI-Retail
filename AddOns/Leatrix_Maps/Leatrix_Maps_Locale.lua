@@ -365,6 +365,7 @@ L["If checked, you will be able to enlarge the player arrow."] = "勾选后，�
 L["If checked, you will be able to move the frame by dragging the border."] = "勾选后，你可以拖动边框来调整框体的位置。"
 L["If checked, you will be able to move the map.|n|nThe map position will be saved separately for the maximised and windowed maps."] = "如果选中，您将能够移动地图。|n|n地图位置将分别保存为最大化和窗口地图。"
 L["If checked, you will be able to scale and move the map.|n|nScale the map by dragging the scale handle in the bottom-right corner.|n|nMove the map by dragging the border and frame edges."] = "勾选后，你可以移动并缩放地图。|n|n缩放地图是通过右下角的角标操作。|n|n移动地图可以通过拖拽边框。"
+L["If checked, you will be able to scale the map by dragging the scale handle in the bottom-right corner.|n|nYou will be able to move the map by dragging any border."] = "如果选中此选项，您将能够通过拖动世界地图右下角的比例柄来缩放地图。你可以拖动边框的任意位置来移动世界地图。"
 L["If checked, you will be able to scale the map."] = "如果选中，您将能够缩放地图。"
 L["If checked, you will be able to set the opacity of the map."] = "勾选后，你可以设置地图的透明度。"
 L["If checked, you will be able to zoom further into the world map."] = "勾选后，你可以改变世界地图的最大缩放等级。"
