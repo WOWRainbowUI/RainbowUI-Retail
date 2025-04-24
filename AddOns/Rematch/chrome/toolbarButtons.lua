@@ -306,6 +306,7 @@ function RematchToolbarButtonMixin:OnLoad()
     if self.icon then
         self.Icon:SetTexture(self.icon)
     end
+    self.Cooldown:SetHideCountdownNumbers(true)
 end
 
 function RematchToolbarButtonMixin:OnEnter()

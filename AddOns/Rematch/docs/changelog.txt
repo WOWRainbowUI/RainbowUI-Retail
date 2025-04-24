@@ -1,3 +1,7 @@
+04/23/2025 version 5.2.8
+- Cooldown numbers over the toolbar buttons hidden
+- toc update for 11.1.5 patch
+
 02/26/2025 version 5.2.7
 - Fix for journal not showing due to interaction with an older version of PetTracker
 - Added to Pet Battles category per https://warcraft.wiki.gg/wiki/Addon_Categories
