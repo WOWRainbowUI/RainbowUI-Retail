@@ -1,8 +1,8 @@
-## Interface: 11506, 40402, 110100, 110105
+## Interface: 11507, 40402, 110100, 110105
 
 ## Author: StormFX, JJSheets
 ## Title: Masque
-## Version: 11.1.1
+## Version: 11.1.5
 
 ## IconTexture: Interface\AddOns\Masque\Textures\Icon
 ## OptionalDeps: Ace3, AceGUI-3.0_SFX-Widgets, LibDBIcon-1.0, LibDualSpec-1.0
