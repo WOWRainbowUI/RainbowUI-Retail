@@ -17,6 +17,7 @@ VUHDO_LibCompressEncode = VUHDO_LibCompress:GetAddonEncodeTable();
 VUHDO_LibBase64 = LibStub:GetLibrary("LibBase64-1.0");
 VUHDO_LibCustomGlow = LibStub("LibCustomGlow-1.0");
 VUHDO_LibNickTag = LibStub("NickTag-1.0");
+VUHDO_LibSpec = LibStub("LibSpecialization", true);
 
 VUHDO_LibSharedMedia:Register("font", "Arial Black", "Interface\\AddOns\\VuhDo\\Fonts\\ariblk.ttf");
 VUHDO_LibSharedMedia:Register("font", "Emblem",	"Interface\\AddOns\\VuhDo\\Fonts\\Emblem.ttf");
@@ -225,6 +226,19 @@ function VUHDO_initButtonFacade(anInstance)
 		VUHDO_LibButtonFacade:Group("VuhDo", VUHDO_I18N_BUFF_WATCH);
 		VUHDO_LibButtonFacade:Group("VuhDo", VUHDO_I18N_HOTS);
 	end
+end
+
+
+
+--
+function VUHDO_initLibSpecialization()
+
+	if not VUHDO_LibSpec then
+		return;
+	end
+
+	VUHDO_LibSpec:Register("VuhDo", VUHDO_updateRoleBySpecialization);
+
 end
 
 

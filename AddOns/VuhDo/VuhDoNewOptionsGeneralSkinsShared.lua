@@ -2489,6 +2489,18 @@ end
 
 local VUHDO_PER_PANEL_PROFILE_MODEL = {
 	["-root-"] = VUHDO_PROFILE_MODEL_MATCH_ALL,
+
+	["HOTS"] = {
+		["-root-"] = VUHDO_PROFILE_MODEL_MATCH_ALL,
+
+		["SLOTS"] = {
+			["-root-"] = VUHDO_PROFILE_MODEL_MATCH_CLASS,
+		},
+
+		["SLOTCFG"] = {
+			["-root-"] = VUHDO_PROFILE_MODEL_MATCH_CLASS,
+		},
+	},
 }
 
 
@@ -2682,14 +2694,7 @@ function VUHDO_loadProfileNoInit(aName)
 			VUHDO_PANEL_SETUP[tPanelNum]["POSITION"] = VUHDO_deepCopyTable(tPanelPositions[tPanelNum]);
 		end
 
-		if VUHDO_SPELL_CONFIG["IS_LOAD_HOTS"] and tLayoutName and VUHDO_SPELL_LAYOUTS and VUHDO_SPELL_LAYOUTS[tLayoutName] then
-			-- support for pre per-panel HoTs
-			if type(VUHDO_SPELL_LAYOUTS[tLayoutName]["HOTS"]) == "table" then
-				VUHDO_PANEL_SETUP[tPanelNum]["HOTS"] = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[tLayoutName]["HOTS"][tPanelNum]);
-			else
-				VUHDO_PANEL_SETUP[tPanelNum]["HOTS"] = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[tLayoutName]["HOTS"]);
-			end
-		end
+		VUHDO_activateLayoutLoadHotsForPanel(tLayoutName, tPanelNum);
 	end
 
 	-- @TODO: Warum werden die nicht direkt geladen (ipairs-Problem?)
@@ -2699,6 +2704,25 @@ function VUHDO_loadProfileNoInit(aName)
 
 	if tProfile["CONFIG"]["SPELL_TRACE"] and VUHDO_CONFIG["SPELL_TRACE"] then
 		VUHDO_CONFIG["SPELL_TRACE"] = VUHDO_deepCopyTable(tProfile["CONFIG"]["SPELL_TRACE"]);
+	end
+
+	-- if old profile hasn't been migrated then force migration
+	if tProfile["INDICATOR_CONFIG"] and not tProfile["INDICATOR_CONFIG"]["VERSION"] and tProfile["INDICATOR_CONFIG"]["BOUQUETS"]
+		and tProfile["INDICATOR_CONFIG"]["CUSTOM"] and tProfile["INDICATOR_CONFIG"]["TEXT_INDICATORS"] then
+		-- migrated destination config model won't contain the keys need from the old profile
+		VUHDO_INDICATOR_CONFIG["BOUQUETS"] = VUHDO_deepCopyTable(tProfile["INDICATOR_CONFIG"]["BOUQUETS"]);
+		VUHDO_INDICATOR_CONFIG["CUSTOM"] = VUHDO_deepCopyTable(tProfile["INDICATOR_CONFIG"]["CUSTOM"]);
+		VUHDO_INDICATOR_CONFIG["TEXT_INDICATORS"] = VUHDO_deepCopyTable(tProfile["INDICATOR_CONFIG"]["TEXT_INDICATORS"]);
+
+		VUHDO_INDICATOR_CONFIG["VERSION"] = nil;
+	end
+
+	-- if old profile hasn't been migrated then force migration
+	if tProfile["PANEL_SETUP"] and tProfile["PANEL_SETUP"]["HOTS"] and not tProfile["PANEL_SETUP"]["HOTS"]["VERSION"] then
+		-- migrated destination config model won't contain the keys needed from old profile
+		VUHDO_PANEL_SETUP["HOTS"] = VUHDO_deepCopyTable(tProfile["PANEL_SETUP"]["HOTS"]);
+
+		VUHDO_PANEL_SETUP["HOTS"]["VERSION"] = nil;
 	end
 
 	VUHDO_fixDominantProfileSettings(tProfile);

@@ -1985,33 +1985,35 @@ function VUHDO_loadDefaultBouquets()
 							tPanelIndicatorConfig["CUSTOM"]["HEALTH_BAR"]["invertGrowth"])
 				};
 			end
+		else
+			tPanelIndicatorConfig = VUHDO_INDICATOR_CONFIG[tPanelNum];
+		end
 
-			-- old profiles will have no indicator config version and need a one time migration to the per panel model
-			-- final model sanity check will ensure version is present moving forward
-			if not VUHDO_INDICATOR_CONFIG["VERSION"] and
-				VUHDO_INDICATOR_CONFIG["BOUQUETS"] and VUHDO_INDICATOR_CONFIG["CUSTOM"] and VUHDO_INDICATOR_CONFIG["TEXT_INDICATORS"] then
-				tPanelIndicatorConfig["BOUQUETS"] = VUHDO_decompressOrCopy(VUHDO_INDICATOR_CONFIG["BOUQUETS"]);
+		-- old profiles will have no indicator config version and need a one time migration to the per panel model
+		-- final model sanity check will ensure version is present moving forward
+		if not VUHDO_INDICATOR_CONFIG["VERSION"] and
+			VUHDO_INDICATOR_CONFIG["BOUQUETS"] and VUHDO_INDICATOR_CONFIG["CUSTOM"] and VUHDO_INDICATOR_CONFIG["TEXT_INDICATORS"] then
+			tPanelIndicatorConfig["BOUQUETS"] = VUHDO_decompressOrCopy(VUHDO_INDICATOR_CONFIG["BOUQUETS"]);
 
-				-- the old model supported per panel bouquets only for the Health Bar indicator
-				if tPanelIndicatorConfig["BOUQUETS"]["HEALTH_BAR_PANEL"][tPanelNum] and
-					tPanelIndicatorConfig["BOUQUETS"]["HEALTH_BAR_PANEL"][tPanelNum] ~= "" then
-					tPanelIndicatorConfig["BOUQUETS"]["HEALTH_BAR"] = tPanelIndicatorConfig["BOUQUETS"]["HEALTH_BAR_PANEL"][tPanelNum];
-				end
-
-				tPanelIndicatorConfig["BOUQUETS"]["HEALTH_BAR_PANEL"] = nil;
-
-				tPanelIndicatorConfig["TEXT_INDICATORS"] = VUHDO_decompressOrCopy(VUHDO_INDICATOR_CONFIG["TEXT_INDICATORS"]);
-
-				for _, tTextIndicatorConfig in pairs(tPanelIndicatorConfig["TEXT_INDICATORS"]) do
-					if type(tTextIndicatorConfig["TEXT_PROVIDER"]) == "table" then
-						tTextIndicatorConfig["TEXT_PROVIDER"] = tTextIndicatorConfig["TEXT_PROVIDER"][tPanelNum] or "";
-
-						break;
-					end
-				end
-
-				tPanelIndicatorConfig["CUSTOM"] = VUHDO_decompressOrCopy(VUHDO_INDICATOR_CONFIG["CUSTOM"]);
+			-- the old model supported per panel bouquets only for the Health Bar indicator
+			if tPanelIndicatorConfig["BOUQUETS"]["HEALTH_BAR_PANEL"][tPanelNum] and
+				tPanelIndicatorConfig["BOUQUETS"]["HEALTH_BAR_PANEL"][tPanelNum] ~= "" then
+				tPanelIndicatorConfig["BOUQUETS"]["HEALTH_BAR"] = tPanelIndicatorConfig["BOUQUETS"]["HEALTH_BAR_PANEL"][tPanelNum];
 			end
+
+			tPanelIndicatorConfig["BOUQUETS"]["HEALTH_BAR_PANEL"] = nil;
+
+			tPanelIndicatorConfig["TEXT_INDICATORS"] = VUHDO_decompressOrCopy(VUHDO_INDICATOR_CONFIG["TEXT_INDICATORS"]);
+
+			for _, tTextIndicatorConfig in pairs(tPanelIndicatorConfig["TEXT_INDICATORS"]) do
+				if type(tTextIndicatorConfig["TEXT_PROVIDER"]) == "table" then
+					tTextIndicatorConfig["TEXT_PROVIDER"] = tTextIndicatorConfig["TEXT_PROVIDER"][tPanelNum] or "";
+
+					break;
+				end
+			end
+
+			tPanelIndicatorConfig["CUSTOM"] = VUHDO_decompressOrCopy(VUHDO_INDICATOR_CONFIG["CUSTOM"]);
 		end
 
 		VUHDO_INDICATOR_CONFIG[tPanelNum] = VUHDO_ensureSanity("VUHDO_INDICATOR_CONFIG[" .. tPanelNum .. "]", VUHDO_INDICATOR_CONFIG[tPanelNum], VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL);
