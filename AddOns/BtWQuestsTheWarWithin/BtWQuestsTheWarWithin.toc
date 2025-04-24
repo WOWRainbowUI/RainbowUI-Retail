@@ -1,6 +1,6 @@
 ## Interface: 110100, 110105
 ## Title: BtWQuests: The War Within
-## Version: 8.0
+## Version: 8.1
 ## Notes: The War Within quest data for BtWQuests
 ## Author: Breen
 ## Dependencies: BtWQuests
@@ -11,6 +11,7 @@
 ## X-BtWQuests-Expansion-Image: UI-Expansion 0 0.90625 0 0.8125
 ## X-BtWQuests-AutoLoad: 1
 ## X-Part-Of: BtWQuests
+## Group: BtWQuests
 
 ## Title-zhTW: |cff00FFFF[任務]|r 指南-地心之戰
 ## Notes-zhTW: BtWQuests: The War Within Prologue |n|n提供地心之戰前夕的任務資料。

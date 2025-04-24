@@ -1,3 +1,7 @@
+# v2.52.2
+
+- Updated for 11.1.5
+
 # v2.52.1
 
 - Added the Homecoming questline in Undermine
