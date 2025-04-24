@@ -1,6 +1,6 @@
 ## Interface: 110100, 110105
 ## Title: Edit Mode Expanded
-## Version: 11.1-047
+## Version: 11.1-049
 ## Notes: Expands Edit Mode to apply to other frames
 ## Author: Teelo
 ## SavedVariables: EditModeExpandedADB
@@ -34,6 +34,7 @@ FrameHandlers\BelowMinimapContainer.lua
 FrameHandlers\BonusRoll.lua
 FrameHandlers\Buffs.lua
 FrameHandlers\ChatButtons.lua
+FrameHandlers\CooldownManager.lua
 FrameHandlers\ExtraActionButton.lua
 FrameHandlers\FocusCast.lua
 FrameHandlers\FocusFrame.lua
