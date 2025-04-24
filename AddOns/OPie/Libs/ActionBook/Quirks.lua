@@ -576,4 +576,8 @@ securecall(function() -- Modern: G-99 Breakneck is a fake mount
 		end
 		return questOK and "remove"
 	end
+	function EV:LOADING_SCREEN_ENABLED()
+		-- [11.1/2504] quest completion cache is flushed on PLW; may not repop by PEW.
+		return hasUnlockedG99() and "remove"
+	end
 end)
