@@ -430,6 +430,7 @@ local function VUHDO_init()
 	VUHDO_initSharedMedia();
 	VUHDO_initFuBar();
 	VUHDO_initButtonFacade(VUHDO_INSTANCE);
+	VUHDO_initLibSpecialization();
 	--VUHDO_checkForTroublesomeAddons();
 	VUHDO_initHideBlizzFrames();
 	if not InCombatLockdown() then

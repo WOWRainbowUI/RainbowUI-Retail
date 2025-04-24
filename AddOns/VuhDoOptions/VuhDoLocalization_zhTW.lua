@@ -666,6 +666,7 @@ VUHDO_I18N_TT.K605 = "使用漸層色。";
 VUHDO_I18N_TT.K606 = "使用最多漸層色。";
 VUHDO_I18N_TT.K607 = "更改有狂怒增益的敵人的顏色。";
 VUHDO_I18N_TT.K608 = "忽略敵人身上可驅散的增益。";
+VUHDO_I18N_TT.K609 = "載入法術配置時，只套用持續性治療欄位設定 (面板 => 持續治療 => 順序)。";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1231,3 +1232,5 @@ VUHDO_I18N_MAX_COLOR = "最多顏色";
 
 VUHDO_I18N_ENRAGE = "狂怒";
 VUHDO_I18N_PURGEABLE_BUFFS = "可驅散\n增益";
+
+VUHDO_I18N_LOAD_HOTS_ONLY_SLOTS = "只有欄位";

@@ -327,6 +327,7 @@ VUHDO_DEFAULT_SPELL_CONFIG = {
 	["FIRE_CUSTOM_2_SPELL"] = "",
 	["IS_TOOLTIP_INFO"] = false,
 	["IS_LOAD_HOTS"] = false,
+	["IS_LOAD_HOTS_ONLY_SLOTS"] = false,
 	["smartCastModi"] = "all",
 	["autoBattleRez"] = true,
 	["custom1Unit"] = "@player",
