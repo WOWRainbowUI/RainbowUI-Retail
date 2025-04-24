@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 19
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 20
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -1522,8 +1522,8 @@ function DropDownButtonMixin:ddToggle(level, value, anchorFrame, point, rPoint, 
 	MenuReset(menu)
 	self:ddInitializeFunc(level, value)
 
-	if menu.width < 30 then menu.width = 30 end
-	if menu.height < 16 then menu.height = 16 end
+	menu.width = math.max(menu.width, self.ddMinMenuWidth or 0)
+	menu.height = math.max(menu.height, self.ddMenuButtonHeight or v.dropDownMenuButtonHeight)
 	menu.scrollChild:SetWidth(menu.width)
 	menu.width = menu.width + 30
 	menu.height = menu.height + 30
@@ -1677,7 +1677,7 @@ function DropDownButtonMixin:ddAddButton(info, level)
 			local searchFrame = GetDropDownSearchFrame()
 			local width, height = searchFrame:init(menu, info)
 
-			menu.width = math.max(menu.width, width, self.ddMinMenuWidth or 0)
+			menu.width = math.max(menu.width, width)
 			menu.height = menu.height + height
 
 			menu.searchFrames[#menu.searchFrames + 1] = searchFrame
@@ -1695,7 +1695,7 @@ function DropDownButtonMixin:ddAddButton(info, level)
 		frame:ClearAllPoints()
 		frame:SetPoint("TOPLEFT", 0, -menu.height)
 
-		menu.width = math.max(menu.width, frame:GetWidth(), self.ddMinMenuWidth or 0)
+		menu.width = math.max(menu.width, frame:GetWidth())
 		menu.height = menu.height + frame:GetHeight()
 
 		if not info.fixedWidth then
@@ -1712,7 +1712,7 @@ function DropDownButtonMixin:ddAddButton(info, level)
 	menu.numButtons = menu.numButtons + 1
 	local btn = menu.buttonsList[menu.numButtons]
 	local width = 0
-	local menuButtonHeight = v.DROPDOWNBUTTON.ddMenuButtonHeight or v.dropDownMenuButtonHeight
+	local menuButtonHeight = self.ddMenuButtonHeight or v.dropDownMenuButtonHeight
 	btn:SetHeight(menuButtonHeight)
 
 	for i = 1, #v.dropDownOptions do
@@ -1861,7 +1861,7 @@ function DropDownButtonMixin:ddAddButton(info, level)
 	btn:Show()
 
 	menu.height = menu.height + menuButtonHeight
-	menu.width = math.max(menu.width, width, self.ddMinMenuWidth or 0)
+	menu.width = math.max(menu.width, width)
 end
 
 
