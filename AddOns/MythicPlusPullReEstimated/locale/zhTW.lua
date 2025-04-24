@@ -47,8 +47,10 @@ L["MDT Emulation"] = "MDT 模擬"
 L["MPP attempted to get missing setting:"] = "MPP 試圖獲取缺失的設定值："
 L["MPP attempted to set missing setting:"] = "MPP 試圖設定缺失的設定值："
 L["MPP String Uninitialized."] = "MPP 字串未初始化。"
-L["Mythic Plus Progress"] = "M+ 小怪%"
-L["Mythic Plus Progress tracker"] = "M+ 小怪% 追蹤"
+--[[Translation missing --]]
+L["Mythic Plus Pull"] = "Mythic Plus Pull"
+--[[Translation missing --]]
+L["Mythic Plus Pull progress tracker"] = "Mythic Plus Pull progress tracker"
 L["Nameplate"] = "名條"
 L["Nameplate Text Color"] = "名條文字顏色"
 L["No Progress."] = "沒有進度。"

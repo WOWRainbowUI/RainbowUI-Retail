@@ -117,8 +117,8 @@ function MMPE:InitConfig()
     local options = {
         type = "group",
         childGroups = "tab",
-        name = L["Mythic Plus Progress"],
-        desc = L["Mythic Plus Progress tracker"],
+        name = L["Mythic Plus Pull"],
+        desc = L["Mythic Plus Pull progress tracker"],
         get = function(info) return self:GetSetting(info[#info]) end,
         set = function(info, value) self:SetSetting(info[#info], value) end,
         args = {

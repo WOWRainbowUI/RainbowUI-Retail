@@ -89,9 +89,9 @@ L["MPP attempted to set missing setting:"] = "MPP attempted to set missing setti
 --[[Translation missing --]]
 L["MPP String Uninitialized."] = "MPP String Uninitialized."
 --[[Translation missing --]]
-L["Mythic Plus Progress"] = "Mythic Plus Progress"
+L["Mythic Plus Pull"] = "Mythic Plus Pull"
 --[[Translation missing --]]
-L["Mythic Plus Progress tracker"] = "Mythic Plus Progress tracker"
+L["Mythic Plus Pull progress tracker"] = "Mythic Plus Pull progress tracker"
 --[[Translation missing --]]
 L["Nameplate"] = "Nameplate"
 --[[Translation missing --]]

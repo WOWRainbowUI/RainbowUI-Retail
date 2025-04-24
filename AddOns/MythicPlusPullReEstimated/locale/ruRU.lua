@@ -50,8 +50,10 @@ L["MDT Emulation"] = "Эмуляция MDT"
 L["MPP attempted to get missing setting:"] = "MPP попытался получить недостающую настройку:"
 L["MPP attempted to set missing setting:"] = "MPP попытался установить недостающую настройку:"
 L["MPP String Uninitialized."] = "Строка MPP не инициализирована."
-L["Mythic Plus Progress"] = "Прогресс М+"
-L["Mythic Plus Progress tracker"] = "Трекер М+ прогресса"
+--[[Translation missing --]]
+L["Mythic Plus Pull"] = "Mythic Plus Pull"
+--[[Translation missing --]]
+L["Mythic Plus Pull progress tracker"] = "Mythic Plus Pull progress tracker"
 L["Nameplate"] = "Индикаторы здоровья"
 L["Nameplate Text Color"] = "Цвет текста индикаторов здоровья"
 L["No Progress."] = "Нет прогресса."
