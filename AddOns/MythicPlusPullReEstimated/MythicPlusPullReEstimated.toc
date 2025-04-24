@@ -1,6 +1,6 @@
 ## Interface: 110100, 110105
 ## Title: Mythic Plus Pull
-## Version: v1.11.7
+## Version: v1.11.8
 ## Notes: Tracks and displays % progress gained from individual mobs or entire pulls in Mythic+ dungeons. /mpp for options
 ## Notes-ruRU: Отслеживает и отображает % прогресса, полученного от отдельных мобов или всех пуллов в подземельях М+ режима. Введите /mpp для вызова настроек
 ## Author: Numy
