@@ -1103,7 +1103,8 @@ local function pmove_OnUpdate(self,elapsed)
 	if self.isReverse and self:IsMouseOver() and IsMouseButtonDown() then
 		self.isReverse = false
 	end
-	pmove_pos = pmove_pos + (self.isReverse and -1 or 1) * (100 / GetFramerate() * 0.333)
+	--pmove_pos = pmove_pos + (self.isReverse and -1 or 1) * (100 / GetFramerate() * 0.333)
+	pmove_pos = pmove_pos + (self.isReverse and -1 or 1) * (100 / 60 * 0.333)
 	if self.isReverse and pmove_pos < 40 then
 		pmove_pos = 40
 		self:SetScript("OnUpdate",nil)
@@ -1172,7 +1173,7 @@ OptionsFrame.dateChecks:SetScript("OnShow",function(self)
 			isSnowDay = true
 		end
 	end
-	if (today.wday == 6 and today.day % 2 == 0) and not MRT.isClassic then
+	if (today.wday == 6 and today.day % 2 == 0 and today.day > 16) and not MRT.isClassic then
 		isFrierenFriday = true
 	end	
 	

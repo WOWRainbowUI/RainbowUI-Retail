@@ -2168,9 +2168,10 @@ local function LineIconOnClick(self)
 end
 local function LineIconOnClickWhisper(self)
 	local parent = self:GetParent()
-	if not parent.data then	return end
-	if parent.data.specialClick then
-		parent.data.specialClick(parent.data)
+	local data = parent.data
+	if not data then	return end
+	if data.specialClick then
+		data.specialClick(data)
 		return
 	end
 	if (parent:GetParent().methodsLineClickMod == "shift" and not IsShiftKeyDown()) or
@@ -2178,15 +2179,30 @@ local function LineIconOnClickWhisper(self)
 		(parent:GetParent().methodsLineClickMod == "ctrl" and not IsControlKeyDown()) then
 		return
 	end
-	local time = parent.data.lastUse + parent.data.cd - GetTime()
-	if time > 0 then return end
-	local spellLink = GetSpellLink(parent.data.db[1])
+	local currTime = GetTime()
+	local time = data.lastUse + data.cd - currTime
+
+	local charge
+	if data.isCharge then
+		if data.charge then
+			if data.charge <= currTime and (data.charge+data.cd) > currTime then
+				charge = 1
+			elseif data.charge > currTime then
+				charge = 0
+			end
+		else
+			charge = 2
+		end
+	end
+
+	if time > 0 and (not charge or charge == 0) then return end
+	local spellLink = GetSpellLink(data.db[1])
 	if not spellLink or spellLink == "" then
-		spellLink = parent.data.spellName
+		spellLink = data.spellName
 	end
 	local text = "Use "..spellLink
 	local chat_type = ExRT.F.chatType(true)
-	SendChatMessage(text,"WHISPER",nil,parent.data.fullName)
+	SendChatMessage(text,"WHISPER",nil,data.fullName)
 end
 local function LineIconOnClickBoth(self)
 	local parent = self:GetParent()
@@ -11475,7 +11491,6 @@ module.db.AllSpells = {
 	{18499,	"WARRIOR,DEF",4,--Ярость берсерка
 		{18499,60,6},nil,nil,nil,
 		isTalent=true},
---227847	Bladestorm	found in	444780		When you Execute a target that you've Marked for Execution, you both reduce the cooldown of Bladestorm by 5 sec and apply 2 stacks of Overwhelmed to the target per stack of Marked for Execution consumed.
 	{227847,"WARRIOR,DPS",3,--Вихрь клинков
 		nil,{227847,90,6},nil,nil,
 		isTalent=true,cdDiff={296320,"*0.80",236308,"*0.67"},hasCharges=382953,hideWithTalent=152277,reduceCdAfterCast={{1715,152278,71},-0.5,{1464,152278,71},-1,{330334,152278,71},-1.5,{2565,152278,71},-1.5,{12294,152278,71},-1.5,{190456,152278,71},-2,{1680,152278,71},-1.5,{163201,152278,71},-1.5}},
@@ -12196,6 +12211,12 @@ module.db.AllSpells = {
 		isTalent=true,cdDiff={388039,-30},durationDiff={388039,2},hasCharges=459450},
 	{360952,"HUNTER",3,--Coordinated Assault
 		nil,nil,nil,{360952,120,20},
+		isTalent=true},
+	{462031,"HUNTER",3,--Implosive Trap
+		{462031,60,0},
+		isTalent=true},
+	{474421,"HUNTER",3,--Intimidation
+		nil,nil,{474421,60,0},
 		isTalent=true},
 
 
@@ -14230,7 +14251,7 @@ module.db.AllSpells = {
 		]]},
 	{207684,"DEMONHUNTER,AOECC",1,--Печать страдания
 		{207684,120,2},
-		isTalent=true,durationDiff={209281,-1},cdDiff={320418,-30,211489,"*0.75"},hasCharges=428557,
+		isTalent=true,durationDiff={209281,-1},cdDiff={320418,-30,211489,"*0.75"},
 		CLEU_PREP = [[
 			spell389718_var207684 = {}
 		]],CLEU_SPELL_AURA_APPLIED=[[
@@ -14258,7 +14279,7 @@ module.db.AllSpells = {
 		]]},
 	{202137,"DEMONHUNTER,UTIL",1,--Печать немоты
 		nil,nil,{202137,90,2},
-		isTalent=true,durationDiff={209281,-1},cdDiff={211489,"*0.75"},hasCharges=428557,
+		isTalent=true,durationDiff={209281,-1},cdDiff={211489,"*0.75"},
 		CLEU_PREP = [[
 			spell389718_var202137 = {}
 		]],CLEU_SPELL_AURA_APPLIED=[[
@@ -14320,7 +14341,7 @@ module.db.AllSpells = {
 		isTalent=true},
 	{202138,"DEMONHUNTER,UTIL",3,--Печать цепей
 		nil,nil,{202138,60,2},
-		isTalent=true,cdDiff={211489,"*0.75"},hasCharges=428557,
+		isTalent=true,cdDiff={211489,"*0.75"},
 		CLEU_PREP = [[
 			spell389718_var202138 = {}
 		]],CLEU_SPELL_AURA_APPLIED=[[

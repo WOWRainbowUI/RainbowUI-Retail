@@ -2133,9 +2133,11 @@ function module.frame:UpdateCols()
 
 		local prevPointer = line[ RCW_iconsList[RCW_iconsList_ORIGIN].."pointer" ]
 
+		local colsAdd = 0
 		if VMRT.RaidCheck.ReadyCheckSoulstone then
+			colsAdd = colsAdd + 1
 			if not line["ss"] then
-				CreateCol(line,"ss",RCW_iconsList_ORIGIN+1)
+				CreateCol(line,"ss",RCW_iconsList_ORIGIN+colsAdd)
 			end
 			prevPointer = line["ss"]:UpdatePos(prevPointer)
 			line["ss"]:Show()
@@ -2144,8 +2146,9 @@ function module.frame:UpdateCols()
 		end
 
 		if VMRT.RaidCheck.ReadyCheckIlvl then
+			colsAdd = colsAdd + 1
 			if not line["ilvl"] then
-				CreateCol(line,"ilvl",RCW_iconsList_ORIGIN+2)
+				CreateCol(line,"ilvl",RCW_iconsList_ORIGIN+colsAdd)
 			end
 			prevPointer = line["ilvl"]:UpdatePos(prevPointer)
 			line["ilvl"]:Show()
