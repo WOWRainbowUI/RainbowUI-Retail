@@ -3673,11 +3673,16 @@ do
 	local HelpPlateTooltipStrata = nil
 	local HelpPlateTooltipLevel = nil
 	local function HideFunc(self,isUser)
-		HelpPlate_Hide(isUser)
-		self:SetFrameStrata(self.strata)
-		self:SetFrameLevel(self.level)
+		if HelpPlate_Hide then
+			HelpPlate_Hide(isUser)
 
-		if self.shitInterface then
+			self:SetFrameStrata(self.strata)
+			self:SetFrameLevel(self.level)
+		else
+			HelpPlate.Hide(isUser)
+		end			
+
+		if self.shitInterface and HelpPlate_Hide then
 			for i=1,#HELP_PLATE_BUTTONS do
 				if HELPstratas[i] then
 					HELP_PLATE_BUTTONS[i]:SetFrameStrata(HELPstratas[i])
@@ -3699,7 +3704,9 @@ do
 		else
 			helpPlate = self.helpPlateArray
 		end
-		if helpPlate and not HelpPlate_IsShowing(helpPlate) then
+		if helpPlate and HelpPlate.Show and not HelpPlate.IsShowingHelpInfo(helpPlate) then
+			HelpPlate.Show(helpPlate, self.parent, self) 
+		elseif helpPlate and not HelpPlate.Show and not HelpPlate_IsShowing(helpPlate) then
 			HelpPlate_Show(helpPlate, self.parent, self, true)
 			self:SetFrameStrata( HelpPlate:GetFrameStrata() )
 			self:SetFrameLevel( HelpPlate:GetFrameLevel() + 1 )
@@ -3734,7 +3741,7 @@ do
 		HideFunc(self,false)
 	end
 	function ELib.CreateHelpButton(parent,helpPlateArray,isTab)
-		local self = CreateFrame("Button",nil,parent,"MainHelpPlateButton")	-- После использования кнопки не дает юзать спелл дизенчант. лень искать решение, не юзайте кнопку часто [5.4]
+		local self = CreateFrame("Button",nil,parent,"MainHelpPlateButton")
 		self:SetPoint("CENTER",parent,"TOPLEFT",0,0) 
 		self:SetScale(0.8)
 		local interfaceStrata = nil-- InterfaceOptionsFrame:GetFrameStrata()

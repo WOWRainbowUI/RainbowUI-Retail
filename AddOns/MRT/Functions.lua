@@ -771,7 +771,7 @@ end
 function ExRT.F.GetPlayerParty(unitName)
 	for i=1,GetNumGroupMembers() do
 		local name,_,subgroup = GetRaidRosterInfo(i)
-		if UnitIsUnit(name,unitName) then
+		if name and UnitIsUnit(name,unitName) then
 			return subgroup
 		end
 	end
@@ -781,7 +781,7 @@ end
 function ExRT.F.GetOwnPartyNum()
 	for i=1,GetNumGroupMembers() do
 		local name,_,subgroup = GetRaidRosterInfo(i)
-		if UnitIsUnit(name,'player') then
+		if name and UnitIsUnit(name,'player') then
 			return subgroup
 		end
 	end

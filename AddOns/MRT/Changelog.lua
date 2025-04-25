@@ -1,6 +1,9 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5160
+* 11.1.5 update
+
 v.5150
 * Reminder: added timelines for Liberation of Undermine mythic bosses
 * Raid check: added custom ilvl column
