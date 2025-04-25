@@ -73,7 +73,7 @@ local function initFrame(frame)
     
     dropdown:HookScript("OnEnter", function()
         GameTooltip:SetOwner(dropdown)
-        GameTooltip:SetText("More options are available under Interface Options > AddOns > EditModeExpanded")
+        GameTooltip:SetText(L["More options are available under Interface Options > AddOns > EditModeExpanded"])
         GameTooltip:Show()
     end)
     dropdown:HookScript("OnLeave", function()
@@ -266,7 +266,7 @@ local function initFrame(frame)
                 name = C_Spell.GetSpellName(cooldownInfo.spellID)
             else
                 if cooldownID > -3 then
-                    name = (cooldownID == -2) and "Trinket 1" or "Trinket 2"
+                    name = (cooldownID == -2) and L["Trinket 1"] or L["Trinket 2"]
                 else
                     name = C_Spell.GetSpellName(cooldownID * -1)
                 end
@@ -298,7 +298,7 @@ local function initFrame(frame)
     libDD:UIDropDownMenu_SetWidth(rearrangeDropdown, 200)
     libDD:UIDropDownMenu_SetText(rearrangeDropdown, L["Rearrange These Spells"])
     
-    lib:RegisterCustomCheckbox(frame, "Include Trinket 1",
+    lib:RegisterCustomCheckbox(frame, L["Include Trinket 1"],
         function()
             trinket1 = true
             frame:RefreshLayout()
@@ -310,7 +310,7 @@ local function initFrame(frame)
         "IncludeTrinket1"
     )
     
-    lib:RegisterCustomCheckbox(frame, "Include Trinket 2",
+    lib:RegisterCustomCheckbox(frame, L["Include Trinket 2"],
         function()
             trinket2 = true
             frame:RefreshLayout()
