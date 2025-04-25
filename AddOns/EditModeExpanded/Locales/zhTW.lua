@@ -76,6 +76,6 @@ L["More options are available under Interface Options > AddOns > EditModeExpande
 L["Trinket 1"] = "飾品 1"
 L["Trinket 2"] = "飾品 2"
 L["Include Trinket 1"] = "包含飾品 1"
-L["Include Trinket 1"] = "包含飾品 2"
+L["Include Trinket 2"] = "包含飾品 2"
 L["Custom Spell IDs"] = "自訂法術 ID"
 L["Enter the Spell IDs of spells you want to add to the Cooldown Manager, separated by spaces or new lines."] = "輸入要加入到技能監控的法術 ID，使用空格分隔或換行。"
