@@ -1,6 +1,6 @@
 # Baganator
 
-## [677](https://github.com/Baganator/Baganator/tree/677) (2025-04-22)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/676...677) 
+## [678](https://github.com/Baganator/Baganator/tree/678) (2025-04-23)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/677...678) 
 
-- Update toc for 11.1.5  
+- Categories: Process changes in item charges live to split/combine items  
