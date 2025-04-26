@@ -1,6 +1,6 @@
 # Baganator
 
-## [678](https://github.com/Baganator/Baganator/tree/678) (2025-04-23)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/677...678) 
+## [679](https://github.com/Baganator/Baganator/tree/679) (2025-04-25)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/678...679) 
 
-- Categories: Process changes in item charges live to split/combine items  
+- Customise: Categories: Disable name field properly when editing a default  
