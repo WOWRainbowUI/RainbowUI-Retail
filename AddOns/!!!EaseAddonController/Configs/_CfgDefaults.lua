@@ -774,6 +774,10 @@ D["Details"] = {
         callback = function() SlashCmdList["DETAILS"]("toggle") end,
     },
 	{
+        text = "顯示/隱藏M+計分板",
+        callback = function() SlashCmdList["SCORE"]("open") end,
+    },
+	{
         text = "設定選項",
         callback = function() SlashCmdList["DETAILS"]("config") end,
     },

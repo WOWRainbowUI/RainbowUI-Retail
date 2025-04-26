@@ -1,0 +1,34 @@
+## Interface: 110100, 110105
+## Title: Details!: Mythic Plus Extension
+## Title-ruRU: Details!: Расширение М+
+## Notes: Add Mythic Plus stuff on Details!
+## Notes-ruRU: Добавляет в Details! гибкое расширение М+
+## SavedVariables: Details_MythicPlusDB
+## SavedVariablesPerCharacter: Details_MythicPlus_CharacterDB
+## RequiredDeps: Details
+## Version: #DMP.20250422.002
+## IconTexture: Interface\AddOns\Details\images\minimap
+
+## X-Wago-ID: 4N2m7QGL
+## X-Curse-Project-ID: 1220909
+
+## Title-zhTW: |cffFF2D2D[戰鬥]|r Details! 戰鬥統計-M+計分板
+## Notes-zhTW: Details!: Mythic Plus Extension |n|nM+ 打完時顯示各種統計資料的面板。
+## X-Category-zhTW: 戰鬥
+## DefaultState: disabled
+
+locales\enUS.lua
+locales\zhCN.lua
+locales\zhTW.lua
+
+start.lua
+frames.lua
+parser.lua
+options.lua
+scoreboard.lua
+activityframe.lua
+events.lua
+functions.lua
+slash.lua
+rundata.lua
+migrations.lua
