@@ -1217,7 +1217,7 @@ local stats = {
   ["VERSATILITY"] = "versatility",
 }
 
-if Syndicator.Constants.IsClassic and not Syndicator.Constants.IsEra then
+if Syndicator.Constants.IsCata then
   stats = {
     ["AGILITY"] = "agility",
     ["ATTACK_POWER"] = "attack power",
@@ -1913,6 +1913,8 @@ function Syndicator.Search.InitializeSearchEngine()
     if Syndicator.Constants.IsClassic then
       tradeGoodsToCheck[2] = "explosives"
       tradeGoodsToCheck[3] = "devices"
+    end
+    if Syndicator.Constants.IsEra or Syndicator.Constants.IsBC or Syndicator.Constants.IsWrath or Syndicator.Constants.IsCata then
       tradeGoodsToCheck[8] = "meat"
     end
     for subClass, english in pairs(tradeGoodsToCheck) do

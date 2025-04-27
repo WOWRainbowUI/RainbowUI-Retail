@@ -1,6 +1,7 @@
 # Syndicator
 
-## [190](https://github.com/Baganator/Syndicator/tree/190) (2025-04-22)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/189...190) 
+## [191](https://github.com/Baganator/Syndicator/tree/191) (2025-04-25)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/190...191) 
 
-- Update toc for 11.1.5  
+- MoP Classic: More fixes for search keywords  
+- MoP Classic: Fixes for stats English backup equivalents  
