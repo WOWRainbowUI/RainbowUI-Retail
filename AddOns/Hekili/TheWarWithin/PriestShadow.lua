@@ -1,5 +1,5 @@
 -- PriestShadow.lua
--- July 2024
+-- January 2025
 
 if UnitClassBase( "player" ) ~= "PRIEST" then return end
 
@@ -23,7 +23,7 @@ spec:RegisterResource( Enum.PowerType.Insanity, {
         end,
 
         interval = function () return class.auras.mind_flay.tick_time end,
-        value = 2,
+        value = 2
     },
 
     mind_flay_insanity = {
@@ -38,7 +38,7 @@ spec:RegisterResource( Enum.PowerType.Insanity, {
         end,
 
         interval = function () return class.auras.mind_flay_insanity_dot.tick_time end,
-        value = 3,
+        value = 3
     },
 
     void_lasher_mind_sear = {
@@ -53,7 +53,7 @@ spec:RegisterResource( Enum.PowerType.Insanity, {
         end,
 
         interval = function () return class.auras.void_lasher_mind_sear.tick_time end,
-        value = 1,
+        value = 1
     },
 
     void_tendril_mind_flay = {
@@ -68,7 +68,7 @@ spec:RegisterResource( Enum.PowerType.Insanity, {
         end,
 
         interval = function () return class.auras.void_tendril_mind_flay.tick_time end,
-        value = 1,
+        value = 1
     },
 
     void_torrent = {
@@ -82,7 +82,7 @@ spec:RegisterResource( Enum.PowerType.Insanity, {
         end,
 
         interval = function () return class.abilities.void_torrent.tick_time end,
-        value = 6,
+        value = 6
     },
 
     voidwraith = {
@@ -128,7 +128,6 @@ spec:RegisterResource( Enum.PowerType.Insanity, {
     }
 } )
 spec:RegisterResource( Enum.PowerType.Mana )
-
 
 -- Talents
 spec:RegisterTalents( {
@@ -225,8 +224,8 @@ spec:RegisterTalents( {
     psychic_horror             = {  82652,  64044, 1 }, -- Terrifies the target in place, stunning them for 4 sec.
     psychic_link               = {  82670, 199484, 1 }, -- Your direct damage spells inflict 25% of their damage on all other targets afflicted by your Vampiric Touch within 46 yards. Does not apply to damage from Shadowy Apparitions, Shadow Word: Pain, and Vampiric Touch.
     screams_of_the_void        = {  82649, 375767, 2 }, -- Devouring Plague causes your Shadow Word: Pain and Vampiric Touch to deal damage 40% faster on all targets for 3 sec.
-    shadow_crash               = {  82669, 205385, 1 }, -- Aim a bolt of slow-moving Shadow energy at the destination, dealing 10,237 Shadow damage to all enemies within 8 yds. Generates 6 Insanity. This spell is cast at a selected location.
-    shadow_crash_2             = {  82669, 457042, 1 }, -- Hurl a bolt of slow-moving Shadow energy at your target, dealing 10,237 Shadow damage to all enemies within 8 yds. Generates 6 Insanity. This spell is cast at your target.
+    shadow_crash_ground        = {  82669, 205385, 1 }, -- Aim a bolt of slow-moving Shadow energy at the destination, dealing 10,237 Shadow damage to all enemies within 8 yds. Generates 6 Insanity. This spell is cast at a selected location.
+    shadow_crash_targeted      = {  82669, 457042, 1 }, -- Hurl a bolt of slow-moving Shadow energy at your target, dealing 10,237 Shadow damage to all enemies within 8 yds. Generates 6 Insanity. This spell is cast at your target.
     shadowy_apparitions        = {  82666, 341491, 1 }, -- Mind Blast, Devouring Plague, and Void Bolt conjure Shadowy Apparitions that float towards all targets afflicted by your Vampiric Touch for 4,604 Shadow damage. Critical strikes increase the damage by 100%.
     shadowy_insight            = {  82662, 375888, 1 }, -- Shadow Word: Pain periodic damage has a chance to reset the remaining cooldown on Mind Blast and cause your next Mind Blast to be instant.
     silence                    = {  82651,  15487, 1 }, -- Silences the target, preventing them from casting spells for 4 sec. Against non-players, also interrupts spellcasting and prevents any spell in that school from being cast for 4 sec.
@@ -273,7 +272,6 @@ spec:RegisterTalents( {
     voidwraith                 = { 100212, 451234, 1 }, -- Transform your Shadowfiend or Mindbender into a Voidwraith. Voidwraith
 } )
 
-
 -- PvP Talents
 spec:RegisterPvpTalents( {
     absolute_faith       = 5481, -- (408853)
@@ -289,197 +287,17 @@ spec:RegisterPvpTalents( {
 } )
 
 
-spec:RegisterTotem( "mindbender", 136214 )
-spec:RegisterTotem( "shadowfiend", 136199 )
-spec:RegisterTotem( "voidwraith", 615099 )
-
-
-local entropic_rift_expires = 0
-local er_extensions = 0
-
-spec:RegisterHook( "COMBAT_LOG_EVENT_UNFILTERED", function( _, subtype, _, sourceGUID, _, _, _, _, _, _, _, spellID )
-    if sourceGUID ~= GUID then return end
-
-    if subtype == "SPELL_AURA_REMOVED" and spellID == 341207 then
-        Hekili:ForceUpdate( subtype )
-
-    elseif subtype == "SPELL_AURA_APPLIED" and spellID == 341207 then
-        Hekili:ForceUpdate( subtype )
-
-    elseif ( subtype == "SPELL_AURA_APPLIED" or subtype == "SPELL_AURA_REFRESH" ) and spellID == 450193 then
-        entropic_rift_expires = GetTime() + 8 -- Assuming it will re-refresh from VT ticks and be caught by SPELL_AURA_REFRESH.
-        er_extensions = 0
-        return
-
-    elseif state.talent.darkening_horizon.enabled and subtype == "SPELL_CAST_SUCCESS" and er_extensions < 3 and spellID == 450405 and entropic_rift_expires > GetTime() then
-        entropic_rift_expires = entropic_rift_expires + 1
-        er_extensions = er_extensions + 1
-    end
-
-end, false )
-
-spec:RegisterStateExpr( "rift_extensions", function()
-    return er_extensions
-end )
-
-
-local ExpireVoidform = setfenv( function()
-    applyBuff( "shadowform" )
-    if Hekili.ActiveDebug then Hekili:Debug( "Voidform expired, Shadowform applied.  Did it stick?  %s.", buff.voidform.up and "Yes" or "No" ) end
-end, state )
-
-local PowerSurge = setfenv( function()
-    class.abilities.halo.handler()
-end, state )
-
-
-spec:RegisterGear( "tier29", 200327, 200329, 200324, 200326, 200328 )
-spec:RegisterAuras( {
-    dark_reveries = {
-        id = 394963,
-        duration = 8,
-        max_stack = 1
-    },
-    gathering_shadows = {
-        id = 394961,
-        duration = 15,
-        max_stack = 3
-    }
-} )
-
-spec:RegisterGear( "tier30", 202543, 202542, 202541, 202545, 202540, 217202, 217204, 217205, 217201, 217203 )
-spec:RegisterAuras( {
-    darkflame_embers = {
-        id = 409502,
-        duration = 3600,
-        max_stack = 4
-    },
-    darkflame_shroud = {
-        id = 410871,
-        duration = 10,
-        max_stack = 1
-    }
-} )
-
-spec:RegisterGear( "tier31", 207279, 207280, 207281, 207282, 207284 )
-spec:RegisterAura( "deaths_torment", {
-    id = 423726,
-    duration = 60,
-    max_stack = 12
-} )
-
-
--- Don't need to actually snapshot this, the APL only cares about the power of the cast.
-spec:RegisterStateExpr( "pmultiplier", function ()
-    if this_action ~= "devouring_plague" then return 1 end
-
-    local mult = 1
-    if buff.gathering_shadows.up then mult = mult * ( 1 + ( buff.gathering_shadows.stack * 0.12 ) ) end
-    if buff.mind_devourer.up     then mult = mult * 1.2                                             end
-
-    return mult
-end )
-
-
-spec:RegisterHook( "reset_precast", function ()
-    if buff.voidform.up or time > 0 then
-        applyBuff( "shadowform" )
-    end
-
-    if debuff.unfurling_darkness_cd.up then applyBuff( "unfurling_darkness_cd", debuff.unfurling_darkness_cd.remains ) end
-
-    if pet.mindbender.active then
-        applyBuff( "mindbender", pet.mindbender.remains )
-        buff.mindbender.applied = action.mindbender.lastCast
-        buff.mindbender.duration = 15
-        buff.mindbender.expires = action.mindbender.lastCast + 15
-    elseif pet.shadowfiend.active then
-        applyBuff( "shadowfiend", pet.shadowfiend.remains )
-        buff.shadowfiend.applied = action.shadowfiend.lastCast
-        buff.shadowfiend.duration = 15
-        buff.shadowfiend.expires = action.shadowfiend.lastCast + 15
-    elseif pet.voidwraith.active then
-        applyBuff( "voidwraith", pet.voidwraith.remains )
-        buff.voidwraith.applied = action.voidwraith.lastCast
-        buff.voidwraith.duration = 15
-        buff.voidwraith.expires = action.voidwraith.lastCast + 15
-    end
-
-    if buff.voidform.up then
-        state:QueueAuraExpiration( "voidform", ExpireVoidform, buff.voidform.expires )
-    end
-
-    if not IsSpellKnownOrOverridesKnown( 391403 ) then
-        removeBuff( "mind_flay_insanity" )
-    end
-
-    if IsActiveSpell( 356532 ) then
-        applyBuff( "direct_mask", class.abilities.fae_guardians.lastCast + 20 - now )
-    end
-
-    -- If we are channeling Mind Sear, see if it started with Thought Harvester.
-    local _, _, _, start, finish, _, _, spellID = UnitChannelInfo( "player" )
-
-    if settings.pad_void_bolt and cooldown.void_bolt.remains > 0 then
-        reduceCooldown( "void_bolt", latency * 2 )
-    end
-
-    if settings.pad_ascended_blast and cooldown.ascended_blast.remains > 0 then
-        reduceCooldown( "ascended_blast", latency * 2 )
-    end
-
-    if buff.voidheart.up then
-        applyBuff( "entropic_rift", buff.voidheart.remains )
-    elseif entropic_rift_expires > query_time then
-        applyBuff( "entropic_rift", entropic_rift_expires - query_time )
-    end
-
-    -- Sanity check that Void Blast is enabled.
-    if buff.entropic_rift.up and talent.void_blast.enabled and not IsSpellKnownOrOverridesKnown( 450983 ) then
-        -- Void Blast isn't known for some reason; let's remove ER so MB can be queued.
-        removeBuff( "entropic_rift" )
-    end
-
-    rift_extensions = nil
-
-    if talent.power_surge.enabled and query_time - action.halo.lastCast < 10 then
-        applyBuff( "power_surge", 10 - ( query_time - action.halo.lastCast ) )
-        if buff.power_surge.remains > 5 then
-            state:QueueAuraEvent( "power_surge", PowerSurge, buff.power_surge.expires - 5, "TICK" )
-        end
-        state:QueueAuraExpiration( "power_surge", PowerSurge, buff.power_surge.expires )
-    end
-end )
-
-spec:RegisterHook( "TALENTS_UPDATED", function()
-    local sf = talent.voidwraith.enabled and "voidwraith" or talent.mindbender.enabled and "mindbender" or "shadowfiend"
-    class.totems.fiend = spec.totems[ sf ]
-    totem.fiend = totem[ sf ]
-    cooldown.fiend = cooldown[ sf ]
-    pet.fiend = pet[ sf ]
-end )
-
-
-spec:RegisterHook( "pregain", function( amount, resource, overcap )
-    if amount > 0 and resource == "insanity" and state.buff.memory_of_lucid_dreams.up then
-        amount = amount * 2
-    end
-
-    return amount, resource, overcap
-end )
-
-
-spec:RegisterStateTable( "priest", {
-    self_power_infusion = true
-} )
-
-
 -- Auras
 spec:RegisterAuras( {
+    ancient_madness = {
+        id = 341240,
+        duration = 20,
+        max_stack = 20
+    },
     angelic_feather = {
         id = 121557,
         duration = 5,
-        max_stack = 1,
+        max_stack = 1
     },
     -- Talent: Movement speed reduced by $s1%.
     -- https://wowhead.com/beta/spell=390669
@@ -493,7 +311,7 @@ spec:RegisterAuras( {
         id = 390771,
         duration = 6,
         tick_time = 2,
-        max_stack = 1,
+        max_stack = 1
     },
     -- Talent: Movement speed increased by $s1%.
     -- https://wowhead.com/beta/spell=65081
@@ -501,7 +319,7 @@ spec:RegisterAuras( {
         id = 65081,
         duration = 3,
         type = "Magic",
-        max_stack = 1,
+        max_stack = 1
     },
     -- Talent: Your non-periodic Shadow damage is increased by $w1%. $?s341240[Critical strike chance increased by ${$W4}.1%.][]
     -- https://wowhead.com/beta/spell=391109
@@ -526,7 +344,7 @@ spec:RegisterAuras( {
     death_and_madness_debuff = {
         id = 322098,
         duration = 7,
-        max_stack = 1,
+        max_stack = 1
     },
     -- Talent: Shadow Word: Death damage increased by $s2% and your next Shadow Word: Death deals damage as if striking a target below $32379s2% health.
     -- https://wowhead.com/beta/spell=392511
@@ -581,10 +399,10 @@ spec:RegisterAuras( {
         duration = 20,
         max_stack = 20
     },
-    voidheart = {
-        id = 449887,
-        duration = 8,
-        max_stack = 1
+    empty_mind = {
+        id = 247226,
+        duration = 12,
+        max_stack = 10
     },
     entropic_rift = {
         duration = 8,
@@ -651,7 +469,7 @@ spec:RegisterAuras( {
         id = 111759,
         duration = 600,
         type = "Magic",
-        max_stack = 1,
+        max_stack = 1
     },
     mental_fortitude = {
         id = 377066,
@@ -695,7 +513,7 @@ spec:RegisterAuras( {
         duration = function () return 2 * haste end,
         tick_time = function () return 0.5 * haste end,
         type = "Magic",
-        max_stack = 1,
+        max_stack = 1
     },
     -- Talent: The cast time of your next Mind Blast is reduced by $w1% and its critical strike chance is increased by $s2%.
     -- https://wowhead.com/beta/spell=391092
@@ -723,14 +541,6 @@ spec:RegisterAuras( {
         id = 2096,
         duration = 60,
         type = "Magic",
-        max_stack = 1
-    },
-    mindbender = {
-        duration = 15,
-        max_stack = 1,
-    },
-    voidwraith = {
-        duration = 15,
         max_stack = 1
     },
     -- Talent / Covenant: The next $w2 damage and $w5 healing dealt will be reversed.
@@ -766,7 +576,7 @@ spec:RegisterAuras( {
         duration = 3600,
         type = "Magic",
         max_stack = 1,
-        shared = "player", -- use anyone's buff on the player, not just player's.
+        shared = "player" -- use anyone's buff on the player, not just player's.
     },
     -- Absorbs $w1 damage.
     -- https://wowhead.com/beta/spell=17
@@ -780,7 +590,7 @@ spec:RegisterAuras( {
     protective_light = {
         id = 193065,
         duration = 10,
-        max_stack = 1,
+        max_stack = 1
     },
     -- Talent: Stunned.
     -- https://wowhead.com/beta/spell=64044
@@ -834,7 +644,7 @@ spec:RegisterAuras( {
     screams_of_the_void = {
         id = 393919,
         duration = 3,
-        max_stack = 1,
+        max_stack = 1
     },
     -- Talent: Shackled.
     -- https://wowhead.com/beta/spell=9484
@@ -857,14 +667,6 @@ spec:RegisterAuras( {
         duration = function() return talent.misery.enabled and 21 or 16 end,
         tick_time = function () return 2 * haste * ( 1 - 0.4 * ( buff.screams_of_the_void.up and talent.screams_of_the_void.rank or 0 ) ) end,
         type = "Magic",
-        max_stack = 1,
-    },
-    -- Talent: 343726
-    -- https://wowhead.com/beta/spell=34433
-    shadowfiend = {
-        id = 34433,
-        duration = 15,
-        type = "Magic",
         max_stack = 1
     },
     -- Spell damage dealt increased by $s1%.
@@ -876,7 +678,7 @@ spec:RegisterAuras( {
         max_stack = 1
     },
     shadowy_apparitions = {
-        id = 78203,
+        id = 78203
     },
     shadowy_insight = {
         id = 375981,
@@ -917,16 +719,16 @@ spec:RegisterAuras( {
     ultimate_penitence = {
         id = 421453,
         duration = 6.0,
-        max_stack = 1,
+        max_stack = 1
     },
     unfurling_darkness = {
         id = 341282,
-        duration = 15,
-        max_stack = 1,
+        duration = 8,
+        max_stack = 1
     },
     unfurling_darkness_cd = {
         id = 341291,
-        duration = 15,
+        duration = 15.2,
         max_stack = 1,
         copy = "unfurling_darkness_icd"
     },
@@ -945,7 +747,7 @@ spec:RegisterAuras( {
         duration = 12.0,
         tick_time = 0.5,
         pandemic = true,
-        max_stack = 1,
+        max_stack = 1
     },
     -- Suffering $w2 Shadow damage every $t2 sec.
     -- https://wowhead.com/beta/spell=34914
@@ -958,6 +760,11 @@ spec:RegisterAuras( {
     },
     void_bolt = {
         id = 228266,
+    },
+    voidheart = {
+        id = 449887,
+        duration = 8,
+        max_stack = 1
     },
     -- Talent: A Shadowy tendril is appearing under you.
     -- https://wowhead.com/beta/spell=108920
@@ -988,7 +795,7 @@ spec:RegisterAuras( {
     voidform = {
         id = 194249,
         duration = 15, -- function () return talent.legacy_of_the_void.enabled and 3600 or 15 end,
-        max_stack = 1,
+        max_stack = 1
     },
     void_tendril_mind_flay = {
         id = 193473,
@@ -1005,13 +812,13 @@ spec:RegisterAuras( {
     weakened_soul = {
         id = 6788,
         duration = function () return 7.5 * haste end,
-        max_stack = 1,
+        max_stack = 1
     },
     -- The damage of your next Smite is increased by $w1%, or the absorb of your next Power Word: Shield is increased by $w2%.
     weal_and_woe = {
         id = 390787,
         duration = 20.0,
-        max_stack = 1,
+        max_stack = 1
     },
     -- Talent: Damage and healing of Smite and Holy Nova is increased by $s1%.
     -- https://wowhead.com/beta/spell=390933
@@ -1021,16 +828,27 @@ spec:RegisterAuras( {
         max_stack = 1
     },
 
+    anunds_last_breath = {
+        id = 215210,
+        duration = 15,
+        max_stack = 50
+    },
+    zeks_exterminatus = {
+        id = 236546,
+        duration = 15,
+        max_stack = 1
+    },
+
     -- Azerite Powers
     chorus_of_insanity = {
         id = 279572,
         duration = 120,
-        max_stack = 120,
+        max_stack = 120
     },
     death_denied = {
         id = 287723,
         duration = 10,
-        max_stack = 1,
+        max_stack = 1
     },
     depth_of_the_shadows = {
         id = 275544,
@@ -1058,14 +876,14 @@ spec:RegisterAuras( {
     shadow_word_manipulation = {
         id = 357028,
         duration = 10,
-        max_stack = 1,
+        max_stack = 1
     },
 
     -- Conduits
     dissonant_echoes = {
         id = 343144,
         duration = 10,
-        max_stack = 1,
+        max_stack = 1
     },
     lights_inspiration = {
         id = 337749,
@@ -1079,6 +897,217 @@ spec:RegisterAuras( {
     },
 } )
 
+spec:RegisterTotems( {
+    mindbender = {
+        id = 136214,
+        copy = "mindbender_actual"
+    },
+    shadowfiend = {
+        id = 136199,
+        copy = "shadowfiend_actual"
+    },
+    voidwraith = {
+        id = 615099
+    },
+} )
+
+local entropic_rift_expires = 0
+local er_extensions = 0
+
+spec:RegisterHook( "COMBAT_LOG_EVENT_UNFILTERED", function( _, subtype, _, sourceGUID, _, _, _, _, _, _, _, spellID )
+    if sourceGUID ~= GUID then return end
+
+    if subtype == "SPELL_AURA_REMOVED" and spellID == 341207 then
+        Hekili:ForceUpdate( subtype )
+
+    elseif subtype == "SPELL_AURA_APPLIED" and spellID == 341207 then
+        Hekili:ForceUpdate( subtype )
+
+    elseif ( subtype == "SPELL_AURA_APPLIED" or subtype == "SPELL_AURA_REFRESH" ) and spellID == 450193 then
+        entropic_rift_expires = GetTime() + 8 -- Assuming it will re-refresh from VT ticks and be caught by SPELL_AURA_REFRESH.
+        er_extensions = 0
+        return
+
+    elseif state.talent.darkening_horizon.enabled and subtype == "SPELL_CAST_SUCCESS" and er_extensions < 3 and spellID == 450405 and entropic_rift_expires > GetTime() then
+        entropic_rift_expires = entropic_rift_expires + 1
+        er_extensions = er_extensions + 1
+    end
+
+end, false )
+
+spec:RegisterStateExpr( "rift_extensions", function()
+    return er_extensions
+end )
+
+spec:RegisterStateTable( "priest", setmetatable( {},{
+    __index = function( t, k )
+        if k == "self_power_infusion" then return true
+    elseif k == "force_devour_matter" then return debuff.all_absorbs.up end
+        return false
+    end
+} ) )
+
+local ExpireVoidform = setfenv( function()
+    applyBuff( "shadowform" )
+    if Hekili.ActiveDebug then Hekili:Debug( "Voidform expired, Shadowform applied.  Did it stick?  %s.", buff.voidform.up and "Yes" or "No" ) end
+end, state )
+
+local PowerSurge = setfenv( function()
+    class.abilities.halo.handler()
+end, state )
+
+spec:RegisterGear( {
+    -- The War Within
+    tww2 = {
+        items = { 229334, 229332, 229337, 229335, 229333 }
+    },
+    -- Dragonflight
+    tier31 = {
+        items = { 207279, 207280, 207281, 207282, 207284 },
+        auras = {
+            deaths_torment = {
+                id = 423726,
+                duration = 60,
+                max_stack = 12
+            }
+        }
+    },
+    tier30 = {
+        items = { 202543, 202542, 202541, 202545, 202540, 217202, 217204, 217205, 217201, 217203 },
+        auras = {
+            darkflame_embers = {
+                id = 409502,
+                duration = 3600,
+                max_stack = 4
+            },
+            darkflame_shroud = {
+                id = 410871,
+                duration = 10,
+                max_stack = 1
+            }
+        }
+    },
+    tier29 = {
+        items = { 200327, 200329, 200324, 200326, 200328 },
+        auras = {
+            dark_reveries = {
+                id = 394963,
+                duration = 8,
+                max_stack = 1
+            },
+            gathering_shadows = {
+                id = 394961,
+                duration = 15,
+                max_stack = 3
+            }
+        }
+    }
+} )
+
+
+-- Don't need to actually snapshot this, the APL only cares about the power of the cast.
+spec:RegisterStateExpr( "pmultiplier", function ()
+    if this_action ~= "devouring_plague" then return 1 end
+
+    local mult = 1
+    if buff.gathering_shadows.up then mult = mult * ( 1 + ( buff.gathering_shadows.stack * 0.12 ) ) end
+    if buff.mind_devourer.up     then mult = mult * 1.2                                             end
+
+    return mult
+end )
+
+local unfurlingDarknessInitialized = false
+
+spec:RegisterHook( "reset_precast", function ()
+    if buff.voidform.up or time > 0 then
+        applyBuff( "shadowform" )
+    end
+
+    if not unfurlingDarknessInitialized then
+        auras.player.buff.unfurling_darkness_cd = auras.player.debuff.unfurling_darkness_cd
+        rawset( debuff, "unfurling_darkness_cd", buff.unfurling_darkness_cd )
+    end
+
+    if buff.voidform.up then
+        state:QueueAuraExpiration( "voidform", ExpireVoidform, buff.voidform.expires )
+    end
+
+    if not IsSpellKnownOrOverridesKnown( 391403 ) then
+        removeBuff( "mind_flay_insanity" )
+    end
+
+    if IsActiveSpell( 356532 ) then
+        applyBuff( "direct_mask", class.abilities.fae_guardians.lastCast + 20 - now )
+    end
+
+    if settings.pad_void_bolt and cooldown.void_bolt.remains > 0 then
+        reduceCooldown( "void_bolt", latency * 2 )
+    end
+
+    if settings.pad_ascended_blast and cooldown.ascended_blast.remains > 0 then
+        reduceCooldown( "ascended_blast", latency * 2 )
+    end
+
+    if buff.voidheart.up then
+        applyBuff( "entropic_rift", buff.voidheart.remains )
+    elseif entropic_rift_expires > query_time then
+        applyBuff( "entropic_rift", entropic_rift_expires - query_time )
+    end
+
+    -- Sanity check that Void Blast is enabled.
+    if buff.entropic_rift.up and talent.void_blast.enabled and not IsSpellKnownOrOverridesKnown( 450983 ) then
+        -- Void Blast isn't known for some reason; let's remove ER so MB can be queued.
+        removeBuff( "entropic_rift" )
+    end
+
+    rift_extensions = nil
+
+    if talent.power_surge.enabled and query_time - action.halo.lastCast < 10 then
+        applyBuff( "power_surge", 10 - ( query_time - action.halo.lastCast ) )
+        if buff.power_surge.remains > 5 then
+            state:QueueAuraEvent( "power_surge", PowerSurge, buff.power_surge.expires - 5, "TICK" )
+        end
+        state:QueueAuraExpiration( "power_surge", PowerSurge, buff.power_surge.expires )
+    end
+end )
+
+spec:RegisterHook( "TALENTS_UPDATED", function()
+    talent.shadow_crash = talent.shadow_crash_targeted.enabled and talent.shadow_crash_targeted or talent.shadow_crash_ground
+
+    -- For ability/cooldown, Mindbender takes precedent.
+    local sf = talent.mindbender.enabled and "mindbender_actual" or talent.voidwraith.enabled and "voidwraith" or "shadowfiend"
+
+    class.abilities.shadowfiend = class.abilities.shadowfiend_actual
+    class.abilities.mindbender = class.abilities[ sf ]
+
+    rawset( cooldown, "shadowfiend", cooldown.shadowfiend_actual )
+    rawset( cooldown, "mindbender", cooldown[ sf ] )
+    rawset( cooldown, "fiend", cooldown.mindbender )
+
+    -- For totem/pet/buff, Voidwraith takes precedent.
+    sf = talent.voidwraith.enabled and "voidwraith" or talent.mindbender.enabled and "mindbender" or "shadowfiend"
+
+    class.totems.fiend = spec.totems[ sf ]
+    totem.fiend = totem[ sf ]
+    pet.fiend = pet[ sf ]
+    buff.fiend = buff[ sf ]
+end )
+
+
+spec:RegisterHook( "pregain", function( amount, resource, overcap )
+    if amount > 0 and resource == "insanity" and state.buff.memory_of_lucid_dreams.up then
+        amount = amount * 2
+    end
+
+    return amount, resource, overcap
+end )
+
+local InescapableTorment = setfenv( function ()
+    if buff.mindbender.up then buff.mindbender.expires = buff.mindbender.expires + 0.7
+    elseif buff.shadowfiend.up then buff.shadowfiend.expires = buff.shadowfiend.expires + 0.7
+    elseif buff.voidwraith.up then buff.voidwraith.expires = buff.voidwraith.expires + 0.7
+    end
+end, state )
 
 -- Abilities
 spec:RegisterAbilities( {
@@ -1132,11 +1161,16 @@ spec:RegisterAbilities( {
 
         talent = "dark_ascension",
         startsCombat = false,
-        toggle = "cooldowns",
+        toggle = "essences",
 
         handler = function ()
             applyBuff( "dark_ascension" )
             if talent.ancient_madness.enabled then applyBuff( "ancient_madness", nil, 20 ) end
+            if set_bonus.tww2 >= 2 then
+                spec.abilities.void_bolt.handler()
+                spend( spec.abilities.void_bolt.spend, spec.abilities.void_bolt.spendType )
+                applyBuff( "power_infusion", buff.power_infusion.remains + 5 )
+            end
         end,
     },
 
@@ -1475,6 +1509,11 @@ spec:RegisterAbilities( {
         spend = function () return set_bonus.tier30_2pc > 0 and buff.shadowy_insight.up and -10 or -6 end,
         spendType = "insanity",
 
+        cycle = function()
+            if buff.voidform.down then return "devouring_plague" end
+            end,
+        cycle_to = true,
+
         startsCombat = true,
         texture = 136224,
         velocity = 15,
@@ -1486,11 +1525,7 @@ spec:RegisterAbilities( {
             removeBuff( "mind_melt" )
             removeBuff( "shadowy_insight" )
 
-            if talent.inescapable_torment.enabled then
-                if buff.mindbender.up then buff.mindbender.expires = buff.mindbender.expires + 0.7
-                elseif buff.shadowfiend.up then buff.shadowfiend.expires = buff.shadowfiend.expires + 0.7
-                elseif buff.voidwraith.up then buff.voidwraith.expires = buff.voidwraith.expires + 0.7 end
-            end
+            if talent.inescapable_torment.enabled then InescapableTorment() end
 
             if talent.schism.enabled then applyDebuff( "target", "schism" ) end
 
@@ -1544,10 +1579,7 @@ spec:RegisterAbilities( {
                 rift_extensions = rift_extensions + 1
             end
 
-            if talent.inescapable_torment.enabled then
-                if buff.mindbender.up then buff.mindbender.expires = buff.mindbender.expires + 0.7
-                elseif buff.shadowfiend.up then buff.shadowfiend.expires = buff.shadowfiend.expires + 0.7 end
-            end
+            if talent.inescapable_torment.enabled then InescapableTorment() end
 
             if talent.schism.enabled then applyDebuff( "target", "schism" ) end
 
@@ -1605,6 +1637,10 @@ spec:RegisterAbilities( {
         notalent = "mind_spike",
         nobuff = "boon_of_the_ascended",
         bind = "ascended_blast",
+        cycle = function()
+            if buff.voidform.down then return "devouring_plague" end
+            end,
+        cycle_to = true,
 
         aura = function() return buff.mind_flay_insanity.up and "mind_flay_insanity" or "mind_flay" end,
         tick_time = function () return class.auras.mind_flay.tick_time end,
@@ -1672,6 +1708,11 @@ spec:RegisterAbilities( {
         startsCombat = true,
         nobuff = "mind_flay_insanity",
 
+        cycle = function()
+            if buff.voidform.down then return "devouring_plague" end
+            end,
+        cycle_to = true,
+
         handler = function ()
             if talent.mental_decay.enabled then
                 if debuff.shadow_word_pain.up then debuff.shadow_word_pain.expires = debuff.shadow_word_pain.expires + 2 end
@@ -1736,7 +1777,7 @@ spec:RegisterAbilities( {
         end,
     },
 
-    -- Talent: Summons a Mindbender to attack the target for $d.     |cFFFFFFFFGenerates ${$123051m1/100}.1% mana each time the Mindbender attacks.|r
+    --[[ -- Talent: Summons a Mindbender to attack the target for $d.     |cFFFFFFFFGenerates ${$123051m1/100}.1% mana each time the Mindbender attacks.|r
     mindbender = {
         id = function()
             if talent.voidwraith.enabled then
@@ -1769,7 +1810,7 @@ spec:RegisterAbilities( {
         end,
 
         copy = { "shadowfiend", 34433, 123040, 200174, "voidwraith", 451235 }
-    },
+    }, ]]
 
     -- Covenant (Venthyr): Assault an enemy's mind, dealing ${$s1*$m3/100} Shadow damage and briefly reversing their perception of reality.    $?c3[For $d, the next $<damage> damage they deal will heal their target, and the next $<healing> healing they deal will damage their target.    |cFFFFFFFFReversed damage and healing generate up to ${$323706s2*2} Insanity.|r]  ][For $d, the next $<damage> damage they deal will heal their target, and the next $<healing> healing they deal will damage their target.    |cFFFFFFFFReversed damage and healing restore up to ${$323706s3*2}% mana.|r]
     mindgames = {
@@ -1808,7 +1849,7 @@ spec:RegisterAbilities( {
         indicator = function () return group and ( talent.twins_of_the_sun_priestess.enabled or legendary.twins_of_the_sun_priestess.enabled ) and "cycle" or nil end,
 
         handler = function ()
-            applyBuff( "power_infusion" )
+            applyBuff( "power_infusion", max( 30,  buff.power_infusion.remains + 15 ) )
             stat.haste = stat.haste + 0.25
         end,
     },
@@ -2034,7 +2075,7 @@ spec:RegisterAbilities( {
 
     -- Talent: Hurl a bolt of slow-moving Shadow energy at the destination, dealing $205386s1 Shadow damage to all targets within $205386A1 yards and applying Vampiric Touch to $391286s1 of them.    |cFFFFFFFFGenerates $/100;s2 Insanity.|r
     shadow_crash = {
-        id = function() return talent.shadow_crash_2.enabled and 457042 or 205385 end,
+        id = function() return talent.shadow_crash_targeted.enabled and 457042 or 205385 end,
         cast = 0,
         cooldown = 20,
         gcd = "spell",
@@ -2043,10 +2084,8 @@ spec:RegisterAbilities( {
         spend = -6,
         spendType = "insanity",
 
-        talent = function()
-            return talent.shadow_crash_2.enabled and "shadow_crash_2" or "shadow_crash"
-        end,
-        startsCombat = function() return talent.shadow_crash_2.enabled end,
+        talent = "shadow_crash",
+        startsCombat = function() return talent.shadow_crash_targeted.enabled end,
 
         velocity = 2,
 
@@ -2090,6 +2129,11 @@ spec:RegisterAbilities( {
         talent = "shadow_word_death",
         startsCombat = true,
 
+        cycle = function()
+            if talent.matter_devourer.enabled then return "all_absorbs" end
+            end,
+        cycle_to = true,
+
         usable = function ()
             if settings.sw_death_protection == 0 then return true end
             return health.percent >= settings.sw_death_protection, "player health [ " .. health.percent .. " ] is below user setting [ " .. settings.sw_death_protection .. " ]"
@@ -2109,19 +2153,10 @@ spec:RegisterAbilities( {
                 applyDebuff( "target", "death_and_madness_debuff" )
             end
 
-            if talent.inescapable_torment.enabled then
-                local fiend = talent.voidwraith.enabled and "voidwraith" or talent.mindbender.enabled and "mindbender" or "shadowfiend"
-                if buff[ fiend ].up then buff[ fiend ].expires = buff[ fiend ].expires + ( talent.inescapable_torment.rank * 0.5 ) end
-                if pet[ fiend ].up then pet[ fiend ].expires = pet[ fiend ].expires + ( talent.inescapable_torment.rank * 0.5 ) end
-            end
+            if talent.inescapable_torment.enabled then InescapableTorment() end
 
-            if talent.expiation.enabled then
-                local swp = talent.purge_the_wicked.enabled and "purge_the_wicked" or "shadow_word_pain"
-                if debuff[ swp ].up then
-                    if debuff[ swp ].remains <= 6 then removeDebuff( "target", swp )
-                    else debuff[ swp ].expires = debuff[ swp ].expires - 6 end
-                end
-            end
+            local swp_reduction = 3 * talent.expiation.rank
+            if swp_reduction > 0 then debuff.shadow_word_pain.expires = max( 0, debuff.shadow_word_pain.expires - swp_reduction ) end
 
             if legendary.painbreaker_psalm.enabled then
                 local power = 0
@@ -2250,9 +2285,9 @@ spec:RegisterAbilities( {
 
             if talent.unfurling_darkness.enabled then
                 if buff.unfurling_darkness.up then removeBuff( "unfurling_darkness" ) end
+                if Hekili.ActiveDebug then Hekili:Debug( "In VT handler, Unfurling Darkness CD buff: %s %.2f, debuff: %s %.2f...", tostring( buff.unfurling_darkness_cd ), buff.unfurling_darkness_cd.remains, tostring( debuff.unfurling_darkness_cd ), debuff.unfurling_darkness_cd.remains ) end
                 if buff.unfurling_darkness_cd.down then
                     applyBuff( "unfurling_darkness" )
-                    applyDebuff( "player", "unfurling_darkness_cd" )
                     applyBuff( "unfurling_darkness_cd" )
                 end
             end
@@ -2314,6 +2349,11 @@ spec:RegisterAbilities( {
         end,
 
         handler = function ()
+            if set_bonus.tww2 >= 2 then
+                spec.abilities.void_bolt.handler()
+                spend( spec.abilities.void_bolt.spend, spec.abilities.void_bolt.spendType )
+                applyBuff( "power_infusion", buff.power_infusion.remains + 5 )
+            end
             applyBuff( "voidform" )
             if talent.ancient_madness.enabled then applyBuff( "ancient_madness", nil, 20 ) end
         end,
@@ -2374,6 +2414,11 @@ spec:RegisterAbilities( {
         aura = "void_torrent",
         tick_time = function () return class.auras.void_torrent.tick_time end,
 
+        cycle = function()
+            if buff.voidform.down then return "devouring_plague" end
+            end,
+        cycle_to = true,
+
         breakchannel = function ()
             removeDebuff( "target", "void_torrent" )
         end,
@@ -2394,7 +2439,6 @@ spec:RegisterAbilities( {
     },
 } )
 
-
 spec:RegisterRanges( "mind_blast", "dispel_magic" )
 
 spec:RegisterOptions( {
@@ -2412,9 +2456,8 @@ spec:RegisterOptions( {
 
     potion = "tempered_potion",
 
-    package = "Shadow",
+    package = "Shadow"
 } )
-
 
 spec:RegisterSetting( "pad_void_bolt", true, {
     name = "Pad |T1035040:0|t Void Bolt Cooldown",
@@ -2437,8 +2480,7 @@ spec:RegisterSetting( "sw_death_protection", 50, {
     min = 0,
     max = 100,
     step = 0.1,
-    width = "full",
+    width = "full"
 } )
 
-
-spec:RegisterPack( "Shadow", 20241102, [[Hekili:T3t7UTnss(SyCyuKIJLLKTtCM1slMnzMBtWLDdwNDNFC4SenfLfptrYJKYE8bd9SFvvD3K9NKuYYjzomalMnwSz1vxD9DvDZRgE1xU6Y5Efbx93gny0Pdhoyu)bV503EY5xDzXdPbxDzQN)TE3a)JyVvW)9YLEZtUh)5hIs8MJVEEY6mF4rllksZ)XJp(MWILRVUVFYQJZdxToYRimj2pZBrb(3(hF1LxVomQ4dXxDTT5(nJo5Ql9wxSmjdMUWvVdGC485bSHhK7F1L4WpA4WJgm6h3m7FgVyDwuy8nBM9EVSBJdYZ3mZB()968IvbXf5B(4MpYEHbhn6TWlGWCZS1P4uR8W3ap8xtYUDZSK4nZ(xF5y2IDZS3L5LVuzO4epCy)b9pZkKgwZ0m41Wd)8h(ta6Me)IcCI2m7EGMbVIY8nleWIfrH3Segu3FDzyEAqgTozJlVxjyh82JgC(RauIdERZnoi8HFkzE4IWG5BMvKSzwqS31rbaY85JRqK39(C8P3CteoSKfluaYzoNHZzuMVaO5Tbf2E(qK08xwdqC2NtUpiJO4ZHF7xsYkclwpxz0dWr)tZbC4YF9hFFGhIBWEA2daHjlz1MzadLywacQxCsXseMs)Cf4EdB7)l3h4bBXfEz3GOy(9EPBMfLCtOVYqphh6sGW8REiscKLW4RUmkmVihz6xegffKb)R)gjcXOIZV6VWyrZctrM(RU8DjX5RxbqjyvkUCrYj7vZbMCF2G89IIMY(JP4eaIufzH(fiSVeGvbST7D1LD3m7AGW1Fvy88P5PH3gmnmo3loS4H(RH1WJpkpGfrEpO(8EBM1zZS5jf9NhChiZcSsttJ8UzDq)SGvEWy3mBcqejerAw677LxmTiexg4CCas8IGTb5XiiaefAktxr5AEkNAbROrAulbn4oVvPHWIEArYA)LWY(b)OGPSnPCncbF2xle8NoNl3lWcAHsKcZXm1FE1Y9cqWc2B(Ta)1fb8L4rBMnO)ib5IpxHXXbzt)FwhguSoVAXQUxdKjqAMVqaUhCLWeYsZs8TQPcjjN4GKKts5tVhKpMoh59vPbiLP)YaVOIL9t9lOfZObSTibRc9AGAdVBdYk5rYdkMEDsmSokcdYoz40rP(1YDue6Fl8Nw2uaS)0Dd75uvG(5LIVlSVNHQRv2ctHviOPkEEFeQ3fyhdotddmMMk(W81WlAHnH(9PjlCiqDxs48fa(r)Aftb(ZtdYwt7)vmfckGoDeX1x3w2)V2m72jTVXb6U0lkrJ7)sV7cqDUmg(rdGjmCbAiEoAoodEg4qaX7NNaul5LiWGcka5ZmPdIM8ZDUV(eudQOB1Tc4g0I9wh0LkCYo9C4G6ErexTP5lmgw3iB20WfadbinMpz8iLFF1QG5HORuxIAkx6H2QuEZBIsU2lc)reniBwL8PH3bcItZHPug3WX5sBnx42h9trJp4FMhy4iZ9ldrxmwLChXa4HCeOn37pknlmb2wFqy2bhBqSGT5EGGVzgyuNyEcyEeH64Yd8tINNRWfDGfnBNM6tRJTrfBTgESR0Tosa39gUZlBdLaxSCPvArSfAA3)OJd(zDDV2WPuIBSo6Q19TMxeF2lmEBwdcVB)Yjd3mtWA4sJ82TcCX89CTiswxOSoavwEjbtVZdWgyLKBZX0KuIslB0HnA8Ffb2Nuve3x1MeOx(pdkMhHlPfERJa4G)badUEYvE)207kYT5KxZZ8azWkd1WCaOtttYZdXXBXDPMbUnzy08hSWMopei7tgdRSZlDasDHdgqxKfaSdCq6gZ0fqBgZ6Y2vVlyQ58Uz2HBMbi1ljZ2CVYLv8cUpnveEyLtj3xgN4u2GLCuOh9)WvRat6Z31k9SV8bAlpvg5V83F)Fh4D)hbikZS4Vi83aZ)XWWcPOCUoyP3DHGdqcPU1XGfg)BzrabiDUmXew(5tbRZwCNRvurZ1Zr1sA7rAUpvMXOeeltIMJKpFMXR2rA7uoDbXbRcde(XiTgvGRnNbB1kTn8lY7JARMDE)xwqpETxe(wt9stJcbKNuaz4OKfDqMokv6CwlDWZUHixoQi7xLfOB6DOfGxuPBsSIknsaATJXCFP4202R(BHxuEqT8kBVwVUOttaysUpwlsLQicaoHBGqeaMaIV5KgJUHXNucxmoJPE5(bX54Gudps7HYAHqGipnqWFz6b)XFEA(d(lbECiUMBvEU6ItabL12P0aRrAG9u9y8K3isHzzk87qKu520XxXvzr8F02hTbyf3MsqX7MTo25RIlCg7AAg4F8QR9mzyjjuMtnlejCRbUxfNCyrltk)kjwQEmH)SlgwWmQlw2sdbziI5hmf97rYPGbUmW2cycw6TctRzpOTWK7TJI3qo0P3cWzATvEDRhgElbkY7Im7OQURJ8YvqxcWNlZB4L57fhiKK04k0J4vsBAcMWDl2)QKa7Yn5pTkpJOhxISvz7fz5KqGAu(gSf)SJKiO4NedGNlWehUQZZnwnqbTNRGvkrbxgwTvSRRCAtRZpcUz4gC3RN0IHduLHQaUgwtNxoPSDsRPiKiqDQhwJ1PpAj1seLYFeBYFeBYFeBIBs7FeBY2U)Fx9XM4mn2BtrN66mj7QzD2Es4rhvBCqYvHBerSkDoVuHFdQi6AvlbVaoMesoRTq6JbaRSSaknWWBAtQTyinOsqTmInOwqYjDS2VjPW6klCrbROMAs))vyc2m7ZgjnJQchM0mkZzgfPdhsPWrXsVcrYNJcXYAG)DuavFpKqZt)8RQQ3XWrITg49zKLOhktRh4pEAkTb8tj)CPFxwyivZREdjCSgLc2zdKmwW2cSogP4NSXSzpKjZncB1baPuiJYdoktQhJ49Gi))4FlKYljMxhquYGflc9dbgcHoCdiYxU4ZJrMkMdiyCC1KyI0e2)VntkVBzG)TWe9Zh)(FI6dbSvdqoHqCyaUETxo1VeXePn3M6dfAwP(awyzHGwHY4OlFM9yS7kCxRJHV14oxzWXAqUCqG(4HNPk3BXf9teUOtyY1rjjZJwNJrz75xugjFDiYjdQpMYAx(1a3ZR2Ywag1juZMhyp9zc9KumvxhKLhKrfdV2CbSZZ1zsZfUKMc2jEWMNh735Yl2piVid0LJjNWM9)k5d5jsVgWpe7x2xpFGpMs5toNpiFKXAacqDOGT2ybzxoXqwOoR7wks9N8Uf0GKVglh9NWOIdaNcbSjmx48cQFbMxuPDcxNTgQIElgrnz2djR3mBjv3BGQgEtCiOsYd1iXmSHWie7anAfxKKi0UjuPBwMFg5LAhbf)36A2meQjbJ9efH3tL9pCv5Q1iwZAgbtzV2Ki2rS4t5iXR0Mg8qD6RjBHS1FjwqzULYNrF)LiLmNI9CGoeBtcmDKy0jAjg9u0(wn2TvaZ(GNdfw2m7N5qegym8NZxJb0uUMtwWa4Mz)LiY1ebuW(1kK6xhzZp7c)Z3yoKTDVN1tlt4M2QpTv)oNIifQLEFgXdiGnHIIBW(XUmsdy8)mrWysRK8PbpiP2PCucj0WCaFkcMd2r8IWcMuo0JSrmH381mpmQeuuLYTMspXqRnn5fSomn3AA3kNSamScVcmXVEpeKzZd13lgdg0aoiMNOylEW8UpFzY6O5UAGcuXoVNtN7TY7guwM1JUKXHRdIW35nN9dYSEk9pYy8Xmxtlxuw8pLxDaWbKmWcZukByG0o2y2RZXwxBXuqHLsDgSo4kS4gTiozH3rMzT8M9PeKWtQRnx6kdHj9HvG4j4O007dU2MlWw8vrmXsVmeYeWSjMws6BGnxzqji8jCFrBXKu5gBRN6Hvtqnq30h6l4z5Uc5S4iMIp22923YB9A53YmU4kl)QptwnLv311d5wD)Kk4dJxuBJUwFV3Rr)WPKnAdNTTHecMCv)QYwUoZJzxvqj71CWmSg9sWMJcDWQBfpQsQ2B7uETRjNziNhlhaL2le2qEIPBTU6wcl0tCK(th5oh7krdpzPDfMLAzEUwu1wzhV6sgYouXm10vbrgMeLSZvsHmAKz)K8cnJa)e6W09KRxjSwZUQAz)ziK)1ecIzSijg)VRPi8xG69rF0UpaC)p7vBM9F(xdUnmk8)c7Hl5Jxb4jgMgjWwgAiyDo7xXdaZCmejbsZ66r6yxq9kR8zVOFt10ZbV10aQPcgivRH6dq2nN)jchSSL9rMpfDe1JYvAPC7(tVwA03rj4Rw(TpBU1Lk3o1XT1rn8ctg8QMlHErHztHFEkEYYDDKpPn1vfKZTm7V2Y5PzJcICA(IdGI1Jj181mNvkWd6sskSVKjhUoJ72w6he0C5gEU14elOLlX3I9d0bXHDyKswJVxLGr7Wqt1p7Ywx3A29ykIALZWhsd9OYHwxR7FuDoG)swbvLXCmNgUIGw9znWk2B)XnQP)L5stD5qQAYCNZykucECVYrnJ8qcuJLG4OerhZAKby6TT2VTKswrGk0WYPCxX4SQj5u8mRR3DWvLyPJTYRSNmBlf)3ttzTL(hWv(xusxI2GKN1sR2n4evzO5UsB3w2t(GkMaqoM1Gpml(tx5vq5MVIMQ8GkVGQT0rUAzE0snfDhXeHtCLgkQPjehoX3ttkW)sZAJ5pIui1yriB487nw)e(4igb7ECjXNQ4FM)sV44GibdUsc2yD9PJ0uiulaOmwUMcE4uVwJVskTolwdEaKfWYUZ0k1mQ8xTDbzHrNMlgf0sYqR0zwoeL4rA1KQXyXtp3kk5CxVod)JF8(qSFd(rBjPQk)fAhGSNgVHbvSspLCt3PBwPglDY66uAYobH3mOVkUhqf3IaFeU0dnmCv(A2xa6SHghdpLTG3NWphrrORgvLI4N)nWIra7OQrY0(EO1H7O0Vgw03AgQYd8bcVfExf22Q9X79clK3PA8vjfL1XU1PU4(RLpvLcwBEvVGFo8CMFTQxQEoZ6ZhVl2KgveOlyJ1GzEyY68PWwQQG92Q00mXZmn0jrs0YJLWLJQFO)GQkj5o7axsd6p6SN3zCcnldgQjw8UKvPrH(EfiHAUqgjbCP2hpv8LbzY9rAn6Fwi3x90SKIamfME3Gtj8pysniEa4gcWa0PkIfY5X(wG51ZbzXmcZksN6PcmIR(QMCZe1bWqvkSe04ngw6dcFaPFjIefkeU7IlBWnQ(Gpbbc6fQYGCM8AQZsqx(aAqGV3A1zbl3dlfcE((bIEAG4zdyKoMgjW7p011Bw7HzGnafeHnXWvRxr98aqXjcQRt042zZqk5tMvr4cwve60K4tTcL7XIWDszo6mzhiC91Uu6xYqZowL8ZBcsgDMlbjVF2nZUk9CvJAaDqlOgRr2wxGZK56mZl6I8SBPasu9lSf4gQ)MaAeWCUulUD0WOAQaA1z(SfoUx6zEAXs8O3BRTf7wgfJEntutAU(1CGSJ)spsZ)0Ml4ME)nehMIrO(RyE64HkIOpRwS8BLfMAI8upma1uSzLXGkcwqLws0IyIxMZ0aJGl0XvgTI55rDrq3glVokDAJMwp0wuevv4tr0xDGhA48T1QS2mPx7DRXyDhZ8ksvvtszunE13yGb9AHkWjwWjzbs7NedDtssfZpNj5ToNyo(qfzIeAxXeAXrxfikmawVdu1GazmR1SozmG7QlD9lGx(qCLJmJ6lKYa(NeyjJjCFfOUD2NUQSDd3hSnwzh2PO9rR26nTbrijcfMjjwRavSKIBGwlaUhTMKXXC4VzwwscDIOgwF0)n6e03ehD(fmMoALvL1nFwFqUmiJp0vsT4c7IHAEsqoD5wHX(SH17tSe11nSpc37dcZWu79l)4heokkqO)939EkbrdDfx8Emr)soaPx9nKKEMUbGukRK)ZF59BeNrFDdMCKeRwMECJn4CYNU8dmz2p9lFOkX3)C1fh1LRzY1D)Pm)LjX96xxDt26Rqkr5UfvQqwROYD8KKHx6HQhIwDWCqTqs15M6UNEoOgNKA8(AzK7wer3DzB73pqPXRQOeOGKfB3vDnoQoLKRwWsUlxdmclDDgdhO0hG11XMvLT(qrty4kUQTlmGVhtDK1KhsTOWzk(35Eku5svm83XUFrv9XrBIn5e1a5vx6oC1VNHOL9mr6i7oLpA7ZPwd4L9EJYGfNPThchn8)na7pk0CrF04jShauTWm)14(uz60u9mbzDLQ5nDN6X2q)vM)WInt84Br7M8eYHu9cQWnSKOYeDsI5cDEc7w0iwhveEepSbsiXvSYTpiV6pTfh0IWZAoduJ6RBTP08TuKAiLTYNoQWPXb4nui6tpwQbSJCOZxrePsQ0hrwFk)UILRfTtQApMsrPSoMiUIwtf3VOwD4N5RlyFbwy4f4yyeE9lHu3gUwIAXzzPPJQYweDRTtDIArcRyljRVCGXxN8JDcrD0lMyyEflBkmeW3s4HzEX3qhWYrUclEB8wrFz7W7L2FTUjl63Wvi3bU74kzpVTCpiUlEs9t(aqWDbWxkI816BgVTG85QcOJeQ531Zkh7TDDk5S1PlJLcTr2(Is5Gv0hu3HZsXeSL(SPsJuRkM8bBAQ60Bbq12O)8E5q3nsiwQFf5MZLJ9UZlmITXJb4sSu7Paxn5a6ypVt2DE89sdc1XM4Zoh6UIgClYTZtmZg1KewvP(ADMz7ZZHhUh7(ymqPC8P0khmO9E(6vMjHpkuvFLDGQtNPQfrAxYvmO12OALbEq9gkeFh1fjSB56baiV8EVSyygbQdDfdhUkL8FISb9c2B)c8ams6iNJS0OwDV1fjRy1QblipgH0Mp(FeI2SX7j53Ledtf94xyeY1ly(Uz(aX2jmGUd)TELqCKDiAAerdYUTY0YzqXeJgWTA(rhUN6cUgjnYa6otRK(CCM95qpcwTjWvaUTe6kIHAG2QiQoCF9Z4E6MpAHvw5ojC74ODSlAA6rdxDBBQLu59YmyLAGgV3oIGdX69ckwRqilfJO(yB8zkTozlHyzFiAttKCJA2sX59n8EcRyhms7mgwN4)EfdnsEIgGDMCLwc)9IILgPXuxZAHgR0nTTeEyp0Qbk52Q95bkoulVhLYDmdQH6PV5BTHq1H8BCaz5(TuhW26ftD4EEDMaRA5qBscw6iXwcDf)KTj1Q7dToCF7ZSCMd4RM2pnGBpNGTeYpzxog6We2ZgGv6cSxO7GNLoeRjaNqNp0q6c(aJ3OwSSJE2z7ywR9lgZZzCNUhuhI94J1L0WjJLt5tVoDDxEWFGpFhvZqeJP3l5)JlgJDL2EdStgJTFwB2O)UKeEClwRBpfCBGkNawXMEYZLGvDoi9Ca4a5KMRb4aBju3aWUCVrR1ImSdzVZJAp4RsSJbOn76O2c2W9zCQdDy5)RYK8KnNo0H3f7vSF0GAW(Dm3jF9a5EkJdJCe12EZZLVztWtwTLla)K5UDb49G3CpFedhwDcEQ6Wh98hcPRP4jNWXrp)bW91ykEUckYfGFcmJwtVw5TE(l2UCS9CMKnxzfD7qXFFNlu2m4Wu(EzgSsL9NVLzC2bgkDLSPRl28YARLRAQ(yulLArGs9cL6Bge3Roz5knrpBjG6jOCHb3A0gUJ0zhqCVsNDKgNNaw7aIFTW6Dk5UpFPHZQMgX9212PUXHlAb7UNuwro(vx)2HBpx5wWbC3dQbQdJ5T4NneUq9dptlHQ83KgnOA7ZvJ8o0hOnheyVTQh7OVQWWJXBZGKfHrLND48(Lo1C44JT9XBzZhTnsMLsmcHxfUy8bSlYRYFd7UdRVMOuTVcBJHXkT27R48rJh8QK0X0hFK2adLw7Tegd3oyW6UQQ3E0w96Qxw8746WSXwAnGu)SQS5J)B)BInE1XjUrXytOLRGp7GhlSeUjJnoEh1Uo7IXN2PRsFKpbiEdE8r9HnQxDSrSUbdNJCNF9pUy85D6EGTpBip(O73AYqhtSAFVHtDzEEn9h8XhpO2UxRxvsIvgax6Swe8Ca4iLfgKL1wh3V54H0xND(IdPLSpvyY)KklMsB8H8uWm(k6M7Am95bZ9Bk)nQs9f7wFFSxMg9xEshBQXF8r33cqDSQEU3JpAr9Ahlkh7OIAfQ3eCiR7b27WXohy0b8sug9(YIlnLe8k2bIb09aCtQcatgjdbTpXwcDqHXs7N9ba6upfFhqsDfBZiVMVGnt(Zdhvp01uJPSnpOAY2DGqegZoMfuzCENg6q7pcQ02lF2vQh759FPgloFV0efp88x2TwfdDCQsPxVjJ17Uxqtq5pPshRhRRrUUR(CCKZftVlof3FCis4CHOzrysd8hMFqp2cITd51TKucSsF))n8WKkQyVsPTDzcwDDFqeF8XAAZFudzTdqyzFew2rWuNdj4UUB1D5DdUiwpaqgmNtgiPs2KtPt9wHHzXT4gxNEG2bEQhXo893xse9TFf)KSS57YsMTnfj9QSQxB)maCHfv1MwgL9bPp(ETtNQtP8jJvUpAzEsUd6xnTbFXj0E9E56y9p98EDS2af1sOcmIB4IslTv3pRGT7YVGmJLDDIE1MCss4(w3HhkLBeQ5c71rC8jNW3KmAdc86W1yXy3bk0ZsrqgkruCXjdqx(m05m8mWRB7S96XFmzupj1(pBxJPw22AsPTBD2D0j3Dm37QoAgvx)MxmQJYbpT8o3StDEAtD8YPnsK273RQgKSQ6uZCwSrAqxReHUdFPRuUD4WJ4pYKUFKE()E5WEI5eddUYed(xoO)929nGsjkiI5b6MM(E6cl16(gdHiFrQ7gmTJUVa7SsEWhITrFHuy6Q7aUJcvatUAqWpjZ5daSvNk3Z3UNgKCz6l1oq2uW4(YlTm8A5FKwi1DBsAQJRuu0QtPTV744(Ggy7AfS0oujRII1QQlpu1Kmu1MUWwFO2z9hCA91sB8KySRlViP5VfiPeFMs5RXm9y7W01oGsBn76TmPX2M(EYwV5jrsQKNLZNBLUsdvWvAauYEBpZgZuKwhLEsrBy6iK1enzqaWRnMxbHOn2ghGYMpskACqx4ElSJ1ipS9RAAB6yBw5NQXlgs8dFnUEfTBJ2PiVnQ)(OJB3BDA7w1vXTVvB3kWY612kl8pTRqPVL3vKomiaZInMddLWdFDh30lKOpuvVN1lAXDs7MuiO6d)IXd70kDFvSQUYQT1SIpPkR49E8rDAcm7VMjC79eUifTVVWTy2ET9LzWXQyTZZ2DPxZkk4CLWDA1(18QpC38LQ0Hj1U6UmJyv3GKO77CR6ANG)kVUQ(5sILLgAOsfX3F3DFBPHHUBPVwhQ6DOXT73fkQ8pS05l971VAOUDmaQQDeJYD(gqI3HpCwD5RxT6rMOmxvchMj4zlcWyFDHcUBYiw2L6k2phUD7ng0(9L5YVr34GBNLY2yvS1xwG73mtjz5ufoxm(mhwR3(BEWwM2q97IpLIWkLBiBxfHtgPKKnAiCT20py5AheELdmENkJDANfIoh40aj2LgOi9dP0N4BKEGgOGhVkmxCyazLyAriwyakd0F5V)lLQ9rRnO5VlXib5H5xCpEfHaMMwGFtkXrmnlnD14lW)7ezgB2vW11bSeC3xTPrQLItqf7fGIKfv9(JYmxgEJk(aXKof2DU5MGSPaiXIFr4io8UCsy2sV08K5pu6WX8W7aLdtbQFw5VHjFRNSeWZ81NyZ(xApZ1Jf3NIhEALUR)FWDExZ0Jw7F5Zz2ems5ZfJp5SoUaJSKVKHDRbHJmSn5I)jVSCjzniHEDSNJiRzlG)ZnNAeRZKQHZVxVR)26iwC2(owJ9O(ShmQ)zolf8Z)17NlFTCwV36lRBTXzjFV4Td(fipnn30ax0v2f3Jg0FujBV57XRUSZgbt5Os1SxiFBUx4EIKuBfUy022BfDS0zf61eD8q5KKPu5LsHc3nhGKAATkVwxpy09j0ahYM7TCH3TBrROt56ylK9k9c)o5ALBBJlFRIO1zUTQKt1mZvFCTTYNtMV9AThz19(LrhsSxBuYAMNDPLj3rW9DxZtwZ643fTrzn4)3XnuzTm9FZBTszwT3XYOY)6Np(9)eATL(Ezw2jsyWNEuRvH2IP6uuUm9NJlU0e8VQcJxY3xU3WgFv3fPC1WbcBTjqvgw0GdFaho8mSjf1oDdNuMy3QpY)qae(f9S2BaJpzG(6AbiTrVBzwwSToSaQZ1H01bz5bzOtaBlOK1WXHfIrtbpYEyRH1z6WYl2piVid4frT57c8qt9u2Z(m(oy4TSxsUbIyfOcTi6S3uemsYZBj6yYpzEVutzfHm9FbMBnqP64xSSOin)hp(47V)((3NC)YaV599twDmztz8WbdE9a2uEKykFXeTLXfh7nPShrBnKF7PJo9Thlq7xmrqeyqdjeTfuN82Hdh82JX17rvhkUjA0rgCfrVDhMrI3TK8CzoWc7t9iP3csSML)fkrQTfhAnHsl3uS90W47sUf0r(BW0hdmA4(NO5i13TDP(Wy7w0KWgmQBhguQyWnNVEheHkv0edoL1)xFskn06z1x4v41blO83KMWDhuxGaSKZYOLuS7yTEVjoCrOVhMjaM5iegHXf8Qdrz4M1JZIARPjAjoAyICruDC1701iv)L6B1k4YPYjcHT(u99K9BsjtLbarJJj3NNDoWDbfKsHK6jkQJ1ktX9ZF8ah5VP9f590E7(wPMN9S4eMVg9HZDGicO4d)fcfTDnf0LKqA)E1ZYotZ7aOhVtOgTtDPOUt(DYArYpl9eobURxvW)jJ7o8Sdp7LYyb11PWV5klLhPV8E5R7zqvSheL4qKlNk6C6QhmadI27bQi6jSklWo0k5ltwhzg)kVsJOoIKIL4Rn3BLhwaJRzj2M0ZCDa1c8V5SFWyxtmVttPPf33KlE(BoJCLKkqcUSrqswn2OCGM55ClnlXN1cLF5E6xr5HFbxvkQTzXq(7HYAi2E(8VEPWHN39peQOfNZa(mYRjeVEgugfyPMeP)SVr9aDfnrHml5kPRIQiAszkAZzNlc(byGsgCyzzfyz3KJt(SQ)BL6kDeYZxggenF)rm5Kj)ShaYwues)ahnIcySeS2HJ3e)bvvwKHzsMUAGryhROyPBfwkDi6ArTPFMHesWTpsI5n(GzbhL7oiBNnjuIW(bzWKi0C6jDNV2Nu(FvYMRfeRvjWZSZBqxP6AlnEwoG1Js9DSXi(gTSZOLlZdgDaHLPWw1ffL0qVcZ0kL(3OiKj3OLkgPy()7bocw8EKxPItk5Ob8ECIxqfYBMKvmlbulkzI3cNrvsUhM(eMcv6D9ew3yQvr1Kctx3cB5x75FBUCT2rfJIbehSgdQ9vigWuvYQzaQcnSn6dJcxeS30gUF0NTJQZEswwXljM00aGJWd8V428PRsaluX4clRO07jubFq(rDho4igEWguM38qm)c9PCAHP)B4GowhW60xrMi8Np(mleRQfTohURbJebdPbFmIyKwI53cLPMgUAvaGcfbQ)ki1amyyLgL(1BIsU2lY6uk5GGZctYZGWQK7cfvN0dlv59hzE8TyN7eM4eJVLQSGFIOc)437A(rw2M0LsfjrMyBxxfMyQ(HFP9imItCvf7UAytRd7ruChWkNZoRKqBXKZ1G9LtgUzgr5RfzWZFLnk0wTjUB4ivb2NiA6GzRcA6k5ueWl1C5Sp3SRbSzWROxSEOBQcvYt))ky6Iz4ZtuDE9yzywdrry6odGAGhS9TqM7YtOm2lhugcO2fsu9q)QZ086un7uYkN52qLWR3tkHagbul03d4NQwXsYxc(U)TK78e65(h84TyZc2nlpGr2WRM13blKLakpngW4sUeriISgnC8ObD0IDuMFxel)Hs3Qt4)izXIP3aw8g68oEcNVBKUvh4wpTms(5zfpwW1nT0eLN(WkQzHYNEFW1vrkzM5tMdRvdplaVUY4Dx54thOMA0jJoDqpHd9oawvHyAe8drG5awDnYjloXAzLTQT(nQXK2iF9ahTYL9tgHrzJejJwLYQOvYYUrEDj8U11ldw3nKBtWPl(S3V6OZYB2rCT3ZE5Wgn4QlbgmF8Jz6503UUR()c]] )
+spec:RegisterPack( "Shadow", 20250412, [[Hekili:T3t)ZnUTX(3INovN0DNLLK)io3ZszsYL8s60KMx9Lx(Ho1u0sqwCoksw(HDChp6V93UlaibabiPKLtU8MotN0ZIGalwSFVlwEZ4B(WnxV0pNDZpoz0KZhD24jdhF(4lhF2nxN)yc7MRt8x8r)7G)rK)g4)E9A)LXpG)8JHX(lXxplUiDb8O155jzV7KtUliFDXTdxeV5KSGnfH(5bXrls9xLJ)9ItU56BlccZ)(OBU12A)zNdRTFr(64uy5c281WmhSCjJpCw2IBUgh(XJo74XtE3254qG)7Jrl2(x4p40JNCo8GVn4x3opjLbaYT(5BN))6VjjinyX25FiUyX6)RTZxgK5FBiB78Vp6owuqCr225)GFK)25FLFEol9XTZlIYdc3opiNTb(VWZ9xKx4hgcpkytsiBdlkNTuzLpdw5)ollpofMx)LlJJoolHTiyfUWBcIwUk0)XtYsc(i88GOm)OGCyYUTy1QTZxSMT4JzVvUP(5ee9un5JpfM8v42ki6E)WGLBNNYwXszrlyzkdB07CndJoD4yjQ59)eSGXrldWZNTZdJVdbX8yam9ZxSE7C80s9vXzTijjonhXRbWMC4Qy4O3Bj7EGgWBdH0KVXKJNCj8gF4x(f41y(z4Am5MRddYYZqYMvbHHSu4F9JerilcpkwEZxXpKtdsqW6MR)64OSInaUITjj(byVUerb4RMbKjl4dAbCI4X)dpCbGFjfoYsd8V56(CK7qe37r4DpjAFyrY25p9K6aWth9NpGdZEC6)sOWta)5a1Rb8lHQ7feCE5i9gatpUiK5L7NEhdqbW2gGBXU8Ppm(0lV48Z(S3n6jnOp3peOWgweTQinmi6oVL(PFmILLnuSGBN3ta)1hJ3ILdtzB8H9Z25xbOWFLTOihaHaeHcVNy2dIIyPE)RIawEr5eBEo4NvNhItUKKgd)WplxEGYsS(BN)ailazVG5F78)h(cixwyjaK3PoqEzKGgVhItxc0x(5R1XkioC4AMFy(6HjlYPT3KrkNM07aCE(FKLsNJW2DzC(qoTkILsc9VRGnmpyXhH)0YXdaDNTFqNaRc4p)e8DbkGuusH2HwcSdwfWIwoeN17z2HGZDabLuR2ORcaSBAArsUxWkaEGDy2SPt6Tiooea7OH3hhS0724WCj5XSP3b0kB8)1E3vrZC10rAt1MnSLbO86RhRUDj0noJGWGnsuT7LcoQMUDUy52o)1BNpE4fN)zNEP6ADxy8T(H4cbOGlmqb1W0vmLzfasWcVb97EXRCW6Bc9I5LGDgcqakVIVqEeyskHW6N9hrzbhmw94I8M52V0b6zTFySbuCT)9Gqk8abx4jJGzkyfPsf1cJAxbf7emKfdNoQikGTh0hiqUBNpdiXWf)ZDS411E0Ia)XJCsrE02537d)l4jdxdSa4ray7t26wPRuhqclDfBroUOivznkpH4hAIjaYufQMucsPNDPlJDP7ApeV0GSI1azh9VCWHpM0cuYxfCpi70ldwsvydhxlYJ5ieD6OFodiv4MTUD(xZpkEyDaA23M47jciFKIcTa6HJb7AItjlY4tnowwKKS7bGey78OyGkplX)Hi0qmUENmgAkvMgzyQpEmFpEGIV(qCSZWHtBfxc2TOAX9(5xGrbgz9ECC7Y2Yb1GPKwBWucDw2ki9t(brpBicf)TmZMnI1TVZugo9JeVli0FvrgYQPj0hLm65NTGfv(Sb0B2hTW8U15ELYlNbASovZ8IBdJJxgwaMalEp6jXOGWE1EDuH3PJQqNjX0)Vfthn0QAb85Wx9DClBR2aVlRGUvbPmA7zZ8SF3aqqsvjeEly8plLSAZInA)(bINRaIic0dut(OnJ4(Kae9rVgZt9d9qfG2m0QIEvf(SX8FfWvVg8fD6RKrb4HhEy4dXGWt)L8qbG6KNoE0OlgDcnFhlNVxn7NW)gnCG)dxDI)SsrhDEM)8ZMC2NFIez9Qz)VI)fF2It7(uD6NpE8Op)eedFCjg(vZqtD2o)lL)aFEfHeamFFiODznj0BjWaTihdrG)k0H45pcMjcGaQVORWqNrudfX(yUXZK(EjrdCuGXEOv5OnrUzvsjjlriO0Iq0XNnIOtlf0EuZcQZy5GZdrGxP5p8WeVZsw4u2UbDo64Ed2JBXGZFWhdjd4Pa8F)bW8NBbxZqmA1rmSWSvuGDsItskT)vbHIbmkKmhgoZHtAYgwaQcUlcJaKFuU0gpCoaRHY4Nl5XuyxIEeFmxbyDd)5ByYvgnJg7x3xsDFW4pr7G4mvZn3uUBRMxe7FuJJOhnaJfrEWXbdpweBtaJBd(e5R0f)J1xEdQVYrvsgvcfKDR3gcEWmeS6eDgC7Cy7oYCgDycooiDxxlhJg6t191ZmJHe3VWQWoOGdREw1EOj)I0aHdb9kkoy78VrmJWaJG)CzXMem4Jc8v8k(eUD(xfsUckNLfWFXdvIQuJ9H273zQRDLUHhWSzC5kp7dBt)q))nytXezlmBcX)8fSkS34p2NJwFZ25Nt8t67Kmp2JkI7khLuYqagQD0t5uMFigyNYHESnKj8MxW1aP4VPM0fRo43PqfKd73pIIUBYJCGfg8Uh8m2lj1)rwQnRPEVCmGwDAq8yGGH7KhrKS1XfHlD5giQqjoFn(Al934FhkhiL4(jLs3YcX35Zo)pRs6Pfl1P4J5(FTKTYVimV0hSsxcbRZIW0(O5GUP)mXjWiz5QXbJhCe8Ffwa)FR8dZO)kvGf1IAInxqAFo73UqCZyqEAhIpJMYb7ge1U(ksCIYYauVPMrgwQVp7XfRdwaeArFu756Bo5mOT3otYa3q0OoQUfFQhejWQGXFYdDbVr)SSjaboJa(Hf5uaJ6e7JFmRPaENwe58vXnoNCTmFF1iy5wprHWa2u5b5flBJ6vlSE84itmCLiRsMHYFEVjyfcpgMpE4A)mVImMhUIccMFFFyq2q0cwWw84vEGGfpk4npQi5xzWvCifP(CJmqP8y0tgOsEjEfVX0AALcB3qCtAAt87Zd3be3KDgXnPcXzYZGiUuMtuNCMwM6XtGlcwvI6VEKTGb0X5CdZ(Co2M3yDDo9)vV7rxIQMTj2SAUJtxqgmBEjXzzb0t033MwN1XjfLwIIxjRVq7iZmNyUrfY5Wpf8gKjfEBgNB3H7Sm6oMcDRK6Bp(LJLXV02lorZGiY5yBzhWrkwgQg(9AXtSwYkChtX(Qw)9W6a0miePYNISAUhYxcTLhmv1BviU91JYGys1gQ2010ocuODz5IYpbgOsoOLBpspeQmZsyRBxIMoyOp1aG8f8iHQYiyHrzVSeBKg3QB(L9sd34BQN(E0RkyJ5Tmq6EWL0bg6)G(ghSTzfWdUUfo59sfYHcHBtg8bdHBty8NgiCBI0BvNTqeu91LCW7sYI8(TYE3RtIk4rBe3TLMclo1k5OlFGPMbfvLX5GE(exADADhxFTpUr0Wakj9NPEiEFR5vUj0GfnguEXv2J188YMQWw3PD5STb)soaNvB8Jk8dX3YZpjjmGTKltU0)ClcMfyGhb0x(6uM)sVhsb)lEi1pbuKJg4fVALh4XOM)mUgFTq3YRcgk8sQNi2FFLrlmbSwaCucxLmkogX2S(I1N(FnUKXH5AbQP14LoO1THWaNYPDGnLtchaVLLM6hL7rIKbRiXYo1fQ36GRW73PwUlZOa51t4dNL3CywU)IpkSHYMcooagXkW0LL9yeS9qgP1yo0sDdKoFH6PDrn4(AzEbqEPXjatuAWQQt7s2ad3OC80jYNwAsK9C90wytOaoQvMDwsdPn9WCe4QqFGyyzCMxsqyCUhji3n6ZXWB7uU5mz5kTre9zBBnXJDLHvzXDyAlaF3FhduddhilzPzaXhS38(i7XgeV48fAadyZAHslXtECdivaNThy36Mk0nYrYdPmtPmSIGLCquLsCHnKdguir2)A9mYcQxxCKRaS1RBYSWjRFfq01DTErF0jCX4rvunDCP63ibg5g3GpPqJnvWbtAHJQxZV(fJAusyLPp6ptDJ0Cr5irKhv)WeyrOG8XzEn4DSy5RKlljn4FZw6DxOpwbCXWlCR)sE1NUILgVii)XUN392OxA7SUFBhJ96GqFnYy2)QiijHTCOdLBvmg1pV6K8tbcVlOrlwJ)BfI9LhniPNqTdWEAtg3k2AfKQfRzLVQL78G9k)R1YaT53pxec(9kIhn4WaEyWxUsNwqe3bWVWMsFbG)p1HVFoIQcwgSD1M)AjNQE(B(cAuU8qc8FYwLLY1jyMxR(K3dVzRwEP3WcvGPxld)NwIi)smH)pqLoqmVuV3qLeap2Mae(1feyJL5uCe(Fb6u45RWSpIvzWdm)7zPdvrK2IrQdYcpgLwWrkXZWIz5oIa3EvD9eVQLARxxptlfFVBSCV2CpJw)Qxu6rI07pnx)eP3xaATLtsQ4f4U244UvzTG(rIQ81m1tt4OobytsTzHFDzogR23bCN0fhZOaRXuBZl3KR53ko8hGdo()GffxChDhIK1mWYcEYSjyJdpQf7MGUd2jXIs1oIHOyCYwgJVgwGm8XttXzjlgAH9DFod73WXyFY93ov5cVHg6XDIO74TnuTeVM7YTkKJX2VwC0T(SwOjhC4ilP)UQOqK2nYnlREjaAZdlljiPUw1tLLZJTWHYRcLEY8f4s6Ru)t9cMrjJanMNBr60D5KwfI0Dv2t10IO4Tul9lKDsI25vBFySSU7RDFEO32Av7t3Ug(MumSmQet5mnnxdPOACZRlG8o2rO3seRqT6btLUIpr71rVLSf5Y)iTqLymi1vTutm(cw8LRTQu121mSUQTs0FdxkxfmO2dQShYIS6FQuwTR7BcE1yOIkIizWfUs0mX0c)yA8g8nUNkc6FGwvBgUxQlVu0AZB2(oUpNAwYRFJxD4jP9IcsHQuZmTfG99rSqj5SM3vCtZDuDCsbCaiVkaCFr4RXfgKtkH2DvbigjLXlirVkbMAWyN3qwOVDuLIcTcvs)1kYXDBrniSevu6gQEsVTif)J39aiEGT8D2s5GKQO2DT85rBudlwjvsTMiQfVe36SvLSPvdeseFDFrROESFF)S8A23aMKH1UXQAhbL2ffI2yvD)a(MFf0pW43YsINEHpQlaNsSbim8M8gkmYkQ2A2yUjjmyHp2Lei7VOLogmrdmjN7uHithKIMcujxGW2VK04CgwqI(3H7A4FWbgEEkwGtid1m5Y5lRr7W65qRCAMCoa4eSe7yeEaotNZzxLkvYx20DM(efy54Mh6FwNN)1k)jULgnCY5VSR4mAvgXVsHUcnr50yZkhKOKFihlDcbn26rn72dPY0oxAjjzFFaEnC(fMKsdPHjBzULUzYOfhabaBHFH(QGEeWDI1FXcgpJI87TXsgNOJZIagFGwoDxHpMajgA7hSPd2uapJTczHvjfTiWNlVVx3X88tSMVRU7MSrLWTuViTVINKUETrf3iVHdEpnTCnKFjJYYveSS6itcwVWLWTsjmXrvV8n2k)inkYY6XAFuVuAMl3sZ9lSRIaewjtN5m02nxEV97GnQ8cdRMAUgm7T50mBQUx0kbiP2FqMjySz8Cp1DDwBesau1tLp80PLRWmOi)OPJQM4ZK8woeaTD(xT3IG(wu9)w8Uox5og1CFWQ4pvm0nkxGhE76zzmll6vW89GpxhyS0dU(bdX59bwqk6Z33(UVhv(DSQFz)3F97jNjCEZY)nikznelxeBFUDYdBDAIfneBkAxA6)ClIb(HR)E(nJ4h(2VVkgsFtvtf66c(T(P)xMUyDC0GHn5oF9Smyju7L5bugdpvRUPHQZAvnp6DHiZP5OgNjDzhn1zuoQbzqT3dmC5ZADTr6T1Jek0f8ReBvq9qMS3lFtWZtH(iuubVPlGIgiEUv8icW)vAUWqwWV0L5RrtwhpkRtbeAkrhik163iQ8JXU8lD30YAxD1PNR5iUBVj0jhmVJzUkdiBg1zxh7P62fArWURA9PDphTM0lBczTCEZflcwuf8Vz4vDcLRI3W51uthBrq6Icexw6IcVpW4lUCJ45yfjfkvejnqK(VWJCLeHJTOncJlCYbXm5uOV4oMYPJIJeuG(sb80ikcZdowehjIIXLpRD3GIMvKFuhmfORHpOQCYA3nLjdnLxROBSuBoEweuYqsXTpI5NY9Pcd4dM08hrP8HehTG7xE5O)681fY7HQ(LtDigaQIi64qENwXtykdtFJataNKaQauvxeeITFfmhDU8rvVjXS)NhnxUS1ThUPW3JmmTu55JRBwLTEAJE0ER4oi1GInHa5j6Hsek3u3Rm5iiPEcme2g8HG7o3rL77eN(Z9YzCrxBJDTKBUJCNq)Ek(1BPv4DGnT5z1V8M8m62GMoWyqeR5(Yr2IupxfGjXURyQprYk8mwR(2kf4zLxmBZmXmvjHxQQc1YRGMqoRmZINRfyql5bQIfVtzL4OwtZXomPMPRpjbdFr)Z5g5UIb2RnOg9xFw2aftP4hCsr3Hu6EWtnCg4kcfT1kIWZLFZQH(RfIUMdQCNIlDdEn3RBwWOsTz)wBzkP1hrpUBpcKxRpNSRXNT3l2VCzWKyB5OItvLONKYS2nhOtjx(lBX8vD5U7EOPBoMZwlZixUM2yctlD6Gk0iWHokTJIMg8Oj3C9d(PrWodo7(aswhSH3JAjDDVsw1)VcfCbc2jN9YIrvh(f5XB4rMgZQd6F02)YFnan5a7sUFDCeSy0JFvRvQ)WfXfr5VIlHV9HddS)4FDW(TEyum6(YbJ(5SAL59QRlO4fQwZT)flhlLxu7D7C5udixE)z53GzIqg7XGabZIsG14AoxBqAOMdWciVoW7XuZlX0hBcYRgYHDYFgqnYscUrJou1eKRpSd)I8m2bRruttWUCahYj(zaVOS7MaxXZpGt7UdSoU87wMF3JSJlvTRoVLfX2yErN(Yj(mht8KUisXXG0G8dWc464TdtTlXkwhYHDYFgqDtItCoSd)I8m2b2fTyzahYj(zaVwfUu)5hWPD3b2UkZQPr2XLQDHk2hZl60puyR2Q4WW4hiFm8HNHrMGsBfVgVlRmyzi5qJ1rx7YLJJ8EzfyXO2OXVggypPk3)w)m27aldPklaoaDyKi6h(R2j7dPV9fkyKyQrAbazghqEvtoT0JZ0w5iuV6Hq9QYoLF)JAQwqE6PMcW6SPQbXAqV(UZt5FwSEh3WqKJzWRf)JRMIL5XbBANnfRNJskO)OHcpPd71DhdUlZQabwrMoUfYuZ8hnB8fn85B4pRa0Lht72uCI2uqET99eVicExQZQJSBy1MgdEMd(N)N(tBN31p(pWd2eKNDciqa8ANhO5t(sAULvB6FfxHt41YQiWxd5FkAWf6Nt4Bp67AJiEPyYZb85xcVtipcwySbiHlF(TF(LNU6wC7W3bzdl988ntpXwtbZ(iRAXxVny10JiYCTUbM9xtgPP3IHYyQq2R8YA)w6UTmTFLLM1Tx7PNS8uHvrwFMInhwFoPD36tqbXQpWHkoGvRAm1uHmB6Krd2fCXe74cB2UwbC1Tq06ZSIlmT0X6t0Xfov3RGlSOoTZ4cTIo9TIMcZ0rVnozk16P6YCOv0PLZX4DBo4ryV6TNStVUEl5yp3h1djR1jcLfyBYK3wsbej)WE5TXpY37wXN1lRGHEh5QRRGLUjH9PhVCnOOdSCe6PN3IRMEwV(AvNWma1p6PNmh2ehutQ5taxd3zu8QPx66qqnhi4KuQCUEEiE6PJAmtgdQ0SBRHB90tUbWzxctoIJgOiZg3I8(nQ6pPt3OLFgKqbitecvOEmQ73uTrxQ)I9BUwkknK51N2ZMrrp9KRcWdSlYAT2naK5OmrcAr5yvBiOgQYnUePif1r2tDvVJmnrtfZygiEbrEm7T825jiqbin0PlNnrDgm6tNsblGvnk6GHj0PWhXjGImi(HrtnQRzFX4jnp7gYM0oMhvTy7)KqiM6Pcf4KVSxlvmW)bX4cXGYG)WF79)T3HvSdoqUXF03arW5swg3TWBzR9VpiU8EGwer1mh(isSAwZqViNZg8(cI86G4BU819Bu8xpNcohaEcyMpBqEx5pPJhBgQBqGxFZ14yNBMbxDgE(4qwHZnIHgSzTqFuVLCTdiBhcY2ruPgX0xUCPsrXO8vWKI7GOkBfvAisZMXP74F4EKuzc)pR25G(dYNc8VinO1CgM(HAFRlE6j63RPJyqnRcofTkGgSAVOb0AqwvOn4RME6itqR8t7dziIvyPxnG2j0zFvV0CrR(A98cUQQs5elB5xGNxYL9CZLv)RQZl8sJ(d)F(87qIo(D7ZVdjw5F8DSpcUz(p3o)hJVnEjS23fhHFiHLDCGH6(tWPvwGelHKdNslrvPsqINsR8Qta56rLEFoQx97oVvjqL0ut4qzDini6(4pcs7)vaHg53mi3zcBWnGAW3aH5P1)Eazb)5gQkLo2adOfMkYPlBmBNnIy22)V0s1vsS3OndLcGexaOn9E8SrdqNWCPVzxjmgF(acbSxFZzEX(gjzIuLUylDxI2m0fFOxFZpfivSpAFtvMbooPueA89hywrTFR3rgtaIwn9lQxv8TR99tPAsnCbujMZkfZTO8ZMoQ69C5RPvFvl)c)(6ZeewMfHxpBfF3Z4y)q8PgY8ewBRrCnD)C9f5uS9tl08XzJpFhr66BBDkKpr23kMSBMJgqa0tpjZ)WSP9hF(Bo)1Qqb1NAGFtYbyEtyo2C796lgudRypwfI4XMvzD0VvFoDQDQz8P(bp3Q(m7C10p7Cvp)nVKvWey5oL9wTYQu1TCxVV2DjR(RJ6vbe13H4DCpr2)yMzxYRiSS15T3Jp8a9RiZ73IOvnvZLRU9JhebqbBlpEvvMuYXzKATFW8v6OK2Vc2th5bhU3DhiuhMsy2F0dNnsLOGqkDTFsgy)vzy0u(wcx(BOAIbISjH0h)0VCTuh(x)33wwT9CQeXkIEo(TLLonvbV88CJea8oScCWIMHGuROyX79dcPGyWtxLWoWTZ5jthq05vxyMGYlTe)(ziGjui4qhyxLmxLToGfU8WHmfOPfPpcOTWqe)bMmJjGHmK5przUKF5mzv3FsoKPOtUfcbt61kBGSDvklnhYY9JeCrIGQ)H4ALawH)om9QVa3adl7oJaNBWGPyos9RNc)GPXl8YvQj5UxP8yLlPIfqQwBdYourrKtrGuzSfO3beeaA9jDunEz337L3LQLE1(QTrCaFpAhyiwY6iXkXKKcMuGnxOOIn3sT)Q7X)74HNlQff1lf6elaAjTKna00C8gYDEvEagp8IZ)StV8Tw(sOJZQY3n9PYpB6nmVL2S17ofkIPJER5NrDv9aL7oZtmfSU51cMtis)BucrDUov8GnRppS8FuZ64ttwqUBGKllfIGrpzugxXG4A1rMVgVHRnngVhJ1HyPNkAHUhdIkxPeVWRKMOWfjffxz)XhbANB9b6hHcdUUPSQbeXkWyq9wec4QB43Xhunuqx0PegSIDW0OS36eEwwwu2HEXGfh)XmVnaRflcbQ08sZxrfCSSJ7pE0XC9l8bLIDD4OfSHu8PXW2pEupRdOi5TKkYflNEUBHHLPM1vw5SXvvM3pT7GJlbzKgt32h2bPElWaOPlNQnPxDuuuLvyvMLBC)vfbCCt89bYlXQpEJwF446TmuEJNJZVXjSPcomlXhdYhgeqS)rkU8A24)mpvQ3qDNnzKi0Ex)yAWQ)jvnr)ySw3eTq0zR4DRcuib5jmmlyXlPyHPR2Nx33X4EQmFdwzk6Ow36k9RFIS3G5EylGZvNFz5oylo2hkT79Jy5)oqKm)C1FbvUP19ZHlLhP8ilqOwhWTmUyAYeyuwmEx4PqDqnQa5n5Brv3sUiXq(RQGlHUbf469eVdGEqMNpfGpDM5s0xm(U)y89(s2Z)UWxm(QGLb6JOxpI8Y(jWgbea)OxeaXLM7jDFK3YvMozupd)kvDyhno4nDkvYcvn1tU5SPAD3CEiy2J0kJBaXIiRvOtjgRdvx8ULDTLA2IJacwvweavT1B0a2stY4g9IVJzT2AwslFrF7QoFDDH3dguzsE)jVrngByJm(1tS7Wy8E2oSTGDAZGuhMDQyFTfBvn3h9QJdR8rUQJnFLIpgvHauZLglLNevO2Nr4PpL7C31W9k2cvrL1ekRVvCw)Xodo5BgFSZZOJndY5RhpONsCNQcgl(xooUgS)Nx9K(UDfk96O655Pg(YUX0yPWfikwr90nDkgt76vZZ4Z713HTT1JS8atT(Fk1qRTsrXbikgvn1HR7vIbekc2Br6M1(HB8UsXwQtw4U8dLZPqgPr6dVsMTVx4UaDneDRglI4F3n56YsQu9hPnstDD46cVlfnyB57397KIi2jmBTj5s9tLeiA68QAY06ogw1GPHt9aZl4X0XxOCMRKoQgUdoDciviX0sufwQU2YQv3Mu6OzF7gX1o2QfURD9WtbLuXfRwy(kzS1uLqfFVwz4pO(1HYQl9gdZeGCfYnftBfibSVr(wWt0P2Oc0iaq0rRd6k3hJ9S8izGHSFUl3mnKV0RglsVWlFpJ2UDdC2EdRtldhtTdZD)UTDWUtB7093R7xQTDAA53QTkD5)XTTn7qjaSkiXqnbTD)Y4PlJZAtjEVKKP4sP5WVA6y7zSPMyL(pZkj50bvz5xIBGv)cotS)ZO1)A)8qODS7s2fwLPFPkkzNDSnX6UvMNevbzoVqf9BXml8Y84QAFmQMhs(ZaDoQ)i2hIBGFYYHxtzwtYd19Kl1uNd(W6PUZ46C10ZDW4V7TH4o6W2ULoDYrZzt0IOane3zzx(khv7DQyxmtR4rozX4wV8DyBKI6aar3rHeih78RYlcD(AuCXQam7avP5QGNDmmwEzyRHfnBu4tGEcPOO9LMKSz6v4)DMkXopucyifX4Dn0QTuDllthKeKTF1Vcg2LFlAMYTRGYEKcMkRe53C2wLIX6p8n932XhweJuxp5PN3ZL7eUkwqBMoJupTPW(0xx6AJvv(dSwgIw9IJyD10o9PzNaENTGW51L0QTaDZlBS8oA2E)jdp3zgrF57OVUIadpVO7asQ57XxLHM11J24DbE8Vdf21Z1WG2kEllX1NRdX5vewRCVA3OJx2wb7EGO67U))QEH9ermDqpvkhBr8CsVDDgRDFiNv7Y1pDSQ72ArRTKz1DVcwjKrgH(29LOhdQwJbhUXxUsQXFq6oTnfWfBenUISOJar60stRbpBGIZC1tE5EPGVJr6ZEO86KPNYAIQA4YAD)nkDLc8FeVALhOXhamUnRw7wR2tcBRDUwEJGf1SDKDZrS5sBV(9BRh1kN3XoTrPdnD2YjzWoJKS0ipqmKsLxotubywgPiZDy(s3XL1XNp(k33uUftUISo(ZLKZg9yilpr0XDgy7kO2MLKNnY51uDN36G)LWz2Y4mVKGW4CpsOxDCURlgN97QgwOE72nPDYODgYVdmR9oyOlzPzavaSn8(i7XSAWEZtmnvzjpY7GrzEpWU18y32UtuSUvVhiWf8Eq4G(0tVqF)nBYzJSEuBhh5kqv9SZu(0t97g8QEF1BzhmE0GwpIHnK1RV5Gx0TQnNCN4KCZ2nmD6fJCWcBpMJ2Vx)YBjRoXZq1kT1jbxsk4M9sV7cXcyfeBM5DR)sEDFVIbMpJ3sOa3xh1DNRdWB7s4xLZirfuwdVoetAplu7fFE2HExFyH9BUg02SaBH(xs9b)B()(]] )

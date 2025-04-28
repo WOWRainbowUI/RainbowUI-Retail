@@ -1,5 +1,5 @@
 -- DruidRestoration.lua
--- July 2024
+-- January 2025
 
 if UnitClassBase( "player" ) ~= "DRUID" then return end
 
@@ -19,77 +19,99 @@ spec:RegisterResource( Enum.PowerType.Rage )
 -- Talents
 spec:RegisterTalents( {
     -- Druid
+    aessinas_renewal            = {  82232, 474678, 1 }, -- When a hit deals more than 12% of your maximum health, instantly heal for 10% of your health. This effect cannot occur more than once every 30 seconds.
+    aggravate_wounds            = {  94616, 441829, 1 }, -- Every attack with an Energy cost that you cast extends the duration of your Dreadful Wounds by 0.6 sec, up to 8 additional sec.
     astral_influence            = {  82210, 197524, 1 }, -- Increases the range of all of your spells by 5 yards.
-    cyclone                     = {  82213,  33786, 1 }, -- Tosses the enemy target into the air, disorienting them but making them invulnerable for up to 6 sec. Only one target can be affected by your Cyclone at a time.
-    feline_swiftness            = {  82239, 131768, 1 }, -- Increases your movement speed by 15%.
-    fluid_form                  = {  92229, 449193, 1 }, -- Shred and Rake can be used in any form and shift you into Cat Form. Mangle can be used in any form and shifts you into Bear Form. Wrath and Starfire shift you into Moonkin Form, if known.
-    forestwalk                  = { 100173, 400129, 1 }, -- Casting Regrowth increases your movement speed and healing received by 8% for 6 sec.
-    frenzied_regeneration       = {  82220,  22842, 1 }, -- Heals you for 32% health over 3 sec.
+    bestial_strength            = {  94611, 441841, 1 }, -- Maul and Raze damage increased by 20%.
+    circle_of_the_heavens       = { 104078, 474541, 1 }, -- Magical damage dealt by your spells increased by 25%.
+    circle_of_the_wild          = { 104078, 474530, 1 }, -- Physical damage dealt by your abilities increased by 25%.
+    claw_rampage                = {  94613, 441835, 1 }, -- During Berserk, Shred, Swipe, and Thrash have a 25% chance to make your next Ferocious Bite become Ravage.
+    cyclone                     = {  82229,  33786, 1 }, -- Tosses the enemy target into the air, disorienting them but making them invulnerable for up to 5 sec. Only one target can be affected by your Cyclone at a time.
+    dreadful_wound              = {  94620, 441809, 1 }, -- Ravage also inflicts a Bleed that causes 7,597 damage over 6 sec and saps its victims' strength, reducing damage they deal to you by 10%. Dreadful Wound is not affected by Circle of Life and Death.
+    empowered_shapeshifting     = {  94612, 441689, 1 }, -- Frenzied Regeneration can be cast in Cat Form for 40 Energy. Bear Form reduces magic damage you take by 4%. Shred and Swipe damage increased by 6%. Mangle damage increased by 15%.
+    feline_swiftness            = {  82236, 131768, 1 }, -- Increases your movement speed by 15%.
+    fluid_form                  = {  82246, 449193, 1 }, -- Shred, Rake, and Skull Bash can be used in any form and shift you into Cat Form, if necessary. Mangle can be used in any form and shifts you into Bear Form. Wrath and Starfire shift you into Moonkin Form, if known.
+    forestwalk                  = {  82243, 400129, 1 }, -- Casting Regrowth increases your movement speed and healing received by 8% for 6 sec.
+    fount_of_strength           = {  94618, 441675, 1 }, -- Your maximum Energy and Rage are increased by 20. Frenzied Regeneration also increases your maximum health by 10%.
+    frenzied_regeneration       = {  82220,  22842, 1 }, -- Heals you for 32% health over 3 sec, and increases healing received by 20%.
+    gale_winds                  = { 104079, 400142, 1 }, -- Increases Typhoon's radius by 20% and its range by 5 yds.
+    grievous_wounds             = {  82239, 474526, 1 }, -- Rake, Rip, and Thrash damage increased by 10%.
     heart_of_the_wild           = {  82231, 319454, 1 }, -- Abilities not associated with your specialization are substantially empowered for 45 sec. Balance: Cast time of Balance spells reduced by 30% and damage increased by 20%. Feral: Gain 1 Combo Point every 2 sec while in Cat Form and Physical damage increased by 20%. Guardian: Bear Form gives an additional 20% Stamina, multiple uses of Ironfur may overlap, and Frenzied Regeneration has 2 charges.
     hibernate                   = {  82211,   2637, 1 }, -- Forces the enemy target to sleep for up to 40 sec. Any damage will awaken the target. Only one target can be forced to hibernate at a time. Only works on Beasts and Dragonkin.
-    improved_barkskin           = {  82219, 327993, 1 }, -- Barkskin's duration is increased by 4 sec.
-    improved_natures_cure       = {  82203, 392378, 1 }, -- Nature's Cure additionally removes all Curse and Poison effects.
-    improved_rejuvenation       = {  82240, 231040, 1 }, -- Rejuvenation's duration is increased by 3 sec.
+    improved_barkskin           = { 104085, 327993, 1 }, -- Barkskin's duration is increased by 4 sec.
+    improved_natures_cure       = { 104084, 392378, 1 }, -- Nature's Cure additionally removes all Curse and Poison effects.
     improved_stampeding_roar    = {  82230, 288826, 1 }, -- Cooldown reduced by 60 sec.
-    improved_sunfire            = {  93714, 231050, 1 }, -- Sunfire now applies its damage over time effect to all enemies within 8 yards.
-    incapacitating_roar         = {  82237,     99, 1 }, -- Shift into Bear Form and invoke the spirit of Ursol to let loose a deafening roar, incapacitating all enemies within 10 yards for 3 sec. Damage will cancel the effect.
-    innervate                   = {  82243,  29166, 1 }, -- Infuse a friendly healer with energy, allowing them to cast spells without spending mana for 8 sec.
-    instincts_of_the_claw       = { 100176, 449184, 2 }, -- Shred, Swipe, Rake, Mangle, and Thrash damage increased by 5%.
-    ironfur                     = {  82227, 192081, 1 }, -- Increases armor by 2,901 for 7 sec.
+    incapacitating_roar         = {  82237,     99, 1 }, -- Shift into Bear Form and invoke the spirit of Ursol to let loose a deafening roar, incapacitating all enemies within 10 yards for 3 sec. Damage may cancel the effect.
+    incessant_tempest           = { 104079, 400140, 1 }, -- Reduces the cooldown of Typhoon by 5 sec.
+    innervate                   = { 100175,  29166, 1 }, -- Infuse a friendly healer with energy, allowing them to cast spells without spending mana for 8 sec.
+    instincts_of_the_claw       = { 104081, 449184, 1 }, -- Ferocious Bite and Maul damage increased by 8%.
+    ironfur                     = {  82227, 192081, 1 }, -- Increases armor by 13,632 for 7 sec.
     killer_instinct             = {  82225, 108299, 2 }, -- Physical damage and Armor increased by 6%.
-    lore_of_the_grove           = { 100175, 449185, 2 }, -- Moonfire and Sunfire damage increased by 10%. Rejuvenation and Wild Growth healing increased by 5%.
+    killing_strikes             = {  94619, 441824, 1 }, -- Ravage increases your Agility by 8% and the armor granted by Ironfur by 20% for 8 sec. Your first Mangle after entering combat makes your next Maul become Ravage.
+    lingering_healing           = {  82240, 231040, 1 }, -- Rejuvenation's duration is increased by 3 sec. Regrowth's duration is increased by 3 sec when cast on yourself.
+    lore_of_the_grove           = { 104080, 449185, 1 }, -- Moonfire and Sunfire damage increased by 10%.
+    lycaras_meditation          = {  92229, 474728, 1 }, -- You retain Lycara's Teachings' bonus from your most recent shapeshift form for 5 sec after shifting out of it.
     lycaras_teachings           = {  82233, 378988, 2 }, -- You gain 3% of a stat while in each form: No Form: Haste Cat Form: Critical Strike Bear Form: Versatility Moonkin Form: Mastery
-    maim                        = {  82221,  22570, 1 }, -- Finishing move that causes Physical damage and stuns the target. Damage and duration increased per combo point: 1 point : 2,150 damage, 1 sec 2 points: 4,300 damage, 2 sec 3 points: 6,450 damage, 3 sec 4 points: 8,600 damage, 4 sec 5 points: 10,750 damage, 5 sec
-    mass_entanglement           = {  82242, 102359, 1 }, -- Roots the target and all enemies within 12 yards in place for 10 sec. Damage may interrupt the effect. Usable in all shapeshift forms.
-    matted_fur                  = {  82236, 385786, 1 }, -- When you use Barkskin or Survival Instincts, absorb 40,771 damage for 8 sec.
+    maim                        = {  82221,  22570, 1 }, -- Finishing move that causes Physical damage and stuns the target. Damage and duration increased per combo point: 1 point : 5,118 damage, 1 sec 2 points: 10,236 damage, 2 sec 3 points: 15,354 damage, 3 sec 4 points: 20,472 damage, 4 sec 5 points: 25,590 damage, 5 sec
+    mass_entanglement           = {  82207, 102359, 1 }, -- Roots the target and all enemies within 12 yards in place for 10 sec. Damage may interrupt the effect. Usable in all shapeshift forms.
+    matted_fur                  = { 100177, 385786, 1 }, -- When you use Barkskin or Survival Instincts, absorb 60,657 damage for 8 sec.
     mighty_bash                 = {  82237,   5211, 1 }, -- Invokes the spirit of Ursoc to stun the target for 4 sec. Usable in all shapeshift forms.
+    moonkin_form                = {  82208,  24858, 1 }, -- Shapeshift into Moonkin Form, increasing the damage of your spells by 10% and your armor by 125%, and granting protection from Polymorph effects. The act of shapeshifting frees you from movement impairing effects.
     natural_recovery            = {  82206, 377796, 1 }, -- Healing you receive is increased by 4%.
     natures_vigil               = {  82244, 124974, 1 }, -- For 15 sec, all single-target healing also damages a nearby enemy target for 20% of the healing done.
     nurturing_instinct          = {  82214,  33873, 2 }, -- Magical damage and healing increased by 6%.
-    oakskin                     = { 100174, 449191, 1 }, -- Survival Instincts and Barkskin reduce damage taken by an additional 10%.
-    primal_fury                 = {  82238, 159286, 1 }, -- While in Cat Form, when you critically strike with an attack that generates a combo point, you gain an additional combo point. Damage over time cannot trigger this effect. Mangle critical strike damage increased by 20%.
-    rake                        = {  82199,   1822, 1 }, -- Rake the target for 7,803 Bleed damage and an additional 63,810 Bleed damage over 15 sec. While stealthed, Rake will also stun the target for 4 sec and deal 60% increased damage. Awards 1 combo point.
-    rejuvenation                = {  82217,    774, 1 }, -- Heals the target for 69,986 over 15 sec.
+    oakskin                     = { 100176, 449191, 1 }, -- Survival Instincts and Barkskin reduce damage taken by an additional 10%.
+    packs_endurance             = {  94615, 441844, 1 }, -- Stampeding Roar's duration is increased by 25%.
+    perfectlyhoned_instincts    = { 104082, 1213597, 1 }, -- Well-Honed Instincts can trigger up to once every 60 sec.
+    primal_fury                 = {  82224, 159286, 1 }, -- While in Cat Form, when you critically strike with an attack that generates a combo point, you gain an additional combo point. Damage over time cannot trigger this effect. Mangle critical strike damage increased by 20%.
+    rake                        = {  82199,   1822, 1 }, -- Rake the target for 8,415 Bleed damage and an additional 58,726 Bleed damage over 15 sec. While stealthed, Rake will also stun the target for 4 sec and deal 60% increased damage. Awards 1 combo point.
+    ravage                      = {  94609, 441583, 1 }, -- Your auto-attacks have a chance to make your next Ferocious Bite become Ravage. Ravage
+    rejuvenation                = {  82217,    774, 1 }, -- Heals the target for 87,702 over 15 sec. Tree of Life: Healing increased by 40% and Mana cost reduced by 30%.
     renewal                     = {  82232, 108238, 1 }, -- Instantly heals you for 30% of maximum health. Usable in all shapeshift forms.
-    rip                         = {  82222,   1079, 1 }, -- Finishing move that causes Bleed damage over time. Lasts longer per combo point. 1 point : 56,284 over 8 sec 2 points: 84,426 over 12 sec 3 points: 112,568 over 16 sec 4 points: 140,710 over 20 sec 5 points: 168,853 over 24 sec
-    rising_light_falling_night  = {  82207, 417712, 1 }, -- Increases your damage and healing by 3% during the day. Increases your Versatility by 2% during the night.
-    skull_bash                  = {  82224, 106839, 1 }, -- You charge and bash the target's skull, interrupting spellcasting and preventing any spell in that school from being cast for 3 sec.
+    rip                         = {  82222,   1079, 1 }, -- Finishing move that causes Bleed damage over time. Lasts longer per combo point. 1 point : 90,849 over 8 sec 2 points: 136,273 over 12 sec 3 points: 181,698 over 16 sec 4 points: 227,122 over 20 sec 5 points: 272,547 over 24 sec
+    ruthless_aggression         = {  94619, 441814, 1 }, -- Ravage increases your auto-attack speed by 35% for 6 sec.
+    skull_bash                  = {  82242, 106839, 1 }, -- You charge and bash the target's skull, interrupting spellcasting and preventing any spell in that school from being cast for 3 sec.
     soothe                      = {  82229,   2908, 1 }, -- Soothes the target, dispelling all enrage effects.
     stampeding_roar             = {  82234, 106898, 1 }, -- Shift into Bear Form and let loose a wild roar, increasing the movement speed of all friendly players within 15 yards by 60% for 8 sec.
-    starfire                    = {  91040, 197628, 1 }, -- Call down a burst of energy, causing 46,831 Arcane damage to the target, and 15,981 Arcane damage to all other enemies within 5 yards. Deals reduced damage beyond 8 targets.
+    starfire                    = {  91044, 197628, 1 }, -- Call down a burst of energy, causing 54,194 Arcane damage to the target, and 18,493 Arcane damage to all other enemies within 5 yards. Deals reduced damage beyond 8 targets.
     starlight_conduit           = { 100223, 451211, 1 }, -- Wrath, Starsurge, and Starfire damage increased by 5%. Starsurge's cooldown is reduced by 4 sec and its mana cost is reduced by 50%.
-    starsurge                   = {  82200, 197626, 1 }, -- Launch a surge of stellar energies at the target, dealing 59,051 Astral damage.
-    sunfire                     = {  82208,  93402, 1 }, -- A quick beam of solar light burns the enemy for 3,222 Nature damage and then an additional 35,083 Nature damage over 18 sec to the primary target and all enemies within 8 yards.
+    starsurge                   = {  82200, 197626, 1 }, -- Launch a surge of stellar energies at the target, dealing 68,334 Astral damage.
+    strike_for_the_heart        = {  94614, 441845, 1 }, -- Shred, Swipe, and Mangle's critical strike chance and critical strike damage are increased by 15%.
+    sunfire                     = {  93714,  93402, 1 }, -- A quick beam of solar light burns the enemy for 3,390 Nature damage and then an additional 31,320 Nature damage over 18 sec.
+    symbiotic_relationship      = { 100173, 474750, 1 }, -- Form a bond with an ally. Your self-healing also heals your bonded ally for 10% of the amount healed. Your healing to your bonded ally also heals you for 8% of the amount healed.
+    tear_down_the_mighty        = {  94614, 441846, 1 }, -- The cooldown of Pulverize is reduced by 10 sec.
     thick_hide                  = {  82228,  16931, 1 }, -- Reduces all damage taken by 4%.
     thrash                      = {  82223, 106832, 1 }, -- Thrash all nearby enemies, dealing immediate physical damage and periodic bleed damage. Damage varies by shapeshift form.
     tiger_dash                  = {  82198, 252216, 1 }, -- Shift into Cat Form and increase your movement speed by 200%, reducing gradually over 5 sec.
     typhoon                     = {  82209, 132469, 1 }, -- Blasts targets within 20 yards in front of you with a violent Typhoon, knocking them back and reducing their movement speed by 50% for 6 sec. Usable in all shapeshift forms.
-    ursine_vigor                = {  82235, 377842, 1 }, -- For 4 sec after shifting into Bear Form, your health and armor are increased by 15%.
-    ursocs_spirit               = { 100177, 449182, 1 }, -- Stamina in Bear Form is increased by 10%.
-    ursols_vortex               = {  82242, 102793, 1 }, -- Conjures a vortex of wind for 10 sec at the destination, reducing the movement speed of all enemies within 8 yards by 50%. The first time an enemy attempts to leave the vortex, winds will pull that enemy back to its center. Usable in all shapeshift forms.
+    ursine_vigor                = { 100174, 377842, 1 }, -- For 4 sec after shifting into Bear Form, your health and armor are increased by 15%.
+    ursocs_spirit               = {  82219, 449182, 1 }, -- Stamina increased by 4%. Stamina in Bear Form is increased by an additional 5%.
+    ursols_vortex               = {  82207, 102793, 1 }, -- Conjures a vortex of wind for 10 sec at the destination, reducing the movement speed of all enemies within 8 yards by 50%. The first time an enemy attempts to leave the vortex, winds will pull that enemy back to its center. Usable in all shapeshift forms.
     verdant_heart               = {  82218, 301768, 1 }, -- Frenzied Regeneration and Barkskin increase all healing received by 20%.
-    wellhoned_instincts         = {  82246, 377847, 1 }, -- When you fall below 40% health, you cast Frenzied Regeneration, up to once every 120 sec.
+    wellhoned_instincts         = {  82235, 377847, 1 }, -- When you fall below 40% health, you cast Frenzied Regeneration, up to once every 90 sec.
     wild_charge                 = {  82198, 102401, 1 }, -- Fly to a nearby ally's position.
-    wild_growth                 = {  82241,  48438, 1 }, -- Heals up to 5 injured allies within 30 yards of the target for 32,019 over 7 sec. Healing starts high and declines over the duration.
+    wild_growth                 = {  82205,  48438, 1 }, -- Heals up to 5 injured allies within 30 yards of the target for 39,247 over 7 sec. Healing starts high and declines over the duration. Tree of Life: Affects 2 additional targets.
+    wildpower_surge             = {  94612, 441691, 1 }, -- Mangle grants Feline Potential. When you have 6 stacks, the next time you transform into Cat Form, gain 5 combo points and your next Ferocious Bite or Rip deals 225% increased damage for its full duration.
+    wildshape_mastery           = {  94610, 441678, 1 }, -- Ironfur and Frenzied Regeneration persist in Cat Form. When transforming from Bear to Cat Form, you retain 80% of your Bear Form armor and health for 6 sec. For 6 sec after entering Bear Form, you heal for 10% of damage taken over 8 sec.
 
     -- Restoration
     abundance                   = {  82052, 207383, 1 }, -- For each Rejuvenation you have active, Regrowth's cost is reduced by 8% and critical effect chance is increased by 8%, up to a maximum of 96%.
     budding_leaves              = {  82072, 392167, 2 }, -- Lifebloom's healing is increased by 5.0% each time it heals, up to 75%. Also increases Lifebloom's final bloom amount by 10%.
-    call_of_the_elder_druid     = {  82067, 426784, 1 }, -- When you shift into a combat shapeshift form or cast Starsurge, you gain Heart of the Wild for 10 sec, once every 1 min.  Heart of the Wild Abilities not associated with your specialization are substantially empowered for 45 sec. Balance: Cast time of Balance spells reduced by 30% and damage increased by 20%. Feral: Gain 1 Combo Point every 2 sec while in Cat Form and Physical damage increased by 20%. Guardian: Bear Form gives an additional 20% Stamina, multiple uses of Ironfur may overlap, and Frenzied Regeneration has 2 charges.
-    cenarion_ward               = {  82052, 102351, 1 }, -- Protects a friendly target for 30 sec. Any damage taken will consume the ward and heal the target for 141,033 over 8 sec.
+    call_of_the_elder_druid     = {  82067, 426784, 1 }, -- When you cast Starsurge, Rake, Shred, or Frenzied Regeneration you gain Heart of the Wild for 15 sec, once every 1 min.  Heart of the Wild Abilities not associated with your specialization are substantially empowered for 45 sec. Balance: Cast time of Balance spells reduced by 30% and damage increased by 20%. Feral: Gain 1 Combo Point every 2 sec while in Cat Form and Physical damage increased by 20%. Guardian: Bear Form gives an additional 20% Stamina, multiple uses of Ironfur may overlap, and Frenzied Regeneration has 2 charges.
+    cenarion_ward               = {  82052, 102351, 1 }, -- Protects a friendly target for 32 sec. Any damage taken will consume the ward and heal the target for 214,208 over 10 sec.
     cenarius_guidance           = {  82063, 393371, 1 }, --  Incarnation: Tree of Life During Incarnation: Tree of Life, you summon a Grove Guardian every 10 sec. The cooldown of Incarnation: Tree of Life is reduced by 5.0 sec when Grove Guardians fade.  Convoke the Spirits Convoke the Spirits' cooldown is reduced by 50% and its duration and number of spells cast is reduced by 25%. Convoke the Spirits has an increased chance to use an exceptional spell or ability.
-    convoke_the_spirits         = {  82064, 391528, 1 }, -- Call upon the spirits for an eruption of energy, channeling a rapid flurry of 16 Druid spells and abilities over 4 sec. You will cast Wild Growth, Swiftmend, Moonfire, Wrath, Regrowth, Rejuvenation, Rake, and Thrash on appropriate nearby targets, favoring your current shapeshift form.
-    cultivation                 = {  82056, 200390, 1 }, -- When Rejuvenation heals a target below 60% health, it applies Cultivation to the target, healing them for 4,215 over 6 sec.
-    dream_of_cenarius           = {  82066, 158504, 1 }, -- Wrath and Shred transfer 50% of their damage and Starfire and Swipe transfer 33% of their damage into healing onto a nearby ally. This effect is increased by 200% while Heart of the Wild is active.
+    convoke_the_spirits         = {  82064, 391528, 1 }, -- Call upon the spirits for an eruption of energy, channeling a rapid flurry of 12 Druid spells and abilities over 3 sec. You will cast Wild Growth, Swiftmend, Moonfire, Wrath, Regrowth, Rejuvenation, Rake, and Thrash on appropriate nearby targets, favoring your current shapeshift form.
+    cultivation                 = {  82056, 200390, 1 }, -- When Rejuvenation heals a target below 60% health, it applies Cultivation to the target, healing them for 5,167 over 6 sec.
+    dream_of_cenarius           = {  82066, 158504, 1 }, -- Wrath and Shred transfer 100% of their damage and Starfire and Swipe transfer 50% of their damage into healing onto a nearby ally. This effect is increased by 200% while Heart of the Wild is active.
     dreamstate                  = {  82053, 392162, 1 }, -- While channeling Tranquility, your other Druid spell cooldowns are reduced by up to 20 seconds.
-    efflorescence               = {  82057, 145205, 1 }, -- Grows a healing blossom at the target location, restoring 3,765 health to three injured allies within 10 yards every 1.4 sec for 30 sec. Limit 1.
-    embrace_of_the_dream        = {  82070, 392124, 1 }, -- Wild Growth momentarily shifts your mind into the Emerald Dream, instantly healing all allies affected by your Rejuvenation or Regrowth for 11,454.
+    efflorescence               = {  82057, 145205, 1 }, -- Grows a healing blossom at the target location, restoring 5,439 health to three injured allies within 10 yards every 1.7 sec for 30 sec. Limit 1.
+    embrace_of_the_dream        = {  82070, 392124, 1 }, -- Wild Growth momentarily shifts your mind into the Emerald Dream, instantly healing all allies affected by your Rejuvenation or Regrowth for 16,545.
     flash_of_clarity            = {  82083, 392220, 1 }, -- Clearcast Regrowths heal for an additional 30%.
-    flourish                    = {  82073, 197721, 1 }, -- Extends the duration of all of your heal over time effects on friendly targets within 60 yards by 6 sec, and increases the rate of your heal over time effects by 25% for 8 sec.
-    forests_flow                = { 103873, 470581, 1 }, -- Consuming Clearcasting now causes your Regrowth to also cast Nourish onto a nearby injured ally at 60% effectiveness, preferring those with your heal over time effects.  Nourish: Heals a friendly target for 72,082. Receives 300% bonus from Mastery: Harmony.
+    flourish                    = {  82073, 197721, 1 }, -- Extends the duration of all of your heal over time effects on friendly targets within 60 yards by 6 sec, and increases the rate of your heal over time effects by 25% for 8 sec. Affected allies are healed for 261,296, split evenly among them.
+    forests_flow                = { 103873, 470581, 1 }, -- Consuming Clearcasting now causes your Regrowth to also cast Nourish onto a nearby injured ally at 60% effectiveness, preferring those with your heal over time effects.  Nourish: Heals a friendly target for 104,118. Receives 300% bonus from Mastery: Harmony.
     germination                 = {  82071, 155675, 1 }, -- You can apply Rejuvenation twice to the same target. Rejuvenation's duration is increased by 2 sec.
-    grove_guardians             = {  82043, 102693, 1 }, -- Summons a Treant which will immediately cast Swiftmend on your current target, healing for 19,287. The Treant will cast Nourish on that target or a nearby ally periodically, healing for 6,027. Lasts 15 sec.
-    grove_tending               = {  82047, 383192, 1 }, -- Swiftmend heals the target for 30,740 over 9 sec.
+    grove_guardians             = {  82043, 102693, 1 }, -- Summons a Treant which will immediately cast Swiftmend on your current target, healing for 27,859. The Treant will cast Nourish on that target or a nearby ally periodically, healing for 8,706. Lasts 15 sec.
+    grove_tending               = {  82047, 383192, 1 }, -- Swiftmend heals the target for 37,681 over 9 sec.
     harmonious_blooming         = {  82065, 392256, 1 }, -- Lifebloom counts for 3 stacks of Mastery: Harmony.
     improved_ironbark           = {  82081, 382552, 1 }, -- Ironbark's cooldown is reduced by 20 sec.
     improved_regrowth           = {  82055, 231032, 1 }, -- Regrowth's initial heal has a 40% increased chance for a critical effect if the target is already affected by Regrowth.
@@ -98,13 +120,13 @@ spec:RegisterTalents( {
     incarnation_tree_of_life    = {  82064,  33891, 1 }, -- Shapeshift into the Tree of Life, increasing healing done by 10%, increasing armor by 120%, and granting protection from Polymorph effects. Functionality of Rejuvenation, Wild Growth, Regrowth, Entangling Roots, and Wrath is enhanced. Lasts 30 sec. You may shapeshift in and out of this form for its duration.
     inner_peace                 = {  82053, 197073, 1 }, -- Reduces the cooldown of Tranquility by 30 sec. While channeling Tranquility, you take 20% reduced damage and are immune to knockbacks.
     invigorate                  = {  82070, 392160, 1 }, -- Refreshes the duration of your active Lifebloom and Rejuvenation effects on the target and causes them to complete 200% faster.
-    ironbark                    = {  82082, 102342, 1 }, -- The target's skin becomes as tough as Ironwood, reducing damage taken by 20% for 12 sec.
-    lifebloom                   = {  82049,  33763, 1 }, -- Heals the target for 53,483 over 15 sec. When Lifebloom expires or is dispelled, the target is instantly healed for 28,994. May be active on one target at a time.
+    ironbark                    = {  82082, 102342, 1 }, -- The target's skin becomes as tough as Ironwood, reducing damage taken by 20% for 16 sec. Allies protected by your Ironbark also receive 75% of the healing from each of your active Rejuvenations.
+    lifebloom                   = {  82049,  33763, 1 }, -- Heals the target for 59,008 over 15 sec. When Lifebloom expires or is dispelled, the target is instantly healed for 40,331. May be active on one target at a time.
     liveliness                  = {  82074, 426702, 1 }, -- Your damage over time effects deal their damage 25% faster, and your healing over time effects heal 5% faster.
-    master_shapeshifter         = {  82074, 289237, 1 }, -- Your abilities are amplified based on your current shapeshift form, granting an additional effect. Wrath, Starfire, and Starsurge deal 30% additional damage and generate 2,500 Mana. Bear Form Ironfur grants 30% additional armor and generates 2,500 Mana.  Cat Form Rip, Ferocious Bite, and Maim deal 60% additional damage and generate 10,000 Mana when cast with 5 combo points.
+    master_shapeshifter         = {  82074, 289237, 1 }, -- Your abilities are amplified based on your current shapeshift form, granting an additional effect. Wrath, Starfire, and Starsurge deal 30% additional damage and generate 16,666 Mana. Bear Form Ironfur grants 30% additional armor and generates 16,666 Mana.  Cat Form Rip, Ferocious Bite, and Maim deal 60% additional damage and generate 66,666 Mana when cast with 5 combo points.
     natures_splendor            = {  82051, 392288, 1 }, -- The healing bonus to Regrowth from Nature's Swiftness is increased by 35%.
-    natures_swiftness           = {  82050, 132158, 1 }, -- Your next Regrowth, Rebirth, or Entangling Roots is instant, free, castable in all forms, and heals for an additional 135%.
-    nourish                     = {  82043,  50464, 1 }, -- Heals a friendly target for 72,082. Receives 300% bonus from Mastery: Harmony.
+    natures_swiftness           = {  82050, 132158, 1 }, -- Your next Regrowth, Rebirth, or Entangling Roots is instant, free, castable in all forms, and heals for an additional 200%.
+    nourish                     = {  82043,  50464, 1 }, -- Heals a friendly target for 104,118. Receives 300% bonus from Mastery: Harmony.
     nurturing_dormancy          = {  82076, 392099, 1 }, -- When your Rejuvenation heals a full health target, its duration is increased by 2 sec, up to a maximum total increase of 4 sec per cast.
     overgrowth                  = {  82061, 203651, 1 }, -- Apply Lifebloom, Rejuvenation, Wild Growth, and Regrowth's heal over time effect to an ally.
     passing_seasons             = {  82051, 382550, 1 }, -- Nature's Swiftness's cooldown is reduced by 12 sec.
@@ -112,23 +134,23 @@ spec:RegisterTalents( {
     power_of_the_archdruid      = {  82077, 392302, 1 }, -- Wild Growth has a 60% chance to cause your next Rejuvenation or Regrowth to apply to 2 additional allies within 20 yards of the target.
     prosperity                  = {  82079, 200383, 1 }, -- Swiftmend now has 2 charges.
     rampant_growth              = {  82058, 404521, 1 }, -- Regrowth's healing over time is increased by 50%, and it also applies to the target of your Lifebloom.
-    reforestation               = {  82069, 392356, 1 }, -- Every 4 casts of Swiftmend grants you Incarnation: Tree of Life for 10 sec.
+    reforestation               = {  82069, 392356, 1 }, -- Every 4 casts of Swiftmend grants you Incarnation: Tree of Life for 13 sec.
     regenerative_heartwood      = {  82075, 392116, 1 }, -- Allies protected by your Ironbark also receive 75% of the healing from each of your active Rejuvenations and Ironbark's duration is increased by 4 sec.
     regenesis                   = {  82062, 383191, 2 }, -- Rejuvenation healing is increased by up to 10%, and Tranquility healing is increased by up to 20%, healing for more on low-health targets.
     renewing_surge              = { 103874, 470562, 1 }, -- The cooldown of Swiftmend is reduced by up to 40%, based on the current health of the target. Cooldown is reduced more when cast on a lower health target.
     soul_of_the_forest          = {  82059, 158478, 1 }, -- Swiftmend increases the healing of your next Regrowth or Rejuvenation by 150%, or your next Wild Growth by 50%.
-    spring_blossoms             = {  82061, 207385, 1 }, -- Each target healed by Efflorescence is healed for an additional 2,618 over 6 sec.
+    spring_blossoms             = {  82061, 207385, 1 }, -- Each target healed by Efflorescence is healed for an additional 3,781 over 6 sec.
     stonebark                   = {  82081, 197061, 1 }, -- Ironbark increases healing from your heal over time effects by 20%.
     thriving_vegetation         = {  82068, 447131, 2 }, -- Rejuvenation instantly heals your target for 20% of its total periodic effect and Regrowth's duration is increased by 3 sec.
     tranquil_mind               = {  92674, 403521, 1 }, -- Increases Omen of Clarity's chance to activate Clearcasting to 5% and Clearcasting can stack 1 additional time.
-    tranquility                 = {  82054,    740, 1 }, -- Heals all allies within 45 yards for 219,318 over 5.7 sec. Each heal heals the target for another 1,278 over 8 sec, stacking. Healing decreased beyond 5 targets.
+    tranquility                 = {  82054,    740, 1 }, -- Heals all allies within 40 yards for 316,790 over 4.2 sec. Each heal heals the target for another 1,847 over 8 sec, stacking. Healing decreased beyond 5 targets.
     twinleaf                    = { 103875, 470540, 1 }, -- Nature's Swiftness now has 2 charges.
     undergrowth                 = {  82077, 392301, 1 }, -- You may Lifebloom two targets at once, but Lifebloom's healing is reduced by 10%.
     unstoppable_growth          = {  82080, 382559, 2 }, -- Wild Growth's healing falls off 40% less over time.
-    verdancy                    = {  82060, 392325, 1 }, -- When Lifebloom blooms, up to 3 targets within your Efflorescence are healed for 12,567.
+    verdancy                    = {  82060, 392325, 1 }, -- When Lifebloom blooms, up to 3 targets within your Efflorescence are healed for 18,153.
     verdant_infusion            = {  82079, 392410, 1 }, -- Swiftmend no longer consumes a heal over time effect, and extends the duration of your heal over time effects on the target by 8 sec.
     waking_dream                = {  82046, 392221, 1 }, -- Ysera's Gift now heals every 4 sec and its healing is increased by 8% for each of your active Rejuvenations.
-    wild_synthesis              = {  94535, 400533, 1 }, --  Nourish Regrowth decreases the cast time of your next Nourish by 33% and causes it to receive an additional 33% bonus from Mastery: Harmony. Stacks up to 3 times. Grove Guardians Treants from Grove Guardians also cast Wild Growth immediately when summoned, healing 5 allies within 40 yds for 7,714 over 7 sec.
+    wild_synthesis              = {  94535, 400533, 1 }, --  Nourish Regrowth decreases the cast time of your next Nourish by 33% and causes it to receive an additional 33% bonus from Mastery: Harmony. Stacks up to 3 times. Grove Guardians Treants from Grove Guardians also cast Wild Growth immediately when summoned, healing 5 allies within 40 yds for 9,457 over 7 sec.
     wildwood_roots              = { 103876, 470549, 1 }, -- Abundance now also reduces the cast time of Regrowth by 5% per stack. Cenarion Ward's cooldown is reduced by 10 sec and its duration is increased by 2 sec.
     yseras_gift                 = {  82048, 145108, 1 }, -- Heals you for 3% of your maximum health every 5 sec. If you are at full health, an injured party or raid member will be healed instead.
 
@@ -138,7 +160,7 @@ spec:RegisterTalents( {
     cenarius_might              = {  94604, 455797, 1 }, -- Casting Swiftmend increases your Haste by 10% for 6 sec.
     control_of_the_dream        = {  94592, 434249, 1 }, -- Time elapsed while your major abilities are available to be used or at maximum charges is subtracted from that ability's cooldown after the next time you use it, up to 15 seconds. Affects Nature's Swiftness, Incarnation: Tree of Life, and Convoke the Spirits.
     dream_surge                 = {  94600, 433831, 1, "keeper_of_the_grove" }, -- Grove Guardians causes your next targeted heal to create 2 Dream Petals near the target, healing up to 3 nearby allies for 19,394. Stacks up to 3 charges.
-    durability_of_nature        = {  94605, 429227, 1 }, -- Your Grove Guardians' Nourish and Swiftmend spells also apply a Minor Cenarion Ward that heals the target for 42,505 over 8 sec the next time they take damage.
+    durability_of_nature        = {  94605, 429227, 1 }, -- Your Grove Guardians' Nourish and Swiftmend spells also apply a Minor Cenarion Ward that heals the target for 64,559 over 10 sec the next time they take damage.
     early_spring                = {  94591, 428937, 1 }, -- Grove Guardians cooldown reduced by 3 sec.
     expansiveness               = {  94602, 429399, 1 }, -- Your maximum mana is increased by 5%.
     groves_inspiration          = {  94595, 429402, 1 }, -- Wrath and Starfire damage increased by 10%. Regrowth, Wild Growth, and Swiftmend healing increased by 9%.
@@ -150,39 +172,36 @@ spec:RegisterTalents( {
     treants_of_the_moon         = {  94599, 428544, 1 }, -- Your Grove Guardians cast Moonfire on nearby targets about once every 6 sec.
 
     -- Wildstalker
-    bond_with_nature            = {  94625, 439929, 1 }, -- Healing you receive is increased by 10%.
-    bursting_growth             = {  94630, 440120, 1 }, -- When Bloodseeker Thorns expire or you use Ferocious Bite on their target they explode in thorns, dealing 9,078 physical damage to nearby enemies. Damage reduced above 5 targets. When Symbiotic Blooms expire or you cast Rejuvenation on their target flowers grow around their target, healing them and up to 3 nearby allies for 1,427.
+    bond_with_nature            = {  94625, 439929, 1 }, -- Healing you receive is increased by 4%.
+    bursting_growth             = {  94630, 440120, 1 }, -- When Bloodseeker Vines expire or you use Ferocious Bite on their target they explode in thorns, dealing 19,992 physical damage to nearby enemies. Damage reduced above 5 targets. When Symbiotic Blooms expire or you cast Rejuvenation on their target flowers grow around their target, healing them and up to 3 nearby allies for 4,669.
     entangling_vortex           = {  94622, 439895, 1 }, -- Enemies pulled into Ursol's Vortex are rooted in place for 3 sec. Damage may cancel the effect.
-    flower_walk                 = {  94622, 439901, 1 }, -- During Barkskin your movement speed is increased by 10% and every second flowers grow beneath your feet that heal up to 3 nearby injured allies for 2,421.
-    harmonious_constitution     = {  94625, 440116, 1 }, -- Your Regrowth's healing to yourself is increased by 50%.
+    flower_walk                 = {  94622, 439901, 1 }, -- During Barkskin your movement speed is increased by 10% and every second flowers grow beneath your feet that heal up to 3 nearby injured allies for 3,732.
+    harmonious_constitution     = {  94625, 440116, 1 }, -- Your Regrowth's healing to yourself is increased by 35%.
     hunt_beneath_the_open_skies = {  94629, 439868, 1 }, -- Damage and healing while in Cat Form increased by 3%. Moonfire and Sunfire damage increased by 10%.
-    implant                     = {  94628, 440118, 1 }, -- Your Swiftmend causes a Symbiotic Bloom to grow on the target for 4 sec.
+    implant                     = {  94628, 440118, 1 }, -- Your Swiftmend causes a Symbiotic Bloom to grow on the target for 6 sec.
     lethal_preservation         = {  94624, 455461, 1 }, -- When you remove an effect with Soothe or Nature's Cure, gain a combo point and heal for 4% of your maximum health. If you are at full health an injured party or raid member will be healed instead.
     resilient_flourishing       = {  94631, 439880, 1 }, -- Bloodseeker Vines and Symbiotic Blooms last 2 additional sec. When a target afflicted by Bloodseeker Vines dies, the vines jump to a valid nearby target for their remaining duration.
     root_network                = {  94631, 439882, 1 }, -- Each active Bloodseeker Vine increases the damage your abilities deal by 2%. Each active Symbiotic Bloom increases the healing of your spells by 2%.
     strategic_infusion          = {  94623, 439890, 1 }, -- Attacking from Prowl increases the chance for Shred, Rake, and Swipe to critically strike by 8% for 6 sec. Casting Regrowth increases the chance for your periodic heals to critically heal by 8% for 10 sec.
     thriving_growth             = {  94626, 439528, 1, "wildstalker" }, -- Rip and Rake damage has a chance to cause Bloodseeker Vines to grow on the victim, dealing 17,507 Bleed damage over 6 sec. Wild Growth, Regrowth, and Efflorescence healing has a chance to cause Symbiotic Blooms to grow on the target, healing for 17,131 over 6 sec. Multiple instances of these can overlap.
     twin_sprouts                = {  94628, 440117, 1 }, -- When Bloodseeker Vines or Symbiotic Blooms grow, they have a 20% chance to cause another growth of the same type to immediately grow on a valid nearby target.
-    vigorous_creepers           = {  94627, 440119, 1 }, -- Bloodseeker Vines increase the damage your abilities deal to affected enemies by 5%. Symbiotic Blooms increase the healing your spells do to affected targets by 6%.
+    vigorous_creepers           = {  94627, 440119, 1 }, -- Bloodseeker Vines increase the damage your abilities deal to affected enemies by 5%. Symbiotic Blooms increase the healing your spells do to affected targets by 20%.
     wildstalkers_power          = {  94621, 439926, 1 }, -- Rip and Ferocious Bite damage increased by 5%. Rejuvenation, Efflorescence, and Lifebloom healing increased by 10%.
 } )
 
-
 -- PvP Talents
 spec:RegisterPvpTalents( {
+    ancient_of_lore    = 5668, -- (473909) Shapeshift into an Ancient of Lore, preventing all crowd control effects, reducing damage taken by 20%, and granting you access to Blossom Burst and Mass Blooming. Reduces movement speed. Lasts 12 sec.  Blossom Burst:  Mass Blooming:
     deep_roots         =  700, -- (233755)
     disentanglement    =   59, -- (233673)
     early_spring       = 1215, -- (203624)
-    entangling_bark    =  692, -- (247543)
-    focused_growth     =  835, -- (203553)
-    high_winds         =  838, -- (200931)
+    entangling_bark    =  692, -- (247543) Ironbark now also grants the target Nature's Grasp, rooting the first 3 melee attackers for 6 sec.
+    forest_guardian    = 5687, -- (1217474)
+    high_winds         =  838, -- (200931) Increases the range of Cyclone, Typhoon, and Entangling Roots by 5 yds.
     malornes_swiftness = 5514, -- (236147)
-    preserve_nature    = 5387, -- (353114)
-    reactive_resin     =  691, -- (409785)
-    thorns             =  697, -- (305497) Sprout thorns for 12 sec on the friendly target. When victim to melee attacks, thorns deals 15,862 Nature damage back to the attacker. Attackers also have their movement speed reduced by 50% for 4 sec.
+    thorns             =  697, -- (1217017)
     tireless_pursuit   = 5649, -- (377801)
 } )
-
 
 local mod_liveliness_hot = setfenv( function( dur )
     if not talent.liveliness.enabled then return dur end
@@ -268,7 +287,7 @@ spec:RegisterAuras( {
                 t.caster = "player"
                 return
             end
-    
+
             t.count = 0
             t.expires = 0
             t.applied = 0
@@ -306,21 +325,13 @@ spec:RegisterAuras( {
     },
     -- talent = double lifebloom. Both spellID and actual buff spellID change.
     lifebloom = {
-        id = 33763,
+        id = function() return talent.undergrowth.enabled and 188550 or 33763 end,
         duration = 15,
         tick_time = function() return haste * mod_liveliness_hot( 1 ) end,
         max_stack = 1,
         dot = "buff",
         friendly = true,
-    },
-    lifebloom_2 = {
-        id = 188550,
-        duration = 15,
-        tick_time = function() return haste * mod_liveliness_hot( 1 ) end,
-        max_stack = 1,
-        dot = "buff",
-        friendly = true,
-        copy = "lifebloom"
+        copy = { 33763, 188550 }
     },
     natures_swiftness = {
         id = 132158,
@@ -340,6 +351,11 @@ spec:RegisterAuras( {
         id = 338643,
         duration = 60,
         max_stack = 1,
+    },
+    power_of_the_archdruid = {
+        id = 392303,
+        duration = 15,
+        max_stack = 1
     },
     reforestation = {
         id = 392360,
@@ -381,6 +397,13 @@ spec:RegisterAuras( {
         duration = 15,
         max_stack = 1,
     },
+    symbiotic_relationship = {
+        id = 474754,
+        duration = 3600,
+        dot = "buff",
+        friendly = true,
+        max_stack = 1,
+    },
     spring_blossoms = {
         id = 207386,
         duration = 6,
@@ -390,14 +413,14 @@ spec:RegisterAuras( {
     },
     tranquility = {
         id = 740,
-        duration = function() return 8 * haste end,
+        duration = function() return 5 * haste end,
         generate = function( t )
             if buff.casting.up and buff.casting.v1 == 740 then
                 t.applied  = buff.casting.applied
                 t.duration = buff.casting.duration
                 t.expires  = buff.casting.expires
                 t.stack    = 1
-                t.caster   = "player"    
+                t.caster   = "player"
                 return
             end
 
@@ -407,7 +430,7 @@ spec:RegisterAuras( {
             t.stack    = 0
             t.caster   = "nobody"
         end,
-        tick_time = function() return ( 8 * haste ) / 5 end,  -- Interval between each tick based on haste
+        tick_time = function() return haste end,  -- Interval between each tick based on haste
         max_stack = 1
     },
     tranquility_hot = {
@@ -498,6 +521,8 @@ spec:RegisterHook( "runHandler", function( ability )
     end
 end )
 
+-- The War Within
+spec:RegisterGear( "tww2", 229310, 229308, 229306, 229307, 229305  )
 
 -- Tier 30
 spec:RegisterGear( "tier30", 202518, 202516, 202515, 202514, 202513 )
@@ -874,7 +899,11 @@ spec:RegisterAbilities( {
         handler = function ()
             removeBuff( "natures_swiftness" )
             removeBuff( "clearcasting" )
-            active_dot.regrowth = active_dot.regrowth + 1 + ( talent.power_of_the_archdruid.enabled and buff.power_of_the_archdruid.up and 2 or 0 )
+            applyBuff( "regrowth" )
+            if buff.power_of_the_archdruid.up then
+                active_dot.rejuvenation = min( active_allies, active_dot.rejuvenation + 2 )
+                removeBuff( "power_of_the_archdruid" )
+            end
             if talent.soul_of_the_forest.enabled then removeBuff( "soul_of_the_forest" ) end
             if talent.forestwalk.enabled then applyBuff( "forestwalk" ) end
             if talent.wild_synthesis.enabled then addStack( "wild_synthesis" ) end
@@ -899,16 +928,18 @@ spec:RegisterAbilities( {
         handler = function ()
             -- Main Rejuv buff
             if talent.germination.enabled then
-                if buff.rejuvenation.down or buff.rejuvenation.remains < buff.rejuvenation_germination.remains then 
+                if buff.rejuvenation.down or buff.rejuvenation.remains < buff.rejuvenation_germination.remains then
                     applyBuff( "rejuvenation" )
 
                 elseif buff.germination.remains < buff.rejuvenation.remains then applyBuff( "rejuvenation_germination" )
                 end
-            else applyBuff( "rejuvenation" )
-            end
+            else applyBuff( "rejuvenation" ) end
 
             if talent.soul_of_the_forest.enabled then removeBuff( "soul_of_the_forest" ) end
-            active_dot.rejuvenation = active_dot.rejuvenation + 1 + ( talent.power_of_the_archdruid.enabled and buff.power_of_the_archdruid.up and 2 or 0 )
+            if buff.power_of_the_archdruid.up then
+                active_dot.rejuvenation = min( active_allies, active_dot.rejuvenation + 2 )
+                removeBuff( "power_of_the_archdruid" )
+            end
         end,
     },
 
@@ -927,6 +958,29 @@ spec:RegisterAbilities( {
 
         handler = function ()
             gain( 0.3 * health.max, "health" )
+        end,
+    },
+
+    skull_bash = {
+        id = 106839,
+        cast = 0,
+        cooldown = 15,
+        gcd = "off",
+        school = "physical",
+
+        talent = "skull_bash",
+        startsCombat = true,
+        form = function ()
+            if talent.fluid_form.enabled then return end
+            return buff.bear_form.up and "bear_form" or "cat_form" end,
+        toggle = "interrupts",
+
+        debuff = "casting",
+        readyTime = state.timeToInterrupt,
+
+        handler = function ()
+            if talent.fluid_form.enabled and buff.bear_form.down and buff.cat_form.down then shift( "cat_form" ) end
+            interrupt()
         end,
     },
 
@@ -949,15 +1003,16 @@ spec:RegisterAbilities( {
 
         handler = function ()
             if buff.moonkin_form.down and buff.treant_form.down and buff.tree_of_life_form.down then
-                if talent.fluid_form.enabled then
-                    shift( "moonkin_form" )
-                else unshift()
-                end
+                if talent.fluid_form.enabled and not buff.moonkin_form.up then unshift() end
             end
 
             if talent.blooming_infusion.enabled then removeBuff( "blooming_infusion" ) end
 
             if talent.master_shapeshifter.enabled then gain( 43750, "mana" ) end
+        end,
+
+        finish = function ()
+            if talent.fluid_form.enabled and buff.moonkin_form.down then shift( "moonkin_form" ) end
         end,
 
     },
@@ -997,7 +1052,6 @@ spec:RegisterAbilities( {
         spend = 0.10,
         spendType = "mana",
 
-        talent = "swiftmend",
         startsCombat = false,
         texture = 134914,
 
@@ -1054,10 +1108,29 @@ spec:RegisterAbilities( {
         copy = { 106785, 213771, 213764 },
     }, ]]
 
+    -- Form a bond with an ally. Your self-healing also heals your bonded ally for 10% of the amount healed. Your healing to your bonded ally also heals you for 8% of the amount healed.
+    symbiotic_relationship = {
+        id = 474750,
+        cast = 2.5,
+        cooldown = 0,
+        gcd = "spell",
+
+        spend = 0.02,
+        spendType = "mana",
+
+        talent = "symbiotic_relationship",
+        startsCombat = false,
+        texture = 1408837,
+
+        handler = function ()
+            applyBuff( "symbiotic_relationship" )
+        end,
+    },
+
     -- Heals all allies within 40 yards for 8,560 over 6.6 sec. Each heal heals the target for another 199 over 8 sec, stacking. Healing increased by 100% when not in a raid.
     tranquility = {
         id = 740,
-        cast = 8,
+        cast = 5,
         channeled = true,
         cooldown = 180,
         gcd = "spell",
@@ -1128,10 +1201,7 @@ spec:RegisterAbilities( {
         handler = function ()
 
             if buff.moonkin_form.down and buff.treant_form.down and buff.tree_of_life_form.down then
-                if talent.fluid_form.enabled then
-                    shift( "moonkin_form" )
-                else unshift()
-                end
+                if talent.fluid_form.enabled and not buff.moonkin_form.up then unshift() end
             end
 
             if talent.blooming_infusion.enabled then removeBuff( "blooming_infusion" ) end
@@ -1139,6 +1209,10 @@ spec:RegisterAbilities( {
 
             removeBuff( "dawning_sun" )
             if talent.master_shapeshifter.enabled then gain( 43750, "mana" ) end
+        end,
+
+        finish = function ()
+            if talent.fluid_form.enabled and buff.moonkin_form.down then shift( "moonkin_form" ) end
         end,
 
         copy = { "solar_wrath", 5176 }
@@ -1188,4 +1262,4 @@ spec:RegisterSetting( "healing_mode", false, {
 } )
 
 
-spec:RegisterPack( "Restoration Druid", 20241110, [[Hekili:1MvFVTnVr8plbdqZoV4j53sYGTb626aEkW6aECbE(pjlBrhZzzjd9sYcGH(SV7ifLiPiTDs7aABAepE8UF3R8OVN)p8xgfwq8)(q3HJ988ChmC0WrJ9xw8(rI)YJHB2h(c8Fscpa)7VtYlsZclOPjvR(hzL0iKK3JtdJqoLNwMTbiZF56sACXVL4V2e7hozeq7rYg)V75oXF5oAueHtljFJ)sK2h88EWZ9VwTA57z0T)58Qv7iHX0KxQwDinIuTkV84X0SIQVv9ng9Up)GR39vRWF(eSV)yhbKrk83)Eyr1Q)zA2by1O0QvBWFVyhWR82D)4dJWt7h7aw)hHzW)qrs8xgtZlYrLd2g8JVZGmss46ysK)Fd(CgTGKrdrDE72b57cJsF7ajoAq5XQvNovTI99JzPVfR(P8suTdcpSUmFhSK)YWniY6VmlCpXVaanRNvpqnstJHJkzWM0Kxt3tck2rcYpsbAYhKroestauBw1QXU8d9gqRdJjjfg3r9XuTQpN6T0x2veOWNPTsiymYkcs3YyXB04iuChPjUnQd9OMSd)jJSnJaOfqm)ajjKSxEVA1IQvpdsSdsI4WNxTYZLjAoSnVj9W60GJP0Kcyzy1jSvkOhaLkniIsy8PHb3vTA4y(X0t9ZQC6wqlz6QcNCu3YyRBCH2g73GMi2t3SN5)6OVzyBdz8eIjIJdkcZEHawK83OhjbmV1Bzu0hqX33eteuGoJaSpwd23MMfKq(Vf4Yn2GJG3cynRJqH1MyXyvSllmFhESY2mfRfI0mjyGoG)iBrv1OLHCn1Ssm1I4KxMSLMr08FUsXzIWLbG)JzKxdEzt0aVbGOeaG0bH3eEwVscahWduc3FYJB2QJxOhGW3xjrb1sJuWIzT5rBrcyG95GvnfWZ1aGk5xmdjXSi8K1Ch3uN)radSSsokbGtCfytuAXauQhOlQN1ip6cKmt4QudW81uGvbKjKsuNE2cSEin9Q8s0r3HcNJMyZ6mesol1MCTesaWukQdcbNUdEYKHsSvUdv)RWB8Cw6PMn0GdGnlT0PiGOlQhDd9WZWEvp7bpgISGZ7jbe01huYQNd6yEjOMSt3EDWRYx2SZKNE5QRlVPNE6wbLBjzPBOPL5bRbPtwi7KTFK1KwZylIONLsCnk2CUMz0J4)l52NksjC2iF1eNXG1hAAJKNFXuME6vaS7I1GGQy0SM2a0ZAJHrcbqYhteDXoEBPSnua6kbmUWyie4XM0oNV8IfGspZ(v63QN8SvFKcwM6AbyLaKDzeSDVcwxGyl5MAlUPIh5)u(k8Dr83r()5hHj7nyIzvBK2bVch)EbqxK89(VtW23ji8bmXqBYIZoMULSoon9G0b)L4431ktiD2n7GFWnTVDoQ4fryzHAwqKgQ2axMebimCdGc1ACDuRq8VOeEMUPnPvljXBVwTYO8IxK4tjXVdoy54PBOruHet2Unof8f3qsWBhQWJ)fuiQieVM2xrQ81VpLYEzI55AEfcP3wCGKej7Q97F9R2XMmcxlz9Fl9D8onbMxs1bTViTxl4b5hqrUGrrl8jqD1LHFUzplb)inOPilmjN3zaGrWfxlYiKZ1RSKmRXQVe)w47qKmsr1kHAfUfGeiFUeOP06a29tZASa(iY2WY427b3G77lHscRHcbYcMi0uq1Ac4QKHnAPrLURE367TxFwQ5bL7A3EmGLPeW3GxPVqJn5x2Y(CsrbohGb1zYcWzli3UaOv8FjaNdaFAab8zHis(zWD8Nt(nE3A7vh)mhrzoja2)HCtxw5NJ1htz)8S3areNG3ROj8OzUis9YHncMr3OwAlRmXQrPUAU9ADgoAlThAVT6E1cAhdvZ8DAMntxsA69UUA7dqGVlR5BXWzGZmJcTr(sjnkeZ6ParTTn0L3YzQB0PUZ6Xyh9)Q635Z1tJTs4MUz3LVwNLdXEAgdnP9KTlJyRk3Nh4E0AJIwue75B0U)i8F4x6RTZCREUQ6BZn)MkNb)n4UIAP4ly1kWggnpFuL6qqU5J57sHRkKfsJ4cd6VIfdbvEnRYiV9t8(eRjVWcvctIyxz(bi5sb7E60CC0ejKbsUkHz71ZAQu(PBE1RTk0vN0WELMZYcw(vgwcO5Rqvs8RSrM7(Sl4i(wywcwMYF5VDah6nczJ5EmyliSrupO6BmgTLgd(G)PQv)6X6QVXpX8bnw87M)x0XDZu1b8ntMamVNUDUPQeg3ed(SUJM9au22NI8xB7lr(RkTrGC)gLAHo3yyE)sBxV3H7XcuZRBAazNXEpK5qhi7Jlen15)4BLxh)JVpTQZC1gmR3ZRKp3ZIH60PodYrbnVo)cK0Uf8WD1ZAIVtNUC56ftDFyK7TxQe9Pt3CPIZ9v8h51mUxjlphIKQD40TUXIjoxA20shJOk6fphPdWBOIGkkbIBrTs1SN(1Orp6OX3h1fagJXihJf5w4v7czSTmjwXkIjLxa95qhxWFc5Ex37A(kIaQ)v9NVtNFgdF7DnVA3SXUTosN5T66F6KYR0nB80okf9OjtrVEsgJtN4daAXZUocon3ZTVtp5XanFII7rnH3nC8Pt9e)Im93oEMe9cgF3ynIwiru)(OAZhfVJmzlgENLbJF7W(6QSYKVUxmCS5E601o4YpLZQTPGUyO(bDMqIExkkVVZngEQaNEQHkZbx)lKoOdmXC3VKIlNpW1XInyMNRoZLtxFJEEDNA3TjUo9m98s2H2rwxA2JogFkPoQ95sf2ZEUqhHFj4T39XHAcBepMYTUdEshU4Ko3RVfBQn0TtmTWFcKydpWJrzPdlSNoh9L6PNH3PJrSdWELM8pB0Q6RRyY6PKWyKHOPzJWk9kz0QfR5DLRFQSdtD6z1hUnuT7JJ0buB8c6ANavuwzMzOHa5N94dKu6s5K6uN25MRTxKpOrN9udOivBNM6QPZyvC4QokViqltQBSgt2jnYwjOuFAUZ8AyNys8M4wZyZzjnK4vZcZ863gfPUYqhwWH8tf4yFO79BeiXG2)KcuNJfBc5IhS205nD2kdOVP)PUJTNXpJJ02exBM7SUgjMx)DsFtAU33zXY2FHNZ5MophDmmz(5Jyc(1naDtAIKWjYyRmx9LHLf7sZWxczF4o6EkBka()V]] )
+spec:RegisterPack( "Restoration Druid", 20250425, [[Hekili:vRvEVnoUv8plblGGDYmoso2oz2ABGTxO7IUtlQB)RIkjAjQywRddjQ4jab6ZEFK6IKIuXj7matb2zJTi57(4hFYUoU)t3DHik29ZZTNV0EX8LZCCMB74UJ(8jS7UtOGJOhHpKIsG)))axqZYruswAL)FmVKeY2YZXzOqgLkYkZdGT5UBFjjM(ZPU71qENLopa79eoW9Zo2lD3DGegIR3lUiWDhBVF0EXhNV8hR8)ZKVu5tr5pIPEKOFh85Zy0Xk)dyumj9rG)5zrKyGR)WpapLspv8J3E7Je6HY9ZcYsUTGKugZf5GCueL99GB3hNT)w6b8zu(zyRK0B)Pa2w(75KSCc95)kPGwCBitd9Y7v6zSdx9lmo9VobIswLpt9Q8zePYFhj5paI8VIYdGV9qLpttQ8)yLFqW(7dU)tv)cCyyFPOtfhYOv(5isyL)(YOim83ckIwaFfhLLdefK(9ik77pssHNJsH9Ckh)XtzukO7v(e4PHzP4zv)cIl)fZG1Rp3nBUnbLF0llYduuVZK4q97Q45K9Kmkja00AdvXbYPpqI2eMDo1IDKNWEO4ycUyRJEAaoHZXSJqrX4u6SC0r8mCkAFm2axdqupqntmCihMPQ5Cmz8yzCS3EuXbXNUhNxGZpYmfcpnfrlbFM3tKhjCz6kM9DgxeNvEYQ(RfhqG6LGJdHNjE8aqt9Q)Qxmeg8bwO)MMWTpuqZjb0nom6wG5UHIznl6LKfITeygZ(jsAyF5urhYBx6klWEekoP4TFuiQb(0B)C5LPdThG7tYwOXf(YlC626OhyMh1)lT1S0NYoI5wTItei)KR9t4KFGnf4ZlVeKLfZS(AwohNGG0PTRS)4D2x3W6aGT5KYcVhHmEuAGGsCvZwgsPMTmvkqTmnIKJ)qWZbXGeZRBvuBIYXrqy5b2zSQxygLKaBkZlKG3U0QHrKeWZ8eo0RHw6mjjzzxgFeyGZCjbfotrjCm2rAYXXP4eijF9dFD0O7TuO79QcaNWSmPtyiPRH2ZAxzRttiKoFSiPodvNpiuWGfZXcCH4jg1hgE3q32mGMVwuY6d5Hs2xwCqKfn0tB67KUqnnHPTbBRxy3hiPBFTHsGKKvuyfrE8a1R7WRuLenjpJqvRjk(HnRMAn5k1StRlst28yq4Se0xS(Uj9B6aRZy1leu4PF)OddcDHgWAs4MmriL7Lxa)z(JpV9t2wDEhhBqRynzZ8oLrsHdUuQiqZgVz(IxEzs7xe3)1lwlS)wcFZcLnTvyttNYursaRrSL422o)gLm7ZKtypqfVE(av(eyVzyT4yi)a4I8sXFb6UOUp6HCagaJiVJsslTKfOEITDHkJgPW3KxJntTUca78KhlzXPlMtBbQxrjMis3hSATZGjVnRomRU15AN2oiNYjjOyVOY8N7Qb0SucQGIZ9aIFc4ajc(s3wm4R2Uykh16)(VGpsIj)haGBwijIWqSIkyWu7tuI5Ws5av5GNRTkaHtd96xMbUnLb)TO80PSCkoC2yv4gwPQjWFLTvBQvumdQoF9bWoRP4yTmNyUNzNfhm4cU0MGJUeVWY6BiCT9ShunK1BDJZu9rfMS7RngrcsSaDAvmTYYasi01DYfetmXqRzw5dJfpv1O2dTKvP4TFS7hwIFe0lBC6tn6a0ynigAyxJljIB5BjI7sROfHZZcizqRJ9a0ETXNsvvVttjN13XmTkf(Be6nGuZlsqo116I1N4IJ7(wvYD(7PGOu6PnGJXCrV(oVJeIdBAScFkXDTRnmUB7CPEFRxoIvurLKG7TDWbV04OId5yoM0(YJJlrkbE9NCP8jNfIJibe6g73ustZ0o(BPv(qwoBkoPh7jqt7aMxh)FlFc8gSNlyx5HSclT2PJCi2)IJFwh1Ijr49XzzCzsShz3cRDu6E2VY86RV39awQFtiuzAiyBGBmqpiaBRrGEg8nf44O3PanGT8jV8Am(xHWfk8Vk))uuuCMoEJzlaHoa40G(7cj90MPua0JMJsl44u8bcNXEagRJQqwqenb6PRQr54A58gHNXkU7n8XIE2PB7GUKZN9fBqyWZ76cXLA5LG)gCCZDCb)NIpJEUGnfUya4rnVGaewwoGXOvy1PjccxBxvwZ92J4U7jCEbCM2byAp3D3zuEkBSpU7(5KA0lv(la2XjELpBgjfaEg3D8pXNWkocvgtHp(z(exR3Q7U(PA5URrvD)9UuGzI7QFkxk76o2U6FYUa4Mo4CcYD3v1ZuS7cUv(wv(Tpu6MW9SrASzmYVWi51o4lopug(fSv(mIy6DhJuhWwTHYREcZTJ1foYYVQQ3aahmwS6Rkl6MnhJ03)vL01ZUJr3hmsxDtrZ)LxAiSqDzTEfLP8j5uGZYy9NElSw0FxZzgjCSnsJjncQ2H9W1Jx)g5v(BR8xzZh5(DWFUM10z8BNxt6R62OX7Ox5pvqNgoIbU65OOEDz61i3f1xbaa8iGHqN4AZYMfhD0GaDfbnXCSmPzUbPP9gdJkokYbqm9mXCvOMQ9n4JQ8xx5)GGjPfcpNkQfB(TB4UNVOgz4EdkI56n6VxsTzriftxKRS(YvfgVwjwGNp(s5A70(kHTnn0yCe7Hw)YZai(1Frc0LgNIAlyULXPR3JgM1bordNAXJPKpRdRtnJGKPAd3y7AEFlfrazIjeAWgXYt10C8suJwuCxQAOva5WPUir0umVe8mfXubZNOKAaANUwPDXK9aDK4IwKGMTkTW(Q8Vr65cORuxso2BABUuVztlqWE7TgWGv(BGQ(6AR3LO1lpkk8LHGu0cmaQipPL1PutcRIts(vT1xaPhrq3JuFNecj)qZwD5RsoPlzK(8q5f2Qnch5fk0L9YEzfCFI0nyRj4Qxb7L5(gxIayjw6OV6oebSIlD1RF1qWp8LUqZcqTM32rlb)EhHImifbGxMbZprNnA6)VOWVkKmtL(GuFfRa8Fsqlycr98q46WNS52ePOdhBbtL4et41IwQfivhbGcIZx01fu8XYu6A(1lxRqjl5JSW4b3QCWPDzVmlC9STBskep8wE7nGMggogN8Z5EaDOPulb3o1kP7CinylDxAQDJ9Jo7DaeS2nyAiK8TSqVsOExRraLQg8mQ4mT9kFAEBa6Le1REj1eyetYKHXFp0Y8oFVwOymk3IvRVRSMHSkU8iJzvJtqiwAlpu1qS0GlnoOaNCZ8VPVOkxn3KxT9IqvJv2DMBtV2GrV4OURQPlwBWT1g4LBCXdFhwkL1adsz7pXpifN9oK046Ap6MwW8JftpUVFTX8VbxGvg(LY7)6v1JHjWJF)1jxCC9KbQN4De7lYps30HwirsSuSU9VfcDVkibPRLAgLGksRnDx9vhmmHQmAWwyAgaV(a)gjrB5fKOPFKuVVwvoM6vj)svgGhxPh7DgBvSMVyVl3a8IotWMoBGY76RUGqhsL3tEOPgHFR7lBAMtV32HdktA3M(E14T4KbKoA5GMT((A1n388rvtY22o)b5adWlUu6c(18LtCZxlv1qPCFUTsevWRZOQAr6ll)zU56UdBFoQkYERNCkAU61W6e6E9M8SkBJzYmw8MkrPTEdL37Q(NbTUrfiHK5R)puCbKfk)4WhFwcDt1QjmS(NdEDsKGVq7pL8l62(6F3b8jIm(9x1CEhdwEW2JkPhYYzZr7i6a5iH)u3)h]] )

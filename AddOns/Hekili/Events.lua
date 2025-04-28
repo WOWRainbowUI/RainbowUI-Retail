@@ -333,10 +333,11 @@ RegisterEvent( "PLAYER_ENTERING_WORLD", function( event, login, reload )
             state.combat = GetTime() - 0.01
         end
 
-        local _, zone = GetInstanceInfo()
+        local _, zone, _, _, _, _, _, instanceID = GetInstanceInfo()
         state.bg = zone == "pvp"
         state.arena = zone == "arena"
         state.torghast = IsInJailersTower()
+        state.instance_id = instanceID or -1
 
         Hekili:BuildUI()
     end
@@ -378,10 +379,11 @@ end
 
 do
     local function UpdateZoneInfo()
-        local _, zone = GetInstanceInfo()
+        local _, zone, _, _, _, _, _, instanceID = GetInstanceInfo()
         state.bg = zone == "pvp"
         state.arena = zone == "arena"
         state.torghast = IsInJailersTower()
+        state.instance_id = instanceID or -1
     end
 
     RegisterEvent( "ZONE_CHANGED", UpdateZoneInfo )
@@ -934,13 +936,13 @@ do
         -- Improve Pocket-Sized Computronic Device.
         if state.equipped.pocketsized_computation_device then
             local tName = CGetItemInfo( 167555 )
-            local redName, redLink = GetItemGem( tName, 1 )
+            local redName, redLink = C_Item.GetItemGem( tName, 1 )
 
             if redName and redLink then
                 local redID = tonumber( redLink:match("item:(%d+)") )
                 local action = class.itemMap[ redID ]
 
-                if action then
+                if action and class.abilities[ action ] and redID then
                     state.set_bonus[ action ] = 1
                     state.set_bonus[ redID ] = 1
                     class.abilities.pocketsized_computation_device = class.abilities[ action ]
@@ -948,8 +950,10 @@ do
                     insert( state.items, action )
                 end
             else
-                class.abilities.pocketsized_computation_device = class.abilities.inactive_red_punchcard
-                class.abilities[ tName ] = class.abilities.inactive_red_punchcard
+                if class.abilities.inactive_red_punchcard then
+                    class.abilities.pocketsized_computation_device = class.abilities.inactive_red_punchcard
+                    class.abilities[ tName ] = class.abilities.inactive_red_punchcard
+                end
             end
         end
 
@@ -1074,7 +1078,7 @@ end )
 
 
 local dynamic_keys = setmetatable( {}, {
-    __index = function( t, k, v )
+    __index = function( t, k )
         local name = GetSpellInfo( k )
         local key = name and formatKey( name ) or k
         t[k] = key
@@ -1234,6 +1238,7 @@ do
 
         empowerment.spell = ability.key
         empowerment.start = start
+        empowerment.active = true
 
         for i = 1, 4 do
             local n = GetUnitEmpowerStageDuration( "player", i - 1 )
@@ -1252,6 +1257,7 @@ do
     RegisterUnitEvent( "UNIT_SPELLCAST_EMPOWER_STOP", "player", nil, function( event, unit, cast, spellID )
         empowerment.spell = "none"
 
+        empowerment.active = false
         empowerment.start = 0
         empowerment.finish = 0
         empowerment.hold = 0
@@ -1641,6 +1647,7 @@ local death_events = {
 local dmg_filtered = {
     [280705] = true, -- Laser Matrix.
     [450412] = true, -- Sentinel.
+    [462952] = true, -- Squall Sailor's Citrine
 }
 
 
@@ -1808,9 +1815,10 @@ local function CLEU_HANDLER( event, timestamp, subtype, hideCaster, sourceGUID, 
                     end
 
                 elseif subtype == "SPELL_CAST_FAILED" then
-                    state:RemoveSpellEvent( ability.key, true, "CAST_FINISH" ) -- remove next cast finish.
-                    if ability.isProjectile then state:RemoveSpellEvent( ability.key, true, "PROJECTILE_IMPACT", true ) end -- remove last impact.
-                    -- Hekili:ForceUpdate( "SPELL_CAST_FAILED" )
+                    if state:RemoveSpellEvent( ability.key, true, "CAST_FINISH" ) then -- remove next cast finish.
+                        if ability.isProjectile then state:RemoveSpellEvent( ability.key, true, "PROJECTILE_IMPACT", true ) end -- remove last impact.
+                    end
+                    -- Hekili:ForceUpdate( "SPELL_CAST_FAILED" ) ]]
 
                 elseif subtype == "SPELL_AURA_REMOVED" and ability.channeled then
                     state:RemoveSpellEvents( ability.key, true ) -- remove ticks, finish, impacts.
@@ -1922,7 +1930,7 @@ local function CLEU_HANDLER( event, timestamp, subtype, hideCaster, sourceGUID, 
                 -- Aura Tracking
                 if subtype == 'SPELL_AURA_APPLIED' or subtype == 'SPELL_AURA_REFRESH' or subtype == 'SPELL_AURA_APPLIED_DOSE' then
                     ns.trackDebuff( spellID, destGUID, time, true )
-                    if ( not minion or countPets ) and countDots then ns.updateTarget( destGUID, time, amSource ) end
+                    if ( not minion or countPets ) and countDots then ns.updateTarget( destGUID, time, amSource, spellID ) end
 
                     --[[ if spellID == 48108 or spellID == 48107 then
                         Hekili:ForceUpdate( "SPELL_AURA_SUPER", true )
@@ -1962,7 +1970,7 @@ local function CLEU_HANDLER( event, timestamp, subtype, hideCaster, sourceGUID, 
                 ns.eliminateUnit( destGUID, true )
                 -- Hekili:ForceUpdate( "SPELL_DAMAGE_OVERKILL" )
             elseif not ( subtype == "SPELL_MISSED" and amount == "IMMUNE" ) then
-                ns.updateTarget( destGUID, time, amSource )
+                ns.updateTarget( destGUID, time, amSource, spellID )
             end
         end
     end
