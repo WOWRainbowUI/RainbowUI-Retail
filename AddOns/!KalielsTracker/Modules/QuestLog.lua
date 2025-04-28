@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -7,6 +7,7 @@
 ---@type KT
 local addonName, KT = ...
 
+---@class QuestLog
 local M = KT:NewModule("QuestLog")
 KT.QuestLog = M
 
@@ -16,9 +17,7 @@ local db
 
 local dropDownFrame
 
---------------
--- Internal --
---------------
+-- Internal ------------------------------------------------------------------------------------------------------------
 
 local function QuestMapQuestOptionsDropDown_Initialize(self)
 	local info = MSA_DropDownMenu_CreateInfo();
@@ -121,9 +120,7 @@ local function SetFrames()
 	MSA_DropDownMenu_Initialize(dropDownFrame, QuestMapQuestOptionsDropDown_Initialize, "MENU")
 end
 
---------------
--- External --
---------------
+-- External ------------------------------------------------------------------------------------------------------------
 
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)

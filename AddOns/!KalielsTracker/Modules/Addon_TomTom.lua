@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -7,6 +7,7 @@
 ---@type KT
 local addonName, KT = ...
 
+---@class AddonTomTom
 local M = KT:NewModule("AddonTomTom")
 KT.AddonTomTom = M
 
@@ -28,40 +29,40 @@ local autoQuestWatch = GetCVarBool("autoQuestWatch")
 
 local OTF = KT_ObjectiveTrackerFrame
 
---------------
--- Internal --
---------------
+-- Internal ------------------------------------------------------------------------------------------------------------
 
 local function SetupOptions()
-	KT.options.args.tomtom = {
-		name = "TomTom 導航箭頭",
-		type = "group",
-		args = {
-			tomtomDesc1 = {
-				name = "TomTom 的支援性整合了暴雪的 POI 和 TomTom 的導航箭頭。\n\n"..
-						"|cffff7f00注意:|r 原本的 \"TomTom > 任務目標\" 選項會被忽略!\n\n\n"..
-						"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
-						"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:10:32:16:0:16:0:16|t...   當前 POI 按鈕包含 TomTom 導航。\n"..
-						"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
-						"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:10:32:16:16:32:0:16|t...   當前 POI 按鈕不包含 TomTom 導航 (沒有資料)。",
-				type = "description",
-				order = 1,
+	if KT.optionsFrame then
+		KT.options.args.tomtom = {
+			name = "TomTom　導航箭頭",
+			type = "group",
+			args = {
+				tomtomDesc1 = {
+					name = "TomTom 的支援性整合了暴雪的 POI 和 TomTom 的導航箭頭。\n\n"..
+							"|cffff7f00注意:|r 原本的 \"TomTom > 任務目標\" 選項會被忽略!\n\n\n"..
+							"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
+							"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:10:32:16:0:16:0:16|t...   當前 POI 按鈕包含 TomTom 導航。\n"..
+							"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
+							"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:10:32:16:16:32:0:16|t...   當前 POI 按鈕不包含 TomTom 導航 (沒有資料)。",
+					type = "description",
+					order = 1,
+				},
+				tomtomArrival = {
+					name = "抵達距離",
+					type = "range",
+					min = 0,
+					max = 150,
+					step = 5,
+					set = function(_, value)
+						db.tomtomArrival = value
+					end,
+					order = 2,
+				},
 			},
-			tomtomArrival = {
-				name = "抵達距離",
-				type = "range",
-				min = 0,
-				max = 150,
-				step = 5,
-				set = function(_, value)
-					db.tomtomArrival = value
-				end,
-				order = 2,
-			},
-		},
-	}
+		}
 
-	KT.optionsFrame.tomtom = ACD:AddToBlizOptions(addonName, "插件 - "..KT.options.args.tomtom.name, "任務-追蹤清單", "tomtom")
+		KT.optionsFrame.tomtom = ACD:AddToBlizOptions(addonName, "插件 - "..KT.options.args.tomtom.name, "任務-追蹤清單", "tomtom")
+	end
 
 	-- Reverts the option to display Quest Objectives
 	if not GetCVarBool("questPOI") then
@@ -271,8 +272,9 @@ local function SetHooks()
 			questWaypoint = nil
 			superTrackedQuestID = 0
 			OTF:Update()
-			if QuestMapFrame:IsShown() then
-				QuestMapFrame:Refresh()
+			if WorldMapFrame:IsShown() then
+				WorldMapFrame:RefreshQuestLog()
+				WorldMapFrame:RefreshOverlayFrames()  -- fix Blizz bug (Area POI)
 			end
 		end
 	end)
@@ -441,17 +443,18 @@ local function SetEvents()
 				OTF:Update()
 			end)
 		end
+		if WorldMapFrame:IsShown() then
+			WorldMapFrame:RefreshOverlayFrames()  -- fix Blizz bug (Area POI)
+		end
 	end)
 end
 
---------------
--- External --
---------------
+-- External ------------------------------------------------------------------------------------------------------------
 
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
-	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.0.7-release") and db.addonTomTom)
+	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.0.9-release") and db.addonTomTom)
 
 	if self.isLoaded then
 		KT:Alert_IncompatibleAddon("TomTom", "v4.0.1-release")

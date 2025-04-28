@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -7,6 +7,7 @@
 ---@type KT
 local _, KT = ...
 
+---@class Help
 local M = KT:NewModule("Help")
 KT.Help = M
 
@@ -31,14 +32,13 @@ local new = "|cffff7fff[新功能]|r"
 
 local KTF = KT.frame
 
---------------
--- Internal --
---------------
+-- Internal ------------------------------------------------------------------------------------------------------------
 
 local function AddonInfo(name)
+	-- Translated strings based on Help-old.lua.txt
 	local info = "\n插件 "..name
 	if C_AddOns.IsAddOnLoaded(name) then
-		info = info.." |cff00ff00已安裝|r，可以在設定選項中啟用/停用支援性。"
+		info = info.." |cff00ff00已安裝|r。支援性可以在設定選項中啟用/停用。" -- Adjusted phrasing slightly from old version for better flow
 	else
 		info = info.." |cffff0000未安裝|r。"
 	end
@@ -79,12 +79,14 @@ local function SetupTutorials()
 		key = "helpTutorial",
 		title = KT.title.." |cffffffff"..KT.version.."|r",
 		icon = helpPath.."KT_logo",
-		font = "Fonts\\bLEI00D.ttf",
-		width = 552,
+		font = "Fonts\\bLEI00D.ttf", -- Using old font as requested by translation reference context
+		width = 562, -- Kept new width
+		height = 576, -- Added new height
 		imageWidth = 512,
 		imageHeight = 256,
 		{	-- 1
 			image = helpPath.."help_kaliels-tracker",
+			-- Translated text from Help-old.lua.txt
 			text = cTitle..KT.title.."|r 以遊戲預設的任務追蹤清單為基礎，並且增強它的功能。\n\n"..
 					"包含下面這些功能:\n"..
 					"- 更改追蹤清單位置\n"..
@@ -102,19 +104,21 @@ local function SetupTutorials()
 		{	-- 2
 			image = helpPath.."help_header-buttons",
 			imageHeight = 128,
-			text = cTitle.."標題列按鈕|r\n\n"..
-					"最小化按鈕:                                其他按鈕:\n"..
-					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:0:14:209:170:0|t "..cDots.."...|r 展開追蹤清單                          "..
-					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:0:14:209:170:0|t  "..cDots.."...|r 打開任務日誌\n"..
-					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:16:30:209:170:0|t "..cDots.."...|r 收起追蹤清單                          "..
-					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:16:30:209:170:0|t  "..cDots.."...|r 打開成就視窗\n"..
-					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:32:46:209:170:0|t "..cDots.."...|r 追蹤清單是空的時候               "..
-					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:32:46:209:170:0|t  "..cDots.."...|r 打開過濾方式選單\n\n"..
-					"按鈕 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:0:2:32:64:16:30:0:14:209:170:0|t 和 "..
-					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:0:2:32:64:16:30:16:30:209:170:0|t 可以在設定選項中停用。\n\n"..
+			heading = "標題列按鈕", -- Translated from "Header buttons"
+			-- Translated text mostly from Help-old.lua.txt, added new line translation
+			text = "最小化按鈕:                                其他按鈕:\n"..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:0:14:209:170:0|t "..cDots.."...|r 展開追蹤清單                           "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:0:14:209:170:0|t "..cDots.."...|r 打開任務日誌\n"..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:16:30:209:170:0|t "..cDots.."...|r 收起追蹤清單                         "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:16:30:209:170:0|t "..cDots.."...|r 打開成就視窗\n"..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:32:46:209:170:0|t "..cDots.."...|r 追蹤清單是空的時候                 "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t "..cDots.."...|r 打開過濾方式選單\n\n"..
+					"按鈕 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:0:14:209:170:0|t 和 "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:16:30:209:170:0|t 可以在設定選項中停用。\n\n"..
 					"可以設定 "..cBold.."[按鍵綁定]|r 來最小化追蹤清單。\n"..
-					cBold.."Alt+左鍵|r 點擊最小化按鈕會開啟 "..KT.title.."的設定選項。",
-			textY = 16,
+					cBold.."右鍵點擊|r 最小化按鈕 - 將最近的任務設為焦點。\n".. -- Translated new line
+					cBold.."Alt+左鍵|r 點擊最小化按鈕會開啟 "..KT.title.." 的設定選項。", -- Used old translation for Alt+Click
+			paddingBottom = 14,
 			shine = KTF.MinimizeButton,
 			shineTop = 13,
 			shineBottom = -14,
@@ -123,15 +127,17 @@ local function SetupTutorials()
 		{	-- 3
 			image = helpPath.."help_quest-title-tags",
 			imageHeight = 128,
-			text = cTitle.."特殊文字標籤|r\n\n"..
-					"任務標題的前方可以看到像是這樣的標籤 |cffff8000[100|r|cff00b3ffhc!|r|cffff8000]|r。\n"..
+			heading = "任務標題標籤", -- Translated from "Quest title tags"
+			-- Translated text from Help-old.lua.txt, kept NEW icons
+			text = "任務標題的前方可以看到像是這樣的標籤 |cffff8000[100|r|cff00b3ffhc!|r|cffff8000]|r。\n"..
 					"任務日誌中的標題也會顯示任務標籤。\n\n"..
-					"|cff00b3ff!|r|T:14:3|t "..cDots..".......|r 每日任務|T:14:104|t|cff00b3ffr|r "..cDots.."........|r 團隊任務\n"..
-					"|cff00b3ff!!|r "..cDots.."........|r 每週任務|T:14:101|t|cff00b3ffr10|r "..cDots.."....|r 10人團隊任務\n"..
-					"|cff00b3ffg3|r "..cDots..".....|r 組隊任務 (含隊伍人數)|T:14:22|t|cff00b3ffr25|r "..cDots.."...|r 25人團隊任務\n"..
-					"|cff00b3ffpvp|r "..cDots.."...|r PvP 任務|T:14:105|t|cff00b3ffs|r "..cDots.."........|r 事件任務\n"..
-					"|cff00b3ffd|r "..cDots..".......|r 地城任務|T:14:102|t|cff00b3ffa|r "..cDots.."........|r 帳號共通任務\n"..
-					"|cff00b3ffhc|r "..cDots..".....|r 英雄任務|T:14:103|t|cff00b3ffleg|r "..cDots..".....|r 傳說任務",
+					"|cff00b3ff!|r|T:14:3|t "..cDots..".......|r 每日任務|T:14:121|t|cff00b3ffr|r "..cDots..".......|r 團隊任務\n"..         -- Kept new icons
+					"|cff00b3ff!!|r "..cDots.."......|r 每週任務|T:14:108|t|cff00b3ffr10|r "..cDots.."...|r 10人團隊任務\n"..     -- Kept new icons
+					"|cff00b3ffg3|r "..cDots..".....|r 組隊任務 (含隊伍人數)|T:14:22|t|cff00b3ffr25|r "..cDots.."...|r 25人團隊任務\n".. -- Kept new icons
+					"|cff00b3ffpvp|r "..cDots.."...|r PvP 任務|T:14:133|t|cff00b3ffs|r "..cDots..".......|r 事件任務\n"..         -- Kept new icons (Scenario -> Event translation kept from old)
+					"|cff00b3ffd|r "..cDots..".......|r 地城任務|T:14:97|t|cff00b3ffa|r "..cDots..".......|r 帳號共通任務\n"..     -- Kept new icons
+					"|cff00b3ffhc|r "..cDots..".....|r 英雄任務|T:14:113|t|cff00b3ffleg|r "..cDots.."....|r 傳說任務", -- Kept new icons
+			paddingBottom = 10,
 			shineTop = 11,
 			shineBottom = -9,
 			shineLeft = -11,
@@ -139,17 +145,18 @@ local function SetupTutorials()
 		},
 		{	-- 4
 			image = helpPath.."help_tracker-filters",
-			text = cTitle.."任務過濾|r\n\n"..
-					"要開啟過濾方式選單請"..cBold.."點一下|r這個按鈕 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t.\n\n"..
+			heading = "任務過濾", -- Translated from "Tracker Filters" (used old text term)
+			-- Translated text from Help-old.lua.txt
+			text = "要開啟過濾方式選單請"..cBold.."點一下|r這個按鈕 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:1:32:64:16:30:32:46:209:170:0|t.\n\n".. -- Kept new icon reference
 					"過濾方式分為兩種類型:\n"..
 					cTitle.."固定過濾|r - 依據規則 (例如 \"每日\") 加入要追蹤的任務/成就，並且可以手動新增/移除項目。\n"..
 					cTitle.."動態過濾|r - 自動依據規則加入要追蹤的任務/成就 (例如 \"|cff00ff00自動|r區域\") "..
 					"並且會持續更新項目。這種類型不允許手動加入/移除項目。"..
-					"啟用動態過濾時，標題按鈕是綠色 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:0:255:0|t.\n\n"..
+					"啟用動態過濾時，標題按鈕是綠色 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:1:32:64:16:30:32:46:0:255:0|t.\n\n".. -- Kept new icon reference
 					"|cff009bff最愛|r - 現在可以將任務或成就加入最愛，然後使用這種過濾方式。\n\n"..
 					"更改成就的搜尋類別時，也會影響過濾的結果。\n\n"..
 					"這個選單也會顯示影響追蹤清單內容的其他選項 (例如 戰寵助手插件 PetTracker 所使用的選項)",
-			textY = 16,
+			paddingBottom = 16,
 			shine = KTF.FilterButton,
 			shineTop = 9,
 			shineBottom = -10,
@@ -158,14 +165,16 @@ local function SetupTutorials()
 		},
 		{	-- 5
 			image = helpPath.."help_quest-item-buttons",
-			text = cTitle.."任務物品按鈕|r\n\n"..
-					"按鈕在任務追蹤清單外面，因為暴雪不允許預設的清單介面使用動作按鈕。\n\n"..
+			heading = "任務物品按鈕", -- Translated from "Quest Item buttons"
+			-- Translated text from Help-old.lua.txt
+			text = "按鈕在任務追蹤清單外面，因為暴雪不允許預設的清單介面使用動作按鈕。\n\n"..
 					"|T"..helpPath.."help_quest-item-buttons_2:32:32:1:0:64:32:0:32:0:32|t "..cDots.."...|r  這個標籤代表任務中的任務物品。裡面的數字用來辨別\n"..
-					"                移動後的任務物品按鈕。\n\n"..
+					"              移動後的任務物品按鈕。\n\n"..
 					"|T"..helpPath.."help_quest-item-buttons_2:32:32:0:3:64:32:32:64:0:32|t "..cDots.."...|r  真正的任務物品按鈕已經移動到清單的左/右側\n"..
-					"               (依據所選擇的對齊畫面位置)。標籤數字仍然相同。\n\n"..
+					"              (依據所選擇的對齊畫面位置)。標籤數字仍然相同。\n\n"..
 					cWarning.."特別注意:|r\n"..
 					"在某些戰鬥中，任務物品按鈕的動作會被暫停，直到戰鬥結束後才能使用。",
+			paddingBottom = 18,
 			shineTop = 3,
 			shineBottom = -2,
 			shineLeft = -4,
@@ -173,8 +182,9 @@ local function SetupTutorials()
 		},
 		{	-- 6
 			image = helpPath.."help_active-button",
-			text = cTitle.."當前任務物品按鈕|r\n\n"..
-					"當前任務物品按鈕提供任務物品較佳的使用方式。將 '距離最近' 的任務的物品顯示為額外快捷鍵。(類似德拉諾的要塞技能)\n\n"..
+			heading = "當前任務物品按鈕", -- Translated from "Active Button"
+			-- Translated text from Help-old.lua.txt
+			text = "當前任務物品按鈕提供任務物品較佳的使用方式。將 '距離最近' 的任務的物品顯示為額外快捷鍵。(類似德拉諾的要塞技能)\n\n"..
 					"功能:\n"..
 					"- "..cBold.."接近可以使用任務物品的地方時"..
 					offs.."自動顯示|r當前任務物品按鈕。\n"..
@@ -183,7 +193,7 @@ local function SetupTutorials()
 					"- 可以設定"..cBold.." [快速鍵]|r 來使用任務物品，請在設定選項中指定要綁定的按鍵。"..
 					offs.."當前任務物品按鈕使用和額外快捷鍵相同的按鍵綁定。\n"..
 					"- 要移動按鈕請到設定選項 > \"任務物品"..
-					"按鈕\" > 按下 \"解鎖\" 後便可移動。\n\n"..
+					offs.."按鈕\" > 按下 \"解鎖\" 後便可移動。\n\n"..
 					cWarning.."特別注意:|r\n"..
 					"- 只有已經追蹤的任務才能使用當前任務物品按鈕。\n"..
 					"- 追蹤清單收合起來的時候，會一併暫停當前任務物品按鈕的功能。",
@@ -194,6 +204,8 @@ local function SetupTutorials()
 		},
 		{	-- 7
 			image = helpPath.."help_tracker-modules",
+			heading = "模組", -- Translated from "Modules"
+			-- Translated text from Help-old.lua.txt
 			text = cTitle.."模組順序|r\n\n"..
 					"允許更改模組在追蹤清單中的順序。支援所有模組，也包含外部插件 (例如：戰寵助手)。\n\n\n"..
 					cTitle.."可收合的模組|r\n\n"..
@@ -206,24 +218,27 @@ local function SetupTutorials()
 		},
 		{	-- 8
 			image = helpPath.."help_addon-masque",
-			text = cTitle.."支援插件: 按鈕外觀 - Masque|r\n\n"..
-					"Masque 提供更改任務物品按鈕外觀的功能，同時也會影響當前任務物品按鈕 (請看上一頁)。\n"..
-					AddonInfo("Masque"),
+			heading = "支援插件 Masque", -- Translated from "Support addon Masque"
+			-- Translated text from Help-old.lua.txt (first sentence) and new text (second sentence)
+			text = "Masque 提供更改任務物品按鈕外觀的功能，同時也會影響當前任務物品按鈕 (請看上一頁)。\n".. -- Combined translation
+					AddonInfo("Masque"), -- Function AddonInfo provides translated status
 		},
 		{	-- 9
 			image = helpPath.."help_addon-pettracker",
-			text = cTitle.."支援插件: 戰寵助手 - PetTracker|r\n\n"..
-					"支援在任務追蹤清單增強裡面顯示 PetTracker 的區域寵物追蹤，同時也修正了顯示上的一些問題。\n"..
-					AddonInfo("PetTracker"),
+			heading = "支援插件 PetTracker", -- Translated from "Support addon PetTracker"
+			-- Translated text from Help-old.lua.txt
+			text = "支援在任務追蹤清單增強裡面顯示 PetTracker 的區域寵物追蹤，同時也修正了顯示上的一些問題。\n"..
+					AddonInfo("PetTracker"), -- Function AddonInfo provides translated status
 		},
 		{	-- 10
 			image = helpPath.."help_addon-tomtom",
-			text = cTitle.."支援插件: 箭頭導航 - TomTom|r\n\n"..
-					"TomTom 的支援性整合了暴雪的 POI 和 TomTom 的導航箭頭。\n\n"..
+			heading = "支援插件 TomTom", -- Translated from "Support addon TomTom"
+			-- Translated text from Help-old.lua.txt, kept new icon structures
+			text = "TomTom 的支援性整合了暴雪的 POI 和 TomTom 的導航箭頭。\n\n"..
 					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
-					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r   當前 POI 按鈕包含 TomTom 導航。\n"..
+					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r   當前 POI 按鈕包含 TomTom 導航。\n".. -- Text translated, icons kept
 					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
-					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r   當前 POI 按鈕不包含 TomTom 導航 (沒有資料)。\n\n"..
+					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r   當前 POI 按鈕不包含 TomTom 導航 (沒有資料)。\n\n".. -- Text translated, icons kept
 					"功能:\n"..
 					"- 一般任務和世界任務都可以使用，但是只有當前區域的任務才能導航!"..
 					offs.."(這是 TomTom 和暴雪的功能限制)\n"..
@@ -231,15 +246,17 @@ local function SetupTutorials()
 					offs.."導航箭頭。\n"..
 					"- 新追蹤或距離最近的任務會自動顯示導航。\n"..
 					"- 取消追蹤或放棄任務時會移除導航。\n"..
-					AddonInfo("TomTom"),
+					AddonInfo("TomTom"), -- Function AddonInfo provides translated status
+			paddingBottom = 18,
 			shineTop = 10,
 			shineBottom = -10,
 			shineLeft = -11,
 			shineRight = 11,
 		},
 		{	-- 11
-			text = cTitle.."         駭客工具|r\n\n"..
-					"預設會啟用所有駭客工具，可以在任務追蹤清單增強的設定選項 (\"駭客工具\") 中停用。\n\n"..
+			heading = "         駭客工具", -- Translated from "       Hacks"
+			-- Translated text from Help-old.lua.txt, updated WoW version reference
+			text = "預設會啟用所有駭客工具，可以在 "..KT.title.." 的設定選項 (\"駭客工具\") 中停用。\n\n"..
 					cWarning.."警告:|r 駭客工具可能會影響其他插件!!\n\n"..
 					cTitle.."尋求組隊駭客|r\n\n"..
 					cBold.."影響在任務追蹤清單中尋找隊伍用的小眼睛。|r"..
@@ -254,35 +271,55 @@ local function SetupTutorials()
 					"這個駭客工具移除了對受限函數 SetPassThroughButtons 的呼叫。"..
 					"停用駭客工具時，世界地圖顯示會導致錯誤。"..
 					"由於任務追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-					cWarning2.."負面影響:|r 在魔獸世界 11.0.7 尚未可知。",
-			textY = -20,
+					cWarning2.."負面影響:|r 在魔獸世界 11.1.5 尚未可知。", -- Updated WoW version
 		},
 		{	-- 12
 			image = helpPath.."help_whats-new_logo",
-			imageWidth = 256,
+			imageWidth = 512, -- Kept new width
 			imageHeight = 128,
 			imageTexCoords = { 0, 1, 0, 1 },
 			imagePoint = "TOPRIGHT",
-			imageX = -8,
-			imageY = 1,
+			imageX = -9, -- Kept new X
+			imageY = -26, -- Kept new Y
 			imageAbsolute = true,
-			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."版本 7.9.0|r\n"..
-					"- 變更 - 支援插件 - Auctionator 11.0.20\n"..
-					"- 變更 - 支援插件 - TomTom 4.0.7\n"..
-					"- 變更 - 支援插件 - PetTracker 11.0.9\n"..
+			heading = "     最新功能", -- Translated from "     What's New"
+			headingFont = "Fonts\\bLEI00D.ttf", -- Using old font reference
+			headingSize = 26, -- Kept new size (adjust if needed)
+			-- Translated new content list for version 7.10.0
+			text =
+					cTitle.."版本 7.10.0|r\n"..
+					"- 新增 - 支援 WoW 11.1.5.60428\n"..
+					"- 新增 - 支援 WoW 11.1.0.59347\n"..
+					"- 新增 - 支援 WoW 11.0.7.58867\n"..
+					"- 新增 - 支援 WoW 11.0.7.58238\n"..
+					"- 變更 - 程式庫\n"..
+					"- 變更 - 插件支援 - ElvUI 13.89, Tukui 20.460\n"..
+					"- 變更 - 插件支援 - Auctionator 275\n"..
+					"- 變更 - 插件支援 - Masque 11.1.5\n"..
+					"- 變更 - 插件支援 - TomTom 4.0.9\n"..
+					"- 變更 - 插件支援 - PetTracker 11.1.5\n"..
+					"- 變更 - 額外目標 - POI 按鈕的資料擷取 (自 11.1.0 起)\n"..
+					"- 變更 - 任務物品按鈕 – 對於某些任務物品不顯示當前按鈕\n"..
+					"- 變更 - 額外目標 – 不顯示任務標籤 (等級等)\n"..
+					"- 變更 - 任務物品按鈕 – 當前按鈕重製 (2) – 重新加入透過 POI 按鈕手動啟用 (焦點)\n"..
+					"- 變更 - 戰寵助手 - 改善區域變更偵測\n"..
+					"- 修正 - TomTom - 世界地圖上的導航點標籤未更新 2 (暴雪錯誤)\n"..
+					"- 修正 - 額外目標 - 點擊區域 POI 後沒有 ping\n"..
+					"- 修正 - TomTom - 世界地圖上的導航點標籤未更新 (暴雪錯誤)\n"..
+					"- 修正 - 任務物品按鈕 – 當前按鈕框架層級低於 ExtraActionButton1\n"..
+					"- 還原 - 任務物品按鈕 – 當前按鈕重製\n"..
+					"- 還原 - 任務物品按鈕 – 當玩家在相關位置時加入發光效果\n"..
 					"\n"..
 
-					cTitle.."回報問題|r\n"..
-					"請使用下方的"..cBold.."回報單網址|r而不是在 CurseForge 留言。\n\n\n\n"..
+					cTitle.."問題回報|r\n".. -- Translated "Issue reporting"
+					"回報問題請使用 "..cBold.."回報單|r (Tickets) 而不是在 CurseForge 留言。\n\n\n\n".. -- Translated description
 
-					cWarning.."回報錯誤之前，請先停用所有其他的插件，以確保不是和其他插件相衝突。|r",
-			textY = -20,
+					cWarning.."回報錯誤之前，請先停用所有其他的插件，以確保不是和其他插件相衝突。|r", -- Translated warning
 			editbox = {
 				{
 					text = "https://www.curseforge.com/wow/addons/kaliels-tracker/issues",
 					width = 450,
-					bottom = 25,
+					bottom = 42, -- Kept new bottom value
 				}
 			},
 			shine = KTF.Background,
@@ -333,16 +370,17 @@ local function SetupTutorials()
 		key = "supportersTutorial",
 		title = KT.title.." |cffffffff"..KT.version.."|r",
 		icon = helpPath.."KT_logo",
-		font = "Fonts\\bLEI00D.ttf",
-		width = 552,
-		imageHeight = 256,
+		font = "Fonts\\bLEI00D.ttf", -- Used old font reference
+		width = 562, -- Kept new width
+		height = 576, -- Kept new height
 		{	-- 1
-			text = cTitle.."         成為贊助者|r\n\n"..
-					"如果你喜歡 "..KT.title..", 請在 |cfff34a54Patreon|r 贊助我。\n\n"..
-					"在 CurseForge 的插件頁面點一下  |T"..helpPath.."help_patreon:20:154:1:0:256:32:0:156:0:20|t 按鈕。\n\n"..
+			heading = "       成為贊助者", -- Translated from "       Become a Patron"
+			-- Translated text from Help-old.lua.txt, kept new Patreon icon reference
+			text = "如果你喜歡 "..KT.title..", 請在 |cfff34a54Patreon|r 贊助我。\n\n"..
+					"在 CurseForge 的插件頁面點一下  |T"..helpPath.."help_patreon:20:173:0:0:256:32:0:173:0:20|t 按鈕。\n\n".. -- Kept new icon reference
 					"經過了 10 年的插件工作後，我啟用了 Patreon，作為開發插件所需時間的補償。\n\n"..
-					"                                    非常感謝所有贊助者  |T"..helpPath.."help_patreon:16:16:0:0:256:32:157:173:0:16|t\n\n"..
-					cTitle.."Active Patrons|r\n"..
+					"                                    非常感謝所有贊助者  |T"..helpPath.."help_patreon:16:16:0:0:256:32:174:190:0:16|t\n\n".. -- Kept new icon reference
+					cTitle.."Active Patrons|r\n".. -- Kept English title for list consistency with original
 					SetFormatedPatronName("Legendary", "Zayah", "Vek'nilash")..
 					SetFormatedPatronName("Epic", "Haekwon", "Elune")..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
@@ -357,26 +395,24 @@ local function SetupTutorials()
 					SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
 					SetFormatedPatronName("Common", "Darren Divecha")..
 					"\n"..
-					cTitle.."Testers|r\n"..
+					cTitle.."Testers|r\n".. -- Kept English title for list consistency
 					SetFormatedPlayerName("Asimeria", "Drak'thul")..
 					SetFormatedPlayerName("Torresman", "Drak'thul"),
-			textY = -20,
+			paddingBottom = 18,
 		},
 	})
 end
 
---------------
--- External --
---------------
+-- External ------------------------------------------------------------------------------------------------------------
 
 function M:OnInitialize()
-	_DBG("|cffffff00初始化|r - "..self:GetName(), true)
+	_DBG("|cffffff00初始化|r - "..self:GetName(), true) -- Translated "Init"
 	db = KT.db.profile
 	dbChar = KT.db.char
 end
 
 function M:OnEnable()
-	_DBG("|cff00ff00啟用|r - "..self:GetName(), true)
+	_DBG("|cff00ff00啟用|r - "..self:GetName(), true) -- Translated "Enable"
 	SetupTutorials()
 	local last = false
 	if KT.version ~= KT.db.global.version then

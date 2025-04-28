@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -7,14 +7,11 @@
 ---@type KT
 local addonName, KT = ...
 
+---@class ActiveButton
 local M = KT:NewModule("ActiveButton")
 KT.ActiveButton = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
-
--- WoW API
-local _G = _G
-local InCombatLockdown = InCombatLockdown
 
 local db, dbChar
 local KTF = KT.frame
@@ -27,9 +24,19 @@ local isBartender, isElvui, isTukui = false, false, false
 
 local DEFAULT_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 
---------------
--- Internal --
---------------
+-- Internal ------------------------------------------------------------------------------------------------------------
+
+local function UpdateBlizzardButtonIconID()
+	local iconID = 0
+	if HasExtraActionBar() then
+		local button = ExtraActionBarFrame.button
+		local actionType, id = GetActionInfo(button.action)
+		if actionType == "spell" then
+			iconID = C_Spell.GetSpellTexture(id)
+		end
+	end
+	blizzardButtonIconID = iconID
+end
 
 local function UpdateHotkey()
 	local key = GetBindingKey("EXTRAACTIONBUTTON1")
@@ -59,6 +66,17 @@ local function RemoveHotkey(button)
 		hotkeyExtra:SetText(GetBindingText(key, 1))
 		hotkeyExtra:Show()
 		ClearOverrideBindings(button)
+	end
+end
+
+local function EventFrame_OnUpdate(self)
+	if KTF.Buttons:IsShown() then
+		if self.timer > 50 then
+			KT:prot("Update", M)
+			self.timer = 0
+		else
+			self.timer = self.timer + TOOLTIP_UPDATE_TIME
+		end
 	end
 end
 
@@ -100,46 +118,21 @@ end
 local function ActiveFrame_Hide()
 	if activeFrame:IsShown() then
 		activeFrame:Hide()
+		abutton.text:SetText("")
 		RemoveHotkey(abutton)
 	end
-end
-
-local function UpdateBlizzardButtonIconID()
-	local iconID = 0
-	if HasExtraActionBar() then
-		local button = ExtraActionBarFrame.button
-		local actionType, id = GetActionInfo(button.action)
-		if actionType == "spell" then
-			iconID = C_Spell.GetSpellTexture(id)
-		end
-	end
-	blizzardButtonIconID = iconID
-end
-
-local function ActiveButton_OnShow(self)
-	KT.ItemButton.OnShow(self)
-	self:UnregisterEvent("PLAYER_INSIDE_QUEST_BLOB_STATE_CHANGED")
-end
-
-local function SetHooks()
-	hooksecurefunc(KT_QuestObjectiveItemButtonMixin, "UpdateInsideBlob", function(self, questID, inside)
-		if questID == self:GetAttribute("questID") then
-			C_Timer.After(0, function()
-				KT:prot("Update", M, (not dbChar.collapsed and inside) and questID or nil)
-			end)
-		end
-	end)
 end
 
 local function SetFrames()
 	-- Event frame
 	if not eventFrame then
 		eventFrame = CreateFrame("Frame")
+		eventFrame.timer = 0
 		eventFrame:SetScript("OnEvent", function(_, event)
 			_DBG("Event - "..event, true)
 			if event == "UPDATE_EXTRA_ACTIONBAR" then
 				UpdateBlizzardButtonIconID()
-				KT:Update()
+				KT:prot("Update", M)
 			elseif event == "UPDATE_BINDINGS" then
 				if activeFrame:IsShown() then
 					UpdateHotkey()
@@ -147,28 +140,24 @@ local function SetFrames()
 			elseif event == "PET_BATTLE_OPENING_START" then
 				KT:prot("Hide", activeFrame)
 			elseif event == "PET_BATTLE_CLOSE" then
-				KT:Update()
+				KT:prot("Update", M)
 			end
 		end)
+		eventFrame:SetScript("OnUpdate", EventFrame_OnUpdate)
 	end
 	eventFrame:RegisterEvent("UPDATE_EXTRA_ACTIONBAR")
 	eventFrame:RegisterEvent("UPDATE_BINDINGS")
 	eventFrame:RegisterEvent("PET_BATTLE_OPENING_START")
 	eventFrame:RegisterEvent("PET_BATTLE_CLOSE")
 
-	-- KT Buttons frame
-	KTF.Buttons:SetScript("OnHide", function()
-		M:Update()
-	end)
-
 	-- Main frame
-	if not KTF.ActiveFrame then
+	activeFrame = KTF.ActiveFrame
+	if not activeFrame then
 		activeFrame = CreateFrame("Frame", nil, UIParent)
-		activeFrame:SetSize(256, 120)
+		activeFrame:SetSize(256, 128)
+		activeFrame:SetFrameLevel(80)
 		activeFrame:Hide()
 		KTF.ActiveFrame = activeFrame
-	else
-		activeFrame = KTF.ActiveFrame
 	end
 
 	ActiveFrame_SetPosition()
@@ -183,8 +172,7 @@ local function SetFrames()
 
 	function mover:Hide()
 		self.mixin.Hide(self)
-		self.frame:Hide()
-		KT:Update()
+		M:Update()
 	end
 
 	function mover:OnDragStop(frame)
@@ -203,7 +191,7 @@ local function SetFrames()
 	if not KTF.ActiveButton then
 		local button = CreateFrame("Button", addonName.."ActiveButton", activeFrame, "SecureActionButtonTemplate")
 		button:SetSize(52, 52)
-		button:SetPoint("CENTER", 0, -4)
+		button:SetPoint("CENTER")
 
 		button.icon = button:CreateTexture(nil, "BACKGROUND")
 		button.icon:SetPoint("TOPLEFT", 0, -1)
@@ -236,7 +224,7 @@ local function SetFrames()
 		
 		button:SetScript("OnEvent", KT.ItemButton.OnEvent)
 		button:SetScript("OnUpdate", KT.ItemButton.OnUpdate)
-		button:SetScript("OnShow", ActiveButton_OnShow)
+		button:SetScript("OnShow", KT.ItemButton.OnShow)
 		button:SetScript("OnHide", KT.ItemButton.OnHide)
 		button:SetScript("OnEnter", KT.ItemButton.OnEnter)
 		button:SetScript("OnLeave", KT.ItemButton.OnLeave)
@@ -261,15 +249,11 @@ local function SetFrames()
 	abutton = KTF.ActiveButton
 end
 
---------------
--- External --
---------------
+-- External ------------------------------------------------------------------------------------------------------------
 
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
-	
-	self.initialized = false
-	
+
 	db = KT.db.profile
 	dbChar = KT.db.char
 
@@ -284,15 +268,31 @@ function M:OnEnable()
 	isTukui = C_AddOns.IsAddOnLoaded("Tukui")
 
 	SetFrames()
-	SetHooks()
-	self.initialized = true
+
+	KT:RegSignal("BUTTONS_UPDATED", "prot", KT, "Update", self)
 end
 
-function M:Update(questID)
-	if not db.qiActiveButton or not self.initialized or KT.EditMode.opened then return end
+function M:Update(id)
+	if KT.EditMode.opened then return end
 
-	if questID then
-		local button = KT:GetFixedButton(questID)
+	local closestQuestID = id
+	if not closestQuestID then
+		if not dbChar.collapsed then
+			local superTrackedQuestID = C_SuperTrack.GetSuperTrackedQuestID() or 0
+			for questID in pairs(KT.fixedButtons) do
+				if questID == superTrackedQuestID then
+					closestQuestID = questID
+					break
+				end
+				if C_Minimap.IsInsideQuestBlob(questID) then
+					closestQuestID = questID
+				end
+			end
+		end
+	end
+
+	if closestQuestID and not KT.EXCLUDED_QUEST_ITEMS[closestQuestID] then
+		local button = KT:GetFixedButton(closestQuestID)
 		if button and button.item ~= blizzardButtonIconID then
 			local autoShowTooltip = false
 			if GameTooltip:IsShown() and GameTooltip:GetOwner() == abutton then
@@ -302,7 +302,7 @@ function M:Update(questID)
 
 			abutton.block = button.block
 			abutton:SetAttribute("questLogIndex", button:GetAttribute("questLogIndex"))
-			abutton:SetAttribute("questID", questID)
+			abutton:SetAttribute("questID", closestQuestID)
 			abutton.charges = button.charges
 			abutton.rangeTimer = button.rangeTimer
 			abutton.item = button.item
@@ -313,9 +313,9 @@ function M:Update(questID)
 			abutton.text:SetText(button.num)
 			abutton:SetAttribute("item", button.link)
 
-			if not KT.locked and not activeFrame:IsShown() then
+			if not activeFrame:IsShown() then
 				UpdateHotkey()
-				activeFrame:Show()
+				activeFrame:SetShown(not KT.locked)
 			end
 
 			if autoShowTooltip then

@@ -51,7 +51,7 @@ function KT_ObjectiveTrackerContainerMixin:Update(dirtyUpdate)
 
 	if self.needsSorting then
 		table.sort(self.modules, function(lhs, rhs)
-			return lhs.uiOrder < rhs.uiOrder;
+			return (lhs.uiOrder or 0) < (rhs.uiOrder or 0); -- 暫時修正
 		end);
 		self.needsSorting = false;
 	end

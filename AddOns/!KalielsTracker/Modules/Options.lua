@@ -1,11 +1,15 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
 
 ---@type KT
 local addonName, KT = ...
+
+---@class Options
+local M = KT:NewModule("Options")
+KT.Options = M
 
 local ACD = LibStub("MSA-AceConfigDialog-3.0")
 local ACR = LibStub("AceConfigRegistry-3.0")
@@ -27,7 +31,7 @@ local strsplit = string.split
 local strsub = string.sub
 
 local db, dbChar
-local anchors = { ["TOPLEFT"] = "Top Left", ["TOPRIGHT"] = "Top Right", ["BOTTOMLEFT"] = "Bottom Left", ["BOTTOMRIGHT"] = "Bottom Right" }
+local anchors = { ["TOPLEFT"] = "左上", ["TOPRIGHT"] = "右上", ["BOTTOMLEFT"] = "左下", ["BOTTOMRIGHT"] = "右下" }
 local strata = { "BACKGROUND", "LOW", "MEDIUM", "HIGH" }
 local flags = { [""] = "無", ["OUTLINE"] = "外框", ["OUTLINE, MONOCHROME"] = "無消除鋸齒外框" }
 local textures = { "無", "預設 (暴雪)", "單線", "雙線" }
@@ -231,17 +235,17 @@ function mover:Anchor_OnEnter()
 	elseif self.value == "BOTTOMLEFT" or self.value == "BOTTOMRIGHT" then
 		GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, -5 * db.frameScale)
 	end
-	GameTooltip:AddLine("Anchor - "..anchors[self.value], 1, 0.82, 0)
-	local leftText = "- Tracker expand direction:\n- Tooltips position:\n- Quest item buttons position:"
+	GameTooltip:AddLine("位置 - "..anchors[self.value], 1, 0.82, 0)
+	local leftText = "- 追蹤清單展開方向:\n- 浮動提示資訊位置:\n- 任務物品按鈕位置:"
 	local rightText = ""
 	if self.value == "TOPLEFT" then
-		rightText = "Down\nRight\nRight"
+		rightText = "向下\n右側\n右側"
 	elseif self.value == "TOPRIGHT" then
-		rightText = "Down\nLeft\nLeft"
+		rightText = "向下\n左側\n左側"
 	elseif self.value == "BOTTOMLEFT" then
-		rightText = "Up\nRight\nRight"
+		rightText = "向上\n右側\n右側"
 	elseif self.value == "BOTTOMRIGHT" then
-		rightText = "Up\nLeft\nLeft"
+		rightText = "向上\n左側\n左側"
 	end
 	GameTooltip:AddDoubleLine(leftText, rightText, 1, 1, 1, 0, 1, 0.89)
 	GameTooltip:Show()
@@ -478,8 +482,8 @@ local options = {
 							order = 0.12,
 						},
 						slashCmd = {
-							name = cBold.." /kt|r  |cff808080..............|r  切換 (展開/收起) 任務追蹤清單\n"..
-									cBold.." /kt hide|r  |cff808080......|r  切換 (顯示/隱藏) 任務追蹤清單\n"..
+							name = cBold.." /kt|r  |cff808080..............|r  展開/收起任務追蹤清單\n"..
+									cBold.." /kt hide|r  |cff808080......|r  顯示/隱藏任務追蹤清單\n"..
 									cBold.." /kt config|r  |cff808080...|r  顯示設定選項視窗\n",
 							type = "description",
 							width = "double",
@@ -702,10 +706,7 @@ local options = {
 							values = WidgetLists.statusbar,
 							set = function(_, value)
 								db.progressBar = value
-								KT:Update(true)
-								if PetTracker then
-									PetTracker.Objectives:Update()
-								end
+								KT:SendSignal("OPTIONS_CHANGED", true)
 							end,
 							order = 2.9,
 						},
@@ -725,10 +726,7 @@ local options = {
 							set = function(_, value)
 								db.font = value
 								KT:SetText(true)
-								KT:Update()
-								if PetTracker then
-									PetTracker.Objectives:Update()
-								end
+								KT:SendSignal("OPTIONS_CHANGED")
 							end,
 							order = 3.1,
 						},
@@ -741,10 +739,7 @@ local options = {
 							set = function(_, value)
 								db.fontSize = value
 								KT:SetText(true)
-								KT:Update()
-								if PetTracker then
-									PetTracker.Objectives:Update()
-								end
+								KT:SendSignal("OPTIONS_CHANGED")
 							end,
 							order = 3.2,
 						},
@@ -762,10 +757,7 @@ local options = {
 							set = function(_, value)
 								db.fontFlag = value
 								KT:SetText(true)
-								KT:Update()
-								if PetTracker then
-									PetTracker.Objectives:Update()
-								end
+								KT:SendSignal("OPTIONS_CHANGED")
 							end,
 							order = 3.3,
 						},
@@ -1069,7 +1061,7 @@ local options = {
 							order = 4.091,
 						},
 						hdrCollapsedTxt2 = {
-							name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:2:0|t "..KT.title,
+							name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:2:0|t 所有目標",
 							type = "toggle",
 							width = "normal",
 							get = function()
@@ -1197,7 +1189,7 @@ local options = {
 							set = function()
 								db.qiActiveButtonBindingShow = not db.qiActiveButtonBindingShow
 								KTF.ActiveFrame:Hide()
-								KT:Update()
+								KT.ActiveButton:Update()
 							end,
 							order = 5.5,
 						},
@@ -1522,7 +1514,7 @@ local options = {
 							confirm = true,
 							confirmText = warning,
 							disabled = function()
-								return (not C_AddOns.IsAddOnLoaded("Masque") or not KT.AddonOthers:IsEnabled())
+								return (not C_AddOns.IsAddOnLoaded("Masque") or not db.addonMasque or not KT.AddonOthers:IsEnabled())
 							end,
 							set = function()
 								db.addonMasque = not db.addonMasque
@@ -1552,7 +1544,6 @@ local options = {
 								if PetTracker.sets then
 									PetTracker.sets.zoneTracker = db.addonPetTracker
 								end
-								db.modulesOrder = nil
 								ReloadUI()
 							end,
 							order = 1.21,
@@ -1688,7 +1679,7 @@ local options = {
 									"這個駭客工具移除了對受限函數 SetPassThroughButtons 的呼叫。"..
 									"停用駭客工具時，世界地圖顯示會導致錯誤。"..
 									"由於追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-									cWarning2.."負面影響:|r 在魔獸世界 11.0.7 尚未可知。\n",
+									cWarning2.."負面影響:|r 在魔獸世界 11.1.5 尚未可知。\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",
@@ -1737,90 +1728,13 @@ function KT:CheckAddOn(addon, version, isUI)
 end
 
 function KT:OpenOptions()
-	if not EditModeManagerFrame:IsEditModeActive() then
+	if self.optionsFrame and not EditModeManagerFrame:IsEditModeActive() then
 		Settings.OpenToCategory(self.optionsFrame.general.name, true)
 	end
 end
 
 function KT:InitProfile(event, database, profile)
 	ReloadUI()
-end
-
-function KT:SetupOptions()
-	self.db = LibStub("AceDB-3.0"):New(strsub(addonName, 2).."DB", defaults, true)
-	self.options = options
-	db = self.db.profile
-	dbChar = self.db.char
-
-	general.sec2.args.classBorder.name = general.sec2.args.classBorder.name:format(self.RgbToHex(self.classColor))
-
-	general.sec7.args.messageOutput = self:GetSinkAce3OptionsDataTable()
-	general.sec7.args.messageOutput.inline = true
-	general.sec7.args.messageOutput.disabled = function() return not (db.messageQuest or db.messageAchievement) end
-	self:SetSinkStorage(db)
-
-	options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
-	options.args.profiles.confirm = true
-	options.args.profiles.args.current.width = "double"
-	options.args.profiles.args.reset.confirmText = warning
-	options.args.profiles.args.new.confirmText = warning
-	options.args.profiles.args.choose.confirmText = warning
-	options.args.profiles.args.copyfrom.confirmText = warning
-	if not options.args.profiles.plugins then
-		options.args.profiles.plugins = {}
-	end
-	options.args.profiles.plugins[addonName] = {
-		clearTrackerDataDesc1 = {
-			name = "清空當前角色已追蹤的任務內容資料 (不包含設定)。",
-			type = "description",
-			order = 0.1,
-		},
-		clearTrackerData = {
-			name = "清空清單資料",
-			desc = "清空已追蹤內容的資料。",
-			type = "execute",
-			confirmText = "清空清單資料 - "..cBold..self.playerName,
-			func = function()
-				dbChar.quests.cache = {}
-				for i = 1, #db.filterAuto do
-					db.filterAuto[i] = nil
-				end
-				self:SetBackground()
-				KT.QuestsCache_Init()
-				OTF:Update()
-			end,
-			order = 0.2,
-		},
-		clearTrackerDataDesc2 = {
-			name = "當前角色: "..cBold..self.playerName,
-			type = "description",
-			width = "double",
-			order = 0.3,
-		},
-		clearTrackerDataDesc4 = {
-			name = "",
-			type = "description",
-			order = 0.4,
-		}
-	}
-
-	ACR:RegisterOptionsTable(addonName, options, true)
-	
-	self.optionsFrame = {}
-	self.optionsFrame.general = ACD:AddToBlizOptions(addonName, "任務-追蹤清單", nil, "general")
-	self.optionsFrame.modules = ACD:AddToBlizOptions(addonName, options.args.modules.name, "任務-追蹤清單", "modules")
-	self.optionsFrame.addons = ACD:AddToBlizOptions(addonName, options.args.addons.name, "任務-追蹤清單", "addons")
-	self.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, options.args.hacks.name, "任務-追蹤清單", "hacks")
-	self.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, options.args.profiles.name, "任務-追蹤清單", "profiles")
-
-	self.db.RegisterCallback(self, "OnProfileChanged", "InitProfile")
-	self.db.RegisterCallback(self, "OnProfileCopied", "InitProfile")
-	self.db.RegisterCallback(self, "OnProfileReset", "InitProfile")
-
-	-- Disable some options
-	if not IsSpecialLocale() then
-		db.objNumSwitch = false
-	end
 end
 
 function GetModulesOptionsTable()
@@ -1943,6 +1857,85 @@ function IsSpecialLocale()
 			KT.locale == "ruRU")
 end
 
+local function Init()
+	KT.db = LibStub("AceDB-3.0"):New(strsub(addonName, 2).."DB", defaults, true)
+	KT.options = options
+	db = KT.db.profile
+	dbChar = KT.db.char
+end
+
+local function Setup()
+	general.sec2.args.classBorder.name = general.sec2.args.classBorder.name:format(KT.RgbToHex(KT.classColor))
+
+	general.sec7.args.messageOutput = KT:GetSinkAce3OptionsDataTable()
+	general.sec7.args.messageOutput.inline = true
+	general.sec7.args.messageOutput.disabled = function() return not (db.messageQuest or db.messageAchievement) end
+	KT:SetSinkStorage(db)
+
+	options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(KT.db)
+	options.args.profiles.confirm = true
+	options.args.profiles.args.current.width = "double"
+	options.args.profiles.args.reset.confirmText = warning
+	options.args.profiles.args.new.confirmText = warning
+	options.args.profiles.args.choose.confirmText = warning
+	options.args.profiles.args.copyfrom.confirmText = warning
+	if not options.args.profiles.plugins then
+		options.args.profiles.plugins = {}
+	end
+	options.args.profiles.plugins[addonName] = {
+		clearTrackerDataDesc1 = {
+			name = "清空當前角色已追蹤的任容資料 (任務、成就等，不包含設定)。Clear the data (no settings) of the tracked content (Quests, Achievements etc.) for current character.",
+			type = "description",
+			order = 0.1,
+		},
+		clearTrackerData = {
+			name = "清空追蹤清單",
+			desc = "清空已追蹤內容的資料。",
+			type = "execute",
+			confirmText = "清空追蹤清單 - "..cBold..KT.playerName,
+			func = function()
+				dbChar.quests.cache = {}
+				for i = 1, #db.filterAuto do
+					db.filterAuto[i] = nil
+				end
+				KT:SetBackground()
+				KT.QuestsCache_Init()
+				OTF:Update()
+			end,
+			order = 0.2,
+		},
+		clearTrackerDataDesc2 = {
+			name = "當前角色: "..cBold..KT.playerName,
+			type = "description",
+			width = "double",
+			order = 0.3,
+		},
+		clearTrackerDataDesc4 = {
+			name = "",
+			type = "description",
+			order = 0.4,
+		}
+	}
+
+	ACR:RegisterOptionsTable(addonName, options, true)
+
+	KT.optionsFrame = {}
+	KT.optionsFrame.general = ACD:AddToBlizOptions(addonName, "任務-清單", nil, "general")
+	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, options.args.modules.name, "任務-清單", "modules")
+	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, options.args.addons.name, "任務-清單", "addons")
+	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, options.args.hacks.name, "任務-清單", "hacks")
+	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, options.args.profiles.name, "任務-清單", "profiles")
+
+	KT.db.RegisterCallback(KT, "OnProfileChanged", "InitProfile")
+	KT.db.RegisterCallback(KT, "OnProfileCopied", "InitProfile")
+	KT.db.RegisterCallback(KT, "OnProfileReset", "InitProfile")
+
+	-- Disable some options
+	if not IsSpecialLocale() then
+		db.objNumSwitch = false
+	end
+end
+
 local function SetAlert(type)
 	if not type then return end
 
@@ -1952,7 +1945,7 @@ local function SetAlert(type)
 			local character = UnitName("player")
 			local realm = GetRealmName()
 			general.alert = {
-				name = "Alert - Automatically tracked quests",
+				name = "警告 - 自動追蹤的任務",
 				type = "group",
 				inline = true,
 				order = 0.1,
@@ -1964,7 +1957,7 @@ local function SetAlert(type)
 						order = 1.1,
 					},
 					alertText = {
-						name = "You are probably having problem with automatically tracked quests after every Login or Reload UI. Try the following steps to fix it.",
+						name = "每次登入或重新載入介面後，自動追蹤的任務可能會出現問題。請嘗試以下步驟來修復。",
 						type = "description",
 						width = 2.8,
 						fontSize = "medium",
@@ -1977,11 +1970,11 @@ local function SetAlert(type)
 						order = 2.1,
 					},
 					alertText2 = {
-						name = "- Go to the directory:  ...\\World of Warcraft\\_retail_\\WTF\\Account\\...ACCOUNT...\\"..realm.."\\"..character.."\n"..
-								"- Open the file:  "..cBold.."config-cache.wtf|r\n"..
-								"- Search for the string:  "..cBold.."SET trackedQuests \""..trackedQuests.."\"|r\n"..
-								"- Change it to:  "..cBold.."SET trackedQuests \"v11\"|r\n"..
-								"- Restart WoW",
+						name = "- 前往資料夾:  ...\\World of Warcraft\\_retail_\\WTF\\Account\\...帳號名稱...\\"..realm.."\\"..character.."\n"..
+								"- 開啟檔案:  "..cBold.."config-cache.wtf|r\n"..
+								"- 搜尋字串:  "..cBold.."SET trackedQuests \""..trackedQuests.."\"|r\n"..
+								"- 將其更改為:  "..cBold.."SET trackedQuests \"v11\"|r\n"..
+								"- 重新啟動魔獸世界",
 						type = "description",
 						width = 2.8,
 						order = 2.2,
@@ -1992,17 +1985,41 @@ local function SetAlert(type)
 	end
 end
 
--- Init
-KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
-	SetAlert("trackedQuests")
+local function SetupModules()
+	local i, module = next(db.modulesOrder)
+	while module do
+		if not _G[module].init then
+			tremove(db.modulesOrder, i)
+			i = i - 1
+		end
+		i, module = next(db.modulesOrder, i)
+	end
+
 	modules.sec1.args = GetModulesOptionsTable()
-	Mover_UpdateOptions()
-	KT:RegEvent("UI_SCALE_CHANGED", function()
-		Mover_SetScale()
-	end)
-	KT:UnregEvent(eventID)
-end)
+end
 
 hooksecurefunc(UIParent, "SetScale", function(self)
 	Mover_SetScale()
 end)
+
+-- External ------------------------------------------------------------------------------------------------------------
+
+function M:OnInitialize()
+	_DBG("|cffffff00Init|r - "..self:GetName(), true)
+	Init()
+end
+
+function M:OnEnable()
+	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
+	Setup()
+
+	KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
+		SetAlert("trackedQuests")
+		SetupModules()
+		Mover_UpdateOptions()
+		KT:RegEvent("UI_SCALE_CHANGED", function()
+			Mover_SetScale()
+		end)
+		KT:UnregEvent(eventID)
+	end)
+end

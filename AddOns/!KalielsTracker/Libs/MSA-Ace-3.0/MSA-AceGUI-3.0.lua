@@ -13,9 +13,7 @@ local xpcall = xpcall
 local width_multiplier = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 184 or 170  -- MSA
 local margin_left = 16
 
---------------
--- Internal --
---------------
+-- Internal ------------------------------------------------------------------------------------------------------------
 
 local function errorhandler(err)
 	return geterrorhandler()(err)
@@ -34,9 +32,7 @@ local function safelayoutcall(object, func, ...)
 	layoutrecursionblock = nil
 end
 
---------------
--- External --
---------------
+-- External ------------------------------------------------------------------------------------------------------------
 
 AceGUI:RegisterLayout("MSA-Flow",
 	function(content, children)

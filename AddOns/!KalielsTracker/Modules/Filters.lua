@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -7,6 +7,7 @@
 ---@type KT
 local addonName, KT = ...
 
+---@class Filters
 local M = KT:NewModule("Filters")
 KT.Filters = M
 
@@ -60,9 +61,7 @@ local zoneSlug = {
 
 local eventFrame
 
---------------
--- Internal --
---------------
+-- Internal ------------------------------------------------------------------------------------------------------------
 
 local function IsFavorite(type, id)
 	local result = false
@@ -217,7 +216,7 @@ local function SetHooks_Init()
 
 			C_SuperTrack.SetSuperTrackedQuestID(questID)
 			if self:GetPingWorldMap() then
-				WorldMapPing_StartPingQuest(questID)
+				EventRegistry:TriggerEvent("MapCanvas.PingQuestID", questID)
 			end
 			return
 		end
@@ -1166,9 +1165,7 @@ local function SetFrames()
 	end
 end
 
---------------
--- External --
---------------
+-- External ------------------------------------------------------------------------------------------------------------
 
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
