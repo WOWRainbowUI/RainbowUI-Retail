@@ -1641,7 +1641,6 @@ local death_events = {
 local dmg_filtered = {
     [280705] = true, -- Laser Matrix.
     [450412] = true, -- Sentinel.
-    [462952] = true, -- Squall Sailor's Citrine
 }
 
 
@@ -1809,10 +1808,9 @@ local function CLEU_HANDLER( event, timestamp, subtype, hideCaster, sourceGUID, 
                     end
 
                 elseif subtype == "SPELL_CAST_FAILED" then
-                    if state:RemoveSpellEvent( ability.key, true, "CAST_FINISH" ) then -- remove next cast finish.
-                        if ability.isProjectile then state:RemoveSpellEvent( ability.key, true, "PROJECTILE_IMPACT", true ) end -- remove last impact.
-                    end
-                    -- Hekili:ForceUpdate( "SPELL_CAST_FAILED" ) ]]
+                    state:RemoveSpellEvent( ability.key, true, "CAST_FINISH" ) -- remove next cast finish.
+                    if ability.isProjectile then state:RemoveSpellEvent( ability.key, true, "PROJECTILE_IMPACT", true ) end -- remove last impact.
+                    -- Hekili:ForceUpdate( "SPELL_CAST_FAILED" )
 
                 elseif subtype == "SPELL_AURA_REMOVED" and ability.channeled then
                     state:RemoveSpellEvents( ability.key, true ) -- remove ticks, finish, impacts.

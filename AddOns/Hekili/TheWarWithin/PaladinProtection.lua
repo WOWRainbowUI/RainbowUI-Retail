@@ -1440,7 +1440,7 @@ spec:RegisterAbilities( {
 
     -- Talent: Empowers you with the spirit of ancient kings, reducing all damage you take by 50% for 8 sec.
     guardian_of_ancient_kings = {
-        id = 86659,
+        id = function () return IsSpellKnownOrOverridesKnown( 228049 ) and 228049 or 86659 end,
         cast = 0,
         cooldown = function () return 300 - ( conduit.royal_decree.mod * 0.001 ) end,
         gcd = "off",
@@ -1448,7 +1448,6 @@ spec:RegisterAbilities( {
 
         talent = "guardian_of_ancient_kings",
         startsCombat = false,
-        nopvptalent = "guardian_of_the_forgotten_queen",
 
         toggle = "defensives",
 
@@ -1464,7 +1463,7 @@ spec:RegisterAbilities( {
     guardian_of_the_forgotten_queen = {
         id = 228049,
         cast = 0,
-        cooldown = 300,
+        cooldown = 180,
         gcd = "spell",
         school = "holy",
 
@@ -1611,9 +1610,9 @@ spec:RegisterAbilities( {
         id = function() return buff.holy_bulwark_ready.up and 432459 or 432472 end,
         known = 432459,
         cast = 0.0,
-        cooldown = function() return 60 * ( 1 - 0.2 * talent.forewarning.rank ) end,
+        cooldown = function() return 60 * ( 0.8 * talent.forewarning.rank ) end,
         charges = 2,
-        recharge = function() return 60 * ( 1 - 0.2 * talent.forewarning.rank ) end,
+        recharge = function() return 60 * ( 0.8 * talent.forewarning.rank ) end,
         gcd = "spell",
 
         startsCombat = false,

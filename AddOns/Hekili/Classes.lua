@@ -721,7 +721,7 @@ local HekiliSpecMixin = {
             end
         end
 
-        if ( a.velocity or a.flightTime ) and a.impact and a.isProjectile == nil then
+        if ( a.velocity or a.flightTime ) and a.impact then
             a.isProjectile = true
         end
 
@@ -1668,7 +1668,7 @@ all:RegisterAuras( {
     -- Mastery increased by $w1% and auto attacks have a $h% chance to instantly strike again.
     skyfury = {
         id = 462854,
-        duration = 3600,
+        duration = 3600.0,
         max_stack = 1,
         shared = "player",
         dot = "buff"
@@ -2490,9 +2490,7 @@ do
 
                             class.auras[ spell ] = all.auras[ potion.name ]
                         else
-                            local existing = all.auras[ potion.name ]
-                            if not existing.copy then existing.copy = {} end
-                            insert( existing.copy, spell )
+                            insert( all.auras[ potion.name ].copy, spell )
                             all.auras[ spell ] = all.auras[ potion.name ]
                             class.auras[ spell ] = all.auras[ potion.name ]
                         end
