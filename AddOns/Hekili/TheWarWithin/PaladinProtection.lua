@@ -1,18 +1,33 @@
 -- PaladinProtection.lua
--- July 2024
+-- April 2025
 
 if UnitClassBase( "player" ) ~= "PALADIN" then return end
 
 local addon, ns = ...
 local Hekili = _G[ addon ]
 local class, state = Hekili.Class, Hekili.State
-local FindUnitBuffByID = ns.FindUnitBuffByID
+local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID
 
 local spec = Hekili:NewSpecialization( 66 )
-
+local QueenGlyphed = IsSpellKnownOrOverridesKnown
 local strformat = string.format
 
 local GetSpellInfo = ns.GetUnpackedSpellInfo
+local spellwardingFilters = {}
+
+for zoneID, zoneData in pairs( class.spellFilters ) do
+    for npcID, npcData in pairs( zoneData ) do
+        if npcID ~= "name" then
+            for spellID, spellData in pairs( npcData ) do
+                if spellID ~= "name" and spellData.spell_reflection then
+                    spellwardingFilters[ spellID ] = true
+                end
+            end
+        end
+    end
+end
+
+class.spellwardingFilters = spellwardingFilters
 
 spec:RegisterResource( Enum.PowerType.HolyPower )
 spec:RegisterResource( Enum.PowerType.Mana )
@@ -318,36 +333,36 @@ spec:RegisterAuras( {
     -- https://wowhead.com/beta/spell=26573
     consecration = {
         id = 26573,
-        duration = function() return talent.consecration_in_flame.enabled and 14 or 12 end,
+        duration = function() return 12 + ( talent.consecration_in_flame.enabled and 2 or 0 ) + ( talent.sanctuary.enabled and 4 or 0 ) end,
         tick_time = 1,
         type = "Magic",
         max_stack = 1,
         generate = function( c, type )
-            if type == "buff" and FindUnitBuffByID( "player", 188370 ) then
-                local dropped, expires
+            local cons = GetPlayerAuraBySpellID( 188370 )
 
-                for i = 1, 5 do
-                    local up, name, start, duration = GetTotemInfo( i )
+            if type == "buff" and cons then
+                local expires = 0
+                local duration = class.auras.consecration.duration
 
-                    if up and name == class.abilities.consecration.name then
-                        dropped = start
-                        expires = dropped + duration
-                        break
-                    end
+                if cons.expirationTime == 0 then
+                    expires = action.consecration.lastCast + duration
+                    if talent.undisputed_ruling.enabled then expires = max( expires, action.hammer_of_light.lastCast + duration ) end
+                else
+                    expires = cons.expirationTime
                 end
 
-                if dropped and expires > query_time then
-                    c.expires = expires
-                    c.applied = dropped
-                    c.count = 1
-                    c.caster = "player"
-                    return
-                end
+                c.expires = expires
+                c.applied = expires - duration
+                c.duration = duration
+                c.count = 1
+                c.caster = "player"
+                return
             end
 
             c.count = 0
             c.expires = 0
             c.applied = 0
+
             c.caster = "unknown"
         end
     },
@@ -374,7 +389,10 @@ spec:RegisterAuras( {
     devotion_aura = {
         id = 465,
         duration = 3600,
-        max_stack = 1
+        max_stack = 1,
+        dot = "buff",
+        shared = "player",
+        friendly = true
     },
     divine_guidance = {
         id = 460822,
@@ -494,7 +512,7 @@ spec:RegisterAuras( {
     -- Talent: Damage taken reduced by $86657s2%.
     -- https://wowhead.com/beta/spell=86659
     guardian_of_ancient_kings = {
-        id = 86659,
+        id = function() return QueenGlyphed( 212641 ) and 212641 or 86659 end,
         duration = 8,
         max_stack = 1
     },
@@ -797,7 +815,17 @@ spec:RegisterAuras( {
     },
 } )
 
+-- The War Within
+spec:RegisterGear( "tww2", 229244, 229242, 229243, 229245, 229247 )
+spec:RegisterAura( "luck_of_the_draw", {
+    -- https://www.wowhead.com/ptr-2/spell=1218114/luck-of-the-draw
+    -- Each time you take damage you have a chance to activate Luck of the Draw! causing you to cast Guardian of Ancient Kings for 4.0 sec. Your damage done is increased by 15% for 10 sec after Luck of the Draw! activates.
+        id = 1218114,
+        duration = 10,
+        max_stack = 1
+} )
 
+-- Legacy
 spec:RegisterGear( "tier31", 207189, 207190, 207191, 207192, 207194 )
 spec:RegisterAuras( {
     sanctification = { -- TODO: Explore reset of stacks when empowered Consecration expires.
@@ -1177,7 +1205,7 @@ spec:RegisterAbilities( {
         id = 1022,
         cast = 0,
         -- charges = 1,
-        cooldown = function() return ( talent.improved_blessing_of_protection.enabled and 240 or 300 ) * ( 1 - 0.3 * talent.uthers_counsel.rank ) end,
+        cooldown = function() return ( talent.improved_blessing_of_protection.enabled and 240 or 300 ) * ( 1 - 0.15 * talent.uthers_counsel.rank ) end,
         -- recharge = function() return ( talent.improved_blessing_of_protection.enabled and 240 or 300 ) * ( 1 - 0.3 * talent.uthers_counsel.rank ) end,
         gcd = "spell",
         school = "holy",
@@ -1229,7 +1257,7 @@ spec:RegisterAbilities( {
         id = 204018,
         cast = 0,
         -- charges = 1,
-        cooldown = function() return ( talent.improved_blessing_of_protection.enabled and 240 or 300 ) * ( 1 - 0.3 * talent.uthers_counsel.rank ) end,
+        cooldown = function() return ( talent.improved_blessing_of_protection.enabled and 240 or 300 ) * ( 1 - 0.15 * talent.uthers_counsel.rank ) end,
         -- recharge = function() return ( talent.improved_blessing_of_protection.enabled and 240 or 300 ) * ( 1 - 0.15 * talent.uthers_counsel.rank ) end,
         gcd = "spell",
         school = "holy",
@@ -1240,7 +1268,27 @@ spec:RegisterAbilities( {
         talent = "blessing_of_spellwarding",
         startsCombat = false,
         nodebuff = "forbearance",
+		toggle = "defensives",
 
+        usable = function()
+            if not settings.bosp_filter then return true end
+
+            local zone = state.instance_id
+            local npcid = target.npcid or -1
+            local t = debuff.casting
+
+            -- Only use on a spell targeted at the player.
+            if not t.up then
+                return false, "target is not casting"
+            end
+            if not state.target.is_dummy and not class.spellFilters[ t.v1 ] then
+                return false, "spell[" .. t.v1 .. "] in zone[" .. zone .. "] by npc[" .. npcid .. "] is not on filter"
+            end
+            if not UnitIsUnit( "player", t.caster .. "target" ) then
+                return false, "player is not target of cast"
+            end
+            return true
+        end,
         handler = function ()
             applyBuff( "blessing_of_spellwarding" )
             applyDebuff( "player", "forbearance" )
@@ -1372,7 +1420,7 @@ spec:RegisterAbilities( {
     divine_shield = {
         id = 642,
         cast = 0,
-        cooldown = function () return 300 * ( talent.unbreakable_spirit.enabled and 0.7 or 1 ) * ( 1 - 0.3 * talent.uthers_counsel.rank ) end,
+        cooldown = function () return 300 * ( talent.unbreakable_spirit.enabled and 0.7 or 1 ) * ( 1 - 0.15 * talent.uthers_counsel.rank ) end,
         gcd = "spell",
         school = "holy",
 
@@ -1415,6 +1463,8 @@ spec:RegisterAbilities( {
             if talent.lights_guidance.enabled then
                 applyBuff( "hammer_of_light_ready" )
             end
+
+            if talent.undisputed_ruling.enabled then gain( 3, "holy_power" ) end
         end,
 
         bind = "hammer_of_light"
@@ -1440,7 +1490,7 @@ spec:RegisterAbilities( {
 
     -- Talent: Empowers you with the spirit of ancient kings, reducing all damage you take by 50% for 8 sec.
     guardian_of_ancient_kings = {
-        id = function () return IsSpellKnownOrOverridesKnown( 228049 ) and 228049 or 86659 end,
+        id = function() return QueenGlyphed( 212641 ) and 212641 or 86659 end,
         cast = 0,
         cooldown = function () return 300 - ( conduit.royal_decree.mod * 0.001 ) end,
         gcd = "off",
@@ -1448,6 +1498,7 @@ spec:RegisterAbilities( {
 
         talent = "guardian_of_ancient_kings",
         startsCombat = false,
+        nopvptalent = "guardian_of_the_forgotten_queen",
 
         toggle = "defensives",
 
@@ -1463,7 +1514,7 @@ spec:RegisterAbilities( {
     guardian_of_the_forgotten_queen = {
         id = 228049,
         cast = 0,
-        cooldown = 180,
+        cooldown = 300,
         gcd = "spell",
         school = "holy",
 
@@ -1494,6 +1545,47 @@ spec:RegisterAbilities( {
             applyDebuff( "target", "hammer_of_justice" )
         end,
     },
+
+        -- Hammer down your enemy with the power of the Light, dealing $429826s1 Holy damage and ${$429826s1/2} Holy damage up to 4 nearby enemies. ; Additionally, calls down Empyrean Hammers from the sky to strike $427445s2 nearby enemies for $431398s1 Holy damage each.;
+        hammer_of_light = {
+            id = 427453,
+            known = 387174,
+            flash = 387174,
+            cast = 0.0,
+            cooldown = 0.0,
+            gcd = "spell",
+
+            spend = function()
+                if buff.divine_purpose.up or buff.hammer_of_light_free.up then return 0 end
+                return 3
+            end,
+            spendType = "holy_power",
+
+            startsCombat = true,
+            buff = function() return buff.hammer_of_light_free.up and "hammer_of_light_free" or "hammer_of_light_ready" end,
+
+            handler = function ()
+                removeBuff( "divine_purpose" )
+                if talent.undisputed_ruling.enabled then
+                    spec.abilities.consecration.handler()
+                    applyBuff( "shield_of_the_righteous", buff.shield_of_the_righteous.remains + 4.5 )
+                end
+
+
+                if buff.hammer_of_light_free.up then
+                    removeBuff( "hammer_of_light_free" )
+                else
+                    removeBuff( "hammer_of_light_ready" )
+
+                    if buff.lights_deliverance.stack_pct == 100 then
+                        removeBuff( "lights_deliverance" )
+                        applyBuff( "hammer_of_light_free" )
+                    end
+                end
+            end,
+
+            bind = { "wake_of_ashes", "eye_of_tyr" }
+        },
 
     -- Talent: Hammers the current target for 1,302 Physical damage. While you are standing in your Consecration, Hammer of the Righteous also causes a wave of light that hits all other targets within 8 yds for 226 Holy damage. Generates 1 Holy Power.
     hammer_of_the_righteous = {
@@ -1610,9 +1702,9 @@ spec:RegisterAbilities( {
         id = function() return buff.holy_bulwark_ready.up and 432459 or 432472 end,
         known = 432459,
         cast = 0.0,
-        cooldown = function() return 60 * ( 0.8 * talent.forewarning.rank ) end,
+        cooldown = function() return 60 * ( 1 - 0.2 * talent.forewarning.rank ) end,
         charges = 2,
-        recharge = function() return 60 * ( 0.8 * talent.forewarning.rank ) end,
+        recharge = function() return 60 * ( 1 - 0.2 * talent.forewarning.rank ) end,
         gcd = "spell",
 
         startsCombat = false,
@@ -1671,7 +1763,7 @@ spec:RegisterAbilities( {
             return 633
         end,
         cast = 0,
-        cooldown = function () return 600 * ( talent.unbreakable_spirit.enabled and 0.7 or 1 ) * ( talent.uthers_counsel.enabled and 0.7 or 1 ) end,
+        cooldown = function () return 600 * ( talent.unbreakable_spirit.enabled and 0.7 or 1 ) * ( talent.uthers_counsel.enabled and 0.85 or 1 ) end,
         gcd = "off",
         school = "holy",
 
@@ -1760,7 +1852,7 @@ spec:RegisterAbilities( {
 
         spend = function ()
             if buff.divine_purpose.up then return 0 end
-            return 3 - ( buff.the_magistrates_judgment.up and 1 or 0 )
+            return 3
         end,
         spendType = "holy_power",
 
@@ -1771,7 +1863,6 @@ spec:RegisterAbilities( {
         handler = function ()
             removeBuff( "bulwark_of_righteous_fury" )
             removeBuff( "divine_purpose" )
-            removeBuff( "the_magistrates_judgment" )
             removeDebuff( "target", "judgment" )
 
             if talent.faiths_armor.enabled then applyBuff( "faiths_armor" ) end
@@ -1784,7 +1875,10 @@ spec:RegisterAbilities( {
                 end
             end
 
-
+            if set_bonus.tww2 >= 4 and buff.luck_of_the_draw.up then
+                gain( 1, "holy_power" )
+                buff.luck_of_the_draw.expires = buff.luck_of_the_draw.expires + 0.5
+            end
 
             applyBuff( "shield_of_the_righteous", buff.shield_of_the_righteous.remains + 4.5 )
             last_shield = query_time
@@ -1817,7 +1911,7 @@ spec:RegisterAbilities( {
 
         spend = function ()
             if buff.divine_purpose.up or buff.shining_light_full.up or buff.royal_decree.up or buff.bastion_of_light.up then return 0 end
-            return 3 - ( buff.the_magistrates_judgment.up and 1 or 0 )
+            return 3
         end,
         spendType = "holy_power",
 
@@ -1831,7 +1925,6 @@ spec:RegisterAbilities( {
             elseif buff.bastion_of_light.up then removeStack( "bastion_of_light" )
             else removeBuff( "shining_light_full" ) end
 
-            removeBuff( "the_magistrates_judgment" )
             gain( 2.9 * stat.spell_power * ( 1 + stat.versatility_atk_mod ), "health" )
             removeBuff( "recompense" )
 
@@ -1849,10 +1942,11 @@ spec:RegisterAbilities( {
     },
 } )
 
+local wog_str = Hekili:GetSpellLinkWithTexture( spec.abilities.word_of_glory.id )
 
 spec:RegisterSetting( "wog_health", 40, {
-    name = "|T133192:0|t Word of Glory Health Threshold",
-    desc = "When set above zero, the addon may recommend |T133192:0|t Word of Glory when your health falls below this percentage.",
+    name = format( "%s Health Threshold", wog_str ),
+    desc = format( "If set above zero, %s may be recommended when your health falls below this percentage.", wog_str ),
     type = "range",
     min = 0,
     max = 100,
@@ -1864,13 +1958,47 @@ spec:RegisterStateExpr( "wog_health", function ()
     return settings.wog_health or 0
 end )
 
+local loh_str = Hekili:GetSpellLinkWithTexture( spec.abilities.lay_on_hands.id )
+
+spec:RegisterSetting( "loh_health", 30, {
+    name = format( "%s Health Threshold", loh_str ),
+    desc = format( "If set above zero, %s may be recommended when your health falls below this percentage.", loh_str ),
+    type = "range",
+    min = 0,
+    max = 100,
+    step = 1,
+    width = "full",
+} )
+
+spec:RegisterStateExpr( "loh_health", function ()
+    return settings.loh_health or 0
+end )
+
+local ad_str = Hekili:GetSpellLinkWithTexture( spec.abilities.ardent_defender.id )
+
+spec:RegisterSetting( "ad_damage", 40, {
+    name = format( "%s Damage Threshold", ad_str ),
+    desc = format( "If set above zero, %s may be recommended when you take this percentage of your maximum health in damage over 5 seconds.\n\n"
+        .. "It is better to learn to use your defensive abilities proactively before taking damage, but this setting may help you learn (and prevent death).\n\n"
+        .. "By default, your |cFFFFD100Defensives|r toggle must also be enabled.", ad_str ),
+    type = "range",
+    min = 0,
+    max = 100,
+    step = 1,
+    width = "full",
+} )
+
+spec:RegisterStateExpr( "ad_damage", function ()
+    return ( settings.ad_damage or 0 ) * health.max * 0.01
+end )
+
+local goak_str = Hekili:GetSpellLinkWithTexture( spec.abilities.guardian_of_ancient_kings.id )
 
 spec:RegisterSetting( "goak_damage", 40, {
-    name = "|T135919:0|t Guardian of Ancient Kings Damage Threshold",
-    desc = function() return "When set above zero, the addon may recommend |T135919:0|t " .. ( GetSpellInfo( class.abilities.guardian_of_ancient_kings.id ) or "Guardian of Ancient Kings" )
-            .. " when you take this percentage of your maximum health in damage in the past 5 seconds.\n\n"
-            .. "By default, your Defensives toggle must also be enabled."
-        end,
+    name = format( "%s Damage Threshold", goak_str ),
+    desc = format( "If set above zero, %s may be recommended when you take this percentage of your maximum health in damage over 5 seconds.\n\n"
+        .. "It is better to learn to use your defensive abilities proactively before taking damage, but this setting may help you learn (and prevent death).\n\n"
+        .. "By default, your |cFFFFD100Defensives|r toggle must also be enabled.", goak_str ),
     type = "range",
     min = 0,
     max = 100,
@@ -1882,13 +2010,14 @@ spec:RegisterStateExpr( "goak_damage", function ()
     return ( settings.goak_damage or 0 ) * health.max * 0.01
 end )
 
+local ds_str = Hekili:GetSpellLinkWithTexture( spec.abilities.divine_shield.id )
 
 spec:RegisterSetting( "ds_damage", 60, {
-    name = "|T524354:0|t Divine Shield Damage Threshold",
-    desc = function() return "When set above zero, the addon may recommend |T524354:0|t " .. ( GetSpellInfo( class.abilities.divine_shield.id ) or "Divine Shield" )
-            .. " when you take this percentage of your maximum health in damage in the past 5 seconds.\n\n"
-            .. "By default, your Defensives toggle must also be enabled."
-        end,
+    name = format( "%s Damage Threshold", ds_str ),
+    desc = format( "If set above zero, %s may be recommended when you take this percentage of your maximum health in damage over 5 seconds.\n\n"
+        .. "It is better to learn to use your defensive abilities proactively before taking damage, but this setting may help you learn (and prevent death).\n\n"
+        .. "If you are actively tanking for a group and use %s, you will lose threat on all enemies and need to taunt to regain it.\n\n"
+        .. "By default, your |cFFFFD100Defensives|r toggle must also be enabled.", ds_str, spec.abilities.divine_shield.name ),
     type = "range",
     min = 0,
     max = 100,
@@ -1900,13 +2029,22 @@ spec:RegisterStateExpr( "ds_damage", function ()
     return ( settings.ds_damage or 0 ) * health.max * 0.01
 end )
 
+local bosp_str = Hekili:GetSpellLinkWithTexture( spec.abilities.blessing_of_spellwarding.id )
+
+spec:RegisterSetting( "bosp_filter", false, {
+    name = format( "%s: Cast Filter", bosp_str ),
+    desc = format( "If checked, %s may be recommended |cffff0000ONLY|r when your target is casting specific spells on you.\n\n"
+        .. "The spell filter is updated behind the scenes for each season and raid tier.", bosp_str ),
+    type = "toggle",
+    width = "full",
+} )
+
+local sent_str = Hekili:GetSpellLinkWithTexture( 389539 )
 
 spec:RegisterSetting( "sentinel_def", false, {
-    name = strformat( "%s: Use Defensively", Hekili:GetSpellLinkWithTexture( 389539 ) ),
-    desc = function()
-        return strformat( "When enabled, %s is placed on the Defensives toggle by default (rather than Cooldowns) and is recommended based on your Guardian of Ancient Kings "
-            .. "Damage Threshold setting.", Hekili:GetSpellLinkWithTexture( 389539 ) )
-    end,
+    name = strformat( "%s: Use Defensively", sent_str ),
+    desc = format( "If enabled, %s is placed on the |cFFFFD100Defensives|r toggle by default (rather than |cFFFFD100Cooldowns|r) and is recommended based on your %s Damage Threshold Setting.",
+        sent_str, goak_str ),
     type = "toggle",
     width = "full",
 } )
@@ -1938,4 +2076,4 @@ spec:RegisterOptions( {
 } )
 
 
-spec:RegisterPack( "Protection Paladin", 20271125, [[Hekili:vVrxVTnoYFlblGxBCPUwYXPPfX5HBFzBWHIfx6H7nlZirBZ1YsAfLsQpy4F73muFrkrkj7K2M9HwNyoC489mC4Kfwl(6Ih8ij0fFXEI9vww2Zgp5JtVz2vlEizFeDXdre3TK1Wpeq2b))FehMqDtyHbhx(heFIhlaHzVFiXdXfpmn2fGBtsse)tV)9RzjBsFCSB4U3Zz7s9j4wDJjRsWF399lE4XuMFYNdw8OrcHKMSjmEXdpW29BaMzEE0mWPC3fpGG)oRjVZY6YJlHpTfFA9oB78pN9PJl)priUpUCvC4UJlreD8(J3l26Kp(Uj3aG8VP8KWyaMDSe2AsglsYzvFgprzhiYXpVk)tedc0Umn7Okb(MmkZ2UdY4dVZEkaYx3aR)FjXW)bIou6INnxONORiP(jWp(fHElJ4w8qm9X0TGmNgqE0N6T4FUibKIievFtjWUeFFNSFXbXCg(DY0UvSoIIPNdkCdd99cFoGJy4QZbdjXSGT0ebcMDoiGNqc8iXEacGfIIPG13JKMYnp6tHcmqsJj6eFfa6ZwVjH78NPER3rdsQb6uzqjXUKaQdyjf3eYRKH0nmGtbpHSFtbU6CDyeWu0KQ9(ejMHRI)KFk8HfGVywcf(6sb44eRXBiCNcnYXLdoUS2AGOkzmjyVJxexS(WJlVqckBnqD4GcAkq)yV04CVM7MRGcnqmkdnnpQcyf8OQbHdFFGRd3pevRF56twgzRvgz3Imsh33ugPtsQiJ0kbURlHOgrK1jjIsKDglS9LKyvcdEefCNsiXRb3UX1S2ZuN2LutmH55qFcwzmXZJpM(nm(u2Y1xJLXOFyM(LtJm7Jv3hKaBBnlyTZZGaAJoxqTS2JPRwnwDVkhBuyr0U6XQQWbOV1HMy6ocla48BH8m5CiaAcBhvW1wtekXrvh2UqK1Ccx5S2pmEVoxDtkf(gg13d3AYgQtmkSOHP8mLZuPyASNyI4p((68s6sWKXfLwJg5y8qNuDQps4IaPa5j0J4r)Ht6Olrni4UPcXRyqYn)WW8y5LPg0yoxSLCySQPblchmUHRYXLa3yv4z3MCzfYBoksHRMu6P29HyRpeBP4oMs82x6OzIsgjhBOTteS8WFGljtAPWGCySpn5M9pc5ML(WU)WKB2zwFL1v0I1xvncvsr3nOtmxjq6QuW5gQmrSKtwmduUS21B8oY3GnT31Nw4(JNNgvxnxQnKD7OXLoHoRIPuLOu5NTay(gYwQiyYgkkS4QXZuLMnbUrOc6EQi60(yvenEMEBaGAQKA1O82dPd2bBIwdH4CS9iykBqSnRkzjXhZVaOYlLV1b0yoiuJZrLWgyqjy5zDwNY8ibU0cOQOSk2QZCenikljXnSdohThrcdPhWyYDRiC3KxgnzodYqzbszkdNOSRWfgxjtu0KAG0HbMLL6U5s0CHfsDBpHlPsMwdzW0LLQnNP(MwesqjiWmPFQ)ZK4TiCvC3Q049LQH5fWVj0FVtu4Z0yHr6u9EIMtUDrNhj66uPTndxP2baUVCTAXaIGG0yO4uXgqc)M2dHimtPEoeohkefT(YP2Esa3wignghwNtFddIp(2HkloRmQfjoRjF3Po7(sDUXPCIhif5qQQTub59tj1Kvh5MYRlTmOwUFhg62WvIrKAojqa9BjoK4DKSROa4HtCJbP(ZusuyGubdzjWKxSm51qTRkNJ662veIv7z1Y1VmGiqtbhiS6Tu6pqL7HUB8yntPtgsv9xdoZ3aO9K7vrOAUEJmsAc0yzoe5q5CIVmhLPL10zKv6vahlZXf)zrTAc8yoS4RirAFkePM4p21dpQj(JUABn3EIxloBAVmfS7is2RlH0ulB3rZmEfoF72vGM6ABDVCrd4JzrzR(ziOlwHRpfJCGeXLhx(v6UiFSz28nHP(qTmrXSqGFy)pSr7q4Xe4FWMoU8b0od2j2(7FpZsdSaHB15I9waHqWF8SEXJLfHnx63b(cRu73i((aqJRfFRJkQrM1C5ZxGH2RsiPA3xltLT5WSdljdwWUqEswbYkv3PTTz4LKZVwtp1S5fXwwyUk37r9zprJ7ZvkSnh7UzExrES8QyBl7M9nYzSQz3RM0Y(J6teQ6RQUNPtK3tDZ6AW2rSgqcJgLYxJo3hRsz20nu52ud7Y4tT0HmECf(Qg6VQLuHdphg7P0dXPnBuQSxQkRBo6YlXIzQ5BgBwI2glz2TS2f0KkFS2BVGO5AfJcJV4sIYtF1AVYtibBfHJguMGuR744YNtyO8Lkh7rxXCzjfQ2Y8S5LWfLghfYZS3K05TC5zZPRGe2(qDOrUjcj1ZHRDY(QxgzjvAGw3KwnvBrUkm9wXci(oIoTP4Pil2zbUH7Wd2JSJaxrzw299945Frr8VYUsg7HTDhyrAaetqLjwNclZiIExdw6mes8K4QGLlhY0dQlL9ec1zDLnGSUzpKEWBRdjBFlXDgXlYPM9DfejhcQ4WHDahPFFvUV1eaf0pYVMZ9)3qgR2HI8N5QbQfHXskySpzVtyaKFpWJVi)5iHKjCCrCep(GLfuP9dqvdbc7Mhed(aBxuymGSvHq09FT8P7)vOgj6FLYIXOb8qSJeK0KWDerHGUWHSMYhF8()fWRqkHpbfeggaNMy5FT4jduF(uaNjHsRM0y5HwFBuprQ8R)AaX1aPxiV5dq3a5AbPxixZRoRH01bZ3v03jI18C6AKkNnDFUOVhiUvZVglRqTx)JhPVqZoti)vXHXmLFEkVVZOVteFUol9KUpx03deFwHupEVMO957IFAb7T6wvjElQ20tfaOilF9qCjkT7w9OhLAaqHwF9qSq58zHEbX01QJajk2XjQlCfdhSQF5xkwMpUmx9)y(7X6dW6s4qHjjm4IfzJ009DbpX7plg)P71bNYa7PhK6dVKwGuVOOEyKVSOEikgHGlXrWAEUiTAocUum2zZTUKTAUE3LbMdjoy4fMdgF4ql(13nVLGvJoC4c9zoEjSOTmlARNfBYfsSyt(VIf1Wf31c7lZH1g)X7l5r0KtmZSYFt9rknJNLgg4oHT4K4DdArSUUHSyOtKi)sUM30GhvfTooF3n3ger6hIVdhA2jY7(WSMFnCNbTeJ6lGPhMSRDG0z2LCA8MAA3vTrNd3(qD7pVZz3Abu9q8TlVZAYOr6XP0RM1uSzOJl3nFQEKvFe4mZGhouA1AG4NpDIAWs5dIf8u4wQd9BWDWWELGhsMPIOtooSGvP8ZqcxoQDM2yo1D3nYMIv(hakmiZeHhYUj8GoBz2GHn7k18jhoOVBuJmqjknEcp)QBQEBvFWoTZk)7121lt0HY1VZKdMAZ1GcruZgfCxzRTgCXqdTgiN6ARTaQmwzlbY)6Y2byIxmIAz9RgIxQdh)mj)Io2GuBZ(q1M0)ncdu7m)7HuxUnq18dTMjhiPiphSNYCzkVtCwLu5dSIilwZbv5255dPIw8wBg1kJZ12CtERDPBVH5L8wliFQbquc23CcjV1AmKMszYiV1wlPxTxrMp5rnC(mSKN2N6Xrd64XOo1Z0kxQ8O2XA8UjN1b2s6JHx09ymkjQ7yegNd03fAv9fJT4jBx2VIhMML)RJXreQXyqvIPBNQLyQ9mFinCrhipnAqFh6Wb9JFMRN2m8ITLoCnF7uG061jE70Cfxlf1iriQVY8p(ZV2Zq)Aqa2Neb89kuQ8TJl5kTZ438z6nruMpaefktwWCLrYdUQywa2AtXhuIVMVVis61MKud6r93Y3zqRLDTB4ibJ01konpxD5pg01q4DQoGdFPgGthzmJyV9c)jqeACfFXuH9jtfM8hpvT4lLY1h3(7q4Y(QlEPheu2eCF53eZGwVD6pJsKQh39IAtOwFkKRLPrBGM()m)kOaZEPeGYbG6Q6CgIoR8bYtzwpSDpf)P(yIQfMgnzipwGM(dmyyxJng2UQwThQYAPFyXMBkNvntVEyICM6WtqEONqvAlV42IvvbRVmc1U0xbsr)vbqs5uhwcDh)sXFuFfTEvuc0qZ)zao3AG2gmIvDOEJT5xnbYd0gQSvANV6lUuC5XghZiSv2Mr6OtHzT7IzTF9ywlLg7)kXSI)UVCx8LRVwmjjl()p]] )
+spec:RegisterPack( "Protection Paladin", 20250425, [[Hekili:nZvBVnUns4FlbfWRn6ghl5KSzxeBG2E4W1f9wS4sl2pCOwM2I2MnYs(eLs2ae4F73mK6fsjsjzhVPlqrtS1OHZB8HZmC2mZz2Vp7oFscD2NCh5E1OlDVAOJJ71UZUl5PD0z3TJS8EYA4xcjBH))NJJsOltyrH7N)zsaXNfI08uqeXhzfpknEjq3MKKD8pCXfRzjBsxmCz02l4STPbe8vxgtwLGFE5fZUBrkli5xdNTWOC48(z3rst2efp7U7yB)fGZmFFQKCkF5S7qYpF0LN7E1h2p)FY(6(5)C0DFE)8vaBPX7)4(pMtXiKcKjW))PWLLpYf(p4r)umW4K9Z)h0v0qF4DNNUdfj)mkV8CNrN74829ZHF6k(PZ5UUz)ez(FiOhw74OTzlv(Ro69Np6gGK)dLNefd0SLLWwtKwssMfnGXt0EdK54pVm7N3uObsrRK4BKsMRBlIX7o3DmqYVVbE(xiGo(fWdHorCT5IOb6ksAqc8RFseDifUz3ftxKEp4APHKfbu)z)8SeWzHuu(nfeVKee4j)GhYzj)9KbrLQoYIXhdlwgff4h9yih5WLhdhsIzH3ttem4QJHb8esOpj2hya8GDXuiiFbPUDZN(qKGdK0yIjZxoHbS1Bs4E)vQ)6TqGyfshRskjEjjK6brsX1P8svkxgfYPWgo5N0ORQwhTdukAs57(ajMHpf)TGu4hoa)IzW2kgPWaomXz4gc3l3JSFEV9ZR8mWuLmKe(KN)oU4593p)mfQCnq1ZpRXMC2p0pnoBxZ0jASWafdKSP(sLtRqh1di84a2GhpicDRF66d2g5A0g52GnYK2x3gzYsQzJmAbM2Mr0GjY5GmrjQBgZJ9vSyLgd(okSDkHeVg22nSs0U0D6winXeMVh9b4jdj((8H0VI4tYhx9zmPI(URm)40D23JvDpibET1SW1EpcgOnM2cAu1wKUA1q93vBz3fLJ2vfRQKhG)2eBIPBjSqqZVfoNjtdbstyBPcT2zKWjoOCX2gHQMx0kV1brXpzARUnNcFdJg4JVAYgQxmASOrPCPZzScMg7bMa)jiW0UK2mmsTOiA0QgJl6OYvDbHlasbXt4hXL(Dh0sxWAWWDtjJxXGd3cIIYWYloAWq4C(RKag5cbH7LdYxtayHH0yVykNfWOHlPIWISDtwyrdhRMjzovIBYbHgwBd6(5Gn0jhpPjVXkuk80S9xoQaFO9fX1mWEHtoMs8FQy7TnjzGkIutRieVJ)cxXM0qUez04Ey2n3xd7MJzW(xn7MRmMViBMgI5lZmP0kUCdcDW1GVxLcqkq(qIh5jrQq7Y6L(d3s(k8spTmGMd6GRNHq(k7J2q2Uf2iLVDXBvmLQHnMT2cI5Bi3tfqyBOOXIRJIQBnRtCnak6tInQjpfRZOHxzogaKMsRwfjV5dsG4Gn7wdaREU(emrbWSDv5r0Ka8unGv(P879apMhs1WmwjIb6vqwgUY6uMpbrEYxWcjRuTA9KPAcLJI5gEdohJhrbdLhiyA59cq2rVmzY(5w9vnifhu5TtwFAuCPnrZtAGspgeww47MOiZ5rivJ9eBj1oF3Y5MMoBSTxruwBmBx2bTPWU01qLHPObnAfOYyLB(XKh7)7F5lqq)LFEaFhbQZJhLaLZraDyB6YnYFBxe4yGvE)8hHY8IsbaGhXdrrwcQn8PnuSy0C6uTWTP9AGJO8LRlOWP8Cm6jk4jVDrpI1u)J7NNJJ4P(9tLr6L4MFBDVIuMmK)WH5EalkN5tLEgd(O3IM2OaPfa)DHQAZhLebwt4NKIpbAp(cg4m6rdbDMlDTadfDvqzDoyFjuxJ3IOWu(qyvEKe)OOZaECkHdjD56D5ULhQpTIlTtVJmoO3X5vrx6nwbno7GuYVTbGNk8L3Fahw31K9H0UfcOeDpnaStID3LA3Q04NkG5NKtVQF8wrbdMoP3zutoOwwZSy1mhJD6kCpyGDhvB9ACezzrJHAUfVGqYTxCB5bHuFpcNdfylZ2)qKGBZnKwZ0ZuAf1cjCAjxQxtXmFTKIRq6APm6tG052vPBzCkN4dMroKn89uH4zppib3Yk9TidMSnbiQLLUUHm1EImH0VM4rI3sKDbb4dNSmg0)hPKDrHkGrYSvvFyrMQ9n(u1esVUztIoGBZfKxTFdID95AGma8A1EQugPAQPkoVtLw1gluHo7W65O00vSquQXY5RNzPP9Zhc4zdgUmbitrX0YjHpWckLbJf8yhgSEmHWgNH2j9v51DnrVyJA(c3ounNjPZogsZfovAoQ)8U4tCBS4OtfcX4I0sSQkDcQ1T9(59AlT1rCDBSmQtLq6EicPbGxx7Dr8SUx)OPik79i8me0ReQwxeRGH7AhaQFH8Xc3gXtK5XPLdIXEwJ9kkR6(oANZY1Qi)rDZIpnG9anUlvw7wf6RROpnH1mEKkwELarD48XoMpIOs1w6VJwR6RgcvH2wYYaSWIZku6MuzjR5zxwBtrHhnVl8ngvQFOQuhxHxPOTIxk0ThJIfE)Ig4pw7s9QgKxr1TVD)LeXmULU8B0I2KkzFBzL6iusSQYfFIS5gTGcRx3zI29o34fvLqcVx0IKEfyzg3ooS4U80QTDOpKiYswsURTasml5MDPXqn)Y4nfFEd14z76awO04nbacSb1h(CLUu8F)x07zbS)eN(GLrquyOF(usWY7Pq24smNXXUoKf(IGuaFHkIJeSIpC)8FjLNGJvWUyweyXyyoiGpz)8uonNRYosefR02jOkBGWvusskKCMwrP0eSHu8HlI478KYHWXAp8GscGKV2TmreE8y0Ap5x9Y8fkhDzeBOP9N2tdiB)gKAkjWt0LDn4b1ynwi4DWf2NSLSM6DLSwCFE2xKd6xCJeIbwb2dlNxfDLyDkglqe3wgS9MHuEVWoRrwMDqg8P)i5Lwwv11Ebu1TJ20bDBDe5(VN0oR8f1u7aGcHKdiPEC4nGLmORo3V3ma5YpQV2bO7GIr8)EsTQSOO2zpDUk4lbrBYWxk5xa5jVOqi1MqF(SSXGaohLJpmBc2g9EaNGehkIEUtmWvST7IIbMUcHgFtXid9gi9q6)lfQA1hBJpEDzKuaKvm7zyLEWH9a07h)nqNHtd)aachfcRM4XVj)sd1hBJ3iBG8BSmvhWJ7781bDKPQtDIfgxHKoX86d(snMBKKoXCdt7Ibr3enFtzFRm2Wy8yWQC0Y9XY(oW4gd)Q9ynP96xFM(cd7SX8tYgg7s(X58(gZ(wz8XUzPJY9XY(oW4JcsD)hnG2N9w8ddS3TDxL42IAYpLtGMT80X4cwoUD3JzwAGanz90XyHZ5xf(fKtxRp61OzhNK3iOie6S7(HFaQKOJZX(IGOfxOEJIx8tcg)zzvsp9Bi7VyNCI5ZVBqmpf8T3)rCP(JDsXxo72YsOWz3gu()nu2l8jNXGFdYTy)8Zbb)g)XV7sXSPJVTup4dlsQ4hNCbMqJO0qitQeguhKCMpBLEI)FLpFOF0eDAt0SzsQoDNgjsVyEZ0OwqVzkYN2P3Itv3KmFF5ip9wXC5oX5TSvtmVVUNDS7E9pZ(Pgp)CdaqtN0aQ6GNF(mZhX9surxvv01SkwxluuX66FPkAqlM2G6RQHvMp8pwOJyiN4FubQFt1zUxQZk)RLOvAZxjE7KMdk3oL5ZhNI4xO186b8OROX5DE6exWezEkNF(56DlE67UQ(xdf5yuy0VLkZ0iRtcLtlxSLX3QYSfJVEFtVFw3nV1bK6(4eao1z0GbM5PYD(v3SzPRytNm2mZQoJW2vWNFUiQ1IWpz8iDWs1fIf(q09up6xHIgXw7GlImur04jpw4Qu(ryHlMfzBVyM0n9g1qXY9halSyZeWdYc371ABn71VEt0Mm65Nn38mWZcMPV)6ZOfdKT(Mkc)m0oslSrRlG47w24GBlBk5HzjZ(EJTGCGf5qRBisVSTEo2lpaOExBMw0NXEN13sNAYKUM6sJUIv0HMSVUO7m20fRSwn61GWR0hT)of)82NHsB9Mc2K1)7efOYA2IvVOjF)DkYQ9IRYUWYw3PcwMFwo8UfNxRndeYSfZgXcXj11hP9BNKno7g5BLr6RalVPXy)w3In)wgF9BDGCgSqI2bA1hy9BDgchfRnO636Au0lFxXP7Qt(9KRW06AEi0h0RLlf9qxtNmRYcJtz(0rh1c2WrK9pR9P(uXu3YeFobKVZm66lM9w8OZx558(qTjnRb9K79nmd496RC43pAyEFNo5kOuHtUjFGmHKVNhp7tSlOdZ1C7odHVOvhwVdXrCWQzNuKtD8sRBrpWJo6wnmJLPH3YawdL60R0(F7yJctLjcPmGPPjPUxxNI6EDtFMyw2SmCpfNjUWWSN1Tv82XzoUgQTsrqwOnqsV(RFLjw6uiaU2faSW1yQFkS64yCfa5w9HYsz7yG8ljhi1w3vORghF6jxzoWrBaZqwOnAAt0M2zauqMzuLbKgq0m895PaDTn7xVo0CalOBvM3zJ0O0ZJUUFUPPC(GbOSO0TmiZhLxsD4b7LfpnXCQN2K4UAISNBCV2Mj5df5Q)lDN74bwZ2VZWx)niegWWEXsH7blfM89hrvavrOoRYWa3LAvAyWF7zOnUtUeQHQtMf44uiVKwhxZx8EYoeRDiBo6suJrAQ1nTSqcdncRx)2MqxSRZngpuIVBEUCTM7ALqVoeICK(WdWEywq1UDnrJrkZI08bU6x2wjj5xtcqskN6XsOBZU)eZ)jSOqAn8x)Ig5k)TI)4eKFVmIJQ6B)pNbtC6z82hWt91B1XKlhH120aRC1URp97noVRl1wMb49CzNPdoeL1TnL190PSoA363jszf)7lD5SpD91I5HB2))d]] )

@@ -1114,16 +1114,21 @@ do
                                 -- print( "Changing", GetTime() )
                             end ]]
 
-                            if action ~= b.lastAction or self.NewRecommendations or not b.Image then
-                                if ability.item then
-                                    b.Image = b.Recommendation.texture or ability.texture or select( 5, GetItemInfoInstant( ability.item ) )
-                                else
-                                    local override = options and rawget( options, action )
-                                    b.Image = override and override.icon or b.Recommendation.texture or ability.texture or GetSpellTexture( ability.id )
-                                end
+                            local image -- texture to be shown on the button for the current action
+
+                            if ability.item then
+                                image = b.Recommendation.texture or ability.texture or select( 5, GetItemInfoInstant( ability.item ) )
+                            else
+                                local override = options and rawget( options, action )
+                                image = override and override.icon or b.Recommendation.texture or ability.texture or GetSpellTexture( ability.id )
+                            end
+
+                            if action ~= b.lastAction or image ~= b.lastImage or self.NewRecommendations or not b.Image then
+                                b.Image = image
                                 b.Texture:SetTexture( b.Image )
                                 b.Texture:SetTexCoord( unpack( b.texCoords ) )
                                 b.lastAction = action
+                                b.lastImage = image
                             end
 
                             b.Texture:Show()
@@ -1146,7 +1151,7 @@ do
 
 
                             if ability.empowered then
-                                b.EmpowerLevel:SetText( RomanNumerals[ b.Recommendation.empower_to or state.max_empower ] )
+                                b.EmpowerLevel:SetText( RomanNumerals[ b.Recommendation.empower_to or ability.empowerment_default or state.max_empower ] )
                             else
                                 b.EmpowerLevel:SetText( nil )
                             end
@@ -1538,7 +1543,7 @@ do
                                     local earliest_time = b.EarliestTime or delay
                                     if delay > earliest_time + 0.05 then
                                         if conf.delays.fade then unusable = true end
-                                        if conf.delays.desaturate then desaturate = true end
+                                        if conf.delays.desaturate then desaturated = true end
                                     end
                                 end
 
@@ -1642,7 +1647,7 @@ do
 
                     if ability.item then
                         start, duration, enabled, modRate = GetItemCooldown( ability.item )
-                    elseif ability.key ~= state.empowerment.spell then
+                    elseif not ability.empowered then
                         start, duration, enabled, modRate = GetSpellCooldown( ability.id )
                     end
 
@@ -1663,7 +1668,7 @@ do
                     end
 
                     if i == 1 and ability.empowered and conf.empowerment.glow then
-                        if state.empowerment.spell == ability.key and duration == 0 then
+                        if state.empowerment.start > 0 and duration == 0 then
                             button.Empowerment:Show()
                         else
                             button.Empowerment:Hide()
@@ -2016,7 +2021,7 @@ do
             d.Buttons[ i ] = self:CreateButton( id, i )
             d.Buttons[ i ]:Hide()
 
-            if conf.enabled and self:IsDisplayActive( id ) and i <= conf.numIcons then
+            if self:IsDisplayActive( id ) and i <= conf.numIcons then
                 if d.Recommendations[ i ] and d.Recommendations[ i ].actionName then
                     d.Buttons[ i ]:Show()
                 end
@@ -2326,9 +2331,9 @@ do
                 self.refreshTimer = 0
 
                 self.activeThread = coroutine.create( Hekili.Update )
+
                 self.activeThreadTime = 0
                 self.activeThreadStart = debugprofilestop()
-
                 self.activeThreadFrames = 0
 
                 if not self.firstThreadCompleted then
@@ -2338,9 +2343,9 @@ do
                     local spf = 1000 / ( rate > 0 and rate or 100 )
 
                     if HekiliEngine.threadUpdates then
-                        Hekili.maxFrameTime = 0.9 * max( 7, min( 16.667, spf, 1.1 * HekiliEngine.threadUpdates.meanWorkTime / floor( HekiliEngine.threadUpdates.meanFrames ) ) )
+                        Hekili.maxFrameTime = 0.8 * max( 7, min( 16.667, spf, 1.1 * HekiliEngine.threadUpdates.meanWorkTime / floor( HekiliEngine.threadUpdates.meanFrames ) ) )
                     else
-                        Hekili.maxFrameTime = 0.9 * max( 7, min( 16.667, spf ) )
+                        Hekili.maxFrameTime = 0.8 * max( 7, min( 16.667, spf ) )
                     end
                 end
 
@@ -2788,6 +2793,9 @@ do
         local empText = b.EmpowerLevel:GetText()
         b.EmpowerLevel:SetText( nil )
         b.EmpowerLevel:SetText( empText )
+
+        if conf.empowerment.enabled then b.EmpowerLevel:Show()
+        else b.EmpowerLevel:Hide() end
 
         -- Mover Stuff.
         b:SetScript( "OnMouseDown", Button_OnMouseDown )
