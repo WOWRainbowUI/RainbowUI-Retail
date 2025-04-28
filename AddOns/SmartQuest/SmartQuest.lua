@@ -37,7 +37,7 @@ SmartQuest = {
 	--
 	-- **********************************************************************************************
 
-	Version = "1.30.1";
+	Version = "1.30.2";
 	ModCode = "KSQ";
 	DataCode = "1";
 	Quest = { };
@@ -70,7 +70,7 @@ SmartQuest = {
 
 SmartQuestOptions = { };
 
-if (select(4, GetBuildInfo()) > 110100) then
+if (select(4, GetBuildInfo()) > 110105) then
 	SmartQuest.BetaMode = true;
 end
 if (select(4, GetBuildInfo()) >= 100000) then
