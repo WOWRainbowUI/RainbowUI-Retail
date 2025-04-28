@@ -111,6 +111,14 @@ GTFOLocal =
 	UI_IgnoreSpell_InvalidSpellId = "法術ID |cFF44FFFF%s|r 無效。";
 	UI_IgnoreSpell_Add = "現在會忽略法術 #%s: %s";
 	UI_IgnoreSpell_Remove = "不會再忽略法術 #%s: %s";
+	-- 5.16
+	BrannMode_On = "只有布萊恩提醒",
+	BrannMode_OnWithDefault = "布萊恩及標準提醒",
+	BrannMode_Off = "關閉布萊恩提醒",
+	UI_BrannMode = "布萊恩提醒",
+	UI_BrannModeDescription = "啟用此選項可讓布萊恩·銅鬚對你大吼。",
+	UI_AprilFoolsDay = "愚人節玩笑",
+	UI_AprilFoolsDayDescription = "取消勾選此項即可永久關閉這個有趣的愚人節玩笑。:(\n\n如果你改變心意，可以輸入 |cFFFFFFFF/GTFO Brann|r 來讓他回來。",
 	-- 5.17.
 	UI_IgnoreTime = "警報延遲時間",
 	UI_IgnoreTimeDescription = "警報音效間隔的最小延遲時間。如果警報太頻繁，請增加此數值。",
