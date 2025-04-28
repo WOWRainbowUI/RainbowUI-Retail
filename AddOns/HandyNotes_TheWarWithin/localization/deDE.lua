@@ -460,7 +460,7 @@ L['peculiar_gem_note'] = 'Springe ein Loch in der Höhle des {location:Stütznes
 
 -- KARAZHAN CATACOMBS
 L['karazhan_catacombs_label'] = 'Die Katakomben von Karazhan'
-L['karazhan_catacombs_entrance_note'] = 'Sammle den {item:44124} im {location:Krater von Un\'Goro} ({location:Kalimdor})\n\nSammle den {item:228938} beginnend in {location:Dornogal} ({location:Khaz Algar}, {location:Insel von Dorn})\n\nKombiniere den Schlüssel und Edelstein, um den {item:44124} zu erhalten.\n\nMit dem {item:44124} in deinen Taschen und der {item:208092} aktiv nähere dich dem Gitter, um einen roten Instanzeingang zu offenbaren.'
+L['karazhan_catacombs_entrance_note'] = 'Sammle den {item:228941} im {location:Krater von Un\'Goro} ({location:Kalimdor})\n\nSammle den {item:228938} beginnend in {location:Dornogal} ({location:Khaz Algar}, {location:Insel von Dorn})\n\nKombiniere den Schlüssel und Edelstein, um den {item:44124} zu erhalten.\n\nMit dem {item:44124} in deinen Taschen und der {item:208092} aktiv nähere dich dem Gitter, um einen roten Instanzeingang zu offenbaren.'
 
 -- ORB 1
 L['orb_1_label'] = 'Kugel 1'
@@ -639,9 +639,12 @@ L['undermine_clam_chowder_label'] = 'Lorenhalls Ratgeber zu authentischer Küche
 L['undermine_clam_chowder_location'] = 'In der Gasse auf einem Regal hinter {npc:226728}.'
 L['undermine_clam_chowder_note'] = '1. Um dieses Rezept zu erhalten, musst du zunächst das Rezept {item:16767} erlernen, welches bei zwei {object:Classic}-Händlern für %s gekaut werden kann.\n\n{npc:54232} in {location:Beutebucht} ({location:Die Östlichen Königreiche}, {location:Schlingendorntal})\n\n{npc:48060} in {location:Luntenbrand} ({location:Die Östlichen Königreiche}, {location:Ödland})\n\n2. Wenn du das "alte" Rezept erlernt hast, interagiere mit dem Buch {object:Lorenhalls Ratgeber zu authentischer Küche} und lese dir alle Seiten durch, um das Rezept {item:235800} zu erhalten.'
 
+L['breakneck_race_note'] = nil
+L['upgrade_the_pozzik_standard'] = nil
+L['upgrade_22h_slicks'] = nil
+L['upgrade_turbo_handcrank'] = nil
+
 L['blazefeather_peacock_note'] = 'Spreche nach Abschluss des {quest:83421} Geschichtsstrangs mit {npc:226555}, um für %s ein einen zähmbaren {npc:226561} zu beschwören.'
 L['radioactive_subject_note'] = 'Benutze nahegelegene Rohre und eine Kombination aus {item:237276}, {item:109076} und {item:231099} oder anderen Sprung-Puzzle-Tricks, um das Dach des {location:Dampfdrucklabore} Gebäudes zu erreichen.'
 L['george_the_big_pinch_note'] = 'Klicke schnell alle 5 {npc:238189} an, um den Stärkungszauber {spell:1219679} zu erhalten, der dir erlaubt {npc:233938} zu zähmen.'
 
-L['crumpled_schematic_note'] = 'Plündere den {object:Zusammengeknüllter Bauplan}, um {item:235037} zu erhalten.\n\n{note:Sobald du es geplündert hast, kann es auch bei Händlern für Ingenieurskunstbedarf wie {npc:219098} in {location:Dornogal} gekauft werden.}'
-L['crumpled_schematic_location'] = 'In der ersten Etage des Gebäudes.'
