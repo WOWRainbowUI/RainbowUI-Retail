@@ -636,9 +636,11 @@ L['undermine_clam_chowder_label'] = '安德麥正宗烹飪法指南'
 L['undermine_clam_chowder_location'] = '在 {location:罐缸工坊} 的小巷中，{npc:226728} 後面的架子上。'
 L['undermine_clam_chowder_note'] = '1. 要收集此食譜，必須首先學會 {item:16767}，該食譜可以從兩個 {object:舊世經典} 供應商處以 %s 的價格購買。\n\n{npc:54232} 位於 {location:荊棘谷海角} 的 {location:藏寶海灣}\n\n{npc:48060} 位於 {location:荒蕪之地} 的 {location:熔光鎮}\n\n2. 一旦學會了舊食譜，打開 {object:安德麥正宗烹飪法指南} 並閱讀到最後一頁。記下食譜以獲得 {item:235800}。'
 
-L['blazefeather_peacock_note'] = '完成 {quest:83421} 任務線後，與 {npc:226555} 對話並支付 %s 以召喚一只可馴服的 {npc:226561}。'
-L['radioactive_subject_note'] = '使用附近的管道和 {item:237276}、{item:109076}、{item:231099} 或其他跳躍謎題技巧，到達 {location:罐缸工坊} 的 {location:熱砂試驗室} 建築屋頂。'
-L['george_the_big_pinch_note'] = '快速點擊所有5個 {npc:238189} 以獲得 {spell:1219679}，並允許馴服 {npc:233938}。'
+L['breakneck_race_note'] = nil
+L['upgrade_the_pozzik_standard'] = nil
+L['upgrade_22h_slicks'] = nil
+L['upgrade_turbo_handcrank'] = nil
 
-L['crumpled_schematic_note'] = nil
-L['crumpled_schematic_location'] = nil
+L['blazefeather_peacock_note'] = nil
+L['radioactive_subject_note'] = nil
+L['george_the_big_pinch_note'] = nil
