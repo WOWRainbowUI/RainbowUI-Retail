@@ -111,6 +111,10 @@ GTFOLocal =
 	UI_IgnoreSpell_InvalidSpellId = "法術ID |cFF44FFFF%s|r 無效。";
 	UI_IgnoreSpell_Add = "現在會忽略法術 #%s: %s";
 	UI_IgnoreSpell_Remove = "不會再忽略法術 #%s: %s";
+	-- 5.17.
+	UI_IgnoreTime = "警報延遲時間",
+	UI_IgnoreTimeDescription = "警報音效間隔的最小延遲時間。如果警報太頻繁，請增加此數值。",
+	UI_IgnoreTime_Seconds = "秒",
 }
 
 end
