@@ -24,47 +24,6 @@ local settings = {
 
 KT_BonusObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin, settings);
 
--- MSA (begin)
--- Bonus POI info cache
-local bonusPoiInfoCache = {}
-
-local function BonusPoiInfoCache_Get(questID)
-	return bonusPoiInfoCache[questID]
-end
-
-local function BonusPoiInfoCache_Add(questID)
-	if not bonusPoiInfoCache[questID] then
-		local poiInfo
-		local mapID = GetQuestUiMapID(questID)
-		if mapID then
-			local tasks = GetTasksOnMapCached(mapID)
-			if tasks then
-				for _, info in ipairs(tasks) do
-					if questID == info.questID then
-						poiInfo = info
-						break
-					end
-				end
-			end
-			if not poiInfo then
-				local taskName = select(4, GetTaskInfo(questID))
-				local events = C_AreaPoiInfo.GetEventsForMap(mapID)
-				for _, poiID in ipairs(events) do
-					local info = C_AreaPoiInfo.GetAreaPOIInfo(mapID, poiID)
-					if info then
-						if taskName == info.name then
-							poiInfo = info
-							break
-						end
-					end
-				end
-			end
-		end
-		bonusPoiInfoCache[questID] = poiInfo
-	end
-end
--- MSA (end)
-
 local function GetScenarioSupersedingStep(index)
 	local supersededObjectives = C_Scenario.GetSupersededObjectives();
 	for i, tbl in ipairs(supersededObjectives) do
@@ -113,7 +72,7 @@ function KT_BonusObjectiveTrackerMixin:OnBlockHeaderClick(block, button)
 					local mapID = C_TaskQuest.GetQuestZoneID(questID);
 					if mapID then
 						OpenQuestLog(mapID);
-						WorldMapPing_StartPingQuest(questID);
+						EventRegistry:TriggerEvent("MapCanvas.PingQuestID", questID);
 					end
 				end
 			end
@@ -383,13 +342,11 @@ end
 function KT_BonusObjectiveTrackerMixin:TryAddingExpirationWarningLine(block, questID)
 	if block.poiInfo and block.poiInfo.tooltipWidgetSet then
 		if self.tickerSeconds then
-			local newTimer = false
 			if not block.timeLeftWidgetID then
 				local widgets = C_UIWidgetManager.GetAllWidgetsBySetID(block.poiInfo.tooltipWidgetSet)
 				for _, widgetInfo in ipairs(widgets) do
 					if widgetInfo.widgetType == Enum.UIWidgetVisualizationType.TextWithState then
 						block.timeLeftWidgetID = widgetInfo.widgetID
-						newTimer = (self.tickerSeconds == 0)
 						break
 					end
 				end
@@ -398,10 +355,10 @@ function KT_BonusObjectiveTrackerMixin:TryAddingExpirationWarningLine(block, que
 			if info then
 				local timeLeft = string.gsub(info.text, ".*: (%d+) .*", "%1")
 				if timeLeft ~= "0" then
-					self.tickerSeconds = newTimer and 1.3 or 1
 					local line = block:AddObjective("State", info.text, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["TimeLeft2"], true)
 					line.Icon:Hide()
 				end
+				self.tickerSeconds = 1.1
 			end
 		end
 	end
@@ -434,17 +391,22 @@ function KT_BonusObjectiveTrackerMixin:SetUpQuestBlock(block, forceShowCompleted
 		-- MSA
 		local isComplete = false
 		local isSuperTracked = (questID == C_SuperTrack.GetSuperTrackedQuestID())
-		local poiInfo = BonusPoiInfoCache_Get(questID)
-		if poiInfo and poiInfo.areaPoiID then
-			local _, superTrackedPoiID = C_SuperTrack.GetSuperTrackedMapPin()
-			isSuperTracked = (poiInfo.areaPoiID == superTrackedPoiID)
+		local poiInfo = KT.GetBonusPoiInfoCached(questID)
+		if poiInfo then
+			if poiInfo.areaPoiID then
+				local _, superTrackedPoiID = C_SuperTrack.GetSuperTrackedMapPin()
+				isSuperTracked = (poiInfo.areaPoiID == superTrackedPoiID)
+			end
+			block:SetPOIInfo(questID, isComplete, isSuperTracked, isWorldQuest, poiInfo)
+		else
+			block:CheckAndReleasePOIButton()
 		end
-		block:SetPOIInfo(questID, isComplete, isSuperTracked, isWorldQuest, poiInfo)
 	end
 
 	local showAsCompleted = isThreatQuest and isQuestComplete;
 	local hasAddedTimeLeft = false;
-	for objectiveIndex = 1, block.numObjectives do
+	local numObjectives = block.numObjectives or 0;
+	for objectiveIndex = 1, numObjectives do
 		local text, objectiveType, finished = GetQuestObjectiveInfo(questID, objectiveIndex, forceShowCompleted);
 		if text then
 			if finished then
@@ -517,11 +479,6 @@ function KT_BonusObjectiveTrackerMixin:AddQuest(questID, isTrackedWorldQuest)
 		local block = self:GetBlock(questID);
 		block.taskName = taskName;
 		block.numObjectives = numObjectives;
-
-		-- MSA
-		if QuestUtils_IsQuestBonusObjective(questID) then
-			BonusPoiInfoCache_Add(questID)
-		end
 
 		local forceShowCompleted = false;
 		self:SetUpQuestBlock(block, forceShowCompleted);

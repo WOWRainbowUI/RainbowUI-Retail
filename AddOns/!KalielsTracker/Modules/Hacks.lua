@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -7,6 +7,7 @@
 ---@type KT
 local _, KT = ...
 
+---@class Hacks
 local M = KT:NewModule("Hacks")
 KT.Hacks = M
 
@@ -58,11 +59,15 @@ end
 -- Affects World Map and removes taint errors. The hack removes call of restricted function SetPassThroughButtons.
 -- When the hack is inactive World Map display causes errors. It is not possible to get rid of these errors, since
 -- the tracker has a lot of interaction with the game frames.
--- Negative impacts: unknown in WoW 11.0.7
+-- Negative impacts: unknown in WoW 11.1.5
 local function Hack_WorldMap()
     if db.hackWorldMap then
         -- Blizzard_MapCanvas.lua
         local function OnPinReleased(pinPool, pin)
+            local map = pin:GetMap();
+            if map then
+                map:UnregisterPin(pin);
+            end
             Pool_HideAndClearAnchors(pinPool, pin);
             pin:OnReleased();
             pin.pinTemplate = nil;
@@ -125,6 +130,7 @@ local function Hack_WorldMap()
             self.ScrollContainer:MarkCanvasDirty();
             pin:Show();
             pin:OnAcquired(...);
+            self:RegisterPin(pin);
 
             return pin;
         end

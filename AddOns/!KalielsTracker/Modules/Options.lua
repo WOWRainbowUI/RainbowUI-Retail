@@ -1,11 +1,15 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
 
 ---@type KT
 local addonName, KT = ...
+
+---@class Options
+local M = KT:NewModule("Options")
+KT.Options = M
 
 local ACD = LibStub("MSA-AceConfigDialog-3.0")
 local ACR = LibStub("AceConfigRegistry-3.0")
@@ -478,8 +482,8 @@ local options = {
 							order = 0.12,
 						},
 						slashCmd = {
-							name = cBold.." /kt|r  |cff808080..............|r  Toggle expand/collapse the tracker\n"..
-									cBold.." /kt hide|r  |cff808080......|r  Toggle show/hide the tracker\n"..
+							name = cBold.." /kt|r  |cff808080...............|r  Toggle expand/collapse the tracker\n"..
+									cBold.." /kt hide|r  |cff808080.......|r  Toggle show/hide the tracker\n"..
 									cBold.." /kt config|r  |cff808080...|r  Show this config window\n",
 							type = "description",
 							width = "double",
@@ -702,10 +706,7 @@ local options = {
 							values = WidgetLists.statusbar,
 							set = function(_, value)
 								db.progressBar = value
-								KT:Update(true)
-								if PetTracker then
-									PetTracker.Objectives:Update()
-								end
+								KT:SendSignal("OPTIONS_CHANGED", true)
 							end,
 							order = 2.9,
 						},
@@ -725,10 +726,7 @@ local options = {
 							set = function(_, value)
 								db.font = value
 								KT:SetText(true)
-								KT:Update()
-								if PetTracker then
-									PetTracker.Objectives:Update()
-								end
+								KT:SendSignal("OPTIONS_CHANGED")
 							end,
 							order = 3.1,
 						},
@@ -741,10 +739,7 @@ local options = {
 							set = function(_, value)
 								db.fontSize = value
 								KT:SetText(true)
-								KT:Update()
-								if PetTracker then
-									PetTracker.Objectives:Update()
-								end
+								KT:SendSignal("OPTIONS_CHANGED")
 							end,
 							order = 3.2,
 						},
@@ -762,10 +757,7 @@ local options = {
 							set = function(_, value)
 								db.fontFlag = value
 								KT:SetText(true)
-								KT:Update()
-								if PetTracker then
-									PetTracker.Objectives:Update()
-								end
+								KT:SendSignal("OPTIONS_CHANGED")
 							end,
 							order = 3.3,
 						},
@@ -1197,7 +1189,7 @@ local options = {
 							set = function()
 								db.qiActiveButtonBindingShow = not db.qiActiveButtonBindingShow
 								KTF.ActiveFrame:Hide()
-								KT:Update()
+								KT.ActiveButton:Update()
 							end,
 							order = 5.5,
 						},
@@ -1552,7 +1544,6 @@ local options = {
 								if PetTracker.sets then
 									PetTracker.sets.zoneTracker = db.addonPetTracker
 								end
-								db.modulesOrder = nil
 								ReloadUI()
 							end,
 							order = 1.21,
@@ -1688,7 +1679,7 @@ local options = {
 									"function SetPassThroughButtons. When the hack is inactive World Map display causes errors. "..
 									"It is not possible to get rid of these errors, since the tracker has a lot of interaction "..
 									"with the game frames.\n\n"..
-									cWarning2.."Negative impacts:|r unknown in WoW 11.0.7\n",
+									cWarning2.."Negative impacts:|r unknown in WoW 11.1.5\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",
@@ -1737,90 +1728,13 @@ function KT:CheckAddOn(addon, version, isUI)
 end
 
 function KT:OpenOptions()
-	if not EditModeManagerFrame:IsEditModeActive() then
+	if self.optionsFrame and not EditModeManagerFrame:IsEditModeActive() then
 		Settings.OpenToCategory(self.optionsFrame.general.name, true)
 	end
 end
 
 function KT:InitProfile(event, database, profile)
 	ReloadUI()
-end
-
-function KT:SetupOptions()
-	self.db = LibStub("AceDB-3.0"):New(strsub(addonName, 2).."DB", defaults, true)
-	self.options = options
-	db = self.db.profile
-	dbChar = self.db.char
-
-	general.sec2.args.classBorder.name = general.sec2.args.classBorder.name:format(self.RgbToHex(self.classColor))
-
-	general.sec7.args.messageOutput = self:GetSinkAce3OptionsDataTable()
-	general.sec7.args.messageOutput.inline = true
-	general.sec7.args.messageOutput.disabled = function() return not (db.messageQuest or db.messageAchievement) end
-	self:SetSinkStorage(db)
-
-	options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
-	options.args.profiles.confirm = true
-	options.args.profiles.args.current.width = "double"
-	options.args.profiles.args.reset.confirmText = warning
-	options.args.profiles.args.new.confirmText = warning
-	options.args.profiles.args.choose.confirmText = warning
-	options.args.profiles.args.copyfrom.confirmText = warning
-	if not options.args.profiles.plugins then
-		options.args.profiles.plugins = {}
-	end
-	options.args.profiles.plugins[addonName] = {
-		clearTrackerDataDesc1 = {
-			name = "Clear the data (no settings) of the tracked content (Quests, Achievements etc.) for current character.",
-			type = "description",
-			order = 0.1,
-		},
-		clearTrackerData = {
-			name = "Clear Tracker Data",
-			desc = "Clear the data of the tracked content.",
-			type = "execute",
-			confirmText = "Clear Tracker Data - "..cBold..self.playerName,
-			func = function()
-				dbChar.quests.cache = {}
-				for i = 1, #db.filterAuto do
-					db.filterAuto[i] = nil
-				end
-				self:SetBackground()
-				KT.QuestsCache_Init()
-				OTF:Update()
-			end,
-			order = 0.2,
-		},
-		clearTrackerDataDesc2 = {
-			name = "Current Character: "..cBold..self.playerName,
-			type = "description",
-			width = "double",
-			order = 0.3,
-		},
-		clearTrackerDataDesc4 = {
-			name = "",
-			type = "description",
-			order = 0.4,
-		}
-	}
-
-	ACR:RegisterOptionsTable(addonName, options, true)
-	
-	self.optionsFrame = {}
-	self.optionsFrame.general = ACD:AddToBlizOptions(addonName, self.title, nil, "general")
-	self.optionsFrame.modules = ACD:AddToBlizOptions(addonName, options.args.modules.name, self.title, "modules")
-	self.optionsFrame.addons = ACD:AddToBlizOptions(addonName, options.args.addons.name, self.title, "addons")
-	self.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, options.args.hacks.name, self.title, "hacks")
-	self.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, options.args.profiles.name, self.title, "profiles")
-
-	self.db.RegisterCallback(self, "OnProfileChanged", "InitProfile")
-	self.db.RegisterCallback(self, "OnProfileCopied", "InitProfile")
-	self.db.RegisterCallback(self, "OnProfileReset", "InitProfile")
-
-	-- Disable some options
-	if not IsSpecialLocale() then
-		db.objNumSwitch = false
-	end
 end
 
 function GetModulesOptionsTable()
@@ -1943,6 +1857,85 @@ function IsSpecialLocale()
 			KT.locale == "ruRU")
 end
 
+local function Init()
+	KT.db = LibStub("AceDB-3.0"):New(strsub(addonName, 2).."DB", defaults, true)
+	KT.options = options
+	db = KT.db.profile
+	dbChar = KT.db.char
+end
+
+local function Setup()
+	general.sec2.args.classBorder.name = general.sec2.args.classBorder.name:format(KT.RgbToHex(KT.classColor))
+
+	general.sec7.args.messageOutput = KT:GetSinkAce3OptionsDataTable()
+	general.sec7.args.messageOutput.inline = true
+	general.sec7.args.messageOutput.disabled = function() return not (db.messageQuest or db.messageAchievement) end
+	KT:SetSinkStorage(db)
+
+	options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(KT.db)
+	options.args.profiles.confirm = true
+	options.args.profiles.args.current.width = "double"
+	options.args.profiles.args.reset.confirmText = warning
+	options.args.profiles.args.new.confirmText = warning
+	options.args.profiles.args.choose.confirmText = warning
+	options.args.profiles.args.copyfrom.confirmText = warning
+	if not options.args.profiles.plugins then
+		options.args.profiles.plugins = {}
+	end
+	options.args.profiles.plugins[addonName] = {
+		clearTrackerDataDesc1 = {
+			name = "Clear the data (no settings) of the tracked content (Quests, Achievements etc.) for current character.",
+			type = "description",
+			order = 0.1,
+		},
+		clearTrackerData = {
+			name = "Clear Tracker Data",
+			desc = "Clear the data of the tracked content.",
+			type = "execute",
+			confirmText = "Clear Tracker Data - "..cBold..KT.playerName,
+			func = function()
+				dbChar.quests.cache = {}
+				for i = 1, #db.filterAuto do
+					db.filterAuto[i] = nil
+				end
+				KT:SetBackground()
+				KT.QuestsCache_Init()
+				OTF:Update()
+			end,
+			order = 0.2,
+		},
+		clearTrackerDataDesc2 = {
+			name = "Current Character: "..cBold..KT.playerName,
+			type = "description",
+			width = "double",
+			order = 0.3,
+		},
+		clearTrackerDataDesc4 = {
+			name = "",
+			type = "description",
+			order = 0.4,
+		}
+	}
+
+	ACR:RegisterOptionsTable(addonName, options, true)
+
+	KT.optionsFrame = {}
+	KT.optionsFrame.general = ACD:AddToBlizOptions(addonName, KT.title, nil, "general")
+	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, options.args.modules.name, KT.title, "modules")
+	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, options.args.addons.name, KT.title, "addons")
+	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, options.args.hacks.name, KT.title, "hacks")
+	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, options.args.profiles.name, KT.title, "profiles")
+
+	KT.db.RegisterCallback(KT, "OnProfileChanged", "InitProfile")
+	KT.db.RegisterCallback(KT, "OnProfileCopied", "InitProfile")
+	KT.db.RegisterCallback(KT, "OnProfileReset", "InitProfile")
+
+	-- Disable some options
+	if not IsSpecialLocale() then
+		db.objNumSwitch = false
+	end
+end
+
 local function SetAlert(type)
 	if not type then return end
 
@@ -1992,17 +1985,41 @@ local function SetAlert(type)
 	end
 end
 
--- Init
-KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
-	SetAlert("trackedQuests")
+local function SetupModules()
+	local i, module = next(db.modulesOrder)
+	while module do
+		if not _G[module].init then
+			tremove(db.modulesOrder, i)
+			i = i - 1
+		end
+		i, module = next(db.modulesOrder, i)
+	end
+
 	modules.sec1.args = GetModulesOptionsTable()
-	Mover_UpdateOptions()
-	KT:RegEvent("UI_SCALE_CHANGED", function()
-		Mover_SetScale()
-	end)
-	KT:UnregEvent(eventID)
-end)
+end
 
 hooksecurefunc(UIParent, "SetScale", function(self)
 	Mover_SetScale()
 end)
+
+-- External ------------------------------------------------------------------------------------------------------------
+
+function M:OnInitialize()
+	_DBG("|cffffff00Init|r - "..self:GetName(), true)
+	Init()
+end
+
+function M:OnEnable()
+	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
+	Setup()
+
+	KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
+		SetAlert("trackedQuests")
+		SetupModules()
+		Mover_UpdateOptions()
+		KT:RegEvent("UI_SCALE_CHANGED", function()
+			Mover_SetScale()
+		end)
+		KT:UnregEvent(eventID)
+	end)
+end

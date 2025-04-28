@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -72,6 +72,11 @@ do
         end
     end
 end
+
+-- Excluded Quest Items
+KT.EXCLUDED_QUEST_ITEMS = {
+    [85113] = true  -- Special Assignment: Storm's a Brewin
+}
 
 -- Blizzard Constants
 KT_OBJECTIVE_TRACKER_COLOR["Header"] = { r = 1, g = 0.5, b = 0 }                 -- orange

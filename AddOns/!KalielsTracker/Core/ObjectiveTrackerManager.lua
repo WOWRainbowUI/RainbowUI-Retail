@@ -199,16 +199,9 @@ function KT_ObjectiveTrackerManager:OnPlayerEnteringWorld(isInitialLogin, isRelo
 	self:AssignModulesOrder(orderedModules);
 	local mainTrackerFrame = KT_ObjectiveTrackerFrame;
 	self:AddContainer(mainTrackerFrame);
-	self:SetModuleContainer(KT_ScenarioObjectiveTracker, mainTrackerFrame);
-	self:SetModuleContainer(KT_UIWidgetObjectiveTracker, mainTrackerFrame);
-	self:SetModuleContainer(KT_CampaignQuestObjectiveTracker, mainTrackerFrame);
-	self:SetModuleContainer(KT_QuestObjectiveTracker, mainTrackerFrame);
-	self:SetModuleContainer(KT_AdventureObjectiveTracker, mainTrackerFrame);
-	self:SetModuleContainer(KT_AchievementObjectiveTracker, mainTrackerFrame);
-	self:SetModuleContainer(KT_MonthlyActivitiesObjectiveTracker, mainTrackerFrame);
-	self:SetModuleContainer(KT_ProfessionsRecipeTracker, mainTrackerFrame);
-	self:SetModuleContainer(KT_BonusObjectiveTracker, mainTrackerFrame);
-	self:SetModuleContainer(KT_WorldQuestObjectiveTracker, mainTrackerFrame);
+	for i, module in ipairs(orderedModules) do
+		self:SetModuleContainer(module, mainTrackerFrame);
+	end
 end
 
 --EventRegistry:RegisterFrameEventAndCallback("PLAYER_ENTERING_WORLD", KT_ObjectiveTrackerManager.OnPlayerEnteringWorld, KT_ObjectiveTrackerManager);  -- MSA

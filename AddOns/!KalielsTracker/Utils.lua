@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -448,6 +448,44 @@ function KT.QuestSuperTracking_ChooseClosestQuest()
 end
 
 -- Bonus Objective
+local bonusPoiInfoCache = {}
+function KT.GetBonusPoiInfoCached(questID)
+    local poiInfo = bonusPoiInfoCache[questID]
+    if not poiInfo then
+        local mapID = GetQuestUiMapID(questID)
+        if mapID then
+            -- Tasks
+            local tasks = GetTasksOnMapCached(mapID)
+            if tasks then
+                for _, info in ipairs(tasks) do
+                    if questID == info.questID then
+                        poiInfo = info
+                        bonusPoiInfoCache[questID] = poiInfo
+                        break
+                    end
+                end
+            end
+            if not poiInfo then
+                -- Events
+                local taskName = C_TaskQuest.GetQuestInfoByQuestID(questID)
+                local events = C_AreaPoiInfo.GetEventsForMap(mapID)
+                for _, poiID in ipairs(events) do
+                    local info = C_AreaPoiInfo.GetAreaPOIInfo(mapID, poiID)
+                    if info then
+                        if taskName == info.name then
+                            poiInfo = info
+                            -- AreaPOI is not cached
+                            -- TODO: compare the needs of Siren Isle and other AreaPOIs
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return poiInfo
+end
+
 function KT.GetAreaPoiID(info)
     return info and info.areaPoiID
 end

@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -7,6 +7,7 @@
 ---@type KT
 local _, KT = ...
 
+---@class AddonPetTracker
 local M = KT:NewModule("AddonPetTracker")
 KT.AddonPetTracker = M
 
@@ -34,13 +35,44 @@ M.Texts = {
 	DisplayMissingPets = "Missing Pets"
 }
 
---------------
--- Internal --
---------------
+-- Internal ------------------------------------------------------------------------------------------------------------
 
 local function SetHooks_Init()
-	if not db.addonPetTracker and PetTracker then
-		PetTracker.Objectives.OnLoad = function() end
+	if PetTracker then
+		if db.addonPetTracker then
+			function PetTracker.Objectives:OnLoad()  -- R
+				self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "Layout")
+				self:RegisterEvent("ZONE_CHANGED_INDOORS")
+				self:RegisterEvent("ZONE_CHANGED")
+				self:RegisterSignal("COLLECTION_CHANGED", "Layout")
+				self:RegisterSignal("OPTIONS_CHANGED", "Layout")
+
+				self.MaxEntries = 200
+			end
+
+			function PetTracker.Objectives:ZONE_CHANGED_INDOORS()  -- N
+				self:UnregisterEvent("ZONE_CHANGED")
+				self:RegisterEvent("ZONE_CHANGED")
+			end
+
+			function PetTracker.Objectives:ZONE_CHANGED()  -- N
+				self:Layout()
+				self:UnregisterEvent("ZONE_CHANGED")
+			end
+
+			function PetTracker.Objectives:Layout()  -- R
+				local hasContent = false
+				if PetTracker.sets.zoneTracker then
+					self:Hide()
+					self:Update()
+					hasContent = not self.Bar:IsMaximized()
+				end
+				KT_PetTrackerObjectiveTracker.PThasContent = hasContent
+				KT_PetTrackerObjectiveTracker:MarkDirty()
+			end
+		else
+			PetTracker.Objectives.OnLoad = function() end
+		end
 	end
 end
 
@@ -48,25 +80,6 @@ local function SetHooks()
 	hooksecurefunc(KT_ObjectiveTrackerManager, "OnPlayerEnteringWorld", function(self, isInitialLogin, isReloadingUI)
 		self:SetModuleContainer(KT_PetTrackerObjectiveTracker, OTF)
 	end)
-
-	function PetTracker.Objectives:OnLoad()  -- R
-		self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "Layout")
-		self:RegisterSignal("COLLECTION_CHANGED", "Layout")
-		self:RegisterSignal("OPTIONS_CHANGED", "Layout")
-
-		self.MaxEntries = 200
-		self:Layout()
-	end
-
-	function PetTracker.Objectives:Layout()  -- R
-		local hasContent = false
-		if PetTracker.sets.zoneTracker then
-			self:Update()
-			hasContent = not self.Bar:IsMaximized()
-		end
-		self:SetShown(hasContent)
-		KT_PetTrackerObjectiveTracker:MarkDirty()
-	end
 
 	local bck_PetTracker_SpecieLine_New = PetTracker.SpecieLine.New
 	function PetTracker.SpecieLine:New(parent, text, icon, subicon, r, g, b)
@@ -187,11 +200,11 @@ local function SetFrames()
 	objectives.Bar.Overlay.Text:SetFont(LSM:Fetch("font", "Arial Narrow"), 13, "")
 end
 
---------------
--- External --
---------------
+-- External ------------------------------------------------------------------------------------------------------------
 
 function KT_PetTrackerObjectiveTrackerMixin:InitModule()
+	self.PThasContent = false
+
 	local block = content
 	block:SetParent(self.ContentsFrame)
 	block.parentModule = self
@@ -219,10 +232,11 @@ function KT_PetTrackerObjectiveTrackerMixin:FreeUnusedBlocks()
 end
 
 function KT_PetTrackerObjectiveTrackerMixin:LayoutContents()
-	if PetTracker.Objectives:IsShown() then
+	if self.PThasContent then
 		local block = self:GetBlock("pettracker")
 		block.height = PetTracker.Objectives:GetHeight() - 42
-		self:LayoutBlock(block)
+		local blockAdded = self:LayoutBlock(block)
+		PetTracker.Objectives:SetShown(blockAdded)
 	end
 end
 
@@ -232,17 +246,21 @@ function KT_PetTrackerBlockMixin:Init()
 	self.usedLines = {}  -- unused, needed throughout KT_ObjectiveTrackerBlockMixin
 end
 
+function M:Update(forced)
+	self:SetForced(forced)
+	PetTracker.Objectives:Update()
+end
+
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-	self.isLoaded = (KT:CheckAddOn("PetTracker", "11.0.9") and db.addonPetTracker)
+	self.isLoaded = (KT:CheckAddOn("PetTracker", "11.1.5") and db.addonPetTracker)
 
 	if self.isLoaded then
-		KT:Alert_IncompatibleAddon("PetTracker", "11.0.9")
+		KT:Alert_IncompatibleAddon("PetTracker", "11.1.1")
 
 		tinsert(KT.MODULES, "KT_PetTrackerObjectiveTracker")
-		KT.db:RegisterDefaults(KT.db.defaults)
 	end
 
 	SetEvents_Init()
@@ -254,6 +272,7 @@ function M:OnEnable()
 	SetFrames()
 	SetHooks()
 
+	KT:RegSignal("OPTIONS_CHANGED", "Update", self)
 	KT:RegEvent("PLAYER_ENTERING_WORLD", Event_PLAYER_ENTERING_WORLD)
 end
 

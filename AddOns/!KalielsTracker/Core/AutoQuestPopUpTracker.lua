@@ -8,8 +8,8 @@ function KT_AutoQuestPopupTrackerMixin:ShouldDisplayAutoQuest(questID)
 	return not C_QuestLog.IsQuestBounty(questID) and self:ShouldDisplayQuest(QuestCache:Get(questID));
 end
 
-local function MakeBlockKey(questID, popupType)
-	return questID .. popupType;
+local function MakeBlockKey(questID, popUpType)
+	return questID .. popUpType;
 end
 
 function KT_AutoQuestPopupTrackerMixin:AddAutoQuestObjectives()
@@ -176,7 +176,7 @@ function KT_AutoQuestPopupBlockMixin:AdjustSlideAnchor(offsetY)
 end
 
 function KT_AutoQuestPopupBlockMixin:OnAnimFinished()
-	if self.popUpType == "COMPLETED" then
+	if self.popUpType == "COMPLETE" then
 		self.Contents.FlashFrame:Show();
 	end
 end

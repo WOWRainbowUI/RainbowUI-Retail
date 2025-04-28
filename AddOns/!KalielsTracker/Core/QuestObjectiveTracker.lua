@@ -2,7 +2,7 @@ local _, KT = ...
 
 local settings = {
 	headerText = TRACKER_HEADER_QUESTS,
-	events = { "QUEST_LOG_UPDATE", "QUEST_WATCH_LIST_CHANGED", "QUEST_AUTOCOMPLETE", "SUPER_TRACKING_CHANGED", "QUEST_TURNED_IN" },
+	events = { "QUEST_LOG_UPDATE", "QUEST_WATCH_LIST_CHANGED", "QUEST_AUTOCOMPLETE", "SUPER_TRACKING_CHANGED", "QUEST_TURNED_IN", "QUEST_POI_UPDATE" },
 	lineTemplate = "KT_QuestObjectiveLineTemplate",
 	blockTemplate = "KT_ObjectiveTrackerQuestPOIBlockTemplate",
 	rightEdgeFrameSpacing = 2,

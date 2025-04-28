@@ -76,13 +76,13 @@ end
 function KT_QuestObjectiveItemButtonMixin:OnShow()
 	self:RegisterEvent("PLAYER_TARGET_CHANGED");
 	self:RegisterEvent("BAG_UPDATE_COOLDOWN");
-	self:RegisterEvent("PLAYER_INSIDE_QUEST_BLOB_STATE_CHANGED");
+	--self:RegisterEvent("PLAYER_INSIDE_QUEST_BLOB_STATE_CHANGED");  -- MSA
 end
 
 function KT_QuestObjectiveItemButtonMixin:OnHide()
 	self:UnregisterEvent("PLAYER_TARGET_CHANGED");
 	self:UnregisterEvent("BAG_UPDATE_COOLDOWN");
-	self:UnregisterEvent("PLAYER_INSIDE_QUEST_BLOB_STATE_CHANGED");
+	--self:UnregisterEvent("PLAYER_INSIDE_QUEST_BLOB_STATE_CHANGED");  -- MSA
 end
 
 function KT_QuestObjectiveItemButtonMixin:OnEnter()
@@ -135,8 +135,9 @@ function KT_QuestObjectiveItemButtonMixin:CheckUpdateInsideBlob()
 	KT_QuestObjectiveItemButtonMixin.UpdateInsideBlob(self, questID, C_Minimap.IsInsideQuestBlob(questID));  -- MSA (fix)
 end
 
-function KT_QuestObjectiveItemButtonMixin:UpdateInsideBlob(questID, inside)
+function KT_QuestObjectiveItemButtonMixin:UpdateInsideBlob(questID, _inside)
 	if questID == self:GetAttribute("questID") then
+		local inside = false; -- disabled for now
 		self.Glow:SetShown(inside); -- maybe fade out anim and then stop glow
 		if inside then
 			self.GlowAnim:Play();

@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -16,7 +16,7 @@ KT.api = {}
 --- - empty (nil) - toggle the tracker
 ---@param show boolean|nil @show / hide / toggle
 function KT.api:Toggle(show)
-    KT.ToggleTracker(show)
+    KT:ToggleTracker(show)
 end
 
 ---@public

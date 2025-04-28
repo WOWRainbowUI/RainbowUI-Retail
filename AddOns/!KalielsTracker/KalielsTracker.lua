@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -62,9 +62,24 @@ local UIWidgetBaseScenarioHeaderText
 
 local KTSetShown, KTSetWidth, KTSetHeight, KTSetPoint, KTClearAllPoints, KTSetScale, KTSetFrameStrata, KTSetAlpha, KTBSetPoint
 
---------------
--- Internal --
---------------
+-- Prototype -----------------------------------------------------------------------------------------------------------
+
+---@type KT|Options|Hacks|Filters|QuestLog|ActiveButton|AddonPetTracker|AddonTomTom|AddonOthers|Help
+local prototype = {}
+
+---SetForced (prototype)
+function prototype:SetForced(forced)
+	if forced then
+		KT.skinID = KT.skinID + 1
+	end
+end
+
+local mt = getmetatable(KT)
+mt.__index = prototype
+setmetatable(KT, mt)
+KT:SetDefaultModulePrototype(prototype)
+
+-- Internal ------------------------------------------------------------------------------------------------------------
 
 local changedMixins = {}
 
@@ -194,7 +209,7 @@ local function SlashHandler(msg)
 	if cmd == "config" then
 		KT:OpenOptions()
 	elseif cmd == "hide" then
-		KT.ToggleTracker()
+		KT:ToggleTracker()
 	else
 		KT:MinimizeButton_OnClick()
 	end
@@ -256,7 +271,7 @@ local function ModuleMinimize_OnClick(module)
 	end
 end
 
--- Setup ---------------------------------------------------------------------------------------------------------------
+-- Init ----------------------------------------------------------------------------------------------------------------
 
 local function Init()
 	if db.keyBindMinimize ~= "" then
@@ -685,7 +700,7 @@ local function SetHooks()
 		end
 	end
 
-	-- ------------------------------------------------------------------------------------------------
+	-- -----------------------------------------------------------------------------------------------------------------
 
 	local bck_OTF_Update = OTF.Update
 	function OTF:Update(dirtyUpdate)
@@ -694,6 +709,7 @@ local function SetHooks()
 		bck_OTF_Update(self, dirtyUpdate)
 
 		FixedButtonsReanchor()
+		KT:SendSignal("BUTTONS_UPDATED")
 		ShowTrackerHeader()
 		KT:ToggleEmptyTracker()
 		KT:SetSize()
@@ -1174,18 +1190,6 @@ local function SetHooks()
 				button.text:SetJustifyH("LEFT")
 				button.text:SetPoint("TOPLEFT", button.icon, 1, -3)
 
-				button.Glow = button:CreateTexture(nil, "BACKGROUND")
-				button.Glow:SetAtlas("UI-QuestTrackerButton-QuestItem-Frame-Glow", true)
-				button.Glow:SetPoint("CENTER")
-				button.Glow:Hide()
-
-				button.GlowAnim = button.Glow:CreateAnimationGroup()
-				button.GlowAnim:SetLooping("BOUNCE")
-				local anim = button.GlowAnim:CreateAnimation("Alpha")
-				anim:SetFromAlpha(0)
-				anim:SetToAlpha(1)
-				anim:SetDuration(1)
-
 				button:RegisterForClicks("AnyDown", "AnyUp")
 
 				button:SetNormalTexture("Interface\\Buttons\\UI-Quickslot2")
@@ -1246,7 +1250,6 @@ local function SetHooks()
 				SetItemButtonTexture(button, item)
 				SetItemButtonCount(button, charges)
 				KT.ItemButton.UpdateCooldown(button)
-				KT.ItemButton.CheckUpdateInsideBlob(button)
 				button:SetAttribute("item", link)
 			end
 		else
@@ -1259,7 +1262,6 @@ local function SetHooks()
 	KT.ItemButton.OnShow = KT_QuestObjectiveItemButtonMixin.OnShow
 	KT.ItemButton.OnHide = KT_QuestObjectiveItemButtonMixin.OnHide
 	KT.ItemButton.UpdateCooldown = KT_QuestObjectiveItemButtonMixin.UpdateCooldown
-	KT.ItemButton.CheckUpdateInsideBlob = KT_QuestObjectiveItemButtonMixin.CheckUpdateInsideBlob
 
 	function KT_QuestObjectiveItemButtonMixin:OnUpdate(elapsed)  -- R
 		local questLogIndex = self:GetAttribute("questLogIndex");
@@ -1333,8 +1335,8 @@ local function SetHooks()
 	KT.SpellButton.OnEnter = KT_ScenarioSpellButtonMixin.OnEnter
 
 	function KT_ObjectiveTrackerBlockMixin:SetHeader(text, questID, questLogIndex, isQuestComplete)
-		local isWorldQuest = self.parentModule.showWorldQuests
-		if questLogIndex and not isWorldQuest then
+		local isTask = questID and QuestUtil.IsQuestTrackableTask(questID)
+		if questID and not isTask then
 			local questInfo = C_QuestLog.GetInfo(questLogIndex)
 			if db.questShowTags then
 				local tagInfo = KT.GetQuestTagInfo(questID)
@@ -1360,29 +1362,31 @@ local function SetHooks()
 			self.HeaderText.colorStyle = colorStyle
 		end
 
-		if not isWorldQuest then
-			local questsCache = dbChar.quests.cache
-			if db.questShowZones and questsCache[questID] then
-				local infoText = questsCache[questID].zone
-				if questsCache[questID].isCalling then
-					local timeRemaining = GetTaskTimeLeftData(questID)
-					if timeRemaining ~= "" then
-						infoText = infoText.." - "..timeRemaining
+		if questID then
+			if not isTask then
+				local questsCache = dbChar.quests.cache
+				if db.questShowZones and questsCache[questID] then
+					local infoText = questsCache[questID].zone
+					if questsCache[questID].isCalling then
+						local timeRemaining = GetTaskTimeLeftData(questID)
+						if timeRemaining ~= "" then
+							infoText = infoText.." - "..timeRemaining
+						end
 					end
+					self:AddObjective("Zone", infoText, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["Zone"])
 				end
-				self:AddObjective("Zone", infoText, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["Zone"])
-			end
-		else
-			if db.taskShowFactions then
-				local _, factionID, capped = C_TaskQuest.GetQuestInfoByQuestID(questID)
-				local factionData = factionID and C_Reputation.GetFactionDataByID(factionID)
-				local factionColor = KT_OBJECTIVE_TRACKER_COLOR["Zone"]
-				if factionData then
-					local reputationYieldsRewards = not capped or C_Reputation.IsFactionParagon(factionID)
-					if not reputationYieldsRewards then
-						factionColor = KT_OBJECTIVE_TRACKER_COLOR["Inactive"]
+			else
+				if db.taskShowFactions then
+					local _, factionID, capped = C_TaskQuest.GetQuestInfoByQuestID(questID)
+					local factionData = factionID and C_Reputation.GetFactionDataByID(factionID)
+					local factionColor = KT_OBJECTIVE_TRACKER_COLOR["Zone"]
+					if factionData then
+						local reputationYieldsRewards = not capped or C_Reputation.IsFactionParagon(factionID)
+						if not reputationYieldsRewards then
+							factionColor = KT_OBJECTIVE_TRACKER_COLOR["Inactive"]
+						end
+						self:AddObjective("Faction", factionData.name, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, factionColor)
 					end
-					self:AddObjective("Faction", factionData.name, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, factionColor)
 				end
 			end
 		end
@@ -2029,7 +2033,11 @@ local function SetHooks()
 					if mapID and mapID > 0 then
 						QuestMapFrame_CloseQuestDetails()
 						OpenQuestLog(mapID);
-						WorldMapPing_StartPingQuest(questID);
+						if block.poiInfo and block.poiInfo.areaPoiID then
+							EventRegistry:TriggerEvent("PingAreaPOIEvent", block.poiInfo.areaPoiID)
+						else
+							EventRegistry:TriggerEvent("MapCanvas.PingQuestID", questID);
+						end
 					end
 				end
 			end
@@ -2285,9 +2293,9 @@ local function SetHooks()
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
 	end
 
-	-- Torghast
+	-- Torghast - Blizzard_UIWidgetTemplateStatusBar.lua
 	hooksecurefunc(UIWidgetTemplateStatusBarMixin, "Setup", function(self, widgetInfo, widgetContainer)
-		if self.isJailersTowerBar and self.KTskinID ~= KT.skinID then
+		if self.frameTextureKit == "jailerstower-scorebar" and self.KTskinID ~= KT.skinID then
 			local bck_Bar_OnEnter = self.Bar:GetScript("OnEnter")
 			self.Bar:SetScript("OnEnter", function(self)
 				if KTF.anchorLeft then
@@ -2305,12 +2313,13 @@ local function SetHooks()
 	end)
 
 	hooksecurefunc(UIWidgetTemplateStatusBarMixin, "EvaluateTutorials", function(self)
-		if self.isJailersTowerBar then
+		if self.frameTextureKit == "jailerstower-scorebar" then
 			HelpTip:Hide(self, TORGHAST_DOMINANCE_BAR_TIP)
 			HelpTip:Hide(self, TORGHAST_DOMINANCE_BAR_CUTOFF_TIP)
 		end
 	end)
 
+	-- Torghast - Blizzard_MawBuffs.lua
 	hooksecurefunc(MawBuffs, "UpdateAlignment", function(self)
 		if KTF.anchorLeft == self.KTanchorLeft then
 			return
@@ -2355,6 +2364,7 @@ local function SetHooks()
 
 	MawBuffs.UpdateHelptip = function() end
 
+	-- Update Mixins
 	Default_UpdateMixins()
 end
 
@@ -2369,26 +2379,22 @@ local function SetHooks_Init()
 	end)
 end
 
---------------
--- External --
---------------
+-- External ------------------------------------------------------------------------------------------------------------
 
 ---ToggleTracker
 ---@param show boolean|nil @show / hide / toggle
-function KT.ToggleTracker(show)
+function KT:ToggleTracker(show)
 	if show ~= nil then
-		KT.hidden = not show
+		self.hidden = not show
 	else
-		KT.hidden = not KT.hidden
+		self.hidden = not self.hidden
 	end
-	KT.locked = KT.hidden
-	OTF:SetCollapsed(KT.hidden)
+	self.locked = self.hidden
+	OTF:SetCollapsed(self.hidden)
 end
 
 function KT:Update(forced)
-	if forced then
-		self.skinID = self.skinID + 1
-	end
+	self:SetForced(forced)
 	OTF:Update()
 end
 
@@ -2401,7 +2407,7 @@ function KT_WorldQuestPOIButton_OnClick(self)
 	local questID = self.questID
 	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 	C_SuperTrack.SetSuperTrackedQuestID(questID)
-	WorldMapPing_StartPingQuest(questID)
+	EventRegistry:TriggerEvent("MapCanvas.PingQuestID", questID)
 end
 
 function KT:SetSize(forced)
@@ -2750,9 +2756,6 @@ function KT:RemoveFixedButton(block)
 				button:Hide()
 				KTF.Buttons.reanchor = true
 			end
-			if db.qiActiveButton then
-				KTF.ActiveButton.text:SetText("")
-			end
 		end
 	else
 		for questID, button in pairs(self.fixedButtons) do
@@ -2912,7 +2915,7 @@ function KT:MergeTables(source, target)
 	return target
 end
 
--- Load ----------------------------------------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------------------------------------------------
 
 function KT:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
@@ -2928,12 +2931,6 @@ function KT:OnInitialize()
 	self.playerLevel = UnitLevel("player")
 	local _, class = UnitClass("player")
 	self.classColor = RAID_CLASS_COLORS[class]
-
-	-- Setup Options
-	self:SetupOptions()
-	db = self.db.profile
-	dbChar = self.db.char
-	KT:Alert_ResetIncompatibleProfiles("7.0.0")
 
 	-- Tracker data
 	self.headers = {}
@@ -2959,6 +2956,10 @@ end
 
 function KT:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
+	db = self.db.profile
+	dbChar = self.db.char
+	KT:Alert_ResetIncompatibleProfiles("7.0.0")
+
 	self.Quests_Init(dbChar.quests)
 
 	self.isTimerunningPlayer = (PlayerGetTimerunningSeasonID() ~= nil)
@@ -2966,6 +2967,14 @@ function KT:OnEnable()
 	SetFrames()
 	SetHooks()
 
+	self:RegSignal("OPTIONS_CHANGED", "Update")
+	self:RegEvent("PLAYER_ENTERING_WORLD", function(eventID, ...)
+		KT_ObjectiveTrackerManager:OnPlayerEnteringWorld(...)
+		Init()
+		self:UnregEvent(eventID)
+	end)
+
+	self.Options:Enable()
 	self.Filters:Enable()
 	if self.AddonPetTracker.isLoaded then self.AddonPetTracker:Enable() end
 	if self.AddonTomTom.isLoaded then self.AddonTomTom:Enable() end
@@ -2977,30 +2986,12 @@ function KT:OnEnable()
 		self.db.global.version = self.version
 	end
 
-	local i = 1
-	local isChange = false
-	while i <= #db.modulesOrder do
-		if _G[db.modulesOrder[i]] then
-			i = i + 1
-		else
-			tremove(db.modulesOrder, i)
-			isChange = true
-		end
-	end
-	if isChange then
-		self.db:RegisterDefaults(self.db.defaults)
-	end
-
 	AddonCompartmentFrame:RegisterAddon({
 		text = self.title,
-		icon = KT.MEDIA_PATH.."KT_logo",
+		icon = self.MEDIA_PATH.."KT_logo",
 		notCheckable = true,
-		func = KT.ToggleTracker,
+		func = function()
+			self:ToggleTracker()
+		end
 	})
-
-	self:RegEvent("PLAYER_ENTERING_WORLD", function(eventID, ...)
-		KT_ObjectiveTrackerManager:OnPlayerEnteringWorld(...)
-		Init()
-		self:UnregEvent(eventID)
-	end)
 end

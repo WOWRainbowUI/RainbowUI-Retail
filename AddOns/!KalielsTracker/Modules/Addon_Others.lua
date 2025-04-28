@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -7,6 +7,7 @@
 ---@type KT
 local addonName, KT = ...
 
+---@class AddonOthers
 local M = KT:NewModule("AddonOthers")
 KT.AddonOthers = M
 
@@ -22,13 +23,11 @@ local msqGroup1, msqGroup2
 
 local KTwarning = "  |cff00ffffAddon "..KT.title.." is active.  "
 
---------------
--- Internal --
---------------
+-- Internal ------------------------------------------------------------------------------------------------------------
 
 -- Masque
 local function Masque_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Masque", "11.0.2") and db.addonMasque)
+    local isLoaded = (KT:CheckAddOn("Masque", "11.1.5") and db.addonMasque)
     if isLoaded then
         KT:Alert_IncompatibleAddon("Masque", "11.0.1")
         msqGroup1 = MSQ:Group(KT.title, "Quest Item Buttons")
@@ -52,7 +51,7 @@ end
 
 -- Auctionator
 local function Auctionator_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Auctionator", "11.0.20") and db.addonAuctionator)
+    local isLoaded = (KT:CheckAddOn("Auctionator", "275") and db.addonAuctionator)
     if isLoaded then
         hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
             local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame
@@ -65,7 +64,7 @@ end
 
 -- ElvUI
 local function ElvUI_SetSupport()
-    if KT:CheckAddOn("ElvUI", "v13.81", true) then
+    if KT:CheckAddOn("ElvUI", "v13.89", true) then
         local E = unpack(_G.ElvUI)
         local B = E:GetModule("Blizzard")
         B.ObjectiveTracker_Setup = function() end  -- preventive
@@ -77,11 +76,11 @@ local function ElvUI_SetSupport()
         end)
         hooksecurefunc(E, "ToggleOptions", function(self)
             if E.Libs.AceConfigDialog.OpenFrames[self.name] then
-                local options = self.Options.args.general.args.blizzUIImprovements
+                local options = self.Options.args.general.args.blizzardImprovements.args.objectiveFrameGroup
                 options.args[addonName.."Warning"] = {
                     name = "\n"..KTwarning,
                     type = "description",
-                    order = 20.99,
+                    order = 0,
                 }
             end
         end)
@@ -90,7 +89,7 @@ end
 
 -- Tukui
 local function Tukui_SetSupport()
-    if KT:CheckAddOn("Tukui", "v20.456", true) then
+    if KT:CheckAddOn("Tukui", "v20.460", true) then
         local T = unpack(_G.Tukui)
         T.Miscellaneous.ObjectiveTracker.Enable = function() end
     end
@@ -108,9 +107,7 @@ local function RealUI_SetSupport()
     end
 end
 
---------------
--- External --
---------------
+-- External ------------------------------------------------------------------------------------------------------------
 
 function M:OnInitialize()
     _DBG("|cffffff00Init|r - "..self:GetName(), true)
