@@ -28,10 +28,10 @@ GTFO = {
 		BrannMode = 0;
 		IgnoreTimeAmount = .2;
 	};
-	Version = "5.17"; -- Version number (text format)
+	Version = "5.17.1"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 51700; -- Numeric version number for checking out-of-date clients (retail)
-	ClassicVersionNumber = 51500; -- Numeric version number for checking out-of-date clients (Vanilla classic)
+	RetailVersionNumber = 51701; -- Numeric version number for checking out-of-date clients (retail)
+	ClassicVersionNumber = 51701; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 50000; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 50503; -- Numeric version number for checking out-of-date clients (Wrath classic)
 	CataclysmVersionNumber = 51502; -- Numeric version number for checking out-of-date clients (Wrath classic)
@@ -1463,7 +1463,7 @@ function GTFO_RenderOptions()
 			getglobal(GTFO_IgnoreTimeSlider:GetName().."High"):SetText(" ");
 			getglobal(GTFO_IgnoreTimeSlider:GetName().."Low"):SetText(" ");
 		end
-		IgnoreTimeText:SetText((GTFO.Settings.IgnoreTimeAmount or GTFO.DefaultSettings.IgnoreTimeAmount).." "..GTFOLocal.UI_IgnoreTime_Seconds);
+		IgnoreTimeText:SetText((GTFO.Settings.IgnoreTimeAmount or GTFO.DefaultSettings.IgnoreTimeAmount).." "..(GTFOLocal.UI_IgnoreTime_Seconds or ""));
 
 		-- Special Alerts frame
 		local IgnoreOptionsPanel = CreateFrame("FRAME","GTFO_IgnoreOptionsFrame");
@@ -1736,9 +1736,6 @@ function GTFO.ToggleCheckboxOption(self)
 		GTFO.Settings.TrivialMode = checked;
 	elseif (optionKey == "Vibration") then
 		GTFO.Settings.EnableVibration = checked;
-	elseif (optionKey == "AprilFoolsDay") then
-		GTFO.Settings.BrannMode = 0;
-		getglobal("GTFO_AprilFoolsDayButton"):Hide();
 	end
 	
 	for key, option in pairs(GTFO.IgnoreSpellCategory) do
@@ -2108,7 +2105,7 @@ function GTFO_Option_SetIgnoreTime()
 	local ignoreTime = math.floor(getglobal("GTFO_IgnoreTimeSlider"):GetValue() * 10)/10;
 	GTFO.Settings.IgnoreTimeAmount = ignoreTime;
 	getglobal("GTFO_IgnoreTimeSlider"):SetValue(ignoreTime);
-	getglobal("GTFO_IgnoreTimeText"):SetText(GTFO.Settings.IgnoreTimeAmount.." "..GTFOLocal.UI_IgnoreTime_Seconds);
+	getglobal("GTFO_IgnoreTimeText"):SetText(GTFO.Settings.IgnoreTimeAmount.." "..(GTFOLocal.UI_IgnoreTime_Seconds or ""));
 	GTFO_SaveSettings();
 end
 
@@ -2378,9 +2375,6 @@ function GTFO_SaveSettings()
 		getglobal("GTFO_UnmuteButton"):SetChecked(GTFO.Settings.UnmuteMode);
 		getglobal("GTFO_TrivialButton"):SetChecked(GTFO.Settings.TrivialMode);
 		getglobal("GTFO_VibrationButton"):SetChecked(GTFO.Settings.EnableVibration);
-		if (GTFO.AprilFoolsDay and not GTFO.Settings.BrannMode) then
-			getglobal("GTFO_AprilFoolsDayButton"):SetChecked(GTFO.AprilFoolsDay and not GTFO.Settings.BrannMode);
-		end
 
 		for key, option in pairs(GTFO.IgnoreSpellCategory) do
 			getglobal("GTFO_IgnoreAlertButton_"..key):SetChecked(not GTFO.Settings.IgnoreOptions[key]);

@@ -2255,3 +2255,6 @@ Change Log:
 * Added TWW spells for Liberation of Undermine
 * Added TWW spells for Darkflame Cleft
 * Added TWW spells for TWW Delves 
+
+5.17.1
+* Fixed LUA crash issues
