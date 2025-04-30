@@ -545,7 +545,6 @@ L["CityOfThreads"] = "蛛絲城"
 L["cityOfThreadsShortName"] = "COT"
 --[[Translation missing --]]
 L["Claw Fighter"] = "Claw Fighter"
---[[Translation missing --]]
 L["Clear all Markers"] = "清除所有標記"
 L["Click the fullscreen button for a maximized view of MDT."] = "點一下全螢幕按鈕來最大化 MDT 的畫面"
 L["Click to adjust color settings"] = "點一下調整顏色設定"
@@ -2003,6 +2002,8 @@ L["Mchimba the Embalmer"] = "殓尸者姆沁巴"
 L["MDI Mode"] = "MDI 模式"
 --[[Translation missing --]]
 L["MDT Error"] = "MDT Error"
+--[[Translation missing --]]
+L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: 無法加入敵人 - 你已加入太多同類型的敵人"
 L["MDT: Error importing preset"] = "MDT: 匯入路線時發生錯誤"
 L["MDT: Spells for %s:"] = "MDT: %s 的技能:"
 L["MDT: Use /mdt minimap to show the minimap icon again"] = "MDT: 輸入 /mdt minimap 再次顯示小地圖按鈕。"
