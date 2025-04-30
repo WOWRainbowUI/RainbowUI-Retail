@@ -1,7 +1,6 @@
 # Baganator
 
-## [681](https://github.com/Baganator/Baganator/tree/681) (2025-04-27)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/680...681) 
+## [682](https://github.com/Baganator/Baganator/tree/682) (2025-04-28)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/681...682) 
 
-- Customise: Fix renaming a new category immediately after creation not working  
-- Add "Manual" sort method for categories (drag-and-drop to order items)  
+- Classic MoP: Tag for MoP support  
