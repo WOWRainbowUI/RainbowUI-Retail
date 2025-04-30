@@ -387,6 +387,20 @@ local options = {
             desc = L["Cooldown Manager options"],
             type = "toggle",
         },
+        cooldownManagerReset = {
+            type = "execute",
+            name = L["Reset Cooldown Manager DB"],
+            func = function()
+                wipe(addon.db.char.EssentialCooldownViewerSpellIDs)
+                wipe(addon.db.char.UtilityCooldownViewerSpellIDs)
+                wipe(addon.db.char.BuffIconCooldownViewerSpellIDs)
+                wipe(addon.db.char.BuffBarCooldownViewerSpellIDs)
+                EssentialCooldownViewer:RefreshLayout()
+                UtilityCooldownViewer:RefreshLayout()
+                BuffIconCooldownViewer:RefreshLayout()
+                BuffBarCooldownViewer:RefreshLayout()
+            end,
+        },
     },
 }
 
