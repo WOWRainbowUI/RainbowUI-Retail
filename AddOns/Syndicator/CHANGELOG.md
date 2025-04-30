@@ -1,7 +1,7 @@
 # Syndicator
 
-## [191](https://github.com/Baganator/Syndicator/tree/191) (2025-04-25)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/190...191) 
+## [192](https://github.com/Baganator/Syndicator/tree/192) (2025-04-28)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/191...192) 
 
-- MoP Classic: More fixes for search keywords  
-- MoP Classic: Fixes for stats English backup equivalents  
+- Classic MoP: Tag for MoP support  
+- Search: Fix wrong stat strings used in Wrath (China)  

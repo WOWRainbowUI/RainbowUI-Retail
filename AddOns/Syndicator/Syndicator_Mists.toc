@@ -1,4 +1,4 @@
-## Interface: 40402
+## Interface: 50500
 ## Title: Syndicator
 ## Version: 192
 ## Author: plusmouse
