@@ -1395,6 +1395,8 @@ L["mawOfSoulsShortName"] = "УАП"
 L["Mchimba the Embalmer"] = "Мчимба Бальзамировщик"
 L["MDI Mode"] = "Режим MDI"
 L["MDT Error"] = "Ошибка MDT"
+--[[Translation missing --]]
+L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"
 L["MDT: Error importing preset"] = "MDT: Ошибка импорта маршрута"
 L["MDT: Spells for %s:"] = "MDT: Заклинания для %s:"
 L["MDT: Use /mdt minimap to show the minimap icon again"] = "MDT: используйте /mdt minimap, чтобы снова отобразить значок миникарты"

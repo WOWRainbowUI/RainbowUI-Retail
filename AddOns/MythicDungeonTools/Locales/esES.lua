@@ -1676,6 +1676,8 @@ L["Mchimba the Embalmer"] = "Mchimba el Embalsamador"
 L["MDI Mode"] = "Modo MDI"
 --[[Translation missing --]]
 L["MDT Error"] = "MDT Error"
+--[[Translation missing --]]
+L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"
 L["MDT: Error importing preset"] = "MDT: Error importando la ruta"
 L["MDT: Spells for %s:"] = "MDT: Hechizos para %s:"
 L["MDT: Use /mdt minimap to show the minimap icon again"] = "MDT: usa /mdt minimap para volver a mostrar el icono del minimapa"

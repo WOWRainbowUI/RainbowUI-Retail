@@ -1398,6 +1398,8 @@ L["mawOfSoulsShortName"] = "噬魂"
 L["Mchimba the Embalmer"] = "殓尸者姆沁巴"
 L["MDI Mode"] = "MDI模式"
 L["MDT Error"] = "MDT 错误"
+--[[Translation missing --]]
+L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"
 L["MDT: Error importing preset"] = "MDT: 导入路线时发生错误"
 L["MDT: Spells for %s:"] = "MDT: %s 的法术:"
 L["MDT: Use /mdt minimap to show the minimap icon again"] = "MDT: 输入 /mdt minimap 再次显示小地图按钮"

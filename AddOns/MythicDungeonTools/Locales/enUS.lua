@@ -3,6 +3,7 @@ local addonName, MDT = ...
 local L = MDT.L
 L = L or {}
 
+L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"
 L["Clear all Markers"] = "Clear all Markers"
 L["Okay"] = "Okay"
 L["Warning"] = "Warning"
@@ -4228,6 +4229,7 @@ L["mawOfSoulsShortName"] = "MOS"
 L["Mchimba the Embalmer"] = "Mchimba the Embalmer"
 L["MDI Mode"] = "MDI Mode"
 L["MDT Error"] = "MDT Error"
+L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"
 L["MDT: Error importing preset"] = "MDT: Error importing route"
 L["MDT: Spells for %s:"] = "MDT: Spells for %s:"
 L["MDT: Use /mdt minimap to show the minimap icon again"] = "MDT: Use /mdt minimap to show the minimap icon again"
