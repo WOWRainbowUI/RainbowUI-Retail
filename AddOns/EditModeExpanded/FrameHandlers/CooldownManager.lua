@@ -9,6 +9,7 @@ local function refreshUntilConfigIDAvailable()
     if isRefreshingUntilConfigIDAvailable then return end
     local ticker
     ticker = C_Timer.NewTicker(2, function()
+        if not PlayerUtil.GetCurrentSpecID() then return end
         local configID = C_ClassTalents.GetLastSelectedSavedConfigID(PlayerUtil.GetCurrentSpecID())
         if configID then
             ticker:Cancel()
@@ -515,6 +516,10 @@ local function initFrame(frame, db, includeTrinkets)
             local itemFrame = self.itemFramePool:Acquire()
             itemFrame.layoutIndex = i
             self:OnAcquireItemFrame(itemFrame)
+        end
+        
+        if (frame == BuffIconCooldownViewer) or (frame == BuffBarCooldownViewer) then
+            self:GetItemContainerFrame().stride = #db
         end
         
         self:RefreshData()
