@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.1.10 (23rd April 2025)
+-- 	Leatrix Plus 11.1.11 (30th April 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.1.10"
+	LeaPlusLC["AddonVer"] = "11.1.11"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -4485,8 +4485,9 @@
 
 			-- Hover over the durability button to show the durability tooltip
 			cButton:SetScript("OnEnter", function()
-				GameTooltip:SetOwner(cButton, "ANCHOR_RIGHT");
-				ShowDuraStats("tip");
+				GameTooltip:SetOwner(cButton, "ANCHOR_RIGHT")
+				GameTooltip:SetMinimumWidth(0) -- Needed due to MoP mage reset specialisation and choose frost
+				ShowDuraStats("tip")
 			end)
 			cButton:SetScript("OnLeave", GameTooltip_Hide)
 
