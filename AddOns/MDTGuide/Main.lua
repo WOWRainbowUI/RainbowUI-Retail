@@ -707,6 +707,8 @@ local OnEvent = function(_, ev, ...)
 
             Addon.MigrateOptions()
 
+            
+
             -- Hook showing interface
             local initialized = false
 
@@ -750,6 +752,8 @@ local OnEvent = function(_, ev, ...)
                     currentPullBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
                     currentPullBtn:SetPoint("RIGHT", toggleBtn, "LEFT", 0, 0.5)
+
+                    currentPullBtn:Hide()
                 end
 
                 if not announceBtn then
@@ -781,6 +785,8 @@ local OnEvent = function(_, ev, ...)
                     announceBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
                     announceBtn:SetPoint("RIGHT", currentPullBtn, "LEFT", -8, 0)
+
+                    announceBtn:Hide()
                 end
 
                 hooksecurefunc(main, "Show", function ()

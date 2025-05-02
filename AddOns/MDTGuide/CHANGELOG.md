@@ -1,3 +1,7 @@
+Version 1.37
+
+- Updated ToC version for patch 11.1
+
 Version 1.36
 
 - Fix zooming to current pull when using enemy forces mode or when auto-hiding is enabled
