@@ -1,7 +1,7 @@
 # Edit Mode Expanded
 
-## [11.1-061](https://github.com/teelolws/EditModeExpanded/tree/11.1-061) (2025-05-01)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.1-060...11.1-061) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [11.1-062](https://github.com/teelolws/EditModeExpanded/tree/11.1-062) (2025-05-02)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.1-061...11.1-062) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
-- Fix issue with respeccing  
-    Closes: https://github.com/teelolws/EditModeExpanded/issues/172#issuecomment-2845679837  
+- Freeze updates to internal cooldown manager database during respecs  
+    Closes: https://github.com/teelolws/EditModeExpanded/issues/173#issuecomment-2848179730  
