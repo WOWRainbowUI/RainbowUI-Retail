@@ -1,5 +1,5 @@
 		-------------------------------------------------
-		-- Paragon Reputation 1.63 by Fail US-Ragnaros --
+		-- Paragon Reputation 1.64 by Fail US-Ragnaros --
 		-------------------------------------------------
 
 		  --[[	  Special thanks to Ammako for
@@ -543,6 +543,10 @@ PR.PARAGON_DATA = {
 			factionID = 2590,
 			cache = 225239,
 		}, 
+		[89515] = { -- Flame's Radiance
+			factionID = 2688,
+			cache = 239489,
+		},
 		[79218] = { -- Hallowfall Arathi
 			factionID = 2570,
 			cache = 225246,

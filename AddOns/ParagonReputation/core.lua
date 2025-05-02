@@ -1,5 +1,5 @@
 		-------------------------------------------------
-		-- Paragon Reputation 1.63 by Fail US-Ragnaros --
+		-- Paragon Reputation 1.64 by Fail US-Ragnaros --
 		-------------------------------------------------
 
 		  --[[	  Special thanks to Ammako for
@@ -55,7 +55,7 @@ end
 
 -- [GameTooltip] Show the GameTooltip with the Item Reward on mouseover. (Thanks Brudarek)
 function ParagonReputation:Tooltip(self)
-	if not self.questID or not PR.PARAGON_DATA[self.questID] then return end
+	if not self.questID or not PR.PARAGON_DATA[self.questID] or self.tooLowLevelForParagon then return end
 	EmbeddedItemTooltip:ClearLines()
 	EmbeddedItemTooltip:SetOwner(self,"ANCHOR_RIGHT")
 	ReputationParagonFrame_SetupParagonTooltip(self)
@@ -161,9 +161,10 @@ local function UpdateBar(self)
 			end)
 			self.paragon_hook = true
 		end
-		local currentValue,threshold,rewardQuestID,hasRewardPending = C_Reputation.GetFactionParagonInfo(self.factionID)
+		local currentValue,threshold,rewardQuestID,hasRewardPending,tooLowLevelForParagon = C_Reputation.GetFactionParagonInfo(self.factionID)
 		self.count = floor(currentValue/threshold)-(hasRewardPending and 1 or 0)
 		self.questID = rewardQuestID
+		self.tooLowLevelForParagon = tooLowLevelForParagon
 		local r,g,b = PR.DB.value[1],PR.DB.value[2],PR.DB.value[3]
 		local value = currentValue%threshold
 		if hasRewardPending then
@@ -213,6 +214,7 @@ local function UpdateBar(self)
 	else
 		self.count = nil
 		self.questID = nil
+		self.tooLowLevelForParagon = nil
 		if self.Content.ReputationBar.ParagonOverlay then self.Content.ReputationBar.ParagonOverlay:Hide() end
 	end
 end
