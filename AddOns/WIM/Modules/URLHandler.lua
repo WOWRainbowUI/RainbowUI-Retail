@@ -20,6 +20,10 @@ db_defaults.displayColors.webAddress = {
 local URL = CreateModule("URLHandler", true);
 
 armoryLinks = {
+	{
+		title = "複製名字",
+		url = "{user}",
+    },
     {
 		title = "官方英雄榜",
 		url = "https://worldofwarcraft.com/zh-tw/character/{realm}/{user}"
