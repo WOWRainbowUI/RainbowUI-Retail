@@ -538,10 +538,18 @@ securecall(function() -- Modern: G-99 Breakneck is a fake mount
 	end
 	local G99_SPELL_ID, G99_QUEST_ID, questOK = 460013, 84352
 	local inUndermine, wf = false, CreateFrame("Frame", nil, nil, "SecureFrameTemplate")
+	local function pushG99SpellCastID()
+		RW:SetCastAlias("spell:" .. G99_SPELL_ID, C_Spell.GetSpellName(G99_SPELL_ID))
+		return "remove"
+	end
 	local function hasUnlockedG99()
 		if not questOK and C_QuestLog.IsQuestFlaggedCompletedOnAccount(G99_QUEST_ID) then
 			questOK = true
-			RW:SetCastAlias("spell:" .. G99_SPELL_ID, C_Spell.GetSpellName(G99_SPELL_ID))
+			if InCombatLockdown() then
+				EV.PLAYER_REGEN_ENABLED = pushG99SpellCastID
+			else
+				pushG99SpellCastID()
+			end
 		end
 		return questOK
 	end
