@@ -1,6 +1,6 @@
 ## Interface: 30404
 ## Title: Baganator
-## Version: 682
+## Version: 683
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -61,7 +61,6 @@ ItemViewCommon\Search.lua
 ItemViewCommon\Search.xml
 ItemViewCommon\ItemButton.lua
 ItemViewCommon\ItemButton.xml
-ItemViewCommon\ItemButtonDataEvents.lua
 ItemViewCommon\Pools.lua
 ItemViewCommon\ContainerSlots.lua
 ItemViewCommon\ContainerSlots.xml

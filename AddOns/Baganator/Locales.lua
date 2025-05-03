@@ -1,4 +1,5 @@
-local _, addonTable = ...
+---@class addonTableBaganator
+local addonTable = select(2, ...)
 local Locales = {
   enUS = {},
   frFR = {},
@@ -2917,8 +2918,7 @@ L["LOCK_WINDOWS"] = "鎖定視窗"
 L["LOW"] = "低"
 L["MAIL"] = "信箱"
 L["MANAGE_CHARACTERS"] = "管理角色"
---[[Translation missing --]]
-L["MANUAL"] = "Manual"
+L["MANUAL"] = "手動"
 L["MARK_UNUSABLE_ITEMS_IN_RED"] = "將不可用的物品標記為紅色"
 L["MINING"] = "採礦"
 L["MONEY_LOGS"] = "金幣紀錄"
