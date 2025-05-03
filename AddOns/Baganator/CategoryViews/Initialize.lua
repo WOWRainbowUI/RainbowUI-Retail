@@ -1,4 +1,5 @@
-local _, addonTable = ...
+---@class addonTableBaganator
+local addonTable = select(2, ...)
 local function MigrateFormat()
   if addonTable.Config.Get(addonTable.Config.Options.CATEGORY_MIGRATION) == 0 then
     local customCategories = addonTable.Config.Get(addonTable.Config.Options.CUSTOM_CATEGORIES)
@@ -23,7 +24,7 @@ local function MigrateFormat()
   end
   if addonTable.Config.Get(addonTable.Config.Options.CATEGORY_MIGRATION) == 2 then
     local categoryMods = addonTable.Config.Get(addonTable.Config.Options.CATEGORY_MODIFICATIONS)
-    for key, mods in pairs(categoryMods) do
+    for _, mods in pairs(categoryMods) do
       local oldAddedItems = mods.addedItems
       if oldAddedItems ~= nil then
         mods.addedItems = {}
