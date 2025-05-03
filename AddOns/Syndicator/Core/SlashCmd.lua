@@ -48,7 +48,7 @@ function Syndicator.SlashCmd.Config(optionName, value1, ...)
   Syndicator.Utilities.Message("現在設為 " .. optionName .. ": " .. tostring(Syndicator.Config.Get(optionName)))
 end
 
-function Syndicator.SlashCmd.Debug(...)
+function Syndicator.SlashCmd.Debug()
   Syndicator.Config.Set(Syndicator.Config.Options.DEBUG, not Syndicator.Config.Get(Syndicator.Config.Options.DEBUG))
   if Syndicator.Config.Get(Syndicator.Config.Options.DEBUG) then
     Syndicator.Utilities.Message("開啟除錯模式")
@@ -105,7 +105,7 @@ function Syndicator.SlashCmd.CustomiseUI()
 end
 
 local COMMANDS = {
-  [""] = function() Settings.OpenToCategory(SYNDICATOR_L_SYNDICATOR) end,
+  [""] = function() Settings.OpenToCategory(Syndicator.Locales.SYNDICATOR) end,
   ["c"] = Syndicator.SlashCmd.Config,
   ["config"] = Syndicator.SlashCmd.Config,
   ["d"] = Syndicator.SlashCmd.Debug,
