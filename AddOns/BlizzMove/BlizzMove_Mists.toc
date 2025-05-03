@@ -1,4 +1,4 @@
-## Interface: 11507
+## Interface: 50500
 ## Title: BlizzMove
 ## Notes: Makes blizzard frames movable
 ## Author: Kiatra, zaCade, Numy - github.com/Kiatra/BlizzMove/
