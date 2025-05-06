@@ -80,8 +80,8 @@ L["Collection Collected"] = COLLECTED or "已收集";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "獎勵 %d 聲望和 %s";
-L["Format You Have X"] = "- 你有 |cffffffff%d|r 個";
-L["Format You Have X And Y In Bank"] = "- 你有 |cffffffff%d|r 個 (|cffffffff%d|r 個在銀行)";
+L["Format You Have X"] = "- 你有 |cffffffff%s|r 個";
+L["Format You Have X And Y In Bank"] = "- 你有 |cffffffff%s|r 個 (|cffffffff%s|r 個在銀行)";
 L["Format Suggested Players"] = QUEST_SUGGESTED_GROUP_NUM or "建議玩家數 [%d]";
 L["Format Current Skill Level"] = "目前等級: |cffffffff%d/%d|r";
 L["Format Reward Title"] = HONOR_REWARD_TITLE or "頭銜: %s";
