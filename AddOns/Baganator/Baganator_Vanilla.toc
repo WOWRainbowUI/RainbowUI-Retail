@@ -1,9 +1,10 @@
 ## Interface: 11506, 11507
 ## Title: Baganator
-## Version: 683
+## Version: 685
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
+## SavedVariablesPerCharacter: BAGANATOR_CURRENT_PROFILE
 ## IconTexture: Interface\AddOns\Baganator\Assets\logo.tga
 ## OptionalDependencies: WagoAnalytics
 
