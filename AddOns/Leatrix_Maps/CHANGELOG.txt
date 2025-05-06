@@ -1,4 +1,8 @@
-﻿11.1.10 - 23rd April 2025
+﻿11.1.12 - 6th May 2025
+- PTR (11.1.7): Preliminary update for game patch 11.1.7.
+- The 'Sticky map frame' setting (part of 'Unlock map frame') has been removed.
+
+11.1.10 - 23rd April 2025
 - Updated for game patch 11.1.5.
 
 11.1.03 - 7th March 2025

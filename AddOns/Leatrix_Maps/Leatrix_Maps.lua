@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 11.1.11 (30th April 2025)
+	-- 	Leatrix Maps 11.1.12 (6th May 2025)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "11.1.11"
+	LeaMapsLC["AddonVer"] = "11.1.12"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -644,7 +644,6 @@
 			-- Add controls
 			LeaMapsLC:MakeTx(scaleFrame, "Settings", 16, -72)
 			LeaMapsLC:MakeCB(scaleFrame, "EnableMovement", "Allow frame movement", 16, -92, false, "If checked, you will be able to move the frame by dragging the border.")
-			LeaMapsLC:MakeCB(scaleFrame, "StickyMapFrame", "Sticky map frame", 16, -112, false, "If checked, the map frame will remain open until you close it.")
 
 			----------------------------------------------------------------------
 			-- Allow map frame movement
@@ -699,29 +698,6 @@
 			end
 
 			----------------------------------------------------------------------
-			-- Sticky map frame
-			----------------------------------------------------------------------
-
-			-- Function to set sticky map frame mode
-			local function StickyMapFunc()
-				if LeaMapsLC["StickyMapFrame"] == "On" then
-					for k, v in pairs(UISpecialFrames) do
-						if v == "WorldMapFrame" then
-							table.remove(UISpecialFrames, k)
-						end
-					end
-				else
-					if not tContains(UISpecialFrames, "WorldMapFrame") then
-						table.insert(UISpecialFrames, "WorldMapFrame")
-					end
-				end
-			end
-
-			-- Set sticky map frame mode when option is clicked and on startup
-			LeaMapsCB["StickyMapFrame"]:HookScript("OnClick", StickyMapFunc)
-			StickyMapFunc()
-
-			----------------------------------------------------------------------
 			-- Panel button handlers
 			----------------------------------------------------------------------
 
@@ -743,9 +719,6 @@
 				else
 					WorldMapFrame:SetPoint(LeaMapsLC["MapPosA"], UIParent, LeaMapsLC["MapPosR"], LeaMapsLC["MapPosX"], LeaMapsLC["MapPosY"])
 				end
-				-- Reset sticky map frame
-				LeaMapsLC["StickyMapFrame"] = "Off"
-				StickyMapFunc()
 				-- Refresh panel
 				scaleFrame:Hide(); scaleFrame:Show()
 			end)
@@ -758,8 +731,6 @@
 				if IsShiftKeyDown() and IsControlKeyDown() then
 					-- Preset profile
 					LeaMapsLC["EnableMovement"] = "On"
-					LeaMapsLC["StickyMapFrame"] = "Off"
-					StickyMapFunc()
 					if scaleFrame:IsShown() then scaleFrame:Hide(); scaleFrame:Show(); end
 				else
 					scaleFrame:Show()
@@ -2050,7 +2021,6 @@
 				LeaMapsDB["UnlockMap"] = "On"
 				LeaMapsDB["EnableMovement"] = "On"
 				LeaMapsDB["UseDefaultMap"] = "Off"
-				LeaMapsDB["StickyMapFrame"] = "Off"
 				LeaMapsDB["ScaleWorldMap"] = "Off"
 				LeaMapsDB["MapScale"] = 1.0
 				LeaMapsDB["MaxMapScale"] = 0.9
@@ -2150,7 +2120,6 @@
 			LeaMapsLC:LoadVarChk("UnlockMap", "Off")					-- Unlock map frame
 			LeaMapsLC:LoadVarChk("EnableMovement", "On")				-- Enable frame movement
 			LeaMapsLC:LoadVarChk("UseDefaultMap", "Off")				-- Use default map
-			LeaMapsLC:LoadVarChk("StickyMapFrame", "Off")				-- Sticky map frame
 			LeaMapsLC:LoadVarChk("ScaleWorldMap", "Off")				-- Scale the map
 			LeaMapsLC:LoadVarNum("MapScale", 1.0, 0.5, 2)				-- Map scale
 			LeaMapsLC:LoadVarNum("MaxMapScale", 1.0, 0.5, 2)			-- Maximised map scale
@@ -2231,7 +2200,6 @@
 			LeaMapsDB["UnlockMap"] = LeaMapsLC["UnlockMap"]
 			LeaMapsDB["EnableMovement"] = LeaMapsLC["EnableMovement"]
 			LeaMapsDB["UseDefaultMap"] = LeaMapsLC["UseDefaultMap"]
-			LeaMapsDB["StickyMapFrame"] = LeaMapsLC["StickyMapFrame"]
 			LeaMapsDB["ScaleWorldMap"] = LeaMapsLC["ScaleWorldMap"]
 			LeaMapsDB["MapScale"] = LeaMapsLC["MapScale"]
 			LeaMapsDB["MaxMapScale"] = LeaMapsLC["MaxMapScale"]
