@@ -1,6 +1,6 @@
 ## Interface: 40402
 ## Title: Syndicator
-## Version: 193
+## Version: 195
 ## Author: plusmouse
 ## SavedVariables: SYNDICATOR_CONFIG, SYNDICATOR_DATA, SYNDICATOR_SUMMARIES
 ## IconTexture: Interface\AddOns\Syndicator\Assets\logo.tga
@@ -54,7 +54,7 @@ Search\GetGroupingKey.lua
 Search\OfflineList.lua
 Search\OfflineList.xml
 Search\SearchEverywhere.lua
-Search\SearchBuilder.lua
+Search\UI\Builder.lua
 Search\Utilities.lua
 
 API\Main.lua
