@@ -1,6 +1,7 @@
 # Baganator
 
-## [685](https://github.com/Baganator/Baganator/tree/685) (2025-05-05)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/684...685) 
+## [686](https://github.com/Baganator/Baganator/tree/686) (2025-01-31)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/685...686) 
 
-- Fix analytics for config data format change  
+- Customise: Categories: Skin raw search box and scroll buttons for visual search  
+- Move scrolling search widget to Syndicator  
