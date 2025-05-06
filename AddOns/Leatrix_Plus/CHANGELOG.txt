@@ -1,4 +1,9 @@
-﻿11.1.11 - 30th April 2025
+﻿11.1.12 - 6th May 2025
+- PTR (11.1.7): Preliminary update for game patch 11.1.7.
+- For 'Enhance tooltip' ('Intereface'), the 'right-click for frame settings' instruction will now be hidden in unit frame tooltips.
+- For 'Set additional options' ('System'), fixed a minor graphical glitch with the mount special setting.
+
+11.1.11 - 30th April 2025
 - For 'Media', added 'Undermine' ('Zones') and 'Liberation of Undermine' and 'Operation: Floodgate' ('Dungeons').
 
 11.1.10 - 23rd April 2025

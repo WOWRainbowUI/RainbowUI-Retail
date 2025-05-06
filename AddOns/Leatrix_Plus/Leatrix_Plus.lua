@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.1.11 (30th April 2025)
+-- 	Leatrix Plus 11.1.12 (6th May 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.1.11"
+	LeaPlusLC["AddonVer"] = "11.1.12"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -764,6 +764,7 @@
 						hooksecurefunc(PerksProgramFrame.FooterFrame.ToggleMountSpecial, "SetChecked", function(self)
 							if self:GetChecked() then
 								self:Click()
+								PerksProgramFrame:SetMountSpecialPreviewOnClick(false)
 								RunNextFrame(function()
 									PerksProgramFrame:SetMountSpecialPreviewOnClick(false)
 								end)
@@ -9272,6 +9273,13 @@
 			-- Other tooltip code
 			---------------------------------------------------------------------------------------------------------
 
+			-- Remove the right-click for frame settings instruction (UNIT_POPUP_RIGHT_CLICK)
+			hooksecurefunc("UnitFrame_UpdateTooltip", function(self)
+				GameTooltip_SetDefaultAnchor(GameTooltip, self)
+				GameTooltip:SetUnit(self.unit, true)
+				GameTooltip:Show()
+			end)
+
 			-- Colorblind setting change
 			SideTip:RegisterEvent("CVAR_UPDATE");
 			SideTip:SetScript("OnEvent", function(self, event, arg1, arg2)
@@ -11181,7 +11189,7 @@
 
 				end
 
-				-- Lock options currently not compatible with The War Within (LeaPlusLC.DF)
+				-- Lock options currently not compatible with the next expansion (LeaPlusLC.DF)
 				local function LockDF(option, reason)
 					LeaPlusLC[option] = "Off"
 					LeaPlusDB[option] = "Off"
@@ -13927,6 +13935,24 @@
 				if not LeaPlusLC:PlayerInCombat() then
 					RunScript('ShowUIPanel(EditModeManagerFrame)')
 				end
+				return
+			elseif str == "taintmap" then
+				-- TaintMap
+				if LeaPlusLC.TaintMap then
+					LeaPlusLC.TaintMap:Cancel()
+					LeaPlusLC.TaintMap = nil
+					LeaPlusLC:Print("TaintMap stopped.")
+					return
+				end
+				LeaPlusLC.TaintMap = C_Timer.NewTicker(1, function()
+					for k,v in pairs(WorldMapFrame) do
+						local ok, who = issecurevariable(WorldMapFrame, k)
+						if not ok then
+							print("Tainted:", k, "by", who or "unknown")
+						end
+					end
+				end)
+				LeaPlusLC:Print("TaintMap started.")
 				return
 			elseif str == "admin" then
 				-- Preset profile (used for testing)
