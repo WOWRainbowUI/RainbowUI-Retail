@@ -1,17 +1,28 @@
 --[[
 2019-2024 João Cardoso
-A library inspired in AceAddon-3.0, but that uses the global callback registry
-for events and has behavior changes plus additional features I wanted that were
-incompatible with Ace.
+WildAddon is distributed under the terms of the GNU General Public License (Version 3).
+As a special exception, the copyright holders of this library give you permission to embed it
+with independent modules to produce an addon, regardless of the license terms of these
+independent modules, and to copy and distribute the resulting software under terms of your
+choice, provided that you also meet, for each embedded independent module, the terms and
+conditions of the license of that module. Permission is not granted to modify this library.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+This file is part of WildAddon.
 ]]--
 
-local Lib = LibStub:NewLibrary('WildAddon-1.1', 3)
+local Lib = LibStub:NewLibrary('WildAddon-1.1', 6)
 if not Lib then return end
 
 
 --[[ Locals ]]--
 
-local type, tinsert, tremove, pairs = type, tinsert, tremove, pairs
+local setmetatable, type, select, pairs, tinsert, tremove = setmetatable, type, select, pairs, tinsert, tremove
+local EventRegistry, MergeTable, CopyTable = EventRegistry, MergeTable, CopyTable
 local Embeds = {}
 
 local function safecall(object, key, ...)
@@ -59,6 +70,7 @@ local function load()
 end
 
 Lib.Loading = Lib.Loading or {}
+Embeds.None = Embeds.None or setmetatable({}, {__newindex = function() error('None table is immutable.', 2) end})
 EventUtil.RegisterOnceFrameEventAndCallback('PLAYER_LOGIN', function()
 	EventRegistry:RegisterFrameEventAndCallback('ADDON_LOADED', load, Lib)
 	load()
@@ -135,7 +147,5 @@ function Lib:NewAddon(name, ...)
 end
 
 function Lib:Embed(object)
-	for k,v in pairs(Embeds) do
-		object[k] = v
-	end
+	MergeTable(object, Embeds)
 end
