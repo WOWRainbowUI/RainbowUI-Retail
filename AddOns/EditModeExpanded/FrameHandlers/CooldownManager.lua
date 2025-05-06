@@ -4,34 +4,89 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local lib = LibStub:GetLibrary("EditModeExpanded-1.0")
 local libDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
+local function refreshAll()
+    EssentialCooldownViewer:RefreshLayout()
+    UtilityCooldownViewer:RefreshLayout()
+    BuffIconCooldownViewer:RefreshLayout()
+    BuffBarCooldownViewer:RefreshLayout()
+end
+
 local isRefreshingUntilConfigIDAvailable
 local function refreshUntilConfigIDAvailable()
     if isRefreshingUntilConfigIDAvailable then return end
+    isRefreshingUntilConfigIDAvailable = true
     local ticker
-    ticker = C_Timer.NewTicker(2, function()
+    ticker = C_Timer.NewTicker(5, function()
         if not PlayerUtil.GetCurrentSpecID() then return end
-        local configID = C_ClassTalents.GetLastSelectedSavedConfigID(PlayerUtil.GetCurrentSpecID())
+        local configID = PlayerSpellsFrame.TalentsFrame:GetTreeInfo()
         if configID then
             ticker:Cancel()
             isRefreshingUntilConfigIDAvailable = nil
-            
-            EssentialCooldownViewer:RefreshLayout()
-            UtilityCooldownViewer:RefreshLayout()
-            BuffIconCooldownViewer:RefreshLayout()
-            BuffBarCooldownViewer:RefreshLayout()
+            refreshAll()
         end
     end)
 end
 
-local function getCurrentLoadoutID()
-    local configID = C_ClassTalents.GetLastSelectedSavedConfigID(PlayerUtil.GetCurrentSpecID())
-    if not configID then
-        refreshUntilConfigIDAvailable()
+local function IsInWarModeState()
+    local talentIDs = C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
+    for _, talentID in ipairs(talentIDs) do
+        local talentID, name, icon, selected, available, spellID, unlocked, row, column, known, grantedByAura = GetPvpTalentInfoByID(talentID)
+        if IsSpellKnown(spellID) then return true end
     end
-    return configID or PlayerUtil.GetCurrentSpecID() or 0
+    
+    return false
 end
 
-local settingFrame = CreateFrame("Frame", "EMESettingFrame", UIParent, "VerticalLayoutFrame")
+local function getCurrentLoadoutID(db)
+    local configID = C_ClassTalents.GetLastSelectedSavedConfigID(PlayerUtil.GetCurrentSpecID())
+    local warMode = IsInWarModeState() and "1" or "0"
+    
+    if not PlayerSpellsFrame then
+        PlayerSpellsFrame_LoadUI();
+        PlayerSpellsFrame:Show()
+        PlayerSpellsFrame:Hide()
+    end
+    if PlayerSpellsFrame.TalentsFrame:GetTreeInfo() then
+        local loadoutString = warMode .. PlayerSpellsFrame.TalentsFrame:GetLoadoutExportString()
+        
+        
+        if db[loadoutString] then
+            -- backup loadout string into config ID incase the loadout string changes in future patches
+            if configID then
+                db[configID] = db[loadoutString]
+            end
+        else
+            if configID then
+                if db[configID] then
+                    db[loadoutString] = db[configID]
+                else
+                    if db[PlayerUtil.GetCurrentSpecID()] then
+                        db[loadoutString] = db[PlayerUtil.GetCurrentSpecID()]
+                    else
+                        db[loadoutString] = {}
+                    end
+                end
+            else
+                db[loadoutString] = {}
+            end
+        end
+        
+        return loadoutString
+    end
+
+    if not configID then
+        configID = PlayerUtil.GetCurrentSpecID() or 0
+    end
+    
+    if not db[configID] then
+        db[configID] = {}
+    end
+    
+    refreshUntilConfigIDAvailable()
+    return configID
+end
+
+local settingFrame = CreateFrame("Frame", "EMECooldownManagerSettingFrame", UIParent, "VerticalLayoutFrame")
 settingFrame:SetPoint("CENTER", 0, -200)
 settingFrame.Border = CreateFrame("Frame", nil, settingFrame, "DialogBorderTranslucentTemplate")
 settingFrame.expand = true
@@ -76,14 +131,10 @@ settingFrame.addRow.addFontString:SetText("Add spell ID:")
 
 settingFrame.addRow.addEditBox = CreateFrame("EditBox", nil, settingFrame.addRow, "EditModeDialogLayoutNameEditBoxTemplate")
 settingFrame.addRow.addEditBox.layoutIndex = 2
+settingFrame.addRow.addEditBox:SetNumeric(true)
 settingFrame.addRow.addEditBox:SetScript("OnEnterPressed", function(self)
-	local text = self:GetText()
-    
-    if string.find(text, "[^%d]") then
-        return
-    end
-    
-    table.insert(settingFrame.db, -1 * tonumber(text))
+    local input = self:GetNumber()
+    table.insert(settingFrame.db, -1 * input)
     settingFrame:RefreshSettingFrame()
     settingFrame.viewer:RefreshLayout()
 end)
@@ -374,7 +425,7 @@ local function hookRefreshSpellTexture(self)
     
     hooksecurefunc(self, "RefreshSpellTexture", function(self)
         if not self.cooldownID then return end
-        if self.cooldownID >= 0 then return end
+        if self.cooldownID > 0 then return end
         
         local spellTexture
         if self.cooldownID > -3 then
@@ -382,8 +433,15 @@ local function hookRefreshSpellTexture(self)
     	    spellTexture = GetInventoryItemTexture("player", invSlotId)
         else
             spellTexture = C_Spell.GetSpellTexture(self.cooldownID * -1)
-        end        
+        end
+        
         self:GetIconTexture():SetTexture(spellTexture)
+        for _, region in pairs({self:GetRegions()}) do
+            -- extra care here in case other non-Textures get added as regions
+            if (region:GetObjectType() == "Texture") and (region:GetAtlas() == "UI-HUD-CoolDownManager-IconOverlay") then
+                region:SetShown(spellTexture ~= nil)
+            end
+        end
     end)
     self:RefreshSpellTexture()
     
@@ -462,7 +520,7 @@ local function integrityCheck(self, db, includeTrinkets)
             table.insert(db, cooldownID)
         end
     end
-    
+
     -- integrity check: add trinkets if they're missing, at slots -2 and -1
     if includeTrinkets then
         local found1, found2
@@ -512,7 +570,7 @@ end
 
 local function initFrame(frame, db, includeTrinkets)
     lib:RegisterCustomButton(frame, "Rearrange Buttons", function()
-        local db = db[getCurrentLoadoutID()]
+        local db = db[getCurrentLoadoutID(db)]
         settingFrame:SetShown(not settingFrame:IsShown())
         settingFrame.viewer = frame
         settingFrame.db = db
@@ -520,7 +578,7 @@ local function initFrame(frame, db, includeTrinkets)
     end)
     
     hooksecurefunc(frame, "RefreshData", function(self)
-        local db = db[getCurrentLoadoutID()]
+        local db = db[getCurrentLoadoutID(db)]
         integrityCheck(self, db, includeTrinkets)
         
         local cooldownIDs = db
@@ -546,7 +604,7 @@ local function initFrame(frame, db, includeTrinkets)
     end)
     
     hooksecurefunc(frame, "RefreshLayout", function(self)
-        local db = db[getCurrentLoadoutID()]
+        local db = db[getCurrentLoadoutID(db)]
     	integrityCheck(self, db, includeTrinkets)
         
         self.itemFramePool:ReleaseAll();
@@ -591,16 +649,31 @@ hooksecurefunc(C_SpecializationInfo, "SetSpecialization", function()
     lockdown = true
 end)
 
-EssentialCooldownViewer:RegisterEvent("SPECIALIZATION_CHANGE_CAST_FAILED")
+hooksecurefunc(C_ClassTalents, "LoadConfig", function(configID, autoApply)
+    if not autoApply then return end
+    lockdown = true
+end)
 
-EssentialCooldownViewer:HookScript("OnEvent", function(self, event)
+EssentialCooldownViewer:RegisterEvent("SPECIALIZATION_CHANGE_CAST_FAILED")
+EssentialCooldownViewer:RegisterEvent("CONFIG_COMMIT_FAILED")
+EssentialCooldownViewer:RegisterEvent("UI_INFO_MESSAGE")
+
+EssentialCooldownViewer:HookScript("OnEvent", function(self, event, ...)
     if event == "SPECIALIZATION_CHANGE_CAST_FAILED" then
+        lockdown = false
+    elseif event == "CONFIG_COMMIT_FAILED" then
         lockdown = false
     elseif event == "TRAIT_CONFIG_UPDATED" then
         if lockdown then
             C_Timer.After(2, function()
                 lockdown = false
+                refreshAll()
             end)
+        end
+    elseif event == "UI_INFO_MESSAGE" then
+        local errorNum, errorMsg = ...
+        if (errorMsg == ERR_PVP_WARMODE_TOGGLE_ON) or (errorMsg == ERR_PVP_WARMODE_TOGGLE_OFF) then
+            C_Timer.After(2, refreshAll)
         end
     end
 end)
