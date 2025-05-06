@@ -509,7 +509,7 @@ function addon:initCooldownManager()
         end
 
         local function initFrame(frame, db, includeTrinkets)
-            lib:RegisterCustomButton(frame, "Rearrange Buttons", function()
+            lib:RegisterCustomButton(frame, L["Rearrange Buttons"], function()
                 local db = db[getCurrentLoadoutID(frame, db)]
                 settingFrame:SetShown(not settingFrame:IsShown())
                 settingFrame.viewer = frame
