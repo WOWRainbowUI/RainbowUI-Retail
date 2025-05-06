@@ -943,7 +943,7 @@ D["EnhBloodlust"] = {
 	defaultEnable = 1,
 	tags = { "COMBAT" },
 	title = "嗜血音樂",
-	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`水晶晶 DJ-YOYO REMIX`by 嘻小瓜 KUAKUA``https://www.youtube.com/watch?v=OsOmgCwfp8c",
+	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`Abracadabra`by Lady Gaga``https://www.youtube.com/watch?v=vBynw9Isr28",
 	icon = "Interface\\Icons\\spell_nature_bloodlust",
 	img = true,
 	{
