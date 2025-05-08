@@ -1,6 +1,6 @@
 # Syndicator
 
-## [195](https://github.com/Baganator/Syndicator/tree/195) (2025-05-06)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/194...195) 
+## [196](https://github.com/Baganator/Syndicator/tree/196) (2025-05-07)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/195...196) 
 
-- Fix expansion sometimes being detected wrong when using ATT as a data source  
+- Search: Remove unused per-patch patterns and only use ATT xpac source on classic  
