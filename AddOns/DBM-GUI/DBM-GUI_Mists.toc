@@ -1,4 +1,4 @@
-## Interface: 30404
+## Interface: 50500
 ## Category: DBM
 ## Group: DBM-Core
 ## Title:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Options GUI|r
@@ -46,8 +46,7 @@ localization.br.lua
 
 DBM-GUI.lua
 DBM-GUI_TestUI.lua
-DBM-GUI_DropDown.xml
-DBM-GUI_DropDown.lua
+DBM-GUI_DropDownNEW.lua
 
 # Modules
 modules\MainFramePrototype.lua
