@@ -7,10 +7,6 @@ local addonName, private = ...
 ---@type detailsmythicplus
 local addon = private.addon
 local _ = nil
-local Translit = LibStub("LibTranslit-1.0")
-
---localization
-local L = detailsFramework.Language.GetLanguageTable(addonName)
 
 local activity = private.addon.activityTimeline
 
@@ -89,10 +85,14 @@ function activity.UpdateBossWidgets(activityFrame, runData, multiplier)
             bossWidget.TimeText:SetText(detailsFramework:IntegerToTimer(killTimeRelativeToStart))
             local encounterInfo = Details:GetEncounterInfo(encounter.dungeonEncounterId)
             if (encounterInfo and encounterInfo.creatureIcon) then
+                bossWidget.EncounterInfo = encounterInfo
+                bossWidget.EncounterData = encounter
                 bossWidget.AvatarTexture:SetTexture(encounterInfo.creatureIcon)
                 bossWidget.AvatarTexture:SetSize(64, 32)
                 bossWidget.AvatarTexture:SetAlpha(1)
             else
+                bossWidget.EncounterInfo = nil
+                bossWidget.EncounterData = nil
                 -- the following 3 lines and the SetSize/SetAlpha above can be removed when a proper fallback image is available
                 bossWidget.AvatarTexture:SetAtlas("BossBanner-SkullCircle")
                 bossWidget.AvatarTexture:SetSize(36, 36)
@@ -144,14 +144,15 @@ function activity.RenderDeathMarker(frame, event, marker, runData)
         ---@cast playerPortrait playerportrait
         playerPortrait:ClearAllPoints()
         playerPortrait:SetPoint("center", marker, "center", 0, 0)
-        playerPortrait.Portrait:SetSize(32, 32)
-        playerPortrait:SetSize(32, 32)
-        playerPortrait.RoleIcon:SetSize(18, 18)
+        local size = addon.templates.activityTimeline.deathMarker_Size
+        playerPortrait.Portrait:SetSize(size, size)
+        playerPortrait:SetSize(size, size)
+        playerPortrait.RoleIcon:SetSize(size * addon.templates.activityTimeline.deathMarker_RoleIconScale, size * addon.templates.activityTimeline.deathMarker_RoleIconScale)
         playerPortrait.RoleIcon:ClearAllPoints()
         playerPortrait.RoleIcon:SetPoint("bottomleft", playerPortrait.Portrait, "bottomright", -9, -2)
 
-        playerPortrait.Portrait:SetDesaturated(true)
-        playerPortrait.RoleIcon:SetDesaturated(true)
+        playerPortrait.Portrait:SetDesaturation(addon.templates.activityTimeline.deathMarker_PortraitDesaturation)
+        playerPortrait.RoleIcon:SetDesaturation(addon.templates.activityTimeline.deathMarker_RoleIconDesaturation)
 
         marker.SubFrames.playerPortrait = playerPortrait
     end
@@ -167,7 +168,7 @@ function activity.RenderDeathMarker(frame, event, marker, runData)
         if (deathReason) then
             GameCooltip:Preset(2)
 
-            local relativeTimestamp = event.timestamp - runData.startTime
+            local relativeTimestamp = math.floor(event.timestamp - runData.startTime)
             local classColor = RAID_CLASS_COLORS[playerInfo.class]
             GameCooltip:AddLine(addon.PreparePlayerName(playerInfo.name), detailsFramework:IntegerToTimer(relativeTimestamp), nil, classColor.r, classColor.g, classColor.b, 1, "darkorange")
 
@@ -204,7 +205,7 @@ function activity.RenderDeathMarker(frame, event, marker, runData)
             GameCooltip:SetOption("RightPadding", 2)
             GameCooltip:SetOption("LinePadding", -2)
             GameCooltip:SetOption("LineYOffset", 0)
-            GameCooltip:SetOption("FixedWidth", 250)
+            GameCooltip:SetOption("FixedWidth", addon.templates.activityTimeline.deathMarker_TooltipWidth)
             GameCooltip:SetOption("StatusBarTexture", Details.death_tooltip_texture)
             GameCooltip:SetOption("UseTrilinearRight", true) --cooltip version 31 /dump _G.GameCooltip2.version
 

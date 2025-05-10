@@ -9,9 +9,7 @@ local addonName, private = ...
 ---@type detailsmythicplus
 local addon = private.addon
 local _ = nil
-
---localization
-local L = detailsFramework.Language.GetLanguageTable(addonName)
+local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 
 local CONST_MAX_DEATH_EVENTS = 3
 
@@ -41,8 +39,11 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
         private.log("Details M+ addon.profile.last_run_data.incombat_timeline is nil")
     end
 
+    addon.profile.last_run_id = addon.profile.last_run_id + 1
+
     ---@type runinfo
     local runInfo = {
+        runId = addon.profile.last_run_id,
         combatId = mythicPlusOverallSegment:GetCombatUID(),
         combatData = {
             groupMembers = {} --done
@@ -111,6 +112,7 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
                 guid = actorObject:GetGUID(),
                 loot = "",
                 score = 0,
+                playerOwns = UnitIsUnit(unitName, "player"),
                 activityTimeDamage = 0,
                 activityTimeHeal = 0,
                 scorePrevious = 0,
@@ -195,8 +197,8 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
             --spell damage done
             local spellsUsed = actorObject:GetActorSpells()
             local temp = {}
-            for _, spellTable in ipairs(spellsUsed) do
-                table.insert(temp, spellTable.id, spellTable.total)
+            for _, spellTable in pairs(spellsUsed) do
+                table.insert(temp, {spellTable.id, spellTable.total})
             end
 
             table.sort(temp, function(a, b) return a[2] > b[2] end)
@@ -213,8 +215,8 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
                     --spell heal done
                     local temp = {}
                     local spellsUsedToHeal = healActorObject:GetActorSpells()
-                    for _, spellTable in ipairs(spellsUsedToHeal) do
-                        table.insert(temp, spellTable.id, spellTable.total)
+                    for _, spellTable in pairs(spellsUsedToHeal) do
+                        table.insert(temp, {spellTable.id, spellTable.total})
                     end
 
                     table.sort(temp, function(a, b) return a[2] > b[2] end)
@@ -226,13 +228,25 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
             for _, utilityActorObject in utilityContainer:ListActors() do
                 ---@cast utilityActorObject actorutility
                 if (utilityActorObject:Name() == unitName) then
+                    local ccTotal = 0
+                    local ccUsed = {}
+
+                    for spellName, casts in pairs(mythicPlusOverallSegment:GetCrowdControlSpells(unitName)) do
+                        local spellInfo = C_Spell.GetSpellInfo(spellName)
+                        local spellId = spellInfo and spellInfo.spellID or openRaidLib.GetCCSpellIdBySpellName(spellName)
+                        if (spellId ~= 197214) then
+                            ccUsed[spellName] = casts
+                            ccTotal = ccTotal + casts
+                        end
+                    end
+
                     playerInfo.totalDispels = utilityActorObject.dispell
                     playerInfo.totalInterrupts = utilityActorObject.interrupt
                     playerInfo.totalInterruptsCasts = mythicPlusOverallSegment:GetInterruptCastAmount(unitName)
-                    playerInfo.totalCrowdControlCasts = mythicPlusOverallSegment:GetCCCastAmount(unitName)
+                    playerInfo.totalCrowdControlCasts = ccTotal
                     playerInfo.dispelWhat = detailsFramework.table.copy({}, utilityActorObject.dispell_oque or {})
                     playerInfo.interruptWhat = detailsFramework.table.copy({}, utilityActorObject.interrompeu_oque or {})
-                    playerInfo.crowdControlSpells = mythicPlusOverallSegment:GetCrowdControlSpells(unitName)
+                    playerInfo.crowdControlSpells = ccUsed
                 end
             end
         end
@@ -347,7 +361,20 @@ function addon.GetDropdownRunDescription(runInfo)
     local dungeonId = runInfo.dungeonId or 0
     local onTime = runInfo.completionInfo.onTime or false
 
-    return {dungeonName, keyLevel, runTime, keyUpgradeLevels, timeString, mapId, dungeonId, onTime and 1 or 0}
+    --get the alt name, playerOwns is true when the player itself played the character when doing the run
+    local altName = "0" --can't be an empty string due to string.match pattern
+    local playerName = UnitName("player")
+
+    for unitName, playerInfo in pairs(runInfo.combatData.groupMembers) do
+        ---@cast playerInfo playerinfo
+        if (playerInfo.playerOwns and playerInfo.name ~= playerName) then
+            altName = playerInfo.name
+            altName = detailsFramework:AddClassColorToText(altName, playerInfo.class)
+            break
+        end
+    end
+
+    return {dungeonName, keyLevel, runTime, keyUpgradeLevels, timeString, mapId, dungeonId, onTime and 1 or 0, altName}
 end
 
 function addon.FormatRunDescription(runInfo)

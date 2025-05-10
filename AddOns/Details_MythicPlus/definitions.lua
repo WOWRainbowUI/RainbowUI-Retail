@@ -27,10 +27,16 @@
 ---@field CombatType combattimetype
 ---@field ScoreboardEventType scoreboard_eventtype
 
+---@class minimap : table
+---@field hide boolean whether or not to hide the minimap icon
+
 ---@class profile : table
 ---@field has_last_run boolean whether or not there's a last run. This run will be cleared when the next one starts.
 ---@field is_run_ongoing boolean whether or not there's a current run going
+---@field run_id number the last run id
 ---@field saved_runs runinfo[] store the saved runs
+---@field saved_runs_compress string[] store the compressed saved runs, this is used to save memory and speed up the loading time of the addon
+---@field saved_runs_headers table[] store the headers of the saved runs, this is used to show the run history in the dropdown menu
 ---@field saved_runs_limit number limit of saved runs
 ---@field saved_runs_selected_index number index of the selected run
 ---@field when_to_automatically_open_scoreboard string which method to use to automatically open? can be LOOT_CLOSED or COMBAT_MYTHICPLUS_OVERALL_READY
@@ -48,6 +54,9 @@
 ---@field font fontsettings font settings
 ---@field logs string[] logs of the addon
 ---@field logout_logs string[]
+---@field minimap minimap the minimap settings
+---@field last_run_id number the id of the last run
+---@field visible_scoreboard_columns table<string, boolean> key is the id/name of the column, the value is whether or not it's shown
 
 ---@class detailsmythicplus : table
 ---@field profile profile store the profile settings
@@ -56,6 +65,8 @@
 ---@field data table store data from the current mythic plus run
 ---@field Enum enum
 ---@field temporaryTimers timer[] store timers created with C_Timer, all timers here are stopped when an update in the scoreboard is about to start
+---@field dataBroker table?
+---@field minimap table
 ---@field Migrations table<number, fun()>
 ---@field selectedRunInfo runinfo currently run info in use (showing the data in the scoreboard), if any
 ---@field mythicPlusBreakdown details_mythicplus_breakdown
@@ -64,6 +75,7 @@
 ---@field InitializeEvents fun() run on PLAYER_LOGIN, create the function to listen to details events
 ---@field OnMythicDungeonStart fun(...) run on COMBAT_MYTHICDUNGEON_START
 ---@field OnMythicDungeonEnd fun(...) run on COMBAT_MYTHICDUNGEON_END
+---@field OnMythicDungeonContinue fun(...) run on COMBAT_MYTHICDUNGEON_CONTINUE
 ---@field OnMythicPlusOverallReady fun(...) run on COMBAT_MYTHICPLUS_OVERALL_READY
 ---@field OnEncounterStart fun(...) run on COMBAT_ENCOUNTER_START
 ---@field OnEncounterEnd fun(...) run on COMBAT_ENCOUNTER_END
@@ -73,7 +85,7 @@
 ---@field StopParser fun() stop the combatlog parser
 ---@field IsParsing fun():boolean whether or parsing at the moment
 ---@field CreateRunInfo fun(segment:combat) : runinfo create a run info from the mythic+ overall segment
----@field OpenMythicPlusBreakdownBigFrame fun() open the mythic plus breakdown big frame
+---@field OpenScoreboardFrame fun() open the mythic plus breakdown big frame
 ---@field RefreshOpenScoreBoard fun():scoreboard_mainframe Refreshes the score board, but only if it's visible
 ---@field OpenScoreBoardAtEnd fun() Opens the scoreboard with the configured delay, at the end of a run
 ---@field CountInterruptOverlaps fun() executed after the run is done, count the interrupt overlaps for each player
@@ -100,9 +112,15 @@
 ---@field GetPlayerDeathReason fun(runInfo:runinfo, unitName:playername, deathIndex:number) : death_last_hits[]|nil return a table with subtables of type death_last_hits which tells the last hits that killed the player
 ---@field PreparePlayerName fun(name:string) : string removes the realm name, and transliterates if configured
 ---@field ShowMythicPlusOptionsWindow fun() opens the options window for the addon
+---@field RegisterScoreboardColumn fun(column:scoreboard_column) register a column to be shown in the scoreboard
 
+---@class scoreboard_keystone_texture: texture show the keystone dungeon icon the player has
+---@field KeystoneDungeonLevel fontstring show the keystone level of the player
+---@field KeystoneDungeonLevelBackground texture background texture behind the keystone level text
+---@field DungeonBorderTexture texture
 
 ---@class runinfo : table
+---@field runId number a number that can be used to identify a run, can be used to map external data to (e.g. by other addons)
 ---@field combatId number the dungeon overall data unique combat id from details!
 ---@field combatData combatdata stores the required combat data for the score board, hence the scoreboard can function even if the combat isn't available in details!
 ---@field encounters detailsmythicplus_encounterinfo[] the encounters timeline
@@ -145,6 +163,7 @@
 ---@field spec number specialization id
 ---@field role role name of the role
 ---@field guid string the player guid
+---@field playerOwns boolean this is true if the player was controlling the character during the run
 ---@field activityTimeDamage number the time in seconds the player was in combat
 ---@field activityTimeHeal number the time in seconds the player was in combat
 ---@field score number mythic+ score
@@ -164,6 +183,8 @@
 ---@field healDoneBySpells table<spellid, number>[] heal done by spells, a table with indexed subtables where the first index is the spellid and the second is the total heal done by that spell
 ---@field damageDoneBySpells table<spellid, number>[] damage done by spells, a table with indexed subtables where the first index is the spellid and the second is the total damage done by that spell
 ---@field damageTakenFromSpells spell_hit_player[] damage taken from spells
+---@field damageDoneBySpells table<number, number>[] spellId, damage done
+---@field healDoneBySpells table<number, number>[] spellId, heals done
 ---@field dispelWhat table<spellid, number> which debuffs the player dispelled
 ---@field interruptWhat table<spellid, number> which spells the player interrupted
 ---@field interruptCastOverlapDone number how many times the player attempted to interrupt a spell with another player

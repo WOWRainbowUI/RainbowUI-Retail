@@ -21,14 +21,14 @@
 ---@field SetEmptyTextAndIcon fun(self:df_dropdown, text:string, icon:any)
 ---@field Select fun(self:df_dropdown, optionName:string|number, byOptionNumber:boolean?, bOnlyShown:boolean?, runCallback:boolean?):boolean
 ---@field SelectDelayed fun(self:df_dropdown, optionName:string|number, byOptionNumber:boolean?, bOnlyShown:boolean?, runCallback:boolean?) --call Select() after a random delay
----@field UseSimpleHeader fun(self:df_dropdown) ignore text color, font, statusbar, in the main frame
+---@field UseSimpleHeader fun(self:df_dropdown, value:boolean) ignore text color, font, statusbar, in the main frame
 ---@field Open fun(self:df_dropdown)
 ---@field Close fun(self:df_dropdown)
 ---@field Refresh fun(self:df_dropdown)
 ---@field GetValue fun(self:df_dropdown):any
 ---@field GetFunction fun(self:df_dropdown):function
 ---@field GetMenuSize fun(self:df_dropdown):number, number
----@field SetMenuSize fun(self:df_dropdown, width:number, height:number)
+---@field SetMenuSize fun(self:df_dropdown, width:number?, height:number?)
 ---@field Disable fun(self:df_dropdown)
 ---@field Enable fun(self:df_dropdown)
 ---@field OnCreateOptionFrame function callback: fun(self:df_dropdown, optionFrame:button, optionTable:dropdownoption) assign a function to be called when creating an option frame
@@ -1512,8 +1512,9 @@ local dropdownWithTextFunctions = {
 ---@field SetLeftMargin fun(self:df_dropdown_text, left:number)
 ---@field SetRightMargin fun(self:df_dropdown_text, right:number)
 ---@field SetText fun(self:df_dropdown_text, text:string)
+---@field SetOnPressEnterFunction fun(self:df_dropdown_text, func:function)
 
-function DF:CreateDropdownWithText(parent, func, default, width, height, member, name, template)
+function DF:CreateDropDownWithText(parent, func, default, width, height, member, name, template)
 	---@type df_dropdown_text
 	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 	dropDownObject.isText = true

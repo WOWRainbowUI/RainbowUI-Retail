@@ -4,7 +4,10 @@ do
     local L = languageTable
 
     L["ADDON_MENU_ADDONS_TITLE"] = "Mythic+ Scoreboard"
-    L["ADDON_MENU_ADDONS_TOOLTIP"] = "Open the Details! Mythic+ scoreboard"
+    L["ADDON_MENU_ADDONS_TOOLTIP_LEFT_CLICK"] = "left click"
+    L["ADDON_MENU_ADDONS_TOOLTIP_OPEN_SCOREBOARD"] = "open scoreboard"
+    L["ADDON_MENU_ADDONS_TOOLTIP_RIGHT_CLICK"] = "right click"
+    L["ADDON_MENU_ADDONS_TOOLTIP_OPEN_OPTIONS"] = "open options"
 
     L["COMMAND_OPEN_OPTIONS"] = "Open the options"
     L["COMMAND_OPEN_OPTIONS_PRINT"] = "Opening Details! Mythic+ scoreboard options, for more information use %s"
@@ -20,6 +23,8 @@ do
 
     L["OPTIONS_WINDOW_TITLE"] = "Details! Mythic+ Options"
     L["OPTIONS_GENERAL_OPTIONS"] = "General Options"
+    L["OPTIONS_SHOW_MINIMAP_ICON_LABEL"] = "Show minimap icon"
+    L["OPTIONS_SHOW_MINIMAP_ICON_DESC"] = "The minimap icon lets you quickly open your scoreboard whenever you want"
     L["OPTIONS_AUTO_OPEN_LABEL"] = "Automatically open scoreboard"
     L["OPTIONS_AUTO_OPEN_DESC"] = "Do you want to automatically open the scoreboard when done looting the chest, or when the run itself finishes?"
     L["OPTIONS_AUTO_OPEN_CHOICE_LOOT_CLOSED"] = "When done looting"
@@ -46,6 +51,7 @@ do
     L["OPTIONS_SHOW_TIME_SECTIONS_DESC"] = "Shows time labels for sections on the timeline as a guide"
     L["OPTIONS_SHOW_REMAINING_TIME_LABEL"] = "Show remaining time"
     L["OPTIONS_SHOW_REMAINING_TIME_DESC"] = "When a key is timed, an extra section will be added showing the time still remaining"
+    L["OPTIONS_SECTION_VISIBLE_COLUMNS"] = "Visible columns"
     L["OPTIONS_DEBUG"] = "Debug"
     L["OPTIONS_DEBUG_STORE_DEBUG_INFO_LABEL"] = "Save debug info"
     L["OPTIONS_DEBUG_STORE_DEBUG_INFO_DESC"] = "Enabling this option will save more information when reloading for debugging purposes. It is recommended to keep this option off unless you are actually debugging"
