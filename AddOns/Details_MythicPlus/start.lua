@@ -13,6 +13,7 @@ local L = detailsFramework.Language.GetLanguageTable(tocFileName)
 
 ---@type profile
 local defaultSettings = {
+    run_id = 0, --not in use
     when_to_automatically_open_scoreboard = "LOOT_CLOSED",
     delay_to_open_mythic_plus_breakdown_big_frame = 3,
     show_column_summary_in_tooltip = true,
@@ -21,6 +22,8 @@ local defaultSettings = {
     show_remaining_timeline_after_finish = true,
     show_time_sections = true,
     saved_runs = {},
+    saved_runs_compress = {},
+    saved_runs_headers = {},
     saved_runs_limit = 10,
     saved_runs_selected_index = 1,
     scoreboard_scale = 1.0,
@@ -30,6 +33,11 @@ local defaultSettings = {
     logs = {},
     has_last_run = false,
     is_run_ongoing = false,
+    last_run_id = 0,
+    minimap = {
+        hide = false,
+    },
+    visible_scoreboard_columns = {},
 
     font = {
         row_size = 12,
@@ -103,6 +111,7 @@ function addon.OnInit(self, profile) --PLAYER_LOGIN
     --register details! events
     detailsEventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_START")
     detailsEventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_END")
+    detailsEventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_CONTINUE")
     detailsEventListener:RegisterEvent("COMBAT_MYTHICPLUS_OVERALL_READY")
     detailsEventListener:RegisterEvent("COMBAT_ENCOUNTER_START")
     detailsEventListener:RegisterEvent("COMBAT_ENCOUNTER_END")
@@ -126,21 +135,8 @@ function addon.OnInit(self, profile) --PLAYER_LOGIN
     }
 
     addon.InitializeEvents()
-
-    AddonCompartmentFrame:RegisterAddon({
-        text = L["ADDON_MENU_ADDONS_TITLE"],
-        icon = "4352494",
-        notCheckable = true,
-        func = Details.OpenMythicPlusBreakdownBigFrame,
-        funcOnEnter = function(button)
-            MenuUtil.ShowTooltip(button, function(tooltip)
-                tooltip:SetText(L["ADDON_MENU_ADDONS_TOOLTIP"])
-            end)
-        end,
-        funcOnLeave = function(button)
-            MenuUtil.HideTooltip(button)
-        end,
-    })
+    addon.RegisterAddonCompartment()
+    Details.SafeRun(addon.RegisterMinimap, "Register Minimap Icon", addon)
 
     -- always show the last run first
     addon.profile.saved_runs_selected_index = 1
@@ -175,7 +171,7 @@ function addon.OnInit(self, profile) --PLAYER_LOGIN
     addon.profile.scoreboard_scale = math.max(0.6, math.min(1.6, addon.profile.scoreboard_scale))
 
     -- required to create early due to the frame events
-    local scoreboard = addon.CreateBigBreakdownFrame()
+    local scoreboard = addon.CreateScoreboardFrame()
     scoreboard:SetScale(addon.profile.scoreboard_scale)
 
     -- run migrations
@@ -189,8 +185,63 @@ function addon.OnInit(self, profile) --PLAYER_LOGIN
     private.log("addon loaded")
 end
 
+local HandleMinimapClick = function(button)
+    if (button == "LeftButton") then
+        addon.OpenScoreboardFrame()
+    elseif (button == "RightButton") then
+        addon.ShowMythicPlusOptionsWindow()
+    end
+end
+
+local HandleMinimapTooltip = function(tooltip)
+    tooltip:AddLine(L["ADDON_MENU_ADDONS_TITLE"], 1, 1, 1)
+    tooltip:AddLine(WrapTextInColorCode(L["ADDON_MENU_ADDONS_TOOLTIP_LEFT_CLICK"], "ffcfcfcf") .. ": " .. L["ADDON_MENU_ADDONS_TOOLTIP_OPEN_SCOREBOARD"])
+    tooltip:AddLine(WrapTextInColorCode(L["ADDON_MENU_ADDONS_TOOLTIP_RIGHT_CLICK"], "ffcfcfcf") .. ": " .. L["ADDON_MENU_ADDONS_TOOLTIP_OPEN_OPTIONS"])
+end
+
+function addon.RegisterAddonCompartment()
+    AddonCompartmentFrame:RegisterAddon({
+        text = L["ADDON_MENU_ADDONS_TITLE"],
+        icon = "4352494",
+        notCheckable = true,
+        func = function (button, data)
+            HandleMinimapClick(data.buttonName)
+        end,
+        funcOnEnter = function(button)
+            MenuUtil.ShowTooltip(button, function(tooltip)
+                HandleMinimapTooltip(tooltip)
+            end)
+        end,
+        funcOnLeave = function(button)
+            MenuUtil.HideTooltip(button)
+        end,
+    })
+end
+
+function addon:RegisterMinimap()
+    local LDB = LibStub("LibDataBroker-1.1", true)
+    local LDBIcon = LDB and LibStub("LibDBIcon-1.0", true)
+
+    if LDB then
+        local dataBroker = LDB:NewDataObject("Details_MythicPlus", {
+            type = "data source",
+            icon = "4352494",
+
+            OnClick = function(self, button)
+                HandleMinimapClick(button)
+            end,
+            OnTooltipShow = HandleMinimapTooltip,
+        })
+
+        if (dataBroker and not LDBIcon:IsRegistered("Details_MythicPlus")) then
+            LDBIcon:Register("Details_MythicPlus", dataBroker, self.profile.minimap)
+        end
+
+        self.dataBroker = dataBroker
+    end
+end
+
 
 function addon.ShowLogs()
-    --dumpt is a function from details!
     dumpt(addon.profile.logs)
 end
