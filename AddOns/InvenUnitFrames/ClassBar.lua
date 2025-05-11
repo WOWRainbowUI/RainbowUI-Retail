@@ -327,10 +327,12 @@ if playerClass == "DRUID" then
 				end
 			end
 		else
+--[[
 			if GetSpecialization() == 1 then
 			else
 				hideMana = true
 			end
+--]]
 		end
 		
 		if IUF.db.classBar.use then
@@ -426,13 +428,13 @@ if playerClass == "DRUID" then
 					updateVisible()
 				end				
 			else
-				if not self:IsShown() then
+--				if not self:IsShown() then
 					self:Show()
 					self:RegisterUnitEvent("UNIT_MAXPOWER", "player")
 					self:RegisterUnitEvent("UNIT_POWER_UPDATE", "player")
 					self:RegisterUnitEvent("UNIT_POWER_FREQUENT", "player")
 					updateVisible()
-				end
+--				end
 				self:GetScript("OnEvent")(self, "UNIT_MAXPOWER", nil, "MANA")
 			end
 		end)
