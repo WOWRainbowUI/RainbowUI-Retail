@@ -1,3 +1,6 @@
+05/11/2025 version 5.2.9
+- Fix for lua error when releasing or caging a listed pet with various filters (source, zone, strong vs, similar)
+
 04/23/2025 version 5.2.8
 - Cooldown numbers over the toolbar buttons hidden
 - toc update for 11.1.5 patch

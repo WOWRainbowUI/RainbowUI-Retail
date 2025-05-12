@@ -337,7 +337,9 @@ end
 function rematch.filters.funcs:Strong(petInfo)
     if not settings.StrongVsLevel then -- if Pet Filter Options: Use Level In Strong Vs Filter is unchecked, we can use a cache to speed this up
         local speciesID = petInfo.speciesID
-        if strongVsCache[speciesID]==nil then -- this speciesID has not been tested yet
+        if not speciesID then
+            return false
+        elseif strongVsCache[speciesID]==nil then -- this speciesID has not been tested yet
             -- to make sure all strong vs are accounted for, copy the filter into this reused strongNeeded
             wipe(strongNeeded)
             for petType in pairs(self) do
@@ -433,11 +435,13 @@ end
 function rematch.filters.funcs:Similar(petInfo)
     local abilityList = petInfo.abilityList
     local numMatches = 0
-    for _,abilityID in pairs(abilityList) do
-        if self[abilityID] then
-            numMatches = numMatches + 1
-            if numMatches==C.SIMILIAR_FILTER_THRESHHOLD then
-                return true
+    if abilityList then
+        for _,abilityID in pairs(abilityList) do
+            if self[abilityID] then
+                numMatches = numMatches + 1
+                if numMatches==C.SIMILIAR_FILTER_THRESHHOLD then
+                    return true
+                end
             end
         end
     end
@@ -568,7 +572,7 @@ function rematch.filters.otherFuncs:CurrentZone(petInfo)
         rematch.events:Register(rematch.filters,"ZONE_CHANGED_NEW_AREA",rematch.filters.ZONE_CHANGED_NEW_AREA)
         currentZone = GetRealZoneText() or ""
     end
-    if currentZone~="" and petInfo.sourceText:match(GetRealZoneText()) then
+    if currentZone~="" and petInfo.sourceText and petInfo.sourceText:match(GetRealZoneText()) then
         return true
     else
         return false
