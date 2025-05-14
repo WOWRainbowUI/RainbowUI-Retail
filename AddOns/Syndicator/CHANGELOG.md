@@ -1,6 +1,6 @@
 # Syndicator
 
-## [196](https://github.com/Baganator/Syndicator/tree/196) (2025-05-07)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/195...196) 
+## [200](https://github.com/Baganator/Syndicator/tree/200) (2025-05-13)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/199...200) 
 
-- Search: Remove unused per-patch patterns and only use ATT xpac source on classic  
+- Add type override for "Wand of Making" as Blizzard hasn't fixed the item data  
