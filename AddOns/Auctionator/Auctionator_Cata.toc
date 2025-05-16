@@ -1,4 +1,4 @@
-## Interface: 110105
+## Interface: 40402
 ## Title: Auctionator
 ## Version: 280
 ## Author: Borjamacare, plusmouse
@@ -25,10 +25,6 @@
 ## OptionalDeps: LibAHTab
 ## IconTexture: Interface\AddOns\Auctionator\Images\Logo
 
-## Title-zhTW: |cffFFFF99[拍賣]|r 小幫手
-## Notes-zhTW: Auctionator |n|n一個輕量級的插件，增強拍賣場的功能，方便快速的購買、銷售和管理拍賣。|n|n|cffffd200使用方法: |r開啟拍賣場時會自動顯示，從Esc>選項>插件>拍賣，進行設定。
-## Category-zhTW: 交易
-
 Libs\Manifest.xml
 Libs_ModernAH\Manifest.xml
 
@@ -38,6 +34,5 @@ Imports_ModernAH\Manifest.xml
 Assets_ModernAH.xml
 
 Source\Manifest.xml
-Source_Mainline\Manifest.xml [AllowLoadGameType mainline]
-Source_Classic\Manifest.xml [AllowLoadGameType classic]
+Source_Classic\Manifest.xml
 Source_ModernAH\Manifest.xml

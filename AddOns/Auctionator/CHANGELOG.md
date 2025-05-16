@@ -1,6 +1,6 @@
 # Auctionator
 
-## [276](https://github.com/Auctionator/Auctionator/tree/276) (2025-04-26)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/275...276) 
+## [280](https://github.com/Auctionator/Auctionator/tree/280) (2025-05-16)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/279...280) 
 
-- Cata Classic: Restore Prospect and Mill tooltips (show estimated value)  
+- Prevent auto-generated toc overwriting Wrath toc  
