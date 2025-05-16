@@ -1,6 +1,8 @@
 # Baganator
 
-## [688](https://github.com/Baganator/Baganator/tree/688) (2025-05-13)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/687...688) 
+## [691](https://github.com/Baganator/Baganator/tree/691) (2025-05-15)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/690...691) 
 
-- Sorting: Fallback if classID/subClassID are missing due to wrong Blizzard data  
+- Add Mists classic constant  
+- Add slash command to quickly swap between single vs category layouts  
+    /bgr swap  
