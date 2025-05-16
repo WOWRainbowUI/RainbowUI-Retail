@@ -943,7 +943,7 @@ D["EnhBloodlust"] = {
 	defaultEnable = 1,
 	tags = { "COMBAT" },
 	title = "嗜血音樂",
-	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`Abracadabra`by Lady Gaga``https://www.youtube.com/watch?v=vBynw9Isr28",
+	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`愛♡スクリ～ム! - AiScReam (FroGi Remix)`by LoveLive!``https://www.youtube.com/watch?v=W-0lSiV-H7k",
 	icon = "Interface\\Icons\\spell_nature_bloodlust",
 	img = true,
 	{
