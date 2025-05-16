@@ -1,5 +1,5 @@
-## Interface: 11506, 30403, 40402, 110100, 110105
-## Version: 2.1.1
+## Interface: 11507, 30404, 40402, 110100, 110105
+## Version: 2.1.2
 ## Title: MailLogger
 ## Author: Aoikaze
 ## SavedVariables: MailLoggerDB
