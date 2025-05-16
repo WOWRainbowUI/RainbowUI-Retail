@@ -1,4 +1,4 @@
-## Interface: 110105
+## Interface: 40402
 ## Title: Auctionator
 ## Version: 280
 ## Author: Borjamacare, plusmouse
@@ -34,6 +34,5 @@ Imports_ModernAH\Manifest.xml
 Assets_ModernAH.xml
 
 Source\Manifest.xml
-Source_Mainline\Manifest.xml [AllowLoadGameType mainline]
-Source_Classic\Manifest.xml [AllowLoadGameType classic]
+Source_Classic\Manifest.xml
 Source_ModernAH\Manifest.xml

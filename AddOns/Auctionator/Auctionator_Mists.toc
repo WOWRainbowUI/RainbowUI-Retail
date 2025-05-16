@@ -1,4 +1,4 @@
-## Interface: 110105
+## Interface: 50500
 ## Title: Auctionator
 ## Version: 280
 ## Author: Borjamacare, plusmouse
