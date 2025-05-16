@@ -15,20 +15,20 @@ GNU General Public License for more details.
 This file is part of WildAddon.
 ]]--
 
-local Lib = LibStub:NewLibrary('WildAddon-1.1', 6)
+local Lib = LibStub:NewLibrary('WildAddon-1.1', 8)
 if not Lib then return end
 
 
 --[[ Locals ]]--
 
-local setmetatable, type, select, pairs, tinsert, tremove = setmetatable, type, select, pairs, tinsert, tremove
-local EventRegistry, MergeTable, CopyTable = EventRegistry, MergeTable, CopyTable
+local setmetatable, type, select, xpcall, pairs, tinsert, tremove = setmetatable, type, select, xpcall, pairs, tinsert, tremove
+local EventRegistry, MergeTable, CopyTable, CallErrorHandler = EventRegistry, MergeTable, CopyTable, CallErrorHandler
 local Embeds = {}
 
 local function safecall(object, key, ...)
 	local func = object[key]
 	if type(func) == 'function' then
-		func(object, ...)
+		xpcall(func, CallErrorHandler, object, ...)
 	end	
 end
 
@@ -63,9 +63,7 @@ end
 
 local function load()
 	while (#Lib.Loading > 0) do
-		local module = tremove(Lib.Loading, 1)
-		safecall(module, 'OnLoad')
-		module.OnLoad = nil
+		safecall(tremove(Lib.Loading, 1), 'OnLoad')
 	end
 end
 
@@ -90,7 +88,11 @@ function Embeds:RegisterEvent(event, call, ...)
 end
 
 function Embeds:UnregisterEvent(event)
-	EventRegistry:UnregisterFrameEventAndCallback(event, self)
+	for _, table in pairs(EventRegistry:GetCallbackTables()) do
+		if table[event][self] then -- EventRegistry does not check, must check ourselves
+			return EventRegistry:UnregisterFrameEventAndCallback(event, self)
+		end
+	end
 end
 
 function Embeds:ContinueOn(event, call, ...)
