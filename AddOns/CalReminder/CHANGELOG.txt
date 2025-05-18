@@ -1,8 +1,20 @@
-﻿- v1.3.0
+﻿- v1.3.5
+	- TOC for 11.1.7.
+- v1.3.4
+	- TOC for 11.1.5.
+- v1.3.3
+	- Fixed: The reminder no longer prompts when the time has passed.
+- v1.3.2
+	- Russian localization by ZamestoTV. Спасибо!
+- v1.3.1
+	- TOC for 11.1.0.
+- v1.3.0
+	- TOC for 11.0.5 and 11.0.7.
 	- Added: Saving and sharing tentative status reason.
 	- Added: Call to arms function to send messages to uncertain invitees.
 	- Added: Random Talking Heads NPC.
 	- Added: NPC quotes.
+	- Added: Option to set the Number of Days to check in the calendar.
 	- Fixes to calendar options and event display.
 - v1.2.8
 	- TOC for 11.0.2.

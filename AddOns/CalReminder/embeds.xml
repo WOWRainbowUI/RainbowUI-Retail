@@ -10,6 +10,7 @@
 	<Include file="Libs\Ace3\AceSerializer-3.0\AceSerializer-3.0.xml" />
 	<Script file="localization\localization.lua"/>
 	<Script file="localization\localization_frFR.lua"/>
+	<Script file="localization\localization_ruRU.lua"/>
 	<Script file="embeds.lua"/>
 	<Script file="CalReminder.lua"/>
 	<Script file="CalReminderBusiness.lua"/>

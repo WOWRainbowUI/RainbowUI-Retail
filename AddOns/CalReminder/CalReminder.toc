@@ -1,0 +1,7 @@
+## Interface: 110105,110107
+## Title: CalReminder
+## Version: 1.3.5
+## Notes: This file exists only to support packaging systems.
+## LoadOnDemand: 1
+
+# On retail, the game loads CalReminder_Mainline.toc instead.

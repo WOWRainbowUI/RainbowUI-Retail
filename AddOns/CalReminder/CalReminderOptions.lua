@@ -30,6 +30,7 @@ CalReminder_allianceNpcValues = {
 	"AZURATHEL"            ,
 	"DINAIRE"              ,
 	"VEREESA"              ,
+	"ABIGAIL"           ,
 }
 
 CalReminder_hordeNpcValues = {
@@ -54,6 +55,7 @@ CalReminder_hordeNpcValues = {
 	"CINDRETHRESH"      ,
 	"DINAIRE"           ,
 	"VEREESA"           ,
+	"ABIGAIL"           ,
 }
 
 
@@ -113,6 +115,7 @@ function loadCalReminderOptions()
 				args = {
 					enableSound = {
 						type = "toggle", order = 1,
+						width = "normal",
 						name = ENABLE_SOUND,
 						desc = ENABLE_SOUND,
 						set = function(info, val) 
@@ -128,10 +131,11 @@ function loadCalReminderOptions()
 					},
 					enableDeathQuotes = {
 						type = "toggle", order = 2,
+						width = "normal",
 						name = L["CALREMINDER_OPTIONS_QUOTES"],
 						desc = L["CALREMINDER_OPTIONS_QUOTES_DESC"],
 						set = function(info, val) 
-							DeadpoolOptionsData["QuotesDisabled"] = not val
+							CalReminderOptionsData["QuotesDisabled"] = not val
 							if val then
 								if val then
 									local englishFaction = UnitFactionGroup("player")
@@ -150,14 +154,28 @@ function loadCalReminderOptions()
 						end,
 						get = function(info)
 							local enabled = true
-							if DeadpoolOptionsData["QuotesDisabled"] ~= nil then
-								enabled = not DeadpoolOptionsData["QuotesDisabled"]
+							if CalReminderOptionsData["QuotesDisabled"] ~= nil then
+								enabled = not CalReminderOptionsData["QuotesDisabled"]
 							end
 							return enabled
 						end
 					},
+					delay = {
+						type = "range", order = 3,
+						width = "full", descStyle = "",
+						name = L["CALREMINDER_OPTIONS_DELAY"],
+						get = function(i)
+							return CalReminderOptionsData.delay
+						end,
+						set = function(i, v)
+							CalReminderOptionsData.delay = v
+						end,
+						min = 2,
+						max = 14,
+						step = 1,
+					},
 					alliance = {
-						type = "select", order = 3,
+						type = "select", order = 4,
 						width = "double",
 						name = string.format(L["CALREMINDER_OPTIONS_NPC"], FACTION_ALLIANCE),
 						desc = string.format(L["CALREMINDER_OPTIONS_NPC_DESC"], FACTION_ALLIANCE),
@@ -165,13 +183,19 @@ function loadCalReminderOptions()
 						sorting = allianceNpcValuesSorting,
 						set = function(info, val)
 							CalReminderOptionsData["ALLIANCE_NPC"] = val
+							local chiefList = CalReminder_allianceNpcValues
+							local chief = val
+							if chief == "RANDOM" then
+								chief = chiefList[math.random(1, #chiefList)]
+							end
+							EZBlizzUiPop_PlayNPCRandomSound(chief, "Dialog", true)
 						end,
 						get = function(info)
 							return CalReminderOptionsData["ALLIANCE_NPC"] or "RANDOM"
 						end
 					},
 					horde = {
-						type = "select", order = 4,
+						type = "select", order = 5,
 						width = "double",
 						name = string.format(L["CALREMINDER_OPTIONS_NPC"], FACTION_HORDE),
 						desc = string.format(L["CALREMINDER_OPTIONS_NPC_DESC"], FACTION_HORDE),
@@ -179,6 +203,12 @@ function loadCalReminderOptions()
 						sorting = hordeNpcValuesSorting,
 						set = function(info, val)
 							CalReminderOptionsData["HORDE_NPC"] = val
+							local chiefList = CalReminder_hordeNpcValues
+							local chief = val
+							if chief == "RANDOM" then
+								chief = chiefList[math.random(1, #chiefList)]
+							end
+							EZBlizzUiPop_PlayNPCRandomSound(chief, "Dialog", true)
 						end,
 						get = function(info)
 							return CalReminderOptionsData["HORDE_NPC"] or "RANDOM"
@@ -194,5 +224,5 @@ function loadCalReminderOptions()
 	CalReminderOptionsLoaded = true
 	
 	ACD:AddToBlizOptions("CalReminder", "CalReminder")
-	ACD:SetDefaultSize("CalReminder", 400, 222)
+	ACD:SetDefaultSize("CalReminder", 400, 272)
 end
