@@ -3447,10 +3447,8 @@ L["SLASH_RESETCATEGORIES_HELP"] = "将分类设置重置为默认设置，然后
 L["SLASH_SEARCH"] = "搜索"
 L["SLASH_SEARCH_EXTENDED"] = "搜索 [文本]"
 L["SLASH_SEARCH_HELP"] = "打开背包，然后搜索。"
---[[Translation missing --]]
-L["SLASH_SWAP"] = "swap"
---[[Translation missing --]]
-L["SLASH_SWAP_HELP"] = "Swap from categories to single bag layout or the reverse."
+L["SLASH_SWAP"] = "切换"
+L["SLASH_SWAP_HELP"] = "在分类背包和大背包之间切换（或反向操作）。"
 L["SLASH_UNKNOWN_COMMAND"] = "未知命令 '%s'"
 L["SLOT"] = "装备栏"
 L["SOCKET_INTERFACE"] = "插槽界面"
@@ -3828,10 +3826,8 @@ L["SLASH_RESETCATEGORIES_HELP"] = "카테고리 설정을 기본값으로 초기
 L["SLASH_SEARCH"] = "검색"
 L["SLASH_SEARCH_EXTENDED"] = "검색 [텍스트]"
 L["SLASH_SEARCH_HELP"] = "가방을 열고 검색하세요."
---[[Translation missing --]]
-L["SLASH_SWAP"] = "swap"
---[[Translation missing --]]
-L["SLASH_SWAP_HELP"] = "Swap from categories to single bag layout or the reverse."
+L["SLASH_SWAP"] = "전환"
+L["SLASH_SWAP_HELP"] = "카테고리에서 단일 가방 레이아웃으로 바꾸거나 그 반대로 전환합니다."
 L["SLASH_UNKNOWN_COMMAND"] = "알 수 없는 명령어 '%s'"
 L["SLOT"] = "슬롯"
 L["SOCKET_INTERFACE"] = "보석 장착"
