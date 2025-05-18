@@ -1122,10 +1122,8 @@ L["SLASH_RESETCATEGORIES_HELP"] = "将分类设置重置为默认设置，然后
 L["SLASH_SEARCH"] = "搜索"
 L["SLASH_SEARCH_EXTENDED"] = "搜索 [文本]"
 L["SLASH_SEARCH_HELP"] = "打开背包，然后搜索。"
---[[Translation missing --]]
-L["SLASH_SWAP"] = "swap"
---[[Translation missing --]]
-L["SLASH_SWAP_HELP"] = "Swap from categories to single bag layout or the reverse."
+L["SLASH_SWAP"] = "切换"
+L["SLASH_SWAP_HELP"] = "在分类背包和大背包之间切换（或反向操作）。"
 L["SLASH_UNKNOWN_COMMAND"] = "未知命令 '%s'"
 L["SLOT"] = "装备栏"
 L["SOCKET_INTERFACE"] = "插槽界面"
