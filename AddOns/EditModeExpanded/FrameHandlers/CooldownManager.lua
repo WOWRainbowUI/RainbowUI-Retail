@@ -615,13 +615,13 @@ function addon:initCooldownManager()
         initFrame(BuffBarCooldownViewer, addon.db.char.BuffBarCooldownViewerSpellIDs)
         
         local dropdown, getSettingDB = lib:RegisterDropdown(BuffBarCooldownViewer, libDD, "Resort")
-        local dropdownOptions = {"None", "Top by duration", "Bottom by duration"}
+        local dropdownOptions = {L["None"], L["Top by duration"], L["Bottom by duration"]}
         
         libDD:UIDropDownMenu_Initialize(dropdown, function(self, level, menuList)
             local db = getSettingDB()
             local info = libDD:UIDropDownMenu_CreateInfo()        
             
-            if db.checked == nil then db.checked = "None" end
+            if db.checked == nil then db.checked = L["None"] end
             
             for _, f in ipairs(dropdownOptions) do
                 info.text = f
@@ -637,13 +637,13 @@ function addon:initCooldownManager()
             end
         end)
         libDD:UIDropDownMenu_SetWidth(dropdown, 100)
-        libDD:UIDropDownMenu_SetText(dropdown, "Sort Icons:")
+        libDD:UIDropDownMenu_SetText(dropdown, L["Sort Icons:"])
         
         BuffBarCooldownViewer:HookScript("OnEvent", function(self)
             local settingDB = getSettingDB()
-            if settingDB.checked == "None" then return end
+            if settingDB.checked == L["None"] then return end
             
-            if settingDB.checked == "Top by duration" then
+            if settingDB.checked == L["Top by duration"] then
                 self.layoutFramesGoingUp = false
             else
                 self.layoutFramesGoingUp = true

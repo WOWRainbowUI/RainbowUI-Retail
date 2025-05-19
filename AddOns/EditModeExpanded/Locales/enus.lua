@@ -73,3 +73,7 @@ L["Inactive Icons"] = true
 L["Add spell ID:"] = true
 L["Rearrange Buttons"] = true
 L["Reset Cooldown Manager DB"] = true
+L["None"] = true
+L["Top by duration"] = true
+L["Bottom by duration"] = true
+L["Sort Icons:"] = true
