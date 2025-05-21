@@ -1,6 +1,6 @@
 # Syndicator
 
-## [203](https://github.com/Baganator/Syndicator/tree/203) (2025-05-16)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/202...203) 
+## [204](https://github.com/Baganator/Syndicator/tree/204) (2025-05-20)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/203...204) 
 
-- Reenable tooltip scanning on Mists Classic (issue appears fixed now)  
+- Classic Era: Fix list of enchanting reagents  
