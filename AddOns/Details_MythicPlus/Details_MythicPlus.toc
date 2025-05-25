@@ -6,7 +6,7 @@
 ## SavedVariables: Details_MythicPlusDB
 ## SavedVariablesPerCharacter: Details_MythicPlus_CharacterDB
 ## RequiredDeps: Details
-## Version: #DMP.20250508.003
+## Version: #DMP.20250524.004
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Wago-ID: 4N2m7QGL

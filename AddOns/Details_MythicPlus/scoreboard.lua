@@ -209,7 +209,7 @@ end
 local SaveLoot = function(itemLink, unitName)
     local playerName = Ambiguate(unitName, "none")
     local lastRun = addon.GetLastRun()
-    if (not lastRun) then
+    if (not lastRun or not lastRun.combatData.groupMembers[playerName]) then
         return
     end
 
@@ -332,17 +332,6 @@ function mythicPlusBreakdown.CreateScoreboardFrame()
 
             local playersInThisRun = runInfo.combatData.groupMembers
             local isPlayerCharacterInThisRun = playersInThisRun[playerName]
-
-            --[=[
-            if (i == 5) then
-                for thisPlayerName, playerInfo in pairs(playersInThisRun) do
-                    if (thisPlayerName == "Moolinrouge") then
-                        playerInfo.playerOwns = true
-                        break
-                    end
-                end
-            end
-            --]=]
 
             local labelContent = table.concat(addon.GetDropdownRunDescription(runInfo), "@")
 
@@ -794,7 +783,9 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
                         end
                     end
 
-                    frame.ColumnDefinition:Render(frame, playerData, isBest)
+                    if (playerData) then
+                        frame.ColumnDefinition:Render(frame, playerData, isBest)
+                    end
                 end
             end
 
@@ -816,7 +807,7 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
                 timestamp = runData.endTime,
                 arguments = {
                     onTime = runData.completionInfo.onTime,
-                    keystoneLevelsUpgrade = runData.completionInfo.keystoneUpgradeLevels,
+                    timeLostToDeaths = runData.timeLostToDeaths or 0,
                 },
             }
         end
@@ -1052,7 +1043,7 @@ function mythicPlusBreakdown.CreateActivityPanel(mainFrame)
                 markerData = addon.activityTimeline.RenderDeathMarker(self, event, marker, runData)
 
             elseif (event.type == addon.Enum.ScoreboardEventType.KeyFinished) then
-                markerData = addon.activityTimeline.RenderKeyFinishedMarker(self, event, marker)
+                markerData = addon.activityTimeline.RenderKeyFinishedMarker(self, event, marker, runData)
             end
 
             local offset = marker:GetWidth() * 0.4
@@ -1079,12 +1070,12 @@ function mythicPlusBreakdown.CreateActivityPanel(mainFrame)
                 marker:SetPoint("bottom", activityFrame, "topleft", pointOnBar, 15)
                 marker.LineTexture:SetPoint("top", marker, "bottom", 0, 0)
                 marker.LineTexture:SetPoint("bottom", activityFrame, "top", 0, 0)
-                marker.TimestampLabel:SetPoint("bottom", marker, "top", 0, 3)
+                marker.TimestampLabel:SetPoint("bottom", marker, "top", 0, 5)
             else
                 marker:SetPoint("top", activityFrame, "bottomleft", pointOnBar, -15)
                 marker.LineTexture:SetPoint("top", marker, "top", 0, 0)
                 marker.LineTexture:SetPoint("bottom", activityFrame, "bottom", 0, 0)
-                marker.TimestampLabel:SetPoint("top", marker, "bottom", 0, -3)
+                marker.TimestampLabel:SetPoint("top", marker, "bottom", 0, -5)
             end
         end
 

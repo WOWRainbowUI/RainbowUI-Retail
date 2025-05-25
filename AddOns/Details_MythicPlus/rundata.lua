@@ -12,6 +12,7 @@ local _ = nil
 local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 
 local CONST_MAX_DEATH_EVENTS = 3
+local CONST_LAST_RUN_TIMEOUT = 5 * 60
 
 ---@alias playername string
 
@@ -60,7 +61,7 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
             isEligibleForScore = completionInfo.isEligibleForScore,
             isMapRecord = completionInfo.isMapRecord,
             isAffixRecord = completionInfo.isAffixRecord,
-            members = {}, --challengemodecompletioninfo type tells a 'members' key exists in the blizzard version of this table
+            members = completionInfo.members,
         },
         encounters = detailsFramework.table.copy({}, addon.profile.last_run_data.encounter_timeline),
         combatTimeline = detailsFramework.table.copy({}, addon.profile.last_run_data.incombat_timeline),
@@ -74,6 +75,7 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
         timeLimit = 0, --done
         startTime = addon.profile.last_run_data.start_time,
         endTime = time(),
+        timeLostToDeaths = addon.profile.last_run_data.time_lost_to_deaths,
         mapId = completionInfo.mapChallengeModeID or addon.profile.last_run_data.map_id,
         reloaded = addon.profile.last_run_data.reloaded,
     }
@@ -252,8 +254,15 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
         end
     end
 
+    local compressedOkay, errorText = pcall(function() addon.CompressAndSaveRunInfo(runInfo) end)
+    if (not compressedOkay) then
+        private.log("Error compressing run info: " .. errorText)
+    end
+
     return runInfo
 end
+
+
 
 ---return an array with all data from the saved runs
 ---@return runinfo[]
@@ -264,7 +273,7 @@ end
 ---return the run info for the last run finished before the next one starts
 ---@return runinfo
 function addon.GetLastRun()
-    return addon.profile.has_last_run and addon.profile.saved_runs[1] or nil
+    return addon.profile.has_last_run and addon.profile.saved_runs[1] and addon.profile.saved_runs[1].endTime + CONST_LAST_RUN_TIMEOUT > time() and addon.profile.saved_runs[1] or nil
 end
 
 ---set the index of the latest selected run info
@@ -328,6 +337,71 @@ end
 ---@return string
 function addon.GetRunDate(runInfo)
     return date("%d/%b/%Y", runInfo.endTime)
+end
+
+---receives a runInfo, encode it, compress and save it to the saved_runs_compressed
+---@param runInfo runinfo
+---@return boolean success
+function addon.CompressAndSaveRunInfo(runInfo)
+    if (not runInfo) then
+        private.log("CompressAndSaveRunInfo: runInfo is nil")
+        return false
+    end
+
+    if (not C_EncodingUtil) then
+        private.log("CompressAndSaveRunInfo: C_EncodingUtil is nil")
+        return false
+    end
+
+    local dataSerialized = C_EncodingUtil.SerializeCBOR(runInfo)
+    if (not dataSerialized) then
+        private.log("CompressAndSaveRunInfo: C_EncodingUtil.SerializeCBOR failed")
+        return false
+    end
+
+    local dataCompressed = C_EncodingUtil.CompressString(dataSerialized, Enum.CompressionMethod.Deflate, Enum.CompressionLevel.OptimizeForSize)
+    if (not dataCompressed) then
+        private.log("CompressAndSaveRunInfo: C_EncodingUtil.CompressString failed")
+        return false
+    end
+
+    local dataEncoded = C_EncodingUtil.EncodeBase64(dataCompressed)
+    if (not dataEncoded) then
+        private.log("CompressAndSaveRunInfo: C_EncodingUtil.EncodeBase64 failed")
+        return false
+    end
+
+    --save the compressed run info
+    table.insert(addon.profile.saved_runs_compressed, 1, dataEncoded)
+
+    ---@type runinfocompressed_header
+    local header = {
+        dungeonName = runInfo.dungeonName,
+        startTime = runInfo.startTime,
+        endTime = runInfo.endTime,
+        keyLevel = runInfo.completionInfo.level,
+        keyUpgradeLevels = runInfo.completionInfo.keystoneUpgradeLevels,
+        onTime = runInfo.completionInfo.onTime or false,
+        mapId = runInfo.mapId,
+        dungeonId = runInfo.dungeonId,
+        playerName = UnitName("player"),
+        playerClass = select(2, UnitClass("player")),
+        runId = runInfo.runId,
+        instanceId = runInfo.instanceId,
+    }
+
+    table.insert(addon.profile.saved_runs_compressed_headers, 1, header)
+
+    --limit data to 200 entries
+    if (#addon.profile.saved_runs_compressed > 200) then
+        table.remove(addon.profile.saved_runs_compressed, 201)
+    end
+
+    if (#addon.profile.saved_runs_compressed_headers > 200) then
+        table.remove(addon.profile.saved_runs_compressed_headers, 201)
+    end
+
+    return true
 end
 
 ---return a table with data to be used in the dropdown menu to select which run to show in the scoreboard
