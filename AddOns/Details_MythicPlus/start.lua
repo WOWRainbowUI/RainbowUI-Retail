@@ -22,8 +22,8 @@ local defaultSettings = {
     show_remaining_timeline_after_finish = true,
     show_time_sections = true,
     saved_runs = {},
-    saved_runs_compress = {},
-    saved_runs_headers = {},
+    saved_runs_compressed = {},
+    saved_runs_compressed_headers = {},
     saved_runs_limit = 10,
     saved_runs_selected_index = 1,
     scoreboard_scale = 1.0,
@@ -226,6 +226,7 @@ function addon:RegisterMinimap()
         local dataBroker = LDB:NewDataObject("Details_MythicPlus", {
             type = "data source",
             icon = "4352494",
+            text = L["ADDON_MENU_ADDONS_TITLE"],
 
             OnClick = function(self, button)
                 HandleMinimapClick(button)

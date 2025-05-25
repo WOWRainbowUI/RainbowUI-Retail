@@ -35,8 +35,8 @@
 ---@field is_run_ongoing boolean whether or not there's a current run going
 ---@field run_id number the last run id
 ---@field saved_runs runinfo[] store the saved runs
----@field saved_runs_compress string[] store the compressed saved runs, this is used to save memory and speed up the loading time of the addon
----@field saved_runs_headers table[] store the headers of the saved runs, this is used to show the run history in the dropdown menu
+---@field saved_runs_compressed string[] store the compressed saved runs, this is used to save memory and speed up the loading time of the addon
+---@field saved_runs_compressed_headers table[] store the headers of the saved runs, this is used to show the run history in the dropdown menu
 ---@field saved_runs_limit number limit of saved runs
 ---@field saved_runs_selected_index number index of the selected run
 ---@field when_to_automatically_open_scoreboard string which method to use to automatically open? can be LOOT_CLOSED or COMBAT_MYTHICPLUS_OVERALL_READY
@@ -136,6 +136,7 @@
 ---@field timeLimit number the time limit for the run in seconds
 ---@field startTime number the time() when the run started
 ---@field endTime number the time() when the run ended
+---@field timeLostToDeaths number the amount of seconds lost to party members dying
 ---@field mapId number completionInfo.mapChallengeModeID or Details.challengeModeMapId or C_ChallengeMode.GetActiveChallengeMapID()
 ---@field reloaded boolean whether or not the run had a reload in-between
 
@@ -212,6 +213,7 @@
 ---@field map_id number
 ---@field start_time number
 ---@field end_time number
+---@field time_lost_to_deaths number
 ---@field incombat_timeline number[] first time is no combat (key start), then every timestamp is a toggle
 ---@field encounter_timeline detailsmythicplus_encounterinfo[] store the data from encounter_start and encounter_end events, one sub table per boss attempt
 ---@field interrupt_overlaps table<string, number> count the interrupt overlaps for each player
@@ -255,3 +257,17 @@
 ---@field OutOfCombatTexture texture
 ---@field BackgroundTexture texture
 ---@field SetActivity fun(self: scoreboard_activityframe, events: timeline_event[], runData: runinfo)
+
+---@class runinfocompressed_header : table
+---@field dungeonName string
+---@field startTime number
+---@field endTime number
+---@field keyLevel number
+---@field keyUpgradeLevels number
+---@field onTime boolean
+---@field mapId number
+---@field dungeonId number
+---@field playerName string
+---@field playerClass string
+---@field runId number
+---@field instanceId number
