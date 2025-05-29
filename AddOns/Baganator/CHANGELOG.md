@@ -1,6 +1,6 @@
 # Baganator
 
-## [692](https://github.com/Baganator/Baganator/tree/692) (2025-05-17)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/691...692) 
+## [693](https://github.com/Baganator/Baganator/tree/693) (2025-05-28)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/692...693) 
 
-- Sorting: Add fallback for when max stack size information is unavailable  
+- Ungroup stacks when socketing a gem  
