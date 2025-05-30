@@ -1557,7 +1557,7 @@ ThreatPlates.DEFAULT_SETTINGS = {
         HorizontalOffset = 14,
         VerticalOffset = 0,
       },
-      scale = 40,
+      scale = 30,
       AuraSpacing = 4,
       Font = Addon.DEFAULT_FONT,
       FontSize = 24,
