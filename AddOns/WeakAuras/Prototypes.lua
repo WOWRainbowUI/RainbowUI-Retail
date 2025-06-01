@@ -2509,7 +2509,7 @@ Private.event_prototypes = {
       {
         name = "raidMarkIndex",
         display = L["Raid Mark"],
-        type = "select",
+        type = "multiselect",
         values = "raid_mark_check_type",
         store = true,
         conditionType = "select",
@@ -3505,7 +3505,7 @@ Private.event_prototypes = {
       {
         name = "raidMarkIndex",
         display = L["Raid Mark"],
-        type = "select",
+        type = "multiselect",
         values = "raid_mark_check_type",
         store = true,
         conditionType = "select",
@@ -3581,7 +3581,7 @@ Private.event_prototypes = {
       },
       {
         name = "nameplateType",
-        display = L["Nameplate Type"],
+        display = L["Hostility"],
         type = "select",
         init = "WeakAuras.GetPlayerReaction(unit)",
         values = "hostility_types",
@@ -4096,7 +4096,7 @@ Private.event_prototypes = {
       {
         name = "raidMarkIndex",
         display = L["Raid Mark"],
-        type = "select",
+        type = "multiselect",
         values = "raid_mark_check_type",
         store = true,
         conditionType = "select",
@@ -4172,7 +4172,7 @@ Private.event_prototypes = {
       },
       {
         name = "nameplateType",
-        display = L["Nameplate Type"],
+        display = L["Hostility"],
         type = "select",
         init = "WeakAuras.GetPlayerReaction(unit)",
         values = "hostility_types",
@@ -4394,7 +4394,7 @@ Private.event_prototypes = {
       {
         name = "raidMarkIndex",
         display = L["Raid Mark"],
-        type = "select",
+        type = "multiselect",
         values = "raid_mark_check_type",
         store = true,
         conditionType = "select",
@@ -4459,7 +4459,7 @@ Private.event_prototypes = {
       },
       {
         name = "nameplateType",
-        display = L["Nameplate Type"],
+        display = L["Hostility"],
         type = "select",
         init = "WeakAuras.GetPlayerReaction(unit)",
         values = "hostility_types",
@@ -9913,7 +9913,7 @@ Private.event_prototypes = {
       {
         name = "raidMarkIndex",
         display = L["Raid Mark"],
-        type = "select",
+        type = "multiselect",
         values = "raid_mark_check_type",
         store = true,
         conditionType = "select",
@@ -9929,7 +9929,7 @@ Private.event_prototypes = {
       },
       {
         name = "nameplateType",
-        display = L["Nameplate Type"],
+        display = L["Hostility"],
         type = "select",
         init = "WeakAuras.GetPlayerReaction(unit)",
         values = "hostility_types",
@@ -12080,6 +12080,68 @@ Private.event_prototypes = {
     progressType = "none"
   },
 };
+
+if C_AssistedCombat and C_AssistedCombat.GetNextCastSpell then
+  Private.event_prototypes["Assisted Combat Next Cast"] = {
+    type = "spell",
+    events = { "SPELLS_CHANGED"},
+    loadFunc = function()
+      WeakAuras.WatchForAssistedCombatNextCast()
+    end,
+    internal_events = { "WA_ASSISTED_COMBAT_NEXT_CAST" },
+    force_events = "WA_ASSISTED_COMBAT_NEXT_CAST",
+    name = L["Assisted Combat Next Cast"],
+    statesParameter = "one",
+    args = {
+      {
+        name = "spellNames",
+        display = L["Name(s)"],
+        type = "spell",
+        multiEntry = {
+          operator = "preamble",
+          preambleAdd = "spellChecker:AddName(%q)"
+        },
+        preamble = "local spellChecker = Private.ExecEnv.CreateSpellChecker()",
+        preambleGroup = "spell",
+        test = "spellChecker:Check(spellId)",
+        noValidation = true,
+      },
+      {
+        name = "spellId",
+        display = L["Exact Spell ID(s)"],
+        type = "spell",
+        init = "C_AssistedCombat.GetNextCastSpell()",
+        store = true,
+        multiEntry = {
+          operator = "preamble",
+          preambleAdd = "spellChecker:AddExact(%q)"
+        },
+        preamble = "local spellChecker = Private.ExecEnv.CreateSpellChecker()",
+        preambleGroup = "spell",
+        test = "spellChecker:Check(spellId)",
+        conditionType = "number",
+        noProgressSource = true,
+        operator_types = "only_equal"
+      },
+      {
+        name = "icon",
+        hidden = true,
+        init = "Private.ExecEnv.GetSpellIcon(spellId or 0)",
+        store = true,
+        test = "true"
+      },
+      {
+        name = "name",
+        hidden = true,
+        init = "Private.ExecEnv.GetSpellName(spellId or 0)",
+        store = true,
+        test = "true"
+      },
+    },
+    automaticrequired = true,
+    progressType = "static"
+  }
+end
 
 if WeakAuras.IsClassicEra() then
   Private.event_prototypes["Death Knight Rune"] = nil
