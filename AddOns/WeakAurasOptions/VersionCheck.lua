@@ -5,7 +5,7 @@ local Private = select(2, ...)
 
 local L = WeakAuras.L
 
-local optionsVersion = "5.19.9"
+local optionsVersion = "5.19.10"
 --[==[@debug@
 optionsVersion = "Dev"
 --@end-debug@]==]
