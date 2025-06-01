@@ -22,6 +22,10 @@ function CraftSim.NEWS:GET_NEWS(itemMap)
     local news = {
         f.bb("                   Hello and thank you for using CraftSim!\n"),
         f.bb("                                 ( You are awesome! )"),
+        newP("19.8.6"),
+        f.p .. "11.1.5.61122 Data Update",
+        f.p .. f.bb("Possible fix for recrafting errors"),
+        collab("https://github.com/Prejudice182"),
         newP("19.8.5"),
         f.P .. f.bb("Recipe Scan"),
         f.a .. "Fixed Pandaria 'Way of the' recipes causing lua errors on filter",
