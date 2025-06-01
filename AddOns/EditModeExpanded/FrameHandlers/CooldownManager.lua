@@ -260,10 +260,12 @@ function addon:initCooldownManager()
                     self.cooldownModRate = 1
                 else
                     local cooldownInfo = C_Spell.GetSpellCooldown(self.cooldownID * -1)
-                    self.cooldownEnabled = cooldownInfo.isEnabled;
-        		    self.cooldownStartTime = cooldownInfo.startTime;
-        		    self.cooldownDuration = cooldownInfo.duration;
-        		    self.cooldownModRate = cooldownInfo.modRate;
+                    if cooldownInfo then
+                        self.cooldownEnabled = cooldownInfo.isEnabled;
+            		    self.cooldownStartTime = cooldownInfo.startTime;
+            		    self.cooldownDuration = cooldownInfo.duration;
+            		    self.cooldownModRate = cooldownInfo.modRate;
+                    end
         		end
                 
         		self.cooldownSwipeColor = CreateColor(0, 0, 0, 0.7);
@@ -567,9 +569,7 @@ function addon:initCooldownManager()
                     end)
                 end
             end)
-            
-            frame:RefreshLayout()
-            
+
             lib:RegisterResizable(frame, nil, nil, 1)
         end
 
@@ -613,6 +613,8 @@ function addon:initCooldownManager()
         initFrame(UtilityCooldownViewer, addon.db.char.UtilityCooldownViewerSpellIDs, true)
         initFrame(BuffIconCooldownViewer, addon.db.char.BuffIconCooldownViewerSpellIDs)
         initFrame(BuffBarCooldownViewer, addon.db.char.BuffBarCooldownViewerSpellIDs)
+        
+        C_Timer.After(3, refreshAll)
         
         local dropdown, getSettingDB = lib:RegisterDropdown(BuffBarCooldownViewer, libDD, "Resort")
         local dropdownOptions = {L["None"], L["Top by duration"], L["Bottom by duration"]}

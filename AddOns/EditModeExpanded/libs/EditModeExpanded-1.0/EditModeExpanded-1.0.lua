@@ -1603,7 +1603,7 @@ function lib:RegisterMinimapPinnable(frame)
     table.insert(framesDialogs[frame.system],
         {
             setting = ENUM_EDITMODEACTIONBARSETTING_MINIMAPPINNED,
-            name = "Pin to Minimap",
+            name = "貼齊小地圖",
             type = Enum.EditModeSettingDisplayType.Checkbox,
         }
     )
@@ -1773,7 +1773,7 @@ function lib:RegisterToggleInCombat(frame)
     table.insert(framesDialogs[systemID],
         {
             setting = ENUM_EDITMODEACTIONBARSETTING_TOGGLEHIDEINCOMBAT,
-            name = "Toggle Visibility in Combat",
+            name = "戰鬥中隱藏",
             type = Enum.EditModeSettingDisplayType.Checkbox,
     })
 end
