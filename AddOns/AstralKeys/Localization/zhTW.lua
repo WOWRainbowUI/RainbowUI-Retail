@@ -22,9 +22,11 @@ L['AFFIXES'] = '詞綴'
 
 -- Character Labels
 L['CURRENT_KEY'] = '目前'
+L['MPLUS_SCORE'] = 'M+ 分數'
 L['WEEKLY_BEST'] = '本週最佳'
 
 L['CHARACTER_DUNGEON_NOT_RAN'] = '尚未打過 M+'
+L['CHARACTER_SCORE_NOT_FOUND'] = '沒有 M+ 分數記錄'
 L['CHARACTER_KEY_NOT_FOUND'] = '沒有鑰石'
 
 
