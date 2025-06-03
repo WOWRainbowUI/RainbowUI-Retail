@@ -54,9 +54,21 @@ armoryLinks = {
 		url = "http://www.wowhead.com/profile={eu/us}.{realm-}.{user}",
     },
 	{
-			title = "複製角色名稱",
-			url = "{user}"
-	}
+        title = "Warcraft Logs Fresh",
+        url = "https://fresh.warcraftlogs.com/character/{eu/us}/{realm}/{user}"
+    },
+    {
+        title = "Warcraft Logs Classic",
+        url = "https://classic.warcraftlogs.com/character/{eu/us}/{realm}/{user}"
+    },
+	{
+		title = "Warcraft Logs Season of Mastery",
+		url = "https://sod.warcraftlogs.com/character/{eu/us}/{realm}/{user}"
+	},
+	{
+        title = "複製角色名稱",
+		url = "{user}"
+    }
 };
 
 -- patterns created by Sylvanaar & used in Prat
