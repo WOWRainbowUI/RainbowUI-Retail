@@ -1,9 +1,9 @@
 # Astral Keys
 
-## [4.27](https://github.com/astralguild/AstralKeys/tree/4.27) (2025-06-01)
-[Full Changelog](https://github.com/astralguild/AstralKeys/compare/4.26...4.27) [Previous Releases](https://github.com/astralguild/AstralKeys/releases)
+## [4.28](https://github.com/astralguild/AstralKeys/tree/4.28) (2025-06-02)
+[Full Changelog](https://github.com/astralguild/AstralKeys/compare/4.27...4.28) [Previous Releases](https://github.com/astralguild/AstralKeys/releases)
 
 - Update AstralKeys.toc  
-    Fix messaging bug  
+    Up to 4.28  
 - Update Friends.lua  
-    Add missing string format specification  
+    Up sync version to fix 4.26 bug  
