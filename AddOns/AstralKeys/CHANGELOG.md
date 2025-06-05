@@ -1,9 +1,8 @@
 # Astral Keys
 
-## [4.28](https://github.com/astralguild/AstralKeys/tree/4.28) (2025-06-02)
-[Full Changelog](https://github.com/astralguild/AstralKeys/compare/4.27...4.28) [Previous Releases](https://github.com/astralguild/AstralKeys/releases)
+## [4.29](https://github.com/astralguild/AstralKeys/tree/4.29) (2025-06-05)
+[Full Changelog](https://github.com/astralguild/AstralKeys/compare/4.28...4.29) [Previous Releases](https://github.com/astralguild/AstralKeys/releases)
 
-- Update AstralKeys.toc  
-    Up to 4.28  
-- Update Friends.lua  
-    Up sync version to fix 4.26 bug  
+- Fix padding, remove key level coloring, and up version  
+- Adjust key level colours and add new qualities  
+- Fix nil error and incorrect AFFIX\_ROTATION check  

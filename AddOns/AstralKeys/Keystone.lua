@@ -2,12 +2,14 @@ local _, addon = ...
 local L = addon.L
 local strformat = string.format
 
-local COLOUR = {}
-COLOUR[1] = 'ffffffff' -- Common
-COLOUR[2] = 'ff0070dd' -- Rare
-COLOUR[3] = 'ffa335ee' -- Epic
-COLOUR[4] = 'ffff8000' -- Legendary
-COLOUR[5] = 'ffe6cc80' -- Artifact
+local QUALITIES = {}
+QUALITIES.Poor = 'ff9d9d9d'
+QUALITIES.Common = 'ffffffff'
+QUALITIES.Uncommon = 'ff1eff00'
+QUALITIES.Rare = 'ff0070dd'
+QUALITIES.Epic = 'ffa335ee'
+QUALITIES.Legendary = 'ffff8000'
+QUALITIES.Artifact = 'ffe6cc80'
 
 addon.keystone = {}
 addon.inKey = false
@@ -54,7 +56,6 @@ function addon.CheckKeystone()
 end
 
 --|cffa335ee|Hkeystone:158923:251:12:10:5:13:117|h[Keystone: The Underrot (12)]|h|r
--- COLOUR[3] returns epic color hex code
 function addon.CreateKeyLink(mapID, keyLevel)
 	local mapName
 	if mapID == 369 or mapID == 370 then
@@ -83,7 +84,7 @@ function addon.CreateKeyLink(mapID, keyLevel)
 		a3 = addon.AffixFour()
 	end
 	-- /script SendChatMessage("\124cffa335ee\124Hkeystone:180653:375:20:148:9:152:10\124h[Keystone: Mists of Tirna Scithe (20)]\124h\124r", 'SAY')
-	return strformat('|c' .. COLOUR[3] .. '|Hkeystone:%d:%d:%d:%d:%d:%d:%d:%d|h[%s %s (%d)]|h|r', addon.MYTHICKEY_ITEMID, mapID, keyLevel, a1, a2, a3, 0, 0, L['KEYSTONE'] or 'Keystone:', mapName, keyLevel):gsub('\124\124', '\124')
+	return strformat('|c' .. QUALITIES.Epic .. '|Hkeystone:%d:%d:%d:%d:%d:%d:%d:%d|h[%s %s (%d)]|h|r', addon.MYTHICKEY_ITEMID, mapID, keyLevel, a1, a2, a3, 0, 0, L['KEYSTONE'] or 'Keystone:', mapName, keyLevel):gsub('\124\124', '\124')
 end
 
 -- Prints out the same link as the CreateKeyLink but only if the Timewalking Key is found. Otherwise nothing is done.
@@ -102,7 +103,7 @@ function addon.CreateTimewalkingKeyLink(mapID, keyLevel)
 	if keyLevel > 8 then
 	 a4 = addon.TimewalkingAffixFour()
 	end
-	return strformat('|c' .. COLOUR[3] .. '|Hkeystone:%d:%d:%d:%d:%d:%d:%d|h[%s %s (%d)]|h|r', addon.TIMEWALKINGKEY_ITEMID, mapID, keyLevel, a1, a2, a3, a4, L['KEYSTONE'] or 'Keystone:', mapName, keyLevel):gsub('\124\124', '\124')
+	return strformat('|c' .. QUALITIES.Epic .. '|Hkeystone:%d:%d:%d:%d:%d:%d:%d|h[%s %s (%d)]|h|r', addon.TIMEWALKINGKEY_ITEMID, mapID, keyLevel, a1, a2, a3, a4, L['KEYSTONE'] or 'Keystone:', mapName, keyLevel):gsub('\124\124', '\124')
 end
 
 function addon.PushKeystone(announceKey, mapID, keyLevel)
@@ -201,19 +202,9 @@ function addon.UpdateCharacterBest()
 end
 
 function addon.GetDifficultyColour(keyLevel)
-	if type(keyLevel) ~= 'number' then return COLOUR[1] end -- return white for any strings or non-number values
-
-	if keyLevel <= 2 then
-		return COLOUR[1]
-	elseif keyLevel <= 4 then
-		return COLOUR[2]
-	elseif keyLevel <= 7 then
-		return COLOUR[3]
-	elseif keyLevel <= 10 then
-		return COLOUR[4]
-	else
-		return COLOUR[5]
-	end
+	if type(keyLevel) ~= 'number' or keyLevel < 2 then return QUALITIES.Common end
+	local colour = C_ChallengeMode.GetKeystoneLevelRarityColor(keyLevel)
+	return colour:GenerateHexColor()
 end
 
 function addon.GetScoreColour(mplusScore)
@@ -221,12 +212,29 @@ function addon.GetScoreColour(mplusScore)
 	return colour:GenerateHexColor()
 end
 
+function addon.GetDungeonTimerForChests(time, level, tier)
+	if tier == 3 then
+		time = time * 0.6
+	elseif tier == 2 then
+		time = time * 0.8
+	end
+
+	local seasonID = AstralAffixes.season_id or 0
+	if seasonID == 13 and level >= 7 then
+		time = time + 90 -- wut?
+	end
+
+	return time
+end
+
 function InitKeystoneData()
 	AstralEvents:Unregister('PLAYER_ENTERING_WORLD', 'initData')
+
 	C_MythicPlus.RequestRewards()
 	C_ChatInfo.RegisterAddonMessagePrefix('AstralKeys')
 	addon.PushKeystone(false)
 	addon.UpdateCharacterBest()
+
 	if IsInGuild() then
 		AstralComs:NewMessage('AstralKeys', 'request', 'GUILD')
 	end
