@@ -1,6 +1,6 @@
 ## Interface: 11507, 30404, 40402, 110100, 110105
 ## Title: Baganator
-## Version: 693
+## Version: 694
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -165,3 +165,4 @@ Compatibility\VanillaEngraving.lua
 Compatibility\Lockpicking.lua
 Compatibility\Refunds.lua
 Compatibility\Contexts.lua
+Compatibility\Timewalking.lua
