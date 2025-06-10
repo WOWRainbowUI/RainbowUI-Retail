@@ -4,7 +4,7 @@ local cataWowID = 14
 local mistsWowID = 19
 if wowID ~= 1 and wowID ~= cataWowID and wowID ~= mistsWowID then return end -- Retail, Cata, Mists
 
-local LS, oldminor = LibStub:NewLibrary("LibSpecialization", 15)
+local LS, oldminor = LibStub:NewLibrary("LibSpecialization", 16)
 if not LS then return end -- No upgrade needed
 
 LS.callbackMap = LS.callbackMap or {}
@@ -315,10 +315,8 @@ local callbackMap = LS.callbackMap
 local frame = LS.frame
 
 local next, type, error, tonumber, format = next, type, error, tonumber, string.format
-local Ambiguate, GetTime, IsInGroup, geterrorhandler = Ambiguate, GetTime, IsInGroup, geterrorhandler
-local GetSpecialization, GetSpecializationInfo = GetSpecialization, GetSpecializationInfo
+local IsInGroup, geterrorhandler = IsInGroup, geterrorhandler
 local C_ClassTalents_GetActiveConfigID = C_ClassTalents and C_ClassTalents.GetActiveConfigID
-local C_Traits_GenerateImportString = C_Traits.GenerateImportString
 local SendAddonMessage, CTimerAfter = C_ChatInfo.SendAddonMessage, C_Timer.After
 local pName = UnitNameUnmodified("player")
 
@@ -408,6 +406,7 @@ do
 		["INSTANCE_CHAT"] = true,
 	}
 	local strmatch = string.match
+	local Ambiguate = Ambiguate
 	frame:SetScript("OnEvent", function(_, event, prefix, msg, channel, sender)
 		if event == "CHAT_MSG_ADDON" then
 			if prefix == "LibSpec" and approved[channel] then -- Only approved channels
@@ -479,9 +478,8 @@ do
 	frame:RegisterEvent("PLAYER_LOGIN")
 end
 
--- Allow requesting only your specialization
-function LS:MySpecialization()
-	if wowID == cataWowID then
+if wowID == cataWowID then
+	function LS:MySpecialization()
 		local specIndex = GetPrimaryTalentTree()
 		if specIndex then
 			local specId = GetTalentTabInfo(specIndex)
@@ -498,48 +496,56 @@ function LS:MySpecialization()
 				end
 			end
 		end
-	elseif wowID == mistsWowID then
-		local spec = C_SpecializationInfo.GetSpecialization()
+	end
+elseif wowID == mistsWowID then
+	local GetSpecialization, GetSpecializationInfo = C_SpecializationInfo.GetSpecialization, C_SpecializationInfo.GetSpecializationInfo
+	local GetTalentInfo, GetGlyphSocketInfo = C_SpecializationInfo.GetTalentInfo, GetGlyphSocketInfo
+	local SerializeJSON = C_EncodingUtil.SerializeJSON
+	function LS:MySpecialization()
+		local spec = GetSpecialization()
 		if type(spec) == "number" and spec > 0 then
-			local specId = C_SpecializationInfo.GetSpecializationInfo(spec)
+			local specId = GetSpecializationInfo(spec)
 
 			if type(specId) == "number" and specId > 0 then
 				local position = positionTable[specId]
 				local role = roleTable[specId]
 				if position and role then
-					local storageTable = {}
-					for tier = 1, 6 do -- The first 6 entries of the table are talent IDs
-						storageTable[tier] = 0
-						for column = 1, 3 do
-							local talentInfo = C_SpecializationInfo.GetTalentInfo({tier=tier, column=column})
-							if talentInfo.known then
-								storageTable[tier] = talentInfo.talentID
+					local storageTable = {
+						talents = {0, 0, 0, 0, 0, 0}, -- 6 tiers/rows
+						glyphs = {0, 0, 0, 0, 0, 0}, -- 6 glyphs
+					}
+
+					-- Fill in the talents
+					for tier = 1, 6 do -- 6 rows
+						for column = 1, 3 do -- 3 columns
+							local talentInfo = GetTalentInfo({tier=tier, column=column})
+							if talentInfo.known and type(talentInfo.talentID) == "number" then
+								storageTable.talents[tier] = talentInfo.talentID
 								break
 							end
 						end
 					end
-					for glyphSlot = 1, 6 do -- The remaining 6 entries of the table are glyph IDs (12 entries total)
-						storageTable[glyphSlot+6] = 0
-						local link = GetGlyphLink(glyphSlot)
-						if link then
-							local GlyphIDStr = link:match("|Hglyph:%d+:(%d+)|h")
-							if GlyphIDStr then
-								local glyphID = tonumber(GlyphIDStr)
-								if glyphID then
-									storageTable[glyphSlot+6] = glyphID
-								end
-							end
+
+					-- Fill in the glyphs
+					for glyphSlot = 1, 6 do -- There are 6 glyphs in total, 3 major and 3 minor
+						local _, _, _, _, _, glyphID = GetGlyphSocketInfo(glyphSlot)
+						if type(glyphID) == "number" then
+							storageTable.glyphs[glyphSlot] = glyphID
 						end
 					end
-					local talentsAndGlyphsJSON = C_EncodingUtil.SerializeJSON(storageTable)
 
+					local talentsAndGlyphsJSON = SerializeJSON(storageTable)
 					return specId, role, position, talentsAndGlyphsJSON
 				elseif not starterSpecs[specId] then
 					geterrorhandler()(format("LibSpecialization: Unknown specId %q", specId))
 				end
 			end
 		end
-	else
+	end
+else
+	local C_Traits_GenerateImportString = C_Traits.GenerateImportString
+	local GetSpecialization, GetSpecializationInfo = GetSpecialization, GetSpecializationInfo
+	function LS:MySpecialization()
 		local spec = GetSpecialization()
 		if type(spec) == "number" and spec > 0 then
 			local specId = GetSpecializationInfo(spec)
@@ -565,6 +571,7 @@ end
 do
 	local prev = 0
 	local timer = false
+	local GetTime = GetTime
 	function LS:RequestSpecialization()
 		local specId, role, position, talentString = LS:MySpecialization()
 		if specId then

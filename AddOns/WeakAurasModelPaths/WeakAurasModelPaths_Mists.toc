@@ -1,8 +1,7 @@
-## Interface: 110105
+## Interface: 50500
 ## Title: WeakAuras Model Paths
 ## Author: The WeakAuras Team
 ## Version: 5.19.11
-## IconTexture: Interface\AddOns\WeakAuras\Media\Textures\icon.blp
 ## Notes: Model paths for WeakAuras
 ## Notes-esES: Las rutas de modelos para WeakAuras
 ## Notes-esMX: Las rutas de modelos para WeakAuras
@@ -14,5 +13,6 @@
 ## DefaultState: Enabled
 ## LoadOnDemand: 1
 ## Dependencies: WeakAuras, WeakAurasOptions
+## AllowLoadGameType: mists
 
-ModelPaths.lua
+ModelPathsCata.lua

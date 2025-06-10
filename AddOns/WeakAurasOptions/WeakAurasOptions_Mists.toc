@@ -1,4 +1,4 @@
-## Interface: 11507
+## Interface: 50500
 ## Title: WeakAuras Options
 ## Author: The WeakAuras Team
 ## Version: 5.19.11
@@ -14,6 +14,7 @@
 ## LoadOnDemand: 1
 ## Dependencies: WeakAuras
 ## SavedVariables: WeakAurasOptionsSaved
+## AllowLoadGameType: mists
 
 embeds.xml
 locales.xml
@@ -104,6 +105,7 @@ AceGUI-Widgets\AceGUIWidget-WeakAurasExpandAnchor.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasSpacer.lua
 AceGUI-Widgets\AceGuiWidget-WeakAurasProgressBar.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasSpinBox.lua
+AceGUI-Widgets\AceGUIWidget-WeakAurasMiniTalent_Mists.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasScrollArea.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasInput.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasInputFocus.lua

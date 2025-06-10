@@ -1,8 +1,8 @@
-## Interface: 11507
+## Interface: 50500
 ## Title: WeakAuras
 ## Author: The WeakAuras Team
 ## Version: 5.19.11
-## X-Flavor: Vanilla
+## X-Flavor: Mists
 ## Notes: A powerful, comprehensive utility for displaying graphics and information based on buffs, debuffs, and other triggers.
 ## Notes-esES: Potente y completa aplicación que te permitirá mostrar por pantalla múltiples diseños, basados en beneficios, perjuicios y otros activadores.
 ## Notes-esMX: Potente y completa aplicación que te permitirá mostrar por pantalla múltiples diseños, basados en beneficios, perjuicios y otros activadores.
@@ -19,9 +19,16 @@
 ## LoadOnDemand: 0
 ## SavedVariables: WeakAurasSaved
 ## OptionalDeps: Ace3, LibCompress, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, Masque, GTFO, LibButtonGlow-1.0, LibSpellRange-1.0, LibRangeCheck-3.0, LibDBIcon-1.0, LibGetFrame-1.0, !LibUIDropDownMenu, !!AddonLocale, CustomNames, BigWigs, DBM-Core
+## AllowLoadGameType: mists
 
 # External code + initialization
 embeds.xml
+
+# TaintLess
+Libs\TaintLess\TaintLess.xml
+
+# Client flavor specific libs
+Libs\LibSpecialization\LibSpecialization.lua
 
 Init.lua
 Compatibility.lua
@@ -32,8 +39,7 @@ DefaultOptions.lua
 # Core files
 SubscribableObject.lua
 Features.lua
-Atlas_Vanilla.lua
-Types_Vanilla.lua
+Types_Mists.lua
 Types.lua
 Prototypes.lua
 Profiling.lua
@@ -47,6 +53,7 @@ Conditions.lua
 AnchorToWeakAuras.lua
 
 # Trigger systems
+LibSpecializationWrapper.lua
 BuffTrigger2.lua
 GenericTrigger.lua
 BossMods.lua

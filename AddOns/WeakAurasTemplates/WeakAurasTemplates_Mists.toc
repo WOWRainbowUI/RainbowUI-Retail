@@ -1,8 +1,7 @@
-## Interface: 110105
+## Interface: 50500
 ## Title: WeakAuras Templates
 ## Author: The WeakAuras Team
 ## Version: 5.19.11
-## IconTexture: Interface\AddOns\WeakAuras\Media\Textures\icon.blp
 ## Notes: Templates for WeakAuras
 ## Notes-esES: Plantillas para WeakAuras
 ## Notes-esMX: Plantillas para WeakAuras
@@ -11,10 +10,11 @@
 ## DefaultState: Enabled
 ## LoadOnDemand: 1
 ## Dependencies: WeakAuras, WeakAurasOptions
+## AllowLoadGameType: mists
 
 locales.xml
 
 TriggerTemplates.lua
-TriggerTemplatesData.lua
+TriggerTemplatesDataCataclysm.lua
 
 AceGUI-Widgets\AceGUIContainer-WeakAurasTemplateGroup.lua
