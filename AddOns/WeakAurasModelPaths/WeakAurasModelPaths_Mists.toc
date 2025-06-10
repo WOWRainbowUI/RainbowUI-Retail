@@ -1,4 +1,4 @@
-## Interface: 11507
+## Interface: 50500
 ## Title: WeakAuras Model Paths
 ## Author: The WeakAuras Team
 ## Version: 5.19.11
@@ -10,12 +10,14 @@
 ## Notes-zhTW: WeakAuras的模組路徑
 ## X-Category: Interface Enhancements
 ## Globe-Main: WeakAuras
+## DefaultState: Enabled
 ## LoadOnDemand: 1
 ## Dependencies: WeakAuras, WeakAurasOptions
+## AllowLoadGameType: mists
 
 ## Title-zhTW: |cffFF9900[進階]|r WA技能提醒-模組路徑
 ## Notes-zhTW: WeakAuras Model Paths |n|nWA技能提醒的模組路徑
 ## Category-zhTW: 進階
 ## DefaultState: disabled
 
-ModelPathsClassicEra.lua
+ModelPathsCata.lua

@@ -1,10 +1,11 @@
-## Interface: 11507
+## Interface: 50500
 ## Title: WeakAuras Archive
 ## Author: The WeakAuras Team
 ## Version: 5.19.11
 ## LoadOnDemand: 1
 ## SavedVariables: WeakAurasArchive
 ## Dependencies: WeakAuras
+## AllowLoadGameType: mists
 
 ## Title-zhTW: |cffFF9900[進階]|r WA技能提醒-資料記錄
 ## Notes-zhTW: WeakAuras Archive |n|nWA技能提醒的資料記錄

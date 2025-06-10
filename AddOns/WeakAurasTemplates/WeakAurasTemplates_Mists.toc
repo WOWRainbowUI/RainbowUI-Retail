@@ -1,4 +1,4 @@
-## Interface: 40402
+## Interface: 50500
 ## Title: WeakAuras Templates
 ## Author: The WeakAuras Team
 ## Version: 5.19.11
@@ -10,7 +10,7 @@
 ## DefaultState: Enabled
 ## LoadOnDemand: 1
 ## Dependencies: WeakAuras, WeakAurasOptions
-## AllowLoadGameType: cata
+## AllowLoadGameType: mists
 
 ## Title-zhTW: |cffFF9900[進階]|r WA技能提醒-範本
 ## Notes-zhTW: WeakAuras Templates |n|nWA技能提醒的快速套用範本

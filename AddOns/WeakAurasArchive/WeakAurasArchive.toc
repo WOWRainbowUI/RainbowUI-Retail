@@ -1,7 +1,7 @@
 ## Interface: 110100, 110105
 ## Title: WeakAuras Archive
 ## Author: The WeakAuras Team
-## Version: 5.19.10
+## Version: 5.19.11
 ## IconTexture: Interface\AddOns\WeakAuras\Media\Textures\icon.blp
 ## LoadOnDemand: 1
 ## SavedVariables: WeakAurasArchive

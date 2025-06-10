@@ -1,4 +1,4 @@
-## Interface: 11507
+## Interface: 50500
 ## Title: WeakAuras Options
 ## Author: The WeakAuras Team
 ## Version: 5.19.11
@@ -10,9 +10,11 @@
 ## Notes-zhTW: WeakAuras的設定
 ## X-Category: Interface Enhancements
 ## Globe-Main: WeakAuras
+## DefaultState: Enabled
 ## LoadOnDemand: 1
 ## Dependencies: WeakAuras
 ## SavedVariables: WeakAurasOptionsSaved
+## AllowLoadGameType: mists
 
 ## Title-zhTW: |cffFF9900[進階]|r WA技能提醒-設定選項
 ## Notes-zhTW: WeakAuras Options |n|nWA技能提醒的設定。|n|n|cffffd200使用方法: |r輸入 /wa 開啟設定。
@@ -108,6 +110,7 @@ AceGUI-Widgets\AceGUIWidget-WeakAurasExpandAnchor.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasSpacer.lua
 AceGUI-Widgets\AceGuiWidget-WeakAurasProgressBar.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasSpinBox.lua
+AceGUI-Widgets\AceGUIWidget-WeakAurasMiniTalent_Mists.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasScrollArea.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasInput.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasInputFocus.lua
