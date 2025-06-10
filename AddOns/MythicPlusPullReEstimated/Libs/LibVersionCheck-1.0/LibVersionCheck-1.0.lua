@@ -6,7 +6,7 @@
 
 local embedAddonName = ...;
 
-local MAJOR, MINOR = "LibVersionCheck-1.0", 1;
+local MAJOR, MINOR = "LibVersionCheck-1.0", 3;
 
 --- @class LibVersionCheck-1.0
 local LibVersionCheck = LibStub:NewLibrary(MAJOR, MINOR);
@@ -25,18 +25,17 @@ local whisperMsgCapture = "^" .. whisperMsgFormat:format("(.+)", "(.+)") .. "$";
 
 --- @return string?
 local function getGroupChannel()
-    local channel = nil;
-    if IsInGroup() then
-        channel = "PARTY";
+    if IsInInstance() then
+        return "INSTANCE_CHAT";
     end
     if IsInRaid() then
-        channel = "RAID";
+        return "RAID";
     end
-    if IsInInstance() then
-        channel = "INSTANCE_CHAT";
+    if IsInGroup() then
+        return "PARTY";
     end
 
-    return channel;
+    return nil;
 end
 
 do -- setup
@@ -185,28 +184,28 @@ LibVersionCheck.events:SetScript("OnEvent", function(self, event, ...)
     self[event](self, ...);
 end);
 local e = LibVersionCheck.events;
+e:UnregisterAllEvents(); -- unregister all events from unupgraded lib instances
 
 function e:PLAYER_GUILD_UPDATE(unit)
     if unit ~= "player" then return; end
-    LibVersionCheck.isInGuild = IsInGuild();
-    if LibVersionCheck.isInGuild then
-        LibVersionCheck:SendVersion("GUILD");
-    end
+    RunNextFrame(function()
+        LibVersionCheck.isInGuild = IsInGuild();
+        if LibVersionCheck.isInGuild then
+            local previousGuild = LibVersionCheck.playerGuild;
+            local guildName, _, _, guildRealm = GetGuildInfo("player");
+            if not guildName then return; end -- can happen during the initial login
+            LibVersionCheck.playerGuild = guildName .. "-" .. (guildRealm or '');
+            if previousGuild ~= LibVersionCheck.playerGuild then
+                LibVersionCheck:SendVersion("GUILD");
+            end
+        end
+    end);
 end
 e:RegisterEvent("PLAYER_GUILD_UPDATE");
 
-function e:GUILD_ROSTER_UPDATE()
-    LibVersionCheck.isInGuild = IsInGuild();
-    if LibVersionCheck.isInGuild then
-        LibVersionCheck:SendVersion("GUILD");
-        e:UnregisterEvent("GUILD_ROSTER_UPDATE");
-    end
-end
-e:RegisterEvent("GUILD_ROSTER_UPDATE");
-
 function e:GROUP_JOINED()
     local channel = getGroupChannel();
-    if not channel then return; end
+    if not channel or GetNumGroupMembers() <= 1 then return; end
     LibVersionCheck:SendVersion(channel);
 end
 e:RegisterEvent("GROUP_JOINED");

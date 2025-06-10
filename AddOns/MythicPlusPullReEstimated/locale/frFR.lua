@@ -57,8 +57,6 @@ L["Enable/Disable the addon"] = "Enable/Disable the addon"
 --[[Translation missing --]]
 L["Enabled"] = "Enabled"
 --[[Translation missing --]]
-L["Experimental"] = "Experimental"
---[[Translation missing --]]
 L["Export NPC data"] = "Export NPC data"
 --[[Translation missing --]]
 L["Export only data that is different from the default values"] = "Export only data that is different from the default values"
@@ -97,6 +95,8 @@ L["Nameplate"] = "Nameplate"
 --[[Translation missing --]]
 L["Nameplate Text Color"] = "Nameplate Text Color"
 --[[Translation missing --]]
+L["Nameplate Text Scale"] = "Nameplate Text Scale"
+--[[Translation missing --]]
 L["No Progress."] = "No Progress."
 --[[Translation missing --]]
 L["No record."] = "No record."
@@ -113,6 +113,8 @@ L["Opens a popup which allows copying the data"] = "Opens a popup which allows c
 --[[Translation missing --]]
 L["Pull Estimate frame"] = "Pull Estimate frame"
 --[[Translation missing --]]
+L["Pull Frame Text Scale"] = "Pull Frame Text Scale"
+--[[Translation missing --]]
 L["Reset NPC data"] = "Reset NPC data"
 --[[Translation missing --]]
 L["Reset position"] = "Reset position"
@@ -124,6 +126,10 @@ L["Reset Settings to default"] = "Reset Settings to default"
 L["Reset the NPC data to the default values"] = "Reset the NPC data to the default values"
 --[[Translation missing --]]
 L["Running first time setup. This should only happen once. Enjoy! ;)"] = "Running first time setup. This should only happen once. Enjoy! ;)"
+--[[Translation missing --]]
+L["Scale of the text on the enemy nameplates"] = "Scale of the text on the enemy nameplates"
+--[[Translation missing --]]
+L["Scale of the text on the pull frame"] = "Scale of the text on the pull frame"
 --[[Translation missing --]]
 L["Simulated number of 'points' currently earned"] = "Simulated number of 'points' currently earned"
 --[[Translation missing --]]
@@ -160,8 +166,6 @@ L["The required count of mobs to reach 100%%."] = "The required count of mobs to
 L["The text format of the nameplate text. Use placeholders to display information."] = "The text format of the nameplate text. Use placeholders to display information."
 --[[Translation missing --]]
 L["The text format of the pull frame. Use placeholders to display information."] = "The text format of the pull frame. Use placeholders to display information."
---[[Translation missing --]]
-L["These options are experimental and may not work as intended."] = "These options are experimental and may not work as intended."
 --[[Translation missing --]]
 L["Tooltip"] = "Tooltip"
 --[[Translation missing --]]

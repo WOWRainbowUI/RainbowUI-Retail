@@ -20,6 +20,7 @@ It has been left for posterity, since I might find it useful in the future.
 --countTracker:RegisterEvent('PLAYER_ENTERING_WORLD')
 --countTracker:RegisterEvent('PLAYER_LEAVING_WORLD')
 --countTracker:RegisterEvent('CHALLENGE_MODE_START')
+countTracker:Hide() -- disable the OnUpdate script for now
 
 function countTracker:PLAYER_ENTERING_WORLD()
     self:UpdateRegisteredEvents()

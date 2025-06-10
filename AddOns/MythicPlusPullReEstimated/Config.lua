@@ -5,8 +5,8 @@ local MMPE = ns.addon
 
 local L = LibStub('AceLocale-3.0'):GetLocale(name)
 
-local GetAddOnMetadata = _G.GetAddOnMetadata or _G.C_AddOns.GetAddOnMetadata
-MMPE.version = GetAddOnMetadata(name, "Version") or "unknown"
+MMPE.version = C_AddOns.GetAddOnMetadata(name, "Version") or "unknown"
+--- @type table<MMPE_Setting, any>
 MMPE.defaultSettings = {
     enabled = true,
 
@@ -21,6 +21,7 @@ MMPE.defaultSettings = {
     enablePullEstimate = true,
     pullEstimateCombatOnly = true,
     pullFrameTextFormat = L["Current pull:"] .. ' $current%$ + $pull%$ = $estimated%$',
+    pullFrameTextScale = 1.0,
 
     nameplateUpdateRate = 200, -- Rate (in milliseconds) at which we update the progress we get from the current pull, as estimated by active name plates you're in combat with. Also the update rate of getting new values for nameplate text overlay if enabled.
 
@@ -30,6 +31,7 @@ MMPE.defaultSettings = {
     enableNameplateText = true,
     nameplateTextFormat = "+$percent$%",
     nameplateTextColor = "FFFFFFFF",
+    nameplateTextScale = 1.0,
 
     lockPullFrame = false,
     pullFramePoint = {
@@ -58,6 +60,7 @@ local function SetFramePoint(frame, pointInfo)
     );
 end
 
+--- @param setting MMPE_Setting
 function MMPE:GetSetting(setting)
     if (not setting or self.DB.settings[setting] == nil) then
         self:PrintWarning(L["MPP attempted to get missing setting:"] .. " " .. (setting or "nil"))
@@ -66,15 +69,19 @@ function MMPE:GetSetting(setting)
     return self.DB.settings[setting]
 end
 
+--- @param setting MMPE_Setting
+--- @param value any
 function MMPE:SetSetting(setting, value)
     if (not setting or self.DB.settings[setting] == nil) then
         self:PrintWarning(L["MPP attempted to set missing setting:"] .. " " .. (setting or "nil"))
         return
     end
     self.DB.settings[setting] = value
+
     return value
 end
 
+--- @param setting MMPE_Setting
 function MMPE:ToggleSetting(setting)
     return self:SetSetting(setting, not self:GetSetting(setting))
 end
@@ -112,15 +119,20 @@ end
 function MMPE:InitConfig()
     local mdtLoaded = C_AddOns.IsAddOnLoaded("MythicDungeonTools");
 
-    local count = 0
-    local function increment() count = count + 1; return count end
+    local increment = CreateCounter()
+    local function set(info, value)
+        self:SetSetting(info[#info], value)
+    end
+    local function get(info)
+        return self:GetSetting(info[#info])
+    end
     local options = {
         type = "group",
         childGroups = "tab",
         name = L["Mythic Plus Pull"],
         desc = L["Mythic Plus Pull progress tracker"],
-        get = function(info) return self:GetSetting(info[#info]) end,
-        set = function(info, value) self:SetSetting(info[#info], value) end,
+        get = get,
+        set = set,
         args = {
             version = {
                 order = increment(),
@@ -143,45 +155,46 @@ function MMPE:InitConfig()
                 end,
                 width = "double",
             },
-------------- disabled for now, might get re-enabled in the future, right now it's incorrectly detecting spiteful kills, and DH demon kills.
---[[            scores = {
---                order = increment(),
---                type = "group",
---                name = "Auto Learn Scores",
---                args = {
---                    autoLearnScores = {
---                        order = increment(),
---                        name = "Auto Learn Scores",
---                        desc = "New Only >> Only learn scores that for new NPCs. Useful for new dungeons, and the addon isn't updated yet.\nAlways >> Always learn updated scores. This might make the percentage inaccurate.\nOff >> Don't learn scores.",
---                        type = "select",
---                        values = {
---                            newOnly = "New Only (Recommended)",
---                            always = "Always (Risky)",
---                            off = "Off",
---                        },
---                    },
---                    inconclusiveDataThreshold = {
---                        order = increment(),
---                        name = "Inconclusive Data Threshold",
---                        desc = "Mobs killed within this span of time (in milliseconds) will not be processed since we might not get the criteria update fast enough to know which mob gave what progress.",
---                        type = "range",
---                        min = 50,
---                        max = 400,
---                        step = 10,
---                        hidden = true,
---                    },
---                    maxTimeSinceKill = {
---                        order = increment(),
---                        name = "Max Time Since Kill",
---                        desc = "Lag tolerance between a mob dying and the progress criteria updating, in milliseconds.",
---                        type = "range",
---                        min = 0,
---                        max = 1000,
---                        step = 10,
---                        hidden = true,
---                    },
---                },
---            },--]]
+            -- disabled/hidden for now, might get re-enabled in the future, it can sometimes incorrectly attribute % to unrelated kills.
+            scores = {
+                order = increment(),
+                type = "group",
+                name = "Auto Learn Scores",
+                hidden = true,
+                args = {
+                    autoLearnScores = {
+                        order = increment(),
+                        name = "Auto Learn Scores",
+                        desc = "New Only >> Only learn scores that for new NPCs. Useful for new dungeons, and the addon isn't updated yet.\nAlways >> Always learn updated scores. This might make the percentage inaccurate.\nOff >> Don't learn scores.",
+                        type = "select",
+                        values = {
+                            newOnly = "New Only (Recommended)",
+                            always = "Always (Risky)",
+                            off = "Off",
+                        },
+                    },
+                    inconclusiveDataThreshold = {
+                        order = increment(),
+                        name = "Inconclusive Data Threshold",
+                        desc = "Mobs killed within this span of time (in milliseconds) will not be processed since we might not get the criteria update fast enough to know which mob gave what progress.",
+                        type = "range",
+                        min = 50,
+                        max = 400,
+                        step = 10,
+                        hidden = true,
+                    },
+                    maxTimeSinceKill = {
+                        order = increment(),
+                        name = "Max Time Since Kill",
+                        desc = "Lag tolerance between a mob dying and the progress criteria updating, in milliseconds.",
+                        type = "range",
+                        min = 0,
+                        max = 1000,
+                        step = 10,
+                        hidden = true,
+                    },
+                },
+            },
             mainOptions = {
                 order = increment(),
                 type = "group",
@@ -231,7 +244,7 @@ function MMPE:InitConfig()
                                 name = L["Lock frame"],
                                 desc = L["Lock the frame in place"],
                                 set = function(info, value)
-                                    self:SetSetting(info[#info], value)
+                                    set(info, value)
                                     self.currentPullFrame:EnableMouse(not value)
                                 end,
                             },
@@ -266,7 +279,7 @@ function MMPE:InitConfig()
                                     '    - $estimated%$ ' .. L['The estimated percentage after all pulled mobs are killed.'] .. '\n' ..
                                     '    - $required%$ ' .. L['A long way of writing 100%%.'],
                             },
-                            resetPullFrameTextFormatormat = {
+                            resetTextFormat = {
                                 order = increment(),
                                 type = "execute",
                                 name = "Reset Text Format",
@@ -274,6 +287,20 @@ function MMPE:InitConfig()
                                 descStyle = "inline",
                                 width = "full",
                                 func = function() self:SetSetting("pullFrameTextFormat", self.defaultSettings.pullFrameTextFormat); end,
+                            },
+                            pullFrameTextScale = {
+                                order = increment(),
+                                type = "range",
+                                name = L["Pull Frame Text Scale"],
+                                desc = L["Scale of the text on the pull frame"],
+                                width = "double",
+                                softMin = 0.5,
+                                softMax = 2,
+                                bigStep = 0.05,
+                                set = function(info, value)
+                                    set(info, value)
+                                    self.currentPullFrame:SetScale(value)
+                                end,
                             },
                         },
                     },
@@ -296,8 +323,9 @@ function MMPE:InitConfig()
                                 desc = L["Color of the text on the enemy nameplates"],
                                 hasAlpha = true,
                                 get = function(info)
+                                    --- @type string
                                     local hex = self:GetSetting(info[#info])
-                                    return tonumber(hex:sub(3,4), 16) / 255, tonumber(hex:sub(5,6), 16) / 255, tonumber(hex:sub(7,8), 16) / 255, tonumber(hex:sub(1,2), 16) / 255
+                                    return tonumber(hex:sub(3, 4), 16) / 255, tonumber(hex:sub(5, 6), 16) / 255, tonumber(hex:sub(7, 8), 16) / 255, tonumber(hex:sub(1, 2), 16) / 255
                                 end,
                                 set = function(info, r, g, b, a)
                                     self:SetSetting(info[#info], string.format("%02x%02x%02x%02x", a * 255, r * 255, g * 255, b * 255))
@@ -318,7 +346,7 @@ function MMPE:InitConfig()
                                     '    - $percent$ ' .. L['The percentage the mob gives.'] .. '\n' ..
                                     '    - $count$ ' .. L['The raw count the mob gives.'],
                             },
-                            resetPullFrameTextFormatormat = {
+                            resetTextFormat = {
                                 order = increment(),
                                 type = "execute",
                                 name = "Reset Text Format",
@@ -326,6 +354,22 @@ function MMPE:InitConfig()
                                 descStyle = "inline",
                                 width = "full",
                                 func = function() self:SetSetting("nameplateTextFormat", self.defaultSettings.nameplateTextFormat); end,
+                            },
+                            nameplateTextScale = {
+                                order = increment(),
+                                type = "range",
+                                name = L["Nameplate Text Scale"],
+                                desc = L["Scale of the text on the enemy nameplates"],
+                                width = "double",
+                                softMin = 0.5,
+                                softMax = 2,
+                                bigStep = 0.05,
+                                set = function(info, value)
+                                    set(info, value)
+                                    for _, nameplateText in pairs(self.activeNameplates) do
+                                        nameplateText:SetScale(value)
+                                    end
+                                end,
                             },
                             offsetx = {
                                 order = increment(),
@@ -349,41 +393,30 @@ function MMPE:InitConfig()
                             },
                         },
                     },
-                    experimental = {
+                    mdtEmulation = {
                         order = increment(),
                         type = "group",
-                        name = L["Experimental"],
                         inline = true,
+                        name = L["MDT Emulation"],
                         args = {
-                            description = {
+                            mdtEmulationDescription = {
                                 order = increment(),
                                 type = "description",
-                                name = L["These options are experimental and may not work as intended."],
+                                name = mdtLoaded
+                                    and L["Disabled when MythicDungeonTools is loaded"]
+                                    or L["Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead."],
+                                width = "full",
                             },
-                            mdtEmulation = {
+                            enableMdtEmulation = {
                                 order = increment(),
-                                type = "group",
-                                inline = true,
-                                name = L["MDT Emulation"],
-                                args = {
-                                    mdtEmulationDescription = {
-                                        order = increment(),
-                                        type = "description",
-                                        name = mdtLoaded and L["Disabled when MythicDungeonTools is loaded"] or L["Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead."],
-                                        width = "full",
-                                    },
-                                    enableMdtEmulation = {
-                                        order = increment(),
-                                        type = "toggle",
-                                        name = L["Enable MDT Emulation"],
-                                        desc = "",
-                                        set = function(info, value)
-                                            self:SetSetting(info[#info], value)
-                                            self:CheckMdtEmulation()
-                                        end,
-                                        disabled = mdtLoaded,
-                                    },
-                                },
+                                type = "toggle",
+                                name = L["Enable MDT Emulation"],
+                                desc = "",
+                                set = function(info, value)
+                                    self:SetSetting(info[#info], value)
+                                    self:CheckMdtEmulation()
+                                end,
+                                disabled = mdtLoaded,
                             },
                         },
                     },
@@ -423,13 +456,13 @@ function MMPE:InitConfig()
                     npcDataPatchVersion = {
                         order = increment(),
                         type = "description",
-                        name = function() return
-                        string.format(
+                        name = function()
+                            return string.format(
                                 L["NPC data patch version: %s, build %d (ts %d)"],
                                 self.DB.npcDataPatchVersionInfo.version,
                                 self.DB.npcDataPatchVersionInfo.build,
                                 self.DB.npcDataPatchVersionInfo.timestamp
-                        )
+                            );
                         end,
                     },
                     resetNpcData = {

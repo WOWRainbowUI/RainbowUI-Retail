@@ -1,36 +1,7 @@
--- upvalue the globals
-local _G = getfenv(0)
-local LibStub = _G.LibStub
-local pairs = _G.pairs
-local GetTime = _G.GetTime
-local select = _G.select
-local strsplit = _G.strsplit
-local string = _G.string
-local math = _G.math
-local table = _G.table
-local tonumber = _G.tonumber
-local UnitCanAttack = _G.UnitCanAttack
-local C_Scenario = _G.C_Scenario
-local GetInstanceInfo = _G.GetInstanceInfo
-local CreateFrame = _G.CreateFrame
-local UnitGUID = _G.UnitGUID
-local UIParent = _G.UIParent
-local unpack = _G.unpack
-local UnitThreatSituation = _G.UnitThreatSituation
-local UnitPlayerControlled = _G.UnitPlayerControlled
-local C_NamePlate = _G.C_NamePlate
-local StaticPopup_Show = _G.StaticPopup_Show
-local StaticPopupDialogs = _G.StaticPopupDialogs
-local max = _G.max
-local wipe = _G.wipe
-local Mixin = _G.Mixin
-local C_ChallengeMode = _G.C_ChallengeMode
-
 local name, ns = ...
 
 --- @class MMPE: AceAddon, AceConsole-3.0, AceEvent-3.0
 local MMPE = LibStub('AceAddon-3.0'):NewAddon(name, 'AceConsole-3.0', 'AceEvent-3.0');
-if not MMPE then return end
 
 local L = LibStub('AceLocale-3.0'):GetLocale(name)
 
@@ -40,6 +11,7 @@ _G['MMPE'] = MMPE
 --
 -- Public API
 --
+--- @class MPP_API
 MPP_API = {};
 --- @param npcID number
 --- @return number? rawCount
@@ -48,8 +20,8 @@ function MPP_API:GetNpcCount(npcID)
 end
 
 --- Returns progress and pull count information. Pull count information is updated on a timer (roughly 5x per second)
---- @return number? currentCount # this is a best effort number, since blizzard's API does not return this data anymore; may return 0 instead of nil
---- @return number? maxCount # total count required for completion, can be used to calculate progress %
+--- @return number? currentCount # total count already cleared
+--- @return number? maxCount # total count required for completion
 --- @return number? pullCount # total count of NPCs in the current pull
 function MPP_API:GetProgress()
     return MMPE:GetCurrentQuantity(), MMPE:GetMaxQuantity(), MMPE:GetPulledProgress()
@@ -93,7 +65,7 @@ do
             addonName = 'TidyPlates',
             nameplateAccessor = function(unit)
                 local plate = defaultAccessor(unit);
-                
+
                 return plate and plate.extended or plate;
             end,
         },
@@ -116,6 +88,7 @@ MMPE.quantity = 0
 MMPE.previousQuantity = 0
 MMPE.lastKill = { 0 } -- To be populated later, do not remove the initial value. The zero means inconclusive/invalid data.
 MMPE.currentPullUpdateTimer = 0
+--- @type table<string, FontString>
 MMPE.activeNameplates = {}
 
 MMPE.simulationActive = false
@@ -156,15 +129,15 @@ end
 
 function MMPE:DebugPrint(...)
     if self:GetSetting('debug') then
-        if(DevTool and DevTool.AddData) then
-            DevTool:AddData({ ... }, "MMPE DebugPrint")
+        if (_G.DevTool and _G.DevTool.AddData) then
+            _G.DevTool:AddData({ ... }, "MMPE DebugPrint")
         end
         self:Print(...)
     end
 end
 
 function MMPE:HasWarned(message)
-    for _,warning in pairs(self.warnings) do
+    for _, warning in pairs(self.warnings) do
         if warning == message then
             return true
         end
@@ -181,24 +154,18 @@ function MMPE:PrintWarning(message)
     return false
 end
 
---
--- WOW GENERAL WRAPPERS/EZUTILITIES
---
-
 function MMPE:GetNPCID(guid)
     if guid == nil then
         return nil
     end
-    local targetType, _,_,_,_, npcID = strsplit("-", guid)
+    local targetType, _, _, _, _, npcID = strsplit("-", guid)
     if targetType == "Creature" or targetType == "Vehicle" and npcID then
         return tonumber(npcID)
     end
 end
 
 function MMPE:IsValidTarget(unit)
-    if UnitCanAttack("player", unit) then
-        return true
-    end
+    return UnitCanAttack("player", unit)
 end
 
 function MMPE:GetSteps()
@@ -207,6 +174,7 @@ end
 
 function MMPE:IsDungeonFinished(ignoreSimulation)
     if not ignoreSimulation and self.simulationActive then return false end
+
     return (self:GetSteps() and self:GetSteps() < 1)
 end
 
@@ -225,6 +193,7 @@ function MMPE:GetProgressInfo()
         local numSteps = self:GetSteps()
         if numSteps and numSteps > 0 then
             local info = C_ScenarioInfo.GetCriteriaInfo(numSteps)
+
             return info.isWeightedProgress and info or nil
         end
     end
@@ -308,7 +277,7 @@ function MMPE:UpdateValue(npcID, value, npcName, updatedFromCombat, forceUpdate)
     end
     local npcData = self.DB.npcData[npcID]
     if not npcData then
-        self.DB.npcData[npcID] = {values = {}, name = npcName or "Unknown"}
+        self.DB.npcData[npcID] = { values = {}, name = npcName or "Unknown" }
         npcData = self.DB.npcData[npcID]
     end
 
@@ -338,7 +307,7 @@ function MMPE:UpdateValue(npcID, value, npcName, updatedFromCombat, forceUpdate)
         end
     end
 
-    if(updatedFromCombat and value == bestValue and value ~= previousBestValue and self:GetSetting('debugNewNPCScores')) then
+    if (updatedFromCombat and value == bestValue and value ~= previousBestValue and self:GetSetting('debugNewNPCScores')) then
         self:Print(string.format("New score for %s (%d): %d, old value: %d", npcName, npcID, value, previousBestValue))
     end
 
@@ -360,7 +329,7 @@ function MMPE:ExportData(onlyUpdatedData)
     for npcID, npcData in pairs(self.DB.npcData) do
         local value = self:GetValue(npcID)
         local npcName = npcData.name
-        if(not onlyUpdatedData or value ~= (defaultValues[npcID] and defaultValues[npcID].count or 0)) then
+        if (not onlyUpdatedData or value ~= (defaultValues[npcID] and defaultValues[npcID].count or 0)) then
             count = count + 1
             editBoxText = editBoxText .. string.format(
                 "\t[%d] = {[\"name\"] = \"%s\", [\"count\"] = %d, [\"defaultCount\"] = %d},\n",
@@ -404,14 +373,14 @@ function MMPE:OnProgressUpdated(deltaProgress)
         local timeSinceKill = GetTimeInMilliSeconds() - timestamp
         self:DebugPrint("timeSinceKill: " .. timestamp .. " Current Time: " .. GetTimeInMilliSeconds() .. "Timestamp of kill: " .. timeSinceKill)
         if timeSinceKill <= self:GetSetting("maxTimeSinceKill") then
-            self:DebugPrint(string.format("Gained %f%%. Last mob killed was %s (%i) %fs ago", deltaProgress, npcName, npcID, timeSinceKill/1000))
+            self:DebugPrint(string.format("Gained %f%%. Last mob killed was %s (%i) %fs ago", deltaProgress, npcName, npcID, timeSinceKill / 1000))
             if ((self.DB.autoLearnScores == 'newOnly' and self:GetValue(npcID)) or self.DB.autoLearnScores == 'off') then
                 return
             end
 
             local updated = self:UpdateValue(npcID, deltaProgress, npcName, true) -- Looks like we have ourselves a valid entry. Set this in our database/list/whatever.
             if updated and self:GetSetting('debugNewNPCScores') then
-                self:Print(string.format("Gained %f%%. Last mob killed was %s (%i) %fs ago", deltaProgress, npcName, npcID, timeSinceKill/1000))
+                self:Print(string.format("Gained %f%%. Last mob killed was %s (%i) %fs ago", deltaProgress, npcName, npcID, timeSinceKill / 1000))
             end
         else
             self:DebugPrint(string.format("Gained %f%%. Last mob killed was %s (%i) %fs ago (PAST CUTOFF!)", deltaProgress, npcName, npcID, timeSinceKill))
@@ -447,7 +416,7 @@ function MMPE:OnCombatLogEvent(args)
                 self:DebugPrint("Data not useful: " .. timeSinceLastKill .. " - " .. self.lastKill[1] .. " - " .. GetTimeInMilliSeconds())
                 isDataUseful = false
             end
-            self.lastKill = { GetTimeInMilliSeconds(), npcID, destName, isDataUseful} -- timestamp is not at all accurate, we use GetTime() instead.
+            self.lastKill = { GetTimeInMilliSeconds(), npcID, destName, isDataUseful } -- timestamp is not at all accurate, we use GetTime() instead.
             self:DebugPrint('lastKill:', unpack(self.lastKill))
         end
     end
@@ -490,10 +459,10 @@ function MMPE:VerifyDB(fullWipe, npcDataWipe)
     local newPatchVersionInfo = self.DB.npcDataPatchVersionInfo or emptyPatchVersionInfo
     self.dungeonOverrides = {}
     self.criteriaDebugData = {}
-	for _, dataProvider in pairs(ns.data) do
+    for _, dataProvider in pairs(ns.data) do
         local patchVersionInfo = dataProvider:GetPatchVersion()
         local patchVersion = patchVersionInfo.timestamp
-		local defaultValues = dataProvider:GetNPCData()
+        local defaultValues = dataProvider:GetNPCData()
 
         local forceUpdate = false
         if currentPatchVersion < patchVersion then
@@ -510,7 +479,7 @@ function MMPE:VerifyDB(fullWipe, npcDataWipe)
         if dataProvider.GetDebugData then
             self.criteriaDebugData = Mixin(self.criteriaDebugData, dataProvider:GetDebugData())
         end
-	end
+    end
     self.DB.npcDataPatchVersion = newPatchVersion
     self.DB.npcDataPatchVersionInfo = newPatchVersionInfo
 
@@ -528,7 +497,7 @@ function MMPE:ShouldAddTooltip(unit)
 end
 
 function MMPE:GetTooltipMessage(npcID)
-    local message = "|cFF"..self:GetSetting("tooltipColor") .. L["M+Progress:"] .. " "
+    local message = "|cFF" .. self:GetSetting("tooltipColor") .. L["M+Progress:"] .. " "
     local estimatedProgress, count, maxCount = self:GetEstimatedProgress(npcID)
     if not estimatedProgress then
         return message .. L["No record."]
@@ -567,7 +536,7 @@ end
 function MMPE:CreatePullFrame()
     self.currentPullFrame = CreateFrame("frame", nil, UIParent)
     SetFramePoint(self.currentPullFrame, self.DB.settings.pullFramePoint)
-    self.currentPullFrame:EnableMouse(not self.DB.settings.lockPullFrame)
+    self.currentPullFrame:EnableMouse(not self:GetSetting("lockPullFrame"))
     self.currentPullFrame:SetMovable(true)
     self.currentPullFrame:RegisterForDrag("LeftButton")
     self.currentPullFrame:SetScript("OnDragStart", function(frame)
@@ -580,6 +549,7 @@ function MMPE:CreatePullFrame()
     end)
     self.currentPullFrame:SetWidth(50)
     self.currentPullFrame:SetHeight(50)
+    self.currentPullFrame:SetScale(self:GetSetting("pullFrameTextScale"))
 
     self.currentPullString = self.currentPullFrame:CreateFontString(nil, "BACKGROUND", "GameFontHighlightLarge")
     self.currentPullString:SetPoint("CENTER");
@@ -682,8 +652,9 @@ function MMPE:CreateNameplateText(unit)
         end
         local nameplate = nameplateAccessor(unit)
         if nameplate then
-            self.activeNameplates[unit] = nameplate:CreateFontString(unit .."mppProgress", "OVERLAY", "GameFontHighlightSmall")
+            self.activeNameplates[unit] = nameplate:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
             self.activeNameplates[unit]:SetText("+?%")
+            self.activeNameplates[unit]:SetScale(self:GetSetting('nameplateTextScale'))
         end
     end
 end
@@ -762,7 +733,7 @@ function MMPE:OnRemoveNameplate(unit)
 end
 
 function MMPE:RemoveNameplates()
-    for unit,_ in pairs(self.activeNameplates) do
+    for unit, _ in pairs(self.activeNameplates) do
         self:RemoveNameplateText(unit)
     end
 end
@@ -770,7 +741,7 @@ end
 
 function MMPE:UpdateNameplates()
     if self:ShouldShowNameplateTexts() then
-        for unit,_ in pairs(self.activeNameplates) do
+        for unit, _ in pairs(self.activeNameplates) do
             self:UpdateNameplatePosition(unit)
         end
     else
