@@ -1,6 +1,6 @@
 # Baganator
 
-## [694](https://github.com/Baganator/Baganator/tree/694) (2025-06-03)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/693...694) 
+## [696](https://github.com/Baganator/Baganator/tree/696) (2025-06-07)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/695...696) 
 
-- Compatibility fix for item levels showing wrong after timewalking  
+- [Fixes #485] Avoid |n in categories export becoming a newline  
