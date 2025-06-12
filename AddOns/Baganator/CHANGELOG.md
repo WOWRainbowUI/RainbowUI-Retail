@@ -1,6 +1,6 @@
 # Baganator
 
-## [696](https://github.com/Baganator/Baganator/tree/696) (2025-06-07)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/695...696) 
+## [697](https://github.com/Baganator/Baganator/tree/697) (2025-06-09)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/696...697) 
 
-- [Fixes #485] Avoid |n in categories export becoming a newline  
+- Remove some usage of `select` to improve performance  
