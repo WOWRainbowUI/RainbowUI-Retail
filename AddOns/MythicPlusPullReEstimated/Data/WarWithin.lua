@@ -5,9 +5,9 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1741644196,
-        version = '11.1.0',
-        build = 59570,
+        timestamp = 1749741408,
+        version = '11.1.5',
+        build = 61188,
     }
 end
 
@@ -137,6 +137,7 @@ function data:GetNPCData()
         [220197] = { name = "Royal Swarmguard", count = 20 },
         [220199] = { name = "Battle Scarab", count = 1 },
         [220423] = { name = "Retired Lord Vul'azak", count = 20 },
+        [220616] = { name = "Corridor Sleeper", count = 4 },
         [220730] = { name = "Royal Venomshell", count = 20 },
         [220815] = { name = "Blazing Fiend", count = 7 },
         [220946] = { name = "Venture Co. Honey Harvester", count = 10 },
