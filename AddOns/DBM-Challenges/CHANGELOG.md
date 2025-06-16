@@ -1,34 +1,30 @@
 # <DBM Mod> Challenges
 
-## [r170](https://github.com/DeadlyBossMods/DBM-Challenges/tree/r170) (2025-05-29)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Challenges/compare/r169...r170) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Challenges/releases)
+## [r171](https://github.com/DeadlyBossMods/DBM-Challenges/tree/r171) (2025-06-14)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Challenges/compare/r170...r171) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Challenges/releases)
 
-- Vision update:  
-     - Added nameplate timer for touch of the abyss  
-     - Explosive leap nameplate timer will now glow as high priority nameplate timer)  
-     - Surging Fist changed to hybrid timer (so it shows on nameplate in addition to showing regular timer  
-     - Decimator changed to hybrid timer (so it shows on nameplate in addition to showing regular timer  
-     - Toxic Volley changed to hybrid timer (so it shows on nameplate in addition to showing regular timer  
-     - Toxic breath changed to hybrid timer (so it shows on nameplate in addition to showing regular timer  
-     - Vez'okk will now show initial timers on engage  
-     - Decimator Shiq'voth will now show initial timers on engage  
-     - Aqir Mindhunter will now show initial timers on engage  
-- fixed bug causing war stomp timer not to update  
-- Visions update:  
-     - Added alert for when Gamon spawns  
-     - Added an alert and nameplate timer for gamons dangerous war stomp  
-     - Changed Dark forge alert to be a pre cast warning to dodge frontal now that it doesn't follow/track in TWW (like it did in bfa)  
-     - Added darkforce hybrid timer (cd and nameplate)  
-     - Added Orb of annihilation hybrid timer  
-     - Added explosive Leap hybrid timer  
-     - Added desperate Retching hybrid timer  
-     - Added maddening Roar hybrid timer  
-- scrap haunting shadows stuff. blizz broke ability to detect it using nameplates in TWW  
-    Changed horrifying shout and abyss casts to modern priority nameplate cast timer icons  
-- use correct gossip ID  
-- Visions Update:  
-    Attempt to fix sanity alerts  
-    Start data collection for initial nameplate timers  
-    Added dark smash alert and nameplate timer  
-    Added blade flourish nameplate timer  
-- fixes to ordinance timer  
+- Visions Stormwind Update:  
+     - Named mobs in stormwind will also use regular timers (in addition to nameplate timers). matching behavior of Orgrimmar  
+    Visions Orgrimmar Update:  
+     - Added nameplate timer for Break Spirit  
+     - Added nameplate timer for Shockwave  
+     - Added nameplate timer and alerts for Dark Smash, matching stormwind behavior  
+     - Upgraded endless hunger totem to special announce with voice pack  
+     - Added special announce for rupture cast  
+- Visions Update All:  
+     - Changed how Dark imagination is detected  
+    Visions Update Stormwind:  
+     - Upgraded Brutal Smash to special announce  
+     - Added Rain of fire special announce  
+     - Added maddening Call special announce  
+     - Added Nameplate CD for Entropic Leap  
+     - Improved nameplate CD for Blade Flourish to also include initial cast  
+     - Added nameplate CD for Roaring Blast  
+     - Added nameplate CD for  for Maddening Call  
+     - Added nameplate CD for Vicious Slice  
+     - Added nameplate CD for Piercing Shot  
+     - Added nameplate CD for Rift Strike  
+     - Added nameplate CD for Chaos Breath  
+     - Added nameplate CD for Rain of Fire  
+     - Added nameplate CD for Twisted Summons  
+- Fix false debug due to interrupted spellcast  
