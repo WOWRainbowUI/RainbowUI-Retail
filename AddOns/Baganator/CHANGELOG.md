@@ -1,6 +1,6 @@
 # Baganator
 
-## [697](https://github.com/Baganator/Baganator/tree/697) (2025-06-09)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/696...697) 
+## [698](https://github.com/Baganator/Baganator/tree/698) (2025-06-16)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/697...698) 
 
-- Remove some usage of `select` to improve performance  
+- Update toc for 11.1.7  
