@@ -1,6 +1,6 @@
 # Syndicator
 
-## [207](https://github.com/Baganator/Syndicator/tree/207) (2025-06-05)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/206...207) 
+## [208](https://github.com/Baganator/Syndicator/tree/208) (2025-06-16)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/207...208) 
 
-- Tweak usage of ATT data for expansion detection  
+- Update toc for 11.1.7  
