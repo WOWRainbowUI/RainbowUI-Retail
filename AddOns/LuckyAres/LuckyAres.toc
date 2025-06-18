@@ -1,4 +1,4 @@
-## Interface: 110100, 110105## IconTexture: 982414
+## Interface: 110105, 110107## IconTexture: 982414
 ## Title: |cffff00ffLuckyAres|r
 ## Notes: |CFFFF6461用于副本内友方血条参数且重载后不失效|r
 ## Title-zhTW: |cff0099FF[介面]|r 友方只顯示名字 (備用)

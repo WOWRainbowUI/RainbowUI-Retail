@@ -1,4 +1,4 @@
-## Interface: 110100, 110105
+## Interface: 110105, 110107
 
 ## Title: World Quest Tracker
 ## Notes: An addon by Terciob. Make more easy to see world quests

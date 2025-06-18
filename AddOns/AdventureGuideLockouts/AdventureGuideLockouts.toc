@@ -1,4 +1,4 @@
-## Interface: 110100, 110105
+## Interface: 110105, 110107
 ## Title: Adventure Guide Lockouts
 ## Notes: Adds instance status indicators to Adventure Guide.
 ## Notes-frFR: Ajoute des indicateurs de verrouillage d'instance au Guide de l'aventurier.

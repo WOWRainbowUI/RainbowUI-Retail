@@ -1,4 +1,4 @@
-## Interface: 11504, 30403, 40401, 110100, 110105
+## Interface: 11504, 30403, 40401, 110105, 110107
 ## Title: HandyNotes
 ## Notes: Handy notes for your maps
 ## Notes-frFR: Notes pratiques pour vos cartes.
