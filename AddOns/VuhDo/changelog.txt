@@ -1,3 +1,23 @@
+Version 3.189  
+  
+  
+Known issues:  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed mana text when indicator is set to show healers only  
+  
+  
+Improvements:  
+-- Bump TOC interface for 11.1.7  
+  
+  
+--------------------------------------------------------------  
 Version 3.188  
   
   
