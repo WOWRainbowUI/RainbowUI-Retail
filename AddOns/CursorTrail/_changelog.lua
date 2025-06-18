@@ -8,6 +8,21 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.1.7.1
+Released 2025-06-17
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.1.7.1 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Retail WoW 11.1.7.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 4.4.2.6 for Classic Cataclysm
+Version 1.15.7.2 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No changes.
+
+=======================================
 RELEASE 11.1.5.1
 Released 2025-04-22
 
@@ -523,97 +538,6 @@ CHANGES:
 - Changed how the help window scrolls text when using the mouse wheel.  (Scrolling faster now scrolls more lines.)
 - The profile options window now closes (and saves changes) when the Escape key is pressed while that window is open.
 - Fixed miscellaneous click sounds for checkboxes and menus.
-
-=======================================
-RELEASE 10.2.7.3
-Released 2024-06-13
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.2.7.3 for Retail WoW
-Version 4.4.0.4 for Classic Cataclysm
-Version 1.15.2.3 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-NEW FEATURES:
-- Add new models to all versions.
-- Added new default: "Glowing Star, Red".
-- Added color-coded model categories, making it easier to see the different categories in the Model dropdown list.
-- Changed the rate the mouse wheel scrolls through listbox and dropdown items.  (Scrolling faster scrolls more lines.)
-- Right-clicking most of the options will now set them to their default value.
-- Added a "Tips" section to the help window.
-
-CHANGES:
-- Fixed size of shapes and shadow so they stay the same size regardless of the game's UI scaling.  (Adjust CursorTrail's scale % if the shapes you like appear smaller or larger than they did before.)
-- Fixed a scaling bug that cause the model's relative distance from the shape to change whenever the scale % changed.  As a result, also updated defaults that had non-zero model offsets.
-  * IMPORTANT - You may need to adjust your profiles that have model offsets that are not zero.  (Sorry.)
-- Fixed dropdown menus so they close if the mouse wheel is used over the text box part of the dropdown (to cycle through items).
-- Fixed bug that incorrectly changed the position of cursor FX when scale % was changed using arrow keys.
-- Implemented a potential fix for problems seen on ultrawide monitors. (Handled the DISPLAY_SIZE_CHANGED event.)
-- Improved the "/ct reset" slash command so it can recover from more serious errors.
-- Updated the UI controls and profiles libraries.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.2.7.3 for Retail WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-NEW MODELS:
-    Glow - Burning Cloud, Red
-    Glow - Cloud, Sunfire
-    Glow - Electric, Red
-    Glow - Flame
-    Glow - Immunity
-    Glow - Ring, Exploding
-    Glow - Ring, Swirling, Red
-    Glow - Swirl, Cloud & Ring
-    Object - Beam Target
-    Object - Hands
-    Object - Heart
-    Object - Pentagon Flashers
-    Object - Ring, Yellow
-    Object - Ring, Yellow 2
-    Object - Torrent, Blue
-    Object - Torrent, Red
-    Object - Vortex, Green
-    Spots - Arcane Orb
-    Spots - Fire
-    Spots - Flare
-    Trail - Solar Wrath
-    Trail - Soul Turret
-    Trail - Star Surge
-    Trail - Swirling, Felblade
-    Trail - Swirling, Firestrike
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 4.4.0.4 for Classic Cataclysm
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-NEW MODELS:
-    Glow - Burning Cloud, Red
-    Glow - Cloud, Sunfire
-    Glow - Electric, Red
-    Glow - Flame
-    Glow - Immunity
-    Object - Hands
-    Object - Heart
-    Object - Ring, Yellow
-    Object - Ring, Yellow 2
-    Object - Torrent, Blue
-    Object - Torrent, Red
-    Spots - Flare
-    Trail - Swirling, Firestrike
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 1.15.2.3 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-NEW MODELS:
-    Glow - Burning Cloud, Red
-    Glow - Electric, Red
-    Glow - Flame
-    Glow - Immunity
-    Object - Hands
-    Object - Heart
-    Object - Ring, Yellow
-    Object - Ring, Yellow 2
-    Object - Swirl, Pulsing, Blue
-    Spots - Flare
-    Trail - Swirling, Firestrike
 
 ]]
 

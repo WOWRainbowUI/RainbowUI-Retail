@@ -1,4 +1,4 @@
-local CONTROLS_VERSION = "2025-04-22"  -- Version (date) of this file.  Stored as "UDControls.VERSION".
+local CONTROLS_VERSION = "2025-04-23"  -- Version (date) of this file.  Stored as "UDControls.VERSION".
 
 --[[---------------------------------------------------------------------------
 FILE:   UDControls.lua
@@ -16,6 +16,8 @@ REQUIREMENTS / DEPENDANCIES:
 USAGE:  See examples at end of this comment block.
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Apr 23, 2025
+        - Added an assert check to CUtil.Outline() to verify only frames are passed in (not textures).
     Apr 22, 2025
         - Updated for Retail WoW 11.1.5.  (Fixed ThinBorderTemplate error.)
         - Added CUtil.CreateThinBorderFrame().
@@ -5243,6 +5245,7 @@ end
 --      private.UDControls.Outline( yourFrame, {version=1, thickness=3} )
 -- ****************************************************************************
 function CUtil.Outline(frame, options)
+    assert(frame:GetObjectType() == "Frame")
     local r = (options and options.r) or 1
     local g = (options and options.g) or 1
     local b = (options and options.b) or 1
