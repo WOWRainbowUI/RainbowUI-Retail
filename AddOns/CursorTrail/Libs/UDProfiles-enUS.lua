@@ -5,6 +5,9 @@ private.L = {}
 local L = private.L
 --[[===========================================================================
 CHANGE HISTORY:
+    Jun 17, 2025
+        - Changed text for L.AccountProfileIconDesc .
+
     Sep 25, 2024
         - Added L.mUndo, L.UndoDesc .
 =============================================================================]]
@@ -129,7 +132,7 @@ L.OptionSaveOnOkay = "Save profile when Okay button is clicked."
 L.OptionConfirmDelete = "Ask before deleting profiles."
 L.OptionConfirmCopy = "Ask before copying profiles."
 L.OptionAccountProfile = "Use same profile for all characters."
-L.AccountProfileIconDesc = "Using this profile for all characters."
+L.AccountProfileIconDesc = "This profile is used for all characters."
 
 L.ProfilesHelp = [[
 - To create a new profile, select "New Profile" from Menu.
