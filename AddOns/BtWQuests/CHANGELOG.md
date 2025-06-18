@@ -1,3 +1,8 @@
+# v2.53.0
+
+- Updated for 11.1.7
+- Added quest line Rise of the Red Dawn
+
 # v2.52.2
 
 - Updated for 11.1.5

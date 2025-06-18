@@ -12730,12 +12730,20 @@ BtWQuestsDatabase:AddQuestsTable({
     },
     [82124] = {
         name = "The Beginning of the End",
-        contentTuningID = 2942,
+        contentTuningID = 2762,
         source = {
             type = "npc",
             id = 208782,
         },
         rewards = {
+            {
+                type = "experience",
+                amounts = {
+                    11600, 11750, 
+                },
+                minLevel = 78,
+                maxLevel = 79,
+            },
             {
                 type = "money",
                 amount = 234000,
@@ -13913,6 +13921,8 @@ BtWQuestsDatabase:AddQuestsTable({
         contentTuningID = 2861,
     },
     [82523] = {
+        name = "Candle Kingbreaker",
+        contentTuningID = 2869,
     },
     [82524] = {
         name = "Exterminate",
@@ -14002,17 +14012,7 @@ BtWQuestsDatabase:AddQuestsTable({
     },
     [82586] = {
         name = "Spore Ender",
-        contentTuningID = 2838,
-        rewards = {
-            {
-                type = "experience",
-                amounts = {
-                    10400, 10550, 10700, 10850, 11000, 11150, 11300, 11450, 11600, 11750, 
-                },
-                minLevel = 70,
-                maxLevel = 79,
-            },
-        },
+        contentTuningID = 2462,
     },
     [82615] = {
         name = "Reclaiming the Waterworks",
@@ -17813,7 +17813,7 @@ BtWQuestsDatabase:AddQuestsTable({
     },
     [83769] = {
         name = "Delver's Call: Mycomancer Cavern",
-        contentTuningID = 2882,
+        contentTuningID = 2677,
         source = {
             type = "object",
             id = 455690,
@@ -17822,7 +17822,7 @@ BtWQuestsDatabase:AddQuestsTable({
             {
                 type = "experience",
                 amounts = {
-                    62550, 63450, 64350, 65250, 66150, 67050, 67950, 68850, 69750, 70650, 
+                    15650, 15850, 16100, 16300, 16550, 16750, 17000, 17200, 17450, 17650, 
                 },
                 minLevel = 70,
                 maxLevel = 79,
@@ -17830,7 +17830,7 @@ BtWQuestsDatabase:AddQuestsTable({
             {
                 type = "money",
                 amounts = {
-                    3370800, 2808000, 
+                    842700, 702000, 
                 },
                 minLevel = 70,
                 maxLevel = 71,
@@ -18357,6 +18357,198 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [84638] = {
+        name = "Trouble in the Highlands",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 223875,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [84639] = {
+        name = "Torches and Tar",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 230174,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [84640] = {
+        name = "Emblematic of Things to Come",
+        contentTuningID = 3005,
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [84641] = {
+        name = "Ill Tidings",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 234662,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [84643] = {
+        name = "Curfew Kerfuffle",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 235041,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [84645] = {
+        name = "Deputy Delivery",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 235041,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [84649] = {
+        name = "Marran Trollbane",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 229940,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [84650] = {
+        name = "Finding Refuge at Refuge Pointe",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 229940,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [84651] = {
+        name = "A Familiar Face",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 236815,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [84652] = {
+        name = "Supply Run",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 236815,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [84656] = {
+        name = "Onward to Hammerfall",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 230815,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [84657] = {
+        name = "Return to Stromgarde",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 231828,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [84658] = {
+        name = "Finding Family",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 231748,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [84659] = {
+        name = "The Search for Faerin",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 238012,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
     [84667] = {
         name = "The G.O.L.E.M. of Progress",
         contentTuningID = 2888,
@@ -18452,6 +18644,202 @@ BtWQuestsDatabase:AddQuestsTable({
             {
                 type = "money",
                 amount = 23400,
+            },
+        },
+    },
+    [84704] = {
+        name = "A Different Point of View",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 230145,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [84705] = {
+        name = "Withering the Witherbark",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 230151,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [84706] = {
+        name = "Crime Family",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 230151,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [84707] = {
+        name = "To See a Troll",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 231764,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [84708] = {
+        name = "The Syndicate Strikes Back",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 230151,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [84709] = {
+        name = "Hammerfall Down",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 231770,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [84710] = {
+        name = "Once Bitten Twice Shy",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 231771,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 468000,
+            },
+        },
+    },
+    [84711] = {
+        name = "Danath's Disappearance",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 231803,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [84712] = {
+        name = "False Flag",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 231829,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 117000,
+            },
+        },
+    },
+    [84713] = {
+        name = "Fallen Fortress",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 231826,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [84714] = {
+        name = "From Ironforge With Love",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 231833,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [84715] = {
+        name = "The Search for Danath",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 231832,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [84716] = {
+        name = "Returning to Stromgarde",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 230154,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [84717] = {
+        name = "Rise of the Red Dawn",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 231837,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 702000,
             },
         },
     },
@@ -18855,6 +19243,34 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [85451] = {
+        name = "The Burning of Hammerfall",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 231768,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [85529] = {
+        name = "Past Glory",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 232986,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
     [85562] = {
         name = "Tougher Than We Thought",
         contentTuningID = 2888,
@@ -19098,7 +19514,6 @@ BtWQuestsDatabase:AddQuestsTable({
     [86484] = {
     },
     [86485] = {
-        name = "A Loyal Friend",
     },
     [86575] = {
         name = "Rocket Roll",
@@ -19164,6 +19579,20 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [87299] = {
+        name = "How Old Are These Things?",
+        contentTuningID = 3005,
+        source = {
+            type = "npc",
+            id = 238012,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
     [87321] = {
         name = "Things Left Undone",
         contentTuningID = 2888,
@@ -19171,6 +19600,16 @@ BtWQuestsDatabase:AddQuestsTable({
             type = "npc",
             id = 238006,
         },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [91039] = {
+        name = "Faerin's Request",
+        contentTuningID = 3005,
         rewards = {
             {
                 type = "money",

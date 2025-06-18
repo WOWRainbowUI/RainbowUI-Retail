@@ -3354,6 +3354,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [223875] = {
+        name = "Faerin Lothar",
+        locations = {
+            [2339] = {
+                {
+                    x = 0.460791,
+                    y = 0.496116,
+                },
+            },
+        },
+    },
     [223920] = {
         name = "Orren Masyn",
         locations = {
@@ -4938,6 +4949,61 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [229940] = {
+        name = "Colonel Veronica Nials",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.175404,
+                    y = 0.595782,
+                },
+            },
+        },
+    },
+    [230145] = {
+        name = "Eitrigg",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.697083,
+                    y = 0.391827,
+                },
+            },
+        },
+    },
+    [230151] = {
+        name = "Overlord Geya'rah",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.544414,
+                    y = 0.632049,
+                },
+            },
+        },
+    },
+    [230154] = {
+        name = "Danath Trollbane",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.279694,
+                    y = 0.343509,
+                },
+            },
+        },
+    },
+    [230174] = {
+        name = "Walker Gresham",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.204986,
+                    y = 0.393927,
+                },
+            },
+        },
+    },
     [230235] = {
         name = "Skaggit",
         locations = {
@@ -5015,6 +5081,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [230815] = {
+        name = "Faerin Lothar",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.408206,
+                    y = 0.535745,
+                },
+            },
+        },
+    },
     [230841] = {
         name = "The Verdigrease Knight",
         locations = {
@@ -5059,6 +5136,72 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [231748] = {
+        name = "Maggie Wiltshire",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.205213,
+                    y = 0.396294,
+                },
+            },
+        },
+    },
+    [231764] = {
+        name = "Faerin Lothar",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.695905,
+                    y = 0.328779,
+                },
+            },
+        },
+    },
+    [231768] = {
+        name = "Overlord Geya'rah",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.696187,
+                    y = 0.410345,
+                },
+            },
+        },
+    },
+    [231770] = {
+        name = "Eitrigg",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.697229,
+                    y = 0.409272,
+                },
+            },
+        },
+    },
+    [231771] = {
+        name = "Faerin Lothar",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.698413,
+                    y = 0.410471,
+                },
+            },
+        },
+    },
+    [231803] = {
+        name = "Overlord Geya'rah",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.684745,
+                    y = 0.306343,
+                },
+            },
+        },
+    },
     [231812] = {
         name = "Marty Zoomcart",
         locations = {
@@ -5066,6 +5209,72 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.368153,
                     y = 0.87857,
+                },
+            },
+        },
+    },
+    [231826] = {
+        name = "Eitrigg",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.415937,
+                    y = 0.614052,
+                },
+            },
+        },
+    },
+    [231828] = {
+        name = "Faerin Lothar",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.414796,
+                    y = 0.614179,
+                },
+            },
+        },
+    },
+    [231829] = {
+        name = "Overlord Geya'rah",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.415502,
+                    y = 0.616993,
+                },
+            },
+        },
+    },
+    [231832] = {
+        name = "Eitrigg",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.278302,
+                    y = 0.257237,
+                },
+            },
+        },
+    },
+    [231833] = {
+        name = "Overlord Geya'rah",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.278977,
+                    y = 0.25768,
+                },
+            },
+        },
+    },
+    [231837] = {
+        name = "Faerin Lothar",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.194477,
+                    y = 0.591809,
                 },
             },
         },
@@ -5143,6 +5352,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.564142,
                     y = 0.655281,
+                },
+            },
+        },
+    },
+    [232986] = {
+        name = "Danath Trollbane",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.216392,
+                    y = 0.652259,
                 },
             },
         },
@@ -5257,6 +5477,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [234662] = {
+        name = "Danath Trollbane",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.204458,
+                    y = 0.393027,
+                },
+            },
+        },
+    },
     [234728] = {
         name = "Orweyna",
         locations = {
@@ -5286,6 +5517,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.391192,
                     y = 0.232573,
+                },
+            },
+        },
+    },
+    [235041] = {
+        name = "Captain Roderick Brewston",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.19352,
+                    y = 0.563517,
                 },
             },
         },
@@ -5323,6 +5565,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [236815] = {
+        name = "Karga Bloodfury",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.409476,
+                    y = 0.535484,
+                },
+            },
+        },
+    },
     [238006] = {
         name = "Marin Noggenfogger",
         locations = {
@@ -5330,6 +5583,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.273657,
                     y = 0.709666,
+                },
+            },
+        },
+    },
+    [238012] = {
+        name = "Captain Roderick Brewston",
+        locations = {
+            [2372] = {
+                {
+                    x = 0.177267,
+                    y = 0.603917,
                 },
             },
         },
