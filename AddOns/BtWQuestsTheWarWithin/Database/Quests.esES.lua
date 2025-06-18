@@ -2739,6 +2739,48 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84621] = {
         name = "Espuelas de escudero",
     },
+    [84638] = {
+        name = "Problemas en las Tierras Altas",
+    },
+    [84639] = {
+        name = "Antorchas y brea",
+    },
+    [84640] = {
+        name = "El emblemático porvenir",
+    },
+    [84641] = {
+        name = "Malas noticias",
+    },
+    [84643] = {
+        name = "Reyerta en el toque de queda",
+    },
+    [84645] = {
+        name = "Trabajo de ayudantes",
+    },
+    [84649] = {
+        name = "Marran Aterratrols",
+    },
+    [84650] = {
+        name = "En busca de refugio en Refugio de la Zaga",
+    },
+    [84651] = {
+        name = "Un rostro familiar",
+    },
+    [84652] = {
+        name = "Recogida de suministros",
+    },
+    [84656] = {
+        name = "Hacia Sentencia",
+    },
+    [84657] = {
+        name = "Retorno a Stromgarde",
+    },
+    [84658] = {
+        name = "En busca de la familia",
+    },
+    [84659] = {
+        name = "La búsqueda de Faerin",
+    },
     [84667] = {
         name = "El G.Ó.L.E.M. del progreso",
     },
@@ -2756,6 +2798,48 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [84683] = {
         name = "A la cloaca",
+    },
+    [84704] = {
+        name = "Un punto de vista diferente",
+    },
+    [84705] = {
+        name = "Marchitar a los Secacorteza",
+    },
+    [84706] = {
+        name = "Familia criminal",
+    },
+    [84707] = {
+        name = "Ver a un trol",
+    },
+    [84708] = {
+        name = "La Hermandad contraataca",
+    },
+    [84709] = {
+        name = "Sentencia firme",
+    },
+    [84710] = {
+        name = "Pica que te pica",
+    },
+    [84711] = {
+        name = "La desaparición de Danath",
+    },
+    [84712] = {
+        name = "Falsa bandera",
+    },
+    [84713] = {
+        name = "Fortaleza caída",
+    },
+    [84714] = {
+        name = "Desde Forjaz con amor",
+    },
+    [84715] = {
+        name = "La búsqueda de Danath",
+    },
+    [84716] = {
+        name = "De vuelta a Stromgarde",
+    },
+    [84717] = {
+        name = "El ascenso del Alba Roja",
     },
     [84821] = {
         name = "Quintención biológica",
@@ -2804,6 +2888,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [85450] = {
         name = "Plan de evacuación",
+    },
+    [85451] = {
+        name = "El incendio de Sentencia",
+    },
+    [85529] = {
+        name = "Glorias pasadas",
     },
     [85562] = {
         name = "Más duro de lo que pensábamos",
@@ -2865,8 +2955,14 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [87297] = {
         name = "Cobrar el cheque",
     },
+    [87299] = {
+        name = "¿Cuánto tiempo tienen estas cosas?",
+    },
     [87321] = {
         name = "Cosas por hacer",
+    },
+    [91039] = {
+        name = "La petición de Faerin",
     },
 })
 ]])()

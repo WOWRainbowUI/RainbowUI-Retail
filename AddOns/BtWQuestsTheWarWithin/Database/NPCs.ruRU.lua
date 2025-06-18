@@ -252,6 +252,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [223759] = {
         name = "Синруна",
     },
+    [223875] = {
+        name = "Ферин Лотар",
+    },
     [223920] = {
         name = "Оррен Мэсин",
     },

@@ -252,6 +252,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [223759] = {
         name = "辛鲁娜",
     },
+    [223875] = {
+        name = "菲琳·洛萨",
+    },
     [223920] = {
         name = "欧伦·麦辛",
     },

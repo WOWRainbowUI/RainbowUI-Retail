@@ -1,3 +1,12 @@
+# v9.0
+
+- Updated for 11.1.7
+- Added quest line Rise of the Red Dawn
+
+# v8.1
+
+- Updated for 11.1.5
+
 # v8.0
 
 - Added the Homecoming questline in Undermine

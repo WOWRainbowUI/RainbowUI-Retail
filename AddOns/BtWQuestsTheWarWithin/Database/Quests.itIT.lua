@@ -2748,6 +2748,48 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84621] = {
         name = "Gli speroni dello scudiero",
     },
+    [84638] = {
+        name = "Problemi sugli altopiani",
+    },
+    [84639] = {
+        name = "Torce e pece",
+    },
+    [84640] = {
+        name = "Emblematico degli eventi futuri",
+    },
+    [84641] = {
+        name = "Pessime notizie",
+    },
+    [84643] = {
+        name = "Disordini col coprifuoco",
+    },
+    [84645] = {
+        name = "Consegna da vice",
+    },
+    [84649] = {
+        name = "Marran Cacciatroll",
+    },
+    [84650] = {
+        name = "Trovare rifugio al Fosso dei Rifugiati",
+    },
+    [84651] = {
+        name = "Una faccia familiare",
+    },
+    [84652] = {
+        name = "Rifornimento di rifornimenti",
+    },
+    [84656] = {
+        name = "Senza requie a Requie del Martello",
+    },
+    [84657] = {
+        name = "Ritorno a Stromgarde",
+    },
+    [84658] = {
+        name = "Alla ricerca della famiglia",
+    },
+    [84659] = {
+        name = "Alla ricerca di Faerin",
+    },
     [84667] = {
         name = "Il G.O.L.E.M. del progresso",
     },
@@ -2765,6 +2807,48 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [84683] = {
         name = "Più fogna che villa",
+    },
+    [84704] = {
+        name = "Un punto di vista diverso",
+    },
+    [84705] = {
+        name = "Seccare gli Scorzasecca",
+    },
+    [84706] = {
+        name = "Una famiglia criminale",
+    },
+    [84707] = {
+        name = "Troll, Troll ovunque",
+    },
+    [84708] = {
+        name = "La Lega dei Tagliagole colpisce ancora",
+    },
+    [84709] = {
+        name = "Requie del Martello martellata",
+    },
+    [84710] = {
+        name = "Una volta è poca, due sono troppe",
+    },
+    [84711] = {
+        name = "La scomparsa di Danath",
+    },
+    [84712] = {
+        name = "Falsa pista",
+    },
+    [84713] = {
+        name = "La fortezza caduta",
+    },
+    [84714] = {
+        name = "Da Forgiardente con amore",
+    },
+    [84715] = {
+        name = "Alla ricerca di Danath",
+    },
+    [84716] = {
+        name = "Ritorno a Stromgarde",
+    },
+    [84717] = {
+        name = "Ascesa dell'Alba Rossa",
     },
     [84821] = {
         name = "Contenimento biologico",
@@ -2813,6 +2897,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [85450] = {
         name = "Piani di evacuazione",
+    },
+    [85451] = {
+        name = "L'incendio di Requie del Martello",
+    },
+    [85529] = {
+        name = "Gloria passata",
     },
     [85562] = {
         name = "Più dura di quanto pensassimo",
@@ -2874,8 +2964,14 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [87297] = {
         name = "Incasso dell'assegno",
     },
+    [87299] = {
+        name = "Quanto è vecchia questa roba?",
+    },
     [87321] = {
         name = "Cose lasciate in sospeso",
+    },
+    [91039] = {
+        name = "Richiesta di Faerin",
     },
 })
 ]])()

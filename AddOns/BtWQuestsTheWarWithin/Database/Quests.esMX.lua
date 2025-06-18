@@ -2028,6 +2028,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [82518] = {
         name = "Trabajo en tuberías",
     },
+    [82523] = {
+        name = "Vela destruyerreyes",
+    },
     [82524] = {
         name = "Exterminio",
     },
@@ -2553,6 +2556,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83537] = {
         name = "Tratamiento de gemas geotermales",
     },
+    [83538] = {
+        name = "Liberación de la excavación",
+    },
     [83540] = {
         name = "Todo por la fila",
     },
@@ -2742,6 +2748,48 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84621] = {
         name = "Espuelas de escudero",
     },
+    [84638] = {
+        name = "Problemas en las Tierras Altas",
+    },
+    [84639] = {
+        name = "Antorchas y alquitrán",
+    },
+    [84640] = {
+        name = "Sucesos emblemáticos",
+    },
+    [84641] = {
+        name = "Malas noticias",
+    },
+    [84643] = {
+        name = "Protestas de toque de queda",
+    },
+    [84645] = {
+        name = "Agentes a domicilio",
+    },
+    [84649] = {
+        name = "Marran Aterratrols",
+    },
+    [84650] = {
+        name = "Buscando refugio en Refugio de la Zaga",
+    },
+    [84651] = {
+        name = "Una cara familiar",
+    },
+    [84652] = {
+        name = "En busca de suministros",
+    },
+    [84656] = {
+        name = "Camino a Sentencia",
+    },
+    [84657] = {
+        name = "Regreso a Stromgarde",
+    },
+    [84658] = {
+        name = "Búsqueda familiar",
+    },
+    [84659] = {
+        name = "La búsqueda de Faerin",
+    },
     [84667] = {
         name = "El G.O.L.E.M. del progreso",
     },
@@ -2759,6 +2807,48 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [84683] = {
         name = "Sumidos en problemas",
+    },
+    [84704] = {
+        name = "Un punto de vista diferente",
+    },
+    [84705] = {
+        name = "Secacorteza sin cabeza",
+    },
+    [84706] = {
+        name = "Familia criminal",
+    },
+    [84707] = {
+        name = "Trols a la vista",
+    },
+    [84708] = {
+        name = "La Hermandad contraataca",
+    },
+    [84709] = {
+        name = "Sentencia inapelable",
+    },
+    [84710] = {
+        name = "Soldado que huye",
+    },
+    [84711] = {
+        name = "La desaparición de Danath",
+    },
+    [84712] = {
+        name = "Bandera falsa",
+    },
+    [84713] = {
+        name = "Fortaleza caída",
+    },
+    [84714] = {
+        name = "Con amor, de Forjaz",
+    },
+    [84715] = {
+        name = "La búsqueda de Danath",
+    },
+    [84716] = {
+        name = "Regresa a Stromgarde",
+    },
+    [84717] = {
+        name = "El levantamiento del Amanecer Rojo",
     },
     [84821] = {
         name = "Estafermo biológico",
@@ -2807,6 +2897,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [85450] = {
         name = "Plan de evacuación",
+    },
+    [85451] = {
+        name = "El incendio de Sentencia",
+    },
+    [85529] = {
+        name = "Gloria pasada",
     },
     [85562] = {
         name = "Más resilientes que nunca",
@@ -2868,8 +2964,14 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [87297] = {
         name = "Más billetes para la cuenta",
     },
+    [87299] = {
+        name = "¿Cuántos años tienen estas cosas?",
+    },
     [87321] = {
         name = "Las cosas inconclusas",
+    },
+    [91039] = {
+        name = "El pedido de Faerin",
     },
 })
 ]])()

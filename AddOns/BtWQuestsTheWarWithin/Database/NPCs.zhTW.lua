@@ -252,6 +252,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [223759] = {
         name = "辛魯納",
     },
+    [223875] = {
+        name = "法林‧洛薩",
+    },
     [223920] = {
         name = "歐倫‧梅辛",
     },

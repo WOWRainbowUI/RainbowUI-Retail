@@ -252,6 +252,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [223759] = {
         name = "신루나",
     },
+    [223875] = {
+        name = "페어린 로서",
+    },
     [223920] = {
         name = "오렌 마신",
     },

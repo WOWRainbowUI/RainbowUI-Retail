@@ -207,6 +207,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [227222] = {
         name = "Isebel Refulgrado",
     },
+    [227758] = {
+        name = "Alleria Correventos",
+    },
     [228158] = {
         name = "Mac Rámen",
     },
@@ -224,6 +227,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     },
     [230841] = {
         name = "Cavaleiro Graxaverdi",
+    },
+    [232132] = {
+        name = "Sol",
     },
     [233235] = {
         name = "Gérson Garrentala",

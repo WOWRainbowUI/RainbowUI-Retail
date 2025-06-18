@@ -2037,6 +2037,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [82518] = {
         name = "Rohre flicken",
     },
+    [82523] = {
+        name = "Kerzenkönigbrecher",
+    },
     [82524] = {
         name = "Exterminieren",
     },
@@ -2559,6 +2562,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [83537] = {
         name = "Geothermale Edelsteinbehandlung",
     },
+    [83538] = {
+        name = "Ausgrabungsbefreiung",
+    },
     [83540] = {
         name = "Vordrängeln",
     },
@@ -2748,6 +2754,48 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84621] = {
         name = "Sporen eines Knappen",
     },
+    [84638] = {
+        name = "Ärger im Hochland",
+    },
+    [84639] = {
+        name = "Fackeln und Fässer",
+    },
+    [84640] = {
+        name = "Ein ungutes Abzeichen",
+    },
+    [84641] = {
+        name = "Schlechte Nachrichten",
+    },
+    [84643] = {
+        name = "Immer Ärger mit den Wutbürgern",
+    },
+    [84645] = {
+        name = "Auf dem Postweg",
+    },
+    [84649] = {
+        name = "Marran Trollbann",
+    },
+    [84650] = {
+        name = "Gemeinsame Zuflucht",
+    },
+    [84651] = {
+        name = "Ein bekanntes Gesicht",
+    },
+    [84652] = {
+        name = "Dringender Nachschub",
+    },
+    [84656] = {
+        name = "Auf nach Hammerfall",
+    },
+    [84657] = {
+        name = "Rückkehr nach Stromgarde",
+    },
+    [84658] = {
+        name = "Familie finden",
+    },
+    [84659] = {
+        name = "Die Suche nach Faerin",
+    },
     [84667] = {
         name = "G.O.L.E.M. des Fortschritts",
     },
@@ -2765,6 +2813,48 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [84683] = {
         name = "Ab in die Gosse",
+    },
+    [84704] = {
+        name = "Eine andere Perspektive",
+    },
+    [84705] = {
+        name = "Bleichborken erbleichen lassen",
+    },
+    [84706] = {
+        name = "Verbrecherfamilie",
+    },
+    [84707] = {
+        name = "Troll treffen",
+    },
+    [84708] = {
+        name = "Das Syndikat schlägt zurück",
+    },
+    [84709] = {
+        name = "Hammer fallen",
+    },
+    [84710] = {
+        name = "Blutsaugersammlung",
+    },
+    [84711] = {
+        name = "Danaths Verschwinden",
+    },
+    [84712] = {
+        name = "Falsche Flagge",
+    },
+    [84713] = {
+        name = "Gefallene Festung",
+    },
+    [84714] = {
+        name = "Alles Liebe aus Eisenschmiede",
+    },
+    [84715] = {
+        name = "Die Suche nach Danath",
+    },
+    [84716] = {
+        name = "Rückkehr nach Stromgarde",
+    },
+    [84717] = {
+        name = "Der Aufstieg der Roten Dämmerung",
     },
     [84821] = {
         name = "Biologisches Stechpuppier",
@@ -2813,6 +2903,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [85450] = {
         name = "Evakuierungsplan",
+    },
+    [85451] = {
+        name = "Der Brand von Hammerfall",
+    },
+    [85529] = {
+        name = "Vergangener Ruhm",
     },
     [85562] = {
         name = "Zäher als gedacht",
@@ -2874,8 +2970,14 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [87297] = {
         name = "Scheck einlösen",
     },
+    [87299] = {
+        name = "Wie alt sind diese Dinger?",
+    },
     [87321] = {
         name = "Unerledigte Dinge",
+    },
+    [91039] = {
+        name = "Faerins Bitte",
     },
 })
 ]])()

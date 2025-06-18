@@ -2736,6 +2736,48 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84621] = {
         name = "Confiança de escudeiro",
     },
+    [84638] = {
+        name = "Problema no planalto",
+    },
+    [84639] = {
+        name = "Piche e tochas",
+    },
+    [84640] = {
+        name = "O emblema que precede o problema",
+    },
+    [84641] = {
+        name = "Maus prenúncios",
+    },
+    [84643] = {
+        name = "Toque de recolher obrigatório",
+    },
+    [84645] = {
+        name = "Assistente de entregas",
+    },
+    [84649] = {
+        name = "Marran Matatroll",
+    },
+    [84650] = {
+        name = "Refugiando-se na Ponta do Refúgio",
+    },
+    [84651] = {
+        name = "Rosto conhecido",
+    },
+    [84652] = {
+        name = "Busca por suprimentos",
+    },
+    [84656] = {
+        name = "Rumo à Ruína do Martelo",
+    },
+    [84657] = {
+        name = "De volta a Stromgarde",
+    },
+    [84658] = {
+        name = "Família reunida",
+    },
+    [84659] = {
+        name = "À procura de Faerin",
+    },
     [84667] = {
         name = "O G.O.L.E.M. do progresso",
     },
@@ -2753,6 +2795,48 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [84683] = {
         name = "Sarjeta adentro",
+    },
+    [84704] = {
+        name = "Outro ponto de vista",
+    },
+    [84705] = {
+        name = "Descascando a Cascasseca",
+    },
+    [84706] = {
+        name = "Família do crime",
+    },
+    [84707] = {
+        name = "Encontro trólico",
+    },
+    [84708] = {
+        name = "A Camarilha contra-ataca",
+    },
+    [84709] = {
+        name = "Queda da Ruína do Martelo",
+    },
+    [84710] = {
+        name = "Mosca na sopa",
+    },
+    [84711] = {
+        name = "Desaparecimento de Danath",
+    },
+    [84712] = {
+        name = "Engodo",
+    },
+    [84713] = {
+        name = "Fortaleza tombada",
+    },
+    [84714] = {
+        name = "De Altaforja, com amor",
+    },
+    [84715] = {
+        name = "À procura de Danath",
+    },
+    [84716] = {
+        name = "De volta a Stromgarde",
+    },
+    [84717] = {
+        name = "Ascensão da Aurora Rubra",
     },
     [84821] = {
         name = "Aquintain lança",
@@ -2801,6 +2885,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [85450] = {
         name = "Plano de evacuação",
+    },
+    [85451] = {
+        name = "O incêndio de Ruína do Martelo",
+    },
+    [85529] = {
+        name = "Glória passada",
     },
     [85562] = {
         name = "Mais fortes do que pareciam",
@@ -2862,8 +2952,14 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [87297] = {
         name = "Descontando o cheque",
     },
+    [87299] = {
+        name = "Qual é a idade dessas coisas?",
+    },
     [87321] = {
         name = "Pendências",
+    },
+    [91039] = {
+        name = "Pedido de Faerin",
     },
 })
 ]])()

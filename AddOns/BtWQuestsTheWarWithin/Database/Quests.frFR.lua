@@ -2742,6 +2742,48 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84621] = {
         name = "Éperons d’écurie",
     },
+    [84638] = {
+        name = "Problèmes dans les hautes-terres",
+    },
+    [84639] = {
+        name = "Du goudron et des torches",
+    },
+    [84640] = {
+        name = "Emblématique de ce qui nous attend",
+    },
+    [84641] = {
+        name = "Des nouvelles inquiétantes",
+    },
+    [84643] = {
+        name = "Un couvre-feu fumeux",
+    },
+    [84645] = {
+        name = "Livraison d’injonctions",
+    },
+    [84649] = {
+        name = "Marran Trollemort",
+    },
+    [84650] = {
+        name = "Se réfugier au refuge",
+    },
+    [84651] = {
+        name = "Une tête connue",
+    },
+    [84652] = {
+        name = "Ravitaillement",
+    },
+    [84656] = {
+        name = "En route pour Trépas-d’Orgrim",
+    },
+    [84657] = {
+        name = "Retour à Stromgarde",
+    },
+    [84658] = {
+        name = "À la recherche d’une famille",
+    },
+    [84659] = {
+        name = "À la recherche de Faerin",
+    },
     [84667] = {
         name = "Le G.O.L.E.M. du progrès",
     },
@@ -2759,6 +2801,48 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [84683] = {
         name = "Dans le caniveau",
+    },
+    [84704] = {
+        name = "Un point de vue différent",
+    },
+    [84705] = {
+        name = "Faner les Fanécorces",
+    },
+    [84706] = {
+        name = "Famille de criminels",
+    },
+    [84707] = {
+        name = "Visite trolle",
+    },
+    [84708] = {
+        name = "Le Syndicat contre-attaque",
+    },
+    [84709] = {
+        name = "Trépas-d’Orgrim en péril",
+    },
+    [84710] = {
+        name = "Apprendre la leçon",
+    },
+    [84711] = {
+        name = "La disparition de Danath",
+    },
+    [84712] = {
+        name = "Fausse bannière",
+    },
+    [84713] = {
+        name = "Forteresse déchue",
+    },
+    [84714] = {
+        name = "Bons baisers de Forgefer",
+    },
+    [84715] = {
+        name = "À la recherche de Danath",
+    },
+    [84716] = {
+        name = "De retour à Stromgarde",
+    },
+    [84717] = {
+        name = "L’Aube rouge se lève",
     },
     [84821] = {
         name = "Taupinement biologique",
@@ -2807,6 +2891,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [85450] = {
         name = "Plan d’évacuation",
+    },
+    [85451] = {
+        name = "Trépas-d’Orgrim brûle-t-il ?",
+    },
+    [85529] = {
+        name = "Gloire passée",
     },
     [85562] = {
         name = "Plus coriaces que prévu",
@@ -2868,8 +2958,14 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [87297] = {
         name = "Un chèque à encaisser",
     },
+    [87299] = {
+        name = "C’est quoi ces vieilleries ?",
+    },
     [87321] = {
         name = "Choses inachevées",
+    },
+    [91039] = {
+        name = "La requête de Faerin",
     },
 })
 ]])()

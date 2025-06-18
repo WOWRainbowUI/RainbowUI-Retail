@@ -159,6 +159,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [226792] = {
         name = "Ranchero Edidithet",
     },
+    [227758] = {
+        name = "Alleria Brisaveloz",
+    },
     [228158] = {
         name = "Gusarín",
     },
@@ -170,6 +173,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     },
     [230841] = {
         name = "El Caballero Verdín",
+    },
+    [232132] = {
+        name = "Alba",
     },
     [233235] = {
         name = "Gerry Tapabuche",
