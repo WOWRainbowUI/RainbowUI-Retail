@@ -267,11 +267,14 @@ end
 
 
 -- 1 = icon, 2 = timestamp, 3 = name, 4 = expiration time, 5 = stacks, 6 = duration, 7 = spell ID
-local tSlot;
 local tOldest;
+local tSlot;
 local tTimestamp;
-local tFrame, tIconInfo;
+local tIconInfoOld;
+local tIconInfoNew;
+local tFrame;
 function VUHDO_addDebuffIcon(aUnit, anIcon, aName, anExpiry, aStacks, aDuration, anIsBuff, aSpellId, anAuraInstanceId)
+
 	if not VUHDO_DEBUFF_ICONS[aUnit] then
 		VUHDO_DEBUFF_ICONS[aUnit] = { };
 	end
@@ -279,9 +282,13 @@ function VUHDO_addDebuffIcon(aUnit, anIcon, aName, anExpiry, aStacks, aDuration,
 	tOldest = huge;
 	tSlot = 1;
 	for tCnt = 1, sMaxIcons do
-		if not VUHDO_DEBUFF_ICONS[aUnit][tCnt] then	tSlot = tCnt;	break;
+		if not VUHDO_DEBUFF_ICONS[aUnit][tCnt] then
+			tSlot = tCnt;
+
+			break;
 		else
 			tTimestamp = VUHDO_DEBUFF_ICONS[aUnit][tCnt][2];
+
 			if tTimestamp > 0 and tTimestamp < tOldest then
 				tOldest = tTimestamp;
 				tSlot = tCnt;
@@ -289,19 +296,35 @@ function VUHDO_addDebuffIcon(aUnit, anIcon, aName, anExpiry, aStacks, aDuration,
 		end
 	end
 
-	tIconInfo = { anIcon, -1, aName, anExpiry, aStacks, aDuration, aSpellId, anAuraInstanceId };
-	VUHDO_DEBUFF_ICONS[aUnit][tSlot] = tIconInfo;
+	tIconInfoOld = VUHDO_DEBUFF_ICONS[aUnit][tSlot];
+
+	if tIconInfoOld then
+		VUHDO_releasePooledIconArray(tIconInfoOld);
+	end
+
+	tIconInfoNew = VUHDO_getPooledIconArray();
+
+	tIconInfoNew[1], tIconInfoNew[2], tIconInfoNew[3], tIconInfoNew[4], tIconInfoNew[5],
+	tIconInfoNew[6], tIconInfoNew[7], tIconInfoNew[8] =
+		anIcon, -1, aName, anExpiry, aStacks,
+		aDuration, aSpellId, anAuraInstanceId;
+
+	VUHDO_DEBUFF_ICONS[aUnit][tSlot] = tIconInfoNew;
 
 	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
 		tFrame = VUHDO_getBarIconFrame(tButton, tSlot + 39);
-		tFrame["debuffInfo"], tFrame["debuffSpellId"], tFrame["isBuff"], tFrame["debuffInstanceId"] = aName, aSpellId, anIsBuff, anAuraInstanceId;
 
-		VUHDO_animateDebuffIcon(tButton, tIconInfo, GetTime(), tSlot + 39, true, aUnit);
+		if tFrame then
+			tFrame["debuffInfo"], tFrame["debuffSpellId"], tFrame["isBuff"], tFrame["debuffInstanceId"] = aName, aSpellId, anIsBuff, anAuraInstanceId;
+
+			VUHDO_animateDebuffIcon(tButton, tIconInfoNew, GetTime(), tSlot + 39, true, aUnit);
+	        end
 	end
 
-	tIconInfo[2] = GetTime();
+	tIconInfoNew[2] = GetTime();
 
 	VUHDO_updateHealthBarsFor(aUnit, VUHDO_UPDATE_RANGE);
+
 end
 
 
@@ -343,34 +366,47 @@ end
 
 --
 local tAllButtons2;
+local tIconArray;
 local tFrame;
 function VUHDO_removeDebuffIcon(aUnit, anAuraInstanceId)
+
+	if not VUHDO_DEBUFF_ICONS[aUnit] then
+		return;
+	end
+
 	tAllButtons2 = VUHDO_getUnitButtons(aUnit);
-	if not tAllButtons2 then return; end
 
 	for tCnt2 = 1, sMaxIcons do
-		if (VUHDO_DEBUFF_ICONS[aUnit][tCnt2] or sEmpty)[8] == anAuraInstanceId then
-			VUHDO_DEBUFF_ICONS[aUnit][tCnt2][2] = 1; -- ~= -1, lock icon to not be processed by onupdate
-			for _, tButton2 in pairs(tAllButtons2) do
-				VUHDO_LibCustomGlow.PixelGlow_Stop(tButton2, VUHDO_CUSTOM_GLOW_CUDE_FRAME_KEY);
+		tIconArray = VUHDO_DEBUFF_ICONS[aUnit][tCnt2];
 
-				tFrame = VUHDO_getBarIconFrame(tButton2, tCnt2 + 39);
-				if tFrame then
-					VUHDO_LibCustomGlow.PixelGlow_Stop(tFrame, VUHDO_CUSTOM_GLOW_CUDE_ICON_KEY);
+		if tIconArray and tIconArray[8] == anAuraInstanceId then
+			if tAllButtons2 then
+				for _, tButton2 in pairs(tAllButtons2) do
+					VUHDO_LibCustomGlow.PixelGlow_Stop(tButton2, VUHDO_CUSTOM_GLOW_CUDE_FRAME_KEY);
 
-					tFrame:SetAlpha(0);
+					tFrame = VUHDO_getBarIconFrame(tButton2, tCnt2 + 39);
 
-					tFrame["debuffInfo"] = nil;
-					tFrame["debuffSpellId"] = nil;
-					tFrame["isBuff"] = nil;
-					tFrame["debuffInstanceId"] = nil;
+					if tFrame then
+						VUHDO_LibCustomGlow.PixelGlow_Stop(tFrame, VUHDO_CUSTOM_GLOW_CUDE_ICON_KEY);
+
+						tFrame:SetAlpha(0);
+
+						tFrame["debuffInfo"] = nil;
+						tFrame["debuffSpellId"] = nil;
+						tFrame["isBuff"] = nil;
+						tFrame["debuffInstanceId"] = nil;
+					end
 				end
 			end
 
-			twipe(VUHDO_DEBUFF_ICONS[aUnit][tCnt2]);
 			VUHDO_DEBUFF_ICONS[aUnit][tCnt2] = nil;
+
+			VUHDO_releasePooledIconArray(tIconArray);
+
+			break;
 		end
 	end
+
 end
 
 
@@ -379,8 +415,12 @@ end
 local tAllButtons3;
 local tFrame;
 function VUHDO_removeAllDebuffIcons(aUnit)
+
 	tAllButtons3 = VUHDO_getUnitButtons(aUnit);
-	if not tAllButtons3 then return; end
+
+	if not tAllButtons3 then
+		return;
+	end
 
 	for _, tButton3 in pairs(tAllButtons3) do
 		VUHDO_LibCustomGlow.PixelGlow_Stop(tButton3, VUHDO_CUSTOM_GLOW_CUDE_FRAME_KEY);
@@ -401,9 +441,15 @@ function VUHDO_removeAllDebuffIcons(aUnit)
 	end
 
 	if VUHDO_DEBUFF_ICONS[aUnit] then
-		twipe(VUHDO_DEBUFF_ICONS[aUnit]);
+		for tCnt, tIconArray in pairs(VUHDO_DEBUFF_ICONS[aUnit]) do
+			VUHDO_releasePooledIconArray(tIconArray);
+
+			VUHDO_DEBUFF_ICONS[aUnit][tCnt] = nil;
+	        end
 	end
+
 	VUHDO_updateBouquetsForEvent(aUnit, 29);
+
 end
 
 

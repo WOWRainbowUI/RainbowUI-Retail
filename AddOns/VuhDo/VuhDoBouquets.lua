@@ -39,6 +39,7 @@ setmetatable(VUHDO_REGISTERED_BOUQUETS, VUHDO_META_NEW_ARRAY);
 local VUHDO_ACTIVE_BOUQUETS = { };
 setmetatable(VUHDO_ACTIVE_BOUQUETS, VUHDO_META_NEW_ARRAY);
 
+local VUHDO_REGISTERED_BOUQUET_INDICATORS = { };
 local VUHDO_CYCLIC_BOUQUETS = { };
 
 
@@ -536,6 +537,13 @@ local function VUHDO_registerForBouquet(aBouquetName, anOwnerName, aFunction)
 	VUHDO_BOUQUETS["STORED"][aBouquetName] = VUHDO_decompressIfCompressed(VUHDO_BOUQUETS["STORED"][aBouquetName]);
 
 	VUHDO_REGISTERED_BOUQUETS[aBouquetName][anOwnerName] = aFunction;
+
+	if not VUHDO_REGISTERED_BOUQUET_INDICATORS[anOwnerName] then
+		VUHDO_REGISTERED_BOUQUET_INDICATORS[anOwnerName] = { };
+	end
+
+	VUHDO_REGISTERED_BOUQUET_INDICATORS[anOwnerName][aBouquetName] = aFunction;
+
 	VUHDO_activateBuffsInScanner(aBouquetName);
 
 	for tUnit, _ in pairs(VUHDO_RAID) do
@@ -574,6 +582,7 @@ function VUHDO_registerAllBouquets(aDoCompress)
 
 	twipe(VUHDO_REGISTERED_BOUQUETS);
 	twipe(VUHDO_CYCLIC_BOUQUETS);
+	twipe(VUHDO_REGISTERED_BOUQUET_INDICATORS);
 
 	if not VUHDO_BOUQUETS["STORED"] then return; end
 	if (aDoCompress) then VUHDO_compressAllBouquets(); end
@@ -647,7 +656,7 @@ function VUHDO_registerAllBouquets(aDoCompress)
 			-- Threat Bar
 			VUHDO_registerForBouquetUnique(
 				VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["THREAT_BAR"],
-				"Threat Bar",
+				"THREAT_BAR",
 				VUHDO_threatBarBouquetCallback,
 				tAlreadyRegistered
 			);
@@ -655,7 +664,7 @@ function VUHDO_registerAllBouquets(aDoCompress)
 			-- Mana Bar
 			VUHDO_registerForBouquetUnique(
 				VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["MANA_BAR"],
-				"Mana Bar",
+				"MANA_BAR",
 				VUHDO_manaBarBouquetCallback,
 				tAlreadyRegistered
 			);
@@ -679,7 +688,7 @@ function VUHDO_registerAllBouquets(aDoCompress)
 			-- Side bar left
 			VUHDO_registerForBouquetUnique(
 				VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["SIDE_LEFT"],
-				"Side Bar Left",
+				"SIDE_LEFT",
 				VUHDO_sideBarLeftBouquetCallback,
 				tAlreadyRegistered
 			);
@@ -687,7 +696,7 @@ function VUHDO_registerAllBouquets(aDoCompress)
 			-- Side bar right
 			VUHDO_registerForBouquetUnique(
 				VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["SIDE_RIGHT"],
-				"Side Bar Right",
+				"SIDE_RIGHT",
 				VUHDO_sideBarRightBouquetCallback,
 				tAlreadyRegistered
 			);
@@ -739,7 +748,7 @@ end
 local tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, tHasChanged, tImpact, tTimer2;
 local tClipL, tClipR, tClipT, tClipB;
 local tMaxColor;
-local function VUHDO_updateEventBouquet(aUnit, aBouquetName)
+local function VUHDO_updateEventBouquet(aUnit, aBouquetName, anEventType)
 
 	tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName,
 		tHasChanged, tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor
@@ -754,15 +763,23 @@ local function VUHDO_updateEventBouquet(aUnit, aBouquetName)
 			tDelegate(aUnit, tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, aBouquetName,
 				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor);
 		end
+
 		VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] = true;
 
+		VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType, aBouquetName, tIsActive);
 	elseif VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] then
 		for _, tDelegate in pairs(VUHDO_REGISTERED_BOUQUETS[aBouquetName]) do
 			tDelegate(aUnit, tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, aBouquetName,
 				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor);
 		end
+
 		VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] = false;
+
+		VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType, aBouquetName, false);
 	end
+
+	return;
+
 end
 
 
@@ -804,13 +821,14 @@ end
 --
 local tInfo;
 function VUHDO_updateBouquetsForEvent(aUnit, anEventType)
+
 	tInfo = VUHDO_RAID[aUnit];
 
 	-- FIXME: if aUnit is nil they why iterate?
 	for tName, _ in pairs(VUHDO_REGISTERED_BOUQUETS) do
 		if VUHDO_isBouquetInterestedInEvent(tName, anEventType) then
 			if tInfo then
-				VUHDO_updateEventBouquet(aUnit, tName);
+				VUHDO_updateEventBouquet(aUnit, tName, anEventType);
 
 			elseif aUnit then -- focus / n/a
 				for _, tDelegate in pairs(VUHDO_REGISTERED_BOUQUETS[tName]) do
@@ -823,6 +841,9 @@ function VUHDO_updateBouquetsForEvent(aUnit, anEventType)
 	end
 
 	VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType);
+
+	return;
+
 end
 local VUHDO_updateBouquetsForEvent = VUHDO_updateBouquetsForEvent;
 
@@ -843,11 +864,12 @@ end
 
 
 --
+local tUnitToInit;
 function VUHDO_initEventBouquetsFor(...)
-	local tUnitToInit;
-	for tCnt = 1, select('#', ...) do
 
+	for tCnt = 1, select('#', ...) do
 		tUnitToInit = select(tCnt, ...);
+
 		for _, tAllBouquetUnits in pairs(VUHDO_LAST_EVALUATED_BOUQUETS) do
 			for tUnit, tAllResults in pairs(tAllBouquetUnits) do
 				if tUnit == tUnitToInit then
@@ -855,10 +877,12 @@ function VUHDO_initEventBouquetsFor(...)
 				end
 			end
 		end
-		VUHDO_updateBouquetsForEvent(tUnitToInit, 1); -- VUHDO_UPDATE_ALL
-		VUHDO_updateAllTextIndicatorsForEvent(tUnitToInit, 1);
 
+		VUHDO_updateBouquetsForEvent(tUnitToInit, 1); -- VUHDO_UPDATE_ALL
 	end
+
+	return;
+
 end
 
 
@@ -938,5 +962,18 @@ end
 function VUHDO_getActiveBouquets()
 
 	return VUHDO_ACTIVE_BOUQUETS;
+
+end
+
+
+
+--
+function VUHDO_getRegisteredBouquetIndicators(anIndicatorName)
+
+	if anIndicatorName then
+		return VUHDO_REGISTERED_BOUQUET_INDICATORS[anIndicatorName];
+	else
+		return VUHDO_REGISTERED_BOUQUET_INDICATORS;
+	end
 
 end

@@ -186,115 +186,115 @@ local VUHDO_DEFAULT_SPELLS_KEYBOARD = {};
 
 local VUHDO_CLASS_DEFAULT_SPELL_ASSIGNMENT = {
 	["PALADIN"] = {
-		["1"] = {"", "1", VUHDO_SPELL_ID.FLASH_OF_LIGHT},
-		["2"] = {"", "2", VUHDO_SPELL_ID.PALA_CLEANSE},
-		["3"] = {"", "3", "menu"},
-		["4"] = {"", "4", VUHDO_SPELL_ID.LIGHT_OF_DAWN},
+		["1"] = { "", "1", VUHDO_SPELL_ID.FLASH_OF_LIGHT },
+		["2"] = { "", "2", VUHDO_SPELL_ID.HOLY_SHOCK },
+		["3"] = { "", "3", "dropdown" },
 
-		["alt1"] = {"alt-", "1", "target"},
+		["alt1"] = { "alt-", "1", "target" },
+		["alt2"] = { "alt-", "2", "focus" },
+		["alt3"] = { "alt-", "3", "menu" },
 
-		["ctrl1"] = {"ctrl-", "1", VUHDO_SPELL_ID.HOLY_LIGHT},
-		["ctrl2"] = {"ctrl-", "2", VUHDO_SPELL_ID.HOLY_SHOCK},
+		["ctrl1"] = { "ctrl-", "1", VUHDO_SPELL_ID.HOLY_LIGHT },
+		["ctrl2"] = { "ctrl-", "2", VUHDO_SPELL_ID.LAY_ON_HANDS },
+		["ctrl3"] = { "ctrl-", "3", "menu" },
 
-		["shift1"] = {"shift-", "1", VUHDO_SPELL_ID.HOLY_RADIANCE},
-		["shift2"] = {"shift-", "2", VUHDO_SPELL_ID.LAY_ON_HANDS},
+		["shift1"] = { "shift-", "1", VUHDO_SPELL_ID.LIGHT_OF_DAWN },
+		["shift2"] = { "shift-", "2", VUHDO_SPELL_ID.PALA_CLEANSE },
+		["shift3"] = { "shift-", "3", "menu" },
 	},
 
 	["SHAMAN"] = {
-		["1"] = {"", "1", VUHDO_SPELL_ID.HEALING_WAVE},
-		["2"] = {"", "2", VUHDO_SPELL_ID.CHAIN_HEAL},
-		["3"] = {"", "3", "menu"},
+		["1"] = { "", "1", VUHDO_SPELL_ID.HEALING_WAVE },
+		["2"] = { "", "2", VUHDO_SPELL_ID.CHAIN_HEAL },
+		["3"] = { "", "3", "dropdown" },
 
-		["alt1"] = {"alt-", "1", VUHDO_SPELL_ID.BUFF_EARTH_SHIELD},
-		["alt2"] = {"alt-", "2", VUHDO_SPELL_ID.GIFT_OF_THE_NAARU},
-		["alt3"] = {"alt-", "3", "menu"},
+		["alt1"] = { "alt-", "1", "target" },
+		["alt2"] = { "alt-", "2", "focus" },
+		["alt3"] = { "alt-", "3", "menu" },
 
-		["ctrl1"] = {"ctrl-", "1", "target"},
-		["ctrl2"] = {"ctrl-", "2", "target"},
-		["ctrl3"] = {"ctrl-", "3", "menu"},
+		["ctrl1"] = { "ctrl-", "1", VUHDO_SPELL_ID.BUFF_EARTH_SHIELD },
+		["ctrl2"] = { "ctrl-", "2", VUHDO_SPELL_ID.GIFT_OF_THE_NAARU },
+		["ctrl3"] = { "ctrl-", "3", "menu" },
 
-		["shift1"] = {"shift-", "1", VUHDO_SPELL_ID.HEALING_WAVE},
-		["shift2"] = {"shift-", "2", VUHDO_SPELL_ID.CHAIN_HEAL},
-		["shift3"] = {"shift-", "3", "menu" },
-
-		["altctrl1"] = {"alt-ctrl-", "1", VUHDO_SPELL_ID.PURIFY_SPIRIT},
-		["altctrl2"] = {"alt-ctrl-", "2", VUHDO_SPELL_ID.PURIFY_SPIRIT},
+		["shift1"] = { "shift-", "1", VUHDO_SPELL_ID.RIPTIDE },
+		["shift2"] = { "shift-", "2", VUHDO_SPELL_ID.PURIFY_SPIRIT },
+		["shift3"] = { "shift-", "3", "menu" },
 	},
 
 	["PRIEST"] = {
-		["1"] = {"", "1", VUHDO_SPELL_ID.FLASH_HEAL},
-		["2"] = {"", "2", VUHDO_SPELL_ID.HEAL},
-		["3"] = {"", "3", VUHDO_SPELL_ID.DESPERATE_PRAYER},
-		["4"] = {"", "4", VUHDO_SPELL_ID.RENEW},
-		["5"] = {"", "5", VUHDO_SPELL_ID.BINDING_HEAL},
+		["1"] = { "", "1", VUHDO_SPELL_ID.FLASH_HEAL },
+		["2"] = { "", "2", VUHDO_SPELL_ID.RENEW },
+		["3"] = { "", "3", "dropdown" },
+		["4"] = { "", "4", VUHDO_SPELL_ID.PRAYER_OF_MENDING },
 
-		["alt1"] = {"alt-", "1", "target"},
-		["alt2"] = {"alt-", "2", "focus"},
-		["alt3"] = {"alt-", "3", VUHDO_SPELL_ID.POWERWORD_SHIELD},
-		["alt4"] = {"alt-", "4", VUHDO_SPELL_ID.POWERWORD_SHIELD},
-		["alt5"] = {"alt-", "5", VUHDO_SPELL_ID.POWERWORD_SHIELD},
+		["alt1"] = { "alt-", "1", "target" },
+		["alt2"] = { "alt-", "2", "focus" },
+		["alt3"] = { "alt-", "3", "menu" },
 
-		["ctrl1"] = {"ctrl-", "1", VUHDO_SPELL_ID.PRAYER_OF_HEALING},
-		["ctrl2"] = {"ctrl-", "2", VUHDO_SPELL_ID.CIRCLE_OF_HEALING},
-		["ctrl3"] = {"ctrl-", "3", "menu"},
-		["ctrl4"] = {"ctrl-", "4", VUHDO_SPELL_ID.PRAYER_OF_MENDING},
-		["ctrl5"] = {"ctrl-", "5", VUHDO_SPELL_ID.PRAYER_OF_MENDING},
+		["ctrl1"] = { "ctrl-", "1", VUHDO_SPELL_ID.PRAYER_OF_HEALING },
+		["ctrl2"] = { "ctrl-", "2", VUHDO_SPELL_ID.CIRCLE_OF_HEALING },
+		["ctrl3"] = { "ctrl-", "3", "menu" },
 
-		["shift2"] = {"shift-", "2", VUHDO_SPELL_ID.PURIFY},
-		["shift3"] = {"shift-", "3", "menu"},
+		["shift1"] = { "shift-", "1", VUHDO_SPELL_ID.POWERWORD_SHIELD },
+		["shift2"] = { "shift-", "2", VUHDO_SPELL_ID.PURIFY },
+		["shift3"] = { "shift-", "3", "menu" },
 	},
 
 	["DRUID"] = {
-		["1"] = {"", "1", VUHDO_SPELL_ID.HEALING_TOUCH},
-		["2"] = {"", "2", VUHDO_SPELL_ID.REJUVENATION},
-		["3"] = {"", "3", "menu"},
-		["4"] = {"", "4", VUHDO_SPELL_ID.INNERVATE},
-		["5"] = {"", "5", VUHDO_SPELL_ID.INNERVATE},
+		["1"] = { "", "1", VUHDO_SPELL_ID.REGROWTH },
+		["2"] = { "", "2", VUHDO_SPELL_ID.REJUVENATION },
+		["3"] = { "", "3", "dropdown" },
 
-		["alt1"] = {"alt-", "1", "target"},
-		["alt2"] = {"alt-", "2", "focus"},
-		["alt3"] = {"alt-", "3", "menu"},
+		["alt1"] = { "alt-", "1", "target" },
+		["alt2"] = { "alt-", "2", "focus" },
+		["alt3"] = { "alt-", "3", "menu" },
 
-		["ctrl1"] = {"ctrl-", "1", VUHDO_SPELL_ID.REGROWTH},
-		["ctrl2"] = {"ctrl-", "2", VUHDO_SPELL_ID.LIFEBLOOM},
-		["ctrl4"] = {"ctrl-", "4", VUHDO_SPELL_ID.TRANQUILITY},
-		["ctrl5"] = {"ctrl-", "5", VUHDO_SPELL_ID.TRANQUILITY},
+		["ctrl1"] = { "ctrl-", "1", VUHDO_SPELL_ID.INNERVATE },
+		["ctrl2"] = { "ctrl-", "2", VUHDO_SPELL_ID.LIFEBLOOM },
+		["ctrl3"] = { "ctrl-", "3", "menu" },
 
-		["shift2"] = {"shift-", "2", VUHDO_SPELL_ID.NATURES_CURE},
+		["shift1"] = { "shift-", "1", VUHDO_SPELL_ID.TRANQUILITY },
+		["shift2"] = { "shift-", "2", VUHDO_SPELL_ID.NATURES_CURE },
+		["shift3"] = { "shift-", "3", "menu" },
 	},
 
 	["MONK"] = {
-		["1"] = { "", "1", VUHDO_SPELL_ID.SURGING_MIST },
+		["1"] = { "", "1", VUHDO_SPELL_ID.RENEWING_MIST },
 		["2"] = { "", "2", VUHDO_SPELL_ID.ENVELOPING_MIST },
-		["3"] = { "", "3", "menu"},
-		["4"] = { "", "4", VUHDO_SPELL_ID.RENEWING_MIST },
+		["3"] = { "", "3", "dropdown" },
+		["4"] = { "", "4", VUHDO_SPELL_ID.CHI_WAVE },
 		["5"] = { "", "5", VUHDO_SPELL_ID.SOOTHING_MIST },
 
 		["alt1"] = { "alt-", "1", "target" },
-		["alt2"] = { "alt-", "2", VUHDO_SPELL_ID.CHI_WAVE },
+		["alt2"] = { "alt-", "2", "focus" },
+		["alt3"] = { "alt-", "3", "menu" },
 
-		["ctrl1"] = { "ctrl-", "1", VUHDO_SPELL_ID.DETOX },
+		["ctrl1"] = { "ctrl-", "1", VUHDO_SPELL_ID.REVIVAL },
 		["ctrl2"] = { "ctrl-", "2", VUHDO_SPELL_ID.LIFE_COCOON },
+		["ctrl3"] = { "ctrl-", "3", "menu" },
 
 		["shift1"] = { "shift-", "1", VUHDO_SPELL_ID.VIVIFY },
-		["shift2"] = { "shift-", "2", VUHDO_SPELL_ID.REVIVAL },
+		["shift2"] = { "shift-", "2", VUHDO_SPELL_ID.DETOX },
+		["shift3"] = { "shift-", "3", "menu" },
 	},
 
 	["EVOKER"] = {
 		["1"] = { "", "1", VUHDO_SPELL_ID.LIVING_FLAME },
 		["2"] = { "", "2", VUHDO_SPELL_ID.EMERALD_BLOSSOM },
-		["3"] = { "", "3", "menu"},
+		["3"] = { "", "3", "dropdown" },
 		["4"] = { "", "4", VUHDO_SPELL_ID.ECHO },
-		["5"] = { "", "5", VUHDO_SPELL_ID.DREAM_BREATH },
 
 		["alt1"] = { "alt-", "1", "target" },
 		["alt2"] = { "alt-", "2", "focus" },
+		["alt3"] = { "alt-", "3", "menu" },
 
-		["ctrl1"] = { "ctrl-", "1", VUHDO_SPELL_ID.NATURALIZE },
-		["ctrl2"] = { "ctrl-", "2", VUHDO_SPELL_ID.CAUTERIZING_FLAME },
+		["ctrl1"] = { "ctrl-", "1", VUHDO_SPELL_ID.DREAM_BREATH },
+		["ctrl2"] = { "ctrl-", "2", VUHDO_SPELL_ID.DREAM_FLIGHT },
+		["ctrl3"] = { "ctrl-", "3", "menu" },
 
-		["shift1"] = { "shift-", "1", VUHDO_SPELL_ID.ZEPHYR },
-		["shift2"] = { "shift-", "2", VUHDO_SPELL_ID.DREAM_FLIGHT },
+		["shift1"] = { "shift-", "1", VUHDO_SPELL_ID.CAUTERIZING_FLAME },
+		["shift2"] = { "shift-", "2", VUHDO_SPELL_ID.NATURALIZE },
+		["shift3"] = { "shift-", "3", "menu" },
 	},
 };
 
@@ -302,11 +302,11 @@ local VUHDO_CLASS_DEFAULT_SPELL_ASSIGNMENT = {
 
 --
 local VUHDO_GLOBAL_DEFAULT_SPELL_ASSIGNMENT = {
-	["1"] = {"", "1", "target"},
-	["2"] = {"", "2", "assist"},
-	["3"] = {"", "3", "focus"},
-	["4"] = {"", "4", "menu"},
-	["5"] = {"", "5", "menu"},
+	["1"] = { "", "1", "target" },
+	["2"] = { "", "2", "dropdown" },
+	["3"] = { "", "3", "focus" },
+	["4"] = { "", "4", "menu" },
+	["5"] = { "", "5", "assist" },
 };
 
 
@@ -396,14 +396,27 @@ end
 
 
 --
+local tSpecId;
+local tClass;
+local tDefaultAssignments;
 local function VUHDO_assignDefaultSpells()
-	local _, tClass = UnitClass("player");
 
-	VUHDO_SPELL_ASSIGNMENTS = VUHDO_deepCopyTable(VUHDO_CLASS_DEFAULT_SPELL_ASSIGNMENT[tClass] ~= nil
-		and VUHDO_CLASS_DEFAULT_SPELL_ASSIGNMENT[tClass] or VUHDO_GLOBAL_DEFAULT_SPELL_ASSIGNMENT);
+	tSpecId = GetSpecializationInfo(GetSpecialization() or 0);
+	_, tClass = UnitClass("player");
+
+	if tSpecId and VUHDO_CLASS_DEFAULT_SPELL_ASSIGNMENT[tSpecId] then
+		tDefaultAssignments = VUHDO_CLASS_DEFAULT_SPELL_ASSIGNMENT[tSpecId];
+	elseif tClass and VUHDO_CLASS_DEFAULT_SPELL_ASSIGNMENT[tClass] then
+		tDefaultAssignments = VUHDO_CLASS_DEFAULT_SPELL_ASSIGNMENT[tClass];
+	else
+		tDefaultAssignments = VUHDO_GLOBAL_DEFAULT_SPELL_ASSIGNMENT;
+	end
+
+	VUHDO_SPELL_ASSIGNMENTS = VUHDO_deepCopyTable(tDefaultAssignments);
 
 	VUHDO_CLASS_DEFAULT_SPELL_ASSIGNMENT = nil;
 	VUHDO_GLOBAL_DEFAULT_SPELL_ASSIGNMENT = nil;
+
 end
 
 
@@ -676,13 +689,13 @@ local VUHDO_DEFAULT_CONFIG = {
 
 	["CUSTOM_DEBUFF"] = {
 		["scale"] = 0.8,
-		["animate"] = true,
+		["animate"] = false,
 		["timer"] = true,
 		["max_num"] = 3,
 		["isNoRangeFade"] = false,
 		["isIcon"] = true,
 		["isColor"] = false,
-		["isStacks"] = false,
+		["isStacks"] = true,
 		["isName"] = false, 
 		["isShowFriendly"] = true,
 		["isShowHostile"] = true,
@@ -806,27 +819,27 @@ local VUHDO_DEFAULT_CONFIG = {
 
 		["config"] = {
 			["coh"] = {
-				["enable"] = true,
+				["enable"] = false,
 				["thresh"] = 15000,
 			},
 			["poh"] = {
-				["enable"] = true,
+				["enable"] = false,
 				["thresh"] = 20000,
 			},
 			["ch"] = {
-				["enable"] = true,
+				["enable"] = false,
 				["thresh"] = 15000,
 			},
 			["wg"] = {
-				["enable"] = true,
+				["enable"] = false,
 				["thresh"] = 15000,
 			},
 			["tq"] = {
-				["enable"] = true,
+				["enable"] = false,
 				["thresh"] = 15000,
 			},
 			["lod"] = {
-				["enable"] = true,
+				["enable"] = false,
 				["thresh"] = 8000,
 			},
 			["hr"] = {
@@ -855,7 +868,7 @@ local VUHDO_DEFAULT_CU_DE_STORED_SETTINGS = {
 	["isIcon"] = true,
 	["isColor"] = false,
 --	["SOUND"] = "",
-	["animate"] = true,
+	["animate"] = false,
 	["timer"] = true,
 	["isStacks"] = true,
 	["isAliveTime"] = false,
@@ -2719,8 +2732,8 @@ local VUHDO_DEFAULT_PANEL_SETUP = {
 		},
 
 		["HOTS"] = {
-			["useColorText"] = true,
-			["useColorBack"] = true,
+			["useColorText"] = false,
+			["useColorBack"] = false,
 			["isFadeOut"] = false,
 			["isFlashWhenLow"] = false,
 			["showShieldAbsorb"] = true,
