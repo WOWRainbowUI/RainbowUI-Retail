@@ -2,6 +2,7 @@
 ## Title: tullaRange Config
 ## Author: Tuller
 ## Notes: tullaRange's configuration interface
+## Notes-ruRU: Конфигурация tullaRange
 ## Dependencies: tullaRange
 ## LoadOnDemand: 1
 ## IconTexture: Interface/Icons/Inv_misc_punchcards_red
