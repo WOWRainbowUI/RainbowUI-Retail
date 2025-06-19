@@ -115,12 +115,14 @@ function LiteButtonAurasOverlayMixin:SetUpAction()
     if type == 'spell' then
         self.name = C_Spell.GetSpellName(id)
         self.spellID = id
+        self.type = type
         return
     end
 
     if type == 'item' then
         LBA.buttonItemIDs[id] = true
         self.name, self.spellID = C_Item.GetItemSpell(id)
+        self.type = type
         return
     end
 
@@ -128,6 +130,7 @@ function LiteButtonAurasOverlayMixin:SetUpAction()
         if subType == 'spell' then
             self.spellID = id
             self.name = C_Spell.GetSpellName(self.spellID)
+            self.type = subType
             return
         elseif subType == 'item' then
             -- 10.2 GetActionInfo() seems bugged for this case. In an ideal
@@ -144,20 +147,23 @@ function LiteButtonAurasOverlayMixin:SetUpAction()
                         self.name, self.spellID = C_Item.GetItemSpell(itemLink)
                     end
                 end
+                self.type = subType
+                return
             end
-            return
         elseif not subType then
             local itemName = GetMacroItem(id)
             if itemName then
                 local name, spellID = C_Item.GetItemSpell(itemName)
                 self.spellID = spellID
                 self.name = name or itemName
+                self.type = 'item'
                 return
             end
             local spellID = GetMacroSpell(id)
             if spellID then
                 self.spellID = spellID
                 self.name = C_Spell.GetSpellName(spellID)
+                self.type = 'spell'
                 return
             end
         end
@@ -165,13 +171,21 @@ function LiteButtonAurasOverlayMixin:SetUpAction()
 
     self.spellID = nil
     self.name = nil
+    self.type = nil
 end
 
-function LiteButtonAurasOverlayMixin:IsPlayerOrPetSpell()
-    -- This is trying to account for Pet spells as well which don't count
-    -- as IsPlayerSpell() or IsSpellKnown(). I am very much hoping this is not
-    -- super slow.
-    if C_SpellBook and C_SpellBook.FindSpellBookSlotForSpell then
+function LiteButtonAurasOverlayMixin:IsKnown()
+    if self.type == 'item' then
+        -- Assume if you have an item on your bars you know it. Could check
+        -- the owned item count but it would only matter if an item was an
+        -- interrupt or soothe, which is always false.
+        return true
+    elseif not self.spellID then
+        return false
+    elseif C_SpellBook and C_SpellBook.FindSpellBookSlotForSpell then
+        -- This is trying to account for Pet spells as well which don't count
+        -- as IsPlayerSpell() or IsSpellKnown(). I am very much hoping this is not
+        -- super slow.
         return C_SpellBook.FindSpellBookSlotForSpell(self.spellID) ~= nil
     else
         return true
@@ -225,10 +239,10 @@ function LiteButtonAurasOverlayMixin:Update(stateOnly)
             self:SetUpAction()
         end
 
-        if self.name then
-            if self:TrySetAsSoothe() then
+        if self:IsKnown() then
+            if self:TrySetAsSoothe('target') then
                 show = true
-            elseif self:TrySetAsInterrupt() then
+            elseif self:TrySetAsInterrupt('target') then
                 show = true
             elseif self:TrySetAsTotem() then
                 show = true
@@ -242,7 +256,7 @@ function LiteButtonAurasOverlayMixin:Update(stateOnly)
                 show = true
             elseif self:TrySetAsWeaponEnchant() then
                 show = true
-            elseif self:TrySetAsDispel() then
+            elseif self:TrySetAsDispel('target') then
                 show = true
             end
         end
@@ -374,10 +388,7 @@ end
 -- https://wowpedia.fandom.com/wiki/API_GetSpellCooldown
 
 function LiteButtonAurasOverlayMixin:ReadyBefore(endTime)
-    if not self:IsPlayerOrPetSpell() then
-        -- You can have spells on your bars you don't know
-        return false
-    elseif endTime == 0 then
+    if endTime == 0 then
         -- Indefinite enrage, such as from the Raging M+ affix
         return true
     else
@@ -386,10 +397,10 @@ function LiteButtonAurasOverlayMixin:ReadyBefore(endTime)
     end
 end
 
-function LiteButtonAurasOverlayMixin:TrySetAsInterrupt()
-    if LBA.state.target.interrupt then
+function LiteButtonAurasOverlayMixin:TrySetAsInterrupt(unit)
+    if LBA.state[unit].interrupt then
         if self.name and LBA.Interrupts[self.name] then
-            local castEnds = LBA.state.target.interrupt
+            local castEnds = LBA.state[unit].interrupt
             if self:ReadyBefore(castEnds) then
                 self.expireTime = castEnds
                 self.displaySuggestion = true
@@ -420,11 +431,11 @@ function LiteButtonAurasOverlayMixin:IsSoothe()
     end
 end
 
-function LiteButtonAurasOverlayMixin:TrySetAsSoothe()
+function LiteButtonAurasOverlayMixin:TrySetAsSoothe(unit)
     if not self:IsSoothe() then return end
-    if not UnitCanAttack('player', 'target') then return end
+    if not UnitCanAttack('player', unit) then return end
 
-    for _, auraData in pairs(LBA.state.target.buffs) do
+    for _, auraData in pairs(LBA.state[unit].buffs) do
         if auraData.isStealable and auraData.dispelName == "" and self:ReadyBefore(auraData.expirationTime) then
             self.expireTime = auraData.expirationTime
             self.displaySuggestion = true
@@ -443,7 +454,7 @@ function LiteButtonAurasOverlayMixin:TrySetAsTaunt(unit)
     if not self.name or not LBA.Taunts[self.name] then return end
     if not UnitCanAttack('player', unit) then return end
 
-    for _, auraData in pairs(LBA.state.target.debuffs) do
+    for _, auraData in pairs(LBA.state[unit].debuffs) do
         if LBA.Taunts[auraData.name] then
             if auraData.sourceUnit == 'player' then
                 self:SetAsBuff(auraData)
@@ -466,19 +477,19 @@ function LiteButtonAurasOverlayMixin:SetAsDispel(auraData)
     self:SetAsAura(auraData)
 end
 
-function LiteButtonAurasOverlayMixin:TrySetAsDispel()
+function LiteButtonAurasOverlayMixin:TrySetAsDispel(unit)
     if not self.name then
         return
     end
 
-    if not UnitCanAttack('player', 'target') then
+    if not UnitCanAttack('player', unit) then
         return
     end
 
     local dispels = LBA.HostileDispels[self.name]
     if dispels then
         for dispelName in pairs(dispels) do
-            for _, auraData in pairs(LBA.state.target.buffs) do
+            for _, auraData in pairs(LBA.state[unit].buffs) do
                 if auraData.dispelName == dispelName then
                     self:SetAsDispel(auraData)
                     self.displaySuggestion = true
@@ -497,7 +508,18 @@ end
 
 -- Suggestion Display-----------------------------------------------------------
 
-if WOW_PROJECT_ID == 1 then
+if ActionButtonSpellAlertManager then
+    function LiteButtonAurasOverlayMixin:ShowSuggestion(isShown)
+        if isShown then
+            ActionButtonSpellAlertManager:ShowAlert(self)
+            self.SpellActivationAlert.ProcStartFlipbook:SetAlpha(0)
+            self.SpellActivationAlert.ProcLoop:Play()
+            self.SpellActivationAlert:Show()
+        else
+            ActionButtonSpellAlertManager:HideAlert(self)
+        end
+    end
+elseif ActionButton_SetupOverlayGlow then
     function LiteButtonAurasOverlayMixin:ShowSuggestion(isShown)
         if isShown then
             -- Taken from ActionButton_ShowOverlayGlow(self) but we don't want the

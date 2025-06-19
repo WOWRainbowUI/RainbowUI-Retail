@@ -2,7 +2,7 @@
 ## Title: LiteButtonAuras
 ## IconTexture: Interface\Icons\ability_deathknight_heartstopaura
 ## AddonCompartmentFunc: LiteButtonAuras_AddonCompartmentFunc
-## Version: 11.1.5-1
+## Version: 11.1.7-2
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
 ## OptionalDeps: Bartender4, Dominos, ElvUI, Masque
@@ -11,6 +11,17 @@
 ## X-Curse-Project-ID: 526431
 ## X-WoWI-ID: 26528
 ## X-Wago-ID: QNlq296e
+## Category: Buffs & Debuffs
+## Category-deDE: Buffs & Debuffs
+## Category-esES: Beneficios y Perjuicios
+## Category-esMX: Beneficios y Perjuicios
+## Category-frFR: Améliorations et Affaiblissements
+## Category-itIT: Benefici e penalità
+## Category-koKR: 강화 및 약화 효과
+## Category-ptBR: Bônus e Penalidades
+## Category-ruRU: Баффы и дебаффы
+## Category-zhCN: 增益和减益
+## Category-zhTW: 增益與減益
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 光環時間
 ## Notes-zhTW: LiteButtonAuras |n|n直接在快捷列的技能圖示上面顯示增益和減益效果的時間。|n|n對敵方目標施放的 DOT 會顯示紅色邊框，自己身上的 HOT/BUFF 會顯示綠色邊框。|n|n|cffffd200使用方法: |r從Esc>選項>插件>光環時間，進行設定。
