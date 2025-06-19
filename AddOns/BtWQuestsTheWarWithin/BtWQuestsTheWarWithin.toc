@@ -1,6 +1,6 @@
 ## Interface: 110105, 110107
 ## Title: BtWQuests: The War Within
-## Version: 9.0
+## Version: 9.1
 ## Notes: The War Within quest data for BtWQuests
 ## Author: Breen
 ## Dependencies: BtWQuests

@@ -1,3 +1,7 @@
+# v2.54.0
+
+- Fixed Rise of the Red Dawn Horde only quest showing for Alliance characters
+
 # v2.53.0
 
 - Updated for 11.1.7

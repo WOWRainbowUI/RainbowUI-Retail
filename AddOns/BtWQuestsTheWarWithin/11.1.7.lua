@@ -229,12 +229,12 @@ Database:AddChain(Chain.RiseOfTheRedDawn, {
             variations = {
                 {
                     type = "quest",
-                    id = 84657,
-                    restrictions = 924,
+                    id = 84713,
+                    restrictions = 923,
                 },
                 {
                     type = "quest",
-                    id = 84713,
+                    id = 84657,
                 },
             },
             x = 0,
@@ -246,38 +246,45 @@ Database:AddChain(Chain.RiseOfTheRedDawn, {
             variations = {
                 {
                     type = "quest",
-                    id = 84659,
-                    restrictions = 924,
+                    id = 84715,
+                    restrictions = 923,
+                    connections = {
+                        2, 
+                    },
                 },
                 {
                     type = "quest",
-                    id = 84715,
+                    id = 84659,
+                    connections = {
+                        3, 
+                    },
                 },
             },
             x = -1,
-            connections = {
-                2, 
-            },
         },
         {
             variations = {
                 {
                     type = "quest",
-                    id = 87299,
-                    restrictions = 924,
+                    id = 84714,
+                    restrictions = 923,
+                    connections = {
+                        1, 
+                    },
                 },
                 {
                     type = "quest",
-                    id = 84714,
+                    id = 87299,
+                    connections = {
+                        2, 
+                    },
                 },
-            },
-            connections = {
-                1, 
             },
         },
         {
             type = "quest",
             id = 84716,
+            restrictions = 923,
             x = 0,
             connections = {
                 1, 
