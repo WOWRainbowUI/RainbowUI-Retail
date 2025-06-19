@@ -111,7 +111,7 @@ end
 function SortSearchResults(result)
     -- No longer sort anything on unsecured accounts due taints
     if not IsAccountSecured() then return end
-    if not result or (result and next(result.results) == nil) then return end
+    if not result or (result and next(result) == nil or next(result.results) == nil) then return end
 
     if LFGListFrame.SearchPanel.categoryID ~= 2 then
         table.sort(result.results, SortRules)
