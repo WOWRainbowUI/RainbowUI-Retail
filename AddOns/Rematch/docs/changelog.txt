@@ -1,3 +1,6 @@
+06/19/2025 version 5.2.10
+- toc update for 11.1.7 patch
+
 05/11/2025 version 5.2.9
 - Fix for lua error when releasing or caging a listed pet with various filters (source, zone, strong vs, similar)
 
