@@ -315,6 +315,9 @@ L["Bound Water Elemental"] = "Elémentaire d'eau lié"
 L["Bounty Hunter"] = "Bounty Hunter"
 L[ [=[Bounty stacks 
 after this pull]=] ] = "Les primes se cumulent après ce pull"
+--[[Translation missing --]]
+L[ [=[Bounty stacks 
+after this pull]=] ] = ""
 L["Bracken Warscourge"] = "Fléau-de-guerre des fougères"
 L["Brackenhide Shaper"] = "Façonneuse fougerobe"
 --[[Translation missing --]]

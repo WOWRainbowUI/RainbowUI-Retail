@@ -295,6 +295,9 @@ L["Bound Water Elemental"] = "Gebundener Wasserelementar"
 L["Bounty Hunter"] = "Kopfgeldjäger"
 L[ [=[Bounty stacks 
 after this pull]=] ] = "Kopfgeldstapel nach diesem Pull"
+--[[Translation missing --]]
+L[ [=[Bounty stacks 
+after this pull]=] ] = ""
 L["Bracken Warscourge"] = "Brackenkriegsgeißel"
 L["Brackenhide Shaper"] = "Formerin von Brackenfell"
 L["brackenhideCage"] = "Fleischlager"
@@ -1395,8 +1398,7 @@ L["mawOfSoulsShortName"] = "MOS"
 L["Mchimba the Embalmer"] = "Mchimba der Balsamierer"
 L["MDI Mode"] = "MDI Modus"
 L["MDT Error"] = "MDT Fehler"
---[[Translation missing --]]
-L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"
+L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: Gegner kann nicht hinzugefügt werden - Du versuchst zu viele Gegner des gleichen Typs hinzuzufügen"
 L["MDT: Error importing preset"] = "MDT: Fehler beim importieren der Route"
 L["MDT: Spells for %s:"] = "Zauber für %s:"
 L["MDT: Use /mdt minimap to show the minimap icon again"] = "MDT: Verwenden Sie /mdt minimap, um das Minimap-Icon wieder anzuzeigen"

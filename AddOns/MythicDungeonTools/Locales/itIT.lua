@@ -357,6 +357,9 @@ L["Bounty Hunter"] = "Bounty Hunter"
 L[ [=[Bounty stacks 
 after this pull]=] ] = [=[Bounty stacks 
 after this pull]=]
+--[[Translation missing --]]
+L[ [=[Bounty stacks 
+after this pull]=] ] = ""
 L["Bracken Warscourge"] = "Strillaguerra Felcepelle"
 L["Brackenhide Shaper"] = "Plasmatrice Felcepelle"
 --[[Translation missing --]]
