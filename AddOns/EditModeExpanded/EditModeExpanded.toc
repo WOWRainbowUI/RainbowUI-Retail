@@ -1,6 +1,6 @@
 ## Interface: 110107
 ## Title: Edit Mode Expanded
-## Version: 11.1-073
+## Version: 11.1-074
 ## Notes: Expands Edit Mode to apply to other frames
 ## Author: Teelo
 ## SavedVariables: EditModeExpandedADB
@@ -33,6 +33,7 @@ Locales\esES.lua
 Locales\ruRU.lua
 Locales\zhCN.lua
 Locales\zhTW.lua
+Locales\koKR.lua
 
 FrameHandlers\ActionBars.lua
 FrameHandlers\AlertFrame.lua
