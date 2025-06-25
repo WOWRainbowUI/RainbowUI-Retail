@@ -382,8 +382,8 @@ local options = {
             type = "toggle",
         },
         cooldownManager = {
-            name = L["Cooldown Manager"],
-            desc = L["Cooldown Manager options"],
+            name = COOLDOWN_VIEWER_LABEL,
+            desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], COOLDOWN_VIEWER_LABEL),
             type = "toggle",
         },
         cooldownManagerReset = {
