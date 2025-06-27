@@ -1,3 +1,22 @@
+Version 3.190  
+  
+  
+Known issues:  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed action block when moving panels during combat (Blizzard restriction)  
+  
+  
+Improvements:  
+  
+  
+--------------------------------------------------------------  
 Version 3.189  
   
   

@@ -54,18 +54,18 @@ VUHDO_I18N_BUFF_ALL = "全部";
 VUHDO_I18N_SHOW_BUFF_WATCH = "顯示增益監控";
 -- Chat messages
 -- @EXACT = false
-VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ VuhDo 指令 ] -|r";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566opt|r[ions] - VuhDo 設定選項";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566res|r[et] - 重設面板位置";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566lock|r - 鎖定/解鎖面板";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566mm, map, minimap|r - 顯示/隱藏小地圖按鈕";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566compart|r[ment] - 顯示/隱藏插件選單圖示";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566show, hide, toggle|r - 開啟/關閉面板";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566load|r - [設定檔],[按鍵配置]";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n[broad]|cffffe566cast, mt|r[s] - 同步主坦克";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566role|r - 重置玩家角色";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566ab|r[out] - 關於這個插件";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566help,?|r - 指令說明\n";
+VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ VuhDo 指令 ] -|r\n" ..
+"|cffffe566opt|r[ions] - VuhDo 設定選項\n" ..
+"|cffffe566res|r[et] - 重設面板位置\n" ..
+"|cffffe566lock|r - 鎖定/解鎖面板\n" ..
+"|cffffe566mm, map, minimap|r - 顯示/隱藏小地圖按鈕\n" ..
+"|cffffe566compart|r[ment] - 顯示/隱藏插件選單圖示\n" ..
+"|cffffe566show, hide, toggle|r - 開啟/關閉面板\n" ..
+"|cffffe566load|r - [設定檔],[按鍵配置]\n" ..
+"[broad]|cffffe566cast, mt|r[s] - 同步主坦克\n" ..
+"|cffffe566role|r - 重置玩家角色\n" ..
+"|cffffe566ab|r[out] - 關於這個插件\n" ..
+"|cffffe566help,?|r - 指令說明\n";
 VUHDO_I18N_BAD_COMMAND = "參數錯誤! 請輸入 '/vuhdo help' 或 '/vd ?' 瀏覽指令說明。";
 VUHDO_I18N_CHAT_SHOWN = "|cffffe566已顯示|r。";
 VUHDO_I18N_CHAT_HIDDEN = "|cffffe566已隱藏|r。";
