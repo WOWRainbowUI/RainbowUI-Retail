@@ -69,19 +69,18 @@ VUHDO_I18N_RANK = "Уровень";
 
 -- Chat messages
 -- @EXACT = false
-VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ Команды VuhDo ] -|r";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566opt|r[ions] - настройки VuhDo";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566res|r[et] - сбросить позицию панелей";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566lock|r - вкл./выкл. закрепление панелей";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566mm, map, minimap|r - вкл./выкл. иконку у миникарты";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566compart|r[ment] - Toggle AddOn Compartment Icon";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566show, hide, toggle|r - включить/выключить панели";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566load|r - [Skin],[Arrangement],[Key Layout]";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n[broad]|cffffe566cast, mt|r[s] - передать список главных танков рейду";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566role|r - сбросить роли игроков";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566ab|r[out] - про аддон";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566help,?|r - список данных команд\n";
-
+VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ VuhDo Команды ] -|r\n" ..
+"|cffffe566opt|r[ions] - Настройки VuhDo\n" ..
+"|cffffe566res|r[et] - Сбросить позиции панелей\n" ..
+"|cffffe566lock|r - Включить блокировку панелей\n" ..
+"|cffffe566mm, map, minimap|r - Включить иконку у миникарты\n" ..
+"|cffffe566compart|r[ment] - Переключить значок отсека аддона\n" ..
+"|cffffe566show, hide, toggle|r - Включить/Выключить панели\n" ..
+"|cffffe566load|r - [Профиль],[Раскладка]\n" ..
+"[broad]|cffffe566cast, mt|r[s] - Объявить главных танков\n" ..
+"|cffffe566role|r - Сбросить роли игроков\n" ..
+"|cffffe566ab|r[out] - Об аддоне\n" ..
+"|cffffe566help,?|r - Список команд\n";
 VUHDO_I18N_BAD_COMMAND = "Некорректный аргумент! Введите '/vuhdo help' или '/vd ?' для получения списка команд.";
 VUHDO_I18N_CHAT_SHOWN = "|cffffe566показана|r.";
 VUHDO_I18N_CHAT_HIDDEN = "|cffffe566скрыта|r.";

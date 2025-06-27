@@ -585,7 +585,8 @@ elseif wowID == mistsWowID then
 	end
 else
 	local C_Traits_GenerateImportString = C_Traits.GenerateImportString
-	local GetSpecialization, GetSpecializationInfo = GetSpecialization, GetSpecializationInfo
+	-- XXX compat code for 11.2
+	local GetSpecialization, GetSpecializationInfo = C_SpecializationInfo.GetSpecialization or GetSpecialization, C_SpecializationInfo.GetSpecializationInfo or GetSpecializationInfo
 	function LS:MySpecialization()
 		local spec = GetSpecialization()
 		if type(spec) == "number" and spec > 0 then

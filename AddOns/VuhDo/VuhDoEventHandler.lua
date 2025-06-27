@@ -855,6 +855,7 @@ end
 
 
 --
+local tHelpText;
 function VUHDO_slashCmd(aCommand)
 	local tParsedTexts = VUHDO_textParse(aCommand);
 	local tCommandWord = strlower(tParsedTexts[1]);
@@ -1018,11 +1019,8 @@ function VUHDO_slashCmd(aCommand)
 		VUHDO_printAbout();
 
 	elseif aCommand == "?" or strfind(tCommandWord, "help")	or aCommand == "" then
-		local tLines = VUHDO_splitString(VUHDO_I18N_COMMAND_LIST, "§");
-
-		for _, tCurLine in ipairs(tLines) do 
-			VUHDO_MsgC(tCurLine);
-		end
+		tHelpText = (VUHDO_I18N_COMMAND_LIST or ""):gsub("\n", "|n");
+		VUHDO_MsgC(tHelpText);
 	else
 		VUHDO_Msg(VUHDO_I18N_BAD_COMMAND, 1, 0.4, 0.4);
 	end

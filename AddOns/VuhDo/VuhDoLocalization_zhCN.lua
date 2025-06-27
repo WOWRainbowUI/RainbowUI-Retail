@@ -54,18 +54,18 @@ VUHDO_I18N_BUFF_ALL = "全部";
 VUHDO_I18N_SHOW_BUFF_WATCH = "显示增益监视";
 -- Chat messages
 -- @EXACT = false
-VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ VuhDo commands ] -|r";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566opt|r[ions] - VuhDo选项";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566res|r[et] -重置面板位置";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566lock|r -启动面板锁定";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566mm, map, minimap|r -小地图按钮启动";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566compart|r[ment] - Toggle AddOn Compartment Icon";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566show, hide, toggle|r -框体显示开/关";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566load|r - [配置],[按键布局]";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n[broad]|cffffe566cast, mt|r[s] -主坦克同步";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566role|r -重置玩家职责";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566ab|r[out] - 关于这个插件";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566help,?|r -显示该命令列表\n";
+VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ VuhDo 命令 ] -|r\n" ..
+"|cffffe566opt|r[ions] - VuhDo 选项\n" ..
+"|cffffe566res|r[et] - 重置面板位置\n" ..
+"|cffffe566lock|r - 切换面板锁定\n" ..
+"|cffffe566mm, map, minimap|r - 切换小地图图标\n" ..
+"|cffffe566compart|r[ment] - 切换插件格图标\n" ..
+"|cffffe566show, hide, toggle|r - 开/关面板\n" ..
+"|cffffe566load|r - [配置文件],[按键布局]\n" ..
+"[broad]|cffffe566cast, mt|r[s] - 广播主坦克\n" ..
+"|cffffe566role|r - 重置玩家角色\n" ..
+"|cffffe566ab|r[out] - 关于此插件\n" ..
+"|cffffe566help,?|r - 此命令列表\n";
 VUHDO_I18N_BAD_COMMAND = "输入'/vuhdo help'或'/vd ?'查看命令列表.";
 VUHDO_I18N_CHAT_SHOWN = "|cffffe566显示|r.";
 VUHDO_I18N_CHAT_HIDDEN = "|cffffe566隐藏|r.";

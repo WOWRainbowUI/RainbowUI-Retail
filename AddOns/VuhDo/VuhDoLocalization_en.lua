@@ -51,18 +51,18 @@ VUHDO_I18N_BUFF_ALL = "All";
 VUHDO_I18N_SHOW_BUFF_WATCH = "Show Buff Watch";
 -- Chat messages
 -- @EXACT = false
-VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ VuhDo Commands ] -|r";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566opt|r[ions] - VuhDo Options";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566res|r[et] - Reset Panel Positions";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566lock|r - Toggle Panel Lock";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566mm, map, minimap|r - Toggle Minimap Icon";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566compart|r[ment] - Toggle AddOn Compartment Icon";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566show, hide, toggle|r - Turn Panels on/off";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566load|r - [Profile],[Key Layout]";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n[broad]|cffffe566cast, mt|r[s] - Broadcast maintanks";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566role|r - Reset player roles";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566ab|r[out] - About this add-on";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566help,?|r - This command list\n";
+VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ VuhDo Commands ] -|r\n" ..
+"|cffffe566opt|r[ions] - VuhDo Options\n" ..
+"|cffffe566res|r[et] - Reset Panel Positions\n" ..
+"|cffffe566lock|r - Toggle Panel Lock\n" ..
+"|cffffe566mm, map, minimap|r - Toggle Minimap Icon\n" ..
+"|cffffe566compart|r[ment] - Toggle AddOn Compartment Icon\n" ..
+"|cffffe566show, hide, toggle|r - Turn Panels on/off\n" ..
+"|cffffe566load|r - [Profile],[Key Layout]\n" ..
+"[broad]|cffffe566cast, mt|r[s] - Broadcast maintanks\n" ..
+"|cffffe566role|r - Reset player roles\n" ..
+"|cffffe566ab|r[out] - About this add-on\n" ..
+"|cffffe566help,?|r - This command list\n";
 VUHDO_I18N_BAD_COMMAND = "Bad argument! Type '/vuhdo help' or '/vd ?' for command list.";
 VUHDO_I18N_CHAT_SHOWN = "|cffffe566shown|r.";
 VUHDO_I18N_CHAT_HIDDEN = "|cffffe566hidden|r.";

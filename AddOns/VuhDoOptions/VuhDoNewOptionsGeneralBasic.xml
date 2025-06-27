@@ -3,7 +3,7 @@
 		<Frames>
 			<Frame name="$parentLockPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="130" y="150" />
+					<AbsDimension x="130" y="112" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -30,6 +30,7 @@
 						</Scripts>
 					</CheckButton>
 
+<!--
 					<CheckButton name="$parentinCombatCheckButton" text="VUHDO_I18N_SHOW_IN_FIGHT" inherits="VuhDoCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
@@ -46,13 +47,13 @@
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
-
+-->
 
 					<CheckButton name="$parentClickThroughCheckButton" text="VUHDO_I18N_CLICK_THROUGH" inherits="VuhDoCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-107" />
+									<AbsDimension x="13" y="-69" />
 								</Offset>
 							</Anchor>
 						</Anchors>

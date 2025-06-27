@@ -55,18 +55,18 @@ VUHDO_I18N_BUFF_ALL = "모두";
 VUHDO_I18N_SHOW_BUFF_WATCH = "버프 주시기 보이기";
 -- Chat messages
 -- @EXACT = false
-VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ VuhDo Commands ] -|r";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "§|cffffe566opt|r[ions] - VuhDo 옵션";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "§|cffffe566res|r[et] - 패널 위치 초기화";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "§|cffffe566lock|r - 패널 위치 잠금 토글";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "§|cffffe566mm, map, minimap|r - 미니맵 아이콘 토글";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566compart|r[ment] - Toggle AddOn Compartment Icon";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "§|cffffe566show, hide, toggle|r - 패널 켜기/끄기 전환";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "§|cffffe566load|r - [Profile],[Key Layout]";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "§[broad]|cffffe566cast, mt|r[s] - 메인 탱커 알림";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "§|cffffe566role|r - 플레이어 역할 재설정";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566ab|r[out] - 이 애드온에 관하여";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "§|cffffe566help,?|r - 이 명령어들을 보임\n";
+VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ VuhDo 명령어 ] -|r\n" ..
+"|cffffe566opt|r[ions] - VuhDo 설정\n" ..
+"|cffffe566res|r[et] - 패널 위치 초기화\n" ..
+"|cffffe566lock|r - 패널 잠금/해제\n" ..
+"|cffffe566mm, map, minimap|r - 미니맵 아이콘 표시/숨김\n" ..
+"|cffffe566compart|r[ment] - 애드온 구획 아이콘 토글\n" ..
+"|cffffe566show, hide, toggle|r - 패널 표시/숨김\n" ..
+"|cffffe566load|r - [프로필],[단축키 설정]\n" ..
+"[broad]|cffffe566cast, mt|r[s] - 주 탱커 알림\n" ..
+"|cffffe566role|r - 플레이어 역할 초기화\n" ..
+"|cffffe566ab|r[out] - 애드온 정보\n" ..
+"|cffffe566help,?|r - 명령어 목록\n";
 VUHDO_I18N_BAD_COMMAND = "잘못된 명령어입니다! '/vuhdo help' 또는 '/vd ?' 를 입력하여 명령어를 참고하세요.";
 VUHDO_I18N_CHAT_SHOWN = "|cffffe566보임|r.";
 VUHDO_I18N_CHAT_HIDDEN = "|cffffe566숨김|r.";

@@ -69,18 +69,18 @@ VUHDO_I18N_SHOW_BUFF_WATCH = "Montrer le suivi des buffs";
 --
 -- Chat messages
 -- @EXACT = false
-VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ Commandes VuhDo] -|r";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566opt|r[ions] - Opions de VuhDo";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566res|r[et] - R\195\169initialiser la position des panneaux";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566lock|r - V\195\169rouiller/D\195\169v\195\169rouiller les panneaux";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566mm, map, minimap|r - Afficher/Cacher l'ic\195\180ne sur la minimap";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566compart|r[ment] - Toggle AddOn Compartment Icon";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566show, hide, toggle|r - Afficher/Cacher les panneaux";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566load|r - [Profile],[Key Layout]";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n[broad]|cffffe566cast, mt|r[s] - Diffuser les tanks principaux";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566role|r - R\195\169initialiser le r\195\180le des joueurs";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566ab|r[out] - About this add-on";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566help,?|r - Cette liste de commandes\n";
+VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ Commandes VuhDo ] -|r\n" ..
+"|cffffe566opt|r[ions] - Options de VuhDo\n" ..
+"|cffffe566res|r[et] - R\\195\\169initialiser la position des panneaux\n" ..
+"|cffffe566lock|r - Verrouiller/D\\195\\169verrouiller les panneaux\n" ..
+"|cffffe566mm, map, minimap|r - Afficher/Masquer l'ic\\195\\180ne de la minicarte\n" ..
+"|cffffe566compart|r[ment] - Afficher/Masquer l'ic\\195\\180ne du compartiment d'addon\n" ..
+"|cffffe566show, hide, toggle|r - Afficher/Masquer les panneaux\n" ..
+"|cffffe566load|r - [Profil],[Assignation de touche]\n" ..
+"[broad]|cffffe566cast, mt|r[s] - Annoncer les tanks principaux\n" ..
+"|cffffe566role|r - R\\195\\169initialiser les r\\195\\180les des joueurs\n" ..
+"|cffffe566ab|r[out] - A propos de cet addon\n" ..
+"|cffffe566help,?|r - Liste des commandes\n";
 VUHDO_I18N_BAD_COMMAND = "Commande inconnue! Taper '/vuhdo help' or '/vd ?' pour la liste des commandes.";
 VUHDO_I18N_CHAT_SHOWN = "|cffffe566visible|r.";
 VUHDO_I18N_CHAT_HIDDEN = "|cffffe566cach\195\169|r.";

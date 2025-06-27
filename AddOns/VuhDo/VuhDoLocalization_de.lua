@@ -54,18 +54,18 @@ VUHDO_I18N_BUFF_ALL = "alle";
 VUHDO_I18N_SHOW_BUFF_WATCH = "Buff Watch anzeigen";
 -- Chat messages
 -- @EXACT = false
-VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ VuhDo Kommandos ] -|r";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566opt|r[ions] - VuhDo Optionen";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566res|r[et] - Panel Positionen zurücksetzen";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566lock|r - Panelpositionen sperren/freigeben";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566mm, map, minimap|r - Minimap Icon an/aus";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566compart|r[ment] - Toggle AddOn Compartment Icon";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566show, hide, toggle|r - Panels anzeigen/verbergen";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566load|r - [Profile],[Key Layout]";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n[broad]|cffffe566cast, mt|r[s] - Main Tanks übertragen";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566role|r - Spielerrollen zuruecksetzen";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566ab|r[out] - About this add-on";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566help,?|r - Diese Befehlsliste\n";
+VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ VuhDo Kommandos ] -|r\n" ..
+"|cffffe566opt|r[ions] - VuhDo Optionen\n" ..
+"|cffffe566res|r[et] - Setze Panel Positionen zurück\n" ..
+"|cffffe566lock|r - Panelsperre umschalten\n" ..
+"|cffffe566mm, map, minimap|r - Minimap Icon umschalten\n" ..
+"|cffffe566compart|r[ment] - Addon-Leisten-Icon umschalten\n" ..
+"|cffffe566show, hide, toggle|r - Panels an/aus\n" ..
+"|cffffe566load|r - [Profil],[Tastenbelegung]\n" ..
+"[broad]|cffffe566cast, mt|r[s] - Maintanks im Raid bekanntgeben\n" ..
+"|cffffe566role|r - Spielerrollen zurücksetzen\n" ..
+"|cffffe566ab|r[out] - Über dieses Add-on\n" ..
+"|cffffe566help,?|r - Diese Kommandoliste\n";
 VUHDO_I18N_BAD_COMMAND = "Ungültiges Argument! '/vuhdo help' oder '/vd ?' für eine Liste der Kommandos.";
 VUHDO_I18N_CHAT_SHOWN = "|cffffe566sichtbar|r.";
 VUHDO_I18N_CHAT_HIDDEN = "|cffffe566versteckt|r.";

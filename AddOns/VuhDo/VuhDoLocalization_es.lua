@@ -68,18 +68,18 @@ VUHDO_I18N_SHOW_BUFF_WATCH = "Muestra buscador de buffs";
 --
 -- Chat messages
 -- @EXACT = false
-VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ Commandes VuhDo] -|r";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566opt|r[ions] - Opciones de VuhDo";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566res|r[et] - Resetear la posicion del panel";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566lock|r - Cambiar Panel Bloqueado";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566mm, map, minimap|r - Activar Icono de minimapa";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566compart|r[ment] - Toggle AddOn Compartment Icon";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566show, hide, toggle|r - Girar paneles";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566load|r - [Profile],[Key Layout]";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n[broad]|cffffe566cast, mt|r[s] - Configurar tanques principales";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566role|r - Restablecer rol de jugadores";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566ab|r[out] - About this add-on";
-VUHDO_I18N_COMMAND_LIST = VUHDO_I18N_COMMAND_LIST .. "|n|cffffe566help,?|r - Lista de comandos\n";
+VUHDO_I18N_COMMAND_LIST = "\n|cffffe566 - [ Comandos de VuhDo ] -|r\n" ..
+"|cffffe566opt|r[ions] - Opciones de VuhDo\n" ..
+"|cffffe566res|r[et] - Restablecer la posici\\195\\179n de los paneles\n" ..
+"|cffffe566lock|r - Bloquear/Desbloquear paneles\n" ..
+"|cffffe566mm, map, minimap|r - Activar/Desactivar icono del minimapa\n" ..
+"|cffffe566compart|r[ment] - Activar/Desactivar icono del compartimento de addons\n" ..
+"|cffffe566show, hide, toggle|r - Activar/Desactivar paneles\n" ..
+"|cffffe566load|r - [Perfil],[Teclas]\n" ..
+"[broad]|cffffe566cast, mt|r[s] - Anunciar tanques principales\n" ..
+"|cffffe566role|r - Restablecer funciones de jugador\n" ..
+"|cffffe566ab|r[out] - Acerca de este addon\n" ..
+"|cffffe566help,?|r - Esta lista de comandos\n";
 VUHDO_I18N_BAD_COMMAND = "Comando invalido! Teclea '/vuhdo help' or '/vd ?' para ver la lista de comandos.";
 VUHDO_I18N_CHAT_SHOWN = "|cffffe566visible|r.";
 VUHDO_I18N_CHAT_HIDDEN = "|cffffe566cach\195\169|r.";

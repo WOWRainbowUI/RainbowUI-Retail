@@ -377,18 +377,27 @@ end
 
 --
 function VUHDO_stopMoving(aPanel)
-	aPanel:StopMovingOrSizing();
-	aPanel["isMoving"] = false;
+
 	if not InCombatLockdown() then
+		aPanel:StopMovingOrSizing();
+
 		aPanel:SetFrameStrata(VUHDO_PANEL_SETUP[VUHDO_getPanelNum(aPanel)]["frameStrata"]);
 	end
+
+	aPanel["isMoving"] = false;
+
 	VUHDO_savePanelCoords(aPanel);
 	VUHDO_saveCurrentProfilePanelPosition(VUHDO_getPanelNum(aPanel));
+
 	if sIsStatusShown then
 		sIsStatusShown = false;
+
 		VUHDO_hideAllPlayerIcons();
 		VUHDO_initAllEventBouquets();
 	end
+
+	return;
+
 end
 
 
