@@ -2,7 +2,7 @@
 ## Title: LiteButtonAuras
 ## IconTexture: Interface\Icons\ability_deathknight_heartstopaura
 ## AddonCompartmentFunc: LiteButtonAuras_AddonCompartmentFunc
-## Version: 11.1.7-2
+## Version: 11.1.7-3
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
 ## OptionalDeps: Bartender4, Dominos, ElvUI, Masque
@@ -31,6 +31,7 @@ ColorGradient.lua
 BarIntegrations.lua
 SlashCommand.lua
 Options.lua
+UnitState.lua
 Overlay.xml
 Controller.xml
 
