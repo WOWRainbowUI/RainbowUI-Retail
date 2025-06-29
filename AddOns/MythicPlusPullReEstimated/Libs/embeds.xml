@@ -7,4 +7,5 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 	<Include file="AceEvent-3.0\AceEvent-3.0.xml"/>
 	<Include file="AceLocale-3.0\AceLocale-3.0.xml"/>
 	<Include file="LibVersionCheck-1.0\LibVersionCheck-1.0.xml"/>
+	<Include file="LibGetFrame-1.0\LibGetFrame-1.0.xml"/>
 </Ui>
