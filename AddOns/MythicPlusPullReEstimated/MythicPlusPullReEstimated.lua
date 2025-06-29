@@ -4,6 +4,7 @@ local name, ns = ...
 local MMPE = LibStub('AceAddon-3.0'):NewAddon(name, 'AceConsole-3.0', 'AceEvent-3.0');
 
 local L = LibStub('AceLocale-3.0'):GetLocale(name)
+local LibGetFrame = LibStub('LibGetFrame-1.0');
 
 -- expose to the world that we exist
 _G['MMPE'] = MMPE
@@ -56,7 +57,7 @@ do
 end
 
 local nameplateAccessor = function(unit)
-    return C_NamePlate.GetNamePlateForUnit(unit);
+    return LibGetFrame.GetUnitNameplate(unit);
 end
 do
     local defaultAccessor = nameplateAccessor
