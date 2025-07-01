@@ -1,8 +1,8 @@
---	24.04.2025
+--	01.07.2025
 
 local GlobalAddonName, MRT = ...
 
-MRT.V = 5160
+MRT.V = 5181
 MRT.T = "R"
 
 MRT.Slash = {}			--> функции вызова из коммандной строки
@@ -64,6 +64,14 @@ elseif MRT.clientVersion < 60000 then
 	MRT.isCata = true
 	MRT.isMoP = true
 	MRT.T = "Pandaria"
+elseif MRT.clientVersion < 70000 then
+	MRT.isClassic = true
+	MRT.isBC = true
+	MRT.isLK = true
+	MRT.isCata = true
+	MRT.isMoP = true
+	MRT.isWoD = true
+	MRT.T = "Draenor"
 elseif MRT.clientVersion >= 110000 then
 	MRT.is11 = true
 end
