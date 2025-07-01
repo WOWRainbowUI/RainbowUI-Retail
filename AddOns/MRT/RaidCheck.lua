@@ -46,6 +46,12 @@ module.db.tableFood = not ExRT.isClassic and {
 	[87558]=true,	[87559]=true,	[87697]=true,	[87560]=true,	[100368]=true,	[100373]=true,	[100375]=true,	[100377]=true,	[87565]=true,	
 	[87546]=true,	[87547]=true,	[87545]=true,
 
+	--mop
+	[104283]=true,	[104280]=true,	[104277]=true,	[104275]=true,	[104272]=true,
+	[146808]=true,	[146807]=true,	[146806]=true,	[146805]=true,	[146804]=true,	[146809]=true,--5.4 food
+	[104282]=true,	[104279]=true,	[104276]=true,	[104274]=true,	[104271]=true,
+	[104281]=true,	[104278]=true,	[104264]=true,	[104273]=true,	[104267]=true,
+
 }
 module.db.StaminaFood = {[201638]=true,[259457]=true,[288075]=true,[288074]=true,[297119]=true,[297040]=true,}
 
@@ -94,9 +100,23 @@ module.db.tableFlask = not ExRT.isClassic and {
 	--sod
 	[1213886]=true,	[1213892]=true,	[1213901]=true,	[1213897]=true,
 	[1213904]=true,	[1213914]=true,
+
+	--mop
+	[105694]=true,	[105693]=true,	[105691]=true,	[105689]=true,	[105696]=true,
 }
 module.db.tableFlask_headers = ExRT.isClassic and {0,1} or {0,25,38}
-module.db.tablePotion = {
+module.db.tablePotion = ExRT.isMoP and {
+	[105702]=true,	--Int
+	[105697]=true,	--Agi	
+	[105706]=true,	--Str
+	[105709]=true,	--Mana 30k
+	[105701]=true,	--Mana 45k
+	[105707]=true,	--Run haste
+	[105698]=true,	--Armor
+	[105708]=true,	--Health
+	[105704]=true,	--Mana + Health [alchim]
+	[125282]=true,	--Kafa Boost
+} or {
 	[188024]=true,	--Run haste
 	[250871]=true,	--Mana
 	[252753]=true,	--Mana channel
@@ -3070,6 +3090,39 @@ module.frame:SetScript("OnEvent",function(self,event,unit)
 end)
 
 
+local isLibDurabilityRegistered
+local function LibDurabilityCallback(percent, broken, pName, channel)
+	if not percent or not pName then
+		return
+	end
+	percent = tonumber(percent or "100") or 100
+	module.db.durability[pName] = {
+		time = time(),
+		dur = percent,
+	}
+	local shortName = ExRT.F.delUnitNameServer(pName)
+	module.db.durability[shortName] = module.db.durability[pName]
+
+	local line = RCW_UnitToLine[shortName]
+	if line and module.frame:IsShown() then
+		module.frame:UpdateData(line)
+	end
+end
+function module:LibDurability(onlyReg)
+	local LD = LibStub("LibDurability",true)
+	if LD then
+		if not isLibDurabilityRegistered then
+			LD:Register(GlobalAddonName, LibDurabilityCallback)
+			isLibDurabilityRegistered = true
+		end
+		if onlyReg then
+			return
+		end
+		LD:RequestDurability()
+	end
+end
+
+
 function module:ReadyCheckWindow(starter,isTest,manual)
 	if manual and self.frame:IsShown() then
 		self.frame:Hide()
@@ -3108,6 +3161,8 @@ function module:ReadyCheckWindow(starter,isTest,manual)
 		end
 		if UnitLevel'player' >= 50 and not ExRT.isClassic then
 			ExRT.F.SendExMsg("raidcheckreq","REQ\t1")
+
+			module:LibDurability()
 		end
 	end
 	self.frame:UpdateData()
@@ -3310,6 +3365,7 @@ do
 			module.main:READY_CHECK_CONFIRM(ExRT.F.delUnitNameServer(starter),true,isTest)
 		end
 		if not isTest then
+			module:LibDurability(true)
 			module:SendConsumeData()
 		end
 	end

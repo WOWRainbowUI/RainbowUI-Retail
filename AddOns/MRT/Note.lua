@@ -5,15 +5,18 @@ local VMRT = nil
 local module = MRT:New("Note",MRT.L.message)
 local ELib,L = MRT.lib,MRT.L
 
-local GetTime, GetSpecializationInfo = GetTime, GetSpecializationInfo
+local GetTime = GetTime
 local string_gsub, strsplit, tonumber, format, string_match, floor, string_find, type, string_gmatch = string.gsub, strsplit, tonumber, format, string.match, floor, string.find, type, string.gmatch
 local GetSpellInfo = MRT.F.GetSpellInfo or GetSpellInfo
 local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
+local GetSpecializationInfo = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo or GetSpecializationInfo
+local GetSpecialization = GetSpecialization or C_SpecializationInfo and C_SpecializationInfo.GetSpecialization
 local NewVMRTTableData
 
-local GetSpecialization = GetSpecialization
-if MRT.isCata then
+if MRT.isMoP then
+
+elseif MRT.isCata then
 	GetSpecialization = function()
 		local n,m = 1,1
 		for spec=1,3 do
@@ -84,7 +87,7 @@ module.db.otherIconsList = {
 if MRT.isClassic then
 	tremove(module.db.otherIconsList,13)
 	tremove(module.db.otherIconsList,12)
-	tremove(module.db.otherIconsList,10)
+	if not MRT.isMoP then tremove(module.db.otherIconsList,10) end
 	if not MRT.isLK then tremove(module.db.otherIconsList,6) end
 end
 

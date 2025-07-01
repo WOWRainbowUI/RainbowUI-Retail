@@ -3704,9 +3704,9 @@ do
 		else
 			helpPlate = self.helpPlateArray
 		end
-		if helpPlate and HelpPlate.Show and not HelpPlate.IsShowingHelpInfo(helpPlate) then
+		if helpPlate and HelpPlate and HelpPlate.Show and not HelpPlate.IsShowingHelpInfo(helpPlate) then
 			HelpPlate.Show(helpPlate, self.parent, self) 
-		elseif helpPlate and not HelpPlate.Show and not HelpPlate_IsShowing(helpPlate) then
+		elseif helpPlate and (not HelpPlate or not HelpPlate.Show) and not HelpPlate_IsShowing(helpPlate) then
 			HelpPlate_Show(helpPlate, self.parent, self, true)
 			self:SetFrameStrata( HelpPlate:GetFrameStrata() )
 			self:SetFrameLevel( HelpPlate:GetFrameLevel() + 1 )
