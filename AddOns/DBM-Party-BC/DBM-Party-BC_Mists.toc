@@ -1,5 +1,5 @@
-## Interface: 30404
-## X-Min-Interface-Wrath: 30400
+## Interface: 50500
+## X-Min-Interface-Mists: 50500
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (BC)|r

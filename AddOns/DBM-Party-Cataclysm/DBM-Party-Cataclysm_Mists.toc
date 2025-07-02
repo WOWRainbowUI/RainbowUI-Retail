@@ -1,5 +1,5 @@
-## Interface: 110107, 110200
-## X-Min-Interface: 80000
+## Interface: 50500
+## X-Min-Interface-Mists: 50500
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Cata)|r
@@ -33,7 +33,7 @@
 ## X-DBM-Mod-Name-esMX: Mazmorras (Cataclysm)
 ## X-DBM-Mod-Name-ptBR: Masmorras (Cataclysm)
 ## X-DBM-Mod-Sort: 802
-## X-DBM-Mod-MapID: 755,645,36,670,644,33,643,725,657,309,859,568,938,940,939,646,2849
+## X-DBM-Mod-MapID: 755,645,36,670,644,33,643,725,657,309,859,568,938,940,939,646
 ## X-DBM-Mod-MinCoreRevision: 20210721040757
 ## X-DBM-Mod-MinExpansion: 3
 ## X-Curse-Project-ID: 314994
@@ -65,7 +65,6 @@ GrimBatol\GeneralUmbriss.lua
 GrimBatol\ForgemasterThrongus.lua
 GrimBatol\DrahgaShadowburner.lua
 GrimBatol\Erudax.lua
-GrimBatol\GrimBatolTrash.lua
 HallsOfOrigination\TempleGuardianAnhuur.lua
 HallsOfOrigination\EarthragerPtah.lua
 HallsOfOrigination\Anraphet.lua
