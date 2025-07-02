@@ -39,6 +39,13 @@ local function SetupTooltip_Item(tooltip, itemID)
     end
 end
 
+local function SetupTooltip_Spell(tooltip, spellID)
+    tooltip:Hide();
+    tooltip:SetOwner(nil, "ANCHOR_NONE");
+    tooltip:SetSpellByID(spellID);
+    return true
+end
+
 
 local GossipXReputation = {
     --[gossipOptionID] = factionID
@@ -78,6 +85,18 @@ local GossipXItem = {
     [134234] = 244465,    --Obtain Titan Disc [100 Titan Disc Shards]
 };
 
+local GossipXSpell = {
+    --[gossipOptionID] = spellID
+
+    --Klaxxi
+    [129585] = 127351,      --Master of Puppets
+    [129589] = 127794,      --Children of the Grave
+    [129463] = 123211,      --Painkiller
+    [129465] = 123219,      --Battle Hymn
+    [126276] = 123075,      --Angle of Death
+    [126316] = 124529,      --Iron Mantid
+    [129824] = 127382,      --Silent Lucidity
+};
 
 local DataSource = {};
 do
@@ -96,6 +115,8 @@ do
             return SetupTooltip_Currency(tooltip, GossipXCurrency[gossipOptionID]);
         elseif GossipXItem[gossipOptionID] then
             return SetupTooltip_Item(tooltip, GossipXItem[gossipOptionID]);
+        elseif GossipXSpell[gossipOptionID] then
+            return SetupTooltip_Spell(tooltip, GossipXSpell[gossipOptionID]);
         end
     end
 end

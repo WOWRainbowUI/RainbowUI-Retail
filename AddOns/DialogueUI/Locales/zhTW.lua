@@ -237,7 +237,7 @@ L["Quest Item Display Reset Position Desc"] = "重置視窗的位置。";
 L["Valuable Reward Popup"] = "有價值的獎勵彈出通知";
 L["Valuable Reward Popup Desc"] = "當你收到升級、寶箱或未收集的造型等有價值的物品時，請顯示一個按鈕，讓你可以直接使用它。";
 L["Auto Complete Quest"] = "自動完成任務";
-L["Auto Complete Quest Desc"] = "自動完成以下任務，然後在獨立的視窗中顯示對話和獎勵。如果獎勵包含箱子，你可以點擊打開它。\n\n- 糖果桶 (萬鬼節)\n- 卡茲阿爾加週任";
+L["Auto Complete Quest Desc"] = "自動完成以下任務，然後在獨立的視窗中顯示對話和獎勵。如果獎勵包含箱子，你可以點擊打開它。\n\n- 糖果桶 (萬鬼節)\n- 卡茲阿爾加週任\n- 仲夏火焰節的篝火";
 L["Press Key To Use Item"] = "按下按鈕來使用";
 L["Press Key To Use Item Desc PC"] = "非戰鬥中時按下 [KEY:PC:SPACE] 來使用物品。";
 L["Press Key To Use Item Desc Xbox"] = "非戰鬥中時按下 [KEY:XBOX:PAD3] 來使用物品。";
@@ -354,6 +354,7 @@ L["Show Answer"] = "顯示正確答案。";
 L["Quest Failed Pattern"] = "才能完成此任務。$";
 L["AutoCompleteQuest HallowsEnd"] = "糖果桶";     --Quest:28981
 L["AutoCompleteQuest Midsummer"] = "榮耀火焰";   --Quest:29031
+L["AutoCompleteQuest Midsummer2"] = "褻瀆這些火焰！";     --Quest:11580
 
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = "拍賣場";
