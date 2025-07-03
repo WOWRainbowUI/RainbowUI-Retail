@@ -26,6 +26,7 @@ local tremove = tremove
 local strsplit = strsplit
 local type = type
 local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+local COMBATLOG_OBJECT_RAIDTARGET_MASK = COMBATLOG_OBJECT_RAIDTARGET_MASK
 
 local VMRT = nil
 
@@ -2448,6 +2449,9 @@ CLEUParser = function(timestamp,event,hideCaster,sourceGUID,sourceName,sourceFla
 	reactionData[sourceGUID] = sourceFlags
 	reactionData[destGUID] = destFlags
 
+	sourceFlags2 = bit_band(sourceFlags2, COMBATLOG_OBJECT_RAIDTARGET_MASK)
+	destFlags2 = bit_band(destFlags2, COMBATLOG_OBJECT_RAIDTARGET_MASK)
+
 	local func = CLEU[event]
 	if func then
 		return func(timestamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,val1,val2,val3,val4,val5,val6,val7,val8,val9,val10,val11,val12,val13)
@@ -2475,6 +2479,9 @@ if ExRT.isClassic and not ExRT.isCata then
 	
 		reactionData[sourceGUID] = sourceFlags
 		reactionData[destGUID] = destFlags
+
+		sourceFlags2 = bit_band(sourceFlags2, COMBATLOG_OBJECT_RAIDTARGET_MASK)
+		destFlags2 = bit_band(destFlags2, COMBATLOG_OBJECT_RAIDTARGET_MASK)
 	
 		local func = CLEU[event]
 		if func then

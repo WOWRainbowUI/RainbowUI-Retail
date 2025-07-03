@@ -115,7 +115,7 @@ module.db.specInDBase = {
 	[1467] = 5,	[1468] = 6,	[1473] = 7,
 	[0] = 4,
 }
-if ExRT.isCata then
+if ExRT.isCata and not ExRT.isMoP then
 	module.db.specInDBase = {
 		[746] = 5,	[815] = 6,	[845] = 7,	
 		[831] = 5,	[839] = 6,	[855] = 7,	
@@ -174,7 +174,7 @@ do
 		[1473] = "EVOKERDPS2",		--Augmentation
 		[0] = "NO",
 	}
-	if ExRT.isCata then
+	if ExRT.isCata and not ExRT.isMoP then
 		specList = {
 			[746] = "WARRIORDPS1",	--Arms
 			[815] = "WARRIORDPS2",	--Fury
@@ -6917,7 +6917,7 @@ function module.options:Load()
 		cats = SortCategories(cats)
 		if categoryNow and module.options.CATEGORIES_VIS[categoryNow].isClassCategory then
 			local class = categoryNow
-			local specList = not ExRT.isClassic and module.db.specByClass[class] or {0}
+			local specList = (not ExRT.isClassic or ExRT.isMoP) and module.db.specByClass[class] or {0}
 
 			local newList = {}
 			local specsLen = #specList - 1
@@ -7176,7 +7176,7 @@ function module.options:Load()
 							specID = specs[j-4]
 						end
 					end
-					if data[4] and not ExRT.isClassic then
+					if data[4] and (not ExRT.isClassic or ExRT.isMoP) then
 						dataSpecs = #specs
 					end
 					line.colExpand.specs = {}
@@ -7644,7 +7644,7 @@ function module.options:Load()
 			end
 		end
 
-		local specList = not ExRT.isClassic and module.db.specByClass[class] or {0}
+		local specList = (not ExRT.isClassic or ExRT.isMoP) and module.db.specByClass[class] or {0}
 		for i=1,#specList do
 			local specID = specList[i]
 			local icon 

@@ -34,7 +34,9 @@ if ExRT.isClassic then
 		EJ_GetEncounterInfo = ExRT.NULLfunc
 		EJ_GetInstanceInfo = ExRT.NULLfunc
 	end
-	GetSpecializationInfoByID = GetSpecializationInfoForSpecID or ExRT.Classic.GetSpecializationInfoByID
+	if not ExRT.isMoP then
+		GetSpecializationInfoByID = GetSpecializationInfoForSpecID or ExRT.Classic.GetSpecializationInfoByID
+	end
 
 	--Global rewrite
 	if not EXPANSION_NAME7 then EXPANSION_NAME7 = "BFA" end
