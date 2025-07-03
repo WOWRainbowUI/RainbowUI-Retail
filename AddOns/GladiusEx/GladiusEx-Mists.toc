@@ -2,7 +2,7 @@
 ## Title: GladiusEx
 ## Notes: Arena unit frames and more
 ## SavedVariables: GladiusExDB
-## OptionalDeps: Ace3, DRList-1.0, LibSharedMedia-3.0, LibCooldownTracker-1.0, LibFunctional-1.0, LibCustomGlow-1.0, Clique, Masque, LibDualSpec-1.0, LibRangeCheck-2.0, LibDispellable-1.0, AceGUI-3.0-SharedMediaWidgets
+## OptionalDeps: Precognito, Ace3, DRList-1.0, LibSharedMedia-3.0, LibCooldownTracker-1.0, LibFunctional-1.0, LibCustomGlow-1.0, Clique, Masque, LibDualSpec-1.0, LibRangeCheck-2.0, LibDispellable-1.0, AceGUI-3.0-SharedMediaWidgets
 ## X-Curse-Project-ID: 45973
 ## X-Wago-ID: 2jK8q5Gy
 
@@ -11,7 +11,7 @@
 ## IconTexture: Interface\Icons\achievement_pvp_a_12
 ## Category-zhTW: PvP
 ## DefaultState: disabled
-## Version: 2.10.6
+## Version: 2.1.1
 
 embeds-mists.xml
 templates.xml

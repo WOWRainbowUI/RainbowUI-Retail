@@ -1245,6 +1245,16 @@ L["Side-view icon size"] = "側邊圖示大小"
 L["Vertical offset"] = "垂直位置"
 L["Horizontal offset"] = "水平位置"
 
+L["PvP Trinket Icon"] = "PvP 飾品圖示"
+L["Choose the PvP trinket icon style to display"] = "選擇 PvP 飾品圖示的顯示風格"
+L["Alliance (WotLK)"] = "聯盟 (巫妖王)"
+L["Alliance (Classic)"] = "聯盟 (經典)"
+L["Horde (WotLK)"] = "部落 (巫妖王)"
+L["Horde (Classic)"] = "部落 (經典)"
+L["Faction (Classic)"] = "陣營 (經典)"
+L["Faction (WotLK)"] = "陣營 (巫妖王)"
+L["Gladiator (Retail)"] = "競技場頭像 (正式服)"
+
 -- Class names
 L["Death Knight"] = "死亡騎士"
 L["Druid"] = "德魯伊"
@@ -1256,6 +1266,8 @@ L["Rogue"] = "盜賊"
 L["Shaman"] = "薩滿"
 L["Warlock"] = "術士"
 L["Warrior"] = "戰士"
+L["Monk"] = "武僧"
+L["Demon Hunter"] = "惡魔獵人"
 
 -- 自行加入
 L["Hide background out of cast"] = "沒施法時隱藏背景"
