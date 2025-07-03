@@ -307,6 +307,9 @@ local function _WishlistOnEnter(button, ...) -- EJ Wishlist-buttons OnEnter-scri
 	end
 
 	local itemID, difficultyID = _CheckLink(button:GetParent():GetParent().link)
+	if (EJ_GetCurrentTier() < 5 or ignoredInstaces[EncounterJournal.instanceID]) then -- Fix missing difficultyId for pre-MoP expansions and World Bosses
+		difficultyID = normalDifficultyID
+	end
 
 	if db[subTable][itemID] and db[subTable][itemID].difficulty == difficultyID then -- Remove
 		button.tooltipText = format("|cffffcc00"..tooltipTitleText.."|r\n%s", L.TOOLTIP_WISHLIST_REM)
@@ -333,7 +336,10 @@ local function _WishlistOnClick(button, ...) -- EJ Wishlist-buttons OnClick-scri
 	local subTable = button:GetID() == 1 and "main" or button:GetID() == 2 and "off" or button:GetID() == 3 and "vanity" or false
 	local itemID, difficultyID = _CheckLink(button:GetParent():GetParent().link)
 
-	Debug("> ID:", button:GetID(), tostring(subTable))
+	Debug("> ID:", button:GetID(), tostring(subTable), EJ_GetCurrentTier(), tostring(difficultyID))
+	if (EJ_GetCurrentTier() < 5 or ignoredInstaces[EncounterJournal.instanceID]) then -- Fix missing difficultyId for pre-MoP expansions and World Bosses
+		difficultyID = normalDifficultyID
+	end
 	if not (itemID and difficultyID and subTable) then return end
 
 	if db[subTable][itemID] and db[subTable][itemID].difficulty == difficultyID then -- Remove
@@ -809,6 +815,9 @@ local function HookEJUpdate(self, ...) -- Hook EJ Update for wishlist-buttons
 			-- They don't have button.itemID on them so it is easy to tell them apart from buttons with items
 
 			local _, difficultyID = _CheckLink(button.link) -- Update is spammy as hell when Loot-tab is open, but hopefully the itemLinks-table helps
+			if (EJ_GetCurrentTier() < 5 or ignoredInstaces[EncounterJournal.instanceID]) then -- Fix missing difficultyId for pre-MoP expansions and World Bosses
+				difficultyID = normalDifficultyID
+			end
 			difficultyID = difficultyID or 0
 
 			local _, _, _, _, _, _, _, _, itemEquipLoc, _, _, itemClassID, itemSubClassID = C_Item.GetItemInfo(button.itemID)
