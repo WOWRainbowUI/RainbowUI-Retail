@@ -1,5 +1,5 @@
 local lsfdd = LibStub("LibSFDropDown-1.5")
-local cur_ver, ver = lsfdd._sv, 6
+local cur_ver, ver = lsfdd._sv, 7
 if cur_ver and cur_ver >= ver then return end
 lsfdd._sv = ver
 local pairs, pcall = pairs, pcall
@@ -9,7 +9,7 @@ local IsAddOnLoaded = IsAddOnLoaded or C_AddOns.IsAddOnLoaded
 local skins = {
 	ElvUI = function(name)
 		local E = ElvUI[1]
-		if E.private.skins.blizzard.misc ~= true then return end
+		if not (E.private.skins.blizzard.enable and E.private.skins.blizzard.misc) then return end
 		local S = E:GetModule("Skins")
 		local m = lsfdd._m.__index
 
