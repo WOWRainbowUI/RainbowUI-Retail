@@ -249,6 +249,7 @@ PawnRegexes =
 	{L.HitRating2, "HitRating"}, -- Burning Crusade, /pawn compare 18500
 	{L.HitRating3, "HitRating"}, -- Burning Crusade in Spanish, /pawn compare 32570
 	{L.HitRatingShort, "HitRating"}, -- Burning Crusade, https://tbc.wowhead.com/item=24051/rigid-dawnstone
+	{L.HitRatingShorter, "HitRating"}, -- Mists of Pandaria, /pawn compare 77108
 	{L.SpellHit, "SpellHitRating"}, -- /pawn compare 16795
 	{L.SpellHitRating, "SpellHitRating"}, -- Burning Crusade, /pawn compare 16795
 	{L.SpellHitRating2, "SpellHitRating"}, -- Burning Crusade, /pawn compare 24266
@@ -264,7 +265,7 @@ PawnRegexes =
 	{L.Resilience2, "ResilienceRating"}, -- unused in English
 	{L.ResilienceRating, "ResilienceRating"}, -- /pawn compare 29181
 	{L.ResilienceRatingShort, "ResilienceRating"}, -- Burning Crusade, https://tbc.wowhead.com/item=24053/mystic-dawnstone
-	{L.PvPPower, "Stamina"}, -- Stormy Chalcedony
+	{L.PvPPower, "SpellPenetration"}, -- Stormy Chalcedony, /pawn tooltip 39932
 	{L.EnchantmentCounterweight, "HasteRating"}, -- won't work on classic since the live string includes the word "haste" and it's worded differently in classic
 	{L.Haste, "HasteRating"}, -- Leggings of the Betrayed
 	{L.Haste2, "HasteRating"}, -- unused in English
@@ -280,6 +281,7 @@ PawnRegexes =
 	{L.SpellPenetrationShort, "SpellPenetration"}, -- Burning Crusade, https://tbc.wowhead.com/item=24039/stormy-star-of-elune
 	{L.Mastery, "MasteryRating"}, -- Zen Dream Emerald
 	{L.Mastery2, "MasteryRating"}, -- unused in English
+	{L.Multistrike, "Multistrike"},
 	{L.Versatility, "Versatility"}, -- http://wod.wowhead.com/item=100945
 	{L.Leech, "Leech"}, -- http://wod.wowhead.com/item=100945
 	{L.Avoidance, "Avoidance"}, -- http://wod.wowhead.com/item=100945
@@ -354,8 +356,9 @@ PawnRegexes =
 	{PawnGameConstant(EMPTY_SOCKET_BLUE), "BlueSocket", 1, PawnMultipleStatsFixed},
 	{PawnGameConstant(EMPTY_SOCKET_META), "MetaSocket", 1, PawnMultipleStatsFixed},
 	{PawnGameConstant(EMPTY_SOCKET_COGWHEEL), "CogwheelSocket", 1, PawnMultipleStatsFixed},
+	{PawnGameConstant(EMPTY_SOCKET_HYDRAULIC), "ShaTouchedSocket", 1, PawnMultipleStatsFixed}, -- /pawn tooltip 86227
 	{PawnGameConstant(EMPTY_SOCKET_PRISMATIC), "PrismaticSocket", 1, PawnMultipleStatsFixed},
-	{PawnGameConstant(EMPTY_SOCKET_DOMINATION or "UNUSED")}, -- domination sockets are now ignored
+	{PawnGameConstant(EMPTY_SOCKET_DOMINATION)}, -- only relevant in Shadowlands
 
 	-- In WoW Classic, crossbows, guns, and wands don't show "Ranged" and instead show the weapon type on the left.
 	{L.Bow, "IsBow", 1, PawnMultipleStatsFixed, "IsRanged", 1, PawnMultipleStatsFixed},

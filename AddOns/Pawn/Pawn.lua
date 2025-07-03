@@ -7,10 +7,10 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1014
+PawnVersion = 2.1101
 
 -- Pawn requires this version of VgerCore:
-local PawnVgerCoreVersionRequired = 1.18
+local PawnVgerCoreVersionRequired = 1.20
 
 -- Floating point math
 local PawnEpsilon = 0.0000000001
@@ -675,7 +675,6 @@ function PawnInitializeOptions()
 	PawnCommon.ShowSpace = nil
 
 	-- Remove any stale scales from previous versions that might have accumulated.
-	-- the user might have accumulated.
 	local ScalesToDelete = { }
 	for ScaleName, Scale in pairs(PawnCommon.Scales) do
 		if Scale.Provider == "PawnPlaceholder" or Scale.Provider == "Starter" or Scale.Provider == "Wowhead" then tinsert(ScalesToDelete, ScaleName) end
@@ -684,9 +683,6 @@ function PawnInitializeOptions()
 		PawnCommon.Scales[ScaleName] = nil
 		PawnRecalculateScaleTotal(ScaleName) -- removes information from the cache
 	end
-
-	-- And some more in WoW 7.1.
-	PawnCommon.IgnoreItemUpgrades = nil
 
 	-- Any new stuff since the last version they used?
 	if not PawnCommon.LastVersion then PawnCommon.LastVersion = 0 end
@@ -698,10 +694,6 @@ function PawnInitializeOptions()
 	if PawnCommon.LastVersion < 2.0000 then
 		-- The new "show spec icons" option is enabled by default.
 		PawnCommon.ShowSpecIcons = true
-	end
-	if PawnOptions.LastVersion < 2.0000 then
-		-- When upgrading each character to 2.0, turn on the auto-scale option, but just once.
-		PawnOptions.AutoSelectScales = true
 	end
 	if PawnCommon.LastVersion < 2.0101 then
 		-- The new Bag Upgrade Advisor is on by default, but it's not supported in Classic.
@@ -752,15 +744,22 @@ function PawnInitializeOptions()
 		PawnCommon.ShowReforgingAdvisor = true
 	end
 	if ((VgerCore.IsMainline) and PawnCommon.LastVersion < PawnMrRobotLastUpdatedVersion) or
-		((VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm) and PawnCommon.LastVersion < PawnClassicLastUpdatedVersion) then
+		((VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists) and PawnCommon.LastVersion < PawnClassicLastUpdatedVersion) then
 		-- If the Ask Mr. Robot scales have been updated since the last time they used Pawn, re-scan gear.
 		PawnInvalidateBestItems()
 	end
 	PawnCommon.LastVersion = PawnVersion
 	PawnOptions.LastVersion = PawnVersion
 
-	-- Pawn on WoW Classic doesn't have Automatic mode.
-	if not VgerCore.SpecsExist then
+	-- Pawn didn't have Automatic mode on Classic until Mists of Pandaria Classic.
+	if VgerCore.SpecsExist then
+		-- Turn Automatic mode on once per character, the first time after logging in on a version of the game that supports it.
+		if not PawnOptions.AutoSelectScalesEnabledOnce then
+			PawnOptions.AutoSelectScales = true
+			PawnOptions.AutoSelectScalesEnabledOnce = true
+			PawnOnSpecChanged()
+		end
+	else
 		PawnOptions.AutoSelectScales = false
 	end
 
@@ -1099,7 +1098,7 @@ function PawnClearCacheValuesOnly()
 	end
 	-- Then, the gem caches.  For each gem meta-table, look at the gem table (which is in
 	-- column 3) and then clear out that table's item data cache.
-	local GemCaches = { PawnGemQualityLevels, PawnMetaGemQualityLevels, PawnCogwheelQualityLevels }
+	local GemCaches = { PawnGemQualityLevels, PawnMetaGemQualityLevels, PawnCogwheelQualityLevels, PawnCrystalOfFearQualityLevels }
 	for _, GemCache in pairs(GemCaches) do
 		for _, GemQualityData in pairs(GemCache) do
 			for _, GemData in pairs(GemQualityData[2]) do
@@ -1188,6 +1187,8 @@ function PawnRecalculateScaleTotal(ScaleName)
 			["MetaSocketValue"] = { },
 			["CogwheelSocket"] = { },
 			["CogwheelSocketValue"] = { },
+			["ShaTouchedSocket"] = { },
+			["ShaTouchedSocketValue"] = { },
 		}
 	end
 	local ThisScaleBestGems = PawnScaleBestGems[ScaleName]
@@ -1243,7 +1244,7 @@ function PawnRecalculateScaleTotal(ScaleName)
 	end
 
 	-- Now cogwheels.
-	if VgerCore.IsCataclysm then -- or Pandaria
+	if VgerCore.IsCataclysm or VgerCore.IsMists then
 		for _, QualityLevelData in pairs(PawnCogwheelQualityLevels) do
 			local ItemLevel = QualityLevelData[1]
 			local GemData = QualityLevelData[2]
@@ -1257,6 +1258,24 @@ function PawnRecalculateScaleTotal(ScaleName)
 			local BestCogwheel
 			BestCogwheel, ThisScaleBestGems.CogwheelSocket[ItemLevel] = PawnFindBestGems(ScaleName, GemData)
 			ThisScaleBestGems.CogwheelSocketValue[ItemLevel] = BestCogwheel
+		end
+	end
+
+	-- Now crystals of fear.
+	if VgerCore.IsMists then
+		for _, QualityLevelData in pairs(PawnCrystalOfFearQualityLevels) do
+			local ItemLevel = QualityLevelData[1]
+			local GemData = QualityLevelData[2]
+
+			if PawnCommon.Debug then
+				VgerCore.Message("")
+				VgerCore.Message("CRYSTALS OF FEAR FOR ITEM LEVEL " .. tostring(ItemLevel))
+				VgerCore.Message("")
+			end
+
+			local BestShaTouched
+			BestShaTouched, ThisScaleBestGems.ShaTouchedSocket[ItemLevel] = PawnFindBestGems(ScaleName, GemData)
+			ThisScaleBestGems.ShaTouchedSocketValue[ItemLevel] = BestShaTouched
 		end
 	end
 
@@ -1450,6 +1469,12 @@ function PawnGetItemData(ItemLink)
 			Item.Stats.MetaSocketEffect = Item.UnenchantedStats.MetaSocketEffect
 		end
 
+		-- Items that can be upgraded with an Eye of the Black Prince get an extra prismatic socket.
+		-- We can't do this in the PawnGetStatsFromTooltip because we don't have an item ID there, and we need that to determine if the Eye can be used.
+		if VgerCore.IsMists and Item.UnenchantedStats and PawnWrathionUpgradeableItems[Item.ID] then
+			PawnAddStatToTable(Item.UnenchantedStats, "PrismaticSocket", 1)
+		end
+
 		-- Enchanted items should not get points for empty sockets, nor do they get socket bonuses if there are any empty sockets.
 		if Item.Stats and (Item.Stats.PrismaticSocket or Item.Stats.RedSocket or Item.Stats.YellowSocket or Item.Stats.BlueSocket or Item.Stats.MetaSocket) then
 			PawnDebugMessage("")
@@ -1464,6 +1489,7 @@ function PawnGetItemData(ItemLink)
 				Item.Stats.MetaSocketEffect = nil
 			end
 			Item.Stats.CogwheelSocket = nil
+			Item.Stats.ShaTouchedSocket = nil
 		end
 
 		-- If the item doesn't have any stats, don't cache it.  This is done to work around a problem a few people were seeing where
@@ -2368,7 +2394,7 @@ function PawnGetStatsFromTooltip(TooltipName, DebugMessages)
 		Stats["IsRanged"] = 1
 	end
 
-	if VgerCore.IsCataclysm then
+	if VgerCore.IsCataclysm or VgerCore.IsMists or VgerCore.IsDraenor then
 		if Stats["Rap"] then
 			-- In Cataclysm, ranged attack power is essentially gone, though it still appears on a few items like Rhok'delar (18713) and some PVP weapons.
 			-- Treat all types of attack power the same until Legion, when attack power was removed entirely.
@@ -2486,7 +2512,7 @@ function PawnGetStatsFromTooltip(TooltipName, DebugMessages)
 			SocketBonusStats = {}
 		else
 			-- If the socket bonus is not valid, then we need to check for sockets.
-			if Stats["PrismaticSocket"] or Stats["RedSocket"] or Stats["YellowSocket"] or Stats["BlueSocket"] or Stats["MetaSocket"] or Stats["CogwheelSocket"] then
+			if Stats["PrismaticSocket"] or Stats["RedSocket"] or Stats["YellowSocket"] or Stats["BlueSocket"] or Stats["MetaSocket"] or Stats["CogwheelSocket"] or Stats["ShaTouchedSocket"] then
 				-- There are sockets left, so the player could still meet the requirements.
 				PawnDebugMessage("   (Socket bonus requirements could potentially be met)")
 			else
@@ -2756,7 +2782,8 @@ function PawnGetItemValue(Item, ItemLevel, SocketBonus, ScaleName, DebugMessages
 			Stat ~= "BlueSocket" and
 			Stat ~= "MetaSocket" and
 			Stat ~= "MetaSocketEffect" and
-			Stat ~= "CogwheelSocket"
+			Stat ~= "CogwheelSocket" and
+			Stat ~= "ShaTouchedSocket"
 		then
 			if ThisValue then
 				-- This stat has a value; add it to the running total.
@@ -2792,12 +2819,14 @@ function PawnGetItemValue(Item, ItemLevel, SocketBonus, ScaleName, DebugMessages
 				Item.BlueSocket or
 				Item.MetaSocket or
 				Item.MetaSocketEffect or
-				Item.CogwheelSocket
+				Item.CogwheelSocket or
+				Item.ShaTouchedSocket
 			) then
 
 				local GemQualityLevel = PawnGetGemQualityForItem(PawnGemQualityLevels, ItemLevel)
 				local MetaGemQualityLevel = PawnGetGemQualityForItem(PawnMetaGemQualityLevels, ItemLevel)
 				local CogwheelQualityLevel = PawnGetGemQualityForItem(PawnCogwheelQualityLevels, ItemLevel)
+				local CrystalOfFearQualityLevel = PawnGetGemQualityForItem(PawnCrystalOfFearQualityLevels, ItemLevel)
 
 				local SocketValue = function(Stat, QualityLevel)
 					if QualityLevel == nil then return 0 end
@@ -2861,6 +2890,9 @@ function PawnGetItemValue(Item, ItemLevel, SocketBonus, ScaleName, DebugMessages
 
 				-- In Cataclysm there are also cogwheels for engineering goggles. Sigh.
 				TotalSocketValue = TotalSocketValue + SocketValue("CogwheelSocket", CogwheelQualityLevel)
+
+				-- Mists of Pandaria introduced the first expansion-specific socket type.
+				TotalSocketValue = TotalSocketValue + SocketValue("ShaTouchedSocket", CrystalOfFearQualityLevel)
 
 				Total = Total + TotalSocketValue
 			end -- if ShouldIncludeSockets
@@ -3219,6 +3251,7 @@ function PawnCorrectScaleErrors(ScaleName)
 	ThisScale.YellowSocket = nil
 	ThisScale.BlueSocket = nil
 	ThisScale.CogwheelSocket = nil
+	ThisScale.ShaTouchedSocket = nil
 	ThisScale.ColorlessSocket = nil
 	ThisScale.MetaSocket = nil
 
@@ -3233,14 +3266,16 @@ function PawnCorrectScaleErrors(ScaleName)
 	if not (VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm) then
 		ThisScale.SpellPenetration = nil
 		ThisScale.IsRelic = nil
-		ThisScale.ExpertiseRating = nil
 	end
-	if not (VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm) then
+	if not (VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists) then
+		ThisScale.ExpertiseRating = nil
+		ThisScale.HitRating = nil
+		ThisScale.SpellHitRating = nil
+	end
+	if not (VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists) then
 		ThisScale.ResilienceRating = nil
 	end
-
-	-- Spell power appeared in Wrath but disappeared again later.
-	if not (VgerCore.IsWrath or VgerCore.IsCataclysm) then
+	if not (VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists or VgerCore.IsDraenor) then
 		ThisScale.SpellPower = nil
 	end
 
@@ -3261,7 +3296,7 @@ function PawnCorrectScaleErrors(ScaleName)
 	ThisScale.DominationSocket = nil
 
 	-- Wrath Classic merges SpellDamage and Healing into SpellPower, and melee and spell ratings.
-	if VgerCore.IsWrath or VgerCore.IsCataclysm then
+	if VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists or VgerCore.IsDraenor or VgerCore.IsLegion or VgerCore.IsMainline then
 		PawnCombineStats(ThisScale, "SpellPower", "SpellDamage")
 		PawnCombineStats(ThisScale, "SpellPower", "Healing")
 		PawnCombineStats(ThisScale, "HitRating", "SpellHitRating")
@@ -3270,7 +3305,7 @@ function PawnCorrectScaleErrors(ScaleName)
 	end
 
 	-- Cataclysm effectively eliminates ranged attack power and we consider them merged.
-	if VgerCore.IsCataclysm then
+	if VgerCore.IsCataclysm or VgerCore.IsMists or VgerCore.IsDraenor or VgerCore.IsLegion or VgerCore.IsMainline then
 		PawnCombineStats(ThisScale, "Ap", "Rap")
 	end
 end
@@ -3963,7 +3998,7 @@ function PawnFindBestItems(ScaleName, InventoryOnly)
 					-- Getting the item link for an equipment set item is a pain in the ass...
 					local ItemLink
 					local IsOnPlayer, IsInBank, IsInBags, IsInVoidStorage, SetSlot, Bag, Tab, VoidSlot
-					if VgerCore.IsCataclysm then
+					if VgerCore.IsCataclysm or VgerCore.IsMists then
 						-- EquipmentManager_UnpackLocation in Cataclysm Classic removes IsInVoidStorage from the return values, shifting everything over.
 						IsOnPlayer, IsInBank, IsInBags, SetSlot, Bag, Tab, VoidSlot = EquipmentManager_UnpackLocation(Location)
 					else
@@ -4467,9 +4502,9 @@ function PawnOnSpecChanged()
 	if not PawnOptions.AutoSelectScales then return end
 
 	local _, _, ClassID = UnitClass("player")
-	local SpecID = GetSpecialization()
+	local SpecID = GetSpecialization and GetSpecialization() or GetPrimaryTalentTree()
 	-- If the player hasn't chosen a spec yet, choose one for them.
-	if SpecID == 5 then
+	if SpecID == nil or SpecID == 5 then
 		SpecID = PawnNewbieSpec[ClassID]
 	end
 
@@ -5409,6 +5444,10 @@ end
 -- Enables or disables the auto-scale feature.
 function PawnSetAutoSelectScales(Enable)
 	VgerCore.Assert(Enable ~= nil, "Enable parameter must be true or false.")
+	if (Enable and not VgerCore.SpecsExist) then
+		VgerCore.Fail("Automatic mode can't be enabled in this version of the game.")
+		return
+	end
 	if PawnOptions.AutoSelectScales == Enable then return end
 
 	PawnOptions.AutoSelectScales = Enable

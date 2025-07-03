@@ -123,12 +123,14 @@ PawnLocal =
 		["MovementSpeedInfo"] = "移动速度，使你的角色跑得更快。",
 		["Mp5"] = "每5秒回蓝",
 		["Mp5Info"] = "每5秒恢复的法力值: 影响法力的恢复速度 (战斗中同样生效)。",
+		["MultistrikeInfo"] = "Multistrike. Increases the chance that your attacks and healing spells will hit your target two extra times at reduced potency.",
 		["NatureResistInfo"] = "自然抗性: 减少受到的自然伤害。",
 		["NatureSpellDamage"] = "自然法术伤害",
 		["NatureSpellDamageInfo"] = "自然法术伤害: 增加释放自然法术所造成的伤害。",
 		["ParryInfo"] = "招架: 增加你招架敌人攻击的几率。",
 		["Plate"] = "板甲",
 		["PlateInfo"] = "物品类型为板甲。",
+		["PvPPowerInfo"] = "PvP强度. 使你的能力，给其他玩家（但不包括生物）造成更多的伤害，并在某些PVP的情况下，你的治疗法术治疗其他玩家。",
 		["RapInfo"] = "远程攻击强度: 增加远程攻击所造成的伤害 (不包含敏捷的加成)。",
 		["ResilienceInfo"] = "韧性: 降低你受到爆击的几率，并降低受到的爆击伤害。",
 		["ShadowResistInfo"] = "暗影抗性: 减少受到的暗影伤害。",
@@ -589,6 +591,7 @@ PawnLocal.TooltipParsing = {
 	["HitRating2"] = "^装备： 使你的命中等级提高#。$",
 	["HitRating3"] = "^UNUSED$",
 	["HitRatingShort"] = "^%+?# 命中等级$",
+	["HitRatingShorter"] = "^%+?# 命中$",
 	["HolySpellDamage"] = "^%+# 神圣法术伤害$",
 	["HolySpellDamage2"] = "^装备： ?提高神圣法术和效果所造成的伤害，最多#点。$",
 	["HolySpellDamage3"] = "^装备： ?使你的神圣法术和效果所造成的伤害提高最多#点。$",
@@ -714,7 +717,7 @@ PawnLocal.TooltipParsing = {
 
 -- Special case: wands use different text on Classic.
 -- So, patch things up here.
-if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
+if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 
 	local TooltipParsing_Classic =
 	{
@@ -740,7 +743,7 @@ if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCo
 	end
 end
 
-if VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
+if VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 
 	local TooltipParsing_BurningCrusade =
 	{

@@ -127,12 +127,14 @@ PawnLocal =
 		["MovementSpeedInfo"] = "移動速度: 提高你角色的移動速度",
 		["Mp5"] = "法力每5秒",
 		["Mp5Info"] = "Mana regeneration per 5 seconds.  Affects your mana regeneration even when in combat.",
+		["MultistrikeInfo"] = "Multistrike. Increases the chance that your attacks and healing spells will hit your target two extra times at reduced potency.",
 		["NatureResistInfo"] = "Nature Resistance.  Reduces the damage taken from nature-based attacks.",
 		["NatureSpellDamage"] = "自然法術傷害",
 		["NatureSpellDamageInfo"] = "Nature damage.  Increases the damage dealt by your nature spells.",
 		["ParryInfo"] = "Parry.  Increases the chance that you'll parry enemy attacks.",
 		["Plate"] = "鎧甲",
 		["PlateInfo"] = "此物若為鎧甲，則增計多少分數。",
+		["PvPPowerInfo"] = "PvP能量. 使你的能力，給其他玩家（但不包括生物）造成更多的傷害，並在某些PVP的情況下，你的治療法術治療其他玩家。",
 		["RapInfo"] = "Ranged Attack Power.  Increases the damage of ranged physical attacks.  Does not include attack power gained from agility.",
 		--[[Translation missing --]]
 		["ResilienceInfo"] = "Resilience. Reduces the chance that you'll be critically hit, and decreases the damage of critical hits that you do take.",
@@ -614,6 +616,7 @@ PawnLocal.TooltipParsing = {
 	["HitRating2"] = "^裝備: 使你的命中等級提高#點。$",
 	["HitRating3"] = "^UNUSED$",
 	["HitRatingShort"] = "^%+?#命中等級$",
+	["HitRatingShorter"] = "^%+?#命中$",
 	["HolySpellDamage"] = "^%+# Holy Spell Damage$",
 	["HolySpellDamage2"] = "^裝備： 提高神聖法術和效果所造成的傷害，最多#點。$",
 	["HolySpellDamage3"] = "^裝備: 使神聖法術和效果所造成的傷害提高最多#點。$",
@@ -766,7 +769,7 @@ if VgerCore.IsClassic then
 	end
 end
 
-if VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
+if VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 
 	local TooltipParsing_BurningCrusade =
 	{
@@ -795,7 +798,7 @@ if VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
 	end	
 end
 
-if VgerCore.IsWrath or VgerCore.IsCataclysm then
+if VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 
 	local TooltipParsing_Wrath =
 	{

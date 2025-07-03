@@ -7,11 +7,13 @@
 -- http://tbcwowaddons.weebly.com/pawn.html
 -- WoW Cataclysm Classic scales from the WoWSims team
 -- https://wowsims.github.io
+-- WoW Mists of Pandaria Classic scales from Wowhead
+-- https://wowhead.com
 ------------------------------------------------------------
 
 local ScaleProviderName = "Classic"
 
-PawnClassicLastUpdatedVersion = 2.1005
+PawnClassicLastUpdatedVersion = 2.1100
 
 
 function PawnClassicScaleProvider_AddScales()
@@ -870,6 +872,246 @@ function PawnClassicScaleProvider_AddScales()
 			{ Strength=1.4, Agility=0.26, Intellect=0, Stamina=12.442, Spirit=0, Armor=2.155, HitRating=0.736, CritRating=0.336, HasteRating=0.048, MasteryRating=7.415, ExpertiseRating=0.863, SpellPenetration=0, Ap=0.196, SpellPower=0, DodgeRating=4.801, ParryRating=4.801, BlockRating=0, ResilienceRating=0, Mp5=0, Hp5=0, ArcaneResist=0, FireResist=0, ShadowResist=0, NatureResist=0, FrostResist=0, FireSpellDamage=0, ShadowSpellDamage=0, NatureSpellDamage=0, ArcaneSpellDamage=0, FrostSpellDamage=0, Dps=6.081, MetaSocketEffect=72, }
 		)
 
+	elseif VgerCore.IsMists then ------------------------------------------------------------
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			6, -- Death Knight
+			1, -- Blood
+			{ MasteryRating=100, Strength=92, ParryRating=77, DodgeRating=77, Stamina=50, Armor=31, HitRating=15, ExpertiseRating=15, Agility=0, CritRating=0, HasteRating=0, Ap=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			6, -- Death Knight
+			2, -- Frost
+			{ MeleeDps=335, Strength=100, ExpertiseRating=90, HitRating=81, HasteRating=56, CritRating=48, Ap=42, MasteryRating=36, Stamina=.1, Agility=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			6, -- Death Knight
+			3, -- Unholy
+			{ MeleeDps=137, Strength=100, HitRating=65, ExpertiseRating=65, HasteRating=49, CritRating=44, Ap=40, MasteryRating=35, Stamina=.1, Agility=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			11, -- Druid
+			1, -- Balance
+			{ Intellect=100, HitRating=90, Spirit=90, SpellPower=83, CritRating=52, HasteRating=50, MasteryRating=45, Stamina=.1, Agility=0, ExpertiseRating=0, Ap=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			11, -- Druid
+			2, -- Feral
+			{ Agility=100, MeleeDps=96, Strength=41, MasteryRating=41, Ap=39, HitRating=32, ExpertiseRating=32, CritRating=31, HasteRating=29, Stamina=.1, Intellect=0, Spirit=0, SpellPower=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			11, -- Druid
+			3, -- Guardian
+			{ Agility=100, DodgeRating=82, MasteryRating=44, CritRating=41, HasteRating=24, HitRating=21, ExpertiseRating=21, Armor=18, Stamina=18, Ap=3, Strength=3, Intellect=0, Spirit=0, SpellPower=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			11, -- Druid
+			4, -- Restoration
+			{ Intellect=100, SpellPower=85, HasteRating=80, Spirit=75, MasteryRating=65, CritRating=60, Stamina=.1, Strength=0, Agility=0, HitRating=0, ExpertiseRating=0, Ap=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			3, -- Hunter
+			1, -- Beast Mastery
+			{ Agility=100, RangedDps=90, Speed=74, HitRating=64, ExpertiseRating=64, Ap=38, HasteRating=37, CritRating=31, MasteryRating=20, Stamina=.1, Strength=0, Intellect=0, SpellPower=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			3, -- Hunter
+			2, -- Marksmanship
+			{ Speed=100, RangedDps=83, Agility=42, HitRating=40, ExpertiseRating=40, HasteRating=18, CritRating=16, Ap=15, MasteryRating=11, Stamina=.1, Strength=0, Intellect=0, SpellPower=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0,MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			3, -- Hunter
+			3, -- Survival
+			{ Agility=100, RangedDps=78, Speed=75, ExpertiseRating=67, HitRating=67, Ap=39, CritRating=30, HasteRating=28, MasteryRating=17, Stamina=.1, Strength=0, Intellect=0, SpellPower=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			8, -- Mage
+			1, -- Arcane
+			{ Intellect=100, SpellPower=83, HitRating=72, MasteryRating=56, HasteRating=50, CritRating=38, Stamina=.1, Strength=0, Agility=0, Spirit=0, ExpertiseRating=0, Ap=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			8, -- Mage
+			2, -- Fire
+			{ Intellect=100, HitRating=79, SpellPower=75, CritRating=65, HasteRating=55, MasteryRating=46, Stamina=.1, Strength=0, Agility=0, Spirit=0, ExpertiseRating=0, Ap=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			8, -- Mage
+			3, -- Frost
+			{ Intellect=100, SpellPower=81, HitRating=68, HasteRating=44, CritRating=41, MasteryRating=37, Stamina=.1, Strength=0, Agility=0, Spirit=0, ExpertiseRating=0, Ap=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			10, -- Monk
+			1, -- Brewmaster
+			{ Agility=100, HitRating=65, ExpertiseRating=65, HasteRating=62, CritRating=54, ParryRating=50, Armor=46, DodgeRating=42, Ap=35, MasteryRating=31, Stamina=27, Intellect=0, Spirit=0, SpellPower=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			10, -- Monk
+			2, -- Mistweaver
+			{ Intellect=100, SpellPower=85, Spirit=75, HasteRating=60, CritRating=50, MasteryRating=40, Stamina=.1, Agility=0, Armor=0, HitRating=0, DodgeRating=0, ParryRating=0, ExpertiseRating=0, Ap=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			10, -- Monk
+			3, -- Windwalker
+			{ HitRating=100, Agility=86, ExpertiseRating=79, HasteRating=46, CritRating=37, Strength=33, Ap=31, MasteryRating=21, Stamina=.1, Intellect=0, Spirit=0, SpellPower=0, DodgeRating=0, ParryRating=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			2, -- Paladin
+			1, -- Holy
+			{ Intellect=100, Spirit=75, SpellPower=75, HasteRating=55, CritRating=50, MasteryRating=50, Stamina=.1, Strength=0, Agility=0, HitRating=0, ExpertiseRating=0, Ap=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			2, -- Paladin
+			2, -- Protection
+			{ MasteryRating=100, HitRating=63, Armor=62, ExpertiseRating=41, HasteRating=39, Strength=38, DodgeRating=34, ParryRating=34, Stamina=29, CritRating=10, Agility=0, Intellect=0, Ap=0, SpellPower=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			2, -- Paladin
+			3, -- Retribution
+			{ Speed=100, MeleeDps=98, Strength=58, ExpertiseRating=41, HitRating=41, HasteRating=32, MasteryRating=26, Ap=24, CritRating=24, Stamina=.1, Agility=0, Intellect=0, SpellPower=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			5, -- Priest
+			1, -- Discipline
+			{ Intellect=100, SpellPower=81, Spirit=80, CritRating=60, MasteryRating=55, HasteRating=50, Stamina=.1, ExpertiseRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			5, -- Priest
+			2, -- Holy
+			{ Intellect=100, SpellPower=85, Spirit=81, HasteRating=62, CritRating=43, MasteryRating=33, Stamina=.1, HitRating=0, ExpertiseRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			5, -- Priest
+			3, -- Shadow
+			{ Intellect=100, SpellPower=81, Spirit=61, HitRating=61, HasteRating=60, CritRating=44, MasteryRating=38, Stamina=.1, ExpertiseRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			4, -- Rogue
+			1, -- Assassination
+			{ MeleeDps=137, Speed=100, Agility=80, ExpertiseRating=78, HitRating=78, HasteRating=44, MasteryRating=34, CritRating=31, Strength=29, Ap=29, Stamina=.1, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			4, -- Rogue
+			2, -- Combat
+			{ Agility=100, MeleeDps=92, HitRating=66, ExpertiseRating=45, MasteryRating=39, Strength=38, HasteRating=38, CritRating=37, Ap=36, Stamina=.1, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			4, -- Rogue
+			3, -- Subtlety
+			{ MeleeDps=123, Agility=100, HitRating=46, ExpertiseRating=39, HasteRating=38, CritRating=34, MasteryRating=29, Strength=28, Ap=27, Stamina=.1, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			7, -- Shaman
+			1, -- Elemental
+			{ HitRating=100, Spirit=100, Intellect=83, SpellPower=70, HasteRating=37, MasteryRating=33, CritRating=31, Stamina=.1, Strength=0, Agility=0, ExpertiseRating=0, Ap=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			7, -- Shaman
+			2, -- Enhancement
+			{ Agility=100, HitRating=99, ExpertiseRating=99, MeleeDps=91, MasteryRating=45, Strength=42, CritRating=41, Ap=40, HasteRating=37, Stamina=.1, Intellect=0, SpellPower=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			7, -- Shaman
+			3, -- Restoration
+			{ Intellect=100, SpellPower=75, Spirit=65, HasteRating=60, MasteryRating=55, CritRating=40, Stamina=.1, Strength=0, Agility=0, HitRating=0, ExpertiseRating=0, DodgeRating=0, ParryRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			9, -- Warlock
+			1, -- Affliction
+			{ Intellect=100, SpellPower=82, MasteryRating=62, HasteRating=57, HitRating=47, CritRating=39, Stamina=.1, Spirit=0, ExpertiseRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			9, -- Warlock
+			2, -- Demonology
+			{ Intellect=100, SpellPower=83, HitRating=73, MasteryRating=45, HasteRating=42, CritRating=41, Stamina=.1, Spirit=0, ExpertiseRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			9, -- Warlock
+			3, -- Destruction
+			{ Intellect=100, SpellPower=81, HitRating=68, HasteRating=46, CritRating=43, MasteryRating=41, Stamina=.1, Spirit=0, ExpertiseRating=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			1, -- Warrior
+			1, -- Arms
+			{ Dps=459, Strength=100, HitRating=78, ExpertiseRating=67, CritRating=56, Ap=49, MasteryRating=44, HasteRating=33, Stamina=.1, Agility=0, DodgeRating=0, ParryRating=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			1, -- Warrior
+			2, -- Fury
+			{ Dps=136, ExpertiseRating=100, HitRating=100, CritRating=73, Strength=51, MasteryRating=34, HasteRating=24, Ap=24, Stamina=.1, Agility=0, DodgeRating=0, ParryRating=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
+		PawnAddPluginScaleFromTemplate(
+			ScaleProviderName,
+			1, -- Warrior
+			3, -- Protection
+			{ ParryRating=100, DodgeRating=100, Strength=98, Stamina=70, MasteryRating=50, ExpertiseRating=30, HitRating=30, Armor=25, HasteRating=20, CritRating=10, Agility=0, Dps=0, ResilienceRating=0, MetaSocketEffect=16000, }
+		)
+
 	else
 		VgerCore.Fail("Failed to set up default Pawn scales because we weren't sure which version of WoW this is.")
 		return
@@ -889,13 +1131,15 @@ function PawnClassicScaleProvider_AddScales()
 	end
 	PawnClassicScaleProviderOptions.LastClass = Class
 
-	-- Since Pawn doesn't have an Automatic mode on Classic, enable the template scales when logging in for the first time
-	-- IF the player hasn't already added a non-provider scale.
-	-- For death knights only, do a one-time re-show on 2.6.5 since for some reason it wasn't working for some people.
-	if PawnClassicScaleProviderOptions.LastAdded < 2 or (Class == "DEATHKNIGHT" and PawnClassicScaleProviderOptions.LastAdded < 3) then
-		PawnSetAllScaleProviderScalesVisible(ScaleProviderName, false)
-		if PawnGetVisibleScaleCount() == 0 then
-			PawnEnableAllScalesForClass()
+	if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
+		-- Since Pawn doesn't have an Automatic mode until Mists of Pandaria, enable the template scales when logging in for the first time
+		-- IF the player hasn't already added a non-provider scale.
+		-- For death knights only, do a one-time re-show on 2.6.5 since for some reason it wasn't working for some people.
+		if PawnClassicScaleProviderOptions.LastAdded < 2 or (Class == "DEATHKNIGHT" and PawnClassicScaleProviderOptions.LastAdded < 3) then
+			PawnSetAllScaleProviderScalesVisible(ScaleProviderName, false)
+			if PawnGetVisibleScaleCount() == 0 then
+				PawnEnableAllScalesForClass()
+			end
 		end
 	end
 
@@ -908,7 +1152,7 @@ end -- PawnClassicScaleProvider_AddScales
 
 ------------------------------------------------------------
 
-if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
+if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 	-- Scales for all versions of WoW Classic are in this file.
 	PawnAddPluginScaleProvider(ScaleProviderName, PawnLocal.UI.StarterProvider, PawnClassicScaleProvider_AddScales)
 else
