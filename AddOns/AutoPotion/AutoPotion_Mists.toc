@@ -1,4 +1,4 @@
-## Interface: 40402
+## Interface: 50500
 ## Version: 3.9.0
 ## Title: Auto Potion
 ## Author: ollidiemaus
