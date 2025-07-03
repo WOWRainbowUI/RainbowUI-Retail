@@ -1,4 +1,4 @@
-local CONTROLS_VERSION = "2025-07-01"  -- Version (date) of this file.  Stored as "UDControls.VERSION".
+local CONTROLS_VERSION = "2025-04-23"  -- Version (date) of this file.  Stored as "UDControls.VERSION".
 
 --[[---------------------------------------------------------------------------
 FILE:   UDControls.lua
@@ -16,8 +16,6 @@ REQUIREMENTS / DEPENDANCIES:
 USAGE:  See examples at end of this comment block.
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
-    Jul 01, 2025
-        - Minor changes to DisplayAllFonts().
     Apr 23, 2025
         - Added an assert check to CUtil.Outline() to verify only frames are passed in (not textures).
     Apr 22, 2025
@@ -4385,7 +4383,7 @@ local function CreateTextScrollFrame(parent, title, width, height)  --DJUadded
 
     -- Create CLOSE button.
     containerFrame.closeBtn = CreateFrame("Button", nil, containerFrame, "UIPanelButtonTemplate")
-    containerFrame.closeBtn:SetText(CLOSE)
+    containerFrame.closeBtn:SetText("Close")
     containerFrame.closeBtn:SetPoint("BOTTOM", 0, 12)
     containerFrame.closeBtn:SetSize(width/3, 24)
     containerFrame.closeBtn:SetScript("OnClick", function(self) self:GetParent():Hide() end)
@@ -4709,11 +4707,9 @@ function CUtil.handleGlobalMouseClick(button)
 
 
 -- ****************************************************************************
-function CUtil.DisplayAllFonts(width, height)  --[ Keywords: ShowFonts() ]
+function CUtil.DisplayAllFonts(width, height)
         -- Create the fonts frame, if necessary.
         if (_G.FontNamesScrollFrame == nil) then
-            ----local chars = ""; for i = 1, 255 do chars = chars .. string.char(i) end
-
             _G.FontNamesScrollFrame = CreateTextScrollFrame(UIParent, "*** Available Game Fonts ***", width or 1000, height or 600)
 
             local fontNames = _G.GetFonts()
@@ -4727,7 +4723,6 @@ function CUtil.DisplayAllFonts(width, height)  --[ Keywords: ShowFonts() ]
                   ) then
                     ----print("DBG: fontNames["..i.."]:", name)
                     _G.FontNamesScrollFrame:AddText(name, nil, nil, name)
-                    if chars then _G.FontNamesScrollFrame:AddText(chars, nil, nil, name) end
                 end
             end
         end

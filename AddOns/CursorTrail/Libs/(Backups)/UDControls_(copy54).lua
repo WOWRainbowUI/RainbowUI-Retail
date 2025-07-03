@@ -4385,7 +4385,7 @@ local function CreateTextScrollFrame(parent, title, width, height)  --DJUadded
 
     -- Create CLOSE button.
     containerFrame.closeBtn = CreateFrame("Button", nil, containerFrame, "UIPanelButtonTemplate")
-    containerFrame.closeBtn:SetText(CLOSE)
+    containerFrame.closeBtn:SetText("Close")
     containerFrame.closeBtn:SetPoint("BOTTOM", 0, 12)
     containerFrame.closeBtn:SetSize(width/3, 24)
     containerFrame.closeBtn:SetScript("OnClick", function(self) self:GetParent():Hide() end)

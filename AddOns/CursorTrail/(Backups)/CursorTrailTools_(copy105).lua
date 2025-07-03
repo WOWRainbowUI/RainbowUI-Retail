@@ -760,14 +760,14 @@ function HandleToolSwitches(params)  --[ Keywords: Slash Commands ]
     --       Shift decreases the amount of change each arrow key press.
     --       Ctrl increases the amount of change each arrow key press.
     --       When done, type "/ct model" to dump all values (BEFORE CLOSING THE UI).
-    elseif (params:sub(1,5) == "box++") then CmdLineValue("BaseOfsX",  params:sub(6), "+")
-    elseif (params:sub(1,5) == "boy++") then CmdLineValue("BaseOfsY",  params:sub(6), "+")
-    elseif (params:sub(1,5) == "bsx++") then CmdLineValue("BaseStepX", params:sub(6), "+")
-    elseif (params:sub(1,5) == "bsy++") then CmdLineValue("BaseStepY", params:sub(6), "+")
-    elseif (params:sub(1,5) == "box--") then CmdLineValue("BaseOfsX",  params:sub(6), "-")
-    elseif (params:sub(1,5) == "boy--") then CmdLineValue("BaseOfsY",  params:sub(6), "-")
-    elseif (params:sub(1,5) == "bsx--") then CmdLineValue("BaseStepX", params:sub(6), "-")
-    elseif (params:sub(1,5) == "bsy--") then CmdLineValue("BaseStepY", params:sub(6), "-")
+    ----elseif (params:sub(1,5) == "box++") then CmdLineValue("BaseOfsX",  params:sub(6), "+")
+    ----elseif (params:sub(1,5) == "boy++") then CmdLineValue("BaseOfsY",  params:sub(6), "+")
+    ----elseif (params:sub(1,5) == "bsx++") then CmdLineValue("BaseStepX", params:sub(6), "+")
+    ----elseif (params:sub(1,5) == "bsy++") then CmdLineValue("BaseStepY", params:sub(6), "+")
+    ----elseif (params:sub(1,5) == "box--") then CmdLineValue("BaseOfsX",  params:sub(6), "-")
+    ----elseif (params:sub(1,5) == "boy--") then CmdLineValue("BaseOfsY",  params:sub(6), "-")
+    ----elseif (params:sub(1,5) == "bsx--") then CmdLineValue("BaseStepX", params:sub(6), "-")
+    ----elseif (params:sub(1,5) == "bsy--") then CmdLineValue("BaseStepY", params:sub(6), "-")
     elseif (params:sub(1,3) == "box")   then CmdLineValue("BaseOfsX",  params:sub(4))
     elseif (params:sub(1,3) == "boy")   then CmdLineValue("BaseOfsY",  params:sub(4))
     elseif (params:sub(1,3) == "boz")   then CmdLineValue("BaseOfsZ",  params:sub(4))
@@ -1018,11 +1018,9 @@ function CmdLineValue(name, val, plusOrMinus)
     local layer = gLayers:getSelectedLayer()
     local layerCfg = layer.playerConfigLayer
     local cursorModel = layer.CursorModel
-    local layerNum = OptionsFrame_GetSelectedLayer()
-    if layerNum ~= 1 then layerNum = "|cffFF2222"..layerNum end
     val = tonumber(val)
     if (val == nil) then
-        print(kAddonFolderName.." Layer#"..layerNum.."|r "..name.." is", cursorModel.Constants[name], ".")
+        print(kAddonFolderName .. " "..name.." is", cursorModel.Constants[name], ".")
     else
         if (plusOrMinus == "+") then
             val = cursorModel.Constants[name] + val
@@ -1043,7 +1041,7 @@ function CmdLineValue(name, val, plusOrMinus)
 
         cursorModel.Constants[name] = val  -- Change the specified value.
         cursorModel:applyModelSettings()   -- Apply the change.
-        print(kAddonFolderName .. " changed Layer#"..layerNum.."|r "..name.." to", val, ".")
+        print(kAddonFolderName .. " changed "..name.." to", val, ".")
         ----if (name == "BaseScale") then CursorModel_Dump() end
     end
 end

@@ -8,22 +8,6 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
-RELEASE 11.1.7.2
-Released 2025-07-01
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 5.5.0.1 for Classic Mists of Pandaria
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Classic MoP 5.5.0.
-- Fixed offsets for many of the models.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.1.7.2 for Retail WoW
-Version 1.15.7.3 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- No changes.
-
-=======================================
 RELEASE 11.1.7.1
 Released 2025-06-17
 
@@ -37,6 +21,7 @@ Version 4.4.2.6 for Classic Cataclysm
 Version 1.15.7.2 for Classic WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 - No changes.
+
 =======================================
 RELEASE 11.1.5.1
 Released 2025-04-22
