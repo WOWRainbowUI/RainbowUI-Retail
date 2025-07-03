@@ -1,6 +1,13 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5190
+* Fixes
+
+v.5190-MoP
+* Fixes
+* MoP updates
+
 v.5181
 * Pull timer fix
 

@@ -312,7 +312,7 @@ function module.options:Load()
 	self:CreateTilte()
 
 	local GetSpecializationInfoByID = GetSpecializationInfoByID
-	if ExRT.isClassic then
+	if ExRT.isClassic and not ExRT.isMoP then
 		GetSpecializationInfoByID = GetSpecializationInfoForSpecID or ExRT.Classic.GetSpecializationInfoByID
 	end
 
@@ -503,6 +503,9 @@ function module.options:Load()
 			"WARLOCK",
 			"DRUID",
 		}
+		if ExRT.isMoP then
+			tinsert(module.db.classNames, "MONK")
+		end
 	end
 	for key, class in ipairs(module.db.classNames) do
 		local column = (key-1) % 3

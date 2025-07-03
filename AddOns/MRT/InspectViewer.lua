@@ -503,6 +503,20 @@ module.db.achievementsList_statistic = {
 	},
 }
 
+if ExRT.isClassic and ExRT.isMoP then
+	local c = 0
+	for i=1,#module.db.achievementsList do
+		if module.db.achievementsList[i][1] == EXPANSION_NAME4 then
+			break
+		end
+		c = c + 1
+	end
+	for i=1,c do
+		tremove(module.db.achievementsList, 1)
+		tremove(module.db.achievementsList_statistic, 1)
+	end
+end
+
 do
 	local array = parentModule.db.acivementsIDs
 	for i=1,#module.db.achievementsList do
@@ -640,7 +654,7 @@ function module.options:Load()
 	self:CreateTilte()
 
 	local GetSpecializationInfoByID = GetSpecializationInfoByID
-	if ExRT.isClassic then
+	if ExRT.isClassic and not ExRT.isMoP then
 		GetSpecializationInfoByID = GetSpecializationInfoForSpecID or ExRT.Classic.GetSpecializationInfoByID
 	end
 
@@ -1055,7 +1069,9 @@ function module.options:Load()
 	if ExRT.isClassic then
 		--self.tab.tabs[2].button:Hide()
 		self.tab.tabs[3].button:Hide()
-		self.tab.tabs[4].button:Hide()
+		if not ExRT.isMoP then
+			self.tab.tabs[4].button:Hide()
+		end
 		if self.tab.tabs[5] then self.tab.tabs[5].button:Hide() end
 		self.chkItemsTrack:Hide()
 
@@ -1336,7 +1352,7 @@ function module.options:Load()
 								end
 							end
 						end
-					elseif module.db.page == 2 and ExRT.isClassic then
+					elseif module.db.page == 2 and ExRT.isClassic and not ExRT.isMoP then
 						local data = data.talentsStr or (VMRT.Inspect and VMRT.Inspect.TalentsClassic and VMRT.Inspect.TalentsClassic[name])
 
 						line.spec:Hide()
@@ -1398,7 +1414,7 @@ function module.options:Load()
 									t = (j-1)*3+t
 									local _,_,spellTexture = GetTalentInfoByID( data.talentsIDs[j] )
 									icon.texture:SetTexture(spellTexture)
-									icon.link = GetTalentLink( data.talentsIDs[j] )
+									icon.link = data[-j] and GetSpellLink(data[-j]) or GetTalentLink( data.talentsIDs[j] )
 								else
 									local _,_,spellTexture = GetSpellInfo(t)
 									icon.texture:SetTexture(spellTexture)
@@ -1409,15 +1425,29 @@ function module.options:Load()
 							end
 						end
 
-						for j=9,14 do
-							local t = data[module.db.glyphsIDs[j-8]]
-							local icon = line.items[j]
-							if t then
-								local _,_,spellTexture = GetPvpTalentInfoByID( data.talentsIDs[ j - 1 ] )
-								icon.texture:SetTexture(spellTexture)
-								icon.link = GetPvpTalentLink( data.talentsIDs[ j - 1 ] )
-								icon.sid = nil
-								icon:Show()
+						if ExRT.isMoP then
+							for j=9,14 do
+								local t = data[j-1]
+								local icon = line.items[j]
+								if t then
+									local _,_,spellTexture = GetSpellInfo( t )
+									icon.texture:SetTexture(spellTexture)
+									icon.link = GetSpellLink( t)
+									icon.sid = nil
+									icon:Show()
+								end
+							end
+						else
+							for j=9,14 do
+								local t = data[module.db.glyphsIDs[j-8]]
+								local icon = line.items[j]
+								if t then
+									local _,_,spellTexture = GetPvpTalentInfoByID( data.talentsIDs[ j - 1 ] )
+									icon.texture:SetTexture(spellTexture)
+									icon.link = GetPvpTalentLink( data.talentsIDs[ j - 1 ] )
+									icon.sid = nil
+									icon:Show()
+								end
 							end
 						end
 					elseif module.db.page == 3 then

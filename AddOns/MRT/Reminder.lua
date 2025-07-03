@@ -8,7 +8,7 @@ local LibDeflate = LibStub:GetLibrary("LibDeflate")
 
 local VMRT = nil
 
-local UnitPowerMax, tonumber, tostring, UnitGUID, PlaySoundFile, RAID_CLASS_COLORS, floor, ceil = UnitPowerMax, tonumber, tostring, UnitGUID, PlaySoundFile, RAID_CLASS_COLORS, floor, ceil
+local UnitPowerMax, tonumber, tostring, UnitGUID, PlaySoundFile, RAID_CLASS_COLORS, floor, ceil, COMBATLOG_OBJECT_RAIDTARGET_MASK = UnitPowerMax, tonumber, tostring, UnitGUID, PlaySoundFile, RAID_CLASS_COLORS, floor, ceil, COMBATLOG_OBJECT_RAIDTARGET_MASK
 local UnitHealthMax, UnitHealth, ScheduleTimer, UnitName, GetRaidTargetIndex, UnitCastingInfo, UnitChannelInfo, UnitIsUnit, UnitIsDead = UnitHealthMax, UnitHealth, ExRT.F.ScheduleTimer, UnitName, GetRaidTargetIndex, UnitCastingInfo, UnitChannelInfo, UnitIsUnit, UnitIsDead
 local GetSpellInfo, strsplit, GetTime, UnitPower, UnitGetTotalAbsorbs, UnitClass, GetSpellCooldown, UnitGroupRolesAssigned = ExRT.F.GetSpellInfo or GetSpellInfo, strsplit, GetTime, UnitPower, UnitGetTotalAbsorbs, UnitClass, ExRT.F.GetSpellCooldown or GetSpellCooldown, UnitGroupRolesAssigned
 local pairs, ipairs, bit, string_gmatch, tremove, pcall, format, wipe, type, select, loadstring, next, max, bit_band, unpack = pairs, ipairs, bit, string.gmatch, tremove, pcall, format, wipe, type, select, loadstring, next, math.max, bit.band, unpack
@@ -16114,13 +16114,13 @@ function options:Load()
 			if UnitClass(name) then
 				name = "|c" .. RAID_CLASS_COLORS[select(2,UnitClass(name))].colorStr .. name
 			end
-			local mark = module.datas.markToIndex[flags]
+			local mark = module.datas.markToIndex[bit.band(flags, COMBATLOG_OBJECT_RAIDTARGET_MASK)]
 			if mark and mark > 0 then
 				name = ExRT.F.GetRaidTargetText(mark).." " .. name
 			end
 			return name
 		elseif flags then
-			local mark = module.datas.markToIndex[flags]
+			local mark = module.datas.markToIndex[bit.band(flags, COMBATLOG_OBJECT_RAIDTARGET_MASK)]
 			if mark and mark > 0 then
 				return ExRT.F.GetRaidTargetText(mark)
 			end
@@ -18393,11 +18393,11 @@ function module.main.COMBAT_LOG_EVENT_UNFILTERED(timestamp,event,hideCaster,sour
 				(not triggerData.spellName or triggerData.spellName == spellName) and
 				(not trigger.DsourceName or sourceName and trigger.DsourceName[sourceName]) and
 				(not trigger.DsourceID or trigger.DsourceID(sourceGUID)) and
-				(not triggerData.sourceMark or module.datas.markToIndex[sourceFlags2] == triggerData.sourceMark) and
+				(not triggerData.sourceMark or module.datas.markToIndex[bit_band(sourceFlags2, COMBATLOG_OBJECT_RAIDTARGET_MASK)] == triggerData.sourceMark) and
 				(not triggerData.sourceUnit or module:CheckUnit(triggerData.sourceUnit,sourceGUID,trigger)) and
 				(not trigger.DtargetName or destName and trigger.DtargetName[destName]) and
 				(not trigger.DtargetID or trigger.DtargetID(destGUID)) and
-				(not triggerData.targetMark or module.datas.markToIndex[destFlags2] == triggerData.targetMark) and
+				(not triggerData.targetMark or module.datas.markToIndex[bit_band(destFlags2, COMBATLOG_OBJECT_RAIDTARGET_MASK)] == triggerData.targetMark) and
 				(not triggerData.targetUnit or module:CheckUnit(triggerData.targetUnit,destGUID,trigger)) and
 				(not triggerData.extraSpellID or triggerData.extraSpellID == arg1) and
 				(not trigger.Dstacks or module:CheckNumber(trigger.Dstacks,(event == "SPELL_AURA_APPLIED_DOSE" or event == "SPELL_AURA_REMOVED_DOSE") and arg2 or 1)) and
@@ -18413,9 +18413,9 @@ function module.main.COMBAT_LOG_EVENT_UNFILTERED(timestamp,event,hideCaster,sour
 				then
 					local vars = {
 						sourceName = sourceName,
-						sourceMark = module.datas.markToIndex[sourceFlags2],
+						sourceMark = module.datas.markToIndex[bit_band(sourceFlags2, COMBATLOG_OBJECT_RAIDTARGET_MASK)],
 						targetName = destName,
-						targetMark = module.datas.markToIndex[destFlags2],
+						targetMark = module.datas.markToIndex[bit_band(destFlags2, COMBATLOG_OBJECT_RAIDTARGET_MASK)],
 						spellName = spellName,
 						spellID = spellID,
 						extraSpellID = arg1,

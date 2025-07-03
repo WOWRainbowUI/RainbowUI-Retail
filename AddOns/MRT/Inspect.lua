@@ -234,7 +234,7 @@ local function InspectNext()
 			end
 			NotifyInspect(name)
 
-			if (VMRT and VMRT.InspectViewer and VMRT.InspectViewer.EnableA4ivs) and not module.db.inspectDBAch[name] and not ExRT.isClassic then
+			if (VMRT and VMRT.InspectViewer and VMRT.InspectViewer.EnableA4ivs) and not module.db.inspectDBAch[name] and (not ExRT.isClassic or ExRT.isMoP) then
 				if AchievementFrameComparison then
 					AchievementFrameComparison:UnregisterEvent("INSPECT_ACHIEVEMENT_READY")
 					module.db.blizzinterfaceunloaded = true
@@ -683,7 +683,7 @@ end
 hooksecurefunc("NotifyInspect", function() module.db.inspectID = GetTime() module.db.inspectCleared = nil end)
 hooksecurefunc("ClearInspectPlayer", function() module.db.inspectCleared = true end)
 
-if not ExRT.isClassic then
+if not ExRT.isClassic or ExRT.isMoP then
 	hooksecurefunc("SetAchievementComparisonUnit", function() module.db.achievementCleared = nil end)
 	hooksecurefunc("ClearAchievementComparisonUnit", function() module.db.achievementCleared = true end)
 end
@@ -1155,8 +1155,10 @@ do
 					end
 				end
 			elseif ExRT.isMoP then
-				local talentGroup = GetActiveSpecGroup(true) or 1
+				--local talentGroup = GetActiveSpecGroup(true) or 1
+				local talentGroup = 1
 				for tier=1, 7 do
+					data[-tier] = nil
 					for column=1, 3 do
 						local talentData = C_SpecializationInfo.GetTalentInfo({tier=tier, column=column, groupIndex=talentGroup, isInspect=true, target=inspectedName})
 
@@ -1184,13 +1186,53 @@ do
 	
 								cooldownsModule:SetTalentClassicRank(name,talentData.spellID,1)
 							end
+							if (talentData.selected) then
+								data[tier] = column
+								data.talentsIDs[tier] = talentData.talentID
+								data[-tier] = talentData.spellID
+							end
 		
 							cooldownsModule.db.spell_isTalent[GetSpellInfo(talentData.spellID) or "spell:"..talentData.spellID] = true
 							cooldownsModule.db.spell_isTalent[talentData.spellID] = true
 
 						end
 					end
+				end
 
+				for glyphPos=1,6 do
+					local P = 7 + (glyphPos % 2 == 0 and glyphPos / 2 or (glyphPos+1)/2+3)
+
+					data[P] = nil
+					local enabled, glyphType, glyphTooltipIndex, glyphSpell, iconFilename, glyphID = GetGlyphSocketInfo(glyphPos, talentGroup, true, inspectedName)
+					if glyphSpell then
+						data[P] = glyphSpell
+
+						local list = cooldownsModule.db.spell_talentsList[class]
+						if not list then
+							list = {}
+							cooldownsModule.db.spell_talentsList[class] = list
+						end
+	
+						list[0] = list[0] or {}
+	
+						if not ExRT.F.table_find(list[0],glyphSpell) then
+							list[0][ #list[0]+1 ] = glyphSpell
+						end
+
+						cooldownsModule.db.session_gGUIDs[name] = {glyphSpell,"talent"}
+
+						if cooldownsModule.db.spell_talentProvideAnotherTalents[glyphSpell] then
+							for k,v in pairs(cooldownsModule.db.spell_talentProvideAnotherTalents[glyphSpell]) do
+								cooldownsModule.db.session_gGUIDs[name] = {v,"talent"}
+							end
+						end
+
+						cooldownsModule:SetTalentClassicRank(name,glyphSpell,1)
+
+	
+						cooldownsModule.db.spell_isTalent[GetSpellInfo(glyphSpell) or "spell:"..glyphSpell] = true
+						cooldownsModule.db.spell_isTalent[glyphSpell] = true
+					end
 				end
 			elseif ExRT.isLK then
 				local talentsStr, specIndex = module:GetInspectTalentsClassicData(class)
