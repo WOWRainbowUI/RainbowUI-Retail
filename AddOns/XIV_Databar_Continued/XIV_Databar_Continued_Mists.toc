@@ -1,7 +1,7 @@
-## Interface: 40402
+## Interface: 50500
 ## Title: XIV_Databar Continued
 ## Author: ZelionGG
-## Version: 3.6.1
+## Version: 3.7
 
 ## Notes: Adds a databar. Previously maintained by |cff00FF99Saxitoxin|r, |cffbbbbbbMille|r|cff990000XIV|r, |c03dbfcbbVicious|r, |cffbab86cKozoaku|r, and now |cffFF0000ZelionGG|r.
 ## SavedVariables: XIVBarDB
@@ -18,6 +18,8 @@ Classic\embeds.xml
 
 locales\locales.xml
 core.lua
-Core\changelog\Load_Changelog.xml
+
+Core\utils\changelog\Load_Changelog.xml
+
 Core\modules\load_modules.xml
 Classic\modules\load_modules_cata.xml
