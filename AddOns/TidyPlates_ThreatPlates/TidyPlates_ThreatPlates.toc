@@ -1,7 +1,7 @@
 ## Interface: 110107
 
 ## Title: Threat Plates
-## Version: 12.2.3
+## Version: 12.3.1
 ## Notes: Threat-reactive nameplates.
 ## Notes-deDE: Bedrohungsreaktive Namensplaketten.
 ## Notes-esES: Placas Identificativas de Amenaza
@@ -31,6 +31,7 @@ Libs\Libs.xml
 Locales\Locales.xml
 
 Init.lua
+Compatibility.lua
 Localization.lua
 CVarsManager.lua
 Media.lua
