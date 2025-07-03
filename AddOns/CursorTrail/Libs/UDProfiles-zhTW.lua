@@ -122,6 +122,8 @@ L.UnsavedChangesBackupWarning = "備份成功，但目前的設定檔中未儲�
 L.OptionSaveOnOkay = "在點擊確定按鈕時儲存設定檔。"
 L.OptionConfirmDelete = "刪除設定檔前詢問。"
 L.OptionConfirmCopy = "複製設定檔前詢問。"
+L.OptionAccountProfile = "所有角色都使用相同的設定檔。"
+L.AccountProfileIconDesc = "這個設定檔提供給所有角色使用。"
 
 L.ProfilesHelp = [[
 - 若要建立新的設定檔，請從選單中選擇「新增設定檔」。
