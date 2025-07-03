@@ -5,9 +5,7 @@ XIVBar.Changelog[3610] = {
     release_date = "2025/06/18",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[Retail] 更新 TOC 以支援 [11.1.7]。",
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] TOC update for [11.1.7].",
         },

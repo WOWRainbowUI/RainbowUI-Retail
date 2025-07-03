@@ -5,10 +5,7 @@ XIVBar.Changelog[2800] = {
     release_date = "2024/05/16",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式版] 更新 TOC 的遊戲版本編號 10.2.7。",
-            "[經典版] 更新探索賽季 TOC 的遊戲版本編號 1.15.2。",
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] TOC update for Retail 10.2.7.",
             "[Classic] TOC update for Classic SOD 1.15.2.",
@@ -22,10 +19,7 @@ XIVBar.Changelog[2800] = {
     },
     new = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[浩劫與重生經典版] 初次支援 4.4.0。",
-            "[浩劫與重生經典版] 已知問題 : 天賦切換有問題，已計劃會盡快修復。",
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Cata Classic] Initial support for Cata Classic 4.4.0.",
             "[Cata Classic] Known bug : The talent switcher is actually bugged, a fix is planned ASAP.",

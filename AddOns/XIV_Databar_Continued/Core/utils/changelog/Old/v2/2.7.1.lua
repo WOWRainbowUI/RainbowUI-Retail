@@ -5,9 +5,7 @@ XIVBar.Changelog[2701] = {
     release_date = "2024/02/28",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[全部] 修正 [更新資訊] 模組沒處理好的本地化語系造成的插件錯誤。",
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Global] Fixed an addon breaking error caused by unmaintained locales in the [Changelog] module.",
         },

@@ -5,10 +5,7 @@ XIVBar.Changelog[3200] = {
     release_date = "2024/11/14",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式版] [M+ 傳送門] 修正波拉勒斯的傳送 ID。",
-            "[正式版] 在副本中停用 [護甲] 模組的座標功能。"
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] [Mythic+ Teleports] fix to Siege of Boralus Teleport ID.",
             "[Retail] Disabled the coordinates functionnality in instances in the [Armor] module."
@@ -22,10 +19,7 @@ XIVBar.Changelog[3200] = {
     },
     new = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式版] [M+ 傳送門] 重新命名 [傳送] 模組裡面的 [M+ 傳送門] (英文版才有差別)。",
-            "[正式版] [M+ 傳送門] 新增只顯示當前賽季的選項。"
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] [Mythic+ Portals] global renaming to [Mythic+ Teleports] in the [Travel] module.",
             "[Retail] Added options in the [Mythic+ Teleports] functionnality to allow showing only the current season dungeons."
@@ -39,9 +33,7 @@ XIVBar.Changelog[3200] = {
     },
     improvment = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[全部] 更新德文翻譯。",
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Global] German locales updates and additions.",
         },

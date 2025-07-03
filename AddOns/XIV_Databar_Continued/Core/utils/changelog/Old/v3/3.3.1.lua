@@ -5,9 +5,7 @@ XIVBar.Changelog[3310] = {
     release_date = "2025/01/08",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式服] 更新 TOC 遊戲版本編號 11.0.7 (以及預備 11.1)。"
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] TOC update for Retail 11.0.7 (and 11.1 prep)."
         },

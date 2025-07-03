@@ -5,11 +5,7 @@ XIVBar.Changelog[2900] = {
     release_date = "2024/06/02",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[浩劫與重生經典版] 修正切換專精的功能。",
-            "[浩劫與重生經典版] 修正 [微型選單] 模組的公會按鈕。",
-            "[浩劫與重生經典版] 加回 [微型選單] 模組的冒險指南按鈕 (地城和團隊首領戰框架)。",
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Cata Classic] Fixed the specialization switcher.",
             "[Cata Classic] Fixed the guild button in the [Micromenu] module.",
@@ -33,9 +29,7 @@ XIVBar.Changelog[2900] = {
     },
     improvment = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[浩劫與重生經典版] 小型技術更新 [微型選單] 模組的好友按鈕。",
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Cata Classic] Small technical update to the friends button in the [Micromenu] module.",
         },

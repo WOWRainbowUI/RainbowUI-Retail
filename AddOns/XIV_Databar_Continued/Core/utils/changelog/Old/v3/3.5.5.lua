@@ -5,10 +5,7 @@ XIVBar.Changelog[3550] = {
     release_date = "2025/04/23",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式服] 支援 11.1.5",
-            "[探索服] 支援 1.15.7"
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] Updated for [11.1.5].",
             "[Classic SoD] Updated for [1.15.7]."
@@ -22,9 +19,7 @@ XIVBar.Changelog[3550] = {
     },
     new = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式服] [旅行傳送] 模組新增 4 個缺少的爐石玩具。",
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] Added 4 missing Hearthstones toys in the [Travel] module.",
         },

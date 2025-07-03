@@ -5,10 +5,7 @@ XIVBar.Changelog[3030] = {
     release_date = "2024/08/26",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式版] [微型選單] 修正聊天按鈕 (泡泡圖示)。",
-            "[正式版] [旅行] 模組修正 11.0.2 的 API 變更。",
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] [Micromenu] module chat (bubble) button fix for Retail 11.0.2.",
             "[Retail] [Travel] module fix for Retail's API changes in 11.0.2.",

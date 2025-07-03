@@ -5,9 +5,7 @@ XIVBar.Changelog[3530] = {
     release_date = "2025/03/25",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式服] 修正 [旅行傳送] 模組的冷卻時間。"
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] Fixed cooldowns in the [Travel] module."
         },
@@ -19,9 +17,7 @@ XIVBar.Changelog[3530] = {
     },
     new = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式服] [旅行傳送] 模組新增薩滿的界星傳送。"
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] Added Shaman's Astral Recall to the [Travel] module."
         },
@@ -33,9 +29,7 @@ XIVBar.Changelog[3530] = {
     },
     improvment = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式服] 修正 [旅行傳送] 模組不會顯示傳送機械岡。",
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] Fixed Mechagon teleport not showing in the [Travel] module.",
         },

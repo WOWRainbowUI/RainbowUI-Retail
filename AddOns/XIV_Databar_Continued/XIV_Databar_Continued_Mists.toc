@@ -28,4 +28,4 @@ core.lua
 Core\utils\changelog\Load_Changelog.xml
 
 Core\modules\load_modules.xml
-Classic\modules\load_modules_wrath.xml
+Classic\modules\load_modules_cata.xml

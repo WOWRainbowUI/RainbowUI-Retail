@@ -5,9 +5,7 @@ XIVBar.Changelog[3540] = {
     release_date = "2025/04/02",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式服] 修正 [旅行傳送] M+ 模組中的晶喜鎮!"
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] Fixed The MOTHERLODE!! teleport in the [Travel] Mythic+ module."
         },

@@ -225,7 +225,7 @@ function TalentModule:RegisterFrameEvents()
     self:RegisterEvent('TRAIT_CONFIG_DELETED', 'Refresh');
     self:RegisterEvent('TRAIT_CONFIG_CREATED', 'Refresh');
 
-    print("RegisterFrameEvents")
+    -- print("RegisterFrameEvents")
     self.specFrame:EnableMouse(true)
     self.specFrame:RegisterForClicks('AnyUp')
 

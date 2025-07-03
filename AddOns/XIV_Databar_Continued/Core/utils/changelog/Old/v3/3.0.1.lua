@@ -5,10 +5,7 @@ XIVBar.Changelog[3010] = {
     release_date = "2024/07/24",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式版] 修正 11.0.0 的 [微型選單] 模組 (法術書和天賦)。",
-            "[探索賽季] 修正 1.15.3 的 [微型選單] 模組 (公會按鈕)。",
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] [Micromenu] module fix for Retail 11.0.0.",
             "[Classic SoD] [Micromenu] module fix (Guild button) for Classic SOD 1.15.3.",

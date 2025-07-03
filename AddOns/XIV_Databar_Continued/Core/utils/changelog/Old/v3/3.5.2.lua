@@ -21,12 +21,7 @@ XIVBar.Changelog[3520] = {
     },
     improvment = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[正式服] 修正 [微型選單] 社交彈出資訊的活動圖示。",
-            "[正式服] 修正 [旅行傳送] 模組不會顯示傳送彈出資訊。",
-            "[正式服] 修正 [旅行傳送] 模組中 M+ 傳送彈出資訊的位置，會根據資訊列在畫面上的位置動態調整。",
-            "[正式服] 暫時更改法術書和天賦 [微型選單] 按鈕 API。",
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Retail] Fixed activity icons in the [Micromenu] social popup.",
             "[Retail] Fixed the Teleports popup not showing in the [Travel] module.",

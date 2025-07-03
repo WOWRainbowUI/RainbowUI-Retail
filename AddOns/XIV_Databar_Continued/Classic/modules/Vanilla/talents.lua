@@ -58,7 +58,16 @@ function TalentModule:OnEnable()
         self:Disable()
         return
     end
-    self.currentSpecID = GetSpecialization() -- returns 5 for newly created characters in shadowlands
+
+    local highestPoints = 0
+    for i = 1, GetNumTalentTabs() do
+        local _, name, _, _, pointsSpent, _, _, _ = GetTalentTabInfo(i)
+        if pointsSpent > highestPoints then
+            highestPoints = pointsSpent
+            self.currentSpecID = i
+        end
+    end
+
     if self.currentSpecID == 5 then
         self:Disable()
         return
@@ -454,7 +463,7 @@ end
 
 function TalentModule:GetDefaultOptions()
     return 'talent', {
-        enabled = false,
+        enabled = true,
         showTooltip = true,
         minWidth = 50
     }

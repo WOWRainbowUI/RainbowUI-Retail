@@ -5,9 +5,7 @@ XIVBar.Changelog[3000] = {
     release_date = "2024/07/06",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[地心之戰 Beta] 初始化 11.0 相容性。"
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[The War Within Beta] Initial 11.0 compatibility."
         },
@@ -27,9 +25,7 @@ XIVBar.Changelog[3000] = {
     },
     improvment = {
         ["zhCN"] = {},
-        ["zhTW"] = {
-            "[全部] 移除 TOC 檔案中無用的 var 遊戲參數。"
-        },
+        ["zhTW"] = {},
         ["enUS"] = {
             "[Global] Removed a useless var in TOC files."
         },
