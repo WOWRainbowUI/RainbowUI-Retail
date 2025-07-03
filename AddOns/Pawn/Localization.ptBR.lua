@@ -127,12 +127,14 @@ Para mais informações sobre personalizar o Pawn, favor veja o arquivo de ajuda
 		["MovementSpeedInfo"] = "Velocidade de movimento. Faz com que o seu personagem corra mais rápido.",
 		["Mp5"] = "Mana a cada 5",
 		["Mp5Info"] = "Mana regeneration per 5 seconds.  Affects your mana regeneration even when in combat.",
+		["MultistrikeInfo"] = "Multistrike. Increases the chance that your attacks and healing spells will hit your target two extra times at reduced potency.",
 		["NatureResistInfo"] = "Nature Resistance.  Reduces the damage taken from nature-based attacks.",
 		["NatureSpellDamage"] = "Dano de Natureza",
 		["NatureSpellDamageInfo"] = "Nature damage.  Increases the damage dealt by your nature spells.",
 		["ParryInfo"] = "Parry.  Increases the chance that you'll parry enemy attacks.",
 		["Plate"] = "Placas",
 		["PlateInfo"] = "Pontos para distribuir se o item for de placas.",
+		["PvPPowerInfo"] = "Poder JxJ. Faz com que suas habilidades causem mais dano para outros jogadores (mas não para criaturas), e suas habilidades de cura curem outros jogadores para mais em algumas situações JxJ.",
 		["RapInfo"] = "Ranged Attack Power.  Increases the damage of ranged physical attacks.  Does not include attack power gained from agility.",
 		--[[Translation missing --]]
 		["ResilienceInfo"] = "Resilience. Reduces the chance that you'll be critically hit, and decreases the damage of critical hits that you do take.",
@@ -602,6 +604,7 @@ PawnLocal.TooltipParsing = {
 	["HitRating2"] = "^Equipado: Aumenta em # a sua taxa de acerto%.$",
 	["HitRating3"] = "^UNUSED$",
 	["HitRatingShort"] = "^%+?# Taxa de Acerto$",
+	["HitRatingShorter"] = "^%+?# Acerto$",
 	["HolySpellDamage"] = "^%+# Dano Mágico Sagrados$",
 	["HolySpellDamage2"] = "^Equipado: Aumenta em até # o dano causado por feitiços e efeitos Sagrados%.$",
 	["HolySpellDamage3"] = "^UNUSED$",
@@ -790,7 +793,7 @@ PawnLocal.Specs =
 
 -- Special case: wands actually use different text on live versus classic.
 -- So, patch things up here.
-if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
+if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 
 	local TooltipParsing_Classic =
 	{

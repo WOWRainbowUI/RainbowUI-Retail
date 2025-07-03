@@ -123,12 +123,14 @@ Weitere Informationen zur Anpassung von Pawn findet ihr in der Hilfedatei (Readm
 		["MovementSpeedInfo"] = "Bewegungsgeschwindigkeit. Bewirkt, dass euer Charakter schneller läuft.",
 		["Mp5"] = "Mana alle 5",
 		["Mp5Info"] = "Manaregeneration pro 5 Sekunden. Beeinflusst deine Manaregeneration auch im Kampf.",
+		["MultistrikeInfo"] = "Bereitschaft. Erhöht die Chance, dass Ihre Angriffe und Heilzauber Ihr Ziel extra zweimal bei reduzierter Wirksamkeit getroffen werden.",
 		["NatureResistInfo"] = "Naturwiderstand. Reduziert den Schaden durch naturbasierte Angriffe.",
 		["NatureSpellDamage"] = "Naturzauberschaden",
 		["NatureSpellDamageInfo"] = "Naturzauberschaden. Erhöht den durch deine Naturzauber verursachten Schaden.",
 		["ParryInfo"] = "Parieren. Erhöht die Wahrscheinlichkeit, dass du feindliche Angriffe abwehrst.",
 		["Plate"] = "Platte",
 		["PlateInfo"] = "Punkte, die zugewiesen werden sollen, wenn der Gegenstand Platte ist.",
+		["PvPPowerInfo"] = "PvP Macht. Erhöht die Fähigkeit um bei anderen Spielern (keine NPCs) in bestimmten PvP Situationen mehr Schaden oder Heilung zu verursachen.",
 		["RapInfo"] = "Distanzangriffskraft. Erhöht den Schaden von physischen Distanzangriffen. Beinhaltet keine Angriffskraft, die durch Beweglichkeit gewonnen wird.",
 		["ResilienceInfo"] = "Elastizität. Verringert die Wahrscheinlichkeit, dass du kritisch getroffen wirst, und verringert den Schaden kritischer Treffer, die du erleidest.",
 		["ShadowResistInfo"] = "Schattenwiderstand. Reduziert den Schaden durch schattenbasierte Angriffe.",
@@ -576,6 +578,7 @@ PawnLocal.TooltipParsing = {
 	["HitRating2"] = "^Anlegen: Erhöht Eure Trefferwertung um #%.$",
 	["HitRating3"] = "^UNUSED$",
 	["HitRatingShort"] = "^%+?# Trefferwertung$",
+	["HitRatingShorter"] = "^%+?# Trefferwert$",
 	["HolySpellDamage"] = "^%+# Heiligzauberschaden$",
 	["HolySpellDamage2"] = "^Anlegen: Erhöht durch Heiligzauber und Heiligeffekte zugefügten Schaden um bis zu #%.$",
 	["HolySpellDamage3"] = "^UNUSED$",
@@ -700,7 +703,7 @@ PawnLocal.TooltipParsing = {
 
 -- Special case: weapon speed and Mail use different words on Classic.
 -- So, patch things up here.
-if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
+if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 	PawnLocal.Mail = "Schwere Rüstung"
 	PawnLocal.MailInfo = "Punkte, die zugewiesen werden sollen, wenn der Gegenstand Schwere Rüstung ist."
 	PawnLocal.TooltipParsing.Mail = "^Schwere Rüstung$"

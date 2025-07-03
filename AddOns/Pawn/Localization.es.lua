@@ -149,6 +149,8 @@ Para más información sobre como personalizar Pawn, por favor lee el archivo (R
 		--[[Translation missing --]]
 		["Mp5Info"] = "Mana regeneration per 5 seconds.  Affects your mana regeneration even when in combat.",
 		--[[Translation missing --]]
+		["MultistrikeInfo"] = "Multistrike. Increases the chance that your attacks and healing spells will hit your target two extra times at reduced potency.",
+		--[[Translation missing --]]
 		["NatureResistInfo"] = "Nature Resistance.  Reduces the damage taken from nature-based attacks.",
 		["NatureSpellDamage"] = "Daño de Naturaleza",
 		--[[Translation missing --]]
@@ -157,6 +159,7 @@ Para más información sobre como personalizar Pawn, por favor lee el archivo (R
 		["ParryInfo"] = "Parry.  Increases the chance that you'll parry enemy attacks.",
 		["Plate"] = "Placas",
 		["PlateInfo"] = "Puntos que asignar si el objeto es de Placas.",
+		["PvPPowerInfo"] = "PvP power. Causes your abilities to deal more damage to other players (but not creatures), and your healing spells to heal other players for more in some PvP situations.",
 		--[[Translation missing --]]
 		["RapInfo"] = "Ranged Attack Power.  Increases the damage of ranged physical attacks.  Does not include attack power gained from agility.",
 		--[[Translation missing --]]
@@ -614,13 +617,13 @@ PawnLocal.TooltipParsing = {
 	["FrostSpellDamage2"] = "^Equipar: Aumenta hasta # p%. el daño que infligen los hechizos y efectos de Escarcha%.$",
 	["FrostSpellDamage3"] = "^%+# daño de Escarcha$",
 	["Gun"] = "^Arma de fuego$",
-	["Haste"] = "^%+?# celeridad$",
+	["Haste"] = "^%+?# [cC]eleridad$",
 	["Haste2"] = "^UNUSED$",
 	["HasteClassic"] = "^Equipar: Aumenta un #%% tu velocidad de ataque%.$",
 	["HaventCollectedAppearance"] = "^No has conseguido esta apariencia%.$",
 	["HasteRating"] = "^Equipar: Aumenta # p%. la celeridad%.$",
 	["HasteRating2"] = "^Equipar: Mejora el índice de celeridad en # p%.$",
-	["HasteRatingShort"] = "^%+?# celeridad$",
+	["HasteRatingShort"] = "^UNUSED$",
 	["Healing"] = "^%+# de hechizos de sanación$",
 	["Healing2"] = "^Equipar: Aumenta hasta # p%. la sanación de los hechizos y efectos%.$",
 	["Healing3"] = "^%+# sanación$",
@@ -638,6 +641,7 @@ PawnLocal.TooltipParsing = {
 	["HitRating2"] = "^Equipar: Aumenta tu índice de golpe e?n? ?# p%.$",
 	["HitRating3"] = "^Equipar: Mejora el índice de golpe e?n? ?# p%.$",
 	["HitRatingShort"] = "^%+?# índice de golpe$",
+	["HitRatingShorter"] = "^%+?# Golpe$",
 	["HolySpellDamage"] = "^%+# daño con hechizos Sagrados$",
 	["HolySpellDamage2"] = "^Equipar: Aumenta hasta # p%. el daño que infligen los hechizos y efectos Sagrados%.$",
 	["HolySpellDamage3"] = "^UNUSED$",
@@ -832,7 +836,7 @@ if GetLocale() == "esES" then
 	PawnLocal.DecimalSeparator = ","
 
 	if VgerCore.IsWrath or VgerCore.IsCataclysm then
-		-- Wrath Classic on esES has an incorrect LARGE_NUMBER_SEPERATOR.
+		-- Wrath and Cataclysm Classic on esES have an incorrect LARGE_NUMBER_SEPERATOR.
 		PawnLocal.ThousandsSeparator = ","
 	end
 
@@ -886,7 +890,7 @@ if GetLocale() == "esES" then
 		end
 	end
 
-	if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
+	if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 
 		local TooltipParsing_Classic =
 		{
@@ -935,7 +939,7 @@ if GetLocale() == "esES" then
 		end
 	end
 
-	if VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
+	if VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 
 		local TooltipParsing_BurningCrusade =
 		{
@@ -955,7 +959,7 @@ if GetLocale() == "esES" then
 		end
 	end
 
-	if VgerCore.IsMainline or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
+	if VgerCore.IsMainline or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 		PawnLocal.TooltipParsing.Block = "^%+?# bloqueo$"
 	end
 
@@ -964,7 +968,7 @@ elseif GetLocale() == "esMX" then
 	PawnLocal.ThousandsSeparator = ","
 	PawnLocal.DecimalSeparator = "."
 
-	if VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
+	if VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 		PawnLocal.TooltipParsing.Block = "^%+?# bloqueo$"
 	end
 end
