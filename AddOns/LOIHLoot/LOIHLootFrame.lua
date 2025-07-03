@@ -19,6 +19,8 @@ LOIHLootFrame:SetScript("OnShow", function(self)
 	private.Frame_UpdateButtons()
 end)
 
+local isMoPClassic = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
+
 ------------------------------------------------------------------------
 --  BACKGROUND TEXTURES
 
@@ -133,15 +135,30 @@ LOIHLootFrame.SyncText = syncText
 ------------------------------------------------------------------------
 --  TAB BUTTONS
 
-local subtitleTab = CreateFrame("Button", "$parentSubTitleTab", LOIHLootFrame, "TabSystemTemplate")
-subtitleTab:SetPoint("TOPLEFT", 70, -42)
-do 
-	local tabId = subtitleTab:AddTab(L.TAB_WISHLIST)
-	subtitleTab:SetTabEnabled(tabId, false)
-	local tabButton = subtitleTab:GetTabButton(tabId)
-	tabButton.isTabOnTop = true
-	tabButton:HandleRotation()
+local subtitleTab = CreateFrame("Button", "$parentSubTitleTab", LOIHLootFrame, isMoPClassic and "TabButtonTemplate" or "TabSystemTemplate")
+
+if isMoPClassic then
+	local function tab_OnShow(self)
+		PanelTemplates_TabResize(self, 0)
+		_G[self:GetName() .. "HighlightTexture"]:SetWidth(self:GetTextWidth() + 31)
+	end
+
+	subtitleTab:SetPoint("TOPLEFT", 70, -39)
+	subtitleTab:SetID(1)
+	subtitleTab:SetScript("OnShow", tab_OnShow)
+	subtitleTab:SetText(L.TAB_WISHLIST)
+	PanelTemplates_SelectTab(subtitleTab)
+else
+	subtitleTab:SetPoint("TOPLEFT", 70, -42)
+	do 
+		local tabId = subtitleTab:AddTab(L.TAB_WISHLIST)
+		subtitleTab:SetTabEnabled(tabId, false)
+		local tabButton = subtitleTab:GetTabButton(tabId)
+		tabButton.isTabOnTop = true
+		tabButton:HandleRotation()
+	end
 end
+
 LOIHLootFrame.SubTitleTab = subtitleTab
 
 ------------------------------------------------------------------------
