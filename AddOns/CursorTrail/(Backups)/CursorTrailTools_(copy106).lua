@@ -1018,11 +1018,9 @@ function CmdLineValue(name, val, plusOrMinus)
     local layer = gLayers:getSelectedLayer()
     local layerCfg = layer.playerConfigLayer
     local cursorModel = layer.CursorModel
-    local layerNum = OptionsFrame_GetSelectedLayer()
-    if layerNum ~= 1 then layerNum = "|cffFF2222"..layerNum end
     val = tonumber(val)
     if (val == nil) then
-        print(kAddonFolderName.." Layer#"..layerNum.."|r "..name.." is", cursorModel.Constants[name], ".")
+        print(kAddonFolderName .. " "..name.." is", cursorModel.Constants[name], ".")
     else
         if (plusOrMinus == "+") then
             val = cursorModel.Constants[name] + val
@@ -1043,7 +1041,7 @@ function CmdLineValue(name, val, plusOrMinus)
 
         cursorModel.Constants[name] = val  -- Change the specified value.
         cursorModel:applyModelSettings()   -- Apply the change.
-        print(kAddonFolderName .. " changed Layer#"..layerNum.."|r "..name.." to", val, ".")
+        print(kAddonFolderName .. " changed "..name.." to", val, ".")
         ----if (name == "BaseScale") then CursorModel_Dump() end
     end
 end

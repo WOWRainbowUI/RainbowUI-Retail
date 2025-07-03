@@ -1,9 +1,8 @@
-## Interface: 110107
+## Interface: 50500
 ## Title: CursorTrail
 ## Notes: Adds a shape, shadow, and glowing trail effect to your mouse cursor.
 ## Author: UppyDan
-## Version: 11.1.7.2
-## IconTexture: Interface\Icons\INV_Enchant_EssenceEternalLarge
+## Version: 5.5.0.1
 ## SavedVariables: CursorTrail_Config
 ## SavedVariablesPerCharacter: CursorTrail_PlayerConfig
 
@@ -12,7 +11,7 @@ Libs\UDControls.lua
 CursorTrailTools.lua
 CursorTrail.lua
 CursorTrailConfig.lua
-CursorTrailModels.lua
+CursorTrailModels_Mists.lua
 CursorTrailShapes.lua
 CursorTrailDefaults.lua
 CursorTrailHelp.lua
