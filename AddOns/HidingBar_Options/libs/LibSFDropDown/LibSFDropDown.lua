@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 20
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 22
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -10,7 +10,7 @@ oldminor = oldminor or 0
 
 local math, next, ipairs, rawget, type, wipe = math, next, ipairs, rawget, type, wipe
 local CreateFrame, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, UIParent, GetCursorPosition, InCombatLockdown = CreateFrame, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, UIParent, GetCursorPosition, InCombatLockdown
-local SearchBoxTemplate_OnTextChanged, CreateScrollBoxListLinearView, ScrollBoxConstants, ScrollUtil, CreateDataProvider = SearchBoxTemplate_OnTextChanged, CreateScrollBoxListLinearView, ScrollBoxConstants, ScrollUtil, CreateDataProvider
+local SearchBoxTemplate_OnTextChanged, CreateScrollBoxListLinearView, ScrollBoxConstants, ScrollUtil, CreateDataProvider, GetAtlasInfo = SearchBoxTemplate_OnTextChanged, CreateScrollBoxListLinearView, ScrollBoxConstants, ScrollUtil, CreateDataProvider, C_Texture.GetAtlasInfo
 
 if oldminor < 1 then
 	lib._v = {
@@ -80,7 +80,7 @@ info.hasArrowUp = [nil, true] -- The same as info.hasArrow but opens the menu up
 info.keepShownOnClick = [nil, true] -- Don't hide the dropdownlist after a button is clicked
 info.arg1 = [anything] -- This is the first argument used by info.func
 info.arg2 = [anything] -- This is the second argument used by info.func
-info.icon = [texture] -- An icon for the button
+info.icon = [texture] -- An icon or an atlas for the button
 info.iconOnly = [nil, true] -- Stretches the texture to the width of the button
 info.iconInfo = [nil, table] -- A table that looks like {
 	tCoordLeft = [0.0 - 1.0], -- left for SetTexCoord func
@@ -209,20 +209,25 @@ end
 
 
 function v.setIcon(texture, icon, info, menuButtonHeight)
-	local iconWrap
+	local atlasInfo = GetAtlasInfo(icon)
+	local width, iconWrap = atlasInfo and atlasInfo.width / atlasInfo.height * menuButtonHeight or menuButtonHeight
 	if info then
-		texture:SetSize(info.tSizeX or menuButtonHeight, info.tSizeY or menuButtonHeight)
+		texture:SetSize(info.tSizeX or width, info.tSizeY or menuButtonHeight)
 		texture:SetTexCoord(info.tCoordLeft or 0, info.tCoordRight or 1, info.tCoordTop or 0, info.tCoordBottom or 1)
 		texture:SetVertexColor(info.r or 1, info.g or 1, info.b or 1, info.a or 1)
 		texture:SetHorizTile(info.tWrap and true or false)
 		iconWrap = info.tWrap
 	else
-		texture:SetSize(menuButtonHeight, menuButtonHeight)
+		texture:SetSize(width, menuButtonHeight)
 		texture:SetTexCoord(0, 1, 0, 1)
 		texture:SetVertexColor(1, 1, 1, 1)
 		texture:SetHorizTile(false)
 	end
-	texture:SetTexture(icon, iconWrap)
+	if atlasInfo then
+		texture:SetAtlas(icon)
+	else
+		texture:SetTexture(icon, iconWrap)
+	end
 end
 
 
@@ -1522,7 +1527,7 @@ function DropDownButtonMixin:ddToggle(level, value, anchorFrame, point, rPoint, 
 	MenuReset(menu)
 	self:ddInitializeFunc(level, value)
 
-	menu.width = math.max(menu.width, self.ddMinMenuWidth or 0)
+	menu.width = math.max(menu.width, self.ddMinMenuWidth or v.dropDownMenuButtonHeight)
 	menu.height = math.max(menu.height, self.ddMenuButtonHeight or v.dropDownMenuButtonHeight)
 	menu.scrollChild:SetWidth(menu.width)
 	menu.width = menu.width + 30

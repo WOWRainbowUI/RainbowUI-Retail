@@ -1,4 +1,4 @@
-## Interface: 11507, 50500, 110105, 110107
+## Interface: 11507
 ## Title: HidingBar Options
 ## Author: sfmict
 ## Version: v11.1.6
@@ -30,7 +30,7 @@
 
 embeds.xml
 templates.xml
-[Family]/templates.xml
+Classic/templates.xml
 Main.lua
-[Family]/IconData.lua
+Classic/IconData.lua
 About.lua
