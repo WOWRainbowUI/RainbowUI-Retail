@@ -1,3 +1,3 @@
-# 12.3.1 (2025-07-02)
+# 12.3.3 (2025-07-03)
 
-* Fixed a bug that was preventing the display of Chi points for Monks in the Combo Points widget.
+* Enabled Quest widget for Mists Classic as quest tooltips are now available there.
