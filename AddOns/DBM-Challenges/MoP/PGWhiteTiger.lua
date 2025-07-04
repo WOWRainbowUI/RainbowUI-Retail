@@ -3,7 +3,7 @@ local mod	= DBM:NewMod("d640", "DBM-Challenges", 4, nil, function(t)
 end)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240706194522")
+mod:SetRevision("20250703201323")
 mod.noStatistics = true
 
 --mod:RegisterCombat("scenario", 1148)

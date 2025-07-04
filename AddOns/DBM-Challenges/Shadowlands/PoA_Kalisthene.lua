@@ -3,7 +3,7 @@ local mod	= DBM:NewMod("Kalisthene", "DBM-Challenges", 1)
 
 mod.statTypes = "normal,heroic,mythic,challenge"
 
-mod:SetRevision("20241112083409")
+mod:SetRevision("20250703201323")
 mod:SetCreatureID(170654)--Guessed
 mod.soloChallenge = true
 

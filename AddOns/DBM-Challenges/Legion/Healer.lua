@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,timewalker"
 
-mod:SetRevision("20220409212508")
+mod:SetRevision("20250703201323")
 mod:SetCreatureID(118488)--Lord Erdris Thorn
 mod.soloChallenge = true
 

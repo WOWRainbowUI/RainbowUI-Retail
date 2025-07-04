@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,timewalker"
 
-mod:SetRevision("20220407221113")
+mod:SetRevision("20250703201323")
 mod:SetCreatureID(115244, 116839)
 mod:SetBossHPInfoToHighest()
 mod.soloChallenge = true
