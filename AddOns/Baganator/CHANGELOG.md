@@ -1,6 +1,7 @@
 # Baganator
 
-## [701](https://github.com/Baganator/Baganator/tree/701) (2025-06-30)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/700...701) 
+## [702](https://github.com/Baganator/Baganator/tree/702) (2025-07-03)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/701...702) 
 
-- Improvements and fixes for GW2 theme  
+- Categories: Fix any default category being edited not updating on profile import  
+- Retail: Fix error if warband tab settings open and tab changed to "Everything"  
