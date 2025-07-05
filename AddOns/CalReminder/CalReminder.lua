@@ -209,7 +209,7 @@ StaticPopupDialogs["CALREMINDER_TENTATIVE_REASON_DIALOG"] = {
 	hideOnEscape = true, -- Hide when escape is pressed
 	OnAccept = function(self, data)
 		-- Get the reason from the text box
-		local reasonText = self.editBox:GetText()
+		local reasonText = _G[self:GetName().."EditBox"]:GetText()
 		local reasonID = getCalReminderData(data.eventID, "reason", data.player)
 		local reason = reasonsDropdownOptions[reasonID or "Reason6"] and reasonsDropdownOptions[reasonID or "Reason6"].reasonLabel
 		if reasonText == reason then
@@ -228,29 +228,31 @@ StaticPopupDialogs["CALREMINDER_TENTATIVE_REASON_DIALOG"] = {
 		local reason = self:GetText()
 
 		-- Only enable the "Submit" button if there is text in the edit box
+		local button1 = _G[self:GetParent():GetName().."Button1"]
 		if reason and reason ~= "" then
-			self:GetParent().button1:Enable()  -- Enable the "Submit" button
+			button1:Enable()  -- Enable the "Submit" button
 		else
-			self:GetParent().button1:Disable() -- Disable the "Submit" button
+			button1:Disable() -- Disable the "Submit" button
 		end
 	end,
 	EditBoxOnEnterPressed = function(self)
-        self:GetParent().button1:Click()
+        _G[self:GetParent():GetName().."Button1"]:Click()
     end,
 	OnShow = function(self, data)
 		-- Initially disable the "Submit" button until there is input
-		self.button1:Disable()
+		_G[self:GetName().."Button1"]:Disable()
 
 		-- Resize the editBox to make it larger
-		self.editBox:SetWidth(200)  -- Adjust width of the editBox
+		local editBox = _G[self:GetName().."EditBox"]
+		editBox:SetWidth(200)  -- Adjust width of the editBox
 
 		local reasonID = getCalReminderData(data.eventID, "reason", data.player)
 		local reason = reasonID and reasonsDropdownOptions[reasonID] and reasonsDropdownOptions[reasonID].reasonLabel
 		--local reasonText = getCalReminderData(data.eventID, "reasonText", data.player)
 		local lastReasonText = reasonID and CalReminderData.defaultValues.lastReasonText[reasonID]
-		self.editBox:SetText(reasonText or lastReasonText or reason or "")
-		self.editBox:SetFocus()
-		self.editBox:HighlightText()
+		editBox:SetText(reasonText or lastReasonText or reason or "")
+		editBox:SetFocus()
+		editBox:HighlightText()
 	end,
 }
 
@@ -265,7 +267,7 @@ StaticPopupDialogs["CALREMINDER_CALLTOARMS_DIALOG"] = {
 	hideOnEscape = true, -- Hide when escape is pressed
 	OnAccept = function(self, data)
 		-- Get the reason from the text box
-		local messageText = self.editBox:GetText()
+		local messageText = _G[self:GetName().."EditBox"]:GetText()
 		if messageText and messageText ~= "" then
 			CalReminderData.defaultValues.lastMessageText[data.status] = messageText
 			
@@ -283,23 +285,25 @@ StaticPopupDialogs["CALREMINDER_CALLTOARMS_DIALOG"] = {
 		local messageText = self:GetText()
 
 		-- Only enable the "Submit" button if there is text in the edit box
+		local button1 = _G[self:GetParent():GetName().."Button1"]
 		if messageText and messageText ~= "" then
-			self:GetParent().button1:Enable()  -- Enable the "Submit" button
+			button1:Enable()  -- Enable the "Submit" button
 		else
-			self:GetParent().button1:Disable() -- Disable the "Submit" button
+			button1:Disable() -- Disable the "Submit" button
 		end
 	end,
 	OnShow = function(self, data)
 		-- Initially disable the "Submit" button until there is input
-		self.button1:Disable()
+		_G[self:GetName().."Button1"]:Disable()
 
 		-- Resize the editBox to make it larger
-		self.editBox:SetWidth(200)  -- Adjust width of the editBox
+		local editBox = _G[self:GetName().."EditBox"]
+		editBox:SetWidth(200)  -- Adjust width of the editBox
 
 		local lastMessageText = CalReminderData.defaultValues.lastMessageText[data.status]
-		self.editBox:SetText(lastMessageText or "")
-		self.editBox:SetFocus()
-		self.editBox:HighlightText()
+		editBox:SetText(lastMessageText or "")
+		editBox:SetFocus()
+		editBox:HighlightText()
 	end,
 }
 
