@@ -1,7 +1,6 @@
 # Baganator
 
-## [702](https://github.com/Baganator/Baganator/tree/702) (2025-07-03)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/701...702) 
+## [703](https://github.com/Baganator/Baganator/tree/703) (2025-07-04)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/702...703) 
 
-- Categories: Fix any default category being edited not updating on profile import  
-- Retail: Fix error if warband tab settings open and tab changed to "Everything"  
+- Categories: Fix deleting categories not actually deleting them  
