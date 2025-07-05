@@ -388,14 +388,6 @@ BlizzMoveAPI:RegisterFrames(
                 MaxVersion = 100000,
                 IgnoreMouseWheel = true,
             },
-            ["ScenarioQueueFrameSpecific"] =
-            {
-                VersionRanges =
-                {
-                    { Min = 50000, Max = 90000 },
-                    { Min = 100207 },
-                },
-            },
         },
     },
     ["PVPBannerFrame"] =
@@ -1315,7 +1307,7 @@ BlizzMoveAPI:RegisterAddOnFrames(
             VersionRanges =
             {
                 { Min = 11404, Max = 11503 }, -- Backported in a broken state
-                { Min = 20504, Max = 70000 }, -- Moved from FrameXML; Removed when?
+                { Min = 20504, Max = 40000 }, -- Moved from FrameXML; moved to Blizzard_GroupFinder_VanillaStyle
             },
         },
     },
