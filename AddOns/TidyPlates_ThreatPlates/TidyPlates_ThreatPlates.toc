@@ -1,7 +1,7 @@
 ## Interface: 11507, 50500, 110105, 110107
 
 ## Title: Threat Plates
-## Version: 12.3.5
+## Version: 12.3.6
 ## Notes: Threat-reactive nameplates.
 ## Notes-deDE: Bedrohungsreaktive Namensplaketten.
 ## Notes-esES: Placas Identificativas de Amenaza
