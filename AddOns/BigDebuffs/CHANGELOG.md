@@ -1,6 +1,6 @@
 # BigDebuffs
 
-## [v50](https://github.com/jordonwow/bigdebuffs/tree/v50) (2025-06-29)
-[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v49...v50) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
+## [v51](https://github.com/jordonwow/bigdebuffs/tree/v51) (2025-07-04)
+[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v50...v51) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
 
-- added spiritwalker's grace & fortifying brew (#842)  
+- changed seal of justice to slow instead of stun (mop) (#843)  
