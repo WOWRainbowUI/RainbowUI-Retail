@@ -75,8 +75,6 @@ local barAnimationType, highlightEnabled, predictionEnabled
 local shieldEnabled, overshieldEnabled, overshieldReverseFillEnabled
 local absorbEnabled, absorbInvertColor
 
-local CheckCLEURequired
-
 -------------------------------------------------
 -- unit button func declarations
 -------------------------------------------------
@@ -114,8 +112,6 @@ end
 local function ResetIndicators()
     wipe(enabledIndicators)
     wipe(indicatorNums)
-
-    CheckCLEURequired()
 
     for _, t in pairs(Cell.vars.currentLayoutTable["indicators"]) do
         -- update enabled
@@ -1426,30 +1422,6 @@ local function UnitButton_UpdateBuffs(self)
 
     ForEachAura(self, "HELPFUL", HandleBuff)
 
-    -- check Mirror Image
-    if self._mirror_image and I.IsDefensiveCooldown(55342) then -- exists and enabled
-        if self._buffs.defensiveFound < indicatorNums["defensiveCooldowns"] then
-            self._buffs.defensiveFound = self._buffs.defensiveFound + 1
-            self.indicators.defensiveCooldowns[self._buffs.defensiveFound]:SetCooldown(self._mirror_image, 40, nil, 135994, 0)
-        end
-        if self._buffs.allFound < indicatorNums["allCooldowns"] then
-            self._buffs.allFound = self._buffs.allFound + 1
-            self.indicators.allCooldowns[self._buffs.allFound]:SetCooldown(self._mirror_image, 40, nil, 135994, 0)
-        end
-    end
-
-    -- check Mass Barrier (self)
-    if self._mass_barrier and I.IsExternalCooldown(414660) then -- exists and enabled
-        if self._buffs.externalFound < indicatorNums["externalCooldowns"] then
-            self._buffs.externalFound = self._buffs.externalFound + 1
-            self.indicators.externalCooldowns[self._buffs.externalFound]:SetCooldown(self._mass_barrier, 60, nil, self._mass_barrier_icon, 0)
-        end
-        if self._buffs.allFound < indicatorNums["allCooldowns"] then
-            self._buffs.allFound = self._buffs.allFound + 1
-            self.indicators.allCooldowns[self._buffs.allFound]:SetCooldown(self._mass_barrier, 60, nil, self._mass_barrier_icon, 0)
-        end
-    end
-
     -- update defensiveCooldowns
     self.indicators.defensiveCooldowns:UpdateSize(self._buffs.defensiveFound)
 
@@ -1509,109 +1481,7 @@ local function ResetAuraTables(self)
     if self.indicators.raidDebuffs then
         self.indicators.raidDebuffs:HideGlow()
     end
-
-    self._mirror_image = nil
-    self._mass_barrier = nil
-    self._mass_barrier_icon = nil
 end
-
--------------------------------------------------
--- check auras using CLEU
--------------------------------------------------
-local cleu = CreateFrame("Frame")
-
-function CheckCLEURequired()
-    if (Cell.vars.currentLayoutTable.indicators[Cell.defaults.indicatorIndices.externalCooldowns].enabled
-        or Cell.vars.currentLayoutTable.indicators[Cell.defaults.indicatorIndices.defensiveCooldowns].enabled
-        or Cell.vars.currentLayoutTable.indicators[Cell.defaults.indicatorIndices.allCooldowns].enabled)
-        and (I.IsDefensiveCooldown(55342) or I.IsExternalCooldown(414660)) then
-        cleu:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    else
-        cleu:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    end
-end
-
-local function UpdateMirrorImage(b, event)
-    if event == "SPELL_AURA_APPLIED" then
-        b._mirror_image = GetTime()
-    elseif event == "SPELL_AURA_REMOVED" then
-        b._mirror_image = nil
-    end
-    if b._indicatorsReady then
-        UnitButton_UpdateBuffs(b)
-    end
-end
-
-local SelfBarriers = {
-    [11426] = true, -- 寒冰护体 (self)
-    [235313] = true, -- 烈焰护体 (self)
-    [235450] = true, -- 棱光护体 (self)
-}
-
-local function UpdateMassBarrier(b, event)
-    if event == "SPELL_CAST_SUCCESS" then
-        b._mass_barrier = GetTime()
-        local info = LGI:GetCachedInfo(b.states.guid)
-        if info then
-            if info.specId == 62 then -- Arcane
-                b._mass_barrier_icon = 135991
-            elseif info.specId == 63 then -- Fire
-                b._mass_barrier_icon = 132221
-            elseif info.specId == 64 then -- Frost
-                b._mass_barrier_icon = 135988
-            else
-                b._mass_barrier_icon = 1723997
-            end
-        end
-    elseif event == "SPELL_AURA_REMOVED" then
-        b._mass_barrier = nil
-        b._mass_barrier_icon = nil
-    end
-    if b._indicatorsReady then
-        UnitButton_UpdateBuffs(b)
-    end
-end
-
-cleu:SetScript("OnEvent", function()
-    local _, subEvent, _, sourceGUID, _, sourceFlags, _, _, _, destFlags, _, spellId = CombatLogGetCurrentEventInfo()
-
-    -- mirror image
-    if spellId == 55342 and F.IsFriend(sourceFlags) then
-        F.HandleUnitButton("guid", sourceGUID, UpdateMirrorImage, subEvent)
-    end
-
-    -- mass barrier (self), SPELL_CAST_SUCCESS
-    if spellId == 414660 and F.IsFriend(sourceFlags) then
-        F.HandleUnitButton("guid", sourceGUID, UpdateMassBarrier, "SPELL_CAST_SUCCESS")
-    end
-    if (subEvent == "SPELL_AURA_REMOVED" or subEvent == "SPELL_AURA_REFRESH") and SelfBarriers[spellId] and F.IsFriend(sourceFlags) then
-        F.HandleUnitButton("guid", sourceGUID, UpdateMassBarrier, "SPELL_AURA_REMOVED")
-    end
-
-    -- CLEU auras
-    -- if I.CheckCleuAura(spellId) and F.IsFriend(destFlags) then
-    --     local b1, b2 = F.GetUnitButtonByGUID(sourceGUID)
-    --     if subEvent == "SPELL_AURA_APPLIED" then
-    --         if b1 and b1.states.unit then
-    --             cleuUnits[b1.states.unit] = {GetTime(), unpack(I.CheckCleuAura(spellId))}
-    --             UnitButton_UpdateDebuffs(b1)
-    --         end
-    --         if b2 and b2.states.unit then
-    --             cleuUnits[b2.states.unit] = {GetTime(), unpack(I.CheckCleuAura(spellId))}
-    --             UnitButton_UpdateDebuffs(b2)
-    --         end
-    --     elseif subEvent == "SPELL_AURA_REMOVED" then
-    --         if b1 and b1.states.unit then
-    --             cleuUnits[b1.states.unit] = nil
-    --             UnitButton_UpdateDebuffs(b1)
-    --         end
-    --         if b2 and b2.states.unit then
-    --             cleuUnits[b2.states.unit] = nil
-    --             UnitButton_UpdateDebuffs(b2)
-    --         end
-    --     end
-    -- end
-end)
 
 -------------------------------------------------
 -- functions
@@ -2350,20 +2220,6 @@ UnitButton_UpdateStatusText = function(self)
         else
             statusText:SetStatus("DEAD")
         end
-    elseif C_IncomingSummon.HasIncomingSummon(unit) then
-        statusText:Show()
-        statusText:HideTimer()
-        local status = C_IncomingSummon.IncomingSummonStatus(unit)
-        if status == Enum.SummonStatus.Pending then
-            statusText:SetStatus("PENDING")
-        else
-            if status == Enum.SummonStatus.Accepted then
-                statusText:SetStatus("ACCEPTED")
-            elseif status == Enum.SummonStatus.Declined then
-                statusText:SetStatus("DECLINED")
-            end
-            C_Timer.After(6, function() UnitButton_UpdateStatusText(self) end)
-        end
     elseif statusText:GetStatus() == "DRINKING" then
         -- update colors
         statusText:Show()
@@ -2588,7 +2444,6 @@ local function UnitButton_RegisterEvents(self)
     self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     self:RegisterEvent("UNIT_EXITED_VEHICLE")
 
-    self:RegisterEvent("INCOMING_SUMMON_CHANGED")
     self:RegisterEvent("UNIT_FLAGS") -- afk
     self:RegisterEvent("UNIT_FACTION") -- mind control
 
@@ -2715,8 +2570,7 @@ local function UnitButton_OnEvent(self, event, unit, arg)
         elseif event == "UNIT_TARGET" then
             UnitButton_UpdateTargetRaidIcon(self)
 
-        elseif event == "PLAYER_FLAGS_CHANGED" or event == "UNIT_FLAGS" or event == "INCOMING_SUMMON_CHANGED" then
-            -- if CELL_SUMMON_ICONS_ENABLED then UnitButton_UpdateStatusIcon(self) end
+        elseif event == "PLAYER_FLAGS_CHANGED" or event == "UNIT_FLAGS" then
             UnitButton_UpdateStatusText(self)
 
         elseif event == "UNIT_FACTION" then -- mind control
@@ -3651,10 +3505,6 @@ function CellUnitButton_OnLoad(button)
     button.indicators = {}
 
     InitAuraTables(button)
-
-    -- ping system
-    Mixin(button, PingableType_UnitFrameMixin)
-    button:SetAttribute("ping-receiver", true)
 
     function button:GetTargetPingGUID()
         return button.__unitGuid

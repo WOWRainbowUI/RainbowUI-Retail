@@ -5,6 +5,7 @@
     <Script file="PixelPerfect.lua"/>
     <Script file="FAIAP.lua"/>
     <!-- externals -->
+    <Script file="LibSpecData.lua"/>
     <Script file="LibGroupInfo.lua"/>
     <Script file="LibBadWords.lua"/>
     <Include file="LibTranslit-1.0\LibTranslit-1.0.xml"/>

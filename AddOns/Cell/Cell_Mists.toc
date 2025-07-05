@@ -1,31 +1,24 @@
-## Interface: 110105, 110107
+## Interface: 50500
 ## Title: Cell
 ## Version: r254-release
 ## Author: enderneko
-## X-Flavor: Mainline
+## X-Flavor: Mists
 ## SavedVariables: CellDB, CellDBBackup
-## AddonCompartmentFunc: Cell_OnAddonCompartmentClick
-## IconTexture: Interface\AddOns\Cell\Media\icon.tga
 
 ## X-Curse-Project-ID: 409666
 ## X-Wago-ID: qv63LLKb
 ## X-WoWI-ID: 26244
 
-## Title-zhTW: |cffFF7F00[團隊]|r 框架 (Cell)
-## Notes-zhTW: Cell |n|n簡單好用的團隊框架，可自訂外觀，並且提供滑鼠點擊快速施法和其他功能。|n|n|cffffd200使用方法: |r點團隊框架左上方的小方塊，進行設定。
-## Category-zhTW: 單位框架
-## DefaultState: disabled
-
 Locales\LoadLocales.xml
 
 Libs\LoadLibs.xml
 
-Core.lua
+Core_Mists.lua
 Utils.lua
 Revise.lua
 Comm\LoadComm.xml
-Widgets\LoadWidgets.xml
-Defaults\LoadDefaults.xml
+Widgets\LoadWidgets_Classic.xml
+Defaults\LoadDefaults_Mists.xml
 
 HideBlizzard.lua
 
@@ -42,10 +35,10 @@ Indicators\Supporter.lua
 RaidFrames\MainFrame.lua
 
 Modules\LoadModules.xml
-Utilities\LoadUtilities.xml
+Utilities\LoadUtilities_Mists.xml
 RaidDebuffs\LoadRaidDebuffs.xml
 
-RaidFrames\UnitButton.lua
+RaidFrames\UnitButton_Mists.lua
 RaidFrames\UnitButton.xml
 RaidFrames\Groups\SoloFrame.lua
 RaidFrames\Groups\PartyFrame.lua

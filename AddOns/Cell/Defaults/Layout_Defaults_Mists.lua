@@ -11,25 +11,26 @@ Cell.defaults.indicatorIndices = {
     ["healthThresholds"] = 5,
     ["statusIcon"] = 6,
     ["roleIcon"] = 7,
-    ["partyAssignmentIcon"] = 8,
-    ["leaderIcon"] = 9,
-    ["combatIcon"] = 10,
-    ["readyCheckIcon"] = 11,
-    ["playerRaidIcon"] = 12,
-    ["targetRaidIcon"] = 13,
-    ["aggroBlink"] = 14,
-    ["aggroBar"] = 15,
-    ["aggroBorder"] = 16,
+    ["leaderIcon"] = 8,
+    ["combatIcon"] = 9,
+    ["readyCheckIcon"] = 10,
+    ["playerRaidIcon"] = 11,
+    ["targetRaidIcon"] = 12,
+    ["aggroBlink"] = 13,
+    ["aggroBar"] = 14,
+    ["aggroBorder"] = 15,
+    ["shieldBar"] = 16,
     ["aoeHealing"] = 17,
     ["externalCooldowns"] = 18,
     ["defensiveCooldowns"] = 19,
     ["allCooldowns"] = 20,
-    ["dispels"] = 21,
-    ["debuffs"] = 22,
-    ["raidDebuffs"] = 23,
-    ["targetedSpells"] = 24,
-    ["targetCounter"] = 25,
-    ["actions"] = 26,
+    ["tankActiveMitigation"] = 21,
+    ["dispels"] = 22,
+    ["debuffs"] = 23,
+    ["raidDebuffs"] = 24,
+    ["targetedSpells"] = 25,
+    ["targetCounter"] = 26,
+    ["actions"] = 27,
 }
 
 Cell.defaults.layout = {
@@ -51,7 +52,9 @@ Cell.defaults.layout = {
         ["groupSpacing"] = 0,
     },
     ["pet"] = {
+        ["soloEnabled"] = true,
         ["partyEnabled"] = true,
+        ["partyDetached"] = false,
         ["raidEnabled"] = false,
         ["sameSizeAsMain"] = true,
         ["sameArrangementAsMain"] = true,
@@ -90,12 +93,17 @@ Cell.defaults.layout = {
         ["spacingX"] = 3,
         ["spacingY"] = 3,
     },
+    -- ["npc"] = {true, false, {}, false, {66, 46}}, -- npcEnabled, separateNpc, position, sizeEnabled, size
+    -- ["pet"] = {true, false, {}, false, {66, 46}}, -- partyPetsEnabled, raidPetsEnabled, raidPetsPosition, sizeEnabled, size
+    -- ["spotlight"] = {false, {}, {}, false, {66, 46}}, -- enabled, units, position, sizeEnabled, size
     ["barOrientation"] = {"horizontal", false},
     ["groupFilter"] = {true, true, true, true, true, true, true, true},
     ["powerFilters"] = {
+        ["DEATHKNIGHT"] = {["TANK"] = true, ["DAMAGER"] = true},
         ["DRUID"] = {["TANK"] = true, ["DAMAGER"] = true, ["HEALER"] = true},
         ["HUNTER"] = true,
         ["MAGE"] = true,
+        ["MONK"] = {["TANK"] = true, ["DAMAGER"] = true, ["HEALER"] = true},
         ["PALADIN"] = {["TANK"] = true, ["DAMAGER"] = true, ["HEALER"] = true},
         ["PRIEST"] = {["DAMAGER"] = true, ["HEALER"] = true},
         ["ROGUE"] = true,
@@ -186,9 +194,11 @@ Cell.defaults.layout = {
             ["format"] = "number",
             ["hideIfEmptyOrFull"] = true,
             ["filters"] = {
+                ["DEATHKNIGHT"] = {["TANK"] = true, ["DAMAGER"] = true},
                 ["DRUID"] = {["TANK"] = true, ["DAMAGER"] = true, ["HEALER"] = true},
                 ["HUNTER"] = true,
                 ["MAGE"] = true,
+                ["MONK"] = {["TANK"] = true, ["DAMAGER"] = true, ["HEALER"] = true},
                 ["PALADIN"] = {["TANK"] = true, ["DAMAGER"] = true, ["HEALER"] = true},
                 ["PRIEST"] = {["DAMAGER"] = true, ["HEALER"] = true},
                 ["ROGUE"] = true,
@@ -231,14 +241,6 @@ Cell.defaults.layout = {
             ["frameLevel"] = 5,
         }, -- 7
         {
-            ["name"] = "Party Assignment Icon",
-            ["indicatorName"] = "partyAssignmentIcon",
-            ["type"] = "built-in",
-            ["enabled"] = false,
-            ["position"] = {"TOPLEFT", "button", "TOPLEFT", 1, -18},
-            ["size"] = {11, 11},
-        }, -- 8
-        {
             ["name"] = "Leader Icon",
             ["indicatorName"] = "leaderIcon",
             ["type"] = "built-in",
@@ -246,7 +248,7 @@ Cell.defaults.layout = {
             ["hideInCombat"] = true,
             ["position"] = {"TOPLEFT", "button", "TOPLEFT", 1, -10},
             ["size"] = {11, 11},
-        }, -- 9
+        }, -- 8
         {
             ["name"] = "Combat Icon",
             ["indicatorName"] = "combatIcon",
@@ -256,7 +258,7 @@ Cell.defaults.layout = {
             ["frameLevel"] = 5,
             ["size"] = {16, 16},
             ["onlyEnableNotInCombat"] = true,
-        }, -- 10
+        }, -- 9
         {
             ["name"] = "Ready Check Icon",
             ["indicatorName"] = "readyCheckIcon",
@@ -265,7 +267,7 @@ Cell.defaults.layout = {
             ["position"] = {"CENTER", "button", "CENTER", 0, 0},
             ["frameLevel"] = 100,
             ["size"] = {16, 16},
-        }, -- 11
+        }, -- 10
         {
             ["name"] = "Raid Icon (player)",
             ["indicatorName"] = "playerRaidIcon",
@@ -275,7 +277,7 @@ Cell.defaults.layout = {
             ["frameLevel"] = 5,
             ["size"] = {14, 14},
             ["alpha"] = 0.77,
-        }, -- 12
+        }, -- 11
         {
             ["name"] = "Raid Icon (target)",
             ["indicatorName"] = "targetRaidIcon",
@@ -285,16 +287,16 @@ Cell.defaults.layout = {
             ["frameLevel"] = 5,
             ["size"] = {14, 14},
             ["alpha"] = 0.77,
-        }, -- 13
+        }, -- 12
         {
             ["name"] = "Aggro (blink)",
             ["indicatorName"] = "aggroBlink",
             ["type"] = "built-in",
-            ["enabled"] = false,
+            ["enabled"] = true,
             ["position"] = {"TOPLEFT", "button", "TOPLEFT", 0, 0},
             ["frameLevel"] = 7,
             ["size"] = {11, 11},
-        }, -- 14
+        }, -- 13
         {
             ["name"] = "Aggro (bar)",
             ["indicatorName"] = "aggroBar",
@@ -303,14 +305,25 @@ Cell.defaults.layout = {
             ["position"] = {"BOTTOMLEFT", "button", "TOPLEFT", 0, -1},
             ["frameLevel"] = 1,
             ["size"] = {20, 4},
-        }, -- 15
+        }, -- 14
         {
             ["name"] = "Aggro (border)",
             ["indicatorName"] = "aggroBorder",
             ["type"] = "built-in",
-            ["enabled"] = true,
+            ["enabled"] = false,
             ["frameLevel"] = 3,
             ["thickness"] = 2,
+        }, -- 15
+        {
+            ["name"] = "Shield Bar",
+            ["indicatorName"] = "shieldBar",
+            ["type"] = "built-in",
+            ["enabled"] = false,
+            ["position"] = {"BOTTOMLEFT", nil, "BOTTOMLEFT", 0, 0},
+            ["frameLevel"] = 5,
+            ["height"] = 4,
+            ["color"] = {1, 1, 0, 1},
+            ["onlyShowOvershields"] = false,
         }, -- 16
         {
             ["name"] = "AoE Healing",
@@ -375,6 +388,16 @@ Cell.defaults.layout = {
             ["glowOptions"] = {"None", {0.95, 0.95, 0.32, 1}}
         }, -- 20
         {
+            ["name"] = "Tank Active Mitigation",
+            ["indicatorName"] = "tankActiveMitigation",
+            ["type"] = "built-in",
+            ["enabled"] = true,
+            ["position"] = {"TOPLEFT", "button", "TOPLEFT", 10, 0},
+            ["frameLevel"] = 5,
+            ["size"] = {20, 6},
+            ["color"] = {"class_color", {0.25, 1, 0}},
+        }, -- 21
+        {
             ["name"] = "Dispels",
             ["indicatorName"] = "dispels",
             ["type"] = "built-in",
@@ -393,7 +416,7 @@ Cell.defaults.layout = {
             ["highlightType"] = "gradient-half",
             ["iconStyle"] = "blizzard",
             ["orientation"] = "right-to-left",
-        }, -- 21
+        }, -- 22
         {
             ["name"] = "Debuffs",
             ["indicatorName"] = "debuffs",
@@ -413,7 +436,7 @@ Cell.defaults.layout = {
             },
             ["dispellableByMe"] = false,
             ["orientation"] = "left-to-right",
-        }, -- 22
+        }, -- 23
         {
             ["name"] = "Raid Debuffs",
             ["indicatorName"] = "raidDebuffs",
@@ -432,7 +455,7 @@ Cell.defaults.layout = {
             ["onlyShowTopGlow"] = false,
             ["orientation"] = "left-to-right",
             ["showTooltip"] = false,
-        }, -- 23
+        }, -- 24
         {
             ["name"] = "Targeted Spells",
             ["indicatorName"] = "targetedSpells",
@@ -446,7 +469,7 @@ Cell.defaults.layout = {
             ["num"] = 1,
             ["font"] = {"Cell ".._G.DEFAULT, 12, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
             ["orientation"] = "left-to-right",
-        }, -- 24
+        }, -- 25
         {
             ["name"] = "Target Counter",
             ["indicatorName"] = "targetCounter",
@@ -461,14 +484,14 @@ Cell.defaults.layout = {
                 ["pve"] = false,
                 ["pvp"] = true,
             },
-        }, -- 25
+        }, -- 26
         {
             ["name"] = "Actions",
             ["indicatorName"] = "actions",
             ["type"] = "built-in",
             ["enabled"] = true,
             ["speed"] = 1,
-        }, -- 26
+        }, -- 27
     },
 }
 
@@ -476,7 +499,9 @@ Cell.defaults.layoutAutoSwitch = {
     ["solo"] = "default",
     ["party"] = "default",
     ["raid_outdoor"] = "default",
-    ["raid_instance"] = "default",
+    ["raid10"] = "default",
+    ["raid25"] = "default",
     ["arena"] = "default",
-    ["battleground"] = "default",
+    ["battleground15"] = "default",
+    ["battleground40"] = "default",
 }
