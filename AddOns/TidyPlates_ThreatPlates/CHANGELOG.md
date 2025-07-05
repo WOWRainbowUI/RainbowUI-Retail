@@ -1,3 +1,3 @@
-# 12.3.3 (2025-07-03)
+# 12.3.5 (2025-07-04)
 
-* Enabled Quest widget for Mists Classic as quest tooltips are now available there.
+* Fixed a bug in the Quest widget that prevented Quest indicators from being displayed in localizations where quest progress was shown to the left of the quest objective (e.g. in English) [Comment ##7657].
