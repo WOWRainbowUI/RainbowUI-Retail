@@ -1,3 +1,3 @@
-# 12.3.6 (2025-07-05)
+# 12.3.9 (2025-07-06)
 
-* Updated integrated library LibDualSpec to v1.27.0 to fix a Lua error that occurred when hovering over the dual spec options in the 'Profile' tab of the options.
+* Fixed a Lua error that prevented the combo points widget from displaying Death Knight runes in Mists Classic [GH-592].
