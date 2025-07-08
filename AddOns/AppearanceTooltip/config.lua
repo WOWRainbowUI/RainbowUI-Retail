@@ -127,7 +127,10 @@ do
     local byComparison = newCheckbox(panel, 'byComparison', '在裝備比較旁邊顯示', "有裝備比較的滑鼠提示說明時，在旁邊顯示預覽 (比較不容易重疊)。")
     local tokens = newCheckbox(panel, 'tokens', '預覽套裝兌換物品', "滑鼠指向可以用來兌換套裝的物品時顯示裝備預覽。")
     local alerts = newCheckbox(panel, 'alerts', '收藏新外觀時要通知', "每次學習到新外觀時要彈出通知 (例如只能在貿易站買到的外觀)")
-
+	
+	local zoomWorn = newCheckbox(panel, 'zoomWorn', '放大穿著部位', "放大預覽模特兒穿著這個物品的部位。")
+    local zoomHeld = newCheckbox(panel, 'zoomHeld', '放大手持物品', "放大預覽手持的物品，不顯示你的角色。")
+    local zoomMasked = newCheckbox(panel, 'zoomMasked', '放大時淡化模特兒', "放大時不要顯示模特兒的細節 (和塑形時的衣櫃相同)。")
 
     if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
         -- C_TransmogCollection.GetAppearanceCameraID doesn't return anything useful in Classic Era
