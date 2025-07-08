@@ -1,0 +1,16 @@
+## Title: |TInterface/Addons/PetTracker/art/compass:16:16|t PetTracker |cffffffffBattle|r
+## IconTexture: Interface/Addons/PetTracker/art/compass
+## Notes: Load on demand modification for the pet battle UI.|n|cffbbbbbbBy João Cardoso|r|n|n|TInterface/Addons/PetTracker/Art/Paypal:12:12|t |cff82c5ffpaypal.me/jaliborc|r|n|TInterface/Addons/PetTracker/Art/Patreon:12:12:0:-4|t |cff82c5ffpatreon.com/jaliborc|r|n|TInterface/Addons/PetTracker/art/discord:12:12:0:-2|t |cff82c5ffbit.ly/discord-jaliborc|r|n|n
+## Author: Jaliborc (João Cardoso)
+## X-Category: Battle Pets
+
+## Interface: 50500
+## Dependencies: PetTracker
+## LoadOnDemand: 1
+
+## Title-zhTW: |cff96FF73[戰寵]|r 助手-對戰介面
+## Notes-zhTW: PetTracker Battle |n|n需要時才會載入的寵物對戰介面調整。
+## Category-zhTW: 戰寵
+## DefaultState: disabled
+
+..\PetTracker\addons\battle\battle.xml

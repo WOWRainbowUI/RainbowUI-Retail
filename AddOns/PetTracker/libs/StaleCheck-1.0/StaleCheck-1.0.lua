@@ -15,7 +15,7 @@ GNU General Public License for more details.
 This file is part of StaleCheck.
 ]]--
 
-local Lib = LibStub:NewLibrary('StaleCheck-1.0', 2)
+local Lib = LibStub:NewLibrary('StaleCheck-1.0', 3)
 if not Lib then
 	return
 elseif not Lib.registry then
@@ -89,11 +89,13 @@ end
 
 function Lib:CheckForUpdates(addon, sets, icon)
 	local installed = C_AddOns.GetAddOnMetadata(addon, 'version')
-    if int(installed) >= nextExpansion then
+	local ours = int(installed)
+
+    if ours >= nextExpansion then
         return popup(invalidBuild, addon, icon)
 	else
 		local latest = sets.latest
-		if latest and latest.id and GetServerTime() >= (latest.cooldown or 0) then
+		if latest and latest.id and int(latest.id) > ours and GetServerTime() >= (latest.cooldown or 0) then
 			popup(outOfDate, addon, icon, latest.who, latest.id)
 			sets.latest = {cooldown = GetServerTime() + 7 * 24 * 60 * 60}
 		end
