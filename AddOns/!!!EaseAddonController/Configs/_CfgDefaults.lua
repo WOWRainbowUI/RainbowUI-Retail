@@ -416,6 +416,23 @@ D["Breakables"] = {
         text = "分解物品：左鍵點一下分解快捷列上的物品圖示。\n\n加入忽略清單：右鍵點一下分解快捷列上的物品圖示。\n\n在設定選項中可以管理忽略清單。\n\n移動快捷列：Shift+左鍵 拖曳移動。\n",
 	},
 };
+D["BountyHelper"] = {
+    defaultEnable = 1,
+	tags = { "COLLECTION" },
+	title = "賞金小幫手",
+	desc = "顯示每個坐騎的位置、機率和擊殺狀態，設定導航。幫助你在 '收集者的賞金' 掉落率提高的活動期間，收集到最多、最想要的坐騎!!`",
+	modifier = "彩虹ui",
+    {
+        text = "顯示主視窗",
+        callback = function() 
+			SlashCmdList["CBH"]()
+		end,
+    },
+	{
+		type = "text",
+        text = "點小地圖按鈕的 '賞金小幫手' 按鈕也可以打開主視窗。\n",
+	},
+};
 D["BravosUIImprovements"] = {
     defaultEnable = 0,
 	tags = { "ENHANCEMENT" },
