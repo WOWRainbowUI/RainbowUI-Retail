@@ -20,7 +20,7 @@ local function checkboxOnEnter(self)
 end
 
 local function newCheckbox(parent, key, label, description, getValue, setValue)
-    local check = CreateFrame("CheckButton", "AppearanceTooltipOptionsCheck" .. key, parent, "InterfaceOptionsCheckButtonTemplate")
+    local check = CreateFrame("CheckButton", "AppearanceTooltipOptionsCheck" .. key, parent, "OptionsBaseCheckButtonTemplate")
 
     check.key = key
     check.GetValue = getValue or checkboxGetValue
@@ -129,11 +129,14 @@ do
     local alerts = newCheckbox(panel, 'alerts', '收藏新外觀時要通知', "每次學習到新外觀時要彈出通知 (例如只能在貿易站買到的外觀)")
 
 
-    local zoomWorn = newCheckbox(panel, 'zoomWorn', '放大穿著部位', "放大預覽模特兒穿著這個物品的部位。")
-    local zoomHeld = newCheckbox(panel, 'zoomHeld', '放大手持物品', "放大預覽手持的物品，不顯示你的角色。")
-    local zoomMasked = newCheckbox(panel, 'zoomMasked', '放大時淡化模特兒', "放大時不要顯示模特兒的細節 (和塑形時的衣櫃相同)。")
+    if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+        -- C_TransmogCollection.GetAppearanceCameraID doesn't return anything useful in Classic Era
+        zoomWorn:SetEnabled(false)
+        zoomHeld:SetEnabled(false)
+        zoomMasked:SetEnabled(false)
+    end
 
-    local modifier = newDropdown(panel, 'modifier', "按下組合按鍵時才顯示預覽。", {
+    local modifier = newDropdown(panel, 'modifier', "按下輔助鍵時才顯示預覽。", {
         Alt = "Alt",
         Ctrl = "Ctrl",
         Shift = "Shift",
