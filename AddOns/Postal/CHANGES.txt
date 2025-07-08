@@ -1,8 +1,19 @@
 ------------------------------------------------------------------------
-r650 | Zimzarina | 2025-06-18 00:49:18 +0000 (Wed, 18 Jun 2025) | 1 line
+r653 | Zimzarina | 2025-07-06 16:46:43 +0000 (Sun, 06 Jul 2025) | 1 line
 Changed paths:
-   M /trunk/Postal.toc
+   M /trunk/Postal.lua
 
-TOC Update for TWW.
+
+------------------------------------------------------------------------
+r652 | Zimzarina | 2025-07-06 16:42:03 +0000 (Sun, 06 Jul 2025) | 1 line
+Changed paths:
+   M /trunk/Modules/BlackBook.lua
+   M /trunk/Modules/Express.lua
+   M /trunk/Modules/Forward.lua
+   M /trunk/Modules/QuickAttach.lua
+   M /trunk/Postal.lua
+   A /trunk/Postal_Mists.toc
+
+Added support for Mists pre-patch.
 ------------------------------------------------------------------------
 
