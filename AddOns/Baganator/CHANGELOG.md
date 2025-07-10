@@ -1,6 +1,7 @@
 # Baganator
 
-## [703](https://github.com/Baganator/Baganator/tree/703) (2025-07-04)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/702...703) 
+## [704](https://github.com/Baganator/Baganator/tree/704) (2025-07-09)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/703...704) 
 
-- Categories: Fix deleting categories not actually deleting them  
+- Retail: Refresh item levels displayed after entering/leaving dastardly duos  
+- Fix close button on "Help: Search" dialog not closing it in combat  
