@@ -1,6 +1,7 @@
 # Syndicator
 
-## [211](https://github.com/Baganator/Syndicator/tree/211) (2025-07-04)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/210...211) 
+## [212](https://github.com/Baganator/Syndicator/tree/212) (2025-07-08)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/211...212) 
 
-- [Fixes #70] Typo referring to the wrong table  
+- Filter out multiple existences unique items from tier token search  
+- Search: Fallback for corrupted stored items missing quality value  
