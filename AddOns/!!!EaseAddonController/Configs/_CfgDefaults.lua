@@ -764,20 +764,28 @@ D["Decursive"] = {
 		text = "驅散 Debuff：點一下亮起來的小方格。\n\n移動格子：滑鼠指向第一個小方格的上方 (不是上面)，出現小亮點時按住 Alt 來拖曳移動。\n\n中 Debuff 的玩家清單：在設定選項中開啟或關閉 '即時清單'。",
     },
 };
-D["Defs-Rare-Safari"] = {
-	defaultEnable = 0,
-	tags = { "MAP" },
-	title = "戴夫的稀有狩獵旅",
-	desc = "偵測到稀有怪或寶箱時會顯示箭頭告訴你在哪個方向。``第一次使用請先在設定選項中選擇，在哪些地圖要顯示箭頭。`",
+D["Dejunk"] = {
+	defaultEnable = 1,
+	tags = { "AUCTION" },
+	title = "大量賣垃圾",
+	desc = "一旦設定好後，便可以自動的大量賣出不要的裝備和物品。可自訂賣出清單和排除清單，刷副本坐騎時特別好用!`",
 	modifier = "彩虹ui",
 	{
         text = "設定選項",
-        callback = function() SlashCmdList["DEFRS"]("") end,
+        callback = function() SlashCmdList["DEJUNK"]("") end,
+    },
+	{
+        text = "顯示垃圾物品",
+        callback = function() SlashCmdList["DEJUNK"]("junk") end,
     },
 	{
 		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
-	},
+        text = "點小地圖按鈕的 '大量賣垃圾' 按鈕也可以打開垃圾物品視窗。",
+    },
+	{
+		type = "text",
+        text = "使用方法：\n\n拖曳賣出: 點小地圖按鈕打開垃圾物品視窗，將不要的裝備或物品拖曳到視窗中，然後和商人對話按開始賣出。\n\n插件會記住垃圾物品，日後便不用再拖曳，可快速賣出。\n\n設定賣出裝等: 還可以在設定選項中，設定好要賣出裝等多少以下的物品。\n",
+    },
 };
 D["Details"] = {
 	defaultEnable = 0,

@@ -1,0 +1,14 @@
+## Interface: 110107, 50500, 11507
+## Title: Dejunk
+## Version: 2.0.5
+## Author: https://github.com/moody
+## IconTexture: Interface\AddOns\Dejunk\assets\dejunk-icon
+## Notes: Simple junk selling and destroying.
+## SavedVariables: __DEJUNK_ADDON_GLOBAL_SAVED_VARIABLES__
+## SavedVariablesPerCharacter: __DEJUNK_ADDON_PERCHAR_SAVED_VARIABLES__
+
+## Title-zhTW: |cffFFFF99[商人]|r 大量賣垃圾
+## Notes-zhTW: Dejunk |n|n可以大量的自動賣出不要的裝備和物品，
+## X-Category-zhTW: 交易
+
+Dejunk.xml
