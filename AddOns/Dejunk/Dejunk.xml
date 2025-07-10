@@ -1,0 +1,95 @@
+<Ui>
+  <!-- Libs -->
+  <Script file="libs\LibStub.lua"/>
+  <Script file="libs\CallbackHandler-1.0.lua"/>
+  <Script file="libs\LibDataBroker-1.1.lua"/>
+  <Script file="libs\LibDBIcon-1.0.lua"/>
+  <Script file="libs\Wux.lua"/>
+
+  <!-- Src -->
+  <Script file="src\_init.lua"/>
+  <Script file="src\locale.lua"/>
+  <Script file="src\colors.lua"/>
+  <Script file="src\tooltip.lua"/>
+  <Script file="src\ticker-manager.lua"/>
+
+  <Script file="src\events\events.lua"/>
+  <Script file="src\events\event-manager.lua"/>
+
+  <Script file="src\store\action-types.lua"/>
+  <Script file="src\store\default-states.lua"/>
+  <Script file="src\store\root-reducer.lua"/>
+  <Script file="src\store\state-manager.lua"/>
+
+  <Script file="src\store\reducers\autoJunkFrame.lua"/>
+  <Script file="src\store\reducers\autoRepair.lua"/>
+  <Script file="src\store\reducers\autoSell.lua"/>
+  <Script file="src\store\reducers\excludeEquipmentSets.lua"/>
+  <Script file="src\store\reducers\excludeUnboundEquipment.lua"/>
+  <Script file="src\store\reducers\excludeWarbandEquipment.lua"/>
+  <Script file="src\store\reducers\exclusions.lua"/>
+  <Script file="src\store\reducers\includeArtifactRelics.lua"/>
+  <Script file="src\store\reducers\includeBelowItemLevel.lua"/>
+  <Script file="src\store\reducers\includeByQuality.lua"/>
+  <Script file="src\store\reducers\includeUnsuitableEquipment.lua"/>
+  <Script file="src\store\reducers\inclusions.lua"/>
+  <Script file="src\store\reducers\itemQualityCheckBoxes.lua"/>
+  <Script file="src\store\reducers\safeMode.lua"/>
+
+  <Script file="src\store\reducers\global\chatMessages.lua"/>
+  <Script file="src\store\reducers\global\itemIcons.lua"/>
+  <Script file="src\store\reducers\global\itemTooltips.lua"/>
+  <Script file="src\store\reducers\global\merchantButton.lua"/>
+  <Script file="src\store\reducers\global\minimapIcon.lua"/>
+  <Script file="src\store\reducers\global\points.lua"/>
+
+  <Script file="src\store\reducers\perchar\characterSpecificSettings.lua"/>
+
+  <Script file="src\commands.lua"/>
+  <Script file="src\junk-filter.lua"/>
+
+  <Script file="src\items\equipment-sets-cache.lua"/>
+  <Script file="src\items\items.lua"/>
+
+  <Script file="src\lists\list-item-parser.lua"/>
+  <Script file="src\lists\lists.lua"/>
+
+  <Script file="src\services\seller.lua"/>
+  <Script file="src\services\destroyer.lua"/>
+  <Script file="src\services\confirmer.lua"/>
+  <Script file="src\services\looter.lua"/>
+
+  <Script file="src\ui\widgets\_init.lua"/>
+  <Script file="src\ui\widgets\button.lua"/>
+  <Script file="src\ui\widgets\check-box.lua"/>
+  <Script file="src\ui\widgets\frame.lua"/>
+  <Script file="src\ui\widgets\items-frame.lua"/>
+  <Script file="src\ui\widgets\list-frame.lua"/>
+  <Script file="src\ui\widgets\slider.lua"/>
+  <Script file="src\ui\widgets\title-frame.lua"/>
+  <Script file="src\ui\widgets\text-frame.lua"/>
+  <Script file="src\ui\widgets\scrollable-title-frame.lua"/>
+  <Script file="src\ui\widgets\window.lua"/>
+
+  <Script file="src\ui\widgets\options\option-button.lua"/>
+  <Script file="src\ui\widgets\options\option-heading.lua"/>
+  <Script file="src\ui\widgets\options\options-frame.lua"/>
+
+  <Script file="src\ui\main-window\options.lua"/>
+  <Script file="src\ui\main-window\main-window.lua"/>
+
+  <Script file="src\ui\addon-compartment.lua"/>
+  <Script file="src\ui\junk-frame.lua"/>
+  <Script file="src\ui\transport-frame.lua"/>
+  <Script file="src\ui\merchant-button.lua"/>
+  <Script file="src\ui\minimap-icon.lua"/>
+  <Script file="src\ui\item-icons.lua"/>
+  <Script file="src\ui\item-tooltip.lua"/>
+  <Script file="src\ui\popup.lua"/>
+
+  <!-- Bindings -->
+  <Script file="Bindings.lua"/>
+
+  <!-- Dejunk API -->
+  <Script file="DejunkApi.lua"/>
+</Ui>
