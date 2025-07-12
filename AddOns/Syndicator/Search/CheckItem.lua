@@ -219,6 +219,56 @@ local function KnowledgeCheck(details)
   return spellName == baseKnowledgeName and (spellInfo.iconID == 236225 or spellInfo.iconID == 136175)
 end
 
+local function EnsembleCheck(details)
+  GetInvType(details)
+  GetClassSubClass(details)
+
+  if not C_Item.IsItemDataCachedByID(details.itemID) then
+    C_Item.RequestLoadItemDataByID(details.itemID)
+    return nil
+  end
+
+  if details.classID == Enum.ItemClass.Consumable and details.invType == "INVTYPE_NON_EQUIP_IGNORE" and (C_Item.IsDressableItemByID or IsDressableItem)(details.itemID) then
+    if details.setSources == nil then
+      local setID = C_Item.GetItemLearnTransmogSet(details.itemLink)
+      if setID then
+        details.setSources = C_Transmog.GetAllSetAppearancesByID(setID)
+      end
+    end
+    if not details.setSources then
+      return true
+    end
+    local invSlot = details.setSources[1].invSlot + 1
+    return invSlot ~= 16 and invSlot ~= 17
+  end
+  return false
+end
+
+local function ArsenalCheck(details)
+  GetInvType(details)
+  GetClassSubClass(details)
+
+  if not C_Item.IsItemDataCachedByID(details.itemID) then
+    C_Item.RequestLoadItemDataByID(details.itemID)
+    return nil
+  end
+
+  if details.classID == Enum.ItemClass.Consumable and details.invType == "INVTYPE_NON_EQUIP_IGNORE" and (C_Item.IsDressableItemByID or IsDressableItem)(details.itemID) then
+    if details.setSources == nil then
+      local setID = C_Item.GetItemLearnTransmogSet(details.itemLink)
+      if setID then
+        details.setSources = C_Transmog.GetAllSetAppearancesByID(setID)
+      end
+    end
+    if not details.setSources then
+      return false
+    end
+    local invSlot = details.setSources[1].invSlot + 1
+    return invSlot == 16 or invSlot == 17
+  end
+  return false
+end
+
 local function GetSourceID(itemLink)
   local _, sourceID = C_TransmogCollection.GetItemInfo(itemLink)
   if sourceID then
@@ -502,16 +552,22 @@ local function BindOnEquipCheck(details)
 end
 
 local function BindOnAccountCheck(details)
+  if details.accountBound ~= nil then
+    return details.accountBound
+  end
+
   GetTooltipInfoSpell(details)
 
   if details.tooltipInfoSpell then
+    details.accountBound = false
     for _, row in ipairs(details.tooltipInfoSpell.lines) do
       if tIndexOf(Syndicator.Constants.AccountBoundTooltipLines, row.leftText) ~= nil or
           (not details.isBound and tIndexOf(Syndicator.Constants.AccountBoundTooltipLinesNotBound, row.leftText) ~= nil) then
-        return true
+        details.accountBound = true
+        break
       end
     end
-    return false
+    return details.accountBound
   end
 end
 
@@ -792,6 +848,15 @@ local function TierTokenCheck(details)
     return false
   end
 
+  if not C_Item.IsItemDataCachedByID(details.itemID) then
+    C_Item.RequestLoadItemDataByID(details.itemID)
+    return nil
+  end
+
+  if (C_Item.IsDressableItemByID or IsDressableItem)(details.itemID) then
+    return false
+  end
+
   GetTooltipInfoLink(details)
 
   if details.tooltipInfoLink then
@@ -929,6 +994,8 @@ AddKeywordLocalised("KEYWORD_LOCKED", LockedCheck, Syndicator.Locales.GROUP_ITEM
 AddKeywordLocalised("KEYWORD_REFUNDABLE", RefundableCheck, Syndicator.Locales.GROUP_ITEM_DETAIL)
 AddKeywordLocalised("KEYWORD_CRAFTED", CraftedCheck, Syndicator.Locales.GROUP_ITEM_DETAIL)
 AddKeywordLocalised("KEYWORD_TIER_TOKEN", TierTokenCheck, Syndicator.Locales.GROUP_ITEM_TYPE)
+AddKeywordLocalised("KEYWORD_ENSEMBLE", EnsembleCheck, Syndicator.Locales.GROUP_ITEM_TYPE)
+AddKeywordLocalised("KEYWORD_ARSENAL", ArsenalCheck, Syndicator.Locales.GROUP_ITEM_TYPE)
 
 if Syndicator.Constants.IsRetail then
   AddKeywordLocalised("KEYWORD_COSMETIC", CosmeticCheck, Syndicator.Locales.GROUP_QUALITY)
@@ -1426,12 +1493,19 @@ local function ItemLevelPatternCheck(details, text)
     return false
   end
 
-  local wantedItemLevel = tonumber(text)
-  return details.itemLevel and details.itemLevel == wantedItemLevel
-end
+  local operator, value = text:match("([><=]?)(%d+)")
 
-local function ExactItemLevelPatternCheck(details, text)
-  return ItemLevelPatternCheck(details, (text:match("%d+")))
+  local wantedItemLevel = tonumber(value)
+
+  if operator == "" or operator == "=" then
+    return details.itemLevel and details.itemLevel == wantedItemLevel
+  elseif operator == "<" then
+  return details.itemLevel and details.itemLevel <= wantedItemLevel
+  elseif operator == ">" then
+    return details.itemLevel and details.itemLevel >= wantedItemLevel
+  else
+    error("Unexpected item level operator")
+  end
 end
 
 local function ItemLevelRangePatternCheck(details, text)
@@ -1443,22 +1517,50 @@ local function ItemLevelRangePatternCheck(details, text)
   return details.itemLevel and details.itemLevel >= tonumber(minText) and details.itemLevel <= tonumber(maxText)
 end
 
-local function ItemLevelMinPatternCheck(details, text)
-  if GetItemLevel(details) == false then
+local function GetAuctionValue(details)
+  if details.auctionValue then
+    return details.auctionValue >= 0
+  end
+  BindOnAccountCheck(details)
+  if details.accountBound == true or details.isBound then
+    details.auctionValue = -1
     return false
+  elseif details.accountBound == nil then
+    return
+  end
+  if not C_Item.IsItemDataCachedByID(details.itemID) then
+    C_Item.RequestLoadItemDataByID(details.itemID)
+    return
   end
 
-  local minText = text:match("%d+")
-  return details.itemLevel and details.itemLevel <= tonumber(minText)
+  details.auctionValue = Syndicator.Search.GetAuctionValue(details.itemLink) or -1
+
+  return details.auctionValue >= 0
 end
 
-local function ItemLevelMaxPatternCheck(details, text)
-  if GetItemLevel(details) == false then
-    return false
+local function AHValuePatternCheck(details, text)
+  if GetAuctionValue(details) == false then
+    return details.auctionValue == -2
   end
 
-  local maxText = text:match("%d+")
-  return details.itemLevel and details.itemLevel >= tonumber(maxText)
+  local operator, value, scale = text:match("^([><=]?)(%d+)([gsc])$")
+
+  local wantedAuctionValue = tonumber(value)
+  if scale == "g" then
+    wantedAuctionValue = wantedAuctionValue * 10000
+  elseif scale == "s" then
+    wantedAuctionValue = wantedAuctionValue * 100
+  end
+
+  if operator == "" or operator == "=" then
+    return details.auctionValue and details.auctionValue == wantedAuctionValue
+  elseif operator == "<" then
+    return details.auctionValue and details.auctionValue <= wantedAuctionValue
+  elseif operator == ">" then
+    return details.auctionValue and details.auctionValue >= wantedAuctionValue
+  else
+    error("Unexpected auction value operator")
+  end
 end
 
 local function ExactKeywordCheck(details, text)
@@ -1471,11 +1573,12 @@ local function ExactKeywordCheck(details, text)
 end
 
 local patterns = {
-  ["^%d+$"] = ItemLevelPatternCheck,
-  ["^=%d+$"] = ExactItemLevelPatternCheck,
+  ["^[><=]?%d+$"] = ItemLevelPatternCheck,
   ["^%d+%-%d+$"] = ItemLevelRangePatternCheck,
-  ["^%>%d+$"] = ItemLevelMaxPatternCheck,
-  ["^%<%d+$"] = ItemLevelMinPatternCheck,
+
+  ["^[><=]?%d+[gsc]$"] = AHValuePatternCheck,
+  ["^%d+[gsc]%-%d+[gsc]$"] = AHValueRangePatternCheck,
+
   ["^%#.*$"] = ExactKeywordCheck,
 }
 
