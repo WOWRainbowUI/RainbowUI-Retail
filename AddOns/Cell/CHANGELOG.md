@@ -1,3 +1,3 @@
-# [Full Changelog](https://github.com/enderneko/Cell/compare/r255-release...64a32bcd85ea9fa07ee127546cc7e716573f5da9)
+# [Full Changelog](https://github.com/enderneko/Cell/compare/r257-release...998adb17d4d65541e048284fb263659b76dc707f)
 
-- Fix PWS for mop
+- Attempt to fix aura update
