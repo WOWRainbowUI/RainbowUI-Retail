@@ -1,6 +1,6 @@
 # Teleport Menu
 
-## [v10.5](https://github.com/Justw8/TeleportMenu/tree/v10.5) (2025-04-23)
-[Full Changelog](https://github.com/Justw8/TeleportMenu/compare/v10.4...v10.5) [Previous Releases](https://github.com/Justw8/TeleportMenu/releases)
+## [v10.7](https://github.com/Justw8/TeleportMenu/tree/v10.7) (2025-07-10)
+[Full Changelog](https://github.com/Justw8/TeleportMenu/compare/v10.6...v10.7) [Previous Releases](https://github.com/Justw8/TeleportMenu/releases)
 
-- Update toc  
+- Fix a locale error  
