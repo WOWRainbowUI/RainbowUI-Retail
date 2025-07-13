@@ -1,9 +1,10 @@
 ## Interface: 110105, 110107
-## Version: v11.1.2
+## Version: v11.1.3
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-zhCN: 为你的小地图增趣添彩，并包含一些性感选项。
-## Author: Funkydude
+## Notes-ptBR: Dê uma apimentada no seu minimapa com algumas opções sexy.
+## Author: Funkeh
 ## X-Credits: Antiarc (Former Author)
 ## SavedVariables: SexyMap2DB
 
