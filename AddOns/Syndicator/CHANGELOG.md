@@ -1,6 +1,6 @@
 # Syndicator
 
-## [216](https://github.com/Baganator/Syndicator/tree/216) (2025-07-12)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/215...216) 
+## [217](https://github.com/Baganator/Syndicator/tree/217) (2025-07-13)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/216...217) 
 
-- Fix for Oribos Exchange price source  
+- [Fixes #74, Fixes #73] Fix error on login when no price source configured  
