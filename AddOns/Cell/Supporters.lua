@@ -6,6 +6,22 @@ local addonName, ns = ...
 local supporters1 = { -- wowIDs
     -- {"wowID1", "wowID2"...}
     {
+        "|cff7fff00Palymoo-TwistingNether (EU)|r",
+        "|cff7fff00Dreadsham-TwistingNether (EU)|r",
+        "|cff7fff00Dreadninja-TwistingNether (EU)|r",
+        "|cff7fff00Dreadfu-TwistingNether (EU)|r",
+        "|cff7fff00Dreads-TwistingNether (EU)|r",
+    }, -- Palymoo (Ko-fi)
+    {
+        "|cff7fff00Tithaya-Kel'Thuzad (US)|r",
+        "|cff7fff00Yesiram-Kel'Thuzad (US)|r",
+    }, -- Chris (Ko-fi)
+    {
+        "|cff00ffffVollmer-Ragnaros (EU)|r",
+        "|cff00ffffVollmerto-Kazzak (EU)|r",
+        "|cff00ffffVollmerfire-Ragnaros (EU)|r",
+    }, -- Vollmerino (CUF)
+    {
         "|cffff8000小兔姬-影之哀伤 (CN)|r",
         "|cffff8000渺渺-影之哀伤 (CN)|r"
     }, -- 呆小七 (爱发电)
@@ -40,10 +56,6 @@ local supporters1 = { -- wowIDs
     {"Synthatt-Illidan (US)"}, -- Synthatt (Ko-fi)
     {"Holystora-Antonidas (EU)"}, -- devo (Ko-fi)
     {
-        "|cffff8000Tithaya-Kel'Thuzad (US)|r",
-        "|cffff8000Yesiram-Kel'Thuzad (US)|r",
-    }, -- tithaya (Ko-fi)
-    {
         "|cffff8000Everessian-Ravencrest (EU)|r",
         "|cffff8000Grizzlekaz-Ravencrest (EU)|r",
         "|cffff8000Shylanelle-Ravencrest (EU)|r",
@@ -52,7 +64,6 @@ local supporters1 = { -- wowIDs
         "|cffff8000Moorlaen-Ravencrest (EU)|r",
     }, -- Martin van Vuuren (Ko-fi)
     {"Shendreakah-Zul'jin (US)"}, -- Shendreakah - Zul-jin (Ko-fi)
-    {"Palymoo-Twistingnether (EU)"}, -- Palymoo-Twistingnether (EU) (Ko-fi)
     {"|cffff8000Skywarden-Sylvanas (EU)|r"}, -- Serghei Iakovlev (Ko-fi)
     {"Fourdigitiq-Blackrock (EU)"}, -- Rou (Ko-fi)
     {"Leako-Draenor (EU)"}, -- Leako (Ko-fi)
@@ -61,7 +72,6 @@ local supporters1 = { -- wowIDs
     {"Tenspiritak-Drakthul (EU)"}, -- Tenspiritak (Ko-fi)
     {"Darrágh-Blackrock (EU)"}, -- Jim (Ko-fi)
     {"Cerrmor-Stormrage (US)"}, -- (Ko-fi)
-    {"Drumonji-Blackhand (EU)"}, -- (Ko-fi)
     {"Gordonfreems-Illidan (US)"}, -- Gordon Freeman (Ko-fi)
     {"Saphiren-Azralon (US)"}, -- Saphiren (Ko-fi)
     {"Evangeleena-Outland (EU)"}, -- Milda (Ko-fi)
@@ -110,6 +120,8 @@ local supporters1 = { -- wowIDs
     {"Daanior-Draenor (EU)"}, -- Daanior-Draenor (Ko-fi)
     {"血蹄凯恩嗯-加丁 (CN)"}, -- 爱发电用户_1e94c
     {"墨染雲湮-白银之手 (CN)"}, -- 墨染雲湮-白银之手
+    {"Taudri-Mankrik (US)"}, -- Taudry (Ko-fi)
+    {"Sproutz-Illidan (US)"}, -- Sproutz (Ko-fi)
 }
 
 local supporters2 = { -- 有些早期的发电记录已经丢失了……
@@ -168,12 +180,12 @@ local supporters2 = { -- 有些早期的发电记录已经丢失了……
     {"Synthatt", "Ko-fi"}, -- 2024-03-26
     {"devo", "Ko-fi"}, -- 2024-04-07
     {"QBbY", "爱发电"}, -- 2024-04-09 爱发电用户_QBbY
-    {"|cffff8000tithaya|r", "Ko-fi"}, -- 2024-04-18
+    {"|cff7fff00Chris|r", "Ko-fi"}, -- Chris 2024-04-18
     {"Pandora", "Ko-fi"}, -- 2024-04-22
     {"|cffff8000Martin van Vuuren|r", "Ko-fi"}, -- 2024-05-06
     {"Shendreakah", "Ko-fi"}, -- 2024-05-12
     {"8xs3", "爱发电"}, -- 2024-05-12 爱发电用户_8xs3
-    {"Palymoo", "Ko-fi"}, -- 2024-05-12
+    {"|cff7fff00Palymoo|r", "Ko-fi"}, -- 2024-05-12
     {"Winkupo", "Ko-fi"}, -- 2024-05-14
     {"|cffff8000Serghei Iakovlev|r", "Ko-fi"}, -- 2024-05-15
     {"Rou", "Ko-fi"}, -- 2024-05-23
@@ -240,9 +252,10 @@ local supporters2 = { -- 有些早期的发电记录已经丢失了……
 local tests = {
     ["Rutha-Lycanthoth"] = true,
     ["Programming-BurningLegion"] = true,
-    ["Programming-影之哀伤"] = true,
-    ["篠崎-影之哀伤"] = true,
-    ["蜜柑-影之哀伤"] = true,
+    ["Programming-影之哀伤"] = "mvp",
+    ["篠崎-影之哀伤"] = "mvp",
+    ["蜜柑-影之哀伤"] = "mvp",
+    ["萝露-影之哀伤"] = "mvp",
 }
 
 local wowSupporters = {}
@@ -253,10 +266,11 @@ do
             local fullName
             if strfind(name, "^|") then
                 fullName = strmatch(name, "^|cff......(.+%-.+) %(%u%u%)|r$")
+                wowSupporters[fullName] = "mvp"
             else
                 fullName = strmatch(name, "^(.+%-.+) %(%u%u%)$")
+                wowSupporters[fullName] = true
             end
-            wowSupporters[fullName] = true
         end
     end
 end
