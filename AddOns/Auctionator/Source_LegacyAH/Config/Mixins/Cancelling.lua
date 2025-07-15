@@ -4,7 +4,7 @@ function AuctionatorConfigCancellingFrameMixin:OnLoad()
   Auctionator.Debug.Message("AuctionatorConfigCancellingFrameMixin:OnLoad()")
 
   self.name = AUCTIONATOR_L_CONFIG_CANCELLING_CATEGORY
-  self.parent = "Auctionator"
+  self.parent = AUCTIONATOR_L_ADDON_OPTIONS
 
   self:SetupPanel()
 end

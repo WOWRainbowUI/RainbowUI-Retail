@@ -4,7 +4,7 @@ function AuctionatorConfigSellingFrameMixin:OnLoad()
   Auctionator.Debug.Message("AuctionatorConfigSellingFrameMixin:OnLoad()")
 
   self.name = AUCTIONATOR_L_CONFIG_SELLING_CATEGORY
-  self.parent = "Auctionator"
+  self.parent = AUCTIONATOR_L_ADDON_OPTIONS
 
   local view = CreateScrollBoxLinearView()
   view:SetPadding(0, 25, 10, 10, 0)
