@@ -230,3 +230,7 @@ Change Log:
 1.30.2
 * Updated TOC to 11.1.5
 * Updated TOC for WoW Classic 1.15.7
+
+1.30.3
+* Updated TOC to 11.1.7
+* Updated TOC for Mists 5.5.0
