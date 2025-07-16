@@ -65,8 +65,6 @@ local showCrowdControlTooltip = function(self, playerData)
             if (addon.profile.show_cc_cast_tooltip_percentage) then
                 ccText =  ccText .. " (" .. math.floor(totalUses / playerData.ccCasts * 100) .. "%)"
             end
-            GameCooltip:AddLine(spellName, ccText)
-            Details:AddTooltipBackgroundStatusbar(nil, 100, false, {0.1, 0.1, 0.1, 0.2})
 
             local spellInfo = C_Spell.GetSpellInfo(spellName)
             if (not spellInfo) then
@@ -75,6 +73,10 @@ local showCrowdControlTooltip = function(self, playerData)
                     spellInfo = C_Spell.GetSpellInfo(spellId)
                 end
             end
+
+            GameCooltip:AddLine(spellInfo.name or spellName, ccText)
+            Details:AddTooltipBackgroundStatusbar(nil, 100, false, {0.1, 0.1, 0.1, 0.2})
+
             -- set icon width to 0.00001 as workaround to ensure row height is consistent
             GameCooltip:AddIcon(spellInfo and spellInfo.iconID or 134400, 1, 1, spellInfo and 18 or 0.00001, 18, 0.1, 0.9, 0.1, 0.9)
         end
@@ -186,6 +188,27 @@ local CreateLootSquare = function(line)
     return lootSquare
 end
 
+do -- player likes
+    local column = addon.ScoreboardColumn:Create("player-likes", "", 34, function (line)
+        local texture = line:CreateTexture("$parentRankTexture", "artwork")
+        texture:SetSize(30, 30)
+        return texture
+    end)
+
+    column:SetOnRender(function (frame, playerData)
+        local likes = 1
+        for _, liked in pairs(playerData.likedBy or {}) do
+            if (liked) then
+                likes = likes + 1
+            end
+        end
+
+        frame:SetAtlas("Professions-ChatIcon-Quality-Tier" .. likes)
+    end)
+
+    addon.RegisterScoreboardColumn(column)
+end
+
 do -- player portrait
     local column = addon.ScoreboardColumn:Create("player-portrait", "", 60, function (line)
         local lineHeight = line:GetHeight()
@@ -240,12 +263,45 @@ end
 do -- Player name
     local column = addon.ScoreboardColumn:Create("player-name", L["SCOREBOARD_TITLE_PLAYER_NAME"], 110, function (line)
         return line:CreateFontString(nil, "overlay", "GameFontNormal")
-    end)
+    end, false)
 
+    ---@param playerData scoreboard_playerdata
     column:SetOnRender(function (frame, playerData)
         local classColor = RAID_CLASS_COLORS[playerData.class]
         frame:SetTextColor(classColor.r, classColor.g, classColor.b)
         frame:SetText(addon.PreparePlayerName(playerData.name))
+    end)
+
+    addon.RegisterScoreboardColumn(column)
+end
+
+do -- Like button
+    local likeButtonTemplate = "OPTIONS_CIRCLEBUTTON_TEMPLATE"
+
+    local column = addon.ScoreboardColumn:Create("player-like-button", "", 50, function (line)
+        local frame = DetailsFramework:CreateButton(line, function (self)
+            if (self.MyObject.OnClick) then
+                self.MyObject:OnClick()
+            end
+        end, 35, 22, nil, nil, nil, nil, nil, nil, nil, likeButtonTemplate, {font = "GameFontNormal", size = 12})
+        return frame
+    end)
+
+    column:SetOnRender(function (frame, playerData)
+        local myName = UnitName("player")
+        if (addon.profile.last_run_id ~= playerData.runId or myName == playerData.name or (playerData.likedBy and playerData.likedBy[myName]) or not addon.Compress.HasLastRun()) then
+            frame.OnClick = nil
+            frame:Hide()
+
+            return
+        end
+
+        frame.OnClick = function()
+            addon.LikePlayer(playerData.name)
+            frame:Hide()
+        end
+        frame:SetText(L["SCOREBOARD_BUTTON_GG"])
+        frame:Show()
     end)
 
     addon.RegisterScoreboardColumn(column)

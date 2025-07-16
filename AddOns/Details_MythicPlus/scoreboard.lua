@@ -46,6 +46,7 @@ local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 ---@field YellowSpikeCircle texture
 ---@field YellowFlash texture
 ---@field Level fontstring
+---@field ConfigButton df_button
 
 ---@class scoreboard_header : df_headerframe
 ---@field lines table<number, scoreboard_line>
@@ -63,6 +64,7 @@ local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 ---@field GetActor fun(self:scoreboard_button, actorMainAttribute):actor|nil, combat|nil
 
 ---@class scoreboard_playerdata : table
+---@field runId number
 ---@field name string
 ---@field unitName string same as 'name'
 ---@field class string
@@ -88,7 +90,7 @@ local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 ---@field keystoneLevel number
 ---@field keystoneIcon string|number
 ---@field keystoneMapId string|number
-
+---@field likedBy table<string, boolean>
 
 ---@class timeline_event : table
 ---@field type string
@@ -149,7 +151,7 @@ function addon.OpenScoreboardFrame()
         return
     end
 
-    local runData = addon.GetSelectedRun()
+    local runData = addon.Compress.GetSelectedRun()
     if (not runData) then
         print(L["SCOREBOARD_NO_SCORE_AVAILABLE"])
         return
@@ -174,7 +176,7 @@ function addon.RefreshOpenScoreBoard()
         table.wipe(addon.temporaryTimers)
 
         --do the update
-        mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, addon.GetSelectedRun())
+        mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, addon.Compress.GetSelectedRun())
     end
 
     return mainFrame
@@ -208,7 +210,7 @@ end
 
 local SaveLoot = function(itemLink, unitName)
     local playerName = Ambiguate(unitName, "none")
-    local lastRun = addon.GetLastRun()
+    local lastRun = addon.Compress.GetLastRun()
     if (not lastRun or not lastRun.combatData.groupMembers[playerName]) then
         return
     end
@@ -229,7 +231,7 @@ local SaveLoot = function(itemLink, unitName)
     end
 
     private.log("Loot Received:", playerName, itemLink)
-    lastRun.combatData.groupMembers[playerName].loot = itemLink
+    addon.Compress.SetValue(1, "combatData.groupMembers." .. playerName .. ".loot", itemLink)
 
     addon.RefreshOpenScoreBoard()
 end
@@ -309,133 +311,9 @@ function mythicPlusBreakdown.CreateScoreboardFrame()
     configButton:SetSize(closeButton:GetSize())
     configButton:ClearAllPoints()
     configButton:SetPoint("right", closeButton, "left", -3, 0)
+    readyFrame.ConfigButton = configButton
 
-    --dropdown to select the runInfo to show
-    local buildRunInfoList = function()
-        ---@type dropdownoption[]
-        local runInfoList = {}
-        local savedRuns = addon.GetSavedRuns()
-        --get the current run showing
-        local selectedRunIndex = addon.GetSelectedRunIndex()
-
-        local playerName = UnitName("player")
-
-        for i = 1, #savedRuns do
-            local runInfo = savedRuns[i]
-
-            --runInfo.mapId, runInfo.dungeonId, runInfo.completionInfo.mapChallengeModeID
-            --are the same and doesn't work with Details:GetInstanceInfo()
-
-            ---@type details_instanceinfo
-            local instanceInfo = Details:GetInstanceInfo(runInfo.instanceId or runInfo.dungeonName)
-            --print(runInfo.mapId, runInfo.dungeonId, runInfo.completionInfo.mapChallengeModeID)
-
-            local playersInThisRun = runInfo.combatData.groupMembers
-            local isPlayerCharacterInThisRun = playersInThisRun[playerName]
-
-            local labelContent = table.concat(addon.GetDropdownRunDescription(runInfo), "@")
-
-            ---@type dropdownoption
-            local option = {
-                label = labelContent,
-                value = i,
-                onclick = function()
-                    addon.SetSelectedRunIndex(i)
-                end,
-                icon = instanceInfo and instanceInfo.iconLore or [[Interface\AddOns\Details_MythicPlus\Assets\Images\sandglass_icon.png]],
-                iconsize = {18, 18},
-                texcoord = instanceInfo and instanceInfo.iconLore and {35/512, 291/512, 49/512, 289/512} or {0, 1, 0, 1},
-                iconcolor = {1, 1, 1, 0.7},
-                color = isPlayerCharacterInThisRun and "white" or "gray",
-            }
-
-            if (i == selectedRunIndex) then
-                option.statusbar = [[Interface\AddOns\Details\images\bar_serenity]]
-                option.statusbarcolor = {0.4, 0.4, 0, 0.5}
-                option.color = "yellow"
-
-            end
-            runInfoList[#runInfoList+1] = option
-        end
-        return runInfoList
-    end
-
-    local runInfoDropdown = detailsFramework:CreateDropDown(readyFrame, buildRunInfoList, addon.GetSelectedRunIndex(), addon.templates.dropdownRunSelector.width, addon.templates.dropdownRunSelector.height, "selectRunInfoDropdown", "DetailsMythicPlusRunSelectorDropdown", detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
-    runInfoDropdown:SetPoint("right", configButton, "left", -3, 0)
-    readyFrame.RunInfoDropdown = runInfoDropdown
-    runInfoDropdown:UseSimpleHeader(true)
-    runInfoDropdown:SetMenuSize(nil, addon.templates.dropdownRunSelector.dropdownHeight)
-
-    runInfoDropdown.OnCreateOptionFrame = function(dropdown, optionFrame, optionTable)
-        if (not optionFrame.label2) then
-            optionFrame.label2 = optionFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-            optionFrame.label3 = optionFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-            optionFrame.label4 = optionFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-            optionFrame.label5 = optionFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-            optionFrame.label6 = optionFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-
-            optionFrame.label2:SetPoint("left", optionFrame, "left", 220, 0)
-            optionFrame.label3:SetPoint("left", optionFrame, "left", 250, 0)
-            optionFrame.label4:SetPoint("left", optionFrame, "left", 295, 0)
-            optionFrame.label5:SetPoint("left", optionFrame, "left", 325, 0)
-            optionFrame.label6:SetPoint("left", optionFrame, "left", 410, 0)
-
-            local fontFace, fontSize, fontFlags = optionFrame.label:GetFont()
-            optionFrame.label2:SetFont(fontFace, fontSize, fontFlags)
-            optionFrame.label3:SetFont(fontFace, fontSize, fontFlags)
-            optionFrame.label4:SetFont(fontFace, fontSize, fontFlags)
-            optionFrame.label5:SetFont(fontFace, fontSize, fontFlags)
-            optionFrame.label6:SetFont(fontFace, fontSize, fontFlags)
-            optionFrame.label2:SetTextColor(optionFrame.label:GetTextColor())
-            optionFrame.label3:SetTextColor(optionFrame.label:GetTextColor())
-            optionFrame.label4:SetTextColor(optionFrame.label:GetTextColor())
-            optionFrame.label5:SetTextColor(optionFrame.label:GetTextColor())
-            optionFrame.label6:SetTextColor(optionFrame.label:GetTextColor())
-        end
-    end
-
-    runInfoDropdown.OnUpdateOptionFrame = function(dropdown, optionFrame, optionTable)
-        ---@type fontstring
-        local label1 = optionFrame.label
-        local text = label1:GetText()
-
-        local dungeonName, keyLevel, runTime, keyUpgradeLevels, timeString, mapId, dungeonId, onTime, altName = text:match("(.-)@(%d+)@(%d+)@(%d+)@(.+)@(%d+)@(%d+)@(%d+)@(.+)")
-
-        label1:SetText(dungeonName)
-        optionFrame.label2:SetText(keyLevel)
-        optionFrame.label3:SetText(detailsFramework:IntegerToTimer(runTime))
-
-        if (tonumber(keyUpgradeLevels) > 0) then
-            optionFrame.label4:SetText("+" .. keyUpgradeLevels)
-        else
-            optionFrame.label4:SetText("")
-        end
-
-        optionFrame.label5:SetText(timeString)
-
-        optionFrame.label6:SetText(altName ~= "0" and altName or "") --when no altName is found, it returns "0"
-    end
-
-    hooksecurefunc(runInfoDropdown, "Selected", function(self, thisOption)
-        local dungeonName, keyLevel, runTime, keyUpgradeLevels, timeString, mapId, dungeonId, onTime, altName = thisOption.label:match("(.-)@(%d+)@(%d+)@(%d+)@(.+)@(%d+)@(%d+)@(%d+)@(.+)")
-        onTime = "1" and true or false
-
-        dungeonId = tonumber(dungeonId)
-
-        if (dungeonId == 370) then
-            dungeonName = dungeonName:gsub("^.+%-", "")
-        end
-
-        --limit dungeon name to 22 letters
-        local resizedDungeonName = dungeonName:sub(1, 22)
-
-        self.label:SetText(resizedDungeonName .. " +" .. keyLevel .. " (" .. timeString .. ")")
-    end)
-    --DropDownMetaFunctions:Selected(thisOption)
-
-    runInfoDropdown.widget:HookScript("OnMouseDown", function(self)
-
-    end)
+    addon.CreateRunSelectorDropdown(readyFrame)
 
     local normalTexture = configButton:CreateTexture(nil, "overlay")
     normalTexture:SetTexture([[Interface\AddOns\Details\images\end_of_mplus.png]], nil, nil, "TRILINEAR")
@@ -534,7 +412,7 @@ function mythicPlusBreakdown.CreateScoreboardFrame()
 
     local headers = {}
     for _, column in ipairs(mythicPlusBreakdown.GetVisibleColumns()) do
-        table.insert(headers, {name = column:GetId(), text = column:GetHeaderText(), width = column:GetWidth()})
+        table.insert(headers, {name = column:GetId(), text = column:ShouldShowHeaderText() and column:GetHeaderText() or "", width = column:GetWidth()})
     end
 
     ---@type scoreboard_header
@@ -633,7 +511,7 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
         local headers = {}
         local columns = mythicPlusBreakdown.GetVisibleColumns()
         for _, column in ipairs(columns) do
-            table.insert(headers, {name = column:GetId(), text = column:GetHeaderText(), width = column:GetWidth()})
+            table.insert(headers, {name = column:GetId(), text = column:ShouldShowHeaderText() and column:GetHeaderText() or "", width = column:GetWidth()})
         end
 
         headerFrame:SetHeaderTable(headers)
@@ -658,7 +536,7 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
         mainFrame.ReloadedFrame:Hide()
     end
 
-    if (#addon.GetSavedRuns() > 1) then
+    if (#addon.Compress.GetHeaders() > 1) then
         mainFrame.RunInfoDropdown:Show()
     else
         mainFrame.RunInfoDropdown:Hide()
@@ -691,6 +569,7 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
 
             ---@type scoreboard_playerdata
             local thisPlayerData = {
+                runId = runData.runId,
                 name = playerName,
                 unitName = playerName,
                 class = playerInfo.class,
@@ -720,6 +599,7 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
                 keystoneLevel = 0,
                 keystoneIcon = keystoneDefaultTexture,
                 keystoneMapId = 0,
+                likedBy = playerInfo.likedBy
             }
 
             if (thisPlayerData.role == "NONE") then
@@ -753,7 +633,13 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
             data[#data+1] = thisPlayerData
         end
 
-        table.sort(data, function(t1, t2) return t1.role > t2.role end)
+        table.sort(data, function(t1, t2)
+            if (t1.role ~= t2.role) then
+                return t1.role > t2.role
+            end
+
+            return t1.name < t2.name
+        end)
 
         for i = 1, lineAmount do
             lines[i]:Hide()

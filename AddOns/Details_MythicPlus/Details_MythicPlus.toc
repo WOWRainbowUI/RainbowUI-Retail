@@ -6,7 +6,7 @@
 ## SavedVariables: Details_MythicPlusDB
 ## SavedVariablesPerCharacter: Details_MythicPlus_CharacterDB
 ## RequiredDeps: Details
-## Version: #DMP.20250524.004
+## Version: #DMP.20250715.005
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Wago-ID: 4N2m7QGL
@@ -29,9 +29,11 @@ options.lua
 scoreboard_column.lua
 scoreboard.lua
 scoreboard_layout.lua
+scoreboard_runselectordropdown.lua
 activityframe.lua
 events.lua
 functions.lua
 slash.lua
 rundata.lua
 migrations.lua
+comm.lua
