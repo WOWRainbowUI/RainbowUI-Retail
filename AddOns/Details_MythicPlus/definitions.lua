@@ -8,7 +8,7 @@
 ---@field log fun(...) log a message to the addon logs
 
 ---@class combattimetype : table
----@field RunRime number
+---@field RunTime number
 ---@field CombatTime number
 
 ---@class scoreboard_eventtype : table
@@ -23,6 +23,8 @@
 ---| "Death"
 ---| "KeyFinished"
 
+---@alias compressedruninfo string
+
 ---@class enum : table
 ---@field CombatType combattimetype
 ---@field ScoreboardEventType scoreboard_eventtype
@@ -34,7 +36,6 @@
 ---@field has_last_run boolean whether or not there's a last run. This run will be cleared when the next one starts.
 ---@field is_run_ongoing boolean whether or not there's a current run going
 ---@field run_id number the last run id
----@field saved_runs runinfo[] store the saved runs
 ---@field saved_runs_compressed string[] store the compressed saved runs, this is used to save memory and speed up the loading time of the addon
 ---@field saved_runs_compressed_headers table[] store the headers of the saved runs, this is used to show the run history in the dropdown menu
 ---@field saved_runs_limit number limit of saved runs
@@ -50,6 +51,7 @@
 ---@field translit boolean translit cyrillic
 ---@field last_run_data detailsmythicplus_run_data store the data from the last run
 ---@field keep_information_for_debugging boolean keep certain information for debugging
+---@field developer_mode boolean enable certain information only useful when developing the addon
 ---@field migrations_done number[] the timestamp of when a migration was done, where the key is the migration number from migrations.lua
 ---@field font fontsettings font settings
 ---@field logs string[] logs of the addon
@@ -67,6 +69,8 @@
 ---@field temporaryTimers timer[] store timers created with C_Timer, all timers here are stopped when an update in the scoreboard is about to start
 ---@field dataBroker table?
 ---@field minimap table
+---@field Compress compressrun
+---@field Comm comm
 ---@field Migrations table<number, fun()>
 ---@field selectedRunInfo runinfo currently run info in use (showing the data in the scoreboard), if any
 ---@field mythicPlusBreakdown details_mythicplus_breakdown
@@ -95,29 +99,31 @@
 ---@field GetVersionString fun() : string the version info of just this addon
 ---@field GetFullVersionString fun() : string the version info of details and this addon
 ---@field GetBloodlustUsage fun() : number[]? retrieves the time() in seconds when the player received bloodlust buff.
----@field GetSavedRuns fun() : runinfo[] return an array with all data from the saved runs
----@field GetLastRun fun() : runinfo return the run info for the last run finished
----@field GetDungeonRunsById fun(id:string|number) : runinfo[] return an array with run infos of all runs that match the dungeon name or dungeon id
 ---@field GetRunDate fun(runInfo:runinfo) : string return the date when the run ended in format of a string with hour:minute day as number/month as 3letters/year as number
 ---@field FormatRunDescription fun(runInfo:runinfo) : string returns the run description in a single string
 ---@field GetRunAverageItemLevel fun(runInfo:runinfo) : number return the average item level of the 5 players in the run
 ---@field GetRunAverageDamagePerSecond fun(runInfo:runinfo, timeType:combattimetype) : number return the average damage per second
 ---@field GetRunAverageHealingPerSecond fun(runInfo:runinfo, timeType:combattimetype) : number return the average healing per second
----@field GetRunInfoForHighestScoreById fun(id:string|number) : runinfo? return the runinfo with the highest score of all runs that match the dungeon name or dungeon id, nil if no dungeon found
 ---@field SetSelectedRunIndex fun(index:number) set the selected run index
 ---@field GetSelectedRunIndex fun() : number get the selected run index
----@field GetSelectedRun fun() : runinfo return the latest selected run info, return nil if there is no run info data
----@field RemoveRun fun(index:number) remove the run info from the saved runs
 ---@field GetDropdownRunDescription fun(runInfo:runinfo) : table indexed table containing: [1] dungeonName, [2] keyLevel, [3] runTime, [4] keyUpgradeLevels, [5] timeString, [6] onTime [7] mapId [8] dungeonId
 ---@field GetPlayerDeathReason fun(runInfo:runinfo, unitName:playername, deathIndex:number) : death_last_hits[]|nil return a table with subtables of type death_last_hits which tells the last hits that killed the player
 ---@field PreparePlayerName fun(name:string) : string removes the realm name, and transliterates if configured
 ---@field ShowMythicPlusOptionsWindow fun() opens the options window for the addon
 ---@field RegisterScoreboardColumn fun(column:scoreboard_column) register a column to be shown in the scoreboard
+---@field CreateRunSelectorDropdown fun(readyFrame:scoreboard_mainframe) create a dropdown to select the run to show in the scoreboard
 
 ---@class scoreboard_keystone_texture: texture show the keystone dungeon icon the player has
 ---@field KeystoneDungeonLevel fontstring show the keystone level of the player
 ---@field KeystoneDungeonLevelBackground texture background texture behind the keystone level text
 ---@field DungeonBorderTexture texture
+
+---@class comm : table --~comm
+---@field RegisteredCallbacks table<string, fun(sender:string, data:any)> store the registered callbacks for the comms
+---@field Initialize fun() initialize the addon comms
+---@field Register fun(prefix:string, callback:fun(sender:string, data:any)) register a function
+---@field Send fun(prefix:string, data:any, channel:string?) send a comm message, channel defaults to "PARTY"
+---@field Test fun() test the comm system
 
 ---@class runinfo : table
 ---@field runId number a number that can be used to identify a run, can be used to map external data to (e.g. by other addons)
@@ -184,13 +190,12 @@
 ---@field healDoneBySpells table<spellid, number>[] heal done by spells, a table with indexed subtables where the first index is the spellid and the second is the total heal done by that spell
 ---@field damageDoneBySpells table<spellid, number>[] damage done by spells, a table with indexed subtables where the first index is the spellid and the second is the total damage done by that spell
 ---@field damageTakenFromSpells spell_hit_player[] damage taken from spells
----@field damageDoneBySpells table<number, number>[] spellId, damage done
----@field healDoneBySpells table<number, number>[] spellId, heals done
 ---@field dispelWhat table<spellid, number> which debuffs the player dispelled
 ---@field interruptWhat table<spellid, number> which spells the player interrupted
 ---@field interruptCastOverlapDone number how many times the player attempted to interrupt a spell with another player
 ---@field crowdControlSpells table<spellname, number> which spells the player casted that are crowd control
 ---@field deathLastHits death_last_hits[]
+---@field likedBy table<string, boolean> which players liked this player
 
 ---@class death_last_hits : table
 ---@field spellId number the spell id that caused the damage
@@ -271,3 +276,4 @@
 ---@field playerClass string
 ---@field runId number
 ---@field instanceId number
+---@field groupMembers table<playername, class>

@@ -1,4 +1,5 @@
 do
+    --translate here: https://legacy.curseforge.com/wow/addons/details-damage-meter-mythic/localization
     local addonId = ...
     local languageTable = DetailsFramework.Language.RegisterLanguage(addonId, "zhTW")
     local L = languageTable
@@ -16,8 +17,6 @@ do
     L["COMMAND_SHOW_VERSION"] = "彈出時顯示版本"
     L["COMMAND_OPEN_SCOREBOARD"] = "開啟計分板"
     L["COMMAND_OPEN_LOGS"] = "顯示當前紀錄"
-    L["COMMAND_LIST_RUN_HISTORY"] = "列出最近紀錄"
-    L["COMMAND_LIST_RUN_HISTORY_NO_RUNS"] = "目前無儲存紀錄"
     L["COMMAND_CLEAR_RUN_HISTORY"] = "清除最近紀錄歷史"
     L["COMMAND_CLEAR_RUN_HISTORY_DONE"] = "清除了 %s 次的紀錄"
 
@@ -45,7 +44,7 @@ do
     L["OPTIONS_TRANSLIT_LABEL"] = "翻譯"
     L["OPTIONS_SAVING"] = "保存"
     L["OPTIONS_HISTORY_RUNS_TO_KEEP_LABEL"] = "保存次數"
-    L["OPTIONS_HISTORY_RUNS_TO_KEEP_DESC"] = "保存的次數。下次重新載入或登入時將刪除大於此數字的現有歷史記錄。較大的數字可能會稍微增加載入時間。"
+    L["OPTIONS_HISTORY_RUNS_TO_KEEP_DESC"] = "保存的次數。下次重新載入或登入時將刪除大於此數字的現有歷史記錄。"
     L["OPTIONS_TRANSLIT_DESC"] = "翻譯西里爾字符到拉丁字母"
     L["OPTIONS_SHOW_TIME_SECTIONS_LABEL"] = "顯示階段時間標籤"
     L["OPTIONS_SHOW_TIME_SECTIONS_DESC"] = "顯示時間表上階段的時間標籤作為指南"
@@ -81,9 +80,7 @@ do
     L["SCOREBOARD_TOOLTIP_CC_CAST_HEADER"] = "數量"
     L["SCOREBOARD_RELOADED_WARNING"] = "未完成數據"
     L["SCOREBOARD_RELOADED_TOOLTIP"] = "此次的數據尚未完成，並且由於中途重新載入或重新錄製，可能是錯誤的。"
-    L["ADDON_STARTUP_REMOVED_CORRUPT_HISTORY"] = "從歷史紀錄中刪除 %d 損壞的次數。"
-    L["ADDON_STARTUP_REMOVED_TOO_MANY_HISTORY"] = "從歷史紀錄中刪除 %d 發現到的過量次數。"
-	
+
 ------------------------------------------------------------
 
 end
