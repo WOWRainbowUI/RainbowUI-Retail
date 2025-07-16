@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.1.14 (18th June 2025)
+-- 	Leatrix Plus 11.1.15 (15th July 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.1.14"
+	LeaPlusLC["AddonVer"] = "11.1.15"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -34,7 +34,7 @@
 			end)
 			return
 		end
-		if gametocversion and gametocversion >= 110100 then -- 11.1.0
+		if gametocversion and gametocversion >= 110200 then -- 11.2.0
 			LeaPlusLC.NewPatch = true
 		end
 	end
@@ -2920,7 +2920,11 @@
 			BagItemSearchBox:SetWidth(120)
 
 			-- Hide bank frame clean-up button and make item search box longer
-			BankItemAutoSortButton:HookScript("OnShow", BankItemAutoSortButton.Hide)
+			if LeaPlusLC.NewPatch then
+				BankPanel.AutoSortButton:HookScript("OnShow", BankPanel.AutoSortButton.Hide)
+			else
+				BankItemAutoSortButton:HookScript("OnShow", BankItemAutoSortButton.Hide)
+			end
 			BankItemSearchBox:ClearAllPoints()
 			BankItemSearchBox:SetPoint("TOPRIGHT", BankFrame, "TOPRIGHT", -27, -33)
 			BankItemSearchBox:SetWidth(120)
@@ -9090,6 +9094,7 @@
 				if PetBattlePrimaryUnitTooltip then PetBattlePrimaryUnitTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"]) end
 				if BattlePetTooltip then BattlePetTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"]) end
 				if FloatingBattlePetTooltip then FloatingBattlePetTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"]) end
+				if FloatingPetBattleAbilityTooltip then FloatingPetBattleAbilityTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"]) end
 
 				-- Garrison
 				if FloatingGarrisonFollowerTooltip then FloatingGarrisonFollowerTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"]) end
