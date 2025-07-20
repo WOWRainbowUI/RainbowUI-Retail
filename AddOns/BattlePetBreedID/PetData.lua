@@ -1,6 +1,6 @@
 --[[
 BattlePetBreedID: Pet Data Module
-Last Update: Patch 11.1.7 / Patch 5.5.0; 2025-07-13T18:20:23Z
+Last Update: Patch 11.1.7 / Patch 5.5.0; 2025-07-18T19:09:41Z
 
 If you would like a copy of this data in a different format for your own purposes or to be informed of future updates:
 Contact MMOSimca / Simca@Malfurion-US - either through MMO-Champion, through CurseForge, or in-game
@@ -4840,7 +4840,7 @@ function BPBID_Arrays.InitializeArrays()
     BPBID_Arrays.BasePetStats[4793] = {7.5, 7.5, 9}
     BPBID_Arrays.BasePetStats[4794] = {6.75, 8.5, 8.75}
     BPBID_Arrays.BasePetStats[4795] = false
-    BPBID_Arrays.BasePetStats[4796] = false
+    BPBID_Arrays.BasePetStats[4796] = {8.5, 8.5, 7}
     BPBID_Arrays.BasePetStats[4797] = false
     BPBID_Arrays.BasePetStats[4798] = false
     BPBID_Arrays.BasePetStats[4799] = false
@@ -4894,7 +4894,7 @@ function BPBID_Arrays.InitializeArrays()
     BPBID_Arrays.BasePetStats[4847] = false
     BPBID_Arrays.BasePetStats[4848] = false
     BPBID_Arrays.BasePetStats[4849] = {8.5, 7.5, 8}
-    BPBID_Arrays.BasePetStats[4850] = false
+    BPBID_Arrays.BasePetStats[4850] = {8.5, 8.5, 7}
     BPBID_Arrays.BasePetStats[4851] = false
     BPBID_Arrays.BasePetStats[4852] = {7, 8.5, 8.5}
 
@@ -9695,7 +9695,7 @@ function BPBID_Arrays.InitializeArrays()
     BPBID_Arrays.BreedsPerSpecies[4793] = {9}
     BPBID_Arrays.BreedsPerSpecies[4794] = {10}
     BPBID_Arrays.BreedsPerSpecies[4795] = false
-    BPBID_Arrays.BreedsPerSpecies[4796] = false
+    BPBID_Arrays.BreedsPerSpecies[4796] = {3}
     BPBID_Arrays.BreedsPerSpecies[4797] = false
     BPBID_Arrays.BreedsPerSpecies[4798] = false
     BPBID_Arrays.BreedsPerSpecies[4799] = false
@@ -9749,13 +9749,29 @@ function BPBID_Arrays.InitializeArrays()
     BPBID_Arrays.BreedsPerSpecies[4847] = false
     BPBID_Arrays.BreedsPerSpecies[4848] = false
     BPBID_Arrays.BreedsPerSpecies[4849] = {6}
-    BPBID_Arrays.BreedsPerSpecies[4850] = false
+    BPBID_Arrays.BreedsPerSpecies[4850] = {3}
     BPBID_Arrays.BreedsPerSpecies[4851] = false
     BPBID_Arrays.BreedsPerSpecies[4852] = {5}
-	
-	
-	-- Fix for changes unique to Mists of Pandaria Classic
-	if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) then
-	    BPBID_Arrays.BasePetStats[630] = {8, 8, 8}
-	end
+    
+    
+    -- Fix for changes unique to Mists of Pandaria Classic
+    if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) then
+        -- Undoing Peddlefeet 1 Power buff from Retail. This was probably a bug on Retail anyway but nobody ever noticed.
+        BPBID_Arrays.BasePetStats[122] = {8, 8, 8}
+        -- Undoing Gilnean Raven/Crow nerf
+        BPBID_Arrays.BasePetStats[630] = {8, 8, 8}
+        BPBID_Arrays.BasePetStats[1068] = {8, 8, 8}
+        -- Undoing Cinder Kitten/Tiny White Carp bug fix
+        BPBID_Arrays.BasePetStats[1117] = {7.5, 8.5, 8.5}
+        BPBID_Arrays.BasePetStats[1207] = {7.5, 8.5, 8.5}
+        -- Undoing Celestial Tournament nerfs (Bolo, Li, and Yen)
+        BPBID_Arrays.BasePetStats[1292] = {8.5, 8, 8}
+        BPBID_Arrays.BasePetStats[1293] = {8, 8, 8.5}
+        BPBID_Arrays.BasePetStats[1295] = {8, 8.75, 7.25}
+        -- Undoing Chubbs buff
+        BPBID_Arrays.BasePetStats[1352] = {33, 8, 8}
+        -- Undoing Dread Hatchling changes? Unclear if that pet is relevant to MoP Classic.
+        BPBID_Arrays.BasePetStats[1386] = {8.125, 8.375, 7.5}
+        -- Many other changes exist but none seem relevant, as they are just undoing stat changes for pets that don't exist in MoP Classic.
+    end
 end
