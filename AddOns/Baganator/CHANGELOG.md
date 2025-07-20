@@ -1,6 +1,6 @@
 # Baganator
 
-## [705](https://github.com/Baganator/Baganator/tree/705) (2025-07-12)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/704...705) 
+## [706](https://github.com/Baganator/Baganator/tree/706) (2025-07-19)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/705...706) 
 
-- Refresh bags when Syndicator auction value source changes  
+- Fix export text being blank if |K or |k found in export string  
