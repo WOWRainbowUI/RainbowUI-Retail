@@ -10,6 +10,10 @@ local C_SpecializationInfo_GetPvpTalentSlotInfo = C_SpecializationInfo and C_Spe
 local C_Traits_GetNodeInfo = C_Traits and C_Traits.GetNodeInfo
 local C_Soulbinds_GetConduitSpellID = C_Soulbinds and C_Soulbinds.GetConduitSpellID
 
+
+local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or GetSpecialization
+local GetSpecializationInfo = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo or GetSpecializationInfo
+
 local InspectQueueFrame = CreateFrame("Frame")
 local InspectTooltip, tooltipData
 if not E.postDF then
@@ -38,11 +42,14 @@ function CM:Enable()
 	self:RegisterComm(self.AddonPrefix, "CHAT_MSG_ADDON")
 	self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 	self:RegisterEvent("PLAYER_LEAVING_WORLD")
-	if E.isWOTLKC or E.isCata then
+	if E.preBCC then
+		self:RegisterEvent("CHARACTER_POINTS_CHANGED")
+	elseif E.preCata then
 
 		self:RegisterEvent("PLAYER_TALENT_UPDATE")
-	elseif E.preCata then
-		self:RegisterEvent("CHARACTER_POINTS_CHANGED")
+	elseif E.preMoP then
+
+		self:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
 	else
 
 		self:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
@@ -227,7 +234,7 @@ function CM:RequestInspect()
 				local elapsed = now - addedTime
 				if not UnitIsConnected(unit) or elapsed > INSPECT_TIMEOUT or info.isAdminForMDI then
 					self:DequeueInspect(guid)
-				elseif E.preCata and (inCombat or not CheckInteractDistance(unit,1))
+				elseif E.preMoP and (inCombat or not CheckInteractDistance(unit,1))
 
 
 					or not CanInspect(unit) then
@@ -559,7 +566,7 @@ local function GetEquippedItemData(info, unit, specID, list)
 						if list then list[#list + 1] = equipBonusID .. ":S" end
 					end
 					if tierSetBonus then
-						local specBonus = E.preCata and tierSetBonus or tierSetBonus[specID]
+						local specBonus = E.preMoP and tierSetBonus or tierSetBonus[specID]
 						if specBonus and numTierSetBonus < 2 and specBonus[1] ~= foundTierSpecBonus then
 							foundTierSpecBonus = FindSetBonus(info, specBonus, list)
 							if foundTierSpecBonus then
@@ -842,6 +849,40 @@ end) or (E.isCata and function(info, unit, isInspect)
 	end
 
 	return list
+end) or (E.isMoP and function(info, unit, isInspect)
+	local list
+	if not isInspect then
+		list = { CM.SERIALIZATION_VERSION, info.spec, "^T" }
+	end
+
+	local talentGroup = GetActiveTalentGroup and GetActiveTalentGroup(isInspect, nil)
+
+	for i = 1, 6 do
+		local _,_,_, glyphSpellID = GetGlyphSocketInfo(i, talentGroup, isInspect, unit)
+		if glyphSpellID then
+			info.talentData[glyphSpellID] = true
+			if list then list[#list + 1] = glyphSpellID end
+		end
+	end
+
+	for tier = 1, MAX_NUM_TALENT_TIERS do
+		for column = 1, NUM_TALENT_COLUMNS do
+			local talentInfoQuery = {}
+			talentInfoQuery.tier = tier
+			talentInfoQuery.column = column
+			talentInfoQuery.groupIndex = talentGroup
+			talentInfoQuery.isInspect = isInspect
+			talentInfoQuery.target = unit
+			local talentInfo = C_SpecializationInfo.GetTalentInfo(talentInfoQuery)
+			if talentInfo and talentInfo.selected then
+				local spellID = talentInfo.spellID
+				info.talentData[spellID] = true
+				if list then list[#list + 1] = spellID end
+			end
+		end
+	end
+
+	return list
 end) or function(info, unit, isInspect)
 	local list
 	if not isInspect then
@@ -1004,7 +1045,13 @@ function CM:InspectUser()
 		specID = info.raceID
 	else
 		local specIndex = GetSpecialization()
-		specID = GetSpecializationInfo(specIndex)
+
+		if specIndex == 5 then
+			return true
+		end
+		if specIndex then
+			specID = GetSpecializationInfo(specIndex)
+		end
 	end
 
 	if not specID or specID == 0 then
@@ -1018,16 +1065,18 @@ function CM:InspectUser()
 	local dataList = GetSelectedTalentData(info, "player")
 	GetEquippedItemData(info, "player", specID, dataList)
 
-	if E.postSL then
-		GetCovenantSoulbindData(info, dataList)
-		info.spellHasteMult = 1/(1 + UnitSpellHaste("player")/100)
 
-	elseif E.isClassic or E.isBCC then
+	if E.isClassic or E.isBCC then
 		local speed = UnitRangedDamage("player")
 		if speed and speed > 0 then
 			info.rangedWeaponSpeed = speed
 			dataList[#dataList + 1] = -speed
 		end
+	else
+		if E.postSL then
+			GetCovenantSoulbindData(info, dataList)
+		end
+		info.spellHasteMult = 1/(1 + UnitSpellHaste("player")/100)
 	end
 
 	local serializedData = table.concat(dataList, ","):gsub(",%^", "^")

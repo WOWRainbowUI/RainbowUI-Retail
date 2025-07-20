@@ -33,7 +33,7 @@ E.spell_db = {
 		{ ["class"]="DEATHKNIGHT",["type"]="other",["buff"]=57330,["spec"]=true,["name"]="Horn of Winter",["duration"]=45,["icon"]=134228,["spellID"]=57330, },
 		{ ["class"]="DEATHKNIGHT",["type"]="offensive",["buff"]=194844,["spec"]=true,["name"]="Bonestorm",["duration"]=60,["icon"]=342917,["spellID"]=194844, },
 		{ ["class"]="DEATHKNIGHT",["type"]="tankDefensive",["buff"]=114556,["spec"]=true,["name"]="Purgatory",["duration"]=240,["icon"]=134430,["spellID"]=114556, },
-		{ ["class"]="DEATHKNIGHT",["type"]="disarm",["buff"]=108199,["spec"]=true,["name"]="Gorefiend's Grasp",["duration"]=120,["icon"]=538767,["spellID"]=108199, },
+		{ ["class"]="DEATHKNIGHT",["type"]="aoeCC",["buff"]=108199,["spec"]=true,["name"]="Gorefiend's Grasp",["duration"]=120,["icon"]=538767,["spellID"]=108199, },
 		{ ["class"]="DEATHKNIGHT",["type"]="tankDefensive",["buff"]=81256,["spec"]=true,["name"]="Dancing Rune Weapon",["duration"]=120,["icon"]=135277,["spellID"]=49028, },
 		{ ["class"]="DEATHKNIGHT",["type"]="tankDefensive",["buff"]=219809,["spec"]=true,["name"]="Tombstone",["duration"]=60,["icon"]=132151,["spellID"]=219809, },
 		{ ["class"]="DEATHKNIGHT",["type"]="other",["buff"]=221699,["spec"]=true,["name"]="Blood Tap",["charges"]=2,["duration"]=60,["icon"]=237515,["spellID"]=221699, },
