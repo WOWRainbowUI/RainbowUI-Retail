@@ -39,7 +39,7 @@ local INSTANCETYPE_EVENTS = {
 	}
 }
 
-if E.preCata then
+if E.preMoP then
 	if E.preBCC then
 		INSTANCETYPE_EVENTS.raid = nil
 	end
@@ -196,7 +196,7 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 	self.zone = instanceType
 	self.isInArena = instanceType == "arena"
 	self.isInPvPInstance = self.isInArena or instanceType == "pvp"
-	self.isPvP = E.preCata or self.isInPvPInstance or (instanceType == "none" and C_PvP.IsWarModeDesired())
+	self.isPvP = E.preMoP or (self.isInPvPInstance or instanceType == "none" and C_PvP.IsWarModeDesired())
 	self.effectivePixelMult = nil
 
 	self:RegisterZoneEvents()

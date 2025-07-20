@@ -1,6 +1,9 @@
 local E = select(2, ...):unpack()
-local P, CM, CD = E.Party, E.Comm, E.Cooldowns
+if E.isMoP then
+	return
+end
 
+local P, CM, CD = E.Party, E.Comm, E.Cooldowns
 local pairs, ipairs, type, tonumber, abs, min, max = pairs, ipairs, type, tonumber, abs, min, max
 local GetTime, UnitTokenFromGUID, UnitHealth, UnitHealthMax, UnitLevel, UnitChannelInfo, UnitAffectingCombat = GetTime, UnitTokenFromGUID, UnitHealth, UnitHealthMax, UnitLevel, UnitChannelInfo, UnitAffectingCombat
 local AuraUtil_ForEachAura = AuraUtil and AuraUtil.ForEachAura
@@ -9,9 +12,7 @@ local band = bit.band
 local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 local COMBATLOG_OBJECT_REACTION_FRIENDLY = COMBATLOG_OBJECT_REACTION_FRIENDLY
 local COMBATLOG_OBJECT_TYPE_PLAYER = COMBATLOG_OBJECT_TYPE_PLAYER
-local COMBATLOG_OBJECT_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
 
-local BOOKTYPE_CATEGORY = E.BOOKTYPE_CATEGORY
 local groupInfo = P.groupInfo
 local userGUID = E.userGUID
 
@@ -126,7 +127,23 @@ local function AppendInterruptExtras(info, _, spellID, _,_,_, extraSpellId, extr
 				end
 			end
 			if frame.db.showRaidTargetMark then
+
+				--[[
 				local mark = E.RAID_TARGET_MARKERS[destRaidFlags]
+				if mark then
+					statusBar.CastingBar.Text:SetFormattedText("%s %s", statusBar.name, mark)
+				end
+				]]
+
+				--[[
+				local markFlag = bit.band(destRaidFlags, COMBATLOG_OBJECT_RAIDTARGET_MASK)
+				local index = math.log(markFlag) / math.log(2) + 1
+				local mark = ICON_LIST[index]
+				if mark then
+					statusBar.CastingBar.Text:SetFormattedText("%s %s0|t", statusBar.name, mark)
+				end
+				]]
+				local mark = CombatLog_String_GetIcon(destRaidFlags)
 				if mark then
 					statusBar.CastingBar.Text:SetFormattedText("%s %s", statusBar.name, mark)
 				end
@@ -1781,16 +1798,16 @@ local fireMageFrostSpellIDs = {
 }
 
 registeredEvents["SPELL_AURA_APPLIED"][87023] = function(info, srcGUID, spellID)
-
-	if not E.postDF and E.spell_auraapplied_processspell[spellID] then
-		info:ProcessSpell(spellID)
-	end
-
-	for _, id in pairs(fireMageFrostSpellIDs) do
-		local icon = info.spellIcons[id]
-		if icon and icon.active then
-			icon:ResetCooldown(true)
+	if info.talentData[431112] then
+		for _, id in pairs(fireMageFrostSpellIDs) do
+			local icon = info.spellIcons[id]
+			if icon and icon.active then
+				icon:ResetCooldown(true)
+			end
 		end
+
+	elseif E.preCata and E.spell_auraapplied_processspell[spellID] then
+		info:ProcessSpell(spellID)
 	end
 end
 
@@ -3103,10 +3120,11 @@ end
 registeredEvents["SPELL_CAST_SUCCESS"][315508] = registeredEvents["SPELL_CAST_SUCCESS"][212283]
 
 
-registeredEvents["SPELL_AURA_REMOVED"][1784] = function(info, srcGUID)
+registeredEvents["SPELL_AURA_REMOVED"][1784] = function(info, srcGUID, spellID, destGUID)
 	if info.auras.mult_isStealthed then
 		C_Timer_After(.05, function() info.auras.mult_isStealthed = nil end)
 	end
+	StartCdOnAuraRemoved(info, srcGUID, spellID, destGUID)
 end
 
 registeredEvents["SPELL_AURA_APPLIED"][1784] = function(info)

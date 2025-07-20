@@ -1,4 +1,4 @@
-## Interface: 40402
+## Interface: 50500
 ## Title: OmniCD
 ## Notes: Party cooldown tracker. /oc
 ## Author: Treebonker
@@ -16,6 +16,6 @@
 Embeds.xml
 Locales\Locales.xml
 Core\Core.xml
-Modules\Spells\Spells_Cata.xml
+Modules\Spells\Spells_Mists.xml
 Modules\Modules.xml
 Config\Config.xml
