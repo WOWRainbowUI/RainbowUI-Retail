@@ -1,8 +1,10 @@
 # Syndicator
 
-## [218](https://github.com/Baganator/Syndicator/tree/218) (2025-07-13)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/217...218) 
+## [219](https://github.com/Baganator/Syndicator/tree/219) (2025-07-18)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/218...219) 
 
-- [Fixes #75] Search Builder: Fix menu entries sometimes going offscreen  
-- Search Builder: Fix Less than < auction value option not working  
-- Add auction value terms to search builder  
+- Fix bank bags count on classic era  
+- Fix nil reference error  
+- Update bank bags count for when bank character tabs are enabled  
+- Forgot to flag any updated bank tabs metadata as updated  
+- Retail: Support 11.2 character bank tabs  
