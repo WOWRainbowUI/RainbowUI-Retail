@@ -62,12 +62,12 @@ local function GetInspectItemListFrame(parent)
         frame.level:SetFont(frame.level:GetFont(), 14, "THINOUTLINE")
 
         local itemframe
-        local fontsize = GetLocale():sub(1,2) == "zh" and 12 or 9
+        local fontsize = GetLocale():sub(1,2) == "zh" and 14 or 11
         local backdrop = {
             bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
             edgeFile = "Interface\\Buttons\\WHITE8X8",
             tile     = true,
-            tileSize = 8,
+            tileSize = 10,
             edgeSize = 1,
             insets   = {left = 1, right = 1, top = 1, bottom = 1}
         }
@@ -261,7 +261,7 @@ local currentParent = parent;
             bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
             tile     = true,
-            tileSize = 8,
+            tileSize = 10,
             edgeSize = 16,
             insets   = {left = 4, right = 4, top = 4, bottom = 4}
           }
