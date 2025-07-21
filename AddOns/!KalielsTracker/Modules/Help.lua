@@ -274,6 +274,11 @@ local function SetupTutorials()
 			headingFont = "Fonts\\MORPHEUS.ttf",
 			headingSize = 26,
 			text =
+					cTitle.."Version 7.10.1|r\n"..
+					"- CHANGED - addon support - PetTracker 11.1.10\n"..
+					"- FIXED - error during profiles compatibility test\n"..
+					"- FIXED - PetTracker - error during init\n"..
+					"\n"..
 					cTitle.."Version 7.10.0|r\n"..
 					"- ADDED - support for WoW 11.1.5.60428\n"..
 					"- ADDED - support for WoW 11.1.0.59347\n"..

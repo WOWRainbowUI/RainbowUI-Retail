@@ -1,4 +1,8 @@
 # Kaliel's Tracker changelog
+### 7.10.1
+- CHANGED - addon support - PetTracker 11.1.10
+- FIXED - error during profiles compatibility test
+- FIXED - PetTracker - error during init
 ### 7.10.0
 - ADDED - support for WoW 11.1.5.60428
 - ADDED - support for WoW 11.1.0.59347

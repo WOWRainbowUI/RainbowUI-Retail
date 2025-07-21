@@ -86,7 +86,6 @@ local function SetHooks()
 		local line = bck_PetTracker_SpecieLine_New(self, parent, text, icon, subicon, r, g, b)
 		if line.KTskinID ~= KT.skinID then
 			line:SetWidth(parent.width)
-			line.Dash:SetText("")
 			line.SubIcon:ClearAllPoints()
 			line.SubIcon:SetPoint("TOPLEFT", 0, -1)
 			line.Icon:ClearAllPoints()
@@ -255,12 +254,13 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-	self.isLoaded = (KT:CheckAddOn("PetTracker", "11.1.5") and db.addonPetTracker)
+	self.isLoaded = (KT:CheckAddOn("PetTracker", "11.1.10") and db.addonPetTracker)
 
 	if self.isLoaded then
-		KT:Alert_IncompatibleAddon("PetTracker", "11.1.1")
+		KT:Alert_IncompatibleAddon("PetTracker", "11.1.10")
 
 		tinsert(KT.MODULES, "KT_PetTrackerObjectiveTracker")
+		KT.db:RegisterDefaults(KT.db.defaults)
 	end
 
 	SetEvents_Init()

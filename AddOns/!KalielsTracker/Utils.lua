@@ -693,6 +693,7 @@ function KT:Alert_ResetIncompatibleProfiles(version)
                 profile[k] = nil
             end
         end
+        self.db:RegisterDefaults(self.db.defaults)
         StaticPopup_Show(addonName.."_Info", nil, "All profiles have been reset, because the new version %s is not compatible with stored settings.", { self.version })
     end
 end
