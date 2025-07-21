@@ -287,6 +287,11 @@ local function SetupTutorials()
 			headingSize = 26, -- Kept new size (adjust if needed)
 			-- Translated new content list for version 7.10.0
 			text =
+					cTitle.."版本 7.10.1|r\n"..
+					"- 變更 - 插件支援 - 戰寵助手 11.1.10\n"..
+					"- 修正 - 設定檔相容性測試期間的錯誤\n"..
+					"- 修正 - 戰寵助手 - 初始化錯誤\n"..
+					"\n"..
 					cTitle.."版本 7.10.0|r\n"..
 					"- 新增 - 支援 WoW 11.1.5.60428\n"..
 					"- 新增 - 支援 WoW 11.1.0.59347\n"..

@@ -693,6 +693,7 @@ function KT:Alert_ResetIncompatibleProfiles(version)
                 profile[k] = nil
             end
         end
+        self.db:RegisterDefaults(self.db.defaults)
         StaticPopup_Show(addonName.."_Info", nil, "所有設定檔都已重置，因為新版本 %s 和原本儲存的設定不相容。", { self.version })
     end
 end
