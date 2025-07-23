@@ -16,9 +16,8 @@
 ## Category-zhTW: 使用者介面
 
 ## Author: Justwait
-## Version: v10.7
+## Version: v11.0
 ## SavedVariables: TeleportMenuDB
-## Dependencies: Blizzard_Collections
 
 ## X-Curse-Project-ID: 1087836
 
