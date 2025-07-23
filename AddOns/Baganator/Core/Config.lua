@@ -11,6 +11,7 @@ local settings = {
   SEEN_WELCOME = {key = "seen_welcome", default = 0},
   BAG_VIEW_WIDTH = {key = "bag_view_width", default = 12, refresh = {Refresh.Layout}, zone = {Zone.Bags}},
   BANK_VIEW_WIDTH = {key = "bank_view_width", default = addonTable.Constants.IsRetail and 24 or 18, refresh = {Refresh.Layout}, zone = {Zone.CharacterBank}},
+  CHARACTER_BANK_VIEW_WIDTH = {key = "character_bank_view_width", default = 14, refresh = {Refresh.Layout}, zone = {Zone.CharacterBank}},
   WARBAND_BANK_VIEW_WIDTH = {key = "warband_bank_view_width", default = 14, refresh = {Refresh.Layout}, zone = {Zone.WarbandBank}},
   GUILD_VIEW_WIDTH = {key = "guild_view_width", default = 14, refresh = {Refresh.Layout}, zone = {Zone.GuildBank}},
   BAG_ICON_SIZE = {key = "bag_icon_size", default = 37, refresh = {Refresh.Layout, Refresh.Flow}},
@@ -35,6 +36,7 @@ local settings = {
   SHOW_SEARCH_BOX = {key = "show_search_box", default = true, refresh = {Refresh.Layout}},
 
   BANK_CURRENT_TAB = {key = "bank_current_tab", default = 1},
+  CHARACTER_BANK_CURRENT_TAB = {key = "character_bank_current_tab", default = 1},
   WARBAND_CURRENT_TAB = {key = "warband_current_tab", default = 1},
   GUILD_CURRENT_TAB = {key = "guild_current_tab", default = 1},
 
@@ -53,6 +55,7 @@ local settings = {
   ICON_EQUIPMENT_SET_BORDER = {key = "icon_equipment_set_border", default = true, refresh = {Refresh.ItemWidgets}},
   ICON_FLASH_SIMILAR_ALT = {key = "icon_flash_similar_alt", default = false},
   ICON_CONTEXT_FADING = {key = "icon_context_fading", default = true, refresh = {Refresh.ItemWidgets}},
+  NEW_ITEMS_FLASHING = {key = "new_items_flashing", default = true},
 
   JUNK_PLUGIN = {key = "junk_plugin", default = "poor_quality", refresh = {Refresh.Searches, Refresh.ItemWidgets}},
   JUNK_PLUGINS_IGNORED = {key = "junk_plugin_ignored", default = {}},

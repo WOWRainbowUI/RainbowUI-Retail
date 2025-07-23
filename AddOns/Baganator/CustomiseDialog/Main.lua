@@ -70,6 +70,17 @@ local LAYOUT_OPTIONS = {
     highText = "42",
     text = addonTable.Locales.BANK_COLUMNS,
     option = "bank_view_width",
+    check = function() return not Syndicator.Constants.CharacterBankTabsActive or not addonTable.Constants.IsRetail end,
+  },
+  {
+    type = "slider",
+    min = 1,
+    max = 42,
+    lowText = "1",
+    highText = "42",
+    text = addonTable.Locales.BANK_COLUMNS,
+    option = "character_bank_view_width",
+    check = function() return Syndicator.Constants.CharacterBankTabsActive and addonTable.Constants.IsRetail end,
   },
   {
     type = "slider",
@@ -182,6 +193,11 @@ local ICON_OPTIONS = {
     type = "checkbox",
     text = addonTable.Locales.HIDE_BOE_STATUS_ON_COMMON_2,
     option = "hide_boe_on_common",
+  },
+  {
+    type = "checkbox",
+    text = addonTable.Locales.NEW_ITEMS_FLASHING_ANIMATION,
+    option = "new_items_flashing",
   },
   { type = "spacing" },
   {
@@ -530,8 +546,8 @@ function BaganatorCustomiseDialogMixin:SetupGeneral()
       button1 = DONE,
       hasEditBox = 1,
       OnShow = function(self)
-        self.editBox:SetText("https://discord.gg/TtSN6DxSky")
-        self.editBox:HighlightText()
+        (self.editBox or self.EditBox):SetText("https://discord.gg/TtSN6DxSky");
+        (self.editBox or self.EditBox):HighlightText();
       end,
       EditBoxOnEnterPressed = function(self)
         self:GetParent():Hide()
@@ -704,8 +720,8 @@ function BaganatorCustomiseDialogMixin:SetupGeneral()
       button1 = DONE,
       hasEditBox = 1,
       OnShow = function(self)
-        self.editBox:SetText("https://linktr.ee/plusmouse")
-        self.editBox:HighlightText()
+        (self.editBox or self.EditBox):SetText("https://linktr.ee/plusmouse");
+        (self.editBox or self.EditBox):HighlightText()
       end,
       EditBoxOnEnterPressed = function(self)
         self:GetParent():Hide()
