@@ -1860,6 +1860,11 @@ if WeakAuras.IsCataOrMists() then
   loadFrame:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR")
   loadFrame:RegisterEvent("UPDATE_OVERRIDE_ACTIONBAR");
 end
+
+if WeakAuras.IsMists() then
+  loadFrame:RegisterEvent("PET_BATTLE_OPENING_START");
+  loadFrame:RegisterEvent("PET_BATTLE_CLOSE");
+end
 loadFrame:RegisterEvent("GROUP_ROSTER_UPDATE");
 loadFrame:RegisterEvent("ZONE_CHANGED");
 loadFrame:RegisterEvent("ZONE_CHANGED_INDOORS");
@@ -2097,6 +2102,7 @@ end
 
 ---@private
 function WeakAuras.Delete(data)
+  Private.TimeMachine:DestroyTheUniverse(data.id)
   local id = data.id;
   local uid = data.uid
   local parentId = data.parent
@@ -2196,6 +2202,7 @@ function WeakAuras.Delete(data)
 end
 
 function WeakAuras.Rename(data, newid)
+  -- since we Add() later in this function, we need to destroy the universe first
   local oldid = data.id
   if(data.parent) then
     local parentData = db.displays[data.parent];
@@ -2298,6 +2305,7 @@ function WeakAuras.Rename(data, newid)
 end
 
 function Private.Convert(data, newType)
+  Private.TimeMachine:DestroyTheUniverse(data.id)
   local id = data.id;
   Private.FakeStatesFor(id, false)
 
@@ -2724,7 +2732,7 @@ function Private.AddMany(tbl, takeSnapshots)
           Private.regions[data.id].region:ReloadControlledChildren()
         end
       else
-        WeakAuras.Add(data)
+        Private.Add(data)
       end
     end
     coroutine.yield(1000, "addmany reload dynamic group");
@@ -3295,8 +3303,7 @@ function pAdd(data, simpleChange)
   end
 end
 
----@private
-function WeakAuras.Add(data, simpleChange)
+function Private.Add(data, simpleChange)
   local oldSnapshot
   if Private.ModernizeNeedsOldSnapshot(data) then
     oldSnapshot = Private.GetMigrationSnapshot(data.uid)
@@ -3308,6 +3315,11 @@ function WeakAuras.Add(data, simpleChange)
   if ok then
     pAdd(data, simpleChange)
   end
+end
+
+function WeakAuras.Add(data, simpleChange)
+  Private.TimeMachine:DestroyTheUniverse(data.id)
+  Private.Add(data, simpleChange)
 end
 
 function Private.AddParents(data)
@@ -4924,6 +4936,9 @@ Private.callbacks:RegisterCallback("Rename", function(_, uid, oldId, newId)
 end)
 
 function Private.SendDelayedWatchedTriggers()
+  if WeakAuras.IsOptionsOpen() then
+    return
+  end
   for id in pairs(delayed_watched_trigger) do
     local watched = delayed_watched_trigger[id]
     -- Since the observers are themselves observable, we set the list of observers to
@@ -5400,6 +5415,59 @@ function Private.ParseTextStr(textStr, symbolCallback)
     local symbol = string.sub(textStr, start, currentPos - 1)
     symbolCallback(symbol)
   end
+end
+
+function Private.SetDefaultFormatters(data, input, keyPrefix, metaData)
+  local seenSymbols = {}
+  local setDefaultFormatters = function(symbol)
+    if not data[keyPrefix .. symbol .. "_format"] and not seenSymbols[symbol] then
+      local trigger, sym = string.match(symbol, "(.+)%.(.+)")
+      sym = sym or symbol
+
+      local formatter, args = Private.DefaultFormatterFor(metaData, trigger, sym)
+      data[keyPrefix .. symbol .. "_format"] = formatter
+      for arg, value in pairs(args or {}) do
+        data[keyPrefix .. symbol .. "_" .. arg] = value
+      end
+    end
+    seenSymbols[symbol] = true
+  end
+  Private.ParseTextStr(input, setDefaultFormatters)
+end
+
+function Private.DefaultFormatterFor(stateMetaData, trigger, sym)
+  local formatter
+  local args = {}
+  if sym == "p" or sym == "t" then
+    return "timed", { time_dynamic_threshold = 3 }
+  end
+
+  trigger = tonumber(trigger)
+  if trigger then
+    local metaData = stateMetaData[trigger] and stateMetaData[trigger][sym]
+    if metaData then
+      formatter = metaData.formatter
+      if metaData.formatterArgs then
+        for arg, value in pairs(metaData.formatterArgs) do
+          args[arg] = value
+        end
+      end
+    end
+  else
+    for index, perTriggerData in pairs(stateMetaData) do
+      if perTriggerData[sym] then
+        if not formatter then
+          formatter = perTriggerData[sym].formatter
+        else
+          if formatter ~= perTriggerData[sym].formatter then
+            return "none"
+          end
+        end
+      end
+    end
+  end
+
+  return formatter or "none", args
 end
 
 function Private.CreateFormatters(input, getter, withoutColor, data)
