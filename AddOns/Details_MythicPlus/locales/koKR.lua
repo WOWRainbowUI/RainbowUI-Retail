@@ -23,123 +23,64 @@ L["OPTIONS_AUTO_OPEN_CHOICE_LOOT_CLOSED"] = "상자 열 때"
 L["OPTIONS_AUTO_OPEN_CHOICE_OVERALL_READY"] = "던전 진행이 끝날 때"
 L["OPTIONS_AUTO_OPEN_DESC"] = "상자를 열거나 던전을 완료할 때 자동으로 점수판을 열기를 원하시나요?"
 L["OPTIONS_AUTO_OPEN_LABEL"] = "자동으로 점수판 열기"
---[[Translation missing --]]
-L["OPTIONS_DEBUG"] = "Debug"
---[[Translation missing --]]
-L["OPTIONS_DEBUG_STORE_DEBUG_INFO_DESC"] = "Enabling this option will save more information when reloading for debugging purposes. It is recommended to keep this option off unless you are actually debugging"
---[[Translation missing --]]
-L["OPTIONS_DEBUG_STORE_DEBUG_INFO_LABEL"] = "Save debug info"
---[[Translation missing --]]
-L["OPTIONS_DEBUG_STORE_DEV_MODE_DESC"] = "Enables specific information and features used when developing this addon."
---[[Translation missing --]]
-L["OPTIONS_DEBUG_STORE_DEV_MODE_LABEL"] = "Developer Mode"
---[[Translation missing --]]
-L["OPTIONS_GENERAL_OPTIONS"] = "General Options"
---[[Translation missing --]]
-L["OPTIONS_HISTORY_RUNS_TO_KEEP_AVERAGE_PER_RUN"] = "Average per run"
---[[Translation missing --]]
-L["OPTIONS_HISTORY_RUNS_TO_KEEP_DESC"] = "The amount of runs to save. Existing history larger than this amount will be removed upon next reload or login."
---[[Translation missing --]]
-L["OPTIONS_HISTORY_RUNS_TO_KEEP_LABEL"] = "Runs to keep"
---[[Translation missing --]]
-L["OPTIONS_HISTORY_RUNS_TO_KEEP_SAVED_RUNS"] = "Saved runs"
---[[Translation missing --]]
-L["OPTIONS_HISTORY_RUNS_TO_KEEP_TOTAL_STORAGE"] = "Total storage"
---[[Translation missing --]]
-L["OPTIONS_OPEN_DELAY_DESC"] = "The amount of seconds after which the scoreboard will appear according to the setting above"
---[[Translation missing --]]
-L["OPTIONS_OPEN_DELAY_LABEL"] = "Scoreboard open delay"
---[[Translation missing --]]
-L["OPTIONS_SAVING"] = "Saving"
---[[Translation missing --]]
-L["OPTIONS_SCOREBOARD_SCALE_DESC"] = "Increase or decrease the scale of the scoreboard"
---[[Translation missing --]]
-L["OPTIONS_SCOREBOARD_SCALE_LABEL"] = "Scoreboard scale"
---[[Translation missing --]]
-L["OPTIONS_SECTION_TIMELINE"] = "Timeline"
---[[Translation missing --]]
-L["OPTIONS_SECTION_VISIBLE_COLUMNS"] = "Visible columns"
---[[Translation missing --]]
-L["OPTIONS_SHOW_CC_CAST_TOOLTIP_PERCENTAGE_DESC"] = "The tooltip will also show the percentage of each crowd control cast"
---[[Translation missing --]]
-L["OPTIONS_SHOW_CC_CAST_TOOLTIP_PERCENTAGE_LABEL"] = "Show % for CC casts"
---[[Translation missing --]]
-L["OPTIONS_SHOW_INTERRUPT_TOOLTIP_PERCENTAGE_DESC"] = "The tooltip will also show the percentage of each section"
---[[Translation missing --]]
-L["OPTIONS_SHOW_INTERRUPT_TOOLTIP_PERCENTAGE_LABEL"] = "Show % for interrupts"
---[[Translation missing --]]
-L["OPTIONS_SHOW_MINIMAP_ICON_DESC"] = "The minimap icon lets you quickly open your scoreboard whenever you want"
---[[Translation missing --]]
-L["OPTIONS_SHOW_MINIMAP_ICON_LABEL"] = "Show minimap icon"
---[[Translation missing --]]
-L["OPTIONS_SHOW_REMAINING_TIME_DESC"] = "When a key is timed, an extra section will be added showing the time still remaining"
---[[Translation missing --]]
-L["OPTIONS_SHOW_REMAINING_TIME_LABEL"] = "Show remaining time"
---[[Translation missing --]]
-L["OPTIONS_SHOW_TIME_SECTIONS_DESC"] = "Shows time labels for sections on the timeline as a guide"
---[[Translation missing --]]
-L["OPTIONS_SHOW_TIME_SECTIONS_LABEL"] = "Show time labels for sections"
---[[Translation missing --]]
-L["OPTIONS_SHOW_TOOLTIP_SUMMARY_DESC"] = "When hovering over a column in the scoreboard it will show a summary of the breakdown"
---[[Translation missing --]]
-L["OPTIONS_SHOW_TOOLTIP_SUMMARY_LABEL"] = "Summary in tooltip"
---[[Translation missing --]]
-L["OPTIONS_TOOLTIPS"] = "Tooltips"
---[[Translation missing --]]
-L["OPTIONS_TRANSLIT_DESC"] = "Translit Cyrillic characters to the latin alphabet"
---[[Translation missing --]]
-L["OPTIONS_TRANSLIT_LABEL"] = "Translit"
---[[Translation missing --]]
-L["OPTIONS_WINDOW_TITLE"] = "Details! Mythic+ Options"
---[[Translation missing --]]
-L["SCOREBOARD_NO_SCORE_AVAILABLE"] = "There is currently no score on the board"
---[[Translation missing --]]
-L["SCOREBOARD_NOT_IN_COMBAT_LABEL"] = "Not in combat"
---[[Translation missing --]]
-L["SCOREBOARD_RELOADED_TOOLTIP"] = "This run's data is incomplete, and possibly incorrect because of a reload or relog mid-run"
---[[Translation missing --]]
-L["SCOREBOARD_RELOADED_WARNING"] = "Incomplete Data"
---[[Translation missing --]]
-L["SCOREBOARD_TITLE_CC_CASTS"] = "CC Casts"
---[[Translation missing --]]
-L["SCOREBOARD_TITLE_DAMAGE_TAKEN"] = "Damage Taken"
---[[Translation missing --]]
-L["SCOREBOARD_TITLE_DEATHS"] = "Deaths"
---[[Translation missing --]]
-L["SCOREBOARD_TITLE_DISPELS"] = "Dispels"
---[[Translation missing --]]
-L["SCOREBOARD_TITLE_DPS"] = "DPS"
---[[Translation missing --]]
-L["SCOREBOARD_TITLE_HPS"] = "HPS"
---[[Translation missing --]]
-L["SCOREBOARD_TITLE_INTERRUPTS"] = "Interrupts"
---[[Translation missing --]]
-L["SCOREBOARD_TITLE_KEYSTONE"] = "Keystone"
---[[Translation missing --]]
-L["SCOREBOARD_TITLE_LOOT"] = "Loot"
---[[Translation missing --]]
-L["SCOREBOARD_TITLE_PLAYER_NAME"] = "Player Name"
---[[Translation missing --]]
-L["SCOREBOARD_TITLE_SCORE"] = "M+ Score"
---[[Translation missing --]]
-L["SCOREBOARD_TOOLTIP_CC_CAST_HEADER"] = "Amount"
---[[Translation missing --]]
-L["SCOREBOARD_TOOLTIP_DAMAGE_DONE_HEADER"] = "Highest"
---[[Translation missing --]]
-L["SCOREBOARD_TOOLTIP_DAMAGE_TAKEN_HEADER"] = "Highest"
---[[Translation missing --]]
-L["SCOREBOARD_TOOLTIP_HEALING_DONE_HEADER"] = "Highest"
---[[Translation missing --]]
-L["SCOREBOARD_TOOLTIP_INTERRUPT_MISSED_LABEL"] = "Missed"
---[[Translation missing --]]
-L["SCOREBOARD_TOOLTIP_INTERRUPT_OVERLAP_LABEL"] = "Overlap"
---[[Translation missing --]]
-L["SCOREBOARD_TOOLTIP_INTERRUPT_SUCCESS_LABEL"] = "Success"
---[[Translation missing --]]
-L["SCOREBOARD_TOOLTIP_INTERRUPTS_HEADER"] = "Amount"
---[[Translation missing --]]
-L["SCOREBOARD_TOOLTIP_OPEN_BREAKDOWN"] = "Click to open breakdown"
---[[Translation missing --]]
-L["SCOREBOARD_UNKNOWN_DUNGEON_LABEL"] = "Unknown Dungeon"
+L["OPTIONS_DEBUG"] = "디버그"
+L["OPTIONS_DEBUG_STORE_DEBUG_INFO_DESC"] = "이 옵션을 활성화하면 디버깅 목적으로 인터페이스 재실행 시 더 많은 정보를 저장할 수 있습니다. 실제로 디버깅하는 경우가 아니면 이 옵션을 해제하는 것이 좋습니다."
+L["OPTIONS_DEBUG_STORE_DEBUG_INFO_LABEL"] = "디버그 정보 저장"
+L["OPTIONS_DEBUG_STORE_DEV_MODE_DESC"] = "이 애드온을 개발할 때 사용되는 특정 정보와 기능을 활성화합니다."
+L["OPTIONS_DEBUG_STORE_DEV_MODE_LABEL"] = "개발자 모드"
+L["OPTIONS_GENERAL_OPTIONS"] = "일반 옵션"
+L["OPTIONS_HISTORY_RUNS_TO_KEEP_AVERAGE_PER_RUN"] = "평균"
+L["OPTIONS_HISTORY_RUNS_TO_KEEP_DESC"] = "저장해야 할 기록의 수. 이 수치를 초과하는 기존 기록은 다음 리로드 또는 로그인 시 삭제됩니다."
+L["OPTIONS_HISTORY_RUNS_TO_KEEP_LABEL"] = "기록 저장"
+L["OPTIONS_HISTORY_RUNS_TO_KEEP_SAVED_RUNS"] = "저장된 기록"
+L["OPTIONS_HISTORY_RUNS_TO_KEEP_TOTAL_STORAGE"] = "총 저장 수"
+L["OPTIONS_OPEN_DELAY_DESC"] = "점수판은 설정된 초 후에 나타납니다."
+L["OPTIONS_OPEN_DELAY_LABEL"] = "점수판 활성화 지연"
+L["OPTIONS_SAVING"] = "저장"
+L["OPTIONS_SCOREBOARD_SCALE_DESC"] = "점수판의 크기를 늘리거나 줄입니다."
+L["OPTIONS_SCOREBOARD_SCALE_LABEL"] = "점수판 크기"
+L["OPTIONS_SECTION_TIMELINE"] = "타임라인"
+L["OPTIONS_SECTION_VISIBLE_COLUMNS"] = "표시 열"
+L["OPTIONS_SHOW_CC_CAST_TOOLTIP_PERCENTAGE_DESC"] = "툴팁에 각 CC의 시전 비율을 표시합니다."
+L["OPTIONS_SHOW_CC_CAST_TOOLTIP_PERCENTAGE_LABEL"] = "CC 시전 비율 표시"
+L["OPTIONS_SHOW_INTERRUPT_TOOLTIP_PERCENTAGE_DESC"] = "툴팁에 각 차단의 시전 비율을 표시합니다."
+L["OPTIONS_SHOW_INTERRUPT_TOOLTIP_PERCENTAGE_LABEL"] = "차단 시전 비율 표시"
+L["OPTIONS_SHOW_MINIMAP_ICON_DESC"] = "미니맵 아이콘을 통해 언제든지 빠르게 점수판을 열 수 있습니다."
+L["OPTIONS_SHOW_MINIMAP_ICON_LABEL"] = "미니맵 아이콘 표시"
+L["OPTIONS_SHOW_REMAINING_TIME_DESC"] = "제한 시간 내에 완료하면 남은 시간을 보여주는 추가 섹션이 추가됩니다."
+L["OPTIONS_SHOW_REMAINING_TIME_LABEL"] = "남은 시간 표시"
+L["OPTIONS_SHOW_TIME_SECTIONS_DESC"] = "타임라인에 각 단계의 시간 라벨을 표시합니다."
+L["OPTIONS_SHOW_TIME_SECTIONS_LABEL"] = "시간 라벨 표시"
+L["OPTIONS_SHOW_TOOLTIP_SUMMARY_DESC"] = "점수판의 열 위에 마우스를 올려 놓으면 세부 내역 요약이 표시됩니다."
+L["OPTIONS_SHOW_TOOLTIP_SUMMARY_LABEL"] = "툴팁에 요약 표시"
+L["OPTIONS_TOOLTIPS"] = "툴팁"
+L["OPTIONS_TRANSLIT_DESC"] = "키릴 문자를 로마 문자로 변환"
+L["OPTIONS_TRANSLIT_LABEL"] = "번역"
+L["OPTIONS_WINDOW_TITLE"] = "Details! 신화+ 옵션"
+L["SCOREBOARD_NO_SCORE_AVAILABLE"] = "현재 점수판에 점수가 없습니다."
+L["SCOREBOARD_NOT_IN_COMBAT_LABEL"] = "전투 중이 아닙니다."
+L["SCOREBOARD_RELOADED_TOOLTIP"] = "이 실행 데이터는 불완전하며, 실행 중 리로드 또는 재접속 때문에 오류가 있을 수 있습니다."
+L["SCOREBOARD_RELOADED_WARNING"] = "불완전한 데이터"
+L["SCOREBOARD_TITLE_CC_CASTS"] = "CC 시전"
+L["SCOREBOARD_TITLE_DAMAGE_TAKEN"] = "받은 피해"
+L["SCOREBOARD_TITLE_DEATHS"] = "죽음"
+L["SCOREBOARD_TITLE_DISPELS"] = "해제"
+L["SCOREBOARD_TITLE_DPS"] = "입힌 피해"
+L["SCOREBOARD_TITLE_HPS"] = "치유"
+L["SCOREBOARD_TITLE_INTERRUPTS"] = "차단"
+L["SCOREBOARD_TITLE_KEYSTONE"] = "쐐기돌"
+L["SCOREBOARD_TITLE_LOOT"] = "전리품"
+L["SCOREBOARD_TITLE_PLAYER_NAME"] = "플레이어 이름"
+L["SCOREBOARD_TITLE_SCORE"] = "M+ 점수"
+L["SCOREBOARD_TOOLTIP_CC_CAST_HEADER"] = "횟수"
+L["SCOREBOARD_TOOLTIP_DAMAGE_DONE_HEADER"] = "최고"
+L["SCOREBOARD_TOOLTIP_DAMAGE_TAKEN_HEADER"] = "최고"
+L["SCOREBOARD_TOOLTIP_HEALING_DONE_HEADER"] = "최고"
+L["SCOREBOARD_TOOLTIP_INTERRUPT_MISSED_LABEL"] = "놓침"
+L["SCOREBOARD_TOOLTIP_INTERRUPT_OVERLAP_LABEL"] = "겹침"
+L["SCOREBOARD_TOOLTIP_INTERRUPT_SUCCESS_LABEL"] = "성공"
+L["SCOREBOARD_TOOLTIP_INTERRUPTS_HEADER"] = "횟수"
+L["SCOREBOARD_TOOLTIP_OPEN_BREAKDOWN"] = "클릭하여 상세 정보 표시"
+L["SCOREBOARD_UNKNOWN_DUNGEON_LABEL"] = "알 수 없는 던전"
 
 end
