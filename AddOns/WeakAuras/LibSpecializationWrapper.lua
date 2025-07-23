@@ -96,7 +96,8 @@ if LibSpec then
     end
   end
 
-  LibSpec:Register("WeakAuras", LibSpecCallback)
+  local libSpecCallBackTable = {}
+  LibSpec.RegisterGroup(libSpecCallBackTable, LibSpecCallback)
 
   function Private.LibSpecWrapper.Register(f)
     tinsert(subscribers, f)
@@ -104,7 +105,7 @@ if LibSpec then
 
   function Private.LibSpecWrapper.SpecForUnit(unit)
     if UnitIsUnit(unit, "player") then
-      return (LibSpec:MySpecialization())
+      return (LibSpec.MySpecialization())
     end
 
     if nameToSpecMap[GetUnitName(unit, true)] then
@@ -114,7 +115,7 @@ if LibSpec then
 
   function Private.LibSpecWrapper.SpecRolePositionForUnit(unit)
     if UnitIsUnit(unit, "player") then
-      return LibSpec:MySpecialization()
+      return LibSpec.MySpecialization()
     end
     local data = nameToSpecMap[GetUnitName(unit, true)]
     if data then
