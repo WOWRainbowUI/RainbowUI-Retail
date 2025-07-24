@@ -41,11 +41,11 @@ local L = Core.Locale
 local Masque = LibStub("AceAddon-3.0"):NewAddon(MASQUE)
 
 -- API Version
-local API_VERSION = 110000
+local API_VERSION = 110107
 
 -- Client Version
 local WOW_VERSION = select(4, GetBuildInfo()) or 0
-local WOW_RETAIL = ((WOW_VERSION > 100000) and true) or nil
+local WOW_RETAIL = ((WOW_VERSION > 110000) and true) or nil
 
 ----------------------------------------
 -- Utility
@@ -92,6 +92,7 @@ local function UpdateDB()
 	end
 
 	db.API_VERSION = API_VERSION
+	db.Effects.SpellAlert = nil
 
 	-- Refresh Settings
 	Core:UpdateIconPosition()
@@ -117,7 +118,7 @@ Core.WOW_VERSION = WOW_VERSION
 Core.WOW_RETAIL = WOW_RETAIL
 
 -- Add-On Info
-Core.Version = "11.1.5"
+Core.Version = "11.1.7"
 Core.Discord = "https://discord.gg/7MTWRgDzz8"
 
 Core.Authors = {
@@ -205,7 +206,6 @@ function Masque:OnInitialize()
 			},
 			Effects = {
 				Castbar = true,
-				-- Cooldown = true, -- Disabled by Blizzard
 				Interrupt = true,
 				Reticle = true,
 			},
