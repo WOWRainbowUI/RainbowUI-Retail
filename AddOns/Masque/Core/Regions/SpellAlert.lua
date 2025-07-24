@@ -19,12 +19,6 @@ local _, Core = ...
 local error, ipairs, type = error, ipairs, type
 
 ----------------------------------------
--- WoW API
----
-
-local ActionButton_HideOverlayGlow = ActionButton_HideOverlayGlow
-
-----------------------------------------
 -- Internal
 ---
 
@@ -164,7 +158,7 @@ local function GetFlipBook(...)
 end
 
 -- Applies style settings to a FlipBook animation.
-local function UpdateFlipBook(Animation, Style)
+local function UpdateAnimation(Animation, Style)
 	-- Custom
 	if Style then
 		Animation:SetFlipBookFrameHeight(Style.FrameHeight or 0)
@@ -299,7 +293,7 @@ local function SkinFlipBook(Region, Button, Skin, xScale, yScale)
 				Start_Flipbook:ClearAllPoints()
 				Start_Flipbook:SetAllPoints()
 
-				UpdateFlipBook(Start_Animation, FlipBook_Style)
+				UpdateAnimation(Start_Animation, FlipBook_Style)
 				UpdateStartAnimation(Region)
 			end
 
@@ -308,7 +302,7 @@ local function SkinFlipBook(Region, Button, Skin, xScale, yScale)
 			Loop_Flipbook:SetTexture(Loop_Texture)
 			Loop_Flipbook:SetVertexColor(GetColor(FlipBook_Style.Color))
 
-			UpdateFlipBook(Loop_Animation, FlipBook_Style)
+			UpdateAnimation(Loop_Animation, FlipBook_Style)
 
 		-- Default
 		else
@@ -331,7 +325,7 @@ local function SkinFlipBook(Region, Button, Skin, xScale, yScale)
 
 				Start_Flipbook:SetSize(Width, Height)
 
-				UpdateFlipBook(Start_Animation)
+				UpdateAnimation(Start_Animation)
 				UpdateStartAnimation(Region)
 			end
 
@@ -340,7 +334,7 @@ local function SkinFlipBook(Region, Button, Skin, xScale, yScale)
 			Loop_Flipbook:SetAtlas("UI-HUD-ActionBar-Proc-Loop-Flipbook")
 			Loop_Flipbook:SetVertexColor(1, 1, 1)
 
-			UpdateFlipBook(Loop_Animation)
+			UpdateAnimation(Loop_Animation)
 		end
 
 	-- Default
@@ -366,7 +360,7 @@ local function SkinFlipBook(Region, Button, Skin, xScale, yScale)
 			-- Defaults to 150 x 150, causing visual scaling-up on transition.
 			Start_Flipbook:SetSize(160, 160)
 
-			UpdateFlipBook(Start_Animation)
+			UpdateAnimation(Start_Animation)
 			UpdateStartAnimation(Region)
 		end
 
@@ -375,7 +369,7 @@ local function SkinFlipBook(Region, Button, Skin, xScale, yScale)
 		Loop_Flipbook:SetAtlas("UI-HUD-ActionBar-Proc-Loop-Flipbook")
 		Loop_Flipbook:SetVertexColor(1, 1, 1)
 
-		UpdateFlipBook(Loop_Animation)
+		UpdateAnimation(Loop_Animation)
 	end
 
 	Region.__MSQ_Skin = Skin or true
@@ -383,73 +377,86 @@ local function SkinFlipBook(Region, Button, Skin, xScale, yScale)
 end
 
 ----------------------------------------
--- Update/Hook
+-- Updates/Hooks
 ---
 
--- Hook to update Spell Alerts.
-local function UpdateSpellAlert(Button)
-	local Region = Button.SpellActivationAlert or Button.overlay
+-- Updates Retail spell alerts.
+local function UpdateFlipbook(Button)
+	local Region = Button.SpellActivationAlert
 
-	if not Region then return end
+	if (not Region) or (not Region.ProcStartAnim) then return end
+
+	-- Get the animation settings.
+	local Alert_DB = Core.db.profile.SpellAlert
+	local DB_State = Alert_DB.State
+
+	-- Must be set before the skin is applied.
+	Region.__Skip_Start = (DB_State == 2 and true) or nil
+	Region.__MSQ_Style = Alert_DB.Style
 
 	local Button_Skin = Button.__MSQ_Skin
 	local Region_Skin = Button_Skin and Button_Skin.SpellAlert
 
-	-- FlipBooks
-	if Region.ProcStartAnim then
-		-- Get the Spell Alert animation setting.
-		local Alert_DB = Core.db.profile.SpellAlert
-		local DB_State = Alert_DB.State
+	-- Apply the skin.
+	-- Unfortunately this has to be called each time to prevent glitches.
+	SkinFlipBook(Region, Button, Region_Skin, GetScale(Button))
 
-		-- Skips the Start animation. Must be set before the skin is applied.
-		Region.__Skip_Start = (DB_State == 2 and true) or nil
+	-- Update the start animation.
+	UpdateStartAnimation(Region)
 
-		-- Skin and Scale Changes
-		local Active_Skin = Region.__MSQ_Skin
-		local Skin_Changed = (not Active_Skin) or (Active_Skin ~= Region_Skin)
+	-- Prevent the Loop texture from being visible during the Start animation.
+	Region.ProcLoopFlipbook:SetAlpha(0)
 
-		local Scale_Changed = Region.__MSQ_Scale ~= Button.__MSQ_Scale
+	-- Disables Spell Alerts completely. Must be set after the skin is applied.
+	if DB_State == 0 then
+		ActionButtonSpellAlertManager:HideAlert(Button)
+		return
+	end
+end
 
-		-- Style and State Changes
-		local DB_Style = Alert_DB.Style
-		local Style_Changed = Region.__MSQ_Style ~= DB_Style
+-- Hook for Retail spell alerts.
+local function Hook_UpdateFlipbook(Frame, Button)
+	-- Account for API calls.
+	if type(Button) ~= "table" then
+		Button = Frame
+	end
 
-		local State_Changed = Region.__MSQ_State ~= DB_State
+	UpdateFlipbook(Button)
+end
 
-		-- Update the skin if the skin or scale has changed.
-		if (Skin_Changed or Scale_Changed or Style_Changed) then
-			Region.__MSQ_Style = DB_Style
+-- Hook for Classic spell alerts.
+local function Hook_UpdateOverlay(Button)
+	local Region = Button and Button.overlay
 
-			SkinFlipBook(Region, Button, Region_Skin, GetScale(Button))
+	if Region and Region.spark then
+		local Button_Skin = Button.__MSQ_Skin
+		local Region_Skin = Button_Skin and Button_Skin.SpellAlert
 
-		-- Update the Start animation.
-		elseif State_Changed then
-			Region.__MSQ_State = DB_State
-
-			UpdateStartAnimation(Region)
-		end
-
-		-- Prevent the Loop texture from being visible during the Start animation.
-		Region.ProcLoopFlipbook:SetAlpha(0)
-
-		-- Disables Spell Alerts completely. Must be set after the skin is applied.
-		if DB_State == 0 then
-			ActionButton_HideOverlayGlow(Button)
-			return
-		end
-
-	-- Overlays
-	elseif Region.spark then
 		SkinOverlay(Region, Button, Region_Skin)
 	end
 end
 
--- @ FrameXML\ActionButton.lua
-hooksecurefunc("ActionButton_ShowOverlayGlow", UpdateSpellAlert)
+if Core.WOW_RETAIL then
+	-- Retail
+	-- @ Interface\AddOns\Blizzard_ActionBar\Mainline\ActionButton.lua
+	hooksecurefunc(ActionButtonSpellAlertManager, "ShowAlert", Hook_UpdateFlipbook)
+else
+	-- Classic
+	-- @ Interface\AddOns\Blizzard_ActionBar\Classic\ActionButton.lua
+	hooksecurefunc("ActionButton_ShowOverlayGlow", Hook_UpdateOverlay)
+end
 
 ----------------------------------------
 -- Core
 ---
+
+local function UpdateSpellAlert(Button)
+	if Button.overlay then
+		Hook_UpdateOverlay(Button)
+	else
+		UpdateFlipbook(Button)
+	end
+end
 
 Core.FlipBook_List = FlipBook_List
 Core.UpdateSpellAlert = UpdateSpellAlert
