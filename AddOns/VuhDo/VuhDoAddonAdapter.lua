@@ -231,13 +231,14 @@ end
 
 
 --
+local tLibSpec = { };
 function VUHDO_initLibSpecialization()
 
-	if not VUHDO_LibSpec then
+	if not VUHDO_LibSpec or not tLibSpec then
 		return;
 	end
 
-	VUHDO_LibSpec:Register("VuhDo", VUHDO_updateRoleBySpecialization);
+	VUHDO_LibSpec.RegisterGroup(tLibSpec, VUHDO_updateRoleBySpecialization);
 
 end
 
