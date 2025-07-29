@@ -1,6 +1,6 @@
 ## Interface: 11507
 ## Title: Baganator
-## Version: 708
+## Version: 710
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
