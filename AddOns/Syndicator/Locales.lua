@@ -198,6 +198,12 @@ L["ALL_TOOLTIP_TEXT"] = "Toutes les entrées s'appliquent"
 L["ALL_UPPER"] = "TOUT"
 L["ANY_TOOLTIP_TEXT"] = "Toute entrée est valide"
 L["ANY_UPPER"] = "N'IMPORTE QUEL"
+--[[Translation missing --]]
+L["AUCTION_LOWER"] = "auction"
+--[[Translation missing --]]
+L["AUCTION_VALUE"] = "Auction value"
+--[[Translation missing --]]
+L["AUCTION_VALUE_SOURCE"] = "Auction value source"
 L["AUCTIONS_LOWER"] = "enchères "
 L["AUCTIONS_X"] = "Enchères : %s"
 L["BAGS_LOWER"] = "sacs"
@@ -371,6 +377,12 @@ L["ALL_UPPER"] = "ALL"
 L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
 --[[Translation missing --]]
 L["ANY_UPPER"] = "ANY"
+--[[Translation missing --]]
+L["AUCTION_LOWER"] = "auction"
+--[[Translation missing --]]
+L["AUCTION_VALUE"] = "Auction value"
+--[[Translation missing --]]
+L["AUCTION_VALUE_SOURCE"] = "Auction value source"
 L["AUCTIONS_LOWER"] = "auktionen"
 L["AUCTIONS_X"] = "Auktionen: %s"
 L["BAGS_LOWER"] = "taschen"
@@ -588,6 +600,12 @@ L["ALL_TOOLTIP_TEXT"] = "Все записи применимы"
 L["ALL_UPPER"] = "ВСЕ"
 L["ANY_TOOLTIP_TEXT"] = "Любая запись действительна"
 L["ANY_UPPER"] = "ЛЮБОЕ"
+--[[Translation missing --]]
+L["AUCTION_LOWER"] = "auction"
+--[[Translation missing --]]
+L["AUCTION_VALUE"] = "Auction value"
+--[[Translation missing --]]
+L["AUCTION_VALUE_SOURCE"] = "Auction value source"
 L["AUCTIONS_LOWER"] = "Аукционы -"
 L["AUCTIONS_X"] = "Аукционы: %s"
 L["BAGS_LOWER"] = "Сумки -"
@@ -755,6 +773,12 @@ L["ALL_TOOLTIP_TEXT"] = "Todas as entradas se aplicam"
 L["ALL_UPPER"] = "TODOS"
 L["ANY_TOOLTIP_TEXT"] = "Qualquer entrada é válida"
 L["ANY_UPPER"] = "QUALQUER"
+--[[Translation missing --]]
+L["AUCTION_LOWER"] = "auction"
+--[[Translation missing --]]
+L["AUCTION_VALUE"] = "Auction value"
+--[[Translation missing --]]
+L["AUCTION_VALUE_SOURCE"] = "Auction value source"
 L["AUCTIONS_LOWER"] = "leilões"
 L["AUCTIONS_X"] = "Leilões: %s"
 L["BAGS_LOWER"] = "bolsas"
@@ -924,6 +948,12 @@ L["ALL_TOOLTIP_TEXT"] = "Todas las entradas aplican"
 L["ALL_UPPER"] = "TODOS"
 L["ANY_TOOLTIP_TEXT"] = "Cualquier entrada es válida"
 L["ANY_UPPER"] = "CUALQUIER"
+--[[Translation missing --]]
+L["AUCTION_LOWER"] = "auction"
+--[[Translation missing --]]
+L["AUCTION_VALUE"] = "Auction value"
+--[[Translation missing --]]
+L["AUCTION_VALUE_SOURCE"] = "Auction value source"
 L["AUCTIONS_LOWER"] = "subastas"
 L["AUCTIONS_X"] = "Subastas: %s"
 L["BAGS_LOWER"] = "bolsas"
@@ -1093,6 +1123,12 @@ L["ALL_TOOLTIP_TEXT"] = "Todas las entradas aplican"
 L["ALL_UPPER"] = "TODOS"
 L["ANY_TOOLTIP_TEXT"] = "Cualquier entrada es válida"
 L["ANY_UPPER"] = "CUALQUIER"
+--[[Translation missing --]]
+L["AUCTION_LOWER"] = "auction"
+--[[Translation missing --]]
+L["AUCTION_VALUE"] = "Auction value"
+--[[Translation missing --]]
+L["AUCTION_VALUE_SOURCE"] = "Auction value source"
 L["AUCTIONS_LOWER"] = "subastas"
 L["AUCTIONS_X"] = "Subastas: %s"
 L["BAGS_LOWER"] = "bolsas"
@@ -1262,6 +1298,9 @@ L["ALL_TOOLTIP_TEXT"] = "全部條目都適用"
 L["ALL_UPPER"] = "全部"
 L["ANY_TOOLTIP_TEXT"] = "任何條目皆有效"
 L["ANY_UPPER"] = "任意"
+L["AUCTION_LOWER"] = "拍賣"
+L["AUCTION_VALUE"] = "拍賣價"
+L["AUCTION_VALUE_SOURCE"] = "拍賣價來源"
 L["AUCTIONS_LOWER"] = "拍賣"
 L["AUCTIONS_X"] = "拍賣：%s"
 L["BAGS_LOWER"] = "背包"
@@ -1429,6 +1468,9 @@ L["ALL_TOOLTIP_TEXT"] = "全部条目均适用"
 L["ALL_UPPER"] = "全部"
 L["ANY_TOOLTIP_TEXT"] = "任何条目均有效"
 L["ANY_UPPER"] = "任意"
+L["AUCTION_LOWER"] = "拍卖"
+L["AUCTION_VALUE"] = "拍卖价"
+L["AUCTION_VALUE_SOURCE"] = "拍卖价来源"
 L["AUCTIONS_LOWER"] = "拍卖"
 L["AUCTIONS_X"] = "拍卖： %s"
 L["BAGS_LOWER"] = "背包"
@@ -1596,6 +1638,9 @@ L["ALL_TOOLTIP_TEXT"] = "모든 항목 적용"
 L["ALL_UPPER"] = "모두"
 L["ANY_TOOLTIP_TEXT"] = "모든 항목이 유효합니다."
 L["ANY_UPPER"] = "모든 것"
+L["AUCTION_LOWER"] = "경매장"
+L["AUCTION_VALUE"] = "경매장 시세"
+L["AUCTION_VALUE_SOURCE"] = "경매장 시세 기준"
 L["AUCTIONS_LOWER"] = "경매"
 L["AUCTIONS_X"] = "경매: %s"
 L["BAGS_LOWER"] = "가방"
@@ -1768,6 +1813,12 @@ L["ALL_UPPER"] = "ALL"
 L["ANY_TOOLTIP_TEXT"] = "Any entry is valid"
 --[[Translation missing --]]
 L["ANY_UPPER"] = "ANY"
+--[[Translation missing --]]
+L["AUCTION_LOWER"] = "auction"
+--[[Translation missing --]]
+L["AUCTION_VALUE"] = "Auction value"
+--[[Translation missing --]]
+L["AUCTION_VALUE_SOURCE"] = "Auction value source"
 --[[Translation missing --]]
 L["AUCTIONS_LOWER"] = "auctions"
 --[[Translation missing --]]
