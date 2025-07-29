@@ -16,6 +16,8 @@ local C_Item = LBA.C_Item or C_Item
 
 local LibBG = LibStub("LibButtonGlow-1.0")
 
+local MasqueTextureFormat = "Interface/AddOns/Masque/Textures/%s/AutoCast-Mask"
+
 
 --[[------------------------------------------------------------------------]]--
 
@@ -108,6 +110,17 @@ function LiteButtonAurasOverlayMixin:OnLoad()
     self:Style()
 end
 
+function LiteButtonAurasOverlayMixin:StyleMasqueOverrides(parent, useTexture)
+    if parent.__MSQ_Enabled then
+        if useTexture and parent.__MSQ_Shape and parent.__MSQ_Shape ~= "Blizzard" then
+            self.Glow:SetTexture(string.format(MasqueTextureFormat, parent.__MSQ_Shape))
+        end
+        if parent.__MSQ_Scale then
+            self:SetScale(parent.__MSQ_Scale)
+        end
+    end
+end
+
 function LiteButtonAurasOverlayMixin:Style()
     local p = LBA.db.profile
 
@@ -128,7 +141,12 @@ function LiteButtonAurasOverlayMixin:Style()
     self.Stacks:SetPoint(point, self, x*p.stacksAdjust, y*p.stacksAdjust)
     self.Stacks:SetJustifyH(justifyH)
 
+    -- Defaults before Masque gets its dirty mitts on things
+    self.Glow:SetTexture(p.glowTexture)
     self.Glow:SetAlpha(p.glowAlpha)
+    self:SetScale(1)
+
+    self:StyleMasqueOverrides(parent, p.glowUseMasque)
 end
 
 -- From: https://warcraft.wiki.gg/wiki/UnitId
@@ -299,12 +317,12 @@ function LiteButtonAurasOverlayMixin:IsKnown()
     end
 end
 
-function LiteButtonAurasOverlayMixin:IsIgnoreSpell()
-    if self.spellID and LBA.db.profile.denySpells[self.spellID] then
+function LiteButtonAurasOverlayMixin:IsIgnoreAbility()
+    local p = LBA.db.profile
+    if p.ignoreSpells[self.spellID] and p.ignoreSpells[self.spellID].ability == true then
         return true
-    else
-        return false
     end
+    return false
 end
 
 function LiteButtonAurasOverlayMixin:GetMatchingAura(t)
@@ -314,7 +332,7 @@ function LiteButtonAurasOverlayMixin:GetMatchingAura(t)
                 return t[extraAuraName]
             end
         end
-    elseif self:IsIgnoreSpell() then
+    elseif self:IsIgnoreAbility(t) then
         return
     elseif LBA.db.profile.defaultNameMatching and t[self.name] then
         return t[self.name]
@@ -425,7 +443,7 @@ end
 
 function LiteButtonAurasOverlayMixin:SetAsPlayerBuff(auraData)
     local color = LBA.db.profile.color.buff
-    self.Glow:SetVertexColor(color.r, color.g, color.b, alpha)
+    self.Glow:SetVertexColor(color.r, color.g, color.b)
     self:SetAsAuraCommon(auraData)
 end
 
@@ -484,7 +502,7 @@ function LiteButtonAurasOverlayMixin:SetAsPlayerTotem(expireTime)
 end
 
 function LiteButtonAurasOverlayMixin:TrySetAsPlayerTotem()
-    if self:IsIgnoreSpell() or not LBA.db.profile.defaultNameMatching then
+    if self:IsIgnoreAbility() or not LBA.db.profile.defaultNameMatching then
         return
     elseif LBA.state.player.totems[self.name] then
         self:SetAsPlayerTotem(LBA.state.player.totems[self.name])

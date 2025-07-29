@@ -23,11 +23,12 @@ local defaults = {
     profile = {
         defaultNameMatching = true,
         playerPetBuffs = true,
-        denySpells = {
-            [116]       = true, -- Frostbolt (Mage)
-            [152175]    = true, -- Whirling Dragon Punch (Monk)
-            [190356]    = true, -- Blizzard (Mage)
-            [425782]    = true, -- Second Wind (Warrior passive / Skyriding)
+        ignoreSpells = {
+            --            { ability = true, player = true, unit = true }
+            [59638]     = { unit = true },      -- Frostbolt (Mage Pet)
+            [152175]    = { ability = true },   -- Whirling Dragon Punch (Monk)
+            [190356]    = { ability = true },   -- Blizzard (Mage)
+            [425782]    = { ability = true },   -- Second Wind (Warrior passive / Skyriding)
         },
         auraMap = { },
         color = {
@@ -36,6 +37,8 @@ local defaults = {
             debuff  = { r=1.00, g=0.00, b=0.00 },
             enrage  = { r=1.00, g=0.25, b=0.00 }, -- unused
         },
+        glowTexture = [[Interface\Addons\LiteButtonAuras\Textures\Overlay]],
+        glowUseMasque = true,
         glowAlpha = 0.5,
         minAuraDuration = 1.5,
         showTimers = true,
@@ -75,11 +78,10 @@ local function IsTrue(x)
     end
 end
 
+local function MigrateOptions(sv)
+    if sv == nil then return end
 
-function LBA.InitializeOptions()
-    LBA.db = LibStub("AceDB-3.0"):New("LiteButtonAurasDB", defaults, true)
-    -- Migrations
-    for _, p in pairs(LBA.db.profiles) do
+    for n,p in pairs(sv.profiles) do
         if p.font then
             if type(p.font) == 'string' then
                 if _G[p.font] and _G[p.font].GetFont then
@@ -92,7 +94,19 @@ function LBA.InitializeOptions()
             end
             p.font = nil
         end
+        if p.denySpells then
+            p.ignoreSpells = p.ignoreSpells or {}
+            for spellID in pairs(p.denySpells) do
+                p.ignoreSpells[spellID] = { ability = true }
+            end
+            p.denySpells = nil
+        end
     end
+end
+
+function LBA.InitializeOptions()
+    MigrateOptions(LiteButtonAurasDB)
+    LBA.db = LibStub("AceDB-3.0"):New("LiteButtonAurasDB", defaults, true)
     -- Profile change hooks, would be needed to change profiles outside gui
     --[[
     local function notify () AceConfigRegistry:NotifyChange(addonName) end
@@ -125,7 +139,7 @@ function LBA.SetOption(option, value, key)
 end
 
 function LBA.SetOptionOutsideUI(option, value, key)
-    LBA.Setoption(option, value, key)
+    LBA.SetOption(option, value, key)
     AceConfigRegistry:NotifyChange(addonName)
 end
 
@@ -172,23 +186,23 @@ function LBA.WipeAuraMap()
     AceConfigRegistry:NotifyChange(addonName)
 end
 
-function LBA.AddIgnoreSpell(auraID)
-    LBA.db.profile.denySpells[auraID] = true
+function LBA.SetIgnoreSpell(spellID, data)
+    LBA.db.profile.ignoreSpells[spellID] = data
     AceConfigRegistry:NotifyChange(addonName)
 end
 
-function LBA.RemoveIgnoreSpell(auraID)
-    LBA.db.profile.denySpells[auraID] = nil
+function LBA.RemoveIgnoreSpell(spellID)
+    LBA.db.profile.ignoreSpells[spellID] = nil
     AceConfigRegistry:NotifyChange(addonName)
 end
 
 function LBA.DefaultIgnoreSpells()
-    LBA.db.profile.denySpells = CopyTable(defaults.profile.denySpells)
+    LBA.db.profile.ignoreSpells = CopyTable(defaults.profile.ignoreSpells)
     AceConfigRegistry:NotifyChange(addonName)
 end
 
 function LBA.WipeIgnoreSpells()
-    table.wipe(LBA.db.profile.denySpells)
+    table.wipe(LBA.db.profile.ignoreSpells)
     AceConfigRegistry:NotifyChange(addonName)
 end
 

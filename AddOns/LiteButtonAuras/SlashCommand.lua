@@ -36,6 +36,7 @@ local function PrintUsage()
     printf("  /lba timerposition point [offset]")
     printf("  /lba font FontName|default")
     printf("  /lba font path [ size [ flags ] ]")
+    printf("  /lba glowalpha 0-1")
     printf("  /lba aura help")
     printf("  /lba ignore help")
 end
@@ -143,7 +144,7 @@ end
 
 local function PrintIgnoreList()
     local spells = { }
-    for spellID in pairs(LBA.db.profile.denySpells) do
+    for spellID in pairs(LBA.db.profile.ignoreSpells) do
         local spell = Spell:CreateFromSpellID(spellID)
         if not spell:IsSpellEmpty() then
             spell:ContinueOnSpellLoad(function () table.insert(spells, spell) end)
@@ -167,7 +168,7 @@ local function IgnoreCommand(argstr)
     elseif cmd == 'add' and spell then
         local info = C_Spell.GetSpellInfo(spell)
         if info then
-            LBA.AddIgnoreSpell(info.spellID)
+            LBA.SetIgnoreSpell(info.spellID, { ability = true })
         else
             printf(L["Error: unknown spell: %s"], spell)
         end
@@ -209,10 +210,14 @@ local function SlashCommand(argstr)
     elseif cmd:lower() == 'timerposition' and WithinRange(#args, 1, 2) then
         LBA.SetOptionOutsideUI('timerAnchor', args[1])
         if args[2] then LBA.SetOptionOutsideUI('timerAdjust', args[2]) end
+    elseif cmd:lower() == 'glowalpha' and #args == 1 and WithinRange(tonumber(args[1]), 0, 1) then
+        LBA.SetOptionOutsideUI('glowAlpha', args[1])
     elseif cmd:lower() == 'aura' then
         AuraCommand(argstr)
     elseif cmd:lower() == 'ignore' then
         IgnoreCommand(argstr)
+    elseif cmd:lower() == 'style' then
+        LiteButtonAurasController:StyleAllOverlays()
     elseif cmd:lower() == 'dump' then
         LiteButtonAurasController:DumpAllOverlays()
     else
