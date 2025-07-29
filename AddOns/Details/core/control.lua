@@ -1062,7 +1062,10 @@
 	local isInArena = false
 	local arenaStarted = false
 	local tdebugframe = CreateFrame("Frame", "DetailsParserDebugFrameASD", UIParent)
-	tdebugframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+
+	if (detailsFramework.IsDragonflightAndBeyond()) then
+		tdebugframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+	end
 
 	tdebugframe:SetScript("OnEvent", function(self, event, ...)
 		local zoneName, instanceType = GetInstanceInfo()
@@ -1081,15 +1084,18 @@
 			return
 		end
 
-		--C_PvP.IsMatchActive() is true even before the arena match starts
-		if (C_PvP.IsMatchActive() and not arenaStarted) then
-			arenaStarted = true
+        if (C_PvP and C_PvP.IsMatchActive) then -- retail check
 
-		elseif (not C_PvP.IsMatchActive() and arenaStarted) then
-			arenaStarted = false
-			Details:LeftArena()
-			Details.is_in_arena = false
-		end
+            --C_PvP.IsMatchActive() is true even before the arena match starts
+            if (C_PvP.IsMatchActive() and not arenaStarted) then
+                arenaStarted = true
+
+            elseif (not C_PvP.IsMatchActive() and arenaStarted) then
+                arenaStarted = false
+                Details:LeftArena()
+                Details.is_in_arena = false
+            end
+        end
 	end)
 
 	--return the GetTime() of the current or latest arena match
