@@ -18,7 +18,7 @@ local GetNumSpecializationsForClassID = C_SpecializationInfo and C_Specializatio
 local GetSpecializationInfo = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo or GetSpecializationInfo
 
 local senderVersion = 4
-local addonVersion = 67
+local addonVersion = 68
 
 local options = module.options
 
@@ -2800,13 +2800,15 @@ function options:Load()
 
 		FILTER_AURA = true,
 
-		spell_status = {},
+		spell_status = type(VMRT.Reminder2.OptTLSpellDisabled) == "table" and VMRT.Reminder2.OptTLSpellDisabled or {},
 		spell_dur = {},
 		custom_phase = {},
 		reminder_hide = {},
 
 		saved_colors = {}
 	}
+
+	VMRT.Reminder2.OptTLSpellDisabled = options.timeLine.spell_status
 
 	function options.timeLine.util_sort_by2(a,b) return a[2]<b[2] end
 
@@ -3067,6 +3069,24 @@ function options:Load()
 		end
 	end
 
+	local function CheckReminderFilterByPlayerName(data,names)
+		for p in pairs(data.players) do
+			for name in pairs(names) do
+				if p:lower():find(name,1,true) then
+					return true
+				end
+			end
+		end
+
+		for name in pairs(names) do
+			local class = select(2,UnitClass(name))
+	
+			if class and data["class"..class] then
+				return true
+			end
+		end
+	end
+
 	function options.timeLine:GetRemindersList()
 		local timeLineData = self.timeLineData
 
@@ -3112,7 +3132,8 @@ function options:Load()
 							data.triggers[1].eventCLEU == "SPELL_AURA_APPLIED"
 						))
 					) and
-					(not self.FILTER_REM_ONLYMY or module:CheckPlayerCondition(data))
+					(not self.FILTER_REM_ONLYMY or module:CheckPlayerCondition(data)) and
+					(not self.FILTER_BYPLAYERNAME or CheckReminderFilterByPlayerName(data,self.FILTER_BYPLAYERNAME))
 				then
 					local time = module:ConvertMinuteStrToNum(data.triggers[1].delayTime)
 					time = time and time[1] or 0
@@ -3584,8 +3605,112 @@ function options:Load()
 		self.List[ #self.List+1 ] = {
 			text = L.ReminderFightSaved,
 			subMenu = subMenu,
-			prio = 100000,
+			prio = 100001,
 		}
+
+		if VMRT.Reminder2.TLHistory then
+			local tlSubMenu = {}
+			self.List[#self.List+1] = {
+				text = "Per boss history",
+				subMenu = tlSubMenu,
+				Lines=15,
+				prio = 100000,
+			}
+			for diffID,diffData in pairs(VMRT.Reminder2.TLHistory) do
+				for bossID,bossData in pairs(diffData) do
+					local toadd
+
+					local zone, bossNum
+					for i=1,#ExRT.GDB.EncountersList do
+						local z = ExRT.GDB.EncountersList[i]
+						for j=2,#z do
+							if z[j] == bossID then
+								zone = z
+								bossNum = j
+								break
+							end
+						end
+					end
+					if zone then
+						toadd = ExRT.F.table_find3(tlSubMenu,zone[1],"arg3")
+						if not toadd then
+							local text = GetMapNameByID(zone[1])
+	
+							local zoneImg
+							local zoneMapID
+							local ej_bossID = ExRT.GDB.encounterIDtoEJ[bossID]
+							if ej_bossID and EJ_GetEncounterInfo then
+								local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, instanceID = EJ_GetEncounterInfo(ej_bossID)
+								if journalInstanceID then
+									local name, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID, link, shouldDisplayDifficulty, mapID = EJ_GetInstanceInfo(journalInstanceID)
+									zoneImg = buttonImage1
+									text = name or text
+									zoneMapID = mapID
+								end
+							end
+	
+							toadd = {text = text, arg3 = zone[1], subMenu = {}, zonemd = zone, prio = 40000+zone[1]+(zoneMapID and SORT_DUNG_LIST[ zoneMapID ] and SORT_DUNG_LIST[ zoneMapID ]*5000 or 0), icon = zoneImg}
+							tlSubMenu[#tlSubMenu+1] = toadd
+						end
+						toadd = toadd.subMenu
+					end
+					if not toadd then
+						toadd = tlSubMenu
+					end
+
+					local bossImg
+					if ExRT.GDB.encounterIDtoEJ[bossID] and EJ_GetCreatureInfo then
+						bossImg = select(5, EJ_GetCreatureInfo(1, ExRT.GDB.encounterIDtoEJ[bossID]))
+					end
+					local bossName = ExRT.L.bossName[bossID]
+
+					local toadd2 = ExRT.F.table_find3(toadd,bossID,"arg3")
+					if not toadd2 then
+						toadd2 = {
+							text = bossName,
+							arg3 = bossID,
+							subMenu = {},
+							icon = bossImg,
+							iconsize = 32,
+							prio = bossNum or 1+(bossID/100000),
+						}
+						toadd[#toadd+1] = toadd2
+					end
+					toadd2 = toadd2.subMenu
+
+					for _,fightData in pairs(bossData) do
+						local data = fightData
+						local text = (GetDifficultyInfo and GetDifficultyInfo(diffID) or "diff ID: "..diffID)..(fightData.d and fightData.d[2] and format(" %d:%02d",fightData.d[2]/60,fightData.d[2]%60) or "")
+						local boss_list = {
+							text = text,
+							arg1 = bossID,
+							arg2 = bossName.." "..text,
+							arg3 = 3,
+							arg4 = {tl = data,id = bossID},
+							func = self.SetValue,
+						}
+						toadd2[#toadd2+1] = boss_list
+					end
+				end
+			end
+
+			for i=1,#tlSubMenu do
+				local list = tlSubMenu[i]
+				if list.zonemd then
+					sort(list.subMenu,function(a,b) return (a.prio or 0) > (b.prio or 0) end)
+				end
+			end
+			sort(tlSubMenu,function(a,b)
+				return (a.prio or 0) > (b.prio or 0) 
+			end)
+
+			if #tlSubMenu == 0 then
+				tlSubMenu[#tlSubMenu+1] = {
+					isTitle = true,
+					text = "No fight saved yet",
+				}
+			end
+		end
 
 		local dungBossList = ExRT.F.GetEncountersList(false,false,false,true)
 		local dungIDs = {}
@@ -7179,7 +7304,7 @@ function options:Load()
 
 		gluerange = 2,
 
-		spell_status = {},
+		spell_status = type(VMRT.Reminder2.OptAssigSpellDisabled) == "table" and VMRT.Reminder2.OptAssigSpellDisabled or {},
 		spell_dur = {},
 		custom_phase = {},
 		reminder_hide = {},
@@ -7225,6 +7350,7 @@ function options:Load()
 	VMRT.Reminder2.OptAssigQFRole = self.assign.QFILTER_ROLE
 	VMRT.Reminder2.OptAssigQFSpell = self.assign.QFILTER_SPELL
 	VMRT.Reminder2.OptAssigCustomCD = self.assign.custom_cd
+	VMRT.Reminder2.OptAssigSpellDisabled = self.assign.spell_status
 
 	options.assign.GetTimeLineData = options.timeLine.GetTimeLineData
 
@@ -7500,6 +7626,34 @@ function options:Load()
 			arg2 = "OptAssigMarkShared",
 			alter = false,
 		},{
+			text = "Filter by player names:",
+		},{
+			text = " ", 
+			isTitle = true, 
+			edit = "",
+			editFunc = function(this)
+				local search = this:GetText()
+				if search and search:trim() == "" then
+					search = nil
+				end
+				search = search and search:lower()
+				if search then
+					local t = {}
+					for name in search:gmatch("[^ ,]+") do
+						t[name] = true
+					end
+					search = t
+				end
+				options.assign.FILTER_BYPLAYERNAME = search
+				if not options.assign.tmp_resetpage then
+					options.assign.tmp_resetpage = C_Timer.NewTimer(.5,function()
+						options.assign.tmp_resetpage = nil
+						options.assign:Update()
+					end)
+				end
+			end,
+			tmpID = 1,
+		},{
 			text = " ",
 			isTitle = true,
 		},{
@@ -7555,6 +7709,8 @@ function options:Load()
 				if line.hidF then
 					line.isHidden = not line.hidF()
 				end
+			elseif line.editFunc and line.tmpID == 1 then
+				line.edit = options.assign.FILTER_BYPLAYERNAME and ExRT.F.table_keys_to_string(options.assign.FILTER_BYPLAYERNAME) or ""
 			end
 		end
 	end
@@ -8122,6 +8278,10 @@ function options:Load()
 			GameTooltip:AddLine("From start: "..module:FormatTime2(pd))
 		end
 		GameTooltip:AddLine(module:FormatMsg(data.msg or ""))
+		GameTooltip:AddLine(" ")
+		GameTooltip:AddLine("Left click - config")
+		GameTooltip:AddLine("Shift+Left click - advanced config")
+		GameTooltip:AddLine("Right click - remove")
 		GameTooltip:Show()
 	end
 	options.assign.Util_LineAssignOnLeave = function(self)
@@ -10956,6 +11116,9 @@ function options:Load()
 	self.profileDropDown.leftText:SetTextColor(1,.82,0)
 	self.profileDropDown.leftText:SetFont(self.profileDropDown.leftText:GetFont(),10)
 
+	self.profileDropDown.rightIcon = ELib:Icon(self.profileDropDown,nil,20,true):Atlas("Ping_Chat_Warning"):Tooltip("No personal profile selected.\nAll newly created reminders will not be saved."):Point("LEFT",self.profileDropDown,"RIGHT",3,0)
+	self.profileDropDown.rightIcon:SetShown(VMRT.Reminder2.Profile == -1)
+
 	local function SetProfile(_,arg1)
 		module:SetProfile(arg1,VMRT.Reminder2.ProfileShared)
 		ELib:DropDownClose()
@@ -11844,6 +12007,7 @@ function options:Load()
 		[2232] = 2549,	--adh
 		[2292] = 2657,	--n
 		[2406] = 2769,	--lod
+		[2460] = 2810,	--mo
 	}
 
 	self.SyncButton = ELib:Button(self.tab.tabs[1],L.ReminderSend):Point("TOPLEFT",self.AddButton,"BOTTOMLEFT",0,-5):Size(100,20):OnClick(function(self)
@@ -17519,7 +17683,7 @@ function module:CheckAllTriggers(trigger, printLog)
 	if remType == REM.TYPE_TEXT and not check and data.hideTextChanged then
 		for j=#module.db.showedReminders,1,-1 do
 			local showed = module.db.showedReminders[j]
-			if showed.data == data then
+			if showed.data == data or showed.data.uid == data.uid then
 				if showed.voice then
 					showed.voice:Cancel()
 				end
@@ -21137,6 +21301,8 @@ function module:SetProfile(profile,sharedProfile)
 	if options.profileDropDown then
 		options.profileDropDown:AutoText(VMRT.Reminder2.Profile)
 		options.sharedProfileDropDown:AutoText(VMRT.Reminder2.ProfileShared)
+
+		options.profileDropDown.rightIcon:SetShown(profile == -1)
 	end
 	CURRENT_DATA = VMRT.Reminder2.data[VMRT.Reminder2.Profile or -1] or {}
 	CURRENT_DATA_SHARED = VMRT.Reminder2.data[VMRT.Reminder2.ProfileShared or -1] or {}
@@ -21180,6 +21346,7 @@ function module.main:ADDON_LOADED()
 		module.db.history = {{}}
 		VMRT.Reminder2.history = nil
 	end
+	VMRT.Reminder2.TLHistory = VMRT.Reminder2.TLHistory or {}
 
 	if not VMRT.Reminder2.v21 then
 		local new = {}
@@ -21396,7 +21563,17 @@ function module:StartHistoryRecord(mode)
 		IsHistoryEnabled = false
 	end
 end
-function module:SaveHistorySegment(ignoreFightLen)
+
+function module:SaveHistorySegmentIsMatchDiff(difficultyID)
+	if not difficultyID then
+		return
+	end
+	if difficultyID == 16 or difficultyID == 15 or difficultyID == 14 or difficultyID == 194 or difficultyID == 193 or difficultyID == 175 or difficultyID == 176 then
+		return true
+	end
+end
+
+function module:SaveHistorySegment(ignoreFightLen, difficultyID, isKill)
 	if IsHistoryEnabled then
 		module:AddHistoryRecord(0)
 
@@ -21425,7 +21602,65 @@ function module:SaveHistorySegment(ignoreFightLen)
 				module:SendLastHistory(tosend)
 			end)
 		end
+
+		if enoughLength and tosend and module:SaveHistorySegmentIsMatchDiff(difficultyID) then
+			C_Timer.After(2,function()
+				module:SaveLastHistory(tosend, difficultyID, isKill)
+			end)
+		end
 	end
+end
+function module:SaveLastHistory(history, difficultyID, isKill)
+	history = history or module.db.history[1]
+	if not history then
+		return
+	end
+	local customtl,bossID,len = module:CreateCustomTimelineFromHistory(history)
+
+	local diffConverted = 3
+	if difficultyID == 16 or difficultyID == 194 or difficultyID == 193 then
+		diffConverted = 4
+	elseif difficultyID == 14 then
+		diffConverted = 2
+	end
+
+	customtl.d = {
+		diffConverted,
+		len,
+	}
+
+	if not VMRT.Reminder2.TLHistory then
+		print('VMRT.Reminder2.TLHistory error')
+		return
+	end
+
+	local diffData = VMRT.Reminder2.TLHistory[ difficultyID ]
+	if not diffData then
+		diffData = {}
+		VMRT.Reminder2.TLHistory[ difficultyID ] = diffData
+	end
+
+	local bossData = diffData[ bossID ]
+	if not bossData then
+		bossData = {}
+		diffData[ bossID ] = bossData
+	end
+
+	local long = bossData.l
+	if not long or not long.d or long.d[2] < len then
+		bossData.l = customtl
+		return
+	end
+
+	if isKill then
+		local kill = bossData.k
+		if not kill or not kill.d or kill.d[2] > len then
+			bossData.k = customtl
+			return
+		end
+	end
+
+	bossData.r = customtl
 end
 function module:SendLastHistory(history)
 	history = history or module.db.history[1]
@@ -21560,13 +21795,13 @@ function module:CreateCustomTimelineFromHistory(fight)
 	return data, fight[1] and fight[1][3], #fight > 1 and fight[#fight][1] - fight[1][1]
 end
 
-function module.main:ENCOUNTER_END(encounterID, encounterName, difficultyID, groupSize)
+function module.main:ENCOUNTER_END(encounterID, encounterName, difficultyID, groupSize, success)
 	module.db.encounterID = nil
 	module.db.encounterDiff = nil
 	module.db.encounterBossmod = nil
 
 	if not module.db.InChallengeMode then
-		module:SaveHistorySegment()
+		module:SaveHistorySegment(nil, difficultyID, success == 1)
 		IsHistoryEnabled = false
 	else
 		module:AddHistoryRecord(0)		
