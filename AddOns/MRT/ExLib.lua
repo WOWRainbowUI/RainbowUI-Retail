@@ -169,7 +169,7 @@ CheckButton	ExRTRadioButtonModernTemplate
 local GlobalAddonName, ExRT = ...
 local isExRT = GlobalAddonName == "MRT"
 
-local libVersion = 50
+local libVersion = 51
 
 if type(ELib)=='table' and type(ELib.V)=='number' and ELib.V > libVersion then return end
 
@@ -3445,6 +3445,10 @@ do
 		end
 		return self
 	end
+	local function Widget_Atlas(self,atlas)
+		self.texture:SetAtlas(atlas)
+		return self
+	end
 	local function Widget_Tooltip(self,text,...)
 		self:SetScript("OnEnter",ELib.Tooltip.Std2)
 		self:SetScript("OnLeave",ELib.Tooltip.Hide)
@@ -3467,7 +3471,8 @@ do
 
 		Mod(self,
 			'Icon',Widget_Icon,
-			'Tooltip',Widget_Tooltip
+			'Tooltip',Widget_Tooltip,
+			'Atlas',Widget_Atlas
 		)
 
 		return self
@@ -4959,7 +4964,9 @@ function ELib.ScrollDropDown:Reload(level)
 					if data.edit then
 						if button.edit_create then button:edit_create() end
 						button.editFunc = data.editFunc
-						button.edit:SetText(data.edit or "")
+						if button.edit:GetText() ~= data.edit then
+							button.edit:SetText(data.edit or "")
+						end
 						button.edit:InsideIcon(data.editIcon)
 						button.edit:Show()
 					elseif button.edit then

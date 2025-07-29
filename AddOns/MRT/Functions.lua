@@ -680,6 +680,14 @@ function ExRT.F.table_to_string(t)
 	return str
 end
 
+function ExRT.F.table_keys_to_string(t,sep)
+	local str = ""
+	for k in pairs(t) do
+		str = str .. (str ~= "" and (sep or " ") or "") .. k
+	end
+	return str
+end
+
 function ExRT.F.tohex(num,size)
 	return format("%0"..(size or "1").."X",num)
 end

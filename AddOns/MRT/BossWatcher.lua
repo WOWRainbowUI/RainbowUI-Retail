@@ -2935,11 +2935,11 @@ function BWInterfaceFrameLoad()
 	---- Bugfix functions
 	local _GetSpellLink = C_Spell and C_Spell.GetSpellLink or GetSpellLink
 	local function GetSpellLink(spellID)
-		local link = _GetSpellLink(spellID)
+		local link = _GetSpellLink(spellID or 0)
 		if link then
 			return link
 		end
-		local spellName = GetSpellInfo(spellID)
+		local spellName = GetSpellInfo(spellID or 0)
 		return spellName or "Unk"
 	end
 

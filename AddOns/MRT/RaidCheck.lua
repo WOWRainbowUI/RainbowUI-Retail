@@ -366,7 +366,18 @@ if not ExRT.isClassic and UnitLevel'player' > 50 then
 	module.db.tableAP = {[6673]=true,}
 end
 
-if ExRT.isCata then
+if ExRT.isMoP then
+	module.db.classicBuffs = {
+		{"druid","5% Stats",136078,{[1126]=true,[115921]=true,[90363]=true,[20217]=true}},
+		{"spd","SPD",135932,{[1459]=true,[126309]=true,[77747]=true,[109773]=true}},
+		{"hastecast","Spell haste",136057,{[24907]=true,[49868]=true,[15473]=true,[51470]=true}},
+		{"str","AP",132333,{[57330]=true,[19506]=true,[6673]=true}},
+		{"hasteatk","Atk speed",133076,{[55610]=true,[128432]=true,[128433]=true,[113742]=true,[30809]=true}},
+		{"crit","Crit",136112,{[17007]=true,[90309]=true,[126309]=true,[24604]=true,[1459]=true,[116781]=true}},
+		{"mastery","Mastery",135908,{[93435]=true,[128997]=true,[19740]=true,[116956]=true}},
+		{"stamina","Stamina",135987,{[90364]=true,[21562]=true,[109773]=true,[469]=true}},
+	}
+elseif ExRT.isCata then
 	module.db.classicBuffs = {
 		{"druid","5% Stats",136078,{[79061]=true,[90363]=true,[79063]=true}},	--Gift of the Wild
 		{"int","Int",135932,{[79058]=true,[61316]=true,[54424]=true,[79038]=true}},	--Arcane Intellect
@@ -3159,7 +3170,7 @@ function module:ReadyCheckWindow(starter,isTest,manual)
 		for i=1,#self.frame.lines do 
 			self.frame.lines[i].rc_status = 4
 		end
-		if UnitLevel'player' >= 50 and not ExRT.isClassic then
+		if UnitLevel'player' >= 50 and (not ExRT.isClassic or ExRT.isMoP) then
 			ExRT.F.SendExMsg("raidcheckreq","REQ\t1")
 
 			module:LibDurability()

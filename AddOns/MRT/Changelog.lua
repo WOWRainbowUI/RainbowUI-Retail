@@ -1,6 +1,12 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5195
+* Minor updates
+
+v.5195-MoP
+* Raid Check: updated MoP raid buffs
+
 v.5190
 * Fixes
 
