@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("d1993", "DBM-Challenges", 2)--1993 Stormwind 1995 Org
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250703201323")
+mod:SetRevision("20250722005255")
 
 mod:RegisterCombat("scenario", 2213, 2827)
 mod:RegisterZoneCombat(2827)
@@ -432,7 +432,7 @@ function mod:StartEngageTimers(guid, cid, delay)
 end
 
 --Abort timers when all players out of combat, so NP timers clear on a wipe
---Caveat, it won't calls top with GUIDs, so while it might terminate bar objects, it may leave lingering nameplate icons
+--Caveat, it won't call stop with GUIDs, so while it might terminate bar objects, it may leave lingering nameplate icons
 function mod:LeavingZoneCombat()
 	self:Stop(true)
 end
