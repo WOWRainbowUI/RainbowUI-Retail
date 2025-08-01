@@ -129,7 +129,11 @@ function CM:CHAT_MSG_ADDON(prefix, message, _, sender)
 				spellID = tonumber(spellID)
 				if ( spellID ) then
 					if ( spellID > 0 ) then
-						info.talentData[spellID] = tonumber(rank) or 1
+						if ( rank == "h" ) then
+							info.heroSpecID = spellID
+						else
+							info.talentData[spellID] = tonumber(rank) or 1
+						end
 					else
 						info.talentData[-spellID] = "PVP"
 					end
