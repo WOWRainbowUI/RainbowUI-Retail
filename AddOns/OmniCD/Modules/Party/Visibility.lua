@@ -223,7 +223,16 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 
 
 
-	self:GROUP_ROSTER_UPDATE(true, isRefresh)
+
+	if isRefresh then
+		self:UpdateDelayedZoneData()
+		self:GROUP_ROSTER_UPDATE(true)
+	else
+		C_Timer.After(1, function()
+			self:UpdateDelayedZoneData()
+			self:GROUP_ROSTER_UPDATE(true)
+		end)
+	end
 end
 
 P.ZONE_CHANGED_NEW_AREA = P.PLAYER_ENTERING_WORLD
@@ -375,14 +384,9 @@ function P:UpdateRosterInfo(force, clearSession)
 	end
 end
 
-function P:GROUP_ROSTER_UPDATE(isPEW, isRefresh)
-	if isRefresh or GetNumGroupMembers() == 0 then
+function P:GROUP_ROSTER_UPDATE(isPEWOrRefresh)
+	if isPEWOrRefresh or GetNumGroupMembers() == 0 then
 		self:UpdateRosterInfo(true)
-	elseif isPEW then
-		C_Timer.After(1, function()
-			self:UpdateDelayedZoneData()
-			self:UpdateRosterInfo(true, true)
-		end)
 	else
 		C_Timer.After(0, function()
 			self:UpdateRosterInfo()

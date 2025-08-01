@@ -386,6 +386,28 @@ registeredEvents["SPELL_SUMMON"][444254] = registeredEvents["SPELL_SUMMON"][5215
 
 
 
+registeredEvents["SPELL_AURA_APPLIED"][59052] = function(info)
+	if info.talentData[1238680] then
+		info.auras.hasRime = true
+	end
+end
+
+registeredEvents["SPELL_AURA_REMOVED"][59052] = function(info)
+	if info.talentData[1238680] then
+		info.auras.hasRime = nil
+	end
+end
+
+registeredEvents["SPELL_CAST_SUCCESS"][49184] = function(info)
+	if info.auras.hasRime then
+		local icon = info.spellIcons[47568]
+		if icon and icon.active then
+			icon:UpdateCooldown(6)
+		end
+	end
+end
+
+
 
 
 
@@ -1160,7 +1182,7 @@ end
 local focusSpenders = {
 	[19434] = 35,
 	[185358] = 40,
-	[120360] = 40,
+
 	[466930] = 10,
 	[186387] = 10,
 	[212436] = 30,
@@ -1267,7 +1289,6 @@ end
 registeredEvents["SPELL_DAMAGE"][260247] = registeredEvents["SPELL_DAMAGE"][257620]
 
 
-
 registeredEvents["SPELL_CAST_SUCCESS"][185358] = function(info, _, spellID)
 	ReduceNaturalMendingCD(info, _, spellID)
 
@@ -1289,30 +1310,7 @@ registeredEvents["SPELL_CAST_SUCCESS"][19434] = function(info, _, spellID, destG
 			icon:UpdateCooldown(8)
 		end
 	end
-
-	if info.auras.target_spottersMark and info.auras.target_spottersMark[destGUID] then
-		local icon = info.spellIcons[288613]
-		if icon and icon.active then
-			icon:UpdateCooldown(info.talentData[474738] and 3 or 2)
-		end
-	end
 end
-
-registeredEvents["SPELL_AURA_APPLIED"][466872] = function(info, _,_, destGUID)
-	if info.talentData[260404] then
-		info.auras.target_spottersMark = info.auras.target_spottersMark or {}
-		info.auras.target_spottersMark[destGUID] = true
-	end
-end
-
-registeredEvents["SPELL_AURA_REMOVED"][466872] = function(info, _,_, destGUID)
-	if info.auras.target_spottersMark and info.auras.target_spottersMark[destGUID] then
-		info.auras.target_spottersMark[destGUID] = nil
-	end
-end
-
-registeredEvents["SPELL_AURA_APPLIED"][1215057] = registeredEvents["SPELL_AURA_APPLIED"][466872]
-registeredEvents["SPELL_AURA_REMOVED"][1215057] = registeredEvents["SPELL_AURA_REMOVED"][466872]
 
 
 registeredEvents["SPELL_AURA_APPLIED"][385646] = function(info)
@@ -1428,6 +1426,15 @@ registeredEvents["SPELL_DISPEL"][781] = function(info, _, spellID)
 		end
 	end
 end
+
+
+registeredEvents["SPELL_AURA_REMOVED"][451803] = function(info)
+	local icon = info.spellIcons[257044]
+	if icon and icon.active then
+		icon:ResetCooldown()
+	end
+end
+
 
 
 
@@ -1812,12 +1819,25 @@ registeredEvents["SPELL_AURA_APPLIED"][87023] = function(info, srcGUID, spellID)
 end
 
 
-registeredEvents["SPELL_AURA_APPLIED"][458411] = function(info)
-	local icon = info.spellIcons[84714]
-	if icon and icon.active then
-		icon:ResetCooldown()
+registeredEvents["SPELL_DAMAGE"][443722] = function(info)
+	if info.talentData[444986] then
+		local icon = info.spellIcons[84714]
+		if icon and icon.active then
+			icon:UpdateCooldown(0.5)
+		end
 	end
 end
+registeredEvents["SPELL_DAMAGE"][443747] = registeredEvents["SPELL_DAMAGE"][443722]
+
+registeredEvents["SPELL_DAMAGE"][443763] = function(info)
+	if info.talentData[444986] then
+		local icon = info.spellIcons[153626]
+		if icon and icon.active then
+			icon:UpdateCooldown(0.5)
+		end
+	end
+end
+registeredEvents["SPELL_DAMAGE"][444713] = registeredEvents["SPELL_DAMAGE"][443763]
 
 
 
@@ -1971,24 +1991,6 @@ registeredEvents["SPELL_AURA_APPLIED_DOSE"][418361] = function(info, _,_,_,_,_,_
 end
 
 registeredEvents["SPELL_AURA_REFRESH"][418361] = registeredEvents["SPELL_AURA_APPLIED"][418361]
-
-
-
-registeredEvents["SPELL_DAMAGE"][121253] = function(info, _,_,_,_,_,_,_,_,_,_, timestamp)
-	local talentRank = info.talentData[322120] and info.talentData[387219]
-	if talentRank then
-		local icon = info.spellIcons[132578]
-		if icon and icon.active then
-			if timestamp > (info.auras.time_shuffle or 0) then
-				icon:UpdateCooldown(.25 * talentRank)
-				info.auras.time_shuffle = timestamp + .1
-			end
-		end
-	end
-end
-
-registeredEvents["SPELL_DAMAGE"][107270] = registeredEvents["SPELL_DAMAGE"][121253]
-registeredEvents["SPELL_DAMAGE"][205523] = registeredEvents["SPELL_DAMAGE"][121253]
 
 
 registeredEvents["SPELL_AURA_APPLIED"][388203] = function(info)
@@ -2799,17 +2801,6 @@ registeredEvents["SPELL_HEAL"][48153] = function(info)
 end
 
 
-registeredEvents["SPELL_AURA_APPLIED"][392511] = function(info)
-	info.auras.mult_deathSpeaker = true
-end
-
-registeredEvents["SPELL_AURA_REMOVED"][392511] = function(info)
-	info.auras.mult_deathSpeaker = nil
-end
-
-auraMultString[392511] = "mult_deathSpeaker"
-
-
 registeredEvents["SPELL_AURA_APPLIED"][375981] = function(info)
 	local icon = info.spellIcons[8092]
 	if icon and icon.active then
@@ -3194,6 +3185,38 @@ registeredEvents["SPELL_DAMAGE"][457157] = function(info)
 		icon:UpdateCooldown(3)
 	end
 end
+
+
+local luckyCoinIDs = {
+	[196937] = 15,
+	[13750] = 30,
+	[360194] = 30,
+	[385627] = 15,
+}
+
+local function ReduceCdswithLuckyCoin(info, _, spellID)
+	if info.talentData[1236403] and info.auras.add_luckyCoin then
+		local icon = info.spellIcons[spellID]
+		if icon and icon.active then
+			local rt = luckyCoinIDs[spellID]
+			icon:UpdateCooldown(P.isPvP and rt*0.33 or rt)
+		end
+	end
+end
+
+for id in pairs(luckyCoinIDs) do
+	registeredEvents["SPELL_CAST_SUCCESS"][id] = ReduceCdswithLuckyCoin
+end
+
+registeredEvents["SPELL_AURA_APPLIED"][452562] = function(info)
+	info.auras.add_luckyCoin = true
+end
+
+registeredEvents["SPELL_AURA_REMOVED"][452562] = function(info)
+	info.auras.add_luckyCoin = nil
+end
+
+auraMultString[452562] = "add_luckyCoin"
 
 
 

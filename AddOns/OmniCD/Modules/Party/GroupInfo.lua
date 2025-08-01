@@ -938,10 +938,16 @@ function GroupInfoMixin:SetClassVariables()
 			cp = cp + 1
 		end
 		self.maxCP = cp
+
+
+		self.heroSpecID = self.heroSpecID or self.talentData[452536] and 52
 	elseif self.class == "EVOKER" then
 		self.isWingleader = self.talentData[441206]
 			and (P.spell_enabled[357210] or P.spell_enabled[371032] or P.spell_enabled[403631])
 		CD:UpdateBombardiers(self.isWingleader)
+
+
+		self.heroSpecID = self.heroSpecID or self.talentData[431442] and 38
 	end
 end
 
