@@ -100,6 +100,8 @@ if MODERN or CF_WRATH then
 			[220152]=c1, -- cursed ghoulfish
 			[237743]=have1, [237759]=have1, [237760]=have1, -- nightfall participation coffers
 			[239004]=have1, [239546]=have1, -- nightfall quest/scenario completion
+			[244696]=have1, -- overcharged chest
+			[245589]=have1, -- hellcaller chest
 		}
 		filtered = {
 			[228988]=ebIsNotRockReviver, -- siren isle rock reviver

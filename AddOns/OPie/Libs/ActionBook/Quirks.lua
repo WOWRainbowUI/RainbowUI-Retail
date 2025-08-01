@@ -589,3 +589,22 @@ securecall(function() -- Modern: G-99 Breakneck is a fake mount
 		return hasUnlockedG99() and "remove"
 	end
 end)
+securecall(function() -- Classic Mists: [spec:1] is stuck
+	if MODERN or COMPAT < 5e4 then
+		return
+	end
+	local function syncSpec()
+		local spec = C_SpecializationInfo.GetSpecialization()
+		local specID, name = C_SpecializationInfo.GetSpecializationInfo(spec or 0)
+		local valid = specID and specID ~= 0 and name and name ~= ""
+		local ex = (C_SpecializationInfo.GetActiveSpecGroup() or 1) == 1 and "/p" or "/s"
+		local v = (spec or 0) .. (valid and "/" .. specID .. "/" .. name .. ex or ex)
+		KR:SetStateConditionalValue("spec", v)
+	end
+	function EV:PLAYER_SPECIALIZATION_CHANGED(u)
+		if u == "player" then
+			syncSpec()
+		end
+	end
+	EV.PLAYER_LOGIN = syncSpec
+end)
