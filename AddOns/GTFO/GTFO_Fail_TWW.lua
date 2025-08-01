@@ -534,6 +534,50 @@ GTFO.SpellID["470847"] = {
   sound = 3;
 };
 
+GTFO.SpellID["454875"] = {
+  --desc = "Earthshaking Crash (Kiji the Stomper)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["454634"] = {
+  --desc = "Leaping Thrash (Clawmother Tengi)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["456256"] = {
+  --desc = "Earthshatter (Earthfury Cragshar)";
+  sound = 3;
+};
+
+GTFO.SpellID["455152"] = {
+  --desc = "Blast Wave (Crateron)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["455894"] = {
+  --desc = "Burning Charge (Oremex Flamebreaker)";
+  sound = 3;
+};
+
+GTFO.SpellID["455913"] = {
+  --desc = "Scalding Breath (Oremex Flamebreaker)";
+  sound = 3;
+};
+
+GTFO.SpellID["1218056"] = {
+  --desc = "Demolish (Massive Kaja'mental)";
+  sound = 3;
+};
+
+GTFO.SpellID["1214690"] = {
+  --desc = "Overhead Smash (Deep-King Grobosh)";
+  sound = 3;
+};
+
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -605,6 +649,22 @@ GTFO.SpellID["453767"] = {
 
 GTFO.SpellID["461507"] = {
   --desc = "Cultivated Poisons (Ki'katal the Harvester)";
+  sound = 3;
+};
+
+GTFO.SpellID["456320"] = {
+  --desc = "Tide Whirl (Zaniga the Tracker)";
+  sound = 3;
+};
+
+GTFO.SpellID["456280"] = {
+  --desc = "Waterfall (Zaniga the Tracker)";
+  sound = 3;
+};
+
+GTFO.SpellID["455838"] = {
+  --desc = "Umbral Breath (S'toth the Insatiable)";
+  applicationOnly = true;
   sound = 3;
 };
 
@@ -1756,6 +1816,28 @@ GTFO.SpellID["1213853"] = {
   --desc = "Crush (The Underpin)";
   sound = 3;
   applicationOnly = true;
+};
+
+GTFO.SpellID["1224387"] = {
+  --desc = "Electric Sapper";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1239731"] = {
+  --desc = "Golem Smash (Awakened Defensive Construct)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["1220664"] = {
+  --desc = "Overcharged Slam (Overcharged Bot)";
+  sound = 3;
+};
+
+GTFO.SpellID["1228512"] = {
+  --desc = "Titanic Storm Shot (Titanic Storm Crystal)";
+  sound = 3;
 };
 
 --- *******************

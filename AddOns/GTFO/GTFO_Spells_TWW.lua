@@ -232,6 +232,11 @@ GTFO.SpellID["1240428"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1241134"] = {
+  --desc = "Storm Cloud (Storm Cloud)";
+  sound = 1;
+};
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -1154,6 +1159,11 @@ GTFO.SpellID["473178"] = {
 GTFO.SpellID["474554"] = {
   --desc = "Shaken Earth (Mug'Zee)";
   ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1225931"] = {
+  --desc = "Stormfury Finger Gun (Mug'Zee)";
   sound = 1;
 };
 
