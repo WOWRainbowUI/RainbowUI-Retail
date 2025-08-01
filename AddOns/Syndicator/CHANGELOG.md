@@ -1,7 +1,8 @@
 # Syndicator
 
-## [220](https://github.com/Baganator/Syndicator/tree/220) (2025-07-27)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/219...220) 
+## [222](https://github.com/Baganator/Syndicator/tree/222) (2025-07-31)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/221...222) 
 
-- [Fixes #507] Resolve error when purchasing a commodity fails  
-- Add RECrystallize as an auction house price source  
+- Tag for 11.2 support  
+- 11.2: Remove void storage data after bank opened when after patch  
+- Add fallback for expansion detection with ATT data (awp vs expansionID)  
