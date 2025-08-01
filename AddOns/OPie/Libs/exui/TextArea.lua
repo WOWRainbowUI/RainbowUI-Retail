@@ -5,9 +5,9 @@ local assert, getWidgetData, newWidgetData, setWidgetData, AddObjectMethods, Cal
 local TextArea, TextAreaData, int = {}, {}, {}
 local TextAreaProps = {
 	api=TextArea,
+	spacingTarget=0,
 	scripts={"OnCursorChanged"},
-	self2methods={SetHyperlinksEnabled=1, GetHyperlinksEnabled=1},
-	self2scripts={"OnKeyDown", "OnKeyUp", "OnChar", "OnHyperlinkClick", "OnHyperlinkEnter", "OnHyperlinkLeave"},
+	self2scripts={"OnKeyDown", "OnKeyUp", "OnChar"},
 }
 AddObjectMethods({"TextArea", "EditBox"}, TextAreaProps)
 
@@ -62,14 +62,39 @@ function TextArea:SetStyle(style)
 	d.scrollBar:SetPoint("TOPRIGHT", -px, -py)
 	d.scrollBar:SetPoint("BOTTOMRIGHT", -px, py)
 end
+function TextArea:SetSpacing(spacing)
+	assert(type(spacing) == "number" and spacing >= 0, 'Syntax: TextArea:SetStyle("style")')
+	local d = assert(getWidgetData(self, TextAreaData), 'invalid object type')
+	d.spacingTarget = spacing
+	int.adjustSpacing(d, true)
+end
 
 function int.alwaysHasStickyFocus()
 	return true
 end
+function int.adjustSpacing(d, force)
+	local fs, ct, _, screenHeight = d.editFS, d.cursorTex, GetPhysicalScreenSize()
+	local spacing, fsLineHeight, screenLocalHeight = d.spacingTarget, fs:GetLineHeight(), fs:GetEffectiveScale() * screenHeight
+	if force or d.cachedLineHeight ~= fsLineHeight or d.cachedScreenHeight ~= screenLocalHeight  then
+		local pixel, mceil = 768/screenLocalHeight, math.ceil
+		local pixSpacedLineHeight = mceil((spacing + fsLineHeight)/pixel) * pixel
+		local correctedSpacing = pixSpacedLineHeight - fsLineHeight - 2^-18
+		d.proto.super2.SetSpacing(d.editBox, correctedSpacing > 0 and correctedSpacing or 0)
+		d.cachedLineHeight, d.cachedScreenHeight = fsLineHeight, screenLocalHeight
+		d.cachedCursorH, d.cachedCursorW = pixSpacedLineHeight, mceil(2/pixel)*pixel
+		local p2 = mceil(1/pixel) * pixel
+		ct:SetVertexOffset(1, -pixel, -p2)
+		ct:SetVertexOffset(3, -pixel, -p2)
+		ct:SetVertexOffset(2, -pixel, p2)
+		ct:SetVertexOffset(4, -pixel, p2)
+	end
+	ct:SetSize(d.cachedCursorW, d.cachedCursorH)
+end
 function int:OnCursorChanged(...)
 	local d = assert(getWidgetData(self, TextAreaData), 'invalid object type')
 	if d.holdScroll then return end
-	repeat
+	int.adjustSpacing(d)
+	repeat -- runs once; just need a break
 		local _x, y, _w, h = ...
 		local sb, insT, insB = d.scrollBar, 2, 2
 		local occH, occP, y = d.clipArea:GetHeight(), sb:GetValue(), -y
@@ -92,6 +117,7 @@ end
 function int:OnClick()
 	local eb = assert(getWidgetData(self, TextAreaData), 'invalid object type').editBox
 	eb:SetCursorPosition(#eb:GetText())
+	eb:ClearHighlightText()
 	eb:SetFocus()
 end
 function int:OnScrollValueChanged(nv)
@@ -102,7 +128,7 @@ end
 function int:OnSizeChanged()
 	local d = assert(getWidgetData(self, TextAreaData), 'invalid object type')
 	if d.holdScroll then return end
-	local sb, ch, th = d.scrollBar, d.clipArea:GetHeight(), d.editBox:GetHeight() + (d.editBox:GetText():sub(-1) == "\n" and 12+2/9 or 0)
+	local sb, ch, th = d.scrollBar, d.clipArea:GetHeight(), d.editBox:GetHeight() + (d.editBox:GetText():sub(-1) == "\n" and (d.cachedCursorH or 13) or 0)
 	sb:SetMinMaxValues(0, th > ch and th-ch or 0)
 	sb:SetWindowRange(ch)
 	sb:SetStepsPerPage(math.min(5,math.ceil(ch/18)))
@@ -110,10 +136,12 @@ end
 function int:OnShow()
 	local d = assert(getWidgetData(self, TextAreaData), 'invalid object type')
 	d.scrollBar:SetValue(0)
+	int.adjustSpacing(d)
 end
 
 local function CreateTextArea(name, parent, outerTemplate, id)
 	local area, d = CreateFrame("Frame", name, parent, outerTemplate, id)
+	area:SetHyperlinksEnabled(true)
 	local sb = XU:Create("ScrollBar", nil, area)
 	sb:SetPoint("TOPRIGHT")
 	sb:SetPoint("BOTTOMRIGHT")
@@ -126,22 +154,25 @@ local function CreateTextArea(name, parent, outerTemplate, id)
 	ec:SetClipsChildren(true)
 	ec:SetScript("OnSizeChanged", int.OnSizeChanged)
 	ec:EnableMouse(1)
+	ec:SetHyperlinkPropagateToParent(true)
 	ec:SetScript("OnMouseDown", int.OnClick)
 	local input = CreateFrame("EditBox", type(name) == "string" and name .. "EB" or nil, ec)
 	input:SetPoint("TOPLEFT")
 	input:SetPoint("TOPRIGHT")
 	input:SetMultiLine(true)
 	input:SetAutoFocus(false)
-	input:SetSpacing(2)
 	input:SetFontObject(GameFontHighlight)
+	input:SetHyperlinkPropagateToParent(true)
+	input:SetTextInsets(1,1,1,1)
 	input:SetScript("OnCursorChanged", int.OnCursorChanged)
 	input:SetScript("OnSizeChanged", int.OnSizeChanged)
 	input:SetScript("OnShow", int.OnShow)
 	d = newWidgetData(area, TextAreaData, TextAreaProps, input)
-	d.clipArea, d.scrollBar, d.editBox = ec, sb, input
+	d.clipArea, d.scrollBar, d.editBox, d.editFS, d.cursorTex = ec, sb, input, input:GetRegions()
 	setWidgetData(input, TextAreaData, d)
 	setWidgetData(sb, TextAreaData, d)
 	setWidgetData(ec, TextAreaData, d)
+	TextArea.SetSpacing(area, 2)
 	return area
 end
 

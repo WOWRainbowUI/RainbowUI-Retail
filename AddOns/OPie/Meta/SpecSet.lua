@@ -1,7 +1,7 @@
 local _, T = ...
 if select(4,GetBuildInfo()) < 8e4 then return end
 
-local EV, L = T.Evie, T.L
+local EV, XU, L = T.Evie, T.exUI, T.L
 local AB = assert(T.ActionBook:compatible(2,23), "A compatible version of ActionBook is required.")
 local CHARNAME = UnitName("player") .. "@" .. GetRealmName()
 
@@ -94,13 +94,13 @@ do -- AB/specset
 end
 do -- EditorUI
 	local bg = CreateFrame("Frame")
-	local drop = CreateFrame("Frame", "OPie_SSDrop", bg, "UIDropDownMenuTemplate")
+	local drop = XU:Create("DropDown", nil, bg)
 	local lab = drop:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	local myPlayerMap, mySpecID, mySpecName
 	lab:SetPoint("LEFT", bg, "TOPLEFT", 0, -18)
 	lab:SetText(L"Equip set:")
 	drop:SetPoint("TOPRIGHT", -3, -2)
-	UIDropDownMenu_SetWidth(drop, 250)
+	drop:SetWidth(300)
 	
 	local function getCurrentValue()
 		local value = nil
@@ -115,7 +115,7 @@ do -- EditorUI
 	function drop:text()
 		local name = getCurrentValue()
 		local _, ico = C_EquipmentSet.GetEquipmentSetInfo(name and C_EquipmentSet.GetEquipmentSetID(name) or -1)
-		UIDropDownMenu_SetText(drop, name == false and NONE or ((ico and "|T" .. ico .. ":0|t " or "|cffb0b0b0") .. name))
+		drop:SetText(name == false and NONE or ((ico and "|T" .. ico .. ":0|t " or "|cffb0b0b0") .. name))
 	end
 	function drop:set(name)
 		if name == mySpecName then
