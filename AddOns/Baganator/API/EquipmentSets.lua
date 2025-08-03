@@ -188,12 +188,17 @@ if not addonTable.Constants.IsRetail then
         if name:sub(1, 1) ~= "~" then
           table.insert(equipmentSetNames, name)
           local setInfo = {name = name, iconTexture = details.icon}
+          local seenRefs = {}
           for _, itemRef in pairs(details.equip) do
             if itemRef ~= 0 then
+              if seenRefs[itemRef] then -- Some sets use 2 trinkets/rings, this adds a special key for that
+                itemRef = ";" .. itemRef
+              end
               if not equipmentSetInfo[itemRef] then
                 equipmentSetInfo[itemRef] = {}
               end
               table.insert(equipmentSetInfo[itemRef], setInfo)
+              seenRefs[itemRef] = true
             end
           end
         end
@@ -261,11 +266,11 @@ if not addonTable.Constants.IsRetail then
           if missing[itemRackID] then
             missing[itemRackID] = nil
             guidToItemRef[guid] = itemRackID
-          else
+          elseif missing[";" .. itemRackID] then
+            guidToItemRef[guid] = ";" .. itemRackID
           end
-          if itemIDToGUID[slotInfo.itemID] == nil then
-            itemIDToGUID[slotInfo.itemID] = guid
-          end
+          itemIDToGUID[slotInfo.itemID] = itemIDToGUID[slotInfo.itemID] or {}
+          table.insert(itemIDToGUID[slotInfo.itemID], guid)
         end
       end
       local function DoBag(bagID, bagData)
@@ -290,10 +295,12 @@ if not addonTable.Constants.IsRetail then
       end
       if next(missing) then
         for key in pairs(missing) do
-          local itemID = tonumber(key:match("^%-?%d+"))
-          local guid = itemIDToGUID[itemID]
-          if guid then
-            guidToItemRef[guid] = key
+          local itemID = tonumber((key:match("^;?%-?(%d+)")))
+          if itemIDToGUID[itemID] and #itemIDToGUID[itemID] > 0 then
+            local guid = table.remove(itemIDToGUID[itemID])
+            if guid then
+              guidToItemRef[guid] = key
+            end
           end
         end
       end
