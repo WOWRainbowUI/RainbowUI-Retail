@@ -1,5 +1,5 @@
-## Interface: 11507, 30404, 50500, 110105, 110107
-## Version: 0.6.6f
+## Interface: 11507, 30405, 50500, 110105, 110107
+## Version: 0.6.7
 
 ## Title: Dialogue UI
 

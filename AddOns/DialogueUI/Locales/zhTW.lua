@@ -350,6 +350,10 @@ L["Translator No Quest Data Format"] = "沒有找到項目 [任務: %s]";
 L["Translator Click To Hide Translation"] = "點一下隱藏翻譯";
 L["Translator Click To Show Translation"] = "點一下顯示翻譯";
 
+--AddOn Compatibility for Voiceover AddOns
+L["VO Provider Format"] = "|cffffffff%s|r 正在負責處理語音";
+L["VO No File Format"] = "|cffffffff%s|r 無法找到語音檔案。";
+
 L["Show Answer"] = "顯示正確答案。";
 L["Quest Failed Pattern"] = "才能完成此任務。$";
 L["AutoCompleteQuest HallowsEnd"] = "糖果桶";     --Quest:28981
