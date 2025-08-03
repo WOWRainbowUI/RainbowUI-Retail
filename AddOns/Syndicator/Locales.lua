@@ -142,6 +142,7 @@ L["KEYWORD_CATALYST_UPGRADE"] = "catalyst upgrade"
 L["KEYWORD_ENSEMBLE"] = "ensemble"
 L["KEYWORD_ARSENAL"] = "arsenal"
 L["KEYWORD_CONJURED"] = "conjured"
+L["KEYWORD_ACTIVE_SEASON"] = "active season"
 
 L["GROUP_ARMOR_TYPE"] = "Armor Type"
 L["GROUP_BATTLE_PET"] = "Battle Pet Type"
@@ -249,6 +250,8 @@ L["ITEM_LEVEL_LESS"] = "Inférieur à, <"
 L["ITEM_LEVEL_MORE"] = "Supérieur à, >"
 L["ITEM_LEVEL_RANGE"] = "Plage, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "lié au compte"
+--[[Translation missing --]]
+L["KEYWORD_ACTIVE_SEASON"] = "active season"
 --[[Translation missing --]]
 L["KEYWORD_ARSENAL"] = "arsenal"
 L["KEYWORD_AXE"] = "hache"
@@ -442,6 +445,8 @@ L["ITEM_LEVEL_MORE"] = "More than, >"
 --[[Translation missing --]]
 L["ITEM_LEVEL_RANGE"] = "Range, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "accountgebunden"
+--[[Translation missing --]]
+L["KEYWORD_ACTIVE_SEASON"] = "active season"
 --[[Translation missing --]]
 L["KEYWORD_ARSENAL"] = "arsenal"
 L["KEYWORD_AXE"] = "axt"
@@ -652,6 +657,8 @@ L["ITEM_LEVEL_LESS"] = "Меньше"
 L["ITEM_LEVEL_MORE"] = "Больше"
 L["ITEM_LEVEL_RANGE"] = "Диапазон"
 L["KEYWORD_ACCOUNT_BOUND"] = "привязано"
+--[[Translation missing --]]
+L["KEYWORD_ACTIVE_SEASON"] = "active season"
 L["KEYWORD_ARSENAL"] = "арсенал"
 L["KEYWORD_AXE"] = "топор"
 L["KEYWORD_AZERITE"] = "азерит"
@@ -826,6 +833,8 @@ L["ITEM_LEVEL_LESS"] = "Menor que, <"
 L["ITEM_LEVEL_MORE"] = "Maior que, >"
 L["ITEM_LEVEL_RANGE"] = "Intervalo, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "vinculado à conta"
+--[[Translation missing --]]
+L["KEYWORD_ACTIVE_SEASON"] = "active season"
 --[[Translation missing --]]
 L["KEYWORD_ARSENAL"] = "arsenal"
 L["KEYWORD_AXE"] = "machado"
@@ -1004,6 +1013,8 @@ L["ITEM_LEVEL_MORE"] = "Mayor que, >"
 L["ITEM_LEVEL_RANGE"] = "Rango, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "ligada a la cuenta"
 --[[Translation missing --]]
+L["KEYWORD_ACTIVE_SEASON"] = "active season"
+--[[Translation missing --]]
 L["KEYWORD_ARSENAL"] = "arsenal"
 L["KEYWORD_AXE"] = "hacha"
 L["KEYWORD_AZERITE"] = "azerita"
@@ -1181,6 +1192,8 @@ L["ITEM_LEVEL_MORE"] = "Mayor que, >"
 L["ITEM_LEVEL_RANGE"] = "Rango, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "ligada a la cuenta"
 --[[Translation missing --]]
+L["KEYWORD_ACTIVE_SEASON"] = "active season"
+--[[Translation missing --]]
 L["KEYWORD_ARSENAL"] = "arsenal"
 L["KEYWORD_AXE"] = "hacha"
 L["KEYWORD_AZERITE"] = "azerita"
@@ -1354,6 +1367,8 @@ L["ITEM_LEVEL_LESS"] = "小於，<"
 L["ITEM_LEVEL_MORE"] = "大於，>"
 L["ITEM_LEVEL_RANGE"] = "範圍，-"
 L["KEYWORD_ACCOUNT_BOUND"] = "帳號綁定"
+--[[Translation missing --]]
+L["KEYWORD_ACTIVE_SEASON"] = "active season"
 L["KEYWORD_ARSENAL"] = "武器"
 L["KEYWORD_AXE"] = "斧"
 L["KEYWORD_AZERITE"] = "艾澤萊"
@@ -1525,6 +1540,8 @@ L["ITEM_LEVEL_LESS"] = "小于，<"
 L["ITEM_LEVEL_MORE"] = "大于，>"
 L["ITEM_LEVEL_RANGE"] = "范围，-"
 L["KEYWORD_ACCOUNT_BOUND"] = "帐号绑定"
+--[[Translation missing --]]
+L["KEYWORD_ACTIVE_SEASON"] = "active season"
 L["KEYWORD_ARSENAL"] = "武器"
 L["KEYWORD_AXE"] = "斧"
 L["KEYWORD_AZERITE"] = "艾泽里特"
@@ -1696,6 +1713,8 @@ L["ITEM_LEVEL_LESS"] = "미만, <"
 L["ITEM_LEVEL_MORE"] = "초과, >"
 L["ITEM_LEVEL_RANGE"] = "범위, -"
 L["KEYWORD_ACCOUNT_BOUND"] = "계정 연결"
+--[[Translation missing --]]
+L["KEYWORD_ACTIVE_SEASON"] = "active season"
 L["KEYWORD_ARSENAL"] = "무기"
 L["KEYWORD_AXE"] = "도끼"
 L["KEYWORD_AZERITE"] = "아제라이트"
@@ -1919,6 +1938,8 @@ L["ITEM_LEVEL_MORE"] = "More than, >"
 L["ITEM_LEVEL_RANGE"] = "Range, -"
 --[[Translation missing --]]
 L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
+--[[Translation missing --]]
+L["KEYWORD_ACTIVE_SEASON"] = "active season"
 --[[Translation missing --]]
 L["KEYWORD_ARSENAL"] = "arsenal"
 --[[Translation missing --]]
