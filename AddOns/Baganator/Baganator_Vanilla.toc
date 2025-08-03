@@ -1,6 +1,6 @@
 ## Interface: 11507
 ## Title: Baganator
-## Version: 714
+## Version: 716
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -32,6 +32,7 @@ Core\Utilities.lua
 Core\SlashCmd.lua
 Core\Welcome.lua
 Core\Analytics.lua
+Core\Dialogs.lua
 Core\Main.lua
 
 Skins\Utilities.lua

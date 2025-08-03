@@ -1,7 +1,10 @@
 # Baganator
 
-## [714](https://github.com/Baganator/Baganator/tree/714) (2025-07-31)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/713...714) 
+## [716](https://github.com/Baganator/Baganator/tree/716) (2025-08-02)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/715...716) 
 
-- Bugfix for previous commit  
-- Classic Era: ItemRack: Fix engineering trinkets detection for equipment sets  
+- Tag as supporting 11.2.0  
+- Remove remaining StaticPopups  
+- Fix text for copy dialog to match previous dialog  
+- Fix edit box popups not hiding when complete  
+- Remove most static popups (just references to Blizzard ones left)  
