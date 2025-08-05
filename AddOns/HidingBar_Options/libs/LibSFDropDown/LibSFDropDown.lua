@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 22
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 25
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -132,6 +132,7 @@ info.widgets = [table] -- A table of widgets, that adds mini buttons to the butt
 info.customFrame = [frame] -- Allows this button to be a completely custom frame
 info.fixedWidth = [nil, true] -- If nil then custom frame is stretched
 info.OnLoad = [function(customFrame)] -- Function called when the custom frame is attached
+info.search = [function(searchString, infoText, infoRightText, btnInfo)] -- Optional custom search function, must return true/false
 info.hideSearch = [nil, true] -- Remove SearchBox if info.list displays as scroll menu
 info.listMaxSize = [number] -- Number of max size info.list, after a scroll frame is added
 info.list = [table] -- The table of info buttons, if there are more than 20 (default) buttons, a scroll frame is added. Available attributes in table "dropDonwOptions".
@@ -525,36 +526,32 @@ function v.dropDownMenuButtonInit(btn)
 	btn:SetScript("OnEnable", DropDownMenuButton_OnEnable)
 	btn:SetScript("OnHide", DropDownMenuButton_OnHide)
 
-	if not btn.highlight then
-		btn.highlight = btn:CreateTexture(nil, "BORDER")
-		btn.highlight:SetTexture("Interface/QuestFrame/UI-QuestTitleHighlight")
-		btn.highlight:Hide()
-		btn.highlight:SetBlendMode("ADD")
-		btn.highlight:SetAllPoints()
+	btn.highlight = btn:CreateTexture(nil, "BORDER")
+	btn.highlight:SetTexture("Interface/QuestFrame/UI-QuestTitleHighlight")
+	btn.highlight:Hide()
+	btn.highlight:SetBlendMode("ADD")
+	btn.highlight:SetAllPoints()
 
-		btn.Check = btn:CreateTexture(nil, "ARTWORK", nil, 2)
-		btn.Check:SetPoint("LEFT")
+	btn.Check = btn:CreateTexture(nil, "ARTWORK", nil, 2)
+	btn.Check:SetPoint("LEFT")
 
-		btn.UnCheck = btn:CreateTexture(nil, "ARTWORK", nil, 1)
-		btn.UnCheck:SetPoint("LEFT")
+	btn.UnCheck = btn:CreateTexture(nil, "ARTWORK", nil, 1)
+	btn.UnCheck:SetPoint("LEFT")
 
-		btn.Icon = btn:CreateTexture(nil, "BACKGROUND")
+	btn.Icon = btn:CreateTexture(nil, "BACKGROUND")
 
-		btn.ExpandArrow = btn:CreateTexture(nil, "ARTWORK")
-		btn.ExpandArrow:SetTexture("Interface/ChatFrame/ChatFrameExpandArrow")
-		btn.ExpandArrow:SetSize(16, 16)
-		btn.ExpandArrow:SetPoint("RIGHT", 4, 0)
+	btn.ExpandArrow = btn:CreateTexture(nil, "ARTWORK")
+	btn.ExpandArrow:SetTexture("Interface/ChatFrame/ChatFrameExpandArrow")
+	btn.ExpandArrow:SetSize(16, 16)
+	btn.ExpandArrow:SetPoint("RIGHT", 4, 0)
 
-		btn:SetText(" ")
-		btn.NormalText = btn:GetFontString()
-	end
+	btn:SetText(" ")
+	btn.NormalText = btn:GetFontString()
 
-	if not btn.GroupCheck then
-		btn.GroupCheck = btn:CreateTexture(nil, "ARTWORK", nil, 2)
-		btn.GroupCheck:SetColorTexture(1, .8, 0)
-		btn.GroupCheck:SetSize(8, 8)
-		btn.GroupCheck:SetPoint("CENTER", btn.UnCheck)
-	end
+	btn.GroupCheck = btn:CreateTexture(nil, "ARTWORK", nil, 2)
+	btn.GroupCheck:SetColorTexture(1, .8, 0)
+	btn.GroupCheck:SetSize(8, 8)
+	btn.GroupCheck:SetPoint("CENTER", btn.UnCheck)
 end
 
 
@@ -849,10 +846,11 @@ local function DropDownMenuSearchButtonInit(btn, info)
 	end
 
 	local textPos = -5
-	if btn.hasArrow then
+	local hasArrow = btn.hasArrow or btn.hasArrowUp
+	if hasArrow then
 		textPos = -12
 	end
-	btn.ExpandArrow:SetShown(btn.hasArrow)
+	btn.ExpandArrow:SetShown(hasArrow)
 
 	if btn.hasColorSwatch then
 		if not btn.colorSwatch then
@@ -974,12 +972,7 @@ end
 
 
 local function DropDownMenuSearchButton_OnAcquired(owner, frame, data, new)
-	if new then
-		owner.buttonsList[#owner.buttonsList + 1] = frame
-		v.dropDownMenuButtonInit(frame)
-	elseif not frame.GroupCheck then
-		v.dropDownMenuButtonInit(frame)
-	end
+	if new then v.dropDownMenuButtonInit(frame) end
 end
 
 
@@ -1031,6 +1024,7 @@ function DropDownMenuSearchMixin:init(menu, info)
 		self.scrollBox:SetPoint("TOPLEFT", self.searchBox, "BOTTOMLEFT", -5, -3)
 		height = height + 26
 	end
+	self.search = info.search
 
 	for i = 1, #info.list do
 		self:addButton(info.list[i])
@@ -1062,21 +1056,23 @@ do
 		end
 		return text:lower():find(str, 1, true)
 	end
-
+	local function search(str, text, rightText)
+		return #str == 0
+		    or not (text or rightText)
+		    or text and find(text, str)
+		    or rightText and find(rightText, str)
+	end
 
 	function DropDownMenuSearchMixin:updateFilters()
 		local text = self.searchBox:GetText():trim():lower()
+		local search = self.search or search
 		self.dataProvider = CreateDataProvider()
 
 		for i = 1, #self.buttons do
 			local info = self.buttons[i]
 			local infoText = type(info.text) == "function" and info:text(info.arg1, info.arg2) or info.text
 			local infoRightText = type(info.rightText) == "function" and info:rightText(info.arg1, info.arg2) or info.rightText
-			if #text == 0
-			or not infoText and not infoRightText
-			or infoText and find(infoText, text)
-			or infoRightText and find(infoRightText, text)
-			then
+			if search(text, infoText, infoRightText, info) then
 				self.dataProvider:Insert(info)
 			end
 		end
@@ -1148,7 +1144,7 @@ function DropDownMenuSearchMixin:addButton(info)
 	end
 
 	local textPos = -7
-	if btn.hasArrow then
+	if btn.hasArrow or btn.hasArrowUp then
 		textPos = -12
 	end
 
@@ -1210,7 +1206,6 @@ local function CreateDropDownMenuSearch()
 	f.view:SetElementExtent(v.dropDownMenuButtonHeight)
 	f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
 	f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired, f)
-	f.buttonsList = {}
 
 	ScrollUtil.InitScrollBoxListWithScrollBar(f.scrollBox, f.scrollBar, f.view)
 
@@ -1744,10 +1739,11 @@ function DropDownButtonMixin:ddAddButton(info, level)
 	end
 
 	local textPos = -5
-	if btn.hasArrow then
+	local hasArrow = btn.hasArrow or btn.hasArrowUp
+	if hasArrow then
 		textPos = -12
 	end
-	btn.ExpandArrow:SetShown(btn.hasArrow)
+	btn.ExpandArrow:SetShown(hasArrow)
 
 	if btn.hasColorSwatch then
 		btn.colorSwatch = GetColorSwatchFrame()
@@ -1962,7 +1958,7 @@ end
 function libMethods:IterateSearchFrameButtons(num)
 	local searchFrame = dropDownSearchFrames[num]
 	if searchFrame then
-		return ipairs(searchFrame.buttonsList)
+		return ipairs({searchFrame.scrollBox:GetScrollTarget():GetChildren()})
 	else
 		error("SearchFrame number "..num.." dosn't exist.")
 	end
@@ -2332,8 +2328,7 @@ end
 if oldminor == 0 then return end
 
 if oldminor < 4 then
-	for i = 1, #v.dropDownMenusList do
-		local menu = v.dropDownMenusList[i]
+	for i, menu in lib:IterateMenus() do
 		menu.scrollFrame:SetScript("OnVerticalScroll", DropDownMenuListScrollFrame_OnVerticalScroll)
 		menu.scrollFrame:SetScript("OnScrollRangeChanged", DropDownMenuListScrollFrame_OnScrollRangeChanged)
 		menu.scrollFrame:SetScript("OnMouseWheel", DropDownMenuListScrollFrame_OnMouseWheel)
@@ -2341,9 +2336,7 @@ if oldminor < 4 then
 end
 
 if oldminor < 5 then
-	for i = 1, #dropDownSearchFrames do
-		local f = dropDownSearchFrames[i]
-
+	for i, f in lib:IterateSearchFrames() do
 		for callbackType, callbackTable in pairs(f.view:GetCallbackTables()) do
 			local callbacks = callbackTable[f.view.Event.OnAcquiredFrame]
 			if callbacks then wipe(callbacks) end
@@ -2352,9 +2345,14 @@ if oldminor < 5 then
 end
 
 if oldminor < 7 then
-	for i = 1, #v.dropDownMenusList do
-		local menu = v.dropDownMenusList[i]
+	local function updateBtn(btn)
+		btn.GroupCheck = btn:CreateTexture(nil, "ARTWORK", nil, 2)
+		btn.GroupCheck:SetColorTexture(1, .8, 0)
+		btn.GroupCheck:SetSize(8, 8)
+		btn.GroupCheck:SetPoint("CENTER", btn.UnCheck)
+	end
 
+	for i, menu in lib:IterateMenus() do
 		setmetatable(menu.buttonsList, {
 			__index = function(self, key)
 				local btn = CreateFrame("BUTTON", nil, menu.scrollChild)
@@ -2365,17 +2363,14 @@ if oldminor < 7 then
 			end,
 		})
 
-		for j = 1, #menu.buttonsList do
-			local btn = menu.buttonsList[j]
-			if not btn.GroupCheck then v.dropDownMenuButtonInit(btn) end
+		for j, btn in lib:IterateMenuButtons(i) do
+			if not btn.GroupCheck then updateBtn(btn) end
 		end
 	end
 
-	for i = 1, #dropDownSearchFrames do
-		local f = dropDownSearchFrames[i]
-
-		for i, btn in ipairs(f.view:GetFrames()) do
-			if not btn.GroupCheck then v.dropDownMenuButtonInit(btn) end
+	for i in lib:IterateSearchFrames() do
+		for j, btn in lib:IterateSearchFrameButtons(i) do
+			if not btn.GroupCheck then updateBtn(btn) end
 		end
 	end
 end
@@ -2395,8 +2390,7 @@ if oldminor < 9 then
 		v.menuStyle = "modernMenu"
 	end
 
-	for i = 1, #v.dropDownMenusList do
-		local menu = v.dropDownMenusList[i]
+	for i, menu in lib:IterateMenus() do
 		if not menu:IsShown() then
 			for _, style in next, menu.styles do
 				style:Hide()
@@ -2405,13 +2399,13 @@ if oldminor < 9 then
 		if not menu.styles.modernMenu and v.menuStyles.modernMenu then
 			v.createMenuStyle(menu, "modernMenu", v.menuStyles.modernMenu)
 		end
-		for j = 1, #menu.buttonsList do
-			menu.buttonsList[j]:SetScript("OnEnter", DropDownMenuButton_OnEnter)
+		for j, btn in lib:IterateMenuButtons(i) do
+			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
 		end
 	end
 
-	for i = 1, #dropDownSearchFrames do
-		for j, btn in ipairs(dropDownSearchFrames[i].view:GetFrames()) do
+	for i in lib:IterateSearchFrames() do
+		for j, btn in lib:IterateSearchFrameButtons(i) do
 			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
 		end
 	end
@@ -2437,35 +2431,28 @@ if oldminor < 10 then
 		btn.GroupCheck:SetPoint("CENTER", btn.UnCheck)
 	end
 
-	for i = 1, #v.dropDownMenusList do
-		local buttonsList = v.dropDownMenusList[i].buttonsList
-		for j = 1, #buttonsList do
-			updateButton(buttonsList[j])
+	for i in lib:IterateMenus() do
+		for j, btn in lib:IterateMenuButtons(i) do
+			updateButton(btn)
 		end
 	end
 
-	for i = 1, #dropDownSearchFrames do
-		local f = dropDownSearchFrames[i]
-		for j, btn in ipairs(f.view:GetFrames()) do
+	for i in lib:IterateSearchFrames() do
+		for j, btn in lib:IterateSearchFrameButtons(i) do
 			updateButton(btn)
 		end
 	end
 end
 
 if oldminor < 12 then
-	for i = 1, #v.dropDownMenusList do
-		local buttonsList = v.dropDownMenusList[i].buttonsList
-		for j = 1, #buttonsList do
-			buttonsList[j]:SetScript("OnClick", DropDownMenuButton_OnClick)
+	for i in lib:IterateMenus() do
+		for j, btn in lib:IterateMenuButtons(i) do
+			btn:SetScript("OnClick", DropDownMenuButton_OnClick)
 		end
 	end
 
-	for i = 1, #dropDownSearchFrames do
-		local f = dropDownSearchFrames[i]
-		for k, v in next, DropDownMenuSearchMixin do
-			f[k] = v
-		end
-		for j, btn in ipairs(f.view:GetFrames()) do
+	for i in lib:IterateSearchFrames() do
+		for j, btn in lib:IterateSearchFrameButtons(i) do
 			btn:SetScript("OnClick", DropDownMenuButton_OnClick)
 		end
 	end
@@ -2473,34 +2460,26 @@ end
 
 if oldminor < 15 then
 	v.dropDownCreatedModernButtons = {}
-
-	for i = 1, #dropDownSearchFrames do
-		local f = dropDownSearchFrames[i]
-		f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired, f)
-	end
-end
-
-if oldminor < 16 then
-	for i = 1, #dropDownSearchFrames do
-		local f = dropDownSearchFrames[i]
-		f.buttonsList = f.buttonsList or {}
-	end
 end
 
 if oldminor < 17 then
-	for i = 1, #v.dropDownMenusList do
-		local menu = v.dropDownMenusList[i]
+	for i, menu in lib:IterateMenus() do
 		if not menu.activeStyle then
 			menu.activeStyle = menu.styles[v.defaultStyle]
 		end
 	end
 end
 
-if oldminor < 19 then
-	for i = 1, #dropDownSearchFrames do
-		local f = dropDownSearchFrames[i]
-		f.addButton = DropDownMenuSearchMixin.addButton
-		f.updateFilters = DropDownMenuSearchMixin.updateFilters
+if oldminor < 24 then
+	for i, f in lib:IterateSearchFrames() do
+		f.buttonsList = nil
+		f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired, f)
+	end
+end
+
+if oldminor < 25 then
+	for i, f in lib:IterateSearchFrames() do
+		for k, v in next, DropDownMenuSearchMixin do f[k] = v end
 		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
 	end
 end
