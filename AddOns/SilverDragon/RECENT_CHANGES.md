@@ -1,6 +1,6 @@
-## Changed in v2025.11
+## Changed in v2025.12
 
-* Make the treasure goblins go away once the event is done
-* Fix the locations for some mobs in subzones of instances in Throne of Thunder, Stratholme, and Uldum
-* Show loot on the Gobfather's world quest
+* Updated for 11.2.0
+* K'aresh: all the basics, missing some non-achievement rares
+* Show requirements, if known, in the broker tooltip
 

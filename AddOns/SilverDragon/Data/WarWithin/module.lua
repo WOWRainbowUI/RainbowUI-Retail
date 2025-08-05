@@ -54,6 +54,8 @@ ns.CITYOFTHREADSLOWER = 2216
 ns.SIRENISLE = 2369
 ns.FORGOTTENVAULT = 2375
 ns.UNDERMINE = 2346
+ns.KARESH = 2371
+ns.KARESH_TAZAVESH = 2472
 
 ns.WORLDQUESTS = ns.conditions.QuestComplete(79573)
 -- ns.MAXLEVEL = {ns.conditions.QuestComplete(67030), ns.conditions.Level(70)}
@@ -66,7 +68,19 @@ ns.FACTION_SEVERED = 2600
 ns.FACTION_SEVERED_WEAVER = 2601
 ns.FACTION_SEVERED_GENERAL = 2605
 ns.FACTION_SEVERED_VIZIER = 2607
+ns.FACTION_UNDERMINE = 2653
+ns.FACTION_UNDERMINE_BILGEWATER = 2673
+ns.FACTION_UNDERMINE_BLACKWATER = 2675
+ns.FACTION_UNDERMINE_DARKFUSE = 2669
+ns.FACTION_UNDERMINE_GALLAGIO = 2685
+ns.FACTION_UNDERMINE_STEAMWHEEDLE = 2677
+ns.FACTION_UNDERMINE_VENTURE = 2671
+ns.FACTION_FLAMES_RADIANCE = 2688
+ns.FACTION_KARESH_TRUST = 2658
+ns.FACTION_MANAFORGE_VANDALS = 2736
 
+ns.CURRENCY_VALORSTONE = 3008
+ns.CURRENCY_RESONANCE = 2815
 ns.CURRENCY_DORNOGAL = 2897
 ns.CURRENCY_ARATHI = 2899
 ns.CURRENCY_ASSEMBLY = 2902
@@ -74,7 +88,14 @@ ns.CURRENCY_SEVERED = 2903
 ns.CURRENCY_SEVERED_WEAVER = 3002
 ns.CURRENCY_SEVERED_GENERAL = 3003
 ns.CURRENCY_SEVERED_VIZIER = 3004
-ns.CURRENCY_RESONANCE = 2815
+ns.CURRENCY_UNDERMINE = 3118
+ns.CURRENCY_UNDERMINE_BILGEWATER = 3169
+ns.CURRENCY_UNDERMINE_BLACKWATER = 3171
+ns.CURRENCY_UNDERMINE_STEAMWHEEDLE = 3173
+ns.CURRENCY_UNDERMINE_VENTURE = 3176
+ns.CURRENCY_FLAMES_RADIANCE = 3283
+ns.CURRENCY_KARESH_TRUST = 3129
+ns.CURRENCY_MANAFORGE_VANDALS = 3304
 
 ns.PROF_WW_ALCHEMY = 2871 -- spell:
 ns.PROF_WW_BLACKSMITHING = 2872 -- spell:423332
@@ -665,6 +686,253 @@ core:RegisterTreasureData("地心之戰", {
 		achievement=41217, criteria=71635,
 		quest=86487,
 		loot={235038}, -- Crumpled Schematic
+	},
+
+	-- K'aresh
+	[6682] = {
+		name="Gift of the Brothers",
+		achievement=42741, criteria=106270,
+		quest=85959, -- Brothers are 86065, 86066, 86067; turning it in is 85958
+		loot={
+			248199, -- The Brothers' Final Gift
+			248200, -- The Brothers' Not-So-Final Present
+		},
+		note="Get {spell:471549:Flickering Lantern} and find the three brothers",
+	},
+	[6702] = {
+		name="Ancient Coffer",
+		achievement=42741, criteria=106271,
+		quest=86416,
+		loot={
+			{245269, pet=true}, -- Mr. Long-Legs
+		},
+		note="Bring the {item:233794} and {item:233799}",
+	},
+	[6675] = {
+		name="Forlorn Wind Chime",
+		achievement=42741, criteria=106272,
+		quest=85837,
+		loot={
+			243144, -- Reshii Crystal Fragments
+			-- ns.rewards.Currency(ns.CURRENCY_VALORSTONE, 5), ns.rewards.Currency(ns.CURRENCY_RESONANCE, 4),
+		},
+	},
+	[6724] = {
+		name="Ixthar's Favorite Crystal",
+		achievement=42741, criteria=106244,
+		quest=86492,
+		loot={
+			243144, -- Reshii Crystal Fragments
+			-- ns.rewards.Currency(ns.CURRENCY_VALORSTONE, 5), ns.rewards.Currency(ns.CURRENCY_RESONANCE, 3),
+		},
+	},
+	[6690] = {
+		name="Wastelander Stash",
+		achievement=42741, criteria=106274,
+		quest=86301,
+		loot={
+			243145, -- Well-Preserved Wrappings
+			-- ns.rewards.Currency(ns.CURRENCY_VALORSTONE, 5), ns.rewards.Currency(ns.CURRENCY_RESONANCE, 4),
+		},
+	},
+	[6692] = {
+		name="Tumbled Package",
+		achievement=42741, criteria=106275,
+		quest=86304,
+		loot={
+			ns.rewards.Item(238201, 10), -- Desolate Talus
+			243160, -- Tazavesh Shipping Manifest
+			-- ns.rewards.Currency(ns.CURRENCY_VALORSTONE, 5), ns.rewards.Currency(ns.CURRENCY_RESONANCE, 4),
+		},
+	},
+	[6693] = {
+		name="Rashaal's Vase",
+		achievement=42741, criteria=106276,
+		quest=86306,
+		loot={
+			ns.rewards.Item(239690, 10), -- Phantom Bloom
+			243161, -- Long-Pressed Flowers
+			-- ns.rewards.Currency(ns.CURRENCY_RESONANCE, 5),
+		},
+		path=68834794,
+	},
+	[6695] = {
+		name="Shattered Crystals",
+		achievement=42741, criteria=108722,
+		quest=86308,
+		loot={
+			243144, -- Reshii Crystal Fragments
+			-- ns.rewards.Currency(ns.CURRENCY_VALORSTONE, 5), ns.rewards.Currency(ns.CURRENCY_RESONANCE, 4),
+		},
+	},
+	[6696] = {
+		name="Skeletal Tail Bones",
+		achievement=42741, criteria=106277,
+		quest=86322,
+		loot={
+			{243158, pet=true}, -- Ixthal the Observling
+			-- ns.rewards.Currency(ns.CURRENCY_VALORSTONE, 5), ns.rewards.Currency(ns.CURRENCY_RESONANCE, 5),
+		},
+	},
+	[6697] = {
+		name="Crudely Stitched Sack",
+		achievement=42741, criteria=106278,
+		quest=86323,
+		loot={
+			246295, -- Tazavesh Lookout's Mace
+			246296, -- Off-Balance Mace of the Tazavesh Lookout
+			-- ns.rewards.Currency(ns.CURRENCY_VALORSTONE, 5), ns.rewards.Currency(ns.CURRENCY_RESONANCE, 4),
+		},
+	},
+	[6673] = {
+		name="Abandoned Lockbox (multiple spawn points?)",
+		achievement=42741, criteria=108723,
+		quest=92348,
+		loot={
+			246299, -- Blade of Lost Hope
+			246301, -- Pitted Blade of Lost Hope
+			-- ns.rewards.Currency(ns.CURRENCY_VALORSTONE, 5), ns.rewards.Currency(ns.CURRENCY_RESONANCE, 5),
+		},
+	},
+	[6674] = {
+		name="Lightly-Dented Luggage (multiple spawn points?)",
+		achievement=42741, criteria=106279,
+		quest=91352,
+		loot={},
+	},
+	[6676] = {
+		name="Sand-Worn Coffer",
+		achievement=42741, criteria=106280,
+		quest=85840,
+		loot={
+			246297, -- Desperate Defender's Bladed Staff
+			246298, -- Cracked Staff of the Desperate Defender
+			-- ns.rewards.Currency(ns.CURRENCY_VALORSTONE, 5), ns.rewards.Currency(ns.CURRENCY_RESONANCE, 5),
+		},
+	},
+	[6712] = {
+		name="Mailroom Distribution",
+		achievement=42741, criteria=106273,
+		quest=86467,
+		loot={{245970, toy=true}}, -- P.O.S.T. Master's Express Hearthstone
+	},
+	[6889] = {
+		name="Ethereal Voidforged Container",
+		achievement=42741, criteria=106224,
+		quest=89378,
+		loot={
+			246293, -- Buckler of the Last Stand
+			246294, -- Shattered Buckler of the Last Stand
+		},
+	},
+	[6919] = {
+		name="Light-Soaked Cleaver",
+		achievement=42741, criteria=106281,
+		quest=90511,
+		loot={
+			243002, -- Light-Soaked Cleaver
+			243014, -- Light-Dimmed Cleaver
+		},
+	},
+	[6921] = {
+		name="Efrat's Forgotten Bulwark",
+		achievement=42741, criteria=106283,
+		quest=90514,
+		loot={
+			243004, -- Efrat's Forgotten Bulwark
+			243016, -- Efrat's Totally Abandonded Bulwark
+		},
+	},
+	[6925] = {
+		name="Tulwar of the Golden Guard",
+		achievement=42741, criteria=106284,
+		quest=90522,
+		loot={
+			243005, -- Tulwar of the Golden Guard
+			243017, -- Tulwar of the Pyrite Guard
+		},
+	},
+	[6922] = {
+		name="Petrified Branch of Janaa",
+		achievement=42741, criteria=106285,
+		quest=90515,
+		loot={
+			243006, -- Petrified Branch of Janaa
+			243018, -- Petrified Twig of the Fennad
+		},
+	},
+	[6926] = {
+		name="Shadowguard Crusher",
+		achievement=42741, criteria=106286,
+		quest=90527,
+		loot={
+			243008, -- Shadowguard Crusher
+			243021, -- Shadowguard Bonker
+		},
+	},
+	[6923] = {
+		name="Sufaadi Skiff Lantern",
+		achievement=42741, criteria=106287,
+		quest=90521,
+		loot={
+			243009, -- Sufaadi Skiff Lantern
+			243022, -- Sufaadi Skiff Candle
+		},
+	},
+	[6927] = {
+		name="Korgorath's Talon",
+		achievement=42741, criteria=106288,
+		quest=90532,
+		loot={
+			243153, -- Korgorath's Talon
+			243154, -- Korgorath's Broken Nail
+		},
+	},
+	[6967] = {
+		name="Warglaive of the Audacious Hunter",
+		achievement=42741, criteria=106289,
+		quest=91055,
+		loot={
+			245667, -- Warglaive of the Audacious Hunter
+			245668, -- Warglaive of the Subdued Tracker
+		},
+		vignette=6965, --
+		--path=56802410,
+	},
+	[50803530] = { -- Phaseblade of the Void Marches
+		criteria=106291,
+		quest=91057,
+		loot={
+			245671, -- Phaseblade of the Void Marches
+			245672, -- Blade of the Void Swamp
+		},
+	},
+	[6968] = {
+		name="Bladed Rifle of Unfettered Momentum",
+		achievement=42741, criteria=106292,
+		quest=91058,
+		loot={
+			245673, -- Bladed Rifle of Unfettered Momentum
+			245674, -- Rifle of Leaden Movement
+		},
+	},
+	[6920] = {
+		name="Spear of Fallen Memories",
+		achievement=42741, criteria=106296,
+		quest=90512,
+		loot={
+			243003, -- Spear of Fallen Memories
+			243015, -- Spear of Forgotten Memories
+		},
+	},
+	[6966] = {
+		name="P.O.S.T. Master's Prototype Parcel and Postage Presser",
+		achievement=42741, criteria=106290,
+		quest=91056,
+		loot={
+			245669, -- P.O.S.T. Master's Prototype Parcel and Postage Presser
+			245670, -- P.O.S.T. Employee's Backup Stamp
+		},
 	},
 }, true)
 
@@ -2907,4 +3175,221 @@ ns.RegisterPoints(ns.UNDERMINE, {
 		},
 		notes="Appears during S.C.R.A.P. jobs",
 	},
+})
+
+-- K'aresh:
+
+local PHASEDIVING = ns.conditions.AuraActive(1214374) -- Phase Diving
+
+ns.RegisterPoints(ns.KARESH, {
+	[75233098] = {
+		label="Heka'tamos",
+		criteria=106334,
+		quest=91276, -- 91422
+		npc=245998,
+		loot={{245272, pet=true}}, -- Heka'Tarnos, Bringer of Discord
+		vignette=6981,
+		note="Gather {spell:1240235}, {spell:1240217}, {spell:1240233}, {spell:1240237} nearby",
+		nearby={76983175, 72023077, 72713330, 71783464, color={r=0,g=1,b=0}},
+	},
+	[54055884] = {
+		label="Malek'ta",
+		criteria=106336,
+		quest=91275,
+		npc=245997,
+		loot={{245214, pet=true}}, -- Palek'ti, the Mouth of Nothingness
+		vignette=6980,
+		note="Jump repeatedly",
+	},
+}, {
+	achievement=42761, -- Remnants of a Shattered World
+})
+ns.RegisterPoints(ns.KARESH, {
+	[74043254] = {
+		label="Sthaarbs",
+		criteria=106346,
+		quest=91293,
+		npc=234845, -- 234848
+		vignette=6725,
+	},
+	[63824363] = {
+		label="Ixthar the Unblinking",
+		criteria=106245,
+		quest=90596,
+		npc=232128,
+		vignette=6636,
+	},
+	[54455445] = {
+		label="Maw of the Sands",
+		criteria=106337,
+		quest=90594,
+		npc=231981,
+		vignette=6630,
+	},
+	[52782081] = {
+		label="Orith the Dreadful",
+		criteria=106339,
+		quest=90595,
+		npc=232127,
+		vignette=6635,
+	},
+	[45782425] = {
+		label="Prototype Mk-V",
+		criteria=106341,
+		quest=90590,
+		npc=232182,
+		vignette=6638,
+	},
+	-- not yet vignette-coords:
+	[70174979] = {
+		label="Urmag",
+		criteria=106348,
+		quest=90593,
+		npc=232195,
+		vignette=6641,
+	},
+	[76724212] = {
+		label="Stalker of the Wastes",
+		criteria=106345,
+		quest=90592,
+		npc=232193,
+		vignette=6640,
+	},
+	[51965772] = {
+		label="The Nightreaver",
+		criteria=106347,
+		quest=90589,
+		npc=232111,
+		vignette=6634,
+	},
+	[73605531] = {
+		label="Sha'ryth the Cursed",
+		criteria=106343,
+		quest=90585,
+		npc=232006,
+		vignette=6629,
+	},
+	[50536476] = {
+		label="Revenant of the Wasteland",
+		criteria=106342,
+		quest=90591, -- 90680
+		npc=232189,
+		vignette=6639,
+	},
+	[65204985] = {
+		label="Xarran the Binder",
+		criteria=106349,
+		quest=90584,
+		npc=232199,
+		vignette=6642,
+	},
+	[55925105] = {
+		label="Morgil the Netherspawn",
+		criteria=106338,
+		quest=90588,
+		npc=232108,
+		vignette=6633,
+	},
+	[54074928] = {
+		label="Shadowhowl",
+		criteria=106344,
+		quest=90583,
+		npc=232129,
+		vignette=6637,
+	},
+	[65524418] = {
+		label="Korgorath the Ravager",
+		criteria=106335,
+		quest=90586,
+		npc=232077,
+		vignette=6631,
+	},
+}, {
+	achievement=42761, -- Remnants of a Shattered World
+	hide_before=PHASEDIVING,
+})
+ns.RegisterPoints(ns.KARESH_TAZAVESH, {
+	[72508187] = {
+		label="\"Chowdar\"",
+		criteria=106331,
+		quest=90587, -- 90676
+		npc=232098,
+		loot={
+			{242323, toy=true}, -- Chowdar's Favorite Ribbon
+		},
+		vignette=6632,
+		note="Wanders northeast",
+	},
+	-- not yet vignette-coords:
+	[34703610] = {
+		label="Arcana-Monger So'zer",
+		criteria=106332,
+		quest=90696,
+		npc=241956, -- 241987
+		vignette=6913, -- also 6893?
+		note="Complete {quest:89490:Warrant Arcana-Monger So'zer} to summon",
+	},
+	[71245702] = {
+		label="Grubber",
+		criteria=106333,
+		quest=90698,
+		npc=238540,
+		vignette=6914, -- also 6774?
+		note="Complete {quest:87405:Warrant Grubber} to summon",
+	},
+}, {
+	achievement = 42761, -- Remnants of a Shattered World
+	parent=true,
+})
+
+ns.RegisterPoints(ns.KARESH, {
+	[50555406] = {
+		label="Miasmawrath",
+		quest=86447,
+		npc=234970,
+		vignette=6705, -- Devourer Attack: Eco-Dome Primus (not sure if multiples spawn?)
+	},
+	[49386418] = {
+		label="The Harvester",
+		quest=86464,
+		npc=235087, -- 246366
+		vignette=6707, -- Devourer Attack: The Atrium
+	},
+	-- not yet vignette-coords:
+	--[[
+	[0] = {
+		label="Xy'vox the Twisted",
+		quest=90580,
+		npc=238384,
+		vignette=6772, -- also 6770?
+		note="Complete {quest:87345:Warrant Xy'vox the Twisted} to summon",
+	},
+	[0] = {
+		label="Hollowbane",
+		quest=90582,
+		npc=238536,
+		vignette=6915, -- also 6773?
+		note="Complete {quest:87343:Warrant Hollowbane} to summon",
+	},
+	[0] = {
+		label="Phase-Thief Tezra",
+		quest=86550,
+		npc=235422,
+		vignette=6727,
+	},
+	[0] = {
+		label="Purple Peat",
+		quest=90578,
+		npc=241920, -- 241919
+		vignette=6917, -- also 6891?
+		note="Complete {quest:87546:Warrant Purple Peat} to summon",
+	},
+	[0] = {
+		label="Shatterpulse",
+		quest=90577,
+		npc=238135, -- 238144
+		vignette=6916, -- also 6771?
+		note="Complete {quest:87001:Warrant Shatterpulse} to summon",
+	},
+	--]]
 })
