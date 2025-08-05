@@ -42,8 +42,7 @@ L["instance-type:arena"] = "투기장"
 L["instance-type:none"] = "오픈 월드"
 L["instance-type:party"] = "5인 던전"
 L["instance-type:pvp"] = "전장"
---[[Translation missing --]]
-L["instance-type:pvp_bg_40ppl"] = "Epic Battlegrounds"
+L["instance-type:pvp_bg_40ppl"] = "대규모 전장"
 L["instance-type:raid"] = "공격대 던전"
 L["instance-type:scenario"] = "시나리오"
 L["instance-type:unknown"] = "알 수 없는 던전 (일부 퀘스트 시나리오)"
@@ -52,9 +51,7 @@ L["msg:question:import-existing-spells"] = "NameplateCooldowns 일부 주문의 
 L["New spell has been added: %s"] = "새로운 주문이 추가되었습니다: %s"
 L["Options are not available in combat!"] = "전투 중에는 옵션을 사용할 수 없습니다!"
 L["options:borders:show-blizz-borders"] = "아이콘 주위에 Blizzard 테두리 표시"
---[[Translation missing --]]
-L["options:building-cache"] = [=[Loading spells info (%s%%)...
-Some functions may be unavailable]=]
+L["options:building-cache"] = "(%s%%) 주문 정보를 불러오는 중... 일부 기능을 사용할 수 없습니다."
 L["options:category:borders"] = "테두리"
 L["options:category:spells"] = "주문"
 L["options:category:text"] = "문자"
@@ -80,8 +77,7 @@ L["options:profiles"] = "프로필"
 L["options:spells:add-new-spell"] = "새 주문 (이름 또는 ID) 추가:"
 L["options:spells:add-spell"] = "주문 추가"
 L["options:spells:click-to-select-spell"] = "주문을 고르려면 클릭"
---[[Translation missing --]]
-L["options:spells:click-to-select-spell:test-mode"] = "You can't edit spells in test mode"
+L["options:spells:click-to-select-spell:test-mode"] = "테스트 모드에서는 주문을 편집할 수 없습니다."
 L["options:spells:cooldown-time"] = "재사용 대기시간"
 L["options:spells:custom-cooldown"] = "사용자 정의 재사용 대기시간 값"
 L["options:spells:custom-cooldown-value"] = "재사용 대기시간 (초)"
