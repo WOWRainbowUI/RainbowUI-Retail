@@ -1,6 +1,6 @@
 # Auctionator
 
-## [286](https://github.com/Auctionator/Auctionator/tree/286) (2025-07-30)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/285...286) 
+## [288](https://github.com/Auctionator/Auctionator/tree/288) (2025-08-04)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/287...288) 
 
-- Reprocess price databases per-realm due to incorrect previous processing  
+- Fix error when posting too low price with "Post next item" enabled  
