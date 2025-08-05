@@ -4993,6 +4993,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [230159] = {
+        name = "Om'fennad",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.544345,
+                    y = 0.637094,
+                },
+            },
+        },
+    },
     [230174] = {
         name = "Walker Gresham",
         locations = {
@@ -5000,6 +5011,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.204986,
                     y = 0.393927,
+                },
+            },
+        },
+    },
+    [230233] = {
+        name = "Shahata",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.76425,
+                    y = 0.553119,
                 },
             },
         },
@@ -5059,6 +5081,28 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [230288] = {
+        name = "Locus-Walker",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.709411,
+                    y = 0.581111,
+                },
+            },
+        },
+    },
+    [230294] = {
+        name = "Om'resh",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.709824,
+                    y = 0.580405,
+                },
+            },
+        },
+    },
     [230554] = {
         name = "Old Man Lowe",
         locations = {
@@ -5081,6 +5125,149 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [230602] = {
+        name = "Xal'atath",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.684131,
+                    y = 0.519229,
+                },
+            },
+        },
+    },
+    [230604] = {
+        name = "Om'en",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.594512,
+                    y = 0.831337,
+                },
+            },
+        },
+    },
+    [230634] = {
+        name = "Xal'atath",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.612772,
+                    y = 0.392817,
+                },
+            },
+        },
+    },
+    [230658] = {
+        name = "Xal'atath",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.631311,
+                    y = 0.390044,
+                },
+            },
+        },
+    },
+    [230700] = {
+        name = "Locus-Walker",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.339796,
+                    y = 0.108502,
+                },
+            },
+        },
+    },
+    [230736] = {
+        name = "Om'talad",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.758136,
+                    y = 0.341927,
+                },
+            },
+        },
+    },
+    [230738] = {
+        name = "Xal'atath",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.758769,
+                    y = 0.341809,
+                },
+            },
+        },
+    },
+    [230739] = {
+        name = "Soul-Scribe",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.758299,
+                    y = 0.342889,
+                },
+            },
+        },
+    },
+    [230786] = {
+        name = "Soul-Scribe",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.743869,
+                    y = 0.30439,
+                },
+            },
+        },
+    },
+    [230789] = {
+        name = "Shahata",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.608091,
+                    y = 0.541942,
+                },
+            },
+        },
+    },
+    [230806] = {
+        name = "Locus-Walker",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.482348,
+                    y = 0.366589,
+                },
+            },
+        },
+    },
+    [230811] = {
+        name = "Locus-Walker",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.470741,
+                    y = 0.545206,
+                },
+            },
+        },
+    },
+    [230814] = {
+        name = "Ve'nari",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.471345,
+                    y = 0.545569,
+                },
+            },
+        },
+    },
     [230815] = {
         name = "Faerin Lothar",
         locations = {
@@ -5092,6 +5279,39 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [230817] = {
+        name = "Alleria Windrunner",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.607391,
+                    y = 0.279412,
+                },
+            },
+        },
+    },
+    [230818] = {
+        name = "Soul-Scribe",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.602452,
+                    y = 0.291556,
+                },
+            },
+        },
+    },
+    [230825] = {
+        name = "Xal'atath",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.470936,
+                    y = 0.546001,
+                },
+            },
+        },
+    },
     [230841] = {
         name = "The Verdigrease Knight",
         locations = {
@@ -5099,6 +5319,39 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.68091,
                     y = 0.804552,
+                },
+            },
+        },
+    },
+    [230954] = {
+        name = "Ta'ka",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.56853,
+                    y = 0.729904,
+                },
+            },
+        },
+    },
+    [230955] = {
+        name = "Ba'ver",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.53104,
+                    y = 0.644508,
+                },
+            },
+        },
+    },
+    [231128] = {
+        name = "Locus-Walker",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.376812,
+                    y = 0.747969,
                 },
             },
         },
@@ -5125,6 +5378,116 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [231162] = {
+        name = "Driruj",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.7666,
+                    y = 0.343196,
+                },
+            },
+        },
+    },
+    [231314] = {
+        name = "Om'dalan",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.51918,
+                    y = 0.647811,
+                },
+            },
+        },
+    },
+    [231422] = {
+        name = "Outcast Hizfran",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.776663,
+                    y = 0.398243,
+                },
+            },
+        },
+    },
+    [231443] = {
+        name = "Soul-Scribe",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.606852,
+                    y = 0.280009,
+                },
+            },
+        },
+    },
+    [231445] = {
+        name = "Xal'atath",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.551193,
+                    y = 0.303665,
+                },
+            },
+        },
+    },
+    [231486] = {
+        name = "Soul-Scribe",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.485965,
+                    y = 0.267729,
+                },
+            },
+        },
+    },
+    [231487] = {
+        name = "Locus-Walker",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.485793,
+                    y = 0.267026,
+                },
+            },
+        },
+    },
+    [231488] = {
+        name = "Alleria Windrunner",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.485774,
+                    y = 0.266248,
+                },
+            },
+        },
+    },
+    [231492] = {
+        name = "Locus-Walker",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.482348,
+                    y = 0.194318,
+                },
+            },
+        },
+    },
+    [231505] = {
+        name = "Alleria Windrunner",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.481701,
+                    y = 0.190978,
+                },
+            },
+        },
+    },
     [231517] = {
         name = "Pitz Lowe",
         locations = {
@@ -5132,6 +5495,61 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.37252,
                     y = 0.52975,
+                },
+            },
+        },
+    },
+    [231520] = {
+        name = "Xal'atath",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.442369,
+                    y = 0.184865,
+                },
+            },
+        },
+    },
+    [231522] = {
+        name = "Alleria Windrunner",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.42939,
+                    y = 0.21499,
+                },
+            },
+        },
+    },
+    [231564] = {
+        name = "Xy'bin",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.566407,
+                    y = 0.72877,
+                },
+            },
+        },
+    },
+    [231674] = {
+        name = "Vaultkeeper Xy'vez",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.481963,
+                    y = 0.24459,
+                },
+            },
+        },
+    },
+    [231699] = {
+        name = "Outcast Hizfran",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.779295,
+                    y = 0.393064,
                 },
             },
         },
@@ -5213,6 +5631,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [231820] = {
+        name = "Ve'nari",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.758936,
+                    y = 0.34177,
+                },
+            },
+        },
+    },
     [231826] = {
         name = "Eitrigg",
         locations = {
@@ -5279,6 +5708,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [231919] = {
+        name = "Botanist Alaenra",
+        locations = {
+            [942] = {
+                {
+                    x = 0.724514,
+                    y = 0.698627,
+                },
+            },
+        },
+    },
     [232005] = {
         name = "Chancellor Gnome",
         locations = {
@@ -5286,6 +5726,28 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.709607,
                     y = 0.239152,
+                },
+            },
+        },
+    },
+    [232008] = {
+        name = "Cartel Boss Xy'eolm",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.501589,
+                    y = 0.193503,
+                },
+            },
+        },
+    },
+    [232057] = {
+        name = "Vaultkeeper Xy'vez",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.44788,
+                    y = 0.356969,
                 },
             },
         },
@@ -5312,6 +5774,28 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [232351] = {
+        name = "Trader Ba'kril",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.437481,
+                    y = 0.523173,
+                },
+            },
+        },
+    },
+    [232385] = {
+        name = "Botanist Alaenra",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.7576,
+                    y = 0.338471,
+                },
+            },
+        },
+    },
     [232491] = {
         name = "Pamsy",
         locations = {
@@ -5319,6 +5803,28 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.72298,
                     y = 0.82285,
+                },
+            },
+        },
+    },
+    [232498] = {
+        name = "Associate Xy'nell",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.505172,
+                    y = 0.387134,
+                },
+            },
+        },
+    },
+    [232642] = {
+        name = "Void Elf Riftwalker",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.543647,
+                    y = 0.460521,
                 },
             },
         },
@@ -5422,6 +5928,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [233500] = {
+        name = "Om'taha",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.570247,
+                    y = 0.573313,
+                },
+            },
+        },
+    },
     [233501] = {
         name = "Bargus",
         locations = {
@@ -5433,6 +5950,50 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [233603] = {
+        name = "Locus-Walker",
+        locations = {
+            [2339] = {
+                {
+                    x = 0.42127,
+                    y = 0.269286,
+                },
+            },
+        },
+    },
+    [233706] = {
+        name = "Locus-Walker",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.597401,
+                    y = 0.833575,
+                },
+            },
+        },
+    },
+    [233878] = {
+        name = "Xal'atath",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.641098,
+                    y = 0.469951,
+                },
+            },
+        },
+    },
+    [233946] = {
+        name = "Xal'atath",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.481743,
+                    y = 0.366589,
+                },
+            },
+        },
+    },
     [234048] = {
         name = "Monte Gazlowe",
         locations = {
@@ -5440,6 +6001,50 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.616476,
                     y = 0.624601,
+                },
+            },
+        },
+    },
+    [234106] = {
+        name = "Locus-Walker",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.481864,
+                    y = 0.365501,
+                },
+            },
+        },
+    },
+    [234190] = {
+        name = "Narathe",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.61006,
+                    y = 0.399454,
+                },
+            },
+        },
+    },
+    [234216] = {
+        name = "Assistant Engineer Om'vek",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.498737,
+                    y = 0.574498,
+                },
+            },
+        },
+    },
+    [234272] = {
+        name = "Rhubarn",
+        locations = {
+            [2255] = {
+                {
+                    x = 0.775429,
+                    y = 0.617766,
                 },
             },
         },
@@ -5466,6 +6071,28 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [234316] = {
+        name = "Rhubarn",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.759405,
+                    y = 0.345621,
+                },
+            },
+        },
+    },
+    [234483] = {
+        name = "Consortium Assistant",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.509908,
+                    y = 0.483769,
+                },
+            },
+        },
+    },
     [234551] = {
         name = "Monte Gazlowe",
         locations = {
@@ -5473,6 +6100,50 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.508592,
                     y = 0.345318,
+                },
+            },
+        },
+    },
+    [234596] = {
+        name = "Locus-Walker",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.541656,
+                    y = 0.631071,
+                },
+            },
+        },
+    },
+    [234601] = {
+        name = "Om'en",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.540756,
+                    y = 0.636606,
+                },
+            },
+        },
+    },
+    [234602] = {
+        name = "Alleria Windrunner",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.537648,
+                    y = 0.632447,
+                },
+            },
+        },
+    },
+    [234620] = {
+        name = "Locus-Walker",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.405129,
+                    y = 0.677878,
                 },
             },
         },
@@ -5495,6 +6166,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.485582,
                     y = 0.773554,
+                },
+            },
+        },
+    },
+    [234745] = {
+        name = "Hemet Nesingwary",
+        locations = {
+            [2024] = {
+                {
+                    x = 0.187899,
+                    y = 0.39884,
                 },
             },
         },
@@ -5554,6 +6236,28 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [235290] = {
+        name = "Hemet Nesingwary",
+        locations = {
+            [2024] = {
+                {
+                    x = 0.13628,
+                    y = 0.491286,
+                },
+            },
+        },
+    },
+    [235353] = {
+        name = "Hemet Nesingwary",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.758141,
+                    y = 0.34044,
+                },
+            },
+        },
+    },
     [235849] = {
         name = "Blackwater Bruiser",
         locations = {
@@ -5565,6 +6269,17 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [235860] = {
+        name = "Plague Deviser Marileth",
+        locations = {
+            [1536] = {
+                {
+                    x = 0.689696,
+                    y = 0.484921,
+                },
+            },
+        },
+    },
     [236815] = {
         name = "Karga Bloodfury",
         locations = {
@@ -5572,6 +6287,50 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.409476,
                     y = 0.535484,
+                },
+            },
+        },
+    },
+    [236846] = {
+        name = "Hemet Nesingwary",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.484631,
+                    y = 0.610554,
+                },
+            },
+        },
+    },
+    [236890] = {
+        name = "Hemet Nesingwary",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.490448,
+                    y = 0.570049,
+                },
+            },
+        },
+    },
+    [236907] = {
+        name = "Adarus Duskblaze",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.601199,
+                    y = 0.296955,
+                },
+            },
+        },
+    },
+    [237705] = {
+        name = "Xal'atath",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.542694,
+                    y = 0.454781,
                 },
             },
         },
@@ -5594,6 +6353,127 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.177267,
                     y = 0.603917,
+                },
+            },
+        },
+    },
+    [238209] = {
+        name = "Cartel Om Custodian",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.758764,
+                    y = 0.342849,
+                },
+            },
+        },
+    },
+    [238212] = {
+        name = "Om'talad",
+        locations = {
+            [2472] = {
+                {
+                    x = 0.394021,
+                    y = 0.242606,
+                },
+            },
+        },
+    },
+    [240842] = {
+        name = "Leona Darkstrider",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.59334,
+                    y = 0.24201,
+                },
+            },
+        },
+    },
+    [241588] = {
+        name = "Hashim",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.503385,
+                    y = 0.363324,
+                },
+            },
+        },
+    },
+    [241601] = {
+        name = "Shad'anis",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.749022,
+                    y = 0.310923,
+                },
+            },
+        },
+    },
+    [241624] = {
+        name = "Shad'anis",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.503627,
+                    y = 0.363143,
+                },
+            },
+        },
+    },
+    [242179] = {
+        name = "Adarus Duskblaze",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.789451,
+                    y = 0.534507,
+                },
+            },
+        },
+    },
+    [242538] = {
+        name = "Ve'nari",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.471224,
+                    y = 0.545387,
+                },
+            },
+        },
+    },
+    [246601] = {
+        name = "Researcher Essarae",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.598827,
+                    y = 0.291159,
+                },
+            },
+        },
+    },
+    [246608] = {
+        name = "Phase-Lost Creeper",
+        locations = {
+            [2477] = {
+                {
+                    x = 0.429083,
+                    y = 0.762072,
+                },
+            },
+        },
+    },
+    [248153] = {
+        name = "Magister Umbric",
+        locations = {
+            [2371] = {
+                {
+                    x = 0.609223,
+                    y = 0.277276,
                 },
             },
         },

@@ -1,3 +1,8 @@
+# v2.55.0
+
+- Added questlines for Ghosts of Ka'resh
+- Updated for 11.2
+
 # v2.54.0
 
 - Fixed Rise of the Red Dawn Horde only quest showing for Alliance characters
