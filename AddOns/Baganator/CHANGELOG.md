@@ -1,10 +1,6 @@
 # Baganator
 
-## [716](https://github.com/Baganator/Baganator/tree/716) (2025-08-02)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/715...716) 
+## [719](https://github.com/Baganator/Baganator/tree/719) (2025-08-04)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/718...719) 
 
-- Tag as supporting 11.2.0  
-- Remove remaining StaticPopups  
-- Fix text for copy dialog to match previous dialog  
-- Fix edit box popups not hiding when complete  
-- Remove most static popups (just references to Blizzard ones left)  
+- Fix skin loading issue with multiple characters with the same name (diff realm)  
