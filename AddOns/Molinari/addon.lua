@@ -10,6 +10,8 @@ local TEMPLATES = {
 	'SecureHandlerEnterLeaveTemplate',
 }
 
+local IsPlayerSpell = C_SpellBook.IsSpellKnown or IsPlayerSpell -- 12.x deprecation
+
 if not addon:IsRetail() then
 	-- AutoCastShine was removed in 11.0, but we'll keep on using it in classic
 	table.insert(TEMPLATES, 'AutoCastShineTemplate')
@@ -66,8 +68,7 @@ local function tooltipHook(tooltip, item)
 	local spellID, color, numItemsRequired = addon:IsSalvagable(itemID)
 	if spellID then
 		if not IsPlayerSpell(spellID) then
-			local spellName = (C_Spell.GetSpellName or GetSpellInfo)(spellID)
-			tooltipHelp(ERR_USE_LOCKED_WITH_SPELL_S:format(spellName), ERR_COLOR)
+			tooltipHelp(ERR_USE_LOCKED_WITH_SPELL_S:format(C_Spell.GetSpellName(spellID)), ERR_COLOR)
 			return
 		elseif numItemsRequired and C_Item.GetStackCount(item:GetItemLocation()) < numItemsRequired then
 			tooltipHelp(SPELL_FAILED_NEED_MORE_ITEMS:format(numItemsRequired, C_Item.GetItemNameByID(itemID)), ERR_COLOR)
@@ -99,8 +100,7 @@ local function tooltipShow(self)
 
 	if addon:IsRetail() then
 		if self.spellID then
-			local spellName = (C_Spell.GetSpellName or GetSpellInfo)(self.spellID)
-			tooltipHelp((('\n'):split(NPEV2_CASTER_ABILITYINITIAL:gsub(' %%s ', '%s'))):format('|A:NPE_LeftClick:18:18|a', '|cff0090ff' .. spellName .. '|r'))
+			tooltipHelp((('\n'):split(NPEV2_CASTER_ABILITYINITIAL:gsub(' %%s ', '%s'))):format('|A:NPE_LeftClick:18:18|a', '|cff0090ff' .. C_Spell.GetSpellName(self.spellID) .. '|r'))
 		elseif self.itemID then
 			tooltipHelp(NPEV2_ABILITYINITIAL:format('|A:NPE_LeftClick:18:18|a', '|cff0090ff' .. C_Item.GetItemNameByID(self.itemID) .. '|r'))
 		end
@@ -131,7 +131,7 @@ function Molinari:ApplySpell(item, spellID, color)
 			self:SetAttribute('macrotext', MACRO_SALVAGE:format(spellID, bagID, slotID))
 		end
 	elseif item:GetItemLink() == GetTradeTargetItemLink(7) and color == addon.colors.openable then
-		self:SetAttribute('macrotext', MACRO_TRADE:format((C_Spell.GetSpellName or GetSpellInfo)(spellID)))
+		self:SetAttribute('macrotext', MACRO_TRADE:format(C_Spell.GetSpellName(spellID)))
 		self.itemLink = item:GetItemLink() -- store item link for the tooltip
 	else
 		return

@@ -1,6 +1,6 @@
 ## Interface: 11507
 ## Author: p3lim
-## Version: 110100.131-Release
+## Version: 110200.133-Release
 ## Title: Molinari
 ## Notes: One-click Milling, Prospecting, Disenchanting, Lockpicking, and more!
 ## SavedVariables: MolinariDB2, MolinariDB3

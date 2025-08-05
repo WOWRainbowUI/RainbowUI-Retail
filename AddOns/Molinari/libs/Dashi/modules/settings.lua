@@ -142,11 +142,17 @@ local function formatCustom(fmt, value)
 	return fmt:format(value)
 end
 
+local function defaultSliderFormatter(value)
+	return value
+end
+
 local function registerSetting(category, savedvariable, info)
 	addon:ArgCheck(info.key, 3, 'string')
 	addon:ArgCheck(info.title, 3, 'string')
 	addon:ArgCheck(info.type, 3, 'string')
-	addon:ArgCheck(info.requires, 3, 'string', 'nil')
+	if info.requires then
+		addon:ArgCheck(info.requires, 3, 'string')
+	end
 	assert(info.default ~= nil, "default must be set")
 
 	local uniqueKey = savedvariable .. '_' .. info.key
@@ -158,13 +164,17 @@ local function registerSetting(category, savedvariable, info)
 	elseif info.type == 'slider' then
 		addon:ArgCheck(info.minValue, 3, 'number')
 		addon:ArgCheck(info.maxValue, 3, 'number')
-		addon:ArgCheck(info.valueFormat, 3, 'string', 'function')
+		if info.valueFormat then
+			addon:ArgCheck(info.valueFormat, 3, 'string', 'function')
+		end
 
 		local options = Settings.CreateSliderOptions(info.minValue, info.maxValue, info.valueStep or 1)
 		if type(info.valueFormat) == 'string' then
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, GenerateClosure(formatCustom, info.valueFormat))
 		elseif type(info.valueFormat) == 'function' then
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, info.valueFormat)
+		else
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, defaultSliderFormatter)
 		end
 
 		initializer = Settings.CreateSlider(category, setting, options, info.tooltip)
@@ -344,7 +354,7 @@ namespace:RegisterSettings('MyAddOnDB', {
         minValue = 0.1,
         maxValue = 1.0,
         valueStep = 0.01, -- (optional) step value, defaults to 1
-        valueFormat = formatter, -- callback function or a string for string.format
+        valueFormat = formatter, -- (optional) callback function or a string for string.format
         requires = 'myToggle', -- (optional) dependency on another setting (must be a "toggle")
     },
     {
@@ -526,15 +536,16 @@ do
 	end
 
 	local function createSlider(root, name, getter, setter, minValue, maxValue, steps, formatter)
-		local element = root:CreateButton(name):CreateFrame()
-		element:AddResetter(resetSlider)
-		element:AddInitializer(function(frame)
+		local element = root:CreateButton(name)
+		local subMenu = element:CreateFrame()
+		subMenu:AddResetter(resetSlider)
+		subMenu:AddInitializer(function(frame)
 			local slider = frame:AttachTemplate('MinimalSliderWithSteppersTemplate')
 			slider:SetPoint('TOPLEFT', 0, -1)
 			slider:SetSize(150, 25)
 			slider:RegisterCallback('OnValueChanged', setter, frame)
 			slider:Init(getter(), minValue, maxValue, (maxValue - minValue) / steps, {
-				[MinimalSliderWithSteppersMixin.Label.Right] = formatter
+				[MinimalSliderWithSteppersMixin.Label.Right] = formatter or defaultSliderFormatter
 			})
 			frame.slider = slider -- ref for resetter
 
@@ -573,6 +584,17 @@ do
 		addon:SetOption(setting.key, value)
 	end
 
+	local function menuTooltip(button, element)
+		-- copied logic from MENU_WORLD_MAP_TRACKING filters
+		GameTooltip:ClearAllPoints()
+		GameTooltip:SetPoint('RIGHT', button, 'LEFT', -3, 0)
+		GameTooltip:SetOwner(button, 'ANCHOR_PRESERVE')
+		GameTooltip:ClearLines()
+		GameTooltip:AddLine(element.text, 1, 1, 1)
+		GameTooltip:AddLine(element.tooltip, nil, nil, nil, true)
+		GameTooltip:Show()
+	end
+
 	local function registerMapSettings(savedvariable, settings)
 		if not addon.registeredVariables then
 			-- these savedvariables are not handled by other means, let's deal with defaults and
@@ -598,8 +620,9 @@ do
 			root:CreateTitle((addonName:gsub('(%l)(%u)', '%1 %2')) .. HEADER_COLON)
 
 			for _, setting in next, settings do
+				local element
 				if setting.type == 'toggle' then
-					root:CreateCheckbox(setting.title, function()
+					element = root:CreateCheckbox(setting.title, function()
 						return addon:GetOption(setting.key)
 					end, function()
 						addon:SetOption(setting.key, not addon:GetOption(setting.key))
@@ -610,9 +633,11 @@ do
 						formatter = GenerateClosure(formatCustom, setting.valueFormat)
 					elseif type(setting.valueFormat) == 'function' then
 						formatter = setting.valueFormat
+					else
+						formatter = defaultSliderFormatter
 					end
 
-					createSlider(root, setting.title, function()
+					element = createSlider(root, setting.title, function()
 						return addon:GetOption(setting.key)
 					end, function(_, value)
 						addon:SetOption(setting.key, value)
@@ -620,7 +645,7 @@ do
 				elseif setting.type == 'color' then
 					local value = addon:GetOption(setting.key)
 					local r, g, b, a = addon:CreateColor(value):GetRGBA()
-					root:CreateColorSwatch(setting.title, colorPickerClick, {
+					element = root:CreateColorSwatch(setting.title, colorPickerClick, {
 						swatchFunc = GenerateClosure(colorPickerChange, setting),
 						opacityFunc = GenerateClosure(colorPickerChange, setting),
 						cancelFunc = GenerateClosure(colorPickerReset, setting),
@@ -631,15 +656,21 @@ do
 						hasOpacity = #value == 8,
 					})
 				elseif setting.type == 'menu' then
-					local menu = root:CreateButton(setting.title)
+					element = root:CreateButton(setting.title)
 					for _, option in next, setting.options do
-						menu:CreateRadio(
+						element:CreateRadio(
 							option.label,
 							GenerateClosure(menuGetter, setting),
 							GenerateClosure(menuSetter, setting),
 							option.value
 						)
 					end
+				end
+
+				if element and setting.tooltip then
+					element.tooltip = setting.tooltip
+					element:SetOnEnter(menuTooltip)
+					element:SetOnLeave(GameTooltip_Hide)
 				end
 			end
 		end)
