@@ -1626,6 +1626,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [81615] = {
         name = "Pontos de pavio",
     },
+    [81620] = {
+        name = "Trabalho de recuperação",
+    },
     [81630] = {
         name = "Protocolo de ativação",
     },
@@ -1719,6 +1722,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [81806] = {
         name = "Corrida de Pilotagem Aérea - Meandros de Minerália",
     },
+    [81808] = {
+        name = "Corrida de Pilotagem Aérea - Passeio do Fosso Ressonante",
+    },
     [81819] = {
         name = "Corrida de Pilotagem Aérea - Passagem das Águas Paradas",
     },
@@ -1797,6 +1803,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [82041] = {
         name = "Bênção de Beledar",
     },
+    [82088] = {
+        name = "Kaos Kobyss",
+    },
     [82120] = {
         name = "Limpa-piscina",
     },
@@ -1834,7 +1843,7 @@ BtWQuestsDatabase:UpdateQuestsTable({
         name = "Embaixadas e enviados",
     },
     [82156] = {
-        name = "Designação especial: Rebuliço no Fosso",
+        name = "Designação especial: rebuliço no Fosso",
     },
     [82195] = {
         name = "Ferrugem e redenção",
@@ -2168,6 +2177,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [83057] = {
         name = "Estabelecendo limites",
+    },
+    [83079] = {
+        name = "Acúmulo mineral",
     },
     [83080] = {
         name = "Limpeza de Taelloch",
@@ -2838,8 +2850,104 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84717] = {
         name = "Ascensão da Aurora Rubra",
     },
+    [84740] = {
+        name = "Ponte para lugar nenhum",
+    },
+    [84741] = {
+        name = "Sinais na areia",
+    },
+    [84759] = {
+        name = "Perigo sob as estrelas",
+    },
+    [84760] = {
+        name = "Aviso amistoso",
+    },
+    [84761] = {
+        name = "Suor e invasão",
+    },
+    [84762] = {
+        name = "Somos o que dizemos",
+    },
+    [84765] = {
+        name = "Elos e ramos",
+    },
+    [84820] = {
+        name = "Por juramento e sangue",
+    },
     [84821] = {
         name = "Aquintain lança",
+    },
+    [84822] = {
+        name = "Para Iskaara",
+    },
+    [84826] = {
+        name = "Ecodomo: Rhovan",
+    },
+    [84827] = {
+        name = "O domo despedaçado",
+    },
+    [84831] = {
+        name = "A infestação de Rhovan",
+    },
+    [84834] = {
+        name = "Fissuras tempestuosas",
+    },
+    [84838] = {
+        name = "Inimigos de inimigos",
+    },
+    [84848] = {
+        name = "Antes do Caos",
+    },
+    [84855] = {
+        name = "Silêncio de morte",
+    },
+    [84856] = {
+        name = "Onde o Caos se acumula",
+    },
+    [84857] = {
+        name = "Ecodomo: Primus",
+    },
+    [84858] = {
+        name = "Reiniciando o sistema",
+    },
+    [84859] = {
+        name = "Relatório de danos básico",
+    },
+    [84860] = {
+        name = "Ecoestabilização",
+    },
+    [84861] = {
+        name = "Este é o nosso domo!",
+    },
+    [84862] = {
+        name = "Aliança do Caos",
+    },
+    [84863] = {
+        name = "Contramedidas",
+    },
+    [84864] = {
+        name = "O lado sombrio dela",
+    },
+    [84865] = {
+        name = "Dividir e conquistar",
+    },
+    [84866] = {
+        name = "A compra da segurança",
+    },
+    [84867] = {
+        name = "Espreitando espreitadores",
+    },
+    [84869] = {
+        name = "Caça no vidro",
+    },
+    [84876] = {
+        name = "O Oásis",
+    },
+    [84879] = {
+        name = "Restauração da esperança",
+    },
+    [84883] = {
+        name = "K'aresh de outrora",
     },
     [84885] = {
         name = "Trabalho para G.E.T.A.",
@@ -2852,6 +2960,162 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [84893] = {
         name = "A G.E.T.A. o Capitão",
+    },
+    [84896] = {
+        name = "A próxima dimensão",
+    },
+    [84897] = {
+        name = "A calmaria antes da nossa tempestade",
+    },
+    [84898] = {
+        name = "As areias de K'aresh",
+    },
+    [84899] = {
+        name = "Difusão da Guarda Sombria",
+    },
+    [84900] = {
+        name = "Como uma faca no aéter",
+    },
+    [84902] = {
+        name = "Representação adversa",
+    },
+    [84903] = {
+        name = "Até o último grão de areia",
+    },
+    [84904] = {
+        name = "Olho por olho",
+    },
+    [84905] = {
+        name = "O vale da escuridão",
+    },
+    [84906] = {
+        name = "Regicídio no Nexus",
+    },
+    [84910] = {
+        name = "O Tabiqa",
+    },
+    [84915] = {
+        name = "Liberando dunas",
+    },
+    [84956] = {
+        name = "Convite sombrio",
+    },
+    [84957] = {
+        name = "De volta ao Mercado Oculto",
+    },
+    [84958] = {
+        name = "Feras à solta",
+    },
+    [84959] = {
+        name = "Linhas de defesa perdidas",
+    },
+    [84960] = {
+        name = "A escuridão que nos cerca",
+    },
+    [84961] = {
+        name = "Entradas barradas",
+    },
+    [84963] = {
+        name = "Lacrando as sombras",
+    },
+    [84964] = {
+        name = "Heróis na escuridão",
+    },
+    [84965] = {
+        name = "Contribuições cruciais",
+    },
+    [84967] = {
+        name = "A Guarda Sombria em pedaços",
+    },
+    [84972] = {
+        name = "Uma lasca de Caos",
+    },
+    [84973] = {
+        name = "Grão e exterioridade",
+    },
+    [84974] = {
+        name = "Estilhaços de esperança",
+    },
+    [85003] = {
+        name = "Recuperando a eficiência operacional",
+    },
+    [85006] = {
+        name = "Entes perdidos",
+    },
+    [85007] = {
+        name = "Cobertura estendida",
+    },
+    [85008] = {
+        name = "Maquinações da memória",
+    },
+    [85009] = {
+        name = "Os que ainda precisam ser salvos",
+    },
+    [85018] = {
+        name = "Pacotes de promessas",
+    },
+    [85019] = {
+        name = "Pedido de um proscrito",
+    },
+    [85020] = {
+        name = "O sangue-de-k'aresh",
+    },
+    [85021] = {
+        name = "Purificando o Caos",
+    },
+    [85022] = {
+        name = "Sacerdote dos costumes antigos",
+    },
+    [85032] = {
+        name = "Sobras do lar",
+    },
+    [85037] = {
+        name = "É o fim da fita",
+    },
+    [85039] = {
+        name = "Contenção comprometida",
+    },
+    [85052] = {
+        name = "Dinheiro na mão",
+    },
+    [85053] = {
+        name = "Conseguindo as licenças",
+    },
+    [85054] = {
+        name = "Artigos de aquisição",
+    },
+    [85055] = {
+        name = "Mercadoria vencida",
+    },
+    [85075] = {
+        name = "Para Trovamare",
+    },
+    [85076] = {
+        name = "Chega de meluquice",
+    },
+    [85077] = {
+        name = "Dedos grudentos",
+    },
+    [85078] = {
+        name = "A ferrão e fogo",
+    },
+    [85079] = {
+        name = "Zzzzunzzzum",
+    },
+    [85080] = {
+        name = "Uma belha solução",
+    },
+    [85081] = {
+        name = "Que Abelha",
+    },
+    [85082] = {
+        name = "Para K'aresh",
+    },
+    [85083] = {
+        name = "Fotocolmeia",
+    },
+    [85084] = {
+        name = "Sopa no mel",
     },
     [85174] = {
         name = "Vá lá fora",
@@ -2868,11 +3132,77 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [85192] = {
         name = "Voltando para casa",
     },
+    [85238] = {
+        name = "Estranho no ninho",
+    },
+    [85239] = {
+        name = "Uma nova Devora",
+    },
+    [85240] = {
+        name = "Quem tem fome tem pressa",
+    },
+    [85241] = {
+        name = "Outrora um sacerdote honrado",
+    },
+    [85249] = {
+        name = "Prova de ferrão",
+    },
+    [85255] = {
+        name = "Calmeia",
+    },
+    [85256] = {
+        name = "É botânico que se aprende",
+    },
+    [85257] = {
+        name = "Abelhas no Primus",
+    },
+    [85258] = {
+        name = "Ah, mel bem",
+    },
+    [85259] = {
+        name = "Rebolado",
+    },
+    [85260] = {
+        name = "Do mel ao fel",
+    },
+    [85261] = {
+        name = "Foto abelhuda",
+    },
+    [85262] = {
+        name = "Procissão real",
+    },
+    [85383] = {
+        name = "Mixologia aplicada",
+    },
+    [85384] = {
+        name = "Pesquisa de mercado",
+    },
+    [85394] = {
+        name = "Tino para os problemas",
+    },
     [85409] = {
         name = "X-9 = 0",
     },
     [85410] = {
         name = "A longa sombra da Inframina",
+    },
+    [85429] = {
+        name = "Ofuscar é viver",
+    },
+    [85430] = {
+        name = "Folga forçada",
+    },
+    [85431] = {
+        name = "Até o último tostão",
+    },
+    [85432] = {
+        name = "Confundindo os contatos",
+    },
+    [85433] = {
+        name = "Sob olhos atentos",
+    },
+    [85434] = {
+        name = "Detalhes técnicos",
     },
     [85438] = {
         name = "Senão...",
@@ -2901,11 +3231,68 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [85724] = {
         name = "Rechaçar os invasores",
     },
+    [85730] = {
+        name = "Resgatando o que sobrou",
+    },
     [85780] = {
         name = "Bem onde a gente quer",
     },
     [85941] = {
         name = "Ajuste de atitude",
+    },
+    [85961] = {
+        name = "Movimentando os peões",
+    },
+    [86182] = {
+        name = "Caça-fantasmas",
+    },
+    [86183] = {
+        name = "O todo-poderoso",
+    },
+    [86184] = {
+        name = "Diminuição progressiva",
+    },
+    [86185] = {
+        name = "Correndo solto",
+    },
+    [86186] = {
+        name = "Faro fino",
+    },
+    [86187] = {
+        name = "Lei do menor esforço",
+    },
+    [86188] = {
+        name = "Eu quero cogumelo",
+    },
+    [86189] = {
+        name = "Invasão fúngica",
+    },
+    [86190] = {
+        name = "Um cogumelo para todos governar",
+    },
+    [86191] = {
+        name = "A gente se tromba",
+    },
+    [86192] = {
+        name = "Os ossos serão seu leito",
+    },
+    [86193] = {
+        name = "Uma vida pela outra",
+    },
+    [86194] = {
+        name = "Perfume do amor",
+    },
+    [86195] = {
+        name = "Futebol costadura",
+    },
+    [86196] = {
+        name = "Combustível",
+    },
+    [86200] = {
+        name = "Para ter fogo",
+    },
+    [86201] = {
+        name = "E eu matar esses bichos logo",
     },
     [86204] = {
         name = "Libertação da Inframina: a casa perde",
@@ -2934,20 +3321,158 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [86297] = {
         name = "O moral reflete a liderança",
     },
+    [86327] = {
+        name = "Campos Tempestuosos",
+    },
+    [86332] = {
+        name = "Distribuição de poder",
+    },
+    [86348] = {
+        name = "Extermínio de raposas",
+    },
+    [86349] = {
+        name = "Caçador de essência de insetucho",
+    },
+    [86350] = {
+        name = "Perfume de raposa",
+    },
+    [86351] = {
+        name = "Faz uma pose",
+    },
+    [86352] = {
+        name = "Bons escritores são difíceis de achar",
+    },
+    [86353] = {
+        name = "Vamos proteger as criancinhas",
+    },
+    [86354] = {
+        name = "Remédio amargo",
+    },
+    [86355] = {
+        name = "Do animal só não se aproveita o berro",
+    },
+    [86356] = {
+        name = "Corte sustentável",
+    },
+    [86357] = {
+        name = "Hora da boia",
+    },
+    [86358] = {
+        name = "Desculpa esfarrapada",
+    },
+    [86359] = {
+        name = "Volte a K'aresh",
+    },
+    [86360] = {
+        name = "A fantástica senhora raposa",
+    },
+    [86361] = {
+        name = "Brincadeira de criança!",
+    },
+    [86362] = {
+        name = "Que sonho tem a raposa?",
+    },
+    [86392] = {
+        name = "Agilidade de raposa",
+    },
     [86408] = {
         name = "Meu buraco na parede",
     },
     [86417] = {
         name = "Processo de confirmação",
     },
+    [86495] = {
+        name = "A Fita de Reshii",
+    },
     [86575] = {
         name = "Foguete não dá ré?",
+    },
+    [86587] = {
+        name = "Partiu Maldraxxus",
+    },
+    [86588] = {
+        name = "Ritual assassino",
+    },
+    [86589] = {
+        name = "Uma peste por dia é só alegria",
+    },
+    [86590] = {
+        name = "Eu nem trabalho aqui",
+    },
+    [86591] = {
+        name = "Imitação barata",
+    },
+    [86592] = {
+        name = "Vacina salva",
+    },
+    [86593] = {
+        name = "Partiu Oásis",
+    },
+    [86594] = {
+        name = "Palato refinado",
+    },
+    [86595] = {
+        name = "Trabalho de zelador",
+    },
+    [86601] = {
+        name = "Bem no alvo",
+    },
+    [86602] = {
+        name = "Exame médico",
+    },
+    [86603] = {
+        name = "Bola de raia-quete",
+    },
+    [86604] = {
+        name = "Intenções escusas",
+    },
+    [86605] = {
+        name = "Doses de reforço",
+    },
+    [86606] = {
+        name = "Ouro gosmento",
+    },
+    [86607] = {
+        name = "Na cola da arraia",
     },
     [86697] = {
         name = "Equipe de limpeza",
     },
+    [86782] = {
+        name = "Hospital do Átrio",
+    },
+    [86783] = {
+        name = "Raio de arraia",
+    },
+    [86786] = {
+        name = "Caçadora do Caos",
+    },
+    [86820] = {
+        name = "Manaforja Ômega: Dimensius se aproxima",
+    },
+    [86835] = {
+        name = "Reagrupar!",
+    },
+    [86946] = {
+        name = "Desenrolando a fita",
+    },
     [87008] = {
         name = "Cerimonialista por acaso",
+    },
+    [87290] = {
+        name = "O Oásis",
+    },
+    [87291] = {
+        name = "Barrinha de salada",
+    },
+    [87292] = {
+        name = "A raiz do problema",
+    },
+    [87293] = {
+        name = "Concorrência desleal",
+    },
+    [87294] = {
+        name = "A unanimidade é burra",
     },
     [87297] = {
         name = "Descontando o cheque",
@@ -2958,8 +3483,95 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [87321] = {
         name = "Pendências",
     },
+    [87337] = {
+        name = "Trabalho de custódio",
+    },
+    [87338] = {
+        name = "Primeiro dia de trabalho",
+    },
+    [87339] = {
+        name = "Atividades em andamento",
+    },
+    [87340] = {
+        name = "Correspondência indesejada",
+    },
+    [87408] = {
+        name = "Espiritualidade",
+    },
+    [87409] = {
+        name = "Da morte, a vida",
+    },
+    [87410] = {
+        name = "Negociação percussiva",
+    },
+    [87411] = {
+        name = "Fazer coisas para meter moral",
+    },
+    [87412] = {
+        name = "Fotos k'arrócicas.",
+    },
+    [87413] = {
+        name = "Banho de pássaros",
+    },
+    [87414] = {
+        name = "Manobras médicas",
+    },
+    [87415] = {
+        name = "O céu de K'aresh",
+    },
+    [89323] = {
+        name = "Terras desertas",
+    },
+    [89324] = {
+        name = "Parte de algo maior",
+    },
+    [89325] = {
+        name = "Confluência do Caos",
+    },
+    [89326] = {
+        name = "Escuridão destilada",
+    },
+    [89327] = {
+        name = "Caos",
+    },
+    [89343] = {
+        name = "Caos desprendido",
+    },
+    [89344] = {
+        name = "O que não enxerga",
+    },
+    [89345] = {
+        name = "O horror desprendido",
+    },
+    [89348] = {
+        name = "Que haja luzzzzzz",
+    },
+    [89380] = {
+        name = "Outro mundo",
+    },
+    [89561] = {
+        name = "Na faixa",
+    },
+    [90517] = {
+        name = "Minha parte do acordo",
+    },
+    [90938] = {
+        name = "Saltitando pelo Caos",
+    },
+    [90972] = {
+        name = "Causa comum",
+    },
     [91039] = {
         name = "Pedido de Faerin",
+    },
+    [91044] = {
+        name = "Fome do Caos",
+    },
+    [91314] = {
+        name = "Potencial desprendido",
+    },
+    [91454] = {
+        name = "Aventureiro em Perda Fásica",
     },
 })
 ]])()

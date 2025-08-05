@@ -171,17 +171,50 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [230554] = {
         name = "Viejo Lowe",
     },
+    [230786] = {
+        name = "Escriba de almas",
+    },
+    [230811] = {
+        name = "Caminante intersticial",
+    },
     [230841] = {
         name = "El Caballero Verdín",
     },
+    [231128] = {
+        name = "Caminante intersticial",
+    },
+    [231422] = {
+        name = "Paria Hizfran",
+    },
+    [231674] = {
+        name = "Guardabóvedas Xy'vez",
+    },
+    [232008] = {
+        name = "Jefe del cártel Xy'eolm",
+    },
     [232132] = {
         name = "Alba",
+    },
+    [232351] = {
+        name = "Comerciante Ba'kril",
+    },
+    [232498] = {
+        name = "Socio Xy'nell",
     },
     [233235] = {
         name = "Gerry Tapabuche",
     },
     [233420] = {
         name = "Benny Gansohete",
+    },
+    [234216] = {
+        name = "Ingeniero asistente Om'vek",
+    },
+    [246601] = {
+        name = "Investigadora Essarae",
+    },
+    [248153] = {
+        name = "Magíster Umbric",
     },
 })
 ]])()

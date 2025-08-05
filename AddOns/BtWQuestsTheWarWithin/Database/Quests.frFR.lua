@@ -1623,6 +1623,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [81615] = {
         name = "Mèche courte",
     },
+    [81620] = {
+        name = "Mission de récupération",
+    },
     [81630] = {
         name = "Protocole d’activation",
     },
@@ -1716,6 +1719,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [81806] = {
         name = "Course draconique – Virages de Mineroc",
     },
+    [81808] = {
+        name = "Course draconique – Cours des abîmes Retentissants",
+    },
     [81819] = {
         name = "Course draconique – Slalom de Roche-Tranquille",
     },
@@ -1793,6 +1799,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [82041] = {
         name = "Bénédiction de Beledar",
+    },
+    [82088] = {
+        name = "Kobyss repetita",
     },
     [82120] = {
         name = "Nettoyage de bassin",
@@ -2174,6 +2183,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [83057] = {
         name = "Poser des limites",
+    },
+    [83079] = {
+        name = "Accumulation de minerai",
     },
     [83080] = {
         name = "Nettoyage de Taelloch",
@@ -2844,8 +2856,104 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [84717] = {
         name = "L’Aube rouge se lève",
     },
+    [84740] = {
+        name = "Un pont vers Nulle-Part",
+    },
+    [84741] = {
+        name = "Des signes dans les sables",
+    },
+    [84759] = {
+        name = "Retrouvailles inopportunes sous les étoiles",
+    },
+    [84760] = {
+        name = "Un avertissement amical",
+    },
+    [84761] = {
+        name = "Saisie et intrusion",
+    },
+    [84762] = {
+        name = "Le reflet de nos paroles",
+    },
+    [84765] = {
+        name = "Des branches et des liens",
+    },
+    [84820] = {
+        name = "Par le serment et le sang",
+    },
     [84821] = {
         name = "Taupinement biologique",
+    },
+    [84822] = {
+        name = "En route pour Iskaara",
+    },
+    [84826] = {
+        name = "L’écodôme Rhovan",
+    },
+    [84827] = {
+        name = "Le dôme brisé",
+    },
+    [84831] = {
+        name = "L’infestation de Rhovan",
+    },
+    [84834] = {
+        name = "Failles des Tempêtes",
+    },
+    [84838] = {
+        name = "L’ennemi de mes ennemis…",
+    },
+    [84848] = {
+        name = "Au pied du Vide",
+    },
+    [84855] = {
+        name = "Un silence funeste",
+    },
+    [84856] = {
+        name = "Amas du Vide",
+    },
+    [84857] = {
+        name = "L’écodôme Primus",
+    },
+    [84858] = {
+        name = "Redémarrage système",
+    },
+    [84859] = {
+        name = "Rapport d’incident 101",
+    },
+    [84860] = {
+        name = "Éco-stabilisation",
+    },
+    [84861] = {
+        name = "Ce dôme est à nous !",
+    },
+    [84862] = {
+        name = "Alliance du Vide",
+    },
+    [84863] = {
+        name = "Contre-mesures",
+    },
+    [84864] = {
+        name = "Du côté obscur",
+    },
+    [84865] = {
+        name = "Diviser pour mieux régner",
+    },
+    [84866] = {
+        name = "Garantie de sécurité",
+    },
+    [84867] = {
+        name = "Traqueurs traqués",
+    },
+    [84869] = {
+        name = "Une chasse périlleuse",
+    },
+    [84876] = {
+        name = "L’Oasis",
+    },
+    [84879] = {
+        name = "Restaurer l’espoir",
+    },
+    [84883] = {
+        name = "Le K’aresh d’antan",
     },
     [84885] = {
         name = "Vous avez demandé la SgPA, ne quittez pas",
@@ -2858,6 +2966,162 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [84893] = {
         name = "Sg-PAF le capitaine",
+    },
+    [84896] = {
+        name = "La prochaine dimension",
+    },
+    [84897] = {
+        name = "Le calme avant la tempête",
+    },
+    [84898] = {
+        name = "Les sables de K’aresh",
+    },
+    [84899] = {
+        name = "Dispersion de l’Ombre-Garde",
+    },
+    [84900] = {
+        name = "Comme une lame dans l’éther",
+    },
+    [84902] = {
+        name = "Instances défavorables",
+    },
+    [84903] = {
+        name = "Le Vide imprégnera les sables",
+    },
+    [84904] = {
+        name = "Et nous répliquerons",
+    },
+    [84905] = {
+        name = "Marcher parmi les ombres",
+    },
+    [84906] = {
+        name = "Régicide du nexus",
+    },
+    [84910] = {
+        name = "Le tabiqa",
+    },
+    [84915] = {
+        name = "Nettoyage des dunes",
+    },
+    [84956] = {
+        name = "Une invitation ombreuse",
+    },
+    [84957] = {
+        name = "Retour au marché dissimulé",
+    },
+    [84958] = {
+        name = "Bêtes en liberté",
+    },
+    [84959] = {
+        name = "Lignes de défense disparues",
+    },
+    [84960] = {
+        name = "Les ténèbres autour de nous",
+    },
+    [84961] = {
+        name = "Écran total",
+    },
+    [84963] = {
+        name = "Contenir les ombres",
+    },
+    [84964] = {
+        name = "L’héroïsme au sein des ombres",
+    },
+    [84965] = {
+        name = "Contributions essentielles",
+    },
+    [84967] = {
+        name = "L’éclatement de l’Ombre-Garde",
+    },
+    [84972] = {
+        name = "Ébrécher le Vide",
+    },
+    [84973] = {
+        name = "Des granules et des carapaces",
+    },
+    [84974] = {
+        name = "Éclats d’espoir",
+    },
+    [85003] = {
+        name = "Efficacité opérationnelle renouvelée",
+    },
+    [85006] = {
+        name = "Les âmes perdues",
+    },
+    [85007] = {
+        name = "Portée étendue",
+    },
+    [85008] = {
+        name = "Les machinations de la mémoire",
+    },
+    [85009] = {
+        name = "Les âmes à sauver",
+    },
+    [85018] = {
+        name = "Des promesses par milliers",
+    },
+    [85019] = {
+        name = "La demande d’un paria",
+    },
+    [85020] = {
+        name = "Le sang de K’aresh",
+    },
+    [85021] = {
+        name = "Purification du Vide",
+    },
+    [85022] = {
+        name = "Prêtre des voies ancestrales",
+    },
+    [85032] = {
+        name = "Ce qu’il reste des lieux",
+    },
+    [85037] = {
+        name = "Tout est réglé ?",
+    },
+    [85039] = {
+        name = "Confinement compromis",
+    },
+    [85052] = {
+        name = "Une opportunité lucrative",
+    },
+    [85053] = {
+        name = "Obtention de permis",
+    },
+    [85054] = {
+        name = "Articles d’acquisition",
+    },
+    [85055] = {
+        name = "Biens périmés",
+    },
+    [85075] = {
+        name = "En route pour Chantorage",
+    },
+    [85076] = {
+        name = "Abeilles piquées au vif",
+    },
+    [85077] = {
+        name = "Mains collantes",
+    },
+    [85078] = {
+        name = "Embûches dans les ruches",
+    },
+    [85079] = {
+        name = "Le sommeil des abeilles",
+    },
+    [85080] = {
+        name = "Une solution abeillerrante",
+    },
+    [85081] = {
+        name = "Au temps des transhumances",
+    },
+    [85082] = {
+        name = "En route pour K’aresh",
+    },
+    [85083] = {
+        name = "Paparabzzzi",
+    },
+    [85084] = {
+        name = "Le miel et les abeilles",
     },
     [85174] = {
         name = "Allez-y.",
@@ -2874,11 +3138,77 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [85192] = {
         name = "Retour chez lui",
     },
+    [85238] = {
+        name = "Des marches étrangères",
+    },
+    [85239] = {
+        name = "Une nouvelle Dévoration",
+    },
+    [85240] = {
+        name = "Seule la faim subsiste",
+    },
+    [85241] = {
+        name = "Un prêtre jadis fier",
+    },
+    [85249] = {
+        name = "Essai d’essaim",
+    },
+    [85255] = {
+        name = "Des insectes zzzen",
+    },
+    [85256] = {
+        name = "Enfin de la botanique",
+    },
+    [85257] = {
+        name = "Faire le buzzz",
+    },
+    [85258] = {
+        name = "Du bon miel !",
+    },
+    [85259] = {
+        name = "Danse des abeilles",
+    },
+    [85260] = {
+        name = "Une journée ruche en émotions",
+    },
+    [85261] = {
+        name = "Bêtes de scène",
+    },
+    [85262] = {
+        name = "Le cortège royal",
+    },
+    [85383] = {
+        name = "Mixologie appliquée",
+    },
+    [85384] = {
+        name = "Études de marché",
+    },
+    [85394] = {
+        name = "L’art de trouver les ennuis",
+    },
     [85409] = {
         name = "Si tu poucaves, on te marave",
     },
     [85410] = {
         name = "L’ombre immense de Terremine",
+    },
+    [85429] = {
+        name = "Importations en masse",
+    },
+    [85430] = {
+        name = "Pause obligatoire",
+    },
+    [85431] = {
+        name = "Drainez leurs ressources",
+    },
+    [85432] = {
+        name = "Embrouillez leurs contacts",
+    },
+    [85433] = {
+        name = "On nous observe",
+    },
+    [85434] = {
+        name = "D’un point de vue technique",
     },
     [85438] = {
         name = "Ou sinon",
@@ -2907,11 +3237,68 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [85724] = {
         name = "Repousser l’invasion",
     },
+    [85730] = {
+        name = "Survie des recherches",
+    },
     [85780] = {
         name = "Dos au mur",
     },
     [85941] = {
         name = "Une juste correction",
+    },
+    [85961] = {
+        name = "Les pions avancent",
+    },
+    [86182] = {
+        name = "Chasse au fantôme",
+    },
+    [86183] = {
+        name = "Le pouvoir des dieux",
+    },
+    [86184] = {
+        name = "Petites grosses bêtes",
+    },
+    [86185] = {
+        name = "La course du cœur",
+    },
+    [86186] = {
+        name = "Super flair",
+    },
+    [86187] = {
+        name = "Le moindre effort",
+    },
+    [86188] = {
+        name = "Champ de champignons",
+    },
+    [86189] = {
+        name = "Invasion fongique",
+    },
+    [86190] = {
+        name = "Un champignon pour les gouverner tous",
+    },
+    [86191] = {
+        name = "Ce qu’il reste à flaire",
+    },
+    [86192] = {
+        name = "Un nid d’os",
+    },
+    [86193] = {
+        name = "Une vie pour une autre",
+    },
+    [86194] = {
+        name = "Le parfum de l’amour",
+    },
+    [86195] = {
+        name = "Balle d’ardospine",
+    },
+    [86196] = {
+        name = "Besoin de carburant",
+    },
+    [86200] = {
+        name = "Il me faut du feu !",
+    },
+    [86201] = {
+        name = "Sus à la vermine !",
     },
     [86204] = {
         name = "Libération de Terremine : la maison perd",
@@ -2940,20 +3327,158 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [86297] = {
         name = "Le moral reflète la hiérarchie",
     },
+    [86327] = {
+        name = "Les champs des Tempêtes",
+    },
+    [86332] = {
+        name = "Redistribution d’énergie",
+    },
+    [86348] = {
+        name = "Il n’y a pas de renard sans épine",
+    },
+    [86349] = {
+        name = "Chasse à l’essence de genouillée",
+    },
+    [86350] = {
+        name = "Parfum royal",
+    },
+    [86351] = {
+        name = "On prend la pose",
+    },
+    [86352] = {
+        name = "Chasse au consultant",
+    },
+    [86353] = {
+        name = "Protection de l’enfance",
+    },
+    [86354] = {
+        name = "Un remède percutant",
+    },
+    [86355] = {
+        name = "Pas de gâchis",
+    },
+    [86356] = {
+        name = "Récolte durable",
+    },
+    [86357] = {
+        name = "L’heure de la becquetance",
+    },
+    [86358] = {
+        name = "Tous les prétextes sont bons",
+    },
+    [86359] = {
+        name = "Retour sur K’aresh",
+    },
+    [86360] = {
+        name = "Roman de renarde",
+    },
+    [86361] = {
+        name = "C’est de la balle",
+    },
+    [86362] = {
+        name = "Rêves de renards",
+    },
+    [86392] = {
+        name = "À pas de renard",
+    },
     [86408] = {
         name = "Ma gargote",
     },
     [86417] = {
         name = "Appel",
     },
+    [86495] = {
+        name = "Le ruban de reshii",
+    },
     [86575] = {
         name = "Roquettes roll",
+    },
+    [86587] = {
+        name = "En route pour Maldraxxus",
+    },
+    [86588] = {
+        name = "Massacre rituel",
+    },
+    [86589] = {
+        name = "Une peste par jour",
+    },
+    [86590] = {
+        name = "Je ne bosse même pas ici",
+    },
+    [86591] = {
+        name = "Une imitation peu convaincante",
+    },
+    [86592] = {
+        name = "Antidote pour raies",
+    },
+    [86593] = {
+        name = "En route pour l’Oasis",
+    },
+    [86594] = {
+        name = "Pour tous les goûts",
+    },
+    [86595] = {
+        name = "Technique de surface",
+    },
+    [86601] = {
+        name = "Triple vingt",
+    },
+    [86602] = {
+        name = "Examen médical",
+    },
+    [86603] = {
+        name = "Bask-raie ball",
+    },
+    [86604] = {
+        name = "Intentions douteuses",
+    },
+    [86605] = {
+        name = "Tirs requinquants",
+    },
+    [86606] = {
+        name = "Le limon de la fortune",
+    },
+    [86607] = {
+        name = "À vos marques, raies, partez !",
     },
     [86697] = {
         name = "Équipe de nettoyage",
     },
+    [86782] = {
+        name = "Hôpital de l’Atrium",
+    },
+    [86783] = {
+        name = "Raieons de soleil",
+    },
+    [86786] = {
+        name = "Chasseuse du Vide",
+    },
+    [86820] = {
+        name = "Manaforge Oméga : la menace de Dimensius",
+    },
+    [86835] = {
+        name = "On se regroupe !",
+    },
+    [86946] = {
+        name = "Déballé et défait",
+    },
     [87008] = {
         name = "Mariage aux petits oignons",
+    },
+    [87290] = {
+        name = "L’Oasis",
+    },
+    [87291] = {
+        name = "Bar à salade",
+    },
+    [87292] = {
+        name = "Enchevêtrement de problèmes",
+    },
+    [87293] = {
+        name = "Vendre sans complexe",
+    },
+    [87294] = {
+        name = "Une vérité universellement reconnue",
     },
     [87297] = {
         name = "Un chèque à encaisser",
@@ -2964,8 +3489,92 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [87321] = {
         name = "Choses inachevées",
     },
+    [87337] = {
+        name = "Devoir d’entretien",
+    },
+    [87338] = {
+        name = "Se présenter pour mieux s’intégrer",
+    },
+    [87339] = {
+        name = "Activités en cours",
+    },
+    [87340] = {
+        name = "Courrier indésirable",
+    },
+    [87408] = {
+        name = "Être spirituel",
+    },
+    [87409] = {
+        name = "De la mort à la vie",
+    },
+    [87410] = {
+        name = "Négociations percutantes",
+    },
+    [87411] = {
+        name = "Bouclier à bricoler",
+    },
+    [87412] = {
+        name = "Photos de k’arrocs",
+    },
+    [87413] = {
+        name = "Un bon bain",
+    },
+    [87414] = {
+        name = "Manœuvres médicales",
+    },
+    [87415] = {
+        name = "Dans le ciel de K’aresh",
+    },
+    [89323] = {
+        name = "Terres désolées",
+    },
+    [89324] = {
+        name = "Un fragment de quelque chose de plus grand",
+    },
+    [89325] = {
+        name = "Le conflux du Vide",
+    },
+    [89326] = {
+        name = "Ténèbres distillées",
+    },
+    [89343] = {
+        name = "Le Vide détaché",
+    },
+    [89344] = {
+        name = "Ce qui ne vous voit pas",
+    },
+    [89345] = {
+        name = "L’horreur détachée",
+    },
+    [89348] = {
+        name = "Au petit bonheur l’abeille",
+    },
+    [89380] = {
+        name = "Un autre monde",
+    },
+    [89561] = {
+        name = "Bien emballé",
+    },
+    [90517] = {
+        name = "Ma part du marché",
+    },
+    [90938] = {
+        name = "Un saut dans le Vide",
+    },
+    [90972] = {
+        name = "Une cause commune",
+    },
     [91039] = {
         name = "La requête de Faerin",
+    },
+    [91044] = {
+        name = "Faim du Vide",
+    },
+    [91314] = {
+        name = "Potentiel détaché",
+    },
+    [91454] = {
+        name = "Errance dans la phase",
     },
 })
 ]])()
