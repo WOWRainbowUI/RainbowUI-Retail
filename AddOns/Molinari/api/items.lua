@@ -7,6 +7,8 @@ if not addon:IsRetail() then
 	Enum.ItemQuality.Uncommon = Enum.ItemQuality.Good
 end
 
+local IsPlayerSpell = (C_SpellBook.IsSpellKnown or IsPlayerSpell) -- 12.x deprecation
+
 function addon:IsProspectable(itemID)
 	-- returns the spell used to prospect the item
 	if addon:IsClassic() then
@@ -176,6 +178,8 @@ if addon:IsRetail() then
 				end
 			end
 		end
+
+		return true
 	end
 
 	function addon:IsOpenableProfession(itemID)
