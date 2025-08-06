@@ -5,22 +5,14 @@ do
     local L = languageTable
 
 ------------------------------------------------------------
---[[Translation missing --]]
-L["ADDON_MENU_ADDONS_TITLE"] = "Mythic+ Scoreboard"
---[[Translation missing --]]
-L["ADDON_MENU_ADDONS_TOOLTIP_LEFT_CLICK"] = "left click"
---[[Translation missing --]]
-L["ADDON_MENU_ADDONS_TOOLTIP_OPEN_OPTIONS"] = "open options"
---[[Translation missing --]]
-L["ADDON_MENU_ADDONS_TOOLTIP_OPEN_SCOREBOARD"] = "open scoreboard"
---[[Translation missing --]]
-L["ADDON_MENU_ADDONS_TOOLTIP_RIGHT_CLICK"] = "right click"
---[[Translation missing --]]
-L["COMMAND_CLEAR_RUN_HISTORY"] = "Clear recent runs history"
---[[Translation missing --]]
-L["COMMAND_CLEAR_RUN_HISTORY_DONE"] = "Cleared the history of %s run(s)"
---[[Translation missing --]]
-L["COMMAND_HELP"] = "Shows this list of commands"
+L["ADDON_MENU_ADDONS_TITLE"] = "Mhytisch+ Bildschirm"
+L["ADDON_MENU_ADDONS_TOOLTIP_LEFT_CLICK"] = "links klick"
+L["ADDON_MENU_ADDONS_TOOLTIP_OPEN_OPTIONS"] = "öffne Einstellungen"
+L["ADDON_MENU_ADDONS_TOOLTIP_OPEN_SCOREBOARD"] = "öffne Ergebnistafel"
+L["ADDON_MENU_ADDONS_TOOLTIP_RIGHT_CLICK"] = "rechts klick"
+L["COMMAND_CLEAR_RUN_HISTORY"] = "Historie der letzten Läufe löschen"
+L["COMMAND_CLEAR_RUN_HISTORY_DONE"] = "Die Historie von %s-Lauf(en) wurde gelöscht"
+L["COMMAND_HELP"] = "Zeigt diese Liste von den Befehlen an"
 --[[Translation missing --]]
 L["COMMAND_HELP_PRINT"] = "available commands"
 --[[Translation missing --]]
