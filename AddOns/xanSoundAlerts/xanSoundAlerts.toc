@@ -1,4 +1,4 @@
-## Interface: 11503, 30403, 40400, 110105, 110107
+## Interface: 11503, 30403, 40400, 110107, 110200
 ## Title: xanSoundAlerts
 ## Notes: Plays a sound when your health or mana is low.
 ## Notes-zhCN: 当你的生命值和法力值较低时播放声音。

@@ -1,4 +1,4 @@
-## Interface: 50500, 110105, 110107
+## Interface: 50500, 110107, 110200
 ## Author: Sanex (Arathor EU)
 ## Title: LOIHLoot
 ## Version: 11.1.7

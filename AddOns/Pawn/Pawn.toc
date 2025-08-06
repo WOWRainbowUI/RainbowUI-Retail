@@ -1,4 +1,4 @@
-﻿## Interface: 11507, 50500, 110105, 110107
+﻿## Interface: 11507, 50500, 110107, 110200
 ## Title: Pawn
 ## Version: 2.11.4
 ## Notes: Pawn helps you compare items and find upgrades.

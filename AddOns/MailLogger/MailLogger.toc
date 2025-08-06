@@ -1,4 +1,4 @@
-## Interface: 11507, 30404, 40402, 110105, 110107
+## Interface: 11507, 30404, 40402, 110107, 110200
 ## Version: 2.1.2
 ## Title: MailLogger
 ## Author: Aoikaze

@@ -1,4 +1,4 @@
-## Interface: 110105, 110107
+## Interface: 110107, 110200
 ## Title: WeakAuras Archive
 ## Author: The WeakAuras Team
 ## Version: 5.20.0
