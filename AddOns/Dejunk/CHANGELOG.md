@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.0.8] - 2025-08-06
+
+### Fixed
+
+- Error when selling tradable items in Retail ([#248](https://github.com/moody/Dejunk/issues/248))
+
+## [2.0.7] - 2025-08-05
+
+### Fixed
+
+- Resolved errors with popup code for 11.2.0
+
+## [2.0.6] - 2025-08-02
+
+- Updated suitable items table for MoP Classic
+
 ## [2.0.5] - 2025-07-08
 
 - Version updates
