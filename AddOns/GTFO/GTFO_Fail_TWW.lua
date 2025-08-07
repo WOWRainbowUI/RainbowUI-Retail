@@ -668,6 +668,12 @@ GTFO.SpellID["455838"] = {
   sound = 3;
 };
 
+GTFO.SpellID["457277"] = {
+  --desc = "Azeroth's Rage";
+  sound = 3;
+};
+
+
 
 --- **********************
 --- * Cinderbrew Meadery *
@@ -2773,6 +2779,55 @@ GTFO.SpellID["1218342"] = {
   sound = 3;
   test = true;
 };
+
+--- ********************
+--- * Eco-Dome Al'dani *
+--- ********************
+
+GTFO.SpellID["1221174"] = {
+  --desc = "Gorging Smash (Voracious Gorger)";
+  sound = 3;
+};
+
+GTFO.SpellID["1217439"] = {
+  --desc = "Toxic Regurgitation (Azhiccar)";
+  applicationOnly = true;
+  sound = 3;
+  test = true; -- Avoidable?
+};
+
+GTFO.SpellID["1231224"] = {
+  --desc = "Arcane Slash (Overcharged Sentinel)";
+  sound = 3;
+  tankSound = 0;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["1222356"] = {
+  --desc = "Warp (Tamed Ruinstalker)";
+  sound = 3;
+};
+
+GTFO.SpellID["1237199"] = {
+  --desc = "Burrow Charge (Burrowing Creeper)";
+  sound = 3;
+  tankSound = 0;
+};
+
+GTFO.SpellID["1215850"] = {
+  --desc = "Earthcrusher (Burrowing Creeper)";
+  sound = 3;
+};
+
+GTFO.SpellID["1223008"] = {
+  --desc = "Burrowing Eruption (Wastes Creeper)";
+  sound = 3;
+};
+
+
+--- *******************
+--- * Manaforge Omega *
+--- *******************
 
 
 end
