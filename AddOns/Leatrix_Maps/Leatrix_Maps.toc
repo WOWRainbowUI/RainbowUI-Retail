@@ -1,4 +1,4 @@
-## Interface: 110107
+## Interface: 110200
 
 ## Title: Leatrix Maps
 
@@ -16,7 +16,7 @@
 ## Notes-zhTW: 如需支援，請造訪 leatrix.com。
 ## Notes-zhCN: 如需支持，请访问 leatrix.com。
 
-## Version: 11.1.14
+## Version: 11.2.00
 ## Author: Leatrix
 ## SavedVariables: LeaMapsDB
 ## AddonCompartmentFunc:LeaMapsGlobalMiniBtnClickFunc
