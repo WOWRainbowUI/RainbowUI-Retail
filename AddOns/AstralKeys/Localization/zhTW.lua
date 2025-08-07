@@ -165,6 +165,7 @@ L["Priory of the Sacred Flame"] = "聖焰隱修院"
 L["Theater of Pain"] = "苦痛劇場"
 L["The MOTHERLODE!!"] = "晶喜鎮"
 L["Operation: Floodgate"] = "水閘行動"
+L["Eco-Dome Al'dani"] = "埃達尼秘境"
 
 -- 自行加入
 L["Astral Keys"] = "M+ 鑰石名單"

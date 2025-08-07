@@ -20,6 +20,8 @@ L.TOCNOTES["ADDONDESC"] = "傳奇+鑰石資訊以及協同工具"
 L.TOCNOTES["ADDONNAME"] = "鑰石大師"
 
 L.MAPNAMES = {} -- Note: Map abbrevations should be a max of 4 characters and be commonly known. Map names come directly from Blizzard already translated.
+
+-- USE /fsstack to mouseover the icons in the player frame to find their mapIds if you need to add new dungeons.
 -- DF S3
 L.MAPNAMES[9001] = { name = "未知", abbr = "???" }
 L.MAPNAMES[463] = { name = "Dawn of the Infinite: Galakrond\'s Fall", abbr = "殞落"}
@@ -57,6 +59,11 @@ L.MAPNAMES[504] = { name = "暗焰裂縫", abbr = "裂縫" }
 L.MAPNAMES[382] = { name = "苦痛劇場", abbr = "苦痛" }
 L.MAPNAMES[506] = { name = "燼釀酒莊", abbr = "酒莊" }
 L.MAPNAMES[499] = { name = "聖焰隱修院", abbr = "聖焰" }
+--TWW S3
+L.MAPNAMES[391] = { name = "索利亞的險招", abbr = "險招" }
+L.MAPNAMES[392] = { name = "奇觀街道", abbr = "街道" }
+L.MAPNAMES[378] = { name = "贖罪之殿", abbr = "贖罪" }
+L.MAPNAMES[542] = { name = "埃達尼秘境", abbr = "秘境" }
 
 L.XPAC = {}
 L.XPAC[0] = { enum = "LE_EXPANSION_CLASSIC", desc = "經典版" }
@@ -76,6 +83,7 @@ L.MPLUSSEASON[11] = { name = "第3賽季" }
 L.MPLUSSEASON[12] = { name = "第4賽季" }
 L.MPLUSSEASON[13] = { name = "第1賽季" } -- expecting season 13 to be TWW S1
 L.MPLUSSEASON[14] = { name = "第2賽季" } -- expecting season 14 to be TWW S2
+L.MPLUSSEASON[15] = { name = "第3賽季" } -- expecting season 15 to be TWW S2
 
 L.DISPLAYVERSION = "版本"
 L.WELCOMEMESSAGE = "歡迎回來"
