@@ -39,6 +39,7 @@ L["X_PADDING"] = "水平內邊界"
 L["Y_PADDING"] = "垂直內邊界"
 
 L["MULTILINE"] = "多行"
+L["ALT_FOR_CURSOR_MOVEMENT"] = "按住 Alt 鍵來移動游標"
 
 -- 自行加入
 L["LS_GLASS"] = "聊天-視窗"
