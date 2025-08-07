@@ -1,10 +1,10 @@
-## Interface: 11507, 40402, 110107, 110200
+## Interface: 11507, 50500, 110107, 110200
 ## Title: tullaRange
 ## Author: Tuller
 ## Category: Action Bars
 ## Notes: Out of range coloring based on RedRange
 ## Notes-ruRU: Аддон, который позволяет полностью менять цвет кнопок действий
-## Version: 11.1.1
+## Version: 11.1.2
 ## SavedVariables: TULLARANGE_COLORS
 ## IconTexture: Interface/Icons/Inv_misc_punchcards_red
 
