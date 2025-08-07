@@ -1,6 +1,9 @@
-## Changed in v2025.12
+## Changed in v2025.13
 
-* Updated for 11.2.0
-* K'aresh: all the basics, missing some non-achievement rares
-* Show requirements, if known, in the broker tooltip
+* K'aresh:
+    * Added Reshanor
+    * Updated various non-achievement rares
+* Macros:
+    * New option: skip mobs with known vignettes
+    * New option: *don't* skip mobs that are already complete
 
