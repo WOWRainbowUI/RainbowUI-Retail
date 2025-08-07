@@ -1,5 +1,5 @@
 local MAJOR_VERSION = "LibGetFrame-1.0"
-local MINOR_VERSION = 67
+local MINOR_VERSION = 68
 if not LibStub then
   error(MAJOR_VERSION .. " requires LibStub.")
 end
@@ -627,7 +627,7 @@ function lib.GetUnitFrame(target, opt)
   end
 
   local ignoredFrames = CopyTable(opt.ignoreFrames)
-  if opt.ignorePlayerFrame and not (defaultOpt and target == "player") then
+  if opt.ignorePlayerFrame then
     for _, v in pairs(opt.playerFrames) do
       tinsert(ignoredFrames, v)
     end
