@@ -1,4 +1,4 @@
-## Interface: 11507, 50500, 110107, 110200
+## Interface: 11507
 ## Title: Dominos
 ## Notes: A main actionbar replacement
 ## Notes-zhCN: 一种动作条替换方案
@@ -20,40 +20,27 @@ Dominos.lua
 core\helpers.lua
 core\barStates\module.lua
 core\barStates\Common.lua
-core\barStates\[Game].lua
+core\barStates\Vanilla.lua
 core\shadowUIParent.lua
 core\frame.lua
 core\buttonBar.lua
 core\bindableButton.lua
 core\fadeManager.lua
-core\overrideController.lua [AllowLoadGameType mainline, mists, cata, wrath, tbc]
 core\tooltipController.lua
-core\blizzardHider.lua [AllowLoadGameType mainline]
-core\blizzardHider.classic.lua [AllowLoadGameType classic]
+core\blizzardHider.classic.lua
 # builtin bars
-bars\actionBar\bindings.lua [AllowLoadGameType mainline]
-bars\actionBar\flyout.lua [AllowLoadGameType mainline]
-bars\actionBar\button.lua [AllowLoadGameType mainline]
-bars\actionBar\button.classic.lua [AllowLoadGameType classic]
-bars\actionBar\buttons.lua [AllowLoadGameType mainline]
-bars\actionBar\buttons.classic.lua [AllowLoadGameType classic]
+bars\actionBar\button.classic.lua
+bars\actionBar\buttons.classic.lua
 bars\actionBar\bar.lua
 bars\actionBar\menu.lua
 bars\actionBar\bars.lua
 bars\bagBar.lua
-bars\extraAbilityBar.lua [AllowLoadGameType mainline, mists, cata, wrath, tbc]
-bars\encounterBar.lua [AllowLoadGameType mainline, mists, cata, wrath]
 bars\menuBar.lua
-bars\petBar.lua [AllowLoadGameType mainline]
-bars\petBar.classic.lua [AllowLoadGameType classic]
+bars\petBar.classic.lua
 bars\possessBar.lua
-bars\queueStatusBar.lua [AllowLoadGameType mainline]
-bars\stanceBar.lua [AllowLoadGameType mainline]
-bars\stanceBar.classic.lua [AllowLoadGameType classic]
-bars\talkingHeadBar.lua [AllowLoadGameType mainline]
-bars\totemBar.lua [AllowLoadGameType cata, wrath]
+bars\stanceBar.classic.lua
 # stuff you should be able to comment out and still have Dominos work
 plugins\slashCommands.lua
 plugins\launcher.lua
 plugins\buttonThemer.lua
-plugins\getActionReagentUses.lua [AllowLoadGameType vanilla]
+plugins\getActionReagentUses.lua
