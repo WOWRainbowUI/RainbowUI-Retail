@@ -20,6 +20,8 @@ L.TOCNOTES["ADDONDESC"] = "Mythic Plus Schlüsselstein Informations- und Kollabo
 L.TOCNOTES["ADDONNAME"] = "Key Master"
 
 L.MAPNAMES = {} -- Note: Map abbrevations should be a max of 4 characters and be commonly known. Map names come directly from Blizzard already translated.
+
+-- USE /fsstack to mouseover the icons in the player frame to find their mapIds if you need to add new dungeons.
 -- DF S3
 L.MAPNAMES[9001] = { name = "Unbekannt", abbr = "???" }
 L.MAPNAMES[463] = { name = "Dämmerung des Ewigen: Galakronds Sturz", abbr = "GS"}
@@ -57,6 +59,11 @@ L.MAPNAMES[504] = { name = "Dunkelflammenspalt", abbr = "DFS" }
 L.MAPNAMES[382] = { name = "Theater des Schmerzen", abbr = "TdS" }
 L.MAPNAMES[506] = { name = "Metbrauerei Glutbräu", abbr = "MG" }
 L.MAPNAMES[499] = { name = "Priorat der Heiligen Flamme", abbr = "PdHF" }
+--TWW S3
+L.MAPNAMES[391] = { name = "So\'leah's Gambit", abbr = "GMBT" }
+L.MAPNAMES[392] = { name = "Streets of Wonder", abbr = "STRT" }
+L.MAPNAMES[378] = { name = "Halls of Attonement", abbr = "HOA" }
+L.MAPNAMES[542] = { name = "Eco-Dome Al\'dani", abbr = "DOME" }
 
 L.XPAC = {}
 L.XPAC[0] = { enum = "LE_EXPANSION_CLASSIC", desc = "Classic" }
@@ -76,6 +83,7 @@ L.MPLUSSEASON[11] = { name = "Saison 3" }
 L.MPLUSSEASON[12] = { name = "Saison 4" }
 L.MPLUSSEASON[13] = { name = "Saison 1" } -- expecting season 13 to be TWW S1
 L.MPLUSSEASON[14] = { name = "Saison 2" } -- expecting season 14 to be TWW S2
+L.MPLUSSEASON[15] = { name = "Saison 3" } -- expecting season 15 to be TWW S2
 
 L.DISPLAYVERSION = "v"
 L.WELCOMEMESSAGE = "Willkommen zurück"
