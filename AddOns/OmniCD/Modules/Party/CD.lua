@@ -2976,14 +2976,6 @@ auraMultString[458650] = "mult_saveTheDay"
 
 
 
-registeredEvents["SPELL_ENERGIZE"][381623] = function(info)
-	local icon = info.spellIcons[381623]
-	if icon then
-		icon:StartCooldown()
-	end
-end
-
-
 
 
 registeredEvents["SPELL_AURA_REMOVED"][57934] = function(info, srcGUID, spellID, destGUID)
