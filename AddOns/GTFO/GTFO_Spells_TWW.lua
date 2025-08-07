@@ -237,6 +237,12 @@ GTFO.SpellID["1241134"] = {
   sound = 1;
 };
 
+GTFO.SpellID["456890"] = {
+  --desc = "Azeroth's Pain";
+  sound = 1;
+  alwaysAlert = true;
+};
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -1213,6 +1219,25 @@ GTFO.SpellID["1215209"] = {
   sound = 1;
 };
 
+--- ********************
+--- * Eco-Dome Al'dani *
+--- ********************
+
+GTFO.SpellID["1217446"] = {
+  --desc = "Digestive Spittle (Azhiccar)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1222202"] = {
+  --desc = "Arcane Burn (Overcharged Sentinel)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+--- *******************
+--- * Manaforge Omega *
+--- *******************
 
 end
 

@@ -2274,7 +2274,7 @@ Change Log:
 * Added BFA spells for King's Rest
 
 5.18
-* Fixed spells not loading for Mists of Pandaria Classic (Thanks 
+* Fixed spells not loading for Mists of Pandaria Classic
 * Fixed BC spells for Blood Furnace
 * Fixed BFA spells for Freehold
 * Fixed BFA spells for King's Rest
@@ -2282,3 +2282,7 @@ Change Log:
 * Added The War Within spells (world)
 * Added Battle for Azeroth spells (world)
 * Added TWW spells for Liberation of Undermine
+
+5.18.1
+* Updated for patch 11.2
+* Added TWW spells for Eco-Dome Al'dani
