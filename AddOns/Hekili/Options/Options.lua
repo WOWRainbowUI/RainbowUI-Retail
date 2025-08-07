@@ -37,6 +37,9 @@ local GetSpellInfo = ns.GetUnpackedSpellInfo
 
 local GetSpellDescription = C_Spell.GetSpellDescription
 
+local GetSpecialization = C_SpecializationInfo.GetSpecialization
+local GetSpecializationInfo = C_SpecializationInfo.GetSpecializationInfo
+
 -- One Time Fixes
 local oneTimeFixes = {
     resetAberrantPackageDates_20190728_1 = function( p )
@@ -121,7 +124,6 @@ local oneTimeFixes = {
         end
     end,
 }
-
 function Hekili:RunOneTimeFixes()
     local profile = Hekili.DB.profile
     if not profile then return end
@@ -464,7 +466,9 @@ do
                 screenshot = true,
 
                 flashTexture = "Interface\\Cooldown\\star4",
-
+                performance = {
+                    mode = 1,    -- 1=Low, 2=Medium, 3=High
+                },
                 toggles = {
                     pause = {
                         key = "ALT-SHIFT-P",
@@ -4681,7 +4685,7 @@ found = true end
         while( true ) do
             local id, name, description, texture, role = GetSpecializationInfo( i )
 
-            if not id then break end
+            if not id or id == 0 then break end
             if description then description = description:match( "^(.-)\n" ) end
 
             local spec = class.specs[ id ]
@@ -5102,35 +5106,25 @@ found = true end
                             name = "效能",
                             order = 10,
                             args = {
-                                placeboBar = {
-                                    type = "range",
-                                    name = "不是安慰劑",
-                                    desc = "這會調整當前專精的 VROOM。",
-                                    order = 100,
-                                    width = "full",
-                                    min = 3,
-                                    max = 20,
-                                    step = 1
-                                },
-
-                                vroom = {
-                                    type = "header",
-                                    name = function()
-                                        local amount = self.DB.profile.specs[ id ].placeboBar or 5
-
-                                        if amount > 19 then
-                                            return "|cFFFF0000最大 VROOM|r - 解鎖秘密最佳化模式"
-                                        elseif amount > 14 then
-                                            return "|cFFFF0000危險|r - 接近最大 VROOM"
-                                        end
-
-                                        return format( "VR%sM!", string.rep( "O", amount ) )
+                                mode = {
+                                    type = "select",
+                                    name = "CPU 使用率",
+                                    desc = "請選擇最適合您系統/CPU 的效能選項。\n" ..
+                                        "- 低（預設）：最低化 CPU 使用率以減少對 FPS 的影響，特別適用於較舊的系統。\n" ..
+                                        "- 中：提升 CPU 使用率以獲得更順暢的更新，較舊系統可能會影響 FPS。\n" ..
+                                        "- 高：優化 CPU 使用率以達到最流暢的更新，僅建議高階處理器使用。",
+                                    order = 1,
+                                    values = { "Low", "Medium", "High" },
+                                    get = function(info)
+                                        return Hekili.DB.profile.performance.mode
                                     end,
-                                    order = 101,
-                                    width = "full"
+                                    set = function(info, v)
+                                        Hekili.DB.profile.performance.mode = v
+                                    end,
+                                    width = 1.5,
                                 },
-                            }
-                        }
+                            },
+                        },
                     },
                 }
 
