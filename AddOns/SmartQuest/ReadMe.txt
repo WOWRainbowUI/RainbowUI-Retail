@@ -234,3 +234,6 @@ Change Log:
 1.30.3
 * Updated TOC to 11.1.7
 * Updated TOC for Mists 5.5.0
+
+1.30.4
+* Updated TOC to 11.2
