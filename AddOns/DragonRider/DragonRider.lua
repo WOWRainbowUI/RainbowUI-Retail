@@ -1693,8 +1693,8 @@ function DR.OnAddonLoaded()
 
 		StaticPopupDialogs["DRAGONRIDER_RESET_SETTINGS"] = {
 			text = L["ResetAllSettingsConfirm"],
-			button1 = "Yes",
-			button2 = "No",
+			button1 = YES,
+			button2 = NO,
 			OnAccept = function()
 				DragonRider_DB = CopyTable(defaultsTable);
 				DR.vigorCounter();

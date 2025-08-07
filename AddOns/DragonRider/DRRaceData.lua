@@ -9,21 +9,22 @@ DR.DragonRaceZones = {
 	[3] = 2215, --  Hallowfall
 	[4] = 2255, -- Azj-Kahet
 	[5] = 2346, -- Undermine
+	[6] = 2371, -- K'aresh
 
 	-- Dragonflight
-	[6] = 2022, -- Waking Shores
-	[7] = 2023, -- Ohn'ahran Plains
-	[8] = 2024, -- The Azure Span
-	[9] = 2025, -- Thaldraszus
-	[10] = 2151, -- Forbidden Reach
-	[11] = 2133, -- Zaralek Caverns
-	[12] = 2200, -- Emerald Dream
+	[7] = 2022, -- Waking Shores
+	[8] = 2023, -- Ohn'ahran Plains
+	[9] = 2024, -- The Azure Span
+	[10] = 2025, -- Thaldraszus
+	[11] = 2151, -- Forbidden Reach
+	[12] = 2133, -- Zaralek Caverns
+	[13] = 2200, -- Emerald Dream
 
 	-- Cup
-	[13] = 12,	-- Kalimdor
-	[14] = 13,	-- Eastern Kingdoms
-	[15] = 101,	-- Outland
-	[16] = 113,	-- Northrend
+	[14] = 12,	-- Kalimdor
+	[15] = 13,	-- Eastern Kingdoms
+	[16] = 101,	-- Outland
+	[17] = 113,	-- Northrend
 };
 
 -- icon file IDs for WQ Locations 
@@ -33,6 +34,8 @@ DR.ZoneIcons = {
 	[2214] = 5770812, -- The Ringing Deeps
 	[2215] = 5770810, -- Hallowfall
 	[2255] = 5770809, -- Azj-Kahet
+	[2346] = 6392630, -- Undermine
+	[2371] = 6921878, -- K'aresh
 
 	-- Dragonflight
 	[2022] = 4672500, --  Waking Shores
@@ -80,7 +83,17 @@ DR.WorldQuestIDs = {
 	81828,
 
 	-- Undermine
+	85104,
+	85928,
+	85925,
+	85926,
+	85927,
+	85105,
+	85106,
+	85107,
 
+	-- K'aresh
+	-- currently unknown
 
 
 --Dragonflight
@@ -177,6 +190,19 @@ DR.DragonRaceCurrencies = {
 	2980, 2986, 2992,					 -- Rak-Ahat Rush
 	2981, 2987, 2993,					 -- Pit Plunge
 	2982, 2988, 2994,					 -- Siegehold Scuttle
+
+-- Undermine - 2346
+	3119, 3121,							 -- 
+	3122, 3123,							 -- 
+	3124, 3125,							 -- 
+	3126, 3127,							 -- 
+	3181, 3182,							 -- 
+	3183, 3184,							 -- 
+	3185, 3186,							 -- 
+	3187, 3188,							 -- 
+
+-- K'aresh - 2371
+	3213, 3214, 3215,					 -- Oasis Biodome
 
 
 
@@ -1377,8 +1403,9 @@ DR.RaceData = {
 		},
 	},
 
+-- Undermine
 	[5] = {
-		-- R1 -- Skyrocketing Race
+		-- R1 -- Skyrocketing Race - Skyrocketing Sprint
 		[1] = {
 			["currencyID"] = 3119,
 			["silverTime"] = 42,
@@ -1422,7 +1449,7 @@ DR.RaceData = {
 			["mapPOI"] = 8144,
 		},
 
-		-- R2
+		-- R2 - The Heaps Leap
 		[7] = {
 			["currencyID"] = 3122,
 			["silverTime"] = 43,
@@ -1466,7 +1493,7 @@ DR.RaceData = {
 			["mapPOI"] = 8145,
 		},
 
-		-- R3
+		-- R3 - Scrapshop Shot
 		[13] = {
 			["currencyID"] = 3124,
 			["silverTime"] = 46,
@@ -1510,7 +1537,7 @@ DR.RaceData = {
 			["mapPOI"] = 8146,
 		},
 
-		-- R4
+		-- R4 - Rags to Riches Rush
 		[19] = {
 			["currencyID"] = 3126,
 			["silverTime"] = 50,
@@ -1554,7 +1581,7 @@ DR.RaceData = {
 			["mapPOI"] = 8147,
 		},
 
-		-- R5
+		-- R5 - Breakneck Bolt
 		[25] = {
 			["currencyID"] = 3181,
 			["silverTime"] = 40,
@@ -1598,7 +1625,7 @@ DR.RaceData = {
 			["mapPOI"] = 8177,
 		},
 
-		-- R6
+		-- R6 - Junkyard Jaunt
 		[31] = {
 			["currencyID"] = 3183,
 			["silverTime"] = 40,
@@ -1642,7 +1669,7 @@ DR.RaceData = {
 			["mapPOI"] = 8178,
 		},
 
-		-- R7
+		-- R7 - Casino Cruise
 		[37] = {
 			["currencyID"] = 3185,
 			["silverTime"] = 35,
@@ -1686,7 +1713,7 @@ DR.RaceData = {
 			["mapPOI"] = 8179,
 		},
 
-		-- R8
+		-- R8 - Sandy Scuttle
 		[43] = {
 			["currencyID"] = 3187,
 			["silverTime"] = 38,
@@ -1731,15 +1758,57 @@ DR.RaceData = {
 		},
 	},
 
-
-
-
+-- K'aresh
+	[6] = {
+		[1] = {
+			["currencyID"] = 3213,
+			["silverTime"] = nil,
+			["goldTime"] = nil,
+			["questID"] = 86339,
+			["mapPOI"] = nil, -- temp POI
+		},
+		[2] = {
+			["currencyID"] = 3214,
+			["silverTime"] = nil,
+			["goldTime"] = nil,
+			["questID"] = 86339,
+			["mapPOI"] = nil,
+		},
+		[3] = {
+			["currencyID"] = 3215,
+			["silverTime"] = nil,
+			["goldTime"] = nil,
+			["questID"] = 86339,
+			["mapPOI"] = nil,
+		},
+		[4] = {
+			["currencyID"] = nil,
+			["silverTime"] = nil,
+			["goldTime"] = nil,
+			["questID"] = nil,
+			["mapPOI"] = nil,
+		},
+		[5] = {
+			["currencyID"] = nil,
+			["silverTime"] = nil,
+			["goldTime"] = nil,
+			["questID"] = nil,
+			["mapPOI"] = nil,
+		},
+		[6] = {
+			["currencyID"] = nil,
+			["silverTime"] = nil,
+			["goldTime"] = nil,
+			["questID"] = nil,
+			["mapPOI"] = nil,
+		},
+	},
 
 
 -- Dragonflight
 -- Waking Shores
 	--Ruby Lifeshrine Loop
-	[6] = {
+	[7] = {
 		[1] = {
 			["currencyID"] = 2042,
 			["silverTime"] = 56, --56
@@ -2096,7 +2165,7 @@ DR.RaceData = {
 
 -- Ohn'ahran Plains
 	-- Sundapple Copse Circuit
-	[7] = {
+	[8] = {
 		[1] = {
 			["currencyID"] = 2060,
 			["silverTime"] = 52,
@@ -2408,7 +2477,7 @@ DR.RaceData = {
 
 -- Azure Span
 	 -- The Azure Span Sprint
-	[8] = {
+	[9] = {
 		[1] = {
 			["currencyID"] = 2074,
 			["silverTime"] = 66,
@@ -2675,7 +2744,7 @@ DR.RaceData = {
 
 
 -- Thaldraszus
-	[9] = {
+	[10] = {
 		 -- The Flowing Forest Flight
 		[1] = {
 			["currencyID"] = 2080,
@@ -2943,7 +3012,7 @@ DR.RaceData = {
 
 
 -- Forbidden Reach
-	[10] = {
+	[11] = {
 		 -- Stormsunder Crater Circuit
 		[1] = {
 			["currencyID"] = 2201,
@@ -3211,7 +3280,7 @@ DR.RaceData = {
 
 
 -- Zaralek Caverns
-	[11] = {
+	[12] = {
 		 -- Crystal Circuit
 		[1] = {
 			["currencyID"] = 2246,
@@ -3478,7 +3547,7 @@ DR.RaceData = {
 	},
 
 -- Emerald Dream
-	[12] = {
+	[13] = {
 		 -- Ysera Invitational
 		[1] = {
 			["currencyID"] = 2676,
@@ -3747,7 +3816,7 @@ DR.RaceData = {
 
 
 -- Kalimdor Cup
-	[13] = {
+	[14] = {
 	 -- Felwood Flyover
 		[1] = {
 			["currencyID"] = 2312,
@@ -4456,7 +4525,7 @@ DR.RaceData = {
 
 
 -- Eastern Kingdoms Cup
-	[14] = {
+	[15] = {
 	 -- Gilneas Gambit
 		[1] = {
 			["currencyID"] = 2536,
@@ -5078,7 +5147,7 @@ DR.RaceData = {
 
 
 -- Outland Cup
-	[15] = {
+	[16] = {
 		 -- Hellfire Hustle
 		[1] = {
 			["currencyID"] = 2600,
@@ -5654,7 +5723,7 @@ DR.RaceData = {
 
 
 -- Northrend Cup
-	[16] = {
+	[17] = {
 	 -- Scalawag Slither
 		[1] = {
 			["currencyID"] = 2720,
