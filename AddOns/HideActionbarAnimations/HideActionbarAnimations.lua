@@ -1,7 +1,4 @@
 
-	-- https://github.com/Gethe/wow-ui-source/blob/live/Interface/AddOns/Blizzard_ActionBar/Mainline/ActionButtonTemplate.xml#L47
-	-- https://github.com/Gethe/wow-ui-source/blob/live/Interface/AddOns/Blizzard_ActionBar/Mainline/ActionButton.lua
-
 	local ActionBarAnimationEvents = {
 		"UNIT_SPELLCAST_INTERRUPTED",
 		"UNIT_SPELLCAST_SUCCEEDED",

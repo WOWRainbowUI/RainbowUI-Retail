@@ -121,7 +121,7 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 
 	end --end)
 
-    hooksecurefunc("ActionButton_ShowOverlayGlow", function(button)
+	hooksecurefunc(ActionButtonSpellAlertManager, "ShowAlert", function(self, button) -- hooksecurefunc("ActionButton_ShowOverlayGlow", function(button)
 		if button.HideActionbarAnimations_SpellActivationAlert then
 			if not button.HideActionbarAnimations_SpellActivationAlert:IsVisible() then
 				button.HideActionbarAnimations_SpellActivationAlert:Show()
@@ -141,10 +141,12 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 			button.HideActionbarAnimations_SpellActivationAlert.animIn:Play()
 		end
 		-- Hide the 10.1.5 ones
-		button.SpellActivationAlert:Hide() --button.SpellActivationAlert.ProcStartFlipbook:Hide() button.SpellActivationAlert.ProcLoopFlipbook:Hide()
+		if button.SpellActivationAlert then
+			button.SpellActivationAlert:Hide() --button.SpellActivationAlert.ProcStartFlipbook:Hide() button.SpellActivationAlert.ProcLoopFlipbook:Hide()
+		end
     end)
 
-    hooksecurefunc("ActionButton_HideOverlayGlow", function(button)
+	hooksecurefunc(ActionButtonSpellAlertManager, "HideAlert", function(self, button) -- hooksecurefunc("ActionButton_HideOverlayGlow", function(button)
 		if not button.HideActionbarAnimations_SpellActivationAlert then return end
 
         if button.HideActionbarAnimations_SpellActivationAlert.animIn:IsPlaying() then
