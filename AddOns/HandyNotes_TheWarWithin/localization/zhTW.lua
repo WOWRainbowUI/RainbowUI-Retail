@@ -650,3 +650,23 @@ L['upgrade_turbo_handcrank'] = '{item:232984}（渦輪）：從稀有怪物或�
 L['blazefeather_peacock_note'] = '完成 {quest:83421} 任務線後，與 {npc:226555} 對話並支付 %s 以召喚一只可馴服的 {npc:226561}。'
 L['radioactive_subject_note'] = '使用附近的管道和 {item:237276}、{item:109076}、{item:231099} 或其他跳躍謎題技巧，到達 {location:罐缸工坊} 的 {location:熱砂試驗室} 建築屋頂。'
 L['george_the_big_pinch_note'] = '快速點擊所有5個 {npc:238189} 以獲得 {spell:1219679}，並允許馴服 {npc:233938}。'
+
+-------------------------------------------------------------------------------
+----------------------------------- K'ARESH -----------------------------------
+-------------------------------------------------------------------------------
+
+L['options_icons_karesh_lore_hunter'] = '{achievement:60890}'
+L['options_icons_karesh_lore_hunter_desc'] = '顯示成就 {achievement:60890} 所需的知識位置.'
+
+L['options_icons_purrkins'] = '{achievement:42729}'
+L['options_icons_purrkins_desc'] = nil
+L['purrkins_note'] = nil
+L['kareshire_sublabel'] = nil
+L['in_a_tree'] = '在一棵樹上.'
+L['little_ms_phaser_sublabel'] = nil
+
+L['mailroom_distribution_note'] = nil
+L['gift_of_the_brothers_note'] = nil
+L['ancient_coffer_note'] = nil
+
+L['sthaarbs_note'] = nil
