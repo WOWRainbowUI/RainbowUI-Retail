@@ -423,6 +423,8 @@ kGameFrame = UIParent
 function getScreenScaledSize()
     local uiScale = kGameFrame:GetEffectiveScale()  -- i.e. getScreenScale()
     ----print("uiScale:", round(uiScale,4), "  GetCVar(uiScale):", round(GetCVar("uiScale"),4))
+    --uiScale = GetCVar("uiScale"); kGameFrame:SetScale(uiScale) --<<< Fixes problems with UIScale.  Safe to do?
+
     local w, h = kGameFrame:GetSize()  -- i.e. getScreenSize()
     w = w * uiScale
     h = h * uiScale

@@ -479,7 +479,7 @@ function OptionsFrame_Create()
     OptionsFrame.LayerNumText = OptionsFrame:CreateFontString(nil, "ARTWORK", "Game120Font")
     OptionsFrame.LayerNumText:SetScale(2)
     ----OptionsFrame.LayerNumText:GetFontObject():SetTextColor(1, 1, 1,  0.05)
-    OptionsFrame.LayerNumText:GetFontObject():SetTextColor(0.3, 0.3, 0.3,  (isRetailWoW() and 0.22 or 0.27))
+    OptionsFrame.LayerNumText:SetTextColor(0.3, 0.3, 0.3,  (isRetailWoW() and 0.22 or 0.27))
 
     -- TOOLTIP:
     OptionsFrame.WarnTooltip = CreateFrame("GameTooltip", kAddonFolderName.."WarnTooltip", OptionsFrame, "GameTooltipTemplate")
