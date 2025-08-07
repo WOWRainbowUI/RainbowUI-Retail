@@ -1,7 +1,7 @@
 ## Interface: 50500, 110107, 110200
 ## Author: Sanex (Arathor EU)
 ## Title: LOIHLoot
-## Version: 11.1.7
+## Version: 11.2.0
 ## Notes: Syncs players' loot wishlists to raid leader(s) to help determine best loot method.
 ## SavedVariables: LOIHLootDB
 ## SavedVariablesPerCharacter: LOIHLootCharDB
