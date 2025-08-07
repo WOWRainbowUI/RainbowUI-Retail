@@ -438,6 +438,10 @@ L["Enemy Status Text"] = "敵方狀態文字"
 L["Enemy Units"] = "敵方單位"
 L["Enemy Width"] = "敵方寬度"
 L["Enter an icon's name (with the *.blp ending), a spell ID, a spell name or a full icon path (using '\\' to separate directory folders)."] = "輸入圖示檔案名稱 (副檔名為 *.blp)、法術 ID、法術名稱或完整的圖示路徑 (使用 '\\' 分隔目錄資料夾)。"
+--[[Translation missing --]]
+L["Error executing icon texture function for %s:"] = "執行圖示貼圖函式時出錯: %s"
+--[[Translation missing --]]
+L["Error in custom style '%s': only numbers and strings are allowed as icon sources for function SetIcon."] = "自訂樣式 '%s' 出錯: SetIcon 函式僅允許使用數字或字串作為圖示來源。"
 L["Error in event script '%s' of custom style '%s': %s"] = "事件程式碼 '%s' 發生錯誤，屬於自訂樣式 '%s': %s"
 L["Event Name"] = "事件名稱"
 L["Events with Script"] = "包含程式碼的事件"
