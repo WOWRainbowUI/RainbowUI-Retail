@@ -1322,7 +1322,7 @@ do  -- Quest
         if not item then return end;
         local classID, subclassID = select(6, GetItemInfoInstant(item));
         --print(item, classID, subclassID)
-        return (classID == 12) or (classID == 0 and subclassID == 8) or (classID == 15 and (subclassID == 0 or subclassID == 4))
+        return (classID == 12) or (classID == 0 and subclassID == 8) or (classID == 15 and subclassID == 4)     ---Re-ignore Junk?
     end
     API.IsQuestLoreItem = IsQuestLoreItem;
 
@@ -3267,6 +3267,27 @@ do  -- System
     end
     CallbackRegistry:Register("DialogueUI.Show", API.ClearEditBoxFocus);
     CallbackRegistry:Register("BookUI.Show", API.ClearEditBoxFocus);
+
+
+    if StaticPopup_FindVisible then
+        function API.CloseGossipStaticPopups()
+            local whiches = {"GOSSIP_CONFIRM", "GOSSIP_ENTER_CODE"};
+            local soundUnmuted = true;
+            for _, which in ipairs(whiches) do
+                local dialog = StaticPopup_FindVisible(which);
+                if dialog then
+                    if soundUnmuted then
+                        soundUnmuted = false;
+                        API.BrieflyMuteUIOpenHideSound();
+                    end
+                    dialog:Show();
+                    dialog:Hide();
+                end
+            end
+        end
+    else
+        API.CloseGossipStaticPopups = AlwaysNil;
+    end
 end
 
 do  -- Zone -- Location -- Area
