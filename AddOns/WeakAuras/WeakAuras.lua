@@ -2435,7 +2435,7 @@ StaticPopupDialogs["WEAKAURAS_CONFIRM_REPAIR"] = {
   whileDead = true,
   showAlert = true,
   timeout = 0,
-  preferredindex = STATICPOPUP_NUMDIALOGS
+  preferredindex = 4
 }
 
 function Private.ValidateUniqueDataIds(silent)
@@ -4818,7 +4818,7 @@ end
 
 local function ApplyStateToRegion(id, cloneId, region, parent)
   -- Force custom text function to be run again
-  region.values.lastCustomTextUpdate = nil
+  region.values.customTextUpdated = false
   region:Update();
 
   region.subRegionEvents:Notify("Update", region.state, region.states)
