@@ -1,7 +1,9 @@
 # Auto Potion
 
-## [3.9.3](https://github.com/ollidiemaus/AutoPotion/tree/3.9.3) (2025-08-07)
-[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.9.2...3.9.3) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
+## [3.9.4](https://github.com/ollidiemaus/AutoPotion/tree/3.9.4) (2025-08-08)
+[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.9.3...3.9.4) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
 
-- fix invigorating healing potion version  
-- fix: invigorating healing potion for retail (#87)  
+- Update AutoPotion.toc  
+    Version for Classic pvp pots  
+- Added healing draughts for pvp battlegrounds in classic (#88)  
+    Co-authored-by: Tuxx <tuxx@danktank.nl>  
