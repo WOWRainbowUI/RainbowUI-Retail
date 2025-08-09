@@ -1,3 +1,6 @@
+08/08/2025 version 5.2.11
+- toc update for 11.2 patch
+
 06/19/2025 version 5.2.10
 - toc update for 11.1.7 patch
 
