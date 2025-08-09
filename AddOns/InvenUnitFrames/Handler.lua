@@ -680,7 +680,7 @@ function handlers:GROUP_ROSTER_UPDATE()
 		end
 		if UnitIsGroupLeader(self.realunit) then
 			self.values.leader = 1
-			self.values.looter = GetLootMethod() == "master" and 1 or nil
+			self.values.looter = C_PartyInfo.GetLootMethod() == "master" and 1 or nil
 		else
 			self.values.leader, self.values.looter = nil
 		end

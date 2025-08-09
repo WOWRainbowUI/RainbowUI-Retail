@@ -2085,7 +2085,8 @@ elseif playerClass == "MAGE" then
 				else
 					if not InCombatLockdown() then MageArcaneChargesFrame:Hide() end
 				end
-				IUF.units.player.classBar:SetHeight(classBarHeight)
+				IUF.units.player.classBar:SetHeight(0.001)
+				--IUF.units.player.classBar:SetHeight(classBarHeight)
 			else
 				local classBarHeight = 0.001
 				local addOnHeight = 0.001
@@ -2428,6 +2429,7 @@ elseif playerClass == "ROGUE" then
 	end
 else
 	local function updateVisible()	-- OTHER
+
 		if IUF.db.classBar.use then
 			if IUF.db.classBar.useBlizzard then
 				if TotemFrame:IsShown() then
@@ -2435,6 +2437,7 @@ else
 				else
 					IUF.units.player.classBar:SetHeight(0.001)
 				end
+
 			elseif IUF.units.player.classBar.addOn.totem:IsShown() then
 				IUF.units.player.classBar:SetHeight(15)
 				IUF.units.player.classBar.addOn:SetHeight(14)
@@ -2571,8 +2574,11 @@ else
 
 				PlayerFrameAlternateManaBar:SetAlpha(0.0)
 				PlayerFrameAlternateManaBar:SetScale(0.1)
+
+--[[ Evoker는 기본사용
 				EssencePlayerFrame:SetAlpha(0.0)
 				EssencePlayerFrame:SetScale(0.1)
+--]]
 				if object.classBar.addOn.mana then
 					object.classBar.addOn.mana:SetAlpha(1.0)
 					object.classBar.addOn.mana:SetScale(1.0)
