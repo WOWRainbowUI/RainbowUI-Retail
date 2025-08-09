@@ -1,11 +1,12 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r204](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r204) (2025-07-30)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r203...r204) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r206](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r206) (2025-08-08)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r205...r206) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Add preliminary trash mod for Eco Dome Aldani  
-- Detect toxic regurgitation targets  
-- Added preliminary support for all 3 bosses in Eco Dome Aldani  
-- Update Swampface.lua (#516)  
-- Prep for better data collection for S3 dungeons with zone combat scanner  
-- Template the 11.2 delve mods in  
+- add counts to couple tazavesh bosses, other bosses it's a little less clear best way to go about it.  
+- Micro update RU locale (#518)  
+- Halls of Atonement update:  
+     - All boss timers now have count (unless they're spells that don't get cast more than once)  
+     - Updated all bosses with new/changed abilities/timers  
+     - Fixed several smaller timer errors in trash mod  
+- Fix varius minor issues in eco dome aldani and ara kara  
