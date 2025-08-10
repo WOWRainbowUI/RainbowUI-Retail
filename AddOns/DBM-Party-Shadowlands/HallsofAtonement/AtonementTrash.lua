@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("AtonementTrash", "DBM-Party-Shadowlands", 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250808082114")
+mod:SetRevision("20250809072732")
 mod:SetZone(2287)
 mod:RegisterZoneCombat(2287)
 --mod:SetModelID(47785)
@@ -251,7 +251,7 @@ end
 --Most timers need adjustment, had bad logs
 function mod:StartEngageTimers(guid, cid, delay)
 	if cid == 165414 then--Depraved Obliterator
-		timerMarkofObliterationCD:Start(9.6-delay, guid)--Iffy
+		timerMarkofObliterationCD:Start(6.9-delay, guid)--6.9-10
 	elseif cid == 164562 then--Depraved Houndmaster
 		timerLoyalBeastsCD:Start(3-delay, guid)--Can get massively delayed
 	elseif cid == 167607 then--Stoneborn Slasher

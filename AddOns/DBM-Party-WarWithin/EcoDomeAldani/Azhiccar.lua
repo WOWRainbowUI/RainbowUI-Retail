@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2675, "DBM-Party-WarWithin", 10, 1303)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250808031502")
+mod:SetRevision("20250809072732")
 mod:SetCreatureID(234893)
 mod:SetEncounterID(3107)
 mod:SetHotfixNoticeRev(20250728000000)
@@ -126,7 +126,7 @@ function mod:RAID_BOSS_WHISPER(msg)
 		specWarnToxicRegurgitation:Show(self.vb.toxicRegurgitationCount)
 		specWarnToxicRegurgitation:Play("runout")
 		yellToxicRegurgitation:Yell()
-		yellToxicRegurgitationFades:Countdown(8)
+		yellToxicRegurgitationFades:Countdown(6)--6 On Mythic 0, maybe lower on M+? (tooltip says 8 btw, typical blizzard)
 	end
 end
 
