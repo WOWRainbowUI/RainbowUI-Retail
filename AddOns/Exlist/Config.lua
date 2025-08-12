@@ -7,7 +7,7 @@ local AceConfDia = LibStub("AceConfigDialog-3.0")
 
 local addonVersion = C_AddOns.GetAddOnMetadata(name, "version")
 -- @debug@
-if addonVersion == "1.8.9" then
+if addonVersion == "1.9.0" then
    addonVersion = "Development"
 end
 -- @end-debug@

@@ -212,6 +212,8 @@ L["Hands"] = "Hands"
 --[[Translation missing --]]
 L["Hated"] = "Hated"
 --[[Translation missing --]]
+L["Have Weekly Rewards"] = "Have Weekly Rewards"
+--[[Translation missing --]]
 L["Head"] = "Head"
 --[[Translation missing --]]
 L["Hide empty currencies"] = "Hide empty currencies"
@@ -447,6 +449,8 @@ L["Unfriendly"] = "Unfriendly"
 L["Unknown"] = "Unknown"
 --[[Translation missing --]]
 L["Upgrade"] = "Upgrade"
+--[[Translation missing --]]
+L["Vault Ready!"] = "Vault Ready!"
 --[[Translation missing --]]
 L["Version"] = "Version"
 --[[Translation missing --]]
