@@ -691,3 +691,47 @@ ns.FrameStratas = {
     FULLSCREEN_DIALOG = 7,
     TOOLTIP = 8
 }
+
+-- Skeleton Generator Talent Enhancements
+ns.SkeletonTalentEnhancements = {
+    talentCopies = {
+        [102] = {
+            incarnation_chosen_of_elune = "incarnation"
+        },
+        [103] = {
+            incarnation_avatar_of_ashamane = "incarnation"
+        },
+        [104] = {
+            incarnation_guardian_of_ursoc = "incarnation"
+        },
+        [105] = {
+            incarnation_tree_of_life = "incarnation"
+        },
+        [259] = {
+            inevitabile_end = "inevitable_end"
+        },
+        [261] = {
+            inevitabile_end = "inevitable_end"
+        },
+        [268] = {
+            invoke_niuzao_the_black_ox = "invoke_niuzao",
+            improved_invoke_niuzao_the_black_ox = "improved_invoke_niuzao"
+        },
+        [269] = {
+            invoke_xuen_the_white_tiger = "invoke_xuen"
+        },
+        [270] = {
+            invoke_yulon_the_jade_serpent = "invoke_yulon",
+            invoke_chiji_the_red_crane = "invoke_chiji"
+        },
+        -- Add more specs/talents as needed
+    },
+
+    -- Choice node suffix mappings (same name, different spellIDs, same node)
+    choiceNodeSuffixes = {
+        earthquake      = { [61882]     = "_ground", [462620]   = "_targeted" },
+        rain_of_fire    = { [5740]      = "_ground", [1214467]  = "_targeted" },
+        shadow_crash    = { [205385]    = "_ground", [457042]   = "_targeted" }
+        -- Add more choice nodes as discovered
+    }
+}
