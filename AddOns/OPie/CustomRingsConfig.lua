@@ -554,7 +554,24 @@ end
 sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 	sliceDetail:SetAllPoints()
 	sliceDetail.desc = sliceDetail:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-	sliceDetail.desc:SetPoint("TOPLEFT", 7, -9) sliceDetail.desc:SetPoint("TOPRIGHT", -7, -7) sliceDetail.desc:SetJustifyH("LEFT")
+	sliceDetail.desc:SetPoint("TOPLEFT", 7, -9)
+	sliceDetail.desc:SetPoint("TOPRIGHT", -7, -7)
+	sliceDetail.desc:SetJustifyH("LEFT")
+	sliceDetail.desc:SetScript("OnEnter", function(self)
+		if self.tooltipText then
+			GameTooltip:SetOwner(sliceDetail, "ANCHOR_NONE")
+			GameTooltip:ClearAllPoints()
+			GameTooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", -2, 2)
+			GameTooltip:SetText(self.tooltipText)
+			GameTooltip:Show()
+		end
+	end)
+	sliceDetail.desc:SetScript("OnLeave", function()
+		if GameTooltip:IsOwned(sliceDetail) then
+			GameTooltip:Hide()
+		end
+	end)
+	
 	TS:EscapeCallback(sliceDetail, "TAB", function(_, key)
 		if sliceDetail.iconSelector:IsShown() then
 			if key == "TAB" then
@@ -1627,12 +1644,14 @@ function api.selectSlice(offset, select)
 	currentSliceIndex = id
 end
 function api.updateSliceDisplay(_id, desc)
-	local stype, sname, sicon, icoext = getSliceInfo(desc)
-	if (sname or "") ~= "" and stype ~= sname then
-		sliceDetail.desc:SetFormattedText("%s: |cffffffff%s|r", stype or "?", sname or "?")
-	else
-		sliceDetail.desc:SetText(stype or "?")
+	local stype, sname, sicon, icoext, _, _, _, aflags = getSliceInfo(desc)
+	local labelText = (sname or "") ~= "" and stype ~= sname and (stype or "?") .. ": |cffffffff" .. sname .. "|r" or stype or "?"
+	local warnNotUsable = type(aflags) == "number" and aflags % 2 >= 1
+	if warnNotUsable then
+		labelText = "|A:services-icon-warning:0:0|a " .. labelText
 	end
+	sliceDetail.desc.tooltipText = warnNotUsable and "|A:services-icon-warning:0:0|a " .. L"Your character currently cannot use this." or nil
+	sliceDetail.desc:SetText(labelText)
 	local skipSpecs, showConditional = (desc.show or ""):match("^%[spec:([%d/]+)%] hide;(.*)")
 	sliceDetail.iconSelector:Hide()
 	sliceDetail.icon:SetIcon(sicon, desc.icon, icoext)

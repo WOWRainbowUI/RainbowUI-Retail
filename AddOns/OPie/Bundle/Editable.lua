@@ -118,11 +118,11 @@ R:AddDefaultRing("HunterAspects", {
 	{id=186289, _u="ea"}, -- eagle
 	{id=5384, _u="g"}, -- feign
 	{id=147362, _u="i"}, -- counter
-	{"ring", "HunterPets", _u="e", show="[nospec:2]"},
+	{"ring", "HunterPets", _u="e", show="[nospec:2][known:1223323]"},
 	{id=19801, _u="q"}, -- tranq
 	{id=781, _u="d"}, -- disengage
 	{id="/cast [@tank1,help,nodead][@tank2,help,nodead][@pet,help,nodead][] {{spell:34477}}", _u="m"}, --misdirection
-	name=L"Utility", hotkey="BUTTON4", limit="HUNTER", _u="OPCHA", v=2
+	name=L"Utility", hotkey="BUTTON4", limit="HUNTER", _u="OPCHA", v=3
 })
 
 R:AddDefaultRing("MageCombat", {
@@ -271,7 +271,9 @@ R:AddDefaultRing("CommonHearth", {
 	{"toy", 228940, _u="nt"},
 	{"toy", 235016, _u="rm"},
 	{"toy", 236687, _u="um"},
-	name=L"Hearthstones", internal=true, _u="OPCHS", v=8
+	{"toy", 245970, _u="pm"},
+	{"toy", 246565, _u="co"},
+	name=L"Hearthstones", internal=true, _u="OPCHS", v=9
 })
 R:AddDefaultRing("SpecMenu", {
 	{"specset", 1, _u="1"},
