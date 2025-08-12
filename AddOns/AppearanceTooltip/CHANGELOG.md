@@ -1,8 +1,7 @@
 # AppearanceTooltip
 
-## [v62](https://github.com/kemayo/wow-appearancetooltip/tree/v62) (2025-08-08)
-[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v61...v62) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
+## [v63](https://github.com/kemayo/wow-appearancetooltip/tree/v63) (2025-08-09)
+[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v62...v63) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
 
-- Show the icon on pets as well  
-- Proper fix for 11.2.0 bank, overlay will appear again  
-- Remove long-defunct default for appearances\_known  
+- Fix pet-related error in classic  
+    It has C\_PetJournal for some reason...  
