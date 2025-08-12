@@ -660,6 +660,11 @@ L['george_the_big_pinch_note'] = 'Klicke schnell alle 5 {npc:238189} an, um den 
 L['options_icons_karesh_lore_hunter'] = '{achievement:60890}'
 L['options_icons_karesh_lore_hunter_desc'] = 'Zeigt die Positionen der Geschichtsobjekte für den Erfolg {achievement:60890} an.'
 
+L['options_icons_phase_lost_and_found'] = '{achievement:61017}'
+L['options_icons_phase_lost_and_found_desc'] = 'Zeigt mögliche Positionen der Phasentauchkugel für den Erfolg {achievement:61017} an.'
+L['phaseorb_label'] = 'Phasentauchkugel'
+L['phaseorb_note'] = 'Laufe durch die Phasentauchkugel, um mit etwas Glück eine der Vorlagen zu erhalten.'
+
 L['options_icons_purrkins'] = '{achievement:42729}'
 L['options_icons_purrkins_desc'] = 'Zeigt die Positionen der Schnurrer für den Erfolg {achievement:42729} an.'
 L['purrkins_note'] = 'Streichel ({emote:/streicheln}) den Schnurrer.'
@@ -671,5 +676,5 @@ L['mailroom_distribution_note'] = 'Sammle vor dem Eingang die {object:Überschü
 L['gift_of_the_brothers_note'] = 'Interagiere mit der {object:Flackernde Laterne} und spreche mit {npc:233881}. Suche nach den Brüdern {npc:234112} ({dot:Red}), {npc:234113} ({dot:Yellow}) und {npc:234075} ({dot:Green}) und spreche mit ihnen, kehre dann zu {npc:233881} zurück, um ihm die Laterne zurück zu geben.'
 L['ancient_coffer_note'] = 'Sammle das {item:233794} ({dot:Red}) und die {item:233799} ({dot:Yellow}), um den Kasten öffnen zu können.'
 
-L['sthaarbs_note'] = 'Verwende den Teleporter in der Nähe des {object:Phase Conduit}, um {npc:234845} zu erreichen.' -- review
-L['heka_tamos_note'] = nil
+L['sthaarbs_note'] = 'Verwende den Teleporter in der Nähe des {object:Phasenleiter}, um {npc:234845} zu erreichen.'
+L['heka_tamos_note'] = 'Sammle die folgenden Objekte: {object:Taufänger}, {object:Spektrale Laterne}, {object:Erdige Sukkulente} und {object:Windfänger}, die in {location:Die Oase} erscheinen. Interagiere anschließend mit der {object:Kohlepfanne der Elementaren Einheit}, um den seltenen Gegner zu beschwören.'
