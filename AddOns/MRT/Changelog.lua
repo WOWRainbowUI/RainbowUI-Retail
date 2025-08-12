@@ -1,6 +1,12 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5200
+* 11.2 update
+
+v.5200-MoP
+* Readded "Bonus Loot" module
+
 v.5195
 * Minor updates
 

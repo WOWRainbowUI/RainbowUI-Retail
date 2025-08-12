@@ -3,6 +3,7 @@ local GlobalAddonName, ExRT = ...
 local math_ceil, IsEncounterInProgress, abs, UnitHealth, UnitHealthMax, GetTime, format, tableCopy = math.ceil, IsEncounterInProgress, abs, UnitHealth, UnitHealthMax, GetTime, format, ExRT.F.table_copy2
 local SendAddonMessage = C_ChatInfo.SendAddonMessage
 local VMRT = nil
+local SendChatMessage = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
 
 local module = ExRT:New("Timers",ExRT.L.timers)
 local ELib,L = ExRT.lib,ExRT.L

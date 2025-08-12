@@ -152,6 +152,8 @@ module.db.topEnchGems = IS_TWW and {
 	[221902]=3,	[221904]=1,	[221905]=2,	[221906]=3,	[221908]=1,
 	[221909]=2,	[221910]=3,
 
+	[238045]=3,	[238042]=3,	[238046]=3,	[238044]=3,
+
 	[7419]=1,	[7420]=2,	[7421]=3,	[7416]=1,	[7417]=2,
 	[7418]=3,	[7422]=1,	[7423]=2,	[7329]=1,	[7330]=2,
 	[7331]=3,	[7332]=1,	[7333]=2,	[7334]=3,	[7335]=1,
@@ -343,7 +345,10 @@ module.db.topEnchGems = IS_TWW and {
 
 
 module.db.achievementsList = {
-	{	--LoD
+	{	--MF
+		L.S_ZoneT34,
+		41601,41602,41603,41598,41604,41605,41606,41607,41608,41609,41610,41611,41624,41625,
+	},{	--LoD
 		L.S_ZoneT33,
 		41222,41225,41226,41227,41228,41229,41230,41231,41232,41233,41234,41235,41236,41298,41297,
 	},{	--N
@@ -436,7 +441,9 @@ module.db.achievementsList = {
 	},
 }
 module.db.achievementsList_statistic = {
-	{	--LoD
+	{	--MF
+		0,0,0,0,{41633,41634,41635,41636},{41637,41638,41639,41640},{41641,41642,41643,41644},{41645,41646,41647,41648},{41649,41650,41651,41652},{41653,41654,41655,41656},{41657,41658,41659,41660},{41661,41662,41663,41664},
+	},{	--LoD
 		0,0,0,0,0,{41299,41300,41301,41302},{41303,41304,41305,41306},{41307,41308,41309,41310},{41311,41312,41313,41314},{41315,41316,41317,41318},{41319,41320,41321,41322},{41323,41324,41325,41326},{41327,41328,41329,41330},
 	},{	--N
 		0,0,0,0,{40267,40268,40269,40270},{40271,40272,40273,40274},{40275,40276,40277,40278},{40279,40280,40281,40282},{40283,40284,40285,40286},{40287,40288,40289,40290},{40291,40292,40293,40294},{40295,40296,40297,40298},
@@ -784,8 +791,8 @@ function module.options:Load()
 		colorizeLowIlvl685 = 482
 	end
 	if IS_TWW then
-		colorizeLowIlvl630 = 635
-		colorizeLowIlvl685 = 660
+		colorizeLowIlvl630 = 680
+		colorizeLowIlvl685 = 710
 	end
 
 	self.chkItemsTrackDropDown = ELib:DropDown(self,300,8):Point(50,0):Size(50)
@@ -885,7 +892,7 @@ function module.options:Load()
 		{
 			text = "",
 			isTitle = true,	
-			slider = {min = 500, max = 800, val = module.db.colorizeLowIlvlCustomN, func = function(self,val)
+			slider = {min = 600, max = 850, val = module.db.colorizeLowIlvlCustomN, func = function(self,val)
 				val = floor(val + .5)
 				module.db.colorizeLowIlvlCustomN = val
 				VMRT.InspectViewer.ColorizeLowIlvlCustomN = val
@@ -1300,7 +1307,9 @@ function module.options:Load()
 								local slotID = module.db.itemsSlotTable[j]
 								local item = items[slotID]
 								if item then
-									local itemID,enchantID = string.match(item,"item:(%d+):(%d+):")
+									item = item:match("|H.-|h") or item
+
+									local itemID,enchantID = string.match(item,"item:(%d*):(%d*):")
 									itemID = itemID and tonumber(itemID) or 0
 									enchantID = enchantID and tonumber(enchantID) or 0
 

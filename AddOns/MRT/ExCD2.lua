@@ -17,6 +17,7 @@ local GetItemInfo, GetItemInfoInstant, GetItemSpell = C_Item and C_Item.GetItemI
 local GetCVar = C_CVar and C_CVar.GetCVar or C_CVar
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned or ExRT.NULLfunc
 local GetSpecializationInfo = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo or GetSpecializationInfo
+local SendChatMessage = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
 
 local GetSpellLevelLearned = C_Spell and C_Spell.GetSpellLevelLearned or GetSpellLevelLearned
 if ExRT.isClassic then

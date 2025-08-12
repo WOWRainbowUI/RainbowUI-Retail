@@ -4,6 +4,7 @@ local IsEncounterInProgress, GetTime = IsEncounterInProgress, GetTime
 local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 local GetSpellInfo = ExRT.F.GetSpellInfo or GetSpellInfo
 local GetItemInfo, GetItemInfoInstant, GetItemCount  = C_Item and C_Item.GetItemInfo or GetItemInfo, C_Item and C_Item.GetItemInfoInstant or GetItemInfoInstant, C_Item and C_Item.GetItemCount or GetItemCount
+local SendChatMessage = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
 
 local VMRT = nil
 

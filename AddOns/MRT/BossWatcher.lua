@@ -27,6 +27,7 @@ local strsplit = strsplit
 local type = type
 local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 local COMBATLOG_OBJECT_RAIDTARGET_MASK = COMBATLOG_OBJECT_RAIDTARGET_MASK
+local SendChatMessage = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
 
 local VMRT = nil
 
