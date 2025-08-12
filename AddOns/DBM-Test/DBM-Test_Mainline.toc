@@ -1,4 +1,4 @@
-## Interface: 110107, 110200
+## Interface: 110200
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Tests|r|cffffe00a>|r |cff69ccf0Test runner for DBM|r
 ## Title-koKR:|cffffe00a<|r|cffff7d0aDBM Tests|r|cffffe00a>|r |cff69ccf0DBM 테스트 러너|r

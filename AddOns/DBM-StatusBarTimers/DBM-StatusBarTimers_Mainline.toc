@@ -1,5 +1,6 @@
-## Interface: 110107, 110200
+## Interface: 110200
 ## Category: DBM
+## Group: DBM-Core
 ## Title:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Status Bar Timers|r
 ## Title-esES:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Temporizadores de Estado|r
 ## Title-esMX:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Temporizadores de Estado|r
@@ -21,7 +22,7 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## Author: MysticalOS, QartemisT
-## Version: 11.2.6
+## Version: 11.2.7
 ## X-Website: https://deadlybossmods.com
 
 DBT.lua

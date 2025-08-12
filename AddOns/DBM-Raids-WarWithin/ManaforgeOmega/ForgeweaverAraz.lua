@@ -1,8 +1,7 @@
-if DBM:GetTOC() < 110200 then return end
 local mod	= DBM:NewMod(2687, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250727202118")
+mod:SetRevision("20250812013529")
 mod:SetCreatureID(247989)
 mod:SetEncounterID(3132)
 mod:SetHotfixNoticeRev(20250708000000)
@@ -17,10 +16,10 @@ mod:RegisterEventsInCombat(
 	"SPELL_CAST_SUCCESS 1230231",
 	"SPELL_AURA_APPLIED 1228506 1228454 1228188 1233979 1233415 1243873",
 	"SPELL_AURA_APPLIED_DOSE 1228506",
-	"SPELL_AURA_REMOVED 1228454 1233979 1233415 1243873",
+	"SPELL_AURA_REMOVED 1228454 1233979 1233415 1243873"
 --	"SPELL_PERIODIC_DAMAGE",
 --	"SPELL_PERIODIC_MISSED"
-	"UNIT_DIED"
+--	"UNIT_DIED"
 --	"UNIT_SPELLCAST_SUCCEEDED boss1"
 )
 
@@ -47,20 +46,20 @@ local specWarnOverwhelmingPowerTaunt				= mod:NewSpecialWarningTaunt(1228502, ni
 local specWarnArcaneObliteration					= mod:NewSpecialWarningCount(1228216, nil, nil, DBM_COMMON_L.GROUPSOAK, 2, 2)
 local yellArcaneObliteration						= mod:NewShortYell(1228216, DBM_COMMON_L.GROUPSOAK, nil, nil, "YELL")
 local yellArcaneObliterationFades					= mod:NewShortFadesYell(1228216, nil, nil, nil, "YELL")
-local specWarnSilencingTempest						= mod:NewSpecialWarningDodgeCount(1228161, nil, nil, nil, 2, 2)
-local yellSilencingTempest							= mod:NewShortYell(1228161)
+local specWarnSilencingTempest						= mod:NewSpecialWarningDodgeCount(1228188, nil, nil, nil, 2, 2)
+local yellSilencingTempest							= mod:NewShortYell(1228188)
 local specWarnArcaneExpulsion						= mod:NewSpecialWarningCount(1227631, nil, nil, nil, 2, 2)
 local specWarnInvokeCollector						= mod:NewSpecialWarningSwitchCount(1231720, "-Tank", nil, nil, 1, 2)--Tank should stay away
-local specWarnAstralHarvest							= mod:NewSpecialWarningYou(1233979, nil, nil, nil, 1, 2)
-local yellAstralHarvestFades						= mod:NewShortFadesYell(1233979)
+local specWarnAstralHarvest							= mod:NewSpecialWarningYou(1228214, nil, nil, nil, 1, 2)
+local yellAstralHarvestFades						= mod:NewShortFadesYell(1228214)
 --local specWarnGTFO								= mod:NewSpecialWarningGTFO(459785, nil, nil, nil, 1, 8)
 
 local timerOverwhelmingPowerCD						= mod:NewCDCountTimer(44, 1228502, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerArcaneObliterationCD						= mod:NewCDCountTimer(45, 1228216, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)
-local timerSilencingTempestCD						= mod:NewCDCountTimer(97.3, 1228161, nil, nil, nil, 3)
+local timerSilencingTempestCD						= mod:NewCDCountTimer(97.3, 1228188, nil, nil, nil, 3)
 local timerArcaneExpulsionCD						= mod:NewCDCountTimer(97.3, 1227631, nil, nil, nil, 2)
 local timerInvokeCollectorCD						= mod:NewCDCountTimer(97.3, 1231720, nil, nil, nil, 1, nil, DBM_COMMON_L.DAMAGE_ICON)
-local timerVoidTearCD								= mod:NewCDCountTimer(97.3, 1248133, nil, nil, nil, 5, nil, DBM_COMMON_L.MYTHIC_ICON)
+local timerVoidTearCD								= mod:NewCDCountTimer(97.3, 1248171, nil, nil, nil, 5, nil, DBM_COMMON_L.MYTHIC_ICON)
 local berserkTimer									= mod:NewBerserkTimer(600)
 
 mod:AddNamePlateOption("NPAuraOnMarkofPower", 1238502)
@@ -75,11 +74,11 @@ local specWarnPhotonBlast							= mod:NewSpecialWarningDodge(1234328, nil, nil, 
 mod:AddTimerLine(DBM:EJ_GetSectionInfo(32384))
 local warnPhase2									= mod:NewPhaseAnnounce(1248009, 2, nil, nil, nil, nil, nil, 2)
 
-local specWarnVoidHarvest							= mod:NewSpecialWarningYou(1243873, nil, nil, nil, 1, 2)
-local yellVoidHarvestFades							= mod:NewShortFadesYell(1243873)
+local specWarnVoidHarvest							= mod:NewSpecialWarningYou(1243901, nil, nil, nil, 1, 2)
+local yellVoidHarvestFades							= mod:NewShortFadesYell(1243901)
 local specWarnDeaththroes							= mod:NewSpecialWarningCount(1232221, nil, nil, nil, 2, 2, 4)
 
-local timerVoidHarvestCD							= mod:NewCDCountTimer(8, 1243873, nil, nil, nil, 3)
+local timerVoidHarvestCD							= mod:NewCDCountTimer(8, 1243901, nil, nil, nil, 3)
 local timerDeaththroesCD							= mod:NewCDCountTimer(97.3, 1232221, nil, nil, nil, 2, nil, DBM_COMMON_L.MYTHIC_ICON)
 
 mod.vb.overwhelmingPowerCount = 0--Returns in stage 2
@@ -445,6 +444,7 @@ function mod:SPELL_AURA_REMOVED(args)
 	end
 end
 
+--[[
 function mod:UNIT_DIED(args)
 	local cid = self:GetCIDFromGUID(args.destGUID)
 	if cid == 241923 then--Arcane Echo
@@ -453,6 +453,7 @@ function mod:UNIT_DIED(args)
 
 	end
 end
+--]]
 
 --[[
 function mod:SPELL_PERIODIC_DAMAGE(_, _, _, _, destGUID, _, _, _, spellId, spellName)

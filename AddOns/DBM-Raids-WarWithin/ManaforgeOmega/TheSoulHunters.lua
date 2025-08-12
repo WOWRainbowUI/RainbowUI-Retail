@@ -1,8 +1,7 @@
-if DBM:GetTOC() < 110200 then return end
 local mod	= DBM:NewMod(2688, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250728013011")
+mod:SetRevision("20250812013529")
 mod:SetCreatureID(237660, 237661, 237662)
 mod:SetEncounterID(3122)
 mod:SetBossHPInfoToHighest()
@@ -34,7 +33,7 @@ mod:RegisterEventsInCombat(
 --TODO, warn https://www.wowhead.com/ptr-2/spell=1249198/unstable-soul ?
 --TODO, https://www.wowhead.com/ptr-2/spell=1233381/withering-flames tracker?
 --[[
-(ability.id = 1231501 or ability.id = 1232568 or ability.id = 1232569) and type = "begincast" or ability.id = 1242133
+(ability.id = 1231501 or ability.id = 1232568 or ability.id = 1232569) and type = "begincast" or ability.id = 1242133 or ability.id = 1245978
 --]]
 --General
 --local specWarnGTFO								= mod:NewSpecialWarningGTFO(459785, nil, nil, nil, 1, 8)
@@ -50,7 +49,7 @@ local timerCollapsingStarCD							= mod:NewNextTimer(97.3, 1233093, nil, nil, ni
 mod:AddTimerLine(DBM:EJ_GetSectionInfo(31792))
 local warnTheHunt									= mod:NewTargetCountAnnounce(1227809, 2, nil, nil, nil, nil, nil, nil, true)
 
-local specWarnBladeDance							= mod:NewSpecialWarningDodgeCount(1227058, nil, nil, nil, 2, 2)
+local specWarnBladeDance							= mod:NewSpecialWarningDodgeCount(1241306, nil, nil, nil, 2, 2)
 local specWarnEyebeam								= mod:NewSpecialWarningDefensive(1218103, nil, nil, nil, 1, 13)
 
 local specWarnTheHunt								= mod:NewSpecialWarningYou(1227809, nil, nil, nil, 1, 17)
@@ -58,7 +57,7 @@ local yellTheHunt									= mod:NewShortYell(1227809, DBM_COMMON_L.GROUPSOAK, ni
 local yellTheHuntFades								= mod:NewShortFadesYell(1227809, nil, nil, nil, "YELL")
 
 local timerTheHuntCD								= mod:NewNextCountTimer(31.9, 1227809, nil, nil, nil, 3)
-local timerBladeDanceCD								= mod:NewNextCountTimer(31.9, 1227058, nil, nil, nil, 3)
+local timerBladeDanceCD								= mod:NewNextCountTimer(31.9, 1241306, nil, nil, nil, 3)
 local timerEyeBeamCD								= mod:NewNextCountTimer(31.9, 1218103, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerFelRushCD								= mod:NewNextTimer(97.3, 1233863, nil, nil, nil, 6)
 --Ilyssa Darksorrow
