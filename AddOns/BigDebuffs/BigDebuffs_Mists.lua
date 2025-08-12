@@ -129,6 +129,7 @@ addon.Spells = {
     [13491] = { type = INTERRUPT, duration = 5 }, -- Iron Knuckles
     [16979] = { type = INTERRUPT, duration = 4 }, -- Feral Charge (Druid)
     [2139] = { type = INTERRUPT, duration = 8 }, -- Counterspell (Mage)
+    [147362] = { type = INTERRUPT, duration = 3}, -- Counter Shot (Hunter)
     [1766] = { type = INTERRUPT, duration = 5 }, -- Kick (Rogue)
     [26679] = { type = INTERRUPT, duration = 3 }, -- Deadly Throw
     [6552] = { type = INTERRUPT, duration = 4 }, -- Pummel
@@ -163,8 +164,9 @@ addon.Spells = {
     [115018] = { type = IMMUNITY }, -- Desecrated Ground
     [51271] = { type = BUFF_OFFENSIVE, },  -- Pillar of Frost
     [91807] = { type = ROOT }, -- Shambling Rush (Dark Transformation)
-
-
+    [130735] = { type = DEBUFF_OFFENSIVE },  -- Soul Reaper (Frost)
+        [130736] = { parent = 130735 }, -- Soul Reaper (Unholy)
+        [114866] = { parent = 130735 }, -- Soul Reaper (Blood)
 
     -- Priest
 
@@ -240,8 +242,11 @@ addon.Spells = {
     [104773] = { type = BUFF_DEFENSIVE }, -- Unending Resolve
     [115268] = { type = CROWD_CONTROL }, -- Mesmerize (Shivarra)
     [115782] = { type = CROWD_CONTROL }, -- Optical Blast (Observer)
+    [115781] = { type = INTERRUPT, duration = 6 }, -- Optical Blast (Interrupt)
+    [119911] = { type = INTERRUPT, duration = 6 }, -- Optical Blast (Interrupt)
     [118093] = { type = CROWD_CONTROL }, -- Disarm (Voidwalker/Voidlord)
     [118699] = { type = CROWD_CONTROL }, -- Fear (new?)
+    [80240] = { type = CROWD_CONTROL }, -- Havoc
 
     -- Shaman
 
@@ -269,6 +274,10 @@ addon.Spells = {
     [116947] = { type = ROOT },  -- Earthbind (Earthgrab Totem)
     [118345] = { type = CROWD_CONTROL },  -- Pulverize (Primal Earth Elemental)
     [110806] = { type = BUFF_OTHER },  -- Spiritwalker's Grace
+    [114049] = { type = BUFF_OFFENSIVE }, -- Ascendance
+        [114052] = { parent = 114049 }, -- Ascendance
+        [114051] = { parent = 114049 }, -- Ascendance
+        [114050] = { parent = 114049 }, -- Ascendance
 
     -- Paladin
     -- WoTLK
@@ -350,6 +359,7 @@ addon.Spells = {
     [126246] = { type = CROWD_CONTROL }, -- Lullaby (Crane)
     [126355] = { type = CROWD_CONTROL }, -- Paralyzing Quill (Porcupine)
     [126423] = { type = CROWD_CONTROL }, -- Petrifying Gaze (Basilisk)
+    [3674] = { type = BUFF_OFFENSIVE }, -- Black Arrow
 
     -- Druid
 
@@ -537,6 +547,7 @@ addon.Spells = {
 
     -- Monk
     [131523] = { type = IMMUNITY_SPELL }, -- Zen Meditation
+    [122465] = { type = IMMUNITY_SPELL }, -- Dematerialize
     [132168] = { type = CROWD_CONTROL }, -- Breath of Fire (Glyph of Breath of Fire)
     [126451] = { type = CROWD_CONTROL }, -- Clash
     [122242] = { type = CROWD_CONTROL }, -- Clash

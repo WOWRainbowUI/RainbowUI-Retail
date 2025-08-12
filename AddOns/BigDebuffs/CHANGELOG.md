@@ -1,6 +1,7 @@
 # BigDebuffs
 
-## [v51](https://github.com/jordonwow/bigdebuffs/tree/v51) (2025-07-04)
-[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v50...v51) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
+## [v54](https://github.com/jordonwow/bigdebuffs/tree/v54) (2025-08-11)
+[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v53...v54) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
 
-- changed seal of justice to slow instead of stun (mop) (#843)  
+- Added Counter Shot Interrupt Duration (#851)  
+- added Optical Blast interrupt effect (#847)  
