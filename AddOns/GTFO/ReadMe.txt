@@ -2286,3 +2286,8 @@ Change Log:
 5.18.1
 * Updated for patch 11.2
 * Added TWW spells for Eco-Dome Al'dani
+
+5.18.2
+* Added The War Within spells (world)
+* Added TWW spells for Eco-Dome Al'dani
+* Added TWW spells for TWW Delves 

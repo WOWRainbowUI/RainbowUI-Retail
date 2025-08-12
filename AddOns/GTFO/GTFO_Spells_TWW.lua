@@ -243,6 +243,35 @@ GTFO.SpellID["456890"] = {
   alwaysAlert = true;
 };
 
+GTFO.SpellID["1221165"] = {
+  --desc = "Whirling Sand (Grubber)";
+  sound = 1;
+};
+
+GTFO.SpellID["1236958"] = {
+  --desc = "Devouring Spittle (Engorged Siltfeaster)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1234786"] = {
+  --desc = "Shadowbind Lance (Shadow-Captain Lakheesh)";
+  ignoreApplication = true;
+  sound = 2;
+};
+
+GTFO.SpellID["1237906"] = {
+  --desc = "Void Corruption (Reshanor)";
+  applicationOnly = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1246457"] = {
+  --desc = "Energy Surge";
+  applicationOnly = true;
+  sound = 1;
+};
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -786,6 +815,28 @@ GTFO.SpellID["474155"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1237258"] = {
+  --desc = "Decroding Puddle (Great Devourer)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["473539"] = {
+  --desc = "Flurry of Punches (Punchy Thug)";
+  sound = 1;
+  test = true;
+};
+
+GTFO.SpellID["1245758"] = {
+  --desc = "Atomized (Nexus-Princess Ky'veza)";
+  sound = 1;
+};
+
+GTFO.SpellID["1250052"] = {
+  --desc = "The Shadows (Nexus-Princess Ky'veza)";
+  ignoreApplication = true;
+  sound = 1;
+};
 
 --- *******************
 --- * Nerub-ar Palace *
