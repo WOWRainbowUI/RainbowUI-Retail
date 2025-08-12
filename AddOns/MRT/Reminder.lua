@@ -16,9 +16,10 @@ local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
 local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 local GetNumSpecializationsForClassID = C_SpecializationInfo and C_SpecializationInfo.GetNumSpecializationsForClassID or GetNumSpecializationsForClassID
 local GetSpecializationInfo = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo or GetSpecializationInfo
+local SendChatMessage = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
 
 local senderVersion = 4
-local addonVersion = 68
+local addonVersion = 69
 
 local options = module.options
 
@@ -3756,7 +3757,7 @@ function options:Load()
 							end
 						end
 
-						toadd = {text = text, arg3 = zone[1], subMenu = {}, zonemd = zone, prio = 40000+zone[1]+(zoneMapID and SORT_DUNG_LIST[ zoneMapID ] and SORT_DUNG_LIST[ zoneMapID ]*5000 or 0), icon = zoneImg}
+						toadd = {text = text, arg3 = zone[1], subMenu = {}, zonemd = zone, prio = 40000+zone[1]+(zoneMapID and SORT_DUNG_LIST[ zoneMapID ] and SORT_DUNG_LIST[ zoneMapID ]*5000 or 0), icon = zoneImg, isHidden = ExRT.isClassic and text and text:find("^Map ID")}
 						if not isDung then
 							self.List[#self.List+1] = toadd
 						else
@@ -3918,7 +3919,7 @@ function options:Load()
 
 
 		if self.mainframe.frame.bigBossButtons:IsShown() then
-			local list = self.List[2]	--most recent tier
+			local list = self.List[3]	--most recent tier
 			if list.zonemd then
 				self.mainframe.frame.bigBossButtons:Reset()
 				for i=2,#list.zonemd do

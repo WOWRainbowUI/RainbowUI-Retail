@@ -3,7 +3,7 @@
 ## Author: ykiigor
 ## Notes: Method Raid Tools
 ## SavedVariables: VMRT
-## Version: 5195
+## Version: 5200
 core.lua
 Functions.lua
 embeds.xml
@@ -38,6 +38,7 @@ Timers.lua
 RaidAttendance.lua
 Encounter.lua
 LootHistory.lua
+Coins.lua
 WhoPulled.lua
 Pets.lua
 AutoLogging.lua
