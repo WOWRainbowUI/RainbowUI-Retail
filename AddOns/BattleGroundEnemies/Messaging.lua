@@ -2,12 +2,11 @@
 local AddonName = ...
 ---@class Data
 local Data = select(2, ...)
-
 ---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
 local L = Data.L
 
----@class BattleGroundEnemies: AceComm-3.0
+---@class BattleGroundEnemiesAceComm: BattleGroundEnemies
 LibStub("AceComm-3.0"):Embed(BattleGroundEnemies)
 
 
@@ -15,7 +14,7 @@ local CTimerNewTicker = C_Timer.NewTicker
 local GetTime = GetTime
 local max = math.max
 
-local BGE_VERSION = "11.0.5.9"
+local BGE_VERSION = "11.2.0.1"
 local AddonPrefix = "BGE"
 local versionQueryString, versionResponseString = "Q^%s^%i", "V^%s^%i"
 local profileQueryString, profileResponseString = "PQ^%s", "PR^%s"
@@ -226,7 +225,7 @@ function BattleGroundEnemies:UpdatePlayerData(sender, prefix, version, profileSh
 			end
 		end
 		if profileSharingEnabled then
-			profileSharingEnabled = profileSharingEnabled == "1" and true or false
+			profileSharingEnabled = profileSharingEnabled == "1"
 			playerData[sender].profileSharingEnabled = profileSharingEnabled
 		end
 	end
