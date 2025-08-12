@@ -380,6 +380,9 @@ after this pull]=]
 --[[Translation missing --]]
 L[ [=[Bounty stacks 
 after this pull]=] ] = ""
+--[[Translation missing --]]
+L[ [=[Bounty stacks
+after this pull]=] ] = ""
 L["Bracken Warscourge"] = "Strillaguerra Felcepelle"
 L["Brackenhide Shaper"] = "Plasmatrice Felcepelle"
 --[[Translation missing --]]
@@ -775,6 +778,8 @@ L["Devouring Maggot"] = "Camola Divoratrice"
 L["Devout Blood Priest"] = "Sacerdotessa del Sangue Devota"
 --[[Translation missing --]]
 L["Devout Priest"] = "Devout Priest"
+--[[Translation missing --]]
+L["Dimension Portal"] = ""
 L["Dinomancer Kish'o"] = "Dinomante Kish'o"
 --[[Translation missing --]]
 L["Discarded Shield"] = "Discarded Shield"

@@ -338,6 +338,9 @@ after this pull]=] ] = "Les primes se cumulent après ce pull"
 --[[Translation missing --]]
 L[ [=[Bounty stacks 
 after this pull]=] ] = ""
+--[[Translation missing --]]
+L[ [=[Bounty stacks
+after this pull]=] ] = ""
 L["Bracken Warscourge"] = "Fléau-de-guerre des fougères"
 L["Brackenhide Shaper"] = "Façonneuse fougerobe"
 --[[Translation missing --]]
@@ -694,6 +697,8 @@ L["Devouring Maggot"] = "Asticot dévorant"
 L["Devout Blood Priest"] = "Prêtresse de sang dévote"
 --[[Translation missing --]]
 L["Devout Priest"] = "Devout Priest"
+--[[Translation missing --]]
+L["Dimension Portal"] = ""
 L["Dinomancer Kish'o"] = "Dinomancienne Kish'o"
 --[[Translation missing --]]
 L["Discarded Shield"] = "Discarded Shield"
