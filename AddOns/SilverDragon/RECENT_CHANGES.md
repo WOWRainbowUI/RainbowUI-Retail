@@ -1,9 +1,7 @@
-## Changed in v2025.13
+## Changed in v2025.14
 
 * K'aresh:
-    * Added Reshanor
-    * Updated various non-achievement rares
-* Macros:
-    * New option: skip mobs with known vignettes
-    * New option: *don't* skip mobs that are already complete
+    * Add loot to rares now data is available
+    * Note that the Devoured Energy-Pod leads to a mount
+    * Add Dangerous Prowlers and Remnants achievements to tooltips
 
