@@ -1,7 +1,7 @@
-## Interface: 40402, 40401
+## Interface: 40402
 ## Title: OmniBar
 ## Notes: Tracks enemy cooldowns
-## Version: v32
+## Version: v34
 ## Author: Jordon
 ## SavedVariables: OmniBarDB
 ## IconTexture: Interface\AddOns\OmniBar\Media\Textures\icon.blp
