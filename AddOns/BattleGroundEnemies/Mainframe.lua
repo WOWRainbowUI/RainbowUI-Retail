@@ -1,3 +1,6 @@
+---@class Data
+---@class BattleGroundEnemies
+
 ---@type string
 local AddonName = ...
 ---@class Data
@@ -124,8 +127,8 @@ local testEvents = {
 ---@field PlayerSources table<string, table>
 ---@field NumPlayers number
 ---@field Counter table<string, number>
----@field PlayerCount FontString
----@field ActiveProfile FontString
+---@field PlayerCount MyFontString
+---@field ActiveProfile MyFontString
 ---@return MainFrame
 local function CreateMainFrame(playerType)
 
@@ -135,7 +138,7 @@ local function CreateMainFrame(playerType)
     -- the handler then sets the wheeldown and wheelup binding to execute a button click using the global button names
     -- when mouswheel is scrolled up or down it triggers a button click and runs the onclick kook from SecureHandlerWrapScript gets execute, which then sets the macrotext
 
-    ---@class MainFrame :Button
+    ---@class MainFrame
 	local mainframe = CreateFrame("Button","BGE"..playerType,BattleGroundEnemies,"SecureActionButtonTemplate, SecureHandlerEnterLeaveTemplate")
 
 	mainframe:SetAttribute("type4", "macro")
@@ -183,11 +186,12 @@ local function CreateMainFrame(playerType)
 
     mainframe.Counter = {}
 
-
-    mainframe:Hide()
+	mainframe.enabled = true
+	mainframe:Disable()
     mainframe:SetScript("OnEvent", function(self, event, ...)
-        --self.Counter[event] = (self.Counter[event] or 0) + 1
-        --self:Debug("Enemies OnEvent", event, ...)
+		if self.db and self.db.profile and self.db.profile.DebugBlizzEvents then
+			self:Debug("OnEvent", event, ...)
+		end
         self[event](self, ...)
     end)
 
@@ -219,7 +223,7 @@ local function CreateMainFrame(playerType)
 	end
 
 	function mainframe:AddPlayerToSource(source, playerT)
-		self:Debug("AddPlayerToSource", self.PlayerType, playerT)
+		self:Debug("AddPlayerToSource", source, playerT)
 		if playerT.name then
 			if playerT.name == "" then return end
 		else
@@ -284,7 +288,7 @@ local function CreateMainFrame(playerType)
 				local scoreboardEnemies = self.PlayerSources[BattleGroundEnemies.consts.PlayerSources.Scoreboard]
 				local numScoreboardEnemies = #scoreboardEnemies
 				local addScoreBoardPlayers = false
-				if BattleGroundEnemies.states.isInArena then
+				if BattleGroundEnemies:GetActiveStates().isInArena then
 					self:Debug("AfterPlayerSourceUpdate", "inArena")
 					--use arenaPlayers is primary source to preserve same order arena1 to arena3, scoreboard doesn't offer this
 					local arenaEnemies = self.PlayerSources[BattleGroundEnemies.consts.PlayerSources.ArenaPlayers]
@@ -319,7 +323,7 @@ local function CreateMainFrame(playerType)
 					end
 				else --in BattleGround
 					if numScoreboardEnemies == 0 then
-						if BattleGroundEnemies.states.isRatedBG and IsRetail then
+						if BattleGroundEnemies.states.real.isRatedBG and IsRetail then
 							newPlayers = self.PlayerSources[BattleGroundEnemies.consts.PlayerSources.CombatLog]
 						end
 					else
@@ -392,6 +396,15 @@ local function CreateMainFrame(playerType)
 		self:CreateOrRemovePlayerButtons()
 	end
 
+	function mainframe:OnTestOrEditmodeEnabled()
+		self.ActiveProfile:Show()
+	end
+
+	function mainframe:OnTestOrEditmodeDisabled()
+		self:RemoveAllPlayersFromSource(BattleGroundEnemies.consts.PlayerSources.FakePlayers)
+		self.ActiveProfile:Hide()
+	end
+
 	function mainframe:OnTestmodeTick()
 		for name, playerButton in pairs(self.Players) do
 			if playerButton.PlayerDetails.isFakePlayer then
@@ -427,6 +440,11 @@ local function CreateMainFrame(playerType)
 				BattleGroundEnemies:UpdateDRsEditMode(playerButton)
 			end
 		end
+		self:OnTestOrEditmodeEnabled()
+	end
+
+	function mainframe:OnEditmodeDisabled()
+		self:OnTestOrEditmodeDisabled()
 	end
 
 	function mainframe:OnTestmodeEnabled()
@@ -441,20 +459,20 @@ local function CreateMainFrame(playerType)
 		if self.CurrentPlayerOrder[2] then
 			BattleGroundEnemies:HandleFocusChanged(self.CurrentPlayerOrder[2])
 		end
+		self:OnTestOrEditmodeEnabled()
 	end
 
 	function mainframe:OnTestmodeDisabled()
 		for playerName, playerButton in pairs(self.Players) do
 			playerButton:DispatchEvent("OnTestmodeDisabled")
 		end
-		self:RemoveAllPlayersFromSource(BattleGroundEnemies.consts.PlayerSources.FakePlayers)
-
-
-		self.ActiveProfile:Hide()
+		self:OnTestOrEditmodeDisabled()
 	end
 
 	function mainframe:Enable()
 		self:Debug("enabled")
+		if self.enabled then return end
+		if InCombatLockdown() then return BattleGroundEnemies:QueueForUpdateAfterCombat(mainframe, "CheckEnableState") end
 
 		if BattleGroundEnemies:IsTestmodeOrEditmodeActive() then
 		else
@@ -468,17 +486,19 @@ local function CreateMainFrame(playerType)
 				end
 			end
 
-
-			if BattleGroundEnemies.states.isInArena or BattleGroundEnemies.states.isInBattleground then
-				BattleGroundEnemies:CheckForArenaEnemies()
-			end
+			BattleGroundEnemies:CheckForArenaEnemies()
 		end
+		self.enabled = true
 		self:Show()
 	end
 
 	function mainframe:Disable()
 		self:Debug("disabled")
+		if not self.enabled then return end
+		if InCombatLockdown() then return BattleGroundEnemies:QueueForUpdateAfterCombat(mainframe, "CheckEnableState") end
+
 		self:UnregisterAllEvents()
+		self.enabled = false
 		self:Hide()
 	end
 
@@ -499,8 +519,6 @@ local function CreateMainFrame(playerType)
 
 		self:SetPlayerCountJustifyV(conf.BarVerticalGrowdirection)
 
-		self.PlayerCount:ApplyFontStringSettings(BattleGroundEnemies.db.profile.PlayerCount.Text)
-
 		self.ActiveProfile:ApplyFontStringSettings(BattleGroundEnemies.db.profile.PlayerCount.Text)
 
 		self.ActiveProfile:SetText(L[self.PlayerType]..": ".. BattleGroundEnemies:GetPlayerCountConfigNameLocalized(self.playerCountConfig, self.playerTypeConfig.CustomPlayerCountConfigsEnabled))
@@ -508,7 +526,7 @@ local function CreateMainFrame(playerType)
 
 		self:SortPlayers(true) --force repositioning
 
-		self:UpdatePlayerCount()
+		self:UpdatePlayerCountText()
 		self:CheckEnableState()
 	end
 
@@ -519,10 +537,7 @@ local function CreateMainFrame(playerType)
 		if not maxNumPlayers then return end
 		if maxNumPlayers == 0 then return self:NoActivePlayercountProfile() end
 
-		if maxNumPlayers > 40 then
-			self:Disable()
-			return
-		end
+		if maxNumPlayers > 40 then return self:NoActivePlayercountProfile() end
 
 		local playerCountConfigs
 		if self.playerTypeConfig.CustomPlayerCountConfigsEnabled then
@@ -571,13 +586,8 @@ local function CreateMainFrame(playerType)
 
 	function mainframe:CheckEnableState()
 		self:Debug("CheckEnableState")
+		if not BattleGroundEnemies.enabled then return self:Disable() end
 		if self.playerTypeConfig.Enabled and self.playerCountConfig and self.playerCountConfig.Enabled then
-			if BattleGroundEnemies.states.isInArena and not BattleGroundEnemies.db.profile.ShowBGEInArena then
-				return self:Disable()
-			end
-			if BattleGroundEnemies.states.isInBattleground and not BattleGroundEnemies.db.profile.ShowBGEInBattleground then
-				return self:Disable()
-			end
 			self:Enable()
 		else
 			self:Disable()
@@ -586,12 +596,8 @@ local function CreateMainFrame(playerType)
 
 	function mainframe:SetRealPlayerCount(realCount)
 		self:Debug("SetRealPlayerCount", realCount)
-		local oldCount = self.RealPlayerCount
 		self.RealPlayerCount = realCount
-		if not oldCount or oldCount ~= realCount then
-			self:SelectPlayerCountProfile()
-		end
-		self:UpdatePlayerCount()
+		self:UpdatePlayerCountText()
 	end
 
 	function mainframe:SetPlayerCount(count)
@@ -600,17 +606,16 @@ local function CreateMainFrame(playerType)
 		if not oldCount or oldCount ~= count then
 			self:SelectPlayerCountProfile()
 		end
-		self:UpdatePlayerCount()
+		self:UpdatePlayerCountText()
 	end
 
-	function mainframe:UpdatePlayerCount()
-
-
+	function mainframe:UpdatePlayerCountText()
+		self.PlayerCount:ApplyFontStringSettings(BattleGroundEnemies.db.profile.PlayerCount.Text)
 		local maxNumPlayers = math_max(self.RealPlayerCount or 0, self.NumPlayers or 0)
 
 
 		local isEnemy = self.PlayerType == BattleGroundEnemies.consts.PlayerTypes.Enemies
-		self:Debug("UpdatePlayerCount", maxNumPlayers, isEnemy)
+		self:Debug("UpdatePlayerCountText", maxNumPlayers, isEnemy)
 
 
 		BattleGroundEnemies:SetAllyFaction(BattleGroundEnemies.AllyFaction or (BattleGroundEnemies.UserFaction == "Horde" and 1 or 0))
@@ -666,16 +671,14 @@ local function CreateMainFrame(playerType)
 			if playerButton.UnitIDs then
 				wipe(playerButton.UnitIDs.TargetedByEnemy)
 				playerButton:UpdateTargetIndicators()
-				if playerButton.PlayerIsEnemy then
-					playerButton:DeleteActiveUnitID()
-				end
+				playerButton:DeleteActiveUnitID()
 			end
 		else --no recycleable buttons remaining => create a new one
 			self.buttonCounter = (self.buttonCounter or 0) + 1
 			playerButton = BattleGroundEnemies:CreatePlayerButton(self, self.buttonCounter)
 		end
 
-		playerButton.UnitIDs = { TargetedByEnemy = {} }
+		playerButton.UnitIDs = { TargetedByEnemy = {}, HasAllyUnitID = false}
 		playerButton.unitID = nil
 		playerButton.unit = nil
 
@@ -866,7 +869,7 @@ local function CreateMainFrame(playerType)
 		for i = 1, playerCount do
 			local playerButton = orderedPlayers[i]
 			if playerButton then --should never be nil
-				playerButton.Position = i
+				playerButton.position = i
 				if column > 1 then
 					offsetX = (column - 1) * (barWidth + horizontalSpacing) * offsetDirectionX
 				else
@@ -972,7 +975,7 @@ local function CreateMainFrame(playerType)
 				playerButton:PlayerDetailsChanged()
 			end
 
-			playerButton.Status = 1 --1 means found, already existing
+			playerButton.status = 1 --1 means found, already existing
 			playerDetails = playerButton.PlayerDetails
 		else
 			table.insert(self.NewPlayersDetails, playerDetails)
@@ -983,14 +986,14 @@ local function CreateMainFrame(playerType)
 		local inCombat = InCombatLockdown()
 		local existingPlayersCount = 0
 		for playerName, playerButton in pairs(self.Players) do
-			if playerButton.Status == 2 then --no longer existing
+			if playerButton.status == 2 then --no longer existing
 				if inCombat then
 					return BattleGroundEnemies:QueueForUpdateAfterCombat(self, "AfterPlayerSourceUpdate")
 				else
 					self:RemovePlayer(playerButton)
 				end
 			else -- == 1 -- set to 2 for the next comparison
-				playerButton.Status = 2
+				playerButton.status = 2
 				existingPlayersCount = existingPlayersCount + 1
 			end
 		end
@@ -1001,7 +1004,7 @@ local function CreateMainFrame(playerType)
 				return BattleGroundEnemies:QueueForUpdateAfterCombat(self, "AfterPlayerSourceUpdate")
 			else
 				local playerButton = self:SetupButtonForNewPlayer(playerDetails)
-				playerButton.Status = 2
+				playerButton.status = 2
 			end
 		end
 		self:SortPlayers(false)
@@ -1090,7 +1093,7 @@ local function CreateMainFrame(playerType)
 
  ]]
 
-			if BattleGroundEnemies.states.isInArena then
+			if BattleGroundEnemies.states.real.isInArena then
 				if (self.PlayerType == BattleGroundEnemies.consts.PlayerTypes.Enemies) then
 					local usePlayerSortingByArenaUnitID = true
 					for i = 1, #newPlayerOrder do
@@ -1176,12 +1179,12 @@ local function CreateMainFrame(playerType)
     return mainframe
 end
 
---@class BattleGroundEnemies.Allies: AllyFrame
+---@class BattleGroundEnemies.Allies: MainFrame
 BattleGroundEnemies.Allies = CreateMainFrame(BattleGroundEnemies.consts.PlayerTypes.Allies)
 BattleGroundEnemies.Allies.GUIDToAllyname = {}
 
 
-
+---@class BattleGroundEnemies.Enemies: MainFrame
 BattleGroundEnemies.Enemies = CreateMainFrame(BattleGroundEnemies.consts.PlayerTypes.Enemies)
 BattleGroundEnemies.Enemies.Counter = {}
 
@@ -1289,7 +1292,7 @@ end
 
 function BattleGroundEnemies.Enemies:CreateArenaEnemies()
 	self:Debug("CreateArenaEnemies")
-	if not BattleGroundEnemies.states.isInArena then return end
+	if not BattleGroundEnemies.states.real.isInArena then return end
 
 	self:BeforePlayerSourceUpdate(BattleGroundEnemies.consts.PlayerSources.ArenaPlayers)
 	for i = 1, 15 do --we can have 15 enemies in the Arena Brawl Packed House
@@ -1344,7 +1347,7 @@ BattleGroundEnemies.Enemies.ARENA_PREP_OPPONENT_SPECIALIZATIONS = BattleGroundEn
 
 function BattleGroundEnemies.Enemies:UNIT_NAME_UPDATE(unitID)
 	self:Debug("UNIT_NAME_UPDATE", unitID)
-	BattleGroundEnemies:ThrottleUpdateArenaPlayers()
+	BattleGroundEnemies:CheckForArenaEnemies()
 end
 
 function BattleGroundEnemies.Enemies:NAME_PLATE_UNIT_ADDED(unitID)

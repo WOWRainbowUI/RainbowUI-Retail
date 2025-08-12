@@ -1,11 +1,7 @@
 # BattleGroundEnemies
 
-## [11.0.5.9](https://github.com/BullseiWoWAddons/BattleGroundEnemies/tree/11.0.5.9) (2024-11-25)
-[Full Changelog](https://github.com/BullseiWoWAddons/BattleGroundEnemies/compare/11.0.5.8...11.0.5.9) [Previous Releases](https://github.com/BullseiWoWAddons/BattleGroundEnemies/releases)
+## [11.2.0.1](https://github.com/BullseiWoWAddons/BattleGroundEnemies/tree/11.2.0.1) (2025-08-11)
+[Full Changelog](https://github.com/BullseiWoWAddons/BattleGroundEnemies/compare/11.2.0.0...11.2.0.1) [Previous Releases](https://github.com/BullseiWoWAddons/BattleGroundEnemies/releases)
 
-- changelog: update to version 11.0.5.9 with bug fixes for ally updates, test mode errors, and respawn timer  
-- refactor: add debug logging for player details and trigger PlayerDetailsChanged on update to fix bug mostly prominent in solo shuffle(buton order didn't change but there were new players on that button)  
-- refactor: streamline module settings application and update button position handling  
-- refactor: update PlayerButton class annotation to inherit from Button  
-- refactor: fix issue respawn timer not resetting  
-- refactor: update PlayerButton type annotations and improve sorting logic in MainFrame to fix bug when testmode in arena  
+- update changelog for version 11.2.0.1, fixing error message in Mists of Pandaria; bump addon version to 11.2.0.1  
+- set .unit on the playerButton frame, since cataclysm CompactUnitFrame\_UpdateHealPrediction relies on it  

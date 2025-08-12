@@ -1,4 +1,4 @@
-## Interface: 11505
+## Interface: 50500
 ## Title: BattleGroundEnemies
 ## Version: 11.2.0.1
 ## Author: Bullsei
@@ -14,10 +14,10 @@
 ## Category-zhTW: PvP
 ## DefaultState: disabled
 
-
 #@no-lib-strip@
 embeds.xml
 #@end-no-lib-strip@
+
 
 Locales.lua
 
