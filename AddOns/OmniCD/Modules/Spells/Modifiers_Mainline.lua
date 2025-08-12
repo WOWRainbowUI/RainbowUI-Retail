@@ -628,6 +628,7 @@ E.spellcast_merged = {
 
 
 	[452767]	= 431416,
+	[1238009]	= 431416,
 }
 
 E.spellcast_merged_updateoncast = {
@@ -677,6 +678,7 @@ E.spellcast_merged_updateoncast = {
 
 
 
+	[1238009]	= { nil,	1385244	},
 }
 
 local function GetSharedCD(spec)
