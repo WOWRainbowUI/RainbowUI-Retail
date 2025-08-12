@@ -346,6 +346,31 @@ securecall(function() -- Draenic Hologem usability limitation
 		AB:SetPlayerHasToyOverride(210455, false)
 	end
 end)
+securecall(function() -- Modern Hunter Fetch ability disambiguation + usability
+	if not MODERN or playerClass ~= "HUNTER" then return end
+	local PET_FETCH_SID, AVIAN_FETCH_SID, FETCH_SNAME = 125050, 1232995, GetSpellInfo(125050)
+	local state, goal = false, false
+	local function syncFetchState()
+		if state == goal then return end
+		RW:SetCastAlias(FETCH_SNAME, goal and "spell:" .. AVIAN_FETCH_SID or nil, false)
+		state = goal
+		AB:NotifyObservers("spell")
+	end
+	local function checkFetchState()
+		goal = IsSpellKnown(AVIAN_FETCH_SID)
+		if goal ~= state and not InCombatLockdown() then
+			syncFetchState()
+		end
+	end
+	AB:SetSpellIconOverride(PET_FETCH_SID, function()
+		if not (UnitExists("pet") and UnitIsFriend("player", "pet") and not UnitIsDead("pet")) then
+			return nil, false
+		end
+	end)
+	EV.PLAYER_REGEN_ENABLED = syncFetchState
+	EV.PLAYER_LOGIN = checkFetchState
+	EV.TRAIT_CONFIG_UPDATED = checkFetchState
+end)
 
 local MAYBE_FLYABLE, FLIGHT_BLOCKER = true
 securecall(function() -- FLIGHT_BLOCKER init

@@ -29,7 +29,7 @@ do -- action handler
 	end
 	local function syncZoneContextActions()
 		local _,_,_,_, _,_,_,imid = GetInstanceInfo()
-		local wantDrop = imid == 2127 and PlayerHasBuff(458069) and 1
+		local wantDrop = imid == 2127 and PlayerHasBuff(458069) and 1 or imid == 2738 and PlayerHasBuff(1214374) and 2
 		local wantGoPack = imid == 2127 and C_Item.GetItemCount(230728) > 0 and not PlayerHasBuff(469809) and 8
 		local newState, ni = (wantDrop or 0) + (wantGoPack or 0), 1
 		if state == newState then
@@ -54,12 +54,16 @@ do -- action handler
 		local di = dropInfo[did]
 		return PlayerHasBuff(di[2]), 0, di[3], di[4], 0,0,0, mcallSetSpellByID, di[1]
 	end
+	local function zcaDropAura(tok, fakeSpellID, buffSpellID)
+		return {fakeSpellID, buffSpellID, GetSpellTexture(fakeSpellID), GetSpellInfo(fakeSpellID), tok}
+	end
 	local function initZoneContextActions()
 		initZoneContextActions = nil
 		cid = AB:CreateActionSlot(nil,nil, "collection",col)
 		col.OPZCAxSIGP = AB:GetActionSlot("item", 230728, 1)
 		dropInfo = {
-			{470530, 458069, GetSpellTexture(470530), GetSpellInfo(470530), "OPZCAxDrST"}, -- Seafury Tempest (Siren Isle)
+			zcaDropAura("OPZCAxDrST", 470530, 458069), -- Seafury Tempest (Siren Isle)
+			zcaDropAura("OPZCAxDrPD", 1250255, 1214374), -- Phase Diving (K'aresh)
 		}
 		for i=1,#dropInfo do
 			local di = dropInfo[i]
