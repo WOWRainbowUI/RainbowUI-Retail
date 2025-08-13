@@ -23,13 +23,14 @@ local defaultSettings = {
     show_time_sections = true,
     saved_runs_compressed = {},
     saved_runs_compressed_headers = {},
-    saved_runs_limit = 10,
+    saved_runs_limit = 500,
     saved_runs_selected_index = 1,
     scoreboard_scale = 1.0,
     translit = GetLocale() ~= "ruRU",
     keep_information_for_debugging = false,
     developer_mode = false,
     migrations_done = {},
+    migrations_data = {}, --used to store data for migrations
     logs = {},
     has_last_run = false,
     is_run_ongoing = false,
@@ -38,6 +39,8 @@ local defaultSettings = {
         hide = false,
     },
     visible_scoreboard_columns = {},
+
+    likes_given = {},
 
     font = {
         row_size = 12,
@@ -57,6 +60,8 @@ local defaultSettings = {
 
 private.addon = detailsFramework:CreateNewAddOn(tocFileName, "Details_MythicPlusDB", defaultSettings)
 local addon = private.addon
+
+--[[GLOBAL]] DetailsMythicPlus = {}
 
 ---@diagnostic disable-next-line: missing-fields
 addon.activityTimeline = {}
@@ -163,6 +168,10 @@ function addon.OnInit(self, profile) --PLAYER_LOGIN
             migration()
             addon.profile.migrations_done[i] = time()
         end
+    end
+
+    for migrationIndex, migration in pairs(addon.MigrationsPerCharacter) do
+        migration(migrationIndex)
     end
 
     private.log("addon loaded")
