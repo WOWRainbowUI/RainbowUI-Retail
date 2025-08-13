@@ -283,6 +283,21 @@ function addon.SetSelectedRunIndex(index)
     addon.RefreshOpenScoreBoard()
 end
 
+---get the runId passed and return the index of the run by iterating the headers
+---@param runId number
+---@return number|nil
+function addon.GetRunIndexById(runId)
+    local allHeaders = addon.Compress.GetHeaders()
+
+    for i, runHeader in ipairs(allHeaders) do
+        if (runHeader.runId == runId) then
+            return i
+        end
+    end
+
+    return nil
+end
+
 ---get the index of the latest selected run info
 ---@return number
 function addon.GetSelectedRunIndex()
@@ -420,13 +435,14 @@ end
 ---@field GetSavedRuns fun() : string[] return a table with compressed run info where the first index in the newest run
 ---@field GetHeaders fun() : runinfocompressed_header[] return a table with headers where the first index in the newest run
 ---@field GetRunHeader fun(headerIndex:number) : runinfocompressed_header? return the compressed header from the saved run
+---@field GetRunHeaderById fun(runId:number) : runinfocompressed_header? return the header from the saved runId
 ---@field UncompressedRun fun(headerIndex:number) : runinfo? return the uncompressed run data from the compressed run data
 ---@field GetDropdownRunDescription fun(header:runinfocompressed_header) : table
 ---@field GetSelectedRun fun() : runinfo return the uncompressed run data from the compressed run data
 ---@field SetValue fun(headerIndex:number, path:string, value:any) : boolean
 ---@field CompressRun fun(runInfo:runinfo) : string? compresses the run info and returns the compressed data
 ---@field HasLastRun fun() : boolean checks if there's run info for GetLastRun
----@field GetLastRun fun() : runinfo? return the run info for the last run finished before the next one starts
+---@field GetLastRun fun() : runinfo?, runinfocompressed_header? return the run info for the last run finished before the next one starts
 
 ---@diagnostic disable-next-line: missing-fields
 addon.Compress = {}
@@ -448,14 +464,32 @@ end
 
 ---return the run info for the last run finished before the next one starts
 ---@return runinfo?
+---@return runinfocompressed_header?
 function addon.Compress.GetLastRun()
-    return addon.Compress.HasLastRun() and addon.Compress.UncompressedRun(1)
+    if (addon.Compress.HasLastRun()) then
+        local umcompressedRun = addon.Compress.UncompressedRun(1)
+        local runHeader = addon.Compress.GetRunHeader(1)
+        return umcompressedRun, runHeader
+    end
 end
 
 ---return a table with headers where the first index in the newest run
 ---@return runinfocompressed_header[]
 function addon.Compress.GetHeaders()
     return addon.profile.saved_runs_compressed_headers
+end
+
+---return the header for the given runId
+---@param runId number
+---@return runinfocompressed_header|nil
+function addon.Compress.GetRunHeaderById(runId)
+    local headers = addon.Compress.GetHeaders()
+    for i, header in ipairs(headers) do
+        if (header.runId == runId) then
+            return header
+        end
+    end
+    return nil
 end
 
 ---return the header for a compressed run info
@@ -586,6 +620,7 @@ function addon.Compress.CompressAndSaveRun(runInfo, atIndex)
         runId = runInfo.runId,
         instanceId = runInfo.instanceId,
         groupMembers = {},
+        likesGiven = {}, --table<playername, true>
     }
 
     for playerName, playerInfo in pairs(runInfo.combatData.groupMembers) do
@@ -607,6 +642,8 @@ function addon.Compress.YeetRunsOverStorageLimit()
     while #addon.profile.saved_runs_compressed_headers > addon.profile.saved_runs_limit do
         table.remove(addon.profile.saved_runs_compressed_headers, addon.profile.saved_runs_limit + 1)
     end
+
+    --TODO: erase the runId from the likes given to players in the addon.profile.likes_given
 end
 
 ---return a table with data to be used in the dropdown menu to select which run to show in the scoreboard

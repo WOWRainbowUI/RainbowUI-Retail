@@ -53,12 +53,14 @@
 ---@field keep_information_for_debugging boolean keep certain information for debugging
 ---@field developer_mode boolean enable certain information only useful when developing the addon
 ---@field migrations_done number[] the timestamp of when a migration was done, where the key is the migration number from migrations.lua
+---@field migrations_data table misc data for migrations
 ---@field font fontsettings font settings
 ---@field logs string[] logs of the addon
 ---@field logout_logs string[]
 ---@field minimap minimap the minimap settings
 ---@field last_run_id number the id of the last run
 ---@field visible_scoreboard_columns table<string, boolean> key is the id/name of the column, the value is whether or not it's shown
+---@field likes_given table<playername, number[]> store the ggs the player gave to other players, store the runIds #table is the amount of likes given
 
 ---@class detailsmythicplus : table
 ---@field profile profile store the profile settings
@@ -71,7 +73,8 @@
 ---@field minimap table
 ---@field Compress compressrun
 ---@field Comm comm
----@field Migrations table<number, fun()>
+---@field Migrations table<function[]>
+---@field MigrationsPerCharacter table<function[]>
 ---@field selectedRunInfo runinfo currently run info in use (showing the data in the scoreboard), if any
 ---@field mythicPlusBreakdown details_mythicplus_breakdown
 ---@field activityTimeline activitytimeline namespace for functions related to the activity timeline
@@ -106,6 +109,7 @@
 ---@field GetRunAverageHealingPerSecond fun(runInfo:runinfo, timeType:combattimetype) : number return the average healing per second
 ---@field SetSelectedRunIndex fun(index:number) set the selected run index
 ---@field GetSelectedRunIndex fun() : number get the selected run index
+---@field GetRunIndexById fun(runId:number) : number|nil get the index of the run by its ID
 ---@field GetDropdownRunDescription fun(runInfo:runinfo) : table indexed table containing: [1] dungeonName, [2] keyLevel, [3] runTime, [4] keyUpgradeLevels, [5] timeString, [6] onTime [7] mapId [8] dungeonId
 ---@field GetPlayerDeathReason fun(runInfo:runinfo, unitName:playername, deathIndex:number) : death_last_hits[]|nil return a table with subtables of type death_last_hits which tells the last hits that killed the player
 ---@field PreparePlayerName fun(name:string) : string removes the realm name, and transliterates if configured
@@ -277,3 +281,5 @@
 ---@field runId number
 ---@field instanceId number
 ---@field groupMembers table<playername, class>
+---@field likesGiven table<playername, table<playername, boolean>>
+
