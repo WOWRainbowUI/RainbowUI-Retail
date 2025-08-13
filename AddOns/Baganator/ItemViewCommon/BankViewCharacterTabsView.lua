@@ -265,6 +265,9 @@ function BaganatorItemViewCommonBankViewCharacterTabsViewMixin:CombineStacksAndS
   end
 
   if addonTable.API.ExternalContainerSorts[sortMethod] then
+    if addonTable.Config.Get(addonTable.Config.Options.SORT_START_AT_BOTTOM) then
+      isReverse = not isReverse
+    end
     addonTable.API.ExternalContainerSorts[sortMethod].callback(isReverse, Baganator.API.Constants.ContainerType.CharacterBank, self.currentTab ~= 0 and self.currentTab or nil)
   elseif sortMethod == "combine_stacks_only" then
     self:CombineStacks(function() end)
@@ -315,7 +318,7 @@ function BaganatorItemViewCommonBankViewCharacterTabsViewMixin:SetupBlizzardFram
     local bagID = Syndicator.Constants.AllBankIndexes[self.currentTab]
 
     -- Ensure right-clicking a bag item puts the item into this bank
-    BankFrame.BankPanel.bankType = Enum.BankType.Character
+    BankFrame.BankPanel:SetBankType(Enum.BankType.Character)
 
     -- Workaround so that the tab edit UI shows the details for the current tab
     self.TabSettingsMenu.GetBankPanel = function()
