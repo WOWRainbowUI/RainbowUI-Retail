@@ -5,9 +5,9 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1749741408,
-        version = '11.1.5',
-        build = 61188,
+        timestamp = 1754813639,
+        version = '11.2.0',
+        build = 62438,
     }
 end
 
@@ -94,6 +94,11 @@ end
 --- @return table<number, {npcID: number?, count: number, isEvent: boolean?}> # [criteriaID] = info
 function data:GetDebugData()
     return {
+        [163] = { -- Bloodmaul Slag Mines
+            [48468] = { npcID = nil, count = 1000 },
+            [50191] = { npcID = nil, count = 10 },
+            [50192] = { npcID = nil, count = 100 },
+        },
         [165] = { -- Shadowmoon Burial Grounds
             [50191] = { npcID = nil, count = 3 },
             [50192] = { npcID = nil, count = 30 },

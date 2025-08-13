@@ -648,12 +648,13 @@ end
 function MMPE:CreateNameplateText(unit)
     local npcID = self:GetNPCID(UnitGUID(unit))
     if npcID then
-        if self.activeNameplates[unit] then
-            self.activeNameplates[unit]:Hide() -- This should never happen...
+        if self.activeNameplates[unit] then -- This should never happen...
+            self:RemoveNameplateText(unit)
         end
         local nameplate = nameplateAccessor(unit)
         if nameplate then
-            self.activeNameplates[unit] = nameplate:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+            self.activeNameplates[unit] = self.fontStringPool:Acquire()
+            self.activeNameplates[unit]:SetParent(nameplate)
             self.activeNameplates[unit]:SetText("+?%")
             self.activeNameplates[unit]:SetScale(self:GetSetting('nameplateTextScale'))
         end
@@ -662,8 +663,7 @@ end
 
 function MMPE:RemoveNameplateText(unit)
     if self.activeNameplates[unit] ~= nil then
-        self.activeNameplates[unit]:SetText("")
-        self.activeNameplates[unit]:Hide()
+        self.fontStringPool:Release(self.activeNameplates[unit])
         self.activeNameplates[unit] = nil
     end
 end
@@ -722,9 +722,11 @@ end
 
 function MMPE:OnAddNameplate(unit)
     if self:ShouldShowNameplateTexts() then
-        self:CreateNameplateText(unit)
-        self:UpdateNameplateValue(unit)
-        self:UpdateNameplatePosition(unit)
+        RunNextFrame(function()
+            self:CreateNameplateText(unit)
+            self:UpdateNameplateValue(unit)
+            self:UpdateNameplatePosition(unit)
+        end)
     end
 end
 
@@ -761,6 +763,18 @@ function MMPE:OnInitialize()
     ------------- disabled for now, might get re-enabled in the future, right now it's incorrectly detecting certain kills that provide no count
     --self:RegisterEvent("SCENARIO_CRITERIA_UPDATE", function() self:OnCriteriaUpdate() end)
     --self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(...) self:OnCombatLogEvent({CombatLogGetCurrentEventInfo()}) end)
+
+
+    local function init()
+        return UIParent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    end
+    local function reset(_, obj)
+        if not obj then return end
+        obj:ClearAllPoints()
+        obj:SetText("")
+        obj:Hide()
+    end
+    self.fontStringPool = CreateObjectPool(init, reset) --[[@as ObjectPool<FontString>]]
 
     self:RegisterEvent("NAME_PLATE_UNIT_ADDED", function(_, unit) self:OnAddNameplate(unit) end)
     self:RegisterEvent("NAME_PLATE_UNIT_REMOVED", function(_, unit) self:OnRemoveNameplate(unit) end)
