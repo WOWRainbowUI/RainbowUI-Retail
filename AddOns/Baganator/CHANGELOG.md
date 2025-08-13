@@ -1,8 +1,8 @@
 # Baganator
 
-## [725](https://github.com/Baganator/Baganator/tree/725) (2025-08-09)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/724...725) 
+## [727](https://github.com/Baganator/Baganator/tree/727) (2025-08-12)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/726...727) 
 
-- [Fixes #528] Update BankStack integration (supports per-tab sorting and warband)  
-- Remove usage of old warband bank lock/sort APIs  
-- Categories: "Include owned" option so recent items show items moved out of bank  
+- [Fixes #534] Fix wrong headings for "Group by" for battle pets  
+- Forgot to commit increased limit  
+- Retail: Increase ignored slots limit to account for bigger bags  

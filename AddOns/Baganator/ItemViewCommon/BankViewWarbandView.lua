@@ -255,6 +255,9 @@ function BaganatorItemViewCommonBankViewWarbandViewMixin:CombineStacksAndSort(is
   end
 
   if addonTable.API.ExternalContainerSorts[sortMethod] then
+    if addonTable.Config.Get(addonTable.Config.Options.SORT_START_AT_BOTTOM) then
+      isReverse = not isReverse
+    end
     addonTable.API.ExternalContainerSorts[sortMethod].callback(isReverse, Baganator.API.Constants.ContainerType.WarbandBank, self.currentTab ~= 0 and self.currentTab or nil)
   elseif sortMethod == "combine_stacks_only" then
     self:CombineStacks(function() end)
@@ -306,7 +309,7 @@ function BaganatorItemViewCommonBankViewWarbandViewMixin:SetupBlizzardFramesForT
     -- Ensure right-clicking a bag item puts the item into this bank
     (AccountBankPanel or BankPanel).selectedTabID = bagID;
     if Syndicator.Constants.CharacterBankTabsActive then
-      BankFrame.BankPanel.bankType = Enum.BankType.Account
+      BankFrame.BankPanel:SetBankType(Enum.BankType.Account)
     else
       BankFrame.activeTabIndex = addonTable.Constants.BlizzardBankTabConstants.Warband
       BankFrame.selectedTab = 1
