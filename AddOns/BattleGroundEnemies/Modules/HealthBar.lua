@@ -63,13 +63,13 @@ local generalOptions = function(location)
 			desc = L.HealthBar_Background_Desc,
 			hasAlpha = true,
 			width = "normal",
-			order = 3
+			order = 2
 		},
 		HealthPrediction_Enabled = {
 			type = "toggle",
 			name = COMPACT_UNIT_FRAME_PROFILE_DISPLAYHEALPREDICTION,
-			width = "normal",
-			order = 2,
+			width = "full",
+			order = 3,
 		},
 	}
 end
@@ -79,7 +79,7 @@ local options = function(location)
 		HealthTextEnabled = {
 			type = "toggle",
 			name = L.HealthTextEnabled,
-			width = "normal",
+			width = 1.2,
 			order = 6,
 		},
 		HealthTextType = {
