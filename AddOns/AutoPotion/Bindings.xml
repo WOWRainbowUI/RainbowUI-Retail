@@ -2,4 +2,7 @@
   <Binding name="使用巨集: 治療" header="Auto Potion" category="ADDONS">
     -- AutoPotion
   </Binding>
+  <Binding name="AutoBandage Macro" category="Auto Potion">
+    -- AutoBandage
+  </Binding>
 </Bindings>
