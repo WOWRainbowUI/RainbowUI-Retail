@@ -5,9 +5,9 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1749741408,
-        version = '11.1.5',
-        build = 61188,
+        timestamp = 1754813639,
+        version = '11.2.0',
+        build = 62438,
     }
 end
 
@@ -74,6 +74,11 @@ function data:GetDebugData()
             [48468] = { npcID = nil, count = 1 },
             [50191] = { npcID = nil, count = 6 },
             [50192] = { npcID = nil, count = 62 },
+        },
+        [541] = { -- The Stonecore
+            [48468] = { npcID = nil, count = 1337 },
+            [50191] = { npcID = nil, count = 14 },
+            [50192] = { npcID = nil, count = 134 },
         }
     }
 end

@@ -5,29 +5,22 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1749741408,
-        version = '11.1.5',
-        build = 61188,
+        timestamp = 1754813639,
+        version = '11.2.0',
+        build = 62438,
     }
 end
 
 function data:GetDungeonOverrides()
-    return {
-        [505] = { -- The Dawnbreaker
-            [230740] = { ["name"] = "Shreddinator 3000", ["count"] = 5 },
-        },
-        [525] = { -- Operation: Floodgate
-            [230740] = { ["name"] = "Shreddinator 3000", ["count"] = 10 },
-        },
-    }
+    return {}
 end
 
 --- @return table<number, {name: string, count: number}> # [npcID] = info
 function data:GetNPCData()
     -- data is sorted with natural sorting by NPC ID
     return {
-        [206694] = { name = "Fervent Sharpshooter", count = 5 },
-        [206696] = { name = "Arathi Knight", count = 18 },
+        [206694] = { name = "Fervent Sharpshooter", count = 6 },
+        [206696] = { name = "Arathi Knight", count = 25 },
         [206697] = { name = "Devout Priest", count = 6 },
         [206698] = { name = "Fanatical Conjuror", count = 6 },
         [206699] = { name = "War Lynx", count = 6 },
@@ -60,7 +53,7 @@ function data:GetNPCData()
         [211261] = { name = "Ascendant Vis'coxria", count = 25 },
         [211262] = { name = "Ixkreten the Unbreakable", count = 25 },
         [211263] = { name = "Deathscreamer Iken'tak", count = 25 },
-        [211341] = { name = "Manifested Shadow", count = 16 },
+        [211341] = { name = "Manifested Shadow", count = 8 },
         [211977] = { name = "Pack Mole", count = 3 },
         [212383] = { name = "Kobold Taskworker", count = 4 },
         [212389] = { name = "Cursedheart Invader", count = 5 },
@@ -85,7 +78,9 @@ function data:GetNPCData()
         [213885] = { name = "Nightfall Dark Architect", count = 30 },
         [213892] = { name = "Nightfall Shadowmage", count = 5 },
         [213893] = { name = "Nightfall Darkcaster", count = 5 },
+        [213894] = { name = "Nightfall Curseblade", count = 5 },
         [213895] = { name = "Nightfall Shadowalker", count = 5 },
+        [213905] = { name = "Unstable Darkness", count = 1 },
         [213913] = { name = "Kobold Flametender", count = 1 },
         [213932] = { name = "Sureki Militant", count = 12 },
         [213934] = { name = "Nightfall Tactician", count = 10 },
@@ -101,27 +96,27 @@ function data:GetNPCData()
         [214697] = { name = "Chef Chewie", count = 15 },
         [214761] = { name = "Nightfall Ritualist", count = 12 },
         [214762] = { name = "Nightfall Commander", count = 12 },
-        [214840] = { name = "Engorged Crawler", count = 4 },
+        [214840] = { name = "Engorged Crawler", count = 5 },
         [214920] = { name = "Tasting Room Attendant", count = 3 },
-        [216293] = { name = "Trilling Attendant", count = 4 },
+        [216293] = { name = "Trilling Attendant", count = 7 },
         [216328] = { name = "Unstable Test Subject", count = 20 },
         [216329] = { name = "Congealed Droplet", count = 1 },
-        [216333] = { name = "Bloodstained Assistant", count = 7 },
+        [216333] = { name = "Bloodstained Assistant", count = 6 },
         [216336] = { name = "Starved Crawler", count = 1 },
-        [216337] = { name = "Bloodworker", count = 1 },
-        [216338] = { name = "Hulking Bloodguard", count = 20 },
+        [216337] = { name = "Bloodworker", count = 3 },
+        [216338] = { name = "Hulking Bloodguard", count = 30 },
         [216339] = { name = "Sureki Unnaturaler", count = 6 },
-        [216340] = { name = "Sentry Stagshell", count = 7 },
+        [216340] = { name = "Sentry Stagshell", count = 5 },
         [216341] = { name = "Jabbing Flyer", count = 2 },
         [216342] = { name = "Assistant Unnaturaler", count = 3 },
-        [216363] = { name = "Reinforced Drone", count = 3 },
-        [216364] = { name = "Blood Overseer", count = 14 },
-        [216365] = { name = "Winged Carrier", count = 3 },
-        [217039] = { name = "Nerubian Hauler", count = 35 },
-        [217531] = { name = "Ixin", count = 12 },
-        [217533] = { name = "Atik", count = 12 },
+        [216363] = { name = "Reinforced Drone", count = 5 },
+        [216364] = { name = "Blood Overseer", count = 20 },
+        [216365] = { name = "Winged Carrier", count = 4 },
+        [217039] = { name = "Nerubian Hauler", count = 60 },
+        [217531] = { name = "Ixin", count = 40 },
+        [217533] = { name = "Atik", count = 40 },
         [217658] = { name = "Sir Braunpyke", count = 50 },
-        [218324] = { name = "Nakt", count = 12 },
+        [218324] = { name = "Nakt", count = 40 },
         [218671] = { name = "Venture Co. Pyromaniac", count = 5 },
         [218865] = { name = "Bee-let", count = 1 },
         [219066] = { name = "Afflicted Civilian", count = 1 },
@@ -174,9 +169,9 @@ function data:GetNPCData()
         [229251] = { name = "Venture Co. Architect", count = 10 },
         [229252] = { name = "Darkfuse Hyena", count = 3 },
         [229686] = { name = "Venture Co. Surveyor", count = 7 },
+        [230740] = { name = "Shreddinator 3000", count = 10 },
         [230748] = { name = "Darkfuse Bloodwarper", count = 12 },
         [231014] = { name = "Loaderbot", count = 2 },
-        [231197] = { name = "Bubbles", count = 20 },
         [231223] = { name = "Disturbed Kelp", count = 7 },
         [231312] = { name = "Venture Co. Electrician", count = 7 },
         [231325] = { name = "Darkfuse Jumpstarter", count = 12 },
@@ -184,9 +179,23 @@ function data:GetNPCData()
         [231385] = { name = "Darkfuse Inspector", count = 5 },
         [231496] = { name = "Venture Co. Diver", count = 5 },
         [231497] = { name = "Bombshell Crab", count = 3 },
+        [234870] = { name = "Invading Mite", count = 1 },
+        [234872] = { name = "Wastelander Phaseblade", count = 4 },
+        [234883] = { name = "Voracious Gorger", count = 5 },
+        [234912] = { name = "Ravaging Scavenger", count = 5 },
+        [234918] = { name = "Wastes Creeper", count = 9 },
+        [234955] = { name = "Wastelander Pactspeaker", count = 18 },
+        [234957] = { name = "Wastelander Ritualist", count = 7 },
+        [234960] = { name = "Tamed Ruinstalker", count = 5 },
+        [234962] = { name = "Wastelander Farstalker", count = 5 },
+        [235151] = { name = "K'aresh Elemental", count = 6 },
+        [236995] = { name = "Ravenous Destroyer", count = 10 },
         [239833] = { name = "Elaena Emberlanz", count = 50 },
         [239834] = { name = "Taener Duelmal", count = 50 },
         [239836] = { name = "Sergeant Shaynemail", count = 50 },
+        [242209] = { name = "Overgorged Mite", count = 5 },
+        [242631] = { name = "Overcharged Sentinel", count = 12 },
+        [245092] = { name = "Burrowing Creeper", count = 25 },
     }
 end
 
@@ -213,9 +222,9 @@ function data:GetDebugData()
             [69968] = { npcID = 219984, count = 8 },
         },
         [503] = { -- Ara-Kara, City of Echoes
-            [48468] = { npcID = nil, count = 1 },
-            [50191] = { npcID = nil, count = 4 },
-            [50192] = { npcID = nil, count = 43 },
+            [48468] = { npcID = nil, count = 800 },
+            [50191] = { npcID = nil, count = 8 },
+            [50192] = { npcID = nil, count = 80 },
         },
         [504] = { -- Darkflame Cleft
             [48468] = { npcID = nil, count = 1 },
@@ -235,6 +244,11 @@ function data:GetDebugData()
         [525] = { -- Operation: Floodgate
             [50191] = { npcID = nil, count = 4 },
             [50192] = { npcID = nil, count = 45 },
+        },
+        [542] = { -- Eco-Dome Al'dani
+            [48468] = { npcID = nil, count = 1000 },
+            [50191] = { npcID = nil, count = 10 },
+            [50192] = { npcID = nil, count = 100 },
         }
     }
 end

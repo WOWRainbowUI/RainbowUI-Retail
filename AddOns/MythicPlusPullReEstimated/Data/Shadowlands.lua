@@ -5,9 +5,9 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1749741408,
-        version = '11.1.5',
-        build = 61188,
+        timestamp = 1754813639,
+        version = '11.2.0',
+        build = 62438,
     }
 end
 
@@ -69,8 +69,8 @@ function data:GetNPCData()
         [163915] = { name = "Hatchling Nest", count = 10 },
         [164506] = { name = "Ancient Captain", count = 5 },
         [164510] = { name = "Shambling Arbalest", count = 4 },
-        [164557] = { name = "Shard of Halkias", count = 10 },
-        [164562] = { name = "Depraved Houndmaster", count = 4 },
+        [164557] = { name = "Shard of Halkias", count = 15 },
+        [164562] = { name = "Depraved Houndmaster", count = 5 },
         [164563] = { name = "Vicious Gargon", count = 4 },
         [164705] = { name = "Pestilence Slime", count = 6 },
         [164707] = { name = "Congealed Slime", count = 6 },
@@ -89,10 +89,10 @@ function data:GetNPCData()
         [165138] = { name = "Blight Bag", count = 1 },
         [165197] = { name = "Skeletal Monstrosity", count = 24 },
         [165222] = { name = "Zolramus Bonemender", count = 4 },
-        [165414] = { name = "Depraved Obliterator", count = 4 },
+        [165414] = { name = "Depraved Obliterator", count = 5 },
         [165415] = { name = "Toiling Groundskeeper", count = 2 },
         [165515] = { name = "Depraved Darkblade", count = 4 },
-        [165529] = { name = "Depraved Collector", count = 4 },
+        [165529] = { name = "Depraved Collector", count = 5 },
         [165824] = { name = "Nar'zudah", count = 20 },
         [165872] = { name = "Flesh Crafter", count = 4 },
         [165911] = { name = "Loyal Creation", count = 4 },
@@ -115,13 +115,13 @@ function data:GetNPCData()
         [167534] = { name = "Rek the Hardened", count = 20 },
         [167536] = { name = "Harugia the Bloodthirsty", count = 20 },
         [167538] = { name = "Dokigg the Brutalizer", count = 20 },
-        [167607] = { name = "Stoneborn Slasher", count = 7 },
+        [167607] = { name = "Stoneborn Slasher", count = 10 },
         [167610] = { name = "Stonefiend Anklebiter", count = 1 },
-        [167611] = { name = "Stoneborn Eviscerator", count = 4 },
-        [167612] = { name = "Stoneborn Reaver", count = 6 },
+        [167611] = { name = "Stoneborn Eviscerator", count = 6 },
+        [167612] = { name = "Stoneborn Reaver", count = 8 },
         [167615] = { name = "Depraved Darkblade", count = 4 },
         [167731] = { name = "Separation Assistant", count = 8 },
-        [167876] = { name = "Inquisitor Sigar", count = 20 },
+        [167876] = { name = "Inquisitor Sigar", count = 35 },
         [167955] = { name = "Sanguine Cadet", count = 1 },
         [167956] = { name = "Dark Acolyte", count = 1 },
         [167962] = { name = "Defunct Dental Drill", count = 8 },
@@ -221,7 +221,9 @@ function data:GetNPCData()
         [178163] = { name = "Murkbrine Shorerunner", count = 1 },
         [178165] = { name = "Coastwalker Goliath", count = 18 },
         [178171] = { name = "Stormforged Guardian", count = 10 },
+        [178388] = { name = "Bazaar Strongarm", count = 3 },
         [178392] = { name = "Gatewarden Zo'mazz", count = 18 },
+        [178394] = { name = "Cartel Lackey", count = 1 },
         [179334] = { name = "Portalmancer Zo'honn", count = 24 },
         [179386] = { name = "Corsair Officer", count = 5 },
         [179388] = { name = "Hourglass Tidesage", count = 4 },
@@ -241,6 +243,7 @@ function data:GetNPCData()
         [180432] = { name = "Devoted Accomplice", count = 5 },
         [180495] = { name = "Enraged Direhorn", count = 10 },
         [180567] = { name = "Frenzied Nightclaw", count = 4 },
+        [246285] = { name = "Bazaar Overseer", count = 12 },
     }
 end
 
@@ -261,8 +264,8 @@ function data:GetDebugData()
             [50192] = { npcID = nil, count = 39 },
         },
         [378] = { -- Halls of Atonement
-            [50191] = { npcID = nil, count = 3 },
-            [50192] = { npcID = nil, count = 28 },
+            [50191] = { npcID = nil, count = 5 },
+            [50192] = { npcID = nil, count = 50 },
         },
         [379] = { -- Plaguefall
             [50191] = { npcID = nil, count = 6 },
