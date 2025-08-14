@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 11.2.00 (5th August 2025)
+	-- 	Leatrix Maps 11.2.01 (13th August 2025)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "11.2.00"
+	LeaMapsLC["AddonVer"] = "11.2.01"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -677,8 +677,8 @@
 
 			WorldMapFrame:SetClampedToScreen(true)
 
-			-- Set position when map size is toggled
-			hooksecurefunc(WorldMapFrame, "SynchronizeDisplayState", function()
+			-- Function to set map position
+			local function SetMapPositionFunc()
 				WorldMapFrame:ClearAllPoints()
 				if not WorldMapFrame:IsMaximized() then
 					WorldMapFrame:SetClampRectInsets(600, -600, -64, 470)
@@ -687,15 +687,12 @@
 					WorldMapFrame:SetClampRectInsets(900, -900, -64, 700)
 					WorldMapFrame:SetPoint(LeaMapsLC["MaxMapPosA"], UIParent, LeaMapsLC["MaxMapPosR"], LeaMapsLC["MaxMapPosX"], LeaMapsLC["MaxMapPosY"])
 				end
-			end)
-
-			-- Set position on startup
-			WorldMapFrame:ClearAllPoints()
-			if not WorldMapFrame:IsMaximized() then
-				WorldMapFrame:SetPoint(LeaMapsLC["MapPosA"], UIParent, LeaMapsLC["MapPosR"], LeaMapsLC["MapPosX"], LeaMapsLC["MapPosY"])
-			else
-				WorldMapFrame:SetPoint(LeaMapsLC["MaxMapPosA"], UIParent, LeaMapsLC["MaxMapPosR"], LeaMapsLC["MaxMapPosX"], LeaMapsLC["MaxMapPosY"])
 			end
+
+			-- Set map position when map size is toggled, map size is changed and on startup
+			hooksecurefunc(WorldMapFrame, "SynchronizeDisplayState", SetMapPositionFunc)
+			hooksecurefunc(WorldMapFrame, "OnFrameSizeChanged", SetMapPositionFunc) -- Needed when maximising the map
+			SetMapPositionFunc()
 
 			----------------------------------------------------------------------
 			-- Panel button handlers
