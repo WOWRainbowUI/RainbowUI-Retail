@@ -2467,12 +2467,6 @@ GTFO.SpellID["468604"] = {
   sound = 3;
 };
 
-GTFO.SpellID["468723"] = {
-  --desc = "Shock Water (Geezle Gigazap)";
-  applicationOnly = true;
-  sound = 3;
-};
-
 GTFO.SpellID["468647"] = {
   --desc = "Leaping Spark (Leaping Spark)";
   applicationOnly = true;
@@ -2925,6 +2919,69 @@ GTFO.SpellID["1236910"] = {
 --- *******************
 --- * Manaforge Omega *
 --- *******************
+
+GTFO.SpellID["1245618"] = {
+  --desc = "Mana Salvo (Influx Warden)";
+  sound = 3;
+};
+
+GTFO.SpellID["1219223"] = {
+  --desc = "Atomize (Arcanomatrix Atomizer)";
+  sound = 3;
+  damageMinimum = 2000000; -- Someone forgot to cloak
+};
+
+GTFO.SpellID["1218625"] = {
+  --desc = "Displacement Matrix (Plexus Sentinel)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1219471"] = {
+  --desc = "Expulsion Zone (Expulsion Zone)";
+  sound = 3;
+};
+
+GTFO.SpellID["1215904"] = {
+  --desc = "Volatile Mana (Volatile Mana)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1226877"] = {
+  --desc = "Primal Spellstorm (Loom'ithar)";
+  sound = 3;
+};
+
+GTFO.SpellID["1226394"] = {
+  --desc = "Overinfusion Burst (Loom'ithar)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1237307"] = {
+  --desc = "Lair Weaving (Loom'ithar)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1227140"] = {
+  --desc = "Writhing Wave (Loom'ithar)";
+  affirmingDebuffSpellID = 1227163; -- Writhing Wave, alert only when already debuffed
+  sound = 3;
+};
+
+GTFO.SpellID["1227277"] = {
+  --desc = "Soulfray Annihilation (Soulbinder Naazindhri)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1226827"] = {
+  --desc = "Soulrend Orb (Soulbinder Naazindhri)";
+  applicationOnly = true;
+  sound = 3;
+};
 
 
 end

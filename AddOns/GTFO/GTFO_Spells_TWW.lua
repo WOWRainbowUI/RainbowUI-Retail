@@ -485,6 +485,11 @@ GTFO.SpellID["425556"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1238782"] = {
+  --desc = "Earthshattering Spear (Captain Dailcry)";
+  sound = 1;
+  ignoreApplication = true;
+};
 
 --- *******************
 --- * The Dawnbreaker *
@@ -1105,6 +1110,12 @@ GTFO.SpellID["473287"] = {
   sound = 1;
 };
 
+GTFO.SpellID["468723"] = {
+  --desc = "Shock Water (Geezle Gigazap)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
 --- ***************************
 --- * Liberation of Undermine *
 --- ***************************
@@ -1289,6 +1300,64 @@ GTFO.SpellID["1222202"] = {
 --- *******************
 --- * Manaforge Omega *
 --- *******************
+
+GTFO.SpellID["1219248"] = {
+  --desc = "Arcane Radiation (Arcanomatrix Atomizer)";
+  sound = 1;
+};
+
+GTFO.SpellID["1219354"] = {
+  --desc = "Potent Mana Residue (Plexus Sentinel)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1218668"] = {
+  --desc = "Energy Cutter (Plexus Sentinel)";
+  sound = 1;
+};
+
+GTFO.SpellID["1223235"] = {
+  --desc = "Arcane Sludge (Darkmage Zadus)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1223723"] = {
+  --desc = "Glare Splatter (Waygate Watcher)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1223620"] = {
+  --desc = "Cursed Gaze (Waygate Watcher)";
+  ignoreSelfInflicted = true;
+  sound = 4;
+};
+
+GTFO.SpellID["1226915"] = {
+  --desc = "Sticky Silk";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1246022"] = {
+  --desc = "Attuned Spillage";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1226366"] = {
+  --desc = "Living Silk (Loom'ithar)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1243771"] = {
+  --desc = "Arcane Ichor (Loom'ithar)";
+  ignoreApplication = true;
+  sound = 1;
+};
 
 end
 
