@@ -1,8 +1,6 @@
 # Baganator
 
-## [727](https://github.com/Baganator/Baganator/tree/727) (2025-08-12)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/726...727) 
+## [728](https://github.com/Baganator/Baganator/tree/728) (2025-08-13)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/727...728) 
 
-- [Fixes #534] Fix wrong headings for "Group by" for battle pets  
-- Forgot to commit increased limit  
-- Retail: Increase ignored slots limit to account for bigger bags  
+- [Fixes #536] Fix changing shown character not changing bank view  
