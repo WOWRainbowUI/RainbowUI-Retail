@@ -1062,6 +1062,7 @@ do
 					
 	
 					data.talentSubTree = nil
+					cooldownsModule:SetPlayerTalentTree(name)
 					local entries = {}
 					local c = 0
 					for i=1,#nodes do
@@ -1091,6 +1092,9 @@ do
 												list[specIndex][ #list[specIndex]+1 ] = spellID
 											end
 											if node.subTreeID and (not data.talentSubTree or node.subTreeActive) then
+												if data.talentSubTree ~= node.subTreeID then
+													cooldownsModule:SetPlayerTalentTree(name, node.subTreeID)
+												end
 												data.talentSubTree = node.subTreeID
 											end
 											if node.currentRank and node.currentRank > 0 and (not node.subTreeID or node.subTreeActive) then
