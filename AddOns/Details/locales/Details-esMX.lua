@@ -172,6 +172,8 @@ L["STRING_DODGE"] = "Esquivado"
 L["STRING_DOT"] = " (DoT)"
 L["STRING_DPS"] = "DPS"
 L["STRING_EMPTY_SEGMENT"] = "Segmento vacío"
+--[[Translation missing --]]
+L["STRING_ENABLE_DO_NOT_DISTURB"] = "Enable Do Not Disturb"
 L["STRING_ENABLED"] = "Activado"
 L["STRING_ENVIRONMENTAL_DROWNING"] = "Entorno (Ahogamiento)"
 L["STRING_ENVIRONMENTAL_FALLING"] = "Entorno (Caída)"
@@ -291,11 +293,27 @@ L["STRING_KEYBIND_TOGGLE_WINDOWS"] = "Alternar todo"
 L["STRING_KEYBIND_WINDOW_CONTROL"] = "Ventanas"
 L["STRING_KEYBIND_WINDOW_REPORT"] = "Informe los datos en la ventana #%s."
 L["STRING_KEYBIND_WINDOW_REPORT_HEADER"] = "Informar datos"
+--[[Translation missing --]]
+L["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"] = "Add to friends list as character (not battlenet friend request)."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"] = "Click to view the scoreboard."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_DND_TOOLTIP"] = "Your key won't be sent to your guild or friends. While in a group, it will still be sent."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"] = [=[Life-time likes you gave for this player through the 'GG' button in the |cFFFFFF00Details! Damage Meter Mythic+|r addon.
+
+View run breakdown by selecting a Mythic+ run you did with this player.]=]
+--[[Translation missing --]]
+L["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"] = "Mythic+ addon not found."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_REQUEST_FROM_GUILD"] = "Request from Guild"
 L["STRING_KILLED"] = "Asesinado"
 L["STRING_LAST_COOLDOWN"] = "último tiempo de reutilización utilizado"
 L["STRING_LEFT"] = "izquierda"
 L["STRING_LEFT_CLICK_SHARE"] = "Haz clic para enviar un informe."
 L["STRING_LEFT_TO_RIGHT"] = "De izquierda a derecha"
+--[[Translation missing --]]
+L["STRING_LIKES_YOU_GAVE"] = "Likes you gave"
 L["STRING_LOCK_DESC"] = "Bloquear o desbloquear la ventana"
 L["STRING_LOCK_WINDOW"] = "Bloquear"
 L["STRING_MASTERY"] = "Maestría"
@@ -355,9 +373,13 @@ L["STRING_NEWS_REINSTALL"] = "¿Encontró problemas después de una actualizaci�
 L["STRING_NEWS_TITLE"] = "Que hay de nuevo en esta version"
 L["STRING_NO"] = "No"
 L["STRING_NO_DATA"] = "Los datos ya se han limpiados."
+--[[Translation missing --]]
+L["STRING_NO_MYTHIC_PLUS_ADDON"] = "To track your Mythic+ runs including loot, score, damage, healing done, and who you played with, install the |cFFFFAA00Details! Damage Meter Mythic+|r addon on |cFFfff1c1Wago AddOns|r or |cFFfff1c1Curse Forge|r."
 L["STRING_NO_SPELL"] = "No se ha usado ninguna habilidad"
 L["STRING_NO_TARGET"] = "No se encuentra un objetivo."
 L["STRING_NO_TARGET_BOX"] = "Ningún objetivos disponibles"
+--[[Translation missing --]]
+L["STRING_NO_TELEPORTER"] = "You don't have this teleporter"
 L["STRING_NOCLOSED_INSTANCES"] = "No hay ningún ventanas cerradas. Hacer clic para crear una nueva ventana."
 L["STRING_NOLAST_COOLDOWN"] = "sin tiempos de reuitilización utilizados"
 L["STRING_NOMORE_INSTANCES"] = "Cantidad máxima de ventanas alcanzadas. Cambia el límite en el panel de opciones."
@@ -1316,6 +1338,10 @@ L["STRING_SWITCH_WARNING"] = "El rol se ha cambiado. Cambiando a: |cFFFFAA00%s|r
 L["STRING_TARGET"] = "Objetivo"
 L["STRING_TARGETS"] = "Objetivos"
 L["STRING_TARGETS_OTHER1"] = "Mascotas y otros objetivos"
+--[[Translation missing --]]
+L["STRING_TELEPORT"] = "Teleport"
+--[[Translation missing --]]
+L["STRING_TELEPORTERS"] = "Teleporters"
 L["STRING_TEXTURE"] = "Textura"
 L["STRING_TIME_OF_DEATH"] = "Muerte"
 L["STRING_TOOOLD"] = "no se pudo instalar porque la versión de Details! es demasiado antiguo."

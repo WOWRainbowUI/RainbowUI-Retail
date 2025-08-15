@@ -185,6 +185,8 @@ L["STRING_DODGE"] = "閃避"
 L["STRING_DOT"] = "持續性傷害 (DoT)"
 L["STRING_DPS"] = "每秒傷害 (DPS)"
 L["STRING_EMPTY_SEGMENT"] = "空的戰鬥記錄"
+--[[Translation missing --]]
+L["STRING_ENABLE_DO_NOT_DISTURB"] = "Enable Do Not Disturb"
 L["STRING_ENABLED"] = "啟用"
 L["STRING_ENVIRONMENTAL_DROWNING"] = "環境 (溺水)"
 L["STRING_ENVIRONMENTAL_FALLING"] = "環境 (墜落)"
@@ -309,11 +311,27 @@ L["STRING_KEYBIND_TOGGLE_WINDOWS"] = "切換顯示全部"
 L["STRING_KEYBIND_WINDOW_CONTROL"] = "視窗"
 L["STRING_KEYBIND_WINDOW_REPORT"] = "報告視窗 #%s 的資料"
 L["STRING_KEYBIND_WINDOW_REPORT_HEADER"] = "報告資料"
+--[[Translation missing --]]
+L["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"] = "Add to friends list as character (not battlenet friend request)."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"] = "Click to view the scoreboard."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_DND_TOOLTIP"] = "Your key won't be sent to your guild or friends. While in a group, it will still be sent."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"] = [=[Life-time likes you gave for this player through the 'GG' button in the |cFFFFFF00Details! Damage Meter Mythic+|r addon.
+
+View run breakdown by selecting a Mythic+ run you did with this player.]=]
+--[[Translation missing --]]
+L["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"] = "Mythic+ addon not found."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_REQUEST_FROM_GUILD"] = "Request from Guild"
 L["STRING_KILLED"] = "擊殺"
 L["STRING_LAST_COOLDOWN"] = "最後的冷卻時間"
 L["STRING_LEFT"] = "左"
 L["STRING_LEFT_CLICK_SHARE"] = "點一下左鍵來報告。"
 L["STRING_LEFT_TO_RIGHT"] = "由左到右"
+--[[Translation missing --]]
+L["STRING_LIKES_YOU_GAVE"] = "Likes you gave"
 L["STRING_LOCK_DESC"] = "鎖定或解鎖視窗"
 L["STRING_LOCK_WINDOW"] = "鎖定"
 L["STRING_MASTERY"] = "精通"
@@ -381,9 +399,13 @@ L["STRING_NEWS_REINSTALL"] = "更新後有問題嗎? 請試試輸入指令 /deta
 L["STRING_NEWS_TITLE"] = "更新資訊"
 L["STRING_NO"] = "否"
 L["STRING_NO_DATA"] = "資料已被清空"
+--[[Translation missing --]]
+L["STRING_NO_MYTHIC_PLUS_ADDON"] = "To track your Mythic+ runs including loot, score, damage, healing done, and who you played with, install the |cFFFFAA00Details! Damage Meter Mythic+|r addon on |cFFfff1c1Wago AddOns|r or |cFFfff1c1Curse Forge|r."
 L["STRING_NO_SPELL"] = "沒有已使用的法術"
 L["STRING_NO_TARGET"] = "沒有找到目標。"
 L["STRING_NO_TARGET_BOX"] = "沒有可用目標"
+--[[Translation missing --]]
+L["STRING_NO_TELEPORTER"] = "You don't have this teleporter"
 L["STRING_NOCLOSED_INSTANCES"] = [=[沒有已關閉的視窗，
 點一下建立新視窗。]=]
 L["STRING_NOLAST_COOLDOWN"] = "沒有已使用的冷卻"
@@ -1565,6 +1587,10 @@ L["STRING_SWITCH_WARNING"] = "角色職責已變更，切換成: |cFFFFAA00%s|r 
 L["STRING_TARGET"] = "目標"
 L["STRING_TARGETS"] = "目標"
 L["STRING_TARGETS_OTHER1"] = "寵物和其他目標"
+--[[Translation missing --]]
+L["STRING_TELEPORT"] = "Teleport"
+--[[Translation missing --]]
+L["STRING_TELEPORTERS"] = "Teleporters"
 L["STRING_TEXTURE"] = "材質"
 L["STRING_TIME_OF_DEATH"] = "死亡"
 L["STRING_TOOOLD"] = "無法安裝，因為你的 Details! 版本太舊。"

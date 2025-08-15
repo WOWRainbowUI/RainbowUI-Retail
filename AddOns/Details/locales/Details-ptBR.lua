@@ -184,6 +184,8 @@ L["STRING_DODGE"] = "Desvio"
 L["STRING_DOT"] = " (DoT)"
 L["STRING_DPS"] = "Dps"
 L["STRING_EMPTY_SEGMENT"] = "Segmento Vazio"
+--[[Translation missing --]]
+L["STRING_ENABLE_DO_NOT_DISTURB"] = "Enable Do Not Disturb"
 L["STRING_ENABLED"] = "Ativado,"
 L["STRING_ENVIRONMENTAL_DROWNING"] = "Ambiente (Afogar)"
 L["STRING_ENVIRONMENTAL_FALLING"] = "Ambiente (Queda)"
@@ -304,11 +306,27 @@ L["STRING_KEYBIND_TOGGLE_WINDOWS"] = "Alterna Todas as Janelas"
 L["STRING_KEYBIND_WINDOW_CONTROL"] = "Janelas"
 L["STRING_KEYBIND_WINDOW_REPORT"] = "Reporta dados mostrados na janela #%s."
 L["STRING_KEYBIND_WINDOW_REPORT_HEADER"] = "Reportar Dados"
+--[[Translation missing --]]
+L["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"] = "Add to friends list as character (not battlenet friend request)."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"] = "Click to view the scoreboard."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_DND_TOOLTIP"] = "Your key won't be sent to your guild or friends. While in a group, it will still be sent."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"] = [=[Life-time likes you gave for this player through the 'GG' button in the |cFFFFFF00Details! Damage Meter Mythic+|r addon.
+
+View run breakdown by selecting a Mythic+ run you did with this player.]=]
+--[[Translation missing --]]
+L["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"] = "Mythic+ addon not found."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_REQUEST_FROM_GUILD"] = "Request from Guild"
 L["STRING_KILLED"] = "Morto"
 L["STRING_LAST_COOLDOWN"] = "último cooldown usado"
 L["STRING_LEFT"] = "esquerda"
 L["STRING_LEFT_CLICK_SHARE"] = "Clique para enviar relatório."
 L["STRING_LEFT_TO_RIGHT"] = "Esquerda para Direita"
+--[[Translation missing --]]
+L["STRING_LIKES_YOU_GAVE"] = "Likes you gave"
 L["STRING_LOCK_DESC"] = "Travar ou destravar esta janela"
 L["STRING_LOCK_WINDOW"] = "travar"
 L["STRING_MASTERY"] = "Maestria"
@@ -376,9 +394,13 @@ L["STRING_NEWS_REINSTALL"] = "Encontrou problemas após atualizar? tente o coman
 L["STRING_NEWS_TITLE"] = "Quais As Novidades Desta Versão"
 L["STRING_NO"] = "Não"
 L["STRING_NO_DATA"] = "data já foi limpada"
+--[[Translation missing --]]
+L["STRING_NO_MYTHIC_PLUS_ADDON"] = "To track your Mythic+ runs including loot, score, damage, healing done, and who you played with, install the |cFFFFAA00Details! Damage Meter Mythic+|r addon on |cFFfff1c1Wago AddOns|r or |cFFfff1c1Curse Forge|r."
 L["STRING_NO_SPELL"] = "Nenhuma habilidade foi usada"
 L["STRING_NO_TARGET"] = "Nenhum alvo encontrado."
 L["STRING_NO_TARGET_BOX"] = "Nenhum alvo disponível."
+--[[Translation missing --]]
+L["STRING_NO_TELEPORTER"] = "You don't have this teleporter"
 L["STRING_NOCLOSED_INSTANCES"] = [=[Não há janelas fechadas,
 clique para abrir uma nova.]=]
 L["STRING_NOLAST_COOLDOWN"] = "nenhum cooldown usado"
@@ -1567,6 +1589,10 @@ L["STRING_SWITCH_WARNING"] = "Especialização Alterada. Trocando: |cFFFFAA00%s|
 L["STRING_TARGET"] = "Alvo"
 L["STRING_TARGETS"] = "Alvos"
 L["STRING_TARGETS_OTHER1"] = "Ajudantes e Outros Alvos"
+--[[Translation missing --]]
+L["STRING_TELEPORT"] = "Teleport"
+--[[Translation missing --]]
+L["STRING_TELEPORTERS"] = "Teleporters"
 L["STRING_TEXTURE"] = "Textura"
 L["STRING_TIME_OF_DEATH"] = "Morreu"
 L["STRING_TOOOLD"] = "não pode ser instalado pois sua versão do Details! e muito antiga."

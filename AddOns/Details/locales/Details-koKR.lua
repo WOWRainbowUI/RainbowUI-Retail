@@ -186,6 +186,8 @@ L["STRING_DODGE"] = "회피"
 L["STRING_DOT"] = " (지속 효과)"
 L["STRING_DPS"] = "Dps"
 L["STRING_EMPTY_SEGMENT"] = "빈 세분화"
+--[[Translation missing --]]
+L["STRING_ENABLE_DO_NOT_DISTURB"] = "Enable Do Not Disturb"
 L["STRING_ENABLED"] = "사용"
 L["STRING_ENVIRONMENTAL_DROWNING"] = "환경피해 (호흡 불가)"
 L["STRING_ENVIRONMENTAL_FALLING"] = "환경피해 (낙하 충격)"
@@ -305,11 +307,27 @@ L["STRING_KEYBIND_TOGGLE_WINDOWS"] = "모든 창 표시 전환"
 L["STRING_KEYBIND_WINDOW_CONTROL"] = "창"
 L["STRING_KEYBIND_WINDOW_REPORT"] = "창 #%s에 표시된 데이터를 보고합니다."
 L["STRING_KEYBIND_WINDOW_REPORT_HEADER"] = "데이터 보고하기"
+--[[Translation missing --]]
+L["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"] = "Add to friends list as character (not battlenet friend request)."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"] = "Click to view the scoreboard."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_DND_TOOLTIP"] = "Your key won't be sent to your guild or friends. While in a group, it will still be sent."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"] = [=[Life-time likes you gave for this player through the 'GG' button in the |cFFFFFF00Details! Damage Meter Mythic+|r addon.
+
+View run breakdown by selecting a Mythic+ run you did with this player.]=]
+--[[Translation missing --]]
+L["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"] = "Mythic+ addon not found."
+--[[Translation missing --]]
+L["STRING_KEYSTONE_REQUEST_FROM_GUILD"] = "Request from Guild"
 L["STRING_KILLED"] = "죽임"
 L["STRING_LAST_COOLDOWN"] = "마지막으로 사용한 생존기"
 L["STRING_LEFT"] = "좌측"
 L["STRING_LEFT_CLICK_SHARE"] = "보고하려면 클릭하세요."
 L["STRING_LEFT_TO_RIGHT"] = "왼쪽에서 오른쪽으로"
+--[[Translation missing --]]
+L["STRING_LIKES_YOU_GAVE"] = "Likes you gave"
 L["STRING_LOCK_DESC"] = "창 잠금 또는 잠금해제"
 L["STRING_LOCK_WINDOW"] = "잠금"
 L["STRING_MASTERY"] = "특화"
@@ -377,9 +395,13 @@ L["STRING_NEWS_REINSTALL"] = "업데이트 후에 문제가 생겼나요? '/deta
 L["STRING_NEWS_TITLE"] = "버전 변경 사항"
 L["STRING_NO"] = "아니오"
 L["STRING_NO_DATA"] = "데이터가 이미 지워졌습니다"
+--[[Translation missing --]]
+L["STRING_NO_MYTHIC_PLUS_ADDON"] = "To track your Mythic+ runs including loot, score, damage, healing done, and who you played with, install the |cFFFFAA00Details! Damage Meter Mythic+|r addon on |cFFfff1c1Wago AddOns|r or |cFFfff1c1Curse Forge|r."
 L["STRING_NO_SPELL"] = "사용한 주문 없음"
 L["STRING_NO_TARGET"] = "대상이 없습니다."
 L["STRING_NO_TARGET_BOX"] = "표시할 대상 없음"
+--[[Translation missing --]]
+L["STRING_NO_TELEPORTER"] = "You don't have this teleporter"
 L["STRING_NOCLOSED_INSTANCES"] = [=[닫혀있는 창이 없습니다,
 클릭하면 새 창을 엽니다.]=]
 L["STRING_NOLAST_COOLDOWN"] = "사용한 생존기 없음"
@@ -1576,6 +1598,10 @@ L["STRING_SWITCH_WARNING"] = "역할 바뀜. 변경: |cFFFFAA00%s|r"
 L["STRING_TARGET"] = "대상"
 L["STRING_TARGETS"] = "대상"
 L["STRING_TARGETS_OTHER1"] = "소환수와 다른 대상들"
+--[[Translation missing --]]
+L["STRING_TELEPORT"] = "Teleport"
+--[[Translation missing --]]
+L["STRING_TELEPORTERS"] = "Teleporters"
 L["STRING_TEXTURE"] = "텍스쳐"
 L["STRING_TIME_OF_DEATH"] = "죽음"
 L["STRING_TOOOLD"] = "Details! 버전이 너무 오래되어 설치할 수 없습니다."
