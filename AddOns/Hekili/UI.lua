@@ -1117,7 +1117,7 @@ do
 
                         local ability = class.abilities[ action ]
 
-                        if ability and ability.id < 0 and ability.id > -100 then
+                        if ability and ability.id < 0 and ability.id > -100 or exact_time == nil then
                             ability = nil
                         end
 
@@ -1793,8 +1793,6 @@ do
                         isItem = true
                         id = ability.item
                     end
-
-                    local spellID = select( 9, UnitCastingInfo( "player" ) ) or select( 9, UnitChannelInfo( "player" ) )
 
                     if id and ( isItem and IsCurrentItem( id ) or IsCurrentSpell( id ) ) then --  and b.ExactTime > GetTime() then
                         b.Highlight:Show()
