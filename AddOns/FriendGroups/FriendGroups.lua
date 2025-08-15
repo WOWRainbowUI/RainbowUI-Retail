@@ -279,7 +279,7 @@ function FriendGroups_DebugLog(tData, strName)
 end
 
 function FriendGroups_Rename(self, old)
-	local input = self.editBox:GetText()
+	local input = self:GetEditBox():GetText()
 	local oldGroup = old.name:GetText()
 	if input == "" then
 		return
@@ -360,7 +360,7 @@ function FriendGroups_AddGroup(note, group)
 end
 
 function FriendGroups_Create(self, data)
-	local input = self.editBox:GetText()
+	local input = self:GetEditBox():GetText()
 	if input == "" then
 		return
 	end
@@ -1196,7 +1196,7 @@ StaticPopupDialogs["FRIEND_GROUP_CREATE"] = {
 	button2 = CANCEL,
 	hasEditBox = 1,
 	OnAccept = function(self)
-		local parent = self.editBox:GetParent()
+		local parent = self:GetEditBox():GetParent()
 		FriendGroups_Create(parent, parent.data)
 		parent:Hide()
 	end,
@@ -1215,7 +1215,7 @@ StaticPopupDialogs["FRIEND_GROUP_RENAME"] = {
 	button2 = CANCEL,
 	hasEditBox = 1,
 	OnAccept = function(self)
-		local parent = self.editBox:GetParent()
+		local parent = self:GetEditBox():GetParent()
 		FriendGroups_Rename(parent, parent.data)
 		parent:Hide()
 	end,
