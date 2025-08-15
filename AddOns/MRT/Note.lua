@@ -4052,9 +4052,9 @@ local function CheckSubZone()
 	
 	if zoneText then
 		local bossID = SubzoneTextToBossID[zoneText]
-		if not bossID and locale == "enUS" then
-			bossID = SubzoneTextToBossID["The "..zoneText]
-		end
+		--if not bossID and locale == "enUS" then
+		--	bossID = SubzoneTextToBossID["The "..zoneText]
+		--end
 		if bossID then
 			if SubzoneBossIDInctanceReq[bossID] and select(8,GetInstanceInfo()) ~= SubzoneBossIDInctanceReq[bossID] then
 				return
