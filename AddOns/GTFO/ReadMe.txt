@@ -2297,3 +2297,7 @@ Change Log:
 * Added TWW spells for Manaforge Omega 
 * Added TWW spells for Priory of the Scared Flame
 * Added TWW spells for Operation: Floodgate
+
+5.18.4
+* Added TWW spells for Manaforge Omega 
+

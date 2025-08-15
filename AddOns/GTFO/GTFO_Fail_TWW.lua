@@ -2983,6 +2983,75 @@ GTFO.SpellID["1226827"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1223883"] = {
+  --desc = "Eye Barrage (Watcher Gaz'Kreth)";
+  sound = 3;
+};
+
+GTFO.SpellID["1225167"] = {
+  --desc = "Anomalous Discharge (Unstable Mana)";
+  sound = 3;
+};
+
+GTFO.SpellID["1234324"] = {
+  applicationOnly = true;
+  --desc = "Photon Blast (Arcane Collector)";
+  sound = 3;
+};
+
+GTFO.SpellID["1225167"] = {
+  --desc = "Anomalous Discharge (Unstable Mana)";
+  sound = 3;
+};
+
+GTFO.SpellID["1237322"] = {
+  --desc = "Prime Sequence (Arcane Collector)";
+  sound = 3;
+};
+
+GTFO.SpellID["1224765"] = {
+  --desc = "Arcane Flurries (Forge Sentinel)";
+  sound = 3;
+};
+
+GTFO.SpellID["1228168"] = {
+  --desc = "Silencing Tempest (Forgeweaver Araz)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1250600"] = {
+  --desc = "Void Lightning";
+  sound = 3;
+};
+
+GTFO.SpellID["1232130"] = {
+  --desc = "Nexus Shrapnel (Fractillus)";
+  sound = 3;
+};
+
+GTFO.SpellID["1238844"] = {
+  --desc = "Echo Barrage (Enforcer Jak'tull)";
+  sound = 3;
+  ignoreApplication = true;
+};
+
+GTFO.SpellID["1232403"] = {
+  --desc = "Dread Mortar (Manaforged Titan)";
+  sound = 3;
+};
+
+GTFO.SpellID["1227897"] = {
+  --desc = "Coalesce Voidwing (Nexus-King Salhadaar)";
+  sound = 3;
+};
+
+GTFO.SpellID["1225645"] = {
+  --desc = "Twilight Spikes (Nexus-King Salhadaar)";
+  sound = 3;
+};
+
+
 
 end
 

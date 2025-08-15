@@ -1359,6 +1359,102 @@ GTFO.SpellID["1243771"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1225219"] = {
+  --desc = "Mana Exhaust";
+  ignoreApplication = true;
+  sound = 2;
+};
+
+GTFO.SpellID["1233074"] = {
+  --desc = "Crushing Darkness (Dark Singularity)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1232412"] = {
+  --desc = "Focusing Iris (Manaforge)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1239269"] = {
+  --desc = "Fel Inferno (Velaryn Bloodwrath)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1218103"] = {
+  --desc = "Eye Beam (Velaryn Bloodwrath)";
+  applicationOnly = true;
+  sound = 1;
+  tankSound = 0;
+};
+
+GTFO.SpellID["1227119"] = {
+  --desc = "Fel Devastation (Ilyssa Darksorrow)";
+  sound = 1;
+};
+
+GTFO.SpellID["1235045"] = {
+  --desc = "Encroaching Oblivion (Adarus Duskblaze)";
+  -- negatingDebuffSpellID = ???;
+  -- sound = 1;
+  test = true;
+};
+
+GTFO.SpellID["1233968"] = {
+  --desc = "Event Horizon (Adarus Duskblaze)";
+  applicationOnly = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1223725"] = {
+  --desc = "Fel Inferno (Velaryn Bloodwrath)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1238964"] = {
+  --desc = "Bonemelt (The Bone Melter)";
+  ignoreSelfInflicted = true;
+  sound = 4;
+};
+
+GTFO.SpellID["1241137"] = {
+  --desc = "Refracted Entropy";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1236872"] = {
+  --desc = "Dimension Breath (The Royal Voidwing)";
+  sound = 1;
+  tankSound = 0;
+};
+
+GTFO.SpellID["1227472"] = {
+  --desc = "Besiege (Nexus-King Salhadaar)";
+  sound = 1;
+};
+
+GTFO.SpellID["1228080"] = {
+  --desc = "Nexus Beams (Nexus-Prince Xevvos)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1231097"] = {
+  --desc = "Cosmic Rip (Nexus-King Salhadaar)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1225445"] = {
+  --desc = "Atomized (Nexus-King Salhadaar)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
 end
 
 
