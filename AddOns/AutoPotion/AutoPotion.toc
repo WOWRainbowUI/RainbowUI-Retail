@@ -1,5 +1,5 @@
 ## Interface: 11507, 30405, 50500, 110107, 110200
-## Version: 3.10.0
+## Version: 3.11.0
 ## Title: Auto Potion
 ## Author: ollidiemaus
 ## Notes: Updates the Macro AutoPotion to use either Healthstone or the highest Potion found in Bags 
@@ -28,6 +28,7 @@
 Locales\Locales.xml
 
 Core/Constants.lua
+Core/Spell.lua
 Core/Spells.lua
 Core/Item.lua
 Core/DB.lua
