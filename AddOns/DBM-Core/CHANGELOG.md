@@ -1,31 +1,31 @@
 # DBM - Core
 
-## [11.2.8](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.2.8) (2025-08-13)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.2.7...11.2.8) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.2.9](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.2.9) (2025-08-16)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.2.8...11.2.9) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
 - prep new tag  
-- more refinements for timer error cleanup  
-- Switch this to combat log event and adjust timer  
-- fix two more timer errors  
-- another timer tweak  
-- kill spammy warning  
-- fix one obvious timer error  
-- Update all test data with rest of normal updated and most of heroic  
-- First dimensius update  
-- Minor timer fixes on Shalhadaar but otherwise this boss had least changes from PTR  
-- Fix Fractillus timers for normal and heroic with live data  
-- Fix Mystic Lash to be a more appropriate taunt warning, as well as fix detection of it at all on normal difficulty  
-- Fix phase warning on Araz  
-    Update all timers on Soul hunter with live changes (mythic obvious not known yet)  
-    Added correct swap warnings to Soul hunters for tanks  
-- Update localization.ru.lua (#1707)  
-- Fix infoframe not closing after combat ends iwth Nexus King  
-    Update heroic and normal timers on Araz for live  
-- Loomithar updates for LFR normal and heroic  
-- timer updates for Plexus with changes from live.  
-- Fix araz phase detection due to phase change being removed from combatlog  
-    change tank swap alerts on araz some  
-- Update koKR (#1705)  
-    Co-authored-by: Adam <MysticalOS@users.noreply.github.com>  
-- replace several tests with live data  
+- Update localization.ru.lua (#1709)  
+- only a single mythic timer change on Loomithar, rest are same as PTR  
+- fix table entry  
+- Dimensius Update  
+     - Extended normal mode timers to latest longest pulls on WCL  
+     - Updated Heroic timers with latest public pulls on WCL  
+- add GTFO to Loomithar for purple stuff  
+    Aggregate excess mass pickups on dimensius  
+    Clarify Dark matter on dimensius with better audio and text  
+    increase emphasis on extinction on dimensius  
+- filter non tanks for strands warning  
+- fix bad warning text  
+- Add a preliminary heroic test for Dimensius  
+- Fix spammy alert message on Dimensius  
+    Added some shortnames to Dimensius  
+- add more variance  
+- downgrade arcane outrage  
+- Add some phase change announces to dimensius  
+- fix lua error, don't use -delay on variance tables  
+- another tweak, and announce cleanse cast  
+- Plexus Update  
+    handle cleanse the chamber better, especially for mythic  
+    some mythic timer tweaks  
+- Put in some variance timers to account for variances in artoshion's engage timers  
 - bump alpha  

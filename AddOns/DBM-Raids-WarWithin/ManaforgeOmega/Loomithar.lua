@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2686, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250813141951")
+mod:SetRevision("20250816043406")
 mod:SetCreatureID(233815)
 mod:SetEncounterID(3131)
 mod:SetUsedIcons(1, 2)
@@ -15,11 +15,11 @@ mod:RegisterCombat("combat")
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START 1227263 1227782 1227226",
 	"SPELL_CAST_SUCCESS 1226395 1237272",--1226315 1226867 1230115
-	"SPELL_AURA_APPLIED 1226311 1238502 1237212 1228070 1227784 1227163",
+	"SPELL_AURA_APPLIED 1226311 1238502 1237212 1228070 1227163",
 --	"SPELL_AURA_APPLIED_DOSE",
 	"SPELL_AURA_REMOVED 1226311 1238502",
---	"SPELL_PERIODIC_DAMAGE",
---	"SPELL_PERIODIC_MISSED"
+	"SPELL_PERIODIC_DAMAGE 1243771",
+	"SPELL_PERIODIC_MISSED 1243771",
 	"CHAT_MSG_RAID_BOSS_WHISPER",
 	"UNIT_SPELLCAST_SUCCEEDED boss1"
 )
@@ -47,7 +47,7 @@ local specWarnInfusionTether						= mod:NewSpecialWarningYou(1226311, nil, nil, 
 local yellInfusionTether							= mod:NewShortYell(1226311, nil, false)
 local specWarnPiercingStrands						= mod:NewSpecialWarningDefensive(1237212, nil, nil, nil, 1, 2)
 local specWarnPiercingStrandsOther					= mod:NewSpecialWarningTaunt(1237212, nil, nil, nil, 1, 2)
---local specWarnGTFO								= mod:NewSpecialWarningGTFO(459785, nil, nil, nil, 1, 8)
+local specWarnGTFO									= mod:NewSpecialWarningGTFO(1243771, nil, nil, nil, 1, 8)
 
 local timerLairWeavingCD							= mod:NewNextCountTimer(85, 1237272, nil, nil, nil, 2)
 --local timerPrimalSpellstormCD						= mod:NewAITimer(97.3, 1226867, nil, nil, nil, 3)
@@ -60,8 +60,8 @@ mod:AddNamePlateOption("NPAuraOnWovenWard", 1238502)
 --Phase 2: The Deathbound Beast
 mod:AddTimerLine(DBM:EJ_GetSectionInfo(32303))
 local specWarnUnboundRage							= mod:NewSpecialWarningSpell(1228059, nil, nil, nil, 2, 2)
+local warnArcaneOutrage								= mod:NewCountAnnounce(1227782, 3)
 
-local specWarnArcaneOutrage							= mod:NewSpecialWarningYou(1227782, nil, nil, nil, 1, 13)
 local specWarnWrithingWave							= mod:NewSpecialWarningCount(1227226, nil, nil, nil, 2, 2)
 local specWarnWrithingWaveTaunt						= mod:NewSpecialWarningTaunt(1227226, nil, nil, nil, 1, 2)
 
@@ -133,6 +133,7 @@ function mod:SPELL_CAST_START(args)
 		end
 	elseif spellId == 1227782 then
 		self.vb.infusionTetherCount = self.vb.infusionTetherCount + 1
+		warnArcaneOutrage:Show(self.vb.infusionTetherCount)
 		timerArcaneOutrageCD:Start(nil, self.vb.infusionTetherCount+1)
 	elseif spellId == 1227226 then
 		self.vb.piercingStrandsCount = self.vb.piercingStrandsCount + 1
@@ -197,7 +198,7 @@ function mod:SPELL_AURA_APPLIED(args)
 			--"Infusion Tether-1226311-npc:233815-00001BF638 = pull:22.0[+3], 44.0[+3], 41.0[+3], Stage 2/19.7",
 			--Heroic
 			--"Infusion Tether-1226311-npc:233815-00006ECC7D = pull:22.1[+3], 44.0[+3], 41.0[+3], 44.0[+3]",
-			local timer = self.vb.infusionTetherCount % 2 == 0 and 41 or 44
+			local timer = self:IsMythic() and 44 or self.vb.infusionTetherCount % 2 == 0 and 41 or 44
 			timerInfusionTetherCD:Start(timer, self.vb.infusionTetherCount+1)
 		end
 		warnInfusionTether:CombinedShow(0.3, args.destName)
@@ -211,15 +212,10 @@ function mod:SPELL_AURA_APPLIED(args)
 			DBM.Nameplate:Show(true, args.destGUID, spellId)
 		end
 	elseif spellId == 1237212 and not args:IsPlayer() then
-		specWarnPiercingStrandsOther:Show(args.destName)
-		specWarnPiercingStrandsOther:Play("tauntboss")
-	elseif spellId == 1227784 then
-		if args:IsPlayer() then
-			specWarnArcaneOutrage:Show()
-			specWarnArcaneOutrage:Play("pushbackincoming")
-			if self:IsMythic() then
-				specWarnArcaneOutrage:ScheduleVoice(1.5, "scatter")
-			end
+		local uId = DBM:GetRaidUnitId(args.destName)
+		if self:IsTanking(uId) then
+			specWarnPiercingStrandsOther:Show(args.destName)
+			specWarnPiercingStrandsOther:Play("tauntboss")
 		end
 	elseif spellId == 1227163 and not args:IsPlayer() then
 		local uId = DBM:GetRaidUnitId(args.destName)
@@ -253,15 +249,13 @@ function mod:SPELL_AURA_REMOVED(args)
 	end
 end
 
---[[
 function mod:SPELL_PERIODIC_DAMAGE(_, _, _, _, destGUID, _, _, _, spellId, spellName)
-	if spellId == 459785 and destGUID == UnitGUID("player") and self:AntiSpam(2, 3) then
+	if spellId == 1243771 and destGUID == UnitGUID("player") and self:AntiSpam(2, 3) then
 		specWarnGTFO:Show(spellName)
 		specWarnGTFO:Play("watchfeet")
 	end
 end
 mod.SPELL_PERIODIC_MISSED = mod.SPELL_PERIODIC_DAMAGE
---]]
 
 function mod:CHAT_MSG_RAID_BOSS_WHISPER(msg)
 	if msg:find("spell:1246921") then
