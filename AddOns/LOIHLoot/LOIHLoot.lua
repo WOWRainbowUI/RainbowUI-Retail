@@ -214,8 +214,10 @@ local highlightTex = "Interface\\AddOns\\LOIHLoot\\Tex\\HIGHLIGHT.tga"
 local normalFontColor = { 1, .82, 0 } -- R, G, B of GameFontNormal
 local highPercentColor = { 0, 1, 0 } -- R, G, B of High wishlist boss
 
+-- this is not used anywhere at the moment but if it was, it can't be parented to UIParent or
+-- it messes up every refreshing tooltip (weapon imbue buffs, temp tradeable, bag new item, items on cd etc)
 local scantip = CreateFrame("GameTooltip", ADDON_NAME.."ScanningTooltip", nil, "GameTooltipTemplate")
-scantip:SetOwner(UIParent, "ANCHOR_NONE")
+scantip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
 ------------------------------------------------------------------------
 --	Local functions
@@ -262,18 +264,24 @@ local function _RGBToHex(r, g, b)
 	b = b <= 255 and b >= 0 and b or 0
 	return format("%02x%02x%02x", r, g, b)
 end
-
-local function _CheckLink(link) -- Return itemID and difficultyID from itemLink
+-- Mists Classic do not follow that itemstring pattern below if it even is correct for mainline
+-- reforgeid is after linkLevel, specID is after that, itemcreationctx field seems to always be empty etc.
+-- so this is essentially useless on that client
+local function _CheckLink(link, context) -- Return itemID and difficultyID from itemLink
 	if not link then -- No link given
 		return
 	elseif itemLinks[link] and itemLinks[link].id ~= nil then -- Check if we have scanned this item already
 		return itemLinks[link].id, itemLinks[link].difficulty
 	end
-
 	--item:itemID:enchantID:gemID1:gemID2:gemID3:gemID4:suffixID:uniqueID:linkLevel:specializationID:upgradeTypeID:instanceDifficultyID:numBonusIDs
 	local _, itemID, _, _, _, _, _, _, _, _, _, _, difficultyID = strsplit(":", link)
 	itemID = tonumber(itemID)
 	difficultyID = tonumber(difficultyID)
+
+	if (context and context == "EJ") and not difficultyID then
+		difficultyID = EJ_GetDifficulty()
+	end
+
 	itemLinks[link] = { id = itemID, difficulty = difficultyID } -- Add to table for faster access later
 
 	return itemID, difficultyID
@@ -307,7 +315,7 @@ local function _WishlistOnEnter(button, ...) -- EJ Wishlist-buttons OnEnter-scri
 		return
 	end
 
-	local itemID, difficultyID = _CheckLink(button:GetParent():GetParent().link)
+	local itemID, difficultyID = _CheckLink(button:GetParent():GetParent().link, "EJ")
 	if (EJ_GetCurrentTier() < 5 or ignoredInstaces[EncounterJournal.instanceID]) then -- Fix missing difficultyId for pre-MoP expansions and World Bosses
 		difficultyID = normalDifficultyID
 	end
@@ -335,7 +343,7 @@ local function _WishlistOnClick(button, ...) -- EJ Wishlist-buttons OnClick-scri
 	Debug("Click:", button:GetParent():GetParent().itemID, button:GetParent():GetParent().link, button:GetParent():GetParent().encounterID)
 	
 	local subTable = button:GetID() == 1 and "main" or button:GetID() == 2 and "off" or button:GetID() == 3 and "vanity" or false
-	local itemID, difficultyID = _CheckLink(button:GetParent():GetParent().link)
+	local itemID, difficultyID = _CheckLink(button:GetParent():GetParent().link, "EJ")
 
 	Debug("> ID:", button:GetID(), tostring(subTable), EJ_GetCurrentTier(), tostring(difficultyID))
 	if (EJ_GetCurrentTier() < 5 or ignoredInstaces[EncounterJournal.instanceID]) then -- Fix missing difficultyId for pre-MoP expansions and World Bosses
@@ -476,7 +484,7 @@ do -- _CheckGear() - Checks equipment for items on wishlist
 	local function DelayedCheck()
 		for i = 1, 17 do -- Skip the shirt (4) and tabard (18)
 			if i ~= 4 then
-				local itemID, difficultyID = _CheckLink(GetInventoryItemLink("Player", i))
+				local itemID, difficultyID = _CheckLink(GetInventoryItemLink("Player", i), "INV")
 
 				for subTable in pairs(db) do
 					--if db[subTable][itemID] and db[subTable][itemID].difficulty <= difficultyID then -- Item found, upgrade or remove from wishlist
@@ -543,7 +551,7 @@ do -- _CheckBags() - Checks inventory for items on wishlist
 				else
 					itemLink = GetContainerItemLink(bag, slot)
 				end
-				local itemID, difficultyID = _CheckLink(itemLink)
+				local itemID, difficultyID = _CheckLink(itemLink, "BAG")
 
 				for subTable in pairs(db) do
 					--if db[subTable][itemID] and db[subTable][itemID].difficulty <= difficultyID then -- Item found, upgrade or remove from wishlist
@@ -815,13 +823,13 @@ local function HookEJUpdate(self, ...) -- Hook EJ Update for wishlist-buttons
 			-- In 10.0 Blizzard added these "Very Rare" sub-title buttons to the loot lists
 			-- They don't have button.itemID on them so it is easy to tell them apart from buttons with items
 
-			local _, difficultyID = _CheckLink(button.link) -- Update is spammy as hell when Loot-tab is open, but hopefully the itemLinks-table helps
+			local _, difficultyID = _CheckLink(button.link, "EJ") -- Update is spammy as hell when Loot-tab is open, but hopefully the itemLinks-table helps
 			if (EJ_GetCurrentTier() < 5 or ignoredInstaces[EncounterJournal.instanceID]) then -- Fix missing difficultyId for pre-MoP expansions and World Bosses
 				difficultyID = normalDifficultyID
 			end
 			difficultyID = difficultyID or 0
 
-			local _, _, _, _, _, _, _, _, itemEquipLoc, _, _, itemClassID, itemSubClassID = GetItemInfo(button.itemID)
+			local _, _, _, itemEquipLoc, _, itemClassID, itemSubClassID = C_Item.GetItemInfoInstant(button.itemID)
 
 			if _CheckVanityItems(itemClassID, itemSubClassID) then -- Vanity
 				button.LOIHLoot.main:Hide()
@@ -1437,6 +1445,31 @@ function private.OnEvent(self, event, ...)
 end
 
 ------------------------------------------------------------------------
+--	API
+------------------------------------------------------------------------
+
+local subTableLongNames = {
+	main = L.LONG_MAINSPEC,
+	off = L.LONG_OFFSPEC,
+	vanity = L.LONG_VANITY
+}
+
+function private:IsItemWishList(itemID)
+	if not itemID then
+		return false
+	end
+	if db then
+		for subTable, tableData in pairs(db) do
+			if tableData[itemID] then
+				local subTableName = subTableLongNames[subTable] or L.UNKNOWN
+				return true, subTableName
+			end
+		end
+	end
+	return false
+end
+
+------------------------------------------------------------------------
 --	OnLoad function
 ------------------------------------------------------------------------
 
@@ -1643,7 +1676,7 @@ end
 ------------------------------------------------------------------------
 
 do
-	local Options = CreateFrame("Frame", "privateOptions", InterfaceOptionsFramePanelContainer)
+	local Options = CreateFrame("Frame", "privateOptions")
 	Options.name = ADDON_NAME
 	private.OptionsPanel = Options
 	--InterfaceOptions_AddCategory(Options)
