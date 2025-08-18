@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.2.01 (13th August 2025)
+-- 	Leatrix Plus 11.2.03 (17th August 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.2.01"
+	LeaPlusLC["AddonVer"] = "11.2.03"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -1112,17 +1112,17 @@
 				if (LeaPlusLC["AcceptPartyFriends"] == "On" and LeaPlusLC:FriendCheck(arg1, guid)) then
 					if not LeaPlusLC:IsInLFGQueue() then
 						AcceptGroup()
-						for i=1, STATICPOPUP_NUMDIALOGS do
-							if _G["StaticPopup"..i].which == "PARTY_INVITE" then
-								_G["StaticPopup"..i].inviteAccepted = 1
+						StaticPopup_ForEachShownDialog(function(self)
+							if self.which == "PARTY_INVITE" then
+								self.inviteAccepted = 1
 								StaticPopup_Hide("PARTY_INVITE")
-								break
-							elseif _G["StaticPopup"..i].which == "PARTY_INVITE_XREALM" then
-								_G["StaticPopup"..i].inviteAccepted = 1
+								return
+							elseif self.which == "PARTY_INVITE_XREALM" then
+								self.inviteAccepted = 1
 								StaticPopup_Hide("PARTY_INVITE_XREALM")
-								break
+								return
 							end
-						end
+						end)
 						-- Confirm invite to party sync group request
 						if QuestSessionManager.ConfirmInviteToGroupReceivedDialog.ButtonContainer.Confirm:IsShown() then
 							QuestSessionManager.ConfirmInviteToGroupReceivedDialog.ButtonContainer.Confirm:Click()
@@ -7062,6 +7062,7 @@
 			LeaPlusLC:MakeCB(ReleasePanel, "AutoReleaseNoWintergsp", "Exclude Wintergrasp", 16, -112, false, "If checked, you will not release automatically in Wintergrasp.")
 			LeaPlusLC:MakeCB(ReleasePanel, "AutoReleaseNoTolBarad", "Exclude Tol Barad (PvP)", 16, -132, false, "If checked, you will not release automatically in Tol Barad (PvP).")
 			LeaPlusLC:MakeCB(ReleasePanel, "AutoReleaseNoAshran", "Exclude Ashran", 16, -152, false, "If checked, you will not release automatically in Ashran.")
+			-- Debug -- LeaPlusLC:MakeCB(ReleasePanel, "AutoReleaseNoStormwind", "Exclude Stormwind (debug)", 16, -172, false, "If checked, you will not release automatically in Stormwind.")
 
 			LeaPlusLC:MakeTx(ReleasePanel, "Delay", 356, -72)
 			LeaPlusLC:MakeSL(ReleasePanel, "AutoReleaseDelay", "Drag to set the number of milliseconds before you are automatically released.|n|nYou can hold down shift as the timer is ending to cancel the automatic release.", 0, 3000, 100, 356, -92, "%.0f")
@@ -7105,79 +7106,55 @@
 				end
 			end)
 
-			-- Create event frame
-			local ReleaseEvent = CreateFrame("FRAME")
+			-- Release in battlegrounds
+			hooksecurefunc("StaticPopup_Show", function(sType)
+				if sType and sType == "DEATH" and LeaPlusLC["AutoReleasePvP"] == "On" then
+					if C_DeathInfo.GetSelfResurrectOptions() and #C_DeathInfo.GetSelfResurrectOptions() > 0 then return end
+					local InstStat, InstType = IsInInstance()
+					-- if not CommentOutToRemoveDebugOnlyMode then InstStat = true; InstType = "pvp" end
+					if InstStat and InstType == "pvp" then
+						-- Exclude specific maps
+						local mapID = C_Map.GetBestMapForUnit("player") or nil
+						if mapID then
+							if mapID == 91 and LeaPlusLC["AutoReleaseNoAlterac"] == "On" then return end -- Alterac Valley
+							if mapID == 1537 and LeaPlusLC["AutoReleaseNoAlterac"] == "On" then return end -- Alterac Valley
+							if mapID == 1334 and LeaPlusLC["AutoReleaseNoWintergsp"] == "On" then return end -- Wintergrasp (instanced)
+							if mapID == 1478 and LeaPlusLC["AutoReleaseNoAshran"] == "On" then return end -- Ashran (instanced)
+							-- Debug -- if mapID == 84 and LeaPlusLC["AutoReleaseNoStormwind"] == "On" then return end -- Stormwind (DEBUG ONLY)
+						end
 
-			-- Function to set event
-			local function SetReleasePvP()
-				if LeaPlusLC["AutoReleasePvP"] == "On" then
-					ReleaseEvent:RegisterEvent("PLAYER_DEAD")
-				else
-					ReleaseEvent:UnregisterEvent("PLAYER_DEAD")
-				end
-			end
-
-			-- Set release event on startup and when option is clicked
-			LeaPlusCB["AutoReleasePvP"]:HookScript("OnClick", SetReleasePvP)
-			if LeaPlusLC["AutoReleasePvP"] == "On" then SetReleasePvP() end
-
-			-- Click the release button during OnUpdate when required
-			local ReleaseButtonReady = 0
-			hooksecurefunc(StaticPopupDialogs["DEATH"], "OnUpdate", function(self)
-				if ReleaseButtonReady == 1 and self.button1:IsEnabled() then
-					ReleaseButtonReady = 0
-					self.button1:Click()
-				end
-			end)
-
-			-- Release in PvP
-			ReleaseEvent:SetScript("OnEvent", function()
-
-				-- If player has ability to self-resurrect (soulstone, reincarnation, etc), do nothing and quit
-				if C_DeathInfo.GetSelfResurrectOptions() and #C_DeathInfo.GetSelfResurrectOptions() > 0 then return end
-
-				-- Resurrect if player is in a battleground
-				local InstStat, InstType = IsInInstance()
-				if InstStat and InstType == "pvp" then
-					-- Exclude specific instanced maps
-					local mapID = C_Map.GetBestMapForUnit("player") or nil
-					if mapID then
-						if mapID == 91 and LeaPlusLC["AutoReleaseNoAlterac"] == "On" then return end -- Alterac Valley
-						if mapID == 1537 and LeaPlusLC["AutoReleaseNoAlterac"] == "On" then return end -- Alterac Valley
-						if mapID == 1334 and LeaPlusLC["AutoReleaseNoWintergsp"] == "On" then return end -- Wintergrasp (instanced)
-						if mapID == 1478 and LeaPlusLC["AutoReleaseNoAshran"] == "On" then return end -- Ashran (instanced)
+						-- Release automatically
+						local delay = LeaPlusLC["AutoReleaseDelay"] / 1000
+						C_Timer.After(delay, function()
+							local dialog = StaticPopup_Visible("DEATH")
+							if dialog then
+								if IsShiftKeyDown() then
+									ActionStatus_DisplayMessage(L["Automatic Release Cancelled"], true)
+								else
+									StaticPopup_OnClick(_G[dialog], 1)
+								end
+							end
+						end)
 					end
-					-- Release automatically
-					local delay = LeaPlusLC["AutoReleaseDelay"] / 1000
-					C_Timer.After(delay, function()
-						if IsShiftKeyDown() then
-							LeaPlusLC:DisplayMessage(L["Automatic Release Cancelled"], true)
-						else
-							ReleaseButtonReady = 1
-						end
-						return
-					end)
+					local areaID = C_Map.GetBestMapForUnit("player") or 0
+					if areaID == 123 and LeaPlusLC["AutoReleaseNoWintergsp"] == "Off" -- Wintergrasp
+					or areaID == 244 and LeaPlusLC["AutoReleaseNoTolBarad"] == "Off" -- Tol Barad (PvP)
+					or areaID == 588 and LeaPlusLC["AutoReleaseNoAshran"] == "Off" -- Ashran
+					or areaID == 622 and LeaPlusLC["AutoReleaseNoAshran"] == "Off" -- Stormshield
+					or areaID == 624 and LeaPlusLC["AutoReleaseNoAshran"] == "Off" -- Warspear
+					-- Debug -- or areaID == 84 -- Stormwind (DEBUG ONLY)
+					then
+						local delay = LeaPlusLC["AutoReleaseDelay"] / 1000
+						C_Timer.After(delay, function()
+							if IsShiftKeyDown() then
+								LeaPlusLC:DisplayMessage(L["Automatic Release Cancelled"], true)
+							else
+								ReleaseButtonReady = 1
+							end
+							return
+						end)
+					end
 				end
-
-				-- Resurrect if playuer is in a PvP location
-				local areaID = C_Map.GetBestMapForUnit("player") or 0
-				if areaID == 123 and LeaPlusLC["AutoReleaseNoWintergsp"] == "Off" -- Wintergrasp
-				or areaID == 244 and LeaPlusLC["AutoReleaseNoTolBarad"] == "Off" -- Tol Barad (PvP)
-				or areaID == 588 and LeaPlusLC["AutoReleaseNoAshran"] == "Off" -- Ashran
-				or areaID == 622 and LeaPlusLC["AutoReleaseNoAshran"] == "Off" -- Stormshield
-				or areaID == 624 and LeaPlusLC["AutoReleaseNoAshran"] == "Off" -- Warspear
-				then
-					local delay = LeaPlusLC["AutoReleaseDelay"] / 1000
-					C_Timer.After(delay, function()
-						if IsShiftKeyDown() then
-							LeaPlusLC:DisplayMessage(L["Automatic Release Cancelled"], true)
-						else
-							ReleaseButtonReady = 1
-						end
-						return
-					end)
-				end
-
 			end)
 
 		end

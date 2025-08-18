@@ -1,4 +1,10 @@
-﻿11.2.00 - 5th August 2025
+﻿11.2.03 - 17th August 2025
+- Fixed the Lua error with 'Release in PvP' ('Automation').
+
+11.2.02 - 17th August 2025
+- Fixed the Lua error with 'Party from friends' ('Automation').
+
+11.2.00 - 5th August 2025
 - Updated for game patch 11.2.0.
 
 11.1.15 - 15th July 2025
