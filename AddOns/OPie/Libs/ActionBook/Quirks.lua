@@ -492,6 +492,11 @@ securecall(function() -- Darkmoon Fairegrounds flight restriction
 	end
 	KR:RegisterStateDriver(FLIGHT_BLOCKER, "dmf", "[in:darkmoon faire] 1; 0")
 end)
+securecall(function() -- K'aresh Phase Diving flight restriction
+	if MODERN then
+		KR:RegisterStateDriver(FLIGHT_BLOCKER, "phasedive", "[in:karesh,noflyable] 1;0")
+	end
+end)
 securecall(function() -- TWW dungeon/delve flight restriction
 	if not MODERN then
 		return

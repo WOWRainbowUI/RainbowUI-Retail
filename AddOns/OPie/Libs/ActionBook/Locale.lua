@@ -10,8 +10,8 @@ V =
       "Reittier", "Reittiere", "Neues Makro", "Zeige nur wenn angelegt", "Begleiterfähigkeit", "Begleiterfähigkeiten", "Zielmarkierungssymbol", "Weltmarkierung", "Markierungssymbole", "Zeige einen Platzhalter wenn nicht verfügbar",
       "Zauber", "Spielzeug", "Spielzeuge", "UI Fenster", "Benutze den höchsten bekannten Rang", "Zonenfähigkeiten",
     }
-    or C == "esES" and { -- 35/36 (97%)
-      "Habilidades", "Usar otros artículos con el mismo nombre", "Mascota de duelo", "Mascotas de duelo", "Calendario", "Macro personalizado", "Montura de Dracoequitación", "Conjunto de equipamiento", z, "Conjuntos de equipamiento",
+    or C == "esES" and { -- 36/36 (100%)
+      "Habilidades", "Usar otros artículos con el mismo nombre", "Mascota de duelo", "Mascotas de duelo", "Calendario", "Macro personalizado", "Montura de Dracoequitación", "Conjunto de equipamiento", "Hueco de Equipo", "Conjuntos de equipamiento",
       "Equipado", "Botón de acción extra", "Montura voladora", "Montura terrestre", "Panel de interfaz", "Artículo", "Artículos", "Macro", "Macros", "Misceláneo",
       "Montura", "Monturas", "Nueva macro", "Mostrar sólo al equipar", "Habilidad de mascota", "Habilidades de mascota", "Marcador de objetivo", "Marcador del mundo", "Marcadores del mundo", "Mostrar un marcador cuando no esté disponible",
       "Hechizo", "Juguete", "Juguetes", "Paneles de IU", "Usar el rango mas alto", "Habilidades de zona",

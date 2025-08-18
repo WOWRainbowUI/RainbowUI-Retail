@@ -14,13 +14,14 @@ AddObjectMethods({"TextArea", "EditBox"}, TextAreaProps)
 local tooltipBackdrop = {edgeFile="Interface/Tooltips/UI-Tooltip-Border", bgFile="Interface/DialogFrame/UI-DialogBox-Background-Dark", tile=true, edgeSize=16, tileSize=16, insets={left=4,right=4,bottom=4,top=4}, bgColor=0xb2000000, edgeColor=0xb2b2b2}
 
 function TextArea:GetHighlightText()
-	local editBox = assert(getWidgetData(self, TextAreaData), 'invalid object type').editBox
+	local d = assert(getWidgetData(self, TextAreaData), 'invalid object type')
+	local editBox = d.editBox
 	local text, curPos = editBox:GetText(), editBox:GetCursorPosition()
 	editBox:Insert("")
 	local text2, selStart = editBox:GetText(), editBox:GetCursorPosition()
 	local selEnd = selStart + #text - #text2
 	if text ~= text2 then
-		editBox:SetText(text)
+		TextArea.SetText(self, text)
 		editBox:SetCursorPosition(curPos)
 		editBox:HighlightText(selStart, selEnd)
 	end
@@ -34,6 +35,7 @@ function TextArea:SetHighlightText(newText, preserveCaret)
 	editBox:Insert("")
 	op2 = editBox:GetCursorPosition()
 	editBox:Insert(newText)
+	d.editFS:SetText(editBox:GetText())
 	d.holdScroll = nil
 	if op == op2 then
 		editBox:SetCursorPosition(op2)
@@ -67,6 +69,11 @@ function TextArea:SetSpacing(spacing)
 	local d = assert(getWidgetData(self, TextAreaData), 'invalid object type')
 	d.spacingTarget = spacing
 	int.adjustSpacing(d, true)
+end
+function TextArea:SetText(text)
+	local d = assert(getWidgetData(self, TextAreaData), 'invalid object type')
+	d.editBox:SetText(text)
+	d.editFS:SetText(text)
 end
 
 function int.alwaysHasStickyFocus()
@@ -164,6 +171,7 @@ local function CreateTextArea(name, parent, outerTemplate, id)
 	input:SetFontObject(GameFontHighlight)
 	input:SetHyperlinkPropagateToParent(true)
 	input:SetTextInsets(1,1,1,1)
+	input:SetHitRectInsets(-1, -1, -1, -10000)
 	input:SetScript("OnCursorChanged", int.OnCursorChanged)
 	input:SetScript("OnSizeChanged", int.OnSizeChanged)
 	input:SetScript("OnShow", int.OnShow)
