@@ -2,6 +2,8 @@
 ## SimulationCraft Commit Sync: c50e3bc
 ## Date: 2025-08-14
 
+## [Hekili] There are a fair number of nested variables in this priority which can cause logic/timing issues.
+
 actions.precombat+=/raise_dead
 actions.precombat+=/army_of_the_dead,precombat_time=2
 actions.precombat+=/variable,name=trinket_1_buffs,value=trinket.1.has_use_buff|trinket.1.is.treacherous_transmitter|trinket.1.is.unyielding_netherprism
@@ -17,10 +19,11 @@ actions.precombat+=/variable,name=damage_trinket_priority,op=setif,value=2,value
 
 actions+=/mind_freeze
 actions+=/variable,name=st_planning,op=set,value=active_enemies=1
-actions+=/variable,name=adds_remain,op=set,value=active_enemies>1
-actions+=/variable,name=apoc_timing,op=set,value=3,value_else=0,condition=cooldown.apocalypse.remains<5&debuff.festering_wound.down&cooldown.unholy_assault.remains>5
+## [Hekili] This could be shifted to 'raid_event.adds.remains>6' because it does return remaining time on secondary targets (excluding current target).
+actions+=/variable,name=adds_remain,op=set,value=active_enemies>1&fight_remains>6
+actions+=/variable,name=apoc_timing,op=set,value=5,value_else=2,condition=cooldown.apocalypse.remains<5&debuff.festering_wound.down&cooldown.unholy_assault.remains>5
 actions+=/variable,name=pop_wounds,op=set,value=(cooldown.apocalypse.remains>variable.apoc_timing|!talent.apocalypse)&(debuff.festering_wound.up&cooldown.unholy_assault.remains<20&talent.unholy_assault&active_enemies=1|debuff.rotten_touch.up&debuff.festering_wound.up|debuff.festering_wound.stack>=4-pet.abomination.active)|fight_remains<5&debuff.festering_wound.up
-actions+=/variable,name=pooling_runic_power,op=set,value=talent.vile_contagion&cooldown.vile_contagion.remains<5&runic_power<30
+actions+=/variable,name=pooling_runic_power,op=set,value=cooldown.summon_gargoyle.remains>5&runic_power<40
 actions+=/variable,name=spend_rp,op=setif,value=(!talent.rotten_touch|talent.rotten_touch&!debuff.rotten_touch.up|runic_power.deficit<20)&((talent.improved_death_coil&(active_enemies=2|talent.coil_of_devastation)|rune<3|pet.gargoyle.active|buff.sudden_doom.up|!variable.pop_wounds&debuff.festering_wound.stack>=4))
 actions+=/variable,name=san_coil_mult,op=setif,value=2,value_else=1,condition=buff.essence_of_the_blood_queen.stack>=4
 actions+=/variable,name=epidemic_targets,value=3+talent.improved_death_coil+(talent.frenzied_bloodthirst*variable.san_coil_mult)+(talent.hungering_thirst&talent.harbinger_of_doom&buff.sudden_doom.up)
@@ -40,7 +43,7 @@ actions+=/bag_of_tricks,if=active_enemies=1&(buff.unholy_strength.up|boss&fight_
 actions+=/potion,if=active_enemies>=1&(!talent.summon_gargoyle|cooldown.summon_gargoyle.remains>60)&(buff.dark_transformation.up&30>=buff.dark_transformation.remains|pet.army_ghoul.active&pet.army_ghoul.remains<=30|pet.apoc_ghoul.active&pet.apoc_ghoul.remains<=30|pet.abomination.active&pet.abomination.remains<=30)|boss&fight_remains<=30
 ## Use <a href='https://www.wowhead.com/spell=10060/power-infusion'>Power Infusion</a> while <a href='https://www.wowhead.com/spell=49206/summon-gargoyle'>Gargoyle</a> is up, as well as <a href='https://www.wowhead.com/spell=275699/apocalypse'>Apocalypse</a> or with <a href='https://www.wowhead.com/spell=63560/dark-transformation'>Dark Transformation</a> if <a href='https://www.wowhead.com/spell=275699/apocalypse'>Apocalypse</a> or <a href='https://www.wowhead.com/spell=49206/summon-gargoyle'>Gargoyle</a> are not talented
 ## actions+=/invoke_external_buff,name=power_infusion,if=active_enemies>=1&(pet.gargoyle.active&pet.gargoyle.remains<=22|!talent.summon_gargoyle&talent.army_of_the_dead&(talent.raise_abomination&pet.abomination.active&pet.abomination.remains<18|!talent.raise_abomination&pet.army_ghoul.active&pet.army_ghoul.remains<=18)|!talent.summon_gargoyle&!talent.army_of_the_dead&buff.dark_transformation.up|!talent.summon_gargoyle&buff.dark_transformation.up|!pet.gargoyle.active&cooldown.summon_gargoyle.remains+10>cooldown.invoke_external_buff_power_infusion.duration|active_enemies>=3&(buff.dark_transformation.up|death_and_decay.ticking))
-## [Syrif] - (variable.st_planning|variable.adds_remain) removed from 3 lines here, too redundant
+## [Syrif] (variable.st_planning|variable.adds_remain) removed from 3 lines here, too redundant
 actions+=/army_of_the_dead,if=(talent.commander_of_the_dead&cooldown.dark_transformation.remains<5|!talent.commander_of_the_dead&active_enemies>=1)|boss&fight_remains<35
 actions+=/raise_abomination,if=(variable.st_planning|variable.adds_remain)&(!talent.vampiric_strike|(pet.apoc_ghoul.active|!talent.apocalypse))|boss&fight_remains<30
 actions+=/summon_gargoyle,use_off_gcd=1,if=(variable.st_planning|variable.adds_remain)&(buff.commander_of_the_dead.up|!talent.commander_of_the_dead&active_enemies>=1)|boss&fight_remains<25
@@ -133,7 +136,7 @@ actions.cds_san+=/outbreak,cycle_targets=1,if=talent.superstrain&set_bonus.tww2_
 
 # Shared CDs
 actions.cds_shared+=/potion,if=(variable.st_planning|variable.adds_remain)&(!talent.summon_gargoyle|cooldown.summon_gargoyle.remains>60)&(buff.dark_transformation.up&30>=buff.dark_transformation.remains|!talent.vampiric_strike&pet.army_ghoul.active&pet.army_ghoul.remains<=30|!talent.vampiric_strike&pet.apoc_ghoul.active&pet.apoc_ghoul.remains<=30|!talent.vampiric_strike&pet.abomination.active&pet.abomination.remains<=30)|fight_remains<=30
-actions.cds_shared+=/invoke_external_buff,name=power_infusion,if=active_enemies>=1&(variable.st_planning|variable.adds_remain)&(pet.gargoyle.active&pet.gargoyle.remains<=22|!talent.summon_gargoyle&talent.army_of_the_dead&(talent.raise_abomination&pet.abomination.active&pet.abomination.remains<18|!talent.raise_abomination&pet.army_ghoul.active&pet.army_ghoul.remains<=18)|!talent.summon_gargoyle&!talent.army_of_the_dead&buff.dark_transformation.up|!talent.summon_gargoyle&buff.dark_transformation.up|!pet.gargoyle.active&cooldown.summon_gargoyle.remains+10>cooldown.invoke_external_buff_power_infusion.duration|active_enemies>=3&(buff.dark_transformation.up|death_and_decay.ticking))
+## actions.cds_shared+=/invoke_external_buff,name=power_infusion,if=active_enemies>=1&(variable.st_planning|variable.adds_remain)&(pet.gargoyle.active&pet.gargoyle.remains<=22|!talent.summon_gargoyle&talent.army_of_the_dead&(talent.raise_abomination&pet.abomination.active&pet.abomination.remains<18|!talent.raise_abomination&pet.army_ghoul.active&pet.army_ghoul.remains<=18)|!talent.summon_gargoyle&!talent.army_of_the_dead&buff.dark_transformation.up|!talent.summon_gargoyle&buff.dark_transformation.up|!pet.gargoyle.active&cooldown.summon_gargoyle.remains+10>cooldown.invoke_external_buff_power_infusion.duration|active_enemies>=3&(buff.dark_transformation.up|death_and_decay.ticking))
 actions.cds_shared+=/army_of_the_dead,if=(variable.st_planning|variable.adds_remain)&(talent.commander_of_the_dead&cooldown.dark_transformation.remains<5|!talent.commander_of_the_dead&active_enemies>=1)|fight_remains<35
 actions.cds_shared+=/raise_abomination,if=(variable.st_planning|variable.adds_remain)&(!talent.vampiric_strike|(pet.apoc_ghoul.active|!talent.apocalypse))|fight_remains<30
 actions.cds_shared+=/legion_of_souls,if=(variable.st_planning|variable.adds_remain)&(death_knight.fwounded_targets<active_enemies|(cooldown.apocalypse.remains<3|cooldown.dark_transformation.remains<3))
@@ -146,8 +149,11 @@ actions.cleave+=/any_dnd,if=!death_and_decay.ticking&variable.adds_remain|talent
 actions.cleave+=/death_coil,if=!variable.pooling_runic_power&talent.improved_death_coil
 actions.cleave+=/wound_spender,if=buff.vampiric_strike.up
 actions.cleave+=/death_coil,if=!variable.pooling_runic_power&!talent.improved_death_coil
-actions.cleave+=/festering_strike,cycle_targets=1,if=buff.vampiric_strike.down&!variable.pop_wounds&debuff.festering_wound.stack<2|buff.festering_scythe.up
-actions.cleave+=/festering_strike,cycle_targets=1,if=buff.vampiric_strike.down&cooldown.apocalypse.remains<variable.apoc_timing&debuff.festering_wound.down
+## [Hekili] Revised to allow Festering Strike with more wounds active; change is neutral/positive in sim and reduces wait time.
+## actions.cleave+=/festering_strike,cycle_targets=1,if=buff.vampiric_strike.down&!variable.pop_wounds&debuff.festering_wound.stack<2|buff.festering_scythe.up
+actions.cleave+=/festering_strike,cycle_targets=1,if=buff.vampiric_strike.down&!variable.pop_wounds&debuff.festering_wound.stack<4|buff.festering_scythe.up
+## [Hekili] Revised to allow Festering Strike with more wounds active; entry is typically not reached in SimC.
+actions.cleave+=/festering_strike,cycle_targets=1,if=buff.vampiric_strike.down&cooldown.apocalypse.remains<variable.apoc_timing&debuff.festering_wound.stack<4
 actions.cleave+=/wound_spender,if=variable.pop_wounds
 
 ## San'layn Fishing
