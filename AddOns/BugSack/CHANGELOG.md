@@ -1,6 +1,7 @@
 # BugSack
 
-## [v11.1.6](https://github.com/funkydude/BugSack/tree/v11.1.6) (2025-08-07)
-[Full Changelog](https://github.com/funkydude/BugSack/compare/v11.1.5...v11.1.6) [Previous Releases](https://github.com/funkydude/BugSack/releases)
+## [v11.2.0](https://github.com/funkydude/BugSack/tree/v11.2.0) (2025-08-19)
+[Full Changelog](https://github.com/funkydude/BugSack/compare/v11.1.6...v11.2.0) [Previous Releases](https://github.com/funkydude/BugSack/releases)
 
-- Update frFR (#128)  
+- Bump toc  
+- Update ruRU (#129)  
