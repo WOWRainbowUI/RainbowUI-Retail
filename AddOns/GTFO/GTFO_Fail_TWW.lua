@@ -638,6 +638,23 @@ GTFO.SpellID["1236933"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1242834"] = {
+  --desc = "Tripwire";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1252578"] = {
+  --desc = "Unstable Void Rift";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1242832"] = {
+  --desc = "Void Beam";
+  sound = 3;
+};
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -3049,6 +3066,90 @@ GTFO.SpellID["1227897"] = {
 GTFO.SpellID["1225645"] = {
   --desc = "Twilight Spikes (Nexus-King Salhadaar)";
   sound = 3;
+};
+
+GTFO.SpellID["1238763"] = {
+  --desc = "Siphon Discharge (Crystalline Golem)";
+  sound = 3;
+};
+
+GTFO.SpellID["1238369"] = {
+  --desc = "Arcane Overload";
+  sound = 3;
+};
+
+GTFO.SpellID["1238773"] = {
+  --desc = "Extinction (Dimensius)";
+  sound = 3;
+  test = true;
+};
+
+GTFO.SpellID["1229325"] = {
+  --desc = "Oblivion (Dimensius)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1237080"] = {
+  --desc = "Broken World (Dimensius)";
+  sound = 3;
+};
+
+GTFO.SpellID["1239270"] = {
+  --desc = "Voidwarding (Voidwarden)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["1233292"] = {
+  --desc = "Accretion Disk (Dimensius)";
+  sound = 3;
+};
+
+GTFO.SpellID["1234052"] = {
+  --desc = "Darkened Sky (Dimensius)";
+  sound = 3;
+};
+
+GTFO.SpellID["1243055"] = {
+  --desc = "Fists of the Voidlord (Dimensius)";
+  sound = 3;
+  tankSound = 0;
+};
+
+GTFO.SpellID["1227665"] = {
+  --desc = "Fists of the Voidlord (Dimensius)";
+  sound = 3;
+  tankSound = 0;
+};
+
+GTFO.SpellID["1243694"] = {
+  --desc = "Shattered Space (Dimensius)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["1230674"] = {
+  --desc = "Spaghettification (Dimensius)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1234054"] = {
+  --desc = "Shadowquake (Dimensius)";
+  sound = 3;
+  minimumStacks = 1;
+};
+
+GTFO.SpellID["1230999"] = {
+	--desc = "Dark Matter (Dimensius)";
+	soundFunction = function() -- Warn only if you get hit more than once
+		if (GTFO_FindEvent("DMDarkMatter")) then
+			return 3;
+		end
+		GTFO_AddEvent("DMDarkMatter", 2);
+		return 0;
+	end;
 };
 
 
