@@ -139,7 +139,7 @@ local function CreateMainFrame(playerType)
     -- when mouswheel is scrolled up or down it triggers a button click and runs the onclick kook from SecureHandlerWrapScript gets execute, which then sets the macrotext
 
     ---@class MainFrame
-	local mainframe = CreateFrame("Button","BGE"..playerType,BattleGroundEnemies,"SecureActionButtonTemplate, SecureHandlerEnterLeaveTemplate")
+	local mainframe = CreateFrame("Button", "BGE"..playerType, UIParent, "SecureActionButtonTemplate, SecureHandlerEnterLeaveTemplate")
 
 	mainframe:SetAttribute("type4", "macro")
 	mainframe:SetAttribute("type5", "macro")
@@ -184,10 +184,7 @@ local function CreateMainFrame(playerType)
 		hasFlag = false
 	}
 
-    mainframe.Counter = {}
-
-	mainframe.enabled = true
-	mainframe:Disable()
+	
     mainframe:SetScript("OnEvent", function(self, event, ...)
 		if self.db and self.db.profile and self.db.profile.DebugBlizzEvents then
 			self:Debug("OnEvent", event, ...)
@@ -470,8 +467,7 @@ local function CreateMainFrame(playerType)
 	end
 
 	function mainframe:Enable()
-		self:Debug("enabled")
-		if self.enabled then return end
+		self:Debug("Enable called")
 		if InCombatLockdown() then return BattleGroundEnemies:QueueForUpdateAfterCombat(mainframe, "CheckEnableState") end
 
 		if BattleGroundEnemies:IsTestmodeOrEditmodeActive() then
@@ -493,11 +489,11 @@ local function CreateMainFrame(playerType)
 	end
 
 	function mainframe:Disable()
-		self:Debug("disabled")
-		if not self.enabled then return end
-		if InCombatLockdown() then return BattleGroundEnemies:QueueForUpdateAfterCombat(mainframe, "CheckEnableState") end
+		self:Debug("Disable called")
 
+		if InCombatLockdown() then return BattleGroundEnemies:QueueForUpdateAfterCombat(mainframe, "CheckEnableState") end
 		self:UnregisterAllEvents()
+
 		self.enabled = false
 		self:Hide()
 	end
@@ -1174,7 +1170,6 @@ local function CreateMainFrame(playerType)
 	mainframe.ActiveProfile:SetJustifyH("LEFT")
 	mainframe.ActiveProfile:SetJustifyV("MIDDLE")
 	mainframe.ActiveProfile:Hide()
-
 
     return mainframe
 end

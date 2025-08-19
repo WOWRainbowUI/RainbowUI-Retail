@@ -6,17 +6,6 @@ local Data = select(2, ...)
 ---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
 local L = Data.L
-local GetTexCoordsForRoleSmallCircle = GetTexCoordsForRoleSmallCircle or function(role)
-	if ( role == "TANK" ) then
-		return 0, 19/64, 22/64, 41/64;
-	elseif ( role == "HEALER" ) then
-		return 20/64, 39/64, 1/64, 20/64;
-	elseif ( role == "DAMAGER" ) then
-		return 20/64, 39/64, 22/64, 41/64;
-	else
-		error("Unknown role: "..tostring(role));
-	end
-end
 
 ---@class PlayerDetails: table
 ---@field PlayerName string
@@ -186,31 +175,37 @@ function BattleGroundEnemies:CreatePlayerButton(mainframe, num)
 	end
 
 	function playerButton:OnDragStart()
+		if InCombatLockdown() then
+			return BattleGroundEnemies:Debug("OnDragStart called in combat, ignoring")
+		end
 		return BattleGroundEnemies.db.profile.Locked or self:GetParent():StartMoving()
 	end
 
 	function playerButton:OnDragStop()
 		local parent = self:GetParent()
 		if not parent then return end
-		parent:StopMovingOrSizing()
-		if not InCombatLockdown() then
-			local scale = self:GetEffectiveScale()
-
-			local growDownwards = (self.playerCountConfig.BarVerticalGrowdirection == "downwards")
-			local growRightwards = (self.playerCountConfig.BarHorizontalGrowdirection == "rightwards")
-
-			if growDownwards then
-				self.playerCountConfig.Position_Y = parent:GetTop() * scale
-			else
-				self.playerCountConfig.Position_Y = parent:GetBottom() * scale
-			end
-
-			if growRightwards then
-				self.playerCountConfig.Position_X = parent:GetLeft() * scale
-			else
-				self.playerCountConfig.Position_X = parent:GetRight() * scale
-			end
+		if InCombatLockdown() then
+			return BattleGroundEnemies:Debug("OnDragStop called in combat, ignoring")
 		end
+		parent:StopMovingOrSizing()
+
+		local scale = self:GetEffectiveScale()
+
+		local growDownwards = (self.playerCountConfig.BarVerticalGrowdirection == "downwards")
+		local growRightwards = (self.playerCountConfig.BarHorizontalGrowdirection == "rightwards")
+
+		if growDownwards then
+			self.playerCountConfig.Position_Y = parent:GetTop() * scale
+		else
+			self.playerCountConfig.Position_Y = parent:GetBottom() * scale
+		end
+
+		if growRightwards then
+			self.playerCountConfig.Position_X = parent:GetLeft() * scale
+		else
+			self.playerCountConfig.Position_X = parent:GetRight() * scale
+		end
+	
 	end
 
 	function playerButton:UpdateAll(temporaryUnitID)
@@ -382,7 +377,7 @@ function BattleGroundEnemies:CreatePlayerButton(mainframe, num)
 						moduleFrameOnButton[funcName](moduleFrameOnButton, ...)
 					end
 				end
-				end
+			end
 		end
 	end
 
@@ -895,6 +890,7 @@ function BattleGroundEnemies:CreatePlayerButton(mainframe, num)
 
 	function playerButton:UpdateRangeViaLibRangeCheck(unitID)
 		if not unitID then return end
+		if not self.config then return end
 		if not self.config.RangeIndicator_Enabled then return end
 		local inCombatLockdown = InCombatLockdown()
 		local checker, range = LRC[self.PlayerIsEnemy and "GetHarmMaxChecker"  or "GetFriendMaxChecker"](LRC, inCombatLockdown and self.config.RangeIndicator_Range_InCombat or self.config.RangeIndicator_Range_OutOfCombat, inCombatLockdown)

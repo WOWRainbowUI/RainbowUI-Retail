@@ -679,7 +679,6 @@ BattleGroundEnemies:SetScript("OnEvent", function(self, event, ...)
 	end
 	self[event](self, ...)
 end)
-BattleGroundEnemies:Hide()
 
 function BattleGroundEnemies:ShowTooltip(owner, func)
 	if self.db.profile.ShowTooltips then
@@ -1170,7 +1169,8 @@ BattleGroundEnemies.GeneralEvents = {
 	"UNIT_HEALTH",
 	"UNIT_MAXHEALTH",
 	"UNIT_POWER_FREQUENT",
-	"PLAYER_REGEN_ENABLED"
+	"PLAYER_REGEN_ENABLED",
+	"PLAYER_REGEN_DISABLED"
 }
 
 BattleGroundEnemies.RetailEvents = {
@@ -1352,7 +1352,6 @@ function BattleGroundEnemies:Disable()
 	self:Debug("BattleGroundEnemies disabled")
 	self.enabled = false
 	self:UnregisterEvents()
-	self:Hide()
 	RequestFrame:Hide()
 	stopFakePlayersTicker()
 	self.Allies:Disable()
@@ -1375,7 +1374,6 @@ function BattleGroundEnemies:Enable()
 		RequestFrame:Show()
 		stopFakePlayersTicker()
 	end
-	self:Show()
 	self.Allies:CheckEnableState()
 	self.Enemies:CheckEnableState()
 end
@@ -2015,6 +2013,10 @@ function BattleGroundEnemies:PLAYER_REGEN_ENABLED()
 		tbl[funcName](tbl)
 	end
 	wipe(self.PendingUpdates)
+end
+
+function BattleGroundEnemies:PLAYER_REGEN_DISABLED()
+	self:DisableTestOrEditmode()
 end
 
 function BattleGroundEnemies:PlayerDead()
