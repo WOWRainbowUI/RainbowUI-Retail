@@ -833,7 +833,7 @@ L["You can't do that while in combat."] = "你不可以在战斗中这么做。"
 L["About"] = "关于"
 L["Author"] = "作者"
 L["Special Thanks"] = "特别感谢"
-L["Supporters"] = "感谢发电"
+L["Supporters"] = "感谢小伙伴们"
 L["Translators"] = "翻译"
 L["Slash Commands"] = "斜杠命令"
 L["Bug Report & Suggestion"] = "问题报告与建议"
@@ -878,6 +878,10 @@ L["Click to view older changelogs"] = "点击查看远古更新记录"
 L["CHANGELOGS"] = [[
     <h2>更新后如果有各种问题，先排查代码片段。</h2>
     <p>（正式服）如果指示器不能正常刷新，尝试启用常规页面下的“总是更新增益/减益”选项。</p>
+    <br/>
+
+    <h1>r260-release (Aug 18, 2025, 17:20 GMT+8)</h1>
+    <p>* 更新TWW副本减益（感谢swirl）。</p>
     <br/>
 
     <h1>r259-release (Aug 6, 2025, 16:27 GMT+8)</h1>
