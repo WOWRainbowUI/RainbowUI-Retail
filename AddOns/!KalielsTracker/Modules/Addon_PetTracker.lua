@@ -19,6 +19,7 @@ local OTF = KT_ObjectiveTrackerFrame
 local PetTracker = PetTracker
 
 local content
+local contentWidth = 237
 
 local settings = {
 	headerText = PETS,
@@ -85,19 +86,19 @@ local function SetHooks()
 	function PetTracker.SpecieLine:New(parent, text, icon, subicon, r, g, b)
 		local line = bck_PetTracker_SpecieLine_New(self, parent, text, icon, subicon, r, g, b)
 		if line.KTskinID ~= KT.skinID then
-			line:SetWidth(parent.width)
+			line:SetWidth(contentWidth)
 			line.SubIcon:ClearAllPoints()
 			line.SubIcon:SetPoint("TOPLEFT", 0, -1)
 			line.Icon:ClearAllPoints()
 			line.Icon:SetPoint("LEFT", line.SubIcon, "RIGHT", 5, 0)
+			line.Text:ClearAllPoints()
+			line.Text:SetPoint("LEFT", line.Icon, "RIGHT", 5, 0)
+			line.Text:SetPoint("RIGHT")
 			line.Text:SetFont(KT.font, db.fontSize, db.fontFlag)
 			line.Text:SetShadowColor(0, 0, 0, db.fontShadow)
 			line.Text:SetWordWrap(false)
 			line.KTskinID = KT.skinID
 		end
-		line.Text:ClearAllPoints()
-		line.Text:SetPoint("LEFT", line.Icon, "RIGHT", 5, -1)
-		line.Text:SetPoint("RIGHT")
 		return line
 	end
 
@@ -129,7 +130,7 @@ local function SetHooks_PetTracker_Journal()
 		infoFrame:SetScript("OnEnter", function(self)
 			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 			GameTooltip:AddLine(M.Texts.TrackPets, 1, 1, 1)
-			GameTooltip:AddLine("Support can be enabled inside addon "..KT.title, 1, 0, 0, true)
+			GameTooltip:AddLine("Support can be enabled inside addon "..KT.TITLE, 1, 0, 0, true)
 			GameTooltip:Show()
 		end)
 		infoFrame:SetScript("OnLeave", function(self)
@@ -173,10 +174,9 @@ local function SetFrames()
 	-- Objectives
 	local objectives = PetTracker.Objectives
 	objectives:SetParent(content)
-	objectives.width = 250
 
 	-- Progress bar
-	objectives.Bar:SetSize(objectives.width - 17, 13)
+	objectives.Bar:SetSize(contentWidth - 4, 13)
 	objectives.Bar:SetPoint("TOPLEFT", content, 2, -3)
 	objectives.Bar.xOff = -2
 	objectives.Bar:EnableMouse(false)
@@ -254,7 +254,7 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-	self.isLoaded = (KT:CheckAddOn("PetTracker", "11.1.10") and db.addonPetTracker)
+	self.isLoaded = (KT:CheckAddOn("PetTracker", "11.2") and db.addonPetTracker)
 
 	if self.isLoaded then
 		KT:Alert_IncompatibleAddon("PetTracker", "11.1.10")

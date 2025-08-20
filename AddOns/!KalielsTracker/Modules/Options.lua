@@ -306,7 +306,7 @@ end
 
 -- Edit Mode - Options
 moverOptions = {
-	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:0:0|t"..KT.title.."|cffffffff - 編輯模式",
+	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:0:0|t"..KT.TITLE.."|cffffffff - 編輯模式",
 	type = "group",
 	get = function(info) return db[info[#info]] end,
 	args = {
@@ -468,7 +468,7 @@ local options = {
 					order = 0,
 					args = {
 						version = {
-							name = "  |cffffd100版本:|r  "..KT.version,
+							name = " |cffffd100版本:|r  "..KT.VERSION,
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
@@ -851,7 +851,7 @@ local options = {
 							type = "color",
 							width = "half",
 							disabled = function()
-								return (db.hdrBgr < 3 or db.hdrBgrColorShare)
+								return (db.hdrBgr == 1 or db.hdrBgrColorShare)
 							end,
 							get = function()
 								return db.hdrBgrColor.r, db.hdrBgrColor.g, db.hdrBgrColor.b
@@ -869,7 +869,7 @@ local options = {
 							desc = "材質使用與邊框相同的顏色。",
 							type = "toggle",
 							disabled = function()
-								return (db.hdrBgr < 3)
+								return (db.hdrBgr == 1)
 							end,
 							set = function()
 								db.hdrBgrColorShare = not db.hdrBgrColorShare
@@ -915,8 +915,7 @@ local options = {
 							type = "color",
 							width = "half",
 							disabled = function()
-								KT:SetText()
-								return (db.hdrBgr == 2 or db.hdrTxtColorShare)
+								return db.hdrTxtColorShare
 							end,
 							get = function()
 								return db.hdrTxtColor.r, db.hdrTxtColor.g, db.hdrTxtColor.b
@@ -933,9 +932,6 @@ local options = {
 							name = "使用邊框顏色",
 							desc = "標題列文字使用與邊框相同的顏色。",
 							type = "toggle",
-							disabled = function()
-								return (db.hdrBgr == 2)
-							end,
 							set = function()
 								db.hdrTxtColorShare = not db.hdrTxtColorShare
 								KT:SetText()
@@ -961,7 +957,7 @@ local options = {
 							type = "color",
 							width = "half",
 							disabled = function()
-								return (db.hdrBgr == 2 or db.hdrBtnColorShare)
+								return db.hdrBtnColorShare
 							end,
 							get = function()
 								return db.hdrBtnColor.r, db.hdrBtnColor.g, db.hdrBtnColor.b
@@ -978,9 +974,6 @@ local options = {
 							name = "使用邊框顏色",
 							desc = "所有標題列按鈕都使用與邊框相同的顏色。",
 							type = "toggle",
-							disabled = function()
-								return (db.hdrBgr == 2)
-							end,
 							set = function()
 								db.hdrBtnColorShare = not db.hdrBtnColorShare
 								KT:SetBackground()
@@ -1650,8 +1643,6 @@ local options = {
 							desc = cBold.."影響在任務追蹤清單中尋找隊伍用的小眼睛。|r"..
 									"啟用駭客工具時按鈕可以正常使用，不會發生錯誤。停用時將無法使用按鈕。\n\n"..
 									cWarning2.."負面影響:|r\n"..
-									"- 建立預組隊伍的對話框中會隱藏 \"目標\" 項目。\n"..
-									"- 預組隊伍列表中項目的浮動提示資訊會隱藏第二行 (綠色) 的 \"目標\"。\n"..
 									"- 建立預組隊伍的對話框不會自動設定好 \"標題\"，\n"..
 									"  例如 M+ 鑰石層數。\n",
 							descStyle = "inline",
@@ -1676,10 +1667,10 @@ local options = {
 						hackWorldMap = {
 							name = "世界地圖駭客工具 "..beta,
 							desc = cBold.."影響世界地圖|r並且移除汙染錯誤。"..
-									"這個駭客工具移除了對受限函數 SetPassThroughButtons 的呼叫。"..
+									"這個駭客工具避免呼叫受限制的函數。"..
 									"停用駭客工具時，世界地圖顯示會導致錯誤。"..
 									"由於追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-									cWarning2.."負面影響:|r 在魔獸世界 11.1.5 尚未可知。\n",
+									cWarning2.."負面影響:|r 在魔獸世界 11.2.0 尚未可知。\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",
@@ -1739,8 +1730,6 @@ end
 
 function GetModulesOptionsTable()
 	local numModules = #db.modulesOrder
-	local text
-	local defaultModule, defaultText
 	local numSkipped = 0
 	local args = {
 		descCurOrder = {
@@ -1764,17 +1753,18 @@ function GetModulesOptionsTable()
 		},
 	}
 
-	for i, module in ipairs(db.modulesOrder) do
-		if _G[module].Header then
-			text = _G[module].Header.Text:GetText()
-			if module == "KT_ScenarioObjectiveTracker" then
+	for i, moduleName in ipairs(db.modulesOrder) do
+		local module = _G[moduleName]
+		if module.Header then
+			local text = module.headerText
+			if module == KT_ScenarioObjectiveTracker then
 				text = text.." *"
-			elseif module == "KT_UIWidgetObjectiveTracker" then
+			elseif module == KT_UIWidgetObjectiveTracker then
 				text = "[ "..ZONE.." ]"
 			end
 
-			defaultModule = numSkipped == 0 and _G[KT.MODULES[i]] or _G[KT.MODULES[i - numSkipped]]
-			defaultText = defaultModule.Header.Text:GetText()
+			local defaultModule = (numSkipped == 0) and _G[KT.MODULES[i]] or _G[KT.MODULES[i - numSkipped]]
+			local defaultText = defaultModule.headerText
 			if defaultModule == KT_ScenarioObjectiveTracker then
 				defaultText = defaultText.." *"
 			elseif defaultModule == KT_UIWidgetObjectiveTracker then
@@ -1833,8 +1823,8 @@ function MoveModule(idx, direction)
 	modules.sec1.args["pos"..idx.."up"].desc = tmpText
 	modules.sec1.args["pos"..idx.."down"].desc = tmpText
 
-	local module = tremove(db.modulesOrder, idx)
-	tinsert(db.modulesOrder, tmpIdx, module)
+	local moduleName = tremove(db.modulesOrder, idx)
+	tinsert(db.modulesOrder, tmpIdx, moduleName)
 
 	OTF.modules[tmpIdx].uiOrder = idx
 	OTF.modules[idx].uiOrder = tmpIdx
@@ -1851,10 +1841,10 @@ function SetSharedColor(color)
 end
 
 function IsSpecialLocale()
-	return (KT.locale == "deDE" or
-			KT.locale == "esES" or
-			KT.locale == "frFR" or
-			KT.locale == "ruRU")
+	return (KT.LOCALE == "deDE" or
+			KT.LOCALE == "esES" or
+			KT.LOCALE == "frFR" or
+			KT.LOCALE == "ruRU")
 end
 
 local function Init()
@@ -1986,15 +1976,6 @@ local function SetAlert(type)
 end
 
 local function SetupModules()
-	local i, module = next(db.modulesOrder)
-	while module do
-		if not _G[module].init then
-			tremove(db.modulesOrder, i)
-			i = i - 1
-		end
-		i, module = next(db.modulesOrder, i)
-	end
-
 	modules.sec1.args = GetModulesOptionsTable()
 end
 

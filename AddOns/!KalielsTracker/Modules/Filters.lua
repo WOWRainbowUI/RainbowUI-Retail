@@ -884,6 +884,33 @@ function DropDown_Initialize(self, level)
 
 		MSA_DropDownMenu_AddSeparator(info)
 
+		-- Events
+		info.text = EVENTS_LABEL
+		info.isTitle = true
+		MSA_DropDownMenu_AddButton(info)
+
+		info.isTitle = false
+		info.disabled = false
+		info.notCheckable = false
+
+		info.text = "追蹤事件"
+		info.checked = dbChar.filter.events.track
+		info.func = function()
+			dbChar.filter.events.track = not dbChar.filter.events.track
+			KT_EventObjectiveTracker:MarkDirty()
+		end
+		MSA_DropDownMenu_AddButton(info)
+
+		info.text = "顯示進行中事件"
+		info.checked = dbChar.filter.events.showOngoing
+		info.func = function()
+			dbChar.filter.events.showOngoing = not dbChar.filter.events.showOngoing
+			KT_EventObjectiveTracker:MarkDirty()
+		end
+		MSA_DropDownMenu_AddButton(info)
+
+		MSA_DropDownMenu_AddSeparator(info)
+
 		-- Achievements
 		info.text = TRACKER_HEADER_ACHIEVEMENTS
 		info.isTitle = true
@@ -1198,6 +1225,10 @@ function M:OnInitialize()
 				quests = {
 					showCampaign = true
 				},
+				events = {
+					track = true,
+					showOngoing = true
+				}
 			}
 		}
     }, KT.db.defaults)

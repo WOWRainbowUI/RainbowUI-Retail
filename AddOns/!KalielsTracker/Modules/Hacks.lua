@@ -18,48 +18,34 @@ local InCombatLockdown = InCombatLockdown
 
 local db
 
--- LFGList.lua
+local function Noop() end
+
+-- Group Finder
 -- Affects the small Eye buttons for finding groups inside the tracker. When the hack is active,
--- the buttons work without errors. When hack is inactive, the buttons are not available.
+-- the buttons work without errors. When the hack is inactive, the buttons are not available.
 -- Negative impacts:
--- - Inside the dialog for create Premade Group is hidden item "Goal".
--- - Tooltips of items in the list of Premade Groups have a hidden 2nd (green) row with "Goal".
--- - Inside the dialog for create Premade Group, no automatically set the "Title", e.g. keystone level for Mythic+.
+-- - Inside the dialog for create "Premade Group", the "Title" is not set automatically (e.g. keystone level for Mythic+).
 local function Hack_LFG()
     if db.hackLFG then
-        local bck_C_LFGList_GetSearchResultInfo = C_LFGList.GetSearchResultInfo
-        function C_LFGList.GetSearchResultInfo(resultID)
-            local searchResultInfo = bck_C_LFGList_GetSearchResultInfo(resultID)
-            if searchResultInfo then
-                searchResultInfo.playstyle = 0
+        -- LFGList.lua
+        local bck_LFGListEntryCreation_SetTitleFromActivityInfo = LFGListEntryCreation_SetTitleFromActivityInfo
+        LFGListEntryCreation_SetTitleFromActivityInfo = function(self, ...)
+            local activityID = self.selectedActivity or 0
+            local activityInfo =  C_LFGList.GetActivityInfoTable(activityID)
+            if activityInfo and activityInfo.isMythicPlusActivity then
+                return
+            else
+                bck_LFGListEntryCreation_SetTitleFromActivityInfo(self, ...)
             end
-            return searchResultInfo
-        end
-
-        local bck_C_LFGList_GetLfgCategoryInfo = C_LFGList.GetLfgCategoryInfo
-        function C_LFGList.GetLfgCategoryInfo(categoryID)
-            local categoryInfo = bck_C_LFGList_GetLfgCategoryInfo(categoryID)
-            if categoryInfo then
-                categoryInfo.showPlaystyleDropdown = false
-            end
-            return categoryInfo
-        end
-
-        LFGListEntryCreation_OnPlayStyleSelected = function() end
-
-        LFGListEntryCreation_SetTitleFromActivityInfo = function() end
-    else
-        function KT_QuestObjectiveSetupBlockButton_FindGroup(block, questID)
-            return false
         end
     end
 end
 
 -- World Map
--- Affects World Map and removes taint errors. The hack removes call of restricted function SetPassThroughButtons.
--- When the hack is inactive World Map display causes errors. It is not possible to get rid of these errors, since
--- the tracker has a lot of interaction with the game frames.
--- Negative impacts: unknown in WoW 11.1.5
+-- Affects the World Map and removes taint errors. The hack prevents calls to restricted functions.
+-- When the hack is inactive, the World Map display causes errors. It is not possible to get rid of these errors,
+-- since the tracker has a lot of interaction with the game frames.
+-- Negative impacts: unknown in WoW 11.2.0
 local function Hack_WorldMap()
     if db.hackWorldMap then
         -- Blizzard_MapCanvas.lua
@@ -71,7 +57,7 @@ local function Hack_WorldMap()
             Pool_HideAndClearAnchors(pinPool, pin);
             pin:OnReleased();
             pin.pinTemplate = nil;
-            pin.owningMap = nil;
+            pin:SetOwningMap(nil);
         end
 
         local function OnPinMouseUp(pin, button, upInside)
@@ -90,7 +76,7 @@ local function Hack_WorldMap()
             local pin, newPin = self.pinPools[pinTemplate]:Acquire();
 
             pin.pinTemplate = pinTemplate;
-            pin.owningMap = self;
+            pin:SetOwningMap(self);
 
             if newPin then
                 local isMouseClickEnabled = pin:IsMouseClickEnabled();
@@ -123,9 +109,10 @@ local function Hack_WorldMap()
 
             if newPin then
                 pin:OnLoad();
-                pin.CheckMouseButtonPassthrough = function() end
-                pin.UpdateMousePropagation = function() end
             end
+
+            pin.CheckMouseButtonPassthrough = Noop
+            pin.UpdateMousePropagation = Noop
 
             self.ScrollContainer:MarkCanvasDirty();
             pin:Show();
@@ -141,62 +128,61 @@ end
 -- Negative impacts: unknown
 local function Hack_TaintedFrames()
     local activeFrame
+    local bypassFrames = {
+        WorldMapFrame = true,
+        QuestLogPopupDetailFrame = true,
+        AchievementFrame = true,
+        EncounterJournal = true,
+        PVEFrame = true,
+    }
+
+    local function IsBypassFrame(frame)
+        return frame and bypassFrames[frame:GetName()] or false
+    end
 
     hooksecurefunc("ShowUIPanel", function(frame)
-        if InCombatLockdown() and frame then
-            if frame == WorldMapFrame or
-                    frame == QuestLogPopupDetailFrame or
-                    frame == AchievementFrame or
-                    frame == EncounterJournal or
-                    frame == PVEFrame then
-                if not frame:IsShown() then
-                    if activeFrame then
-                        activeFrame:Hide()
-                    end
-                    frame:Show()
-                    activeFrame = frame
-                end
+        if InCombatLockdown() and IsBypassFrame(frame) and not frame:IsShown() then
+            if activeFrame and activeFrame ~= frame then
+                activeFrame:Hide()
             end
+            frame:Show()
+            activeFrame = frame
         end
     end)
 
     hooksecurefunc("HideUIPanel", function(frame)
-        if InCombatLockdown() and frame then
-            if frame == WorldMapFrame or
-                    frame == QuestLogPopupDetailFrame or
-                    frame == AchievementFrame or
-                    frame == EncounterJournal or
-                    frame == PVEFrame then
-                if frame:IsShown() then
-                    frame:Hide()
-                    activeFrame = nil
-                end
+        if InCombatLockdown() and IsBypassFrame(frame) and frame:IsShown() then
+            frame:Hide()
+            if activeFrame == frame then
+                activeFrame = nil
             end
         end
     end)
 
+    local function InitFrame(frame, x, y)
+        if not frame then return end
+        frame:ClearAllPoints()
+        frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x or 16, y or -116)
+        tinsert(UISpecialFrames, frame:GetName())
+    end
+
     KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
-        WorldMapFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 16, -116)
-        QuestLogPopupDetailFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 16, -116)
-        PVEFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 16, -116)
-        tinsert(UISpecialFrames, "WorldMapFrame")
-        tinsert(UISpecialFrames, "QuestLogPopupDetailFrame")
-        tinsert(UISpecialFrames, "PVEFrame")
+        InitFrame(WorldMapFrame)
+        InitFrame(QuestLogPopupDetailFrame)
+        InitFrame(PVEFrame)
         KT:UnregEvent(eventID)
     end)
 
     KT:RegEvent("ADDON_LOADED", function(eventID, addon)
         if addon == "Blizzard_AchievementUI" then
-            AchievementFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 96, -116)
-            tinsert(UISpecialFrames, "AchievementFrame")
+            InitFrame(AchievementFrame, 96)
             KT:UnregEvent(eventID)
         end
     end)
 
     KT:RegEvent("ADDON_LOADED", function(eventID, addon)
         if addon == "Blizzard_EncounterJournal" then
-            EncounterJournal:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 16, -116)
-            tinsert(UISpecialFrames, "EncounterJournal")
+            InitFrame(EncounterJournal)
             KT:UnregEvent(eventID)
         end
     end)

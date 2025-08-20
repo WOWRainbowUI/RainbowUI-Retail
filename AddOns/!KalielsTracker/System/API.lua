@@ -8,17 +8,17 @@
 local _, KT = ...
 
 ---@type KalielsTracker
-KT.api = {}
+local api = {}
 
 ---Toggle (public API)
 --- - true - show the tracker
 --- - false - hide the tracker
 --- - empty (nil) - toggle the tracker
 ---@param show boolean|nil @show / hide / toggle
-function KT.api:Toggle(show)
+function api:Toggle(show)
     KT:ToggleTracker(show)
 end
 
 ---@public
 ---@class KalielsTracker
-KalielsTracker = setmetatable({}, { __index = KT.api, __newindex = function() end, __metatable = false })
+KalielsTracker = setmetatable({}, { __index = api, __newindex = function() end, __metatable = false })
