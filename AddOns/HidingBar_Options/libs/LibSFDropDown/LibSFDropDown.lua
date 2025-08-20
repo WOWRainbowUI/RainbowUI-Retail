@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 25
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 26
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -1033,7 +1033,6 @@ function DropDownMenuSearchMixin:init(menu, info)
 	self:SetHeight(height)
 	self.searchBox:SetText("")
 	self:updateFilters()
-	self.scrollBox:ScrollToElementDataIndex(self.index)
 	self:Show()
 
 	return self.width, height
@@ -1326,7 +1325,6 @@ local function MenuReset(menu)
 	menu.height = 0
 	menu.numButtons = 0
 	menu:ClearAllPoints()
-	menu.scrollBar:SetScrollPercentage(0)
 	wipe(menu.searchFrames)
 end
 
@@ -1577,6 +1575,14 @@ function DropDownButtonMixin:ddToggle(level, value, anchorFrame, point, rPoint, 
 			point, rPoint = rPoint, point
 		end
 		menu:SetPoint(point, anchorFrame, rPoint or point, xOffset or 0, yOffset or anchorFrame.hasArrowUp and -15 or 15)
+	end
+
+	-- fix scroll thumb disappear
+	menu.scrollBar:SetScrollPercentage(0)
+	for i = 1, #menu.searchFrames do
+		local f = menu.searchFrames[i]
+		f.scrollBox:SetScrollPercentage(0)
+		f.scrollBox:ScrollToElementDataIndex(f.index)
 	end
 
 	local style = v.DROPDOWNBUTTON.ddDisplayMode
@@ -2470,16 +2476,11 @@ if oldminor < 17 then
 	end
 end
 
-if oldminor < 24 then
-	for i, f in lib:IterateSearchFrames() do
-		f.buttonsList = nil
-		f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired, f)
-	end
-end
-
-if oldminor < 25 then
+if oldminor < 26 then
 	for i, f in lib:IterateSearchFrames() do
 		for k, v in next, DropDownMenuSearchMixin do f[k] = v end
+		f.buttonsList = nil
 		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
+		f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired, f)
 	end
 end
