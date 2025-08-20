@@ -39,7 +39,7 @@
 					</KeyValues>
 					<Size x="208"/>
 					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent.Logo" relativePoint="RIGHT" x="0" y="-0.5"/>  <!-- MSA -->
+						<Anchor point="LEFT" relativeKey="$parent.Logo" relativePoint="RIGHT"/>  <!-- MSA -->
 					</Anchors>
 				</FontString>
 			</Layer>

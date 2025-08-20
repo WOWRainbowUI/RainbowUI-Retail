@@ -61,7 +61,7 @@ local function SetupOptions()
 			},
 		}
 
-		KT.optionsFrame.tomtom = ACD:AddToBlizOptions(addonName, "Addon - "..KT.options.args.tomtom.name, KT.title, "tomtom")
+		KT.optionsFrame.tomtom = ACD:AddToBlizOptions(addonName, "Addon - "..KT.options.args.tomtom.name, KT.TITLE, "tomtom")
 	end
 
 	-- Reverts the option to display Quest Objectives
@@ -371,8 +371,12 @@ local function SetHooks_Init()
 	end)
 
 	hooksecurefunc(POIButtonMixin, "OnClick", function(self)
-		KT_CampaignQuestObjectiveTracker:MarkDirty()
 		-- Quest and World Quest modules are automatically marked as dirty
+		if KT.POIButton_IsCampaign(self) then
+			KT_CampaignQuestObjectiveTracker:MarkDirty()
+		elseif KT.POIButton_IsEvent(self) then
+			KT_EventObjectiveTracker:MarkDirty()
+		end
 	end)
 end
 
@@ -454,7 +458,7 @@ end
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
-	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.0.9-release") and db.addonTomTom)
+	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.0.15-release") and db.addonTomTom)
 
 	if self.isLoaded then
 		KT:Alert_IncompatibleAddon("TomTom", "v4.0.1-release")

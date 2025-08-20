@@ -3,6 +3,8 @@
 	<Script file="Options.lua"/>
 	<Script file="Hacks.lua"/>
 	<Script file="Filters.lua"/>
+	<Script file="Events.lua"/>
+	<Include file="Events.xml"/>
 	<Script file="QuestLog.lua"/>
 	<Script file="ActiveButton.lua"/>
 	<Script file="Addon_PetTracker.lua"/>

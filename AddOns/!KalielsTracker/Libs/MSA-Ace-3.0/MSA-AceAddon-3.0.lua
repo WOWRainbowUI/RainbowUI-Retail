@@ -3,7 +3,7 @@
 ---
 --- Marouan Sabbagh <mar.sabbagh@gmail.com>
 
-local name, version = "MSA-AceAddon-3.0", 0
+local name, version = "MSA-AceAddon-3.0", 1
 
 local AceAddon = LibStub:NewLibrary(name, version)
 if not AceAddon then return end
@@ -11,30 +11,33 @@ if not AceAddon then return end
 -- Lua API
 local pairs = pairs
 
-AceAddon.raw = LibStub("AceAddon-3.0")
+local AceAddonRaw = LibStub("AceAddon-3.0")
+local AceAddonApiRaw = {}
 
-local function NewModule(self, ...)
-	local module = self:NewModuleRaw(...)
-	AceAddon.raw.addons[module.name] = nil
-	return module
+local function NewModule(...)
+    local module = AceAddonApiRaw.NewModule(...)
+    AceAddonRaw.addons[module.name] = nil
+    return module
 end
 
 local mixins = {
-	NewModule = NewModule
+    NewModule = NewModule
 }
 
 local function Embed(target)
-	for k, v in pairs(mixins) do
-		target[k.."Raw"] = target[k]
-		target[k] = v
-	end
+    for k, v in pairs(mixins) do
+        if not AceAddonApiRaw[k] then
+            AceAddonApiRaw[k] = target[k]
+        end
+        target[k] = v
+    end
 end
 
 function AceAddon:NewAddon(...)
-	local addon = self.raw:NewAddon(...)
-	self.raw.addons[addon.name] = nil
-	Embed(addon)
-	return addon
+    local addon = AceAddonRaw:NewAddon(...)
+    AceAddonRaw.addons[addon.name] = nil
+    Embed(addon)
+    return addon
 end
 
-AceAddon = setmetatable(AceAddon, { __index = AceAddon.raw, __newindex = function() end, __metatable = false })
+AceAddon = setmetatable(AceAddon, { __index = AceAddonRaw, __newindex = function() end, __metatable = false })

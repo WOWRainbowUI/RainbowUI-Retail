@@ -21,17 +21,17 @@ local db
 local OTF = KT_ObjectiveTrackerFrame
 local msqGroup1, msqGroup2
 
-local KTwarning = "  |cff00ffffAddon "..KT.title.." is active.  "
+local KTwarning = "  |cff00ffffAddon "..KT.TITLE.." is active.  "
 
 -- Internal ------------------------------------------------------------------------------------------------------------
 
 -- Masque
 local function Masque_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Masque", "11.1.5") and db.addonMasque)
+    local isLoaded = (KT:CheckAddOn("Masque", "11.2.0") and db.addonMasque)
     if isLoaded then
         KT:Alert_IncompatibleAddon("Masque", "11.0.1")
-        msqGroup1 = MSQ:Group(KT.title, "Quest Item Buttons")
-        msqGroup2 = MSQ:Group(KT.title, "Quest Active Button")
+        msqGroup1 = MSQ:Group(KT.TITLE, "Quest Item Buttons")
+        msqGroup2 = MSQ:Group(KT.TITLE, "Quest Active Button")
         hooksecurefunc(msqGroup2, "__Enable", function(self)
             for button in pairs(self.Buttons) do
                 if button.Style then
@@ -51,7 +51,7 @@ end
 
 -- Auctionator
 local function Auctionator_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Auctionator", "275") and db.addonAuctionator)
+    local isLoaded = (KT:CheckAddOn("Auctionator", "288") and db.addonAuctionator)
     if isLoaded then
         hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
             local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame
@@ -64,12 +64,12 @@ end
 
 -- ElvUI
 local function ElvUI_SetSupport()
-    if KT:CheckAddOn("ElvUI", "v13.89", true) then
+    if KT:CheckAddOn("ElvUI", "v13.97", true) then
         local E = unpack(_G.ElvUI)
         local B = E:GetModule("Blizzard")
         B.ObjectiveTracker_Setup = function() end  -- preventive
         if E.private.skins.blizzard.objectiveTracker then
-            StaticPopup_Show(addonName.."_ReloadUI", nil, "Activate changes for |cff00ffe3ElvUI|r.")
+            KT.StaticPopup_Show("ReloadUI", nil, "Activate changes for |cff00ffe3ElvUI|r.")
         end
         hooksecurefunc(E, "CheckIncompatible", function(self)
             self.private.skins.blizzard.objectiveTracker = false
@@ -89,7 +89,7 @@ end
 
 -- Tukui
 local function Tukui_SetSupport()
-    if KT:CheckAddOn("Tukui", "v20.460", true) then
+    if KT:CheckAddOn("Tukui", "v20.461", true) then
         local T = unpack(_G.Tukui)
         T.Miscellaneous.ObjectiveTracker.Enable = function() end
     end
@@ -102,7 +102,7 @@ local function RealUI_SetSupport()
         local module = "Objectives Adv."
         if R:GetModuleEnabled(module) then
             R:SetModuleEnabled(module, false)
-            StaticPopup_Show(addonName.."_ReloadUI", nil, "Activate changes for |cff00ffe3RealUI|r.")
+            KT.StaticPopup_Show("ReloadUI", nil, "Activate changes for |cff00ffe3RealUI|r.")
         end
     end
 end

@@ -46,3 +46,38 @@ local media = {
 for _, item in ipairs(media) do
     LSM:Register(LSM.MediaType[item.type], "KT - "..item.name, item.filePath)
 end
+
+-- ---------------------------------------------------------------------------------------------------------------------
+
+local atlas = {
+    background1 = { file = KT.MEDIA_PATH.."KT-HeaderBackground-1", w = 512, h = 64 },
+    background2 = { file = KT.MEDIA_PATH.."KT-HeaderBackground-2", w = 16, h = 64 },
+    background3 = { file = KT.MEDIA_PATH.."KT-HeaderBackground-3", w = 16, h = 64 },
+}
+
+local sprites = {
+    ["tracker-header-bgr-1"] = { atlas = atlas.background1, w = 298, h = 29, x = 4, y = 4 },
+    ["tracker-header-bgr-2"] = { atlas = atlas.background2, w = 16, h = 29, x = 0, y = 4 },
+    ["tracker-header-bgr-3"] = { atlas = atlas.background3, w = 16, h = 29, x = 0, y = 4 },
+    ["module-header-bgr-1"] = { atlas = atlas.background1, w = 298, h = 24, x = 4, y = 37 },
+    ["module-header-bgr-2"] = { atlas = atlas.background2, w = 16, h = 24, x = 0, y = 37 },
+    ["module-header-bgr-3"] = { atlas = atlas.background3, w = 16, h = 24, x = 0, y = 37 },
+}
+
+function KT.SetSprite(texture, name, setSize)
+    local s = sprites[name]
+    if not s then return end
+    local a = s.atlas
+    if not a then return end
+
+    local l = s.x / a.w
+    local r = (s.x + s.w) / a.w
+    local t = s.y / a.h
+    local b = (s.y + s.h) / a.h
+
+    texture:SetTexture(a.file)
+    texture:SetTexCoord(l, r, t, b)
+    if setSize then
+        texture:SetSize(s.w, s.h)
+    end
+end

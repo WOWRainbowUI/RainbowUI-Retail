@@ -9,10 +9,6 @@ local addonName, addon = ...
 ---@class KT
 local KT = LibStub("MSA-AceAddon-3.0"):NewAddon(addon, addonName, "LibSink-2.0", "MSA-Event-1.0", "MSA-ProtRouter-1.0", "MSA-EditMode-1.0")
 KT:SetDefaultModuleState(false)
-KT.title = C_AddOns.GetAddOnMetadata(addonName, "Title")
-KT.version = C_AddOns.GetAddOnMetadata(addonName, "Version")
-KT.gameVersion = GetBuildInfo()
-KT.locale = GetLocale()
 
 local LSM = LibStub("LibSharedMedia-3.0")
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
@@ -64,7 +60,7 @@ local KTSetShown, KTSetWidth, KTSetHeight, KTSetPoint, KTClearAllPoints, KTSetSc
 
 -- Prototype -----------------------------------------------------------------------------------------------------------
 
----@type KT|Options|Hacks|Filters|QuestLog|ActiveButton|AddonPetTracker|AddonTomTom|AddonOthers|Help
+---@type KT|Options|Hacks|Filters|Events|QuestLog|ActiveButton|AddonPetTracker|AddonTomTom|AddonOthers|Help
 local prototype = {}
 
 ---SetForced (prototype)
@@ -130,24 +126,21 @@ end
 local function SetHeadersStyle(type)
 	local bgrColor = db.hdrBgrColorShare and KT.borderColor or db.hdrBgrColor
 	local txtColor = db.hdrTxtColorShare and KT.borderColor or db.hdrTxtColor
-	if db.hdrBgr == 2 then
-		txtColor = KT.TRACKER_DEFAULT_COLOR
-	end
 
 	if not type or type == "background" then
+		local spriteID = db.hdrBgr - 1
 		if db.hdrBgr == 2 then
-			OTFHeader.Background:SetAtlas("ui-questtracker-primary-objective-header")
-			OTFHeader.Background:SetVertexColor(1, 1, 1)
-			OTFHeader.Background:SetHeight(40)
-			OTFHeader.Background:ClearAllPoints()
-			OTFHeader.Background:SetPoint("TOP", 0, 4)
-		elseif db.hdrBgr >= 3 then
-			OTFHeader.Background:SetTexture(KT.MEDIA_PATH.."UI-KT-HeaderBackground-"..(db.hdrBgr - 2))
+			KT.SetSprite(OTFHeader.Background, "tracker-header-bgr-"..spriteID, true)
 			OTFHeader.Background:SetVertexColor(bgrColor.r, bgrColor.g, bgrColor.b)
 			OTFHeader.Background:ClearAllPoints()
-			OTFHeader.Background:SetPoint("TOPLEFT", -20, -2)
-			OTFHeader.Background:SetPoint("TOPRIGHT", 17, -2)
-			OTFHeader.Background:SetHeight(32)
+			OTFHeader.Background:SetPoint("TOP", 0, -1)
+		elseif db.hdrBgr >= 3 then
+			KT.SetSprite(OTFHeader.Background, "tracker-header-bgr-"..spriteID)
+			OTFHeader.Background:SetVertexColor(bgrColor.r, bgrColor.g, bgrColor.b)
+			OTFHeader.Background:ClearAllPoints()
+			OTFHeader.Background:SetPoint("TOPLEFT", -20, -1)
+			OTFHeader.Background:SetPoint("TOPRIGHT", 17, -1)
+			OTFHeader.Background:SetHeight(29)
 		end
 		ShowTrackerHeader()
 
@@ -155,19 +148,18 @@ local function SetHeadersStyle(type)
 			if db.hdrBgr == 1 then
 				header.Background:Hide()
 			elseif db.hdrBgr == 2 then
-				header.Background:SetAtlas("UI-QuestTracker-Secondary-Objective-Header")
-				header.Background:SetVertexColor(1, 1, 1)
-				header.Background:SetHeight(31)
+				KT.SetSprite(header.Background, "module-header-bgr-"..spriteID, true)
+				header.Background:SetVertexColor(bgrColor.r, bgrColor.g, bgrColor.b)
 				header.Background:ClearAllPoints()
-				header.Background:SetPoint("TOP", 0, 3)
+				header.Background:SetPoint("TOP")
 				header.Background:Show()
 			elseif db.hdrBgr >= 3 then
-				header.Background:SetTexture(KT.MEDIA_PATH.."UI-KT-HeaderBackground-"..(db.hdrBgr - 2))
+				KT.SetSprite(header.Background, "module-header-bgr-"..spriteID)
 				header.Background:SetVertexColor(bgrColor.r, bgrColor.g, bgrColor.b)
 				header.Background:ClearAllPoints()
 				header.Background:SetPoint("TOPLEFT", -20, 0)
 				header.Background:SetPoint("TOPRIGHT", 17, 0)
-				header.Background:SetHeight(26)
+				header.Background:SetHeight(24)
 				header.Background:Show()
 			end
 		end
@@ -216,9 +208,16 @@ local function SlashHandler(msg)
 end
 
 local function SetScrollbarPosition()
-	local xOfs = -5
-	local yOfs = -1 * KT.round(5 + (KTF.Scroll.value * (((db.maxHeight - 60) / ((OTF.height - db.maxHeight) / KTF.Scroll.step)) / KTF.Scroll.step)))
-	KTF.Bar:SetPoint("TOPRIGHT", xOfs, yOfs)
+	local xOffset = -5
+	local yOffset = -5
+	local scrollRange = OTF.height - db.maxHeight
+	if scrollRange > 0 then
+		local barSpace = 60  -- 50 + 2×5
+		local usableHeight = db.maxHeight - barSpace
+		local scrollRatio = KTF.Scroll.value / scrollRange
+		yOffset = -1 * KT.round(5 + (usableHeight * scrollRatio))
+	end
+	KTF.Bar:SetPoint("TOPRIGHT", xOffset, yOffset)
 end
 
 local function GetTaskTimeLeftData(questID)
@@ -278,9 +277,10 @@ local function Init()
 		SetOverrideBindingClick(KTF, false, db.keyBindMinimize, KTF.MinimizeButton:GetName())
 	end
 
-	for i, module in ipairs(db.modulesOrder) do
-		_G[module].uiOrder = i
-		KT:SetModuleHeader(_G[module])
+	for i, moduleName in ipairs(db.modulesOrder) do
+		local module = _G[moduleName]
+		module.uiOrder = i
+		KT:SetModuleHeader(module)
 	end
 
 	KT:MoveTracker()
@@ -317,7 +317,7 @@ local function SetFrames()
 	KTF.paddingTop = OTF.topModulePadding
 	KTF.paddingBottom = OTF.bottomModulePadding
 	KTF.borderSpace = 4
-	KTF.headerHeight = 32
+	KTF.headerHeight = 31
 
 	KTF:SetScript("OnEvent", function(self, event, ...)
 		_DBG("Event - "..event)
@@ -468,7 +468,7 @@ local function SetFrames()
 	button:SetScript("OnEnter", function(self)
 		self:GetNormalTexture():SetVertexColor(1, 1, 1)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		local title = (db.keyBindMinimize ~= "") and KT.title.." "..NORMAL_FONT_COLOR_CODE.."("..db.keyBindMinimize..")|r" or KT.title
+		local title = KT.TITLE..((db.keyBindMinimize ~= "") and NORMAL_FONT_COLOR_CODE.." ("..db.keyBindMinimize..")|r" or "")
 		GameTooltip:AddLine(title, 1, 1, 1)
 		GameTooltip:AddLine("Right Click - Focus closest Quest", 0.5, 0.5, 0.5)
 		GameTooltip:AddLine("Alt + Click - Open addon Options", 0.5, 0.5, 0.5)
@@ -534,7 +534,7 @@ local function SetFrames()
 	OTFHeader.FilterButton:Hide()
 	OTFHeader.Text:SetWidth(db.width - 85)
 	OTFHeader.Text:SetWordWrap(false)
-	OTF.headerText = KT.title
+	OTF.headerText = KT.TITLE
 	KT_ScenarioObjectiveTracker.fromBlockOffsetY = 0
 	KT_ScenarioObjectiveTracker.lineSpacing = 4
 	KT_ScenarioObjectiveTracker.ObjectivesBlock.offsetX = 40
@@ -1393,6 +1393,10 @@ local function SetHooks()
 	end
 
 	function KT_ObjectiveTrackerBlockMixin:AddRightEdgeFrame(settings, identifier, ...)
+		if not db.hackLFG and settings.template == "KT_QuestObjectiveFindGroupButtonTemplate" then
+			return nil
+		end
+
 		local frame
 		if settings.template == "KT_QuestObjectiveItemButtonTemplate" then
 			QuestItemButton_Add(self, 3, 4)
@@ -2031,6 +2035,7 @@ local function SetHooks()
 				else
 					local mapID = (self.showWorldQuests or isThreatQuest) and C_TaskQuest.GetQuestZoneID(questID) or GetQuestUiMapID(questID)
 					if mapID and mapID > 0 then
+						QuestMapFrame:SetDisplayMode(QuestLogDisplayMode.Quests)
 						QuestMapFrame_CloseQuestDetails()
 						OpenQuestLog(mapID);
 						if block.poiInfo and block.poiInfo.areaPoiID then
@@ -2156,7 +2161,9 @@ local function SetHooks()
 		info = MSA_DropDownMenu_CreateInfo();
 		info.notCheckable = 1;
 
-		if not KT.IsRecraftBlock(block) and IsSpellKnown(recipeID) then
+		local spellBank = Enum.SpellBookSpellBank.Player;
+		local includeOverrides = false;
+		if not KT.IsRecraftBlock(block) and C_SpellBook.IsSpellInSpellBook(recipeID, spellBank, includeOverrides) then
 			info.text = PROFESSIONS_TRACKING_VIEW_RECIPE;
 			info.func = function()
 				if C_TradeSkillUI.IsRecipeProfessionLearned(recipeID) then
@@ -2533,11 +2540,7 @@ function KT:SetBackground()
 
 	SetHeadersStyle("background")
 
-	if db.hdrBgr == 2 then
-		self.hdrBtnColor = self.TRACKER_DEFAULT_COLOR
-	else
-		self.hdrBtnColor = db.hdrBtnColorShare and self.borderColor or db.hdrBtnColor
-	end
+	self.hdrBtnColor = db.hdrBtnColorShare and self.borderColor or db.hdrBtnColor
 	KTF.MinimizeButton:GetNormalTexture():SetVertexColor(self.hdrBtnColor.r, self.hdrBtnColor.g, self.hdrBtnColor.b)
 	if self.Filters:IsEnabled() then
 		if db.filterAuto[1] or db.filterAuto[2] or db.filterAuto[3] then
@@ -2607,7 +2610,6 @@ function KT:SetModuleHeader(module)
 		ModuleMinimize_OnClick(module)
 	end)
 	tinsert(KT.headers, module.Header)
-	module.title = module.Header.Text:GetText()
 
 	-- Module collapse icon
 	local icon = module.Header:CreateTexture(nil, "ARTWORK")
@@ -2619,7 +2621,7 @@ function KT:SetModuleHeader(module)
 end
 
 function KT:SetHeaderText(module, append)
-	local text = module.title
+	local text = module.headerText
 	if append then
 		text = format("%s (%s)", text, append)
 	end
@@ -2976,22 +2978,25 @@ function KT:OnEnable()
 
 	self.Options:Enable()
 	self.Filters:Enable()
+	self.Events:Enable()
 	if self.AddonPetTracker.isLoaded then self.AddonPetTracker:Enable() end
 	if self.AddonTomTom.isLoaded then self.AddonTomTom:Enable() end
 	self.AddonOthers:Enable()
 	if db.qiActiveButton then self.ActiveButton:Enable() end
 	self.Help:Enable()
 
-	if self.db.global.version ~= self.version then
-		self.db.global.version = self.version
+	if self.db.global.version ~= self.VERSION then
+		self.db.global.version = self.VERSION
 	end
 
 	AddonCompartmentFrame:RegisterAddon({
-		text = self.title,
+		text = self.TITLE,
 		icon = self.MEDIA_PATH.."KT_logo",
 		notCheckable = true,
 		func = function()
 			self:ToggleTracker()
 		end
 	})
+
+	db.modulesOrder = self.ReconcileOrder(self.MODULES, db.modulesOrder)
 end

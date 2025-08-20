@@ -135,16 +135,36 @@ function KT_QuestObjectiveItemButtonMixin:CheckUpdateInsideBlob()
 	KT_QuestObjectiveItemButtonMixin.UpdateInsideBlob(self, questID, C_Minimap.IsInsideQuestBlob(questID));  -- MSA (fix)
 end
 
-function KT_QuestObjectiveItemButtonMixin:UpdateInsideBlob(questID, _inside)
+function KT_QuestObjectiveItemButtonMixin:UpdateInsideBlob(questID, inside)
 	if questID == self:GetAttribute("questID") then
-		local inside = false; -- disabled for now
-		self.Glow:SetShown(inside); -- maybe fade out anim and then stop glow
+		self.GlowAnim.region = self.Glow;
 		if inside then
-			self.GlowAnim:Play();
-		else
-			self.GlowAnim:Stop();
+			self.GlowAnim:BeginPlaying();
 		end
 	end
+end
+
+KT_QuestObjectiveItemGlowAnimMixin = {}
+
+function KT_QuestObjectiveItemGlowAnimMixin:OnLoop()
+	self.loopCount = self.loopCount + 1;
+	if self.loopCount >= 6 then
+		self:StopPlaying();
+	end
+end
+
+function KT_QuestObjectiveItemGlowAnimMixin:BeginPlaying()
+	if not self:IsPlaying() then
+		self.region:Show();
+		self.loopCount = 0;
+		self:SetLooping("BOUNCE");
+		self:Restart();
+	end
+end
+
+function KT_QuestObjectiveItemGlowAnimMixin:StopPlaying()
+	self.region:Hide();
+	self:SetLooping("NONE");
 end
 
 -- *****************************************************************************************************

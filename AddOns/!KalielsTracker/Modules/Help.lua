@@ -15,9 +15,10 @@ local T = LibStub("MSA-Tutorials-1.0")
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 local db, dbChar
+local helpTitle = KT.TITLE.." |cffffffff"..KT.VERSION.."|r"
 local helpPath = KT.MEDIA_PATH.."Help\\"
 local helpName = "help"
-local helpNumPages = 12
+local helpNumPages = 13
 local supportersName = "supporters"
 local supportersNumPages = 1
 local cTitle = "|cffffd200"
@@ -76,7 +77,7 @@ local function SetupTutorials()
 	T.RegisterTutorial(helpName, {
 		savedvariable = KT.db.global,
 		key = "helpTutorial",
-		title = KT.title.." |cffffffff"..KT.version.."|r",
+		title = helpTitle,
 		icon = helpPath.."KT_logo",
 		font = "Fonts\\FRIZQT__.TTF",
 		width = 562,
@@ -85,7 +86,7 @@ local function SetupTutorials()
 		imageHeight = 256,
 		{	-- 1
 			image = helpPath.."help_kaliels-tracker",
-			text = cTitle..KT.title.."|r is improved default Blizzard Objective Tracker.\n\n"..
+			text = cTitle..KT.TITLE.."|r is improved default Blizzard Objective Tracker.\n\n"..
 					"Some features:\n"..
 					"- Change tracker position\n"..
 					"- Expand / Collapse tracker relative to selected position (direction)\n"..
@@ -114,7 +115,7 @@ local function SetupTutorials()
 					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:16:30:209:170:0|t you can disable in Options.\n\n"..
 					"You can set "..cBold.."[key bind]|r for Minimize button.\n"..
 					cBold.."Right Click|r on Minimize button - Focus closest Quest.\n"..
-					cBold.."Alt + Click|r on Minimize button - Open "..KT.title.." Options.",
+					cBold.."Alt + Click|r on Minimize button - Open "..KT.TITLE.." Options.",
 			paddingBottom = 14,
 			shine = KTF.MinimizeButton,
 			shineTop = 13,
@@ -183,7 +184,7 @@ local function SetupTutorials()
 					offs.."of the quest.\n"..
 					"- "..cBold.."Manual display|r of Active Button, when selecting the quest using the POI"..
 					offs.."button on the Map or in the Tracker.\n"..
-					"- You can set "..cBold.."[key bind]|r to use quest item. Key set up in "..KT.title..
+					"- You can set "..cBold.."[key bind]|r to use quest item. Key set up in "..KT.TITLE..
 					offs.."Options. Active Button uses the same key bind as the Extra Action Button.\n"..
 					"- Button is movable using own mover. See Options > section \"Quest item"..
 					offs.."buttons\" > button \"Unlock\".\n\n"..
@@ -217,7 +218,7 @@ local function SetupTutorials()
 		{	-- 9
 			image = helpPath.."help_addon-pettracker",
 			heading = "Support addon PetTracker",
-			text = "PetTracker support adjusts display of zone pet tracking inside "..KT.title..". It also fix some visual bugs.\n"..
+			text = "PetTracker support adjusts display of zone pet tracking inside "..KT.TITLE..". It also fix some visual bugs.\n"..
 					AddonInfo("PetTracker"),
 		},
 		{	-- 10
@@ -244,24 +245,31 @@ local function SetupTutorials()
 		},
 		{	-- 11
 			heading = "       Hacks",
-			text = "All hacks are enabled by default, you can disable them in "..KT.title.." Options (section \"Hacks\").\n\n"..
+			text = "All hacks are enabled by default, you can disable them in "..KT.TITLE.." Options (section \"Hacks\").\n\n"..
 					cWarning.."Warning:|r Hacks may affect other addons!\n\n"..
 					cTitle.."LFG Hack|r\n\n"..
 					cBold.."Affects the small Eye buttons|r for finding groups inside the tracker. When the hack is active, "..
-					"the buttons work without errors. When hack is inactive, the buttons are not available.\n\n"..
+					"the buttons work without errors. When the hack is inactive, the buttons are not available.\n\n"..
 					cWarning2.."Negative impacts:|r\n"..
-					"- Inside the dialog for create Premade Group is hidden item \"Goal\".\n"..
-					"- Tooltips of items in the list of Premade Groups have a hidden 2nd (green) row"..
-					offs.."with \"Goal\".\n"..
-					"- Inside the dialog for create Premade Group, no automatically set the \"Title\","..
-					offs.."e.g. keystone level for Mythic+.\n\n"..
-					cTitle.."World Map Hack|r "..beta.."\n\n"..
-					cBold.."Affects World Map|r and removes taint errors. The hack removes call of restricted function "..
-					"SetPassThroughButtons. When the hack is inactive World Map display causes errors. It is not possible "..
-					"to get rid of these errors, since the tracker has a lot of interaction with the game frames.\n\n"..
-					cWarning2.."Negative impacts:|r unknown in WoW 11.1.5",
+					"- Inside the dialog for create \"Premade Group\", the \"Title\" is not set"..
+					offs.."automatically (e.g. keystone level for Mythic+).\n\n"..
+					cTitle.."World Map Hack|r\n\n"..
+                    cBold.."Affects the World Map|r and removes taint errors. The hack prevents calls to restricted "..
+                    "functions. When the hack is inactive, the World Map display causes errors. It is not possible to "..
+                    "get rid of these errors, since the tracker has a lot of interaction with the game frames.\n\n"..
+					cWarning2.."Negative impacts:|r unknown in WoW 11.2.0",
 		},
 		{	-- 12
+			image = helpPath.."help_events",
+			heading = "Events",
+			text = "The Events module displays active ongoing and scheduled events in the tracker. These events are normally "..
+					"available on the World Map.\n\n"..
+					"Filter dropdown menu options:\n"..
+					"- "..cBold.."Track Events|r – Enables or disables tracking of events in the tracker.\n"..
+					"- "..cBold.."Show Ongoing Events|r – Shows currently ongoing events in addition to"..
+					offs.."scheduled ones.",
+		},
+		{	-- 13
 			image = helpPath.."help_whats-new_logo",
 			imageWidth = 512,
 			imageHeight = 128,
@@ -274,33 +282,25 @@ local function SetupTutorials()
 			headingFont = "Fonts\\MORPHEUS.ttf",
 			headingSize = 26,
 			text =
-					cTitle.."Version 7.10.1|r\n"..
-					"- CHANGED - addon support - PetTracker 11.1.10\n"..
-					"- FIXED - error during profiles compatibility test\n"..
-					"- FIXED - PetTracker - error during init\n"..
-					"\n"..
-					cTitle.."Version 7.10.0|r\n"..
-					"- ADDED - support for WoW 11.1.5.60428\n"..
-					"- ADDED - support for WoW 11.1.0.59347\n"..
-					"- ADDED - support for WoW 11.0.7.58867\n"..
-					"- ADDED - support for WoW 11.0.7.58238\n"..
-					"- CHANGED - Libs\n"..
-					"- CHANGED - addon support - ElvUI 13.89, Tukui 20.460\n"..
-					"- CHANGED - addon support - Auctionator 275\n"..
-					"- CHANGED - addon support - Masque 11.1.5\n"..
-					"- CHANGED - addon support - TomTom 4.0.9\n"..
-					"- CHANGED - addon support - PetTracker 11.1.5\n"..
-					"- CHANGED - Bonus Objective - data retrieval for POI buttons (since 11.1.0)\n"..
-					"- CHANGED - Quest Item Button – don't show Active Button for some Quest Items\n"..
-					"- CHANGED - Bonus Objective – do not display Quest tags (level etc.)\n"..
-					"- CHANGED - Quest Item Button – Active Button reworked (2) – re-added manual activation via POI button (focus)\n"..
-					"- CHANGED - PetTracker - improve zone change detection\n"..
-					"- FIXED - TomTom - waypoint tags on World Map are not updated 2 (Blizz bug)\n"..
-					"- FIXED - Bonus Objective - no ping after click on Area POI\n"..
-					"- FIXED - TomTom - waypoint tags on World Map are not updated (Blizz bug)\n"..
-					"- FIXED - Quest Item button – Active Button frame level is lower than ExtraActionButton1\n"..
-					"- REVERTED - Quest Item button – Active Button reworked\n"..
-					"- REVERTED - Quest Item button – add glow when player is at relevant location\n"..
+					cTitle.."Version 7.11.0|r\n"..
+					"- ADDED (help) - Events - new help page\n"..
+					"- ADDED (ui) - header texture improvement (Blizzard textures now colorable)\n"..
+					"- ADDED - support for WoW 11.2.0.62438\n"..
+					"- ADDED - support for WoW 11.1.7.61967\n"..
+					"- ADDED - support for WoW 11.1.5.60822\n"..
+					"- ADDED - Events - show active Ongoing and Scheduled Events from World Map in tracker\n"..
+					"- CHANGED - PetTracker - improvement\n"..
+					"- CHANGED - addon support - ElvUI 13.97, Tukui 20.461\n"..
+					"- CHANGED - addon support - Auctionator 288\n"..
+					"- CHANGED - addon support - TomTom 4.0.15\n"..
+					"- CHANGED - addon support - PetTracker 11.2\n"..
+					"- CHANGED - addon support - Masque 11.2.0\n"..
+					"- CHANGED (help) - Active Patrons\n"..
+					"- CHANGED - LFG Hack - improvement (item Goal visible again)\n"..
+					"- CHANGED - Tainted frames Hack - improvement\n"..
+					"- CHANGED - World Map Hack - improvement\n"..
+					"- FIXED - init error when composing headers\n"..
+					"- FIXED - PetTracker - sometimes SetWidth nil value error\n"..
 					"\n"..
 
 					cTitle.."Issue reporting|r\n"..
@@ -360,32 +360,29 @@ local function SetupTutorials()
 	T.RegisterTutorial("supporters", {
 		savedvariable = KT.db.global,
 		key = "supportersTutorial",
-		title = KT.title.." |cffffffff"..KT.version.."|r",
+		title = helpTitle,
 		icon = helpPath.."KT_logo",
 		font = "Fonts\\FRIZQT__.TTF",
 		width = 562,
 		height = 576,
 		{	-- 1
 			heading = "       Become a Patron",
-			text = "If you like "..KT.title..", support me on |cfff34a54Patreon|r.\n\n"..
+			text = "If you like "..KT.TITLE..", support me on |cfff34a54Patreon|r.\n\n"..
 					"Click on button  |T"..helpPath.."help_patreon:20:173:0:0:256:32:0:173:0:20|t  on CurseForge addon page.\n\n"..
 					"After 10 years of working on an addon, I started Patreon. It's created as\na compensation for the amount "..
 					"of time that addon development requires.\n\n"..
 					"                                    Many thanks to all supporters  |T"..helpPath.."help_patreon:16:16:0:0:256:32:174:190:0:16|t\n\n"..
 					cTitle.."Active Patrons|r\n"..
-					SetFormatedPatronName("Legendary", "Zayah", "Vek'nilash")..
-					SetFormatedPatronName("Epic", "Haekwon", "Elune")..
-					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
-					SetFormatedPatronName("Rare", "A")..
-					SetFormatedPatronName("Uncommon", "Anaara", "Auchindoun")..
-					SetFormatedPatronName("Uncommon", "Charles Howarth")..
-					SetFormatedPatronName("Uncommon", "Flex (drantor)")..
-					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
-					SetFormatedPatronName("Uncommon", "Mystekal")..
-					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
-					SetFormatedPatronName("Uncommon", "Sopleb")..
-					SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
-					SetFormatedPatronName("Common", "Darren Divecha")..
+                    SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
+                    SetFormatedPatronName("Rare", "Ian F")..
+                    SetFormatedPatronName("Rare", "Spance")..
+                    SetFormatedPatronName("Uncommon", "Anaara", "Auchindoun")..
+                    SetFormatedPatronName("Uncommon", "Charles Howarth")..
+                    SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
+                    SetFormatedPatronName("Uncommon", "Mystekal")..
+                    SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
+                    SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
+                    SetFormatedPatronName("Common", "Darren Divecha")..
 					"\n"..
 					cTitle.."Testers|r\n"..
 					SetFormatedPlayerName("Asimeria", "Drak'thul")..
@@ -407,7 +404,7 @@ function M:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
 	SetupTutorials()
 	local last = false
-	if KT.version ~= KT.db.global.version then
+	if KT.VERSION ~= KT.db.global.version then
 		local data = T.GetTutorial(helpName)
 		local index = data.savedvariable[data.key]
 		if index then

@@ -306,7 +306,7 @@ end
 
 -- Edit Mode - Options
 moverOptions = {
-	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:0:0|t"..KT.title.."|cffffffff - Edit Mode",
+	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:0:0|t"..KT.TITLE.."|cffffffff - Edit Mode",
 	type = "group",
 	get = function(info) return db[info[#info]] end,
 	args = {
@@ -453,7 +453,7 @@ end
 
 -- Options
 local options = {
-	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:-1:7|t"..KT.title,
+	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:-1:7|t"..KT.TITLE,
 	type = "group",
 	get = function(info) return db[info[#info]] end,
 	args = {
@@ -468,7 +468,7 @@ local options = {
 					order = 0,
 					args = {
 						version = {
-							name = " |cffffd100Version:|r  "..KT.version,
+							name = " |cffffd100Version:|r  "..KT.VERSION,
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
@@ -851,7 +851,7 @@ local options = {
 							type = "color",
 							width = "half",
 							disabled = function()
-								return (db.hdrBgr < 3 or db.hdrBgrColorShare)
+								return (db.hdrBgr == 1 or db.hdrBgrColorShare)
 							end,
 							get = function()
 								return db.hdrBgrColor.r, db.hdrBgrColor.g, db.hdrBgrColor.b
@@ -869,7 +869,7 @@ local options = {
 							desc = "The color of texture is shared with the border color.",
 							type = "toggle",
 							disabled = function()
-								return (db.hdrBgr < 3)
+								return (db.hdrBgr == 1)
 							end,
 							set = function()
 								db.hdrBgrColorShare = not db.hdrBgrColorShare
@@ -915,8 +915,7 @@ local options = {
 							type = "color",
 							width = "half",
 							disabled = function()
-								KT:SetText()
-								return (db.hdrBgr == 2 or db.hdrTxtColorShare)
+								return db.hdrTxtColorShare
 							end,
 							get = function()
 								return db.hdrTxtColor.r, db.hdrTxtColor.g, db.hdrTxtColor.b
@@ -933,9 +932,6 @@ local options = {
 							name = "Use border color",
 							desc = "The color of header texts is shared with the border color.",
 							type = "toggle",
-							disabled = function()
-								return (db.hdrBgr == 2)
-							end,
 							set = function()
 								db.hdrTxtColorShare = not db.hdrTxtColorShare
 								KT:SetText()
@@ -961,7 +957,7 @@ local options = {
 							type = "color",
 							width = "half",
 							disabled = function()
-								return (db.hdrBgr == 2 or db.hdrBtnColorShare)
+								return db.hdrBtnColorShare
 							end,
 							get = function()
 								return db.hdrBtnColor.r, db.hdrBtnColor.g, db.hdrBtnColor.b
@@ -978,9 +974,6 @@ local options = {
 							name = "Use border color",
 							desc = "The color of all header buttons is shared with the border color.",
 							type = "toggle",
-							disabled = function()
-								return (db.hdrBgr == 2)
-							end,
 							set = function()
 								db.hdrBtnColorShare = not db.hdrBtnColorShare
 								KT:SetBackground()
@@ -1061,7 +1054,7 @@ local options = {
 							order = 4.091,
 						},
 						hdrCollapsedTxt2 = {
-							name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:2:0|t "..KT.title,
+							name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:2:0|t "..KT.TITLE,
 							type = "toggle",
 							width = "normal",
 							get = function()
@@ -1648,12 +1641,10 @@ local options = {
 						hackLFG = {
 							name = "LFG Hack",
 							desc = cBold.."Affects the small Eye buttons|r for finding groups inside the tracker. When the hack is active, "..
-									"the buttons work without errors. When hack is inactive, the buttons are not available.\n\n"..
+									"the buttons work without errors. When the hack is inactive, the buttons are not available.\n\n"..
 									cWarning2.."Negative impacts:|r\n"..
-									"- Inside the dialog for create Premade Group is hidden item \"Goal\".\n"..
-									"- Tooltips of items in the list of Premade Groups have a hidden 2nd (green) row with \"Goal\".\n"..
-									"- Inside the dialog for create Premade Group, no automatically set the \"Title\",\n"..
-									"  e.g. keystone level for Mythic+.\n",
+									"- Inside the dialog for create \"Premade Group\", the \"Title\" is not set automatically "..
+									"(e.g. keystone level\nfor Mythic+).\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",
@@ -1674,12 +1665,12 @@ local options = {
 					order = 2,
 					args = {
 						hackWorldMap = {
-							name = "World Map Hack "..beta,
-							desc = cBold.."Affects World Map|r and removes taint errors. The hack removes call of restricted "..
-									"function SetPassThroughButtons. When the hack is inactive World Map display causes errors. "..
+							name = "World Map Hack",
+							desc = cBold.."Affects the World Map|r and removes taint errors. The hack prevents calls to "..
+									"restricted functions. When the hack is inactive, the World Map display causes errors. "..
 									"It is not possible to get rid of these errors, since the tracker has a lot of interaction "..
 									"with the game frames.\n\n"..
-									cWarning2.."Negative impacts:|r unknown in WoW 11.1.5\n",
+									cWarning2.."Negative impacts:|r unknown in WoW 11.2.0\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",
@@ -1739,8 +1730,6 @@ end
 
 function GetModulesOptionsTable()
 	local numModules = #db.modulesOrder
-	local text
-	local defaultModule, defaultText
 	local numSkipped = 0
 	local args = {
 		descCurOrder = {
@@ -1764,17 +1753,18 @@ function GetModulesOptionsTable()
 		},
 	}
 
-	for i, module in ipairs(db.modulesOrder) do
-		if _G[module].Header then
-			text = _G[module].Header.Text:GetText()
-			if module == "KT_ScenarioObjectiveTracker" then
+	for i, moduleName in ipairs(db.modulesOrder) do
+		local module = _G[moduleName]
+		if module.Header then
+			local text = module.headerText
+			if module == KT_ScenarioObjectiveTracker then
 				text = text.." *"
-			elseif module == "KT_UIWidgetObjectiveTracker" then
+			elseif module == KT_UIWidgetObjectiveTracker then
 				text = "[ "..ZONE.." ]"
 			end
 
-			defaultModule = numSkipped == 0 and _G[KT.MODULES[i]] or _G[KT.MODULES[i - numSkipped]]
-			defaultText = defaultModule.Header.Text:GetText()
+			local defaultModule = (numSkipped == 0) and _G[KT.MODULES[i]] or _G[KT.MODULES[i - numSkipped]]
+			local defaultText = defaultModule.headerText
 			if defaultModule == KT_ScenarioObjectiveTracker then
 				defaultText = defaultText.." *"
 			elseif defaultModule == KT_UIWidgetObjectiveTracker then
@@ -1833,8 +1823,8 @@ function MoveModule(idx, direction)
 	modules.sec1.args["pos"..idx.."up"].desc = tmpText
 	modules.sec1.args["pos"..idx.."down"].desc = tmpText
 
-	local module = tremove(db.modulesOrder, idx)
-	tinsert(db.modulesOrder, tmpIdx, module)
+	local moduleName = tremove(db.modulesOrder, idx)
+	tinsert(db.modulesOrder, tmpIdx, moduleName)
 
 	OTF.modules[tmpIdx].uiOrder = idx
 	OTF.modules[idx].uiOrder = tmpIdx
@@ -1851,10 +1841,10 @@ function SetSharedColor(color)
 end
 
 function IsSpecialLocale()
-	return (KT.locale == "deDE" or
-			KT.locale == "esES" or
-			KT.locale == "frFR" or
-			KT.locale == "ruRU")
+	return (KT.LOCALE == "deDE" or
+			KT.LOCALE == "esES" or
+			KT.LOCALE == "frFR" or
+			KT.LOCALE == "ruRU")
 end
 
 local function Init()
@@ -1920,11 +1910,11 @@ local function Setup()
 	ACR:RegisterOptionsTable(addonName, options, true)
 
 	KT.optionsFrame = {}
-	KT.optionsFrame.general = ACD:AddToBlizOptions(addonName, KT.title, nil, "general")
-	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, options.args.modules.name, KT.title, "modules")
-	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, options.args.addons.name, KT.title, "addons")
-	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, options.args.hacks.name, KT.title, "hacks")
-	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, options.args.profiles.name, KT.title, "profiles")
+	KT.optionsFrame.general = ACD:AddToBlizOptions(addonName, KT.TITLE, nil, "general")
+	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, options.args.modules.name, KT.TITLE, "modules")
+	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, options.args.addons.name, KT.TITLE, "addons")
+	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, options.args.hacks.name, KT.TITLE, "hacks")
+	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, options.args.profiles.name, KT.TITLE, "profiles")
 
 	KT.db.RegisterCallback(KT, "OnProfileChanged", "InitProfile")
 	KT.db.RegisterCallback(KT, "OnProfileCopied", "InitProfile")
@@ -1986,15 +1976,6 @@ local function SetAlert(type)
 end
 
 local function SetupModules()
-	local i, module = next(db.modulesOrder)
-	while module do
-		if not _G[module].init then
-			tremove(db.modulesOrder, i)
-			i = i - 1
-		end
-		i, module = next(db.modulesOrder, i)
-	end
-
 	modules.sec1.args = GetModulesOptionsTable()
 end
 
