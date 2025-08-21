@@ -5,9 +5,9 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1754813639,
+        timestamp = 1755675551,
         version = '11.2.0',
-        build = 62438,
+        build = 62680,
     }
 end
 
@@ -227,7 +227,7 @@ function data:GetNPCData()
         [179334] = { name = "Portalmancer Zo'honn", count = 24 },
         [179386] = { name = "Corsair Officer", count = 5 },
         [179388] = { name = "Hourglass Tidesage", count = 4 },
-        [179821] = { name = "Commander Zo'far", count = 24 },
+        [179821] = { name = "Commander Zo'far", count = 30 },
         [179837] = { name = "Tracker Zo'korss", count = 18 },
         [179840] = { name = "Market Peacekeeper", count = 4 },
         [179841] = { name = "Veteran Sparkcaster", count = 4 },
