@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1105
+PawnVersion = 2.1107
 
 -- Pawn requires this version of VgerCore:
 local PawnVgerCoreVersionRequired = 1.20
@@ -527,9 +527,7 @@ function PawnInitialize()
 	end
 
 	-- If auto-spec is on, check their spec now in case they switched on a different PC.
-	if GetSpecialization then
-		PawnOnSpecChanged()
-	end
+	PawnOnSpecChanged()
 
 	-- Then, recalculate totals.
 	-- This must be done after checking for errors is completed on all scales because it can trigger other recalculations.
@@ -5871,7 +5869,7 @@ end
 -- Wraps the GetSpecializationInfoForClassID function so that it can be called on WoW Classic.
 -- On WoW Classic, this only returns: _, LocalizedSpecName, _, IconID, Role
 function PawnGetSpecializationInfoForClassID(ClassID, SpecID)
-	if VgerCore.IsMainline then return GetSpecializationInfoForClassID(ClassID, SpecID) end
+	if GetSpecializationInfoForClassID and VgerCore.SpecsExist then return GetSpecializationInfoForClassID(ClassID, SpecID) end
 
 	local SpecInfo = PawnLocal.Specs[ClassID][SpecID]
 	-- The second-to-last parameter should be SpecInfo.Icon, but many of the icons used in BfA aren't valid on Classic.
