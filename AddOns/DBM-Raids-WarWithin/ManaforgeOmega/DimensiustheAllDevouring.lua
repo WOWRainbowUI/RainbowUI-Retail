@@ -1,9 +1,10 @@
 local mod	= DBM:NewMod(2691, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250816192124")
+mod:SetRevision("20250819013742")
 mod:SetCreatureID(233824, 241517, 234478)--Yes, they're all used
 mod:SetEncounterID(3135)
+mod:SetBossHPInfoToHighest()--Boss Heals
 mod:SetHotfixNoticeRev(20250816000000)
 mod:SetMinSyncRevision(20250813000000)
 mod:SetZone(2810)
