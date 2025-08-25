@@ -138,6 +138,85 @@ DR.mainFrame:SetScript("OnHide", function()
 	PlaySound(74423);
 end);
 
+
+DR.mainFrame.portraitTooltipThing = CreateFrame("Frame", nil, DR.mainFrame);
+DR.mainFrame.portraitTooltipThing:SetAllPoints(DragonRiderMainFramePortrait);
+
+local function AddTimerunnerLines(tooltip)
+	tooltip:AddLine("|A:timerunning-glues-icon:0:0:0:0|a |cFFFFF569"..L["TimerunningStatistics"] .. "|r", 1, 1, 1, 1, true);
+
+	local entries = {
+		{ key = "Creature_Demonfly",   value = DragonRider_DB.Timerunner.Demonfly },
+		{ key = "Creature_Darkglare",  value = DragonRider_DB.Timerunner.Darkglare },
+		{ key = "Creature_FelSpreader",value = DragonRider_DB.Timerunner.FelSpreader },
+		{ key = "Creature_Felbat",     value = DragonRider_DB.Timerunner.Felbat },
+		{ key = "Creature_Felbomber",  value = DragonRider_DB.Timerunner.Felbomber },
+		{ key = "Creature_Skyterror",  value = DragonRider_DB.Timerunner.Skyterror },
+		{ key = "Creature_EyeOfGreed", value = DragonRider_DB.Timerunner.EyeOfGreed },
+	}
+
+	local needsRefresh = false
+
+	for _, entry in ipairs(entries) do
+		if entry.value then
+			local name = L[entry.key]
+			if name and name ~= "" and (name ~= "Unknown NPC" and name ~= UNKNOWN) then
+				tooltip:AddDoubleLine(
+					"|A:timerunning-infographic-bullet:0:0:0:0|a "..name..": ",
+					entry.value,
+					1, 1, 1,
+					1, 1, 1
+				)
+			else
+				tooltip:AddLine("|A:timerunning-infographic-bullet:0:0:0:0|a ".."...", 1, 0, 0, 1, true);
+				needsRefresh = true
+			end
+		end
+	end
+
+	-- divider
+	tooltip:AddLine(" ")
+	tooltip:AddAtlas("Adventure-MissionEnd-Line", {
+	width = 225,
+	height = 12,
+	anchor = Enum.TooltipTextureAnchor.LeftTop,
+	region = Enum.TooltipTextureRelativeRegion.LeftLine,
+	verticalOffset = 0,
+	margin = { left = 8, right = 8, top = 0, bottom = 0 },
+	texCoords = { left = 0, right = 1, top = 0, bottom = 1 },
+	vertexColor = { r = 1, g = 1, b = 1, a = 1 },
+	});
+
+	-- Skyriding Bronze Gained
+	local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(3252)
+	if currencyInfo then
+		local currencyName = currencyInfo.name or L["Unknown"]
+		local bronzeValue = DragonRider_DB.Timerunner.Bronze or 0
+		tooltip:AddDoubleLine(
+			string.format("|A:timerunning-infographic-bullet:0:0:0:0|a "..L["SkyridingCurrencyGained"], currencyName),
+			bronzeValue,
+			1, 1, 1,
+			1, 1, 1
+		)
+	end
+
+	if needsRefresh and tooltip.RefreshDataNextUpdate then
+		tooltip:RefreshDataNextUpdate()
+	end
+end
+
+
+DR.mainFrame.portraitTooltipThing:SetScript("OnEnter", function(self)
+	if not PlayerGetTimerunningSeasonID() then return end
+	GameTooltip:SetOwner(self, "ANCHOR_TOP")
+	AddTimerunnerLines(GameTooltip)
+	GameTooltip:Show()
+end)
+
+DR.mainFrame.portraitTooltipThing:SetScript("OnLeave", function()
+	GameTooltip:Hide()
+end)
+
 function DR.mainFrame.width()
 	return DR.mainFrame:GetWidth();
 end
