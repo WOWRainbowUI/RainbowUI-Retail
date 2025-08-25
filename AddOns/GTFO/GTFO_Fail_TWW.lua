@@ -3042,6 +3042,11 @@ GTFO.SpellID["1250600"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1227340"] = {
+  --desc = "Infernal Strike (Ilyssa Darksorrow)";
+  sound = 3;
+};
+
 GTFO.SpellID["1232130"] = {
   --desc = "Nexus Shrapnel (Fractillus)";
   sound = 3;
@@ -3081,7 +3086,6 @@ GTFO.SpellID["1238369"] = {
 GTFO.SpellID["1238773"] = {
   --desc = "Extinction (Dimensius)";
   sound = 3;
-  test = true;
 };
 
 GTFO.SpellID["1229325"] = {
@@ -3138,7 +3142,35 @@ GTFO.SpellID["1230674"] = {
 GTFO.SpellID["1234054"] = {
   --desc = "Shadowquake (Dimensius)";
   sound = 3;
+  applicationOnly = true;
   minimumStacks = 1;
+};
+
+GTFO.SpellID["1234266"] = {
+  --desc = "Cosmic Fragility (Dimensius)";
+  applicationOnly = true;
+  sound = 3;
+  tankSound = 0;
+};
+
+GTFO.SpellID["1252456"] = {
+  --desc = "Accretion Disk (Dimensius)";
+  sound = 3;
+};
+
+GTFO.SpellID["1237695"] = {
+  --desc = "Stardust Nova (Pargoth)";
+  sound = 3;
+};
+
+GTFO.SpellID["1237694"] = {
+  --desc = "Mass Ejection (Artoshion)";
+  sound = 3;
+};
+
+GTFO.SpellID["1237098"] = {
+  --desc = "Astrophysical Jet (Dimensius)";
+  sound = 3;
 };
 
 GTFO.SpellID["1230999"] = {
