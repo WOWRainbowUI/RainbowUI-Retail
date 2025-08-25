@@ -10,6 +10,61 @@ setmetatable(L, {__index=defaultFunc});
 
 local LOCALE = GetLocale()
 
+local NPC_KEYS = {
+	Creature_Demonfly = 238717,
+	Creature_Darkglare = 238786,
+	Creature_FelSpreader = 238865,
+	Creature_Felbat = 244780,
+	Creature_Felbomber = 239089,
+	Creature_Skyterror = 238713,
+	Creature_EyeOfGreed = 244782,
+};
+local NPCNameCache = {};
+local hiddenTip;
+
+local function FetchNPCNameByID(npcID)
+    local link = string.format("unit:Creature-0-0-0-0-%d-0000000000", npcID);
+
+    if C_TooltipInfo and C_TooltipInfo.GetHyperlink then
+        local tooltipData = C_TooltipInfo.GetHyperlink(link);
+        if tooltipData and tooltipData.lines and tooltipData.lines[1] then
+            return tooltipData.lines[1].leftText;
+        end
+    else
+        if not hiddenTip then
+            hiddenTip = CreateFrame("GameTooltip", "MyHiddenTooltip", UIParent, "GameTooltipTemplate");
+            hiddenTip:SetOwner(UIParent, "ANCHOR_NONE");
+        end
+        hiddenTip:SetHyperlink(link);
+        return MyHiddenTooltipTextLeft1:GetText();
+    end
+end
+
+local function GetNPCNameByID(npcID)
+    if NPCNameCache[npcID] then
+        return NPCNameCache[npcID];
+    end
+    local name = FetchNPCNameByID(npcID);
+    if name then
+        NPCNameCache[npcID] = name;
+    end
+    return name;
+end
+
+local function PreloadNPCNames()
+    for key, npcID in pairs(NPC_KEYS) do
+        local name = GetNPCNameByID(npcID);
+        if name then
+            L[key] = name;
+        else
+            L[key] = "Unknown NPC";
+        end
+    end
+end
+
+PreloadNPCNames()
+
+
 if LOCALE == "enUS" then
 	-- The EU English game client also
 	-- uses the US English locale code.
@@ -112,8 +167,10 @@ if LOCALE == "enUS" then
 	L["Algari"] = "Algari"
 	L["Default"] = DEFAULT
 	L["Minimalist"] = "Minimalist"
-	L["Alliance"] = "Alliance"
-	L["Horde"] = "Horde"
+	L["Alliance"] = FACTION_ALLIANCE
+	L["Horde"] = FACTION_HORDE
+	L["TimerunningStatistics"] = "Timerunning Statistics"
+	L["SkyridingCurrencyGained"] = "Skyriding %s Gained:"
 
 
 return end
@@ -218,8 +275,10 @@ if LOCALE == "esES" or LOCALE == "esMX" then
 	L["Algari"] = "Algari"
 	L["Default"] = DEFAULT
 	L["Minimalist"] = "Minimalista"
-	L["Alliance"] = "Alianza"
-	L["Horde"] = "Horda"
+	L["Alliance"] = FACTION_ALLIANCE
+	L["Horde"] = FACTION_HORDE
+	L["TimerunningStatistics"] = "Estadísticas de Cronoviaje"
+	L["SkyridingCurrencyGained"] = "%s de Monta en Cielo Ganado:"
 
 
 return end
@@ -324,9 +383,11 @@ if LOCALE == "deDE" then
 	L["Algari"] = "Algari"
 	L["Default"] = DEFAULT
 	L["Minimalist"] = "Minimalistisch"
-	L["Alliance"] = "Allianz"
-	L["Horde"] = "Horde"
+	L["Alliance"] = FACTION_ALLIANCE
+	L["Horde"] = FACTION_HORDE
 	-- Above officially translated by Cirez
+	L["TimerunningStatistics"] = "Zeitwanderungsstatistik"
+	L["SkyridingCurrencyGained"] = "Himmelsreiten %s Erhalten:"
 
 
 return end
@@ -431,8 +492,10 @@ if LOCALE == "frFR" then
 	L["Algari"] = "Algari"
 	L["Default"] = DEFAULT
 	L["Minimalist"] = "Minimaliste"
-	L["Alliance"] = "Alliance"
-	L["Horde"] = "Horde"
+	L["Alliance"] = FACTION_ALLIANCE
+	L["Horde"] = FACTION_HORDE
+	L["TimerunningStatistics"] = "Statistiques de Chronofracture"
+	L["SkyridingCurrencyGained"] = "%s de Vol Céleste Obtenu :"
 
 
 
@@ -538,8 +601,10 @@ if LOCALE == "itIT" then
 	L["Algari"] = "Algari"
 	L["Default"] = DEFAULT
 	L["Minimalist"] = "Minimalista"
-	L["Alliance"] = "Alleanza"
-	L["Horde"] = "Orda"
+	L["Alliance"] = FACTION_ALLIANCE
+	L["Horde"] = FACTION_HORDE
+	L["TimerunningStatistics"] = "Statistiche di Corsa Temporale"
+	L["SkyridingCurrencyGained"] = "%s di Cavalcata Celeste Ottenuto:"
 
 
 
@@ -645,8 +710,10 @@ if LOCALE == "ptBR" then
 	L["Algari"] = "Algari"
 	L["Default"] = DEFAULT
 	L["Minimalist"] = "Minimalista"
-	L["Alliance"] = "Aliança"
-	L["Horde"] = "Horda"
+	L["Alliance"] = FACTION_ALLIANCE
+	L["Horde"] = FACTION_HORDE
+	L["TimerunningStatistics"] = "Estatísticas de Corrida Temporal"
+	L["SkyridingCurrencyGained"] = "%s de Montaria Celeste Obtido:"
 
 
 
@@ -754,8 +821,10 @@ if LOCALE == "ruRU" then
 	L["Algari"] = "Алгари"
 	L["Default"] = DEFAULT
 	L["Minimalist"] = "Минималистичный"
-	L["Alliance"] = "Альянс"
-	L["Horde"] = "Орда"
+	L["Alliance"] = FACTION_ALLIANCE
+	L["Horde"] = FACTION_HORDE
+	L["TimerunningStatistics"] = "Статистика Хронобега"
+	L["SkyridingCurrencyGained"] = "Получено %s за Небесную Езду:"
 
 
 
@@ -862,8 +931,10 @@ if LOCALE == "koKR" then
 	L["Algari"] = "알가리"
 	L["Default"] = DEFAULT
 	L["Minimalist"] = "미니멀리스트"
-	L["Alliance"] = "얼라이언스"
-	L["Horde"] = "호드"
+	L["Alliance"] = FACTION_ALLIANCE
+	L["Horde"] = FACTION_HORDE
+	L["TimerunningStatistics"] = "시간 달리기 통계"
+	L["SkyridingCurrencyGained"] = "스카이라이딩 %s 획득:"
 
 
 
@@ -970,10 +1041,12 @@ if LOCALE == "zhCN" then
 	L["SpeedometerThemeTT"] = "自定义速度计主题。"
 	L["Algari"] = "阿加驭雷者"
 	L["Default"] = DEFAULT
-	L["Minimalist"] = "简单"
-	L["Alliance"] = "联盟"
-	L["Horde"] = "部落" -- (last updated https://github.com/nanjuekaien1/DragonRider-zhCN/blob/main/zhCN.lua)
+	L["Minimalist"] = "简单" -- (last updated https://github.com/nanjuekaien1/DragonRider-zhCN/blob/main/zhCN.lua)
+	L["Alliance"] = FACTION_ALLIANCE
+	L["Horde"] = FACTION_HORDE
 	--non-official translations
+	L["TimerunningStatistics"] = "时光奔跑统计"
+	L["SkyridingCurrencyGained"] = "获得天空骑行 %s："
 
 
 
@@ -1079,8 +1152,10 @@ if LOCALE == "zhTW" then
 	L["Algari"] = "阿爾加里"
 	L["Default"] = DEFAULT
 	L["Minimalist"] = "極簡主義"
-	L["Alliance"] = "聯盟"
-	L["Horde"] = "部落"
+	L["Alliance"] = FACTION_ALLIANCE
+	L["Horde"] = FACTION_HORDE
+	L["TimerunningStatistics"] = "時光奔跑統計"
+	L["SkyridingCurrencyGained"] = "獲得天空騎乘 %s："
 
 
 
