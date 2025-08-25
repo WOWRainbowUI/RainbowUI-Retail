@@ -17,9 +17,10 @@ local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 local GetNumSpecializationsForClassID = C_SpecializationInfo and C_SpecializationInfo.GetNumSpecializationsForClassID or GetNumSpecializationsForClassID
 local GetSpecializationInfo = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo or GetSpecializationInfo
 local SendChatMessage = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
+local GetSpecialization = GetSpecialization or C_SpecializationInfo and C_SpecializationInfo.GetSpecialization
 
 local senderVersion = 4
-local addonVersion = 69
+local addonVersion = 70
 
 local options = module.options
 
@@ -3612,7 +3613,7 @@ function options:Load()
 		if VMRT.Reminder2.TLHistory then
 			local tlSubMenu = {}
 			self.List[#self.List+1] = {
-				text = "Per boss history",
+				text = "Per boss saved history",
 				subMenu = tlSubMenu,
 				Lines=15,
 				prio = 100000,
@@ -18887,8 +18888,15 @@ function module:ParseNoteTimers(phaseNum,doCLEU,globalPhaseNum,ignoreName)
 	return data
 end
 
+local bossPhaseAntispam = {}
 function module:TriggerBossPhase(phaseText,globalPhaseNum)
 	local phaseNum = phaseText:match("%d+%.?%d*")
+
+	local t = GetTime()
+	if phaseNum and bossPhaseAntispam[phaseNum] and t - bossPhaseAntispam[phaseNum] < 2 then
+		return
+	end
+	bossPhaseAntispam[phaseNum] = t
 
 	if module.db.eventsToTriggers.BOSS_PHASE then
 		local triggers = module.db.eventsToTriggers.BOSS_PHASE
@@ -18899,7 +18907,7 @@ function module:TriggerBossPhase(phaseText,globalPhaseNum)
 				triggerData.pattFind
 			then
 				local phaseCheck = (phaseNum == triggerData.pattFind or (not tonumber(triggerData.pattFind) and phaseText:find(triggerData.pattFind,1,true)))
-				--print(phaseCheck,phaseText,(not trigger.statuses[1] and phaseCheck) or (trigger.statuses[1] and phaseCheck),trigger.statuses[1] and not phaseCheck)
+				--print(debugprofilestop(),phaseCheck,phaseText,(not trigger.statuses[1] and phaseCheck) or (trigger.statuses[1] and phaseCheck),trigger.statuses[1] and not phaseCheck)
 
 				if (not trigger.statuses[1] and phaseCheck) or (trigger.statuses[1] and phaseCheck) then
 					module:AddTriggerCounter(trigger)
@@ -18911,6 +18919,7 @@ function module:TriggerBossPhase(phaseText,globalPhaseNum)
 					if not trigger.Dcounter or module:CheckNumber(trigger.Dcounter,trigger.count) then
 						module:RunTrigger(trigger, vars)
 					end
+					--print(phaseNum,'trigger.count',trigger.count,debugstack())
 				elseif trigger.statuses[1] and not phaseCheck then
 					trigger.statuses[1] = nil
 					module:DeactivateTrigger(trigger)
@@ -23227,7 +23236,7 @@ do
 			end
 		end
 
-		if VMRT.Reminder2.SyncOnlyPersonal and not liveSession and not oneUID then
+		if VMRT.Reminder2.SyncOnlyPersonal and not liveSession and not oneUID and not isExport then
 			customFilterFunc = function(uid)
 				if module:RemGetSource(uid) ~= 0 then
 					return true
@@ -23371,11 +23380,11 @@ do
 			local msg = encoded:sub( (i-1)*247+1 , i*247 )
 			local progress = i
 			if liveSession then
-				ExRT.F.SendExMsgExt({ondone=function() options:SyncProgress(progress,parts) end},"rmd","L\t"..newIndex.."\t"..msg)
+				ExRT.F.SendExMsgExt({ondone=function() options:SyncProgress(progress,parts) end,maxPer5Sec = 50},"rmd","L\t"..newIndex.."\t"..msg)
 			elseif not isGuild then
-				ExRT.F.SendExMsgExt({ondone=function() options:SyncProgress(progress,parts) end},"rmd","D\t"..newIndex.."\t"..msg)
+				ExRT.F.SendExMsgExt({ondone=function() options:SyncProgress(progress,parts) end,maxPer5Sec = 50},"rmd","D\t"..newIndex.."\t"..msg)
 			else
-				ExRT.F.SendExMsgExt({ondone=function() options:SyncProgress(progress,parts) end},"rmd","d\t"..newIndex.."\t"..msg,"GUILD")
+				ExRT.F.SendExMsgExt({ondone=function() options:SyncProgress(progress,parts) end,maxPer5Sec = 50},"rmd","d\t"..newIndex.."\t"..msg,"GUILD")
 			end
 		end
 	end
@@ -23802,12 +23811,12 @@ function module:Test_BW(phase)
 		LibDBIcon10_BigWigs:GetScript("OnClick")(LibDBIcon10_BigWigs,"RightButton")--sorry
 		BigWigsOptions:Close()
 	end
-	BigWigsLoader:LoadZone(2769)
+	BigWigsLoader:LoadZone(2810)
 
-	local bossID = boss == 2 and 2902 or 3016
-	local bossName = boss == 2 and "Ulgrax the Devourer" or "Chrome King Gallywix"
+	local bossID = boss == 2 and 2902 or 3132
+	local bossName = boss == 2 and "Ulgrax the Devourer" or "Forgeweaver Araz"
 
-	local mod = BigWigs:GetBossModule("Chrome King Gallywix")
+	local mod = BigWigs:GetBossModule(bossName)
 	mod.Mythic = function() return true end
 
 	if phase == -1 then
@@ -23818,13 +23827,15 @@ function module:Test_BW(phase)
 	elseif phase == -2 then
 		return mod
 	elseif phase == 1 then
-		mod:TotalDestructionRemoved()
+		mod:ManaSacrifice()
 		return
 	elseif phase == 1.5 then
-		mod:CircuitRebootApplied({amount = 0, spellId = 450980, spellName = GetSpellName(450980), time = GetTime()})
+		--mod:CircuitRebootApplied({amount = 0, spellId = 450980, spellName = GetSpellName(450980), time = GetTime()})
+		mod:IntermissionStart()
 		return
 	elseif phase == 2 then
-		mod:CircuitRebootRemoved({amount = 0, spellId = 450980, spellName = GetSpellName(450980), time = GetTime()})
+		mod:Stage2Start()
+		--mod:CircuitRebootRemoved({amount = 0, spellId = 450980, spellName = GetSpellName(450980), time = GetTime()})
 		return
 	elseif phase == 2.5 then
 		mod:BurrowTransition()

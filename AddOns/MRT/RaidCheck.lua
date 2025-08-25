@@ -369,7 +369,7 @@ end
 
 if ExRT.isMoP then
 	module.db.classicBuffs = {
-		{"druid","5% Stats",136078,{[1126]=true,[115921]=true,[90363]=true,[20217]=true}},
+		{"druid","5% Stats",136078,{[1126]=true,[115921]=true,[90363]=true,[20217]=true,[117666]=true,[117667]=true}},
 		{"spd","SPD",135932,{[1459]=true,[126309]=true,[77747]=true,[109773]=true,[61316]=true,}},
 		{"hastecast","Spell haste",136057,{[24907]=true,[49868]=true,[15473]=true,[51470]=true}},
 		{"str","AP",132333,{[57330]=true,[19506]=true,[6673]=true}},
