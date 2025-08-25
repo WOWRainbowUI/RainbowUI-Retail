@@ -147,13 +147,13 @@ local mvpPool = CreateObjectPool(function(pool)
     f:SetSize(128, 128)
 
     local tex = f:CreateTexture(nil, "ARTWORK")
-    tex:SetTexture("Interface/AddOns/Cell/Media/FlipBooks/mvp.png", nil, nil, "TRILINEAR")
+    tex:SetTexture("Interface/AddOns/Cell/Media/FlipBooks/mvp.png")
     tex:SetAllPoints(f)
     tex:SetParentKey("Flipbook")
 
     local mask = f:CreateMaskTexture()
     f.mask = mask
-    mask:SetTexture(Cell.vars.whiteTexture, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    mask:SetTexture(Cell.vars.whiteTexture, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE", "TRILINEAR")
     tex:AddMaskTexture(mask)
 
     local ag = f:CreateAnimationGroup()
@@ -196,14 +196,78 @@ local function DisplayMVP(b)
 end
 
 -------------------------------------------------
+-- goat pool
+-------------------------------------------------
+local goatPool = CreateObjectPool(function(pool)
+    local f = CreateFrame("Frame")
+    f:Hide()
+    f:SetSize(128, 128)
+
+    local tex = f:CreateTexture(nil, "ARTWORK")
+    tex:SetTexture("Interface/AddOns/Cell/Media/FlipBooks/goat.png")
+    tex:SetAllPoints(f)
+    tex:SetParentKey("Flipbook")
+
+    local mask = f:CreateMaskTexture()
+    f.mask = mask
+    mask:SetTexture(Cell.vars.whiteTexture, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    tex:AddMaskTexture(mask)
+
+    local ag = f:CreateAnimationGroup()
+    ag:SetLooping("REPEAT")
+
+    local flip = ag:CreateAnimation("FlipBook")
+    flip:SetDuration(2)
+    flip:SetFlipBookColumns(8)
+    flip:SetFlipBookRows(8)
+    flip:SetFlipBookFrames(52)
+    flip:SetChildKey("Flipbook")
+
+    f:SetScript("OnShow", function()
+        ag:Play()
+        f.timer = C_Timer.NewTimer(3.8, f.FadeOut)
+    end)
+
+    A.CreateFadeIn(f, 0, 1, 0.2)
+    A.CreateFadeOut(f, 1, 0, 0.2, nil, function()
+        f.timer = nil
+        pool:Release(f)
+    end)
+
+    return f
+end, function(_, f)
+    if f.timer then
+        f.timer:Cancel()
+        f.timer = nil
+    end
+    f:Hide()
+end)
+
+local function DisplayGOAT(b)
+    local f = goatPool:Acquire()
+    f:SetParent(b.widgets.indicatorFrame)
+    f:SetPoint("BOTTOMRIGHT")
+    f.mask:SetAllPoints(b.widgets.indicatorFrame)
+
+    f:FadeIn()
+end
+
+-------------------------------------------------
 -- events
 -------------------------------------------------
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("FIRST_FRAME_RENDERED")
 
+local displays = {
+    [true] = Display,
+    ["mvp"] = DisplayMVP,
+    ["goat"] = DisplayGOAT,
+}
+
 local function Check()
     pool:ReleaseAll()
     mvpPool:ReleaseAll()
+    goatPool:ReleaseAll()
 
     -- Cell.wowSupporters[Cell.vars.playerNameFull] = true
 
@@ -211,12 +275,12 @@ local function Check()
         for unit in F.IterateGroupMembers() do
             local fullName = F.UnitFullName(unit)
             if Cell.wowSupporters[fullName] then
-                F.HandleUnitButton("unit", unit, Cell.wowSupporters[fullName] == "mvp" and DisplayMVP or Display)
+                F.HandleUnitButton("unit", unit, displays[Cell.wowSupporters[fullName]])
             end
         end
     else
         if Cell.wowSupporters[Cell.vars.playerNameFull] then
-            F.HandleUnitButton("unit", "player", Cell.wowSupporters[Cell.vars.playerNameFull] == "mvp" and DisplayMVP or Display)
+            F.HandleUnitButton("unit", "player", displays[Cell.wowSupporters[Cell.vars.playerNameFull]])
         end
     end
 end
