@@ -864,10 +864,6 @@ L["STRING_OPTIONS_MPLUS_BOSSNEWCOMBAT"] = "Neuer Kampf bei Boss Pull"
 L["STRING_OPTIONS_MPLUS_BOSSNEWCOMBAT_DESC"] = "If a boss is pulled while in combat, this option closes the current combat encounter and initiates a new one for the boss."
 L["STRING_OPTIONS_MPLUS_DPS_ANCHOR"] = "DPS-Berechnung für das gesamte Segment"
 --[[Translation missing --]]
-L["STRING_OPTIONS_MPLUS_MAKEOVERALL"] = "Make Overall Segment"
---[[Translation missing --]]
-L["STRING_OPTIONS_MPLUS_MAKEOVERALL_DESC"] = "After the run is completed, this option creates a new segment containing all combat data from the run."
---[[Translation missing --]]
 L["STRING_OPTIONS_MPLUS_MERGETRASH"] = "Merge Trash"
 --[[Translation missing --]]
 L["STRING_OPTIONS_MPLUS_PANELS_ANCHOR"] = "Panels"

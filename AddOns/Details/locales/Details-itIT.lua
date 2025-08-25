@@ -741,10 +741,6 @@ L["STRING_OPTIONS_MPLUS_BOSSNEWCOMBAT_DESC"] = "If a boss is pulled while in com
 --[[Translation missing --]]
 L["STRING_OPTIONS_MPLUS_DPS_ANCHOR"] = "Overall Segment DPS Calculation"
 --[[Translation missing --]]
-L["STRING_OPTIONS_MPLUS_MAKEOVERALL"] = "Make Overall Segment"
---[[Translation missing --]]
-L["STRING_OPTIONS_MPLUS_MAKEOVERALL_DESC"] = "After the run is completed, this option creates a new segment containing all combat data from the run."
---[[Translation missing --]]
 L["STRING_OPTIONS_MPLUS_MERGETRASH"] = "Merge Trash"
 --[[Translation missing --]]
 L["STRING_OPTIONS_MPLUS_PANELS_ANCHOR"] = "Panels"
