@@ -2,7 +2,7 @@
 -- File: RaidDebuffs_TWW.lua
 -- Author: enderneko (enderneko-dev@outlook.com)
 -- Created : 2024-07-20 14:35 +08:00
--- Modified: 2025-08-18 16:38 +08:00
+-- Modified: 2025-08-22 20:36 +08:00
 ---------------------------------------------------------------------
 
 ---@class Cell
@@ -400,12 +400,10 @@ local debuffs = {
             -- 1246531, -- 奥术符印 - Arcane Sigils
         },
         [2687] = { -- 熔炉编织者阿拉兹 - Forgeweaver Araz
-            1240705, -- 星界灼烧 - Astral Burn
             1228214, -- 星界收割 - Astral Harvest
             -- 1233979, -- 星界收割 - Astral Harvest
             1243901, -- 虚空收割
             -- 1243873, -- 虚空收割
-            1232775, -- 奥术抹消
             -- 1238874, -- 回音风暴
             1238878, -- 回音风暴
             1228188, -- 沉默风暴 - Silencing Tempest
@@ -413,7 +411,9 @@ local debuffs = {
             1228506, -- 非凡力量(T) - Overwhelming Power
             1234324, -- 光子轰击 - Photon Blast
             1232412, -- 聚焦之虹 - Focusing Iris
-            1228219, -- 星界印记(易伤)
+            1240705, -- 星界灼烧 - Astral Burn
+            -1232775, -- 奥术抹消
+            -1228219, -- 星界印记(易伤)
             -1233076, -- 黑暗奇点 - Dark Singularity
         },
         [2688] = { -- 狩魂猎手 - The Soul Hunters
@@ -436,16 +436,16 @@ local debuffs = {
             1233105, -- 黑暗残渣 - Dark Residue
             1233381, -- 凋零烈焰 - Withering Flames
             -- 1223725, -- 邪能地狱 - Fel Inferno
-            1245384, -- 邪能地狱 - Fel Inferno
             1222307, -- 吞噬 - Consume
+            -1245384, -- 邪能地狱 - Fel Inferno
         },
         [2747] = { -- 弗兰克提鲁斯 - Fractillus
+            "1233411", -- 结晶震荡波(点名) - Crystalline Shockwave
             1227373, -- 碎壳 - Shattershell
             1227378, -- 水晶覆体 - Crystal Encasement
             1247424, -- 虚无吞噬 - Null Consumption
             1231871, -- 震波猛击(T) - Shockwave Slam
-            1224414, -- 结晶震荡波 - Crystalline Shockwave
-            -- 1233411, -- 结晶震荡波 - Crystalline Shockwave
+            "1224414", -- 结晶震荡波 - Crystalline Shockwave
             1250600, -- 虚空闪电 - Void Lightning
             1241137, -- 折射熵变 - Refracted Entropy
         },
