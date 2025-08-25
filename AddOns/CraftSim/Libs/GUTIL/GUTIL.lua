@@ -691,16 +691,16 @@ function GUTIL:NextFrameIF(condition, callback)
 end
 
 function GUTIL:EquipItemByLink(link)
-    for bag = BANK_CONTAINER, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
-        for slot = 1, C_Container.GetContainerNumSlots(bag) do
-            local item = C_Container.GetContainerItemLink(bag, slot)
-            if item and item == link then
-                if CursorHasItem() or CursorHasMoney() or CursorHasSpell() then ClearCursor() end
-                C_Container.PickupContainerItem(bag, slot)
-                AutoEquipCursorItem()
-                return true
+        for bag = Enum.BagIndex.Backpack, Enum.BagIndex.CharacterBankTab_6 + Constants.InventoryConstants.NumAccountBankSlots do
+            for slot = 1, C_Container.GetContainerNumSlots(bag) do
+                local item = C_Container.GetContainerItemLink(bag, slot)
+                if item and item == link then
+                    if CursorHasItem() or CursorHasMoney() or CursorHasSpell() then ClearCursor() end
+                    C_Container.PickupContainerItem(bag, slot)
+                    AutoEquipCursorItem()
+                    return true
+                end
             end
-        end
     end
 end
 
