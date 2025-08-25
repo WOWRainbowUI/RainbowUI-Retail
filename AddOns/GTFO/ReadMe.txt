@@ -2305,3 +2305,6 @@ Change Log:
 * Added The War Within spells (world)
 * Added TWW spells for Manaforge Omega 
 
+5.18.6
+* Fixed TWW spells for Manaforge Omega 
+* Added TWW spells for Manaforge Omega 
