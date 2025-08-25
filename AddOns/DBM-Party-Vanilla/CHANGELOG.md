@@ -1,10 +1,22 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r208](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r208) (2025-08-12)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r207...r208) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r209](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r209) (2025-08-24)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r208...r209) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Another round of Tazavesh streets timers and alerts  
-- squeeze in some new delve alerts for high priority dodges and interrupts  
-- Update localization.tw.lua (#521)  
-- Update zhCN (#520)  
-- Add 6 more spell timers to tazavesh  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/535  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/538  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/536  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/534  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/531  
+- fix and close  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/529  
+    Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/528  
+- misc eco dome fixes  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/526  
+- Fix error in last  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/524  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/523  
+- Fix bug showing invalid cast time  
+- tweak audio for warp and raise antispam to 3.5  
+- double shock mine timer per hotfixes  
+- rework beam alert on shadowcrown for clarity, especially for non tanks  
