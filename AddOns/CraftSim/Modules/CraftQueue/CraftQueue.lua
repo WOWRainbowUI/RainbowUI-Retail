@@ -380,7 +380,11 @@ function CraftSim.CRAFTQ:QueueWorkOrders()
                                             end
 
                                             if queueAble then
-                                                if withinKPCost(recipeData.averageProfitCached) and withinMaxPatronOrderCost(recipeData.priceData.craftingCosts) then
+                                                if CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_WORK_ORDERS_ONLY_PROFITABLE") and
+                                                recipeData.averageProfitCached <= 0	then
+                                                    -- skip: not profitable
+                                                elseif withinKPCost(recipeData.averageProfitCached) and
+                                                withinMaxPatronOrderCost(recipeData.priceData.craftingCosts) then
                                                     CraftSim.CRAFTQ:AddRecipe { recipeData = recipeData }
                                                 end
                                             end
@@ -561,6 +565,7 @@ function CraftSim.CRAFTQ:QueueFavorites()
                 highestProfit = true,
             },
             optimizeConcentration = true,
+            optimizeGear = true,
             optimizeConcentrationProgressCallback = function(conProgress)
                 queueFavoritesButton:SetText(string.format("%.0f%% - %s %s %s - %.0f%%",
                     progress,
