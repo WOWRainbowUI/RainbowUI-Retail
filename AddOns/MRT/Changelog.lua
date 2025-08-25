@@ -1,6 +1,12 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5210
+* Data updates
+
+v.5210-MoP
+* Fixes
+
 v.5205
 * Data updates
 
