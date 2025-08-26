@@ -585,6 +585,7 @@ end
 
 ---@param encounterID number
 ---@return boolean?
+---@deprecated This method doesn't work reliably anymore
 function Addon.IsEncounterDefeated(encounterID)
     -- The asset ID seems to be the only thing connecting scenario steps
     -- and journal encounters, other than trying to match the name :/
@@ -600,17 +601,31 @@ function Addon.IsEncounterDefeated(encounterID)
     end
 end
 
+function Addon.GetNumDefeatedEncounters()
+    local n, b = select(3, C_Scenario.GetStepInfo()), 0
+    for i = 1, n - 1 do
+        local info = C_ScenarioInfo.GetCriteriaInfo(i)
+        if info.completed then b = b + 1 end
+    end
+    return b
+end
+
 ---@return number?
 ---@return MDTPull?
 function Addon.GetCurrentPullByEnemyForces()
-    local ef = Addon.GetEnemyForces()
-    if not ef then return end
+    local trash, bosses = Addon.GetEnemyForces(), Addon.GetNumDefeatedEncounters()
+    if not trash then return end
+
+    local prevBossPull = nil
 
     return Addon.IteratePulls(function(_, enemy, _, _, pull, i)
-        ef = ef - enemy.count
-        if ef < 0 or enemy.isBoss and not Addon.IsEncounterDefeated(enemy.encounterID) then
-            return i, pull
+        if not enemy.isBoss then
+            trash = trash - enemy.count
+        elseif i ~= prevBossPull then
+            bosses, prevBossPull = bosses - 1, i
         end
+
+        if trash < 0 or bosses < 0 then return i, pull end
     end)
 end
 
@@ -667,12 +682,16 @@ function Addon.ColorEnemies()
         else
             local n = Addon.GetCurrentPullByEnemyForces()
             if n and n > 0 then
-                Addon.IteratePulls(function(_, _, cloneId, enemyId, _, i)
-                    if i > n then
-                        return true
-                    else
-                        Addon.ColorEnemy(enemyId, cloneId, i == n and Addon.COLOR_CURR or Addon.COLOR_DEAD)
-                    end
+                local enemyForces = Addon.GetEnemyForces()
+
+                Addon.IteratePulls(function(_, enemy, cloneId, enemyId, _, i)
+                    if i > n then return true end
+
+                    enemyForces = enemyForces - enemy.count
+
+                    local color = i == n and (enemyForces < 0 or enemy.isBoss) and Addon.COLOR_CURR or Addon.COLOR_DEAD
+
+                    Addon.ColorEnemy(enemyId, cloneId, color)
                 end)
             end
         end

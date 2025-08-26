@@ -1,3 +1,7 @@
+Version 1.40
+
+- Updated ToC version for patch 11.2
+
 Version 1.39
 
 - Updated ToC version for patch 11.1.7
