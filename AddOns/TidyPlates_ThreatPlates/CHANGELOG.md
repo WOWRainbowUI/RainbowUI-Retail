@@ -1,3 +1,4 @@
-# 12.4.2 (2025-08-11)
+# 12.4.4 (2025-08-25)
 
-* Fixed a bug in the ComboPoints widget that prevented combo points from displaying correctly after a target switch [Comment #7712].
+* Fixed a bug that prevented the castbar from appearing after the nameplate was hidden while the unit was casting [GH-603, GH-GH-604].
+* Fixed a bug that prevented DBM from correctly determining whether the Threat Plates BossMods widget was enabled.
