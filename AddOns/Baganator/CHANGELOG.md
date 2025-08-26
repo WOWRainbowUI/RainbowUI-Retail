@@ -1,6 +1,6 @@
 # Baganator
 
-## [731](https://github.com/Baganator/Baganator/tree/731) (2025-08-15)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/730...731) 
+## [732](https://github.com/Baganator/Baganator/tree/732) (2025-08-25)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/731...732) 
 
-- Fixes to avoid script timeouts on slow devices  
+- Retail: Show appropriate hint when character bank has no tabs purchased  
