@@ -305,9 +305,8 @@ L["Bound Water Elemental"] = "被束缚的水元素"
 L["Bounty Hunter"] = "被束缚的猎人"
 L[ [=[Bounty stacks 
 after this pull]=] ] = "这次击杀后赏金层数"
---[[Translation missing --]]
 L[ [=[Bounty stacks 
-after this pull]=] ] = ""
+after this pull]=] ] = "这次击杀后赏金层数"
 L[ [=[Bounty stacks
 after this pull]=] ] = "这次击杀后赏金层数"
 L["Bracken Warscourge"] = "蕨斑战灾者"

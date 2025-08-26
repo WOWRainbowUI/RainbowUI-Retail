@@ -309,9 +309,8 @@ after this pull]=] ] = [=[這波拉怪後
 L[ [=[Bounty stacks 
 after this pull]=] ] = [=[這波拉怪後
 連帶幾堆]=]
---[[Translation missing --]]
 L[ [=[Bounty stacks
-after this pull]=] ] = ""
+after this pull]=] ] = "這波拉怪後 連帶幾堆"
 L["Bracken Warscourge"] = "蕨皮戰譴者"
 L["Brackenhide Shaper"] = "蕨皮塑造者"
 L["brackenhideCage"] = "Meat Storage"
@@ -614,8 +613,7 @@ L["Devouring Ghoul"] = "Devouring Ghoul"
 L["Devouring Maggot"] = "吞噬蛆蟲"
 L["Devout Blood Priest"] = "虔誠的鮮血祭司"
 L["Devout Priest"] = "虔誠的牧師"
---[[Translation missing --]]
-L["Dimension Portal"] = ""
+L["Dimension Portal"] = "次元傳送門"
 L["Dinomancer Kish'o"] = "恐龍術師基莎"
 L["Discarded Shield"] = "Discarded Shield"
 L["Discharged Anima"] = "Discharged Anima"
@@ -2747,7 +2745,7 @@ L["You can choose from different color palettes in the automatic pull coloring s
 L["You can cycle through different floors by holding CTRL and using the mousewheel."] = "按住 CTRL 時滾動滑鼠滾輪來循環切換不同的樓層。"
 L["You can cycle through dungeons by holding ALT and using the mousewheel."] = "按住 ALT 時滾動滑鼠滾輪來循環切換地城。"
 L["Young Storm Dragon"] = "小風暴龍"
-L["Yu'lon"] = "Yu'lon"
+L["Yu'lon"] = "玉龍"
 L["Zanazal the Wise"] = "『智者』薩納瑟爾"
 L["Zanchuli Witch-Doctor"] = "贊庫爾巫醫"
 L["Zealous Templar"] = "狂熱聖殿騎士"
@@ -2766,5 +2764,5 @@ L["Zo'phex"] = "佐菲克斯"
 L["Zul'gamux"] = "祖爾佳穆克思"
 L["Zul'Gurub"] = "祖爾格拉布"
 L["Zuraal the Ascended"] = "『超凡者』祖拉爾"
-L["Zuramat the Obliterator"] = "Zuramat the Obliterator"
+L["Zuramat the Obliterator"] = "『消滅者』舒拉邁特"
 
