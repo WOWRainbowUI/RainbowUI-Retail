@@ -527,7 +527,7 @@ E.spell_db = {
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=198067,["spec"]=true,["name"]="Fire Elemental",["charges"]=1,["duration"]=150,["icon"]=135790,["spellID"]=198067, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=192249,["spec"]=true,["name"]="Storm Elemental",["charges"]=1,["duration"]=150,["icon"]=2065626,["spellID"]=192249, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=191634,["spec"]=true,["name"]="Stormkeeper",["duration"]=60,["icon"]=839977,["spellID"]=191634, },
-		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=114050,["spec"]=true,["name"]="Ascendance",["duration"]=180,["icon"]=135791,["spellID"]=114050, },
+		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=1219480,["spec"]=true,["name"]="Ascendance",["duration"]=180,["icon"]=135791,["spellID"]=114050, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=114051,["spec"]=true,["name"]="Ascendance",["duration"]=180,["icon"]=135791,["spellID"]=114051, },
 		{ ["class"]="SHAMAN",["type"]="heal",["buff"]=114052,["spec"]=true,["name"]="Ascendance",["duration"]=180,["icon"]=135791,["spellID"]=114052, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=192222,["spec"]=true,["name"]="Liquid Magma Totem",["duration"]=30,["icon"]=971079,["spellID"]=192222, },

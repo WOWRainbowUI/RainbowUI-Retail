@@ -1,6 +1,9 @@
 local _, NS = ...
 
 local changelog = [=[
+### v2.8.24
+-   Fix set bonus being ignored
+
 ### v2.8.23
 -   Invigorating Healing Potion merged to Algari Healing Potion
 -   Legion of Souls will correctly replace Army of the Dead
