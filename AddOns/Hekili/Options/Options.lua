@@ -303,6 +303,11 @@ local displayTemplate = {
         anchor = "RIGHT",
         x = 0,
         y = 0,
+
+        width = 20,
+        height = 20,
+        zoom = 30,
+        keepAspectRatio = true,
     },
 
     targets = {
@@ -467,7 +472,7 @@ do
 
                 flashTexture = "Interface\\Cooldown\\star4",
                 performance = {
-                    mode = 1,    -- 1=Low, 2=Medium, 3=High
+                    frameBudget = 0.7,
                 },
                 toggles = {
                     pause = {
@@ -2938,6 +2943,63 @@ return "位置" end,
                                 disabled = function () return data.indicators.enabled == false end,
                             },
 
+                            size = {
+                                type = "group",
+                                inline = true,
+                                name = "外觀",
+                                order = 1.5,
+                                args = {
+                                    width = {
+                                        type = "range",
+                                        name = "寬度",
+                                        desc = "設定指示圖示的寬度。",
+                                        min = 8,
+                                        max = 100,
+                                        step = 1,
+                                        width = 1.49,
+                                        order = 1,
+                                    },
+
+                                    height = {
+                                        type = "range",
+                                        name = "高度",
+                                        desc = "設定指示圖示的高度。",
+                                        min = 8,
+                                        max = 100,
+                                        step = 1,
+                                        width = 1.49,
+                                        order = 2,
+                                    },
+
+                                    spacer01 = {
+                                        type = "description",
+                                        name = " ",
+                                        width = "full",
+                                        order = 3
+                                    },
+
+                                    zoom = {
+                                        type = "range",
+                                        name = "圖示縮放",
+                                        desc = "選擇指示圖示材質的縮放百分比。(大約 30% 時會裁掉預設的暴雪邊框)",
+                                        min = 0,
+                                        softMax = 100,
+                                        max = 200,
+                                        step = 1,
+                                        width = 1.49,
+                                        order = 4,
+                                    },
+
+                                    keepAspectRatio = {
+                                        type = "toggle",
+                                        name = "維持比例",
+                                        desc = "啟用後，指示圖示在調整大小時將維持其原始的長寬比例。",
+                                        width = 1.49,
+                                        order = 5,
+                                    },
+                                }
+                            },
+
                             pos = {
                                 type = "group",
                                 inline = true,
@@ -5106,26 +5168,59 @@ found = true end
                             name = "效能",
                             order = 10,
                             args = {
-                                mode = {
-                                    type = "select",
-                                    name = "CPU 使用率",
-                                    desc = "請選擇最適合您系統/CPU 的效能選項。\n" ..
-                                        "- 低（預設）：最低化 CPU 使用率以減少對 FPS 的影響，特別適用於較舊的系統。\n" ..
-                                        "- 中：提升 CPU 使用率以獲得更順暢的更新，較舊系統可能會影響 FPS。\n" ..
-                                        "- 高：優化 CPU 使用率以達到最流暢的更新，僅建議高階處理器使用。",
+                                frameBudget = {
+                                    type = "range",
+                                    name = "幀數運算上限",
+                                    desc = "此設定決定可用於計算推薦技能的時間。",
+                                    min = 0.1,
+                                    softMin = 0.2,
+                                    softMax = 0.9,
+                                    max = 1,
+                                    step = 0.05,
+                                    isPercent = true,
+                                    get = function( _ ) return Hekili.DB.profile.performance.frameBudget or 0.7 end,
+                                    set = function( _, v ) Hekili.DB.profile.performance.frameBudget = v end,
                                     order = 1,
-                                    values = { "Low", "Medium", "High" },
-                                    get = function(info)
-                                        return Hekili.DB.profile.performance.mode
-                                    end,
-                                    set = function(info, v)
-                                        Hekili.DB.profile.performance.mode = v
-                                    end,
-                                    width = 1.5,
+                                    width = "full"
                                 },
-                            },
-                        },
-                    },
+                                frameBudgetInfo = {
+                                    type = "description",
+                                    name = function()
+                                        -- Use smoothed FPS from UI.lua to avoid menu-induced frame drops
+                                        local smoothedFPS = Hekili.GetSmoothedFPS and Hekili.GetSmoothedFPS() or nil
+                                        local rawFPS = GetFramerate()
+                                        local fps = smoothedFPS or 60
+
+                                        -- Safeguard: ensure FPS is reasonable (between 10 and 300)
+                                        if fps < 10 then
+                                            -- print( "[Hekili Debug] WARNING: Unreasonable FPS value detected:", fps, "- using fallback" )
+                                            fps = 60
+                                        end
+
+                                        local budget = Hekili.DB.profile.performance.frameBudget or 0.7
+                                        local frameBudgetMs = ( 1000 / fps ) * budget
+
+                                        return
+                                            "\n此設定決定可用於產生推薦技能的時間。\n\n" ..
+                                            "|cFFFFD100• 較高的數值|r 讓推薦技能可以 |cFF00FF00更快速更新|r，但可能會降低遊戲幀數，" ..
+                                            "特別是在同時執行其他插件時。\n" ..
+                                            "|cFFFFD100• 較低的數值|r 代表推薦技能更新可能較慢，但能 |cFF00FF00維持較高的幀數|r。\n\n" .. 
+                                            
+                                            "請調整此運算上限來平衡 |cFF00FF00流暢的遊戲體驗|r 與 |cFF00FF00即時的推薦技能更新|r。 " ..
+                                            "建議使用在你的系統中不會導致畫面卡頓或停頓的最高數值。\n\n" ..
+                                            
+                                            "|cFF00B4FF預設值 (建議)|r: |cFFFFD10070%|r\n\n" ..
+                                            "在 |cFFFFD700" .. format( "%.1f", fps ) .. " FPS|r 下，當前運算上限 |cFFFFD700" .. ( budget * 100 ) .. "%|r " ..
+                                            "允許每次更新最多使用 |cFFFFD700" .. format( "%.2f", frameBudgetMs ) .. " 毫秒|r 的畫面時間。若計算推薦技能所需時間更長，" ..
+                                            "則至少會延遲 1 幀更新。"
+                                    end,
+                                    fontSize = "medium",
+                                    order = 2,
+                                    width = "full",
+                                }
+                            }
+                        }
+                    }
                 }
 
                 local specCfg = class.specs[ id ] and class.specs[ id ].settings
@@ -9462,11 +9557,11 @@ do
         { "time_to_pct_(%d+)%.remains"                      , "time_to_pct_%1"                          },
         { "trinket%.(%d)%.([%w%._]+)"                       , "trinket.t%1.%2"                          },
         --[[ { "trinket%.(t?%d)%.stat%.([%w_]+)%.([%w%._]+)", -- Christ.
-                                                              "trinket.%1.has_stat.%2&trinket.%1.%3" }, ]]
+                                                              "trinket.%1.has_stat.%2&trinket.%1.%3"    }, ]]
         { "trinket%.([%w_]+)%.cooldown"                     , "trinket.%1.cooldown.duration"            },
-        { "trinket%.([%w_]+)%.proc%.([%w_]+)%.duration"     , "trinket.%1.buff_duration"                },
+        --[[ { "trinket%.([%w_]+)%.proc%.([%w_]+)%.duration"     , "trinket.%1.proc_duration"                }, ]]
         { "trinket%.([%w_]+)%.buff%.a?n?y?%.?duration"      , "trinket.%1.buff_duration"                },
-        { "trinket%.([%w_]+)%.proc%.([%w_]+)%.[%w_]+"       , "trinket.%1.has_use_buff"                 },
+        -- { "trinket%.([%w_]+)%.proc%.([%w_]+)%.[%w_]+"       , "trinket.%1.has_use_buff"                 },
         { "trinket%.([%w_]+)%.has_buff%.([%w_]+)"           , "trinket.%1.has_use_buff"                 },
         { "trinket%.([%w_]+)%.has_use_buff%.([%w_]+)"       , "trinket.%1.has_use_buff"                 },
         { "min:([%w_]+)"                                    , "%1"                                      },
