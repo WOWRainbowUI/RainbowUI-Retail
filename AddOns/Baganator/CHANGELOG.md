@@ -1,6 +1,6 @@
 # Baganator
 
-## [732](https://github.com/Baganator/Baganator/tree/732) (2025-08-25)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/731...732) 
+## [733](https://github.com/Baganator/Baganator/tree/733) (2025-08-28)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/732...733) 
 
-- Retail: Show appropriate hint when character bank has no tabs purchased  
+- Retail: Fix tab highlighting for character bank in offline views  
