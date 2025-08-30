@@ -1,10 +1,12 @@
-## Interface: 110105
+## Interface: 110200
 ## Title: |cff69CCF0Icy Veins|r Stat Priority
-## Version: 2025-04-25
+## Version: 2025-08-29
 ## Author: enderneko
+## X-Contributor: Arseynimz
 ## SavedVariables: IVSP_Config, IVSP_Custom
 
 ## X-Curse-Project-ID: 286395
+## X-Wago-ID: Mj6jZ16R
 
 Locales\enUS.lua
 Locales\zhCN.lua

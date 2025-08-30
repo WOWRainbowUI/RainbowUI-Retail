@@ -5,7 +5,7 @@
 [![last commit](https://img.shields.io/github/last-commit/enderneko/Cell)](https://github.com/enderneko/IcyVeinsStatPriority/commits/master)
 [![Discord](https://img.shields.io/discord/1122747237546610760?label=Discord&color=5865F2)](https://discord.gg/9PSe3fKQGJ)
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/enderneko)
+Huge thanks to **Arseynimz** for keeping the patch data up to date!
 
 ![preview](https://raw.githubusercontent.com/enderneko/ImageUpload/master/202203142312494.png)
 
