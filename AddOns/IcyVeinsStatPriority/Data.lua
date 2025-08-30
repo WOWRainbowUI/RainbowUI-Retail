@@ -4,7 +4,7 @@ local L = IVSP.L
 local data = {
     -- 250 - Death Knight: Blood -- https://www.icy-veins.com/wow/blood-death-knight-pve-tank-stat-priority
     [250] = {
-        {"Item Level > Haste (5%) > Critical Strike = Versatility = Mastery", "死亡召喚者"},
+        {"Item Level > Critical Strike = Versatility = Mastery > Haste", "死亡召喚者"},
         {"Item Level > Haste > Critical Strike = Versatility = Mastery", "煞婪"},
     },
     -- 251 - Death Knight: Frost -- https://www.icy-veins.com/wow/frost-death-knight-pve-dps-stat-priority
@@ -13,19 +13,17 @@ local data = {
     },
     -- 252 - Death Knight: Unholy -- https://www.icy-veins.com/wow/unholy-death-knight-pve-dps-stat-priority
     [252] = {
-        {"Mastery > Haste > Critical Strike > Versatility", "單目標"},
-        {"Mastery > Haste > Versatility > Critical Strike", "多目標"},
+        {"Haste > Mastery > Critical Strike > Versatility"},
     },
 
     -- 577 - Demon Hunter: Havoc -- https://www.icy-veins.com/wow/havoc-demon-hunter-pve-dps-stat-priority
     [577] = {
         {"Critical Strike > Mastery > Haste > Versatility > Agility", "奧達奇劫奪者"},
-		{"Mastery = Critical Strike > Versatility > Haste > Agility", "魔痕"},
-        
+        {"Mastery = Critical Strike > Haste > Versatility > Agility", "魔痕"},
     },
     -- 581 - Demon Hunter: Vengeance -- https://www.icy-veins.com/wow/vengeance-demon-hunter-pve-tank-stat-priority
     [581] = {
-        {"Agility > Haste = Critical Strike > Versatility = Mastery"},
+        {"Agility > Haste = Critical Strike > Versatility > Mastery"},
     },
 
     -- 102 - Druid: Balance -- https://www.icy-veins.com/wow/balance-druid-pve-dps-stat-priority
@@ -34,25 +32,22 @@ local data = {
     },
     -- 103 - Druid: Feral -- https://www.icy-veins.com/wow/feral-druid-pve-dps-stat-priority
     [103] = {
-        {"Critical Strike = Mastery > Haste > Versatility > Agility", "單目標"},
-        {"Mastery = Critical Strike > Versatility > Haste > Agility", "多目標 (野地潛獵者)"},
-        {"Mastery > Critical Strike > Versatility > Haste > Agility", "多目標 (利爪)"},
+        {"Critical Strike = Mastery > Haste = Versatility > Agility", "單目標"},
+        {"Critical Strike = Mastery > Versatility > Haste > Agility", "多目標"},
     },
     -- 104 - Druid: Guardian -- https://www.icy-veins.com/wow/guardian-druid-pve-tank-stat-priority
     [104] = {
-        {"Agility > Haste > Versatility > Mastery > Critical Strike", "生存能力"},
-        {"Agility > Versatility = Haste = Critical Strike > Mastery", "傷害輸出"},
+        {"Agility > Haste > Versatility > Mastery > Critical Strike"},
     },
     -- Druid: Restoration -- https://www.icy-veins.com/wow/restoration-druid-pve-healing-stat-priority
     [105] = {
-        {"Intellect > Haste = Mastery > Versatility > Critical Strike", "補團隊"},
-        {"Intellect > Mastery = Haste > Versatility > Critical Strike", "補 M+"},
+        {"Intellect > Haste = Mastery > Versatility > Critical Strike", "通用治療"},
         {"Intellect > Haste > Versatility > Critical Strike > Mastery", "M+ 傷害輸出"},
     },
 
     -- Evoker: Devastation -- https://www.icy-veins.com/wow/devastation-evoker-pve-dps-stat-priority
     [1467] = {
-        {"Intellect > Critical Strike > Versatility = Mastery = Haste"},
+        {"Intellect > Haste > Critical Strike > Mastery > Versatility"},
     },
     -- Evoker: Preservation -- https://www.icy-veins.com/wow/preservation-evoker-pve-healing-stat-priority
     [1468] = {
@@ -61,25 +56,28 @@ local data = {
     },
     -- Evoker: Augmentation -- https://www.icy-veins.com/wow/augmentation-evoker-pve-dps-stat-priority
     [1473] = {
-        {"Intellect > Haste (20%) > Mastery > Critical Strike = Haste (>20%) > Versatility", "時光看守者"},
-        {"Intellect > Haste (20%) > Mastery > Haste (>20%) > Critical Strike > Versatility", "龍隊指揮官"},
+        {"Intellect > Mastery > Critical Strike > Haste > Versatility", "時光看守者"},
+        {"Intellect > Critical Strike > Haste > Mastery > Versatility", "龍隊指揮官"},
     },
 
     -- 253 - Hunter: Beast Mastery -- https://www.icy-veins.com/wow/beast-mastery-hunter-pve-dps-stat-priority
     [253] = {
-        {"Critical Strike = Haste > Mastery > Versatility"},
+        {"Agility > Haste (40%) > Mastery = Critical Strike > Haste (>40%) > Versatility", "哨兵 (單目標)"},
+        {"Agility > Haste (40%) > Critical Strike > Haste (>40%) > Mastery > Versatility", "哨兵 (多目標)"},
+        {"Agility > Critical Strike = Haste > Versatility > Mastery", "黑暗遊俠 (單目標)"},
+        {"Agility > Critical Strike = Haste > Mastery > Versatility", "黑暗遊俠 (多目標)"},
     },
     -- 254 - Hunter: Marksmanship -- https://www.icy-veins.com/wow/marksmanship-hunter-pve-dps-stat-priority
     [254] = {
-        {"Weapon Damage > Critical Strike > Mastery > Haste > Versatility", "哨兵 (單目標)"},
+        {"Weapon Damage > Critical Strike > Mastery > Versatility > Haste", "單目標"},
         {"Weapon Damage > Critical Strike > Mastery > Versatility > Haste", "哨兵 (多目標)"},
-        {"Weapon Damage > Critical Strike > Haste > Mastery > Versatility", "黑暗遊俠"},
+        {"Weapon Damage > Critical Strike > Haste = Mastery > Versatility", "黑暗遊俠 (多目標)"},
     },
     -- 255 - Hunter: Survival -- https://www.icy-veins.com/wow/survival-hunter-pve-dps-stat-priority
     [255] = {
         {"Agility > Mastery > Haste > Critical Strike > Versatility", "獸群領袖"},
-		{"Agility > Mastery > Critical Strike > Versatility > Haste", "哨兵 (單目標)"},
-        {"Agility > Mastery > Haste = Critical Strike > Versatility", "哨兵 (多目標)"},
+        {"Agility > Mastery > Critical Strike > Haste > Versatility", "哨兵 (單目標)"},
+        {"Agility > Mastery > Haste > Critical Strike > Versatility", "哨兵 (多目標)"},
     },
 
     -- 62 - Mage: Arcane -- https://www.icy-veins.com/wow/arcane-mage-pve-dps-stat-priority
@@ -88,11 +86,11 @@ local data = {
     },
     -- 63 - Mage: Fire -- https://www.icy-veins.com/wow/fire-mage-pve-dps-stat-priority
     [63] = {
-        {"Intellect > Haste >> Versatility > Mastery > Critical Strike"},
+        {"Intellect > Haste >> Mastery > Versatility > Critical Strike"},
     },
     -- 64 - Mage: Frost -- https://www.icy-veins.com/wow/frost-mage-pve-dps-stat-priority
     [64] = {
-        {"Intellect > Haste > Critical Strike (33.34%) > Versatility > Mastery > Critical Strike (>33.34%)"},
+        {"Intellect > Haste > Critical Strike (33.34%) > Mastery > Versatility > Critical Strike (>33.34%)"},
     },
 
     -- 268 - Monk: Brewmaster -- https://www.icy-veins.com/wow/brewmaster-monk-pve-tank-stat-priority
@@ -107,22 +105,22 @@ local data = {
     -- 270 - Monk: Mistweaver -- https://www.icy-veins.com/wow/mistweaver-monk-pve-healing-stat-priority
     [270] = {
         {"Intellect > Haste > Critical Strike > Versatility = Mastery", "團隊"},
-        {"Intellect > Haste > Critical Strike >= Mastery > Versatility", "M+"},
+        {"Intellect > Haste > Critical Strike >= Versatility > Mastery", "M+"},
     },
 
     -- 65 - Paladin: Holy -- https://www.icy-veins.com/wow/holy-paladin-pve-healing-stat-priority
     [65] = {
-        {"Intellect > Haste > Mastery > Critical Strike > Versatility", "團隊 - 太陽先驅"},
-        {"Intellect > Critical Strike > Haste > Mastery > Versatility", "團隊 - 光鑄師"},
+        {"Intellect > Haste > Mastery > Critical Strike > Versatility", "團隊"},
+        {"Intellect > Critical Strike > Haste > Mastery > Versatility", "團隊 - 復仇十字軍"},
         {"Intellect > Haste > Versatility > Critical Strike > Mastery", "M+"},
     },
     -- 66 - Paladin: Protection -- https://www.icy-veins.com/wow/protection-paladin-pve-tank-stat-priority
     [66] = {
-        {"Strength > Haste >= Mastery >= Versatility = Critical Strike"},
+        {"Strength > Haste > Mastery > Versatility = Critical Strike"},
     },
     -- 70 - Paladin: Retribution -- https://www.icy-veins.com/wow/retribution-paladin-pve-dps-stat-priority
     [70] = {
-        {"Strength > Mastery > Critical Strike = Haste > Versatility"},
+        {"Strength > Mastery = Critical Strike > Haste > Versatility"},
     },
 
     -- 256 - Priest: Discipline -- https://www.icy-veins.com/wow/discipline-priest-pve-healing-stat-priority
@@ -156,7 +154,7 @@ local data = {
 
     -- 262 - Shaman: Elemental -- https://www.icy-veins.com/wow/elemental-shaman-pve-dps-stat-priority
     [262] = {
-        {"Intellect > Haste = Mastery > Versatility = Critical Strike"},
+        {"Intellect > Mastery > Haste = Versatility > Critical Strike"},
     },
     -- 263 - Shaman: Enhancement -- https://www.icy-veins.com/wow/enhancement-shaman-pve-dps-stat-priority
     [263] = {
@@ -165,7 +163,8 @@ local data = {
     },
     -- 264 - Shaman: Restoration -- https://www.icy-veins.com/wow/restoration-shaman-pve-healing-stat-priority
     [264] = {
-        {"Intellect > Critical Strike > Versatility > Haste = Mastery"},
+        {"Intellect > Critical Strike > Versatility > Haste = Mastery", "General"},
+        {"Intellect > Haste = Critical Strike > Versatility > Mastery", "Farseer with Whispering Waves"},
     },
 
     -- 265 - Warlock: Affliction -- https://www.icy-veins.com/wow/affliction-warlock-pve-dps-stat-priority
