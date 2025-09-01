@@ -99,10 +99,6 @@ local function Default_UpdateMixins()
 	end
 end
 
-local function ObjectiveTracker_Toggle()
-	OTF:ToggleCollapsed()
-end
-
 local function HasTrackerContents()
 	local result = false
 	if OTF.modules then
@@ -117,7 +113,7 @@ local function HasTrackerContents()
 end
 
 local function ShowTrackerHeader()
-	local show = (not dbChar.collapsed and HasTrackerContents()) or db.hdrCollapsedTxt > 1
+	local show = (not KT:IsCollapsed() and HasTrackerContents()) or db.hdrCollapsedTxt > 1
 	OTFHeader.Background:SetShown(db.hdrTrackerBgrShow and db.hdrBgr > 1 and show)
 	OTFHeader.Logo:SetShown(show)
 	OTFHeader.Text:SetShown(show)
@@ -201,7 +197,7 @@ local function SlashHandler(msg)
 	if cmd == "config" then
 		KT:OpenOptions()
 	elseif cmd == "hide" then
-		KT:ToggleTracker()
+		KT:SetHidden()
 	else
 		KT:MinimizeButton_OnClick()
 	end
@@ -273,9 +269,7 @@ end
 -- Init ----------------------------------------------------------------------------------------------------------------
 
 local function Init()
-	if db.keyBindMinimize ~= "" then
-		SetOverrideBindingClick(KTF, false, db.keyBindMinimize, KTF.MinimizeButton:GetName())
-	end
+	KT:SendSignal("INIT")
 
 	for i, moduleName in ipairs(db.modulesOrder) do
 		local module = _G[moduleName]
@@ -291,10 +285,6 @@ local function Init()
 	KT.inWorld = true
 
 	C_Timer.After(0, function()
-		if dbChar.collapsed then
-			ObjectiveTracker_Toggle()
-		end
-
 		KT:SetQuestsHeaderText()
 		KT:SetAchievsHeaderText()
 
@@ -324,9 +314,6 @@ local function SetFrames()
 		if event == "PLAYER_ENTERING_WORLD" and not KT.stopUpdate then
 			KT.inWorld = true
 			KT.inInstance = IsInInstance()
-			if db.collapseInInstance and KT.inInstance and not dbChar.collapsed then
-				ObjectiveTracker_Toggle()
-			end
 		elseif event == "PLAYER_LEAVING_WORLD" then
 			KT.inWorld = false
 		elseif event == "SCENARIO_UPDATE" then
@@ -387,19 +374,11 @@ local function SetFrames()
 			OTF:Update()
 		elseif event == "ZONE_CHANGED_NEW_AREA" or event == "ZONE_CHANGED" then
 			KTF.Buttons.reanchor = (KTF.Buttons.num > 0)
-		elseif event == "UPDATE_BINDINGS" then
-			KT:UpdateHotkey()
 		elseif event == "PLAYER_LEVEL_UP" then
 			local level = ...
 			KT.playerLevel = level
 		elseif event == "QUEST_SESSION_JOINED" then
 			self:RegisterEvent("QUEST_POI_UPDATE")
-		elseif event == "PET_BATTLE_OPENING_START" then
-			KT:prot("SetShown", KT, false)
-			KT.locked = true
-		elseif event == "PET_BATTLE_CLOSE" then
-			KT:prot("SetShown", KT, true)
-			KT.locked = false
 		elseif event == "QUEST_POI_UPDATE" then
 			dbChar.quests.num = KT.GetNumQuests()
 			KT_QuestObjectiveTracker:MarkDirty()
@@ -422,10 +401,7 @@ local function SetFrames()
 	KTF:RegisterEvent("PLAYER_REGEN_ENABLED")
 	KTF:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 	KTF:RegisterEvent("ZONE_CHANGED")
-	KTF:RegisterEvent("UPDATE_BINDINGS")
 	KTF:RegisterEvent("PLAYER_LEVEL_UP")
-	KTF:RegisterEvent("PET_BATTLE_OPENING_START")
-	KTF:RegisterEvent("PET_BATTLE_CLOSE")
 
 	-- Backround
 	local background = CreateFrame("Frame", addonName.."Background", KTF, "BackdropTemplate")
@@ -468,7 +444,7 @@ local function SetFrames()
 	button:SetScript("OnEnter", function(self)
 		self:GetNormalTexture():SetVertexColor(1, 1, 1)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		local title = KT.TITLE..((db.keyBindMinimize ~= "") and NORMAL_FONT_COLOR_CODE.." ("..db.keyBindMinimize..")|r" or "")
+		local title = KT.TITLE..((db.keyBindCollapse ~= "") and NORMAL_FONT_COLOR_CODE.." ("..db.keyBindCollapse..")|r" or "")
 		GameTooltip:AddLine(title, 1, 1, 1)
 		GameTooltip:AddLine("Right Click - Focus closest Quest", 0.5, 0.5, 0.5)
 		GameTooltip:AddLine("Alt + Click - Open addon Options", 0.5, 0.5, 0.5)
@@ -490,7 +466,7 @@ local function SetFrames()
 	Scroll.step = 20
 	Scroll.value = 0
 	Scroll:SetScript("OnMouseWheel", function(self, delta)
-		if not dbChar.collapsed and OTF.height > db.maxHeight then
+		if not KT:IsCollapsed() and OTF.height > db.maxHeight then
 			if delta < 0 then
 				self.value = (self.value+self.step < OTF.height-db.maxHeight) and self.value + self.step or OTF.height - db.maxHeight
 			else
@@ -562,6 +538,12 @@ local function SetFrames()
 	Buttons.num = 0
 	Buttons.reanchor = false
 	KTF.Buttons = Buttons
+
+	-- Keybinding
+	local BindingButton = CreateFrame("Button", "KT_BindingButton", UIParent)
+	BindingButton:SetScript("OnClick", function(self, btn)
+		KT:SetHidden()
+	end)
 
 	-- Frame resets
 	local null = function() end
@@ -687,13 +669,13 @@ local function SetHooks()
 				KTF.Buttons.num = idx
 				KTF.Buttons.reanchor = false
 			end
-			if dbChar.collapsed or KTF.Buttons.num == 0 then
+			if KT:IsCollapsed() or KTF.Buttons.num == 0 then
 				KTF.Buttons:Hide()
 			else
 				KTF.Buttons:SetShown(not KT.locked)
 			end
 		end
-		if dbChar.collapsed or KTF.Buttons.num == 0 then
+		if KT:IsCollapsed() or KTF.Buttons.num == 0 then
 			KTF.Buttons:SetAlpha(0)
 		else
 			KTF.Buttons:SetAlpha(1)
@@ -1606,7 +1588,6 @@ local function SetHooks()
 	end)
 
 	hooksecurefunc(OTF.Header, "SetCollapsed", function(self, collapsed)
-		dbChar.collapsed = collapsed
 		if collapsed then
 			_DBG("COLLAPSE", true)
 			KTF.MinimizeButton:GetNormalTexture():SetTexCoord(0, 0.5, 0, 0.25)
@@ -1935,14 +1916,7 @@ local function SetHooks()
 			MSA_DropDownMenu_AddButton(info, MSA_DROPDOWNMENU_MENU_LEVEL);
 		end
 
-		if db.menuWowheadURL then
-			info.text = "|cff33ff99Wowhead|r URL";
-			info.func = KT.Alert_WowheadURL;
-			info.arg1 = "quest";
-			info.arg2 = block.id;
-			info.checked = false;
-			MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
-		end
+		KT:SendSignal("CONTEXT_MENU_UPDATE", info, "quest", block.id)
 	end
 
 	function KT_AchievementObjectiveTracker:OnBlockHeaderClick(block, mouseButton)  -- R
@@ -2005,14 +1979,7 @@ local function SetHooks()
 
 		info.disabled = false;
 
-		if db.menuWowheadURL then
-			info.text = "|cff33ff99Wowhead|r URL";
-			info.func = KT.Alert_WowheadURL;
-			info.arg1 = "achievement";
-			info.arg2 = block.id;
-			info.checked = false;
-			MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
-		end
+		KT:SendSignal("CONTEXT_MENU_UPDATE", info, "achievement", block.id)
 	end
 
 	local function SetSuperTrackedEventPoiID(poiID)
@@ -2106,16 +2073,7 @@ local function SetHooks()
 			MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
 		end
 
-		if db.menuWowheadURL then
-			info = MSA_DropDownMenu_CreateInfo();
-			info.notCheckable = true;
-			info.text = "|cff33ff99Wowhead|r URL";
-			info.func = KT.Alert_WowheadURL;
-			info.arg1 = "quest";
-			info.arg2 = questID;
-			info.checked = false;
-			MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
-		end
+		KT:SendSignal("CONTEXT_MENU_UPDATE", info, "quest", questID)
 	end
 
 	function KT_ProfessionsRecipeTracker:OnBlockHeaderClick(block, mouseButton)  -- R
@@ -2181,14 +2139,7 @@ local function SetHooks()
 		end;
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
 
-		if db.menuWowheadURL then
-			info.text = "|cff33ff99Wowhead|r URL";
-			info.func = KT.Alert_WowheadURL;
-			info.arg1 = "spell";
-			info.arg2 = recipeID;
-			info.checked = false;
-			MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
-		end
+		KT:SendSignal("CONTEXT_MENU_UPDATE", info, "spell", recipeID)
 	end
 
 	function KT_MonthlyActivitiesObjectiveTracker:OnBlockHeaderClick(block, mouseButton)  -- R
@@ -2239,14 +2190,7 @@ local function SetHooks()
 		info.checked = false;
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
 
-		if db.menuWowheadURL then
-			info.text = "|cff33ff99Wowhead|r URL";
-			info.func = KT.Alert_WowheadURL;
-			info.arg1 = "activity";
-			info.arg2 = block.id;
-			info.checked = false;
-			MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
-		end
+		KT:SendSignal("CONTEXT_MENU_UPDATE", info, "activity", block.id)
 	end
 
 	function KT_AdventureObjectiveTracker:OnBlockHeaderClick(block, mouseButton)  -- R
@@ -2388,18 +2332,41 @@ end
 
 -- External ------------------------------------------------------------------------------------------------------------
 
----ToggleTracker
----@param show boolean|nil @show / hide / toggle
-function KT:ToggleTracker(show)
-	if show ~= nil then
-		self.hidden = not show
+---Set tracker hidden state.
+---@param hidden boolean|nil Hidden state (true = hide, false = show, nil = toggle).
+function KT:SetHidden(hidden)
+	if hidden ~= nil then
+		self.hidden = hidden
 	else
 		self.hidden = not self.hidden
 	end
+	_DBG((self.hidden and "HIDE" or "SHOW").." ... collapsed: "..tostring(dbChar.collapsed), true)
 	self.locked = self.hidden
-	OTF:SetCollapsed(self.hidden)
+	OTF:SetCollapsed(self.hidden or dbChar.collapsed)
 end
 
+---Set tracker collapsed or expanded.
+---@param collapsed boolean|nil Collapsed state (true = collapse, false = expand, nil = toggle).
+---@param silent boolean|nil If true, does not save collapsed state.
+function KT:SetCollapsed(collapsed, silent)
+	if collapsed == nil then
+		OTF:ToggleCollapsed()
+	else
+		OTF:SetCollapsed(collapsed)
+	end
+	if not silent then
+		dbChar.collapsed = OTF.isCollapsed
+	end
+end
+
+---Get tracker collapsed state.
+---@return boolean True is collapsed, false is expanded
+function KT:IsCollapsed()
+	return OTF:IsCollapsed()
+end
+
+---Update the tracker.
+---@param forced boolean|nil If true, forces update.
 function KT:Update(forced)
 	self:SetForced(forced)
 	OTF:Update()
@@ -2407,7 +2374,7 @@ end
 
 function KT:MinimizeButton_OnClick()
 	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-	ObjectiveTracker_Toggle()
+	self:SetCollapsed()
 end
 
 function KT_WorldQuestPOIButton_OnClick(self)
@@ -2426,7 +2393,7 @@ function KT:SetSize(forced)
 	end
 
 	_DBG(" - height = "..OTF.contentsHeight)
-	if not dbChar.collapsed and HasTrackerContents() then
+	if not self:IsCollapsed() and HasTrackerContents() then
 		-- width
 		KTSetWidth(KTF, db.width)
 
@@ -2859,7 +2826,7 @@ function KT:ToggleEmptyTracker()
 			mouse = false
 		end
 	else
-		if dbChar.collapsed then
+		if self:IsCollapsed() then
 			KTF.MinimizeButton:GetNormalTexture():SetTexCoord(0, 0.5, 0, 0.25)
 		else
 			KTF.MinimizeButton:GetNormalTexture():SetTexCoord(0, 0.5, 0.25, 0.5)
@@ -2893,15 +2860,13 @@ function KT:SetMessage(text, r, g, b, pattern, icon, x, y)
 	self:Pour(text, r, g, b)
 end
 
+local SOUND_COOLDOWN = 1
+local lastSoundTime = 0
 function KT:PlaySound(key)
-	PlaySoundFile(LSM:Fetch("sound", key))
-end
-
-function KT:UpdateHotkey()
-	local key = GetBindingKey("EXTRAACTIONBUTTON1")
-	if db.keyBindMinimize == key then
-		SetOverrideBinding(KTF, false, db.keyBindMinimize, nil)
-		db.keyBindMinimize = ""
+	local now = GetTime()
+	if now - lastSoundTime >= SOUND_COOLDOWN then
+		PlaySoundFile(LSM:Fetch("sound", key), db.soundChannel)
+		lastSoundTime = now
 	end
 end
 
@@ -2994,7 +2959,7 @@ function KT:OnEnable()
 		icon = self.MEDIA_PATH.."KT_logo",
 		notCheckable = true,
 		func = function()
-			self:ToggleTracker()
+			self:SetHidden()
 		end
 	})
 

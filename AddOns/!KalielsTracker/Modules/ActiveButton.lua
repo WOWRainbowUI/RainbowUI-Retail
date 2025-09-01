@@ -137,18 +137,12 @@ local function SetFrames()
 				if activeFrame:IsShown() then
 					UpdateHotkey()
 				end
-			elseif event == "PET_BATTLE_OPENING_START" then
-				KT:prot("Hide", activeFrame)
-			elseif event == "PET_BATTLE_CLOSE" then
-				KT:prot("Update", M)
 			end
 		end)
 		eventFrame:SetScript("OnUpdate", EventFrame_OnUpdate)
 	end
 	eventFrame:RegisterEvent("UPDATE_EXTRA_ACTIONBAR")
 	eventFrame:RegisterEvent("UPDATE_BINDINGS")
-	eventFrame:RegisterEvent("PET_BATTLE_OPENING_START")
-	eventFrame:RegisterEvent("PET_BATTLE_CLOSE")
 
 	-- Main frame
 	activeFrame = KTF.ActiveFrame
@@ -277,7 +271,7 @@ function M:Update(id)
 
 	local closestQuestID = id
 	if not closestQuestID then
-		if not dbChar.collapsed then
+		if not KT:IsCollapsed() then
 			local superTrackedQuestID = C_SuperTrack.GetSuperTrackedQuestID() or 0
 			for questID in pairs(KT.fixedButtons) do
 				if questID == superTrackedQuestID then

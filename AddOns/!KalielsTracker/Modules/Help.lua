@@ -282,25 +282,14 @@ local function SetupTutorials()
 			headingFont = "Fonts\\MORPHEUS.ttf",
 			headingSize = 26,
 			text =
-					cTitle.."Version 7.11.0|r\n"..
-					"- ADDED (help) - Events - new help page\n"..
-					"- ADDED (ui) - header texture improvement (Blizzard textures now colorable)\n"..
-					"- ADDED - support for WoW 11.2.0.62438\n"..
-					"- ADDED - support for WoW 11.1.7.61967\n"..
-					"- ADDED - support for WoW 11.1.5.60822\n"..
-					"- ADDED - Events - show active Ongoing and Scheduled Events from World Map in tracker\n"..
-					"- CHANGED - PetTracker - improvement\n"..
-					"- CHANGED - addon support - ElvUI 13.97, Tukui 20.461\n"..
-					"- CHANGED - addon support - Auctionator 288\n"..
-					"- CHANGED - addon support - TomTom 4.0.15\n"..
-					"- CHANGED - addon support - PetTracker 11.2\n"..
-					"- CHANGED - addon support - Masque 11.2.0\n"..
-					"- CHANGED (help) - Active Patrons\n"..
-					"- CHANGED - LFG Hack - improvement (item Goal visible again)\n"..
-					"- CHANGED - Tainted frames Hack - improvement\n"..
-					"- CHANGED - World Map Hack - improvement\n"..
-					"- FIXED - init error when composing headers\n"..
-					"- FIXED - PetTracker - sometimes SetWidth nil value error\n"..
+					cTitle.."Version 7.12.0|r\n"..
+					"- ADDED - Options - new Controls section with Keybindings and Visibility rules\n"..
+					"- ADDED - Options - keybindings for tracker control (collapse, hide, focus closest quest, use active quest item)\n"..
+					"- ADDED - Options - audio channel selection and prevent overlapping audio playback\n"..
+					"- ADDED - Options - tracker Visibility rules (set show/hide/expand/collapse by context)\n"..
+					"- ADDED - support for WoW 11.2.0.62493\n"..
+					"- ADDED - addon support - BtWQuests 2.55.0 (Open Quest Chain option in the Quest context menu)\n"..
+					"- FIXED (scenario) - Mythic+ counter not showing automatically\n"..
 					"\n"..
 
 					cTitle.."Issue reporting|r\n"..
@@ -321,7 +310,7 @@ local function SetupTutorials()
 			shineRight = 6,
 		},
 		onShow = function(self, i)
-			if dbChar.collapsed then
+			if KT:IsCollapsed() then
 				KT:MinimizeButton_OnClick()
 			end
 			if i == 2 then

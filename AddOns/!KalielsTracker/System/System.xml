@@ -6,5 +6,7 @@
     <Script file="StaticPopup.lua"/>
     <Script file="KalielsTracker.lua"/>
     <Include file="KalielsTracker.xml"/>
+    <Script file="Menu.lua"/>
+    <Script file="Visibility.lua"/>
     <Script file="API.lua"/>
 </Ui>

@@ -68,13 +68,7 @@ local function QuestMapQuestOptionsDropDown_Initialize(self)
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWNMENU_MENU_LEVEL);
 	end
 
-	if db.menuWowheadURL then
-		info.text = "|cff33ff99Wowhead|r URL";
-		info.func = KT.Alert_WowheadURL;
-		info.arg1 = "quest";
-		info.arg2 = self.questID;
-		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
-	end
+	KT:SendSignal("CONTEXT_MENU_UPDATE", info, "quest", self.questID)
 end
 
 local function SetHooks()

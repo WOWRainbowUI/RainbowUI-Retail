@@ -10,13 +10,10 @@ local _, KT = ...
 ---@type KalielsTracker
 local api = {}
 
----Toggle (public API)
---- - true - show the tracker
---- - false - hide the tracker
---- - empty (nil) - toggle the tracker
----@param show boolean|nil @show / hide / toggle
+---Toggle tracker visibility (public API).
+---@param show boolean|nil Tracker visibility (true = show, false = hide, nil = toggle).
 function api:Toggle(show)
-    KT:ToggleTracker(show)
+    KT:SetHidden(not show)
 end
 
 ---@public

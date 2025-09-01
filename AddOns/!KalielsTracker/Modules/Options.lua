@@ -36,7 +36,19 @@ local strata = { "BACKGROUND", "LOW", "MEDIUM", "HIGH" }
 local flags = { [""] = "None", ["OUTLINE"] = "Outline", ["OUTLINE, MONOCHROME"] = "Outline Monochrome" }
 local textures = { "None", "Default (Blizzard)", "One line", "Two lines" }
 local modifiers = { [""] = "None", ["ALT"] = "Alt", ["CTRL"] = "Ctrl", ["ALT-CTRL"] = "Alt + Ctrl" }
+local SOUND_CHANNELS = { "Master", "Music", "SFX", "Ambience" }
+local SOUND_CHANNELS_LOCALIZED = { Master = "Master", Music = MUSIC_VOLUME, SFX = FX_VOLUME, Ambience = AMBIENCE_VOLUME }
+local VISIBILITY_CONTEXTS = { "world", "city", "dungeon", "mythicplus", "raid", "arena", "battleground", "petbattle" }
+local VISIBILITY_CONTEXTS_LOCALIZED = { world = "World", city = "City", dungeon = "Dungeon", mythicplus = "Mythic+", raid = "Raid", arena = "Arena", battleground = "Battleground", petbattle = "Pet Battle" }
+local VISIBILITY_OPTIONS = { "show", "hide", "expand", "collapse" }
+local VISIBILITY_OPTIONS_LOCALIZED = { show = "Show", hide = "Hide", expand = "Show + Expand", collapse = "Show + Collapse" }
 local realmZones = { ["EU"] = "Europe", ["NA"] = "North America" }
+local KEYBINDINGS = {
+	keyBindCollapse = { frameName = addonName.."MinimizeButton" },
+	keyBindHide = { frameName = "KT_BindingButton" },
+	keyBindClosestQuest = { frameName = addonName.."MinimizeButton", mouse = "RightButton" },
+	EXTRAACTIONBUTTON1 = false
+}
 
 local cTitle = " "..NORMAL_FONT_COLOR_CODE
 local cBold = "|cff00ffe3"
@@ -50,7 +62,7 @@ local OTF = KT_ObjectiveTrackerFrame
 
 local KTSetHeight = KTF.SetHeight
 
-local GetModulesOptionsTable, MoveModule, SetSharedColor, IsSpecialLocale  -- functions
+local MoveModule, SetSharedColor, IsSpecialLocale, Keybind  -- functions
 
 local defaults = {
 	profile = {
@@ -94,7 +106,6 @@ local defaults = {
 		hdrTrackerBgrShow = true,
 		hdrCollapsedTxt = 2,
 		hdrOtherButtons = true,
-		keyBindMinimize = "",
 
 		qiBgrBorder = false,
 		qiXOffset = -5,
@@ -102,7 +113,7 @@ local defaults = {
 		qiActiveButtonBindingShow = true,
 
 		hideEmptyTracker = false,
-		collapseInInstance = false,
+
 		tooltipShow = true,
 		tooltipShowRewards = true,
 		tooltipShowID = true,
@@ -118,6 +129,7 @@ local defaults = {
 		messageAchievement = true,
 		sink20OutputSink = "UIErrorsFrame",
 		sink20Sticky = false,
+		soundChannel = "Master",
 		soundQuest = true,
 		soundQuestComplete = "KT - Default",
 
@@ -127,6 +139,7 @@ local defaults = {
 		addonPetTracker = false,
 		addonTomTom = false,
 		addonAuctionator = false,
+		addonBtWQuests = false,
 
 		hackLFG = true,
 		hackWorldMap = true,
@@ -143,6 +156,14 @@ local defaults = {
 		}
 	}
 }
+for cmd, int in pairs(KEYBINDINGS) do
+	if int then
+		defaults.profile[cmd] = ""
+	end
+end
+for _, ctx in ipairs(VISIBILITY_CONTEXTS) do
+	defaults.profile["visibility"..ctx] = "show"
+end
 
 -- Edit Mode - Mover
 local moverOptions
@@ -472,14 +493,14 @@ local options = {
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
-							order = 0.11,
+							order = 1.1,
 						},
 						build = {
 							name = " |cffffd100Build:|r  Retail",
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
-							order = 0.12,
+							order = 1.2,
 						},
 						slashCmd = {
 							name = cBold.." /kt|r  |cff808080...............|r  Toggle expand/collapse the tracker\n"..
@@ -487,7 +508,7 @@ local options = {
 									cBold.." /kt config|r  |cff808080...|r  Show this config window\n",
 							type = "description",
 							width = "double",
-							order = 0.3,
+							order = 3,
 						},
 						news = {
 							name = "What's New",
@@ -498,7 +519,7 @@ local options = {
 							func = function()
 								KT.Help:ShowHelp(true)
 							end,
-							order = 0.2,
+							order = 2,
 						},
 						help = {
 							name = "Help",
@@ -509,13 +530,13 @@ local options = {
 							func = function()
 								KT.Help:ShowHelp()
 							end,
-							order = 0.4,
+							order = 4,
 						},
 						supportersSpacer = {
 							name = " ",
 							type = "description",
 							width = "normal",
-							order = 0.51,
+							order = 5.1,
 						},
 						supportersLabel = {
 							name = "|cff00ff00Become a Patron",
@@ -523,7 +544,7 @@ local options = {
 							width = "normal",
 							fontSize = "medium",
 							justifyH = "RIGHT",
-							order = 0.52,
+							order = 5.2,
 						},
 						supporters = {
 							name = "Supporters",
@@ -534,7 +555,7 @@ local options = {
 							func = function()
 								KT.Help:ShowSupporters()
 							end,
-							order = 0.53,
+							order = 5.3,
 						},
 					},
 				},
@@ -549,13 +570,13 @@ local options = {
 							desc = "Unlock addon UI elements.",
 							type = "execute",
 							func = EditMode_Enter,
-							order = 1.1,
+							order = 1,
 						},
 						editModeNote = {
 							name = cBold.." Set position, size, scale and strata of addon UI elements.",
 							type = "description",
 							width = "double",
-							order = 1.2,
+							order = 2,
 						},
 						frameScrollbar = {
 							name = "Show scroll indicator",
@@ -566,7 +587,7 @@ local options = {
 								KTF.Bar:SetShown(db.frameScrollbar)
 								KT:SetSize()
 							end,
-							order = 1.3,
+							order = 3,
 						},
 					},
 				},
@@ -585,7 +606,7 @@ local options = {
 								db.bgr = value
 								KT:SetBackground()
 							end,
-							order = 2.1,
+							order = 1,
 						},
 						bgrColor = {
 							name = "Background color",
@@ -601,13 +622,13 @@ local options = {
 								db.bgrColor.a = a
 								KT:SetBackground()
 							end,
-							order = 2.2,
+							order = 2,
 						},
 						bgrNote = {
 							name = cBold.." For a custom background\n texture set white color.",
 							type = "description",
 							width = "normal",
-							order = 2.21,
+							order = 2.1,
 						},
 						border = {
 							name = "Border texture",
@@ -619,7 +640,7 @@ local options = {
 								KT:SetBackground()
 								KT:MoveButtons()
 							end,
-							order = 2.3,
+							order = 3,
 						},
 						borderColor = {
 							name = "Border color",
@@ -641,7 +662,7 @@ local options = {
 								KT:SetText()
 								SetSharedColor(db.borderColor)
 							end,
-							order = 2.4,
+							order = 4,
 						},
 						classBorder = {
 							name = "Border color by |cff%sClass|r",
@@ -657,7 +678,7 @@ local options = {
 								KT:SetBackground()
 								KT:SetText()
 							end,
-							order = 2.5,
+							order = 5,
 						},
 						borderAlpha = {
 							name = "Border transparency",
@@ -670,7 +691,7 @@ local options = {
 								db.borderAlpha = value
 								KT:SetBackground()
 							end,
-							order = 2.6,
+							order = 6,
 						},
 						borderThickness = {
 							name = "Border thickness",
@@ -683,7 +704,7 @@ local options = {
 								db.borderThickness = value
 								KT:SetBackground()
 							end,
-							order = 2.7,
+							order = 7,
 						},
 						bgrInset = {
 							name = "Background inset",
@@ -697,7 +718,7 @@ local options = {
 								KT:SetBackground()
 								KT:MoveButtons()
 							end,
-							order = 2.8,
+							order = 8,
 						},
 						progressBar = {
 							name = "Progress bar texture",
@@ -708,7 +729,7 @@ local options = {
 								db.progressBar = value
 								KT:SendSignal("OPTIONS_CHANGED", true)
 							end,
-							order = 2.9,
+							order = 9,
 						},
 					},
 				},
@@ -728,7 +749,7 @@ local options = {
 								KT:SetText(true)
 								KT:SendSignal("OPTIONS_CHANGED")
 							end,
-							order = 3.1,
+							order = 1,
 						},
 						fontSize = {
 							name = "Font size",
@@ -741,7 +762,7 @@ local options = {
 								KT:SetText(true)
 								KT:SendSignal("OPTIONS_CHANGED")
 							end,
-							order = 3.2,
+							order = 2,
 						},
 						fontFlag = {
 							name = "Font flag",
@@ -759,7 +780,7 @@ local options = {
 								KT:SetText(true)
 								KT:SendSignal("OPTIONS_CHANGED")
 							end,
-							order = 3.3,
+							order = 3,
 						},
 						fontShadow = {
 							name = "Font shadow",
@@ -774,7 +795,7 @@ local options = {
 								db.fontShadow = value and 1 or 0
 								ReloadUI()	-- WTF
 							end,
-							order = 3.4,
+							order = 4,
 						},
 						colorDifficulty = {
 							name = "Color by difficulty",
@@ -785,7 +806,7 @@ local options = {
 								OTF:Update()
 								QuestMapFrame_UpdateAll()
 							end,
-							order = 3.5,
+							order = 5,
 						},
 						textWordWrap = {
 							name = "Wrap long texts",
@@ -795,7 +816,7 @@ local options = {
 								db.textWordWrap = not db.textWordWrap
 								KT:Update(true)
 							end,
-							order = 3.6,
+							order = 6,
 						},
 						objNumSwitch = {
 							name = "Objective numbers at the beginning",
@@ -811,7 +832,7 @@ local options = {
 								db.objNumSwitch = not db.objNumSwitch
 								OTF:Update()
 							end,
-							order = 3.7,
+							order = 7,
 						},
 					},
 				},
@@ -826,7 +847,7 @@ local options = {
 							type = "description",
 							width = "half",
 							fontSize = "medium",
-							order = 4.01,
+							order = 1,
 						},
 						hdrBgr = {
 							name = "",
@@ -843,7 +864,7 @@ local options = {
 								db.hdrBgr = value
 								KT:SetBackground()
 							end,
-							order = 4.011,
+							order = 1.1,
 						},
 						hdrBgrColor = {
 							name = "Color",
@@ -862,7 +883,7 @@ local options = {
 								db.hdrBgrColor.b = b
 								KT:SetBackground()
 							end,
-							order = 4.012,
+							order = 1.2,
 						},
 						hdrBgrColorShare = {
 							name = "Use border color",
@@ -875,13 +896,13 @@ local options = {
 								db.hdrBgrColorShare = not db.hdrBgrColorShare
 								KT:SetBackground()
 							end,
-							order = 4.013,
+							order = 1.3,
 						},
 						hdrTrackerBgrSpacer1 = {
 							name = " ",
 							type = "description",
 							width = "half",
-							order = 4.014,
+							order = 1.4,
 						},
 						hdrTrackerBgrShow = {
 							name = "Show tracker header texture",
@@ -894,20 +915,20 @@ local options = {
 								db.hdrTrackerBgrShow = not db.hdrTrackerBgrShow
 								KT:SetBackground()
 							end,
-							order = 4.015,
+							order = 1.5,
 						},
 						hdrTrackerBgrSpacer2 = {
 							name = " ",
 							type = "description",
 							width = "normal",
-							order = 4.016,
+							order = 1.6,
 						},
 						hdrTxtLabel = {
 							name = " Text",
 							type = "description",
 							width = "half",
 							fontSize = "medium",
-							order = 4.02,
+							order = 2,
 						},
 						hdrTxtColor = {
 							name = "Color",
@@ -926,7 +947,7 @@ local options = {
 								db.hdrTxtColor.b = b
 								KT:SetText()
 							end,
-							order = 4.021,
+							order = 2.1,
 						},
 						hdrTxtColorShare = {
 							name = "Use border color",
@@ -936,20 +957,20 @@ local options = {
 								db.hdrTxtColorShare = not db.hdrTxtColorShare
 								KT:SetText()
 							end,
-							order = 4.022,
+							order = 2.2,
 						},
 						hdrTxtSpacer = {
 							name = " ",
 							type = "description",
 							width = "normal",
-							order = 4.023,
+							order = 2.3,
 						},
 						hdrBtnLabel = {
 							name = " Buttons",
 							type = "description",
 							width = "half",
 							fontSize = "medium",
-							order = 4.03,
+							order = 3,
 						},
 						hdrBtnColor = {
 							name = "Color",
@@ -968,7 +989,7 @@ local options = {
 								db.hdrBtnColor.b = b
 								KT:SetBackground()
 							end,
-							order = 4.032,
+							order = 3.2,
 						},
 						hdrBtnColorShare = {
 							name = "Use border color",
@@ -978,18 +999,18 @@ local options = {
 								db.hdrBtnColorShare = not db.hdrBtnColorShare
 								KT:SetBackground()
 							end,
-							order = 4.033,
+							order = 3.3,
 						},
 						hdrBtnSpacer = {
 							name = " ",
 							type = "description",
 							width = "normal",
-							order = 4.034,
+							order = 3.4,
 						},
 						sec4SpacerMid1 = {
 							name = " ",
 							type = "description",
-							order = 4.035,
+							order = 3.5,
 						},
 						hdrQuestsTitleAppend = {
 							name = "Show number of Quests",
@@ -1000,7 +1021,7 @@ local options = {
 								db.hdrQuestsTitleAppend = not db.hdrQuestsTitleAppend
 								KT:SetQuestsHeaderText(true)
 							end,
-							order = 4.04,
+							order = 4,
 						},
 						hdrAchievsTitleAppend = {
 							name = "Show Achievement points",
@@ -1011,7 +1032,7 @@ local options = {
 								db.hdrAchievsTitleAppend = not db.hdrAchievsTitleAppend
 								KT:SetAchievsHeaderText(true)
 							end,
-							order = 4.05,
+							order = 5,
 						},
 						hdrPetTrackerTitleAppend = {  -- Addon - PetTracker
 							name = "Show number of owned Pets",
@@ -1025,19 +1046,19 @@ local options = {
 								db.hdrPetTrackerTitleAppend = not db.hdrPetTrackerTitleAppend
 								KT.AddonPetTracker:SetPetsHeaderText(true)
 							end,
-							order = 4.06,
+							order = 6,
 						},
 						sec4SpacerMid2 = {
 							name = " ",
 							type = "description",
-							order = 4.07,
+							order = 7,
 						},
 						hdrCollapsedTxtLabel = {
 							name = " Collapsed tracker text",
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
-							order = 4.09,
+							order = 9,
 						},
 						hdrCollapsedTxt1 = {
 							name = "None",
@@ -1051,7 +1072,7 @@ local options = {
 								db.hdrCollapsedTxt = 1
 								OTF:Update()
 							end,
-							order = 4.091,
+							order = 9.1,
 						},
 						hdrCollapsedTxt2 = {
 							name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:2:0|t "..KT.TITLE,
@@ -1064,7 +1085,12 @@ local options = {
 								db.hdrCollapsedTxt = 2
 								OTF:Update()
 							end,
-							order = 4.092,
+							order = 9.2,
+						},
+						sec4SpacerMid3 = {
+							name = " ",
+							type = "description",
+							order = 10,
 						},
 						hdrOtherButtons = {
 							name = "Show Quest Log and Achievements buttons",
@@ -1076,24 +1102,7 @@ local options = {
 								KT:SetBackground()
 								OTF:Update()
 							end,
-							order = 4.10,
-						},
-						keyBindMinimize = {
-							name = "Key - Minimize button",
-							type = "keybinding",
-							set = function(_, value)
-								SetOverrideBinding(KTF, false, db.keyBindMinimize, nil)
-								if value ~= "" then
-									local key = GetBindingKey("EXTRAACTIONBUTTON1")
-									if key == value then
-										SetBinding(key)
-										SaveBindings(GetCurrentBindingSet())
-									end
-									SetOverrideBindingClick(KTF, false, value, KTF.MinimizeButton:GetName())
-								end
-								db.keyBindMinimize = value
-							end,
-							order = 4.11,
+							order = 11,
 						},
 					},
 				},
@@ -1112,7 +1121,7 @@ local options = {
 								KT:SetBackground()
 								KT:MoveButtons()
 							end,
-							order = 5.1,
+							order = 1,
 						},
 						qiXOffset = {
 							name = "X offset",
@@ -1124,12 +1133,11 @@ local options = {
 								db.qiXOffset = value
 								KT:MoveButtons()
 							end,
-							order = 5.2,
+							order = 2,
 						},
 						qiActiveButton = {
 							name = "Enable Active button",
-							desc = "Show Quest item button for CLOSEST quest as \"Extra Action Button\".\n"..
-								   cBold.."Key bind is shared with EXTRAACTIONBUTTON1.",
+							desc = "Show Quest item button for CLOSEST quest as \"Extra Action Button\".",
 							descStyle = "inline",
 							width = "double",
 							type = "toggle",
@@ -1144,33 +1152,7 @@ local options = {
                                 end
                                 ReloadUI()
 							end,
-							order = 5.3,
-						},
-						keyBindActiveButton = {
-							name = "Key - Active button",
-							type = "keybinding",
-							disabled = function()
-								return not db.qiActiveButton
-							end,
-							get = function()
-								local key = GetBindingKey("EXTRAACTIONBUTTON1")
-								return key
-							end,
-							set = function(_, value)
-								local key = GetBindingKey("EXTRAACTIONBUTTON1")
-								if key then
-									SetBinding(key)
-								end
-								if value ~= "" then
-									if db.keyBindMinimize == value then
-										SetOverrideBinding(KTF, false, db.keyBindMinimize, nil)
-										db.keyBindMinimize = ""
-									end
-									SetBinding(value, "EXTRAACTIONBUTTON1")
-								end
-								SaveBindings(GetCurrentBindingSet())
-							end,
-							order = 5.4,
+							order = 3,
 						},
 						qiActiveButtonBindingShow = {
 							name = "Show Active button Binding text",
@@ -1184,20 +1166,20 @@ local options = {
 								KTF.ActiveFrame:Hide()
 								KT.ActiveButton:Update()
 							end,
-							order = 5.5,
+							order = 4,
 						},
 						qiActiveButtonSpacer = {
 							name = " ",
 							type = "description",
 							width = "half",
-							order = 5.51,
+							order = 5.1,
 						},
 						addonMasqueLabel = {
 							name = " Skin options - for Quest item buttons or Active button",
 							type = "description",
 							width = "double",
 							fontSize = "medium",
-							order = 5.7,
+							order = 7,
 						},
 						addonMasqueOptions = {
 							name = "Masque",
@@ -1208,7 +1190,7 @@ local options = {
 							func = function()
 								SlashCmdList["MASQUE"]()
 							end,
-							order = 5.71,
+							order = 7.1,
 						},
 					},
 				},
@@ -1218,35 +1200,11 @@ local options = {
 					inline = true,
 					order = 6,
 					args = {
-						trackerTitle = {
-							name = cTitle.."Tracker",
-							type = "description",
-							fontSize = "medium",
-							order = 6.1,
-						},
-						hideEmptyTracker = {
-							name = "Hide empty tracker",
-							type = "toggle",
-							set = function()
-								db.hideEmptyTracker = not db.hideEmptyTracker
-								OTF:Update()
-							end,
-							order = 6.11,
-						},
-						collapseInInstance = {
-							name = "Collapse in instance",
-							desc = "Collapses the tracker when entering an instance. Note: Enabled Auto filtering can expand the tracker.",
-							type = "toggle",
-							set = function()
-								db.collapseInInstance = not db.collapseInInstance
-							end,
-							order = 6.12,
-						},
 						tooltipTitle = {
-							name = "\n"..cTitle.."Tooltips",
+							name = cTitle.."Tooltips",
 							type = "description",
 							fontSize = "medium",
-							order = 6.2,
+							order = 2,
 						},
 						tooltipShow = {
 							name = "Show tooltips",
@@ -1255,7 +1213,7 @@ local options = {
 							set = function()
 								db.tooltipShow = not db.tooltipShow
 							end,
-							order = 6.21,
+							order = 2.1,
 						},
 						tooltipShowRewards = {
 							name = "Show Rewards",
@@ -1267,7 +1225,7 @@ local options = {
 							set = function()
 								db.tooltipShowRewards = not db.tooltipShowRewards
 							end,
-							order = 6.22,
+							order = 2.2,
 						},
 						tooltipShowID = {
 							name = "Show ID",
@@ -1279,13 +1237,13 @@ local options = {
 							set = function()
 								db.tooltipShowID = not db.tooltipShowID
 							end,
-							order = 6.23,
+							order = 2.3,
 						},
 						menuTitle = {
 							name = "\n"..cTitle.."Menu items",
 							type = "description",
 							fontSize = "medium",
-							order = 6.3,
+							order = 3,
 						},
                         menuWowheadURL = {
 							name = "Wowhead URL",
@@ -1294,7 +1252,7 @@ local options = {
 							set = function()
 								db.menuWowheadURL = not db.menuWowheadURL
 							end,
-							order = 6.31,
+							order = 3.1,
 						},
                         menuWowheadURLModifier = {
 							name = "Wowhead URL click modifier",
@@ -1310,13 +1268,13 @@ local options = {
 							set = function(_, value)
 								db.menuWowheadURLModifier = value
 							end,
-							order = 6.32,
+							order = 3.2,
 						},
                         questTitle = {
                             name = cTitle.."\n Quests",
                             type = "description",
                             fontSize = "medium",
-                            order = 6.4,
+                            order = 4,
                         },
                         questDefaultActionMap = {
                             name = "Quest default action - World Map",
@@ -1326,7 +1284,7 @@ local options = {
                             set = function()
                                 db.questDefaultActionMap = not db.questDefaultActionMap
                             end,
-                            order = 6.41,
+                            order = 4.1,
                         },
 						questShowTags = {
 							name = "Show Quest tags",
@@ -1337,7 +1295,7 @@ local options = {
 								db.questShowTags = not db.questShowTags
 								OTF:Update()
 							end,
-							order = 6.42,
+							order = 4.2,
 						},
 						questShowZones = {
 							name = "Show Quest Zones",
@@ -1348,7 +1306,7 @@ local options = {
 								db.questShowZones = not db.questShowZones
 								OTF:Update()
 							end,
-							order = 6.43,
+							order = 4.3,
 						},
 						taskShowFactions = {
 							name = "Show World Quest Factions",
@@ -1359,7 +1317,7 @@ local options = {
 								db.taskShowFactions = not db.taskShowFactions
 								OTF:Update()
 							end,
-							order = 6.44,
+							order = 4.4,
 						},
 						questAutoTrack = {
 							name = "Auto Quest tracking",
@@ -1375,7 +1333,7 @@ local options = {
 								SetCVar("autoQuestWatch", value)
 								ReloadUI()
 							end,
-							order = 6.45,
+							order = 4.5,
 						},
 						questProgressAutoTrack = {
 							name = "Auto Quest progress tracking",
@@ -1391,7 +1349,7 @@ local options = {
 								SetCVar("autoQuestProgress", value)
 								ReloadUI()
 							end,
-							order = 6.46,
+							order = 4.6,
 						},
 						questAutoFocusClosest = {
 							name = "Auto focus closest Quest                            ",  -- space for a wider tooltip
@@ -1406,7 +1364,7 @@ local options = {
 							set = function()
 								db.questAutoFocusClosest = not db.questAutoFocusClosest
 							end,
-							order = 6.47,
+							order = 4.7,
 						},
 					},
 				},
@@ -1422,7 +1380,7 @@ local options = {
 							set = function()
 								db.messageQuest = not db.messageQuest
 							end,
-							order = 7.1,
+							order = 1,
 						},
 						messageAchievement = {
 							name = "Achievement messages",
@@ -1431,7 +1389,7 @@ local options = {
 							set = function()
 								db.messageAchievement = not db.messageAchievement
 							end,
-							order = 7.2,
+							order = 2,
 						},
 						-- LibSink
 					},
@@ -1442,28 +1400,197 @@ local options = {
 					inline = true,
 					order = 8,
 					args = {
+						soundChannelLabel = {
+							name = " Sound channel",
+							type = "description",
+							width = 1,
+							fontSize = "medium",
+							order = 1,
+						},
+						soundChannel = {
+							name = "",
+							type = "select",
+							width = 1.05,
+							values = SOUND_CHANNELS_LOCALIZED,
+							sorting = SOUND_CHANNELS,
+							set = function(_, value)
+								db.soundChannel = value
+							end,
+							order = 1.1,
+						},
+						soundChannelSpacer1 = {
+							name = " ",
+							type = "description",
+							width = 0.95,
+							order = 1.2,
+						},
 						soundQuest = {
 							name = "Quest sounds",
 							type = "toggle",
 							set = function()
 								db.soundQuest = not db.soundQuest
 							end,
-							order = 8.1,
+							order = 2,
 						},
 						soundQuestComplete = {
 							name = "Complete Sound",
 							desc = "Addon sounds are prefixed \"KT - \".",
 							type = "select",
-							width = 1.2,
+							width = 1.05,
 							disabled = function()
 								return not db.soundQuest
 							end,
-							dialogControl = "LSM30_Sound",
+							dialogControl = "MSA_LSM30_Sound",
+							soundChannel = function()
+								return db.soundChannel
+							end,
 							values = WidgetLists.sound,
 							set = function(_, value)
 								db.soundQuestComplete = value
 							end,
-							order = 8.11,
+							order = 2.1,
+						},
+					},
+				},
+			},
+		},
+		controls = {
+			name = "Controls",
+			type = "group",
+			args = {
+				sec1 = {
+					name = "Keybindings",
+					type = "group",
+					inline = true,
+					order = 1,
+					args = {
+						keyBindCollapseLabel = {
+							name = " Expand / Collapse tracker",
+							type = "description",
+							width = 2,
+							fontSize = "medium",
+							order = 1.1,
+						},
+						keyBindCollapse = {
+							name = "",
+							type = "keybinding",
+							set = function(_, value)
+								Keybind(value, "keyBindCollapse")
+							end,
+							order = 1.2,
+						},
+						keyBindHideLabel = {
+							name = " Show / Hide tracker",
+							type = "description",
+							width = 2,
+							fontSize = "medium",
+							order = 2.1,
+						},
+						keyBindHide = {
+							name = "",
+							type = "keybinding",
+							set = function(_, value)
+								Keybind(value, "keyBindHide")
+							end,
+							order = 2.2,
+						},
+						keyBindClosestQuestLabel = {
+							name = " Focus closest Quest",
+							type = "description",
+							width = 2,
+							fontSize = "medium",
+							order = 3.1,
+						},
+						keyBindClosestQuest = {
+							name = "",
+							type = "keybinding",
+							set = function(_, value)
+								Keybind(value, "keyBindClosestQuest")
+							end,
+							order = 3.2,
+						},
+						keyBindActiveButtonLabel = {
+							name = " Active button (Quest item)",
+							type = "description",
+							width = 1,
+							fontSize = "medium",
+							order = 4.1,
+						},
+						keyBindActiveButtonDesc = {
+							name = "Shared with "..cBold..BINDING_NAME_EXTRAACTIONBUTTON1,
+							type = "description",
+							width = 1,
+							justifyH = "RIGHT",
+							order = 4.15,
+						},
+						keyBindActiveButton = {
+							name = "",
+							type = "keybinding",
+							disabled = function()
+								return not db.qiActiveButton
+							end,
+							get = function()
+								return GetBindingKey("EXTRAACTIONBUTTON1")
+							end,
+							set = function(_, value)
+								Keybind(value, "EXTRAACTIONBUTTON1")
+							end,
+							order = 4.2,
+						},
+					},
+				},
+				sec2 = {
+					name = "Visibility rules",
+					type = "group",
+					inline = true,
+					order = 2,
+					args = {
+						visibilityDesc = {
+							name = " Rules are applied only once when the condition is met.\n"..
+									" A hidden or collapsed tracker can be manually shown or expanded at any time.",
+							type = "description",
+							order = 0,
+						},
+						activeContextLabel = {
+							name = "\n You are now in ...\n ",
+							type = "description",
+							width = 0.7,
+							fontSize = "medium",
+							order = 1.1,
+						},
+						activeContext = {
+							name = " ",
+							type = "description",
+							width = 2.3,
+							fontSize = "medium",
+							order = 1.2,
+						},
+						trackerLabel = {
+							name = " Tracker",
+							type = "description",
+							width = 0.7,
+							fontSize = "medium",
+							order = 2.1,
+						},
+						hideEmptyTracker = {
+							name = "Hide empty tracker",
+							type = "toggle",
+							set = function()
+								db.hideEmptyTracker = not db.hideEmptyTracker
+								KT:SendSignal("OPTIONS_CHANGED")
+							end,
+							order = 2.2,
+						},
+						trackerSpacer = {
+							name = " ",
+							type = "description",
+							width = 1.3,
+							order = 2.3,
+						},
+						contextsNote = {
+							name = "\n * Normal / Heroic / Mythic / Scenario",
+							type = "description",
+							order = 30,
 						},
 					},
 				},
@@ -1478,6 +1605,27 @@ local options = {
 					type = "group",
 					inline = true,
 					order = 1,
+					args = {
+						descCurOrder = {
+							name = cTitle.."Current Order",
+							type = "description",
+							width = "double",
+							fontSize = "medium",
+							order = 0.1,
+						},
+						descDefOrder = {
+							name = "|T:1:20|t"..cTitle.."Default Order",
+							type = "description",
+							width = "normal",
+							fontSize = "medium",
+							order = 0.2,
+						},
+						descModules = {
+							name = "\n * "..TRACKER_HEADER_DUNGEON.." / "..PLAYER_DIFFICULTY_MYTHIC_PLUS.." / "..CHALLENGE_MODE.." / "..TRACKER_HEADER_SCENARIO.." / "..TRACKER_HEADER_PROVINGGROUNDS,
+							type = "description",
+							order = 20,
+						},
+					},
 				},
 			},
 		},
@@ -1513,13 +1661,13 @@ local options = {
 								db.addonMasque = not db.addonMasque
 								ReloadUI()
 							end,
-							order = 1.11,
+							order = 1.1,
 						},
 						addonMasqueDesc = {
-							name = "Masque adds skinning support for Quest Item buttons.\nIt also affects the Active Button.",
+							name = "Enables skinning of Quest Item buttons and the Active Button.",
 							type = "description",
 							width = "double",
-							order = 1.12,
+							order = 1.2,
 						},
 						addonPetTracker = {
 							name = "PetTracker",
@@ -1539,13 +1687,13 @@ local options = {
 								end
 								ReloadUI()
 							end,
-							order = 1.21,
+							order = 2.1,
 						},
 						addonPetTrackerDesc = {
-							name = "PetTracker support adjusts display of zone pet tracking inside the tracker. It also fix some visual bugs.",
+							name = "Enables display of zone pet tracking inside the tracker and fixes some visual issues.",
 							type = "description",
 							width = "double",
-							order = 1.22,
+							order = 2.2,
 						},
 						addonTomTom = {
 							name = "TomTom",
@@ -1562,13 +1710,13 @@ local options = {
 								db.addonTomTom = not db.addonTomTom
 								ReloadUI()
 							end,
-							order = 1.31,
+							order = 3.1,
 						},
 						addonTomTomDesc = {
-							name = "TomTom support combined Blizzard's POI and TomTom's Arrow.",
+							name = "Enables integration of Blizzard's POI with TomTom's Arrow for better navigation.",
 							type = "description",
 							width = "double",
-							order = 1.32,
+							order = 3.2,
 						},
 						addonAuctionator = {
 							name = "Auctionator",
@@ -1585,13 +1733,36 @@ local options = {
 								db.addonAuctionator = not db.addonAuctionator
 								ReloadUI()
 							end,
-							order = 1.41,
+							order = 4.1,
 						},
 						addonAuctionatorDesc = {
-							name = "Support for Auctionator search button inside the Profession module header.",
+							name = "Enables an Auctionator search button inside the Profession module header.",
 							type = "description",
 							width = "double",
-							order = 1.42,
+							order = 4.2,
+						},
+						addonBtWQuests = {
+							name = "BtWQuests",
+							desc = "Version: %s",
+							descStyle = "inline",
+							type = "toggle",
+							width = 1.05,
+							confirm = true,
+							confirmText = warning,
+							disabled = function()
+								return not C_AddOns.IsAddOnLoaded("BtWQuests")
+							end,
+							set = function()
+								db.addonBtWQuests = not db.addonBtWQuests
+								ReloadUI()
+							end,
+							order = 5.1,
+						},
+						addonBtWQuestsDesc = {
+							name = "Enables an \"Open Quest Chain\" option in the Quest context menu.",
+							type = "description",
+							width = "double",
+							order = 5.2,
 						},
 					},
 				},
@@ -1605,19 +1776,19 @@ local options = {
 							name = "ElvUI",
 							type = "toggle",
 							disabled = true,
-							order = 2.1,
+							order = 1,
 						},
 						tukui = {
 							name = "Tukui",
 							type = "toggle",
 							disabled = true,
-							order = 2.2,
+							order = 2,
 						},
 						nibrealui = {
 							name = "RealUI",
 							type = "toggle",
 							disabled = true,
-							order = 2.3,
+							order = 3,
 						},
 					},
 				},
@@ -1654,7 +1825,7 @@ local options = {
 								db.hackLFG = not db.hackLFG
 								ReloadUI()
 							end,
-							order = 1.1,
+							order = 1,
 						},
 					},
 				},
@@ -1680,7 +1851,7 @@ local options = {
 								db.hackWorldMap = not db.hackWorldMap
 								ReloadUI()
 							end,
-							order = 2.1,
+							order = 1,
 						},
 					},
 				},
@@ -1689,16 +1860,17 @@ local options = {
 	},
 }
 
-local general = options.args.general.args
-local modules = options.args.modules.args
-local addons = options.args.addons.args
-local hacks = options.args.hacks.args
+local general = options.args.general
+local controls = options.args.controls
+local modules = options.args.modules
+local addons = options.args.addons
+local hacks = options.args.hacks
 
 function KT:CheckAddOn(addon, version, isUI)
 	local name = strsplit("_", addon)
 	local ver = isUI and "" or "---"
 	local result = false
-	local path
+	local opt
 	if C_AddOns.IsAddOnLoaded(addon) then
 		local actualVersion = C_AddOns.GetAddOnMetadata(addon, "Version") or "unknown"
 		actualVersion = gsub(actualVersion, "(.*%S)%s+", "%1")
@@ -1707,13 +1879,13 @@ function KT:CheckAddOn(addon, version, isUI)
 		result = true
 	end
 	if not isUI then
-		path =  addons.sec1.args["addon"..name]
-		path.desc = path.desc:format(ver)
+		opt =  addons.args.sec1.args["addon"..name]
+		opt.desc = opt.desc:format(ver)
 	else
-		local path =  addons.sec2.args[strlower(name)]
-		path.name = path.name..ver
-		path.disabled = not result
-		path.get = function() return result end
+		opt =  addons.args.sec2.args[strlower(name)]
+		opt.name = opt.name..ver
+		opt.disabled = not result
+		opt.get = function() return result end
 	end
 	return result
 end
@@ -1728,31 +1900,65 @@ function KT:InitProfile(event, database, profile)
 	ReloadUI()
 end
 
-function GetModulesOptionsTable()
+local function Visibility_ShowActiveContext(_, contexts)
+	local color = "|cff00ff00"
+	local sep = "|r  |cff808080>|r  "
+	local opt = controls.args.sec2.args
+
+	for _, ctx in ipairs(VISIBILITY_CONTEXTS) do
+		local prefix = " "
+		local suffix = ctx == "dungeon" and "|r *" or "|r"
+		if ctx == contexts[1] then
+			prefix = prefix..color
+		end
+		opt["visibility"..ctx.."Label"].name = prefix..VISIBILITY_CONTEXTS_LOCALIZED[ctx]..suffix
+	end
+
+	local text = " "..color
+	for i, ctx in ipairs(contexts) do
+		if i > 1 then
+			text = text..sep
+		end
+		text = text..VISIBILITY_CONTEXTS_LOCALIZED[ctx]
+	end
+	opt.activeContext.name = text
+
+	ACR:NotifyChange(addonName)
+end
+
+local function Visibility_CreateContextOptions(args)
+	for i, ctx in ipairs(VISIBILITY_CONTEXTS) do
+		local name = "visibility"..ctx
+		args[name.."Label"] = {
+			name = " "..VISIBILITY_CONTEXTS_LOCALIZED[ctx]..(ctx == "dungeon" and " *" or ""),
+			type = "description",
+			width = 0.7,
+			fontSize = "medium",
+			order = i + 2.1,
+		}
+		args[name] = {
+			name = "",
+			type = "select",
+			values = VISIBILITY_OPTIONS_LOCALIZED,
+			sorting = VISIBILITY_OPTIONS,
+			set = function(_, value)
+				db[name] = value
+				KT:SendSignal("OPTIONS_CHANGED")
+			end,
+			order = i + 2.2,
+		}
+		args[name.."Spacer"] = {
+			name = " ",
+			type = "description",
+			width = 1.3,
+			order = i + 2.3,
+		}
+	end
+end
+
+local function Modules_CreateOptions(args)
 	local numModules = #db.modulesOrder
 	local numSkipped = 0
-	local args = {
-		descCurOrder = {
-			name = cTitle.."Current Order",
-			type = "description",
-			width = "double",
-			fontSize = "medium",
-			order = 0.1,
-		},
-		descDefOrder = {
-			name = "|T:1:20|t"..cTitle.."Default Order",
-			type = "description",
-			width = "normal",
-			fontSize = "medium",
-			order = 0.2,
-		},
-		descModules = {
-			name = "\n * "..TRACKER_HEADER_DUNGEON.." / "..CHALLENGE_MODE.." / "..TRACKER_HEADER_SCENARIO.." / "..TRACKER_HEADER_PROVINGGROUNDS.."\n",
-			type = "description",
-			order = 20,
-		},
-	}
-
 	for i, moduleName in ipairs(db.modulesOrder) do
 		local module = _G[moduleName]
 		if module.Header then
@@ -1809,19 +2015,19 @@ function GetModulesOptionsTable()
 			numSkipped = numSkipped + 1
 		end
 	end
-	return args
 end
 
 function MoveModule(idx, direction)
-	local text = strsub(modules.sec1.args["pos"..idx].name, 2)
+	local opt = modules.args.sec1.args
+	local text = strsub(opt["pos"..idx].name, 2)
 	local tmpIdx = (direction == "up") and idx-1 or idx+1
-	local tmpText = strsub(modules.sec1.args["pos"..tmpIdx].name, 2)
-	modules.sec1.args["pos"..tmpIdx].name = " "..text
-	modules.sec1.args["pos"..tmpIdx.."up"].desc = text
-	modules.sec1.args["pos"..tmpIdx.."down"].desc = text
-	modules.sec1.args["pos"..idx].name = " "..tmpText
-	modules.sec1.args["pos"..idx.."up"].desc = tmpText
-	modules.sec1.args["pos"..idx.."down"].desc = tmpText
+	local tmpText = strsub(opt["pos"..tmpIdx].name, 2)
+	opt["pos"..tmpIdx].name = " "..text
+	opt["pos"..tmpIdx.."up"].desc = text
+	opt["pos"..tmpIdx.."down"].desc = text
+	opt["pos"..idx].name = " "..tmpText
+	opt["pos"..idx.."up"].desc = tmpText
+	opt["pos"..idx.."down"].desc = tmpText
 
 	local moduleName = tremove(db.modulesOrder, idx)
 	tinsert(db.modulesOrder, tmpIdx, moduleName)
@@ -1834,10 +2040,10 @@ end
 
 function SetSharedColor(color)
 	local name = "Use border |cff"..KT.RgbToHex(color).."color|r"
-	local sec4 = general.sec4.args
-	sec4.hdrBgrColorShare.name = name
-	sec4.hdrTxtColorShare.name = name
-	sec4.hdrBtnColorShare.name = name
+	local opt = general.args.sec4.args
+	opt.hdrBgrColorShare.name = name
+	opt.hdrTxtColorShare.name = name
+	opt.hdrBtnColorShare.name = name
 end
 
 function IsSpecialLocale()
@@ -1855,28 +2061,32 @@ local function Init()
 end
 
 local function Setup()
-	general.sec2.args.classBorder.name = general.sec2.args.classBorder.name:format(KT.RgbToHex(KT.classColor))
+	local opt = general.args.sec2.args
+	opt.classBorder.name = opt.classBorder.name:format(KT.RgbToHex(KT.classColor))
 
-	general.sec7.args.messageOutput = KT:GetSinkAce3OptionsDataTable()
-	general.sec7.args.messageOutput.inline = true
-	general.sec7.args.messageOutput.disabled = function() return not (db.messageQuest or db.messageAchievement) end
+	Visibility_CreateContextOptions(controls.args.sec2.args)
+
+	opt = general.args.sec7.args
+	opt.messageOutput = KT:GetSinkAce3OptionsDataTable()
+	opt.messageOutput.inline = true
+	opt.messageOutput.disabled = function() return not (db.messageQuest or db.messageAchievement) end
 	KT:SetSinkStorage(db)
 
-	options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(KT.db)
-	options.args.profiles.confirm = true
-	options.args.profiles.args.current.width = "double"
-	options.args.profiles.args.reset.confirmText = warning
-	options.args.profiles.args.new.confirmText = warning
-	options.args.profiles.args.choose.confirmText = warning
-	options.args.profiles.args.copyfrom.confirmText = warning
-	if not options.args.profiles.plugins then
-		options.args.profiles.plugins = {}
+	local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(KT.db)
+	profiles.confirm = true
+	profiles.args.current.width = "double"
+	profiles.args.reset.confirmText = warning
+	profiles.args.new.confirmText = warning
+	profiles.args.choose.confirmText = warning
+	profiles.args.copyfrom.confirmText = warning
+	if not profiles.plugins then
+		profiles.plugins = {}
 	end
-	options.args.profiles.plugins[addonName] = {
+	profiles.plugins[addonName] = {
 		clearTrackerDataDesc1 = {
 			name = "Clear the data (no settings) of the tracked content (Quests, Achievements etc.) for current character.",
 			type = "description",
-			order = 0.1,
+			order = 1,
 		},
 		clearTrackerData = {
 			name = "Clear Tracker Data",
@@ -1892,29 +2102,31 @@ local function Setup()
 				KT.QuestsCache_Init()
 				OTF:Update()
 			end,
-			order = 0.2,
+			order = 2,
 		},
 		clearTrackerDataDesc2 = {
 			name = "Current Character: "..cBold..KT.playerName,
 			type = "description",
 			width = "double",
-			order = 0.3,
+			order = 3,
 		},
 		clearTrackerDataDesc4 = {
 			name = "",
 			type = "description",
-			order = 0.4,
+			order = 4,
 		}
 	}
+	options.args.profiles = profiles
 
 	ACR:RegisterOptionsTable(addonName, options, true)
 
 	KT.optionsFrame = {}
 	KT.optionsFrame.general = ACD:AddToBlizOptions(addonName, KT.TITLE, nil, "general")
-	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, options.args.modules.name, KT.TITLE, "modules")
-	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, options.args.addons.name, KT.TITLE, "addons")
-	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, options.args.hacks.name, KT.TITLE, "hacks")
-	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, options.args.profiles.name, KT.TITLE, "profiles")
+	KT.optionsFrame.controls = ACD:AddToBlizOptions(addonName, controls.name, KT.TITLE, "controls")
+	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, modules.name, KT.TITLE, "modules")
+	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, addons.name, KT.TITLE, "addons")
+	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, hacks.name, KT.TITLE, "hacks")
+	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, profiles.name, KT.TITLE, "profiles")
 
 	KT.db.RegisterCallback(KT, "OnProfileChanged", "InitProfile")
 	KT.db.RegisterCallback(KT, "OnProfileCopied", "InitProfile")
@@ -1926,6 +2138,17 @@ local function Setup()
 	end
 end
 
+local function SetHooks()
+	SettingsPanel:HookScript("OnShow", function()
+		KT:RegSignal("VISIBILITY_CONTEXT", Visibility_ShowActiveContext)
+		KT:SendSignal("OPTIONS_OPENED")
+	end)
+
+	SettingsPanel:HookScript("OnHide", function()
+		KT:UnregSignal("VISIBILITY_CONTEXT")
+	end)
+end
+
 local function SetAlert(type)
 	if not type then return end
 
@@ -1934,14 +2157,14 @@ local function SetAlert(type)
 		if trackedQuests ~= "" and trackedQuests ~= "v11" then
 			local character = UnitName("player")
 			local realm = GetRealmName()
-			general.alert = {
+			general.args.alert = {
 				name = "Alert - Automatically tracked quests",
 				type = "group",
 				inline = true,
 				order = 0.1,
 				args = {
 					alertIcon = {
-						name = "|T"..STATICPOPUP_TEXTURE_ALERT..":36:36:8:-2|t",
+						name = "|T"..KT.ICON_ALERT..":36:36:8:-2|t",
 						type = "description",
 						width = 0.2,
 						order = 1.1,
@@ -1976,7 +2199,53 @@ local function SetAlert(type)
 end
 
 local function SetupModules()
-	modules.sec1.args = GetModulesOptionsTable()
+	Modules_CreateOptions(modules.args.sec1.args)
+end
+
+local function ActivateBinding()
+	for cmd, data in pairs(KEYBINDINGS) do
+		if data and db[cmd] ~= "" then
+			SetOverrideBindingClick(KTF, false, db[cmd], data.frameName, data.mouse)
+		end
+	end
+end
+
+function Keybind(key, command)
+	local needSave = false
+	for cmd, data in pairs(KEYBINDINGS) do
+		if data then
+			if db[cmd] == key then
+				SetOverrideBinding(KTF, false, db[cmd], nil)
+				db[cmd] = ""
+			end
+		else
+			local k1, k2 = GetBindingKey(cmd)
+			if k1 == key then SetBinding(k1); needSave = true end
+			if k2 == key then SetBinding(k2); needSave = true end
+		end
+	end
+
+	local data = KEYBINDINGS[command]
+	if data then
+		SetOverrideBinding(KTF, false, db[command], nil)
+		if key ~= "" then
+			SetOverrideBindingClick(KTF, false, key, data.frameName, data.mouse)
+		end
+		db[command] = key
+	else
+		local k1 = GetBindingKey(command)
+		if k1 then
+			SetBinding(k1)
+		end
+		if key ~= "" then
+			SetBinding(key, command)
+		end
+		needSave = true
+	end
+
+	if needSave then
+		SaveBindings(GetCurrentBindingSet())
+	end
 end
 
 hooksecurefunc(UIParent, "SetScale", function(self)
@@ -1993,7 +2262,9 @@ end
 function M:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
 	Setup()
+	SetHooks()
 
+	KT:RegSignal("INIT", ActivateBinding)
 	KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
 		SetAlert("trackedQuests")
 		SetupModules()

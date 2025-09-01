@@ -787,7 +787,9 @@ function KT_ScenarioObjectiveTrackerChallengeModeMixin:Activate(timerID, elapsed
 	statusBar:SetMinMaxValues(0, self.timeLimit);
 	self:UpdateTime(elapsedTime);
 	KT_ScenarioTimerFrame:StartTimer(self);
-	--KT_ScenarioObjectiveTracker:ForceExpand();  -- MSA
+	-- MSA
+	--KT_ScenarioObjectiveTracker:ForceExpand();
+	KT_ScenarioObjectiveTracker:MarkDirty();
 end
 
 function KT_ScenarioObjectiveTrackerChallengeModeMixin:UpdateDeathCount()
@@ -895,7 +897,9 @@ function KT_ScenarioObjectiveTrackerProvingGroundsMixin:Activate(timerID, elapse
 
 	self:UpdateTime(elapsedTime);
 	KT_ScenarioTimerFrame:StartTimer(self);
-	--KT_ScenarioObjectiveTracker:ForceExpand();  -- MSA
+	-- MSA
+	--KT_ScenarioObjectiveTracker:ForceExpand();
+	KT_ScenarioObjectiveTracker:MarkDirty();
 end
 
 function KT_ScenarioObjectiveTrackerProvingGroundsMixin:UpdateTime(elapsedTime)

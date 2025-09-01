@@ -5,4 +5,5 @@
 	<Script file="MSA-AceConfigDialog-3.0.lua"/>
 	<Script file="MSA-AceGUIContainer-Frame.lua"/>
 	<Script file="MSA-AceGUIWidget-Slider.lua"/>
+	<Script file="MSA-AceGUI-3.0-SoundWidget.lua"/>
 </Ui>
