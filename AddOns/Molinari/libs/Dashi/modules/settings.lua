@@ -250,11 +250,13 @@ local function alwaysEnabled()
 	return true
 end
 
+local settingsCategoryID
 local function registerSettings(savedvariable, settings, title)
 	local categoryName = title or C_AddOns.GetAddOnMetadata(addonName, 'Title') -- 暫時修正
 	local category = Settings.RegisterVerticalLayoutCategory(categoryName)
 	category.ID = addonName  -- 暫時修正
 	Settings.RegisterAddOnCategory(category)
+	settingsCategoryID = category:GetID()
 
 	-- local firstInstall
 	if not _G[savedvariable] then
@@ -311,11 +313,9 @@ local function registerSettings(savedvariable, settings, title)
 			for _, setting in next, info.settings do
 				registerSetting(child, savedvariable, setting)
 			end
-			Settings.RegisterAddOnCategory(child)
 		elseif info.callback then
 			local frame, canvas = createCanvas(info.name)
-			local child = Settings.RegisterCanvasLayoutSubcategory(category, frame, info.name)
-			Settings.RegisterAddOnCategory(child)
+			Settings.RegisterCanvasLayoutSubcategory(category, frame, info.name)
 
 			-- delay callback until settings are shown
 			local shown
@@ -441,6 +441,14 @@ function addon:RegisterSubSettingsCanvas(name, callback)
 	}
 end
 
+--[[ namespace:OpenSettings() ![](https://img.shields.io/badge/function-blue)
+Opens the settings panel for this addon.
+--]]
+function addon:OpenSettings()
+	assert(not not settingsCategoryID, 'must register settings first')
+	Settings.OpenToCategory(settingsCategoryID)
+end
+
 --[[ namespace:RegisterSettingsSlash(_..._) ![](https://img.shields.io/badge/function-blue)
 Wrapper for `namespace:RegisterSlash(...)`, except the callback is provided and will open the settings panel for this addon.
 --]]
@@ -448,18 +456,7 @@ function addon:RegisterSettingsSlash(...)
 	-- gotta do this dumb shit because `..., callback` is not valid Lua
 	local data = {...}
 	table.insert(data, function()
-		-- iterate over all categories until we find ours, since OpenToCategory only takes ID
-		--[[
-		local categoryID
-		local categoryName = C_AddOns.GetAddOnMetadata(addonName, 'Title')
-		for _, category in next, SettingsPanel:GetAllCategories() do
-			if category.name == categoryName then
-				assert(not categoryID, 'found multiple instances of the same category')
-				categoryID = category:GetID()
-			end
-		end
-		--]]
-		Settings.OpenToCategory(addonName) -- 暫時修正
+		addon:OpenSettings()
 	end)
 
 	addon:RegisterSlash(unpack(data))

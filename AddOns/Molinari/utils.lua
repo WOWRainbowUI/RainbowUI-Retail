@@ -1,6 +1,6 @@
 local _, addon = ...
 
-if addon:IsRetail() then
+if TooltipDataProcessor and C_TooltipInfo then
 	function addon:HookTooltip(callback)
 		TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(tooltip, data)
 			if not (tooltip and not tooltip:IsForbidden() and tooltip:GetOwner()) then
@@ -30,34 +30,28 @@ if addon:IsRetail() then
 		end)
 	end
 else
-	local function getBagAndSlotID(parent)
-		if parent then
-			local grandParent = parent:GetParent()
-			if grandParent then
-				local slotID = parent.GetID and parent:GetID()
-				local bagID = grandParent.GetID and grandParent:GetID()
-				if bagID and slotID and slotID >= 0 then
-					return bagID, slotID
-				end
-			end
-		end
-	end
-
 	function addon:HookTooltip(callback)
-		GameTooltip:HookScript('OnTooltipSetItem', function(tooltip)
+		hooksecurefunc(GameTooltip, 'SetBagItem', function(tooltip, bagID, slotID)
 			if not (tooltip and not tooltip:IsForbidden() and tooltip:GetOwner()) then
 				return
 			end
 
 			local _, itemLink = tooltip:GetItem()
 			if itemLink then
-				local bagID, slotID = getBagAndSlotID(tooltip:GetOwner())
 				if bagID and slotID and bagID >= 0 and bagID <= 4 then -- limit to player bags
 					callback(tooltip, Item:CreateFromItemLocation(ItemLocation:CreateFromBagAndSlot(bagID, slotID)))
-				elseif tooltip:GetOwner():GetName() == 'TradeRecipientItem7ItemButton' then
-					-- special handling for trade window
-					callback(tooltip, Item:CreateFromItemLink(itemLink))
 				end
+			end
+		end)
+
+		hooksecurefunc(GameTooltip, 'SetTradeTargetItem', function(tooltip)
+			if not (tooltip and not tooltip:IsForbidden() and tooltip:GetOwner()) then
+				return
+			end
+
+			local _, itemLink = tooltip:GetItem()
+			if itemLink and tooltip:GetOwner():GetName() == 'TradeRecipientItem7ItemButton' then
+				callback(tooltip, Item:CreateFromItemLink(itemLink))
 			end
 		end)
 	end

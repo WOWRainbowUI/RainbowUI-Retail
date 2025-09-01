@@ -1,5 +1,4 @@
-### Changes in 110200.133-Release:
+### Changes in 110200.135-Release:
 
-- Added: Support for Coreforged Skeleton Key
-- Changed: Update retail data
+- Fixed: Accidentally activating on non-bagslot items in general
 
