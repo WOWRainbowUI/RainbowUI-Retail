@@ -1,4 +1,4 @@
-## Interface: 110107,110200
+## Interface: 11506, 11507
 
 ## Title: RangeDisplay Options
 ## Author: mitch0
