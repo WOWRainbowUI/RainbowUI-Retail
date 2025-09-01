@@ -1,6 +1,11 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5215
+* Added Ethereal Augment Rune support
+* Data updates
+* Fixes
+
 v.5210
 * Data updates
 

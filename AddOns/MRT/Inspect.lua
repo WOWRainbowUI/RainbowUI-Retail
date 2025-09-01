@@ -224,7 +224,7 @@ local function InspectNext()
 	end
 	local nowTime = GetTime()
 	for name,timeAdded in pairs(module.db.inspectQuery) do
-		if name and UnitName(name) and (not ExRT.isClassic or (not InCombatLockdown() and CheckInteractDistance(name,1))) and CanInspect(name) and (not lastCheckNext[name] or nowTime - lastCheckNext[name] > 30) then
+		if name and UnitName(name) and (not ExRT.isClassic or (not InCombatLockdown() and CheckInteractDistance(name,1))) and CanInspect(name,false) and (not lastCheckNext[name] or nowTime - lastCheckNext[name] > 30) then
 			lastCheckNext[name] = nowTime
 			if ExRT.isLK then
 				MuteSoundFile(SOUNDKIT.IG_CHARACTER_INFO_OPEN)
