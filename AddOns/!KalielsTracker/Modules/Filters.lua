@@ -977,7 +977,7 @@ function DropDown_Initialize(self, level)
 			info.checked = (PetTracker.sets.zoneTracker)
 			info.func = function()
 				PetTracker.ToggleOption("zoneTracker")
-				if dbChar.collapsed and PetTracker.sets.zoneTracker then
+				if KT:IsCollapsed() and PetTracker.sets.zoneTracker then
 					KT:MinimizeButton_OnClick()
 				end
 			end

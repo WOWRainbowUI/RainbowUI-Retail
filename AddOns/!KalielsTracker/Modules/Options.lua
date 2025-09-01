@@ -36,7 +36,19 @@ local strata = { "BACKGROUND", "LOW", "MEDIUM", "HIGH" }
 local flags = { [""] = "無", ["OUTLINE"] = "外框", ["OUTLINE, MONOCHROME"] = "無消除鋸齒外框" }
 local textures = { "無", "預設 (暴雪)", "單線", "雙線" }
 local modifiers = { [""] = "無", ["ALT"] = "Alt", ["CTRL"] = "Ctrl", ["ALT-CTRL"] = "Alt + Ctrl" }
+local SOUND_CHANNELS = { "Master", "Music", "SFX", "Ambience" }
+local SOUND_CHANNELS_LOCALIZED = { Master = "主聲道", Music = MUSIC_VOLUME, SFX = FX_VOLUME, Ambience = AMBIENCE_VOLUME }
+local VISIBILITY_CONTEXTS = { "world", "city", "dungeon", "mythicplus", "raid", "arena", "battleground", "petbattle" }
+local VISIBILITY_CONTEXTS_LOCALIZED = { world = "野外", city = "城內", dungeon = "地城", mythicplus = "M+", raid = "團隊", arena = "競技場", battleground = "戰場", petbattle = "寵物對戰" }
+local VISIBILITY_OPTIONS = { "show", "hide", "expand", "collapse" }
+local VISIBILITY_OPTIONS_LOCALIZED = { show = "顯示", hide = "隱藏", expand = "顯示 + 展開", collapse = "顯示 + 收合" }
 local realmZones = { ["EU"] = "歐洲", ["NA"] = "北美" }
+local KEYBINDINGS = {
+	keyBindCollapse = { frameName = addonName.."MinimizeButton" },
+	keyBindHide = { frameName = "KT_BindingButton" },
+	keyBindClosestQuest = { frameName = addonName.."MinimizeButton", mouse = "RightButton" },
+	EXTRAACTIONBUTTON1 = false
+}
 
 local cTitle = " "..NORMAL_FONT_COLOR_CODE
 local cBold = "|cff00ffe3"
@@ -50,7 +62,7 @@ local OTF = KT_ObjectiveTrackerFrame
 
 local KTSetHeight = KTF.SetHeight
 
-local GetModulesOptionsTable, MoveModule, SetSharedColor, IsSpecialLocale  -- functions
+local MoveModule, SetSharedColor, IsSpecialLocale, Keybind  -- functions
 
 local defaults = {
 	profile = {
@@ -94,7 +106,6 @@ local defaults = {
 		hdrTrackerBgrShow = false,
 		hdrCollapsedTxt = 1,
 		hdrOtherButtons = false,
-		keyBindMinimize = "",
 
 		qiBgrBorder = false,
 		qiXOffset = -5,
@@ -102,7 +113,7 @@ local defaults = {
 		qiActiveButtonBindingShow = false,
 
 		hideEmptyTracker = false,
-		collapseInInstance = true,
+
 		tooltipShow = true,
 		tooltipShowRewards = true,
 		tooltipShowID = false,
@@ -118,6 +129,7 @@ local defaults = {
 		messageAchievement = true,
 		sink20OutputSink = "RaidWarning",
 		sink20Sticky = false,
+		soundChannel = "Master",
 		soundQuest = false,
 		soundQuestComplete = "KT - Default",
 
@@ -127,6 +139,7 @@ local defaults = {
 		addonPetTracker = true,
 		addonTomTom = false,
 		addonAuctionator = false,
+		addonBtWQuests = false,
 
 		hackLFG = true,
 		hackWorldMap = true,
@@ -143,6 +156,14 @@ local defaults = {
 		}
 	}
 }
+for cmd, int in pairs(KEYBINDINGS) do
+	if int then
+		defaults.profile[cmd] = ""
+	end
+end
+for _, ctx in ipairs(VISIBILITY_CONTEXTS) do
+	defaults.profile["visibility"..ctx] = "show"
+end
 
 -- Edit Mode - Mover
 local moverOptions
@@ -472,14 +493,14 @@ local options = {
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
-							order = 0.11,
+							order = 1.1,
 						},
 						build = {
 							name = " |cffffd100Build:|r  Retail",
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
-							order = 0.12,
+							order = 1.2,
 						},
 						slashCmd = {
 							name = cBold.." /kt|r  |cff808080..............|r  展開/收起任務追蹤清單\n"..
@@ -487,7 +508,7 @@ local options = {
 									cBold.." /kt config|r  |cff808080...|r  顯示設定選項視窗\n",
 							type = "description",
 							width = "double",
-							order = 0.3,
+							order = 3,
 						},
 						news = {
 							name = "更新資訊",
@@ -498,7 +519,7 @@ local options = {
 							func = function()
 								KT.Help:ShowHelp(true)
 							end,
-							order = 0.2,
+							order = 2,
 						},
 						help = {
 							name = "使用說明",
@@ -509,13 +530,13 @@ local options = {
 							func = function()
 								KT.Help:ShowHelp()
 							end,
-							order = 0.4,
+							order = 4,
 						},
 						supportersSpacer = {
 							name = " ",
 							type = "description",
 							width = "normal",
-							order = 0.51,
+							order = 5.1,
 						},
 						supportersLabel = {
 							name = "|cff00ff00成為贊助者",
@@ -523,7 +544,7 @@ local options = {
 							width = "normal",
 							fontSize = "medium",
 							justifyH = "RIGHT",
-							order = 0.52,
+							order = 5.2,
 						},
 						supporters = {
 							name = "支持贊助",
@@ -534,7 +555,7 @@ local options = {
 							func = function()
 								KT.Help:ShowSupporters()
 							end,
-							order = 0.53,
+							order = 5.3,
 						},
 					},
 				},
@@ -549,13 +570,13 @@ local options = {
 							desc = "解鎖插件介面元素。",
 							type = "execute",
 							func = EditMode_Enter,
-							order = 1.1,
+							order = 1,
 						},
 						editModeNote = {
 							name = cBold.." 設定插件介面元素的位置、大小、縮放和框架層級。",
 							type = "description",
 							width = "double",
-							order = 1.2,
+							order = 2,
 						},
 						frameScrollbar = {
 							name = "顯示捲動指示軸",
@@ -566,7 +587,7 @@ local options = {
 								KTF.Bar:SetShown(db.frameScrollbar)
 								KT:SetSize()
 							end,
-							order = 1.3,
+							order = 3,
 						},
 					},
 				},
@@ -585,7 +606,7 @@ local options = {
 								db.bgr = value
 								KT:SetBackground()
 							end,
-							order = 2.1,
+							order = 1,
 						},
 						bgrColor = {
 							name = "背景顏色",
@@ -601,13 +622,13 @@ local options = {
 								db.bgrColor.a = a
 								KT:SetBackground()
 							end,
-							order = 2.2,
+							order = 2,
 						},
 						bgrNote = {
 							name = cBold.." 使用自訂背景時\n 材質設為白色。",
 							type = "description",
 							width = "normal",
-							order = 2.21,
+							order = 2.1,
 						},
 						border = {
 							name = "邊框材質",
@@ -619,7 +640,7 @@ local options = {
 								KT:SetBackground()
 								KT:MoveButtons()
 							end,
-							order = 2.3,
+							order = 3,
 						},
 						borderColor = {
 							name = "邊框顏色",
@@ -641,7 +662,7 @@ local options = {
 								KT:SetText()
 								SetSharedColor(db.borderColor)
 							end,
-							order = 2.4,
+							order = 4,
 						},
 						classBorder = {
 							name = "邊框使用 |cff%s職業顏色|r",
@@ -657,7 +678,7 @@ local options = {
 								KT:SetBackground()
 								KT:SetText()
 							end,
-							order = 2.5,
+							order = 5,
 						},
 						borderAlpha = {
 							name = "邊框透明度",
@@ -670,7 +691,7 @@ local options = {
 								db.borderAlpha = value
 								KT:SetBackground()
 							end,
-							order = 2.6,
+							order = 6,
 						},
 						borderThickness = {
 							name = "邊框粗細",
@@ -683,7 +704,7 @@ local options = {
 								db.borderThickness = value
 								KT:SetBackground()
 							end,
-							order = 2.7,
+							order = 7,
 						},
 						bgrInset = {
 							name = "背景內縮",
@@ -697,7 +718,7 @@ local options = {
 								KT:SetBackground()
 								KT:MoveButtons()
 							end,
-							order = 2.8,
+							order = 8,
 						},
 						progressBar = {
 							name = "進度條材質",
@@ -708,7 +729,7 @@ local options = {
 								db.progressBar = value
 								KT:SendSignal("OPTIONS_CHANGED", true)
 							end,
-							order = 2.9,
+							order = 9,
 						},
 					},
 				},
@@ -728,7 +749,7 @@ local options = {
 								KT:SetText(true)
 								KT:SendSignal("OPTIONS_CHANGED")
 							end,
-							order = 3.1,
+							order = 1,
 						},
 						fontSize = {
 							name = "文字大小",
@@ -741,7 +762,7 @@ local options = {
 								KT:SetText(true)
 								KT:SendSignal("OPTIONS_CHANGED")
 							end,
-							order = 3.2,
+							order = 2,
 						},
 						fontFlag = {
 							name = "文字樣式",
@@ -759,7 +780,7 @@ local options = {
 								KT:SetText(true)
 								KT:SendSignal("OPTIONS_CHANGED")
 							end,
-							order = 3.3,
+							order = 3,
 						},
 						fontShadow = {
 							name = "文字陰影",
@@ -774,7 +795,7 @@ local options = {
 								db.fontShadow = value and 1 or 0
 								ReloadUI()	-- WTF
 							end,
-							order = 3.4,
+							order = 4,
 						},
 						colorDifficulty = {
 							name = "使用難度顏色",
@@ -785,7 +806,7 @@ local options = {
 								OTF:Update()
 								QuestMapFrame_UpdateAll()
 							end,
-							order = 3.5,
+							order = 5,
 						},
 						textWordWrap = {
 							name = "文字自動換行",
@@ -795,7 +816,7 @@ local options = {
 								db.textWordWrap = not db.textWordWrap
 								KT:Update(true)
 							end,
-							order = 3.6,
+							order = 6,
 						},
 						objNumSwitch = {
 							name = "目標數字在前面",
@@ -811,7 +832,7 @@ local options = {
 								db.objNumSwitch = not db.objNumSwitch
 								OTF:Update()
 							end,
-							order = 3.7,
+							order = 7,
 						},
 					},
 				},
@@ -826,7 +847,7 @@ local options = {
 							type = "description",
 							width = "half",
 							fontSize = "medium",
-							order = 4.01,
+							order = 1,
 						},
 						hdrBgr = {
 							name = "",
@@ -843,7 +864,7 @@ local options = {
 								db.hdrBgr = value
 								KT:SetBackground()
 							end,
-							order = 4.011,
+							order = 1.1,
 						},
 						hdrBgrColor = {
 							name = "顏色",
@@ -862,7 +883,7 @@ local options = {
 								db.hdrBgrColor.b = b
 								KT:SetBackground()
 							end,
-							order = 4.012,
+							order = 1.2,
 						},
 						hdrBgrColorShare = {
 							name = "使用邊框顏色",
@@ -875,13 +896,13 @@ local options = {
 								db.hdrBgrColorShare = not db.hdrBgrColorShare
 								KT:SetBackground()
 							end,
-							order = 4.013,
+							order = 1.3,
 						},
 						hdrTrackerBgrSpacer1 = {
 							name = " ",
 							type = "description",
 							width = "half",
-							order = 4.014,
+							order = 1.4,
 						},
 						hdrTrackerBgrShow = {
 							name = "顯示標題列材質",
@@ -894,20 +915,20 @@ local options = {
 								db.hdrTrackerBgrShow = not db.hdrTrackerBgrShow
 								KT:SetBackground()
 							end,
-							order = 4.015,
+							order = 1.5,
 						},
 						hdrTrackerBgrSpacer2 = {
 							name = " ",
 							type = "description",
 							width = "normal",
-							order = 4.016,
+							order = 1.6,
 						},
 						hdrTxtLabel = {
 							name = " 文字",
 							type = "description",
 							width = "half",
 							fontSize = "medium",
-							order = 4.02,
+							order = 2,
 						},
 						hdrTxtColor = {
 							name = "顏色",
@@ -926,7 +947,7 @@ local options = {
 								db.hdrTxtColor.b = b
 								KT:SetText()
 							end,
-							order = 4.021,
+							order = 2.1,
 						},
 						hdrTxtColorShare = {
 							name = "使用邊框顏色",
@@ -936,20 +957,20 @@ local options = {
 								db.hdrTxtColorShare = not db.hdrTxtColorShare
 								KT:SetText()
 							end,
-							order = 4.022,
+							order = 2.2,
 						},
 						hdrTxtSpacer = {
 							name = " ",
 							type = "description",
 							width = "normal",
-							order = 4.023,
+							order = 2.3,
 						},
 						hdrBtnLabel = {
 							name = " 按鈕",
 							type = "description",
 							width = "half",
 							fontSize = "medium",
-							order = 4.03,
+							order = 3,
 						},
 						hdrBtnColor = {
 							name = "顏色",
@@ -968,7 +989,7 @@ local options = {
 								db.hdrBtnColor.b = b
 								KT:SetBackground()
 							end,
-							order = 4.032,
+							order = 3.2,
 						},
 						hdrBtnColorShare = {
 							name = "使用邊框顏色",
@@ -978,18 +999,18 @@ local options = {
 								db.hdrBtnColorShare = not db.hdrBtnColorShare
 								KT:SetBackground()
 							end,
-							order = 4.033,
+							order = 3.3,
 						},
 						hdrBtnSpacer = {
 							name = " ",
 							type = "description",
 							width = "normal",
-							order = 4.034,
+							order = 3.4,
 						},
 						sec4SpacerMid1 = {
 							name = " ",
 							type = "description",
-							order = 4.035,
+							order = 3.5,
 						},
 						hdrQuestsTitleAppend = {
 							name = "顯示任務數量",
@@ -1000,7 +1021,7 @@ local options = {
 								db.hdrQuestsTitleAppend = not db.hdrQuestsTitleAppend
 								KT:SetQuestsHeaderText(true)
 							end,
-							order = 4.04,
+							order = 4,
 						},
 						hdrAchievsTitleAppend = {
 							name = "顯示成就點數",
@@ -1011,7 +1032,7 @@ local options = {
 								db.hdrAchievsTitleAppend = not db.hdrAchievsTitleAppend
 								KT:SetAchievsHeaderText(true)
 							end,
-							order = 4.05,
+							order = 5,
 						},
 						hdrPetTrackerTitleAppend = {  -- Addon - PetTracker
 							name = "顯示已收藏的戰寵數量",
@@ -1025,19 +1046,19 @@ local options = {
 								db.hdrPetTrackerTitleAppend = not db.hdrPetTrackerTitleAppend
 								KT.AddonPetTracker:SetPetsHeaderText(true)
 							end,
-							order = 4.06,
+							order = 6,
 						},
 						sec4SpacerMid2 = {
 							name = " ",
 							type = "description",
-							order = 4.07,
+							order = 7,
 						},
 						hdrCollapsedTxtLabel = {
 							name = "      最小化時的摘要文字",
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
-							order = 4.09,
+							order = 9,
 						},
 						hdrCollapsedTxt1 = {
 							name = "無",
@@ -1051,7 +1072,7 @@ local options = {
 								db.hdrCollapsedTxt = 1
 								OTF:Update()
 							end,
-							order = 4.091,
+							order = 9.1,
 						},
 						hdrCollapsedTxt2 = {
 							name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:2:0|t 所有目標",
@@ -1064,7 +1085,12 @@ local options = {
 								db.hdrCollapsedTxt = 2
 								OTF:Update()
 							end,
-							order = 4.092,
+							order = 9.2,
+						},
+						sec4SpacerMid3 = {
+							name = " ",
+							type = "description",
+							order = 10,
 						},
 						hdrOtherButtons = {
 							name = "顯示任務日誌和成就按鈕",
@@ -1076,24 +1102,7 @@ local options = {
 								KT:SetBackground()
 								OTF:Update()
 							end,
-							order = 4.10,
-						},
-						keyBindMinimize = {
-							name = "按鍵 - 最小化按鈕",
-							type = "keybinding",
-							set = function(_, value)
-								SetOverrideBinding(KTF, false, db.keyBindMinimize, nil)
-								if value ~= "" then
-									local key = GetBindingKey("EXTRAACTIONBUTTON1")
-									if key == value then
-										SetBinding(key)
-										SaveBindings(GetCurrentBindingSet())
-									end
-									SetOverrideBindingClick(KTF, false, value, KTF.MinimizeButton:GetName())
-								end
-								db.keyBindMinimize = value
-							end,
-							order = 4.11,
+							order = 11,
 						},
 					},
 				},
@@ -1112,7 +1121,7 @@ local options = {
 								KT:SetBackground()
 								KT:MoveButtons()
 							end,
-							order = 5.1,
+							order = 1,
 						},
 						qiXOffset = {
 							name = "水平位置",
@@ -1124,12 +1133,11 @@ local options = {
 								db.qiXOffset = value
 								KT:MoveButtons()
 							end,
-							order = 5.2,
+							order = 2,
 						},
 						qiActiveButton = {
-							name = "啟用當前任務物品按鈕  ",
-							desc = "距離最近的任務的物品按鈕顯示為 \"額外快捷鍵\"。\n"..
-								   cBold.."和 額外快捷鍵1 使用相同的快捷鍵。",
+							name = "啟用當前任務物品按鈕",
+							desc = "距離最近的任務的物品按鈕顯示為 \"額外技能\"。",
 							descStyle = "inline",
 							width = "double",
 							type = "toggle",
@@ -1144,33 +1152,7 @@ local options = {
                                 end
                                 ReloadUI()
 							end,
-							order = 5.3,
-						},
-						keyBindActiveButton = {
-							name = "按鍵 - 當前任務物品按鈕",
-							type = "keybinding",
-							disabled = function()
-								return not db.qiActiveButton
-							end,
-							get = function()
-								local key = GetBindingKey("EXTRAACTIONBUTTON1")
-								return key
-							end,
-							set = function(_, value)
-								local key = GetBindingKey("EXTRAACTIONBUTTON1")
-								if key then
-									SetBinding(key)
-								end
-								if value ~= "" then
-									if db.keyBindMinimize == value then
-										SetOverrideBinding(KTF, false, db.keyBindMinimize, nil)
-										db.keyBindMinimize = ""
-									end
-									SetBinding(value, "EXTRAACTIONBUTTON1")
-								end
-								SaveBindings(GetCurrentBindingSet())
-							end,
-							order = 5.4,
+							order = 3,
 						},
 						qiActiveButtonBindingShow = {
 							name = "顯示當前任務物品按鈕按鍵文字",
@@ -1184,20 +1166,20 @@ local options = {
 								KTF.ActiveFrame:Hide()
 								KT.ActiveButton:Update()
 							end,
-							order = 5.5,
+							order = 4,
 						},
 						qiActiveButtonSpacer = {
 							name = " ",
 							type = "description",
 							width = "half",
-							order = 5.51,
+							order = 5.1,
 						},
 						addonMasqueLabel = {
 							name = " 外觀選項 - 用於任務物品按鈕和當前任務物品按鈕",
 							type = "description",
 							width = "double",
 							fontSize = "medium",
-							order = 5.7,
+							order = 7,
 						},
 						addonMasqueOptions = {
 							name = "按鈕外觀 Masque",
@@ -1208,7 +1190,7 @@ local options = {
 							func = function()
 								SlashCmdList["MASQUE"]()
 							end,
-							order = 5.71,
+							order = 7.1,
 						},
 					},
 				},
@@ -1218,35 +1200,11 @@ local options = {
 					inline = true,
 					order = 6,
 					args = {
-						trackerTitle = {
-							name = cTitle.."追蹤清單",
-							type = "description",
-							fontSize = "medium",
-							order = 6.1,
-						},
-						hideEmptyTracker = {
-							name = "隱藏空的清單",
-							type = "toggle",
-							set = function()
-								db.hideEmptyTracker = not db.hideEmptyTracker
-								OTF:Update()
-							end,
-							order = 6.11,
-						},
-						collapseInInstance = {
-							name = "副本中最小化",
-							desc = "進入副本時將追蹤清單收合起來。注意: 啟用自動過濾時會展開清單。",
-							type = "toggle",
-							set = function()
-								db.collapseInInstance = not db.collapseInInstance
-							end,
-							order = 6.12,
-						},
 						tooltipTitle = {
-							name = "\n"..cTitle.."浮動提示資訊",
+							name = cTitle.."浮動提示資訊",
 							type = "description",
 							fontSize = "medium",
-							order = 6.2,
+							order = 2,
 						},
 						tooltipShow = {
 							name = "顯示浮動提示資訊",
@@ -1255,7 +1213,7 @@ local options = {
 							set = function()
 								db.tooltipShow = not db.tooltipShow
 							end,
-							order = 6.21,
+							order = 2.1,
 						},
 						tooltipShowRewards = {
 							name = "顯示獎勵",
@@ -1267,7 +1225,7 @@ local options = {
 							set = function()
 								db.tooltipShowRewards = not db.tooltipShowRewards
 							end,
-							order = 6.22,
+							order = 2.2,
 						},
 						tooltipShowID = {
 							name = "顯示 ID",
@@ -1279,13 +1237,13 @@ local options = {
 							set = function()
 								db.tooltipShowID = not db.tooltipShowID
 							end,
-							order = 6.23,
+							order = 2.3,
 						},
 						menuTitle = {
 							name = "\n"..cTitle.."選單項目",
 							type = "description",
 							fontSize = "medium",
-							order = 6.3,
+							order = 3,
 						},
                         menuWowheadURL = {
 							name = "Wowhead URL",
@@ -1294,7 +1252,7 @@ local options = {
 							set = function()
 								db.menuWowheadURL = not db.menuWowheadURL
 							end,
-							order = 6.31,
+							order = 3.1,
 						},
                         menuWowheadURLModifier = {
 							name = "Wowhead URL 輔助鍵",
@@ -1310,13 +1268,13 @@ local options = {
 							set = function(_, value)
 								db.menuWowheadURLModifier = value
 							end,
-							order = 6.32,
+							order = 3.2,
 						},
                         questTitle = {
                             name = cTitle.."\n 任務",
                             type = "description",
                             fontSize = "medium",
-                            order = 6.4,
+                            order = 4,
                         },
                         questDefaultActionMap = {
                             name = "任務預設動作 - 世界地圖",
@@ -1326,7 +1284,7 @@ local options = {
                             set = function()
                                 db.questDefaultActionMap = not db.questDefaultActionMap
                             end,
-                            order = 6.41,
+                            order = 4.1,
                         },
 						questShowTags = {
 							name = "顯示任務標籤",
@@ -1337,7 +1295,7 @@ local options = {
 								db.questShowTags = not db.questShowTags
 								OTF:Update()
 							end,
-							order = 6.42,
+							order = 4.2,
 						},
 						questShowZones = {
 							name = "顯示任務區域",
@@ -1348,7 +1306,7 @@ local options = {
 								db.questShowZones = not db.questShowZones
 								OTF:Update()
 							end,
-							order = 6.43,
+							order = 4.3,
 						},
 						taskShowFactions = {
 							name = "顯示世界任務陣營",
@@ -1359,7 +1317,7 @@ local options = {
 								db.taskShowFactions = not db.taskShowFactions
 								OTF:Update()
 							end,
-							order = 6.44,
+							order = 4.4,
 						},
 						questAutoTrack = {
 							name = "自動追蹤新任務",
@@ -1375,7 +1333,7 @@ local options = {
 								SetCVar("autoQuestWatch", value)
 								ReloadUI()
 							end,
-							order = 6.45,
+							order = 4.5,
 						},
 						questProgressAutoTrack = {
 							name = "自動追蹤任務進度",
@@ -1391,7 +1349,7 @@ local options = {
 								SetCVar("autoQuestProgress", value)
 								ReloadUI()
 							end,
-							order = 6.46,
+							order = 4.6,
 						},
 						questAutoFocusClosest = {
 							name = "自動將最近的任務設為專注                            ",  -- space for a wider tooltip
@@ -1406,7 +1364,7 @@ local options = {
 							set = function()
 								db.questAutoFocusClosest = not db.questAutoFocusClosest
 							end,
-							order = 6.47,
+							order = 4.7,
 						},
 					},
 				},
@@ -1422,7 +1380,7 @@ local options = {
 							set = function()
 								db.messageQuest = not db.messageQuest
 							end,
-							order = 7.1,
+							order = 1,
 						},
 						messageAchievement = {
 							name = "成就訊息",
@@ -1431,7 +1389,7 @@ local options = {
 							set = function()
 								db.messageAchievement = not db.messageAchievement
 							end,
-							order = 7.2,
+							order = 2,
 						},
 						-- LibSink
 					},
@@ -1442,28 +1400,197 @@ local options = {
 					inline = true,
 					order = 8,
 					args = {
+						soundChannelLabel = {
+							name = " Sound channel",
+							type = "description",
+							width = 1,
+							fontSize = "medium",
+							order = 1,
+						},
+						soundChannel = {
+							name = "",
+							type = "select",
+							width = 1.05,
+							values = SOUND_CHANNELS_LOCALIZED,
+							sorting = SOUND_CHANNELS,
+							set = function(_, value)
+								db.soundChannel = value
+							end,
+							order = 1.1,
+						},
+						soundChannelSpacer1 = {
+							name = " ",
+							type = "description",
+							width = 0.95,
+							order = 1.2,
+						},
 						soundQuest = {
 							name = "任務音效",
 							type = "toggle",
 							set = function()
 								db.soundQuest = not db.soundQuest
 							end,
-							order = 8.1,
+							order = 2,
 						},
 						soundQuestComplete = {
 							name = "完成音效",
 							desc = "插件音效的開頭為 \"KT - \"。",
 							type = "select",
-							width = 1.2,
+							width = 1.05,
 							disabled = function()
 								return not db.soundQuest
 							end,
-							dialogControl = "LSM30_Sound",
+							dialogControl = "MSA_LSM30_Sound",
+							soundChannel = function()
+								return db.soundChannel
+							end,
 							values = WidgetLists.sound,
 							set = function(_, value)
 								db.soundQuestComplete = value
 							end,
-							order = 8.11,
+							order = 2.1,
+						},
+					},
+				},
+			},
+		},
+		controls = {
+			name = "Controls",
+			type = "group",
+			args = {
+				sec1 = {
+					name = "Keybindings",
+					type = "group",
+					inline = true,
+					order = 1,
+					args = {
+						keyBindCollapseLabel = {
+							name = " Expand / Collapse tracker",
+							type = "description",
+							width = 2,
+							fontSize = "medium",
+							order = 1.1,
+						},
+						keyBindCollapse = {
+							name = "",
+							type = "keybinding",
+							set = function(_, value)
+								Keybind(value, "keyBindCollapse")
+							end,
+							order = 1.2,
+						},
+						keyBindHideLabel = {
+							name = " Show / Hide tracker",
+							type = "description",
+							width = 2,
+							fontSize = "medium",
+							order = 2.1,
+						},
+						keyBindHide = {
+							name = "",
+							type = "keybinding",
+							set = function(_, value)
+								Keybind(value, "keyBindHide")
+							end,
+							order = 2.2,
+						},
+						keyBindClosestQuestLabel = {
+							name = " Focus closest Quest",
+							type = "description",
+							width = 2,
+							fontSize = "medium",
+							order = 3.1,
+						},
+						keyBindClosestQuest = {
+							name = "",
+							type = "keybinding",
+							set = function(_, value)
+								Keybind(value, "keyBindClosestQuest")
+							end,
+							order = 3.2,
+						},
+						keyBindActiveButtonLabel = {
+							name = " Active button (Quest item)",
+							type = "description",
+							width = 1,
+							fontSize = "medium",
+							order = 4.1,
+						},
+						keyBindActiveButtonDesc = {
+							name = "Shared with "..cBold..BINDING_NAME_EXTRAACTIONBUTTON1,
+							type = "description",
+							width = 1,
+							justifyH = "RIGHT",
+							order = 4.15,
+						},
+						keyBindActiveButton = {
+							name = "",
+							type = "keybinding",
+							disabled = function()
+								return not db.qiActiveButton
+							end,
+							get = function()
+								return GetBindingKey("EXTRAACTIONBUTTON1")
+							end,
+							set = function(_, value)
+								Keybind(value, "EXTRAACTIONBUTTON1")
+							end,
+							order = 4.2,
+						},
+					},
+				},
+				sec2 = {
+					name = "Visibility rules",
+					type = "group",
+					inline = true,
+					order = 2,
+					args = {
+						visibilityDesc = {
+							name = " Rules are applied only once when the condition is met.\n"..
+									" A hidden or collapsed tracker can be manually shown or expanded at any time.",
+							type = "description",
+							order = 0,
+						},
+						activeContextLabel = {
+							name = "\n You are now in ...\n ",
+							type = "description",
+							width = 0.7,
+							fontSize = "medium",
+							order = 1.1,
+						},
+						activeContext = {
+							name = " ",
+							type = "description",
+							width = 2.3,
+							fontSize = "medium",
+							order = 1.2,
+						},
+						trackerLabel = {
+							name = " Tracker",
+							type = "description",
+							width = 0.7,
+							fontSize = "medium",
+							order = 2.1,
+						},
+						hideEmptyTracker = {
+							name = "Hide empty tracker",
+							type = "toggle",
+							set = function()
+								db.hideEmptyTracker = not db.hideEmptyTracker
+								KT:SendSignal("OPTIONS_CHANGED")
+							end,
+							order = 2.2,
+						},
+						trackerSpacer = {
+							name = " ",
+							type = "description",
+							width = 1.3,
+							order = 2.3,
+						},
+						contextsNote = {
+							name = "\n * Normal / Heroic / Mythic / Scenario",
+							type = "description",
+							order = 30,
 						},
 					},
 				},
@@ -1478,6 +1605,27 @@ local options = {
 					type = "group",
 					inline = true,
 					order = 1,
+					args = {
+						descCurOrder = {
+							name = cTitle.."Current Order",
+							type = "description",
+							width = "double",
+							fontSize = "medium",
+							order = 0.1,
+						},
+						descDefOrder = {
+							name = "|T:1:20|t"..cTitle.."Default Order",
+							type = "description",
+							width = "normal",
+							fontSize = "medium",
+							order = 0.2,
+						},
+						descModules = {
+							name = "\n * "..TRACKER_HEADER_DUNGEON.." / "..PLAYER_DIFFICULTY_MYTHIC_PLUS.." / "..CHALLENGE_MODE.." / "..TRACKER_HEADER_SCENARIO.." / "..TRACKER_HEADER_PROVINGGROUNDS,
+							type = "description",
+							order = 20,
+						},
+					},
 				},
 			},
 		},
@@ -1513,13 +1661,13 @@ local options = {
 								db.addonMasque = not db.addonMasque
 								ReloadUI()
 							end,
-							order = 1.11,
+							order = 1.1,
 						},
 						addonMasqueDesc = {
-							name = "Masque 提供更改任務物品按鈕外觀的功能。\n同時也會影響當前任務物品按鈕",
+							name = "啟用任務物品和當前任務物品的按鈕外觀。",
 							type = "description",
 							width = "double",
-							order = 1.12,
+							order = 1.2,
 						},
 						addonPetTracker = {
 							name = "戰寵助手 PetTracker",
@@ -1539,13 +1687,13 @@ local options = {
 								end
 								ReloadUI()
 							end,
-							order = 1.21,
+							order = 2.1,
 						},
 						addonPetTrackerDesc = {
-							name = "支援在任務追蹤清單增強裡面顯示 PetTracker 的區域寵物追蹤，同時也修正了一些顯示上的問題。",
+							name = "支援在任務追蹤清單增強裡面顯示區域寵物追蹤，同時也修正了一些顯示上的問題。",
 							type = "description",
 							width = "double",
-							order = 1.22,
+							order = 2.2,
 						},
 						addonTomTom = {
 							name = "TomTom 導航箭頭",
@@ -1562,13 +1710,13 @@ local options = {
 								db.addonTomTom = not db.addonTomTom
 								ReloadUI()
 							end,
-							order = 1.31,
+							order = 3.1,
 						},
 						addonTomTomDesc = {
-							name = "TomTom 的支援性整合了暴雪的 POI 和 TomTom 的導航箭頭。",
+							name = "啟用整合暴雪的 POI 和 TomTom 導航箭頭，以獲得更佳的導航。",
 							type = "description",
 							width = "double",
-							order = 1.32,
+							order = 3.2,
 						},
 						addonAuctionator = {
 							name = "拍賣小幫手 Auctionator",
@@ -1585,13 +1733,36 @@ local options = {
 								db.addonAuctionator = not db.addonAuctionator
 								ReloadUI()
 							end,
-							order = 1.41,
+							order = 4.1,
 						},
 						addonAuctionatorDesc = {
-							name = "支援在專業模組標題列中顯示拍賣小幫手的搜尋按鈕。",
+							name = "啟用在專業模組標題列中顯示拍賣小幫手的搜尋按鈕。",
 							type = "description",
 							width = "double",
-							order = 1.42,
+							order = 4.2,
+						},
+						addonBtWQuests = {
+							name = "BtWQuests",
+							desc = "Version: %s",
+							descStyle = "inline",
+							type = "toggle",
+							width = 1.05,
+							confirm = true,
+							confirmText = warning,
+							disabled = function()
+								return not C_AddOns.IsAddOnLoaded("BtWQuests")
+							end,
+							set = function()
+								db.addonBtWQuests = not db.addonBtWQuests
+								ReloadUI()
+							end,
+							order = 5.1,
+						},
+						addonBtWQuestsDesc = {
+							name = "Enables an \"Open Quest Chain\" option in the Quest context menu.",
+							type = "description",
+							width = "double",
+							order = 5.2,
 						},
 					},
 				},
@@ -1605,19 +1776,19 @@ local options = {
 							name = "ElvUI",
 							type = "toggle",
 							disabled = true,
-							order = 2.1,
+							order = 1,
 						},
 						tukui = {
 							name = "Tukui",
 							type = "toggle",
 							disabled = true,
-							order = 2.2,
+							order = 2,
 						},
 						nibrealui = {
 							name = "RealUI",
 							type = "toggle",
 							disabled = true,
-							order = 2.3,
+							order = 3,
 						},
 					},
 				},
@@ -1654,7 +1825,7 @@ local options = {
 								db.hackLFG = not db.hackLFG
 								ReloadUI()
 							end,
-							order = 1.1,
+							order = 1,
 						},
 					},
 				},
@@ -1680,7 +1851,7 @@ local options = {
 								db.hackWorldMap = not db.hackWorldMap
 								ReloadUI()
 							end,
-							order = 2.1,
+							order = 1,
 						},
 					},
 				},
@@ -1689,16 +1860,17 @@ local options = {
 	},
 }
 
-local general = options.args.general.args
-local modules = options.args.modules.args
-local addons = options.args.addons.args
-local hacks = options.args.hacks.args
+local general = options.args.general
+local controls = options.args.controls
+local modules = options.args.modules
+local addons = options.args.addons
+local hacks = options.args.hacks
 
 function KT:CheckAddOn(addon, version, isUI)
 	local name = strsplit("_", addon)
 	local ver = isUI and "" or "---"
 	local result = false
-	local path
+	local opt
 	if C_AddOns.IsAddOnLoaded(addon) then
 		local actualVersion = C_AddOns.GetAddOnMetadata(addon, "Version") or "unknown"
 		actualVersion = gsub(actualVersion, "(.*%S)%s+", "%1")
@@ -1707,13 +1879,13 @@ function KT:CheckAddOn(addon, version, isUI)
 		result = true
 	end
 	if not isUI then
-		path =  addons.sec1.args["addon"..name]
-		path.desc = path.desc:format(ver)
+		opt =  addons.args.sec1.args["addon"..name]
+		opt.desc = opt.desc:format(ver)
 	else
-		local path =  addons.sec2.args[strlower(name)]
-		path.name = path.name..ver
-		path.disabled = not result
-		path.get = function() return result end
+		opt =  addons.args.sec2.args[strlower(name)]
+		opt.name = opt.name..ver
+		opt.disabled = not result
+		opt.get = function() return result end
 	end
 	return result
 end
@@ -1728,31 +1900,65 @@ function KT:InitProfile(event, database, profile)
 	ReloadUI()
 end
 
-function GetModulesOptionsTable()
+local function Visibility_ShowActiveContext(_, contexts)
+	local color = "|cff00ff00"
+	local sep = "|r  |cff808080>|r  "
+	local opt = controls.args.sec2.args
+
+	for _, ctx in ipairs(VISIBILITY_CONTEXTS) do
+		local prefix = " "
+		local suffix = ctx == "dungeon" and "|r *" or "|r"
+		if ctx == contexts[1] then
+			prefix = prefix..color
+		end
+		opt["visibility"..ctx.."Label"].name = prefix..VISIBILITY_CONTEXTS_LOCALIZED[ctx]..suffix
+	end
+
+	local text = " "..color
+	for i, ctx in ipairs(contexts) do
+		if i > 1 then
+			text = text..sep
+		end
+		text = text..VISIBILITY_CONTEXTS_LOCALIZED[ctx]
+	end
+	opt.activeContext.name = text
+
+	ACR:NotifyChange(addonName)
+end
+
+local function Visibility_CreateContextOptions(args)
+	for i, ctx in ipairs(VISIBILITY_CONTEXTS) do
+		local name = "visibility"..ctx
+		args[name.."Label"] = {
+			name = " "..VISIBILITY_CONTEXTS_LOCALIZED[ctx]..(ctx == "dungeon" and " *" or ""),
+			type = "description",
+			width = 0.7,
+			fontSize = "medium",
+			order = i + 2.1,
+		}
+		args[name] = {
+			name = "",
+			type = "select",
+			values = VISIBILITY_OPTIONS_LOCALIZED,
+			sorting = VISIBILITY_OPTIONS,
+			set = function(_, value)
+				db[name] = value
+				KT:SendSignal("OPTIONS_CHANGED")
+			end,
+			order = i + 2.2,
+		}
+		args[name.."Spacer"] = {
+			name = " ",
+			type = "description",
+			width = 1.3,
+			order = i + 2.3,
+		}
+	end
+end
+
+local function Modules_CreateOptions(args)
 	local numModules = #db.modulesOrder
 	local numSkipped = 0
-	local args = {
-		descCurOrder = {
-			name = cTitle.."目前順序",
-			type = "description",
-			width = "double",
-			fontSize = "medium",
-			order = 0.1,
-		},
-		descDefOrder = {
-			name = "|T:1:20|t"..cTitle.."預設順序",
-			type = "description",
-			width = "normal",
-			fontSize = "medium",
-			order = 0.2,
-		},
-		descModules = {
-			name = "\n * "..TRACKER_HEADER_DUNGEON.." / "..CHALLENGE_MODE.." / "..TRACKER_HEADER_SCENARIO.." / "..TRACKER_HEADER_PROVINGGROUNDS.."\n",
-			type = "description",
-			order = 20,
-		},
-	}
-
 	for i, moduleName in ipairs(db.modulesOrder) do
 		local module = _G[moduleName]
 		if module.Header then
@@ -1809,19 +2015,19 @@ function GetModulesOptionsTable()
 			numSkipped = numSkipped + 1
 		end
 	end
-	return args
 end
 
 function MoveModule(idx, direction)
-	local text = strsub(modules.sec1.args["pos"..idx].name, 2)
+	local opt = modules.args.sec1.args
+	local text = strsub(opt["pos"..idx].name, 2)
 	local tmpIdx = (direction == "up") and idx-1 or idx+1
-	local tmpText = strsub(modules.sec1.args["pos"..tmpIdx].name, 2)
-	modules.sec1.args["pos"..tmpIdx].name = " "..text
-	modules.sec1.args["pos"..tmpIdx.."up"].desc = text
-	modules.sec1.args["pos"..tmpIdx.."down"].desc = text
-	modules.sec1.args["pos"..idx].name = " "..tmpText
-	modules.sec1.args["pos"..idx.."up"].desc = tmpText
-	modules.sec1.args["pos"..idx.."down"].desc = tmpText
+	local tmpText = strsub(opt["pos"..tmpIdx].name, 2)
+	opt["pos"..tmpIdx].name = " "..text
+	opt["pos"..tmpIdx.."up"].desc = text
+	opt["pos"..tmpIdx.."down"].desc = text
+	opt["pos"..idx].name = " "..tmpText
+	opt["pos"..idx.."up"].desc = tmpText
+	opt["pos"..idx.."down"].desc = tmpText
 
 	local moduleName = tremove(db.modulesOrder, idx)
 	tinsert(db.modulesOrder, tmpIdx, moduleName)
@@ -1834,10 +2040,10 @@ end
 
 function SetSharedColor(color)
 	local name = "使用邊框|cff"..KT.RgbToHex(color).."顏色|r"
-	local sec4 = general.sec4.args
-	sec4.hdrBgrColorShare.name = name
-	sec4.hdrTxtColorShare.name = name
-	sec4.hdrBtnColorShare.name = name
+	local opt = general.args.sec4.args
+	opt.hdrBgrColorShare.name = name
+	opt.hdrTxtColorShare.name = name
+	opt.hdrBtnColorShare.name = name
 end
 
 function IsSpecialLocale()
@@ -1855,28 +2061,32 @@ local function Init()
 end
 
 local function Setup()
-	general.sec2.args.classBorder.name = general.sec2.args.classBorder.name:format(KT.RgbToHex(KT.classColor))
+	local opt = general.args.sec2.args
+	opt.classBorder.name = opt.classBorder.name:format(KT.RgbToHex(KT.classColor))
 
-	general.sec7.args.messageOutput = KT:GetSinkAce3OptionsDataTable()
-	general.sec7.args.messageOutput.inline = true
-	general.sec7.args.messageOutput.disabled = function() return not (db.messageQuest or db.messageAchievement) end
+	Visibility_CreateContextOptions(controls.args.sec2.args)
+
+	opt = general.args.sec7.args
+	opt.messageOutput = KT:GetSinkAce3OptionsDataTable()
+	opt.messageOutput.inline = true
+	opt.messageOutput.disabled = function() return not (db.messageQuest or db.messageAchievement) end
 	KT:SetSinkStorage(db)
 
-	options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(KT.db)
-	options.args.profiles.confirm = true
-	options.args.profiles.args.current.width = "double"
-	options.args.profiles.args.reset.confirmText = warning
-	options.args.profiles.args.new.confirmText = warning
-	options.args.profiles.args.choose.confirmText = warning
-	options.args.profiles.args.copyfrom.confirmText = warning
-	if not options.args.profiles.plugins then
-		options.args.profiles.plugins = {}
+	local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(KT.db)
+	profiles.confirm = true
+	profiles.args.current.width = "double"
+	profiles.args.reset.confirmText = warning
+	profiles.args.new.confirmText = warning
+	profiles.args.choose.confirmText = warning
+	profiles.args.copyfrom.confirmText = warning
+	if not profiles.plugins then
+		profiles.plugins = {}
 	end
-	options.args.profiles.plugins[addonName] = {
+	profiles.plugins[addonName] = {
 		clearTrackerDataDesc1 = {
 			name = "清空當前角色已追蹤的任容資料 (任務、成就等，不包含設定)。Clear the data (no settings) of the tracked content (Quests, Achievements etc.) for current character.",
 			type = "description",
-			order = 0.1,
+			order = 1,
 		},
 		clearTrackerData = {
 			name = "清空追蹤清單",
@@ -1892,29 +2102,31 @@ local function Setup()
 				KT.QuestsCache_Init()
 				OTF:Update()
 			end,
-			order = 0.2,
+			order = 2,
 		},
 		clearTrackerDataDesc2 = {
 			name = "當前角色: "..cBold..KT.playerName,
 			type = "description",
 			width = "double",
-			order = 0.3,
+			order = 3,
 		},
 		clearTrackerDataDesc4 = {
 			name = "",
 			type = "description",
-			order = 0.4,
+			order = 4,
 		}
 	}
+	options.args.profiles = profiles
 
 	ACR:RegisterOptionsTable(addonName, options, true)
 
 	KT.optionsFrame = {}
 	KT.optionsFrame.general = ACD:AddToBlizOptions(addonName, "任務-清單", nil, "general")
-	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, options.args.modules.name, "任務-清單", "modules")
-	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, options.args.addons.name, "任務-清單", "addons")
-	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, options.args.hacks.name, "任務-清單", "hacks")
-	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, options.args.profiles.name, "任務-清單", "profiles")
+	KT.optionsFrame.controls = ACD:AddToBlizOptions(addonName, controls.name, "任務-清單", "controls")
+	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, modules.name, "任務-清單", "modules")
+	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, addons.name, "任務-清單", "addons")
+	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, hacks.name, "任務-清單", "hacks")
+	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, profiles.name, "任務-清單", "profiles")
 
 	KT.db.RegisterCallback(KT, "OnProfileChanged", "InitProfile")
 	KT.db.RegisterCallback(KT, "OnProfileCopied", "InitProfile")
@@ -1926,6 +2138,17 @@ local function Setup()
 	end
 end
 
+local function SetHooks()
+	SettingsPanel:HookScript("OnShow", function()
+		KT:RegSignal("VISIBILITY_CONTEXT", Visibility_ShowActiveContext)
+		KT:SendSignal("OPTIONS_OPENED")
+	end)
+
+	SettingsPanel:HookScript("OnHide", function()
+		KT:UnregSignal("VISIBILITY_CONTEXT")
+	end)
+end
+
 local function SetAlert(type)
 	if not type then return end
 
@@ -1934,14 +2157,14 @@ local function SetAlert(type)
 		if trackedQuests ~= "" and trackedQuests ~= "v11" then
 			local character = UnitName("player")
 			local realm = GetRealmName()
-			general.alert = {
+			general.args.alert = {
 				name = "警告 - 自動追蹤的任務",
 				type = "group",
 				inline = true,
 				order = 0.1,
 				args = {
 					alertIcon = {
-						name = "|T"..STATICPOPUP_TEXTURE_ALERT..":36:36:8:-2|t",
+						name = "|T"..KT.ICON_ALERT..":36:36:8:-2|t",
 						type = "description",
 						width = 0.2,
 						order = 1.1,
@@ -1976,7 +2199,53 @@ local function SetAlert(type)
 end
 
 local function SetupModules()
-	modules.sec1.args = GetModulesOptionsTable()
+	Modules_CreateOptions(modules.args.sec1.args)
+end
+
+local function ActivateBinding()
+	for cmd, data in pairs(KEYBINDINGS) do
+		if data and db[cmd] ~= "" then
+			SetOverrideBindingClick(KTF, false, db[cmd], data.frameName, data.mouse)
+		end
+	end
+end
+
+function Keybind(key, command)
+	local needSave = false
+	for cmd, data in pairs(KEYBINDINGS) do
+		if data then
+			if db[cmd] == key then
+				SetOverrideBinding(KTF, false, db[cmd], nil)
+				db[cmd] = ""
+			end
+		else
+			local k1, k2 = GetBindingKey(cmd)
+			if k1 == key then SetBinding(k1); needSave = true end
+			if k2 == key then SetBinding(k2); needSave = true end
+		end
+	end
+
+	local data = KEYBINDINGS[command]
+	if data then
+		SetOverrideBinding(KTF, false, db[command], nil)
+		if key ~= "" then
+			SetOverrideBindingClick(KTF, false, key, data.frameName, data.mouse)
+		end
+		db[command] = key
+	else
+		local k1 = GetBindingKey(command)
+		if k1 then
+			SetBinding(k1)
+		end
+		if key ~= "" then
+			SetBinding(key, command)
+		end
+		needSave = true
+	end
+
+	if needSave then
+		SaveBindings(GetCurrentBindingSet())
+	end
 end
 
 hooksecurefunc(UIParent, "SetScale", function(self)
@@ -1993,7 +2262,9 @@ end
 function M:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
 	Setup()
+	SetHooks()
 
+	KT:RegSignal("INIT", ActivateBinding)
 	KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
 		SetAlert("trackedQuests")
 		SetupModules()

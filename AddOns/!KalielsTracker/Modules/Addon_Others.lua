@@ -62,6 +62,32 @@ local function Auctionator_SetSupport()
     end
 end
 
+-- BtWQuests
+local function BtWQuests_SetSupport()
+    local isLoaded = (KT:CheckAddOn("BtWQuests", "2.55.0") and db.addonBtWQuests)
+    if isLoaded then
+        local function MenuUpdate(_, info, type, questID)
+            if type ~= "quest" then return end
+            local item = BtWQuestsDatabase:GetQuestItem(questID, BtWQuestsCharacters:GetPlayer())
+            if item then
+                if not info.KTmenuExtended then
+                    MSA_DropDownMenu_AddSeparator(info)
+                    info.KTmenuExtended = true
+                end
+
+                info.text = "|cff33ff99BtWQ|r - "..BtWQuests.L["BTWQUESTS_OPEN_QUEST_CHAIN"]
+                info.func = function()
+                    BtWQuestsFrame:SelectCharacter(UnitName("player"), GetRealmName())
+                    BtWQuestsFrame:SelectItem(item.item)
+                    BtWQuestsFrame:SelectItem(item.item)
+                end
+                MSA_DropDownMenu_AddButton(info)
+            end
+        end
+        KT:RegSignal("CONTEXT_MENU_UPDATE", MenuUpdate, BtWQuests)
+    end
+end
+
 -- ElvUI
 local function ElvUI_SetSupport()
     if KT:CheckAddOn("ElvUI", "v13.97", true) then
@@ -118,6 +144,7 @@ function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
     Masque_SetSupport()
     Auctionator_SetSupport()
+    BtWQuests_SetSupport()
     ElvUI_SetSupport()
     Tukui_SetSupport()
     RealUI_SetSupport()

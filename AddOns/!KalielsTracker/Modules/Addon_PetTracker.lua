@@ -138,7 +138,7 @@ local function SetHooks_PetTracker_Journal()
 		end)
 	else
 		PetTrackerTrackToggle:HookScript("OnClick", function()
-			if dbChar.collapsed and PetTracker.sets.zoneTracker then
+			if KT:IsCollapsed() and PetTracker.sets.zoneTracker then
 				KT:MinimizeButton_OnClick()
 			end
 		end)

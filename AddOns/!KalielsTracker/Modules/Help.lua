@@ -281,25 +281,14 @@ local function SetupTutorials()
 			headingFont = "Fonts\\bLEI00D.ttf",
 			headingSize = 26,
 			text =
-					cTitle.."版本 7.11.0|r\n"..
-					"- 新增 (說明) - 事件 - 新的說明頁面\n"..
-					"- 新增 (介面) - 增強標題列材質 (內建材質現在可以改顏色)\n"..
-					"- 新增 - 支援 WoW 11.2.0.62438\n"..
-					"- 新增 - 支援 WoW 11.1.7.61967\n"..
-					"- 新增 - 支援 WoW 11.1.5.60822\n"..
-					"- 新增 - 事件 - 在追蹤清單中顯示世界地圖上的進行中及已排程事件\n"..
-					"- 變更 - PetTracker - 增強\n"..
-					"- 變更 - 支援插件 - ElvUI 13.97, Tukui 20.461\n"..
-					"- 變更 - 支援插件 - Auctionator 288\n"..
-					"- 變更 - 支援插件 - TomTom 4.0.15\n"..
-					"- 變更 - 支援插件 - PetTracker 11.2\n"..
-					"- 變更 - 支援插件 - Masque 11.2.0\n"..
-					"- 變更 (說明) - Active Patrons\n"..
-					"- 變更 - 尋求組隊駭客 - 增強 (可以再次看到項目的目標)\n"..
-					"- 變更 - 汙染框架駭客 - 增強\n"..
-					"- 變更 - 世界地圖駭客 - 增強\n"..
-					"- 修正 - 收合標題列時的初始化錯誤\n"..
-					"- 修正 - PetTracker - 一些 SetWidth nil 錯誤\n"..
+					cTitle.."版本 7.12.0|r\n"..
+					"- 新增 - 選項 - 新的控制設定區塊，包含按鍵綁定和顯示規則\n"..
+					"- 新增 - 選項 - 控制追蹤清單的按鍵綁定 (收合、隱藏、鎖定最近任務、使用當前任務物品)\n"..
+					"- 新增 - 選項 - 聲音通道選擇，以及防止音效重疊播放\n"..
+					"- 新增 - 選項 - 追蹤清單的顯示規則 (可依情境設定顯示/隱藏/展開/收合)\n"..
+					"- 新增 - 支援魔獸世界 11.2.0.62493\n"..
+					"- 新增 - 支援插件 - BtWQuests 2.55.0 (在任務右鍵選單中可開啟任務串選項)\n"..
+					"- 修正 (事件) - 不會自動顯示 M+ 計數器\n"..
 					"\n"..
 
 					cTitle.."問題回報|r\n"..
@@ -320,7 +309,7 @@ local function SetupTutorials()
 			shineRight = 6,
 		},
 		onShow = function(self, i)
-			if dbChar.collapsed then
+			if KT:IsCollapsed() then
 				KT:MinimizeButton_OnClick()
 			end
 			if i == 2 then

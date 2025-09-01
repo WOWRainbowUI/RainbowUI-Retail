@@ -63,6 +63,7 @@ KT.WORLD_QUEST_REWARD_TYPE_FLAG_EQUIPMENT = 0x0010
 KT.WORLD_QUEST_REWARD_TYPE_FLAG_REPUTATION = 0x0020
 KT.WORLD_QUEST_REWARD_TYPE_FLAG_OTHERS = 0x10000
 
+KT.ICON_ALERT = "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew"
 KT.ICONS = {
     MouseLeft = { atlas = "newplayertutorial-icon-mouse-leftbutton", width = 24, height = 28, offsetX = -1, offsetY = 6 },
     MouseRight = { atlas = "newplayertutorial-icon-mouse-rightbutton", width = 24, height = 28, offsetX = -1, offsetY = 6 }
@@ -81,6 +82,50 @@ end
 -- Excluded Quest Items
 KT.EXCLUDED_QUEST_ITEMS = {
     [85113] = true  -- Special Assignment: Storm's a Brewin
+}
+
+-- Major Cities
+KT.MAJOR_CITY_MAPS = {
+    -- Kalimdor
+    [85]   = "Orgrimmar",
+    [88]   = "Thunder Bluff",
+    [89]   = "Darnassus",
+    [381]  = "Darnassus",
+    [103]  = "The Exodar",
+    -- Eastern Kingdoms
+    [84]   = "Stormwind City",
+    [87]   = "Ironforge",
+    [90]   = "Undercity",
+    [382]  = "Undercity",
+    [110]  = "Silvermoon City",
+    -- Outland
+    [111]  = "Shattrath City",
+    [301]  = "Shattrath City",
+    [481]  = "Shattrath City",
+    -- Northrend
+    [125]  = "Dalaran (Northrend)",
+    [126]  = "Dalaran (Northrend)",
+    -- Pandaria
+    [321]  = "Shrine of Two Moons",
+    [322]  = "Shrine of Seven Stars",
+    [393]  = "Shrine of Two Moons",
+    [394]  = "Shrine of Seven Stars",
+    -- Broken Isles
+    [627]  = "Dalaran (Broken Isles)",
+    [628]  = "Dalaran (Broken Isles)",
+    -- Zandalar
+    [1165] = "Dazar'alor",
+    -- Kul Tiras
+    [1161] = "Boralus",
+    -- Shadowlands
+    [1670] = "Oribos",
+    [1671] = "Oribos",
+    [1672] = "Oribos",
+    [1673] = "Oribos",
+    -- Dragon Isles
+    [2112] = "Valdrakken",
+    -- Khaz Algar
+    [2339] = "Dornogal",
 }
 
 -- Blizzard Constants
