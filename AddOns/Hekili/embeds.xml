@@ -3,7 +3,6 @@
 	<Script file="Libs\LibSpellRange-1.0\LibSpellRange-1.0.lua"/>
 	<Script file="Libs\LibCompress\LibCompress.lua"/>
 	<Script file="Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
-	<Include file="Libs\LibItemBuffs-1.0\LibItemBuffs-1.0.xml"/>
 	<Include file="Libs\LibChatAnims\LibChatAnims.xml"/>
 	<Include file="Libs\LibTranslit-1.0\LibTranslit-1.0.xml"/>
 	<Script file="Libs\SpellFlashCore\libs\BigLibTimer\BigLibTimer.lua"/>
