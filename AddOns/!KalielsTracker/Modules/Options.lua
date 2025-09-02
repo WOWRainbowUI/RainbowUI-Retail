@@ -2084,7 +2084,7 @@ local function Setup()
 	end
 	profiles.plugins[addonName] = {
 		clearTrackerDataDesc1 = {
-			name = "清空當前角色已追蹤的任容資料 (任務、成就等，不包含設定)。Clear the data (no settings) of the tracked content (Quests, Achievements etc.) for current character.",
+			name = "清空當前角色已追蹤的任容資料 (任務、成就等，不包含設定)。",
 			type = "description",
 			order = 1,
 		},
