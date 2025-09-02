@@ -105,11 +105,11 @@ local function SetupTutorials()
 			imageHeight = 128,
 			heading = "標題列按鈕",
 			text = "最小化按鈕:                                其他按鈕:\n"..
-					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:0:14:209:170:0|t "..cDots.."...|r 展開追蹤清單                           "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:0:14:209:170:0|t "..cDots.."...|r 展開追蹤清單                     "..
 					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:0:14:209:170:0|t "..cDots.."...|r 打開任務日誌\n"..
-					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:16:30:209:170:0|t "..cDots.."...|r 收起追蹤清單                         "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:16:30:209:170:0|t "..cDots.."...|r 收起追蹤清單                     "..
 					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:16:30:209:170:0|t "..cDots.."...|r 打開成就視窗\n"..
-					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:32:46:209:170:0|t "..cDots.."...|r 追蹤清單是空的時候                 "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:32:46:209:170:0|t "..cDots.."...|r 追蹤清單是空的時候          "..
 					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t "..cDots.."...|r 打開過濾方式選單\n\n"..
 					"按鈕 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:0:14:209:170:0|t 和 "..
 					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:16:30:209:170:0|t 可以在設定選項中停用。\n\n"..
@@ -128,12 +128,12 @@ local function SetupTutorials()
 			heading = "任務標題標籤",
 			text = "任務標題的前方可以看到像是這樣的標籤 |cffff8000[100|r|cff00b3ffhc!|r|cffff8000]|r。\n"..
 					"任務日誌中的標題也會顯示任務標籤。\n\n"..
-					"|cff00b3ff!|r|T:14:3|t "..cDots..".......|r 每日任務|T:14:121|t|cff00b3ffr|r "..cDots..".......|r 團隊任務\n"..         -- Kept new icons
-					"|cff00b3ff!!|r "..cDots.."......|r 每週任務|T:14:108|t|cff00b3ffr10|r "..cDots.."...|r 10人團隊任務\n"..     -- Kept new icons
-					"|cff00b3ffg3|r "..cDots..".....|r 組隊任務 (含隊伍人數)|T:14:22|t|cff00b3ffr25|r "..cDots.."...|r 25人團隊任務\n".. -- Kept new icons
-					"|cff00b3ffpvp|r "..cDots.."...|r PvP 任務|T:14:133|t|cff00b3ffs|r "..cDots..".......|r 事件任務\n"..         -- Kept new icons (Scenario -> Event translation kept from old)
-					"|cff00b3ffd|r "..cDots..".......|r 地城任務|T:14:97|t|cff00b3ffa|r "..cDots..".......|r 帳號共通任務\n"..     -- Kept new icons
-					"|cff00b3ffhc|r "..cDots..".....|r 英雄任務|T:14:113|t|cff00b3ffleg|r "..cDots.."....|r 傳說任務", -- Kept new icons
+					"|cff00b3ff!|r|T:14:3|t "..cDots.."........|r 每日任務|T:14:108|t|cff00b3ffr|r "..cDots..".......|r 團隊任務\n"..         -- Kept new icons
+					"|cff00b3ff!!|r "..cDots.."........|r 每週任務|T:14:108|t|cff00b3ffr10|r "..cDots.."...|r 10人團隊任務\n"..     -- Kept new icons
+					"|cff00b3ffg3|r "..cDots..".....|r 組隊任務 (含隊伍人數)|T:14:30|t|cff00b3ffr25|r "..cDots.."...|r 25人團隊任務\n".. -- Kept new icons
+					"|cff00b3ffpvp|r "..cDots.."...|r PvP 任務|T:14:112|t|cff00b3ffs|r "..cDots..".......|r 事件任務\n"..         -- Kept new icons (Scenario -> Event translation kept from old)
+					"|cff00b3ffd|r "..cDots..".......|r 地城任務|T:14:109|t|cff00b3ffa|r "..cDots..".......|r 帳號共通任務\n"..     -- Kept new icons
+					"|cff00b3ffhc|r "..cDots..".....|r 英雄任務|T:14:109|t|cff00b3ffleg|r "..cDots.."....|r 傳說任務", -- Kept new icons
 			paddingBottom = 10,
 			shineTop = 11,
 			shineBottom = -9,

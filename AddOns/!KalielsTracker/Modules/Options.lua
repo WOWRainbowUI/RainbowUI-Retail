@@ -1401,7 +1401,7 @@ local options = {
 					order = 8,
 					args = {
 						soundChannelLabel = {
-							name = " Sound channel",
+							name = " 音效頻道",
 							type = "description",
 							width = 1,
 							fontSize = "medium",
@@ -1455,17 +1455,17 @@ local options = {
 			},
 		},
 		controls = {
-			name = "Controls",
+			name = "控制",
 			type = "group",
 			args = {
 				sec1 = {
-					name = "Keybindings",
+					name = "按鍵綁定",
 					type = "group",
 					inline = true,
 					order = 1,
 					args = {
 						keyBindCollapseLabel = {
-							name = " Expand / Collapse tracker",
+							name = " 展開 / 收合追蹤清單",
 							type = "description",
 							width = 2,
 							fontSize = "medium",
@@ -1480,7 +1480,7 @@ local options = {
 							order = 1.2,
 						},
 						keyBindHideLabel = {
-							name = " Show / Hide tracker",
+							name = " 顯示 / 隱藏追蹤清單",
 							type = "description",
 							width = 2,
 							fontSize = "medium",
@@ -1495,7 +1495,7 @@ local options = {
 							order = 2.2,
 						},
 						keyBindClosestQuestLabel = {
-							name = " Focus closest Quest",
+							name = " 將最近的任務設為專注",
 							type = "description",
 							width = 2,
 							fontSize = "medium",
@@ -1510,14 +1510,14 @@ local options = {
 							order = 3.2,
 						},
 						keyBindActiveButtonLabel = {
-							name = " Active button (Quest item)",
+							name = " 當前按鈕 (任務物品)",
 							type = "description",
 							width = 1,
 							fontSize = "medium",
 							order = 4.1,
 						},
 						keyBindActiveButtonDesc = {
-							name = "Shared with "..cBold..BINDING_NAME_EXTRAACTIONBUTTON1,
+							name = "使用"..cBold..BINDING_NAME_EXTRAACTIONBUTTON1,
 							type = "description",
 							width = 1,
 							justifyH = "RIGHT",
@@ -1540,19 +1540,19 @@ local options = {
 					},
 				},
 				sec2 = {
-					name = "Visibility rules",
+					name = "顯示規則",
 					type = "group",
 					inline = true,
 					order = 2,
 					args = {
 						visibilityDesc = {
-							name = " Rules are applied only once when the condition is met.\n"..
-									" A hidden or collapsed tracker can be manually shown or expanded at any time.",
+							name = " 規則只會在符合條件時套用一次。\n"..
+									" 被隱藏或收合的追蹤清單可以隨時手動顯示或展開。",
 							type = "description",
 							order = 0,
 						},
 						activeContextLabel = {
-							name = "\n You are now in ...\n ",
+							name = "\n 你現在位於 ...\n ",
 							type = "description",
 							width = 0.7,
 							fontSize = "medium",
@@ -1566,14 +1566,14 @@ local options = {
 							order = 1.2,
 						},
 						trackerLabel = {
-							name = " Tracker",
+							name = " 追蹤清單",
 							type = "description",
 							width = 0.7,
 							fontSize = "medium",
 							order = 2.1,
 						},
 						hideEmptyTracker = {
-							name = "Hide empty tracker",
+							name = "隱藏空的追蹤清單",
 							type = "toggle",
 							set = function()
 								db.hideEmptyTracker = not db.hideEmptyTracker
@@ -1588,7 +1588,7 @@ local options = {
 							order = 2.3,
 						},
 						contextsNote = {
-							name = "\n * Normal / Heroic / Mythic / Scenario",
+							name = "\n * 普通 / 英雄 / 傳奇 / 事件",
 							type = "description",
 							order = 30,
 						},
@@ -1607,14 +1607,14 @@ local options = {
 					order = 1,
 					args = {
 						descCurOrder = {
-							name = cTitle.."Current Order",
+							name = cTitle.."目前順序",
 							type = "description",
 							width = "double",
 							fontSize = "medium",
 							order = 0.1,
 						},
 						descDefOrder = {
-							name = "|T:1:20|t"..cTitle.."Default Order",
+							name = "|T:1:20|t"..cTitle.."預設順序",
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
