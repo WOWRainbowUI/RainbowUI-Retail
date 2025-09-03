@@ -1,6 +1,7 @@
 # Syndicator
 
-## [227](https://github.com/Baganator/Syndicator/tree/227) (2025-08-15)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/226...227) 
+## [229](https://github.com/Baganator/Syndicator/tree/229) (2025-08-27)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/228...229) 
 
-- Update logo  
+- Vanilla: Add fallback for when bid placed when another buyout is queued  
+- Vanilla: Add auction house purchases to inventory counts before checking mail  
