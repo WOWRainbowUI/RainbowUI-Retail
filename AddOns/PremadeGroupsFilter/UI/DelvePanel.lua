@@ -24,6 +24,16 @@ local C = PGF.C
 
 local DELVE_TIER_MIN = 1
 local DELVE_TIER_MAX = 11
+local DELVE_ZONE_MAPS = {
+    -- https://wago.tools/maps/worldmap/2371
+    2214, -- The Ringing Deeps
+    2215, -- Hallowfall
+    2248, -- Isle of Dorn
+    2255, -- Azj-Kahet
+    2256, -- Azj-Kahet - Lower
+    2346, -- Undermine
+    2371, -- K'aresh
+}
 local DELVE_ACTIVITY_MAP = {
     -- Delves from TWW
     { activityGroupID = 331, tier1ActivityID = 1295, keyword = "fungal" },      -- Fungal Folly
@@ -48,11 +58,29 @@ local NUM_DELVE_CHECKBOXES = 15
 
 local DelvePanel = CreateFrame("Frame", "PremadeGroupsFilterDelvePanel", PGF.Dialog, "PremadeGroupsFilterDelvePanelTemplate")
 
+function DelvePanel:GetBountifulDelves()
+    local bountifulDelves = {}
+    for _, mapID in ipairs(DELVE_ZONE_MAPS) do
+        local delves = C_AreaPoiInfo.GetDelvesForMap(mapID)
+        for _, poiID in ipairs(delves) do
+            local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(mapID, poiID)
+            local isBountiful = poiInfo.atlasName == "delves-bountiful"
+            if isBountiful then
+               table.insert(bountifulDelves, poiInfo.name)
+            end
+        end
+    end
+    return bountifulDelves
+end
+
 function DelvePanel:OnLoad()
     PGF.Logger:Debug("DelvePanel:OnLoad")
     self.name = "delve"
     self.dialogWidth = 420
     self.groupWidth = 245
+
+    self:RegisterEvent("AREA_POIS_UPDATED")
+    self:SetScript("OnEvent", self.OnEvent)
 
     -- Group
     self.Group.Title:SetText(L["dialog.filters.group"])
@@ -67,6 +95,31 @@ function DelvePanel:OnLoad()
 
     -- Delves
     self.Delves.Title:SetText(L["dialog.filters.delves"])
+    self.Delves.SelectNone:Init(L["dialog.button.selectnone.title"], L["dialog.button.selectnone.tooltip"])
+    self.Delves.SelectNone:SetScript("OnClick", function (btn)
+        for i = 1, NUM_DELVE_CHECKBOXES do
+            self.Delves["Delve"..i].Act:SetChecked(false)
+            self.state["delve"..i] = false
+        end
+        self:TriggerFilterExpressionChange()
+    end)
+    self.Delves.SelectAll:Init(L["dialog.button.selectall.title"], L["dialog.button.selectall.tooltip"])
+    self.Delves.SelectAll:SetScript("OnClick", function (btn)
+        for i = 1, NUM_DELVE_CHECKBOXES do
+            self.Delves["Delve"..i].Act:SetChecked(true)
+            self.state["delve"..i] = true
+        end
+        self:TriggerFilterExpressionChange()
+    end)
+    self.Delves.SelectBountiful:Init(L["dialog.button.selectbountiful.title"], L["dialog.button.selectbountiful.tooltip"])
+    self.Delves.SelectBountiful:SetScript("OnClick", function (btn)
+        for i = 1, NUM_DELVE_CHECKBOXES do
+            local isBountiful = self.Delves["Delve"..i].isBountiful or false
+            self.Delves["Delve"..i].Act:SetChecked(isBountiful)
+            self.state["delve"..i] = isBountiful
+        end
+        self:TriggerFilterExpressionChange()
+    end)
 
     for i = 1, NUM_DELVE_CHECKBOXES do
         local delve = self.Delves["Delve"..i]
@@ -131,8 +184,33 @@ function DelvePanel:Init(state)
     self.Advanced.Expression.EditBox:SetText(self.state.expression or "")
 end
 
+function DelvePanel:UpdateDelves()
+    local bountifulDelves = self:GetBountifulDelves()
+    for i = 1, NUM_DELVE_CHECKBOXES do
+        local color = WHITE_FONT_COLOR
+        local isBountiful = false
+        local delve = self.Delves["Delve"..i]
+        for _, bountifulDelveName in ipairs(bountifulDelves) do
+            if PGF.IsMostLikelySameInstance(delve.name, bountifulDelveName) then
+                color = NORMAL_FONT_COLOR
+                isBountiful = true
+            end
+        end
+        delve.Title:SetTextColor(color:GetRGB())
+        delve.isBountiful = isBountiful
+    end
+end
+
+function DelvePanel:OnEvent(event)
+    if event == "AREA_POIS_UPDATED" then
+        PGF.Logger:Debug("DungeonPanel:OnEvent(AREA_POIS_UPDATED)")
+        self:UpdateDelves()
+    end
+end
+
 function DelvePanel:OnShow()
     PGF.Logger:Debug("DelvePanel:OnShow")
+    self:UpdateDelves()
 end
 
 function DelvePanel:OnHide()
