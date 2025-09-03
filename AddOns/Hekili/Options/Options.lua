@@ -5201,18 +5201,17 @@ found = true end
                                         local frameBudgetMs = ( 1000 / fps ) * budget
 
                                         return
-                                            "\n此設定決定可用於產生推薦技能的時間。\n\n" ..
-                                            "|cFFFFD100• 較高的數值|r 讓推薦技能可以 |cFF00FF00更快速更新|r，但可能會降低遊戲幀數，" ..
-                                            "特別是在同時執行其他插件時。\n" ..
-                                            "|cFFFFD100• 較低的數值|r 代表推薦技能更新可能較慢，但能 |cFF00FF00維持較高的幀數|r。\n\n" .. 
-                                            
-                                            "請調整此運算上限來平衡 |cFF00FF00流暢的遊戲體驗|r 與 |cFF00FF00即時的推薦技能更新|r。 " ..
-                                            "建議使用在你的系統中不會導致畫面卡頓或停頓的最高數值。\n\n" ..
-                                            
-                                            "|cFF00B4FF預設值 (建議)|r: |cFFFFD10070%|r\n\n" ..
-                                            "在 |cFFFFD700" .. format( "%.1f", fps ) .. " FPS|r 下，當前運算上限 |cFFFFD700" .. ( budget * 100 ) .. "%|r " ..
-                                            "允許每次更新最多使用 |cFFFFD700" .. format( "%.2f", frameBudgetMs ) .. " 毫秒|r 的畫面時間。若計算推薦技能所需時間更長，" ..
-                                            "則至少會延遲 1 幀更新。"
+                                            "\n此設定決定可用來生成建議的時間長度。\n\n" ..
+											"|cFFFFD100• 較高的數值|r 會讓建議 |cFF00FF00更新得更快|r，但可能會降低畫面更新率，" ..
+											"特別是在同時有其他插件運作時。\n" ..
+											"|cFFFFD100• 較低的數值|r 代表建議更新會較慢，但可能 |cFF00FF00維持較高的畫面更新率|r。\n\n" ..
+											"請調整此數值，以在|cFF00FF00流暢的遊戲體驗|r與|cFF00FF00即時的建議反應|r之間取得平衡。" ..
+											"建議使用在您的系統上不會造成畫面凍結或延遲的最高數值。\n\n" ..
+											"|cFF00B4FF預設值 (建議)|r：|cFFFFD10070%|r\n\n" ..
+											"在 |cFFFFD700" .. format( "%.1f", fps ) .. " FPS|r 的情況下，" ..
+											"分配 |cFFFFD700" .. ( budget * 100 ) .. "%|r 的預算，" ..
+											"代表每次更新最多可使用 |cFFFFD700" .. format( "%.2f", frameBudgetMs ) .. " 毫秒|r 的畫面時間。" ..
+											"若計算所需時間更長，建議的更新將至少延遲 1 個畫面。"
                                     end,
                                     fontSize = "medium",
                                     order = 2,
@@ -8853,10 +8852,28 @@ do
                         name = "專精",
                         desc = "這些選項會套用到所選的專精。",
                         order = 0.1,
-                        width = "full",
+                        width = 1.49,
                         set = SetCurrentSpec,
                         get = GetCurrentSpec,
                         values = GetCurrentSpecList,
+                    },
+                    disable_items = {
+                        type = "toggle",
+                        name = "Disable Gear and Items",
+                        desc = function()
+                            return format( "If checked, no equipped trinkets, weapons, or armor with |cFF00FF00Use:|r effects will be recommended for |cFFFFD100%s|r, " 
+                            .. "regardless of any other options selected below.", ( GetCurrentSpec() and GetCurrentSpecList()[ GetCurrentSpec() ] or "this specialization" ) )
+                        end,
+                        order = 0.2,
+                        width = 1.49,
+                        get = function()
+                            local spec = GetCurrentSpec()
+                            return Hekili.DB.profile.specs[ spec ].disable_items or false
+                        end,
+                        set = function( info, val )
+                            local spec = GetCurrentSpec()
+                            Hekili.DB.profile.specs[ spec ].disable_items = val
+                        end,
                     },
                 },
                 plugins = {
