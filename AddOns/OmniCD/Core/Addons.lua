@@ -190,48 +190,8 @@ local unitFrameData = {
 		[5] = 40,
 	},
 	{
-		[1] = "NDui",
-		[2] = "oUF_PartyUnitButton",
-		[3] = "unit",
-	},
-	{
-		[1] = "NDui-Raid",
-		[2] = "oUF_Raid%dUnitButton",
-		[3] = "unit",
-	},
-	{
-		[1] = "KkthnxUI",
-		[2] = "oUF_PartyUnitButton",
-		[3] = "unit",
-	},
-	{
-		[1] = "KkthnxUI-Raid",
-		[2] = "oUF_Raid%dUnitButton",
-		[3] = "unit",
-	},
-	{
 		[1] = "RUF",
 		[2] = "oUF_RUF_PartyUnitButton",
-		[3] = "unit",
-	},
-	{
-		[1] = "ShestakUI",
-		[2] = "oUF_PartyUnitButton",
-		[3] = "unit",
-	},
-	{
-		[1] = "ShestakUI-DPS",
-		[2] = "oUF_PartyDPSUnitButton",
-		[3] = "unit",
-	},
-	{
-		[1] = "ShestakUI-Raid",
-		[2] = "oUF_RaidHeal%dUnitButton",
-		[3] = "unit",
-	},
-	{
-		[1] = "ShestakUI-DPS-Raid",
-		[2] = "oUF_RaidDPS%dUnitButton",
 		[3] = "unit",
 	},
 	{
@@ -305,12 +265,62 @@ local unitFrameData = {
 		[5] = 40
 	},
 	{
+		[1] = "ShestakUI",
+		[2] = "oUF_PartyUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "ShestakUI-DPS",
+		[2] = "oUF_PartyDPSUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "ShestakUI-Raid",
+		[2] = "oUF_RaidHeal%dUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "ShestakUI-DPS-Raid",
+		[2] = "oUF_RaidDPS%dUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "NDui",
+		[2] = "oUF_PartyUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "NDui-Raid",
+		[2] = "oUF_Raid%dUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "KkthnxUI",
+		[2] = "oUF_PartyUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "KkthnxUI-Raid",
+		[2] = "oUF_Raid%dUnitButton",
+		[3] = "unit",
+	},
+	{
 		[1] = "oUF_Ruri",
 		[2] = "oUF_PartyUnitButton",
 		[3] = "unit",
 	},
 	{
 		[1] = "oUF_Ruri-Raid",
+		[2] = "oUF_Raid%dUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "OrzUI",
+		[2] = "oUF_PartyUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "OrzUI-Raid",
 		[2] = "oUF_Raid%dUnitButton",
 		[3] = "unit",
 	},
