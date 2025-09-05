@@ -1,7 +1,7 @@
 # Syndicator
 
-## [229](https://github.com/Baganator/Syndicator/tree/229) (2025-08-27)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/228...229) 
+## [230](https://github.com/Baganator/Syndicator/tree/230) (2025-09-03)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/229...230) 
 
-- Vanilla: Add fallback for when bid placed when another buyout is queued  
-- Vanilla: Add auction house purchases to inventory counts before checking mail  
+- Vanilla: Use CraftInfoAnywhere to detect crafted items when Player GUID missing  
+- Exclude "You can't use that here" text from usable check  
