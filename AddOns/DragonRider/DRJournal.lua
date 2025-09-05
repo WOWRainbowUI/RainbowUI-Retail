@@ -145,6 +145,8 @@ DR.mainFrame.portraitTooltipThing:SetAllPoints(DragonRiderMainFramePortrait);
 local function AddTimerunnerLines(tooltip)
 	tooltip:AddLine("|A:timerunning-glues-icon:0:0:0:0|a |cFFFFF569"..L["TimerunningStatistics"] .. "|r", 1, 1, 1, 1, true);
 
+	if not DragonRider_DB or not DragonRider_DB.Timerunner then return end
+
 	local entries = {
 		{ key = "Creature_Demonfly",   value = DragonRider_DB.Timerunner.Demonfly },
 		{ key = "Creature_Darkglare",  value = DragonRider_DB.Timerunner.Darkglare },
