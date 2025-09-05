@@ -1760,24 +1760,25 @@ DR.RaceData = {
 
 -- K'aresh
 	[6] = {
+		-- Oasis Overdrive
 		[1] = {
 			["currencyID"] = 3213,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 62,
+			["goldTime"] = 57,
 			["questID"] = 86339,
-			["mapPOI"] = nil, -- temp POI
+			["mapPOI"] = 8272, -- temp POI - Ecological Succession
 		},
 		[2] = {
 			["currencyID"] = 3214,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 57,
+			["goldTime"] = 54,
 			["questID"] = 86339,
 			["mapPOI"] = nil,
 		},
 		[3] = {
 			["currencyID"] = 3215,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 57,
+			["goldTime"] = 54,
 			["questID"] = 86339,
 			["mapPOI"] = nil,
 		},
@@ -3820,21 +3821,21 @@ DR.RaceData = {
 	 -- Felwood Flyover
 		[1] = {
 			["currencyID"] = 2312,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 75,
 			["goldTime"] = 70,
 			["questID"] = 75277,
 			["mapPOI"] = 7494,
 		},
 		[2] = {
 			["currencyID"] = 2342,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 66,
 			["goldTime"] = 63,
 			["questID"] = 75277,
 			["mapPOI"] = 7494,
 		},
 		[3] = {
 			["currencyID"] = 2372,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 65,
 			["goldTime"] = 62,
 			["questID"] = 75277,
 			["mapPOI"] = 7494,
@@ -3864,21 +3865,21 @@ DR.RaceData = {
 	 -- Winter Wander
 		[7] = {
 			["currencyID"] = 2313,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 85,
 			["goldTime"] = 80,
 			["questID"] = 75310,
 			["mapPOI"] = 7495,
 		},
 		[8] = {
 			["currencyID"] = 2343,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 76,
 			["goldTime"] = 73,
 			["questID"] = 75310,
 			["mapPOI"] = 7495,
 		},
 		[9] = {
 			["currencyID"] = 2373,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 73,
 			["goldTime"] = 70,
 			["questID"] = 75310,
 			["mapPOI"] = 7495,
@@ -3908,21 +3909,21 @@ DR.RaceData = {
 	 -- Nordrassil Spiral
 		[13] = {
 			["currencyID"] = 2314,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 50,
 			["goldTime"] = 45,
 			["questID"] = 75317,
 			["mapPOI"] = 7496,
 		},
 		[14] = {
 			["currencyID"] = 2344,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 46,
 			["goldTime"] = 41,
 			["questID"] = 75317,
 			["mapPOI"] = 7496,
 		},
 		[15] = {
 			["currencyID"] = 2374,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 46,
 			["goldTime"] = 41,
 			["questID"] = 75317,
 			["mapPOI"] = 7496,
@@ -3952,21 +3953,21 @@ DR.RaceData = {
 	 -- Hyjal Hotfoot
 		[19] = {
 			["currencyID"] = 2315,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 75,
 			["goldTime"] = 70,
 			["questID"] = 75330,
 			["mapPOI"] = 7497,
 		},
 		[20] = {
 			["currencyID"] = 2345,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 72,
 			["goldTime"] = 69,
 			["questID"] = 75330,
 			["mapPOI"] = 7497,
 		},
 		[21] = {
 			["currencyID"] = 2375,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 72,
 			["goldTime"] = 67,
 			["questID"] = 75330,
 			["mapPOI"] = 7497,
@@ -3996,21 +3997,21 @@ DR.RaceData = {
 	 -- Rocketway Ride
 		[25] = {
 			["currencyID"] = 2316,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 106,
 			["goldTime"] = 101,
 			["questID"] = 75347,
 			["mapPOI"] = 7498,
 		},
 		[26] = {
 			["currencyID"] = 2346,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 100,
 			["goldTime"] = 94,
 			["questID"] = 75347,
 			["mapPOI"] = 7498,
 		},
 		[27] = {
 			["currencyID"] = 2376,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 100,
 			["goldTime"] = 94,
 			["questID"] = 75347,
 			["mapPOI"] = 7498,
@@ -4040,21 +4041,21 @@ DR.RaceData = {
 	 -- Ashenvale Ambit
 		[31] = {
 			["currencyID"] = 2317,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 69,
 			["goldTime"] = 64,
 			["questID"] = 75378,
 			["mapPOI"] = 7499,
 		},
 		[32] = {
 			["currencyID"] = 2347,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 64,
 			["goldTime"] = 59,
 			["questID"] = 75378,
 			["mapPOI"] = 7499,
 		},
 		[33] = {
 			["currencyID"] = 2377,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 64,
 			["goldTime"] = 59,
 			["questID"] = 75378,
 			["mapPOI"] = 7499,
@@ -4084,21 +4085,21 @@ DR.RaceData = {
 	 -- Durotar Tour
 		[37] = {
 			["currencyID"] = 2318,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 87,
 			["goldTime"] = 82,
 			["questID"] = 75385,
 			["mapPOI"] = 7500,
 		},
 		[38] = {
 			["currencyID"] = 2348,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 80,
 			["goldTime"] = 75,
 			["questID"] = 75385,
 			["mapPOI"] = 7500,
 		},
 		[39] = {
 			["currencyID"] = 2378,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 80,
 			["goldTime"] = 75,
 			["questID"] = 75385,
 			["mapPOI"] = 7500,
@@ -4128,21 +4129,21 @@ DR.RaceData = {
 	 -- Webwinder Weave
 		[43] = {
 			["currencyID"] = 2319,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 85,
 			["goldTime"] = 80,
 			["questID"] = 75394,
 			["mapPOI"] = 7501,
 		},
 		[44] = {
 			["currencyID"] = 2349,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 78,
 			["goldTime"] = 73,
 			["questID"] = 75394,
 			["mapPOI"] = 7501,
 		},
 		[45] = {
 			["currencyID"] = 2379,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 75,
 			["goldTime"] = 70,
 			["questID"] = 75394,
 			["mapPOI"] = 7501,
@@ -4172,21 +4173,21 @@ DR.RaceData = {
 	 -- Desolace Drift
 		[49] = {
 			["currencyID"] = 2320,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 83,
 			["goldTime"] = 78,
 			["questID"] = 75409,
 			["mapPOI"] = 7502,
 		},
 		[50] = {
 			["currencyID"] = 2350,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 75,
 			["goldTime"] = 70,
 			["questID"] = 75409,
 			["mapPOI"] = 7502,
 		},
 		[51] = {
 			["currencyID"] = 2380,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 76,
 			["goldTime"] = 71,
 			["questID"] = 75409,
 			["mapPOI"] = 7502,
@@ -4216,21 +4217,21 @@ DR.RaceData = {
 	 -- Great Divide Dive
 		[55] = {
 			["currencyID"] = 2321,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 53,
 			["goldTime"] = 48,
 			["questID"] = 75412,
 			["mapPOI"] = 7503,
 		},
 		[56] = {
 			["currencyID"] = 2351,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 48,
 			["goldTime"] = 43,
 			["questID"] = 75412,
 			["mapPOI"] = 7503,
 		},
 		[57] = {
 			["currencyID"] = 2381,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 49,
 			["goldTime"] = 44,
 			["questID"] = 75412,
 			["mapPOI"] = 7503,
@@ -4260,21 +4261,21 @@ DR.RaceData = {
 	 -- Razorfen Roundabout
 		[61] = {
 			["currencyID"] = 2322,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 58,
 			["goldTime"] = 53,
 			["questID"] = 75437,
 			["mapPOI"] = 7504,
 		},
 		[62] = {
 			["currencyID"] = 2352,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 52,
 			["goldTime"] = 47,
 			["questID"] = 75437,
 			["mapPOI"] = 7504,
 		},
 		[63] = {
 			["currencyID"] = 2382,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 53,
 			["goldTime"] = 48,
 			["questID"] = 75437,
 			["mapPOI"] = 7504,
@@ -4304,21 +4305,21 @@ DR.RaceData = {
 	 -- Thousand Needles Thread
 		[67] = {
 			["currencyID"] = 2323,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 92,
 			["goldTime"] = 87,
 			["questID"] = 75463,
 			["mapPOI"] = 7505,
 		},
 		[68] = {
 			["currencyID"] = 2353,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 82,
 			["goldTime"] = 77,
 			["questID"] = 75463,
 			["mapPOI"] = 7505,
 		},
 		[69] = {
 			["currencyID"] = 2383,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 82,
 			["goldTime"] = 77,
 			["questID"] = 75463,
 			["mapPOI"] = 7505,
@@ -4348,21 +4349,21 @@ DR.RaceData = {
 	 -- Feralas Ruins Ramble
 		[73] = {
 			["currencyID"] = 2324,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 94,
 			["goldTime"] = 89,
 			["questID"] = 75468,
 			["mapPOI"] = 7506,
 		},
 		[74] = {
 			["currencyID"] = 2354,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 89,
 			["goldTime"] = 84,
 			["questID"] = 75468,
 			["mapPOI"] = 7506,
 		},
 		[75] = {
 			["currencyID"] = 2384,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 89,
 			["goldTime"] = 84,
 			["questID"] = 75468,
 			["mapPOI"] = 7506,
@@ -4392,21 +4393,21 @@ DR.RaceData = {
 	 -- Ahn'Qiraj Circuit
 		[79] = {
 			["currencyID"] = 2325,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 82,
 			["goldTime"] = 77,
 			["questID"] = 75472,
 			["mapPOI"] = 7507,
 		},
 		[80] = {
 			["currencyID"] = 2355,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 73,
 			["goldTime"] = 68,
 			["questID"] = 75472,
 			["mapPOI"] = 7507,
 		},
 		[81] = {
 			["currencyID"] = 2385,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = nil,
 			["goldTime"] = 69,
 			["questID"] = 75472,
 			["mapPOI"] = 7507,
@@ -4436,21 +4437,21 @@ DR.RaceData = {
 	 -- Uldum Tour
 		[85] = {
 			["currencyID"] = 2326,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 89,
 			["goldTime"] = 84,
 			["questID"] = 75481,
 			["mapPOI"] = 7508,
 		},
 		[86] = {
 			["currencyID"] = 2356,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 81,
 			["goldTime"] = 76,
 			["questID"] = 75481,
 			["mapPOI"] = 7508,
 		},
 		[87] = {
 			["currencyID"] = 2386,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 81,
 			["goldTime"] = 76,
 			["questID"] = 75481,
 			["mapPOI"] = 7508,
@@ -4480,21 +4481,21 @@ DR.RaceData = {
 	 -- Un'Goro Crater Circuit
 		[91] = {
 			["currencyID"] = 2327,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 105,
 			["goldTime"] = 100,
 			["questID"] = 75485,
 			["mapPOI"] = 7509,
 		},
 		[92] = {
 			["currencyID"] = 2357,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 95,
 			["goldTime"] = 90,
 			["questID"] = 75485,
 			["mapPOI"] = 7509,
 		},
 		[93] = {
 			["currencyID"] = 2387,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 97,
 			["goldTime"] = 92,
 			["questID"] = 75485,
 			["mapPOI"] = 7509,
@@ -4529,21 +4530,21 @@ DR.RaceData = {
 	 -- Gilneas Gambit
 		[1] = {
 			["currencyID"] = 2536,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 83,
 			["goldTime"] = 78,
 			["questID"] = 76309,
 			["mapPOI"] = 7571,
 		},
 		[2] = {
 			["currencyID"] = 2552,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 77,
 			["goldTime"] = 74,
 			["questID"] = 76309,
 			["mapPOI"] = 7571,
 		},
 		[3] = {
 			["currencyID"] = 2568,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 77,
 			["goldTime"] = 74,
 			["questID"] = 76309,
 			["mapPOI"] = 7571,
@@ -4574,21 +4575,21 @@ DR.RaceData = {
 	 -- Loch Modan Loop
 		[7] = {
 			["currencyID"] = 2537,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 68,
 			["goldTime"] = 63,
 			["questID"] = 76339,
 			["mapPOI"] = 7572,
 		},
 		[8] = {
 			["currencyID"] = 2553,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 64,
 			["goldTime"] = 61,
 			["questID"] = 76339,
 			["mapPOI"] = 7572,
 		},
 		[9] = {
 			["currencyID"] = 2569,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 66,
 			["goldTime"] = 63,
 			["questID"] = 76339,
 			["mapPOI"] = 7572,
@@ -4618,21 +4619,21 @@ DR.RaceData = {
 	 -- Searing Slalom
 		[13] = {
 			["currencyID"] = 2538,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 57,
 			["goldTime"] = 52,
 			["questID"] = 76357,
 			["mapPOI"] = 7573,
 		},
 		[14] = {
 			["currencyID"] = 2554,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 49,
 			["goldTime"] = 46,
 			["questID"] = 76357,
 			["mapPOI"] = 7573,
 		},
 		[15] = {
 			["currencyID"] = 2570,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 46,
 			["goldTime"] = 43,
 			["questID"] = 76357,
 			["mapPOI"] = 7573,
@@ -4662,21 +4663,21 @@ DR.RaceData = {
 	 -- Twilight Terror
 		[19] = {
 			["currencyID"] = 2539,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 78,
 			["goldTime"] = 73,
 			["questID"] = 76364,
 			["mapPOI"] = 7574,
 		},
 		[20] = {
 			["currencyID"] = 2555,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 71,
 			["goldTime"] = 68,
 			["questID"] = 76364,
 			["mapPOI"] = 7574,
 		},
 		[21] = {
 			["currencyID"] = 2571,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 69,
 			["goldTime"] = 66,
 			["questID"] = 76364,
 			["mapPOI"] = 7574,
@@ -4706,21 +4707,21 @@ DR.RaceData = {
 	 -- Deadwind Derby
 		[25] = {
 			["currencyID"] = 2540,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 65,
 			["goldTime"] = 60,
 			["questID"] = 76380,
 			["mapPOI"] = 7575,
 		},
 		[26] = {
 			["currencyID"] = 2556,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 62,
 			["goldTime"] = 59,
 			["questID"] = 76380,
 			["mapPOI"] = 7575,
 		},
 		[27] = {
 			["currencyID"] = 2572,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 62,
 			["goldTime"] = 59,
 			["questID"] = 76380,
 			["mapPOI"] = 7575,
@@ -4750,21 +4751,21 @@ DR.RaceData = {
 	 -- Elwynn Forest Flash
 		[31] = {
 			["currencyID"] = 2541,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 78,
 			["goldTime"] = 73,
 			["questID"] = 76397,
 			["mapPOI"] = 7576,
 		},
 		[32] = {
 			["currencyID"] = 2557,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 69,
 			["goldTime"] = 66,
 			["questID"] = 76397,
 			["mapPOI"] = 7576,
 		},
 		[33] = {
 			["currencyID"] = 2573,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 66,
 			["goldTime"] = 63,
 			["questID"] = 76397,
 			["mapPOI"] = 7576,
@@ -4794,21 +4795,21 @@ DR.RaceData = {
 	 -- Gurubashi Gala
 		[37] = {
 			["currencyID"] = 2542,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 61,
 			["goldTime"] = 56,
 			["questID"] = 76438,
 			["mapPOI"] = 7577,
 		},
 		[38] = {
 			["currencyID"] = 2558,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 52,
 			["goldTime"] = 49,
 			["questID"] = 76438,
 			["mapPOI"] = 7577,
 		},
 		[39] = {
 			["currencyID"] = 2574,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 53,
 			["goldTime"] = 50,
 			["questID"] = 76438,
 			["mapPOI"] = 7577,
@@ -4838,21 +4839,21 @@ DR.RaceData = {
 	 -- Ironforge Interceptor
 		[43] = {
 			["currencyID"] = 2543,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 75,
 			["goldTime"] = 70,
 			["questID"] = 76445,
 			["mapPOI"] = 7578,
 		},
 		[44] = {
 			["currencyID"] = 2559,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 67,
 			["goldTime"] = 64,
 			["questID"] = 76445,
 			["mapPOI"] = 7578,
 		},
 		[45] = {
 			["currencyID"] = 2575,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 63,
 			["goldTime"] = 60,
 			["questID"] = 76445,
 			["mapPOI"] = 7578,
@@ -4882,21 +4883,21 @@ DR.RaceData = {
 	 -- Blasted Lands Bolt
 		[49] = {
 			["currencyID"] = 2544,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 74,
 			["goldTime"] = 69,
 			["questID"] = 76469,
 			["mapPOI"] = 7579,
 		},
 		[50] = {
 			["currencyID"] = 2560,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 65,
 			["goldTime"] = 62,
 			["questID"] = 76469,
 			["mapPOI"] = 7579,
 		},
 		[51] = {
 			["currencyID"] = 2576,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 67,
 			["goldTime"] = 64,
 			["questID"] = 76469,
 			["mapPOI"] = 7579,
@@ -4926,21 +4927,21 @@ DR.RaceData = {
 	 -- Plaguelands Plunge
 		[55] = {
 			["currencyID"] = 2545,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 68,
 			["goldTime"] = 63,
 			["questID"] = 76510,
 			["mapPOI"] = 7580,
 		},
 		[56] = {
 			["currencyID"] = 2561,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 56,
 			["goldTime"] = 53,
 			["questID"] = 76510,
 			["mapPOI"] = 7580,
 		},
 		[57] = {
 			["currencyID"] = 2577,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 61,
 			["goldTime"] = 58,
 			["questID"] = 76510,
 			["mapPOI"] = 7580,
@@ -4970,21 +4971,21 @@ DR.RaceData = {
 	 -- Booty Bay Blast
 		[61] = {
 			["currencyID"] = 2546,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 68,
 			["goldTime"] = 63,
 			["questID"] = 76515,
 			["mapPOI"] = 7581,
 		},
 		[62] = {
 			["currencyID"] = 2562,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 60,
 			["goldTime"] = 57,
 			["questID"] = 76515,
 			["mapPOI"] = 7581,
 		},
 		[63] = {
 			["currencyID"] = 2578,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 59,
 			["goldTime"] = 56,
 			["questID"] = 76515,
 			["mapPOI"] = 7581,
@@ -5014,21 +5015,21 @@ DR.RaceData = {
 	 -- Fuselight Night Flight
 		[67] = {
 			["currencyID"] = 2547,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 69,
 			["goldTime"] = 64,
 			["questID"] = 76523,
 			["mapPOI"] = 7582,
 		},
 		[68] = {
 			["currencyID"] = 2563,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 61,
 			["goldTime"] = 58,
 			["questID"] = 76523,
 			["mapPOI"] = 7582,
 		},
 		[69] = {
 			["currencyID"] = 2579,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 61,
 			["goldTime"] = 58,
 			["questID"] = 76523,
 			["mapPOI"] = 7582,
@@ -5058,21 +5059,21 @@ DR.RaceData = {
 	 -- Krazzworks Klash
 		[73] = {
 			["currencyID"] = 2548,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 76,
 			["goldTime"] = 71,
 			["questID"] = 76527,
 			["mapPOI"] = 7583,
 		},
 		[74] = {
 			["currencyID"] = 2564,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 67,
 			["goldTime"] = 64,
 			["questID"] = 76527,
 			["mapPOI"] = 7583,
 		},
 		[75] = {
 			["currencyID"] = 2580,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 65,
 			["goldTime"] = 62,
 			["questID"] = 76527,
 			["mapPOI"] = 7583,
@@ -5102,21 +5103,21 @@ DR.RaceData = {
 	 -- Redridge Rally
 		[79] = {
 			["currencyID"] = 2549,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 62,
 			["goldTime"] = 57,
 			["questID"] = 76536,
 			["mapPOI"] = 7584,
 		},
 		[80] = {
 			["currencyID"] = 2565,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 55,
 			["goldTime"] = 52,
 			["questID"] = 76536,
 			["mapPOI"] = 7584,
 		},
 		[81] = {
 			["currencyID"] = 2581,
-			["silverTime"] = nil, -- MISSING
+			["silverTime"] = 55,
 			["goldTime"] = 52,
 			["questID"] = 76536,
 			["mapPOI"] = 7584,
