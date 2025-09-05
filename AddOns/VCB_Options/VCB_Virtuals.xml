@@ -158,10 +158,10 @@
 		<Size x="848" y="528"/>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-7">
-				<Texture parentKey="BGtexture" file="Interface\BlackMarket\BlackMarketBackground-Tile.blp">
+				<Texture parentKey="BGtexture" file="Interface\FontStyles\FontStyleParchment.blp">
 					<Scripts>
 						<OnLoad>
-							self:SetDesaturation(0)
+							self:SetDesaturation(1)
 						</OnLoad>
 					</Scripts>
 				</Texture>
@@ -238,7 +238,7 @@
 		<Size x="720" y="528"/>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-7">
-				<Texture parentKey="BGtexture" file="Interface\BlackMarket\BlackMarketBackground-Tile.blp">
+				<Texture parentKey="BGtexture" file="Interface\FontStyles\FontStyleParchment.blp">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="0" y="0"/>
 						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
@@ -246,7 +246,7 @@
 					<Scripts>
 						<OnLoad>
 							self:SetVertexColor(vcbMainColor:GetRGB())
-							self:SetDesaturation(0)
+							self:SetDesaturation(1)
 						</OnLoad>
 					</Scripts>
 				</Texture>
