@@ -436,6 +436,7 @@ registeredEvents["SPELL_CAST_SUCCESS"][204596] = function(info, _,_,_,_,_,_,_,_,
 end
 
 registeredEvents["SPELL_CAST_SUCCESS"][389810] = registeredEvents["SPELL_CAST_SUCCESS"][204596]
+registeredEvents["SPELL_CAST_SUCCESS"][452490] = registeredEvents["SPELL_CAST_SUCCESS"][204596]
 registeredEvents["SPELL_CAST_SUCCESS"][469991] = registeredEvents["SPELL_CAST_SUCCESS"][204596]
 
 

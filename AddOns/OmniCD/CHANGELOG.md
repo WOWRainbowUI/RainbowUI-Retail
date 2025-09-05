@@ -1,2 +1,12 @@
-### v2.8.24
--   Fix set bonus being ignored
+### v2.8.25
+-   Fix editor not registering new spells
+-   Fix Cooldown: Pillar of Frost, Ancestral Swiftness
+-   Fix Thunder Focus Tea charges with Endless Draught hero talent
+-   Fix Demonic Trample as PvP talent
+-   Fix Cycle of Binding CDR for Sigil of Doom w/o Precise Sigil
+-   Fix Immolation Aura cast during Immolation Aura
+-   Update icon texture: Shifting Power, Gust of Wind
+-   Move Grimoire: Felguard to offensive category
+-   Add Summon Vilefiend variants
+-   Add trinkets: Araz's Ritual Forged, All-Devouring Nucleus, Soulbinder's Embrace, Loom'ithar's Living Silk
+-   Add option to disable addon in raid-scenario and outdoor raid groups
