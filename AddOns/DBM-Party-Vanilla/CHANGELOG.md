@@ -1,22 +1,14 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r209](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r209) (2025-08-24)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r208...r209) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r210](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r210) (2025-09-06)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r209...r210) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/535  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/538  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/536  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/534  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/531  
-- fix and close  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/529  
-    Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/528  
-- misc eco dome fixes  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/526  
-- Fix error in last  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/524  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/523  
-- Fix bug showing invalid cast time  
-- tweak audio for warp and raise antispam to 3.5  
-- double shock mine timer per hotfixes  
-- rework beam alert on shadowcrown for clarity, especially for non tanks  
+- switch loyal beasts back to delayed timer since that's norml for higher keys and lower keys aren't gonna complain timer is wrong  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/544  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/546  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/543  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/541  
+- fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/540  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/539  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/542  
+- Fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1727  
