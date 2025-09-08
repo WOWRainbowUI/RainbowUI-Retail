@@ -58,7 +58,7 @@ LibEvent:attachTrigger("INSPECT_FRAME_CREATED", function(this, frame, parent)
         bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
         edgeFile = "Interface\\Buttons\\WHITE8X8",
         tile     = true,
-        tileSize = 10,
+        tileSize = 8,
         edgeSize = 1,
         insets   = {left = 1, right = 1, top = 1, bottom = 1}
     }
