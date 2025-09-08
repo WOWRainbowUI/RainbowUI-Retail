@@ -2970,6 +2970,8 @@ L["War Ohuna"] = "战鹰"
 L["Warlord Parjesh"] = "督军帕杰什"
 L["Warlord Sargha"] = "督军莎尔佳"
 L["Warning"] = "警告"
+--[[Translation missing --]]
+L["WARNING_OLD_DUNGEON_IMPORT"] = "This route is from a dungeon that is not available in the current version of MDT. Install MDT Legacy to import this route."
 L["Warp Shade"] = "迁跃之影"
 L["Warp Stalker"] = "迁跃兽"
 L["Waste Pipes"] = "废物管道"

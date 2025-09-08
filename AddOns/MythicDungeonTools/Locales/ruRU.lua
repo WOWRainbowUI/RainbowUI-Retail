@@ -2811,6 +2811,8 @@ L["War Ohuna"] = "Боевой охун"
 L["Warlord Parjesh"] = "Полководец Паржеш"
 L["Warlord Sargha"] = "Полководец Сарга"
 L["Warning"] = "Предупреждение"
+--[[Translation missing --]]
+L["WARNING_OLD_DUNGEON_IMPORT"] = "This route is from a dungeon that is not available in the current version of MDT. Install MDT Legacy to import this route."
 L["Warp Shade"] = "Искаженная тень"
 L["Warp Stalker"] = "Прыгуана"
 L["Waste Pipes"] = "Барахлопровод"

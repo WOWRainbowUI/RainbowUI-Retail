@@ -3,6 +3,7 @@ local addonName, MDT = ...
 local L = MDT.L
 L = L or {}
 --- ITEMDesc
+L["WARNING_OLD_DUNGEON_IMPORT"] = "This route is from a dungeon that is not available in the current version of MDT. Install MDT Legacy to import this route."
 L["Support MDT on Patreon"] = "Support MDT on Patreon"
 L["Ghastly Parishioner"] = "Ghastly Parishioner"
 L["Empty Anima Vessel"] = "Empty Anima Vessel"
@@ -5909,6 +5910,7 @@ L["War Ohuna"] = "War Ohuna"
 L["Warlord Parjesh"] = "Warlord Parjesh"
 L["Warlord Sargha"] = "Warlord Sargha"
 L["Warning"] = "Warning"
+L["WARNING_OLD_DUNGEON_IMPORT"] = "This route is from a dungeon that is not available in the current version of MDT. Install MDT Legacy to import this route."
 L["Warp Shade"] = "Warp Shade"
 L["Warp Stalker"] = "Warp Stalker"
 L["Waste Pipes"] = "Waste Pipes"
