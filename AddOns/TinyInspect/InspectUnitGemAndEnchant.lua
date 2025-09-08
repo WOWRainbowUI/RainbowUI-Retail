@@ -61,7 +61,7 @@ local function CreateIconFrame(frame, index)
     local icon = CreateFrame("Button", nil, frame)
     icon.index = index
     icon:Hide()
-    icon:SetSize(16, 16)
+    icon:SetSize(18, 18)
     icon:SetScript("OnEnter", function(self)
         if (self.itemLink) then
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -91,7 +91,7 @@ local function CreateIconFrame(frame, index)
     icon.bg:SetPoint("CENTER")
     icon.bg:SetTexture("Interface\\Masks\\CircleMaskScalable")
     icon.texture = icon:CreateTexture(nil, "BORDER")
-    icon.texture:SetSize(12, 12)
+    icon.texture:SetSize(14, 14)
     icon.texture:SetPoint("CENTER")
     icon.texture:SetMask("Interface\\Masks\\CircleMaskScalable")
     frame["xicon"..index] = icon
@@ -158,7 +158,7 @@ end
 --讀取並顯示圖標
 local function ShowGemAndEnchant(frame, ItemLink, anchorFrame, itemframe)
     if (not ItemLink) then return 0 end
-    local num, info = LibItemGem:GetItemGemInfo(ItemLink)
+    local num, info, qty = LibItemGem:GetItemGemInfo(ItemLink)
     local icon
     for i, v in ipairs(info) do
         icon = GetIconFrame(frame)
@@ -225,8 +225,8 @@ local function ShowGemAndEnchant(frame, ItemLink, anchorFrame, itemframe)
         icon:Show()
         anchorFrame = icon
     elseif (not enchantID and EnchantParts[itemframe.index] and EnchantParts[itemframe.index][1]) then
-        local quality, _, _, _, _, _, _, _, _, classID = select(3, C_Item.GetItemInfo(ItemLink))
-        if not (quality == 6 and (itemframe.index == 2 or itemframe.index == 16 or itemframe.index == 17)) and ((itemframe.index ~= INVSLOT_OFFHAND) or (classID == Enum.ItemClass.Weapon)) then
+        local classID = select(12, C_Item.GetItemInfo(ItemLink))
+        if not (qty == 6 and (itemframe.index==2 or itemframe.index==16 or itemframe.index==17)) and ((itemframe.index ~= INVSLOT_OFFHAND) or (classID == Enum.ItemClass.Weapon)) then
             num = num + 1
             icon = GetIconFrame(frame)
             icon.title = ENCHANTS .. ": " .. (_G[EnchantParts[itemframe.index][2]] or EnchantParts[itemframe.index][2])

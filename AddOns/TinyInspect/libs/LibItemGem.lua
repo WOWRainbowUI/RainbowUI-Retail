@@ -9,13 +9,21 @@ local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
 function lib:GetItemGemInfo(ItemLink)
-    local info = {}
+    local total, info = 0, {}
     local stats = C_Item.GetItemStats(ItemLink)
     for key, num in pairs(stats) do
         if (string.find(key, "EMPTY_SOCKET_")) then
             for i = 1, num do
+                total = total + 1
                 table.insert(info, { name = _G[key] or EMPTY, link = nil })
             end
+        end
+    end
+    local quality = select(3, C_Item.GetItemInfo(ItemLink))
+    if (quality == 6 and total > 0) then
+        total = 3
+        for i = 1, total-#info do
+            table.insert(info, { name = RELICSLOT or EMPTY, link = nil })
         end
     end
     local name, link
@@ -30,5 +38,5 @@ function lib:GetItemGemInfo(ItemLink)
             end
         end
     end
-    return #info, info
+    return #info, info, quality
 end

@@ -62,7 +62,7 @@ local function GetInspectItemListFrame(parent)
         frame.level:SetFont(frame.level:GetFont(), 14, "THINOUTLINE")
 
         local itemframe
-        local fontsize = GetLocale():sub(1,2) == "zh" and 12 or 9
+        local fontsize = GetLocale():sub(1,2) == "zh" and 14 or 11
         local backdrop = {
             bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
             edgeFile = "Interface\\Buttons\\WHITE8X8",
