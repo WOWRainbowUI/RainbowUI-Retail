@@ -66,11 +66,13 @@
 ---@field profile profile store the profile settings
 ---@field detailsEventListener table register and listen to Details! events
 ---@field loot loot
+---@field eventCallbacks table<string, table<function[]>> eventName = {functions to call[]}
 ---@field data table store data from the current mythic plus run
 ---@field Enum enum
 ---@field temporaryTimers timer[] store timers created with C_Timer, all timers here are stopped when an update in the scoreboard is about to start
 ---@field dataBroker table?
 ---@field minimap table
+---@field FireEvent fun(eventName: string, ...: any)
 ---@field Compress compressrun
 ---@field Comm comm
 ---@field Migrations table<function[]>
@@ -116,6 +118,8 @@
 ---@field ShowMythicPlusOptionsWindow fun() opens the options window for the addon
 ---@field RegisterScoreboardColumn fun(column:scoreboard_column) register a column to be shown in the scoreboard
 ---@field CreateRunSelectorDropdown fun(readyFrame:scoreboard_mainframe) create a dropdown to select the run to show in the scoreboard
+---@field GetOrCreateExportFrame fun() : exportframe get or create the export frame
+---@field ShowExportFrame fun(exportText:string) show the export frame with the given text
 
 ---@class scoreboard_keystone_texture: texture show the keystone dungeon icon the player has
 ---@field KeystoneDungeonLevel fontstring show the keystone level of the player
