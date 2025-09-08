@@ -196,7 +196,7 @@ local function SlashHandler(msg)
 	local cmd = msg:match("^(%S*)%s*(.-)$")
 	if cmd == "config" then
 		KT:OpenOptions()
-	elseif cmd == "hide" then
+	elseif cmd == "showhide" then
 		KT:SetHidden()
 	else
 		KT:MinimizeButton_OnClick()
@@ -379,9 +379,14 @@ local function SetFrames()
 			KT.playerLevel = level
 		elseif event == "QUEST_SESSION_JOINED" then
 			self:RegisterEvent("QUEST_POI_UPDATE")
+		elseif event == "QUEST_SESSION_LEFT" then
+			C_Timer.After(1.1, function()
+				KT.QuestsCache_Update()
+				KT:Update()
+			end)
 		elseif event == "QUEST_POI_UPDATE" then
 			dbChar.quests.num = KT.GetNumQuests()
-			KT_QuestObjectiveTracker:MarkDirty()
+			KT:SetQuestsHeaderText()
 			self:UnregisterEvent(event)
 		end
 	end)
@@ -396,6 +401,7 @@ local function SetFrames()
 	KTF:RegisterEvent("QUEST_REMOVED")
 	KTF:RegisterEvent("QUEST_TURNED_IN")
 	KTF:RegisterEvent("QUEST_SESSION_JOINED")
+	KTF:RegisterEvent("QUEST_SESSION_LEFT")
 	KTF:RegisterEvent("QUEST_POI_UPDATE")
 	KTF:RegisterEvent("ACHIEVEMENT_EARNED")
 	KTF:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -1316,15 +1322,14 @@ local function SetHooks()
 	end
 	KT.SpellButton.OnEnter = KT_ScenarioSpellButtonMixin.OnEnter
 
-	function KT_ObjectiveTrackerBlockMixin:SetHeader(text, questID, questLogIndex, isQuestComplete)
+	function KT_ObjectiveTrackerBlockMixin:SetHeader(text, questID, isQuestComplete, quest)
 		local isTask = questID and QuestUtil.IsQuestTrackableTask(questID)
 		if questID and not isTask then
-			local questInfo = C_QuestLog.GetInfo(questLogIndex)
 			if db.questShowTags then
 				local tagInfo = KT.GetQuestTagInfo(questID)
-				text = KT:CreateQuestTag(questInfo.level, tagInfo.tagID, questInfo.frequency, questInfo.suggestedGroup)..text
+				text = KT:CreateQuestTag(quest.level, tagInfo.tagID, quest.frequency, quest.suggestedGroup)..text
 			end
-			self.level = questInfo.level
+			self.level = quest.level
 			self.title = text
 			self.questCompleted = isQuestComplete
 		end

@@ -1,4 +1,8 @@
 # Kaliel's Tracker changelog
+### 7.13.0
+- CHANGED - improve Party Sync reaction
+- CHANGED - Options - move Slash commands to Controls section, rename one command
+- FIXED - error when activating Party Sync
 ### 7.12.0
 - ADDED - Options - new Controls section with Keybindings and Visibility rules
 - ADDED - Options - keybindings for tracker control (collapse, hide, focus closest quest, use active quest item)

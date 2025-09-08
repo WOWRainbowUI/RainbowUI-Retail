@@ -288,7 +288,7 @@ function KT_QuestObjectiveTrackerMixin:UpdateSingle(quest)
 		block.ItemButton = block:AddRightEdgeFrame(self.questItemButtonSettings, questLogIndex);
 	end
 
-	block:SetHeader(quest.title, questID, questLogIndex, isComplete);  -- MSA
+	block:SetHeader(quest.title, questID, isComplete, quest);  -- MSA
 
 	-- completion state
 	local questFailed = C_QuestLog.IsFailed(questID);
