@@ -49,6 +49,7 @@ local KEYBINDINGS = {
 	keyBindClosestQuest = { frameName = addonName.."MinimizeButton", mouse = "RightButton" },
 	EXTRAACTIONBUTTON1 = false
 }
+local ICON_HEART = "|T"..KT.MEDIA_PATH.."Help\\help_patreon:14:14:0:0:256:32:174:190:0:16|t"
 
 local cTitle = " "..NORMAL_FONT_COLOR_CODE
 local cBold = "|cff00ffe3"
@@ -496,16 +497,15 @@ local options = {
 							order = 1.1,
 						},
 						build = {
-							name = " |cffffd100Build:|r  Retail",
+							name = " |cffffd100版本:|r  正式服",
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
 							order = 1.2,
 						},
-						slashCmd = {
-							name = cBold.." /kt|r  |cff808080..............|r  展開/收起任務追蹤清單\n"..
-									cBold.." /kt hide|r  |cff808080......|r  顯示/隱藏任務追蹤清單\n"..
-									cBold.." /kt config|r  |cff808080...|r  顯示設定選項視窗\n",
+						about = {
+							name = "  Made with "..ICON_HEART.." since 2012\n"..
+									"                             |cff999999by "..KT.AUTHOR,
 							type = "description",
 							width = "double",
 							order = 3,
@@ -532,19 +532,13 @@ local options = {
 							end,
 							order = 4,
 						},
-						supportersSpacer = {
-							name = " ",
-							type = "description",
-							width = "normal",
-							order = 5.1,
-						},
 						supportersLabel = {
 							name = "|cff00ff00成為贊助者",
 							type = "description",
-							width = "normal",
+							width = "double",
 							fontSize = "medium",
 							justifyH = "RIGHT",
-							order = 5.2,
+							order = 5.1,
 						},
 						supporters = {
 							name = "支持贊助",
@@ -555,7 +549,7 @@ local options = {
 							func = function()
 								KT.Help:ShowSupporters()
 							end,
-							order = 5.3,
+							order = 5.2,
 						},
 					},
 				},
@@ -1459,10 +1453,57 @@ local options = {
 			type = "group",
 			args = {
 				sec1 = {
-					name = "按鍵綁定",
+					name = "指令",
 					type = "group",
 					inline = true,
 					order = 1,
+					args = {
+						command1 = {
+							name = cBold.." /kt",
+							type = "description",
+							width = 0.7,
+							fontSize = "medium",
+							order = 1.1,
+						},
+						command1Desc = {
+							name = "展開 / 收合追蹤清單",
+							type = "description",
+							width = 2.3,
+							order = 1.2,
+						},
+						command2 = {
+							name = cBold.." /kt showhide",
+							type = "description",
+							width = 0.7,
+							fontSize = "medium",
+							order = 2.1,
+						},
+						command2Desc = {
+							name = "顯示 / 隱藏追蹤清單",
+							type = "description",
+							width = 2.3,
+							order = 2.24,
+						},
+						command3 = {
+							name = cBold.." /kt config",
+							type = "description",
+							width = 0.7,
+							fontSize = "medium",
+							order = 3.1,
+						},
+						command3Desc = {
+							name = "打開插件設定選項",
+							type = "description",
+							width = 2.3,
+							order = 3.24,
+						},
+					},
+				},
+				sec2 = {
+					name = "按鍵綁定",
+					type = "group",
+					inline = true,
+					order = 2,
 					args = {
 						keyBindCollapseLabel = {
 							name = " 展開 / 收合追蹤清單",
@@ -1539,11 +1580,11 @@ local options = {
 						},
 					},
 				},
-				sec2 = {
+				sec3 = {
 					name = "顯示規則",
 					type = "group",
 					inline = true,
-					order = 2,
+					order = 3,
 					args = {
 						visibilityDesc = {
 							name = " 規則只會在符合條件時套用一次。\n"..
@@ -1903,7 +1944,7 @@ end
 local function Visibility_ShowActiveContext(_, contexts)
 	local color = "|cff00ff00"
 	local sep = "|r  |cff808080>|r  "
-	local opt = controls.args.sec2.args
+	local opt = controls.args.sec3.args
 
 	for _, ctx in ipairs(VISIBILITY_CONTEXTS) do
 		local prefix = " "
@@ -2064,7 +2105,7 @@ local function Setup()
 	local opt = general.args.sec2.args
 	opt.classBorder.name = opt.classBorder.name:format(KT.RgbToHex(KT.classColor))
 
-	Visibility_CreateContextOptions(controls.args.sec2.args)
+	Visibility_CreateContextOptions(controls.args.sec3.args)
 
 	opt = general.args.sec7.args
 	opt.messageOutput = KT:GetSinkAce3OptionsDataTable()

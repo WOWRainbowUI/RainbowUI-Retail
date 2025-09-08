@@ -51,11 +51,13 @@ Note: All other arguments can be used as a general!
  text ........... Text string.
  editbox ........ [optional] Table of edit boxes. Edit box is out of content flow.
                   One table keys:
-                  - text ..... [required]
-                  - width .... Default is 400
-                  - left ..... Default is 0
-                  - top ...... Default is 0
-                  - bottom ... Default is 0
+                  - icon ....... Left icon
+                  - text ....... [required]
+                  - width ...... Default is 400
+                  - left ....... Default is 0
+                  - top ........ Default is 0
+                  - bottom ..... Default is 0
+                  - showHint ... Default is true
  button ......... [optional] Button text string (directing value). Button is out of content flow.
  buttonWidth .... Default is 100.
  buttonClick .... Function with button's click action.
@@ -75,7 +77,7 @@ local format = string.format
 local strfind = string.find
 local round = function(n) return floor(n + 0.5) end
 
-local Lib = LibStub:NewLibrary('MSA-Tutorials-1.0', 16)
+local Lib = LibStub:NewLibrary('MSA-Tutorials-1.0', 17)
 if Lib then
 	Lib.NewFrame, Lib.NewButton, Lib.UpdateFrame = nil
 	Lib.numFrames = Lib.numFrames or 1
@@ -123,19 +125,100 @@ local function ConvertPixelsToUI(pixels, frameScale)
 	return (pixels * 768.0)/(physicalScreenHeight * frameScale);
 end
 
-local function NewEditbox(frame, width)
+local function EditboxSetWidth(editbox, maxWidth)
+	local width = editbox._textLength + editbox.inset + 2
+	if width > 0 and width < maxWidth then
+		editbox:SetWidth(width)
+	else
+		editbox:SetWidth(maxWidth)
+	end
+end
+
+local function NewEditbox(frame)
 	local numFreeEditboxes = #freeEditboxes
 	local editbox
 	if numFreeEditboxes > 0 then
 		editbox = tremove(freeEditboxes, numFreeEditboxes)
 		editbox:SetParent(frame)
 	else
-		editbox = CreateFrame('EditBox', nil, frame, 'InputBoxTemplate')
+		editbox = CreateFrame('EditBox', nil, frame)
+		editbox:SetFontObject(GameFontHighlight)
+		editbox:SetTextColor(0, 0.5, 1)
 		editbox:SetAutoFocus(false)
+		editbox:SetAltArrowKeyMode(true)
+		editbox.measurer = editbox:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+		local icon = editbox:CreateTexture(nil, "ARTWORK")
+		icon:SetSize(16, 16)
+		icon:SetVertexColor(0.93, 0.76, 0)
+		icon:SetPoint("LEFT")
+		editbox.icon = icon
+		local hint = editbox:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+		hint:SetPoint("LEFT", editbox, "RIGHT", 4, -1)
+		hint:SetText("CTRL+C to copy")
+		hint:SetTextColor(0.93, 0.76, 0)
+		hint:Hide()
+		editbox.hint = hint
+		editbox.hintWidth = hint:GetWidth()
+		editbox:SetScript("OnEditFocusGained", function(self)
+			self:SetTextColor(1, 1, 1)
+			self:HighlightText()
+			if self.showHint then
+				if self._textLength + self.hintWidth + 4 > self.maxWidth then
+					self:SetWidth(self.maxWidth - self.hintWidth - 4)
+				end
+				self.hint:Show()
+			end
+		end)
+		editbox:SetScript("OnEditFocusLost", function(self)
+			self:SetTextColor(0, 0.5, 1)
+			self:HighlightText(0, 0)
+			if self.showHint then
+				EditboxSetWidth(self, self.maxWidth)
+				self.hint:Hide()
+			end
+		end)
+		editbox:SetScript("OnMouseDown", function(self)
+			if self:HasFocus() then
+				C_Timer.After(0, function()
+					self:HighlightText()
+				end)
+			end
+		end)
+		editbox:SetScript("OnMouseUp", function(self)
+			if self:HasFocus() then
+				self:SetCursorPosition(0)
+				self:HighlightText()
+			end
+		end)
+		editbox:SetScript("OnTextChanged", function(self, user)
+			if user then
+				self:SetText(self._text)
+				self:SetCursorPosition(0)
+				self:HighlightText()
+			end
+		end)
+		editbox:SetScript("OnEnterPressed", function(self)
+			self:ClearFocus()
+			ChatFrame_OpenChat("")
+		end)
+		editbox:SetScript("OnEscapePressed", function(self)
+			self:ClearFocus()
+		end)
+		editbox:SetScript("OnEnter", function(self)
+			if not self:HasFocus() then
+				self:SetTextColor(0.48, 0.73, 1)
+			end
+		end)
+		editbox:SetScript("OnLeave", function(self)
+			if not self:HasFocus() then
+				self:SetTextColor(0, 0.5, 1)
+			end
+		end)
 	end
-	editbox:SetWidth(width)
-	editbox:SetHeight(20)
-	editbox:Show()
+	editbox.icon:SetTexture()
+	editbox:SetTextInsets(0, 0, 0, 0)
+	editbox.inset = 0
+	editbox.showHint = true
 	return editbox
 end
 
@@ -199,6 +282,8 @@ local function UpdateFrame(frame, i)
 	frame.scroll:SetPoint('TOPLEFT', frameBorderLeft + data.paddingX, (frameBorderTop + data.paddingTop) * -1)
 	frame.scroll:SetPoint('BOTTOMRIGHT', (frameBorderRight + 23) * -1, frameBorderBottom + data.paddingBottom)
 	frame.scroll:SetVerticalScroll(0)
+	frame.scroll.ScrollBar:SetPoint("TOPLEFT", frame.scroll, "TOPRIGHT", 5, -1 * (default.paddingTop - data.paddingTop - 2))
+	frame.scroll.ScrollBar:SetPoint("BOTTOMLEFT", frame.scroll, "BOTTOMRIGHT", 5, default.paddingBottom - data.paddingBottom - 3)
 	frame.content:SetWidth(data.width - data.paddingX - max(data.paddingX, 25))
 
 	local height = 0
@@ -271,16 +356,33 @@ local function UpdateFrame(frame, i)
 	-- EditBox
 	RemoveEditboxes(frame)
 	if data.editbox then
-		for i = 1, #data.editbox do
-			frame.editboxes[i] = NewEditbox(frame.content, data.editbox[i].width or 400)
-			frame.editboxes[i]:ClearFocus()
-			frame.editboxes[i]:ClearAllPoints()
-			if data.editbox[i].top then
-				frame.editboxes[i]:SetPoint('TOPLEFT', (data.editbox[i].left or 0) + 5, (data.editbox[i].top or 0) * -1)
-			elseif data.editbox[i].bottom then
-				frame.editboxes[i]:SetPoint('BOTTOMLEFT', (data.editbox[i].left or 0) + 5, data.editbox[i].bottom or 0)
+		for k = 1, #data.editbox do
+			local editbox = NewEditbox(frame.content)
+			editbox:ClearFocus()
+			editbox:ClearAllPoints()
+			if data.editbox[k].top then
+				editbox:SetPoint('TOPLEFT', (data.editbox[k].left or 0), (data.editbox[k].top or 0) * -1)
+			elseif data.editbox[k].bottom then
+				editbox:SetPoint('BOTTOMLEFT', (data.editbox[k].left or 0), data.editbox[k].bottom or 0)
 			end
-			frame.editboxes[i]:SetText(data.editbox[i].text)
+			editbox._text = data.editbox[k].text
+			editbox:SetText(editbox._text)
+			editbox:SetCursorPosition(0)
+			editbox.measurer:SetText(editbox._text)
+			editbox._textLength = editbox.measurer:GetStringWidth()
+			if data.editbox[k].icon then
+				editbox.icon:SetTexture(data.editbox[k].icon)
+				editbox.inset = 17
+			end
+			if data.editbox[k].showHint ~= nil then
+				editbox.showHint = data.editbox[k].showHint
+			end
+			editbox.maxWidth = data.editbox[k].width or 400
+			EditboxSetWidth(editbox, editbox.maxWidth)
+			editbox:SetHeight(20)
+			editbox:Show()
+			editbox:SetTextInsets(editbox.inset, 0, 0, 0)
+			frame.editboxes[k] = editbox
 		end
 	end
 
@@ -355,10 +457,11 @@ local function NewFrame(data)
 	frame.Inset:SetPoint('TOPLEFT', 4, -23)
 	frame.Inset.Bg:SetColorTexture(0, 0, 0)
 
-	frame.scroll = CreateFrame("ScrollFrame", nil, frame, "ScrollFrameTemplate")
-	frame.scroll.ScrollBar:SetHideIfUnscrollable(true)
-	frame.scroll.ScrollBar:SetPoint("TOPLEFT", frame.scroll, "TOPRIGHT", 7, 0)
-	frame.scroll.ScrollBar:SetPoint("BOTTOMLEFT", frame.scroll, "BOTTOMRIGHT", 7, -1)
+	local template = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and "ScrollFrameTemplate" or "UIPanelScrollFrameTemplate"
+	frame.scroll = CreateFrame("ScrollFrame", nil, frame, template)
+	if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+		frame.scroll.ScrollBar:SetHideIfUnscrollable(true)
+	end
 
 	frame.content = CreateFrame("Frame", nil, frame.scroll)
 	frame.content:SetHeight(1)  -- for correct init height

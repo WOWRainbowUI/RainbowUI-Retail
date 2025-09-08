@@ -376,7 +376,7 @@ function KT_BonusObjectiveTrackerMixin:SetUpQuestBlock(block, forceShowCompleted
 		block:AddRightEdgeFrame(self.questItemButtonSettings, questLogIndex);
 	end
 
-	block:SetHeader(block.taskName, questID, questLogIndex);  -- MSA
+	block:SetHeader(block.taskName, questID);  -- MSA
 	--block:EnableMouse(not block.taskName);  -- MSA
 
 	local isWorldQuest = self.showWorldQuests;
