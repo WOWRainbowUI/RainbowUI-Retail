@@ -1,3 +1,3 @@
-# 12.5.1 (2025-09-03)
+# 12.5.2 (2025-09-07)
 
-* Fixed a bug where internal variables were made global, which could cause issues with other addons [GH-608 by tflo].
+* Fixed a Lua error that occurred on Death Knights when Blizzard-style combo points were used in Mists Classic.
