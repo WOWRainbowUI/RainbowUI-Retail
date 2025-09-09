@@ -3,6 +3,32 @@ Key Master AddOn for World of Warcraft
 
 PATCH NOTES:
 --------------------------------------------------
+Key Master v1.4.6
+--------------------------------------------------
+Updates:
+- None
+
+Fixes:
+- Corrected individual dungeon rating calculation error for level 12+.
+
+Known Bugs/Issues:
+- None
+
+PATCH NOTES:
+--------------------------------------------------
+Key Master v1.4.5
+--------------------------------------------------
+Updates:
+- Updated dungeons translations for non-us languages.
+
+Fixes:
+- Gambit and Streets were accidently swapped while reading a players key.
+
+Known Bugs/Issues:
+- None
+
+PATCH NOTES:
+--------------------------------------------------
 Key Master v1.4.4
 --------------------------------------------------
 Updates:
