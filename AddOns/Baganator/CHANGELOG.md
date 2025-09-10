@@ -1,7 +1,6 @@
 # Baganator
 
-## [735](https://github.com/Baganator/Baganator/tree/735) (2025-09-04)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/734...735) 
+## [736](https://github.com/Baganator/Baganator/tree/736) (2025-09-07)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/735...736) 
 
-- Put new sections/categories on the cursor rather than inserting at top of list  
-- Fix deleting empty inner section moving outer section items out  
+- Saved Searches: Remove context menu, replaced with DropdownButton (same look)  
