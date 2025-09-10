@@ -529,7 +529,7 @@ function MMPE:InitConfig()
         },
     }
 
-    self.configCategory = "MythicPlusProgress"
+    self.configCategory = "Mythic Plus Pull"
     LibStub("AceConfig-3.0"):RegisterOptionsTable(self.configCategory, options)
     LibStub("AceConfigDialog-3.0"):AddToBlizOptions(self.configCategory)
 end

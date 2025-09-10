@@ -115,7 +115,7 @@ function data:GetNPCData()
         [167534] = { name = "Rek the Hardened", count = 20 },
         [167536] = { name = "Harugia the Bloodthirsty", count = 20 },
         [167538] = { name = "Dokigg the Brutalizer", count = 20 },
-        [167607] = { name = "Stoneborn Slasher", count = 10 },
+        [167607] = { name = "Stoneborn Slasher", count = 15 },
         [167610] = { name = "Stonefiend Anklebiter", count = 1 },
         [167611] = { name = "Stoneborn Eviscerator", count = 6 },
         [167612] = { name = "Stoneborn Reaver", count = 8 },
