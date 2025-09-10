@@ -2127,7 +2127,7 @@ local function Setup()
 		clearTrackerDataDesc1 = {
 			name = "Clear the data (no settings) of the tracked content (Quests, Achievements etc.) for current character.",
 			type = "description",
-			order = 1,
+			order = 0.1,
 		},
 		clearTrackerData = {
 			name = "Clear Tracker Data",
@@ -2143,18 +2143,18 @@ local function Setup()
 				KT.QuestsCache_Init()
 				OTF:Update()
 			end,
-			order = 2,
+			order = 0.2,
 		},
 		clearTrackerDataDesc2 = {
 			name = "Current Character: "..cBold..KT.playerName,
 			type = "description",
 			width = "double",
-			order = 3,
+			order = 0.3,
 		},
 		clearTrackerDataDesc4 = {
-			name = "",
+			name = " ",
 			type = "description",
-			order = 4,
+			order = 0.4,
 		}
 	}
 	options.args.profiles = profiles

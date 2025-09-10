@@ -311,6 +311,10 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "If you like "..KT.TITLE..", consider supporting it on Patreon "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 7.13.1|r\n"..
+					"- CHANGED - World Map Hack - improvement\n"..
+					"\n")..
+
 					(cTitle.."Version 7.13.0|r\n"..
 					"- CHANGED - improve Party Sync reaction\n"..
 					"- CHANGED - Options - move Slash commands to Controls section, rename one command\n"..

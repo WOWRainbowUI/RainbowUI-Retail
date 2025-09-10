@@ -1,4 +1,6 @@
 # Kaliel's Tracker changelog
+### 7.13.1
+- CHANGED - World Map Hack - improvement
 ### 7.13.0
 - CHANGED - improve Party Sync reaction
 - CHANGED - Options - move Slash commands to Controls section, rename one command
