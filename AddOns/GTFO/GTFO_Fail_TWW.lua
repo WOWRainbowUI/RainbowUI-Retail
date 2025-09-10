@@ -655,6 +655,16 @@ GTFO.SpellID["1242832"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1241572"] = {
+  --desc = "Witherdusk Surge (Oath-Breaker Desamirah)";
+  sound = 3;
+};
+
+GTFO.SpellID["1241000"] = {
+  --desc = "Erratic Barrage (Arcana-Monger So'zer)";
+  sound = 3;
+};
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -678,7 +688,6 @@ GTFO.SpellID["438623"] = {
 GTFO.SpellID["438832"] = {
   --desc = "Poisonous Cloud (Atik - Impact)";
   sound = 3;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["433443"] = {
@@ -1954,6 +1963,48 @@ GTFO.SpellID["1245594"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1236256"] = {
+  --desc = "Vorpal Cleave (Shadowguard Phasecutter)";
+  sound = 3;
+  ignoreApplication = true;
+};
+
+GTFO.SpellID["1236228"] = {
+  --desc = "Arcano Repulsor (Shadowguard Arcanotech)";
+  sound = 3;
+};
+
+GTFO.SpellID["1244311"] = {
+  --desc = "Torrential Energy (Pactsworn Arcanist)";
+  sound = 3;
+};
+
+GTFO.SpellID["1231144"] = {
+  --desc = "Null Breath (Siphoned Drake)";
+  sound = 3;
+};
+
+GTFO.SpellID["1244252"] = {
+  --desc = "Charge Through (Pactsworn Sandreaver)";
+  sound = 3;
+};
+
+GTFO.SpellID["1231478"] = {
+  --desc = "Errant Explosion (Shoddily Stored Explosives)";
+  sound = 3;
+};
+
+GTFO.SpellID["473963"] = {
+  --desc = "Reckless Charge (Underpaid Brute)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["1215058"] = {
+  --desc = "Long Fuse Missiles (Torque Clankfire)";
+  sound = 3;
+};
+
 
 --- *******************
 --- * Nerub-ar Palace *
@@ -3055,7 +3106,7 @@ GTFO.SpellID["1232130"] = {
 GTFO.SpellID["1238844"] = {
   --desc = "Echo Barrage (Enforcer Jak'tull)";
   sound = 3;
-  ignoreApplication = true;
+  applicationOnly = true;
 };
 
 GTFO.SpellID["1232403"] = {
@@ -3173,6 +3224,12 @@ GTFO.SpellID["1237098"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1243699"] = {
+  --desc = "Spatial Fragment (Dimensius)";
+  sound = 3;
+  applicationOnly = true;
+};
+
 GTFO.SpellID["1230999"] = {
 	--desc = "Dark Matter (Dimensius)";
 	soundFunction = function() -- Warn only if you get hit more than once
@@ -3184,7 +3241,10 @@ GTFO.SpellID["1230999"] = {
 	end;
 };
 
-
+GTFO.SpellID["1242310"] = {
+  --desc = "Static Lightning (Plexus Sentinel)";
+  sound = 3;
+};
 
 end
 

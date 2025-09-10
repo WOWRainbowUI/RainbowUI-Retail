@@ -283,9 +283,8 @@ GTFO.SpellID["434830"] = {
 
 GTFO.SpellID["438825"] = {
   --desc = "Poisonous Cloud (Atik - Residue)";
-  applicationOnly = true;
+  ignoreApplication = true;
   sound = 1;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["433781"] = {
@@ -843,6 +842,11 @@ GTFO.SpellID["1250052"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1242921"] = {
+  --desc = "Freight Train (Freight Skiff)";
+  sound = 1;
+};
+
 --- *******************
 --- * Nerub-ar Palace *
 --- *******************
@@ -1397,9 +1401,9 @@ GTFO.SpellID["1227119"] = {
 
 GTFO.SpellID["1235045"] = {
   --desc = "Encroaching Oblivion (Adarus Duskblaze)";
-  -- negatingDebuffSpellID = ???;
-  -- sound = 1;
-  test = true;
+  negatingDebuffSpellID = 1222232; -- Devourer's Ire
+  ignoreApplication = true;
+  sound = 1;
 };
 
 GTFO.SpellID["1233968"] = {
