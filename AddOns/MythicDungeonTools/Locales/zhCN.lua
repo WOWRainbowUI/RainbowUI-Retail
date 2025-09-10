@@ -903,6 +903,8 @@ L["Festerhide Grizzly"] = "烂皮灰熊"
 L["Fetid Maggot"] = "恶臭蛆虫"
 L["Fetid Rotsinger"] = "腐臭的颂朽者"
 L["Feugen"] = "费尔根"
+--[[Translation missing --]]
+L["ffAbandonTip"] = "Use the /ff slash command to start the M+ abandon vote"
 L["Field of the Eternal Hunt"] = "永恒猎场"
 L["Filth Caller"] = "污秽呼唤者"
 L["Finger Food"] = "手抓零食"

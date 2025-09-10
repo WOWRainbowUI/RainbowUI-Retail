@@ -1127,6 +1127,8 @@ L["Festerhide Grizzly"] = "Grizzly Putrescente"
 L["Fetid Maggot"] = "Camola Fetida"
 L["Fetid Rotsinger"] = "Cantamarcio Fetida"
 L["Feugen"] = "Feugen"
+--[[Translation missing --]]
+L["ffAbandonTip"] = "Use the /ff slash command to start the M+ abandon vote"
 L["Field of the Eternal Hunt"] = "Campi della Caccia Eterna"
 L["Filth Caller"] = "Invocatrice del Sudiciume"
 L["Finger Food"] = "Stuzzichino"

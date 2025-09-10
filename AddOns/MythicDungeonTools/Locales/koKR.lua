@@ -978,6 +978,8 @@ L["Festerhide Grizzly"] = "고름가죽 불곰"
 L["Fetid Maggot"] = "악취 나는 구더기"
 L["Fetid Rotsinger"] = "악취 나는 부패노래꾼"
 L["Feugen"] = "퓨진"
+--[[Translation missing --]]
+L["ffAbandonTip"] = "Use the /ff slash command to start the M+ abandon vote"
 L["Field of the Eternal Hunt"] = "영원한 사냥의 들판"
 L["Filth Caller"] = "오물 소환사"
 L["Finger Food"] = "맨손음식"
