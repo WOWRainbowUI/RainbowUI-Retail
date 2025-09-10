@@ -1,12 +1,6 @@
 # Quartz
 
-## [3.7.16](https://github.com/Nevcairiel/Quartz/tree/3.7.16) (2025-03-04)
-[Full Changelog](https://github.com/Nevcairiel/Quartz/compare/3.7.15a...3.7.16) [Previous Releases](https://github.com/Nevcairiel/Quartz/releases)
+## [3.7.16a](https://github.com/Nevcairiel/Quartz/tree/3.7.16a) (2025-09-09)
+[Full Changelog](https://github.com/Nevcairiel/Quartz/compare/3.7.16...3.7.16a) [Previous Releases](https://github.com/Nevcairiel/Quartz/releases)
 
-- Update retail channeling ticks  
-    Add channeling ticks for several spells.  
-    Remove Essence Font and unused versions of Void Torrent and Shifting Power.  
-- Update Channeling Ticks for Mists of Pandaria Classic  
-    Based on data provided in #99  
-    Fixes #99  
-    Fixes #100  
+- Update TOC for 11.2 and 11.2.5  
