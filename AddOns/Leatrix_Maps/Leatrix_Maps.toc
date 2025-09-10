@@ -16,7 +16,7 @@
 ## Notes-zhTW: 如需支援，請造訪 leatrix.com。
 ## Notes-zhCN: 如需支持，请访问 leatrix.com。
 
-## Version: 11.2.06
+## Version: 11.2.07
 ## Author: Leatrix
 ## SavedVariables: LeaMapsDB
 ## AddonCompartmentFunc:LeaMapsGlobalMiniBtnClickFunc
