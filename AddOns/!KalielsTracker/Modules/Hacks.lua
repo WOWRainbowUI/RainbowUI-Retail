@@ -67,60 +67,78 @@ local function Hack_WorldMap()
             end
         end
 
-        function WorldMapFrame:AcquirePin(pinTemplate, ...)  -- R
-            if not self.pinPools[pinTemplate] then
-                local pinTemplateType = self:GetPinTemplateType(pinTemplate);
-                self.pinPools[pinTemplate] = CreateFramePool(pinTemplateType, self:GetCanvas(), pinTemplate, OnPinReleased);
-            end
-
-            local pin, newPin = self.pinPools[pinTemplate]:Acquire();
-
-            pin.pinTemplate = pinTemplate;
-            pin:SetOwningMap(self);
-
-            if newPin then
-                local isMouseClickEnabled = pin:IsMouseClickEnabled();
-                local isMouseMotionEnabled = pin:IsMouseMotionEnabled();
-
-                if isMouseClickEnabled then
-                    pin:SetScript("OnMouseUp", OnPinMouseUp);
-                    pin:SetScript("OnMouseDown", pin.OnMouseDown);
-
-                    -- Prevent OnClick handlers from being run twice, once a frame is in the mapCanvas ecosystem it needs
-                    -- to process mouse events only via the map system.
-                    if pin:IsObjectType("Button") then
-                        pin:SetScript("OnClick", nil);
-                    end
+        local function HackAcquirePin(mapFrame)
+            function mapFrame:AcquirePin(pinTemplate, ...)  -- R
+                if not self.pinPools[pinTemplate] then
+                    local pinTemplateType = self:GetPinTemplateType(pinTemplate);
+                    self.pinPools[pinTemplate] = CreateFramePool(pinTemplateType, self:GetCanvas(), pinTemplate, OnPinReleased);
                 end
 
-                if isMouseMotionEnabled then
-                    if newPin and not pin:DisableInheritedMotionScriptsWarning() then
-                        -- These will never be called, just define a OnMouseEnter and OnMouseLeave on the pin mixin and it'll be called when appropriate
-                        assert(pin:GetScript("OnEnter") == nil);
-                        assert(pin:GetScript("OnLeave") == nil);
+                local pin, newPin = self.pinPools[pinTemplate]:Acquire();
+
+                pin.pinTemplate = pinTemplate;
+                pin:SetOwningMap(self);
+
+                if newPin then
+                    local isMouseClickEnabled = pin:IsMouseClickEnabled();
+                    local isMouseMotionEnabled = pin:IsMouseMotionEnabled();
+
+                    if isMouseClickEnabled then
+                        pin:SetScript("OnMouseUp", OnPinMouseUp);
+                        pin:SetScript("OnMouseDown", pin.OnMouseDown);
+
+                        -- Prevent OnClick handlers from being run twice, once a frame is in the mapCanvas ecosystem it needs
+                        -- to process mouse events only via the map system.
+                        if pin:IsObjectType("Button") then
+                            pin:SetScript("OnClick", nil);
+                        end
                     end
-                    pin:SetScript("OnEnter", pin.OnMouseEnter);
-                    pin:SetScript("OnLeave", pin.OnMouseLeave);
+
+                    if isMouseMotionEnabled then
+                        if newPin and not pin:DisableInheritedMotionScriptsWarning() then
+                            -- These will never be called, just define a OnMouseEnter and OnMouseLeave on the pin mixin and it'll be called when appropriate
+                            assert(pin:GetScript("OnEnter") == nil);
+                            assert(pin:GetScript("OnLeave") == nil);
+                        end
+                        pin:SetScript("OnEnter", pin.OnMouseEnter);
+                        pin:SetScript("OnLeave", pin.OnMouseLeave);
+                    end
+
+                    pin:SetMouseClickEnabled(isMouseClickEnabled);
+                    pin:SetMouseMotionEnabled(isMouseMotionEnabled);
                 end
 
-                pin:SetMouseClickEnabled(isMouseClickEnabled);
-                pin:SetMouseMotionEnabled(isMouseMotionEnabled);
+                if newPin then
+                    pin:OnLoad();
+                end
+
+                pin.CheckMouseButtonPassthrough = Noop
+                pin.UpdateMousePropagation = Noop
+
+                self.ScrollContainer:MarkCanvasDirty();
+                pin:Show();
+                pin:OnAcquired(...);
+                self:RegisterPin(pin);
+
+                return pin;
             end
-
-            if newPin then
-                pin:OnLoad();
-            end
-
-            pin.CheckMouseButtonPassthrough = Noop
-            pin.UpdateMousePropagation = Noop
-
-            self.ScrollContainer:MarkCanvasDirty();
-            pin:Show();
-            pin:OnAcquired(...);
-            self:RegisterPin(pin);
-
-            return pin;
         end
+
+        HackAcquirePin(WorldMapFrame)
+
+        KT:RegEvent("ADDON_LOADED", function(eventID, addon)
+            if addon == "Blizzard_FlightMap" then
+                HackAcquirePin(FlightMapFrame)
+                KT:UnregEvent(eventID)
+            end
+        end)
+
+        KT:RegEvent("ADDON_LOADED", function(eventID, addon)
+            if addon == "Blizzard_BattlefieldMap" then
+                HackAcquirePin(BattlefieldMapFrame)
+                KT:UnregEvent(eventID)
+            end
+        end)
     end
 end
 

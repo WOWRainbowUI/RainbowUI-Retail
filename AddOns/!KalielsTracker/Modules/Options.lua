@@ -2127,7 +2127,7 @@ local function Setup()
 		clearTrackerDataDesc1 = {
 			name = "清空當前角色已追蹤的任容資料 (任務、成就等，不包含設定)。",
 			type = "description",
-			order = 1,
+			order = 0.1,
 		},
 		clearTrackerData = {
 			name = "清空追蹤清單",
@@ -2143,18 +2143,18 @@ local function Setup()
 				KT.QuestsCache_Init()
 				OTF:Update()
 			end,
-			order = 2,
+			order = 0.2,
 		},
 		clearTrackerDataDesc2 = {
 			name = "當前角色: "..cBold..KT.playerName,
 			type = "description",
 			width = "double",
-			order = 3,
+			order = 0.3,
 		},
 		clearTrackerDataDesc4 = {
-			name = "",
+			name = " ",
 			type = "description",
-			order = 4,
+			order = 0.4,
 		}
 	}
 	options.args.profiles = profiles

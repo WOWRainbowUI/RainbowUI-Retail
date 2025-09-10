@@ -310,6 +310,10 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "如果你喜歡 "..KT.TITLE.."，請考慮在 Patreon 贊助 "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
+					(cTitle.."版本 7.13.1|r\n"..
+					"- 變更 - 世界地圖駭客功能 - 改善\n"..
+					"\n")..
+
 					(cTitle.."版本 7.13.0|r\n"..
 					"- 變更 - 改善隊伍同步反應\n"..
 					"- 變更 - 選項 - 將指令移至控制區塊，重新命名一個指令\n"..
