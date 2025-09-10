@@ -1,7 +1,6 @@
 # Syndicator
 
-## [230](https://github.com/Baganator/Syndicator/tree/230) (2025-09-03)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/229...230) 
+## [231](https://github.com/Baganator/Syndicator/tree/231) (2025-09-07)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/230...231) 
 
-- Vanilla: Use CraftInfoAnywhere to detect crafted items when Player GUID missing  
-- Exclude "You can't use that here" text from usable check  
+- Search Builder: Remove usage of context menus, replaced with DropdownButtons  
