@@ -8,9 +8,9 @@ Translators: wowuicn, lsjyzjl, xazhaoyang, Andyca, BNSSNB
 
 if (GetLocale() == "zhTW") then
 	local L = GTFOLocal;
-	L.Addon_Name = "地板傷害警報",
-	L.Option_Name = "戰鬥-警報",
-	L.Master_Volume = "主音量",
+	L.Addon_Name = "地板傷害警報";
+	L.Option_Name = "戰鬥-警報";
+	L.Master_Volume = "主音量";
 	L.Active_Off = "插件暫停";
 	L.Active_On = "插件恢復";
 	L.AlertType_Fail = "犯錯";
@@ -34,7 +34,7 @@ if (GetLocale() == "zhTW") then
 	L.Loading_Loaded = "v%s 載入完成.";
 	L.Loading_LoadedSuspended = "v%s 載入完成. (|cFFFF1111暫停|r)";
 	L.Loading_LoadedWithPowerAuras = "v%s 與 Power Auras 同時載入完成.";
-	L.Loading_NewDatabase = "v%s: 發現新的數據庫版本, 重設為預設.";
+	L.Loading_NewDatabase = "v%s: 發現新的數據庫版本，重設為預設。";
 	L.Loading_OutOfDate = "v%s 發現一個新的版本下載!  |cFFFFFFFF請盡快更新.|r";
 	L.LoadingPopup_Message = "你的GTFO設定已被重置為預設值。你是否想要立即設定GTFO？";
 	L.Loading_PowerAurasOutOfDate = "你的 |cFFFFFFFFPower Auras Classic|r 版本已過期!  GTFO & Power Auras 將無法同時載入。";
@@ -88,4 +88,37 @@ if (GetLocale() == "zhTW") then
 	L.UI_VolumeSoft = "2: 柔和";
 	L.Version_Off = "版本更新提醒關閉";
 	L.Version_On = "版本更新提醒啟用";
+	-- 4.66
+	L.Vibration_On = "搖桿震動開啟";
+	L.Vibration_Off = "搖桿震動關閉";
+	L.UI_Vibration = "震動";
+	L.UI_VibrationDescription = "發出警報時也會震動搖桿。";
+	L.UI_CustomSounds = "自訂音效";
+	L.UI_CustomSoundsHeader = "取代已有的音效警報";
+	L.UI_Reset = "重置";
+	L.UI_ResetCustomSounds = "將此音效重置為預設的音效。";
+	-- 5.0
+	L.UI_CustomSounds_Set = "設定 |cFFFFFFFF%s|r 警報的自訂音效。";
+	L.UI_CustomSounds_Removed = "|cFFFFFFFF%s|r 警報的自訂音效已經恢復成預設值。";
+	-- 5.3
+	L.Help_IgnoreSpell = "從你的自訂忽略清單中新增/移除法術 (進階)";
+	L.UI_NotSupported_Classic = "這個功能不支援經典版。";
+	L.UI_IgnoreSpell_Help = "要從你的自訂忽略清單中新增/移除法術，輸入: |cFFFFFFFF/GTFO Ignore 12345|r 其中 |cFF44FFFF12345|r 是你想要忽略的法術ID。";
+	L.UI_IgnoreSpell_None = "目前沒有忽略任何法術。";
+	L.UI_IgnoreSpell_List = "目前忽略了下列的法術:";
+	L.UI_IgnoreSpell_InvalidSpellId = "法術ID |cFF44FFFF%s|r 無效。";
+	L.UI_IgnoreSpell_Add = "現在會忽略法術 #%s: %s";
+	L.UI_IgnoreSpell_Remove = "不會再忽略法術 #%s: %s";
+	-- 5.16
+	L.BrannMode_On = "只有布萊恩提醒";
+	L.BrannMode_OnWithDefault = "布萊恩及標準提醒";
+	L.BrannMode_Off = "關閉布萊恩提醒";
+	L.UI_BrannMode = "布萊恩提醒";
+	L.UI_BrannModeDescription = "啟用此選項可讓布萊恩·銅鬚對你大吼。";
+	L.UI_AprilFoolsDay = "愚人節玩笑";
+	L.UI_AprilFoolsDayDescription = "取消勾選此項即可永久關閉這個有趣的愚人節玩笑。:(\n\n如果你改變心意，可以輸入 |cFFFFFFFF/GTFO Brann|r 來讓他回來。";
+	-- 5.17.
+	L.UI_IgnoreTime = "警報延遲時間";
+	L.UI_IgnoreTimeDescription = "警報音效間隔的最小延遲時間。如果警報太頻繁，請增加此數值。";
+	L.UI_IgnoreTime_Seconds = "秒";
 end

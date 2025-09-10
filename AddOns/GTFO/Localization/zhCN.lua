@@ -8,9 +8,9 @@ Translator: wowuicn, xazhaoyang, lsjyzjl, Mini_Dragon
 
 if (GetLocale() == "zhCN") then
 	local L = GTFOLocal;
-	L.Addon_Name = "GTFO 警报",
-	L.Option_Name = "GTFO 警报",
-	L.Master_Volume = "主音量",
+	L.Addon_Name = "GTFO 警报";
+	L.Option_Name = "GTFO 警报";
+	L.Master_Volume = "主音量";
 	L.Active_Off = "插件暂停";
 	L.Active_On = "插件恢复";
 	L.AlertType_Fail = "犯错";
