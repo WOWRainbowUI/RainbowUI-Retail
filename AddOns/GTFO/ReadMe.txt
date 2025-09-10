@@ -2308,3 +2308,13 @@ Change Log:
 5.18.6
 * Fixed TWW spells for Manaforge Omega 
 * Added TWW spells for Manaforge Omega 
+
+5.18.7
+* Added The War Within spells (world)
+* Added TWW spells for Ara-Kara, City of Echoes
+* Added TWW spells for TWW Delves 
+* Added TWW spells for Manaforge Omega
+
+5.19
+* Fixed localization issues when strings were not localized
+
