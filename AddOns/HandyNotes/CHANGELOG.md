@@ -1,7 +1,6 @@
 # HandyNotes
 
-## [v1.6.22](https://github.com/Nevcairiel/HandyNotes/tree/v1.6.22) (2024-11-03)
-[Full Changelog](https://github.com/Nevcairiel/HandyNotes/compare/v1.6.21...v1.6.22) [Previous Releases](https://github.com/Nevcairiel/HandyNotes/releases)
+## [v1.6.26](https://github.com/Nevcairiel/HandyNotes/tree/v1.6.26) (2025-09-09)
+[Full Changelog](https://github.com/Nevcairiel/HandyNotes/compare/v1.6.25...v1.6.26) [Previous Releases](https://github.com/Nevcairiel/HandyNotes/releases)
 
-- Update template usage on classic  
-- Update TOCs  
+- Update TOC for 11.2 and 11.2.5  
