@@ -1,6 +1,6 @@
 # Auctionator
 
-## [289](https://github.com/Auctionator/Auctionator/tree/289) (2025-08-16)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/288...289) 
+## [292](https://github.com/Auctionator/Auctionator/tree/292) (2025-09-09)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/291...292) 
 
-- Update in-game icon  
+- [Fixes #1717] Legacy AH: Fix cancelling auctions from selling tab  
