@@ -1212,14 +1212,17 @@ end
 
 local lowLevelWarned = false
 local noClassWarned = false
+-- Change here every expansion to automatically warn low-level users.
+local minimumLevel = 71
+local expansionName = "The War Within"
 
 -- Need to make caching system.
 RegisterUnitEvent( "UNIT_SPELLCAST_SUCCEEDED", "player", "target", function( event, unit, _, spellID )
     if not noClassWarned and not class.initialized then
-        Hekili:Notify( UnitClass( "player" ) .. " does not have any Hekili modules loaded (yet).\nWatch for updates.", 5 )
+        Hekili:Notify( UnitClass( "player" ) .. " does not have any Hekili modules loaded (yet).\nWatch for updates.", 10 )
         noClassWarned = true
-    elseif not lowLevelWarned and UnitLevel( "player" ) < 70 then
-        Hekili:Notify( "Hekili 輸出助手是為當前遊戲版本內容所設計的。\n等級 70 以下使用請自行承擔風險。", 5 )
+    elseif not lowLevelWarned and UnitLevel( "player" ) < minimumLevel then
+        Hekili:Notify( "Hekili 輸出助手是為 " .. expansionName .. " 版本內容所設計的。\n等級 " .. minimumLevel .. "以下的使用效果可能不如預期。", 10 )
         lowLevelWarned = true
     end
 
