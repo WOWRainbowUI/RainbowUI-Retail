@@ -185,43 +185,6 @@ timeFormatter.GetMaxInterval = function(self)
   return #timeFormatIntervalDescriptionFixed
 end
 
-local AbbreviateNumbers = AbbreviateNumbers
-local gameLocale = GetLocale()
-if gameLocale == "koKR" or gameLocale == "zhCN" or gameLocale == "zhTW" then
-  -- Work around https://github.com/Stanzilla/WoWUIBugs/issues/515
-  --
-  local NUMBER_ABBREVIATION_DATA_FIXED={
-    [1]={
-      breakpoint = 10000 * 10000,
-      significandDivisor = 10000 * 10000,
-      abbreviation = SECOND_NUMBER_CAP_NO_SPACE,
-      fractionDivisor = 1
-    },
-    [2]={
-      breakpoint = 1000 * 10000,
-      significandDivisor = 1000 * 10000,
-      abbreviation = SECOND_NUMBER_CAP_NO_SPACE,
-      fractionDivisor = 10
-    },
-    [3]={
-      breakpoint = 10000,
-      significandDivisor = 1000,
-      abbreviation = FIRST_NUMBER_CAP_NO_SPACE,
-      fractionDivisor = 10
-    }
-  }
-
-  AbbreviateNumbers = function(value)
-    for i, data in ipairs(NUMBER_ABBREVIATION_DATA_FIXED) do
-      if value >= data.breakpoint then
-              local finalValue = math.floor(value / data.significandDivisor) / data.fractionDivisor;
-              return finalValue .. data.abbreviation;
-      end
-    end
-    return tostring(value);
-  end
-end
-
 local simpleFormatters = {
   AbbreviateNumbers = function(value)
     if type(value) == "string" then value = tonumber(value) end
@@ -1137,16 +1100,16 @@ Private.format_types = {
 
         if cast then
           local _, _, _, _, endTime = WeakAuras.UnitCastingInfo("player")
-          local castExpirationTIme = endTime and endTime > 0 and (endTime / 1000) or 0
-          if castExpirationTIme > 0 then
-            result = min(result, now + value - castExpirationTIme)
+          local castExpirationTime = endTime and endTime > 0 and (endTime / 1000) or 0
+          if castExpirationTime > 0 then
+            result = min(result, now + value - castExpirationTime)
           end
         end
         if channel then
           local _, _, _, _, endTime = WeakAuras.UnitChannelInfo("player")
-          local castExpirationTIme = endTime and endTime > 0 and (endTime / 1000) or 0
-          if castExpirationTIme > 0 then
-            result = min(result, now + value - castExpirationTIme)
+          local castExpirationTime = endTime and endTime > 0 and (endTime / 1000) or 0
+          if castExpirationTime > 0 then
+            result = min(result, now + value - castExpirationTime)
           end
         end
 
@@ -3391,21 +3354,6 @@ Private.send_chat_message_types = {
 
 Private.send_chat_message_types.TTS = L["Text-to-speech"]
 
----@type table
-Private.tts_voices = {}
-
-local function updateTts()
-  wipe(Private.tts_voices)
-  for i, voiceInfo in pairs(C_VoiceChat.GetTtsVoices()) do
-    Private.tts_voices[voiceInfo.voiceID] = voiceInfo.name
-  end
-end
-
-updateTts()
-
-local TtsUpdateFrame = CreateFrame("FRAME")
-TtsUpdateFrame:RegisterEvent("VOICE_CHAT_TTS_VOICES_UPDATE")
-TtsUpdateFrame:SetScript("OnEvent", updateTts)
 
 ---@type table<string, string>
 Private.group_aura_name_info_types = {
@@ -4387,6 +4335,12 @@ Private.dbm_types = {
   [5] = L["Role"],
   [6] = L["Phase"],
   [7] = L["Important"]
+}
+
+Private.bossmods_timerTypes = {
+  PULL = L["Pull"],
+  BREAK = L["Break"],
+  TIMER = L["Timer"],
 }
 
 ---@type table<string, string>
