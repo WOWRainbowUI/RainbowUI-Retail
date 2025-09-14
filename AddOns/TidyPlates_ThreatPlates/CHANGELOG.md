@@ -1,3 +1,3 @@
-# 12.5.2 (2025-09-07)
+# 12.6.0 (2025-09-14)
 
-* Fixed a Lua error that occurred on Death Knights when Blizzard-style combo points were used in Mists Classic.
+* Added an option to change the healthbar border color [GH-600 by PolyBadger].
