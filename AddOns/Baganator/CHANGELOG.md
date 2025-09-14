@@ -1,6 +1,6 @@
 # Baganator
 
-## [736](https://github.com/Baganator/Baganator/tree/736) (2025-09-07)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/735...736) 
+## [741](https://github.com/TheMouseNest/Baganator/tree/741) (2025-09-13)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/740...741) 
 
-- Saved Searches: Remove context menu, replaced with DropdownButton (same look)  
+- Categories: Fix trinkets, necks and rings appearing in default Miscellaneous cat  
