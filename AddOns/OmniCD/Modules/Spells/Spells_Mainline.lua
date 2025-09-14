@@ -218,6 +218,7 @@ E.spell_db = {
 		{ ["class"]="HUNTER",["type"]="offensive",["buff"]=208652,["spec"]=true,["name"]="Dire Beast: Hawk",["duration"]=30,["icon"]=612363,["spellID"]=208652, },
 		{ ["class"]="HUNTER",["type"]="externalDefensive",["buff"]=53480,["spec"]=true,["name"]="Roar of Sacrifice",["duration"]=60,["icon"]=464604,["spellID"]=53480, },
 		{ ["class"]="HUNTER",["type"]="disarm",["buff"]=356719,["spec"]=true,["name"]="Chimaeral Sting",["duration"]=60,["icon"]=132211,["spellID"]=356719, },
+		{ ["class"]="HUNTER",["type"]="offensive",["buff"]=356707,["spec"]=true,["name"]="Wild Kingdom",["duration"]=60,["icon"]=236159,["spellID"]=356707, },
 		{ ["class"]="HUNTER",["type"]="heal",["buff"]=109304,["name"]="Exhilaration",["duration"]=120,["icon"]=461117,["spellID"]=109304, },
 		{ ["class"]="HUNTER",["type"]="defensive",["buff"]=264735,["spec"]=true,["name"]="Survival of the Fittest",["duration"]=120,["icon"]=136094,["spellID"]=264735, },
 		{ ["class"]="HUNTER",["type"]="interrupt",["buff"]=187707,["spec"]=true,["name"]="Muzzle",["duration"]=15,["icon"]=1376045,["spellID"]=187707, },
@@ -364,7 +365,7 @@ E.spell_db = {
 		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=207028,["spec"]=true,["duration"]=20,["name"]="Inquisition",["icon"]=135984,["spellID"]=207028, },
 		{ ["class"]="PALADIN",["type"]="immunity",["buff"]=228050,["spec"]=true,["duration"]=300,["name"]="Guardian of the Forgotten Queen",["icon"]=135919,["spellID"]=228049, },
 		{ ["class"]="PALADIN",["type"]="cc",["buff"]=853,["duration"]=45,["name"]="Hammer of Justice",["icon"]=135963,["spellID"]=853, },
-		{ ["class"]="PALADIN",["type"]="counterCC",["buff"]=210256,["spec"]=true,["duration"]=45,["name"]="Blessing of Sanctuary",["icon"]=135911,["spellID"]=210256, },
+		{ ["class"]="PALADIN",["type"]="counterCC",["buff"]=210256,["spec"]=true,["duration"]=60,["name"]="Blessing of Sanctuary",["icon"]=135911,["spellID"]=210256, },
 		{ ["class"]="PALADIN",["type"]="taunt",["buff"]=62124,["duration"]=8,["name"]="Hand of Reckoning",["icon"]=135984,["spellID"]=62124,["talent"]=207028, },
 		{ ["class"]="PALADIN",["type"]="immunity",["buff"]=642,["duration"]=300,["name"]="Divine Shield",["icon"]=524354,["spellID"]=642, },
 		{ ["class"]="PALADIN",["type"]="defensive",["buff"]=403876,["spec"]=70,["name"]="Divine Protection",["duration"]=90,["icon"]=524353,["spellID"]=403876, },
@@ -606,6 +607,7 @@ E.spell_db = {
 		{ ["class"]="WARLOCK",["type"]="offensive",["buff"]=442726,["spec"]=true,["name"]="Malevolence",["duration"]=60,["icon"]=5927631,["spellID"]=442726, },
 		{ ["class"]="WARLOCK",["type"]="heal",["buff"]=452930,["spec"]=386689,["name"]="Demonic Healthstone",["duration"]=60,["icon"]=538744,["spellID"]=452930, },
 		{ ["class"]="WARLOCK",["type"]="offensive",["buff"]=1218128,["spec"]=1218692,["name"]="Bloodstone",["duration"]=60,["icon"]=538744,["spellID"]=1218128, },
+		{ ["class"]="WARLOCK",["type"]="offensive",["buff"]=410598,["spec"]=true,["name"]="Soul Rip",["duration"]=60,["icon"]=5260437,["spellID"]=410598, },
 	},
 	["WARRIOR"] = {
 		{ ["class"]="WARRIOR",["type"]="taunt",["buff"]=355,["name"]="Taunt",["duration"]=8,["icon"]=136080,["spellID"]=355,["talent"]=205800, },
@@ -615,7 +617,7 @@ E.spell_db = {
 		{ ["class"]="WARRIOR",["type"]="externalDefensive",["buff"]=236273,["spec"]=true,["name"]="Duel",["duration"]=60,["icon"]=1455893,["spellID"]=236273, },
 		{ ["class"]="WARRIOR",["type"]="freedom",["buff"]=329038,["spec"]=true,["name"]="Bloodrage",["duration"]=20,["icon"]=132277,["spellID"]=329038, },
 		{ ["class"]="WARRIOR",["type"]="offensive",["buff"]=205800,["spec"]=true,["name"]="Oppressor",["duration"]=20,["icon"]=136080,["spellID"]=205800, },
-		{ ["class"]="WARRIOR",["type"]="movement",["buff"]=206572,["spec"]=true,["name"]="Dragon Charge",["duration"]=30,["icon"]=1380676,["spellID"]=206572, },
+		{ ["class"]="WARRIOR",["type"]="movement",["buff"]=206572,["spec"]=true,["name"]="Dragon Charge",["duration"]=45,["icon"]=1380676,["spellID"]=206572, },
 		{ ["class"]="WARRIOR",["type"]="disarm",["buff"]=236077,["spec"]=true,["name"]="Disarm",["duration"]=45,["icon"]=132343,["spellID"]=236077, },
 		{ ["class"]="WARRIOR",["type"]="externalDefensive",["buff"]=213871,["spec"]=true,["name"]="Bodyguard",["duration"]=15,["icon"]=132359,["spellID"]=213871, },
 		{ ["class"]="WARRIOR",["type"]="offensive",["buff"]=260708,["spec"]=71,["name"]="Sweeping Strikes",["duration"]=30,["icon"]=132306,["spellID"]=260708, },
@@ -715,6 +717,8 @@ E.spell_db = {
 		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=1232802,["name"]="Araz's Ritual Forge",["duration"]=120,["icon"]=7137585,["spellID"]=1232802,["item"]=242402, },
 		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=1235425,["name"]="Soulbinder's Embrace",["duration"]=60,["icon"]=7137533,["spellID"]=1235425,["item"]=242391, },
 		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=1232721,["name"]="Loom'ithar's Living Silk",["duration"]=90,["icon"]=7137503,["spellID"]=1232721,["item"]=242393, },
+		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=1223611,["name"]="Ethereal Exhaustion",["duration"]=360,["icon"]=7110834,["spellID"]=1223611,["item"]=235499, },
+
 
 
 
