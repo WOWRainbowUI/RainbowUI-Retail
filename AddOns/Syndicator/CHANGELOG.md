@@ -1,6 +1,6 @@
 # Syndicator
 
-## [231](https://github.com/Baganator/Syndicator/tree/231) (2025-09-07)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/230...231) 
+## [233](https://github.com/TheMouseNest/Syndicator/tree/233) (2025-09-13)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/232...233) 
 
-- Search Builder: Remove usage of context menus, replaced with DropdownButtons  
+- Vanilla: Fix #crafted keyword breaking searches  

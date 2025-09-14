@@ -847,8 +847,15 @@ end
 
 local CraftedCheck
 if Syndicator.Constants.IsEra then
+  local craftedClasses = {
+    [Enum.ItemClass.Armor] = true,
+    [Enum.ItemClass.Weapon] = true,
+    [Enum.ItemClass.Container] = true,
+    [Enum.ItemClass.Quiver] = true,
+  }
   CraftedCheck = function(details)
-    return Syndicator.Utilities.IsEquipment(details.itemLink) and CraftInfoAnywhere ~= nil and CraftInfoAnywhere.Data.ItemsToRecipes[details.itemID] ~= nil
+    local _, _, _, _, _, classID = C_Item.GetItemInfoInstant(details.itemID)
+    return craftedClasses[classID] ~= nil and CraftInfoAnywhere ~= nil and CraftInfoAnywhere.Data.ItemsToRecipes[details.itemID] ~= nil
   end
 else
   CraftedCheck = function(details)
@@ -2088,6 +2095,7 @@ function Syndicator.Search.InitializeSearchEngine()
   end
 
   local armorTypesToCheck = {
+    [0] = "miscellaneous",
     [2] = "leather",
     [3] = "mail",
     [4] = "plate",
