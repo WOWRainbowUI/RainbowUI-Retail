@@ -1,6 +1,10 @@
 local _, NS = ...
 
 local changelog = [=[
+### v2.8.27
+-   Fix Reshii Wraps to show on tank spec only
+-   Support TPerl, andromeda
+
 ### v2.8.26
 -   Fix PvP talent Master and Commander CDR amount
 -   Fix PvP talent Dragon Charge not benefitting from Vicious Agility and Blessing of the Bronze
