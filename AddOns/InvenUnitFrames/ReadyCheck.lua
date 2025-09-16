@@ -94,14 +94,18 @@ function IUF:UpdateReadyCheck2(self)
 	local readyCheckStatus = GetReadyCheckStatus(self.unit)
 	self.readyCheckStatus = readyCheckStatus
 	if self.readyCheckIcon then
+
 	if ( readyCheckStatus == "ready" ) then
-		self.readyCheckIcon:SetAtlas(READY_CHECK_READY_TEXTURE, TextureKitConstants.IgnoreAtlasSize);
+--		self.readyCheckIcon:SetTexture(READY_CHECK_READY_TEXTURE)--, TextureKitConstants.IgnoreAtlasSize);
+		self.readyCheckIcon:SetTexture("Interface\\RaidFrame\\ReadyCheck-Ready")
 		self.readyCheckIcon:Show()
 	elseif ( readyCheckStatus == "notready" ) then
-		self.readyCheckIcon:SetAtlas(READY_CHECK_NOT_READY_TEXTURE, TextureKitConstants.IgnoreAtlasSize);
+--		self.readyCheckIcon:SetTexture(READY_CHECK_NOT_READY_TEXTURE)--, TextureKitConstants.IgnoreAtlasSize);
+		self.readyCheckIcon:SetTexture("Interface\\RaidFrame\\ReadyCheck-Notready");
 		self.readyCheckIcon:Show()
 	elseif ( readyCheckStatus == "waiting" ) then
-		self.readyCheckIcon:SetAtlas(READY_CHECK_WAITING_TEXTURE, TextureKitConstants.IgnoreAtlasSize);
+--		self.readyCheckIcon:SetTexture(READY_CHECK_WAITING_TEXTURE)--, TextureKitConstants.IgnoreAtlasSize);
+		self.readyCheckIcon:SetTexture("Interface\\RaidFrame\\ReadyCheck-Waiting");
 		self.readyCheckIcon:Show()
 	else
 		self.readyCheckIcon:Hide()
