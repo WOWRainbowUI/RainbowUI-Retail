@@ -1,6 +1,6 @@
 # Syndicator
 
-## [233](https://github.com/TheMouseNest/Syndicator/tree/233) (2025-09-13)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/232...233) 
+## [234](https://github.com/TheMouseNest/Syndicator/tree/234) (2025-09-14)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/233...234) 
 
-- Vanilla: Fix #crafted keyword breaking searches  
+- Search: Prevent subclass keywords with the same name as a root class conflicting  
