@@ -76,16 +76,16 @@ end
 ---@class DBM
 local DBM = private:GetPrototype("DBM")
 _G.DBM = DBM
-DBM.Revision = parseCurseDate("20250906110503")
+DBM.Revision = parseCurseDate("20250915101121")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 local fakeBWVersion, fakeBWHash = 398, "3d79f92"--398.5
 local PForceDisable
 -- The string that is shown as version
-DBM.DisplayVersion = "11.2.13"--Core version
+DBM.DisplayVersion = "11.2.15"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2025, 9, 6) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2025, 9, 16) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 PForceDisable = 19--When this is incremented, trigger force disable regardless of major patch
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
@@ -304,6 +304,9 @@ DBM.DefaultOptions = {
 	ArrowPosX = 0,
 	ArrowPosY = -150,
 	ArrowPoint = "TOP",
+	DurabilityPosition = {"RIGHT", -150, 0},
+	LatencyPosition = {"RIGHT", -150, 0},
+	KeystonesPosition = {"LEFT", 30, 0},
 	-- global boss mod settings (overrides mod-specific settings for some options)
 	DontShowBossAnnounces = false,
 	DontShowTargetAnnouncements = true,
@@ -3216,7 +3219,7 @@ function DBM:LoadModOptions(modId, inCombat, first)
 	local savedVarsName = modId:gsub("-", "") .. "_AllSavedVars"
 	local savedStatsName = modId:gsub("-", "") .. "_SavedStats"
 	local fullname = playerName .. "-" .. playerRealm
-	if not currentSpecID or not currentSpecGroup or (currentSpecName or "") == playerClass then
+	if (not currentSpecID or currentSpecID == 0) or not currentSpecGroup or (currentSpecName or "") == playerClass then
 		self:SetCurrentSpecInfo()
 	end
 	local profileNum = private.playerLevel > 9 and DBM_UseDualProfile and currentSpecGroup or 0
@@ -3374,7 +3377,7 @@ function DBM:LoadAllModDefaultOption(modId)
 	-- modId is string like "DBM-Highmaul"
 	if not modId or not self.ModLists[modId] then return end
 	-- prevent error
-	if not currentSpecID or not currentSpecGroup or (currentSpecName or "") == playerClass then
+	if (not currentSpecID or currentSpecID == 0) or not currentSpecGroup or (currentSpecName or "") == playerClass then
 		self:SetCurrentSpecInfo()
 	end
 	-- variable init
@@ -3415,7 +3418,7 @@ function DBM:LoadModDefaultOption(mod)
 	-- mod must be table
 	if not mod then return end
 	-- prevent error
-	if not currentSpecID or not currentSpecGroup or (currentSpecName or "") == playerClass then
+	if (not currentSpecID or currentSpecID == 0) or not currentSpecGroup or (currentSpecName or "") == playerClass then
 		self:SetCurrentSpecInfo()
 	end
 	-- variable init
@@ -3452,7 +3455,7 @@ function DBM:CopyAllModOption(modId, sourceName, sourceProfile)
 	-- modId is string like "DBM-Highmaul"
 	if not modId or not sourceName or not sourceProfile or not DBM.ModLists[modId] then return end
 	-- prevent error
-	if not currentSpecID or not currentSpecGroup or (currentSpecName or "") == playerClass then
+	if (not currentSpecID or currentSpecID == 0) or not currentSpecGroup or (currentSpecName or "") == playerClass then
 		self:SetCurrentSpecInfo()
 	end
 	-- variable init
@@ -3511,7 +3514,7 @@ function DBM:CopyAllModTypeOption(modId, sourceName, sourceProfile, Type)
 	-- modId is string like "DBM-Highmaul"
 	if not modId or not sourceName or not sourceProfile or not self.ModLists[modId] or not Type then return end
 	-- prevent error
-	if not currentSpecID or not currentSpecGroup or (currentSpecName or "") == playerClass then
+	if (not currentSpecID or currentSpecID == 0) or not currentSpecGroup or (currentSpecName or "") == playerClass then
 		self:SetCurrentSpecInfo()
 	end
 	-- variable init
@@ -3568,7 +3571,7 @@ function DBM:DeleteAllModOption(modId, name, profile)
 	-- modId is string like "DBM-Highmaul"
 	if not modId or not name or not profile or not self.ModLists[modId] then return end
 	-- prevent error
-	if not currentSpecID or not currentSpecGroup or (currentSpecName or "") == playerClass then
+	if (not currentSpecID or currentSpecID == 0) or not currentSpecGroup or (currentSpecName or "") == playerClass then
 		self:SetCurrentSpecInfo()
 	end
 	-- variable init
@@ -4287,7 +4290,7 @@ function DBM:LoadMod(mod, force, enableTestSupport)
 		self:AddMsg(L.LOAD_MOD_TOC_MISMATCH:format(mod.name, mod.minToc))
 		return
 	end
-	if not currentSpecID or (currentSpecName or "") == playerClass then
+	if (not currentSpecID or currentSpecID == 0) or (currentSpecName or "") == playerClass then
 		self:SetCurrentSpecInfo()
 	end
 	difficulties:RefreshCache()
@@ -7590,7 +7593,7 @@ function DBM:RoleCheck(ignoreLoot)
 			self:AddMsg(L.LOOT_SPEC_REMINDER:format(_G[role] or CL.UNKNOWN, _G[lootrole]))
 		end
 	else--Cata
-		if not currentSpecID then
+		if (not currentSpecID or currentSpecID == 0) then
 			DBM:SetCurrentSpecInfo()
 		end
 		if currentSpecID and private.specRoleTable[currentSpecID] then
@@ -7788,12 +7791,12 @@ bossModPrototype.IsMop = DBM.IsMop
 
 ---@param self DBMModOrDBM
 function DBM:IsPostCata()
-	return private.isCata or private.isRetail
+	return private.isCata or private.isMop or private.isRetail
 end
 bossModPrototype.IsPostCata = DBM.IsPostCata
 
 function DBM:IsPostMoP()
-	return private.isRetail
+	return private.isRetail or private.isMop
 end
 
 function bossModPrototype:CheckBigWigs(name)
@@ -7827,7 +7830,7 @@ do
 	---@return boolean
 	function bossModPrototype:GetRoleFlagValue(flag)
 		if not flag then return false end
-		if not currentSpecID then
+		if (not currentSpecID or currentSpecID == 0) then
 			DBM:SetCurrentSpecInfo()
 		end
 		local flags = {strsplit("|", flag)}
@@ -7884,7 +7887,7 @@ do
 			return false
 		end
 		--Personal check Only
-		if not currentSpecID then
+		if (not currentSpecID or currentSpecID == 0) then
 			DBM:SetCurrentSpecInfo()
 		end
 		return private.specRoleTable[currentSpecID]["MeleeDps"]
@@ -7925,7 +7928,7 @@ do
 			return false
 		end
 		--Personal check Only
-		if not currentSpecID then
+		if (not currentSpecID or currentSpecID == 0) then
 			DBM:SetCurrentSpecInfo()
 		end
 		return private.specRoleTable[currentSpecID]["Melee"]
@@ -7945,7 +7948,7 @@ do
 			end
 		end
 		--Personal check Only
-		if not currentSpecID then
+		if (not currentSpecID or currentSpecID == 0) then
 			DBM:SetCurrentSpecInfo()
 		end
 		return private.specRoleTable[currentSpecID]["Ranged"]
@@ -7964,7 +7967,7 @@ do
 			end
 		end
 		--Personal check Only
-		if not currentSpecID then
+		if (not currentSpecID or currentSpecID == 0) then
 			DBM:SetCurrentSpecInfo()
 		end
 		return private.specRoleTable[currentSpecID]["SpellCaster"]
@@ -7982,7 +7985,7 @@ do
 			end
 		end
 		--Personal check Only
-		if not currentSpecID then
+		if (not currentSpecID or currentSpecID == 0) then
 			DBM:SetCurrentSpecInfo()
 		end
 		return private.specRoleTable[currentSpecID]["MagicDispeller"]
@@ -8004,7 +8007,7 @@ do
 
 	function bossModPrototype:IsTank()
 		--IsTanking already handles external calls, no need here.
-		if not currentSpecID then
+		if (not currentSpecID or currentSpecID == 0) then
 			DBM:SetCurrentSpecInfo()
 		end
 		if not private.isRetail then
@@ -8029,7 +8032,7 @@ function bossModPrototype:IsDps(uId)
 		--no SpecID checks because SpecID is only availalbe with DBM/Bigwigs, but both DBM/Bigwigs auto set DAMAGER/HEALER/TANK roles anyways so it'd be redundant
 		return private.isRetail and UnitGroupRolesAssigned(uId) == "DAMAGER" or not GetPartyAssignment("MAINTANK", uId, true)
 	end
-	if not currentSpecID then
+	if (not currentSpecID or currentSpecID == 0) then
 		DBM:SetCurrentSpecInfo()
 	end
 	if not private.isRetail then
@@ -8051,7 +8054,7 @@ function DBM:IsHealer(uId)
 		--no SpecID checks because SpecID is only availalbe with DBM/Bigwigs, but both DBM/Bigwigs auto set DAMAGER/HEALER/TANK roles anyways so it'd be redundant
 		return UnitGroupRolesAssigned(uId) == "HEALER"
 	end
-	if not currentSpecID then
+	if (not currentSpecID or currentSpecID == 0) then
 		DBM:SetCurrentSpecInfo()
 	end
 	if not private.isRetail then
@@ -9256,7 +9259,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20250906110238" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20250915101121" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then

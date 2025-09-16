@@ -1,36 +1,72 @@
 # DBM - Core
 
-## [11.2.13](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.2.13) (2025-09-06)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.2.12...11.2.13) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.2.15](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.2.15) (2025-09-15)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.2.13...11.2.15) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- Update koKR (#1725)  
+- prep retag  
+- Bugfixes;  
+    - Make positioning cleaner on keystones frame (to always position topleft)  
+    - Allow esc to close frames  
+- Update localization.ru.lua (#1759)  
+- Hide other panels when one opens.  
+- ignore specIDs of 0 and recheck (when blizzard api gets buggy)  
+- Also register for click AnyUp?  
+- Remove bad debugging, derp.  
+- bump alpha  
+- scope button to only show on retail  
+- Add missing GUI button for keystones  
+- completely rearrange help slash command menus to be more constructive to modern times. 4 of the features in old help menu weren't even usuable in dungeons/raids anymore. Now /dbm help will provide list of actually useful commands and help2 will be where the more niche ones reside.  
+    Caveat, many of translations may be wonkey because I just let copilot write em all for preliminary update. they'll likely get revised later  
+- prep new tag  
+- fix more mop classic classifications  
+- Better handle celestial dungeon mapping  
+- New keystones system & Tweaks (#1728)  
+- Update localization.es.lua (#1757)  
+    * Update localization.es.lua  
+    * Update localization.es.lua  
+    * Update localization.es.lua  
+- Update localization.br.lua (#1758)  
+- TOc updates for PTR  
+- change boss unit ids from first prio to last in target scanner to hopefully fix icon setting issues in mop classic where boss unitids fail with SetRaidTarget (this happenson retail too sometimes but not as bad as mop classic)  
+- Extend variances for 3rd chamber on plexus sentinel mythic  
+- Update koKR (#1753)  
     Co-authored-by: Adam <MysticalOS@users.noreply.github.com>  
-- Update commonlocal.ru.lua (#1729)  
-- Update localization.ru.lua (#1726)  
-- bump version  
-- Manaforge Omega Update:  
-     - Fixed bug on soulbinder where the lines warning gave only count and not target names  
-     - All remaining bosses finally have spell renames for easier reading and understanding of abilities. This should have been done long ago but life got crazy. Sorry for delay.  
-- minor timer tweaks  
-- minor LFR (and normal) fixes.  
-- Update koKR (#1715)  
-    Co-authored-by: Adam <MysticalOS@users.noreply.github.com>  
-- Update localization.ru.lua (#1724)  
-- Update commonlocal.fr.lua (#1722)  
-- Update commonlocal.br.lua (#1721)  
-- Update commonlocal.es.lua (#1720)  
-- Update localization.es.lua (#1719)  
-- Update commonlocal.ru.lua (#1713)  
-- Replace DBM options with a button to open Threat Plates options when BossMods support is enabled in Threat Plates (#1714)  
-- Fix more classic media options  
-    Fix error in last commit  
-- Finally hook up option to disable built in music, closes https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1723  
-    Also fixed bug where media that doesn't exist would load on classic versions of wow  
-- attempt to better handle p1 swap warning on Halhadaar  
-    Attempt to better handle double salvo on heroic and mythic sentinel  
-- fix bug where gamma burst had wrong audio queue on voice packs  
-- use hybrid timer for dread mortar  
-- tweak starkiller timer to expire 2 seconds earlier to line up with images.  
-    changed soak text on sentinel  
-- still send world syncs to guild even if not in a group  
+- fix bad copy paste  
+- Work around blizzard bug where the first rings has no event at all, not even emote, sometimes.  
+- tweaks to double soak yells  
+- Update localization.en.lua  
+- Update localization.ru.lua (#1748)  
+- Update localization.es.lua (#1749)  
+- Update localization.fr.lua (#1750)  
+- Update localization.fr.lua (#1751)  
+- Update localization.tw.lua (#1752)  
+- Update localization.en.lua  
+- Placeholder new locales.  
+- Update localization.fr.lua (#1747)  
+- Update localization.br.lua (#1746)  
+    * Update localization.br.lua  
+    * Update localization.br.lua  
+- Update localization.fr.lua (#1745)  
+    * Update localization.fr.lua  
+    * Update localization.fr.lua  
+- Update localization.es.lua (#1744)  
+- Update localization.tw.lua (#1743)  
+- Update commonlocal.tw.lua (#1742)  
+- Update localization.tw.lua (#1741)  
+- Update localization.es.lua (#1731)  
+- Update localization.fr.lua (#1732)  
+- Update localization.br.lua (#1733)  
+- Update commonlocal.es.lua (#1734)  
+- Update commonlocal.fr.lua (#1735)  
+- Update commonlocal.br.lua (#1736)  
+- Update localization.es.lua (#1737)  
+    * Update localization.es.lua  
+    * Update localization.es.lua  
+    * Update localization.es.lua  
+    * Update localization.es.lua  
+    * Update localization.es.lua  
+- Update localization.fr.lua (#1738)  
+    * Update localization.fr.lua  
+    * Update localization.fr.lua  
+- Update localization.br.lua (#1739)  
 - bump alpha  

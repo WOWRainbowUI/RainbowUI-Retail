@@ -266,26 +266,29 @@ L.INFOFRAME_ALT						= "Альтернативная:"--Альтернативн
 
 L.LFG_INVITE						= "Приглашение в подземелье"
 
-L.SLASHCMD_HELP = {
+--Common slash commands
+L.SLASHCMD_HELP							= {--AI translated (it's fine)
 	"Доступные команды:",
 	"-----------------",
-	"/dbm unlock: Отображает перемещаемый индикатор таймера (псевдоним: move).",
-	"/range <число> или /distance <число>: Показать окно проверки дистанции. /rrange или /rdistance для изменения цветов.",
-	"/hudar <число>: Проверка дистанции, использующая HUD.",
-	"/dbm timer: Запускает пользовательский " .. L.DBM .. " отсчёт времени, для доп. информации введите '/dbm timer'.",
-	"/dbm arrow: Показывает " .. L.DBM .. " стрелку, для доп. информации введите '/dbm arrow help'.",
-	"/dbm hud: Показывает " .. L.DBM .. " HUD, для доп. информации введите '/dbm hud'.",
-	"/dbm help2: Показывает команды управления рейдом"
+	"/dbm unlock: Показывает перемещаемый таймер в строке состояния (псевдоним: move).",
+	"/dbm pull <sec>: Отправляет таймер атаки на <sec> секунд в рейд (требуются права лидера. псевдоним: pull).",
+	"/dbm break <min>: Отправляет таймер перерыва на <min> минут в рейд (требуются права лидера. псевдоним: break).",
+	"/dbm timer: Запускает пользовательский таймер " .. L.DBM .. ", подробности в разделе '/dbm timer'.",
+	"/keys: Выполняет проверки ключей M+ и рейтинга для группы/гильдии, а также предоставляет быстрые телепорты к подземельям. (псевдоним: key, keystone)",
+	"/dbm lag: Выполняет проверку задержки для всего рейда.",
+	"/dbm durability: Выполняет проверку прочности для всего рейда.",
+	"/dbm help2: Показывает дополнительные команды"
 }
-L.SLASHCMD_HELP2 = {
+--Менее используемые команды
+L.SLASHCMD_HELP2						= {--AI translated (it's fine)
 	"Доступные команды:",
 	"-----------------",
-	"/dbm pull <сек>: Отправляет рейду отсчёт времени до атаки (требуются права лидера или помощника. Псевдоним: pull).",
-	"/dbm break <мин>: Отправляет рейду таймер перерыва (требуются права лидера или помощника. Псевдоним: break).",
-	"/dbm version: Выполняет проверку версии босс мода (псевдоним: ver).",
-	"/dbm version2: Выполняет проверку версии босс мода и отправляет сообщение шёпотом с устаревшей версией (псевдоним: ver2).",
-	"/dbm lag: Выполняет проверку задержки у всего рейда.",
-	"/dbm durability: Выполняет проверку прочности у всего рейда."
+	"/dbm version: Выполняет проверку версии босс-мода (псевдоним: ver).",
+	"/dbm version2: Выполняет проверку версии босс-мода, которая также шепчет игрокам, у которых устаревшая версия (псевдоним: ver2).",
+	"/range <number> или /distance <number>: Показывает фрейм диапазона. /rrange или /rdistance для изменения цветов.",
+	"/hudar <number>: Показывает HUD для определения расстояния.",
+	"/dbm arrow: Показывает стрелку " .. L.DBM .. ", подробности в разделе '/dbm arrow help'.",
+	"/dbm hud: Показывает HUD " .. L.DBM .. ", подробности в разделе '/dbm hud'."
 }
 L.TIMER_USAGE = {
 	L.DBM .. " команды таймера:",
@@ -676,6 +679,7 @@ L.TIMER_RESPAWN						= "Появление %s"
 
 L.LAG_HEADER						= L.DBM.. " - результаты проверки задержки"
 L.DUR_HEADER						= L.DBM.. " - результаты проверки прочности"
+L.KEYSTONES_HEADER					= L.DBM.. " - ключи М+"
 
 L.OVERRIDE_ACTIVATED					= "Для этого сражения лидер рейда активировал перезапись конфигурации."
 
@@ -722,3 +726,14 @@ L.TOOLTIP_FASTEST				= "Быстрое убийство (%s)"
 L.FOLLOWER					= "Союзник"
 L.STORY					    = PLAYER_DIFFICULTY_STORY_RAID or "Сюжет"
 L.DUOS						= "Дуо"
+
+-- Keystone dungeon names (keep to a max of 6 characters)
+-- See https://wago.tools/db2/MapChallengeMode for ID => Dungeon Names
+L.KEYSTONE_NAMES[378] = 'ЧП' -- Halls of Atonement
+L.KEYSTONE_NAMES[391] = 'РТУЧ' -- Tazavesh: Streets of Wonder
+L.KEYSTONE_NAMES[392] = 'РТГС' -- Tazavesh: So'leah's Gambit
+L.KEYSTONE_NAMES[499] = 'ПСП' -- Priory of the Sacred Flame
+L.KEYSTONE_NAMES[503] = 'АКГО' -- Ara-Kara, City of Echoes
+L.KEYSTONE_NAMES[505] = 'СР' -- The Dawnbreaker
+L.KEYSTONE_NAMES[525] = 'ШЛЮЗ' -- Operation Floodgate
+L.KEYSTONE_NAMES[542] = 'ЗА' -- Eco-Dome Al'dani
