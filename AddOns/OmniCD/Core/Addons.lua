@@ -322,6 +322,16 @@ local unitFrameData = {
 		[2] = "oUF_Raid%dUnitButton",
 		[3] = "unit",
 	},
+	{
+		[1] = "andromeda",
+		[2] = "oUF_PartyUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "TPerl",
+		[2] = "TPerl_party",
+		[3] = "partyid",
+	},
 }
 
 local customUF = { optionTable = { auto = L["Auto"], blizz = L["Blizzard"] }, enabledList = false }

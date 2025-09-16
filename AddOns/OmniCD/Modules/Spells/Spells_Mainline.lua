@@ -717,7 +717,7 @@ E.spell_db = {
 		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=1232802,["name"]="Araz's Ritual Forge",["duration"]=120,["icon"]=7137585,["spellID"]=1232802,["item"]=242402, },
 		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=1235425,["name"]="Soulbinder's Embrace",["duration"]=60,["icon"]=7137533,["spellID"]=1235425,["item"]=242391, },
 		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=1232721,["name"]="Loom'ithar's Living Silk",["duration"]=90,["icon"]=7137503,["spellID"]=1232721,["item"]=242393, },
-		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=1223611,["name"]="Ethereal Exhaustion",["duration"]=360,["icon"]=7110834,["spellID"]=1223611,["item"]=235499, },
+		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=1223611,["name"]="Ethereal Exhaustion",["duration"]={[66]=360,[73]=360,[104]=360,[250]=360,[268]=360,[581]=360,},["icon"]=7110834,["spellID"]=1223611,["item"]=235499, },
 
 
 
