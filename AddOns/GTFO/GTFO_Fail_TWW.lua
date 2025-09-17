@@ -736,6 +736,7 @@ GTFO.SpellID["453767"] = {
 GTFO.SpellID["461507"] = {
   --desc = "Cultivated Poisons (Ki'katal the Harvester)";
   sound = 3;
+  applicationOnly = true;
 };
 
 GTFO.SpellID["456320"] = {
@@ -3121,6 +3122,11 @@ GTFO.SpellID["1227897"] = {
 
 GTFO.SpellID["1225645"] = {
   --desc = "Twilight Spikes (Nexus-King Salhadaar)";
+  sound = 3;
+};
+
+GTFO.SpellID["1247213"] = {
+  --desc = "Fractal Claw (Nexus-King Salhadaar)";
   sound = 3;
 };
 
