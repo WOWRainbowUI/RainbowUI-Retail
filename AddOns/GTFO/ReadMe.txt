@@ -2318,3 +2318,7 @@ Change Log:
 5.19
 * Fixed localization issues when strings were not localized
 
+5.19.1
+* Added TWW spells for Manaforge Omega
+* Fixed TWW spells for Ara-Kara, City of Echoes
+* Fixed SL spells for Halls of Atonement
