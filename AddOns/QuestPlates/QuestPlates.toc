@@ -1,17 +1,9 @@
 ## Interface: 110107, 110200
-## Title: - |cff58be81Q|r|cffffffffuest|r|cff58be81P|r|cfffffffflates|r
-## Notes: Adds quest progress to nameplates.|n|r   |cff58be81By Semlar, DonnieDice|r
-## Version: v5.4.9
-## Author: Semlar, DonnieDice
-## Email: joseph@donniedice.com
+## Title: QuestPlates
+## Notes: Adds quest progress to nameplates
+## Version: 11.2.0.0
+## Author: Semlar
 ## SavedVariables: QuestPlateSettings
-## IconTexture: Interface\AddOns\QuestPlates\images\icon
-
-## X-Category: UI Media, Questing & Leveling, Audio & Video, Miscellaneous
-## X-Website: https://github.com/donniedice/QuestPlates
-## X-Curse-Project-ID: 1110009
-## X-Wago-ID: 
-## X-WoWI-ID: 
 
 ## Title-zhTW: |cff00FFFF[任務]|r 任務怪提示
 ## Notes-zhTW: QuestPlates |n|n在任務怪名字和血條的左側顯示任務目標進度的提示圖示，開啟敵方血條就會出現。|n圖示內的數字表示完成任務還需要多少數量或百分比。
