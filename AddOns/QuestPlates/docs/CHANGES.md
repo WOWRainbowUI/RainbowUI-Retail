@@ -1,2 +1,0 @@
-- Updated - Retail TOC to reflect version 110100 [QuestPlates.toc]
-- Updated - Retail BLU version number to v5.4.8 in TOC [QuestPlates.toc]
