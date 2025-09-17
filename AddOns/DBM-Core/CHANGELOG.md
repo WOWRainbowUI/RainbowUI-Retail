@@ -1,8 +1,16 @@
 # DBM - Core
 
-## [11.2.15](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.2.15) (2025-09-15)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.2.13...11.2.15) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.2.16](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.2.16) (2025-09-16)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.2.13...11.2.16) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
+- prep new tag  
+- Update localization.es.lua (#1764)  
+- Update localization.br.lua (#1763)  
+- Update localization.fr.lua (#1762)  
+- Update localization.es.lua (#1761)  
+- further clarify slash commands  
+- bump alpha  
+- remove support for wow interface. if they can't be bothered to keep site updated for patches anymore (or even entire game versions like mop), then it's time to stop bothering to keep addons up to date there  
 - prep retag  
 - Bugfixes;  
     - Make positioning cleaner on keystones frame (to always position topleft)  
