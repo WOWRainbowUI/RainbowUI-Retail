@@ -951,6 +951,8 @@
 		"|Cffffffff" .. L["Orweyna's Vision"] .. " |r#6253369#44", -- 1030
 		"|Cffffffff" .. L["Gallywix and Xal'atath"] .. " |r#6638480#169", -- 1028
 		"|Cffffffff" .. L["Undermined"] .. " |r#6641605#77", -- 1029
+		"|Cffffffff" .. L["A Shadowy Invitation"] .. " |r#7242305#91", -- 1033
+		"|Cffffffff" .. L["Dimensius Defeat"] .. " |r#6938026#111", -- 1034
 
 	})
 
@@ -1121,6 +1123,9 @@
 		L["Orweyna's Vision"] .. " |r(1030)",
 		L["Gallywix and Xal'atath"] .. " |r(1028)",
 		L["Undermined"] .. " |r(1029)",
+		L["A Shadowy Invitation"] .. " |r(1033)",
+		L["Dimensius Defeat"] .. " |r(1034)",
+
 	})
 
 	----------------------------------------------------------------------
