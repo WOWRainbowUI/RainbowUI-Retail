@@ -1365,6 +1365,8 @@ L["STRING_QUERY_INSPECT_REFRESH"] = "需要刷新"
 L["STRING_RAID_WIDE"] = "[*] 团队CD"
 L["STRING_RAIDCHECK_PLUGIN_DESC"] = "当在一个团队副本中时，在Details!的标题栏上会出现一个图标显示合剂，食物，药水的使用。"
 L["STRING_RAIDCHECK_PLUGIN_NAME"] = "团队检查"
+--[[Translation missing --]]
+L["STRING_RECENT_PLAYERS"] = "Recent Players:"
 L["STRING_REPORT"] = "到"
 L["STRING_REPORT_BUTTON_TOOLTIP"] = "点击打开报告对话框"
 L["STRING_REPORT_FIGHT"] = "战斗"

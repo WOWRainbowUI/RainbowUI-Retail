@@ -1479,6 +1479,8 @@ L["STRING_QUERY_INSPECT_REFRESH"] = "새로고침 필요"
 L["STRING_RAID_WIDE"] = "[*] 공격대 단위 생존기"
 L["STRING_RAIDCHECK_PLUGIN_DESC"] = "공격대 던전에 있을 때, Details! 제목 바 위에 영약, 음식, 시작물약 사용을 보여주는 아이콘을 표시합니다."
 L["STRING_RAIDCHECK_PLUGIN_NAME"] = "공격대 확인"
+--[[Translation missing --]]
+L["STRING_RECENT_PLAYERS"] = "Recent Players:"
 L["STRING_REPORT"] = ":"
 L["STRING_REPORT_BUTTON_TOOLTIP"] = "보고서 창을 열려면 클릭하세요"
 L["STRING_REPORT_FIGHT"] = "전투"

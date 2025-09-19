@@ -1467,6 +1467,8 @@ L["STRING_QUERY_INSPECT_REFRESH"] = "precisa atualizar"
 L["STRING_RAID_WIDE"] = "[*] cooldown de raide"
 L["STRING_RAIDCHECK_PLUGIN_DESC"] = "Enquanto estiver dentro de uma raide, é mostrado um ícone na barra de título mostrando o uso de comida, frascos e poções."
 L["STRING_RAIDCHECK_PLUGIN_NAME"] = "Raid Check"
+--[[Translation missing --]]
+L["STRING_RECENT_PLAYERS"] = "Recent Players:"
 L["STRING_REPORT"] = "Relatório para"
 L["STRING_REPORT_BUTTON_TOOLTIP"] = "Clique para abrir a Caixa de Relatórios."
 L["STRING_REPORT_FIGHT"] = "luta"

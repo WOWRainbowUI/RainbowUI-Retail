@@ -1249,6 +1249,8 @@ L["STRING_QUERY_INSPECT_REFRESH"] = "richiede aggiornamento"
 L["STRING_RAID_WIDE"] = "[*] raid wide cooldown"
 L["STRING_RAIDCHECK_PLUGIN_DESC"] = "Mentre sei all'interno di un'istanza d'incursione, mostra l'icona su Details! barra del titolo che mostra fiaschetta, cibo, uso della pre-pozione."
 L["STRING_RAIDCHECK_PLUGIN_NAME"] = "Controllo Incursione"
+--[[Translation missing --]]
+L["STRING_RECENT_PLAYERS"] = "Recent Players:"
 L["STRING_REPORT"] = "per"
 L["STRING_REPORT_BUTTON_TOOLTIP"] = "Fare clic per aprire la finestra di dialogo del Rapporto"
 L["STRING_REPORT_FIGHT"] = "combattimento"

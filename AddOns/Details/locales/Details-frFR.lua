@@ -1212,6 +1212,8 @@ L["STRING_QUERY_INSPECT_REFRESH"] = "mise à jour nécessaire"
 L["STRING_RAID_WIDE"] = "[*] cooldown de raid globaux"
 L["STRING_RAIDCHECK_PLUGIN_DESC"] = "À l'intérieur d'une instance de raid, affiche l'icône sur la barre de titre de Details! montrant le flacon, la nourriture, et l'utilisation de la pré-potion."
 L["STRING_RAIDCHECK_PLUGIN_NAME"] = "Vérification du raid"
+--[[Translation missing --]]
+L["STRING_RECENT_PLAYERS"] = "Recent Players:"
 L["STRING_REPORT"] = "pour"
 L["STRING_REPORT_BUTTON_TOOLTIP"] = "Cliquez pour ouvrir la boîte de dialogue du rapport"
 L["STRING_REPORT_FIGHT"] = "combat"

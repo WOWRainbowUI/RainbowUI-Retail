@@ -1476,6 +1476,8 @@ L["STRING_QUERY_INSPECT_REFRESH"] = "Aktualisierung benötigt"
 L["STRING_RAID_WIDE"] = "[*] Schlachtzugsweite Abklingzeiten"
 L["STRING_RAIDCHECK_PLUGIN_DESC"] = "Zeigt innerhalb von Schlachtzugsinstanzen ein Symbol auf der Details!-Titelleiste, das Fläschchen-, Essen- und Voraustrank-Nutzung anzeigt."
 L["STRING_RAIDCHECK_PLUGIN_NAME"] = "Raid-Nachprüfung"
+--[[Translation missing --]]
+L["STRING_RECENT_PLAYERS"] = "Recent Players:"
 L["STRING_REPORT"] = "für"
 L["STRING_REPORT_BUTTON_TOOLTIP"] = "Klicke, um den Berichtsdialog zu öffnen"
 L["STRING_REPORT_FIGHT"] = "Kampf"

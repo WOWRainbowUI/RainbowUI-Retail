@@ -1228,6 +1228,8 @@ L["STRING_QUERY_INSPECT_REFRESH"] = "necesita actualizar"
 L["STRING_RAID_WIDE"] = "[*] reutilización por toda banda"
 L["STRING_RAIDCHECK_PLUGIN_DESC"] = "Mientras está dentro de una estancia de banda, muestra el ícono en Details! barra de título que muestra frasco, comida, uso de pre-pociones."
 L["STRING_RAIDCHECK_PLUGIN_NAME"] = "Comprobación de banda"
+--[[Translation missing --]]
+L["STRING_RECENT_PLAYERS"] = "Recent Players:"
 L["STRING_REPORT"] = "para"
 L["STRING_REPORT_BUTTON_TOOLTIP"] = "Hacer clic para abrir la ventana de informar."
 L["STRING_REPORT_FIGHT"] = "el combate"
