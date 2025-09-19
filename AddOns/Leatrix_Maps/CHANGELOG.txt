@@ -1,4 +1,7 @@
-﻿11.2.01 - 13th August 2025
+﻿11.2.08 - 17th September 2025
+- Added a new option called 'Use English language'.  If enabled, text used throughout the addon will be shown in English regardless of your game locale.
+
+11.2.01 - 13th August 2025
 - Fixed an issue with 'Unlock map frame' which caused the map position to be reset when maximised.
 
 11.2.00 - 5th August 2025

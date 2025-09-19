@@ -9,7 +9,7 @@ local function localeFunc(L, key) return key end
 local L = setmetatable({}, {__index = localeFunc})
 Leatrix_Maps.L = L
 
-if LeatrixGlobalDisableLocalisation then return end
+if LeaMapsDB and LeaMapsDB.UseEnglishLanguage and LeaMapsDB.UseEnglishLanguage == "On" then return end
 
 -- Locale override (enUS, zhCN, zhTW, ruRU, koKR, deDE, esMX, frFR, itIT, ptBR)
 -- GameLocale = "enUS"
