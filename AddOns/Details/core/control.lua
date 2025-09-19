@@ -1899,3 +1899,94 @@
 		_tempo = Details._tempo
 	end
 
+
+local keyName
+local sortIfHaveKey = function(table1, table2)
+	if (table1[keyName] and table2[keyName]) then
+		return table1[keyName] > table2[keyName]
+
+	elseif (table1[keyName] and not table2[keyName]) then
+		return true
+	else
+		return false
+	end
+end
+
+function Details:GetKeyNameFromAttribute(attribute, subAttribute)
+	if (attribute == 1) then
+		if (subAttribute == 1) then --DAMAGE DONE
+			return "total"
+		elseif(subAttribute == 2) then --DPS
+			return "last_dps"
+		elseif(subAttribute == 3) then --DAMAGE TAKEN
+			return "damage_taken"
+		elseif(subAttribute == 4) then --FRIENDLY FIRE
+			return "friendlyfire_total"
+		elseif(subAttribute == 5) then --FRAGS
+			return "frags"
+		elseif(subAttribute == 6) then --ENEMIES
+			return "enemies"
+		elseif(subAttribute == 7) then --AURAS VOIDZONES
+			return "voidzones"
+		elseif(subAttribute == 8) then --BY SPELL
+			return "damage_taken_by_spells"
+		end
+
+	elseif (attribute == 2) then
+		if (subAttribute == 1) then --healing DONE
+			return "total"
+		elseif (subAttribute == 2) then --HPS
+			return "last_hps"
+		elseif (subAttribute == 3) then --overheal
+			return "totalover"
+		elseif (subAttribute == 4) then --healing take
+			return "healing_taken"
+		elseif (subAttribute == 5) then --enemy heal
+			return "heal_enemy_amt"
+		elseif (subAttribute == 6) then --absorbs
+			return "totalabsorb"
+		elseif (subAttribute == 7) then --heal absorb
+			return "totaldenied"
+		end
+
+	elseif (attribute == 3) then
+		if (subAttribute == 1) then --RESOURCE GAINED
+			return "total"
+		elseif (subAttribute == 2) then --RESOURCE SPENT
+			return "totalover"
+		elseif (subAttribute == 3) then --MANA REGEN
+			return "mana_potion"
+		end
+
+	elseif (attribute == 4) then
+		if (subAttribute == 1) then --CC BREAKS
+			return "cc_break"
+		elseif (subAttribute == 2) then --RESS
+			return "ress"
+		elseif (subAttribute == 3) then --INTERRUPT
+			return "interrupt"
+		elseif (subAttribute == 4) then --DISPELLS
+			return "dispell"
+		elseif (subAttribute == 5) then --DEATHS
+			return "dead"
+		elseif (subAttribute == 6) then --DEFENSIVE COOLDOWNS
+			return "cooldowns_defensive"
+		elseif (subAttribute == 7) then --BUFF UPTIME
+			return "buff_uptime"
+		elseif (subAttribute == 8) then --DEBUFF UPTIME
+			return "debuff_uptime"
+		end
+	end
+end
+
+---@param self details
+---@param combatObject combat
+---@param attribute number
+---@param subAttribute number
+function Details:JustSortData(combatObject, attribute, subAttribute)
+	---@type actorcontainer
+	local actorContainer = combatObject[attribute]
+	keyName = Details:GetKeyNameFromAttribute(attribute, subAttribute)
+	table.sort(actorContainer._ActorTable, sortIfHaveKey) --actorContainer is nil
+	actorContainer:Remap()
+end
