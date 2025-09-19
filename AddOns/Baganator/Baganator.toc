@@ -1,6 +1,6 @@
 ## Interface: 11507, 30405, 50500, 110107, 110200
 ## Title: Baganator
-## Version: 741
+## Version: 745
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -37,10 +37,10 @@ Core\SlashCmd.lua
 Core\Welcome.lua
 Core\Analytics.lua
 Core\Dialogs.lua
-Core\Main.lua
+Core\Initialize.lua
 
 Skins\Utilities.lua
-Skins\Main.lua
+Skins\Initialize.lua
 Skins\Blizzard.lua
 Skins\Dark.lua
 Skins\ElvUI.lua
@@ -94,6 +94,7 @@ ItemViewCommon\BankViewWarbandView.lua
 ItemViewCommon\BankViewWarbandView.xml
 ItemViewCommon\BankView.lua
 ItemViewCommon\BankView.xml
+ItemViewCommon\BankTransferManager.lua
 ItemViewCommon\BagTransfers.lua
 ItemViewCommon\NewItemsTracking.lua
 ItemViewCommon\AnchorSetter.lua
