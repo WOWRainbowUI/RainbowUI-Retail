@@ -1,6 +1,6 @@
 # Baganator
 
-## [741](https://github.com/TheMouseNest/Baganator/tree/741) (2025-09-13)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/740...741) 
+## [745](https://github.com/TheMouseNest/Baganator/tree/745) (2025-09-18)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/744...745) 
 
-- Categories: Fix trinkets, necks and rings appearing in default Miscellaneous cat  
+- Retail: Bank: Fix deposit logic when tabs have the "Ignore this tab" set  
