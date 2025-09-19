@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 11.2.07 (10th September 2025)
+	-- 	Leatrix Maps 11.2.08 (17th September 2025)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "11.2.07"
+	LeaMapsLC["AddonVer"] = "11.2.08"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -1380,7 +1380,7 @@
 			expTitle:ClearAllPoints()
 			expTitle:SetPoint("TOP", 0, -152)
 
-			local subTitle = LeaMapsLC:MakeTx(interPanel, "www.leatrix.com", 0, 0)
+			local subTitle = LeaMapsLC:MakeTx(interPanel, "curseforge.com/wow/addons/leatrix-maps", 0, 0)
 			subTitle:SetFont(subTitle:GetFont(), 20)
 			subTitle:ClearAllPoints()
 			subTitle:SetPoint("BOTTOM", 0, 72)
@@ -1737,14 +1737,15 @@
 
 	-- Set reload button status
 	function LeaMapsLC:ReloadCheck()
-		if	(LeaMapsLC["UnlockMap"] ~= LeaMapsDB["UnlockMap"])					-- Unlock map
-		or	(LeaMapsLC["UseDefaultMap"] ~= LeaMapsDB["UseDefaultMap"])			-- Use default map
-		or	(LeaMapsLC["ScaleWorldMap"] ~= LeaMapsDB["ScaleWorldMap"])			-- Scale the map
-		or	(LeaMapsLC["RevealMap"] ~= LeaMapsDB["RevealMap"])					-- Show unexplored areas
-		or	(LeaMapsLC["ShowIcons"] ~= LeaMapsDB["ShowIcons"])					-- Show additional icons
-		or	(LeaMapsLC["HideTownCity"] ~= LeaMapsDB["HideTownCity"])			-- Hide town and city icons
-		or	(LeaMapsLC["EnhanceBattleMap"] ~= LeaMapsDB["EnhanceBattleMap"])	-- Enhance battlefield map
-		or	(LeaMapsLC["NoFilterResetBtn"] ~= LeaMapsDB["NoFilterResetBtn"])	-- Hide filte reset button
+		if	(LeaMapsLC["UnlockMap"] ~= LeaMapsDB["UnlockMap"])						-- Unlock map
+		or	(LeaMapsLC["UseDefaultMap"] ~= LeaMapsDB["UseDefaultMap"])				-- Use default map
+		or	(LeaMapsLC["ScaleWorldMap"] ~= LeaMapsDB["ScaleWorldMap"])				-- Scale the map
+		or	(LeaMapsLC["RevealMap"] ~= LeaMapsDB["RevealMap"])						-- Show unexplored areas
+		or	(LeaMapsLC["ShowIcons"] ~= LeaMapsDB["ShowIcons"])						-- Show additional icons
+		or	(LeaMapsLC["HideTownCity"] ~= LeaMapsDB["HideTownCity"])				-- Hide town and city icons
+		or	(LeaMapsLC["EnhanceBattleMap"] ~= LeaMapsDB["EnhanceBattleMap"])		-- Enhance battlefield map
+		or	(LeaMapsLC["NoFilterResetBtn"] ~= LeaMapsDB["NoFilterResetBtn"])		-- Hide filte reset button
+		or	(LeaMapsLC["UseEnglishLanguage"] ~= LeaMapsDB["UseEnglishLanguage"])	-- Use English language
 		then
 			-- Enable the reload button
 			LeaMapsLC:LockItem(LeaMapsCB["ReloadUIButton"], false)
@@ -2061,6 +2062,7 @@
 
 				LeaMapsDB["ShowMinimapIcon"] = "On"
 				LeaMapsDB["minimapPos"] = 204 -- LeaMapsDB
+				LeaMapsDB["UseEnglishLanguage"] = "On"
 
 				ReloadUI()
 			elseif str == "help" then
@@ -2159,6 +2161,7 @@
 			LeaMapsLC:LoadVarNum("BattleMapY", 83, -5000, 5000)			-- Battlefield map Y axis
 
 			LeaMapsLC:LoadVarChk("ShowMinimapIcon", "On")				-- Show minimap button
+			LeaMapsLC:LoadVarChk("UseEnglishLanguage", "Off")			-- Use English language
 
 			-- Panel
 			LeaMapsLC:LoadVarAnc("MainPanelA", "CENTER")				-- Panel anchor
@@ -2239,6 +2242,7 @@
 			LeaMapsDB["BattleMapY"] = LeaMapsLC["BattleMapY"]
 
 			LeaMapsDB["ShowMinimapIcon"] = LeaMapsLC["ShowMinimapIcon"]
+			LeaMapsDB["UseEnglishLanguage"] = LeaMapsLC["UseEnglishLanguage"]
 
 			-- Panel
 			LeaMapsDB["MainPanelA"] = LeaMapsLC["MainPanelA"]
@@ -2349,6 +2353,7 @@
 	LeaMapsLC:MakeCB(PageF, "NoMapEmote", "Disable reading emote", 225, -252, false, "If checked, your character will not perform the reading emote when you open the map.")
 	LeaMapsLC:MakeCB(PageF, "NoFilterResetBtn", "Hide filter reset button", 225, -272, true, "If checked, the world map filter reset button will be hidden.")
 	LeaMapsLC:MakeCB(PageF, "ShowMinimapIcon", "Show minimap button", 225, -292, false, "If checked, the minimap button will be shown.")
+	LeaMapsLC:MakeCB(PageF, "UseEnglishLanguage", "Use English language", 225, -312, true, "If checked, text used throughout the addon will be shown in English regardless of your game locale.")
 
 	LeaMapsLC:CfgBtn("ScaleWorldMapBtn", LeaMapsCB["ScaleWorldMap"])
 	LeaMapsLC:CfgBtn("RevTintBtn", LeaMapsCB["RevealMap"])
