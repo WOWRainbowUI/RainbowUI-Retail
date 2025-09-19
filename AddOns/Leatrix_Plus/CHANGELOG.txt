@@ -1,4 +1,10 @@
-﻿11.2.06 - 3rd September 2025
+﻿11.2.08 - 17th September 2025
+- For 'Enhance tooltip' ('Interface'), fixed an issue causing the scale slider to not apply to the Blizzard Settings tooltips.
+- For 'Hide clean-up buttons' ('Frames'), fixed an issue which caused the bag search box to be sized incorrectly.
+- For 'Media', added cinematics 'A Shadowy Invitation' and 'Dimensius Defeat' ('The War Within').  Watch in Movies and listen in Various > Cinematics.
+- Added a new option called 'Use English language' ('Settings').  If enabled, text used throughout the addon will be shown in English regardless of your game locale.
+
+11.2.06 - 3rd September 2025
 - For 'Enhance minimap' ('Interface'), you can now set the square minimap border width.
 
 11.2.03 - 17th August 2025

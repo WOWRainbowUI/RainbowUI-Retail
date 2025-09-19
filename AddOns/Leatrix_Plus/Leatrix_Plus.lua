@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.2.07 (10th September 2025)
+-- 	Leatrix Plus 11.2.08 (17th September 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.2.07"
+	LeaPlusLC["AddonVer"] = "11.2.08"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -49,6 +49,7 @@
 	-- Initialise variables
 	LeaPlusLC["ShowErrorsFlag"] = 1
 	LeaPlusLC["NumberOfPages"] = 9
+	LeaPlusLC["MainPanelHeight"] = 370
 	LeaPlusLC["RaidColors"] = RAID_CLASS_COLORS
 
 	-- Create event frame
@@ -352,6 +353,7 @@
 		local footer = LeaPlusLC:MakeTx(frame, text, left, bottom)
 		footer:SetWidth(width); footer:SetJustifyH("LEFT"); footer:SetWordWrap(true); footer:ClearAllPoints()
 		footer:SetPoint("BOTTOMLEFT", left, bottom)
+		return footer
 	end
 
 	-- Capitalise first character in a string
@@ -680,6 +682,9 @@
 		or	(LeaPlusLC["SetAddtonOptions"]		~= LeaPlusDB["SetAddtonOptions"])		-- Set additional options
 		or	(LeaPlusLC["AddOptNoCombatBox"]		~= LeaPlusDB["AddOptNoCombatBox"])		-- Uncheck combat animation checkbox
 		or	(LeaPlusLC["AddOptNoMountBox"]		~= LeaPlusDB["AddOptNoMountBox"])		-- Uncheck mount special animation checkbox
+
+		-- Settings
+		or	(LeaPlusLC["UseEnglishLanguage"]	~= LeaPlusDB["UseEnglishLanguage"])		-- Use English language
 
 		then
 			-- Enable the reload button
@@ -2917,14 +2922,14 @@
 		if LeaPlusLC["HideCleanupBtns"] == "On" and not LeaLockList["HideCleanupBtns"] then
 			-- Hide backpack clean-up button and make item search box longer
 			BagItemAutoSortButton:HookScript("OnShow", BagItemAutoSortButton.Hide)
-			BagItemSearchBox:SetWidth(120)
+			hooksecurefunc(ContainerFrame1, "SetSearchBoxPoint", function()
+				if BagItemSearchBox:GetWidth() ~= 120 then 
+					BagItemSearchBox:SetWidth(120)
+				end
+			end)
 
 			-- Hide bank frame clean-up button and make item search box longer
-			if LeaPlusLC.NewPatch then
-				BankPanel.AutoSortButton:HookScript("OnShow", BankPanel.AutoSortButton.Hide)
-			else
-				BankItemAutoSortButton:HookScript("OnShow", BankItemAutoSortButton.Hide)
-			end
+			BankPanel.AutoSortButton:HookScript("OnShow", BankPanel.AutoSortButton.Hide)
 			BankItemSearchBox:ClearAllPoints()
 			BankItemSearchBox:SetPoint("TOPRIGHT", BankFrame, "TOPRIGHT", -27, -33)
 			BankItemSearchBox:SetWidth(120)
@@ -3568,7 +3573,7 @@
 			LeaPlusLC:CreateHelpButton("SellJunkExcludeHelpButton", SellJunkFrame, titleTX, "Enter item IDs separated by commas.  Item IDs can be found in item tooltips while this panel is showing.|n|nJunk items entered here will not be sold automatically.|n|nWhite items entered here will be sold automatically.|n|nThe editbox tooltip will show you more information about the items you have entered.")
 
 			local eb = CreateFrame("Frame", nil, SellJunkFrame, "BackdropTemplate")
-			eb:SetSize(200, 180)
+			eb:SetSize(200, LeaPlusLC.MainPanelHeight - 180)
 			eb:SetPoint("TOPLEFT", 350, -92)
 			eb:SetBackdrop({
 				bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -4773,7 +4778,7 @@
 
 			-- Add large editbox
 			local eb = CreateFrame("Frame", nil, MuteCustomPanel, "BackdropTemplate")
-			eb:SetSize(548, 180)
+			eb:SetSize(548, LeaPlusLC.MainPanelHeight - 180)
 			eb:SetPoint("TOPLEFT", 10, -92)
 			eb:SetBackdrop({
 				bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -4906,11 +4911,11 @@
 			end)
 
 			-- Add mute button
-			local MuteCustomNowButton = LeaPlusLC:CreateButton("MuteCustomNowButton", MuteCustomPanel, "Mute", "TOPLEFT", 16, -292, 0, 25, true, "Click to mute sounds in the list.")
+			local MuteCustomNowButton = LeaPlusLC:CreateButton("MuteCustomNowButton", MuteCustomPanel, "Mute", "BOTTOMLEFT", 16, 53, 0, 25, true, "Click to mute sounds in the list.")
 			LeaPlusCB["MuteCustomNowButton"]:SetScript("OnClick", function() MuteCustomListFunc(false, true) end)
 
 			-- Add unmute button
-			local UnmuteCustomNowButton = LeaPlusLC:CreateButton("UnmuteCustomNowButton", MuteCustomPanel, "Unmute", "TOPLEFT", 16, -72, 0, 25, true, "Click to unmute sounds in the list.")
+			local UnmuteCustomNowButton = LeaPlusLC:CreateButton("UnmuteCustomNowButton", MuteCustomPanel, "Unmute", "BOTTOMLEFT", 16, 53, 0, 25, true, "Click to unmute sounds in the list.")
 			LeaPlusCB["UnmuteCustomNowButton"]:ClearAllPoints()
 			LeaPlusCB["UnmuteCustomNowButton"]:SetPoint("LEFT", MuteCustomNowButton, "RIGHT", 10, 0)
 			LeaPlusCB["UnmuteCustomNowButton"]:SetScript("OnClick", function() MuteCustomListFunc(true, true) end)
@@ -5314,7 +5319,7 @@
 
 				-- Add large editbox
 				local eb = CreateFrame("Frame", nil, ExcludedButtonsPanel, "BackdropTemplate")
-				eb:SetSize(548, 180)
+				eb:SetSize(548, LeaPlusLC.MainPanelHeight - 180)
 				eb:SetPoint("TOPLEFT", 10, -92)
 				eb:SetBackdrop({
 					bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -9226,6 +9231,19 @@
 			end)
 
 			----------------------------------------------------------------------
+			-- Blizzard Settings tooltip
+			----------------------------------------------------------------------
+
+			EventUtil.ContinueOnAddOnLoaded("Blizzard_Settings",function()
+
+				-- Set tooltip scale when tooltip is shown
+				SettingsTooltip:HookScript("OnShow", function()
+					SettingsTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"])
+				end)
+
+			end)
+
+			----------------------------------------------------------------------
 			-- Perks program tooltip (trading post)
 			----------------------------------------------------------------------
 
@@ -10011,7 +10029,7 @@
 			-- Create tables for list data
 			local ListData, playlist = {}, {}
 			local scrollFrame, willPlay, musicHandle, ZonePage, LastPlayed, LastFolder, TempFolder, HeadingOfClickedTrack, LastMusicHandle
-			local numButtons = 15
+			local numButtons = math.floor((LeaPlusLC.MainPanelHeight - 110) / 16) - 1
 			local uframe = CreateFrame("FRAME")
 
 			-- These categories will not appear in random track selections
@@ -10070,7 +10088,10 @@
 						button:Hide()
 					end
 				end
-				scrollFrame.child:SetSize(200, #ListData + (14*19.6) - 1) --++ LeaSoundsLC.NewPatch
+
+				local bRoll = ((36 + (LeaPlusLC.MainPanelHeight - 370)) / 16) + 16
+				scrollFrame.child:SetSize(200, #ListData + (math.floor(bRoll * 15)))
+
 			end
 
 			-- Give function file level scope (it's used in SetPlusScale to set the highlight bar scale)
@@ -10202,7 +10223,7 @@
 			scrollFrame:SetScrollChild(scrollFrame.child)
 
 			-- Add stop button
-			local stopBtn = LeaPlusLC:CreateButton("StopMusicBtn", LeaPlusLC["Page9"], "Stop", "TOPLEFT", 146, -292, 0, 25, true, "")
+			local stopBtn = LeaPlusLC:CreateButton("StopMusicBtn", LeaPlusLC["Page9"], "Stop", "BOTTOMLEFT", 146, 53, 0, 25, true, "")
 			stopBtn:Hide(); stopBtn:Show()
 			LeaPlusLC:LockItem(stopBtn, true)
 			stopBtn:SetScript("OnClick", function()
@@ -10287,7 +10308,7 @@
 			end
 
 			-- Create editbox for search
-			local sBox = LeaPlusLC:CreateEditBox("MusicSearchBox", LeaPlusLC["Page9"], 78, 10, "TOPLEFT", 150, -260, "MusicSearchBox", "MusicSearchBox")
+			local sBox = LeaPlusLC:CreateEditBox("MusicSearchBox", LeaPlusLC["Page9"], 78, 10, "TOPLEFT", 150, -(LeaPlusLC.MainPanelHeight - 110), "MusicSearchBox", "MusicSearchBox")
 			sBox:SetMaxLetters(50)
 
 			-- Position search button above editbox
@@ -10620,7 +10641,7 @@
 
 			-- Right-click to go back (from anywhere on the main content area of the panel)
 			LeaPlusLC["PageF"]:HookScript("OnMouseUp", function(self, btn)
-				if LeaPlusLC["Page9"]:IsShown() and LeaPlusLC["Page9"]:IsMouseOver(0, 0, 0, -440) == false and LeaPlusLC["Page9"]:IsMouseOver(-330, 0, 0, 0) == false then
+				if LeaPlusLC["Page9"]:IsShown() and LeaPlusLC["Page9"]:IsMouseOver(0, 0, 0, -440) == false and LeaPlusLC["Page9"]:IsMouseOver(-(LeaPlusLC.MainPanelHeight - 47), 0, 0, 0) == false then
 					if btn == "RightButton" then
 						BackClick()
 					end
@@ -10741,7 +10762,7 @@
 			expTitle:ClearAllPoints()
 			expTitle:SetPoint("TOP", 0, -152)
 
-			local subTitle = LeaPlusLC:MakeTx(interPanel, "www.leatrix.com", 0, 0)
+			local subTitle = LeaPlusLC:MakeTx(interPanel, "curseforge.com/wow/addons/leatrix-plus", 0, 0)
 			subTitle:SetFont(subTitle:GetFont(), 20)
 			subTitle:ClearAllPoints()
 			subTitle:SetPoint("BOTTOM", 0, 72)
@@ -11066,6 +11087,7 @@
 
 				-- Settings
 				LeaPlusLC:LoadVarChk("ShowMinimapIcon", "On")				-- Show minimap button
+				LeaPlusLC:LoadVarChk("UseEnglishLanguage", "Off")			-- Use English language
 				LeaPlusLC:LoadVarNum("PlusPanelScale", 1, 1, 2)				-- Panel scale
 				LeaPlusLC:LoadVarNum("PlusPanelAlpha", 0, 0, 1)				-- Panel alpha
 
@@ -11431,6 +11453,7 @@
 
 			-- Settings
 			LeaPlusDB["ShowMinimapIcon"] 		= LeaPlusLC["ShowMinimapIcon"]
+			LeaPlusDB["UseEnglishLanguage"] 	= LeaPlusLC["UseEnglishLanguage"]
 			LeaPlusDB["PlusPanelScale"] 		= LeaPlusLC["PlusPanelScale"]
 			LeaPlusDB["PlusPanelAlpha"] 		= LeaPlusLC["PlusPanelAlpha"]
 
@@ -11578,7 +11601,7 @@
 
 		-- Set frame parameters
 		Side:Hide();
-		Side:SetSize(570, 370);
+		Side:SetSize(570, LeaPlusLC.MainPanelHeight)
 		Side:SetClampedToScreen(true)
 		Side:SetClampRectInsets(500, -500, -300, 300)
 		Side:SetFrameStrata("FULLSCREEN_DIALOG")
@@ -11593,9 +11616,9 @@
 		Side.c:SetScript("OnClick", function() Side:Hide() end)
 
 		-- Add reset, help and back buttons
-		Side.r = LeaPlusLC:CreateButton("ResetButton", Side, "Reset", "TOPLEFT", 16, -292, 0, 25, true, "Click to reset the settings on this page.")
-		Side.h = LeaPlusLC:CreateButton("HelpButton", Side, "Help", "TOPLEFT", 76, -292, 0, 25, true, "No help is available for this page.")
-		Side.b = LeaPlusLC:CreateButton("BackButton", Side, "Back to Main Menu", "TOPRIGHT", -16, -292, 0, 25, true, "Click to return to the main menu.")
+		Side.r = LeaPlusLC:CreateButton("ResetButton", Side, "Reset", "BOTTOMLEFT", 16, 53, 0, 25, true, "Click to reset the settings on this page.")
+		Side.h = LeaPlusLC:CreateButton("HelpButton", Side, "Help", "BOTTOMLEFT", 76, 53, 0, 25, true, "No help is available for this page.")
+		Side.b = LeaPlusLC:CreateButton("BackButton", Side, "Back to Main Menu", "BOTTOMRIGHT", -16, 53, 0, 25, true, "Click to return to the main menu.")
 
 		-- Reposition help button so it doesn't overlap reset button
 		Side.h:ClearAllPoints()
@@ -11627,7 +11650,7 @@
 
 		-- Set textures
 		LeaPlusLC:CreateBar("FootTexture", Side, 570, 48, "BOTTOM", 0.5, 0.5, 0.5, 1.0, "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
-		LeaPlusLC:CreateBar("MainTexture", Side, 570, 323, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
+		LeaPlusLC:CreateBar("MainTexture", Side, 570, LeaPlusLC.MainPanelHeight - 47, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
 
 		-- Allow movement
 		Side:EnableMouse(true)
@@ -11674,7 +11697,7 @@
 			Side.backFrame = CreateFrame("FRAME", nil, Side, "BackdropTemplate")
 			Side.backFrame:SetSize(Side:GetSize())
 			Side.backFrame:SetPoint("TOPLEFT", 16, -68)
-			Side.backFrame:SetPoint("BOTTOMRIGHT", -16, 108)
+			Side.backFrame:SetPoint("BOTTOMRIGHT", -16, 98)
 			Side.backFrame:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"})
 			Side.backFrame:SetBackdropColor(0, 0, 1, 0.5)
 
@@ -11974,7 +11997,7 @@
 
 		-- Set frame parameters
 		LeaPlusLC["PageF"] = PageF
-		PageF:SetSize(570,370)
+		PageF:SetSize(570, LeaPlusLC.MainPanelHeight)
 		PageF:Hide();
 		PageF:SetFrameStrata("FULLSCREEN_DIALOG")
 		PageF:SetClampedToScreen(true)
@@ -11997,8 +12020,8 @@
 
 		-- Add textures
 		LeaPlusLC:CreateBar("FootTexture", PageF, 570, 48, "BOTTOM", 0.5, 0.5, 0.5, 1.0, "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
-		LeaPlusLC:CreateBar("MainTexture", PageF, 440, 323, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
-		LeaPlusLC:CreateBar("MenuTexture", PageF, 130, 323, "TOPLEFT", 0.7, 0.7, 0.7, 0.7, "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
+		LeaPlusLC:CreateBar("MainTexture", PageF, 440, LeaPlusLC.MainPanelHeight - 47, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
+		LeaPlusLC:CreateBar("MenuTexture", PageF, 130, LeaPlusLC.MainPanelHeight - 47, "TOPLEFT", 0.7, 0.7, 0.7, 0.7, "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
 
 		-- Set panel position when shown
 		PageF:SetScript("OnShow", function()
@@ -14127,6 +14150,8 @@
 				LeaPlusDB["AddOptNoCombatBox"] = "On"			-- Uncheck combat animation checkbox
 				LeaPlusDB["AddOptNoMountBox"] = "On"			-- Uncheck mount special animation checkbox
 
+				LeaPlusDB["UseEnglishLanguage"] = "On"			-- Use English language
+
 				-- Function to assign cooldowns
 				local function setIcon(pclass, pspec, sp1, pt1, sp2, pt2, sp3, pt3, sp4, pt4, sp5, pt5)
 					-- Set spell ID
@@ -14358,7 +14383,7 @@
 	LeaPlusLC:MakeWD(LeaPlusLC[pg], "To begin, choose an options page.", 146, -92)
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Support", 146, -132);
-	LeaPlusLC:MakeWD(LeaPlusLC[pg], "www.leatrix.com", 146, -152)
+	LeaPlusLC:MakeWD(LeaPlusLC[pg], "curseforge.com/wow/addons/leatrix-plus", 146, -152)
 
 ----------------------------------------------------------------------
 -- 	LC1: Automation
@@ -14404,7 +14429,7 @@
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "InviteFromWhisper"			,   "Invite from whispers"			,	340, -152,	false,	L["If checked, a group invite will be sent to anyone who whispers you with a set keyword as long as you are ungrouped, group leader or raid assistant and not queued for a dungeon or raid.|n|nFriends who message the keyword using Battle.net will not be sent a group invite if they are appearing offline.  They need to either change their online status or use character whispers."] .. "|n|n" .. L["Keyword"] .. ": |cffffffff" .. "dummy" .. "|r")
 
 	-- Show footer
-	LeaPlusLC:MakeFT(LeaPlusLC[pg], "For all of the social options above, you can treat guild members and members of your communities as friends too.", 146, 380, 96)
+	local FriendlyGuildFooter = LeaPlusLC:MakeFT(LeaPlusLC[pg], "For all of the social options above, you can treat guild members and members of your communities as friends too.", 146, 380, 96)
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "FriendlyGuild"				, 	"Guild"							, 	146, -282, 	false,	"If checked, members of your guild will be treated as friends for all of the options on this page.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "FriendlyCommunities"		, 	"Communities"					, 	340, -282, 	false,	"If checked, members of your communities will be treated as friends for all of the options on this page.")
 
@@ -14415,6 +14440,8 @@
 		LeaPlusCB["FriendlyCommunities"].f:SetWidth(90)
 	end
 
+	LeaPlusCB["FriendlyGuild"]:ClearAllPoints()
+	LeaPlusCB["FriendlyGuild"]:SetPoint("TOPLEFT", FriendlyGuildFooter, "BOTTOMLEFT", 0, -10)
 	LeaPlusCB["FriendlyCommunities"]:ClearAllPoints()
 	LeaPlusCB["FriendlyCommunities"]:SetPoint("LEFT", LeaPlusCB["FriendlyGuild"], "RIGHT", LeaPlusCB["FriendlyGuild"].f:GetWidth() + 6, 0)
 
@@ -14571,6 +14598,7 @@
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Addon"						, 146, -72)
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowMinimapIcon"			, "Show minimap button"				, 146, -92,		false,	"If checked, a minimap button will be available.|n|nClick - Toggle options panel.|n|nSHIFT-click - Toggle music.|n|nCTRL-click - Toggle minimap target tracking.|n|nALT-click - Toggle errors (if enabled).|n|nCTRL/SHIFT-click - Toggle windowed mode.|n|nCTRL/ALT-click - Toggle Zygor (if installed).")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "UseEnglishLanguage"		, "Use English language"			, 146, -112,	true,	"If checked, text used throughout the addon will be shown in English regardless of your game locale.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Scale", 340, -72)
 	LeaPlusLC:MakeSL(LeaPlusLC[pg], "PlusPanelScale", "Drag to set the scale of the Leatrix Plus panel.", 1, 2, 0.1, 340, -92, "%.1f")
