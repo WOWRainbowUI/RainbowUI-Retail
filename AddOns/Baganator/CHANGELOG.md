@@ -1,6 +1,6 @@
 # Baganator
 
-## [745](https://github.com/TheMouseNest/Baganator/tree/745) (2025-09-18)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/744...745) 
+## [749](https://github.com/TheMouseNest/Baganator/tree/749) (2025-09-21)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/748...749) 
 
-- Retail: Bank: Fix deposit logic when tabs have the "Ignore this tab" set  
+- Prevent escape codes interfering with the display of exports and raw searches  

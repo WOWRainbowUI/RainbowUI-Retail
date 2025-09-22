@@ -102,15 +102,20 @@ function addonTable.BankTransferManagerMixin:Queue(bagID, slotID)
   -- Tabs with specific items in them prioritised
   for tabIndex, tabDetails in ipairs(tabData) do
     local targets = addonTable.Transfers.GetBagsSlots({tabDetails.slots}, {indexes[tabIndex]})
-    if GetMatching(tabDetails.depositFlags, source) then
-      CheckTargets(targets)
-      if match then
-        break
-      end
-    else
-      CheckStackTargets(targets)
-      if match then
-        break
+    CheckStackTargets(targets)
+    if match then
+      break
+    end
+  end
+  -- Then scan for tabs with matching settings
+  if not match then
+    for tabIndex, tabDetails in ipairs(tabData) do
+      local targets = addonTable.Transfers.GetBagsSlots({tabDetails.slots}, {indexes[tabIndex]})
+      if GetMatching(tabDetails.depositFlags, source) then
+        CheckTargets(targets)
+        if match then
+          break
+        end
       end
     end
   end
