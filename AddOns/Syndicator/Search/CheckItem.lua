@@ -209,7 +209,7 @@ local function KnowledgeCheck(details)
   if spellID == nil then
     return false
   end
-  if spellID and not spellName then
+  if spellID and (not spellName or not C_Spell.IsSpellDataCached(spellID)) then
     C_Spell.RequestLoadSpellData(spellID)
     return nil
   end

@@ -1,6 +1,6 @@
 ## Interface: 11507, 30404, 50500, 110107, 110200
 ## Title: Syndicator
-## Version: 234
+## Version: 235
 ## Author: plusmouse
 ## SavedVariables: SYNDICATOR_CONFIG, SYNDICATOR_DATA, SYNDICATOR_SUMMARIES
 ## IconTexture: Interface\AddOns\Syndicator\Assets\logo.tga
@@ -31,7 +31,7 @@ Core\Constants.lua
 Core\Config.lua
 Core\Utilities.lua
 Core\SlashCmd.lua
-Core\Main.lua
+Core\Initialize.lua
 
 Options\Initialize.lua
 
@@ -47,7 +47,7 @@ Tracking\AuctionCacheLegacy.lua
 Tracking\ItemSummaries.lua
 Tracking\Tooltips.lua
 Tracking\CurrencyTooltipData.lua
-Tracking\Main.lua
+Tracking\Initialize.lua
 
 Search\Constants.lua
 Search\Initialize.lua
