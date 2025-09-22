@@ -1,17 +1,10 @@
-# [5.20.3](https://github.com/WeakAuras/WeakAuras2/tree/5.20.3) (2025-09-08)
+# [5.20.4](https://github.com/WeakAuras/WeakAuras2/tree/5.20.4) (2025-09-08)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.20.1...5.20.3)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.20.1...5.20.4)
 
 ## Highlights
 
-- Important change:
-  - Text to speach voice is no longer a per aura setting, instead we use
-    the game configured text to speech voice.
-  - The game's tts settings are somewhat hidden under:
-    Esc/Options/Accessibility/Read Chat Text out loud/Configure Text to
-    Speech
-  - And you have to remember to disable the Read Chat Text out loud
-    afterwards.
+- Re-tag, no changes
 
 ## Commits
 
