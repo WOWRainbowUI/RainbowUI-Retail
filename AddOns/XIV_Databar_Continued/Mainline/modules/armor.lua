@@ -226,7 +226,7 @@ function ArmorModule:UpdateDurabilityText()
 end
 
 function ArmorModule:UpdatePlayerCoordinates()
-    if not xb.db.profile.modules.armor.showCoords then
+    if not xb.db.profile.modules.armor.enabled or not xb.db.profile.modules.armor.showCoords then -- 暫時修正
         self.coordTicker:Cancel()
         self.coordText:Hide()
         return
