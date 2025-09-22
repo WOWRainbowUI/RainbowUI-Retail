@@ -1,6 +1,7 @@
 # Syndicator
 
-## [234](https://github.com/TheMouseNest/Syndicator/tree/234) (2025-09-14)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/233...234) 
+## [235](https://github.com/TheMouseNest/Syndicator/tree/235) (2025-09-17)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/234...235) 
 
-- Search: Prevent subclass keywords with the same name as a root class conflicting  
+- Rename Main.lua -> Initialize.lua where appropriate  
+- Search: Add check for spell data being uncached, potentially breaking #knowledge  
