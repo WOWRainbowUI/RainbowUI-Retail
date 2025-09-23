@@ -653,7 +653,7 @@ local function UsableCheck(details)
   end
 end
 
-local function ActiveCheck(details)
+local function ActiveSeasonCheck(details)
   if not C_Item.IsItemDataCachedByID(details.itemID) then
     C_Item.RequestLoadItemDataByID(details.itemID)
     return
@@ -678,6 +678,11 @@ local function ActiveCheck(details)
     end
     return true
   end
+end
+
+local function CurrentExpansionCheck(details)
+  details.expacID = details.expacID or Syndicator.Search.GetExpansion(details)
+  return details.expacID and details.expacID == LE_EXPANSION_LEVEL_CURRENT
 end
 
 local function OpenCheck(details)
@@ -1053,6 +1058,7 @@ AddKeywordLocalised("KEYWORD_CRAFTED", CraftedCheck, Syndicator.Locales.GROUP_IT
 AddKeywordLocalised("KEYWORD_TIER_TOKEN", TierTokenCheck, Syndicator.Locales.GROUP_ITEM_TYPE)
 AddKeywordLocalised("KEYWORD_ENSEMBLE", EnsembleCheck, Syndicator.Locales.GROUP_ITEM_TYPE)
 AddKeywordLocalised("KEYWORD_ARSENAL", ArsenalCheck, Syndicator.Locales.GROUP_ITEM_TYPE)
+AddKeywordLocalised("KEYWORD_CURRENT_EXPANSION", CurrentExpansionCheck, Syndicator.Locales.GROUP_EXPANSION)
 
 if Syndicator.Constants.IsRetail then
   AddKeywordLocalised("KEYWORD_COSMETIC", CosmeticCheck, Syndicator.Locales.GROUP_QUALITY)
@@ -1063,7 +1069,7 @@ if Syndicator.Constants.IsRetail then
   AddKeywordLocalised("KEYWORD_SET_BONUS", SetBonusCheck, Syndicator.Locales.GROUP_ITEM_DETAIL)
   AddKeywordLocalised("KEYWORD_CATALYST", CatalystCheck, Syndicator.Locales.GROUP_ITEM_DETAIL)
   AddKeywordLocalised("KEYWORD_CATALYST_UPGRADE", CatalystUpgradeCheck, Syndicator.Locales.GROUP_ITEM_DETAIL)
-  AddKeywordLocalised("KEYWORD_ACTIVE_SEASON", ActiveCheck, Syndicator.Locales.GROUP_ITEM_DETAIL)
+  AddKeywordLocalised("KEYWORD_ACTIVE_SEASON", ActiveSeasonCheck, Syndicator.Locales.GROUP_ITEM_DETAIL)
   if Syndicator.Constants.WarbandBankActive then
     AddKeywordManual(ITEM_ACCOUNTBOUND:lower(), "warbound", BindOnAccountCheck, Syndicator.Locales.GROUP_BINDING_TYPE)
     AddKeywordManual(ITEM_ACCOUNTBOUND_UNTIL_EQUIP:lower(), "warbound until equipped", WarboundUntilEquippedCheck, Syndicator.Locales.GROUP_BINDING_TYPE)
