@@ -343,7 +343,7 @@ end
 local TermButtonMixin = {}
 
 local function GetTermButton(parent)
-  local result = CreateFrame("DropdownButton", nil, parent)
+  local result = CreateFrame("Button", nil, parent)
   Mixin(result, TermButtonMixin)
   result:OnLoad()
 
@@ -352,14 +352,18 @@ end
 
 function TermButtonMixin:OnLoad()
   self:SetHeight(22)
-  self:RegisterForMouse("LeftButtonDown", "LeftButtonUp", "RightButtonDown", "RightButtonUp")
-
   self:SetScript("OnEnter", self.OnEnter)
   self:SetScript("OnLeave", self.OnLeave)
 
   self:SetScript("OnMouseDown", function()
-    self:OpenMenu()
+    self.Menu:OpenMenu()
   end)
+
+  self.Menu = CreateFrame("DropdownButton", nil, self)
+  self.Menu:SetPoint("TOPLEFT", self)
+  self.Menu:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
+  self.Menu:SetFrameStrata("LOW")
+  self.Menu:RegisterForMouse()
 
   SetupTextures(self)
 
@@ -391,7 +395,7 @@ function TermButtonMixin:OnLoad()
     end)
     input:HookScript("OnMouseDown", function(_, button)
       if button == "RightButton" then
-        self:OpenMenu()
+        self.Menu:SetMenuOpen(not self.Menu:IsMenuOpen())
       end
     end)
     input.WidthChecker = input:CreateFontString(nil, nil, "GameFontHighlight")
@@ -697,7 +701,6 @@ function TermButtonMixin:OnLeave()
   self.HoverTexture:Hide()
 end
 function TermButtonMixin:Setup(callbackRegistry, component, index, color)
-  self:CloseMenu()
   self.onResizeFunc = function() end
   self.callbackRegistry = callbackRegistry
 
@@ -831,7 +834,8 @@ function TermButtonMixin:Setup(callbackRegistry, component, index, color)
   component.addingPosition = nil
 
   local index = self.index
-  self:SetupMenu(function(_, rootDescription)
+  self.Menu:Hide() -- Prevent menu generation
+  self.Menu:SetupMenu(function(_, rootDescription)
     rootDescription:CreateTitle(REPLACE)
     GetKeywordMenu(rootDescription, index, self.callbackRegistry, "Swap")
     rootDescription:CreateDivider()
@@ -856,12 +860,13 @@ function TermButtonMixin:Setup(callbackRegistry, component, index, color)
       self:SetAlpha(1)
     end)
   end)
+  self.Menu:Show() -- Restore menu generation for when clicked
 end
 
 local OperatorButtonMixin = {}
 
 local function GetOperatorButton(parent)
-  local result = CreateFrame("DropdownButton", nil, parent)
+  local result = CreateFrame("Button", nil, parent)
   Mixin(result, OperatorButtonMixin)
   result:OnLoad()
 
@@ -870,9 +875,13 @@ end
 
 function OperatorButtonMixin:OnLoad()
   self:SetHeight(22)
-  self:RegisterForMouse("LeftButtonDown", "LeftButtonUp", "RightButtonDown", "RightButtonUp")
-
   SetupTextures(self)
+
+  self.Menu = CreateFrame("DropdownButton", nil, self)
+  self.Menu:SetPoint("TOPLEFT", self)
+  self.Menu:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
+  self.Menu:SetFrameStrata("LOW")
+  self.Menu:RegisterForMouse()
 
   self.AddButton = CreateFrame("Button", nil, self, "UIPanelButtonTemplate")
   self.AddButton:SetSize(26, 24)
@@ -963,6 +972,7 @@ function OperatorButtonMixin:OnLoad()
   self.AddContextMenu = CreateFrame("DropdownButton", nil, self)
   self.AddContextMenu:SetAllPoints(self.AddButton)
   self.AddContextMenu:SetFrameStrata("LOW")
+  self.AddContextMenu:Hide() -- Prevent menu generation
   self.AddContextMenu:SetupMenu(function(_, rootDescription)
     if self.index == nil then
       return
@@ -991,6 +1001,7 @@ function OperatorButtonMixin:OnLoad()
       end
     end
   end)
+  self.AddContextMenu:Show() -- Restore menu generation for when clicked
   self.AddContextMenu:RegisterCallback("OnMenuClose", function()
     if not self.AddInput:IsVisible() then
       return
@@ -1024,7 +1035,7 @@ function OperatorButtonMixin:OnLoad()
     self:Disable()
   end)
   self.OperatorText:SetScript("OnMouseDown", function()
-    self:OpenMenu()
+    self.Menu:OpenMenu()
   end)
 
   self.TailText = self:CreateFontString(nil, nil, "GameFontNormal")
@@ -1044,7 +1055,6 @@ function OperatorButtonMixin:OnLeave()
   GameTooltip:Hide()
 end
 function OperatorButtonMixin:Setup(callbackRegistry, component, index)
-  self:CloseMenu()
   local operator, elements = component.subType, component.value
   self.onResizeFunc = function() end
   self.callbackRegistry = callbackRegistry
@@ -1136,7 +1146,8 @@ function OperatorButtonMixin:Setup(callbackRegistry, component, index)
   self.component.isAdding = false
 
   local index = self.index
-  self:SetupMenu(function(_, rootDescription)
+  self.Menu:Hide() -- Prevent menu generation
+  self.Menu:SetupMenu(function(_, rootDescription)
     rootDescription:CreateTitle(REPLACE)
     GetOperatorMenu(rootDescription, index, self.callbackRegistry, "Swap")
     rootDescription:CreateDivider()
@@ -1165,6 +1176,7 @@ function OperatorButtonMixin:Setup(callbackRegistry, component, index)
       self:SetAlpha(1)
     end)
   end)
+  self.Menu:Show() -- Restore menu generation for when clicked
 
   self:Resize()
 end
