@@ -1,17 +1,12 @@
 local COMPAT, _, T = select(4, GetBuildInfo()), ...
 local MODERN = COMPAT > 11e4
 
-local L, EV, AB = T.L, T.Evie, T.ActionBook:compatible(2, 45)
-assert(EV and AB and 1, "Incompatible library bundle")
+local L, EV, PC, AB = T.L, T.Evie, T.OPieCore, T.ActionBook:compatible(2, 45)
+assert(EV and AB and PC and 1, "Incompatible library bundle")
 if T.TenEnv then T.TenEnv() end
 
 do -- action handler
 	local col, state, dropInfo, cid = {__embed=true}, 0
-	local function describeExt(kind)
-		if kind == "xact" then
-			return L"Extra Actions", L"Extra Actions", "Interface/Icons/INV_Misc_Lantern_01", nil, nil, nil, "collection"
-		end
-	end
 	local PlayerHasBuff do
 		local sid1, aid1, sid2, aid2
 		function PlayerHasBuff(sid)
@@ -77,12 +72,13 @@ do -- action handler
 		EV.PLAYER_REGEN_DISABLED = syncZoneContextActions
 		return cid
 	end
-	local function createExt(kind)
-		if kind == "xact" then
-			return cid or initZoneContextActions()
-		end
+	local function createXact(_kind)
+		return MODERN and (cid or initZoneContextActions()) or nil
 	end
-	AB:RegisterActionType("opie.ext", MODERN and createExt or function() end, describeExt, 1)
+	local function describeXact(_kind)
+		return L"Extra Actions", L"Extra Actions", "Interface/Icons/INV_Misc_Lantern_01", nil, nil, nil, "collection"
+	end
+	PC:RegisterExtAction("xact", createXact, describeXact)
 end
 if MODERN then
 	AB:AddActionToCategory("Miscellaneous", "opie.ext", "xact")

@@ -318,6 +318,9 @@ securecall(function() -- spell: spell ID + mount spell ID
 		end
 		iconOverrideHandlers[id] = f
 	end
+	function AB.HUM:GetNativeSpellFeedback(spell, target)
+		return spellHint(spell, nil, target)
+	end
 end)
 securecall(function() -- item: items ID/inventory slot
 	local actionMap, itemIdMap, LAST_EQUIP_SLOT = {}, {}, INVSLOT_LAST_EQUIPPED
@@ -1244,9 +1247,9 @@ securecall(function() -- toy: item ID, flags[FORCE_SHOW]
 	end
 	local function describeToy(id)
 		if type(id) ~= "number" then return end
-		local ignUse, _, name, tex = IGNORE_TOY_USABILITY[id], C_ToyBox.GetToyInfo(id)
-		local canUse = playerHasToy(id) and (type(ignUse) ~= "string" or KR:EvaluateCmdOptions(ignUse)) and (ignUse or C_ToyBox.IsToyUsable(id))
-		local actionFlags = not canUse and 1 or nil
+		local ignUse, haveToy, _, name, tex = IGNORE_TOY_USABILITY[id], playerHasToy(id), C_ToyBox.GetToyInfo(id)
+		local canUse = haveToy and (type(ignUse) ~= "string" or KR:EvaluateCmdOptions(ignUse)) and (ignUse or C_ToyBox.IsToyUsable(id))
+		local actionFlags = haveToy and not canUse and 1 or nil
 		return L"Toy", name, tex or C_Item.GetItemIconByID(id), nil, callMethod.SetToyByItemID, id, nil, actionFlags
 	end
 	AB:RegisterActionType("toy", createToy, describeToy, 2)

@@ -108,6 +108,8 @@ if MODERN or CF_WRATH then
 			[245589]=have1, -- hellcaller chest
 			[244842]=have1, -- fabled veteran's cache
 			[245611]=have1, -- wriggling pinnacale cache [11.2]
+			[255676]=have1, -- phase diver's cache [11.2]
+			[247820]=have1, -- cache of k'areshi treasures [11.2 sign of the warrior]
 		}
 		filtered = {
 			[228988]=ebIsNotRockReviver, -- siren isle rock reviver

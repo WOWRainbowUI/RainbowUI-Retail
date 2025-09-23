@@ -291,10 +291,10 @@ securecall(function() -- /equipset {not a set name} errors
 		until _G[bn] == nil and GetClickFrame(bn) == nil
 		return bn
 	end
+	-- TODO: should anonymize this: RW/PY has a /click delegation mechanism
 	local f = CreateFrame("Button", uniqueName("ABEquipSetQuirk!"), nil, "SecureActionButtonTemplate")
-	f:SetAttribute("pressAndHoldAction", 1)
 	f:SetAttribute("type", "equipmentset")
-	f:SetAttribute("typerelease", "equipmentset")
+	f:SetAttribute("useOnKeyDown", false)
 	f:SetAttribute("DoEquipCommand", SLASH_CLICK1 .. " " .. f:GetName())
 	f:SetAttribute("RunSlashCmd", [[-- AB_EquipSetQuirk_Run 
 		local cmd, v = ...
