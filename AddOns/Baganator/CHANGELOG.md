@@ -1,6 +1,6 @@
 # Baganator
 
-## [749](https://github.com/TheMouseNest/Baganator/tree/749) (2025-09-21)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/748...749) 
+## [751](https://github.com/TheMouseNest/Baganator/tree/751) (2025-09-22)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/750...751) 
 
-- Prevent escape codes interfering with the display of exports and raw searches  
+- Customise: Categories: Fix search changes in raw mode not being saved on closing  
