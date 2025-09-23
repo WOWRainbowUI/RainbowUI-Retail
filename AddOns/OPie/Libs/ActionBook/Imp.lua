@@ -1,4 +1,4 @@
-local MAJ, REV, COMPAT, _, T = 1, 12, select(4,GetBuildInfo()), ...
+local MAJ, REV, COMPAT, _, T = 1, 13, select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
@@ -83,6 +83,8 @@ local commandType, addCommandType = {["#show"]=0, ["#showtooltip"]=0, ["#imp"]=-
 		addCommandType("PING", 4)
 	end
 end
+
+local extTokenText, extAbilityToken = {}, {}
 
 local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference do
 	local COMMA_LIST_COMMAND_TYPES, CAST_ESCAPE_COMMAND_TYPES = {[2]=1, [3]=1}, {[0]=1, [1]=1, [3]=1}
@@ -304,13 +306,15 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 	end
 	toMacroText = genParser(function(ctype, value)
 		local varPrefix = parseVarPrefix(value, ctype)
-		local prefix, tkey, tval = value:match("^%s*(!?){{(%a+):([%a%d/]+)}}%s*$", #varPrefix+1)
+		local prefix, tw, tkey, tval = value:match("^%s*(!?){{((%a+):([%a%d/]+))}}%s*$", #varPrefix+1)
 		if tkey == "spell" or tkey == "spellr" then
 			return restoreVarPrefix(varPrefix, replaceSpellID(ctype, tval, prefix, tkey))
 		elseif tkey == "mount" then
 			return restoreVarPrefix(varPrefix, replaceMountTag(ctype, tval, prefix))
 		elseif tkey == "ping" and ctype == 4 then
 			return restoreVarPrefix(varPrefix, pingTokenMap[tval] or value)
+		elseif extTokenText[tw] ~= nil then
+			return restoreVarPrefix(varPrefix, extTokenText[tw] or nil)
 		elseif value:match('^%s*!?|Hiptok|h|h%s*$') then
 			return '-'
 		end
@@ -330,7 +334,7 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 			local cc, pre, name, tws = 0, value:match("^(%s*!?)(.-)(%s*)$", #varPrefix+1)
 			repeat
 				local lowname = name:lower()
-				local sid, peek, cnpos = spells[lowname]
+				local sid, stok, peek, cnpos = spells[lowname], specialTokens[lowname] or extAbilityToken[lowname]
 				if ctype == 4 then
 					name = pingTextMap[lowname]
 					if name then
@@ -347,8 +351,8 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 						end
 					end
 					return restoreVarPrefix(varPrefix, (pre .. "{{spell:" .. sid .. "}}" .. tws)), cc
-				elseif specialTokens[lowname] then
-					return restoreVarPrefix(varPrefix, pre .. specialTokens[lowname] .. tws), cc
+				elseif stok then
+					return restoreVarPrefix(varPrefix, pre .. stok .. tws), cc
 				elseif name:match("^{{.*}}$") then
 					return restoreVarPrefix(varPrefix, pre .. name .. tws), cc
 				end
@@ -467,7 +471,7 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 				air   ="|cff71d5ff|Hiltmount:air|h" .. L"Flying Mount" .. "|h|r",
 				dragon="|cff71d5ff|Hiltmount:dragon|h" .. L"Dragonriding Mount" .. "|h|r",
 			}
-			function formatTokenInner(token, targ)
+			function formatTokenInner(token, targ, tw)
 				if token == "spell" or token == "spellr" then
 					local forceRank, tname = token == "spellr"
 					tag = tag + 1
@@ -491,14 +495,16 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 					if tname then
 						return "|cff71d5ff|Hilt" .. token .. ":" .. targ .. "|h" .. tname .. "|h|r"
 					end
+				elseif extTokenText[tw] then
+					return "|cff71d5ff|Hilt" .. token .. ":" .. targ .. "|h" .. extTokenText[tw] .. "|h|r"
 				end
 				return '{{' .. token .. ':' .. targ .. '}}'
 			end
 		end
 		local toUIText = genParser(function(ctype, value)
 			local varPrefix = parseVarPrefix(value, ctype)
-			local prefix, token, targ, suf = value:match("^(%s*!?){{(%a+):([%a%d/]+)}}(%s*)$", #varPrefix+1)
-			local v = token and formatTokenInner(token, targ)
+			local prefix, tw, token, targ, suf = value:match("^(%s*!?){{((%a+):([%a%d/]+))}}(%s*)$", #varPrefix+1)
+			local v = token and formatTokenInner(token, targ, tw)
 			return v and restoreVarPrefix(varPrefix, prefix .. v .. suf) or value
 		end)
 		local linkTag = 0
@@ -817,6 +823,16 @@ function IM:AddTokenizableCommand(slashKey, behavesLikeCommand)
 	assert((commandType[behavesLikeCommand] or -1) >= 0, 'Unrecognized behaves-like command %q', 2, behavesLikeCommand)
 	addCommandType(slashKey, commandType[behavesLikeCommand])
 	AB:NotifyObservers("imptext")
+end
+function IM:AddTokenizableAbility(abilityText, token)
+	assert(type(abilityText) == "string" and type(token) == "string",
+	       'Syntax: IM:AddTokenizableAbility("abilityText", "token")')
+	extAbilityToken[abilityText:lower()] = '{{' .. token .. '}}'
+end
+function IM:SetTokenReplacement(token, castText)
+	assert(type(token) == "string" and (type(castText) == "string" or castText == false),
+	       'Syntax: IM:SetTokenReplacement("token", "castText" or false)')
+	extTokenText[token] = castText
 end
 
 function IM:SetMountPreference(groundSpellID, flyingSpellID, dragonSpellID)

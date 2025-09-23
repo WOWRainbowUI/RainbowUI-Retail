@@ -70,12 +70,12 @@ end
 if not MODERN then return end
 
 R:AddDefaultRing("DruidShift", {
-	{id="/cancelform [noflying,noform:moonkin]\n/changeactionbar [anyflyable,advflyable,nocombat,outdoors,nobonusbar:5] 1\n#imp critical\n/cast [combat][nooutdoors][anyflyable,noswimming,nomod,noform:stag] {{spell:783}}; [outpost:corral,nomod,nospec:103/104] {{spell:161691}}; [in:undermine,nomod,noswimming,nocombat] {{spell:460013}}; [swimming,nomod][nomod,noform:stag] {{spell:783}}; [anyflyable,nomod:alt] {{mount:air}}; [noanyflyable,nomod:alt] {{mount:ground}}; {{spell:783}}", fastClick=true, _u="f"}, -- Travel
+	{id="/cancelform [noflying,noform:moonkin]\n/changeactionbar [anyflyable,advflyable,nocombat,outdoors,nobonusbar:5][encount:ff-mount,nomod] 1\n#imp critical\n/cast [encount:ff-mount,nomod] {{mount:air}}; [combat][nooutdoors][anyflyable,noswimming,nomod,noform:stag] {{spell:783}}; [outpost:corral,nomod,nospec:103/104] {{spell:161691}}; [in:undermine,nomod,noswimming,nocombat] {{spell:460013}}; [swimming,nomod][nomod,noform:stag] {{spell:783}}; [anyflyable,nomod:alt] {{mount:air}}; [noanyflyable,nomod:alt] {{mount:ground}}; {{spell:783}}", fastClick=true, _u="f"}, -- Travel
 	{id=24858, c="c74cff", _u="k"}, -- Moonkin
 	{id=768, c="fff04d", _u="c"}, -- Cat
 	{id=5487, c="ff0000", _u="b"}, -- Bear
 	{id="/cancelform [noform:moonkin,noflying]\n#imp critical\n/cast [nomod,noform:travel] {{spell:210053}}; {{mount:ground}}; {{spell:210053}}", show="[advflyable,anyflyable]", fastClick=true, _u="m"}, -- Mount
-	name=L"Shapeshifts", hotkey="BUTTON4", limit="DRUID", _u="OPCDS", v=6
+	name=L"Shapeshifts", hotkey="BUTTON4", limit="DRUID", _u="OPCDS", v=7
 })
 R:AddDefaultRing("DruidUtility", {
 	{id="/cast [combat][mod,nomod:alt] {{spell:20484}}; [@target,dead,help,noraid,nomod] {{spell:50769}}; [group] {{spell:212040}}; {{spell:50769}}", _u="r"}, -- rebirth/revit/revive
@@ -90,15 +90,15 @@ R:AddDefaultRing("DruidUtility", {
 })
 R:AddDefaultRing("DruidFeral", {
 	{id=106951, _u="k"}, -- berserk
-	{id="/cast [noform:bear] {{spell:5217}}; {{spell:22842}}", _u="e"}, -- frenzied / tiger's fury
+	{id="/cast [noform:bear] {{spell:5217}}; {{spell:22842}}; {{spell:5217}}", _u="e"}, -- frenzied / tiger's fury
 	{id="/cast [mod] {{spell:1850}}; [form:bear] {{spell:77761}}; {{spell:77764}}; {{spell:1850}}", _u="r"}, -- dash / stampeding roar
 	{id=106839, _u="s"}, -- skull bash
 	{id=22812, _u="b"}, -- barkskin
 	{id=61336, _u="i"}, -- survival instincts
 	{id=102401, _u="c"}, -- feral charge
 	{id="/cast {{spell:102543/102558}}", _u="n"}, -- Incarnation
-	{id="/cast [nomod,@player][@none] {{spell:8936}}", show="[spec:102/104/105] hide;", _u="h"}, -- Regrowth
-	name=L"Feral", hotkey="[form:bear/cat] BUTTON5; ALT-BUTTON5", limit="DRUID", _u="OPCDF", v=3
+	{id="/cast [@player,nomod][@target,help,nodead][@none] {{spell:8936}}", show="[spec:102/104/105] hide;", _u="h"}, -- Regrowth
+	name=L"Feral", hotkey="[form:bear/cat] BUTTON5; ALT-BUTTON5", limit="DRUID", _u="OPCDF", v=4
 })
 
 do -- Hunter Pets
@@ -142,8 +142,8 @@ R:AddDefaultRing("MageTools", {
 	{id="/cast [nomod] {{spell:110959}}; {{spell:66}}; {{spell:110959}}", _u="i"}, -- (greater) invisibility
 	{"ring", "MagePolymorph", _u="t"},
 	{id=130, _u="s"}, -- slow fall
-	{id=1459, _u="n"}, -- intellect
-	name=L"Utility", limit="MAGE", hotkey="BUTTON4", _u="OPCMT", v=3
+	{id="/cast [@target,help,nodead][@player,nomod][] {{spell:1459}}", _u="n"}, -- intellect
+	name=L"Utility", limit="MAGE", hotkey="BUTTON4", _u="OPCMT", v=4
 })
 R:AddDefaultRing("MagePolymorph", {
 	{id=118, _u="s"}, -- sheep
@@ -281,11 +281,12 @@ R:AddDefaultRing("SpecMenu", {
 	{"specset", 3, _u="3"},
 	{"specset", 4, _u="4"},
 	{id="/cast {{spell:50977}}; {{spell:193753}}; {{spell:126892}}; {{spell:193759}}; {{spell:556}}", _u="c"},
+	{"opie.ext", "mythport", show="[mythport]", _u="m"},
 	{"toy", 110560, _u="g"},
 	{"toy", 140192, _u="d"},
 	{"item", 217930, _u="x"},
 	{id=436854, _u="f", show="[level:20]"},
 	{"ring", "CommonHearth", rotationMode="shuffle", _u="t"},
 	{"item", 141605, _u="w", show="[in:broken isles/argus/bfa]"}, -- flight master's whistle
-	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=4
+	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=5
 })
