@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2686, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250906024126")
+mod:SetRevision("20250921211351")
 mod:SetCreatureID(233815)
 mod:SetEncounterID(3131)
 mod:SetUsedIcons(1, 2)
@@ -35,7 +35,7 @@ local warnInfusionTetherOver						= mod:NewFadesAnnounce(1226311, 1)
 local warnInfusionPylon								= mod:NewCountAnnounce(1246921, 3)
 
 local specWarnLairWeaving							= mod:NewSpecialWarningCount(1237272, nil, 157317, nil, 2, 2)
-local specWarnOverinfusionBurst						= mod:NewSpecialWarningDodge(1226395, nil, nil, nil, 3, 2)
+local specWarnOverinfusionBurst						= mod:NewSpecialWarningRunCount(1226395, nil, nil, nil, 3, 2)
 local specWarnInfusionTether						= mod:NewSpecialWarningYou(1226311, nil, 395745, nil, 1, 2)
 local yellInfusionTether							= mod:NewShortYell(1226311, nil, false)
 local specWarnPiercingStrands						= mod:NewSpecialWarningDefensive(1237212, nil, nil, nil, 1, 2)
@@ -152,8 +152,8 @@ function mod:SPELL_CAST_SUCCESS(args)
 	local spellId = args.spellId
 	if spellId == 1226395 then
 		self.vb.overinfusionBurstCount = self.vb.overinfusionBurstCount + 1
-		specWarnOverinfusionBurst:Show()
-		specWarnOverinfusionBurst:Play("watchstep")
+		specWarnOverinfusionBurst:Show(self.vb.overinfusionBurstCount)
+		specWarnOverinfusionBurst:Play("justrun")
 		timerOverinfusionBurstCD:Start(nil, self.vb.overinfusionBurstCount+1)
 	elseif spellId == 1237272 then
 		self.vb.weavingCount = self.vb.weavingCount + 1

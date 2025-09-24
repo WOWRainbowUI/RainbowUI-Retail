@@ -1,4 +1,4 @@
-## Interface: 50500, 50501
+## Interface: 50501
 ## Category: DBM
 ## Group: DBM-Core
 ## Title:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Status Bar Timers|r
@@ -22,7 +22,7 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## Author: MysticalOS, QartemisT
-## Version: 11.2.16
+## Version: 11.2.17
 ## X-Website: https://deadlybossmods.com
 
 DBT.lua

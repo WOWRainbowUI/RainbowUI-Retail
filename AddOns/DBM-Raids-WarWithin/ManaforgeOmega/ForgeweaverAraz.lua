@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2687, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250906024126")
+mod:SetRevision("20250923203627")
 mod:SetCreatureID(233817)
 mod:SetEncounterID(3132)
 mod:SetHotfixNoticeRev(20250821000000)
@@ -13,9 +13,9 @@ mod:RegisterCombat("combat")
 
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START 1228502 1228216 1228161 1227631 1231720 1232221 1230529 1243887 1248133 1234328 1228213 1232590 1248009",
-	"SPELL_AURA_APPLIED 1228454 1228188 1233979 1233415 1243873",--1228506
+	"SPELL_AURA_APPLIED 1228188 1233979 1233415 1243873",--1228506
 --	"SPELL_AURA_APPLIED_DOSE 1228506",
-	"SPELL_AURA_REMOVED 1228454 1233979 1233415 1243873",
+	"SPELL_AURA_REMOVED 1233979 1233415 1243873",
 --	"SPELL_PERIODIC_DAMAGE",
 --	"SPELL_PERIODIC_MISSED"
 	"UNIT_DIED",
@@ -50,6 +50,7 @@ local specWarnArcaneExpulsion						= mod:NewSpecialWarningCount(1227631, nil, 28
 local specWarnInvokeCollector						= mod:NewSpecialWarningSwitchCount(1231720, "-Tank", nil, nil, 1, 2)--Tank should stay away
 local specWarnAstralHarvest							= mod:NewSpecialWarningYou(1228214, nil, nil, nil, 1, 2)
 local yellAstralHarvestFades						= mod:NewShortFadesYell(1228214, DBM_COMMON_L.ORBS)
+local specWarnVoidTear								= mod:NewSpecialWarningCount(1248133, "Tank", nil, nil, 1, 2)
 --local specWarnGTFO								= mod:NewSpecialWarningGTFO(459785, nil, nil, nil, 1, 8)
 
 local timerOverwhelmingPowerCD						= mod:NewCDCountTimer(44, 1228502, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)
@@ -60,8 +61,6 @@ local timerInvokeCollectorCD						= mod:NewCDCountTimer(97.3, 1231720, nil, nil,
 local timerVoidTearCD								= mod:NewCDCountTimer(97.3, 1248171, nil, nil, nil, 5, nil, DBM_COMMON_L.MYTHIC_ICON)
 local timerAstralHarvestCD							= mod:NewCDCountTimer(97.3, 1228214, DBM_COMMON_L.ADDS.." (%s)", nil, nil, 2)
 local berserkTimer									= mod:NewBerserkTimer(600)
-
-mod:AddNamePlateOption("NPAuraOnMarkofPower", 1238502)
 --Intermission: Priming the Forge
 mod:AddTimerLine(DBM:EJ_GetSectionInfo(32397))
 local warnManaSplinter								= mod:NewTargetNoFilterAnnounce(1233415, 1)
@@ -109,7 +108,7 @@ local allTimers = {
 			--Arcane Expulsion
 			[1227631] = {155},--5 second longer than heroic
 			--Invoke Collector
-			[1231720] = {9, 44, 44},
+			[1231720] = {9, 44, 43},
 			--Void Tear
 			[1248133] = {21.5, 46, 14.4, 28.5, 14.4, 15},--14.4s can sometimes be 15.5
 			--Astral Harvest
@@ -270,16 +269,10 @@ function mod:OnCombatStart(delay)
 	timerInvokeCollectorCD:Start(allTimers[savedDifficulty][1][1231720][1]-delay, 1)
 	timerAstralHarvestCD:Start(allTimers[savedDifficulty][1][1228213][1]-delay, 1)
 	berserkTimer:Start(600-delay)
-	if self.Options.NPAuraOnMarkofPower then
-		DBM:FireEvent("BossMod_EnableHostileNameplates")
-	end
 end
 
 function mod:OnCombatEnd()
 	table.wipe(seenGUID)
-	if self.Options.NPAuraOnMarkofPower then
-		DBM.Nameplate:Hide(true, nil, nil, nil, true, true)
-	end
 end
 
 function mod:OnTimerRecovery()
@@ -364,7 +357,12 @@ function mod:SPELL_CAST_START(args)
 		end
 	elseif spellId == 1248133 then
 		self.vb.voidTearCount = self.vb.voidTearCount + 1
-		warnVoidTear:Show(self.vb.voidTearCount)
+		if self.Options.SpecWarn1248133count then
+			specWarnVoidTear:Show(self.vb.voidTearCount)
+			specWarnVoidTear:Play("moveboss")
+		else
+			warnVoidTear:Show(self.vb.voidTearCount)
+		end
 		local timer = self:GetFromTimersTable(allTimers, savedDifficulty, self.vb.manaSacrificeCasts+1, spellId, self.vb.voidTearCount+1)
 		if timer then
 			timerVoidTearCD:Start(timer, self.vb.voidTearCount+1)
@@ -416,11 +414,7 @@ end
 
 function mod:SPELL_AURA_APPLIED(args)
 	local spellId = args.spellId
-	if spellId == 1228454 then
-		if self.Options.NPAuraOnMarkofPower then
-			DBM.Nameplate:Show(true, args.destGUID, spellId)
-		end
-	elseif spellId == 1228188 and args:IsPlayer() then
+	if spellId == 1228188 and args:IsPlayer() then
 		yellSilencingTempest:Yell()
 	elseif spellId == 1233979 then
 		if args:IsPlayer() then
@@ -461,11 +455,7 @@ end
 
 function mod:SPELL_AURA_REMOVED(args)
 	local spellId = args.spellId
-	if spellId == 1228454 then
-		if self.Options.NPAuraOnMarkofPower then
-			DBM.Nameplate:Hide(true, args.destGUID, spellId)
-		end
-	elseif spellId == 1233979 then
+	if spellId == 1233979 then
 		if args:IsPlayer() then
 			yellAstralHarvestFades:Cancel()
 		end

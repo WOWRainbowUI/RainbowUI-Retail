@@ -76,16 +76,16 @@ end
 ---@class DBM
 local DBM = private:GetPrototype("DBM")
 _G.DBM = DBM
-DBM.Revision = parseCurseDate("20250916153205")
+DBM.Revision = parseCurseDate("20250923203905")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 local fakeBWVersion, fakeBWHash = 398, "3d79f92"--398.5
 local PForceDisable
 -- The string that is shown as version
-DBM.DisplayVersion = "11.2.16"--Core version
+DBM.DisplayVersion = "11.2.17"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2025, 9, 16) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2025, 9, 23) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 PForceDisable = 19--When this is incremented, trigger force disable regardless of major patch
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
@@ -6568,20 +6568,14 @@ do
 	}
 
 	function DBM:SetCurrentSpecInfo()
-		if private.isRetail then
+		if private.isRetail or private.isMop then
 			currentSpecGroup = GetSpecialization()
-			if currentSpecGroup and GetSpecializationInfo(currentSpecGroup) then
+			if currentSpecGroup then
 				currentSpecID, currentSpecName = GetSpecializationInfo(currentSpecGroup)
 				currentSpecID = tonumber(currentSpecID)
-			else
-				currentSpecID, currentSpecName = fallbackClassToRole[playerClass], playerClass--give temp first spec id for non-specialization char. no one should use dbm with no specialization, below level 10, should not need dbm.
-			end
-			DBM:Debug("Current specID set to: "..currentSpecID, 2)
-		elseif private.isMop then
-			currentSpecGroup = C_SpecializationInfo.GetSpecialization()
-			if currentSpecGroup and C_SpecializationInfo.GetSpecializationInfo(currentSpecGroup) then
-				currentSpecID, currentSpecName = C_SpecializationInfo.GetSpecializationInfo(currentSpecGroup)
-				currentSpecID = tonumber(currentSpecID)
+				if not currentSpecID or currentSpecID == 0 then
+					currentSpecID, currentSpecName = fallbackClassToRole[playerClass], playerClass
+				end
 			else
 				currentSpecID, currentSpecName = fallbackClassToRole[playerClass], playerClass--give temp first spec id for non-specialization char. no one should use dbm with no specialization, below level 10, should not need dbm.
 			end
@@ -9259,7 +9253,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20250916153205" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20250923203804" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
