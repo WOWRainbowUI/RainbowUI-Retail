@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.2.08 (17th September 2025)
+-- 	Leatrix Plus 11.2.09 (24th September 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.2.08"
+	LeaPlusLC["AddonVer"] = "11.2.09"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -7154,7 +7154,7 @@
 							local dialog = StaticPopup_Visible("DEATH")
 							if dialog then
 								if IsShiftKeyDown() then
-									ActionStatus_DisplayMessage(L["Automatic Release Cancelled"], true)
+									LeaPlusLC:DisplayMessage(L["Automatic Release Cancelled"], true)
 								else
 									StaticPopup_OnClick(_G[dialog], 1)
 								end
@@ -8511,7 +8511,7 @@
 
 			-- Get current class and spec
 			local PlayerClass = select(2, UnitClass("player"))
-			local activeSpec = GetSpecialization() or 1
+			local activeSpec = C_SpecializationInfo.GetSpecialization() or 1
 
 			-- Create local tables to store cooldown frames and editboxes
 			local icon = {} -- Used to store cooldown frames
@@ -8815,8 +8815,8 @@
 			end)
 
 			-- Create spec tag banner fontstring
-			local specTagSpecID = GetSpecialization()
-			local specTagSpecInfoID, specTagName = GetSpecializationInfo(specTagSpecID)
+			local specTagSpecID = C_SpecializationInfo.GetSpecialization()
+			local specTagSpecInfoID, specTagName = C_SpecializationInfo.GetSpecializationInfo(specTagSpecID)
 			local specTagBanner = CooldownPanel:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
 			specTagBanner:SetPoint("TOPLEFT", 384, -72)
 			specTagBanner:SetText(specTagName)
@@ -8829,14 +8829,14 @@
             swapFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
             swapFrame:SetScript("OnEvent", function()
 				-- Store new spec
-				activeSpec = GetSpecialization()
+				activeSpec = C_SpecializationInfo.GetSpecialization()
 				-- Update controls for new spec
 				for i = 1, iCount do
 					SpellEB[i]:SetText(LeaPlusDB["Cooldowns"][PlayerClass]["S" .. activeSpec .. "R" .. i .. "Idn"] or "")
 					LeaPlusCB["Spell" .. i .. "Pet"]:SetChecked(LeaPlusDB["Cooldowns"][PlayerClass]["S" .. activeSpec .. "R" .. i .. "Pet"] or false)
 				end
 				-- Update spec tag banner with new spec
-				local specTagSpecInfoID, specTagName = GetSpecializationInfo(activeSpec)
+				local specTagSpecInfoID, specTagName = C_SpecializationInfo.GetSpecializationInfo(activeSpec)
 				specTagBanner:SetText(specTagName)
 				-- Refresh configuration panel
 				if CooldownPanel:IsShown() then
@@ -13272,8 +13272,8 @@
 										if unitType then
 											if unitType == "rare" or unitType == "rareelite" then unitTag = "(" .. L["Rare"] .. ") " elseif unitType == "worldboss" then unitTag = "(" .. L["Boss"] .. ") " end
 										end
-										SendChatMessage(format("%%t " .. unitTag .. "(%d%%)%s", uHealth / uHealthMax * 100, " ") .. " " .. myPin, "CHANNEL", nil, index)
---										SendChatMessage(format("%%t " .. unitTag .. "(%d%%)%s", uHealth / uHealthMax * 100, " ") .. " " .. myPin, "WHISPER", nil, GetUnitName("player")) -- Debug
+										C_ChatInfo.SendChatMessage(format("%%t " .. unitTag .. "(%d%%)%s", uHealth / uHealthMax * 100, " ") .. " " .. myPin, "CHANNEL", nil, index)
+--										C_ChatInfo.SendChatMessage(format("%%t " .. unitTag .. "(%d%%)%s", uHealth / uHealthMax * 100, " ") .. " " .. myPin, "WHISPER", nil, GetUnitName("player")) -- Debug
 										C_Map.ClearUserWaypoint()
 									else
 										LeaPlusLC:Print("Invalid target.")
@@ -13751,11 +13751,11 @@
 							chatDestination = "PARTY"
 						end
 						LeaPlusLC:Print("Letters need to be in clockwise order as they appear.")
-						SendChatMessage("Quickly take orbs to these positions and click.", chatDestination)
-						SendChatMessage(a .. ": Front left of boss (north)", chatDestination)
-						SendChatMessage(b .. ": Front right of boss (east)", chatDestination)
-						SendChatMessage(d .. ": Back left of boss (west)", chatDestination)
-						SendChatMessage(c .. ": Back right of boss (south)", chatDestination)
+						C_ChatInfo.SendChatMessage("Quickly take orbs to these positions and click.", chatDestination)
+						C_ChatInfo.SendChatMessage(a .. ": Front left of boss (north)", chatDestination)
+						C_ChatInfo.SendChatMessage(b .. ": Front right of boss (east)", chatDestination)
+						C_ChatInfo.SendChatMessage(d .. ": Back left of boss (west)", chatDestination)
+						C_ChatInfo.SendChatMessage(c .. ": Back right of boss (south)", chatDestination)
 					end
 					return
 				end
@@ -13885,8 +13885,8 @@
 					return
 				end
 				-- Delete the loadout called Mine
-				local activeSpecID = GetSpecialization()
-				local specID = GetSpecializationInfo(activeSpecID)
+				local activeSpecID = C_SpecializationInfo.GetSpecialization()
+				local specID = C_SpecializationInfo.GetSpecializationInfo(activeSpecID)
 				local configs = C_ClassTalents.GetConfigIDsBySpecID(specID)
 				for void, configID in ipairs(configs) do
 					local configInfo = C_Traits.GetConfigInfo(configID)
