@@ -1,4 +1,8 @@
-﻿11.2.08 - 17th September 2025
+﻿11.2.09 - 24th September 2025
+- For 'Release in PvP' ('Automation'), fixed a Lua error which appeared when bypassing release by holding down the shift key.
+- Updated deprecated functions.
+
+11.2.08 - 17th September 2025
 - For 'Enhance tooltip' ('Interface'), fixed an issue causing the scale slider to not apply to the Blizzard Settings tooltips.
 - For 'Hide clean-up buttons' ('Frames'), fixed an issue which caused the bag search box to be sized incorrectly.
 - For 'Media', added cinematics 'A Shadowy Invitation' and 'Dimensius Defeat' ('The War Within').  Watch in Movies and listen in Various > Cinematics.
