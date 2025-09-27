@@ -804,7 +804,6 @@ function BaganatorCustomiseDialogCategoriesEditorMixin:MakeItemsGrid(container)
         itemButton:SetScale(itemSize / 37)
         itemButton:SetPoint("LEFT", 37/itemSize * ((i - 1) * itemSize + (i - 1) * 3 + 4), 0)
         addonTable.Skins.AddFrame("ItemButton", itemButton)
-        addonTable.Utilities.MasqueRegistration(itemButton)
         itemButton:UpdateTextures()
         itemButton:SetScript("OnClick", function(_, mouseButton)
           if mouseButton == "RightButton" then

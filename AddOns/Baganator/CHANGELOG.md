@@ -1,6 +1,6 @@
 # Baganator
 
-## [751](https://github.com/TheMouseNest/Baganator/tree/751) (2025-09-22)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/750...751) 
+## [756](https://github.com/TheMouseNest/Baganator/tree/756) (2025-09-26)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/755...756) 
 
-- Customise: Categories: Fix search changes in raw mode not being saved on closing  
+- Classic: Disable Can I Mog It integration (as its now broken on classic)  

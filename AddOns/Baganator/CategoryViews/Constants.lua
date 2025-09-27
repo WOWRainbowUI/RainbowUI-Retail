@@ -266,6 +266,7 @@ tAppendAll(addonTable.CategoryViews.Constants.DefaultCategories, {
     key = "questitem",
     name = C_Item.GetItemClassInfo(Enum.ItemClass.Questitem),
     search = "#" .. C_Item.GetItemClassInfo(Enum.ItemClass.Questitem):lower(),
+    priorityOffset = -65,
   },
   {
     key = "miscellaneous",
