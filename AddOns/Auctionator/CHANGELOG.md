@@ -1,7 +1,6 @@
 # Auctionator
 
-## [294](https://github.com/TheMouseNest/Auctionator/tree/294) (2025-09-15)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/293...294) 
+## [295](https://github.com/TheMouseNest/Auctionator/tree/295) (2025-09-23)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/294...295) 
 
-- Remove splash screen (no longer used and shows really outdated text)  
-- Change LICENSE to ARR  
+- Mists: Update toc for 5.5.1  
