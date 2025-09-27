@@ -380,37 +380,6 @@ function addonTable.Utilities.GetSpacing()
   return sideSpacing, topSpacing, searchSpacing
 end
 
-addonTable.Utilities.MasqueRegistration = function() end
-
-if LibStub then
-  -- Establish a reference to Masque.
-  local Masque = LibStub("Masque", true)
-  if Masque ~= nil then
-    -- Retrieve a reference to a new or existing group.
-    local masqueGroup = Masque:Group(BAGANATOR_L_BAGANATOR_NAME, BAGANATOR_L_CATEGORY_BAG)
-
-    addonTable.Utilities.MasqueRegistration = function(button)
-      xpcall(function()
-        if button.masqueApplied then
-          masqueGroup:ReSkin(button)
-        else
-          button.masqueApplied = true
-          masqueGroup:AddButton(button, nil, "Item")
-        end
-      end, CallErrorHandler)
-    end
-  end
-end
-
-function addonTable.Utilities.IsMasqueApplying()
-  if C_AddOns.IsAddOnLoaded("Masque") then
-    local Masque = LibStub("Masque", true)
-    local masqueGroup = Masque:Group("Baganator", "Bag")
-    return not masqueGroup.db.Disabled
-  end
-  return false
-end
-
 function addonTable.Utilities.AddButtons(allButtons, lastButton, parent, spacing, regionDetails)
   local buttonsWidth = 0
   for _, details in ipairs(regionDetails) do

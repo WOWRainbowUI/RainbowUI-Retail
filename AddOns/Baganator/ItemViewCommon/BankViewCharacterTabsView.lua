@@ -525,11 +525,8 @@ function BaganatorItemViewCommonBankViewCharacterTabsViewMixin:ShowTab(character
 
   local searchText = self:GetParent().SearchWidget.SearchBox:GetText()
 
-  --self:UpdateCurrencies()
-
   self:GetParent().AllButtons = {}
   tAppendAll(self:GetParent().AllButtons, self:GetParent().AllFixedButtons)
-  tAppendAll(self:GetParent().AllButtons, self.LiveButtons)
   tAppendAll(self:GetParent().AllButtons, self.TopButtons)
 
   local sideSpacing, topSpacing = addonTable.Utilities.GetSpacing()

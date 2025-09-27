@@ -459,7 +459,6 @@ function BaganatorBagSlotsContainerMixin:OnLoad()
     else
       bb:SetPoint("TOPLEFT", self.liveBagSlots[#self.liveBagSlots - 1], "TOPRIGHT")
     end
-    addonTable.Utilities.MasqueRegistration(bb)
     addonTable.Skins.AddFrame("ItemButton", bb, {"containerBag"})
   end
 
@@ -478,7 +477,6 @@ function BaganatorBagSlotsContainerMixin:OnLoad()
   for index = 1, bagSlotsCount do
     local bb = GetCachedBagSlotButton()
     bb.SlotBackground:SetTexture((select(2, GetInventorySlotInfo("Bag1"))))
-    addonTable.Utilities.MasqueRegistration(bb)
     addonTable.Skins.AddFrame("ItemButton", bb, {"containerBag"})
     bb:UpdateTextures()
     bb.isBag = true
