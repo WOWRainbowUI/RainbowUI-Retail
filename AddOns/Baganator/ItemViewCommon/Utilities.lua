@@ -12,6 +12,7 @@ function addonTable.Utilities.GetAllCharacters(searchText)
         name = info.details.character,
         realmNormalized = info.details.realmNormalized,
         realm = info.details.realm,
+        faction = info.details.faction,
         className = info.details.className,
         race = info.details.race,
         sex = info.details.sex,

@@ -1,6 +1,6 @@
 # Baganator
 
-## [756](https://github.com/TheMouseNest/Baganator/tree/756) (2025-09-26)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/755...756) 
+## [758](https://github.com/TheMouseNest/Baganator/tree/758) (2025-09-28)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/757...758) 
 
-- Classic: Disable Can I Mog It integration (as its now broken on classic)  
+- Remove "Recent character tabs" due to them breaking after MoP server merge  
