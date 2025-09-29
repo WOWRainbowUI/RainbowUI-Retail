@@ -1144,7 +1144,7 @@ function Spy:ShowMapTooltip(icon, show)
 		if distance == nil then
 			distance = ""
 		else
-			distance = math.floor(distance).." "..L["Yards"]
+			distance = math.floor(distance).." "..L["DistanceUnit"]
 		end
 
 		tooltip:SetOwner(icon, "ANCHOR_NONE")
