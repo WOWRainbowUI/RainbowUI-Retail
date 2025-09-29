@@ -123,11 +123,6 @@ local LAYOUT_OPTIONS = {
   },
   {
     type = "checkbox",
-    text = addonTable.Locales.RECENT_CHARACTER_TABS,
-    option = "show_recents_tabs_main_view",
-  },
-  {
-    type = "checkbox",
     text = addonTable.Locales.REDUCE_UI_SPACING,
     option = "reduce_spacing",
   },

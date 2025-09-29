@@ -162,6 +162,7 @@ L["JUNK_DETECTION_2"] = "Junk detection"
 L["UPGRADE_DETECTION"] = "Upgrade detection"
 
 L["REALM_WIDE_GOLD_X"] = "Realm-wide gold: %s"
+L["FACTION_REALM_WIDE_GOLD_X"] = "Faction/realm-wide gold: %s"
 L["ACCOUNT_GOLD_X"] = "Account gold: %s"
 L["REALM_X_X_X"] = "%s (x%s)"
 L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Hold shift to show account total>"
