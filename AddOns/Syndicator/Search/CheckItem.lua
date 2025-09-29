@@ -792,6 +792,22 @@ local function UniqueCheck(details)
   return false
 end
 
+-- Additional check for quest items because some are tagged wrong
+local function QuestCheck(details)
+  GetTooltipInfoSpell(details)
+
+  if not details.tooltipInfoSpell then
+    return
+  end
+
+  for _, row in ipairs(details.tooltipInfoSpell.lines) do
+    if row.leftText == ITEM_BIND_QUEST or row.leftText == ITEM_STARTS_QUEST then
+      return true
+    end
+  end
+  return false
+end
+
 local function ConjuredCheck(details)
   GetTooltipInfoSpell(details)
 
@@ -1059,6 +1075,7 @@ AddKeywordLocalised("KEYWORD_TIER_TOKEN", TierTokenCheck, Syndicator.Locales.GRO
 AddKeywordLocalised("KEYWORD_ENSEMBLE", EnsembleCheck, Syndicator.Locales.GROUP_ITEM_TYPE)
 AddKeywordLocalised("KEYWORD_ARSENAL", ArsenalCheck, Syndicator.Locales.GROUP_ITEM_TYPE)
 AddKeywordLocalised("KEYWORD_CURRENT_EXPANSION", CurrentExpansionCheck, Syndicator.Locales.GROUP_EXPANSION)
+AddKeywordLocalised("KEYWORD_QUEST", QuestCheck, Syndicator.Locales.ITEM_TYPE)
 
 if Syndicator.Constants.IsRetail then
   AddKeywordLocalised("KEYWORD_COSMETIC", CosmeticCheck, Syndicator.Locales.GROUP_QUALITY)
@@ -1656,6 +1673,7 @@ local EXCLUSIVE_KEYWORDS_NO_TOOLTIP_TEXT = {
 }
 
 local UPGRADE_PATH_PATTERN = ITEM_UPGRADE_TOOLTIP_FORMAT_STRING and "^" .. ITEM_UPGRADE_TOOLTIP_FORMAT_STRING:gsub("%%s", ".*"):gsub("%%d", ".*")
+local REQUIRES_PATTERN = ITEM_REQ_SKILL:gsub("%s", "(.*)")
 
 local function GetTooltipSpecialTerms(details)
   if details.searchKeywords then
@@ -1680,9 +1698,9 @@ local function GetTooltipSpecialTerms(details)
         -- tooltip search
         table.insert(details.searchKeywords, (term:lower():gsub("\226\128\147", "-"):gsub("\194\160", " ")))
       else
-        local match = line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONUSE) or line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONEQUIP) or (UPGRADE_PATH_PATTERN and line.leftText:match(UPGRADE_PATH_PATTERN))
+        local match = line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONUSE .. ".*") or line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONEQUIP .. ".*") or (UPGRADE_PATH_PATTERN and line.leftText:match(UPGRADE_PATH_PATTERN)) or line.leftText:match(REQUIRES_PATTERN)
         if details.classID ~= Enum.ItemClass.Recipe and match then
-          table.insert(details.searchKeywords, (line.leftText:lower():gsub("\226\128\147", "-"):gsub("\194\160", " ")))
+          table.insert(details.searchKeywords, (match:lower():gsub("\226\128\147", "-"):gsub("\194\160", " ")))
         end
       end
     end
