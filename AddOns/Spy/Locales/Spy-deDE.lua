@@ -1,4 +1,4 @@
-﻿local L = LibStub("AceLocale-3.0"):NewLocale("Spy", "deDE")
+local L = LibStub("AceLocale-3.0"):NewLocale("Spy", "deDE")
 if not L then return end
 -- TOC Note: Detektiert und warnt Sie vor, in der Nähe befindlichen, Gegnern.
 
@@ -44,7 +44,7 @@ If enabled, this button will be located on the enemy players target frame. Click
 L["GeneralSettings"] = "Allgemeine Einstellungen"
 L["GeneralSettingsDescription"] = [[
 Optionen für die Aktivierung oder Deaktivierung von Spy.
-]] 
+]]
 L["EnableSpy"] = "Aktiviert Spy"
 L["EnableSpyDescription"] = "Aktiviert oder deaktiviert Spy."
 L["EnabledInBattlegrounds"] = "Aktiviert Spy in Schlachtfeldern"
@@ -53,19 +53,21 @@ L["EnabledInArenas"] = "Aktiviert Spy in Arenen"
 L["EnabledInArenasDescription"] = "Aktiviert oder deaktiviert Spy, wenn Sie in einer Arena sind."
 L["EnabledInWintergrasp"] = "Aktiviert Spy in Kampfgebieten der Welt"
 L["EnabledInWintergraspDescription"] = "Aktiviert oder deaktiviert Spy, wenn Sie in Kampfgebieten der Welt, wie z.B. Wintergrasp in Northrend, sind."
+L["EnabledInSanctuaries"] = "Aktiviert SPY in Schutzgebieten."
+L["EnabledInSanctuariesDescription"] = "Aktiviert oder deaktiviert Spy, wenn Sie in einer Schutzgebieten."
 L["DisableWhenPVPUnflagged"] = "Deaktiviert Spy, wenn PVP nicht eingeschaltet ist"
 L["DisableWhenPVPUnflaggedDescription"] = "Aktiviert oder deaktiviert Spy, abhängig von Ihrem PVP-Status."
 L["DisabledInZones"] = "Disable Spy while in these locations"
-L["DisabledInZonesDescription"]	= "Selecet locations where Spy will be disabled"
+L["DisabledInZonesDescription"]	= "Select locations where Spy will be disabled"
 L["Booty Bay"] = "Beutebucht"
 L["Everlook"] = "Ewige Warte"						
 L["Gadgetzan"] = "Gadgetzan"
 L["Ratchet"] = "Ratschet"
 L["The Salty Sailor Tavern"] = "Taverne \"Zum Salzigen Seemann\""
+L["Cenarion Hold"] = "Burg Cenarius"
 L["Shattrath City"] = "Shattrath"
 L["Area 52"] = "Area 52"
 L["Dalaran"] = "Dalaran"
-L["Dalaran (Northrend)"] = "Dalaran (Nordend)"
 L["Bogpaddle"] = "Kraulsumpf"
 L["The Vindicaar"] = "Die Vindikaar" 
 L["Krasus' Landing"] = "Krasus' Landeplatz"
@@ -80,7 +82,8 @@ L["Oribos"] = "Oribos"
 L["Valdrakken"] = "Valdrakken"
 L["The Roasted Ram"] = "Gerösteten Geißbock"
 L["Dornogal"] = "Dornogal"
-L["Stonelight Rest"] = "Stonelight Rest"
+L["Stonelight Rest"] = "Steinschattenrast"
+L["Delver's Headquarters"] = "Tiefenforscherhauptquartier"
 
 -- Display
 L["DisplayOptions"] = "Anzeigen"
@@ -196,7 +199,7 @@ L["1Min"] = "1 Minute"
 L["1MinDescription"] = "Entfernt einen feindlichen Spieler, der seit über 1 Minute unentdeckt geblieben ist."
 L["2Min"] = "2 Minuten"
 L["2MinDescription"] = "Entfernt einen feindlichen Spieler, der seit über 2 Minuten unentdeckt geblieben ist."
-L["5 Minuten"] = "5 Minuten"
+L["5Min"] = "5 Minuten"
 L["5MinDescription"] = "Entfernt einen feindlichen Spieler, der seit über 5 Minuten unentdeckt geblieben ist."
 L["10Min"] = "10 Minuten"
 L["10MinDescription"] = "Entfernt einen feindlichen Spieler, der seit über 10 Minuten unentdeckt geblieben ist."
@@ -283,7 +286,9 @@ L["Ignore"] = "Ignorieren"
 L["IgnoreDescription"] = "Fügt hinzu/entfernt einen Spieler von der Zu Ignorieren-Liste."
 L["Test"] = "Testen"
 L["TestDescription"] = "Zeigt eine Warnung an, damit Sie sie neu positionieren können."
- 
+L["Sanctuary"] = "Sanctuary"
+L["SanctuaryDescription"] = "Show/Hide Spy in a Sanctuary area."
+
 --Listen
 L["Nearby"] = "In der Nähe"
 L["LastHour"] = "Letzte Stunde"
@@ -298,14 +303,14 @@ L["List"] = "Liste"
 L["Filter"] = "Filter"
 L["Show Only"] = "Zeige nur"
 L["Realm"] = "Realm"
-L["Won/Lost"] = "Gewonnen/Verloren"
 L["KOS"] = "KOS"
+L["Won/Lost"] = "Gewonnen/Verloren"
 L["Reason"] = "Grund"	
 L["HonorKills"] = "Ehrenvolle Siege"
 L["PvPDeaths"] = "PvP Tode"
 
 --Ausgabemeldungen
-L["VersionCheck"] = "|cffc41e3aWarnung! Die falsche Version von Spy ist installiert. Diese Version ist für World of Warcraft - Retail."
+L["VersionCheck"] = "|cffc41e3aWarnung! Die falsche Version von Spy ist installiert. Uninstall this version and install the one that matches your current game version."
 L["SpyEnabled"] = "|cff9933ffSpy-Addon aktiviert."
 L["SpyDisabled"] = "|cff9933ffSpy-Addon deaktiviert. Tippen Sie |cffffffff/spy show|cff9933ff um es zu aktivieren."
 L["UpgradeAvailable"] = "|cff9933ffEine neue Version von Spy ist verfügbar. Es kann von: \n| cffffffffhttps://www.curseforge.com/wow/addons/spy heruntergeladen werden."
@@ -360,12 +365,13 @@ L["Player"] = "(Spieler)"
 L["KOSReason"] = "Sofort zu töten"
 L["KOSReasonIndent"] = "    "
 L["KOSReasonOther"] = "Geben Sie Ihren eigenen Grund ein ..."
+L["EnterKOSReason"] = "Geben Sie den Grund für das Sofort zu töten %s ein"
 L["KOSReasonClear"] = "Löschen Grund"
 L["StatsWins"] = "|cff40ff00Gewinne:"
 L["StatsSeparator"] = ""
 L["StatsLoses"] = "|cff0070ddNiederlagen:"
 L["Located"] = "lokalisiert:"
-L["Yards"] = "Yards"
+L["DistanceUnit"] = "Yards"
 L["LocalDefenseChannelName"] = "LokaleVerteidigung"
  
 Spy_KOSReasonListLength = 6
@@ -443,25 +449,6 @@ Spy_KOSReasonList = {
 	},
 }
  
-StaticPopupDialogs ["Spy_SetKOSReasonOther"] = {
-	PreferredIndex = STATICPOPUPS_NUMDIALOGS,--http://forums.wowace.com/showthread.php?p=320956
-	text = "Geben Sie den Grund für das Sofort zu töten %s ein",
-	button1 = "Einstellen",
-	button2 = "Abbrechen",
-	timeout = 20,
-	hasEditBox = 1,
-	editBoxWidth = 260,		
-	whileDead = 1,
-	hideOnEscape = 1,
-	OnShow = function(self)
-		self.editBox:SetText("");
-	end,
-	OnAccept = function(self)
-		local reason = Self.editBox:GetText()
-		Spy:SetKOSReason(self.playerName, "Geben Sie Ihren eigenen Grund ein ...", reason)
-	end,
-};
-
 -- Class descriptions
 L["UNKNOWN"] = "Unbekannt"
 L["DRUID"] = "Druide"
@@ -535,5 +522,5 @@ Spy_IgnoreList = {
 	["Winterkuss"]=true, ["War Headquarters (PvP)"]=true,
 	["Allianzattentäter"]=true, ["Hordeattentäter"]=true,	
 	["Mystiker Vogelhut"]=true, ["Cousin Träghand"]=true,
-	["Azerit für die Allianz"]=true, ["Azerit für die Horde"]=true,	
+	["Azerit für die Allianz"]=true, ["Azerit für die Horde"]=true,
 };

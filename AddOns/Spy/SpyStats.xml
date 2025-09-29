@@ -386,7 +386,7 @@
                             </Anchor>
                             <Anchor point="BOTTOMRIGHT"></Anchor>
                         </Anchors>
-<!--                        <Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+<!--                    <Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
                             <EdgeSize>
                                 <AbsValue val="16"></AbsValue>
                             </EdgeSize>
@@ -689,7 +689,7 @@
                 </Frames>
                 <Scripts>
 					<OnLoad>
-<!--                    PanelTemplates_SetNumTabs(self, 1) -->
+<!--					PanelTemplates_SetNumTabs(self, 1) -->
                         PanelTemplates_SetNumTabs(self, 0)
                         PanelTemplates_SetTab(self, 1)
                     </OnLoad>

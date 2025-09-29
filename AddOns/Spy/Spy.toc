@@ -1,6 +1,6 @@
-﻿## Interface: 110005
+﻿## Interface: 110200
 ## Title: Spy
-## Version: 3.11.1
+## Version: 3.11.3
 ## Notes: Detects and alerts you to the presence of nearby enemy players.
 ## Notes-deDE: Detektiert und warnt Sie vor, in der Nähe befindlichen, Gegnern.
 ## Notes-esES: Detecta y te alerta sobre la presencia de jugadores enemigos cercanos.
@@ -20,7 +20,7 @@
 ## X-Credits-deCN: Localization: Kidd8250
 ## X-Credits-koKR: Localization: Ringdove
 ## X-Credits-frFR: Localization: FishtrBone, Cruzluz and others
-## X-Credits-ruRU: Localization: TeHbZShadow
+## X-Credits-ruRU: Localization: TeHbZShadow, TemaZ
 ## X-Credits-esMX: Localization: Cruzluz
 ## X-Credits-esES: Localization: Cruzluz
 ## OptionalDeps: Ace3, LibSharedMedia-3.0, 

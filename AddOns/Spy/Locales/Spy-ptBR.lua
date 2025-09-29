@@ -53,6 +53,8 @@ L["EnabledInArenas"] = "Ativar Spy em Arenas"
 L["EnabledInArenasDescription"] = "Ativa ou desativa o Spy em Arenas."
 L["EnabledInWintergrasp"] = "Ativar Spy em Zonas de Combate"
 L["EnabledInWintergraspDescription"] = "Ativa ou desativa o Spy em locais como Invérnia."
+L["EnabledInSanctuaries"] = "Enable Spy in Sanctuaries."
+L["EnabledInSanctuariesDescription"] = "Enables or disables Spy when you are in a Sanctuary."
 L["DisableWhenPVPUnflagged"] = "Desativar Spy quando JxJ estiver desativado"
 L["DisableWhenPVPUnflaggedDescription"] = "Ativa ou desativa o Spy dependendo se o seu status de JxJ estiver ativado ou desativado."
 L["DisabledInZones"] = "Desative o Spy enquanto estiver nesses locais"
@@ -62,10 +64,10 @@ L["Everlook"] = "Visteterna"
 L["Gadgetzan"] = "Geringontzan"
 L["Ratchet"] = "Vila Catraca"
 L["The Salty Sailor Tavern"] = "Taberna do Lobo do Mar"
+L["Cenarion Hold"] = "Forte Cenariano"
 L["Shattrath City"] = "Shattrath"
 L["Area 52"] = "Área 52"
 L["Dalaran"] = "Dalaran"
-L["Dalaran (Northrend)"] = "Dalaran (Nortúndria)"
 L["Bogpaddle"] = "Brejo do Goblin"
 L["The Vindicaar"] = "A Vindicaar"
 L["Krasus' Landing"] = "Plataforma de Krasus"
@@ -80,7 +82,8 @@ L["Oribos"] = "Oribos"
 L["Valdrakken"] = "Valdrakken"
 L["The Roasted Ram"] = "O Carneiro Assado"
 L["Dornogal"] = "Dornogal"
-L["Stonelight Rest"] = "Stonelight Rest"
+L["Stonelight Rest"] = "Descanso da Luz Pétrea"
+L["Delver's Headquarters"] = "Quartel-general do Imersor"
 
 -- Display
 L["DisplayOptions"] = "Exibição"
@@ -283,6 +286,8 @@ L["Ignore"] = "Ignore"
 L["IgnoreDescription"] = "Adicionar/remover um jogador de/para a lista de ignorados."
 L["Test"] = "Test"
 L["TestDescription"] = "Exibe um aviso para que você possa reposicioná-lo."
+L["Sanctuary"] = "Sanctuary"
+L["SanctuaryDescription"] = "Show/Hide Spy in a Sanctuary area."
 
 -- Lists
 L["Nearby"] = "Proximidades"
@@ -305,7 +310,7 @@ L["HonorKills"] = "Honra Mata"
 L["PvPDeaths"] = "Mortes JxJ"	
 
 -- Output Messages
-L["VersionCheck"] = "|cffc41e3aAtenção! A versão errada do Spy está instalada. Esta versão é para World of Warcraft - Retail."
+L["VersionCheck"] = "|cffc41e3aAtenção! A versão errada do Spy está instalada. Uninstall this version and install the one that matches your current game version."
 L["SpyEnabled"] = "|cff9933ffSpy addon ativado."
 L["SpyDisabled"] = "|cff9933ffSpy addon desativado. Digite |cffffffff/spy show|cff9933ff para ativar."
 L["UpgradeAvailable"] = "|cff9933ffA nova versão do Spy está disponivel. Baixe-o em:\n|cffffffffhttps://www.curseforge.com/wow/addons/spy"
@@ -360,12 +365,13 @@ L["Player"] = " (Jogador)"
 L["KOSReason"] = "Lista Negra"
 L["KOSReasonIndent"] = "    "
 L["KOSReasonOther"] = "Digite seu próprio motivo..."
+L["EnterKOSReason"] = "Motivos para colocar %s na Lista Negra"
 L["KOSReasonClear"] = "Limpar motivo"
 L["StatsWins"] = "|cff40ff00Vitórias: "
 L["StatsSeparator"] = "  "
 L["StatsLoses"] = "|cff0070ddDerrotas: "
 L["Located"] = "localizado:"
-L["Yards"] = "metros"
+L["DistanceUnit"] = "metros"
 L["LocalDefenseChannelName"] = "DefesaLocal"
 
 Spy_KOSReasonListLength = 6
@@ -443,25 +449,6 @@ Spy_KOSReasonList = {
 	},
 }
 
-StaticPopupDialogs["Spy_SetKOSReasonOther"] = {
-	preferredIndex=STATICPOPUPS_NUMDIALOGS,  -- http://forums.wowace.com/showthread.php?p=320956
-	text = "Motivos para colocar %s na Lista Negra:",
-	button1 = "Pronto",
-	button2 = "Cancelar",
-	timeout = 20,
-	hasEditBox = 1,
-	editBoxWidth = 260,		
-	whileDead = 1,
-	hideOnEscape = 1,
-	OnShow = function(self)
-		self.editBox:SetText("");
-	end,
-    OnAccept = function(self)
-		local reason = self.editBox:GetText()
-		Spy:SetKOSReason(self.playerName, "Digite seu próprio motivo...", reason)
-	end,
-};
-
 -- Class descriptions
 L["UNKNOWN"] = "Desconhecido"
 L["DRUID"] = "Druida"
@@ -478,7 +465,7 @@ L["MONK"] = "Monge"
 L["DEMONHUNTER"] = "Caçador de Demonios"
 L["EVOKER"] = "Conjurante"
 
---++ Race descriptions
+-- Race descriptions
 L["Human"] = "Humano"
 L["Orc"] = "Orc"
 L["Dwarf"] = "Anão"
@@ -495,7 +482,7 @@ L["Pandaren"] = "Pandaren"
 L["Highmountain Tauren"] = "Tauren Altamontês"
 L["Lightforged Draenei"] = "Draenei Forjado a Luz"
 L["Nightborne"] = "Filho da Noite"
-L["Void Elf"] = "Void Elf"	
+L["Void Elf"] = "Void Elf"
 L["Dark Iron Dwarf"] = "Anão Ferro Negro"
 L["Mag'har Orc"] = "Orc Mag'har"
 L["Kul Tiran"] = "Kultireno"

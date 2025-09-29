@@ -37,7 +37,7 @@ La ventana de estadísticas contiene una lista de todos los encuentros con enemi
 |cffffd000Botón de matar a la vista|cffffffff
 Si está activado, este botón estará ubicado en el marco del objetivo de los jugadores enemigos. Al hacer clic en este botón, se añadirá/eliminará el objetivo enemigo de la lista de matar a la vista. Al hacer clic derecho en el botón, podrás introducir razones para matar a la vista.
 
-|cffffd000Autor:|cffffffff Slipjack
+|cffffd000 Autor:|cffffffff Slipjack
 ]]
 
 -- General Settings
@@ -53,6 +53,8 @@ L["EnabledInArenas"] = "Activar Spy en arenas"
 L["EnabledInArenasDescription"] = "Activa o desactiva Spy cuando estás en una arena."
 L["EnabledInWintergrasp"] = "Activar Spy en zonas de combate mundial"
 L["EnabledInWintergraspDescription"] = "Activa o desactiva Spy cuando estás en zonas de combate mundial como Lago Conquista de Invierno en Rasganorte."
+L["EnabledInSanctuaries"] = "Enable Spy in Sanctuaries."
+L["EnabledInSanctuariesDescription"] = "Enables or disables Spy when you are in a Sanctuary."
 L["DisableWhenPVPUnflagged"] = "Desactivar Spy cuando no estás marcado para JcJ"
 L["DisableWhenPVPUnflaggedDescription"] = "Activa o desactiva Spy dependiendo de tu estado de JcJ."
 L["DisabledInZones"] = "Desactivar Spy mientras estás en estas ubicaciones"
@@ -62,10 +64,10 @@ L["Everlook"] = "Vista Eterna"
 L["Gadgetzan"] = "Gadgetzan"
 L["Ratchet"] = "Trinquete"
 L["The Salty Sailor Tavern"] = "Taberna del Grumete Frito"
+L["Cenarion Hold"] = "Fuerte Cenarion"
 L["Shattrath City"] = "Ciudad de Shattrath"
 L["Area 52"] = "Area 52"
 L["Dalaran"] = "Dalaran"
-L["Dalaran (Northrend)"] = "Dalaran (Rasganorte)"
 L["Bogpaddle"] = "Chapaleos"
 L["The Vindicaar"] = "El Vindicaar"
 L["Krasus' Landing"] = "Alto de Krasus"
@@ -80,7 +82,8 @@ L["Oribos"] = "Oribos"
 L["Valdrakken"] = "Valdrakken"
 L["The Roasted Ram"] = "El Carnero Asado"
 L["Dornogal"] = "Dornogal"
-L["Stonelight Rest"] = "Stonelight Rest"
+L["Stonelight Rest"] = "Descanso de la Luz Pétrea"
+L["Delver's Headquarters"] = "Cuartel de los Exploradores de las Profundidades"
 
 -- Display
 L["DisplayOptions"] = "Visualización"
@@ -283,6 +286,8 @@ L["Ignore"] = "Ignorados"
 L["IgnoreDescription"] = "Añade/elimina un jugador de la lista de Ignorados."
 L["Test"] = "Prueba"
 L["TestDescription"] = "Muestra una advertencia para que pueda reposicionarla."
+L["Sanctuary"] = "Sanctuary"
+L["SanctuaryDescription"] = "Show/Hide Spy in a Sanctuary area."
 
 -- Lists
 L["Nearby"] = "Cercanos"
@@ -305,7 +310,7 @@ L["HonorKills"] = "Muertes con honor"
 L["PvPDeaths"] = "Muertes de JcJ"
 
 -- Output Messages
-L["VersionCheck"] = "|cffc41e3a¡Advertencia! La versión incorrecta de Spy está instalada. Esta versión es para World of Warcraft - Retail."
+L["VersionCheck"] = "|cffc41e3a¡Advertencia! La versión incorrecta de Spy está instalada. Uninstall this version and install the one that matches your current game version."
 L["SpyEnabled"] = "|cff9933ffAddon Spy activado."
 L["SpyDisabled"] = "|cff9933ffAddon Spy desactivado. Escribe |cffffffff/spy show|cff9933ff para activarlo."
 L["UpgradeAvailable"] = "|cff9933ffHay disponible una nueva versión de Spy. Puede descargarse desde:\n|cffffffffhttps://www.curseforge.com/wow/addons/spy"
@@ -360,12 +365,13 @@ L["Player"] = " (Jugador)"
 L["KOSReason"] = "matar a la vista"
 L["KOSReasonIndent"] = "    "
 L["KOSReasonOther"] = "Introduce tu propia razón..."
+L["EnterKOSReason"] = "Introduce la razón de matar a la vista para %s"
 L["KOSReasonClear"] = "Borrar razón"
 L["StatsWins"] = "|cff40ff00Victorias: "
 L["StatsSeparator"] = "  "
 L["StatsLoses"] = "|cff0070ddDerrotas: "
 L["Located"] = "localizado:"
-L["Yards"] = "metros"
+L["DistanceUnit"] = "metros"
 L["LocalDefenseChannelName"] = "DefensaLocal"
 
 Spy_KOSReasonListLength = 6
@@ -442,25 +448,6 @@ Spy_KOSReasonList = {
 		};
 	},
 }
-
-StaticPopupDialogs["Spy_SetKOSReasonOther"] = {
-	preferredIndex=STATICPOPUPS_NUMDIALOGS,  -- http://forums.wowace.com/showthread.php?p=320956
-	text = "Introduce la razón de matar a la vista para %s:",
-	button1 = "Establecer",
-	button2 = "Cancelar",
-	timeout = 120,
-	hasEditBox = 1,
-	editBoxWidth = 260,	
-	whileDead = 1,
-	hideOnEscape = 1,
-	OnShow = function(self)
-		self.editBox:SetText("");
-	end,
-   	OnAccept = function(self)
-		local reason = self.editBox:GetText()
-		Spy:SetKOSReason(self.playerName, "Introduce tu propia razón...", reason)
-	end,
-};
 
 -- Class descriptions
 L["UNKNOWN"] = "Desconocido"

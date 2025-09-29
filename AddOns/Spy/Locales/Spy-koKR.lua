@@ -53,19 +53,21 @@ L["EnabledInArenas"] = "아레나에 있을 때 Spy 활성화"
 L["EnabledInArenasDescription"] = "아레나에 있을 때 Spy를 활성화 또는 비활성화 합니다."
 L["EnabledInWintergrasp"] = "대규모 전장일 때 Spy 활성화"
 L["EnabledInWintergraspDescription"] = "겨울손아귀 호수와 같은 대규모 전장일 경우 Spy를 활성화 또는 비활성화 합니다."
+L["EnabledInSanctuaries"] = "Enable Spy in Sanctuaries."
+L["EnabledInSanctuariesDescription"] = "Enables or disables Spy when you are in a Sanctuary."
 L["DisableWhenPVPUnflagged"] = "PVP 상태가 아닐 때 Spy 비활성화"
 L["DisableWhenPVPUnflaggedDescription"] = "PVP 상태일 경우 Spy를 활성화 또는 비활성화 합니다."
 L["DisabledInZones"] = "Disable Spy while in these locations"
-L["DisabledInZonesDescription"]	= "Selecet locations where Spy will be disabled"
+L["DisabledInZonesDescription"]	= "Select locations where Spy will be disabled"
 L["Booty Bay"] = "무법항"
 L["Everlook"] = "눈망루 마을"						
 L["Gadgetzan"] = "가젯잔"
 L["Ratchet"] = "톱니항"
 L["The Salty Sailor Tavern"] = "뱃사공의 선술집"
+L["Cenarion Hold"] = "세나리온 요새"
 L["Shattrath City"] = "샤트라스"
 L["Area 52"] = "52번 구역"
 L["Dalaran"] = "달라란"
-L["Dalaran (Northrend)"] = "달라란 (노스렌드)"
 L["Bogpaddle"] = "수렁진흙탕"
 L["The Vindicaar"] = "구원호"
 L["Krasus' Landing"] = "크라서스 착륙장"
@@ -80,7 +82,8 @@ L["Oribos"] = "오리보스"
 L["Valdrakken"] = "발드라켄"
 L["The Roasted Ram"] = "양꼬치 주점"
 L["Dornogal"] = "도르노갈"
-L["Stonelight Rest"] = "Stonelight Rest"
+L["Stonelight Rest"] = "돌빛 쉼터"
+L["Delver's Headquarters"] = "구렁 탐험가 본부"
 
 -- Display
 L["DisplayOptions"] = "디스플레이"
@@ -283,6 +286,8 @@ L["Ignore"] = "제외"
 L["IgnoreDescription"] = "적 플레이어를 제외 목록에 추가/제거 합니다."
 L["Test"] = "Test"
 L["TestDescription"] = "위치를 조정할 수 있도록 경고를 표시합니다."
+L["Sanctuary"] = "Sanctuary"
+L["SanctuaryDescription"] = "Show/Hide Spy in a Sanctuary area."
 
 -- Lists
 L["Nearby"] = "근접한 적"
@@ -305,7 +310,7 @@ L["HonorKills"] = "명예 킬"
 L["PvPDeaths"] = "PvP 죽음"
 
 -- Output Messages
-L["VersionCheck"] = "|cffc41e3a경고! 잘못된 Spy 버전이 설치되었습니다. 이 버전은 World of Warcraft - Retail 용입니다."
+L["VersionCheck"] = "|cffc41e3a경고! 잘못된 Spy 버전이 설치되었습니다. Uninstall this version and install the one that matches your current game version."
 L["SpyEnabled"] = "|cff9933ffSpy 애드온이 활성화되었습니다.."
 L["SpyDisabled"] = "|cff9933ffSpy 애드온이 비활성화되었습니다. |cffffffff/spy show|cff9933ff 을 입력해 활성화 시키십시오."
 L["UpgradeAvailable"] = "|cff9933ffA Spy의 새로운 버전을 사용할 수 있습니다. 다운로드 주소:\n|cffffffffhttps://www.curseforge.com/wow/addons/spy"
@@ -349,7 +354,7 @@ L["AddToIgnoreList"] = "제외 목록에 추가"
 L["AddToKOSList"] = "살생부 명단에 추가"
 L["RemoveFromIgnoreList"] = "제외 목록에서 삭제"
 L["RemoveFromKOSList"] = "살생부 명단에서 삭제"
-L["RemoveFromStatsList"] = "목록에서 삭제"   --++
+L["RemoveFromStatsList"] = "목록에서 삭제"
 L["AnnounceDropDownMenu"] = "알림"
 L["KOSReasonDropDownMenu"] = "살생부 이유 설정"
 L["PartyDropDownMenu"] = "파티"
@@ -360,12 +365,13 @@ L["Player"] = " (플레이어)"
 L["KOSReason"] = "살생부"
 L["KOSReasonIndent"] = "    "
 L["KOSReasonOther"] = "이유를 입력하세요..."
+L["EnterKOSReason"] = "%s 의 살생부 이유 작성"
 L["KOSReasonClear"] = "이유 지우기"
 L["StatsWins"] = "|cff40ff00승: "
 L["StatsSeparator"] = "  "
 L["StatsLoses"] = "|cff0070dd패: "
 L["Located"] = "위치:"
-L["Yards"] = "야드"
+L["DistanceUnit"] = "야드"
 L["LocalDefenseChannelName"] = "수비"
 
 Spy_KOSReasonListLength = 6
@@ -442,25 +448,6 @@ Spy_KOSReasonList = {
 		};
 	},
 }
-
-StaticPopupDialogs["Spy_SetKOSReasonOther"] = {
-	preferredIndex=STATICPOPUPS_NUMDIALOGS,  -- http://forums.wowace.com/showthread.php?p=320956
-	text = "%s 의 살생부 이유 작성",
-	button1 = "설정",
-	button2 = "취소",
-	timeout = 120,
-	hasEditBox = 1,
-	editBoxWidth = 260,	
-	whileDead = 1,
-	hideOnEscape = 1,
-	OnShow = function(self)
-		self.editBox:SetText("");
-	end,
-    OnAccept = function(self)
-		local reason = self.editBox:GetText()
-		Spy:SetKOSReason(self.playerName, "이유를 입력하세요...", reason)
-	end,
-};
 
 -- Class descriptions
 L["UNKNOWN"] = "미확인"

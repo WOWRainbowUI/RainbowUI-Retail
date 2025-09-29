@@ -3,6 +3,26 @@ local AceLocale = LibStub("AceLocale-3.0")
 local L = AceLocale:GetLocale("Spy")
 local _
 
+StaticPopupDialogs["Spy_SetKOSReasonOther"] = {
+	text = L["EnterKOSReason"],		
+	button1 = ACCEPT,
+	button2 = CANCEL,	
+	timeout = 120,
+	hasEditBox = 1,
+	editBoxWidth = 260,	
+	whileDead = 1,
+	hideOnEscape = 1,
+	OnShow = function(self)
+		local editBox = self.GetEditBox and self:GetEditBox() or self.editBox
+		editBox:SetText("")
+	end,
+    OnAccept = function(self)
+		local editBox = self.GetEditBox and self:GetEditBox() or self.editBox
+		local reason = editBox:GetText()
+		Spy:SetKOSReason(self.playerName, reason, data)		
+	end,
+};
+
 function Spy:RefreshCurrentList(player, source)
 	local MainWindow = Spy.MainWindow
 	if not MainWindow:IsShown() then

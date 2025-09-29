@@ -16,35 +16,35 @@ Spy is an addon that will alert you to the presence of nearby enemy players. The
 ]]
 
 L["SpyDescription2"] = [[
-|cffffd000Nearby list|cffffffff
+|cffffd000 Nearby List |cffffffff
 Displays enemy players that have been detected nearby. Players are removed from the list if they have not been detected after a period of time.
 
-|cffffd000Last Hour list|cffffffff
+|cffffd000 Last Hour List |cffffffff
 Displays all enemies that have been detected in the last hour.
 
-|cffffd000Ignore list|cffffffff
+|cffffd000 Ignore List |cffffffff
 Players that are added to the Ignore list will not be reported by Spy. You can add and remove players to/from this list by using the button's drop down menu or by holding the Control key while clicking the button.
 
-|cffffd000Kill On Sight list|cffffffff
+|cffffd000 Kill On Sight List |cffffffff
 Players on your Kill On Sight list cause an alarm to sound when detected. You can add and remove players to/from this list by using the button's drop down menu or by holding the Shift key while clicking the button. The drop down menu can also be used to set the reasons why you have added someone to the Kill On Sight list. If you want to enter a specific reason that is not in the list, then use the "Enter your own reason..." in the Other list.
 
 ]]
 
 L["SpyDescription3"] = [[
-|cffffd000Statistics Window|cffffffff
-The Statistics Window contains a list of all enemy encounters which can be sorted by name, level, guild, wins, losses and the last time an enemy was detected. It also provides the ability to search for a specific enemy by name or guild and has filters to show only enemies that are marked as Kill on Sight, with a Win/Loss or entered Reasons. 
+|cffffd000 Statistics Window |cffffffff
+The Statistics Window contains a list of all enemy encounters which can be sorted by name, level, guild, wins, losses and the last time an enemy was detected. It also provides the ability to search for a specific enemy by name or guild and has filters to show only enemies that are marked as Kill on Sight, with a Win/Loss or entered Reasons.
 
-|cffffd000Kill On Sight Button|cffffffff
+|cffffd000 Kill On Sight Button |cffffffff
 If enabled, this button will be located on the enemy players target frame. Clicking on this button will add/remove the enemy target to/from the Kill On Sight list. Right clicking on the button will allow you to enter Kill on Sight reasons.
 
-|cffffd000Author: Slipjack|cffffffff
+|cffffd000 Author:|cffffffff Slipjack
 ]]
 
 -- General Settings
 L["GeneralSettings"] = "General Settings"
 L["GeneralSettingsDescription"] = [[
 Options for when Spy is Enabled or Disabled.
-]] 
+]]
 L["EnableSpy"] = "Enable Spy"
 L["EnableSpyDescription"] = "Enables or disables Spy."
 L["EnabledInBattlegrounds"] = "Enable Spy in battlegrounds"
@@ -53,7 +53,9 @@ L["EnabledInArenas"] = "Enable Spy in arenas"
 L["EnabledInArenasDescription"] = "Enables or disables Spy when you are in an arena."
 L["EnabledInWintergrasp"] = "Enable Spy in world combat zones"
 L["EnabledInWintergraspDescription"] = "Enables or disables Spy when you are in world combat zones such as Lake Wintergrasp in Northrend."
-L["DisableWhenPVPUnflagged"] = "Disable Spy when not flagged for PVP"
+L["EnabledInSanctuaries"] = "Enable Spy in sanctuaries"
+L["EnabledInSanctuariesDescription"] = "Enables or disables Spy when you are in a sanctuary."
+L["DisableWhenPVPUnflagged"] = "Disable Spy when not flagged for PvP"
 L["DisableWhenPVPUnflaggedDescription"] = "Enables or disables Spy depending on your PVP status."
 L["DisabledInZones"] = "Disable Spy while in these locations"
 L["DisabledInZonesDescription"]	= "Select locations where Spy will be disabled"
@@ -62,10 +64,10 @@ L["Everlook"] = "Lungavista"
 L["Gadgetzan"] = "Meccania"
 L["Ratchet"] = "Porto Paranco"
 L["The Salty Sailor Tavern"] = "Taverna del Lupo di Mare"
+L["Cenarion Hold"] = "Fortezza Cenariana"
 L["Shattrath City"] = "Shattrath"
 L["Area 52"] = "Area 52"
 L["Dalaran"] = "Dalaran"
-L["Dalaran (Northrend)"] = "Dalaran (Nordania)"
 L["Bogpaddle"] = "Spalatorba"
 L["The Vindicaar"] = "Vindicaar"
 L["Krasus' Landing"] = "Terrazza di Krasus"
@@ -80,7 +82,8 @@ L["Oribos"] = "Oribos"
 L["Valdrakken"] = "Valdrakken"
 L["The Roasted Ram"] = "Montone Arrosto"
 L["Dornogal"] = "Dornogal"
-L["Stonelight Rest"] = "Stonelight Rest"
+L["Stonelight Rest"] = "Locanda del Lume Pietroso"
+L["Delver's Headquarters"] = "Quartier Generale delle Scorribande"
 
 -- Display
 L["DisplayOptions"] = "Display"
@@ -137,7 +140,7 @@ L["RowHeightDescription"] = "Select the Row Height for the Spy window."
 L["Texture"] = "Texture"
 L["TextureDescription"] = "Select a texture for the Spy Window"
 			
--- Alerts			
+-- Alerts
 L["AlertOptions"] = "Alerts"
 L["AlertOptionsDescription"] = [[
 Options for alerts, announcements and warnings when enemy players are detected.
@@ -282,7 +285,9 @@ L["InvalidInput"] = "Invalid Input"
 L["Ignore"] = "Ignore"
 L["IgnoreDescription"] = "Add/remove a player to/from the Ignore list."
 L["Test"] = "Test"
-L["TestDescription"] = "Shows the warning frame so it can be repositioned."
+L["TestDescription"] = "Shows a warning so it can be repositioned."
+L["Sanctuary"] = "Sanctuary"
+L["SanctuaryDescription"] = "Show/Hide Spy in a Sanctuary area."
 
 -- Lists
 L["Nearby"] = "Nearby"
@@ -304,8 +309,8 @@ L["Reason"] = "Reason"
 L["HonorKills"] = "Honor Kills"
 L["PvPDeaths"] = "PvP Deaths"
 
--- Output messages
-L["VersionCheck"] = "|cffc41e3aAvvertimento! È installata la versione errata di Spy. Questa versione è per World of Warcraft - Retail."
+-- Output Messages
+L["VersionCheck"] = "|cffc41e3aAvvertimento! È installata la versione errata di Spy. Uninstall this version and install the one that matches your current game version."
 L["SpyEnabled"] = "|cff9933ffSpy addon enabled."
 L["SpyDisabled"] = "|cff9933ffSpy addon disabled. Type |cffffffff/spy show|cff9933ff to enable."
 L["UpgradeAvailable"] = "|cff9933ffA new version of Spy is available. It can be downloaded from:\n|cffffffffhttps://www.curseforge.com/wow/addons/spy"
@@ -342,14 +347,14 @@ L["ClearDescription"] = "|cffffffffClears the list of players that have been det
 L["SoundEnabled"] = "Audio alerts enabled"
 L["SoundDisabled"] = "Audio alerts disabled"
 L["NearbyCount"] = "Nearby Count"
-L["NearbyCountDescription"] = "|cffffffffCount of nearby players."
+L["NearbyCountDescription"] = "|cffffffffNumber of nearby players."
 L["Statistics"] = "Statistics"
 L["StatsDescription"] = "|cffffffffShows a list of enemy players encountered, win/loss records and where they were last seen."
 L["AddToIgnoreList"] = "Add to Ignore list"
 L["AddToKOSList"] = "Add to Kill On Sight list"
 L["RemoveFromIgnoreList"] = "Remove from Ignore list"
 L["RemoveFromKOSList"] = "Remove from Kill On Sight list"
-L["RemoveFromStatsList"] = "Remove from Statistics List"   
+L["RemoveFromStatsList"] = "Remove from Statistics List"
 L["AnnounceDropDownMenu"] = "Announce"
 L["KOSReasonDropDownMenu"] = "Set Kill On Sight reason"
 L["PartyDropDownMenu"] = "Party"
@@ -360,12 +365,13 @@ L["Player"] = " (Player)"
 L["KOSReason"] = "Kill On Sight"
 L["KOSReasonIndent"] = "    "
 L["KOSReasonOther"] = "Enter your own reason..."
+L["EnterKOSReason"] = "Enter the Kill On Sight reason for %s"
 L["KOSReasonClear"] = "Clear Reason"
 L["StatsWins"] = "|cff40ff00Wins: "
 L["StatsSeparator"] = "  "
 L["StatsLoses"] = "|cff0070ddLosses: "
 L["Located"] = "located:"
-L["Yards"] = "yards"
+L["DistanceUnit"] = "yards"
 L["LocalDefenseChannelName"] = "LocalDefense"
 
 Spy_KOSReasonListLength = 6
@@ -388,7 +394,7 @@ Spy_KOSReasonList = {
 			"Ambushed me",
 			"Always attacks me on sight",
 			"Killed me with a higher level character",
-			"Steamrolled me with a group of enemies",
+			"Killed me with a group of enemies",
 			"Doesn't attack without backup",
 			"Always calls for help",
 			"Uses too much crowd control",
@@ -443,26 +449,7 @@ Spy_KOSReasonList = {
 	},
 }
 
-StaticPopupDialogs["Spy_SetKOSReasonOther"] = {
-	preferredIndex=STATICPOPUPS_NUMDIALOGS,  -- http://forums.wowace.com/showthread.php?p=320956
-	text = "Enter the Kill On Sight reason for %s:",
-	button1 = "Set",
-	button2 = "Cancel",
-	timeout = 120,
-	hasEditBox = 1,
-	editBoxWidth = 260,	
-	whileDead = 1,
-	hideOnEscape = 1,
-	OnShow = function(self)
-		self.editBox:SetText("");
-	end,
-    OnAccept = function(self)
-		local reason = self.editBox:GetText()
-		Spy:SetKOSReason(self.playerName, "Enter your own reason...", reason)
-	end,
-};
-
---++ Class descriptions
+-- Class descriptions
 L["UNKNOWN"] = "Sconosciuto"
 L["DRUID"] = "Druido"
 L["HUNTER"] = "Cacciatore"
@@ -509,7 +496,7 @@ L["Earthen"] = "Terrigeno"
 L["Stealth"] = "Furtività"
 L["Prowl"] = "Movimento Furtivo"
  
---++ Minimap color codes
+-- Minimap color codes
 L["MinimapGuildText"] = "|cffffffff"
 L["MinimapClassTextUNKNOWN"] = "|cff191919"
 L["MinimapClassTextDRUID"] = "|cffff7c0a"

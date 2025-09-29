@@ -44,7 +44,7 @@ If enabled, this button will be located on the enemy players target frame. Click
 L["GeneralSettings"] = "一般設定"
 L["GeneralSettingsDescription"] = [[
 啟用或禁用Spy時的選項。
-]] 
+]]
 L["EnableSpy"] = "啟用"
 L["EnableSpyDescription"] = "啟用或禁用 Spy。"
 L["EnabledInBattlegrounds"] = "戰場中啟用"
@@ -53,6 +53,8 @@ L["EnabledInArenas"] = "競技場中啟用"
 L["EnabledInArenasDescription"] = "身處在競技場中時啟用或停用 Spy。"
 L["EnabledInWintergrasp"] = "世界戰鬥區域中啟用"
 L["EnabledInWintergraspDescription"] = "身處在世界戰鬥區中時啟用或停用 Spy，例如北裂境的冬握湖。"
+L["EnabledInSanctuaries"] = "Enable Spy in Sanctuaries."
+L["EnabledInSanctuariesDescription"] = "Enables or disables Spy when you are in a Sanctuary."
 L["DisableWhenPVPUnflagged"] = "非 PVP 狀態時停用"
 L["DisableWhenPVPUnflaggedDescription"] = "依據自身的 PVP 狀態啟用或停用 Spy。"
 L["DisabledInZones"] = "在這些位置時禁用Spy"
@@ -62,10 +64,10 @@ L["Everlook"] = "永望镇"
 L["Gadgetzan"] = "加基森"
 L["Ratchet"] = "棘齿城"
 L["The Salty Sailor Tavern"] = "水手之家旅店"
+L["Cenarion Hold"] = "塞納里奧城堡"
 L["Shattrath City"] = "撒塔斯城"
 L["Area 52"] = "52區"
 L["Dalaran"] = "達拉然"
-L["Dalaran (Northrend)"] = "達拉然(北裂境)"
 L["Bogpaddle"] = "沼槳"
 L["The Vindicaar"] = "维迪卡尔"
 L["Krasus' Landing"] = "卡薩斯平臺"
@@ -80,7 +82,8 @@ L["Oribos"] = "奥利波斯"
 L["Valdrakken"] = "瓦德拉肯"
 L["The Roasted Ram"] = "到脆烤山羊"
 L["Dornogal"] = "多恩诺嘉尔"
-L["Stonelight Rest"] = "Stonelight Rest"
+L["Stonelight Rest"] = "石光休憩"
+L["Delver's Headquarters"] = "探究者總部"
 
 -- Display
 L["DisplayOptions"] = "顯示"
@@ -283,6 +286,8 @@ L["Ignore"] = "忽略"
 L["IgnoreDescription"] = "從忽略清單加入/移除玩家。"
 L["Test"] = "Test"
 L["TestDescription"] = "顯示警告，以便您可以重新放置它。"
+L["Sanctuary"] = "Sanctuary"
+L["SanctuaryDescription"] = "Show/Hide Spy in a Sanctuary area."
 
 -- Lists
 L["Nearby"] = "附近"
@@ -305,7 +310,7 @@ L["HonorKills"] = "榮譽擊殺"
 L["PvPDeaths"] = "PvP 死亡"
 
 -- Output messages
-L["VersionCheck"] = "|cffc41e3a警告！ 安裝了錯誤的Spy版本。 此版本適用於 World of Warcraft - Retail。"
+L["VersionCheck"] = "|cffc41e3a警告！ 安裝了錯誤的Spy版本。 Uninstall this version and install the one that matches your current game version."
 L["SpyEnabled"] = "|cff9933ff偵測敵方玩家插件已啟用。"
 L["SpyDisabled"] = "|cff9933ff偵測敵方玩家插件已停用，輸入 |cffffffff/spy show|cff9933ff 來啟用。"
 L["UpgradeAvailable"] = "|cff9933ff偵測敵方玩家插件已有新版本，可以到這裡下載：\n|cffffffffhttps://www.curseforge.com/wow/addons/spy"
@@ -360,12 +365,13 @@ L["Player"] = " (玩家)"
 L["KOSReason"] = "即殺"
 L["KOSReasonIndent"] = "    "
 L["KOSReasonOther"] = "自行輸入原因..."
+L["EnterKOSReason"] = "輸入 %s 的即殺原因"
 L["KOSReasonClear"] = "明確原因"
 L["StatsWins"] = "|cff40ff00勝："
 L["StatsSeparator"] = "  "
 L["StatsLoses"] = "|cff0070dd敗："
 L["Located"] = "位置:"
-L["Yards"] = "碼"
+L["DistanceUnit"] = "碼"
 L["LocalDefenseChannelName"] = "本地防務"
 
 Spy_KOSReasonListLength = 6
@@ -442,25 +448,6 @@ Spy_KOSReasonList = {
 		};
 	},
 }
-
-StaticPopupDialogs["Spy_SetKOSReasonOther"] = {
-	preferredIndex=STATICPOPUPS_NUMDIALOGS,  -- http://forums.wowace.com/showthread.php?p=320956
-	text = "輸入 %s 的即殺原因:",
-	button1 = "設定",
-	button2 = "取消",
-	timeout = 20,
-	hasEditBox = 1,
-	editBoxWidth = 260,		
-	whileDead = 1,
-	hideOnEscape = 1,
-	OnShow = function(self)
-		self.editBox:SetText("");
-	end,
-	OnAccept = function(self)
-		local reason = self.editBox:GetText()
-		Spy:SetKOSReason(self.playerName, "自行輸入原因...", reason)
-	end,
-};
 
 -- Class descriptions
 L["UNKNOWN"] = "未知"
