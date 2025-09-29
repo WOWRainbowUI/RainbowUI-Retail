@@ -2322,3 +2322,9 @@ Change Log:
 * Added TWW spells for Manaforge Omega
 * Fixed TWW spells for Ara-Kara, City of Echoes
 * Fixed SL spells for Halls of Atonement
+
+5.19.2
+* Updated for WoW Mists of Pandaria Classic 5.5.1
+* Added The War Within spells (world)
+* Added TWW spells for TWW Delves 
+* Added TWW spells for Manaforge Omega
