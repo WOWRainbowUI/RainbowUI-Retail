@@ -76,7 +76,7 @@ local function VUHDO_customizeManaBar(aButton)
 
 	_, tInfo = VUHDO_getDisplayUnit(aButton);
 
-	if tInfo["connected"] then
+	if tInfo and tInfo["connected"] then
 		tManaBar = VUHDO_getHealthBar(aButton, 2);
 		tManaBar:SetValue(tInfo["powermax"] < 2 and 0 or tInfo["power"] / tInfo["powermax"]); -- Some addons return 1 mana-max instead of zero
 		tManaBar:SetVuhDoColor(VUHDO_POWER_TYPE_COLORS[tInfo["powertype"]]);

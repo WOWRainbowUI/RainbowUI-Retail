@@ -10,6 +10,8 @@
 	<Script file="VuhDoConst.lua" />
 	<Script file="VuhDoGuiConst.lua" />
 	<Script file="VuhDoToolbox.lua" />
+	<Script file="VuhDoTask.lua" />
+	<Script file="VuhDoPercentile.lua" />
 	<Script file="VuhDoBuffConst.lua" />
 	<Script file="VuhDoDebuffConst.lua" />
 	<Script file="VuhDoDebuffConstBleed.lua" />
@@ -20,6 +22,7 @@
 	<Script file="VuhDoConfigConvenience.lua" />
 	<Script file="VuhDoGuiToolbox.lua" />
 	<Script file="VuhDoModelTools.lua" />
+	<Script file="VuhDoPixelUtil.lua" />
 	<Script file="VuhDoPanelConvenience.lua" />
 	<Script file="VuhDoSizeCalculator.lua" />
 	<Script file="VuhDoSizeCalculatorHor.lua" />
@@ -30,6 +33,8 @@
 	<Script file="VuhDoReadyCheck.lua" />
 	<Script file="VuhDoEventHandler.lua" />
 	<Script file="VuhDoDebuffs.lua" />
+	<Script file="VuhDoBouquetValidatorsSpellTrace.lua" />
+	<Script file="VuhDoBouquetValidatorsStatus.lua" />
 	<Script file="VuhDoBouquetValidators.lua" />
 	<Script file="VuhDoBouquets.lua" />
 	<Script file="VuhDoEventHandler.lua" />

@@ -105,6 +105,11 @@ local VUHDO_ABSORB_DEBUFFS = {
 	--[347704] = function(aUnit) return select(17, VUHDO_unitDebuff(aUnit, VUHDO_SPELL_ID.DEBUFF_VEIL_OF_DARKNESS)), 10 * 60; end, -- Sylvanas Veil of Darkness
 	--[351091] = function(aUnit) return select(16, VUHDO_unitDebuff(aUnit, VUHDO_SPELL_ID.DEBUFF_DESTABILIZE)), 6; end, -- Mawsworn Hopebreaker Destabilize
 
+	-- Patch 11.2.0 - The War Within - Ghosts of K'aresh
+	[1250008] = function(aUnit) return select(17, VUHDO_unitDebuff(aUnit, VUHDO_SPELL_ID.DEBUFF_SHATTERPULSE)), 1 * 60; end, -- Shatterpulse
+	[1246775] = function(aUnit) return select(17, VUHDO_unitDebuff(aUnit, VUHDO_SPELL_ID.DEBUFF_SHATTERPULSE)), 1 * 60; end, -- Shatterpulse
+	[1242284] = function(aUnit) return select(17, VUHDO_unitDebuff(aUnit, VUHDO_SPELL_ID.DEBUFF_SOULCRUSH)), 1 * 60; end, -- Soulcrush
+
 	--[79105] = function(aUnit) return 280000, 60 * 60; end, -- @TESTING PW:F
 };
 
@@ -152,7 +157,7 @@ local sIsPumpAegis = false;
 local sShowAbsorb = false;
 function VUHDO_shieldAbsorbInitLocalOverrides()
 
-	VUHDO_updateBouquetsForEvent = _G["VUHDO_deferUpdateBouquets"];
+	VUHDO_updateBouquetsForEvent = _G["VUHDO_deferUpdateBouquetsForEvent"];
 	VUHDO_updateShieldBar = _G["VUHDO_deferUpdateShieldBar"];
 	VUHDO_updateHealAbsorbBar = _G["VUHDO_deferUpdateHealAbsorbBar"];
 

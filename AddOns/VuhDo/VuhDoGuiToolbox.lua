@@ -202,14 +202,34 @@ end
 
 --
 function VUHDO_getClassColor(anInfo)
-	return VUHDO_USER_CLASS_COLORS[anInfo["classId"]];
+
+	if not VUHDO_USER_CLASS_COLORS then
+		VUHDO_initClassColors();
+	end
+
+	if VUHDO_USER_CLASS_COLORS and VUHDO_USER_CLASS_COLORS[anInfo["classId"]] then
+		return VUHDO_USER_CLASS_COLORS[anInfo["classId"]];
+	else
+		return nil;
+	end
+
 end
 
 
 
 --
 function VUHDO_getClassColorByModelId(aModelId)
-	return VUHDO_USER_CLASS_COLORS[aModelId];
+
+	if not VUHDO_USER_CLASS_COLORS then
+		VUHDO_initClassColors();
+	end
+
+	if VUHDO_USER_CLASS_COLORS and VUHDO_USER_CLASS_COLORS[aModelId] then
+		return VUHDO_USER_CLASS_COLORS[aModelId];
+	else
+		return nil;
+	end
+
 end
 
 
@@ -661,7 +681,7 @@ local function VUHDO_showBlizzTarget()
 	VUHDO_registerOriginalEvents(true, TargetFrame, TargetFrameToT, FocusFrameToT);
 	VUHDO_registerOriginalEvents(false, TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar, TargetFrame.TargetFrameContent.TargetFrameContentMain.ManaBar);
 
-	ComboFrame:SetPoint("TOPRIGHT", "TargetFrame", "TOPRIGHT", -44, -9);
+	VUHDO_PixelUtil.SetPoint(ComboFrame, "TOPRIGHT", "TargetFrame", "TOPRIGHT", -44, -9);
 end
 
 
@@ -777,7 +797,10 @@ end
 local tFile;
 function VUHDO_setLlcStatusBarTexture(aStatusBar, aTextureName)
 	tFile = VUHDO_LibSharedMedia:Fetch('statusbar', aTextureName);
-	if tFile then aStatusBar:SetStatusBarTexture(tFile); end
+	if tFile then
+		aStatusBar:SetStatusBarTexture(tFile);
+		VUHDO_PixelUtil.ApplySettings(aStatusBar:GetStatusBarTexture());
+	end
 end
 
 
@@ -787,7 +810,7 @@ local tOurLevel;
 function VUHDO_fixFrameLevels(anIsForceUpdateChildren, aFrame, aBaseLevel, ...)
 	local tCnt = 1;
 	local tChild = select(tCnt, ...);
-	aFrame:SetFrameLevel(aBaseLevel);
+	VUHDO_PixelUtil.SetFrameLevel(aFrame, aBaseLevel);
 	while tChild do -- Layer components seem to have no name, important for HoT icons.
 		if tChild.IsForbidden and not tChild:IsForbidden() then
 			if tChild.GetName and tChild:GetName() then
@@ -795,9 +818,9 @@ function VUHDO_fixFrameLevels(anIsForceUpdateChildren, aFrame, aBaseLevel, ...)
 
 				if not tChild["vfl"] then
 					if not VUHDO_isConfigPanelShowing() then
-						tChild:SetFrameStrata(aFrame:GetFrameStrata());
+						VUHDO_PixelUtil.SetFrameStrata(tChild, aFrame:GetFrameStrata());
 					end
-					tChild:SetFrameLevel(tOurLevel);
+					VUHDO_PixelUtil.SetFrameLevel(tChild, tOurLevel);
 					tChild["vfl"] = true;
 					VUHDO_fixFrameLevels(anIsForceUpdateChildren, tChild, tOurLevel, tChild:GetChildren());
 				elseif(anIsForceUpdateChildren) then
@@ -817,7 +840,7 @@ local tOutline, tShadowAlpha, tColor, tFactor;
 function VUHDO_customizeIconText(aParent, aHeight, aLabel, aSetup)
 	tFactor = aHeight * 0.01;
 	aLabel:ClearAllPoints();
-	aLabel:SetPoint(aSetup["ANCHOR"], aParent:GetName(), aSetup["ANCHOR"], tFactor * aSetup["X_ADJUST"], -tFactor * aSetup["Y_ADJUST"]);
+	VUHDO_PixelUtil.SetPoint(aLabel, aSetup["ANCHOR"], aParent:GetName(), aSetup["ANCHOR"], tFactor * aSetup["X_ADJUST"], -tFactor * aSetup["Y_ADJUST"]);
 	tOutline = aSetup["USE_OUTLINE"] and "OUTLINE|" or "";
 	tOutline = tOutline .. (aSetup["USE_MONO"] and "OUTLINEMONOCHROME" or ""); -- Bugs out in MoP beta
 
@@ -842,18 +865,53 @@ end
 
 
 --
-function VUHDO_setupAllButtonsUnitWatch(anIsRegister)
-	if InCombatLockdown() then return; end
+local tTargetButton;
+local tFocusButton;
+local tUnit;
+function VUHDO_setupAllButtonsUnitWatch(anIsEnabled)
 
-	local tFunc = anIsRegister and RegisterUnitWatch or UnregisterUnitWatch;
+	if InCombatLockdown() then
+		return;
+	end
 
-	for tButton, _ in pairs(VUHDO_BUTTON_CACHE) do
-		if tButton:IsShown() then
-			tFunc(tButton);
-		else
-			UnregisterUnitWatch(tButton)
+	if anIsEnabled then
+		for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
+			if VUHDO_PANEL_MODELS[tPanelNum] then
+				tTargetButton = _G["Vd" .. tPanelNum .. "H1Tg"];
+
+				if tTargetButton and not VUHDO_BUTTON_CACHE[tTargetButton] then
+					VUHDO_BUTTON_CACHE[tTargetButton] = tPanelNum;
+				end
+
+				tFocusButton = _G["Vd" .. tPanelNum .. "H1Tot"];
+
+				if tFocusButton and not VUHDO_BUTTON_CACHE[tFocusButton] then
+					VUHDO_BUTTON_CACHE[tFocusButton] = tPanelNum;
+				end
+			end
+		end
+
+		for tButton, _ in pairs(VUHDO_BUTTON_CACHE) do
+			if tButton:IsShown() then
+				-- FIXME: tUnit serves no purpose here?
+				tUnit = tButton:GetAttribute("unit");
+
+				RegisterUnitWatch(tButton);
+			else
+				UnregisterUnitWatch(tButton);
+			end
+		end
+	else
+		for tButton, _ in pairs(VUHDO_BUTTON_CACHE) do
+			-- FIXME: tUnit serves no purpose here?
+			tUnit = tButton:GetAttribute("unit");
+
+			UnregisterUnitWatch(tButton);
 		end
 	end
+
+	return;
+
 end
 
 

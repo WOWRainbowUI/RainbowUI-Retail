@@ -115,7 +115,7 @@ end
 --
 function VUHDO_buffWatchOnMouseUp(aPanel)
 	if VUHDO_mayMoveHealPanels() then
-		aPanel:StopMovingOrSizing();
+		VUHDO_PixelUtil.StopMovingOrSizing(aPanel);
 
 		local tCoords = VUHDO_BUFF_SETTINGS["CONFIG"]["POSITION"];
 		tCoords["point"], _, tCoords["relativePoint"], tCoords["x"], tCoords["y"] = aPanel:GetPoint();
@@ -155,14 +155,14 @@ end
 local function VUHDO_setupBuffButtonAttributes(aModifierKey, aButtonId, anActionName, aButton, aTargetType)
 	if not VUHDO_strempty(anActionName) then
 		if VUHDO_BUFF_TARGET_ENCHANT == aTargetType or VUHDO_BUFF_TARGET_ENCHANT_OFF == aTargetType then
-			aButton:SetAttribute(aModifierKey .. "type" .. aButtonId, "macro");
-			aButton:SetAttribute(aModifierKey .. "macrotext" .. aButtonId, VUHDO_getWeaponEnchantMacroText(anActionName, aTargetType));
+			VUHDO_safeSetAttribute(aButton, aModifierKey .. "type" .. aButtonId, "macro");
+			VUHDO_safeSetAttribute(aButton, aModifierKey .. "macrotext" .. aButtonId, VUHDO_getWeaponEnchantMacroText(anActionName, aTargetType));
 		else
-			aButton:SetAttribute(aModifierKey .. "type" .. aButtonId, "spell");
-			aButton:SetAttribute(aModifierKey .. "spell" .. aButtonId, anActionName);
+			VUHDO_safeSetAttribute(aButton, aModifierKey .. "type" .. aButtonId, "spell");
+			VUHDO_safeSetAttribute(aButton, aModifierKey .. "spell" .. aButtonId, anActionName);
 		end
 	else
-		aButton:SetAttribute(aModifierKey .. "type" .. aButtonId, "");
+		VUHDO_safeSetAttribute(aButton, aModifierKey .. "type" .. aButtonId, "");
 	end
 end
 
@@ -170,9 +170,7 @@ end
 
 --
 function VUHDO_setupAllBuffButtonUnits(aButton, aUnit)
-	if not InCombatLockdown() then
-		aButton:SetAttribute("unit", aUnit or "_foo");
-	end
+	VUHDO_safeSetAttribute(aButton, "unit", aUnit or "_foo");
 end
 
 
@@ -875,10 +873,8 @@ function VUHDO_updateBuffSwatch(aSwatch)
 		end
 	end
 
-	if not InCombatLockdown() then
-		aSwatch:SetAttribute("lowtarget", tLowestUnit);
-		aSwatch:SetAttribute("goodtarget", tVariant[2] == VUHDO_BUFF_TARGET_SELF and "player" or tGoodTarget);
-	end
+	VUHDO_safeSetAttribute(aSwatch, "lowtarget", tLowestUnit);
+	VUHDO_safeSetAttribute(aSwatch, "goodtarget", tVariant[2] == VUHDO_BUFF_TARGET_SELF and "player" or tGoodTarget);
 
 	VUHDO_NUM_LOWS[tSwatchName] = #(tLowGroup or sEmpty) + #(tMissGroup or sEmpty);
 end
@@ -980,17 +976,17 @@ function VUHDO_execSmartBuffPre(self)
 	local tName = VUHDO_RAID_NAMES[tMaxLowTarget] or VUHDO_RAID[tMaxLowTarget]["name"];
 
 	UIErrorsFrame:AddMessage(VUHDO_I18N_SMARTBUFF_OKAY_1 .. tMaxLowSpell .. VUHDO_I18N_SMARTBUFF_OKAY_2 .. tName, 0.1, 1, 0.1, 1);
-	VuhDoSmartCastGlassButton:SetAttribute("unit", tMaxLowTarget);
-	VuhDoSmartCastGlassButton:SetAttribute("type1", "spell");
-	VuhDoSmartCastGlassButton:SetAttribute("spell1", tMaxLowSpell);
+	VUHDO_safeSetAttribute(VuhDoSmartCastGlassButton, "unit", tMaxLowTarget);
+	VUHDO_safeSetAttribute(VuhDoSmartCastGlassButton, "type1", "spell");
+	VUHDO_safeSetAttribute(VuhDoSmartCastGlassButton, "spell1", tMaxLowSpell);
 end
 
 
 
 --
 function VUHDO_execSmartBuffPost()
-	VuhDoSmartCastGlassButton:SetAttribute("unit", nil);
-	VuhDoSmartCastGlassButton:SetAttribute("type1", nil);
+	VUHDO_safeSetAttribute(VuhDoSmartCastGlassButton, "unit", nil);
+	VUHDO_safeSetAttribute(VuhDoSmartCastGlassButton, "type1", nil);
 end
 
 
