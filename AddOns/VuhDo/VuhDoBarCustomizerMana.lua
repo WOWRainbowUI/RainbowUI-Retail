@@ -1,4 +1,3 @@
-
 -- BURST CACHE ---------------------------------------------------
 
 
@@ -136,17 +135,17 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 
 			if not InCombatLockdown() then
 				if tManaBarHeight > 0 then
-					tManaBar:SetHeight(tManaBarHeight);
+					VUHDO_PixelUtil.SetHeight(tManaBar, tManaBarHeight);
 				end
 
 				tRegularHeight = tButton["regularHeight"];
 
 				if tRegularHeight then
-					VUHDO_getHealthBar(tButton, 1):SetHeight(tRegularHeight - tManaBarHeight);
+					VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(tButton, 1), tRegularHeight - tManaBarHeight);
 
 					if not sIsHealthBarVertical[tPanelNum] then
-						VUHDO_getHealthBar(tButton, 6):SetHeight(tRegularHeight - tManaBarHeight);
-						VUHDO_getHealthBar(tButton, 19):SetHeight(tRegularHeight - tManaBarHeight);
+						VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(tButton, 6), tRegularHeight - tManaBarHeight);
+						VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(tButton, 19), tRegularHeight - tManaBarHeight);
 					end
 				end
 			end
@@ -182,14 +181,14 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 
 			if not InCombatLockdown() then
 				tManaBarHeight = VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["manaBarHeight"];
-				tManaBar:SetHeight(tManaBarHeight);
+				VUHDO_PixelUtil.SetHeight(tManaBar, tManaBarHeight);
 
 				tRegularHeight = tButton["regularHeight"];
 
 				if tRegularHeight then
-					VUHDO_getHealthBar(tButton, 1):SetHeight(tRegularHeight - tManaBarHeight);
-					VUHDO_getHealthBar(tButton, 6):SetHeight(tRegularHeight - tManaBarHeight);
-					VUHDO_getHealthBar(tButton, 19):SetHeight(tRegularHeight - tManaBarHeight);
+					VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(tButton, 1), tRegularHeight - tManaBarHeight);
+					VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(tButton, 6), tRegularHeight - tManaBarHeight);
+					VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(tButton, 19), tRegularHeight - tManaBarHeight);
 				end
 			end
 		end

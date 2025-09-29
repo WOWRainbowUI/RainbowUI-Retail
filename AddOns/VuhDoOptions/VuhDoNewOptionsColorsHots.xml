@@ -402,13 +402,13 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="245" y="-17" />
+									<AbsDimension x="255" y="-17" />
 								</Offset>
 							</Anchor>
 						</Anchors>
 						<Layers>
 							<Layer>
-								<FontString name="$parentLabel" text="VUHDO_I18N_FULL_DURATION" justifyH="RIGHT" inherits="VuDoDefaultFontTemplate">
+								<FontString name="$parentLabel" text="VUHDO_I18N_FULL_DURATION" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
 								</FontString>
 							</Layer>
 						</Layers>

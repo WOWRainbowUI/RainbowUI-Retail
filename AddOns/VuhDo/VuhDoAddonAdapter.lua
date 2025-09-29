@@ -203,14 +203,11 @@ function VUHDO_initCliqueSupport()
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		for tButtonNum = 1, 51 do -- VUHDO_MAX_BUTTONS_PANEL
 			tBtnName = format("Vd%dH%d", tPanelNum, tButtonNum);
+
 			if _G[tBtnName] then
 				ClickCastFrames[_G[tBtnName]] = true;
 				ClickCastFrames[_G[tBtnName .. "Tg"]] = true;
 				ClickCastFrames[_G[tBtnName .. "Tot"]] = true;
-				for tIconNum = 40, 44 do
-					tIcon = _G[format("%sBgBarIcBarHlBarIc%d", tBtnName, tIconNum)];
-					if tIcon then ClickCastFrames[tIcon] = true; end
-				end
 			end
 		end
 	end
