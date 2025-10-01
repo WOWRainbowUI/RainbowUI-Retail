@@ -337,7 +337,6 @@ local VUHDO_PROHIBIT_HELP = {
 	[VUHDO_SPELL_ID.RAISE_ALLY] = true,
 	[VUHDO_SPELL_ID.RETURN] = true,
 	[VUHDO_SPELL_ID.MASS_RETURN] = true,
-	[VUHDO_SPELL_ID.SOULSTONE] = true,
 }
 
 
@@ -346,10 +345,9 @@ local VUHDO_PROHIBIT_HELP = {
 local tRezText;
 local function VUHDO_getAutoBattleRezText(anIsKeyboard)
 
-	if VUHDO_SPELL_CONFIG["autoBattleRez"] and
-		("DRUID" == VUHDO_PLAYER_CLASS or "PALADIN" == VUHDO_PLAYER_CLASS or "DEATHKNIGHT" == VUHDO_PLAYER_CLASS or "WARLOCK" == VUHDO_PLAYER_CLASS) then
+	if ("DRUID" == VUHDO_PLAYER_CLASS or "PALADIN" == VUHDO_PLAYER_CLASS) and VUHDO_SPELL_CONFIG["autoBattleRez"] then
 		tRezText = "/use [dead,combat,@" .. (anIsKeyboard and "mouseover" or "vuhdo");
-
+		
 		if VUHDO_SPELL_CONFIG["smartCastModi"] ~= "all" then
 			tRezText = tRezText .. ",mod:" .. VUHDO_SPELL_CONFIG["smartCastModi"];
 		end
@@ -360,10 +358,6 @@ local function VUHDO_getAutoBattleRezText(anIsKeyboard)
 			tRezText = tRezText .. VUHDO_SPELL_ID.REBIRTH .. "\n";
 		elseif "PALADIN" == VUHDO_PLAYER_CLASS then
 			tRezText = tRezText .. VUHDO_SPELL_ID.INTERCESSION .. "\n";
-		elseif "DEATHKNIGHT" == VUHDO_PLAYER_CLASS then
-			tRezText = tRezText .. VUHDO_SPELL_ID.RAISE_ALLY .. "\n";
-		elseif "WARLOCK" == VUHDO_PLAYER_CLASS then
-			tRezText = tRezText .. VUHDO_SPELL_ID.SOULSTONE .. "\n";
 		end
 	else
 		tRezText = "";

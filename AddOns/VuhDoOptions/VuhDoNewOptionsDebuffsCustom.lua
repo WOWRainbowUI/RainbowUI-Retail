@@ -55,7 +55,6 @@ VUHDO_ICON_MODEL = nil;
 VUHDO_COLOR_MODEL = nil;
 VUHDO_ANIMATE_MODEL = nil;
 VUHDO_TIMER_MODEL = nil;
-VUHDO_CLOCK_MODEL = nil;
 VUHDO_STACKS_MODEL = nil;
 VUHDO_ALIVE_TIME_MODEL = nil;
 VUHDO_FULL_DURATION_MODEL = nil;
@@ -100,10 +99,6 @@ function VUHDO_customDebuffUpdateEditBox(anEditBox)
 
 		tCheckButton = _G[tPanelName .. "TimerCheckButton"];
 		VUHDO_lnfSetModel(tCheckButton, "VUHDO_CONFIG.CUSTOM_DEBUFF.STORED_SETTINGS." .. tValue .. ".timer");
-		VUHDO_lnfCheckButtonInitFromModel(tCheckButton);
-
-		tCheckButton = _G[tPanelName .. "ClockCheckButton"];
-		VUHDO_lnfSetModel(tCheckButton, "VUHDO_CONFIG.CUSTOM_DEBUFF.STORED_SETTINGS." .. tValue .. ".isClock");
 		VUHDO_lnfCheckButtonInitFromModel(tCheckButton);
 
 		tCheckButton = _G[tPanelName .. "StacksCheckButton"];
@@ -206,14 +201,13 @@ function VUHDO_customDebuffUpdateEditBox(anEditBox)
 		VUHDO_COLOR_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.isColor;
 		VUHDO_ANIMATE_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.animate;
 		VUHDO_TIMER_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.timer;
-		VUHDO_CLOCK_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.isClock;
 		VUHDO_STACKS_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.isStacks;
 		VUHDO_ALIVE_TIME_MODEL = false;
 		VUHDO_FULL_DURATION_MODEL = false;
 		VUHDO_MINE_MODEL = true;
 		VUHDO_OTHERS_MODEL = true;
-		VUHDO_BAR_GLOW_MODEL = false;
-		VUHDO_ICON_GLOW_MODEL = false;
+		VUHDO_BAR_GLOW_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.isBarGlow;
+		VUHDO_ICON_GLOW_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.isIconGlow;
 
 		VUHDO_COLOR_SWATCH_MODEL = VUHDO_deepCopyTable(VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF" .. VUHDO_DEBUFF_TYPE_CUSTOM]);
 		VUHDO_COLOR_SWATCH_MODEL.useBackground = true;
@@ -237,10 +231,6 @@ function VUHDO_customDebuffUpdateEditBox(anEditBox)
 
 		tCheckButton = _G[tPanelName .. "TimerCheckButton"];
 		VUHDO_lnfSetModel(tCheckButton, "VUHDO_TIMER_MODEL");
-		VUHDO_lnfCheckButtonInitFromModel(tCheckButton);
-
-		tCheckButton = _G[tPanelName .. "ClockCheckButton"];
-		VUHDO_lnfSetModel(tCheckButton, "VUHDO_CLOCK_MODEL");
 		VUHDO_lnfCheckButtonInitFromModel(tCheckButton);
 
 		tCheckButton = _G[tPanelName .. "StacksCheckButton"];
@@ -345,9 +335,6 @@ function VUHDO_saveCustomDebuffOnClick(aButton)
 
 	tCheckButton = _G[tPanelName .. "TimerCheckButton"];
 	VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tValue].timer = VUHDO_forceBooleanValue(tCheckButton:GetChecked());
-
-	tCheckButton = _G[tPanelName .. "ClockCheckButton"];
-	VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tValue].isClock = VUHDO_forceBooleanValue(tCheckButton:GetChecked());
 
 	tCheckButton = _G[tPanelName .. "StacksCheckButton"];
 	VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tValue].isStacks = VUHDO_forceBooleanValue(tCheckButton:GetChecked());
@@ -454,9 +441,7 @@ function VUHDO_applyToAllCustomDebuffOnClick()
 		tSettings["SOUND"] = VUHDO_CONFIG.CUSTOM_DEBUFF.SOUND;
 		tSettings["animate"] = VUHDO_CONFIG.CUSTOM_DEBUFF.animate;
 		tSettings["timer"] = VUHDO_CONFIG.CUSTOM_DEBUFF.timer;
-		tSettings["isClock"] = VUHDO_CONFIG.CUSTOM_DEBUFF.isClock;
 		tSettings["isStacks"] = VUHDO_CONFIG.CUSTOM_DEBUFF.isStacks;
-		tSettings["isFullDuration"] = VUHDO_CONFIG.CUSTOM_DEBUFF.isFullDuration;
 		if (tSettings["isColor"]) then
 			tSettings["color"] = VUHDO_deepCopyTable(VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF" .. VUHDO_DEBUFF_TYPE_CUSTOM]);
 		else

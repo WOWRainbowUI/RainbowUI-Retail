@@ -165,9 +165,9 @@ function VUHDO_updateDirectionFrame(aButton)
 		sOldButton = tButton;
 		tHeight = tButton:GetHeight() * sScale * tButton:GetEffectiveScale();
 
-		VUHDO_PixelUtil.SetPoint(VuhDoDirectionFrame, "CENTER", tButton:GetName(), "CENTER", 0, 0);
-		VUHDO_PixelUtil.SetWidth(VuhDoDirectionFrame, tHeight);
-		VUHDO_PixelUtil.SetHeight(VuhDoDirectionFrame, tHeight);
+		VuhDoDirectionFrame:SetPoint("CENTER", tButton:GetName(), "CENTER", 0, 0);
+		VuhDoDirectionFrame:SetWidth(tHeight);
+		VuhDoDirectionFrame:SetHeight(tHeight);
 
 		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
 		VuhDoDirectionFrameText:SetFont(VUHDO_getFont(VUHDO_PANEL_SETUP[tPanelNum]["HOTS"]["TIMER_TEXT"]["FONT"]), 6, "OUTLINE");

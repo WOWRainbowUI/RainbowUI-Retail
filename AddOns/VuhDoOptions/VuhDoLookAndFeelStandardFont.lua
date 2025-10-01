@@ -72,7 +72,8 @@ function VUHDO_lnfStandardFontInitFromModel(aModel, aName, aParent)
 	VUHDO_lnfSetModel(tComponent, aModel .. ".USE_OUTLINE");
 
 	tPanel:ClearAllPoints();
-	VUHDO_PixelUtil.SetPoint(tPanel, "CENTER", "UIParent", "CENTER", 0, 0);
+	--tPanel:SetPoint("CENTER", aParent:GetName(), "CENTER", 0, 0);
+	tPanel:SetPoint("CENTER", "UIParent", "CENTER", 0, 0);
 	tPanel:Show();
 end
 
@@ -95,7 +96,8 @@ function VUHDO_lnfStandardFontUpdateDemoText()
 	end
 	tLabel:ClearAllPoints();
 	tHeight = tTexture:GetHeight();
-	VUHDO_PixelUtil.SetPoint(tLabel, sTable["ANCHOR"], tTexture:GetName(), sTable["ANCHOR"], sTable["X"] or 0, sTable["Y"] or 0);
+	tLabel:SetPoint(sTable["ANCHOR"], tTexture:GetName(), sTable["ANCHOR"],
+		tHeight * 0.01 * sTable["X_ADJUST"], tHeight * -0.01 * sTable["Y_ADJUST"]);
 
 	if (sTable["USE_SHADOW"]) then
 		tShadowAlpha = (sTable["COLOR"] or tEmpty)["O"];

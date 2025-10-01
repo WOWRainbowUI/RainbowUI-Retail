@@ -146,7 +146,7 @@ function VUHDO_isUnitInModel(aUnit, aModelId)
 
 		return aModelId == VUHDO_RAID[aUnit]["group"];
 	elseif 1 == tModelType then -- VUHDO_ID_TYPE_CLASS
-		return aModelId == VUHDO_RAID[aUnit]["classId"] and not VUHDO_isSpecialUnit(aUnit);
+		return aModelId == VUHDO_RAID[aUnit]["classId"];
 	else -- VUHDO_ID_TYPE_SPECIAL
 		return VUHDO_isUnitInModelIterative(aUnit, aModelId);
 	end

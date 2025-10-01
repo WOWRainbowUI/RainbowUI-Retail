@@ -23,7 +23,6 @@ local VUHDO_getHealthBar;
 local VUHDO_setupSmartCast;
 local VUHDO_updateDirectionFrame;
 local VUHDO_getCurrentKeyModifierString;
-local VUHDO_redrawAllPanels;
 
 
 
@@ -34,7 +33,6 @@ local VUHDO_CONFIG;
 local VUHDO_INTERNAL_TOGGLES;
 local VUHDO_RAID;
 function VUHDO_actionEventHandlerInitLocalOverrides()
-
 	VUHDO_updateBouquetsForEvent = _G["VUHDO_updateBouquetsForEvent"];
 	VUHDO_highlightClusterFor = _G["VUHDO_highlightClusterFor"];
 	VUHDO_showTooltip = _G["VUHDO_showTooltip"];
@@ -52,15 +50,6 @@ function VUHDO_actionEventHandlerInitLocalOverrides()
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 	VUHDO_INTERNAL_TOGGLES = _G["VUHDO_INTERNAL_TOGGLES"];
 	VUHDO_RAID = _G["VUHDO_RAID"];
-
-	if VUHDO_CONFIG["USE_DEFERRED_REDRAW"] then
-		VUHDO_redrawAllPanels = _G["VUHDO_deferRedrawAllPanels"];
-	else
-		VUHDO_redrawAllPanels = _G["VUHDO_redrawAllPanels"];
-	end
-
-	return;
-
 end
 
 
@@ -79,22 +68,22 @@ local function VUHDO_placePlayerIcon(aButton, anIconNo, anIndex)
 	VUHDO_getBarIconCharge(aButton, anIconNo):Hide();
 
 	local tFrame = VUHDO_getBarIconFrame(aButton, anIconNo);
-	VUHDO_PixelUtil.SetScale(tFrame, 1);
+	tFrame:SetScale(1);
 	tFrame:Show();
 
 	local anIcon = VUHDO_getBarIcon(aButton, anIconNo);
 	anIcon:ClearAllPoints();
 	if 2 == anIndex then
-		VUHDO_PixelUtil.SetPoint(anIcon, "CENTER", aButton:GetName(), "TOPRIGHT", -5, -10);
+		anIcon:SetPoint("CENTER", aButton:GetName(), "TOPRIGHT", -5, -10);
 	else
 		if anIndex > 2 then anIndex = anIndex - 1; end
 		local tCol = floor(anIndex * 0.5);
 		local tRow = anIndex - tCol * 2;
-		VUHDO_PixelUtil.SetPoint(anIcon, "TOPLEFT", aButton:GetName(), "TOPLEFT", tCol * 14, -tRow * 14);
+		anIcon:SetPoint("TOPLEFT", aButton:GetName(), "TOPLEFT", tCol * 14, -tRow * 14);
 	end
 
-	VUHDO_PixelUtil.SetWidth(anIcon, 16);
-	VUHDO_PixelUtil.SetHeight(anIcon, 16);
+	anIcon:SetWidth(16);
+	anIcon:SetHeight(16);
 	anIcon:SetAlpha(1);
 	anIcon:SetVertexColor(1, 1, 1);
 	anIcon:Show();
@@ -136,13 +125,11 @@ local function VUHDO_showPlayerIcons(aButton, aPanelNum)
 	if tIsLeader or tIsAssist then
 		VUHDO_getOrCreateHotIcon(aButton, 1):SetTexture(
 			"Interface\\groupframe\\ui-group-" .. (tIsLeader and "leader" or "assistant") .. "icon");
-		VUHDO_PixelUtil.ApplySettings(VUHDO_getOrCreateHotIcon(aButton, 1));
 		VUHDO_placePlayerIcon(aButton, 1, 0);
 	end
 
 	if tIsMasterLooter then
 		VUHDO_getOrCreateHotIcon(aButton, 2):SetTexture("Interface\\groupframe\\ui-group-masterlooter");
-		VUHDO_PixelUtil.ApplySettings(VUHDO_getOrCreateHotIcon(aButton, 2));
 		VUHDO_placePlayerIcon(aButton, 2, 1);
 	end
 
@@ -152,17 +139,15 @@ local function VUHDO_showPlayerIcons(aButton, aPanelNum)
 
 		tIcon:SetTexture("Interface\\groupframe\\ui-group-pvp-"
 			.. ("Alliance" == (UnitFactionGroup(tUnit)) and "alliance" or "horde"));
-		VUHDO_PixelUtil.ApplySettings(tIcon);
 
 		VUHDO_placePlayerIcon(aButton, 3, 2);
-		VUHDO_PixelUtil.SetWidth(tIcon, 32);
-		VUHDO_PixelUtil.SetHeight(tIcon, 32);
+		tIcon:SetWidth(32);
+		tIcon:SetHeight(32);
 	end
 
 	if tInfo["class"] then
 		tIcon = VUHDO_getOrCreateHotIcon(aButton, 4);
 		tIcon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles");
-		VUHDO_PixelUtil.ApplySettings(tIcon);
 		tIcon:SetTexCoord(unpack(CLASS_ICON_TCOORDS[tInfo["class"]]));
 		VUHDO_placePlayerIcon(aButton, 4, 3);
 	end
@@ -170,7 +155,6 @@ local function VUHDO_showPlayerIcons(aButton, aPanelNum)
 	if tInfo["role"] then
 		tIcon = VUHDO_getOrCreateHotIcon(aButton, 5);
 		tIcon:SetTexture("Interface\\LFGFrame\\UI-LFG-ICON-ROLES");
-		VUHDO_PixelUtil.ApplySettings(tIcon);
 		tIcon:SetTexCoord(GetTexCoordsForRole(
 			VUHDO_ID_MELEE_TANK == tInfo["role"] and "TANK"
 			or VUHDO_ID_RANGED_HEAL == tInfo["role"] and "HEALER"	or "DAMAGER"));
@@ -189,7 +173,7 @@ function VUHDO_hideAllPlayerIcons()
 		for _, tButton in pairs(VUHDO_getPanelButtons(tPanelNum)) do
 			if tButton:IsShown() then
 				VUHDO_initButtonStatics(tButton, tPanelNum);
-				VUHDO_initAllHotIcons(tPanelNum);
+				VUHDO_initAllHotIcons();
 			end
 		end
 	end
@@ -379,7 +363,7 @@ function VUHDO_startMoving(aPanel)
 	if (IsMouseButtonDown(1) and VUHDO_mayMoveHealPanels()) then
 		if (not aPanel["isMoving"]) then
 			aPanel["isMoving"] = true;
-			VUHDO_PixelUtil.SetFrameStrata(aPanel, "TOOLTIP");
+			if not InCombatLockdown() then aPanel:SetFrameStrata("TOOLTIP"); end
 			aPanel:StartMoving();
 		end
 	elseif IsMouseButtonDown(2) and not InCombatLockdown()
@@ -395,9 +379,9 @@ end
 function VUHDO_stopMoving(aPanel)
 
 	if not InCombatLockdown() then
-		VUHDO_PixelUtil.StopMovingOrSizing(aPanel);
+		aPanel:StopMovingOrSizing();
 
-		VUHDO_PixelUtil.SetFrameStrata(aPanel, VUHDO_PANEL_SETUP[VUHDO_getPanelNum(aPanel)]["frameStrata"]);
+		aPanel:SetFrameStrata(VUHDO_PANEL_SETUP[VUHDO_getPanelNum(aPanel)]["frameStrata"]);
 	end
 
 	aPanel["isMoving"] = false;

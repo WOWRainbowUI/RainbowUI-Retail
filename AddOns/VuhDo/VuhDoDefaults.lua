@@ -520,8 +520,6 @@ local function VUHDO_customDebuffsAddDefaultSettings(aBuffName)
 			["isOthers"] = true,
 			["isBarGlow"] = false,
 			["isIconGlow"] = false,
-			["isClock"] = false,
-			["isFullDuration"] = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isFullDuration"],
 		}
 	end
 
@@ -629,7 +627,6 @@ local VUHDO_DEFAULT_CONFIG = {
 	["LOCK_IN_FIGHT"] = true,
 	["PARSE_COMBAT_LOG"] = false,
 	["HIDE_EMPTY_BUTTONS"] = false,
-	["USE_DEFERRED_REDRAW"] = true,
 
 	["MODE"] = VUHDO_MODE_NEUTRAL,
 	["EMERGENCY_TRIGGER"] = 100,
@@ -699,8 +696,7 @@ local VUHDO_DEFAULT_CONFIG = {
 		["isIcon"] = true,
 		["isColor"] = false,
 		["isStacks"] = true,
-		["isName"] = false,
-		["isFullDuration"] = false,
+		["isName"] = false, 
 		["isShowFriendly"] = true,
 		["isShowHostile"] = true,
 		["isHostileMine"] = true,
@@ -864,16 +860,6 @@ local VUHDO_DEFAULT_CONFIG = {
 	["IS_READY_CHECK_DISABLED"] = false,
 
 	["SHOW_SPELL_TRACE"] = false,
-
-	["PIXEL_PERFECT"] = {
-		["enabled"] = true,
-		["redrawOnScaleChange"] = true,
-		["scaleChangeDelay"] = 0.1,
-		["logScaleChanges"] = false,
-		["autoRefresh"] = true,
-		["debounceTime"] = 0.5,
-		["testMode"] = false,
-	},
 };
 
 
@@ -965,14 +951,6 @@ function VUHDO_loadDefaultConfig()
 
 	VUHDO_DEFAULT_CONFIG = VUHDO_decompressIfCompressed(VUHDO_DEFAULT_CONFIG);
 	VUHDO_CONFIG = VUHDO_ensureSanity("VUHDO_CONFIG", VUHDO_CONFIG, VUHDO_DEFAULT_CONFIG);
-
-	local tBooleanAllowList = { "USE_DEFERRED_REDRAW", };
-
-	for _, tKey in pairs(tBooleanAllowList) do
-		if VUHDO_DEFAULT_CONFIG[tKey] ~= nil and type(VUHDO_DEFAULT_CONFIG[tKey]) == "boolean" and VUHDO_CONFIG[tKey] == nil then
-			VUHDO_CONFIG[tKey] = VUHDO_DEFAULT_CONFIG[tKey];
-		end
-	end
 
 	-- deprecate "show only for friendly" option in favor of distinct show on friendly and hostile options
 	if VUHDO_CONFIG["CUSTOM_DEBUFF"] and VUHDO_DEFAULT_CONFIG["CUSTOM_DEBUFF"] then
@@ -2578,225 +2556,6 @@ function VUHDO_loadDefaultConfig()
 		[466834] = false,
 		[469297] = false,
 		[467182] = true,
-	} );
-
-	-- 11.2.0 The War Within Ghosts of K'aresh
-	VUHDO_addCustomSpellIds(56, {
-		-- Plexus Sentinel
-		[1219459] = false,
-		[1218626] = false,
-		[1219531] = false,
-		[1219459] = false,
-		[1219354] = false,
-		[1219248] = false,
-		[1233110] = false,
-		-- Loom'ithar
-		[1226311] = false,
-		[1226721] = false,
-		[1227784] = false,
-		[1226395] = false,
-		[1243771] = false,
-		[1226366] = false,
-		-- Soulbinder Naazindhri
-		[1226827] = false,
-		[1227048] = false,
-		[1227052] = true,
-		[1252952] = true,
-		[1225616] = false,
-		[1227276] = false,
-		[1249065] = false,
-		[1226827] = false,
-		[1237607] = false,
-		[1242088] = false,
-		[1242084] = true,
-		[1242086] = true,
-		[1250008] = false,
-		-- Forgeweaver Araz
-		[1228214] = false,
-		[1228188] = false,
-		[245075] = false,
-		[1243901] = false,
-		[1234324] = false,
-		[1232412] = true,
-		[1250185] = true,
-		[1232411] = true,
-		[1240705] = false,
-		[1233076] = false,
-		-- The Soul Hunters
-		[1234565] = true,
-		[1222307] = true,
-		[1235158] = true,
-		[1225127] = true,
-		[1225130] = true,
-		[1241917] = true,
-		[1241946] = true,
-		[1254762] = true,
-		[1233968] = true,
-		[1235045] = false,
-		[1242284] = true,
-		[1233105] = false,
-		[1223725] = true,
-		[1245384] = true,
-		[1239269] = true,
-		[1228238] = true,
-		-- Fractilus
-		[1224414] = false,
-		[1227373] = false,
-		[1247424] = false,
-		[1247424] = false,
-		[1250600] = true,
-		[1241137] = false,
-		-- Nexus-King Salhadaar
-		[1227529] = true,
-		[1227549] = true,
-		[1227562] = true,
-		[1227554] = true,
-		[1224787] = false,
-		[1224737] = false,
-		[1228196] = false,
-		[1226362] = false,
-		[1231097] = false,
-		[1225444] = false,
-		[1227330] = true,
-		[1227472] = true,
-		[1227331] = true,
-		[1227384] = true,
-		[1227470] = true,
-		[1247194] = true,
-		[1237120] = true,
-		[1228081] = false,
-		[1228053] = true,
-		[1228056] = true,
-		-- Dimensius
-		[1243699] = false,
-		[1231002] = false,
-		[1237097] = false,
-		[1238765] = true,
-		[1238773] = true,
-		[1239270] = false,
-		[1237325] = false,
-		[1246145] = false,
-		[1246542] = false,
-		[1237696] = false,
-		[1234054] = false,
-		[1232394] = true,
-		[1250055] = false,
-	} );
-
-	-- 11.2.0 The War Within Season 3 dungeons
-	VUHDO_addCustomSpellIds(57, {
-		-- Ara-Kara, City of Echoes
-		[438599] = false,  -- Bleeding Jab (bleed)
-		[1241785] = true,  -- Tainted Blood (magic, stacking tank debuff)
-		[436614] = true,   -- Web Wrap (magic)
-		[219861] = true,   -- Web Wrap (magic)
-		[461487] = false,  -- Cultivated Poisons (poison, via Ki'katal)
-		[461507] = false,  -- Cultivated Poisons (poison, dot version)
-		[436322] = true,   -- Poison Bolt (poison, interruptible)
-		[448248] = false,  -- Revolting Volley (poison, interruptible)
-		[433841] = true,   -- Venom Volley (poison, interruptible)
-		[432227] = true,   -- Venom Volley (poison, interruptible)
-		[438618] = true,   -- Venomous Spit (poison)
-		-- Eco-Dome Al'dani
-		[1219535] = false, -- Rift Claws (bleed, tank debuff)
-		[1221133] = true,  -- Hungering Rage (enrage)
-		[1221483] = true,  -- Arcing Energy (magic)
-		[1221484] = true,  -- Arcing Energy (magic)
-		[1221485] = true,  -- Arcing Energy (magic)
-		[1221615] = true,  -- Arcing Energy (magic)
-		[1231608] = true,  -- Alacrity (purge)
-		[1223000] = false, -- Embrace of K'aresh (purge)
-		-- Halls of Atonement
-		[1235245] = true,  -- Ankle Bite (bleed, stacking)
-		[1237602] = true,  -- Gushing Wound (bleed, stacking tank debuff)
-		[326450] = false,  -- Loyal Beasts (enrage, interruptible)
-		[1235060] = false, -- Anima Tainted Armor (magic, stacking tank debuff)
-		[325876] = false,  -- Mark of Obliteration (magic)
-		[339237] = false,  -- Sinlight Visions (magic)
-		[325701] = true,   -- Siphon Life (magic, interruptible)
-		[1235762] = true,  -- Turn to Stone (magic)
-		[1236513] = true,  -- Unstable Anima (magic, spread mechanic)
-		[1236514] = true,  -- Unstable Anima (magic, spread mechanic)
-		[1236512] = true,  -- Unstable Anima (magic, spread mechanic)
-		-- Operation: Floodgate
-		[468631] = true,   -- Harpoon (bleed, interruptible)
-		[1213803] = false, -- Nailed (bleed, roots)
-		[463061] = false,  -- Bloodthirsty Cackle (enrage, interruptible)
-		[462737] = false,  -- Black Blood Wound (magic, stacking tank debuff)
-		[473713] = false,  -- Kinetic Explosive Gel (magic)
-		[469799] = true,   -- Overcharge (magic, stuns if not dispelled)
-		[465813] = false,  -- Lethargic Venom (poison)
-		[471733] = false,  -- Restorative Algae (purge, interruptible)
-		-- Priory of the Sacred Flame
-		[453461] = true,   -- Caltrops (bleed, avoidable)
-		[453458] = true,   -- Caltrops (bleed, avoidable)
-		[427635] = true,   -- Grievous Rip (bleed)
-		[446779] = true,   -- Grievous Rip (bleed)
-		[427621] = true,   -- Impale (bleed)
-		[424426] = false,  -- Lunging Strike (bleed, avoidable)
-		[424414] = true,   -- Pierce Armor (bleed)
-		[424419] = true,   -- Battle Cry (enrage, interruptible)
-		[435148] = true,   -- Blazing Strike (magic, tankbuster)
-		[435165] = true,   -- Blazing Strike (magic, tankbuster)
-		[435166] = true,   -- Blazing Strike (magic, tankbuster)
-		[428170] = true,   -- Blinding Light (magic)
-		[428169] = true,   -- Blinding Light (magic)
-		[448515] = false,  -- Divine Judgment (magic, tankbuster)
-		[427897] = true,   -- Heat Wave (magic)
-		[451606] = false,  -- Holy Flame (magic)
-		[427583] = true,   -- Repentance (magic, interruptible)
-		[427342] = false,  -- Defend (purge)
-		[427346] = true,   -- Inner Fire (purge, stuns on removal)
-		[427347] = true,   -- Inner Fire (purge, stuns on removal)
-		[429103] = true,   -- Inner Fire (purge, stuns on removal)
-		[429104] = true,   -- Inner Fire (purge, stuns on removal)
-		[428916] = true,   -- Inner Fire (purge, stuns on removal)
-		[429091] = true,   -- Inner Fire (purge, stuns on removal)
-		[444728] = false,  -- Templar's Wrath (purge)
-		-- Tazavesh: So'leah's Gambit
-		[351119] = true,   -- Shuriken Blitz (bleed, interruptible)
-		[351120] = true,   -- Shuriken Blitz (bleed, interruptible)
-		[351121] = true,   -- Shuriken Blitz (bleed, interruptible)
-		[351122] = true,   -- Shuriken Blitz (bleed, interruptible)
-		[355057] = false,  -- Cry of Mrrggllrrgg (enrage)
-		[356133] = false,  -- Super Saison (enrage)
-		[1240097] = true,  -- Time Bomb (magic, spread mechanic)
-		[1240099] = true,  -- Time Bomb (magic, spread mechanic)
-		[1240102] = true,  -- Time Bomb (magic, spread mechanic)
-		[1240214] = false, -- Double Time (purge)
-		-- Tazavesh: Streets of Wonder
-		[350101] = false,  -- Chains of Damnation (bleed)
-		[357827] = false,  -- Frantic Rip (bleed)
-		[347716] = false,  -- Letter Opener (bleed, tankbuster)
-		[1248211] = false, -- Phase Slash (bleed, party wide)
-		[355832] = false,  -- Quickblade (bleed)
-		[356407] = false,  -- Ancient Dread (curse)
-		[353706] = true,   -- Rowdy (enrage)
-		[1244446] = false, -- Force Multiplier (enrage)
-		[346844] = false,  -- Alchemical Residue (magic)
-		[356324] = false,  -- Empowered Glyph of Restraint (magic)
-		[355915] = false,  -- Glyph of Restraint (magic)
-		[355934] = true,   -- Hard Light Barrier (magic)
-		[355888] = true,   -- Hard Light Baton (magic)
-		[355889] = true,   -- Hard Light Baton (magic)
-		[357029] = false,  -- Hyperlight Bomb (magic)
-		[356943] = true,   -- Lockdown (magic)
-		[356942] = true,   -- Lockdown (magic)
-		[349954] = false,  -- Purification Protocol (magic)
-		[355641] = false,  -- Scintillate (magic)
-		[351960] = true,   -- Static Cling (magic)
-		[349933] = false,  -- Flagellation Protocol (purge)
-		[355980] = false,  -- Refraction Shield (purge)
-		[347775] = false,  -- Spam Filter (purge)
-		-- The Dawnbreaker
-		[431491] = false,  -- Tainted Slash (bleed)
-		[431309] = false,  -- Ensnaring Shadows (curse)
-		[1242074] = false, -- Intensifying Aggression (enrage, stacks)
-		[451112] = false,  -- Tactician's Rage (enrage)
-		[426735] = true,   -- Burning Shadows (magic)
-		[426734] = true,   -- Burning Shadows (magic)
-		[432448] = false,  -- Stygian Seed (magic)
-		[450756] = false,  -- Abyssal Howl (purge)
 	} );
 
 	local debuffRemovalList = {};

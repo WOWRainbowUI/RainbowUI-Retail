@@ -68,19 +68,19 @@ function VUHDO_positionTableHeaders(aPanel, aPanelNum)
 	for tCnt  = 1, tAnzCols do
 		tHeader = VUHDO_getOrCreateHeader(tCnt, aPanelNum);
 
-		VUHDO_PixelUtil.SetWidth(tHeader, tHeaderWidth);
-		VUHDO_PixelUtil.SetHeight(tHeader, tHeight);
+		tHeader:SetWidth(tHeaderWidth);
+		tHeader:SetHeight(tHeight);
 
 		tHealthBar = VUHDO_getHeaderBar(tHeader);
 		tHealthBar:SetValue(1);
-		VUHDO_PixelUtil.SetHeight(tHealthBar, tHeight);
+		tHealthBar:SetHeight(tHeight);
 
-		if tStatusFile then tHealthBar:SetStatusBarTexture(tStatusFile); VUHDO_PixelUtil.ApplySettings(tHealthBar:GetStatusBarTexture()); end
+		if tStatusFile then tHealthBar:SetStatusBarTexture(tStatusFile); end
 
 		tHeaderText = VUHDO_getHeaderTextId(tHeader);
 		tHeaderText:SetFont(tFont, tTextSize, "OUTLINE");
 		tX, tY = VUHDO_getHeaderPos(tCnt, aPanelNum);
-		VUHDO_PixelUtil.SetPoint(tHeader, "TOPLEFT", aPanel:GetName(), "TOPLEFT",  tX + tWidth * 0.5 * (1 - tBarWidth), -tY);
+		tHeader:SetPoint("TOPLEFT", aPanel:GetName(), "TOPLEFT",  tX + tWidth * 0.5 * (1 - tBarWidth), -tY);
 		VUHDO_customizeHeader(tHeader, aPanelNum, tModel[tCnt]);
 		tHeader:Show();
 	end

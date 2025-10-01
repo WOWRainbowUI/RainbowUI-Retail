@@ -1,31 +1,3 @@
-Version 3.191  
-  
-  
-Known issues:  
--- Debuff tooltips are currently bugged when using ElvUI  
---   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
--- Blizzard continues to have a bug that breaks proper spell targeting.  
---   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
---   and set 'Self Cast Key' to 'None'  
-  
-  
-Bugfixes:  
--- Fixed Warlock 'Soulstone' spell binding while in combat  
--- Fixed NPC units showing in class specific panel groups  
--- Fixed truncation of player name text with special characters  
-  
-  
-Improvements:  
--- Added Warlock and Death Knight combat resurrections to Smart Cast  
--- Added clock sweep countdown option for debuff icons  
--- Added debuff default setting to display full timer duration  
--- Incoming spell trace icons now display cast time as time remaining  
--- Added default custom debuffs for Manaforge Omega raid encounters  
--- Added default custom debuffs for season 3 dungeon encounters  
--- Bump TOC interface for 11.2.0  
-  
-  
---------------------------------------------------------------  
 Version 3.190  
   
   
@@ -42,6 +14,7 @@ Bugfixes:
   
   
 Improvements:  
+-- Bump TOC interface for 11.2.0  
   
   
 --------------------------------------------------------------  
