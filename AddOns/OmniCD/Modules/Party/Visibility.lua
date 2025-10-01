@@ -100,7 +100,8 @@ local function IsInShadowlands()
 end
 
 function P:UpdateDelayedZoneData()
-	self.isInShadowlands = E.isSL or (E.postDF and not self.isInPvPInstance and IsInShadowlands())
+
+	self.isInShadowlands = E.isSL or E.postDF and not self.isInPvPInstance and self.zone ~= "party" and IsInShadowlands()
 end
 
 local function InspectAllGroupMembers()
