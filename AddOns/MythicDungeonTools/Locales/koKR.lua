@@ -451,8 +451,7 @@ L["Coldmist Widow"] = "얼음안개 과부거미"
 L["Color Blind Friendly"] = "색맹 모드"
 L["Colorpicker"] = "색 지정"
 L["Colossal Tentacle"] = "거대한 촉수"
---[[Translation missing --]]
-L["Combat Transparency"] = "Combat Transparency"
+L["Combat Transparency"] = "전투 중 투명도"
 --[[Translation missing --]]
 L["Commander Durand"] = "Commander Durand"
 L["Commander Kolurg"] = "사령관 콜루르그"
@@ -732,10 +731,8 @@ L["Dragonflayer Strategist"] = "용약탈 전략가"
 L["Dragonflayer Weaponsmith"] = "용약탈 무기제작자"
 L["Dragonflight Season 1"] = "용군단 1시즌"
 L["Dragonflight Season 2"] = "용군단 2시즌"
---[[Translation missing --]]
-L["Dragonflight Season 3"] = "Dragonflight Season 3"
---[[Translation missing --]]
-L["Dragonflight Season 4"] = "Dragonflight Season 4"
+L["Dragonflight Season 3"] = "용군단 3시즌"
+L["Dragonflight Season 4"] = "용군단 4시즌"
 L["Dragonkin"] = "용족"
 --[[Translation missing --]]
 L["Drahga Shadowburner"] = "Drahga Shadowburner"
@@ -1674,8 +1671,7 @@ L["Magmatusk"] = "용암엄니"
 L["Maiden of Grief"] = "고뇌의 마녀"
 L["Maiden of Virtue"] = "고결의 여신"
 L["Make this preset the live preset"] = "이 경로를 라이브 경로로 만들기"
---[[Translation missing --]]
-L["Make window transparent in combat"] = "Make window transparent in combat"
+L["Make window transparent in combat"] = "전투 중 창을 투명하게 만들기"
 L["Makogg Emberblade"] = "잿불칼날 마코그"
 L["Mak'rana Hardshell"] = "마크라나 바위껍질"
 L["Mak'rana Siltwalker"] = "마크라나 진흙방랑자"
