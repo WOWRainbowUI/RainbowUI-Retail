@@ -405,7 +405,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.EMERGENCY_TRIGGER");
-								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_RELEVANCE, 0, 100, " %");
+								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_RELVEVANCE, 0, 100, " %");
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K055);
 							</OnLoad>
 						</Scripts>

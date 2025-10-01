@@ -27,7 +27,6 @@ local VUHDO_DEFAULT_PROFILES = {
 			["EMERGENCY_TRIGGER"] = 100,
 			["SHOW_INCOMING"] = true,
 			["HIDE_EMPTY_BUTTONS"] = false,
-			["USE_DEFERRED_REDRAW"] = true,
 			["LOCK_CLICKS_THROUGH"] = false,
 			["CUSTOM_DEBUFF"] = {
 				["animate"] = false,
@@ -792,7 +791,6 @@ local VUHDO_DEFAULT_PROFILES = {
 			["EMERGENCY_TRIGGER"] = 100,
 			["SHOW_INCOMING"] = true,
 			["HIDE_EMPTY_BUTTONS"] = false,
-			["USE_DEFERRED_REDRAW"] = true,
 			["LOCK_CLICKS_THROUGH"] = false,
 			["SHOW_TEXT_OVERHEAL"] = true,
 			["SPELL_TRACE"] = {
@@ -2729,7 +2727,6 @@ function VUHDO_loadProfileNoInit(aName)
 
 	VUHDO_fixDominantProfileSettings(tProfile);
 	VUHDO_CONFIG["CURRENT_PROFILE"] = aName;
-	VUHDO_clearBackdropCache();
 	VUHDO_Msg(VUHDO_I18N_PROFILE_LOADED .. aName);
 end
 
@@ -2739,7 +2736,6 @@ end
 function VUHDO_loadProfile(aName)
 
 	VUHDO_loadProfileNoInit(aName);
-	VUHDO_clearBackdropCache();
 	VUHDO_initAllBurstCaches();
 	VUHDO_loadVariables();
 	VUHDO_initPanelModels();

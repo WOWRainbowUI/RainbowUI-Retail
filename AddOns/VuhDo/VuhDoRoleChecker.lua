@@ -337,18 +337,10 @@ local tIntellect, tStrength, tAgility;
 local tClassId, tClassRole, tName;
 local tRole;
 function VUHDO_determineRole(aUnit)
-
 	tInfo = VUHDO_RAID[aUnit];
-
-	if not tInfo or tInfo["isPet"] then
-		return nil;
-	end
+	if not tInfo or tInfo["isPet"] then	return nil; end
 
 	tName = tInfo["name"];
-
-	if not tName then
-		return nil;
-	end
 
 	-- Manual role override oder dungeon finder role?
 	tFixRole = VUHDO_MANUAL_ROLES[tName] or VUHDO_determineDfToolRole(tInfo);
@@ -501,7 +493,6 @@ function VUHDO_determineRole(aUnit)
 	end
  
 	return nil;
-
 end
 
 

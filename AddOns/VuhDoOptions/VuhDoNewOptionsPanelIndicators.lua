@@ -439,8 +439,8 @@ local function VUHDO_createSliderForComponent(anIndex, anElement, aParent)
 		tSlider = CreateFrame("Frame", tName, aParent, "VuhDoHSliderTemplate");
 	end
 
-	VUHDO_PixelUtil.SetWidth(tSlider, 150);
-	VUHDO_PixelUtil.SetHeight(tSlider, 32);
+	tSlider:SetWidth(150);
+	tSlider:SetHeight(32);
 
 	VUHDO_lnfSliderOnLoad(tSlider, anElement["name"], anElement["min"], anElement["max"], anElement["unit"], anElement["step"]);
 	VUHDO_lnfSetModel(tSlider, anElement["model"]);
@@ -482,7 +482,7 @@ local function VUHDO_createComboBoxForComponent(anIndex, anElement, aParent)
 		tPanel = CreateFrame("Frame", tName, aParent, "VuhDoMoreButtonsTexturePanel");
 	end
 
-	VUHDO_PixelUtil.SetWidth(tPanel, 150);
+	tPanel:SetWidth(150);
 
 	tCombo = _G[tName .. "Combo"];
 	VUHDO_setComboModel(tCombo, anElement["model"], anElement["enumerator"]);
@@ -495,10 +495,10 @@ local function VUHDO_createComboBoxForComponent(anIndex, anElement, aParent)
 		VUHDO_lnfTextureSwatchInitFromModel(tTexture);
 		_G[tTexture:GetName() .. "TitleString"]:SetText(anElement["name"]);
 		tTexture:Show();
-		VUHDO_PixelUtil.SetHeight(tPanel, 70);
+		tPanel:SetHeight(70);
 	else
 		tTexture:Hide();
-		VUHDO_PixelUtil.SetHeight(tPanel, 38);
+		tPanel:SetHeight(38);
 	end
 
 	_G[tName .. "TitleLabelLabel"]:SetText(anElement["name"]);
@@ -570,7 +570,7 @@ local function VUHDO_buildCustomComponents(aPanel, someCustomElements)
 
 		if (tComponent ~= nil) then
 			tComponent:ClearAllPoints();
-			VUHDO_PixelUtil.SetPoint(tComponent, "TOP", aPanel:GetName(), "TOP", 0, tYCompOfs);
+			tComponent:SetPoint("TOP", aPanel:GetName(), "TOP", 0, tYCompOfs);
 			tYCompOfs = tYCompOfs - (tComponent:GetHeight() + 10);
 		end
 	end
@@ -596,13 +596,13 @@ function VUHDO_newOptionsIndicatorsBuildScrollChild(aScrollChild)
 		end
 
 		tBouquetSlot:ClearAllPoints();
-		VUHDO_PixelUtil.SetPoint(tBouquetSlot, "TOPLEFT", aScrollChild:GetName(), "TOPLEFT", tXOfs, - tYIndex * tBouquetSlot:GetHeight() - 3);
+		tBouquetSlot:SetPoint("TOPLEFT", aScrollChild:GetName(), "TOPLEFT", tXOfs, - tYIndex * tBouquetSlot:GetHeight() - 3);
 		VUHDO_setBouquetSelectorModel(tBouquetSlot, tIndicator["name"], tIndicator["model"], tIndicator["icon"]);
 
 		if (#tIndicator["custom"] > 0) then
 			tMorePanel = _G[tBouqetSlotName .. "MorePanel"];
 			tHeight = VUHDO_buildCustomComponents(tMorePanel, tIndicator["custom"]);
-			VUHDO_PixelUtil.SetHeight(tMorePanel, tHeight + 30);
+			tMorePanel:SetHeight(tHeight + 30);
 			sAllMorePanels[tMorePanel] = true;
 		else
 			_G[tBouqetSlotName .. "MoreButton"]:Hide();

@@ -90,27 +90,27 @@ local function _VUHDO_setupHealButtonAttributes(aModiKey, aButtonId, anAction, a
 
 	if tActionLow then
 		if "assist" == tActionLow then
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "macro");
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "macrotext" .. aButtonId, VUHDO_buildAssistMacroText(tUnit));
+			aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
+			aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, VUHDO_buildAssistMacroText(tUnit));
 		elseif "focus" == tActionLow then
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "macro");
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "macrotext" .. aButtonId, VUHDO_buildFocusMacroText(tUnit));
+			aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
+			aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, VUHDO_buildFocusMacroText(tUnit));
 		elseif "target" == tActionLow then
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "macro");
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "macrotext" .. aButtonId, VUHDO_buildTargetMacroText(tUnit));
+			aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
+			aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, VUHDO_buildTargetMacroText(tUnit));
 		elseif "extraactionbutton" == tActionLow then
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "macro");
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "macrotext" .. aButtonId, VUHDO_buildExtraActionButtonMacroText(tUnit));
+			aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
+			aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, VUHDO_buildExtraActionButtonMacroText(tUnit));
 		elseif "mouselook" == tActionLow then
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "macro");
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "macrotext" .. aButtonId, VUHDO_buildMouseLookMacroText());
+			aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
+			aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, VUHDO_buildMouseLookMacroText());
 		elseif "ping" == tActionLow then
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "macro");
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "macrotext" .. aButtonId, VUHDO_buildPingMacroText(tUnit));
+			aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
+			aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, VUHDO_buildPingMacroText(tUnit));
 		elseif "menu" == tActionLow or "tell" == tActionLow then
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, nil);
+			aButton:SetAttribute(aModiKey .. "type" .. aButtonId, nil);
 		elseif "dropdown" == tActionLow then
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "VUHDO_contextMenu");
+			aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "VUHDO_contextMenu");
 
 			VUHDO_contextMenu = function()
 				tUnit = aButton["raidid"];
@@ -161,25 +161,25 @@ local function _VUHDO_setupHealButtonAttributes(aModiKey, aButtonId, anAction, a
 			anAction = VUHDO_REPLACE_SPELL_NAME[anAction] or anAction;
 
 			if VUHDO_NATIVE_ASSIGN_SPELLS[anAction] then
-				VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "spell");
-				VUHDO_safeSetAttribute(aButton, aModiKey .. "spell" .. aButtonId, anAction);
+				aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "spell");
+				aButton:SetAttribute(aModiKey .. "spell" .. aButtonId, anAction);
 			elseif VUHDO_isSpellKnown(anAction) or VUHDO_IN_COMBAT_RELOG or anAction == "13" or anAction == "14" then -- Spells may not be initialized yet
 				-- Dead players do not trigger "help/noharm" conditionals
 				if VUHDO_REZ_SPELLS_NAMES[anAction] then
-					VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "macro");
-					VUHDO_safeSetAttribute(aButton, aModiKey .. "macrotext" .. aButtonId, VUHDO_buildRezMacroText(anAction, tUnit));
+					aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
+					aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, VUHDO_buildRezMacroText(anAction, tUnit));
 
 					return;
 				-- Cleansing charmed players is an offensive thing to do
 				elseif VUHDO_BUFF_REMOVAL_SPELLS[anAction] then
-					VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "macro");
-					VUHDO_safeSetAttribute(aButton, aModiKey .. "macrotext" .. aButtonId, VUHDO_buildPurgeMacroText(anAction, tUnit));
+					aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
+					aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, VUHDO_buildPurgeMacroText(anAction, tUnit));
 
 					return;
 				else
 					-- build a spell macro
-					VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "macro");
-					VUHDO_safeSetAttribute(aButton, aModiKey .. "macrotext" .. aButtonId, VUHDO_buildMacroText(anAction, false, tUnit));
+					aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
+					aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, VUHDO_buildMacroText(anAction, false, tUnit));
 				end
 			else
 				tMacroId = GetMacroIndexByName(anAction);
@@ -189,14 +189,14 @@ local function _VUHDO_setupHealButtonAttributes(aModiKey, aButtonId, anAction, a
 
 					tMacroText = VUHDO_replaceMacroTemplates(tMacroText, tUnit);
 
-					VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "macro");
-					VUHDO_safeSetAttribute(aButton, aModiKey .. "macrotext" .. aButtonId, tMacroText);
+					aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
+					aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, tMacroText);
 				elseif IsUsableItem(anAction) then -- Item?
-					VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "item");
-					VUHDO_safeSetAttribute(aButton, aModiKey .. "item" .. aButtonId, anAction);
+					aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "item");
+					aButton:SetAttribute(aModiKey .. "item" .. aButtonId, anAction);
 				else -- we don't know, assume it's a spell
-					VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "spell");
-					VUHDO_safeSetAttribute(aButton, aModiKey .. "spell" .. aButtonId, anAction);
+					aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "spell");
+					aButton:SetAttribute(aModiKey .. "spell" .. aButtonId, anAction);
 				end
 			end
 		end
@@ -224,20 +224,20 @@ local function VUHDO_setupHealButtonAttributes(aModiKey, aButtonId, anAction, aB
 			tHostSpell = VUHDO_SPELLS_KEYBOARD["HOSTILE_WHEEL"][anIndex][3];
 		end
 
-		VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "macro");
+		aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
 
 		if (tHostSpell or "") ~= "" or (tActionLow or "") ~= "" then
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "macrotext" .. aButtonId,
+			aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId,
 				VUHDO_buildTargetButtonMacroText(tUnit, tActionLow, tHostSpell));
 		else
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "macrotext" .. aButtonId, nil);
+			aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, nil);
 		end
 
 		return;
 	end
 
 	if (tActionLow or "") == "" then
-		VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, nil);
+		aButton:SetAttribute(aModiKey .. "type" .. aButtonId, nil);
 
 		return;
 	else
@@ -289,19 +289,16 @@ local tOnEnterSnippet = [[
 	if sHealButton then
 		sHealButton:ClearBindings();
 	end
-
 	sHealButton = self;
 ]]
 local tOnLeaveSnippet = [[
 	sHealButton = nil;
 ]]
-local tClearBindsSnippet = [[
-	self:ClearBindings();
-]]
+local tClearBindsSnippet = "self:ClearBindings();";
 function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceTarget, anIsTgButton, anIsIcButton)
 
 	if aUnit then
-		VUHDO_safeSetAttribute(aButton, "unit", aUnit);
+		aButton:SetAttribute("unit", aUnit);
 		aButton["raidid"] = aUnit;
 	end
 
@@ -313,11 +310,11 @@ function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceT
 			aButton:HookScript("OnEnter",	function(self) VuhDoActionOnEnter(self); end);
 			aButton:HookScript("OnLeave",	function(self) VuhDoActionOnLeave(self); end);
 		end
-		VUHDO_safeSetAttribute(aButton, "vd_tt_hook", true);
+		aButton:SetAttribute("vd_tt_hook", true);
 	end
 
 	if sIsCliqueCompat then
-		VUHDO_PixelUtil.EnableMouseWheel(aButton, 1);
+		aButton:EnableMouseWheel(1);
 		return;
 	end
 
@@ -345,8 +342,8 @@ function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceT
 		if VUHDO_isActionValid(tEntries[1], false) then
 			_VUHDO_setupHealButtonAttributes("",  "-ik" .. tIndex, tEntries[1], aButton, anIsTgButton, tIndex);
 		else
-			VUHDO_safeSetAttribute(aButton, "type-ik" .. tIndex, "macro");
-			VUHDO_safeSetAttribute(aButton, "macrotext-ik" .. tIndex, VUHDO_replaceMacroTemplates(tEntries[3] or "", aUnit));
+			aButton:SetAttribute("type-ik" .. tIndex, "macro");
+			aButton:SetAttribute("macrotext-ik" .. tIndex, VUHDO_replaceMacroTemplates(tEntries[3] or "", aUnit));
 		end
 	end
 
@@ -359,22 +356,20 @@ function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceT
 
 		tWheelDefString = tWheelDefString .. VUHDO_getInternalKeyString();
 
-		VUHDO_safeSetAttribute(aButton, "_onenter", tWheelDefString);
-		VUHDO_safeSetAttribute(aButton, "_onleave", tClearBindsSnippet);
-		VUHDO_safeSetAttribute(aButton, "_onshow", tClearBindsSnippet);
-		VUHDO_safeSetAttribute(aButton, "_onhide", tClearBindsSnippet);
+		aButton:SetAttribute("_onenter", tWheelDefString);
 
-		VUHDO_safeSetAttribute(aButton, "vuhdo_onenter", tWheelDefString);
-		VUHDO_safeSetAttribute(aButton, "vuhdo_onleave", tClearBindsSnippet);
+		aButton:SetAttribute("_onleave", tClearBindsSnippet);
+		aButton:SetAttribute("_onshow", tClearBindsSnippet);
+		aButton:SetAttribute("_onhide", tClearBindsSnippet);
 
-		tHeaderFrame = _G["VuhDoHealButtonSecureHeaderFrame"];
+		if not aButton:GetAttribute("vuhdo_secureheader_wrap") then
+			tHeaderFrame = _G["VuhDoHealButtonSecureHeaderFrame"];
 
-		if tHeaderFrame then
-			if not aButton:GetAttribute("vuhdo_secureheader_wrap") then
-				VUHDO_safeWrapScript(tHeaderFrame, aButton, "OnEnter", tOnEnterSnippet);
-				VUHDO_safeWrapScript(tHeaderFrame, aButton, "OnLeave", tOnLeaveSnippet);
+			if tHeaderFrame then
+				tHeaderFrame:WrapScript(aButton, "OnEnter", tOnEnterSnippet);
+				tHeaderFrame:WrapScript(aButton, "OnLeave", tOnLeaveSnippet);
 
-				VUHDO_safeSetAttribute(aButton, "vuhdo_secureheader_wrap", true);
+				aButton:SetAttribute("vuhdo_secureheader_wrap", true);
 			end
 		end
 	end

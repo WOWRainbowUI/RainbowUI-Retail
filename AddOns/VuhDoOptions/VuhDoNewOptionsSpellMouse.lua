@@ -72,7 +72,7 @@ local sButtonTitles = {
 --
 local function VUHDO_addSpellEditBox(aScrollPanel, anIndex)
 	local tFrame = CreateFrame("Frame", aScrollPanel:GetName() .. "E" .. anIndex, aScrollPanel, "VuhDoNewOptionsSpellMouseEditBoxTemplate");
-	VUHDO_PixelUtil.SetPoint(tFrame, "TOPLEFT", aScrollPanel:GetName(), "TOPLEFT", 23, -(anIndex - 1) * tFrame:GetHeight() - 7);
+	tFrame:SetPoint("TOPLEFT", aScrollPanel:GetName(), "TOPLEFT", 23, -(anIndex - 1) * tFrame:GetHeight() - 7);
 	_G[tFrame:GetName() .. "LabelLabel"]:SetText(sButtonTitles[anIndex] or (VUHDO_I18N_BUTTON .. " " .. anIndex));
 	return tFrame;
 end
@@ -86,5 +86,5 @@ function VUHDO_newOptionsSpellMouseScrollPanelOnLoad(aScrollPanel)
 		tFrame = VUHDO_addSpellEditBox(aScrollPanel, tCnt);
 	end
 
-	VUHDO_PixelUtil.SetHeight(aScrollPanel, VUHDO_NUM_MOUSE_BUTTONS * tFrame:GetHeight() + 18);
+	aScrollPanel:SetHeight(VUHDO_NUM_MOUSE_BUTTONS * tFrame:GetHeight() + 18);
 end

@@ -7,15 +7,12 @@ end
 -- ç = \195\167
 -- è = \195\168
 -- é = \195\169
--- ê = \195\170
+-- è = \195\170
 -- ï = \195\175
--- î = \195\174
 -- ô = \195\180
 -- ù = \195\185
 -- Œ = \197\146
 -- œ = \197\147
--- É = \195\137
--- À = \195\128
 -- @EXACT = true: Translation has to be the exact(!) match in the clients language,
 --                beacause it carries technical semantics
 -- @EXACT = false: Translation can be done freely, because text is only descriptive
@@ -39,7 +36,7 @@ VUHDO_I18N_OWN_GROUP = "Mon Groupe";
 -- Special Model Names
 -- @EXACT = false
 VUHDO_I18N_PETS = "Familiers";
-VUHDO_I18N_MAINTANKS = "Tanks \nprincipaux";
+VUHDO_I18N_MAINTANKS = "Tanks principaux";
 VUHDO_I18N_PRIVATE_TANKS = "Cibles personalis\195\169es";
 -- General Labels
 -- @EXACT = false
@@ -138,7 +135,6 @@ VUHDO_I18N_BUFFC_SHOUT = "Cri";
 VUHDO_I18N_BUFFC_ASPECT = "Aspect";
 -- Monk
 VUHDO_I18N_BUFFC_STANCE = "Stance";
-
 -- Key Binding Headers/Names
 -- @EXACT = false
 BINDING_HEADER_VUHDO_TITLE = "VuhDo - Raid Frames";
@@ -182,397 +178,395 @@ VUHDO_I18N_PROMOTE_ASSISTANT = "Promote to Assistant";
 VUHDO_I18N_DEMOTE_ASSISTANT = "Demote from Assistant";
 VUHDO_I18N_PROMOTE_MASTER_LOOTER = "Promote to Master Looter";
 VUHDO_I18N_MT_NUMBER = "MT #";
-VUHDO_I18N_ROLE_OVERRIDE = "Remplacement de rôle";
-VUHDO_I18N_MELEE_TANK = "M\195\169l\195\169e - Tank";
-VUHDO_I18N_MELEE_DPS = "M\195\169l\195\169e - DPS";
-VUHDO_I18N_RANGED_DPS = "\195\128 distance - DPS";
-VUHDO_I18N_RANGED_HEALERS = "\195\128 distance - Soigneur";
+VUHDO_I18N_ROLE_OVERRIDE = "Role override";
+VUHDO_I18N_MELEE_TANK = "Melee - Tank";
+VUHDO_I18N_MELEE_DPS = "Melee - DPS";
+VUHDO_I18N_RANGED_DPS = "Ranged - DPS";
+VUHDO_I18N_RANGED_HEALERS = "Ranged - Healer";
 VUHDO_I18N_AUTO_DETECT = "<auto detect>";
 VUHDO_I18N_PROMOTE_ASSIST_MSG_1 = "Promoted |cffffe566";
 VUHDO_I18N_PROMOTE_ASSIST_MSG_2 = "|r to assistant.";
 VUHDO_I18N_DEMOTE_ASSIST_MSG_1 = "Demoted |cffffe566";
 VUHDO_I18N_DEMOTE_ASSIST_MSG_2 = "|r from assistant.";
-VUHDO_I18N_RESET_ROLES = "R\195\169initialiser les r\195\180les";
-VUHDO_I18N_LOAD_KEY_SETUP = "Charger la configuration des touches";
+VUHDO_I18N_RESET_ROLES = "Reset Roles";
+VUHDO_I18N_LOAD_KEY_SETUP = "Load Key Setup";
 VUHDO_I18N_BUFF_ASSIGN_1 = "Buff |cffffe566";
-VUHDO_I18N_BUFF_ASSIGN_2 = "|r a \195\169t\195\169 assign\195\169 \195\160 |cffffe566";
+VUHDO_I18N_BUFF_ASSIGN_2 = "|r has been assigned to |cffffe566";
 VUHDO_I18N_BUFF_ASSIGN_3 = "|r";
-VUHDO_I18N_MACRO_KEY_ERR_1 = "ERREUR : La taille de la macro souris-clavier d\195\169passe la limite pour le sort : ";
-VUHDO_I18N_MACRO_KEY_ERR_2 = "/256 caract\195\168res). Essayez de r\195\169duire les options de tir automatique !!!";
-VUHDO_I18N_MACRO_NUM_ERR = "Nombre maximum de macros par personnage d\195\169pass\195\169 ! Impossible de cr\195\169er une macro souris pour : ";
-VUHDO_I18N_SMARTBUFF_ERR_1 = "VuhDo : Impossible d'appliquer un buff intelligent en combat !";
-VUHDO_I18N_SMARTBUFF_ERR_2 = "VuhDo : Aucune cible de buff disponible pour ";
-VUHDO_I18N_SMARTBUFF_ERR_3 = " joueurs hors de port\195\169e pour ";
-VUHDO_I18N_SMARTBUFF_ERR_4 = "VuhDo : Aucun buff \195\160 lancer.";
-VUHDO_I18N_SMARTBUFF_OKAY_1 = "VuhDo : Application d'un buff sur |cffffffff";
-VUHDO_I18N_SMARTBUFF_OKAY_2 = "|r sur ";
+VUHDO_I18N_MACRO_KEY_ERR_1 = "ERROR: Keyboard mouse-over macro size exceeds limit for spell: ";
+VUHDO_I18N_MACRO_KEY_ERR_2 = "/256 Characters). Try reducing auto fire options!!!";
+VUHDO_I18N_MACRO_NUM_ERR = "Maximum number of macros per character exceeded! Can't create mouse over macro for: ";
+VUHDO_I18N_SMARTBUFF_ERR_1 = "VuhDo: Unable to smart buff in combat!";
+VUHDO_I18N_SMARTBUFF_ERR_2 = "VuhDo: No buff target available for ";
+VUHDO_I18N_SMARTBUFF_ERR_3 = " players out of range for ";
+VUHDO_I18N_SMARTBUFF_ERR_4 = "VuhDo: No buff to cast.";
+VUHDO_I18N_SMARTBUFF_OKAY_1 = "VuhDo: Buffing |cffffffff";
+VUHDO_I18N_SMARTBUFF_OKAY_2 = "|r on ";
 -- #+v1.189
-VUHDO_I18N_UNKNOWN = "inconnu";
-VUHDO_I18N_SELF = "Soi-m\195\170me";
-VUHDO_I18N_MELEES = "M\195\169l\195\169es";
-VUHDO_I18N_RANGED = "\195\137 distance";
-VUHDO_I18N_OPTIONS_NOT_LOADED = ">>> Le plugin Options de VuhDo n'est pas charg\195\169 ! <<<";
-VUHDO_I18N_SPELL_LAYOUT_NOT_EXIST_1 = "Erreur : La disposition de sort \"";
-VUHDO_I18N_SPELL_LAYOUT_NOT_EXIST_2 = "\" n'existe pas.";
-VUHDO_I18N_AUTO_ARRANG_1 = "Le nombre de membres du groupe est pass\195\169 \195\160 ";
-VUHDO_I18N_AUTO_ARRANG_2 = ". Engagement automatique de l'arrangement : \"";
-VUHDO_I18N_TRACK_BUFFS_FOR = "Suivre les buffs pour ...";
-VUHDO_I18N_OWN_GROUP_LONG = "Mon groupe";
-VUHDO_I18N_NO_FOCUS = "[pas de focus]";
+VUHDO_I18N_UNKNOWN = "unknown";
+VUHDO_I18N_SELF = "Self";
+VUHDO_I18N_MELEES = "Melees";
+VUHDO_I18N_RANGED = "Ranged";
+VUHDO_I18N_OPTIONS_NOT_LOADED = ">>> VuhDo Options plugin not loaded! <<<";
+VUHDO_I18N_SPELL_LAYOUT_NOT_EXIST_1 = "Error: Spell layout \"";
+VUHDO_I18N_SPELL_LAYOUT_NOT_EXIST_2 = "\" doesn't exist.";
+VUHDO_I18N_AUTO_ARRANG_1 = "Number of Party members has changed to ";
+VUHDO_I18N_AUTO_ARRANG_2 = ". Auto-engaging arrangement: \"";
+-- #+1.209
+VUHDO_I18N_TRACK_BUFFS_FOR = "Track buff for ...";
+VUHDO_I18N_OWN_GROUP_LONG = "Own Group";
+VUHDO_I18N_NO_FOCUS = "[no focus]";
 VUHDO_I18N_NOT_AVAILABLE = "[ N/A ]";
-VUHDO_I18N_TT_DISTANCE = "|cffffb233Distance :|r";
-VUHDO_I18N_TT_OF = " de ";
+-- #+1.237
+VUHDO_I18N_TT_DISTANCE = "|cffffb233Distance:|r";
+VUHDO_I18N_TT_OF = " of ";
 VUHDO_I18N_YARDS = "yards";
 -- #+1.252
-VUHDO_I18N_PANEL = "Panneau";
-VUHDO_I18N_BOUQUET_AGGRO = "Drapeau : Aggro";
-VUHDO_I18N_BOUQUET_OUT_OF_RANGE = "Drapeau : Port\195\169e, hors de";
-VUHDO_I18N_BOUQUET_IN_RANGE = "Drapeau : Port\195\169e, dans";
-VUHDO_I18N_BOUQUET_IN_YARDS = "Drapeau : Distance < yards";
-VUHDO_I18N_BOUQUET_OTHER_HOTS = "Drapeau : HoTs d'autres joueurs";
-VUHDO_I18N_BOUQUET_DEBUFF_MAGIC = "Drapeau : D\195\169buff Magie";
-VUHDO_I18N_BOUQUET_DEBUFF_DISEASE = "Drapeau : D\195\169buff Maladie";
-VUHDO_I18N_BOUQUET_DEBUFF_POISON = "Drapeau : D\195\169buff Poison";
-VUHDO_I18N_BOUQUET_DEBUFF_CURSE = "Drapeau : D\195\169buff Mal\195\169diction";
-VUHDO_I18N_BOUQUET_CHARMED = "Drapeau : Charm\195\169";
-VUHDO_I18N_BOUQUET_DEAD = "Drapeau : Mort";
-VUHDO_I18N_BOUQUET_DISCONNECTED = "Drapeau : D\195\169connect\195\169";
-VUHDO_I18N_BOUQUET_AFK = "Drapeau : AFK";
-VUHDO_I18N_BOUQUET_PLAYER_TARGET = "Drapeau : Cible du joueur";
-VUHDO_I18N_BOUQUET_MOUSEOVER_TARGET = "Drapeau : Survol de souris, unique";
-VUHDO_I18N_BOUQUET_MOUSEOVER_GROUP = "Drapeau : Survol de souris, groupe";
-VUHDO_I18N_BOUQUET_HEALTH_BELOW = "Drapeau : Sant\195\169 < %";
-VUHDO_I18N_BOUQUET_MANA_BELOW = "Drapeau : Mana < %";
-VUHDO_I18N_BOUQUET_THREAT_ABOVE = "Drapeau : Menace > %";
-VUHDO_I18N_BOUQUET_NUM_IN_CLUSTER = "Drapeau : Groupe >= joueurs";
-VUHDO_I18N_BOUQUET_CLASS_COLOR = "Drapeau : Toujours couleur de classe";
-VUHDO_I18N_BOUQUET_ALWAYS = "Drapeau : Toujours plein";
-VUHDO_I18N_SWIFTMEND_POSSIBLE = "Drapeau : Soin rapide possible";
-VUHDO_I18N_BOUQUET_MOUSEOVER_CLUSTER = "Drapeau : Groupe, survol de souris";
-VUHDO_I18N_THREAT_LEVEL_MEDIUM = "Drapeau : Menace, \195\169lev\195\169e";
-VUHDO_I18N_THREAT_LEVEL_HIGH = "Drapeau : Menace, surpuissance";
-VUHDO_I18N_BOUQUET_STATUS_HEALTH = "Barre d'\195\169tat : Sant\195\169 %";
-VUHDO_I18N_BOUQUET_STATUS_MANA = "Barre d'\195\169tat : Mana %";
-VUHDO_I18N_BOUQUET_STATUS_OTHER_POWERS = "Barre d'\195\169tat : non-Mana %";
-VUHDO_I18N_BOUQUET_STATUS_INCOMING = "Barre d'\195\169tat : Soins entrants %";
-VUHDO_I18N_BOUQUET_STATUS_THREAT = "Barre d'\195\169tat : Menace %";
-VUHDO_I18N_BOUQUET_NEW_ITEM_NAME = "-- entrer (d\195\169)buff ici --";
-VUHDO_I18N_DEF_BOUQUET_TANK_COOLDOWNS = "Temps de recharge du tank";
-VUHDO_I18N_DEF_BOUQUET_PW_S_WEAKENED_SOUL = "PW:S & \195\130me affaiblie";
+VUHDO_I18N_PANEL = "Panel";
+VUHDO_I18N_BOUQUET_AGGRO = "Flag: Aggro";
+VUHDO_I18N_BOUQUET_OUT_OF_RANGE = "Flag: Range, out of";
+VUHDO_I18N_BOUQUET_IN_RANGE = "Flag: Range, in";
+VUHDO_I18N_BOUQUET_IN_YARDS = "Flag: Distance < yards";
+VUHDO_I18N_BOUQUET_OTHER_HOTS = "Flag: Other Player's HoTs";
+VUHDO_I18N_BOUQUET_DEBUFF_MAGIC = "Flag: Debuff Magic";
+VUHDO_I18N_BOUQUET_DEBUFF_DISEASE = "Flag: Debuff Disease";
+VUHDO_I18N_BOUQUET_DEBUFF_POISON = "Flag: Debuff Poison";
+VUHDO_I18N_BOUQUET_DEBUFF_CURSE = "Flag: Debuff Curse";
+VUHDO_I18N_BOUQUET_CHARMED = "Flag: Charmed";
+VUHDO_I18N_BOUQUET_DEAD = "Flag: Dead";
+VUHDO_I18N_BOUQUET_DISCONNECTED = "Flag: Disconnected";
+VUHDO_I18N_BOUQUET_AFK = "Flag: AFK";
+VUHDO_I18N_BOUQUET_PLAYER_TARGET = "Flag: Player Target";
+VUHDO_I18N_BOUQUET_MOUSEOVER_TARGET = "Flag: Mouseover Single";
+VUHDO_I18N_BOUQUET_MOUSEOVER_GROUP = "Flag: Mouseover Group";
+VUHDO_I18N_BOUQUET_HEALTH_BELOW = "Flag: Health < %";
+VUHDO_I18N_BOUQUET_MANA_BELOW = "Flag: Mana < %";
+VUHDO_I18N_BOUQUET_THREAT_ABOVE = "Flag: Threat > %";
+VUHDO_I18N_BOUQUET_NUM_IN_CLUSTER = "Flag: Cluster >= players";
+VUHDO_I18N_BOUQUET_CLASS_COLOR = "Flag: Always Class Color";
+VUHDO_I18N_BOUQUET_ALWAYS = "Flag: Always Solid";
+VUHDO_I18N_SWIFTMEND_POSSIBLE = "Flag: Swiftmend possible";
+VUHDO_I18N_BOUQUET_MOUSEOVER_CLUSTER = "Flag: Cluster, Mouseover";
+VUHDO_I18N_THREAT_LEVEL_MEDIUM = "Flag: Threat, High";
+VUHDO_I18N_THREAT_LEVEL_HIGH = "Flag: Threat, Overnuke";
+VUHDO_I18N_BOUQUET_STATUS_HEALTH = "Statusbar: Health %";
+VUHDO_I18N_BOUQUET_STATUS_MANA = "Statusbar: Mana %";
+VUHDO_I18N_BOUQUET_STATUS_OTHER_POWERS = "Statusbar: non-Mana %";
+VUHDO_I18N_BOUQUET_STATUS_INCOMING = "Statusbar: Inc. Heals %";
+VUHDO_I18N_BOUQUET_STATUS_THREAT = "Statusbar: Threat %";
+VUHDO_I18N_BOUQUET_NEW_ITEM_NAME = "-- enter (de)buff here --";
+VUHDO_I18N_DEF_BOUQUET_TANK_COOLDOWNS = "Tank Cooldowns";
+VUHDO_I18N_DEF_BOUQUET_PW_S_WEAKENED_SOUL = "PW:S & Weakened Soul";
 VUHDO_I18N_DEF_BOUQUET_MONK_STAGGER = "Report du moine";
-VUHDO_I18N_DEF_BOUQUET_BORDER_MULTI_AGGRO = "Bordure : Multi + Aggro";
-VUHDO_I18N_DEF_BOUQUET_BORDER_MULTI = "Bordure : Multi";
-VUHDO_I18N_DEF_BOUQUET_BORDER_SIMPLE = "Bordure : Simple";
-VUHDO_I18N_DEF_BOUQUET_SWIFTMENDABLE = "Soin rapide possible";
-VUHDO_I18N_DEF_BOUQUET_MOUSEOVER_SINGLE = "Survol de souris : Unique";
-VUHDO_I18N_DEF_BOUQUET_MOUSEOVER_MULTI = "Survol de souris : Multi";
-VUHDO_I18N_DEF_BOUQUET_AGGRO_INDICATOR = "Indicateur d'aggro";
-VUHDO_I18N_DEF_BOUQUET_CLUSTER_MOUSE_HOVER = "Groupe : Survol de souris";
-VUHDO_I18N_DEF_BOUQUET_THREAT_MARKS = "Menace : Marques";
-VUHDO_I18N_DEF_BOUQUET_BAR_MANA_ALL = "Barres de mana : Toutes les puissances";
-VUHDO_I18N_DEF_BOUQUET_BAR_MANA_ONLY = "Barres de mana : Mana seulement";
-VUHDO_I18N_DEF_BOUQUET_BAR_THREAT = "Menace : Barre d'\195\169tat";
-VUHDO_I18N_CUSTOM_ICON_NONE = "- Aucun / D\195\169faut -";
-VUHDO_I18N_CUSTOM_ICON_GLOSSY = "Brillant";
-VUHDO_I18N_CUSTOM_ICON_MOSAIC = "Mosa\195\174que";
-VUHDO_I18N_CUSTOM_ICON_CLUSTER = "Groupe";
-VUHDO_I18N_CUSTOM_ICON_FLAT = "Plat";
-VUHDO_I18N_CUSTOM_ICON_SPOT = "Point";
-VUHDO_I18N_CUSTOM_ICON_CIRCLE = "Cercle";
-VUHDO_I18N_CUSTOM_ICON_SKETCHED = "Esquiss\195\169";
-VUHDO_I18N_CUSTOM_ICON_RHOMB = "Losange";
-VUHDO_I18N_ERROR_NO_PROFILE = "Erreur : Aucun profil nomm\195\169 : ";
-VUHDO_I18N_PROFILE_LOADED = "Profil charg\195\169 avec succ\195\168s : ";
-VUHDO_I18N_PROFILE_SAVED = "Profil enregistr\195\169 avec succ\195\168s : ";
-VUHDO_I18N_PROFILE_OVERWRITE_1 = "Profil";
-VUHDO_I18N_PROFILE_OVERWRITE_2 = "est actuellement poss\195\169d\195\169 par\nun autre personnage";
-VUHDO_I18N_PROFILE_OVERWRITE_3 = "\n- \195\130craser : Le profil existant sera \195\169cras\195\169.\n- Copier : Cr\195\169er et enregistrer une copie. Conserver le profil existant.";
-VUHDO_I18N_COPY = "Copier";
-VUHDO_I18N_OVERWRITE = "\195\130craser";
-VUHDO_I18N_DISCARD = "Abandonner";
+VUHDO_I18N_DEF_BOUQUET_BORDER_MULTI_AGGRO = "Border: Multi + Aggro";
+VUHDO_I18N_DEF_BOUQUET_BORDER_MULTI = "Border: Multi";
+VUHDO_I18N_DEF_BOUQUET_BORDER_SIMPLE = "Border: Simple";
+VUHDO_I18N_DEF_BOUQUET_SWIFTMENDABLE = "Swiftmendable";
+VUHDO_I18N_DEF_BOUQUET_MOUSEOVER_SINGLE = "Mouseover: Single";
+VUHDO_I18N_DEF_BOUQUET_MOUSEOVER_MULTI = "Mouseover: Multi";
+VUHDO_I18N_DEF_BOUQUET_AGGRO_INDICATOR = "Aggro Indicator";
+VUHDO_I18N_DEF_BOUQUET_CLUSTER_MOUSE_HOVER = "Cluster: Mouse Hover";
+VUHDO_I18N_DEF_BOUQUET_THREAT_MARKS = "Threat: Marks";
+VUHDO_I18N_DEF_BOUQUET_BAR_MANA_ALL = "Manabars: All Powers";
+VUHDO_I18N_DEF_BOUQUET_BAR_MANA_ONLY = "Manabars: Mana only";
+VUHDO_I18N_DEF_BOUQUET_BAR_THREAT = "Threat: Status Bar";
+VUHDO_I18N_CUSTOM_ICON_NONE = "- None / Default -";
+VUHDO_I18N_CUSTOM_ICON_GLOSSY = "Glossy";
+VUHDO_I18N_CUSTOM_ICON_MOSAIC = "Mosaic";
+VUHDO_I18N_CUSTOM_ICON_CLUSTER = "Cluster";
+VUHDO_I18N_CUSTOM_ICON_FLAT = "Flat";
+VUHDO_I18N_CUSTOM_ICON_SPOT = "Spot";
+VUHDO_I18N_CUSTOM_ICON_CIRCLE = "Circle";
+VUHDO_I18N_CUSTOM_ICON_SKETCHED = "Sketched";
+VUHDO_I18N_CUSTOM_ICON_RHOMB = "Rhomb";
+VUHDO_I18N_ERROR_NO_PROFILE = "Error: No profile named: ";
+VUHDO_I18N_PROFILE_LOADED = "Profile successfully loaded: ";
+VUHDO_I18N_PROFILE_SAVED = "Successfully saved profile: ";
+VUHDO_I18N_PROFILE_OVERWRITE_1 = "Profile";
+VUHDO_I18N_PROFILE_OVERWRITE_2 = "is currently owned by\nanother toon";
+VUHDO_I18N_PROFILE_OVERWRITE_3 = "\n- Overwrite: Existing profile will be overwritten.\n- Copy: Create and save a copy. Keep existing profile.";
+VUHDO_I18N_COPY = "Copy";
+VUHDO_I18N_OVERWRITE = "Overwrite";
+VUHDO_I18N_DISCARD = "Discard";
 -- 2.0, alpha #2
-VUHDO_I18N_DEF_BAR_BACKGROUND_SOLID = "Arri\195\168re-plan : Plein";
-VUHDO_I18N_DEF_BAR_BACKGROUND_CLASS_COLOR = "Arri\195\168re-plan : Couleur de classe";
+VUHDO_I18N_DEF_BAR_BACKGROUND_SOLID = "Background: Solid";
+VUHDO_I18N_DEF_BAR_BACKGROUND_CLASS_COLOR = "Background: Class Color";
 -- 2.0 alpha #9
-VUHDO_I18N_BOUQUET_DEBUFF_BAR_COLOR = "Drapeau : D\195\169buff, configur\195\169";
+VUHDO_I18N_BOUQUET_DEBUFF_BAR_COLOR = "Flag: Debuff, configured";
 -- 2.0 alpha #11
-VUHDO_I18N_DEF_BOUQUET_BAR_HEALTH = "Barre de sant\195\169 : (auto)";
-VUHDO_I18N_UPDATE_RAID_TARGET = "Drapeau : Couleur de cible de raid";
-VUHDO_I18N_BOUQUET_OVERHEAL_HIGHLIGHT = "Couleur : Surbrillance de sursoin";
-VUHDO_I18N_BOUQUET_EMERGENCY_COLOR = "Couleur : Urgence";
-VUHDO_I18N_BOUQUET_HEALTH_ABOVE = "Drapeau : Sant\195\169 > %";
-VUHDO_I18N_BOUQUET_RESURRECTION = "Drapeau : R\195\169surrection";
-VUHDO_I18N_BOUQUET_STACKS_COLOR = "Couleur : #Cumuls";
+VUHDO_I18N_DEF_BOUQUET_BAR_HEALTH = "Health Bar: (auto)";
+VUHDO_I18N_UPDATE_RAID_TARGET = "Flag: Raid target color";
+VUHDO_I18N_BOUQUET_OVERHEAL_HIGHLIGHT = "Color: Overheal Highlighter";
+VUHDO_I18N_BOUQUET_EMERGENCY_COLOR = "Color: Emergency";
+VUHDO_I18N_BOUQUET_HEALTH_ABOVE = "Flag: Health > %";
+VUHDO_I18N_BOUQUET_RESURRECTION = "Flag: Resurrection";
+VUHDO_I18N_BOUQUET_STACKS_COLOR = "Color: #Stacks";
 -- 2.1
-VUHDO_I18N_DEF_BOUQUET_BAR_HEALTH_SOLID = "Sant\195\169 : (g\195\169n\195\169rique, plein)";
-VUHDO_I18N_DEF_BOUQUET_BAR_HEALTH_CLASS_COLOR = "Sant\195\169 : (g\195\169n\195\169rique, couleur de classe)";
+VUHDO_I18N_DEF_BOUQUET_BAR_HEALTH_SOLID = "Health: (generic, solid)";
+VUHDO_I18N_DEF_BOUQUET_BAR_HEALTH_CLASS_COLOR = "Health: (generic, class col)";
 -- 2.9
-VUHDO_I18N_NO_TARGET = "[pas de cible]";
-VUHDO_I18N_TT_LEFT = " Gauche : ";
-VUHDO_I18N_TT_RIGHT = " Droite : ";
-VUHDO_I18N_TT_MIDDLE = " Milieu : ";
-VUHDO_I18N_TT_BTN_4 = " Bouton 4 : ";
-VUHDO_I18N_TT_BTN_5 = " Bouton 5 : ";
-VUHDO_I18N_TT_WHEEL_UP = " Roulette vers le haut : ";
-VUHDO_I18N_TT_WHEEL_DOWN = " Roulette vers le bas : ";
+VUHDO_I18N_NO_TARGET = "[no target]";
+VUHDO_I18N_TT_LEFT = " Left: ";
+VUHDO_I18N_TT_RIGHT = " Right: ";
+VUHDO_I18N_TT_MIDDLE = " Middle: ";
+VUHDO_I18N_TT_BTN_4 = " Button 4: ";
+VUHDO_I18N_TT_BTN_5 = " Button 5: ";
+VUHDO_I18N_TT_WHEEL_UP = " Wheel up: ";
+VUHDO_I18N_TT_WHEEL_DOWN = " Wheel down: ";
 -- 2.13
-VUHDO_I18N_BOUQUET_CLASS_ICON = "Ic\195\180ne : Classe";
-VUHDO_I18N_BOUQUET_RAID_ICON = "Ic\195\180ne : Symbole de raid";
-VUHDO_I18N_BOUQUET_ROLE_ICON = "Ic\195\180ne : R\195\180le";
+VUHDO_I18N_BOUQUET_CLASS_ICON = "Icon: Class";
+VUHDO_I18N_BOUQUET_RAID_ICON = "Icon: Raid Symbol";
+VUHDO_I18N_BOUQUET_ROLE_ICON = "Icon: Role";
 -- 2.18
-VUHDO_I18N_LOAD_PROFILE = "Charger le profil";
+VUHDO_I18N_LOAD_PROFILE = "Load Profile";
 -- 2.20
-VUHDO_I18N_DC_SHIELD_NO_MACROS = "Pas d'emplacements de macro libres pour ce personnage... le bouclier d/c est d\195\169sactiv\195\169 temporairement.";
-VUHDO_I18N_BROKER_TOOLTIP_1 = "|cffffff00Clic gauche|r pour afficher le menu des options";
-VUHDO_I18N_BROKER_TOOLTIP_2 = "|cffffff00Clic droit|r pour afficher le menu contextuel";
+VUHDO_I18N_DC_SHIELD_NO_MACROS = "No free macro slots for this toon... d/c shield temporarily disabled.";
+VUHDO_I18N_BROKER_TOOLTIP_1 = "|cffffff00Left Click|r to show options menu";
+VUHDO_I18N_BROKER_TOOLTIP_2 = "|cffffff00Right Click|r to show popup menu";
 -- 2.54
-VUHDO_I18N_HOURS = "heures";
+VUHDO_I18N_HOURS = "hours";
 VUHDO_I18N_MINS = "mins";
 VUHDO_I18N_SECS = "secs";
 -- 2.65
-VUHDO_I18N_BOUQUET_CUSTOM_DEBUFF = "Ic\195\180ne : D\195\169buff personnalis\195\169";
+VUHDO_I18N_BOUQUET_CUSTOM_DEBUFF = "Icon: Custom Debuff";
 -- 2.66
-VUHDO_I18N_OFF = "d\195\169sactiv\195\169";
-VUHDO_I18N_GHOST = "fant\195\180me";
+VUHDO_I18N_OFF = "off";
+VUHDO_I18N_GHOST = "ghost";
 VUHDO_I18N_RIP = "rip";
 VUHDO_I18N_DC = "d/c";
 VUHDO_I18N_FOC = "foc";
 VUHDO_I18N_TAR = "tar";
 VUHDO_I18N_VEHICLE = "O-O";
 -- 2.67
-VUHDO_I18N_BUFF_WATCH = "Surveillance des buffs";
+VUHDO_I18N_BUFF_WATCH = "BuffWatch";
 VUHDO_I18N_HOTS = "HoTs";
-VUHDO_I18N_DEBUFFS = "D\195\169buffs";
-VUHDO_I18N_BOUQUET_PLAYER_FOCUS = "Drapeau : Focus du joueur";
+VUHDO_I18N_DEBUFFS = "Debuffs";
+VUHDO_I18N_BOUQUET_PLAYER_FOCUS = "Flag: Player Focus";
 -- 2.69
-VUHDO_I18N_SIDE_BAR_LEFT = "Barre lat\195\169rale gauche";
-VUHDO_I18N_SIDE_BAR_RIGHT = "Barre lat\195\169rale droite";
-VUHDO_I18N_OWN_PET = "Familier personnel";
+VUHDO_I18N_SIDE_BAR_LEFT = "Side Left";
+VUHDO_I18N_SIDE_BAR_RIGHT = "Side Right";
+VUHDO_I18N_OWN_PET = "Own Pet";
 -- 2.72
-VUHDO_I18N_SPELL = "Sort";
-VUHDO_I18N_COMMAND = "Commande";
+VUHDO_I18N_SPELL = "Spell";
+VUHDO_I18N_COMMAND = "Command";
 VUHDO_I18N_MACRO = "Macro";
-VUHDO_I18N_ITEM = "Objet";
+VUHDO_I18N_ITEM = "Item";
 -- 2.75
-VUHDO_I18N_ERR_NO_BOUQUET = "\"%s\" essaie de se lier au bouquet \"%s\" qui n'existe pas !";
+VUHDO_I18N_ERR_NO_BOUQUET = "\"%s\" tries to hook to bouquet \"%s\" which doesn't exist!";
+VUHDO_I18N_BOUQUET_HEALTH_BELOW_ABS = "Flag: Health < k";
+VUHDO_I18N_BOUQUET_HEALTH_ABOVE_ABS = "Flag: Health > k";
+VUHDO_I18N_SPELL_LAYOUT_NOT_EXIST = "Spell layout \"%s\" doesn't exist.";
 
-VUHDO_I18N_BOUQUET_HEALTH_BELOW_ABS = "Drapeau : Sant\195\169 < k";
-VUHDO_I18N_BOUQUET_HEALTH_ABOVE_ABS = "Drapeau : Sant\195\169 > k";
-VUHDO_I18N_SPELL_LAYOUT_NOT_EXIST = "La disposition de sort \"%s\" n'existe pas.";
+--VUHDO_I18N_ADDON_WARNING = "WARNING: Addon |cffffffff\"%s\"|r is enabled along with VuhDo, which may be problematic. Reason: %s";
+--VUHDO_I18N_MAY_CAUSE_LAGS = "May cause severe lags.";
 
---VUHDO_I18N_ADDON_WARNING = "AVERTISSEMENT : L'addon |cffffffff\"%s\"|r est activ\195\169 avec VuhDo, ce qui peut \195\170tre probl\195\169matique. Raison : %s";
---VUHDO_I18N_MAY_CAUSE_LAGS = "Peut causer des lags s\195\169v\195\168res.";
+VUHDO_I18N_DISABLE_BY_MIN_VERSION = "!!! VUHDO IS DISABLED !!! This version (%s) is for client versions %d and above only !!!"
+VUHDO_I18N_DISABLE_BY_MAX_VERSION = "!!! VUHDO IS DISABLED !!! This version (%s) is for client versions %d and below only !!!"
 
-VUHDO_I18N_DISABLE_BY_MIN_VERSION = "!!! VUHDO EST D\195\137SACTIV\195\137 !!! Cette version (%s) est pour les versions de client %d et sup\195\169rieures seulement !!!"
-VUHDO_I18N_DISABLE_BY_MAX_VERSION = "!!! VUHDO EST D\195\137SACTIV\195\137 !!! Cette version (%s) est pour les versions de client %d et inf\195\169rieures seulement !!!"
+VUHDO_I18N_BOUQUET_STATUS_ALTERNATE_POWERS = "Statusbar: Alternate Power %"
+VUHDO_I18N_BOUQUET_ALTERNATE_POWERS_ABOVE = "Flag: Alternate Power > %";
+VUHDO_I18N_DEF_ALTERNATE_POWERS = "Alternative Powers";
+VUHDO_I18N_DEF_TANK_CDS_EXTENDED = "Tank Cooldowns extd";
+VUHDO_I18N_BOUQUET_HOLY_POWER_EQUALS = "Flag: Own Holy Power ==";
+VUHDO_I18N_DEF_PLAYER_HOLY_POWER = "Player Holy Power";
+VUHDO_I18N_CUSTOM_ICON_ONE_THIRD = "Thirds: One";
+VUHDO_I18N_CUSTOM_ICON_TWO_THIRDS = "Thirds: Two"
+VUHDO_I18N_CUSTOM_ICON_THREE_THIRDS = "Thirds: Three";
+VUHDO_I18N_DEF_ROLE_ICON = "Role Icon";
+VUHDO_I18N_DEF_BOUQUET_TARGET_HEALTH = "Health (generic, target)";
+VUHDO_I18N_TAPPED_COLOR = "Flag: Tapped";
+VUHDO_I18N_ENEMY_STATE_COLOR = "Color: Friend/Foe";
+VUHDO_I18N_FRIEND_STATUS = "Flag: Ami";
+VUHDO_I18N_FOE_STATUS = "Flag: Ennemi";
+VUHDO_I18N_BOUQUET_STATUS_ALWAYS_FULL = "Statusbar: always full";
+VUHDO_I18N_BOUQUET_STATUS_FULL_IF_ACTIVE = "Statusbar: full if active";
+VUHDO_I18N_AOE_ADVICE = "Icon: AOE Advice";
+VUHDO_I18N_DEF_AOE_ADVICE = "AOE Advice";
+VUHDO_I18N_BOUQUET_DURATION_ABOVE = "Flag: Duration > sec";
+VUHDO_I18N_BOUQUET_DURATION_BELOW = "Flag: Duration < sec";
+VUHDO_I18N_DEF_WRACK = "Sinestra: Wrack";
+VUHDO_I18N_DEF_DIRECTION_ARROW = "Direction Arrow";
+VUHDO_I18N_BOUQUET_DIRECTION_ARROW = "Direction Arrow";
+VUHDO_I18N_DEF_RAID_LEADER = "Icon: Raid leader";
+VUHDO_I18N_DEF_RAID_ASSIST = "Icon: Raid assist";
+VUHDO_I18N_DEF_MASTER_LOOTER = "Icon: Master looter";
+VUHDO_I18N_DEF_PVP_STATUS = "Icon: PvP Status";
 
-VUHDO_I18N_BOUQUET_STATUS_ALTERNATE_POWERS = "Barre d'\195\169tat : Puissance alternative %"
-VUHDO_I18N_BOUQUET_ALTERNATE_POWERS_ABOVE = "Drapeau : Puissance alternative > %";
-VUHDO_I18N_DEF_ALTERNATE_POWERS = "Pouvoirs alternatifs";
-VUHDO_I18N_DEF_TANK_CDS_EXTENDED = "Temps de recharge du tank \195\169tendus";
-VUHDO_I18N_BOUQUET_HOLY_POWER_EQUALS = "Drapeau : Pouvoir sacr\195\169 personnel ==";
-VUHDO_I18N_DEF_PLAYER_HOLY_POWER = "Pouvoir sacr\195\169 du joueur";
-VUHDO_I18N_CUSTOM_ICON_ONE_THIRD = "Tiers : Un";
-VUHDO_I18N_CUSTOM_ICON_TWO_THIRDS = "Tiers : Deux";
-VUHDO_I18N_CUSTOM_ICON_THREE_THIRDS = "Tiers : Trois";
-VUHDO_I18N_DEF_ROLE_ICON = "Ic\195\180ne de r\195\180le";
-
-VUHDO_I18N_DEF_BOUQUET_TARGET_HEALTH = "Sant\195\169 (g\195\169n\195\169rique, cible)";
-
-VUHDO_I18N_TAPPED_COLOR = "Drapeau : Cible d\195\169j\195\160 engag\195\169e";
-VUHDO_I18N_ENEMY_STATE_COLOR = "Couleur : Ami/Ennemi";
-VUHDO_I18N_FRIEND_STATUS = "Drapeau : Ami";
-VUHDO_I18N_FOE_STATUS = "Drapeau : Ennemi";
-VUHDO_I18N_BOUQUET_STATUS_ALWAYS_FULL = "Barre d'\195\169tat : toujours pleine";
-VUHDO_I18N_BOUQUET_STATUS_FULL_IF_ACTIVE = "Barre d'\195\169tat : pleine si active";
-VUHDO_I18N_AOE_ADVICE = "Ic\195\180ne : Conseil de zone";
-VUHDO_I18N_DEF_AOE_ADVICE = "Conseil de zone";
-
-VUHDO_I18N_BOUQUET_DURATION_ABOVE = "Drapeau : Dur\195\169e > sec";
-VUHDO_I18N_BOUQUET_DURATION_BELOW = "Drapeau : Dur\195\169e < sec";
-VUHDO_I18N_DEF_WRACK = "Sinestra : Tourment";
-
-VUHDO_I18N_DEF_DIRECTION_ARROW = "Fl\195\168che directionnelle";
-VUHDO_I18N_BOUQUET_DIRECTION_ARROW = "Fl\195\168che directionnelle";
-VUHDO_I18N_DEF_RAID_LEADER = "Ic\195\180ne : Chef de raid";
-VUHDO_I18N_DEF_RAID_ASSIST = "Ic\195\180ne : Assistant de raid";
-VUHDO_I18N_DEF_MASTER_LOOTER = "Ic\195\180ne : Ma\195\174tre du butin";
-VUHDO_I18N_DEF_PVP_STATUS = "Ic\195\180ne : Statut JcJ";
-
-VUHDO_I18N_GRID_MOUSEOVER_SINGLE = "Grille : Survol de souris unique";
-VUHDO_I18N_GRID_BACKGROUND_BAR = "Grille : Barre d'arri\195\168re-plan";
+VUHDO_I18N_GRID_MOUSEOVER_SINGLE = "Grid: Mouseover Single";
+VUHDO_I18N_GRID_BACKGROUND_BAR = "Grid: Background Bar";
 VUHDO_I18N_DEF_BIT_O_GRID = "Bit'o'Grid";
 VUHDO_I18N_DEF_VUHDO_ESQUE = "Vuhdo'esque";
 
-VUHDO_I18N_DEF_ROLE_COLOR = "Couleur de r\195\180le";
-VUHDO_I18N_BOUQUET_ROLE_TANK = "Drapeau : R\195\180le Tank";
-VUHDO_I18N_BOUQUET_ROLE_DAMAGE = "Drapeau : R\195\180le D\195\169g\195\162ts";
-VUHDO_I18N_BOUQUET_ROLE_HEALER = "Drapeau : R\195\180le Soigneur";
 
-VUHDO_I18N_BOUQUET_STACKS = "Drapeau : Cumuls >";
-VUHDO_I18N_DEF_PLAYER_CHI = "\195\130nergie du joueur";
+VUHDO_I18N_DEF_ROLE_COLOR = "Role Color";
+VUHDO_I18N_BOUQUET_ROLE_TANK = "Flag: Role Tank";
+VUHDO_I18N_BOUQUET_ROLE_DAMAGE = "Flag: Role Damager";
+VUHDO_I18N_BOUQUET_ROLE_HEALER = "Flag: Role Healer";
 
-VUHDO_I18N_BOUQUET_TARGET_RAID_ICON = "Ic\195\180ne : Symbole de raid de la cible";
-VUHDO_I18N_BOUQUET_OWN_CHI_EQUALS = "Drapeau : \195\130nergie personnelle ==";
-VUHDO_I18N_CUSTOM_ICON_FOUR_THIRDS = "Tiers : Quatre";
-VUHDO_I18N_CUSTOM_ICON_FIVE_THIRDS = "Tiers : Cinq";
-VUHDO_I18N_DEF_RAID_CDS = "Temps de recharge de raid";
-VUHDO_I18N_BOUQUET_STATUS_CLASS_COLOR_IF_ACTIVE = "Drapeau : Couleur de classe si actif";
+VUHDO_I18N_BOUQUET_STACKS = "Flag: Stacks >";
+VUHDO_I18N_DEF_PLAYER_CHI = "Player Chi";
 
-VUHDO_I18N_LETHAL_POISONS = "Poisons l\195\169taux";
-VUHDO_I18N_NON_LETHAL_POISONS = "Poisons non l\195\169taux";
-VUHDO_I18N_DEF_COUNTER_SHIELD_ABSORB = "Compteur : Toute absorption de bouclier #k";
-VUHDO_I18N_BUFFC_WEAPON_ENCHANT_OFF = "Enchantement d'arme (main gauche)";
+VUHDO_I18N_BOUQUET_TARGET_RAID_ICON = "Icon: Target's Raid Symbol";
+VUHDO_I18N_BOUQUET_OWN_CHI_EQUALS = "Flag: Own Chi ==";
+VUHDO_I18N_CUSTOM_ICON_FOUR_THIRDS = "Thirds: Four";
+VUHDO_I18N_CUSTOM_ICON_FIVE_THIRDS = "Thirds: Five";
+VUHDO_I18N_DEF_RAID_CDS = "Raid Cooldowns";
+VUHDO_I18N_BOUQUET_STATUS_CLASS_COLOR_IF_ACTIVE = "Flag: Class Color if active";
 
-VUHDO_I18N_DEF_PVP_FLAGS = "Porteurs de drapeaux JcJ";
-VUHDO_I18N_DEF_STATUS_SHIELD = "Barre d'\195\169tat : Bouclier";
+VUHDO_I18N_LETHAL_POISONS = "Lethal Poisons";
+VUHDO_I18N_NON_LETHAL_POISONS = "Non-lethal Poisons";
+VUHDO_I18N_DEF_COUNTER_SHIELD_ABSORB = "Counter: All Shield Absorb #k";
+VUHDO_I18N_BUFFC_WEAPON_ENCHANT_OFF = "Weapon Enchant (offhand)";
 
-VUHDO_I18N_TARGET = "Cible";
+VUHDO_I18N_DEF_PVP_FLAGS="PvP Flag Carriers";
+VUHDO_I18N_DEF_STATUS_SHIELD = "Statusbar: Shield";
+
+VUHDO_I18N_TARGET = "Target";
 VUHDO_I18N_FOCUS = "Focus";
-VUHDO_I18N_DEF_STATUS_OVERSHIELDED = "Barre d'\195\169tat : Sur-bouclier";
+VUHDO_I18N_DEF_STATUS_OVERSHIELDED = "Statusbar: Overshielded";
 
 -- 3.65
-VUHDO_I18N_BOUQUET_OUTSIDE_ZONE = "Drapeau : Zone du joueur, \195\160 l'ext\195\169rieur";
-VUHDO_I18N_BOUQUET_INSIDE_ZONE = "Drapeau : Zone du joueur, \195\160 l'int\195\169rieur";
-VUHDO_I18N_BOUQUET_WARRIOR_TANK = "Drapeau : R\195\180le Tank, Guerrier";
-VUHDO_I18N_BOUQUET_PALADIN_TANK = "Drapeau : R\195\180le Tank, Paladin";
-VUHDO_I18N_BOUQUET_DK_TANK = "Drapeau : R\195\180le Tank, Chevalier de la mort";
-VUHDO_I18N_BOUQUET_MONK_TANK = "Drapeau : R\195\180le Tank, Moine";
-VUHDO_I18N_BOUQUET_DRUID_TANK = "Drapeau : R\195\180le Tank, Druide";
+VUHDO_I18N_BOUQUET_OUTSIDE_ZONE = "Flag: Player Zone, outside";
+VUHDO_I18N_BOUQUET_INSIDE_ZONE = "Flag: Player Zone, inside";
+VUHDO_I18N_BOUQUET_WARRIOR_TANK = "Flag: Role Tank, Warrior";
+VUHDO_I18N_BOUQUET_PALADIN_TANK = "Flag: Role Tank, Paladin";
+VUHDO_I18N_BOUQUET_DK_TANK = "Flag: Role Tank, Death Knight";
+VUHDO_I18N_BOUQUET_MONK_TANK = "Flag: Role Tank, Monk";
+VUHDO_I18N_BOUQUET_DRUID_TANK = "Flag: Role Tank, Druid";
 
 -- 3.66
-VUHDO_I18N_BOUQUET_PALADIN_BEACON = "Phare du Paladin";
-VUHDO_I18N_BOUQUET_STATUS_EXCESS_ABSORB = "Barre d'\195\169tat : Absorption exc\195\169dentaire %";
-VUHDO_I18N_BOUQUET_STATUS_TOTAL_ABSORB = "Barre d'\195\169tat : Absorption totale %";
+VUHDO_I18N_BOUQUET_PALADIN_BEACON = "Paladin Beacon";
+VUHDO_I18N_BOUQUET_STATUS_EXCESS_ABSORB = "Statusbar: Excess Absorption %";
+VUHDO_I18N_BOUQUET_STATUS_TOTAL_ABSORB = "Statusbar: Total Absorption %";
 
 -- 3.67
-VUHDO_I18N_NO_BOSS = "[pas de PNJ]";
-VUHDO_I18N_BOSSES = "PNJs";
+VUHDO_I18N_NO_BOSS = "[no NPC]";
+VUHDO_I18N_BOSSES = "NPCs";
 
 -- 3.71
-VUHDO_I18N_BOUQUET_CUSTOM_FLAG = "Drapeau personnalis\195\169";
-VUHDO_I18N_ERROR_CUSTOM_FLAG_LOAD = "{VuhDo} Erreur : Votre validateur de drapeau personnalis\195\169 n'a pas \195\169t\195\169 charg\195\169 :";
-VUHDO_I18N_ERROR_CUSTOM_FLAG_EXECUTE = "{VuhDo} Erreur : Votre validateur de drapeau personnalis\195\169 n'a pas \195\169t\195\169 ex\195\169cut\195\169 :";
-VUHDO_I18N_ERROR_CUSTOM_FLAG_BLOCKED = "{VuhDo} Erreur : Un drapeau personnalis\195\169 de ce bouquet a essay\195\169 d'appeler une fonction interdite mais a \195\169t\195\169 bloqu\195\169. Souvenez-vous d'importer des cha\195\174nes uniquement \195\160 partir de sources de confiance.";
-VUHDO_I18N_ERROR_INVALID_VALIDATOR = "{VuhDo} Erreur : Validateur invalide :";
+VUHDO_I18N_BOUQUET_CUSTOM_FLAG = "Custom Flag";
+VUHDO_I18N_ERROR_CUSTOM_FLAG_LOAD = "{VuhDo} Error: Your custom flag validator did not load:";
+VUHDO_I18N_ERROR_CUSTOM_FLAG_EXECUTE = "{VuhDo} Error: Your custom flag validator did not execute:";
+VUHDO_I18N_ERROR_CUSTOM_FLAG_BLOCKED = "{VuhDo} Error: A custom flag of this bouquet tried to call a forbidden function but has been blocked from doing so. Remember only to import strings from trusted sources.";
+VUHDO_I18N_ERROR_INVALID_VALIDATOR = "{VuhDo} Error: Invalid validator:";
 
 -- 3.72
-VUHDO_I18N_BOUQUET_DEMON_HUNTER_TANK = "Drapeau : R\195\180le Tank, Chasseur de d\195\169mons";
-VUHDO_I18N_DEMON_HUNTERS = "Chasseurs de d\195\169mons";
+VUHDO_I18N_BOUQUET_DEMON_HUNTER_TANK = "Flag: Role Tank, Demon Hunter";
+VUHDO_I18N_DEMON_HUNTERS = "Demon Hunters";
 
 -- 3.77
-VUHDO_I18N_DEF_COUNTER_OVERFLOW_ABSORB = "Compteur : Absorption de d\195\169bordement mythique+ #k";
+VUHDO_I18N_DEF_COUNTER_OVERFLOW_ABSORB = "Counter: Mythic+ Overflow Absorb #k";
 
 -- 3.79
-VUHDO_I18N_DEFAULT_RES_ANNOUNCE_MASS = "Lancement de la r\195\169surrection de masse !";
+VUHDO_I18N_DEFAULT_RES_ANNOUNCE_MASS = "Casting mass resurrection!";
 
 -- 3.81
-VUHDO_I18N_BOUQUET_OVERFLOW_COUNTER = "Affix de d\195\169bordement mythique+";
+VUHDO_I18N_BOUQUET_OVERFLOW_COUNTER = "Overflow Mythic+ Affix";
 
 -- 3.82
-VUHDO_I18N_SPELL_TRACE = "Ic\195\180ne : Trace de sort";
-VUHDO_I18N_DEF_SPELL_TRACE = "Trace de sort";
-VUHDO_I18N_TRAIL_OF_LIGHT = "Ic\195\180ne : Tra\195\174n\195\169e de lumi\195\168re";
-VUHDO_I18N_DEF_TRAIL_OF_LIGHT = "Tra\195\174n\195\169e de lumi\195\168re";
+VUHDO_I18N_SPELL_TRACE = "Icon: Spell Trace";
+VUHDO_I18N_DEF_SPELL_TRACE = "Spell Trace";
+VUHDO_I18N_TRAIL_OF_LIGHT = "Icon: Trail of Light";
+VUHDO_I18N_DEF_TRAIL_OF_LIGHT = "Trail of Light";
 
 -- 3.83
-VUHDO_I18N_BOUQUET_STATUS_MANA_HEALER_ONLY = "Barre d'\195\169tat : Mana % (Soigneur uniquement)";
-VUHDO_I18N_DEF_BOUQUET_BAR_MANA_HEALER_ONLY = "Barres de mana : Mana (Soigneur uniquement)";
+VUHDO_I18N_BOUQUET_STATUS_MANA_HEALER_ONLY = "Statusbar: Mana % (Healer Only)";
+VUHDO_I18N_DEF_BOUQUET_BAR_MANA_HEALER_ONLY = "Manabars: Mana (Healer Only)";
 
 -- 3.98
-VUHDO_I18N_BOUQUET_HAS_SUMMON_ICON = "Ic\195\180ne : A une invocation";
-VUHDO_I18N_DEF_BOUQUET_HAS_SUMMON = "Ic\195\180ne d'\195\169tat d'invocation";
-VUHDO_I18N_DEF_BOUQUET_ROLE_AND_SUMMON = "Ic\195\180ne d'\195\169tat de r\195\180le et d'invocation";
+VUHDO_I18N_BOUQUET_HAS_SUMMON_ICON = "Icon: Has Summon";
+VUHDO_I18N_DEF_BOUQUET_HAS_SUMMON = "Summon Status Icon";
+VUHDO_I18N_DEF_BOUQUET_ROLE_AND_SUMMON = "Role & Summon Status Icon";
 
 -- 3.99
-VUHDO_I18N_BOUQUET_IS_PHASED = "Ic\195\180ne : Est phas\195\169";
-VUHDO_I18N_BOUQUET_IS_WAR_MODE_PHASED = "Ic\195\180ne : Est phas\195\169 en mode guerre";
-VUHDO_I18N_DEF_BOUQUET_IS_PHASED = "Ic\195\180ne Est phas\195\169";
+VUHDO_I18N_BOUQUET_IS_PHASED = "Icon: Is Phased";
+VUHDO_I18N_BOUQUET_IS_WAR_MODE_PHASED = "Icon: Is War Mode Phased";
+VUHDO_I18N_DEF_BOUQUET_IS_PHASED = "Is Phased Icon";
 
 -- 3.101
-VUHDO_I18N_DEF_PLAYER_COMBO_POINTS = "Points de combo du joueur";
-VUHDO_I18N_BOUQUET_OWN_COMBO_POINTS_EQUALS = "Drapeau : Points de combo personnels ==";
-VUHDO_I18N_DEF_PLAYER_SOUL_SHARDS = "Fragments d'\195\130me du joueur";
-VUHDO_I18N_BOUQUET_OWN_SOUL_SHARDS_EQUALS = "Drapeau : Fragments d'\195\130me personnels ==";
-VUHDO_I18N_DEF_PLAYER_RUNES = "Runes du joueur";
-VUHDO_I18N_BOUQUET_OWN_RUNES_EQUALS = "Drapeau : Runes personnelles ==";
-VUHDO_I18N_DEF_PLAYER_ARCANE_CHARGES = "Charges arcaniques du joueur";
-VUHDO_I18N_BOUQUET_OWN_ARCANE_CHARGES_EQUALS = "Drapeau : Charges arcaniques personnelles ==";
-VUHDO_I18N_DEBUFF_BLACKLIST_ADDED = "Ajout de \"[%s] %s\" \195\160 la liste noire de d\195\169buffs.";
+VUHDO_I18N_DEF_PLAYER_COMBO_POINTS = "Player Combo Points";
+VUHDO_I18N_BOUQUET_OWN_COMBO_POINTS_EQUALS = "Flag: Own Combo Points ==";
+VUHDO_I18N_DEF_PLAYER_SOUL_SHARDS = "Player Soul Shards";
+VUHDO_I18N_BOUQUET_OWN_SOUL_SHARDS_EQUALS = "Flag: Own Soul Shards ==";
+VUHDO_I18N_DEF_PLAYER_RUNES = "Player Runes";
+VUHDO_I18N_BOUQUET_OWN_RUNES_EQUALS = "Flag: Own Runes ==";
+VUHDO_I18N_DEF_PLAYER_ARCANE_CHARGES = "Player Arcane Charges";
+VUHDO_I18N_BOUQUET_OWN_ARCANE_CHARGES_EQUALS = "Flag: Own Arcane Charges ==";
+VUHDO_I18N_DEBUFF_BLACKLIST_ADDED = "Added \"[%s] %s\" to the debuff backlist.";
 
 -- 3.104
-VUHDO_I18N_PLAY_SOUND_FILE_ERR = "Impossible de jouer le son \"%s\" : %s";
-VUHDO_I18N_PLAY_SOUND_FILE_DEBUFF_ERR = "Impossible de jouer le son \"%s\" pour le d\195\169buff standard. Ajustez vos param\195\168tres sous 'Options VuhDo > D\195\169buffs > Standard > Son de d\195\169buff'.";
-VUHDO_I18N_PLAY_SOUND_FILE_CUSTOM_DEBUFF_ERR = "Impossible de jouer le son \"%s\" pour le d\195\169buff personnalis\195\169 \"%s\". Ajustez vos param\195\168tres sous 'Options VuhDo > D\195\169buffs > Personnalis\195\169'.";
+VUHDO_I18N_PLAY_SOUND_FILE_ERR = "Could not play sound \"%s\": %s";
+VUHDO_I18N_PLAY_SOUND_FILE_DEBUFF_ERR = "Could not play sound \"%s\" for standard debuff. Adjust your settings under 'VuhDo Options > Debuffs > Standard > Debuff Sound'.";
+VUHDO_I18N_PLAY_SOUND_FILE_CUSTOM_DEBUFF_ERR = "Could not play sound \"%s\" for custom debuff \"%s\". Adjust your settings under 'VuhDo Options > Debuffs > Custom'.";
 
 -- 3.122
-VUHDO_I18N_BOUQUET_STATUS_POWER_TANK_ONLY = "Barre d'\195\169tat : Puissance % (Tank uniquement)";
-VUHDO_I18N_DEF_BOUQUET_BAR_MANA_TANK_ONLY = "Barres de mana : Puissance (Tank uniquement)";
+VUHDO_I18N_BOUQUET_STATUS_POWER_TANK_ONLY = "Statusbar: Power % (Tank Only)";
+VUHDO_I18N_DEF_BOUQUET_BAR_MANA_TANK_ONLY = "Manabars: Power (Tank Only)";
 
 -- 3.131
-VUHDO_I18N_DEF_COUNTER_HEAL_ABSORB = "Compteur : Toute absorption de soin #k";
-VUHDO_I18N_DEF_STATUS_HEAL_ABSORB = "Barre d'\195\169tat : Absorption de soin";
+VUHDO_I18N_DEF_COUNTER_HEAL_ABSORB = "Counter: All Heal Absorb #k";
+VUHDO_I18N_DEF_STATUS_HEAL_ABSORB = "Statusbar: Heal Absorb";
 
 -- 3.135
-VUHDO_I18N_TRINKET_1 = "Bijou 1";
-VUHDO_I18N_TRINKET_2 = "Bijou 2";
+VUHDO_I18N_TRINKET_1 = "Trinket 1";
+VUHDO_I18N_TRINKET_2 = "Trinket 2";
 
 -- 3.139
-VUHDO_I18N_EVOKERS = "Evocateurs";
+VUHDO_I18N_EVOKERS = "Evokers";
 
 -- 3.143
-VUHDO_I18N_BUFFC_EARTH_SHIELD = "Bouclier de terre (Soi)";
+VUHDO_I18N_BUFFC_EARTH_SHIELD = "Earth Shield (Self)";
 
 -- 3.150
-VUHDO_I18N_ADDON_COMPARTMENT_ICON = "L'ic\195\180ne du compartiment d'addon est maintenant ";
+VUHDO_I18N_ADDON_COMPARTMENT_ICON = "AddOn Compartment Icon is now ";
 
 -- 3.152
-VUHDO_I18N_SPELL_TRACE_SINGLE = "Ic\195\180ne : Trace de sort (Unique)";
+VUHDO_I18N_SPELL_TRACE_SINGLE = "Icon: Spell Trace (Single)";
 
 -- 3.154
-VUHDO_I18N_SPELL_TRACE_INCOMING = "Ic\195\180ne : Trace de sort (Entrant)";
-VUHDO_I18N_SPELL_TRACE_HEAL = "Ic\195\180ne : Trace de sort (Soin)";
+VUHDO_I18N_SPELL_TRACE_INCOMING = "Icon: Spell Trace (Incoming)";
+VUHDO_I18N_SPELL_TRACE_HEAL = "Icon: Spell Trace (Heal)";
 
 -- 3.157
-VUHDO_I18N_TEXT_PROVIDER_OVERHEAL = "Sursoin : <#nk>";
-VUHDO_I18N_TEXT_PROVIDER_OVERHEAL_PLUS = "Sursoin : +<#n>k";
-VUHDO_I18N_TEXT_PROVIDER_INCOMING_HEAL = "Soin entrant : <#nk>";
-VUHDO_I18N_TEXT_PROVIDER_SHIELD_ABSORB = "Absorption de bouclier totale : <#nk>";
-VUHDO_I18N_TEXT_PROVIDER_HEAL_ABSORB = "Absorption de soin totale : <#nk>";
-VUHDO_I18N_TEXT_PROVIDER_THREAT = "Menace : <#n>%";
-VUHDO_I18N_TEXT_PROVIDER_CHI = "\195\130nergie : <#n>";
-VUHDO_I18N_TEXT_PROVIDER_HOLY_POWER = "Pouvoir sacr\195\169 : <#n>";
-VUHDO_I18N_TEXT_PROVIDER_COMBO_POINTS = "Points de combo : <#n>";
-VUHDO_I18N_TEXT_PROVIDER_SOUL_SHARDS = "Fragments d'\195\130me : <#n>";
-VUHDO_I18N_TEXT_PROVIDER_RUNES = "Runes : <#n>";
-VUHDO_I18N_TEXT_PROVIDER_ARCANE_CHARGES = "Charges arcaniques : <#n>";
-VUHDO_I18N_TEXT_PROVIDER_MANA_PERCENT = "Mana : <#n>%";
-VUHDO_I18N_TEXT_PROVIDER_MANA_PERCENT_TENTH = "Mana : <#n/10%>";
-VUHDO_I18N_TEXT_PROVIDER_MANA_UNIT_OF = "Mana : <#n>/<#n>";
-VUHDO_I18N_TEXT_PROVIDER_MANA_KILO_OF = "Mana : <#nk>/<#nk>";
-VUHDO_I18N_TEXT_PROVIDER_MANA = "Mana : <#n>";
-VUHDO_I18N_TEXT_PROVIDER_MANA_KILO = "Mana : <#nk>";
-VUHDO_I18N_BOUQUET_STATUS_HEALTH_IF_ACTIVE = "Barre d'\195\169tat : Sant\195\169 % si actif";
+VUHDO_I18N_TEXT_PROVIDER_OVERHEAL = "Overheal: <#nk>";
+VUHDO_I18N_TEXT_PROVIDER_OVERHEAL_PLUS = "Overheal: +<#n>k";
+VUHDO_I18N_TEXT_PROVIDER_INCOMING_HEAL = "Incoming Heal: <#nk>";
+VUHDO_I18N_TEXT_PROVIDER_SHIELD_ABSORB = "Shield absorb total: <#nk>";
+VUHDO_I18N_TEXT_PROVIDER_HEAL_ABSORB = "Heal absorb total: <#nk>";
+VUHDO_I18N_TEXT_PROVIDER_THREAT = "Threat: <#n>%";
+VUHDO_I18N_TEXT_PROVIDER_CHI = "Chi: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_HOLY_POWER = "Holy Power: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_COMBO_POINTS = "Combo Points: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_SOUL_SHARDS = "Soul Shards: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_RUNES = "Runes: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_ARCANE_CHARGES = "Arcane Charges: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_MANA_PERCENT = "Mana: <#n>%";
+VUHDO_I18N_TEXT_PROVIDER_MANA_PERCENT_TENTH = "Mana: <#n/10%>";
+VUHDO_I18N_TEXT_PROVIDER_MANA_UNIT_OF = "Mana: <#n>/<#n>";
+VUHDO_I18N_TEXT_PROVIDER_MANA_KILO_OF = "Mana: <#nk>/<#nk>";
+VUHDO_I18N_TEXT_PROVIDER_MANA = "Mana: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_MANA_KILO = "Mana: <#nk>";
+VUHDO_I18N_BOUQUET_STATUS_HEALTH_IF_ACTIVE = "Statusbar: Health % if active";
 
-VUHDO_I18N_DEF_COUNTER_ACTIVE_AURAS = "Compteur : Auras de bouquet actives #k";
+VUHDO_I18N_DEF_COUNTER_ACTIVE_AURAS = "Counter: Active Bouquet Auras #k";
 
-VUHDO_I18N_BOUQUET_EVOKER_REVERSION = "R\195\169version de l'\195\130vocateur (non-\195\169cho)";
-VUHDO_I18N_BOUQUET_EVOKER_REVERSION_ECHO = "R\195\169version de l'\195\130vocateur (\195\169cho)";
-VUHDO_I18N_BOUQUET_EVOKER_DREAM_BREATH = "Souffle de r\195\170ve de l'\195\130vocateur (non-\195\169cho)";
-VUHDO_I18N_BOUQUET_EVOKER_DREAM_BREATH_ECHO = "Souffle de r\195\170ve de l'\195\130vocateur (\195\169cho)";
-VUHDO_I18N_BOUQUET_EVOKER_ALL_ECHO = "Tous les \195\169chos de soins de l'\195\130vocateur";
+VUHDO_I18N_BOUQUET_EVOKER_REVERSION = "Evoker Reversion (non-echo)";
+VUHDO_I18N_BOUQUET_EVOKER_REVERSION_ECHO = "Evoker Reversion (echo)";
+VUHDO_I18N_BOUQUET_EVOKER_DREAM_BREATH = "Evoker Dream Breath (non-echo)";
+VUHDO_I18N_BOUQUET_EVOKER_DREAM_BREATH_ECHO = "Evoker Dream Breath (echo)";
+VUHDO_I18N_BOUQUET_EVOKER_ALL_ECHO = "Evoker All HoT Echoes";
 
-VUHDO_I18N_TRAIL_OF_LIGHT_NEXT = "Drapeau : Tra\195\174n\195\169e de lumi\195\168re (Suivant)";
-VUHDO_I18N_DEF_TRAIL_OF_LIGHT_NEXT = "Tra\195\174n\195\169e de lumi\195\168re (Suivant)";
-VUHDO_I18N_BOUQUET_DEBUFF_BLEED = "Drapeau : D\195\169buff Saignement";
+VUHDO_I18N_TRAIL_OF_LIGHT_NEXT = "Flag: Trail of Light (Next)";
+VUHDO_I18N_DEF_TRAIL_OF_LIGHT_NEXT = "Trail of Light (Next)";
+VUHDO_I18N_BOUQUET_DEBUFF_BLEED = "Flag: Debuff Bleed";
 
-VUHDO_I18N_DEF_SPELL_TRACE_INCOMING = "Trace de sort (Entrant)";
+VUHDO_I18N_DEF_SPELL_TRACE_INCOMING = "Spell Trace (Incoming)";
 
-VUHDO_I18N_BOUQUET_CHI_HARMONY_ICON_MINE = "Ic\195\180ne : Harmonie du Chi (Mien)";
-VUHDO_I18N_DEF_BOUQUET_CHI_HARMONY_ICON_MINE = "Harmonie du Chi (Mien)";
-VUHDO_I18N_BOUQUET_CHI_HARMONY_ICON_OTHERS = "Ic\195\180ne : Harmonie du Chi (Autres)";
-VUHDO_I18N_DEF_BOUQUET_CHI_HARMONY_ICON_OTHERS = "Harmonie du Chi (Autres)";
-VUHDO_I18N_BOUQUET_CHI_HARMONY_ICON_BOTH = "Ic\195\180ne : Harmonie du Chi (Les deux)";
-VUHDO_I18N_DEF_BOUQUET_CHI_HARMONY_ICON_BOTH = "Harmonie du Chi (Les deux)";
+VUHDO_I18N_BOUQUET_CHI_HARMONY_ICON_MINE = "Icon: Chi Harmony (Mine)";
+VUHDO_I18N_DEF_BOUQUET_CHI_HARMONY_ICON_MINE = "Chi Harmony (Mine)";
+VUHDO_I18N_BOUQUET_CHI_HARMONY_ICON_OTHERS = "Icon: Chi Harmony (Others)";
+VUHDO_I18N_DEF_BOUQUET_CHI_HARMONY_ICON_OTHERS = "Chi Harmony (Others)";
+VUHDO_I18N_BOUQUET_CHI_HARMONY_ICON_BOTH = "Icon: Chi Harmony (Both)";
+VUHDO_I18N_DEF_BOUQUET_CHI_HARMONY_ICON_BOTH = "Chi Harmony (Both)";
 
-VUHDO_I18N_BOUQUET_DEBUFF_ENRAGE = "Drapeau : D\195\169buff Enrager";
+VUHDO_I18N_BOUQUET_DEBUFF_ENRAGE = "Flag: Debuff Enrage";

@@ -269,11 +269,6 @@ end
 
 
 --
-local function VUHDO_noOp() end
-
-
-
---
 local tDuration2;
 local tChargeTexture;
 local tIsHotShowIcon;
@@ -301,8 +296,8 @@ local function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTim
 		return;
 	end
 
-	local VUHDO_UIFrameFlash = (sIsFlashWhenLow or tHotCfg["isFlashWhenLow"]) and _G["VUHDO_UIFrameFlash"] or VUHDO_noOp;
-	local VUHDO_UIFrameFlashStop = (sIsFlashWhenLow or tHotCfg["isFlashWhenLow"]) and _G["VUHDO_UIFrameFlashStop"] or VUHDO_noOp;
+	local VUHDO_UIFrameFlash = (sIsFlashWhenLow or tHotCfg["isFlashWhenLow"]) and _G["VUHDO_UIFrameFlash"] or function() end;
+	local VUHDO_UIFrameFlashStop = (sIsFlashWhenLow or tHotCfg["isFlashWhenLow"]) and _G["VUHDO_UIFrameFlashStop"] or function() end;
 
 	if not aRest then
 		VUHDO_UIFrameFlashStop(tIcon);
@@ -327,11 +322,10 @@ local function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTim
 	if anIcon and (tIsHotShowIcon or aColor) then
 		if VUHDO_ATLAS_TEXTURES[anIcon] then
 			tIcon:SetAtlas(anIcon);
+
 		else
 			tIcon:SetTexture(anIcon);
 		end
-
-		VUHDO_PixelUtil.ApplySettings(tIcon);
 	end
 
 	tIcon:SetTexCoord(aClipL or sClipL, aClipR or sClipR, aClipT or sClipT, aClipB or sClipB);
@@ -466,15 +460,12 @@ local function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTim
 		tStarted = floor(10 * (GetTime() - aDuration + aRest) + 0.5) * 0.1;
 		tClockDuration = tClock:GetCooldownDuration() * 0.001;
 
-		local tMinDuration = max(aDuration, 0.1); -- min 0.1 sec duration for visibility
-
-		if tMinDuration > 0 and
+		if aDuration > 0 and 
 			(tClock:GetAlpha() == 0 or (tClock:GetAttribute("started") or tStarted) ~= tStarted or 
-			(tClock:IsVisible() and (tMinDuration > tClockDuration or tMinDuration < 0.1))) then
-			tClock:SetCooldown(tStarted, tMinDuration);
-			tClock:SetAttribute("started", tStarted);
-
+			(tClock:IsVisible() and aDuration > tClockDuration)) then
 			tClock:SetAlpha(1);
+			tClock:SetCooldown(tStarted, aDuration);
+			tClock:SetAttribute("started", tStarted);
 		end
 
 		if tOpacity then
@@ -520,7 +511,6 @@ local function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTim
 
 	if tIsChargeShown then
 		tChargeTexture:SetTexture(VUHDO_CHARGE_TEXTURES[tTimes]);
-		VUHDO_PixelUtil.ApplySettings(tChargeTexture);
 		tChargeTexture:SetVertexColor(VUHDO_backColorWithFallback(tHotColor));
 		
 		tChargeTexture:Show();
@@ -530,7 +520,6 @@ local function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTim
 		end
 
 		tChargeTexture:SetTexture(VUHDO_SHIELD_TEXTURES[aShieldCharges]);
-		VUHDO_PixelUtil.ApplySettings(tChargeTexture);
 		
 		if tHotColor and tHotColor["R"] then
 			tChargeTexture:SetVertexColor(tHotColor["R"] + 0.15, tHotColor["G"] + 0.15, tHotColor["B"] + 0.15, tHotColor["O"]);
@@ -1444,8 +1433,6 @@ function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTim
 					tIcon:SetTexture(anIcon);
 				end
 
-				VUHDO_PixelUtil.ApplySettings(tIcon);
-
 				tIcon:SetVertexColor(VUHDO_backColorWithFallback(aColor));
 
 				tIcon:SetTexCoord(aClipL or 0, aClipR or 1, aClipT or 0, aClipB or 1);
@@ -1614,48 +1601,5 @@ function VUHDO_updateAllHoTs(aClustersOnly)
 			end
 		end
 	end
-
-end
-
-
-
---
-local tUnitInfo;
-function VUHDO_updateUnitHoTs(aUnit)
-
-	if not VUHDO_RAID then
-		return;
-	end
-
-	tUnitInfo = VUHDO_RAID[aUnit];
-
-	if tUnitInfo then
-		VUHDO_updateHots(aUnit, tUnitInfo);
-	end
-
-	return;
-
-end
-
-
-
---
-function VUHDO_deferUpdateAllHoTs(aPriority)
-
-	if sIsSuspended then
-		return;
-	end
-
-	VUHDO_updateSwiftmendCooldown();
-
-	if not VUHDO_RAID then
-		return;
-	end
-
-	for tUnit, _ in pairs(VUHDO_RAID) do
-		VUHDO_deferTask(VUHDO_DEFER_UPDATE_UNIT_HOTS, aPriority or VUHDO_DEFERRED_TASK_PRIORITY_HIGH, tUnit);
-	end
-
-	return;
 
 end

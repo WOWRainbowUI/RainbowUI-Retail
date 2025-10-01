@@ -50,7 +50,7 @@
 
 	<Cooldown name="VuhDoHotCooldown" inherits="CooldownFrameTemplate" virtual="true">	</Cooldown>
 
-	<Frame name="VuhDoAuraIconTemplate" virtual="true">
+	<Frame name="VuhDoHotIconTemplate" virtual="true">
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture name="$parentI"></Texture>
@@ -63,7 +63,6 @@
 			<Layer level="OVERLAY">
 				<FontString name="$parentT" inherits="NumberFontNormalSmall"></FontString>
 				<FontString name="$parentC" inherits="NumberFontNormalSmall"></FontString>
-				<FontString name="$parentN" inherits="GameFontNormalSmall"></FontString>
 			</Layer>
 		</Layers>
 
@@ -74,9 +73,18 @@
 		</Scripts>
 	</Frame>
 
-	<Frame name="VuhDoDebuffIconTemplate" virtual="true" inherits="SecureHandlerEnterLeaveTemplate">
+	<Frame name="VuhDoRaidTargetIconTemplate" virtual="true">
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture name="$parentI" file="interface\targetingframe\ui-raidtargetingicons">
+				</Texture>
+			</Layer>
+		</Layers>
+	</Frame>
+
+	<Button name="VuhDoDebuffIconTemplate" virtual="true" inherits="SecureUnitButtonTemplate,SecureHandlerEnterLeaveTemplate,SecureHandlerShowHideTemplate">
 		<Frames>
-			<Frame name="$parentB" enableMouse="false" inherits="BackdropTemplate">
+			<Frame name="$parentB" enableMouse="false">
 				<Layers>
 					<Layer level="BACKGROUND">
 						<Texture name="$parentI">
@@ -93,20 +101,42 @@
 		<Scripts>
 			<OnLoad>
 				self.addLevel = 9;
+				self:SetScript("PreClick", VuhDoActionPreClick);
+				self:SetScript("PostClick", function(self, aButton) 
+					if aButton == "RightButton" then
+						local blacklistModi = VUHDO_CONFIG["CUSTOM_DEBUFF"].blacklistModi or "ALT-CTRL-SHIFT";
+
+						if blacklistModi ~= "OFF" then
+							if blacklistModi == "ALT-CTRL-SHIFT" and 
+								IsAltKeyDown() and IsControlKeyDown() and IsShiftKeyDown() then
+								VUHDO_addDebuffToBlacklist(self);	
+							elseif blacklistModi == "ALT-SHIFT" and IsAltKeyDown() and 
+								IsShiftKeyDown() and not IsControlKeyDown() then
+								VUHDO_addDebuffToBlacklist(self);
+							elseif blacklistModi == "ALT-CTRL" and IsAltKeyDown() and 
+								IsControlKeyDown() and not IsShiftKeyDown() then
+								VUHDO_addDebuffToBlacklist(self);
+							elseif blacklistModi == "CTRL-SHIFT" and IsControlKeyDown() and 
+								IsShiftKeyDown() and not IsAltKeyDown() then
+								VUHDO_addDebuffToBlacklist(self);
+							elseif blacklistModi == "SHIFT" and IsShiftKeyDown() and 
+								not IsAltKeyDown() and not IsControlKeyDown() then
+								VUHDO_addDebuffToBlacklist(self);
+							elseif blacklistModi == "CTRL" and IsControlKeyDown() and 
+								not IsAltKeyDown() and not IsShiftKeyDown() then
+								VUHDO_addDebuffToBlacklist(self);
+							elseif blacklistModi == "ALT" and IsAltKeyDown() and 
+								not IsControlKeyDown() and not IsShiftKeyDown() then
+								VUHDO_addDebuffToBlacklist(self);
+							end
+						end
+					end
+				
+					VuhDoActionPostClick(self);
+				end)
 			</OnLoad>
 		</Scripts>
-	</Frame>
-
-	<Frame name="VuhDoRaidTargetIconTemplate" virtual="true">
-		<Layers>
-			<Layer level="OVERLAY">
-				<Texture name="$parentI" file="interface\targetingframe\ui-raidtargetingicons">
-				</Texture>
-			</Layer>
-		</Layers>
-	</Frame>
-
-
+	</Button>
 
 	<StatusBar name="VuhDoHotBarTemplate" setAllPoints="true" hidden="false" inherits="VuhDoStatusBar" virtual="true">
 		<Scripts>

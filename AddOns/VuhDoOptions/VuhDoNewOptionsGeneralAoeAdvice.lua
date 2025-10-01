@@ -35,7 +35,7 @@ function VUHDO_newOptionsAoeAdvicePopulate(aParent)
 			tComponent = _G[tFrameName .. "SpellNameLabelLabel"];
 			tComponent:SetText(VUHDO_AOE_SPELLS[tName]["name"]);
 
-			VUHDO_PixelUtil.SetPoint(tFrame, "TOPLEFT", aParent:GetName(), "TOPLEFT", tX, -tY);
+			tFrame:SetPoint("TOPLEFT", aParent:GetName(), "TOPLEFT", tX, -tY);
 
 			if (VUHDO_CONFIG["AOE_ADVISOR"]["knownOnly"] and not VUHDO_isSpellKnown(VUHDO_AOE_SPELLS[tName]["name"])) then
 				tFrame:SetAlpha(0.5);

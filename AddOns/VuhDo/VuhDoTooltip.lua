@@ -71,14 +71,14 @@ local function VUHDO_setTooltipLine(aText, anIsLeft, aLineNum, aColor, aTextSize
 	end
 
 	if anIsLeft then
-		VUHDO_TEXT_SIZE_LEFT[aLineNum] = aTextSize or 8;
-		VUHDO_PixelUtil.SetHeight(tLabel, VUHDO_TEXT_SIZE_LEFT[aLineNum]);
+		VUHDO_TEXT_SIZE_LEFT[aLineNum] = (aTextSize or 8) + 0.7;
+		tLabel:SetHeight(VUHDO_TEXT_SIZE_LEFT[aLineNum]);
 	else
-		VUHDO_PixelUtil.SetHeight(tLabel, VUHDO_TEXT_SIZE_LEFT[aLineNum] or 8);
+		tLabel:SetHeight(VUHDO_TEXT_SIZE_LEFT[aLineNum] or 8.7);
 	end
 
 	tLabel:SetJustifyH(anIsLeft and "LEFT" or "RIGHT");
-	VUHDO_PixelUtil.SetWidth(tLabel, 186);
+	tLabel:SetWidth(186);
 	tLabel:Show();
 	tLabel:SetNonSpaceWrap(false);
 end
@@ -139,15 +139,15 @@ local function VUHDO_initTooltip()
 	if VUHDO_TT_RESET or tFixPos then
 		VUHDO_TT_RESET = false;
 
-		VUHDO_PixelUtil.SetScale(VuhDoTooltip, tConfig["SCALE"]);
+		VuhDoTooltip:SetScale(tConfig["SCALE"]);
 		VuhDoTooltip:SetBackdropColor(VUHDO_backColor(tConfig["BACKGROUND"]));
 		VuhDoTooltip:SetBackdropBorderColor(VUHDO_backColor(tConfig["BORDER"]));
 
 		VuhDoTooltip:ClearAllPoints();
 		if tFixPos then
-			VUHDO_PixelUtil.SetPoint(VuhDoTooltip, tFixPos[1], VUHDO_getActionPanel(VUHDO_TT_PANEL_NUM):GetName(), tFixPos[2], 0, 0);
+			VuhDoTooltip:SetPoint(tFixPos[1], VUHDO_getActionPanel(VUHDO_TT_PANEL_NUM):GetName(), tFixPos[2], 0, 0);
 		elseif VUHDO_TOOLTIP_POS_CUSTOM == tPos then
-			VUHDO_PixelUtil.SetPoint(VuhDoTooltip, tConfig["point"], "UIParent", tConfig["relativePoint"], tConfig["x"], tConfig["y"]);
+			VuhDoTooltip:SetPoint(tConfig["point"], "UIParent", tConfig["relativePoint"], tConfig["x"], tConfig["y"]);
 		elseif VUHDO_TOOLTIP_POS_STANDARD == tPos then
 			if (not VUHDO_CONFIG["STANDARD_TOOLTIP"]) then
 				if not GameTooltip:IsForbidden() then	
@@ -155,16 +155,16 @@ local function VUHDO_initTooltip()
 				end
 			end
 
-			VUHDO_PixelUtil.SetPoint(VuhDoTooltip, "BOTTOMRIGHT", "UIParent", "BOTTOMRIGHT", -CONTAINER_OFFSET_X - 13, CONTAINER_OFFSET_Y);
+			VuhDoTooltip:SetPoint("BOTTOMRIGHT", "UIParent", "BOTTOMRIGHT", -CONTAINER_OFFSET_X - 13, CONTAINER_OFFSET_Y);
 		end
 
-		VUHDO_PixelUtil.SetWidth(VuhDoTooltip, 200);
+		VuhDoTooltip:SetWidth(200);
 	end
 
 	if VUHDO_TOOLTIP_POS_MOUSE == tPos then
 		if VUHDO_TT_BUTTON then
 			VuhDoTooltip:ClearAllPoints();
-			VUHDO_PixelUtil.SetPoint(VuhDoTooltip, "TOPLEFT", VUHDO_TT_BUTTON:GetName(), "BOTTOMRIGHT", 0, 0);
+			VuhDoTooltip:SetPoint("TOPLEFT", VUHDO_TT_BUTTON:GetName(), "BOTTOMRIGHT", 0, 0);
 		else
 			VuhDoTooltip:Hide();
 			return;
@@ -198,7 +198,7 @@ local function VUHDO_finishTooltip()
 		tHeight = tHeight + tTextHeight + 1;
 	end
 
-	VUHDO_PixelUtil.SetHeight(VuhDoTooltip, tHeight);
+	VuhDoTooltip:SetHeight(tHeight);
 end
 
 
@@ -411,7 +411,7 @@ end
 
 --
 function VuhDoTooltipOnMouseUp(aTooltip)
-	VUHDO_PixelUtil.StopMovingOrSizing(aTooltip);
+	aTooltip:StopMovingOrSizing();
 
 	local tX, tY, tRelative, tOrientation;
 	local tPosition = VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["TOOLTIP"];
