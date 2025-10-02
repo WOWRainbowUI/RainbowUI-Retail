@@ -76,16 +76,16 @@ end
 ---@class DBM
 local DBM = private:GetPrototype("DBM")
 _G.DBM = DBM
-DBM.Revision = parseCurseDate("20250923203905")
+DBM.Revision = parseCurseDate("20251001061751")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 local fakeBWVersion, fakeBWHash = 398, "3d79f92"--398.5
 local PForceDisable
 -- The string that is shown as version
-DBM.DisplayVersion = "11.2.17"--Core version
+DBM.DisplayVersion = "11.2.18"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2025, 9, 23) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2025, 9, 30) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 PForceDisable = 19--When this is incremented, trigger force disable regardless of major patch
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
@@ -1952,6 +1952,12 @@ do
 				SetCVar("Sound_EnableMusic", 1)
 				self.Options.RestoreSettingMusic = nil
 				self:Debug("Restoring Sound_EnableMusic CVAR")
+			end
+			--Custom brewfest stuff
+			if self.Options.RestoreBrewSoundVolume then
+				self:Debug("Restoring Dialog volume to saved value of: "..self.Options.RestoreBrewSoundVolume)
+				SetCVar("Sound_DialogVolume", self.Options.RestoreBrewSoundVolume)
+				self.Options.RestoreBrewSoundVolume = nil
 			end
 			--RestoreSettingCustomMusic doens't need restoring here, since zone change transition will handle it
 		end
@@ -9004,6 +9010,10 @@ function bossModPrototype:SetCreatureID(...)
 		end
 	else
 		self.numBoss = 1
+		if self.combatInfo then
+			--Called mid combat, update combatinfo mob for boss health and win detection
+			self.combatInfo.mob = self.creatureId
+		end
 	end
 	for i = 1, select("#", ...) do
 		local cId = select(i, ...)
@@ -9253,7 +9263,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20250923203804" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20251001061552" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
