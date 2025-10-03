@@ -4,6 +4,7 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
+---@type KT
 local _, KT = ...
 
 -- Deactivate Blizzard Tracker

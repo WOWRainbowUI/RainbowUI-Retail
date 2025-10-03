@@ -1,3 +1,6 @@
+---@type KT
+local _, KT = ...
+
 KT_OBJECTIVE_TRACKER_COLOR = {
 	["Normal"] = { r = 0.8, g = 0.8, b = 0.8 },
 	["NormalHighlight"] = { r = HIGHLIGHT_FONT_COLOR.r, g = HIGHLIGHT_FONT_COLOR.g, b = HIGHLIGHT_FONT_COLOR.b },
@@ -261,7 +264,7 @@ function KT_ObjectiveTrackerRewardsToastMixin:ShowRewards(rewards, module, block
 	end
 
 	self:ClearAllPoints();
-	local container = KT_ObjectiveTrackerManager:GetContainerForModule(module);
+	local container = KT.ObjectiveTrackerManager:GetContainerForModule(module);
 	if container:IsCollapsed() then
 		self:SetPoint("TOPRIGHT", container, "TOPLEFT", 20, 0);
 	elseif block then
@@ -289,7 +292,7 @@ function KT_ObjectiveTrackerRewardsToastMixin:OnAnimateRewardsDone()
 		self.callback();
 		self.callback = nil;
 	end
-	KT_ObjectiveTrackerManager:HideRewardsToast(self);
+	KT.ObjectiveTrackerManager:HideRewardsToast(self);
 end
 
 -- *****************************************************************************************************

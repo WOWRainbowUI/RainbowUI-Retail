@@ -1,3 +1,4 @@
+---@type KT
 local _, KT = ...
 
 -- shared pool since there are several modules that can display quests, but a given quest can only appear in a specific module
@@ -8,7 +9,7 @@ KT_ObjectiveTrackerQuestPOIBlockMixin = CreateFromMixins(KT_ObjectiveTrackerAnim
 -- overrides inherited
 function KT_ObjectiveTrackerQuestPOIBlockMixin:OnLayout()
 	local module = self.parentModule;
-	if self.poiQuestID and (module.showWorldQuests or KT_ObjectiveTrackerManager:CanShowPOIs(module)) then
+	if self.poiQuestID and (module.showWorldQuests or KT.ObjectiveTrackerManager:CanShowPOIs(module)) then
 		self:AddPOIButton();
 	else
 		self:CheckAndReleasePOIButton();

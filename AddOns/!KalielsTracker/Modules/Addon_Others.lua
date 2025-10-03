@@ -51,7 +51,7 @@ end
 
 -- Auctionator
 local function Auctionator_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Auctionator", "288") and db.addonAuctionator)
+    local isLoaded = (KT:CheckAddOn("Auctionator", "296") and db.addonAuctionator)
     if isLoaded then
         hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
             local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame

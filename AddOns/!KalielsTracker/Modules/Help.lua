@@ -21,7 +21,7 @@ local ICON_HEART = "|T"..HELP_PATH.."help_patreon:14:14:2:0:256:32:174:190:0:16|
 
 local db, dbChar
 local helpName = "help"
-local helpNumPages = 13
+local helpNumPages = 14
 local supportersName = "supporters"
 local supportersNumPages = 1
 local cTitle = "|cffffd200"
@@ -215,6 +215,31 @@ local function SetupTutorials()
 			shineRight = 6,
 		},
 		{	-- 8
+			heading = "      Hacks",
+			text = "All hacks are enabled by default, you can disable them in "..KT.TITLE.." Options (section \"Hacks\").\n\n"..
+					cWarning.."Warning:|r Hacks may affect other addons!\n\n"..
+					cTitle.."LFG Hack|r\n\n"..
+					cBold.."Affects the small Eye buttons|r for finding groups inside the tracker. When the hack is active, "..
+					"the buttons work without errors. When the hack is inactive, the buttons are not available.\n\n"..
+					cWarning2.."Negative impacts:|r\n"..
+					"- Inside the dialog for create \"Premade Group\", the \"Title\" is not set"..
+					offs.."automatically (e.g. keystone level for Mythic+).\n\n"..
+					cTitle.."World Map Hack|r\n\n"..
+					cBold.."Affects the World Map|r and removes taint errors. The hack prevents calls to restricted "..
+					"functions. When the hack is inactive, the World Map display causes errors. It is not possible to "..
+					"get rid of these errors, since the tracker has a lot of interaction with the game frames.\n\n"..
+					cWarning2.."Negative impacts:|r unknown in WoW 11.2.0",
+		},
+		{	-- 9
+			image = HELP_PATH.."help_events",
+			heading = "Events",
+			text = "The Events module displays active ongoing events in the tracker. They are normally available on the World Map.\n\n"..
+					"Filter dropdown menu options:\n"..
+					"- "..cBold.."Track Events|r – Enables or disables tracking of events in the tracker.\n"..
+					"- "..cBold.."Show Long Events|r – In addition to active ongoing events, also shows those that"..
+					offs.."last 24 hours or more.",
+		},
+		{	-- 10
 			image = HELP_PATH.."help_addon-masque",
 			heading = "Support addon Masque",
 			text = "Masque adds skinning support for Quest Item buttons. It also affects the Active Button (see prev page).\n"..
@@ -228,7 +253,7 @@ local function SetupTutorials()
 				}
 			},
 		},
-		{	-- 9
+		{	-- 11
 			image = HELP_PATH.."help_addon-pettracker",
 			heading = "Support addon PetTracker",
 			text = "PetTracker support adjusts display of zone pet tracking inside "..KT.TITLE..".\nIt also fix some visual bugs.\n"..
@@ -242,7 +267,7 @@ local function SetupTutorials()
 				}
 			},
 		},
-		{	-- 10
+		{	-- 12
 			image = HELP_PATH.."help_addon-tomtom",
 			heading = "Support addon TomTom",
 			text = "TomTom support combined Blizzard's POI and TomTom's Arrow.\n\n"..
@@ -271,33 +296,30 @@ local function SetupTutorials()
 			shineLeft = -11,
 			shineRight = 11,
 		},
-		{	-- 11
-			heading = "      Hacks",
-			text = "All hacks are enabled by default, you can disable them in "..KT.TITLE.." Options (section \"Hacks\").\n\n"..
-					cWarning.."Warning:|r Hacks may affect other addons!\n\n"..
-					cTitle.."LFG Hack|r\n\n"..
-					cBold.."Affects the small Eye buttons|r for finding groups inside the tracker. When the hack is active, "..
-					"the buttons work without errors. When the hack is inactive, the buttons are not available.\n\n"..
-					cWarning2.."Negative impacts:|r\n"..
-					"- Inside the dialog for create \"Premade Group\", the \"Title\" is not set"..
-					offs.."automatically (e.g. keystone level for Mythic+).\n\n"..
-					cTitle.."World Map Hack|r\n\n"..
-                    cBold.."Affects the World Map|r and removes taint errors. The hack prevents calls to restricted "..
-                    "functions. When the hack is inactive, the World Map display causes errors. It is not possible to "..
-                    "get rid of these errors, since the tracker has a lot of interaction with the game frames.\n\n"..
-					cWarning2.."Negative impacts:|r unknown in WoW 11.2.0",
-		},
-		{	-- 12
-			image = HELP_PATH.."help_events",
-			heading = "Events",
-			text = "The Events module displays active ongoing and scheduled events in the tracker. These events are normally "..
-					"available on the World Map.\n\n"..
-					"Filter dropdown menu options:\n"..
-					"- "..cBold.."Track Events|r – Enables or disables tracking of events in the tracker.\n"..
-					"- "..cBold.."Show Ongoing Events|r – Shows currently ongoing events in addition to"..
-					offs.."scheduled ones.",
-		},
 		{	-- 13
+			image = HELP_PATH.."help_addon-rarescanner",
+			heading = "Support addon RareScanner "..beta,
+			text = "RareScanner support replaces the original RareScanner button and displays detected Rare NPCs "..
+					"directly inside "..KT.TITLE.." as a separate module.\n\n"..
+					"Features:\n"..
+					"- Displays only Rare NPCs - model and name. Treasures/Chests are not shown.\n"..
+					"- Shows loot icons including tooltip (if enabled in RareScanner).\n"..
+					"- "..cBold.."Left Click|r - creates a TomTom waypoint (if enabled in RareScanner).\n"..
+					"- "..cBold.."Right Click|r - removes detected NPCs from the tracker.\n"..
+					"- Targeting NPC via Left Click is not supported due to Blizzard restrictions."..
+					offs.."Use RareScanner’s keybinding for targeting.\n"..
+					"- All other RareScanner settings are reflected in the behavior of this module.\n"..
+					AddonInfo("RareScanner"),
+			editbox = {
+				{
+					icon = ICON_URL,
+					text = "https://www.curseforge.com/wow/addons/rarescanner",
+					width = 510,
+					bottom = 2,
+				}
+			},
+		},
+		{	-- 14
 			image = HELP_PATH.."help_whats-new_logo",
 			imageWidth = 512,
 			imageHeight = 128,
@@ -311,6 +333,15 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "If you like "..KT.TITLE..", consider supporting it on Patreon "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 7.14.0|r\n"..
+					"- ADDED - addon support - RareScanner 11.2.0.12 (display of detected Rare NPCs inside the tracker), see Help page 13\n"..
+					"- CHANGED - addon support - TomTom 4.0.17\n"..
+					"- CHANGED - addon support - Auctionator 296\n"..
+					"- CHANGED - Options - add visibility rule based on Rare NPC detection\n"..
+					"- CHANGED (help) - Active Patrons\n"..
+					"- CHANGED - Events - option to show/hide Long events (24h+)\n"..
+					"\n")..
+
 					(cTitle.."Version 7.13.1|r\n"..
 					"- CHANGED - World Map Hack - improvement\n"..
 					"\n")..
@@ -319,16 +350,6 @@ local function SetupTutorials()
 					"- CHANGED - improve Party Sync reaction\n"..
 					"- CHANGED - Options - move Slash commands to Controls section, rename one command\n"..
 					"- FIXED - error when activating Party Sync\n"..
-					"\n")..
-
-					(cTitle.."Version 7.12.0|r\n"..
-					"- ADDED - Options - new Controls section with Keybindings and Visibility rules\n"..
-					"- ADDED - Options - keybindings for tracker control (collapse, hide, focus closest quest, use active quest item)\n"..
-					"- ADDED - Options - audio channel selection and prevent overlapping audio playback\n"..
-					"- ADDED - Options - tracker Visibility rules (set show/hide/expand/collapse by context)\n"..
-					"- ADDED - support for WoW 11.2.0.62493\n"..
-					"- ADDED - addon support - BtWQuests 2.55.0 (Open Quest Chain option in the Quest context menu)\n"..
-					"- FIXED (scenario) - Mythic+ counter not showing automatically\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
@@ -346,7 +367,7 @@ local function SetupTutorials()
 					icon = ICON_URL,
 					text = "https://www.curseforge.com/wow/addons/kaliels-tracker/issues",
 					width = 510,
-					bottom = 40,
+					bottom = 39,
 				}
 			},
 			shine = KTF.Background,
@@ -417,6 +438,7 @@ local function SetupTutorials()
                     SetFormatedPatronName("Uncommon", "Charles Howarth")..
                     SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
                     SetFormatedPatronName("Uncommon", "Mystekal")..
+                    SetFormatedPatronName("Uncommon", "Paul Westervelt")..
                     SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
                     SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
                     SetFormatedPatronName("Common", "Darren Divecha")..

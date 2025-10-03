@@ -722,21 +722,6 @@ local function Filter_Achievements(spec)
 	end
 end
 
-local DropDown_Initialize	-- function
-
-local function DropDown_Toggle(level, button)
-	local dropDown = KT.DropDown
-	if dropDown.activeFrame ~= KTF.FilterButton then
-		MSA_CloseDropDownMenus()
-	end
-	dropDown.activeFrame = KTF.FilterButton
-	dropDown.initialize = DropDown_Initialize
-	MSA_ToggleDropDownMenu(level or 1, button and MSA_DROPDOWNMENU_MENU_VALUE or nil, dropDown, KTF.FilterButton, -15, -1, nil, button or nil, MSA_DROPDOWNMENU_SHOW_TIME)
-	if button then
-		_G["MSA_DropDownList"..MSA_DROPDOWNMENU_MENU_LEVEL].showTimer = nil
-	end
-end
-
 local function Filter_Menu_Quests(self, spec, idx)
 	Filter_Quests(spec, idx)
 	if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
@@ -770,7 +755,7 @@ local function Filter_Menu_AutoTrack(self, id, spec)
 			KTF.FilterButton:GetNormalTexture():SetVertexColor(KT.hdrBtnColor.r, KT.hdrBtnColor.g, KT.hdrBtnColor.b)
 		end
 	end
-	DropDown_Toggle()
+	KT:Filter_DropDown_Toggle()
 end
 
 local function Filter_AchievCat_CheckAll(self, state)
@@ -782,7 +767,7 @@ local function Filter_AchievCat_CheckAll(self, state)
 		MSA_CloseDropDownMenus()
 	else
 		local listFrame = _G["MSA_DropDownList"..MSA_DROPDOWNMENU_MENU_LEVEL]
-		DropDown_Toggle(MSA_DROPDOWNMENU_MENU_LEVEL, _G["MSA_DropDownList"..listFrame.parentLevel.."Button"..listFrame.parentID])
+		KT:Filter_DropDown_Toggle(MSA_DROPDOWNMENU_MENU_LEVEL, _G["MSA_DropDownList"..listFrame.parentLevel.."Button"..listFrame.parentID])
 	end
 end
 
@@ -795,7 +780,7 @@ local function GetInlineFactionIcon()
 		, coords[4])
 end
 
-function DropDown_Initialize(self, level)
+local function DropDown_Initialize(self, level)
 	local numEntries = C_QuestLog.GetNumQuestLogEntries()
 	local info = MSA_DropDownMenu_CreateInfo()
 	info.isNotRadio = true
@@ -901,10 +886,10 @@ function DropDown_Initialize(self, level)
 		end
 		MSA_DropDownMenu_AddButton(info)
 
-		info.text = "Show Ongoing Events"
-		info.checked = dbChar.filter.events.showOngoing
+		info.text = "Show Long Events"
+		info.checked = dbChar.filter.events.showLong
 		info.func = function()
-			dbChar.filter.events.showOngoing = not dbChar.filter.events.showOngoing
+			dbChar.filter.events.showLong = not dbChar.filter.events.showLong
 			KT_EventObjectiveTracker:MarkDirty()
 		end
 		MSA_DropDownMenu_AddButton(info)
@@ -960,45 +945,6 @@ function DropDown_Initialize(self, level)
 		info.checked = (db.filterAuto[info.arg1] == info.arg2)
 		info.func = Filter_Menu_AutoTrack
 		MSA_DropDownMenu_AddButton(info)
-
-		-- Addon - PetTracker
-		if KT.AddonPetTracker.isLoaded then
-			MSA_DropDownMenu_AddSeparator(info)
-
-			info.text = PETS
-			info.isTitle = true
-			MSA_DropDownMenu_AddButton(info)
-
-			info.isTitle = false
-			info.disabled = false
-			info.notCheckable = false
-
-			info.text = KT.AddonPetTracker.Texts.TrackPets
-			info.checked = (PetTracker.sets.zoneTracker)
-			info.func = function()
-				PetTracker.ToggleOption("zoneTracker")
-				if KT:IsCollapsed() and PetTracker.sets.zoneTracker then
-					KT:MinimizeButton_OnClick()
-				end
-			end
-			MSA_DropDownMenu_AddButton(info)
-
-			info.text = KT.AddonPetTracker.Texts.CapturedPets
-			info.checked = (PetTracker.sets.capturedPets)
-			info.func = function()
-				PetTracker.ToggleOption("capturedPets")
-			end
-			MSA_DropDownMenu_AddButton(info)
-
-			info.notCheckable = true
-
-			info.text = KT.AddonPetTracker.Texts.DisplayCondition
-			info.keepShownOnClick = true
-			info.hasArrow = true
-			info.value = 3
-			info.func = nil
-			MSA_DropDownMenu_AddButton(info)
-		end
 	elseif level == 2 then
 		info.notCheckable = true
 
@@ -1060,31 +1006,10 @@ function DropDown_Initialize(self, level)
 					MSA_DropDownMenu_AddButton(info, level)
 				end
 			end
-		elseif MSA_DROPDOWNMENU_MENU_VALUE == 3 then
-			-- Addon - PetTracker
-			info.notCheckable = false
-			info.isNotRadio = false
-			info.func = function(_, arg)
-				PetTracker.SetOption("targetQuality", arg)
-				DropDown_Toggle()
-			end
-
-			info.text = KT.AddonPetTracker.Texts.DisplayAlways
-			info.arg1 = PetTracker.MaxQuality
-			info.checked = (PetTracker.sets.targetQuality == info.arg1)
-			MSA_DropDownMenu_AddButton(info, level)
-
-			info.text = KT.AddonPetTracker.Texts.DisplayMissingRares
-			info.arg1 = PetTracker.MaxPlayerQuality
-			info.checked = (PetTracker.sets.targetQuality == info.arg1)
-			MSA_DropDownMenu_AddButton(info, level)
-
-			info.text = KT.AddonPetTracker.Texts.DisplayMissingPets
-			info.arg1 = 1
-			info.checked = (PetTracker.sets.targetQuality == info.arg1)
-			MSA_DropDownMenu_AddButton(info, level)
 		end
 	end
+
+	KT:SendSignal("FILTER_MENU_UPDATE", info, level)
 end
 
 local function SetFrames()
@@ -1164,7 +1089,7 @@ local function SetFrames()
 	button:GetNormalTexture():SetTexCoord(0.5, 1, 0.5, 0.75)
 	button:RegisterForClicks("AnyDown")
 	button:SetScript("OnClick", function(self, btn)
-		DropDown_Toggle()
+		KT:Filter_DropDown_Toggle()
 	end)
 	button:SetScript("OnEnter", function(self)
 		self:GetNormalTexture():SetVertexColor(1, 1, 1)
@@ -1227,7 +1152,7 @@ function M:OnInitialize()
 				},
 				events = {
 					track = true,
-					showOngoing = true
+					showLong = true
 				}
 			}
 		}
@@ -1263,4 +1188,17 @@ function M:OnEnable()
 			KT:UnregEvent(eventID)
 		end
 	end)
+end
+
+function KT:Filter_DropDown_Toggle(level, button)
+	local dropDown = self.DropDown
+	if dropDown.activeFrame ~= KTF.FilterButton then
+		MSA_CloseDropDownMenus()
+	end
+	dropDown.activeFrame = KTF.FilterButton
+	dropDown.initialize = DropDown_Initialize
+	MSA_ToggleDropDownMenu(level or 1, button and MSA_DROPDOWNMENU_MENU_VALUE or nil, dropDown, KTF.FilterButton, -15, -1, nil, button or nil, MSA_DROPDOWNMENU_SHOW_TIME)
+	if button then
+		_G["MSA_DropDownList"..MSA_DROPDOWNMENU_MENU_LEVEL].showTimer = nil
+	end
 end

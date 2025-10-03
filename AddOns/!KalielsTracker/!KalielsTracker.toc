@@ -1,7 +1,7 @@
 ## Interface: 110200
 ## Title: Kaliel's Tracker
 ## Notes: |nImproved Blizzard Objective Tracker|n|cff999999by Kaliel (Marouan Sabbagh)|n|n
-## Version: 7.13.1
+## Version: 7.14.0
 ## Author: Kaliel (Marouan Sabbagh)
 ## IconTexture: Interface\Addons\!KalielsTracker\Media\KT_logo
 ## Category-enUS: Quests
@@ -18,7 +18,7 @@
 
 ## SavedVariables: KalielsTrackerDB
 ## Dependencies: Blizzard_MawBuffs
-## OptionalDeps: Blizzard_UIWidgets, Blizzard_UIWidgets_WoWLabs, Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibSink-2.0, MSA-DropDownMenu-1.0, Masque, PetTracker, TomTom
+## OptionalDeps: Blizzard_UIWidgets, Blizzard_UIWidgets_WoWLabs, Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibSink-2.0, MSA-DropDownMenu-1.0, Masque, PetTracker, TomTom, RareScanner
 
 Core\Core.xml
 Libs\Libs.xml

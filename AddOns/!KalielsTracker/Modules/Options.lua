@@ -38,8 +38,8 @@ local textures = { "None", "Default (Blizzard)", "One line", "Two lines" }
 local modifiers = { [""] = "None", ["ALT"] = "Alt", ["CTRL"] = "Ctrl", ["ALT-CTRL"] = "Alt + Ctrl" }
 local SOUND_CHANNELS = { "Master", "Music", "SFX", "Ambience" }
 local SOUND_CHANNELS_LOCALIZED = { Master = "Master", Music = MUSIC_VOLUME, SFX = FX_VOLUME, Ambience = AMBIENCE_VOLUME }
-local VISIBILITY_CONTEXTS = { "world", "city", "dungeon", "mythicplus", "raid", "arena", "battleground", "petbattle" }
-local VISIBILITY_CONTEXTS_LOCALIZED = { world = "World", city = "City", dungeon = "Dungeon", mythicplus = "Mythic+", raid = "Raid", arena = "Arena", battleground = "Battleground", petbattle = "Pet Battle" }
+local VISIBILITY_CONTEXTS = { "world", "city", "dungeon", "mythicplus", "raid", "arena", "battleground", "petbattle", "rare" }
+local VISIBILITY_CONTEXTS_LOCALIZED = { world = "World", city = "City", dungeon = "Dungeon", mythicplus = "Mythic+", raid = "Raid", arena = "Arena", battleground = "Battleground", petbattle = "Pet Battle", rare = "Rare NPC" }
 local VISIBILITY_OPTIONS = { "show", "hide", "expand", "collapse" }
 local VISIBILITY_OPTIONS_LOCALIZED = { show = "Show", hide = "Hide", expand = "Show + Expand", collapse = "Show + Collapse" }
 local realmZones = { ["EU"] = "Europe", ["NA"] = "North America" }
@@ -139,6 +139,7 @@ local defaults = {
 		addonMasque = false,
 		addonPetTracker = false,
 		addonTomTom = false,
+		addonRareScanner = false,
 		addonAuctionator = false,
 		addonBtWQuests = false,
 
@@ -1593,7 +1594,7 @@ local options = {
 							order = 0,
 						},
 						activeContextLabel = {
-							name = "\n You are now in ...\n ",
+							name = "\n Active Rule ...\n ",
 							type = "description",
 							width = 0.7,
 							fontSize = "medium",
@@ -1759,6 +1760,29 @@ local options = {
 							width = "double",
 							order = 3.2,
 						},
+						addonRareScanner = {
+							name = "RareScanner",
+							desc = "Version: %s",
+							descStyle = "inline",
+							type = "toggle",
+							width = 1.05,
+							confirm = true,
+							confirmText = warning,
+							disabled = function()
+								return not C_AddOns.IsAddOnLoaded("RareScanner")
+							end,
+							set = function()
+								db.addonRareScanner = not db.addonRareScanner
+								ReloadUI()
+							end,
+							order = 4.1,
+						},
+						addonRareScannerDesc = {
+							name = beta.." Enables display of detected Rare NPCs inside the tracker.",
+							type = "description",
+							width = "double",
+							order = 4.2,
+						},
 						addonAuctionator = {
 							name = "Auctionator",
 							desc = "Version: %s",
@@ -1774,13 +1798,13 @@ local options = {
 								db.addonAuctionator = not db.addonAuctionator
 								ReloadUI()
 							end,
-							order = 4.1,
+							order = 5.1,
 						},
 						addonAuctionatorDesc = {
 							name = "Enables an Auctionator search button inside the Profession module header.",
 							type = "description",
 							width = "double",
-							order = 4.2,
+							order = 5.2,
 						},
 						addonBtWQuests = {
 							name = "BtWQuests",
@@ -1797,13 +1821,13 @@ local options = {
 								db.addonBtWQuests = not db.addonBtWQuests
 								ReloadUI()
 							end,
-							order = 5.1,
+							order = 6.1,
 						},
 						addonBtWQuestsDesc = {
 							name = "Enables an \"Open Quest Chain\" option in the Quest context menu.",
 							type = "description",
 							width = "double",
-							order = 5.2,
+							order = 6.2,
 						},
 					},
 				},
@@ -2309,7 +2333,7 @@ function M:OnEnable()
 	KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
 		SetAlert("trackedQuests")
 		SetupModules()
-		Mover_UpdateOptions()
+		Mover_SetScale()
 		KT:RegEvent("UI_SCALE_CHANGED", function()
 			Mover_SetScale()
 		end)

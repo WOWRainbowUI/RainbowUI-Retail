@@ -1,3 +1,4 @@
+---@type KT
 local _, KT = ...
 
 local settings = {
@@ -226,7 +227,7 @@ function KT_BonusObjectiveTrackerMixin:ShowRewardsToast(block, questID)
 		callback = GenerateClosure(self.OnShowRewardsToastDone, self, block);
 	end
 	if #rewards > 0 then
-		KT_ObjectiveTrackerManager:ShowRewardsToast(rewards, self, block, headerText, callback);
+		KT.ObjectiveTrackerManager:ShowRewardsToast(rewards, self, block, headerText, callback);
 	else
 		self:RemoveBlockFromCache(block);
 	end
@@ -810,7 +811,7 @@ end
 
 function KT_ObjectiveTrackerTopBannerMixin:OnPopAnimFinished()
 	-- offsets for anims
-	local container = KT_ObjectiveTrackerManager:GetContainerForModule(self.module);
+	local container = KT.ObjectiveTrackerManager:GetContainerForModule(self.module);
 	if container:IsRectValid() then
 		local height = container:GetHeightToModule(self.module);
 		local xOffset = container:GetLeft() - self:GetRight();

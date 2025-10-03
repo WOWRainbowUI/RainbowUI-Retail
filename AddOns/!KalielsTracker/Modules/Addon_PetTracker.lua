@@ -27,7 +27,7 @@ local settings = {
 }
 KT_PetTrackerObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin, settings)
 
-M.Texts = {
+local texts = {
 	TrackPets = C_Spell.GetSpellName(122026),
 	CapturedPets = "Show Captured",
 	DisplayCondition = "Display Condition",
@@ -78,7 +78,7 @@ local function SetHooks_Init()
 end
 
 local function SetHooks()
-	hooksecurefunc(KT_ObjectiveTrackerManager, "OnPlayerEnteringWorld", function(self, isInitialLogin, isReloadingUI)
+	hooksecurefunc(KT.ObjectiveTrackerManager, "OnPlayerEnteringWorld", function(self, isInitialLogin, isReloadingUI)
 		self:SetModuleContainer(KT_PetTrackerObjectiveTracker, OTF)
 	end)
 
@@ -129,7 +129,7 @@ local function SetHooks_PetTracker_Journal()
 		infoFrame:SetFrameLevel(PetTrackerTrackToggle:GetFrameLevel() + 1)
 		infoFrame:SetScript("OnEnter", function(self)
 			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-			GameTooltip:AddLine(M.Texts.TrackPets, 1, 1, 1)
+			GameTooltip:AddLine(texts.TrackPets, 1, 1, 1)
 			GameTooltip:AddLine("Support can be enabled inside addon "..KT.TITLE, 1, 0, 0, true)
 			GameTooltip:Show()
 		end)
@@ -197,6 +197,70 @@ local function SetFrames()
 
 	objectives.Bar.Overlay.Text:SetPoint("CENTER", 0, 0.5)
 	objectives.Bar.Overlay.Text:SetFont(LSM:Fetch("font", "Arial Narrow"), 13, "")
+end
+
+local function FilterMenuUpdate(self, info, level)
+	if level == 1 then
+		MSA_DropDownMenu_AddSeparator(info)
+
+		info.text = PETS
+		info.isTitle = true
+		MSA_DropDownMenu_AddButton(info)
+
+		info.isTitle = false
+		info.disabled = false
+		info.notCheckable = false
+
+		info.text = texts.TrackPets
+		info.checked = (PetTracker.sets.zoneTracker)
+		info.func = function()
+			PetTracker.ToggleOption("zoneTracker")
+			if KT:IsCollapsed() and PetTracker.sets.zoneTracker then
+				KT:MinimizeButton_OnClick()
+			end
+		end
+		MSA_DropDownMenu_AddButton(info)
+
+		info.text = texts.CapturedPets
+		info.checked = (PetTracker.sets.capturedPets)
+		info.func = function()
+			PetTracker.ToggleOption("capturedPets")
+		end
+		MSA_DropDownMenu_AddButton(info)
+
+		info.notCheckable = true
+
+		info.text = texts.DisplayCondition
+		info.keepShownOnClick = true
+		info.hasArrow = true
+		info.value = 3
+		info.func = nil
+		MSA_DropDownMenu_AddButton(info)
+	elseif level == 2 then
+		if MSA_DROPDOWNMENU_MENU_VALUE == 3 then
+			info.notCheckable = false
+			info.isNotRadio = false
+			info.func = function(_, arg)
+				PetTracker.SetOption("targetQuality", arg)
+				KT:Filter_DropDown_Toggle()
+			end
+
+			info.text = texts.DisplayAlways
+			info.arg1 = PetTracker.MaxQuality
+			info.checked = (PetTracker.sets.targetQuality == info.arg1)
+			MSA_DropDownMenu_AddButton(info, level)
+
+			info.text = texts.DisplayMissingRares
+			info.arg1 = PetTracker.MaxPlayerQuality
+			info.checked = (PetTracker.sets.targetQuality == info.arg1)
+			MSA_DropDownMenu_AddButton(info, level)
+
+			info.text = texts.DisplayMissingPets
+			info.arg1 = 1
+			info.checked = (PetTracker.sets.targetQuality == info.arg1)
+			MSA_DropDownMenu_AddButton(info, level)
+		end
+	end
 end
 
 -- External ------------------------------------------------------------------------------------------------------------
@@ -273,6 +337,7 @@ function M:OnEnable()
 	SetHooks()
 
 	KT:RegSignal("OPTIONS_CHANGED", "Update", self)
+	KT:RegSignal("FILTER_MENU_UPDATE", FilterMenuUpdate, self)
 	KT:RegEvent("PLAYER_ENTERING_WORLD", Event_PLAYER_ENTERING_WORLD)
 end
 

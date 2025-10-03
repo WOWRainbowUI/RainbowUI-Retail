@@ -60,7 +60,7 @@ local KTSetShown, KTSetWidth, KTSetHeight, KTSetPoint, KTClearAllPoints, KTSetSc
 
 -- Prototype -----------------------------------------------------------------------------------------------------------
 
----@type KT|Options|Hacks|Filters|Events|QuestLog|ActiveButton|AddonPetTracker|AddonTomTom|AddonOthers|Help
+---@type KT|Options|Hacks|Filters|Events|QuestLog|ActiveButton|AddonPetTracker|AddonTomTom|AddonRareScanner|AddonOthers|Help
 local prototype = {}
 
 ---SetForced (prototype)
@@ -280,6 +280,7 @@ local function Init()
 	KT:MoveTracker()
 	KT:SetBackground()
 	KT:SetText(true)
+	KT:SendSignal("OPTIONS_CHANGED")
 
 	KT.stopUpdate = false
 	KT.inWorld = true
@@ -2535,6 +2536,8 @@ function KT:SetBackground()
 	end
 
 	KTF.Bar.texture:SetColorTexture(self.borderColor.r, self.borderColor.g, self.borderColor.b, db.borderAlpha)
+
+	self:SendSignal("OPTIONS_CHANGED")
 end
 
 -- TODO: Rename function
@@ -2941,7 +2944,7 @@ function KT:OnEnable()
 
 	self:RegSignal("OPTIONS_CHANGED", "Update")
 	self:RegEvent("PLAYER_ENTERING_WORLD", function(eventID, ...)
-		KT_ObjectiveTrackerManager:OnPlayerEnteringWorld(...)
+		KT.ObjectiveTrackerManager:OnPlayerEnteringWorld(...)
 		Init()
 		self:UnregEvent(eventID)
 	end)
@@ -2951,6 +2954,7 @@ function KT:OnEnable()
 	self.Events:Enable()
 	if self.AddonPetTracker.isLoaded then self.AddonPetTracker:Enable() end
 	if self.AddonTomTom.isLoaded then self.AddonTomTom:Enable() end
+	if self.AddonRareScanner.isLoaded then self.AddonRareScanner:Enable() end
 	self.AddonOthers:Enable()
 	if db.qiActiveButton then self.ActiveButton:Enable() end
 	self.Help:Enable()
