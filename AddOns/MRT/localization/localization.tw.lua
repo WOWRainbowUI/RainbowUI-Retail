@@ -138,6 +138,8 @@ L.NoteUndo = "撤銷"
 L.NoteUndoTip = "撤銷最近更新"
 L.NoteBossAutoLoadPersonal = "個人註記使用自動載入"
 L.NoteFontTextAlign = "文字對齊"
+L.NoteHelp12 = "此代碼中的文字 (\"...\" 以現前範例) 將被移除顯示。"
+L.NoteTimersOnlyMyEnableAllNames = "在顯示行隱藏其他名字"
 
 L.setminimap1 = "隱藏小地圖圖示"
 L.setauthor = "作者"

@@ -361,6 +361,13 @@ formats:
 {time:2:30,wa:nzoth_hs1}	--run weakauras custom event MRT_NOTE_TIME_EVENT with arg1 = nzoth_hs1, arg2 = time left (event runs every second when timer has 5 seconds or lower), arg3 = note line text
 ]]
 
+local mynamelowered = MRT.SDB.charName:lower()
+local function GSUB_Time_hideOtherNames(name)
+	if name:gsub("|c........",""):gsub("|r",""):lower() ~= mynamelowered then
+		return ""
+	end
+end
+
 local function GSUB_Time(preText,t,msg,newlinesym)
 	local timeText, opts = strsplit(",", t, 2)
 
@@ -459,8 +466,13 @@ local function GSUB_Time(preText,t,msg,newlinesym)
 		end
 	end
 
-	if not msg:find(MRT.SDB.charName) and not msg:find("{everyone}") and VMRT.Note.TimerOnlyMy and not isAllParam then
+	if VMRT.Note.TimerOnlyMy and not isAllParam and not msg:find(MRT.SDB.charName) and not msg:find("{everyone}") then
 		return ""
+	end
+
+	--remove all names in line format: 0:00 - Name1 {spell:0}  Name2 {spell:0}
+	if VMRT.Note.TimerOnlyMy and not VMRT.Note.TimerOnlyMyEnableAllNames and msg:find("^%d+:%d+.-%- ") then
+		msg = msg:gsub("([^ %-]+) |T.-|t *",GSUB_Time_hideOtherNames)
 	end
 
 	if time > 10 or not module.db.encounter_time or anyType == 2 then
@@ -2483,7 +2495,7 @@ function module.options:Load()
 		self:tooltipReload(self)
 	end)
 
-	self.sliderscale = ELib:Slider(self.tab.tabs[2],L.messagebutscale):Size(300):Point("TOPLEFT",self.slideralphaback,"BOTTOMLEFT",0,-20):Range(5,200):SetTo(VMRT.Note.Scale or 100):OnChange(function(self,event) 
+	self.sliderscale = ELib:Slider(self.tab.tabs[2],L.messagebutscale):Size(300):Point("TOP",self.slideralpha,"TOP",0,0):Point("LEFT",self.slideralpha,"RIGHT",50,0):Range(5,200):SetTo(VMRT.Note.Scale or 100):OnChange(function(self,event) 
 		event = event - event%1
 		VMRT.Note.Scale = event
 		module.allframes:ScaleFix(event/100)
@@ -2491,7 +2503,7 @@ function module.options:Load()
 		self:tooltipReload(self)
 	end)
 
-	self.moreOptionsDropDown = ELib:DropDown(self.tab.tabs[2],275,#frameStrataList+1):Point("TOPLEFT",self.sliderscale,"BOTTOMLEFT",0,-15):Size(300):SetText(L.NoteFrameStrata)
+	self.moreOptionsDropDown = ELib:DropDown(self.tab.tabs[2],275,#frameStrataList+1):Point("TOPLEFT",self.slideralphaback,"BOTTOMLEFT",0,-15):Size(300):SetText(L.NoteFrameStrata)
 
 	local function moreOptionsDropDown_SetVaule(_,arg)
 		VMRT.Note.Strata = arg
@@ -2547,6 +2559,15 @@ function module.options:Load()
 			VMRT.Note.TimerOnlyMy = true
 		else
 			VMRT.Note.TimerOnlyMy = nil
+		end
+		module.allframes:UpdateText()
+	end)
+
+	self.chkTimersOnlyMyEnableAllNames = ELib:Check(self.tab.tabs[2],L.NoteTimersOnlyMyEnableAllNames,not VMRT.Note.TimerOnlyMyEnableAllNames):Point("TOPLEFT",self.chkTimersOnlyMy,"BOTTOMLEFT",25,-5):OnClick(function(self) 
+		if self:GetChecked() then
+			VMRT.Note.TimerOnlyMyEnableAllNames = nil
+		else
+			VMRT.Note.TimerOnlyMyEnableAllNames = true
 		end
 		module.allframes:UpdateText()
 	end)
@@ -3054,7 +3075,8 @@ function module.options:Load()
 		(MRT.isClassic and "|n|cffffff00{race:|r|cff00ff00troll,orc|r|cffffff00}|r...|cffffff00{/race}|r - "..L.NoteHelp11 or "")..
 		(MRT.isClassic and "|n|cffffff00{!race:|r|cff00ff00dwarf|r|cffffff00}|r...|cffffff00{/race}|r - "..L.NoteHelp11b or "")..
 		("|n|cffffff00{time:|r|cff00ff002:45|r|cffffff00}|r - "..L.NoteHelp7 or "")..
-		(not MRT.isClassic and "|n|cffffff00{p|r|cff00ff002|r|cffffff00}|r...|cffffff00{/p}|r - "..L.NoteHelp9 or "")
+		(not MRT.isClassic and "|n|cffffff00{p|r|cff00ff002|r|cffffff00}|r...|cffffff00{/p}|r - "..L.NoteHelp9 or "")..
+		"|n|cffffff00{0}|r...|cffffff00{/0}|r - "..L.NoteHelp12
 	):Point("TOPLEFT",10,-20):Point("TOPRIGHT",-10,-20):Color()
 
 	self.advancedHelp = ELib:Button(self.tab.tabs[4],L.NoteHelpAdvanced):Size(400,20):Point("TOP",self.textHelp,"BOTTOM",0,-20):OnClick(function() 
@@ -3155,14 +3177,27 @@ local function NoteWindow_OnDragStop(self)
 	VMRT.Note[self.Name.."Top"] = self:GetTop()
 end
 
+local function NoteWindow_UpdateMaxSymbolsLimit(self)
+	local width_, height_ = self:GetSize()
+
+	local fontSize = VMRT and VMRT.Note and VMRT.Note.FontSize or 12
+
+	local maxPerLine = ceil(width_ / (fontSize / 4))
+	local maxLines = ceil(height_ / (fontSize / 4))
+
+	self.maxSymbols = (maxLines + 1) * (maxPerLine + 5)
+end
+
 local function NoteWindow_OnSizeChanged(self, width, height)
 	local width_, height_ = self:GetSize()
+	self:UpdateMaxSymbolsLimit()
 	if VMRT and VMRT.Note then
 		VMRT.Note[self.Name.."Width"] = width
 		VMRT.Note[self.Name.."Height"] = height
 
 		self:UpdateText()
 	end
+
 	self.sf.C:SetWidth( width_ )
 end
 
@@ -3190,6 +3225,8 @@ local function NoteWindow_UpdateFont(self)
 			c = c + 1
 		end
 	end
+
+	self:UpdateMaxSymbolsLimit()
 end
 
 local function NoteWindow_UpdateText(self,onlyTimerUpdate)
@@ -3201,6 +3238,10 @@ local function NoteWindow_UpdateText(self,onlyTimerUpdate)
 	while self["text"..c] do
 		self["text"..c]:SetText(" ")
 		c = c + 1
+	end
+
+	if self.maxSymbols and #text > self.maxSymbols then
+		text = text:sub(1,self.maxSymbols)
 	end
 	
 	if #text > 8192 then
@@ -3422,6 +3463,7 @@ function module:CreateNoteWindow(windowName,isCustomWindow)
 	frame.Enable = NoteWindow_Enable
 	frame.Disable = NoteWindow_Disable
 	frame.ScaleFix = NoteWindow_ScaleFix
+	frame.UpdateMaxSymbolsLimit = NoteWindow_UpdateMaxSymbolsLimit
 
 	frame.GetRawText = NoteWindow_RawNull
 	
