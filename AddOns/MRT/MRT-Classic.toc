@@ -1,9 +1,9 @@
-## Interface: 40402, 11507, 50500
+## Interface: 40402, 11507, 50500, 50501
 ## Title: Method Raid Tools
 ## Author: ykiigor
 ## Notes: Method Raid Tools
 ## SavedVariables: VMRT
-## Version: 5215
+## Version: 5220
 core.lua
 Functions.lua
 embeds.xml

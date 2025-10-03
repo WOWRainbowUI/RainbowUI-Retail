@@ -725,7 +725,7 @@ function module.options:Load()
 	end
 
 	local inspectScantip = CreateFrame("GameTooltip", "ExRTInspectViewerScanningTooltip", nil, "GameTooltipTemplate")
-	inspectScantip:SetOwner(UIParent, "ANCHOR_NONE")
+	inspectScantip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
 	local ScanRelicType_STR = RELIC_TOOLTIP_TYPE:gsub("([%(%)])","%%%1"):gsub("%%s","(.-)")
 	local ScanRelicType_Cache = {}

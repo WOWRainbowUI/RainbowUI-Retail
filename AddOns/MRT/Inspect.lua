@@ -105,7 +105,7 @@ end
 local inspectScantip 
 if ExRT.isClassic then
 	inspectScantip = CreateFrame("GameTooltip", "ExRTInspectScanningTooltip", nil, "GameTooltipTemplate")
-	inspectScantip:SetOwner(UIParent, "ANCHOR_NONE")
+	inspectScantip:SetOwner(WorldFrame, "ANCHOR_NONE")
 end
 
 do

@@ -469,7 +469,7 @@ module.db.RaidCheckReadyCheckTable = {}
 module.db.RaidCheckReadyPPLNum = 0
 module.db.RaidCheckReadyCheckHideSchedule = nil
 
-module.db.tableRunes = {[224001]=5,[270058]=6,[317065]=6,[347901]=18,[367405]=18,[393438]=87,[453250]=87,[1234969]=733}
+module.db.tableRunes = {[224001]=5,[270058]=6,[317065]=6,[347901]=18,[367405]=18,[393438]=87,[453250]=87,[1234969]=733,[1242347]=733}
 
 module.db.durability = {}
 module.db.oil = {}
@@ -3558,6 +3558,8 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 
 	local rune_item_id = IS_TWW and 224572 or IS_DF and 201325 or 181468
 	local rune_texture = IS_TWW and 4549102 or IS_DF and 4644002 or 134078
+	local rune_item_id2 = 246492
+	local rune_texture2 = 1345086
 	local rune_unlim_item_id = IS_TWW and 243191 or IS_DF and 211495 or 190384
 	local rune_unlim_texture = IS_TWW and 3566863 or IS_DF and 348535 or 4224736
 
@@ -4136,6 +4138,13 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 		end
 
 		local runeCount = GetItemCount(rune_item_id,false,true)
+		local runeSecondItem
+		if runeCount == 0 then
+			runeCount = GetItemCount(rune_item_id2,false,true)
+			if runeCount and runeCount > 0 then
+				runeSecondItem = true
+			end
+		end
 		local runeUnlim = GetItemCount(rune_unlim_item_id,false,true)
 		if VMRT.RaidCheck.OnlyUnlimRune then
 			runeCount = 0
@@ -4157,8 +4166,8 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 		elseif runeCount and runeCount > 0 then
 			self.buttons.rune.count:SetFormattedText("%d",runeCount)
 			if not InCombatLockdown() then
-				self.buttons.rune.texture:SetTexture(rune_texture)
-				local itemName = GetItemInfo(rune_item_id)
+				self.buttons.rune.texture:SetTexture(runeSecondItem and rune_texture2 or rune_texture)
+				local itemName = GetItemInfo(runeSecondItem and rune_item_id2 or rune_item_id)
 				if itemName then
 					self.buttons.rune.click:SetAttribute("macrotext1", format("/stopmacro [combat]\n/use %s", itemName))
 					self.buttons.rune.click:Show()

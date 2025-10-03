@@ -1,6 +1,14 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5220
+* Note: option "Hide lines with timers but without my name" now also hides names of other players in shown line (for Name {spell:X} formatting)
+* Raid check: added Soulgorged Augment Rune support
+* Fixes
+
+v.5220-MoP
+* Fixes for autochange loot distribution
+
 v.5215
 * Added Ethereal Augment Rune support
 * Data updates
