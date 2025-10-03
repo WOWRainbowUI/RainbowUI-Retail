@@ -9,6 +9,7 @@ local _, KT = ...
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
+local contextFlags = {}
 local lastContextKey
 
 local function GetContext()
@@ -38,6 +39,9 @@ local function GetContext()
     end
     if C_PetBattles.IsInBattle() then
         add("petbattle")
+    end
+    if contextFlags.rare then
+        add("rare")
     end
 
     return result
@@ -81,8 +85,14 @@ local function Visibility_ApplyAction()
 end
 KT:RegSignal("OPTIONS_CHANGED", Visibility_ApplyAction, {})
 
+local function Visibility_OnFlag(self, name, state)
+    contextFlags[name] = state and true or false
+    Visibility_ApplyAction()
+end
+
 KT:RegEvent("PLAYER_ENTERING_WORLD", Visibility_ApplyAction)
 KT:RegEvent("ZONE_CHANGED_NEW_AREA", Visibility_ApplyAction)
 KT:RegEvent("CHALLENGE_MODE_START", Visibility_ApplyAction)
 KT:RegEvent("PET_BATTLE_OPENING_START", Visibility_ApplyAction)
 KT:RegEvent("PET_BATTLE_CLOSE", Visibility_ApplyAction)
+KT:RegSignal("VISIBILITY_FLAG", Visibility_OnFlag, {})

@@ -1,3 +1,4 @@
+---@type KT
 local _, KT = ...
 
 KT_ObjectiveTrackerModuleState = EnumUtil.MakeEnum(
@@ -259,7 +260,7 @@ function KT_ObjectiveTrackerModuleMixin:ClearHeightModifier(key)
 end
 
 function KT_ObjectiveTrackerModuleMixin:AcquireFrame(template)
-	local frame, isNew = KT_ObjectiveTrackerManager:AcquireFrame(self, template);
+	local frame, isNew = KT.ObjectiveTrackerManager:AcquireFrame(self, template);
 	frame:SetParent(self.ContentsFrame);
 	return frame, isNew;
 end
@@ -336,7 +337,7 @@ function KT_ObjectiveTrackerModuleMixin:FreeBlock(block)
 	self:RemoveBlockFromCache(block, fromFreeBlock);
 	block:Free();
 	self.usedBlocks[block.template][block.id] = nil;
-	KT_ObjectiveTrackerManager:ReleaseFrame(block);
+	KT.ObjectiveTrackerManager:ReleaseFrame(block);
 	self:OnFreeBlock(block);
 end
 
@@ -505,7 +506,7 @@ function KT_ObjectiveTrackerModuleMixin:IsCollapsed()
 end
 
 function KT_ObjectiveTrackerModuleMixin:GetContextMenuParent()
-	return KT_ObjectiveTrackerManager:GetContainerForModule(self);
+	return KT.ObjectiveTrackerManager:GetContainerForModule(self);
 end
 
 function KT_ObjectiveTrackerModuleMixin:GetTimerBar(key)
@@ -543,7 +544,7 @@ function KT_ObjectiveTrackerModuleMixin:FreeUnusedTimerBars()
 		for key, timerBar in pairs(self.usedTimerBars) do
 			if not timerBar.used then
 				self.usedTimerBars[key] = nil;
-				KT_ObjectiveTrackerManager:ReleaseFrame(timerBar);
+				KT.ObjectiveTrackerManager:ReleaseFrame(timerBar);
 			end
 		end
 	end
@@ -591,7 +592,7 @@ function KT_ObjectiveTrackerModuleMixin:FreeUnusedProgressBars()
 				if progressBar.OnFree then
 					progressBar:OnFree();
 				end
-				KT_ObjectiveTrackerManager:ReleaseFrame(progressBar);
+				KT.ObjectiveTrackerManager:ReleaseFrame(progressBar);
 			end
 		end
 	end
@@ -631,7 +632,7 @@ function KT_ObjectiveTrackerModuleMixin:FreeUnusedRightEdgeFrames()
 		for key, frame in pairs(self.usedRightEdgeFrames) do
 			if not frame.used then
 				self.usedRightEdgeFrames[key] = nil;
-				KT_ObjectiveTrackerManager:ReleaseFrame(frame);
+				KT.ObjectiveTrackerManager:ReleaseFrame(frame);
 			end
 		end
 	end

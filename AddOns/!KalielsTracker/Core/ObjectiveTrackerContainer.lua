@@ -1,4 +1,5 @@
-local addonName, KT = ...
+---@type KT
+local _, KT = ...
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 

@@ -1,3 +1,6 @@
+---@type KT
+local _, KT = ...
+
 -- *****************************************************************************************************
 -- ***** ANIM LINE
 -- *****************************************************************************************************
@@ -106,7 +109,7 @@ end
 
 function KT_ObjectiveTrackerAnimBlockMixin:OnAnimFinished()
 	if self.activeAnim ~= self.AddAnim then
-		if not KT_ObjectiveTrackerManager:HasRewardsToastForBlock(self) then
+		if not KT.ObjectiveTrackerManager:HasRewardsToastForBlock(self) then
 			self.parentModule:RemoveBlockFromCache(self);
 			self.parentModule:MarkDirty();
 		end

@@ -1,30 +1,31 @@
+---@type KT
 local _, KT = ...
 
-KT_ObjectiveTrackerManager = {
+KT.ObjectiveTrackerManager = {
 	containers = { },
 	moduleToContainerMap = { },
 	backgroundAlpha = 0,
 };
 
-function KT_ObjectiveTrackerManager:AssignModulesOrder(modules)
+function KT.ObjectiveTrackerManager:AssignModulesOrder(modules)
 	for i, module in ipairs(modules) do
 		module.uiOrder = i;
 	end
 end
 
-function KT_ObjectiveTrackerManager:AddContainer(container)
+function KT.ObjectiveTrackerManager:AddContainer(container)
 	self.containers[container] = true;
 	-- pass current alpha to new container
 	container:OnAdded(self.backgroundAlpha);
 end
 
-function KT_ObjectiveTrackerManager:UpdateAll()
+function KT.ObjectiveTrackerManager:UpdateAll()
 	for container in pairs(self.containers) do
 		container:Update();
 	end
 end
 
-function KT_ObjectiveTrackerManager:UpdateModule(module)
+function KT.ObjectiveTrackerManager:UpdateModule(module)
 	-- check that module is assigned
 	local container = self:GetContainerForModule(module);
 	if container then
@@ -32,11 +33,11 @@ function KT_ObjectiveTrackerManager:UpdateModule(module)
 	end
 end
 
-function KT_ObjectiveTrackerManager:GetContainerForModule(module)
+function KT.ObjectiveTrackerManager:GetContainerForModule(module)
 	return self.moduleToContainerMap[module];
 end
 
-function KT_ObjectiveTrackerManager:SetModuleContainer(module, container)
+function KT.ObjectiveTrackerManager:SetModuleContainer(module, container)
 	if not self.containers[container] then
 		return;
 	end
@@ -49,7 +50,7 @@ function KT_ObjectiveTrackerManager:SetModuleContainer(module, container)
 	container:AddModule(module);
 end
 
-function KT_ObjectiveTrackerManager:AcquireFrame(parent, template)
+function KT.ObjectiveTrackerManager:AcquireFrame(parent, template)
 	if not self.poolCollection then
 		self.poolCollection = CreateFramePoolCollection();
 		self.templateTypes = { };
@@ -70,11 +71,11 @@ function KT_ObjectiveTrackerManager:AcquireFrame(parent, template)
 	return frame, isNew;
 end
 
-function KT_ObjectiveTrackerManager:ReleaseFrame(frame)
+function KT.ObjectiveTrackerManager:ReleaseFrame(frame)
 	self.poolCollection:Release(frame);
 end
 
-function KT_ObjectiveTrackerManager:SetOpacity(opacity)
+function KT.ObjectiveTrackerManager:SetOpacity(opacity)
 	self.backgroundAlpha = (opacity or 0) / 100;
 	for container in pairs(self.containers) do
 		container:SetBackgroundAlpha(self.backgroundAlpha);
@@ -85,7 +86,7 @@ local minLineFontSize = 12;
 local maxLineFontSize = 20;
 local headerExtraSize = 2;
 
-function KT_ObjectiveTrackerManager:SetTextSize(textSize)
+function KT.ObjectiveTrackerManager:SetTextSize(textSize)
 	if textSize < minLineFontSize or textSize > maxLineFontSize then
 		return;
 	end
@@ -98,7 +99,7 @@ function KT_ObjectiveTrackerManager:SetTextSize(textSize)
 end
 
 -- Rewards Toast
-function KT_ObjectiveTrackerManager:ShowRewardsToast(rewards, module, block, headerText, callback)
+function KT.ObjectiveTrackerManager:ShowRewardsToast(rewards, module, block, headerText, callback)
 	if not rewards or #rewards == 0 then
 		return;
 	end
@@ -113,11 +114,11 @@ function KT_ObjectiveTrackerManager:ShowRewardsToast(rewards, module, block, hea
 	rewardsToast:ShowRewards(rewards, module, block, headerText, callback);
 end
 
-function KT_ObjectiveTrackerManager:HideRewardsToast(rewardsToast)
+function KT.ObjectiveTrackerManager:HideRewardsToast(rewardsToast)
 	self.rewardsToastPool:Release(rewardsToast);
 end
 
-function KT_ObjectiveTrackerManager:HasRewardsToastForBlock(block)
+function KT.ObjectiveTrackerManager:HasRewardsToastForBlock(block)
 	if not self.rewardsToastPool then
 		return false;
 	end
@@ -132,26 +133,26 @@ end
 
 -- questPOI cvar
 
-function KT_ObjectiveTrackerManager:UpdatePOIEnabled(enabled)
+function KT.ObjectiveTrackerManager:UpdatePOIEnabled(enabled)
 	self.questPOIEnabled = enabled;
 	for module in pairs(self.questPOIEnabledModules) do
 		module:MarkDirty();
 	end
 end
 
-function KT_ObjectiveTrackerManager:OnVariablesLoaded()
+function KT.ObjectiveTrackerManager:OnVariablesLoaded()
 	local enabled = GetCVarBool("questPOI");
 	self:UpdatePOIEnabled(enabled);
 end
 
-function KT_ObjectiveTrackerManager:OnCVarChanged(cvar, value)
+function KT.ObjectiveTrackerManager:OnCVarChanged(cvar, value)
 	if cvar == "questPOI" then
 		local enabled = value == "1";
 		self:UpdatePOIEnabled(enabled);
 	end
 end
 
-function KT_ObjectiveTrackerManager:CanShowPOIs(module)
+function KT.ObjectiveTrackerManager:CanShowPOIs(module)
 	if self.questPOIEnabled == nil then
 		self.questPOIEnabled = GetCVarBool("questPOI");
 		self.questPOIEnabledModules = { };
@@ -166,7 +167,7 @@ function KT_ObjectiveTrackerManager:CanShowPOIs(module)
 	return self.questPOIEnabled;
 end
 
-function KT_ObjectiveTrackerManager:EnumerateActiveBlocksByTag(tag, callback)
+function KT.ObjectiveTrackerManager:EnumerateActiveBlocksByTag(tag, callback)
 	local ContainerEnumerateActiveModuleBlocksByTag = function(module)
 		if module:MatchesTag(tag) then
 			module:EnumerateActiveBlocks(callback);
@@ -178,7 +179,7 @@ function KT_ObjectiveTrackerManager:EnumerateActiveBlocksByTag(tag, callback)
 	end
 end
 
-function KT_ObjectiveTrackerManager:OnPlayerEnteringWorld(isInitialLogin, isReloadingUI)
+function KT.ObjectiveTrackerManager:OnPlayerEnteringWorld(isInitialLogin, isReloadingUI)
 	if not isInitialLogin and not isReloadingUI then
 		return;
 	end
@@ -204,4 +205,4 @@ function KT_ObjectiveTrackerManager:OnPlayerEnteringWorld(isInitialLogin, isRelo
 	end
 end
 
---EventRegistry:RegisterFrameEventAndCallback("PLAYER_ENTERING_WORLD", KT_ObjectiveTrackerManager.OnPlayerEnteringWorld, KT_ObjectiveTrackerManager);  -- MSA
+--EventRegistry:RegisterFrameEventAndCallback("PLAYER_ENTERING_WORLD", KT.ObjectiveTrackerManager.OnPlayerEnteringWorld, KT.ObjectiveTrackerManager);  -- MSA

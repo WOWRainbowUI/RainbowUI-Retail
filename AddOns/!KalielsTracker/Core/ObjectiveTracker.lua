@@ -1,3 +1,6 @@
+---@type KT
+local _, KT = ...
+
 KT_ObjectiveTrackerFrameMixin = { };
 
 function KT_ObjectiveTrackerFrameMixin:OnLoad()

@@ -1,3 +1,4 @@
+---@type KT
 local _, KT = ...
 
 function KT.GetRecipeID(block)  -- MSA

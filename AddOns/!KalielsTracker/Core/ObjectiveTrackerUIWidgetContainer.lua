@@ -1,3 +1,6 @@
+---@type KT
+local _, KT = ...
+
 local settings = {
 	headerText = TRACKER_HEADER_SCENARIO,
 	events = { "ZONE_CHANGED_NEW_AREA" },

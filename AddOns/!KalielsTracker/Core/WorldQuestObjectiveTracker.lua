@@ -1,3 +1,6 @@
+---@type KT
+local _, KT = ...
+
 local settings = {
 	headerText = TRACKER_HEADER_WORLD_QUESTS,
 	events = { "QUEST_TURNED_IN", "QUEST_LOG_UPDATE", "QUEST_WATCH_LIST_CHANGED", "QUEST_ACCEPTED", "SUPER_TRACKING_CHANGED" },

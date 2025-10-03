@@ -1,3 +1,4 @@
+---@type KT
 local _, KT = ...
 
 local questItems = { };

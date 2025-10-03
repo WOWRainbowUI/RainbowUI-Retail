@@ -53,6 +53,7 @@ local atlas = {
     background1 = { file = KT.MEDIA_PATH.."KT-HeaderBackground-1", w = 512, h = 64 },
     background2 = { file = KT.MEDIA_PATH.."KT-HeaderBackground-2", w = 16, h = 64 },
     background3 = { file = KT.MEDIA_PATH.."KT-HeaderBackground-3", w = 16, h = 64 },
+    arrows = { file = KT.MEDIA_PATH.."KT-Arrows", w = 16, h = 32 },
 }
 
 local sprites = {
@@ -62,6 +63,8 @@ local sprites = {
     ["module-header-bgr-1"] = { atlas = atlas.background1, w = 298, h = 24, x = 4, y = 37 },
     ["module-header-bgr-2"] = { atlas = atlas.background2, w = 16, h = 24, x = 0, y = 37 },
     ["module-header-bgr-3"] = { atlas = atlas.background3, w = 16, h = 24, x = 0, y = 37 },
+    ["arrow-left"] = { atlas = atlas.arrows, w = 8, h = 21, x = 0, y = 0 },
+    ["arrow-right"] = { atlas = atlas.arrows, w = 8, h = 21, x = 8, y = 0 },
 }
 
 function KT.SetSprite(texture, name, setSize)

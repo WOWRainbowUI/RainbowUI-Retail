@@ -15,6 +15,8 @@ local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 local db, dbChar
 local OTF = KT_ObjectiveTrackerFrame
+local EVENT_LONG_DURATION_LIMIT = 86400
+local EVENT_LONG_DURATION = {}
 
 local settings = {
     headerText = EVENTS_LABEL,
@@ -28,7 +30,7 @@ KT_EventObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin,
 -- Internal ------------------------------------------------------------------------------------------------------------
 
 local function SetHooks()
-    hooksecurefunc(KT_ObjectiveTrackerManager, "OnPlayerEnteringWorld", function(self, isInitialLogin, isReloadingUI)
+    hooksecurefunc(KT.ObjectiveTrackerManager, "OnPlayerEnteringWorld", function(self, isInitialLogin, isReloadingUI)
         self:SetModuleContainer(KT_EventObjectiveTracker, OTF)
     end)
 end
@@ -105,16 +107,24 @@ function KT_EventObjectiveTrackerMixin:LayoutContents()
     end
 
     -- Scheduled Events (active)
+    local showLong = dbChar.filter.events.showLong
+    local numLong = 0
     local scheduledEvents = C_EventScheduler.GetScheduledEvents()
     if scheduledEvents then
         local timeNow = time()
         for _, eventInfo in ipairs(scheduledEvents) do
             if not eventInfo.rewardsClaimed then
-                local uiMapID = nil
-                local poiInfo = GetEventPOI(uiMapID, eventInfo.areaPoiID)
+                local poiInfo = GetEventPOI(nil, eventInfo.areaPoiID)
                 if poiInfo then
                     if eventInfo.startTime <= timeNow and eventInfo.endTime > timeNow then
-                        self:AddEvent(poiInfo, eventInfo)
+                        local duration = eventInfo.endTime - eventInfo.startTime
+                        local isShort = (duration < EVENT_LONG_DURATION_LIMIT)
+                        if isShort then
+                            self:AddEvent(poiInfo, eventInfo)
+                        elseif showLong then
+                            numLong = numLong + 1
+                            EVENT_LONG_DURATION[numLong] = { poiInfo, eventInfo }
+                        end
                     elseif eventInfo.startTime > timeNow then
                         if self.tickerSeconds == 0 then
                             self.nextUpdateTime = eventInfo.startTime
@@ -124,10 +134,14 @@ function KT_EventObjectiveTrackerMixin:LayoutContents()
                 end
             end
         end
+        for i = 1, numLong do
+            local poiInfo, eventInfo = EVENT_LONG_DURATION[i][1], EVENT_LONG_DURATION[i][2]
+            self:AddEvent(poiInfo, eventInfo)
+        end
     end
 
     -- Ongoing Events
-    if dbChar.filter.events.showOngoing then
+    if showLong then
         local ongoingEvents = C_EventScheduler.GetOngoingEvents()
         if ongoingEvents then
             for _, eventInfo in ipairs(ongoingEvents) do

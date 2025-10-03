@@ -38,8 +38,8 @@ local textures = { "無", "預設 (暴雪)", "單線", "雙線" }
 local modifiers = { [""] = "無", ["ALT"] = "Alt", ["CTRL"] = "Ctrl", ["ALT-CTRL"] = "Alt + Ctrl" }
 local SOUND_CHANNELS = { "Master", "Music", "SFX", "Ambience" }
 local SOUND_CHANNELS_LOCALIZED = { Master = "主聲道", Music = MUSIC_VOLUME, SFX = FX_VOLUME, Ambience = AMBIENCE_VOLUME }
-local VISIBILITY_CONTEXTS = { "world", "city", "dungeon", "mythicplus", "raid", "arena", "battleground", "petbattle" }
-local VISIBILITY_CONTEXTS_LOCALIZED = { world = "野外", city = "城內", dungeon = "地城", mythicplus = "M+", raid = "團隊", arena = "競技場", battleground = "戰場", petbattle = "寵物對戰" }
+local VISIBILITY_CONTEXTS = { "world", "city", "dungeon", "mythicplus", "raid", "arena", "battleground", "petbattle", "rare" }
+local VISIBILITY_CONTEXTS_LOCALIZED = { world = "野外", city = "城內", dungeon = "地城", mythicplus = "M+", raid = "團隊", arena = "競技場", battleground = "戰場", petbattle = "寵物對戰", rare = "稀有怪" }
 local VISIBILITY_OPTIONS = { "show", "hide", "expand", "collapse" }
 local VISIBILITY_OPTIONS_LOCALIZED = { show = "顯示", hide = "隱藏", expand = "顯示 + 展開", collapse = "顯示 + 收合" }
 local realmZones = { ["EU"] = "歐洲", ["NA"] = "北美" }
@@ -139,6 +139,7 @@ local defaults = {
 		addonMasque = false,
 		addonPetTracker = true,
 		addonTomTom = false,
+		addonRareScanner = false,
 		addonAuctionator = false,
 		addonBtWQuests = false,
 
@@ -1593,7 +1594,7 @@ local options = {
 							order = 0,
 						},
 						activeContextLabel = {
-							name = "\n 你現在位於 ...\n ",
+							name = "\n 現用規則 ...\n ",
 							type = "description",
 							width = 0.7,
 							fontSize = "medium",
@@ -1759,6 +1760,29 @@ local options = {
 							width = "double",
 							order = 3.2,
 						},
+						addonRareScanner = {
+							name = "稀有怪掃描 RareScanner",
+							desc = "版本: %s",
+							descStyle = "inline",
+							type = "toggle",
+							width = 1.05,
+							confirm = true,
+							confirmText = warning,
+							disabled = function()
+								return not C_AddOns.IsAddOnLoaded("RareScanner")
+							end,
+							set = function()
+								db.addonRareScanner = not db.addonRareScanner
+								ReloadUI()
+							end,
+							order = 4.1,
+						},
+						addonRareScannerDesc = {
+							name = beta.." 啟用在追蹤清單中顯示偵測到的稀有怪。",
+							type = "description",
+							width = "double",
+							order = 4.2,
+						},
 						addonAuctionator = {
 							name = "拍賣小幫手 Auctionator",
 							desc = "版本: %s",
@@ -1774,17 +1798,17 @@ local options = {
 								db.addonAuctionator = not db.addonAuctionator
 								ReloadUI()
 							end,
-							order = 4.1,
+							order = 5.1,
 						},
 						addonAuctionatorDesc = {
 							name = "啟用在專業模組標題列中顯示拍賣小幫手的搜尋按鈕。",
 							type = "description",
 							width = "double",
-							order = 4.2,
+							order = 5.2,
 						},
 						addonBtWQuests = {
-							name = "BtWQuests",
-							desc = "Version: %s",
+							name = "任務指南 BtWQuests",
+							desc = "版本: %s",
 							descStyle = "inline",
 							type = "toggle",
 							width = 1.05,
@@ -1797,13 +1821,13 @@ local options = {
 								db.addonBtWQuests = not db.addonBtWQuests
 								ReloadUI()
 							end,
-							order = 5.1,
+							order = 6.1,
 						},
 						addonBtWQuestsDesc = {
-							name = "Enables an \"Open Quest Chain\" option in the Quest context menu.",
+							name = "啟用在任務右鍵選單中的 \"打開任務串\" 選項。",
 							type = "description",
 							width = "double",
-							order = 5.2,
+							order = 6.2,
 						},
 					},
 				},
@@ -1836,11 +1860,11 @@ local options = {
 			},
 		},
 		hacks = {
-			name = "駭客工具",
+			name = "遊戲修正",
 			type = "group",
 			args = {
 				desc = {
-					name = cWarning.."警告:|r 駭客工具可能會影響其他插件\n\n請回報任何未提及的負面影響。",
+					name = cWarning.."警告:|r 遊戲修正可能會影響其他插件\n\n請回報任何未提及的負面影響。",
 					type = "description",
 					order = 0,
 				},
@@ -1851,9 +1875,9 @@ local options = {
 					order = 1,
 					args = {
 						hackLFG = {
-							name = "尋求組隊駭客工具",
+							name = "尋求組隊修正",
 							desc = cBold.."影響在任務追蹤清單中尋找隊伍用的小眼睛。|r"..
-									"啟用駭客工具時按鈕可以正常使用，不會發生錯誤。停用時將無法使用按鈕。\n\n"..
+									"啟用遊戲修正時按鈕可以正常使用，不會發生錯誤。停用時將無法使用按鈕。\n\n"..
 									cWarning2.."負面影響:|r\n"..
 									"- 建立預組隊伍的對話框不會自動設定好 \"標題\"，\n"..
 									"  例如 M+ 鑰石層數。\n",
@@ -1877,10 +1901,10 @@ local options = {
 					order = 2,
 					args = {
 						hackWorldMap = {
-							name = "世界地圖駭客工具 "..beta,
+							name = "世界地圖修正 "..beta,
 							desc = cBold.."影響世界地圖|r並且移除汙染錯誤。"..
-									"這個駭客工具避免呼叫受限制的函數。"..
-									"停用駭客工具時，世界地圖顯示會導致錯誤。"..
+									"這個遊戲修正避免呼叫受限制的函數。"..
+									"停用遊戲修正時，世界地圖顯示會導致錯誤。"..
 									"由於追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
 									cWarning2.."負面影響:|r 在魔獸世界 11.2.0 尚未可知。\n",
 							descStyle = "inline",
@@ -2309,7 +2333,7 @@ function M:OnEnable()
 	KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
 		SetAlert("trackedQuests")
 		SetupModules()
-		Mover_UpdateOptions()
+		Mover_SetScale()
 		KT:RegEvent("UI_SCALE_CHANGED", function()
 			Mover_SetScale()
 		end)

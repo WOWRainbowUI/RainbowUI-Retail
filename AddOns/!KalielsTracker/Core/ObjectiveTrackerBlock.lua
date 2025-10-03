@@ -1,3 +1,4 @@
+---@type KT
 local _, KT = ...
 
 KT_ObjectiveTrackerBlockMixin = CreateFromMixins(KT_ObjectiveTrackerSlidingMixin);
@@ -92,7 +93,7 @@ function KT_ObjectiveTrackerBlockMixin:GetLine(objectiveKey, optTemplate)
 	
 	-- acquire a new line if needed
 	if not line then
-		line = KT_ObjectiveTrackerManager:AcquireFrame(self, template);
+		line = KT.ObjectiveTrackerManager:AcquireFrame(self, template);
 		line:SetParent(self);
 		line:Show();		
 	end
@@ -118,7 +119,7 @@ end
 
 function KT_ObjectiveTrackerBlockMixin:FreeLine(line)
 	self.usedLines[line.objectiveKey] = nil;
-	KT_ObjectiveTrackerManager:ReleaseFrame(line);
+	KT.ObjectiveTrackerManager:ReleaseFrame(line);
 	line:Hide();
 	if line.OnFree then
 		line:OnFree(self);

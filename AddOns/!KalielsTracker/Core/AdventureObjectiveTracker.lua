@@ -1,3 +1,4 @@
+---@type KT
 local _, KT = ...
 
 -- Which tracking targets we expect will have a 3d position to navigate to.
@@ -180,7 +181,7 @@ function KT_AdventureObjectiveTrackerMixin:ProcessTrackingEntry(trackableType, t
 			return false;
 		end
 		
-		if KT_ObjectiveTrackerManager:CanShowPOIs(self) then
+		if KT.ObjectiveTrackerManager:CanShowPOIs(self) then
 			local poiButton = self:GetButtonForTrackable(trackableType, trackableID);
 			if poiButton then
 				poiButton:SetPoint("TOPRIGHT", block.HeaderText, "TOPLEFT", -7, 5);
@@ -257,7 +258,7 @@ function KT_AdventureObjectiveTrackerMixin:OnTrackableItemCollected(trackableTyp
 		callback = GenerateClosure(self.OnShowRewardsToastDone, self, block);
 	end
 
-	KT_ObjectiveTrackerManager:ShowRewardsToast(rewards, self, block, COLLECTED, callback);
+	KT.ObjectiveTrackerManager:ShowRewardsToast(rewards, self, block, COLLECTED, callback);
 
 	if not self.collectedIds then
 		self.collectedIds = { };

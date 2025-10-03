@@ -1,3 +1,6 @@
+---@type KT
+local _, KT = ...
+
 local settings = {
 	headerText = TRACKER_HEADER_CAMPAIGN_QUESTS,
 	events = { "QUEST_LOG_UPDATE", "QUEST_WATCH_LIST_CHANGED" },

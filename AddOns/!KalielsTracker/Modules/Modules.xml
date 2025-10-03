@@ -10,6 +10,8 @@
 	<Script file="Addon_PetTracker.lua"/>
 	<Include file="Addon_PetTracker.xml"/>
 	<Script file="Addon_TomTom.lua"/>
+	<Script file="Addon_RareScanner.lua"/>
+	<Include file="Addon_RareScanner.xml"/>
 	<Script file="Addon_Others.lua"/>
 	<Script file="Help.lua"/>
 </Ui>

@@ -21,7 +21,7 @@ local ICON_HEART = "|T"..HELP_PATH.."help_patreon:14:14:2:0:256:32:174:190:0:16|
 
 local db, dbChar
 local helpName = "help"
-local helpNumPages = 13
+local helpNumPages = 14
 local supportersName = "supporters"
 local supportersNumPages = 1
 local cTitle = "|cffffd200"
@@ -215,6 +215,33 @@ local function SetupTutorials()
 			shineRight = 6,
 		},
 		{	-- 8
+			heading = "         遊戲修正",
+			text = "預設會啟用所有遊戲修正，可以在 "..KT.TITLE.." 的設定選項 (\"遊戲修正\") 中停用。\n\n"..
+					cWarning.."警告:|r 遊戲修正可能會影響其他插件!!\n\n"..
+					cTitle.."尋求組隊修正|r\n\n"..
+					cBold.."影響在任務追蹤清單中尋找隊伍用的小眼睛。|r"..
+					"啟用遊戲修正時按鈕可以正常使用，不會發生錯誤。停用時將無法使用按鈕。\n\n"..
+					cWarning2.."負面影響:|r\n"..
+					"- 建立預組隊伍的對話框不會自動設定好 \"標題\"，"..
+					offs.."例如 M+ 鑰石層數。\n\n"..
+					cTitle.."世界地圖修正|r "..beta.."\n\n"..
+					cBold.."影響世界地圖|r並且移除汙染錯誤。"..
+					"這個遊戲修正避免呼叫受限制的函數。"..
+					"停用遊戲修正時，世界地圖顯示會導致錯誤。"..
+					"由於任務追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
+					cWarning2.."負面影響:|r 在魔獸世界 11.2.0 尚未可知。",
+		},
+		{	-- 9
+			image = HELP_PATH.."help_events",
+			heading = "事件",
+			text = "事件模組會在追蹤清單中顯示當前進行中的事件。它們通常可在世界地圖上看到。\n\n"..
+					"過濾下拉選單選項：\n"..
+					"- "..cBold.."追蹤事件|r – 啟用或停用在追蹤清單中追蹤事件。\n"..
+					"- "..cBold.."顯示長期事件|r – 除了當前進行中的事件，還會顯示那些"..
+					offs.."持續 24 小時或更久的事件。",
+		},
+
+		{	-- 10
 			image = HELP_PATH.."help_addon-masque",
 			heading = "支援插件 Masque",
 			text = "Masque 提供更改任務物品按鈕外觀的功能，同時也會影響當前任務物品按鈕 (請看上一頁)。\n".. -- Combined translation
@@ -228,7 +255,7 @@ local function SetupTutorials()
 				}
 			},
 		},
-		{	-- 9
+		{	-- 11
 			image = HELP_PATH.."help_addon-pettracker",
 			heading = "支援插件 PetTracker",
 			text = "支援在任務追蹤清單增強裡面顯示 PetTracker 的區域寵物追蹤，同時也修正了顯示上的一些問題。\n"..
@@ -242,7 +269,7 @@ local function SetupTutorials()
 				}
 			},
 		},
-		{	-- 10
+		{	-- 12
 			image = HELP_PATH.."help_addon-tomtom",
 			heading = "支援插件 TomTom",
 			text = "TomTom 的支援性整合了暴雪的 POI 和 TomTom 的導航箭頭。\n\n"..
@@ -271,32 +298,30 @@ local function SetupTutorials()
 			shineLeft = -11,
 			shineRight = 11,
 		},
-		{	-- 11
-			heading = "         駭客工具",
-			text = "預設會啟用所有駭客工具，可以在 "..KT.TITLE.." 的設定選項 (\"駭客工具\") 中停用。\n\n"..
-					cWarning.."警告:|r 駭客工具可能會影響其他插件!!\n\n"..
-					cTitle.."尋求組隊駭客|r\n\n"..
-					cBold.."影響在任務追蹤清單中尋找隊伍用的小眼睛。|r"..
-					"啟用駭客工具時按鈕可以正常使用，不會發生錯誤。停用時將無法使用按鈕。\n\n"..
-					cWarning2.."負面影響:|r\n"..
-					"- 建立預組隊伍的對話框不會自動設定好 \"標題\"，"..
-					offs.."例如 M+ 鑰石層數。\n\n"..
-					cTitle.."世界地圖駭客|r "..beta.."\n\n"..
-					cBold.."影響世界地圖|r並且移除汙染錯誤。"..
-					"這個駭客工具避免呼叫受限制的函數。"..
-					"停用駭客工具時，世界地圖顯示會導致錯誤。"..
-					"由於任務追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-					cWarning2.."負面影響:|r 在魔獸世界 11.2.0 尚未可知。",
-		},
-		{	-- 12
-			image = HELP_PATH.."help_events",
-			heading = "事件",
-			text = "事件模組會在追蹤清單中顯示正在進行以及已排程的事件。這些事件通常可以在世界地圖上看到。\n\n"..
-			"過濾方式下拉選單選項：\n"..
-			"- "..cBold.."追蹤事件|r – 啟用或停用在追蹤清單內追蹤事件。\n"..
-			"- "..cBold.."顯示進行中事件|r – 除了"..offs.."已排程的事件外，還會顯示當前進行中的事件。",
-		},
 		{	-- 13
+			image = HELP_PATH.."help_addon-rarescanner",
+			heading = "支援插件 RareScanner "..beta,
+			text = "RareScanner 支援會取代原本的 RareScanner 按鈕，並將偵測到的稀有 NPC "..
+					"直接顯示在任務追蹤清單內，作為獨立模組。\n\n"..
+					"功能：\n"..
+					"- 僅顯示稀有 NPC - 模型與名稱。寶藏/寶箱不會顯示。\n"..
+					"- 顯示戰利品圖示與浮動提示資訊 (若有在 RareScanner 中啟用)。\n"..
+					"- "..cBold.."左鍵點擊|r - 建立 TomTom 導航 (若有在 RareScanner 中啟用)。\n"..
+					"- "..cBold.."右鍵點擊|r - 從追蹤清單移除已偵測到的 NPC。\n"..
+					"- 由於暴雪的限制，不支援透過左鍵點擊選取 NPC。"..
+					offs.."請使用 RareScanner 的按鍵綁定進行選取。\n"..
+					"- RareScanner 的其他設定皆會反映在此模組的行為上。\n"..
+					AddonInfo("RareScanner"),
+			editbox = {
+				{
+					icon = ICON_URL,
+					text = "https://www.curseforge.com/wow/addons/rarescanner",
+					width = 510,
+					bottom = 2,
+				}
+			},
+		},
+		{	-- 14
 			image = HELP_PATH.."help_whats-new_logo",
 			imageWidth = 512,
 			imageHeight = 128,
@@ -310,24 +335,23 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "如果你喜歡 "..KT.TITLE.."，請考慮在 Patreon 贊助 "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
+					(cTitle.."版本 7.14.0|r\n"..
+					"- 新增 - 支援插件 - RareScanner 11.2.0.12 (啟用在追蹤清單中顯示偵測到的稀有怪。)，請看說明第 13 頁\n"..
+					"- 變更 - 支援插件 - TomTom 4.0.17\n"..
+					"- 變更 - 支援插件 - Auctionator 296\n"..
+					"- 變更 - 選項 - 新增根據偵測到稀有怪的顯示規則\n"..
+					"- 變更 (說明) - Active Patrons\n"..
+					"- 變更 - 事件 - 顯示/隱藏長期事件的選項 (24h+)\n"..
+					"\n")..
+
 					(cTitle.."版本 7.13.1|r\n"..
-					"- 變更 - 世界地圖駭客功能 - 改善\n"..
+					"- 變更 - 世界地圖修正 - 改善\n"..
 					"\n")..
 
 					(cTitle.."版本 7.13.0|r\n"..
 					"- 變更 - 改善隊伍同步反應\n"..
 					"- 變更 - 選項 - 將指令移至控制區塊，重新命名一個指令\n"..
 					"- 修正 - 開啟隊伍同步時的錯誤\n"..
-					"\n")..
-
-					(cTitle.."版本 7.12.0|r\n"..
-					"- 新增 - 選項 - 新的控制設定區塊，包含按鍵綁定和顯示規則\n"..
-					"- 新增 - 選項 - 控制追蹤清單的按鍵綁定 (收合、隱藏、鎖定最近任務、使用當前任務物品)\n"..
-					"- 新增 - 選項 - 聲音通道選擇，以及防止音效重疊播放\n"..
-					"- 新增 - 選項 - 追蹤清單的顯示規則 (可依情境設定顯示/隱藏/展開/收合)\n"..
-					"- 新增 - 支援魔獸世界 11.2.0.62493\n"..
-					"- 新增 - 支援插件 - BtWQuests 2.55.0 (在任務右鍵選單中可開啟任務串選項)\n"..
-					"- 修正 (事件) - 不會自動顯示 M+ 計數器\n"..
 					"\n")..
 
 					cTitle.."問題回報|r\n"..
@@ -416,6 +440,7 @@ local function SetupTutorials()
                     SetFormatedPatronName("Uncommon", "Charles Howarth")..
                     SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
                     SetFormatedPatronName("Uncommon", "Mystekal")..
+                    SetFormatedPatronName("Uncommon", "Paul Westervelt")..
                     SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
                     SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
                     SetFormatedPatronName("Common", "Darren Divecha")..
