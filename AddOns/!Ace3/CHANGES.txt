@@ -1,4 +1,26 @@
 ------------------------------------------------------------------------
+r1370 | nevcairiel | 2025-10-03 00:16:25 +0000 (Fri, 03 Oct 2025) | 1 line
+Changed paths:
+   M /trunk
+   M /trunk/.luacheckrc
+
+Update luacheck for chat changes
+------------------------------------------------------------------------
+r1369 | nevcairiel | 2025-10-02 23:56:28 +0000 (Thu, 02 Oct 2025) | 1 line
+Changed paths:
+   M /trunk
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-EditBox.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-MultiLineEditBox.lua
+
+AceGUI-3.0: EditBox: Fix InsertLink hook for 12.0
+------------------------------------------------------------------------
+r1368 | nevcairiel | 2025-10-02 23:52:43 +0000 (Thu, 02 Oct 2025) | 1 line
+Changed paths:
+   M /trunk
+   M /trunk/AceComm-3.0/ChatThrottleLib.lua
+
+ChatThrottleLib: Properly use the right namespace for SendChatMessage
+------------------------------------------------------------------------
 r1367 | funkehdude | 2025-09-08 17:06:01 +0000 (Mon, 08 Sep 2025) | 1 line
 Changed paths:
    M /trunk/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua
