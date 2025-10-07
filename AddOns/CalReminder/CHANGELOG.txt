@@ -1,4 +1,7 @@
-﻿- v1.3.6
+﻿- v1.3.7
+	- TOC for 11.2.5.
+	- Added: Xal'atath quotes.
+- v1.3.6
 	- TOC for 11.2.0.
 - v1.3.5
 	- TOC for 11.1.7.
