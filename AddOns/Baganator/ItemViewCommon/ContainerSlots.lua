@@ -5,7 +5,8 @@ local swapTracker = CreateFrame("Frame")
 
 function ApplyCursor(targetInventorySlot, associatedTargetBag)
   local location = C_Cursor.GetCursorItem()
-  if location == nil or not C_Item.DoesItemExist(location) or select(6, C_Item.GetItemInfoInstant(C_Item.GetItemID(location))) ~= Enum.ItemClass.Container then
+  -- Handle bags dragged from other equipment slots or items dropped into bags
+  if location == nil or not location:HasAnyLocation() or not C_Item.DoesItemExist(location) or select(6, C_Item.GetItemInfoInstant(C_Item.GetItemID(location))) ~= Enum.ItemClass.Container then
     PutItemInBag(targetInventorySlot)
     return
   end

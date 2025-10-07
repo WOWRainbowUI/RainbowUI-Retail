@@ -551,7 +551,7 @@ BaganatorRetailLiveContainerItemButtonMixin = {}
 
 function BaganatorRetailLiveContainerItemButtonMixin:MyOnLoad()
   AddRetailBackground(self)
-  self:HookScript("OnClick", function()
+  self:HookScript("OnClick", function(_, mouseButton)
     if not self.BGR or not self.BGR.itemID then
       return
     end
@@ -561,7 +561,6 @@ function BaganatorRetailLiveContainerItemButtonMixin:MyOnLoad()
     end
   end)
   self:HookScript("PreClick", self.PreClickHook)
-  self:HookScript("PostClick", self.PostClickHook)
 
   self:HookScript("OnShow", self.OnShowHook)
   self:HookScript("OnHide", self.OnHideHook)
@@ -587,18 +586,16 @@ function BaganatorRetailLiveContainerItemButtonMixin:MyOnLoad()
   end)
 end
 
-local queue = {}
-local callbackHolder = {}
 function BaganatorRetailLiveContainerItemButtonMixin:PreClickHook(mouseButton)
   if mouseButton == "RightButton" and not IsModifiedClick() and BankFrame:IsShown() and BankPanel:IsShown() and tIndexOf(Syndicator.Constants.AllBagIndexes, self:GetParent():GetID()) ~= nil and 
       self.BGR.itemLocation and C_Item.DoesItemExist(self.BGR.itemLocation) and C_Bank.IsItemAllowedInBankType(BankPanel:GetActiveBankType(), self.BGR.itemLocation) then
     addonTable.BankTransferManager:Queue(self:GetParent():GetID(), self:GetID())
-  end
-end
-
-function BaganatorRetailLiveContainerItemButtonMixin:PostClickHook()
-  if BankFrame:IsShown() and self.BGR and BankFrame.activeTabIndex ~= addonTable.Constants.BlizzardBankTabConstants.Warband then
-    BankFrame.selectedTab = 1
+  elseif self.BGR and self.BGR.itemID and not IsModifierKeyDown() then
+    if SpellCanTargetItem() or SpellCanTargetItemID() then
+      addonTable.CallbackRegistry:TriggerEvent("ItemSpellTargeted", self.BGR.itemID)
+    elseif C_Item.GetItemSpell(self.BGR.itemID) and mouseButton == "RightButton" then
+      addonTable.CallbackRegistry:TriggerEvent("ItemSpellUsed", self.BGR.itemID)
+    end
   end
 end
 
@@ -1015,6 +1012,8 @@ function BaganatorClassicLiveContainerItemButtonMixin:MyOnLoad()
     end
   end)
 
+  self:HookScript("PreClick", self.PreClickHook)
+
   self:SetScript("OnEnter", self.OnEnter)
   self:SetScript("OnLeave", self.OnLeave)
 
@@ -1027,6 +1026,18 @@ function BaganatorClassicLiveContainerItemButtonMixin:MyOnLoad()
   self.ItemContextOverlay:SetColorTexture(0, 0, 0, 0.8)
   self.ItemContextOverlay:SetAllPoints()
   self.ItemContextOverlay:Hide()
+end
+
+function BaganatorClassicLiveContainerItemButtonMixin:PreClickHook(mouseButton)
+  if mouseButton == "RightButton" and not IsModifiedClick() and BankFrame:IsShown() and tIndexOf(Syndicator.Constants.AllBagIndexes, self:GetParent():GetID()) ~= nil then
+    return
+  elseif self.BGR and self.BGR.itemID and not IsModifierKeyDown() then
+    if SpellCanTargetItem() or SpellCanTargetItemID() then
+      addonTable.CallbackRegistry:TriggerEvent("ItemSpellTargeted", self.BGR.itemID)
+    elseif C_Item.GetItemSpell(self.BGR.itemID) and mouseButton == "RightButton" then
+      addonTable.CallbackRegistry:TriggerEvent("ItemSpellUsed", self.BGR.itemID)
+    end
+  end
 end
 
 function BaganatorClassicLiveContainerItemButtonMixin:OnShowHook()

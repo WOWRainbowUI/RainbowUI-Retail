@@ -43,6 +43,7 @@ local groupingsToLabels = {}
 local groupingGetters = {}
 do
   groupings["expansion"] = {
+    "Midnight",
     "The War Within",
     "Dragonflight",
     "Shadowlands",
@@ -57,7 +58,7 @@ do
   }
   groupingsToLabels["expansion"] = {}
   for index, label in ipairs(groupings["expansion"]) do
-    groupingsToLabels["expansion"][11 - index] = label
+    groupingsToLabels["expansion"][12 - index] = label
   end
   groupingGetters["expansion"] = function(item)
     if item.expansion then
