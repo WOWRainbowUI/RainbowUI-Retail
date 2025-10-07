@@ -1,6 +1,6 @@
 # Baganator
 
-## [758](https://github.com/TheMouseNest/Baganator/tree/758) (2025-09-28)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/757...758) 
+## [762](https://github.com/TheMouseNest/Baganator/tree/762) (2025-10-03)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/761...762) 
 
-- Remove "Recent character tabs" due to them breaking after MoP server merge  
+- Fix issue with guild data fault breaking money tooltip display  
