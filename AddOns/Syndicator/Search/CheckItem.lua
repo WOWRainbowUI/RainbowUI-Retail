@@ -1222,6 +1222,7 @@ local TextToExpansion = {
   ["tww"] = 10,
   ["war within"] = 10,
   ["the war within"] = 10,
+  ["midnight"] = 11,
 }
 
 function Syndicator.Search.GetExpansion(details)
