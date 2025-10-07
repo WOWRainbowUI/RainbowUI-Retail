@@ -1,4 +1,4 @@
-## Interface: 110200, 110205
+## Interface: 110200, 110205, 120000
 ## X-Min-Interface: 110200
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Main Core|r
@@ -19,7 +19,7 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## Author: MysticalOS, QartemisT
-## Version: 11.2.18
+## Version: 12.0.0
 ## X-Curse-Project-ID: 3358
 ## X-Wago-ID: qv633o6b
 ## X-Website: https://deadlybossmods.com
@@ -62,9 +62,9 @@ commonlocal.kr.lua
 commonlocal.ru.lua
 
 # Pre-core modules
+modules\objects\GameVersion.lua
 modules\objects\PrototypeRegistry.lua
 modules\objects\Testing.lua
-modules\objects\GameVersion.lua
 modules\objects\StringUtils.lua
 modules\objects\TableUtils.lua
 modules\objects\StandardFont.lua
