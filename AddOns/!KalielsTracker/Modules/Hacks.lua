@@ -45,7 +45,7 @@ end
 -- Affects the World Map and removes taint errors. The hack prevents calls to restricted functions.
 -- When the hack is inactive, the World Map display causes errors. It is not possible to get rid of these errors,
 -- since the tracker has a lot of interaction with the game frames.
--- Negative impacts: unknown in WoW 11.2.0
+-- Negative impacts: unknown in WoW 11.2.5
 local function Hack_WorldMap()
     if db.hackWorldMap then
         -- Blizzard_MapCanvas.lua
