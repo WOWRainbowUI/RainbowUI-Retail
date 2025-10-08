@@ -117,9 +117,12 @@ local function CleanupFade(self)
 	PlayerMovementFrameFader.RemoveFrame(self);
 end
 
-DR.mainFrame = CreateFrame("Frame", "DragonRiderMainFrame", UIParent, "PortraitFrameTemplateMinimizable")
+DR.mainFrame = CreateFrame("Frame", "DragonRiderMainFrame", UIParent, "PortraitFrameTemplate")
 tinsert(UISpecialFrames, DR.mainFrame:GetName())
 DR.mainFrame:SetPortraitTextureRaw("Interface\\ICONS\\Ability_DragonRiding_Glyph01")
+local DRportrait = DR.mainFrame.PortraitContainer.portrait
+DRportrait:SetTexCoord(0.03, 1, 0.03, 1) -- centers the icon a little bit more, since there was a large gap in the top / left
+
 --DR.mainFrame.PortraitContainer.portrait:SetTexture("Interface\\AddOns\\Languages\\Languages_Icon_Small")
 DR.mainFrame:SetTitle(L["DragonRider"])
 DR.mainFrame:SetSize(550,525)
@@ -138,23 +141,36 @@ DR.mainFrame:SetScript("OnHide", function()
 	PlaySound(74423);
 end);
 
+--[[
+-- cool funni dragon portrait, maybe for something cool some day
+DR.mainFrame.PortraitDragon = CreateFrame("Frame", nil, DR.mainFrame.PortraitContainer)
+DR.mainFrame.PortraitDragon:SetPoint("CENTER", DR.mainFrame.PortraitContainer, "CENTER", 13, -22)
+DR.mainFrame.PortraitDragon:SetSize(99, 81)
+DR.mainFrame.PortraitDragon:SetFrameLevel(700)
+
+DR.mainFrame.PortraitDragon.tex = DR.mainFrame.PortraitDragon:CreateTexture()
+DR.mainFrame.PortraitDragon.tex:SetAllPoints()
+DR.mainFrame.PortraitDragon.tex:SetAtlas("UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold-Winged")
+DR.mainFrame.PortraitDragon.tex:SetTexCoord(1, 0, 0, 1)
+]]
+
 
 DR.mainFrame.portraitTooltipThing = CreateFrame("Frame", nil, DR.mainFrame);
-DR.mainFrame.portraitTooltipThing:SetAllPoints(DragonRiderMainFramePortrait);
+DR.mainFrame.portraitTooltipThing:SetAllPoints(DRportrait);
 
 local function AddTimerunnerLines(tooltip)
 	tooltip:AddLine("|A:timerunning-glues-icon:0:0:0:0|a |cFFFFF569"..L["TimerunningStatistics"] .. "|r", 1, 1, 1, 1, true);
 
-	if not DragonRider_DB or not DragonRider_DB.Timerunner then return end
+	if not DragonRider_DB or not DragonRider_DB.Timerunner or not DragonRider_DB.Timerunner[2] then return end
 
 	local entries = {
-		{ key = "Creature_Demonfly",   value = DragonRider_DB.Timerunner.Demonfly },
-		{ key = "Creature_Darkglare",  value = DragonRider_DB.Timerunner.Darkglare },
-		{ key = "Creature_FelSpreader",value = DragonRider_DB.Timerunner.FelSpreader },
-		{ key = "Creature_Felbat",     value = DragonRider_DB.Timerunner.Felbat },
-		{ key = "Creature_Felbomber",  value = DragonRider_DB.Timerunner.Felbomber },
-		{ key = "Creature_Skyterror",  value = DragonRider_DB.Timerunner.Skyterror },
-		{ key = "Creature_EyeOfGreed", value = DragonRider_DB.Timerunner.EyeOfGreed },
+		{ key = "Creature_Demonfly",   value = DragonRider_DB.Timerunner[2].Demonfly },
+		{ key = "Creature_Darkglare",  value = DragonRider_DB.Timerunner[2].Darkglare },
+		{ key = "Creature_FelSpreader",value = DragonRider_DB.Timerunner[2].FelSpreader },
+		{ key = "Creature_Felbat",     value = DragonRider_DB.Timerunner[2].Felbat },
+		{ key = "Creature_Felbomber",  value = DragonRider_DB.Timerunner[2].Felbomber },
+		{ key = "Creature_Skyterror",  value = DragonRider_DB.Timerunner[2].Skyterror },
+		{ key = "Creature_EyeOfGreed", value = DragonRider_DB.Timerunner[2].EyeOfGreed },
 	}
 
 	local needsRefresh = false
@@ -193,7 +209,7 @@ local function AddTimerunnerLines(tooltip)
 	local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(3252)
 	if currencyInfo then
 		local currencyName = currencyInfo.name or L["Unknown"]
-		local bronzeValue = DragonRider_DB.Timerunner.Bronze or 0
+		local bronzeValue = DragonRider_DB.Timerunner[2].Bronze or 0
 		tooltip:AddDoubleLine(
 			string.format("|A:timerunning-infographic-bullet:0:0:0:0|a "..L["SkyridingCurrencyGained"], currencyName),
 			bronzeValue,
@@ -209,7 +225,8 @@ end
 
 
 DR.mainFrame.portraitTooltipThing:SetScript("OnEnter", function(self)
-	if not PlayerGetTimerunningSeasonID() then return end
+	local SeasonID = PlayerGetTimerunningSeasonID()
+	if not SeasonID then return end
 	GameTooltip:SetOwner(self, "ANCHOR_TOP")
 	AddTimerunnerLines(GameTooltip)
 	GameTooltip:Show()
@@ -218,6 +235,134 @@ end)
 DR.mainFrame.portraitTooltipThing:SetScript("OnLeave", function()
 	GameTooltip:Hide()
 end)
+
+
+function DR.mainFrame.CreateDragonRiderFlipbook()
+	if not DR or not DR.mainFrame or not DRportrait then
+		return
+	end
+
+	local frame = CreateFrame("Frame", nil, DR.mainFrame)
+	frame:SetSize(100, 100)
+	frame:SetPoint("CENTER", DRportrait, "CENTER", 10, -10)
+	frame:SetFrameLevel(800) -- yes really it has to be this high
+
+	local tex = frame:CreateTexture()
+	tex:SetAllPoints(frame)
+	tex:SetAtlas("timerunning-fx-cornerswoop-flipbook")
+	frame.tex = tex
+
+
+	local animGroup = frame:CreateAnimationGroup()
+	frame.animGroup = animGroup
+	animGroup:SetLooping("REPEAT")
+	animGroup:SetToFinalAlpha(true)
+
+	local flipAnim = animGroup:CreateAnimation("FlipBook")
+	flipAnim:SetChildKey("tex")
+	flipAnim:SetDuration(2)
+	flipAnim:SetOrder(1)
+	flipAnim:SetFlipBookRows(7)
+	flipAnim:SetFlipBookColumns(9)
+	flipAnim:SetFlipBookFrames(63)
+	flipAnim:SetFlipBookFrameWidth(0)
+	flipAnim:SetFlipBookFrameHeight(0)
+
+	frame:SetScript("OnShow", function(self) self.animGroup:Play() end)
+	frame:SetScript("OnHide", function(self) self.animGroup:Stop() end)
+
+	DR.mainFrame.TimerunningFlipbook = frame
+end
+
+
+function DR.mainFrame.CreateDragonRiderFlipbookRotated()
+	if not DR or not DR.mainFrame or not DRportrait then
+		return
+	end
+
+	local frame = CreateFrame("Frame", nil, DR.mainFrame)
+	frame:SetSize(60, 60)
+	frame:SetPoint("CENTER", DRportrait, "CENTER", 0, 0)
+	frame:SetFrameLevel(800)
+
+	local tex = frame:CreateTexture()
+	tex:SetAllPoints(frame)
+	tex:SetAtlas("timerunning-fx-cornerswoop-flipbook")
+	tex:SetRotation(math.pi)
+	frame.tex = tex
+
+
+	local animGroup = frame:CreateAnimationGroup()
+	frame.animGroup = animGroup
+	animGroup:SetLooping("REPEAT")
+	animGroup:SetToFinalAlpha(true)
+
+	local flipAnim = animGroup:CreateAnimation("FlipBook")
+	flipAnim:SetChildKey("tex")
+	flipAnim:SetDuration(1.5)
+	flipAnim:SetOrder(15) -- makes it so it isn't as obvious a repeat
+	flipAnim:SetFlipBookRows(7)
+	flipAnim:SetFlipBookColumns(9)
+	flipAnim:SetFlipBookFrames(63)
+	flipAnim:SetFlipBookFrameWidth(0)
+	flipAnim:SetFlipBookFrameHeight(0)
+
+	frame:SetScript("OnShow", function(self) self.animGroup:Play() end)
+	frame:SetScript("OnHide", function(self) self.animGroup:Stop() end)
+
+	DR.mainFrame.TimerunningFlipbook = frame
+end
+
+function DR.mainFrame.CreateFadeIcon()
+	if not DR or not DR.mainFrame or not DRportrait then
+		return
+	end
+
+	local frame = CreateFrame("Frame", "FadeIconExample", DR.mainFrame)
+	frame:SetSize(60, 60)
+	frame:SetPoint("CENTER", DRportrait, "CENTER", 0, 0)
+	frame:SetFrameLevel(800)
+
+	local tex = frame:CreateTexture(nil, "ARTWORK")
+	tex:SetAllPoints(frame)
+	tex:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\TimerunningIcon")
+	frame.tex = tex
+
+	local ag = tex:CreateAnimationGroup()
+	ag:SetLooping("NONE")
+
+	-- step 1 - delay at alpha 0
+	local hold = ag:CreateAnimation("Alpha")
+	hold:SetFromAlpha(0)
+	hold:SetToAlpha(0)
+	hold:SetDuration(5.0) -- hold faded
+	hold:SetOrder(1)
+
+	-- step 2 - fade in
+	local fadeIn = ag:CreateAnimation("Alpha")
+	fadeIn:SetFromAlpha(0)
+	fadeIn:SetToAlpha(1)
+	fadeIn:SetDuration(.5)
+	fadeIn:SetOrder(2)
+
+	-- step 3 - fade out
+	local fadeOut = ag:CreateAnimation("Alpha")
+	fadeOut:SetFromAlpha(1)
+	fadeOut:SetToAlpha(0)
+	fadeOut:SetDuration(3.5)
+	fadeOut:SetOrder(3)
+
+	-- when finished, restart
+	ag:SetScript("OnFinished", function(self)
+		self:Play()
+	end)
+
+	ag:Play()
+
+	return frame
+end
+
+
 
 function DR.mainFrame.width()
 	return DR.mainFrame:GetWidth();
@@ -264,7 +409,7 @@ function DR.mainFrame.multiplayerRace_TT()
 end
  
 DR.mainFrame:SetResizable(true);
-DR.mainFrame:SetResizeBounds(338,424,992,534)
+DR.mainFrame:SetResizeBounds(365,424,992,534)
 DR.mainFrame.resizeButton = CreateFrame("Button", nil, DR.mainFrame)
 DR.mainFrame.resizeButton:SetSize(18, 18)
 DR.mainFrame.resizeButton:SetPoint("BOTTOMRIGHT")
@@ -289,11 +434,15 @@ DR.mainFrame.resizeButton:SetScript("OnMouseUp", function(self, button)
 	DR.mainFrame:StopMovingOrSizing()
 end)
 
-
+DR.mainFrame.ScrollBorder = CreateFrame("Frame", nil, DR.mainFrame, "InsetFrameTemplate3")
+local ScrollBorder = DR.mainFrame.ScrollBorder;
+ScrollBorder:SetWidth(210);
+ScrollBorder:SetPoint("TOPLEFT", DR.mainFrame, "TOPLEFT", 2, -85);
+ScrollBorder:SetPoint("BOTTOMRIGHT", DR.mainFrame, "BOTTOMRIGHT", -3, 4);
 
 DR.mainFrame.ScrollFrame = CreateFrame("ScrollFrame", nil, DR.mainFrame, "ScrollFrameTemplate")
-DR.mainFrame.ScrollFrame:SetPoint("TOPLEFT", DR.mainFrame, "TOPLEFT", 4, -8)
-DR.mainFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", DR.mainFrame, "BOTTOMRIGHT", -3, 4)
+DR.mainFrame.ScrollFrame:SetPoint("TOPLEFT", ScrollBorder, "TOPLEFT", 3, -3.5)
+DR.mainFrame.ScrollFrame:SetPoint("BOTTOMRIGHT", ScrollBorder, "BOTTOMRIGHT", -2, 2)
 DR.mainFrame.ScrollFrame.ScrollBar:ClearAllPoints()
 DR.mainFrame.ScrollFrame.ScrollBar:SetPoint("TOPLEFT", DR.mainFrame.ScrollFrame, "TOPRIGHT", -12, -18)
 DR.mainFrame.ScrollFrame.ScrollBar:SetPoint("BOTTOMLEFT", DR.mainFrame.ScrollFrame, "BOTTOMRIGHT", -7, 16)
@@ -303,6 +452,8 @@ DR.mainFrame.ScrollFrame.child = CreateFrame("Frame", nil, DR.mainFrame.ScrollFr
 DR.mainFrame.ScrollFrame:SetScrollChild(DR.mainFrame.ScrollFrame.child)
 DR.mainFrame.ScrollFrame.child:SetWidth(DR.mainFrame:GetWidth()-18)
 DR.mainFrame.ScrollFrame.child:SetHeight(1)
+
+
 
 function DR.mainFrame.Tab_OnClick(self)
 
@@ -354,7 +505,10 @@ function DR.mainFrame.SetTabs(frame,numTabs, ...)
 
 end
 
-local content1, content2, content3 = DR.mainFrame.SetTabs(DR.mainFrame, 3, L["Score"], L["Guide"], L["Settings"])
+local content1 = DR.mainFrame.SetTabs(DR.mainFrame, 1, L["Score"])
+--[[
+-- for now, disable, as this hasn't been accessible for a while. maybe one day
+--local content1, content2, content3 = DR.mainFrame.SetTabs(DR.mainFrame, 3, L["Score"], L["Guide"], L["Settings"])
 
 DragonRiderMainFrameTab2:SetEnabled(false)
 DragonRiderMainFrameTab3:SetEnabled(false)
@@ -371,15 +525,17 @@ DragonRiderMainFrameTab3:SetScript("OnEnter", function(self)
 	DR.tooltip_OnEnter(self, L["ComingSoon"])
 end);
 DragonRiderMainFrameTab3:SetScript("OnLeave", DR.tooltip_OnLeave);
+]]
+
 
 function DR.mainFrame.UpdatePopulation()
-	for k, v in ipairs(DR.DragonRaceZones) do
-		DR.mainFrame.PopulationData(k);
+	for i = 1, #DR.RaceData do
+		DR.mainFrame.PopulationData(i);
 	end
 end
 
-DR.mainFrame.accountAll_Checkbox = CreateFrame("CheckButton", nil, content1, "UICheckButtonTemplate");
-DR.mainFrame.accountAll_Checkbox:SetPoint("TOPLEFT", content1, "TOPLEFT", 55, -15);
+DR.mainFrame.accountAll_Checkbox = CreateFrame("CheckButton", nil, DR.mainFrame, "UICheckButtonTemplate");
+DR.mainFrame.accountAll_Checkbox:SetPoint("TOPLEFT", DR.mainFrame, "TOPLEFT", 55, -25);
 DR.mainFrame.accountAll_Checkbox:SetScript("OnClick", function(self)
 	if self:GetChecked() then
 		PlaySound(856);
@@ -393,7 +549,7 @@ DR.mainFrame.accountAll_Checkbox:SetScript("OnClick", function(self)
 end);
 DR.mainFrame.accountAll_Checkbox.text = DR.mainFrame.accountAll_Checkbox:CreateFontString()
 DR.mainFrame.accountAll_Checkbox.text:SetFont(STANDARD_TEXT_FONT, 11)
-DR.mainFrame.accountAll_Checkbox.text:SetPoint("LEFT", DR.mainFrame.accountAll_Checkbox, "RIGHT", -5, 0)
+DR.mainFrame.accountAll_Checkbox.text:SetPoint("LEFT", DR.mainFrame.accountAll_Checkbox, "RIGHT", 0, 0)
 DR.mainFrame.accountAll_Checkbox.text:SetText(L["UseAccountScores"])
 DR.mainFrame.accountAll_Checkbox.text:SetScript("OnEnter", function(self)
 	DR.tooltip_OnEnter(self, L["UseAccountScoresTT"])
@@ -443,7 +599,7 @@ function DR.mainFrame.WorldQuestHandler()
 		if C_TaskQuest.IsActive(v) == true then
 			WorldQuestPlacement = WorldQuestPlacement +1
 			if not DR.mainFrame["WorldQuestList_"..v] then
-				DR.mainFrame["WorldQuestList_"..v] = CreateFrame("Button", nil, content1);
+				DR.mainFrame["WorldQuestList_"..v] = CreateFrame("Button", nil, DR.mainFrame);
 				DR.mainFrame["WorldQuestList_"..v].texlower = DR.mainFrame["WorldQuestList_"..v]:CreateTexture(nil, "OVERLAY", nil, 0);
 				DR.mainFrame["WorldQuestList_"..v].texlower:SetPoint("CENTER", DR.mainFrame["WorldQuestList_"..v],"CENTER", 0,0);
 				DR.mainFrame["WorldQuestList_"..v].texlower:SetSize(35,35);
@@ -457,7 +613,7 @@ function DR.mainFrame.WorldQuestHandler()
 			DR.mainFrame["WorldQuestList_"..v].texlower:SetAtlas("UI-QuestPoi-QuestNumber");
 			DR.mainFrame["WorldQuestList_"..v].texupper:SetAtlas("worldquest-icon-race");
 			SetPortraitToTexture(DR.mainFrame["WorldQuestList_"..v].texmiddle, DR.ZoneIcons[C_Map.GetMapInfo(C_TaskQuest.GetQuestZoneID(v)).mapID]);
-			DR.mainFrame["WorldQuestList_"..v]:SetPoint("TOPLEFT", content1, "TOPLEFT", 25*WorldQuestPlacement-40, -47);
+			DR.mainFrame["WorldQuestList_"..v]:SetPoint("TOPLEFT", DR.mainFrame, "TOPLEFT", 25*WorldQuestPlacement-40, -57);
 			--DR.mainFrame["WorldQuestList_"..v]:SetParent(content1)
 			DR.mainFrame["WorldQuestList_"..v]:SetSize(20,20);
 		end
@@ -472,7 +628,7 @@ function DR.mainFrame.WorldQuestHandler()
 			DR.mainFrame["WorldQuestList_"..v].texlower:SetAtlas("UI-QuestPoi-QuestNumber");
 			DR.mainFrame["WorldQuestList_"..v].texupper:SetAtlas("worldquest-icon-race");
 			SetPortraitToTexture(DR.mainFrame["WorldQuestList_"..v].texmiddle, DR.ZoneIcons[C_Map.GetMapInfo(C_TaskQuest.GetQuestZoneID(v)).mapID]);
-			DR.mainFrame["WorldQuestList_"..v]:SetPoint("TOPLEFT", content1, "TOPLEFT", 25*WorldQuestPlacement-40, -47);
+			DR.mainFrame["WorldQuestList_"..v]:SetPoint("TOPLEFT", DR.mainFrame, "TOPLEFT", 25*WorldQuestPlacement-40, -57);
 
 			DR.mainFrame["WorldQuestList_"..v]:SetScript("OnEnter", function(self)
 
@@ -485,6 +641,9 @@ function DR.mainFrame.WorldQuestHandler()
 				end);
 
 				DR.mainFrame["WorldQuestList_"..v]:SetScript("OnClick", function(self)
+					if not UnitAffectingCombat("player") then
+						C_Map.OpenWorldMap(C_TaskQuest.GetQuestZoneID(v));
+					end
 					QuestUtil.TrackWorldQuest(v, 1)
 					C_SuperTrack.SetSuperTrackedQuestID(v);
 					PlaySound(170270);
@@ -521,8 +680,8 @@ end
 DR.mainFrame:RegisterEvent("QUEST_REMOVED")
 DR.mainFrame:SetScript("OnEvent", DR.mainFrame.WorldQuestHandler)
 
-DR.mainFrame.OpenTalentsButton = CreateFrame("Button", nil, content1, "SharedButtonTemplate")
-DR.mainFrame.OpenTalentsButton:SetPoint("TOPRIGHT", content1, "TOPRIGHT", 130, -25);
+DR.mainFrame.OpenTalentsButton = CreateFrame("Button", nil, DR.mainFrame, "SharedButtonTemplate")
+DR.mainFrame.OpenTalentsButton:SetPoint("TOPRIGHT", DR.mainFrame, "TOPRIGHT", -5, -25);
 DR.mainFrame.OpenTalentsButton:SetSize(150, 26);
 DR.mainFrame.OpenTalentsButton:SetText(L["DragonridingTalents"]);
 DR.mainFrame.OpenTalentsButton:SetScript("OnClick", function(self)
@@ -537,364 +696,205 @@ DR.mainFrame.OpenTalentsButton:SetScript("OnLeave", function()
 	GameTooltip:Hide();
 end);
 
-function DR.mainFrame.PopulationData(continent)
-	local placeValueX = 1
-	local placeValueY = 1
+function DR.mainFrame.PopulationData(continentIndex)
 	local realmKey = GetRealmName()
 	local charKey = UnitName("player") .. " - " .. realmKey
 	DR.mainFrame.WorldQuestHandler()
 
-	if DR.mainFrame.isPopulated == true then
-		--The same as below, but stripped of creating frames. This should only be used to update existing data.
-		for k, v in ipairs(DR.RaceData[continent]) do
-			local questName = DR.QuestTitleFromID[DR.RaceData[continent][k]["questID"]]
-			local silverTime = DR.RaceData[continent][k]["silverTime"]
-			local goldTime = DR.RaceData[continent][k]["goldTime"]
-			local medalBronze = "|A:challenges-medal-small-bronze:15:15|a"
-			local medalSilver = "|A:challenges-medal-small-silver:15:15|a"
-			local medalGold = "|A:challenges-medal-small-gold:15:15|a"
+	local continentData = DR.RaceData[continentIndex]
+	if not continentData or not continentData.races then return end
+	local mapID = continentData.zone
+
+	-- a list of difficulty keys in the order they appear in the UI columns
+	local difficultyOrder = {"normal", "advanced", "reverse", "challenge", "reversechallenge", "storm"}
+
+	for raceIndex, raceInfo in ipairs(continentData.races) do
+		-- handle the race name label and tracker button (the row header)
+		do
+			local questName = DR.QuestTitleFromID[raceInfo.questID]
+			local mapPOI = raceInfo.mapPOI
+			local courseLabelName = "Course"..continentIndex.."_"..raceIndex
+			local courseTrackerName = "CourseTracker"..continentIndex.."_"..raceIndex
+
+			if not DR.mainFrame[courseLabelName] then
+				-- create the race name label
+				DR.mainFrame[courseLabelName] = content1:CreateFontString()
+				DR.mainFrame[courseLabelName]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..continentIndex], "TOPLEFT", 10, -15*raceIndex-20)
+				DR.mainFrame[courseLabelName]:SetFont(STANDARD_TEXT_FONT, 11)
+				DR.mainFrame[courseLabelName]:SetParent(DR.mainFrame["backFrame"..continentIndex])
+
+				if mapPOI then
+					local trackedTooltip = (questName or "") .. "\n" .. "|A:Waypoint-MapPin-Tracked:15:15|a" ..VOICE_CHAT_CHANNEL_INACTIVE_TOOLTIP_INSTRUCTIONS
+					DR.mainFrame[courseTrackerName] = CreateFrame("Button", nil, DR.mainFrame["backFrame"..continentIndex])
+					DR.mainFrame[courseTrackerName]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..continentIndex], "TOPLEFT", 10, -15*raceIndex-20)
+					DR.mainFrame[courseTrackerName]:SetSize(120, 15)
+					DR.mainFrame[courseTrackerName]:EnableMouse(true)
+					DR.mainFrame[courseTrackerName]:SetFrameLevel(5)
+					DR.mainFrame[courseTrackerName]:SetScript("OnEnter", function(self)
+						self:SetScript("OnClick", function(self, button, down)
+
+							if not UnitAffectingCombat("player") then
+								C_Map.OpenWorldMap(mapID);
+							end
+							C_SuperTrack.SetSuperTrackedMapPin(0, mapPOI)
+							PlaySound(170270)
+						end)
+						DR.tooltip_OnEnter(self, trackedTooltip)
+					end)
+					DR.mainFrame[courseTrackerName]:SetScript("OnLeave", DR.tooltip_OnLeave)
+				end
+
+				-- adjust container height on creation
+				if raceIndex > 1 then
+					DR.mainFrame["backFrame"..continentIndex]:SetHeight(DR.mainFrame["backFrame"..continentIndex]:GetHeight()+15)
+				end
+			end
+			-- update text
+			DR.mainFrame[courseLabelName]:SetText(questName or "[PH] Loading...")
+		end
+
+		-- handle the score cells for each difficulty
+		for colIndex, difficultyKey in ipairs(difficultyOrder) do
+			local difficultyData = raceInfo[difficultyKey]
+			
+			-- generate a unique name for the score font string for this cell
+			local scoreFrameName = "ScoreFrame_"..continentIndex.."_"..raceIndex.."_"..colIndex
+			local scoreFrame = DR.mainFrame[scoreFrameName]
+
+			if not scoreFrame then
+				scoreFrame = content1:CreateFontString(nil, nil, "GameFontNormal")
+				scoreFrame:SetFont(STANDARD_TEXT_FONT, 11)
+				scoreFrame:SetPoint("TOPLEFT", DR.mainFrame.resizeFrames["middleFrame_"..colIndex..continentIndex], "TOPLEFT", 0, -15*raceIndex-20)
+				scoreFrame:SetParent(DR.mainFrame["backFrame"..continentIndex])
+				scoreFrame:SetScript("OnLeave", DR.tooltip_OnLeave)
+				DR.mainFrame[scoreFrameName] = scoreFrame
+			end
+			
+			-- logic for score calculation and display
+			local scoreValueF = ""
+			if difficultyData then
+				scoreValueF = "------"
+			end
 			local medalValue = ""
-			if placeValueX == 1 and placeValueY == 1 then
-				if DragonRider_DB.useAccountData == true then
-					DR.mainFrame["Course"..continent.."_"..placeValueY]:SetText(questName);
-				else
-					DR.mainFrame["Course"..continent.."_"..placeValueY]:SetText(questName);
-				end
-			end
-			if placeValueX > 6 then
-				placeValueX = 1
-				placeValueY = placeValueY+1
-				if DragonRider_DB.useAccountData == true then
-					DR.mainFrame["Course"..continent.."_"..placeValueY]:SetText(questName);
-				else
-					DR.mainFrame["Course"..continent.."_"..placeValueY]:SetText(questName);
-				end
-			end
-			local scoreValue
-			local scoreValueF
-			local scorePersonal
 
-			if v.currencyID ~= nil then
-				if DragonRider_DB.raceDataCollector == nil then
-					DragonRider_DB.raceDataCollector = {};
-				end
-				if DragonRider_DB.raceDataCollector[v.currencyID] then
-					if v.currencyID == DragonRider_DB.raceDataCollector[v.currencyID]["currencyID"] and (goldTime == nil or silverTime == nil) then
-						goldTime = DragonRider_DB.raceDataCollector[v.currencyID]["goldTime"];
-						silverTime = DragonRider_DB.raceDataCollector[v.currencyID]["silverTime"];
+			if difficultyData then
+				local currencyID = difficultyData.currencyID
+				local silverTime = difficultyData.silverTime
+				local goldTime = difficultyData.goldTime
+
+				local medalBronze = "|A:challenges-medal-small-bronze:15:15|a"
+				local medalSilver = "|A:challenges-medal-small-silver:15:15|a"
+				local medalGold = "|A:challenges-medal-small-gold:15:15|a"
+			
+				-- purge old data from SVs that is now in DRRaceData.lua
+				if silverTime ~= nil then
+					if DragonRider_DB.raceDataCollector and DragonRider_DB.raceDataCollector[currencyID] then
+						DragonRider_DB.raceDataCollector[currencyID] = nil
 					end
 				end
-				scoreValue = C_CurrencyInfo.GetCurrencyInfo(v.currencyID).quantity/1000;
-				scorePersonal = C_CurrencyInfo.GetCurrencyInfo(v.currencyID).quantity/1000;
-				if scoreValue == 0 then
-					scoreValue = nil;
-				end
 
-				--if DragonRider_DB.raceData == nil then
-					--DragonRider_DB.raceData[charKey] = {};
-				--end
-				--if DragonRider_DB.raceData[charKey] == nil then
-					--DragonRider_DB.raceData[charKey] = {};
-				--end
+				-- calculate scores
+				local scoreValue, scorePersonal
+				local scoreRaw = C_CurrencyInfo.GetCurrencyInfo(currencyID).quantity
+				if scoreRaw and scoreRaw > 0 then
+					scorePersonal = scoreRaw / 1000
+				end
+				scoreValue = scorePersonal
+				
+				-- handle SVs for account-wide bests
+				if DragonRider_DB.raceData == nil then DragonRider_DB.raceData = {} end
+				if DragonRider_DB.raceData["Account"] == nil then DragonRider_DB.raceData["Account"] = {} end
 
-				if DragonRider_DB.raceData == nil then
-					DragonRider_DB.raceData = {};
-				end
-				if DragonRider_DB.raceData["Account"] == nil then
-					DragonRider_DB.raceData["Account"] = {};
-				end
-				if DragonRider_DB.raceData ~= nil and scoreValue ~= 0 and scoreValue ~= nil then
-					--DragonRider_DB.raceData[charKey][v.currencyID] = scoreValue;
-					if DragonRider_DB.raceData["Account"][v.currencyID] == nil then
-						DragonRider_DB.raceData["Account"][v.currencyID] = {
-							score = scoreValue,
-							character = charKey
-						};
+				if scoreValue then
+					if DragonRider_DB.raceData["Account"][currencyID] == nil then
+						DragonRider_DB.raceData["Account"][currencyID] = { score = scoreValue, character = charKey }
+					elseif scoreValue < DragonRider_DB.raceData["Account"][currencyID]["score"] then
+						DragonRider_DB.raceData["Account"][currencyID]["score"] = scoreValue
+						DragonRider_DB.raceData["Account"][currencyID]["character"] = charKey
 					end
-					if DragonRider_DB.raceData["Account"][v.currencyID] ~= nil then
-						if  scoreValue < DragonRider_DB.raceData["Account"][v.currencyID]["score"] then
-							DragonRider_DB.raceData["Account"][v.currencyID]["score"] = scoreValue;
-							DragonRider_DB.raceData["Account"][v.currencyID]["character"] = charKey;
+				end
+				
+				if DragonRider_DB.useAccountData and DragonRider_DB.raceData["Account"][currencyID] then
+					scoreValue = DragonRider_DB.raceData["Account"][currencyID].score
+				end
+				
+				-- determine medal
+				if scoreValue and goldTime and scoreValue < goldTime then
+					medalValue = medalGold
+				elseif scoreValue and silverTime and scoreValue < silverTime then
+					medalValue = medalSilver
+				elseif scoreValue then
+					medalValue = medalBronze
+				end
+				
+				-- format display string
+				if scoreValue then
+					scoreValueF = string.format("%.3f", scoreValue)
+					if medalValue ~= "" then
+						scoreValueF = medalValue .. scoreValueF
+						if DragonRider_DB.useAccountData and DragonRider_DB.raceData["Account"][currencyID] and DragonRider_DB.raceData["Account"][currencyID].character ~= charKey then
+							scoreValueF = scoreValueF .. "*"
 						end
 					end
 				end
 
-				if DragonRider_DB.useAccountData == true then
-					if DragonRider_DB.raceData["Account"][v.currencyID] ~= nil then
-						scoreValue = DragonRider_DB.raceData["Account"][v.currencyID]["score"]
+				-- set tooltip script
+				scoreFrame:SetScript("OnEnter", function(self)
+					local accountBestScore, accountBestChar
+					if DragonRider_DB.raceData["Account"] and DragonRider_DB.raceData["Account"][currencyID] then
+						accountBestScore = DragonRider_DB.raceData["Account"][currencyID].score
+						accountBestChar = DragonRider_DB.raceData["Account"][currencyID].character
 					end
-				end
-				if scoreValue and goldTime then
-					if scoreValue < goldTime then
-						medalValue = medalGold
+
+					local pBest = scorePersonal or "------"
+					local aBest = accountBestScore or "------"
+
+					if type(pBest) == "number" and goldTime and pBest > goldTime then
+						pBest = RED_FONT_COLOR:WrapTextInColorCode(tostring(pBest))
 					end
-				end
-				if scoreValue and silverTime then
-					if scoreValue < silverTime and scoreValue > goldTime then
-						medalValue = medalSilver
+					if type(aBest) == "number" and goldTime and aBest > goldTime then
+						aBest = RED_FONT_COLOR:WrapTextInColorCode(tostring(aBest))
 					end
-					if scoreValue > silverTime then
-						medalValue = medalBronze
-					end
-				end
-
-				if scoreValue then
-					scoreValueF = string.format("%.3f", scoreValue)
-				else
-					scoreValueF = "0.000"
-				end
-
-			end
-
-			if scoreValueF == "0.000" then
-				scoreValueF = "------"
-			elseif medalValue ~= "" then
-				scoreValueF = medalValue..scoreValueF
-				if DragonRider_DB.useAccountData == true then
-					if DragonRider_DB.raceData["Account"][v.currencyID]["character"] ~= charKey then
-						scoreValueF = scoreValueF .. "*"
-					end
-				end
-			end
-
-			--Scores
-			DR.mainFrame["backFrame"..continent][k]:SetText(scoreValueF);
-
-			local accountBestScore
-			local accountBestChar
-			if DragonRider_DB.raceData["Account"] then
-				if DragonRider_DB.raceData["Account"][v.currencyID] then
-					if DragonRider_DB.raceData["Account"][v.currencyID]["character"] then
-						accountBestChar = DragonRider_DB.raceData["Account"][v.currencyID]["character"]
-					end
-					if DragonRider_DB.raceData["Account"][v.currencyID]["score"] then
-						accountBestScore = DragonRider_DB.raceData["Account"][v.currencyID]["score"] 
-					end
-				end
-			end
-
-
-			if goldTime and scorePersonal then
-				if scorePersonal > goldTime then
-					scorePersonal = tostring(scorePersonal)
-					scorePersonal = RED_FONT_COLOR:WrapTextInColorCode(scorePersonal);
-				end
-			end
-			if goldTime and accountBestScore then
-				if accountBestScore > goldTime then
-					accountBestScore = tostring(accountBestScore)
-					accountBestScore = RED_FONT_COLOR:WrapTextInColorCode(accountBestScore);
-				end
-			end
-
-			if scoreValueF == nil then
-				scoreValueF = "------"
-			end
-			if scorePersonal == nil or scorePersonal == 0 then
-				scorePersonal = "------"
-			end
-			if goldTime == nil then
-				goldTime = "------"
-			end
-			if silverTime == nil then
-				silverTime = "------"
-			end
-			if accountBestScore == nil then
-				accountBestScore = "------"
-			end
-			if accountBestChar == nil then
-				accountBestChar = "------"
-			end
-			local tooltipData = L["PersonalBest"]..scorePersonal.."\n"..L["AccountBest"]..accountBestScore.."\n"..L["BestCharacter"]..accountBestChar.."\n"..L["GoldTime"]..goldTime.."\n"..L["SilverTime"]..silverTime
-
-			DR.mainFrame["backFrame"..continent][k]:SetScript("OnEnter", function(self)
-				DR.tooltip_OnEnter(self, tooltipData)
-			end);
-			DR.mainFrame["backFrame"..continent][k]:SetScript("OnLeave", DR.tooltip_OnLeave);
-
-			placeValueX = placeValueX+1
-		end
-		return
-	end
-
-	for k, v in ipairs(DR.RaceData[continent]) do
-		--Establishing data / frames to be changed later. This should only be completed once upon login.
-		local questName = DR.QuestTitleFromID[DR.RaceData[continent][k]["questID"]]
-		local silverTime = DR.RaceData[continent][k]["silverTime"]
-		local goldTime = DR.RaceData[continent][k]["goldTime"]
-		local mapPOI = DR.RaceData[continent][k]["mapPOI"]
-		local medalBronze = "|A:challenges-medal-small-bronze:15:15|a"
-		local medalSilver = "|A:challenges-medal-small-silver:15:15|a"
-		local medalGold = "|A:challenges-medal-small-gold:15:15|a"
-		local medalValue = ""
-		local trackedTooltip = (questName or "") .. "\n" .. "|A:Waypoint-MapPin-Tracked:15:15|a" ..VOICE_CHAT_CHANNEL_INACTIVE_TOOLTIP_INSTRUCTIONS
-		-- Purge old data in the SVs that is now established in DRRaceData.lua
-		--(look at silver time because not all EK/Kalimdor Cup times were recorded yet, they're still missing)
-		if DR.RaceData[continent][k]["silverTime"] ~= nil then
-			if DragonRider_DB.raceDataCollector then
-				if DragonRider_DB.raceDataCollector[v.currencyID] then
-					DragonRider_DB.raceDataCollector[v.currencyID] = nil
-				end
-			end
-		end
-
-		if placeValueX == 1 and placeValueY == 1 then
-			DR.mainFrame["Course"..continent.."_"..placeValueY] = content1:CreateFontString();
-			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..continent], "TOPLEFT", 10, -15*placeValueY-20);
-			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetFont(STANDARD_TEXT_FONT, 11);
-			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetText(questName);
-			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetParent(DR.mainFrame["backFrame"..continent]);
-			if mapPOI then
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY] = CreateFrame("Button", nil, content1);
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..continent], "TOPLEFT", 10, -15*placeValueY-20);
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetSize(120, 15)
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetParent(DR.mainFrame["backFrame"..continent]);
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:EnableMouse(true)
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetFrameLevel(5);
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetScript("OnEnter", function(self)
-					self:SetScript("OnClick", function(self, button, down)
-						C_SuperTrack.SetSuperTrackedMapPin(0, mapPOI);
-						PlaySound(170270);
-					end);
-					DR.tooltip_OnEnter(self, trackedTooltip)
-				end);
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetScript("OnLeave", DR.tooltip_OnLeave);
-			end
-		end
-		if placeValueX > 6 then
-			placeValueX = 1
-			placeValueY = placeValueY+1
-			DR.mainFrame["backFrame"..continent]:SetHeight(DR.mainFrame["backFrame"..continent]:GetHeight()+15)
-
-			DR.mainFrame["Course"..continent.."_"..placeValueY] = content1:CreateFontString();
-			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..continent], "TOPLEFT", 10, -15*placeValueY-20);
-			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetFont(STANDARD_TEXT_FONT, 11);
-			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetText(questName);
-			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetParent(DR.mainFrame["backFrame"..continent]);
-			if mapPOI then
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY] = CreateFrame("Button", nil, content1);
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..continent], "TOPLEFT", 10, -15*placeValueY-20);
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetSize(120, 15)
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetParent(DR.mainFrame["backFrame"..continent]);
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:EnableMouse(true)
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetFrameLevel(5);
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetScript("OnEnter", function(self)
-					self:SetScript("OnClick", function(self, button, down)
-						C_SuperTrack.SetSuperTrackedMapPin(0, mapPOI);
-						PlaySound(170270);
-					end);
-					DR.tooltip_OnEnter(self, trackedTooltip)
-				end);
-				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetScript("OnLeave", DR.tooltip_OnLeave);
-			end
-		end
-
-		
-
-		---future hyperlink waypoint feature
-		--[[
-		DR.mainFrame["Course"..continent.."_"..placeValueY]:SetScript("OnEnter", function(self)
-			DR.tooltip_OnEnter(self, MAP_PIN_HYPERLINK.."\n"..VOICE_CHAT_CHANNEL_INACTIVE_TOOLTIP_INSTRUCTIONS)
-		end);
-		DR.mainFrame["Course"..continent.."_"..placeValueY]:SetScript("OnLeave", DR.tooltip_OnLeave);
-		DR.mainFrame["Course"..continent.."_"..placeValueY]:SetScript("OnHyperlinkClick", function(self)
-			WorldMapFrame:Show()
-			C_Map.SetUserWaypoint(UiMapPoint.CreateFromVector2D(2022,CreateVector2D(.6330,.7090)))
-			C_SuperTrack.SetSuperTrackedUserWaypoint(true)
-			PlaySound(170270)
-		end);
-		]]
-
-		local scoreValue
-		local scoreValueF
-
-		if v.currencyID ~= nil then
-			scoreValue = C_CurrencyInfo.GetCurrencyInfo(v.currencyID).quantity/1000
-			if scoreValue == 0 then
-				scoreValue = nil
-			end
-			--if DragonRider_DB.raceData == nil then
-				--DragonRider_DB.raceData[charKey] = {};
-			--end
-			--if DragonRider_DB.raceData[charKey] == nil then
-				--DragonRider_DB.raceData[charKey] = {};
-			--end
-			if DragonRider_DB.raceData["Account"] == nil then
-				DragonRider_DB.raceData["Account"] = {};
-			end
-			if DragonRider_DB.raceData ~= nil and scoreValue ~= 0 and scoreValue ~= nil then
-				--DragonRider_DB.raceData[charKey][v.currencyID] = scoreValue;
-				if DragonRider_DB.raceData["Account"][v.currencyID] == nil then
-					DragonRider_DB.raceData["Account"][v.currencyID] = {
-						score = scoreValue,
-						character = charKey
-					};
-				end
-				if DragonRider_DB.raceData["Account"][v.currencyID] ~= nil then
-					if  scoreValue < DragonRider_DB.raceData["Account"][v.currencyID]["score"] then
-						DragonRider_DB.raceData["Account"][v.currencyID]["score"] = scoreValue;
-						DragonRider_DB.raceData["Account"][v.currencyID]["character"] = charKey;
-					end
-				end
-			end
-			if scoreValue and goldTime then
-				if scoreValue < goldTime then
-					medalValue = medalGold
-				end
-			end
-			if scoreValue and silverTime then
-				if scoreValue < silverTime and scoreValue > goldTime then
-					medalValue = medalSilver
-				end
-				if scoreValue > silverTime then
-					medalValue = medalBronze
-				end
-			end
-
-			if scoreValue then
-				scoreValueF = string.format("%.3f", scoreValue)
+				
+					GameTooltip:SetOwner(self, "ANCHOR_TOP")
+					GameTooltip:AddDoubleLine(L["PersonalBest"], pBest, 1, 1, 1, 1, 1, 1)
+					GameTooltip:AddDoubleLine(L["AccountBest"], aBest, 1, 1, 1, 1, 1, 1)
+					GameTooltip:AddDoubleLine(L["BestCharacter"], accountBestChar or "------", 1, 1, 1, 1, 1, 1)
+					GameTooltip:AddDoubleLine(L["GoldTime"], goldTime or "------", 1, 1, 1, 1, 1, 1)
+					GameTooltip:AddDoubleLine(L["SilverTime"], silverTime or "------", 1, 1, 1, 1, 1, 1)
+					GameTooltip:Show()
+				end)
 			else
-				scoreValueF = "0.000"
+				-- if no difficulty data, ensure tooltip is cleared
+				scoreFrame:SetScript("OnEnter", nil)
 			end
-
+			
+			scoreFrame:SetText(scoreValueF)
+			scoreFrame:SetTextColor(1,1,1)
 		end
-
-		if scoreValueF == "0.000" or scoreValueF == nil then
-			scoreValueF = "------"
-		elseif medalValue ~= "" then
-			scoreValueF = medalValue..scoreValueF
-		end
-
-		--Scores
-		DR.mainFrame["backFrame"..continent][k] = content1:CreateFontString();
-		DR.mainFrame["backFrame"..continent][k]:SetFont(STANDARD_TEXT_FONT, 11);
-		DR.mainFrame["backFrame"..continent][k]:SetPoint("TOPLEFT", DR.mainFrame.resizeFrames["middleFrame_"..placeValueX..continent], "TOPLEFT", 0, -15*placeValueY-20);
-		DR.mainFrame["backFrame"..continent][k]:SetText(scoreValueF);
-		DR.mainFrame["backFrame"..continent][k]:SetParent(DR.mainFrame["backFrame"..continent]);
-
-		placeValueX = placeValueX+1
 	end
 end
 
 DR.mainFrame.resizeFrames = {}
 
 function DR.mainFrame.DoPopulationStuff()
-
-	for k, v in ipairs(DR.DragonRaceZones) do
-		local MapName = C_Map.GetMapInfo(v).name
+	-- loop over the DR.RaceData table
+	for k, zoneData in ipairs(DR.RaceData) do
+		-- get map name from the zoneID in the new data structure
+		local MapName = C_Map.GetMapInfo(zoneData.zone).name
 		local oneLess = k-1
 
 		if k == 1 then
 			DR.mainFrame["backFrame"..k] = CreateFrame("Frame", nil, content1, "BackdropTemplate");
-			DR.mainFrame["backFrame"..k]:SetPoint("TOPLEFT", content1, "TOPLEFT", 0, -70);
-			DR.mainFrame["backFrame"..k]:SetPoint("TOPRIGHT", DR.mainFrame, "TOPRIGHT", -18, -70);
+			DR.mainFrame["backFrame"..k]:SetPoint("TOPLEFT", content1, "TOPLEFT", 0, -5);
+			DR.mainFrame["backFrame"..k]:SetPoint("TOPRIGHT", DR.mainFrame, "TOPRIGHT", -18, -5);
 			DR.mainFrame["titleText"..k] = content1:CreateFontString();
 			DR.mainFrame["titleText"..k]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..k], "TOPLEFT", 10, -5);
 			DR.mainFrame["titleText"..k]:SetParent(DR.mainFrame["backFrame"..k])
 		else
 			DR.mainFrame["backFrame"..k] = CreateFrame("Frame", nil, DR.mainFrame["backFrame"..oneLess], "BackdropTemplate");
-			DR.mainFrame["backFrame"..k]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..oneLess], "BOTTOMLEFT", 0, -35);
-			DR.mainFrame["backFrame"..k]:SetPoint("TOPRIGHT", DR.mainFrame["backFrame"..oneLess], "BOTTOMRIGHT", 0, -35);
+			DR.mainFrame["backFrame"..k]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..oneLess], "BOTTOMLEFT", 0, -10);
+			DR.mainFrame["backFrame"..k]:SetPoint("TOPRIGHT", DR.mainFrame["backFrame"..oneLess], "BOTTOMRIGHT", 0, -10);
 			DR.mainFrame["titleText"..k] = content1:CreateFontString();
 			DR.mainFrame["titleText"..k]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..k], "TOPLEFT", 10, -5);
 			DR.mainFrame["titleText"..k]:SetParent(DR.mainFrame["backFrame"..k])
@@ -1037,10 +1037,10 @@ function DR.mainFrame.DoPopulationStuff()
 		stormText:SetJustifyH("LEFT")
 		stormText:SetJustifyV("TOP")
 
-		DR.mainFrame.multiplayerRace = CreateFrame("Frame", nil, content1)
-		DR.mainFrame.multiplayerRace:SetPoint("TOPRIGHT", content1, "TOPRIGHT", -25, -15);
-		DR.mainFrame.multiplayerRace:SetParent(content1)
-		DR.mainFrame.multiplayerRace:SetSize(35,35)
+		DR.mainFrame.multiplayerRace = CreateFrame("Button", nil, DR.mainFrame)
+		DR.mainFrame.multiplayerRace:SetPoint("TOPRIGHT", DR.mainFrame, "TOPRIGHT", -165, -25);
+		DR.mainFrame.multiplayerRace:SetParent(DR.mainFrame)
+		DR.mainFrame.multiplayerRace:SetSize(25,25)
 		DR.mainFrame.multiplayerRace.tex = DR.mainFrame.multiplayerRace:CreateTexture()
 		DR.mainFrame.multiplayerRace.tex:SetAllPoints(DR.mainFrame.multiplayerRace)
 		DR.mainFrame.multiplayerRace.tex:SetAtlas("racing")
@@ -1058,6 +1058,15 @@ function DR.mainFrame.DoPopulationStuff()
 		DR.mainFrame.multiplayerRace:SetScript("OnLeave", function(self)
 			DR.tooltip_OnLeave();
 			DR.mainFrame.multiplayerRace:SetScript("OnUpdate", nil)
+		end);
+
+		DR.mainFrame.multiplayerRace:SetScript("OnClick", function(self)
+			local activeMapID, activePOI, activePOI_X, activePOI_Y, tooltipInfo = DR.mainFrame.multiplayerRace_TT()
+			if not UnitAffectingCombat("player") then
+				C_Map.OpenWorldMap(activeMapID);
+			end
+			C_SuperTrack.SetSuperTrackedMapPin(0, activePOI)
+			PlaySound(170270);
 		end);
 
 
