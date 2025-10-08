@@ -7,6 +7,9 @@ DragonRider_API = DR
 ---@type LibAdvFlight
 local LibAdvFlight = LibStub:GetLibrary("LibAdvFlight-1.0");
 
+-- reverse-lookup map to find race data from a currency ID quickly.
+DR.CurrencyToRaceMap = {}
+
 local defaultsTable = {
 	toggleModels = true,
 	speedometerPosPoint = 1,
@@ -143,10 +146,10 @@ local DRIVE_LAST_POS;
 local DriveUtils = {};
 
 function DriveUtils.GetPosition()
-    local map = C_Map.GetBestMapForUnit("player");
-    local pos = C_Map.GetPlayerMapPosition(map, "player");
-    local _, worldPos = C_Map.GetWorldPosFromMapPos(map, pos);
-    return worldPos;
+	local map = C_Map.GetBestMapForUnit("player");
+	local pos = C_Map.GetPlayerMapPosition(map, "player");
+	local _, worldPos = C_Map.GetWorldPosFromMapPos(map, pos);
+	return worldPos;
 end
 
 function DriveUtils.GetSpeed()
@@ -201,8 +204,8 @@ end
 
 local CAR_SPELL_ID = 460013;
 function DriveUtils.IsDriving()
-    local aura = C_UnitAuras.GetPlayerAuraBySpellID(CAR_SPELL_ID);
-    return aura and true or false;
+	local aura = C_UnitAuras.GetPlayerAuraBySpellID(CAR_SPELL_ID);
+	return aura and true or false;
 end
 
 ---------------------------------------------------------------------------------------------------------------
@@ -1252,7 +1255,6 @@ end
 
 local goldTime
 local silverTime
-local currentRace
 
 function DR.MuteVigorSound()
 	if DragonRider_DB.muteVigorSound == true then
@@ -1263,46 +1265,66 @@ function DR.MuteVigorSound()
 end
 
 -- event handling
-
 function DR.EventsList:CURRENCY_DISPLAY_UPDATE(currencyID)
+	-- update the temporary gold/silver time variables when their specific currencies update
 	if currencyID == 2019 then
 		silverTime = C_CurrencyInfo.GetCurrencyInfo(currencyID).quantity;
+		return
 	end
 	if currencyID == 2020 then
 		goldTime = C_CurrencyInfo.GetCurrencyInfo(currencyID).quantity;
+		return
 	end
-	for k, v in pairs(DR.DragonRaceCurrencies) do
-		if currencyID == v then
-			currentRace = currencyID
+
+	local raceLocation = DR.CurrencyToRaceMap and DR.CurrencyToRaceMap[currencyID]
+
+	if raceLocation then
+		local raceDataTable = DR.RaceData[raceLocation.zoneIndex].races[raceLocation.raceIndex][raceLocation.difficultyKey]
+
+		-- if the static data is missing gold or silver time, save it
+		if raceDataTable and (raceDataTable.goldTime == nil or raceDataTable.silverTime == nil) then
 			if DragonRider_DB.raceDataCollector == nil then
-				DragonRider_DB.raceDataCollector = {};
+				DragonRider_DB.raceDataCollector = {}
 			end
-			for a, b in pairs(DR.RaceData) do
-				for c, d in pairs(b) do
-					if d["currencyID"] == currentRace then
-						if d["goldTime"] == nil or d["silverTime"] == nil then
-							if DragonRider_DB.raceDataCollector[currentRace] == nil then
-								DragonRider_DB.raceDataCollector[currentRace] = {currencyID = currentRace,goldTime=goldTime, silverTime=silverTime};
-								if DragonRider_DB.debug == true then
-									Print("Saving Temp Race Data")
-								end
-							end
-						end
-					end
+
+			-- only save if we have valid gold/silver times from the last race completion
+			if goldTime and silverTime and not DragonRider_DB.raceDataCollector[currencyID] then
+				DragonRider_DB.raceDataCollector[currencyID] = {
+					currencyID = currencyID,
+					goldTime = goldTime,
+					silverTime = silverTime
+				}
+				if DragonRider_DB.debug == true then
+					Print("Saving Temp Race Data for Currency ID: " .. currencyID .. " (Gold: " .. goldTime .. ", Silver: " .. silverTime .. ")")
 				end
 			end
+		end
+
+		-- trigger a UI update in the journal to reflect the new score
+		if DR.mainFrame and DR.mainFrame.UpdatePopulation then
 			DR.mainFrame.UpdatePopulation()
-			if DragonRider_DB.debug == true then
-				Print(currencyID .. ": " .. C_CurrencyInfo.GetCurrencyInfo(currencyID).name)
-				Print(C_CurrencyInfo.GetCurrencyInfo(currencyID).quantity/1000)
-				Print(currentRace .. ": " .. "gold: " .. goldTime .. ", silver: " .. silverTime);
-			end
+		end
+
+		if DragonRider_DB.debug == true then
+			Print("Currency Update for Race: " .. currencyID .. ": " .. C_CurrencyInfo.GetCurrencyInfo(currencyID).name)
+			Print("New Time: " .. C_CurrencyInfo.GetCurrencyInfo(currencyID).quantity/1000)
+			Print("Last collected times - gold: " .. (goldTime or "N/A") .. ", silver: " .. (silverTime or "N/A"))
 		end
 	end
 end
 
+
 function DR.EventsList:PLAYER_LOGIN()
 	DR.mainFrame.DoPopulationStuff();
+	local SeasonID = PlayerGetTimerunningSeasonID()
+	if SeasonID then -- needs to fire late to register any data
+		DR.mainFrame.CreateDragonRiderFlipbook()
+		DR.mainFrame.CreateDragonRiderFlipbook()
+		DR.mainFrame.CreateDragonRiderFlipbookRotated()
+		DR.mainFrame.CreateDragonRiderFlipbookRotated()
+		DR.mainFrame.CreateFadeIcon()
+		-- double the frames to make it appear more vibrant, as the flipbook is fairly muted
+	end
 end
 
 function DR.OnAddonLoaded()
@@ -1325,6 +1347,32 @@ function DR.OnAddonLoaded()
 
 		if DragonRider_DB == nil then
 			DragonRider_DB = CopyTable(defaultsTable)
+		end
+
+		-- build the currency-to-race lookup map on addon load.
+		do
+			local function buildCurrencyMap()
+				DR.CurrencyToRaceMap = {} -- Clear it in case of reloads
+				if not DR.RaceData then return end -- Guard against DRRaceData not being loaded yet
+			
+				for zoneIndex, zoneData in ipairs(DR.RaceData) do
+					if zoneData.races then
+						for raceIndex, raceInfo in ipairs(zoneData.races) do
+							for difficultyKey, difficultyData in pairs(raceInfo) do
+								-- Check if it's a difficulty table by looking for currencyID
+								if type(difficultyData) == "table" and difficultyData.currencyID then
+									DR.CurrencyToRaceMap[difficultyData.currencyID] = {
+										zoneIndex = zoneIndex,
+										raceIndex = raceIndex,
+										difficultyKey = difficultyKey
+									}
+								end
+							end
+						end
+					end
+				end
+			end
+			buildCurrencyMap()
 		end
 
 		if DragonRider_DB.sideArt == nil then
