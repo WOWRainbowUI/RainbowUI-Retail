@@ -1,4 +1,7 @@
-﻿11.2.09 - 24th September 2025
+﻿11.2.11 - 8th October 2025
+- Updated for game patch 11.2.5.
+
+11.2.09 - 24th September 2025
 - For 'Release in PvP' ('Automation'), fixed a Lua error which appeared when bypassing release by holding down the shift key.
 - Updated deprecated functions.
 
