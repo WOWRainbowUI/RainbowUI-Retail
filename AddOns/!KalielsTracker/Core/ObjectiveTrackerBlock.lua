@@ -376,11 +376,6 @@ function KT_ObjectiveTrackerBlockMixin:AddRightEdgeFrame(settings, identifier, .
 end
 KT.BackupMixin("KT_ObjectiveTrackerBlockMixin", "AddRightEdgeFrame")  -- MSA
 
-function KT_ObjectiveTrackerBlockMixin:HasActiveAnim()
-	-- Can override in derived mixins
-	return false;
-end
-
 KT_ObjectiveTrackerBlockHeaderMixin = { };
 
 function KT_ObjectiveTrackerBlockHeaderMixin:OnLoad()

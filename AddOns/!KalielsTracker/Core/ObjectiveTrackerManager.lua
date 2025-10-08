@@ -157,7 +157,7 @@ function KT.ObjectiveTrackerManager:CanShowPOIs(module)
 		self.questPOIEnabled = GetCVarBool("questPOI");
 		self.questPOIEnabledModules = { };
 		EventRegistry:RegisterFrameEventAndCallback("VARIABLES_LOADED", self.OnVariablesLoaded, self);
-		CVarCallbackRegistry:RegisterCallback("questPOI", function(_, value) self:OnCVarChanged("questPOI", value); end, self);
+		CVarCallbackRegistry:RegisterCVarChangedCallback(self.OnCVarChanged, self);
 	end
 
 	if not self.questPOIEnabledModules[module] then

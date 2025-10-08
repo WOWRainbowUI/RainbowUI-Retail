@@ -229,7 +229,7 @@ local function SetupTutorials()
 					"這個遊戲修正避免呼叫受限制的函數。"..
 					"停用遊戲修正時，世界地圖顯示會導致錯誤。"..
 					"由於任務追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-					cWarning2.."負面影響:|r 在魔獸世界 11.2.5 尚未可知。",
+					cWarning2.."負面影響:|r 在魔獸世界 11.2.0 尚未可知。",
 		},
 		{	-- 9
 			image = HELP_PATH.."help_events",
@@ -335,16 +335,6 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "如果你喜歡 "..KT.TITLE.."，請考慮在 Patreon 贊助 "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
-					(cTitle.."版本 7.15.0|r\n"..
-					"- 新增 (成就) - 過濾方式支援軍臨天下:混搭再造\n"..
-					"- 新增 - 支援 WoW 11.2.5.62554\n"..
-					"- 變更 - 支援插件 - Auctionator 298\n"..
-					"- 變更 - 支援插件 - RareScanner 11.2.5\n"..
-					"- 變更 - 支援插件 - TomTom 4.0.18\n"..
-					"- 變更 - TomTom - 小改善\n"..
-					"- 變更 (說明) - Active Patrons\n"..
-					"\n")..
-
 					(cTitle.."版本 7.14.0|r\n"..
 					"- 新增 - 支援插件 - RareScanner 11.2.0.12 (啟用在追蹤清單中顯示偵測到的稀有怪。)，請看說明第 13 頁\n"..
 					"- 變更 - 支援插件 - TomTom 4.0.17\n"..
@@ -352,6 +342,16 @@ local function SetupTutorials()
 					"- 變更 - 選項 - 新增根據偵測到稀有怪的顯示規則\n"..
 					"- 變更 (說明) - Active Patrons\n"..
 					"- 變更 - 事件 - 顯示/隱藏長期事件的選項 (24h+)\n"..
+					"\n")..
+
+					(cTitle.."版本 7.13.1|r\n"..
+					"- 變更 - 世界地圖修正 - 改善\n"..
+					"\n")..
+
+					(cTitle.."版本 7.13.0|r\n"..
+					"- 變更 - 改善隊伍同步反應\n"..
+					"- 變更 - 選項 - 將指令移至控制區塊，重新命名一個指令\n"..
+					"- 修正 - 開啟隊伍同步時的錯誤\n"..
 					"\n")..
 
 					cTitle.."問題回報|r\n"..
@@ -436,8 +436,8 @@ local function SetupTutorials()
                     SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
                     SetFormatedPatronName("Rare", "Ian F")..
                     SetFormatedPatronName("Rare", "Spance")..
+                    SetFormatedPatronName("Uncommon", "Anaara", "Auchindoun")..
                     SetFormatedPatronName("Uncommon", "Charles Howarth")..
-                    SetFormatedPatronName("Uncommon", "Cool Blue")..
                     SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
                     SetFormatedPatronName("Uncommon", "Mystekal")..
                     SetFormatedPatronName("Uncommon", "Paul Westervelt")..
