@@ -1,7 +1,7 @@
 ## Interface: 110200, 110205
 ## Title: Kaliel's Tracker
 ## Notes: |nImproved Blizzard Objective Tracker|n|cff999999by Kaliel (Marouan Sabbagh)|n|n
-## Version: 7.14.0
+## Version: 7.15.0
 ## Author: Kaliel (Marouan Sabbagh)
 ## IconTexture: Interface\Addons\!KalielsTracker\Media\KT_logo
 ## Category-enUS: Quests
