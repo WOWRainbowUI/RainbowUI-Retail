@@ -1,6 +1,7 @@
 # Baganator
 
-## [762](https://github.com/TheMouseNest/Baganator/tree/762) (2025-10-03)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/761...762) 
+## [763](https://github.com/TheMouseNest/Baganator/tree/763) (2025-10-07)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/762...763) 
 
-- Fix issue with guild data fault breaking money tooltip display  
+- Retail: Update toc for 11.2.5  
+- Midnight: Update for moved ChatEdit\_InsertLink function  
