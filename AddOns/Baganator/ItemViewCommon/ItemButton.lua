@@ -506,7 +506,7 @@ end
 
 function BaganatorRetailCachedItemButtonMixin:OnClick()
   if IsModifiedClick("CHATLINK") then
-    ChatEdit_InsertLink(self.BGR.itemLink)
+    addonTable.Utilities.ChatInsertLink(self.BGR.itemLink)
   elseif IsModifiedClick("DRESSUP") then
     DressUpLink(self.BGR.itemLink)
   elseif IsAltKeyDown() then
@@ -961,7 +961,7 @@ end
 
 function BaganatorClassicCachedItemButtonMixin:OnClick()
   if IsModifiedClick("CHATLINK") then
-    ChatEdit_InsertLink(self.BGR.itemLink)
+    addonTable.Utilities.ChatInsertLink(self.BGR.itemLink)
   elseif IsModifiedClick("DRESSUP") then
    return DressUpItemLink(self.BGR.itemLink) or DressUpBattlePetLink(self.BGR.itemLink) or DressUpMountLink(self.BGR.itemLink)
   elseif IsAltKeyDown() then

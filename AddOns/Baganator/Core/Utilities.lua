@@ -83,3 +83,16 @@ function addonTable.Utilities.LoadItemData(itemID, callback)
   itemFrame:SetScript("OnUpdate", itemFrame.OnUpdate)
   C_Item.RequestLoadItemDataByID(itemID)
 end
+
+function addonTable.Utilities.ChatInsertLink(link)
+  if link ~= nil then
+    if ChatFrameUtil and ChatFrameUtil.InsertLink then
+      if not C_ChatInfo.InChatMessagingLockdown or not C_ChatInfo.InChatMessagingLockdown() then
+        return ChatFrameUtil.InsertLink(link)
+      end
+    else
+      return ChatEdit_InsertLink(link)
+    end
+  end
+  return false
+end
