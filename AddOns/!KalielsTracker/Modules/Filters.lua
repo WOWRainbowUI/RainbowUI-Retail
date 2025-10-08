@@ -25,7 +25,7 @@ local strsub = string.sub
 local _G = _G
 
 local db, dbChar
-local remixID = 15509  -- Remix: Pandaria
+local remixID = 15554  -- Remix: Legion
 local OBJECTIVES_WATCH_TOO_MANY = OBJECTIVES_WATCH_TOO_MANY..".. max. %d"
 
 local KTF = KT.frame

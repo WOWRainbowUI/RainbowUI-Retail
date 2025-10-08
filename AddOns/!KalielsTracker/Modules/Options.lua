@@ -1906,7 +1906,7 @@ local options = {
 									"restricted functions. When the hack is inactive, the World Map display causes errors. "..
 									"It is not possible to get rid of these errors, since the tracker has a lot of interaction "..
 									"with the game frames.\n\n"..
-									cWarning2.."Negative impacts:|r unknown in WoW 11.2.0\n",
+									cWarning2.."Negative impacts:|r unknown in WoW 11.2.5\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",

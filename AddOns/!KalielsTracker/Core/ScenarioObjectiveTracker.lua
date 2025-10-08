@@ -682,14 +682,14 @@ function KT_ScenarioTimerMixin:CheckTimers(...)
 	for i = 1, select("#", ...) do
 		local timerID = select(i, ...);
 		local _, elapsedTime, type = GetWorldElapsedTime(timerID);
-		if type == LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE then
+		if type == Enum.WorldElapsedTimerTypes.ChallengeMode then
 			local mapID = C_ChallengeMode.GetActiveChallengeMapID();
 			if mapID then
 				local _, _, timeLimit = C_ChallengeMode.GetMapUIInfo(mapID);
 				KT_ScenarioObjectiveTracker.ChallengeModeBlock:Activate(timerID, elapsedTime, timeLimit);
 				return;
 			end
-		elseif type == LE_WORLD_ELAPSED_TIMER_TYPE_PROVING_GROUND then
+		elseif type == Enum.WorldElapsedTimerTypes.ProvingGround then
 			local diffID, currWave, maxWave, duration = C_Scenario.GetProvingGroundsInfo()
 			if duration > 0 then
 				KT_ScenarioObjectiveTracker.ProvingGroundsBlock:Activate(timerID, elapsedTime, duration, diffID, currWave, maxWave);

@@ -228,7 +228,7 @@ local function SetupTutorials()
 					cBold.."Affects the World Map|r and removes taint errors. The hack prevents calls to restricted "..
 					"functions. When the hack is inactive, the World Map display causes errors. It is not possible to "..
 					"get rid of these errors, since the tracker has a lot of interaction with the game frames.\n\n"..
-					cWarning2.."Negative impacts:|r unknown in WoW 11.2.0",
+					cWarning2.."Negative impacts:|r unknown in WoW 11.2.5",
 		},
 		{	-- 9
 			image = HELP_PATH.."help_events",
@@ -333,6 +333,16 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "If you like "..KT.TITLE..", consider supporting it on Patreon "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 7.15.0|r\n"..
+					"- ADDED (achievements) - filter support for Remix: Legion\n"..
+					"- ADDED - support for WoW 11.2.5.62554\n"..
+					"- CHANGED - addon support - Auctionator 298\n"..
+					"- CHANGED - addon support - RareScanner 11.2.5\n"..
+					"- CHANGED - addon support - TomTom 4.0.18\n"..
+					"- CHANGED - TomTom - minor improvements\n"..
+					"- CHANGED (help) - Active Patrons\n"..
+					"\n")..
+
 					(cTitle.."Version 7.14.0|r\n"..
 					"- ADDED - addon support - RareScanner 11.2.0.12 (display of detected Rare NPCs inside the tracker), see Help page 13\n"..
 					"- CHANGED - addon support - TomTom 4.0.17\n"..
@@ -340,16 +350,6 @@ local function SetupTutorials()
 					"- CHANGED - Options - add visibility rule based on Rare NPC detection\n"..
 					"- CHANGED (help) - Active Patrons\n"..
 					"- CHANGED - Events - option to show/hide Long events (24h+)\n"..
-					"\n")..
-
-					(cTitle.."Version 7.13.1|r\n"..
-					"- CHANGED - World Map Hack - improvement\n"..
-					"\n")..
-
-					(cTitle.."Version 7.13.0|r\n"..
-					"- CHANGED - improve Party Sync reaction\n"..
-					"- CHANGED - Options - move Slash commands to Controls section, rename one command\n"..
-					"- FIXED - error when activating Party Sync\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
@@ -434,8 +434,8 @@ local function SetupTutorials()
                     SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
                     SetFormatedPatronName("Rare", "Ian F")..
                     SetFormatedPatronName("Rare", "Spance")..
-                    SetFormatedPatronName("Uncommon", "Anaara", "Auchindoun")..
                     SetFormatedPatronName("Uncommon", "Charles Howarth")..
+                    SetFormatedPatronName("Uncommon", "Cool Blue")..
                     SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
                     SetFormatedPatronName("Uncommon", "Mystekal")..
                     SetFormatedPatronName("Uncommon", "Paul Westervelt")..
