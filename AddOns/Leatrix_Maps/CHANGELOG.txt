@@ -1,4 +1,7 @@
-﻿11.2.08 - 17th September 2025
+﻿11.2.11 - 8th October 2025
+- Updated for game patch 11.2.5.
+
+11.2.08 - 17th September 2025
 - Added a new option called 'Use English language'.  If enabled, text used throughout the addon will be shown in English regardless of your game locale.
 
 11.2.01 - 13th August 2025
