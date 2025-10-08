@@ -2048,6 +2048,7 @@ function Syndicator.Search.InitializeSearchEngine()
     [17] = "battle pets",
     [18] = "wow token",
     [19] = "profession",
+    [20] = "housing",
   }
   if Syndicator.Constants.IsClassic then
     classesToCheck[7] = "trade goods"
@@ -2330,6 +2331,26 @@ function Syndicator.Search.InitializeSearchEngine()
   local mount = C_Item.GetItemSubClassInfo(Enum.ItemClass.Miscellaneous, Enum.ItemMiscellaneousSubclass.Mount)
   if mount ~= nil then
     AddKeywordManual(mount:lower(), "mount", MountCheck, Syndicator.Locales.GROUP_ITEM_TYPE)
+  end
+
+  if C_Item.GetItemClassInfo(20) then -- Housing
+    local decorToCheck = {
+      [0] = "decor",
+      [1] = "dye",
+      [2] = "room",
+      [3] = "room customization",
+      [4] = "exterior customization",
+      [5] = "service item",
+    }
+    for subClass, english in pairs(decorToCheck) do
+      local keyword = C_Item.GetItemSubClassInfo(20, subClass)
+      if keyword ~= nil then
+        AddKeywordManual(keyword:lower(), english, function(details)
+          GetClassSubClass(details)
+          return details.classID == 20 and details.subClassID == subClass
+        end, Syndicator.Locales.GROUP_HOUSING)
+      end
+    end
   end
 
   Syndicator.Search.RebuildKeywordList()
