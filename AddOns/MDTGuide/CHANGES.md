@@ -1,2 +1,1 @@
-- Fix boss kill detection in enemy forces mode
-- Color dead enemies of current pull in enemy forces mode
+- Updated ToC version for patch 11.2.5

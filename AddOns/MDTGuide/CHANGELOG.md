@@ -1,3 +1,8 @@
+Version 1.41
+
+- Fix boss kill detection in enemy forces mode
+- Color dead enemies of current pull in enemy forces mode
+
 Version 1.40
 
 - Updated ToC version for patch 11.2
