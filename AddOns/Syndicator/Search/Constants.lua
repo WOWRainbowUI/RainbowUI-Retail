@@ -181,6 +181,7 @@ Syndicator.Search.Constants.KeywordGroupOrder = {
 
   Syndicator.Locales.GROUP_EXPANSION,
   Syndicator.Locales.GROUP_BATTLE_PET,
+  Syndicator.Locales.GROUP_HOUSING,
 }
 
 -- Special case for era because Blizzard doesn't tag the consumables or trade

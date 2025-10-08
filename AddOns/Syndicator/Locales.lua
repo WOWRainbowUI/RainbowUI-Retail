@@ -142,6 +142,7 @@ L["KEYWORD_CURRENT_EXPANSION"] = "current expansion"
 L["KEYWORD_QUEST"] = "quest"
 
 L["GROUP_ARMOR_TYPE"] = "Armor Type"
+L["GROUP_HOUSING"] = "Housing"
 L["GROUP_BATTLE_PET"] = "Battle Pet Type"
 L["GROUP_EXPANSION"] = "Expansion"
 L["GROUP_ITEM_DETAIL"] = "Item Detail"
