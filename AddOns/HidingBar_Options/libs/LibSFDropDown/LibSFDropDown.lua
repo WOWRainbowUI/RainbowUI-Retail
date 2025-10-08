@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 26
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 28
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -119,10 +119,10 @@ info.tooltipWhileDisabled = [nil, true] -- Show the tooltip, even when the butto
 info.OnTooltipShow = [function(self, tooltipFrame, arg1, arg2)] -- Handler tooltip show
 info.widgets = [table] -- A table of widgets, that adds mini buttons to the button, looks like {
 	{
-		width = [nil, number], -- width of widget, default 16
-		height = [nil, number], -- height of widget, default 16
+		width = [nil, number], -- width of widget, default menuButtonHeight (20)
+		height = [nil, number], -- height of widget, default menuButtonHeight (20)
 		icon = [texture], -- An icon for the widget
-		iconInfo = [nil, table], -- A table looks like info.iconInfo
+		iconInfo = [nil, table], -- A table looks like info.iconInfo (without rgba)
 		OnClick = [function(infoBtn, arg1, arg2)] -- The function that is called when you click the button
 		OnEnter = [function(infoBtn, arg1, arg2)] -- Handler OnEnter
 		OnLeave = [function(infoBtn, arg1, arg2)] -- Handler OnLeave
@@ -135,7 +135,7 @@ info.OnLoad = [function(customFrame)] -- Function called when the custom frame i
 info.search = [function(searchString, infoText, infoRightText, btnInfo)] -- Optional custom search function, must return true/false
 info.hideSearch = [nil, true] -- Remove SearchBox if info.list displays as scroll menu
 info.listMaxSize = [number] -- Number of max size info.list, after a scroll frame is added
-info.list = [table] -- The table of info buttons, if there are more than 20 (default) buttons, a scroll frame is added. Available attributes in table "dropDonwOptions".
+info.list = [table] -- The table of info buttons, if there are more than 20 (default) buttons, a scroll frame is added. Available attributes in table "dropDownOptions".
 ]]
 v.dropDownOptions = {
 	"text",
@@ -209,19 +209,19 @@ function v.createMenuStyle(menu, name, frameFunc)
 end
 
 
-function v.setIcon(texture, icon, info, menuButtonHeight)
+function v.setIcon(texture, icon, info, menuButtonHeight, noColor)
 	local atlasInfo = GetAtlasInfo(icon)
 	local width, iconWrap = atlasInfo and atlasInfo.width / atlasInfo.height * menuButtonHeight or menuButtonHeight
 	if info then
+		if not noColor then texture:SetVertexColor(info.r or 1, info.g or 1, info.b or 1, info.a or 1) end
 		texture:SetSize(info.tSizeX or width, info.tSizeY or menuButtonHeight)
 		texture:SetTexCoord(info.tCoordLeft or 0, info.tCoordRight or 1, info.tCoordTop or 0, info.tCoordBottom or 1)
-		texture:SetVertexColor(info.r or 1, info.g or 1, info.b or 1, info.a or 1)
 		texture:SetHorizTile(info.tWrap and true or false)
 		iconWrap = info.tWrap
 	else
+		if not noColor then texture:SetVertexColor(1, 1, 1, 1) end
 		texture:SetSize(width, menuButtonHeight)
 		texture:SetTexCoord(0, 1, 0, 1)
-		texture:SetVertexColor(1, 1, 1, 1)
 		texture:SetHorizTile(false)
 	end
 	if atlasInfo then
@@ -279,11 +279,21 @@ end
 local function DropDownMenuList_OnHide(self)
 	self:Hide()
 	self:ClearAllPoints()
+
 	if self.customFrames then
 		for i = 1, #self.customFrames do
 			self.customFrames[i]:Hide()
 		end
 		self.customFrames = nil
+	end
+
+	local level = self.scrollChild.id
+	local f = v[level]
+	v[level] = nil
+	v[level + 1] = nil
+
+	if f and f.highlight and not f:IsMouseOver() then
+		f.highlight:Hide()
 	end
 end
 
@@ -291,6 +301,7 @@ end
 local function DropDownMenuListScrollFrame_OnVerticalScroll(self, offset)
 	local scrollRange = self:GetVerticalScrollRange()
 	self.scrollBar:SetScrollPercentage(scrollRange > 0 and offset / scrollRange or 0, ScrollBoxConstants.NoScrollInterpolation)
+	v.DROPDOWNBUTTON:ddCloseMenus(self.scrollChild.id + 1)
 end
 
 
@@ -304,31 +315,12 @@ end
 
 local function DropDownMenuListScrollFrame_OnMouseWheel(self, delta)
 	if self.scrollBar:IsShown() then self.scrollBar:ScrollStepInDirection(-delta) end
-end
-
-
-local function DropDownMenuListScrollFrame_OnEnter(self)
 	v.DROPDOWNBUTTON:ddCloseMenus(self.scrollChild.id + 1)
 end
 
 
 local function DropDownMenuListScrollBar_OnScroll(scrollFrame, scrollPercentage)
 	scrollFrame:SetVerticalScroll(scrollPercentage * scrollFrame:GetVerticalScrollRange())
-end
-
-
-local function DropDownMenuListScrollBar_OnEnter(self)
-	v.DROPDOWNBUTTON:ddCloseMenus(self.scrollChild.id + 1)
-end
-
-
-local function DropDownMenuListScrollBarControl_OnEnter(self)
-	v.DROPDOWNBUTTON:ddCloseMenus(self:GetParent().scrollChild.id + 1)
-end
-
-
-local function DropDownMenuListScrollBarThumb_OnEnter(self)
-	v.DROPDOWNBUTTON:ddCloseMenus(self:GetParent():GetParent().scrollChild.id + 1)
 end
 
 
@@ -345,19 +337,12 @@ local function CreateDropDownMenuList(parent)
 	menu.scrollFrame:SetScript("OnVerticalScroll", DropDownMenuListScrollFrame_OnVerticalScroll)
 	menu.scrollFrame:SetScript("OnScrollRangeChanged", DropDownMenuListScrollFrame_OnScrollRangeChanged)
 	menu.scrollFrame:SetScript("OnMouseWheel", DropDownMenuListScrollFrame_OnMouseWheel)
-	menu.scrollFrame:SetScript("OnEnter", DropDownMenuListScrollFrame_OnEnter)
 
 	menu.scrollBar = CreateFrame("EventFrame", nil, menu, "MinimalScrollBar")
 	menu.scrollFrame.scrollBar = menu.scrollBar
 	menu.scrollBar:SetPoint("TOPLEFT", menu.scrollFrame, "TOPRIGHT", 6, 0)
 	menu.scrollBar:SetPoint("BOTTOMLEFT", menu.scrollFrame, "BOTTOMRIGHT", 6, 0)
 	menu.scrollBar:RegisterCallback(menu.scrollBar.Event.OnScroll, DropDownMenuListScrollBar_OnScroll, menu.scrollFrame)
-
-	menu.scrollBar:HookScript("OnEnter", DropDownMenuListScrollBar_OnEnter)
-	menu.scrollBar.Back:HookScript("OnEnter", DropDownMenuListScrollBarControl_OnEnter)
-	menu.scrollBar.Forward:HookScript("OnEnter", DropDownMenuListScrollBarControl_OnEnter)
-	menu.scrollBar.Track:HookScript("OnEnter", DropDownMenuListScrollBarControl_OnEnter)
-	menu.scrollBar.Track.Thumb:HookScript("OnEnter", DropDownMenuListScrollBarThumb_OnEnter)
 
 	menu.scrollChild = CreateFrame("FRAME")
 	menu.scrollChild:SetSize(1, 1)
@@ -399,15 +384,37 @@ local function DropDownMenuButton_OnClick(self)
 end
 
 
-local function DropDownMenuButton_OnEnterInit(self)
-	if self:IsEnabled() then self.highlight:Show() end
+local function DropDonwMenuButton_Delayed(self, elapsed)
+	self.delay = self.delay - elapsed
+	if self.delay > 0 then return end
 
-	local level = self:GetParent().id + 1
-	if (self.hasArrow or self.hasArrowUp) and self:IsEnabled() then
-		v.DROPDOWNBUTTON:ddToggle(level, self.value, self)
+	if v.delayedFrame then
+		if v[v.delayedLevel] ~= v.delayedFrame then
+			v.DROPDOWNBUTTON:ddToggle(v.delayedLevel, v.delayedFrame.value, v.delayedFrame)
+			v[v.delayedLevel] = v.delayedFrame
+		end
 	else
-		v.DROPDOWNBUTTON:ddCloseMenus(level)
+		v[v.delayedLevel] = nil
+		v.DROPDOWNBUTTON:ddCloseMenus(v.delayedLevel)
 	end
+
+	self:SetScript("OnUpdate", nil)
+end
+
+
+local function DropDownMenuButton_OnEnterInit(self)
+	local level = self:GetParent().id + 1
+	local f = v[level]
+	if f and f.highlight then f.highlight:Hide() end
+
+	v.delayedLevel = level
+	v.frameDummy.delay = .2
+	if (self.hasArrow or self.hasArrowUp) and self:IsEnabled() then
+		v.delayedFrame = self
+	else
+		v.delayedFrame = nil
+	end
+	v.frameDummy:SetScript("OnUpdate", DropDonwMenuButton_Delayed)
 
 	if self.remove then
 		v.removeButton:SetAlpha(1)
@@ -421,6 +428,8 @@ local function DropDownMenuButton_OnEnterInit(self)
 	if self.widgets then
 		v.widgetAlpha(1)
 	end
+
+	if self:IsEnabled() then self.highlight:Show() end
 end
 
 
@@ -463,7 +472,11 @@ end
 
 
 local function DropDownMenuButton_OnLeave(self)
-	self.highlight:Hide()
+	local f = v[self:GetParent().id + 1]
+	if self ~= f then
+		self.highlight:Hide()
+		if f and f.highlight then f.highlight:Show() end
+	end
 
 	if self.remove then
 		v.removeButton:SetAlpha(0)
@@ -485,6 +498,8 @@ local function DropDownMenuButton_OnLeave(self)
 	if self.OnLeave then
 		self:OnLeave(self.arg1, self.arg2)
 	end
+
+	v.frameDummy:SetScript("OnUpdate", nil)
 end
 
 
@@ -510,6 +525,7 @@ end
 
 local function DropDownMenuButton_OnHide(self)
 	self:Hide()
+	self.highlight:Hide()
 	self.colorSwatch = nil
 end
 
@@ -656,7 +672,7 @@ function v.widgetInit(parent)
 		btn.OnEnter = info.OnEnter
 		btn.OnLeave = info.OnLeave
 		btn.OnTooltipShow = info.OnTooltipShow
-		v.setIcon(btn.icon, info.icon, info.iconInfo, menuButtonHeight)
+		v.setIcon(btn.icon, info.icon, info.iconInfo, menuButtonHeight, true)
 		btn:Show()
 		position = position - btn:GetWidth()
 	end
@@ -822,6 +838,11 @@ local function DropDownMenuSearchBoxClear_OnClick(self)
 end
 
 
+local function DropDownMenuScrollBox_OnScroll(f)
+	v.DROPDOWNBUTTON:ddCloseMenus(f.scrollBox:GetScrollTarget().id + 1)
+end
+
+
 local function DropDownMenuSearchButtonInit(btn, info)
 	for i = 1, #v.dropDownOptions do
 		local opt = v.dropDownOptions[i]
@@ -973,21 +994,6 @@ end
 
 local function DropDownMenuSearchButton_OnAcquired(owner, frame, data, new)
 	if new then v.dropDownMenuButtonInit(frame) end
-end
-
-
-local function DropDownMenuSearchScrollBar_OnEnter(self)
-	v.DROPDOWNBUTTON:ddCloseMenus(self:GetParent().scrollBox:GetScrollTarget().id + 1)
-end
-
-
-local function DropDownMenuSearchScrollBarControl_OnEnter(self)
-	v.DROPDOWNBUTTON:ddCloseMenus(self:GetParent():GetParent().scrollBox:GetScrollTarget().id + 1)
-end
-
-
-local function DropDownMenuSearchScrollBarThumb_OnEnter(self)
-	v.DROPDOWNBUTTON:ddCloseMenus(self:GetParent():GetParent():GetParent().scrollBox:GetScrollTarget().id + 1)
 end
 
 
@@ -1190,16 +1196,11 @@ local function CreateDropDownMenuSearch()
 
 	f.scrollBox = CreateFrame("FRAME", nil, f, "WowScrollBoxList")
 	f.scrollBox:SetPoint("RIGHT", -20, 0)
+	f.scrollBox:RegisterCallback(f.scrollBox.Event.OnScroll, DropDownMenuScrollBox_OnScroll, f)
 
 	f.scrollBar = CreateFrame("EventFrame", nil, f, "MinimalScrollBar")
 	f.scrollBar:SetPoint("TOPLEFT", f.scrollBox, "TOPRIGHT", 8, -2)
 	f.scrollBar:SetPoint("BOTTOMLEFT", f.scrollBox, "BOTTOMRIGHT", 8, 0)
-
-	f.scrollBar:HookScript("OnEnter", DropDownMenuSearchScrollBar_OnEnter)
-	f.scrollBar.Back:HookScript("OnEnter", DropDownMenuSearchScrollBarControl_OnEnter)
-	f.scrollBar.Forward:HookScript("OnEnter", DropDownMenuSearchScrollBarControl_OnEnter)
-	f.scrollBar.Track:HookScript("OnEnter", DropDownMenuSearchScrollBarControl_OnEnter)
-	f.scrollBar.Track.Thumb:HookScript("OnEnter", DropDownMenuSearchScrollBarThumb_OnEnter)
 
 	f.view = CreateScrollBoxListLinearView()
 	f.view:SetElementExtent(v.dropDownMenuButtonHeight)
@@ -1510,8 +1511,8 @@ function DropDownButtonMixin:ddToggle(level, value, anchorFrame, point, rPoint, 
 		menu:Hide()
 		if level == 1 and menu.anchorFrame == anchorFrame then return end
 	end
-	menu:Show()
 	menu.anchorFrame = anchorFrame
+	menu:Show()
 
 	if level == 1 then
 		v.DROPDOWNBUTTON = self
@@ -2405,21 +2406,6 @@ if oldminor < 9 then
 		if not menu.styles.modernMenu and v.menuStyles.modernMenu then
 			v.createMenuStyle(menu, "modernMenu", v.menuStyles.modernMenu)
 		end
-		for j, btn in lib:IterateMenuButtons(i) do
-			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
-		end
-	end
-
-	for i in lib:IterateSearchFrames() do
-		for j, btn in lib:IterateSearchFrameButtons(i) do
-			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
-		end
-	end
-
-	for i = 1, #v.widgetFrames do
-		local widget = v.widgetFrames[i]
-		widget:SetScript("OnEnter", widget_OnEnter)
-		widget:SetScript("OnLeave", widget_OnLeave)
 	end
 end
 
@@ -2482,5 +2468,50 @@ if oldminor < 26 then
 		f.buttonsList = nil
 		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
 		f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired, f)
+	end
+end
+
+if oldminor < 28 then
+	for i, menu in lib:IterateMenus() do
+		menu.scrollFrame:SetScript("OnVerticalScroll", DropDownMenuListScrollFrame_OnVerticalScroll)
+		menu.scrollFrame:SetScript("OnMouseWheel", DropDownMenuListScrollFrame_OnMouseWheel)
+		menu.scrollFrame:SetScript("OnEnter", nil)
+
+		menu.scrollBar:SetScript("OnEnter", nil)
+		menu.scrollBar.Back:SetScript("OnEnter", MinimalScrollBarStepperScriptsMixin.OnEnter)
+		menu.scrollBar.Forward:SetScript("OnEnter", MinimalScrollBarStepperScriptsMixin.OnEnter)
+		menu.scrollBar.Track:SetScript("OnEnter", nil)
+		menu.scrollBar.Track.Thumb:SetScript("OnEnter", MinimalScrollBarThumbScriptsMixin.OnEnter)
+
+		if i ~= 1 then
+			menu:SetScript("OnHide", DropDownMenuList_OnHide)
+		end
+		for j, btn in lib:IterateMenuButtons(i) do
+			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
+			btn:SetScript("OnLeave", DropDownMenuButton_OnLeave)
+			btn:SetScript("OnHide", DropDownMenuButton_OnHide)
+		end
+	end
+
+	for i, f in lib:IterateSearchFrames() do
+		f.scrollBox:RegisterCallback(f.scrollBox.Event.OnScroll, DropDownMenuScrollBox_OnScroll, f)
+
+		f.scrollBar:SetScript("OnEnter", nil)
+		f.scrollBar.Back:SetScript("OnEnter", MinimalScrollBarStepperScriptsMixin.OnEnter)
+		f.scrollBar.Forward:SetScript("OnEnter", MinimalScrollBarStepperScriptsMixin.OnEnter)
+		f.scrollBar.Track:SetScript("OnEnter", nil)
+		f.scrollBar.Track.Thumb:SetScript("OnEnter", MinimalScrollBarThumbScriptsMixin.OnEnter)
+
+		for j, btn in lib:IterateSearchFrameButtons(i) do
+			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
+			btn:SetScript("OnLeave", DropDownMenuButton_OnLeave)
+			btn:SetScript("OnHide", DropDownMenuButton_OnHide)
+		end
+	end
+
+	for i = 1, #v.widgetFrames do
+		local widget = v.widgetFrames[i]
+		widget:SetScript("OnEnter", widget_OnEnter)
+		widget:SetScript("OnLeave", widget_OnLeave)
 	end
 end
