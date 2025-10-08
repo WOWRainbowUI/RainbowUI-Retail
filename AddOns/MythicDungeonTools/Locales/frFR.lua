@@ -8,8 +8,7 @@ L = L or {}
 -- MDT
 L[" >Battle for Azeroth"] = ">Battle for Azeroth"
 L[" >Legion"] = ">Legion"
---[[Translation missing --]]
-L[" K'aresh Elemental"] = "K'aresh Elemental"
+L[" K'aresh Elemental"] = "Elémentaire k'areshi"
 L["%s HP"] = "%s HP"
 L["%s is in sublevel: %s"] = "%s est au sous niveau: %s"
 L["(G %d)"] = "(G %d)"
