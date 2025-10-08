@@ -1,5 +1,5 @@
 ## Title: Easy Frames
-## Interface: 110107, 110200
+## Interface: 110200, 110205
 ## Notes: Make your unit frames colored and glorious.
 ## Author: Mirmidonis
 ## SavedVariables: EasyFramesDB

@@ -1,4 +1,4 @@
-## Interface: 11507, 30405, 50500, 110107, 110200
+## Interface: 11507, 30405, 50500, 110200, 110205
 ## Title: Copy Anything
 ## Notes: Copy text from any frame.
 ## Author: Oppzippy

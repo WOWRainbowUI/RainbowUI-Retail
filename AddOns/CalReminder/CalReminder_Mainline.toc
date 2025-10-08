@@ -1,4 +1,4 @@
-## Interface: 110107, 110200
+## Interface: 110200, 110205
 ## Title: CalReminder
 ## IconTexture: Interface\Icons\inv_misc_pocketwatch_01.blp
 ## AddonCompartmentFunc: CalReminder_OpenOptions

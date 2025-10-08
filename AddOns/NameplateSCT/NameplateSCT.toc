@@ -1,4 +1,4 @@
-## Interface: 11506, 30405, 50500, 110107, 110200
+## Interface: 11506, 30405, 50500, 110200, 110205
 ## Version: 1.44
 ## Title: NameplateSCT
 ## Author: mpstark, Justwait

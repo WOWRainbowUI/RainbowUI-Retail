@@ -1,4 +1,4 @@
-## Interface: 11507, 30405, 50500, 110107, 110200
+## Interface: 11507, 30405, 50500, 110200, 110205
 ## Title: Advanced Interface Options
 ## Author: Stanzilla, Semlar
 ## Version: 2.1.4

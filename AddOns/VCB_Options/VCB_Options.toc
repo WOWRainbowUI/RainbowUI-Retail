@@ -1,4 +1,4 @@
-## Interface: 110107, 110200
+## Interface: 110200, 110205
 ## Category: Combat
 ## Category-deDE: Kampf
 ## Category-esES: Combate

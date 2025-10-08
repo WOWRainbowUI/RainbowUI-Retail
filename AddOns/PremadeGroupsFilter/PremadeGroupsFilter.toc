@@ -1,4 +1,4 @@
-## Interface: 110107, 110200
+## Interface: 110200, 110205
 ## Title: Premade Groups Filter
 ## Version: 6.9.4
 ## IconTexture: 397907

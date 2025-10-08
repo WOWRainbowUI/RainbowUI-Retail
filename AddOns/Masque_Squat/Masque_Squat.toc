@@ -1,4 +1,4 @@
-## Interface: 11503, 30403, 40400, 110107, 110200
+## Interface: 11503, 30403, 40400, 110200, 110205
 
 ## Title: Masque: Squat
 ## Notes: Squat skin for Masque.

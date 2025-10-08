@@ -1,4 +1,4 @@
-## Interface: 30403, 40401, 110107, 110200
+## Interface: 30403, 40401, 110200, 110205
 ## Version: 1.5.6
 ## Title: Achievements Back Button
 ## Author: LudiusMaximus

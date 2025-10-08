@@ -1,4 +1,4 @@
-## Interface: 11507, 30405, 50500, 110107, 110200
+## Interface: 11507, 30405, 50500, 110200, 110205
 ## Title: OPie
 ## Version: Ånd 7.3a
 ## Author: foxlit

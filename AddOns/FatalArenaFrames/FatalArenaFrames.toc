@@ -1,4 +1,4 @@
-## Interface: 110107, 110200
+## Interface: 110200, 110205
 ## Title: FatalArenaFrames
 ## Notes: Hides enemy frames in arena
 ## Author: Fatal

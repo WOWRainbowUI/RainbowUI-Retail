@@ -1,4 +1,4 @@
-## Interface: 11507, 30404, 50500, 110107, 110200
+## Interface: 11507, 30404, 50500, 110200, 110205
 ## Title: Syndicator
 ## Version: 241
 ## Author: plusmouse

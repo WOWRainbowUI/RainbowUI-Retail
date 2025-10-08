@@ -1,4 +1,4 @@
-## Interface: 110107, 110200
+## Interface: 110200, 110205
 ## Title: LibAsync
 ## Author: Nnoggie
 ## X-Curse-Project-ID: 904147

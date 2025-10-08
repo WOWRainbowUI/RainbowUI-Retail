@@ -1,4 +1,4 @@
-## Interface: 110107, 110200
+## Interface: 110200, 110205
 ## Title: Exlist
 ## Notes: Shows various information about your characters
 ## Author: Exality
