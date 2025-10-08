@@ -1,6 +1,6 @@
 # NoAutoClose
 
-## [v1.3.23](https://github.com/NumyAddon/NoAutoClose/tree/v1.3.23) (2025-09-24)
-[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.3.22...v1.3.23) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
+## [v1.3.25](https://github.com/NumyAddon/NoAutoClose/tree/v1.3.25) (2025-10-08)
+[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.3.24...v1.3.25) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
 
-- Mists TOC Bump  
+- TOC Bump  
