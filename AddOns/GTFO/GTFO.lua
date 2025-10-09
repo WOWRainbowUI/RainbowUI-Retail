@@ -28,9 +28,9 @@ GTFO = {
 		BrannMode = 0;
 		IgnoreTimeAmount = .2;
 	};
-	Version = "5.19.2"; -- Version number (text format)
+	Version = "5.19.3"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 51902; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 51903; -- Numeric version number for checking out-of-date clients (retail)
 	ClassicVersionNumber = 51900; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 51900; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 51900; -- Numeric version number for checking out-of-date clients (Wrath classic)
@@ -97,7 +97,7 @@ GTFOData = {};
 
 local buildNumber = select(4, GetBuildInfo());
 
-if (buildNumber > 110200) then
+if (buildNumber > 120000) then
 	GTFO.BetaMode = true;
 end
 if (buildNumber >= 100000) then
