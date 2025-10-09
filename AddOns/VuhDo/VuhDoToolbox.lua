@@ -480,7 +480,7 @@ function VUHDO_unitPhaseReason(aUnit)
 	local tPhaseReason = UnitPhaseReason(aUnit);
 
 	-- FIXME: workaround for Blizzard API bug: https://github.com/Stanzilla/WoWUIBugs/issues/49
-	if (tPhaseReason == Enum.PhaseReason.WarMode or tPhaseReason == Enum.PhaseReason.ChromieTime) and UnitIsVisible(aUnit) then
+	if (tPhaseReason == Enum.PhaseReason.WarMode or tPhaseReason == Enum.PhaseReason.ChromieTime or tPhaseReason == Enum.PhaseReason.TimerunningHwt) and UnitIsVisible(aUnit) then
 		return nil;
 	else
 		return tPhaseReason;
