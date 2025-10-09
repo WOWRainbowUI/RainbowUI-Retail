@@ -9,6 +9,6 @@
 
 ## Title-zhTW: |cffFFFF99[商人]|r 大量賣垃圾
 ## Notes-zhTW: Dejunk |n|n可以大量的自動賣出不要的裝備和物品，
-## X-Category-zhTW: 交易
+## Category-zhTW: 交易
 
 Dejunk.xml
