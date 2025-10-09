@@ -1483,6 +1483,13 @@ GTFO.SpellID["1237696"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1242212"] = {
+  --desc = "Burning Aftermath";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+
 end
 
 
