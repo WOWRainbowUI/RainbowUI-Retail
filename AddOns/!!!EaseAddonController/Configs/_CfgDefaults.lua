@@ -2631,7 +2631,7 @@ D["TinyTooltip-Reforged"] = {
 	},
 };
 D["TroveTally"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "COLLECTION" },
 	title = "混搭收藏單",
 	desc = "出混搭再造：軍臨天下所有可收藏的物品，已經收集到的會打勾，方便查看還有哪些未收集的物品。`",
