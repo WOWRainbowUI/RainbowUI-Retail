@@ -8,6 +8,18 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.2.5.1
+Released 2025-10-09
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.2.5.1 for Retail WoW
+Version 5.5.1.1 for Classic Mists of Pandaria
+Version 1.15.7.5 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Retail WoW 11.2.5 and Classic MoP 5.5.1.
+- Fixed error when saving/renaming profiles using the UI.  (UDProfiles.lua 4602)
+
+=======================================
 RELEASE 11.2.0.1
 Released 2025-08-05
 
@@ -213,21 +225,6 @@ BUG FIXES:
 - Fixed right-clicking to open the context menu when the mouse is over a checkbox.
 
 - Opening or closing the color picker without making any changes no longer marks the profile as unsaved.
-
-=======================================
-RELEASE 11.0.5.1
-Released 2024-10-22
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.0.5.1 for Retail WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for WoW 11.0.5.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 4.4.0.16 for Classic Cataclysm
-Version 1.15.4.3 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- No changes.
 
 ]]
 

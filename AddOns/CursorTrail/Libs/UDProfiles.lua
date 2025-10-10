@@ -1,4 +1,4 @@
-local PROFILESUI_VERSION = "2025-04-20"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
+local PROFILESUI_VERSION = "2025-10-09"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
 
 --[[---------------------------------------------------------------------------
     FILE:   UDProfiles.lua
@@ -177,6 +177,9 @@ local PROFILESUI_VERSION = "2025-04-20"  -- Version (date) of this file.  Stored
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Oct 09, 2025
+        - Fixed error when saving/renaming profiles using the UI.  (UDProfiles.lua 4602)
+
     Apr 20, 2025
         - Added a tooltip for the icon that indicates the selected profile is used for all characters.  (See accountProfileIcon.)
         - Updated comments.
@@ -4595,57 +4598,6 @@ local function staticPopup_SaveProfile(name)
 end
 
 --=============================================================================
-local function staticPopup_OnShow(thisPopupFrame, customData)
-    ----tracePUI("OnShow popup", thisPopupFrame.which)
-    -- 'customData' is the 4th parameter passed to StaticPopup_Show().
-    assert(customData)  -- Fails if missing 4th param ... StaticPopup_Show(which, text_arg1, text_arg2, customData)
-    assert(thisPopupFrame.OnHide == staticPopup_OnHide) -- Required function so blockerFrame doesn't stay visible forever.
-
-    local dialog = _G.StaticPopupDialogs[ thisPopupFrame.which ]
-    dialog.data = customData
-    ----dialog.origPos = { dialog:GetPoint() }
-    ----gLastUsedStaticPopup = thisPopupFrame  -- Risky!  Main UI could change popup's position and possibly cause taint problems.
-
-    -- Remove empty quotes (empty names) from the text message.
-    local msg = thisPopupFrame.text:GetText()
-    if msg then
-        msg = msg:gsub(' ""', '')
-        thisPopupFrame.text:SetText(msg)
-    end
-
-    -- Customize buttons.
-    local popupName = thisPopupFrame:GetName()
-    local minBtnH = 24
-    ----local btnW = _G[popupName.."Button1"]:GetWidth() * 0.8
-    for i = 1, 4 do
-        local btn = _G[popupName.."Button"..i]
-        if btn:GetHeight() < minBtnH then
-            btn:SetHeight(minBtnH)
-        end
-    end
-
-    -- Customize editbox.
-    local editbox = thisPopupFrame.editBox
-    if editbox and editbox:IsShown() then
-        _G[popupName.."Button1"]:Disable()  -- Disable OK button.
-        editbox:SetFocus()
-        if dialog.data == "" then
-            editbox:SetText("TEMP")  -- Fixes disabled OK button after first appearance with blank text.
-        end
-        editbox:SetText( dialog.data )
-        editbox:HighlightText()
-        ----if thisPopupFrame.which == kAddonFolderName.."_BACKUP" then  -- Popup for backups?
-            C_Timer.After(0.01, function()
-                        local newFrameH = _G[popupName]:GetHeight() - 6
-                        _G[popupName]:SetHeight(newFrameH)
-                    end)
-        ----end
-    end
-
-    gMBIntf:showBlockerFrame(thisPopupFrame)  -- Do this last.  (If something fails above, the blocker frame won't be stuck on screen.)
-end
-
---=============================================================================
 local function staticPopup_OnHide(thisPopupFrame)
     gMBIntf:hideBlockerFrame()
     ----local dialog = _G.StaticPopupDialogs[ thisPopupFrame.which ]
@@ -4654,6 +4606,75 @@ local function staticPopup_OnHide(thisPopupFrame)
     reshow()  -- Reshow previous frame (if set) that displayed this popup window.
     ----C_Timer.After(1, dbg)
     ----tracePUI("OnHide popup", thisPopupFrame.which)
+end
+
+--=============================================================================
+local function staticPopup_OnShow(thisPopupFrame, customData)
+    ----tracePUI("OnShow popup", thisPopupFrame.which)
+    local dialog = _G.StaticPopupDialogs[ thisPopupFrame.which ]
+
+    -- Set fields not available in Classic versions (as of Oct 09, 2025).
+    thisPopupFrame.dialogInfo = thisPopupFrame.dialogInfo or dialog
+    thisPopupFrame.Text = thisPopupFrame.Text or thisPopupFrame.text
+    thisPopupFrame.EditBox = thisPopupFrame.EditBox or thisPopupFrame.editBox
+
+    -- 'customData' is the 4th parameter passed to StaticPopup_Show().
+    assert(customData)  -- Fails if missing 4th param ... StaticPopup_Show(which, text_arg1, text_arg2, customData)
+    assert(thisPopupFrame.dialogInfo.OnHide == staticPopup_OnHide) -- Required function so blockerFrame doesn't stay visible forever.
+
+    dialog.data = customData
+    ----dialog.origPos = { dialog:GetPoint() }
+    ----gLastUsedStaticPopup = thisPopupFrame  -- Risky!  Main UI could change popup's position and possibly cause taint problems.
+
+    -- Remove empty quotes (empty names) from the text message.
+    local msg = thisPopupFrame.Text:GetText()
+    if msg then
+        msg = msg:gsub(' ""', '')
+        thisPopupFrame.Text:SetText(msg)
+    end
+
+    C_Timer.After(0.02, function()
+        local popupName = thisPopupFrame:GetName()
+
+        -- Customize window width.
+        local textWidth = thisPopupFrame.Text:GetUnboundedStringWidth()
+        _G[popupName]:SetWidth(textWidth + 60)
+        if thisPopupFrame.Text.SetDesiredWidth then
+            -- SetDesiredWidth() is only available (an necessary) in Retail WoW (as of Oct 09, 2025).
+            thisPopupFrame.Text:SetDesiredWidth(textWidth)
+        end
+
+        -- Customize buttons.
+        local minBtnH = 24
+        ----local btnW = _G[popupName.."Button1"]:GetWidth() * 0.8
+        for i = 1, 4 do
+            local btn = _G[popupName.."Button"..i]
+            if btn:GetHeight() < minBtnH then
+                btn:SetHeight(minBtnH)
+            end
+        end
+
+        -- Customize editbox.
+        local editbox = thisPopupFrame.EditBox
+        if editbox and editbox:IsShown() then
+            _G[popupName.."Button1"]:Disable()  -- Disable OK button.
+            editbox:SetFocus()
+            if dialog.data == "" then
+                editbox:SetText("TEMP")  -- Fixes disabled OK button after first appearance with blank text.
+            end
+            editbox:SetText( dialog.data )
+            editbox:HighlightText()
+            if isRetailWoW() then
+                ----if thisPopupFrame.which == kAddonFolderName.."_BACKUP" then  -- Backups window?
+                C_Timer.After(0.01, function()
+                            local newFrameH = _G[popupName]:GetHeight() - 6
+                            _G[popupName]:SetHeight(newFrameH)
+                        end)
+            end
+        end
+
+        gMBIntf:showBlockerFrame(thisPopupFrame)  -- Do this last.  (If something fails above, the blocker frame won't be stuck on screen.)
+    end)
 end
 
 --=============================================================================
