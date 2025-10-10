@@ -2,7 +2,7 @@
 ## Title: LiteButtonAuras
 ## IconTexture: Interface\Icons\ability_deathknight_heartstopaura
 ## AddonCompartmentFunc: LiteButtonAuras_AddonCompartmentFunc
-## Version: 11.2.5-1
+## Version: 11.2.5-2
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
 ## OptionalDeps: Masque
