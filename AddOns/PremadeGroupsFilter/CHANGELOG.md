@@ -1,7 +1,10 @@
 # Premade Groups Filter
 
-## [6.9.4](https://github.com/0xbs/premade-groups-filter/tree/6.9.4) (2025-09-02)
-[Full Changelog](https://github.com/0xbs/premade-groups-filter/compare/6.9.3...6.9.4) [Previous Releases](https://github.com/0xbs/premade-groups-filter/releases)
+## [6.10.0](https://github.com/0xbs/premade-groups-filter/tree/6.10.0) (2025-10-09)
+[Full Changelog](https://github.com/0xbs/premade-groups-filter/compare/6.9.5...6.10.0) [Previous Releases](https://github.com/0xbs/premade-groups-filter/releases)
 
-- Update flavor name  
-- Fix non-existing rating attempted to being shown on Mists  
+- Add button to invert dungeon selection (fixes #344)  
+- Merge pull request #348 from Hollicsh/master  
+    Upd the .toc files  
+- Update PremadeGroupsFilter.toc  
+- Update PremadeGroupsFilter\_Mists.toc  
