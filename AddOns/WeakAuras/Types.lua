@@ -185,6 +185,43 @@ timeFormatter.GetMaxInterval = function(self)
   return #timeFormatIntervalDescriptionFixed
 end
 
+local AbbreviateNumbers = AbbreviateNumbers
+local gameLocale = GetLocale()
+if gameLocale == "koKR" or gameLocale == "zhCN" or gameLocale == "zhTW" then
+  -- Work around https://github.com/Stanzilla/WoWUIBugs/issues/515
+  --
+  local NUMBER_ABBREVIATION_DATA_FIXED={
+    [1]={
+      breakpoint = 10000 * 10000,
+      significandDivisor = 10000 * 10000,
+      abbreviation = SECOND_NUMBER_CAP_NO_SPACE,
+      fractionDivisor = 1
+    },
+    [2]={
+      breakpoint = 1000 * 10000,
+      significandDivisor = 1000 * 10000,
+      abbreviation = SECOND_NUMBER_CAP_NO_SPACE,
+      fractionDivisor = 10
+    },
+    [3]={
+      breakpoint = 10000,
+      significandDivisor = 1000,
+      abbreviation = FIRST_NUMBER_CAP_NO_SPACE,
+      fractionDivisor = 10
+    }
+  }
+
+  AbbreviateNumbers = function(value)
+    for i, data in ipairs(NUMBER_ABBREVIATION_DATA_FIXED) do
+      if value >= data.breakpoint then
+              local finalValue = math.floor(value / data.significandDivisor) / data.fractionDivisor;
+              return finalValue .. data.abbreviation;
+      end
+    end
+    return tostring(value);
+  end
+end
+
 local simpleFormatters = {
   AbbreviateNumbers = function(value)
     if type(value) == "string" then value = tonumber(value) end
@@ -4375,6 +4412,7 @@ Private.reset_ranged_swing_spells = {
   [5019] = true, -- Shoot Wands
   [75] = true, -- Auto Shot
   [5384] = true, -- Feign Death
+  [467718] = true, -- Bleak Arrows
 }
 
 Private.noreset_swing_spells = {
