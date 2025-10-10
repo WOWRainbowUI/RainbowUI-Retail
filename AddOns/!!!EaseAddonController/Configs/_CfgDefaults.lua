@@ -2630,24 +2630,20 @@ D["TinyTooltip-Reforged"] = {
 		text = "移動位置：在遊戲內建的編輯模式中勾選 '浮動提示資訊' 來移動位置。\n\n查看法術ID：滑鼠指向時按住 Alt 鍵。\n\n戰鬥中顯示滑鼠提示：在設定選項中取消勾選 '戰鬥中隱藏'，玩家和NPC的戰鬥中隱藏也要分別取消勾選。\n\nDIY 模式：在設定選項中按下 DIY，可以分別拖曳每種資訊文字，自行安排呈現的位置。\n\n|cffFF2D2D請勿同時開啟 功能百寶箱 > 界面設置 > 增強工具提示 的功能，以免發生衝突。|r\n",
 	},
 };
-D["TLDRMissions"] = {
-    defaultEnable = 0,
-	tags = { "QUEST" },
-	title = "誓盟指揮桌 (自動)",
-	desc = "自動幫你挑選夥伴和部隊，一鍵派出誓盟聖所的指揮桌的任務。``|cffFF2D2D特別注意：預設一個任務只會挑選一位夥伴，其他都是部隊。如果你想要在一個任務中使用多位夥伴 (例如經驗值很多的任務要升級夥伴)，請點選視窗最下方的 '進階' 標籤頁，選最多追隨者。|r``任務失敗請踴躍回報幫助改善插件，回報方法請看`https://addons.miliui.com/show/194`",
-	modifier = "BNS",
-	icon = "Interface\\Icons\\sanctum_features_missiontable",
+D["TroveTally"] = {
+    defaultEnable = 1,
+	tags = { "COLLECTION" },
+	title = "混搭收藏單",
+	desc = "出混搭再造：軍臨天下所有可收藏的物品，已經收集到的會打勾，方便查看還有哪些未收集的物品。`",
+	icon = "Interface\\Icons\\inv_scroll_15",
+	{
+        text = "打開主視窗",
+        callback = function() SlashCmdList["TROVE"]("") end,
+    },
 	{
 		type = "text",
-		text = "自動派任務的方法：\n\n1. 按下誓盟指揮桌視窗的左上角多的 '自動' 按鈕。\n\n2. 勾選你想要派的任務類型。\n\n3. 按下 '計算' 按鈕，會自動幫你挑選每個任務要派出的夥伴和部隊。\n\n4. 最後按下 '開始任務' 來派出，每按一次會派出一個任務。\n\n5. 或是點選視窗最下方的 '進階' 標籤頁，將 一旦計算後立即開始任務' 打勾，便會在計算後自動派出所有任務。\n",
-	},
-};
-D["Tofu"] = {
-    defaultEnable = 0,
-	tags = { "QUEST" },
-	title = "任務對話 (FF XIV 風格)",
-	desc = "與NPC對話、接受/交回任務時，會使用 FINAL FANTASY XIV 風格的對話方式，取代傳統的任務說明。``用滑鼠點或按空白鍵接受任務和繼續下一段對話，按 Esc 取消對話。``|cffFF2D2D任務對話 (FF XIV 風格)、任務對話 (說話的頭風格) 和任務對話 (電影風格) 選擇其中一種使用即可，請勿同時載入使用。|r`",
-	icon = "Interface\\Icons\\inv_legioncircle_faction_valarjar",
+		text = "點小地圖按鈕的 '混搭收藏單' 按鈕也可以打開主視窗。",
+	}
 };
 D["tullaRange"] = {
     defaultEnable = 1,
