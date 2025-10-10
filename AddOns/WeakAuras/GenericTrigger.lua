@@ -1610,7 +1610,7 @@ do
         return false
       end
 
-      for i = 1, 20 do
+      for i = 0, 20 do
         counter.fastMatches[i] = counter.RunTests(counter, i)
       end
 
@@ -4018,6 +4018,24 @@ function Private.ExecEnv.CheckTotemIcon(totemIcon, triggerTotemIcon, operator)
     return true
   end
   return (totemIcon == triggerTotemIcon) == (operator == "==")
+end
+
+function Private.ExecEnv.CheckTotemSpellId(spellId, triggerSpellId, followoverride)
+  if not triggerSpellId then
+    return true
+  end
+
+  if spellId == triggerSpellId then
+    return true
+  end
+
+  if followoverride then
+    if spellId == FindSpellOverrideByID(triggerSpellId) then
+      return true
+    end
+  end
+
+  return false
 end
 
 -- Queueable Spells
