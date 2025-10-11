@@ -273,7 +273,8 @@ R:AddDefaultRing("CommonHearth", {
 	{"toy", 236687, _u="um"},
 	{"toy", 245970, _u="pm"},
 	{"toy", 246565, _u="co"},
-	name=L"Hearthstones", internal=true, _u="OPCHS", v=9
+	{"item", 250411, _u="lx"},
+	name=L"Hearthstones", internal=true, _u="OPCHS", v=10
 })
 R:AddDefaultRing("SpecMenu", {
 	{"specset", 1, _u="1"},
@@ -284,9 +285,9 @@ R:AddDefaultRing("SpecMenu", {
 	{"opie.ext", "mythport", show="[mythport]", _u="m"},
 	{"toy", 110560, _u="g"},
 	{"toy", 140192, _u="d"},
-	{"item", 217930, _u="x"},
+	{"item", 238727, _u="x"}, -- remix: nostwin's voucher
 	{id=436854, _u="f", show="[level:20]"},
 	{"ring", "CommonHearth", rotationMode="shuffle", _u="t"},
 	{"item", 141605, _u="w", show="[in:broken isles/argus/bfa]"}, -- flight master's whistle
-	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=5
+	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=6
 })

@@ -2,7 +2,7 @@ local COMPAT, _, T = select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
-local MODERN, CF_CLASSIC, CI_ERA = COMPAT >= 10e4 or nil, COMPAT < 10e4 or nil, COMPAT < 2e4 or nil
+local MODERN, CF_CLASSIC, CI_ERA, TWELVE = COMPAT >= 10e4 or nil, COMPAT < 10e4 or nil, COMPAT < 2e4 or nil, COMPAT >= 12e4
 local CF_WRATH, CF_CATA, CF_MISTS = COMPAT < 10e4 and COMPAT > 3e4 or nil, COMPAT < 10e4 and COMPAT > 4e4 or nil, COMPAT < 10e4 and COMPAT > 5e4 or nil
 local MODERN_MOUNTS, MODERN_BATTLEPETS = MODERN or CF_WRATH, MODERN or CF_MISTS
 local EV = T.Evie
@@ -879,7 +879,7 @@ securecall(function() -- raidmark
 			return "remove"
 		end
 	end
-	map[0] = AB:CreateActionSlot(removeHint, nil, "func", function()
+	map[0] = not TWELVE and AB:CreateActionSlot(removeHint, nil, "func", function()
 		if not CanChangeRaidTargets() then return end
 		local pt = GetRaidTargetIndex("player")
 		for i=8, 0, -1 do
@@ -888,9 +888,11 @@ securecall(function() -- raidmark
 		if not (pt or waitingToClearSelf) and IsInGroup() then
 			waitingToClearSelf, EV.RAID_TARGET_UPDATE = 1, FinishClearRaidTargets
 		end
-	end)
+	end) or nil
+	local tf = TWELVE and (SLASH_TARGET_MARKER1 .. " %d\n" .. SLASH_TARGET_MARKER1 .. " [group] 0")
 	for i=1,8 do
-		map[i] = AB:CreateActionSlot(raidmarkHint, i, "func", setRaidTarget, i)
+		map[i] = TWELVE and AB:CreateActionSlot(raidmarkHint, i, "retext", tf:format(i))
+		                 or AB:CreateActionSlot(raidmarkHint, i, "func", setRaidTarget, i)
 	end
 	local function createRaidMark(id)
 		return map[id]

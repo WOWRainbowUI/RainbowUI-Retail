@@ -347,7 +347,8 @@ securecall(function() -- combo:count
 		return UnitPower("player", power) >= (tonumber(args) or 1)
 	end)
 	local function syncComboPower()
-		power = powerMap[MODERN and GetSpecializationInfo(GetSpecialization() or 0)] or defaultPower
+		local specid = MODERN and C_SpecializationInfo.GetSpecializationInfo(C_SpecializationInfo.GetSpecialization() or 0)
+		power = powerMap[specid] or defaultPower
 	end
 	EV.PLAYER_SPECIALIZATION_CHANGED, EV.PLAYER_ENTERING_WORLD = syncComboPower, syncComboPower
 end)
