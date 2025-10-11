@@ -495,7 +495,7 @@ function addon:initCooldownManager()
         end
         
         local function initFrame(frame, db, includeTrinkets)
-            lib:RegisterCustomButton(frame, "Add more icons", function()
+            lib:RegisterCustomButton(frame, "加入更多圖示", function()
                 local db = db[getCurrentLoadoutID(frame, db)]
                 settingFrame:SetShown(not settingFrame:IsShown())
                 settingFrame.viewer = frame
