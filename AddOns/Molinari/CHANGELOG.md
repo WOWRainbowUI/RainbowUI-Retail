@@ -1,4 +1,4 @@
-### Changes in 110200.135-Release:
+### Changes in 110205.136-Release:
 
-- Fixed: Accidentally activating on non-bagslot items in general
+- Fixed: Accidental pollution of the global table library
 
