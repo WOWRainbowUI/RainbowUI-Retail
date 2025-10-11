@@ -22,7 +22,7 @@ function addon:startswith(str, contents)
 	return str:sub(1, contents:len()) == contents
 end
 
---[[ namespace:T([_tbl_[, _mixin_, ...] ]) ![](https://img.shields.io/badge/function-blue)
+--[[ namespace:T([_tbl_]) ![](https://img.shields.io/badge/function-blue)
 Returns the table _`tbl`_ with meta methods. If _`tbl`_ is not provided a new empty table is used.
 
 Included are all meta methods from the `table` library, as well as a few extra handy methods:
@@ -45,17 +45,17 @@ t + {'five', 'six'} --> {'one', 'two', 'three', 'five', 'six'}
 ```
 --]]
 do
-	local tableMixin = {}
-	function tableMixin:size()
+	local tableMethods = CreateFromMixins(table)
+	function tableMethods:size()
 		return addon:tsize(self)
 	end
 
-	function tableMixin:merge(tbl)
+	function tableMethods:merge(tbl)
 		addon:ArgCheck(tbl, 1, 'table')
 
 		for k, v in next, tbl do
 			if type(self[k] or false) == 'table' then
-				tableMixin.merge(self[k], tbl[k])
+				tableMethods.merge(self[k], tbl[k])
 			else
 				self[k] = v
 			end
@@ -64,7 +64,7 @@ do
 		return self
 	end
 
-	function tableMixin:contains(value)
+	function tableMethods:contains(value)
 		for _, v in next, self do
 			if value == v then
 				return true
@@ -74,12 +74,31 @@ do
 		return false
 	end
 
-	function tableMixin:random()
+	function tableMethods:random()
 		local size = self:size()
 		if size > 0 then
 			return self[math.random(size)]
 		end
 	end
+
+	function tableMethods:copy(shallow)
+		local tbl = addon:T()
+		for k, v in next, self do
+			if type(v) == 'table' and not shallow then
+				tbl[k] = tableMethods.copy(v)
+			else
+				tbl[k] = v
+			end
+		end
+		return tbl
+	end
+
+	-- remove obsolete and deprecated methods present in the table library
+	-- https://warcraft.wiki.gg/wiki/Lua_functions#Deprecated_functions
+	tableMethods.foreach = nil
+	tableMethods.foreachi = nil
+	tableMethods.getn = nil
+	tableMethods.setn = nil
 
 	local function newIndex(self, key, value)
 		-- turn child tables into this metatable too
@@ -90,13 +109,13 @@ do
 		end
 	end
 
-	function addon:T(tbl, ...)
+	function addon:T(tbl)
 		addon:ArgCheck(tbl, 1, 'table', 'nil')
 
 		return setmetatable(tbl or {}, {
-			__index = Mixin(table, tableMixin, ...),
+			__index = tableMethods,
 			__newindex = newIndex,
-			__add = tableMixin.merge,
+			__add = tableMethods.merge,
 		})
 	end
 end
