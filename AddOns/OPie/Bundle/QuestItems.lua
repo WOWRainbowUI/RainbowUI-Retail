@@ -30,6 +30,12 @@ if MODERN or CF_WRATH then
 		local function have3(iid)
 			return C_Item.GetItemCount(iid) > 2, false, false, 4
 		end
+		local function have10(iid)
+			return C_Item.GetItemCount(iid) > 9, false, false, 4
+		end
+		local function have100(iid)
+			return C_Item.GetItemCount(iid) > 99, false, false, 4
+		end
 		local function have1_lv80()
 			if (UnitLevel("player") or 0) >= 80 then
 				return true, false, false, 4
@@ -110,6 +116,14 @@ if MODERN or CF_WRATH then
 			[245611]=have1, -- wriggling pinnacale cache [11.2]
 			[255676]=have1, -- phase diver's cache [11.2]
 			[247820]=have1, -- cache of k'areshi treasures [11.2 sign of the warrior]
+			-- Legion Remix
+			[237812]=have1, [245553]=have1, [256763]=have1, -- cache of infinite treasure/heroic/armory
+			[248247]=have1, [251821]=have1, -- cache of infinite power
+			[253224]=have10, -- mote of a broken time
+			[254267]=have100, -- fragmented memento
+			[246812]=c1, [246815]=c1, [246814]=c1, [246813]=c1, -- minor/lesser//greater bronze cache
+			[245925]=c1, [249891]=c1, -- artifactium sand
+			[246936]=c1, [246937]=c1, -- epoch memento
 		}
 		filtered = {
 			[228988]=ebIsNotRockReviver, -- siren isle rock reviver
@@ -138,6 +152,7 @@ if MODERN or CF_WRATH then
 	setmetatable(exclude, {__index={
 		[204561]=1,
 		[232466]=1, -- leave the storm, siren isle
+		[246808]=1, -- heroic tier instructions, legion remix
 	}})
 	function IsQuestItem(iid, bag, slot)
 		if exclude[iid] or not iid then
