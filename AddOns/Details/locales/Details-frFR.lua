@@ -173,8 +173,7 @@ L["STRING_DODGE"] = "Esquive"
 L["STRING_DOT"] = "(DoT)"
 L["STRING_DPS"] = "DPS"
 L["STRING_EMPTY_SEGMENT"] = "Segment vide"
---[[Translation missing --]]
-L["STRING_ENABLE_DO_NOT_DISTURB"] = "Enable Do Not Disturb"
+L["STRING_ENABLE_DO_NOT_DISTURB"] = "Activer Ne pas déranger"
 L["STRING_ENABLED"] = "Activé"
 L["STRING_ENVIRONMENTAL_DROWNING"] = "Environnement (noyade)"
 L["STRING_ENVIRONMENTAL_FALLING"] = "Environnement (chute)"
@@ -295,27 +294,18 @@ L["STRING_KEYBIND_TOGGLE_WINDOWS"] = "Tout afficher"
 L["STRING_KEYBIND_WINDOW_CONTROL"] = "Fenêtres"
 L["STRING_KEYBIND_WINDOW_REPORT"] = "Envoyer les données de la fenêtre #%s."
 L["STRING_KEYBIND_WINDOW_REPORT_HEADER"] = "Envoyer les données"
---[[Translation missing --]]
-L["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"] = "Add to friends list as character (not battlenet friend request)."
---[[Translation missing --]]
-L["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"] = "Click to view the scoreboard."
---[[Translation missing --]]
-L["STRING_KEYSTONE_DND_TOOLTIP"] = "Your key won't be sent to your guild or friends. While in a group, it will still be sent."
---[[Translation missing --]]
-L["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"] = [=[Life-time likes you gave for this player through the 'GG' button in the |cFFFFFF00Details! Damage Meter Mythic+|r addon.
-
-View run breakdown by selecting a Mythic+ run you did with this player.]=]
---[[Translation missing --]]
-L["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"] = "Mythic+ addon not found."
---[[Translation missing --]]
-L["STRING_KEYSTONE_REQUEST_FROM_GUILD"] = "Request from Guild"
+L["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"] = "Ajouter ce personnage à la liste d'amis (pas de demande d'ami Battle.net)."
+L["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"] = "Cliquez pour afficher le tableau des scores."
+L["STRING_KEYSTONE_DND_TOOLTIP"] = "Votre clé ne sera pas envoyée à votre guilde ni à vos amis. En revanche, si vous êtes dans un groupe, elle le sera quand même. "
+L["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"] = "Les « J'aimes » que que vous avez donnés à ce joueur via le bouton « GG » dans l'addon |cFFFFFF00Details! Damage Meter Mythic+|r. Consultez le détail d'une clé Mythique+ que vous avez effectuée avec ce joueur."
+L["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"] = "Addon Mythic+ non trouvé."
+L["STRING_KEYSTONE_REQUEST_FROM_GUILD"] = "Demande de la guilde"
 L["STRING_KILLED"] = "Tué"
 L["STRING_LAST_COOLDOWN"] = "dernier cooldown utilisé"
 L["STRING_LEFT"] = "gauche"
 L["STRING_LEFT_CLICK_SHARE"] = "Clic gauche pour signaler."
 L["STRING_LEFT_TO_RIGHT"] = "De gauche à droite"
---[[Translation missing --]]
-L["STRING_LIKES_YOU_GAVE"] = "Likes you gave"
+L["STRING_LIKES_YOU_GAVE"] = "« J'aimes » que vous avez donné"
 L["STRING_LOCK_DESC"] = "Verrouille ou déverrouille la fenêtre"
 L["STRING_LOCK_WINDOW"] = "verrouiller"
 L["STRING_MASTERY"] = "Maîtrise"
@@ -380,8 +370,7 @@ L["STRING_NO_MYTHIC_PLUS_ADDON"] = "To track your Mythic+ runs including loot, s
 L["STRING_NO_SPELL"] = "aucun sort n'a été utilisé"
 L["STRING_NO_TARGET"] = "Aucune cible trouvée."
 L["STRING_NO_TARGET_BOX"] = "Aucune cible disponible"
---[[Translation missing --]]
-L["STRING_NO_TELEPORTER"] = "You don't have this teleporter"
+L["STRING_NO_TELEPORTER"] = "Vous n'avez pas cette téléportation"
 L["STRING_NOCLOSED_INSTANCES"] = "Il n'y a pas de fenêtres fermées, cliquez pour en ouvrir une nouvelle."
 L["STRING_NOLAST_COOLDOWN"] = "pas de cooldown utilisés"
 L["STRING_NOMORE_INSTANCES"] = "Nombre maximum de fenêtres atteintes. Modifiez la limite dans les options."
@@ -1212,8 +1201,7 @@ L["STRING_QUERY_INSPECT_REFRESH"] = "mise à jour nécessaire"
 L["STRING_RAID_WIDE"] = "[*] cooldown de raid globaux"
 L["STRING_RAIDCHECK_PLUGIN_DESC"] = "À l'intérieur d'une instance de raid, affiche l'icône sur la barre de titre de Details! montrant le flacon, la nourriture, et l'utilisation de la pré-potion."
 L["STRING_RAIDCHECK_PLUGIN_NAME"] = "Vérification du raid"
---[[Translation missing --]]
-L["STRING_RECENT_PLAYERS"] = "Recent Players:"
+L["STRING_RECENT_PLAYERS"] = "Joueurs récents :"
 L["STRING_REPORT"] = "pour"
 L["STRING_REPORT_BUTTON_TOOLTIP"] = "Cliquez pour ouvrir la boîte de dialogue du rapport"
 L["STRING_REPORT_FIGHT"] = "combat"
@@ -1325,10 +1313,8 @@ L["STRING_SWITCH_WARNING"] = "Le rôle a changé. Changement : |cFFFFAA00%s|r"
 L["STRING_TARGET"] = "Cible"
 L["STRING_TARGETS"] = "Cibles"
 L["STRING_TARGETS_OTHER1"] = "Familiers et autres cibles"
---[[Translation missing --]]
-L["STRING_TELEPORT"] = "Teleport"
---[[Translation missing --]]
-L["STRING_TELEPORTERS"] = "Teleporters"
+L["STRING_TELEPORT"] = "Téléportation"
+L["STRING_TELEPORTERS"] = "Téléportations"
 L["STRING_TEXTURE"] = "Texture"
 L["STRING_TIME_OF_DEATH"] = "Mort"
 L["STRING_TOOOLD"] = "n'a pas pu être installé car votre version de Details! est trop ancienne."

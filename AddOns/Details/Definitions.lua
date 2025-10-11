@@ -178,6 +178,15 @@ DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND = true
 DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY = true
 DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 
+---@class interrupt_overlap : table
+---@field time number
+---@field sourceName string
+---@field spellId number
+---@field targetName string
+---@field extraSpellID number
+---@field used boolean
+---@field interrupted boolean
+
 ---@class mythicdungeontrashinfo
 ---@field ZoneName string
 ---@field MapID number
@@ -1045,6 +1054,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field PetContainer petcontainer
 ---@field InstanceDifficulty instancedifficulty
 ---@field ContextManager contextmanager
+---@field AllInOneWindow details_allinonewindow
 
 ---@class profile_breakdown_settings : table
 ---@field font_size number
