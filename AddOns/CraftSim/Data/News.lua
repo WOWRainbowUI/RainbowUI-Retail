@@ -21,6 +21,15 @@ function CraftSim.NEWS:GET_NEWS(itemMap)
         CraftSim.MEDIA:GetAsTextIcon(CraftSim.MEDIA.IMAGES.PIXEL_HEART, 0.15)
     local news = {
         f.bb("Hello and thank you for using CraftSim! ( You are awesome! )\n"),
+        newP("20.3.0"),
+        f.s .. "Fixed craft log sometimes not counting crafts",
+        f.a .. "when crafting with low frame rate",
+        collab("https://github.com/shadowmutant"),
+        f.p .. "Added missing recipe data update after stat weight", 
+        f.a .. "calculation",
+        collab("https://github.com/shadowmutant"),
+        f.p .. "Fixed resourcefulness consideration for salvage recipes",
+        collab("https://github.com/shadowmutant"),
         newP("20.2.4"),
         f.p .. "Updated Specialization Data for 11.2.5",
         newP("20.2.3"),
