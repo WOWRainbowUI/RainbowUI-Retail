@@ -1,4 +1,4 @@
-## Interface: 11507, 50500, 110200, 110205
+## Interface: 11507, 50501, 110200, 110205
 ## Title: Dominos Progress
 ## Title-zhCN: Dominos 进度条模块
 ## Notes: Progress bars of all sorts
