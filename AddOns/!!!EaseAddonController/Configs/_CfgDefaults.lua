@@ -968,7 +968,7 @@ D["EnhBloodlust"] = {
 	defaultEnable = 1,
 	tags = { "COMBAT" },
 	title = "嗜血音樂",
-	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`愛♡スクリ～ム! - AiScReam (FroGi Remix)`by LoveLive!``https://www.youtube.com/watch?v=W-0lSiV-H7k",
+	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`OKP Cipher`by Avantgardey``https://www.youtube.com/watch?v=KP7SZGylejQ",
 	icon = "Interface\\Icons\\spell_nature_bloodlust",
 	img = true,
 	{
