@@ -18,7 +18,7 @@ local checkButton = CreateFrame("CheckButton", "PremadeSortSkipCheckButton", LFG
 checkButton:SetPoint("RIGHT", LFGListFrame.SearchPanel.SignUpButton, "RIGHT")
 checkButton:SetHitRectInsets(0,-1,0,0)
 checkButton.tooltip = "Skip role selection unless previously not selected.\n\nDouble-click on a group will always skip role unless previously not selected.\n\nSettings:\n/ps, /premadesort";
-checkButton:SetScript("OnClick", nop)
+--checkButton:SetScript("OnClick", nop)
 
 if ElvUI then
     local Skins = ElvUI[1]:GetModule('Skins')
@@ -171,13 +171,13 @@ function PremadeSort:OnEvent(e, ...)
         Settings.SortWarMode = Settings.SortWarMode or true;
         Settings.ColorDisabled = nil;
         --BINDING_HEADER_PREMADESORT = GetAddOnMetadata(addonName, "Title");
-    elseif e == "PLAYER_LOGIN" then
+    --[[elseif e == "PLAYER_LOGIN" then
         if not C_LFGList.IsPlayerAuthenticatedForLFG(183) then return end
         function LFGList_ReportAdvertisement(searchResultID, leaderName)
             local reportInfo = ReportInfo:CreateReportInfoFromType(Enum.ReportType.GroupFinderPosting);
             reportInfo:SetGroupFinderSearchResultID(searchResultID);
             ReportFrame:InitiateReport(reportInfo, leaderName);
-        end
+        end ]]
     end
 end
 
