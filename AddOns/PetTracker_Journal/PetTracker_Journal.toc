@@ -3,7 +3,7 @@
 ## Author: Jaliborc (João Cardoso)
 ## X-Category: Battle Pets
 
-## Interface: 110200, 50500
+## Interface: 110205, 50501
 ## Dependencies: PetTracker
 ## RequiredDep: Blizzard_MapCanvas
 ## LoadWith: Blizzard_Collections
