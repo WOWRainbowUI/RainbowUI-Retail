@@ -1,3 +1,7 @@
+# v2.57.0
+
+- Updated for 11.2.5
+
 # v2.55.0
 
 - Added questlines for Ghosts of Ka'resh
