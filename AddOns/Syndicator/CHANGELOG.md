@@ -1,7 +1,6 @@
 # Syndicator
 
-## [242](https://github.com/TheMouseNest/Syndicator/tree/242) (2025-10-07)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/241...242) 
+## [244](https://github.com/TheMouseNest/Syndicator/tree/244) (2025-10-15)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/243...244) 
 
-- Retail: Update toc for 11.2.5  
-- Midnight: Add Housing category and subcategories to search terms  
+- Retail: Support searching for remix gear stats  

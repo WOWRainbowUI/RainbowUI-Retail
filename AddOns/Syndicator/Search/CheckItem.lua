@@ -1317,7 +1317,7 @@ if C_TradeSkillUI and C_TradeSkillUI.GetItemReagentQualityByItemInfo then
 end
 
 local function GetGemStatCheck(statKey)
-  local PATTERN1 = "%+" .. statKey -- Retail remix gems
+  local PATTERN1 = "%+%d+%% " .. statKey -- Retail remix gems
   local PATTERN2 = "%+%d+ " .. statKey -- Normal gems
   return function(details)
     GetClassSubClass(details)
