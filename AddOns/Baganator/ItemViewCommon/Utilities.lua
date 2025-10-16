@@ -300,7 +300,7 @@ function addonTable.Utilities.AddScrollBar(self)
     self.ScrollBox:SetSize(
       self.Container:GetWidth() + 4,
       math.min(
-        self.Container:GetHeight() + 4,
+        self.Container:GetHeight() + 5,
         UIParent:GetHeight() / scale - ySaved
       )
     )
