@@ -1,4 +1,6 @@
-### Changes in 110205.136-Release:
+### Changes in 110205.137-Release:
 
-- Fixed: Accidental pollution of the global table library
+- Changed: Update Interface versions for PTR
+- Changed: Update retail data from PTR
+- Changed: Update classic data from PTR
 
