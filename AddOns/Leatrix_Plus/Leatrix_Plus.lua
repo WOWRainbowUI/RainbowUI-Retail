@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.2.12 (15th October 2025)
+-- 	Leatrix Plus 11.2.14 (17th October 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.2.12"
+	LeaPlusLC["AddonVer"] = "11.2.14"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -667,7 +667,6 @@
 		or	(LeaPlusLC["HideBossBanner"]		~= LeaPlusDB["HideBossBanner"])			-- Hide boss banner
 		or	(LeaPlusLC["HideEventToasts"]		~= LeaPlusDB["HideEventToasts"])		-- Hide event toasts
 		or	(LeaPlusLC["NoClassBar"]			~= LeaPlusDB["NoClassBar"])				-- Hide stance bar
-		or	(LeaPlusLC["NoCommandBar"]			~= LeaPlusDB["NoCommandBar"])			-- Hide order hall bar
 		or	(LeaPlusLC["NoRestedSleep"]			~= LeaPlusDB["NoRestedSleep"])			-- Hide rested sleep
 
 		-- System
@@ -1490,6 +1489,7 @@
 
 			LeaPlusLC:MakeTx(SoundPanel, "Misc", 418, -72)
 			LeaPlusLC:MakeCB(SoundPanel, "MuteDucks", "Ducks", 418, -92, false, "If checked, duck greetings will be muted.|n|nUse this if you like to do your Valdrakken banking in peace.")
+			LeaPlusLC:MakeCB(SoundPanel, "MuteYawns", "Yawns", 418, -112, false, "If checked, yawns from hunter pet cats will be muted.")
 
 			-- Set click width for sounds checkboxes
 			for k, v in pairs(muteTable) do
@@ -2635,21 +2635,6 @@
 				if gossipOptions and #gossipOptions == 1 and C_GossipInfo.GetNumAvailableQuests() == 0 and C_GossipInfo.GetNumActiveQuests() == 0 then
 					SkipGossip()
 				end
-			end)
-
-		end
-
-		----------------------------------------------------------------------
-		--	Hide order hall bar
-		----------------------------------------------------------------------
-
-		if LeaPlusLC["NoCommandBar"] == "On" then
-
-			-- Function to hide the order hall bar
-			EventUtil.ContinueOnAddOnLoaded("Blizzard_OrderHallUI",function()
-				OrderHallCommandBar:HookScript("OnShow", function()
-					OrderHallCommandBar:Hide()
-				end)
 			end)
 
 		end
@@ -11053,7 +11038,6 @@
 				LeaPlusLC:LoadVarChk("HideBossBanner", "Off")				-- Hide boss banner
 				LeaPlusLC:LoadVarChk("HideEventToasts", "Off")				-- Hide event toasts
 				LeaPlusLC:LoadVarChk("NoClassBar", "Off")					-- Hide stance bar
-				LeaPlusLC:LoadVarChk("NoCommandBar", "Off")					-- Hide order hall bar
 				LeaPlusLC:LoadVarChk("NoRestedSleep", "Off")				-- Hide rested sleep
 
 				-- System
@@ -11419,7 +11403,6 @@
 			LeaPlusDB["HideBossBanner"]			= LeaPlusLC["HideBossBanner"]
 			LeaPlusDB["HideEventToasts"]		= LeaPlusLC["HideEventToasts"]
 			LeaPlusDB["NoClassBar"]				= LeaPlusLC["NoClassBar"]
-			LeaPlusDB["NoCommandBar"]			= LeaPlusLC["NoCommandBar"]
 			LeaPlusDB["NoRestedSleep"]			= LeaPlusLC["NoRestedSleep"]
 
 			-- System
@@ -14119,7 +14102,6 @@
 				LeaPlusDB["HideBossBanner"] = "On"				-- Hide boss banner
 				LeaPlusDB["HideEventToasts"] = "On"				-- Hide event toasts
 				LeaPlusDB["NoClassBar"] = "On"					-- Hide stance bar
-				LeaPlusDB["NoCommandBar"] = "On"				-- Hide order hall bar
 				LeaPlusDB["NoRestedSleep"] = "On"				-- Hide rested sleep
 
 				-- System
@@ -14546,8 +14528,7 @@
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "HideBossBanner"			, 	"Hide boss banner"				, 	340, -172, 	true,	"If checked, the boss banner will not be shown.|n|nThe boss banner appears when a boss is defeated.  It shows the name of the boss and the loot that was distributed.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "HideEventToasts"			, 	"Hide event toasts"				, 	340, -192, 	true,	"If checked, event toasts will not be shown.|n|nEvent toasts are used for encounter objectives, level-ups, pet battle rewards, etc.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoClassBar"				,	"Hide stance bar"				, 	340, -212, 	true,	"If checked, the stance bar will not be shown.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoCommandBar"				,	"Hide order hall bar"			, 	340, -232, 	true,	"If checked, the order hall command bar will not be shown.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoRestedSleep"				,	"Hide rested sleep"				, 	340, -252, 	true,	"If checked, the player frame rested sleep animation will not be shown.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoRestedSleep"				,	"Hide rested sleep"				, 	340, -232, 	true,	"If checked, the player frame rested sleep animation will not be shown.")
 
 	LeaPlusLC:CfgBtn("ManageWidgetTopButton", LeaPlusCB["ManageWidgetTop"])
 	LeaPlusLC:CfgBtn("ManageControlButton", LeaPlusCB["ManageControl"])

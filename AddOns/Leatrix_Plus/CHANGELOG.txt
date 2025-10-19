@@ -1,4 +1,8 @@
-﻿11.2.11 - 8th October 2025
+﻿11.2.13 - 17th October 2025
+- For 'Mute game sounds' ('System'), added a new setting called 'Yawns' to mute hunter pet cat yawns.
+- Removed the 'Hide command bar' ('Frames') option as it's no longer needed.
+
+11.2.11 - 8th October 2025
 - Updated for game patch 11.2.5.
 
 11.2.09 - 24th September 2025
