@@ -74,7 +74,6 @@ local GetActiveTitle = GetActiveTitle;
 local GetSuggestedGroupSize = API.GetSuggestedGroupSize;
 local UnitExists = UnitExists;
 local UnitName = UnitName;
-local SetPortraitTexture = SetPortraitTexture;
 local AcceptQuest = AcceptQuest;
 local GetQuestPortraitGiver = GetQuestPortraitGiver;
 local GetNumQuestChoices = GetNumQuestChoices;
@@ -734,7 +733,7 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         end
 
         local unit = UnitExists("npc") and "npc" or "player";
-        SetPortraitTexture(self.FrontFrame.Header.Portrait, unit);
+        API.SetPortraitTexture(self.FrontFrame.Header.Portrait, unit);
 
         if ThemeUtil:IsDarkMode() then
             self.FrontFrame.Header.Portrait:SetVertexColor(1, 1, 1);
@@ -1142,6 +1141,12 @@ local function HandleAutoSelect(options, activeQuests, availableQuests, anyOptio
 end
 addon.DialogueHandleAutoSelect = HandleAutoSelect;
 
+
+local LowPriorityQuestGossip = {
+    [134831] = true,    --Legion Remix: Eternus (Quest) How did Dalaran come to be on the Broken Isles?
+};
+
+
 function DUIDialogBaseMixin:HandleGossip()
     if self:IsGossipHandledExternally() then
         if self:IsShown() then
@@ -1244,7 +1249,8 @@ function DUIDialogBaseMixin:HandleGossip()
         end
     end
 
-    local showGossipFirst = (options[1] and options[1].flags == 1) or (not anyNewOrCompleteQuest);
+    local firstGossipOptionID = options[1] and options[1] and options[1].gossipOptionID;
+    local showGossipFirst = (firstGossipOptionID and options[1].flags == 1 and (not LowPriorityQuestGossip[firstGossipOptionID])) or (not anyNewOrCompleteQuest);
 
     if showGossipFirst then
         --Show gossip first if there is a (Quest) Gossip
