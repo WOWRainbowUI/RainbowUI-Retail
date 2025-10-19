@@ -1,6 +1,6 @@
 # Baganator
 
-## [764](https://github.com/TheMouseNest/Baganator/tree/764) (2025-10-08)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/763...764) 
+## [765](https://github.com/TheMouseNest/Baganator/tree/765) (2025-10-17)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/764...765) 
 
-- Categories: Fix scroll bar appearing when "Reduce UI spacing" is enabled  
+- Categories: Fix issue if bags refresh while blank slots visible  
