@@ -243,7 +243,8 @@ function Addon.ToggleHideFrames()
         main.maximizeButton,
         main.HelpButton,
         main.DungeonSelectionGroup,
-        main.seasonSelectionGroup
+        main.seasonSelectionGroup,
+        main.externalButtonGroup
     }
 
     for _, f in pairs(hideFrames) do

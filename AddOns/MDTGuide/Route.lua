@@ -557,7 +557,7 @@ local Frame = CreateFrame("Frame")
 local OnEvent = function (_, ev, ...)
     if not MDT or MDT:GetDB().devMode then return end
 
-    if ev == "PLAYER_ENTERING_WORLD" or ev == "ZONE_CHANGED_NEW_AREA" then
+    if ev == "PLAYER_ENTERING_WORLD" or ev == "ZONE_CHANGED_NEW_AREA" or ev == "WORLD_STATE_TIMER_START" then
         local isParty = select(2, IsInInstance()) == "party"
         if not isParty then Frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED") return end
 
@@ -566,6 +566,7 @@ local OnEvent = function (_, ev, ...)
 
         local dungeon = Addon.GetInstanceDungeonId(map)
         Addon.SetInstanceDungeon(dungeon)
+
         if dungeon then Frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") end
     elseif ev == "SCENARIO_COMPLETED" or ev == "CHAT_MSG_SYSTEM" and (...):match(Addon.PATTERN_INSTANCE_RESET) then
         Addon.SetInstanceDungeon()
@@ -628,6 +629,7 @@ Frame:SetScript("OnEvent", OnEvent)
 Frame:SetScript("OnUpdate", OnUpdate)
 Frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 Frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+Frame:RegisterEvent("WORLD_STATE_TIMER_START")
 Frame:RegisterEvent("SCENARIO_COMPLETED")
 Frame:RegisterEvent("CHAT_MSG_SYSTEM")
 Frame:RegisterEvent("PLAYER_REGEN_DISABLED")

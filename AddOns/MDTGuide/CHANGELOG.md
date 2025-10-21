@@ -1,3 +1,12 @@
+Version 1.43
+
+- Fix dungeon detection for Tazavesh Gambit
+- Hide GitHub/Discord/Patreon buttons in guide mode
+
+Version 1.42
+
+- Updated ToC version for patch 11.2.5
+
 Version 1.41
 
 - Fix boss kill detection in enemy forces mode
