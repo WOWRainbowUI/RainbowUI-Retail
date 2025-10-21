@@ -51,7 +51,7 @@ end
 
 function Battle:IsUpgrade()
 	if self:IsWildBattle() and not self:IsAlly() then
-		if self:GetSpecie() and self:GetSource() == 5 then
+		if self:GetSpecie() and self:GetSource() == 5 and self:GetQuality() >= Addon.sets.minAlertQuality then
 			local _, quality, level = self:GetBestOwned()
 
 			if self:GetQuality() > quality then
