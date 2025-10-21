@@ -11,6 +11,11 @@ local PATRONS = {{title='Jenkins',people={'Gnare','Debora S Ogormanw','Johnny Ra
 local PATREON_ICON = '  |TInterface/Addons/PetTracker/art/patreon:12:12|t'
 local HELP_ICON = '  |T516770:13:13:0:0:64:64:14:50:14:50|t'
 local FOOTER = 'Copyright 2012-2025 João Cardoso'
+local PET_QUALITIES = {}
+
+for i = Addon.MaxPlayerQuality, 1, -1 do
+	tinsert(PET_QUALITIES, {key = i, text = Addon:GetColor(i):WrapTextInColorCode(_G['BATTLE_PET_BREED_QUALITY'..i])})
+end
 
 
 --[[ Startup ]]--
@@ -36,6 +41,7 @@ function Options:OnMain()
 	self:AddCheck('Switcher')
 	self:AddCheck('AlertUpgrades')
 	self:AddCheck('Forfeit')
+	self:AddChoice('MinAlertQuality', PET_QUALITIES)
 end
 
 function Options:OnHelp()
@@ -78,6 +84,12 @@ end
 
 function Options:AddCheck(id)
 	return self:AddSetting('Check', id)
+end
+
+function Options:AddChoice(id, entries)
+	local b = Options:AddSetting('DropChoice', id)
+	b:AddChoices(entries)
+	return b
 end
 
 function Options:AddSetting(class, id)

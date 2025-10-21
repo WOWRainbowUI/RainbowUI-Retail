@@ -10,7 +10,7 @@
 ## SavedVariablesPerCharacter: PetTracker_State
 ## SavedVariables: PetTracker_Sets
 ## Interface: 110200, 110205
-## Version: 11.2
+## Version: 11.2.2
 
 ## Title-zhTW: |cff96FF73[戰寵]|r 助手
 ## Notes-zhTW: PetTracker |n|n追蹤你在該區域已有和缺少的戰寵。|n|n|cffffd200使用方法: |r從Esc>選項>插件>戰寵，進行設定。
