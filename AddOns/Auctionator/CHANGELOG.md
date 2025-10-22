@@ -1,6 +1,6 @@
 # Auctionator
 
-## [298](https://github.com/TheMouseNest/Auctionator/tree/298) (2025-10-07)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/297...298) 
+## [299](https://github.com/TheMouseNest/Auctionator/tree/299) (2025-10-21)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/298...299) 
 
-- Retail: Update toc for 11.2.5  
+- Fix for 1.15.8  
