@@ -27,7 +27,7 @@ LSM:Register(MediaType_BORDER, "fer13", [[Interface\AddOns\SharedMedia_BNS\Borde
 -- -----
 --   FONT
 -- -----
-LSM:Register(MediaType_FONT, " 昭源黑體改",						[[Interface\Addons\SharedMedia_BNS\font\ChironHeiHKText-SemiBold.ttf]], zhCN + zhTW + western)
+LSM:Register(MediaType_FONT, " 昭源黑體改",						[[Interface\Addons\SharedMedia_BNS\font\ChironHeiHKText-Bold.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, " 芫荽+霞鹜文楷",					[[Interface\Addons\SharedMedia_BNS\font\bLEI00D.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, " 更莎黑體等寬",					[[Interface\Addons\SharedMedia_BNS\font\SarasaMonoTC-Regular.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "Alata",							[[Interface\Addons\SharedMedia_BNS\font\Alata.ttf]], zhCN + zhTW + western)
@@ -240,3 +240,8 @@ LSM:Register(MediaType_STATUSBAR, "fer34",				[[Interface\Addons\SharedMedia_BNS
 LSM:Register(MediaType_STATUSBAR, "fer35",				[[Interface\Addons\SharedMedia_BNS\statusbar\fer35]])
 LSM:Register(MediaType_STATUSBAR, "FF_Antonia",			[[Interface\Addons\SharedMedia_BNS\statusbar\FF_Antonia]])
 LSM:Register(MediaType_STATUSBAR, "FF_Bettina",			[[Interface\Addons\SharedMedia_BNS\statusbar\FF_Bettina]])
+LSM:Register(MediaType_STATUSBAR, "ToxiUI-clean",		[[Interface\Addons\SharedMedia_BNS\statusbar\ToxiUI-clean]])
+LSM:Register(MediaType_STATUSBAR, "ToxiUI-dark",		[[Interface\Addons\SharedMedia_BNS\statusbar\ToxiUI-dark]])
+LSM:Register(MediaType_STATUSBAR, "ToxiUI-g1",			[[Interface\Addons\SharedMedia_BNS\statusbar\ToxiUI-g1]])
+LSM:Register(MediaType_STATUSBAR, "ToxiUI-g2",			[[Interface\Addons\SharedMedia_BNS\statusbar\ToxiUI-g2]])
+LSM:Register(MediaType_STATUSBAR, "ToxiUI-grad",		[[Interface\Addons\SharedMedia_BNS\statusbar\ToxiUI-grad]])
