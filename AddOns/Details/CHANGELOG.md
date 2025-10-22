@@ -1,6 +1,7 @@
 # Details! Damage Meter
 
-## [Details.20251010.13801.166](https://github.com/Tercioo/Details-Damage-Meter/tree/Details.20251010.13801.166) (2025-10-10)
-[Full Changelog](https://github.com/Tercioo/Details-Damage-Meter/compare/Details.20251010.13800.166...Details.20251010.13801.166) 
+## [Details.20251021.13809.166](https://github.com/Tercioo/Details-Damage-Meter/tree/Details.20251021.13809.166) (2025-10-21)
+[Full Changelog](https://github.com/Tercioo/Details-Damage-Meter/compare/Details.20251010.13801.166...Details.20251021.13809.166) 
 
-- Update toc on for all flavors other than the retail.  
+- Framework and OpenRaid update for Midnight DLC  
+- Fix talent info on mists of pandaria  

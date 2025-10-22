@@ -184,8 +184,7 @@ L["STRING_DODGE"] = "Desvio"
 L["STRING_DOT"] = " (DoT)"
 L["STRING_DPS"] = "Dps"
 L["STRING_EMPTY_SEGMENT"] = "Segmento Vazio"
---[[Translation missing --]]
-L["STRING_ENABLE_DO_NOT_DISTURB"] = "Enable Do Not Disturb"
+L["STRING_ENABLE_DO_NOT_DISTURB"] = "Ativar Não Perturbe"
 L["STRING_ENABLED"] = "Ativado,"
 L["STRING_ENVIRONMENTAL_DROWNING"] = "Ambiente (Afogar)"
 L["STRING_ENVIRONMENTAL_FALLING"] = "Ambiente (Queda)"
@@ -306,27 +305,18 @@ L["STRING_KEYBIND_TOGGLE_WINDOWS"] = "Alterna Todas as Janelas"
 L["STRING_KEYBIND_WINDOW_CONTROL"] = "Janelas"
 L["STRING_KEYBIND_WINDOW_REPORT"] = "Reporta dados mostrados na janela #%s."
 L["STRING_KEYBIND_WINDOW_REPORT_HEADER"] = "Reportar Dados"
---[[Translation missing --]]
-L["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"] = "Add to friends list as character (not battlenet friend request)."
---[[Translation missing --]]
-L["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"] = "Click to view the scoreboard."
---[[Translation missing --]]
-L["STRING_KEYSTONE_DND_TOOLTIP"] = "Your key won't be sent to your guild or friends. While in a group, it will still be sent."
---[[Translation missing --]]
-L["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"] = [=[Life-time likes you gave for this player through the 'GG' button in the |cFFFFFF00Details! Damage Meter Mythic+|r addon.
-
-View run breakdown by selecting a Mythic+ run you did with this player.]=]
---[[Translation missing --]]
-L["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"] = "Mythic+ addon not found."
---[[Translation missing --]]
-L["STRING_KEYSTONE_REQUEST_FROM_GUILD"] = "Request from Guild"
+L["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"] = "Adicionar à lista de amigos como personagem (não solicitação de amigo do Battle.net)"
+L["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"] = "Clique para ver o placar"
+L["STRING_KEYSTONE_DND_TOOLTIP"] = "Sua chave não será enviada para sua guilda ou amigos. Enquanto estiver em um grupo, ela ainda será enviada"
+L["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"] = "Curtidas totais que você deu a este jogador através do botão 'GG' no addon |cFFFFFF00Details! Damage Meter Mythic+|r. Veja a análise da run selecionando uma run Mítica+ que você fez com este jogador"
+L["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"] = "Addon Mítica+ não encontrado"
+L["STRING_KEYSTONE_REQUEST_FROM_GUILD"] = "Solicitação da guilda"
 L["STRING_KILLED"] = "Morto"
 L["STRING_LAST_COOLDOWN"] = "último cooldown usado"
 L["STRING_LEFT"] = "esquerda"
 L["STRING_LEFT_CLICK_SHARE"] = "Clique para enviar relatório."
 L["STRING_LEFT_TO_RIGHT"] = "Esquerda para Direita"
---[[Translation missing --]]
-L["STRING_LIKES_YOU_GAVE"] = "Likes you gave"
+L["STRING_LIKES_YOU_GAVE"] = "Curtidas que você deu"
 L["STRING_LOCK_DESC"] = "Travar ou destravar esta janela"
 L["STRING_LOCK_WINDOW"] = "travar"
 L["STRING_MASTERY"] = "Maestria"
@@ -394,13 +384,11 @@ L["STRING_NEWS_REINSTALL"] = "Encontrou problemas após atualizar? tente o coman
 L["STRING_NEWS_TITLE"] = "Quais As Novidades Desta Versão"
 L["STRING_NO"] = "Não"
 L["STRING_NO_DATA"] = "data já foi limpada"
---[[Translation missing --]]
-L["STRING_NO_MYTHIC_PLUS_ADDON"] = "To track your Mythic+ runs including loot, score, damage, healing done, and who you played with, install the |cFFFFAA00Details! Damage Meter Mythic+|r addon on |cFFfff1c1Wago AddOns|r or |cFFfff1c1Curse Forge|r."
+L["STRING_NO_MYTHIC_PLUS_ADDON"] = "Para acompanhar suas runs Mítica+, incluindo loot, pontuação, dano, cura realizada e com quem você jogou, instale o addon |cFFFFAA00Details! Damage Meter Mythic+|r no |cFFfff1c1Wago AddOns|r ou |cFFfff1c1Curse Forge|r"
 L["STRING_NO_SPELL"] = "Nenhuma habilidade foi usada"
 L["STRING_NO_TARGET"] = "Nenhum alvo encontrado."
 L["STRING_NO_TARGET_BOX"] = "Nenhum alvo disponível."
---[[Translation missing --]]
-L["STRING_NO_TELEPORTER"] = "You don't have this teleporter"
+L["STRING_NO_TELEPORTER"] = "Você não possui este teletransportador"
 L["STRING_NOCLOSED_INSTANCES"] = [=[Não há janelas fechadas,
 clique para abrir uma nova.]=]
 L["STRING_NOLAST_COOLDOWN"] = "nenhum cooldown usado"
@@ -1467,8 +1455,7 @@ L["STRING_QUERY_INSPECT_REFRESH"] = "precisa atualizar"
 L["STRING_RAID_WIDE"] = "[*] cooldown de raide"
 L["STRING_RAIDCHECK_PLUGIN_DESC"] = "Enquanto estiver dentro de uma raide, é mostrado um ícone na barra de título mostrando o uso de comida, frascos e poções."
 L["STRING_RAIDCHECK_PLUGIN_NAME"] = "Raid Check"
---[[Translation missing --]]
-L["STRING_RECENT_PLAYERS"] = "Recent Players:"
+L["STRING_RECENT_PLAYERS"] = "Jogadores recentes:"
 L["STRING_REPORT"] = "Relatório para"
 L["STRING_REPORT_BUTTON_TOOLTIP"] = "Clique para abrir a Caixa de Relatórios."
 L["STRING_REPORT_FIGHT"] = "luta"
@@ -1589,10 +1576,8 @@ L["STRING_SWITCH_WARNING"] = "Especialização Alterada. Trocando: |cFFFFAA00%s|
 L["STRING_TARGET"] = "Alvo"
 L["STRING_TARGETS"] = "Alvos"
 L["STRING_TARGETS_OTHER1"] = "Ajudantes e Outros Alvos"
---[[Translation missing --]]
-L["STRING_TELEPORT"] = "Teleport"
---[[Translation missing --]]
-L["STRING_TELEPORTERS"] = "Teleporters"
+L["STRING_TELEPORT"] = "Teletransportar"
+L["STRING_TELEPORTERS"] = "Teletransportadores"
 L["STRING_TEXTURE"] = "Textura"
 L["STRING_TIME_OF_DEATH"] = "Morreu"
 L["STRING_TOOOLD"] = "não pode ser instalado pois sua versão do Details! e muito antiga."
@@ -1607,7 +1592,7 @@ L["STRING_UNKNOW"] = "Desconhecido"
 L["STRING_UNKNOWSPELL"] = "Magia Desconhecida"
 L["STRING_UNLOCK"] = [=[Separe as janelas
 neste botão]=]
-L["STRING_UNLOCK_WINDOW"] = "destravar"
+L["STRING_UNLOCK_WINDOW"] = "Destravar"
 L["STRING_UPTADING"] = "atualizando"
 L["STRING_VERSION_AVAILABLE"] = "uma nova versão está disponível. Baixe pelo aplicativo da Curse Forge ou pelo site da Curse."
 L["STRING_VERSION_UPDATE"] = "nova versão: clique para ver o que mudou"

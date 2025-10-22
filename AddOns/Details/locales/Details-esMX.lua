@@ -172,8 +172,7 @@ L["STRING_DODGE"] = "Esquivado"
 L["STRING_DOT"] = " (DoT)"
 L["STRING_DPS"] = "DPS"
 L["STRING_EMPTY_SEGMENT"] = "Segmento vacío"
---[[Translation missing --]]
-L["STRING_ENABLE_DO_NOT_DISTURB"] = "Enable Do Not Disturb"
+L["STRING_ENABLE_DO_NOT_DISTURB"] = "Activar No molestar"
 L["STRING_ENABLED"] = "Activado"
 L["STRING_ENVIRONMENTAL_DROWNING"] = "Entorno (Ahogamiento)"
 L["STRING_ENVIRONMENTAL_FALLING"] = "Entorno (Caída)"
@@ -293,27 +292,18 @@ L["STRING_KEYBIND_TOGGLE_WINDOWS"] = "Alternar todo"
 L["STRING_KEYBIND_WINDOW_CONTROL"] = "Ventanas"
 L["STRING_KEYBIND_WINDOW_REPORT"] = "Informe los datos en la ventana #%s."
 L["STRING_KEYBIND_WINDOW_REPORT_HEADER"] = "Informar datos"
---[[Translation missing --]]
-L["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"] = "Add to friends list as character (not battlenet friend request)."
---[[Translation missing --]]
-L["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"] = "Click to view the scoreboard."
---[[Translation missing --]]
-L["STRING_KEYSTONE_DND_TOOLTIP"] = "Your key won't be sent to your guild or friends. While in a group, it will still be sent."
---[[Translation missing --]]
-L["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"] = [=[Life-time likes you gave for this player through the 'GG' button in the |cFFFFFF00Details! Damage Meter Mythic+|r addon.
-
-View run breakdown by selecting a Mythic+ run you did with this player.]=]
---[[Translation missing --]]
-L["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"] = "Mythic+ addon not found."
---[[Translation missing --]]
-L["STRING_KEYSTONE_REQUEST_FROM_GUILD"] = "Request from Guild"
+L["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"] = "Añadir a la lista de amigos como personaje (no solicitud de amigo de Battle.net)."
+L["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"] = "Haz clic para ver el marcador."
+L["STRING_KEYSTONE_DND_TOOLTIP"] = "Tu llave no se enviará a tu hermandad ni a tus amigos. Mientras estés en un grupo, sí se enviará."
+L["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"] = "\"Me gusta\" totales que le has dado a este jugador mediante el botón 'GG' en el addon |cFFFFFF00Details! Damage Meter Mythic+|r. Consulta el desglose de calabozos Míticas+ seleccionando una en la que hayas participado con este jugador."
+L["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"] = "Addon de Mítica+ no encontrado."
+L["STRING_KEYSTONE_REQUEST_FROM_GUILD"] = "Solicitud de la hermandad"
 L["STRING_KILLED"] = "Asesinado"
 L["STRING_LAST_COOLDOWN"] = "último tiempo de reutilización utilizado"
 L["STRING_LEFT"] = "izquierda"
 L["STRING_LEFT_CLICK_SHARE"] = "Haz clic para enviar un informe."
 L["STRING_LEFT_TO_RIGHT"] = "De izquierda a derecha"
---[[Translation missing --]]
-L["STRING_LIKES_YOU_GAVE"] = "Likes you gave"
+L["STRING_LIKES_YOU_GAVE"] = "\"Me gusta\" que diste"
 L["STRING_LOCK_DESC"] = "Bloquear o desbloquear la ventana"
 L["STRING_LOCK_WINDOW"] = "Bloquear"
 L["STRING_MASTERY"] = "Maestría"
@@ -373,13 +363,11 @@ L["STRING_NEWS_REINSTALL"] = "¿Encontró problemas después de una actualizaci�
 L["STRING_NEWS_TITLE"] = "Que hay de nuevo en esta version"
 L["STRING_NO"] = "No"
 L["STRING_NO_DATA"] = "Los datos ya se han limpiados."
---[[Translation missing --]]
-L["STRING_NO_MYTHIC_PLUS_ADDON"] = "To track your Mythic+ runs including loot, score, damage, healing done, and who you played with, install the |cFFFFAA00Details! Damage Meter Mythic+|r addon on |cFFfff1c1Wago AddOns|r or |cFFfff1c1Curse Forge|r."
+L["STRING_NO_MYTHIC_PLUS_ADDON"] = "Para rastrear tus calabozos Míticas+ incluyendo botín, puntuación, daño, sanación realizada y con quién jugaste, instala el addon |cFFFFAA00Details! Damage Meter Mythic+|r en |cFFfff1c1Wago AddOns|r o |cFFfff1c1Curse Forge|r."
 L["STRING_NO_SPELL"] = "No se ha usado ninguna habilidad"
 L["STRING_NO_TARGET"] = "No se encuentra un objetivo."
 L["STRING_NO_TARGET_BOX"] = "Ningún objetivos disponibles"
---[[Translation missing --]]
-L["STRING_NO_TELEPORTER"] = "You don't have this teleporter"
+L["STRING_NO_TELEPORTER"] = "No tienes este teletransportador"
 L["STRING_NOCLOSED_INSTANCES"] = "No hay ningún ventanas cerradas. Hacer clic para crear una nueva ventana."
 L["STRING_NOLAST_COOLDOWN"] = "sin tiempos de reuitilización utilizados"
 L["STRING_NOMORE_INSTANCES"] = "Cantidad máxima de ventanas alcanzadas. Cambia el límite en el panel de opciones."
@@ -1225,8 +1213,7 @@ L["STRING_QUERY_INSPECT_REFRESH"] = "necesita actualizar"
 L["STRING_RAID_WIDE"] = "[*] reutilización por toda banda"
 L["STRING_RAIDCHECK_PLUGIN_DESC"] = "Mientras está dentro de una estancia de banda, muestra el ícono en Details! barra de título que muestra frasco, comida, uso de pre-pociones."
 L["STRING_RAIDCHECK_PLUGIN_NAME"] = "Comprobación de banda"
---[[Translation missing --]]
-L["STRING_RECENT_PLAYERS"] = "Recent Players:"
+L["STRING_RECENT_PLAYERS"] = "Jugadores recientes:"
 L["STRING_REPORT"] = "para"
 L["STRING_REPORT_BUTTON_TOOLTIP"] = "Hacer clic para abrir la ventana de informar."
 L["STRING_REPORT_FIGHT"] = "el combate"
@@ -1338,10 +1325,8 @@ L["STRING_SWITCH_WARNING"] = "El rol se ha cambiado. Cambiando a: |cFFFFAA00%s|r
 L["STRING_TARGET"] = "Objetivo"
 L["STRING_TARGETS"] = "Objetivos"
 L["STRING_TARGETS_OTHER1"] = "Mascotas y otros objetivos"
---[[Translation missing --]]
-L["STRING_TELEPORT"] = "Teleport"
---[[Translation missing --]]
-L["STRING_TELEPORTERS"] = "Teleporters"
+L["STRING_TELEPORT"] = "Teletransportarse"
+L["STRING_TELEPORTERS"] = "Teletransportadores"
 L["STRING_TEXTURE"] = "Textura"
 L["STRING_TIME_OF_DEATH"] = "Muerte"
 L["STRING_TOOOLD"] = "no se pudo instalar porque la versión de Details! es demasiado antiguo."
@@ -1354,7 +1339,7 @@ L["STRING_TUTORIAL_OVERALL1"] = "Los datos generales solo se actualizan cuando f
 L["STRING_UNKNOW"] = "Desconocido"
 L["STRING_UNKNOWSPELL"] = "Hechizo desconocido"
 L["STRING_UNLOCK"] = "Esparcir las ventanas con este botón."
-L["STRING_UNLOCK_WINDOW"] = "desbloquear"
+L["STRING_UNLOCK_WINDOW"] = "Desbloquear"
 L["STRING_UPTADING"] = "actualizando"
 L["STRING_VERSION_AVAILABLE"] = "hay una nueva versión disponible, descárgala de la aplicación Curse Forge o del sitio web de Curse."
 L["STRING_VERSION_UPDATE"] = "Nueva versión: ¿qué se ha cambiado? Hacer clic aquí."
