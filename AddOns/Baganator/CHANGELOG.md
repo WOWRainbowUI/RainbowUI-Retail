@@ -1,6 +1,7 @@
 # Baganator
 
-## [765](https://github.com/TheMouseNest/Baganator/tree/765) (2025-10-17)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/764...765) 
+## [766](https://github.com/TheMouseNest/Baganator/tree/766) (2025-10-21)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/765...766) 
 
-- Categories: Fix issue if bags refresh while blank slots visible  
+- Vanilla: Update toc for 1.15.8  
+- Tag exported json with "Baganator"  
