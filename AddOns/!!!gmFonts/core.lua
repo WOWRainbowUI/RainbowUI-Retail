@@ -155,7 +155,7 @@ local function UpdateFonts()
 		local f = _G["ChatFrame"..i]
 		if f then 
 			local font, size, flags = f:GetFont()
-			f:SetFont([[Interface\Addons\SharedMedia_BNS\font\ChironHeiHK-M.ttf]], size, flags)
+			f:SetFont([[Interface\Addons\SharedMedia_BNS\font\ChironHeiHKText-Bold.ttf]], size, flags)
 		end
 	end
 
