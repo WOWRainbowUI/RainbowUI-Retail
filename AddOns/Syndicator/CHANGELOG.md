@@ -1,6 +1,6 @@
 # Syndicator
 
-## [244](https://github.com/TheMouseNest/Syndicator/tree/244) (2025-10-15)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/243...244) 
+## [245](https://github.com/TheMouseNest/Syndicator/tree/245) (2025-10-21)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/244...245) 
 
-- Retail: Support searching for remix gear stats  
+- Vanilla: Update toc for 1.15.8  
