@@ -118,7 +118,7 @@ Core.WOW_VERSION = WOW_VERSION
 Core.WOW_RETAIL = WOW_RETAIL
 
 -- Add-On Info
-Core.Version = "11.2.0"
+Core.Version = "11.2.5"
 Core.Discord = "https://discord.gg/7MTWRgDzz8"
 
 Core.Authors = {
@@ -195,6 +195,7 @@ function Masque:OnInitialize()
 			},
 			Interface = {
 				AltSort = false,
+				ProfileFontFix = true,
 				SkinInfo = true,
 				StandAlone = true,
 			},
