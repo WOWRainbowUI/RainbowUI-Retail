@@ -2332,3 +2332,11 @@ Change Log:
 5.19.3
 * Updated for patch 11.2.5
 * Added TWW spells for Manaforge Omega
+
+5.19.4
+* Updated Wrath Classic TOC to 3.4.5
+* Updated TOC for WoW Classic 1.15.8
+* Fixed alerts from going off from "drowning" events when caused by a spell in Trial of Valor
+* Fixed Legion spells for Nighthold
+* Added Legion spells for The Broken Isles (world)
+* Added TWW spells for TWW Delves 
