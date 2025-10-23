@@ -28,12 +28,12 @@ GTFO = {
 		BrannMode = 0;
 		IgnoreTimeAmount = .2;
 	};
-	Version = "5.19.3"; -- Version number (text format)
+	Version = "5.19.4"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 51903; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 51904; -- Numeric version number for checking out-of-date clients (retail)
 	ClassicVersionNumber = 51900; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 51900; -- Numeric version number for checking out-of-date clients (TBC classic)
-	WrathVersionNumber = 51900; -- Numeric version number for checking out-of-date clients (Wrath classic)
+	WrathVersionNumber = 51904; -- Numeric version number for checking out-of-date clients (Wrath classic)
 	CataclysmVersionNumber = 51900; -- Numeric version number for checking out-of-date clients (Cata classic)
 	MistsVersionNumber = 51900; -- Numeric version number for checking out-of-date clients (MoP classic)
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
@@ -435,6 +435,9 @@ function GTFO_OnEvent(self, event, ...)
 			-- Environmental detection
 			local alertID = 0;
 			if (environment == "DROWNING") then
+				if (GTFO_HasDebuff("player", 228374)) then
+					return;
+				end
 				alertID = 1;
 			elseif (environment == "FATIGUE") then
 				if (GTFO.Settings.IgnoreOptions and GTFO.Settings.IgnoreOptions["Fatigue"]) then

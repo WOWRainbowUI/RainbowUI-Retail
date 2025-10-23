@@ -2017,6 +2017,11 @@ GTFO.SpellID["1231660"] = {
   sound = 3;
 };
 
+GTFO.SpellID["441011"] = {
+  --desc = "Flattened";
+  applicationOnly = true;
+  sound = 3;
+};
 
 --- *******************
 --- * Nerub-ar Palace *
