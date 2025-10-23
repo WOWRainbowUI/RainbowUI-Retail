@@ -1,9 +1,8 @@
 --- @type BlizzMoveAPI
-local BlizzMoveAPI = _G.BlizzMoveAPI
+local BlizzMoveAPI = _G.BlizzMoveAPI ---@diagnostic disable-line: undefined-field
 if not BlizzMoveAPI then return; end
 
-BlizzMoveAPI:RegisterFrames(
-{
+BlizzMoveAPI:RegisterFrames({
     ["AddonList"] =
     {
         MinVersion = 0,
@@ -118,7 +117,7 @@ BlizzMoveAPI:RegisterFrames(
     ["ContainerFrame1"] =
     {
         MinVersion = 100000,
-         -- while it does indeed exist in classic, blizzard does not make other bags follow its position automatically like in retail
+        -- while it does indeed exist in classic, blizzard does not make other bags follow its position automatically like in retail
         SilenceCompatabilityWarnings = true,
         SubFrames =
         {
@@ -539,8 +538,7 @@ BlizzMoveAPI:RegisterFrames(
     },
 });
 
-BlizzMoveAPI:RegisterAddOnFrames(
-{
+BlizzMoveAPI:RegisterAddOnFrames({
     ["Blizzard_AccountStore"] =
     {
         ["AccountStoreFrame"] =
@@ -1467,6 +1465,10 @@ BlizzMoveAPI:RegisterAddOnFrames(
         ["RemixArtifactFrame"] =
         {
             MinVersion = 110205,
+            SubFrames =
+            {
+                ["RemixArtifactFrame.ButtonsParent"] = {},
+            },
         },
     },
     ["Blizzard_RuneforgeUI"] =
