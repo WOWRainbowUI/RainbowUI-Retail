@@ -2881,6 +2881,7 @@ end
 
 local function setPosAnimated(btn, elapsed)
 	btn.timer = btn.timer - elapsed
+	btn:ClearAllPoints()
 	if btn.timer <= 0 then
 		btn:SetPoint(main.direction.rPoint, btn.x, btn.y)
 		btn:SetScript("OnUpdate", nil)
@@ -2914,7 +2915,6 @@ function main:setPointBtn(btn, order, delay)
 		btn.delay = delay
 		btn.deltaX = btn.x - btn:GetLeft() + self.buttonPanel:GetLeft() / scale
 		btn.deltaY = btn.y - btn:GetTop() + self.buttonPanel:GetTop() / scale
-		btn:ClearAllPoints()
 		btn:SetScript("OnUpdate", setPosAnimated)
 	else
 		btn:ClearAllPoints()
