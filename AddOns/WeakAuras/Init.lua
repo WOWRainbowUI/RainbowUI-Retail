@@ -381,8 +381,8 @@ WeakAuras.normalWidth = 1.3
 WeakAuras.halfWidth = WeakAuras.normalWidth / 2
 WeakAuras.doubleWidth = WeakAuras.normalWidth * 2
 local versionStringFromToc = C_AddOns.GetAddOnMetadata("WeakAuras", "Version")
-local versionString = "5.20.5"
-local buildTime = "20251009185141"
+local versionString = "5.20.6"
+local buildTime = "20251022014709"
 
 local flavorFromToc = C_AddOns.GetAddOnMetadata("WeakAuras", "X-Flavor")
 local flavorFromTocToNumber = {
@@ -410,7 +410,7 @@ WeakAuras.buildType = "pr"
 --@end-experimental@]=====]
 
 --[==[@debug@
-if versionStringFromToc == "5.20.5" then
+if versionStringFromToc == "5.20.6" then
   versionStringFromToc = "Dev"
   buildTime = "Dev"
   WeakAuras.buildType = "dev"
@@ -476,6 +476,10 @@ end
 ---@return boolean result
 function WeakAuras.IsTWW()
   return WeakAuras.BuildInfo >= 110000
+end
+
+function WeakAuras.IsMidnight()
+  return WeakAuras.BuildInfo >= 120000
 end
 
 ---@param ... string
@@ -566,6 +570,13 @@ if not libsAreOk then
   C_Timer.After(1, function()
     WeakAuras.prettyPrint("WeakAuras is missing necessary libraries. Please reinstall a proper package.")
   end)
+end
+
+if WeakAuras.IsMidnight() then
+  C_Timer.After(1, function()
+    WeakAuras.prettyPrint("WeakAuras does not support Midnight due to Blizzard restricting addons. Read more at https://patreon.com/WeakAuras")
+  end)
+  libsAreOk = false
 end
 
 -- These function stubs are defined here to reduce the number of errors that occur if WeakAuras.lua fails to compile
