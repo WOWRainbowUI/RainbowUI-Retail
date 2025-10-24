@@ -1,5 +1,5 @@
-## Interface: 11507, 30405, 50501, 110200, 110205
-## Version: v11.2.3
+## Interface: 11508, 30405, 50501, 110200, 110205
+## Version: v11.2.4
 ## Title: BugSack
 ## Notes: Toss those bugs inna sack.
 ## Notes-deDE: Werft den Fehler in einen Sack.
