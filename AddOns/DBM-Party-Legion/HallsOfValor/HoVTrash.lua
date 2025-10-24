@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("HoVTrash", "DBM-Party-Legion", 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250929054054")
+mod:SetRevision("20251011043638")
 --mod:SetModelID(47785)
 mod:SetZone(1477)
 
@@ -126,7 +126,7 @@ function mod:SPELL_CAST_START(args)
 		end
 		timerBlastofLightCD:Start(nil, args.sourceGUID)
 	elseif spellId == 198595 then
-		timerThunderousBoltCD:Start(nil, args.sourceGUID)
+		timerThunderousBoltCD:Start(self:IsRemix() and 3.6 or 4.8, args.sourceGUID)
 		if self.Options.SpecWarn198595interrupt and self:CheckInterruptFilter(args.sourceGUID, false, true) then
 			specWarnThunderousBolt:Show(args.sourceName)
 			specWarnThunderousBolt:Play("kickcast")

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("CoSTrash", "DBM-Party-Legion", 7)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250929054543")
+mod:SetRevision("20251002044755")
 --mod:SetModelID(47785)
 mod:SetOOCBWComms()
 mod:SetMinSyncRevision(20221228000000)
@@ -613,6 +613,10 @@ do
 	function mod:CHAT_MSG_MONSTER_SAY(msg, _, _, _, target)
 		if msg:find(L.Found) or msg == L.Found then
 			self:SendSync("Finished", target)
+			if self:IsPostMidnight() then
+				--Post midnight yell restrictions in instances
+				return
+			end
 			if self.Options.SpyHelper and self.Options.SendToChat2 and target == UnitName("player") then
 				local text = L.SpyFoundP
 				if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
@@ -640,7 +644,7 @@ do
 				if not self.Options.SpyHelper then return end
 				local clue = clueIds[gossipOptionID]
 				if not hints[clue] then
-					if self.Options.SendToChat2 then
+					if self.Options.SendToChat2 and not self:IsPostMidnight() then
 						local text = hintTranslations[clue]
 						if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
 							SendChatMessage("DBM: "..text, "INSTANCE_CHAT")
