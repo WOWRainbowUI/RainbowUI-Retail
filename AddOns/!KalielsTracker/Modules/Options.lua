@@ -119,7 +119,9 @@ local defaults = {
 		tooltipShowRewards = true,
 		tooltipShowID = false,
         menuWowheadURL = true,
-        menuWowheadURLModifier = "ALT",
+        menuWowheadURLModifier = "",
+		menuYouTubeURL = true,
+		menuYouTubeURLModifier = "",
         questDefaultActionMap = true,
 		questShowTags = true,
 		questShowZones = true,
@@ -1241,7 +1243,7 @@ local options = {
 							order = 3,
 						},
                         menuWowheadURL = {
-							name = "Wowhead URL",
+							name = "Wowhead 網址",
 							desc = "在追蹤清單和任務記錄內顯示 Wowhead 網址選單項目。",
 							type = "toggle",
 							set = function()
@@ -1250,7 +1252,7 @@ local options = {
 							order = 3.1,
 						},
                         menuWowheadURLModifier = {
-							name = "Wowhead URL 輔助鍵",
+							name = "Wowhead 網址輔助鍵",
 							type = "select",
 							values = modifiers,
 							get = function()
@@ -1264,6 +1266,37 @@ local options = {
 								db.menuWowheadURLModifier = value
 							end,
 							order = 3.2,
+						},
+						menuWowheadURLSpacer = {
+							name = " ",
+							type = "description",
+							width = "normal",
+							order = 3.3,
+						},
+						menuYouTubeURL = {
+							name = "YouTube 搜尋網址",
+							desc = "在追蹤清單與任務日誌中顯示 YouTube 搜尋連結選單項目。",
+							type = "toggle",
+							set = function()
+								db.menuYouTubeURL = not db.menuYouTubeURL
+							end,
+							order = 3.4,
+						},
+						menuYouTubeURLModifier = {
+							name = "YouTube 搜尋網址點擊輔助鍵",
+							type = "select",
+							values = modifiers,
+							get = function()
+								for k, v in pairs(modifiers) do
+									if db.menuYouTubeURLModifier == k then
+										return k
+									end
+								end
+							end,
+							set = function(_, value)
+								db.menuYouTubeURLModifier = value
+							end,
+							order = 3.5,
 						},
                         questTitle = {
                             name = cTitle.."\n 任務",
@@ -2164,7 +2197,7 @@ local function Setup()
 					db.filterAuto[i] = nil
 				end
 				KT:SetBackground()
-				KT.QuestsCache_Init()
+				KT.QuestsCache_Update(true)
 				OTF:Update()
 			end,
 			order = 0.2,

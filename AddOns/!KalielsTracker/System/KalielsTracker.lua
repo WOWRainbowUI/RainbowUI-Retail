@@ -345,20 +345,20 @@ local function SetFrames()
 		elseif event == "QUEST_ACCEPTED" then
 			local questID = ...
 			if not C_QuestLog.IsQuestTask(questID) and not C_QuestLog.IsQuestBounty(questID) then
-				local numQuests = KT.QuestsCache_Update()
-				dbChar.quests.num = numQuests
+				dbChar.quests.num = KT.QuestsCache_Update()
 				KT:SetQuestsHeaderText()
 
 				KT.QuestsCache_UpdateProperty(questID, "startMapID", KT.GetCurrentMapAreaID())
+				KT.QuestsCache_UpdateProperty(questID, "updateTime", time())
 			end
 		elseif event == "QUEST_REMOVED" then
 			local questID = ...
 			if not C_QuestLog.IsQuestTask(questID) and not C_QuestLog.IsQuestBounty(questID) then
-				local numQuests = KT.QuestsCache_Update()
-				dbChar.quests.num = numQuests
+				KT.QuestsCache_RemoveQuest(questID)
+
+				dbChar.quests.num = KT.QuestsCache_Update()
 				KT:SetQuestsHeaderText()
 
-				KT.QuestsCache_RemoveQuest(questID)
 				if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 					KT.QuestSuperTracking_ChooseClosestQuest()
 				end
@@ -367,6 +367,9 @@ local function SetFrames()
 			if db.questAutoFocusClosest then
 				KT.QuestSuperTracking_ChooseClosestQuest()
 			end
+		elseif event == "QUEST_WATCH_UPDATE" then
+			local questID = ...
+			KT.QuestsCache_UpdateProperty(questID, "updateTime", time())
 		elseif event == "ACHIEVEMENT_EARNED" then
 			KT:SetAchievsHeaderText()
 		elseif event == "PLAYER_REGEN_ENABLED" and combatLockdown then
@@ -393,7 +396,6 @@ local function SetFrames()
 	end)
 	KTF:RegisterEvent("PLAYER_ENTERING_WORLD")
 	KTF:RegisterEvent("PLAYER_LEAVING_WORLD")
-	KTF:RegisterEvent("QUEST_WATCH_LIST_CHANGED")
 	KTF:RegisterEvent("SCENARIO_UPDATE")
 	KTF:RegisterEvent("SCENARIO_COMPLETED")
 	KTF:RegisterEvent("QUEST_DETAIL")
@@ -403,6 +405,7 @@ local function SetFrames()
 	KTF:RegisterEvent("QUEST_TURNED_IN")
 	KTF:RegisterEvent("QUEST_SESSION_JOINED")
 	KTF:RegisterEvent("QUEST_SESSION_LEFT")
+	KTF:RegisterEvent("QUEST_WATCH_UPDATE")
 	KTF:RegisterEvent("QUEST_POI_UPDATE")
 	KTF:RegisterEvent("ACHIEVEMENT_EARNED")
 	KTF:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -1653,16 +1656,18 @@ local function SetHooks()
 
 	-- GossipFrame.lua
 	hooksecurefunc(GossipFrame, "HandleShow", function(self, textureKit)
-		local gossipQuests = C_GossipInfo.GetAvailableQuests()
+		local gossipQuests = C_GossipInfo.GetActiveQuests()
 		for _, questInfo in ipairs(gossipQuests) do
 			KT.QuestsCache_UpdateProperty(questInfo.questID, "startMapID", KT.GetCurrentMapAreaID())
 		end
+		KT:SendSignal("QUEST_DATA_CHANGED")
 	end)
 
 	-- QuestFrame.lua
 	QuestFrame:HookScript("OnShow", function(self)
 		local questID = GetQuestID()
 		KT.QuestsCache_UpdateProperty(questID, "startMapID", KT.GetCurrentMapAreaID())
+		KT:SendSignal("QUEST_DATA_CHANGED")
 	end)
 
 	-- TODO: Delete y/n?
@@ -1834,6 +1839,8 @@ local function SetHooks()
 				self:UntrackQuest(questID)
 			elseif IsModifiedClick(db.menuWowheadURLModifier) then
 				KT:Alert_WowheadURL("quest", questID)
+			elseif IsModifiedClick(db.menuYouTubeURLModifier) then
+				KT:Alert_YouTubeURL("quest", questID)
 			else
 				local quest = QuestCache:Get(questID);
 				if quest.isAutoComplete and quest:IsComplete() then
@@ -1940,6 +1947,8 @@ local function SetHooks()
 				self:UntrackAchievement(achievementID);
 			elseif IsModifiedClick(db.menuWowheadURLModifier) then
 				KT:Alert_WowheadURL("achievement", achievementID)
+			elseif IsModifiedClick(db.menuYouTubeURLModifier) then
+				KT:Alert_YouTubeURL("achievement", achievementID)
 			elseif not AchievementFrame:IsShown() then
 				AchievementFrame_ToggleAchievementFrame();
 				AchievementFrame_SelectAchievement(achievementID);
@@ -2005,6 +2014,8 @@ local function SetHooks()
 					end
 				elseif IsModifiedClick(db.menuWowheadURLModifier) then
 					KT:Alert_WowheadURL("quest", questID)
+				elseif IsModifiedClick(db.menuYouTubeURLModifier) then
+					KT:Alert_YouTubeURL("quest", questID)
 				else
 					local mapID = (self.showWorldQuests or isThreatQuest) and C_TaskQuest.GetQuestZoneID(questID) or GetQuestUiMapID(questID)
 					if mapID and mapID > 0 then
@@ -2868,7 +2879,7 @@ function KT:SetMessage(text, r, g, b, pattern, icon, x, y)
 	self:Pour(text, r, g, b)
 end
 
-local SOUND_COOLDOWN = 1
+local SOUND_COOLDOWN = 2
 local lastSoundTime = 0
 function KT:PlaySound(key)
 	local now = GetTime()
@@ -2888,6 +2899,47 @@ function KT:MergeTables(source, target)
 		end
 	end
 	return target
+end
+
+function KT.CompareQuestWatchInfos(info1, info2)
+	local quest1, quest2 = info1.quest, info2.quest
+
+	if quest1:IsCalling() ~= quest2:IsCalling() then
+		return quest1:IsCalling()
+	end
+
+	if dbChar.filter.quests.sortTopOverride and quest1.overridesSortOrder ~= quest2.overridesSortOrder then
+		return quest1.overridesSortOrder
+	end
+
+	local sort = dbChar.filter.quests.sort
+	if sort == "newest" then
+		local time1 = info1.KTquest and info1.KTquest.updateTime or 0
+		local time2 = info2.KTquest and info2.KTquest.updateTime or 0
+		return time1 > time2
+	elseif sort == "zone" then
+		local zone1 = info1.KTquest and info1.KTquest.zone or ""
+		local zone2 = info2.KTquest and info2.KTquest.zone or ""
+		if zone1 == zone2 then
+			if quest1.level == quest2.level then
+				return quest1.title < quest2.title
+			else
+				return quest1.level > quest2.level
+			end
+		else
+			return zone1 < zone2
+		end
+	elseif sort == "level" then
+		if quest1.level == quest2.level then
+			return quest1.title < quest2.title
+		else
+			return quest1.level > quest2.level
+		end
+	elseif sort == "title" then
+		return quest1.title < quest2.title
+	end
+
+	return info1.index > info2.index
 end
 
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -2935,7 +2987,7 @@ function KT:OnEnable()
 	dbChar = self.db.char
 	KT:Alert_ResetIncompatibleProfiles("7.0.0")
 
-	self.Quests_Init(dbChar.quests)
+	self.QuestsCache_Init(dbChar.quests.cache)
 
 	self.isTimerunningPlayer = (PlayerGetTimerunningSeasonID() ~= nil)
 

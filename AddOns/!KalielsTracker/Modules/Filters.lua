@@ -342,6 +342,13 @@ local function Filter_Quests(spec, idx)
 		local zoneNamePattern = strlower(gsub(zoneName, "-", "%%-"))
 		local isOnMap = false
 		local isInZone = false
+
+		local mapInfo = C_Map.GetMapInfo(mapID)
+		if mapInfo.mapType == Enum.UIMapType.Orphan then
+			local parentInfo = C_Map.GetMapInfo(mapInfo.parentMapID)
+			zoneName = parentInfo.name
+		end
+
 		for i = 1, numEntries do
 			local questInfo = C_QuestLog.GetInfo(i)
 			if not questInfo.isHidden then
@@ -799,7 +806,7 @@ local function DropDown_Initialize(self, level)
 
 		info.text = "全部  ("..dbChar.quests.num..")"
 		info.hasArrow = not (db.filterAuto[1])
-		info.value = 1
+		info.value = "questCategories"
 		info.arg1 = "all"
 		MSA_DropDownMenu_AddButton(info)
 
@@ -843,10 +850,19 @@ local function DropDown_Initialize(self, level)
 		info.arg1 = ""
 		MSA_DropDownMenu_AddButton(info)
 
-		info.notCheckable = false
+		info.text = "排序"
+		info.keepShownOnClick = true
+		info.hasArrow = true
 		info.disabled = false
+		info.value = "sorting"
+		info.func = nil
+		MSA_DropDownMenu_AddButton(info)
 
-		info.text = "顯示戰役"
+		info.keepShownOnClick = false
+		info.hasArrow = false
+		info.notCheckable = false
+
+		info.text = "顯示所有戰役"
 		info.keepShownOnClick = true
 		info.checked = dbChar.filter.quests.showCampaign
 		info.func = function()
@@ -856,9 +872,6 @@ local function DropDown_Initialize(self, level)
 			end
 		end
 		MSA_DropDownMenu_AddButton(info)
-
-		info.keepShownOnClick = false
-		info.disabled = false
 
 		info.text = "|cff00ff00自動|r區域"
 		info.arg1 = 1
@@ -907,7 +920,7 @@ local function DropDown_Initialize(self, level)
 		info.text = "類別"
 		info.keepShownOnClick = true
 		info.hasArrow = true
-		info.value = 2
+		info.value = "achievementCategories"
 		info.func = nil
 		MSA_DropDownMenu_AddButton(info)
 
@@ -948,7 +961,7 @@ local function DropDown_Initialize(self, level)
 	elseif level == 2 then
 		info.notCheckable = true
 
-		if MSA_DROPDOWNMENU_MENU_VALUE == 1 then
+		if MSA_DROPDOWNMENU_MENU_VALUE == "questCategories" then
 			info.arg1 = "group"
 			info.func = Filter_Menu_Quests
 
@@ -977,7 +990,7 @@ local function DropDown_Initialize(self, level)
 					end
 				end
 			end
-		elseif MSA_DROPDOWNMENU_MENU_VALUE == 2 then
+		elseif MSA_DROPDOWNMENU_MENU_VALUE == "achievementCategories" then
 			info.func = Filter_AchievCat_CheckAll
 
 			info.text = "全選"
@@ -1006,6 +1019,51 @@ local function DropDown_Initialize(self, level)
 					MSA_DropDownMenu_AddButton(info, level)
 				end
 			end
+		elseif MSA_DROPDOWNMENU_MENU_VALUE == "sorting" then
+			info.notCheckable = false
+			info.isNotRadio = false
+			info.func = function(_, arg)
+				dbChar.filter.quests.sort = arg
+				local listFrame = _G["MSA_DropDownList"..MSA_DROPDOWNMENU_MENU_LEVEL]
+				KT:Filter_DropDown_Toggle(MSA_DROPDOWNMENU_MENU_LEVEL, _G["MSA_DropDownList"..listFrame.parentLevel.."Button"..listFrame.parentID])
+				KT:Update()
+			end
+
+			info.text = "已停用"
+			info.arg1 = nil
+			info.checked = (dbChar.filter.quests.sort == info.arg1)
+			MSA_DropDownMenu_AddButton(info, level)
+
+			info.text = "最新"
+			info.arg1 = "newest"
+			info.checked = (dbChar.filter.quests.sort == info.arg1)
+			MSA_DropDownMenu_AddButton(info, level)
+
+			info.text = "區域"
+			info.arg1 = "zone"
+			info.checked = (dbChar.filter.quests.sort == info.arg1)
+			MSA_DropDownMenu_AddButton(info, level)
+
+			info.text = "等級"
+			info.arg1 = "level"
+			info.checked = (dbChar.filter.quests.sort == info.arg1)
+			MSA_DropDownMenu_AddButton(info, level)
+
+			info.text = "標題"
+			info.arg1 = "title"
+			info.checked = (dbChar.filter.quests.sort == info.arg1)
+			MSA_DropDownMenu_AddButton(info, level)
+
+			info.isNotRadio = true
+
+			info.text = "熱門任務"
+			info.keepShownOnClick = true
+			info.checked = dbChar.filter.quests.sortTopOverride
+			info.func = function()
+				dbChar.filter.quests.sortTopOverride = not dbChar.filter.quests.sortTopOverride
+				KT:Update()
+			end
+			MSA_DropDownMenu_AddButton(info, level)
 		end
 	end
 
@@ -1148,6 +1206,8 @@ function M:OnInitialize()
 		char = {
 			filter = {
 				quests = {
+					sort = nil,
+					sortTopOverride = true,
 					showCampaign = true
 				},
 				events = {
@@ -1176,11 +1236,18 @@ function M:OnEnable()
 			}
 			KT.db:RegisterDefaults(KT.db.defaults)
 		end
+
+		zoneSlug[641] = "Val'Sharah"  -- Val'sharah (WTF Blizz)
 	end
 
 	SetHooks()
 	SetFrames()
 
+	KT:RegSignal("QUEST_DATA_CHANGED", function()
+		if db.filterAuto[1] == "zone" then
+			Filter_Quests("zone")
+		end
+	end, self)
 	KT:RegEvent("QUEST_LOG_UPDATE", function(eventID)
 		local numEntries = C_QuestLog.GetNumQuestLogEntries()
 		if numEntries > 1 then

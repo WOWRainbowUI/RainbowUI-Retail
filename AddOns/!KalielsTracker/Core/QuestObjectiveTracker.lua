@@ -147,22 +147,11 @@ local function CompareQuestWatchInfos(info1, info2)
 		return quest1:IsCalling();
 	end
 
-	-- MSA
-	--[[if quest1.overridesSortOrder ~= quest2.overridesSortOrder then
+	if quest1.overridesSortOrder ~= quest2.overridesSortOrder then
 		return quest1.overridesSortOrder;
-	end]]
-
-	-- MSA
-	-- Completed at end of list
-	if quest1:IsComplete() ~= quest2:IsComplete() then
-		return quest2:IsComplete()
-	end
-	-- by Level
-	if quest1.level ~= quest2.level then
-		return quest1.level > quest2.level
 	end
 
-	return info1.index > info2.index;  -- MSA
+	return info1.index < info2.index;
 end
 
 function KT_QuestObjectiveTrackerMixin:BuildQuestWatchInfos()
@@ -178,7 +167,7 @@ function KT_QuestObjectiveTrackerMixin:BuildQuestWatchInfos()
 		end
 	end
 
-	table.sort(infos, CompareQuestWatchInfos);
+	table.sort(infos, KT.CompareQuestWatchInfos);  -- MSA
 	return infos;
 end
 
@@ -311,12 +300,12 @@ function KT_QuestObjectiveTrackerMixin:UpdateSingle(quest)
 					if shouldShowWaypoint then
 						local waypointText = C_QuestLog.GetNextWaypointText(questID);
 						if waypointText ~= nil then
-							block:AddObjective("Waypoint", WAYPOINT_OBJECTIVE_FORMAT_OPTIONAL:format(waypointText), nil, useFullHeight);
+							block:AddObjective("Waypoint", WAYPOINT_OBJECTIVE_FORMAT_OPTIONAL:format(waypointText), nil, useFullHeight, nil, KT_OBJECTIVE_TRACKER_COLOR["Complete"]);  -- MSA
 						end
 					end
 
 					local forceCompletedToUseFullHeight = true;
-					block:AddObjective("QuestComplete", completionText, nil, forceCompletedToUseFullHeight, KT_OBJECTIVE_DASH_STYLE_HIDE);
+					block:AddObjective("QuestComplete", completionText, nil, forceCompletedToUseFullHeight, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["Complete"]);  -- MSA
 				else
 					-- If there isn't completion text, always prefer waypoint to "Ready for turn-in".
 					local waypointText = C_QuestLog.GetNextWaypointText(questID);

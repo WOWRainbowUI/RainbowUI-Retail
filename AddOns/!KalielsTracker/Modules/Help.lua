@@ -335,27 +335,42 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "如果你喜歡 "..KT.TITLE.."，請考慮在 Patreon 贊助 "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
+					(cTitle.."版本 7.16.1|r\n"..
+					"- 新增（任務）- 新排序選項「熱門任務」\n"..
+					"- 修改（任務）- 改進排序邏輯\n"..
+					"- 修正（任務）- 排序過程中出現的 nil 引用錯誤\n"..
+					"\n")..
+
+					(cTitle.."版本 7.16.0|r\n"..
+					"- 新增（任務）- 過濾選單中新增排序選項（最新、區域、等級、標題）\n"..
+					"- 新增 - 於追蹤清單與任務日誌中加入「YouTube 搜尋連結」功能\n"..
+					"- 修改 - 插件支援 - BtWQuests 2.57.0\n"..
+					"- 修改 - 插件支援 - Auctionator 299\n"..
+					"- 修改 - 插件支援 - RareScanner 11.2.5.4\n"..
+					"- 修改 - 插件支援 - TomTom 4.0.19\n"..
+					"- 修改 - 插件支援 - PetTracker 11.2.2\n"..
+					"- 修改 - 插件支援 - Masque 11.2.5\n"..
+					"- 修改（任務）- 區域過濾功能改進\n"..
+					"- 修改 - TomTom - 改良導航更新\n"..
+					"- 修改（任務）- 已完成任務說明使用綠色文字\n"..
+					"- 修改（任務）- 改進浮動提示資訊（獎勵）\n"..
+					"- 修改 - 增強聲音\n"..
+					"- 修改（說明）- 更新贊助者名單\n"..
+					"- 修正（成就）- 英雄谷區域篩選於 Remix: Legion 中無法使用（Blizz 錯誤）\n"..
+					"\n")..
+
 					(cTitle.."版本 7.15.0|r\n"..
 					"- 新增 (成就) - 過濾方式支援軍臨天下:混搭再造\n"..
 					"- 新增 - 支援 WoW 11.2.5.62554\n"..
-					"- 變更 - 支援插件 - Auctionator 298\n"..
-					"- 變更 - 支援插件 - RareScanner 11.2.5\n"..
-					"- 變更 - 支援插件 - TomTom 4.0.18\n"..
-					"- 變更 - TomTom - 小改善\n"..
-					"- 變更 (說明) - Active Patrons\n"..
+					"- 修改 - 插件支援 - Auctionator 298\n"..
+					"- 修改 - 插件支援 - RareScanner 11.2.5\n"..
+					"- 修改 - 插件支援 - TomTom 4.0.18\n"..
+					"- 修改 - TomTom - 小改善\n"..
+					"- 修改 (說明) - Active Patrons\n"..
 					"\n")..
 
-					(cTitle.."版本 7.14.0|r\n"..
-					"- 新增 - 支援插件 - RareScanner 11.2.0.12 (啟用在追蹤清單中顯示偵測到的稀有怪。)，請看說明第 13 頁\n"..
-					"- 變更 - 支援插件 - TomTom 4.0.17\n"..
-					"- 變更 - 支援插件 - Auctionator 296\n"..
-					"- 變更 - 選項 - 新增根據偵測到稀有怪的顯示規則\n"..
-					"- 變更 (說明) - Active Patrons\n"..
-					"- 變更 - 事件 - 顯示/隱藏長期事件的選項 (24h+)\n"..
-					"\n")..
-
-					cTitle.."問題回報|r\n"..
-					"回報問題請使用 "..cBold.."回報單|r (Tickets) 而不是在 CurseForge 留言。\n"..ebSpace.."\n"..
+					cTitle.."Issue reporting|r\n"..
+					"For reporting please use "..cBold.."Tickets|r instead of Comments on CurseForge.\n"..ebSpace.."\n"..
 
 					cWarning.."回報錯誤之前，請先停用所有其他的插件，以確保不是和其他插件相衝突。|r",
 			editbox = {
@@ -438,6 +453,7 @@ local function SetupTutorials()
                     SetFormatedPatronName("Rare", "Spance")..
                     SetFormatedPatronName("Uncommon", "Charles Howarth")..
                     SetFormatedPatronName("Uncommon", "Cool Blue")..
+                    SetFormatedPatronName("Uncommon", "David Blanchard")..
                     SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
                     SetFormatedPatronName("Uncommon", "Mystekal")..
                     SetFormatedPatronName("Uncommon", "Paul Westervelt")..

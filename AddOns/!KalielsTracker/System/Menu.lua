@@ -10,7 +10,9 @@ local _, KT = ...
 local db
 
 local function Menu_AddButton(_, info, type, id)
-    if db and db.menuWowheadURL then
+    if not db then return end
+
+    if db.menuWowheadURL then
         if not info.KTmenuExtended then
             MSA_DropDownMenu_AddSeparator(info)
             info.KTmenuExtended = true
@@ -24,10 +26,24 @@ local function Menu_AddButton(_, info, type, id)
         info.checked = false
         MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
     end
+
+    if db.menuYouTubeURL then
+        if not info.KTmenuExtended then
+            MSA_DropDownMenu_AddSeparator(info)
+            info.KTmenuExtended = true
+        end
+
+        info.text = "|cff33ff99YouTube|r Search URL"
+        info.func = KT.Alert_YouTubeURL
+        info.arg1 = type
+        info.arg2 = id
+        info.notCheckable = true
+        info.checked = false
+        MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
+    end
 end
 KT:RegSignal("CONTEXT_MENU_UPDATE", Menu_AddButton)
 
-KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
+KT:RegSignal("INIT", function()
     db = KT.db.profile
-    KT:UnregEvent(eventID)
-end)
+end, {})
