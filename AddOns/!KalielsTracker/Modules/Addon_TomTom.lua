@@ -403,6 +403,14 @@ local function SetEvents()
 	-- Enable stop update after quest is removed
 	KT:RegEvent("QUEST_REMOVED", function()
 		stopUpdate = true
+
+		local questID = C_SuperTrack.GetSuperTrackedQuestID()
+		if questID and QuestUtils_IsQuestWatched(questID) then
+			C_Timer.After(0, function()
+				SetSuperTrackedQuestWaypoint(questID)
+				OTF:Update()
+			end)
+		end
 	end)
 
 	-- Enable stop update after quest is turned in
@@ -430,11 +438,25 @@ local function SetEvents()
 		end
 	end)
 
-	-- Updates waypint while change zone
+	-- Updates waypoint while change zone
 	KT:RegEvent("ZONE_CHANGED_NEW_AREA", function()
 		local questID = C_SuperTrack.GetSuperTrackedQuestID()
-		if questID then
+		if questID and (QuestUtils_IsQuestWatched(questID) or QuestUtil.IsQuestTrackableTask(questID)) then
 			SetSuperTrackedQuestWaypoint(questID, true)
+		else
+			local _, superTrackedPoiID = C_SuperTrack.GetSuperTrackedMapPin()
+			if superTrackedPoiID then
+				SetSuperTrackedMapPinWaypoint(superTrackedPoiID, true)
+				OTF:Update()
+			end
+		end
+	end)
+
+	KT:RegEvent("AREA_POIS_UPDATED", function()
+		local questID = C_SuperTrack.GetSuperTrackedQuestID()
+		if questID and QuestUtils_IsQuestWatched(questID) then
+			SetSuperTrackedQuestWaypoint(questID, true)
+			OTF:Update()
 		end
 	end)
 
@@ -458,7 +480,7 @@ end
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
-	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.0.18-release") and db.addonTomTom)
+	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.0.19-release") and db.addonTomTom)
 
 	if self.isLoaded then
 		KT:Alert_IncompatibleAddon("TomTom", "v4.0.1-release")

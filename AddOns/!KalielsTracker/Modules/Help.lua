@@ -333,6 +333,30 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "If you like "..KT.TITLE..", consider supporting it on Patreon "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 7.16.1|r\n"..
+					"- ADDED (Quests) - new sorting option \"Top Meta quests\"\n"..
+					"- CHANGED (Quests) - sorting improvements\n"..
+					"- FIXED (Quests) - nil reference during sorting\n"..
+					"\n")..
+
+					(cTitle.."Version 7.16.0|r\n"..
+					"- ADDED (Quests) - sorting options in filter menu (Newest, Zone, Level, Title)\n"..
+					"- ADDED - YouTube Search URL menu item inside the tracker and Quest Log\n"..
+					"- CHANGED - addon support - BtWQuests 2.57.0\n"..
+					"- CHANGED - addon support - Auctionator 299\n"..
+					"- CHANGED - addon support - RareScanner 11.2.5.4\n"..
+					"- CHANGED - addon support - TomTom 4.0.19\n"..
+					"- CHANGED - addon support - PetTracker 11.2.2\n"..
+					"- CHANGED - addon support - Masque 11.2.5\n"..
+					"- CHANGED (Quests) - zone filtering improvement\n"..
+					"- CHANGED - TomTom - better waypoint update\n"..
+					"- CHANGED (Quests) - green color for completed quest description\n"..
+					"- CHANGED (Quests) - tooltip improvements - rewards\n"..
+					"- CHANGED - sound improvements\n"..
+					"- CHANGED (help) - Active Patrons\n"..
+					"- FIXED (Achievements) - Val'sharah zone filter not working in Remix: Legion (Blizz bug)\n"..
+					"\n")..
+
 					(cTitle.."Version 7.15.0|r\n"..
 					"- ADDED (achievements) - filter support for Remix: Legion\n"..
 					"- ADDED - support for WoW 11.2.5.62554\n"..
@@ -341,15 +365,6 @@ local function SetupTutorials()
 					"- CHANGED - addon support - TomTom 4.0.18\n"..
 					"- CHANGED - TomTom - minor improvements\n"..
 					"- CHANGED (help) - Active Patrons\n"..
-					"\n")..
-
-					(cTitle.."Version 7.14.0|r\n"..
-					"- ADDED - addon support - RareScanner 11.2.0.12 (display of detected Rare NPCs inside the tracker), see Help page 13\n"..
-					"- CHANGED - addon support - TomTom 4.0.17\n"..
-					"- CHANGED - addon support - Auctionator 296\n"..
-					"- CHANGED - Options - add visibility rule based on Rare NPC detection\n"..
-					"- CHANGED (help) - Active Patrons\n"..
-					"- CHANGED - Events - option to show/hide Long events (24h+)\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
@@ -436,6 +451,7 @@ local function SetupTutorials()
                     SetFormatedPatronName("Rare", "Spance")..
                     SetFormatedPatronName("Uncommon", "Charles Howarth")..
                     SetFormatedPatronName("Uncommon", "Cool Blue")..
+                    SetFormatedPatronName("Uncommon", "David Blanchard")..
                     SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
                     SetFormatedPatronName("Uncommon", "Mystekal")..
                     SetFormatedPatronName("Uncommon", "Paul Westervelt")..

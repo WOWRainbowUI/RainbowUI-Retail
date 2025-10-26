@@ -119,7 +119,9 @@ local defaults = {
 		tooltipShowRewards = true,
 		tooltipShowID = true,
         menuWowheadURL = true,
-        menuWowheadURLModifier = "ALT",
+        menuWowheadURLModifier = "",
+		menuYouTubeURL = true,
+		menuYouTubeURLModifier = "",
         questDefaultActionMap = true,
 		questShowTags = true,
 		questShowZones = true,
@@ -1265,6 +1267,37 @@ local options = {
 							end,
 							order = 3.2,
 						},
+						menuWowheadURLSpacer = {
+							name = " ",
+							type = "description",
+							width = "normal",
+							order = 3.3,
+						},
+						menuYouTubeURL = {
+							name = "YouTube Search URL",
+							desc = "Show YouTube Search URL menu item inside the tracker and Quest Log.",
+							type = "toggle",
+							set = function()
+								db.menuYouTubeURL = not db.menuYouTubeURL
+							end,
+							order = 3.4,
+						},
+						menuYouTubeURLModifier = {
+							name = "YouTube Search URL click modifier",
+							type = "select",
+							values = modifiers,
+							get = function()
+								for k, v in pairs(modifiers) do
+									if db.menuYouTubeURLModifier == k then
+										return k
+									end
+								end
+							end,
+							set = function(_, value)
+								db.menuYouTubeURLModifier = value
+							end,
+							order = 3.5,
+						},
                         questTitle = {
                             name = cTitle.."\n Quests",
                             type = "description",
@@ -2164,7 +2197,7 @@ local function Setup()
 					db.filterAuto[i] = nil
 				end
 				KT:SetBackground()
-				KT.QuestsCache_Init()
+				KT.QuestsCache_Update(true)
 				OTF:Update()
 			end,
 			order = 0.2,

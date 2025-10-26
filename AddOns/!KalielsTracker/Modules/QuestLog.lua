@@ -93,6 +93,8 @@ local function SetHooks()
 			elseif button == "LeftButton" then
 				if IsModifiedClick(db.menuWowheadURLModifier) then
 					KT:Alert_WowheadURL("quest", self.questID)
+				elseif IsModifiedClick(db.menuYouTubeURLModifier) then
+					KT:Alert_YouTubeURL("quest", self.questID)
 				else
 					QuestMapFrame_ShowQuestDetails(self.questID);
 				end

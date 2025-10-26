@@ -239,6 +239,7 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
     local numQuestChoices = GetNumQuestLogChoices(questID, true)
     local honor = GetQuestLogRewardHonor(questID)
     local majorFactionRepRewards = C_QuestLog.GetQuestLogMajorFactionReputationRewards(questID)
+    local playerTitle = GetQuestLogRewardTitle()
     local rewardsTitle = REWARDS..":"
 
     if not isBonus then
@@ -281,7 +282,7 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
         end
     end
 
-    if xp > 0 or money > 0 or artifactXP > 0 or numQuestCurrencies > 0 or numQuestRewards > 0 or numQuestSpellRewards > 0 or honor > 0 or majorFactionRepRewards then
+    if xp > 0 or money > 0 or artifactXP > 0 or numQuestCurrencies > 0 or numQuestRewards > 0 or numQuestSpellRewards > 0 or honor > 0 or majorFactionRepRewards or playerTitle then
         local isQuestWorldQuest = QuestUtils_IsQuestWorldQuest(questID)
         local isWarModeDesired = C_PvP.IsWarModeDesired()
         local questHasWarModeBonus = C_QuestLog.QuestCanHaveWarModeBonus(questID)
@@ -299,17 +300,18 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
             end
         end
 
-        -- honor
-        if honor > 0 then
-            tooltip:AddLine(format(BONUS_OBJECTIVE_REWARD_WITH_COUNT_FORMAT, "Interface\\ICONS\\Achievement_LegionPVPTier4", honor, HONOR), 1, 1, 1)
-        end
-
         -- money
         if money > 0 then
             tooltip:AddLine(C_CurrencyInfo.GetCoinTextureString(money, 12), 1, 1, 1)
             if isWarModeDesired and isQuestWorldQuest and questHasWarModeBonus then
                 tooltip:AddLine(WAR_MODE_BONUS_PERCENTAGE_FORMAT:format(C_PvP.GetWarModeRewardBonus()))
             end
+        end
+
+        -- title
+        if playerTitle then
+            local text = format(RENOWN_REWARD_TITLE_NAME_FORMAT, "|cffff7f00"..playerTitle)
+            tooltip:AddLine(format(BONUS_OBJECTIVE_REWARD_FORMAT, "Interface\\Icons\\INV_Misc_Note_02", text), 1, 1, 1)
         end
 
         -- spells
@@ -346,6 +348,11 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
         -- currencies
         if numQuestCurrencies > 0 then
             QuestUtils_AddQuestCurrencyRewardsToTooltip(questID, tooltip)
+        end
+
+        -- honor
+        if honor > 0 then
+            tooltip:AddLine(format(BONUS_OBJECTIVE_REWARD_WITH_COUNT_FORMAT, "Interface\\ICONS\\Achievement_LegionPVPTier4", honor, HONOR), 1, 1, 1)
         end
 
         -- reputation
@@ -616,6 +623,10 @@ end
 
 function KT:Alert_WowheadURL(type, id)
     KT.StaticPopup_ShowURL("WowheadURL", type, id)
+end
+
+function KT:Alert_YouTubeURL(type, id)
+    KT.StaticPopup_ShowURL("YouTubeURL", type, id)
 end
 
 -- Sanitize

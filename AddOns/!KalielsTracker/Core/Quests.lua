@@ -7,13 +7,13 @@
 ---@type KT
 local _, KT = ...
 
--- Quests Cache
 local questsCache = {}
 
-function KT.QuestsCache_Update(isForced)
+function KT.QuestsCache_Update(force)
     local numQuests = 0
     local numEntries = C_QuestLog.GetNumQuestLogEntries()
     local headerTitle
+    local validIDs = {}
 
     for i = 1, numEntries do
         local questInfo = C_QuestLog.GetInfo(i)
@@ -22,19 +22,31 @@ function KT.QuestsCache_Update(isForced)
                 headerTitle = questInfo.title
             else
                 if not questInfo.isTask and (not questInfo.isBounty or C_QuestLog.IsComplete(questInfo.questID)) then
-                    if not questsCache[questInfo.questID] or isForced then
-                        questsCache[questInfo.questID] = {
+                    local quest = questsCache[questInfo.questID]
+                    if not quest or force then
+                        quest = {
                             title = questInfo.title,
                             level = questInfo.level,
                             zone = headerTitle,
-                            startMapID = questsCache[questInfo.questID] and questsCache[questInfo.questID].startMapID or 0,
-                            isCalling = C_QuestLog.IsQuestCalling(questInfo.questID)
+                            isCalling = C_QuestLog.IsQuestCalling(questInfo.questID),
+                            startMapID = quest and quest.startMapID or 0,
+                            updateTime = quest and quest.updateTime or 0
                         }
+                        questsCache[questInfo.questID] = quest
+                    end
+                    validIDs[questInfo.questID] = true
+                    if not C_QuestLog.IsQuestCalling(questInfo.questID) then
+                        numQuests = numQuests + 1
                     end
                 end
-                if not C_QuestLog.IsQuestCalling(questInfo.questID) then
-                    numQuests = numQuests + 1
-                end
+            end
+        end
+    end
+
+    if force then
+        for questID in pairs(questsCache) do
+            if not validIDs[questID] then
+                questsCache[questID] = nil
             end
         end
     end
@@ -42,8 +54,12 @@ function KT.QuestsCache_Update(isForced)
     return numQuests
 end
 
+function KT.QuestsCache_RemoveQuest(questID)
+    questsCache[questID] = nil
+end
+
 function KT.QuestsCache_GetInfo(questID)
-    return questsCache[questID] and questsCache[questID]
+    return questsCache[questID]
 end
 
 function KT.QuestsCache_GetProperty(questID, key)
@@ -56,22 +72,15 @@ function KT.QuestsCache_UpdateProperty(questID, key, value)
     end
 end
 
-function KT.QuestsCache_RemoveQuest(questID)
-    questsCache[questID] = nil
-end
-
-function KT.QuestsCache_Init()
-    return KT.QuestsCache_Update(true)
-end
-
--- Init
-function KT.Quests_Init(store)
-    questsCache = store.cache
+function KT.QuestsCache_Init(storage)
+    if storage then
+        questsCache = storage
+    end
 
     KT:RegEvent("QUEST_LOG_UPDATE", function(eventID)
         local numEntries = C_QuestLog.GetNumQuestLogEntries()
         if numEntries > 1 then
-            KT.QuestsCache_Init()
+            KT.QuestsCache_Update(true)
             KT:UnregEvent(eventID)
         end
     end)
