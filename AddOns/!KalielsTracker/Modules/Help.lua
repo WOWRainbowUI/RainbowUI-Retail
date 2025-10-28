@@ -333,6 +333,10 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "If you like "..KT.TITLE..", consider supporting it on Patreon "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 7.16.2|r\n"..
+					"- CHANGED - addon support - TomTom 4.1.3\n"..
+					"\n")..
+
 					(cTitle.."Version 7.16.1|r\n"..
 					"- ADDED (Quests) - new sorting option \"Top Meta quests\"\n"..
 					"- CHANGED (Quests) - sorting improvements\n"..

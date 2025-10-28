@@ -160,15 +160,21 @@ local function SetWaypointTag(button, show)
 	end
 end
 
-local function TomTomArrowSetShown(show)
+local function TomTomArrow_Init()
+	local theme = TomTom.CrazyArrowThemeHandler.active
+	tomtomArrow = TomTomCrazyArrow
+	tomtomArrow.KTarrow = theme.tbl.arrowTexture
+	tomtomArrow.KTshown = true
+end
+
+local function TomTomArrow_SetShown(show)
 	if tomtomArrow then
-		tomtomArrow.arrow:SetShown(show)
-		tomtomArrow.status:SetShown(show)
-		tomtomArrow.tta:SetShown(show)
-	else
+		tomtomArrow.KTarrow:SetShown(show)
+		tomtomArrow.status:SetShown(show and TomTom.profile.arrow.showdistance)
 		C_Timer.After(0, function()
-			TomTomArrowSetShown(show)
+			tomtomArrow.tta:SetShown(show and TomTom.profile.arrow.showtta)
 		end)
+		tomtomArrow.KTshown = show
 	end
 end
 
@@ -199,9 +205,9 @@ local function AddWaypoint(questID, isPin)
 	end
 
 	if isWorldQuest and waypointText then
-		TomTomArrowSetShown(false)
+		TomTomArrow_SetShown(false)
 	else
-		TomTomArrowSetShown(true)
+		TomTomArrow_SetShown(true)
 	end
 
 	if completed then
@@ -267,6 +273,13 @@ local function SetHooks()
 		TomTom:EnableDisablePOIIntegration()
 	end
 
+	hooksecurefunc(TomTom.CrazyArrowThemeHandler, "SetActiveTheme", function(self, button, key, arrival)
+		tomtomArrow.KTarrow = self.active.tbl.arrowTexture
+		if questWaypoint then
+			TomTomArrow_SetShown(tomtomArrow.KTshown)
+		end
+	end)
+
 	hooksecurefunc(TomTom, "ClearWaypoint", function(self, uid)
 		if uid.questID == superTrackedQuestID then
 			questWaypoint = nil
@@ -283,11 +296,6 @@ local function SetHooks()
 		if superTrackedQuestID > 0 then
 			RemoveWaypoint(superTrackedQuestID)
 		end
-	end)
-
-	TomTom:HijackCrazyArrow(function(self)
-		tomtomArrow = self
-		TomTom:ReleaseCrazyArrow()
 	end)
 
 	-- Blizzard
@@ -480,10 +488,10 @@ end
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
-	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.0.19-release") and db.addonTomTom)
+	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.1.3-release") and db.addonTomTom)
 
 	if self.isLoaded then
-		KT:Alert_IncompatibleAddon("TomTom", "v4.0.1-release")
+		KT:Alert_IncompatibleAddon("TomTom", "v4.1.2-release")
 
 		local defaults = KT:MergeTables({
 			profile = {
@@ -501,4 +509,6 @@ function M:OnEnable()
 	SetupOptions()
 	SetEvents()
 	SetHooks()
+
+	TomTomArrow_Init()
 end
