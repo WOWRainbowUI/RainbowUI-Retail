@@ -1,4 +1,6 @@
 # Kaliel's Tracker changelog
+### 7.16.2
+- CHANGED - addon support - TomTom 4.1.3
 ### 7.16.1
 - ADDED (Quests) - new sorting option &quot;Top Meta quests&quot;
 - CHANGED (Quests) - sorting improvements

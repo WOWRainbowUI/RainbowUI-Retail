@@ -335,6 +335,10 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "如果你喜歡 "..KT.TITLE.."，請考慮在 Patreon 贊助 "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
+					(cTitle.."版本 7.16.2|r\n"..
+					"- 修改 - 插件支援 - TomTom 4.1.3\n"..
+					"\n")..
+
 					(cTitle.."版本 7.16.1|r\n"..
 					"- 新增（任務）- 新排序選項「熱門任務」\n"..
 					"- 修改（任務）- 改進排序邏輯\n"..
