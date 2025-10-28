@@ -5,5 +5,5 @@
   <Script file="tradeskill.lua" />
   <Script file="Classic/talents.lua" />
   <Script file="Classic/travel.lua" />
-  <Script file="Classic/micromenu.lua" />
+  <Script file="micromenu.lua" />
 </Ui>
