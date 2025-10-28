@@ -155,6 +155,7 @@ L["A UI reload is required.\nDo it now?"] = "需要重载界面。\n现在重载
 L["Pixel Perfect"] = "像素精确"
 L["Options UI Accent Color"] = "选项界面强调色"
 L["Options UI Font Size"] = "选项界面字体尺寸"
+L["Use Game Font"] = "使用游戏字体"
 L["Unit Button Style"] = "单位按钮样式"
 L["Texture"] = "材质"
 L["Power Color"] = "能量颜色"
@@ -878,6 +879,13 @@ L["Click to view older changelogs"] = "点击查看远古更新记录"
 
 L["CHANGELOGS"] = [[
     <h2>更新后如果有各种问题，先排查代码片段。</h2>
+    <br/>
+
+    <h1>r267-release (Oct 27, 2025, 17:50 GMT+8)</h1>
+    <p>* 修复自动切换专精时的布局切换问题。</p>
+    <p>* 修复点击施法的法术等级。</p>
+    <p>+ 新增 esMX 本地化（感谢 maylisdalan）。</p>
+    <p>* 更新本地化，修复缺失内容。</p>
     <br/>
 
     <h1>r266-release (Oct 14, 2025, 14:25 GMT+8)</h1>
