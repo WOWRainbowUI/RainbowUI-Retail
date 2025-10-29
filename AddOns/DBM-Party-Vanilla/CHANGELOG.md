@@ -1,19 +1,12 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r216](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r216) (2025-10-23)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r215...r216) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r217](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r217) (2025-10-28)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r216...r217) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/567  
-- Add defeat localization for Cho'Rush (#571)  
-- Update localization.tw.lua (#573)  
-- Update print statement from 'Hello' to 'Goodbye' (#572)  
-- clarify odyn's timer as RP timer and not combat timer. the timer is for when the dialog option to engage him enables, not for when he actually enables (that happens 3 seconds after a player chooses that dialog option)  
-- fix false timer restart error  
-- Update localization.cn.lua (#570)  
-- Add localization for Chefe Guerreiro Laceral Mão Negra (#569)  
-    Added localization strings for the boss Laceral Mão Negra.  
-- Update localization.es.lua (#568)  
-- luaLS fixup  
-- adjust thunderous bolt for remix  
-- AP usage tweaks  
-- update sendchatmessage usage for midnight restrictions  
+- Actually include 11.2.7 in retail toc too, not just live and alpha  
+- Update localization.tw.lua (#576)  
+- Update localization.br.lua (#575)  
+    Added defeat message for Ez'Magg in Brazilian Portuguese.  
+-  - Removed Dungeon tests on retail, that feature doesn't really have a future on retail.  
+     - Bump all tocs for Midnight alpha  
+     - Added 5/8 midnight dungeons so far (i'll do other 3 later today but getting tired)  
