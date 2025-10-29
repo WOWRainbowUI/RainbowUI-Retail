@@ -76,16 +76,16 @@ end
 ---@class DBM
 local DBM = private:GetPrototype("DBM")
 _G.DBM = DBM
-DBM.Revision = parseCurseDate("20251016042852")
+DBM.Revision = parseCurseDate("20251028144609")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 local fakeBWVersion, fakeBWHash = 398, "3d79f92"--398.5
 local PForceDisable
 -- The string that is shown as version
-DBM.DisplayVersion = "12.0.1"--Core version
+DBM.DisplayVersion = "12.0.2"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2025, 10, 16) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2025, 10, 28) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 PForceDisable = 19--When this is incremented, trigger force disable regardless of major patch
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
@@ -882,13 +882,16 @@ function DBM:MidRestrictionsActive(includeAuras)
 	if private.wowTOC < 120000 then
 		return false
 	end
-	if includeAuras and (GetRestrictedActionStatus(1) or GetRestrictedActionStatus(0)) then
+	if includeAuras and (GetRestrictedActionStatus(1) or GetRestrictedActionStatus(0)) then--Checks cooldown and auras restrictions
 		return true
 	end
 	--In active encounter or active M+
-	if private.IsEncounterInProgress() or (C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive()) then
+	if private.IsEncounterInProgress() or C_ChallengeMode.IsChallengeModeActive() then
 		return true
 	end
+	--if GetActiveMatchState() == 3 then--In active PVP match
+	--	return true
+	--end
 	--Comms and chat messages blocked. might be redundant to above but for good measure
 	if C_ChatInfo.InChatMessagingLockdown() then
 		return true
@@ -7057,6 +7060,7 @@ do
 end
 
 do
+	--TODO, use GetUnitAuraBySpellID and GetUnitAuraBySpellName when possible for better performance
 	local UnitAura = C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura
 	local GetPlayerAuraBySpellID = C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID
 	local GetAuraDataBySpellName = C_UnitAuras and C_UnitAuras.GetAuraDataBySpellName
@@ -9422,7 +9426,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20251016042852" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20251028144609" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
