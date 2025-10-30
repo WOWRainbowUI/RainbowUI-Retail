@@ -2,7 +2,7 @@
 -- Internal variables
 --
 
-local MAJOR, MINOR = "EditModeExpanded-1.0", 95
+local MAJOR, MINOR = "EditModeExpanded-1.0", 96
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -35,6 +35,7 @@ local ENUM_EDITMODEACTIONBARSETTING_BUTTON = 15
 local ENUM_EDITMODEACTIONBARSETTING_FRAMESIZE = 16 -- Enum.EditModeUnitFrameSetting.FrameSize
 local ENUM_EDITMODEACTIONBARSETTING_DROPDOWN = 17
 local ENUM_EDITMODEACTIONBARSETTING_SLIDER = 18
+local ENUM_EDITMODEACTIONBARSETTING_COORDINATES = 19
 
 -- run OnLoad the first time RegisterFrame is called by an addon
 local f = lib.internalOnLoadFrame or {}
@@ -729,6 +730,91 @@ function lib:RegisterCustomButton(frame, name, onClick)
     )
     
     table.insert(extraDialogItems, button)
+end
+
+-- call this to register a frame to have its position specified by the user using screen coordinates
+function lib:RegisterCoordinates(frame)
+    local systemID = getSystemID(frame)
+    if not framesDialogs[systemID] then framesDialogs[systemID] = {} end
+    
+    for _, settings in pairs(framesDialogs[systemID]) do
+        if settings.type == ENUM_EDITMODEACTIONBARSETTING_COORDINATES then
+            return
+        end
+    end
+    
+    local coordinatePanel = CreateFrame("Frame", nil, EditModeExpandedSystemSettingsDialog.Settings, "HorizontalLayoutFrame")
+    coordinatePanel.widthPadding = 15
+    coordinatePanel.fixedHeight = 28
+    coordinatePanel.SetupSetting = nop
+    coordinatePanel.spacing = 20
+    table.insert(extraDialogItems, coordinatePanel)
+    
+    coordinatePanel.label = coordinatePanel:CreateFontString(nil, nil, "GameTooltipText")
+    local label = coordinatePanel.label
+    label.layoutIndex = 1
+    label:SetText("Coordinates:")
+    
+    coordinatePanel.xEditBox = CreateFrame("EditBox", nil, coordinatePanel, "InputBoxTemplate")
+    local xEditBox = coordinatePanel.xEditBox
+    xEditBox.layoutIndex = 2
+    xEditBox.topPadding = -5
+    xEditBox:SetSize(30, 20)
+    xEditBox:SetNumeric(true)
+    xEditBox:SetAutoFocus(false)
+    
+    coordinatePanel.yEditBox = CreateFrame("EditBox", nil, coordinatePanel, "InputBoxTemplate")
+    local yEditBox = coordinatePanel.yEditBox
+    yEditBox.layoutIndex = 3
+    yEditBox.topPadding = -5
+    yEditBox:SetSize(30, 20)
+    yEditBox:SetNumeric(true)
+    yEditBox:SetAutoFocus(false)
+    
+    local function onEnterPressed()
+        local db = framesDB[getSystemID(frame)]
+        local x, y = tonumber(xEditBox:GetText()), tonumber(yEditBox:GetText())
+        if (type(x) ~= "number") or (type(y) ~= "number") then return end
+        
+        if frame.EMESystemID then
+            -- Frame is a base UI frame already handled by Edit Mode
+            -- So we need to store the new coordinates into the Edit Mode profile
+            frame:ClearAllPoints()
+            frame:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", x, y)
+            frame:SetUserPlaced(true)
+            --EditModeSystemSettingsDialog:UpdateSettings(frame)
+            EditModeManagerFrame:OnSystemPositionChange(frame)
+        else
+            db.x, db.y = x, y
+            frame.EMEanchorTo = UIParent
+            frame.EMEanchorPoint = "BOTTOMLEFT"
+            
+            frame:ClearAllPoints()
+            frame:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", x, y)
+            
+            if frame:IsUserPlaced() then
+                frame:SetUserPlaced(false)
+            end
+        end
+    end
+    
+    xEditBox:SetScript("OnEnterPressed", onEnterPressed)
+    yEditBox:SetScript("OnEnterPressed", onEnterPressed)
+    
+    xEditBox:SetScript("OnTabPressed", function()
+        yEditBox:SetFocus()
+    end)
+    yEditBox:SetScript("OnTabPressed", function()
+        xEditBox:SetFocus()
+    end)
+    
+    table.insert(framesDialogs[systemID],
+        {
+            setting = ENUM_EDITMODEACTIONBARSETTING_COORDINATES,
+            type = ENUM_EDITMODEACTIONBARSETTING_COORDINATES,
+            settingFrame = coordinatePanel,
+        }
+    )
 end
 
 -- call this to register a custom dropdown menu
