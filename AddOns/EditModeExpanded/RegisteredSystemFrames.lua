@@ -9,7 +9,7 @@ function addon:initSystemFrames()
     for _, frame in ipairs(EditModeManagerFrame.registeredSystemFrames) do
         local name = frame:GetName()
         if not db[name] then db[name] = {} end
-        lib:RegisterFrame(frame, "", db[name])
+        addon:registerFrame(frame, "", db[name])
     end
     
     -- The earlier RegisterFrame will :SetShown(true) the TalkingHeadFrame if it was set to Hide then unset.
