@@ -601,11 +601,11 @@ function MenuModule:SocialHover(hoverFunc)
 		}
 		
 		-- 我目前正在玩的魔獸版本
-		local myWowProjectID = WOW_PROJECT_WRATH_CLASSIC
-		local _, _, _, buildInfo = GetBuildInfo()
-		if (buildInfo < 20000) then
-			myWowProjectID = WOW_PROJECT_CLASSIC
-		end
+		-- local myWowProjectID = WOW_PROJECT_MISTS_CLASSIC
+		-- local _, _, _, buildInfo = GetBuildInfo()
+		-- if (buildInfo < 20000) then
+		-- 	myWowProjectID = WOW_PROJECT_CLASSIC
+		-- end
 
         -- 戰網好友
 		-- executes if there are any online bnet friends
@@ -642,7 +642,7 @@ function MenuModule:SocialHover(hoverFunc)
                     local charNameFormat = '' -- format in which the friend's character is displayed - is '' if not playing WoW, 'Char - Realm' or 'FACTION - Char' if playing WoW
 
                     -- 遊戲圖示
-					if faction and gameAccount.wowProjectID == myWowProjectID then
+					if faction and gameAccount.wowProjectID == WOW_PROJECT_ID then
 						socialIcon = "|TInterface\\FriendsFrame\\PlusManz-"..faction..":16|t"
 					else
 						if C_Texture.IsTitleIconTextureReady(gameAccount.clientProgram, Enum.TitleIconVersion.Small) then
@@ -733,8 +733,8 @@ function MenuModule:SocialHover(hoverFunc)
 					-- 隱藏戰網 app 或其他遊戲好友
 					if ((not xb.db.profile.modules.microMenu.hideAppContact) and (not xb.db.profile.modules.microMenu.hideOtherGameContact)) -- 戰網和其他遊戲都不隱藏
 						or ((xb.db.profile.modules.microMenu.hideAppContact) and (not xb.db.profile.modules.microMenu.hideOtherGameContact) and ((gameClient ~= "App") and (gameClient ~= "BSAp"))) -- 只隱藏戰網
-						or ((not xb.db.profile.modules.microMenu.hideAppContact) and (xb.db.profile.modules.microMenu.hideOtherGameContact) and ((gameClient == "App") or (gameClient == "BSAp") or (gameAccount.wowProjectID == myWowProjectID))) -- 只隱藏其他遊戲
-						or ((xb.db.profile.modules.microMenu.hideAppContact) and (xb.db.profile.modules.microMenu.hideOtherGameContact) and (gameAccount.wowProjectID == myWowProjectID)) then -- 戰網和其他遊戲都隱藏
+						or ((not xb.db.profile.modules.microMenu.hideAppContact) and (xb.db.profile.modules.microMenu.hideOtherGameContact) and ((gameClient == "App") or (gameClient == "BSAp") or (gameAccount.wowProjectID == WOW_PROJECT_ID))) -- 只隱藏其他遊戲
+						or ((xb.db.profile.modules.microMenu.hideAppContact) and (xb.db.profile.modules.microMenu.hideOtherGameContact) and (gameAccount.wowProjectID == WOW_PROJECT_ID)) then -- 戰網和其他遊戲都隱藏
                         -- lineLeft displays status icon, bnet name and the friend's note
                         -- local lineLeft = string.format("|T%s:16|t|cff82c5ff %s|r %s", statusIcon,
                         --    friendAccInfo.accountName, note)
