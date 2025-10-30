@@ -1,6 +1,7 @@
 # Auctionator
 
-## [299](https://github.com/TheMouseNest/Auctionator/tree/299) (2025-10-21)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/298...299) 
+## [300](https://github.com/TheMouseNest/Auctionator/tree/300) (2025-10-29)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/299...300) 
 
-- Fix for 1.15.8  
+- Combine tocs into one  
+- LegacyAH: Use updated charge patterns  
