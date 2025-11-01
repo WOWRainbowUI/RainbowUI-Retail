@@ -44,11 +44,11 @@ do
 	})
 end
 R:AddDefaultRing("OPieAutoQuest", {
-	{"extrabutton", 1, _u="EB", fastClick=true},
+	{"extrabutton", 1, _u="EB", show="[nodupeab]", fastClick=true},
 	{"opie.ext", "xact", _u="CX"},
 	{"zoneability", 0, _u="ZA"},
 	{"opie.autoquest", 1, _u="AC"},
-	name=L"Quest Items", hotkey="ALT-Q", _u="OPbQI", v=3
+	name=L"Quest Items", hotkey="ALT-Q", _u="OPbQI", v=4
 })
 if MODERN or CF_CATA then
 	local clearMark = {"worldmark", 0, c="ccd8e5", _u="c"}
@@ -202,22 +202,24 @@ R:AddDefaultRing("PaladinTools", {
 	name=L"Utility", limit="PALADIN", hotkey="BUTTON4", _u="OPCPT", v=5
 })
 R:AddDefaultRing("WarlockLTS", {
-	{id="/cast [anyflyable,outdoors,nocombat,nomod] {{mount:air}}; [outdoors,nocombat,nomod:shift] {{mount:ground}}; {{spell:126}}", fastClick=true, _u="e"}, -- mount/eye
+	{id="#imp critical\n/cast [anyflyable,outdoors,nocombat,nomod][anyflyable,combat,mounted][anyflyable,nooutdoors,mounted] {{mount:air}}; [outdoors,nocombat,nomod:shift][combat,mounted][nooutdoors,mounted] {{mount:ground}}; {{spell:111400}}\n/changeactionbar [anyflyable,advflyable,nocombat,outdoors,nobonusbar:5] 1", fastClick=true, _u="e"}, -- mount/rush
 	{"ring", "WarlockDemons", _u="d"},
-	{id="/cast [mod] {{spell:755}}; {{spell:119898}}; {{spell:755}}", _u="a"}, -- funnel/command
-	{id="/cast [mod:alt] {{spell:20707}}; [group,nomod][nogroup,mod] {{spell:29893}}; {{spell:6201}}", _u="h"}, -- soul/health/well
+	{id="/cast [mod:alt][dead,help] {{spell:20707}}; [group,nomod][nogroup,mod] {{spell:29893}}; {{spell:6201}}", _u="h"}, -- soul/health/well
 	{id=111771, _u="w"}, -- gateway
 	{id=1122, _u="i"}, -- infernal
-	name=L"Utility", hotkey="BUTTON4", limit="WARLOCK", _u="OPCLS", v=4
+	{id="/cast [nomod] {{spell:48018}}; {{spell:48020}}", _u="t"}, -- demonic circle
+	name=L"Utility", hotkey="BUTTON4", limit="WARLOCK", _u="OPCLS", v=5
 })
 R:AddDefaultRing("WarlockCombat", {
-	{id="/cast [nomod] {{spell:48018}}; {{spell:48020}}", _u="t"}, -- demonic circle
 	{id=1098, _u="e"}, -- enslave
 	{id=710, _u="a"}, -- banish
-	{id=111400, _u="m"}, -- burning rush
+	{id="/cast [mod] {{spell:755}}; {{spell:119898}}; {{spell:755}}", _u="u"}, -- funnel/command
+	{id=126, _u="k"}, -- eye of kil
 	{id=5782, _u="f"}, -- fear
 	{id=5484, _u="h"}, -- howl
-	name=L"Combat", hotkey="BUTTON5", limit="WARLOCK", _u="OPCLO", v=2
+	{id=6789, _u="m"}, -- mortal coil
+	{id=30283, _u="s"}, -- shadowfury
+	name=L"Combat", hotkey="BUTTON5", limit="WARLOCK", _u="OPCLO", v=3
 })
 R:AddDefaultRing("WarlockDemons", {
 	{id=30146, _u="f"}, -- felguard
@@ -288,6 +290,6 @@ R:AddDefaultRing("SpecMenu", {
 	{"item", 238727, _u="x"}, -- remix: nostwin's voucher
 	{id=436854, _u="f", show="[level:20]"},
 	{"ring", "CommonHearth", rotationMode="shuffle", _u="t"},
-	{"item", 141605, _u="w", show="[in:broken isles/argus/bfa]"}, -- flight master's whistle
-	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=6
+	{"toy", 141605, _u="w", show="[in:broken isles/argus/bfa]"}, -- flight master's whistle
+	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=7
 })

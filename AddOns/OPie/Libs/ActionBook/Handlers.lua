@@ -118,11 +118,12 @@ securecall(function() -- mount: mount ID
 		return actionMap[id]
 	end
 	local function describeMount(id)
-		local name, sid, icon, _4, _5, _6, _7, factionLocked, factionId = C_MountJournal.GetMountInfoByID(id)
+		local name, sid, icon, _4, _5, _6, _7, factionLocked, factionId, _, collected = C_MountJournal.GetMountInfoByID(id)
 		if name and factionLocked then
 			name = name .. (factionId == 0 and "|A:QuestPortraitIcon-Horde-small:14:14:0:-1|a" or "|A:QuestPortraitIcon-Alliance-small:15:13:-1:-1|a")
 		end
-		return L"Mount", name, icon, nil, callMethod.SetMountBySpellID, sid
+		local actionFlags = collected and not checkUsableMountID(id) and 1 or nil
+		return L"Mount", name, icon, nil, callMethod.SetMountBySpellID, sid, nil, actionFlags
 	end
 	AB:RegisterActionType("mount", createMount, describeMount, 1)
 	if MODERN then -- random
@@ -206,9 +207,15 @@ securecall(function() -- spell: spell ID + mount spell ID
 		end})
 	end
 	local iconOverrideHandlers = {}
+	local SBA_SPELL_ID = 1229376
 	local function spellHint(n, _modState, target)
 		if not n then return end
 		local sname, _, _, _, _, _, sid = GetSpellInfo(n)
+		local ncid = sid == SBA_SPELL_ID and MODERN and C_AssistedCombat.GetNextCastSpell(false)
+		if ncid then
+			sname, _, _, _, _, _, sid = GetSpellInfo(ncid)
+			n = sname
+		end
 		local mjID = sid and getSpellMountID(sid)
 		if mjID then return mountHint(mjID) end
 		if not sname then return end
@@ -232,7 +239,7 @@ securecall(function() -- spell: spell ID + mount spell ID
 			end
 		end
 		local sbslot = msid and msid ~= 161691 and FindSpellBookSlotBySpellID(msid)
-		return usable, state, ico or GetSpellTexture(n), sname or n, count <= 1 and charges or count, cdLeft, cdLength, sbslot and SetSpellBookItem or msid and SetSpellByID, sbslot or msid
+		return usable, state, ico or GetSpellTexture(n), sname, count <= 1 and charges or count, cdLeft, cdLength, sbslot and SetSpellBookItem or msid and SetSpellByID, sbslot or msid
 	end
 	function spellFeedback(sname, target, spellId)
 		spellMap[sname] = spellId or spellMap[sname] or getSpellIDFromName(sname)

@@ -366,6 +366,7 @@ local OPC_Options = {
 		{"navi", tag="InRingBindingNav", caption=L"Customize in-ring bindings"},
 	{ "section", caption=L"Behavior" },
 		{"bool", "UseDefaultBindings", caption=L"Use default ring bindings"},
+		{"bool", "DeclutterOnOpen", caption=L"Hide toasts on ring open"},
 		{"bool", "HideStanceBar", caption=L"Hide stance bar", globalOnly=true},
 		{"bool", "PerCharRotationStore", caption=L"Per-character ring rotations", globalOnly=true},
 		{"range", "RingScale", 0.1, 2, caption=L"Ring scale", valueFormat="%0.1f"},

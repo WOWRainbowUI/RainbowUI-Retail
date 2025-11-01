@@ -1,5 +1,5 @@
 local COMPAT, _, T = select(4,GetBuildInfo()), ...
-local L, EV, PC, TS, XU, config, KR = T.L, T.Evie, T.OPieCore, T.TenSettings, T.exUI, T.config, OPie.ActionBook:compatible("Kindred", 1, 0)
+local L, EV, PC, TS, XU, config, KR = T.L, T.Evie, T.OPieCore, T.TenSettings, T.exUI, T.config, T.ActionBook:compatible("Kindred", 1, 0)
 local MODERN = COMPAT >= 10e4
 
 local frame = TS:CreateOptionsPanel(L"Ring Bindings", "OPie")

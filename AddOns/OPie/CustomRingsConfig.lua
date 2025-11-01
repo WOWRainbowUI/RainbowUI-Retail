@@ -1802,7 +1802,7 @@ end
 function api.showCustomSlicePrompt(forRepick)
 	repickSlice = forRepick and currentRing[currentSliceIndex] or nil
 	local cs = api.getCurrentSliceABspec()
-	TS:ShowPromptOverlay(panel, L"Custom slice", L"Input a slice action specification:", (L"Example: %s."):format(GREEN_FONT_COLOR_CODE .. (cs or '"item", 19019') .. '|r'), nil, api.addCustomSlice, 0.95, nil, repickSlice and cs or "")
+	TS:ShowPromptOverlay(panel, L"Custom slice", L"Input a slice action specification:", (L"Example: %s."):format(GREEN_FONT_COLOR_CODE .. (cs and not repickSlice and #cs < 200 and cs or '"item", 19019') .. '|r'), nil, api.addCustomSlice, 0.95, nil, repickSlice and cs or "")
 end
 function api.closeActionPicker(source)
 	if source == "add-new-slice-button" and repickSlice then
