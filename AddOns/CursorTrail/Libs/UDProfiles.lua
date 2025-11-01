@@ -1,4 +1,4 @@
-local PROFILESUI_VERSION = "2025-10-09"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
+local PROFILESUI_VERSION = "2025-10-10"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
 
 --[[---------------------------------------------------------------------------
     FILE:   UDProfiles.lua
@@ -177,6 +177,9 @@ local PROFILESUI_VERSION = "2025-10-09"  -- Version (date) of this file.  Stored
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Oct 10, 2025
+        - Increased the editbox width in the Save and Rename popup windows.
+
     Oct 09, 2025
         - Fixed error when saving/renaming profiles using the UI.  (UDProfiles.lua 4602)
 
@@ -346,7 +349,7 @@ local kAddonHeading = "["..kAddonTitle.."]"
 
 local kProfileNameMaxLetters = 24  ---- 35  -- (Max player letters 12.  Max server letters 19.)
 local kBackupNameMaxLetters = 30
-local kLetterWidth = 6.8  -- Approximate/average width of letters.
+local kLetterWidth = 7.3  -- Approximate/average width of letters.
 local kProfileNameWidth = kProfileNameMaxLetters * kLetterWidth
 local kPopupPreferredIndex = 2
 local kStatusMsgDefaultSecs = 3.0
