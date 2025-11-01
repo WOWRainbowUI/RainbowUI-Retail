@@ -2,7 +2,7 @@ local COMPAT, CANAME, T = select(4, GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
-local MODERN, CI_ERA, CF_CATA = COMPAT >= 10e4, COMPAT < 2e4, COMPAT > 4e4 and COMPAT < 10e4
+local MODERN, CI_ERA, CF_CATA, CF_MISTS = COMPAT >= 11e4, COMPAT < 2e4, COMPAT > 4e4 and COMPAT < 11e4, COMPAT > 5e4 and COMPAT < 11e4
 local EV, WR = T.Evie, T.Ware
 local AB = T.ActionBook:compatible(2, 31)
 local KR = T.ActionBook:compatible("Kindred", 1,33)
@@ -531,6 +531,19 @@ securecall(function() -- pet:stable id; havepet:stable id
 		return
 	end
 	local pt, noPendingSync = {}, true
+	local specTokenSuf = {} if MODERN or CF_MISTS then
+		local function addPetSpec(specID, tk)
+			specTokenSuf[specID] = tk
+			for i=1, CF_MISTS and 2 or 0 do
+				local _, n = GetSpecializationInfoForSpecID(specID, i)
+				specTokenSuf[n or 0] = tk
+			end
+		end
+		addPetSpec(74, "/ferocity")
+		addPetSpec(79, "/cunning")
+		addPetSpec(81, "/tenacity")
+		specTokenSuf[0] = nil
+	end
 	local function syncPet(e)
 		if InCombatLockdown() then
 			if noPendingSync then
@@ -541,10 +554,11 @@ securecall(function() -- pet:stable id; havepet:stable id
 		for k in pairs(pt) do pt[k] = nil end
 		local o, hpo
 		for i=1,5 do
-			local _, n, _, r = GetStablePetInfo(i)
+			local _, n, _, r, spN, spID = GetStablePetInfo(i)
 			if n and r then
+				local stk = specTokenSuf[spID or spN]
 				local k = n == r and n or (n .. "/" .. r)
-				pt[k] = (pt[k] or ("[pet:" .. n .. (n ~= r and ",pet:" .. r .. "] " or "] ") .. k)) .. "/" .. i
+				pt[k] = (pt[k] or ("[pet:" .. n .. (n ~= r and ",pet:" .. r .. "] " or "] ") .. k)) .. "/" .. i .. (stk or "")
 				hpo = (hpo and hpo .. "/" .. i or i)
 			end
 		end
@@ -954,6 +968,17 @@ securecall(function() -- myth:token
 		-- Raids:
 		[2769]="liberation/lou",
 		[2810]="manaforge/mfo",
+		-- Legion Remix M+:
+		[1651]="karazhan/kar",
+		[1456]="azshara/eoa",
+		[1477]="valor/hov",
+		[1458]="lair/nel",
+		[1571]="stars/cos",
+		[1466]="thicket/dht",
+		[1493]="vault/vow",
+		[1501]="rook/brh",
+		[1492]="maw/mos",
+		[1516]="arcway/arc",
 	}
 	local KEYSTONE_LINK_FRAGMENT = "|Hitem:180653:"
 	local KEYSTONE_ICON_ID = C_Item.GetItemIconByID(KEYSTONE_LINK_FRAGMENT)
@@ -1038,6 +1063,13 @@ securecall(function() -- myth:token
 		if icon == KEYSTONE_ICON_ID then
 			cueKeyUpdateTimer()
 		end
+	end
+	function EV:PLAYER_LOGIN()
+		if PlayerGetTimerunningSeasonID() == 2 then
+			KEYSTONE_LINK_FRAGMENT = "|Hitem:187786:"
+			KEYSTONE_ICON_ID = C_Item.GetItemIconByID(KEYSTONE_LINK_FRAGMENT)
+		end
+		return "remove"
 	end
 end)
 

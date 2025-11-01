@@ -21,6 +21,9 @@ local portDriver = "" do
 		aldani=1237215, floodgate=1216786, dawnbreaker=445414, arakara=445417,
 		priory=445444, tazavesh=367416, atonement=354465,
 		manaforge=1239155, liberation=1226482,
+		-- Legion Remix [no azshara, vault, maw, arcway]
+		karazhan=373262, valor=393764, lair=410078, stars=393766,
+		ticket=424163, rook=424153,
 	}) do
 		portDriver = portDriver .. "[myth:" .. k .. ",known:" .. v .. "] " .. v .. "; "
 	end

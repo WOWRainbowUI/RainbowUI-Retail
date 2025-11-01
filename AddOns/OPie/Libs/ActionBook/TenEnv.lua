@@ -67,7 +67,7 @@ env.IsSpellOverlayed = C_SpellActivationOverlay.IsSpellOverlayed
 function env.GetStablePetInfo(idx)
 	local si = C_StableInfo.GetStablePetInfo(idx)
 	if si then
-		return si.icon, si.name, si.level, si.familyName, si.specialization
+		return si.icon, si.name, si.level, si.familyName, si.specialization, si.specID
 	end
 end
 

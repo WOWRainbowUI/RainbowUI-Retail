@@ -1,4 +1,4 @@
-local MAJ, REV, COMPAT, _, T = 1, 14, select(4,GetBuildInfo()), ...
+local MAJ, REV, COMPAT, _, T = 1, 15, select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 local _GG, TWELVE = _G, COMPAT >= 12e4
 if T.TenEnv then T.TenEnv() end
@@ -240,6 +240,7 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 		local avoid = {
 			[446052]=1, [446133]=1, [1224048]=1,
 			[448689]=1, [327407]=1, [448680]=1, [448685]=1, [359401]=1,
+			[1217235]=1, [1221694]=1,
 		}
 		local function IsKnownSpell(sid)
 			local sn, sr = GetSpellInfo(sid or 0), GetSpellSubtext(sid or 0)
@@ -384,17 +385,6 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 				specialTokens[k:lower()], specialTokens[L(k):lower()] = tok, tok
 			end
 		end
-		local function addModernTalents()
-			for sid, _active, overrideName in GetModernTalentSpells() do
-				local name = GetSpellInfo(sid)
-				if name then
-					spells[name:lower()] = sid
-				end
-				if overrideName and overrideName ~= name then
-					spells[overrideName:lower()] = sid
-				end
-			end
-		end
 		local function addSpell(n, id, allowGenericOverwrite)
 			local nl, sr, k = n:lower(), GetSpellSubtext(id)
 			spells[nl] = allowGenericOverwrite and id or spells[nl] or id
@@ -403,22 +393,32 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 				k = nl .. " (" .. sr:lower() .. ")"; spells[k] = spells[k] or id
 			end
 		end
+		local function addModernTalents()
+			for sid, _active, overrideName in GetModernTalentSpells() do
+				local name = GetSpellInfo(sid)
+				if name then
+					addSpell(name, sid, true)
+				end
+				if overrideName and overrideName ~= name then
+					addSpell(overrideName, sid, true)
+				end
+			end
+		end
 		local function addSpellBookTab(ofs, c, allowGenericOverwrite, isRuneBook)
 			for j=ofs+1,ofs+c do
 				local n, st, id = GetSpellBookItemName(j, "spell"), GetSpellBookItemInfo(j, "spell")
 				if type(n) ~= "string" or not id then
 				elseif st == "SPELL" or st == "FUTURESPELL" then
 					local ao = allowGenericOverwrite and st == "SPELL" and not isRuneBook
-					if isRuneBook then
-						local sn, id2 = GetSpellInfo(id), select(7, GetSpellInfo(n))
-						if sn ~= n then
-							addSpell(sn, id, ao)
-						end
-						if id2 and id2 ~= id then
-							addSpell(n, id2, ao)
-						end
+					local sn, id2 = GetSpellInfo(id), select(7, GetSpellInfo(n))
+					if sn ~= n then
+						addSpell(sn, id, ao)
 					end
-					addSpell(n, id, ao)
+					if id2 and id2 ~= id then
+						addSpell(n, id2, ao)
+					elseif sn == n and not isRuneBook then
+						addSpell(n, id, ao)
+					end
 				elseif st == "FLYOUT" then
 					for j=1,select(3,GetFlyoutInfo(id)) do
 						local sid, _, _, sname = GetFlyoutSlotInfo(id, j)
@@ -456,7 +456,7 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 				for i=GetNumSpellTabs()+12,1,-1 do
 					local _, ico, ofs, c, _, sid = GetSpellTabInfo(i)
 					if ((curSpec == 0) == (sid == 0)) then
-						addSpellBookTab(ofs, c, not MODERN, CI_ERA and ico == 134419)
+						addSpellBookTab(ofs, c, curSpec == 1 or not MODERN, CI_ERA and ico == 134419)
 					end
 				end
 			end

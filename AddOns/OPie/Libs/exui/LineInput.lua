@@ -50,7 +50,7 @@ function LineInput:SetStyle(style)
 		r:SetTexCoord(0,1, 0,1)
 		m:SetTexCoord(0,1, 0,1)
 	end
-	m:SetHorizTile(not common)
+	m:SetHorizTile(not common and style ~= "search")
 	d.style = style
 	LineInput.SetTextInsets(self, d.tipL, d.tipR, d.tipT, d.tipB)
 end

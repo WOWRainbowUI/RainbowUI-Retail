@@ -1,10 +1,21 @@
 local COMPAT, _, T = select(4, GetBuildInfo()), ...
 local MODERN = COMPAT > 11e4
 
-local L, EV, PC, AB = T.L, T.Evie, T.OPieCore, T.ActionBook:compatible(2, 45)
-assert(EV and AB and PC and 1, "Incompatible library bundle")
+local L, EV, PC, AB, KR = T.L, T.Evie, T.OPieCore, T.ActionBook
+AB, KR = AB and AB:compatible(2, 45), AB and AB:compatible("Kindred", 1, 33)
+assert(EV and PC and AB and KR and 1, "Incompatible library bundle")
 if T.TenEnv then T.TenEnv() end
 
+KR:SetStateConditionalValue("dupeab", false) do
+	local DUP_SPELL_ID = {
+		[1257665]=1, [1250255]=1, -- Exit K'aresh Phasedive
+	}
+	local function syncDupEAB()
+		local at, sid = GetActionInfo(GetExtraBarIndex()*12-11)
+		KR:SetStateConditionalValue("dupeab", not not (at == "spell" and DUP_SPELL_ID[sid]))
+	end
+	EV.UPDATE_EXTRA_ACTIONBAR = syncDupEAB
+end
 do -- action handler
 	local col, state, dropInfo, cid = {__embed=true}, 0
 	local PlayerHasBuff do

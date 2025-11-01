@@ -1,6 +1,6 @@
-## Interface: 11507, 30405, 50501, 110200, 110205
+## Interface: 11508, 30405, 50502, 110200, 110205
 ## Title: OPie
-## Version: Ånd 7.4
+## Version: Ånd 7.5
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
 ## X-Website: https://www.townlong-yak.com/addons/opie
@@ -11,6 +11,7 @@
 ## Notes-esES: Agrupa habilidades en anillos que se muestran al pulsar una tecla.
 ## Notes-esMX: Agrupar habilitades en anillos que se aparecen al presionar teclados.
 ## Notes-frFR: Regrouper les sorts dans des anneaux qui apparaissent quand vous maintenez un raccourci
+## Notes-itIT: Raggruppa le abilità in anelli che compaiono quando tieni premuto un legame.
 ## Notes-koKR: 단축키를 눌렀을 때 표시되는 고리로 능력을 분류합니다.
 ## Notes-ruRU: Объединяет умения в кольца, которые появляются при нажатии назначенных клавиш.
 ## Notes-zhCN: 当你按下快捷键时显示一个环形的技能分组.
