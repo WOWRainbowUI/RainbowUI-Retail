@@ -1,36 +1,46 @@
 # Hekili
 
-## [v11.2.0-1.0.1h](https://github.com/Hekili/hekili/tree/v11.2.0-1.0.1h) (2025-09-13)
-[Full Changelog](https://github.com/Hekili/hekili/compare/v11.2.0-1.0.1g...v11.2.0-1.0.1h) [Previous Releases](https://github.com/Hekili/hekili/releases)
+## [v11.2.5-1.0.0](https://github.com/Hekili/hekili/tree/v11.2.5-1.0.0) (2025-11-01)
+[Full Changelog](https://github.com/Hekili/hekili/compare/v11.2.0-1.0.1h...v11.2.5-1.0.0) [Previous Releases](https://github.com/Hekili/hekili/releases)
 
-- Merge pull request #5308 from joshjau/ret-cleanup  
-    ret: removed fading light  
-- Merge pull request #5311 from syrifgit/beast-apl  
-    BM APL Update  
-- Merge pull request #5313 from syrifgit/windwalker-i-guess  
-    WW Tweaks  
-- Merge pull request #5314 from syrifgit/drood  
-    Guardian: Remove usable restrictions on defensives  
-- Merge pull request #5315 from syrifgit/weave-more-storms  
-    Support Stormweaver pvptalent  
-- Merge pull request #5316 from syrifgit/low-level-user-warning  
-    Low Level Warning Tweak  
-- Merge pull request #5317 from johnnylam88/fix/reshii-wraps  
-    fix: add tank-specialization damage absorb buffs from Reshii Wraps  
-- fix: add tank-specialization damage absorb buffs from Reshii Wraps  
-- Low Level Warning Tweak  
-    Be more clear/explicit about the intended use.  
-    Redo of https://github.com/Hekili/hekili/pull/5057, dropped the incomplete spec part for now.  
-- Addstacks too  
-- Support Stormweaver pvptalent  
-    Redo of https://github.com/Hekili/hekili/pull/4932  
-- Guardian: Remove usable restrictions on defensives  
-    All of these abilities are already handled by the APL in terms of tanking, damage taken, etc. No reason to restrict them in the LUA and prevent user APL customization.  
-    Fixes https://github.com/Hekili/hekili/issues/5223  
-- pls stop changing the APL thanks  
-- BM Withering Fire Updates  
-- WW Updates  
-- Update PaladinRetribution.lua  
-- wowhead link cleanup.  
-- ret: removed fading light  
-    Patch 11.0.5 (2024-10-22): Removed.  
+- TOC  
+- Merge pull request #5344 from eXhausted/patch-1  
+    Update Targets.lua  
+- Merge pull request #5343 from syrifgit/legion-remix  
+    Support Legion Remix Hard Mode Target Detection  
+- Merge pull request #5342 from syrifgit/guardian-apl  
+    Guardian Header Update  
+- Merge pull request #5341 from syrifgit/fire-apl  
+    Fire Mage APL Sync  
+- Merge pull request #5340 from syrifgit/bm-apl  
+    Hunter APL Sync  
+- Merge pull request #5323 from johnnylam88/fix/setting-purify-for-niuzao  
+    fix: using Purifying Brew to trigger Niuzao Stomp is baseline  
+- Update Targets.lua  
+    Adding exception for Araz encounter in Manaforge Omega  
+- Update Targets.lua  
+- Support Legion Remix Hard Mode Target Detection  
+- Guardian Header Update  
+    No actual changes needed, it just removes prowl which you already commented out  
+- Fire Mage APL Sync  
+    Standard sync: https://github.com/simulationcraft/simc/commit/1a1f68bbc5fbd69d5155a97e5a69dfc6a46223dd  
+- Hunter APL Sync  
+    # Standard syncs  
+    ## BM  
+    - https://github.com/simulationcraft/simc/commit/69f166b9bde8faf03d5042291c9c74e455441e0b  
+    - https://github.com/simulationcraft/simc/commit/66444322d45efbe39d172bc8d3ee36afacd0ff6b  
+    - https://github.com/simulationcraft/simc/commit/07fcac77e140c923d37232299153513cc8ee4504  
+    ## MM  
+    - https://github.com/simulationcraft/simc/commit/96226625caa584b265367686c1fff943b7b69625  
+- fix: using Purifying Brew to trigger Niuzao Stomp is baseline  
+- Merge pull request #5309 from syrifgit/outlaw-disorienting-strikes  
+    Unseen Blade Stuff Again  
+- Merge pull request #5318 from johnnylam88/fix/dk-visceral-strength  
+    fix: track the strength buff from San'layn Visceral Strength  
+- fix: track the strength buff from San'layn Visceral Strength  
+    In SimulationCraft, the strength buff is simply `visceral_strength` for  
+    both Blood and Unholy, so rename `visceral_strength_buff` to match.  
+    Apply the buff when Crimson Scourge is consumed as Blood or if Sudden  
+    Doom is consumed as Unholy.  
+- Update Sub  
+- Unseen Blade Stuff Again  
