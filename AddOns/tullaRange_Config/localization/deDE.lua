@@ -1,13 +1,22 @@
--- tullaRange localized strings - deDE
+--[[tullaRange Config Localization - German]]
+
+if GetLocale() ~= 'deDE' then return end
+
 local AddonName, Addon = ...
 local L = Addon.L
 
-L.Blue = 'Blau'
 L.ColorSettings = 'Farben'
+
 L.ColorSettingsTitle = 'Hier kannst du Farbeinstellungen vornehmen'
-L.Desaturate = 'Entsättigen'
-L.Green = 'Grün'
-L.oom = 'Nicht genug Mana'
+
 L.oor = 'Außer Reichweite'
-L.Red = 'Rot'
+
+L.oom = 'Nicht genug Mana'
+
 L.unusable = 'Nicht benutzbar'
+
+L.Red = 'Rot'
+
+L.Green = 'Grün'
+
+L.Blue = 'Blau'
