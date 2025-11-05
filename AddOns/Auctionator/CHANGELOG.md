@@ -1,7 +1,6 @@
 # Auctionator
 
-## [300](https://github.com/TheMouseNest/Auctionator/tree/300) (2025-10-29)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/299...300) 
+## [301](https://github.com/TheMouseNest/Auctionator/tree/301) (2025-11-01)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/300...301) 
 
-- Combine tocs into one  
-- LegacyAH: Use updated charge patterns  
+- LegacyAH: Bags: Attempt to fix incomplete charges detection  
