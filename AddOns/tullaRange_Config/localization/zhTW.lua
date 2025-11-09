@@ -1,9 +1,4 @@
-﻿--[[tullaRange Config Localization - Traditional Chinese by Masini
-	2016/07/18 Modified by https://www.facebook.com/rainbowui
---]]
-
-if GetLocale() ~= 'zhTW' then return end
-
+﻿-- tullaRange localized strings - zhTW by Masini
 local AddonName, Addon = ...
 local L = Addon.L
 
