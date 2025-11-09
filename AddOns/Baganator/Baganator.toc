@@ -1,6 +1,6 @@
-## Interface: 110205, 50502, 40402, 30405, 11508
+## Interface: 120000, 110205, 50502, 40402, 30405, 11508
 ## Title: Baganator
-## Version: 768
+## Version: 769
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
