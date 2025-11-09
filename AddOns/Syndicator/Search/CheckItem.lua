@@ -477,7 +477,7 @@ local function GetTooltipInfoLink(details)
   if C_TooltipInfo then
     details.tooltipInfoLink = C_TooltipInfo.GetHyperlink(details.itemLink) or {lines={}}
   elseif details.itemID == Syndicator.Constants.BattlePetCageID then
-    info.tooltipInfoLink = {lines = {}}
+    details.tooltipInfoLink = {lines = {}}
   else
     details.tooltipInfoLink = Syndicator.Utilities.DumpClassicTooltip(function(tooltip) tooltip:SetHyperlink(details.itemLink) end)
   end
