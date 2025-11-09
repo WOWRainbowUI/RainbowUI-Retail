@@ -1,6 +1,7 @@
 # Baganator
 
-## [768](https://github.com/TheMouseNest/Baganator/tree/768) (2025-10-29)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/767...768) 
+## [769](https://github.com/TheMouseNest/Baganator/tree/769) (2025-11-07)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/768...769) 
 
-- Fix changing slider for recent timeout not working  
+- Fix leaking globals  
+- Tag as supporting 12.0  
