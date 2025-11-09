@@ -1026,7 +1026,7 @@ local function updateLog()
 	-- @kamusis. Need to consider optimizing this behavior later. Currently, when a character loads the addon for the first time (when there is no character data in WTF), the current total money will be calculated as one income value, which will result in overall income statistics that do not match the actual situation. Therefore, the log is not updated on first load.
 	-- @kamusis. However, when any character loads this addon for the first time, even if money changes occur during this period, they will not be recorded. This needs optimization.
 	if AC_FIRSTLOADED then
-		ACC_Print("Accountant_Classic: First loaded for this character.")
+		-- ACC_Print("Accountant_Classic: First loaded for this character.")
 		-- AC_FIRSTLOADED = false
 		return		
 	end
