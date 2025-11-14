@@ -1,8 +1,7 @@
 # BlizzMove
 
-## [v3.7.11](https://github.com/Kiatra/BlizzMove/tree/v3.7.11) (2025-10-22)
-[Full Changelog](https://github.com/Kiatra/BlizzMove/compare/v3.7.10...v3.7.11) [Previous Releases](https://github.com/Kiatra/BlizzMove/releases)
+## [v3.7.14](https://github.com/Kiatra/BlizzMove/tree/v3.7.14) (2025-11-12)
+[Full Changelog](https://github.com/Kiatra/BlizzMove/compare/v3.7.13...v3.7.14) [Previous Releases](https://github.com/Kiatra/BlizzMove/releases)
 
-- Classic TOC Bump  
-- Minor cleanup  
-- Add support for Remix Artifact Frame  
+- Updated for 11.2.7, notably Housing UIs  
+- Guard against protected function call which can happen in rare circumstances  
