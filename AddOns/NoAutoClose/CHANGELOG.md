@@ -1,6 +1,6 @@
 # NoAutoClose
 
-## [v1.3.25](https://github.com/NumyAddon/NoAutoClose/tree/v1.3.25) (2025-10-08)
-[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.3.24...v1.3.25) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
+## [v1.3.27](https://github.com/NumyAddon/NoAutoClose/tree/v1.3.27) (2025-11-12)
+[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.3.26...v1.3.27) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
 
-- TOC Bump  
+- Editing your House now properly hides the rest of your UI  
