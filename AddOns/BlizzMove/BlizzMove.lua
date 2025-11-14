@@ -981,7 +981,8 @@ end
 local OnSetPoint;
 local OnSizeUpdate;
 do
-    function OnSetPoint(frame, ...)
+    --- @param frame Frame
+    function OnSetPoint(frame)
         if not BlizzMove.FrameData[frame] or not BlizzMove.FrameData[frame].storage or BlizzMove.FrameData[frame].storage.disabled then return; end
 
         if BlizzMove.DB.savePosStrategy == "off" then return; end
@@ -1004,9 +1005,15 @@ do
         end
     end
 
+    --- @param frame Frame
     function OnSizeUpdate(frame)
         local frameData = BlizzMove.FrameData[frame];
         if not frameData or not frameData.storage or frameData.storage.disabled or frameData.IgnoreClamping then return; end
+        if frame:IsProtected() and InCombatLockdown() then
+            BlizzMove:AddToCombatLockdownQueue(OnSizeUpdate, frame);
+
+            return;
+        end
 
         local clampDistance = 40;
         local clampWidth = (frame:GetWidth() - clampDistance) or 0;
@@ -1647,25 +1654,26 @@ do
 
         -- fix anchor family connection issues when opening/closing the hero talents dialog
         if addOnName == "Blizzard_PlayerSpells" and _G.HeroTalentsSelectionDialog and _G.PlayerSpellsFrame then
-            local function startStopMoving(frame)
-                if InCombatLockdown() and frame:IsProtected() then
-                    -- well... nothing can be done about this, yelling at blizzard likely won't help, since this is relatively tricky to fix
-                    return;
+            local skipHook = false;
+            hooksecurefunc(TalentFrameUtil, "GetNormalizedSubTreeNodePosition", function(talentFrame)
+                if skipHook then return; end
+                if
+                    (
+                        debugstack(3):find("in function .UpdateContainerVisibility.")
+                        or debugstack(3):find("in function .UpdateHeroTalentButtonPosition.")
+                        or debugstack(3):find("in function .PlaceHeroTalentButton.")
+                    )
+                    and not (debugstack(3):find("in function .InstantiateTalentButton."))
+                then
+                    skipHook = true
+                    for talentButton in talentFrame:EnumerateAllTalentButtons() do
+                        local nodeInfo = talentButton:GetNodeInfo();
+                        if nodeInfo.subTreeID then
+                            talentButton:ClearAllPoints();
+                        end
+                    end
+                    RunNextFrame(function() skipHook = false; end);
                 end
-                local backup = frame:IsMovable();
-                frame:SetMovable(true);
-                StartMoving(frame);
-                StopMoving(frame);
-                frame:SetMovable(backup);
-            end
-            startStopMoving(_G.HeroTalentsSelectionDialog);
-            _G.PlayerSpellsFrame:HookScript('OnShow', function(frame)
-                startStopMoving(frame);
-                RunNextFrame(function() startStopMoving(frame); end);
-            end);
-            _G.HeroTalentsSelectionDialog:HookScript('OnShow', function(frame)
-                startStopMoving(frame);
-                RunNextFrame(function() startStopMoving(frame); end);
             end);
         end
 

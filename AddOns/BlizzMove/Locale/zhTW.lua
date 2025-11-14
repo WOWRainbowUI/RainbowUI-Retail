@@ -15,6 +15,8 @@ L["Are you sure you want to reset permanently stored scales? This will reload th
 L["BlizzMove: The frame you just moved (%s) is probably in a broken state, possibly because of other addons."] = "移動暴雪視窗 BlizzMove: 您剛剛移動的框架 (％s) 可能處於損壞狀態，可能是由於其他插件造成的。"
 L["Clear"] = "清空"
 L["Clear the search filter."] = "清空搜尋過濾方式。"
+--[[Translation missing --]]
+L["Click to copy PayPal link."] = "點一下複製 PayPal 連結。"
 L["Copy the text from the popup window, and report it to the addon author."] = "複製彈出視窗中的文字，然後回報給插件作者。"
 L["Copy the text from this popup window, and report it to the addon author."] = "複製這個彈出視窗中的文字，然後回報給插件作者。"
 L["Could not find frame"] = "無法找到框架"
@@ -39,6 +41,8 @@ L["Global Config"] = "整體設定"
 L["How should frame positions be remembered?"] = "要如何記憶框架位置?"
 L["How should frame scales be remembered?"] = "要如何記憶框架縮放大小?"
 L["If enabled BlizzMove requires to hold SHIFT to move frames."] = "啟用時，需要按住 SHIFT 才能移動框架。"
+--[[Translation missing --]]
+L["If you like this addon and want to support its development, consider donating:"] = "如果你喜歡這個插件，想支持它繼續開發，請考慮斗內："
 L["In Session"] = "本次登入期間"
 L["In Session, until you reload"] = "本次登入期間，直到重新載入介面"
 L["Info"] = "資訊"
