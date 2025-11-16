@@ -1,7 +1,11 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r218](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r218) (2025-11-01)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r217...r218) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r219](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r219) (2025-11-15)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r218...r219) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Update localization.tw.lua (#577)  
-- apparently vanilla also had a patch this week. bump toc  
+- Update localization.cn.lua (#578)  
+- Midnight dungeons Update:  
+     - Added additional npc data  
+     - Added 3 remaining dungeons to complete support for engage/defeat/wipe statistical tracking.  
+- mop toc bumps for new PTR  
+- fix load errors with midnight dungeons  
