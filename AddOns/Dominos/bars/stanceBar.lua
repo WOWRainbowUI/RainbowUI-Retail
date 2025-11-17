@@ -1,5 +1,3 @@
-if not StanceBar then return end
-
 --------------------------------------------------------------------------------
 -- Stance bar
 -- Lets you move around the bar for displaying forms/stances/etc
@@ -11,18 +9,18 @@ local L = LibStub('AceLocale-3.0'):GetLocale(AddonName)
 -- test to see if the player has a stance bar
 -- not the best looking, but I also don't need to keep it after I do the check
 if not ({
-    DEATHKNIGHT = Addon:IsBuild('wrath'),
+    DEATHKNIGHT = Addon:IsBuild('mists', 'cata', 'wrath'),
     DEMONHUNTER = false,
     DRUID = true,
     EVOKER = true,
-    HUNTER = false,
+    HUNTER = Addon:IsBuild('mists', 'cata'),
     MAGE = false,
     MONK = false,
     PALADIN = true,
-    PRIEST = Addon:IsBuild('retail', 'wrath'),
+    PRIEST = Addon:IsBuild('retail', 'mists', 'cata', 'wrath'),
     ROGUE = true,
     SHAMAN = false,
-    WARLOCK = Addon:IsBuild('wrath'),
+    WARLOCK = Addon:IsBuild('mists', 'cata', 'wrath'),
     WARRIOR = true,
 })[UnitClassBase('player')] then
     return
@@ -32,36 +30,30 @@ end
 -- Button setup
 --------------------------------------------------------------------------------
 
-local function stanceButton_OnCreate(button)
-    -- tag with the default stance button
-    button:SetAttribute("commandName", "SHAPESHIFTBUTTON" .. button:GetID())
+local StanceButtons = setmetatable({}, {
+    __index = function(self, index)
+        local button = CreateFrame('CheckButton', ('%sStanceButton%d'):format(AddonName, index), nil, 'StanceButtonTemplate', index)
 
-    -- turn off cooldown edges
-    button.cooldown:SetDrawEdge(false)
+        -- tag with the default stance button binding id
+        button:SetAttribute("commandName", 'SHAPESHIFTBUTTON' .. index)
 
-    -- turn off constant usability updates
-    button:SetScript("OnUpdate", nil)
+        -- turn off cooldown edges
+        button.cooldown:SetDrawEdge(false)
 
-    -- register mouse clicks
-    button:EnableMouseWheel(true)
+        -- turn off constant usability updates
+        button:SetScript("OnUpdate", nil)
 
-    -- apply hooks for quick binding
-    Addon.BindableButton:AddQuickBindingSupport(button)
-end
+        -- register mouse clicks
+        button:EnableMouseWheel(true)
 
-local function getOrCreateStanceButton(id)
-    local name = ('%sStanceButton%d'):format(AddonName, id)
+        -- apply hooks for quick binding
+        Addon.BindableButton:AddQuickBindingSupport(button)
 
-    local button = _G[name]
+        self[index] = button
 
-    if not button then
-        button = CreateFrame('CheckButton', name, nil, 'StanceButtonTemplate', id)
-
-        stanceButton_OnCreate(button)
+        return button
     end
-
-    return button
-end
+})
 
 --------------------------------------------------------------------------------
 -- Bar setup
@@ -89,12 +81,12 @@ function StanceBar:NumButtons()
 end
 
 function StanceBar:AcquireButton(index)
-    return getOrCreateStanceButton(index)
+    return StanceButtons[index]
 end
 
-function StanceBar:OnAttachButton(button)
+function StanceBar:OnAttachButton(button, index)
     button.HotKey:SetAlpha(self:ShowingBindingText() and 1 or 0)
-    button:Show()
+    button:SetShown(index <= (GetNumShapeshiftForms() or 0))
 
     Addon:GetModule('ButtonThemer'):Register(button, 'Class Bar')
     Addon:GetModule('Tooltips'):Register(button)
@@ -106,22 +98,19 @@ function StanceBar:OnDetachButton(button)
 end
 
 function StanceBar:UpdateActions()
-	for i, button in pairs(self.buttons) do
-        local texture, isActive, isCastable = GetShapeshiftFormInfo(i)
+	for index, button in pairs(self.buttons) do
+        local texture, isActive, isCastable = GetShapeshiftFormInfo(index)
 
         button:SetAlpha(texture and 1 or 0)
-
-        local icon = button.icon
-
-        icon:SetTexture(texture)
+        button.icon:SetTexture(texture)
 
         if isCastable then
-            icon:SetVertexColor(1.0, 1.0, 1.0)
+            button.icon:SetVertexColor(1.0, 1.0, 1.0)
         else
-            icon:SetVertexColor(0.4, 0.4, 0.4)
+            button.icon:SetVertexColor(0.4, 0.4, 0.4)
         end
 
-        local start, duration, enable = GetShapeshiftFormCooldown(i)
+        local start, duration, enable = GetShapeshiftFormCooldown(index)
         if enable and enable ~= 0 and start > 0 and duration > 0 then
             button.cooldown:SetCooldown(start, duration)
         else
