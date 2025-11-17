@@ -15,10 +15,6 @@ L["Adds the % info to the enemy nameplates"] = "Adds the % info to the enemy nam
 --[[Translation missing --]]
 L["Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead."] = "Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead."
 --[[Translation missing --]]
-L["Are you sure you want to reset the NPC data to the defaults?"] = "Are you sure you want to reset the NPC data to the defaults?"
---[[Translation missing --]]
-L["Are you sure you want to wipe all data?"] = "Are you sure you want to wipe all data?"
---[[Translation missing --]]
 L["Color of the text on the enemy nameplates"] = "Color of the text on the enemy nameplates"
 --[[Translation missing --]]
 L["CTRL-C to copy"] = "CTRL-C to copy"
@@ -57,12 +53,6 @@ L["Enable/Disable the addon"] = "Enable/Disable the addon"
 --[[Translation missing --]]
 L["Enabled"] = "Enabled"
 --[[Translation missing --]]
-L["Export NPC data"] = "Export NPC data"
---[[Translation missing --]]
-L["Export only data that is different from the default values"] = "Export only data that is different from the default values"
---[[Translation missing --]]
-L["Export updated NPC data"] = "Export updated NPC data"
---[[Translation missing --]]
 L["Horizontal offset ( <-> )"] = "Horizontal offset ( <-> )"
 --[[Translation missing --]]
 L["Horizontal offset of the nameplate text"] = "Horizontal offset of the nameplate text"
@@ -84,8 +74,6 @@ L["MDT Emulation"] = "MDT Emulation"
 L["MPP attempted to get missing setting:"] = "MPP attempted to get missing setting:"
 --[[Translation missing --]]
 L["MPP attempted to set missing setting:"] = "MPP attempted to set missing setting:"
---[[Translation missing --]]
-L["MPP String Uninitialized."] = "MPP String Uninitialized."
 --[[Translation missing --]]
 L["Mythic Plus Pull"] = "Mythic Plus Pull"
 --[[Translation missing --]]
@@ -109,21 +97,15 @@ L["Only in combat"] = "Only in combat"
 --[[Translation missing --]]
 L["Only show the frame when you are in combat"] = "Only show the frame when you are in combat"
 --[[Translation missing --]]
-L["Opens a popup which allows copying the data"] = "Opens a popup which allows copying the data"
---[[Translation missing --]]
 L["Pull Estimate frame"] = "Pull Estimate frame"
 --[[Translation missing --]]
 L["Pull Frame Text Scale"] = "Pull Frame Text Scale"
---[[Translation missing --]]
-L["Reset NPC data"] = "Reset NPC data"
 --[[Translation missing --]]
 L["Reset position"] = "Reset position"
 --[[Translation missing --]]
 L["Reset position of Current Pull frame to the default"] = "Reset position of Current Pull frame to the default"
 --[[Translation missing --]]
 L["Reset Settings to default"] = "Reset Settings to default"
---[[Translation missing --]]
-L["Reset the NPC data to the default values"] = "Reset the NPC data to the default values"
 --[[Translation missing --]]
 L["Running first time setup. This should only happen once. Enjoy! ;)"] = "Running first time setup. This should only happen once. Enjoy! ;)"
 --[[Translation missing --]]
@@ -174,8 +156,4 @@ L["Version:"] = "Version:"
 L["Vertical Offset ( | )"] = "Vertical Offset ( | )"
 --[[Translation missing --]]
 L["Vertical offset of the nameplate text"] = "Vertical offset of the nameplate text"
---[[Translation missing --]]
-L["Wipe all data"] = "Wipe all data"
---[[Translation missing --]]
-L["Wipe All Data"] = "Wipe All Data"
 

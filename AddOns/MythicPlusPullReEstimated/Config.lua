@@ -1,13 +1,14 @@
 local name, ns = ...
 
---- @class MMPE
-local MMPE = ns.addon
+--- @class MythicPlusPull
+local MPP = ns.addon
+if not MPP then return end
 
 local L = LibStub('AceLocale-3.0'):GetLocale(name)
 
-MMPE.version = C_AddOns.GetAddOnMetadata(name, "Version") or "unknown"
+MPP.version = C_AddOns.GetAddOnMetadata(name, "Version") or "unknown"
 --- @type table<MMPE_Setting, any>
-MMPE.defaultSettings = {
+MPP.defaultSettings = {
     enabled = true,
 
     autoLearnScores = 'newOnly',
@@ -22,8 +23,6 @@ MMPE.defaultSettings = {
     pullEstimateCombatOnly = true,
     pullFrameTextFormat = L["Current pull:"] .. ' $current%$ + $pull%$ = $estimated%$',
     pullFrameTextScale = 1.0,
-
-    nameplateUpdateRate = 200, -- Rate (in milliseconds) at which we update the progress we get from the current pull, as estimated by active name plates you're in combat with. Also the update rate of getting new values for nameplate text overlay if enabled.
 
     offsetx = 0, -- extra offset for nameplate text
     offsety = 0,
@@ -61,7 +60,7 @@ local function SetFramePoint(frame, pointInfo)
 end
 
 --- @param setting MMPE_Setting
-function MMPE:GetSetting(setting)
+function MPP:GetSetting(setting)
     if (not setting or self.DB.settings[setting] == nil) then
         self:PrintWarning(L["MPP attempted to get missing setting:"] .. " " .. (setting or "nil"))
         return
@@ -71,7 +70,7 @@ end
 
 --- @param setting MMPE_Setting
 --- @param value any
-function MMPE:SetSetting(setting, value)
+function MPP:SetSetting(setting, value)
     if (not setting or self.DB.settings[setting] == nil) then
         self:PrintWarning(L["MPP attempted to set missing setting:"] .. " " .. (setting or "nil"))
         return
@@ -82,11 +81,11 @@ function MMPE:SetSetting(setting, value)
 end
 
 --- @param setting MMPE_Setting
-function MMPE:ToggleSetting(setting)
+function MPP:ToggleSetting(setting)
     return self:SetSetting(setting, not self:GetSetting(setting))
 end
 
-function MMPE:InitPopup()
+function MPP:InitPopup()
     if not StaticPopupDialogs["MPPEDataExportDialog"] then
         StaticPopupDialogs["MPPEDataExportDialog"] = {
             text = L["CTRL-C to copy"],
@@ -120,7 +119,7 @@ function MMPE:InitPopup()
     end
 end
 
-function MMPE:InitConfig()
+function MPP:InitConfig()
     local mdtLoaded = C_AddOns.IsAddOnLoaded("MythicDungeonTools");
 
     local increment = CreateCounter()
@@ -158,46 +157,6 @@ function MMPE:InitConfig()
                     self:VerifySettings(true)
                 end,
                 width = "double",
-            },
-            -- disabled/hidden for now, might get re-enabled in the future, it can sometimes incorrectly attribute % to unrelated kills.
-            scores = {
-                order = increment(),
-                type = "group",
-                name = "Auto Learn Scores",
-                hidden = true,
-                args = {
-                    autoLearnScores = {
-                        order = increment(),
-                        name = "Auto Learn Scores",
-                        desc = "New Only >> Only learn scores that for new NPCs. Useful for new dungeons, and the addon isn't updated yet.\nAlways >> Always learn updated scores. This might make the percentage inaccurate.\nOff >> Don't learn scores.",
-                        type = "select",
-                        values = {
-                            newOnly = "New Only (Recommended)",
-                            always = "Always (Risky)",
-                            off = "Off",
-                        },
-                    },
-                    inconclusiveDataThreshold = {
-                        order = increment(),
-                        name = "Inconclusive Data Threshold",
-                        desc = "Mobs killed within this span of time (in milliseconds) will not be processed since we might not get the criteria update fast enough to know which mob gave what progress.",
-                        type = "range",
-                        min = 50,
-                        max = 400,
-                        step = 10,
-                        hidden = true,
-                    },
-                    maxTimeSinceKill = {
-                        order = increment(),
-                        name = "Max Time Since Kill",
-                        desc = "Lag tolerance between a mob dying and the progress criteria updating, in milliseconds.",
-                        type = "range",
-                        min = 0,
-                        max = 1000,
-                        step = 10,
-                        hidden = true,
-                    },
-                },
             },
             mainOptions = {
                 order = increment(),
@@ -443,40 +402,17 @@ function MMPE:InitConfig()
                         name = L["Debug New NPC Scores"],
                         desc = L["Enable/Disable debug prints for new NPC scores"],
                     },
-                    exportData = {
-                        order = increment(),
-                        type = "execute",
-                        name = L["Export NPC data"],
-                        desc = L["Opens a popup which allows copying the data"],
-                        func = function() self:ExportData() end,
-                    },
-                    exportUpdatedData = {
-                        order = increment(),
-                        type = "execute",
-                        name = L["Export updated NPC data"],
-                        desc = L["Export only data that is different from the default values"],
-                        func = function() self:ExportData(true) end,
-                    },
                     npcDataPatchVersion = {
                         order = increment(),
                         type = "description",
                         name = function()
                             return string.format(
                                 L["NPC data patch version: %s, build %d (ts %d)"],
-                                self.DB.npcDataPatchVersionInfo.version,
-                                self.DB.npcDataPatchVersionInfo.build,
-                                self.DB.npcDataPatchVersionInfo.timestamp
+                                self.npcDataPatchVersionInfo.version,
+                                self.npcDataPatchVersionInfo.build,
+                                self.npcDataPatchVersionInfo.timestamp
                             );
                         end,
-                    },
-                    resetNpcData = {
-                        order = increment(),
-                        type = "execute",
-                        name = L["Reset NPC data"],
-                        desc = L["Reset the NPC data to the default values"],
-                        func = function() self:VerifyDB(false, true) end,
-                        confirm = true,
-                        confirmText = L["Are you sure you want to reset the NPC data to the defaults?"],
                     },
                     simulationActive = {
                         order = increment(),
@@ -509,15 +445,6 @@ function MMPE:InitConfig()
                         get = function(info) return self.simulationCurrent end,
                         set = function(info, value) self.simulationCurrent = value end,
                     },
-                    wipeAll = {
-                        order = increment(),
-                        type = "execute",
-                        name = L["Wipe All Data"],
-                        desc = L["Wipe all data"],
-                        func = function() self:VerifyDB(true) end,
-                        confirm = true,
-                        confirmText = L["Are you sure you want to wipe all data?"],
-                    },
                     debugCriteriaEvents = {
                         order = increment(),
                         type = "toggle",
@@ -534,6 +461,6 @@ function MMPE:InitConfig()
     LibStub("AceConfigDialog-3.0"):AddToBlizOptions(self.configCategory)
 end
 
-function MMPE:OpenConfig()
+function MPP:OpenConfig()
     Settings.OpenToCategory(self.configCategory);
 end
