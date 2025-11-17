@@ -122,7 +122,11 @@ end
 function ActionButton:UpdateOverrideBindings()
     if InCombatLockdown() then return end
 
-    self.bind:SetOverrideBindings(GetBindingKey(self:GetAttribute("commandName")))
+    if C_HouseEditor and C_HouseEditor.IsHouseEditorActive() then
+        ClearOverrideBindings(self.bind)
+    else
+        self.bind:SetOverrideBindings(GetBindingKey(self:GetAttribute("commandName")))
+    end
 end
 
 function ActionButton:UpdateShown()
@@ -158,12 +162,13 @@ end
 -- we hide cooldowns when action buttons are transparent
 -- so that the sparks don't appear
 function ActionButton:SetShowCooldowns(show)
-    if Addon:IsAfterMidnight() then return end
-
     if show then
         if self.cooldown:GetParent() ~= self then
             self.cooldown:SetParent(self)
-            ActionButton_UpdateCooldown(self)
+
+            if not Addon:IsAfterMidnight() then
+                ActionButton_UpdateCooldown(self)
+            end
         end
     else
         self.cooldown:SetParent(Addon.ShadowUIParent)
