@@ -1194,6 +1194,7 @@ L["If checked, pointing at the map while your character is moving will cause the
 L["If checked, points of interest will be shown."] = "勾選後，將顯示關注點。"
 L["If checked, quest objectives will be shown."] = "如果選中，將顯示任務目標。"
 L["If checked, spirit healers will be shown."] = "如果選中，會顯示靈魂醫者"
+L["If checked, text used throughout the addon will be shown in English regardless of your game locale."] = "勾選後，無論您的遊戲語言如何，整個插件中使用的文本都將以英語顯示。"
 L["If checked, the battlefield map will stay centered on your location as long as you are not in a dungeon.|n|nYou can hold shift while panning the map to temporarily prevent it from centering."] = "如果選中，戰場地圖將保持在你的位置上居中，只要你不在地城中。|n|n在移動地圖時，按住Shift可以暫時阻止地圖居中"
 L["If checked, the default fullscreen map will be used for the maximised map.|n|nNote that enabling this option will lock out some of the other options."] = "勾選後，預設全螢幕地圖將用於最大化地圖。|n|n請注意，啟用此選項將鎖定一些其他選項。"
 L["If checked, the default fullscreen map will be used.|n|nNote that enabling this option will lock out some of the other options."] = "勾選後，將使用預設的全屏地圖。|n|n請注意，啟用此選項將鎖定其他某些選項。"

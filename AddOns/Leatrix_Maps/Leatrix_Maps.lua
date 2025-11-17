@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 11.2.17 (5th November 2025)
+	-- 	Leatrix Maps 11.2.19 (14th November 2025)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "11.2.17"
+	LeaMapsLC["AddonVer"] = "11.2.19"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -28,7 +28,7 @@
 			end)
 			return
 		end
-		if gametocversion and gametocversion >= 110100 then -- 11.1.0
+		if gametocversion and gametocversion >= 120000 then -- 12.0.0
 			LeaMapsLC.NewPatch = true
 		end
 	end
@@ -1408,7 +1408,7 @@
 			pTex:SetAlpha(0.2)
 			pTex:SetTexCoord(0, 1, 1, 0)
 
-			expTitle:SetText(L["The War Within"])
+			expTitle:SetText(L["The War Within"] .. "|n" .. L["Midnight Beta"])
 			local category = Settings.RegisterCanvasLayoutCategory(interPanel, "Leatrix Maps")
 			Settings.RegisterAddOnCategory(category)
 

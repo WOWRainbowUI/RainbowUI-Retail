@@ -1,4 +1,7 @@
-﻿11.2.11 - 8th October 2025
+﻿11.2.18 - 11th November 2025
+- Midnight Beta: Preliminary update for Midnight Beta.
+
+11.2.11 - 8th October 2025
 - Updated for game patch 11.2.5.
 
 11.2.08 - 17th September 2025

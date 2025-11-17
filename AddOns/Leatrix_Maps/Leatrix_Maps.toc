@@ -16,7 +16,7 @@
 ## Notes-zhTW: curseforge.com/wow/addons/leatrix-maps
 ## Notes-zhCN: curseforge.com/wow/addons/leatrix-maps
 
-## Version: 11.2.17
+## Version: 11.2.19
 ## Author: Leatrix
 ## SavedVariables: LeaMapsDB
 ## LoadSavedVariablesFirst: true
