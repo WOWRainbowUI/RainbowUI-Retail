@@ -505,4 +505,10 @@ WIM.AddLocale("zhTW", {
     
     --Misc
     ["WIM has detected that you are playing on a private server. Some servers can not process ChatAddonMessages. Would you like to enable them anyway?"] = "WIM 發現你正在一個私人的伺服器上玩 WOW，某些私人的伺服器並不完全支援 WIM 的模組，你是否仍要嘗試載入 WIM 呢？",
+	
+	-- Whisper Mode Warnings
+	["Set whispers to In-line"] = "將密語設為內嵌",
+	["Message suppression requires whispers to be set to 'In-line'."] = "要啟用訊息抑制，密語必須設定為「內嵌」。",
+	["It is recommended for whispers to be set to in-line in order to handle their behavior properly."] = "建議將密語設定為內嵌，以便正確處理其行為。"
+
 });
