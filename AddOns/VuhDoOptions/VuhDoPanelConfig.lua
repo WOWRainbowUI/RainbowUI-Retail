@@ -31,14 +31,14 @@ function VUHDO_positionAllGroupConfigPanels(aPanelNum)
 
 		tIsShowOrder = true;
 
-		tOrderPanel:ClearAllPoints(); -- parent könnte gewechselt haben
-		tOrderPanel:SetPoint("TOPLEFT", tParentPanel:GetName(), "TOPLEFT", tXPos / tScale, -tYPos / tScale);
+		tOrderPanel:ClearAllPoints(); -- parent kÃ¶nnte gewechselt haben
+		VUHDO_PixelUtil.SetPoint(tOrderPanel, "TOPLEFT", tParentPanel:GetName(), "TOPLEFT", tXPos / tScale, -tYPos / tScale);
 		tOrderPanel:SetShown(tIsShowOrder);
 
 		tSelectPanel = VUHDO_getOrCreateGroupSelectPanel(aPanelNum, tCnt);
 		tSelectPanel:SetScale(tScale);
 		tSelectPanel:ClearAllPoints();
-		tSelectPanel:SetPoint("TOPLEFT", tParentPanel:GetName(), "TOPLEFT", tXPos / tScale, -tYPos / tScale);
+		VUHDO_PixelUtil.SetPoint(tSelectPanel, "TOPLEFT", tParentPanel:GetName(), "TOPLEFT", tXPos / tScale, -tYPos / tScale);
 		tSelectPanel:SetShown(not tIsShowOrder);
 
 		VUHDO_getConfigOrderBarLeft(aPanelNum, tCnt):Hide();

@@ -2,7 +2,7 @@ VUHDO_CONFIG_TEST_USERS = -1;
 
 --
 function VUHDO_newOptionsMoveOnShow()
-	VuhDoNewOptionsTabbedFrame:SetHeight(155);
+	VUHDO_PixelUtil.SetHeight(VuhDoNewOptionsTabbedFrame, 155);
 	VUHDO_IS_PANEL_CONFIG = true;
 	VUHDO_CONFIG_SHOW_RAID = false;
 	VUHDO_initDynamicPanelModels();
@@ -14,7 +14,7 @@ end
 
 --
 function VUHDO_newOptionsMoveOnHide()
-	VuhDoNewOptionsTabbedFrame:SetHeight(455);
+	VUHDO_PixelUtil.SetHeight(VuhDoNewOptionsTabbedFrame, 455);
 	--VUHDO_IS_PANEL_CONFIG = false;
 	VUHDO_CONFIG_SHOW_RAID = true;
 	VUHDO_clearUndefinedModelEntries();

@@ -247,16 +247,67 @@ local tVisibleAmountInc;
 local tOrientation, tOrientationOvershield;
 local tPanelNum;
 local tIsInvertGrowth, tIsTurnAxisOvershield;
+local tPixelThreshold;
 function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
-
-	if not VUHDO_CONFIG["SHOW_SHIELD_BAR"] then 
-		return; 
-	end
 
 	tInfo = VUHDO_RAID[aUnit];
 	tAllButtons = VUHDO_getUnitButtons(VUHDO_resolveVehicleUnit(aUnit));
 
-	if not tInfo or not tAllButtons or not tInfo["connected"] or tInfo["dead"] or tInfo["healthmax"] <= 0 then
+	if not tAllButtons then
+		return;
+	end
+
+	if not tInfo then
+		for _, tButton in pairs(tAllButtons) do
+			tShieldBar = VUHDO_getHealthBar(tButton, 19);
+
+			if tShieldBar then
+				tShieldBar:SetValueRange(0, 0);
+			end
+
+			tHealthBar = VUHDO_getHealthBar(tButton, 1);
+			tOvershieldBar = VUHDO_getOvershieldBarTexture(tHealthBar);
+
+			if tOvershieldBar then
+				tOvershieldBar:Hide();
+			end
+		end
+
+		return;
+	end
+
+	if not VUHDO_CONFIG["SHOW_SHIELD_BAR"] or tInfo["healthmax"] <= 0 then
+		for _, tButton in pairs(tAllButtons) do
+			tShieldBar = VUHDO_getHealthBar(tButton, 19);
+
+			if tShieldBar then
+				tShieldBar:SetValueRange(0, 0);
+			end
+
+			tHealthBar = VUHDO_getHealthBar(tButton, 1);
+			tOvershieldBar = VUHDO_getOvershieldBarTexture(tHealthBar);
+
+			if tOvershieldBar then
+				tOvershieldBar:Hide();
+			end
+		end
+
+		return;
+	end
+
+	if not tInfo["connected"] or tInfo["dead"] then
+		for _, tButton in pairs(tAllButtons) do
+			tHealthBar = VUHDO_getHealthBar(tButton, 1);
+			tShieldBar = VUHDO_getHealthBar(tButton, 19);
+			tOvershieldBar = VUHDO_getOvershieldBarTexture(tHealthBar);
+
+			if tShieldBar then
+				tShieldBar:SetValueRange(0, 0);
+			end
+
+			tOvershieldBar:Hide();
+		end
+
 		return;
 	end
 
@@ -266,13 +317,15 @@ function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 
 	tOverallShieldRemain = VUHDO_getUnitOverallShieldRemain(aUnit);
 	tAbsorbAmount = tOverallShieldRemain / tInfo["healthmax"];
-	
+
 	tHealthDeficit = tInfo["healthmax"] - tInfo["health"];
 	tVisibleAmountInc = min(aAmountInc, tHealthDeficit);
 	tOverallShieldRemain = min(tOverallShieldRemain, tInfo["healthmax"]);
 
 	tOvershieldBarSizePercent = (tOverallShieldRemain - tHealthDeficit + tVisibleAmountInc) / tInfo["healthmax"]; 
 	tOvershieldBarOffsetPercent = (tHealthDeficit - tVisibleAmountInc) / tInfo["healthmax"]; 
+
+	tPixelThreshold = 1 / VUHDO_getPixelScale() / 2;
 
 	for _, tButton in pairs(tAllButtons) do
 		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
@@ -296,10 +349,10 @@ function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 
 		if tAbsorbAmount > 0 then 
 			tShieldBar:SetValueRange(aHealthPlusIncQuota, aHealthPlusIncQuota + tAbsorbAmount);
-			
+
  			tShieldColor["R"], tShieldColor["G"], tShieldColor["B"], tShieldOpacity = tHealthBar:GetStatusBarColor();
  			tShieldColor = VUHDO_getDiffColor(tShieldColor, VUHDO_getStatusBarColor("SHIELD", aUnit));
- 			
+
 			if tShieldColor["O"] and tShieldOpacity then
  				tShieldColor["O"] = tShieldColor["O"] * tShieldOpacity * (tHealthBar:GetAlpha() or 1);
 			end
@@ -315,10 +368,10 @@ function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 			tOvershieldBar.tileSize = 32;
 			tOvershieldBar:SetParent(tHealthBar);
 			tOvershieldBar:ClearAllPoints();
-			
+
 			tOvershieldColor["R"], tOvershieldColor["G"], tOvershieldColor["B"], tOvershieldOpacity = tHealthBar:GetStatusBarColor();
  			tOvershieldColor = VUHDO_getDiffColor(tOvershieldColor, VUHDO_getStatusBarColor("OVERSHIELD", aUnit));
- 			
+
 			if tOvershieldColor["O"] and tOvershieldOpacity then
  				tOvershieldColor["O"] = tOvershieldColor["O"] * tOvershieldOpacity * (tHealthBar:GetAlpha() or 1);
 			end
@@ -330,49 +383,67 @@ function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 			if (not tIsInvertGrowth and tOrientationOvershield == "HORIZONTAL") or
 				(tIsInvertGrowth and tOrientationOvershield == "HORIZONTAL_INV") then
 				-- VUHDO_STATUSBAR_LEFT_TO_RIGHT
-				tOvershieldBarSize = tOvershieldBarSizePercent * tHealthBarWidth;
-				tOvershieldBarOffset = tOvershieldBarOffsetPercent * tHealthBarWidth;
-	
-				tOvershieldBar:SetPoint("TOPRIGHT", tHealthBar, "TOPRIGHT", tOvershieldBarOffset * -1, 0);
-				tOvershieldBar:SetPoint("BOTTOMRIGHT", tHealthBar, "BOTTOMRIGHT", tOvershieldBarOffset * -1, 0);
+				tOvershieldBarSize = max(0, tOvershieldBarSizePercent * tHealthBarWidth);
+				tOvershieldBarOffset = max(0, tOvershieldBarOffsetPercent * tHealthBarWidth);
 
-				tOvershieldBar:SetWidth(tOvershieldBarSize);
-				tOvershieldBar:SetTexCoord(0, tOvershieldBarSize / tOvershieldBar.tileSize, 0, tHealthBarHeight / tOvershieldBar.tileSize);
+				if tOvershieldBarSize > tPixelThreshold then
+					VUHDO_PixelUtil.SetPoint(tOvershieldBar, "TOPRIGHT", tHealthBar, "TOPRIGHT", tOvershieldBarOffset * -1, 0);
+					VUHDO_PixelUtil.SetPoint(tOvershieldBar, "BOTTOMRIGHT", tHealthBar, "BOTTOMRIGHT", tOvershieldBarOffset * -1, 0);
+					VUHDO_PixelUtil.SetSize(tOvershieldBar, tOvershieldBarSize, tHealthBarHeight);
+					tOvershieldBar:SetTexCoord(0, max(0, tOvershieldBarSize / tOvershieldBar.tileSize), 0, max(0, tHealthBarHeight / tOvershieldBar.tileSize));
+
+					tOvershieldBar:Show();
+				else
+					tOvershieldBar:Hide();
+				end
 			elseif (not tIsInvertGrowth and tOrientationOvershield == "HORIZONTAL_INV") or
 				(tIsInvertGrowth and tOrientationOvershield == "HORIZONTAL") then
 				-- VUHDO_STATUSBAR_RIGHT_TO_LEFT
-				tOvershieldBarSize = tOvershieldBarSizePercent * tHealthBarWidth;
-				tOvershieldBarOffset = tOvershieldBarOffsetPercent * tHealthBarWidth;
-	
-				tOvershieldBar:SetPoint("TOPLEFT", tHealthBar, "TOPLEFT", tOvershieldBarOffset, 0);
-				tOvershieldBar:SetPoint("BOTTOMLEFT", tHealthBar, "BOTTOMLEFT", tOvershieldBarOffset, 0);
+				tOvershieldBarSize = max(0, tOvershieldBarSizePercent * tHealthBarWidth);
+				tOvershieldBarOffset = max(0, tOvershieldBarOffsetPercent * tHealthBarWidth);
 
-				tOvershieldBar:SetWidth(tOvershieldBarSize);
-				tOvershieldBar:SetTexCoord(0, tOvershieldBarSize / tOvershieldBar.tileSize, 0, tHealthBarHeight / tOvershieldBar.tileSize);
+				if tOvershieldBarSize > tPixelThreshold then
+					VUHDO_PixelUtil.SetPoint(tOvershieldBar, "TOPLEFT", tHealthBar, "TOPLEFT", tOvershieldBarOffset, 0);
+					VUHDO_PixelUtil.SetPoint(tOvershieldBar, "BOTTOMLEFT", tHealthBar, "BOTTOMLEFT", tOvershieldBarOffset, 0);
+					VUHDO_PixelUtil.SetSize(tOvershieldBar, tOvershieldBarSize, tHealthBarHeight);
+					tOvershieldBar:SetTexCoord(0, max(0, tOvershieldBarSize / tOvershieldBar.tileSize), 0, max(0, tHealthBarHeight / tOvershieldBar.tileSize));
+
+					tOvershieldBar:Show();
+				else
+					tOvershieldBar:Hide();
+				end
 			elseif (not tIsInvertGrowth and tOrientationOvershield == "VERTICAL") or
 				(tIsInvertGrowth and tOrientationOvershield == "VERTICAL_INV") then
 				-- VUHDO_STATUSBAR_BOTTOM_TO_TOP
-				tOvershieldBarSize = tOvershieldBarSizePercent * tHealthBarHeight;
-				tOvershieldBarOffset = tOvershieldBarOffsetPercent * tHealthBarHeight;
-	
-				tOvershieldBar:SetPoint("TOPLEFT", tHealthBar, "TOPLEFT", 0, tOvershieldBarOffset * -1);
-				tOvershieldBar:SetPoint("TOPRIGHT", tHealthBar, "TOPRIGHT", 0, tOvershieldBarOffset * -1);
+				tOvershieldBarSize = max(0, tOvershieldBarSizePercent * tHealthBarHeight);
+				tOvershieldBarOffset = max(0, tOvershieldBarOffsetPercent * tHealthBarHeight);
 
-				tOvershieldBar:SetHeight(tOvershieldBarSize);
-				tOvershieldBar:SetTexCoord(0, tHealthBarWidth / tOvershieldBar.tileSize, 0, tOvershieldBarSize / tOvershieldBar.tileSize);
+				if tOvershieldBarSize > tPixelThreshold then
+					VUHDO_PixelUtil.SetPoint(tOvershieldBar, "TOPLEFT", tHealthBar, "TOPLEFT", 0, tOvershieldBarOffset * -1);
+					VUHDO_PixelUtil.SetPoint(tOvershieldBar, "TOPRIGHT", tHealthBar, "TOPRIGHT", 0, tOvershieldBarOffset * -1);
+					VUHDO_PixelUtil.SetSize(tOvershieldBar, tHealthBarWidth, tOvershieldBarSize);
+					tOvershieldBar:SetTexCoord(0, max(0, tHealthBarWidth / tOvershieldBar.tileSize), 0, max(0, tOvershieldBarSize / tOvershieldBar.tileSize));
+
+					tOvershieldBar:Show();
+				else
+					tOvershieldBar:Hide();
+				end
 			else -- (not tIsInvertGrowth and tOrientationOvershield == "VERTICAL_INV") or (tIsInvertGrowth and tOrientationOvershield == "VERTICAL")
 				-- VUHDO_STATUSBAR_TOP_TO_BOTTOM
-				tOvershieldBarSize = tOvershieldBarSizePercent * tHealthBarHeight;
-				tOvershieldBarOffset = tOvershieldBarOffsetPercent * tHealthBarHeight;
-	
-				tOvershieldBar:SetPoint("BOTTOMLEFT", tHealthBar, "BOTTOMLEFT", 0, tOvershieldBarOffset);
-				tOvershieldBar:SetPoint("BOTTOMRIGHT", tHealthBar, "BOTTOMRIGHT", 0, tOvershieldBarOffset);
+				tOvershieldBarSize = max(0, tOvershieldBarSizePercent * tHealthBarHeight);
+				tOvershieldBarOffset = max(0, tOvershieldBarOffsetPercent * tHealthBarHeight);
 
-				tOvershieldBar:SetHeight(tOvershieldBarSize);
-				tOvershieldBar:SetTexCoord(0, tHealthBarWidth / tOvershieldBar.tileSize, 0, tOvershieldBarSize / tOvershieldBar.tileSize);
+				if tOvershieldBarSize > tPixelThreshold then
+					VUHDO_PixelUtil.SetPoint(tOvershieldBar, "BOTTOMLEFT", tHealthBar, "BOTTOMLEFT", 0, tOvershieldBarOffset);
+					VUHDO_PixelUtil.SetPoint(tOvershieldBar, "BOTTOMRIGHT", tHealthBar, "BOTTOMRIGHT", 0, tOvershieldBarOffset);
+					VUHDO_PixelUtil.SetSize(tOvershieldBar, tHealthBarWidth, tOvershieldBarSize);
+					tOvershieldBar:SetTexCoord(0, max(0, tHealthBarWidth / tOvershieldBar.tileSize), 0, max(0, tOvershieldBarSize / tOvershieldBar.tileSize));
+
+					tOvershieldBar:Show();
+				else
+					tOvershieldBar:Hide();
+				end
 			end
-  	
-			tOvershieldBar:Show();
 		else
 			tOvershieldBar:Hide();
 		end
@@ -381,6 +452,8 @@ function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 			VUHDO_customizeText(tButton, 2, false); -- VUHDO_UPDATE_HEALTH
 		end
 	end
+
+	return;
 
 end
 local VUHDO_updateShieldBar = VUHDO_updateShieldBar;
@@ -397,15 +470,37 @@ local tHealAbsorbBar, tHealAbsorbBarSize, tHealAbsorbBarSizePercent, tHealAbsorb
 local tOrientation, tOrientationHealAbsorb;
 local tPanelNum;
 local tIsInvertGrowth, tIsTurnAxisHealAbsorb;
+local tPixelThreshold;
 function VUHDO_updateHealAbsorbBar(aUnit)
-	if not VUHDO_CONFIG["SHOW_HEAL_ABSORB_BAR"] then 
-		return; 
-	end
 
 	tInfo = VUHDO_RAID[aUnit];
 	tAllButtons = VUHDO_getUnitButtons(VUHDO_resolveVehicleUnit(aUnit));
 
-	if not tInfo or not tAllButtons or not tInfo["connected"] or tInfo["dead"] or tInfo["healthmax"] <= 0 then
+	if not tAllButtons then
+		return;
+	end
+
+	if not VUHDO_CONFIG["SHOW_HEAL_ABSORB_BAR"] or not tInfo or tInfo["healthmax"] <= 0 then
+		for _, tButton in pairs(tAllButtons) do
+			tHealthBar = VUHDO_getHealthBar(tButton, 1);
+			tHealAbsorbBar = VUHDO_getHealAbsorbBarTexture(tHealthBar);
+
+			if tHealAbsorbBar then
+				tHealAbsorbBar:Hide();
+			end
+		end
+
+		return;
+	end
+
+	if not tInfo["connected"] or tInfo["dead"] then
+		for _, tButton in pairs(tAllButtons) do
+			tHealthBar = VUHDO_getHealthBar(tButton, 1);
+			tHealAbsorbBar = VUHDO_getHealAbsorbBarTexture(tHealthBar);
+
+			tHealAbsorbBar:Hide();
+		end
+
 		return;
 	end
 
@@ -414,6 +509,8 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 
 	tHealAbsorbBarSizePercent = tHealAbsorbRemain / tInfo["healthmax"]; 
 	tHealAbsorbBarOffsetPercent = tHealthDeficit / tInfo["healthmax"]; 
+
+	tPixelThreshold = 1 / VUHDO_getPixelScale() / 2;
 
 	for _, tButton in pairs(tAllButtons) do
 		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
@@ -439,10 +536,10 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 			tHealAbsorbBar.tileSize = 32;
 			tHealAbsorbBar:SetParent(tHealthBar);
 			tHealAbsorbBar:ClearAllPoints();
-			
+
 			tHealAbsorbColor["R"], tHealAbsorbColor["G"], tHealAbsorbColor["B"], tHealAbsorbOpacity = tHealthBar:GetStatusBarColor();
  			tHealAbsorbColor = VUHDO_getDiffColor(tHealAbsorbColor, VUHDO_getStatusBarColor("HEAL_ABSORB", aUnit));
- 			
+
 			if tHealAbsorbColor["O"] and tHealAbsorbOpacity then
  				tHealAbsorbColor["O"] = tHealAbsorbColor["O"] * tHealAbsorbOpacity * (tHealthBar:GetAlpha() or 1);
 			end
@@ -454,53 +551,74 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 			if (not tIsInvertGrowth and tOrientationHealAbsorb == "HORIZONTAL") or
 				(tIsInvertGrowth and tOrientationHealAbsorb == "HORIZONTAL_INV") then
 				-- VUHDO_STATUSBAR_LEFT_TO_RIGHT
-				tHealAbsorbBarSize = tHealAbsorbBarSizePercent * tHealthBarWidth;
-				tHealAbsorbBarOffset = tHealAbsorbBarOffsetPercent * tHealthBarWidth;
-	
-				tHealAbsorbBar:SetPoint("TOPRIGHT", tHealthBar, "TOPRIGHT", tHealAbsorbBarOffset * -1, 0);
-				tHealAbsorbBar:SetPoint("BOTTOMRIGHT", tHealthBar, "BOTTOMRIGHT", tHealAbsorbBarOffset * -1, 0);
+				tHealAbsorbBarSize = max(0, tHealAbsorbBarSizePercent * tHealthBarWidth);
+				tHealAbsorbBarOffset = max(0, tHealAbsorbBarOffsetPercent * tHealthBarWidth);
 
-				tHealAbsorbBar:SetWidth(tHealAbsorbBarSize);
-				tHealAbsorbBar:SetTexCoord(0, tHealAbsorbBarSize / tHealAbsorbBar.tileSize, 0, tHealthBarHeight / tHealAbsorbBar.tileSize);
+				if tHealAbsorbBarSize > tPixelThreshold then
+					VUHDO_PixelUtil.SetPoint(tHealAbsorbBar, "TOPRIGHT", tHealthBar, "TOPRIGHT", tHealAbsorbBarOffset * -1, 0);
+					VUHDO_PixelUtil.SetPoint(tHealAbsorbBar, "BOTTOMRIGHT", tHealthBar, "BOTTOMRIGHT", tHealAbsorbBarOffset * -1, 0);
+					VUHDO_PixelUtil.SetSize(tHealAbsorbBar, tHealAbsorbBarSize, tHealthBarHeight);
+					tHealAbsorbBar:SetTexCoord(0, max(0, tHealAbsorbBarSize / tHealAbsorbBar.tileSize), 0, max(0, tHealthBarHeight / tHealAbsorbBar.tileSize));
+
+					tHealAbsorbBar:Show();
+				else
+					tHealAbsorbBar:Hide();
+				end
 			elseif (not tIsInvertGrowth and tOrientationHealAbsorb == "HORIZONTAL_INV") or
 				(tIsInvertGrowth and tOrientationHealAbsorb == "HORIZONTAL") then
 				-- VUHDO_STATUSBAR_RIGHT_TO_LEFT
-				tHealAbsorbBarSize = tHealAbsorbBarSizePercent * tHealthBarWidth;
-				tHealAbsorbBarOffset = tHealAbsorbBarOffsetPercent * tHealthBarWidth;
-	
-				tHealAbsorbBar:SetPoint("TOPLEFT", tHealthBar, "TOPLEFT", tHealAbsorbBarOffset, 0);
-				tHealAbsorbBar:SetPoint("BOTTOMLEFT", tHealthBar, "BOTTOMLEFT", tHealAbsorbBarOffset, 0);
+				tHealAbsorbBarSize = max(0, tHealAbsorbBarSizePercent * tHealthBarWidth);
+				tHealAbsorbBarOffset = max(0, tHealAbsorbBarOffsetPercent * tHealthBarWidth);
 
-				tHealAbsorbBar:SetWidth(tHealAbsorbBarSize);
-				tHealAbsorbBar:SetTexCoord(0, tHealAbsorbBarSize / tHealAbsorbBar.tileSize, 0, tHealthBarHeight / tHealAbsorbBar.tileSize);
+				if tHealAbsorbBarSize > tPixelThreshold then
+					VUHDO_PixelUtil.SetPoint(tHealAbsorbBar, "TOPLEFT", tHealthBar, "TOPLEFT", tHealAbsorbBarOffset, 0);
+					VUHDO_PixelUtil.SetPoint(tHealAbsorbBar, "BOTTOMLEFT", tHealthBar, "BOTTOMLEFT", tHealAbsorbBarOffset, 0);
+					VUHDO_PixelUtil.SetSize(tHealAbsorbBar, tHealAbsorbBarSize, tHealthBarHeight);
+					tHealAbsorbBar:SetTexCoord(0, max(0, tHealAbsorbBarSize / tHealAbsorbBar.tileSize), 0, max(0, tHealthBarHeight / tHealAbsorbBar.tileSize));
+
+					tHealAbsorbBar:Show();
+				else
+					tHealAbsorbBar:Hide();
+				end
 			elseif (not tIsInvertGrowth and tOrientationHealAbsorb == "VERTICAL") or
 				(tIsInvertGrowth and tOrientationHealAbsorb == "VERTICAL_INV") then
 				-- VUHDO_STATUSBAR_BOTTOM_TO_TOP
-				tHealAbsorbBarSize = tHealAbsorbBarSizePercent * tHealthBarHeight;
-				tHealAbsorbBarOffset = tHealAbsorbBarOffsetPercent * tHealthBarHeight;
-	
-				tHealAbsorbBar:SetPoint("TOPLEFT", tHealthBar, "TOPLEFT", 0, tHealAbsorbBarOffset * -1);
-				tHealAbsorbBar:SetPoint("TOPRIGHT", tHealthBar, "TOPRIGHT", 0, tHealAbsorbBarOffset * -1);
+				tHealAbsorbBarSize = max(0, tHealAbsorbBarSizePercent * tHealthBarHeight);
+				tHealAbsorbBarOffset = max(0, tHealAbsorbBarOffsetPercent * tHealthBarHeight);
 
-				tHealAbsorbBar:SetHeight(tHealAbsorbBarSize);
-				tHealAbsorbBar:SetTexCoord(0, tHealthBarWidth / tHealAbsorbBar.tileSize, 0, tHealAbsorbBarSize / tHealAbsorbBar.tileSize);
+				if tHealAbsorbBarSize > tPixelThreshold then
+					VUHDO_PixelUtil.SetPoint(tHealAbsorbBar, "TOPLEFT", tHealthBar, "TOPLEFT", 0, tHealAbsorbBarOffset * -1);
+					VUHDO_PixelUtil.SetPoint(tHealAbsorbBar, "TOPRIGHT", tHealthBar, "TOPRIGHT", 0, tHealAbsorbBarOffset * -1);
+					VUHDO_PixelUtil.SetSize(tHealAbsorbBar, tHealthBarWidth, tHealAbsorbBarSize);
+					tHealAbsorbBar:SetTexCoord(0, max(0, tHealthBarWidth / tHealAbsorbBar.tileSize), 0, max(0, tHealAbsorbBarSize / tHealAbsorbBar.tileSize));
+
+					tHealAbsorbBar:Show();
+				else
+					tHealAbsorbBar:Hide();
+				end
 			else -- (not tIsInvertGrowth and tOrientationHealAbsorb == "VERTICAL_INV") or (tIsInvertGrowth and tOrientationHealAbsorb == "VERTICAL")
 				-- VUHDO_STATUSBAR_TOP_TO_BOTTOM
-				tHealAbsorbBarSize = tHealAbsorbBarSizePercent * tHealthBarHeight;
-				tHealAbsorbBarOffset = tHealAbsorbBarOffsetPercent * tHealthBarHeight;
-	
-				tHealAbsorbBar:SetPoint("BOTTOMLEFT", tHealthBar, "BOTTOMLEFT", 0, tHealAbsorbBarOffset);
-				tHealAbsorbBar:SetPoint("BOTTOMRIGHT", tHealthBar, "BOTTOMRIGHT", 0, tHealAbsorbBarOffset);
+				tHealAbsorbBarSize = max(0, tHealAbsorbBarSizePercent * tHealthBarHeight);
+				tHealAbsorbBarOffset = max(0, tHealAbsorbBarOffsetPercent * tHealthBarHeight);
 
-				tHealAbsorbBar:SetHeight(tHealAbsorbBarSize);
-				tHealAbsorbBar:SetTexCoord(0, tHealthBarWidth / tHealAbsorbBar.tileSize, 0, tHealAbsorbBarSize / tHealAbsorbBar.tileSize);
+				if tHealAbsorbBarSize > tPixelThreshold then
+					VUHDO_PixelUtil.SetPoint(tHealAbsorbBar, "BOTTOMLEFT", tHealthBar, "BOTTOMLEFT", 0, tHealAbsorbBarOffset);
+					VUHDO_PixelUtil.SetPoint(tHealAbsorbBar, "BOTTOMRIGHT", tHealthBar, "BOTTOMRIGHT", 0, tHealAbsorbBarOffset);
+					VUHDO_PixelUtil.SetSize(tHealAbsorbBar, tHealthBarWidth, tHealAbsorbBarSize);
+					tHealAbsorbBar:SetTexCoord(0, max(0, tHealthBarWidth / tHealAbsorbBar.tileSize), 0, max(0, tHealAbsorbBarSize / tHealAbsorbBar.tileSize));
+
+					tHealAbsorbBar:Show();
+				else
+					tHealAbsorbBar:Hide();
+				end
 			end
-  	
-			tHealAbsorbBar:Show();
 		else
 			tHealAbsorbBar:Hide();
 		end
 	end
+
+	return;
+
 end
 local VUHDO_updateHealAbsorbBar = VUHDO_updateHealAbsorbBar;
 
@@ -513,10 +631,13 @@ local tInfo;
 local tOpacity;
 local tHealthBar;
 local function VUHDO_updateIncHeal(aUnit)
+
 	tInfo = VUHDO_RAID[aUnit];
 	tAllButtons = VUHDO_getUnitButtons(VUHDO_resolveVehicleUnit(aUnit));
 
-	if not tInfo or not tAllButtons then return; end
+	if not tInfo or not tAllButtons then
+		return;
+	end
 
 	tHealthPlusInc, tAmountInc = VUHDO_getHealthPlusIncQuota(aUnit);
 
@@ -542,6 +663,9 @@ local function VUHDO_updateIncHeal(aUnit)
 
 	VUHDO_updateShieldBar(aUnit, tHealthPlusInc, tAmountInc);
 	VUHDO_updateHealAbsorbBar(aUnit);
+
+	return;
+
 end
 
 
@@ -567,7 +691,7 @@ function VUHDO_overhealTextCallback(aUnit, aProviderName, aText, aValue, anIndic
 						tRatio = aValue / tInfo["healthmax"];
 						tScale = VUHDO_PANEL_SETUP[tPanelNum]["OVERHEAL_TEXT"]["scale"];
 
-						VUHDO_getOverhealPanel(tBar):SetScale(tRatio < 1 and (0.5 + tRatio) * tScale or 1.5 * tScale);
+						VUHDO_PixelUtil.SetScale(VUHDO_getOverhealPanel(tBar), tRatio < 1 and (0.5 + tRatio) * tScale or 1.5 * tScale);
 					end
 				end
 			end
@@ -607,9 +731,12 @@ local VUHDO_CUSTOM_INFO = VUHDO_CUSTOM_INFO;
 --
 local tUnit;
 function VUHDO_getDisplayUnit(aButton)
+
 	tUnit = aButton:GetAttribute("unit");
 
-	if strfind(tUnit, "target", 1, true) and tUnit ~= "target" then
+	if not tUnit then
+		return nil, nil;
+	elseif strfind(tUnit, "target", 1, true) and tUnit ~= "target" then
 		if not VUHDO_CUSTOM_INFO["fixResolveId"] then
 			return tUnit, VUHDO_CUSTOM_INFO;
 		else
@@ -619,8 +746,12 @@ function VUHDO_getDisplayUnit(aButton)
 		if VUHDO_RAID[tUnit] and VUHDO_RAID[tUnit]["isVehicle"] then
 			tUnit = VUHDO_RAID[tUnit]["petUnit"];
 		end
+
 		return tUnit, VUHDO_RAID[tUnit];
 	end
+
+	return;
+
 end
 local VUHDO_getDisplayUnit = VUHDO_getDisplayUnit;
 
@@ -661,11 +792,11 @@ function VUHDO_customizeText(aButton, aMode, anIsTarget)
 	tUnit, tInfo = VUHDO_getDisplayUnit(aButton);
  	tHealthBar = VUHDO_getHealthBar(aButton, 1);
 
-	if not tInfo then
+	if not tInfo or not tInfo["name"] then
 		VUHDO_getBarText(tHealthBar):SetText(
-			   "focus" == tUnit and VUHDO_I18N_NO_FOCUS
-			or "target" == tUnit and VUHDO_I18N_NO_TARGET
-			or VUHDO_isBossUnit(tUnit) and VUHDO_I18N_NO_BOSS
+			   (tUnit and "focus" == tUnit) and VUHDO_I18N_NO_FOCUS
+			or (tUnit and "target" == tUnit) and VUHDO_I18N_NO_TARGET
+			or (tUnit and VUHDO_isBossUnit(tUnit)) and VUHDO_I18N_NO_BOSS
 			or VUHDO_I18N_NOT_AVAILABLE);
 
 		VUHDO_getLifeText(tHealthBar):SetText("");
@@ -1191,5 +1322,59 @@ function VUHDO_updateAllRaidBars()
 	else
 		VUHDO_REMOVE_HOTS = true;
 	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_updatePanelButtons(aPanelNum)
+
+	if not VUHDO_isPanelVisible(aPanelNum) then
+		return;
+	end
+
+	for _, tButton in pairs(VUHDO_getPanelButtons(aPanelNum)) do
+		if not tButton:GetAttribute("unit") then
+			break;
+		end
+
+		VUHDO_customizeHealButton(tButton);
+	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_deferUpdateAllRaidBarsDelegate(aPriority)
+
+	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
+		if VUHDO_isPanelVisible(tPanelNum) then
+			VUHDO_deferUpdatePanelButtons(tPanelNum, aPriority);
+		end
+	end
+
+	for tUnit, _ in pairs(VUHDO_RAID) do
+		VUHDO_updateIncHeal(tUnit);
+		VUHDO_deferUpdateManaBars(tUnit, 3, aPriority);
+		VUHDO_deferUpdateUnitAggro(tUnit, nil, aPriority);
+	end
+
+	if VUHDO_REMOVE_HOTS then
+		VUHDO_deferUpdateAllHoTs(aPriority);
+
+		if VUHDO_INTERNAL_TOGGLES[18] then -- VUHDO_UPDATE_MOUSEOVER_CLUSTER
+			VUHDO_deferUpdateClusterHighlights(aPriority);
+		end
+	else
+		VUHDO_REMOVE_HOTS = true;
+	end
+
+	return;
 
 end

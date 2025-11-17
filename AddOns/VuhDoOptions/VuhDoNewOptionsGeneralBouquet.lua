@@ -211,7 +211,7 @@ local tName, tTexture;
 local function VUHDO_initBouquetItem(aParent, anItemPanel, aBouquetName, aBuffIndex, aBuffInfo)
 	tName = VUHDO_getBouquetItemDisplayText(aBuffInfo["name"]) or aBuffInfo["name"];
 	anItemPanel:ClearAllPoints();
-	anItemPanel:SetPoint("TOPLEFT", aParent:GetName(), 5, -(aBuffIndex - 1) * anItemPanel:GetHeight());
+	VUHDO_PixelUtil.SetPoint(anItemPanel, "TOPLEFT", aParent:GetName(), "TOPLEFT", 5, -(aBuffIndex - 1) * anItemPanel:GetHeight());
 	_G[anItemPanel:GetName() .. "TitleLabelLabel"]:SetText("" .. aBuffIndex);
 	_G[anItemPanel:GetName() .. "NameLabelLabel"]:SetText(tName);
 
@@ -285,7 +285,7 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 	tIsTempModel = false;
 	tBouquetName = VUHDO_getCurrentBouquetName();
 
-	if (tBouquetName == nil or anIndex == 0) then -- Kein Bouquet gew„hlt
+	if (tBouquetName == nil or anIndex == 0) then -- Kein Bouquet gewï¿½hlt
 		tIsTempModel = true;
 	else
 		tBouquet = VUHDO_getCurrentBouquet(); -- Bouquetname ungespeichert
@@ -657,7 +657,7 @@ function VUHDO_rebuildAllBouquetItems(aParent, aCursorPos)
 			end
 
 			if (#tBouquet > 0) then
-				tParent:SetHeight(#tBouquet * tPanel:GetHeight());
+				VUHDO_PixelUtil.SetHeight(tParent, #tBouquet * tPanel:GetHeight());
 			end
 
 		end

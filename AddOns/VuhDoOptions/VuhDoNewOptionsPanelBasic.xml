@@ -33,7 +33,7 @@
 						</Scripts>
 					</Frame>
 
-					<CheckButton name="$parentLooseRadioButton" text="VUHDO_I18N_LOSE" inherits="VuhDoRadioButtonTemplate">
+					<CheckButton name="$parentLooseRadioButton" text="VUHDO_I18N_LOOSE" inherits="VuhDoRadioButtonTemplate">
 						<Size>
 							<AbsDimension x="100" y="32" />
 						</Size>

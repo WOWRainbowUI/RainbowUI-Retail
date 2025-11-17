@@ -21,7 +21,7 @@ VUHDO_I18N_RANGE = "範圍";
 VUHDO_I18N_ADD_NEW_PANEL = "添加面板";
 VUHDO_I18N_HOLD_TO_TEST = "按住測試";
 VUHDO_I18N_OWN_HOTS = "自身HOTS";
-VUHDO_I18N_LOSE = "損失";
+VUHDO_I18N_LOOSE = "損失";
 VUHDO_I18N_ORDERING = "排序";
 VUHDO_I18N_HIDE_EMPTY = "隱藏空面板";
 VUHDO_I18N_ANCHOR = "錨點";
@@ -83,13 +83,13 @@ VUHDO_I18N_BY_DURATION = "短週期";
 VUHDO_I18N_BY_NON_HARMFUL = "無害的";
 VUHDO_I18N_REMOVABLE_ONLY = "可驅散";
 --VUHDO_I18N_ESTIMATE = "標準距離";
-VUHOD_I18N_BY_SPELL = "指定技能";
+VUHDO_I18N_BY_SPELL = "指定技能";
 VUHDO_I18N_SHOW_INC = "治療輸入";
 VUHDO_I18N_SHOW_OWN_HEAL = "自己";
 VUHDO_I18N_SHOW_OVERHEAL = "過量治療";
 VUHDO_I18N_OPERATION_MODE = "顯示方式";
 VUHDO_I18N_MAX_EMERGENCIES = "最大高亮";
-VUHDO_I18N_RELVEVANCE = "高於則不高亮";
+VUHDO_I18N_RELEVANCE = "高於則不高亮";
 VUHDO_I18N_NEUTRAL_HEALBOT = "正常顯示";
 VUHDO_I18N_EMERGENCY_PERCENT = "血量低於設定數值";
 VUHDO_I18N_EMERGENCY_MOST_MISSING = "最多損失";
@@ -372,6 +372,7 @@ VUHDO_I18N_TT.K273 = "用圖標顯示自定義增、減益.";
 VUHDO_I18N_TT.K274 = "用條顏色顯示自定義增、減益.";
 VUHDO_I18N_TT.K275 = "在圖標上顯示動畫效果.";
 VUHDO_I18N_TT.K276 = "圖標顯示剩餘時間.";
+VUHDO_I18N_TT.K277 = "Check to show clock sweep countdown animation.";
 VUHDO_I18N_TT.K279 = "選擇玩家獲得減益提示聲音";
 VUHDO_I18N_TT.K280 = "應用已選定面板設定";
 VUHDO_I18N_TT.K281 = "開啟額外的載具面板.寵物也將在此面板顯示.所有鼠標點擊都只是選定載具/寵物為目標.";
@@ -1172,9 +1173,6 @@ VUHDO_I18N_BLACKLIST_KEY_MODIFIES = "Ignore List Modifier Key";
 
 VUHDO_I18N_NICKNAME = "Details!\nNickname"
 
-VUHDO_I18N_DEBUFF_SHOW_ONLY_FOR_FRIENDLY_TEXT = "Show only\nfor friendly";
-VUHDO_I18N_DEBUFF_SHOW_ONLY_FOR_FRIENDLY_TOOLTIP = "Shows debuffs only for friendly units";
-
 VUHDO_I18N_SHOW_OVERSHIELD = "Show\nOvershield";
 VUHDO_I18N_OVERSHIELD_BAR = "Overshield Bar";
 
@@ -1233,3 +1231,15 @@ VUHDO_I18N_ENRAGE = "Enrage";
 VUHDO_I18N_PURGEABLE_BUFFS = "Purgeable\nBuffs";
 
 VUHDO_I18N_LOAD_HOTS_ONLY_SLOTS = "Only Slots";
+
+VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_WARNING = "此debuff在忽略清單中，將被隱藏。";
+VUHDO_I18N_IGNORE_LIST_CUSTOM_DEBUFF_WARNING = "忽略 \"%s\" 將覆蓋現有的自定義debuff設定。";
+VUHDO_I18N_IGNORE_LIST_CUSTOM_DEBUFF_REMOVED = "已移除與自定義debuff衝突的忽略清單條目 \"%s\": \"%s\"";
+VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_CONFLICT = "自定義debuff \"%s\" 在忽略清單中且將被隱藏。";
+VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_REMOVED = "已移除在忽略清單中的自定義debuff \"%s\" 且將保持隱藏。";
+VUHDO_I18N_IGNORE_LIST_CUSTOM_DEBUFF_REMOVED_WARNING = "從忽略清單中刪除 \"%s\" 現在將允許自定義debuff設定生效。";
+VUHDO_I18N_DEBUFF_ADDED_TO_IGNORE_LIST = "(De)Buff \"%s\" 已添加到忽略清單。";
+VUHDO_I18N_DEBUFF_REMOVED_FROM_IGNORE_LIST = "(De)Buff \"%s\" 已從忽略清單中移除。";
+VUHDO_I18N_DEBUFF_ADDED_TO_CUSTOM = "(De)Buff \"%s\" 已添加到自定義debuff。";
+VUHDO_I18N_DEBUFF_REMOVED_FROM_CUSTOM = "(De)Buff \"%s\" 已移除。";
+VUHDO_I18N_DEBUFF_DOES_NOT_EXIST = "(De)Buff \"%s\" 不存在。";

@@ -21,7 +21,7 @@ VUHDO_I18N_RANGE = "Rango";
 VUHDO_I18N_ADD_NEW_PANEL = "Insertar nuevo panel";
 VUHDO_I18N_HOLD_TO_TEST = "Mantener los test";
 VUHDO_I18N_OWN_HOTS = "HoTs personales";
-VUHDO_I18N_LOSE = "Perder";
+VUHDO_I18N_LOOSE = "Perder";
 VUHDO_I18N_ORDERING = "Ordenados";
 VUHDO_I18N_HIDE_EMPTY = "Ocultar vacios";
 VUHDO_I18N_ANCHOR = "Fijar";
@@ -83,13 +83,13 @@ VUHDO_I18N_BY_DURATION = "Duracion";
 VUHDO_I18N_BY_NON_HARMFUL = "Inofensiva";
 VUHDO_I18N_REMOVABLE_ONLY = "Borrable";
 --VUHDO_I18N_ESTIMATE = "Estimado";
-VUHOD_I18N_BY_SPELL = "por hechizo";
+VUHDO_I18N_BY_SPELL = "por hechizo";
 VUHDO_I18N_SHOW_INC = "Curacion entrante";
 VUHDO_I18N_SHOW_OWN_HEAL = "personal";
 VUHDO_I18N_SHOW_OVERHEAL = "Sobrecuracion";
 VUHDO_I18N_OPERATION_MODE = "Modo de operar";
 VUHDO_I18N_MAX_EMERGENCIES = "max. Urgencia";
-VUHDO_I18N_RELVEVANCE = "Inutil si superior";
+VUHDO_I18N_RELEVANCE = "Inutil si superior";
 VUHDO_I18N_NEUTRAL_HEALBOT = "Neutral";
 VUHDO_I18N_EMERGENCY_PERCENT = "Urgencia - Vida %";
 VUHDO_I18N_EMERGENCY_MOST_MISSING = "Mucha vida perdida";
@@ -370,6 +370,7 @@ VUHDO_I18N_TT.K273 = "Check to show custom (de)buffs by icon.";
 VUHDO_I18N_TT.K274 = "Check to show custom (de)buffs by bar color.";
 VUHDO_I18N_TT.K275 = "Check to show animation effect on icons.";
 VUHDO_I18N_TT.K276 = "Check to show remaining duration timer on icons.";
+VUHDO_I18N_TT.K277 = "Check to show clock sweep countdown animation.";
 VUHDO_I18N_TT.K279 = "Select a sound to be played when a player gains a debuff";
 VUHDO_I18N_TT.K280 = "Click here to apply the chosen setup to your panels";
 VUHDO_I18N_TT.K281 = "Check this to have an extra panel for vehicles. Pets will show up there also. All mouse clicks will target the vehicle/pet.";
@@ -1184,9 +1185,6 @@ VUHDO_I18N_BLACKLIST_KEY_MODIFIES = "Ignore List Modifier Key";
 
 VUHDO_I18N_NICKNAME = "Details!\nNickname"
 
-VUHDO_I18N_DEBUFF_SHOW_ONLY_FOR_FRIENDLY_TEXT = "Show only\nfor friendly";
-VUHDO_I18N_DEBUFF_SHOW_ONLY_FOR_FRIENDLY_TOOLTIP = "Shows debuffs only for friendly units";
-
 VUHDO_I18N_SHOW_OVERSHIELD = "Show\nOvershield";
 VUHDO_I18N_OVERSHIELD_BAR = "Overshield Bar";
 
@@ -1245,3 +1243,14 @@ VUHDO_I18N_ENRAGE = "Enrage";
 VUHDO_I18N_PURGEABLE_BUFFS = "Purgeable\nBuffs";
 
 VUHDO_I18N_LOAD_HOTS_ONLY_SLOTS = "Only Slots";
+
+VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_WARNING = "Este debuff está en la lista de ignorar y será ocultado.";
+VUHDO_I18N_IGNORE_LIST_CUSTOM_DEBUFF_WARNING = "Ignorar \"%s\" anula la configuración de debuff personalizada existente.";
+VUHDO_I18N_IGNORE_LIST_CUSTOM_DEBUFF_REMOVED_WARNING = "Eliminar \"%s\" de la lista de ignorar ahora permitirá que la configuración de debuff personalizada tome efecto.";
+VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_CONFLICT = "Debuff personalizado \"%s\" está en la lista de ignorar y será ocultado.";
+VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_REMOVED = "Debuff personalizado \"%s\" eliminado que estaba en la lista de ignorar y permanecerá oculto.";
+VUHDO_I18N_DEBUFF_ADDED_TO_IGNORE_LIST = "(De)Buff \"%s\" agregado a la lista de ignorar.";
+VUHDO_I18N_DEBUFF_REMOVED_FROM_IGNORE_LIST = "(De)Buff \"%s\" eliminado de la lista de ignorar.";
+VUHDO_I18N_DEBUFF_ADDED_TO_CUSTOM = "(De)Buff \"%s\" agregado a debuffs personalizados.";
+VUHDO_I18N_DEBUFF_REMOVED_FROM_CUSTOM = "(De)Buff \"%s\" eliminado de debuffs personalizados.";
+VUHDO_I18N_DEBUFF_DOES_NOT_EXIST = "(De)Buff \"%s\" no existe.";

@@ -22,7 +22,7 @@ VUHDO_I18N_RANGE = "거리";
 VUHDO_I18N_ADD_NEW_PANEL = "새 패널 추가";
 VUHDO_I18N_HOLD_TO_TEST = "클릭하고 있으면 테스트 동작";
 VUHDO_I18N_OWN_HOTS = "내 HoTs";
-VUHDO_I18N_LOSE = "잃음";
+VUHDO_I18N_LOOSE = "잃음";
 VUHDO_I18N_ORDERING = "명령";
 VUHDO_I18N_HIDE_EMPTY = "빈 숨김";
 VUHDO_I18N_ANCHOR = "기준점";
@@ -84,13 +84,13 @@ VUHDO_I18N_BY_DURATION = "지속시간";
 VUHDO_I18N_BY_NON_HARMFUL = "무해한";
 VUHDO_I18N_REMOVABLE_ONLY = "해제 가능";
 --VUHDO_I18N_ESTIMATE = "Guess";
-VUHOD_I18N_BY_SPELL = "주문으로";
+VUHDO_I18N_BY_SPELL = "주문으로";
 VUHDO_I18N_SHOW_INC = "들어오는 치유";
 VUHDO_I18N_SHOW_OWN_HEAL = "내가 시전";
 VUHDO_I18N_SHOW_OVERHEAL = "초과 치유";
 VUHDO_I18N_OPERATION_MODE = "작동 방식";
 VUHDO_I18N_MAX_EMERGENCIES = "최대. 응급 상태";
-VUHDO_I18N_RELVEVANCE = "관련이 없는 경우";
+VUHDO_I18N_RELEVANCE = "관련이 없는 경우";
 VUHDO_I18N_NEUTRAL_HEALBOT = "일반"; -- 임의 수정
 VUHDO_I18N_EMERGENCY_PERCENT = "응급 - HP %";
 VUHDO_I18N_EMERGENCY_MOST_MISSING = "대부분 HP 누락";
@@ -374,6 +374,7 @@ VUHDO_I18N_TT.K273 = "아이콘으로 사용자 정의 (디)버프를 표시하�
 VUHDO_I18N_TT.K274 = "바 색상으로 사용자 정의 (디)버프를 표시하도록 선택하십시오.";
 VUHDO_I18N_TT.K275 = "아이콘에 애니메이션 효과를 표시하려면 확인하십시오.";
 VUHDO_I18N_TT.K276 = "아이콘에 잔여 시간 타이머를 표시하려면 확인하십시오.";
+VUHDO_I18N_TT.K277 = "Check to show clock sweep countdown animation.";
 VUHDO_I18N_TT.K279 = "플레이어가 디버프를 얻을 때 재생할 소리를 선택";
 VUHDO_I18N_TT.K280 = "선택한 설정을 패널에 적용하려면 여기를 클릭";
 VUHDO_I18N_TT.K281 = "차량용 추가 패널이 있는지 확인하십시오. 소환수도 나타납니다. 모든 마우스 클릭은 차량/소환수를 대상으로합니다.";
@@ -1175,9 +1176,6 @@ VUHDO_I18N_BLACKLIST_KEY_MODIFIES = "무시 목록 수정 키";
 
 VUHDO_I18N_NICKNAME = "Details!\nNickname"
 
-VUHDO_I18N_DEBUFF_SHOW_ONLY_FOR_FRIENDLY_TEXT = "Show only\nfor friendly";
-VUHDO_I18N_DEBUFF_SHOW_ONLY_FOR_FRIENDLY_TOOLTIP = "Shows debuffs only for friendly units";
-
 VUHDO_I18N_SHOW_OVERSHIELD = "Show\nOvershield";
 VUHDO_I18N_OVERSHIELD_BAR = "Overshield Bar";
 
@@ -1236,3 +1234,15 @@ VUHDO_I18N_ENRAGE = "Enrage";
 VUHDO_I18N_PURGEABLE_BUFFS = "Purgeable\nBuffs";
 
 VUHDO_I18N_LOAD_HOTS_ONLY_SLOTS = "Only Slots";
+
+VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_WARNING = "이 디버프는 무시 목록에 있어 숨겨집니다.";
+VUHDO_I18N_IGNORE_LIST_CUSTOM_DEBUFF_WARNING = "\"%s\" 무시는 기존 사용자 정의 디버프 설정을 덮어씁니다.";
+VUHDO_I18N_IGNORE_LIST_CUSTOM_DEBUFF_REMOVED = "사용자 정의 디버프와 충돌하는 무시 목록 항목 \"%s\"이(가) 제거되었습니다: \"%s\"";
+VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_CONFLICT = "사용자 정의 디버프 \"%s\"이(가) 무시 목록에 있으며 숨겨집니다.";
+VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_REMOVED = "무시 목록에 있던 사용자 정의 디버프 \"%s\"이(가) 제거되었으며 계속 숨겨집니다.";
+VUHDO_I18N_IGNORE_LIST_CUSTOM_DEBUFF_REMOVED_WARNING = "\"%s\"을(를) 무시 목록에서 제거하면 이제 사용자 정의 디버프 설정이 적용됩니다.";
+VUHDO_I18N_DEBUFF_ADDED_TO_IGNORE_LIST = "(De)Buff \"%s\"이(가) 무시 목록에 추가되었습니다.";
+VUHDO_I18N_DEBUFF_REMOVED_FROM_IGNORE_LIST = "(De)Buff \"%s\"이(가) 무시 목록에서 제거되었습니다.";
+VUHDO_I18N_DEBUFF_ADDED_TO_CUSTOM = "(De)Buff \"%s\"이(가) 사용자 정의 디버프에 추가되었습니다.";
+VUHDO_I18N_DEBUFF_REMOVED_FROM_CUSTOM = "(De)Buff \"%s\"이(가) 제거되었습니다.";
+VUHDO_I18N_DEBUFF_DOES_NOT_EXIST = "(De)Buff \"%s\"이(가) 존재하지 않습니다.";

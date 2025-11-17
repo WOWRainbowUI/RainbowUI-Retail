@@ -119,13 +119,13 @@ local function VUHDO_addGenericBuffFrame(aBuffVariant, aFrameTemplateName, aCate
 		if (tGenericFrame == nil) then
 			tGenericFrame = CreateFrame("Frame", "$parentGenericPanel", tBuffPanel, aFrameTemplateName);
 		end
-		tGenericFrame:SetPoint("TOPLEFT", tBuffPanel:GetName(), "TOPLEFT", 0, -tInFrameY);
+		VUHDO_PixelUtil.SetPoint(tGenericFrame, "TOPLEFT", tBuffPanel:GetName(), "TOPLEFT", 0, -tInFrameY);
 		tInFrameY = tInFrameY + tGenericFrame:GetHeight() + 5;
 	end
 
 	VUHDO_buffSetupNewRowCheck(tBuffPanel:GetWidth(), tInFrameY);
-	tBuffPanel:SetPoint("TOPLEFT", "VuhDoNewOptionsBuffsGeneric", "TOPLEFT", VUHDO_BUFF_PANEL_X, -VUHDO_BUFF_PANEL_Y);
-	tBuffPanel:SetHeight(tInFrameY);
+	VUHDO_PixelUtil.SetPoint(tBuffPanel, "TOPLEFT", "VuhDoNewOptionsBuffsGeneric", "TOPLEFT", VUHDO_BUFF_PANEL_X, -VUHDO_BUFF_PANEL_Y);
+	VUHDO_PixelUtil.SetHeight(tBuffPanel, tInFrameY);
 	tBuffPanel:Show();
 
 	VUHDO_BUFF_PANEL_Y = VUHDO_BUFF_PANEL_Y + tInFrameY;
