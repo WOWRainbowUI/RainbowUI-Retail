@@ -1,6 +1,6 @@
 # NoAutoClose
 
-## [v1.3.27](https://github.com/NumyAddon/NoAutoClose/tree/v1.3.27) (2025-11-12)
-[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.3.26...v1.3.27) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
+## [v1.3.28](https://github.com/NumyAddon/NoAutoClose/tree/v1.3.28) (2025-11-15)
+[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.3.27...v1.3.28) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
 
-- Editing your House now properly hides the rest of your UI  
+- Fixed an issue with the Island Expedition result frame hiding as soon as it shows  
