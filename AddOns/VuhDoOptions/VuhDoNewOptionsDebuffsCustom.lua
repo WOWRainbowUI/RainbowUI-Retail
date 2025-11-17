@@ -1,60 +1,14 @@
 local _;
+
 local VUHDO_COMBO_MODEL = nil;
 local VUHDO_DEBUFFS_SORTABLE = { };
-
-
---
-local tSpellNameById;
-function VUHDO_initCustomDebuffComboModel()
-  -- Nicht die saved variables direkt sortieren, wird sonst inkonsistent
-	VUHDO_DEBUFFS_SORTABLE = { };
-	for _, tStoredName in pairs(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"]) do
-		tinsert(VUHDO_DEBUFFS_SORTABLE, tStoredName);
-	end
-	table.sort(VUHDO_DEBUFFS_SORTABLE,
-		function(aDebuff, anotherDebuff)
-			return VUHDO_resolveSpellId(aDebuff) < VUHDO_resolveSpellId(anotherDebuff);
-		end
-	);
-
-	VUHDO_COMBO_MODEL = { };
-	for tIndex, tStoredName in ipairs(VUHDO_DEBUFFS_SORTABLE) do
-		tSpellNameById = VUHDO_resolveSpellId(tStoredName);
-		if (tSpellNameById ~= tStoredName) then
-			VUHDO_COMBO_MODEL[tIndex] = { tStoredName, "[" .. tStoredName .. "] " .. tSpellNameById };
-		else
-			VUHDO_COMBO_MODEL[tIndex] = { tStoredName, tStoredName };
-		end
-	end
-end
-
-
-
---
-function VUHDO_setupCustomDebuffsComboModel(aComboBox)
-	VUHDO_initCustomDebuffComboModel();
-	VUHDO_notifyCustomDebuffSelect(aComboBox, VUHDO_CONFIG.CUSTOM_DEBUFF.SELECTED);
-
-	VUHDO_setComboModel(aComboBox, "VUHDO_CONFIG.CUSTOM_DEBUFF.SELECTED", VUHDO_COMBO_MODEL);
-	VUHDO_lnfComboBoxInitFromModel(aComboBox);
-end
-
-
-
---
-function VUHDO_notifyCustomDebuffSelect(aComboBox, aValue)
-	if (VuhDoNewOptionsDebuffsCustomStorePanelEditBox ~= nil and aValue ~= nil) then
-		VuhDoNewOptionsDebuffsCustomStorePanelEditBox:SetText(aValue);
-	else
-		VuhDoNewOptionsDebuffsCustomStorePanelEditBox:SetText("");
-	end
-end
 
 -- nicht local machen, da sonst im LNF nicht auffindbar
 VUHDO_ICON_MODEL = nil;
 VUHDO_COLOR_MODEL = nil;
 VUHDO_ANIMATE_MODEL = nil;
 VUHDO_TIMER_MODEL = nil;
+VUHDO_CLOCK_MODEL = nil;
 VUHDO_STACKS_MODEL = nil;
 VUHDO_ALIVE_TIME_MODEL = nil;
 VUHDO_FULL_DURATION_MODEL = nil;
@@ -70,13 +24,145 @@ VUHDO_SOUND_MODEL = nil;
 
 
 --
+local tEditBox;
+local tStatusText;
+local function VUHDO_showCustomDebuffIgnoreListWarning(aSpellName, aConflicts)
+
+	tEditBox = _G["VuhDoNewOptionsDebuffsCustomStorePanelEditBox"];
+
+	if tEditBox then
+		tStatusText = _G["VuhDoNewOptionsDebuffsCustomStorePanelStatusText"];
+
+		if not tStatusText then
+			tStatusText = tEditBox:GetParent():CreateFontString("VuhDoNewOptionsDebuffsCustomStorePanelStatusText", "OVERLAY", "GameFontNormal");
+
+			tStatusText:SetPoint("LEFT", tEditBox, "RIGHT", 10, 0);
+			tStatusText:SetTextColor(1, 0, 0, 1);
+		end
+
+		tStatusText:SetText("[IGNORED]");
+		tStatusText:Show();
+	end
+
+	return;
+
+end
+
+
+
+--
+local tStatusText;
+local function VUHDO_hideCustomDebuffIgnoreListWarning()
+
+	tStatusText = _G["VuhDoNewOptionsDebuffsCustomStorePanelStatusText"];
+
+	if tStatusText then
+		tStatusText:Hide();
+	end
+
+	return;
+
+end
+
+
+
+--
+local tSpellNameById;
+local tIsInIgnoreList;
+local tDisplayText;
+function VUHDO_initCustomDebuffComboModel()
+
+	-- Nicht die saved variables direkt sortieren, wird sonst inkonsistent
+	VUHDO_DEBUFFS_SORTABLE = { };
+
+	for _, tStoredName in pairs(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"]) do
+		tinsert(VUHDO_DEBUFFS_SORTABLE, tStoredName);
+	end
+
+	table.sort(VUHDO_DEBUFFS_SORTABLE,
+		function(aDebuff, anotherDebuff)
+			return VUHDO_resolveSpellId(aDebuff) < VUHDO_resolveSpellId(anotherDebuff);
+		end
+	);
+
+	VUHDO_COMBO_MODEL = { };
+
+	for tIndex, tStoredName in ipairs(VUHDO_DEBUFFS_SORTABLE) do
+		tSpellNameById = VUHDO_resolveSpellId(tStoredName);
+
+		tIsInIgnoreList = #VUHDO_getConflictingIgnoreListSpells(tStoredName) > 0;
+
+		if (tSpellNameById ~= tStoredName) then
+			tDisplayText = "[" .. tStoredName .. "] " .. tSpellNameById;
+		else
+			tDisplayText = tStoredName;
+		end
+
+		if tIsInIgnoreList then
+			tDisplayText = "[X] " .. tDisplayText .. " [X]";
+		end
+
+		VUHDO_COMBO_MODEL[tIndex] = { tStoredName, tDisplayText, tIsInIgnoreList, tStoredName };
+	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_setupCustomDebuffsComboModel(aComboBox)
+
+	VUHDO_initCustomDebuffComboModel();
+
+	VUHDO_notifyCustomDebuffSelect(aComboBox, VUHDO_CONFIG.CUSTOM_DEBUFF.SELECTED);
+
+	VUHDO_setComboModel(aComboBox, "VUHDO_CONFIG.CUSTOM_DEBUFF.SELECTED", VUHDO_COMBO_MODEL);
+	VUHDO_lnfComboBoxInitFromModel(aComboBox);
+
+	return;
+
+end
+
+
+
+--
+local tConflicts;
+function VUHDO_notifyCustomDebuffSelect(aComboBox, aValue)
+
+	if (VuhDoNewOptionsDebuffsCustomStorePanelEditBox ~= nil and aValue ~= nil) then
+		VuhDoNewOptionsDebuffsCustomStorePanelEditBox:SetText(aValue);
+
+		tConflicts = VUHDO_getConflictingIgnoreListSpells(aValue);
+
+		if #tConflicts > 0 then
+			VUHDO_showCustomDebuffIgnoreListWarning(aValue, tConflicts);
+		else
+			VUHDO_hideCustomDebuffIgnoreListWarning();
+		end
+	else
+		VuhDoNewOptionsDebuffsCustomStorePanelEditBox:SetText("");
+
+		VUHDO_hideCustomDebuffIgnoreListWarning();
+	end
+
+	return;
+
+end
+
+
+
+--
 local tValue;
 local tIndex;
 local tPanelName;
 local tCheckButton;
 local tComboBox;
 local tColorSwatch;
+local tConflicts;
 function VUHDO_customDebuffUpdateEditBox(anEditBox)
+
 	tValue = anEditBox:GetText();
 	tIndex = VUHDO_tableGetKeyFromValue(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"], tValue);
 
@@ -99,6 +185,10 @@ function VUHDO_customDebuffUpdateEditBox(anEditBox)
 
 		tCheckButton = _G[tPanelName .. "TimerCheckButton"];
 		VUHDO_lnfSetModel(tCheckButton, "VUHDO_CONFIG.CUSTOM_DEBUFF.STORED_SETTINGS." .. tValue .. ".timer");
+		VUHDO_lnfCheckButtonInitFromModel(tCheckButton);
+
+		tCheckButton = _G[tPanelName .. "ClockCheckButton"];
+		VUHDO_lnfSetModel(tCheckButton, "VUHDO_CONFIG.CUSTOM_DEBUFF.STORED_SETTINGS." .. tValue .. ".isClock");
 		VUHDO_lnfCheckButtonInitFromModel(tCheckButton);
 
 		tCheckButton = _G[tPanelName .. "StacksCheckButton"];
@@ -139,7 +229,7 @@ function VUHDO_customDebuffUpdateEditBox(anEditBox)
 		tCheckButton = _G[tPanelName .. "FullDurationCheckButton"];
 		VUHDO_lnfSetModel(tCheckButton, "VUHDO_CONFIG.CUSTOM_DEBUFF.STORED_SETTINGS." .. tValue .. ".isFullDuration");
 		VUHDO_lnfCheckButtonInitFromModel(tCheckButton);
-		
+
 		if VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tValue]["isMine"] == nil then
 			VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tValue]["isMine"] = true;
 		end
@@ -173,7 +263,7 @@ function VUHDO_customDebuffUpdateEditBox(anEditBox)
 		VUHDO_lnfSetModel(tColorSwatch, "VUHDO_CONFIG.CUSTOM_DEBUFF.STORED_SETTINGS." .. tValue .. ".barGlowColor");
 		VUHDO_lnfInitColorSwatch(tColorSwatch, VUHDO_I18N_COLOR, VUHDO_I18N_COLOR);
 		VUHDO_lnfColorSwatchInitFromModel(tColorSwatch);
-		
+
 		tCheckButton = _G[tPanelName .. "IconGlowCheckButton"];
 		VUHDO_lnfSetModel(tCheckButton, "VUHDO_CONFIG.CUSTOM_DEBUFF.STORED_SETTINGS." .. tValue .. ".isIconGlow");
 		VUHDO_lnfCheckButtonInitFromModel(tCheckButton);
@@ -191,7 +281,6 @@ function VUHDO_customDebuffUpdateEditBox(anEditBox)
 		VUHDO_lnfSetModel(tColorSwatch, "VUHDO_CONFIG.CUSTOM_DEBUFF.STORED_SETTINGS." .. tValue .. ".iconGlowColor");
 		VUHDO_lnfInitColorSwatch(tColorSwatch, VUHDO_I18N_COLOR, VUHDO_I18N_COLOR);
 		VUHDO_lnfColorSwatchInitFromModel(tColorSwatch);
-
 	else
 		anEditBox:SetTextColor(0.8, 0.8, 1, 1);
 
@@ -201,13 +290,14 @@ function VUHDO_customDebuffUpdateEditBox(anEditBox)
 		VUHDO_COLOR_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.isColor;
 		VUHDO_ANIMATE_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.animate;
 		VUHDO_TIMER_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.timer;
+		VUHDO_CLOCK_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.isClock;
 		VUHDO_STACKS_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.isStacks;
 		VUHDO_ALIVE_TIME_MODEL = false;
 		VUHDO_FULL_DURATION_MODEL = false;
 		VUHDO_MINE_MODEL = true;
 		VUHDO_OTHERS_MODEL = true;
-		VUHDO_BAR_GLOW_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.isBarGlow;
-		VUHDO_ICON_GLOW_MODEL = VUHDO_CONFIG.CUSTOM_DEBUFF.isIconGlow;
+		VUHDO_BAR_GLOW_MODEL = false;
+		VUHDO_ICON_GLOW_MODEL = false;
 
 		VUHDO_COLOR_SWATCH_MODEL = VUHDO_deepCopyTable(VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF" .. VUHDO_DEBUFF_TYPE_CUSTOM]);
 		VUHDO_COLOR_SWATCH_MODEL.useBackground = true;
@@ -231,6 +321,10 @@ function VUHDO_customDebuffUpdateEditBox(anEditBox)
 
 		tCheckButton = _G[tPanelName .. "TimerCheckButton"];
 		VUHDO_lnfSetModel(tCheckButton, "VUHDO_TIMER_MODEL");
+		VUHDO_lnfCheckButtonInitFromModel(tCheckButton);
+
+		tCheckButton = _G[tPanelName .. "ClockCheckButton"];
+		VUHDO_lnfSetModel(tCheckButton, "VUHDO_CLOCK_MODEL");
 		VUHDO_lnfCheckButtonInitFromModel(tCheckButton);
 
 		tCheckButton = _G[tPanelName .. "StacksCheckButton"];
@@ -280,21 +374,36 @@ function VUHDO_customDebuffUpdateEditBox(anEditBox)
 		VUHDO_lnfInitColorSwatch(tColorSwatch, VUHDO_I18N_COLOR, VUHDO_I18N_COLOR);
 		VUHDO_lnfColorSwatchInitFromModel(tColorSwatch);
 
+		tConflicts = VUHDO_getConflictingIgnoreListSpells(tValue);
+
+		if #tConflicts > 0 then
+			VUHDO_showCustomDebuffIgnoreListWarning(tValue, tConflicts);
+		else
+			VUHDO_hideCustomDebuffIgnoreListWarning();
+		end
 	end
+
+	return;
+
 end
 
 
 
 --
 local tOldValue = nil;
+local tSuccess;
 function VUHDO_notifySoundSelect(aComboBox, aValue)
+
 	if (aValue ~= nil and tOldValue ~= aValue) then
-		local tSuccess = VUHDO_playSoundFile(aValue);
-		
+		tSuccess = VUHDO_playSoundFile(aValue);
+
 		if tSuccess then
 			tOldValue = aValue;
 		end
 	end
+
+	return;
+
 end
 
 
@@ -307,15 +416,29 @@ local tCheckButton;
 local tPanelName;
 local tComboBox;
 local tSoundName;
+local tConflicts;
+local tDisplayName;
 function VUHDO_saveCustomDebuffOnClick(aButton)
+
 	tEditBox = _G[aButton:GetParent():GetName() .. "EditBox"];
 	tValue = strtrim(tEditBox:GetText());
 	tIndex = VUHDO_tableGetKeyFromValue(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"], tValue);
 
 	if (tIndex == nil and #tValue > 0) then
 		tinsert(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"], tValue);
+
 		VuhDoNewOptionsDebuffsCustomStorePanelEditBox:SetText(tValue);
 		VuhDoNewOptionsDebuffsCustomStorePanelEditBox:SetTextColor(1, 1, 1);
+
+		tConflicts = VUHDO_getConflictingIgnoreListSpells(tValue);
+
+		tDisplayName = VUHDO_formatSpellDisplayName(tValue);
+
+		VUHDO_Msg(string.format(VUHDO_I18N_DEBUFF_ADDED_TO_CUSTOM, tDisplayName));
+
+		if #tConflicts > 0 then
+			VUHDO_Msg("[WARNING] " .. string.format(VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_CONFLICT, tDisplayName), 1, 0, 0);
+		end
 	end
 
 	tPanelName = aButton:GetParent():GetName();
@@ -335,6 +458,9 @@ function VUHDO_saveCustomDebuffOnClick(aButton)
 
 	tCheckButton = _G[tPanelName .. "TimerCheckButton"];
 	VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tValue].timer = VUHDO_forceBooleanValue(tCheckButton:GetChecked());
+
+	tCheckButton = _G[tPanelName .. "ClockCheckButton"];
+	VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tValue].isClock = VUHDO_forceBooleanValue(tCheckButton:GetChecked());
 
 	tCheckButton = _G[tPanelName .. "StacksCheckButton"];
 	VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tValue].isStacks = VUHDO_forceBooleanValue(tCheckButton:GetChecked());
@@ -402,24 +528,57 @@ function VUHDO_saveCustomDebuffOnClick(aButton)
 
 	VuhDoNewOptionsDebuffsCustom:Hide();
 	VuhDoNewOptionsDebuffsCustom:Show();
+
+	return;
+
 end
 
 
 
 --
+local tEditBox;
+local tValue;
+local tSpellId;
+local tIndex;
+local tConflicts;
+local tDisplayName;
 function VUHDO_deleteCustomDebuffOnClick(aButton)
-	local tEditBox = _G[aButton:GetParent():GetName() .. "EditBox"];
-	local tValue = strtrim(tEditBox:GetText());
-	local tIndex = VUHDO_tableGetKeyFromValue(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"], tValue);
+
+	tEditBox = _G[aButton:GetParent():GetName() .. "EditBox"];
+	tValue = strtrim(tEditBox:GetText());
+
+	if string.sub(tValue, 1, 4) == "[X] " then
+		tValue = string.sub(tValue, 5);
+	end
+
+	if string.sub(tValue, -4) == " [X]" then
+		tValue = string.sub(tValue, 1, -5);
+	end
+
+	tSpellId = string.match(tValue, '^%[([^%]]+)%] (.+)$');
+
+	if tSpellId then
+		tValue = tSpellId;
+	end
+
+	tIndex = VUHDO_tableGetKeyFromValue(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"], tValue);
 
 	if (tIndex ~= nil and #tValue > 0) then
+		tConflicts = VUHDO_getConflictingIgnoreListSpells(tValue);
+
+		tDisplayName = VUHDO_formatSpellDisplayName(tValue);
+		VUHDO_Msg(string.format(VUHDO_I18N_DEBUFF_REMOVED_FROM_CUSTOM, tDisplayName));
+
+		if #tConflicts > 0 then
+			VUHDO_Msg("[WARNING] " .. string.format(VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_REMOVED, tDisplayName), 1, 0, 0);
+		end
+
 		tremove(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"], tIndex);
 		VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tValue] = nil;
 		VUHDO_CONFIG["CUSTOM_DEBUFF"]["SELECTED"] = "";
-
-		VUHDO_Msg("減益效果 " .. tValue .. " 已移除。", 1, 0.4, 0.4);
 	else
-		VUHDO_Msg("減益效果 " .. tValue .. " 不存在。", 1, 0.4, 0.4);
+		tDisplayName = VUHDO_formatSpellDisplayName(tValue);
+		VUHDO_Msg(string.format(VUHDO_I18N_DEBUFF_DOES_NOT_EXIST, tDisplayName));
 	end
 
 	VUHDO_initCustomDebuffComboModel();
@@ -429,19 +588,26 @@ function VUHDO_deleteCustomDebuffOnClick(aButton)
 
 	VuhDoNewOptionsDebuffsCustom:Hide();
 	VuhDoNewOptionsDebuffsCustom:Show();
+
+	return;
+
 end
 
 
 
 --
 function VUHDO_applyToAllCustomDebuffOnClick()
+
 	for _, tSettings in pairs(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"]) do
 		tSettings["isIcon"] = VUHDO_CONFIG.CUSTOM_DEBUFF.isIcon;
 		tSettings["isColor"] = VUHDO_CONFIG.CUSTOM_DEBUFF.isColor;
 		tSettings["SOUND"] = VUHDO_CONFIG.CUSTOM_DEBUFF.SOUND;
 		tSettings["animate"] = VUHDO_CONFIG.CUSTOM_DEBUFF.animate;
 		tSettings["timer"] = VUHDO_CONFIG.CUSTOM_DEBUFF.timer;
+		tSettings["isClock"] = VUHDO_CONFIG.CUSTOM_DEBUFF.isClock;
 		tSettings["isStacks"] = VUHDO_CONFIG.CUSTOM_DEBUFF.isStacks;
+		tSettings["isFullDuration"] = VUHDO_CONFIG.CUSTOM_DEBUFF.isFullDuration;
+
 		if (tSettings["isColor"]) then
 			tSettings["color"] = VUHDO_deepCopyTable(VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF" .. VUHDO_DEBUFF_TYPE_CUSTOM]);
 		else
@@ -451,5 +617,7 @@ function VUHDO_applyToAllCustomDebuffOnClick()
 
 	VuhDoNewOptionsDebuffsCustomStorePanel:Hide();
 	VuhDoNewOptionsDebuffsCustomStorePanel:Show();
-end
 
+	return;
+
+end

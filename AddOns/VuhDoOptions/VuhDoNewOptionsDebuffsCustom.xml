@@ -7,12 +7,12 @@
 
 			<Frame name="$parentDefaultsPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="240" y="235" />
+					<AbsDimension x="510" y="145" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="20" y="-100" />
+							<AbsDimension x="10" y="-295" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -31,7 +31,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-32" />
+									<AbsDimension x="13" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -43,75 +43,11 @@
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parentColorCheckButton" text="VUHDO_I18N_BAR_COLOR" inherits="VuhDoCheckButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="13" y="-100" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.CUSTOM_DEBUFF.isColor");
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K267);
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
-					<CheckButton name="$parentShowNameCheckButton" text="VUHDO_I18N_DEBUFF_NAME" inherits="VuhDoCheckButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="125" y="-100" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.CUSTOM_DEBUFF.isName");
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K491);
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
-					<CheckButton name="$parentAnimateCheckButton" text="VUHDO_I18N_ANIMATION" inherits="VuhDoCheckButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="13" y="-66" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.CUSTOM_DEBUFF.animate");
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K268);
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
-					<CheckButton name="$parentTimerCheckButton" text="VUHDO_I18N_TIMER" inherits="VuhDoCheckButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="125" y="-66" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.CUSTOM_DEBUFF.timer");
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K269);
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
 					<CheckButton name="$parentStacksCheckButton" text="VUHDO_I18N_APPLIANCES" inherits="VuhDoCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="125" y="-32" />
+									<AbsDimension x="140" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -123,6 +59,102 @@
 						</Scripts>
 					</CheckButton>
 
+					<CheckButton name="$parentAnimateCheckButton" text="VUHDO_I18N_ANIMATION" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="267" y="-29" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.CUSTOM_DEBUFF.animate");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K268);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentShowNameCheckButton" text="VUHDO_I18N_DEBUFF_NAME" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="394" y="-63" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.CUSTOM_DEBUFF.isName");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K491);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentTimerCheckButton" text="VUHDO_I18N_TIMER" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="394" y="-29" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.CUSTOM_DEBUFF.timer");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K269);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentClockCheckButton" text="VUHDO_I18N_CLOCK" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="140" y="-63" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.CUSTOM_DEBUFF.isClock");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K277);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentColorCheckButton" text="VUHDO_I18N_BAR_COLOR" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="267" y="-63" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.CUSTOM_DEBUFF.isColor");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K267);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentFullDurationCheckButton" text="VUHDO_I18N_FULL_DURATION" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-63" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.CUSTOM_DEBUFF.isFullDuration");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K528);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
 					<Frame name="$parentSoundLabel" inherits="VuhDoLabelFrameTemplate">
 						<Size>
 							<AbsDimension x="120" y="18" />
@@ -130,7 +162,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="43" y="-140" />
+									<AbsDimension x="13" y="-97" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -146,7 +178,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="43" y="-153" />
+									<AbsDimension x="13" y="-110" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -163,7 +195,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="70" y="-190q" />
+									<AbsDimension x="394" y="-104" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -181,12 +213,12 @@
 
 			<Frame name="$parentStorePanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="235" y="430" />
+					<AbsDimension x="510" y="280" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="280" y="-10" />
+							<AbsDimension x="10" y="-10" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -198,7 +230,7 @@
 								<Anchors>
 									<Anchor point="TOPLEFT">
 										<Offset>
-											<AbsDimension x="43" y="-86" />
+											<AbsDimension x="18" y="-49" />
 										</Offset>
 									</Anchor>
 								</Anchors>
@@ -229,7 +261,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="18" y="-22" />
+									<AbsDimension x="190" y="-20" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -243,12 +275,12 @@
 
 					<EditBox name="$parentEditBox" inherits="VuhDoEditBoxTemplate">
 						<Size>
-							<AbsDimension x="205" y="32" />
+							<AbsDimension x="180" y="32" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="18" y="-30" />
+									<AbsDimension x="190" y="-28" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -274,7 +306,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="43" y="-56" />
+									<AbsDimension x="18" y="-19" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -290,7 +322,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-100" />
+									<AbsDimension x="13" y="-60" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -305,7 +337,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="125" y="-100" />
+									<AbsDimension x="140" y="-60" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -320,7 +352,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-134" />
+									<AbsDimension x="267" y="-60" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -331,56 +363,11 @@
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parentTimerCheckButton" text="VUHDO_I18N_TIMER" inherits="VuhDoCheckButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="125" y="-134" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K276);
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
-					<CheckButton name="$parentAliveTimeCheckButton" text="VUHDO_I18N_ALIVE_TIME" inherits="VuhDoCheckButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="13" y="-168" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K523);
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
-					<CheckButton name="$parentFullDurationCheckButton" text="VUHDO_I18N_FULL_DURATION" inherits="VuhDoCheckButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="125" y="-168" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K528);
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
 					<CheckButton name="$parentColorCheckButton" text="VUHDO_I18N_BAR_COLOR" inherits="VuhDoCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-202" />
+									<AbsDimension x="13" y="-128" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -391,25 +378,71 @@
 						</Scripts>
 					</CheckButton>
 
-					<Frame name="$parentColorTexture" inherits="VuhDoColorSwatchTexture">
+					<CheckButton name="$parentTimerCheckButton" text="VUHDO_I18N_TIMER" inherits="VuhDoCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="125" y="-202" />
+									<AbsDimension x="394" y="-60" />
 								</Offset>
 							</Anchor>
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K413);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K276);
 							</OnLoad>
 						</Scripts>
-					</Frame>
+					</CheckButton>
+
+					<CheckButton name="$parentFullDurationCheckButton" text="VUHDO_I18N_FULL_DURATION" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-94" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K528);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentAliveTimeCheckButton" text="VUHDO_I18N_ALIVE_TIME" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="267" y="-94" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K523);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentClockCheckButton" text="VUHDO_I18N_CLOCK" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="140" y="-94" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K277);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
 					<CheckButton name="$parentBarGlowCheckButton" text="VUHDO_I18N_BAR_GLOW_COLOR" inherits="VuhDoCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-236" />
+									<AbsDimension x="140" y="-128" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -420,26 +453,11 @@
 						</Scripts>
 					</CheckButton>
 
-					<Frame name="$parentBarGlowTexture" inherits="VuhDoColorSwatchTexture">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="125" y="-236" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K579);
-							</OnLoad>
-						</Scripts>
-					</Frame>
-
 					<CheckButton name="$parentIconGlowCheckButton" text="VUHDO_I18N_ICON_GLOW_COLOR" inherits="VuhDoCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-270" />
+									<AbsDimension x="267" y="-128" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -450,11 +468,41 @@
 						</Scripts>
 					</CheckButton>
 
+					<Frame name="$parentColorTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-162" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K413);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentBarGlowTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="140" y="-162" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K579);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
 					<Frame name="$parentIconGlowTexture" inherits="VuhDoColorSwatchTexture">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="125" y="-270" />
+									<AbsDimension x="267" y="-162" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -469,7 +517,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-301" />
+									<AbsDimension x="13" y="-196" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -485,7 +533,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-316" />
+									<AbsDimension x="13" y="-211" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -495,7 +543,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="125" y="-316" />
+									<AbsDimension x="140" y="-211" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -508,7 +556,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="43" y="-347" />
+									<AbsDimension x="267" y="-196" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -524,7 +572,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="43" y="-362" />
+									<AbsDimension x="267" y="-211" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -537,12 +585,12 @@
 
 					<Button name="$parentSaveButton" text="VUHDO_I18N_SAVE" inherits="VuhDoButtonTemplate">
 						<Size>
-							<AbsDimension x="100" y="32" />
+							<AbsDimension x="100" y="35" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-392" />
+									<AbsDimension x="267" y="-238" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -555,12 +603,12 @@
 
 					<Button name="$parentDeleteButton" text="VUHDO_I18N_DELETE" inherits="VuhDoButtonTemplate">
 						<Size>
-							<AbsDimension x="100" y="32" />
+							<AbsDimension x="100" y="35" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="125" y="-392" />
+									<AbsDimension x="394" y="-238" />
 								</Offset>
 							</Anchor>
 						</Anchors>

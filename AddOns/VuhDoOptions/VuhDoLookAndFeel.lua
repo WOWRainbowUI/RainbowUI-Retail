@@ -357,7 +357,7 @@ function VUHDO_lnfComboItemOnEnter(aComboItem)
 
 	if not tComboBox["isMulti"] then
 		_G[aComboItem:GetName() .. "Icon"]:SetScale(2);
-		_G[aComboItem:GetName() .. "Icon"]:SetPoint("RIGHT", aComboItem:GetName(), "RIGHT", -10, 0);
+		VUHDO_PixelUtil.SetPoint(_G[aComboItem:GetName() .. "Icon"], "RIGHT", aComboItem:GetName(), "RIGHT", -10, 0);
 	end
 end
 
@@ -371,7 +371,7 @@ function VUHDO_lnfComboItemOnLeave(aComboItem)
 	local tComboBox = aComboItem.parentCombo;
 	if not tComboBox["isMulti"] then
 		_G[aComboItem:GetName() .. "Icon"]:SetScale(1);
-		_G[aComboItem:GetName() .. "Icon"]:SetPoint("RIGHT", aComboItem:GetName(), "RIGHT", -6, 0);
+		VUHDO_PixelUtil.SetPoint(_G[aComboItem:GetName() .. "Icon"], "RIGHT", aComboItem:GetName(), "RIGHT", -6, 0);
 	end
 end
 
@@ -773,17 +773,17 @@ local function VUHDO_triStateSetSelected(aCheckButton)
 	tTexture:ClearAllPoints();
 
 	if 3 == tValue then
-		tTexture:SetPoint("BOTTOMLEFT", aCheckButton:GetName(), "BOTTOMLEFT", 5, 0);
+		VUHDO_PixelUtil.SetPoint(tTexture, "BOTTOMLEFT", aCheckButton:GetName(), "BOTTOMLEFT", 5, 0);
 		_G[tTexture:GetName() .. "Texture"]:SetVertexColor(1, 0.4, 0.4, 1);
 		tLabel:SetTextColor(0.6, 0, 0, 1);
 
 	elseif 2 == tValue then
-		tTexture:SetPoint("LEFT", aCheckButton:GetName(), "LEFT", 5, 0);
+		VUHDO_PixelUtil.SetPoint(tTexture, "LEFT", aCheckButton:GetName(), "LEFT", 5, 0);
 		_G[tTexture:GetName() .. "Texture"]:SetVertexColor(1, 1, 0.4, 1);
 		tLabel:SetTextColor(0, 0, 0.6, 1);
 
 	else
-		tTexture:SetPoint("TOPLEFT", aCheckButton:GetName(), "TOPLEFT", 5, 0);
+		VUHDO_PixelUtil.SetPoint(tTexture, "TOPLEFT", aCheckButton:GetName(), "TOPLEFT", 5, 0);
 		_G[tTexture:GetName() .. "Texture"]:SetVertexColor(0.4, 1, 0.4, 1);
 		tLabel:SetTextColor(0, 0.6, 0, 1);
 	end
@@ -906,10 +906,14 @@ local tYIdx;
 local tMaxY;
 local tHeight;
 local tSpellId;
+local tIconSource;
 function VUHDO_lnfComboInitItems(aComboBox)
+
 	tTable = aComboBox:GetAttribute("combo_table");
 
-	if not tTable then return; end
+	if not tTable then
+		return;
+	end
 
 	tXIdx = 0;
 	tYIdx = 0;
@@ -924,6 +928,7 @@ function VUHDO_lnfComboInitItems(aComboBox)
 	end
 
 	tCnt = 1;
+
 	for tIndex, tInfo in ipairs(tTable) do
 		if aComboBox["isScrollable"] then
 			tItemName = aComboBox:GetName() .. "ScrollPanelSelectPanelItem" .. tIndex;
@@ -933,6 +938,7 @@ function VUHDO_lnfComboInitItems(aComboBox)
 
 		if not _G[tItemName] then
 			tItemPanel = CreateFrame("Frame", tItemName, tItemContainer, "VuhdoComboItemTemplate");
+
 			if aComboBox["isMulti"] then
 				_G[tItemName .. "CheckTextureTexture"]:SetTexture("Interface\\AddOns\\VuhDoOptions\\Images\\icon_check");
 			else
@@ -946,42 +952,57 @@ function VUHDO_lnfComboInitItems(aComboBox)
 		end
 
 		tItemPanel:ClearAllPoints();
-		if (type(tInfo[2]) == "string") then
-			tSpellId = VUHDO_getNumbersFromString(tInfo[2], 1)[1];
-			if tSpellId then tSpellId = tostring(tSpellId); end
 
-			_G[tItemPanel:GetName() .. "IconTexture"]:SetTexture(VUHDO_getGlobalIcon(tSpellId or tInfo[2]));
+		if (type(tInfo[2]) == "string") then
+			tIconSource = tInfo[4] or tInfo[2];
+			tSpellId = VUHDO_getNumbersFromString(tIconSource, 1)[1];
+
+			if tSpellId then
+				tSpellId = tostring(tSpellId);
+			end
+
+			_G[tItemPanel:GetName() .. "IconTexture"]:SetTexture(VUHDO_getGlobalIcon(tSpellId or tIconSource));
 			_G[tItemPanel:GetName() .. "IconTexture"]:SetTexCoord(0, 1, 0, 1);
 			_G[tItemPanel:GetName() .. "LabelLabel"]:SetText(tInfo[2]);
+
 			VUHDO_COMBO_ITEM_HEIGHT = 16;
 			VUHDO_COMBO_ITEM_WIDTH = 220;
 			VUHDO_COMBO_ITEMS_PER_COL = 25;
 		else
 			_G[tItemPanel:GetName() .. "IconTexture"]:SetTexture(_G[tInfo[2]:GetName() .. "I"]:GetTexture());
 			_G[tItemPanel:GetName() .. "IconTexture"]:SetTexCoord(_G[tInfo[2]:GetName() .. "I"]:GetTexCoord());
-			_G[tItemPanel:GetName() .. "Icon"]:SetWidth(30);
-			_G[tItemPanel:GetName() .. "Icon"]:SetHeight(30);
+
+			VUHDO_PixelUtil.SetWidth(_G[tItemPanel:GetName() .. "Icon"], 30);
+			VUHDO_PixelUtil.SetHeight(_G[tItemPanel:GetName() .. "Icon"], 30);
+
 			VUHDO_COMBO_ITEM_HEIGHT = 34;
 			VUHDO_COMBO_ITEM_WIDTH = 50;
 			VUHDO_COMBO_ITEMS_PER_COL = 3;
 		end
 
-		tItemPanel:SetPoint("TOPLEFT", tItemContainer:GetName(), "TOPLEFT", 3 + tXIdx * VUHDO_COMBO_ITEM_WIDTH, - (3 + tYIdx * VUHDO_COMBO_ITEM_HEIGHT));
-		tItemPanel:SetWidth(VUHDO_COMBO_ITEM_WIDTH);
-		tItemPanel:SetHeight(VUHDO_COMBO_ITEM_HEIGHT);
+		VUHDO_PixelUtil.SetPoint(tItemPanel, "TOPLEFT", tItemContainer:GetName(), "TOPLEFT", 3 + tXIdx * VUHDO_COMBO_ITEM_WIDTH, - (3 + tYIdx * VUHDO_COMBO_ITEM_HEIGHT));
+		VUHDO_PixelUtil.SetWidth(tItemPanel, VUHDO_COMBO_ITEM_WIDTH);
+		VUHDO_PixelUtil.SetHeight(tItemPanel, VUHDO_COMBO_ITEM_HEIGHT);
+
 		tItemPanel:Show();
+
 		tItemPanel:SetAttribute("value", tInfo[1]);
+
 		if (aComboBox.isScrollable) then
 			tItemPanel:SetBackdropColor(0, 0, 0, 0);
 		end
 
 		tCnt = tCnt + 1;
+
 		if tCnt > VUHDO_COMBO_MAX_ENTRIES and not aComboBox["isScrollable"] then
 			break;
 		end
 
 		tYIdx = tYIdx + 1;
-		if tYIdx > tMaxY then tMaxY = tYIdx; end
+
+		if tYIdx > tMaxY then
+			tMaxY = tYIdx;
+		end
 
 		if tYIdx > VUHDO_COMBO_ITEMS_PER_COL and not aComboBox["isScrollable"] then
 			tYIdx = 0;
@@ -1000,24 +1021,36 @@ function VUHDO_lnfComboInitItems(aComboBox)
 			tItemName = aComboBox:GetName() .. "SelectPanelItem" .. tCnt2;
 		end
 
-		if _G[tItemName] then _G[tItemName]:Hide();
-		else break; end
+		if _G[tItemName] then
+			_G[tItemName]:Hide();
+		else
+			break;
+		end
 	end
 
-	if tMaxY == 0 then tMaxY = 1; end
+	if tMaxY == 0 then
+		tMaxY = 1;
+	end
 
-	tDropdownBox:SetWidth((tXIdx + 1) * VUHDO_COMBO_ITEM_WIDTH + 6);
-	tItemContainer:SetHeight(tMaxY * VUHDO_COMBO_ITEM_HEIGHT + 6);
+	VUHDO_PixelUtil.SetWidth(tDropdownBox, (tXIdx + 1) * VUHDO_COMBO_ITEM_WIDTH + 6);
+	VUHDO_PixelUtil.SetHeight(tItemContainer, tMaxY * VUHDO_COMBO_ITEM_HEIGHT + 6);
 
 	if aComboBox["isScrollable"] then
-		tItemContainer:SetWidth(10); -- Doesn't matter
+		VUHDO_PixelUtil.SetWidth(tItemContainer, 10); -- Doesn't matter
 
 		tHeight = tMaxY * VUHDO_COMBO_ITEM_HEIGHT + 6;
-		if tHeight > 300 then tHeight = 300; end
 
-		tDropdownBox:SetHeight(tHeight);
+		if tHeight > 300 then
+			tHeight = 300;
+		end
+
+		VUHDO_PixelUtil.SetHeight(tDropdownBox, tHeight);
+
 		tItemContainer:SetBackdropColor(0, 0, 0, 0);
 	end
+
+	return;
+
 end
 
 
@@ -1216,9 +1249,9 @@ do
 		tTooltip = aComponent:GetAttribute("tooltip");
 		if (tTooltip ~= nil) then
 			VuhDoOptionsTooltipTextText:SetText(tTooltip);
-			VuhDoOptionsTooltip:SetHeight(VuhDoOptionsTooltipTextText:GetHeight() + 10);
+			VUHDO_PixelUtil.SetHeight(VuhDoOptionsTooltip, VuhDoOptionsTooltipTextText:GetHeight() + 10);
 			VuhDoOptionsTooltip:ClearAllPoints();
-			VuhDoOptionsTooltip:SetPoint("LEFT", aComponent:GetName(), "RIGHT", 3, 0);
+			VUHDO_PixelUtil.SetPoint(VuhDoOptionsTooltip, "LEFT", aComponent:GetName(), "RIGHT", 3, 0);
 			VuhDoOptionsTooltip:Show();
 		end
 	end
@@ -1259,8 +1292,8 @@ function VUHDO_lnfScrollFrameOnLoad(aFrame)
 	_G[tScrollBar:GetName() .. "ScrollDownButton"]:Hide();
 	local tThumbTexture = _G[tScrollBar:GetName() .. "ThumbTexture"];
 	tThumbTexture:SetTexture("Interface\\AddOns\\VuhDoOptions\\Images\\slider_thumb_v");
-	tThumbTexture:SetWidth(18);
-	tThumbTexture:SetHeight(18);
+	VUHDO_PixelUtil.SetWidth(tThumbTexture, 18);
+	VUHDO_PixelUtil.SetHeight(tThumbTexture, 18);
 	tThumbTexture:SetTexCoord(0, 1, 0, 1);
 end
 
