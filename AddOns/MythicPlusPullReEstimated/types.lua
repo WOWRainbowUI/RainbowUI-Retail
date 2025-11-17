@@ -12,7 +12,6 @@
 ---|"pullEstimateCombatOnly"
 ---|"pullFrameTextFormat"
 ---|"pullFrameTextScale"
----|"nameplateUpdateRate"
 ---|"offsetx"
 ---|"offsety"
 ---|"enableNameplateText"

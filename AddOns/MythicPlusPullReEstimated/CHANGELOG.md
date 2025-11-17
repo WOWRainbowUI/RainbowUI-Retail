@@ -1,6 +1,8 @@
 # Mythic Plus Pull
 
-## [v1.11.19](https://github.com/NumyAddon/MythicPlusPull/tree/v1.11.19) (2025-10-08)
-[Full Changelog](https://github.com/NumyAddon/MythicPlusPull/compare/v1.11.18...v1.11.19) [Previous Releases](https://github.com/NumyAddon/MythicPlusPull/releases)
+## [v1.11.20](https://github.com/NumyAddon/MythicPlusPull/tree/v1.11.20) (2025-11-15)
+[Full Changelog](https://github.com/NumyAddon/MythicPlusPull/compare/v1.11.19...v1.11.20) [Previous Releases](https://github.com/NumyAddon/MythicPlusPull/releases)
 
-- TOC Bump  
+- Fixed some issues with incompatible nameplate addons  
+- Minor performance tweaks  
+- Major code cleanup, and disabled on Midnight Alpha/Beta for now  
