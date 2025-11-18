@@ -1,7 +1,23 @@
 # WIM
 
-## [3.13.3](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/tree/3.13.3) (2025-11-14)
-[Full Changelog](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/compare/3.13.2...3.13.3) [Previous Releases](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/releases)
+## [3.13.4](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/tree/3.13.4) (2025-11-17)
+[Full Changelog](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/compare/3.13.3...3.13.4) [Previous Releases](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/releases)
 
-- Add check for WhisperMode being set to 'in-line'. If it isn't, then whispers can not be suppressed correctly. Added a popup on first game load prompting to change it as well as a shortcut in WIM's options under Whispers -> Window Behavior.  
-- fix: Whisper module was being loaded before saved variables were loaded, causing errors sometime accessing addon settings on load.  
+- Merge branch 'master' of https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger  
+- Fix: nil check on OnHyperlinkClick event.  
+- Merge pull request #141 from anon1231823/patch-30  
+    Update esES.lua  
+- Merge pull request #142 from anon1231823/patch-31  
+    Update frFR.lua  
+- Merge pull request #143 from anon1231823/patch-32  
+    Update ptBR.lua  
+- Update ptBR.lua  
+- Update ptBR.lua  
+- Update ptBR.lua  
+- Update frFR.lua  
+- Update ptBR.lua  
+- Update esES.lua  
+- Update esES.lua  
+- Update ptBR.lua  
+- Update frFR.lua  
+- Update esES.lua  
