@@ -1,11 +1,7 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r219](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r219) (2025-11-15)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r218...r219) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r220](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r220) (2025-11-17)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r219...r220) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Update localization.cn.lua (#578)  
-- Midnight dungeons Update:  
-     - Added additional npc data  
-     - Added 3 remaining dungeons to complete support for engage/defeat/wipe statistical tracking.  
-- mop toc bumps for new PTR  
-- fix load errors with midnight dungeons  
+- Disable trash modules in all legion wod and dragonflight dungeons in Midnight to eliminate events not allowed in M+ from loading  
+    Cleared obsolete boss mod options for all modules in Season 1 dungeon pool in midnight and updated stats tracking options were appropriate.  
