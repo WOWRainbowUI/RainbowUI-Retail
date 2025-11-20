@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 29
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 30
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -840,6 +840,7 @@ end
 
 
 local function DropDownMenuScrollBox_OnScroll(f)
+	if f.doNotHide then return end
 	v.DROPDOWNBUTTON:ddCloseMenus(f.scrollBox:GetScrollTarget().id + 1)
 end
 
@@ -858,10 +859,9 @@ local function DropDownMenuSearchButtonInit(btn, info)
 		btn:Enable()
 	end
 
-	btn._text = info.searchedText or btn.text
+	btn._text = info.searchedText
 	if btn._text then
 		v.setButtonFont(btn)
-		if type(btn._text) == "function" then btn._text = btn:_text(btn.arg1, btn.arg2) end
 		btn:SetText(btn._text)
 	else
 		btn:SetText("")
@@ -893,13 +893,12 @@ local function DropDownMenuSearchButtonInit(btn, info)
 
 	if btn.rightString then btn.rightString:Hide() end
 
-	btn._rightText = info.searchedRightText or btn.rightText
+	btn._rightText = info.searchedRightText
 	if btn._rightText then
 		btn.rightString = v.fontStringRightPool:Acquire()
 		btn.rightString:SetParent(btn)
 		btn.rightString:SetPoint("RIGHT", textPos, 0)
 		v.setRightFont(btn)
-		if type(btn._rightText) == "function" then btn._rightText = btn:_rightText(btn.arg1, btn.arg2) end
 		btn.rightString:SetText(btn._rightText)
 		btn.rightString:SetJustifyH("RIGHT")
 		btn.rightString:Show()
@@ -1083,12 +1082,13 @@ do
 		if not hStart then return end
 		hEnd = hEnd + 1
 
+		movableColors[1] = colorReset
 		for i = hStart, hEnd do
 			local segment = colorMap[i]
 			if segment ~= nil then
 				colorMap[i] = nil
 				if segment == colorReset then
-					if #movableColors > 0 then
+					if #movableColors > 1 then
 						movableColors[#movableColors] = nil
 					else
 						hColor = colorReset..hColor
@@ -1100,7 +1100,7 @@ do
 		end
 
 		colorMap[hStart] = hColor
-		colorMap[hEnd] = colorReset..concat(movableColors)
+		colorMap[hEnd] = concat(movableColors)
 
 		for i = #text, 1, -1 do
 			local segment = colorMap[i]
@@ -1111,7 +1111,7 @@ do
 		return text
 	end
 
-	local function search(str, text, rightText, info, hColor)
+	function search(str, text, rightText, info, hColor)
 		if #str == 0 or not (text or rightText) then return true end
 		local sText = text and find(text, str, hColor)
 		local sRText = rightText and find(rightText, str, hColor)
@@ -1121,7 +1121,7 @@ do
 	function DropDownMenuSearchMixin:updateFilters()
 		local text = self.searchBox:GetText():trim():lower()
 		local cSearch = self.search or search
-		local hColor = self.highlightColor and self.highlightColor or HIGHLIGHT_DEFAULT
+		local hColor = self.highlightColor or HIGHLIGHT_DEFAULT
 		self.dataProvider = CreateDataProvider()
 
 		for i = 1, #self.buttons do
@@ -1129,14 +1129,16 @@ do
 			local infoText = type(info.text) == "function" and info:text(info.arg1, info.arg2) or info.text
 			local infoRightText = type(info.rightText) == "function" and info:rightText(info.arg1, info.arg2) or info.rightText
 			local found, sText, sRText = cSearch(text, infoText, infoRightText, info, hColor, search)
-			info.searchedText = sText
-			info.searchedRightText = sRText
+			info.searchedText = sText or infoText
+			info.searchedRightText = sRText or infoRightText
 			if found then
 				self.dataProvider:Insert(info)
 			end
 		end
 
+		self.doNotHide = true
 		self.scrollBox:SetDataProvider(self.dataProvider, ScrollBoxConstants.RetainScrollPosition)
+		self.doNotHide = nil
 	end
 end
 
@@ -1652,8 +1654,16 @@ function DropDownButtonMixin:ddToggle(level, value, anchorFrame, point, rPoint, 
 end
 
 
-do
-	local function RefreshButton(self, btn, setText)
+function DropDownButtonMixin:ddRefresh(level, anchorFrame)
+	if not level then level = 1 end
+	if not anchorFrame then anchorFrame = self end
+	local menu = dropDownMenusList[level]
+	local setText = self.ddAutoSetText and menu.anchorFrame == anchorFrame
+
+	for i = 1, #menu.buttonsList do
+		local btn = menu.buttonsList[i]
+		if not btn:IsShown() then break end
+
 		if type(btn.disabled) == "function" then
 			btn:SetEnabled(not btn:disabled(btn.arg1, btn.arg2))
 		end
@@ -1661,6 +1671,11 @@ do
 		if type(btn.text) == "function" then
 			btn._text = btn:text(btn.arg1, btn.arg2)
 			btn:SetText(btn._text)
+		end
+
+		if type(btn.rightText) == "function" then
+			btn._rightText = btn:rightText(btn.arg1, btn.arg2)
+			btn.rightString:SetText(btn._rightText)
 		end
 
 		if not btn.notCheckable then
@@ -1679,30 +1694,11 @@ do
 		end
 	end
 
-
-	function DropDownButtonMixin:ddRefresh(level, anchorFrame)
-		if not level then level = 1 end
-		if not anchorFrame then anchorFrame = self end
-		local menu = dropDownMenusList[level]
-		local setText = self.ddAutoSetText and menu.anchorFrame == anchorFrame
-
-		for i = 1, #menu.buttonsList do
-			local btn = menu.buttonsList[i]
-			if not btn:IsShown() then break end
-			RefreshButton(self, btn, setText)
-		end
-
-		for i = 1, #menu.searchFrames do
-			local scrollBox = menu.searchFrames[i].scrollBox
-			if not scrollBox:IsShown() then break end
-			local buttons = scrollBox.view:GetFrames()
-			for j = 1, #buttons do
-				local btn = buttons[j]
-				if btn:IsShown() then
-					RefreshButton(self, btn, setText)
-				end
-			end
-		end
+	for i = 1, #menu.searchFrames do
+		local searchFrame = menu.searchFrames[i]
+		searchFrame:updateFilters()
+		local f = v[searchFrame.scrollBox:GetScrollTarget().id + 1]
+		if f and f.highlight then f.highlight:Show() end
 	end
 end
 
@@ -2561,7 +2557,7 @@ if oldminor < 28 then
 	end
 end
 
-if oldminor < 29 then
+if oldminor < 30 then
 	for i, f in lib:IterateSearchFrames() do
 		for k, v in next, DropDownMenuSearchMixin do f[k] = v end
 		f.buttonsList = nil
