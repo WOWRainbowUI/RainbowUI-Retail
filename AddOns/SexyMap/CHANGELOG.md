@@ -1,8 +1,7 @@
 # SexyMap
 
-## [v11.1.3](https://github.com/funkydude/SexyMap/tree/v11.1.3) (2025-07-13)
-[Full Changelog](https://github.com/funkydude/SexyMap/compare/v11.1.2...v11.1.3) [Previous Releases](https://github.com/funkydude/SexyMap/releases)
+## [v11.2.0](https://github.com/funkydude/SexyMap/tree/v11.2.0) (2025-11-19)
+[Full Changelog](https://github.com/funkydude/SexyMap/compare/v11.1.3...v11.2.0) [Previous Releases](https://github.com/funkydude/SexyMap/releases)
 
-- Update issue template  
 - Bump toc  
-- Update workflow  
+- Update esMX (#413)  
