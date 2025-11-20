@@ -926,6 +926,8 @@
 		"|Cffffffff" .. L["Dragonflight Legacies (3)"] .. " |r#4854572#350", -- interface/cinematics/dragonflight_100_dt.mp3
 		"|Cffffffff" .. L["The Ebon Scales"] .. " |r#4687624#23", -- interface/cinematics/shadowlands/dragonflight_1001_didc.mp3
 		"|Cffffffff" .. L["The Seed of Hope"] .. " |r#4687619#128", -- interface/cinematics/dragonflight_100_ptw.mp3#4687619
+		"|Cffffffff" .. L["Tempest Unleashed"] .. " |r#4687618#211", -- interface/cinematics/dragonflight_100_prk.mp3 (962)
+		"|Cffffffff" .. L["Incarnates Released"] .. " |r#4687620#63", -- interface/cinematics/dragonflight_100_ike.mp3 (964)
 		"|Cffffffff" .. L["Secrets of the Reach"] .. " |r#4925533#231", -- interface/cinematics/dragonflight_1007_coi.mp3#4925533
 		"|Cffffffff" .. L["Opening The Way"] .. " |r#5161928#181", -- interface/cinematics/dragonflight_101_otw.mp3#5161928
 		"|Cffffffff" .. L["Fyrakk Incinerates Loamm"] .. " |r#5161813#24", -- interface/cinematics/dragonflight_101_mol.mp3
@@ -940,19 +942,19 @@
 
 		-- Cinematic Music: The War Within (movie.dbc)
 		"|cffffd800", "|cffffd800" .. L["The War Within"],
-		"|Cffffffff" .. L["The War Within"] .. " |r#6036525#147", -- 1023
-		"|Cffffffff" .. L["Thrall and Anduin"] .. " |r#6027243#285", -- 1014
-		"|Cffffffff" .. L["Threads of Destiny"] .. " |r#6036526#313", -- 1021
+		"|Cffffffff" .. L["The War Within"] .. " |r#6036525#147", -- interface/cinematics/tww_110_ug.mp3 (1023)
+		"|Cffffffff" .. L["Thrall and Anduin"] .. " |r#6027243#285", -- interface/cinematics/tww_110_ta.mp3 (1014)
+		"|Cffffffff" .. L["Threads of Destiny"] .. " |r#6036526#313", -- interface/cinematics/tww_110_lc.mp3 (1021)
 		"|Cffffffff" .. L["The Story So Far"] .. " |r#6031151#230", -- interface/cinematics/tww_recap_cinematic.mp3#6031151 (1024)
-		"|Cffffffff" .. L["Dalaran Arrives at Khaz Algar"] .. " |r#5932222#83", -- 1010
-		"|Cffffffff" .. L["Magni's Sacrifice"] .. " |r#6036523#208", -- 1013
-		"|Cffffffff" .. L["Ascension Day"] .. " |r#6036522#77", -- 1020
-		"|Cffffffff" .. L["Confronting Xal'atath"] .. " |r#6036524#199", -- 1019
-		"|Cffffffff" .. L["Orweyna's Vision"] .. " |r#6253369#44", -- 1030
-		"|Cffffffff" .. L["Gallywix and Xal'atath"] .. " |r#6638480#169", -- 1028
-		"|Cffffffff" .. L["Undermined"] .. " |r#6641605#77", -- 1029
-		"|Cffffffff" .. L["A Shadowy Invitation"] .. " |r#7242305#91", -- 1033
-		"|Cffffffff" .. L["Dimensius Defeat"] .. " |r#6938026#111", -- 1034
+		"|Cffffffff" .. L["Dalaran Arrives at Khaz Algar"] .. " |r#5932222#83", -- interface/cinematics/tww_110_tod.mp3 (1010)
+		"|Cffffffff" .. L["Magni's Sacrifice"] .. " |r#6036523#208", -- interface/cinematics/tww_110_mag.mp3 (1013)
+		"|Cffffffff" .. L["Ascension Day"] .. " |r#6036522#77", -- interface/cinematics/tww_110_tcn.mp3 (1020)
+		"|Cffffffff" .. L["Confronting Xal'atath"] .. " |r#6036524#199", -- interface/cinematics/tww_110_xef.mp3 (1019)
+		"|Cffffffff" .. L["Orweyna's Vision"] .. " |r#6253369#44", -- interface/cinematics/tww_1107_owv.mp3 (1030)
+		"|Cffffffff" .. L["Gallywix and Xal'atath"] .. " |r#6638480#169", -- interface/cinematics/tww_111_bri.mp3 (1028) (1045 is an excerpt of 1028)
+		"|Cffffffff" .. L["Undermined"] .. " |r#6641605#77", -- interface/cinematics/tww_111_bro.mp3 (1029)
+		"|Cffffffff" .. L["A Shadowy Invitation"] .. " |r#7242305#91", -- interface/cinematics/tww_112_kid.mp3 (1033)
+		"|Cffffffff" .. L["Dimensius Defeat"] .. " |r#6938026#111", -- interface/cinematics/tww_112_lws.mp3 (1034)
 
 	})
 
@@ -1096,6 +1098,8 @@
 		L["Dragonflight Legacies (3)"] .. " |r(968)",
 		L["The Ebon Scales"] .. " |r(969)",
 		L["The Seed of Hope"] .. " |r(963)",
+		L["Tempest Unleashed"] .. " |r(962)",
+		L["Incarnates Released"] .. " |r(964)",
 		L["Secrets of the Reach"] .. " |r(974)",
 		L["Opening The Way"] .. " |r(979)",
 		L["Fyrakk Incinerates Loamm"] .. " |r(981)",

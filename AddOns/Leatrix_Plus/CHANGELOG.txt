@@ -1,4 +1,25 @@
-﻿11.2.13 - 17th October 2025
+﻿11.2.20 - 19th November 2025
+- Midnight Beta: For 'Enhance tooltip' ('Interface'), the 'Hide the health bar' setting is now available.
+- Midnight Beta: For 'Enhance dressup' ('Interface'), the settings now apply to the new transmogrify frame.
+- Midnight Beta: For 'Remove transforms' ('System'), fixed an issue with the 'Fishing' setting which caused a Lua error after casting a channelled spell during an instanced combat encounter.
+- Midnight Beta: Updated deprecated functions.
+- For 'Media', added cinematics 'Tempest Unleashed' and 'Incarnates Released' ('Dragonflight').  Watch in Movies and listen in Various > Cinematics.
+
+11.2.19 - 14th November 2025
+- Midnight Beta: The 'Enhance tooltip' option ('Interface') is now available but currently only for tooltip anchor and scale.
+- Midnight Beta: The 'Enhance dressup' option ('Interface') is now available.  Tooltips for items shown in the dressing room will not currently be shown.
+- Midnight Beta: The 'Show cooldowns' option ('Interface') is now available.  Note that cooldowns will not start during instanced combat encounters.
+- Midnight Beta: The 'Easy item destroy' option ('System') is now available.  Item tooltips will not currently be shown for items that wouldn't normally require you to type delete.
+- Midnight Beta: The 'Remove transforms' option ('System') is now available.
+- Midnight Beta: The 'Disable bag automation' option ('System') is not currently available.
+- Midnight Beta: For 'Sell junk automatically' ('Automation'), item IDs will currently not be shown in item tooltips while the panel is open.
+- Midnight Beta: Fixed a situational Lua error with web link.  Web link will not show for creatures during instanced encounters.
+- Midnight Beta: Fixed an issue with the clear all flares keybinding.
+
+11.2.18 - 11th October 2025
+- Midnight Beta: Preliminary update for Midnight Beta.
+
+11.2.13 - 17th October 2025
 - For 'Mute game sounds' ('System'), added a new setting called 'Yawns' to mute hunter pet cat yawns.
 - Removed the 'Hide command bar' ('Frames') option as it's no longer needed.
 

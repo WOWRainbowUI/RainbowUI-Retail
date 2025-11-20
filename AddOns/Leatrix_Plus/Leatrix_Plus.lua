@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.2.17 (5th November 2025)
+-- 	Leatrix Plus 11.2.20 (19th November 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.2.17"
+	LeaPlusLC["AddonVer"] = "11.2.20"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -34,7 +34,7 @@
 			end)
 			return
 		end
-		if gametocversion and gametocversion >= 110200 then -- 11.2.0
+		if gametocversion and gametocversion >= 120000 then -- 12.0.0
 			LeaPlusLC.NewPatch = true
 		end
 	end
@@ -190,8 +190,13 @@
 						eFrame:Hide()
 						LeaPlusLC:DisplayMessage(L["Copied to clipboard."], true)
 						if LeaPlusLC.FactoryEditBoxFocusChat then
-							local eBox = ChatEdit_ChooseBoxForSend()
-							ChatEdit_ActivateChat(eBox)
+							if LeaPlusLC.NewPatch then
+								local eBox = ChatFrameUtil.ChooseBoxForSend()
+								ChatFrameUtil.ActivateChat(eBox)
+							else
+								local eBox = ChatEdit_ChooseBoxForSend()
+								ChatEdit_ActivateChat(eBox)
+							end
 						end
 					end)
 				end
@@ -1859,7 +1864,7 @@
 		-- Enhance dressup
 		----------------------------------------------------------------------
 
-		if LeaPlusLC["EnhanceDressup"] == "On" then
+		if LeaPlusLC["EnhanceDressup"] == "On" and not LeaLockList["EnhanceDressup"] then
 
 			-- Create configuration panel
 			local DressupPanel = LeaPlusLC:CreatePanel("Enhance dressup", "DressupPanel")
@@ -1965,17 +1970,28 @@
 						end
 					end)
 
-					slotBtn:SetScript("OnEnter", function(self)
-						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-						if self.item then
-							GameTooltip:SetHyperlink(self.item)
-						else
-							if self.slot then
+					if LeaPlusLC.NewPatch then
+						-- Temporary fix for SetHyperlink
+						slotBtn:SetScript("OnEnter", function(self)
+							GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+							if self.item and self.slot then
 								GameTooltip:SetText(_G[string.upper(self.slot)])
 							end
-						end
-					end)
-					slotBtn:SetScript("OnLeave", GameTooltip_Hide)
+						end)
+						slotBtn:SetScript("OnLeave", GameTooltip_Hide)
+					else
+						slotBtn:SetScript("OnEnter", function(self)
+							GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+							if self.item then
+								GameTooltip:SetHyperlink(self.item)
+							else
+								if self.slot then
+									GameTooltip:SetText(_G[string.upper(self.slot)])
+								end
+							end
+						end)
+						slotBtn:SetScript("OnLeave", GameTooltip_Hide)
+					end
 
 					-- Slot button textures
 					slotBtn.t = slotBtn:CreateTexture(nil, "BACKGROUND")
@@ -2004,34 +2020,69 @@
 					MakeSlotButton(slotTable[i], "TOPRIGHT", -12, -70 + -40 * (i - 8))
 				end
 
-				-- Updates slots
-				hooksecurefunc(DressUpFrame.OutfitDropdown, "UpdateSaveButton", function()
-					local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
-					if playerActor then
-						for slot, slotButtons in pairs(buttons) do
-							if slotTable[slot] and GetInventorySlotInfo(slotTable[slot]) then
-								local slotID, slotTexture = GetInventorySlotInfo(slotTable[slot])
-								local itemTransmogInfo = playerActor:GetItemTransmogInfo(slotID)
-								if itemTransmogInfo == nil then
-									buttons[slot].item = nil
-									buttons[slot].text = nil
-									buttons[slot].t:SetTexture(slotTexture)
-								else
-									local void, void, void, icon, void, link = C_TransmogCollection.GetAppearanceSourceInfo(itemTransmogInfo.appearanceID)
-									buttons[slot].item = link
-									buttons[slot].text = UNKNOWN
-									if C_TransmogCollection.IsAppearanceHiddenVisual(itemTransmogInfo.appearanceID) then
-										-- Hidden item
-										buttons[slot].t:SetAtlas("transmog-icon-hidden")
+				if LeaPlusLC.NewPatch then
+
+					-- Updates slots
+					hooksecurefunc(DressUpFrame.CustomSetDropdown, "UpdateSaveButton", function()
+						local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
+						if playerActor then
+							for slot, slotButtons in pairs(buttons) do
+								if slotTable[slot] and GetInventorySlotInfo(slotTable[slot]) then
+									local slotID, slotTexture = GetInventorySlotInfo(slotTable[slot])
+									local itemTransmogInfo = playerActor:GetItemTransmogInfo(slotID)
+									if itemTransmogInfo == nil then
+										buttons[slot].item = nil
+										buttons[slot].text = nil
+										buttons[slot].t:SetTexture(slotTexture)
 									else
-										-- Visible item
-										buttons[slot].t:SetTexture(icon or "Interface\\Icons\\INV_Misc_QuestionMark")
+										local appearanceSourceInfo = C_TransmogCollection.GetAppearanceSourceInfo(itemTransmogInfo.appearanceID)
+										buttons[slot].item = appearanceSourceInfo.itemLink
+										buttons[slot].text = UNKNOWN
+										if C_TransmogCollection.IsAppearanceHiddenVisual(itemTransmogInfo.appearanceID) then
+											-- Hidden item
+											buttons[slot].t:SetAtlas("transmog-icon-hidden")
+										else
+											-- Visible item
+											buttons[slot].t:SetTexture(appearanceSourceInfo.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
+										end
 									end
 								end
 							end
 						end
-					end
-				end)
+					end)
+
+				else
+
+					-- Updates slots
+					hooksecurefunc(DressUpFrame.OutfitDropdown, "UpdateSaveButton", function()
+						local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
+						if playerActor then
+							for slot, slotButtons in pairs(buttons) do
+								if slotTable[slot] and GetInventorySlotInfo(slotTable[slot]) then
+									local slotID, slotTexture = GetInventorySlotInfo(slotTable[slot])
+									local itemTransmogInfo = playerActor:GetItemTransmogInfo(slotID)
+									if itemTransmogInfo == nil then
+										buttons[slot].item = nil
+										buttons[slot].text = nil
+										buttons[slot].t:SetTexture(slotTexture)
+									else
+										local void, void, void, icon, void, link = C_TransmogCollection.GetAppearanceSourceInfo(itemTransmogInfo.appearanceID)
+										buttons[slot].item = link
+										buttons[slot].text = UNKNOWN
+										if C_TransmogCollection.IsAppearanceHiddenVisual(itemTransmogInfo.appearanceID) then
+											-- Hidden item
+											buttons[slot].t:SetAtlas("transmog-icon-hidden")
+										else
+											-- Visible item
+											buttons[slot].t:SetTexture(icon or "Interface\\Icons\\INV_Misc_QuestionMark")
+										end
+									end
+								end
+							end
+						end
+					end)
+
+				end
 
 				-- Function to set item buttons
 				local function ToggleItemButtons()
@@ -2267,7 +2318,15 @@
 			end)
 
 			-- Hide frame when outfit changes
-			hooksecurefunc(DressUpFrame.OutfitDropdown, "UpdateSaveButton", function() pFrame:Hide() end)
+			if LeaPlusLC.NewPatch then
+
+				-- TODO
+
+			else
+
+				hooksecurefunc(DressUpFrame.OutfitDropdown, "UpdateSaveButton", function() pFrame:Hide() end)
+
+			end
 
 			-- Add background color
 			pFrame.t = pFrame:CreateTexture(nil, "BACKGROUND")
@@ -2311,9 +2370,20 @@
 			LeaPlusCB["DressUpLinkChatBtn"]:SetScript("OnClick", function()
 				local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
 				local itemTransmogInfoList = playerActor and playerActor:GetItemTransmogInfoList()
-				local hyperlink = C_TransmogCollection.GetOutfitHyperlinkFromItemTransmogInfoList(itemTransmogInfoList)
-				if not ChatEdit_InsertLink(hyperlink) then
-					ChatFrame_OpenChat(hyperlink)
+				local hyperlink
+				if LeaPlusLC.NewPatch then
+					hyperlink = C_TransmogCollection.GetCustomSetHyperlinkFromItemTransmogInfoList(itemTransmogInfoList)
+				else
+					hyperlink = C_TransmogCollection.GetOutfitHyperlinkFromItemTransmogInfoList(itemTransmogInfoList)
+				end
+				if LeaPlusLC.NewPatch then
+					if not ChatFrameUtil.InsertLink(hyperlink) then
+						ChatFrame_OpenChat(hyperlink)
+					end
+				else
+					if not ChatEdit_InsertLink(hyperlink) then
+						ChatFrame_OpenChat(hyperlink)
+					end
 				end
 			end)
 
@@ -2325,7 +2395,12 @@
 			LeaPlusCB["DressUpLinkSlashBtn"]:SetScript("OnClick", function()
 				local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
 				local itemTransmogInfoList = playerActor and playerActor:GetItemTransmogInfoList()
-				local slashCommand = TransmogUtil.CreateOutfitSlashCommand(itemTransmogInfoList)
+				local slashCommand
+				if LeaPlusLC.NewPatch then
+					slashCommand = TransmogUtil.CreateCustomSetSlashCommand(itemTransmogInfoList)
+				else
+					slashCommand = TransmogUtil.CreateOutfitSlashCommand(itemTransmogInfoList)
+				end
 
 				-- Function to refresh editbox text
 				local function RefreshEditBoxText()
@@ -2407,160 +2482,274 @@
 			end)
 
 			----------------------------------------------------------------------
-			-- Wardrobe and inspect system
+			-- Wardrobe and inspect system for Midnight
 			----------------------------------------------------------------------
 
-			-- Wardrobe (used by transmogrifier NPC) and mount journal
-			EventUtil.ContinueOnAddOnLoaded("Blizzard_Collections",function()
+			if LeaPlusLC.NewPatch then
+				EventUtil.ContinueOnAddOnLoaded("Blizzard_Transmog",function()
 
-				-- Hide positioning controls for mount journal
-				MountJournal.MountDisplay.ModelScene.ControlFrame:HookScript("OnShow", MountJournal.MountDisplay.ModelScene.ControlFrame.Hide)
-				-- Hide positioning controls for wardrobe
-				WardrobeTransmogFrame.ModelScene.ControlFrame:HookScript("OnShow", WardrobeTransmogFrame.ModelScene.ControlFrame.Hide)
-				-- Set zoom speed for wardrobe
-				WardrobeTransmogFrame.ModelScene:SetScript("OnMouseWheel", function(self, delta)
-					for i = 1, LeaPlusLC["DressupFasterZoom"] do
-						if WardrobeTransmogFrame.ModelScene.activeCamera then
-							WardrobeTransmogFrame.ModelScene.activeCamera:OnMouseWheel(delta)
-						end
-					end
-				end)
-				-- Set zoom speed for mount journal
-				MountJournal.MountDisplay.ModelScene:SetScript("OnMouseWheel", function(self, delta)
-					for i = 1, LeaPlusLC["DressupFasterZoom"] do
-						if MountJournal.MountDisplay.ModelScene.activeCamera then
-							MountJournal.MountDisplay.ModelScene.activeCamera:OnMouseWheel(delta)
-						end
-					end
-				end)
-				-- Wider transmogrifier character preview
-				if LeaPlusLC["DressupWiderPreview"] == "On" then
+					-- Hide positioning controls for wardrobe
+					TransmogFrame.CharacterPreview.ModelScene.ControlFrame:HookScript("OnShow", TransmogFrame.CharacterPreview.ModelScene.ControlFrame.Hide)
 
-					local width = 1200 -- Default is 965
-					WardrobeFrame:SetWidth(width)
-					WardrobeTransmogFrame:SetWidth(width - 665)
-					WardrobeTransmogFrame.Inset.BG:SetWidth(width - 671)
-					WardrobeTransmogFrame.ModelScene:SetWidth(width - 671)
-
-					-- Left slots column
-					WardrobeTransmogFrame.HeadButton:ClearAllPoints()
-					WardrobeTransmogFrame.HeadButton:SetPoint("TOPLEFT", 15, -40)
-
-					-- Right slots column
-					WardrobeTransmogFrame.HandsButton:ClearAllPoints()
-					WardrobeTransmogFrame.HandsButton:SetPoint("TOPRIGHT", -15, -60)
-
-					-- Weapons
-					WardrobeTransmogFrame.SecondaryHandButton:ClearAllPoints()
-					WardrobeTransmogFrame.SecondaryHandButton:SetPoint("TOP", WardrobeTransmogFrame.FeetButton, "BOTTOM", 0, -96)
-					WardrobeTransmogFrame.SecondaryHandEnchantButton:ClearAllPoints()
-					WardrobeTransmogFrame.SecondaryHandEnchantButton:SetPoint("BOTTOM", WardrobeTransmogFrame.SecondaryHandButton, "BOTTOM", 0, -15)
-
-					WardrobeTransmogFrame.MainHandButton:ClearAllPoints()
-					WardrobeTransmogFrame.MainHandButton:SetPoint("BOTTOM", WardrobeTransmogFrame.SecondaryHandButton, "TOP", 0, 30)
-					WardrobeTransmogFrame.MainHandEnchantButton:ClearAllPoints()
-					WardrobeTransmogFrame.MainHandEnchantButton:SetPoint("BOTTOM", WardrobeTransmogFrame.MainHandButton, "BOTTOM", 0, -15)
-
-					-- Checkbox for transmog each shoulder separately
-					WardrobeTransmogFrame.ToggleSecondaryAppearanceCheckbox:ClearAllPoints()
-					WardrobeTransmogFrame.ToggleSecondaryAppearanceCheckbox:SetPoint("BOTTOMLEFT", WardrobeTransmogFrame, "BOTTOMLEFT", 583, 15)
-
-				else
-
-					-- Wider character preview is disabled so move the right column up
-					WardrobeTransmogFrame.HandsButton:ClearAllPoints()
-					WardrobeTransmogFrame.HandsButton:SetPoint("TOPRIGHT", -6, -60)
-
-					-- Show weapons in the right column
-					WardrobeTransmogFrame.SecondaryHandButton:ClearAllPoints()
-					WardrobeTransmogFrame.SecondaryHandButton:SetPoint("TOP", WardrobeTransmogFrame.FeetButton, "BOTTOM", 0, -96)
-					WardrobeTransmogFrame.SecondaryHandEnchantButton:ClearAllPoints()
-					WardrobeTransmogFrame.SecondaryHandEnchantButton:SetPoint("BOTTOM", WardrobeTransmogFrame.SecondaryHandButton, "BOTTOM", 0, -15)
-
-					WardrobeTransmogFrame.MainHandButton:ClearAllPoints()
-					WardrobeTransmogFrame.MainHandButton:SetPoint("BOTTOM", WardrobeTransmogFrame.SecondaryHandButton, "TOP", 0, 30)
-					WardrobeTransmogFrame.MainHandEnchantButton:ClearAllPoints()
-					WardrobeTransmogFrame.MainHandEnchantButton:SetPoint("BOTTOM", WardrobeTransmogFrame.MainHandButton, "BOTTOM", 0, -15)
-
-				end
-
-				-- Increase zoom out distance
-				if LeaPlusLC["DressupMoreZoomOut"] == "On" then
-					hooksecurefunc(WardrobeTransmogFrame.ModelScene, "TransitionToModelSceneID", function(self)
-						local activeCamera = self:GetActiveCamera()
-						if activeCamera then
-							local currentZoom = activeCamera:GetZoomDistance()
-							activeCamera:SetMaxZoomDistance(5)
-							activeCamera:SetZoomDistance(currentZoom)
-						end
-					end)
-				end
-
-				----------------------------------------------------------------------
-				-- Transmogrify animation slider
-				----------------------------------------------------------------------
-
-				do
-
-					local transmogAnimTable = {0, 4, 5, 143, 119, 26, 25, 27, 28, 108, 120, 51, 124, 52, 125, 126, 62, 63, 41, 42, 43, 44, 132, 38, 14, 115, 193, 48, 110, 109, 134, 197, 0}
-					local transmogLastSetting
-
-					LeaPlusLC["TransmogAnim"] = 0 -- Defined here since the setting is not saved
-					LeaPlusLC:MakeSL(WardrobeTransmogFrame, "TransmogAnim", "", 1, #transmogAnimTable - 1, 1, 356, -92, "%.0f")
-					LeaPlusCB["TransmogAnim"]:ClearAllPoints()
-					LeaPlusCB["TransmogAnim"]:SetPoint("BOTTOM", 0, 6)
-					if LeaPlusLC["DressupWiderPreview"] == "On" then
-						LeaPlusCB["TransmogAnim"]:SetWidth(240)
-					else
-						LeaPlusCB["TransmogAnim"]:SetWidth(216)
-					end
-					LeaPlusCB["TransmogAnim"]:SetFrameLevel(5)
-					LeaPlusCB["TransmogAnim"]:HookScript("OnValueChanged", function(self, setting)
-						local playerActor = WardrobeTransmogFrame.ModelScene:GetPlayerActor()
-						setting = math.floor(setting + 0.5)
-						if playerActor and setting ~= lastSetting then
-							lastSetting = setting
-							playerActor:SetAnimation(transmogAnimTable[setting], 0, 1, 1)
+					-- Set zoom speed for wardrobe
+					TransmogFrame.CharacterPreview.ModelScene:SetScript("OnMouseWheel", function(self, delta)
+						for i = 1, LeaPlusLC["DressupFasterZoom"] do
+							if TransmogFrame.CharacterPreview.ModelScene.activeCamera then
+								TransmogFrame.CharacterPreview.ModelScene.activeCamera:OnMouseWheel(delta)
+							end
 						end
 					end)
 
-					-- Function to show animation control
-					local function SetAnimationSlider()
-						if LeaPlusLC["DressupTransmogAnim"] == "On" then
-							LeaPlusCB["TransmogAnim"]:Show()
+					-- Increase zoom out distance
+					if LeaPlusLC["DressupMoreZoomOut"] == "On" then
+						hooksecurefunc(TransmogFrame.CharacterPreview.ModelScene, "TransitionToModelSceneID", function(self)
+							local activeCamera = self:GetActiveCamera()
+							if activeCamera then
+								local currentZoom = activeCamera:GetZoomDistance()
+								activeCamera:SetMaxZoomDistance(5)
+								activeCamera:SetZoomDistance(currentZoom)
+							end
+						end)
+					end
+
+					----------------------------------------------------------------------
+					-- Transmogrify animation slider
+					----------------------------------------------------------------------
+
+					do
+
+						local transmogAnimTable = {0, 4, 5, 143, 119, 26, 25, 27, 28, 108, 120, 51, 124, 52, 125, 126, 62, 63, 41, 42, 43, 44, 132, 38, 14, 115, 193, 48, 110, 109, 134, 197, 0}
+						local transmogLastSetting
+
+						LeaPlusLC["TransmogAnim"] = 0 -- Defined here since the setting is not saved
+						LeaPlusLC:MakeSL(TransmogFrame, "TransmogAnim", "", 1, #transmogAnimTable - 1, 1, 356, -92, "%.0f")
+						LeaPlusCB["TransmogAnim"]:ClearAllPoints()
+						LeaPlusCB["TransmogAnim"]:SetPoint("BOTTOM", 0, 6)
+						if LeaPlusLC["DressupWiderPreview"] == "On" then
+							LeaPlusCB["TransmogAnim"]:SetWidth(240)
 						else
-							LeaPlusCB["TransmogAnim"]:Hide()
+							LeaPlusCB["TransmogAnim"]:SetWidth(216)
 						end
-						LeaPlusCB["TransmogAnim"]:SetValue(1)
-					end
+						LeaPlusCB["TransmogAnim"]:SetFrameLevel(5)
+						LeaPlusCB["TransmogAnim"]:HookScript("OnValueChanged", function(self, setting)
+							local playerActor = TransmogFrame.CharacterPreview.ModelScene:GetPlayerActor()
+							setting = math.floor(setting + 0.5)
+							if playerActor and setting ~= lastSetting then
+								lastSetting = setting
+								playerActor:SetAnimation(transmogAnimTable[setting], 0, 1, 1)
+							end
+						end)
 
-					-- Set animation control with option, startup, preset and reset
-					LeaPlusCB["DressupTransmogAnim"]:HookScript("OnClick", SetAnimationSlider)
-					SetAnimationSlider()
-					LeaPlusCB["EnhanceDressupBtn"]:HookScript("OnClick", function()
-						if IsShiftKeyDown() and IsControlKeyDown() then
-							LeaPlusLC["DressupTransmogAnim"] = "On"
-							SetAnimationSlider()
+						-- Function to show animation control
+						local function SetAnimationSlider()
+							if LeaPlusLC["DressupTransmogAnim"] == "On" then
+								LeaPlusCB["TransmogAnim"]:Show()
+							else
+								LeaPlusCB["TransmogAnim"]:Hide()
+							end
+							LeaPlusCB["TransmogAnim"]:SetValue(1)
 						end
-					end)
-					DressupPanel.r:HookScript("OnClick", function()
-						LeaPlusLC["DressupTransmogAnim"] = "Off"
+
+						-- Set animation control with option, startup, preset and reset
+						LeaPlusCB["DressupTransmogAnim"]:HookScript("OnClick", SetAnimationSlider)
 						SetAnimationSlider()
-						DressupPanel:Hide(); DressupPanel:Show()
-					end)
+						LeaPlusCB["EnhanceDressupBtn"]:HookScript("OnClick", function()
+							if IsShiftKeyDown() and IsControlKeyDown() then
+								LeaPlusLC["DressupTransmogAnim"] = "On"
+								SetAnimationSlider()
+							end
+						end)
+						DressupPanel.r:HookScript("OnClick", function()
+							LeaPlusLC["DressupTransmogAnim"] = "Off"
+							SetAnimationSlider()
+							DressupPanel:Hide(); DressupPanel:Show()
+						end)
 
-					-- Reset animation when slider is shown
-					LeaPlusCB["TransmogAnim"]:HookScript("OnShow", SetAnimationSlider)
+						-- Reset animation when slider is shown
+						LeaPlusCB["TransmogAnim"]:HookScript("OnShow", SetAnimationSlider)
 
-					-- Skin slider for ElvUI
-					if LeaPlusLC.ElvUI then
-						_G.LeaPlusGlobalTransmogAnim = LeaPlusCB["TransmogAnim"]
-						LeaPlusLC.ElvUI:GetModule("Skins"):HandleSliderFrame(_G.LeaPlusGlobalTransmogAnim, false)
+						-- Skin slider for ElvUI
+						if LeaPlusLC.ElvUI then
+							_G.LeaPlusGlobalTransmogAnim = LeaPlusCB["TransmogAnim"]
+							LeaPlusLC.ElvUI:GetModule("Skins"):HandleSliderFrame(_G.LeaPlusGlobalTransmogAnim, false)
+						end
+
 					end
 
-				end
+				end)
 
-			end)
+				-- Lock settings not compatible with Midnight
+				local function LockDF(option, reason)
+					LeaPlusLC[option] = "Off"
+					LeaPlusDB[option] = "Off"
+					LeaPlusLC:LockItem(LeaPlusCB[option], true)
+					if reason then
+						LeaPlusCB[option].tiptext = LeaPlusCB[option].tiptext .. "|n|n|cff00AAFF" .. L[reason]
+					end
+				end
+				LockDF("DressupWiderPreview", "This option is not available in Midnight.")
+
+			end
+
+			----------------------------------------------------------------------
+			-- Wardrobe and inspect system for The War Within
+			----------------------------------------------------------------------
+
+			if not LeaPlusLC.NewPatch then
+
+				-- Wardrobe (used by transmogrifier NPC) and mount journal
+				EventUtil.ContinueOnAddOnLoaded("Blizzard_Collections",function()
+
+					-- Hide positioning controls for mount journal
+					MountJournal.MountDisplay.ModelScene.ControlFrame:HookScript("OnShow", MountJournal.MountDisplay.ModelScene.ControlFrame.Hide)
+					-- Hide positioning controls for wardrobe
+					WardrobeTransmogFrame.ModelScene.ControlFrame:HookScript("OnShow", WardrobeTransmogFrame.ModelScene.ControlFrame.Hide)
+					-- Set zoom speed for wardrobe
+					WardrobeTransmogFrame.ModelScene:SetScript("OnMouseWheel", function(self, delta)
+						for i = 1, LeaPlusLC["DressupFasterZoom"] do
+							if WardrobeTransmogFrame.ModelScene.activeCamera then
+								WardrobeTransmogFrame.ModelScene.activeCamera:OnMouseWheel(delta)
+							end
+						end
+					end)
+					-- Set zoom speed for mount journal
+					MountJournal.MountDisplay.ModelScene:SetScript("OnMouseWheel", function(self, delta)
+						for i = 1, LeaPlusLC["DressupFasterZoom"] do
+							if MountJournal.MountDisplay.ModelScene.activeCamera then
+								MountJournal.MountDisplay.ModelScene.activeCamera:OnMouseWheel(delta)
+							end
+						end
+					end)
+					-- Wider transmogrifier character preview
+					if LeaPlusLC["DressupWiderPreview"] == "On" then
+
+						local width = 1200 -- Default is 965
+						WardrobeFrame:SetWidth(width)
+						WardrobeTransmogFrame:SetWidth(width - 665)
+						WardrobeTransmogFrame.Inset.BG:SetWidth(width - 671)
+						WardrobeTransmogFrame.ModelScene:SetWidth(width - 671)
+
+						-- Left slots column
+						WardrobeTransmogFrame.HeadButton:ClearAllPoints()
+						WardrobeTransmogFrame.HeadButton:SetPoint("TOPLEFT", 15, -40)
+
+						-- Right slots column
+						WardrobeTransmogFrame.HandsButton:ClearAllPoints()
+						WardrobeTransmogFrame.HandsButton:SetPoint("TOPRIGHT", -15, -60)
+
+						-- Weapons
+						WardrobeTransmogFrame.SecondaryHandButton:ClearAllPoints()
+						WardrobeTransmogFrame.SecondaryHandButton:SetPoint("TOP", WardrobeTransmogFrame.FeetButton, "BOTTOM", 0, -96)
+						WardrobeTransmogFrame.SecondaryHandEnchantButton:ClearAllPoints()
+						WardrobeTransmogFrame.SecondaryHandEnchantButton:SetPoint("BOTTOM", WardrobeTransmogFrame.SecondaryHandButton, "BOTTOM", 0, -15)
+
+						WardrobeTransmogFrame.MainHandButton:ClearAllPoints()
+						WardrobeTransmogFrame.MainHandButton:SetPoint("BOTTOM", WardrobeTransmogFrame.SecondaryHandButton, "TOP", 0, 30)
+						WardrobeTransmogFrame.MainHandEnchantButton:ClearAllPoints()
+						WardrobeTransmogFrame.MainHandEnchantButton:SetPoint("BOTTOM", WardrobeTransmogFrame.MainHandButton, "BOTTOM", 0, -15)
+
+						-- Checkbox for transmog each shoulder separately
+						WardrobeTransmogFrame.ToggleSecondaryAppearanceCheckbox:ClearAllPoints()
+						WardrobeTransmogFrame.ToggleSecondaryAppearanceCheckbox:SetPoint("BOTTOMLEFT", WardrobeTransmogFrame, "BOTTOMLEFT", 583, 15)
+
+					else
+
+						-- Wider character preview is disabled so move the right column up
+						WardrobeTransmogFrame.HandsButton:ClearAllPoints()
+						WardrobeTransmogFrame.HandsButton:SetPoint("TOPRIGHT", -6, -60)
+
+						-- Show weapons in the right column
+						WardrobeTransmogFrame.SecondaryHandButton:ClearAllPoints()
+						WardrobeTransmogFrame.SecondaryHandButton:SetPoint("TOP", WardrobeTransmogFrame.FeetButton, "BOTTOM", 0, -96)
+						WardrobeTransmogFrame.SecondaryHandEnchantButton:ClearAllPoints()
+						WardrobeTransmogFrame.SecondaryHandEnchantButton:SetPoint("BOTTOM", WardrobeTransmogFrame.SecondaryHandButton, "BOTTOM", 0, -15)
+
+						WardrobeTransmogFrame.MainHandButton:ClearAllPoints()
+						WardrobeTransmogFrame.MainHandButton:SetPoint("BOTTOM", WardrobeTransmogFrame.SecondaryHandButton, "TOP", 0, 30)
+						WardrobeTransmogFrame.MainHandEnchantButton:ClearAllPoints()
+						WardrobeTransmogFrame.MainHandEnchantButton:SetPoint("BOTTOM", WardrobeTransmogFrame.MainHandButton, "BOTTOM", 0, -15)
+
+					end
+
+					-- Increase zoom out distance
+					if LeaPlusLC["DressupMoreZoomOut"] == "On" then
+						hooksecurefunc(WardrobeTransmogFrame.ModelScene, "TransitionToModelSceneID", function(self)
+							local activeCamera = self:GetActiveCamera()
+							if activeCamera then
+								local currentZoom = activeCamera:GetZoomDistance()
+								activeCamera:SetMaxZoomDistance(5)
+								activeCamera:SetZoomDistance(currentZoom)
+							end
+						end)
+					end
+
+					----------------------------------------------------------------------
+					-- Transmogrify animation slider
+					----------------------------------------------------------------------
+
+					do
+
+						local transmogAnimTable = {0, 4, 5, 143, 119, 26, 25, 27, 28, 108, 120, 51, 124, 52, 125, 126, 62, 63, 41, 42, 43, 44, 132, 38, 14, 115, 193, 48, 110, 109, 134, 197, 0}
+						local transmogLastSetting
+
+						LeaPlusLC["TransmogAnim"] = 0 -- Defined here since the setting is not saved
+						LeaPlusLC:MakeSL(WardrobeTransmogFrame, "TransmogAnim", "", 1, #transmogAnimTable - 1, 1, 356, -92, "%.0f")
+						LeaPlusCB["TransmogAnim"]:ClearAllPoints()
+						LeaPlusCB["TransmogAnim"]:SetPoint("BOTTOM", 0, 6)
+						if LeaPlusLC["DressupWiderPreview"] == "On" then
+							LeaPlusCB["TransmogAnim"]:SetWidth(240)
+						else
+							LeaPlusCB["TransmogAnim"]:SetWidth(216)
+						end
+						LeaPlusCB["TransmogAnim"]:SetFrameLevel(5)
+						LeaPlusCB["TransmogAnim"]:HookScript("OnValueChanged", function(self, setting)
+							local playerActor = WardrobeTransmogFrame.ModelScene:GetPlayerActor()
+							setting = math.floor(setting + 0.5)
+							if playerActor and setting ~= lastSetting then
+								lastSetting = setting
+								playerActor:SetAnimation(transmogAnimTable[setting], 0, 1, 1)
+							end
+						end)
+
+						-- Function to show animation control
+						local function SetAnimationSlider()
+							if LeaPlusLC["DressupTransmogAnim"] == "On" then
+								LeaPlusCB["TransmogAnim"]:Show()
+							else
+								LeaPlusCB["TransmogAnim"]:Hide()
+							end
+							LeaPlusCB["TransmogAnim"]:SetValue(1)
+						end
+
+						-- Set animation control with option, startup, preset and reset
+						LeaPlusCB["DressupTransmogAnim"]:HookScript("OnClick", SetAnimationSlider)
+						SetAnimationSlider()
+						LeaPlusCB["EnhanceDressupBtn"]:HookScript("OnClick", function()
+							if IsShiftKeyDown() and IsControlKeyDown() then
+								LeaPlusLC["DressupTransmogAnim"] = "On"
+								SetAnimationSlider()
+							end
+						end)
+						DressupPanel.r:HookScript("OnClick", function()
+							LeaPlusLC["DressupTransmogAnim"] = "Off"
+							SetAnimationSlider()
+							DressupPanel:Hide(); DressupPanel:Show()
+						end)
+
+						-- Reset animation when slider is shown
+						LeaPlusCB["TransmogAnim"]:HookScript("OnShow", SetAnimationSlider)
+
+						-- Skin slider for ElvUI
+						if LeaPlusLC.ElvUI then
+							_G.LeaPlusGlobalTransmogAnim = LeaPlusCB["TransmogAnim"]
+							LeaPlusLC.ElvUI:GetModule("Skins"):HandleSliderFrame(_G.LeaPlusGlobalTransmogAnim, false)
+						end
+
+					end
+
+				end)
+
+			end
 
 			-- Inspect System
 			EventUtil.ContinueOnAddOnLoaded("Blizzard_InspectUI",function()
@@ -3699,7 +3888,12 @@
 							if tipList[i] and tipList[i] > 0 and tipList[i] < 999999999 then
 								local void, tLink, Rarity, void, void, void, void, void, void, void, ItemPrice = C_Item.GetItemInfo(tipList[i])
 								if tLink and tLink ~= "" then
-									local linkCol = string.sub(tLink, 1, 10)
+									local linkCol
+									if LeaPlusLC.NewPatch then
+										linkCol = string.sub(tLink, 1, 7)
+									else
+										linkCol = string.sub(tLink, 1, 10)
+									end
 									if linkCol then
 										local linkName = tLink:match("%[(.-)%]")
 										if linkName and ItemPrice then
@@ -3787,16 +3981,18 @@
 			eb.Text:SetScript("OnLeave", GameTooltip_Hide)
 
 			-- Show item ID in item tooltips while configuration panel is showing
-			TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self)
-				if self ~= GameTooltip then return end
-				if SellJunkFrame:IsShown() then
-					local void, itemLink = self:GetItem()
-					if itemLink then
-						local itemID = GetItemInfoFromHyperlink(itemLink)
-						if itemID then self:AddLine(L["Item ID"] .. ": " .. itemID) end
+			if not LeaPlusLC.NewPatch then
+				TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self)
+					if self ~= GameTooltip then return end
+					if SellJunkFrame:IsShown() then
+						local void, itemLink = self:GetItem()
+						if itemLink then
+							local itemID = GetItemInfoFromHyperlink(itemLink)
+							if itemID then self:AddLine(L["Item ID"] .. ": " .. itemID) end
+						end
 					end
-				end
-			end)
+				end)
+			end
 
 			-- Vendor function
 			local function SellJunkFunc()
@@ -4651,12 +4847,14 @@
 			local void, TypeDeleteLine = strsplit("@", TypeDeleteLine, 2)
 
 			-- Add hyperlinks to regular item destroy
-			StaticPopupDialogs["DELETE_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
-			StaticPopupDialogs["DELETE_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
-			StaticPopupDialogs["DELETE_QUEST_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
-			StaticPopupDialogs["DELETE_QUEST_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
-			StaticPopupDialogs["DELETE_GOOD_QUEST_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
-			StaticPopupDialogs["DELETE_GOOD_QUEST_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
+			if not LeaPlusLC.NewPatch then
+				StaticPopupDialogs["DELETE_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
+				StaticPopupDialogs["DELETE_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
+				StaticPopupDialogs["DELETE_QUEST_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
+				StaticPopupDialogs["DELETE_QUEST_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
+				StaticPopupDialogs["DELETE_GOOD_QUEST_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
+				StaticPopupDialogs["DELETE_GOOD_QUEST_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
+			end
 
 			-- Hide editbox and set item link
 			local easyDelFrame = CreateFrame("FRAME")
@@ -6502,13 +6700,27 @@
 			local fishEvent = CreateFrame("FRAME")
 			fishEvent:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", "player")
 			fishEvent:SetScript("OnEvent", function(self, event, unit, void, spellID)
-				if LeaPlusLC["NoTransforms"] == "On" and LeaPlusLC["TransFishing"] == "On" and spellID == 131476 then -- Fishing
-					for i = 1, 40 do
-						local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
-						if BuffData then
-							local spellID = BuffData.spellId
-							if spellID and spellID == 394009 and not UnitAffectingCombat("player") then -- Fishing For Attention
-								CancelUnitBuff("player", i)
+				if LeaPlusLC.NewPatch then
+					if LeaPlusLC["NoTransforms"] == "On" and LeaPlusLC["TransFishing"] == "On" and canaccessvalue(spellID) and spellID == 131476 then -- Fishing
+						for i = 1, 40 do
+							local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
+							if BuffData then
+								local spellID = BuffData.spellId
+								if spellID and canaccessvalue(spellID) and spellID == 394009 and not UnitAffectingCombat("player") then -- Fishing For Attention
+									CancelUnitBuff("player", i)
+								end
+							end
+						end
+					end
+				else
+					if LeaPlusLC["NoTransforms"] == "On" and LeaPlusLC["TransFishing"] == "On" and spellID == 131476 then -- Fishing
+						for i = 1, 40 do
+							local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
+							if BuffData then
+								local spellID = BuffData.spellId
+								if spellID and spellID == 394009 and not UnitAffectingCombat("player") then -- Fishing For Attention
+									CancelUnitBuff("player", i)
+								end
 							end
 						end
 					end
@@ -6520,17 +6732,29 @@
 			local spellFrame = CreateFrame("FRAME")
 			local fisherTicker, castingSpellID
 
+			if LeaPlusLC.NewPatch then
+				spellFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+			end
+
 			-- Function to cancel buffs
 			local function eventFunc()
 				for i = 1, 40 do
 					local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
 					if BuffData then
 						local spellID = BuffData.spellId
-						if spellID and cTable[spellID] then
-							if UnitAffectingCombat("player") then
-								spellFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-							else
-								CancelUnitBuff("player", i)
+						if LeaPlusLC.NewPatch then
+							if spellID and canaccessvalue(spellID) and cTable[spellID] then
+								if not UnitAffectingCombat("player") then
+									CancelUnitBuff("player", i)
+								end
+							end
+						else
+							if spellID and cTable[spellID] then
+								if UnitAffectingCombat("player") then
+									spellFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+								else
+									CancelUnitBuff("player", i)
+								end
 							end
 						end
 					end
@@ -6544,9 +6768,17 @@
 						if updatedAuras.isFullUpdate then
 							eventFunc()
 						elseif updatedAuras.addedAuras then
-							for void, aura in ipairs(updatedAuras.addedAuras) do
-								if aura.spellId and cTable[aura.spellId] then
-									eventFunc()
+							if LeaPlusLC.NewPatch then
+								for void, aura in ipairs(updatedAuras.addedAuras) do
+									if aura.spellId and canaccessvalue(aura.spellId) and cTable[aura.spellId] then
+										eventFunc()
+									end
+								end
+							else
+								for void, aura in ipairs(updatedAuras.addedAuras) do
+									if aura.spellId and cTable[aura.spellId] then
+										eventFunc()
+									end
 								end
 							end
 						end
@@ -6558,9 +6790,15 @@
 						local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
 						if BuffData then
 							local spellID = BuffData.spellId
-							if spellID and cTable[spellID] then
-								spellFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
-								CancelUnitBuff("player", i)
+							if LeaPlusLC.NewPatch then
+								if spellID and canaccessvalue(spellID) and cTable[spellID] then
+									CancelUnitBuff("player", i)
+								end
+							else
+								if spellID and cTable[spellID] then
+									spellFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+									CancelUnitBuff("player", i)
+								end
 							end
 						end
 					end
@@ -6573,6 +6811,9 @@
 				if LeaPlusLC["NoTransforms"] == "On" then
 					eventFunc()
 					spellFrame:RegisterUnitEvent("UNIT_AURA", "player")
+					if LeaPlusLC.NewPatch then
+						spellFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+					end
 				else
 					spellFrame:UnregisterEvent("UNIT_AURA")
 					spellFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -6838,36 +7079,70 @@
 
 			-- Enable or disable chat filter settings
 			local function SetChatFilter()
-				if LeaPlusLC["BlockSpellLinks"] == "On" then
-					ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", ChatFilterFunc)
-					ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY", ChatFilterFunc)
-					ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY_LEADER", ChatFilterFunc)
-					ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID", ChatFilterFunc)
-					ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID_LEADER", ChatFilterFunc)
-					ChatFrame_AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", ChatFilterFunc)
-					ChatFrame_AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", ChatFilterFunc)
-					ChatFrame_AddMessageEventFilter("CHAT_MSG_EMOTE", ChatFilterFunc)
-					ChatFrame_AddMessageEventFilter("CHAT_MSG_YELL", ChatFilterFunc)
+				if LeaPlusLC.NewPatch then
+					if LeaPlusLC["BlockSpellLinks"] == "On" then
+						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_SAY", ChatFilterFunc)
+						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_PARTY", ChatFilterFunc)
+						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_PARTY_LEADER", ChatFilterFunc)
+						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_RAID", ChatFilterFunc)
+						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_RAID_LEADER", ChatFilterFunc)
+						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", ChatFilterFunc)
+						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", ChatFilterFunc)
+						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_EMOTE", ChatFilterFunc)
+						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_YELL", ChatFilterFunc)
+					else
+						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_SAY", ChatFilterFunc)
+						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_PARTY", ChatFilterFunc)
+						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_PARTY_LEADER", ChatFilterFunc)
+						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_RAID", ChatFilterFunc)
+						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_RAID_LEADER", ChatFilterFunc)
+						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", ChatFilterFunc)
+						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", ChatFilterFunc)
+						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_EMOTE", ChatFilterFunc)
+						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_YELL", ChatFilterFunc)
+					end
+					if LeaPlusLC["BlockDrunkenSpam"] == "On" or LeaPlusLC["BlockDuelSpam"] == "On" then
+						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
+					else
+						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
+					end
+					if LeaPlusLC["BlockAngelisSinny"] == "On" then
+						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
+					else
+						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
+					end
 				else
-					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SAY", ChatFilterFunc)
-					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_PARTY", ChatFilterFunc)
-					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_PARTY_LEADER", ChatFilterFunc)
-					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_RAID", ChatFilterFunc)
-					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_RAID_LEADER", ChatFilterFunc)
-					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", ChatFilterFunc)
-					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", ChatFilterFunc)
-					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_EMOTE", ChatFilterFunc)
-					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_YELL", ChatFilterFunc)
-				end
-				if LeaPlusLC["BlockDrunkenSpam"] == "On" or LeaPlusLC["BlockDuelSpam"] == "On" then
-					ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
-				else
-					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
-				end
-				if LeaPlusLC["BlockAngelisSinny"] == "On" then
-					ChatFrame_AddMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
-				else
-					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
+					if LeaPlusLC["BlockSpellLinks"] == "On" then
+						ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", ChatFilterFunc)
+						ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY", ChatFilterFunc)
+						ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY_LEADER", ChatFilterFunc)
+						ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID", ChatFilterFunc)
+						ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID_LEADER", ChatFilterFunc)
+						ChatFrame_AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", ChatFilterFunc)
+						ChatFrame_AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", ChatFilterFunc)
+						ChatFrame_AddMessageEventFilter("CHAT_MSG_EMOTE", ChatFilterFunc)
+						ChatFrame_AddMessageEventFilter("CHAT_MSG_YELL", ChatFilterFunc)
+					else
+						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SAY", ChatFilterFunc)
+						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_PARTY", ChatFilterFunc)
+						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_PARTY_LEADER", ChatFilterFunc)
+						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_RAID", ChatFilterFunc)
+						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_RAID_LEADER", ChatFilterFunc)
+						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", ChatFilterFunc)
+						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", ChatFilterFunc)
+						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_EMOTE", ChatFilterFunc)
+						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_YELL", ChatFilterFunc)
+					end
+					if LeaPlusLC["BlockDrunkenSpam"] == "On" or LeaPlusLC["BlockDuelSpam"] == "On" then
+						ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
+					else
+						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
+					end
+					if LeaPlusLC["BlockAngelisSinny"] == "On" then
+						ChatFrame_AddMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
+					else
+						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
+					end
 				end
 			end
 
@@ -8602,12 +8877,21 @@
 							icon[i]:Hide()
 
 							-- If buff matches cooldown we want, start the cooldown
-							AuraUtil.ForEachAura(owner, "HELPFUL", nil, function(aura)
-								if aura.spellId and aura.spellId == id and aura.expirationTime and aura.duration then
-									icon[i]:Show()
-									CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
-								end
-							end, true)
+							if LeaPlusLC.NewPatch then
+								AuraUtil.ForEachAura(owner, "HELPFUL", nil, function(aura)
+									if aura.spellId and canaccessvalue(aura.spellId) and aura.spellId == id and aura.expirationTime and aura.duration then
+										icon[i]:Show()
+										CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
+									end
+								end, true)
+							else
+								AuraUtil.ForEachAura(owner, "HELPFUL", nil, function(aura)
+									if aura.spellId and aura.spellId == id and aura.expirationTime and aura.duration then
+										icon[i]:Show()
+										CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
+									end
+								end, true)
+							end
 
 						end
 					end)
@@ -8732,12 +9016,21 @@
 						icon[i]:Hide()
 
 						-- If buff matches spell we want, show cooldown icon
-						AuraUtil.ForEachAura(newowner, "HELPFUL", nil, function(aura)
-							if aura.spellId and aura.spellId == newspell and aura.expirationTime and aura.duration then
-								icon[i]:Show()
-								CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
-							end
-						end, true)
+						if LeaPlusLC.NewPatch then
+							AuraUtil.ForEachAura(newowner, "HELPFUL", nil, function(aura)
+								if aura.spellId and canaccessvalue(aura.spellId) and aura.spellId == newspell and aura.expirationTime and aura.duration then
+									icon[i]:Show()
+									CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
+								end
+							end, true)
+						else
+							AuraUtil.ForEachAura(newowner, "HELPFUL", nil, function(aura)
+								if aura.spellId and aura.spellId == newspell and aura.expirationTime and aura.duration then
+									icon[i]:Show()
+									CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
+								end
+							end, true)
+						end
 
 					end
 
@@ -8943,6 +9236,23 @@
 			LeaPlusLC:MakeTx(SideTip, "Hide tooltips", 16, -212)
 			LeaPlusLC:MakeCB(SideTip, "TipHideInCombat", "Hide tooltips for world units during combat", 16, -232, false, "If checked, tooltips for world units will be hidden during combat.")
 			LeaPlusLC:MakeCB(SideTip, "TipHideShiftOverride", "Show tooltips with shift key", 16, -252, false, "If checked, you can hold shift while tooltips are hidden to show them temporarily.")
+
+			if LeaPlusLC.NewPatch then
+				local function LockDF(option, reason)
+					LeaPlusLC[option] = "Off"
+					LeaPlusDB[option] = "Off"
+					LeaPlusLC:LockItem(LeaPlusCB[option], true)
+					if reason then
+						LeaPlusCB[option].tiptext = LeaPlusCB[option].tiptext .. "|n|n|cff00AAFF" .. L[reason]
+					end
+				end
+				LockDF("TipShowRank", "This option is not currently available.")
+				LockDF("TipShowOtherRank", "This option is not currently available.")
+				LockDF("TipShowTarget", "This option is not currently available.")
+				LockDF("TipBackSimple", "This option is not currently available.")
+				LockDF("TipHideInCombat", "This option is not currently available.")
+				LockDF("TipHideShiftOverride", "This option is not currently available.")
+			end
 
 			-- Handle show tooltips with shift key lock
 			local function SetTipHideShiftOverrideFunc()
@@ -9282,11 +9592,13 @@
 			---------------------------------------------------------------------------------------------------------
 
 			-- Remove the right-click for frame settings instruction (UNIT_POPUP_RIGHT_CLICK)
-			hooksecurefunc("UnitFrame_UpdateTooltip", function(self)
-				GameTooltip_SetDefaultAnchor(GameTooltip, self)
-				GameTooltip:SetUnit(self.unit, true)
-				GameTooltip:Show()
-			end)
+			if not LeaPlusLC.NewPatch then
+				hooksecurefunc("UnitFrame_UpdateTooltip", function(self)
+					GameTooltip_SetDefaultAnchor(GameTooltip, self)
+					GameTooltip:SetUnit(self.unit, true)
+					GameTooltip:Show()
+				end)
+			end
 
 			-- Colorblind setting change
 			SideTip:RegisterEvent("CVAR_UPDATE");
@@ -9736,7 +10048,9 @@
 
 			end
 
-			TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, ShowTip)
+			if not LeaPlusLC.NewPatch then
+				TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, ShowTip)
+			end
 
 		end
 
@@ -9966,7 +10280,12 @@
 				local btn = CreateFrame("Button", "LeaPlusGlobalFlare" .. i, nil, "SecureActionButtonTemplate")
 				btn:SetAttribute("type", "macro")
 				if i == 9 then
-					btn:SetAttribute("macrotext", "/clearworldmarker 0")
+					if LeaPlusLC.NewPatch then
+						-- Currently on beta clearworldmarker 0 has no effect
+						btn:SetAttribute("macrotext", "/clearworldmarker 1\n/clearworldmarker 2\n/clearworldmarker 3\n/clearworldmarker 4\n/clearworldmarker 5\n/clearworldmarker 6\n/clearworldmarker 7\n/clearworldmarker 8")
+					else
+						btn:SetAttribute("macrotext", "/clearworldmarker 0")
+					end
 				else
 					btn:SetAttribute("macrotext", "/clearworldmarker " .. i .. "\n/worldmarker " .. i)
 				end
@@ -10778,7 +11097,7 @@
 			pTex:SetAlpha(0.2)
 			pTex:SetTexCoord(0, 1, 1, 0)
 
-			expTitle:SetText(L["The War Within"])
+			expTitle:SetText(L["The War Within"] .. "|n" .. L["Midnight Beta"])
 			local category = Settings.RegisterCanvasLayoutCategory(interPanel, L["Leatrix Plus"])
 			Settings.RegisterAddOnCategory(category)
 
@@ -11094,9 +11413,9 @@
 					local function Lock(option, reason, optmodule)
 						LeaLockList[option] = LeaPlusLC[option]
 						LeaPlusLC:LockItem(LeaPlusCB[option], true)
-						LeaPlusCB[option].tiptext = LeaPlusCB[option].tiptext .. "|n|n|cff00AAFF" .. reason
+						LeaPlusCB[option].tiptext = LeaPlusCB[option].tiptext .. "|n|n|cff00AAFF" .. L[reason]
 						if optmodule then
-							LeaPlusCB[option].tiptext = LeaPlusCB[option].tiptext .. " " .. optmodule .. " " .. L["module"]
+							LeaPlusCB[option].tiptext = LeaPlusCB[option].tiptext .. " " .. L[optmodule] .. " " .. L["module"]
 						end
 						LeaPlusCB[option].tiptext = LeaPlusCB[option].tiptext .. "。"
 						-- Remove hover from configuration button if there is one
@@ -11212,7 +11531,8 @@
 				end
 
 				if LeaPlusLC.NewPatch then
-					-- LockDF("LockoutSharing", "This option is no longer available in the game.  The achievements window now always shows warband achievement points.")
+					-- Disable bag automation (enter Stockade, go vendor with transmog items 58.2 67.0 Stormwind, auto sell, close and shift reopen)
+					LockDF("NoBagAutomation", "This option is not currently available.")
 				end
 
 				-- Run other startup items
@@ -12251,188 +12571,190 @@
 				end
 				return
 			elseif str == "id" then
-				-- Show web link for tooltip
-				if not LeaPlusLC.WowheadLock then
-					-- Set Wowhead link prefix
-					if GameLocale == "deDE" then LeaPlusLC.WowheadLock = "de.wowhead.com"
-					elseif GameLocale == "esMX" then LeaPlusLC.WowheadLock = "mx.wowhead.com"
-					elseif GameLocale == "esES" then LeaPlusLC.WowheadLock = "es.wowhead.com"
-					elseif GameLocale == "frFR" then LeaPlusLC.WowheadLock = "fr.wowhead.com"
-					elseif GameLocale == "itIT" then LeaPlusLC.WowheadLock = "it.wowhead.com"
-					elseif GameLocale == "ptBR" then LeaPlusLC.WowheadLock = "pt.wowhead.com"
-					elseif GameLocale == "ruRU" then LeaPlusLC.WowheadLock = "ru.wowhead.com"
-					elseif GameLocale == "koKR" then LeaPlusLC.WowheadLock = "ko.wowhead.com"
-					elseif GameLocale == "zhCN" then LeaPlusLC.WowheadLock = "cn.wowhead.com"
-					elseif GameLocale == "zhTW" then LeaPlusLC.WowheadLock = "tw.wowhead.com"
-					else							 LeaPlusLC.WowheadLock = "wowhead.com"
-					end
-				end
-				if not LeaPlusLC.BlizzardLock then
-					-- Set Blizzard link prefix (https://wowpedia.fandom.com/wiki/Localization) (region will be added by website automatically)
-						if GameLocale == "deDE" then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/de-de/character/eu/" -- Germany
-					elseif GameLocale == "frFR" then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/fr-fr/character/eu/" -- France
-					elseif GameLocale == "itIT" then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/it-it/character/eu/" -- Italy
-					elseif GameLocale == "ruRU" then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/ru-ru/character/eu/" -- Russia
-					elseif GameLocale == "koKR" then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/ko-kr/character/kr/" -- Korea
-					elseif GameLocale == "zhTW" then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/zh-tw/character/tw/" -- Tiawan
-					elseif GameLocale == "esES" and GetCurrentRegion() == 1 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/es-es/character/us/" -- Spain (esES connected to US)
-					elseif GameLocale == "esES" and GetCurrentRegion() == 3 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/es-es/character/eu/" -- Spain (esES connected to EU)
-					elseif GameLocale == "esMX" and GetCurrentRegion() == 1 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/es-mx/character/us/" -- Mexico (esMX connected to US)
-					elseif GameLocale == "esMX" and GetCurrentRegion() == 3 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/es-mx/character/eu/" -- Spain (esMX connected to EU)
-					elseif GameLocale == "ptBR" and GetCurrentRegion() == 1 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/pt-br/character/us/" -- Brazil (ptBR connected to US)
-					elseif GameLocale == "ptBR" and GetCurrentRegion() == 3 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/pt-br/character/eu/" -- Portugal (ptBR connected to US)
-					elseif GameLocale == "enUS" and GetCurrentRegion() == 3 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/en-gb/character/eu/" -- UK (enUS connected to Europe)
-					else 														 LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/en-us/character/us/" -- US (default)
-					end
-				end
-				-- Floating battle pet tooltip (linked in chat)
-				if FloatingBattlePetTooltip:IsMouseMotionFocus() and FloatingBattlePetTooltip.Name then
-					local tipTitle = FloatingBattlePetTooltip.Name:GetText()
-					if tipTitle then
-						local speciesId, petGUID = C_PetJournal.FindPetIDByName(tipTitle, false)
-						if petGUID then
-							local speciesID, customName, level, xp, maxXp, displayID, isFavorite, name, icon, petType, creatureID = C_PetJournal.GetPetInfoByPetID(petGUID)
-							LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/npc=" .. creatureID)
-							LeaPlusLC.FactoryEditBox.f:SetText(L["Pet"] .. ": " .. name .. " (" .. creatureID .. ")")
-							return
+				pcall(function()
+					-- Show web link for tooltip
+					if not LeaPlusLC.WowheadLock then
+						-- Set Wowhead link prefix
+						if GameLocale == "deDE" then LeaPlusLC.WowheadLock = "de.wowhead.com"
+						elseif GameLocale == "esMX" then LeaPlusLC.WowheadLock = "mx.wowhead.com"
+						elseif GameLocale == "esES" then LeaPlusLC.WowheadLock = "es.wowhead.com"
+						elseif GameLocale == "frFR" then LeaPlusLC.WowheadLock = "fr.wowhead.com"
+						elseif GameLocale == "itIT" then LeaPlusLC.WowheadLock = "it.wowhead.com"
+						elseif GameLocale == "ptBR" then LeaPlusLC.WowheadLock = "pt.wowhead.com"
+						elseif GameLocale == "ruRU" then LeaPlusLC.WowheadLock = "ru.wowhead.com"
+						elseif GameLocale == "koKR" then LeaPlusLC.WowheadLock = "ko.wowhead.com"
+						elseif GameLocale == "zhCN" then LeaPlusLC.WowheadLock = "cn.wowhead.com"
+						elseif GameLocale == "zhTW" then LeaPlusLC.WowheadLock = "tw.wowhead.com"
+						else							 LeaPlusLC.WowheadLock = "wowhead.com"
 						end
 					end
-				end
-				-- Floating pet battle ability tooltip (linked in chat)
-				if FloatingPetBattleAbilityTooltip and FloatingPetBattleAbilityTooltip:IsMouseMotionFocus() and FloatingPetBattleAbilityTooltip.Name then
-					local tipTitle = FloatingPetBattleAbilityTooltip.Name:GetText()
-					if tipTitle then
-						LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/search?q=" .. tipTitle, false)
-						LeaPlusLC.FactoryEditBox.f:SetText("|cffff0000" .. L["Pet Ability"] .. ": " .. tipTitle)
-						return
-					end
-				end
-				-- Pet journal ability tooltip (tooltip in pet journal)
-				if PetJournalPrimaryAbilityTooltip and PetJournalPrimaryAbilityTooltip:IsShown() and PetJournalPrimaryAbilityTooltip.Name then
-					local tipTitle = PetJournalPrimaryAbilityTooltip.Name:GetText()
-					if tipTitle then
-						LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/search?q=" .. tipTitle, false)
-						LeaPlusLC.FactoryEditBox.f:SetText("|cffff0000" .. L["Pet Ability"] .. ": " .. tipTitle)
-						return
-					end
-				end
-				-- ItemRefTooltip or GameTooltip
-				local tooltip
-				if ItemRefTooltip:IsMouseMotionFocus() then tooltip = ItemRefTooltip else tooltip = GameTooltip end
-				-- Process tooltip
-				if tooltip:IsShown() then
-					-- Item
-					local void, itemLink = tooltip:GetItem()
-					if itemLink then
-						local itemID = GetItemInfoFromHyperlink(itemLink)
-						if itemID then
-							LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/item=" .. itemID, false)
-							LeaPlusLC.FactoryEditBox.f:SetText(L["Item"] .. ": " .. itemLink .. " (" .. itemID .. ")")
-							return
+					if not LeaPlusLC.BlizzardLock then
+						-- Set Blizzard link prefix (https://wowpedia.fandom.com/wiki/Localization) (region will be added by website automatically)
+							if GameLocale == "deDE" then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/de-de/character/eu/" -- Germany
+						elseif GameLocale == "frFR" then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/fr-fr/character/eu/" -- France
+						elseif GameLocale == "itIT" then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/it-it/character/eu/" -- Italy
+						elseif GameLocale == "ruRU" then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/ru-ru/character/eu/" -- Russia
+						elseif GameLocale == "koKR" then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/ko-kr/character/kr/" -- Korea
+						elseif GameLocale == "zhTW" then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/zh-tw/character/tw/" -- Tiawan
+						elseif GameLocale == "esES" and GetCurrentRegion() == 1 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/es-es/character/us/" -- Spain (esES connected to US)
+						elseif GameLocale == "esES" and GetCurrentRegion() == 3 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/es-es/character/eu/" -- Spain (esES connected to EU)
+						elseif GameLocale == "esMX" and GetCurrentRegion() == 1 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/es-mx/character/us/" -- Mexico (esMX connected to US)
+						elseif GameLocale == "esMX" and GetCurrentRegion() == 3 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/es-mx/character/eu/" -- Spain (esMX connected to EU)
+						elseif GameLocale == "ptBR" and GetCurrentRegion() == 1 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/pt-br/character/us/" -- Brazil (ptBR connected to US)
+						elseif GameLocale == "ptBR" and GetCurrentRegion() == 3 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/pt-br/character/eu/" -- Portugal (ptBR connected to US)
+						elseif GameLocale == "enUS" and GetCurrentRegion() == 3 then LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/en-gb/character/eu/" -- UK (enUS connected to Europe)
+						else 														 LeaPlusLC.BlizzardLock = "https://worldofwarcraft.com/en-us/character/us/" -- US (default)
 						end
 					end
-					-- Spell
-					local name, spellID = tooltip:GetSpell()
-					if name and spellID then
-						LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/spell=" .. spellID, false)
-						LeaPlusLC.FactoryEditBox.f:SetText(L["Spell"] .. ": " .. name .. " (" .. spellID .. ")")
-						return
-					end
-					-- NPC
-					local npcName = UnitName("mouseover")
-					local npcGuid = UnitGUID("mouseover") or nil
-					if npcName and npcGuid then
-						local void, void, void, void, void, npcID = strsplit("-", npcGuid)
-						if npcID then
-							LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/npc=" .. npcID, false)
-							LeaPlusLC.FactoryEditBox.f:SetText(L["NPC"] .. ": " .. npcName .. " (" .. npcID .. ")")
-							return
-						end
-					end
-					-- Pet, player and unknown tooltip (this must be last)
-					local tipTitle = GameTooltipTextLeft1:GetText()
-					if tipTitle then
-						local speciesId, petGUID = C_PetJournal.FindPetIDByName(GameTooltipTextLeft1:GetText(), false)
-						if petGUID then
-							-- Pet
-							local speciesID, customName, level, xp, maxXp, displayID, isFavorite, name, icon, petType, creatureID = C_PetJournal.GetPetInfoByPetID(petGUID)
-							LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/npc=" .. creatureID)
-							LeaPlusLC.FactoryEditBox.f:SetText(L["Pet"] .. ": " .. name .. " (" .. creatureID .. ")")
-							return
-						else
-							-- Show armory link for players outside zhCN
-							local unitFocus
-							if WorldFrame:IsMouseMotionFocus() then unitFocus = "mouseover" else unitFocus = select(2, GameTooltip:GetUnit()) end
-							if unitFocus and UnitIsPlayer(unitFocus) then
-								-- Show armory link
-								local name, realm = UnitName(unitFocus)
-								local class = UnitClassBase(unitFocus)
-								if class then
-									local color = RAID_CLASS_COLORS[class]
-									local escapeColor = string.format("|cff%02x%02x%02x", color.r*255, color.g*255, color.b*255)
-									if not realm then realm = GetNormalizedRealmName() end
-									if name and realm then
-										-- Debug
-										-- local realm = "StrandoftheAncients" -- Debug
-										-- Chinese armory not available
-										if GameLocale == "zhCN" then return end
-										-- Fix non-standard names
-											if realm == "Area52" then realm = "Area-52"
-										elseif realm == "AzjolNerub" then realm = "AzjolNerub"
-										elseif realm == "Chantséternels" then realm = "Chants-Éternels"
-										elseif realm == "ConfrérieduThorium" then realm = "Confrérie-du-Thorium"
-										elseif realm == "ConseildesOmbres" then realm = "Conseil-des-Ombres"
-										elseif realm == "CultedelaRivenoire" then realm = "Culte-de-la-Rive-noire"
-										elseif realm == "DerRatvonDalaran" then realm = "Der-Rat-von-Dalaran"
-										elseif realm == "DieewigeWacht" then realm = "Die-ewige-Wacht"
-										elseif realm == "FestungderStürme" then realm = "Festung-der-Stürme"
-										elseif realm == "KultderVerdammten" then realm = "Kult-der-Verdammten"
-										elseif realm == "LaCroisadeécarlate" then realm = "La-Croisade-Écarlate"
-										elseif realm == "MarécagedeZangar" then realm = "Marécage-de-Zangar"
-										elseif realm == "Pozzodell'Eternità" then realm = "Pozzo-dellEternità"
-										elseif realm == "Templenoir" then realm = "Temple-noir"
-										elseif realm == "VanCleef" then realm = "Vancleef"
-										elseif realm == "ZirkeldesCenarius" then realm = "Zirkel-des-Cenarius"
-										-- Fix Russian names
-										elseif realm == "СвежевательДуш" then realm = "Свежеватель-Душ"
-										elseif realm == "СтражСмерти" then realm = "Страж-Смерти"
-										elseif realm == "Ревущийфьорд" then realm = "Ревущий-фьорд"
-										elseif realm == "ТкачСмерти" then realm = "Ткач-Смерти"
-										elseif realm == "Борейскаятундра" then realm = "Борейская-тундра"
-										elseif realm == "Ясеневыйлес" then realm = "Ясеневый-лес"
-										elseif realm == "ПиратскаяБухта" then realm = "Пиратская-Бухта"
-										elseif realm == "ВечнаяПесня" then realm = "Вечная-Песня"
-										elseif realm == "ЧерныйШрам" then realm = "Черный-Шрам"
-										elseif realm == "ВестникРока" then realm = "Вестник-Рока"
-										-- Fix all other names
-										else
-											-- Realm name is not one of the above so fix it
-											realm = realm:gsub("(%l[of])(%u)", "-%1-%2") -- Add hyphen after of if capital follows of (CavernsofTime becomes Cavernsof-Time)
-											realm = realm:gsub("(ofthe)", "-of-the-") -- Replace ofthe with -of-the- (ShrineoftheDormantFlame becomes Shrine-of-the-DormantFlame)
-											realm = realm:gsub("(%l)(%u)", "%1 %2") -- Add space before capital letters (CavernsofTime becomes Cavernsof Time)
-											realm = realm:gsub(" ", "-") -- Replace space with hyphen (Cavernsof Time becomes Cavernsof-Time)
-											realm = realm:gsub("'", "") -- Remove apostrophe
-											realm = realm:gsub("[(]", "-") -- Replace opening parentheses with hyphen
-											realm = realm:gsub("[)]", "") -- Remove closing parentheses
-										end
-										-- print(realm) -- Debug
-										LeaPlusLC:ShowSystemEditBox(LeaPlusLC.BlizzardLock .. strlower(realm) .. "/" .. strlower(name))
-										realm = realm:gsub("-", " ") -- Replace hyphen with space
-										LeaPlusLC.FactoryEditBox.f:SetText(escapeColor .. L["Player"] .. ": " .. name .. " (" .. realm .. ")")
-										return
-									end
-								end
-							else
-								-- Unknown tooltip
-								tipTitle = tipTitle:gsub("|c%x%x%x%x%x%x%x%x", "") -- Remove color tag
-								LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/search?q=" .. tipTitle, false)
-								LeaPlusLC.FactoryEditBox.f:SetText("|cffff0000" .. L["Link will search Wowhead"])
+					-- Floating battle pet tooltip (linked in chat)
+					if FloatingBattlePetTooltip:IsMouseMotionFocus() and FloatingBattlePetTooltip.Name then
+						local tipTitle = FloatingBattlePetTooltip.Name:GetText()
+						if tipTitle then
+							local speciesId, petGUID = C_PetJournal.FindPetIDByName(tipTitle, false)
+							if petGUID then
+								local speciesID, customName, level, xp, maxXp, displayID, isFavorite, name, icon, petType, creatureID = C_PetJournal.GetPetInfoByPetID(petGUID)
+								LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/npc=" .. creatureID)
+								LeaPlusLC.FactoryEditBox.f:SetText(L["Pet"] .. ": " .. name .. " (" .. creatureID .. ")")
 								return
 							end
 						end
 					end
-				end
-				return
+					-- Floating pet battle ability tooltip (linked in chat)
+					if FloatingPetBattleAbilityTooltip and FloatingPetBattleAbilityTooltip:IsMouseMotionFocus() and FloatingPetBattleAbilityTooltip.Name then
+						local tipTitle = FloatingPetBattleAbilityTooltip.Name:GetText()
+						if tipTitle then
+							LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/search?q=" .. tipTitle, false)
+							LeaPlusLC.FactoryEditBox.f:SetText("|cffff0000" .. L["Pet Ability"] .. ": " .. tipTitle)
+							return
+						end
+					end
+					-- Pet journal ability tooltip (tooltip in pet journal)
+					if PetJournalPrimaryAbilityTooltip and PetJournalPrimaryAbilityTooltip:IsShown() and PetJournalPrimaryAbilityTooltip.Name then
+						local tipTitle = PetJournalPrimaryAbilityTooltip.Name:GetText()
+						if tipTitle then
+							LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/search?q=" .. tipTitle, false)
+							LeaPlusLC.FactoryEditBox.f:SetText("|cffff0000" .. L["Pet Ability"] .. ": " .. tipTitle)
+							return
+						end
+					end
+					-- ItemRefTooltip or GameTooltip
+					local tooltip
+					if ItemRefTooltip:IsMouseMotionFocus() then tooltip = ItemRefTooltip else tooltip = GameTooltip end
+					-- Process tooltip
+					if tooltip:IsShown() then
+						-- Item
+						local void, itemLink = tooltip:GetItem()
+						if itemLink then
+							local itemID = GetItemInfoFromHyperlink(itemLink)
+							if itemID then
+								LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/item=" .. itemID, false)
+								LeaPlusLC.FactoryEditBox.f:SetText(L["Item"] .. ": " .. itemLink .. " (" .. itemID .. ")")
+								return
+							end
+						end
+						-- Spell
+						local name, spellID = tooltip:GetSpell()
+						if name and spellID then
+							LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/spell=" .. spellID, false)
+							LeaPlusLC.FactoryEditBox.f:SetText(L["Spell"] .. ": " .. name .. " (" .. spellID .. ")")
+							return
+						end
+						-- NPC
+						local npcName = UnitName("mouseover")
+						local npcGuid = UnitGUID("mouseover") or nil
+						if npcName and npcGuid then
+							local void, void, void, void, void, npcID = strsplit("-", npcGuid)
+							if npcID then
+								LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/npc=" .. npcID, false)
+								LeaPlusLC.FactoryEditBox.f:SetText(L["NPC"] .. ": " .. npcName .. " (" .. npcID .. ")")
+								return
+							end
+						end
+						-- Pet, player and unknown tooltip (this must be last)
+						local tipTitle = GameTooltipTextLeft1:GetText()
+						if tipTitle then
+							local speciesId, petGUID = C_PetJournal.FindPetIDByName(GameTooltipTextLeft1:GetText(), false)
+							if petGUID then
+								-- Pet
+								local speciesID, customName, level, xp, maxXp, displayID, isFavorite, name, icon, petType, creatureID = C_PetJournal.GetPetInfoByPetID(petGUID)
+								LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/npc=" .. creatureID)
+								LeaPlusLC.FactoryEditBox.f:SetText(L["Pet"] .. ": " .. name .. " (" .. creatureID .. ")")
+								return
+							else
+								-- Show armory link for players outside zhCN
+								local unitFocus
+								if WorldFrame:IsMouseMotionFocus() then unitFocus = "mouseover" else unitFocus = select(2, GameTooltip:GetUnit()) end
+								if unitFocus and UnitIsPlayer(unitFocus) then
+									-- Show armory link
+									local name, realm = UnitName(unitFocus)
+									local class = UnitClassBase(unitFocus)
+									if class then
+										local color = RAID_CLASS_COLORS[class]
+										local escapeColor = string.format("|cff%02x%02x%02x", color.r*255, color.g*255, color.b*255)
+										if not realm then realm = GetNormalizedRealmName() end
+										if name and realm then
+											-- Debug
+											-- local realm = "StrandoftheAncients" -- Debug
+											-- Chinese armory not available
+											if GameLocale == "zhCN" then return end
+											-- Fix non-standard names
+												if realm == "Area52" then realm = "Area-52"
+											elseif realm == "AzjolNerub" then realm = "AzjolNerub"
+											elseif realm == "Chantséternels" then realm = "Chants-Éternels"
+											elseif realm == "ConfrérieduThorium" then realm = "Confrérie-du-Thorium"
+											elseif realm == "ConseildesOmbres" then realm = "Conseil-des-Ombres"
+											elseif realm == "CultedelaRivenoire" then realm = "Culte-de-la-Rive-noire"
+											elseif realm == "DerRatvonDalaran" then realm = "Der-Rat-von-Dalaran"
+											elseif realm == "DieewigeWacht" then realm = "Die-ewige-Wacht"
+											elseif realm == "FestungderStürme" then realm = "Festung-der-Stürme"
+											elseif realm == "KultderVerdammten" then realm = "Kult-der-Verdammten"
+											elseif realm == "LaCroisadeécarlate" then realm = "La-Croisade-Écarlate"
+											elseif realm == "MarécagedeZangar" then realm = "Marécage-de-Zangar"
+											elseif realm == "Pozzodell'Eternità" then realm = "Pozzo-dellEternità"
+											elseif realm == "Templenoir" then realm = "Temple-noir"
+											elseif realm == "VanCleef" then realm = "Vancleef"
+											elseif realm == "ZirkeldesCenarius" then realm = "Zirkel-des-Cenarius"
+											-- Fix Russian names
+											elseif realm == "СвежевательДуш" then realm = "Свежеватель-Душ"
+											elseif realm == "СтражСмерти" then realm = "Страж-Смерти"
+											elseif realm == "Ревущийфьорд" then realm = "Ревущий-фьорд"
+											elseif realm == "ТкачСмерти" then realm = "Ткач-Смерти"
+											elseif realm == "Борейскаятундра" then realm = "Борейская-тундра"
+											elseif realm == "Ясеневыйлес" then realm = "Ясеневый-лес"
+											elseif realm == "ПиратскаяБухта" then realm = "Пиратская-Бухта"
+											elseif realm == "ВечнаяПесня" then realm = "Вечная-Песня"
+											elseif realm == "ЧерныйШрам" then realm = "Черный-Шрам"
+											elseif realm == "ВестникРока" then realm = "Вестник-Рока"
+											-- Fix all other names
+											else
+												-- Realm name is not one of the above so fix it
+												realm = realm:gsub("(%l[of])(%u)", "-%1-%2") -- Add hyphen after of if capital follows of (CavernsofTime becomes Cavernsof-Time)
+												realm = realm:gsub("(ofthe)", "-of-the-") -- Replace ofthe with -of-the- (ShrineoftheDormantFlame becomes Shrine-of-the-DormantFlame)
+												realm = realm:gsub("(%l)(%u)", "%1 %2") -- Add space before capital letters (CavernsofTime becomes Cavernsof Time)
+												realm = realm:gsub(" ", "-") -- Replace space with hyphen (Cavernsof Time becomes Cavernsof-Time)
+												realm = realm:gsub("'", "") -- Remove apostrophe
+												realm = realm:gsub("[(]", "-") -- Replace opening parentheses with hyphen
+												realm = realm:gsub("[)]", "") -- Remove closing parentheses
+											end
+											-- print(realm) -- Debug
+											LeaPlusLC:ShowSystemEditBox(LeaPlusLC.BlizzardLock .. strlower(realm) .. "/" .. strlower(name))
+											realm = realm:gsub("-", " ") -- Replace hyphen with space
+											LeaPlusLC.FactoryEditBox.f:SetText(escapeColor .. L["Player"] .. ": " .. name .. " (" .. realm .. ")")
+											return
+										end
+									end
+								else
+									-- Unknown tooltip
+									tipTitle = tipTitle:gsub("|c%x%x%x%x%x%x%x%x", "") -- Remove color tag
+									LeaPlusLC:ShowSystemEditBox("https://" .. LeaPlusLC.WowheadLock .. "/search?q=" .. tipTitle, false)
+									LeaPlusLC.FactoryEditBox.f:SetText("|cffff0000" .. L["Link will search Wowhead"])
+									return
+								end
+							end
+						end
+					end
+					return
+				end)
 			elseif str == "mountid" then
 				-- Get mount ID by mount name
 				if not arg1 or arg1 == "" then LeaPlusLC:Print("Missing mount name.") return end
@@ -12969,31 +13291,35 @@
 				end
 				return
 			elseif str == "marker" then
-				-- Prevent showing raid target markers on self
-				if not LeaPlusLC.MarkerFrame then
-					LeaPlusLC.MarkerFrame = CreateFrame("FRAME")
-					LeaPlusLC.MarkerFrame:RegisterEvent("RAID_TARGET_UPDATE")
-				end
-				LeaPlusLC.MarkerFrame.Update = true
-				if LeaPlusLC.MarkerFrame.Toggle == false then
-					-- Show markers
-					LeaPlusLC.MarkerFrame:SetScript("OnEvent", nil)
-					LeaPlusLC:DisplayMessage(L["Self Markers Allowed"], true)
-					LeaPlusLC.MarkerFrame.Toggle = true
+				if LeaPlusLC.NewPatch then
+					LeaPlusLC:Print("Not currently available in Midnight.")
 				else
-					-- Hide markers
-					SetRaidTarget("player", 0)
-					LeaPlusLC.MarkerFrame:SetScript("OnEvent", function()
-						if LeaPlusLC.MarkerFrame.Update == true then
-							LeaPlusLC.MarkerFrame.Update = false
-							SetRaidTarget("player", 0)
-						end
-						LeaPlusLC.MarkerFrame.Update = true
-					end)
-					LeaPlusLC:DisplayMessage(L["Self Markers Blocked"], true)
-					LeaPlusLC.MarkerFrame.Toggle = false
+					-- Prevent showing raid target markers on self
+					if not LeaPlusLC.MarkerFrame then
+						LeaPlusLC.MarkerFrame = CreateFrame("FRAME")
+						LeaPlusLC.MarkerFrame:RegisterEvent("RAID_TARGET_UPDATE")
+					end
+					LeaPlusLC.MarkerFrame.Update = true
+					if LeaPlusLC.MarkerFrame.Toggle == false then
+						-- Show markers
+						LeaPlusLC.MarkerFrame:SetScript("OnEvent", nil)
+						LeaPlusLC:DisplayMessage(L["Self Markers Allowed"], true)
+						LeaPlusLC.MarkerFrame.Toggle = true
+					else
+						-- Hide markers
+						SetRaidTarget("player", 0)
+						LeaPlusLC.MarkerFrame:SetScript("OnEvent", function()
+							if LeaPlusLC.MarkerFrame.Update == true then
+								LeaPlusLC.MarkerFrame.Update = false
+								SetRaidTarget("player", 0)
+							end
+							LeaPlusLC.MarkerFrame.Update = true
+						end)
+						LeaPlusLC:DisplayMessage(L["Self Markers Blocked"], true)
+						LeaPlusLC.MarkerFrame.Toggle = false
+					end
+					return
 				end
-				return
 			elseif str == "exit" then
 				-- Exit a vehicle
 				VehicleExit()
