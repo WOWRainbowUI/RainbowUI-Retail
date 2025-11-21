@@ -25,10 +25,10 @@ local L = Core.Locale
 -- Locals
 ---
 
-local API_VERSION = 110000
+local API_VERSION = 110207
 
 -- Skin Info
-local Version = "11.1.0"
+local Version = "11.2.6"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Fusion",
 	"https://www.curseforge.com/wow/addons/masque-fusion",
@@ -509,22 +509,30 @@ MSQ:AddSkin("Fusion", {
 		-- SetAllPoints = nil,
 	},
 	ChargeCooldown = "Cooldown",
-	-- [ SpellAlert ]
+	-- [ SpellAlerts ]
 	SpellAlert = {
 		Height = 40,
 		Width = 40,
+		AltGlow = {
+			Height = 46.5,
+			Width = 46.5,
+		},
 		Classic = {
 			Height = 32,
 			Width = 32,
 		},
 		Modern = {
+			Height = 32,
+			Width = 32,
+		},
+		["Modern-Lite"] = {
 			Height = 33,
 			Width = 33,
 		},
-		Thin = {
-			Height = 30,
-			Width = 30,
-		},
+	},
+	AssistedCombatHighlight = {
+		Width = 46.5,
+		Height = 46.5,
 	},
 })
 
@@ -606,4 +614,6 @@ MSQ:AddSkin("Fusion - Inversion", {
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
+	-- SpellAlert = Template.SpellAlert,
+	-- AssistedCombatHighlight = Template.AssistedCombatHighlight,
 })
