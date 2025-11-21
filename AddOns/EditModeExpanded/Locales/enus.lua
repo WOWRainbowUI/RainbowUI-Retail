@@ -54,6 +54,13 @@ L["Hide Names"] = true
 L["UNLINK_CLASS_RESOURCE_DESCRIPTION"] = "Unlink from Player Frame (may require reload)"
 L["Reset Cooldown Manager DB"] = true
 L["TARGET_CAST_BAR"] = TARGET.." "..HUD_EDIT_MODE_CAST_BAR_LABEL
+L["Solo"] = true
+L["Party"] = true
+L["Raid (5)"] = true
+L["Raid (10)"] = true
+L["Raid (25)"] = true
+L["Raid (40)"] = true
+L["AUTO_LAYOUT_CHANGE_DESCRIPTION"] = "Allows you to automatically change Edit Mode Layouts based on your group size"
 
 -- 自行加入
 L["Target of Target"] = true
@@ -78,3 +85,4 @@ L["None"] = true
 L["Top by duration"] = true
 L["Bottom by duration"] = true
 L["Sort Icons:"] = true
+L["Enabled"] = true
