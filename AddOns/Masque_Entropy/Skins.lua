@@ -25,10 +25,10 @@ local L = Core.Locale
 -- Locals
 ---
 
-local API_VERSION = 110000
+local API_VERSION = 110207
 
 -- Skin Info
-local Version = "11.0.2"
+local Version = "11.2.6"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Entropy",
 	"https://www.curseforge.com/wow/addons/masque-entropy",
@@ -532,10 +532,14 @@ MSQ:AddSkin("Entropy - Silver", {
 		-- SetAllPoints = nil,
 	},
 	ChargeCooldown = "Cooldown",
-	-- [ SpellAlert ]
+	-- [ SpellAlerts ]
 	SpellAlert = {
 		Height = 32,
 		Width = 32,
+		AltGlow = {
+			Height = 36,
+			Width = 36,
+		},
 		Classic = {
 			Height = 26,
 			Width = 26,
@@ -544,10 +548,14 @@ MSQ:AddSkin("Entropy - Silver", {
 			Height = 26,
 			Width = 26,
 		},
-		Thin = {
-			Height = 24,
-			Width = 24,
+		["Modern-Lite"] = {
+			Height = 26,
+			Width = 26,
 		},
+	},
+	AssistedCombatHighlight = {
+		Width = 36,
+		Height = 36,
 	},
 })
 
@@ -648,6 +656,8 @@ MSQ:AddSkin("Entropy - Adamantite", {
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
+	-- SpellAlert = Template.SpellAlert,
+	-- AssistedCombatHighlight = Template.AssistedCombatHighlight,
 })
 
 ----------------------------------------
@@ -747,6 +757,8 @@ MSQ:AddSkin("Entropy - Bronze", {
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
+	-- SpellAlert = Template.SpellAlert,
+	-- AssistedCombatHighlight = Template.AssistedCombatHighlight,
 })
 
 ----------------------------------------
@@ -846,6 +858,8 @@ MSQ:AddSkin("Entropy - Cobalt", {
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
+	-- SpellAlert = Template.SpellAlert,
+	-- AssistedCombatHighlight = Template.AssistedCombatHighlight,
 })
 
 ----------------------------------------
@@ -945,6 +959,8 @@ MSQ:AddSkin("Entropy - Copper", {
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
+	-- SpellAlert = Template.SpellAlert,
+	-- AssistedCombatHighlight = Template.AssistedCombatHighlight,
 })
 
 ----------------------------------------
@@ -1044,6 +1060,8 @@ MSQ:AddSkin("Entropy - Fel Iron", {
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
+	-- SpellAlert = Template.SpellAlert,
+	-- AssistedCombatHighlight = Template.AssistedCombatHighlight,
 })
 
 ----------------------------------------
@@ -1143,6 +1161,8 @@ MSQ:AddSkin("Entropy - Gold", {
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
+	-- SpellAlert = Template.SpellAlert,
+	-- AssistedCombatHighlight = Template.AssistedCombatHighlight,
 })
 
 ----------------------------------------
@@ -1242,6 +1262,8 @@ MSQ:AddSkin("Entropy - Iron", {
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
+	-- SpellAlert = Template.SpellAlert,
+	-- AssistedCombatHighlight = Template.AssistedCombatHighlight,
 })
 
 ----------------------------------------
@@ -1341,6 +1363,8 @@ MSQ:AddSkin("Entropy - Khorium", {
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
+	-- SpellAlert = Template.SpellAlert,
+	-- AssistedCombatHighlight = Template.AssistedCombatHighlight,
 })
 
 ----------------------------------------
@@ -1440,6 +1464,8 @@ MSQ:AddSkin("Entropy - Obsidium", {
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
+	-- SpellAlert = Template.SpellAlert,
+	-- AssistedCombatHighlight = Template.AssistedCombatHighlight,
 })
 
 ----------------------------------------
@@ -1539,6 +1565,8 @@ MSQ:AddSkin("Entropy - Saronite", {
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
+	-- SpellAlert = Template.SpellAlert,
+	-- AssistedCombatHighlight = Template.AssistedCombatHighlight,
 })
 
 ----------------------------------------
@@ -1638,4 +1666,6 @@ MSQ:AddSkin("Entropy - Titanium", {
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
+	-- SpellAlert = Template.SpellAlert,
+	-- AssistedCombatHighlight = Template.AssistedCombatHighlight,
 })

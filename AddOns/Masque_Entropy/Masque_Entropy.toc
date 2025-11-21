@@ -1,9 +1,10 @@
-## Interface: 11504, 30403, 40400, 110200, 110205
+## Interface: 11508, 20504, 30405, 40402, 50502, 110200, 110205
 
 ## Author: StormFX
 ## Title: Masque: Entropy
-## Version: 11.0.2
+## Version: 11.2.6
 
+## Category: Masque
 ## Dependencies: Masque
 ## IconTexture: Interface\AddOns\Masque_Entropy\Textures\Icon
 
