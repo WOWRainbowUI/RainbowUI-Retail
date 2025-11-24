@@ -1,5 +1,15 @@
 # Dominos Changelog
 
+## 11.2.9
+
+* (Midnight) Added a workaround for GetUnitEmpowerHoldAtMaxTime returning
+  secret values to prevent error messages when casting empowered spells.
+  Hopefully Blizzard will drop this restriction.
+
+## 11.2.8
+
+* (Classic) Fixed the missing Monk class bar
+
 ## 11.2.7
 
 * (Retail, Midnight) Reuse the existing pet bar action buttons and logic. This should make the bar usable in Midnight
