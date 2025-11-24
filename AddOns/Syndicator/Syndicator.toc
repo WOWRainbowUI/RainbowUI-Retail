@@ -1,6 +1,6 @@
 ## Interface: 11508, 30405, 50502, 110200, 110205
 ## Title: Syndicator
-## Version: 247
+## Version: 249
 ## Author: plusmouse
 ## SavedVariables: SYNDICATOR_CONFIG, SYNDICATOR_DATA, SYNDICATOR_SUMMARIES
 ## IconTexture: Interface\AddOns\Syndicator\Assets\logo.tga
@@ -35,7 +35,6 @@ Core\Initialize.lua
 
 Options\Initialize.lua
 
-Tracking\Utilities.lua
 Tracking\BagCache.lua
 Tracking\MailCache.lua
 Tracking\EquippedCache.lua
