@@ -1,6 +1,7 @@
 # Edit Mode Expanded
 
-## [11.2-018](https://github.com/teelolws/EditModeExpanded/tree/11.2-018) (2025-11-20)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.2-017...11.2-018) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [11.2-019](https://github.com/teelolws/EditModeExpanded/tree/11.2-019) (2025-11-22)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.2-018...11.2-019) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
-- Add new module accessible via interface options: automatically switch edit mode profiles based on group size  
+- Fix display issue that can happen if different versions of the EME library are being run in different addons  
+    Cannot retroactively fix the issue for versions older than v97  
