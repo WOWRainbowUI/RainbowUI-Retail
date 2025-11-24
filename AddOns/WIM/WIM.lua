@@ -15,7 +15,7 @@ setfenv(1, WIM);
 
 -- Core information
 addonTocName = "WIM";
-version = "3.13.4";
+version = "3.13.5";
 beta = false; -- flags current version as beta.
 debug = false; -- turn debugging on and off.
 useProtocol2 = true; -- test switch for new W2W Protocol. (Dev use only)
@@ -555,6 +555,23 @@ function GetTalentSpec()
         return talents ~= "" and talents or "0/0/0";
 end
 
+
+-- 12.00.00 + Secret Tools
+function IsSecretValue(...)
+	if _G.issecretvalue then
+		return _G.issecretvalue(...);
+	else
+		return false;
+	end
+end
+
+function InChatMessagingLockdown()
+	if _G.C_ChatInfo and _G.C_ChatInfo.InChatMessagingLockdown then
+		return _G.C_ChatInfo.InChatMessagingLockdown();
+	else
+		return false;
+	end
+end
 
 
 
