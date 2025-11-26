@@ -10,7 +10,7 @@ function addon:initActionBars()
         if InCombatLockdown() then return end 
         local bars = {MainMenuBar, MultiBarBottomLeft, MultiBarBottomRight, MultiBarRight, MultiBarLeft, MultiBar5, MultiBar6, MultiBar7}
 
-        for _, bar in ipairs(bars) do
+        for barIndex, bar in ipairs(bars) do
             
             --[[
             -- setting.buttonPadding causes taint to spread and cause issues
@@ -72,7 +72,9 @@ function addon:initActionBars()
                     updateNamesSizes()
                 end,
                 0.5, 2, 0.05)
-
+            
+            lib:RegisterHiddenUntilMouseover(bar, L["HIDE_WHEN_NOT_MOUSEOVER_DESCRIPTION"])
+            
             hooksecurefunc("CompactUnitFrame_UpdateName", updateNamesSizes)
         end
     end)
