@@ -59,6 +59,7 @@ L["Raid (10)"] = "團隊 (10)"
 L["Raid (25)"] = "團隊 (25)"
 L["Raid (40)"] = "團隊 (40)"
 L["AUTO_LAYOUT_CHANGE_DESCRIPTION"] = "允許依據隊伍大小自動更改編輯模式配置"
+L["HIDE_WHEN_NOT_MOUSEOVER_DESCRIPTION"] = "隱藏，滑鼠指向才顯示"
 
 -- 自行加入
 L["Target of Target"] = "目標的目標"
