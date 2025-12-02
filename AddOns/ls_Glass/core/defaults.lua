@@ -9,6 +9,21 @@ local function rgb(r, g, b)
 	return E:CreateColor(r, g, b)
 end
 
+-- match LSM names to fonts in NumberFont_Shadow_Med
+local function getDefaultFont()
+	local locale = GetLocale()
+	if locale == "koKR" then
+		return "기본 글꼴"
+	elseif locale == "zhCN" then
+		return "聊天"
+	elseif locale == "zhTW" then
+		-- LSM doesn't include arheiuhk_bd.ttf, use similar looking bHEI01B.ttf instead
+		return "聊天"
+	else
+		return "Arial Narrow"
+	end
+end
+
 D.global = {
 	colors = {
 		lanzones = rgb(224, 188, 91)
@@ -16,7 +31,16 @@ D.global = {
 }
 
 D.profile = {
-	font = "聊天",
+	font = {
+		name = getDefaultFont(),
+		override = {
+			roman = false,
+			russian = false,
+			korean = false,
+			simplifiedchinese = false,
+			traditionalchinese = false,
+		},
+	},
 	chat = {
 		tooltips = true,
 		smooth = true,
@@ -28,106 +52,7 @@ D.profile = {
 		buttons = {
 			up_and_down = false,
 		},
-		[ 1] = {
-			alpha = 0.4,
-			-- solid = false,
-			x_padding = 8,
-			y_padding = 0,
-			font = {
-				size = 16,
-				shadow = true,
-				outline = false,
-			},
-		},
-		[ 2] = {
-			alpha = 0.4,
-			-- solid = false,
-			x_padding = 8,
-			y_padding = 0,
-			font = {
-				size = 16,
-				shadow = true,
-				outline = false,
-			},
-		},
-		[ 3] = {
-			alpha = 0.4,
-			-- solid = false,
-			x_padding = 8,
-			y_padding = 0,
-			font = {
-				size = 16,
-				shadow = true,
-				outline = false,
-			},
-		},
-		[ 4] = {
-			alpha = 0.4,
-			-- solid = false,
-			x_padding = 8,
-			y_padding = 0,
-			font = {
-				size = 16,
-				shadow = true,
-				outline = false,
-			},
-		},
-		[ 5] = {
-			alpha = 0.4,
-			-- solid = false,
-			x_padding = 8,
-			y_padding = 0,
-			font = {
-				size = 16,
-				shadow = true,
-				outline = false,
-			},
-		},
-		[ 6] = {
-			alpha = 0.4,
-			-- solid = false,
-			x_padding = 8,
-			y_padding = 0,
-			font = {
-				size = 16,
-				shadow = true,
-				outline = false,
-			},
-		},
-		[ 7] = {
-			alpha = 0.4,
-			-- solid = false,
-			x_padding = 8,
-			y_padding = 0,
-			font = {
-				size = 16,
-				shadow = true,
-				outline = false,
-			},
-		},
-		[ 8] = {
-			alpha = 0.4,
-			-- solid = false,
-			x_padding = 8,
-			y_padding = 0,
-			font = {
-				size = 16,
-				shadow = true,
-				outline = false,
-			},
-		},
-		[ 9] = {
-			alpha = 0.4,
-			-- solid = false,
-			x_padding = 8,
-			y_padding = 0,
-			font = {
-				size = 16,
-				shadow = true,
-				outline = false,
-			},
-		},
-		[10] = {
+		["*"] = {
 			alpha = 0.4,
 			-- solid = false,
 			x_padding = 8,
