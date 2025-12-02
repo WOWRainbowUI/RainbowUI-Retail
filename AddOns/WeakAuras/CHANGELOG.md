@@ -1,41 +1,51 @@
-# [5.20.6](https://github.com/WeakAuras/WeakAuras2/tree/5.20.6) (2025-10-21)
+# [5.20.7](https://github.com/WeakAuras/WeakAuras2/tree/5.20.7) (2025-11-27)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.20.5...5.20.6)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.20.6...5.20.7)
 
 ## Highlights
 
-bugfix release for 1.15.8 & toc bump for classic era & mop classic
-
-fixes:
-
-- icon visible condition behavior is more sane now
-- another workaround for insane AbbreviateNumbers behavior
-- adjusted to new api environment in classic era
-
-removals:
-
-- WeakAuras now detects & refuses to boot if it was installed on a Midnight client, instead of spewing thousands of errors.
+- Basic support for Wrath Titan (thanks WoW CN community)
+- Support for new Masque version
+- Various bug fixes
 
 ## Commits
 
-Adal (1):
+Copilot (1):
 
-- update mists toc for 5.5.1
+- Fix allstates:Get to return false instead of nil
 
-InfusOnWoW (5):
+InfusOnWoW (6):
 
+- Masque Support: Support new masque version
+- Profiling: Add an inherit font
+- BT Multi Target mode: add warnings on it, and if it's missing a filter
 - Update Discord List
+- Fix regression in Abbreviate numbers on retail
 - Update Discord List
-- Fix Icon visible Condition not reversing correctly
-- Midnight: Disable WeakAuras with an message
-- Mop/Classic: Workaround another bug in AbbreviateNumbers
 
-Stanzilla (2):
+NoM0Re (6):
+
+- Titan: Replace encounter data with phase 1 raids & bosses
+- Titan: remove neutral faction group
+- Titan: fix repair dialog text assignment
+- Glyph Load: Only show in Mists of Pandaria
+- Remove atlas file from Wrath Titan Reforge
+- Add Wrath Titan Reforged support
+
+Stanzilla (4):
 
 - Update WeakAurasModelPaths from wago.tools
 - Update WeakAurasModelPaths from wago.tools
+- Update WeakAurasModelPaths from wago.tools
+- Update WeakAurasModelPaths from wago.tools
 
-mrbuds (1):
+dependabot[bot] (2):
 
-- Classic Era 1.15.8 update
+- Bump actions/checkout from 5 to 6
+- Bump actions/upload-artifact from 4 to 5
+
+mrbuds (2):
+
+- Remove atlas files
+- Model's Icon set to sword guy on classic, fixes #6075
 
