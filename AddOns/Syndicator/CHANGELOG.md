@@ -1,6 +1,6 @@
 # Syndicator
 
-## [249](https://github.com/TheMouseNest/Syndicator/tree/249) (2025-11-22)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/248...249) 
+## [251](https://github.com/TheMouseNest/Syndicator/tree/251) (2025-12-02)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/250...251) 
 
-- Classic: Fix calling wrong function breaking bank previews in Baganator  
+- Update toc for 11.2.7  
