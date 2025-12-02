@@ -1,7 +1,7 @@
 --[[
 
 	This file is part of 'Masque', an add-on for World of Warcraft. For bug reports,
-	docuementation and license information, please visit https://github.com/SFX-WoW/Masque.
+	documentation and license information, please visit https://github.com/SFX-WoW/Masque.
 
 	* File...: Masque.lua
 	* Author.: StormFX
@@ -41,7 +41,7 @@ local L = Core.Locale
 local Masque = LibStub("AceAddon-3.0"):NewAddon(MASQUE)
 
 -- API Version
-local API_VERSION = 110107
+local API_VERSION = 110207
 
 -- Client Version
 local WOW_VERSION = select(4, GetBuildInfo()) or 0
@@ -92,6 +92,8 @@ local function UpdateDB()
 	end
 
 	db.API_VERSION = API_VERSION
+
+	db.CB_Warn = nil
 	db.Effects.SpellAlert = nil
 
 	-- Refresh Settings
@@ -118,7 +120,7 @@ Core.WOW_VERSION = WOW_VERSION
 Core.WOW_RETAIL = WOW_RETAIL
 
 -- Add-On Info
-Core.Version = "11.2.5"
+Core.Version = "11.2.7"
 Core.Discord = "https://discord.gg/7MTWRgDzz8"
 
 Core.Authors = {
@@ -173,9 +175,6 @@ function Masque:OnInitialize()
 	local Defaults = {
 		profile = {
 			API_VERSION = 0,
-			CB_Warn = {
-				["*"] = true
-			},
 			Developer = {
 				Debug = false,
 			},
