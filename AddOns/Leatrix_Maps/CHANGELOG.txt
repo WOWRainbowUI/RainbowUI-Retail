@@ -1,4 +1,7 @@
-﻿11.2.18 - 11th November 2025
+﻿11.2.21 - 26th November 2025
+- Updated slider controls used throughout the addon.
+
+11.2.18 - 11th November 2025
 - Midnight Beta: Preliminary update for Midnight Beta.
 
 11.2.11 - 8th October 2025

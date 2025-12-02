@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 11.2.20 (19th November 2025)
+	-- 	Leatrix Maps 11.2.21 (26th November 2025)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "11.2.20"
+	LeaMapsLC["AddonVer"] = "11.2.21"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -1408,7 +1408,7 @@
 			pTex:SetAlpha(0.2)
 			pTex:SetTexCoord(0, 1, 1, 0)
 
-			expTitle:SetText(L["The War Within"] .. "|n" .. L["Midnight Beta"])
+			expTitle:SetText(L["The War Within"] .. "|n" .. L["Midnight Beta"]) -- LeaMapsLC.NewPatch
 			local category = Settings.RegisterCanvasLayoutCategory(interPanel, "Leatrix Maps")
 			Settings.RegisterAddOnCategory(category)
 
@@ -1874,7 +1874,7 @@
 	function LeaMapsLC:MakeSL(frame, field, label, caption, low, high, step, x, y, form)
 
 		-- Create slider control
-		local Slider = CreateFrame("Slider", nil, frame, "UISliderTemplate")
+		local Slider = CreateFrame("Slider", nil, frame, "LeaMapsConfigurationPanelSliderTemplate") -- Old is UISliderTemplate
 		LeaMapsCB[field] = Slider
 		Slider:SetMinMaxValues(low, high)
 		Slider:SetValueStep(step)
