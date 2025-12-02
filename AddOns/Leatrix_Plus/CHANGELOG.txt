@@ -1,4 +1,8 @@
-﻿11.2.20 - 19th November 2025
+﻿11.2.21 - 26th November 2025
+- Midnight Beta: For 'Enhance dressup' ('Interface'), the housing dashboard controls will now be hidden.
+- Updated slider controls and scroll bars used throughout the addon.
+
+11.2.20 - 19th November 2025
 - Midnight Beta: For 'Enhance tooltip' ('Interface'), the 'Hide the health bar' setting is now available.
 - Midnight Beta: For 'Enhance dressup' ('Interface'), the settings now apply to the new transmogrify frame.
 - Midnight Beta: For 'Remove transforms' ('System'), fixed an issue with the 'Fishing' setting which caused a Lua error after casting a channelled spell during an instanced combat encounter.

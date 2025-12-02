@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.2.20 (19th November 2025)
+-- 	Leatrix Plus 11.2.21 (26th November 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.2.20"
+	LeaPlusLC["AddonVer"] = "11.2.21"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -2480,6 +2480,15 @@
 					ModelPreviewFrame.Display.ModelScene.ControlFrame:Hide()
 				end
 			end)
+
+			-- Hide controls for housing dashboard
+			if LeaPlusLC.NewPatch then
+				EventUtil.ContinueOnAddOnLoaded("Blizzard_HousingDashboard", function()
+					HousingDashboardFrame.CatalogContent.PreviewFrame.ModelSceneControls:HookScript("OnShow", function()
+						HousingDashboardFrame.CatalogContent.PreviewFrame.ModelSceneControls:Hide()
+					end)
+				end)
+			end
 
 			----------------------------------------------------------------------
 			-- Wardrobe and inspect system for Midnight
@@ -11094,7 +11103,7 @@
 			pTex:SetAlpha(0.2)
 			pTex:SetTexCoord(0, 1, 1, 0)
 
-			expTitle:SetText(L["The War Within"] .. "|n" .. L["Midnight Beta"])
+			expTitle:SetText(L["The War Within"] .. "|n" .. L["Midnight Beta"]) -- LeaPlusLC.NewPatch
 			local category = Settings.RegisterCanvasLayoutCategory(interPanel, L["Leatrix Plus"])
 			Settings.RegisterAddOnCategory(category)
 
@@ -12055,7 +12064,7 @@
 	function LeaPlusLC:MakeSL(frame, field, caption, low, high, step, x, y, form)
 
 		-- Create slider control
-		local Slider = CreateFrame("Slider", nil, frame, "UISliderTemplate")
+		local Slider = CreateFrame("Slider", nil, frame, "LeaPlusConfigurationPanelSliderTemplate") -- Old is UISliderTemplate
 		LeaPlusCB[field] = Slider
 		Slider:SetMinMaxValues(low, high)
 		Slider:SetValueStep(step)
