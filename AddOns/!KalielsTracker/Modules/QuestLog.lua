@@ -13,7 +13,7 @@ KT.QuestLog = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
-local db
+local db, dbChar
 
 local dropDownFrame
 
@@ -43,7 +43,7 @@ local function QuestMapQuestOptionsDropDown_Initialize(self)
 	MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
 
 	info.text = QuestUtils_IsQuestWatched(self.questID) and UNTRACK_QUEST or TRACK_QUEST;
-	info.disabled = (db.filterAuto[1])
+	info.disabled = (dbChar.filterAuto[1])
 	info.func = function()
 		QuestMapQuestOptions_TrackQuest(self.questID)
 	end;
@@ -121,6 +121,7 @@ end
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
+	dbChar = KT.db.char
 	SetHooks()
 	SetFrames()
 end

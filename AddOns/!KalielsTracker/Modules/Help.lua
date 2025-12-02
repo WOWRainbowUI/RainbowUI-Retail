@@ -21,7 +21,7 @@ local ICON_HEART = "|T"..HELP_PATH.."help_patreon:14:14:2:0:256:32:174:190:0:16|
 
 local db, dbChar
 local helpName = "help"
-local helpNumPages = 14
+local helpNumPages = 15
 local supportersName = "supporters"
 local supportersNumPages = 1
 local cTitle = "|cffffd200"
@@ -30,7 +30,7 @@ local cWarning = "|cffff7f00"
 local cWarning2 = "|cffff4200"
 local cDots = "|cff808080"
 local offs = "\n|T:1:9|t"
-local offs2 = "\n|T:1:18|t"
+local offs2 = "\n|T:1:21|t"
 local ebSpace = "|T:16:1|t\n"
 local beta = "|cffff7fff[Beta]|r"
 local new = "|cffff7fff[新功能]|r"
@@ -85,7 +85,7 @@ local function SetupTutorials()
 		icon = HELP_PATH.."KT_logo",
 		font = "Fonts\\bLEI00D.ttf",
 		width = 582,
-		height = 610,
+		height = 620,
 		paddingX = 35,
 		paddingTop = 26,
 		paddingBottom = 24,
@@ -284,6 +284,9 @@ local function SetupTutorials()
 					offs.."導航箭頭。\n"..
 					"- 新追蹤或距離最近的任務會自動顯示導航。\n"..
 					"- 取消追蹤或放棄任務時會移除導航。\n"..
+					"- "..cBold.."左鍵點擊|r箭頭 - 打開世界地圖。\n"..
+                    "- "..cBold.."右鍵點擊|r箭頭 - 移除導航並取消選取 POI。\n"..
+                    "- "..cBold.."Shift + 右鍵點擊|r箭頭 - 顯示右鍵選單。\n"..
 					AddonInfo("TomTom"),
 			editbox = {
 				{
@@ -322,6 +325,30 @@ local function SetupTutorials()
 			},
 		},
 		{	-- 14
+			image = HELP_PATH.."help_map-waypoints",
+			heading = "地圖導航",
+			text = KT.TITLE.." 允許在地圖上的任何 POI 設定 TomTom 導航路線。包括新任務、"..
+                    "事件、副本、團隊、副洞窟、飛行點、傳送門等等。\n\n"..
+                    cTitle.."導航範例|r\n"..
+                    "上方圖片顯示了支援的導航模式。\n\n"..
+                    "1 - "..cBold.."直接導航|r - TomTom 箭頭會直接指向位於"..
+                    offs2.."同一導航區域（同一區域與大陸）的目標。\n"..
+                    "2 - "..cBold.."大陸內直接導航|r - TomTom 箭頭會指向"..
+                    offs2.."同一大陸不同區域的目標。此外，會顯示「前往 ...」"..
+                    offs2.."的指示。\n"..
+                    "3 - "..cBold.."跨大陸導航|r - TomTom 箭頭會指向最近的轉移點"..
+                    offs2.."(例如傳送門)。移動到正確的大陸後，導航"..
+                    offs2.."會自動更新。此外，會顯示前往轉移點的指示。"..
+                    offs2.."此模式僅在任務中能可靠使用。\n"..
+                    "4 - "..cBold.."間接導航（沒有 TomTom 箭頭）|r - 僅顯示「前往 ...」"..
+                    offs2.."的指示，因為目標位於當前可導航世界之外。"..
+                    offs2.."只有在進入正確的大陸或區域後，TomTom 箭頭才會出現。",
+			shineTop = 10,
+			shineBottom = -10,
+			shineLeft = -11,
+			shineRight = 11,
+		},
+		{	-- 15
 			image = HELP_PATH.."help_whats-new_logo",
 			imageWidth = 512,
 			imageHeight = 128,
@@ -335,42 +362,23 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "如果你喜歡 "..KT.TITLE.."，請考慮在 Patreon 贊助 "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
-					(cTitle.."版本 7.16.2|r\n"..
-					"- 修改 - 插件支援 - TomTom 4.1.3\n"..
-					"\n")..
-
-					(cTitle.."版本 7.16.1|r\n"..
-					"- 新增（任務）- 新排序選項「熱門任務」\n"..
-					"- 修改（任務）- 改進排序邏輯\n"..
-					"- 修正（任務）- 排序過程中出現的 nil 引用錯誤\n"..
-					"\n")..
-
-					(cTitle.."版本 7.16.0|r\n"..
-					"- 新增（任務）- 過濾選單中新增排序選項（最新、區域、等級、標題）\n"..
-					"- 新增 - 於追蹤清單與任務日誌中加入「YouTube 搜尋連結」功能\n"..
-					"- 修改 - 插件支援 - BtWQuests 2.57.0\n"..
-					"- 修改 - 插件支援 - Auctionator 299\n"..
-					"- 修改 - 插件支援 - RareScanner 11.2.5.4\n"..
-					"- 修改 - 插件支援 - TomTom 4.0.19\n"..
-					"- 修改 - 插件支援 - PetTracker 11.2.2\n"..
-					"- 修改 - 插件支援 - Masque 11.2.5\n"..
-					"- 修改（任務）- 區域過濾功能改進\n"..
-					"- 修改 - TomTom - 改良導航更新\n"..
-					"- 修改（任務）- 已完成任務說明使用綠色文字\n"..
-					"- 修改（任務）- 改進浮動提示資訊（獎勵）\n"..
-					"- 修改 - 增強聲音\n"..
-					"- 修改（說明）- 更新贊助者名單\n"..
-					"- 修正（成就）- 英雄谷區域篩選於 Remix: Legion 中無法使用（Blizz 錯誤）\n"..
-					"\n")..
-
-					(cTitle.."版本 7.15.0|r\n"..
-					"- 新增 (成就) - 過濾方式支援軍臨天下:混搭再造\n"..
-					"- 新增 - 支援 WoW 11.2.5.62554\n"..
-					"- 修改 - 插件支援 - Auctionator 298\n"..
-					"- 修改 - 插件支援 - RareScanner 11.2.5\n"..
-					"- 修改 - 插件支援 - TomTom 4.0.18\n"..
-					"- 修改 - TomTom - 小改善\n"..
-					"- 修改 (說明) - Active Patrons\n"..
+					(cTitle.."Version 7.17.0|r\n"..
+					"- 新增 - TomTom - 可點擊箭頭（打開世界地圖、移除導航路線、顯示右鍵選單），詳見使用說明第 12 頁\n"..
+                    "- 新增 - TomTom - 支援任何地圖 POI 的導航路線（新任務、事件、副本、團隊、飛行路線、傳送門等），詳見使用說明第 14 頁\n"..
+                    "- 新增（成就）- 新的篩選選項「顯示大陸成就」\n"..
+                    "- 修改 - 插件支援 - Auctionator 302\n"..
+                    "- 修改 - 插件支援 - RareScanner 11.2.5.8\n"..
+                    "- 修改 - 插件支援 - TomTom 4.2.3\n"..
+                    "- 修改 - 插件支援 - PetTracker 11.2.3\n"..
+                    "- 修改 - 插件支援 - Masque 11.2.6\n"..
+                    "- 修改（篩選器）- 設定 Remix 的預設篩選分類\n"..
+                    "- 修改（篩選器）- 允許 Remix 中的所有成就分類\n"..
+                    "- 修改（篩選器）- 將篩選設定儲存為角色專屬，而非共用設定檔\n"..
+                    "- 修改 - TomTom - 導航路線改進\n"..
+                    "- 修正（事件）- 特定區域 POI 的事件 mapID 有時缺失（Blizz 錯誤）\n"..
+                    "- 修正 - 目標文字高度有時錯誤（Blizz 錯誤）\n"..
+                    "- 修正（API）- KalielsTracker:Toggle() 傳入 nil 參數時無法運作\n"..
+                    "- 效能（篩選器）- 大幅提升成就篩選效能（移除延遲）\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..

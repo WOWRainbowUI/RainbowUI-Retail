@@ -64,26 +64,56 @@ KT.WORLD_QUEST_REWARD_TYPE_FLAG_EQUIPMENT = 0x0010
 KT.WORLD_QUEST_REWARD_TYPE_FLAG_REPUTATION = 0x0020
 KT.WORLD_QUEST_REWARD_TYPE_FLAG_OTHERS = 0x10000
 
-KT.ICON_ALERT = "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew"
-KT.ICONS = {
-    MouseLeft = { atlas = "newplayertutorial-icon-mouse-leftbutton", width = 24, height = 28, offsetX = -1, offsetY = 6 },
-    MouseRight = { atlas = "newplayertutorial-icon-mouse-rightbutton", width = 24, height = 28, offsetX = -1, offsetY = 6 }
+-- Tags
+KT.INSTANCE_TAGS = {
+    [Enum.QuestTag.Dungeon] = true,
+    [Enum.QuestTag.Heroic] = true,
+    [Enum.QuestTag.Raid] = true,
+    [Enum.QuestTag.Raid10] = true,
+    [Enum.QuestTag.Raid25] = true,
+    [Enum.QuestTag.Scenario] = true,
+    [Enum.QuestTag.Delve] = true
 }
-do
-    for _, info in pairs(KT.ICONS) do
-        if info.atlas then
-            local atlasInfo = C_Texture.GetAtlasInfo(info.atlas)
-            if atlasInfo then
-                info.markup = format("|A:%s:%d:%d:%d:%d|a", info.atlas, info.height, info.width, info.offsetX, info.offsetY)
-            end
-        end
-    end
-end
 
 -- Excluded Quest Items
 KT.EXCLUDED_QUEST_ITEMS = {
     [85113] = true  -- Special Assignment: Storm's a Brewin
 }
+
+-- Locations
+local MAP_CONTINENT_OVERRIDES = {
+    [2472] = { mapID = 2371 },        -- Tazavesh
+    [2371] = { mapID = 2371 },        -- K'aresh
+    [2346] = { mapID = 2214 },        -- Undermine
+    [2369] = { mapID = 2369 },        -- Siren Isle
+    [1355] = { mapID = 1355 },        -- Nazjatar
+    [2214] = { virtualID = 2274.1 },  -- The Ringing Deeps
+    [2215] = { virtualID = 2274.1 },  -- Hallowfall
+    [2255] = { virtualID = 2274.1 },  -- Azj-Kahet
+    [2256] = { virtualID = 2274.1 },  -- Azj-Kahet - Lower
+    [2213] = { virtualID = 2274.1 },  -- City of Threads
+}
+KT.MAP_CONTINENT_INFO = setmetatable({}, {
+    __index = function(self, mapID)
+        local info
+        local data = MAP_CONTINENT_OVERRIDES[mapID]
+        if data and data.mapID then
+            info = C_Map.GetMapInfo(data.mapID)
+            if info then
+                info.KTmapID = data.mapID
+            end
+        else
+            info = MapUtil.GetMapParentInfo(mapID, Enum.UIMapType.Continent)
+            if info then
+                info.KTmapID = data and data.virtualID or info.mapID
+            end
+        end
+        if info then
+            rawset(self, mapID, info)
+        end
+        return info
+    end
+})
 
 -- Major Cities
 KT.MAJOR_CITY_MAPS = {
