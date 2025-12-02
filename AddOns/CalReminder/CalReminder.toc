@@ -1,6 +1,6 @@
-## Interface: 110200,110205
+## Interface: 110205,110207
 ## Title: CalReminder
-## Version: 1.3.7
+## Version: 1.3.8
 ## Notes: This file exists only to support packaging systems.
 ## LoadOnDemand: 1
 
