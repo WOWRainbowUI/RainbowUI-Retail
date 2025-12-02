@@ -8,42 +8,65 @@
 
 	Text Regions
 
-	* See Skins\Default.lua for region defaults.
-
 ]]
 
 local _, Core = ...
 
 ----------------------------------------
+-- Lua API
+---
+
+local type = type
+
+----------------------------------------
 -- Internal
 ---
 
--- @ Core\Utility
-local GetSize, GetTypeSkin, SetSkinPoint = Core.GetSize, Core.GetTypeSkin, Core.SetSkinPoint
-
 -- @ Skins\Blizzard_*
-local DEFAULT_SKIN = Core.DEFAULT_SKIN
+local DEF_SKIN = Core.DEFAULT_SKIN
 
 ----------------------------------------
 -- Core
 ---
 
--- Skins a text layer of a button.
-function Core.SkinText(Layer, Region, Button, Skin, xScale, yScale)
-	local bType = Button.__MSQ_bType
+-- Internal skin handler for text regions.
+function Core.Skin_Text(Layer, Region, Button, Skin)
+	local _mcfg = Button._MSQ_CFG
 
-	Skin = GetTypeSkin(Button, bType, Skin)
+	Skin = _mcfg:GetTypeSkin(Button, Skin)
 
-	local Default_Skin = DEFAULT_SKIN[Layer]
-	Default_Skin = Default_Skin[bType] or Default_Skin
+	local Default = DEF_SKIN[Layer]
+	Default = Default[_mcfg.bType] or Default
 
 	local Skin_Wrap = (Skin.Wrap and true) or false
 
-	Region:SetJustifyH(Skin.JustifyH or Default_Skin.JustifyH)
-	Region:SetJustifyV(Skin.JustifyV or "MIDDLE")
+	Region:SetJustifyH(Skin.JustifyH or Default.JustifyH)
+	Region:SetJustifyV(Skin.JustifyV or Default.JustifyV)
 	Region:SetWordWrap(Skin_Wrap)
-	Region:SetDrawLayer(Skin.DrawLayer or Default_Skin.DrawLayer)
-	Region:SetSize(GetSize(Skin.Width or 36, Skin.Height or 0, xScale, yScale, Button))
+	Region:SetDrawLayer(Skin.DrawLayer or Default.DrawLayer)
+	Region:SetSize(_mcfg:GetSize(Skin.Width or 36, Skin.Height or 0))
 
-	SetSkinPoint(Region, Button, Skin, Default_Skin)
+	local Skin_Anchor = Skin.Anchor or Default.Anchor
+	local Anchor = Button
+
+	if Skin_Anchor then
+		local Regions = _mcfg.Regions
+
+		if type(Regions) == "table" then
+			Anchor = Regions[Skin_Anchor] or Anchor
+		end
+	end
+
+	local Point, RelPoint = Default.Point, Default.RelPoint
+	local OffsetX, OffsetY = 0, 0
+
+	if Skin then
+		Point = Skin.Point or Point
+		RelPoint = Skin.RelPoint or RelPoint
+		OffsetX = Skin.OffsetX or OffsetX
+		OffsetY = Skin.OffsetY or OffsetY
+	end
+
+	Region:ClearAllPoints()
+	Region:SetPoint(Point, Anchor, RelPoint, OffsetX, OffsetY)
 end
