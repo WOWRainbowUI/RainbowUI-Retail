@@ -13,7 +13,11 @@ local api = {}
 ---Toggle tracker visibility (public API).
 ---@param show boolean|nil Tracker visibility (true = show, false = hide, nil = toggle).
 function api:Toggle(show)
-    KT:SetHidden(not show)
+    if show == nil then
+        KT:SetHidden()
+    else
+        KT:SetHidden(not show)
+    end
 end
 
 ---@public

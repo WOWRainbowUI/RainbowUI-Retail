@@ -21,7 +21,7 @@ local ICON_HEART = "|T"..HELP_PATH.."help_patreon:14:14:2:0:256:32:174:190:0:16|
 
 local db, dbChar
 local helpName = "help"
-local helpNumPages = 14
+local helpNumPages = 15
 local supportersName = "supporters"
 local supportersNumPages = 1
 local cTitle = "|cffffd200"
@@ -30,7 +30,7 @@ local cWarning = "|cffff7f00"
 local cWarning2 = "|cffff4200"
 local cDots = "|cff808080"
 local offs = "\n|T:1:9|t"
-local offs2 = "\n|T:1:18|t"
+local offs2 = "\n|T:1:21|t"
 local ebSpace = "|T:16:1|t\n"
 local beta = "|cffff7fff[Beta]|r"
 local new = "|cffff7fff[NEW]|r"
@@ -85,7 +85,7 @@ local function SetupTutorials()
 		icon = HELP_PATH.."KT_logo",
 		font = "Fonts\\FRIZQT__.TTF",
 		width = 582,
-		height = 610,
+		height = 620,
 		paddingX = 35,
 		paddingTop = 26,
 		paddingBottom = 24,
@@ -122,7 +122,7 @@ local function SetupTutorials()
 					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:16:30:209:170:0|t you can disable in Options.\n\n"..
 					"You can set "..cBold.."[key bind]|r for Minimize button.\n"..
 					cBold.."Right Click|r on Minimize button - Focus closest Quest.\n"..
-					cBold.."Alt + Click|r on Minimize button - Open "..KT.TITLE.." Options.",
+					cBold.."Alt + Left Click|r on Minimize button - Open "..KT.TITLE.." Options.",
 			paddingBottom = 18,
 			shine = KTF.MinimizeButton,
 			shineTop = 13,
@@ -267,21 +267,24 @@ local function SetupTutorials()
 				}
 			},
 		},
-		{	-- 12
-			image = HELP_PATH.."help_addon-tomtom",
-			heading = "Support addon TomTom",
-			text = "TomTom support combined Blizzard's POI and TomTom's Arrow.\n\n"..
-					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
-					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r   Active POI button with TomTom Waypoint.\n"..
-					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
-					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r   Active POI button without TomTom Waypoint (no data).\n\n"..
-					"Features:\n"..
-					"- Available for Quests and World Quests, but Quest waypoints are only for"..
-					offs.."current zone!|r (TomTom and Blizzard limitations)\n"..
-					"- "..cBold.."Click|r on POI button (inside the Tracker or World Map) add waypoint for"..
-					offs.."the quest.\n"..
-					"- The newly tracked or closest quest automatically gets a waypoint.\n"..
-					"- Waypoint of untracked or abandoned quest will be removed.\n"..
+        {	-- 12
+            image = HELP_PATH.."help_addon-tomtom",
+            heading = "Support addon TomTom",
+            text = "TomTom support combines Blizzard's POI and TomTom's arrow.\n\n"..
+                    "|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
+                    "|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r   Active POI button with TomTom waypoint.\n"..
+                    "|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
+                    "|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r   Active POI button without TomTom waypoint (no data).\n\n"..
+                    "Features:\n"..
+                    "- Available for Quests and World Quests, but waypoints are only for current"..
+                    offs.."continent (TomTom and Blizzard limitations).\n"..
+                    "- Other map POIs can also have a waypoint (see page 14).\n"..
+                    "- "..cBold.."Left Click|r on POI button (in the tracker or on World Map) to set a waypoint.\n"..
+                    "- The newly tracked or closest quest automatically gets a waypoint.\n"..
+                    "- Waypoint of untracked or abandoned quest will be removed.\n"..
+                    "- "..cBold.."Left Click|r on arrow - opens World Map.\n"..
+                    "- "..cBold.."Right Click|r on arrow - removes the waypoint and clears the POI selection.\n"..
+                    "- "..cBold.."Shift + Right Click|r or arrow - shows the context menu.\n"..
 					AddonInfo("TomTom"),
 			editbox = {
 				{
@@ -320,6 +323,31 @@ local function SetupTutorials()
 			},
 		},
 		{	-- 14
+			image = HELP_PATH.."help_map-waypoints",
+			heading = "Map Waypoints",
+			text = KT.TITLE.." allows setting TomTom waypoints on any POI on the map. This includes new quests, "..
+					"events, dungeons, raids, delves, flight points, portals, and more.\n\n"..
+					cTitle.."Navigation Examples|r\n"..
+					"The image above shows the supported navigation modes.\n\n"..
+					"1 - "..cBold.."Direct navigation|r - The TomTom arrow points directly at the target that is in"..
+					offs2.."the same navigational area (same zone and continent).\n"..
+					"2 - "..cBold.."Direct navigation within the continent|r - The TomTom arrow points at a target"..
+					offs2.."in a different zone on the same continent. Additionally, a \"Travel to ...\""..
+					offs2.."instruction is shown.\n"..
+					"3 - "..cBold.."Intercontinental navigation|r - The TomTom arrow points at the nearest transfer"..
+					offs2.."point (e.g. a portal). After moving to the correct continent, the navigation"..
+					offs2.."updates automatically. Additionally, an instruction leading to the transfer"..
+					offs2.."point is shown. This mode is reliably available only for quests.\n"..
+					"4 - "..cBold.."Indirect navigation (without a TomTom arrow)|r - Only a \"Travel to ...\""..
+					offs2.."instruction is shown because the target is outside the currently navigable"..
+					offs2.."world. The TomTom arrow appears only after entering the correct continent"..
+					offs2.."or zone.",
+			shineTop = 10,
+			shineBottom = -10,
+			shineLeft = -11,
+			shineRight = 11,
+		},
+		{	-- 15
 			image = HELP_PATH.."help_whats-new_logo",
 			imageWidth = 512,
 			imageHeight = 128,
@@ -333,42 +361,23 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "If you like "..KT.TITLE..", consider supporting it on Patreon "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 7.16.2|r\n"..
-					"- CHANGED - addon support - TomTom 4.1.3\n"..
-					"\n")..
-
-					(cTitle.."Version 7.16.1|r\n"..
-					"- ADDED (Quests) - new sorting option \"Top Meta quests\"\n"..
-					"- CHANGED (Quests) - sorting improvements\n"..
-					"- FIXED (Quests) - nil reference during sorting\n"..
-					"\n")..
-
-					(cTitle.."Version 7.16.0|r\n"..
-					"- ADDED (Quests) - sorting options in filter menu (Newest, Zone, Level, Title)\n"..
-					"- ADDED - YouTube Search URL menu item inside the tracker and Quest Log\n"..
-					"- CHANGED - addon support - BtWQuests 2.57.0\n"..
-					"- CHANGED - addon support - Auctionator 299\n"..
-					"- CHANGED - addon support - RareScanner 11.2.5.4\n"..
-					"- CHANGED - addon support - TomTom 4.0.19\n"..
-					"- CHANGED - addon support - PetTracker 11.2.2\n"..
-					"- CHANGED - addon support - Masque 11.2.5\n"..
-					"- CHANGED (Quests) - zone filtering improvement\n"..
-					"- CHANGED - TomTom - better waypoint update\n"..
-					"- CHANGED (Quests) - green color for completed quest description\n"..
-					"- CHANGED (Quests) - tooltip improvements - rewards\n"..
-					"- CHANGED - sound improvements\n"..
-					"- CHANGED (help) - Active Patrons\n"..
-					"- FIXED (Achievements) - Val'sharah zone filter not working in Remix: Legion (Blizz bug)\n"..
-					"\n")..
-
-					(cTitle.."Version 7.15.0|r\n"..
-					"- ADDED (achievements) - filter support for Remix: Legion\n"..
-					"- ADDED - support for WoW 11.2.5.62554\n"..
-					"- CHANGED - addon support - Auctionator 298\n"..
-					"- CHANGED - addon support - RareScanner 11.2.5\n"..
-					"- CHANGED - addon support - TomTom 4.0.18\n"..
-					"- CHANGED - TomTom - minor improvements\n"..
-					"- CHANGED (help) - Active Patrons\n"..
+					(cTitle.."Version 7.17.0|r\n"..
+					"- ADDED - TomTom - clickable arrow (open World Map, remove waypoint, show context menu), see Help page 12\n"..
+					"- ADDED - TomTom - waypoint support for any map POI (new quests, events, dungeons, raids, flight paths, portals, ...), see Help page 14\n"..
+					"- ADDED (Achievements) - new filter option \"Show continent achievs\"\n"..
+					"- CHANGED - addon support - Auctionator 302\n"..
+					"- CHANGED - addon support - RareScanner 11.2.5.8\n"..
+					"- CHANGED - addon support - TomTom 4.2.3\n"..
+					"- CHANGED - addon support - PetTracker 11.2.3\n"..
+					"- CHANGED - addon support - Masque 11.2.6\n"..
+					"- CHANGED (Filters) - set default filter categories for Remix\n"..
+					"- CHANGED (Filters) - allow all achievement categories in Remix\n"..
+					"- CHANGED (Filters) - store filter settings per character instead of shared profile\n"..
+					"- CHANGED - TomTom - waypoint improvements\n"..
+					"- FIXED (Events) - event mapID sometimes missing for specific area POIs (Blizz bug)\n"..
+					"- FIXED - objective text height sometimes wrong (Blizz bug)\n"..
+					"- FIXED (API) - KalielsTracker:Toggle() with nil param doesn't work\n"..
+					"- PERFORMANCE (Filters) - massively improve achievements filtering (remove lags)\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..

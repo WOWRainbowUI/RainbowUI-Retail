@@ -53,6 +53,7 @@ local ICON_HEART = "|T"..KT.MEDIA_PATH.."Help\\help_patreon:14:14:0:0:256:32:174
 
 local cTitle = " "..NORMAL_FONT_COLOR_CODE
 local cBold = "|cff00ffe3"
+local cBold2 = "|cffffd200"
 local cWarning = "|cffff7f00"
 local cWarning2 = "|cffff4200"
 local beta = "|cffff7fff[Beta]|r"
@@ -126,7 +127,7 @@ local defaults = {
 		questShowTags = true,
 		questShowZones = true,
 		taskShowFactions = true,
-		questAutoFocusClosest = true,
+		questAutoFocusClosest = false,
 
 		messageQuest = true,
 		messageAchievement = true,
@@ -157,6 +158,11 @@ local defaults = {
 		},
 		achievements = {
 			favorites = {}
+		},
+		waypoint = {
+			mapID = 0,
+			id = 0,
+			type = nil
 		}
 	}
 }
@@ -340,8 +346,8 @@ moverOptions = {
 			type = "group",
 			args = {
 				intro = {
-					name = "\n"..KT.ICONS.MouseLeft.markup..cBold.."Left Click|r on mover to drag the tracker element.\n"..
-							KT.ICONS.MouseRight.markup..cBold.."Right Click|r on mover to restore the default position and size.\n",
+					name = "\n"..KT.GetUiIcon("MouseLeft", "markup")..cBold.."Left Click|r on mover to drag the tracker element.\n"..
+							KT.GetUiIcon("MouseRight", "markup")..cBold.."Right Click|r on mover to restore the default position and size.\n",
 					type = "description",
 					justifyH = "CENTER",
 					order = 0,
@@ -1389,6 +1395,7 @@ local options = {
 									"- you manually or automatically select a Zone Filter and nothing is focused.",
 							type = "toggle",
 							width = "normal+half",
+                            disabled = true,
 							set = function()
 								db.questAutoFocusClosest = not db.questAutoFocusClosest
 							end,
@@ -2173,7 +2180,7 @@ local function Setup()
 	local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(KT.db)
 	profiles.confirm = true
 	profiles.args.current.width = "double"
-	profiles.args.reset.confirmText = warning
+	profiles.args.reset.confirmText = "Reset Profile - "..cBold2..KT.db:GetCurrentProfile().."|r|n|n"..warning
 	profiles.args.new.confirmText = warning
 	profiles.args.choose.confirmText = warning
 	profiles.args.copyfrom.confirmText = warning
@@ -2190,15 +2197,15 @@ local function Setup()
 			name = "Clear Tracker Data",
 			desc = "Clear the data of the tracked content.",
 			type = "execute",
-			confirmText = "Clear Tracker Data - "..cBold..KT.playerName,
+			confirmText = "Clear Tracker Data - "..cBold..KT.playerName.."|r|n|n"..warning,
 			func = function()
 				dbChar.quests.cache = {}
-				for i = 1, #db.filterAuto do
-					db.filterAuto[i] = nil
+				for i = 1, #dbChar.filterAuto do
+					dbChar.filterAuto[i] = nil
 				end
-				KT:SetBackground()
 				KT.QuestsCache_Update(true)
-				OTF:Update()
+				KT.AchievementsCache_Reset()
+				ReloadUI()
 			end,
 			order = 0.2,
 		},
@@ -2262,7 +2269,7 @@ local function SetAlert(type)
 				order = 0.1,
 				args = {
 					alertIcon = {
-						name = "|T"..KT.ICON_ALERT..":36:36:8:-2|t",
+						name = KT.GetUiIcon("Alert", "markup"),
 						type = "description",
 						width = 0.2,
 						order = 1.1,
@@ -2355,6 +2362,8 @@ end)
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	Init()
+
+    db.questAutoFocusClosest = false
 end
 
 function M:OnEnable()

@@ -716,7 +716,7 @@ local function SetHooks()
 	Default_SetChangedMixin("MarkDirty")
 
 	hooksecurefunc(KT_ObjectiveTrackerModuleMixin, "SetNeedsFanfare", function(self, key)
-		if KT.stopUpdate then
+		if KT.stopUpdate and key then
 			self.fanfares[key] = nil
 		end
 	end)
@@ -809,24 +809,24 @@ local function SetHooks()
 		self.lastRegion = line;
 
 		-- completion state
-		local questsCache = dbChar.quests.cache
-		if KT.inWorld and questsCache[self.id] and type(objectiveKey) == "string" then
+		if KT.inWorld and type(objectiveKey) == "string" then
+			local state = KT.QuestsCache_GetProperty(self.id, "state")
 			if strfind(objectiveKey, "Complete") then
-				if not questsCache[self.id].state or questsCache[self.id].state ~= "complete" then
+				if not state or state ~= "complete" then
 					if db.messageQuest then
 						KT:SetMessage(self.title, 0, 1, 0, ERR_QUEST_COMPLETE_S, "Interface\\GossipFrame\\ActiveQuestIcon", -2, 0)
 					end
 					if db.soundQuest then
 						KT:PlaySound(db.soundQuestComplete)
 					end
-					questsCache[self.id].state = "complete"
+					KT.QuestsCache_UpdateProperty(self.id, "state", "complete")
 				end
 			elseif strfind(objectiveKey, "Failed") then
-				if not questsCache[self.id].state or questsCache[self.id].state ~= "failed" then
+				if not state or state ~= "failed" then
 					if db.messageQuest then
 						KT:SetMessage(self.title, 1, 0, 0, ERR_QUEST_FAILED_S, "Interface\\GossipFrame\\AvailableQuestIcon", -2, 0)
 					end
-					questsCache[self.id].state = "failed"
+					KT.QuestsCache_UpdateProperty(self.id, "state", "failed")
 				end
 			end
 		end
@@ -848,6 +848,11 @@ local function SetHooks()
 			fontString:SetMaxLines(2);
 		end
 		fontString:SetHeight(0);	-- force a clear of internals or GetHeight() might return an incorrect value
+
+		-- fix Blizz bug
+		local origWidth = fontString:GetWidth()
+		fontString:SetWidth(origWidth + 2)
+
 		fontString:SetText(text);
 
 		local stringHeight = fontString:GetHeight();
@@ -1916,7 +1921,7 @@ local function SetHooks()
 			block.parentModule:UntrackQuest(block.id)
 		end;
 		info.checked = false;
-		info.disabled = (db.filterAuto[1]);
+		info.disabled = (dbChar.filterAuto[1]);
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
 
 		info.disabled = false;
@@ -1989,7 +1994,7 @@ local function SetHooks()
 			block.parentModule:UntrackAchievement(block.id)
 		end;
 		info.checked = false;
-		info.disabled = (db.filterAuto[2]);
+		info.disabled = (dbChar.filterAuto[2]);
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
 
 		info.disabled = false;
@@ -2527,7 +2532,7 @@ function KT:SetBackground()
 	self.hdrBtnColor = db.hdrBtnColorShare and self.borderColor or db.hdrBtnColor
 	KTF.MinimizeButton:GetNormalTexture():SetVertexColor(self.hdrBtnColor.r, self.hdrBtnColor.g, self.hdrBtnColor.b)
 	if self.Filters:IsEnabled() then
-		if db.filterAuto[1] or db.filterAuto[2] or db.filterAuto[3] then
+		if dbChar.filterAuto[1] or dbChar.filterAuto[2] or dbChar.filterAuto[3] then
 			KTF.FilterButton:GetNormalTexture():SetVertexColor(0, 1, 0)
 		else
 			KTF.FilterButton:GetNormalTexture():SetVertexColor(self.hdrBtnColor.r, self.hdrBtnColor.g, self.hdrBtnColor.b)
@@ -2978,6 +2983,8 @@ function KT:OnInitialize()
 	self.locked = false
 	self.initialized = false
 
+	self.Storage_Init()
+
 	SetHooks_Init()
 end
 
@@ -2987,6 +2994,7 @@ function KT:OnEnable()
 	dbChar = self.db.char
 	KT:Alert_ResetIncompatibleProfiles("7.0.0")
 
+	self.AchievementsCache_Init(KalielsTrackerCache.achievements)
 	self.QuestsCache_Init(dbChar.quests.cache)
 
 	self.isTimerunningPlayer = (PlayerGetTimerunningSeasonID() ~= nil)

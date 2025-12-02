@@ -17,8 +17,9 @@ local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 local gsub = string.gsub
 local ipairs = ipairs
 local pairs = pairs
-local strfind = string.find
 local strlower = string.lower
+local strfind = string.find
+local strfindp = function(s, p) return strfind(strlower(s), strlower(p), 1, true) end
 local strsub = string.sub
 
 -- WoW API
@@ -57,6 +58,9 @@ local zoneSlug = {
 	[201] = "Vashj'ir",  -- Kelp'thar Forest
 	[204] = "Vashj'ir",  -- Abyssal Depths
 	[205] = "Vashj'ir",  -- Shimmering Expanse
+}
+local zoneAlt = {
+	[646] = C_CampaignInfo.GetCampaignInfo(290).name,  -- Broken Shore
 }
 
 local eventFrame
@@ -113,7 +117,7 @@ local function SetHooks()
 	OTF:SetScript("OnEvent", function(self, event, ...)
 		if event == "QUEST_ACCEPTED" then
 			local questID = ...
-			if not C_QuestLog.IsQuestBounty(questID) and not C_QuestLog.IsQuestTask(questID) and db.filterAuto[1] then
+			if not C_QuestLog.IsQuestBounty(questID) and not C_QuestLog.IsQuestTask(questID) and dbChar.filterAuto[1] then
 				return
 			end
 		end
@@ -123,7 +127,7 @@ local function SetHooks()
 	-- Quests
 	local bck_KT_QuestObjectiveTracker_UntrackQuest = KT_QuestObjectiveTracker.UntrackQuest
 	function KT_QuestObjectiveTracker:UntrackQuest(questID)
-		if not db.filterAuto[1] then
+		if not dbChar.filterAuto[1] then
 			bck_KT_QuestObjectiveTracker_UntrackQuest(self, questID)
 		end
 	end
@@ -150,7 +154,7 @@ local function SetHooks()
 	-- Achievements
 	local bck_KT_AchievementObjectiveTracker_UntrackAchievement = KT_AchievementObjectiveTracker.UntrackAchievement
 	function KT_AchievementObjectiveTracker:UntrackAchievement(achievementID)
-		if not db.filterAuto[2] then
+		if not dbChar.filterAuto[2] then
 			bck_KT_AchievementObjectiveTracker_UntrackAchievement(self, achievementID)
 		end
 	end
@@ -176,13 +180,13 @@ local function SetHooks()
 	-- Quest Log - QuestMapFrame.lua
 	local bck_QuestMapQuestOptions_TrackQuest = QuestMapQuestOptions_TrackQuest
 	QuestMapQuestOptions_TrackQuest = function(questID)
-		if not db.filterAuto[1] then
+		if not dbChar.filterAuto[1] then
 			bck_QuestMapQuestOptions_TrackQuest(questID)
 		end
 	end
 
 	hooksecurefunc("QuestMapFrame_UpdateQuestDetailsButtons", function()
-		if db.filterAuto[1] then
+		if dbChar.filterAuto[1] then
 			QuestMapFrame.DetailsFrame.TrackButton:Disable()
 			QuestLogPopupDetailFrame.TrackButton:Disable()
 		else
@@ -209,7 +213,7 @@ local function SetHooks_Init()
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 
 		local questID = self:GetQuestID()
-		if questID and db.filterAuto[1] then
+		if questID and dbChar.filterAuto[1] then
 			if ChatEdit_TryInsertQuestLinkForQuestID(questID) then
 				return
 			end
@@ -228,19 +232,23 @@ end
 local function SetHooks_AchievementUI()
 	local bck_AchievementTemplateMixin_ToggleTracking = AchievementTemplateMixin.ToggleTracking
 	function AchievementTemplateMixin:ToggleTracking()
-		if not db.filterAuto[2] then
+		if not dbChar.filterAuto[2] then
 			return bck_AchievementTemplateMixin_ToggleTracking(self)
 		end
 	end
 	
 	hooksecurefunc(AchievementTemplateMixin, "Init", function(self, elementData)
 		if not self.completed then
-			if db.filterAuto[2] then
+			if dbChar.filterAuto[2] then
 				self.Tracked:Disable()
 			else
 				self.Tracked:Enable()
 			end
 		end
+	end)
+
+	AchievementFrame:HookScript("OnHide", function(self)
+		AchievementFrameCategories_SelectDefaultElementData()
 	end)
 end
 
@@ -338,13 +346,12 @@ local function Filter_Quests(spec, idx)
 		end
 	elseif spec == "zone" then
 		local mapID = KT.GetCurrentMapAreaID()
-		local zoneName = GetRealZoneText() or ""
-		local zoneNamePattern = strlower(gsub(zoneName, "-", "%%-"))
+		local zoneName = GetRealZoneText() or "???"
 		local isOnMap = false
 		local isInZone = false
 
 		local mapInfo = C_Map.GetMapInfo(mapID)
-		if mapInfo.mapType == Enum.UIMapType.Orphan then
+		if mapInfo and (mapInfo.mapType == Enum.UIMapType.Micro or mapInfo.mapType == Enum.UIMapType.Orphan) then
 			local parentInfo = C_Map.GetMapInfo(mapInfo.parentMapID)
 			zoneName = parentInfo.name
 		end
@@ -365,10 +372,10 @@ local function Filter_Quests(spec, idx)
 					end
 				else
 					local _, objectives = GetQuestLogQuestText(i)
-					local qText = strlower(questInfo.title.." - "..objectives)
+					local qText = questInfo.title.." - "..objectives
 					isOnMap = (questInfo.isOnMap or
 							KT.QuestsCache_GetProperty(questInfo.questID, "startMapID") == mapID or
-							strfind(qText, zoneNamePattern))
+							strfindp(qText, zoneName))
 					if not questInfo.isTask and (not questInfo.isBounty or C_QuestLog.IsComplete(questInfo.questID)) and (KT.QuestsCache_GetProperty(questInfo.questID, "isCalling") or isOnMap or isInZone) then
 						if KT.inInstance then
 							if IsInstanceQuest(questInfo.questID) or isOnMap then
@@ -449,41 +456,45 @@ local function GetCategoryByZone()
 	-- 4 - Pandaria
 	-- 5 - Draenor
 	-- 9 - Dragon Isles
+	local category = "???"
+	local categoryAlt = "???"
 	local continent = KT.GetCurrentMapContinent()
-	local category = continent.name or ""
-	local categoryAlt = ""
-	local mapID = KT.GetCurrentMapAreaID()
-	-- 10 - The War Within
-	if continent.mapID == 2274 or         -- Khaz Algar
-			continent.mapID == 2369 then  -- Siren Isle
-		category = strsub(EXPANSION_NAME10, 5)
-		categoryAlt = EXPANSION_NAME10
-	-- 9 - Dragonflight
-	elseif continent.mapID == 1978 then
-		categoryAlt = EXPANSION_NAME9
-	-- 8 - Shadowlands
-	elseif continent.mapID == 1550 then
-		category = EXPANSION_NAME8
-	-- 7 - Battle for Azeroth
-	elseif continent.mapID == 875 or     -- Zandalar
-			continent.mapID == 876 or    -- Kul Tiras
-			continent.mapID == 1355 or   -- Nazjatar
-			continent.mapID == 948 then  -- The Maelstorm
-		category = EXPANSION_NAME7
-		categoryAlt = "Battle"
-	-- 6 - Legion
-	elseif continent.mapID == 619 then
-		category = EXPANSION_NAME6
-	-- 3 - Cataclysm
-	elseif mapID == 198 or     -- Mount Hyjal
-			mapID == 201 or    -- Vashj'ir - Kelp'thar Forest
-			mapID == 204 or    -- Vashj'ir - Abyssal Depths
-			mapID == 205 or    -- Vashj'ir - Shimmering Expanse
-			mapID == 207 or    -- Deepholm
-			mapID == 241 or    -- Twilight Highlands
-			mapID == 245 or    -- Tol Barad
-			mapID == 249 then  -- Uldum
-		category = EXPANSION_NAME3
+	if continent then
+		category = continent.name
+		local mapID = KT.GetCurrentMapAreaID()
+		-- 10 - The War Within
+		if continent.mapID == 2274 or         -- Khaz Algar
+				continent.mapID == 2369 then  -- Siren Isle
+			category = strsub(EXPANSION_NAME10, 5)
+			categoryAlt = EXPANSION_NAME10
+			-- 9 - Dragonflight
+		elseif continent.mapID == 1978 then
+			categoryAlt = EXPANSION_NAME9
+			-- 8 - Shadowlands
+		elseif continent.mapID == 1550 then
+			category = EXPANSION_NAME8
+			-- 7 - Battle for Azeroth
+		elseif continent.mapID == 875 or     -- Zandalar
+				continent.mapID == 876 or    -- Kul Tiras
+				continent.mapID == 1355 or   -- Nazjatar
+				continent.mapID == 948 then  -- The Maelstorm
+			category = EXPANSION_NAME7
+			categoryAlt = "Battle"
+			-- 6 - Legion
+		elseif continent.mapID == 619 or     -- Broken Isles
+				continent.mapID == 905 then  -- Argus
+			category = EXPANSION_NAME6
+			-- 3 - Cataclysm
+		elseif mapID == 198 or     -- Mount Hyjal
+				mapID == 201 or    -- Vashj'ir - Kelp'thar Forest
+				mapID == 204 or    -- Vashj'ir - Abyssal Depths
+				mapID == 205 or    -- Vashj'ir - Shimmering Expanse
+				mapID == 207 or    -- Deepholm
+				mapID == 241 or    -- Twilight Highlands
+				mapID == 245 or    -- Tol Barad
+				mapID == 249 then  -- Uldum
+			category = EXPANSION_NAME3
+		end
 	end
 	return category, categoryAlt
 end
@@ -507,20 +518,18 @@ local function Filter_Achievements(spec)
 			end
 		end
 	elseif spec == "zone" then
-		local continentName = KT.GetCurrentMapContinent().name or ""
+		local continent = KT.GetCurrentMapContinent()
+		local continentName = continent and continent.name or "???"
 		local mapID = KT.GetCurrentMapAreaID()
-		local zoneName = zoneSlug[mapID] or KT.GetMapNameByID(mapID) or ""
-		local zoneNamePattern = gsub(zoneName, "-", "%%-")
+		local zoneName = zoneSlug[mapID] or KT.GetMapNameByID(mapID) or "???"
+		local zoneNameAlt = zoneAlt[mapID] or "???"
 		local categoryName, categoryNameAlt = GetCategoryByZone()
 		local instance = KT.inInstance and 168 or nil
-		if KT.isTimerunningPlayer and instance then
-			instance = remixID
-		end
-		--_DBG(continentName.." / "..zoneName.." ... "..mapID.." ... "..categoryName.." / "..categoryNameAlt, true)
+		--_DBG(continentName.." / "..zoneName.." ("..zoneNameAlt..") ... "..mapID.." ... "..categoryName.." ("..categoryNameAlt..")", true)
 
 		-- Dungeons & Raids
 		local instanceDifficulty, instanceSize
-		if instance and db.filterAchievCat[instance] then
+		if instance and dbChar.filterAchievCat[instance] then
 			local _, type, difficulty, difficultyName = GetInstanceInfo()
 			instanceDifficulty = difficultyName
 			instanceSize = ""
@@ -534,48 +543,49 @@ local function Filter_Achievements(spec)
 		
 		-- World Events
 		local events = ""
-		if db.filterAchievCat[155] then
+		if dbChar.filterAchievCat[155] then
 			events = GetActiveWorldEvents()
 		end
 
 		if not instance then
 			-- Basic (out of Instance)
 			for _, categoryID in ipairs(achievCategory) do
-				local name, parentID, _ = GetCategoryInfo(categoryID)
+				local name, parentID = GetCategoryInfo(categoryID)
 
-				if db.filterAchievCat[parentID] then
-					if (parentID == 92) or                                  -- Character
-							(parentID == 96 and name == categoryName) or    -- Quests
-							(parentID == 97 and name == categoryName) or    -- Exploration
-							(parentID == 169) or                            -- Professions
-							(parentID == 201) or                            -- Reputation
-							(parentID == 155 and strfind(events, name)) or  -- World Events
-							(categoryID == 15117 or parentID == 15117) or   -- Pet Battles
-							(parentID == 15301 and categoryID == 15462) or  -- Expansion Features (only Dragonriding)
-							(parentID == remixID) then                      -- Remix
-						local numAchievements, _ = GetCategoryNumAchievements(categoryID)
-						for i = 1, numAchievements do
+				if dbChar.filterAchievCat[parentID] then
+					if (parentID == 92) or                                       -- Character
+							(parentID == 96 and name == categoryName) or         -- Quests
+							(parentID == 97 and name == categoryName) or         -- Exploration
+							(parentID == 169) or                                 -- Professions
+							(parentID == 201) or                                 -- Reputation
+							(parentID == 155 and strfindp(events, name)) or      -- World Events
+							(categoryID == 15117 or parentID == 15117) or        -- Pet Battles
+							(parentID == 15301 and categoryID == 15462) or       -- Expansion Features (only Skyriding)
+							(categoryID == remixID or parentID == remixID) then  -- Remix
+						local achievList = KT.AchievementsCache_GetCategory(categoryID)
+						for id, achiev in pairs(achievList) do
 							local track = false
-							local aId, aName, _, aCompleted, _, _, _, aDescription = GetAchievementInfo(categoryID, i)
-							if aId and not aCompleted then
-								--_DBG(aId.." ... "..aName, true)
-								local aText = aName.." - "..aDescription
-								if parentID == 15117 and strfind(aText, continentName) then
+							local _, _, _, completed = GetAchievementInfo(id)
+							if not completed then
+								--_DBG(id.." ... "..achiev.name, true)
+								local aText = achiev.name.." - "..achiev.description
+								if (dbChar.filter.achievements.showContinent or parentID == 15117) and
+										strfindp(aText, continentName) then
 									track = true
-								elseif strfind(aText, zoneNamePattern) then
+								elseif strfindp(aText, zoneName) or strfindp(aText, zoneNameAlt) then
 									track = true
-								elseif strfind(aDescription, " capita") then  -- capital city (TODO: de, ru strings)
-									local numCriteria = GetAchievementNumCriteria(aId)
+								elseif strfindp(achiev.description, " capita") then  -- capital city (TODO: de, ru strings)
+									local numCriteria = GetAchievementNumCriteria(id)
 									for i = 1, numCriteria do
-										local cDescription, _, cCompleted = GetAchievementCriteriaInfo(aId, i)
-										if not cCompleted and strfind(cDescription, zoneNamePattern) then
+										local cDescription, _, cCompleted = GetAchievementCriteriaInfo(id, i)
+										if not cCompleted and strfindp(cDescription, zoneName) then
 											track = true
 											break
 										end
 									end
 								end
 								if track then
-									KT.AddTrackedAchievement(aId)
+									KT.AddTrackedAchievement(id)
 								end
 							end
 							if KT.GetNumTrackedAchievements() == Constants.ContentTrackingConsts.MaxTrackedAchievements then
@@ -594,22 +604,22 @@ local function Filter_Achievements(spec)
 		elseif instanceDifficulty == "Delves" then
 			-- Instance - Delves
 			for _, categoryID in ipairs(achievCategory) do
-				local name, parentID, _ = GetCategoryInfo(categoryID)
+				local name, parentID = GetCategoryInfo(categoryID)
 
-				if db.filterAchievCat[parentID] then
+				if dbChar.filterAchievCat[parentID] then
 					if (parentID == 15522 and (name == categoryName or name == categoryNameAlt)) then  -- Delves
-						local numAchievements, _ = GetCategoryNumAchievements(categoryID)
-						for i = 1, numAchievements do
+						local achievList = KT.AchievementsCache_GetCategory(categoryID)
+						for id, achiev in pairs(achievList) do
 							local track = false
-							local aId, aName, _, aCompleted, _, _, _, aDescription = GetAchievementInfo(categoryID, i)
-							if aId and not aCompleted then
-								--_DBG(aId.." ... "..aName, true)
-								local aText = aName.." - "..aDescription
-								if strfind(aText, zoneNamePattern) then
+							local _, _, _, completed = GetAchievementInfo(id)
+							if not completed then
+								--_DBG(id.." ... "..achiev.name, true)
+								local aText = achiev.name.." - "..achiev.description
+								if strfindp(aText, zoneName) then
 									track = true
 								end
 								if track then
-									KT.AddTrackedAchievement(aId)
+									KT.AddTrackedAchievement(id)
 								end
 							end
 							if KT.GetNumTrackedAchievements() == Constants.ContentTrackingConsts.MaxTrackedAchievements then
@@ -630,44 +640,45 @@ local function Filter_Achievements(spec)
 			for _, categoryID in ipairs(achievCategory) do
 				local name, parentID, _ = GetCategoryInfo(categoryID)
 
-				if db.filterAchievCat[parentID] then
-					local nameMatch = strfind(name, zoneNamePattern)
-					if (parentID == 95 and nameMatch) or                                                 -- Player vs. Player
+				if dbChar.filterAchievCat[parentID] then
+					local nameMatch = strfindp(name, zoneName)
+					if (parentID == 95 and nameMatch) or                                                   -- Player vs. Player
 							((categoryID == instance or parentID == instance) and
-									(strfind(name, categoryName) or strfind(name, categoryNameAlt))) or  -- Dungeons & Raids
-							(parentID == 155 and strfind(events, name)) then                             -- World Events
-						local numAchievements, _ = GetCategoryNumAchievements(categoryID)
-						for i = 1, numAchievements do
+									(strfindp(name, categoryName) or strfindp(name, categoryNameAlt))) or  -- Dungeons & Raids
+							(parentID == 155 and strfindp(events, name)) or                                -- World Events
+							(parentID == remixID and (categoryID == 15559 or categoryID == 15560)) then    -- Remix
+						local achievList = KT.AchievementsCache_GetCategory(categoryID)
+						for id, achiev in pairs(achievList) do
 							local track = false
-							local aId, aName, _, aCompleted, _, _, _, aDescription = GetAchievementInfo(categoryID, i)
-							if aId and not aCompleted then
-								--_DBG(aId.." ... "..aName, true)
-								local aText = aName.." - "..aDescription
+							local _, _, _, completed = GetAchievementInfo(id)
+							if not completed then
+								--_DBG(id.." ... "..achiev.name, true)
+								local aText = achiev.name.." - "..achiev.description
 								if parentID == 95 then
 									track = true
 								elseif parentID == instance then
-									local textMatch = strfind(aText, zoneNamePattern)
+									local textMatch = strfindp(aText, zoneName)
 									if (name == categoryName and textMatch) or nameMatch or textMatch then
 										if instanceDifficulty == "Normal" then
-											if not (strfind(aText, "Heroic") or
-													strfind(aText, "Mythic")) then
+											if not (strfindp(aText, "Heroic") or
+													strfindp(aText, "Mythic")) then
 												track = true
 											end
 										elseif instanceDifficulty == "Looking For Raid" then
-											if strfind(aText, "any difficulty") then  -- TODO: other languages
+											if strfindp(aText, "any difficulty") then  -- TODO: other languages
 												track = true
 											end
 										else
-											if strfind(aText, instanceDifficulty) or
-													strfind(aText, "difficulty or higher") or  -- TODO: other languages
-													strfind(aText, "any difficulty") then      -- TODO: other languages
+											if strfindp(aText, instanceDifficulty) or
+													strfindp(aText, "difficulty or higher") or  -- TODO: other languages
+													strfindp(aText, "any difficulty") then      -- TODO: other languages
 												track = true
 											end
 										end
 									end
 								end
 								if track then
-									KT.AddTrackedAchievement(aId)
+									KT.AddTrackedAchievement(id)
 								end
 							end
 							if KT.GetNumTrackedAchievements() == Constants.ContentTrackingConsts.MaxTrackedAchievements then
@@ -689,15 +700,15 @@ local function Filter_Achievements(spec)
 		local eventName = ""
 		
 		for _, categoryID in ipairs(achievCategory) do
-			local name, parentID, _ = GetCategoryInfo(categoryID)
+			local name, parentID = GetCategoryInfo(categoryID)
 			
-			if parentID == 155 and strfind(events, name) then  -- World Events
+			if parentID == 155 and strfindp(events, name) then  -- World Events
 				eventName = eventName..(eventName ~= "" and ", " or "")..name
-				local numAchievements, _ = GetCategoryNumAchievements(categoryID)
-				for i = 1, numAchievements do
-					local aId, aName, _, aCompleted, _, _, _, aDescription = GetAchievementInfo(categoryID, i)
-					if aId and not aCompleted then
-						KT.AddTrackedAchievement(aId)
+				local achievList = KT.AchievementsCache_GetCategory(categoryID)
+				for id in pairs(achievList) do
+					local _, _, _, completed = GetAchievementInfo(id)
+					if not completed then
+						KT.AddTrackedAchievement(id)
 					end
 					if KT.GetNumTrackedAchievements() == Constants.ContentTrackingConsts.MaxTrackedAchievements then
 						break
@@ -724,7 +735,7 @@ local function Filter_Achievements(spec)
 	KT.stopUpdate = false
 	
 	KT_AchievementObjectiveTracker:MarkDirty()
-	if AchievementFrame then
+	if AchievementFrame and AchievementFrame:IsShown() then
 		AchievementFrameAchievements_ForceUpdate()
 	end
 end
@@ -741,8 +752,8 @@ local function Filter_Menu_Achievements(self, spec)
 end
 
 local function Filter_Menu_AutoTrack(self, id, spec)
-	db.filterAuto[id] = (db.filterAuto[id] ~= spec) and spec or nil
-	if db.filterAuto[id] then
+	dbChar.filterAuto[id] = (dbChar.filterAuto[id] ~= spec) and spec or nil
+	if dbChar.filterAuto[id] then
 		if id == 1 then
 			Filter_Quests(spec)
 			if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
@@ -758,7 +769,7 @@ local function Filter_Menu_AutoTrack(self, id, spec)
 		elseif id == 2 and AchievementFrame then
 			AchievementFrameAchievements_ForceUpdate()
 		end
-		if not (db.filterAuto[1] or db.filterAuto[2]) then
+		if not (dbChar.filterAuto[1] or dbChar.filterAuto[2]) then
 			KTF.FilterButton:GetNormalTexture():SetVertexColor(KT.hdrBtnColor.r, KT.hdrBtnColor.g, KT.hdrBtnColor.b)
 		end
 	end
@@ -766,11 +777,11 @@ local function Filter_Menu_AutoTrack(self, id, spec)
 end
 
 local function Filter_AchievCat_CheckAll(self, state)
-	for id, _ in pairs(db.filterAchievCat) do
-		db.filterAchievCat[id] = state
+	for id, _ in pairs(dbChar.filterAchievCat) do
+		dbChar.filterAchievCat[id] = state
 	end
-	if db.filterAuto[2] then
-		Filter_Menu_Achievements(self, db.filterAuto[2])
+	if dbChar.filterAuto[2] then
+		Filter_Menu_Achievements(self, dbChar.filterAuto[2])
 		MSA_CloseDropDownMenus()
 	else
 		local listFrame = _G["MSA_DropDownList"..MSA_DROPDOWNMENU_MENU_LEVEL]
@@ -801,11 +812,11 @@ local function DropDown_Initialize(self, level)
 		MSA_DropDownMenu_AddButton(info)
 
 		info.isTitle = false
-		info.disabled = (db.filterAuto[1])
+		info.disabled = (dbChar.filterAuto[1])
 		info.func = Filter_Menu_Quests
 
 		info.text = "All  ("..dbChar.quests.num..")"
-		info.hasArrow = not (db.filterAuto[1])
+		info.hasArrow = not (dbChar.filterAuto[1])
 		info.value = "questCategories"
 		info.arg1 = "all"
 		MSA_DropDownMenu_AddButton(info)
@@ -815,11 +826,11 @@ local function DropDown_Initialize(self, level)
 		info.text = "Favorites"
 		info.colorCode = "|cff009bff"
 		info.arg1 = "favorites"
-		info.disabled = (db.filterAuto[1] or #dbChar.quests.favorites == 0)
+		info.disabled = (dbChar.filterAuto[1] or #dbChar.quests.favorites == 0)
 		MSA_DropDownMenu_AddButton(info)
 
 		info.colorCode = nil
-		info.disabled = (db.filterAuto[1])
+		info.disabled = (dbChar.filterAuto[1])
 
 		info.text = "Zone"
 		info.arg1 = "zone"
@@ -846,7 +857,7 @@ local function DropDown_Initialize(self, level)
 		MSA_DropDownMenu_AddButton(info)
 
 		info.text = "Untrack All"
-		info.disabled = (db.filterAuto[1] or C_QuestLog.GetNumQuestWatches() == 0)
+		info.disabled = (dbChar.filterAuto[1] or C_QuestLog.GetNumQuestWatches() == 0)
 		info.arg1 = ""
 		MSA_DropDownMenu_AddButton(info)
 
@@ -867,16 +878,17 @@ local function DropDown_Initialize(self, level)
 		info.checked = dbChar.filter.quests.showCampaign
 		info.func = function()
 			dbChar.filter.quests.showCampaign = not dbChar.filter.quests.showCampaign
-			if db.filterAuto[1] == "zone" then
+			if dbChar.filterAuto[1] == "zone" then
 				Filter_Menu_Quests(_, "zone")
 			end
 		end
 		MSA_DropDownMenu_AddButton(info)
 
 		info.text = "|cff00ff00Auto|r Zone"
+		info.keepShownOnClick = false
 		info.arg1 = 1
 		info.arg2 = "zone"
-		info.checked = (db.filterAuto[info.arg1] == info.arg2)
+		info.checked = (dbChar.filterAuto[info.arg1] == info.arg2)
 		info.func = Filter_Menu_AutoTrack
 		MSA_DropDownMenu_AddButton(info)
 
@@ -931,11 +943,11 @@ local function DropDown_Initialize(self, level)
 		info.text = "Favorites"
 		info.colorCode = "|cff009bff"
 		info.arg1 = "favorites"
-		info.disabled = (db.filterAuto[2] or #dbChar.achievements.favorites == 0)
+		info.disabled = (dbChar.filterAuto[2] or #dbChar.achievements.favorites == 0)
 		MSA_DropDownMenu_AddButton(info)
 
 		info.colorCode = nil
-		info.disabled = (db.filterAuto[2])
+		info.disabled = (dbChar.filterAuto[2])
 
 		info.text = "Zone"
 		info.arg1 = "zone"
@@ -946,16 +958,29 @@ local function DropDown_Initialize(self, level)
 		MSA_DropDownMenu_AddButton(info)
 
 		info.text = "Untrack All"
-		info.disabled = (db.filterAuto[2] or KT.GetNumTrackedAchievements() == 0)
+		info.disabled = (dbChar.filterAuto[2] or KT.GetNumTrackedAchievements() == 0)
 		info.arg1 = ""
 		MSA_DropDownMenu_AddButton(info)
 
-		info.text = "|cff00ff00Auto|r Zone"
 		info.notCheckable = false
 		info.disabled = false
+
+		info.text = "Show continent achievs"
+		info.keepShownOnClick = true
+		info.checked = dbChar.filter.achievements.showContinent
+		info.func = function()
+			dbChar.filter.achievements.showContinent = not dbChar.filter.achievements.showContinent
+			if dbChar.filterAuto[2] == "zone" then
+				Filter_Menu_Achievements(_, "zone")
+			end
+		end
+		MSA_DropDownMenu_AddButton(info)
+
+		info.text = "|cff00ff00Auto|r Zone"
+		info.keepShownOnClick = false
 		info.arg1 = 2
 		info.arg2 = "zone"
-		info.checked = (db.filterAuto[info.arg1] == info.arg2)
+		info.checked = (dbChar.filterAuto[info.arg1] == info.arg2)
 		info.func = Filter_Menu_AutoTrack
 		MSA_DropDownMenu_AddButton(info)
 	elseif level == 2 then
@@ -1005,14 +1030,14 @@ local function DropDown_Initialize(self, level)
 			info.notCheckable = false
 
 			for _, id in ipairs(achievCategory) do
-				if db.filterAchievCat[id] ~= nil then
+				if dbChar.filterAchievCat[id] ~= nil then
 					info.text = GetCategoryInfo(id)
-					info.checked = (db.filterAchievCat[id])
+					info.checked = (dbChar.filterAchievCat[id])
 					info.arg1 = id
 					info.func = function(_, arg)
-						db.filterAchievCat[arg] = not db.filterAchievCat[arg]
-						if db.filterAuto[2] then
-							Filter_Menu_Achievements(_, db.filterAuto[2])
+						dbChar.filterAchievCat[arg] = not dbChar.filterAchievCat[arg]
+						if dbChar.filterAuto[2] then
+							Filter_Menu_Achievements(_, dbChar.filterAuto[2])
 							MSA_CloseDropDownMenus()
 						end
 					end
@@ -1081,7 +1106,7 @@ local function SetFrames()
 				self:UnregisterEvent(event)
 			elseif event == "QUEST_ACCEPTED" then
 				local questID = arg1
-				if not C_QuestLog.IsQuestTask(questID) and (not C_QuestLog.IsQuestBounty(questID) or C_QuestLog.IsComplete(questID)) and db.filterAuto[1] then
+				if not C_QuestLog.IsQuestTask(questID) and (not C_QuestLog.IsQuestBounty(questID) or C_QuestLog.IsComplete(questID)) and dbChar.filterAuto[1] then
 					self:RegisterEvent("QUEST_POI_UPDATE")
 				end
 			elseif event == "QUEST_REMOVED" then
@@ -1091,19 +1116,6 @@ local function SetFrames()
 				RemoveFavorite("quests", questID)
 			elseif event == "ACHIEVEMENT_EARNED" then
 				RemoveFavorite("achievements", arg1)
-			elseif event == "PLAYER_ENTERING_WORLD" then
-				local isInitialLogin, isReloadingUi = arg1, ...
-				if not isInitialLogin and isReloadingUi then
-					if not KT.IsInBetween() then
-						if db.filterAuto[1] == "zone" then
-							Filter_Quests("zone")
-						end
-						if db.filterAuto[2] == "zone" then
-							Filter_Achievements("zone")
-						end
-					end
-					self:UnregisterEvent(event)
-				end
 			elseif event == "QUEST_POI_UPDATE" then
 				KT.questStateStopUpdate = true
 				Filter_Quests("zone")
@@ -1112,17 +1124,17 @@ local function SetFrames()
 			elseif event == "ZONE_CHANGED_NEW_AREA" then
 				if not KT.IsInBetween() then
 					C_Timer.After(0.3, function()
-						if db.filterAuto[1] == "zone" then
+						if dbChar.filterAuto[1] == "zone" then
 							Filter_Quests("zone")
 						end
-						if db.filterAuto[2] == "zone" then
+						if dbChar.filterAuto[2] == "zone" then
 							Filter_Achievements("zone")
 						end
 					end)
 				end
 			elseif event == "ZONE_CHANGED" or event == "ZONE_CHANGED_INDOORS" then
 				if not KT.IsInBetween() then
-					if db.filterAuto[1] == "zone" then
+					if dbChar.filterAuto[1] == "zone" then
 						Filter_Quests("zone")
 					end
 				end
@@ -1130,7 +1142,6 @@ local function SetFrames()
 		end)
 	end
 	eventFrame:RegisterEvent("ADDON_LOADED")
-	eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	eventFrame:RegisterEvent("QUEST_ACCEPTED")
 	eventFrame:RegisterEvent("QUEST_REMOVED")
 	eventFrame:RegisterEvent("QUEST_COMPLETE")
@@ -1153,12 +1164,12 @@ local function SetFrames()
 		self:GetNormalTexture():SetVertexColor(1, 1, 1)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:AddLine("Filter", 1, 1, 1)
-		GameTooltip:AddLine(db.filterAuto[1] and "- "..db.filterAuto[1].." Quests", 0, 1, 0)
-		GameTooltip:AddLine(db.filterAuto[2] and "- "..db.filterAuto[2].." Achievements", 0, 1, 0)
+		GameTooltip:AddLine(dbChar.filterAuto[1] and "- "..dbChar.filterAuto[1].." Quests", 0, 1, 0)
+		GameTooltip:AddLine(dbChar.filterAuto[2] and "- "..dbChar.filterAuto[2].." Achievements", 0, 1, 0)
 		GameTooltip:Show()
 	end)
 	button:SetScript("OnLeave", function(self)
-		if db.filterAuto[1] or db.filterAuto[2] then
+		if dbChar.filterAuto[1] or dbChar.filterAuto[2] then
 			self:GetNormalTexture():SetVertexColor(0, 1, 0)
 		else
 			self:GetNormalTexture():SetVertexColor(KT.hdrBtnColor.r, KT.hdrBtnColor.g, KT.hdrBtnColor.b)
@@ -1183,37 +1194,38 @@ function M:OnInitialize()
 	dbChar = KT.db.char
 
     local defaults = KT:MergeTables({
-        profile = {
-            filterAuto = {
-				nil,	-- [1] Quests
-				nil,	-- [2] Achievements
-			},
-			filterAchievCat = {
-				[92] = true,     -- Character
-				[96] = true,     -- Quests
-				[97] = true,     -- Exploration
-				[15522] = true,  -- Delves
-				[95] = true,     -- Player vs. Player
-				[168] = true,    -- Dungeons & Raids
-				[169] = true,    -- Professions
-				[201] = true,    -- Reputation
-				[155] = true,    -- World Events
-				[15117] = true,  -- Pet Battles
-				[15301] = true,  -- Expansion Features
-			},
-			filterWQTimeLeft = nil,
-        },
-		char = {
+        char = {
 			filter = {
 				quests = {
 					sort = nil,
 					sortTopOverride = true,
 					showCampaign = true
 				},
+				achievements = {
+					showContinent = true
+				},
 				events = {
 					track = true,
 					showLong = true
 				}
+			},
+			filterAuto = {
+				nil,  -- [1] Quests
+				nil,  -- [2] Achievements
+			},
+			filterAchievCat = {
+				[92] = true,       -- Character
+				[96] = true,       -- Quests
+				[97] = true,       -- Exploration
+				[15522] = true,    -- Delves
+				[95] = true,       -- Player vs. Player
+				[168] = true,      -- Dungeons & Raids
+				[169] = true,      -- Professions
+				[201] = true,      -- Reputation
+				[155] = true,      -- World Events
+				[15117] = true,    -- Pet Battles
+				[15301] = true,    -- Expansion Features
+				[remixID] = true,  -- Remix
 			}
 		}
     }, KT.db.defaults)
@@ -1225,29 +1237,28 @@ end
 function M:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
 	if KT.isTimerunningPlayer then
-		if GetCategoryNumAchievements(remixID) > 0 then
-			for id in pairs(db.filterAchievCat) do
-				if id ~= remixID then
-					db.filterAchievCat[id] = nil
-				end
-			end
-			KT.db.defaults.profile.filterAchievCat = {
-				[remixID] = true,
-			}
-			KT.db:RegisterDefaults(KT.db.defaults)
-		end
-
-		zoneSlug[641] = "Val'Sharah"  -- Val'sharah (WTF Blizz)
+		dbChar.filterAchievCat[169] = false    -- Professions
+		dbChar.filterAchievCat[15117] = false  -- Pet Battles
+	else
+		dbChar.filterAchievCat[remixID] = nil  -- Remix
 	end
 
 	SetHooks()
 	SetFrames()
 
-	KT:RegSignal("QUEST_DATA_CHANGED", function()
-		if db.filterAuto[1] == "zone" then
-			Filter_Quests("zone")
-		end
-	end, self)
+    KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID, isInitialLogin, isReloadingUI)
+        if not isInitialLogin and isReloadingUI then
+            if not KT.IsInBetween() then
+                if dbChar.filterAuto[1] == "zone" then
+                    Filter_Quests("zone")
+                end
+                if dbChar.filterAuto[2] == "zone" then
+                    Filter_Achievements("zone")
+                end
+            end
+            KT:UnregEvent(eventID)
+        end
+    end)
 	KT:RegEvent("QUEST_LOG_UPDATE", function(eventID)
 		local numEntries = C_QuestLog.GetNumQuestLogEntries()
 		if numEntries > 1 then
@@ -1255,6 +1266,11 @@ function M:OnEnable()
 			KT:UnregEvent(eventID)
 		end
 	end)
+    KT:RegSignal("QUEST_DATA_CHANGED", function()
+        if dbChar.filterAuto[1] == "zone" then
+            Filter_Quests("zone")
+        end
+    end, self)
 end
 
 function KT:Filter_DropDown_Toggle(level, button)

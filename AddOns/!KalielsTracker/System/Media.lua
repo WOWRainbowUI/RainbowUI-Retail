@@ -84,3 +84,76 @@ function KT.SetSprite(texture, name, setSize)
         texture:SetSize(s.w, s.h)
     end
 end
+
+-- ---------------------------------------------------------------------------------------------------------------------
+
+local UI_ICONS = {
+    Alert = { texture = "Interface\\DialogFrame\\UI-Dialog-Icon-AlertNew", size = 36, offsetX = 8, offsetY = -2 },
+    MouseLeft = { atlas = "newplayertutorial-icon-mouse-leftbutton", width = 24, height = 28, offsetX = -1, offsetY = 6 },
+    MouseRight = { atlas = "newplayertutorial-icon-mouse-rightbutton", width = 24, height = 28, offsetX = -1, offsetY = 6 }
+}
+KT.BuildIconMarkup(UI_ICONS)
+
+function KT.GetUiIcon(name, key)
+    if key then
+        return UI_ICONS[name] and UI_ICONS[name][key]
+    else
+        return UI_ICONS[name]
+    end
+end
+
+local POI_ICONS = {
+    Quest = { atlas = "QuestNormal", size = 18 },
+    QuestTurnin = { atlas = "QuestTurnin", size = 18 },
+    WorldQuest = { atlas = "worldquest-icon", size = 18, offsetX = -3 },
+    BonusObjective = { atlas = "Bonus-Objective-Star", size = 18, offsetX = -3 },
+    TaxiNode = { atlas = "TaxiNode_Neutral", size = 18, offsetX = -3 },
+    DigSite = { atlas = "ArchBlob", size = 18, offsetX = -3 },
+    Dungeon = { atlas = "questlog-questtypeicon-dungeon", size = 18, offsetX = -3 },
+    Raid = { atlas = "questlog-questtypeicon-raid", size = 18, offsetX = -3 },
+    Delve = { atlas = "ui-hud-minimap-guildbanner-delves-large", size = 18, offsetX = -3 },
+    Event = { atlas = "UI-EventPoi-Horn-big", size = 18, offsetX = -3 },
+    MapPin = { atlas = "Waypoint-MapPin-Tracked", size = 18, offsetX = -3 },
+    ["Quest"..Enum.QuestClassification.Important] = { atlas = "questlog-questtypeicon-important", size = 18, offsetX = -3 },
+    ["Quest"..Enum.QuestClassification.Legendary] = { atlas = "questlog-questtypeicon-legendary", size = 18, offsetX = -3 },
+    ["Quest"..Enum.QuestClassification.Campaign] = { atlas = "Quest-Campaign-Available", size = 18, offsetX = -3 },
+    ["Quest"..Enum.QuestClassification.Calling] = { atlas = "Quest-DailyCampaign-Available", size = 18, offsetX = -3 },
+    ["Quest"..Enum.QuestClassification.Meta] = { atlas = "questlog-questtypeicon-Wrapper", size = 18, offsetX = -3 },
+    ["Quest"..Enum.QuestClassification.Recurring] = { atlas = "questlog-questtypeicon-Recurring", size = 18, offsetX = -3 },
+    ["Quest"..Enum.QuestClassification.Questline] = { atlas = "questlog-storylineicon", size = 18, offsetX = -3 },
+    ["Quest"..Enum.QuestClassification.Normal] = { atlas = "QuestNormal", size = 18 },
+}
+local POI_ICONS_OVERRIDES = {}
+local POI_ICONS_RULES = {
+    ["^delves%-"] = "Delve",
+    ["^ui%-eventpoi%-"] = "Event",
+}
+setmetatable(POI_ICONS, {
+    __index = function(self, key)
+        if not key then return nil end
+
+        local lkey = key:lower()
+
+        local mapped = POI_ICONS_OVERRIDES[key]
+        if mapped then
+            return rawget(self, mapped)
+        end
+
+        for pattern, replace in pairs(POI_ICONS_RULES) do
+            if lkey:match(pattern:lower()) then
+                return rawget(self, replace)
+            end
+        end
+
+        return rawget(self, key)
+    end
+})
+KT.BuildIconMarkup(POI_ICONS)
+
+function KT.GetPoiIcon(name, key)
+    if key then
+        return POI_ICONS[name] and POI_ICONS[name][key]
+    else
+        return POI_ICONS[name]
+    end
+end

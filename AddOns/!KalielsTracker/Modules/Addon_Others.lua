@@ -27,7 +27,7 @@ local KTwarning = "  |cff00ffffAddon "..KT.TITLE.." is active.  "
 
 -- Masque
 local function Masque_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Masque", "11.2.5") and db.addonMasque)
+    local isLoaded = (KT:CheckAddOn("Masque", "11.2.6") and db.addonMasque)
     if isLoaded then
         KT:Alert_IncompatibleAddon("Masque", "11.0.1")
         msqGroup1 = MSQ:Group(KT.TITLE, "Quest Item Buttons")
@@ -51,7 +51,7 @@ end
 
 -- Auctionator
 local function Auctionator_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Auctionator", "299") and db.addonAuctionator)
+    local isLoaded = (KT:CheckAddOn("Auctionator", "302") and db.addonAuctionator)
     if isLoaded then
         hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
             local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame

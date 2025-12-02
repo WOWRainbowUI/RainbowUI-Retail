@@ -33,6 +33,16 @@ local function SetHooks()
     hooksecurefunc(KT.ObjectiveTrackerManager, "OnPlayerEnteringWorld", function(self, isInitialLogin, isReloadingUI)
         self:SetModuleContainer(KT_EventObjectiveTracker, OTF)
     end)
+
+    -- fix Blizz bug
+    local EVENT_MAPID = {
+        [8174] = 2215,  -- Nightfall
+        [8263] = 2346   -- Surge Pricing
+    }
+    local bck_C_EventScheduler_GetEventUiMapID = C_EventScheduler.GetEventUiMapID
+    C_EventScheduler.GetEventUiMapID = function(areaPoiID)
+        return bck_C_EventScheduler_GetEventUiMapID(areaPoiID) or EVENT_MAPID[areaPoiID]
+    end
 end
 
 local function GetEventPOI(uiMapID, areaPoiID)

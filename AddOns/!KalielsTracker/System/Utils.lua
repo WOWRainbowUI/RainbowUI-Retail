@@ -108,23 +108,15 @@ function KT.GetMapContinents()
 end
 
 function KT.GetCurrentMapAreaID()
-    return C_Map.GetBestMapForUnit("player")
+    return C_Map.GetBestMapForUnit("player") or 0
 end
 
 function KT.GetMapContinent(mapID)
-    if mapID then
-        if mapID == 2369 or         -- Siren Isle
-                mapID == 1355 then  -- Nazjatar
-            return C_Map.GetMapInfo(mapID) or {}
-        else
-            return MapUtil.GetMapParentInfo(mapID, Enum.UIMapType.Continent, true) or {}
-        end
-    end
-    return {}
+    return KT.MAP_CONTINENT_INFO[mapID]
 end
 
 function KT.GetCurrentMapContinent()
-    local mapID = C_Map.GetBestMapForUnit("player")
+    local mapID = C_Map.GetBestMapForUnit("player") or 0
     return KT.GetMapContinent(mapID)
 end
 
@@ -151,6 +143,54 @@ end
 
 function KT.IsInBetween()  -- Shadowlands
     return (UnitOnTaxi("player") and KT.GetCurrentMapAreaID() == 1550)
+end
+
+function KT.CompareZones(mapID1, mapID2)
+    local continent1 = KT.GetMapContinent(mapID1)
+    local continent2 = KT.GetMapContinent(mapID2)
+    local sameZone = (mapID1 == mapID2)
+    local sameContinent = (continent1 and continent2 and continent1.KTmapID == continent2.KTmapID)
+    return sameZone, sameContinent
+end
+
+local questOfferDataProvider
+local function GetQuestOfferDataProvider()
+    if not questOfferDataProvider and WorldMapFrame and WorldMapFrame.dataProviders then
+        for provider in pairs(WorldMapFrame.dataProviders) do
+            if provider.GetAllQuestOffersForMap then
+                questOfferDataProvider = provider
+                break
+            end
+        end
+    end
+    return questOfferDataProvider
+end
+
+function KT.GetQuestOfferInfo(mapID, id)
+    local dataProvider = GetQuestOfferDataProvider()
+    for questID, info in pairs(dataProvider:GetAllQuestOffersForMap(mapID)) do
+        if questID == id then
+            return info
+        end
+    end
+end
+
+function KT.GetTaxiNodeInfo(mapID, id)
+    local taxiNodes = C_TaxiMap.GetTaxiNodesForMap(mapID)
+    for _, info in ipairs(taxiNodes) do
+        if info.nodeID == id then
+            return info
+        end
+    end
+end
+
+function KT.GetDigSiteInfo(mapID, id)
+    local digSites = C_ResearchInfo.GetDigSitesForMap(mapID)
+    for _, info in ipairs(digSites) do
+        if info.researchSiteID == id then
+            return info
+        end
+    end
 end
 
 -- Quests
@@ -374,6 +414,11 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
 end
 
 -- Quest
+function KT.IsInstanceQuest(questID)
+    local tagInfo = C_QuestLog.GetQuestTagInfo(questID)
+    return tagInfo and KT.INSTANCE_TAGS[tagInfo.tagID] or false
+end
+
 function KT.GetQuestTagInfo(questID)
     return C_QuestLog.GetQuestTagInfo(questID) or {}
 end
@@ -587,6 +632,19 @@ function KT.GetBestQuestRewardContextIcon(questRewardContextFlags)
         end
     end
     return contextIcon
+end
+
+function KT.BuildIconMarkup(icons)
+    for _, info in pairs(icons) do
+        if info.atlas then
+            local atlasInfo = C_Texture.GetAtlasInfo(info.atlas)
+            if atlasInfo then
+                info.markup = format("|A:%s:%d:%d:%d:%d|a", info.atlas, info.size or info.height or 0, info.size or info.width or 0, info.offsetX or 0, info.offsetY or 0)
+            end
+        elseif info.texture then
+            info.markup = format("|T%s:%d:%d:%d:%d|t", info.texture, info.size or info.height or 0, info.size or info.width or 0, info.offsetX or 0, info.offsetY or 0)
+        end
+    end
 end
 
 -- Pixel Perfect
