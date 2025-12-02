@@ -1923,8 +1923,8 @@ end
 panel.cancel = resetView
 panel:SetScript("OnShow", config.checkSVState)
 
-SLASH_OPIE_CUSTOM_RINGS1 = "/rk"
-function SlashCmdList.OPIE_CUSTOM_RINGS()
+function T.ShowCustomRingsPanel()
 	panel:OpenPanel()
 end
-T.AddSlashSuffix(SlashCmdList.OPIE_CUSTOM_RINGS, "custom", "rings")
+SLASH_OPIE_CUSTOM_RINGS1, SlashCmdList.OPIE_CUSTOM_RINGS = "/rk", T.ShowCustomRingsPanel
+T.AddSlashSuffix(SlashCmdList.OPIE_CUSTOM_RINGS, "c", "cr", "custom", "rings")

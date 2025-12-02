@@ -36,7 +36,9 @@ do -- OPie:RadioSet
 	local function onSegmentClick(self)
 		local p = self:GetParent()
 		assert(getWidgetData(p, RadioSetData), "Invalid object type")
-		if not self:GetChecked() then
+		if self:GetChecked() then
+			CloseDropDownMenus() -- (classic; modern closes via GLOBAL_MOUSE_DOWN)
+		else
 			return self:SetChecked(true)
 		end
 		RadioSet.SetValue(p, self:GetID())
