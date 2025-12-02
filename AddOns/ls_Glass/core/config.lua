@@ -8,18 +8,6 @@ local tonumber = _G.tonumber
 local type = _G.type
 
 -- Mine
-local defaultAlphabet = "roman"
-local locale = GetLocale()
-if locale == "koKR" then
-	defaultAlphabet = "korean"
-elseif locale == "zhCN" then
-	defaultAlphabet = "simplifiedchinese"
-elseif locale == "zhTW" then
-	defaultAlphabet = "traditionalchinese"
-elseif locale == "ruRU" then
-	defaultAlphabet = "russian"
-end
-
 local showLinkCopyPopup
 do
 	local link = ""
@@ -168,7 +156,7 @@ local function createChatFrameConfig(id, order)
 
 					E:UpdateMessageFont(id)
 					E:ForMessageLinePool(id, "UpdatePadding")
-					E:ForMessageLinePool(id, "RedrawMessages")
+					E:ForMessageLinePool(id, "UpdateHeight")
 					E:ForMessageLinePool(id, "UpdateGradientBackgroundAlpha")
 				end,
 			},
@@ -189,7 +177,7 @@ local function createChatFrameConfig(id, order)
 
 					E:UpdateMessageFont(id)
 					E:ForMessageLinePool(id, "UpdatePadding")
-					E:ForMessageLinePool(id, "RedrawMessages")
+					E:ForMessageLinePool(id, "UpdateHeight")
 					E:ForMessageLinePool(id, "UpdateGradientBackgroundAlpha")
 				end,
 			},
@@ -234,7 +222,7 @@ local function createChatFrameConfig(id, order)
 						C.db.profile.chat[id].y_padding = value
 
 						E:ForMessageLinePool(id, "UpdatePadding")
-						E:ForMessageLinePool(id, "RedrawMessages")
+						E:ForMessageLinePool(id, "UpdateHeight")
 					end
 				end,
 			},
@@ -254,7 +242,7 @@ local function createChatFrameConfig(id, order)
 
 						E:UpdateMessageFont(id)
 						E:ForMessageLinePool(id, "UpdateWidth")
-						E:ForMessageLinePool(id, "RedrawMessages")
+						E:ForMessageLinePool(id, "UpdateHeight")
 					end
 				end,
 				args = {
@@ -305,89 +293,26 @@ function E:CreateConfig()
 					},
 					spacer_1 = createSpacer(9),
 					font = {
-						order = 20,
-						type = "group",
-						inline = true,
+						order = 10,
+						type = "select",
 						name = L["FONT"],
-						args = {
-							name = {
-								order = 1,
-								type = "select",
-								name = _G.NAME,
-								width = 1.25,
-								dialogControl = "LSM30_Font",
-								values = LibStub("LibSharedMedia-3.0"):HashTable("font"),
-								get = function()
-									return LibStub("LibSharedMedia-3.0"):IsValid("font", C.db.profile.font.name) and C.db.profile.font.name or LibStub("LibSharedMedia-3.0"):GetDefault("font")
-								end,
-								set = function(_, value)
-									if C.db.profile.font.name ~= value then
-										C.db.profile.font.name = value
+						width = 1.25,
+						dialogControl = "LSM30_Font",
+						values = LibStub("LibSharedMedia-3.0"):HashTable("font"),
+						get = function()
+							return LibStub("LibSharedMedia-3.0"):IsValid("font", C.db.profile.font) and C.db.profile.font or LibStub("LibSharedMedia-3.0"):GetDefault("font")
+						end,
+						set = function(_, value)
+							C.db.profile.font = value
 
-										E:UpdateEditBoxFont()
-										E:UpdateMessageFonts()
+							E:UpdateEditBoxFont()
+							E:UpdateMessageFonts()
 
-										-- some fonts are weird
-										for i = 1, Constants.ChatFrameConstants.MaxChatWindows do
-											E:ForMessageLinePool(i, "RedrawMessages")
-										end
-									end
-								end,
-							},
-							spacer_1 = createSpacer(10),
-							override = {
-								order = 11,
-								type = "group",
-								inline = true,
-								name = L["OVERRIDE"],
-								get = function(info)
-									return C.db.profile.font.override[info[#info]]
-								end,
-								set = function(info, value)
-									if C.db.profile.font.override[info[#info]] ~= value then
-										C.db.profile.font.override[info[#info]] = value
-
-										E:UpdateEditBoxFont()
-										E:UpdateMessageFonts()
-
-										-- some fonts are weird
-										for i = 1, Constants.ChatFrameConstants.MaxChatWindows do
-											E:ForMessageLinePool(i, "RedrawMessages")
-										end
-									end
-								end,
-								hidden = function(info)
-									return info[#info] == defaultAlphabet
-								end,
-								args = {
-									roman = {
-										order = 1,
-										type = "toggle",
-										name = "Latin",
-									},
-									russian = {
-										order = 1,
-										type = "toggle",
-										name = "Cyrillic",
-									},
-									korean = {
-										order = 1,
-										type = "toggle",
-										name = "Korean",
-									},
-									simplifiedchinese = {
-										order = 1,
-										type = "toggle",
-										name = "Simplified Chinese",
-									},
-									traditionalchinese = {
-										order = 1,
-										type = "toggle",
-										name = "Traditional Chinese",
-									},
-								},
-							},
-						},
+							-- some fonts are weird
+							for i = 1, 10 do
+								E:ForMessageLinePool(i, "UpdateHeight")
+							end
+						end
 					},
 					spacer_2 = createSpacer(19),
 					dock = {

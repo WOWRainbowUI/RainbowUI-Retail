@@ -14,16 +14,11 @@ do
 		return self.Text:GetText() or ""
 	end
 
-	function message_line_proto:SetText(text, r, g, b)
+	function message_line_proto:SetText(text, r, g, b, a)
 		-- BUG: it seems that whenever font's alphabet changes the spacing ends up growing, reset it
 		self.Text:SetSpacing(0)
 		self.Text:SetText(text)
-
-		if b then
-			self.Text:SetTextColor(r, g, b, 1)
-		else
-			self.Text:SetTextColor(1, 1, 1, 1)
-		end
+		self.Text:SetTextColor(r or 1, g or 1, b or 1, a)
 
 		self:AdjustHeight()
 	end
@@ -36,19 +31,10 @@ do
 		return self.timestamp or 0
 	end
 
-	function message_line_proto:SetInfo(...)
-		self.info = ...
-	end
-
-	function message_line_proto:GetInfo()
-		return self.info
-	end
-
-	function message_line_proto:SetMessage(id, info)
+	function message_line_proto:SetMessage(id, timestamp, ...)
 		self:SetID(id)
-		self:SetInfo(info)
-		self:SetTimestamp(info.timestamp)
-		self:SetText(info.message, info.r, info.g, info.b)
+		self:SetTimestamp(timestamp)
+		self:SetText(...)
 		self:Show()
 	end
 
@@ -56,17 +42,8 @@ do
 		if self:IsShown() then
 			self:Hide()
 			self:SetID(0)
-			self:SetInfo()
-			self:SetTimestamp()
+			self:SetTimestamp(nil)
 			self:SetText("")
-		end
-	end
-
-	function message_line_proto:RedrawMessage()
-		local info = self:GetInfo()
-		if info then
-			self:SetText("")
-			self:SetText(info.message, info.r, info.g, info.b)
 		end
 	end
 
@@ -176,12 +153,6 @@ do
 
 		for _, messageLine in self:EnumerateInactive() do
 			messageLine:AdjustHeight()
-		end
-	end
-
-	function message_pool_proto:RedrawMessages()
-		for messageLine in self:EnumerateActive() do
-			messageLine:RedrawMessage()
 		end
 	end
 

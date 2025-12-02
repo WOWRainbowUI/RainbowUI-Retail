@@ -72,7 +72,7 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 		local expectedChatFrames = {}
 
 		-- static chat frames
-		for i = 1, Constants.ChatFrameConstants.MaxChatWindows do
+		for i = 1, NUM_CHAT_WINDOWS do
 			local frame = E:HandleChatFrame(_G["ChatFrame" .. i], i)
 			if frame then
 				chatFrames[frame] = true
