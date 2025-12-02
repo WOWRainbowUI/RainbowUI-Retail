@@ -350,6 +350,10 @@ frame:SetScript("OnHide", function()
 	end
 end)
 
+function T.ShowRingBindingPanel()
+	frame:OpenPanel()
+	bindSet.set(nil, ringBindings)
+end
 function T.ShowSliceBindingPanel(ringKey)
 	frame:OpenPanel()
 	bindSet.set(nil, subBindings, ringKey)
@@ -357,7 +361,7 @@ function T.ShowSliceBindingPanel(ringKey)
 	bindSet:Pulse()
 end
 
-T.AddSlashSuffix(function() frame:OpenPanel() end, "bind", "binding", "bindings")
+T.AddSlashSuffix(T.ShowRingBindingPanel, "b", "bind", "binding", "bindings")
 T.AddSlashSuffix(function() T.ShowSliceBindingPanel(nil) end, "irbind")
 
 function EV:OPIE_PROFILE_SWITCHED()

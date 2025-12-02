@@ -60,7 +60,7 @@ function LineInput:SetTextInsets(left, right, top, bottom)
 	assert(type(left) == 'number' and type(right) == 'number' and type(top) == 'number' and type(bottom) == 'number', 'Syntax: LineInput:SetTextInsets(left, right, top, bottom)')
 	d.tipL, d.tipR, d.tipT, d.tipB = left, right, top, bottom
 	local common = d.style == 'common'
-	d.proto.super.SetTextInsets(self, left + (common and 0 or 1), right, top, bottom)
+	d.proto.super.SetTextInsets(self, left + (common and 0 or 2), right, top, bottom)
 end
 function LineInput:GetTextInsets()
 	local d = assert(getWidgetData(self, LineInputData), 'invalid object type')
@@ -68,7 +68,9 @@ function LineInput:GetTextInsets()
 end
 function LineInput:SetText(text)
 	local d = assert(getWidgetData(self, LineInputData), 'invalid object type')
-	d.proto.super.SetText(d.self, text)
+	local superSetText = d.proto.super.SetText
+	superSetText(d.self, text == " " and "  " or " ")
+	superSetText(d.self, text)
 	d.text:SetText(text)
 	adjustPlaceholderVisibility(self)
 end

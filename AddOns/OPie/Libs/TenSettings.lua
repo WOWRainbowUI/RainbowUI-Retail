@@ -44,7 +44,8 @@ do -- TenSettingsFrame
 	local CONTAINER_PADDING_H, CONTAINER_PADDING_V = 10, 6
 	local PANEL_VIEW_MARGIN_TOP, PANEL_VIEW_MARGIN_TOP_TITLESHIFT = -14, -35
 	local PANEL_VIEW_MARGIN_LEFT, PANEL_VIEW_MARGIN_RIGHT = -15, -10
-	
+	M.PANEL_VIEW_MARGIN_TOP_TITLESHIFT = PANEL_VIEW_MARGIN_TOP_TITLESHIFT
+
 	local PANEL_WIDTH, PANEL_HEIGHT = 585, 528
 	local CONTAINER_WIDTH = PANEL_WIDTH + CONTAINER_PADDING_H * 2
 	local CONTAINER_HEIGHT = PANEL_HEIGHT - CONTAINER_CONTENT_TOP_YOFFSET + CONTAINER_PADDING_V*2
@@ -296,6 +297,10 @@ do -- TenSettingsFrame
 			ci.Version:SetText((ci.forceRootVersion and ci.root or newPanel).version:GetText() or "")
 			oy = -PANEL_VIEW_MARGIN_TOP_TITLESHIFT
 		end
+		local isRoot = newPanel == ci.root
+		local brandContainer = not (isRoot and ci.selfBrandedRoot)
+		ci.Version:SetShown(brandContainer)
+		ci.Title:SetShown(brandContainer)
 		newPanel:SetParent(ci.View)
 		newPanel:ClearAllPoints()
 		newPanel:SetPoint("TOPLEFT", CONTAINER_PADDING_H + PANEL_VIEW_MARGIN_LEFT, oy - CONTAINER_PADDING_V)
@@ -372,6 +377,8 @@ do -- TenSettingsFrame
 		containers[t], ci.canvas = ci, t
 		if type(opts) == "table" then
 			ci.forceRootVersion = opts.forceRootVersion
+			ci.rootTabText = opts.tabText
+			ci.selfBrandedRoot = opts.selfBrandedRoot
 		end
 		containers[rootPanel], containers[name], containers[cf] = ci, ci, ci
 		return ci
@@ -526,7 +533,7 @@ do -- TenSettingsFrame
 			containers[panel] = ci
 			panel:SetParent(ci.f)
 			if #ci.tabs == 0 then
-				container_addTab(ci.tabs, ci.f, ci.root, OPTIONS)
+				container_addTab(ci.tabs, ci.f, ci.root, ci.rootTabText or OPTIONS)
 			end
 			container_addTab(ci.tabs, ci.f, panel)
 		end
@@ -719,7 +726,7 @@ do -- M:ShowFrameOverlay(self, overlayFrame)
 		occupant = overlayFrame
 	end
 end
-do -- M:ShowPromptOverlay(...)
+do -- M:Show{Prompt,Alert,Copy}Overlay(...)
 	local promptFrame, promptInfo = CreateFrame("Frame"), {} do
 		promptFrame:SetSize(400, 130)
 		promptInfo.title = promptFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -751,16 +758,17 @@ do -- M:ShowPromptOverlay(...)
 		promptInfo.editBox:SetScript("OnEscapePressed", function() promptInfo.cancel:Click() end)
 	end
 	function M:ShowPromptOverlay(frame, title, prompt, explainText, acceptText, callback, editBoxWidth, cancelText, editText)
-		local showEditBox = editBoxWidth ~= false
+		local showEditBox, editBox = editBoxWidth ~= false, promptInfo.editBox
 		editText = showEditBox and type(editText) == "string" and editText or ""
-		promptInfo.owner, promptInfo.callback = frame, callback
+		promptInfo.owner, promptInfo.callback, promptInfo.initEditText = frame, callback, nil
 		promptInfo.title:SetText(title or "")
 		promptInfo.prompt:SetText(prompt or "")
 		promptInfo.detail:SetText(explainText or "")
-		promptInfo.editBox:SetText(editText)
-		promptInfo.editBox:HighlightText(0, #editText)
-		promptInfo.editBox:SetShown(editBoxWidth ~= false)
-		promptInfo.editBox:SetWidth(math.max(40, (editBoxWidth or 0.50) * 380))
+		editBox:SetScript("OnTextChanged", nil)
+		editBox:SetText(editText)
+		editBox:HighlightText(0, #editText)
+		editBox:SetShown(editBoxWidth ~= false)
+		editBox:SetWidth(math.max(40, math.min(1, editBoxWidth or 0.50) * 380))
 		promptFrame:SetHeight(55 + math.max(20, promptInfo.prompt:GetStringHeight()) + (editBoxWidth ~= false and 30 or 0) + ((explainText or "") ~= "" and 20 or 0))
 		promptInfo.cancel:ClearAllPoints()
 		promptInfo.accept:ClearAllPoints()
@@ -779,12 +787,26 @@ do -- M:ShowPromptOverlay(...)
 		promptInfo.accept:SetWidth(math.max(125, 25+promptInfo.accept:GetFontString():GetStringWidth()))
 		M:ShowFrameOverlay(frame, promptFrame)
 		if showEditBox then
-			promptInfo.editBox:SetFocus()
+			editBox:SetFocus()
 		end
 	end
-end
-function M:ShowAlertOverlay(frame, title, message, dissmissText)
-	return M:ShowPromptOverlay(frame, title, message, nil, false, nil, false, dissmissText)
+	local function restoreInitialCopyText(self)
+		local restore = self == promptInfo.editBox and promptInfo.initEditText
+		if restore and self:GetText() ~= restore then
+			self:SetText(restore)
+			self:HighlightText()
+			self:SetCursorPosition(0)
+		end
+	end
+	function M:ShowAlertOverlay(frame, title, message, dismissText)
+		return M:ShowPromptOverlay(frame, title, message, nil, false, nil, false, dismissText)
+	end
+	function M:ShowCopyOverlay(frame, title, message, copyText, explainText, cancelText, boxWidth)
+		M:ShowPromptOverlay(frame, title, message, explainText, false, false, boxWidth or nil, cancelText, copyText)
+		promptInfo.initEditText = copyText
+		promptInfo.editBox:SetCursorPosition(0)
+		promptInfo.editBox:SetScript("OnTextChanged", restoreInitialCopyText)
+	end
 end
 function M:CreateOptionsPanel(name, parent, opts)
 	local f, t, a = CreateFrame("Frame")

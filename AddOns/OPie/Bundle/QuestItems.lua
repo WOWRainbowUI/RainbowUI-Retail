@@ -126,6 +126,8 @@ if MODERN or CF_WRATH then
 			[246812]=c1, [246815]=c1, [246814]=c1, [246813]=c1, -- minor/lesser//greater bronze cache
 			[245925]=c1, [249891]=c1, -- artifactium sand
 			[246936]=c1, [246937]=c1, -- epoch memento
+			[152102]=have1, [152103]=have1, [152104]=have1, [152105]=have1,
+			[152106]=have1, [152107]=have1, [152108]=have1, -- paragon boxes
 		}
 		filtered = {
 			[228988]=ebIsNotRockReviver, -- siren isle rock reviver

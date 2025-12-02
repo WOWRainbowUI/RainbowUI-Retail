@@ -174,6 +174,9 @@ securecall(function() -- instance:arena/bg/ratedbg/lfr/raid/scenario + outland/n
 		elseif itype == "scenario" and C_DelvesUI and C_DelvesUI.HasActiveDelve(imid) then
 			itype = "scenario/delve"
 		end
+		if C_Loot.IsLegacyLootModeEnabled() then
+			stype = stype and (stype .. "/legacy") or "/legacy"
+		end
 		itype = mapTypes[itype] or itype or "daze"
 		itype = stype and (itype .. stype) or itype
 		KR:SetStateConditionalValue("in", itype)
@@ -187,6 +190,12 @@ securecall(function() -- instance:arena/bg/ratedbg/lfr/raid/scenario + outland/n
 	function EV:PLAYER_MAP_CHANGED(_old, _new)
 		-- [11.0.2] Delve airlocks: PEW doesn't fire; GetInstanceInfo() returns stale data during PMC
 		EV.After(0, syncInstance)
+	end
+	function EV:CHAT_MSG_SYSTEM(m)
+		if m == LEGACY_LOOT_RULES_IN_EFFECT or m == LEGACY_LOOT_RULES_NOT_IN_EFFECT then
+			-- [11.2.5] ILLME returns stale data during CMS
+			EV.After(0, syncInstance)
+		end
 	end
 	KR:SetAliasConditional("instance", "in")
 	KR:SetStateConditionalValue("in", "daze")
