@@ -1,4 +1,15 @@
 ﻿------------------------------------------------------
+12.6.3 (2025-11-27)
+------------------------------------------------------
+* Fixed a Lua error that occurred in arenas and battlegrounds due to incorrect registration of the ARENA_OPPONENT_UPDATE event [GH-614].
+
+------------------------------------------------------
+12.6.2 (2025-10-22)
+------------------------------------------------------
+* Fixed a bug that prevented turning the camera while the right mouse button was held down and the cursor was hovering over an aura with aura tooltips enabled [Comment #7764].
+* Fixed a Lua error that occurred when enabling bar mode for auras [GH-613].
+
+------------------------------------------------------
 12.6.1 (2025-10-07)
 ------------------------------------------------------
 * Updated list of instance IDs of Delves for custom nameplates [PR GH-612 by tflo].
