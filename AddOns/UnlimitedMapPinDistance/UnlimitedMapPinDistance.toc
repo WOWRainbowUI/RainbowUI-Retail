@@ -1,4 +1,4 @@
-## Interface: 110200, 110205
+## Interface: 110205, 110207
 ## Title: Unlimited Map Pin Distance
 ## Author: XAM
 ## Version: 1.4.12

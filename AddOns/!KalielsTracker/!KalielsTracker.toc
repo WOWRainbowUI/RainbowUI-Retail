@@ -1,4 +1,4 @@
-## Interface: 110200, 110205
+## Interface: 110205, 110207
 ## Title: Kaliel's Tracker
 ## Notes: |nImproved Blizzard Objective Tracker|n|cff999999by Kaliel (Marouan Sabbagh)|n|n
 ## Version: 7.17.0

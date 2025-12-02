@@ -1,4 +1,4 @@
-## Interface: 110200, 110205
+## Interface: 110205, 110207
 ## Title: BtWQuests: Legion
 ## Version: v30.17
 ## Notes: Legion quest data for BtWQuests

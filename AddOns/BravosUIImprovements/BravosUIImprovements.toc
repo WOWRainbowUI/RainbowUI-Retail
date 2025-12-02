@@ -1,4 +1,4 @@
-## Interface: 110200, 110205
+## Interface: 110205, 110207
 ## Title: Bravo's UI Improvements
 ## Notes: Lightweight improvements to the default Blizzard UI
 ## SavedVariables: BUIIDatabase

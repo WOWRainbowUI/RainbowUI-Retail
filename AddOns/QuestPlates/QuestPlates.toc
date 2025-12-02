@@ -1,4 +1,4 @@
-## Interface: 110200, 110205
+## Interface: 110205, 110207
 ## Title: QuestPlates
 ## Notes: Adds quest progress to nameplates
 ## Version: 11.2.0.0

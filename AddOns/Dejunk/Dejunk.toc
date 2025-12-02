@@ -1,4 +1,4 @@
-## Interface: 11507, 50500, 110200, 110205
+## Interface: 11507, 50500, 110205, 110207
 ## Title: Dejunk
 ## Version: 2.0.8
 ## Author: https://github.com/moody

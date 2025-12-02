@@ -1,4 +1,4 @@
-﻿## Interface: 110200, 110205## IconTexture: Interface\Icons\spell_nature_bloodlust
+﻿## Interface: 110205, 110207## IconTexture: Interface\Icons\spell_nature_bloodlust
 ## Title: Enhanced Bloodlust
 ## Notes: Add a music in Bloodlust or Heroism!
 ## Author: Vilkku, 彩虹ui

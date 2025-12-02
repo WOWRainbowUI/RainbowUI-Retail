@@ -1,4 +1,4 @@
-## Interface: 11503, 30403, 40400, 110200, 110205## IconTexture: 982414
+## Interface: 11503, 30403, 40400, 110205, 110207## IconTexture: 982414
 ## Title: MeepMerp
 ## Version: v8.2.5
 ## Author: Pretzellent @ Remulos (Classic)

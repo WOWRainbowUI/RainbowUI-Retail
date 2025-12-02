@@ -1,4 +1,4 @@
-## Interface: 110200, 110205
+## Interface: 110205, 110207
 ## Title: Personal Buff
 ## Title-zhTW: 個人血條增益
 ## Notes: Show buff icons on personal nameplate

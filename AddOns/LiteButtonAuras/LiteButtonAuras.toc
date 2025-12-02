@@ -1,4 +1,4 @@
-## Interface: 11507, 50501, 110200, 110205
+## Interface: 11507, 50501, 110205, 110207
 ## Title: LiteButtonAuras
 ## IconTexture: Interface\Icons\ability_deathknight_heartstopaura
 ## AddonCompartmentFunc: LiteButtonAuras_AddonCompartmentFunc

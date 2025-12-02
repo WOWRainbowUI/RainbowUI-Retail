@@ -1,4 +1,4 @@
-﻿## Interface: 11508, 50502, 110200, 110205
+﻿## Interface: 11508, 50502, 110205, 110207
 ## Title: Pawn
 ## Version: 2.12.0
 ## Notes: Pawn helps you compare items and find upgrades.
