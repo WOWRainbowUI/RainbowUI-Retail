@@ -428,6 +428,36 @@ model:Hide()
 --]]
 
 --[[
+local frameSaveTalkingHeadInfo = CreateFrame("Frame")
+frameSaveTalkingHeadInfo:RegisterEvent("TALKINGHEAD_REQUESTED")
+
+frameSaveTalkingHeadInfo:SetScript("OnEvent", function(self, event)
+    if event == "TALKINGHEAD_REQUESTED" then
+        -- Get all values returned by Blizzard's API
+        local _, cameraID, _, _, _, _, name = C_TalkingHead.GetCurrentLineInfo()
+        if not name then return end  -- safeguard
+
+        -- Initialize storage table
+        if not SaveTalkingHeadInfo then SaveTalkingHeadInfo = {} end
+
+        -- Get the current zone
+        local zone = GetZoneText() or "Unknown"
+
+        -- Unique key combining name + zone
+        local nameId = name.." - "..zone
+
+        -- Store info
+        SaveTalkingHeadInfo[nameId] = {}
+        SaveTalkingHeadInfo[nameId].name = name
+        SaveTalkingHeadInfo[nameId].zone = zone
+        SaveTalkingHeadInfo[nameId].cameraID = cameraID
+
+        print("Saved Talking Head:", name, zone, cameraID)
+    end
+end)
+--]]
+
+--[[
 function testModels(cam) --/run testModels()
 	local imageSize = 120
 	local numRows, numCols = 7, 16
