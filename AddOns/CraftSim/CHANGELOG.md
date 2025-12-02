@@ -1,7 +1,6 @@
 # CraftSim
 
-## [20.3.2](https://github.com/derfloh205/CraftSim/tree/20.3.2) (2025-10-23)
-[Full Changelog](https://github.com/derfloh205/CraftSim/compare/20.3.1...20.3.2) [Previous Releases](https://github.com/derfloh205/CraftSim/releases)
+## [20.3.3](https://github.com/derfloh205/CraftSim/tree/20.3.3) (2025-11-26)
+[Full Changelog](https://github.com/derfloh205/CraftSim/compare/20.3.2...20.3.3) [Previous Releases](https://github.com/derfloh205/CraftSim/releases)
 
-- customer history only load tip gt 0  
-- Specdata Update  
+- Update interface version to 110205 and change version to 20.3.3; add new specialization data for Inscription  
