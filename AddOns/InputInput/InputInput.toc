@@ -7,7 +7,7 @@
 ## Notes-zhTW: 輸入框增強
 ## Notes-ruRU: Расширение поля ввода
 ## Author: York
-## Version: 1.1.0 Fix
+## Version: 1.1.0 Fix2
 ## X-Date: 2024-12-23
 
 ## Category-enUS: Chat
