@@ -1,111 +1,234 @@
-local DragonRider, DR = ...
-local _, L = ...
+local _, DR = ...
+
+local L = DR.L
+local defaultsTable = DR.defaultsTable
 
 --A purposeful global variable for other addons
 DragonRider_API = DR
 
 ---@type LibAdvFlight
-local LibAdvFlight = LibStub:GetLibrary("LibAdvFlight-1.0");
+local LibAdvFlight = LibStub:GetLibrary("LibAdvFlight-1.1");
 
 -- reverse-lookup map to find race data from a currency ID quickly.
 DR.CurrencyToRaceMap = {}
 
 local defaultsTable = {
 	toggleModels = true,
-	speedometerPosPoint = 1,
-	speedometerPosX = 0,
-	speedometerPosY = 5,
+	speedometerPosPoint = 1, -- deprecated
+	speedometerPosX = 0, -- deprecated, moved to position
+	speedometerPosY = 5, -- deprecated, moved to position
+	position = {
+		speedometer = {
+			point = "CENTER",
+			relativePoint = "CENTER",
+			xOfs = 0,
+			yOfs = -140,
+		},
+		vigor = {
+			point = "CENTER",
+			relativePoint = "CENTER",
+			xOfs = 0,
+			yOfs = -200,
+		},
+	},
+	speedometerWidth = 244,
+	speedometerHeight = 24,
 	speedometerScale = 1,
 	speedValUnits = 1,
 	speedBarColor = {
 		slow = {
-			r=196/255,
-			g=97/255,
-			b=0/255,
-			a=1,
+			r = 0.77,
+			g = 0.38,
+			b = 0.00,
+			a = 1.00,
 		},
 		vigor = {
-			r=0/255,
-			g=144/255,
-			b=155/255,
-			a=1,
+			r = 0,
+			g = 0.56,
+			b = 0.61,
+			a = 1.00,
 		},
 		over = {
-			r=168/255,
-			g=77/255,
-			b=195/255,
-			a=1,
+			r = 0.66,
+			g = 0.30,
+			b = 0.76,
+			a = 1.00,
 		},
+		cover = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
+		},
+		tick = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
+		},
+		topper = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
+		},
+		footer = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
+		},
+		background = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 0.80,
+		},
+		--spark = { -- NYI
+		--	r=1.00,
+		--	g=1.00,
+		--	b=1.00,
+		--	a=0.90,
+		--},
 	},
 	speedTextColor = {
 		slow = {
-			r=1,
-			g=1,
-			b=1,
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
 		},
 		vigor = {
-			r=1,
-			g=1,
-			b=1,
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
 		},
 		over = {
-			r=1,
-			g=1,
-			b=1,
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
 		},
 	},
 	speedTextScale = 12,
-	glyphDetector = true,
+	glyphDetector = true, -- unused
 	vigorProgressStyle = 1, -- 1 = vertical, 2 = horizontal, 3 = cooldown
-	cooldownTimer = {
+	cooldownTimer = { -- unused
 		whirlingSurge = true,
 		bronzeTimelock = true,
 		aerialHalt = true,
 	},
-	barStyle = 1, -- 1 = standard
+	barStyle = 1, -- this is now deprecated
 	statistics = {},
 	multiplayer = true,
 	sideArt = true,
 	sideArtStyle = 1,
+	sideArtPosX = -15,
+	sideArtPosY = -10,
+	sideArtRot = 0,
+	sideArtSize = 1,
 	tempFixes = {
 		hideVigor = true, -- this is now deprecated
 	},
-	showtooltip = true,
-	fadeVigor = true,
-	fadeSpeed = true,
+	showtooltip = true,  -- this is now deprecated
+	fadeVigor = false, -- this is now deprecated
+	fadeSpeed = true,  -- this is now deprecated
 	lightningRush = true,
+	staticChargeOffset = -10,
+	staticChargeSpacing = 5.5,
+	staticChargeWidth = 36,
+	staticChargeHeight = 36,
 	muteVigorSound = false,
 	themeSpeed = 1, -- default
 	themeVigor = 1, -- default
-
+	vigorPosX = 0, -- deprecated, moved to position
+	vigorPosY = -200, -- deprecated, moved to position
+	vigorBarWidth = 32,
+	vigorBarHeight = 32,
+	vigorBarSpacing = 10,
+	vigorBarOrientation = 2,		-- 1 for vertical (stacks up), 2 for horizontal (stacks right)
+	vigorBarDirection = 1,			-- 1 for top-to-bottom / left-to-right growth
+									-- 2 for bottom-to-top / right-to-left growth
+	vigorWrap = 6,					-- How many bubbles before wrapping to a new row/column
+	vigorBarFillDirection = 1,		-- 1 for vertical
+									-- 2 for horizontal
+	vigorSparkThickness = 12,
+	toggleFlashFull = true,
+	toggleFlashProgress = true,
+	modelTheme = 1,
+	toggleSpeedometer = true,
+	toggleVigor = true,
+	toggleTopper = true,
+	toggleFooter = true,
+	vigorBarColor = {
+		full = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
+		},
+		empty = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 0.00,
+		},
+		background = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
+		},
+		progress = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
+		},
+		spark = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 0.90,
+		},
+		cover = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
+		},
+		flash = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
+		},
+		decor = {
+			r = 1.00,
+			g = 1.00,
+			b = 1.00,
+			a = 1.00,
+		},
+	},
 };
 
--- here, we just pass in the table containing our saved color config
-function DR:ShowColorPicker(configTable)
-	local r, g, b, a = configTable.r, configTable.g, configTable.b, configTable.a;
+DR.defaultsTable = defaultsTable
 
-	local function OnColorChanged()
-		local newR, newG, newB = ColorPickerFrame:GetColorRGB();
-		local newA = ColorPickerFrame:GetColorAlpha();
-		configTable.r, configTable.g, configTable.b, configTable.a = newR, newG, newB, newA;
+function DR.MergeDefaults(saved, defaults)
+	for key, defaultValue in pairs(defaults) do
+		local savedValue = saved[key]
+
+		if savedValue == nil then
+			if type(defaultValue) == "table" then
+				saved[key] = CopyTable(defaultValue) 
+			else
+				saved[key] = defaultValue
+			end
+		elseif type(savedValue) == "table" and type(defaultValue) == "table" then
+			DR.MergeDefaults(savedValue, defaultValue)
+		end
 	end
-
-	local function OnCancel()
-		configTable.r, configTable.g, configTable.b, configTable.a = r, g, b, a;
-	end
-
-	local options = {
-		swatchFunc = OnColorChanged,
-		opacityFunc = OnColorChanged,
-		cancelFunc = OnCancel,
-		hasOpacity = a ~= nil,
-		opacity = a,
-		r = r,
-		g = g,
-		b = b,
-	};
-
-	ColorPickerFrame:SetupColorPickerAndShow(options);
 end
 
 DR.WidgetFrameIDs = {
@@ -137,460 +260,176 @@ function DR.DragonRidingZoneCheck()
 	end
 end
 
----------------------------------------------------------------------------------------------------------------
--- DRIVE system
----------------------------------------------------------------------------------------------------------------
+DR.EditFrames = {}
+DR.IsEditMode = false
 
-local DRIVE_LAST_TIME;
-local DRIVE_LAST_POS;
-local DriveUtils = {};
-
-function DriveUtils.GetPosition()
-	local map = C_Map.GetBestMapForUnit("player");
-	local pos = C_Map.GetPlayerMapPosition(map, "player");
-	local _, worldPos = C_Map.GetWorldPosFromMapPos(map, pos);
-	return worldPos;
-end
-
-function DriveUtils.GetSpeed()
-	if not IsPlayerMoving() then
-		return 0;
-	end
-
-	local currentPos = DriveUtils.GetPosition();
-	if not currentPos then
-		return 0;
-	end
-
-	if not DRIVE_LAST_POS then
-		DRIVE_LAST_POS = CreateVector2D(currentPos:GetXY());
-		return 0;
-	end
-
-	local currentTime = GetTime();
-	if not DRIVE_LAST_TIME then
-		DRIVE_LAST_TIME = currentTime;
-		return 0;
-	end
-
-	local dx, dy = Vector2D_Subtract(currentPos.x, currentPos.y, DRIVE_LAST_POS.x, DRIVE_LAST_POS.y);
-	local distance = sqrt(dx^2 + dy^2);
-	local speed = distance / (currentTime - DRIVE_LAST_TIME);
-
-	DRIVE_LAST_TIME = currentTime;
-	DRIVE_LAST_POS:SetXY(currentPos:GetXY());
-
-	return speed;
-end
-
-local DRIVE_MAX_SAMPLES = 3;
-local SPEED_SAMPLES = CreateCircularBuffer(DRIVE_MAX_SAMPLES);
-
-function DriveUtils.GetSmoothedSpeed()
-	if not IsPlayerMoving() then
-		return 0;
-	end
-
-	local currentSpeed = DriveUtils.GetSpeed();
-	SPEED_SAMPLES:PushFront(currentSpeed);
-
-	local total = 0;
-	for _, speed in SPEED_SAMPLES:EnumerateIndexedEntries() do
-		total = total + speed;
-	end
-
-	return total / SPEED_SAMPLES:GetNumElements();
-end
-
-local CAR_SPELL_ID = 460013;
-function DriveUtils.IsDriving()
-	local aura = C_UnitAuras.GetPlayerAuraBySpellID(CAR_SPELL_ID);
-	return aura and true or false;
-end
-
----------------------------------------------------------------------------------------------------------------
--- DRIVE system
----------------------------------------------------------------------------------------------------------------
-
-
-DR.statusbar = CreateFrame("StatusBar", "DRStatusBar", UIParent)
-DR.statusbar:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-DR.statusbar:SetWidth(305/1.25)
-DR.statusbar:SetHeight(66.5/2.75)
-DR.statusbar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
-DR.statusbar:GetStatusBarTexture():SetHorizTile(false)
-DR.statusbar:GetStatusBarTexture():SetVertTile(false)
-DR.statusbar:SetStatusBarColor(.98, .61, .0)
-Mixin(DR.statusbar, SmoothStatusBarMixin)
-DR.statusbar:SetMinMaxSmoothedValue(0,100)
-
-DR.tick1 = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 1)
-DR.tick1:SetAtlas("UI-Frame-Bar-BorderTick")
-DR.tick1:SetSize(17,DR.statusbar:GetHeight()*1.5)
-DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (65 / 100) * DR.statusbar:GetWidth(), 5)
-
-DR.tick2 = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 1)
-DR.tick2:SetAtlas("UI-Frame-Bar-BorderTick")
-DR.tick2:SetSize(17,DR.statusbar:GetHeight()*1.5)
-DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (60 / 100) * DR.statusbar:GetWidth(), 5)
-
---[[
-DR.tick25 = DR.statusbar:CreateTexture(nil, "OVERLAY")
-DR.tick25:SetAtlas("UI-Frame-Bar-BorderTick")
-DR.tick25:SetSize(17,DR.statusbar:GetHeight()*1)
-DR.tick25:SetPoint("TOP", DR.statusbar, "TOPLEFT", (25 / 100) * DR.statusbar:GetWidth(), 5)
-
-DR.tick50 = DR.statusbar:CreateTexture(nil, "OVERLAY")
-DR.tick50:SetAtlas("UI-Frame-Bar-BorderTick")
-DR.tick50:SetSize(17,DR.statusbar:GetHeight()*1)
-DR.tick50:SetPoint("TOP", DR.statusbar, "TOPLEFT", (50 / 100) * DR.statusbar:GetWidth(), 5)
-
-DR.tick75 = DR.statusbar:CreateTexture(nil, "OVERLAY")
-DR.tick75:SetAtlas("UI-Frame-Bar-BorderTick")
-DR.tick75:SetSize(17,DR.statusbar:GetHeight()*1)
-DR.tick75:SetPoint("TOP", DR.statusbar, "TOPLEFT", (75 / 100) * DR.statusbar:GetWidth(), 5)
-]]
-
-
-DR.backdropL = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 2)
-DR.backdropL:SetAtlas("widgetstatusbar-borderleft") -- UI-Frame-Dragonflight-TitleLeft
-DR.backdropL:SetPoint("LEFT", DR.statusbar, "LEFT", -7, 0)
-DR.backdropL:SetWidth(35)
-DR.backdropL:SetHeight(40)
-
-DR.backdropR = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 2)
-DR.backdropR:SetAtlas("widgetstatusbar-borderright") -- UI-Frame-Dragonflight-TitleRight
-DR.backdropR:SetPoint("RIGHT", DR.statusbar, "RIGHT", 7, 0)
-DR.backdropR:SetWidth(35)
-DR.backdropR:SetHeight(40)
-
-DR.backdropM = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 2)
-DR.backdropM:SetAtlas("widgetstatusbar-bordercenter") -- _UI-Frame-Dragonflight-TitleMiddle
-DR.backdropM:SetPoint("TOPLEFT", DR.backdropL, "TOPRIGHT", 0, 0)
-DR.backdropM:SetPoint("BOTTOMRIGHT", DR.backdropR, "BOTTOMLEFT", 0, 0)
-
-DR.backdropTopper = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 1)
-DR.backdropTopper:SetAtlas("dragonflight-score-topper")
-DR.backdropTopper:SetPoint("TOP", DR.statusbar, "TOP", 0, 38)
-DR.backdropTopper:SetWidth(350)
-DR.backdropTopper:SetHeight(65)
-
-DR.backdropFooter = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 1)
-DR.backdropFooter:SetAtlas("dragonflight-score-footer")
-DR.backdropFooter:SetPoint("BOTTOM", DR.statusbar, "BOTTOM", 0, -32)
-DR.backdropFooter:SetWidth(350)
-DR.backdropFooter:SetHeight(65)
-
-DR.statusbar.bg = DR.statusbar:CreateTexture(nil, "BACKGROUND", nil, 0)
-DR.statusbar.bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
-DR.statusbar.bg:SetAllPoints(true)
-DR.statusbar.bg:SetVertexColor(.0, .0, .0, .8)
-
-local frameborder = CreateFrame("frame",nil,DR.statusbar)
-frameborder:SetAllPoints(DR.statusbar)
-frameborder:SetFrameStrata("BACKGROUND")
-frameborder:SetFrameLevel(1)
-frameborder.left = frameborder:CreateTexture(nil,"BORDER")
-frameborder.left:SetPoint("BOTTOMLEFT",frameborder,"BOTTOMLEFT",-2,-2)
-frameborder.left:SetPoint("TOPRIGHT",frameborder,"TOPLEFT",0,0)
-frameborder.left:SetColorTexture(0,0,0,1)
-frameborder.right = frameborder:CreateTexture(nil,"BORDER")
-frameborder.right:SetPoint("BOTTOMLEFT",frameborder,"BOTTOMRIGHT",0,0)
-frameborder.right:SetPoint("TOPRIGHT",frameborder,"TOPRIGHT",2,0)
-frameborder.right:SetColorTexture(0,0,0,1)
-frameborder.top = frameborder:CreateTexture(nil,"BORDER")
-frameborder.top:SetPoint("BOTTOMLEFT",frameborder,"TOPLEFT",-2,0)
-frameborder.top:SetPoint("TOPRIGHT",frameborder,"TOPRIGHT",2,2)
-frameborder.top:SetColorTexture(0,0,0,1)
-frameborder.bottom = frameborder:CreateTexture(nil,"BORDER")
-frameborder.bottom:SetPoint("BOTTOMLEFT",frameborder,"BOTTOMLEFT",-2,-2)
-frameborder.bottom:SetPoint("TOPRIGHT",frameborder,"BOTTOMRIGHT",2,0)
-frameborder.bottom:SetColorTexture(0,0,0,1)
-
-DR.glide = DR.statusbar:CreateFontString(nil, nil, "GameTooltipText")
-DR.glide:SetPoint("LEFT", DR.statusbar, "LEFT", 10, 0)
-
-DR.model = {};
-DR.modelScene = {};
-
-function DR:modelSetup(number)
-	if C_UnitAuras.GetPlayerAuraBySpellID(417888) then -- algarian stormrider
-		DR.model[number]:SetModelByFileID(3009394)
-		DR.model[number]:SetPosition(5,0,-1.5)
-		--DR.model1:SetPitch(.3)
-		DR.model[number]:SetYaw(0)
-	else
-		DR.model[number]:SetModelByFileID(1100194)
-		DR.model[number]:SetPosition(5,0,-1.5)
-		--DR.model1:SetPitch(.3)
-		DR.model[number]:SetYaw(0)
+local function SaveFramePosition(frameName)
+	if not DragonRider_DB then DragonRider_DB = {} end
+	if not DragonRider_DB.position then DragonRider_DB.position = {} end
+	
+	if frameName == "Speedometer" then
+		local point, relativeTo, relativePoint, xOfs, yOfs = DR.statusbar:GetPoint()
+		DragonRider_DB.position.speedometer = {
+			point = point,
+			relativePoint = relativePoint,
+			xOfs = xOfs,
+			yOfs = yOfs
+		}
+	elseif frameName == "Vigor" then
+		local point, relativeTo, relativePoint, xOfs, yOfs = DR.vigorBar:GetPoint()
+		DragonRider_DB.position.vigor = {
+			point = point,
+			relativePoint = relativePoint,
+			xOfs = xOfs,
+			yOfs = yOfs
+		}
 	end
 end
 
-for i = 1,6 do
-	DR.modelScene[i] = CreateFrame("ModelScene", nil, UIParent)
-	DR.modelScene[i]:SetPoint("CENTER", DR.statusbar, "CENTER", -145+(i*40), -36)
-	DR.modelScene[i]:SetWidth(43)
-	DR.modelScene[i]:SetHeight(43)
-	DR.modelScene[i]:SetFrameStrata("MEDIUM")
-	DR.modelScene[i]:SetFrameLevel(500)
-
-	DR.model[i] = DR.modelScene[i]:CreateActor()
-
-	DR:modelSetup(i)
-end
-
-
-function DR.toggleModels()
-	for i = 1,6 do
-		DR.modelScene[i]:Hide()
+local function LoadFramePosition(frameName)
+	if not DragonRider_DB or not DragonRider_DB.position then return end
+	
+	if frameName == "Speedometer" and DragonRider_DB.position.speedometer then
+		local pos = DragonRider_DB.position.speedometer
+		DR.statusbar:ClearAllPoints()
+		DR.statusbar:SetPoint(pos.point, UIParent, pos.relativePoint, pos.xOfs, pos.yOfs)
+	elseif frameName == "Vigor" and DragonRider_DB.position.vigor then
+		local pos = DragonRider_DB.position.vigor
+		DR.vigorBar:ClearAllPoints()
+		DR.vigorBar:SetPoint(pos.point, UIParent, pos.relativePoint, pos.xOfs, pos.yOfs)
 	end
 end
 
-DR.toggleModels()
+local function CreateEditOverlay(targetFrame, frameName)
+	if not targetFrame then return end
+	
+	local editFrame = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
+	editFrame:SetFrameStrata("DIALOG")
+	editFrame:SetFrameLevel(600)
+	local edgeOffSet = 20
+	editFrame:SetPoint("TOPLEFT", targetFrame, "TOPLEFT", -edgeOffSet, edgeOffSet)
+	editFrame:SetPoint("BOTTOMRIGHT", targetFrame, "BOTTOMRIGHT", edgeOffSet, -edgeOffSet)
+	editFrame:Hide()
+	
+	local backdropInfo = {
+		bgFile = "interface\\editmode\\editmodeuihighlightbackground",
+		edgeFile = "Interface\\Buttons\\WHITE8X8",
+		edgeSize = 2,
+		insets = { left = 1, right = 1, top = 1, bottom = 1, },
+	}
+	editFrame:SetBackdrop(backdropInfo)
+	editFrame:SetBackdropColor(1, 1, 1, 1)
+	editFrame:SetBackdropBorderColor(0.227, 0.773, 1.00, 1)
 
-DR.charge = CreateFrame("Frame")
-DR.charge:RegisterEvent("UNIT_AURA")
-DR.charge:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+	editFrame.Label = editFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	editFrame.Label:SetPoint("CENTER", 0, 0)
+	editFrame.Label:SetText(frameName)
+    editFrame.Label:SetFontHeight(17.5)
 
-function DR:chargeSetup(number)
-	if UIWidgetPowerBarContainerFrame then
-		DR.SetUpChargePos(number)
-		if UIWidgetPowerBarContainerFrame.widgetFrames[5140] then -- gold tex
-			DR.charge[number].texBase:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Empty.blp")
-			DR.charge[number].texCover:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Cover.blp")
-		elseif UIWidgetPowerBarContainerFrame.widgetFrames[5143] then -- silver tex
-			DR.charge[number].texBase:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Silver_Empty.blp")
-			DR.charge[number].texCover:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Silver_Cover.blp")
-		elseif UIWidgetPowerBarContainerFrame.widgetFrames[5144] then -- bronze tex
-			DR.charge[number].texBase:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Bronze_Empty.blp")
-			DR.charge[number].texCover:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Bronze_Cover.blp")
-		elseif UIWidgetPowerBarContainerFrame.widgetFrames[5145] then -- dark tex
-			DR.charge[number].texBase:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Dark_Empty.blp")
-			DR.charge[number].texCover:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Dark_Cover.blp")
-		elseif C_UnitAuras.GetPlayerAuraBySpellID(418590) then -- default fallback, buff exists, not stormrider
-			DR.charge[number].texBase:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Empty.blp")
-			DR.charge[number].texCover:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Cover.blp")
-		else
-			DR.charge[number].texBase:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Empty.blp")
-			DR.charge[number].texCover:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Cover.blp")
-			DR.charge[number]:Hide();
-		end
+	editFrame:EnableMouse(true)
+	editFrame:SetMovable(true)
+	editFrame:SetClampedToScreen(true)
+	editFrame:RegisterForDrag("LeftButton")
+	
+	editFrame:SetScript("OnDragStart", function(self)
+		targetFrame:StartMoving()
+	end)
+	
+	editFrame:SetScript("OnDragStop", function(self)
+		targetFrame:StopMovingOrSizing()
+		SaveFramePosition(frameName)
+	end)
+
+	local function CreateNudgeButton(ANCHORPOINT, RELATIVETO, ANCHORRELATIVE, xOffset, yOffset, rotation, dirX, dirY)
+		local btn = CreateFrame("Button", nil, editFrame)
+		btn:SetSize(24, 33)
+		btn:SetPoint(ANCHORPOINT, RELATIVETO, ANCHORRELATIVE, xOffset, yOffset) 
+		
+		btn:SetNormalAtlas("shop-header-arrow")
+		btn:GetNormalTexture():SetRotation(rotation)
+		btn:SetHighlightAtlas("shop-header-arrow-hover")
+		btn:GetHighlightTexture():SetRotation(rotation)
+		btn:SetPushedAtlas("shop-header-arrow-pressed")
+		btn:GetPushedTexture():SetRotation(rotation)
+		
+		btn:SetScript("OnClick", function()
+			local point, relativeTo, relativePoint, xOfs, yOfs = targetFrame:GetPoint()
+			if not xOfs then xOfs = 0 end
+			if not yOfs then yOfs = 0 end
+			
+			targetFrame:ClearAllPoints()
+			targetFrame:SetPoint(point, UIParent, relativePoint, xOfs + dirX, yOfs + dirY)
+			SaveFramePosition(frameName)
+		end)
 	end
-end
 
-function DR.SetUpChargePos(i)
-	DR.charge[1]:SetPoint("CENTER", UIWidgetPowerBarContainerFrame, -61,15)
-	if i ~= 1 then
-		if C_UnitAuras.GetPlayerAuraBySpellID(417888) then
-			DR.charge[i]:SetPoint("CENTER", DR.charge[i-1], 30.5, 0)
-		else
-			DR.charge[i]:SetPoint("CENTER", DR.charge[i-1], 26.75, 0)
-		end
-		DR.charge[i]:SetParent(DR.charge[i-1])
+	local Dropdown = CreateFrame("DropdownButton", nil, editFrame, "WowStyle1DropdownTemplate")
+	Dropdown:SetDefaultText(Settings.GetCategory(DR.SettingsCategoryID).name or "DragonRider")
+	if frameName == "Speedometer" then
+		Dropdown:SetPoint("BOTTOM", editFrame, "TOP", 0, -2)
+		CreateNudgeButton("BOTTOM",	Dropdown,	"TOP",		0,		0,		-math.pi / 2,		0,		1)	-- UP 90 - math.pi / 2
+		CreateNudgeButton("TOP",	editFrame,	"BOTTOM",	0,		0,		math.pi / 2,		0,		-1)	-- DOWN -90 - -math.pi / 2
+	elseif frameName == "Vigor" then
+		Dropdown:SetPoint("TOP", editFrame, "BOTTOM", 0, -2)
+		CreateNudgeButton("BOTTOM",	editFrame,	"TOP",		0,		0,		-math.pi / 2,		0,		1)	-- UP 90 - math.pi / 2
+		CreateNudgeButton("TOP",	Dropdown,	"BOTTOM",	0,		0,		math.pi / 2,		0,		-1)	-- DOWN -90 - -math.pi / 2
 	end
-	if DR.charge[6] then
-		if C_UnitAuras.GetPlayerAuraBySpellID(417888) then
-			DR.charge[6]:SetPoint("CENTER", DR.charge[1], 0, -30)
-		else
-			DR.charge[6]:SetPoint("CENTER", DR.charge[1], 0, -33)
-		end
-	end
-end
-
-for i = 1, 10 do
-	DR.charge[i] = CreateFrame("Frame")
-	DR.charge[i]:SetSize(25,25)
-
-	DR.SetUpChargePos(i)
-
-	DR.charge[i].texBase = DR.charge[i]:CreateTexture(nil, "OVERLAY", nil, 0)
-	DR.charge[i].texBase:SetAllPoints(DR.charge[i])
-	DR.charge[i].texBase:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Empty.blp")
-	DR.charge[i].texFill = DR.charge[i]:CreateTexture(nil, "OVERLAY", nil, 1)
-	DR.charge[i].texFill:SetAllPoints(DR.charge[i])
-	DR.charge[i].texFill:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Fill.blp")
-	DR.charge[i].texCover = DR.charge[i]:CreateTexture(nil, "OVERLAY", nil, 2)
-	DR.charge[i].texCover:SetAllPoints(DR.charge[i])
-	DR.charge[i].texCover:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Cover.blp")
-
-	DR.charge[i].texFill:Hide();
-
-end
-
-
-function DR.toggleCharges(self, event, arg1)
-	if event == "UNIT_AURA" and arg1 == "player" then
-		if C_UnitAuras.GetPlayerAuraBySpellID(418590) then
-			local chargeCount = C_UnitAuras.GetPlayerAuraBySpellID(418590).applications
-			for i = 1,10 do
-				DR:chargeSetup(i)
-				if i <= chargeCount then
-					DR.charge[i].texFill:Show();
-				else
-					DR.charge[i].texFill:Hide();
+	Dropdown:SetSize(150, 30)
+	
+	CreateNudgeButton("RIGHT",	editFrame,	"LEFT",		0,		0,		0,					-1,		0)	-- LEFT  0 - 0
+	CreateNudgeButton("LEFT",	editFrame,	"RIGHT",	0,		0,		math.pi,			1,		0)	-- RIGHT 180 - math.pi
+	
+	Dropdown:SetupMenu(function(dropdown, rootDescription)
+		rootDescription:CreateButton(L["LockFrame"], function()
+			DR.ToggleEditMode(false)
+		end)
+		
+		rootDescription:CreateButton(RESET_TO_DEFAULT, function()
+			if frameName == "Speedometer" then
+				if DragonRider_DB.position and DragonRider_DB.position.speedometer then
+					DragonRider_DB.position.speedometer = CopyTable(defaultsTable.position.speedometer)
+				end
+			elseif frameName == "Vigor" then
+				if DragonRider_DB.position and DragonRider_DB.position.vigor then
+					DragonRider_DB.position.vigor = CopyTable(defaultsTable.position.vigor)
 				end
 			end
-			DR.setPositions();
-		else
-			for i = 1,10 do
-				DR.charge[i].texFill:Hide();
-			end
-			DR.setPositions();
-		end
-	end
-	if event == "SPELL_UPDATE_COOLDOWN" then
-		local isEnabled, startTime, modRate, duration
-		if C_Spell.GetSpellCooldown then
-			isEnabled, startTime, modRate, duration = C_Spell.GetSpellCooldown(418592).isEnabled, C_Spell.GetSpellCooldown(418592).startTime, C_Spell.GetSpellCooldown(418592).modRate, C_Spell.GetSpellCooldown(418592).duration
-		else
-			isEnabled, startTime, modRate, duration = GetSpellCooldown(418592)
-		end
-		if ( startTime > 0 and duration > 0) then
-			local cdLeft = startTime + duration - GetTime()
-			for i = 1,10 do
-				DR.charge[i].texFill:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Fill_CD.blp");
-			end
-		else
-			for i = 1,10 do
-				DR.charge[i].texFill:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Fill.blp");
-			end
-		end
-	end
+			DR.setPositions()
+		end)
+	end)
+
+	DR.EditFrames[frameName] = editFrame
 end
 
-DR.charge:SetScript("OnEvent", DR.toggleCharges)
+function DR.ToggleEditMode(enable)
+	DR.IsEditMode = enable 
 
-function DR.useUnits()
-	if DragonRider_DB.speedValUnits == 1 then
-		return " " .. L["UnitYards"]
-	elseif DragonRider_DB.speedValUnits == 2 then
-		return " " .. L["UnitMiles"]
-	elseif DragonRider_DB.speedValUnits == 3 then
-		return " " .. L["UnitMeters"]
-	elseif DragonRider_DB.speedValUnits == 4 then
-		return " " .. L["UnitKilometers"]
-	elseif DragonRider_DB.speedValUnits == 5 then
-		return "%" --.. L["UnitPercent"]
-	elseif DragonRider_DB.speedValUnits == 6 then
-		return ""
+	if not DR.EditFrames["Speedometer"] and DR.statusbar then
+		CreateEditOverlay(DR.statusbar, "Speedometer")
+	end
+	if not DR.EditFrames["Vigor"] and DR.vigorBar then
+		CreateEditOverlay(DR.vigorBar, "Vigor")
+	end
+
+	if enable then
+		DR.statusbar:Show();
+		DR.statusbar:SetAlpha(1);
+		DR.vigorBar:Show();
+		DR.vigorBar:SetAlpha(1);
+		
+		if DR.EditFrames["Speedometer"] then DR.EditFrames["Speedometer"]:Show(); end
+		if DR.EditFrames["Vigor"] then DR.EditFrames["Vigor"]:Show(); end
+		
+		DR.statusbar:SetMovable(true);
+		DR.vigorBar:SetMovable(true);
 	else
-		return L["UnitYards"]
+		if DR.EditFrames["Speedometer"] then DR.EditFrames["Speedometer"]:Hide(); end
+		if DR.EditFrames["Vigor"] then DR.EditFrames["Vigor"]:Hide(); end
+		
+		DR.statusbar:SetMovable(false);
+		DR.vigorBar:SetMovable(false);
+		DR.HideWithFadeBar();
 	end
-end
-
-function DR:convertUnits(forwardSpeed)
-	if DragonRider_DB.speedValUnits == 1 then
-		return forwardSpeed
-	elseif DragonRider_DB.speedValUnits == 2 then
-		return forwardSpeed*2.045
-	elseif DragonRider_DB.speedValUnits == 3 then
-		return forwardSpeed
-	elseif DragonRider_DB.speedValUnits == 4 then
-		return forwardSpeed*3.6
-	elseif DragonRider_DB.speedValUnits == 5 then
-		return forwardSpeed/7*100
-	elseif DragonRider_DB.speedValUnits == 6 then
-		return forwardSpeed
-	else
-		return forwardSpeed
-	end
-end
-
-local DRAGON_RACE_AURA_ID = 369968;
-
-function DR.updateSpeed()
-	if not LibAdvFlight.IsAdvFlyEnabled() and not DriveUtils.IsDriving() then
-		return;
-	end
-
-	local forwardSpeed = LibAdvFlight.GetForwardSpeed();
-	if not LibAdvFlight.IsAdvFlyEnabled() then
-		forwardSpeed = DriveUtils.GetSmoothedSpeed()
-	end
-	local racing = C_UnitAuras.GetPlayerAuraBySpellID(DRAGON_RACE_AURA_ID)
-
-	local THRESHOLD_HIGH;
-	local THRESHOLD_LOW;
-	local MIN_BAR_VALUE;
-	local MAX_BAR_VALUE;
-
-	if DR.DragonRidingZoneCheck() == true or racing then
-		THRESHOLD_HIGH = 65;
-		THRESHOLD_LOW = 60;
-		MIN_BAR_VALUE = 0;
-		MAX_BAR_VALUE = 100;
-	elseif DriveUtils.IsDriving() then
-		THRESHOLD_HIGH = 100 * .55;
-		THRESHOLD_LOW = 100 * .40;
-		MIN_BAR_VALUE = 0;
-		MAX_BAR_VALUE = 100;
-	else
-		THRESHOLD_HIGH = 85 * .65;
-		THRESHOLD_LOW = 85 * .60;
-		MIN_BAR_VALUE = 0;
-		MAX_BAR_VALUE = 85;
-	end
-
-	DR.statusbar:SetMinMaxValues(MIN_BAR_VALUE, MAX_BAR_VALUE);
-	local textColor;
-	local barColor;
-
-	if forwardSpeed > THRESHOLD_HIGH then
-		textColor = DragonRider_DB.speedTextColor.over;
-		barColor = DragonRider_DB.speedBarColor.over;
-	elseif forwardSpeed >= THRESHOLD_LOW and forwardSpeed <= THRESHOLD_HIGH then
-		textColor = DragonRider_DB.speedTextColor.vigor;
-		barColor = DragonRider_DB.speedBarColor.vigor;
-	else
-		textColor = DragonRider_DB.speedTextColor.slow;
-		barColor = DragonRider_DB.speedBarColor.slow;
-	end
-
-	textColor = CreateColor(textColor.r, textColor.g, textColor.b, textColor.a);
-	local text = format("|c%s%.1f%s|r", textColor:GenerateHexColor(), DR:convertUnits(forwardSpeed), DR.useUnits());
-	if DriveUtils.IsDriving() then
-		text = format("|c%s%.0f%s|r", textColor:GenerateHexColor(), DR:convertUnits(forwardSpeed), DR.useUnits());
-	end
-	DR.glide:SetText(text);
-	DR.statusbar:SetStatusBarColor(barColor.r, barColor.g, barColor.b, barColor.a);
-
-	if DragonRider_DB.speedValUnits == 6 then
-		DR.glide:SetText("")
-	end
-	DR.statusbar:SetSmoothedValue(forwardSpeed)
-end
-
-function DR.vigorCounter(vigorCurrent)
-	if not vigorCurrent then
-		-- vigorCurrent will be nil during login I think
-		return;
-	end
-
-	if not LibAdvFlight.IsAdvFlyEnabled() or DriveUtils.IsDriving() then
-		DR.toggleModels()
-		return
-	end
-
-	if not DragonRider_DB.toggleModels then
-		DR.toggleModels()
-		return
-	end
-
-	if vigorCurrent == 0 then
-		DR.toggleModels()
-	end
-
-	local frameLevelThing = UIWidgetPowerBarContainerFrame:GetFrameLevel()+15
-	for i = 1,6 do
-		if vigorCurrent >= i then
-			DR.modelScene[i]:Show()
-		else
-			DR.modelScene[i]:Hide()
-		end
-		DR.modelScene[i]:SetFrameLevel(frameLevelThing)
-	end
-	DR.setPositions()
 end
 
 LibAdvFlight.RegisterCallback(LibAdvFlight.Events.VIGOR_CHANGED, DR.vigorCounter);
@@ -600,7 +439,9 @@ DR.EventsList = CreateFrame("Frame")
 DR.EventsList:RegisterEvent("ADDON_LOADED")
 DR.EventsList:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
 DR.EventsList:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
-DR.EventsList:RegisterEvent("LEARNED_SPELL_IN_TAB")
+if LE_EXPANSION_LEVEL_CURRENT <= LE_EXPANSION_WAR_WITHIN then
+	DR.EventsList:RegisterEvent("LEARNED_SPELL_IN_TAB")
+end
 DR.EventsList:RegisterEvent("PLAYER_CAN_GLIDE_CHANGED")
 DR.EventsList:RegisterEvent("COMPANION_UPDATE")
 DR.EventsList:RegisterEvent("PLAYER_LOGIN")
@@ -612,559 +453,48 @@ DR.EventsList:SetScript("OnEvent", function(self, event, ...)
 	end
 end);
 
-
-function DR.GetWidgetAlpha()
-	if UIWidgetPowerBarContainerFrame then
-		return UIWidgetPowerBarContainerFrame:GetAlpha()
-	end
-end
-
-function DR.GetVigorValueExact()
-	if UnitPower("player", Enum.PowerType.AlternateMount) and C_UIWidgetManager.GetFillUpFramesWidgetVisualizationInfo(4460) then
-		local fillCurrent = (UnitPower("player", Enum.PowerType.AlternateMount) + (C_UIWidgetManager.GetFillUpFramesWidgetVisualizationInfo(4460).fillValue*.01) )
-		--local fillMin = C_UIWidgetManager.GetFillUpFramesWidgetVisualizationInfo(4460).fillMax
-		local fillMax = C_UIWidgetManager.GetFillUpFramesWidgetVisualizationInfo(4460).numTotalFrames
-		return fillCurrent, fillMax
-	end
-end
-
--- ugly hack fix for the vigor widget not disappearing when it should
-LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_DISABLED, function()
-	for _, v in ipairs(DR.WidgetFrameIDs) do
-		C_Timer.After(1, function()
-			local f = UIWidgetPowerBarContainerFrame.widgetFrames[v];
-			if f and f:IsShown() then
-				f:Hide();
-			end
-		end);
-	end
-end);
-
-function DR.SetupVigorToolip()
-	EmbeddedItemTooltip:HookScript("OnShow", function(self)
-		if not DragonRider_DB.showtooltip then
-			for _, v in pairs(DR.WidgetFrameIDs) do
-				local f = UIWidgetPowerBarContainerFrame.widgetFrames[v];
-				if f then
-					if self:GetOwner() == f then
-						self:Hide();
-					end
-				end
-			end
-		end
-	end);
-end
-
-function DR.SetTheme()
-	if DragonRider_DB.themeSpeed == 1 then --Default
-		DR.statusbar:SetWidth(305/1.25)
-		DR.statusbar:SetHeight(66.5/2.75)
-		DR.statusbar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
-		DR.statusbar:GetStatusBarTexture():SetHorizTile(false)
-		DR.statusbar:GetStatusBarTexture():SetVertTile(false)
-		DR.statusbar.bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
-
-		DR.tick1:SetAtlas("UI-Frame-Bar-BorderTick")
-		DR.tick2:SetAtlas("UI-Frame-Bar-BorderTick")
-		DR.tick1:SetSize(17,DR.statusbar:GetHeight()*1.5)
-		DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (65 / 100) * DR.statusbar:GetWidth(), 5)
-		DR.tick2:SetSize(17,DR.statusbar:GetHeight()*1.5)
-		DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (60 / 100) * DR.statusbar:GetWidth(), 5)
-		if DriveUtils.IsDriving() then
-			DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (40 / 100) * DR.statusbar:GetWidth(), 5)
-			DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (55 / 100) * DR.statusbar:GetWidth(), 5)
-		end
-
-		DR.backdropL:SetAtlas("widgetstatusbar-borderleft")
-		DR.backdropR:SetAtlas("widgetstatusbar-borderright")
-		DR.backdropM:SetAtlas("widgetstatusbar-bordercenter")
-		DR.backdropL:SetWidth(35)
-		DR.backdropL:SetHeight(40)
-		DR.backdropR:SetWidth(35)
-		DR.backdropR:SetHeight(40)
-		DR.backdropL:SetPoint("LEFT", DR.statusbar, "LEFT", -7, 0)
-		DR.backdropR:SetPoint("RIGHT", DR.statusbar, "RIGHT", 7, 0)
-
-		DR.backdropTopper:SetAtlas("dragonflight-score-topper")
-		DR.backdropFooter:SetAtlas("dragonflight-score-footer")
-		DR.backdropTopper:SetSize(350,65)
-		DR.backdropFooter:SetSize(350,65)
-		DR.backdropTopper:SetPoint("TOP", DR.statusbar, "TOP", 0, 38)
-		DR.backdropFooter:SetPoint("BOTTOM", DR.statusbar, "BOTTOM", 0, -32)
-		DR.backdropTopper:SetDrawLayer("OVERLAY", 3)
-		DR.backdropFooter:SetDrawLayer("OVERLAY", 3)
-
-		frameborder.left:SetColorTexture(0,0,0,0)
-		frameborder.right:SetColorTexture(0,0,0,0)
-		frameborder.top:SetColorTexture(0,0,0,0)
-		frameborder.bottom:SetColorTexture(0,0,0,0)
-
-
-	elseif DragonRider_DB.themeSpeed == 2 then --Algari
-		DR.statusbar:SetWidth(305/1.25)
-		DR.statusbar:SetHeight(66.5/2.75)
-
-		--change for algarian stormrider colors
-		if UIWidgetPowerBarContainerFrame then
-			if UIWidgetPowerBarContainerFrame.widgetFrames then
-				if UIWidgetPowerBarContainerFrame.widgetFrames[5140] then -- gold tex
-					DR.backdropL:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_L_G.blp")
-					DR.backdropR:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_R_G.blp")
-					DR.backdropM:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_M_G.blp")
-
-					DR.backdropTopper:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Topper_G.blp")
-					DR.backdropFooter:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Footer_G.blp")
-
-				elseif UIWidgetPowerBarContainerFrame.widgetFrames[5143] then -- silver tex
-					DR.backdropL:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_L_S.blp")
-					DR.backdropR:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_R_S.blp")
-					DR.backdropM:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_M_S.blp")
-
-					DR.backdropTopper:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Topper_S.blp")
-					DR.backdropFooter:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Footer_S.blp")
-
-				elseif UIWidgetPowerBarContainerFrame.widgetFrames[5144] then -- bronze tex
-					DR.backdropL:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_L_B.blp")
-					DR.backdropR:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_R_B.blp")
-					DR.backdropM:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_M_B.blp")
-
-					DR.backdropTopper:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Topper_B.blp")
-					DR.backdropFooter:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Footer_B.blp")
-
-				elseif UIWidgetPowerBarContainerFrame.widgetFrames[5145] then -- dark tex
-					DR.backdropL:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_L_D.blp")
-					DR.backdropR:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_R_D.blp")
-					DR.backdropM:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_M_D.blp")
-
-					DR.backdropTopper:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Topper_D.blp")
-					DR.backdropFooter:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Footer_D.blp")
-
-				else --default, should be gold tex
-					DR.backdropL:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_L_G.blp")
-					DR.backdropR:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_R_G.blp")
-					DR.backdropM:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_M_G.blp")
-
-					DR.backdropTopper:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Topper_G.blp")
-					DR.backdropFooter:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Footer_G.blp")
-
-				end
-			end
-		end
-
-		DR.statusbar:SetStatusBarTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Progress.blp")
-		DR.statusbar:GetStatusBarTexture():SetHorizTile(false)
-		DR.statusbar:GetStatusBarTexture():SetVertTile(false)
-		DR.statusbar.bg:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_BG.blp")
-
-		DR.tick1:SetAtlas("UI-Frame-Bar-BorderTick")
-		DR.tick2:SetAtlas("UI-Frame-Bar-BorderTick")
-		DR.tick1:SetSize(17,DR.statusbar:GetHeight()*1.5)
-		DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (65 / 100) * DR.statusbar:GetWidth(), 5)
-		DR.tick2:SetSize(17,DR.statusbar:GetHeight()*1.5)
-		DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (60 / 100) * DR.statusbar:GetWidth(), 5)
-		if DriveUtils.IsDriving() then
-			DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (40 / 100) * DR.statusbar:GetWidth(), 5)
-			DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (55 / 100) * DR.statusbar:GetWidth(), 5)
-		end
-
-		DR.backdropL:SetWidth(70)
-		DR.backdropL:SetHeight(75)
-		DR.backdropR:SetWidth(70)
-		DR.backdropR:SetHeight(75)
-		DR.backdropL:SetPoint("LEFT", DR.statusbar, "LEFT", -37, 0)
-		DR.backdropR:SetPoint("RIGHT", DR.statusbar, "RIGHT", 37, 0)
-
-		DR.backdropTopper:SetSize(150,65)
-		DR.backdropFooter:SetSize(115,50)
-		DR.backdropTopper:SetPoint("TOP", DR.statusbar, "TOP", 0, 39)
-		DR.backdropFooter:SetPoint("BOTTOM", DR.statusbar, "BOTTOM", 0, -28)
-		DR.backdropTopper:SetDrawLayer("OVERLAY", 3)
-		DR.backdropFooter:SetDrawLayer("OVERLAY", 3)
-
-		frameborder.left:SetColorTexture(0,0,0,0)
-		frameborder.right:SetColorTexture(0,0,0,0)
-		frameborder.top:SetColorTexture(0,0,0,0)
-		frameborder.bottom:SetColorTexture(0,0,0,0)
-
-
-	elseif DragonRider_DB.themeSpeed == 3 then -- Minimalist
-		DR.statusbar:SetWidth(305/1.25)
-		DR.statusbar:SetHeight(66.5/2.75)
-		DR.statusbar:SetStatusBarTexture("Interface\\buttons\\white8x8")
-		DR.statusbar:GetStatusBarTexture():SetHorizTile(false)
-		DR.statusbar:GetStatusBarTexture():SetVertTile(false)
-		DR.statusbar.bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
-
-		DR.tick1:SetTexture("Interface\\buttons\\white8x8")
-		DR.tick2:SetTexture("Interface\\buttons\\white8x8")
-		DR.tick1:SetSize(1,DR.statusbar:GetHeight())
-		DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (65 / 100) * DR.statusbar:GetWidth(), 0)
-		DR.tick2:SetSize(1,DR.statusbar:GetHeight())
-		DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (60 / 100) * DR.statusbar:GetWidth(), 0)
-		if DriveUtils.IsDriving() then
-			DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (40 / 100) * DR.statusbar:GetWidth(), 5)
-			DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (55 / 100) * DR.statusbar:GetWidth(), 5)
-		end
-		DR.tick1:SetColorTexture(1, 1, 1, 1)
-		DR.tick2:SetColorTexture(1, 1, 1, 1)
-
-		DR.backdropL:SetAtlas(nil)
-		DR.backdropR:SetAtlas(nil)
-		DR.backdropM:SetAtlas(nil)
-		DR.backdropL:SetWidth(35)
-		DR.backdropL:SetHeight(40)
-		DR.backdropR:SetWidth(35)
-		DR.backdropR:SetHeight(40)
-		DR.backdropL:SetPoint("LEFT", DR.statusbar, "LEFT", -7, 0)
-		DR.backdropR:SetPoint("RIGHT", DR.statusbar, "RIGHT", 7, 0)
-
-		DR.backdropTopper:SetAtlas(nil)
-		DR.backdropFooter:SetAtlas(nil)
-		DR.backdropTopper:SetSize(350,65)
-		DR.backdropFooter:SetSize(350,65)
-		DR.backdropTopper:SetPoint("TOP", DR.statusbar, "TOP", 0, 38)
-		DR.backdropFooter:SetPoint("BOTTOM", DR.statusbar, "BOTTOM", 0, -32)
-		DR.backdropTopper:SetDrawLayer("OVERLAY", 3)
-		DR.backdropFooter:SetDrawLayer("OVERLAY", 3)
-
-		frameborder.left:SetColorTexture(0,0,0,1)
-		frameborder.right:SetColorTexture(0,0,0,1)
-		frameborder.top:SetColorTexture(0,0,0,1)
-		frameborder.bottom:SetColorTexture(0,0,0,1)
-
-	elseif DragonRider_DB.themeSpeed == 4 then -- Alliance
-
-		DR.statusbar:SetWidth(305/1.25)
-		DR.statusbar:SetHeight(66.5/2.75)
-		DR.statusbar:SetStatusBarTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Alliance\\Alliance_Progress.blp")
-		DR.statusbar:GetStatusBarTexture():SetHorizTile(false)
-		DR.statusbar:GetStatusBarTexture():SetVertTile(false)
-		DR.statusbar.bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
-
-		DR.tick1:SetAtlas("UI-Frame-Bar-BorderTick")
-		DR.tick2:SetAtlas("UI-Frame-Bar-BorderTick")
-		DR.tick1:SetSize(17,DR.statusbar:GetHeight()*1.5)
-		DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (65 / 100) * DR.statusbar:GetWidth(), 5)
-		DR.tick2:SetSize(17,DR.statusbar:GetHeight()*1.5)
-		DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (60 / 100) * DR.statusbar:GetWidth(), 5)
-		if DriveUtils.IsDriving() then
-			DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (40 / 100) * DR.statusbar:GetWidth(), 5)
-			DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (55 / 100) * DR.statusbar:GetWidth(), 5)
-		end
-
-		DR.backdropL:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Alliance\\Alliance_L.blp")
-		DR.backdropR:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Alliance\\Alliance_R.blp")
-		DR.backdropM:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Alliance\\Alliance_M.blp")
-		DR.backdropL:SetWidth(70)
-		DR.backdropL:SetHeight(75)
-		DR.backdropR:SetWidth(70)
-		DR.backdropR:SetHeight(75)
-		DR.backdropL:SetPoint("LEFT", DR.statusbar, "LEFT", -37, 0)
-		DR.backdropR:SetPoint("RIGHT", DR.statusbar, "RIGHT", 37, 0)
-
-		DR.backdropTopper:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Alliance\\Alliance_Topper.blp")
-		DR.backdropFooter:SetTexture(nil)
-
-		DR.backdropTopper:SetSize(350,65)
-		DR.backdropFooter:SetSize(350,65)
-		DR.backdropTopper:SetPoint("TOP", DR.statusbar, "TOP", 0, 39.5)
-		DR.backdropFooter:SetPoint("BOTTOM", DR.statusbar, "BOTTOM", 0, -28)
-		DR.backdropTopper:SetDrawLayer("OVERLAY", 3)
-		DR.backdropFooter:SetDrawLayer("OVERLAY", 3)
-		DR.backdropFooter:SetDrawLayer("OVERLAY", 3)
-
-		frameborder.left:SetColorTexture(0,0,0,0)
-		frameborder.right:SetColorTexture(0,0,0,0)
-		frameborder.top:SetColorTexture(0,0,0,0)
-		frameborder.bottom:SetColorTexture(0,0,0,0)
-
-	elseif DragonRider_DB.themeSpeed == 5 then -- Horde
-
-		DR.statusbar:SetWidth(305/1.25)
-		DR.statusbar:SetHeight(66.5/2.75)
-		DR.statusbar:SetStatusBarTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Horde\\Horde_Progress.blp")
-		DR.statusbar:GetStatusBarTexture():SetHorizTile(false)
-		DR.statusbar:GetStatusBarTexture():SetVertTile(false)
-		DR.statusbar.bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
-
-		DR.tick1:SetAtlas("UI-Frame-Bar-BorderTick")
-		DR.tick2:SetAtlas("UI-Frame-Bar-BorderTick")
-		DR.tick1:SetSize(17,DR.statusbar:GetHeight()*1.5)
-		DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (65 / 100) * DR.statusbar:GetWidth(), 5)
-		DR.tick2:SetSize(17,DR.statusbar:GetHeight()*1.5)
-		DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (60 / 100) * DR.statusbar:GetWidth(), 5)
-		if DriveUtils.IsDriving() then
-			DR.tick1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (40 / 100) * DR.statusbar:GetWidth(), 5)
-			DR.tick2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (55 / 100) * DR.statusbar:GetWidth(), 5)
-		end
-
-		DR.backdropL:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Horde\\Horde_L.blp")
-		DR.backdropR:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Horde\\Horde_R.blp")
-		DR.backdropM:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Horde\\Horde_M.blp")
-		DR.backdropL:SetWidth(70)
-		DR.backdropL:SetHeight(75)
-		DR.backdropR:SetWidth(70)
-		DR.backdropR:SetHeight(75)
-		DR.backdropL:SetPoint("LEFT", DR.statusbar, "LEFT", -37, 0)
-		DR.backdropR:SetPoint("RIGHT", DR.statusbar, "RIGHT", 37, 0)
-
-		DR.backdropTopper:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Horde\\Horde_Topper.blp")
-		DR.backdropFooter:SetTexture(nil)
-
-		DR.backdropTopper:SetSize(350,65)
-		DR.backdropFooter:SetSize(350,65)
-		DR.backdropTopper:SetPoint("TOP", DR.statusbar, "TOP", 0, 39.5)
-		DR.backdropFooter:SetPoint("BOTTOM", DR.statusbar, "BOTTOM", 0, -28)
-		DR.backdropTopper:SetDrawLayer("OVERLAY", 3)
-		DR.backdropFooter:SetDrawLayer("OVERLAY", 3)
-		DR.backdropFooter:SetDrawLayer("OVERLAY", 3)
-
-		frameborder.left:SetColorTexture(0,0,0,0)
-		frameborder.right:SetColorTexture(0,0,0,0)
-		frameborder.top:SetColorTexture(0,0,0,0)
-		frameborder.bottom:SetColorTexture(0,0,0,0)
-
-	else -- Revert to default
-		DR.statusbar:SetWidth(305/1.25)
-		DR.statusbar:SetHeight(66.5/2.75)
-		DR.statusbar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
-		DR.statusbar:GetStatusBarTexture():SetHorizTile(false)
-		DR.statusbar:GetStatusBarTexture():SetVertTile(false)
-		DR.statusbar.bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
-
-		DR.tick1:SetAtlas("UI-Frame-Bar-BorderTick")
-		DR.tick2:SetAtlas("UI-Frame-Bar-BorderTick")
-
-		DR.backdropL:SetAtlas("widgetstatusbar-borderleft")
-		DR.backdropR:SetAtlas("widgetstatusbar-borderright")
-		DR.backdropM:SetAtlas("widgetstatusbar-bordercenter")
-		DR.backdropL:SetWidth(35)
-		DR.backdropL:SetHeight(40)
-		DR.backdropR:SetWidth(35)
-		DR.backdropR:SetHeight(40)
-		DR.backdropL:SetPoint("LEFT", DR.statusbar, "LEFT", -7, 0)
-		DR.backdropR:SetPoint("RIGHT", DR.statusbar, "RIGHT", 7, 0)
-
-		DR.backdropTopper:SetAtlas("dragonflight-score-topper")
-		DR.backdropFooter:SetAtlas("dragonflight-score-footer")
-		DR.backdropTopper:SetSize(350,65)
-		DR.backdropFooter:SetSize(350,65)
-		DR.backdropTopper:SetPoint("TOP", DR.statusbar, "TOP", 0, 38)
-		DR.backdropFooter:SetPoint("BOTTOM", DR.statusbar, "BOTTOM", 0, -32)
-		DR.backdropTopper:SetDrawLayer("OVERLAY", 3)
-		DR.backdropFooter:SetDrawLayer("OVERLAY", 3)
-
-		frameborder.left:SetColorTexture(0,0,0,0)
-		frameborder.right:SetColorTexture(0,0,0,0)
-		frameborder.top:SetColorTexture(0,0,0,0)
-		frameborder.bottom:SetColorTexture(0,0,0,0)
-	end
-end
-
-local ParentFrame = CreateFrame("Frame", nil, UIParent)
-ParentFrame:SetPoint("TOPLEFT", UIWidgetPowerBarContainerFrame, "TOPLEFT")
-ParentFrame:SetPoint("BOTTOMRIGHT", UIWidgetPowerBarContainerFrame, "BOTTOMRIGHT")
--- this should solve that weird "moving" thing, the widget adjusts its size based on children
-
-
-function DR.setPositions()
-	DR.SetTheme()
+function DR.SetCVars()
+	if LibAdvFlight.IsAdvFlying() then return end
 	if DragonRider_DB.DynamicFOV == true then
 		C_CVar.SetCVar("AdvFlyingDynamicFOVEnabled", 1)
+		C_CVar.SetCVar("DriveDynamicFOVEnabled", 1)
 	elseif DragonRider_DB.DynamicFOV == false then
 		C_CVar.SetCVar("AdvFlyingDynamicFOVEnabled", 0)
+		C_CVar.SetCVar("DriveDynamicFOVEnabled", 0)
+		
 	end
+end
 
-	ParentFrame:ClearAllPoints()
-	ParentFrame:SetScale(UIWidgetPowerBarContainerFrame:GetScale()) -- because some of you are rescaling this thing...... the "moving vigor bar" was your fault.
-	ParentFrame:SetPoint("TOPLEFT", UIWidgetPowerBarContainerFrame, "TOPLEFT")
-	ParentFrame:SetPoint("BOTTOMRIGHT", UIWidgetPowerBarContainerFrame, "BOTTOMRIGHT")
-	for k, v in pairs(DR.WidgetFrameIDs) do
-		if UIWidgetPowerBarContainerFrame.widgetFrames[v] then
-			ParentFrame:ClearAllPoints()
-			ParentFrame:SetPoint("TOPLEFT", UIWidgetPowerBarContainerFrame.widgetFrames[v], "TOPLEFT")
-			ParentFrame:SetPoint("BOTTOMRIGHT", UIWidgetPowerBarContainerFrame.widgetFrames[v], "BOTTOMRIGHT")
-		end
-	end
-	DR.statusbar:ClearAllPoints();
-	DR.statusbar:SetPoint("BOTTOM", ParentFrame, "TOP", 0, 5);
-	if DragonRider_DB.speedometerPosPoint == 1 then
-		DR.statusbar:ClearAllPoints();
-		DR.statusbar:SetPoint("BOTTOM", ParentFrame, "TOP", DragonRider_DB.speedometerPosX, DragonRider_DB.speedometerPosY);
-	elseif DragonRider_DB.speedometerPosPoint == 2 then
-		DR.statusbar:ClearAllPoints();
-		DR.statusbar:SetPoint("TOP", ParentFrame, "BOTTOM", DragonRider_DB.speedometerPosX, DragonRider_DB.speedometerPosY);
-	elseif DragonRider_DB.speedometerPosPoint == 3 then
-		DR.statusbar:ClearAllPoints();
-		DR.statusbar:SetPoint("RIGHT", ParentFrame, "LEFT", DragonRider_DB.speedometerPosX, DragonRider_DB.speedometerPosY);
-	elseif DragonRider_DB.speedometerPosPoint == 4 then
-		DR.statusbar:ClearAllPoints();
-		DR.statusbar:SetPoint("LEFT", ParentFrame, "RIGHT", DragonRider_DB.speedometerPosX, DragonRider_DB.speedometerPosY);
-	end
-
-	if C_UnitAuras.GetPlayerAuraBySpellID(417888) then
-		DR.charge[1]:SetPoint("TOPLEFT", ParentFrame, "TOPLEFT", 45,8)
+function DR.setPositions()
+	if SettingsPanel:IsShown() and not DR.IsEditMode then return end
+	
+	C_Timer.After(2, DR.SetCVars)
+	
+	DR.statusbar:SetParent(UIParent)
+	DR.statusbar:ClearAllPoints()
+	
+	if DragonRider_DB.position and DragonRider_DB.position.speedometer then
+		LoadFramePosition("Speedometer")
 	else
-		DR.charge[1]:SetPoint("TOPLEFT", ParentFrame, "TOPLEFT", 31,14)
+		local xOfs = defaultsTable.position.vigor.xOfs
+		local yOfs = defaultsTable.position.vigor.yOfs
+		DR.statusbar:SetPoint("CENTER", UIParent, "CENTER", xOfs, yOfs)
 	end
-	DR.charge[1]:SetParent(ParentFrame)
-	DR.charge[1]:SetScale(1.5625)
-
-	for i = 1, 10 do
-		if C_UnitAuras.GetPlayerAuraBySpellID(418590) and DragonRider_DB.lightningRush == true then
-			DR.charge[i]:Show();
-			DR:chargeSetup(i)
-		else
-			DR.charge[i]:Hide();
-		end
-	end
-
-	local PowerBarChildren = {UIWidgetPowerBarContainerFrame:GetChildren()}
-	if PowerBarChildren[3] ~= nil then
-		for _, child in ipairs({PowerBarChildren[3]:GetRegions()}) do
-			if DragonRider_DB.sideArt == false then
-				child:SetAlpha(0)
-			else
-				child:SetAlpha(1)
-			end
-		end
-	end
-	DR.statusbar:SetScale(DragonRider_DB.speedometerScale)
-	for i = 1,6 do
-		DR.modelScene[i]:SetParent(ParentFrame)
-		DR.modelScene[i]:ClearAllPoints();
-	end
-
-	if C_UnitAuras.GetPlayerAuraBySpellID(417888) then
-		local spacing = 50
-		if DR.model[1]:GetModelFileID() == 1100194 then
-			for i = 1,6 do
-				DR:modelSetup(i)
-			end
-		end
-		-- algarian stormrider uses gems for the vigor bar, spacing is ~50
-		if IsPlayerSpell(377922) == true then -- 6 vigor
-			for i = 1,6 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -175+(i*spacing), 14);
-			end
-		elseif IsPlayerSpell(377921) == true then -- 5 vigor
-			for i = 1,5 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -150+(i*spacing), 14);
-			end
-			for i = 6,6,-1 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:Hide()
-			end
-		elseif IsPlayerSpell(377920) == true then -- 4 vigor
-			for i = 1,4 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -125+(i*spacing), 14);
-			end
-			for i = 6,5,-1 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:Hide()
-			end
-		else
-			for i = 1,3 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -100+(i*spacing), 14);
-			end
-			for i = 6,4,-1 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:Hide()
-			end
-		end
-	else
-		local spacing = 42
-		if DR.model[1]:GetModelFileID() == 3009394 then
-			for i = 1,6 do
-				DR:modelSetup(i)
-			end
-		end
-		--dragonriding is a spacing diff of 42
-		if IsPlayerSpell(377922) == true then -- 6 vigor
-			for i = 1,6 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -147+(i*spacing), 14);
-			end
-		elseif IsPlayerSpell(377921) == true then -- 5 vigor
-			for i = 1,5 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -126+(i*spacing), 14);
-			end
-			for i = 6,6,-1 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:Hide()
-			end
-		elseif IsPlayerSpell(377920) == true then -- 4 vigor
-			for i = 1,4 do 
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -105+(i*spacing), 14);
-			end
-			for i = 6,5,-1 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:Hide()
-			end
-		else
-			for i = 1,3 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -84+(i*spacing), 14);
-			end
-			for i = 6,4,-1 do
-				DR.modelScene[i]:SetParent(ParentFrame)
-				DR.modelScene[i]:Hide()
-			end
-		end
-	end
-
+	
 	DR.glide:SetFont(STANDARD_TEXT_FONT, DragonRider_DB.speedTextScale)
-end
-
-
-function DR.GetBarAlpha()
-	return DR.statusbar:GetAlpha()
-end
-
-DR.fadeInBarGroup = DR.statusbar:CreateAnimationGroup()
-DR.fadeOutBarGroup = DR.statusbar:CreateAnimationGroup()
-
--- Create a fade in animation
-DR.fadeInBar = DR.fadeInBarGroup:CreateAnimation("Alpha")
-DR.fadeInBar:SetFromAlpha(DR.GetBarAlpha())
-DR.fadeInBar:SetToAlpha(1)
-DR.fadeInBar:SetDuration(.5) -- Duration of the fade in animation
-
--- Create a fade out animation
-DR.fadeOutBar = DR.fadeOutBarGroup:CreateAnimation("Alpha")
-DR.fadeOutBar:SetFromAlpha(DR.GetBarAlpha())
-DR.fadeOutBar:SetToAlpha(0)
-DR.fadeOutBar:SetDuration(.1) -- Duration of the fade out animation
-
--- Set scripts for when animations start and finish
-DR.fadeOutBarGroup:SetScript("OnFinished", function()
-	if LibAdvFlight.IsAdvFlying() or DriveUtils.IsDriving() then
-		return
+	
+	DR.vigorBar:SetParent(UIParent)
+	DR.vigorBar:ClearAllPoints()
+	
+	if DragonRider_DB.position and DragonRider_DB.position.vigor then
+		LoadFramePosition("Vigor")
+	else
+		local xOfs = defaultsTable.position.vigor.xOfs
+		local yOfs = defaultsTable.position.vigor.yOfs
+		DR.vigorBar:SetPoint("CENTER", UIParent, "CENTER", xOfs, yOfs)
 	end
-	DR.statusbar:ClearAllPoints();
-	DR.statusbar:Hide(); -- Hide the frame when the fade out animation is finished
-end)
-DR.fadeInBarGroup:SetScript("OnPlay", function()
-	DR.setPositions();
-	DR.statusbar:Show(); -- Show the frame when the fade in animation starts
-end)
-
--- Function to show the frame with a fade in animation
-function DR.ShowWithFadeBar()
-	DR.fadeInBarGroup:Stop(); -- Stop any ongoing animations
-	DR.fadeInBarGroup:Play(); -- Play the fade in animation
-end
-
--- Function to hide the frame with a fade out animation
-function DR.HideWithFadeBar()
-	DR.fadeOutBarGroup:Stop(); -- Stop any ongoing animations
-	DR.fadeOutBarGroup:Play(); -- Play the fade out animation
+	
+	DR.UpdateChargePositions()
 end
 
 function DR.clearPositions()
@@ -1172,7 +502,7 @@ function DR.clearPositions()
 	for i = 1, 10 do
 		DR.charge[i]:Hide();
 	end
-	DR.toggleModels()
+	DR.hideModels()
 end
 
 DR.clearPositions();
@@ -1256,14 +586,6 @@ end
 local goldTime
 local silverTime
 
-function DR.MuteVigorSound()
-	if DragonRider_DB.muteVigorSound == true then
-		MuteSoundFile(1489541)
-	else
-		UnmuteSoundFile(1489541)
-	end
-end
-
 -- event handling
 function DR.EventsList:CURRENCY_DISPLAY_UPDATE(currencyID)
 	-- update the temporary gold/silver time variables when their specific currencies update
@@ -1327,16 +649,54 @@ function DR.EventsList:PLAYER_LOGIN()
 	end
 end
 
-function DR.OnAddonLoaded()
-	--[[ -- hiding code test
-	if event == "UPDATE_UI_WIDGET" then
-		if UIWidgetPowerBarContainerFrame and UIWidgetPowerBarContainerFrame.widgetFrames[4460] then
-			if (UIWidgetPowerBarContainerFrame.widgetFrames[4460]:IsShown()) then
-				UIWidgetPowerBarContainerFrame.widgetFrames[4460]:Hide()
-			end
+
+local function CreateColorPickerButtonForSetting(category, setting, tooltip)
+	local data = Settings.CreateSettingInitializerData(setting, {}, tooltip);
+	local initializer = Settings.CreateSettingInitializer("DragonRiderColorSwatchSettingTemplate", data);
+	local layout = SettingsPanel:GetLayout(category);
+	layout:AddInitializer(initializer);
+	return initializer;
+end
+
+local function SettingsTempFunction(_, args)
+	--DevTools_Dump(args) -- debug
+	local bingus = args;
+	if bingus and bingus.ID and (bingus.ID == DR.SettingsCategoryID or (bingus.parentCategory and bingus.parentCategory.ID == DR.SettingsCategoryID)) and SettingsPanel and SettingsPanel:IsShown() then
+		if DR.IsEditMode then return end
+		DR.vigorBar:SetFrameStrata("DIALOG");
+		DR.statusbar:SetFrameStrata("DIALOG");
+		DR.vigorBar:ClearAllPoints()
+		DR.statusbar:ClearAllPoints()
+		DR.vigorBar:SetPoint("TOP", SettingsPanel, "BOTTOM")
+		DR.statusbar:SetPoint("BOTTOM", DR.vigorBar, "TOP", 0, 13)
+		
+		DR.ShowWithFadeBar()
+		if DragonRider_DB.toggleVigor then
+			DR.vigorBar:Show()
+		else
+			DR.vigorBar:Hide()
+		end
+	else
+		DR.statusbar:SetFrameStrata("MEDIUM");
+		DR.vigorBar:SetFrameStrata("MEDIUM");
+
+		
+		DR.HideWithFadeBar();
+		DR.setPositions();
+		DR.UpdateSpeedometerTheme();
+
+		if DragonRider_DB.toggleVigor and LibAdvFlight.IsAdvFlyEnabled() then
+			DR.vigorBar:Show()
+		else
+			DR.vigorBar:Hide()
 		end
 	end
-	]]
+end
+
+EventRegistry:RegisterCallback('Settings.CategoryChanged', SettingsTempFunction)
+EventRegistry:RegisterCallback('SettingsPanel.OnHide', SettingsTempFunction)
+
+function DR.OnAddonLoaded()
 
 	do
 		local realmKey = GetRealmName()
@@ -1345,8 +705,10 @@ function DR.OnAddonLoaded()
 		SLASH_DRAGONRIDER1 = "/"..L["COMMAND_dragonrider"]
 		SlashCmdList.DRAGONRIDER = HandleSlashCommands;
 
-		if DragonRider_DB == nil then
+		if not DragonRider_DB then
 			DragonRider_DB = CopyTable(defaultsTable)
+		else
+			DR.MergeDefaults(DragonRider_DB, defaultsTable)
 		end
 
 		-- build the currency-to-race lookup map on addon load.
@@ -1374,31 +736,7 @@ function DR.OnAddonLoaded()
 			end
 			buildCurrencyMap()
 		end
-
-		if DragonRider_DB.sideArt == nil then
-			DragonRider_DB.sideArt = true
-		end
-		if DragonRider_DB.sideArtStyle == nil then
-			DragonRider_DB.sideArtStyle = 1
-		end
-		if DragonRider_DB.tempFixes == nil then
-			DragonRider_DB.tempFixes = {};
-		end
-		if DragonRider_DB.tempFixes.hideVigor == nil then -- this is now deprecated
-			DragonRider_DB.tempFixes.hideVigor = true
-		end
-		if DragonRider_DB.showtooltip == nil then
-			DragonRider_DB.showtooltip = true
-		end
-		if DragonRider_DB.fadeVigor == nil then
-			DragonRider_DB.fadeVigor = false
-		end
-		--if DragonRider_DB.fadeSpeed == nil then
-		--	DragonRider_DB.fadeSpeed = true
-		--end
-		if DragonRider_DB.lightningRush == nil then
-			DragonRider_DB.lightningRush = true
-		end
+		
 		if DragonRider_DB.DynamicFOV == nil then
 			if C_CVar.GetCVar("AdvFlyingDynamicFOVEnabled") == "1" then
 				DragonRider_DB.DynamicFOV = true
@@ -1424,13 +762,6 @@ function DR.OnAddonLoaded()
 			DragonRider_DB.raceData = {};
 			DragonRider_DB.raceData[charKey] = {};
 		end
-		if DragonRider_DB.muteVigorSound == nil then
-			DragonRider_DB.muteVigorSound = false
-		end
-		DR.MuteVigorSound()
-		if DragonRider_DB.themeSpeed == nil then
-			DragonRider_DB.themeSpeed = 1
-		end
 
 		---------------------------------------------------------------------------------------------------------------------------------
 		---------------------------------------------------------------------------------------------------------------------------------
@@ -1446,120 +777,348 @@ function DR.OnAddonLoaded()
 				variable = strsub(variable, 4); -- remove our prefix so it matches existing savedvar keys
 			end
 
-			DR.vigorCounter()
-			DR.setPositions()
-			DR.MuteVigorSound()
+			DR.vigorCounter();
+			DR.setPositions();
+			DR.UpdateSpeedometerTheme();
+			DR.UpdateVigorLayout();
+			DR.UpdateVigorFillDirection();
+			DR.UpdateVigorTheme();
+			DR.modelSetup();
+			DR.ToggleDecor();
+			DR.UpdateChargePositions();
 		end
 
-		local category, layout = Settings.RegisterVerticalLayoutCategory(L["DragonRider"]) -- 選單名稱
+		local category, layout = Settings.RegisterVerticalLayoutCategory(L["DR_Title"])
+		DR.SettingsCategoryID = category.ID
+
+		local categorySpeedometer, layoutSpeedometer = Settings.RegisterVerticalLayoutSubcategory(category, L["Speedometer"]);
+
+		local categoryVigor, layoutVigor = Settings.RegisterVerticalLayoutSubcategory(category, L["Vigor"]);
+
 		--local subcategory, layout2 = Settings.RegisterVerticalLayoutSubcategory(category, "my very own subcategory")
 
 		--layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(string.format(L["Version"], GetAddOnMetadata("DragonRider", "Version"))));
 
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ProgressBar"]));
+		--layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["Speedometer"])); -- moved to subcategory
 
 		local CreateDropdown = Settings.CreateDropdown or Settings.CreateDropDown
 		local CreateCheckbox = Settings.CreateCheckbox or Settings.CreateCheckBox
 
-		local function RegisterSetting(variableKey, defaultValue, name)
-			local uniqueVariable = "DR_" .. variableKey; -- these have to be unique or calamity ensues, savedvars will be unaffected
+		local function RegisterSetting(key, defaultValue, name, subKey)
+			local uniqueVariable
+			local setting
 
-			local setting;
-			setting = Settings.RegisterAddOnSetting(category, uniqueVariable, variableKey, DragonRider_DB, type(defaultValue), name, defaultValue);
+			if subKey then
+				-- This block handles nested settings like DragonRider_DB.speedBarColor.slow
+				uniqueVariable = "DR_" .. key .. "_" .. subKey
+				
+				-- Ensure the parent table exists to avoid errors
+				if DragonRider_DB[key] == nil then DragonRider_DB[key] = {} end
 
-			setting:SetValue(DragonRider_DB[variableKey]);
-			Settings.SetOnValueChangedCallback(uniqueVariable, OnSettingChanged);
+				-- Register the setting against the sub-table
+				setting = Settings.RegisterAddOnSetting(category, uniqueVariable, subKey, DragonRider_DB[key], type(defaultValue), name, defaultValue)
+				
+				-- Set the initial value from the nested variable
+				if DragonRider_DB[key][subKey] == nil then DragonRider_DB[key][subKey] = defaultValue end
+				setting:SetValue(DragonRider_DB[key][subKey])
+			else
+				-- This block handles top-level settings like DragonRider_DB.toggleModels
+				uniqueVariable = "DR_" .. key
+				setting = Settings.RegisterAddOnSetting(category, uniqueVariable, key, DragonRider_DB, type(defaultValue), name, defaultValue)
+				if DragonRider_DB[key] == nil then DragonRider_DB[key] = defaultValue end
+				setting:SetValue(DragonRider_DB[key])
+			end
 
-			return setting;
+			Settings.SetOnValueChangedCallback(uniqueVariable, OnSettingChanged)
+			return setting
+		end
+
+		
+		
+		--[[
+		do
+			local variable = "fadeSpeed"
+			local name = L["FadeSpeedometer"]
+			local tooltip = L["FadeSpeedometerTT"]
+			local defaultValue = true
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateCheckbox(category, setting, tooltip)
+		end
+		]]
+
+		--layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["Vigor"])); -- moved to subcategory
+
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["MoveFrame"]));
+
+		do
+			local function OnButtonClick()
+				DR.ToggleEditMode(true);
+			end
+			local btnText = L["UnlockFrame"]
+			local btnTT = L["UnlockFrame"]
+			layout:AddInitializer(CreateSettingsButtonInitializer(btnText, btnText, OnButtonClick, btnTT, true));
+		end
+
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(SPECIAL));
+
+		do
+			local variable = "lightningRush"
+			local name = L["LightningRush"]
+			local tooltip = L["LightningRushTT"]
+			local defaultValue = defaultsTable[variable]
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateCheckbox(category, setting, tooltip)
+		end
+
+		do
+			local variable = "staticChargeOffset"
+			local name = L["StaticChargeOffset"]
+			local tooltip = L["StaticChargeOffsetTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = -30
+			local maxValue = 100
+			local step = .5
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+			Settings.CreateSlider(category, setting, options, tooltip)
+		end
+
+		do
+			local variable = "staticChargeSpacing"
+			local name = L["StaticChargeSpacing"]
+			local tooltip = L["StaticChargeSpacingTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = -15
+			local maxValue = 100
+			local step = .5
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+			Settings.CreateSlider(category, setting, options, tooltip)
+		end
+
+		do
+			local variable = "staticChargeWidth"
+			local name = L["StaticChargeWidth"]
+			local tooltip = L["StaticChargeWidthTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = 10
+			local maxValue = 100
+			local step = .5
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+			Settings.CreateSlider(category, setting, options, tooltip)
+		end
+
+		do
+			local variable = "staticChargeHeight"
+			local name = L["StaticChargeHeight"]
+			local tooltip = L["StaticChargeHeightTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = 10
+			local maxValue = 100
+			local step = .5
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step)
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+			Settings.CreateSlider(category, setting, options, tooltip)
+		end
+
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(SETTING_GROUP_ACCESSIBILITY));
+
+		do
+			local variable = "DynamicFOV"
+			local name = L["DynamicFOV"]
+			local tooltip = L["DynamicFOVNewTT"] .. "\n\n\124cFFFF0000" .. L["DynamicFOV_CaveatTT"].."\124r"
+			local defaultValue = true
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateCheckbox(category, setting, tooltip)
+		end
+
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["DragonridingTalents"]));
+
+		do -- dragonriding talents 
+			local function OnButtonClick()
+				CloseWindows();
+				GenericTraitUI_LoadUI();
+				GenericTraitFrame:SetConfigIDBySystemID(Constants.MountDynamicFlightConsts.TRAIT_SYSTEM_ID);
+				GenericTraitFrame:SetTreeID(Constants.MountDynamicFlightConsts.TREE_ID);
+				ToggleFrame(GenericTraitFrame);
+			end
+
+			local initializer = CreateSettingsButtonInitializer(L["DragonridingTalents"], L["DragonridingTalents"], OnButtonClick, L["OpenDragonridingTalentsTT"], true);
+			layout:AddInitializer(initializer);
+		end
+
+		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(RESET));
+
+		StaticPopupDialogs["DRAGONRIDER_RESET_SETTINGS"] = {
+			text = L["ResetAllSettingsConfirm"],
+			button1 = YES,
+			button2 = NO,
+			OnAccept = function()
+				-- preserve the race data scores
+				local savedRaceData = DragonRider_DB.raceData
+				local savedCollector = DragonRider_DB.raceDataCollector
+
+				DragonRider_DB = CopyTable(defaultsTable);
+
+				DragonRider_DB.raceData = savedRaceData
+				DragonRider_DB.raceDataCollector = savedCollector
+
+				DR.vigorCounter();
+				DR.setPositions();
+				DR.UpdateSpeedometerTheme();
+				DR.UpdateVigorLayout();
+				DR.UpdateVigorFillDirection();
+				DR.UpdateVigorTheme();
+				DR.modelSetup();
+				DR.ToggleDecor();
+				DR.UpdateChargePositions();
+				
+				if DragonRider_DB.toggleVigor and LibAdvFlight.IsAdvFlyEnabled() then
+					DR.vigorBar:Show()
+				else
+					DR.vigorBar:Hide()
+				end
+				
+				if DragonRider_DB.toggleSpeedometer then
+					DR.ShowWithFadeBar()
+				else
+					DR.statusbar:Hide()
+				end
+			end,
+			timeout = 0,
+			whileDead = true,
+			hideOnEscape = true,
+		};
+
+		do -- color picker - high speed text color
+			local function OnButtonClick()
+				StaticPopup_Show("DRAGONRIDER_RESET_SETTINGS");
+			end
+
+			local initializer = CreateSettingsButtonInitializer(L["ResetAllSettings"], RESET, OnButtonClick, L["ResetAllSettingsTT"], true);
+			layout:AddInitializer(initializer);
+		end
+		Settings.RegisterAddOnCategory(category)
+
+		-- Speedometer Subcategory
+
+		do
+			local variable = "toggleSpeedometer"
+			local name = L["ToggleSpeedometer"]
+			local tooltip = L["ToggleSpeedometerTT"]
+			local defaultValue = defaultsTable[variable]
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateCheckbox(categorySpeedometer, setting, tooltip)
+		category.ID = "DragonRider" -- 自行加入
 		end
 
 		do
 			local variable = "themeSpeed"
-			local defaultValue = 1  -- Corresponds to "Option 1" below.
+			local defaultValue = defaultsTable[variable]  -- Corresponds to "Option 1" below.
 			local name = L["SpeedometerTheme"]
-			local tooltip = L["SpeedometerThemeTT"]
+			local tooltip = L["SpeedometerThemeTT"].."\n\n"..L["DesaturatedOptionTT"]
 
 			local function GetOptions()
 				local container = Settings.CreateControlTextContainer()
 				container:Add(1, L["Default"])
-				container:Add(2, L["Algari"])
+				container:Add(2, L["ThemeAlgari_Gold"])
 				container:Add(3, L["Minimalist"])
 				container:Add(4, L["Alliance"])
 				container:Add(5, L["Horde"])
+				container:Add(6, L["ThemeAlgari_Bronze"])
+				container:Add(7, L["ThemeAlgari_Dark"])
+				container:Add(8, L["ThemeAlgari_Silver"])
+				container:Add(9, L["ThemeDefault_Desaturated"])
+				container:Add(10, L["ThemeAlgari_Desaturated"])
 				return container:GetData()
 			end
 
 			local setting = RegisterSetting(variable, defaultValue, name);
-			CreateDropdown(category, setting, GetOptions, tooltip)
+			CreateDropdown(categorySpeedometer, setting, GetOptions, tooltip)
 		end
 
 		do
-			local variable = "speedometerPosPoint"
-			local defaultValue = 1  -- Corresponds to "Option 1" below.
-			local name = L["SpeedPosPointName"]
-			local tooltip = L["SpeedPosPointTT"]
-
-			local function GetOptions()
-				local container = Settings.CreateControlTextContainer()
-				container:Add(1, L["Top"])
-				container:Add(2, L["Bottom"])
-				container:Add(3, L["Left"])
-				container:Add(4, L["Right"])
-				return container:GetData()
-			end
+			local variable = "toggleTopper"
+			local name = L["ToggleTopper"]
+			local tooltip = L["ToggleTopperTT"]
+			local defaultValue = defaultsTable[variable]
 
 			local setting = RegisterSetting(variable, defaultValue, name);
-			CreateDropdown(category, setting, GetOptions, tooltip);
+			CreateCheckbox(categorySpeedometer, setting, tooltip)
 		end
 
 		do
-			local variable = "speedometerPosX"
-			local name = L["SpeedPosXName"]
-			local tooltip = L["SpeedPosXTT"]
-			local defaultValue = 0
-			local minValue = -Round(GetScreenWidth())
-			local maxValue = Round(GetScreenWidth())
-			local step = 1
+			local variable = "toggleFooter"
+			local name = L["ToggleFooter"]
+			local tooltip = L["ToggleFooterTT"]
+			local defaultValue = defaultsTable[variable]
 
 			local setting = RegisterSetting(variable, defaultValue, name);
-			local options = Settings.CreateSliderOptions(minValue, maxValue, step);
-			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
-			Settings.CreateSlider(category, setting, options, tooltip);
+			CreateCheckbox(categorySpeedometer, setting, tooltip)
 		end
 
 		do
-			local variable = "speedometerPosY"
-			local name = L["SpeedPosYName"]
-			local tooltip = L["SpeedPosYTT"]
-			local defaultValue = 5
-			local minValue = -Round(GetScreenHeight())
-			local maxValue = Round(GetScreenHeight())
-			local step = 1
+			local variable = "speedometerWidth"
+			local name = L["SpeedometerWidthName"]
+			local tooltip = L["SpeedometerWidthTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = 100
+			local maxValue = 500
+			local step = .5
 
 			local setting = RegisterSetting(variable, defaultValue, name);
 			local options = Settings.CreateSliderOptions(minValue, maxValue, step)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
-			Settings.CreateSlider(category, setting, options, tooltip)
+			Settings.CreateSlider(categorySpeedometer, setting, options, tooltip)
 		end
 
 		do
-			local variable = "speedometerScale"
-			local name = L["SpeedScaleName"]
-			local tooltip = L["SpeedScaleTT"]
-			local defaultValue = 1
-			local minValue = .4
-			local maxValue = 4
-			local step = .1
+			local variable = "speedometerHeight"
+			local name = L["SpeedometerHeightName"]
+			local tooltip = L["SpeedometerHeightTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = 10
+			local maxValue = 100
+			local step = .5
 
 			local setting = RegisterSetting(variable, defaultValue, name);
 			local options = Settings.CreateSliderOptions(minValue, maxValue, step)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
-			Settings.CreateSlider(category, setting, options, tooltip)
+			Settings.CreateSlider(categorySpeedometer, setting, options, tooltip)
 		end
+
+		-- scale is essentially defunct with width/height
+		--do
+		--	local variable = "speedometerScale"
+		--	local name = L["SpeedScaleName"]
+		--	local tooltip = L["SpeedScaleTT"]
+		--	local defaultValue = 1
+		--	local minValue = .4
+		--	local maxValue = 4
+		--	local step = .1
+--
+		--	local setting = RegisterSetting(variable, defaultValue, name);
+		--	local options = Settings.CreateSliderOptions(minValue, maxValue, step)
+		--	options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+		--	Settings.CreateSlider(categorySpeedometer, setting, options, tooltip)
+		--end
 
 		do
 			local variable = "speedValUnits"
-			local defaultValue = 1  -- Corresponds to "Option 1" below.
+			local defaultValue = defaultsTable[variable]  -- Corresponds to "Option 1" below.
 			local name = L["Units"]
 			local tooltip = L["UnitsTT"]
 
@@ -1575,14 +1134,14 @@ function DR.OnAddonLoaded()
 			end
 
 			local setting = RegisterSetting(variable, defaultValue, name);
-			CreateDropdown(category, setting, GetOptions, tooltip)
+			CreateDropdown(categorySpeedometer, setting, GetOptions, tooltip)
 		end
 
 		do
 			local variable = "speedTextScale"
 			local name = L["SpeedTextScale"]
 			local tooltip = L["SpeedTextScaleTT"]
-			local defaultValue = 12
+			local defaultValue = defaultsTable[variable]
 			local minValue = 2
 			local maxValue = 30
 			local step = .5
@@ -1590,180 +1149,515 @@ function DR.OnAddonLoaded()
 			local setting = RegisterSetting(variable, defaultValue, name);
 			local options = Settings.CreateSliderOptions(minValue, maxValue, step)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
-			Settings.CreateSlider(category, setting, options, tooltip)
+			Settings.CreateSlider(categorySpeedometer, setting, options, tooltip)
 		end
-		
-		--[[
+
+		layoutSpeedometer:AddInitializer(CreateSettingsListSectionHeaderInitializer(COLOR_PICKER));
+
+		-- Speedometer Colors
+		do -- Low Speed Progress Bar Color
+			local key, subKey = "speedBarColor", "slow"
+			local name = L["SpeedometerBar_Slow_ColorPicker"]
+			local tooltip = L["SpeedometerBar_Slow_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categorySpeedometer, setting, tooltip)
+		end
+
+		do -- Vigor Speed Progress Bar Color
+			local key, subKey = "speedBarColor", "vigor"
+			local name = L["SpeedometerBar_Recharge_ColorPicker"]
+			local tooltip = L["SpeedometerBar_Recharge_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categorySpeedometer, setting, tooltip)
+		end
+
+		do -- High Speed Progress Bar Color
+			local key, subKey = "speedBarColor", "over"
+			local name = L["SpeedometerBar_Over_ColorPicker"]
+			local tooltip = L["SpeedometerBar_Over_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categorySpeedometer, setting, tooltip)
+		end
+
+		-- Text Colors
+		do -- Low Speed Text Color
+			local key, subKey = "speedTextColor", "slow"
+			local name = L["SpeedometerText_Slow_ColorPicker"]
+			local tooltip = L["SpeedometerText_Slow_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categorySpeedometer, setting, tooltip)
+		end
+
+		do -- Vigor Speed Text Color
+			local key, subKey = "speedTextColor", "vigor"
+			local name = L["SpeedometerText_Recharge_ColorPicker"]
+			local tooltip = L["SpeedometerText_Recharge_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categorySpeedometer, setting, tooltip)
+		end
+
+		do -- High Speed Text Color
+			local key, subKey = "speedTextColor", "over"
+			local name = L["SpeedometerText_Over_ColorPicker"]
+			local tooltip = L["SpeedometerText_Over_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categorySpeedometer, setting, tooltip)
+		end
+
+		do -- Speedometer Cover Color
+			local key, subKey = "speedBarColor", "cover"
+			local name = L["SpeedometerCover_ColorPicker"]
+			local tooltip = L["SpeedometerCover_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categorySpeedometer, setting, tooltip)
+		end
+
+		do -- Speedometer Tick Color
+			local key, subKey = "speedBarColor", "tick"
+			local name = L["SpeedometerTick_ColorPicker"]
+			local tooltip = L["SpeedometerTick_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categorySpeedometer, setting, tooltip)
+		end
+
+		do -- Speedometer Topper Color
+			local key, subKey = "speedBarColor", "topper"
+			local name = L["SpeedometerTopper_ColorPicker"]
+			local tooltip = L["SpeedometerTopper_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categorySpeedometer, setting, tooltip)
+		end
+
+		do -- Speedometer Footer Color
+			local key, subKey = "speedBarColor", "footer"
+			local name = L["SpeedometerFooter_ColorPicker"]
+			local tooltip = L["SpeedometerFooter_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categorySpeedometer, setting, tooltip)
+		end
+
+		do -- Speedometer Background Color
+			local key, subKey = "speedBarColor", "background"
+			local name = L["SpeedometerBackground_ColorPicker"]
+			local tooltip = L["SpeedometerBackground_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categorySpeedometer, setting, tooltip)
+		end
+
+		--do -- Speedometer Spark Color (Frame Not Yet Implemented)
+		--	local key, subKey = "speedBarColor", "spark"
+		--	local name = "[PH]"..L["SpeedometerSparkColor"] .. " [NYI]"
+		--	local tooltip = "[PH]"..L["SpeedometerSparkColorTT"] .. " [NYI]"
+		--	local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+		--	CreateColorPickerButtonForSetting(categorySpeedometer, setting, tooltip)
+		--end
+
+
+		Settings.RegisterAddOnCategory(categorySpeedometer)
+
+		-- Vigor Subcategory
+
 		do
-			local variable = "fadeSpeed"
-			local name = L["FadeSpeedometer"]
-			local tooltip = L["FadeSpeedometerTT"]
-			local defaultValue = true
+			local variable = "toggleVigor"
+			local name = L["ToggleVigor"]
+			local tooltip = L["ToggleVigorTT"]
+			local defaultValue = defaultsTable[variable]
 
 			local setting = RegisterSetting(variable, defaultValue, name);
-			CreateCheckbox(category, setting, tooltip)
+			CreateCheckbox(categoryVigor, setting, tooltip)
+		end
+
+		do
+			local variable = "themeVigor"
+			local defaultValue = defaultsTable[variable]  -- Corresponds to "Option 1" below.
+			local name = L["VigorTheme"]
+			local tooltip = L["VigorThemeTT"].."\n\n"..L["DesaturatedOptionTT"]
+
+			local function GetOptions()
+				local container = Settings.CreateControlTextContainer()
+				container:Add(1, L["Default"])
+				container:Add(2, L["ThemeAlgari_Bronze"])
+				container:Add(3, L["ThemeAlgari_Dark"])
+				container:Add(4, L["ThemeAlgari_Gold"])
+				container:Add(5, L["ThemeAlgari_Silver"])
+				container:Add(6, L["ThemeDefault_Desaturated"])
+				container:Add(7, L["ThemeAlgari_Desaturated"])
+				container:Add(8, L["Minimalist"])
+				--container:Add(8, "[PH]"..L["Minimalist"].." [NYI]")
+				--container:Add(9, L["Alliance"])
+				--container:Add(10, L["Horde"])
+				return container:GetData()
+			end
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateDropdown(categoryVigor, setting, GetOptions, tooltip)
+		end
+
+		do
+			local variable = "vigorBarWidth"
+			local name = L["VigorBarWidthName"]
+			local tooltip = L["VigorBarWidthNameTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = 10
+			local maxValue = 200
+			local step = .5
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step);
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+			Settings.CreateSlider(categoryVigor, setting, options, tooltip);
+		end
+
+		do
+			local variable = "vigorBarHeight"
+			local name = L["VigorBarHeightName"]
+			local tooltip = L["VigorBarHeightNameTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = 10
+			local maxValue = 200
+			local step = .5
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step);
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+			Settings.CreateSlider(categoryVigor, setting, options, tooltip);
+		end
+
+		do
+			local variable = "vigorBarSpacing"
+			local name = L["VigorBarSpacingName"]
+			local tooltip = L["VigorBarSpacingNameTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = 0
+			local maxValue = 100
+			local step = .5
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step);
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+			Settings.CreateSlider(categoryVigor, setting, options, tooltip);
+		end
+
+		do
+			local variable = "vigorBarOrientation"
+			local defaultValue = defaultsTable[variable]  -- Corresponds to "Option 1" below.
+			local name = L["VigorBarOrientationName"]
+			local tooltip = L["VigorBarOrientationNameTT"]
+
+			local function GetOptions()
+				local container = Settings.CreateControlTextContainer()
+				container:Add(1, L["Orientation_Vertical"])
+				container:Add(2, L["Orientation_Horizontal"])
+				return container:GetData()
+			end
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateDropdown(categoryVigor, setting, GetOptions, tooltip)
+		end
+
+		do
+			local variable = "vigorBarDirection"
+			local defaultValue = defaultsTable[variable]  -- Corresponds to "Option 1" below.
+			local name = L["VigorBarDirectionName"]
+			local tooltip = L["VigorBarDirectionNameTT"]
+
+			local function GetOptions()
+				local container = Settings.CreateControlTextContainer()
+				container:Add(1, L["Direction_DownRight"])
+				container:Add(2, L["Direction_UpLeft"])
+				return container:GetData()
+			end
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateDropdown(categoryVigor, setting, GetOptions, tooltip)
+		end
+
+		do
+			local variable = "vigorWrap"
+			local name = L["VigorWrapName"]
+			local tooltip = L["VigorWrapNameTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = 1
+			local maxValue = 6
+			local step = 1
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step);
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+			Settings.CreateSlider(categoryVigor, setting, options, tooltip);
+		end
+
+		do
+			local variable = "vigorBarFillDirection"
+			local defaultValue = defaultsTable[variable]  -- Corresponds to "Option 1" below.
+			local name = L["VigorBarFillDirectionName"]
+			local tooltip = L["VigorBarFillDirectionNameTT"]
+
+			local function GetOptions()
+				local container = Settings.CreateControlTextContainer()
+				container:Add(1, L["Direction_Vertical"])
+				container:Add(2, L["Direction_Horizontal"])
+				return container:GetData()
+			end
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateDropdown(categoryVigor, setting, GetOptions, tooltip)
+		end
+
+		--[[
+		do
+			local variable = "vigorSparkThickness" -- NYI
+			local name = "[PH]"..L["VigorSparkThicknessName"].." [NYI]"
+			local tooltip = "[PH]"..L["VigorSparkThicknessNameTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = -Round(GetScreenWidth())
+			local maxValue = Round(GetScreenWidth())
+			local step = 1
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step);
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+			Settings.CreateSlider(categoryVigor, setting, options, tooltip);
 		end
 		]]
 
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["Vigor"]));
+		do
+			local variable = "toggleFlashFull"
+			local name = L["ToggleFlashFullName"]
+			local tooltip = L["ToggleFlashFullNameTT"]
+			local defaultValue = defaultsTable[variable]
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateCheckbox(categoryVigor, setting, tooltip)
+		end
+
+		do
+			local variable = "toggleFlashProgress"
+			local name = L["ToggleFlashProgressName"]
+			local tooltip = L["ToggleFlashProgressNameTT"]
+			local defaultValue = defaultsTable[variable]
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateCheckbox(categoryVigor, setting, tooltip)
+		end
 
 		do
 			local variable = "toggleModels"
 			local name = L["ToggleModelsName"]
 			local tooltip = L["ToggleModelsTT"]
-			local defaultValue = true
+			local defaultValue = defaultsTable[variable]
 
 			local setting = RegisterSetting(variable, defaultValue, name);
-			CreateCheckbox(category, setting, tooltip)
+			CreateCheckbox(categoryVigor, setting, tooltip)
+		end
+
+		do
+			local variable = "modelTheme"
+			local defaultValue = defaultsTable[variable]  -- Corresponds to "Option 1" below.
+			local name = L["ModelThemeName"]
+			local tooltip = L["ModelThemeNameTT"]
+
+			local function GetOptions()
+				local container = Settings.CreateControlTextContainer()
+				container:Add(1, L["ModelTheme_Wind"])
+				container:Add(2, L["ModelTheme_Lightning"])
+				container:Add(3, L["ModelTheme_FireForm"])
+				container:Add(4, L["ModelTheme_ArcaneForm"])
+				container:Add(5, L["ModelTheme_FrostForm"])
+				container:Add(6, L["ModelTheme_HolyForm"])
+				container:Add(7, L["ModelTheme_NatureForm"])
+				container:Add(8, L["ModelTheme_ShadowForm"])
+				return container:GetData()
+			end
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateDropdown(categoryVigor, setting, GetOptions, tooltip)
 		end
 
 		do
 			local variable = "sideArt"
 			local name = L["SideArtName"]
 			local tooltip = L["SideArtTT"]
-			local defaultValue = true
+			local defaultValue = defaultsTable[variable]
 
 			local setting = RegisterSetting(variable, defaultValue, name);
-			CreateCheckbox(category, setting, tooltip)
+			CreateCheckbox(categoryVigor, setting, tooltip)
 		end
 
 		do
-			local variable = "showtooltip"
-			local name = L["ShowVigorTooltip"]
-			local tooltip = L["ShowVigorTooltipTT"]
-			local defaultValue = true
+			local variable = "sideArtStyle"
+			local defaultValue = defaultsTable[variable]  -- Corresponds to "Option 1" below.
+			local name = L["SideArtStyleName"]
+			local tooltip = L["SideArtStyleNameTT"].."\n\n"..L["DesaturatedOptionTT"]
+
+			local function GetOptions()
+				local container = Settings.CreateControlTextContainer()
+				container:Add(1, L["Default"])
+				container:Add(2, L["ThemeAlgari_Bronze"])
+				container:Add(3, L["ThemeAlgari_Dark"])
+				container:Add(4, L["ThemeAlgari_Gold"])
+				container:Add(5, L["ThemeAlgari_Silver"])
+				container:Add(6, L["ThemeDefault_Desaturated"])
+				container:Add(7, L["ThemeAlgari_Desaturated"])
+				container:Add(8, L["ThemeGryphon_Desaturated"])
+				container:Add(9, L["ThemeWyvern_Desaturated"])
+				container:Add(10, L["ThemeDragon_Desaturated"])
+				return container:GetData()
+			end
 
 			local setting = RegisterSetting(variable, defaultValue, name);
-			CreateCheckbox(category, setting, tooltip)
+			CreateDropdown(categoryVigor, setting, GetOptions, tooltip)
 		end
+
+		do
+			local variable = "sideArtPosX"
+			local name = L["SideArtPosX"]
+			local tooltip = L["SideArtPosXTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = -100
+			local maxValue = 100
+			local step = .5
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step);
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+			Settings.CreateSlider(categoryVigor, setting, options, tooltip);
+		end
+
+		do
+			local variable = "sideArtPosY"
+			local name = L["SideArtPosY"]
+			local tooltip = L["SideArtPosYTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = -100
+			local maxValue = 100
+			local step = .5
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step);
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+			Settings.CreateSlider(categoryVigor, setting, options, tooltip);
+		end
+
+		do
+			local variable = "sideArtRot"
+			local name = L["SideArtRot"]
+			local tooltip = L["SideArtRotTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = 0
+			local maxValue = 360
+			local step = .5
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step);
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+			Settings.CreateSlider(categoryVigor, setting, options, tooltip);
+		end
+
+		do
+			local variable = "sideArtSize"
+			local name = L["SideArtScale"]
+			local tooltip = L["SideArtScaleTT"]
+			local defaultValue = defaultsTable[variable]
+			local minValue = .5
+			local maxValue = 2
+			local step = .1
+
+			local function Formatter(value)
+				return string.format("%.1f", value);
+			end
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step);
+			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, Formatter);
+			Settings.CreateSlider(categoryVigor, setting, options, tooltip);
+		end
+
+		--[[
+		do
+			local variable = "showtooltip"
+			local name = L["ShowVigorTooltip"].." [NYI]"
+			local tooltip = L["ShowVigorTooltipTT"]
+			local defaultValue = defaultsTable[variable]
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateCheckbox(categoryVigor, setting, tooltip)
+		end
+		]]
 
 		do
 			local variable = "muteVigorSound"
 			local name = L["MuteVigorSound_Settings"]
 			local tooltip = L["MuteVigorSound_SettingsTT"]
-			local defaultValue = false
+			local defaultValue = defaultsTable[variable]
 
 			local setting = RegisterSetting(variable, defaultValue, name);
-			CreateCheckbox(category, setting, tooltip)
+			CreateCheckbox(categoryVigor, setting, tooltip)
 		end
 
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(SPECIAL));
+		layoutVigor:AddInitializer(CreateSettingsListSectionHeaderInitializer(COLOR_PICKER));
 
-		do
-			local variable = "lightningRush"
-			local name = L["LightningRush"]
-			local tooltip = L["LightningRushTT"]
-			local defaultValue = true
 
-			local setting = RegisterSetting(variable, defaultValue, name);
-			CreateCheckbox(category, setting, tooltip)
+		-- Vigor Colors
+		do -- full
+			local key, subKey = "vigorBarColor", "full"
+			local name = L["VigorBar_Full_ColorPicker"]
+			local tooltip = L["VigorBar_Full_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categoryVigor, setting, tooltip)
+		end
+		do -- empty
+			local key, subKey = "vigorBarColor", "empty"
+			local name = L["VigorBar_Empty_ColorPicker"]
+			local tooltip = L["VigorBar_Empty_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categoryVigor, setting, tooltip)
+		end
+		do -- progress
+			local key, subKey = "vigorBarColor", "progress"
+			local name = L["VigorBar_Progress_ColorPicker"]
+			local tooltip = L["VigorBar_Progress_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categoryVigor, setting, tooltip)
+		end
+		do -- cover
+			local key, subKey = "vigorBarColor", "cover"
+			local name = L["VigorBarCover_ColorPicker"]
+			local tooltip = L["VigorBarCover_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categoryVigor, setting, tooltip)
+		end
+		do -- background
+			local key, subKey = "vigorBarColor", "background"
+			local name = L["VigorBarBackground_ColorPicker"]
+			local tooltip = L["VigorBarBackground_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categoryVigor, setting, tooltip)
+		end
+		do -- spark
+			local key, subKey = "vigorBarColor", "spark"
+			local name = L["VigorBarSpark_ColorPicker"]
+			local tooltip = L["VigorBarSpark_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categoryVigor, setting, tooltip)
+		end
+		do -- flash
+			local key, subKey = "vigorBarColor", "flash"
+			local name = L["VigorBarFlash_ColorPicker"]
+			local tooltip = L["VigorBarFlash_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categoryVigor, setting, tooltip)
+		end
+		do -- decor
+			local key, subKey = "vigorBarColor", "decor"
+			local name = L["VigorBarDecor_ColorPicker"]
+			local tooltip = L["VigorBarDecor_ColorPickerTT"]
+			local setting = RegisterSetting(key, defaultsTable[key][subKey], name, subKey)
+			CreateColorPickerButtonForSetting(categoryVigor, setting, tooltip)
 		end
 
-		do
-			local variable = "DynamicFOV"
-			local name = L["DynamicFOV"]
-			local tooltip = L["DynamicFOVTT"]
-			local defaultValue = true
+		Settings.RegisterAddOnCategory(categoryVigor)
 
-			local setting = RegisterSetting(variable, defaultValue, name);
-			CreateCheckbox(category, setting, tooltip)
-		end
-
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["DragonridingTalents"]));
-
-		do -- dragonriding talents 
-			local function OnButtonClick()
-				CloseWindows();
-				DragonridingPanelSkillsButtonMixin:OnClick();
-			end
-
-			local initializer = CreateSettingsButtonInitializer(L["OpenDragonridingTalents"], L["DragonridingTalents"], OnButtonClick, L["OpenDragonridingTalentsTT"], true);
-			layout:AddInitializer(initializer);
-		end
-
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(COLOR_PICKER));
-
-		do -- color picker - low progress bar color
-			local function OnButtonClick()
-				DR:ShowColorPicker(DragonRider_DB.speedBarColor.slow);
-			end
-
-			local initializer = CreateSettingsButtonInitializer(L["ProgressBarColor"] .. " - " .. L["Low"], COLOR_PICKER, OnButtonClick, L["ColorPickerLowProgTT"], true);
-			layout:AddInitializer(initializer);
-		end
-
-		do -- color picker - mid progress bar color
-			local function OnButtonClick()
-				DR:ShowColorPicker(DragonRider_DB.speedBarColor.vigor);
-			end
-
-			local initializer = CreateSettingsButtonInitializer(L["ProgressBarColor"] .. " - " .. L["Vigor"], COLOR_PICKER, OnButtonClick, L["ColorPickerMidProgTT"], true);
-			layout:AddInitializer(initializer);
-		end
-
-		do -- color picker - high progress bar color
-			local function OnButtonClick()
-				DR:ShowColorPicker(DragonRider_DB.speedBarColor.over);
-			end
-
-			local initializer = CreateSettingsButtonInitializer(L["ProgressBarColor"] .. " - " .. L["High"], COLOR_PICKER, OnButtonClick, L["ColorPickerHighProgTT"], true);
-			layout:AddInitializer(initializer);
-		end
-
-		do -- color picker - low speed text color
-			local function OnButtonClick()
-				DR:ShowColorPicker(DragonRider_DB.speedTextColor.slow);
-			end
-
-			local initializer = CreateSettingsButtonInitializer(L["UnitsColor"] .. " - " .. L["Low"], COLOR_PICKER, OnButtonClick, L["ColorPickerLowTextTT"], true);
-			layout:AddInitializer(initializer);
-		end
-
-		do -- color picker - mid speed text color
-			local function OnButtonClick()
-				DR:ShowColorPicker(DragonRider_DB.speedTextColor.vigor);
-			end
-
-			local initializer = CreateSettingsButtonInitializer(L["UnitsColor"] .. " - " .. L["Vigor"], COLOR_PICKER, OnButtonClick, L["ColorPickerMidTextTT"], true);
-			layout:AddInitializer(initializer);
-		end
-
-		do -- color picker - high speed text color
-			local function OnButtonClick()
-				DR:ShowColorPicker(DragonRider_DB.speedTextColor.over);
-			end
-
-			local initializer = CreateSettingsButtonInitializer(L["UnitsColor"] .. " - " .. L["High"], COLOR_PICKER, OnButtonClick, L["ColorPickerHighTextTT"], true);
-			layout:AddInitializer(initializer);
-		end
-
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(RESET));
-
-		StaticPopupDialogs["DRAGONRIDER_RESET_SETTINGS"] = {
-			text = L["ResetAllSettingsConfirm"],
-			button1 = YES,
-			button2 = NO,
-			OnAccept = function()
-				DragonRider_DB = CopyTable(defaultsTable);
-				DR.vigorCounter();
-				DR.setPositions();
-				DR.MuteVigorSound();
-			end,
-			timeout = 0,
-			whileDead = true,
-			hideOnEscape = true,
-		};
-
-		do -- color picker - high speed text color
-			local function OnButtonClick()
-				StaticPopup_Show("DRAGONRIDER_RESET_SETTINGS");
-			end
-
-			local initializer = CreateSettingsButtonInitializer(L["ResetAllSettings"], RESET, OnButtonClick, L["ResetAllSettingsTT"], true);
-			layout:AddInitializer(initializer);
-		end
-		category.ID = "DragonRider" -- 自行加入
-		Settings.RegisterAddOnCategory(category)
 
 		function DragonRider_OnAddonCompartmentClick(addonName, buttonName, menuButtonFrame)
 			if buttonName == "RightButton" then
@@ -1810,6 +1704,17 @@ function DR.OnAddonLoaded()
 		local function OnAdvFlyEnabled()
 			DR.HideWithFadeBar();
 			DR.setPositions();
+			if DragonRider_DB.toggleVigor then
+				DR.vigorBar:Show();
+			end
+			DR.vigorCounter();
+			DR.modelSetup();
+			DR.ToggleDecor();
+			DR.UpdateVigorLayout();
+			DR.UpdateVigorFillDirection();
+			DR.UpdateVigorTheme();
+			DR.UpdateSpeedometerTheme();
+			DR.UpdateChargePositions()
 		end
 
 		local function OnAdvFlyEnd()
@@ -1821,6 +1726,7 @@ function DR.OnAddonLoaded()
 		local function OnAdvFlyDisabled()
 			DR.HideWithFadeBar();
 			DR.clearPositions();
+			DR.vigorBar:Hide();
 		end
 
 		LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_START, OnAdvFlyStart);
@@ -1829,13 +1735,13 @@ function DR.OnAddonLoaded()
 		LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_DISABLED, OnAdvFlyDisabled);
 
 		local function OnDriveStart()
-			if DriveUtils.IsDriving() then
+			if DR.DriveUtils.IsDriving() then
 				OnAdvFlyStart();
 			end
 		end
 
 		local function OnDriveEnd()
-			if not DriveUtils.IsDriving() then
+			if not DR.DriveUtils.IsDriving() then
 				OnAdvFlyEnd();
 			end
 		end
@@ -1858,8 +1764,6 @@ function DR.OnAddonLoaded()
 		end
 
 		C_Timer.NewTicker(0.1, OnUpdate);
-
-		DR.SetupVigorToolip();
 	end
 end
 
