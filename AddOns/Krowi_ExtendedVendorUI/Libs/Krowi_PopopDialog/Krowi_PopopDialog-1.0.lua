@@ -18,7 +18,7 @@
 		the copyright holders.
 ]]
 
-local lib = LibStub:NewLibrary("Krowi_PopopDialog-1.0", 1);
+local lib = LibStub:NewLibrary("Krowi_PopopDialog-1.0", 2);
 
 if not lib then
 	return;
@@ -37,14 +37,21 @@ StaticPopupDialogs[externalLinkDialog] = { -- Needs to be added to the Blizzard 
 	hideOnEscape = true,
 	preferredIndex = 3,
 	OnShow = function(self)
-		self.editBox:SetText(externalLink);
-		self.editBox:HighlightText();
+		local editBox = self.editBox or self.EditBox;
+		editBox:SetMaxLetters(0);
+		editBox:SetText(externalLink);
+		editBox:HighlightText();
 	end,
-	EditBoxOnEscapePressed = function(self) self:GetParent().button1:Click(); end,
+	EditBoxOnEscapePressed = function(self)
+		local button = self:GetParent().button1 or self:GetParent().ButtonContainer.Button1;
+		button:Click();
+	end,
 	EditBoxOnTextChanged = function(self)
+		local button = self:GetParent().button1 or self:GetParent().ButtonContainer.Button1;
 		if self:GetText():len() < 1 then
-			self:GetParent().button1:Click();
+			button:Click();
 		else
+			self:SetMaxLetters(0);
 			self:SetText(externalLink);
 			self:HighlightText();
 		end
@@ -52,6 +59,6 @@ StaticPopupDialogs[externalLinkDialog] = { -- Needs to be added to the Blizzard 
 }
 
 function lib.ShowExternalLink(link)
-    externalLink = link;
-    StaticPopup_Show(externalLinkDialog);
+	externalLink = link;
+	StaticPopup_Show(externalLinkDialog);
 end
