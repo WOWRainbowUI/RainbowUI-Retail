@@ -1,0 +1,16 @@
+## Interface: 110205
+
+## Title: Trove Tally
+## Author: Bettiold
+## Version: 1.0
+## Notes: List of items you can add to your collection
+## IconTexture: 5550733
+## SavedVariables: iconDegrees,settings,dbTT
+
+## Title-zhTW: |cffFFFF66[收藏]|r 混搭收藏單
+## Notes-zhTW: Trove Tally |n|n列出混搭再造：軍臨天下所有可收藏的物品，已經收集到的會打勾，方便查看還有哪些未收集的物品。
+## Category-zhTW: 收藏
+## DefaultState: disabled
+
+db.lua
+main.lua
