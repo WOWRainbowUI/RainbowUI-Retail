@@ -43,7 +43,7 @@ VCBshieldSpellRight:SetBlendMode("BLEND")
 VCBshieldSpellRight:SetAlpha(0.85)
 VCBshieldSpellRight:Hide()
 -- icon & shield --
-local function IconShieldVisibility()
+function chkPlayerIconVisibility()
 	PlayerCastingBarFrame.Icon:SetScale(2.5) -- 圖示大小
 	if PlayerCastingBarFrame.showShield then PlayerCastingBarFrame.showShield = false end
 	if VCBrPlayer["Icon"] == "左" then
@@ -117,7 +117,7 @@ local function IconShieldVisibility()
 	end
 end
 -- Name position --
-local function NamePosition()
+function chkPlayerNamePosition()
 	if VCBrPlayer["NameText"] == "左上" then
 		function vcbPlayerNamePosition(self)
 			VCBnameText:ClearAllPoints()
@@ -179,7 +179,7 @@ local function NamePosition()
 	end
 end
 -- Current Time position --
-local function CurrentTimePosition()
+function chkPlayerCurrentTimePosition()
 	if VCBrPlayer["CurrentTimeText"]["Position"] == "左上" then
 		function vcbPlayerCurrentTimePosition(self)
 			VCBcurrentTimeText:ClearAllPoints()
@@ -241,7 +241,7 @@ local function CurrentTimePosition()
 	end
 end
 -- Both Time position --
-local function BothTimePosition()
+function chkPlayerBothTimePosition()
 	if VCBrPlayer["BothTimeText"]["Position"] == "左上" then
 		function vcbPlayerBothTimePosition(self)
 			VCBbothTimeText:ClearAllPoints()
@@ -303,7 +303,7 @@ local function BothTimePosition()
 	end
 end
 -- Total Time position --
-local function TotalTimePosition()
+function chkPlayerTotalTimePosition()
 	if VCBrPlayer["TotalTimeText"]["Position"] == "左上" then
 		function vcbPlayerTotalTimePosition(self)
 			VCBtotalTimeText:ClearAllPoints()
@@ -365,11 +365,11 @@ local function TotalTimePosition()
 	end
 end
 -- current time update --
-local function CurrentTimeUpdate()
+function chkPlayerCurrentTimeUpdate()
 	if VCBrPlayer["CurrentTimeText"]["Decimals"] == 2 then
 		if VCBrPlayer["CurrentTimeText"]["Sec"] == "顯示" then
 			if VCBrPlayer["CurrentTimeText"]["Direction"] == "正數" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					if self.casting then
 						VCBcurrentTimeText:SetFormattedText("%.2f 秒", self.value)
 					elseif self.channeling then
@@ -378,7 +378,7 @@ local function CurrentTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "倒數" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					if self.casting then
 						local VCBdescending = self.maxValue - self.value
 						VCBcurrentTimeText:SetFormattedText("%.2f 秒", VCBdescending)
@@ -387,13 +387,13 @@ local function CurrentTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "兩者" then
-				function vcbCurrentTimeUpdate(self)
-					VCBcurrentTimeText:SetFormattedText("%.2f 秒", self.value)
+				function vcbPlayerCurrentTimeUpdate(self)
+					VCBcurrentTimeText:SetFormattedText("%.2f sec", self.value)
 				end
 			end
 		elseif VCBrPlayer["CurrentTimeText"]["Sec"] == "隱藏" then
 			if VCBrPlayer["CurrentTimeText"]["Direction"] == "正數" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					if self.casting then
 						VCBcurrentTimeText:SetFormattedText("%.2f", self.value)
 					elseif self.channeling then
@@ -402,7 +402,7 @@ local function CurrentTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "倒數" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					if self.casting then
 						local VCBdescending = self.maxValue - self.value
 						VCBcurrentTimeText:SetFormattedText("%.2f", VCBdescending)
@@ -411,7 +411,7 @@ local function CurrentTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "兩者" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					VCBcurrentTimeText:SetFormattedText("%.2f", self.value)
 				end
 			end
@@ -419,7 +419,7 @@ local function CurrentTimeUpdate()
 	elseif VCBrPlayer["CurrentTimeText"]["Decimals"] == 1 then
 		if VCBrPlayer["CurrentTimeText"]["Sec"] == "顯示" then
 			if VCBrPlayer["CurrentTimeText"]["Direction"] == "正數" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					if self.casting then
 						VCBcurrentTimeText:SetFormattedText("%.1f 秒", self.value)
 					elseif self.channeling then
@@ -428,7 +428,7 @@ local function CurrentTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "倒數" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					if self.casting then
 						local VCBdescending = self.maxValue - self.value
 						VCBcurrentTimeText:SetFormattedText("%.1f 秒", VCBdescending)
@@ -437,13 +437,13 @@ local function CurrentTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "兩者" then
-				function vcbCurrentTimeUpdate(self)
-					VCBcurrentTimeText:SetFormattedText("%.1f 秒", self.value)
+				function vcbPlayerCurrentTimeUpdate(self)
+					VCBcurrentTimeText:SetFormattedText("%.1f sec", self.value)
 				end
 			end
 		elseif VCBrPlayer["CurrentTimeText"]["Sec"] == "隱藏" then
 			if VCBrPlayer["CurrentTimeText"]["Direction"] == "正數" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					if self.casting then
 						VCBcurrentTimeText:SetFormattedText("%.1f", self.value)
 					elseif self.channeling then
@@ -452,7 +452,7 @@ local function CurrentTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "倒數" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					if self.casting then
 						local VCBdescending = self.maxValue - self.value
 						VCBcurrentTimeText:SetFormattedText("%.1f", VCBdescending)
@@ -461,7 +461,7 @@ local function CurrentTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "兩者" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					VCBcurrentTimeText:SetFormattedText("%.1f", self.value)
 				end
 			end
@@ -469,7 +469,7 @@ local function CurrentTimeUpdate()
 	elseif VCBrPlayer["CurrentTimeText"]["Decimals"] == 0 then
 		if VCBrPlayer["CurrentTimeText"]["Sec"] == "顯示" then
 			if VCBrPlayer["CurrentTimeText"]["Direction"] == "正數" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					if self.casting then
 						VCBcurrentTimeText:SetFormattedText("%.0f 秒", self.value)
 					elseif self.channeling then
@@ -478,7 +478,7 @@ local function CurrentTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "倒數" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					if self.casting then
 						local VCBdescending = self.maxValue - self.value
 						VCBcurrentTimeText:SetFormattedText("%.0f 秒", VCBdescending)
@@ -487,13 +487,13 @@ local function CurrentTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "兩者" then
-				function vcbCurrentTimeUpdate(self)
-					VCBcurrentTimeText:SetFormattedText("%.0f 秒", self.value)
+				function vcbPlayerCurrentTimeUpdate(self)
+					VCBcurrentTimeText:SetFormattedText("%.0f sec", self.value)
 				end
 			end
 		elseif VCBrPlayer["CurrentTimeText"]["Sec"] == "隱藏" then
 			if VCBrPlayer["CurrentTimeText"]["Direction"] == "正數" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					if self.casting then
 						VCBcurrentTimeText:SetFormattedText("%.0f", self.value)
 					elseif self.channeling then
@@ -502,7 +502,7 @@ local function CurrentTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "倒數" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					if self.casting then
 						local VCBdescending = self.maxValue - self.value
 						VCBcurrentTimeText:SetFormattedText("%.0f", VCBdescending)
@@ -511,7 +511,7 @@ local function CurrentTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "兩者" then
-				function vcbCurrentTimeUpdate(self)
+				function vcbPlayerCurrentTimeUpdate(self)
 					VCBcurrentTimeText:SetFormattedText("%.0f", self.value)
 				end
 			end
@@ -519,11 +519,11 @@ local function CurrentTimeUpdate()
 	end
 end
 -- both time update --
-local function BothTimeUpdate()
+function chkPlayerBothTimeUpdate()
 	if VCBrPlayer["BothTimeText"]["Decimals"] == 2 then
 		if VCBrPlayer["BothTimeText"]["Sec"] == "顯示" then
 			if VCBrPlayer["BothTimeText"]["Direction"] == "正數" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					if self.casting then
 						VCBbothTimeText:SetFormattedText("%.2f/%.2f 秒", self.value, self.maxValue)
 					elseif self.channeling then
@@ -532,7 +532,7 @@ local function BothTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "倒數" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					if self.casting then
 						local VCBdescending = self.maxValue - self.value
 						VCBbothTimeText:SetFormattedText("%.2f/%.2f 秒", VCBdescending, self.maxValue)
@@ -541,13 +541,13 @@ local function BothTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "兩者" then
-				function vcbBothTimeUpdate(self)
-					VCBbothTimeText:SetFormattedText("%.2f/%.2f 秒", self.value, self.maxValue)
+				function vcbPlayerBothTimeUpdate(self)
+					VCBbothTimeText:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
 				end
 			end
 		elseif VCBrPlayer["BothTimeText"]["Sec"] == "隱藏" then
 			if VCBrPlayer["BothTimeText"]["Direction"] == "正數" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					if self.casting then
 						VCBbothTimeText:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
 					elseif self.channeling then
@@ -556,7 +556,7 @@ local function BothTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "倒數" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					if self.casting then
 						local VCBdescending = self.maxValue - self.value
 						VCBbothTimeText:SetFormattedText("%.2f/%.2f", VCBdescending, self.maxValue)
@@ -565,7 +565,7 @@ local function BothTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "兩者" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					VCBbothTimeText:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
 				end
 			end
@@ -573,7 +573,7 @@ local function BothTimeUpdate()
 	elseif VCBrPlayer["BothTimeText"]["Decimals"] == 1 then
 		if VCBrPlayer["BothTimeText"]["Sec"] == "顯示" then
 			if VCBrPlayer["BothTimeText"]["Direction"] == "正數" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					if self.casting then
 						VCBbothTimeText:SetFormattedText("%.1f/%.1f 秒", self.value, self.maxValue)
 					elseif self.channeling then
@@ -582,7 +582,7 @@ local function BothTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "倒數" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					if self.casting then
 						local VCBdescending = self.maxValue - self.value
 						VCBbothTimeText:SetFormattedText("%.1f/%.1f 秒", VCBdescending, self.maxValue)
@@ -591,13 +591,13 @@ local function BothTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "兩者" then
-				function vcbBothTimeUpdate(self)
-					VCBbothTimeText:SetFormattedText("%.1f/%.1f 秒", self.value, self.maxValue)
+				function vcbPlayerBothTimeUpdate(self)
+					VCBbothTimeText:SetFormattedText("%.1f/%.1f sec", self.value, self.maxValue)
 				end
 			end
 		elseif VCBrPlayer["BothTimeText"]["Sec"] == "隱藏" then
 			if VCBrPlayer["BothTimeText"]["Direction"] == "正數" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					if self.casting then
 						VCBbothTimeText:SetFormattedText("%.1f/%.1f", self.value, self.maxValue)
 					elseif self.channeling then
@@ -606,7 +606,7 @@ local function BothTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "倒數" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					if self.casting then
 						local VCBdescending = self.maxValue - self.value
 						VCBbothTimeText:SetFormattedText("%.1f/%.1f", VCBdescending, self.maxValue)
@@ -615,7 +615,7 @@ local function BothTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "兩者" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					VCBbothTimeText:SetFormattedText("%.1f/%.1f", self.value, self.maxValue)
 				end
 			end
@@ -623,7 +623,7 @@ local function BothTimeUpdate()
 	elseif VCBrPlayer["BothTimeText"]["Decimals"] == 0 then
 		if VCBrPlayer["BothTimeText"]["Sec"] == "顯示" then
 			if VCBrPlayer["BothTimeText"]["Direction"] == "正數" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					if self.casting then
 						VCBbothTimeText:SetFormattedText("%.0f/%.0f 秒", self.value, self.maxValue)
 					elseif self.channeling then
@@ -632,7 +632,7 @@ local function BothTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "倒數" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					if self.casting then
 						local VCBdescending = self.maxValue - self.value
 						VCBbothTimeText:SetFormattedText("%.0f/%.0f 秒", VCBdescending, self.maxValue)
@@ -641,13 +641,13 @@ local function BothTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "兩者" then
-				function vcbBothTimeUpdate(self)
-					VCBbothTimeText:SetFormattedText("%.0f/%.0f 秒", self.value, self.maxValue)
+				function vcbPlayerBothTimeUpdate(self)
+					VCBbothTimeText:SetFormattedText("%.0f/%.0f sec", self.value, self.maxValue)
 				end
 			end
 		elseif VCBrPlayer["BothTimeText"]["Sec"] == "隱藏" then
 			if VCBrPlayer["BothTimeText"]["Direction"] == "正數" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					if self.casting then
 						VCBbothTimeText:SetFormattedText("%.0f/%.0f", self.value, self.maxValue)
 					elseif self.channeling then
@@ -656,7 +656,7 @@ local function BothTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "倒數" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					if self.casting then
 						local VCBdescending = self.maxValue - self.value
 						VCBbothTimeText:SetFormattedText("%.0f/%.0f", VCBdescending, self.maxValue)
@@ -665,7 +665,7 @@ local function BothTimeUpdate()
 					end
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "兩者" then
-				function vcbBothTimeUpdate(self)
+				function vcbPlayerBothTimeUpdate(self)
 					VCBbothTimeText:SetFormattedText("%.0f/%.0f", self.value, self.maxValue)
 				end
 			end
@@ -673,32 +673,32 @@ local function BothTimeUpdate()
 	end
 end
 -- total time update --
-local function TotalTimeUpdate()
+function chkPlayerTotalTimeUpdate()
 	if VCBrPlayer["TotalTimeText"]["Sec"] == "顯示" then
 		if VCBrPlayer["TotalTimeText"]["Decimals"] == 2 then
-			function vcbTotalTimeUpdate(self)
-				VCBtotalTimeText:SetFormattedText("%.2f 秒", self.maxValue)
+			function vcbPlayerTotalTimeUpdate(self)
+				VCBtotalTimeText:SetFormattedText("%.2f sec", self.maxValue)
 			end
 		elseif VCBrPlayer["TotalTimeText"]["Decimals"] == 1 then
-			function vcbTotalTimeUpdate(self)
-				VCBtotalTimeText:SetFormattedText("%.1f 秒", self.maxValue)
+			function vcbPlayerTotalTimeUpdate(self)
+				VCBtotalTimeText:SetFormattedText("%.1f sec", self.maxValue)
 			end
 		elseif VCBrPlayer["TotalTimeText"]["Decimals"] == 0 then
-			function vcbTotalTimeUpdate(self)
-				VCBtotalTimeText:SetFormattedText("%.0f 秒", self.maxValue)
+			function vcbPlayerTotalTimeUpdate(self)
+				VCBtotalTimeText:SetFormattedText("%.0f sec", self.maxValue)
 			end
 		end
 	elseif VCBrPlayer["TotalTimeText"]["Sec"] == "隱藏" then
 		if VCBrPlayer["TotalTimeText"]["Decimals"] == 2 then
-			function vcbTotalTimeUpdate(self)
+			function vcbPlayerTotalTimeUpdate(self)
 				VCBtotalTimeText:SetFormattedText("%.2f", self.maxValue)
 			end
 		elseif VCBrPlayer["TotalTimeText"]["Decimals"] == 1 then
-			function vcbTotalTimeUpdate(self)
+			function vcbPlayerTotalTimeUpdate(self)
 				VCBtotalTimeText:SetFormattedText("%.1f", self.maxValue)
 			end
 		elseif VCBrPlayer["TotalTimeText"]["Decimals"] == 0 then
-			function vcbTotalTimeUpdate(self)
+			function vcbPlayerTotalTimeUpdate(self)
 				VCBtotalTimeText:SetFormattedText("%.0f", self.maxValue)
 			end
 		end
@@ -1712,16 +1712,14 @@ end
 -- Events Time --
 local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 	if event == "PLAYER_LOGIN" then
-		
-		--PlayerCastingBarFrame.Icon:AdjustPointsOffset(2, -4)
-		IconShieldVisibility()
-		NamePosition()
-		CurrentTimePosition()
-		BothTimePosition()
-		TotalTimePosition()
-		CurrentTimeUpdate()
-		BothTimeUpdate()
-		TotalTimeUpdate()
+		chkPlayerIconVisibility()
+		chkPlayerNamePosition()
+		chkPlayerCurrentTimePosition()
+		chkPlayerBothTimePosition()
+		chkPlayerTotalTimePosition()
+		chkPlayerCurrentTimeUpdate()
+		chkPlayerBothTimeUpdate()
+		chkPlayerTotalTimeUpdate()
 		vcbCreateTicks()
 		-- create the GCD --
 		function vcbCreatingTheGCD()
@@ -1749,9 +1747,9 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 			VCBnameText:SetText(self.Text:GetText())
 			CastBarColor(self)
 			if self.value ~= nil and self.maxValue ~= nil then
-				vcbCurrentTimeUpdate(self)
-				vcbBothTimeUpdate(self)
-				vcbTotalTimeUpdate(self)
+				vcbPlayerCurrentTimeUpdate(self)
+				vcbPlayerBothTimeUpdate(self)
+				vcbPlayerTotalTimeUpdate(self)
 			end
 			if (self.barType == "channel" or self.barType =="uninterruptable") and VCBrPlayer["Ticks"] ~= "隱藏" then
 				vcbShowTicks(VCBarg3)
