@@ -9,7 +9,7 @@ local OrderPP = addon.InjectOptions.AutoOrderPlusPlus;
 
 function credits.RegisterOptionsTable()
     LibStub("AceConfig-3.0"):RegisterOptionsTable(addon.Metadata.Prefix .. "_Credits", options.OptionsTable.args.Credits);
-    LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addon.Metadata.Prefix .. "_Credits", addon.L["Credits"], addon.Metadata.Title);
+    LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addon.Metadata.Prefix .. "_Credits", addon.L["Credits"], MERCHANT);
 end
 
 function credits.PostLoad()
