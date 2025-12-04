@@ -20,13 +20,11 @@ end
 
 local version = (GetBuildInfo());
 local major = string.match(version, "(%d+)%.(%d+)%.(%d+)(%w?)");
-lib.IsWrathClassic = major == "3";
-lib.IsCataClassic = major == "4";
 lib.IsMistsClassic = major == "5";
-lib.IsClassicWithAchievements = lib.IsWrathClassic or lib.IsCataClassic or lib.IsMistsClassic;
-lib.IsDragonflight = major == "10";
+lib.IsClassicWithAchievements = lib.IsMistsClassic;
 lib.IsTheWarWithin = major == "11";
-lib.IsMainline = lib.IsDragonflight or lib.IsTheWarWithin;
+lib.IsMidnight = major == "12";
+lib.IsMainline = lib.IsTheWarWithin or lib.IsMidnight;
 
 function lib.ConcatTables(t1, t2)
     if t2 then

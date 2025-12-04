@@ -50,7 +50,7 @@ do -- Modern
     end
 end
 
-if LibStub("Krowi_Util-1.0").IsTheWarWithin then
+if LibStub("Krowi_Util-1.0").IsMainline then
     return;
 end
 
