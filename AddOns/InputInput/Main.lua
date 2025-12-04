@@ -918,7 +918,7 @@ local function chatEventHandler(event, arg1, arg2, arg3, arg4, arg5, arg6, arg7,
 		if G[chatFrame] then
 			for _, messageType in pairs(G[chatFrame].messageTypeList) do
 				if gsub(strsub(event, 10), '_INFORM', '') == messageType and arg1 and not MessageIsProtected(arg1) then
-					local chatFilters = ChatFrame_GetMessageEventFilters(event)
+					local chatFilters = C_ChatFilters.GetMessageEventFilters(event)
 					if chatFilters then
 						for _, filterFunc in ipairs(chatFilters) do
 							local isUse = false

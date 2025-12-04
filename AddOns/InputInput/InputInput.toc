@@ -1,4 +1,4 @@
-## Interface: 11507, 30405, 50500, 110205, 110207
+## Interface: 11508, 30405, 50502, 110205, 110207
 ## IconTexture: Interface\AddOns\InputInput\Media\icon
 
 ## Title: |cff409EFF|cffffff00i|rnput|cffffff00i|rnput|r
@@ -7,7 +7,7 @@
 ## Notes-zhTW: 輸入框增強
 ## Notes-ruRU: Расширение поля ввода
 ## Author: York
-## Version: 1.1.0
+## Version: 1.1.0 Fix
 ## X-Date: 2024-12-23
 
 ## Category-enUS: Chat
