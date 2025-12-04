@@ -1,4 +1,4 @@
-## Interface: 110205, 110207, 120000
+## Interface: 110207, 120000
 
 ## Title: Leatrix Plus
 ## Title-zhCN: Leatrix Plus [|cffeda55f功能百宝箱|r]
@@ -16,7 +16,7 @@
 ## Notes-zhTW: curseforge.com/wow/addons/leatrix-plus
 ## Notes-zhCN: curseforge.com/wow/addons/leatrix-plus
 
-## Version: 11.2.21
+## Version: 11.2.22
 ## Author: Leatrix
 ## SavedVariables: LeaPlusDB
 ## LoadSavedVariablesFirst: true

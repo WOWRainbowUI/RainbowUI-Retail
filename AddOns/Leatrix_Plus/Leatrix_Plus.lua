@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.2.21 (26th November 2025)
+-- 	Leatrix Plus 11.2.22 (3rd December 2025)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.2.21"
+	LeaPlusLC["AddonVer"] = "11.2.22"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -5438,7 +5438,7 @@
 			-- Add checkboxes
 			LeaPlusLC:MakeTx(SideMinimap, "Settings", 16, -72)
 			LeaPlusLC:MakeCB(SideMinimap, "HideMiniAddonButtons", "Hide addon buttons", 16, -92, false, "If checked, addon buttons will be hidden while the pointer is not over the minimap.")
-			LeaPlusLC:MakeCB(SideMinimap, "CombineAddonButtons", "Combine addon buttons", 16, -112, true, "If checked, addon buttons will be combined into a single button frame which you can toggle by right-clicking the minimap.|n|nNote that enabling this option will lock out the 'Hide addon buttons' setting.")
+			LeaPlusLC:MakeCB(SideMinimap, "CombineAddonButtons", "MinimapButtonButton", 16, -112, true, "If checked, minimap buttons for addons will be collected and placed in a frame which you can toggle by right-clicking the minimap.|n|nThis setting will help you declutter the minimap without the need to install a separate addon just to do that.")
 			LeaPlusLC:MakeCB(SideMinimap, "SquareMinimap", "Square minimap", 16, -132, true, "If checked, the minimap shape will be square.")
 			LeaPlusLC:MakeCB(SideMinimap, "ShowWhoPinged", "Show who pinged", 16, -152, false, "If checked, when someone pings the minimap, their name will be shown.  This does not apply to your pings.")
 			LeaPlusLC:MakeCB(SideMinimap, "HideMiniAddonMenu", "Hide addon menu", 16, -172, true, "If checked, the addon menu will be hidden.|n|nThe addon menu appears as a number in the corner of the minimap if you have any addons installed which make use of it.")
