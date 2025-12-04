@@ -1,13 +1,15 @@
 assert(LibStub, "LibStub not found.");
 
-local major, minor = "LibAdvFlight-1.0", 3;
+local major, minor = "LibAdvFlight-1.1", 1;
 
----@class LibAdvFlight-1.0
+---@class LibAdvFlight-1.1
 local LibAdvFlight = LibStub:NewLibrary(major, minor);
 
 if not LibAdvFlight then
     return;
 end
+
+local issecretvalue = issecretvalue or function() return false; end;
 
 --- Event constants - for most cases, contains an 'on' and 'off' event, as well as a toggle event
 --- These can be registered using the API functions below, or by just registering a callback w/ the global EventRegistry
@@ -26,7 +28,6 @@ local Events = {
 };
 LibAdvFlight.Events = Events;
 
-
 -- Some enum values for standardization
 ---@enum LibAdvFlightOptionalSpell
 local OPTIONAL_SPELLS = {
@@ -34,13 +35,21 @@ local OPTIONAL_SPELLS = {
     LightningRush = 447982,
     RideAlong = 447959
 };
-
 LibAdvFlight.OptionalSpells = OPTIONAL_SPELLS;
+
+---@enum LibAdvFlightSkyridingSpells
+local SKYRIDING_SPELLS = {
+    SurgeForward = 372608,
+    SkywardAscent = 372610
+};
+LibAdvFlight.SkyridingSpells = SKYRIDING_SPELLS;
 
 --------------
 
 -- event registry
-local Registry = EventRegistry;
+local Registry = CreateFromMixins(CallbackRegistryMixin);
+Registry:OnLoad();
+Registry:GenerateCallbackEvents(GetKeysArray(Events));
 
 --------------
 
@@ -56,13 +65,6 @@ local State = {
 --------------
 
 local EventFrame = CreateFrame("Frame");
-EventFrame:RegisterEvent("UNIT_POWER_UPDATE");
-
-function EventFrame:OnEvent(event, ...)
-    if type(self[event]) == "function" then
-        self[event](self, ...);
-    end
-end
 
 function EventFrame:OnUpdate()
     local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo();
@@ -106,32 +108,25 @@ function EventFrame:OnUpdate()
     State.ForwardSpeed = forwardSpeed or 0;
     local heading = GetPlayerFacing();
     State.Heading = heading and heading * (180 / math.pi) or nil;
-end
 
-EventFrame:SetScript("OnEvent", EventFrame.OnEvent);
-EventFrame:SetScript("OnUpdate", EventFrame.OnUpdate);
-
-local VIGOR_POWER_TYPE = Enum.PowerType.AlternateMount;
-function EventFrame:UNIT_POWER_UPDATE(unit, powerType)
-    if unit ~= "player" or powerType ~= "ALTERNATE" then
+    local vigorChargeInfo = C_Spell.GetSpellCharges(SKYRIDING_SPELLS.SkywardAscent);
+    if not vigorChargeInfo or issecretvalue(vigorChargeInfo.currentCharges) then
         return;
     end
 
-    local vigorMax = UnitPowerMax("player", VIGOR_POWER_TYPE);
-    local vigorCurrent = UnitPower("player", VIGOR_POWER_TYPE);
-
-    -- vigor max
-    if State.VigorMax ~= vigorMax then
-        State.VigorMax = vigorMax;
-        Registry:TriggerEvent(Events.VIGOR_MAX_CHANGED, State.VigorMax);
-    end
-
-    -- vigor current
-    if State.VigorCurrent ~= vigorCurrent then
-        State.VigorCurrent = vigorCurrent;
+    if State.VigorCurrent ~= vigorChargeInfo.currentCharges then
+        State.VigorCurrent = vigorChargeInfo.currentCharges;
         Registry:TriggerEvent(Events.VIGOR_CHANGED, State.VigorCurrent);
     end
+
+    local maxVigor = vigorChargeInfo.maxCharges;
+    if State.VigorMax ~= maxVigor then
+        State.VigorMax = maxVigor;
+        Registry:TriggerEvent(Events.VIGOR_MAX_CHANGED, State.VigorMax);
+    end
 end
+
+EventFrame:SetScript("OnUpdate", EventFrame.OnUpdate);
 
 --------------
 -- public state accessors
@@ -163,7 +158,7 @@ end
 ---@param choice LibAdvFlightOptionalSpell
 ---@return boolean hasTalent
 function LibAdvFlight.HasTalentChoice(choice)
-    return IsPlayerSpell(choice)
+    return IsPlayerSpell(choice);
 end
 
 local LIGHTNING_RUSH_AURA_SPELLID = 418590;
@@ -233,13 +228,13 @@ end
 --------------
 -- public registry accessor
 
----@class CallbackHandle
+---@class LibAdvFlightCallbackHandle
 ---@field Unregister function Unregisters the callback
 
 ---@param event string An event from LibAdvFlight.Events
 ---@param callback function Callback function
 ---@param owner? table Object passed to callback as the first arg, same as the base CallbackRegistry, if not provided, passes nothing
----@return CallbackHandle handle
+---@return LibAdvFlightCallbackHandle handle
 function LibAdvFlight.RegisterCallback(event, callback, owner)
     assert(tContains(Events, event), "Invalid event. Expected 'LibAdvFlight.Events' event name.");
     assert(type(callback) == "function", "Invalid callback. Expected 'function'.");

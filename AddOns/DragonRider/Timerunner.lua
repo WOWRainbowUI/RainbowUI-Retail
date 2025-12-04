@@ -1,7 +1,9 @@
 local _, DR = ...
-local _, L = ...
 
-local LibAdvFlight = LibStub:GetLibrary("LibAdvFlight-1.0");
+local L = DR.L
+local defaultsTable = DR.defaultsTable
+
+local LibAdvFlight = LibStub:GetLibrary("LibAdvFlight-1.1");
 
 local function Print(...)
 	local prefix = string.format("|cFFFFF569"..L["DragonRider"] .. "|r:");
@@ -9,7 +11,9 @@ local function Print(...)
 end
 
 local f = CreateFrame("Frame")
-f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+if LE_EXPANSION_LEVEL_CURRENT <= LE_EXPANSION_WAR_WITHIN then
+	f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+end
 f:RegisterEvent("ADDON_LOADED")
 f:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
 
