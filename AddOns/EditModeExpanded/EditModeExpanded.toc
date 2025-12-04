@@ -1,6 +1,6 @@
-## Interface: 110205
+## Interface: 110207
 ## Title: Edit Mode Expanded
-## Version: 11.2-020
+## Version: 11.2-022
 ## Notes: Expands Edit Mode to apply to other frames
 ## Author: Teelo
 ## SavedVariables: EditModeExpandedADB
@@ -86,3 +86,5 @@ RegisteredSystemFrames.lua
 CombatManager.lua
 EditModeExpanded.lua
 WarningFrame.xml
+Vigor.lua
+Vigor.xml
