@@ -76,16 +76,16 @@ end
 ---@class DBM
 local DBM = private:GetPrototype("DBM")
 _G.DBM = DBM
-DBM.Revision = parseCurseDate("20251201105316")
+DBM.Revision = parseCurseDate("20251204102536")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 local fakeBWVersion, fakeBWHash = 401, "34b582e"--401.4
 local PForceDisable
 -- The string that is shown as version
-DBM.DisplayVersion = "12.0.7"--Core version
+DBM.DisplayVersion = "12.0.8"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2025, 12, 1) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2025, 12, 3) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 PForceDisable = 20--When this is incremented, trigger force disable regardless of major patch
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
@@ -1768,9 +1768,12 @@ do
 			end
 			--Force show timeline or else we can't start timers because it won't fire events
 			if self:IsPostMidnight() then
-				C_CVar.SetCVar("encounterTimelineEnabled", "1")
 				if self.Options.HideBlizzardTimeline then
-					EncounterTimeline.View:SetScript("OnShow", function(self) self:Hide() end)
+					C_CVar.SetCVar("encounterTimelineEnabled", "0")
+					EncounterTimeline.View:Hide()
+				end
+				if self.Options.HideBossEmoteFrame2 then
+					C_CVar.SetCVar("encounterWarningsEnabled", "0")
 				end
 			else
 				--Only mess with sound channels if NOT midnight, since it's not like we need the sound channels anymore
@@ -2004,7 +2007,8 @@ do
 				self:RegisterEvents(
 					"ENCOUNTER_TIMELINE_EVENT_ADDED",
 					"ENCOUNTER_TIMELINE_EVENT_REMOVED",
-					"ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED"
+					"ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED",
+					"ENCOUNTER_WARNING"
 				)
 			end
 			if not private.isClassic then -- Retail, WoTLKC, and BCC
@@ -4550,10 +4554,10 @@ function DBM:LoadMod(mod, force, enableTestSupport)
 		if LastInstanceType ~= "pvp" and #inCombat == 0 and IsInGroup() then--do timer recovery only mod load
 			if not timerRequestInProgress then
 				timerRequestInProgress = true
-				--if self:IsPostMidnight() then--TODO, see if needed, blizzard timeline might already resend added events
+				if self:IsPostMidnight() then--TODO, see if needed, blizzard timeline might already resend added events
 				--	--Request timeline timers from API
-				--	self:RecoverBlizzardTimers()
-				--end
+					self:RecoverBlizzardTimers()
+				end
 				-- Request timer to 3 person to prevent failure.
 				self:Unschedule(self.RequestTimers)
 				if not self:MidRestrictionsActive() then
@@ -7739,17 +7743,29 @@ end
 --  Misc. Functions  --
 -----------------------
 ---@param self DBMModOrDBM
-function DBM:AddMsg(text, prefix, useSound, allowHiddenChatFrame, isDebug)
+---@param text string
+---@param prefix string|boolean?
+---@param useSound boolean?
+---@param allowHiddenChatFrame boolean?
+---@param isDebug boolean? Used to play debug sounds on timer refresh warnings
+---@param customColor number? Custom color index from WarningColors table
+function DBM:AddMsg(text, prefix, useSound, allowHiddenChatFrame, isDebug, customColor)
 	---@diagnostic disable-next-line: undefined-field
 	local tag = prefix or (self.localization and self.localization.general.name) or L.DBM
 	local frame = DBM.Options.ChatFrame and _G[tostring(DBM.Options.ChatFrame)] or DEFAULT_CHAT_FRAME
 	if not frame or not frame:IsShown() and not allowHiddenChatFrame then
 		frame = DEFAULT_CHAT_FRAME
 	end
-	if prefix ~= false then
-		frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(tag), tostring(text)), 0.41, 0.8, 0.94)
+	local red, green, blue
+	if customColor then
+		red, green, blue = DBM.Options.WarningColors[customColor].r, DBM.Options.WarningColors[customColor].g, DBM.Options.WarningColors[customColor].b
 	else
-		frame:AddMessage(text, 0.41, 0.8, 0.94)
+		red, green, blue = 0.41, 0.8, 0.94
+	end
+	if prefix ~= false then
+		frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(tag), tostring(text)), red, green, blue)
+	else
+		frame:AddMessage(text, red, green, blue)
 	end
 	if DBM.Options.DebugSound and isDebug then
 		DBM:PlaySoundFile(567458)--"Ding"
@@ -9487,7 +9503,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20251201105316" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20251204102536" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
