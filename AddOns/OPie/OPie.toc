@@ -1,6 +1,6 @@
 ## Interface: 11508, 30405, 50502, 110205, 110207
 ## Title: OPie
-## Version: 7.11.1
+## Version: 7.11.1 Fix
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
 ## X-Website: https://www.townlong-yak.com/addons/opie

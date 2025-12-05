@@ -36,7 +36,7 @@ local OPC_Options = {
 		{"bool", "MIScale", caption=L"Enlarge selected slice"},
 }
 
-frame = TS:CreateOptionsPanel("Options", L"OPie")
+frame = TS:CreateOptionsPanel(L"Options", L"OPie")
 	frame.version:SetFormattedText("%s", PC:GetVersion() or "")
 	frame.desc:SetText(L"Customize OPie's appearance and behavior. Right clicking a checkbox restores it to its default state."
 		.. (MODERN and "\n" .. L"Profiles activate automatically when you switch character specializations." or ""))
