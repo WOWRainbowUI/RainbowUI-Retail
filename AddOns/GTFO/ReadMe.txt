@@ -2340,3 +2340,7 @@ Change Log:
 * Fixed Legion spells for Nighthold
 * Added Legion spells for The Broken Isles (world)
 * Added TWW spells for TWW Delves 
+
+5.19.5
+* Updated for patch 11.2.7
+* Added The War Within spells (world)

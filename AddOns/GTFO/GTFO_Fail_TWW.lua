@@ -670,6 +670,16 @@ GTFO.SpellID["1241312"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1254297"] = {
+  --desc = "Star Crash (Voidbringer Aqu'lir)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["472271"] = {
+  --desc = "Void Strike (Shadowlord Vesheen)";
+  sound = 3;
+};
 
 --- ****************************
 --- * Ara-Kara, City of Echoes *

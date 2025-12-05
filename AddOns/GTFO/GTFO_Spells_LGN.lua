@@ -1194,11 +1194,13 @@ GTFO.SpellID["226205"] = {
 GTFO.SpellID["223718"] = {
   --desc = "Bursting Slime (Sludgerax)";
   sound = 1;
+  ignoreApplication = true;
   negatingDebuffSpellID = 234585; -- Oozing Rush
 };
 
 GTFO.SpellID["206488"] = {
   --desc = "Arcane Seepage (Trilliax)";
+  ignoreApplication = true;
   sound = 1;
 };
 
@@ -1471,14 +1473,15 @@ GTFO.SpellID["229682"] = {
 
 GTFO.SpellID["229677"] = {
   --desc = "Fel Bomb (Infused Pyromancer)";
-  sound = 1;
+  applicationOnly = true;
+  sound = 2;
 };
 
 GTFO.SpellID["227806"] = {
   --desc = "Ceaseless Winter (Shade of Medivh)";
   applicationOnly = true;
   sound = 1;
-	minimumStacks = 2;
+  minimumStacks = 2;
 };
 
 GTFO.SpellID["227524"] = {
@@ -1586,6 +1589,7 @@ GTFO.SpellID["231768"] = {
 GTFO.SpellID["240176"] = {
   --desc = "Lightning Storm (Undersea Custodian)";
   sound = 1;
+  ignoreApplication = true;
 };
 
 GTFO.SpellID["230959"] = {
@@ -1750,6 +1754,7 @@ GTFO.SpellID["242017"] = {
 
 GTFO.SpellID["243294"] = {
   --desc = "Fel Slicer (Accusator Gnazh)";
+  ignoreApplication = true;
   sound = 1;
 };
 

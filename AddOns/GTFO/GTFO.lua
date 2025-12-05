@@ -28,12 +28,12 @@ GTFO = {
 		BrannMode = 0;
 		IgnoreTimeAmount = .2;
 	};
-	Version = "5.19.4"; -- Version number (text format)
+	Version = "5.19.5"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 51904; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 51905; -- Numeric version number for checking out-of-date clients (retail)
 	ClassicVersionNumber = 51900; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 51900; -- Numeric version number for checking out-of-date clients (TBC classic)
-	WrathVersionNumber = 51904; -- Numeric version number for checking out-of-date clients (Wrath classic)
+	WrathVersionNumber = 51905; -- Numeric version number for checking out-of-date clients (Wrath classic)
 	CataclysmVersionNumber = 51900; -- Numeric version number for checking out-of-date clients (Cata classic)
 	MistsVersionNumber = 51900; -- Numeric version number for checking out-of-date clients (MoP classic)
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
