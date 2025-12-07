@@ -2487,7 +2487,7 @@ do  -- setup options for grouped colors
 	local classNameList = LOCALIZED_CLASS_NAMES_MALE
 	-- FillLocalizedClassList(classNameList)
 	for class, color in pairs(RAID_CLASS_COLORS) do
-		cargs[class]={ name=classNameList[class], type="color", set=set, get=getcolororblank, hidden=classcolorshide, }
+		cargs[class]={ name=classNameList[class] or class, type="color", set=set, get=getcolororblank, hidden=classcolorshide, } -- 11.2.7 Fix
 	end
 	
 	local pargs = oargs.powercolor.args
