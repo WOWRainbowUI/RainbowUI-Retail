@@ -1580,7 +1580,7 @@ do
             return;
         end
 
-        Settings_OpenToCategory('移動視窗');
+        self.Config:OpenConfig();
     end
 
     --- @type BlizzMoveDB

@@ -281,13 +281,13 @@ end
 function Config:GetFilteredFrames(addOnName, filter)
     local frames = {};
     for frameName, _ in pairs(BlizzMoveAPI:GetRegisteredFrames(addOnName)) do
-        if (
+        if
             not filter or filter == ''
             or (filter == '-' and BlizzMoveAPI:IsFrameDisabled(addOnName, frameName))
             or (filter == '+' and not BlizzMoveAPI:IsFrameDisabled(addOnName, frameName))
             or (string__match(string.lower(frameName), string.lower(filter)))
             or (string__match(string.lower(addOnName), string.lower(filter)))
-        ) then
+        then
             frames[frameName] = frameName;
         end
     end
@@ -309,7 +309,8 @@ end
 function Config:Initialize()
     self.search = "";
     self:RegisterOptions();
-    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("BlizzMove", L["BlizzMove"]);
+    local _, categoryID = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("BlizzMove", L["BlizzMove"]);
+    self.categoryID = categoryID;
 
     StaticPopupDialogs["BlizzMoveURLDialog"] = {
         text = L["CTRL-C to copy"],
@@ -340,6 +341,10 @@ function Config:Initialize()
         hideOnEscape = true,
         preferredIndex = 3,
     };
+end
+
+function Config:OpenConfig()
+    Settings.OpenToCategory(self.categoryID);
 end
 
 function Config:RegisterOptions()
