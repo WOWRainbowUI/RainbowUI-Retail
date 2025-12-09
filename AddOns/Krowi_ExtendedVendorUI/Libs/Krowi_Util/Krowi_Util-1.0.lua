@@ -12,6 +12,8 @@
     SOFTWARE.
 ]]
 
+---@diagnostic disable: undefined-global
+
 local lib = LibStub:NewLibrary("Krowi_Util-1.0", 12);
 
 if not lib then

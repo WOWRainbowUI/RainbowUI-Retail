@@ -12,6 +12,8 @@
     SOFTWARE.
 ]]
 
+---@diagnostic disable: undefined-global
+
 local _, addon = ...;
 addon.InjectOptions = {};
 local injectOptions = addon.InjectOptions;

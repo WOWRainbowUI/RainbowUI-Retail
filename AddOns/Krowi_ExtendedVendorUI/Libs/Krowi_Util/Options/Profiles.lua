@@ -12,6 +12,8 @@
     SOFTWARE.
 ]]
 
+---@diagnostic disable: undefined-global
+
 local _, addon = ...;
 local options = addon.Options;
 options.Profiles = {};
