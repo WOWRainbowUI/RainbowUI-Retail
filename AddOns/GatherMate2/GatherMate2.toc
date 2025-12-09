@@ -11,16 +11,26 @@
 ## Author: kagaro, xinhuan, nevcairiel
 ## X-Email: sal.scotto@gmail.com
 ## X-Credits: OttoDeFe for the launher icon.
+## LoadSavedVariablesFirst: 1
 ## SavedVariables: GatherMate2DB, GatherMate2HerbDB, GatherMate2MineDB, GatherMate2FishDB, GatherMate2GasDB, GatherMate2TreasureDB, GatherMate2ArchaeologyDB, GatherMate2LoggingDB
-## X-Category: Map
-## Version: 1.50.4
+## Group: GatherMate2
+## Version: 1.51.2
 ## X-License: ARR
 ## OptionalDeps: Ace3, LibDataBroker-1.1, HereBeDragons
-## LoadManagers: AddonLoader
-## X-LoadOn-Always: delayed
 ## X-Curse-Project-ID: 26120
 ## X-WoWI-ID: 21293
 ## IconTexture: Interface\AddOns\GatherMate2\Artwork\Icon.tga
+## Category: Map
+## Category-deDE: Karte
+## Category-esES: Mapa
+## Category-esMX: Mapa
+## Category-frFR: Carte
+## Category-itIT: Mappa
+## Category-koKR: 지도
+## Category-ptBR: Mapa
+## Category-ruRU: Карта
+## Category-zhCN: 地图
+## Category-zhTW: 地圖
 
 ## Title-zhTW: |cffFFFF99[專業]|r 採集助手
 ## Notes-zhTW: GatherMate2 |n|n採草、挖礦、釣魚的好幫手。收集草、礦、考古學、寶藏和釣魚的位置，在世界地圖和小地圖上顯示採集點的位置。|n|n|cffffd200使用方法: |r從Esc>選項>插件>專業-採集，進行設定。

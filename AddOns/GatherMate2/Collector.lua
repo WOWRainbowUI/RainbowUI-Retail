@@ -1,6 +1,5 @@
 local GatherMate = LibStub("AceAddon-3.0"):GetAddon("GatherMate2")
 local Collector = GatherMate:NewModule("Collector", "AceEvent-3.0")
-local L = LibStub("AceLocale-3.0"):GetLocale("GatherMate2",true)
 local NL = LibStub("AceLocale-3.0"):GetLocale("GatherMate2Nodes")   -- for get the local name of Gas Cloud´s
 
 -- prevSpell, curSpell are markers for what has been cast now and the lastcast
@@ -26,6 +25,7 @@ local pickSpell = (GetSpellName(1804))
 local archSpell = (GetSpellName(73979)) -- Searching for Artifacts spell
 local sandStormSpell = (GetSpellName(93473)) -- Sandstorm spell cast by the camel
 local loggingSpell = (GetSpellName(167895))
+local loggingSpell2 = (GetSpellName(1239682)) -- tww/midnight housing decor wood logging
 
 local spells =
 { -- spellname to "database name"
@@ -41,7 +41,9 @@ local spells =
 	[archSpell] = "Archaeology",
 	[sandStormSpell] = "Treasure",
 	[loggingSpell] = "Logging",
+	[loggingSpell2] = "Logging",
 	[205243] = "Treasure", -- skinning ground warts
+	[469894] = "Treasure", -- level earth (disturbed earth)
 }
 local tooltipLeftText1 = _G["GameTooltipTextLeft1"]
 local strfind = string.find
@@ -66,31 +68,36 @@ end
 --[[
 	Register the events we are interesting
 ]]
+local eventFrame = CreateFrame("Frame")
 function Collector:RegisterGatherEvents()
-	self:RegisterEvent("UNIT_SPELLCAST_SENT","SpellStarted")
-	self:RegisterEvent("UNIT_SPELLCAST_STOP","SpellStopped")
-	self:RegisterEvent("UNIT_SPELLCAST_FAILED","SpellFailed")
-	self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED","SpellFailed")
+	-- unit events
+	eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player") -- SpellStopped
+	eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", "player") -- SpellFailed
+	eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player") -- SpellFailed
+	eventFrame:SetScript("OnEvent", function(_frame, event, ...) if event == "UNIT_SPELLCAST_STOP" then self:SpellStopped(event, ...) elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED" then self:SpellFailed(event, ...) end end)
+
+	self:RegisterEvent("UNIT_SPELLCAST_SENT", "SpellStarted")
 	self:RegisterEvent("CURSOR_CHANGED","CursorChange")
 	self:RegisterEvent("UI_ERROR_MESSAGE","UIError")
 	--self:RegisterEvent("LOOT_CLOSED","GatherCompleted")
-	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", "GasBuffDetector")
-	self:RegisterEvent("CHAT_MSG_LOOT","SecondaryGasCheck") -- for Storm Clouds
+	--self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", "GasBuffDetector")
+	--self:RegisterEvent("CHAT_MSG_LOOT","SecondaryGasCheck") -- for Storm Clouds
 end
 
 --[[
 	Unregister the events
 ]]
 function Collector:UnregisterGatherEvents()
+	eventFrame:UnregisterEvent("UNIT_SPELLCAST_STOP")
+	eventFrame:UnregisterEvent("UNIT_SPELLCAST_FAILED")
+	eventFrame:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+
 	self:UnregisterEvent("UNIT_SPELLCAST_SENT")
-	self:UnregisterEvent("UNIT_SPELLCAST_SENT")
-	self:UnregisterEvent("UNIT_SPELLCAST_STOP")
-	self:UnregisterEvent("UNIT_SPELLCAST_FAILED")
-	self:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	self:UnregisterEvent("CURSOR_CHANGED")
 	self:UnregisterEvent("UI_ERROR_MESSAGE")
 	--self:UnregisterEvent("LOOT_CLOSED")
-	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	--self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	--self:UnregisterEvent("CHAT_MSG_LOOT")
 end
 
 local CrystalizedWater = (C_Item.GetItemNameByID(37705)) or ""
@@ -121,7 +128,7 @@ end
 ]]
 function Collector:GasBuffDetector(b)
 	if foundTarget or (prevSpell and prevSpell ~= gasSpell) then return end
-	local timestamp, eventType, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, dstRaidFlags, spellId,spellName = CombatLogGetCurrentEventInfo()
+	local _timestamp, eventType, _hideCaster, _srcGUID, srcName, _srcFlags, _srcRaidFlags, _dstGUID, dstName, _dstFlags, _dstRaidFlags, _spellId, spellName = CombatLogGetCurrentEventInfo()
 
 	if eventType == "SPELL_CAST_SUCCESS" and  spellName == gasSpell then
 		ga = gasSpell
