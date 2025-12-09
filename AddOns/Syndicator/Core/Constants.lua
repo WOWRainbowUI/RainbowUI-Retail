@@ -20,6 +20,8 @@ addonTable.Constants = {
   IsBC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC or GetBuildInfo():match("^2%.") ~= nil,
   IsEra = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and GetBuildInfo():match("^1%.") ~= nil,
 
+  IsTitan = GetBuildInfo():match("^3%.8") ~= nil,
+
   IsLegacyAH = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or IsUsingLegacyAuctionClient ~= nil and IsUsingLegacyAuctionClient(),
 
   BattlePetCageID = 82800,
