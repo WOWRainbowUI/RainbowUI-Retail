@@ -5,8 +5,6 @@ local L = LibStub("AceLocale-3.0"):GetLocale("GatherMate2", false)
 -- Databroker support
 local DataBroker = LibStub:GetLibrary("LibDataBroker-1.1",true)
 
-local SaveBindings = SaveBindings or AttemptToSaveBindings
-
 --[[
 	Code here for configuring the mod, and making the minimap button
 ]]
@@ -57,7 +55,6 @@ local prof_options4 = { -- For Archaeology, which doesn't have tracking as a ski
 }
 
 local db
-local imported = {}
 -- setup the options, we need to reference GatherMate for this
 
 local function get(k) return db[k.arg] end
@@ -336,6 +333,14 @@ local minimapOptions = {
 					hasAlpha = true,
 					arg = "Archaeology",
 				},
+				trackingColorTimber = {
+					order = 7,
+					name = L["Timber"],
+					desc = L["Color of the tracking circle."],
+					type = "color",
+					hasAlpha = true,
+					arg = "Logging",
+				},
 				space = {
 					order = 10,
 					name = "",
@@ -406,18 +411,18 @@ end})
 -- Setup some helper functions
 local ConfigFilterHelper = {}
 function ConfigFilterHelper:SelectAll(info)
-	local db = db.filter[info.arg]
+	local filterdb = db.filter[info.arg]
 	local nids = GatherMate.nodeIDs[info.arg]
 	for k, v in pairs(nids) do
-		db[v] = true
+		filterdb[v] = true
 	end
 	Config:UpdateConfig()
 end
 function ConfigFilterHelper:SelectNone(info)
-	local db = db.filter[info.arg]
+	local filterdb = db.filter[info.arg]
 	local nids = GatherMate.nodeIDs[info.arg]
 	for k, v in pairs(nids) do
-		db[v] = false
+		filterdb[v] = false
 	end
 	Config:UpdateConfig()
 end
@@ -681,6 +686,38 @@ filterOptions.args.archaeology = {
 		},
 	},
 }
+filterOptions.args.timber = {
+	type = "group",
+	name = L["Timber"],
+	args = {
+		select_all = {
+			order = 1,
+			name = L["Select All"],
+			desc = L["Select all nodes"],
+			type = "execute",
+			func = "SelectAll",
+			arg = "Logging",
+		},
+		select_none = {
+			order = 2,
+			name = L["Select None"],
+			desc = L["Clear node selections"],
+			type = "execute",
+			func = "SelectNone",
+			arg = "Logging",
+		},
+		timberlist = {
+			order = 3,
+			name = L["Timber"],
+			desc = L["Select the timber nodes you wish to display."],
+			type = "multiselect",
+			values = sortedFilter["Logging"],
+			set = "SetState",
+			get = "GetState",
+			arg = "Logging",
+		},
+	},
+}
 
 local selectedDatabase, selectedNode, selectedZone = "Herb Gathering", 0, nil
 
@@ -769,6 +806,14 @@ local maintenanceOptions = {
 					type = "range",
 					min = 0, max = 30, step = 1,
 					arg = "Archaeology",
+				},
+				Timber = {
+					order = 5,
+					name = L["Timber"],
+					desc = L["Cleanup radius"],
+					type = "range",
+					min = 0, max = 30, step = 1,
+					arg = "Logging",
 				}
 			},
 		},
@@ -794,6 +839,7 @@ local maintenanceOptions = {
 						["Mining"] = L["Mineral Veins"],
 						["Extract Gas"] = L["Gas Clouds"],
 						["Archaeology"] = L["Archaeology"],
+						["Logging"] = L["Timber"],
 					},
 					get = function() return selectedDatabase end,
 					set = function(k, v)
@@ -908,6 +954,15 @@ local maintenanceOptions = {
 					confirm = true,
 					confirmText = L["Are you sure you want to delete all nodes from this database?"],
 				},
+				Timber = {
+					order = 5,
+					name = L["Timber"],
+					desc = L["Delete Entire Database"],
+					type = "execute",
+					arg = "Logging",
+					confirm = true,
+					confirmText = L["Are you sure you want to delete all nodes from this database?"],
+				},
 			},
 		},
 		dblocking = {
@@ -967,6 +1022,13 @@ local maintenanceOptions = {
 					desc = L["Database locking"],
 					type = "toggle",
 					arg = "Archaeology",
+				},
+				Timber = {
+					order = 5,
+					name = L["Timber"],
+					desc = L["Database locking"],
+					type = "toggle",
+					arg = "Logging",
 				}
 			}
 		},
@@ -996,6 +1058,7 @@ ImportHelper.db_tables =
 	["Fish"] = L["Fishing"],
 	["Treasure"] = L["Treasure"],
 	["Archaeology"] = L["Archaeology"],
+	["Logging"] = L["Timber"],
 }
 ImportHelper.expac_data = {
 	["TBC"] = L["The Burning Crusades"],
@@ -1009,13 +1072,13 @@ ImportHelper.expac_data = {
 	["DF"] = L["Dragonflight"],
 	["TWW"] = L["The War Within"],
 }
-imported["GatherMate2_Data"] = false
+
 importOptions.args.GatherMateData = {
 	type = "group",
 	name = "GatherMate2Data", -- addon name to import from, don't localize
 	handler = ImportHelper,
 	disabled = function()
-		local name, title, notes, loadable, reason, security, newVersion = C_AddOns.GetAddOnInfo("GatherMate2_Data")
+		local _name, _title, _notes, _loadable, reason, _security, _newVersion = C_AddOns.GetAddOnInfo("GatherMate2_Data")
 		local enabled = C_AddOns.GetAddOnEnableState("GatherMate2_Data", UnitName("player")) > 0
 		-- disable if the addon is not enabled, or
 		-- disable if there is a reason why it can't be loaded ("MISSING" or "DISABLED")
@@ -1101,21 +1164,10 @@ importOptions.args.GatherMateData = {
 					print(L["GatherMate2Data has been imported."])
 					Config:SendMessage("GatherMate2ConfigChanged")
 					db["importers"]["GatherMate2_Data"]["lastImport"] = dataVersion
-					imported["GatherMate2_Data"] = true
 					GatherMate:RemoveDepracatedNodes()
 				else
 					print(L["Failed to load GatherMateData due to "]..reason)
 				end
-			end,
-			disabled = function()
-				local cm = 0
-				if db["importers"]["GatherMate2_Data"].Databases["Mines"] then cm = 1 end
-				if db["importers"]["GatherMate2_Data"].Databases["Herbs"] then cm = 1 end
-				if db["importers"]["GatherMate2_Data"].Databases["Fish"] then cm = 1 end
-				if db["importers"]["GatherMate2_Data"].Databases["Gases"] then cm = 1 end
-				if db["importers"]["GatherMate2_Data"].Databases["Treasure"] then cm = 1 end
-				if db["importers"]["GatherMate2_Data"].Databases["Archaeology"] then cm = 1 end
-				return imported["GatherMate2_Data"] or (cm == 0 and not imported["GatherMate2_Data"])
 			end,
 		}
 	},
@@ -1147,7 +1199,7 @@ function Config:OnInitialize()
 	self.importHelper = ImportHelper
 
 	acr:RegisterOptionsTable("GatherMate 2", generalOptions)
-	acd:AddToBlizOptions("GatherMate 2", "GatherMate 2")
+	local _frame, panelID = acd:AddToBlizOptions("GatherMate 2")
 
 	acr:RegisterOptionsTable("GM2/Minimap", minimapOptions)
 	acd:AddToBlizOptions("GM2/Minimap", "Minimap", "GatherMate 2")
@@ -1168,7 +1220,7 @@ function Config:OnInitialize()
 	acd:AddToBlizOptions("GM2/FAQ", "FAQ", "GatherMate 2")
 
 	local function openOptions()
-		Settings.OpenToCategory("GatherMate 2")
+		Settings.OpenToCategory(panelID)
 	end
 
 	SLASH_GatherMate21 = "/gathermate"
@@ -1176,7 +1228,7 @@ function Config:OnInitialize()
 
 	self:RegisterMessage("GatherMate2ConfigChanged")
 	if DataBroker then
-		local launcher = DataBroker:NewDataObject("GatherMate2", {
+		DataBroker:NewDataObject("GatherMate2", {
 			type = "launcher",
 			icon = "Interface\\AddOns\\GatherMate2\\Artwork\\Icon.tga",
 			OnClick = function(obj, btn)
@@ -1222,7 +1274,7 @@ function Config:CheckAutoImport()
 		if verline and v["autoImport"] then
 			local dataVersion = tonumber(verline:match("%d+"))
 			if dataVersion and dataVersion > v["lastImport"] then
-				local loaded, reason = C_AddOns.LoadAddOn(k)
+				local loaded = C_AddOns.LoadAddOn(k)
 				if loaded then
 					local addon = LibStub("AceAddon-3.0"):GetAddon(k)
 					local filter = nil
@@ -1231,7 +1283,6 @@ function Config:CheckAutoImport()
 					end
 					addon:PerformMerge(v.Databases,v.Style,filter)
 					addon:CleanupImportData()
-					imported[k] = true
 					Config:SendMessage("GatherMate2ConfigChanged")
 					v["lastImport"] = dataVersion
 					print(L["Auto import complete for addon "]..k)
