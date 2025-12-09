@@ -95,19 +95,6 @@ local function MouseWheelSlider(self, delta)
 		self:SetValue(self:GetValue() - 1)
 	end
 end
--- icon and shield visibility --
-local function IconShieldVisibility()
-	if VCBrTarget["Icon"] == "Show Icon & Shiled" then
-		if not TargetFrameSpellBar.Icon:IsShown() then TargetFrameSpellBar.Icon:Show() end
-		if not TargetFrameSpellBar.showShield then TargetFrameSpellBar.showShield = true end
-	elseif VCBrTarget["Icon"] == "Hide Icon & Shiled" then
-		if TargetFrameSpellBar.Icon:IsShown() then TargetFrameSpellBar.Icon:Hide() end
-		if TargetFrameSpellBar.showShield then TargetFrameSpellBar.showShield = false end
-	elseif VCBrTarget["Icon"] == "Hide Only Icon" then
-		if TargetFrameSpellBar.Icon:IsShown() then TargetFrameSpellBar.Icon:Hide() end
-		if not TargetFrameSpellBar.showShield then TargetFrameSpellBar.showShield = true end
-	end
-end
 -- Box 0 Read me! --
 vcbOptions2Box0.CenterText:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 1: ").."Please close all other panels and keep this panel open, then take a target!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 2: ").."When you dock or undock the cast bar, the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 3: ").."When you choose from the pop out the Shadowed Unit Frame (SUF), the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 4: ").."For the people who uses SUF. If you are an old user and you unticked the option 'Hide target frame' undo it. Go to the SUF option and Hide target frame again. If you are a new user you have to do nothing!")
 -- Box 1 --
@@ -208,6 +195,7 @@ for i = 0, 9, 1 do
 			VCBrTarget["CurrentTimeText"]["Position"] = self.Text:GetText()
 			vcbOptions2Box2PopOut1.Text:SetText(self:GetText())
 			vcbOptions2Box2PopOut1Choice0:Hide()
+			chkTargetCurrentTimePosition()
 		end
 	end)
 end
@@ -233,6 +221,7 @@ for i = 0, 2, 1 do
 			VCBrTarget["CurrentTimeText"]["Direction"] = self.Text:GetText()
 			vcbOptions2Box2PopOut2.Text:SetText(self:GetText())
 			vcbOptions2Box2PopOut2Choice0:Hide()
+			chkTargetCurrentTimeUpdate()
 		end
 	end)
 end
@@ -255,6 +244,7 @@ for i = 0, 1, 1 do
 			VCBrTarget["CurrentTimeText"]["Sec"] = self.Text:GetText()
 			vcbOptions2Box2PopOut3.Text:SetText(self:GetText())
 			vcbOptions2Box2PopOut3Choice0:Hide()
+			chkTargetCurrentTimeUpdate()
 		end
 	end)
 end
@@ -280,6 +270,7 @@ for i = 0, 2, 1 do
 			VCBrTarget["CurrentTimeText"]["Decimals"] = tonumber(self.Text:GetText())
 			vcbOptions2Box2PopOut4.Text:SetText(self:GetText())
 			vcbOptions2Box2PopOut4Choice0:Hide()
+			chkTargetCurrentTimeUpdate()
 		end
 	end)
 end
@@ -302,6 +293,7 @@ for i = 0, 9, 1 do
 			VCBrTarget["BothTimeText"]["Position"] = self.Text:GetText()
 			vcbOptions2Box3PopOut1.Text:SetText(self:GetText())
 			vcbOptions2Box3PopOut1Choice0:Hide()
+			chkTargetBothTimePosition()
 		end
 	end)
 end
@@ -327,6 +319,7 @@ for i = 0, 2, 1 do
 			VCBrTarget["BothTimeText"]["Direction"] = self.Text:GetText()
 			vcbOptions2Box3PopOut2.Text:SetText(self:GetText())
 			vcbOptions2Box3PopOut2Choice0:Hide()
+			chkTargetBothTimeUpdate()
 		end
 	end)
 end
@@ -349,6 +342,7 @@ for i = 0, 1, 1 do
 			VCBrTarget["BothTimeText"]["Sec"] = self.Text:GetText()
 			vcbOptions2Box3PopOut3.Text:SetText(self:GetText())
 			vcbOptions2Box3PopOut3Choice0:Hide()
+			chkTargetBothTimeUpdate()
 		end
 	end)
 end
@@ -374,6 +368,7 @@ for i = 0, 2, 1 do
 			VCBrTarget["BothTimeText"]["Decimals"] = tonumber(self.Text:GetText())
 			vcbOptions2Box3PopOut4.Text:SetText(self:GetText())
 			vcbOptions2Box3PopOut4Choice0:Hide()
+			chkTargetBothTimeUpdate()
 		end
 	end)
 end
@@ -396,6 +391,7 @@ for i = 0, 9, 1 do
 			VCBrTarget["TotalTimeText"]["Position"] = self.Text:GetText()
 			vcbOptions2Box4PopOut1.Text:SetText(self:GetText())
 			vcbOptions2Box4PopOut1Choice0:Hide()
+			chkTargetTotalTimePosition()
 		end
 	end)
 end
@@ -418,6 +414,7 @@ for i = 0, 1, 1 do
 			VCBrTarget["TotalTimeText"]["Sec"] = self.Text:GetText()
 			vcbOptions2Box4PopOut2.Text:SetText(self:GetText())
 			vcbOptions2Box4PopOut2Choice0:Hide()
+			chkTargetTotalTimeUpdate()
 		end
 	end)
 end
@@ -443,6 +440,7 @@ for i = 0, 2, 1 do
 			VCBrTarget["TotalTimeText"]["Decimals"] = tonumber(self.Text:GetText())
 			vcbOptions2Box4PopOut3.Text:SetText(self:GetText())
 			vcbOptions2Box4PopOut3Choice0:Hide()
+			chkTargetTotalTimeUpdate()
 		end
 	end)
 end
@@ -468,6 +466,7 @@ for i = 0, 9, 1 do
 			VCBrTarget["NameText"] = self.Text:GetText()
 			vcbOptions2Box5PopOut1.Text:SetText(self:GetText())
 			vcbOptions2Box5PopOut1Choice0:Hide()
+			chkTargetNamePosition()
 		end
 	end)
 end
@@ -492,6 +491,7 @@ for i = 0, 1, 1 do
 			VCBrTarget["Color"] = self.Text:GetText()
 			vcbOptions2Box5PopOut2.Text:SetText(self:GetText())
 			vcbOptions2Box5PopOut2Choice0:Hide()
+			chkTargetCastbarColor()
 		end
 	end)
 end
@@ -523,6 +523,7 @@ for i = 0, 2, 1 do
 			vcbOptions2Box6PopOut1.Text:SetText(self:GetText())
 			vcbOptions2Box6PopOut1Choice0:Hide()
 			IconShieldVisibility()
+			chkTargetIconVisibility()
 		end
 	end)
 end
