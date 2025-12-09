@@ -478,6 +478,7 @@ for i = 0, 2, 1 do
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["Color"] = self.Text:GetText()
 			vcbOptions1Box7PopOut1.Text:SetText(self.Text:GetText())
+			chkPlayerCastbarColor()
 			vcbOptions1Box7PopOut1Choice0:Hide()
 		end
 	end)

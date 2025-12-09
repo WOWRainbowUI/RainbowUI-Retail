@@ -42,7 +42,7 @@ VCBshieldSpellRight:SetScale(1)
 VCBshieldSpellRight:SetBlendMode("BLEND")
 VCBshieldSpellRight:SetAlpha(0.85)
 VCBshieldSpellRight:Hide()
--- icon & shield --
+-- Icon --
 function chkPlayerIconVisibility()
 	PlayerCastingBarFrame.Icon:SetScale(2.5) -- 圖示大小
 	if PlayerCastingBarFrame.showShield then PlayerCastingBarFrame.showShield = false end
@@ -364,7 +364,7 @@ function chkPlayerTotalTimePosition()
 		end
 	end
 end
--- current time update --
+-- Current time update --
 function chkPlayerCurrentTimeUpdate()
 	if VCBrPlayer["CurrentTimeText"]["Decimals"] == 2 then
 		if VCBrPlayer["CurrentTimeText"]["Sec"] == "顯示" then
@@ -518,7 +518,7 @@ function chkPlayerCurrentTimeUpdate()
 		end
 	end
 end
--- both time update --
+-- Both time update --
 function chkPlayerBothTimeUpdate()
 	if VCBrPlayer["BothTimeText"]["Decimals"] == 2 then
 		if VCBrPlayer["BothTimeText"]["Sec"] == "顯示" then
@@ -672,7 +672,7 @@ function chkPlayerBothTimeUpdate()
 		end
 	end
 end
--- total time update --
+-- Total time update --
 function chkPlayerTotalTimeUpdate()
 	if VCBrPlayer["TotalTimeText"]["Sec"] == "顯示" then
 		if VCBrPlayer["TotalTimeText"]["Decimals"] == 2 then
@@ -704,253 +704,246 @@ function chkPlayerTotalTimeUpdate()
 		end
 	end
 end
--- coloring the bar --
--- default color --
-local function Color_Default(self)
-	self:SetStatusBarDesaturated(false)
-	self:SetStatusBarColor(1, 1, 1, 1)
-	self.Spark:SetDesaturated(false)
-	self.Spark:SetVertexColor(1, 1, 1, 1)
-	self.ChannelShadow:SetDesaturated(false)
-	self.ChannelShadow:SetVertexColor(1, 1, 1, 1)
-	self.StandardGlow:SetDesaturated(false)
-	self.StandardGlow:SetVertexColor(1, 1, 1, 1)
-	self.Flash:SetDesaturated(false)
-	self.Flash:SetVertexColor(1, 1, 1, 1)
-end
--- class color --
-local function Color_Class(self)
-	self:SetStatusBarDesaturated(true)
-	self:SetStatusBarColor(vcbClassColorPlayer:GetRGB())
-	self.Spark:SetDesaturated(true)
-	self.Spark:SetVertexColor(vcbClassColorPlayer:GetRGB())
-	self.ChannelShadow:SetDesaturated(true)
-	self.ChannelShadow:SetVertexColor(vcbClassColorPlayer:GetRGB())
-	self.StandardGlow:SetDesaturated(true)
-	self.StandardGlow:SetVertexColor(vcbClassColorPlayer:GetRGB())
-	self.Flash:SetDesaturated(true)
-	self.Flash:SetVertexColor(vcbClassColorPlayer:GetRGB())
-end
--- Spell School color --
-local function Color_SpellSchool(self)
-	self:SetStatusBarDesaturated(true)
-	self.Spark:SetDesaturated(true)
-	self.ChannelShadow:SetDesaturated(true)
-	self.StandardGlow:SetDesaturated(true)
-	self.Flash:SetDesaturated(true)
-	if vcbSpellSchool == 1 then
-		self:SetStatusBarColor(vcbPhysicalColor:GetRGB())
-		self.Spark:SetVertexColor(vcbPhysicalColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbPhysicalColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbPhysicalColor:GetRGB())
-		self.Flash:SetVertexColor(vcbPhysicalColor:GetRGB())
-	elseif vcbSpellSchool == 2 then
-		self:SetStatusBarColor(vcbHolyColor:GetRGB())
-		self.Spark:SetVertexColor(vcbHolyColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbHolyColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbHolyColor:GetRGB())
-		self.Flash:SetVertexColor(vcbHolyColor:GetRGB())
-	elseif vcbSpellSchool == 4 then
-		self:SetStatusBarColor(vcbFireColor:GetRGB())
-		self.Spark:SetVertexColor(vcbFireColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbFireColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbFireColor:GetRGB())
-		self.Flash:SetVertexColor(vcbFireColor:GetRGB())
-	elseif vcbSpellSchool == 8 then
-		self:SetStatusBarColor(vcbNatureColor:GetRGB())
-		self.Spark:SetVertexColor(vcbNatureColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbNatureColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbNatureColor:GetRGB())
-		self.Flash:SetVertexColor(vcbNatureColor:GetRGB())
-	elseif vcbSpellSchool == 16 then
-		self:SetStatusBarColor(vcbFrostColor:GetRGB())
-		self.Spark:SetVertexColor(vcbFrostColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbFrostColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbFrostColor:GetRGB())
-		self.Flash:SetVertexColor(vcbFrostColor:GetRGB())
-	elseif vcbSpellSchool == 32 then
-		self:SetStatusBarColor(vcbShadowColor:GetRGB())
-		self.Spark:SetVertexColor(vcbShadowColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbShadowColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbShadowColor:GetRGB())
-		self.Flash:SetVertexColor(vcbShadowColor:GetRGB())
-	elseif vcbSpellSchool == 64 then
-		self:SetStatusBarColor(vcbArcaneColor:GetRGB())
-		self.Spark:SetVertexColor(vcbArcaneColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbArcaneColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbArcaneColor:GetRGB())
-		self.Flash:SetVertexColor(vcbArcaneColor:GetRGB())
-	elseif vcbSpellSchool == 3 then
-		self:SetStatusBarColor(vcbHolystrikeColor:GetRGB())
-		self.Spark:SetVertexColor(vcbHolystrikeColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbHolystrikeColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbHolystrikeColor:GetRGB())
-		self.Flash:SetVertexColor(vcbHolystrikeColor:GetRGB())
-	elseif vcbSpellSchool == 5 then
-		self:SetStatusBarColor(vcbFlamestrikeColor:GetRGB())
-		self.Spark:SetVertexColor(vcbFlamestrikeColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbFlamestrikeColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbFlamestrikeColor:GetRGB())
-		self.Flash:SetVertexColor(vcbFlamestrikeColor:GetRGB())
-	elseif vcbSpellSchool == 6 then
-		self:SetStatusBarColor(vcbRadiantColor:GetRGB())
-		self.Spark:SetVertexColor(vcbRadiantColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbRadiantColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbRadiantColor:GetRGB())
-		self.Flash:SetVertexColor(vcbRadiantColor:GetRGB())
-	elseif vcbSpellSchool == 9 then
-		self:SetStatusBarColor(vcbStormstrikeColor:GetRGB())
-		self.Spark:SetVertexColor(vcbStormstrikeColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbStormstrikeColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbStormstrikeColor:GetRGB())
-		self.Flash:SetVertexColor(vcbStormstrikeColor:GetRGB())
-	elseif vcbSpellSchool == 10 then
-		self:SetStatusBarColor(vcbHolystormColor:GetRGB())
-		self.Spark:SetVertexColor(vcbHolystormColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbHolystormColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbHolystormColor:GetRGB())
-		self.Flash:SetVertexColor(vcbHolystormColor:GetRGB())
-	elseif vcbSpellSchool == 12 then
-		self:SetStatusBarColor(vcbVolcanicColor:GetRGB())
-		self.Spark:SetVertexColor(vcbVolcanicColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbVolcanicColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbVolcanicColor:GetRGB())
-		self.Flash:SetVertexColor(vcbVolcanicColor:GetRGB())
-	elseif vcbSpellSchool == 17 then
-		self:SetStatusBarColor(vcbFroststrikeColor:GetRGB())
-		self.Spark:SetVertexColor(vcbFroststrikeColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbFroststrikeColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbFroststrikeColor:GetRGB())
-		self.Flash:SetVertexColor(vcbFroststrikeColor:GetRGB())
-	elseif vcbSpellSchool == 18 then
-		self:SetStatusBarColor(vcbHolyfrostColor:GetRGB())
-		self.Spark:SetVertexColor(vcbHolyfrostColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbHolyfrostColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbHolyfrostColor:GetRGB())
-		self.Flash:SetVertexColor(vcbHolyfrostColor:GetRGB())
-	elseif vcbSpellSchool == 20 then
-		self:SetStatusBarColor(vcbFrostfireColor:GetRGB())
-		self.Spark:SetVertexColor(vcbFrostfireColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbFrostfireColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbFrostfireColor:GetRGB())
-		self.Flash:SetVertexColor(vcbFrostfireColor:GetRGB())
-	elseif vcbSpellSchool == 24 then
-		self:SetStatusBarColor(vcbFroststormColor:GetRGB())
-		self.Spark:SetVertexColor(vcbFroststormColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbFroststormColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbFroststormColor:GetRGB())
-		self.Flash:SetVertexColor(vcbFroststormColor:GetRGB())
-	elseif vcbSpellSchool == 33 then
-		self:SetStatusBarColor(vcbShadowstrikeColor:GetRGB())
-		self.Spark:SetVertexColor(vcbShadowstrikeColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbShadowstrikeColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbShadowstrikeColor:GetRGB())
-		self.Flash:SetVertexColor(vcbShadowstrikeColor:GetRGB())
-	elseif vcbSpellSchool == 34 then
-		self:SetStatusBarColor(vcbTwilightColor:GetRGB())
-		self.Spark:SetVertexColor(vcbTwilightColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbTwilightColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbTwilightColor:GetRGB())
-		self.Flash:SetVertexColor(vcbTwilightColor:GetRGB())
-	elseif vcbSpellSchool == 36 then
-		self:SetStatusBarColor(vcbShadowflameColor:GetRGB())
-		self.Spark:SetVertexColor(vcbShadowflameColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbShadowflameColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbShadowflameColor:GetRGB())
-		self.Flash:SetVertexColor(vcbShadowflameColor:GetRGB())
-	elseif vcbSpellSchool == 40 then
-		self:SetStatusBarColor(vcbPlagueColor:GetRGB())
-		self.Spark:SetVertexColor(vcbPlagueColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbPlagueColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbPlagueColor:GetRGB())
-		self.Flash:SetVertexColor(vcbPlagueColor:GetRGB())
-	elseif vcbSpellSchool == 48 then
-		self:SetStatusBarColor(vcbShadowfrostColor:GetRGB())
-		self.Spark:SetVertexColor(vcbShadowfrostColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbShadowfrostColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbShadowfrostColor:GetRGB())
-		self.Flash:SetVertexColor(vcbShadowfrostColor:GetRGB())
-	elseif vcbSpellSchool == 65 then
-		self:SetStatusBarColor(vcbSpellstrikeColor:GetRGB())
-		self.Spark:SetVertexColor(vcbSpellstrikeColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbSpellstrikeColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbSpellstrikeColor:GetRGB())
-		self.Flash:SetVertexColor(vcbSpellstrikeColor:GetRGB())
-	elseif vcbSpellSchool == 66 then
-		self:SetStatusBarColor(vcbDivineColor:GetRGB())
-		self.Spark:SetVertexColor(vcbDivineColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbDivineColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbDivineColor:GetRGB())
-		self.Flash:SetVertexColor(vcbDivineColor:GetRGB())
-	elseif vcbSpellSchool == 68 then
-		self:SetStatusBarColor(vcbSpellfireColor:GetRGB())
-		self.Spark:SetVertexColor(vcbSpellfireColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbSpellfireColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbSpellfireColor:GetRGB())
-		self.Flash:SetVertexColor(vcbSpellfireColor:GetRGB())
-	elseif vcbSpellSchool == 72 then
-		self:SetStatusBarColor(vcbAstralColor:GetRGB())
-		self.Spark:SetVertexColor(vcbAstralColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbAstralColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbAstralColor:GetRGB())
-		self.Flash:SetVertexColor(vcbAstralColor:GetRGB())
-	elseif vcbSpellSchool == 80 then
-		self:SetStatusBarColor(vcbSpellfrostColor:GetRGB())
-		self.Spark:SetVertexColor(vcbSpellfrostColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbSpellfrostColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbSpellfrostColor:GetRGB())
-		self.Flash:SetVertexColor(vcbSpellfrostColor:GetRGB())
-	elseif vcbSpellSchool == 96 then
-		self:SetStatusBarColor(vcbSpellshadowColor:GetRGB())
-		self.Spark:SetVertexColor(vcbSpellshadowColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbSpellshadowColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbSpellshadowColor:GetRGB())
-		self.Flash:SetVertexColor(vcbSpellshadowColor:GetRGB())
-	elseif vcbSpellSchool == 28 then
-		self:SetStatusBarColor(vcbElementalColor:GetRGB())
-		self.Spark:SetVertexColor(vcbElementalColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbElementalColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbElementalColor:GetRGB())
-		self.Flash:SetVertexColor(vcbElementalColor:GetRGB())
-	elseif vcbSpellSchool == 62 then
-		self:SetStatusBarColor(vcbChromaticColor:GetRGB())
-		self.Spark:SetVertexColor(vcbChromaticColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbChromaticColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbChromaticColor:GetRGB())
-		self.Flash:SetVertexColor(vcbChromaticColor:GetRGB())
-	elseif vcbSpellSchool == 106 then
-		self:SetStatusBarColor(vcbCosmicColor:GetRGB())
-		self.Spark:SetVertexColor(vcbCosmicColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbCosmicColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbCosmicColor:GetRGB())
-		self.Flash:SetVertexColor(vcbCosmicColor:GetRGB())
-	elseif vcbSpellSchool == 126 then
-		self:SetStatusBarColor(vcbMagicColor:GetRGB())
-		self.Spark:SetVertexColor(vcbMagicColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbMagicColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbMagicColor:GetRGB())
-		self.Flash:SetVertexColor(vcbMagicColor:GetRGB())
-	elseif vcbSpellSchool == 127 or vcbSpellSchool == 124 then
-		self:SetStatusBarColor(vcbChaosColor:GetRGB())
-		self.Spark:SetVertexColor(vcbChaosColor:GetRGB())
-		self.ChannelShadow:SetVertexColor(vcbChaosColor:GetRGB())
-		self.StandardGlow:SetVertexColor(vcbChaosColor:GetRGB())
-		self.Flash:SetVertexColor(vcbChaosColor:GetRGB())
+-- Coloring the bar --
+function chkPlayerCastbarColor()
+	if VCBrPlayer["Color"] == "Default Color" then
+		function vcbPlayerCastbarColor(self)
+			self:SetStatusBarDesaturated(false)
+			self:SetStatusBarColor(1, 1, 1, 1)
+			self.Spark:SetDesaturated(false)
+			self.Spark:SetVertexColor(1, 1, 1, 1)
+			self.ChannelShadow:SetDesaturated(false)
+			self.ChannelShadow:SetVertexColor(1, 1, 1, 1)
+			self.StandardGlow:SetDesaturated(false)
+			self.StandardGlow:SetVertexColor(1, 1, 1, 1)
+			self.Flash:SetDesaturated(false)
+			self.Flash:SetVertexColor(1, 1, 1, 1)
+		end
+	elseif VCBrPlayer["Color"] == "Class' Color" then
+		function vcbPlayerCastbarColor(self)
+			self:SetStatusBarDesaturated(true)
+			self:SetStatusBarColor(vcbClassColorPlayer:GetRGB())
+			self.Spark:SetDesaturated(true)
+			self.Spark:SetVertexColor(vcbClassColorPlayer:GetRGB())
+			self.ChannelShadow:SetDesaturated(true)
+			self.ChannelShadow:SetVertexColor(vcbClassColorPlayer:GetRGB())
+			self.StandardGlow:SetDesaturated(true)
+			self.StandardGlow:SetVertexColor(vcbClassColorPlayer:GetRGB())
+			self.Flash:SetDesaturated(true)
+			self.Flash:SetVertexColor(vcbClassColorPlayer:GetRGB())
+		end
+	elseif VCBrPlayer["Color"] == "Spell School Color" then
+		function vcbPlayerCastbarColor(self)
+			self:SetStatusBarDesaturated(true)
+			self.Spark:SetDesaturated(true)
+			self.ChannelShadow:SetDesaturated(true)
+			self.StandardGlow:SetDesaturated(true)
+			self.Flash:SetDesaturated(true)
+			if vcbSpellSchool == 1 then
+				self:SetStatusBarColor(vcbPhysicalColor:GetRGB())
+				self.Spark:SetVertexColor(vcbPhysicalColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbPhysicalColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbPhysicalColor:GetRGB())
+				self.Flash:SetVertexColor(vcbPhysicalColor:GetRGB())
+			elseif vcbSpellSchool == 2 then
+				self:SetStatusBarColor(vcbHolyColor:GetRGB())
+				self.Spark:SetVertexColor(vcbHolyColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbHolyColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbHolyColor:GetRGB())
+				self.Flash:SetVertexColor(vcbHolyColor:GetRGB())
+			elseif vcbSpellSchool == 4 then
+				self:SetStatusBarColor(vcbFireColor:GetRGB())
+				self.Spark:SetVertexColor(vcbFireColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbFireColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbFireColor:GetRGB())
+				self.Flash:SetVertexColor(vcbFireColor:GetRGB())
+			elseif vcbSpellSchool == 8 then
+				self:SetStatusBarColor(vcbNatureColor:GetRGB())
+				self.Spark:SetVertexColor(vcbNatureColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbNatureColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbNatureColor:GetRGB())
+				self.Flash:SetVertexColor(vcbNatureColor:GetRGB())
+			elseif vcbSpellSchool == 16 then
+				self:SetStatusBarColor(vcbFrostColor:GetRGB())
+				self.Spark:SetVertexColor(vcbFrostColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbFrostColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbFrostColor:GetRGB())
+				self.Flash:SetVertexColor(vcbFrostColor:GetRGB())
+			elseif vcbSpellSchool == 32 then
+				self:SetStatusBarColor(vcbShadowColor:GetRGB())
+				self.Spark:SetVertexColor(vcbShadowColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbShadowColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbShadowColor:GetRGB())
+				self.Flash:SetVertexColor(vcbShadowColor:GetRGB())
+			elseif vcbSpellSchool == 64 then
+				self:SetStatusBarColor(vcbArcaneColor:GetRGB())
+				self.Spark:SetVertexColor(vcbArcaneColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbArcaneColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbArcaneColor:GetRGB())
+				self.Flash:SetVertexColor(vcbArcaneColor:GetRGB())
+			elseif vcbSpellSchool == 3 then
+				self:SetStatusBarColor(vcbHolystrikeColor:GetRGB())
+				self.Spark:SetVertexColor(vcbHolystrikeColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbHolystrikeColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbHolystrikeColor:GetRGB())
+				self.Flash:SetVertexColor(vcbHolystrikeColor:GetRGB())
+			elseif vcbSpellSchool == 5 then
+				self:SetStatusBarColor(vcbFlamestrikeColor:GetRGB())
+				self.Spark:SetVertexColor(vcbFlamestrikeColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbFlamestrikeColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbFlamestrikeColor:GetRGB())
+				self.Flash:SetVertexColor(vcbFlamestrikeColor:GetRGB())
+			elseif vcbSpellSchool == 6 then
+				self:SetStatusBarColor(vcbRadiantColor:GetRGB())
+				self.Spark:SetVertexColor(vcbRadiantColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbRadiantColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbRadiantColor:GetRGB())
+				self.Flash:SetVertexColor(vcbRadiantColor:GetRGB())
+			elseif vcbSpellSchool == 9 then
+				self:SetStatusBarColor(vcbStormstrikeColor:GetRGB())
+				self.Spark:SetVertexColor(vcbStormstrikeColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbStormstrikeColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbStormstrikeColor:GetRGB())
+				self.Flash:SetVertexColor(vcbStormstrikeColor:GetRGB())
+			elseif vcbSpellSchool == 10 then
+				self:SetStatusBarColor(vcbHolystormColor:GetRGB())
+				self.Spark:SetVertexColor(vcbHolystormColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbHolystormColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbHolystormColor:GetRGB())
+				self.Flash:SetVertexColor(vcbHolystormColor:GetRGB())
+			elseif vcbSpellSchool == 12 then
+				self:SetStatusBarColor(vcbVolcanicColor:GetRGB())
+				self.Spark:SetVertexColor(vcbVolcanicColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbVolcanicColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbVolcanicColor:GetRGB())
+				self.Flash:SetVertexColor(vcbVolcanicColor:GetRGB())
+			elseif vcbSpellSchool == 17 then
+				self:SetStatusBarColor(vcbFroststrikeColor:GetRGB())
+				self.Spark:SetVertexColor(vcbFroststrikeColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbFroststrikeColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbFroststrikeColor:GetRGB())
+				self.Flash:SetVertexColor(vcbFroststrikeColor:GetRGB())
+			elseif vcbSpellSchool == 18 then
+				self:SetStatusBarColor(vcbHolyfrostColor:GetRGB())
+				self.Spark:SetVertexColor(vcbHolyfrostColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbHolyfrostColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbHolyfrostColor:GetRGB())
+				self.Flash:SetVertexColor(vcbHolyfrostColor:GetRGB())
+			elseif vcbSpellSchool == 20 then
+				self:SetStatusBarColor(vcbFrostfireColor:GetRGB())
+				self.Spark:SetVertexColor(vcbFrostfireColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbFrostfireColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbFrostfireColor:GetRGB())
+				self.Flash:SetVertexColor(vcbFrostfireColor:GetRGB())
+			elseif vcbSpellSchool == 24 then
+				self:SetStatusBarColor(vcbFroststormColor:GetRGB())
+				self.Spark:SetVertexColor(vcbFroststormColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbFroststormColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbFroststormColor:GetRGB())
+				self.Flash:SetVertexColor(vcbFroststormColor:GetRGB())
+			elseif vcbSpellSchool == 33 then
+				self:SetStatusBarColor(vcbShadowstrikeColor:GetRGB())
+				self.Spark:SetVertexColor(vcbShadowstrikeColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbShadowstrikeColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbShadowstrikeColor:GetRGB())
+				self.Flash:SetVertexColor(vcbShadowstrikeColor:GetRGB())
+			elseif vcbSpellSchool == 34 then
+				self:SetStatusBarColor(vcbTwilightColor:GetRGB())
+				self.Spark:SetVertexColor(vcbTwilightColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbTwilightColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbTwilightColor:GetRGB())
+				self.Flash:SetVertexColor(vcbTwilightColor:GetRGB())
+			elseif vcbSpellSchool == 36 then
+				self:SetStatusBarColor(vcbShadowflameColor:GetRGB())
+				self.Spark:SetVertexColor(vcbShadowflameColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbShadowflameColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbShadowflameColor:GetRGB())
+				self.Flash:SetVertexColor(vcbShadowflameColor:GetRGB())
+			elseif vcbSpellSchool == 40 then
+				self:SetStatusBarColor(vcbPlagueColor:GetRGB())
+				self.Spark:SetVertexColor(vcbPlagueColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbPlagueColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbPlagueColor:GetRGB())
+				self.Flash:SetVertexColor(vcbPlagueColor:GetRGB())
+			elseif vcbSpellSchool == 48 then
+				self:SetStatusBarColor(vcbShadowfrostColor:GetRGB())
+				self.Spark:SetVertexColor(vcbShadowfrostColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbShadowfrostColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbShadowfrostColor:GetRGB())
+				self.Flash:SetVertexColor(vcbShadowfrostColor:GetRGB())
+			elseif vcbSpellSchool == 65 then
+				self:SetStatusBarColor(vcbSpellstrikeColor:GetRGB())
+				self.Spark:SetVertexColor(vcbSpellstrikeColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbSpellstrikeColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbSpellstrikeColor:GetRGB())
+				self.Flash:SetVertexColor(vcbSpellstrikeColor:GetRGB())
+			elseif vcbSpellSchool == 66 then
+				self:SetStatusBarColor(vcbDivineColor:GetRGB())
+				self.Spark:SetVertexColor(vcbDivineColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbDivineColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbDivineColor:GetRGB())
+				self.Flash:SetVertexColor(vcbDivineColor:GetRGB())
+			elseif vcbSpellSchool == 68 then
+				self:SetStatusBarColor(vcbSpellfireColor:GetRGB())
+				self.Spark:SetVertexColor(vcbSpellfireColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbSpellfireColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbSpellfireColor:GetRGB())
+				self.Flash:SetVertexColor(vcbSpellfireColor:GetRGB())
+			elseif vcbSpellSchool == 72 then
+				self:SetStatusBarColor(vcbAstralColor:GetRGB())
+				self.Spark:SetVertexColor(vcbAstralColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbAstralColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbAstralColor:GetRGB())
+				self.Flash:SetVertexColor(vcbAstralColor:GetRGB())
+			elseif vcbSpellSchool == 80 then
+				self:SetStatusBarColor(vcbSpellfrostColor:GetRGB())
+				self.Spark:SetVertexColor(vcbSpellfrostColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbSpellfrostColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbSpellfrostColor:GetRGB())
+				self.Flash:SetVertexColor(vcbSpellfrostColor:GetRGB())
+			elseif vcbSpellSchool == 96 then
+				self:SetStatusBarColor(vcbSpellshadowColor:GetRGB())
+				self.Spark:SetVertexColor(vcbSpellshadowColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbSpellshadowColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbSpellshadowColor:GetRGB())
+				self.Flash:SetVertexColor(vcbSpellshadowColor:GetRGB())
+			elseif vcbSpellSchool == 28 then
+				self:SetStatusBarColor(vcbElementalColor:GetRGB())
+				self.Spark:SetVertexColor(vcbElementalColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbElementalColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbElementalColor:GetRGB())
+				self.Flash:SetVertexColor(vcbElementalColor:GetRGB())
+			elseif vcbSpellSchool == 62 then
+				self:SetStatusBarColor(vcbChromaticColor:GetRGB())
+				self.Spark:SetVertexColor(vcbChromaticColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbChromaticColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbChromaticColor:GetRGB())
+				self.Flash:SetVertexColor(vcbChromaticColor:GetRGB())
+			elseif vcbSpellSchool == 106 then
+				self:SetStatusBarColor(vcbCosmicColor:GetRGB())
+				self.Spark:SetVertexColor(vcbCosmicColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbCosmicColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbCosmicColor:GetRGB())
+				self.Flash:SetVertexColor(vcbCosmicColor:GetRGB())
+			elseif vcbSpellSchool == 126 then
+				self:SetStatusBarColor(vcbMagicColor:GetRGB())
+				self.Spark:SetVertexColor(vcbMagicColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbMagicColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbMagicColor:GetRGB())
+				self.Flash:SetVertexColor(vcbMagicColor:GetRGB())
+			elseif vcbSpellSchool == 127 or vcbSpellSchool == 124 then
+				self:SetStatusBarColor(vcbChaosColor:GetRGB())
+				self.Spark:SetVertexColor(vcbChaosColor:GetRGB())
+				self.ChannelShadow:SetVertexColor(vcbChaosColor:GetRGB())
+				self.StandardGlow:SetVertexColor(vcbChaosColor:GetRGB())
+				self.Flash:SetVertexColor(vcbChaosColor:GetRGB())
+			end
+		end
 	end
 end
 -- final function --
 local function CastBarColor(self)
-	if self.barType == "standard" or self.barType == "channel" or self.barType == "uninterruptable" then
-		if VCBrPlayer["Color"] == "預設顏色" then
-			Color_Default(self)
-		elseif VCBrPlayer["Color"] == "職業顏色" then
-			Color_Class(self)
-		elseif VCBrPlayer["Color"] == "法術類型顏色" then
-			Color_SpellSchool(self)
-		end
-	else
-		Color_Default(self)
-	end
+	
 end
 -- Some local variables --
 local lagStart = 0
@@ -1720,6 +1713,7 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 		chkPlayerCurrentTimeUpdate()
 		chkPlayerBothTimeUpdate()
 		chkPlayerTotalTimeUpdate()
+		chkPlayerCastbarColor()
 		vcbCreateTicks()
 		-- create the GCD --
 		function vcbCreatingTheGCD()
@@ -1745,11 +1739,24 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 		PlayerCastingBarFrame:HookScript("OnUpdate", function(self)
 			self.Text:SetAlpha(0)
 			VCBnameText:SetText(self.Text:GetText())
-			CastBarColor(self)
 			if self.value ~= nil and self.maxValue ~= nil then
 				vcbPlayerCurrentTimeUpdate(self)
 				vcbPlayerBothTimeUpdate(self)
 				vcbPlayerTotalTimeUpdate(self)
+				if self.barType == "standard" or self.barType == "channel" or self.barType == "uninterruptable" then
+					vcbPlayerCastbarColor(self)
+				else
+					self:SetStatusBarDesaturated(false)
+					self:SetStatusBarColor(1, 1, 1, 1)
+					self.Spark:SetDesaturated(false)
+					self.Spark:SetVertexColor(1, 1, 1, 1)
+					self.ChannelShadow:SetDesaturated(false)
+					self.ChannelShadow:SetVertexColor(1, 1, 1, 1)
+					self.StandardGlow:SetDesaturated(false)
+					self.StandardGlow:SetVertexColor(1, 1, 1, 1)
+					self.Flash:SetDesaturated(false)
+					self.Flash:SetVertexColor(1, 1, 1, 1)
+				end
 			end
 			if (self.barType == "channel" or self.barType =="uninterruptable") and VCBrPlayer["Ticks"] ~= "隱藏" then
 				vcbShowTicks(VCBarg3)
