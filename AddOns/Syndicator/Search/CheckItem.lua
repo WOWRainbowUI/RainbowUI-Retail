@@ -1464,6 +1464,10 @@ if addonTable.Constants.IsWrath or addonTable.Constants.IsCata then
   }
 end
 
+if addonTable.Constants.IsTitan then
+  stats["CR_LIFESTEAL"] = "lifesteal rating"
+end
+
 for s, english in pairs(stats) do
   local keyword = _G["ITEM_MOD_" .. s .. "_SHORT"] or _G["ITEM_MOD_" .. s]
   if keyword ~= nil then
