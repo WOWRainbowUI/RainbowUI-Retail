@@ -706,7 +706,7 @@ function chkPlayerTotalTimeUpdate()
 end
 -- Coloring the bar --
 function chkPlayerCastbarColor()
-	if VCBrPlayer["Color"] == "Default Color" then
+	if VCBrPlayer["Color"] == "預設顏色" then
 		function vcbPlayerCastbarColor(self)
 			self:SetStatusBarDesaturated(false)
 			self:SetStatusBarColor(1, 1, 1, 1)
@@ -719,7 +719,7 @@ function chkPlayerCastbarColor()
 			self.Flash:SetDesaturated(false)
 			self.Flash:SetVertexColor(1, 1, 1, 1)
 		end
-	elseif VCBrPlayer["Color"] == "Class' Color" then
+	elseif VCBrPlayer["Color"] == "職業顏色" then
 		function vcbPlayerCastbarColor(self)
 			self:SetStatusBarDesaturated(true)
 			self:SetStatusBarColor(vcbClassColorPlayer:GetRGB())
@@ -732,7 +732,7 @@ function chkPlayerCastbarColor()
 			self.Flash:SetDesaturated(true)
 			self.Flash:SetVertexColor(vcbClassColorPlayer:GetRGB())
 		end
-	elseif VCBrPlayer["Color"] == "Spell School Color" then
+	elseif VCBrPlayer["Color"] == "法術類型顏色" then
 		function vcbPlayerCastbarColor(self)
 			self:SetStatusBarDesaturated(true)
 			self.Spark:SetDesaturated(true)
