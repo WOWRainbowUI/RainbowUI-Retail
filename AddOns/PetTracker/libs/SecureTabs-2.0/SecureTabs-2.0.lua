@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 12)
+local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 13)
 if not Lib then
 	return
 elseif not old then
@@ -91,15 +91,15 @@ function Lib:Update(panel, selection)
 				frame:SetAllPoints(true)
 				frame:SetFrameLevel(panel:GetFrameLevel() + 20)
 
-				local close = frame.CloseButton
-				if close and not close.Relay then
-					local relay = CreateFrame('Button', '$parentSecureRelay', close, 'SecureActionButtonTemplate')
-					relay:SetAttribute('macrotext', format('/run HideUIPanel(%s)', (frame:GetParent() or frame):GetName()))
-					relay:RegisterForClicks('anyUp', 'anyDown')
-					relay:SetAttribute('type', 'macro')
-					relay:SetAllPoints()
+				if frame.CloseButton then
+					frame.CloseButton:SetScript('OnClick', function() -- could never find an 100% taint free method for this
+						local original = frame:GetParent() and frame:GetParent().CloseButton
+						if original then
+							ExecuteFrameScript(original, 'OnClick') -- make sure any additional behaviour is replicated
+						end
 
-					close.Relay = relay
+						HideUIPanel(frame) -- safest hiding method
+					end)
 				end
 			end
 		end
