@@ -12,6 +12,8 @@
     SOFTWARE.
 ]]
 
+---@diagnostic disable: undefined-global
+
 local lib = LibStub("Krowi_Util-1.0");
 
 if not lib then
