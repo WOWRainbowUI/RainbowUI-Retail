@@ -1,6 +1,9 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5240-MoP
+* ToT updates
+
 v.5230
 * Added Midnight beta support
 * Fixes

@@ -136,13 +136,14 @@ local function InviteList(list,noNewList)
 	end
 end
 local function CreateInviteList(text)
+	local list = {}
 	if not text then 
-		return {}
+		return list
 	end
-	local list = {strsplit("\n",text)}
-	for i=#list,1,-1 do
-		if string.trim(list[i]) == "" then
-			tremove(list,i)
+	for c in text:gmatch("[^\n;,\t ]+") do
+		c = c:trim()
+		if c ~= "" then
+			list[#list+1] = c
 		end
 	end
 	return list

@@ -1,8 +1,8 @@
---	10.11.2025
+--	09.12.2025
 
 local GlobalAddonName, MRT = ...
 
-MRT.V = 5230
+MRT.V = 5240
 MRT.T = "R"
 
 MRT.Slash = {}			--> функции вызова из коммандной строки

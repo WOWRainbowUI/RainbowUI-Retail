@@ -537,6 +537,9 @@ end
 
 local GSUB_AutoColor_Data = {}
 local function GSUB_AutoColorCreate()
+	if canaccessvalue and ((IsInRaid() and not canaccessvalue("raid1")) or (not IsInRaid() and not canaccessvalue("party1"))) then
+		return
+	end
 	wipe(GSUB_AutoColor_Data)
 	for _, name, subgroup, class, guid, rank, level, online, isDead, combatRole in MRT.F.IterateRoster, MRT.F.GetRaidDiffMaxGroup() do
 		if class and name then
