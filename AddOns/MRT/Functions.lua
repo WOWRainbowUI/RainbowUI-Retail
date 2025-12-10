@@ -761,9 +761,8 @@ end
 function ExRT.F.IsPlayerRLorOfficer(unitName)
 	local shortName = ExRT.F.delUnitNameServer(unitName)
 	for i=1,GetNumGroupMembers() do
-		--if name and (name == unitName or ExRT.F.delUnitNameServer(name) == shortName) then
+		local name,rank = GetRaidRosterInfo(i)
 		if UnitIsUnit(unitName,"raid"..i) or UnitIsUnit(shortName,"raid"..i) then
-			local name,rank = GetRaidRosterInfo(i)
 			if rank > 0 then
 				return rank
 			else
@@ -778,10 +777,22 @@ function ExRT.F.IsPlayerRLorOfficer(unitName)
 	-- 2: rl
 end
 
+if ExRT.isMN then
+	function ExRT.F.IsPlayerRLorOfficer(unitName)
+		if UnitIsGroupLeader(unitName) then
+			return 2
+		elseif UnitIsGroupAssistant(unitName) then
+			return 1
+		else
+			return false
+		end
+	end
+end
+
 function ExRT.F.GetPlayerParty(unitName)
 	for i=1,GetNumGroupMembers() do
 		local name,_,subgroup = GetRaidRosterInfo(i)
-		if name and UnitIsUnit(name,unitName) then
+		if (not canaccessvalue or canaccessvalue(name)) and name and UnitIsUnit(name,unitName) then
 			return subgroup
 		end
 	end
@@ -791,12 +802,25 @@ end
 function ExRT.F.GetOwnPartyNum()
 	for i=1,GetNumGroupMembers() do
 		local name,_,subgroup = GetRaidRosterInfo(i)
-		if name and UnitIsUnit(name,'player') then
+		if (not canaccessvalue or canaccessvalue(name)) and name and UnitIsUnit(name,'player') then
 			return subgroup
 		end
 	end
 	return 1
 end
+if ExRT.isMN then
+	function ExRT.F.GetOwnPartyNum()
+		local shortName = UnitName'player'
+		for i=1,GetNumGroupMembers() do
+			local name,_,subgroup = GetRaidRosterInfo(i)
+			if (not canaccessvalue or canaccessvalue(name)) and name and shortName == ExRT.F.delUnitNameServer(name) then
+				return subgroup
+			end
+		end
+		return 1
+	end
+end
+
 
 function ExRT.F.CreateAddonMsg(...)
 	local result = ""

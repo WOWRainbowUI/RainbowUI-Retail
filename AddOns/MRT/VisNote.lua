@@ -1151,6 +1151,16 @@ function module.options:Load()
 		{L.S_ZoneT34..": "..L.bossName[3135],{2468,0.43,0.53,1.5}},
 		{L.S_ZoneT34..": "..L.bossName[3135],{2470,0.49,0.50,1.5}},
 		{L.S_ZoneT34..": "..L.bossName[3135],{2471}},
+		{L.EJInstanceName[362]..": "..L.bossName[1575],{509,0.27,0.78,4}},
+		{L.EJInstanceName[362]..": "..L.bossName[1573],{511,0.49,0.41,1.5}},
+		{L.EJInstanceName[362]..": "..L.bossName[1572],{512,0.71,0.33,4}},
+		{L.EJInstanceName[362]..": "..L.bossName[1574],{512,0.57,0.78,4}},
+
+		--291-300
+		{L.EJInstanceName[362]..": "..L.bossName[1576],{512,0.42,0.58,4}},
+		{L.EJInstanceName[362]..": "..L.bossName[1559],{513,0.25,0.60,2}},
+		{L.EJInstanceName[362]..": "..L.bossName[1579],{514,0.50,0.51,2}},
+		{L.EJInstanceName[362]..": "..L.bossName[1580],{515,0.52,0.68,2}},
 	}
 
 
@@ -1182,6 +1192,7 @@ function module.options:Load()
 		}
 		if ExRT.isMoP then
 			ExRT.F.table_add(mapsSorted,{
+				{L.EJInstanceName[362],287,288,289,290,291,292,293,294},
 				{(EXPANSION_NAME4 or "MoP").. " T14",272,273,274,275},
 			})
 		end
