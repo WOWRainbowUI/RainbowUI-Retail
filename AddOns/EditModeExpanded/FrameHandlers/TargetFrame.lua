@@ -14,7 +14,7 @@ function addon:initTargetFrame()
             addon:registerFrame(targetBuffsFrame, L["Target Buffs"], db.TargetBuffs)
             lib:SetDontResize(targetBuffsFrame)
             
-            hooksecurefunc("TargetFrame_UpdateDebuffAnchor", function(self, buff, index, numBuffs, anchorBuff, anchorIndex, size, offsetX, offsetY, mirrorVertically)
+            hooksecurefunc("TargetFrame_UpdateDebuffAnchor", function(self, buff)
                 if self ~= TargetFrame then return end
                 
                 local point, relativeTo, relativePoint, offsetX, offsetY = buff:GetPoint()
@@ -24,7 +24,7 @@ function addon:initTargetFrame()
                 end
             end)
             
-            hooksecurefunc("TargetFrame_UpdateBuffAnchor", function(self, buff, index, numDebuffs, anchorBuff, anchorIndex, size, offsetX, offsetY, mirrorVertically)
+            hooksecurefunc("TargetFrame_UpdateBuffAnchor", function(self, buff)
                 if self ~= TargetFrame then return end
                 
                 local point, relativeTo, relativePoint, offsetX, offsetY = buff:GetPoint()
