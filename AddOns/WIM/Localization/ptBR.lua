@@ -110,6 +110,8 @@ WIM.AddLocale("ptBR", {
     ["Direction:"] = "Direção:",
     ["Tabs"] = "Guias",
     ["Sort tabs by:"] = "Classificar guias por:",
+	["Window Created"] = "Janela criada",
+	["Last Activity"] = "Última atividade",
     ["Alphabetical"] = "Alfabético",
     ["Recent Activity"] = "Recente atividade",
     ["Keep windows on top of your UI."] = "Manter as janelas no topo do seu IU",
@@ -290,7 +292,7 @@ WIM.AddLocale("ptBR", {
     ["Display Tutorials"] = "Exibir tutoriais",
     ["Reset Tutorials"] = "Resetar tutoriais",
     ["Credits"] = "Créditos",
-    ["This is a long message which contains both emoticons and urls 8)."] = "Esta é uma mensagem longa que contém emoticons e URLs 8).",
+    ["This is a long message which contains both emoticons and urls 8). WIM's home is www.WIMAddon.com."] = "Esta é uma mensagem longa que contém emoticons e URLs 8). A página do WIM é www.WIMAddon.com.",
     ["Message Formatting"] = "Formatação",
     ["Manipulate how WIM displays messages."] = "Manipule como WIM exibi mensagens.",
     ["Preview"] = "Previsualização",
@@ -411,8 +413,6 @@ WIM.AddLocale("ptBR", {
     ["Place friends in their own group."] = "Colocar amigos no seu próprio grupo",
     ["Place guild members in their own group."] = "Colocar membros da guilda no seu próprio grupo",
     ["Does not apply to windows already opened."] = "Isso não se aplica à janelas já abertas.",
-	["Last Activity"] = "Última atividade",
-    ["Window Created"] = "Janela criada",
 
     -- Talent Specs --
     ["Affliction"] = "Suplício",

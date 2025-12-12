@@ -112,6 +112,8 @@ WIM.AddLocale("frFR", {
     ["Direction:"] = "Direction :",
     ["Tabs"] = "Onglets",
     ["Sort tabs by:"] = "Trier les onglets par :",
+	["Window Created"] = "Fenêtre créée",
+	["Last Activity"] = "Dernière activité",
     ["Alphabetical"] = "Alphabétique",
     ["Recent Activity"] = "Activité récente",
     ["Keep windows on top of your UI."] = "Gardez les fenêtres en haut de votre interface d'utilisateur.",
@@ -291,7 +293,7 @@ WIM.AddLocale("frFR", {
     ["Display Tutorials"] = "Afficher le tutorial",
     ["Reset Tutorials"] = "Réinitialiser le tutorial",
     ["Credits"] = "Crédits",
-    ["This is a long message which contains both emoticons and urls 8). WIM's home is www.WIMAddon.com."] = "Il s'agit d'un long message qui contient à la fois des émoticônes et des URL 8). WIM's l'adresse www.WIMAddon.com.",
+    ["This is a long message which contains both emoticons and urls 8). WIM's home is www.WIMAddon.com."] = "Il s'agit d'un long message qui contient à la fois des émoticônes et des URL 8). La page d’accueil de WIM est www.WIMAddon.com.",
     ["Message Formatting"] = "Format d'un message",
     ["Manipulate how WIM displays messages."] = "Manipulez la façon dont WIM affiche les messages.",
     ["Preview"] = "Aperçu",
@@ -413,8 +415,6 @@ WIM.AddLocale("frFR", {
     ["Place friends in their own group."] = "Placer les amis dans le groupe",
     ["Place guild members in their own group."] = "Placer les membres de la guilde dans leur propre groupe",
     ["Does not apply to windows already opened."] = "Ne s'applique pas à la fenêtre déjà ouverte",
-	["Last Activity"] = "Dernière activité",
-	["Window Created"] = "Fenêtre créée",
 
     -- Talent Specs --
     ["Affliction"] = "Affliction",
