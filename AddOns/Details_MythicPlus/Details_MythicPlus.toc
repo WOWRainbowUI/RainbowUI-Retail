@@ -1,12 +1,12 @@
-## Interface: 110200
+## Interface: 110207
 ## Title: Details!: Mythic Plus Extension
 ## Title-ruRU: Details!: Расширение М+
 ## Notes: Add Mythic Plus stuff on Details!
-## Notes-ruRU: Добавляет в Details! гибкое расширение М+
+## Notes-ruRU: Добавляет в Details! гибкое расширение для М+ подземелий
 ## SavedVariables: Details_MythicPlusDB
 ## SavedVariablesPerCharacter: Details_MythicPlus_CharacterDB
 ## RequiredDeps: Details
-## Version: #DMP.20250908.014
+## Version: #DMP.20251210.015
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Wago-ID: 4N2m7QGL
