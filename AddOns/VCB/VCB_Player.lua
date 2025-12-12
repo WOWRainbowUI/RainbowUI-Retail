@@ -941,10 +941,6 @@ function chkPlayerCastbarColor()
 		end
 	end
 end
--- final function --
-local function CastBarColor(self)
-	
-end
 -- Some local variables --
 local lagStart = 0
 local lagEnd = 0

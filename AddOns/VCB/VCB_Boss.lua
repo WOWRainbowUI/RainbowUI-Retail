@@ -1,306 +1,5 @@
--- Position of the Name Text --
-local function NameTextPosition(self, var1, var2)
-	if VCBrBoss[var1] == "Top Left" then
-		var2:ClearAllPoints()
-		var2:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, -2)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1] == "Left" then
-		var2:ClearAllPoints()
-		var2:SetPoint("LEFT", self, "LEFT", 4, 0)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1] == "Bottom Left" then
-		var2:ClearAllPoints()
-		var2:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 5, 1)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1] == "Top" then
-		var2:ClearAllPoints()
-		var2:SetPoint("BOTTOM", self, "TOP", 0, -2)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1] == "Center" then
-		var2:ClearAllPoints()
-		var2:SetPoint("CENTER", self, "CENTER", 0, 0)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1] == "Bottom" then
-		var2:ClearAllPoints()
-		var2:SetPoint("TOP", self, "BOTTOM", 0, 1)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1] == "Top Right" then
-		var2:ClearAllPoints()
-		var2:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -2)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1] == "Right" then
-		var2:ClearAllPoints()
-		var2:SetPoint("RIGHT", self, "RIGHT", -4, 0)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1] == "Bottom Right" then
-		var2:ClearAllPoints()
-		var2:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -5, 1)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1] == "Hide" then
-		if var2:IsShown() then var2:Hide() end
-	end
-end
--- Position of the Casting Texts --
-local function CastingTextPosition(self, var1, var2)
-	if VCBrBoss[var1]["Position"] == "Top Left" then
-		var2:ClearAllPoints()
-		var2:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, -2)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1]["Position"] == "Left" then
-		var2:ClearAllPoints()
-		var2:SetPoint("LEFT", self, "LEFT", 4, 0)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1]["Position"] == "Bottom Left" then
-		var2:ClearAllPoints()
-		var2:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 5, 1)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1]["Position"] == "Top" then
-		var2:ClearAllPoints()
-		var2:SetPoint("BOTTOM", self, "TOP", 0, -2)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1]["Position"] == "Center" then
-		var2:ClearAllPoints()
-		var2:SetPoint("CENTER", self, "CENTER", 0, 0)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1]["Position"] == "Bottom" then
-		var2:ClearAllPoints()
-		var2:SetPoint("TOP", self, "BOTTOM", 0, 1)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1]["Position"] == "Top Right" then
-		var2:ClearAllPoints()
-		var2:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -2)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1]["Position"] == "Right" then
-		var2:ClearAllPoints()
-		var2:SetPoint("RIGHT", self, "RIGHT", -4, 0)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1]["Position"] == "Bottom Right" then
-		var2:ClearAllPoints()
-		var2:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -5, 1)
-		if not var2:IsShown() then var2:Show() end
-	elseif VCBrBoss[var1]["Position"] == "Hide" then
-		if var2:IsShown() then var2:Hide() end
-	end
-end
--- Ascending, Descending and Sec --
-local function AscendingDescendingSec(self, var1, var2)
-	if self.casting then
-		if VCBrBoss["CurrentTimeText"]["Decimals"] == 2 then
-			if VCBrBoss["CurrentTimeText"]["Sec"] == "Show" then
-				if VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" or VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
-					var1:SetFormattedText("%.2f sec", self.value)
-				elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" then
-					local VCBdescending = self.maxValue - self.value
-					var1:SetFormattedText("%.2f sec", VCBdescending)
-				end
-			elseif VCBrBoss["CurrentTimeText"]["Sec"] == "Hide" then
-				if VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" or VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
-					var1:SetFormattedText("%.2f", self.value)
-				elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" then
-					local VCBdescending = self.maxValue - self.value
-					var1:SetFormattedText("%.2f", VCBdescending)
-				end
-			end
-		elseif VCBrBoss["CurrentTimeText"]["Decimals"] == 1 then
-			if VCBrBoss["CurrentTimeText"]["Sec"] == "Show" then
-				if VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" or VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
-					var1:SetFormattedText("%.1f sec", self.value)
-				elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" then
-					local VCBdescending = self.maxValue - self.value
-					var1:SetFormattedText("%.1f sec", VCBdescending)
-				end
-			elseif VCBrBoss["CurrentTimeText"]["Sec"] == "Hide" then
-				if VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" or VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
-					var1:SetFormattedText("%.1f", self.value)
-				elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" then
-					local VCBdescending = self.maxValue - self.value
-					var1:SetFormattedText("%.1f", VCBdescending)
-				end
-			end
-		elseif VCBrBoss["CurrentTimeText"]["Decimals"] == 0 then
-			if VCBrBoss["CurrentTimeText"]["Sec"] == "Show" then
-				if VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" or VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
-					var1:SetFormattedText("%.0f sec", self.value)
-				elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" then
-					local VCBdescending = self.maxValue - self.value
-					var1:SetFormattedText("%.0f sec", VCBdescending)
-				end
-			elseif VCBrBoss["CurrentTimeText"]["Sec"] == "Hide" then
-				if VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" or VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
-					var1:SetFormattedText("%.0f", self.value)
-				elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" then
-					local VCBdescending = self.maxValue - self.value
-					var1:SetFormattedText("%.0f", VCBdescending)
-				end
-			end
-		end
-		if VCBrBoss["BothTimeText"]["Decimals"] == 2 then
-			if VCBrBoss["BothTimeText"]["Sec"] == "Show" then
-				if VCBrBoss["BothTimeText"]["Direction"] == "Ascending" or VCBrBoss["BothTimeText"]["Direction"] == "Both" then
-					var2:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
-				elseif VCBrBoss["BothTimeText"]["Direction"] == "Descending" then
-					local VCBdescending = self.maxValue - self.value
-					var2:SetFormattedText("%.2f/%.2f sec", VCBdescending, self.maxValue)
-				end
-			elseif VCBrBoss["BothTimeText"]["Sec"] == "Hide" then
-				if VCBrBoss["BothTimeText"]["Direction"] == "Ascending" or VCBrBoss["BothTimeText"]["Direction"] == "Both" then
-					var2:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
-				elseif VCBrBoss["BothTimeText"]["Direction"] == "Descending" then
-					local VCBdescending = self.maxValue - self.value
-					var2:SetFormattedText("%.2f/%.2f", VCBdescending, self.maxValue)
-				end
-			end
-		elseif VCBrBoss["BothTimeText"]["Decimals"] == 1 then
-			if VCBrBoss["BothTimeText"]["Sec"] == "Show" then
-				if VCBrBoss["BothTimeText"]["Direction"] == "Ascending" or VCBrBoss["BothTimeText"]["Direction"] == "Both" then
-					var2:SetFormattedText("%.1f/%.1f sec", self.value, self.maxValue)
-				elseif VCBrBoss["BothTimeText"]["Direction"] == "Descending" then
-					local VCBdescending = self.maxValue - self.value
-					var2:SetFormattedText("%.1f/%.1f sec", VCBdescending, self.maxValue)
-				end
-			elseif VCBrBoss["BothTimeText"]["Sec"] == "Hide" then
-				if VCBrBoss["BothTimeText"]["Direction"] == "Ascending" or VCBrBoss["BothTimeText"]["Direction"] == "Both" then
-					var2:SetFormattedText("%.1f/%.1f", self.value, self.maxValue)
-				elseif VCBrBoss["BothTimeText"]["Direction"] == "Descending" then
-					local VCBdescending = self.maxValue - self.value
-					var2:SetFormattedText("%.1f/%.1f", VCBdescending, self.maxValue)
-				end
-			end
-		elseif VCBrBoss["BothTimeText"]["Decimals"] == 0 then
-			if VCBrBoss["BothTimeText"]["Sec"] == "Show" then
-				if VCBrBoss["BothTimeText"]["Direction"] == "Ascending" or VCBrBoss["BothTimeText"]["Direction"] == "Both" then
-					var2:SetFormattedText("%.0f/%.0f sec", self.value, self.maxValue)
-				elseif VCBrBoss["BothTimeText"]["Direction"] == "Descending" then
-					local VCBdescending = self.maxValue - self.value
-					var2:SetFormattedText("%.0f/%.0f sec", VCBdescending, self.maxValue)
-				end
-			elseif VCBrBoss["BothTimeText"]["Sec"] == "Hide" then
-				if VCBrBoss["BothTimeText"]["Direction"] == "Ascending" or VCBrBoss["BothTimeText"]["Direction"] == "Both" then
-					var2:SetFormattedText("%.0f/%.0f", self.value, self.maxValue)
-				elseif VCBrBoss["BothTimeText"]["Direction"] == "Descending" then
-					local VCBdescending = self.maxValue - self.value
-					var2:SetFormattedText("%.0f/%.0f", VCBdescending, self.maxValue)
-				end
-			end
-		end
-	elseif self.channeling then
-		if VCBrBoss["CurrentTimeText"]["Decimals"] == 2 then
-			if VCBrBoss["CurrentTimeText"]["Sec"] == "Show" then
-				if VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" or VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
-					var1:SetFormattedText("%.2f sec", self.value)
-				elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" then
-					local VCBdescending = self.maxValue - self.value
-					var1:SetFormattedText("%.2f sec", VCBdescending)
-				end
-			elseif VCBrBoss["CurrentTimeText"]["Sec"] == "Hide" then
-				if VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" or VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
-					var1:SetFormattedText("%.2f", self.value)
-				elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" then
-					local VCBdescending = self.maxValue - self.value
-					var1:SetFormattedText("%.2f", VCBdescending)
-				end
-			end
-		elseif VCBrBoss["CurrentTimeText"]["Decimals"] == 1 then
-			if VCBrBoss["CurrentTimeText"]["Sec"] == "Show" then
-				if VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" or VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
-					var1:SetFormattedText("%.1f sec", self.value)
-				elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" then
-					local VCBdescending = self.maxValue - self.value
-					var1:SetFormattedText("%.1f sec", VCBdescending)
-				end
-			elseif VCBrBoss["CurrentTimeText"]["Sec"] == "Hide" then
-				if VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" or VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
-					var1:SetFormattedText("%.1f", self.value)
-				elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" then
-					local VCBdescending = self.maxValue - self.value
-					var1:SetFormattedText("%.1f", VCBdescending)
-				end
-			end
-		elseif VCBrBoss["CurrentTimeText"]["Decimals"] == 0 then
-			if VCBrBoss["CurrentTimeText"]["Sec"] == "Show" then
-				if VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" or VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
-					var1:SetFormattedText("%.0f sec", self.value)
-				elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" then
-					local VCBdescending = self.maxValue - self.value
-					var1:SetFormattedText("%.0f sec", VCBdescending)
-				end
-			elseif VCBrBoss["CurrentTimeText"]["Sec"] == "Hide" then
-				if VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" or VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
-					var1:SetFormattedText("%.0f", self.value)
-				elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" then
-					local VCBdescending = self.maxValue - self.value
-					var1:SetFormattedText("%.0f", VCBdescending)
-				end
-			end
-		end
-		if VCBrBoss["BothTimeText"]["Decimals"] == 2 then
-			if VCBrBoss["BothTimeText"]["Sec"] == "Show" then
-				if VCBrBoss["BothTimeText"]["Direction"] == "Descending" or VCBrBoss["BothTimeText"]["Direction"] == "Both" then
-					var2:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
-				elseif VCBrBoss["BothTimeText"]["Direction"] == "Ascending" then
-					local VCBdescending = self.maxValue - self.value
-					var2:SetFormattedText("%.2f/%.2f sec", VCBdescending, self.maxValue)
-				end
-			elseif VCBrBoss["BothTimeText"]["Sec"] == "Hide" then
-				if VCBrBoss["BothTimeText"]["Direction"] == "Descending" or VCBrBoss["BothTimeText"]["Direction"] == "Both" then
-					var2:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
-				elseif VCBrBoss["BothTimeText"]["Direction"] == "Ascending" then
-					local VCBdescending = self.maxValue - self.value
-					var2:SetFormattedText("%.2f/%.2f", VCBdescending, self.maxValue)
-				end
-			end
-		elseif VCBrBoss["BothTimeText"]["Decimals"] == 1 then
-			if VCBrBoss["BothTimeText"]["Sec"] == "Show" then
-				if VCBrBoss["BothTimeText"]["Direction"] == "Descending" or VCBrBoss["BothTimeText"]["Direction"] == "Both" then
-					var2:SetFormattedText("%.1f/%.1f sec", self.value, self.maxValue)
-				elseif VCBrBoss["BothTimeText"]["Direction"] == "Ascending" then
-					local VCBdescending = self.maxValue - self.value
-					var2:SetFormattedText("%.1f/%.1f sec", VCBdescending, self.maxValue)
-				end
-			elseif VCBrBoss["BothTimeText"]["Sec"] == "Hide" then
-				if VCBrBoss["BothTimeText"]["Direction"] == "Descending" or VCBrBoss["BothTimeText"]["Direction"] == "Both" then
-					var2:SetFormattedText("%.1f/%.1f", self.value, self.maxValue)
-				elseif VCBrBoss["BothTimeText"]["Direction"] == "Ascending" then
-					local VCBdescending = self.maxValue - self.value
-					var2:SetFormattedText("%.1f/%.1f", VCBdescending, self.maxValue)
-				end
-			end
-		elseif VCBrBoss["BothTimeText"]["Decimals"] == 0 then
-			if VCBrBoss["BothTimeText"]["Sec"] == "Show" then
-				if VCBrBoss["BothTimeText"]["Direction"] == "Descending" or VCBrBoss["BothTimeText"]["Direction"] == "Both" then
-					var2:SetFormattedText("%.0f/%.0f sec", self.value, self.maxValue)
-				elseif VCBrBoss["BothTimeText"]["Direction"] == "Ascending" then
-					local VCBdescending = self.maxValue - self.value
-					var2:SetFormattedText("%.0f/%.0f sec", VCBdescending, self.maxValue)
-				end
-			elseif VCBrBoss["BothTimeText"]["Sec"] == "Hide" then
-				if VCBrBoss["BothTimeText"]["Direction"] == "Descending" or VCBrBoss["BothTimeText"]["Direction"] == "Both" then
-					var2:SetFormattedText("%.0f/%.0f", self.value, self.maxValue)
-				elseif VCBrBoss["BothTimeText"]["Direction"] == "Ascending" then
-					local VCBdescending = self.maxValue - self.value
-					var2:SetFormattedText("%.0f/%.0f", VCBdescending, self.maxValue)
-				end
-			end
-		end
-	end
-end
--- coloring the bar --
-local function CastBarColor(self)
-	if self.barType == "standard" or self.barType == "channel" or self.barType == "uninterruptable" then
-		if VCBrBoss["Color"] == "Default Color" then
-			self:SetStatusBarDesaturated(false)
-			self:SetStatusBarColor(1, 1, 1, 1)
-		elseif VCBrBoss["Color"] == "Class' Color" then
-			self:SetStatusBarDesaturated(true)
-			self:SetStatusBarColor(vcbClassColorBoss:GetRGB())
-		end
-	else
-		self:SetStatusBarDesaturated(false)
-		self:SetStatusBarColor(1, 1, 1, 1)
-	end
-end
--- Hooking Times--
-local function AloneBossSpellBar()
+-- Blizzard Bosses Castbars --
+local function BossSpellBarTexts()
 -- Name Text --
 	VCBnameTextBoss1 = Boss1TargetFrameSpellBar:CreateFontString("VCBnameTextBoss1", "OVERLAY", nil)
 	VCBnameTextBoss2 = Boss2TargetFrameSpellBar:CreateFontString("VCBnameTextBoss2", "OVERLAY", nil)
@@ -326,61 +25,27 @@ local function AloneBossSpellBar()
 	VCBbothTimeTextBoss4 = Boss4TargetFrameSpellBar:CreateFontString("VCBbothTimeTextBoss4", "OVERLAY", nil)
 	VCBbothTimeTextBoss5 = Boss5TargetFrameSpellBar:CreateFontString("VCBbothTimeTextBoss5", "OVERLAY", nil)
 	for i = 1, 5, 1 do
-		-- name --
+-- name --
 		_G["VCBnameTextBoss"..i]:SetFontObject("SystemFont_Shadow_Small")
 		_G["VCBnameTextBoss"..i]:SetHeight(_G["Boss"..i.."TargetFrameSpellBar"].Text:GetHeight())
 		_G["VCBnameTextBoss"..i]:Hide()
-		-- Current Time Text --
+-- Current Time Text --
 		_G["VCBcurrentTimeTextBoss"..i]:SetFontObject("SystemFont_Shadow_Small")
 		_G["VCBcurrentTimeTextBoss"..i]:SetHeight(_G["Boss"..i.."TargetFrameSpellBar"].Text:GetHeight())
 		_G["VCBcurrentTimeTextBoss"..i]:Hide()
-		-- Total Time Text --
+-- Total Time Text --
 		_G["VCBtotalTimeTextBoss"..i]:SetFontObject("SystemFont_Shadow_Small")
 		_G["VCBtotalTimeTextBoss"..i]:SetHeight(_G["Boss"..i.."TargetFrameSpellBar"].Text:GetHeight())
 		_G["VCBtotalTimeTextBoss"..i]:Hide()
-		-- Both Time Text --
+-- Both Time Text --
 		_G["VCBbothTimeTextBoss"..i]:SetFontObject("SystemFont_Shadow_Small")
 		_G["VCBbothTimeTextBoss"..i]:SetHeight(_G["Boss"..i.."TargetFrameSpellBar"].Text:GetHeight())
 		_G["VCBbothTimeTextBoss"..i]:Hide()
-		-- Hooking Time part 1 --
-		_G["Boss"..i.."TargetFrameSpellBar"]:HookScript("OnShow", function(self)
-			local classFilename = UnitClassBase("boss"..i)
-			if classFilename ~= nil then vcbClassColorBoss = C_ClassColor.GetClassColor(classFilename) end
-			NameTextPosition(self, "NameText", _G["VCBnameTextBoss"..i])
-			CastingTextPosition(self, "CurrentTimeText", _G["VCBcurrentTimeTextBoss"..i])
-			CastingTextPosition(self, "BothTimeText", _G["VCBbothTimeTextBoss"..i])
-			CastingTextPosition(self, "TotalTimeText", _G["VCBtotalTimeTextBoss"..i])
-		end)
-		-- Hooking Time part 2 --
-		_G["Boss"..i.."TargetFrameSpellBar"]:HookScript("OnUpdate", function(self)
-			self.Text:SetAlpha(0)
-			_G["VCBnameTextBoss"..i]:SetText(self.Text:GetText())
-			AscendingDescendingSec(self, _G["VCBcurrentTimeTextBoss"..i], _G["VCBbothTimeTextBoss"..i])
-			CastBarColor(self)
-			if VCBrBoss["TotalTimeText"]["Decimals"] == 2 then
-				if VCBrBoss["TotalTimeText"]["Sec"] == "Show" and self.maxValue ~= nil then
-					_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.2f sec", self.maxValue)
-				elseif VCBrBoss["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
-					_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.2f", self.maxValue)
-				end
-			elseif VCBrBoss["TotalTimeText"]["Decimals"] == 1 then
-				if VCBrBoss["TotalTimeText"]["Sec"] == "Show" and self.maxValue ~= nil then
-					_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.1f sec", self.maxValue)
-				elseif VCBrBoss["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
-					_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.1f", self.maxValue)
-				end
-			elseif VCBrBoss["TotalTimeText"]["Decimals"] == 0 then
-				if VCBrBoss["TotalTimeText"]["Sec"] == "Show" and self.maxValue ~= nil then
-					_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.0f sec", self.maxValue)
-				elseif VCBrBoss["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
-					_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.0f", self.maxValue)
-				end
-			end
-		end)
 	end
 end
--- SUF interaction --
-local function vcbSufCoOp_Boss()
+-- SUF Bossses Castbar --
+local function sufBossSpellBarTexts()
+-- creating the castbars --
 	for i = 1, 5, 1 do
 		local statusbar = CreateFrame("StatusBar", "SUFHeaderbossUnitButton"..i.."vcbCastbar", _G["SUFHeaderbossUnitButton"..i], "SmallCastingBarFrameTemplate")
 		_G["SUFHeaderbossUnitButton"..i.."vcbCastbar"]:SetSize(150, 10)
@@ -415,98 +80,710 @@ local function vcbSufCoOp_Boss()
 	VCBbothTimeTextBoss4 = SUFHeaderbossUnitButton4vcbCastbar:CreateFontString("VCBbothTimeTextBoss4", "OVERLAY", nil)
 	VCBbothTimeTextBoss5 = SUFHeaderbossUnitButton5vcbCastbar:CreateFontString("VCBbothTimeTextBoss5", "OVERLAY", nil)
 	for i = 1, 5, 1 do
-		-- name --
+-- name --
 		_G["VCBnameTextBoss"..i]:SetFontObject("SystemFont_Shadow_Small")
 		_G["VCBnameTextBoss"..i]:SetHeight(_G["SUFHeaderbossUnitButton"..i.."vcbCastbar"].Text:GetHeight())
 		_G["VCBnameTextBoss"..i]:Hide()
-		-- Current Time Text --
+-- Current Time Text --
 		_G["VCBcurrentTimeTextBoss"..i]:SetFontObject("SystemFont_Shadow_Small")
 		_G["VCBcurrentTimeTextBoss"..i]:SetHeight(_G["SUFHeaderbossUnitButton"..i.."vcbCastbar"].Text:GetHeight())
 		_G["VCBcurrentTimeTextBoss"..i]:Hide()
-		-- Total Time Text --
+-- Total Time Text --
 		_G["VCBtotalTimeTextBoss"..i]:SetFontObject("SystemFont_Shadow_Small")
 		_G["VCBtotalTimeTextBoss"..i]:SetHeight(_G["SUFHeaderbossUnitButton"..i.."vcbCastbar"].Text:GetHeight())
 		_G["VCBtotalTimeTextBoss"..i]:Hide()
-		-- Both Time Text --
+-- Both Time Text --
 		_G["VCBbothTimeTextBoss"..i]:SetFontObject("SystemFont_Shadow_Small")
 		_G["VCBbothTimeTextBoss"..i]:SetHeight(_G["SUFHeaderbossUnitButton"..i.."vcbCastbar"].Text:GetHeight())
 		_G["VCBbothTimeTextBoss"..i]:Hide()
-		-- hook times 1 --
-		_G["SUFHeaderbossUnitButton"..i.."vcbCastbar"]:HookScript("OnShow", function(self)
-			self:SetScale(VCBrBoss["Scale"]/100)
-			self:ClearAllPoints()
-			if i == 1 then _G["SUFHeaderbossUnitButton"..i.."vcbCastbar"]:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrBoss["Position"]["X"], VCBrBoss["Position"]["Y"])
-			else _G["SUFHeaderbossUnitButton"..i.."vcbCastbar"]:SetPoint("TOP", _G["SUFHeaderbossUnitButton"..(i-1).."vcbCastbar"], "BOTTOM", 0, -32) end
-			local classFilename = UnitClassBase("boss"..i)
-			if classFilename ~= nil then vcbClassColorBoss = C_ClassColor.GetClassColor(classFilename) end
-			NameTextPosition(self, "NameText", _G["VCBnameTextBoss"..i])
-			CastingTextPosition(self, "CurrentTimeText", _G["VCBcurrentTimeTextBoss"..i])
-			CastingTextPosition(self, "BothTimeText", _G["VCBbothTimeTextBoss"..i])
-			CastingTextPosition(self, "TotalTimeText", _G["VCBtotalTimeTextBoss"..i])
-		end)
-		-- hook times 2 --
-		_G["SUFHeaderbossUnitButton"..i.."vcbCastbar"]:HookScript("OnUpdate", function(self)
-			self.Text:SetAlpha(0)
-			_G["VCBnameTextBoss"..i]:SetText(self.Text:GetText())
-			AscendingDescendingSec(self, _G["VCBcurrentTimeTextBoss"..i], _G["VCBbothTimeTextBoss"..i])
-			CastBarColor(self)
-			if VCBrBoss["TotalTimeText"]["Decimals"] == 2 then
-				if VCBrBoss["TotalTimeText"]["Sec"] == "Show" and self.maxValue ~= nil then
-					_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.2f sec", self.maxValue)
-				elseif VCBrBoss["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
-					_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.2f", self.maxValue)
+	end
+end
+-- Name position --
+function chkBossNamePosition()
+	if VCBrBoss["NameText"] == "Top Left" then
+		function vcbBossNamePosition(self, i)
+			_G["VCBnameTextBoss"..i]:ClearAllPoints()
+			_G["VCBnameTextBoss"..i]:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, -2)
+			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["NameText"] == "Left" then
+		function vcbBossNamePosition(self, i)
+			_G["VCBnameTextBoss"..i]:ClearAllPoints()
+			_G["VCBnameTextBoss"..i]:SetPoint("LEFT", self, "LEFT", 4, 0)
+			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["NameText"] == "Bottom Left" then
+		function vcbBossNamePosition(self, i)
+			_G["VCBnameTextBoss"..i]:ClearAllPoints()
+			_G["VCBnameTextBoss"..i]:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 5, 1)
+			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["NameText"] == "Top" then
+		function vcbBossNamePosition(self, i)
+			_G["VCBnameTextBoss"..i]:ClearAllPoints()
+			_G["VCBnameTextBoss"..i]:SetPoint("BOTTOM", self, "TOP", 0, -2)
+			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["NameText"] == "Center" then
+		function vcbBossNamePosition(self, i)
+			_G["VCBnameTextBoss"..i]:ClearAllPoints()
+			_G["VCBnameTextBoss"..i]:SetPoint("CENTER", self, "CENTER", 0, 0)
+			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["NameText"] == "Bottom" then
+		function vcbBossNamePosition(self, i)
+			_G["VCBnameTextBoss"..i]:ClearAllPoints()
+			_G["VCBnameTextBoss"..i]:SetPoint("TOP", self, "BOTTOM", 0, 1)
+			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["NameText"] == "Top Right" then
+		function vcbBossNamePosition(self, i)
+			_G["VCBnameTextBoss"..i]:ClearAllPoints()
+			_G["VCBnameTextBoss"..i]:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -2)
+			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["NameText"] == "Right" then
+		function vcbBossNamePosition(self, i)
+			_G["VCBnameTextBoss"..i]:ClearAllPoints()
+			_G["VCBnameTextBoss"..i]:SetPoint("RIGHT", self, "RIGHT", -4, 0)
+			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["NameText"] == "Bottom Right" then
+		function vcbBossNamePosition(self, i)
+			_G["VCBnameTextBoss"..i]:ClearAllPoints()
+			_G["VCBnameTextBoss"..i]:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -5, 1)
+			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["NameText"] == "Hide" then
+		function vcbBossNamePosition(self, i)
+			if _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Hide() end
+		end
+	end
+end
+-- Current time position --
+function chkBossCurrentTimePosition()
+	if VCBrBoss["CurrentTimeText"]["Position"] == "Top Left" then
+		function vcbBossCurrentTimePosition(self, i)
+			_G["VCBcurrentTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBcurrentTimeTextBoss"..i]:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, -2)
+			if not _G["VCBcurrentTimeTextBoss"..i]:IsShown() then _G["VCBcurrentTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["CurrentTimeText"]["Position"] == "Left" then
+		function vcbBossCurrentTimePosition(self, i)
+			_G["VCBcurrentTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBcurrentTimeTextBoss"..i]:SetPoint("LEFT", self, "LEFT", 4, 0)
+			if not _G["VCBcurrentTimeTextBoss"..i]:IsShown() then _G["VCBcurrentTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["CurrentTimeText"]["Position"] == "Bottom Left" then
+		function vcbBossCurrentTimePosition(self, i)
+			_G["VCBcurrentTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBcurrentTimeTextBoss"..i]:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 5, 1)
+			if not _G["VCBcurrentTimeTextBoss"..i]:IsShown() then _G["VCBcurrentTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["CurrentTimeText"]["Position"] == "Top" then
+		function vcbBossCurrentTimePosition(self, i)
+			_G["VCBcurrentTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBcurrentTimeTextBoss"..i]:SetPoint("BOTTOM", self, "TOP", 0, -2)
+			if not _G["VCBcurrentTimeTextBoss"..i]:IsShown() then _G["VCBcurrentTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["CurrentTimeText"]["Position"] == "Center" then
+		function vcbBossCurrentTimePosition(self, i)
+			_G["VCBcurrentTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBcurrentTimeTextBoss"..i]:SetPoint("CENTER", self, "CENTER", 0, 0)
+			if not _G["VCBcurrentTimeTextBoss"..i]:IsShown() then _G["VCBcurrentTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["CurrentTimeText"]["Position"] == "Bottom" then
+		function vcbBossCurrentTimePosition(self, i)
+			_G["VCBcurrentTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBcurrentTimeTextBoss"..i]:SetPoint("TOP", self, "BOTTOM", 0, 1)
+			if not _G["VCBcurrentTimeTextBoss"..i]:IsShown() then _G["VCBcurrentTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["CurrentTimeText"]["Position"] == "Top Right" then
+		function vcbBossCurrentTimePosition(self, i)
+			_G["VCBcurrentTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBcurrentTimeTextBoss"..i]:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -2)
+			if not _G["VCBcurrentTimeTextBoss"..i]:IsShown() then _G["VCBcurrentTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["CurrentTimeText"]["Position"] == "Right" then
+		function vcbBossCurrentTimePosition(self, i)
+			_G["VCBcurrentTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBcurrentTimeTextBoss"..i]:SetPoint("RIGHT", self, "RIGHT", -4, 0)
+			if not _G["VCBcurrentTimeTextBoss"..i]:IsShown() then _G["VCBcurrentTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["CurrentTimeText"]["Position"] == "Bottom Right" then
+		function vcbBossCurrentTimePosition(self, i)
+			_G["VCBcurrentTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBcurrentTimeTextBoss"..i]:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -5, 1)
+			if not _G["VCBcurrentTimeTextBoss"..i]:IsShown() then _G["VCBcurrentTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["CurrentTimeText"]["Position"] == "Hide" then
+		function vcbBossCurrentTimePosition(self, i)
+			if _G["VCBcurrentTimeTextBoss"..i]:IsShown() then _G["VCBcurrentTimeTextBoss"..i]:Hide() end
+		end
+	end
+end
+-- Both time position --
+function chkBossBothTimePosition()
+	if VCBrBoss["BothTimeText"]["Position"] == "Top Left" then
+		function vcbBossBothTimePosition(self, i)	
+			_G["VCBbothTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBbothTimeTextBoss"..i]:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, -2)
+			if not _G["VCBbothTimeTextBoss"..i]:IsShown() then _G["VCBbothTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["BothTimeText"]["Position"] == "Left" then
+		function vcbBossBothTimePosition(self, i)	
+			_G["VCBbothTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBbothTimeTextBoss"..i]:SetPoint("LEFT", self, "LEFT", 4, 0)
+			if not _G["VCBbothTimeTextBoss"..i]:IsShown() then _G["VCBbothTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["BothTimeText"]["Position"] == "Bottom Left" then
+		function vcbBossBothTimePosition(self, i)	
+			_G["VCBbothTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBbothTimeTextBoss"..i]:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 5, 1)
+			if not _G["VCBbothTimeTextBoss"..i]:IsShown() then _G["VCBbothTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["BothTimeText"]["Position"] == "Top" then
+		function vcbBossBothTimePosition(self, i)	
+			_G["VCBbothTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBbothTimeTextBoss"..i]:SetPoint("BOTTOM", self, "TOP", 0, -2)
+			if not _G["VCBbothTimeTextBoss"..i]:IsShown() then _G["VCBbothTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["BothTimeText"]["Position"] == "Center" then
+		function vcbBossBothTimePosition(self, i)	
+			_G["VCBbothTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBbothTimeTextBoss"..i]:SetPoint("CENTER", self, "CENTER", 0, 0)
+			if not _G["VCBbothTimeTextBoss"..i]:IsShown() then _G["VCBbothTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["BothTimeText"]["Position"] == "Bottom" then
+		function vcbBossBothTimePosition(self, i)	
+			_G["VCBbothTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBbothTimeTextBoss"..i]:SetPoint("TOP", self, "BOTTOM", 0, 1)
+			if not _G["VCBbothTimeTextBoss"..i]:IsShown() then _G["VCBbothTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["BothTimeText"]["Position"] == "Top Right" then
+		function vcbBossBothTimePosition(self, i)	
+			_G["VCBbothTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBbothTimeTextBoss"..i]:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -2)
+			if not _G["VCBbothTimeTextBoss"..i]:IsShown() then _G["VCBbothTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["BothTimeText"]["Position"] == "Right" then
+		function vcbBossBothTimePosition(self, i)	
+			_G["VCBbothTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBbothTimeTextBoss"..i]:SetPoint("RIGHT", self, "RIGHT", -4, 0)
+			if not _G["VCBbothTimeTextBoss"..i]:IsShown() then _G["VCBbothTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["BothTimeText"]["Position"] == "Bottom Right" then
+		function vcbBossBothTimePosition(self, i)	
+			_G["VCBbothTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBbothTimeTextBoss"..i]:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -5, 1)
+			if not _G["VCBbothTimeTextBoss"..i]:IsShown() then _G["VCBbothTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["BothTimeText"]["Position"] == "Hide" then
+		function vcbBossBothTimePosition(self, i)	
+			if _G["VCBbothTimeTextBoss"..i]:IsShown() then _G["VCBbothTimeTextBoss"..i]:Hide() end
+		end
+	end
+end
+-- Total Time position --
+function chkBossTotalTimePosition()
+	if VCBrBoss["TotalTimeText"]["Position"] == "Top Left" then
+		function vcbBossTotalTimePosition(self, i)
+			_G["VCBtotalTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBtotalTimeTextBoss"..i]:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, -2)
+			if not _G["VCBtotalTimeTextBoss"..i]:IsShown() then _G["VCBtotalTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["TotalTimeText"]["Position"] == "Left" then
+		function vcbBossTotalTimePosition(self, i)
+			_G["VCBtotalTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBtotalTimeTextBoss"..i]:SetPoint("LEFT", self, "LEFT", 4, 0)
+			if not _G["VCBtotalTimeTextBoss"..i]:IsShown() then _G["VCBtotalTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["TotalTimeText"]["Position"] == "Bottom Left" then
+		function vcbBossTotalTimePosition(self, i)
+			_G["VCBtotalTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBtotalTimeTextBoss"..i]:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 5, 1)
+			if not _G["VCBtotalTimeTextBoss"..i]:IsShown() then _G["VCBtotalTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["TotalTimeText"]["Position"] == "Top" then
+		function vcbBossTotalTimePosition(self, i)
+			_G["VCBtotalTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBtotalTimeTextBoss"..i]:SetPoint("BOTTOM", self, "TOP", 0, -2)
+			if not _G["VCBtotalTimeTextBoss"..i]:IsShown() then _G["VCBtotalTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["TotalTimeText"]["Position"] == "Center" then
+		function vcbBossTotalTimePosition(self, i)
+			_G["VCBtotalTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBtotalTimeTextBoss"..i]:SetPoint("CENTER", self, "CENTER", 0, 0)
+			if not _G["VCBtotalTimeTextBoss"..i]:IsShown() then _G["VCBtotalTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["TotalTimeText"]["Position"] == "Bottom" then
+		function vcbBossTotalTimePosition(self, i)
+			_G["VCBtotalTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBtotalTimeTextBoss"..i]:SetPoint("TOP", self, "BOTTOM", 0, 1)
+			if not _G["VCBtotalTimeTextBoss"..i]:IsShown() then _G["VCBtotalTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["TotalTimeText"]["Position"] == "Top Right" then
+		function vcbBossTotalTimePosition(self, i)
+			_G["VCBtotalTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBtotalTimeTextBoss"..i]:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -2)
+			if not _G["VCBtotalTimeTextBoss"..i]:IsShown() then _G["VCBtotalTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["TotalTimeText"]["Position"] == "Right" then
+		function vcbBossTotalTimePosition(self, i)
+			_G["VCBtotalTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBtotalTimeTextBoss"..i]:SetPoint("RIGHT", self, "RIGHT", -4, 0)
+			if not _G["VCBtotalTimeTextBoss"..i]:IsShown() then _G["VCBtotalTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["TotalTimeText"]["Position"] == "Bottom Right" then
+		function vcbBossTotalTimePosition(self, i)
+			_G["VCBtotalTimeTextBoss"..i]:ClearAllPoints()
+			_G["VCBtotalTimeTextBoss"..i]:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -5, 1)
+			if not _G["VCBtotalTimeTextBoss"..i]:IsShown() then _G["VCBtotalTimeTextBoss"..i]:Show() end
+		end
+	elseif VCBrBoss["TotalTimeText"]["Position"] == "Hide" then
+		function vcbBossTotalTimePosition(self, i)
+			if _G["VCBtotalTimeTextBoss"..i]:IsShown() then _G["VCBtotalTimeTextBoss"..i]:Hide() end
+		end
+	end
+end
+-- Current time update --
+function chkBossCurrentTimeUpdate()
+	if VCBrBoss["CurrentTimeText"]["Decimals"] == 2 then
+		if VCBrBoss["CurrentTimeText"]["Sec"] == "Show" then
+			if VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					if self.casting then
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.2f sec", self.value)
+					elseif self.channeling then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.2f sec", VCBdescending)
+					end
 				end
-			elseif VCBrBoss["TotalTimeText"]["Decimals"] == 1 then
-				if VCBrBoss["TotalTimeText"]["Sec"] == "Show" and self.maxValue ~= nil then
-					_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.1f sec", self.maxValue)
-				elseif VCBrBoss["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
-					_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.1f", self.maxValue)
+			elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					if self.casting then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.2f sec", VCBdescending)
+					elseif self.channeling then
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.2f sec", self.value)
+					end
 				end
-			elseif VCBrBoss["TotalTimeText"]["Decimals"] == 0 then
-				if VCBrBoss["TotalTimeText"]["Sec"] == "Show" and self.maxValue ~= nil then
-					_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.0f sec", self.maxValue)
-				elseif VCBrBoss["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
-					_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.0f", self.maxValue)
+			elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.2f sec", self.value)
 				end
 			end
-		end)
+		elseif VCBrBoss["CurrentTimeText"]["Sec"] == "Hide" then
+			if VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					if self.casting then
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.2f", self.value)
+					elseif self.channeling then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.2f", VCBdescending)
+					end
+				end
+			elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					if self.casting then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.2f", VCBdescending)
+					elseif self.channeling then
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.2f", self.value)
+					end
+				end
+			elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.2f", self.value)
+				end
+			end
+		end
+	elseif VCBrBoss["CurrentTimeText"]["Decimals"] == 1 then
+		if VCBrBoss["CurrentTimeText"]["Sec"] == "Show" then
+			if VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					if self.casting then
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.1f sec", self.value)
+					elseif self.channeling then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.1f sec", VCBdescending)
+					end
+				end
+			elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					if self.casting then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.1f sec", VCBdescending)
+					elseif self.channeling then
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.1f sec", self.value)
+					end
+				end
+			elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.1f sec", self.value)
+				end
+			end
+		elseif VCBrBoss["CurrentTimeText"]["Sec"] == "Hide" then
+			if VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					if self.casting then
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.1f", self.value)
+					elseif self.channeling then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.1f", VCBdescending)
+					end
+				end
+			elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					if self.casting then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.1f", VCBdescending)
+					elseif self.channeling then
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.1f", self.value)
+					end
+				end
+			elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.1f", self.value)
+				end
+			end
+		end
+	elseif VCBrBoss["CurrentTimeText"]["Decimals"] == 0 then
+		if VCBrBoss["CurrentTimeText"]["Sec"] == "Show" then
+			if VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					if self.casting then
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.0f sec", self.value)
+					elseif self.channeling then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.0f sec", VCBdescending)
+					end
+				end
+			elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					if self.casting then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.0f sec", VCBdescending)
+					elseif self.channeling then
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.0f sec", self.value)
+					end
+				end
+			elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.0f sec", self.value)
+				end
+			end
+		elseif VCBrBoss["CurrentTimeText"]["Sec"] == "Hide" then
+			if VCBrBoss["CurrentTimeText"]["Direction"] == "Ascending" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					if self.casting then
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.0f", self.value)
+					elseif self.channeling then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.0f", VCBdescending)
+					end
+				end
+			elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Descending" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					if self.casting then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.0f", VCBdescending)
+					elseif self.channeling then
+						_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.0f", self.value)
+					end
+				end
+			elseif VCBrBoss["CurrentTimeText"]["Direction"] == "Both" then
+				function vcbBossCurrentTimeUpdate(self, i)
+					_G["VCBcurrentTimeTextBoss"..i]:SetFormattedText("%.0f", self.value)
+				end
+			end
+		end
 	end
+end
+-- Both time update --
+function chkBossBothTimeUpdate()
+	if VCBrBoss["BothTimeText"]["Decimals"] == 2 then
+		if VCBrBoss["BothTimeText"]["Sec"] == "Show" then
+			if VCBrBoss["BothTimeText"]["Direction"] == "Ascending" then
+				function vcbBossBothTimeUpdate(self, i)
+					if self.casting then
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
+					elseif self.channeling then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.2f/%.2f sec", VCBdescending, self.maxValue)
+					end
+				end
+			elseif VCBrBoss["BothTimeText"]["Direction"] == "Descending" then
+				function vcbBossBothTimeUpdate(self, i)
+					if self.casting then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.2f/%.2f sec", VCBdescending, self.maxValue)
+					elseif self.channeling then
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
+					end
+				end
+			elseif VCBrBoss["BothTimeText"]["Direction"] == "Both" then
+				function vcbBossBothTimeUpdate(self, i)
+					_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
+				end
+			end
+		elseif VCBrBoss["BothTimeText"]["Sec"] == "Hide" then
+			if VCBrBoss["BothTimeText"]["Direction"] == "Ascending" then
+				function vcbBossBothTimeUpdate(self, i)
+					if self.casting then
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
+					elseif self.channeling then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.2f/%.2f", VCBdescending, self.maxValue)
+					end
+				end
+			elseif VCBrBoss["BothTimeText"]["Direction"] == "Descending" then
+				function vcbBossBothTimeUpdate(self, i)
+					if self.casting then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.2f/%.2f", VCBdescending, self.maxValue)
+					elseif self.channeling then
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
+					end
+				end
+			elseif VCBrBoss["BothTimeText"]["Direction"] == "Both" then
+				function vcbBossBothTimeUpdate(self, i)
+					_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
+				end
+			end
+		end
+	elseif VCBrBoss["BothTimeText"]["Decimals"] == 1 then
+		if VCBrBoss["BothTimeText"]["Sec"] == "Show" then
+			if VCBrBoss["BothTimeText"]["Direction"] == "Ascending" then
+				function vcbBossBothTimeUpdate(self, i)
+					if self.casting then
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.1f/%.1f sec", self.value, self.maxValue)
+					elseif self.channeling then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.1f/%.1f sec", VCBdescending, self.maxValue)
+					end
+				end
+			elseif VCBrBoss["BothTimeText"]["Direction"] == "Descending" then
+				function vcbBossBothTimeUpdate(self, i)
+					if self.casting then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.1f/%.1f sec", VCBdescending, self.maxValue)
+					elseif self.channeling then
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.1f/%.1f sec", self.value, self.maxValue)
+					end
+				end
+			elseif VCBrBoss["BothTimeText"]["Direction"] == "Both" then
+				function vcbBossBothTimeUpdate(self, i)
+					_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.1f/%.1f sec", self.value, self.maxValue)
+				end
+			end
+		elseif VCBrBoss["BothTimeText"]["Sec"] == "Hide" then
+			if VCBrBoss["BothTimeText"]["Direction"] == "Ascending" then
+				function vcbBossBothTimeUpdate(self, i)
+					if self.casting then
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.1f/%.1f", self.value, self.maxValue)
+					elseif self.channeling then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.1f/%.1f", VCBdescending, self.maxValue)
+					end
+				end
+			elseif VCBrBoss["BothTimeText"]["Direction"] == "Descending" then
+				function vcbBossBothTimeUpdate(self, i)
+					if self.casting then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.1f/%.1f", VCBdescending, self.maxValue)
+					elseif self.channeling then
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.1f/%.1f", self.value, self.maxValue)
+					end
+				end
+			elseif VCBrBoss["BothTimeText"]["Direction"] == "Both" then
+				function vcbBossBothTimeUpdate(self, i)
+					_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.1f/%.1f", self.value, self.maxValue)
+				end
+			end
+		end
+	elseif VCBrBoss["BothTimeText"]["Decimals"] == 0 then
+		if VCBrBoss["BothTimeText"]["Sec"] == "Show" then
+			if VCBrBoss["BothTimeText"]["Direction"] == "Ascending" then
+				function vcbBossBothTimeUpdate(self, i)
+					if self.casting then
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.0f/%.0f sec", self.value, self.maxValue)
+					elseif self.channeling then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.0f/%.0f sec", VCBdescending, self.maxValue)
+					end
+				end
+			elseif VCBrBoss["BothTimeText"]["Direction"] == "Descending" then
+				function vcbBossBothTimeUpdate(self, i)
+					if self.casting then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.0f/%.0f sec", VCBdescending, self.maxValue)
+					elseif self.channeling then
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.0f/%.0f sec", self.value, self.maxValue)
+					end
+				end
+			elseif VCBrBoss["BothTimeText"]["Direction"] == "Both" then
+				function vcbBossBothTimeUpdate(self, i)
+					_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.0f/%.0f sec", self.value, self.maxValue)
+				end
+			end
+		elseif VCBrBoss["BothTimeText"]["Sec"] == "Hide" then
+			if VCBrBoss["BothTimeText"]["Direction"] == "Ascending" then
+				function vcbBossBothTimeUpdate(self, i)
+					if self.casting then
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.0f/%.0f", self.value, self.maxValue)
+					elseif self.channeling then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.0f/%.0f", VCBdescending, self.maxValue)
+					end
+				end
+			elseif VCBrBoss["BothTimeText"]["Direction"] == "Descending" then
+				function vcbBossBothTimeUpdate(self, i)
+					if self.casting then
+						local VCBdescending = self.maxValue - self.value
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.0f/%.0f", VCBdescending, self.maxValue)
+					elseif self.channeling then
+						_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.0f/%.0f", self.value, self.maxValue)
+					end
+				end
+			elseif VCBrBoss["BothTimeText"]["Direction"] == "Both" then
+				function vcbBossBothTimeUpdate(self, i)
+					_G["VCBbothTimeTextBoss"..i]:SetFormattedText("%.0f/%.0f", self.value, self.maxValue)
+				end
+			end
+		end
+	end
+end
+-- Total time update --
+function chkBossTotalTimeUpdate()
+	if VCBrBoss["TotalTimeText"]["Sec"] == "Show" then
+		if VCBrBoss["TotalTimeText"]["Decimals"] == 2 then
+			function vcbBossTotalTimeUpdate(self, i)
+				_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.2f sec", self.maxValue)
+			end
+		elseif VCBrBoss["TotalTimeText"]["Decimals"] == 1 then
+			function vcbBossTotalTimeUpdate(self, i)
+				_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.1f sec", self.maxValue)
+			end
+		elseif VCBrBoss["TotalTimeText"]["Decimals"] == 0 then
+			function vcbBossTotalTimeUpdate(self, i)
+				_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.0f sec", self.maxValue)
+			end
+		end
+	elseif VCBrBoss["TotalTimeText"]["Sec"] == "Hide" then
+		if VCBrBoss["TotalTimeText"]["Decimals"] == 2 then
+			function vcbBossTotalTimeUpdate(self, i)
+				_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.2f", self.maxValue)
+			end
+		elseif VCBrBoss["TotalTimeText"]["Decimals"] == 1 then
+			function vcbBossTotalTimeUpdate(self, i)
+				_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.1f", self.maxValue)
+			end
+		elseif VCBrBoss["TotalTimeText"]["Decimals"] == 0 then
+			function vcbBossTotalTimeUpdate(self, i)
+				_G["VCBtotalTimeTextBoss"..i]:SetFormattedText("%.0f", self.maxValue)
+			end
+		end
+	end
+end
+-- Coloring the bar --
+function chkBossCastbarColor()
+	if VCBrBoss["Color"] == "Default Color" then
+		function vcbBossCastbarColor(self)
+			if self.barType == "standard" or self.barType == "channel" or self.barType == "uninterruptable" then
+				self:SetStatusBarDesaturated(false)
+				self:SetStatusBarColor(1, 1, 1, 1)
+			else
+				self:SetStatusBarDesaturated(false)
+				self:SetStatusBarColor(1, 1, 1, 1)
+			end
+		end
+	elseif VCBrBoss["Color"] == "Class' Color" then
+		function vcbBossCastbarColor(self)
+			if self.barType == "standard" or self.barType == "channel" or self.barType == "uninterruptable" then
+				self:SetStatusBarDesaturated(true)
+				self:SetStatusBarColor(vcbClassColorBoss:GetRGB())
+			else
+				self:SetStatusBarDesaturated(false)
+				self:SetStatusBarColor(1, 1, 1, 1)
+			end
+		end
+	end
+end
+-- Position of  the bar --
+function vcbBossCastbarPosition(self)
+	self:SetScale(VCBrBoss["Scale"]/100)
+	self:ClearAllPoints()
+	self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrBoss["Position"]["X"], VCBrBoss["Position"]["Y"])
 end
 -- Events Time --
 local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 	if event == "PLAYER_LOGIN" then
-		if not VCBrBoss["Unlock"] and VCBrBoss["otherAdddon"] == "None" then
-			AloneBossSpellBar()
-		elseif VCBrBoss["Unlock"] and VCBrBoss["otherAdddon"] == "None" then
-			AloneBossSpellBar()
-			Boss1TargetFrameSpellBar:HookScript("OnUpdate", function(self)
-				self:SetScale(VCBrBoss["Scale"]/100)
-				self:ClearAllPoints()
-				self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrBoss["Position"]["X"], VCBrBoss["Position"]["Y"])
+		if VCBrBoss["otherAdddon"] == "None" then
+			BossSpellBarTexts()
+			if VCBrBoss["Unlock"] then
+				Boss1TargetFrameSpellBar:HookScript("OnUpdate", function(self)
+					vcbBossCastbarPosition(self)
+				end)
+			end
+		elseif VCBrBoss["otherAdddon"] == "Shadowed Unit Frame" then
+			sufBossSpellBarTexts()
+			SUFHeaderbossUnitButton1vcbCastbar:HookScript("OnUpdate", function(self)
+				vcbBossCastbarPosition(self)
 			end)
-			Boss2TargetFrameSpellBar:HookScript("OnUpdate", function(self)
-				self:SetScale(VCBrBoss["Scale"]/100)
-				self:ClearAllPoints()
-				self:SetPoint("TOP", Boss1TargetFrameSpellBar, "BOTTOM", 0, -32)
-			end)
-			Boss3TargetFrameSpellBar:HookScript("OnUpdate", function(self)
-				self:SetScale(VCBrBoss["Scale"]/100)
-				self:ClearAllPoints()
-				self:SetPoint("TOP", Boss2TargetFrameSpellBar, "BOTTOM", 0, -32)
-			end)
-			Boss4TargetFrameSpellBar:HookScript("OnUpdate", function(self)
-				self:SetScale(VCBrBoss["Scale"]/100)
-				self:ClearAllPoints()
-				self:SetPoint("TOP", Boss3TargetFrameSpellBar, "BOTTOM", 0, -32)
-			end)
-			Boss5TargetFrameSpellBar:HookScript("OnUpdate", function(self)
-				self:SetScale(VCBrBoss["Scale"]/100)
-				self:ClearAllPoints()
-				self:SetPoint("TOP", Boss4TargetFrameSpellBar, "BOTTOM", 0, -32)
-			end)
-		elseif VCBrBoss["Unlock"] and VCBrBoss["otherAdddon"] == "Shadowed Unit Frame" then
-			vcbSufCoOp_Boss()
 		end
+		chkBossNamePosition()
+		chkBossCurrentTimePosition()
+		chkBossBothTimePosition()
+		chkBossTotalTimePosition()
+		chkBossCurrentTimeUpdate()
+		chkBossBothTimeUpdate()
+		chkBossTotalTimeUpdate()
+		chkBossCastbarColor()
+		if VCBrBoss["otherAdddon"] == "None" then
+			for i = 1, 5, 1 do
+				_G["Boss"..i.."TargetFrameSpellBar"]:HookScript("OnShow", function(self)
+					local classFilename = UnitClassBase("boss"..i)
+					if classFilename ~= nil then vcbClassColorBoss = C_ClassColor.GetClassColor(classFilename) end
+					vcbBossNamePosition(self, i)
+					vcbBossCurrentTimePosition(self, i)
+					vcbBossBothTimePosition(self, i)
+					vcbBossTotalTimePosition(self, i)
+				end)
+				_G["Boss"..i.."TargetFrameSpellBar"]:HookScript("OnUpdate", function(self)
+					vcbBossCastbarColor(self)
+					self.Text:SetAlpha(0)
+					_G["VCBnameTextBoss"..i]:SetText(self.Text:GetText())
+					if self.value ~= nil and self.maxValue ~= nil then
+						vcbBossCurrentTimeUpdate(self, i)
+						vcbBossBothTimeUpdate(self, i)
+						vcbBossTotalTimeUpdate(self, i)
+					end
+				end)
+			end
+		elseif VCBrBoss["otherAdddon"] == "Shadowed Unit Frame" then
+			for i = 1, 5, 1 do
+				_G["SUFHeaderbossUnitButton"..i.."vcbCastbar"]:HookScript("OnShow", function(self)
+					self:SetScale(VCBrBoss["Scale"]/100)
+					local classFilename = UnitClassBase("boss"..i)
+					if classFilename ~= nil then vcbClassColorBoss = C_ClassColor.GetClassColor(classFilename) end
+					vcbBossNamePosition(self, i)
+					vcbBossCurrentTimePosition(self, i)
+					vcbBossBothTimePosition(self, i)
+					vcbBossTotalTimePosition(self, i)
+				end)
+				_G["SUFHeaderbossUnitButton"..i.."vcbCastbar"]:HookScript("OnUpdate", function(self)
+					vcbBossCastbarColor(self)
+					self.Text:SetAlpha(0)
+					_G["VCBnameTextBoss"..i]:SetText(self.Text:GetText())
+					if self.value ~= nil and self.maxValue ~= nil then
+						vcbBossCurrentTimeUpdate(self, i)
+						vcbBossBothTimeUpdate(self, i)
+						vcbBossTotalTimeUpdate(self, i)
+					end
+				end)
+			end
+		end		
 	end
 end
 vcbZlave:HookScript("OnEvent", EventsTime)

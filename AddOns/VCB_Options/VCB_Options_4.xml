@@ -241,7 +241,7 @@
 				if VCBrBoss["otherAdddon"] == "Shadowed Unit Frame" then
 					self:SetParent(SUFHeaderbossUnitButton1)
 				elseif VCBrBoss["otherAdddon"] == "None" then
-					self:SetParent(Boss1TargetFrame)
+					self:SetParent(UIParent)
 				end
 			</OnLoad>
 		</Scripts>
@@ -252,7 +252,7 @@
 				if VCBrBoss["otherAdddon"] == "Shadowed Unit Frame" then
 					self:SetParent(SUFHeaderbossUnitButton2)
 				elseif VCBrBoss["otherAdddon"] == "None" then
-					self:SetParent(Boss2TargetFrame)
+					self:SetParent(UIParent)
 				end
 			</OnLoad>
 		</Scripts>
@@ -263,7 +263,7 @@
 				if VCBrBoss["otherAdddon"] == "Shadowed Unit Frame" then
 					self:SetParent(SUFHeaderbossUnitButton3)
 				elseif VCBrBoss["otherAdddon"] == "None" then
-					self:SetParent(Boss3TargetFrame)
+					self:SetParent(UIParent)
 				end
 			</OnLoad>
 		</Scripts>
@@ -274,7 +274,7 @@
 				if VCBrBoss["otherAdddon"] == "Shadowed Unit Frame" then
 					self:SetParent(SUFHeaderbossUnitButton4)
 				elseif VCBrBoss["otherAdddon"] == "None" then
-					self:SetParent(Boss4TargetFrame)
+					self:SetParent(UIParent)
 				end
 			</OnLoad>
 		</Scripts>
@@ -285,7 +285,7 @@
 				if VCBrBoss["otherAdddon"] == "Shadowed Unit Frame" then
 					self:SetParent(SUFHeaderbossUnitButton5)
 				elseif VCBrBoss["otherAdddon"] == "None" then
-					self:SetParent(Boss5TargetFrame)
+					self:SetParent(UIParent)
 				end
 			</OnLoad>
 		</Scripts>
