@@ -388,7 +388,7 @@ function chkPlayerCurrentTimeUpdate()
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "兩者" then
 				function vcbPlayerCurrentTimeUpdate(self)
-					VCBcurrentTimeText:SetFormattedText("%.2f sec", self.value)
+					VCBcurrentTimeText:SetFormattedText("%.2f 秒", self.value)
 				end
 			end
 		elseif VCBrPlayer["CurrentTimeText"]["Sec"] == "隱藏" then
@@ -438,7 +438,7 @@ function chkPlayerCurrentTimeUpdate()
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "兩者" then
 				function vcbPlayerCurrentTimeUpdate(self)
-					VCBcurrentTimeText:SetFormattedText("%.1f sec", self.value)
+					VCBcurrentTimeText:SetFormattedText("%.1f 秒", self.value)
 				end
 			end
 		elseif VCBrPlayer["CurrentTimeText"]["Sec"] == "隱藏" then
@@ -488,7 +488,7 @@ function chkPlayerCurrentTimeUpdate()
 				end
 			elseif VCBrPlayer["CurrentTimeText"]["Direction"] == "兩者" then
 				function vcbPlayerCurrentTimeUpdate(self)
-					VCBcurrentTimeText:SetFormattedText("%.0f sec", self.value)
+					VCBcurrentTimeText:SetFormattedText("%.0f 秒", self.value)
 				end
 			end
 		elseif VCBrPlayer["CurrentTimeText"]["Sec"] == "隱藏" then
@@ -542,7 +542,7 @@ function chkPlayerBothTimeUpdate()
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "兩者" then
 				function vcbPlayerBothTimeUpdate(self)
-					VCBbothTimeText:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
+					VCBbothTimeText:SetFormattedText("%.2f/%.2f 秒", self.value, self.maxValue)
 				end
 			end
 		elseif VCBrPlayer["BothTimeText"]["Sec"] == "隱藏" then
@@ -592,7 +592,7 @@ function chkPlayerBothTimeUpdate()
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "兩者" then
 				function vcbPlayerBothTimeUpdate(self)
-					VCBbothTimeText:SetFormattedText("%.1f/%.1f sec", self.value, self.maxValue)
+					VCBbothTimeText:SetFormattedText("%.1f/%.1f 秒", self.value, self.maxValue)
 				end
 			end
 		elseif VCBrPlayer["BothTimeText"]["Sec"] == "隱藏" then
@@ -642,7 +642,7 @@ function chkPlayerBothTimeUpdate()
 				end
 			elseif VCBrPlayer["BothTimeText"]["Direction"] == "兩者" then
 				function vcbPlayerBothTimeUpdate(self)
-					VCBbothTimeText:SetFormattedText("%.0f/%.0f sec", self.value, self.maxValue)
+					VCBbothTimeText:SetFormattedText("%.0f/%.0f 秒", self.value, self.maxValue)
 				end
 			end
 		elseif VCBrPlayer["BothTimeText"]["Sec"] == "隱藏" then
@@ -677,15 +677,15 @@ function chkPlayerTotalTimeUpdate()
 	if VCBrPlayer["TotalTimeText"]["Sec"] == "顯示" then
 		if VCBrPlayer["TotalTimeText"]["Decimals"] == 2 then
 			function vcbPlayerTotalTimeUpdate(self)
-				VCBtotalTimeText:SetFormattedText("%.2f sec", self.maxValue)
+				VCBtotalTimeText:SetFormattedText("%.2f 秒", self.maxValue)
 			end
 		elseif VCBrPlayer["TotalTimeText"]["Decimals"] == 1 then
 			function vcbPlayerTotalTimeUpdate(self)
-				VCBtotalTimeText:SetFormattedText("%.1f sec", self.maxValue)
+				VCBtotalTimeText:SetFormattedText("%.1f 秒", self.maxValue)
 			end
 		elseif VCBrPlayer["TotalTimeText"]["Decimals"] == 0 then
 			function vcbPlayerTotalTimeUpdate(self)
-				VCBtotalTimeText:SetFormattedText("%.0f sec", self.maxValue)
+				VCBtotalTimeText:SetFormattedText("%.0f 秒", self.maxValue)
 			end
 		end
 	elseif VCBrPlayer["TotalTimeText"]["Sec"] == "隱藏" then
@@ -940,10 +940,6 @@ function chkPlayerCastbarColor()
 			end
 		end
 	end
-end
--- final function --
-local function CastBarColor(self)
-	
 end
 -- Some local variables --
 local lagStart = 0

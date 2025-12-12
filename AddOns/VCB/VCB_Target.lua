@@ -68,61 +68,61 @@ function chkTargetIconVisibility()
 end
 -- Name position --
 function chkTargetNamePosition()
-	if VCBrTarget[ "NameText"] == "左上" then
+	if VCBrTarget["NameText"] == "左上" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, -2)
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
-	elseif VCBrTarget[ "NameText"] == "左" then
+	elseif VCBrTarget["NameText"] == "左" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("LEFT", self, "LEFT", 4, 0)
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
-	elseif VCBrTarget[ "NameText"] == "左下" then
+	elseif VCBrTarget["NameText"] == "左下" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 5, 1)
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
-	elseif VCBrTarget[ "NameText"] == "上" then
+	elseif VCBrTarget["NameText"] == "上" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("BOTTOM", self, "TOP", 0, -2)
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
-	elseif VCBrTarget[ "NameText"] == "中" then
+	elseif VCBrTarget["NameText"] == "Center" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("CENTER", self, "CENTER", 0, 0)
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
-	elseif VCBrTarget[ "NameText"] == "下" then
+	elseif VCBrTarget["NameText"] == "Bottom" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("TOP", self, "BOTTOM", 0, 1)
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
-	elseif VCBrTarget[ "NameText"] == "右上" then
+	elseif VCBrTarget["NameText"] == "右上" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -2)
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
-	elseif VCBrTarget[ "NameText"] == "右" then
+	elseif VCBrTarget["NameText"] == "右" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("RIGHT", self, "RIGHT", -4, 0)
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
-	elseif VCBrTarget[ "NameText"] == "右下" then
+	elseif VCBrTarget["NameText"] == "右下" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -5, 1)
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
-	elseif VCBrTarget[ "NameText"] == "隱藏" then
+	elseif VCBrTarget["NameText"] == "隱藏" then
 		function vcbTargetNamePosition(self)
 			if VCBnameTextTarget:IsShown() then VCBnameTextTarget:Hide() end
 		end
@@ -689,8 +689,16 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 	if event == "PLAYER_LOGIN" then
 		if VCBrTarget["otherAdddon"] == "無" then
 			TargetSpellBarTexts()
+			if VCBrTarget["Unlock"] then
+				TargetFrameSpellBar:HookScript("OnUpdate", function(self)
+					vcbTargetCastbarPosition(self)
+				end)
+			end
 		elseif VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" then
 			sufTargetSpellBarTexts()
+			SUFUnittargetvcbCastbar:HookScript("OnUpdate", function(self)
+				vcbTargetCastbarPosition(self)
+			end)
 		end
 			chkTargetIconVisibility()
 			chkTargetNamePosition()
@@ -702,26 +710,16 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 			chkTargetTotalTimeUpdate()
 			chkTargetCastbarColor()
 		if VCBrTarget["otherAdddon"] == "無" then
-			if not VCBrTarget["Unlock"] then
-				TargetFrameSpellBar:HookScript("OnUpdate", function(self)
-					self.Text:SetAlpha(0)
-					VCBnameTextTarget:SetText(self.Text:GetText())
+			TargetFrameSpellBar:HookScript("OnUpdate", function(self)
+				self.Text:SetAlpha(0)
+				VCBnameTextTarget:SetText(self.Text:GetText())
+				if self.value ~= nil and self.maxValue ~= nil then
 					vcbTargetCurrentTimeUpdate(self)
 					vcbTargetBothTimeUpdate(self)
 					vcbTargetTotalTimeUpdate(self)
 					vcbTargetCastbarColor(self)
-				end)
-			elseif VCBrTarget["Unlock"] then
-				TargetFrameSpellBar:HookScript("OnUpdate", function(self)
-					vcbTargetCastbarPosition(self)
-					self.Text:SetAlpha(0)
-					VCBnameTextTarget:SetText(self.Text:GetText())
-					vcbTargetCurrentTimeUpdate(self)
-					vcbTargetBothTimeUpdate(self)
-					vcbTargetTotalTimeUpdate(self)
-					vcbTargetCastbarColor(self)
-				end)
-			end
+				end
+			end)
 			TargetFrameSpellBar:HookScript("OnShow", function(self)
 				vcbTargetNamePosition(self)
 				vcbTargetCurrentTimePosition(self)
@@ -736,13 +734,14 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 				vcbTargetTotalTimePosition(self)
 			end)
 			SUFUnittargetvcbCastbar:HookScript("OnUpdate", function(self)
-				vcbTargetCastbarPosition(self)
 				self.Text:SetAlpha(0)
 				VCBnameTextTarget:SetText(self.Text:GetText())
-				vcbTargetCurrentTimeUpdate(self)
-				vcbTargetBothTimeUpdate(self)
-				vcbTargetTotalTimeUpdate(self)
-				vcbTargetCastbarColor(self)
+				if self.value ~= nil and self.maxValue ~= nil then
+					vcbTargetCurrentTimeUpdate(self)
+					vcbTargetBothTimeUpdate(self)
+					vcbTargetTotalTimeUpdate(self)
+					vcbTargetCastbarColor(self)
+				end
 			end)
 		end
 	elseif event == "PLAYER_TARGET_CHANGED" then

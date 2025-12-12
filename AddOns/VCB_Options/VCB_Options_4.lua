@@ -218,6 +218,7 @@ for i = 0, 9, 1 do
 			VCBrBoss["CurrentTimeText"]["Position"] = self.Text:GetText()
 			vcbOptions4Box2PopOut1.Text:SetText(self:GetText())
 			vcbOptions4Box2PopOut1Choice0:Hide()
+			chkBossCurrentTimePosition()
 		end
 	end)
 end
@@ -247,6 +248,7 @@ for i = 0, 2, 1 do
 			VCBrBoss["CurrentTimeText"]["Direction"] = self.Text:GetText()
 			vcbOptions4Box2PopOut2.Text:SetText(self:GetText())
 			vcbOptions4Box2PopOut2Choice0:Hide()
+			chkBossCurrentTimeUpdate()
 		end
 	end)
 end
@@ -273,6 +275,7 @@ for i = 0, 1, 1 do
 			VCBrBoss["CurrentTimeText"]["Sec"] = self.Text:GetText()
 			vcbOptions4Box2PopOut3.Text:SetText(self:GetText())
 			vcbOptions4Box2PopOut3Choice0:Hide()
+			chkBossCurrentTimeUpdate()
 		end
 	end)
 end
@@ -302,6 +305,7 @@ for i = 0, 2, 1 do
 			VCBrBoss["CurrentTimeText"]["Decimals"] = tonumber(self.Text:GetText())
 			vcbOptions4Box2PopOut4.Text:SetText(self:GetText())
 			vcbOptions4Box2PopOut4Choice0:Hide()
+			chkBossCurrentTimeUpdate()
 		end
 	end)
 end
@@ -328,6 +332,7 @@ for i = 0, 9, 1 do
 			VCBrBoss["BothTimeText"]["Position"] = self.Text:GetText()
 			vcbOptions4Box3PopOut1.Text:SetText(self:GetText())
 			vcbOptions4Box3PopOut1Choice0:Hide()
+			chkBossBothTimePosition()
 		end
 	end)
 end
@@ -357,6 +362,7 @@ for i = 0, 2, 1 do
 			VCBrBoss["BothTimeText"]["Direction"] = self.Text:GetText()
 			vcbOptions4Box3PopOut2.Text:SetText(self:GetText())
 			vcbOptions4Box3PopOut2Choice0:Hide()
+			chkBossBothTimeUpdate()
 		end
 	end)
 end
@@ -383,6 +389,7 @@ for i = 0, 1, 1 do
 			VCBrBoss["BothTimeText"]["Sec"] = self.Text:GetText()
 			vcbOptions4Box3PopOut3.Text:SetText(self:GetText())
 			vcbOptions4Box3PopOut3Choice0:Hide()
+			chkBossBothTimeUpdate()
 		end
 	end)
 end
@@ -412,6 +419,7 @@ for i = 0, 2, 1 do
 			VCBrBoss["BothTimeText"]["Decimals"] = tonumber(self.Text:GetText())
 			vcbOptions4Box3PopOut4.Text:SetText(self:GetText())
 			vcbOptions4Box3PopOut4Choice0:Hide()
+			chkBossBothTimeUpdate()
 		end
 	end)
 end
@@ -438,6 +446,7 @@ for i = 0, 9, 1 do
 			VCBrBoss["TotalTimeText"]["Position"] = self.Text:GetText()
 			vcbOptions4Box4PopOut1.Text:SetText(self:GetText())
 			vcbOptions4Box4PopOut1Choice0:Hide()
+			chkBossTotalTimePosition()
 		end
 	end)
 end
@@ -464,6 +473,7 @@ for i = 0, 1, 1 do
 			VCBrBoss["TotalTimeText"]["Sec"] = self.Text:GetText()
 			vcbOptions4Box4PopOut2.Text:SetText(self:GetText())
 			vcbOptions4Box4PopOut2Choice0:Hide()
+			chkBossTotalTimeUpdate()
 		end
 	end)
 end
@@ -493,6 +503,7 @@ for i = 0, 2, 1 do
 			VCBrBoss["TotalTimeText"]["Decimals"] = tonumber(self.Text:GetText())
 			vcbOptions4Box4PopOut3.Text:SetText(self:GetText())
 			vcbOptions4Box4PopOut3Choice0:Hide()
+			chkBossTotalTimeUpdate()
 		end
 	end)
 end
@@ -522,6 +533,7 @@ for i = 0, 9, 1 do
 			VCBrBoss["NameText"] = self.Text:GetText()
 			vcbOptions4Box5PopOut1.Text:SetText(self:GetText())
 			vcbOptions4Box5PopOut1Choice0:Hide()
+			chkBossNamePosition()
 		end
 	end)
 end
@@ -550,6 +562,7 @@ for i = 0, 1, 1 do
 			VCBrBoss["Color"] = self.Text:GetText()
 			vcbOptions4Box5PopOut2.Text:SetText(self:GetText())
 			vcbOptions4Box5PopOut2Choice0:Hide()
+			chkBossCastbarColor()
 		end
 	end)
 end
