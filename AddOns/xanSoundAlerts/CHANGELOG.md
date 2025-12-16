@@ -1,6 +1,8 @@
 # xanSoundAlerts
 
-## [v3.8](https://github.com/Xruptor/xanSoundAlerts/tree/v3.8) (2024-07-30)
-[Full Changelog](https://github.com/Xruptor/xanSoundAlerts/compare/v3.7...v3.8) [Previous Releases](https://github.com/Xruptor/xanSoundAlerts/releases)
+## [v3.11](https://github.com/Xruptor/xanSoundAlerts/tree/v3.11) (2025-12-15)
+[Full Changelog](https://github.com/Xruptor/xanSoundAlerts/compare/v3.10...v3.11) [Previous Releases](https://github.com/Xruptor/xanSoundAlerts/releases)
 
-- Updating TOC to new standard format  
+- TOC Update  
+    * Added support for Wrath Titan Reforged for China Servers.  
+    * Updated to latest Classic TOC version.  
