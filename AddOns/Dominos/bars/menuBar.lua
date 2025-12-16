@@ -17,7 +17,7 @@ if MicroMenu then
             local button = select(i, ...)
 
             -- always reparent the button
-            button:SetParent(Addon.ShadowUIParent)
+            -- button:SetParent(Addon.ShadowUIParent)
 
             -- ...but only display it on our bar if it was already enabled
             if button:IsShown() then
@@ -54,6 +54,9 @@ else
 end
 
 local MICRO_BUTTON_NAMES = {
+    ['ProfessionMicroButton'] = PROFESSIONS_BUTTON,
+    ['PlayerSpellsMicroButton'] = PLAYERSPELLS_BUTTON,
+    ['HousingMicroButton'] = HOUSING_MICRO_BUTTON,
     ['AchievementMicroButton'] = ACHIEVEMENT_BUTTON,
     ['CharacterMicroButton'] = CHARACTER_BUTTON,
     ['CollectionsMicroButton'] = COLLECTIONS,
@@ -187,7 +190,7 @@ function MenuBar:IsMenuButtonEnabled(button)
     end
 end
 
-if Addon:IsBuild("retail") then
+if Addon:IsBuild("retail", "bcc") then
     function MenuBar:Layout()
         for _, button in pairs(MicroButtons) do
             button:Hide()

@@ -1,5 +1,14 @@
 # Dominos Changelog
 
+## 11.2.13
+
+* Fix an issue with unregistering the Blizzard stance bar that was causing errors
+
+## 11.2.12
+
+* Added support for Burning Crusade Classic Anniversary Edition
+* Added in missing menu bar button names
+
 ## 11.2.11
 
 * Refactored the progress bar to use a data provider interface instead of metatable manipulation (which broke with the last Midnight fix)
