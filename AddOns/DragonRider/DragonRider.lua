@@ -324,7 +324,7 @@ local function CreateEditOverlay(targetFrame, frameName)
 	editFrame.Label = editFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	editFrame.Label:SetPoint("CENTER", 0, 0)
 	editFrame.Label:SetText(frameName)
-    editFrame.Label:SetFontHeight(17.5)
+	editFrame.Label:SetFontHeight(17.5)
 
 	editFrame:EnableMouse(true)
 	editFrame:SetMovable(true)
@@ -1275,17 +1275,14 @@ function DR.OnAddonLoaded()
 
 			local function GetOptions()
 				local container = Settings.CreateControlTextContainer()
-				container:Add(1, L["Default"])
-				container:Add(2, L["ThemeAlgari_Bronze"])
-				container:Add(3, L["ThemeAlgari_Dark"])
-				container:Add(4, L["ThemeAlgari_Gold"])
-				container:Add(5, L["ThemeAlgari_Silver"])
-				container:Add(6, L["ThemeDefault_Desaturated"])
-				container:Add(7, L["ThemeAlgari_Desaturated"])
-				container:Add(8, L["Minimalist"])
-				--container:Add(8, "[PH]"..L["Minimalist"].." [NYI]")
-				--container:Add(9, L["Alliance"])
-				--container:Add(10, L["Horde"])
+				for index, data in ipairs(DR.VigorOptions) do
+					if data.name then
+						container:Add(index, data.name)
+					else
+						container:Add(index, "Theme " .. index)
+					end
+				end
+
 				return container:GetData()
 			end
 
