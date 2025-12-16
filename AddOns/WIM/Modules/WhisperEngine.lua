@@ -223,10 +223,35 @@ local function safeName(user)
 	return string.lower(user or "");
 end
 
+local function findWhisperWindowByBNetID(bnID)
+	for _, win in pairs(Windows) do
+		if(win.isBN and win.bn.id == bnID) then
+			return win;
+		end
+	end
+	return nil;
+end
+
 local function getWhisperWindowByUser(user, isBN, bnID, fromEvent)
 	if isBN then
-			local _
-			_, user = GetBNGetFriendInfoByID(bnID) -- fix window handler when using the chat hyperlink
+		local _;
+		local bnWin = findWhisperWindowByBNetID(bnID);
+		local _user = user;
+
+		_, user = GetBNGetFriendInfoByID(bnID) -- fix window handler when using the chat hyperlink
+
+		user = user and user ~= "" and user or _user;
+
+		-- if window already exists for bnID but name has changed, update it.
+		if (bnWin and safeName(bnWin.theUser) ~= safeName(user)) then
+			-- swap the indexed name to the new name
+			Windows[safeName(user)] = bnWin;
+			Windows[safeName(bnWin.theUser)] = nil;
+
+			bnWin:Rename(user);
+
+			return bnWin;
+		end
 	else
 		user = string.gsub(user," ","") -- Drii: WoW build15050 whisper bug for x-realm server with space
 	    user = fromEvent and user or FormatUserName(user);
@@ -246,13 +271,14 @@ local function getWhisperWindowByUser(user, isBN, bnID, fromEvent)
         return obj;
     else
         -- otherwise, create a new one.
-        Windows[safeName(user)] = CreateWhisperWindow(user);
-		Windows[safeName(user)].isBN = isBN;
-		Windows[safeName(user)].bn = Windows[safeName(user)].bn or {};
-        if(db.whoLookups or lists.gm[safeName(user)] or Windows[safeName(user)].isBN) then
-            Windows[safeName(user)]:SendWho(); -- send who request
-        end
-        Windows[safeName(user)].online = true;
+        Windows[safeName(user)] = CreateWhisperWindow(user, function(win)
+			win.isBN = isBN;
+			win.bn = win.bn or {};
+			if(db.whoLookups or lists.gm[safeName(user)] or win.isBN) then
+				win:SendWho(); -- send who request
+			end
+			win.online = true;
+		end);
 		return Windows[safeName(user)], true;
     end
 end
@@ -678,8 +704,6 @@ local function replyTellTarget(TellNotTold)
 			lastTell, lastTellType = (ChatFrameUtil and ChatFrameUtil.GetLastToldTarget and ChatFrameUtil.GetLastToldTarget or _G.ChatEdit_GetLastToldTarget)();
 		end
 
-		_G.DevTools_Dump({lastTell=lastTell, lastTellType=lastTellType})
-
 		-- Grab the string after the slash command
 		if not lastTell then return end--because if you fat finger R or try to re ply before someone sent a tell, it generates a lua error without this
 
@@ -819,7 +843,9 @@ local function processChatType(editBox, msg, index, send)
 			win.widgets.msg_box:SetFocus();
 
 			if _G.ChatFrameEditBoxMixin and _G.ChatFrameEditBoxMixin.ClearChat then
-				editBox:ClearChat();
+				-- editBox:ClearChat();
+				editBox:SetText("");
+				editBox:Hide();
 			else
 				_G.ChatEdit_OnEscapePressed(editBox);
 			end
