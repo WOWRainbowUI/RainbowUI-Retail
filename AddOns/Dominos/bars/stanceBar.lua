@@ -46,6 +46,10 @@ local StanceButtons = setmetatable({}, {
         -- register mouse clicks
         button:EnableMouseWheel(true)
 
+        if button.SlotBackground then
+            button.SlotBackground:Hide()
+        end
+
         -- apply hooks for quick binding
         Addon.BindableButton:AddQuickBindingSupport(button)
 
@@ -59,17 +63,17 @@ local StanceButtons = setmetatable({}, {
 -- Bar setup
 --------------------------------------------------------------------------------
 
-local StanceBar = Addon:CreateClass('Frame', Addon.ButtonBar)
+local DominosStanceBar = Addon:CreateClass('Frame', Addon.ButtonBar)
 
-function StanceBar:New()
-    return StanceBar.proto.New(self, 'class')
+function DominosStanceBar:New()
+    return DominosStanceBar.proto.New(self, 'class')
 end
 
-function StanceBar:GetDisplayName()
+function DominosStanceBar:GetDisplayName()
     return L.ClassBarDisplayName
 end
 
-function StanceBar:GetDefaults()
+function DominosStanceBar:GetDefaults()
     return {
         point = 'BOTTOM',
 		x = 371,
@@ -79,15 +83,15 @@ function StanceBar:GetDefaults()
     }
 end
 
-function StanceBar:NumButtons()
+function DominosStanceBar:NumButtons()
     return GetNumShapeshiftForms() or 0
 end
 
-function StanceBar:AcquireButton(index)
+function DominosStanceBar:AcquireButton(index)
     return StanceButtons[index]
 end
 
-function StanceBar:OnAttachButton(button, index)
+function DominosStanceBar:OnAttachButton(button, index)
     button.HotKey:SetAlpha(self:ShowingBindingText() and 1 or 0)
     button:SetShown(index <= (GetNumShapeshiftForms() or 0))
 
@@ -95,12 +99,12 @@ function StanceBar:OnAttachButton(button, index)
     Addon:GetModule('Tooltips'):Register(button)
 end
 
-function StanceBar:OnDetachButton(button)
+function DominosStanceBar:OnDetachButton(button)
     Addon:GetModule('ButtonThemer'):Unregister(button, L.ClassBarDisplayName)
     Addon:GetModule('Tooltips'):Unregister(button)
 end
 
-function StanceBar:UpdateActions()
+function DominosStanceBar:UpdateActions()
 	for index, button in pairs(self.buttons) do
         local texture, isActive, isCastable = GetShapeshiftFormInfo(index)
 
@@ -125,7 +129,7 @@ function StanceBar:UpdateActions()
 end
 
 -- binding text
-function StanceBar:SetShowBindingText(show)
+function DominosStanceBar:SetShowBindingText(show)
     show = show and true
 
     if show == Addon.db.profile.showBindingText then
@@ -139,7 +143,7 @@ function StanceBar:SetShowBindingText(show)
     end
 end
 
-function StanceBar:ShowingBindingText()
+function DominosStanceBar:ShowingBindingText()
     local result = self.sets.showBindingText
 
     if result == nil then
@@ -149,7 +153,7 @@ function StanceBar:ShowingBindingText()
     return result
 end
 
-function StanceBar:OnCreateMenu(menu)
+function DominosStanceBar:OnCreateMenu(menu)
     local L = LibStub('AceLocale-3.0'):GetLocale('Dominos-Config')
 
     local layoutPanel = menu:NewPanel(L.Layout)
@@ -171,7 +175,7 @@ function StanceBar:OnCreateMenu(menu)
 end
 
 -- export
-Addon.StanceBar = StanceBar
+Addon.StanceBar = DominosStanceBar
 
 --------------------------------------------------------------------------------
 -- Module
@@ -180,7 +184,7 @@ Addon.StanceBar = StanceBar
 local StanceBarModule = Addon:NewModule('StanceBar', 'AceEvent-3.0')
 
 function StanceBarModule:Load()
-    self.bar = StanceBar:New()
+    self.bar = DominosStanceBar:New()
 
     self:RegisterEvent("PLAYER_ENTERING_WORLD", 'UpdateNumForms')
     self:RegisterEvent("PLAYER_REGEN_ENABLED", 'UpdateNumForms')
@@ -196,6 +200,24 @@ function StanceBarModule:Unload()
     if self.bar then
         self.bar:Free()
 		self.bar = nil
+    end
+end
+
+function StanceBarModule:OnFirstLoad()
+    if StanceBar then
+        (StanceBar.HideBase or StanceBar.Hide)(StanceBar)
+        StanceBar:SetParent(Addon.ShadowUIParent)
+        StanceBar:UnregisterAllEvents()
+
+        for _, button in pairs(StanceBar.actionButtons) do
+            button:UnregisterAllEvents()
+            button:SetAttributeNoHandler("statehidden", true)
+            button:Hide()
+        end
+
+        -- Don't wipe the action buttons of the stance bar - the standard UI
+        -- accesses buttons directly in its code
+        -- table.wipe(StanceBar.actionButtons)
     end
 end
 

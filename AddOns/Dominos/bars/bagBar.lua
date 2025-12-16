@@ -39,7 +39,7 @@ function BagBar:GetDefaults()
             y = 40,
             scale = 0.8,
             oneBag = true,
-            keyRing = true,
+            keyRing = GetCVarBool('showKeyring') or false,
             spacing = 2
         }
     end
