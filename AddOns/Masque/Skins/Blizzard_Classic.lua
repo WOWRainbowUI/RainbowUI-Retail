@@ -25,7 +25,6 @@ local L = Core.Locale
 
 -- @ Skins\Skins
 local Hidden = Core._Hidden
-local WOW_CLASSIC = not Core.WOW_RETAIL
 
 ----------------------------------------
 -- Locals
@@ -43,9 +42,9 @@ local Skin = {
 	SkinID = SkinID,
 
 	-- [ Info ]
+	Author = "|cff0099ffBlizzard Entertainment|r",
 	Description = L["The default classic button style."],
 	Version = Core.Version,
-	Author = "|cff0099ffBlizzard Entertainment|r",
 
 	-- [ Skin]
 	-- Mask = nil,
@@ -99,21 +98,6 @@ local Skin = {
 	},
 	Icon = {
 		-- TexCoords = {0, 1, 0, 1},
-		Width = 36,
-		Height = 36,
-		Point = "CENTER",
-		RelPoint = "CENTER",
-		OffsetX = 0,
-		OffsetY = 0,
-		-- SetAllPoints = nil,
-	},
-	SlotIcon = {
-		Texture = [[Interface\Icons\INV_Misc_Bag_08]],
-		-- TexCoords = {0, 1, 0, 1},
-		-- Color = {1, 1, 1, 1},
-		BlendMode = "BLEND",
-		DrawLayer = "BACKGROUND",
-		DrawLevel = 0,
 		Width = 36,
 		Height = 36,
 		Point = "CENTER",
@@ -588,7 +572,7 @@ local Skin = {
 			OffsetY = 2,
 		},
 	},
-	-- [ AutoCastShine (Classic) ]
+	-- [ AutoCast (Classic) ]
 	AutoCastable = {
 		Texture = [[Interface\Buttons\UI-AutoCastableOverlay]],
 		-- TexCoords = {0, 1, 0, 1},
@@ -596,8 +580,8 @@ local Skin = {
 		BlendMode = "BLEND",
 		DrawLayer = "OVERLAY",
 		DrawLevel = 1,
-		Width = (WOW_CLASSIC and 58) or 62,
-		Height = (WOW_CLASSIC and 58) or 62,
+		Width = 58,
+		Height = 58,
 		Point = "CENTER",
 		RelPoint = "CENTER",
 		OffsetX = 0,
@@ -605,29 +589,18 @@ local Skin = {
 		-- SetAllPoints = nil,
 	},
 	AutoCastShine = {
-		Width = (WOW_CLASSIC and 34) or 30,
-		Height = (WOW_CLASSIC and 34) or 30,
-		Point = "CENTER",
-		RelPoint = "CENTER",
-		OffsetX = (WOW_CLASSIC and 0) or 1,
-		OffsetY = 0,
-		-- SetAllPoints = nil,
-	},
-	-- [ AutoCastOverlay (Retail) ]
-	AutoCast_Frame = {
-		Width = 37, -- 31
-		Height = 37, -- 31
+		Width = 34, -- 28
+		Height = 34, -- 28
 		Point = "CENTER",
 		RelPoint = "CENTER",
 		OffsetX = 0,
 		OffsetY = 0,
 		-- SetAllPoints = nil,
 	},
-	AutoCast_Mask = {
-		Atlas = "UI-HUD-ActionBar-PetAutoCast-Mask",
-		UseAtlasSize = false,
-		Width = 28, -- 23
-		Height = 28, -- 23
+	-- [ AutoCast (Retail) ]
+	AutoCast_Frame = {
+		Width = 37,
+		Height = 37,
 		Point = "CENTER",
 		RelPoint = "CENTER",
 		OffsetX = 0,
@@ -641,8 +614,19 @@ local Skin = {
 		BlendMode = "BLEND",
 		DrawLayer = "OVERLAY",
 		DrawLevel = 0,
-		Width = 49, -- 41
-		Height = 49, -- 41
+		Width = 49,
+		Height = 49,
+		Point = "CENTER",
+		RelPoint = "CENTER",
+		OffsetX = 0,
+		OffsetY = 0,
+		-- SetAllPoints = nil,
+	},
+	AutoCast_Mask = {
+		Atlas = "UI-HUD-ActionBar-PetAutoCast-Mask",
+		UseAtlasSize = false,
+		Width = 28,
+		Height = 28,
 		Point = "CENTER",
 		RelPoint = "CENTER",
 		OffsetX = 0,
@@ -656,8 +640,8 @@ local Skin = {
 		BlendMode = "BLEND",
 		DrawLayer = "OVERLAY",
 		DrawLevel = 1,
-		Width = 36, -- 31
-		Height = 36, -- 31
+		Width = 36,
+		Height = 36,
 		Point = "CENTER",
 		RelPoint = "CENTER",
 		OffsetX = 0,
@@ -688,7 +672,7 @@ local Skin = {
 -- Core
 ---
 
-Core.AddSkin(SkinID, Skin, true)
+Core.AddSkin(SkinID, Skin, true, true)
 
 Core.DEFAULT_SKIN = Skin
 Core.DEFAULT_SKIN_ID = SkinID

@@ -28,6 +28,9 @@ local hooksecurefunc = hooksecurefunc
 -- Internal
 ---
 
+-- @ Skins\Defaults
+local SkinRoot = Core.SKIN_BASE
+
 -- @ Core\Utility
 local GetTexCoords, SetSkinPoint = Core.GetTexCoords, Core.SetSkinPoint
 
@@ -36,6 +39,28 @@ local Skin_Mask = Core.Skin_Mask
 
 -- @ Core\Regions\Normal
 local Update_Normal = Core.Update_Normal
+
+----------------------------------------
+-- Locals
+---
+
+local SkinBase = SkinRoot.Icon
+
+-- Skin Defaults
+local BASE_BACKPACK = SkinBase.Backpack -- [[Interface\Icons\INV_Misc_Bag_08]]
+local BASE_LAYER = SkinBase.DrawLayer -- "BACKGROUND"
+local BASE_LEVEL = SkinBase.DrawLevel -- 0
+local BASE_SIZE = SkinRoot.Size -- 36
+
+-- String Constants
+local STR_BORDER = "BORDER"
+local STR_HIDE = "Hide"
+local STR_SHOW = "Show"
+
+-- Type Strings
+local TYPE_BACKPACK = "Backpack"
+local TYPE_ITEM = "Item"
+local TYPE_TABLE = "table"
 
 ----------------------------------------
 -- Helpers
@@ -106,11 +131,20 @@ end
 Core.SetEmpty = SetEmpty
 
 -- Internal skin handler for the `Icon` region.
-function Core.Skin_Icon(Region, Button, Skin)
+function Core.Skin_Icon(Region, Button, Skin, Hide)
 	local _mcfg = Button._MSQ_CFG
 
 	local bType = _mcfg.bType
-	local Layer = (bType == "Item" and "BORDER") or "BACKGROUND"
+
+	if bType == TYPE_BACKPACK then
+		if Hide then
+			Region:SetTexture()
+		else
+			Region:SetTexture(Skin.Backpack or BASE_BACKPACK)
+		end
+	end
+
+	local Layer = (bType == TYPE_ITEM and STR_BORDER) or BASE_LAYER
 
 	Region._MSQ_Button = Button
 
@@ -119,10 +153,20 @@ function Core.Skin_Icon(Region, Button, Skin)
 
 	Region:SetParent(Button)
 	Region:SetTexCoord(GetTexCoords(Skin.TexCoords))
-	Region:SetDrawLayer(Layer, 0)
+	Region:SetDrawLayer(Layer, BASE_LEVEL)
+
 	Region:SetSize(_mcfg:GetSize(Skin.Width, Skin.Height))
 
-	SetSkinPoint(Region, Button, Skin, Skin.SetAllPoints)
+	local SetAllPoints = Skin.SetAllPoints
+
+	if not SetAllPoints then
+		local Width = Skin.Width or BASE_SIZE
+		local Height = Skin.Height or BASE_SIZE
+
+		Region:SetSize(_mcfg:GetSize(Width, Height))
+	end
+
+	SetSkinPoint(Region, Button, Skin, SetAllPoints)
 
 	-- Mask
 	Skin_Mask(Button, Skin, Region)
@@ -138,8 +182,8 @@ function Core.Skin_Icon(Region, Button, Skin)
 
 		-- Hooks
 		if Hook_Icon[bType] and (not Region._MSQ_Hooked) then
-			hooksecurefunc(Region, "Hide", Hook_Hide)
-			hooksecurefunc(Region, "Show", Hook_Show)
+			hooksecurefunc(Region, STR_HIDE, Hook_Hide)
+			hooksecurefunc(Region, STR_SHOW, Hook_Show)
 
 			Region._MSQ_Hooked = true
 		end
@@ -152,7 +196,7 @@ end
 
 -- Sets the button's empty status.
 function Core.API:SetEmpty(Button, IsEmpty)
-	if type(Button) ~= "table" then
+	if type(Button) ~= TYPE_TABLE then
 		if Core.Debug then
 			error("Bad argument to API method 'SetEmpty'. 'Button' must be a button object.", 2)
 		end

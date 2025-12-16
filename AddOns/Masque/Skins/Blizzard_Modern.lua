@@ -16,8 +16,6 @@
 
 local _, Core = ...
 
-if not Core.WOW_RETAIL then return end
-
 ----------------------------------------
 -- Internal
 ---
@@ -43,19 +41,20 @@ local Skin = {
 	Shape = "Blizzard",
 	SkinID = SkinID,
 
-	-- Info
+	-- [ Info]
 	Author = "|cff0099ffBlizzard Entertainment|r",
 	Description = L["The default modern button style."],
 	Version = Core.Version,
 
-	-- Skin
+	-- [ Skin]
 	Mask = {
-		Atlas = "UI-HUD-ActionBar-IconFrame-Mask",
-		UseAtlasSize = false,
+		-- Atlas = "UI-HUD-ActionBar-IconFrame-Mask",
+		-- UseAtlasSize = false,
+		Texture = [[Interface/AddOns/Masque/Textures/Modern/Mask]],
 		WrapH = "CLAMPTOBLACKADDITIVE",
 		WrapV = "CLAMPTOBLACKADDITIVE",
-		Width = 51,
-		Height = 51,
+		Width = 33,
+		Height = 33,
 		Anchor = "Icon",
 		Point = "CENTER",
 		RelPoint = "CENTER",
@@ -167,7 +166,6 @@ local Skin = {
 			-- SetAllPoints = nil,
 		},
 	},
-	SlotIcon = Hidden,
 	Shadow = Hidden,
 	Normal = {
 		Atlas = "UI-HUD-ActionBar-IconFrame",
@@ -386,6 +384,37 @@ local Skin = {
 		OffsetX = 0.5, -- 0
 		OffsetY = 0,
 		-- SetAllPoints = nil,
+		Backpack = {
+			Atlas = "bag-main-highlight",
+			UseAtlasSize = false,
+			-- Color = {1, 1, 1, 1},
+			BlendMode = "BLEND",
+			DrawLayer = "ARTWORK",
+			DrawLevel = 0,
+			Width = 36,
+			Height = 36,
+			Point = "CENTER",
+			RelPoint = "CENTER",
+			OffsetX = 0,
+			OffsetY = 0,
+			-- SetAllPoints = nil,
+		},
+		BagSlot = {
+			Atlas = "bag-border-highlight",
+			UseAtlasSize = false,
+			-- Color = {1, 1, 1, 1},
+			BlendMode = "BLEND",
+			DrawLayer = "ARTWORK",
+			DrawLevel = 0,
+			Width = 36,
+			Height = 36,
+			Point = "CENTER",
+			RelPoint = "CENTER",
+			OffsetX = 0,
+			OffsetY = 0,
+			SetAllPoints = true,
+			-- UseColor = nil,
+		},
 	},
 	SlotHighlight = {
 		Atlas = "bag-border-highlight",
@@ -463,7 +492,7 @@ local Skin = {
 			OffsetY = 0,
 			-- SetAllPoints = nil,
 		},
-		Item = {
+		Item = { -- Still necessary for some add-ons.
 			Texture = [[Interface\Common\WhiteIconFrame]],
 			-- TexCoords = {0, 1, 0, 1},
 			-- Color = {1, 1, 1, 1},
@@ -804,8 +833,8 @@ local Skin = {
 		Anchor = "Icon",
 		Point = "BOTTOMRIGHT",
 		RelPoint = "BOTTOMRIGHT",
-		OffsetX = -5,
-		OffsetY = 5,
+		OffsetX = -3,
+		OffsetY = 3,
 		Aura = {
 			JustifyH = "RIGHT",
 			JustifyV = "BOTTOM",
@@ -857,25 +886,10 @@ local Skin = {
 		-- SetAllPoints = nil,
 	},
 	-- [ AutoCastOverlay (Retail) ]
-	-- AB (45) / SAB (30) = 1.5
-	-- Lua @ SAB: 31 * 1.5 = 46.5
-	-- Masque: 46.5 / 1.25 = 37.2
-	-- Multiplier = 1.2 (1.5 / 1.25)
 	AutoCast_Frame = {
 		Width = 37,
 		Height = 37,
 		Point = "CENTER",
-		RelPoint = "CENTER",
-		OffsetX = 0,
-		OffsetY = 0,
-		-- SetAllPoints = nil,
-	},
-	AutoCast_Mask = {
-		Atlas = "UI-HUD-ActionBar-PetAutoCast-Mask",
-		UseAtlasSize = false,
-		Width = 28,
-		Height = 28,
-		Point = "CENTER", -- TOPLEFT, 4, -4 | BOTTOMRIGHT, -4, 4
 		RelPoint = "CENTER",
 		OffsetX = 0,
 		OffsetY = 0,
@@ -890,7 +904,19 @@ local Skin = {
 		DrawLevel = 0,
 		Width = 49,
 		Height = 49,
-		Point = "CENTER",-- TOPLEFT, -5, 5 | BOTTOMRIGHT, 5, -5
+		Point = "CENTER",
+		RelPoint = "CENTER",
+		OffsetX = 0,
+		OffsetY = 0,
+		-- SetAllPoints = nil,
+	},
+	AutoCast_Mask = {
+		-- Atlas = "UI-HUD-ActionBar-PetAutoCast-Mask",
+		-- UseAtlasSize = false,
+		Texture = [[Interface\AddOns\Masque\Textures\Modern\AutoCast-Mask]],
+		Width = 30,
+		Height = 30,
+		Point = "CENTER",
 		RelPoint = "CENTER",
 		OffsetX = 0,
 		OffsetY = 0,
@@ -903,8 +929,8 @@ local Skin = {
 		BlendMode = "BLEND",
 		DrawLayer = "OVERLAY",
 		DrawLevel = 1,
-		Width = 37,
-		Height = 37,
+		Width = 36,
+		Height = 36,
 		Point = "CENTER",
 		RelPoint = "CENTER",
 		OffsetX = 0,
@@ -914,7 +940,7 @@ local Skin = {
 	-- [ Cooldowns ]
 	Cooldown = {
 		Texture = [[Interface\AddOns\Masque\Textures\Modern\Mask]],
-		EdgeTexture = [[Interface\Cooldown\UI-HUD-ActionBar-SecondaryCooldown]],
+		EdgeTexture = [[Interface\AddOns\Masque\Textures\Modern\Edge]],
 		PulseTexture = [[Interface\Cooldown\star4]],
 		Color = {0, 0, 0, 0.8},
 		Width = 31,
@@ -930,13 +956,40 @@ local Skin = {
 	-- [ SpellAlerts ]
 	-- SpellAlert = Default.SpellAlert,
 	-- AssistedCombatHighlight = Default.AssistedCombatHighlight,
+	-- [ SpellAlerts ]
+	SpellAlert = {
+		Height = 38,
+		Width = 38,
+		AltGlow = {
+			Height = 45,
+			Width = 45,
+		},
+		Classic = {
+			Height = 30,
+			Width = 30,
+		},
+		Modern = {
+			Height = 32,
+			Width = 32,
+		},
+		["Modern-Lite"] = {
+			Height = 32,
+			Width = 32,
+		},
+	},
+	AssistedCombatHighlight = {
+		Width = 45,
+		Height = 45,
+	},
 }
 
 ----------------------------------------
 -- Core
 ---
 
-Core.AddSkin(SkinID, Skin, true)
+Core.AddSkin(SkinID, Skin, true, true)
 
-Core.DEFAULT_SKIN = Skin
-Core.DEFAULT_SKIN_ID = SkinID
+if Core.WOW_RETAIL then
+	Core.DEFAULT_SKIN = Skin
+	Core.DEFAULT_SKIN_ID = SkinID
+end
