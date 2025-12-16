@@ -22,8 +22,8 @@ local error, type = error, type
 -- Internal
 ---
 
--- @ Skins\Blizzard_*
-local DEF_SKIN = Core.DEFAULT_SKIN.Backdrop
+-- @ Skins\Defaults
+local SkinRoot = Core.SKIN_BASE
 
 -- @ Core\Utility
 local GetColor, GetTexCoords, SetSkinPoint = Core.GetColor, Core.GetTexCoords, Core.SetSkinPoint
@@ -35,9 +35,21 @@ local Skin_Mask = Core.Skin_Mask
 -- Locals
 ---
 
-local DEF_COLOR = DEF_SKIN.Color
-local DEF_TEXTURE = DEF_SKIN.Texture
+local SkinBase = SkinRoot.Backdrop
 
+-- Skin Defaults
+local BASE_BLEND = SkinRoot.BlendMode -- "BLEND"
+local BASE_COLOR = SkinBase.Color -- {0, 0, 0, 0.5}
+local BASE_LAYER = SkinBase.DrawLayer -- "BACKGROUND"
+local BASE_LEVEL = SkinBase.DrawLevel -- -1
+local BASE_SIZE = SkinRoot.Size -- 36
+local BASE_TEXTURE = SkinBase.Texture -- [[Interface\AddOns\Masque\Textures\Backdrop\Slot-Modern]]
+local BASE_TEXTURES = SkinBase.Textures -- [[Interface\AddOns\Masque\Textures\Backdrop\*]]
+
+-- Type Strings
+local TYPE_TABLE = "table"
+
+-- Unused Backdrop Textures
 local Cache = {}
 
 ----------------------------------------
@@ -73,7 +85,7 @@ local function Add_Backdrop(Region, Button, Skin, Color)
 	if Skin.UseColor then
 		Region:SetTexture()
 		Region:SetVertexColor(1, 1, 1, 1)
-		Region:SetColorTexture(GetColor(Color or DEF_COLOR))
+		Region:SetColorTexture(GetColor(Color or BASE_COLOR))
 
 	else
 		local Coords
@@ -81,22 +93,35 @@ local function Add_Backdrop(Region, Button, Skin, Color)
 		if Skin_Atlas then
 			Region:SetAtlas(Skin_Atlas, UseSize)
 		else
+			local Texture = Skin.Texture
+
+			if not Texture then
+				local bType = _mcfg.bType
+
+				Texture = BASE_TEXTURES[bType] or BASE_TEXTURE
+			end
+
 			Coords = Skin.TexCoords
-			Region:SetTexture(Skin.Texture or DEF_TEXTURE)
+			Region:SetTexture(Texture)
 		end
 
 		Region:SetTexCoord(GetTexCoords(Coords))
-		Region:SetVertexColor(GetColor(Color or DEF_COLOR))
+		Region:SetVertexColor(GetColor(Color))
 	end
 
-	Region:SetBlendMode(Skin.BlendMode or "BLEND")
-	Region:SetDrawLayer(Skin.DrawLayer or "BACKGROUND", Skin.DrawLevel or -1)
+	Region:SetBlendMode(Skin.BlendMode or BASE_BLEND)
+	Region:SetDrawLayer(Skin.DrawLayer or BASE_LAYER, Skin.DrawLevel or BASE_LEVEL)
 
-	if not UseSize then
-		Region:SetSize(_mcfg:GetSize(Skin.Width, Skin.Height))
+	local SetAllPoints = Skin.SetAllPoints
+
+	if (not SetAllPoints) and (not UseSize) then
+		local Width = Skin.Width or BASE_SIZE
+		local Height = Skin.Height or BASE_SIZE
+
+		Region:SetSize(_mcfg:GetSize(Width, Height))
 	end
 
-	SetSkinPoint(Region, Button, Skin, Skin.SetAllPoints)
+	SetSkinPoint(Region, Button, Skin, SetAllPoints)
 	Region:Show()
 
 	-- Mask
@@ -116,9 +141,9 @@ local function Remove_Backdrop(Region, Button)
 		-- Remove the button mask.
 		local Button_Mask = _mcfg.ButtonMask
 
-		if Button_Mask and Region._MSQ_bMask then
+		if Button_Mask and Region._MSQ_ButtonMask then
 			Region:RemoveMaskTexture(Button_Mask)
-			Region._MSQ_bMask = nil
+			Region._MSQ_ButtonMask = nil
 		end
 
 		Region:SetTexture()
@@ -143,9 +168,9 @@ function Core.SetColor_Backdrop(Region, Button, Skin, Color)
 		Color = Color or Skin.Color
 
 		if Skin.UseColor then
-			Region:SetColorTexture(GetColor(Color or DEF_COLOR))
+			Region:SetColorTexture(GetColor(Color or BASE_COLOR))
 		else
-			Region:SetVertexColor(GetColor(Color or DEF_COLOR))
+			Region:SetVertexColor(GetColor(Color))
 		end
 	end
 end
@@ -169,7 +194,7 @@ end
 
 -- Retrieves the 'Backdrop' region of a button.
 function Core.API:GetBackdrop(Button)
-	if type(Button) ~= "table" then
+	if type(Button) ~= TYPE_TABLE then
 		if Core.Debug then
 			error("Bad argument to API method 'GetBackdrop'. 'Button' must be a button object.", 2)
 		end

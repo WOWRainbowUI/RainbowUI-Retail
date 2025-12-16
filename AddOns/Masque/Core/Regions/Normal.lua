@@ -28,20 +28,31 @@ local hooksecurefunc, random = hooksecurefunc, random
 -- Internal
 ---
 
+-- @ Skins\Defaults
+local SkinRoot = Core.SKIN_BASE
+
 -- @ Core\Utility
 local GetColor, GetTexCoords, SetSkinPoint = Core.GetColor, Core.GetTexCoords, Core.SetSkinPoint
-
--- @ Skins\Blizzard_*
-local DEF_SKIN = Core.DEFAULT_SKIN.Normal
 
 ----------------------------------------
 -- Locals
 ---
 
-local DEF_ATLAS = DEF_SKIN.Atlas
-local DEF_COLOR = DEF_SKIN.Color
-local DEF_TEXTURE = DEF_SKIN.Texture
-local DEF_USESIZE = DEF_SKIN.UseAtlasSize
+local SkinBase = SkinRoot.Normal
+
+-- Skin Defaults
+local BASE_BLEND = SkinRoot.BlendMode -- "BLEND"
+local BASE_LAYER = SkinBase.DrawLayer -- "ARTWORK"
+local BASE_LEVEL = SkinBase.DrawLevel -- 0
+local BASE_SIZE = SkinRoot.Size -- 36
+local BASE_TEXTURE = SkinBase.Texture -- [[Interface\Buttons\UI-Quickslot2]]
+
+-- String Constants
+local STR_SETATLAS = "SetNormalAtlas"
+local STR_SETTEXTURE = "SetNormalTexture"
+
+-- Type Strings
+local TYPE_TABLE = "table"
 
 ----------------------------------------
 -- Helpers
@@ -58,7 +69,7 @@ local function Update_Normal(Button, IsEmpty)
 	if Region and (Skin and not Skin.Hide) then
 		local Atlas = Skin.Atlas
 		local Texture = _mcfg.Normal_Random or Skin.Texture
-		local Color = _mcfg.Color_Normal or DEF_COLOR
+		local Color = _mcfg.Color_Normal
 		local Coords
 
 		local UseEmpty = _mcfg.IsEmptyType and IsEmpty
@@ -74,12 +85,8 @@ local function Update_Normal(Button, IsEmpty)
 			Coords = (UseEmpty and Skin.EmptyCoords) or Skin.TexCoords
 			Region:SetTexture(Texture)
 
-		elseif DEF_ATLAS then
-			Region:SetAtlas(DEF_ATLAS, DEF_USESIZE)
-
-		elseif DEF_TEXTURE then
-			Coords = DEF_SKIN.TexCoords
-			Region:SetTexture(DEF_TEXTURE)
+		else
+			Region:SetTexture(BASE_TEXTURE)
 		end
 
 		Region:SetTexCoord(GetTexCoords(Coords))
@@ -134,7 +141,7 @@ function Core.SetColor_Normal(Region, Button, Skin, Color)
 
 	if Region then
 		Skin = _mcfg:GetTypeSkin(Button, Skin)
-		_mcfg.Color_Normal = Color or Skin.Color or DEF_COLOR
+		_mcfg.Color_Normal = Color or Skin.Color
 
 		Update_Normal(Button)
 	end
@@ -183,7 +190,7 @@ function Core.Skin_Normal(Region, Button, Skin, Color)
 
 	_mcfg.Normal = Region
 	_mcfg.Skin_Normal = Skin
-	_mcfg.Color_Normal = Color or Skin.Color or DEF_COLOR
+	_mcfg.Color_Normal = Color or Skin.Color
 
 	if Skin.Hide then
 		if Region then
@@ -196,7 +203,7 @@ function Core.Skin_Normal(Region, Button, Skin, Color)
 	local Texture_List = Skin.Textures
 	local Random_Texture
 
-	if (type(Texture_List) == "table") and (#Texture_List > 0) then
+	if (type(Texture_List) == TYPE_TABLE) and (#Texture_List > 0) then
 		local i = random(1, #Texture_List)
 		Random_Texture = Texture_List[i]
 	end
@@ -215,20 +222,25 @@ function Core.Skin_Normal(Region, Button, Skin, Color)
 		_mcfg.Normal_Random = nil
 	end
 
-	Region:SetBlendMode(Skin.BlendMode or "BLEND")
-	Region:SetDrawLayer(Skin.DrawLayer or "ARTWORK", Skin.DrawLevel or 0)
+	Region:SetBlendMode(Skin.BlendMode or BASE_BLEND)
+	Region:SetDrawLayer(Skin.DrawLayer or BASE_LAYER, Skin.DrawLevel or BASE_LEVEL)
 
-	if not Skin.UseAtlasSize then
-		Region:SetSize(_mcfg:GetSize(Skin.Width, Skin.Height))
+	local SetAllPoints = Skin.SetAllPoints
+
+	if (not SetAllPoints) and (not Skin.UseAtlasSize) then
+		local Width = Skin.Width or BASE_SIZE
+		local Height = Skin.Height or BASE_SIZE
+
+		Region:SetSize(_mcfg:GetSize(Width, Height))
 	end
 
-	SetSkinPoint(Region, Button, Skin, Skin.SetAllPoints)
+	SetSkinPoint(Region, Button, Skin, SetAllPoints)
 
 	Region:Show()
 
 	if IsButton and _mcfg.IsEmptyType and (not _mcfg.Normal_Hook) then
-		hooksecurefunc(Button, "SetNormalAtlas", Hook_SetNormal)
-		hooksecurefunc(Button, "SetNormalTexture", Hook_SetNormal)
+		hooksecurefunc(Button, STR_SETATLAS, Hook_SetNormal)
+		hooksecurefunc(Button, STR_SETTEXTURE, Hook_SetNormal)
 
 		_mcfg.Normal_Hook = true
 	end
@@ -242,7 +254,7 @@ Core.Update_Normal = Update_Normal
 
 -- Retrieves the 'Normal' region of a button.
 function Core.API:GetNormal(Button)
-	if type(Button) ~= "table" then
+	if type(Button) ~= TYPE_TABLE then
 		if Core.Debug then
 			error("Bad argument to API method 'GetNormal'. 'Button' must be a button object.", 2)
 		end

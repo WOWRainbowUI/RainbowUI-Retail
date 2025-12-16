@@ -28,10 +28,8 @@ local hooksecurefunc = hooksecurefunc
 -- Internal
 ---
 
-local WOW_RETAIL = Core.WOW_RETAIL
-
--- @ Skins\Blizzard_*
-local DEF_SKIN = Core.DEFAULT_SKIN.Cooldown
+-- @ Skins\Defaults
+local SkinRoot = Core.SKIN_BASE
 
 -- @ Core\Utility
 local GetColor, SetSkinPoint = Core.GetColor, Core.SetSkinPoint
@@ -40,17 +38,33 @@ local GetColor, SetSkinPoint = Core.GetColor, Core.SetSkinPoint
 -- Locals
 ---
 
-local DEF_COLOR = DEF_SKIN.Color
-local DEF_PULSE = [[Interface\Cooldown\star4]]
+local WOW_1201 = Core.WOW_VERSION > 120000
 
-local DEF_EDGE = (WOW_RETAIL and [[Interface\Cooldown\UI-HUD-ActionBar-SecondaryCooldown]]) or [[Interface\Cooldown\edge]]
-local DEF_EDGE_LOC = (WOW_RETAIL and [[Interface\Cooldown\UI-HUD-ActionBar-LoC]]) or [[Interface\Cooldown\edge-LoC]]
+local SkinBase = SkinRoot.Cooldown
 
-local MSQ_EDGE = [[Interface\AddOns\Masque\Textures\Square\Edge]]
-local MSQ_EDGE_LOC = [[Interface\AddOns\Masque\Textures\Square\Edge-LoC]]
+-- Skin Defaults
+local BASE_COLOR = SkinBase.Color -- {0, 0, 0, 0.8}
+local BASE_COLOR_LOC = SkinBase.LoC.Color -- {0.2, 0, 0, 0.8}
+local BASE_EDGE = SkinBase.Edge -- [[Interface\AddOns\Masque\Textures\Square\Edge]]
+local BASE_EDGE_LOC = SkinBase.LoC.Edge -- [[Interface\AddOns\Masque\Textures\Square\Edge-LoC]]
+local BASE_PULSE = SkinBase.Pulse -- [[Interface\Cooldown\star4]]
+local BASE_SIZE = SkinRoot.Size -- 36
+local BASE_SWIPE = SkinBase.Swipe -- [[Interface\AddOns\Masque\Textures\Square\Mask]]
+local BASE_SWIPE_CIRCLE = SkinBase.SwipeCircle -- [[Interface\AddOns\Masque\Textures\Circle\Mask]]
 
-local MSQ_SWIPE = [[Interface\AddOns\Masque\Textures\Square\Mask]]
-local MSQ_SWIPE_CIRCLE = [[Interface\AddOns\Masque\Textures\Circle\Mask]]
+-- String Constants
+local HOOK_EDGE = "SetEdgeTexture"
+local HOOK_SWIPE = "SetSwipeColor"
+local STR_CIRCLE = "Circle"
+
+-- Type Strings
+local TYPE_TABLE = "table"
+
+-- Default LoC Edge Textures
+local LOC_TEXTURE ={
+	["Interface\\Cooldown\\UI-HUD-ActionBar-SecondaryCooldown"] = true,
+	["Interface\\Cooldown\\edge"] = true,
+}
 
 ----------------------------------------
 -- Hooks
@@ -66,8 +80,11 @@ local function Hook_SetSwipeColor(Region, r, g, b)
 
 	Region._Swipe_Hook = true
 
+	-- Loss of Control
 	if r == 0.17 and g == 0 and b == 0 then
-		Region:SetSwipeColor(0.2, 0, 0, 0.8)
+		Region:SetSwipeColor(GetColor(BASE_COLOR_LOC))
+
+	-- Normal
 	else
 		Region:SetSwipeColor(GetColor(Color))
 	end
@@ -77,16 +94,19 @@ end
 
 -- Counters texture changes triggered by LoC events.
 local function Hook_SetEdgeTexture(Region, Texture)
-	if Region._Edge_Hook or (not Region._MSQ_Color) then
+	if Region._Edge_Hook or (not Region._MSQ_Edge) then
 		return
 	end
 
 	Region._Edge_Hook = true
 
-	if Texture == DEF_EDGE_LOC then
-		Region:SetEdgeTexture(MSQ_EDGE_LOC)
+	-- Loss of Control
+	if (Texture and LOC_TEXTURE[Texture]) then
+		Region:SetEdgeTexture(BASE_EDGE_LOC)
+
+	-- Normal
 	else
-		Region:SetEdgeTexture(Region._MSQ_Edge or MSQ_EDGE)
+		Region:SetEdgeTexture(Region._MSQ_Edge or BASE_EDGE)
 	end
 
 	Region._Edge_Hook = nil
@@ -97,54 +117,96 @@ end
 ---
 
 -- Skins a `Cooldown` frame.
-local function Skin_Cooldown(Region, Button, Skin, Color, Pulse)
+local function Skin_Cooldown(Region, Button, Skin, Color, Pulse, IsLoC)
 	local _mcfg = Button._MSQ_CFG
 
 	Skin = _mcfg:GetTypeSkin(Button, Skin)
 
-	local IsRound = (_mcfg.Shape == "Circle") or Skin.IsRound
+	local Enabled = _mcfg.Enabled
+	local IsRound = (_mcfg.Shape == STR_CIRCLE) or Skin.IsRound
+	local Swipe = (IsRound and BASE_SWIPE_CIRCLE) or BASE_SWIPE
 
-	if _mcfg.Enabled then
-		-- Cooldown
-		if Region:GetDrawSwipe() then
-			Region._MSQ_Color = Color or Skin.Color or DEF_COLOR
-			Region._MSQ_Edge = Skin.EdgeTexture or MSQ_EDGE
+	-- 12.0.1 Loss of Control
+	if IsLoC then
+		Region:SetEdgeTexture(BASE_EDGE_LOC)
 
-			Region:SetSwipeTexture(Skin.Texture or (IsRound and MSQ_SWIPE_CIRCLE) or MSQ_SWIPE)
-
-			Hook_SetSwipeColor(Region)
-			Hook_SetEdgeTexture(Region)
-
-			if not Region._MSQ_Hooked then
-				hooksecurefunc(Region, "SetSwipeColor", Hook_SetSwipeColor)
-				hooksecurefunc(Region, "SetEdgeTexture", Hook_SetEdgeTexture)
-
-				Region._MSQ_Hooked = true
-			end
-
-		-- ChargeCooldown
+		if Enabled then
+			Region:SetSwipeColor(0.2, 0, 0, 0.8)
+			Region:SetSwipeTexture(Swipe)
 		else
-			Region:SetEdgeTexture(Skin.EdgeTexture or MSQ_EDGE)
+			Region:SetSwipeTexture("", 0.2, 0, 0, 0.8)
 		end
 
+	-- Skin
 	else
-		Region._MSQ_Color = nil
+		local DrawSwipe = Region:GetDrawSwipe()
 
-		if Region:GetDrawSwipe() then
-			Region:SetSwipeTexture("", 0, 0, 0, 0.8)
+		-- Edge
+		if Region:GetDrawEdge() then
+			local Edge = Skin.EdgeTexture or BASE_EDGE
+
+			-- Charge Cooldowns
+			if not DrawSwipe then
+				Region:SetEdgeTexture(Edge)
+
+			-- Normal Cooldowns
+			else
+				if Enabled then
+					Region._MSQ_Edge = Edge
+
+					Hook_SetEdgeTexture(Region, Edge)
+
+					-- Hook cooldowns that change the edge texture.
+					if (not WOW_1201) and (not Region._MSQ_Edge_Hooked) then
+						hooksecurefunc(Region, HOOK_EDGE, Hook_SetEdgeTexture)
+
+						Region._MSQ_Edge_Hooked = true
+					end
+				else
+					Region._MSQ_Edge = nil
+
+					Region:SetEdgeTexture(BASE_EDGE)
+				end
+			end
 		end
 
-		Region:SetEdgeTexture(DEF_EDGE)
+		-- Swipe
+		if DrawSwipe then
+			if Enabled then
+				Swipe = Skin.Texture or Swipe
+				Color = Color or Skin.Color or BASE_COLOR
+
+				Region._MSQ_Color = Color
+
+				Hook_SetSwipeColor(Region)
+				Region:SetSwipeTexture(Swipe)
+
+				-- Hook cooldowns that change the swipe color.
+				if (not WOW_1201) and (not Region._MSQ_Swipe_Hooked) then
+					hooksecurefunc(Region, HOOK_SWIPE, Hook_SetSwipeColor)
+
+					Region._MSQ_Swipe_Hooked = true
+				end
+
+			else
+				Region._MSQ_Color = nil
+
+				Region:SetSwipeTexture("", 0, 0, 0, 0.8)
+			end
+		end
 	end
 
-	Region:SetBlingTexture(Skin.PulseTexture or DEF_PULSE)
+	Region:SetBlingTexture(Skin.PulseTexture or BASE_PULSE)
 	Region:SetDrawBling(Pulse)
 	Region:SetUseCircularEdge(IsRound)
 
 	local SetAllPoints = Skin.SetAllPoints
 
 	if not SetAllPoints then
-		Region:SetSize(_mcfg:GetSize(Skin.Width, Skin.Height))
+		local Width = Skin.Width or BASE_SIZE
+		local Height = Skin.Height or BASE_SIZE
+
+		Region:SetSize(_mcfg:GetSize(Width, Height))
 	end
 
 	SetSkinPoint(Region, Button, Skin, SetAllPoints)
@@ -168,8 +230,10 @@ local function Update_ChargeCooldown(Button)
 	end
 end
 
--- @ Interface/AddOns/Blizzard_ActionBar/*/ActionButton.lua
-hooksecurefunc("StartChargeCooldown", Update_ChargeCooldown)
+if StartChargeCooldown then
+	-- @ Interface/AddOns/Blizzard_ActionBar/*/ActionButton.lua
+	hooksecurefunc("StartChargeCooldown", Update_ChargeCooldown)
+end
 
 ----------------------------------------
 -- Core
@@ -182,7 +246,7 @@ function Core.SetColor_Cooldown(Region, Button, Skin, Color)
 
 		if _mcfg.Enabled then
 			Skin = _mcfg:GetTypeSkin(Button, Skin)
-			Region._MSQ_Color = Color or Skin.Color or DEF_COLOR
+			Region._MSQ_Color = Color or Skin.Color or BASE_COLOR
 
 			Hook_SetSwipeColor(Region)
 		end
@@ -195,14 +259,9 @@ function Core.SetPulse(Button, Pulse)
 	local Regions = _mcfg and _mcfg.Regions
 
 	local Cooldown = Regions and Regions.Cooldown
-	local ChargeCooldown = Regions and Regions.ChargeCooldown
 
 	if Cooldown then
 		Cooldown:SetDrawBling(Pulse)
-	end
-
-	if ChargeCooldown then
-		ChargeCooldown:SetDrawBling(Pulse)
 	end
 end
 
@@ -218,7 +277,7 @@ local API = Core.API
 -- API wrapper for the Update_ChargeCooldown function.
 -- Only call this if not using the native API.
 function API:UpdateChargeCooldown(Button)
-	if type(Button) ~= "table" then
+	if type(Button) ~= TYPE_TABLE then
 		return
 	end
 
