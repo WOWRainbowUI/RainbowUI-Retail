@@ -17,8 +17,8 @@
 		end
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
-		Details.build_counter = 13857
-		Details.alpha_build_counter = 13857 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 13911
+		Details.alpha_build_counter = 13911 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -35,6 +35,10 @@
 
 		function Details:GetCoreVersion()
 			return Details.realversion
+		end
+
+		if not issecretvalue then
+			function issecretvalue() return false end
 		end
 
 		Details.BFACORE = 131 --core version on BFA launch
@@ -67,6 +71,10 @@
 		end
 
 		Details.DefaultTooltipIconSize = 20
+
+		function Details222.UpdateIsAllowed()
+			return tvs < 120000
+		end
 
 		--namespace for the player breakdown window
 		Details.PlayerBreakdown = {}
