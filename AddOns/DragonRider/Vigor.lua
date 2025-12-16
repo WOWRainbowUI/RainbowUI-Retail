@@ -53,8 +53,10 @@ local VigorColors = {
 local DECOR_X = -15
 local DECOR_Y = -10
 
-local VigorOptions = {
-	[1] = { -- default, non-desaturated
+DR.VigorOptions = {
+	[1] = { 
+		key = "Default",          -- Add Internal Key
+		name = L["Default"],      -- Add Display Name
 		Full = {
 			Atlas = "dragonriding_vigor_fillfull",
 			Desat = false,
@@ -98,6 +100,8 @@ local VigorOptions = {
 		},
 	},
 	[2] = { -- Algari Bronze, non-desaturated
+		key = "AlgariBronze",
+		name = L["ThemeAlgari_Bronze"],
 		Full = {
 			Atlas = "dragonriding_sgvigor_fillfull",
 			Desat = false,
@@ -141,6 +145,8 @@ local VigorOptions = {
 		},
 	},
 	[3] = { -- Algari Dark, non-desaturated
+		key = "Algari_Dark",
+		name = L["ThemeAlgari_Dark"],
 		Full = {
 			Atlas = "dragonriding_sgvigor_fillfull",
 			Desat = false,
@@ -184,6 +190,8 @@ local VigorOptions = {
 		},
 	},
 	[4] = { -- Algari Gold, non-desaturated
+		key = "Algari_Gold",
+		name = L["ThemeAlgari_Gold"],
 		Full = {
 			Atlas = "dragonriding_sgvigor_fillfull",
 			Desat = false,
@@ -227,6 +235,8 @@ local VigorOptions = {
 		},
 	},
 	[5] = { -- Algari Silver, non-desaturated
+		key = "Algari_Silver",
+		name = L["ThemeAlgari_Silver"],
 		Full = {
 			Atlas = "dragonriding_sgvigor_fillfull",
 			Desat = false,
@@ -270,6 +280,8 @@ local VigorOptions = {
 		},
 	},
 	[6] = { -- default but desaturated
+		key = "Default_Desaturated",
+		name = L["ThemeDefault_Desaturated"],
 		Full = {
 			Atlas = "dragonriding_vigor_fillfull",
 			Desat = true,
@@ -313,6 +325,8 @@ local VigorOptions = {
 		},
 	},
 	[7] = { -- Algari but desaturated
+		key = "Algari_Desaturated",
+		name = L["ThemeAlgari_Desaturated"],
 		Full = {
 			Atlas = "dragonriding_sgvigor_fillfull",
 			Desat = true,
@@ -356,6 +370,8 @@ local VigorOptions = {
 		},
 	},
 	[8] = { -- Minimalist
+		key = "Minimalist",
+		name = L["Minimalist"],
 		Full = {
 			Texture = "Interface\\buttons\\white8x8",
 			Desat = false,
@@ -438,6 +454,23 @@ local DecorOptions = {
 		Desat = true,
 	},
 };
+
+function DR.RegisterVigorTheme(themeKey, themeName, themeData)
+	if type(themeData) ~= "table" then return end
+	
+	for _, theme in ipairs(DR.VigorOptions) do
+		if theme.key == themeKey then
+			return
+		end
+	end
+
+	themeData.key = themeKey
+	themeData.name = themeName
+
+	table.insert(DR.VigorOptions, themeData)
+end
+
+local VigorOptions = DR.VigorOptions
 
 
 local vigorBar = CreateFrame("Frame", "DragonRider_Vigor", UIParent)
