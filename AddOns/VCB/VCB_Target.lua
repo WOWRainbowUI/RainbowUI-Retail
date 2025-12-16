@@ -16,7 +16,7 @@ local function TargetSpellBarTexts()
 	VCBtotalTimeTextTarget = TargetFrameSpellBar:CreateFontString("VCBtotalTimeTextTarget", "OVERLAY", nil)
 	VCBtexts(VCBtotalTimeTextTarget)
 -- Both Time Text --
-	VCBbothTimeTextTarget = TargetFrameSpellBar:CreateFontString("vcbTargetBothTimePosition", "OVERLAY", nil)
+	VCBbothTimeTextTarget = TargetFrameSpellBar:CreateFontString("VCBbothTimeTextTarget", "OVERLAY", nil)
 	VCBtexts(VCBbothTimeTextTarget)
 end
 -- SUF Target Castbar --
@@ -35,17 +35,17 @@ local function sufTargetSpellBarTexts()
 		var1:Hide()
 	end
 -- Name Text --
-	VCBnameTextTarget = SUFUnittargetvcbCastbar:CreateFontString(nil, "OVERLAY", nil)
+	VCBnameTextTarget = SUFUnittargetvcbCastbar:CreateFontString("VCBnameTextTarget", "OVERLAY", nil)
 	VCBtexts(VCBnameTextTarget)
 -- Current Time Text --
-	VCBcurrentTimeTextTarget = SUFUnittargetvcbCastbar:CreateFontString(nil, "OVERLAY", nil)
+	VCBcurrentTimeTextTarget = SUFUnittargetvcbCastbar:CreateFontString("VCBcurrentTimeTextTarget", "OVERLAY", nil)
 	VCBtexts(VCBcurrentTimeTextTarget)
 -- Total Time Text --
-	VCBtotalTimeTextTarget = SUFUnittargetvcbCastbar:CreateFontString(nil, "OVERLAY", nil)
+	VCBtotalTimeTextTarget = SUFUnittargetvcbCastbar:CreateFontString("VCBtotalTimeTextTarget", "OVERLAY", nil)
 	VCBtexts(VCBtotalTimeTextTarget)
 -- Both Time Text --
-	VCBbothTimeTextTarget = SUFUnittargetvcbCastbar:CreateFontString(nil, "OVERLAY", nil)
-	VCBtexts(vcbTargetBothTimePosition)
+	VCBbothTimeTextTarget = SUFUnittargetvcbCastbar:CreateFontString("VCBbothTimeTextTarget", "OVERLAY", nil)
+	VCBtexts(VCBbothTimeTextTarget)
 end
 -- Icon --
 function chkTargetIconVisibility()
@@ -710,6 +710,12 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 			chkTargetTotalTimeUpdate()
 			chkTargetCastbarColor()
 		if VCBrTarget["otherAdddon"] == "None" then
+			TargetFrameSpellBar:HookScript("OnShow", function(self)
+				vcbTargetNamePosition(self)
+				vcbTargetCurrentTimePosition(self)
+				vcbTargetBothTimePosition(self)
+				vcbTargetTotalTimePosition(self)
+			end)
 			TargetFrameSpellBar:HookScript("OnUpdate", function(self)
 				self.Text:SetAlpha(0)
 				VCBnameTextTarget:SetText(self.Text:GetText())
@@ -719,12 +725,6 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 					vcbTargetTotalTimeUpdate(self)
 					vcbTargetCastbarColor(self)
 				end
-			end)
-			TargetFrameSpellBar:HookScript("OnShow", function(self)
-				vcbTargetNamePosition(self)
-				vcbTargetCurrentTimePosition(self)
-				vcbTargetBothTimePosition(self)
-				vcbTargetTotalTimePosition(self)
 			end)
 		elseif VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" then
 			SUFUnittargetvcbCastbar:HookScript("OnShow", function(self)

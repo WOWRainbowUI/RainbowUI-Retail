@@ -65,7 +65,7 @@ local function CheckSavedVariables()
 	vcbOptions3Box5PopOut2:SetText(VCBrFocus["Color"])
 	vcbOptions3Box6PopOut1:SetText(VCBrFocus["Icon"])
 end
--- taking care of the target preview --
+-- taking care of the focus preview --
 FocusFrame.CBpreview:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nLeft click and drag to move me!") 
@@ -76,11 +76,11 @@ local function StopMoving(self)
 	VCBrFocus["Position"]["Y"] = Round(self:GetBottom())
 	self:StopMovingOrSizing()
 end
--- Moving the target preview --
+-- Moving the focus preview --
 FocusFrame.CBpreview:RegisterForDrag("LeftButton")
 FocusFrame.CBpreview:SetScript("OnDragStart", FocusFrame.CBpreview.StartMoving)
 FocusFrame.CBpreview:SetScript("OnDragStop", function(self) StopMoving(self) end)
--- Hiding the target preview --
+-- Hiding the focus preview --
 FocusFrame.CBpreview:SetScript("OnHide", function(self)
 	VCBrFocus["Position"]["X"] = Round(self:GetLeft())
 	VCBrFocus["Position"]["Y"] = Round(self:GetBottom())
@@ -95,27 +95,14 @@ local function MouseWheelSlider(self, delta)
 		self:SetValue(self:GetValue() - 1)
 	end
 end
--- icon and shield visibility --
-local function IconShieldVisibility()
-	if VCBrFocus["Icon"] == "Show Icon & Shiled" then
-		if not FocusFrameSpellBar.Icon:IsShown() then FocusFrameSpellBar.Icon:Show() end
-		if not FocusFrameSpellBar.showShield then FocusFrameSpellBar.showShield = true end
-	elseif VCBrFocus["Icon"] == "Hide Icon & Shiled" then
-		if FocusFrameSpellBar.Icon:IsShown() then FocusFrameSpellBar.Icon:Hide() end
-		if FocusFrameSpellBar.showShield then FocusFrameSpellBar.showShield = false end
-	elseif VCBrFocus["Icon"] == "Hide Only Icon" then
-		if FocusFrameSpellBar.Icon:IsShown() then FocusFrameSpellBar.Icon:Hide() end
-		if not FocusFrameSpellBar.showShield then FocusFrameSpellBar.showShield = true end
-	end
-end
 -- Box 0 Read me! --
-vcbOptions3Box0.CenterText:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 1: ").."Please close all other panels and keep this panel open, then take a focus!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 2: ").."When you dock or undock the cast bar, the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 3: ").."When you choose from the pop out the Shadowed Unit Frame (SUF), the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 4: ").."For the people who uses SUF. If you are an old user and you unticked the option 'Hide focus frame' undo it. Go to the SUF option and Hide focus frame again. If you are a new user you have to do nothing!")
+vcbOptions3Box0.CenterText:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 1: ").."When you lock or unlock the cast bar, the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 2: ").."When you choose from the pop out button, the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 3: ").."Please try to keep this panel open!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 4: ").."If you DON'T use any add-on for the unit frame it would be good to open the edit mode of Blizzard or take a focus!|nIf you use SUF then you should go to SUF options in General and Unlock the unit frames or take a focus!")
 -- Box 1 --
 -- check button 1 do it --
-vcbOptions3Box1CheckButton1.Text:SetText("Undock")
+vcbOptions3Box1CheckButton1.Text:SetText("Unlock")
 vcbOptions3Box1CheckButton1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nCheck me! if you want to undock|nthe focus' cast bar!") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nCheck me! if you want to Unlock|nthe focus' cast bar!") 
 end)
 vcbOptions3Box1CheckButton1:HookScript("OnClick", function (self, button)
 	if button == "LeftButton" then
@@ -208,6 +195,7 @@ for i = 0, 9, 1 do
 			VCBrFocus["CurrentTimeText"]["Position"] = self.Text:GetText()
 			vcbOptions3Box2PopOut1.Text:SetText(self:GetText())
 			vcbOptions3Box2PopOut1Choice0:Hide()
+			chkFocusCurrentTimePosition()
 		end
 	end)
 end
@@ -233,6 +221,7 @@ for i = 0, 2, 1 do
 			VCBrFocus["CurrentTimeText"]["Direction"] = self.Text:GetText()
 			vcbOptions3Box2PopOut2.Text:SetText(self:GetText())
 			vcbOptions3Box2PopOut2Choice0:Hide()
+			chkFocusCurrentTimeUpdate()
 		end
 	end)
 end
@@ -255,6 +244,7 @@ for i = 0, 1, 1 do
 			VCBrFocus["CurrentTimeText"]["Sec"] = self.Text:GetText()
 			vcbOptions3Box2PopOut3.Text:SetText(self:GetText())
 			vcbOptions3Box2PopOut3Choice0:Hide()
+			chkFocusCurrentTimeUpdate()
 		end
 	end)
 end
@@ -280,6 +270,7 @@ for i = 0, 2, 1 do
 			VCBrFocus["CurrentTimeText"]["Decimals"] = tonumber(self.Text:GetText())
 			vcbOptions3Box2PopOut4.Text:SetText(self:GetText())
 			vcbOptions3Box2PopOut4Choice0:Hide()
+			chkFocusCurrentTimeUpdate()
 		end
 	end)
 end
@@ -302,6 +293,7 @@ for i = 0, 9, 1 do
 			VCBrFocus["BothTimeText"]["Position"] = self.Text:GetText()
 			vcbOptions3Box3PopOut1.Text:SetText(self:GetText())
 			vcbOptions3Box3PopOut1Choice0:Hide()
+			chkFocusBothTimePosition()
 		end
 	end)
 end
@@ -327,6 +319,7 @@ for i = 0, 2, 1 do
 			VCBrFocus["BothTimeText"]["Direction"] = self.Text:GetText()
 			vcbOptions3Box3PopOut2.Text:SetText(self:GetText())
 			vcbOptions3Box3PopOut2Choice0:Hide()
+			chkFocusBothTimeUpdate()
 		end
 	end)
 end
@@ -349,6 +342,7 @@ for i = 0, 1, 1 do
 			VCBrFocus["BothTimeText"]["Sec"] = self.Text:GetText()
 			vcbOptions3Box3PopOut3.Text:SetText(self:GetText())
 			vcbOptions3Box3PopOut3Choice0:Hide()
+			chkFocusBothTimeUpdate()
 		end
 	end)
 end
@@ -374,6 +368,7 @@ for i = 0, 2, 1 do
 			VCBrFocus["BothTimeText"]["Decimals"] = tonumber(self.Text:GetText())
 			vcbOptions3Box3PopOut4.Text:SetText(self:GetText())
 			vcbOptions3Box3PopOut4Choice0:Hide()
+			chkFocusBothTimeUpdate()
 		end
 	end)
 end
@@ -396,6 +391,7 @@ for i = 0, 9, 1 do
 			VCBrFocus["TotalTimeText"]["Position"] = self.Text:GetText()
 			vcbOptions3Box4PopOut1.Text:SetText(self:GetText())
 			vcbOptions3Box4PopOut1Choice0:Hide()
+			chkFocusTotalTimePosition()
 		end
 	end)
 end
@@ -418,6 +414,7 @@ for i = 0, 1, 1 do
 			VCBrFocus["TotalTimeText"]["Sec"] = self.Text:GetText()
 			vcbOptions3Box4PopOut2.Text:SetText(self:GetText())
 			vcbOptions3Box4PopOut2Choice0:Hide()
+			chkFocusTotalTimeUpdate()
 		end
 	end)
 end
@@ -443,6 +440,7 @@ for i = 0, 2, 1 do
 			VCBrFocus["TotalTimeText"]["Decimals"] = tonumber(self.Text:GetText())
 			vcbOptions3Box4PopOut3.Text:SetText(self:GetText())
 			vcbOptions3Box4PopOut3Choice0:Hide()
+			chkFocusTotalTimeUpdate()
 		end
 	end)
 end
@@ -468,6 +466,7 @@ for i = 0, 9, 1 do
 			VCBrFocus["NameText"] = self.Text:GetText()
 			vcbOptions3Box5PopOut1.Text:SetText(self:GetText())
 			vcbOptions3Box5PopOut1Choice0:Hide()
+			chkFocusNamePosition()
 		end
 	end)
 end
@@ -492,6 +491,7 @@ for i = 0, 1, 1 do
 			VCBrFocus["Color"] = self.Text:GetText()
 			vcbOptions3Box5PopOut2.Text:SetText(self:GetText())
 			vcbOptions3Box5PopOut2Choice0:Hide()
+			chkFocusCastbarColor()
 		end
 	end)
 end
@@ -522,7 +522,7 @@ for i = 0, 2, 1 do
 			VCBrFocus["Icon"] = self.Text:GetText()
 			vcbOptions3Box6PopOut1.Text:SetText(self:GetText())
 			vcbOptions3Box6PopOut1Choice0:Hide()
-			IconShieldVisibility()
+			chkFocusIconVisibility()
 		end
 	end)
 end

@@ -23,6 +23,9 @@ local function vcbAvailable()
 	vcbOptions4Box1Slider1:SetAlpha(1)
 	vcbOptions4Box1PopOut1:EnableMouse(true)
 	vcbOptions4Box1PopOut1:SetAlpha(1)
+	for i = 1, 5, 1 do
+		_G["vcbPreviewBoss"..i]:Show()
+	end
 end
 -- function for Disable --
 local function vcbDisable()
@@ -35,26 +38,15 @@ local function vcbDisable()
 	vcbOptions4Box1PopOut1:EnableMouse(false)
 	vcbOptions4Box1PopOut1:SetAlpha(0.35)
 	for i = 1, 5, 1 do
-		_G["Boss"..i.."TargetFrame"]:Hide()
 		_G["vcbPreviewBoss"..i]:Hide()
 	end
 end
 -- Checking the Saved Variables --
 local function CheckSavedVariables()
-	if not VCBrBoss["Unlock"] and VCBrBoss["otherAdddon"] == "None" then
+	if not VCBrBoss["Unlock"] then
 		vcbDisable()
-	elseif VCBrBoss["Unlock"] and VCBrBoss["otherAdddon"] == "None" then
+	elseif VCBrBoss["Unlock"] then
 		vcbAvailable()
-		for i = 1, 5, 1 do
-			_G["Boss"..i.."TargetFrame"]:Show()
-			_G["vcbPreviewBoss"..i]:Show()
-		end
-	elseif VCBrBoss["Unlock"] and VCBrBoss["otherAdddon"] == "Shadowed Unit Frame" then
-		vcbAvailable()
-		for i = 1, 5, 1 do
-			_G["SUFHeaderbossUnitButton"..i]:Show()
-			_G["vcbPreviewBoss"..i]:Show()
-		end
 	end
 	vcbOptions4Box1Slider1:SetValue(VCBrBoss["Scale"])
 	for i = 1, 5, 1 do
@@ -75,7 +67,8 @@ local function CheckSavedVariables()
 	vcbOptions4Box5PopOut1:SetText(VCBrBoss["NameText"])
 	vcbOptions4Box5PopOut2:SetText(VCBrBoss["Color"])
 end
--- taking care of the target preview --
+-- taking care of the Bosses preview --
+vcbPreviewBoss1.Text:SetText("Bosses CB preview")
 vcbPreviewBoss1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nLeft click and drag to move me!") 
@@ -87,11 +80,11 @@ local function StopMoving(self)
 	VCBrBoss["Position"]["Y"] = Round(self:GetBottom())
 	self:StopMovingOrSizing()
 end
--- Moving the target preview --
+-- Moving the Bosses preview --
 vcbPreviewBoss1:RegisterForDrag("LeftButton")
 vcbPreviewBoss1:SetScript("OnDragStart", vcbPreviewBoss1.StartMoving)
 vcbPreviewBoss1:SetScript("OnDragStop", function(self) StopMoving(self) end)
--- Hiding the target preview --
+-- Hiding the Bosses preview --
 vcbPreviewBoss1:SetScript("OnHide", function(self)
 	VCBrBoss["Position"]["X"] = Round(self:GetLeft())
 	VCBrBoss["Position"]["Y"] = Round(self:GetBottom())
@@ -107,13 +100,13 @@ local function MouseWheelSlider(self, delta)
 	end
 end
 -- Box 0 Read me! --
-vcbOptions4Box0.CenterText:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 1: ").."Please close all other panels and keep this panel open!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 2: ").."When you dock or undock the cast bars, the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 3: ").."When you choose from the pop out the Shadowed Unit Frame (SUF), the game will be reloaded!")
+vcbOptions4Box0.CenterText:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 1: ").."When you lock or unlock the cast bar, the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 2: ").."When you choose from the pop out button, the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 3: ").."Please try to keep this panel open!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 4: ").."If you DON'T use any add-on for the unit frame it would be good to open the edit mode of Blizzard!|nIf you use SUF then you should go to SUF options in General and Unlock!")
 -- Box 1 --
 -- check button 1 do it --
-vcbOptions4Box1CheckButton1.Text:SetText("Undock")
+vcbOptions4Box1CheckButton1.Text:SetText("Unlock")
 vcbOptions4Box1CheckButton1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nCheck me! if you want to undock|nthe focus' cast bar!") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nCheck me! if you want to Unlock|nthe focus' cast bar!") 
 end)
 vcbOptions4Box1CheckButton1:SetScript("OnLeave", vcbLeavingMenus)
 vcbOptions4Box1CheckButton1:HookScript("OnClick", function (self, button)
@@ -512,7 +505,7 @@ end
 -- enter --
 vcbOptions4Box5PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nLatency's Bar to be shown?") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nSpell's Name to be shown?") 
 end)
 -- leave --
 vcbOptions4Box5PopOut1:SetScript("OnLeave", vcbLeavingMenus)
@@ -579,19 +572,6 @@ for i = 2, 5, 1 do
 	_G["vcbOptions4Box"..i.."PopOut1Choice8"].Text:SetText("Right")
 	_G["vcbOptions4Box"..i.."PopOut1Choice9"].Text:SetText("Bottom Right")
 end
-local function PreviewShow()
-	for i = 2, 5, 1 do
-		_G["vcbPreviewBoss"..i]:ClearAllPoints()
-		_G["vcbPreviewBoss"..i]:SetPoint("TOP", _G["vcbPreviewBoss"..i-1], "BOTTOM", 0, -32)
-	end
-end
-local function PreviewHide()
-	for i = 1, 5, 1 do
-		if VCBrBoss["otherAdddon"] == "Shadowed Unit Frame" then _G["SUFHeaderbossUnitButton"..i]:Hide() end
-		_G["Boss"..i.."TargetFrame"]:Hide()
-		_G["vcbPreviewBoss"..i]:Hide()
-	end
-end
 -- Showing the panel --
 vcbOptions4:HookScript("OnShow", function(self)
 	CheckSavedVariables()
@@ -602,7 +582,10 @@ vcbOptions4:HookScript("OnShow", function(self)
 		vcbPreviewBoss1:SetPoint("TOPRIGHT", self, "TOPLEFT", -32, -32)
 	else vcbPreviewBoss1:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrBoss["Position"]["X"], VCBrBoss["Position"]["Y"])
 	end
-	PreviewShow()
+	for i = 2, 5, 1 do
+		_G["vcbPreviewBoss"..i]:ClearAllPoints()
+		_G["vcbPreviewBoss"..i]:SetPoint("TOP", _G["vcbPreviewBoss"..(i-1)], "BOTTOM", 0, -32)
+	end
 	if vcbOptions1:IsShown() then vcbOptions1:Hide() end
 	if vcbOptions2:IsShown() then vcbOptions2:Hide() end
 	if vcbOptions3:IsShown() then vcbOptions3:Hide() end
@@ -617,5 +600,7 @@ vcbOptions4:HookScript("OnShow", function(self)
 end)
 -- Hiding the panel --
 vcbOptions4:SetScript("OnHide", function(self)
-	PreviewHide()
+	for i = 1, 5, 1 do
+		_G["vcbPreviewBoss"..i]:Hide()
+	end
 end)
