@@ -13,7 +13,7 @@ vcbOptions00Tab2.Text:SetText("目標施法條")
 vcbOptions00Tab3.Text:SetText("專注目標施法條")
 vcbOptions00Tab4.Text:SetText("首領施法條")
 vcbOptions00Tab5.Text:SetText("競技場施法條")
-vcbOptions00Tab5:Hide()
+--vcbOptions00Tab5:Hide()
 vcbOptions00Tab6.Text:SetText("設定檔")
 -- hiding the center text --
 for i = 1, 5, 1 do

@@ -68,7 +68,7 @@ local function CheckSavedVariables()
 	vcbOptions4Box5PopOut2:SetText(VCBrBoss["Color"])
 end
 -- taking care of the Bosses preview --
-vcbPreviewBoss1.Text:SetText("Bosses CB preview")
+vcbPreviewBoss1.Text:SetText("首領施法條預覽")
 vcbPreviewBoss1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("左鍵拖曳移動!") 

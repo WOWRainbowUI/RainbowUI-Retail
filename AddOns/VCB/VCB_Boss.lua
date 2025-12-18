@@ -712,9 +712,12 @@ function chkBossCastbarColor()
 end
 -- Position of  the bar --
 function vcbBossCastbarPosition(self)
-	self:SetScale(VCBrBoss["Scale"]/100)
 	self:ClearAllPoints()
 	self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrBoss["Position"]["X"], VCBrBoss["Position"]["Y"])
+end
+-- Scale of the bar --
+function vcbBossCastbarScale(self)
+	self:SetScale(VCBrBoss["Scale"]/100)
 end
 -- Events Time --
 local function EventsTime(self, event, arg1, arg2, arg3, arg4)
@@ -724,7 +727,15 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 			if VCBrBoss["Unlock"] then
 				Boss1TargetFrameSpellBar:HookScript("OnUpdate", function(self)
 					vcbBossCastbarPosition(self)
+					vcbBossCastbarScale(self)
 				end)
+				for i=2,5,1 do
+					_G["Boss"..i.."TargetFrameSpellBar"]:HookScript("OnUpdate", function(self)
+						self:SetScale(VCBrBoss["Scale"]/100)
+						self:ClearAllPoints()
+						self:SetPoint("TOP", _G["Boss"..(i-1).."TargetFrameSpellBar"], "BOTTOM", 0, -32)
+					end)
+				end
 			end
 		elseif VCBrBoss["otherAdddon"] == "Shadowed Unit Frame" then
 			sufBossSpellBarTexts()
@@ -745,6 +756,7 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 				_G["Boss"..i.."TargetFrameSpellBar"]:HookScript("OnShow", function(self)
 					local classFilename = UnitClassBase("boss"..i)
 					if classFilename ~= nil then vcbClassColorBoss = C_ClassColor.GetClassColor(classFilename) end
+					_G["VCBnameTextBoss"..i]:SetWidth(self:GetWidth())
 					vcbBossNamePosition(self, i)
 					vcbBossCurrentTimePosition(self, i)
 					vcbBossBothTimePosition(self, i)
@@ -767,6 +779,7 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 					self:SetScale(VCBrBoss["Scale"]/100)
 					local classFilename = UnitClassBase("boss"..i)
 					if classFilename ~= nil then vcbClassColorBoss = C_ClassColor.GetClassColor(classFilename) end
+					_G["VCBnameTextBoss"..i]:SetWidth(self:GetWidth())
 					vcbBossNamePosition(self, i)
 					vcbBossCurrentTimePosition(self, i)
 					vcbBossBothTimePosition(self, i)

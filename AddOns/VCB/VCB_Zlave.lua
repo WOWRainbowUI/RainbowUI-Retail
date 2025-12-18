@@ -83,7 +83,7 @@ local function CreateGlobalVariables()
 		end,
 		funcOnEnter = function(button)
 			MenuUtil.ShowTooltip(button, function(tooltip)
-			tooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nLeft Click: "..vcbMainColor:WrapTextInColorCode("Open the main panel of settings!"))
+			tooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|n左鍵: "..vcbMainColor:WrapTextInColorCode("打開設定!"))
 			end)
 		end,
 		funcOnLeave = function(button)
@@ -148,6 +148,20 @@ local function FirstTimeSavedVariables()
 			otherAdddon = "無",
 		}
 	end
+	if VCBrArena == nil then
+		VCBrArena = { Unlock = false,
+			Position = {X = 0, Y = 0},
+			Scale = 100,
+			NameText = "上",
+			CurrentTimeText = {Position = "左下", Direction = "兩者", Sec = "隱藏", Decimals = 2},
+			TotalTimeText = {Position = "右下", Sec = "隱藏", Decimals = 2},
+			BothTimeText = {Position = "隱藏", Direction = "兩者", Sec = "隱藏", Decimals = 2},
+			Color = "預設顏色",
+			Art = "預設",
+			otherAdddon = "無",
+			Icon = "顯示圖示 & 盾牌",
+		}
+	end
 	if VCBrPlayer["CurrentTimeText"]["Decimals"] == nil then VCBrPlayer["CurrentTimeText"]["Decimals"] = 1 end -- 更改預設值
 	if VCBrPlayer["TotalTimeText"]["Decimals"] == nil then VCBrPlayer["TotalTimeText"]["Decimals"] = 1 end
 	if VCBrPlayer["BothTimeText"]["Decimals"] == nil then VCBrPlayer["BothTimeText"]["Decimals"] = 1 end
@@ -157,7 +171,7 @@ local function FirstTimeSavedVariables()
 	if VCBrFocus["CurrentTimeText"]["Decimals"] == nil then VCBrFocus["CurrentTimeText"]["Decimals"] = 1 end
 	if VCBrFocus["TotalTimeText"]["Decimals"] == nil then VCBrFocus["TotalTimeText"]["Decimals"] = 1 end
 	if VCBrFocus["BothTimeText"]["Decimals"] == nil then VCBrFocus["BothTimeText"]["Decimals"] = 1 end
-	if VCBrPlayer["GCD"] == nil then VCBrPlayer["GCD"] = {ClassicTexture = "隱藏",} end
+	if VCBrPlayer["GCD"] == nil then VCBrPlayer["GCD"] = {ClassicTexture = "Class Icon",} end
 	if VCBrPlayer["QueueBar"] == nil then VCBrPlayer["QueueBar"] = "顯示" end
 	if VCBrTarget["Icon"] == nil then VCBrTarget["Icon"] = "顯示圖示 & 盾牌" end
 	if VCBrFocus["Icon"] == nil then VCBrFocus["Icon"] = "顯示圖示 & 盾牌" end

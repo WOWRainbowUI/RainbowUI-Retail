@@ -16,7 +16,7 @@
 ## DefaultState: enabled
 ## SavedVariables: VCBrNumber VCBrProfile VCBrCounterLoading VCBrCounterDeleting
 ## SavedVariablesPerCharacter: VCBrPlayer VCBrTarget VCBrFocus VCBrBoss VCBrArena
-## Version: 1.78
+## Version: 1.79
 ## Author: The_Indolent
 ## X-Website: https://panosanastasiou.rocks/
 
@@ -30,3 +30,4 @@ VCB_Player.xml
 VCB_Target.lua
 VCB_Focus.lua
 VCB_Boss.lua
+VCB_Arena.lua
