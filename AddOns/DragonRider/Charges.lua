@@ -1,4 +1,4 @@
-local _, DR = ...
+	local _, DR = ...
 
 local L = DR.L
 local defaultsTable = DR.defaultsTable
@@ -26,6 +26,7 @@ local CHARGE_SPACING_DEFAULT = 5.5
 -- vigor bar defaults
 local DEFAULT_ORIENTATION = 2
 local DEFAULT_VIGOR_WRAP = 6
+local STATIC_CHARGE_AURA = 418590
 
 local TexturePath = "Interface\\AddOns\\DragonRider\\Textures\\"
 local PixelTexture = "Interface\\buttons\\white8x8"
@@ -289,10 +290,10 @@ function DR.charge:OnEvent(event, ...)
 	if event == "UNIT_AURA" then
 		local unit = select(1, ...)
 		if unit == "player" then
-			DR.UpdateChargePositions() 
-			if GetRestrictedActionStatus and GetRestrictedActionStatus(Enum.RestrictedActionType.SecretCooldowns) then return end
+			DR.UpdateChargePositions()
+			if C_Secrets and C_Secrets.ShouldSpellCooldownBeSecret(STATIC_CHARGE_AURA) then return end
 			local chargeCount = 0
-			local spellAura = C_UnitAuras.GetPlayerAuraBySpellID(418590)
+			local spellAura = C_UnitAuras.GetPlayerAuraBySpellID(STATIC_CHARGE_AURA)
 			if issecretvalue and issecretvalue(spellAura) then
 				return
 			end
