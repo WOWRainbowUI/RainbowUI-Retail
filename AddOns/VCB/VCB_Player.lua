@@ -1725,6 +1725,7 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 		vcbCreatingTheGCD()
 		-- Hooking Time part 1 --
 		PlayerCastingBarFrame:HookScript("OnShow", function(self)
+			VCBnameText:SetWidth(self:GetWidth())
 			vcbPlayerIconVisibility(self)
 			vcbPlayerNamePosition(self)
 			vcbPlayerCurrentTimePosition(self)
@@ -1734,7 +1735,7 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 		-- Hooking Time part 2 --
 		PlayerCastingBarFrame:HookScript("OnUpdate", function(self)
 			self.Text:SetAlpha(0)
-			VCBnameText:SetText(self.Text:GetText())
+			VCBnameText:SetText(self.Text:GetText() )
 			if self.value ~= nil and self.maxValue ~= nil then
 				vcbPlayerCurrentTimeUpdate(self)
 				vcbPlayerBothTimeUpdate(self)

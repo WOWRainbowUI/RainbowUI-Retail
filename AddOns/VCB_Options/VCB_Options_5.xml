@@ -1,6 +1,272 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
 	<Frame name="vcbOptions5" inherits="vcbOptionsPanel" parent="UIParent">
+		<Frames>
+<!-- Options Box 0, Read Me! -->
+			<Frame name="$parentBox0" inherits="vcbOptionsBox">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x ="0" y="-64"/>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x ="0" y="-64"/>
+				</Anchors>
+				<Size y="144"/>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString parentKey="CenterText" font="Game13FontShadow" justifyV="MIDDLE" justifyH="LEFT" >
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent.TitleTxt" relativePoint="BOTTOM" x="0" y="-8"/>
+							</Anchors>
+							<Scripts>
+								<OnLoad>
+									self:SetTextColor(vcbMainColor:GetRGB())
+								</OnLoad>
+								<OnShow>
+									self:SetWidth(self:GetParent():GetWidth()*0.95)
+								</OnShow>
+							</Scripts>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+<!-- Options Box 1, Arena castbar -->
+			<Frame name="$parentBox1" inherits="vcbOptionsBox">
+				<Size x="360" y="112"/>
+				<Frames>
+<!-- Check Button 1, lock & unlock -->
+					<CheckButton name="$parentCheckButton1" inherits="vcbCheckButton">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="8" y="-28"/>
+						</Anchors>
+					</CheckButton>
+<!--Slider 1, scale -->	
+					<Frame name="$parentSlider1" inherits="vcbSlider">
+						<Anchors>
+							<Anchor point="BOTTOM" relativePoint="BOTTOM" x="0" y="12"/>
+						</Anchors>
+					</Frame>
+<!-- Pop Out Button 1, other add-ons -->
+					<Button name="$parentPopOut1" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-8" y="-24"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+				</Frames>
+			</Frame>
+<!-- Options Box 2, Current Cast Time -->
+			<Frame name="$parentBox2" inherits="vcbOptionsBox">
+				<Size x="360" y="128"/>
+				<Frames>
+<!-- Pop Out Button 4 Number of Decimals -->
+					<Button name="$parentPopOut4" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativePoint="BOTTOM" x="0" y="8"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice2" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+<!-- Pop Out Button 3 Sec Show or Hide -->
+					<Button name="$parentPopOut3" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="$parentPopOut4" relativePoint="TOPLEFT" x="0" y="0"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+<!-- Pop Out Button 2 Ascending or Descending -->
+					<Button name="$parentPopOut2" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="$parentPopOut3" relativePoint="TOPLEFT" x="0" y="0"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice2" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+<!-- Pop Out Button 1 Position -->
+					<Button name="$parentPopOut1" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="RIGHT" relativeTo="$parentPopOut3" relativePoint="LEFT" x="0" y="0"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice2" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice3" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice4" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice5" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice6" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice7" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice8" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice9" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+				</Frames>
+			</Frame>
+<!-- Options Box 3, Current & Total Cast Time -->
+			<Frame name="$parentBox3" inherits="vcbOptionsBox">
+				<Size x="360" y="128"/>
+				<Frames>
+<!-- Pop Out Button 4 Number of Decimals -->
+					<Button name="$parentPopOut4" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativePoint="BOTTOM" x="0" y="8"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice2" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+<!-- Pop Out Button 3 Sec Show or Hide -->
+					<Button name="$parentPopOut3" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="$parentPopOut4" relativePoint="TOPLEFT" x="0" y="0"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+<!-- Pop Out Button 2 Ascending or Descending -->
+					<Button name="$parentPopOut2" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="$parentPopOut3" relativePoint="TOPLEFT" x="0" y="0"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice2" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+<!-- Pop Out Button 1 Position -->
+					<Button name="$parentPopOut1" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="RIGHT" relativeTo="$parentPopOut3" relativePoint="LEFT" x="0" y="0"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice2" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice3" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice4" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice5" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice6" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice7" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice8" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice9" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+				</Frames>
+			</Frame>
+<!-- Options Box 4, Total Cast Time -->
+			<Frame name="$parentBox4" inherits="vcbOptionsBox">
+				<Size x="360" y="96"/>
+				<Frames>
+<!-- Pop Out Button 3 Number of Decimals -->
+					<Button name="$parentPopOut3" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativePoint="BOTTOM" x="0" y="8"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice2" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+<!-- Pop Out Button 2 Sec Show or Hide -->
+					<Button name="$parentPopOut2" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="$parentPopOut3" relativePoint="TOPLEFT" x="0" y="0"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+<!-- Pop Out Button 1 Position -->
+					<Button name="$parentPopOut1" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeTo="$parentPopOut2" relativePoint="LEFT" x="0" y="0"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice2" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice3" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice4" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice5" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice6" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice7" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice8" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice9" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+				</Frames>
+			</Frame>
+<!-- Options Box 5, Spell's Name and Castbar's Color -->
+			<Frame name="$parentBox5" inherits="vcbOptionsBox">
+				<Size x="360" y="72"/>
+				<Frames>
+<!-- Pop Out Button 1, Spell's Name, position -->
+					<Button name="$parentPopOut1" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeKey="$parent.TitleTxt" relativePoint="BOTTOM" x="0" y="-8"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice2" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice3" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice4" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice5" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice6" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice7" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice8" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice9" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+<!-- Pop Out Button 2, Castbar's Color -->
+					<Button name="$parentPopOut2" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="$parentPopOut1" relativePoint="RIGHT" x="0" y="0"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+				</Frames>
+			</Frame>
+		</Frames>
+	</Frame>
+<!-- Cast Bar Preview -->
+	<Frame name="vcbPreviewArena1" inherits="vcbPreview">
+		<Scripts>
+			<OnLoad>
+				if VCBrArena["otherAdddon"] == "Shadowed Unit Frame" then
+					self:SetParent(SUFHeaderArenaUnitButton1)
+				elseif VCBrArena["otherAdddon"] == "None" then
+					self:SetParent(CompactArenaFrameMember1.CastingBarFrame)
+				end
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="vcbPreviewArena2" inherits="vcbPreview">
+		<Scripts>
+			<OnLoad>
+				if VCBrArena["otherAdddon"] == "Shadowed Unit Frame" then
+					self:SetParent(SUFHeaderArenaUnitButton2)
+				elseif VCBrArena["otherAdddon"] == "None" then
+					self:SetParent(CompactArenaFrameMember2.CastingBarFrame)
+				end
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="vcbPreviewArena3" inherits="vcbPreview">
+		<Scripts>
+			<OnLoad>
+				if VCBrArena["otherAdddon"] == "Shadowed Unit Frame" then
+					self:SetParent(SUFHeaderArenaUnitButton3)
+				elseif VCBrArena["otherAdddon"] == "None" then
+					self:SetParent(CompactArenaFrameMember3.CastingBarFrame)
+				end
+			</OnLoad>
+		</Scripts>
 	</Frame>
 	<Script file="VCB_Options_5.lua"/>
 </Ui>
