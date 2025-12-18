@@ -1033,16 +1033,13 @@ function DR.OnAddonLoaded()
 
 			local function GetOptions()
 				local container = Settings.CreateControlTextContainer()
-				container:Add(1, L["Default"])
-				container:Add(2, L["ThemeAlgari_Gold"])
-				container:Add(3, L["Minimalist"])
-				container:Add(4, L["Alliance"])
-				container:Add(5, L["Horde"])
-				container:Add(6, L["ThemeAlgari_Bronze"])
-				container:Add(7, L["ThemeAlgari_Dark"])
-				container:Add(8, L["ThemeAlgari_Silver"])
-				container:Add(9, L["ThemeDefault_Desaturated"])
-				container:Add(10, L["ThemeAlgari_Desaturated"])
+                for index, data in ipairs(DR.SpeedometerOptions) do
+                    if data.name then
+                        container:Add(index, data.name)
+                    else
+                        container:Add(index, "Theme " .. index)
+                    end
+                end
 				return container:GetData()
 			end
 
