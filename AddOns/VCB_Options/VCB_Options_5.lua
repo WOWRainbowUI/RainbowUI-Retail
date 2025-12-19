@@ -194,7 +194,7 @@ vcbOptions5Box1PopOut1Choice1:SetScript("OnLeave", vcbLeavingMenus)
 -- enter --
 vcbOptions5Box2PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..C_AddOns.GetAddOnMetadata("當前施法時間要顯示在哪裡?") 
+	GameTooltip:SetText("當前施法時間要顯示在哪裡?") 
 end)
 -- leave --
 vcbOptions5Box2PopOut1:SetScript("OnLeave", vcbLeavingMenus)

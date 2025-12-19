@@ -39,6 +39,7 @@ vcbOptions00:SetScript("OnShow", function(self)
 		vcbOptions00Tab2:Hide()
 		vcbOptions00Tab3:Hide()
 		vcbOptions00Tab4:Hide()
+		vcbOptions00Tab5:Hide()
 	end
 end)
 -- hiding the tabs --
