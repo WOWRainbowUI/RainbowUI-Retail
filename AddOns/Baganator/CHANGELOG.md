@@ -1,6 +1,6 @@
 # Baganator
 
-## [773](https://github.com/TheMouseNest/Baganator/tree/773) (2025-12-08)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/772...773) 
+## [774](https://github.com/TheMouseNest/Baganator/tree/774) (2025-12-18)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/773...774) 
 
-- [Fixes #584] Retail: Fix search not clearing when changing bank type  
+- Update supported versions to include 5.5.3  
