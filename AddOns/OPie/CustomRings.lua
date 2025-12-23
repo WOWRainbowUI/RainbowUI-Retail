@@ -1,4 +1,4 @@
-local MAJ, REV, _, T = 3, 62, ...
+local MAJ, REV, _, T = 3, 63, ...
 local EV, ORI, PC = T.Evie, OPie.UI, T.OPieCore
 local AB, RW, IM = T.ActionBook:compatible(2,37), T.ActionBook:compatible("Rewire", 1,10), T.ActionBook:compatible("Imp", 1, 0)
 assert(ORI and AB and RW and IM and EV and PC and 1, "Missing required libraries")
@@ -287,7 +287,7 @@ local function RK_SyncRing(name, force, tok)
 		PC:SetRing(name, cid, desc)
 	end
 
-	local onOpenSlice, onOpenAction, onOpenToken = desc.onOpen
+	local onOpenSlice, onOpenAction, onOpenToken, onOpenPresent = desc.onOpen
 	for i=1, #desc do
 		local e = desc[i]
 		local ident, action, pmode = e[1]
@@ -298,7 +298,7 @@ local function RK_SyncRing(name, force, tok)
 		changed = changed or (action ~= e._action) or action and (e.show ~= e._show or e.embed ~= e._embed or pmode ~= e._pmode)
 		e._action, e._pmode = action, pmode
 		if i == onOpenSlice then
-			onOpenAction, onOpenToken = e._action, e.sliceToken
+			onOpenAction, onOpenToken, onOpenPresent = action, e.sliceToken, pmode
 		elseif action then
 			ORI:SetDisplayOptions(e.sliceToken, e.icon, e.label, e._r, e._g, e._b)
 		end
@@ -320,6 +320,7 @@ local function RK_SyncRing(name, force, tok)
 	collection['__embed'], desc._embed = desc.embed, desc.embed
 	collection['__openAction'], desc._onOpen = onOpenAction, onOpenAction
 	collection['__openToken'], desc._onOpenToken = onOpenToken, onOpenToken
+	collection['__openPresent'] = onOpenPresent
 	AB:UpdateActionSlot(cid, collection)
 	PC:SetRing(name, cid, desc)
 end

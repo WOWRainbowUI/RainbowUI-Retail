@@ -1,4 +1,4 @@
-local COMPAT, CANAME, T = select(4, GetBuildInfo()), ...
+local COMPAT, _, T = select(4, GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
@@ -63,37 +63,38 @@ securecall(function() -- spec:id/name
 	end
 end)
 securecall(function() -- form:token
+	local GetSpellName = C_Spell.GetSpellName
 	local map, curCnd, pending =
 		playerClass == "DRUID" and {
-			[GetSpellInfo(40120) or 1]="/flight",
-			[GetSpellInfo(33943) or 1]="/flight",
-			[GetSpellInfo(1066) or 1]="/aquatic",
-			[GetSpellInfo(783) or 1]="/travel",
-			[GetSpellInfo(24858) or 1]="/moon/moonkin",
-			[GetSpellInfo(768) or 1]="/cat",
-			[GetSpellInfo(171745) or 1]="/cat",
-			[GetSpellInfo(5487) or 1]="/bear",
-			[not MODERN and GetSpellInfo(9634) or 1]="/bear",
-			[GetSpellInfo(114282) or 1]="/treant",
-			[GetSpellInfo(210053) or 1]="/stag",
+			[GetSpellName(40120) or 1]="/flight",
+			[GetSpellName(33943) or 1]="/flight",
+			[GetSpellName(1066) or 1]="/aquatic",
+			[GetSpellName(783) or 1]="/travel",
+			[GetSpellName(24858) or 1]="/moon/moonkin",
+			[GetSpellName(768) or 1]="/cat",
+			[GetSpellName(171745) or 1]="/cat",
+			[GetSpellName(5487) or 1]="/bear",
+			[not MODERN and GetSpellName(9634) or 1]="/bear",
+			[GetSpellName(114282) or 1]="/treant",
+			[GetSpellName(210053) or 1]="/stag",
 		} or
 		playerClass == "WARRIOR" and {
-			[GetSpellInfo(197690) or 1]="/defensive",
-			[GetSpellInfo(386164) or 1]="/battle",
-			[GetSpellInfo(386196) or 1]="/berserker",
-			[GetSpellInfo(386208) or 1]="/defensive",
-			[CI_ERA and GetSpellInfo(412513) or 1]="/gladiator",
-			[GetSpellInfo(2457) or 1]="/battle",
-			[GetSpellInfo(71) or 1]="/defensive",
-			[GetSpellInfo(2458) or 1]="/berserker",
+			[GetSpellName(197690) or 1]="/defensive",
+			[GetSpellName(386164) or 1]="/battle",
+			[GetSpellName(386196) or 1]="/berserker",
+			[GetSpellName(386208) or 1]="/defensive",
+			[CI_ERA and GetSpellName(412513) or 1]="/gladiator",
+			[GetSpellName(2457) or 1]="/battle",
+			[GetSpellName(71) or 1]="/defensive",
+			[GetSpellName(2458) or 1]="/berserker",
 		}
 	if map then
 		KR:SetAliasConditional("stance", "form")
 		local function syncForm()
-			local s = ""
+			local GetSpellName, s = C_Spell.GetSpellName, ""
 			for i=1,10 do
 				local _, _, _, fsid = GetShapeshiftFormInfo(i)
-				local name = GetSpellInfo(fsid)
+				local name = fsid and GetSpellName(fsid)
 				s = ("%s[form:%d] %d%s;"):format(s, i,i, map[name] or "")
 			end
 			if curCnd ~= s then
@@ -223,7 +224,7 @@ securecall(function() -- outpost
 		[161767]="sanctum", [162075]="arsenal",
 		[168499]="brewery", [168487]="brewery", [170108]="smuggling run/run", [170097]="smuggling run/run",
 		[164222]="corral", [165803]="corral", [160240]="tankworks", [160241]="tankworks",
-	}, false, GetSpellInfo(161691)
+	}, false, C_Spell.GetSpellName(161691)
 	local function syncOutpost()
 		local ns = map[select(7, GetSpellInfo(name))]
 		if state ~= ns then
@@ -437,23 +438,24 @@ securecall(function() -- professions
 		[794]="arch", [185]="cook", [356]="fish",
 		[20219]="nomeng", [20222]="gobeng",
 	}
+	local GetSpellName = C_Spell.GetSpellName
 	map = map or {
-		[GetSpellInfo(3908) or ""]="tail",
-		[GetSpellInfo(2108) or ""]="lw",
-		[GetSpellInfo(2018) or ""]="bs",
-		[GetSpellInfo(2259) or ""]="alch",
-		[GetSpellInfo(4036) or ""]="engi",
-		[GetSpellInfo(7411) or ""]="ench",
-		[GetSpellInfo(2366) or ""]="herb",
-		[GetSpellInfo(2575) or ""]="mine",
-		[GetSpellInfo(8613) or ""]="skin",
-		[GetSpellInfo(2550) or ""]="cook",
-		[GetSpellInfo(3273) or ""]="faid",
-		[GetSpellInfo(7620) or ""]="fish",
-		[GetSpellInfo(20221) or ""]="gobeng",
-		[GetSpellInfo(20222) or ""]="gobeng",
-		[GetSpellInfo(20220) or ""]="nomeng",
-		[GetSpellInfo(20219) or ""]="nomeng",
+		[GetSpellName(3908) or ""]="tail",
+		[GetSpellName(2108) or ""]="lw",
+		[GetSpellName(2018) or ""]="bs",
+		[GetSpellName(2259) or ""]="alch",
+		[GetSpellName(4036) or ""]="engi",
+		[GetSpellName(7411) or ""]="ench",
+		[GetSpellName(2366) or ""]="herb",
+		[GetSpellName(2575) or ""]="mine",
+		[GetSpellName(8613) or ""]="skin",
+		[GetSpellName(2550) or ""]="cook",
+		[GetSpellName(3273) or ""]="faid",
+		[GetSpellName(7620) or ""]="fish",
+		[GetSpellName(20221) or ""]="gobeng",
+		[GetSpellName(20222) or ""]="gobeng",
+		[GetSpellName(20220) or ""]="nomeng",
+		[GetSpellName(20219) or ""]="nomeng",
 	}
 	local spellIDProfs = {
 		[264636]="cook3",
@@ -658,12 +660,7 @@ securecall(function() -- coven:kyrian/venthyr/fae/necro
 end)
 securecall(function() -- worldhover
 	KR:SetStateConditionalValue("worldhover", false)
-	local wf = CreateFrame("Frame", nil, nil, "ProtectedFrameTemplate-" .. CANAME)
-	wf:SetAllPoints(WorldFrame)
-	wf:SetPropagateMouseMotion(true)
-	wf:SetPropagateMouseClicks(true)
-	wf:EnableMouse(false)
-	wf:EnableMouseMotion(true)
+	local wf = CreateFrame("Frame", nil, nil, "SecureFrameTemplate")
 	wf:SetFrameStrata("BACKGROUND")
 	wf:SetFrameLevel(0)
 	local function wfOnMotion()
@@ -685,6 +682,10 @@ securecall(function() -- worldhover
 	SecureHandlerExecute(wf, [[KR = self:GetFrameRef("KR"); self:SetAttribute("frameref-KR", nil)]])
 	SecureHandlerWrapScript(wf, "OnEnter", wf, 'KR:RunAttribute("UpdateStateConditional", "worldhover", "*", nil)')
 	SecureHandlerWrapScript(wf, "OnLeave", wf, 'KR:RunAttribute("UpdateStateConditional", "worldhover", nil, "*")')
+	wf:EnableMouse(false)
+	wf:EnableMouseMotion(true)
+	wf:SetPropagateMouseMotion(true)
+	wf:SetAllPoints(WorldFrame)
 end)
 securecall(function() -- imbuedmh, imbuedoh, imbuedrw
 	local h = CreateFrame("Frame", nil, nil, "SecureAuraHeaderTemplate")

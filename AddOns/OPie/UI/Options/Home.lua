@@ -1,5 +1,5 @@
 local ADDON, T = ...
-local H, PC, TS, L = {}, T.OPieCore, T.TenSettings, T.L
+local H, PC, TS, XU, L = {}, T.OPieCore, T.TenSettings, T.exUI, T.L
 
 local frame = TS:CreateOptionsPanel("OPie", nil, {
 	forceRootVersion=true,
@@ -94,14 +94,14 @@ local logView = CreateFrame("Frame", nil, frame) do
 	end)
 	logView:SetHyperlinksEnabled(true)
 
-	local oy, t = -5, logView:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	local oy, t = 0, logView:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	t:SetPoint("TOPLEFT", 20, oy)
 	t:SetText(L"What's New")
 	t = CreateFrame("Button", nil, logView, "UIPanelCloseButtonNoScripts")
-	t:SetPoint("TOPRIGHT", -20, oy+6)
+	t:SetPoint("TOPRIGHT", -10, oy+6)
 	t:SetScript("OnClick", function() frame.refresh() end)
 
-	oy, t = oy-20, logView:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	oy, t = oy-25, logView:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	t:SetPoint("TOPLEFT", 20, oy)
 	t:SetPoint("TOPRIGHT", -20, oy)
 	t:SetJustifyH("LEFT")
@@ -112,12 +112,41 @@ local logView = CreateFrame("Frame", nil, frame) do
 	intro = intro .. "\n\n" .. (L"Changes marked with %s were inspired by submitted feedback."):format(uvMark)
 	t:SetFormattedText(intro, link)
 
-	local anchorTo, anchorX, anchorY = CreateFrame("Frame", nil, logView), 0, 0
-	anchorTo:SetHeight(5)
-	anchorTo:SetPoint("TOPLEFT", t, "BOTTOMLEFT", 20, 0)
-	anchorTo:SetPoint("TOPRIGHT", t, "BOTTOMRIGHT", 0, 0)
+	local vGradient = {x=0, y=7}
+	local clipHost = CreateFrame("Frame", nil, logView)
+	clipHost:SetClipsChildren(true)
+	clipHost:SetFlattensRenderLayers(true)
+	clipHost:SetAlphaGradient(0, vGradient)
+	clipHost:SetAlphaGradient(1, vGradient)
+	clipHost:SetPoint("TOPLEFT", t, "BOTTOMLEFT", 0, -12)
+	clipHost:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 15)
+	clipHost:SetHyperlinkPropagateToParent(true)
+	local clipAnchor = CreateFrame("Frame", nil, clipHost)
+	clipAnchor:SetHeight(0.125)
+	clipAnchor:SetPoint("TOPLEFT", 20, 0)
+	clipAnchor:SetPoint("TOPRIGHT", 0, 0)
+	local clipBar = XU:Create("ScrollBar", nil, logView), t
+	clipBar:SetPoint("TOPLEFT", clipHost, "TOPRIGHT", 2, 20)
+	clipBar:SetPoint("BOTTOMLEFT", clipHost, "BOTTOMRIGHT", 2, -16)
+	clipBar:SetWheelScrollTarget(clipHost, -2, -5, -2, -1)
+	clipBar:SetCoverTarget(clipHost)
+	clipBar:SetScript("OnValueChanged", function(_, nv)
+		clipAnchor:SetPoint("TOPLEFT", 20, nv)
+		clipAnchor:SetPoint("TOPRIGHT", 0, nv)
+	end)
+	local anchorTo, anchorX, anchorY = clipAnchor, 0, -4
+	local function syncScrollRange()
+		local ch = clipAnchor:GetTop() - anchorTo:GetBottom()
+		local vh = math.max(1, clipHost:GetHeight() - 8)
+		clipBar:SetShown(ch > vh)
+		clipBar:SetMinMaxValues(0, math.max(0,ch-vh))
+		clipBar:SetWindowRange(vh)
+		clipBar:SetValueStep(30)
+		clipBar:SetStepsPerPage(math.max(1,vh/30/8), math.max(1,vh/30/4))
+	end
+	clipHost:SetScript("OnShow", syncScrollRange)
 	local function li(text, uv)
-		local oy, b = anchorY, logView:CreateTexture(nil, "OVERLAY")
+		local oy, b = anchorY, clipHost:CreateTexture(nil, "OVERLAY")
 		b:SetSize(14, 14)
 		b:SetPoint("TOPRIGHT", anchorTo, "BOTTOMLEFT", anchorX-4, oy+1)
 		b:SetTexture(MARK_TEXTURE)
@@ -125,7 +154,7 @@ local logView = CreateFrame("Frame", nil, frame) do
 		if uv then
 			b:SetVertexColor(221/255, 102/255, 0)
 		end
-		local t = logView:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+		local t = clipHost:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 		t:SetPoint("TOPLEFT", anchorTo, "BOTTOMLEFT", anchorX, oy)
 		t:SetPoint("TOPRIGHT", anchorTo, "BOTTOMRIGHT", 0, oy)
 		t:SetJustifyH("LEFT")
@@ -136,24 +165,14 @@ local logView = CreateFrame("Frame", nil, frame) do
 		return li(text, true)
 	end
 	local function vh(text)
-		local oy, t = -12, logView:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+		local oy, t = anchorTo ~= clipAnchor and anchorY -12 or -2, clipHost:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		t:SetPoint("TOPLEFT", anchorTo, "BOTTOMLEFT", anchorX-20, oy)
 		t:SetPoint("TOPRIGHT", anchorTo, "BOTTOMRIGHT", 0, oy)
 		t:SetJustifyH("LEFT")
 		t:SetText(text)
 		anchorTo, anchorX, anchorY = t, 20, -4
 	end
-
-	vh("v7.11.1")
-	uv([[Added <tt>[in:legacy]</tt> extended conditional token, satisfied when legacy loot rules are active.]])
-	li([[Added an in-game <b>What's New</b> list, accessible from the new <b>Home</b> tab in the <b>Options</b> window. (Hi!)]])
-	vh("Ånd 7.5 (2025-10-31)")
-	li([[Loot toasts are now dismissed by default when you open an OPie ring. You can control this behavior using the <b>Hide toasts on ring open</b> checkbox in the Behavior section of <tt>/opie</tt> options.]])
-	li([[Feedback for |cff71d5ffSingle-Button Assitant|r macros now reflects the spell the assistant will cast.]])
-	li([[|cff71d5ffPath of the Seasoned Hero|r can now also teleport to Legion Remix dungeons.]])
-	uv([[You can now use <tt>[pet:ferocity/cunning/tenacity]</tt> on Modern and Classic Mists to check the specialization of your Hunter pet. If you have multiple summonable pets of the same species, this relies on unique pet names to identify your active pet.]])
-	vh("Ånd 7.3 (2025-09-24)")
-	li([[Added a |cff71d5ffPath of the Seasoned Hero|r slice to the built-in <b>Specializations and Travel</b> ring. You can use this "ability" to teleport to a mythic dungeon or raid for which you have learned the relevant Path ability; the destination updates dynamically based on your own keystone and the designated activity of the premade group you have created or joined.]])
+	securecall(T.WhatsNewData, vh, uv, li)
 end
 
 local navDialogs = {"ShowWhatsNew", "ShowReportIssuePrompt", "ShowTranslatePrompt",

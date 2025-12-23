@@ -1,6 +1,6 @@
-## Interface: 11508, 50502, 110205, 110207
+## Interface: 11508, 50503, 110207
 ## Title: OPie
-## Version: 7.11.1
+## Version: 7.11.2
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
 ## X-Website: https://www.townlong-yak.com/addons/opie
@@ -19,28 +19,27 @@
 ## Notes-ptBR: Agrupar habilidades em anéis que aparecem quando você ativa um vínculo.
 ## SavedVariables: OneRing_Config, OPie_SavedData
 ## SavedVariablesPerCharacter: OPie_SavedDataPC
-## OptionalDeps: TaintLess
 ## X-M6-AB: OPie.ActionBook
-Meta\PackTag-4.lua
+Meta\PackTag-5.lua
 Libs\Evie.lua
 Libs\Niji.lua
 Libs\exui\exui.xml
 Libs\Ware.lua
-Libs\BrokenSun.xml
 Libs\ActionBook\ActionBook.xml
 Libs\Mirage.lua
 Libs\NotGameTooltip.lua
 Libs\TenSettings.lua
 UI\Widgets.lua
 Locale.lua
+WhatsNew.lua
 OPieCore.lua
 UI\RingView.lua
 CustomRings.lua
 UI\ConfigHost.lua
-UI\Panel\Home.lua
-UI\Panel\Options.lua
-UI\Panel\Bindings.lua
-UI\Panel\CRings.lua
+UI\Options\Home.lua
+UI\Options\Options.lua
+UI\Options\Bindings.lua
+UI\Options\RingEdit.lua
 Meta\StanceBar.lua
 Meta\SpecSet.lua
 Meta\DataBroker.lua

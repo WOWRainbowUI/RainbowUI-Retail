@@ -278,7 +278,7 @@ function internal:OnEnterPressed()
 		             fid1 and (fid1 < 0 and "Interface/Icons/" .. text or fid1) or
 		             C_Texture.GetAtlasInfo(text) and text or
 		             nt > 0 and nt or
-		             GetSpellTexture(text)
+		             C_Spell.GetSpellTexture(text)
 		if not path then
 			return self:HighlightText()
 		end
