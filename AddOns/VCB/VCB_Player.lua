@@ -122,54 +122,63 @@ function chkPlayerNamePosition()
 		function vcbPlayerNamePosition(self)
 			VCBnameText:ClearAllPoints()
 			VCBnameText:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, -2)
+			VCBnameText:SetJustifyH("LEFT")
 			if not VCBnameText:IsShown() then VCBnameText:Show() end
 		end
 	elseif VCBrPlayer["NameText"] == "左" then
 		function vcbPlayerNamePosition(self)
 			VCBnameText:ClearAllPoints()
 			VCBnameText:SetPoint("LEFT", self, "LEFT", 4, 0)
+			VCBnameText:SetJustifyH("LEFT")
 			if not VCBnameText:IsShown() then VCBnameText:Show() end
 		end
 	elseif VCBrPlayer["NameText"] == "左下" then
 		function vcbPlayerNamePosition(self)
 			VCBnameText:ClearAllPoints()
 			VCBnameText:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 5, 1)
+			VCBnameText:SetJustifyH("LEFT")
 			if not VCBnameText:IsShown() then VCBnameText:Show() end
 		end
 	elseif VCBrPlayer["NameText"] == "上" then
 		function vcbPlayerNamePosition(self)
 			VCBnameText:ClearAllPoints()
 			VCBnameText:SetPoint("BOTTOM", self, "TOP", 0, -2)
+			VCBnameText:SetJustifyH("CENTER")
 			if not VCBnameText:IsShown() then VCBnameText:Show() end
 		end
 	elseif VCBrPlayer["NameText"] == "中" then
 		function vcbPlayerNamePosition(self)
 			VCBnameText:ClearAllPoints()
 			VCBnameText:SetPoint("CENTER", self, "CENTER", 0, 0)
+			VCBnameText:SetJustifyH("CENTER")
 			if not VCBnameText:IsShown() then VCBnameText:Show() end
 		end
 	elseif VCBrPlayer["NameText"] == "下" then
 		function vcbPlayerNamePosition(self)
 			VCBnameText:ClearAllPoints()
 			VCBnameText:SetPoint("TOP", self, "BOTTOM", 0, 1)
+			VCBnameText:SetJustifyH("CENTER")
 			if not VCBnameText:IsShown() then VCBnameText:Show() end
 		end
 	elseif VCBrPlayer["NameText"] == "右上" then
 		function vcbPlayerNamePosition(self)
 			VCBnameText:ClearAllPoints()
 			VCBnameText:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -2)
+			VCBnameText:SetJustifyH("RIGHT")
 			if not VCBnameText:IsShown() then VCBnameText:Show() end
 		end
 	elseif VCBrPlayer["NameText"] == "右" then
 		function vcbPlayerNamePosition(self)
 			VCBnameText:ClearAllPoints()
 			VCBnameText:SetPoint("RIGHT", self, "RIGHT", -4, 0)
+			VCBnameText:SetJustifyH("RIGHT")
 			if not VCBnameText:IsShown() then VCBnameText:Show() end
 		end
 	elseif VCBrPlayer["NameText"] == "右下" then
 		function vcbPlayerNamePosition(self)
 			VCBnameText:ClearAllPoints()
 			VCBnameText:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -5, 1)
+			VCBnameText:SetJustifyH("RIGHT")
 			if not VCBnameText:IsShown() then VCBnameText:Show() end
 		end
 	elseif VCBrPlayer["NameText"] == "隱藏" then
@@ -1725,8 +1734,8 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 		vcbCreatingTheGCD()
 		-- Hooking Time part 1 --
 		PlayerCastingBarFrame:HookScript("OnShow", function(self)
-			VCBnameText:SetWidth(self:GetWidth())
 			vcbPlayerIconVisibility(self)
+			VCBnameText:SetWidth(self:GetWidth())
 			vcbPlayerNamePosition(self)
 			vcbPlayerCurrentTimePosition(self)
 			vcbPlayerBothTimePosition(self)
@@ -1735,7 +1744,7 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 		-- Hooking Time part 2 --
 		PlayerCastingBarFrame:HookScript("OnUpdate", function(self)
 			self.Text:SetAlpha(0)
-			VCBnameText:SetText(self.Text:GetText() )
+			VCBnameText:SetText(self.Text:GetText())
 			if self.value ~= nil and self.maxValue ~= nil then
 				vcbPlayerCurrentTimeUpdate(self)
 				vcbPlayerBothTimeUpdate(self)
