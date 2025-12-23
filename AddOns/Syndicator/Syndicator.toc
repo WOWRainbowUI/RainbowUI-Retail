@@ -1,6 +1,6 @@
-## Interface: 11508, 30405, 50502, 110205, 110207
+## Interface: 11508, 38000, 50503, 110205, 110207
 ## Title: Syndicator
-## Version: 252
+## Version: 253
 ## Author: plusmouse
 ## SavedVariables: SYNDICATOR_CONFIG, SYNDICATOR_DATA, SYNDICATOR_SUMMARIES
 ## IconTexture: Interface\AddOns\Syndicator\Assets\logo.tga
