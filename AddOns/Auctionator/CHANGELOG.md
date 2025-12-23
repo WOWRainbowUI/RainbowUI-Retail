@@ -1,6 +1,6 @@
 # Auctionator
 
-## [305](https://github.com/TheMouseNest/Auctionator/tree/305) (2025-12-03)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/304...305) 
+## [306](https://github.com/TheMouseNest/Auctionator/tree/306) (2025-12-18)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/305...306) 
 
-- Selling: Add "Housing", and fix durations on TBC/Wrath  
+- Tag as supporting 5.5.3  
