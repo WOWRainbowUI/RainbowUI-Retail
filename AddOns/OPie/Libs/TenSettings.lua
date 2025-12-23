@@ -513,7 +513,7 @@ do -- TenSettingsFrame
 		local ci = containers[panel]
 		if SettingsPanel:IsVisible() then
 			container_setTenant(ci, panel)
-			Settings.OpenToCategory(ci.name)
+			Settings.OpenToCategory(ci.brID)
 		else
 			container_setTenant(ci, panel)
 			settings_show(ci.f)
@@ -527,7 +527,7 @@ do -- TenSettingsFrame
 			ci = container_new(name, panel, opts)
 			panel:SetParent(ci.f)
 			local cat = Settings.RegisterCanvasLayoutCategory(ci.canvas, name)
-			cat.ID = name
+			ci.brID = cat.ID
 			Settings.RegisterAddOnCategory(cat)
 		else
 			containers[panel] = ci

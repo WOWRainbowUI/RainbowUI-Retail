@@ -1,6 +1,6 @@
 local COMPAT, _, T = select(4, GetBuildInfo()), ...
 if COMPAT < 11e4 then return end
-local TWELVE, env = COMPAT >= 12e4, {}
+local env = {}
 
 function env.GetSpellTabInfo(idx)
 	local i = C_SpellBook.GetSpellBookSkillLineInfo(idx)
@@ -69,20 +69,6 @@ function env.GetStablePetInfo(idx)
 	if si then
 		return si.icon, si.name, si.level, si.familyName, si.specialization, si.specID
 	end
-end
-
-if TWELVE then
-	local function nop() end
-	function env.GetSpellCooldown()
-		return 0, 0, 1, 1
-	end
-	function env.GetSpellCharges()
-		return 1, 1, 0, 0, 0
-	end
-	function env.GetSpellCount()
-		return 1
-	end
-	env.GetRaidTargetIndex = nop
 end
 
 env.Vector2DMixin = Vector2DMixin

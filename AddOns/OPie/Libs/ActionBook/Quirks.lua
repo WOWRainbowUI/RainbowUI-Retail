@@ -92,7 +92,7 @@ securecall(function() -- Tarecgosa's Visage
 		end
 		local mslot = AB:GetActionSlot("mount", MOUNT_ID)
 		if mslot then
-			local sname = GetSpellInfo(SPELL_ID)
+			local sname = C_Spell.GetSpellName(SPELL_ID)
 			RW:SetCastEscapeAction("spell:" .. SPELL_ID, mslot)
 			RW:SetCastEscapeAction(sname, mslot)
 			AB:NotifyObservers("spell")
@@ -153,7 +153,7 @@ securecall(function() -- Classic Paladin mounts
 				RW:SetSpellCastableChecker(sid, castableViaEscape)
 				local mslot = AB:GetActionSlot("mount", mid)
 				if mslot then
-					local sname = GetSpellInfo(sid)
+					local sname = C_Spell.GetSpellName(sid)
 					RW:SetCastEscapeAction("spell:" .. sid, mslot)
 					RW:SetCastEscapeAction(sname, mslot)
 				end
@@ -358,7 +358,7 @@ securecall(function() -- Draenic Hologem usability limitation
 end)
 securecall(function() -- Modern Hunter Fetch ability disambiguation + usability
 	if not MODERN or playerClass ~= "HUNTER" then return end
-	local PET_FETCH_SID, AVIAN_FETCH_SID, FETCH_SNAME = 125050, 1232995, GetSpellInfo(125050)
+	local PET_FETCH_SID, AVIAN_FETCH_SID, FETCH_SNAME = 125050, 1232995, C_Spell.GetSpellName(125050)
 	local state, goal = false, false
 	local function syncFetchState()
 		if state == goal then return end

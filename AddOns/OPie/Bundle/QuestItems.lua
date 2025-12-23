@@ -139,12 +139,13 @@ if MODERN or CF_WRATH then
 			include[i+0] = true
 		end
 	end
+	local GetSpellName = C_Spell.GetSpellName
 	local includeSpell = {
-		[GetSpellInfo(375806) or 0]=3,
-		[GetSpellInfo(411602) or 0]=3,
-		[GetSpellInfo(409074) or 0]=3,
-		[GetSpellInfo(409490) or 0]=3,
-		[GetSpellInfo(409643) or 0]=3,
+		[GetSpellName(375806) or 0]=3,
+		[GetSpellName(411602) or 0]=3,
+		[GetSpellName(409074) or 0]=3,
+		[GetSpellName(409490) or 0]=3,
+		[GetSpellName(409643) or 0]=3,
 	}
 	includeSpell[0] = nil
 	disItems = {
