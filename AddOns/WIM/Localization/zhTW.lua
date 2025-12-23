@@ -30,9 +30,7 @@ WIM.AddLocale("zhTW", {
     ["state_party"] = "組隊",
     ["state_raid"] = "團隊",
     ["state_other"] = "一般 (其他)",
-    
-    ["<Shift-Click> to close window."] = "<Shift-左鍵> 關閉視窗",
-    
+
     ["A new version of WIM is available!\nYou can download the latest version by going to:\n\n http://www.wimaddon.com"] = "目前已經有新版的 WIM!\n您可以到http://www.wimaddon.com 下載新版本",
     
     ["Options"] = "選項",
