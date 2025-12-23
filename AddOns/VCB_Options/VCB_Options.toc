@@ -16,7 +16,7 @@
 ## DefaultState: enabled
 ## LoadOnDemand: 1
 ## Dependencies: VCB
-## Version: 1.79
+## Version: 1.80
 ## Author: The_Indolent
 ## X-Website: https://panosanastasiou.rocks/
 

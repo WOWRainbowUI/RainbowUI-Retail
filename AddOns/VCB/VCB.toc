@@ -16,7 +16,7 @@
 ## DefaultState: enabled
 ## SavedVariables: VCBrNumber VCBrProfile VCBrCounterLoading VCBrCounterDeleting
 ## SavedVariablesPerCharacter: VCBrPlayer VCBrTarget VCBrFocus VCBrBoss VCBrArena
-## Version: 1.79
+## Version: 1.80
 ## Author: The_Indolent
 ## X-Website: https://panosanastasiou.rocks/
 
