@@ -14,7 +14,7 @@ local BAR_WIDTH = 32
 local BAR_HEIGHT = 32
 local BAR_SPACING = 10
 local MAX_CHARGES = 6
-local SPELL_ID = 372610
+local SPELL_ID = 372608
 
 -- 1 for vertical (stacks up), 2 for horizontal (stacks right)
 local ORIENTATION = 2
