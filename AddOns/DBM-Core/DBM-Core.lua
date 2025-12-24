@@ -76,16 +76,16 @@ end
 ---@class DBM
 local DBM = private:GetPrototype("DBM")
 _G.DBM = DBM
-DBM.Revision = parseCurseDate("20251204102536")
+DBM.Revision = parseCurseDate("20251223171631")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 local fakeBWVersion, fakeBWHash = 401, "34b582e"--401.4
 local PForceDisable
 -- The string that is shown as version
-DBM.DisplayVersion = "12.0.8"--Core version
+DBM.DisplayVersion = "12.0.9"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2025, 12, 3) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2025, 12, 23) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 PForceDisable = 20--When this is incremented, trigger force disable regardless of major patch
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
@@ -5267,7 +5267,11 @@ do
 					difficultyName = PLAYER_DIFFICULTY1
 				end
 				if wipe == "1" then
-					DBM:AddMsg(L.GUILD_COMBAT_ENDED_AT:format(groupLeader or CL.UNKNOWN, difficultyName .. " - " .. bossName, wipeHP, time))--"%s's Guild group has wiped on %s (%s) after %s.
+					if DBM:IsPostMidnight() then
+						DBM:AddMsg(L.GUILD_COMBAT_ENDED:format(groupLeader or CL.UNKNOWN, difficultyName .. " - " .. bossName, time))
+					else
+						DBM:AddMsg(L.GUILD_COMBAT_ENDED_AT:format(groupLeader or CL.UNKNOWN, difficultyName .. " - " .. bossName, wipeHP, time))--"%s's Guild group has wiped on %s (%s) after %s.
+					end
 				else
 					DBM:AddMsg(L.GUILD_BOSS_DOWN:format(difficultyName .. " - " .. bossName, groupLeader or CL.UNKNOWN, time))--"%s has been defeated by %s's guild group after %s!"
 				end
@@ -6172,10 +6176,12 @@ do
 					self.Options.RestoreSettingMusic = true
 				end
 				--boss health info scheduler
-				if mod.CustomHealthUpdate then
-					self:Schedule(mod.bossHealthUpdateTime or 1, checkCustomBossHealth, self, mod)
-				else
-					self:Schedule(mod.bossHealthUpdateTime or 1, checkBossHealth, self, mod)
+				if not self:IsPostMidnight() then
+					if mod.CustomHealthUpdate then
+						self:Schedule(mod.bossHealthUpdateTime or 1, checkCustomBossHealth, self, mod)
+					else
+						self:Schedule(mod.bossHealthUpdateTime or 1, checkBossHealth, self, mod)
+					end
 				end
 			end
 			--process global options
@@ -6469,8 +6475,6 @@ do
 						local bossesKilled = mod.numBoss - mod.vb.bossLeft
 						wipeHP = wipeHP .. " (" .. BOSSES_KILLED:format(bossesKilled, mod.numBoss) .. ")"
 					end
-				else
-					wipeHP = hp--No formating in midnight for now
 				end
 				local totalPulls = mod.stats[difficulties.statVarTable[usedDifficulty] .. "Pulls"]
 				local totalKills = mod.stats[difficulties.statVarTable[usedDifficulty] .. "Kills"]
@@ -6481,7 +6485,11 @@ do
 						if scenario then
 							self:AddMsg(L.SCENARIO_ENDED_AT:format(usedDifficultyText .. name, stringUtils.strFromTime(thisTime)))
 						else
-							self:AddMsg(L.COMBAT_ENDED_AT:format(usedDifficultyText .. name, wipeHP, stringUtils.strFromTime(thisTime)))
+							if self:IsPostMidnight() then
+								self:AddMsg(L.COMBAT_ENDED:format(usedDifficultyText .. name, stringUtils.strFromTime(thisTime)))
+							else
+								self:AddMsg(L.COMBAT_ENDED_AT:format(usedDifficultyText .. name, wipeHP, stringUtils.strFromTime(thisTime)))
+							end
 							--No reason to GCE it here, so omited on purpose.
 						end
 					end
@@ -6490,7 +6498,11 @@ do
 						if scenario then
 							self:AddMsg(L.SCENARIO_ENDED_AT_LONG:format(usedDifficultyText .. name, stringUtils.strFromTime(thisTime), totalPulls - totalKills))
 						else
-							self:AddMsg(L.COMBAT_ENDED_AT_LONG:format(usedDifficultyText .. name, wipeHP, stringUtils.strFromTime(thisTime), totalPulls - totalKills))
+							if self:IsPostMidnight() then
+								self:AddMsg(L.COMBAT_ENDED_LONG:format(usedDifficultyText .. name, stringUtils.strFromTime(thisTime), totalPulls - totalKills))
+							else
+								self:AddMsg(L.COMBAT_ENDED_AT_LONG:format(usedDifficultyText .. name, wipeHP, stringUtils.strFromTime(thisTime), totalPulls - totalKills))
+							end
 							local check = private.isRetail and
 								((usedDifficultyIndex == 8 or usedDifficultyIndex == 14 or usedDifficultyIndex == 15 or usedDifficultyIndex == 16) and InGuildParty()) or
 								usedDifficultyIndex ~= 1 and DBM:GetNumGuildPlayersInZone() >= 10 -- Classic
@@ -8392,9 +8404,7 @@ do
 	---@param cIdOrGUID number|string
 	---@param onlyHighest boolean?
 	function DBM:GetBossHP(cIdOrGUID, onlyHighest)
-		if self:IsPostMidnight() then
-			bossHealth[cIdOrGUID] = UnitHealthPercent("boss1", nil, true)
-		else
+		if not self:IsPostMidnight() then
 			local uId = bossHealthuIdCache[cIdOrGUID] or "target"
 			local guid = UnitGUID(uId)
 			--Target or Cached (if already called with this cid or GUID before)
@@ -8476,11 +8486,7 @@ do
 	end
 
 	function DBM:GetBossHPByUnitID(uId)
-		if self:IsPostMidnight() then
-			local hp = UnitHealthPercent(uId, nil, true)
-			bossHealth[uId] = hp
-			return hp, uId, DBM_COMMON_L.UNKNOWN
-		else
+		if not self:IsPostMidnight() then
 			if UnitHealthMax(uId) ~= 0 then
 				local hp = UnitHealth(uId) / UnitHealthMax(uId) * 100
 				bossHealth[uId] = hp
@@ -9503,7 +9509,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20251204102536" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20251223171631" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
