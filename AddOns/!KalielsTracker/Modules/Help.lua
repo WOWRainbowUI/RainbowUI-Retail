@@ -229,7 +229,7 @@ local function SetupTutorials()
 					"這個遊戲修正避免呼叫受限制的函數。"..
 					"停用遊戲修正時，世界地圖顯示會導致錯誤。"..
 					"由於任務追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-					cWarning2.."負面影響:|r 在魔獸世界 11.2.5 尚未可知。",
+					cWarning2.."負面影響:|r 在魔獸世界 11.2.7 尚未可知。",
 		},
 		{	-- 9
 			image = HELP_PATH.."help_events",
@@ -362,23 +362,20 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "如果你喜歡 "..KT.TITLE.."，請考慮在 Patreon 贊助 "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 7.17.0|r\n"..
-					"- 新增 - TomTom - 可點擊箭頭（打開世界地圖、移除導航路線、顯示右鍵選單），詳見使用說明第 12 頁\n"..
-                    "- 新增 - TomTom - 支援任何地圖 POI 的導航路線（新任務、事件、副本、團隊、飛行路線、傳送門等），詳見使用說明第 14 頁\n"..
-                    "- 新增（成就）- 新的篩選選項「顯示大陸成就」\n"..
-                    "- 修改 - 插件支援 - Auctionator 302\n"..
-                    "- 修改 - 插件支援 - RareScanner 11.2.5.8\n"..
-                    "- 修改 - 插件支援 - TomTom 4.2.3\n"..
-                    "- 修改 - 插件支援 - PetTracker 11.2.3\n"..
-                    "- 修改 - 插件支援 - Masque 11.2.6\n"..
-                    "- 修改（篩選器）- 設定 Remix 的預設篩選分類\n"..
-                    "- 修改（篩選器）- 允許 Remix 中的所有成就分類\n"..
-                    "- 修改（篩選器）- 將篩選設定儲存為角色專屬，而非共用設定檔\n"..
-                    "- 修改 - TomTom - 導航路線改進\n"..
-                    "- 修正（事件）- 特定區域 POI 的事件 mapID 有時缺失（Blizz 錯誤）\n"..
-                    "- 修正 - 目標文字高度有時錯誤（Blizz 錯誤）\n"..
-                    "- 修正（API）- KalielsTracker:Toggle() 傳入 nil 參數時無法運作\n"..
-                    "- 效能（篩選器）- 大幅提升成就篩選效能（移除延遲）\n"..
+					(cTitle.."Version 7.18.0|r\n"..
+					"- 新增 - TomTom - 住宅地塊的航點支援\n"..
+					"- 新增 - 支援 WoW 11.2.7.64704\n"..
+					"- 修改 - 插件支援 - ElvUI 14.04, Tukui 20.463\n"..
+					"- 修改 (過濾器) - 改善副本成就過濾功能\n"..
+					"- 修改 - 插件區塊 - 改進 (左鍵/右鍵點擊)\n"..
+					"- 修改 - 選項 - 新增基於住宅偵測的顯示規則\n"..
+					"- 修改 - 插件支援 - BtWQuests 2.58.0\n"..
+					"- 修改 - 插件支援 - Auctionator 305\n"..
+					"- 修改 - 插件支援 - Masque 11.2.7\n"..
+					"- 修改 - 插件支援 - RareScanner 11.2.7\n"..
+					"- 修改 - 插件支援 - TomTom 4.2.4\n"..
+					"- 修正 (過濾器) - 當缺少任務地圖資訊時的錯誤\n"..
+					"- 修正 - 當缺少任務區域資訊時的錯誤\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
@@ -494,6 +491,7 @@ function M:OnInitialize()
 	_DBG("|cffffff00初始化|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
+    self.isAvailable = true
 end
 
 function M:OnEnable()

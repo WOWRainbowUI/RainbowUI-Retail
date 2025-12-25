@@ -122,6 +122,10 @@ local POI_ICONS = {
     ["Quest"..Enum.QuestClassification.Recurring] = { atlas = "questlog-questtypeicon-Recurring", size = 18, offsetX = -3 },
     ["Quest"..Enum.QuestClassification.Questline] = { atlas = "questlog-storylineicon", size = 18, offsetX = -3 },
     ["Quest"..Enum.QuestClassification.Normal] = { atlas = "QuestNormal", size = 18 },
+    ["Housing"..Enum.HousingPlotOwnerType.None] = { atlas = "housing-map-plot-unoccupied", size = 18, offsetX = -3 },
+    ["Housing"..Enum.HousingPlotOwnerType.Stranger] = { atlas = "housing-map-plot-occupied", size = 18, offsetX = -3 },
+    ["Housing"..Enum.HousingPlotOwnerType.Friend] = { atlas = "housing-map-plot-occupied-friend", size = 18, offsetX = -3 },
+    ["Housing"..Enum.HousingPlotOwnerType.Self] = { atlas = "housing-map-plot-player-house", size = 20, offsetX = -3 },
 }
 local POI_ICONS_OVERRIDES = {}
 local POI_ICONS_RULES = {

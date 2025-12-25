@@ -5,7 +5,7 @@
 --- Copyright (c) 2024-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 
-local name, version = "MSA-Event-1.0", 1
+local name, version = "MSA-Event-1.0", 2
 
 local lib = LibStub:NewLibrary(name, version)
 if not lib then return end
@@ -43,33 +43,38 @@ local function handleEvent(self, event, ...)
     if list then
         --print("|cff00ffff"..event, "|r...", ...)
         for id, handler in pairs(list) do
+            --print(id, "...", handler.owner.moduleName or handler.owner.name or handler.owner)
             local eventID = event.."-"..id
-            if type(handler) == "function" then
-                handler(eventID, ...)
+            if type(handler.fn) == "function" then
+                handler.fn(eventID, ...)
             else
-                self[handler](self, eventID, ...)
+                self[handler.fn](self, eventID, ...)
             end
         end
     end
 end
 
-function lib:RegEvent(event, methodOrName)
+function lib:RegEvent(event, methodOrName, object)
+    local owner = object or self
     local list = lib.eventHandlers[event]
     if not list then
         list = {}
         lib.eventHandlers[event] = list
         self:RegisterEvent(event, handleEvent, self)
     end
-    tinsert(list, methodOrName)
-    --print("|cff00ff00REG|r ...", event.."-"..#list)
+    tinsert(list, {
+        fn = methodOrName,
+        owner = owner
+    })
+    --print("|cff00ff00REG|r ...", event.."-"..#list, "...", owner.moduleName or owner.name or owner)
 end
 
 function lib:UnregEvent(eventID)
-    --print("|cffff0000UNREG|r ...", eventID)
     local event, id = strmatch(eventID, "^(%S+)-(%d+)$")
     local list = lib.eventHandlers[event]
     if list then
         id = tonumber(id)
+        --print("|cffff0000UNREG|r ...", eventID, "...", list[id].owner.moduleName or list[id].owner.name or list[id].owner)
         list[id] = nil
         if not next(list) then
             self:UnregisterEvent(event)
@@ -78,25 +83,25 @@ function lib:UnregEvent(eventID)
 end
 
 function lib:UnregAllEvents()
-    --print("|cffff0000UNREG|r ... ALL events")
+    --print("|cffff0000UNREG|r ... All Events")
     lib.eventHandlers = {}
     self:UnregisterAllEvents()
 end
 
 function lib:RegSignal(event, call, object, ...)
     local owner = object or self
-    --print("|cff00ff00Reg Signal|r ...", event, "-", owner, "...", ...)
+    --print("|cff00ff00REG Signal|r ...", event, "...", owner.moduleName or owner.name or owner, "...", ...)
     EventRegistry:RegisterCallback(self.name.."."..event, owner[call or event] or call, owner, ...)
 end
 
 function lib:UnregSignal(event, object)
     local owner = object or self
-    --print("|cffff0000Unreg Signal|r ...", event, "-", owner)
+    --print("|cffff0000UNREG Signal|r ...", event, "...", owner.moduleName or owner.name or owner)
     EventRegistry:UnregisterCallback(self.name.."."..event, owner)
 end
 
 function lib:SendSignal(event, ...)
-    --print("|cffffff00Send Signal|r ...", event, "...", ...)
+    --print("|cffffff00SEND Signal|r ...", event, "...", ...)
     EventRegistry:TriggerEvent(self.name.."."..event, ...)
 end
 

@@ -694,11 +694,11 @@ local function SetHooks()
 
 	-- -----------------------------------------------------------------------------------------------------------------
 
-	local bck_OTF_Update = OTF.Update
-	function OTF:Update(dirtyUpdate)
+	local bck_KT_ObjectiveTrackerContainerMixin_Update = KT_ObjectiveTrackerContainerMixin.Update
+	function KT_ObjectiveTrackerContainerMixin:Update(dirtyUpdate)
 		if KT.stopUpdate then return end
 
-		bck_OTF_Update(self, dirtyUpdate)
+		bck_KT_ObjectiveTrackerContainerMixin_Update(self, dirtyUpdate)
 
 		FixedButtonsReanchor()
 		KT:SendSignal("BUTTONS_UPDATED")
@@ -1363,13 +1363,15 @@ local function SetHooks()
 				local questsCache = dbChar.quests.cache
 				if db.questShowZones and questsCache[questID] then
 					local infoText = questsCache[questID].zone
-					if questsCache[questID].isCalling then
-						local timeRemaining = GetTaskTimeLeftData(questID)
-						if timeRemaining ~= "" then
-							infoText = infoText.." - "..timeRemaining
+					if infoText then
+						if questsCache[questID].isCalling then
+							local timeRemaining = GetTaskTimeLeftData(questID)
+							if timeRemaining ~= "" then
+								infoText = infoText.." - "..timeRemaining
+							end
 						end
+						self:AddObjective("Zone", infoText, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["Zone"])
 					end
-					self:AddObjective("Zone", infoText, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["Zone"])
 				end
 			else
 				if db.taskShowFactions then
@@ -1581,7 +1583,7 @@ local function SetHooks()
 	hooksecurefunc(KT_ScenarioObjectiveTracker.StageBlock, "UpdateStageBlock", function(self, scenarioID, scenarioType, widgetSetID, textureKit, flags, currentStage, stageName, numStages)
 		if widgetSetID == 291 then
 			self.offsetX = 27
-			self.KTtooltipOffsetXmod = 3
+			self.KTtooltipOffsetXmod = 5
 			self.KTtooltipOffsetYmod = 0
 		elseif widgetSetID == 842 then
 			self.offsetX = 17
@@ -1834,7 +1836,7 @@ local function SetHooks()
 	KT_CampaignQuestObjectiveTracker.UntrackQuest = KT_QuestObjectiveTracker.UntrackQuest
 
 	function KT_QuestObjectiveTracker:OnBlockHeaderClick(block, mouseButton)  -- R
-		if ChatEdit_TryInsertQuestLinkForQuestID(block.id) then
+		if ChatFrameUtil.TryInsertQuestLinkForQuestID(block.id) then
 			return;
 		end
 
@@ -1939,10 +1941,10 @@ local function SetHooks()
 
 	function KT_AchievementObjectiveTracker:OnBlockHeaderClick(block, mouseButton)  -- R
 		local achievementID = block.id;
-		if IsModifiedClick("CHATLINK") and ChatEdit_GetActiveWindow() then
+		if IsModifiedClick("CHATLINK") and ChatFrameUtil.GetActiveWindow() then
 			local achievementLink = GetAchievementLink(achievementID);
 			if achievementLink then
-				ChatEdit_InsertLink(achievementLink);
+				ChatFrameUtil.InsertLink(achievementLink);
 			end
 		elseif mouseButton ~= "RightButton" then
 			if not AchievementFrame then
@@ -2012,7 +2014,7 @@ local function SetHooks()
 		local questID = block.id;
 		local isThreatQuest = C_QuestLog.IsThreatQuest(questID);
 		if button == "LeftButton" then
-			if ( not ChatEdit_TryInsertQuestLinkForQuestID(questID) ) then
+			if ( not ChatFrameUtil.TryInsertQuestLinkForQuestID(questID) ) then
 				if IsShiftKeyDown() then
 					if QuestUtils_IsQuestWatched(questID) and not isThreatQuest then
 						QuestUtil.UntrackWorldQuest(questID);
@@ -2100,10 +2102,10 @@ local function SetHooks()
 
 	function KT_ProfessionsRecipeTracker:OnBlockHeaderClick(block, mouseButton)  -- R
 		local recipeID = KT.GetRecipeID(block)
-		if IsModifiedClick("CHATLINK") and ChatEdit_GetActiveWindow() then
+		if IsModifiedClick("CHATLINK") and ChatFrameUtil.GetActiveWindow() then
 			local link = C_TradeSkillUI.GetRecipeLink(recipeID);
 			if link then
-				ChatEdit_InsertLink(link);
+				ChatFrameUtil.InsertLink(link);
 			end
 		elseif mouseButton ~= "RightButton" then
 			if not ProfessionsFrame then
@@ -2165,9 +2167,9 @@ local function SetHooks()
 	end
 
 	function KT_MonthlyActivitiesObjectiveTracker:OnBlockHeaderClick(block, mouseButton)  -- R
-		if IsModifiedClick("CHATLINK") and ChatEdit_GetActiveWindow() then
+		if IsModifiedClick("CHATLINK") and ChatFrameUtil.GetActiveWindow() then
 			local perksActivityLink = C_PerksActivities.GetPerksActivityChatLink(block.id);
-			ChatEdit_InsertLink(perksActivityLink);
+			ChatFrameUtil.InsertLink(perksActivityLink);
 		elseif mouseButton ~= "RightButton" then
 			if not EncounterJournal then
 				EncounterJournal_LoadUI();
@@ -2294,9 +2296,7 @@ local function SetHooks()
 
 	-- Torghast - Blizzard_MawBuffs.lua
 	hooksecurefunc(MawBuffs, "UpdateAlignment", function(self)
-		if KTF.anchorLeft == self.KTanchorLeft then
-			return
-		end
+		if KTF.anchorLeft == self.KTanchorLeft then return end
 
 		self.KTanchorLeft = KTF.anchorLeft
 
@@ -2355,8 +2355,9 @@ end
 -- External ------------------------------------------------------------------------------------------------------------
 
 ---Set tracker hidden state.
----@param hidden boolean|nil Hidden state (true = hide, false = show, nil = toggle).
+---@param hidden boolean|nil Hidden state (true = hide, false = show, nil = toggle)
 function KT:SetHidden(hidden)
+	if db.hideEmptyTracker then return end
 	if hidden ~= nil then
 		self.hidden = hidden
 	else
@@ -2368,8 +2369,8 @@ function KT:SetHidden(hidden)
 end
 
 ---Set tracker collapsed or expanded.
----@param collapsed boolean|nil Collapsed state (true = collapse, false = expand, nil = toggle).
----@param silent boolean|nil If true, does not save collapsed state.
+---@param collapsed boolean|nil Collapsed state (true = collapse, false = expand, nil = toggle)
+---@param silent boolean|nil If true, does not save collapsed state
 function KT:SetCollapsed(collapsed, silent)
 	if collapsed == nil then
 		OTF:ToggleCollapsed()
@@ -2992,12 +2993,15 @@ function KT:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
 	db = self.db.profile
 	dbChar = self.db.char
+
 	KT:Alert_ResetIncompatibleProfiles("7.0.0")
 
-	self.AchievementsCache_Init(KalielsTrackerCache.achievements)
-	self.QuestsCache_Init(dbChar.quests.cache)
-
 	self.isTimerunningPlayer = (PlayerGetTimerunningSeasonID() ~= nil)
+
+	self:InitSubsystems({
+		Quests = { dbChar.quests.cache },
+		Achievements = { KalielsTrackerCache.achievements }
+	})
 
 	SetFrames()
 	SetHooks()
@@ -3009,28 +3013,11 @@ function KT:OnEnable()
 		self:UnregEvent(eventID)
 	end)
 
-	self.Options:Enable()
-	self.Filters:Enable()
-	self.Events:Enable()
-	if self.AddonPetTracker.isLoaded then self.AddonPetTracker:Enable() end
-	if self.AddonTomTom.isLoaded then self.AddonTomTom:Enable() end
-	if self.AddonRareScanner.isLoaded then self.AddonRareScanner:Enable() end
-	self.AddonOthers:Enable()
-	if db.qiActiveButton then self.ActiveButton:Enable() end
-	self.Help:Enable()
+	self:EnableModules()
 
 	if self.db.global.version ~= self.VERSION then
 		self.db.global.version = self.VERSION
 	end
-
-	AddonCompartmentFrame:RegisterAddon({
-		text = self.TITLE,
-		icon = self.MEDIA_PATH.."KT_logo",
-		notCheckable = true,
-		func = function()
-			self:SetHidden()
-		end
-	})
 
 	db.modulesOrder = self.ReconcileOrder(self.MODULES, db.modulesOrder)
 end

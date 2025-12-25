@@ -27,7 +27,7 @@ local KTwarning = "  |cff00ffffAddon "..KT.TITLE.." 已啟用。  "
 
 -- Masque
 local function Masque_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Masque", "11.2.6") and db.addonMasque)
+    local isLoaded = (KT:CheckAddOn("Masque", "11.2.7") and db.addonMasque)
     if isLoaded then
         KT:Alert_IncompatibleAddon("Masque", "11.0.1")
         msqGroup1 = MSQ:Group(KT.TITLE, "任務物品按鈕")
@@ -51,7 +51,7 @@ end
 
 -- Auctionator
 local function Auctionator_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Auctionator", "302") and db.addonAuctionator)
+    local isLoaded = (KT:CheckAddOn("Auctionator", "305") and db.addonAuctionator)
     if isLoaded then
         hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
             local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame
@@ -64,7 +64,7 @@ end
 
 -- BtWQuests
 local function BtWQuests_SetSupport()
-    local isLoaded = (KT:CheckAddOn("BtWQuests", "2.57.0") and db.addonBtWQuests)
+    local isLoaded = (KT:CheckAddOn("BtWQuests", "2.58.0") and db.addonBtWQuests)
     if isLoaded then
         local function MenuUpdate(_, info, type, questID)
             if type ~= "quest" then return end
@@ -90,7 +90,7 @@ end
 
 -- ElvUI
 local function ElvUI_SetSupport()
-    if KT:CheckAddOn("ElvUI", "v13.97", true) then
+    if KT:CheckAddOn("ElvUI", "v14.04", true) then
         local E = unpack(_G.ElvUI)
         local B = E:GetModule("Blizzard")
         B.ObjectiveTracker_Setup = function() end  -- preventive
@@ -115,7 +115,7 @@ end
 
 -- Tukui
 local function Tukui_SetSupport()
-    if KT:CheckAddOn("Tukui", "v20.461", true) then
+    if KT:CheckAddOn("Tukui", "v20.463", true) then
         local T = unpack(_G.Tukui)
         T.Miscellaneous.ObjectiveTracker.Enable = function() end
     end
@@ -138,6 +138,7 @@ end
 function M:OnInitialize()
     _DBG("|cffffff00Init|r - "..self:GetName(), true)
     db = KT.db.profile
+    self.isAvailable = true
 end
 
 function M:OnEnable()

@@ -193,6 +193,15 @@ function KT.GetDigSiteInfo(mapID, id)
     end
 end
 
+function KT.GetHousingPlotInfo(id)
+    local houseMapData = C_HousingNeighborhood.GetNeighborhoodMapData()
+    for _, info in ipairs(houseMapData) do
+        if info.plotDataID == id then
+            return info
+        end
+    end
+end
+
 -- Quests
 function KT.GetQuestRewardSpells(questID)
     local spellRewards = C_QuestInfoSystem.GetQuestRewardSpells(questID) or {}
@@ -689,8 +698,8 @@ end
 
 -- Sanitize
 function KT.ReconcileOrder(defaultList, savedList)
-    KT.Assert(defaultList, "defaultList", "table")
-    KT.Assert(savedList, "savedList", "table")
+    KT.Assert(defaultList, "ReconcileOrder", "defaultList", "table")
+    KT.Assert(savedList, "ReconcileOrder", "savedList", "table")
 
     local n = #defaultList
     local out = {}
@@ -698,7 +707,7 @@ function KT.ReconcileOrder(defaultList, savedList)
     local allowed = {}
     for i = 1, n do
         local name = defaultList[i]
-        KT.Assert(name, "defaultList["..i.."]", "string", type(name) == "string" and name ~= "")
+        KT.Assert(name, "ReconcileOrder", "defaultList["..i.."]", "string", type(name) == "string" and name ~= "")
         allowed[name] = true
     end
 
@@ -739,9 +748,14 @@ function KT.ReconcileOrder(defaultList, savedList)
 end
 
 -- Debug
-function KT.Assert(value, varName, expType, condition)
+function KT.Assert(value, funcName, varName, expType, condition)
     if (condition ~= nil and not condition) or type(value) ~= expType then
-        local message = "[KT-ASSERT] '%s' must be a %s ('%s')"
-        error(message:format(varName, expType, tostring(value)), 3)
+        if expType == "nil" then
+            local message = "[KT] %s '%s' already exists"
+            error(message:format(funcName, varName), 3)
+        else
+            local message = "[KT] %s '%s' must be a %s ('%s')"
+            error(message:format(funcName, varName, expType, tostring(value)), 3)
+        end
     end
 end

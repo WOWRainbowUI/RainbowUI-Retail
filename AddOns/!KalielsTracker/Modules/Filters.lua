@@ -279,6 +279,7 @@ end
 
 local function FilterSkipMap(mapID)
 	return not mapID or    -- Same as 947
+            mapID == 0 or  -- Same as 947
 			mapID == 2274  -- 10 - The War Within - Khaz Algar (continent)
 end
 
@@ -353,7 +354,9 @@ local function Filter_Quests(spec, idx)
 		local mapInfo = C_Map.GetMapInfo(mapID)
 		if mapInfo and (mapInfo.mapType == Enum.UIMapType.Micro or mapInfo.mapType == Enum.UIMapType.Orphan) then
 			local parentInfo = C_Map.GetMapInfo(mapInfo.parentMapID)
-			zoneName = parentInfo.name
+			if parentInfo then
+				zoneName = parentInfo.name
+			end
 		end
 
 		for i = 1, numEntries do
@@ -646,6 +649,7 @@ local function Filter_Achievements(spec)
 							((categoryID == instance or parentID == instance) and
 									(strfindp(name, categoryName) or strfindp(name, categoryNameAlt))) or  -- Dungeons & Raids
 							(parentID == 155 and strfindp(events, name)) or                                -- World Events
+							(parentID == 15301 and categoryID == 15440) or                                 -- Expansion Features (only Torghast)
 							(parentID == remixID and (categoryID == 15559 or categoryID == 15560)) then    -- Remix
 						local achievList = KT.AchievementsCache_GetCategory(categoryID)
 						for id, achiev in pairs(achievList) do
@@ -656,7 +660,7 @@ local function Filter_Achievements(spec)
 								local aText = achiev.name.." - "..achiev.description
 								if parentID == 95 then
 									track = true
-								elseif parentID == instance then
+								else
 									local textMatch = strfindp(aText, zoneName)
 									if (name == categoryName and textMatch) or nameMatch or textMatch then
 										if instanceDifficulty == "Normal" then
@@ -1192,46 +1196,49 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
+    self.isAvailable = true
 
-    local defaults = KT:MergeTables({
-        char = {
-			filter = {
-				quests = {
-					sort = nil,
-					sortTopOverride = true,
-					showCampaign = true
-				},
-				achievements = {
-					showContinent = true
-				},
-				events = {
-					track = true,
-					showLong = true
-				}
-			},
-			filterAuto = {
-				nil,  -- [1] Quests
-				nil,  -- [2] Achievements
-			},
-			filterAchievCat = {
-				[92] = true,       -- Character
-				[96] = true,       -- Quests
-				[97] = true,       -- Exploration
-				[15522] = true,    -- Delves
-				[95] = true,       -- Player vs. Player
-				[168] = true,      -- Dungeons & Raids
-				[169] = true,      -- Professions
-				[201] = true,      -- Reputation
-				[155] = true,      -- World Events
-				[15117] = true,    -- Pet Battles
-				[15301] = true,    -- Expansion Features
-				[remixID] = true,  -- Remix
-			}
-		}
-    }, KT.db.defaults)
-	KT.db:RegisterDefaults(defaults)
+    if self.isAvailable then
+        local defaults = KT:MergeTables({
+            char = {
+                filter = {
+                    quests = {
+                        sort = nil,
+                        sortTopOverride = true,
+                        showCampaign = true
+                    },
+                    achievements = {
+                        showContinent = true
+                    },
+                    events = {
+                        track = true,
+                        showLong = true
+                    }
+                },
+                filterAuto = {
+                    nil,  -- [1] Quests
+                    nil,  -- [2] Achievements
+                },
+                filterAchievCat = {
+                    [92] = true,       -- Character
+                    [96] = true,       -- Quests
+                    [97] = true,       -- Exploration
+                    [15522] = true,    -- Delves
+                    [95] = true,       -- Player vs. Player
+                    [168] = true,      -- Dungeons & Raids
+                    [169] = true,      -- Professions
+                    [201] = true,      -- Reputation
+                    [155] = true,      -- World Events
+                    [15117] = true,    -- Pet Battles
+                    [15301] = true,    -- Expansion Features
+                    [remixID] = true,  -- Remix
+                }
+            }
+        }, KT.db.defaults)
+        KT.db:RegisterDefaults(defaults)
 
-	SetHooks_Init()
+        SetHooks_Init()
+    end
 end
 
 function M:OnEnable()
@@ -1258,14 +1265,14 @@ function M:OnEnable()
             end
             KT:UnregEvent(eventID)
         end
-    end)
+    end, self)
 	KT:RegEvent("QUEST_LOG_UPDATE", function(eventID)
 		local numEntries = C_QuestLog.GetNumQuestLogEntries()
 		if numEntries > 1 then
 			SanitizeFavorites()
 			KT:UnregEvent(eventID)
 		end
-	end)
+	end, self)
     KT:RegSignal("QUEST_DATA_CHANGED", function()
         if dbChar.filterAuto[1] == "zone" then
             Filter_Quests("zone")

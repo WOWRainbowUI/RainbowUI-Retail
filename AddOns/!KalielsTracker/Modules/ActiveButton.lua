@@ -247,9 +247,9 @@ end
 
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
-
 	db = KT.db.profile
 	dbChar = KT.db.char
+    self.isAvailable = db.qiActiveButton
 
 	-- Cleanup (temporarily)
 	dbChar.activeButtonPosition = nil

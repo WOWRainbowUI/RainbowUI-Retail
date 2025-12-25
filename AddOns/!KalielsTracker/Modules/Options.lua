@@ -38,8 +38,8 @@ local textures = { "無", "預設 (暴雪)", "單線", "雙線" }
 local modifiers = { [""] = "無", ["ALT"] = "Alt", ["CTRL"] = "Ctrl", ["ALT-CTRL"] = "Alt + Ctrl" }
 local SOUND_CHANNELS = { "Master", "Music", "SFX", "Ambience" }
 local SOUND_CHANNELS_LOCALIZED = { Master = "主聲道", Music = MUSIC_VOLUME, SFX = FX_VOLUME, Ambience = AMBIENCE_VOLUME }
-local VISIBILITY_CONTEXTS = { "world", "city", "dungeon", "mythicplus", "raid", "arena", "battleground", "petbattle", "rare" }
-local VISIBILITY_CONTEXTS_LOCALIZED = { world = "野外", city = "城內", dungeon = "地城", mythicplus = "M+", raid = "團隊", arena = "競技場", battleground = "戰場", petbattle = "寵物對戰", rare = "稀有怪" }
+local VISIBILITY_CONTEXTS = { "world", "city", "house", "dungeon", "mythicplus", "raid", "arena", "battleground", "petbattle", "rare" }
+local VISIBILITY_CONTEXTS_LOCALIZED = { world = "野外", city = "城內", house = "住宅", dungeon = "地城", mythicplus = "M+", raid = "團隊", arena = "競技場", battleground = "戰場", petbattle = "寵物對戰", rare = "稀有怪" }
 local VISIBILITY_OPTIONS = { "show", "hide", "expand", "collapse" }
 local VISIBILITY_OPTIONS_LOCALIZED = { show = "顯示", hide = "隱藏", expand = "顯示 + 展開", collapse = "顯示 + 收合" }
 local realmZones = { ["EU"] = "歐洲", ["NA"] = "北美" }
@@ -287,7 +287,8 @@ function mover:Anchor_OnClick()
 	Mover_SetPositionVars(self.obj.mover)
 	Mover_UpdateOptions(true)
 	KT:MoveTracker()
-	KT:SetSize(true)
+	KTF.height = 0  -- force update
+	KT:Update()
 end
 
 function mover:OnDragStart(frame)
@@ -1043,7 +1044,7 @@ local options = {
 							type = "toggle",
 							width = "normal+half",
 							disabled = function()
-								return not KT.AddonPetTracker.isLoaded
+								return not KT.AddonPetTracker.isAvailable
 							end,
 							set = function()
 								db.hdrPetTrackerTitleAppend = not db.hdrPetTrackerTitleAppend
@@ -1946,7 +1947,7 @@ local options = {
 									"這個遊戲修正避免呼叫受限制的函數。"..
 									"停用遊戲修正時，世界地圖顯示會導致錯誤。"..
 									"由於追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-									cWarning2.."負面影響:|r 在魔獸世界 11.2.5 尚未可知。\n",
+									cWarning2.."負面影響:|r 在魔獸世界 11.2.7 尚未可知。\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",
@@ -2244,13 +2245,17 @@ local function Setup()
 end
 
 local function SetHooks()
+	hooksecurefunc(UIParent, "SetScale", function(self)
+		Mover_SetScale()
+	end)
+
 	SettingsPanel:HookScript("OnShow", function()
-		KT:RegSignal("VISIBILITY_CONTEXT", Visibility_ShowActiveContext)
+		KT:RegSignal("VISIBILITY_CONTEXT", Visibility_ShowActiveContext, M)
 		KT:SendSignal("OPTIONS_OPENED")
 	end)
 
 	SettingsPanel:HookScript("OnHide", function()
-		KT:UnregSignal("VISIBILITY_CONTEXT")
+		KT:UnregSignal("VISIBILITY_CONTEXT", M)
 	end)
 end
 
@@ -2353,15 +2358,12 @@ function Keybind(key, command)
 	end
 end
 
-hooksecurefunc(UIParent, "SetScale", function(self)
-	Mover_SetScale()
-end)
-
 -- External ------------------------------------------------------------------------------------------------------------
 
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	Init()
+    self.isAvailable = true
 
     db.questAutoFocusClosest = false
 end
@@ -2371,14 +2373,14 @@ function M:OnEnable()
 	Setup()
 	SetHooks()
 
-	KT:RegSignal("INIT", ActivateBinding)
+	KT:RegSignal("INIT", ActivateBinding, self)
 	KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
 		SetAlert("trackedQuests")
 		SetupModules()
 		Mover_SetScale()
 		KT:RegEvent("UI_SCALE_CHANGED", function()
 			Mover_SetScale()
-		end)
+		end, self)
 		KT:UnregEvent(eventID)
-	end)
+	end, self)
 end

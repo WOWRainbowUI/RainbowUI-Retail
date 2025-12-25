@@ -208,7 +208,9 @@ function KT_EventObjectiveTrackerMixin:AddEvent(poiInfo, eventInfo)
     local isWorldQuest = false
     block:SetPOIInfo(0, isComplete, isSuperTracked, isWorldQuest, poiInfo)
 
-    block:AddObjective("Zone", zoneName, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["Normal"])
+    if zoneName then
+        block:AddObjective("Zone", zoneName, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["Normal"])
+    end
     self:TryAddingExpirationWarningLine(block)
 
     return self:LayoutBlock(block)
@@ -261,9 +263,12 @@ function M:OnInitialize()
     _DBG("|cffffff00Init|r - "..self:GetName(), true)
     db = KT.db.profile
     dbChar = KT.db.char
+    self.isAvailable = true
 
-    tinsert(KT.MODULES, "KT_EventObjectiveTracker")
-    KT.db:RegisterDefaults(KT.db.defaults)
+    if self.isAvailable then
+        tinsert(KT.MODULES, "KT_EventObjectiveTracker")
+        KT.db:RegisterDefaults(KT.db.defaults)
+    end
 end
 
 function M:OnEnable()

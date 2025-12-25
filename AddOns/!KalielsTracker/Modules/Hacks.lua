@@ -45,7 +45,7 @@ end
 -- Affects the World Map and removes taint errors. The hack prevents calls to restricted functions.
 -- When the hack is inactive, the World Map display causes errors. It is not possible to get rid of these errors,
 -- since the tracker has a lot of interaction with the game frames.
--- Negative impacts: unknown in WoW 11.2.5
+-- Negative impacts: unknown in WoW 11.2.7
 local function Hack_WorldMap()
     if db.hackWorldMap then
         -- Blizzard_MapCanvas.lua
@@ -131,14 +131,14 @@ local function Hack_WorldMap()
                 HackAcquirePin(FlightMapFrame)
                 KT:UnregEvent(eventID)
             end
-        end)
+        end, M)
 
         KT:RegEvent("ADDON_LOADED", function(eventID, addon)
             if addon == "Blizzard_BattlefieldMap" then
                 HackAcquirePin(BattlefieldMapFrame)
                 KT:UnregEvent(eventID)
             end
-        end)
+        end, M)
     end
 end
 
@@ -189,28 +189,31 @@ local function Hack_TaintedFrames()
         InitFrame(QuestLogPopupDetailFrame)
         InitFrame(PVEFrame)
         KT:UnregEvent(eventID)
-    end)
+    end, M)
 
     KT:RegEvent("ADDON_LOADED", function(eventID, addon)
         if addon == "Blizzard_AchievementUI" then
             InitFrame(AchievementFrame, 96)
             KT:UnregEvent(eventID)
         end
-    end)
+    end, M)
 
     KT:RegEvent("ADDON_LOADED", function(eventID, addon)
         if addon == "Blizzard_EncounterJournal" then
             InitFrame(EncounterJournal)
             KT:UnregEvent(eventID)
         end
-    end)
+    end, M)
 end
 
 function M:OnInitialize()
     _DBG("|cffffff00Init|r - "..self:GetName(), true)
     db = KT.db.profile
+    self.isAvailable = true
 
-    Hack_LFG()
-    Hack_WorldMap()
-    Hack_TaintedFrames()
+    if self.isAvailable then
+        Hack_LFG()
+        Hack_WorldMap()
+        Hack_TaintedFrames()
+    end
 end

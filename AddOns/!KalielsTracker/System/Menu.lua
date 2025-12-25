@@ -7,6 +7,8 @@
 ---@type KT
 local _, KT = ...
 
+local SS = KT:NewSubsystem("Menu")
+
 local db
 
 local function Menu_AddButton(_, info, type, id)
@@ -42,8 +44,9 @@ local function Menu_AddButton(_, info, type, id)
         MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
     end
 end
-KT:RegSignal("CONTEXT_MENU_UPDATE", Menu_AddButton)
 
-KT:RegSignal("INIT", function()
+function SS:Init()
     db = KT.db.profile
-end, {})
+
+    KT:RegSignal("CONTEXT_MENU_UPDATE", Menu_AddButton, self)
+end

@@ -7,6 +7,8 @@
 ---@type KT
 local addonName, KT = ...
 
+local SS = KT:NewSubsystem("StaticPopup")
+
 local DIALOG_TITLE = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:0:0|t"..NORMAL_FONT_COLOR_CODE..KT.TITLE.."|r"
 
 function KT.StaticPopup_Show(token, text, subText, ...)

@@ -4,6 +4,8 @@ local _, KT = ...
 KT_ObjectiveTrackerFrameMixin = { };
 
 function KT_ObjectiveTrackerFrameMixin:OnLoad()
+	KT_ObjectiveTrackerContainerMixin.OnLoad(self);
+
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA");
 	self:RegisterEvent("ZONE_CHANGED");
 	self:RegisterEvent("QUEST_ACCEPTED");
@@ -26,4 +28,27 @@ function KT_ObjectiveTrackerFrameMixin:OnEvent(event, ...)
 			end
 		end
 	end
+end
+
+function KT_ObjectiveTrackerFrameMixin:ShouldShowHeader()
+	if C_GameRules.IsGameRuleActive(Enum.GameRule.ObjectiveTrackerDisabled) then
+		return false;
+	end
+
+	if not self:HasAnyModules() then
+		return false;
+	end
+
+	return true;
+end
+
+function KT_ObjectiveTrackerFrameMixin:Update(dirtyUpdate)
+	if not self:ShouldShowHeader() then
+		self.Header:Hide();
+		return false;
+	end
+
+	self.Header:Show();
+
+	return KT_ObjectiveTrackerContainerMixin.Update(self, dirtyUpdate);
 end

@@ -82,10 +82,14 @@ KT.EXCLUDED_QUEST_ITEMS = {
 
 -- Locations
 local MAP_CONTINENT_OVERRIDES = {
+    [2351] = { mapID = 2351 },        -- Razorwind Shores (Housing)
+    [2352] = { mapID = 2352 },        -- Founder's Point (Housing)
     [2472] = { mapID = 2371 },        -- Tazavesh
     [2371] = { mapID = 2371 },        -- K'aresh
     [2346] = { mapID = 2214 },        -- Undermine
     [2369] = { mapID = 2369 },        -- Siren Isle
+    [2133] = { mapID = 2133 },        -- Zaralek Cavern
+    [1961] = { mapID = 1543 },        -- Korthia
     [1355] = { mapID = 1355 },        -- Nazjatar
     [2214] = { virtualID = 2274.1 },  -- The Ringing Deeps
     [2215] = { virtualID = 2274.1 },  -- Hallowfall

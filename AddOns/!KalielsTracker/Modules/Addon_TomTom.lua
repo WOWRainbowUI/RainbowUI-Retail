@@ -277,6 +277,28 @@ local function DigSiteGetIconInfo(id)
 	return title, mapID, x, y, waypointMapID, waypointText, fakeData
 end
 
+local function HousingPlotGetIconInfo(id)
+    local title, x, y, waypointMapID, waypointText, fakeData
+    local mapID = dbChar.waypoint.mapID
+    if WorldMapFrame:IsShown() then
+        mapID = WorldMapFrame:GetMapID()
+        mapID = GetMapIDByCursor(mapID)
+    end
+
+    local info = KT.GetHousingPlotInfo(id)
+    if info then
+        title = format(HOUSING_PLOT_NUMBER.." (%s)", info.plotID, info.ownerName or HOUSING_CORNERSTONE_FORSALE)
+        local iconMarkup = KT.GetPoiIcon("Housing"..info.ownerType, "markup")
+        if iconMarkup then
+            title = iconMarkup..title
+        end
+        x, y = info.mapPosition:GetXY()
+    end
+
+    mapID, x, y, waypointMapID, waypointText, fakeData = NormalizePOIData(mapID, x, y)
+    return title, mapID, x, y, waypointMapID, waypointText, fakeData
+end
+
 local function SetWaypointTag(button, show)
 	local tag = button.Display.KTtomtom
 	if show then
@@ -351,6 +373,8 @@ local function AddWaypoint(id, type)
 			title, mapID, x, y, waypointMapID, waypointText, fakeData = TaxiNodeGetIconInfo(id)
 		elseif type == Enum.SuperTrackingMapPinType.DigSite then
 			title, mapID, x, y, waypointMapID, waypointText, fakeData = DigSiteGetIconInfo(id)
+        elseif type == Enum.SuperTrackingMapPinType.HousingPlot then
+            title, mapID, x, y, waypointMapID, waypointText, fakeData = HousingPlotGetIconInfo(id)
 		end
 	elseif id == userWaypointID then
 		title = KT.GetPoiIcon("MapPin", "markup").."My waypoint"
@@ -593,7 +617,7 @@ local function SetEvents()
             end
 		end
 		KT:UnregEvent(eventID)
-	end)
+	end, M)
 
 	-- Update waypoint after reload with supertracking
 	KT:RegEvent("QUEST_LOG_UPDATE", function(eventID)
@@ -614,12 +638,12 @@ local function SetEvents()
 			end
 		end
 		KT:UnregEvent(eventID)
-	end)
+	end, M)
 
 	-- Disable stop update after quest is accepted
 	KT:RegEvent("QUEST_ACCEPTED", function()
 		stopUpdate = not autoQuestWatch
-	end)
+	end, M)
 
 	-- Enable stop update after quest is removed
 	KT:RegEvent("QUEST_REMOVED", function()
@@ -632,12 +656,12 @@ local function SetEvents()
 				OTF:Update()
 			end)
 		end
-	end)
+	end, M)
 
 	-- Enable stop update after quest is turned in
 	KT:RegEvent("QUEST_TURNED_IN", function()
 		stopUpdate = true
-	end)
+	end, M)
 
 	-- Update waypoint after quest objectives changed
 	KT:RegEvent("QUEST_WATCH_UPDATE", function(_, questID)
@@ -648,7 +672,7 @@ local function SetEvents()
 				end
 			end)
 		end
-	end)
+	end, M)
 
 	-- Updates waypoint while moving
 	KT:RegEvent("WAYPOINT_UPDATE", function()
@@ -657,7 +681,7 @@ local function SetEvents()
 			SetSuperTrackedQuestWaypoint(questID, true)
 			OTF:Update()
 		end
-	end)
+	end, M)
 
 	-- Updates waypoint while change zone
 	KT:RegEvent("ZONE_CHANGED_NEW_AREA", function()
@@ -675,7 +699,7 @@ local function SetEvents()
 				end
 			end
 		end)
-	end)
+	end, M)
 
 	-- Update waypoint after accept quest
 	KT:RegEvent("QUEST_POI_UPDATE", function()
@@ -689,7 +713,7 @@ local function SetEvents()
 		if WorldMapFrame:IsShown() then
 			WorldMapFrame:RefreshOverlayFrames()  -- fix Blizz bug (Area POI)
 		end
-	end)
+	end, M)
 end
 
 -- External ------------------------------------------------------------------------------------------------------------
@@ -698,9 +722,9 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.2.3-release") and db.addonTomTom)
+    self.isAvailable = (KT:CheckAddOn("TomTom", "v4.2.4-release") and db.addonTomTom)
 
-	if self.isLoaded then
+	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("TomTom", "v4.1.2-release")
 
 		local defaults = KT:MergeTables({
