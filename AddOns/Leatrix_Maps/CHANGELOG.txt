@@ -1,4 +1,10 @@
-﻿11.2.23 - 10th December 2025
+﻿11.2.25 - 24th December 2025
+- Merry Christmas!
+
+11.2.24 - 17th December 2025
+- PTR (12.0.1): Updated for game patch 12.0.1.
+
+11.2.23 - 10th December 2025
 - Added map reveal data for K'aresh (Khaz Algar).
 - Updated map reveal data for Zuldazar (Zandalar).
 - PTR (12.0.0): Added map reveal data for Midnight zones (Eversong Woods, Zul'Aman, Voidstorm, Harandar and Isle of Quel'Danas).
