@@ -14,12 +14,18 @@ local settings = {
 	isCollapsed = false,	-- whether the container is collapsed, not showing any modules	
 	needsSorting = false,	-- will be set to true whenever a module is added or removed
 	init = false,			-- when a container is first added, it will run Init()
+	modules = {},			-- table containing all added modules
 };
 
 KT_ObjectiveTrackerContainerMixin = CreateFromMixins(DirtiableMixin, settings);
 
+function KT_ObjectiveTrackerContainerMixin:OnLoad()
+	local dirtyUpdate = true;
+	self:SetDirtyMethod(GenerateClosure(self.Update, self, dirtyUpdate));
+end
+
 function KT_ObjectiveTrackerContainerMixin:OnSizeChanged()
-	self:Update();
+	self:MarkDirty();
 end
 
 function KT_ObjectiveTrackerContainerMixin:OnShow()
@@ -45,9 +51,6 @@ function KT_ObjectiveTrackerContainerMixin:GetAvailableHeight()
 end
 
 function KT_ObjectiveTrackerContainerMixin:Update(dirtyUpdate)
-	if not self.modules then
-		return;
-	end
 	_DBG("|cffffff00Update ...", true)
 
 	if self.needsSorting then
@@ -115,13 +118,6 @@ function KT_ObjectiveTrackerContainerMixin:Update(dirtyUpdate)
 end
 
 function KT_ObjectiveTrackerContainerMixin:AddModule(module)
-	-- init on first module added
-	if not self.modules then
-		self.modules = { };
-		local dirtyUpdate = true;
-		self:SetDirtyMethod(GenerateClosure(self.Update, self, dirtyUpdate));
-	end
-
 	if self:HasModule(module) then
 		return;
 	end
@@ -138,6 +134,15 @@ function KT_ObjectiveTrackerContainerMixin:RemoveModule(module)
 		self.needsSorting = true;
 		self:MarkDirty();
 	end
+end
+
+function KT_ObjectiveTrackerContainerMixin:RemoveAllModules()
+	self.modules = {};
+	self:MarkDirty();
+end
+
+function KT_ObjectiveTrackerContainerMixin:HasAnyModules()
+	return #self.modules > 0;
 end
 
 function KT_ObjectiveTrackerContainerMixin:HasModule(module)
@@ -188,11 +193,9 @@ end
 function KT_ObjectiveTrackerContainerMixin:UpdateHeight()
 	--[[if not self:IsInDefaultPosition() then
 		local height = 0;
-		if self.modules then
-			for i, module in ipairs(self.modules) do
-				if module.mustFit then
-					height = height + module:GetContentsHeight();
-				end
+		for i, module in ipairs(self.modules) do
+			if module.mustFit then
+				height = height + module:GetContentsHeight();
 			end
 		end
 

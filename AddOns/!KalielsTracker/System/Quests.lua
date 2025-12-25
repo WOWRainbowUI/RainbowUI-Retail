@@ -7,6 +7,8 @@
 ---@type KT
 local _, KT = ...
 
+local SS = KT:NewSubsystem("Quests")
+
 local questsCache = {}
 
 function KT.QuestsCache_Update(force)
@@ -29,7 +31,7 @@ function KT.QuestsCache_Update(force)
                             level = questInfo.level,
                             zone = headerTitle,
                             isCalling = C_QuestLog.IsQuestCalling(questInfo.questID),
-                            startMapID = quest and quest.startMapID or 0,
+                            startMapID = quest and quest.startMapID,
                             updateTime = quest and quest.updateTime or 0
                         }
                         questsCache[questInfo.questID] = quest
@@ -72,8 +74,15 @@ function KT.QuestsCache_UpdateProperty(questID, key, value)
     end
 end
 
-function KT.QuestsCache_Init(storage)
+function SS:Init(storage)
     if storage then
+        -- Cleanup
+        for _, data in pairs(storage) do
+            if data.startMapID == 0 then
+                data.startMapID = nil
+            end
+        end
+
         questsCache = storage
     end
 
@@ -83,5 +92,5 @@ function KT.QuestsCache_Init(storage)
             KT.QuestsCache_Update(true)
             KT:UnregEvent(eventID)
         end
-    end)
+    end, self)
 end

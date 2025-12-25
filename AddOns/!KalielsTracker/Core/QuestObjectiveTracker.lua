@@ -52,7 +52,7 @@ function KT_QuestObjectiveTrackerMixin:OnEvent(event, ...)
 end
 
 function KT_QuestObjectiveTrackerMixin:OnBlockHeaderClick(block, mouseButton)
-	if ChatEdit_TryInsertQuestLinkForQuestID(block.id) then
+	if ChatFrameUtil.TryInsertQuestLinkForQuestID(block.id) then
 		return;
 	end
 

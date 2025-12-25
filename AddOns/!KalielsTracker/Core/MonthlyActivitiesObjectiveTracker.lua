@@ -37,9 +37,9 @@ function KT_MonthlyActivitiesObjectiveTrackerMixin:OnEvent(event, ...)
 end
 
 function KT_MonthlyActivitiesObjectiveTrackerMixin:OnBlockHeaderClick(block, mouseButton)
-	if IsModifiedClick("CHATLINK") and ChatEdit_GetActiveWindow() then
+	if IsModifiedClick("CHATLINK") and ChatFrameUtil.GetActiveWindow() then
 		local perksActivityLink = C_PerksActivities.GetPerksActivityChatLink(block.id);
-		ChatEdit_InsertLink(perksActivityLink);
+		ChatFrameUtil.InsertLink(perksActivityLink);
 	elseif mouseButton ~= "RightButton" then
 		if not EncounterJournal then
 			EncounterJournal_LoadUI();

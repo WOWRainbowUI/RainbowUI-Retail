@@ -122,6 +122,10 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-	SetHooks()
-	SetFrames()
+    self.isAvailable = true
+
+    if self.isAvailable then
+        SetHooks()
+        SetFrames()
+    end
 end

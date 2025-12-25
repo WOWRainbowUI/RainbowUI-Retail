@@ -96,10 +96,10 @@ end
 
 function KT_QuestObjectiveItemButtonMixin:OnClick(button)
 	local questLogIndex = self:GetAttribute("questLogIndex");
-	if IsModifiedClick("CHATLINK") and ChatEdit_GetActiveWindow() then
+	if IsModifiedClick("CHATLINK") and ChatFrameUtil.GetActiveWindow() then
 		local link, item, charges, showItemWhenComplete = GetQuestLogSpecialItemInfo(questLogIndex);
 		if link then
-			ChatEdit_InsertLink(link);
+			ChatFrameUtil.InsertLink(link);
 		end
 	else
 		UseQuestLogSpecialItem(questLogIndex);

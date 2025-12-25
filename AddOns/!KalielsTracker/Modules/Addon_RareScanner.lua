@@ -60,9 +60,12 @@ local function RS_OnMouseUp(self, button)
 end
 
 local function Wrapper_SetHeight()
-	local lootBarHeight = RareScanner.db.profile.loot.displayLoot and RSbutton.LootBar:GetHeight() or 0
-	if lootBarHeight > 0 then
-		lootBarHeight = min(lootBarHeight, 40) + 10
+	local lootBarHeight = 0
+	if RareScanner.db.profile.loot.displayLoot and RSbutton.LootBar.itemFramesPool:GetNumActive() > 0 then
+		lootBarHeight = RSbutton.LootBar:GetHeight()
+		if lootBarHeight > 0 then
+			lootBarHeight = min(lootBarHeight, 40) + 10
+		end
 	end
 	local height = KT.round(content.title:GetHeight() + lootBarHeight)
 	content.button.wrapper:SetHeight(height)
@@ -97,7 +100,7 @@ local function SetFrames()
 	halo:SetTexture("Interface\\Map\\MapFogOfWar.blp")
 	halo:SetPoint("CENTER")
 	halo:SetSize(256, 256)
-	halo:SetBlendMode("ADD")   -- aby to svítilo
+	halo:SetBlendMode("ADD")
 	halo:SetAlpha(0.4)
 
 	local wrapper = CreateFrame("Frame", nil, button)
@@ -320,9 +323,9 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-	self.isLoaded = (KT:CheckAddOn("RareScanner", "11.2.5.8") and db.addonRareScanner)
+    self.isAvailable = (KT:CheckAddOn("RareScanner", "11.2.7") and db.addonRareScanner)
 
-	if self.isLoaded then
+	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("RareScanner", "11.2.0.11")
 
 		tinsert(KT.MODULES, "KT_RareScannerObjectiveTracker")

@@ -38,8 +38,8 @@ local textures = { "None", "Default (Blizzard)", "One line", "Two lines" }
 local modifiers = { [""] = "None", ["ALT"] = "Alt", ["CTRL"] = "Ctrl", ["ALT-CTRL"] = "Alt + Ctrl" }
 local SOUND_CHANNELS = { "Master", "Music", "SFX", "Ambience" }
 local SOUND_CHANNELS_LOCALIZED = { Master = "Master", Music = MUSIC_VOLUME, SFX = FX_VOLUME, Ambience = AMBIENCE_VOLUME }
-local VISIBILITY_CONTEXTS = { "world", "city", "dungeon", "mythicplus", "raid", "arena", "battleground", "petbattle", "rare" }
-local VISIBILITY_CONTEXTS_LOCALIZED = { world = "World", city = "City", dungeon = "Dungeon", mythicplus = "Mythic+", raid = "Raid", arena = "Arena", battleground = "Battleground", petbattle = "Pet Battle", rare = "Rare NPC" }
+local VISIBILITY_CONTEXTS = { "world", "city", "house", "dungeon", "mythicplus", "raid", "arena", "battleground", "petbattle", "rare" }
+local VISIBILITY_CONTEXTS_LOCALIZED = { world = "World", city = "City", house = "House", dungeon = "Dungeon", mythicplus = "Mythic+", raid = "Raid", arena = "Arena", battleground = "Battleground", petbattle = "Pet Battle", rare = "Rare NPC" }
 local VISIBILITY_OPTIONS = { "show", "hide", "expand", "collapse" }
 local VISIBILITY_OPTIONS_LOCALIZED = { show = "Show", hide = "Hide", expand = "Show + Expand", collapse = "Show + Collapse" }
 local realmZones = { ["EU"] = "Europe", ["NA"] = "North America" }
@@ -287,7 +287,8 @@ function mover:Anchor_OnClick()
 	Mover_SetPositionVars(self.obj.mover)
 	Mover_UpdateOptions(true)
 	KT:MoveTracker()
-	KT:SetSize(true)
+	KTF.height = 0  -- force update
+	KT:Update()
 end
 
 function mover:OnDragStart(frame)
@@ -1043,7 +1044,7 @@ local options = {
 							type = "toggle",
 							width = "normal+half",
 							disabled = function()
-								return not KT.AddonPetTracker.isLoaded
+								return not KT.AddonPetTracker.isAvailable
 							end,
 							set = function()
 								db.hdrPetTrackerTitleAppend = not db.hdrPetTrackerTitleAppend
@@ -1533,7 +1534,7 @@ local options = {
 							order = 3.1,
 						},
 						command3Desc = {
-							name = "Open addon config window",
+							name = "Open addon Options",
 							type = "description",
 							width = 2.3,
 							order = 3.24,
@@ -1946,7 +1947,7 @@ local options = {
 									"restricted functions. When the hack is inactive, the World Map display causes errors. "..
 									"It is not possible to get rid of these errors, since the tracker has a lot of interaction "..
 									"with the game frames.\n\n"..
-									cWarning2.."Negative impacts:|r unknown in WoW 11.2.5\n",
+									cWarning2.."Negative impacts:|r unknown in WoW 11.2.7\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",
@@ -2244,13 +2245,17 @@ local function Setup()
 end
 
 local function SetHooks()
+	hooksecurefunc(UIParent, "SetScale", function(self)
+		Mover_SetScale()
+	end)
+
 	SettingsPanel:HookScript("OnShow", function()
-		KT:RegSignal("VISIBILITY_CONTEXT", Visibility_ShowActiveContext)
+		KT:RegSignal("VISIBILITY_CONTEXT", Visibility_ShowActiveContext, M)
 		KT:SendSignal("OPTIONS_OPENED")
 	end)
 
 	SettingsPanel:HookScript("OnHide", function()
-		KT:UnregSignal("VISIBILITY_CONTEXT")
+		KT:UnregSignal("VISIBILITY_CONTEXT", M)
 	end)
 end
 
@@ -2353,15 +2358,12 @@ function Keybind(key, command)
 	end
 end
 
-hooksecurefunc(UIParent, "SetScale", function(self)
-	Mover_SetScale()
-end)
-
 -- External ------------------------------------------------------------------------------------------------------------
 
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	Init()
+    self.isAvailable = true
 
     db.questAutoFocusClosest = false
 end
@@ -2371,14 +2373,14 @@ function M:OnEnable()
 	Setup()
 	SetHooks()
 
-	KT:RegSignal("INIT", ActivateBinding)
+	KT:RegSignal("INIT", ActivateBinding, self)
 	KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
 		SetAlert("trackedQuests")
 		SetupModules()
 		Mover_SetScale()
 		KT:RegEvent("UI_SCALE_CHANGED", function()
 			Mover_SetScale()
-		end)
+		end, self)
 		KT:UnregEvent(eventID)
-	end)
+	end, self)
 end

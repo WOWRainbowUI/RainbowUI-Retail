@@ -7,6 +7,8 @@
 ---@type KT
 local _, KT = ...
 
+local SS = KT:NewSubsystem("Achievements")
+
 local BUILD_VERSION = select(1, KT.GAME_VERSION)
 local achievsCache = {}
 
@@ -59,7 +61,7 @@ function KT.AchievementsCache_Reset(storage)
     achievsCache.data = {}
 end
 
-function KT.AchievementsCache_Init(storage)
+function SS:Init(storage)
     if storage then
         achievsCache = storage
     end
@@ -73,5 +75,5 @@ function KT.AchievementsCache_Init(storage)
             KT.AchievementsCache_Build()
         end
         KT:UnregEvent(eventID)
-    end)
+    end, self)
 end

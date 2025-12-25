@@ -148,7 +148,7 @@ end
 local function Event_PLAYER_ENTERING_WORLD(eventID)
 	KT:RegEvent("PET_JOURNAL_LIST_UPDATE", function()
 		M:SetPetsHeaderText()
-	end)
+	end, M)
 	KT:UnregEvent(eventID)
 end
 
@@ -159,7 +159,7 @@ local function SetEvents_Init()
 				SetHooks_PetTracker_Journal()
 				KT:UnregEvent(eventID)
 			end
-		end)
+		end, M)
 	else
 		SetHooks_PetTracker_Journal()
 	end
@@ -318,9 +318,9 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-	self.isLoaded = (KT:CheckAddOn("PetTracker", "11.2.3") and db.addonPetTracker)
+    self.isAvailable = (KT:CheckAddOn("PetTracker", "11.2.3") and db.addonPetTracker)
 
-	if self.isLoaded then
+	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("PetTracker", "11.1.10")
 
 		tinsert(KT.MODULES, "KT_PetTrackerObjectiveTracker")
@@ -338,17 +338,17 @@ function M:OnEnable()
 
 	KT:RegSignal("OPTIONS_CHANGED", "Update", self)
 	KT:RegSignal("FILTER_MENU_UPDATE", FilterMenuUpdate, self)
-	KT:RegEvent("PLAYER_ENTERING_WORLD", Event_PLAYER_ENTERING_WORLD)
+	KT:RegEvent("PLAYER_ENTERING_WORLD", Event_PLAYER_ENTERING_WORLD, self)
 end
 
 function M:IsShown()
-	return (self.isLoaded and
+	return (self.isAvailable and
 			(PetTracker.sets and PetTracker.sets.zoneTracker) and
 			PetTracker.Objectives:IsShown())
 end
 
 function M:SetPetsHeaderText(reset)
-	if self.isLoaded and db.hdrPetTrackerTitleAppend then
+	if self.isAvailable and db.hdrPetTrackerTitleAppend then
 		local _, numPetsOwned = C_PetJournal.GetNumPets()
 		KT:SetHeaderText(KT_PetTrackerObjectiveTracker, numPetsOwned)
 	elseif reset then

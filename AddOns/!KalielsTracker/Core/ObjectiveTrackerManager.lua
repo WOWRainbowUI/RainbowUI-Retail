@@ -5,6 +5,7 @@ KT.ObjectiveTrackerManager = {
 	containers = { },
 	moduleToContainerMap = { },
 	backgroundAlpha = 0,
+	canAddModules = true,
 };
 
 function KT.ObjectiveTrackerManager:AssignModulesOrder(modules)
@@ -17,6 +18,16 @@ function KT.ObjectiveTrackerManager:AddContainer(container)
 	self.containers[container] = true;
 	-- pass current alpha to new container
 	container:OnAdded(self.backgroundAlpha);
+end
+
+function KT.ObjectiveTrackerManager:HasAnyModules()
+	for container in pairs(self.containers) do
+		if container:HasAnyModules() then
+			return true;
+		end
+	end
+
+	return false;
 end
 
 function KT.ObjectiveTrackerManager:UpdateAll()
@@ -184,25 +195,42 @@ function KT.ObjectiveTrackerManager:OnPlayerEnteringWorld(isInitialLogin, isRelo
 		return;
 	end
 
-	local orderedModules = {
-		KT_ScenarioObjectiveTracker,
-		KT_UIWidgetObjectiveTracker,
-		KT_CampaignQuestObjectiveTracker,
-		KT_QuestObjectiveTracker,
-		KT_AdventureObjectiveTracker,
-		KT_AchievementObjectiveTracker,
-		KT_MonthlyActivitiesObjectiveTracker,
-		KT_ProfessionsRecipeTracker,
-		KT_BonusObjectiveTracker,
-		KT_WorldQuestObjectiveTracker,
-	};
-
-	self:AssignModulesOrder(orderedModules);
 	local mainTrackerFrame = KT_ObjectiveTrackerFrame;
 	self:AddContainer(mainTrackerFrame);
-	for i, module in ipairs(orderedModules) do
-		self:SetModuleContainer(module, mainTrackerFrame);
+
+	if self.canAddModules then
+		local orderedModules = {
+			KT_ScenarioObjectiveTracker,
+			KT_UIWidgetObjectiveTracker,
+			KT_CampaignQuestObjectiveTracker,
+			KT_QuestObjectiveTracker,
+			KT_AdventureObjectiveTracker,
+			KT_AchievementObjectiveTracker,
+			KT_MonthlyActivitiesObjectiveTracker,
+			KT_ProfessionsRecipeTracker,
+			KT_BonusObjectiveTracker,
+			KT_WorldQuestObjectiveTracker,
+		};
+
+		self:AssignModulesOrder(orderedModules);
+		for i, module in ipairs(orderedModules) do
+			self:SetModuleContainer(module, mainTrackerFrame);
+		end
 	end
+
+	self:UpdateAll();
+end
+
+function KT.ObjectiveTrackerManager:RemoveAllModules()
+	for container in pairs(self.containers) do
+		container:RemoveAllModules();
+	end
+
+	self:UpdateAll();
+end
+
+function KT.ObjectiveTrackerManager:SetCanAddModules(canAdd)
+	self.canAddModules = canAdd;
 end
 
 --EventRegistry:RegisterFrameEventAndCallback("PLAYER_ENTERING_WORLD", KT.ObjectiveTrackerManager.OnPlayerEnteringWorld, KT.ObjectiveTrackerManager);  -- MSA

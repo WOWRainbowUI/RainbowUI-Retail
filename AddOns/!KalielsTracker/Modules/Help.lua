@@ -228,7 +228,7 @@ local function SetupTutorials()
 					cBold.."Affects the World Map|r and removes taint errors. The hack prevents calls to restricted "..
 					"functions. When the hack is inactive, the World Map display causes errors. It is not possible to "..
 					"get rid of these errors, since the tracker has a lot of interaction with the game frames.\n\n"..
-					cWarning2.."Negative impacts:|r unknown in WoW 11.2.5",
+					cWarning2.."Negative impacts:|r unknown in WoW 11.2.7",
 		},
 		{	-- 9
 			image = HELP_PATH.."help_events",
@@ -361,23 +361,20 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "If you like "..KT.TITLE..", consider supporting it on Patreon "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 7.17.0|r\n"..
-					"- ADDED - TomTom - clickable arrow (open World Map, remove waypoint, show context menu), see Help page 12\n"..
-					"- ADDED - TomTom - waypoint support for any map POI (new quests, events, dungeons, raids, flight paths, portals, ...), see Help page 14\n"..
-					"- ADDED (Achievements) - new filter option \"Show continent achievs\"\n"..
-					"- CHANGED - addon support - Auctionator 302\n"..
-					"- CHANGED - addon support - RareScanner 11.2.5.8\n"..
-					"- CHANGED - addon support - TomTom 4.2.3\n"..
-					"- CHANGED - addon support - PetTracker 11.2.3\n"..
-					"- CHANGED - addon support - Masque 11.2.6\n"..
-					"- CHANGED (Filters) - set default filter categories for Remix\n"..
-					"- CHANGED (Filters) - allow all achievement categories in Remix\n"..
-					"- CHANGED (Filters) - store filter settings per character instead of shared profile\n"..
-					"- CHANGED - TomTom - waypoint improvements\n"..
-					"- FIXED (Events) - event mapID sometimes missing for specific area POIs (Blizz bug)\n"..
-					"- FIXED - objective text height sometimes wrong (Blizz bug)\n"..
-					"- FIXED (API) - KalielsTracker:Toggle() with nil param doesn't work\n"..
-					"- PERFORMANCE (Filters) - massively improve achievements filtering (remove lags)\n"..
+					(cTitle.."Version 7.18.0|r\n"..
+					"- ADDED - TomTom - waypoint support for Housing plots\n"..
+					"- ADDED - support for WoW 11.2.7.64704\n"..
+					"- CHANGED - addon support - ElvUI 14.04, Tukui 20.463\n"..
+					"- CHANGED (Filters) - improve instance achievement filtering\n"..
+					"- CHANGED - AddonCompartment - improvement (left/right click)\n"..
+					"- CHANGED - Options - add visibility rule based on House detection\n"..
+					"- CHANGED - addon support - BtWQuests 2.58.0\n"..
+					"- CHANGED - addon support - Auctionator 305\n"..
+					"- CHANGED - addon support - Masque 11.2.7\n"..
+					"- CHANGED - addon support - RareScanner 11.2.7\n"..
+					"- CHANGED - addon support - TomTom 4.2.4\n"..
+					"- FIXED (Filters) - error when quest map information is missing\n"..
+					"- FIXED - error when quest zone information is missing\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
@@ -493,6 +490,7 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
+    self.isAvailable = true
 end
 
 function M:OnEnable()
