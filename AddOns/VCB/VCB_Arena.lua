@@ -104,54 +104,63 @@ function chkArenaNamePosition()
 		function vcbArenaNamePosition(self, i)
 			_G["VCBnameTextArena"..i]:ClearAllPoints()
 			_G["VCBnameTextArena"..i]:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, -2)
+			_G["VCBnameTextArena"..i]:SetJustifyH("LEFT")
 			if not _G["VCBnameTextArena"..i]:IsShown() then _G["VCBnameTextArena"..i]:Show() end
 		end
 	elseif VCBrArena["NameText"] == "左" then
 		function vcbArenaNamePosition(self, i)
 			_G["VCBnameTextArena"..i]:ClearAllPoints()
 			_G["VCBnameTextArena"..i]:SetPoint("LEFT", self, "LEFT", 4, 0)
+			_G["VCBnameTextArena"..i]:SetJustifyH("LEFT")
 			if not _G["VCBnameTextArena"..i]:IsShown() then _G["VCBnameTextArena"..i]:Show() end
 		end
 	elseif VCBrArena["NameText"] == "左下" then
 		function vcbArenaNamePosition(self, i)
 			_G["VCBnameTextArena"..i]:ClearAllPoints()
 			_G["VCBnameTextArena"..i]:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 5, 1)
+			_G["VCBnameTextArena"..i]:SetJustifyH("LEFT")
 			if not _G["VCBnameTextArena"..i]:IsShown() then _G["VCBnameTextArena"..i]:Show() end
 		end
 	elseif VCBrArena["NameText"] == "上" then
 		function vcbArenaNamePosition(self, i)
 			_G["VCBnameTextArena"..i]:ClearAllPoints()
 			_G["VCBnameTextArena"..i]:SetPoint("BOTTOM", self, "TOP", 0, -2)
+			_G["VCBnameTextArena"..i]:SetJustifyH("CENTER")
 			if not _G["VCBnameTextArena"..i]:IsShown() then _G["VCBnameTextArena"..i]:Show() end
 		end
 	elseif VCBrArena["NameText"] == "中" then
 		function vcbArenaNamePosition(self, i)
 			_G["VCBnameTextArena"..i]:ClearAllPoints()
 			_G["VCBnameTextArena"..i]:SetPoint("CENTER", self, "CENTER", 0, 0)
+			_G["VCBnameTextArena"..i]:SetJustifyH("CENTER")
 			if not _G["VCBnameTextArena"..i]:IsShown() then _G["VCBnameTextArena"..i]:Show() end
 		end
 	elseif VCBrArena["NameText"] == "下" then
 		function vcbArenaNamePosition(self, i)
 			_G["VCBnameTextArena"..i]:ClearAllPoints()
 			_G["VCBnameTextArena"..i]:SetPoint("TOP", self, "BOTTOM", 0, 1)
+			_G["VCBnameTextArena"..i]:SetJustifyH("CENTER")
 			if not _G["VCBnameTextArena"..i]:IsShown() then _G["VCBnameTextArena"..i]:Show() end
 		end
 	elseif VCBrArena["NameText"] == "右上" then
 		function vcbArenaNamePosition(self, i)
 			_G["VCBnameTextArena"..i]:ClearAllPoints()
 			_G["VCBnameTextArena"..i]:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -2)
+			_G["VCBnameTextArena"..i]:SetJustifyH("RIGHT")
 			if not _G["VCBnameTextArena"..i]:IsShown() then _G["VCBnameTextArena"..i]:Show() end
 		end
 	elseif VCBrArena["NameText"] == "右" then
 		function vcbArenaNamePosition(self, i)
 			_G["VCBnameTextArena"..i]:ClearAllPoints()
 			_G["VCBnameTextArena"..i]:SetPoint("RIGHT", self, "RIGHT", -4, 0)
+			_G["VCBnameTextArena"..i]:SetJustifyH("RIGHT")
 			if not _G["VCBnameTextArena"..i]:IsShown() then _G["VCBnameTextArena"..i]:Show() end
 		end
 	elseif VCBrArena["NameText"] == "右下" then
 		function vcbArenaNamePosition(self, i)
 			_G["VCBnameTextArena"..i]:ClearAllPoints()
 			_G["VCBnameTextArena"..i]:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -5, 1)
+			_G["VCBnameTextArena"..i]:SetJustifyH("RIGHT")
 			if not _G["VCBnameTextArena"..i]:IsShown() then _G["VCBnameTextArena"..i]:Show() end
 		end
 	elseif VCBrArena["NameText"] == "隱藏" then

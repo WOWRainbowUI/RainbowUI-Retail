@@ -104,54 +104,63 @@ function chkBossNamePosition()
 		function vcbBossNamePosition(self, i)
 			_G["VCBnameTextBoss"..i]:ClearAllPoints()
 			_G["VCBnameTextBoss"..i]:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, -2)
+			_G["VCBnameTextBoss"..i]:SetJustifyH("LEFT")
 			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
 		end
 	elseif VCBrBoss["NameText"] == "左" then
 		function vcbBossNamePosition(self, i)
 			_G["VCBnameTextBoss"..i]:ClearAllPoints()
 			_G["VCBnameTextBoss"..i]:SetPoint("LEFT", self, "LEFT", 4, 0)
+			_G["VCBnameTextBoss"..i]:SetJustifyH("LEFT")
 			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
 		end
 	elseif VCBrBoss["NameText"] == "左下" then
 		function vcbBossNamePosition(self, i)
 			_G["VCBnameTextBoss"..i]:ClearAllPoints()
 			_G["VCBnameTextBoss"..i]:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 5, 1)
+			_G["VCBnameTextBoss"..i]:SetJustifyH("LEFT")
 			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
 		end
 	elseif VCBrBoss["NameText"] == "上" then
 		function vcbBossNamePosition(self, i)
 			_G["VCBnameTextBoss"..i]:ClearAllPoints()
 			_G["VCBnameTextBoss"..i]:SetPoint("BOTTOM", self, "TOP", 0, -2)
+			_G["VCBnameTextBoss"..i]:SetJustifyH("CENTER")
 			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
 		end
 	elseif VCBrBoss["NameText"] == "中" then
 		function vcbBossNamePosition(self, i)
 			_G["VCBnameTextBoss"..i]:ClearAllPoints()
 			_G["VCBnameTextBoss"..i]:SetPoint("CENTER", self, "CENTER", 0, 0)
+			_G["VCBnameTextBoss"..i]:SetJustifyH("CENTER")
 			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
 		end
 	elseif VCBrBoss["NameText"] == "下" then
 		function vcbBossNamePosition(self, i)
 			_G["VCBnameTextBoss"..i]:ClearAllPoints()
 			_G["VCBnameTextBoss"..i]:SetPoint("TOP", self, "BOTTOM", 0, 1)
+			_G["VCBnameTextBoss"..i]:SetJustifyH("CENTER")
 			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
 		end
 	elseif VCBrBoss["NameText"] == "右上" then
 		function vcbBossNamePosition(self, i)
 			_G["VCBnameTextBoss"..i]:ClearAllPoints()
 			_G["VCBnameTextBoss"..i]:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -2)
+			_G["VCBnameTextBoss"..i]:SetJustifyH("RIGHT")
 			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
 		end
 	elseif VCBrBoss["NameText"] == "右" then
 		function vcbBossNamePosition(self, i)
 			_G["VCBnameTextBoss"..i]:ClearAllPoints()
 			_G["VCBnameTextBoss"..i]:SetPoint("RIGHT", self, "RIGHT", -4, 0)
+			_G["VCBnameTextBoss"..i]:SetJustifyH("RIGHT")
 			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
 		end
 	elseif VCBrBoss["NameText"] == "右下" then
 		function vcbBossNamePosition(self, i)
 			_G["VCBnameTextBoss"..i]:ClearAllPoints()
 			_G["VCBnameTextBoss"..i]:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -5, 1)
+			_G["VCBnameTextBoss"..i]:SetJustifyH("RIGHT")
 			if not _G["VCBnameTextBoss"..i]:IsShown() then _G["VCBnameTextBoss"..i]:Show() end
 		end
 	elseif VCBrBoss["NameText"] == "隱藏" then

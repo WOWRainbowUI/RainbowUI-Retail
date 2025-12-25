@@ -72,54 +72,63 @@ function chkTargetNamePosition()
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, -2)
+			VCBnameTextTarget:SetJustifyH("LEFT")
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
 	elseif VCBrTarget["NameText"] == "左" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("LEFT", self, "LEFT", 4, 0)
+			VCBnameTextTarget:SetJustifyH("LEFT")
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
 	elseif VCBrTarget["NameText"] == "左下" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 5, 1)
+			VCBnameTextTarget:SetJustifyH("LEFT")
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
 	elseif VCBrTarget["NameText"] == "上" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("BOTTOM", self, "TOP", 0, -2)
+			VCBnameTextTarget:SetJustifyH("CENTER")
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
 	elseif VCBrTarget["NameText"] == "中" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("CENTER", self, "CENTER", 0, 0)
+			VCBnameTextTarget:SetJustifyH("CENTER")
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
 	elseif VCBrTarget["NameText"] == "下" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("TOP", self, "BOTTOM", 0, 1)
+			VCBnameTextTarget:SetJustifyH("CENTER")
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
 	elseif VCBrTarget["NameText"] == "右上" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -2)
+			VCBnameTextTarget:SetJustifyH("RIGHT")
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
 	elseif VCBrTarget["NameText"] == "右" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("RIGHT", self, "RIGHT", -4, 0)
+			VCBnameTextTarget:SetJustifyH("RIGHT")
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
 	elseif VCBrTarget["NameText"] == "右下" then
 		function vcbTargetNamePosition(self)
 			VCBnameTextTarget:ClearAllPoints()
 			VCBnameTextTarget:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -5, 1)
+			VCBnameTextTarget:SetJustifyH("RIGHT")
 			if not VCBnameTextTarget:IsShown() then VCBnameTextTarget:Show() end
 		end
 	elseif VCBrTarget["NameText"] == "隱藏" then
