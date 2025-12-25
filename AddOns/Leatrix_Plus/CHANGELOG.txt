@@ -1,4 +1,10 @@
-﻿11.2.22 - 3rd December 2025
+﻿11.2.25 - 24th December 2025
+- Merry Christmas!
+
+11.2.24 - 17th December 2025
+- PTR (12.0.1): Updated for game patch 12.0.1.
+
+11.2.22 - 3rd December 2025
 - Updated for game patch 11.2.7.
 
 11.2.21 - 26th November 2025
