@@ -72,54 +72,63 @@ function chkFocusNamePosition()
 		function vcbFocusNamePosition(self)
 			VCBnameTextFocus:ClearAllPoints()
 			VCBnameTextFocus:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, -2)
+			VCBnameTextFocus:SetJustifyH("LEFT")
 			if not VCBnameTextFocus:IsShown() then VCBnameTextFocus:Show() end
 		end
 	elseif VCBrFocus["NameText"] == "Left" then
 		function vcbFocusNamePosition(self)
 			VCBnameTextFocus:ClearAllPoints()
 			VCBnameTextFocus:SetPoint("LEFT", self, "LEFT", 4, 0)
+			VCBnameTextFocus:SetJustifyH("LEFT")
 			if not VCBnameTextFocus:IsShown() then VCBnameTextFocus:Show() end
 		end
 	elseif VCBrFocus["NameText"] == "Bottom Left" then
 		function vcbFocusNamePosition(self)
 			VCBnameTextFocus:ClearAllPoints()
 			VCBnameTextFocus:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 5, 1)
+			VCBnameTextFocus:SetJustifyH("LEFT")
 			if not VCBnameTextFocus:IsShown() then VCBnameTextFocus:Show() end
 		end
 	elseif VCBrFocus["NameText"] == "Top" then
 		function vcbFocusNamePosition(self)
 			VCBnameTextFocus:ClearAllPoints()
 			VCBnameTextFocus:SetPoint("BOTTOM", self, "TOP", 0, -2)
+			VCBnameTextFocus:SetJustifyH("CENTER")
 			if not VCBnameTextFocus:IsShown() then VCBnameTextFocus:Show() end
 		end
 	elseif VCBrFocus["NameText"] == "Center" then
 		function vcbFocusNamePosition(self)
 			VCBnameTextFocus:ClearAllPoints()
 			VCBnameTextFocus:SetPoint("CENTER", self, "CENTER", 0, 0)
+			VCBnameTextFocus:SetJustifyH("CENTER")
 			if not VCBnameTextFocus:IsShown() then VCBnameTextFocus:Show() end
 		end
 	elseif VCBrFocus["NameText"] == "Bottom" then
 		function vcbFocusNamePosition(self)
 			VCBnameTextFocus:ClearAllPoints()
 			VCBnameTextFocus:SetPoint("TOP", self, "BOTTOM", 0, 1)
+			VCBnameTextFocus:SetJustifyH("CENTER")
 			if not VCBnameTextFocus:IsShown() then VCBnameTextFocus:Show() end
 		end
 	elseif VCBrFocus["NameText"] == "Top Right" then
 		function vcbFocusNamePosition(self)
 			VCBnameTextFocus:ClearAllPoints()
 			VCBnameTextFocus:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -2)
+			VCBnameTextFocus:SetJustifyH("RIGHT")
 			if not VCBnameTextFocus:IsShown() then VCBnameTextFocus:Show() end
 		end
 	elseif VCBrFocus["NameText"] == "Right" then
 		function vcbFocusNamePosition(self)
 			VCBnameTextFocus:ClearAllPoints()
 			VCBnameTextFocus:SetPoint("RIGHT", self, "RIGHT", -4, 0)
+			VCBnameTextFocus:SetJustifyH("RIGHT")
 			if not VCBnameTextFocus:IsShown() then VCBnameTextFocus:Show() end
 		end
 	elseif VCBrFocus["NameText"] == "Bottom Right" then
 		function vcbFocusNamePosition(self)
 			VCBnameTextFocus:ClearAllPoints()
 			VCBnameTextFocus:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -5, 1)
+			VCBnameTextFocus:SetJustifyH("RIGHT")
 			if not VCBnameTextFocus:IsShown() then VCBnameTextFocus:Show() end
 		end
 	elseif VCBrFocus["NameText"] == "Hide" then
