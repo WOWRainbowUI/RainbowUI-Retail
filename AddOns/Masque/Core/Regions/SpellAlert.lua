@@ -219,10 +219,10 @@ local function Skin_Overlay(Region, Button, Skin)
 
 	if not _mcfg then return end
 
-	local Shape = _mcfg.Shape or STR_SQUARE
+	local Shape = _mcfg.Shape
 
 	-- Update the skin if the shape has changed.
-	if _mcfg.OverlayShape ~= Shape then
+	if Region._MSQ_Shape ~= Shape then
 		local Paths = Overlays[Shape] or Overlays.Square
 
 		local Ants_Texture = (Skin and Skin.Ants) or Paths.Ants
@@ -235,7 +235,7 @@ local function Skin_Overlay(Region, Button, Skin)
 		Region.outerGlowOver:SetTexture(Glow_Texture)
 		Region.spark:SetTexture(Glow_Texture)
 
-		_mcfg.OverlayShape = Shape
+		Region._MSQ_Shape = Shape
 	end
 end
 
@@ -503,7 +503,8 @@ end
 
 -- Hook for Classic spell alerts.
 local function Hook_ShowOverlayGlow(Button)
-	local Region = Button and Button.overlay
+	-- Account for LibCustomGlow.
+	local Region = Button.overlay or Button._ButtonGlow
 
 	if Region and Region.spark then
 		local _mcfg = Button._MSQ_CFG
@@ -532,7 +533,7 @@ end
 
 -- Calls the appropriate update function.
 local function Update_SpellAlert(Button)
-	if Button.overlay then
+	if Button.overlay or Button._ButtonGlow then
 		Hook_ShowOverlayGlow(Button)
 	else
 		Update_SpellActivationAlert(Button)
