@@ -361,6 +361,15 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "If you like "..KT.TITLE..", consider supporting it on Patreon "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 7.18.1|r\n"..
+					"- CHANGED - addon support - Auctionator 306\n"..
+					"- CHANGED - addon support - RareScanner 11.2.7.3\n"..
+					"- CHANGED - addon support - TomTom 4.2.8\n"..
+					"- CHANGED - addon support - PetTracker 11.2.7\n"..
+					"- CHANGED - addon support - Masque 11.2.9\n"..
+					"- FIXED - Masque - Active Button style not removed with enabled skin\n"..
+					"\n")..
+
 					(cTitle.."Version 7.18.0|r\n"..
 					"- ADDED - TomTom - waypoint support for Housing plots\n"..
 					"- ADDED - support for WoW 11.2.7.64704\n"..

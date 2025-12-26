@@ -1200,7 +1200,7 @@ local function SetHooks()
 				button:SetFrameLevel(KTF:GetFrameLevel() + 1)
 				--button:Hide()  -- Cooldown init
 
-				KT:Masque_AddButton(button)
+				KT:Masque_AddButton(button, 1)
 			end
 			if not isSpell then
 				button:SetScript("OnEvent", KT.ItemButton.OnEvent)

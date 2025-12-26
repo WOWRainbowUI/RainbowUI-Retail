@@ -6,12 +6,12 @@
 	<Script file="Events.lua"/>
 	<Include file="Events.xml"/>
 	<Script file="QuestLog.lua"/>
-	<Script file="ActiveButton.lua"/>
 	<Script file="Addon_PetTracker.lua"/>
 	<Include file="Addon_PetTracker.xml"/>
 	<Script file="Addon_TomTom.lua"/>
 	<Script file="Addon_RareScanner.lua"/>
 	<Include file="Addon_RareScanner.xml"/>
 	<Script file="Addon_Others.lua"/>
+    <Script file="ActiveButton.lua"/>
 	<Script file="Help.lua"/>
 </Ui>
