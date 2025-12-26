@@ -1,4 +1,11 @@
 # Kaliel's Tracker changelog
+### 7.18.1
+- CHANGED - addon support - Auctionator 306
+- CHANGED - addon support - RareScanner 11.2.7.3
+- CHANGED - addon support - TomTom 4.2.8
+- CHANGED - addon support - PetTracker 11.2.7
+- CHANGED - addon support - Masque 11.2.9
+- FIXED - Masque - Active Button style not removed with enabled skin
 ### 7.18.0
 - ADDED - TomTom - waypoint support for Housing plots
 - ADDED - support for WoW 11.2.7.64704

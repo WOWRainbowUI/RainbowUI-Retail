@@ -11,7 +11,6 @@ local addonName, KT = ...
 local M = KT:NewModule("AddonOthers")
 KT.AddonOthers = M
 
-local MSQ = LibStub("Masque", true)
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 -- WoW API
@@ -19,39 +18,42 @@ local _G = _G
 
 local db
 local OTF = KT_ObjectiveTrackerFrame
-local msqGroup1, msqGroup2
 
 local KTwarning = "  |cff00ffffAddon "..KT.TITLE.." 已啟用。  "
 
 -- Internal ------------------------------------------------------------------------------------------------------------
 
 -- Masque
+local MSQ = LibStub("Masque", true)
+local msqGroup = {}
+
+local function Masque_SetButtonStyle(button, state)
+    if button.Style then
+        button.Style:SetAlpha(state and 1 or 0)
+    end
+end
+
+local function Masque_Callback(self, option, value)
+    if option == "Disabled" then
+        for button in pairs(self.Buttons) do
+            Masque_SetButtonStyle(button, value)
+        end
+    end
+end
+
 local function Masque_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Masque", "11.2.7") and db.addonMasque)
+    local isLoaded = (KT:CheckAddOn("Masque", "11.2.9") and db.addonMasque)
     if isLoaded then
         KT:Alert_IncompatibleAddon("Masque", "11.0.1")
-        msqGroup1 = MSQ:Group(KT.TITLE, "任務物品按鈕")
-        msqGroup2 = MSQ:Group(KT.TITLE, "當前任務物品按鈕")
-        hooksecurefunc(msqGroup2, "__Enable", function(self)
-            for button in pairs(self.Buttons) do
-                if button.Style then
-                    button.Style:SetAlpha(0)
-                end
-            end
-        end)
-        hooksecurefunc(msqGroup2, "__Disable", function(self)
-            for button in pairs(self.Buttons) do
-                if button.Style then
-                    button.Style:SetAlpha(1)
-                end
-            end
-        end)
+        msqGroup[1] = MSQ:Group(KT.TITLE, "任務物品按鈕")
+        msqGroup[2] = MSQ:Group(KT.TITLE, "當前任務物品按鈕")
+        msqGroup[2]:RegisterCallback(Masque_Callback)
     end
 end
 
 -- Auctionator
 local function Auctionator_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Auctionator", "305") and db.addonAuctionator)
+    local isLoaded = (KT:CheckAddOn("Auctionator", "306") and db.addonAuctionator)
     if isLoaded then
         hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
             local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame
@@ -152,18 +154,10 @@ function M:OnEnable()
 end
 
 -- Masque
-function KT:Masque_AddButton(button, group)
-    if db.addonMasque and MSQ and msqGroup1 then
-        if not group or group == 1 then
-            group = msqGroup1
-        elseif group == 2 then
-            group = msqGroup2
-        end
+function KT:Masque_AddButton(button, groupID)
+    if db.addonMasque and MSQ then
+        local group = msqGroup[groupID]
         group:AddButton(button)
-        if button.Style then
-            if not group.db.Disabled then
-                button.Style:SetAlpha(0)
-            end
-        end
+        Masque_SetButtonStyle(button, group.db.Disabled)
     end
 end

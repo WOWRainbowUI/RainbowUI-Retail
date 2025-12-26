@@ -362,6 +362,15 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "如果你喜歡 "..KT.TITLE.."，請考慮在 Patreon 贊助 "..ICON_HEART.."|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 7.18.1|r\n"..
+					"- 修改 - 插件支援 - Auctionator 306\n"..
+					"- 修改 - 插件支援 - RareScanner 11.2.7.3\n"..
+					"- 修改 - 插件支援 - TomTom 4.2.8\n"..
+					"- 修改 - 插件支援 - PetTracker 11.2.7\n"..
+					"- 修改 - 插件支援 - Masque 11.2.9\n"..
+					"- 修正 - Masque - 啟用外觀後，當前按鈕樣式不會被移除\n"..
+					"\n")..
+
 					(cTitle.."Version 7.18.0|r\n"..
 					"- 新增 - TomTom - 住宅地塊的航點支援\n"..
 					"- 新增 - 支援 WoW 11.2.7.64704\n"..
