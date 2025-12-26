@@ -1510,6 +1510,7 @@ BlizzMoveAPI:RegisterAddOnFrames({
         ["PlayerChoiceFrame"] =
         {
             MinVersion = 100000, -- Moved from Blizzard_PlayerChoiceUI
+            ForceUseSecureMoveHandle = true,
         },
     },
     ["Blizzard_PlayerChoiceUI"] =
