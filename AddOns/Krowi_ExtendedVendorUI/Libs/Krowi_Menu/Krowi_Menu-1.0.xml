@@ -16,4 +16,5 @@
 	<Script file="Krowi_MenuItem-1.0.lua"/>
 	<Script file="Krowi_Menu-1.0.lua"/>
 	<Script file="Krowi_MenuUtil-1.0.lua"/>
+    <Script file="Krowi_MenuBuilder-1.0.lua" />
 </Ui>
