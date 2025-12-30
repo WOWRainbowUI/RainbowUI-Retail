@@ -1,31 +1,25 @@
-## Interface: 110205, 110207
+## Interface: 20505
 ## Title: Cell
 ## Version: r273-release
 ## Author: enderneko
-## X-Flavor: Mainline
+## X-Flavor: Vanilla
 ## SavedVariables: CellDB, CellDBBackup
-## AddonCompartmentFunc: Cell_OnAddonCompartmentClick
-## IconTexture: Interface\AddOns\Cell\Media\icon.tga
+## SavedVariablesPerCharacter: CellCharacterDB
 
 ## X-Curse-Project-ID: 409666
 ## X-Wago-ID: qv63LLKb
 ## X-WoWI-ID: 26244
 
-## Title-zhTW: |cffFF7F00[團隊]|r 框架 (Cell)
-## Notes-zhTW: Cell |n|n簡單好用的團隊框架，可自訂外觀，並且提供滑鼠點擊快速施法和其他功能。|n|n|cffffd200使用方法: |r點團隊框架左上方的小方塊，進行設定。
-## Category-zhTW: 單位框架
-## DefaultState: disabled
-
 Locales\LoadLocales.xml
 
-Libs\LoadLibs.xml
+Libs\LoadLibs_Classic.xml
 
-Core.lua
+Core_Vanilla.lua
 Utils.lua
 Revise.lua
 Comm\LoadComm.xml
-Widgets\LoadWidgets.xml
-Defaults\LoadDefaults.xml
+Widgets\LoadWidgets_Classic.xml
+Defaults\LoadDefaults_TBC.xml
 
 HideBlizzard.lua
 
@@ -36,16 +30,17 @@ Indicators\AoEHealing.lua
 Indicators\TargetCounter.lua
 Indicators\TargetedSpells.lua
 Indicators\Actions.lua
-Indicators\Custom.lua
+Indicators\Custom_Classic.lua
 Indicators\Supporter.lua
 
 RaidFrames\MainFrame.lua
 
-Modules\LoadModules.xml
-Utilities\LoadUtilities.xml
-RaidDebuffs\LoadRaidDebuffs.xml
+RaidDebuffs\ExpansionData\LoadExpansionData.xml
+Modules\LoadModules_Classic.xml
+Utilities\LoadUtilities_Classic.xml
+RaidDebuffs\LoadRaidDebuffs_TBC.xml
 
-RaidFrames\UnitButton.lua
+RaidFrames\UnitButton_Vanilla.lua
 RaidFrames\UnitButton.xml
 RaidFrames\Groups\SoloFrame.lua
 RaidFrames\Groups\PartyFrame.lua
