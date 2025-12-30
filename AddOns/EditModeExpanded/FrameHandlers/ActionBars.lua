@@ -6,8 +6,8 @@ local lib = LibStub:GetLibrary("EditModeExpanded-1.0")
 function addon:initActionBars()
     local db = addon.db.global
     if not db.EMEOptions.actionBars then return end
-    C_Timer.After(5, function()
-        if InCombatLockdown() then return end 
+        
+    addon:continueAfterCombatEnds(function() 
         local bars = {MainActionBar, MultiBarBottomLeft, MultiBarBottomRight, MultiBarRight, MultiBarLeft, MultiBar5, MultiBar6, MultiBar7}
 
         for _, bar in ipairs(bars) do
@@ -57,7 +57,7 @@ function addon:initActionBars()
             )
             
             local namesSize = 1
-    
+
             local function updateNamesSizes()
                 for _, button in pairs(bar.actionButtons) do
                     button.HotKey:SetScale(namesSize)
@@ -72,10 +72,9 @@ function addon:initActionBars()
                     updateNamesSizes()
                 end,
                 0.5, 2, 0.05)
+            hooksecurefunc("CompactUnitFrame_UpdateName", updateNamesSizes)
             
             lib:RegisterHiddenUntilMouseover(bar, L["HIDE_WHEN_NOT_MOUSEOVER_DESCRIPTION"])
-            
-            hooksecurefunc("CompactUnitFrame_UpdateName", updateNamesSizes)
         end
     end)
 end
