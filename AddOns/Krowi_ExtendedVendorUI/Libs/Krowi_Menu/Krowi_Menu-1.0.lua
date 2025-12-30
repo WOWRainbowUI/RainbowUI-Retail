@@ -14,11 +14,16 @@
 
 ---@diagnostic disable: undefined-global
 
-local lib = LibStub:NewLibrary("Krowi_Menu-1.0", 4);
+local MAJOR, MINOR = "Krowi_Menu-1.0", KROWI_MENU_LIBRARY_MINOR
+local lib = LibStub:NewLibrary(MAJOR, MINOR);
 
 if not lib then
 	return;
 end
+
+-- Store version constants
+lib.MAJOR = MAJOR
+lib.MINOR = MINOR
 
 local menuItem = LibStub("Krowi_MenuItem-1.0");
 

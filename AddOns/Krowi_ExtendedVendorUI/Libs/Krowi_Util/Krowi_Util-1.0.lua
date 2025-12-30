@@ -14,7 +14,7 @@
 
 ---@diagnostic disable: undefined-global
 
-local lib = LibStub:NewLibrary("Krowi_Util-1.0", 12);
+local lib = LibStub:NewLibrary("Krowi_Util-1.0", 13);
 
 if not lib then
 	return;
@@ -26,7 +26,7 @@ lib.IsMistsClassic = major == "5";
 lib.IsClassicWithAchievements = lib.IsMistsClassic;
 lib.IsTheWarWithin = major == "11";
 lib.IsMidnight = major == "12";
-lib.IsMainline = lib.IsTheWarWithin or lib.IsMidnight;
+lib.IsMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE;
 
 function lib.ConcatTables(t1, t2)
     if t2 then
