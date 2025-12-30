@@ -1618,7 +1618,7 @@ function refreshCurrentProfile()
                 end
                     
                 -- update scale
-                if framesDialogsKeys[systemID][ENUM_EDITMODEACTIONBARSETTING_FRAMESIZE] and db.settings[ENUM_EDITMODEACTIONBARSETTING_FRAMESIZE] then
+                if framesDialogsKeys[systemID][ENUM_EDITMODEACTIONBARSETTING_FRAMESIZE] and db.settings and db.settings[ENUM_EDITMODEACTIONBARSETTING_FRAMESIZE] then -- 暫時修正
                     frame:SetScaleOverride(db.settings[ENUM_EDITMODEACTIONBARSETTING_FRAMESIZE]/100)
                 end
                 
