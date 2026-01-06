@@ -584,6 +584,12 @@ function ns:ShowItem(link, for_tooltip)
             end
             classwarning:SetShown(not appropriateItem and not probablyEnsemble)
         end
+        if setID then
+            local setName = C_Item.GetItemSetInfo(setID)
+            if setName then
+                label = label .. '|r\n' .. ITEM_SET_BONUS:format(setName)
+            end
+        end
         known:SetText(label)
         known:Show()
     end
@@ -707,7 +713,7 @@ function ns.CanTransmogItem(itemLink)
             local appearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemLink)
             if sourceID then
                 local info = C_TransmogCollection.GetSourceInfo(sourceID)
-                return info and info.playerCanCollect -- info.isValidSourceForPlayer also exists, seems to be whether the player could actually transmog it
+                return info and (info.playerCanCollect or info.isCollected or info.canDisplayOnPlayer) -- info.isValidSourceForPlayer also exists, seems to be whether the player could actually transmog it
             end
         end
     end
