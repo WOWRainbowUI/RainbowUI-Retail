@@ -17,7 +17,9 @@ if MicroMenu then
             local button = select(i, ...)
 
             -- always reparent the button
-            -- button:SetParent(Addon.ShadowUIParent)
+            if Addon:IsBuild("retail") then
+                button:SetParent(Addon.ShadowUIParent)
+            end
 
             -- ...but only display it on our bar if it was already enabled
             if button:IsShown() then
@@ -190,7 +192,7 @@ function MenuBar:IsMenuButtonEnabled(button)
     end
 end
 
-if Addon:IsBuild("retail", "bcc") then
+if Addon:IsBuild("retail", "tbc") then
     function MenuBar:Layout()
         for _, button in pairs(MicroButtons) do
             button:Hide()
