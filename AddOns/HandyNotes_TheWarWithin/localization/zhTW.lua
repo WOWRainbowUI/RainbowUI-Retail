@@ -25,6 +25,9 @@ L['options_icons_flight_master_desc'] = '顯示 {achievement:40430} 成就中 {n
 L['options_icons_worldsoul_memories'] = '世界之魂的回憶'
 L['options_icons_worldsoul_memories_desc'] = '顯示 {object:世界之魂的回憶} 的獎勵。'
 
+L['last_architect_note'] = nil
+L['neighborhood_riddle'] = '寶藏位置'
+
 -------------------------------------------------------------------------------
 -------------------------------- ISLE OF DORN ---------------------------------
 -------------------------------------------------------------------------------
