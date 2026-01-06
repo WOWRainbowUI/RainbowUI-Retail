@@ -113,7 +113,7 @@ function addonTable.SlashCmd.CustomiseUI()
 end
 
 local COMMANDS = {
-  [""] = function() Settings.OpenToCategory(addonTable.Locales.SYNDICATOR) end,
+  [""] = function() Settings.OpenToCategory(Syndicator.OptionsCategory:GetID()) end,
   ["c"] = addonTable.SlashCmd.Config,
   ["config"] = addonTable.SlashCmd.Config,
   ["d"] = addonTable.SlashCmd.Debug,
