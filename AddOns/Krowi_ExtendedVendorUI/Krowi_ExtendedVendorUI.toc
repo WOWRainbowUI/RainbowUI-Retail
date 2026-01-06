@@ -1,8 +1,8 @@
-## Interface: 11508, 30405, 50502, 110205, 110207
+## Interface: 11508, 30408, 50503, 110205, 110207
 ## Title: Krowi's |cFF1D92C2Extended Vendor UI|r
 ## X-Prefix: KrowiEVU
 ## X-Acronym: KEVU
-## Version: 17.0
+## Version: 18.0
 ## Author: Krowi-Frostmane EU
 ## LoadWith: Blizzard_MerchantFrame
 ## SavedVariables: KrowiEVU_Options, KrowiEVU_Filters, KrowiEVU_Debug
@@ -50,4 +50,4 @@ Icon.lua
 
 Filters.lua
 
-Gui\FilesModern.xml
+Gui\Files.xml
