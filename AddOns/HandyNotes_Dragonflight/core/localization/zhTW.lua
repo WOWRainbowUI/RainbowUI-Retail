@@ -74,6 +74,7 @@ L['elite'] = '菁英'
 L['quest'] = '任務'
 L['quest_repeatable'] = '可重複任務'
 L['achievement'] = '成就'
+L['decor_owned'] = nil
 
 ---------------------------------- LOCATION -----------------------------------
 L['in_cave'] = '在洞穴。'
@@ -92,6 +93,7 @@ L['weekly'] = '每週'
 L['time_format_12hrs'] = '%B %d - %I:%M %p 本地時間'
 L['time_format_24hrs'] = '%B %d - %H:%M 本地時間'
 ----------------------------------- REWARDS -----------------------------------
+L['decor'] = '房屋裝飾'
 L['heirloom'] = '傳家寶'
 L['item'] = '物品'
 L['mount'] = '坐騎'
@@ -202,8 +204,10 @@ L['ignore_faction_restrictions_desc'] = '顯示需要對方陣營的隊伍、地
 L['options_rewards_settings'] = '獎勵'
 L['options_reward_behaviors_settings'] = '獎勵行為'
 L['options_reward_types'] = '顯示獎勵類型'
-L['options_manuscript_rewards'] = '顯示飛龍手稿獎勵'
-L['options_manuscript_rewards_desc'] = '在浮動提示資訊中顯示飛龍觀察者手稿獎勵，並且追蹤收藏狀態。'
+L['options_decor_rewards'] = nil
+L['options_decor_rewards_desc'] = nil
+L['options_manuscript_rewards'] = '顯示飛龍觀察者手稿獎勵'
+L['options_manuscript_rewards_desc'] = '在提示顯示飛龍觀察者手稿並追蹤收集狀態.'
 L['options_mount_rewards'] = '顯示坐騎獎勵'
 L['options_mount_rewards_desc'] = '在浮動提示資訊中顯示坐騎獎勵，並且追蹤收藏狀態。'
 L['options_pet_rewards'] = '顯示寵物獎勵'
