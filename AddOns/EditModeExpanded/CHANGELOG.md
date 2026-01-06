@@ -1,8 +1,7 @@
 # Edit Mode Expanded
 
-## [11.2-030](https://github.com/teelolws/EditModeExpanded/tree/11.2-030) (2025-12-29)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.2-029...11.2-030) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [11.2-033](https://github.com/teelolws/EditModeExpanded/tree/11.2-033) (2025-12-30)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.2-032...11.2-033) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
 - Update EditModeExpanded-1.0.lua  
-- Hide Until Mouseover: move frame outside of visible window instead of calling :Hide  
-    https://github.com/teelolws/EditModeExpanded/issues/197  
+- Fix issue causing EME extra settings dialog from showing on frames without extra settings  
