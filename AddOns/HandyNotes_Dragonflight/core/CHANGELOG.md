@@ -1,3 +1,10 @@
+# v129
+
+* Updated Ace3 Libraries
+* Moved profession treasure functionality to core
+* Added new decor-related options and templates
+* Updated core localizations: deDE, enUS, esES, esMX, frFR, koKR, ruRU, zhCN, zhTW
+
 # v123
 
 * Fixed lua error in pin tooltip [[#503]](https://github.com/zarillion/handynotes-plugins/issues/503)

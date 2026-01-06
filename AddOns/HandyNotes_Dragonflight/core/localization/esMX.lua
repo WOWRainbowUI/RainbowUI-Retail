@@ -74,6 +74,7 @@ L['elite'] = nil
 L['quest'] = nil
 L['quest_repeatable'] = nil
 L['achievement'] = nil
+L['decor_owned'] = nil
 
 ---------------------------------- LOCATION -----------------------------------
 L['in_cave'] = 'En una cueva.'
@@ -93,6 +94,7 @@ L['time_format_12hrs'] = '%I:%M %p - %d/%m heure locale'
 L['time_format_24hrs'] = '%H:%M - %d/%m heure locale'
 
 ----------------------------------- REWARDS -----------------------------------
+L['decor'] = 'Decoraciones de viviendas'
 L['heirloom'] = nil
 L['item'] = nil
 L['mount'] = 'Montura'
@@ -204,6 +206,8 @@ L['ignore_faction_restrictions_desc'] = nil
 L['options_rewards_settings'] = nil
 L['options_reward_behaviors_settings'] = nil
 L['options_reward_types'] = nil
+L['options_decor_rewards'] = nil
+L['options_decor_rewards_desc'] = nil
 L['options_manuscript_rewards'] = nil
 L['options_manuscript_rewards_desc'] = nil
 L['options_mount_rewards'] = nil

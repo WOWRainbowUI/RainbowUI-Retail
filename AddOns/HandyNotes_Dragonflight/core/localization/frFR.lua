@@ -74,6 +74,7 @@ L['elite'] = 'Élite'
 L['quest'] = 'Quête'
 L['quest_repeatable'] = 'Quête répétable'
 L['achievement'] = 'Haut-Fait'
+L['decor_owned'] = 'Possédé : %s'
 
 ---------------------------------- LOCATION -----------------------------------
 L['in_cave'] = 'Dans une grotte.'
@@ -93,6 +94,7 @@ L['time_format_12hrs'] = '%I:%M %p - %d/%m heure locale'
 L['time_format_24hrs'] = '%H:%M - %d/%m heure locale'
 
 ----------------------------------- REWARDS -----------------------------------
+L['decor'] = 'Élément de décoration intérieure'
 L['heirloom'] = 'Héritage'
 L['item'] = 'Objet'
 L['mount'] = 'Monture'
@@ -204,6 +206,8 @@ L['ignore_faction_restrictions_desc'] = 'Afficher les groupes, les nœuds et les
 L['options_rewards_settings'] = 'Récompenses'
 L['options_reward_behaviors_settings'] = 'Comportements des récompenses'
 L['options_reward_types'] = 'Afficher les types de récompenses'
+L['options_decor_rewards'] = 'Afficher les éléments de décoration en récompenses'
+L['options_decor_rewards_desc'] = 'Afficher les éléments de décoration du Logis en récompenses dans les infobulles.'
 L['options_manuscript_rewards'] = 'Montrer les Manuscrits guette-drake en récompenses'
 L['options_manuscript_rewards_desc'] = 'Afficher les Manuscrits guette-drake en récompenses dans les infobulles et suivre l\'état de leur acquisition.'
 L['options_mount_rewards'] = 'Afficher les montures en récompense'
