@@ -507,7 +507,17 @@ function DR.mainFrame.SetTabs(frame,numTabs, ...)
 
 end
 
-local content1 = DR.mainFrame.SetTabs(DR.mainFrame, 1, L["Score"])
+local content1, content2 = DR.mainFrame.SetTabs(DR.mainFrame, 2, L["Score"], L["Settings"])
+
+local settingsTabButton = _G[DR.mainFrame:GetName() .. "Tab2"]
+
+if settingsTabButton then
+	settingsTabButton:SetScript("OnClick", function()
+		if DR.SettingsCategoryID then
+			Settings.OpenToCategory(DR.SettingsCategoryID)
+		end
+	end)
+end
 --[[
 -- for now, disable, as this hasn't been accessible for a while. maybe one day
 --local content1, content2, content3 = DR.mainFrame.SetTabs(DR.mainFrame, 3, L["Score"], L["Guide"], L["Settings"])
