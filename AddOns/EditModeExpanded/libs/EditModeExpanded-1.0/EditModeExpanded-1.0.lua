@@ -2,7 +2,7 @@
 -- Internal variables
 --
 
-local MAJOR, MINOR = "EditModeExpanded-1.0", 102
+local MAJOR, MINOR = "EditModeExpanded-1.0", 105
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -88,12 +88,14 @@ setmetatable(framesDB, {
     __newindex = function(t, k, v)
         rawset(t, k, v)
         if type(v) ~= "table" then return end
-        rawset(v, "settings", {})
+        if not v.settings then
+            rawset(v, "settings", {})
+        end
     end,
     -- Eliminate need for calls like
     --     if not framesDB[systemID] then framesDB[systemID] = {} end
     __index = function(t, k)
-        rawset(t, k, {})
+        rawset(t, k, {settings={}})
         return t[k]
     end,
 })
@@ -1193,10 +1195,6 @@ hooksecurefunc(f, "OnLoad", function()
     checkButtonFrame:SetPoint("TOPLEFT", EditModeManagerExpandedFrame.AccountSettings, "TOPLEFT", 20, 0)
 end)
 
-local function GetSystemSettingDisplayInfo(dialogs)
-    return dialogs
-end
-
 local function hideFrameUntilMouseover(frame)
     local handler = frame.EMESecureHandlerEnterLeave
     if not handler then
@@ -1273,8 +1271,8 @@ hooksecurefunc(f, "OnLoad", function()
             local settingsToSetup = {};
             local systemID = getSystemID(self.attachedToSystem)
             
-            local systemSettingDisplayInfo = GetSystemSettingDisplayInfo(framesDialogs[systemID]);
-            if systemSettingDisplayInfo then
+            local systemSettingDisplayInfo = framesDialogs[systemID];
+            if systemSettingDisplayInfo and (#systemSettingDisplayInfo > 0) then
                 for index, displayInfo in ipairs(systemSettingDisplayInfo) do
                     local settingPool = self:GetSettingPool(displayInfo.type);
                     local settingFrame
@@ -1602,6 +1600,7 @@ function refreshCurrentProfile()
             framesDB[systemID] = db
             
             runOutOfCombat(function()
+                if not db.settings then db.settings = {} end
             
                 -- frame hide option
                 if framesDialogsKeys[systemID][ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] and (db.settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] ~= nil) then
