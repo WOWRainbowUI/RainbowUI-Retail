@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.2.25 (24th December 2025)
+-- 	Leatrix Plus 11.2.27 (7th January 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.2.25"
+	LeaPlusLC["AddonVer"] = "11.2.27"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -4857,6 +4857,7 @@
 
 			-- Add hyperlinks to regular item destroy
 			if not LeaPlusLC.NewPatch then
+				-- Taint in Midnight: Enter Stockade, loot junk, go vendor with transmog items Lisbeth Schneider 58.2 67.0 Stormwind, auto sell, close and shift reopen
 				StaticPopupDialogs["DELETE_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
 				StaticPopupDialogs["DELETE_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
 				StaticPopupDialogs["DELETE_QUEST_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
@@ -7408,7 +7409,7 @@
 				if sType and sType == "DEATH" and LeaPlusLC["AutoReleasePvP"] == "On" then
 					if C_DeathInfo.GetSelfResurrectOptions() and #C_DeathInfo.GetSelfResurrectOptions() > 0 then return end
 					local InstStat, InstType = IsInInstance()
-					-- if not CommentOutToRemoveDebugOnlyMode then InstStat = true; InstType = "pvp" end
+					-- if not CommentOutToRemoveDebugOnlyMode then InstStat = true; InstType = "pvp" end -- (DEBUG ONLY)
 					if InstStat and InstType == "pvp" then
 						-- Exclude specific maps
 						local mapID = C_Map.GetBestMapForUnit("player") or nil
@@ -7417,10 +7418,9 @@
 							if mapID == 1537 and LeaPlusLC["AutoReleaseNoAlterac"] == "On" then return end -- Alterac Valley
 							if mapID == 1334 and LeaPlusLC["AutoReleaseNoWintergsp"] == "On" then return end -- Wintergrasp (instanced)
 							if mapID == 1478 and LeaPlusLC["AutoReleaseNoAshran"] == "On" then return end -- Ashran (instanced)
-							-- Debug -- if mapID == 84 and LeaPlusLC["AutoReleaseNoStormwind"] == "On" then return end -- Stormwind (DEBUG ONLY)
+							-- if mapID == 84 then return end -- Exclude Stormwind (DEBUG ONLY)
 						end
-
-						-- Release automatically
+						-- Release automatically in PvP
 						local delay = LeaPlusLC["AutoReleaseDelay"] / 1000
 						C_Timer.After(delay, function()
 							local dialog = StaticPopup_Visible("DEATH")
@@ -7439,16 +7439,19 @@
 					or areaID == 588 and LeaPlusLC["AutoReleaseNoAshran"] == "Off" -- Ashran
 					or areaID == 622 and LeaPlusLC["AutoReleaseNoAshran"] == "Off" -- Stormshield
 					or areaID == 624 and LeaPlusLC["AutoReleaseNoAshran"] == "Off" -- Warspear
-					-- Debug -- or areaID == 84 -- Stormwind (DEBUG ONLY)
+					-- or areaID == 84 -- Stormwind (DEBUG ONLY)
 					then
+						-- Release automatically in world zones
 						local delay = LeaPlusLC["AutoReleaseDelay"] / 1000
 						C_Timer.After(delay, function()
-							if IsShiftKeyDown() then
-								LeaPlusLC:DisplayMessage(L["Automatic Release Cancelled"], true)
-							else
-								ReleaseButtonReady = 1
+							local dialog = StaticPopup_Visible("DEATH")
+							if dialog then
+								if IsShiftKeyDown() then
+									LeaPlusLC:DisplayMessage(L["Automatic Release Cancelled"], true)
+								else
+									StaticPopup_OnClick(_G[dialog], 1)
+								end
 							end
-							return
 						end)
 					end
 				end
@@ -8971,10 +8974,14 @@
 			MakeSpellEB(5, 386, -212, "1", "4")
 
 			-- Add checkboxes
-			LeaPlusLC:MakeTx(CooldownPanel, "Settings", 16, -72)
+			local settingsButton = LeaPlusLC:MakeTx(CooldownPanel, "Settings", 16, -72)
 			LeaPlusLC:MakeCB(CooldownPanel, "ShowCooldownID", "Show the spell ID in buff icon tooltips", 16, -92, false, "If checked, spell IDs will be shown in buff icon tooltips located in the buff frame and under the target frame.");
 			LeaPlusLC:MakeCB(CooldownPanel, "NoCooldownDuration", "Hide cooldown duration numbers (if enabled)", 16, -112, false, "If checked, cooldown duration numbers will not be shown over the cooldowns.|n|nIf unchecked, cooldown duration numbers will be shown over the cooldowns if they are enabled in the game options panel ('ActionBars' menu).")
 			LeaPlusLC:MakeCB(CooldownPanel, "CooldownsOnPlayer", "Show cooldowns above the player frame", 16, -132, false, "If checked, cooldown icons will be shown above the player frame.|n|nIf unchecked, cooldown icons will be shown above the target frame.")
+
+			if LeaPlusLC.NewPatch then
+				LeaPlusLC:CreateHelpButton("ShowCooldownsMidnightButton", CooldownPanel, settingsButton, "Note that during instanced combat encounters, cooldown icons will not show and any active timers will be reset.")
+			end
 
 			-- Function to save the panel control settings and refresh the cooldown icons
 			local function SavePanelControls()
@@ -9238,30 +9245,20 @@
 			LeaPlusLC:MakeCB(SideTip, "TipShowRank", "Show guild ranks for your guild", 16, -92, false, "If checked, guild ranks will be shown for players in your guild.")
 			LeaPlusLC:MakeCB(SideTip, "TipShowOtherRank", "Show guild ranks for other guilds", 16, -112, false, "If checked, guild ranks will be shown for players who are not in your guild.")
 			LeaPlusLC:MakeCB(SideTip, "TipShowTarget", "Show the unit's target", 16, -132, false, "If checked, unit targets will be shown.")
-			-- LeaPlusLC:MakeCB(SideTip, "TipShowMythic", "Show mythic score", 16, -152, false, "If checked, the unit's mythic score will be shown if it is above zero.")
 			LeaPlusLC:MakeCB(SideTip, "TipBackSimple", "Color the backdrops based on faction", 16, -152, false, "If checked, backdrops will be tinted blue (friendly) or red (hostile).")
 			LeaPlusLC:MakeCB(SideTip, "TipNoHealthBar", "Hide the health bar", 16, -172, true, "If checked, the health bar will not be shown.")
+
+			-- Show restrictions to tooltips in Midnight
+			if LeaPlusLC.NewPatch then
+				LeaPlusCB["TipShowRank"].tiptext = LeaPlusCB["TipShowRank"].tiptext .. "|n|n" .. L["This setting does not apply during instanced combat encounters."]
+				LeaPlusCB["TipShowOtherRank"].tiptext = LeaPlusCB["TipShowOtherRank"].tiptext .. "|n|n" .. L["This setting does not apply during instanced combat encounters."]
+				LeaPlusCB["TipShowTarget"].tiptext = LeaPlusCB["TipShowTarget"].tiptext .. "|n|n" .. L["This setting does not apply during instanced combat encounters."]
+				LeaPlusCB["TipBackSimple"].tiptext = LeaPlusCB["TipBackSimple"].tiptext .. "|n|n" .. L["This setting does not apply during instanced combat encounters."]
+			end
 
 			LeaPlusLC:MakeTx(SideTip, "Hide tooltips", 16, -212)
 			LeaPlusLC:MakeCB(SideTip, "TipHideInCombat", "Hide tooltips for world units during combat", 16, -232, false, "If checked, tooltips for world units will be hidden during combat.")
 			LeaPlusLC:MakeCB(SideTip, "TipHideShiftOverride", "Show tooltips with shift key", 16, -252, false, "If checked, you can hold shift while tooltips are hidden to show them temporarily.")
-
-			if LeaPlusLC.NewPatch then
-				local function LockDF(option, reason)
-					LeaPlusLC[option] = "Off"
-					LeaPlusDB[option] = "Off"
-					LeaPlusLC:LockItem(LeaPlusCB[option], true)
-					if reason then
-						LeaPlusCB[option].tiptext = LeaPlusCB[option].tiptext .. "|n|n|cff00AAFF" .. L[reason]
-					end
-				end
-				LockDF("TipShowRank", "This option is not currently available.")
-				LockDF("TipShowOtherRank", "This option is not currently available.")
-				LockDF("TipShowTarget", "This option is not currently available.")
-				LockDF("TipBackSimple", "This option is not currently available.")
-				LockDF("TipHideInCombat", "This option is not currently available.")
-				LockDF("TipHideShiftOverride", "This option is not currently available.")
-			end
 
 			-- Handle show tooltips with shift key lock
 			local function SetTipHideShiftOverrideFunc()
@@ -9601,13 +9598,11 @@
 			---------------------------------------------------------------------------------------------------------
 
 			-- Remove the right-click for frame settings instruction (UNIT_POPUP_RIGHT_CLICK)
-			if not LeaPlusLC.NewPatch then
-				hooksecurefunc("UnitFrame_UpdateTooltip", function(self)
-					GameTooltip_SetDefaultAnchor(GameTooltip, self)
-					GameTooltip:SetUnit(self.unit, true)
-					GameTooltip:Show()
-				end)
-			end
+			hooksecurefunc("UnitFrame_UpdateTooltip", function(self)
+				GameTooltip_SetDefaultAnchor(GameTooltip, self)
+				GameTooltip:SetUnit(self.unit, true)
+				GameTooltip:Show()
+			end)
 
 			-- Colorblind setting change
 			SideTip:RegisterEvent("CVAR_UPDATE");
@@ -9663,16 +9658,28 @@
 					return
 				end
 
-				-- Get unit information
+				-- Hide tooltips for world units during combat
 				if WorldFrame:IsMouseMotionFocus() then
-					LT["Unit"] = "mouseover"
-					-- Hide and quit if tips should be hidden during combat
 					if LeaPlusLC["TipHideInCombat"] == "On" and UnitAffectingCombat("player") then
 						if not IsShiftKeyDown() or LeaPlusLC["TipHideShiftOverride"] == "Off" then
 							GameTooltip:Hide()
 							return
 						end
 					end
+				end
+
+				-- Do nothing if tooltip text is secret
+				if LeaPlusLC.NewPatch then
+					local secTip = GameTooltipTextLeft1 and GameTooltipTextLeft1:GetText()
+					if secTip and canaccessvalue(secTip) then
+					else
+						return
+					end
+				end
+
+				-- Get unit information
+				if WorldFrame:IsMouseMotionFocus() then
+					LT["Unit"] = "mouseover"
 				else
 					LT["Unit"] = select(2, GameTooltip:GetUnit())
 					if not (LT["Unit"]) then return end
@@ -9770,15 +9777,6 @@
 					if UnitIsDeadOrGhost(LT["Unit"]) then
 						LT["NameColor"] = "|c88888888"
 					end
-
-					-- Show mythic score
-					--if LT["TipIsPlayer"] and LeaPlusLC["TipShowMythic"] == "On" then
-					--	LT["MythicScore"] = GetPlayerMythicPlusRatingSummary(LT["Unit"]).currentSeasonScore
-					--	if LT["MythicScore"] > 0 then
-					--		LT["MythicColor"] = string.format('%02x%02x%02x', GetDungeonScoreRarityColor(GetPlayerMythicPlusRatingSummary(LT["Unit"]).currentSeasonScore):GetRGBAsBytes())
-					--		LT["NameText"] = LT["NameText"] .. " |cff" .. LT["MythicColor"] .. "(" .. LT["MythicScore"] .. ")|r"
-					--	end
-					--end
 
 					-- Show name line
 					_G["GameTooltipTextLeft1"]:SetText(LT["NameColor"] .. LT["NameText"] .. "|cffffffff|r")
@@ -10034,6 +10032,11 @@
 					-- Get target
 					LT["Target"] = UnitName(LT["Unit"] .. "target");
 
+					if LeaPlusLC.NewPatch then
+						-- Return for now because it's last
+						if not canaccessvalue(LT["Target"]) then return end
+					end
+
 					-- If target doesn't exist, quit
 					if LT["Target"] == nil or LT["Target"] == "" then return end
 
@@ -10057,9 +10060,7 @@
 
 			end
 
-			if not LeaPlusLC.NewPatch then
-				TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, ShowTip)
-			end
+			TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, ShowTip)
 
 		end
 
@@ -11541,7 +11542,7 @@
 
 				if LeaPlusLC.NewPatch then
 					-- Disable bag automation (enter Stockade, go vendor with transmog items 58.2 67.0 Stormwind, auto sell, close and shift reopen)
-					LockDF("NoBagAutomation", "This option is not currently available.")
+					-- LockDF("NoBagAutomation", "This option is not currently available.")
 				end
 
 				-- Run other startup items

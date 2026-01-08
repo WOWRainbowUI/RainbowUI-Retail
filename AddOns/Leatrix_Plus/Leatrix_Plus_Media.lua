@@ -955,6 +955,8 @@
 		"|Cffffffff" .. L["Undermined"] .. " |r#6641605#77", -- interface/cinematics/tww_111_bro.mp3 (1029)
 		"|Cffffffff" .. L["A Shadowy Invitation"] .. " |r#7242305#91", -- interface/cinematics/tww_112_kid.mp3 (1033)
 		"|Cffffffff" .. L["Dimensius Defeat"] .. " |r#6938026#111", -- interface/cinematics/tww_112_lws.mp3 (1034)
+		"|Cffffffff" .. L["Voidstorm"] .. " |r#7435350#138", -- 
+		"|Cffffffff" .. L["The Radiant Visions"] .. " |r#7464910#89", -- interface/cinematics/tww_1127_scd.mp3 (1052)
 
 	})
 
@@ -1129,6 +1131,8 @@
 		L["Undermined"] .. " |r(1029)",
 		L["A Shadowy Invitation"] .. " |r(1033)",
 		L["Dimensius Defeat"] .. " |r(1034)",
+		L["Voidstorm"] .. " |r(1040)",
+		L["The Radiant Visions"] .. " |r(1052)",
 
 	})
 
