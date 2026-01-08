@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2691, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250910053613")
+mod:SetRevision("20260106233434")
 mod:SetCreatureID(233824, 241517, 234478)--Yes, they're all used
 mod:SetEncounterID(3135)
 mod:SetBossHPInfoToHighest()--Boss Heals
@@ -602,7 +602,7 @@ end
 --First cast is not in combat log (rest are)
 --First cast can also be missing emote too though so we also have to do backup scheduling
 --Because even emote doesn't COMPLETELY work around blizzard bug.
-function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, npc, _, _, target)
+function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg)
 	if msg:find("spell:1234052") then
 		self.vb.darkenedSkyCount = self.vb.darkenedSkyCount + 1
 		specWarnDarkenedSky:Show(self.vb.darkenedSkyCount)
