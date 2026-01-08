@@ -1,4 +1,14 @@
-﻿11.2.25 - 24th December 2025
+﻿11.2.27 - 7th January 2026
+- Midnight Beta: Updated settings tooltips and help buttons.
+- For 'Release in PvP' ('Automation'), fixed an issue which prevented automatic release in the world zones of Wintergrasp, Tol Barad (PvP) and Ashran.
+
+11.2.26 - 31st December 2025
+- Happy New Year!
+- Midnight Beta: For 'Enhance tooltip' ('Interface'), tooltips will now be color-coded once again and the tooltip settings will now be available.  Note that color coding and many tooltip settings won't apply during instanced combat encounters.
+- Midnight Beta: The 'Disable bag automation' ('System') option is now available once again.
+- For 'Media', added cinematics 'Voidstorm' and 'The Radiant Visions'.  Watch in Movies and listen in Various > Cinematics.
+
+11.2.25 - 24th December 2025
 - Merry Christmas!
 
 11.2.24 - 17th December 2025
