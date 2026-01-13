@@ -1,6 +1,6 @@
 # Syndicator
 
-## [254](https://github.com/TheMouseNest/Syndicator/tree/254) (2025-12-30)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/253...254) 
+## [257](https://github.com/TheMouseNest/Syndicator/tree/257) (2026-01-11)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/256...257) 
 
-- Fix `/syn` not opening Syndicator settings on beta  
+- [Fixes #81] Classic: Fix for "Sell Price" line being missing on classic  

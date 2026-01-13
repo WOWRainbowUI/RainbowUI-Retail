@@ -432,6 +432,23 @@ local function CatalystUpgradeCheck(details)
   return select(4, TransmogUpgradeMaster_API.IsAppearanceMissing(details.itemLink)) == true
 end
 
+local function TransmogUpgradeCheck(details)
+  if not TransmogUpgradeMaster_API then
+    return false
+  end
+
+  if not C_Item.IsItemDataCachedByID(details.itemID) then
+    C_Item.RequestLoadItemDataByID(details.itemID)
+    return nil
+  end
+
+  if not TransmogUpgradeMaster_API.IsCacheWarmedUp() then
+    return false, true
+  end
+
+  return select(5, TransmogUpgradeMaster_API.IsAppearanceMissing(details.itemLink)) == true
+end
+
 
 local alwaysMatchClass = {
   ["INVTYPE_CLOAK"] = true,
@@ -508,7 +525,20 @@ end
 addonTable.Search.GetTooltipInfoLink = GetTooltipInfoLink
 addonTable.Search.GetTooltipInfoSpell = GetTooltipInfoSpell
 
-local JUNK_PATTERN = "^" .. SELL_PRICE
+local SELL_PATTERN = "^" .. SELL_PRICE
+local function VendorCheck(details)
+  GetTooltipInfoSpell(details)
+
+  if details.tooltipInfoSpell then
+    for _, row in ipairs(details.tooltipInfoSpell.lines) do
+      if row.type and row.type == Enum.TooltipDataLineType.SellPrice or not row.type and row.leftText:match(SELL_PATTERN) then
+        return true
+      end
+    end
+    return false
+  end
+end
+
 local function JunkCheck(details)
   if details.isJunk ~= nil then
     return details.isJunk
@@ -518,16 +548,7 @@ local function JunkCheck(details)
     return false
   end
 
-  GetTooltipInfoSpell(details)
-
-  if details.tooltipInfoSpell then
-    for _, row in ipairs(details.tooltipInfoSpell.lines) do
-      if row.leftText:match(JUNK_PATTERN) then
-        return false
-      end
-    end
-    return true
-  end
+  return addonTable.Constants.IsClassic or VendorCheck(details)
 end
 
 local function UpgradeCheck(details)
@@ -1089,12 +1110,14 @@ if addonTable.Constants.IsRetail then
   AddKeywordLocalised("KEYWORD_SET_BONUS", SetBonusCheck, addonTable.Locales.GROUP_ITEM_DETAIL)
   AddKeywordLocalised("KEYWORD_CATALYST", CatalystCheck, addonTable.Locales.GROUP_ITEM_DETAIL)
   AddKeywordLocalised("KEYWORD_CATALYST_UPGRADE", CatalystUpgradeCheck, addonTable.Locales.GROUP_ITEM_DETAIL)
+  AddKeywordLocalised("KEYWORD_TRANSMOG_UPGRADE", TransmogUpgradeCheck, addonTable.Locales.GROUP_ITEM_DETAIL)
   AddKeywordLocalised("KEYWORD_ACTIVE_SEASON", ActiveSeasonCheck, addonTable.Locales.GROUP_ITEM_DETAIL)
   if addonTable.Constants.WarbandBankActive then
     AddKeywordManual(ITEM_ACCOUNTBOUND:lower(), "warbound", BindOnAccountCheck, addonTable.Locales.GROUP_BINDING_TYPE)
     AddKeywordManual(ITEM_ACCOUNTBOUND_UNTIL_EQUIP:lower(), "warbound until equipped", WarboundUntilEquippedCheck, addonTable.Locales.GROUP_BINDING_TYPE)
     AddKeywordLocalised("KEYWORD_WUE", WarboundUntilEquippedCheck, addonTable.Locales.GROUP_BINDING_TYPE)
   end
+  AddKeywordLocalised("KEYWORD_VENDOR", VendorCheck, addonTable.Locales.GROUP_ITEM_DETAIL)
 end
 
 local sockets = {

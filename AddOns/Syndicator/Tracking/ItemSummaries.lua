@@ -113,12 +113,6 @@ function SyndicatorItemSummariesMixin:GenerateCharacterSummary(characterName, st
     end
   end
 
-  -- Edge case sometimes removed characters are leftover in the queue, so check
-  -- details exist
-  if details == nil then
-    return
-  end
-
   local function GenerateBase(key)
     if not summary[key] then
       summary[key] = {
