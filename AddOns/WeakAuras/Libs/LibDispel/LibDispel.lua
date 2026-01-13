@@ -1,4 +1,4 @@
-local MAJOR, MINOR = "LibDispel-1.0", 21
+local MAJOR, MINOR = "LibDispel-1.0", 22
 assert(LibStub, MAJOR.." requires LibStub")
 
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
@@ -16,9 +16,14 @@ local CreateFrame = CreateFrame
 local IsSpellInSpellBook = C_SpellBook.IsSpellInSpellBook or IsSpellKnownOrOverridesKnown
 local IsSpellKnown = C_SpellBook.IsSpellKnown or IsPlayerSpell
 
-local Retail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local Classic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local _, _, _, wowtoc = GetBuildInfo()
+local TBC = wowtoc >= 20000 and wowtoc < 30000
+local Cata = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local Wrath = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 local Mists = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
+local Retail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+local Classic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and wowtoc < 20000
+local Midnight = wowtoc >= 120000
 
 local function GetList(name, data)
 	local list = lib[name]
@@ -1367,8 +1372,11 @@ do
 	local frame = lib.frame
 	frame:SetScript('OnEvent', UpdateDispels)
 	frame:RegisterEvent('CHARACTER_POINTS_CHANGED')
-	frame:RegisterEvent('LEARNED_SPELL_IN_TAB')
 	frame:RegisterEvent('SPELLS_CHANGED')
+
+	if not (Midnight or TBC) then
+		frame:RegisterEvent('LEARNED_SPELL_IN_TAB')
+	end
 
 	if not Classic then
 		frame:RegisterEvent('PLAYER_TALENT_UPDATE')
