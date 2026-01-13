@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 30
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 31
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -1057,7 +1057,6 @@ do
 
 	local function find(text, str, hColor)
 		wipe(colorMap)
-		wipe(movableColors)
 
 		while true do
 			local colorStart, colorEnd = text:find(colorPattern, lastPos)
@@ -1080,9 +1079,11 @@ do
 
 		local hStart, hEnd = text:lower():find(str, 1, true)
 		if not hStart then return end
-		hEnd = hEnd + 1
 
+		hEnd = hEnd + 1
+		wipe(movableColors)
 		movableColors[1] = colorReset
+
 		for i = hStart, hEnd do
 			local segment = colorMap[i]
 			if segment ~= nil then
@@ -1108,6 +1109,7 @@ do
 				text = text:sub(0, i - 1)..segment..text:sub(i)
 			end
 		end
+
 		return text
 	end
 
@@ -2126,7 +2128,14 @@ do
 	local function Button_OnClick(self)
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 		local parent = self:GetParent()
-		parent:ddToggle(1, nil, parent, -5, 3 * (parent:ddIsOpenMenuUp() and -1 or 1))
+		local scale = parent:GetEffectiveScale() / UIParent:GetScale()
+		local width = -5
+		local height = parent:ddIsOpenMenuUp() and -3 or 3
+		if scale < 1 then
+			width = width * scale
+			height = height * scale
+		end
+		parent:ddToggle(1, nil, parent, width, height)
 	end
 
 
@@ -2250,7 +2259,8 @@ do
 
 	local function OnClick(self)
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-		self:ddToggle(1, nil, self, -5, 0)
+		local scale = self:GetEffectiveScale() / UIParent:GetScale()
+		self:ddToggle(1, nil, self, scale < 1 and -5 * scale or -5, 0)
 	end
 
 
@@ -2332,7 +2342,16 @@ end
 do
 	local function OnClick(self)
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-		self:ddToggle(1, nil, self, self:GetWidth() - 13, (self:GetHeight() / 2 + 2) * (self:ddIsOpenMenuUp() and -1 or 1))
+		local scale = self:GetEffectiveScale() / UIParent:GetScale()
+		local width = self:GetWidth()
+		local height = self:ddIsOpenMenuUp() and -13 or 13
+		if scale < 1 then
+			width = (width - 13) * scale
+			height = height * scale
+		else
+			width = width * scale - 13
+		end
+		self:ddToggle(1, nil, self, width, height)
 	end
 
 
