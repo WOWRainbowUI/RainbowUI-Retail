@@ -569,7 +569,6 @@ function addonTable.Options.Initialize()
   guildHeader:SetPoint("BOTTOMLEFT", guildEditor, "TOPLEFT", 0, 5)
   guildHeader:SetText(addonTable.Locales.GUILDS)
 
-  local category = Settings.RegisterCanvasLayoutCategory(optionsFrame, addonTable.Locales.SYNDICATOR)
-  category.ID = addonTable.Locales.SYNDICATOR
-  Settings.RegisterAddOnCategory(category)
+  Syndicator.OptionsCategory = Settings.RegisterCanvasLayoutCategory(optionsFrame, addonTable.Locales.SYNDICATOR)
+  Settings.RegisterAddOnCategory(Syndicator.OptionsCategory)
 end
