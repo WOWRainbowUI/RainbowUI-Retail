@@ -570,5 +570,6 @@ function addonTable.Options.Initialize()
   guildHeader:SetText(addonTable.Locales.GUILDS)
 
   Syndicator.OptionsCategory = Settings.RegisterCanvasLayoutCategory(optionsFrame, addonTable.Locales.SYNDICATOR)
+  Syndicator.OptionsCategory.ID = "Syndicator"
   Settings.RegisterAddOnCategory(Syndicator.OptionsCategory)
 end
