@@ -1,4 +1,4 @@
-local _, addon = ...;
+local _, addon = ...
 
 addon.Options.Defaults = {
     profile = {
@@ -14,5 +14,13 @@ addon.Options.Defaults = {
         RememberFilter = false,
         RememberSearch = false,
         RememberSearchBetweenVendors = false,
+        TokenBanner = {
+            MoneyLabel = 'Icon',
+            MoneyAbbreviate = 'None',
+            ThousandsSeparator = 'Space',
+            MoneyGoldOnly = false,
+            MoneyColored = true,
+	        CurrencyAbbreviate = 'None',
+        }
     }
-};
+}
