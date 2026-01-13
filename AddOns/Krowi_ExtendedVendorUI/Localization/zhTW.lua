@@ -3,7 +3,7 @@ local L = LibStub(addon.Libs.AceLocale):NewLocale(addonName, "zhTW");
 if not L then return end
 addon.L = L;
 
-addon.Plugins:LoadLocalization(L);
+KrowiEVU.PluginsApi:LoadPluginLocalization(L);
 
 -- [[ https://legacy.curseforge.com/wow/addons/krowi-extended-vendor-ui/localization ]] --
 -- [[ Everything after this line is automatically generated from CurseForge and is not meant for manual edit - SOURCETOKEN - AUTOGENTOKEN ]] --
@@ -63,3 +63,17 @@ L["Deselect All"] = "取消全選"
 L["Select All"] = "全選"
 L["Appearance Sets"] = "外觀套裝"
 L["Credits"] = "製作群"
+L["Housing"] = "房屋"
+L['Set custom'] = "設定自訂"
+L['Enter number of rows (1-99):'] = "輸入橫列數 (1-99):"
+L['Enter number of columns (2-99):'] = "輸入直欄數 (2-99):"
+L['Accept'] = "接受"
+L['Cancel'] = "取消"
+L['RememberFilter'] = "記住過濾方式"
+L['RememberSearch'] = "記住搜尋"
+L['RememberSearchBetweenVendors'] = "記住搜尋 (不同商人)"
+L['Housing Quantity'] = "房屋品質"
+L['Enter housing quantity (1-999):']  = "輸入房屋品質 (1-999):"
+L['General'] = "一般"
+L['Options'] = "選項"
+L['Token Banner'] = "貨幣橫幅"
