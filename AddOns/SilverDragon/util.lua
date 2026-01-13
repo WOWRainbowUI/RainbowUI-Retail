@@ -124,6 +124,10 @@ function addon:RenderString(s, context)
 			if name then
 				return name
 			end
+		elseif variant == "expansion" then
+			if _G["EXPANSION_NAME"..id] then
+				return _G["EXPANSION_NAME"..id]
+			end
 		end
 		return fallback ~= "" and fallback or (variant .. ':' .. id)
 	end)
@@ -180,6 +184,10 @@ do
 	}
 	local function npcIdFromGuid(guid)
 		if not guid then return end
+		if C_CreatureInfo and C_CreatureInfo.GetCreatureID then
+			if issecretvalue and issecretvalue(guid) then return end
+			return C_CreatureInfo.GetCreatureID(guid)
+		end
 		local unit_type, id = guid:match("(%a+)-%d+-%d+-%d+-%d+-(%d+)-.+")
 		if not (unit_type and valid_unit_types[unit_type]) then
 			return

@@ -16,7 +16,7 @@ core:RegisterMobData("軍臨天下", {
 	[90057] = {name="Daggerbeak",locations={[630]={51003140},},loot={129084},quest=37869,tameable=929300,},
 	[90139] = {name="Inquisitor Ernstenbok",locations={[634]={63607420},},loot={140686},quest=37908,vignette=691,},
 	[90164] = {name="Warbringer Mox'na",locations={[630]={47405300},},loot={129069},quest=37909,vignette=692,},
-	[90173] = {name="Arcana Stalker",locations={[630]={47405300},},quest=37909,vignette=692,},
+	[90173] = {name="Arcana Stalker",locations={[630]={47405300},},quest=37909,vignette=692,hidden=true,},
 	[90217] = {name="Normantis the Deposed",locations={[630]={49400860},[641]={55009660},},loot={129061},quest=37928,},
 	[90244] = {name="Arcavellus",locations={[630]={59801210},},loot={129085},quest=37932,},
 	[90505] = {name="Syphonus",locations={[630]={67205140},},loot={129064},quest=37989,},
@@ -83,7 +83,7 @@ core:RegisterMobData("軍臨天下", {
 	[95318] = {name="Perrexx",locations={[641]={61006940},},loot={130137},quest=39596,vignette=993,},
 	[95872] = {name="Skullhat",locations={[650]={51403180},},loot={131769},quest=39465,vignette=973,},
 	[96072] = {name="Durguth",locations={[650]={43807540},},quest=45508,},
-	[96410] = {name="Majestic Elderhorn",locations={[650]={24806620,27006120,46603140},},loot={{131900,toy=true,}},quest=39646,tameable=1044501,},
+	[96410] = {name="Majestic Elderhorn",locations={[650]={46603140},},loot={{131900,toy=true,}},quest=39646,tameable=1044501,},
 	[96590] = {name="Gurbog da Basher",locations={[650]={55806140},},loot={131775},quest=40347,},
 	[96621] = {name="Mellok, Son of Torok",locations={[650]={48402740},},loot={131808},quest=40242,},
 	[96647] = {name="Earlnoc the Beastbreaker",locations={[704]={25005460,26006480,27004920,27205980,28008200,28407540,29004240,30205440,32006660,32806100,35004260,36403740,37207100,44006520},},hidden=true,},
@@ -93,9 +93,9 @@ core:RegisterMobData("軍臨天下", {
 	[97059] = {name="King Voras",locations={[672]={74455730},},loot={128944},quest=40232,vignette=1108,},
 	[97069] = {name="Wrath-Lord Lekos",locations={[712]={68002800},},loot={128958},quest=40301,},
 	[97093] = {name="Shara Felbreath",locations={[650]={51002580},},loot={131791},quest=39762,},
-	[97102] = {name="Ram'Pag",locations={[650]={52205140},},quest=39766,vignette=1000,},
-	[97203] = {name="Tenpak Flametotem",locations={[650]={42004140},},loot={{129175,pet=1752,}},quest=39782,vignette=1001,},
-	[97220] = {name="Arru",locations={[650]={48805000},[750]={30407800,32601720,45404300,51004420,55802680},},quest=39784,tameable=132183,vignette=1003,},
+	[97102] = {name="Ram'Pag",locations={[650]={52335138},},quest=39766,vignette=1000,},
+	[97203] = {name="Tenpak Flametotem",locations={[650]={41964161},},loot={{129175,pet=1752,}},quest=39782,vignette=1001,},
+	[97220] = {name="Arru",locations={[650]={48805000},},quest=39784,tameable=132183,vignette=1003,},
 	[97326] = {name="Hartli the Snatcher",locations={[650]={51004820},},loot={129190},quest=39802,},
 	[97345] = {name="Crawshuk the Hungry",locations={[650]={48204060},},loot={{131809,toy=true,}},quest=39806,tameable=132192,},
 	[97370] = {name="General Volroth",locations={[672]={69502750},},loot={133313},quest=40234,vignette=1110,},
@@ -124,7 +124,7 @@ core:RegisterMobData("軍臨天下", {
 	[98311] = {name="Mrrklr",locations={[650]={46600700},},loot={131797},quest=40096,vignette=1084,},
 	[98421] = {name="Kottr Vondyr",locations={[634]={73404740},},loot={138419},quest=40109,},
 	[98503] = {name="Grrvrgull the Conqueror",locations={[634]={78806120},},loot={138421},quest=40113,},
-	[98890] = {name="Slumber",locations={[650]={41403180},},loot={131921},quest=40175,tameable=132183,vignette=1106,},
+	[98890] = {name="Slumber",locations={[650]={41483177},},loot={131921},quest=40175,tameable=132183,vignette=1106,},
 	[99362] = {name="Kudzilla",locations={[733]={33408120,37408720},},hidden=true,},
 	[99610] = {name="Garvrulg",locations={[634]={22807380},[680]={53003020},},loot={121755},quest=40897,},
 	[99792] = {name="Elfbane",locations={[680]={22165179},},loot={121806},quest=41319,vignette=1263},
@@ -132,7 +132,19 @@ core:RegisterMobData("軍臨天下", {
 	[99846] = {name="Raging Earth",locations={[630]={44203720,52401320},[641]={45205600},[650]={47003300},},notes="Shaman",hidden=true,},
 	[99886] = {name="Pacified Earth",locations={[630]={44203700,52401320},[634]={53606000,65204020},[641]={45005580,58407340},[650]={47003260,55206180},},notes="Shaman",hidden=true,},
 	[99899] = {name="Vicious Whale Shark",locations={[680]={76006080},},quest=44669,},
-	[99929] = {name="Flotsam",locations={[650]={48600820},},quest=41126,},
+	[99929] = {name="Flotsam",locations={[650]={48600820},},
+		loot={
+			{139573, class="SHAMAN"}, -- The Warmace of Shirvallah
+			141466, -- Blackwater Raider Handguards
+			141470, -- Faded Bloodsail Handwraps
+			141475, -- Salt-Stained Tuskarr Gloves
+			141476, -- Kezan Pirate's Mitts
+			141516, -- "Liberated" Un'goro Relic
+			141539, -- Ragged Azsharan Sail Fragment
+			141544, -- Marshstomper Oracle's Loop
+		},
+		quest=41126,worldquest=43985, -- A Dark Tide
+	},
 	[100067] = {name="Hydrannon",locations={[634]={63803260},},notes="Shaman",hidden=true,},
 	[100223] = {name="Vrykul Earthshaper Spirit",locations={[634]={53606000,65204020},},hidden=true,},
 	[100224] = {name="Vrykul Earthmaiden Spirit",locations={[634]={53406000,65204020},},hidden=true,},
@@ -163,8 +175,8 @@ core:RegisterMobData("軍臨天下", {
 	[103975] = {name="Jade Darkhaven",locations={[630]={40207660},},quest=43957,},
 	[104481] = {name="Ala'washte",locations={[650]={28005300},},quest=45514,tameable=132192,},
 	[104484] = {name="Olokk the Shipbreaker",locations={[650]={33702190},},quest=45511,},
-	[104513] = {name="Defilia",locations={[650]={56804940},},quest=45513,},
-	[104517] = {name="Mawat'aki",locations={[650]={58407140},[750]={44804280},},quest=45512,},
+	[104513] = {name="Defilia",locations={[650]={56694870},},quest=45513,},
+	[104517] = {name="Mawat'aki",locations={[650]={58407140},},quest=45512,},
 	[104519] = {name="Colerian",locations={[680]={23005740},},quest=45503,},
 	[104521] = {name="Alteria",locations={[680]={23005860,25205260},},quest=45504,},
 	[104522] = {name="Selenyi",locations={[680]={23005860,25405240},},quest=45502,},
@@ -180,8 +192,33 @@ core:RegisterMobData("軍臨天下", {
 	[106351] = {name="Artificer Lothaire",locations={[680]={33801500},},loot={140372},quest=43717,},
 	[106526] = {name="Lady Rivantas",locations={[680]={35006680},},loot={141866},quest=44675,},
 	[106532] = {name="Inquisitor Volitix",locations={[680]={38007040},},quest=44569,},
+	[106984] = {name="Soultrapper Mevra",locations={[634]={77800780},},
+		quest=nil,worldquest=42269, -- The Soultakers
+		loot={
+			{139547, class="DEATHKNIGHT"}, -- Runes of the Darkening
+			141434, -- Cord of Kept Souls
+			141436, -- Helchain Waistguard
+			141506, -- Soultrapper's Pendant
+			141444, -- hel-cursed-belt
+			141442, -- sea-reavers-girdle
+			141514, -- barnacled-mistcaller-orb
+			141537, -- thrice-accursed-compass
+		},
+	},
 	[106990] = {name="Chief Bitterbrine",locations={[630]={65205640},},loot={129073},quest=42221,},
-	[107023] = {name="Nithogg",locations={[634]={46203180},},loot={140658},quest=44508,},
+	[107023] = {name="Nithogg",locations={[634]={46203180},},
+		loot={
+			{140658, class="WARRIOR"}, -- Skull of Nithogg
+			141414, -- Hood of Scorned Brood
+			141418, -- Helm of the Mountain Recluse
+			141420, -- Coif of Unstable Discharge
+			141424, -- Stormbattered Casque
+			141519, -- Pillaged Titan Disc
+			141541, -- Windwhipped Greatcloak
+			141546, -- Cursed Warden's Keepsake
+		},
+		quest=44508,worldquest=42270,
+	},
 	[107105] = {name="Broodmother Lizax",locations={[630]={33204160},},loot={141869},quest=44670,},
 	[107113] = {name="Vorthax",locations={[630]={37004360},},loot={141875},quest=42280,},
 	[107127] = {name="Brawlgoth",locations={[630]={55204580},[641]={61803820},},loot={129086},quest=42450,},
@@ -203,13 +240,51 @@ core:RegisterMobData("軍臨天下", {
 	[108366] = {name="Long-Forgotten Hippogryph",locations={[630]={37002160,46605360,47206200,48804560,56802580,57003120,59403860,63405400,64403300},},hidden=true,},
 	[108541] = {name="Dread Corsair",locations={[713]={25402980,32603900},},hidden=true,},
 	[108543] = {name="Dread Captain Thedon",locations={[713]={25203120,30803740},},hidden=true,},
-	[108678] = {name="Shar'thos",locations={[641]={55804300},},loot={140659},},
+	[108678] = {name="Shar'thos",locations={[641]={55804300},},
+		loot={
+			{140659, class="WARRIOR"}, -- Skull of Shar'thos
+			141481, -- Chestplate of Blackened Emeralds
+			141487, -- Raiments of Waking Nightmares
+			141495, -- Robe of Fever Dreams
+			141518, -- Decaying Dragonfang
+			141542, -- Despoiled Dreamthread Cloak
+			141547, -- Choker of Dreamthorns
+			141491, -- hauberk-of-the-snarled-vale
+		},
+		quest=nil, worldquest=42779,
+	},
 	[108715] = {name="Ol' Eary",locations={[210]={37006740},},loot={{138415,toy=true,}},notes="Pirates' Day",hidden=true,},
 	[108790] = {name="Den Mother Ylva",locations={[634]={38206840},},hidden=true,},
 	[108822] = {name="Huntress Estrid",locations={[634]={39406580},},hidden=true,},
 	[108823] = {name="Halfdan",locations={[634]={39406580},},notes="Pet of Estrid",hidden=true,},
 	[108827] = {name="Fjorlag, the Grave's Chill",locations={[634]={63205400,68605360},},quest=45507,},
-	[108879] = {name="Humongris",locations={[641]={24007060},},loot={139895},quest=42819,},
+	[108829] = {name="Levantus",locations={[630]={43006740},},
+		loot={
+			{139573, class="SHAMAN"}, -- The Warmace of Shirvallah
+			141431, -- Hook-Fingered Gauntlets
+			141435, -- Whirlpool Gloves
+			141440, -- Seaweed "Leather" Mitts
+			141441, -- Chum-Chopper Gauntlets
+			141473, -- Krakentooth Necklace
+			141523, -- Fel-Scented Bait
+			141545, -- Ring of Deep Sea Pearls
+			142109, -- Vantus Rune Technique: Helya
+		},
+		quest=nil,worldquest=43192, -- Terror of the Deep
+	},
+	[108879] = {name="Humongris",locations={[641]={24007060},},
+		loot={
+			139895, -- Skinning Technique: Legion Butchery
+			141416, -- Padawsen's Squished Pauldrons
+			141422, -- Shoulderguards of Unimaginative Magic
+			141426, -- Shoulderplates of Oversized Sorcery
+			141445, -- Mantle of the Aspiring Spellgiant
+			141521, -- Sea Giant Toothpick Fragment
+			141536, -- Padawsen's Unlucky Charm
+			141540, -- Coerced Wizard's Cloak
+		},
+		quest=42819,worldquest=42819, -- Pocket Wizard
+	},
 	[108885] = {name="Aegir Wavecrusher",locations={[634]={52002340},},hidden=true,},
 	[109015] = {name="Lagertha",locations={[634]={61407260},},hidden=true,},
 	[109054] = {name="Shal'an",locations={[641]={79808260},[680]={26254120},},loot={139926},quest=42831,vignette=1442},
@@ -220,6 +295,19 @@ core:RegisterMobData("軍臨天下", {
 	[109281] = {name="Malisandra",locations={[641]={42207640},},quest=45501,},
 	[109317] = {name="Rulf Bonesnapper",locations={[634]={80401160},[635]={45807840,47208880,49607060,51808180,52006420,52207620},},},
 	[109318] = {name="Runeseer Sigvid",locations={[634]={76600940},},},
+	[109331] = {name="Calamir",locations={[630]={38008440},},
+		loot={
+			137847, -- Design: Sorcerous Shadowruby Pendant
+			141430, -- Mana-Tanned Sandals
+			141432, -- Frostburned Sabatons
+			141437, -- Warboots of Smoldering Fury
+			141438, -- Pendant of Cold Flame
+			141443, -- Sandals of Frozen Ash
+			141522, -- Calamir's Jaw
+			141533, -- Ring of Frozen Magic
+		},
+		quest=nil,worldquest=43193, -- Calamitous Intent
+	},
 	[109498] = {name="Xaander",locations={[650]={52405840},},loot={131767},notes="Seemingly Unguarded Treasure",quest=40423,vignette=1158,},
 	[109500] = {name="Jak",locations={[650]={52205860},},notes="Seemingly Unguarded Treasure",quest=40423,vignette=1158,},
 	[109501] = {name="Darkful",locations={[650]={52405840},},notes="Seemingly Unguarded Treasure",quest=40423,vignette=1158,},
@@ -236,18 +324,54 @@ core:RegisterMobData("軍臨天下", {
 	[109692] = {name="Lytheron",locations={[641]={31605860},},quest=45490,},
 	[109702] = {name="Deepclaw",locations={[630]={55806340},},quest=45489,tameable=132186,},
 	[109708] = {name="Undergrell Ringleader",locations={[641]={66806980},[680]={15202500},},loot={130133},quest=43176,vignette=1453,},
-	[109943] = {name="Ana-Mouz",locations={[680]={31366570},},loot={137778},quest=44501,},
+	[109943] = {name="Ana-Mouz",locations={[680]={31366570},},
+		loot={
+			137778, -- Vantus Rune Technique: Tichondrius
+			141413, -- Low-Cut Chestplate
+			141419, -- Skimpy Demonleather Tunic
+			141423, -- Crop Top Chain Hauberk
+			141427, -- Sheer Felthreaded Robe
+			141448, -- Imp Mother's Loincloth
+			141486, -- Demonic Birthstone Ring
+		},
+		quest=44501,worldquest=43512,
+	},
 	[109954] = {name="Magister Phaedris",locations={[680]={42068013},},loot={140405},quest=43348,},
 	[109990] = {name="Nylaathria the Forgotten",locations={[641]={31604780},},loot={151802},quest=45488,},
 	[109994] = {name="Stormtalon",locations={[634]={58002940,60002380},},notes="Mount for Wake the Dragon",hidden=true,},
 	[110024] = {name="Mal'Dreth the Corruptor",locations={[680]={34156099},},loot={140386},quest=43351,vignette=1498,},
+	[110321] = {name="Na'zak the Fiend",locations={[685]={36606700},},
+		loot={
+			141417, -- Desiccated Leather Pants
+			141488, -- Mana-Dowsing Ring
+			141534, -- Loop of Polished Pebbles
+			141415, -- nazaks-dusty-pantaloons
+			141421, -- venomscarred-chain-leggings
+			141425, -- avalanche-resistant-legplates
+			141515, -- leystone-nugget
+			142121, -- recipe-potion-of-prolonged-power
+		},
+		quest=nil,worldquest=43513,
+	},
 	[110340] = {name="Myonix",locations={[680]={40953280},},loot={ns.rewards.Recipe(133816, 201500), 121739},quest=43358,tameable=236165,},
 	[110342] = {name="Rabxach",locations={[641]={69405740},},quest=45487,},
 	[110346] = {name="Aodh Witherpetal",locations={[641]={59805040},},quest=45485,},
 	[110361] = {name="Harbinger of Screams",locations={[641]={66203860,69805160},},quest=45484,},
 	[110363] = {name="Roteye",locations={[634]={58203400},},loot={139387},quest=43342,},
 	[110367] = {name="Ealdis",locations={[641]={62404280},},quest=45483,},
-	[110378] = {name="Drugon the Frostblood",locations={[650]={58207260},},loot={142108},quest=44503,},
+	[110378] = {name="Drugon the Frostblood",locations={[650]={58207260},},
+		loot={
+			141428, -- Snowdrift Bracers
+			141429, -- Wax-Sealed Leather Bracers
+			141433, -- Assorted Dragonscale Bracers
+			141439, -- Ettinbone Bracers
+			141517, -- Drugon's Snowglobe
+			141535, -- Ettin Fingernail
+			141538, -- Giant's Handkerchief
+			142108, -- Vantus Rune Technique: Guarm
+		},
+		quest=44503,worldquest=43448,
+	},
 	[110438] = {name="Siegemaster Aedrin",locations={[680]={36972110},},loot={140406},quest=43369,vignette=1500},
 	[110562] = {name="Bahagar",locations={[641]={45208740},},loot={130135},quest=43446,tameable=132185,},
 	[110577] = {name="Oreth the Vile",locations={[680]={24494727},},loot={140388},quest=43449,vignette=1505},
@@ -257,7 +381,7 @@ core:RegisterMobData("軍臨天下", {
 	[110832] = {name="Gorgroth",locations={[680]={27206580},},loot={121747},quest=43992,},
 	[110870] = {name="Apothecary Faldren",locations={[634]={12609900},[680]={42255658},},loot={121754},quest=43580,vignette=1511},
 	[110944] = {name="Guardian Thor'el",locations={[680]={56405040},},loot={140404},quest=43597,},
-	[111007] = {name="Randril",locations={[680]={49407900},},loot={140396},quest=43602,},
+	[111007] = {name="Randril",locations={[680]={49407900},},loot={140396},quest=43603,}, -- or 43602?
 	[111063] = {name="Randril",locations={[680]={49607920},},quest=43603,hidden=true,},
 	[111069] = {name="Saepher",locations={[680]={49607900},},hidden=true,},
 	[111197] = {name="Anax",locations={[680]={33665177},},loot={{140934,pet=1934,}},quest=43954,tameable=804969,vignette=1541},
@@ -271,9 +395,21 @@ core:RegisterMobData("軍臨天下", {
 	[111653] = {name="Miasu",locations={[680]={62406340},},loot={121810},quest=43793,},
 	[111674] = {name="Cinderwing",locations={[630]={46807740},},quest=43960,hidden=true,},
 	[111939] = {name="Lysanis Shadesoul",locations={[630]={43408940},},quest=45478,},
+	[112350] = {name="Withered J'im",locations={[634]={52408040},},
+		loot={
+			141449, -- Mana Scavenger's Mask
+			141453, -- Magic-Warped Hood
+			141455, -- Cave Skulker's Helm
+			141459, -- Manacrystal-Adorned Helmet
+			141482, -- Unstable Arcanocrystal
+			141492, -- Dingy Suramar Mercantile Signet
+			141543, -- Drape of the Mana-Starved
+		},
+		quest=nil,worldquest=44287, -- DEADLY: Withered J'im
+	},
 	[112497] = {name="Maia the White",locations={[680]={24413517},},loot={139897},quest=44071,tameable=132203,vignette=1617},
 	[112636] = {name="Sinister Leyrunner",locations={[630]={50405200},},loot={140685},quest=44081,tameable=2143073,vignette=1623,},
-	[112637] = {name="Devious Sunrunner",locations={[630]={50405200},},quest=44081,tameable=2143073,vignette=1623,},
+	[112637] = {name="Devious Sunrunner",locations={[630]={50405200},},quest=44081,tameable=2143073,vignette=1623,hidden=true,},
 	[112705] = {name="Achronos",locations={[680]={56007420},},quest=45478,},
 	[112756] = {name="Sorallus",locations={[680]={29208900},},quest=45477,},
 	[112757] = {name="Magistrix Vilessa",locations={[680]={49407940},},quest=45476,},
@@ -282,7 +418,7 @@ core:RegisterMobData("軍臨天下", {
 	[112760] = {name="Volshax, Breaker of Will",locations={[680]={49205860},},quest=45474,},
 	[112802] = {name="Mar'tura",locations={[630]={58400860},[680]={13515344},},loot={140949},quest=44124,tameable=132199,vignette=1642},
 	[113694] = {name="Pashya",locations={[680]={60204080,62004680,66205300},},tameable=236165,},
-	[115732] = {name="Jorvild the Trusted",locations={[649]={27204220},},quest=46949,},
+	[115732] = {name="Jorvild the Trusted",locations={[649]={27204220},},quest=46949,path=33154312},
 	[116034] = {name="The Cow King",locations={[47]={49007540},},loot={143327,{143543,toy=true,}},hidden=true,},
 	[116166] = {name="Eye of Gurgh",locations={[646]={64403020},},quest=47068,},
 	[116953] = {name="Corrupted Bonebreaker",locations={[646]={60205320},},quest=46101,},
