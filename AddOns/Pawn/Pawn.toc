@@ -1,12 +1,24 @@
 ﻿## Interface: 11508, 50502, 110205, 110207
 ## Title: Pawn
-## Version: 2.12.1
+## Version: 2.13.0
 ## Notes: Pawn helps you compare items and find upgrades.
 ## OptionalDependencies: Ace3, ArkInventoryRules, AtlasLoot, EQCompare, EquipCompare, LinkWrangler, MobInfo2, MultiTips, Outfitter
 ## SavedVariables: PawnCommon
 ## SavedVariablesPerCharacter: PawnOptions, PawnMrRobotScaleProviderOptions, PawnClassicScaleProviderOptions
 ## AddonCompartmentFunc: PawnUIShow
+
 ## IconTexture: Interface\AddOns\Pawn\Textures\PawnIcon.tga
+## Category: Equipment
+## Category-deDE: Ausrüstung
+## Category-esES: Equipo
+## Category-esMX: Equipo
+## Category-frFR: Équipement
+## Category-itIT: Equipaggiamento
+## Category-koKR: 장비
+## Category-ptBR: Equipamento
+## Category-ruRU: Экипировка
+## Category-zhCN: 装备
+## Category-zhTW: 裝備
 
 ## X-Wago-ID: R4N2k46L
 
@@ -18,21 +30,22 @@
 VgerCore\VgerCore.lua
 
 Core.lua
-Localization.lua
-Localization.zhCN.lua
-Localization.zhTW.lua
+Localization.lua [AllowLoadTextLocale enUS]
+Localization.zhCN.lua [AllowLoadTextLocale zhCN]
+Localization.zhTW.lua [AllowLoadTextLocale zhTW]
 UIStrings.lua
 TooltipParsing.lua
-Gems.lua
-GemsClassic.lua
-GemsBurningCrusade.lua
-GemsWrath.lua
-GemsCataclysm.lua
-GemsMists.lua
+Gems.lua [AllowLoadGameType mainline]
+GemsClassic.lua [AllowLoadGameType vanilla]
+GemsBurningCrusade.lua [AllowLoadGameType tbc]
+GemsWrath.lua [AllowLoadGameType wrath]
+GemsCataclysm.lua [AllowLoadGameType cata]
+GemsMists.lua [AllowLoadGameType mists]
 ScaleTemplates.lua
 ItemIDs.lua
 Pawn.lua
+PawnBags.lua
 PawnUI.lua
 PawnUI.xml
-AskMrRobot.lua
-ClassicHawsJon.lua
+AskMrRobot.lua [AllowLoadGameType mainline]
+ClassicHawsJon.lua [AllowLoadGameType classic]

@@ -1,6 +1,6 @@
 ﻿-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
--- © 2006-2025 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
+-- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.htm for more information.
 
 --
@@ -321,11 +321,9 @@ When you earn quest rewards or dungeon loot that may be better than your current
 		["OptionsAlignRight"] = "Align values to right edge of tooltip",
 		["OptionsAlignRightTooltip"] = "Enable this option to align your Pawn values and upgrade information to the right edge of the tooltip instead of the left.",
 		["OptionsBagUpgradeAdvisor"] = "Show bag upgrade advisor",
-		["OptionsBagUpgradeAdvisorTooltip"] = [=[Enable this option to have Pawn take over the in-bag upgrade arrows.
+		["OptionsBagUpgradeAdvisorTooltip"] = [=[Show green arrows on items in your bag that are an upgrade for any of your active scales.
 
-If checked, Pawn will find upgrades in your bags and mark items that are an upgrade for any of your active scales with green arrows. 
-
-If unchecked, WoW will mark items with a higher item level than what you're currently wearing, and Pawn will not interfere with the built-in feature.]=],
+This feature works with the game's default bags and may not affect all bag addons.]=],
 		["OptionsBlankLine"] = "Add a blank line before values",
 		["OptionsBlankLineTooltip"] = "Keep your item tooltips extra tidy by enabling this option, which adds a blank line before the Pawn values.",
 		["OptionsButtonHidden"] = "Hide it",
@@ -788,10 +786,6 @@ PawnLocal.Specs =
 
 end
 
-local Locale = GetLocale()
-if Locale ~= "deDE" and Locale ~= "esES" and Locale ~= "esMX" and Locale ~= "frFR" and Locale ~= "itIT" and Locale ~= "koKR" and Locale ~= "ptBR" and Locale ~= "ruRU" and Locale ~= "zhCN" and Locale ~= "zhTW" then
-	PawnUseThisLocalization()
-end
-
--- After using this localization or deciding that we don't need it, remove it from memory.
+-- Initiate self-destruct sequence.
+PawnUseThisLocalization()
 PawnUseThisLocalization = nil

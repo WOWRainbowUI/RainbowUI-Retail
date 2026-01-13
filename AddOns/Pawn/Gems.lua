@@ -1,13 +1,10 @@
 ﻿-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
--- © 2006-2025 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
+-- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.htm for more information.
 --
 -- Gem information
 ------------------------------------------------------------
-
-
-if VgerCore.IsMainline then
 
 
 -- Gem table row format:
@@ -359,5 +356,3 @@ PawnCogwheelQualityLevels = nil
 PawnCrystalOfFearQualityLevels = nil
 
 PawnMinimumItemLevelToConsiderGems = 571 -- Sockets on items below this ilvl are ignored by default
-
-end -- if VgerCore.IsMainline

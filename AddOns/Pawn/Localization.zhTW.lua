@@ -1,6 +1,6 @@
 ﻿-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
--- © 2006-2025 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
+-- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.htm for more information.
 
 -- 
@@ -319,9 +319,7 @@ Pawn會與你身上的裝備比較]=],
 		["OptionsBagUpgradeAdvisor"] = "顯示背包中裝備的升級建議",
 		["OptionsBagUpgradeAdvisorTooltip"] = [=[啟用此選項讓Pawn接管背包內升級箭頭。
 
-勾選後，Pawn會在你的背包中找到升級物品，並用綠色箭頭標記任何啟用權值的升級物品。
-
-如果不勾選，WoW會標記比你目前穿著物品等級更高的物品，Pawn不會干擾內置功能。]=],
+勾選後，Pawn會在你的背包中找到升級物品，並用綠色箭頭標記任何啟用權值的升級物品。]=],
 		["OptionsBlankLine"] = "數值前加一個空白行",
 		["OptionsBlankLineTooltip"] = "在 Pawn 數值前加入空白行，讓你的提示訊息更整齊",
 		["OptionsButtonHidden"] = "不顯示",
@@ -897,9 +895,6 @@ PawnLocal.Specs =
 
 end
 
-if GetLocale() == "zhTW" then
-	PawnUseThisLocalization()
-end
-
--- After using this localization or deciding that we don't need it, remove it from memory.
+-- Initiate self-destruct sequence.
+PawnUseThisLocalization()
 PawnUseThisLocalization = nil
