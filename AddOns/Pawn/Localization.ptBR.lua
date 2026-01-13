@@ -1,6 +1,6 @@
 ﻿-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
--- © 2006-2025 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
+-- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.htm for more information.
 
 --
@@ -323,9 +323,7 @@ Quando você ganhar recompensas de missões ou saques de masmorras que possam se
 		["OptionsBagUpgradeAdvisor"] = "Mostrar assessor de melhorias de inventário",
 		["OptionsBagUpgradeAdvisorTooltip"] = [=[Ative esta opção para que o Pawn assuma a flecha de melhoria do inventário.
 
-Se estiver marcada, o Pawn vai encontrar melhorias no seu inventário e irá marcar itens que são melhorias para qualquer uma das escalas ativas com uma flecha verde.
-
-Se não estiver marcada, o WoW irá marcar itens com o nível de item maior do que o que estiver equipado, e o Pawn não vai interferir com a funcionalidade interna.]=],
+Se estiver marcada, o Pawn vai encontrar melhorias no seu inventário e irá marcar itens que são melhorias para qualquer uma das escalas ativas com uma flecha verde.]=],
 		["OptionsBlankLine"] = "Adiciona uma linha em branco antes dos valores",
 		["OptionsBlankLineTooltip"] = "Mantém a dica de ferramenta dos items bem arrumada habilitando essa opção, que adiciona uma linha em branco antes dos valores do Pawn.",
 		["OptionsButtonHidden"] = "Esconder",
@@ -826,9 +824,6 @@ end
 
 end
 
-if GetLocale() == "ptBR" then
-	PawnUseThisLocalization()
-end
-
--- After using this localization or deciding that we don't need it, remove it from memory.
+-- Initiate self-destruct sequence.
+PawnUseThisLocalization()
 PawnUseThisLocalization = nil

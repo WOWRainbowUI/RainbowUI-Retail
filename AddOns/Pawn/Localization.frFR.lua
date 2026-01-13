@@ -1,6 +1,6 @@
 ﻿-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
--- © 2006-2025 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
+-- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.htm for more information.
 
 --
@@ -317,9 +317,7 @@ Essayez ces fonctionnalités une fois que vous vous serez habitué aux bases:
 		["OptionsBagUpgradeAdvisor"] = "Montrer les améliorations de sac conseillées.",
 		["OptionsBagUpgradeAdvisorTooltip"] = [=[Activez cette option pour que Pawn prenne en charge les flèches de mise à niveau dans le sac.
 
-Si cette option est cochée, Pawn trouvera des objets dans vos sacs et marquera ceux qui sont de meilleurs pour l'une de vos échelle actives avec des flèches vertes.
-
-Si cette option n'est pas cochée, WoW marquera les objets dont le niveau est supérieur à celui de votre tenue actuelle, et Pawn n'interférera pas avec la fonction intégrée.]=],
+Si cette option est cochée, Pawn trouvera des objets dans vos sacs et marquera ceux qui sont de meilleurs pour l'une de vos échelle actives avec des flèches vertes.]=],
 		["OptionsBlankLine"] = "Ajoute une ligne vide avant les valeurs",
 		["OptionsBlankLineTooltip"] = "Cette option permet de séparer les informations de Pawn, en ajoutant une ligne vide",
 		["OptionsButtonHidden"] = "Caché",
@@ -829,9 +827,6 @@ PawnLocal.Specs =
 
 end
 
-if GetLocale() == "frFR" then
-	PawnUseThisLocalization()
-end
-
--- After using this localization or deciding that we don't need it, remove it from memory.
+-- Initiate self-destruct sequence.
+PawnUseThisLocalization()
 PawnUseThisLocalization = nil

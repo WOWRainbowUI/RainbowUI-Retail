@@ -1,6 +1,6 @@
 ﻿-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
--- © 2006-2025 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
+-- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.htm for more information.
 
 --
@@ -8,7 +8,7 @@
 ------------------------------------------------------------
 
 local function PawnUseThisLocalization()
-PawnLocal = 
+PawnLocal =
 {
 	["AverageItemLevelIgnoringRarityTooltipLine"] = "Durchschnittliche Gegenstandsstufe",
 	["BaseValueWord"] = "Basis",
@@ -315,9 +315,7 @@ Wenn du Quest-Belohnungen oder Dungeon-Beute erwirbst, die besser als deine aktu
 		["OptionsBagUpgradeAdvisor"] = "Zeige Ratgeber für Verbesserungen in den Taschen",
 		["OptionsBagUpgradeAdvisorTooltip"] = [=[Aktiviere diese Option, wenn Pawn die Verbesserungs-Pfeile in den Taschen übernehmen soll. 
 
-Wenn aktiviert, findet Pawn Verbesserungen in deinen Taschen und markiert die Gegenstände, die eine Verbesserung für deine aktive Waage sind, mit grünen Pfeilen.
-
-Wenn deaktiviert, markiert WoW Gegenstände mit einem höheren Gegenstandswert als dem, was du gerade trägst und Pawn wird die eingebaute Funktion nicht stören.]=],
+Wenn aktiviert, findet Pawn Verbesserungen in deinen Taschen und markiert die Gegenstände, die eine Verbesserung für deine aktive Waage sind, mit grünen Pfeilen.]=],
 		["OptionsBlankLine"] = "Fügt vor den Werten eine leere Zeile ein",
 		["OptionsBlankLineTooltip"] = "Halte die Tooltips für Gegenstände besonders ordentlich, indem du diese Option aktivierst, bei der vor den Pawn-Werten eine Leerzeile eingefügt wird.",
 		["OptionsButtonHidden"] = "Verstecke ihn",
@@ -784,9 +782,6 @@ PawnLocal.Specs =
 
 end
 
-if GetLocale() == "deDE" then
-	PawnUseThisLocalization()
-end
-
--- After using this localization or deciding that we don't need it, remove it from memory.
+-- Initiate self-destruct sequence.
+PawnUseThisLocalization()
 PawnUseThisLocalization = nil

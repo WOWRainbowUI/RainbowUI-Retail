@@ -1,13 +1,13 @@
 ﻿-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
--- © 2006-2025 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
+-- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.htm for more information.
 
 --
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1201
+PawnVersion = 2.1300
 
 -- Pawn requires this version of VgerCore:
 local PawnVgerCoreVersionRequired = 1.20
@@ -53,9 +53,15 @@ local PawnEnchantedAnnotationFormat, PawnUnenchantedAnnotationFormat, PawnNoValu
 PawnScaleProviders = { }
 local PawnScaleProvidersInitialized
 
+-- Third-party bags
+-- PawnThirdPartyBags["My Bag Addon"] = { }
+local PawnThirdPartyBags = { }
+PawnIsAThirdPartyBagRegistered = false
+
 -- Third-party tooltips
--- PawnThirdPartyTooltips["MyTooltipAddon"] = { SetBackdropBorderColor = function(Tooltip, r, g, b, a) ... end }
+-- PawnThirdPartyTooltips["My Tooltip Addon"] = { SetBackdropBorderColor = function(Tooltip, r, g, b, a) ... end }
 local PawnThirdPartyTooltips = { }
+PawnIsAThirdPartyTooltipRegistered = false
 
 -- "Constants"
 local PawnCurrentScaleVersion = 1
@@ -163,10 +169,12 @@ end
 -- A wrapper for Tooltip:SetBackdropBorderColor that allows addon authors to easily override it.
 local function PawnSetTooltipBorderColor(Tooltip, r, g, b, a)
 	local Fallback = true
-	for _, Overrides in pairs(PawnThirdPartyTooltips) do
-		if Overrides.SetBackdropBorderColor then
-			Overrides.SetBackdropBorderColor(Tooltip, r, g, b, a)
-			Fallback = false
+	if PawnIsAThirdPartyTooltipRegistered then
+		for _, Overrides in pairs(PawnThirdPartyTooltips) do
+			if Overrides.SetBackdropBorderColor then
+				Overrides.SetBackdropBorderColor(Tooltip, r, g, b, a)
+				Fallback = false
+			end
 		end
 	end
 
@@ -457,61 +465,9 @@ function PawnInitialize()
 		VgerCore.HookInsecureFunction(AceConfigDialogTooltip, "SetHyperlink", function(_, ItemLink) PawnUpdateTooltip("AceConfigDialogTooltip", "SetHyperlink", ItemLink) end)
 	end
 
-	-- In-bag upgrade icons
-	if VgerCore.IsMainline then
-		PawnOriginalIsContainerItemAnUpgrade = IsContainerItemAnUpgrade
-		PawnIsContainerItemAnUpgrade = function(bagID, slot, ...)
-			if PawnCommon.ShowBagUpgradeAdvisor then
-				local ItemInfo = C_Container.GetContainerItemInfo(bagID, slot)
-				if not ItemInfo or not ItemInfo.stackCount then return false end -- If the stack count is 0, it's clearly not an upgrade
-				if not ItemInfo.hyperlink then return nil end -- If we didn't get an item link, but there's an item there, try again later
-				return PawnShouldItemLinkHaveUpgradeArrow(ItemInfo.hyperlink, true) -- true means to check player level
-			else
-				if PawnOriginalIsContainerItemAnUpgrade then
-					---@diagnostic disable-next-line: redundant-parameter
-					return PawnOriginalIsContainerItemAnUpgrade(bagID, slot, ...)
-				else
-					-- If Pawn's bag advisor is off, AND the game's IsContainerItemAnUpgrade is missing, nothing's an upgrade.
-					return false
-				end
-			end
-		end
-		PawnUpdateItemUpgradeIcon = function(self)
-			if self.isExtended then return end
-			local IsUpgrade = PawnIsContainerItemAnUpgrade(self.GetBagID and self:GetBagID() or self:GetParent():GetID(), self:GetID())
-
-			if IsUpgrade == nil then
-				self.UpgradeIcon:SetShown(false)
-				self:SetScript("OnUpdate", self.TryUpdateItemUpgradeIcon or ContainerFrameItemButton_TryUpdateItemUpgradeIcon)
-			else
-				self.UpgradeIcon:SetShown(IsUpgrade)
-				self:SetScript("OnUpdate", nil)
-			end
-		end
-	end
-
-	if ContainerFrameItemButtonMixin and ContainerFrameItemButtonMixin.UpdateItemUpgradeIcon then
-		-- 10.0.0 only - this code was removed from the game in 10.0.2
-
-		-- First, hook ContainerFrameItemButtonMixin to affect all future bag frames.
-		hooksecurefunc(ContainerFrameItemButtonMixin, "UpdateItemUpgradeIcon", PawnUpdateItemUpgradeIcon)
-		-- Unfortunately, the Mixin is not a prototype so changes are not retroactive to bags that have already been created,
-		-- so now we need to update all of those.
-		for i = 1, NUM_TOTAL_BAG_FRAMES do
-			local Bag = _G["ContainerFrame" .. i]
-			if Bag.Items then
-				for _, Button in Bag:EnumerateItems() do
-					hooksecurefunc(Button, "UpdateItemUpgradeIcon", PawnUpdateItemUpgradeIcon)
-				end
-			end
-		end
-	elseif ContainerFrame_UpdateItemUpgradeIcons then
-		-- Legion through Shadowlands
-
-		-- Changing IsContainerItemAnUpgrade now causes taint errors, and replacing this function with a copy of itself
-		-- works on its own, but breaks other addons that hook this function like CanIMogIt. So, our best option appears to
-		-- be to just let the default version run, and then change its results immediately after.
-		hooksecurefunc("ContainerFrameItemButton_UpdateItemUpgradeIcon", PawnUpdateItemUpgradeIcon)
+	-- Pawn bag upgrade advisor in-bag icons
+	if PawnBags then
+		PawnBags:Initialize()
 	end
 
 	-- Dragonflight professions UI
@@ -713,14 +669,6 @@ function PawnInitializeOptions()
 		-- The new "show spec icons" option is enabled by default.
 		PawnCommon.ShowSpecIcons = true
 	end
-	if PawnCommon.LastVersion < 2.0101 then
-		-- The new Bag Upgrade Advisor is on by default, but it's not supported in Classic.
-		if VgerCore.IsMainline then
-			PawnCommon.ShowBagUpgradeAdvisor = true
-		else
-			PawnCommon.ShowBagUpgradeAdvisor = false
-		end
-	end
 	if PawnOptions.LastVersion < 2.0219 then
 		-- The item squish happened in WoW 8.0, so artifact relic item levels changed.
 		PawnOptions.Artifacts = nil
@@ -760,6 +708,12 @@ function PawnInitializeOptions()
 	if PawnCommon.LastVersion < 2.0902 and VgerCore.ReforgingExists then
 		-- Enable the reforging advisor by default on Cataclysm Classic.
 		PawnCommon.ShowReforgingAdvisor = true
+	end
+	if PawnCommon.LastVersion < 2.1300 then
+		-- The Bag Upgrade Advisor on by default now wherever Automatic mode is supported.
+		if VgerCore.SpecsExist then
+			PawnCommon.ShowBagUpgradeAdvisor = true
+		end
 	end
 	if ((VgerCore.IsMainline) and PawnCommon.LastVersion < PawnMrRobotLastUpdatedVersion) or
 		((VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists) and PawnCommon.LastVersion < PawnClassicLastUpdatedVersion) then
@@ -1161,6 +1115,11 @@ function PawnResetTooltip(TooltipName)
 	return true
 end
 
+-- Invalidate the in-bag upgrade arrows.
+function PawnResetBags()
+	if PawnBags then PawnBags:RefreshAll() end
+end
+
 -- Recalculates the total value of all stats in a scale, as well as all of the best gems for that scale.
 function PawnRecalculateScaleTotal(ScaleName)
 	local _
@@ -1537,11 +1496,13 @@ function PawnGetItemData(ItemLink)
 
 		-- Determine if this item could ever be equipped by this class.
 		Item.CanEquip = true
-		local _, _, ClassID = UnitClass("player")
-		for _, StatName in pairs(PawnNeverUsableStats[ClassID]) do
-			if Item.Stats[StatName] then
-				Item.CanEquip = false
-				break
+		if Item.Stats then
+			local _, _, ClassID = UnitClass("player")
+			for _, StatName in pairs(PawnNeverUsableStats[ClassID]) do
+				if Item.Stats[StatName] then
+					Item.CanEquip = false
+					break
+				end
 			end
 		end
 
@@ -4528,6 +4489,7 @@ function PawnOnSpecChanged()
 		-- Don't reset the UI if their spec didn't actually change—this notification can be a bit spammy.
 		PawnClearCache()
 		PawnInvalidateBestItems()
+		PawnResetBags()
 
 		PawnUICurrentScale = nil -- Let the refresh method re-set this
 		PawnUIFrame_ScaleSelector_Refresh()
@@ -5163,6 +5125,7 @@ function PawnSetStatValue(ScaleName, StatName, Value)
 	PawnRecalculateScaleTotal(ScaleName) -- also recalculates socket values
 	PawnInvalidateBestItemsForScale(ScaleName)
 	PawnResetTooltips()
+	PawnResetBags()
 	return true
 end
 
@@ -5405,6 +5368,7 @@ function PawnImportScale(ScaleTag, Overwrite)
 	PawnRecalculateScaleTotal(ScaleName)
 	if AlreadyExists then PawnInvalidateBestItemsForScale(ScaleName) end
 	PawnResetTooltips()
+	PawnResetBags()
 	return PawnImportScaleResultSuccess, ScaleName
 end
 
@@ -5434,6 +5398,7 @@ function PawnSetAllScaleProviderScalesVisible(ProviderInternalName, Visible)
 			PawnResetTooltips()
 		end
 	end
+	PawnResetBags()
 	return true
 end
 
@@ -5472,6 +5437,7 @@ function PawnSetScaleVisible(ScaleName, Visible)
 	if Scale.PerCharacterOptions[PawnPlayerFullName].Visible ~= Visible then
 		Scale.PerCharacterOptions[PawnPlayerFullName].Visible = Visible
 		PawnResetTooltips()
+		PawnResetBags()
 	end
 	return true
 end
@@ -5604,6 +5570,7 @@ function PawnSetShowUpgradesForWeapons(ScaleName, WeaponSet, ShowUpgrades)
 	end
 	PawnInvalidateBestItemsForScale(ScaleName)
 	PawnResetTooltips()
+	PawnResetBags()
 end
 
 -- Sets whether the upgrade tracking feature is enabled for this character.
@@ -5613,6 +5580,7 @@ function PawnSetUpgradeTracking(Enabled)
 	PawnOptions.UpgradeTracking = Enabled
 	PawnInvalidateBestItems()
 	PawnResetTooltips()
+	PawnResetBags()
 end
 
 -- Returns true if a scale is read-only.
@@ -5993,7 +5961,8 @@ function PawnShouldItemLinkHaveUpgradeArrowUnbudgeted(ItemLink, CheckLevel)
 	if CheckLevel and UnitLevel("player") < MinLevel then return false end
 	if PawnCanItemHaveStats(ItemLink) then
 		local Item = PawnGetItemData(ItemLink)
-		if Item == nil or Item.Link == nil then return nil end -- If we don't have stats for the item yet, ask again later.
+		if not Item then return false end
+		if Item.Link == nil then return nil end -- If we don't have stats for the item yet, ask again later.
 		if PawnOptions.DebugBagArrows then
 			local UpgradeInfo, _, _, _, _ = PawnIsItemAnUpgrade(Item)
 			if UpgradeInfo ~= nil then
@@ -6033,23 +6002,48 @@ function PawnClearBestItemLevelData()
 	end
 end
 
--- Tells Pawn about a third-party tooltip addon that needs to override some of the things that Pawn does.
+-- Tells Pawn about a third-party bag addon that needs to override some of the things that Pawn does.
 -- Example:
--- 	PawnRegisterThirdPartyTooltip("MyTooltipAddon", {
+-- 	PawnRegisterThirdPartyBag("My Bag Addon", {
+--		-- Just registering a bag addon causes Pawn's integration with the default bags to be disabled
+-- 	})
+function PawnRegisterThirdPartyBag(AddonName, Overrides)
+	if not AddonName then VgerCore.Fail("AddonName can't be empty.") return end
+	if Overrides == nil then Overrides = {} end
+	if type(Overrides) ~= "table" then VgerCore.Fail("Overrides must be a table of override functions.") return end
+	if PawnThirdPartyBags[AddonName] then VgerCore.Fail("You can only register the third-party bag addon \"" .. tostring(AddonName) .. "\" once.") return end
+
+	PawnThirdPartyBags[AddonName] = Overrides
+	PawnIsAThirdPartyBagRegistered = true
+end
+
+-- Not sure why you'd need this, but here's the opposite of PawnRegisterThirdPartyBag.
+function PawnUnregisterThirdPartyBag(AddonName)
+	if not AddonName then VgerCore.Fail("AddonName can't be empty.") return end
+	PawnThirdPartyBags[AddonName] = nil
+	PawnIsAThirdPartyBagRegistered = #PawnThirdPartyBags > 0
+end
+
+-- Tells Pawn about a third-party bag addon that needs to override some of the things that Pawn does.
+-- Example:
+-- 	PawnRegisterThirdPartyTooltip("My Tooltip Addon", {
 --		SetBackdropBorderColor = function(Tooltip, r, g, b, a) print("Replace this with code that changes your tooltip's border color") end,
 -- 	})
 function PawnRegisterThirdPartyTooltip(AddonName, Overrides)
 	if not AddonName then VgerCore.Fail("AddonName can't be empty.") return end
-	if not Overrides or type(Overrides) ~= "table" then VgerCore.Fail("Overrides must be a table of override functions.") return end
+	if Overrides == nil then Overrides = {} end
+	if type(Overrides) ~= "table" then VgerCore.Fail("Overrides must be a table of override functions.") return end
 	if PawnThirdPartyTooltips[AddonName] then VgerCore.Fail("You can only register the third-party tooltip addon \"" .. tostring(AddonName) .. "\" once.") return end
 
 	PawnThirdPartyTooltips[AddonName] = Overrides
+	PawnIsAThirdPartyTooltipRegistered = true
 end
 
 -- Not sure why you'd need this, but here's the opposite of PawnRegisterThirdPartyTooltip.
 function PawnUnregisterThirdPartyTooltip(AddonName)
 	if not AddonName then VgerCore.Fail("AddonName can't be empty.") return end
 	PawnThirdPartyTooltips[AddonName] = nil
+	PawnIsAThirdPartyTooltipRegistered = #PawnThirdPartyBags > 0
 end
 
 -- Shows or hides the Pawn UI.

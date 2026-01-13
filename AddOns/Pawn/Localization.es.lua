@@ -1,6 +1,6 @@
 ﻿-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
--- © 2006-2025 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
+-- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.htm for more information.
 
 --
@@ -359,11 +359,9 @@ Pawn viene con escalas pre-fabricadas para cada clase y especialización.  Tambi
 		--[[Translation missing --]]
 		["OptionsBagUpgradeAdvisor"] = "Show bag upgrade advisor",
 		--[[Translation missing --]]
-		["OptionsBagUpgradeAdvisorTooltip"] = [=[Enable this option to have Pawn take over the in-bag upgrade arrows.
+		["OptionsBagUpgradeAdvisorTooltip"] = [=[Show green arrows on items in your bag that are an upgrade for any of your active scales.
 
-If checked, Pawn will find upgrades in your bags and mark items that are an upgrade for any of your active scales with green arrows. 
-
-If unchecked, WoW will mark items with a higher item level than what you're currently wearing, and Pawn will not interfere with the built-in feature.]=],
+This feature works with the game's default bags and may not affect all bag addons.]=],
 		["OptionsBlankLine"] = "Añade una línea en blanco antes de los valores",
 		["OptionsBlankLineTooltip"] = "Mantén tus tooltips de objetos super ordenados activando ésta opción, que añade una línea en blanco antes de los valores de Pawn.",
 		["OptionsButtonHidden"] = "Esconder",
@@ -837,8 +835,8 @@ PawnLocal.Specs =
 
 end
 
+PawnUseThisLocalization()
 if GetLocale() == "esES" then
-	PawnUseThisLocalization()
 	PawnLocal.ThousandsSeparator = ""
 	PawnLocal.DecimalSeparator = ","
 
@@ -980,5 +978,5 @@ elseif GetLocale() == "esMX" then
 	end
 end
 
--- After using this localization or deciding that we don't need it, remove it from memory.
+-- Initiate self-destruct sequence.
 PawnUseThisLocalization = nil

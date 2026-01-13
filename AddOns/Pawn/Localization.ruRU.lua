@@ -1,6 +1,6 @@
 ﻿-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
--- © 2006-2025 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
+-- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.htm for more information.
 
 --
@@ -320,9 +320,7 @@ Pawn поставляется со шкалами с сайта Wowhead для �
 		["OptionsBagUpgradeAdvisor"] = "Отображать советника для сумок.",
 		["OptionsBagUpgradeAdvisorTooltip"] = [=[Включите данную опцию для того чтобы Pawn отображал стрелочки улучшений в сумках.
 
-Если включено, Pawn будет искать улучшения вещей в ваших сумках и отображать с помощью зеленой стрелочки.
-
-Если выключено, WoW сам будет отображать вещи с более высшим уровнем чем те которые на вас надеты и Pawn не будет вмешиваться в этот процесс.]=],
+Если включено, Pawn будет искать улучшения вещей в ваших сумках и отображать с помощью зеленой стрелочки.]=],
 		["OptionsBlankLine"] = "Добавить пустую строку перед значениями",
 		["OptionsBlankLineTooltip"] = "Позволяет добавить пустую строку перед значениями Pawn. Это позволяет сделать сообщения более читаемыми.",
 		["OptionsButtonHidden"] = "не отображать",
@@ -794,9 +792,6 @@ end
 
 end
 
-if GetLocale() == "ruRU" then
-	PawnUseThisLocalization()
-end
-
--- After using this localization or deciding that we don't need it, remove it from memory.
+-- Initiate self-destruct sequence.
+PawnUseThisLocalization()
 PawnUseThisLocalization = nil

@@ -1,13 +1,10 @@
 -- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
--- © 2006-2025 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
+-- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.htm for more information.
 --
 -- Gem information (Mists of Pandaria Classic)
 ------------------------------------------------------------
-
-
-if VgerCore.IsMists then
 
 
 --========================================
@@ -1308,6 +1305,4 @@ PawnCrystalOfFearQualityLevels =
 	{ 0, PawnCrystalOfFearData90Legendary }, -- Kri'tak
 }
 
-PawnMinimumItemLevelToConsiderGems = 346 -- 346 during pre-patch; 417 at launch
-
-end -- if VgerCore.IsMists
+PawnMinimumItemLevelToConsiderGems = 417 -- 346 during pre-patch; 417 at launch
