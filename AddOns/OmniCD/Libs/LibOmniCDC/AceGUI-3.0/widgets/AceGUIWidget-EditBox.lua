@@ -8,7 +8,7 @@
 EditBox Widget
 -------------------------------------------------------------------------------]]
 --[[ s r
-local Type, Version = "EditBox", 28
+local Type, Version = "EditBox", 29
 ]]
 local Type, Version = "EditBox-OmniCDC", 1
 -- e
@@ -31,7 +31,11 @@ Support functions
 --[==[ s -r 31
 if not AceGUIEditBoxInsertLink then
 	-- upgradeable hook
-	hooksecurefunc("ChatEdit_InsertLink", function(...) return _G.AceGUIEditBoxInsertLink(...) end)
+	if ChatFrameUtil and ChatFrameUtil.InsertLink then
+		hooksecurefunc(ChatFrameUtil, "InsertLink", function(...) return _G.AceGUIEditBoxInsertLink(...) end)
+	elseif ChatEdit_InsertLink then
+		hooksecurefunc("ChatEdit_InsertLink", function(...) return _G.AceGUIEditBoxInsertLink(...) end)
+	end
 end
 
 function _G.AceGUIEditBoxInsertLink(text)

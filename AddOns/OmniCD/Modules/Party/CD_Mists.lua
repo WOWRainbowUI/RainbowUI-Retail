@@ -411,6 +411,16 @@ registeredEvents["SPELL_CAST_SUCCESS"][115072] = function(info, _, spellID)
 end
 
 
+registeredEvents["SPELL_CAST_SUCCESS"][51505] = function(info)
+	if info.talentData[138144] then
+		local icon = info.spellIcons[114049]
+		if icon and icon.active then
+			icon:UpdateCooldown(1)
+		end
+	end
+end
+
+
 
 
 
