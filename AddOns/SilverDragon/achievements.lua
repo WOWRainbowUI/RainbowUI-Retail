@@ -37,7 +37,11 @@ local achievements = {
 	[9678] = {}, -- Ancient No More (Gorgrond)
 	[10061] = {}, -- Hellbane (Tanaan)
 	[10070] = {}, -- Jungle Stalker (Tanaan)
-	[11160] = {}, -- Unleashed Monstrosities
+	[11160] = { -- Unleashed Monstrosities
+		[106981] = 8, -- Soultakers (Captain Hring)
+		[106982] = 8, -- Soultakers (Reaver Jdorn)
+		[106984] = 8, -- Soultakers (Soultrapper Mevra)
+	},
 	[11261] = { -- Adventurer of Azsuna
 		[89016] = 33377, -- Ravyn-Drath
 		[90244] = 33262, --Arcavellus
@@ -756,6 +760,14 @@ local achievements = {
 	},
 	[60818] = { -- Elusive Foes: Argus
 		requires=ns.conditions.AuraActive(1213439),
+	},
+	-- Midnight
+	[61507] = {}, -- Eversong Woods: A Bloody Song
+	[62122] = {}, -- Zul'Aman: Tallest Tree in the Forest
+	[61264] = {}, -- Harandar: Leaf None Behind
+	[62130] = {}, -- Voidstorm: The Ultimate Predator
+	[62201] = { -- The Frog and the Princesses
+		need=EMOTE59_CMD1, completed=DONE, -- /love
 	},
 }
 ns.achievements = achievements

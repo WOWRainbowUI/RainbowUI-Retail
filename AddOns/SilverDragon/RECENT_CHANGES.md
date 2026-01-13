@@ -1,6 +1,5 @@
-## Changed in v2025.17
+## Changed in v2026.2
 
-* Legion Remix: show the achievement-status for the Elusive Foes achievements
-* Dragonflight: show the achievement-status for That's Pretty Neat!
-* (Yes, I finally added the ability to associate multiple achievements with a single mob)
+* War Within: fixed the coordinates in Ringing Deeps (again)
+* Legion: changed the quest for Randril in Suramar
 
