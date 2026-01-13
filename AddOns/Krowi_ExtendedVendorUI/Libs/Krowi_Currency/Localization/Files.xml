@@ -1,0 +1,28 @@
+<!--
+    Copyright (c) 2026 Krowi
+
+    All Rights Reserved unless otherwise explicitly stated.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+ -->
+
+<Ui>
+    <Script file="Localization.lua" />
+    <Script file="enUS.lua" />
+    <Script file="deDE.lua" />
+    <Script file="esES.lua" />
+    <Script file="esMX.lua" />
+    <Script file="frFR.lua" />
+    <Script file="itIT.lua" />
+    <Script file="koKR.lua" />
+    <Script file="ptBR.lua" />
+    <Script file="ruRU.lua" />
+    <Script file="zhCN.lua" />
+    <Script file="zhTW.lua" />
+</Ui>

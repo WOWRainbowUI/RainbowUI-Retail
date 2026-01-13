@@ -15,53 +15,53 @@
 ---@diagnostic disable: undefined-global
 
 -- Define shared minor version for all Krowi_Menu libraries
-KROWI_MENU_LIBRARY_MINOR = KROWI_MENU_LIBRARY_MINOR or 8
+KROWI_MENU_LIBRARY_MINOR = 11
 
 local MAJOR, MINOR = "Krowi_MenuItem-1.0", KROWI_MENU_LIBRARY_MINOR
-local lib = LibStub:NewLibrary(MAJOR, MINOR);
+local lib = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not lib then
-	return;
+	return
 end
 
 -- Store version constants
 lib.MAJOR = MAJOR
 lib.MINOR = MINOR
 
-lib.__index = lib;
+lib.__index = lib
 function lib:New(info, hideOnClick)
-    local instance = setmetatable({}, lib);
+    local instance = setmetatable({}, lib)
     if type(info) == "string" then
         info = {
             Text = info,
             KeepShownOnClick = not hideOnClick
-        };
+        }
     end
     for k, v in next, info do
-        instance[k] = v;
+        instance[k] = v
     end
-    return instance;
+    return instance
 end
 
 function lib:Add(item)
     if self.Children == nil then
-        self.Children = {}; -- By creating the children table here we reduce memory usage because not every category has children
+        self.Children = {} -- By creating the children table here we reduce memory usage because not every category has children
     end
-    tinsert(self.Children, item);
-    return item;
+    tinsert(self.Children, item)
+    return item
 end
 
 function lib:AddFull(info)
-    return self:Add(self:New(info));
+    return self:Add(self:New(info))
 end
 
 function lib:AddTitle(text)
     self:AddFull({
 		Text = text,
 		IsTitle = true
-	});
+	})
 end
 
 function lib:AddSeparator()
-    return self:AddFull({IsSeparator = true});
+    return self:AddFull({IsSeparator = true})
 end
