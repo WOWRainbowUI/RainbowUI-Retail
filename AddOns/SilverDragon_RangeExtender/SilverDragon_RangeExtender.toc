@@ -1,7 +1,7 @@
-## Interface: 120001, 120000, 110207, 50503, 30405, 11508
+## Interface: 120001, 120000, 110207, 50503
 ## Title: SilverDragon: Range Extender
 ## Notes: Show map vignettes when they'd normally be out of your range
-## Version: v2026.2
+## Version: v2026.3
 ## Author: Kemayo
 ## eMail: kemayo at gmail dot com
 ## IconTexture: Interface\Icons\INV_Misc_Head_Dragon_01
