@@ -225,16 +225,31 @@ local function AddTimerunnerLines(tooltip)
 	end
 end
 
-
-DR.mainFrame.portraitTooltipThing:SetScript("OnEnter", function(self)
+local function UpdatePortraitTooltip(self)
 	local SeasonID = PlayerGetTimerunningSeasonID()
-	if not SeasonID then return end
-	GameTooltip:SetOwner(self, "ANCHOR_TOP")
-	AddTimerunnerLines(GameTooltip)
-	GameTooltip:Show()
+	if SeasonID or IsShiftKeyDown() then
+		GameTooltip:SetOwner(self, "ANCHOR_TOP")
+		AddTimerunnerLines(GameTooltip)
+		GameTooltip:Show()
+	else
+		GameTooltip:Hide()
+	end
+end
+
+
+DR.mainFrame.portraitTooltipThing:SetScript("OnEvent", function(self, event)
+	if event == "MODIFIER_STATE_CHANGED" and self:IsMouseOver() then
+		UpdatePortraitTooltip(self)
+	end
 end)
 
-DR.mainFrame.portraitTooltipThing:SetScript("OnLeave", function()
+DR.mainFrame.portraitTooltipThing:SetScript("OnEnter", function(self)
+	self:RegisterEvent("MODIFIER_STATE_CHANGED")
+	UpdatePortraitTooltip(self)
+end)
+
+DR.mainFrame.portraitTooltipThing:SetScript("OnLeave", function(self)
+	self:UnregisterEvent("MODIFIER_STATE_CHANGED")
 	GameTooltip:Hide()
 end)
 
