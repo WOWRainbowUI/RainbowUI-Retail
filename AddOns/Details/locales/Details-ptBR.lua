@@ -318,7 +318,7 @@ L["STRING_LEFT_CLICK_SHARE"] = "Clique para enviar relatório."
 L["STRING_LEFT_TO_RIGHT"] = "Esquerda para Direita"
 L["STRING_LIKES_YOU_GAVE"] = "Curtidas que você deu"
 L["STRING_LOCK_DESC"] = "Travar ou destravar esta janela"
-L["STRING_LOCK_WINDOW"] = "travar"
+L["STRING_LOCK_WINDOW"] = "Travar"
 L["STRING_MASTERY"] = "Maestria"
 L["STRING_MAXIMUM"] = "Máximo"
 L["STRING_MAXIMUM_SHORT"] = "Máx"
@@ -1584,14 +1584,15 @@ L["STRING_TOOOLD"] = "não pode ser instalado pois sua versão do Details! e mui
 L["STRING_TOP"] = "topo"
 L["STRING_TOP_TO_BOTTOM"] = "Cima para Baixo"
 L["STRING_TOTAL"] = "Total"
+--[[Translation missing --]]
+L["STRING_TRAINING_DUMMY"] = "Training Dummy"
 L["STRING_TRANSLATE_LANGUAGE"] = "Ajude a traduzir o Details!"
 L["STRING_TUTORIAL_FULLY_DELETE_WINDOW"] = [=[Você fechou uma janela e pode reabri-la quando quiser.
 Para deleta-la por completo, vá nas opções -> Janela: Geral -> Deletar.]=]
 L["STRING_TUTORIAL_OVERALL1"] = "A Data Overall atualiza apenas após o combate, clique com o botão direito na barra de título e escolha 'Dynamic Overall Damage' se você desejar atualizações regulares. "
 L["STRING_UNKNOW"] = "Desconhecido"
 L["STRING_UNKNOWSPELL"] = "Magia Desconhecida"
-L["STRING_UNLOCK"] = [=[Separe as janelas
-neste botão]=]
+L["STRING_UNLOCK"] = "Separe as janelas neste botão"
 L["STRING_UNLOCK_WINDOW"] = "Destravar"
 L["STRING_UPTADING"] = "atualizando"
 L["STRING_VERSION_AVAILABLE"] = "uma nova versão está disponível. Baixe pelo aplicativo da Curse Forge ou pelo site da Curse."
