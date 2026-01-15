@@ -1,6 +1,6 @@
 # Syndicator
 
-## [257](https://github.com/TheMouseNest/Syndicator/tree/257) (2026-01-11)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/256...257) 
+## [258](https://github.com/TheMouseNest/Syndicator/tree/258) (2026-01-13)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/257...258) 
 
-- [Fixes #81] Classic: Fix for "Sell Price" line being missing on classic  
+- Update toc for Burning Crusade Classic Anniversary 2.5.5  
