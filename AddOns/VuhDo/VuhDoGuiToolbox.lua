@@ -476,7 +476,9 @@ end
 
 --
 local function VUHDO_unregisterAndSaveEvents(anIsHide, ...)
+
 	local tFrame;
+
 	for tCnt = 1, select('#', ...) do
 		tFrame = select(tCnt, ...);
 
@@ -499,13 +501,16 @@ local function VUHDO_unregisterAndSaveEvents(anIsHide, ...)
 			end
 		end
 	end
+
 end
 
 
 
 --
 local function VUHDO_registerOriginalEvents(anIsShow, ...)
+
 	local tFrame;
+
 	for tCnt = 1, select('#', ...) do
 		tFrame = select(tCnt, ...);
 
@@ -527,42 +532,53 @@ local function VUHDO_registerOriginalEvents(anIsShow, ...)
 			end
 		end
 	end
+
 end
 
 
 
 --
 local function VUHDO_hideBlizzRaid()
+
 	VUHDO_unregisterAndSaveEvents(true, CompactRaidFrameManager.container);
+
 end
 
 
 
 --
 local function VUHDO_showBlizzRaid()
+
 	VUHDO_registerOriginalEvents(VUHDO_GROUP_TYPE_SOLO ~= VUHDO_getCurrentGroupType(), CompactRaidFrameManager.container);
+
 end
 
 
 
 --
 local function VUHDO_hideBlizzRaidMgr()
+
 	VUHDO_unregisterAndSaveEvents(true, CompactRaidFrameManager);
+
 end
 
 
 --
 local function VUHDO_showBlizzRaidMgr()
+
 	VUHDO_registerOriginalEvents(VUHDO_GROUP_TYPE_SOLO ~= VUHDO_getCurrentGroupType(), CompactRaidFrameManager);
+
 end
 
 
 
 --
 function VUHDO_hideBlizzCompactPartyFrame()
+
 	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PARTY"] == 3 and not InCombatLockdown() and CompactPartyFrame and CompactPartyFrame:IsVisible() then
 		VUHDO_unregisterAndSaveEvents(true, CompactPartyFrame);
 	end
+
 end
 
 
@@ -592,6 +608,7 @@ end
 
 --
 local function VUHDO_hideBlizzParty()
+
 	if not EditModeManagerFrame:UseRaidStylePartyFrames() then
 		local tPartyFrame = _G["PartyFrame"];
 
@@ -613,12 +630,14 @@ local function VUHDO_hideBlizzParty()
 			VUHDO_unregisterAndSaveEvents(true, CompactPartyFrame);
 		end
 	end
+
 end
 
 
 
 --
 local function VUHDO_showBlizzParty()
+
 	if VUHDO_GROUP_TYPE_PARTY ~= VUHDO_getCurrentGroupType() then 
 		return;
 	end
@@ -642,126 +661,261 @@ local function VUHDO_showBlizzParty()
 	else
 		VUHDO_registerOriginalEvents(true, CompactPartyFrame);
 	end
+
 end
 
 
 
 --
 local function VUHDO_hideBlizzPlayer()
+
 	VUHDO_unregisterAndSaveEvents(true, PlayerFrame, RuneFrame);
 	VUHDO_unregisterAndSaveEvents(false, PlayerFrameHealthBar, PlayerFrameManaBar);
+
 end
 
 
 
 --
 local function VUHDO_showBlizzPlayer()
+
 	VUHDO_registerOriginalEvents(false, PlayerFrame, PlayerFrameHealthBar, PlayerFrameManaBar);
 	VUHDO_showFrame(PlayerFrame);
 
 	if "DEATHKNIGHT" == VUHDO_PLAYER_CLASS then
 		VUHDO_registerOriginalEvents(true, RuneFrame);
 	end
+
 end
 
 
 
 --
 local function VUHDO_hideBlizzTarget()
+
 	VUHDO_unregisterAndSaveEvents(true, TargetFrame, TargetFrameToT, FocusFrameToT);
 	VUHDO_unregisterAndSaveEvents(false, TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar, TargetFrame.TargetFrameContent.TargetFrameContentMain.ManaBar);
 
 	ComboFrame:ClearAllPoints();
+
 end
 
 
 
 --
 local function VUHDO_showBlizzTarget()
+
 	VUHDO_registerOriginalEvents(true, TargetFrame, TargetFrameToT, FocusFrameToT);
 	VUHDO_registerOriginalEvents(false, TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar, TargetFrame.TargetFrameContent.TargetFrameContentMain.ManaBar);
 
 	VUHDO_PixelUtil.SetPoint(ComboFrame, "TOPRIGHT", "TargetFrame", "TOPRIGHT", -44, -9);
+
 end
 
 
 
 --
 local function VUHDO_hideBlizzPet()
+
 	VUHDO_unregisterAndSaveEvents(true, PetFrame);
+
 end
 
 
 
 --
 local function VUHDO_showBlizzPet()
+
 	VUHDO_registerOriginalEvents(true, PetFrame);
+
 end
 
 
 --
 local function VUHDO_hideBlizzFocus()
+
 	VUHDO_unregisterAndSaveEvents(true, FocusFrame);
 	VUHDO_unregisterAndSaveEvents(false, FocusFrame.TargetFrameContent.TargetFrameContentMain.HealthBar, FocusFrame.TargetFrameContent.TargetFrameContentMain.ManaBar);
+
 end
 
 
 
 --
 local function VUHDO_showBlizzFocus()
+
 	VUHDO_registerOriginalEvents(true, FocusFrame);
 	VUHDO_registerOriginalEvents(false, FocusFrame.TargetFrameContent.TargetFrameContentMain.HealthBar, FocusFrame.TargetFrameContent.TargetFrameContentMain.ManaBar);
+
+end
+
+
+
+--
+local tBossFrame;
+local tBossFrameName;
+local function VUHDO_hideBlizzBoss()
+
+	VUHDO_unregisterAndSaveEvents(true, BossTargetFrameContainer);
+
+	for tCnt = 1, MAX_BOSS_FRAMES do
+		tBossFrameName = "Boss" .. tCnt .. "TargetFrame";
+		tBossFrame = _G[tBossFrameName];
+
+		if tBossFrame then
+			if tBossFrame.TargetFrameContent then
+				if tBossFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer then
+					VUHDO_unregisterAndSaveEvents(false, tBossFrame, tBossFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar, tBossFrame.TargetFrameContent.TargetFrameContentMain.ManaBar);
+				else
+					VUHDO_unregisterAndSaveEvents(false, tBossFrame, tBossFrame.TargetFrameContent.TargetFrameContentMain.HealthBar, tBossFrame.TargetFrameContent.TargetFrameContentMain.ManaBar);
+				end
+			else
+				VUHDO_unregisterAndSaveEvents(false, tBossFrame, _G[tBossFrameName .. "HealthBar"], _G[tBossFrameName .. "ManaBar"]);
+			end
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
+local tBossFrame;
+local tBossFrameName;
+local function VUHDO_showBlizzBoss()
+
+	VUHDO_registerOriginalEvents(true, BossTargetFrameContainer);
+
+	for tCnt = 1, MAX_BOSS_FRAMES do
+		tBossFrameName = "Boss" .. tCnt .. "TargetFrame";
+		tBossFrame = _G[tBossFrameName];
+
+		if tBossFrame then
+			if tBossFrame.TargetFrameContent then
+				if tBossFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer then
+					VUHDO_registerOriginalEvents(false, tBossFrame, tBossFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar, tBossFrame.TargetFrameContent.TargetFrameContentMain.ManaBar);
+				else
+					VUHDO_registerOriginalEvents(false, tBossFrame, tBossFrame.TargetFrameContent.TargetFrameContentMain.HealthBar, tBossFrame.TargetFrameContent.TargetFrameContentMain.ManaBar);
+				end
+			else
+				VUHDO_registerOriginalEvents(false, tBossFrame, _G[tBossFrameName .. "HealthBar"], _G[tBossFrameName .. "ManaBar"]);
+			end
+		end
+	end
+
+	return;
+
 end
 
 
 
 --
 function VUHDO_initHideBlizzRaid()
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID"] == 3 then VUHDO_hideBlizzRaid(); end
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID_MGR"] == 3 then VUHDO_hideBlizzRaidMgr(); end
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PARTY"] == 3 then VUHDO_hideBlizzParty(); end
+
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID"] == 3 then
+		VUHDO_hideBlizzRaid();
+	end
+
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID_MGR"] == 3 then
+		VUHDO_hideBlizzRaidMgr();
+	end
+
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PARTY"] == 3 then
+		VUHDO_hideBlizzParty();
+	end
+
 end
 
 
 --
 function VUHDO_initBlizzFrames()
-	if (InCombatLockdown()) then
+
+	if InCombatLockdown() then
 		return;
 	end
 
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PLAYER"] == 3 then VUHDO_hideBlizzPlayer();
-	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_PLAYER"] == 1 then VUHDO_showBlizzPlayer(); end
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PLAYER"] == 3 then
+		VUHDO_hideBlizzPlayer();
+	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_PLAYER"] == 1 then
+		VUHDO_showBlizzPlayer();
+	end
 
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_TARGET"] == 3 then VUHDO_hideBlizzTarget();
-	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_TARGET"] == 1 then VUHDO_showBlizzTarget(); end
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_TARGET"] == 3 then
+		VUHDO_hideBlizzTarget();
+	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_TARGET"] == 1 then
+		VUHDO_showBlizzTarget();
+	end
 
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PET"] == 3 then VUHDO_hideBlizzPet();
-	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_PET"] == 1 then VUHDO_showBlizzPet(); end
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PET"] == 3 then
+		VUHDO_hideBlizzPet();
+	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_PET"] == 1 then
+		VUHDO_showBlizzPet();
+	end
 
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_FOCUS"] == 3 then VUHDO_hideBlizzFocus();
-	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_FOCUS"] == 1 then VUHDO_showBlizzFocus(); end
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_FOCUS"] == 3 then
+		VUHDO_hideBlizzFocus();
+	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_FOCUS"] == 1 then
+		VUHDO_showBlizzFocus(); 
+	end
 
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID"] == 3 then VUHDO_hideBlizzRaid();
-	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID"] == 1 then VUHDO_showBlizzRaid(); end
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID"] == 3 then
+		VUHDO_hideBlizzRaid();
+	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID"] == 1 then
+		VUHDO_showBlizzRaid();
+	end
 
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID_MGR"] == 3 then VUHDO_hideBlizzRaidMgr();
-	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID_MGR"] == 1 then VUHDO_showBlizzRaidMgr(); end
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID_MGR"] == 3 then
+		VUHDO_hideBlizzRaidMgr();
+	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID_MGR"] == 1 then
+		VUHDO_showBlizzRaidMgr();
+	end
 
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PARTY"] == 3 then VUHDO_hideBlizzParty();
-	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_PARTY"] == 1 then VUHDO_showBlizzParty(); end
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PARTY"] == 3 then
+		VUHDO_hideBlizzParty();
+	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_PARTY"] == 1 then
+		VUHDO_showBlizzParty();
+	end
+
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_BOSS"] == 3 then
+		VUHDO_hideBlizzBoss();
+	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_BOSS"] == 1 then
+		VUHDO_showBlizzBoss();
+	end
+
 end
 
 
 
 function VUHDO_initHideBlizzFrames()
-	if InCombatLockdown() then return; end
 
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PLAYER"] == 3 then VUHDO_hideBlizzPlayer(); end
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_TARGET"] == 3 then VUHDO_hideBlizzTarget(); end
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PET"] == 3 then VUHDO_hideBlizzPet(); end
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_FOCUS"] == 3 then VUHDO_hideBlizzFocus(); end
+	if InCombatLockdown() then
+		return;
+	end
+
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PLAYER"] == 3 then
+		VUHDO_hideBlizzPlayer();
+	end
+
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_TARGET"] == 3 then
+		VUHDO_hideBlizzTarget();
+	end
+
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PET"] == 3 then
+		VUHDO_hideBlizzPet();
+	end
+
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_FOCUS"] == 3 then
+		VUHDO_hideBlizzFocus();
+	end
+
+		if VUHDO_CONFIG["BLIZZ_UI_HIDE_BOSS"] == 3 then
+		VUHDO_hideBlizzBoss();
+	end
 
 	VUHDO_initHideBlizzRaid();
+
 end
 
 

@@ -668,6 +668,7 @@ VUHDO_I18N_TT.K606 = "使用最多漸層色。";
 VUHDO_I18N_TT.K607 = "更改有狂怒增益的敵人的顏色。";
 VUHDO_I18N_TT.K608 = "忽略敵人身上可驅散的增益。";
 VUHDO_I18N_TT.K609 = "載入法術配置時，只套用持續性治療的欄位設定 (面板 => HoT 圖示 => 順序)。";
+VUHDO_I18N_TT.K610 = "隱藏遊戲內建的首領框架。";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -708,6 +709,7 @@ VUHDO_I18N_MAIN_PANEL = "主面板";
 VUHDO_I18N_PARTY = "隊伍";
 VUHDO_I18N_PET = "寵物";
 VUHDO_I18N_TARGET = "目標";
+VUHDO_I18N_BOSS = "首領";
 VUHDO_I18N_HIDE_STANDARD = "隱藏遊戲內建";
 VUHDO_I18N_HOT_TARGETING = "整體掃描";
 VUHDO_I18N_OR_ENTER_PROFILE_NAME = "... 或輸入設定檔名稱";

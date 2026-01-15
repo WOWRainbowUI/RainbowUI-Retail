@@ -283,14 +283,20 @@ end
 
 --
 function VUHDO_spellsKeysLocalRemoveClicked(aButton)
+
 	local tScroll = _G[aButton:GetParent():GetName() .. "ScrollPanel"];
 	local tChild = _G[tScroll:GetName() .. "Child"];
+
 	tremove(VUHDO_SPELLS_KEYBOARD["INTERNAL"], selectedIdx);
 
 	if (selectedIdx > 1 and selectedIdx > #VUHDO_SPELLS_KEYBOARD["INTERNAL"]) then
 		selectedIdx = selectedIdx - 1;
 	end
+
 	VUHDO_keyboardlocalSpellsScrollPanelOnShow(tChild);
+
+	return;
+
 end
 
 

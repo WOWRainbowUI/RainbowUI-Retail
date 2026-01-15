@@ -19,8 +19,12 @@ local pairs = pairs;
 
 --
 function VUHDO_removeFromModel(aPanelNum, anOrderNum)
+
 	tremove(VUHDO_PANEL_MODELS[aPanelNum], anOrderNum);
 	VUHDO_initDynamicPanelModels();
+
+	return;
+
 end
 
 

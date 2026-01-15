@@ -1512,24 +1512,36 @@ end
 
 
 --
+local tKeysToRemove;
 function VUHDO_ensureAllBouquetItemsSanity()
+
 	VUHDO_decompressAllBouquets();
 
 	for tName, tAllInfos in pairs(VUHDO_BOUQUETS["STORED"]) do
-
 		if (tAllInfos == nil or "table" ~= type(tAllInfos)) then
 			VUHDO_BOUQUETS["STORED"][tName] = { };
 		end
 
+		tKeysToRemove = { };
+
 		for tIndex, tInfo in pairs(VUHDO_BOUQUETS["STORED"][tName]) do
 			tInfo["name"] = strtrim(tInfo["name"] or "");
 			if (tInfo["name"] == "") then
-				tremove(tAllInfos, tIndex);
+				tinsert(tKeysToRemove, tIndex);
 			else
 				VUHDO_ensureBouquetItemSanity(tName, tIndex);
 			end
 		end
+
+		table.sort(tKeysToRemove, function(a, b) return a > b; end);
+
+		for _, tIndex in ipairs(tKeysToRemove) do
+			tremove(tAllInfos, tIndex);
+		end
 	end
+
+	return;
+
 end
 
 

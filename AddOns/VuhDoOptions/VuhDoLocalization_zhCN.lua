@@ -667,6 +667,7 @@ VUHDO_I18N_TT.K606 = "Select the maximum gradient color.";
 VUHDO_I18N_TT.K607 = "Click to change color to indicate enemies affected by enrage buffs.";
 VUHDO_I18N_TT.K608 = "Check to ignore purgeable buffs on enemies.";
 VUHDO_I18N_TT.K609 = "Check to only apply HoT slot setup (Panels => HoTs => Order) when spell layout is being loaded.";
+VUHDO_I18N_TT.K610 = "隐藏暴雪标准Boss框体.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "预设存档";
 VUHDO_I18N_DEFAULT_LAYOUT = "预设按键配置";
@@ -704,6 +705,7 @@ VUHDO_I18N_MAIN_PANEL = "主面板";
 VUHDO_I18N_PARTY = "队伍";
 VUHDO_I18N_PET = "宠物";
 VUHDO_I18N_TARGET = "目标";
+VUHDO_I18N_BOSS = "Boss";
 VUHDO_I18N_HIDE_STANDARD = "界面隐藏";
 VUHDO_I18N_HOT_TARGETING = "全般监视器";
 VUHDO_I18N_OR_ENTER_PROFILE_NAME = "... 或输入设定档名称";

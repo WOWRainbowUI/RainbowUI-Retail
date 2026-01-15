@@ -534,9 +534,7 @@ end
 local function VUHDO_removeUnitFromRaidGroups(aUnit)
 	for tModelId, tAllUnits in pairs(VUHDO_GROUPS) do
 		if tModelId ~= 41 and tModelId ~= 42 and tModelId ~= 43 and tModelId ~= 44 then  -- VUHDO_ID_MAINTANKS -- VUHDO_ID_PRIVATE_TANKS -- VUHDO_ID_MAIN_ASSISTS -- VUHDO_ID_BOSSES
-			for tIndex, tUnit in pairs(tAllUnits) do
-				if tUnit == aUnit then tremove(tAllUnits, tIndex); end
-			end
+			VUHDO_tableRemoveValue(tAllUnits, aUnit);
 		end
 	end
 end

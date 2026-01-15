@@ -172,15 +172,14 @@ end
 
 
 --
+local tEditBox;
+local tValue;
 function VUHDO_deleteSpellTraceOnClick(aButton)
 
-	local tEditBox = _G[aButton:GetParent():GetName() .. "EditBox"];
-	local tValue = strtrim(tEditBox:GetText());
+	tEditBox = _G[aButton:GetParent():GetName() .. "EditBox"];
+	tValue = strtrim(tEditBox:GetText());
 
-	local tIndex = VUHDO_tableGetKeyFromValue(VUHDO_CONFIG["SPELL_TRACE"]["STORED"], tValue);
-
-	if (tIndex ~= nil and #tValue > 0) then
-		tremove(VUHDO_CONFIG["SPELL_TRACE"]["STORED"], tIndex);
+	if (#tValue > 0 and VUHDO_tableRemoveValue(VUHDO_CONFIG["SPELL_TRACE"]["STORED"], tValue)) then
 		VUHDO_CONFIG["SPELL_TRACE"]["STORED_SETTINGS"][tValue] = nil;
 		VUHDO_CONFIG["SPELL_TRACE"]["SELECTED"] = "";
 
@@ -193,9 +192,11 @@ function VUHDO_deleteSpellTraceOnClick(aButton)
 
 	VuhDoNewOptionsGeneralSpellTraceStorePanelEditBox:SetText("");
 	VUHDO_spellTraceUpdateEditBox(VuhDoNewOptionsGeneralSpellTraceStorePanelEditBox);
-	
+
 	VuhDoNewOptionsGeneralSpellTrace:Hide();
 	VuhDoNewOptionsGeneralSpellTrace:Show();
+
+	return;
 
 end
 
