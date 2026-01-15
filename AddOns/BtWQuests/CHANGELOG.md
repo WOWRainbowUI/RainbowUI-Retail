@@ -1,3 +1,13 @@
+# v2.59.0
+
+- Added Arcane Desolation questline
+- Added Strength Amidst Ruins questline
+- Added The Light of Karesh questline
+- Added Lorewarlking questlines
+- Added Visions of a Shadowed Sun questlines
+- Updated for Midnight Prepatch
+- Updated Minimap icon to work with minimap addons better
+
 # v2.58.0
 
 - Updated for 11.2.7
