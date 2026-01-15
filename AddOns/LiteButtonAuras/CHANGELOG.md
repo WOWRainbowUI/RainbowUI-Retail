@@ -1,8 +1,6 @@
 # LiteButtonAuras
 
-## [11.2.7-2](https://github.com/xod-wow/LiteButtonAuras/tree/11.2.7-2) (2025-12-16)
-[Full Changelog](https://github.com/xod-wow/LiteButtonAuras/compare/11.2.7-1...11.2.7-2) [Previous Releases](https://github.com/xod-wow/LiteButtonAuras/releases)
+## [11.2.7-4](https://github.com/xod-wow/LiteButtonAuras/tree/11.2.7-4) (2026-01-14)
+[Full Changelog](https://github.com/xod-wow/LiteButtonAuras/compare/11.2.7-3...11.2.7-4) [Previous Releases](https://github.com/xod-wow/LiteButtonAuras/releases)
 
-- Fixes to blizzard mouseover/focuscast support  
-- Proper dynamic support for focuscast/mouseovercast #44  
-    Completely untested drycode, written from my sofa. Good luck to us all  
+- Fix error with retail init on first load  
