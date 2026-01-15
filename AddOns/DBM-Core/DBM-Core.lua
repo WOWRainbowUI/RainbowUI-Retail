@@ -76,16 +76,16 @@ end
 ---@class DBM
 local DBM = private:GetPrototype("DBM")
 _G.DBM = DBM
-DBM.Revision = parseCurseDate("20260106235910")
+DBM.Revision = parseCurseDate("20260114210522")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 local fakeBWVersion, fakeBWHash = 401, "34b582e"--401.4
 local PForceDisable
 -- The string that is shown as version
-DBM.DisplayVersion = "12.0.10"--Core version
+DBM.DisplayVersion = "12.0.11"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 1, 6) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 1, 14) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 PForceDisable = 20--When this is incremented, trigger force disable regardless of major patch
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
@@ -2039,7 +2039,7 @@ do
 					"CHALLENGE_MODE_RESET",
 					"UNIT_HEALTH_FREQUENT mouseover target player targettarget",--Still exists in classic and non frequent is slow and less reliable
 					"CHARACTER_POINTS_CHANGED",
-					"PLAYER_TALENT_UPDATE"
+					"PLAYER_SPECIALIZATION_CHANGED"
 				)
 			elseif private.isClassic then
 				self:RegisterEvents(
@@ -4667,6 +4667,7 @@ do
 	-- NS = Note Share
 
 	syncHandlers["M"] = function(sender, _, mod, revision, event, ...)
+		---@diagnostic disable-next-line: param-type-mismatch
 		mod = DBM:GetModByName(mod or "")
 		if mod and event and revision then
 			revision = tonumber(revision) or 0
@@ -4710,6 +4711,7 @@ do
 			if cSyncReceived > 2 then -- need at least 3 sync to combat start. (for security)
 				local lag = select(4, GetNetStats()) / 1000
 				delay = tonumber(delay or 0) or 0
+				---@diagnostic disable-next-line: param-type-mismatch
 				mod = DBM:GetModByName(mod or "")
 				modRevision = tonumber(modRevision or 0) or 0
 				dbmRevision = tonumber(dbmRevision or 0) or 0
@@ -4796,6 +4798,7 @@ do
 		if select(2, IsInInstance()) == "pvp" then return end
 		eId = tonumber(eId or "")
 		success = tonumber(success)
+		---@diagnostic disable-next-line: param-type-mismatch
 		mod = DBM:GetModByName(mod or "")
 		modRevision = tonumber(modRevision or 0) or 0
 		if mod and eId and success and (not mod.minSyncRevision or modRevision >= mod.minSyncRevision) and not eeSyncSender[sender] then
@@ -5854,7 +5857,7 @@ do
 			local targetName = target or "nil"
 			self:Debug("CHAT_MSG_MONSTER_YELL from " .. npc .. " while looking at " .. targetName, 2)
 		end
-		if not private.isRetail and not IsInInstance() then
+		if private.isClassic and not IsInInstance() then
 			if self:IsSeasonal("SeasonOfDiscovery") then -- All World Buffs are spammy in SoD, disable
 				return
 			end
@@ -5932,7 +5935,7 @@ do
 
 	function DBM:CHAT_MSG_MONSTER_SAY(msg)
 		if self:MidRestrictionsActive() then return end--Block all in instance chat parsing in Midnight Alpha
-		if not private.isRetail and not IsInInstance() then
+		if private.isClassic and not IsInInstance() then
 			if msg:find(L.WORLD_BUFFS.zgHeart) then
 				-- 51.01 51.82 51.85 51.53
 				SendWorldSync(self, 4, "WBA", "Zandalar\tBoth\t24425\t51\t4")
@@ -8258,7 +8261,7 @@ do
 		if (not currentSpecID or currentSpecID == 0) then
 			DBM:SetCurrentSpecInfo()
 		end
-		if not private.isRetail then
+		if not private.isRetail and not private.isMop then
 			if private.specRoleTable[currentSpecID]["Tank"] then
 				-- 17 defensive stance, 5487 bear form, 9634 dire bear, 25780 righteous fury
 				if playerIsTank or GetShapeshiftFormID() == 18 or DBM:UnitBuff("player", 5487, 9634) then
@@ -8278,12 +8281,12 @@ end
 function bossModPrototype:IsDps(uId)
 	if uId then--External unit call.
 		--no SpecID checks because SpecID is only availalbe with DBM/Bigwigs, but both DBM/Bigwigs auto set DAMAGER/HEALER/TANK roles anyways so it'd be redundant
-		return private.isRetail and UnitGroupRolesAssigned(uId) == "DAMAGER" or not GetPartyAssignment("MAINTANK", uId, true)
+		return (private.isRetail or private.isMop) and UnitGroupRolesAssigned(uId) == "DAMAGER" or not GetPartyAssignment("MAINTANK", uId, true)
 	end
 	if (not currentSpecID or currentSpecID == 0) then
 		DBM:SetCurrentSpecInfo()
 	end
-	if not private.isRetail then
+	if not private.isRetail and not private.isMop then
 		return private.specRoleTable[currentSpecID]["Dps"]
 	end
 	local _, _, _, _, role = GetSpecializationInfoByID(currentSpecID)
@@ -8295,7 +8298,7 @@ end
 ---@return boolean
 function DBM:IsHealer(uId)
 	if uId then--External unit call.
-		if not private.isRetail then
+		if not private.isRetail and not private.isMop then
 			print("bossModPrototype:IsHealer should not be called in classic, report this message")
 			return false
 		end
@@ -8305,7 +8308,7 @@ function DBM:IsHealer(uId)
 	if (not currentSpecID or currentSpecID == 0) then
 		DBM:SetCurrentSpecInfo()
 	end
-	if not private.isRetail then
+	if not private.isRetail and not private.isMop then
 		if private.specRoleTable[currentSpecID]["Healer"] then
 			if playerClass == "DRUID" then
 				-- not in form (moonkin for balance, cat/bear for ferals)
@@ -9521,7 +9524,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260106233929" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260114203651" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
@@ -9571,6 +9574,7 @@ end
 
 -- Expose some file-local data to private for testing purposes only.
 
+--[[
 test:RegisterLocalHook("LastInstanceMapID", function(val)
 	local old = LastInstanceMapID
 	LastInstanceMapID = val
@@ -9602,3 +9606,4 @@ test:RegisterLocalHook("UnitGUID", function(val)
 end)
 
 private.mainFrame = mainFrame
+--]]
