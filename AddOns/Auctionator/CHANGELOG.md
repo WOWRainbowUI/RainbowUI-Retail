@@ -1,7 +1,6 @@
 # Auctionator
 
-## [307](https://github.com/TheMouseNest/Auctionator/tree/307) (2025-12-31)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/306...307) 
+## [309](https://github.com/TheMouseNest/Auctionator/tree/309) (2026-01-14)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/308...309) 
 
-- Update links on "About" section  
-- Support showing auction prices on RareScanner tooltips  
+- Rearrange loading order to reduce risk of timeout  
