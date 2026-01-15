@@ -2534,6 +2534,7 @@ L["If checked, shared quests will be declined unless the player sharing the ques
 L["If checked, Soar (Dracthyr) will be quieter."] = "勾選後，翱翔(半龍人技能)將會更安靜。"
 L["If checked, soulseekers will be quieter.|n|nThis applies to Corridor Creeper, Mawsworn Soulhunter and Bound Shadehound."] = "勾選後，獵魂犬將被靜音。|n|n這適用於迴廊潛伏犬、淵誓獵魂犬以及魂縛暗影獵犬。"
 L["If checked, spell IDs will be shown in buff icon tooltips located in the buff frame and under the target frame."] = "勾選後，位於增益框架與目標框架之下的增益圖標提示會顯示法術ID。"
+L["If checked, status text will be shown in the druid power bar as long as status text is enabled in the game settings interface display panel."] = "勾選後，只要遊戲設定介面顯示面板啟用狀態文字，德魯伊能量條中會顯示狀態文字。"
 L["If checked, sticky chat will be disabled.|n|nNote that this does not apply to temporary chat windows."] = "勾選後，會停用聊天頻道的粘附。|n|n此選項不會影響臨時視窗的對話。"
 L["If checked, summon requests will be accepted automatically unless you are in combat."] = "勾選後，當你不處於戰鬥狀態時會自動接受召喚。"
 L["If checked, text used throughout the addon will be shown in English regardless of your game locale."] = "勾選後，無論您的遊戲環境如何，整個插件中使用的文本都將以英語顯示。"
