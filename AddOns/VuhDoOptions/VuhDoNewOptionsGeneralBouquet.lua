@@ -1049,9 +1049,12 @@ end
 --
 local tBouquet;
 function VUHDO_bouquetItemRemoveClicked()
+
 	tBouquet = VUHDO_getCurrentBouquet();
+
 	if (tBouquet == nil) then
 		VUHDO_Msg(VUHDO_I18N_SELECT_STORE_BOUQUET_FIRST);
+
 		return;
 	end
 
@@ -1060,11 +1063,16 @@ function VUHDO_bouquetItemRemoveClicked()
 	end
 
 	tremove(tBouquet, VUHDO_CURR_SELECTED_ITEM_INDEX);
+
 	if (#tBouquet == 0) then
 		VUHDO_CURR_SELECTED_ITEM_INDEX = 0;
 		VUHDO_rebuildBouquetContextEditors(0);
 	end
+
 	VUHDO_rebuildAllBouquetItems(nil, #tBouquet);
+
+	return;
+
 end
 
 

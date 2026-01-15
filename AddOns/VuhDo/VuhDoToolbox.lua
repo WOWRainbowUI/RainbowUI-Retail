@@ -290,32 +290,77 @@ end]]
 
 --
 function VUHDO_tableUniqueAdd(aTable, aValue)
+
 	for _, tValue in pairs(aTable) do
-		if tValue == aValue then return false; end
+		if tValue == aValue then
+			return false;
+		end
 	end
 
 	aTable[#aTable + 1] = aValue;
+
 	return true;
+
 end
 
 
 
 --
+local tKeysToRemove;
 function VUHDO_tableRemoveValue(aTable, aValue)
-	for tIndex, tValue in pairs(aTable) do
-		if tValue == aValue then tremove(aTable, tIndex); return; end
+
+	if not aTable or not aValue then
+		return false;
 	end
+
+	tKeysToRemove = { };
+
+	for tKey, tValue in pairs(aTable) do
+		if tValue == aValue then
+			tinsert(tKeysToRemove, tKey);
+		end
+	end
+
+	for _, tKey in ipairs(tKeysToRemove) do
+		aTable[tKey] = nil;
+	end
+
+	return #tKeysToRemove > 0;
+
+end
+
+
+
+--
+function VUHDO_tableRemoveByKey(aTable, aKey)
+
+	if not aTable or not aKey then
+		return;
+	end
+
+	if aKey ~= nil then
+		aTable[aKey] = nil;
+	end
+
+	return;
+
 end
 
 
 
 --
 function VUHDO_tableGetKeyFromValue(aTable, aValue)
+
+	if not aTable or not aValue then
+		return nil;
+	end
+
 	for tKey, tValue in pairs(aTable) do
 		if tValue == aValue then return tKey; end
 	end
 
 	return nil;
+
 end
 
 

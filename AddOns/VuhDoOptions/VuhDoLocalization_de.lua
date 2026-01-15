@@ -666,6 +666,7 @@ VUHDO_I18N_TT.K606 = "Select the maximum gradient color.";
 VUHDO_I18N_TT.K607 = "Click to change color to indicate enemies affected by enrage buffs.";
 VUHDO_I18N_TT.K608 = "Check to ignore purgeable buffs on enemies.";
 VUHDO_I18N_TT.K609 = "Check to only apply HoT slot setup (Panels => HoTs => Order) when spell layout is being loaded.";
+VUHDO_I18N_TT.K610 = "Wählen Sie diese Option, um die Blizzard Standard Boss-Anzeige auszublenden.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Default Profile";
 VUHDO_I18N_DEFAULT_LAYOUT = "Default Layout";
@@ -702,6 +703,7 @@ VUHDO_I18N_MAIN_PANEL = "Hauptfenster";
 VUHDO_I18N_PARTY = "Gruppe";
 VUHDO_I18N_PET = "Begleiter";
 VUHDO_I18N_TARGET = "Ziel";
+VUHDO_I18N_BOSS = "Boss";
 VUHDO_I18N_HIDE_STANDARD = "Standard verstecken...";
 VUHDO_I18N_HOT_TARGETING = "Globaler Scanner";
 VUHDO_I18N_OR_ENTER_PROFILE_NAME = "... oder einen neuen Namen eingeben";

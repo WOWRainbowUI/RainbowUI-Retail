@@ -539,7 +539,6 @@ end
 local tEditBox;
 local tValue;
 local tSpellId;
-local tIndex;
 local tConflicts;
 local tDisplayName;
 function VUHDO_deleteCustomDebuffOnClick(aButton)
@@ -561,23 +560,21 @@ function VUHDO_deleteCustomDebuffOnClick(aButton)
 		tValue = tSpellId;
 	end
 
-	tIndex = VUHDO_tableGetKeyFromValue(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"], tValue);
-
-	if (tIndex ~= nil and #tValue > 0) then
+	if (#tValue > 0 and VUHDO_tableRemoveValue(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"], tValue)) then
 		tConflicts = VUHDO_getConflictingIgnoreListSpells(tValue);
-
 		tDisplayName = VUHDO_formatSpellDisplayName(tValue);
+
 		VUHDO_Msg(string.format(VUHDO_I18N_DEBUFF_REMOVED_FROM_CUSTOM, tDisplayName));
 
 		if #tConflicts > 0 then
 			VUHDO_Msg("[WARNING] " .. string.format(VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_REMOVED, tDisplayName), 1, 0, 0);
 		end
 
-		tremove(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED"], tIndex);
 		VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"][tValue] = nil;
 		VUHDO_CONFIG["CUSTOM_DEBUFF"]["SELECTED"] = "";
 	else
 		tDisplayName = VUHDO_formatSpellDisplayName(tValue);
+
 		VUHDO_Msg(string.format(VUHDO_I18N_DEBUFF_DOES_NOT_EXIST, tDisplayName));
 	end
 

@@ -675,6 +675,7 @@ VUHDO_I18N_TT.K606 = "S\195\169lectionnez la couleur maximale d\195\169grad\195\
 VUHDO_I18N_TT.K607 = "Cliquez pour changer de couleur afin d'indiquer les ennemis affect\195\169s par les buffs de rage.";
 VUHDO_I18N_TT.K608 = "Cochez pour ignorer les buffs purifiables sur les ennemis.";
 VUHDO_I18N_TT.K609 = "Cochez pour appliquer uniquement la configuration des emplacements de HoT (Panneaux => HoTs => Ordre) lors du chargement de la disposition des sorts.";
+VUHDO_I18N_TT.K610 = "Cochez pour cacher l'affichage standard de blizzard du cadre des boss.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Profil par d\195\169faut";
 VUHDO_I18N_DEFAULT_LAYOUT = "Disposition \npar d\195\169faut";
@@ -711,6 +712,7 @@ VUHDO_I18N_MAIN_PANEL = "Panneau principal";
 VUHDO_I18N_PARTY = "Groupe";
 VUHDO_I18N_PET = "Familier";
 VUHDO_I18N_TARGET = "Cible";
+VUHDO_I18N_BOSS = "Boss";
 VUHDO_I18N_HIDE_STANDARD = "Masquer le standard";
 VUHDO_I18N_HOT_TARGETING = "Scanner des Hot";
 VUHDO_I18N_OR_ENTER_ARRANGEMENT_NAME = "... o\195\185 entrer l'arrangement du nom";

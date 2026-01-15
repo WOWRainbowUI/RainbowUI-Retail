@@ -769,6 +769,7 @@ VUHDO_I18N_TT.K606 = "Select the maximum gradient color.";
 VUHDO_I18N_TT.K607 = "Click to change color to indicate enemies affected by enrage buffs.";
 VUHDO_I18N_TT.K608 = "Check to ignore purgeable buffs on enemies.";
 VUHDO_I18N_TT.K609 = "Check to only apply HoT slot setup (Panels => HoTs => Order) when spell layout is being loaded.";
+VUHDO_I18N_TT.K610 = "Отметьте, чтобы скрыть стандартный фрейм боссов.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Стандартный\nпрофиль";
 VUHDO_I18N_DEFAULT_LAYOUT = "Стандартная раскладка клавиш ";
@@ -809,6 +810,7 @@ VUHDO_I18N_MAIN_PANEL = "Основная панель";
 VUHDO_I18N_PARTY = "Группа";
 VUHDO_I18N_PET = "Питомец";
 VUHDO_I18N_TARGET = "Цель";
+VUHDO_I18N_BOSS = "Босс";
 VUHDO_I18N_HIDE_STANDARD = "Скрыть стандартные";
 VUHDO_I18N_PLAYER_TARGET = "Цель игрока";
 VUHDO_I18N_SINGLE = "Одиночный";

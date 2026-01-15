@@ -127,6 +127,22 @@
 						</Scripts>
 					</CheckButton>
 
+					<CheckButton name="$parentHideStandardBossCheckButton" text="VUHDO_I18N_BOSS" inherits="VuhDoTriStateCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="123" y="-156" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetRadioModel(self, "VUHDO_CONFIG.BLIZZ_UI_HIDE_BOSS", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K610);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
 					<Frame name="$parentHideStandardLabel" inherits="VuhDoLabelFrameTemplate">
 						<Layers>
 							<Layer>

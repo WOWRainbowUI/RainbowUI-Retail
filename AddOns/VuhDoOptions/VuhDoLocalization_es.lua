@@ -673,6 +673,7 @@ VUHDO_I18N_TT.K606 = "Select the maximum gradient color.";
 VUHDO_I18N_TT.K607 = "Click to change color to indicate enemies affected by enrage buffs.";
 VUHDO_I18N_TT.K608 = "Check to ignore purgeable buffs on enemies.";
 VUHDO_I18N_TT.K609 = "Check to only apply HoT slot setup (Panels => HoTs => Order) when spell layout is being loaded.";
+VUHDO_I18N_TT.K610 = "Marque para ocultar los marcos estándar de jefe de Blizzard.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Default Profile";
 VUHDO_I18N_DEFAULT_LAYOUT = "Default Layout";
@@ -709,6 +710,7 @@ VUHDO_I18N_MAIN_PANEL = "Main Panel";
 VUHDO_I18N_PARTY = "Party";
 VUHDO_I18N_PET = "Pet";
 VUHDO_I18N_TARGET = "Target";
+VUHDO_I18N_BOSS = "Jefe";
 VUHDO_I18N_HIDE_STANDARD = "Hide standard";
 VUHDO_I18N_HOT_TARGETING = "HoT scanner";
 VUHDO_I18N_OR_ENTER_PROFILE_NAME = "... or enter profile name";
