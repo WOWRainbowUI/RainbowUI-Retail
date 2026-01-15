@@ -1474,6 +1474,8 @@ L["STRING_TOOOLD"] = "不能安装因为你的Details!版本过低。"
 L["STRING_TOP"] = "顶"
 L["STRING_TOP_TO_BOTTOM"] = "从高到低"
 L["STRING_TOTAL"] = "总"
+--[[Translation missing --]]
+L["STRING_TRAINING_DUMMY"] = "Training Dummy"
 L["STRING_TRANSLATE_LANGUAGE"] = "帮助翻译Details!"
 L["STRING_TUTORIAL_FULLY_DELETE_WINDOW"] = "你关闭了一个窗口，你可以随时重新打开它。完全删除一个窗口请前往 选项 -> 窗口：一般设置 -> 删除。"
 L["STRING_TUTORIAL_OVERALL1"] = "在一般设置 > 战斗里调整总体数据设置。总体数据在离开战斗后才会更新，使用自订里的\"动态总体伤害\"可实时更新。"
