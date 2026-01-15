@@ -1,5 +1,5 @@
 ## Interface: 11508, 11507
-## Version: v11.2.0
+## Version: v11.2.1
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-deDE: Spice up your minimap with some sexy options.
@@ -24,6 +24,7 @@
 ## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, Blizzard_TimeManager
 ## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, CallbackHandler-1.0, LibStub
 
+Init_Vanilla.lua
 
 embeds.xml
 
@@ -39,11 +40,11 @@ localization\zhTW.lua
 localization\zhCN.lua
 localization\ptBR.lua
 
-SexyMap_Vanilla.lua
+SexyMap_Classic.lua
 
 Shapes_Classic.lua
 
-Buttons_Vanilla.lua
+Buttons_Classic.lua
 BorderPresets.lua
 Borders_Classic.lua
 Clock.lua

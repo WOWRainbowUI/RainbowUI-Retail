@@ -16,6 +16,7 @@ sm.backdrop = {
 mod.frame = CreateFrame("Frame")
 mod.button = CreateFrame("Button")
 mod.font = mod.button:CreateFontString()
+mod.texture = mod.button:CreateTexture()
 mod.frame:Hide()
 mod.button:Hide()
 mod.deepCopyHash = function(t)
@@ -68,10 +69,16 @@ mod.options = {
 			name = ROTATE_MINIMAP,
 			desc = OPTION_TOOLTIP_ROTATE_MINIMAP,
 			get = function()
-				return InterfaceOptionsDisplayPanelRotateMinimap:GetValue() == "1" and true
+				return mod.db.rotate
 			end,
-			set = function()
-				InterfaceOptionsDisplayPanelRotateMinimap:Click()
+			set = function(_, value)
+				if value then
+					mod.db.rotate = true
+					C_CVar.SetCVar("rotateMinimap", 1)
+				else
+					mod.db.rotate = nil
+					C_CVar.SetCVar("rotateMinimap", 0)
+				end
 			end,
 		},
 		rightClickToConfig = {
@@ -111,12 +118,13 @@ mod.options = {
 				return mod.db.northTag
 			end,
 			set = function(info, v)
+				if not MinimapNorthTag then return end
 				if v then
 					MinimapNorthTag.Show = MinimapNorthTag.oldShow
 					MinimapNorthTag.oldShow = nil
 					MinimapCompassTexture.Show = MinimapCompassTexture.oldShow
 					MinimapCompassTexture.oldShow = nil
-					if InterfaceOptionsDisplayPanelRotateMinimap:GetValue() == "1" then
+					if C_CVar.GetCVarBool("rotateMinimap") then
 						MinimapCompassTexture:Show()
 					else
 						MinimapNorthTag:Show()
@@ -131,6 +139,7 @@ mod.options = {
 				end
 				mod.db.northTag = v
 			end,
+			hidden = not MinimapNorthTag,
 		},
 		zoom = {
 			order = 7,
@@ -314,35 +323,6 @@ function mod:ADDON_LOADED(addon)
 			SexyMap2DB = {}
 		end
 
-		-- XXX 9.0.1
-		for character, tbl in next, SexyMap2DB do
-			if tbl.borders and tbl.borders.backdrop and tbl.borders.backdrop.settings then
-				local tex = tbl.borders.backdrop.settings.bgFile
-				if type(tex) == "string" then
-					if tex == "Interface\\Addons\\SexyMap\\media\\rusticbg" then
-						tbl.borders.backdrop.settings.bgFile = 249644
-					elseif tex == "Interface\\Addons\\SexyMap\\media\\ruinsbg" then
-						tbl.borders.backdrop.settings.bgFile = 191258
-					end
-				end
-			end
-		end
-		if SexyMap2DB.presets then
-			for name, tbl in next, SexyMap2DB.presets do
-				if tbl.backdrop and tbl.backdrop.settings then
-					local tex = tbl.backdrop.settings.bgFile
-					if type(tex) == "string" then
-						if tex == "Interface\\Addons\\SexyMap\\media\\rusticbg" then
-							tbl.backdrop.settings.bgFile = 249644
-						elseif tex == "Interface\\Addons\\SexyMap\\media\\ruinsbg" then
-							tbl.backdrop.settings.bgFile = 191258
-						end
-					end
-				end
-			end
-		end
-		-- XXX end
-
 		local char = UnitName("player").."-"..GetRealmName()
 		if not SexyMap2DB[char] then
 			SexyMap2DB[char] = {}
@@ -389,13 +369,11 @@ function mod:PLAYER_LOGIN()
 
 	-- Setup config
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(name, mod.options, true)
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions(name)
+	local _, categoryID = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(name)
 
 	-- Configure slash handler
 	SlashCmdList.SexyMap = function()
-		-- Twice to work around a Blizz bug, opens to wrong panel on first try
-		InterfaceOptionsFrame_OpenToCategory(name)
-		InterfaceOptionsFrame_OpenToCategory(name)
+		Settings.OpenToCategory(categoryID)
 	end
 	SLASH_SexyMap1 = "/minimap"
 	SLASH_SexyMap2 = "/sexymap"
@@ -535,12 +513,33 @@ function mod:SetupMap()
 		MinimapCompassTexture.Show = MinimapCompassTexture.Hide
 	end
 
-	MinimapToggleButton:Hide() -- Minimap "X" to close button
-	MinimapBorderTop:Hide()
+	-- Minimap "X" to close button
+	local MinimapToggleButton = MinimapToggleButton
+	sm.core.button.SetParent(MinimapToggleButton, sm.core.button)
+	hooksecurefunc(MinimapToggleButton, "SetParent", function()
+		sm.core.button.SetParent(MinimapToggleButton, sm.core.button)
+	end)
+
+	-- Border texture around the zone text and the "X" to close button
+	local MinimapBorderTop = sm.API.isVanilla and MinimapBorderTop or MinimapCluster.BorderTop -- Vanilla, TBC
+	sm.core.texture.SetParent(MinimapBorderTop, sm.core.button)
+	hooksecurefunc(MinimapBorderTop, "SetParent", function()
+		sm.core.texture.SetParent(MinimapBorderTop, sm.core.button)
+	end)
+
 	Minimap:RegisterForDrag("LeftButton")
 	Minimap:SetClampedToScreen(mod.db.clamp)
 	Minimap:SetScale(mod.db.scale or 1)
 	Minimap:SetMovable(not mod.db.lock)
+
+	if mod.db.rotate then
+		C_CVar.SetCVar("rotateMinimap", 1)
+	end
+	--hooksecurefunc(MinimapCluster, "SetRotateMinimap", function()
+	--	if mod.db.rotate then
+	--		C_CVar.SetCVar("rotateMinimap", 1)
+	--	end
+	--end)
 
 	Minimap:SetScript("OnDragStart", function(self) if self:IsMovable() then self:StartMoving() end end)
 	Minimap:SetScript("OnDragStop", function(self)
