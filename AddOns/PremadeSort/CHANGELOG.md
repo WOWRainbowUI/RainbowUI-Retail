@@ -1,5 +1,8 @@
 # Changelog
 
+### 36
+- Midnight support
+
 ### 35
 - Blizzard fixed a taint that stopped addons from allowing direct advertisement reports, so this addon now lets you directly report again.
 

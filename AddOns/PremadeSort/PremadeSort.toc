@@ -1,7 +1,7 @@
-## Interface: 110200, 110205
+## Interface: 110207, 120000, 120001
 ## Title: |cffEEE4AEPremade Group Sort|r
 ## Author: Yuyuli
-## Version: 35
+## Version: 36
 ## Notes: |cff58C6FASort LFG list by creation time.|r
 ## IconTexture: 255344
 ## SavedVariables: PremadeSortDB
