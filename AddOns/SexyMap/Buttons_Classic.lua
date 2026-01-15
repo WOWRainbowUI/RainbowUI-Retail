@@ -15,7 +15,7 @@ local blizzButtons = {
 	SexyMapZoneTextButton = L["Zone Text"],
 	MinimapZoomIn = L["Zoom In Button"],
 	MinimapZoomOut = L["Zoom Out Button"],
-	MiniMapWorldMapButton = L["Map Button"],
+	--MiniMapWorldMapButton = L["Map Button"],
 	TimeManagerClockButton = L["Clock"],
 }
 local dynamicButtons = {
@@ -25,7 +25,7 @@ local dynamicButtons = {
 	MiniMapMailFrame = L["New Mail Indicator (When Available)"],
 	MiniMapBattlefieldFrame = L.classicPVPButton,
 	--GarrisonLandingPageMinimapButton = L["Garrison Button (When Available)"],
-	MiniMapLFGFrame = L.classicLFGButton,
+	LFGMinimapFrame = L.classicLFGButton,
 }
 
 local options = {
@@ -186,8 +186,9 @@ function mod:OnInitialize(profile)
 				TimeManagerClockButton = "hover",
 				MiniMapMailFrame = "always",
 				MiniMapBattlefieldFrame = "always",
-				MiniMapLFGFrame = "always",
+				LFGMinimapFrame = "always",
 				GarrisonLandingPageMinimapButton = "always",
+				MiniMapTracking = "always",
 			},
 			allowDragging = true,
 			lockDragging = false,
@@ -206,11 +207,14 @@ function mod:OnInitialize(profile)
 	if not self.db.visibilitySettings.MiniMapBattlefieldFrame then
 		self.db.visibilitySettings.MiniMapBattlefieldFrame = "always"
 	end
-	if not self.db.visibilitySettings.MiniMapLFGFrame then
-		self.db.visibilitySettings.MiniMapLFGFrame = "always"
+	if not self.db.visibilitySettings.LFGMinimapFrame then
+		self.db.visibilitySettings.LFGMinimapFrame = "always"
 	end
 	if not self.db.visibilitySettings.GameTimeFrame then
 		self.db.visibilitySettings.GameTimeFrame = "never"
+	end
+	if not self.db.visibilitySettings.MiniMapTracking then
+		self.db.visibilitySettings.MiniMapTracking = "always"
 	end
 end
 
@@ -252,6 +256,13 @@ function mod:OnEnable()
 	--hooksecurefunc("GarrisonLandingPageMinimapButton_UpdateIcon", function()
 	--	mod:UpdateDraggables(GarrisonLandingPageMinimapButton)
 	--end)
+
+	-- On classic (vanilla) only, when reloading UI, there's a bug where the tracking icon doesn't re-show.
+	local icon = GetTrackingTexture()
+	if icon then
+		MiniMapTrackingIcon:SetTexture(icon)
+		MiniMapTracking:Show()
+	end
 
 	sm.core:RegisterModuleOptions("Buttons", options, L["Buttons"])
 
@@ -388,11 +399,11 @@ do
 				self:AddButtonOptions(n)
 
 				-- Configure dragging
-				--if n == "MiniMapTracking" then
-				--	self:MakeMovable(MiniMapTrackingButton, f)
-				--else
+				if not sm.API.isVanilla and n == "MiniMapTracking" then
+					self:MakeMovable(MiniMapTrackingButton, f)
+				else
 					self:MakeMovable(f)
-				--end
+				end
 			end
 		end
 		f:HookScript("OnEnter", OnEnter)
@@ -549,8 +560,8 @@ end
 do
 	local tbl = {
 		Minimap, MiniMapTracking, TimeManagerClockButton, GameTimeFrame,
-		MinimapZoomIn, MinimapZoomOut, MiniMapWorldMapButton,
-		MiniMapMailFrame, MiniMapBattlefieldFrame, MiniMapLFGFrame
+		MinimapZoomIn, MinimapZoomOut, --MiniMapWorldMapButton,
+		MiniMapMailFrame, MiniMapBattlefieldFrame,
 	}
 
 	function mod:AddButton(_, button)
@@ -569,6 +580,10 @@ do
 	--end
 
 	function mod:StartFrameGrab()
+		if LFGMinimapFrame then -- Classic era only, loads after PLAYER_ENTERING_WORLD
+			tbl[#tbl+1] = LFGMinimapFrame
+		end
+
 		for i = 1, #tbl do
 			mod:NewFrame(tbl[i])
 		end
