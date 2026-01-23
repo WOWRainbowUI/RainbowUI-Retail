@@ -1351,7 +1351,7 @@ function UUI.Right.SetHTML(right, name)
 		-- 加入圖片
 		if info.img then
 			page.html:SetPoint("TOPLEFT", 5, -120)
-			page.html.descImg:SetTexture("Interface\\AddOns\\_EaseAddonController\\Images\\"..info.name)
+			page.html.descImg:SetTexture("Interface\\AddOns\\EaseAddonController\\Images\\"..info.name)
 		else
 			page.html.descImg:SetTexture(nil)
 			page.html:SetPoint("TOPLEFT", 5, -5)

@@ -1,5 +1,5 @@
 select(2, ...).CurseAddOns = {
-  {"_easeaddoncontroller",10},
+  {"easeaddoncontroller",10},
   {"!!!garbageprotector",17},
   {"!betterfont",17},
   {"!betterreputationcolors",17},
