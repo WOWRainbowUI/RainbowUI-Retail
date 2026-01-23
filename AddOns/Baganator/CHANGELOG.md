@@ -1,6 +1,6 @@
 # Baganator
 
-## [777](https://github.com/TheMouseNest/Baganator/tree/777) (2026-01-14)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/776...777) 
+## [781](https://github.com/TheMouseNest/Baganator/tree/781) (2026-01-21)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/780...781) 
 
-- Classic Anniversary: Disable Blizzard equipment sets tracking  
+- Disable skins if the associated addon is incompatible with current wow version  
