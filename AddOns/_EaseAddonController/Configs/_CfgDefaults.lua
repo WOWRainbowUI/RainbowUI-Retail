@@ -2,7 +2,7 @@ local _, U1 = ...
 
 local D = {}
 U1.CfgDefaults = D
-D["__gmFonts"] = {
+D["gmFonts"] = {
 	defaultEnable = 1,
 	tags = { "MISC" }, 
 	title = "遊戲字體",
