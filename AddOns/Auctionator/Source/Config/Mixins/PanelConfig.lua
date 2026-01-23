@@ -22,7 +22,7 @@ function AuctionatorPanelConfigMixin:SetupPanel()
     Settings.RegisterAddOnCategory(category)
     Auctionator.State.OptionsCategory = category
   else
-    local subcategory = Settings.RegisterCanvasLayoutSubcategory(Auctionator.State.OptionsCategory, self, AUCTIONATOR_L_ADDON_OPTIONS)
+    local subcategory = Settings.RegisterCanvasLayoutSubcategory(Auctionator.State.OptionsCategory, self, self.name)
     Settings.RegisterAddOnCategory(subcategory)
   end
 end
