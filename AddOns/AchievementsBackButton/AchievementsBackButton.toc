@@ -1,10 +1,13 @@
-## Interface: 30403, 40401, 110205, 110207
-## Version: 1.5.6
+## Interface: 38000, 50503, 120000
+## Version: 1.6.5
 ## Title: Achievements Back Button
+## IconAtlas: questlog-questtypeicon-story
 ## Author: LudiusMaximus
 ## Notes: Adds a back button to the achievements frame that works like a browser history.
+## OptionalDeps: ElvUI, Krowi_AchievementFilter
 ## X-Curse-Project-ID: 1007342
 ## X-WoWI-ID: 26723
+## X-Wago-ID: ZKxq4yGk
 ## X-Donate: PayPal:ludiusmaximus@gmail.com
 ## X-License: The MIT License (MIT)
 
