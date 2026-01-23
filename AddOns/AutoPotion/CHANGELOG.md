@@ -1,8 +1,7 @@
 # Auto Potion
 
-## [3.11.10](https://github.com/ollidiemaus/AutoPotion/tree/3.11.10) (2026-01-14)
-[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.11.9...3.11.10) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
+## [3.12.2](https://github.com/ollidiemaus/AutoPotion/tree/3.12.2) (2026-01-22)
+[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.12.1...3.12.2) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
 
-- Update AutoPotion.toc  
-- Update AutoPotion.toc  
-- Update AutoPotion.toc  
+- update toc  
+- removed Fortitude of the Bear  
