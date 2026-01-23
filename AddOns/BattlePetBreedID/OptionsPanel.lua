@@ -609,5 +609,5 @@ Options.OnRefresh = BPBID_Options_Refresh
 
 -- Add the options panel to the Blizzard list
 local category = Settings.RegisterCanvasLayoutCategory(Options, properName, properName)
-category.ID = addonname
+category.ID = 331379583
 Settings.RegisterAddOnCategory(category)
