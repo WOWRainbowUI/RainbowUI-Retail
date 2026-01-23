@@ -1,8 +1,18 @@
 # Advanced Interface Options
 
-## [2.1.4](https://github.com/Stanzilla/AdvancedInterfaceOptions/tree/2.1.4) (2025-09-17)
-[Full Changelog](https://github.com/Stanzilla/AdvancedInterfaceOptions/compare/2.1.3...2.1.4) [Previous Releases](https://github.com/Stanzilla/AdvancedInterfaceOptions/releases)
+## [2.1.4-2-ga95c347](https://github.com/Stanzilla/AdvancedInterfaceOptions/tree/a95c34753e4d378c9b65c6c01683ac3afa0f321b) (2026-01-01)
+[Full Changelog](https://github.com/Stanzilla/AdvancedInterfaceOptions/compare/2.1.4...a95c34753e4d378c9b65c6c01683ac3afa0f321b) [Previous Releases](https://github.com/Stanzilla/AdvancedInterfaceOptions/releases)
 
-- Fix not being able to scroll cvar browser with mouse wheel  
-- Fix cvar browser scrollbar arrow buttons being disabled on load  
-- Update TOC file for patch 11.2 Ghost of K'aresh  
+- Bump actions/upload-artifact from 4 to 6  
+    Bumps [actions/upload-artifact](https://github.com/actions/upload-artifact) from 4 to 6.  
+    - [Release notes](https://github.com/actions/upload-artifact/releases)  
+    - [Commits](https://github.com/actions/upload-artifact/compare/v4...v6)  
+    ---  
+    updated-dependencies:  
+    - dependency-name: actions/upload-artifact  
+      dependency-version: '6'  
+      dependency-type: direct:production  
+      update-type: version-update:semver-major  
+    ...  
+    Signed-off-by: dependabot[bot] <support@github.com>  
+- feat: add midnight toc  
