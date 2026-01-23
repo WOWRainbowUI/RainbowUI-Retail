@@ -8,6 +8,32 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.2.7.2
+Released 2026-01-20
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.2.7.2 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+:ATTENTION:  
+CursorTrail has NOT been updated to work with WoW Midnight.
+My computer is too old to run Midnight, so I am attempting to switch to Linux.  New hardware should arrive in 2-3 weeks.  Hopefully, I can get the game running and test CursorTrail on Midnight after that.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 2.5.5.1 for Classic Burning Crusade
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Added support for Classic TBC 2.5.5 anniversary release.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 5.5.3.1 for Classic Mists of Pandaria
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Classic MoP 5.5.3.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 1.15.8.3 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No changes.
+
+=======================================
 RELEASE 11.2.7.1
 Released 2025-12-02
 
@@ -151,55 +177,6 @@ CHANGES:
 Version 4.4.2.1 for Classic Cataclysm
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 - Updated for Classic Cataclysm 4.4.2.
-
-=======================================
-RELEASE 11.0.7.2
-Released 2025-01-29
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.0.7.2 for Retail WoW
-Version 4.4.1.4 for Classic Cataclysm
-Version 1.15.6.1 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Added new defaults:
-        Ring Dark Edges
-        Star Dark Edge
-        Star Doubled
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 1.15.6.1 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Classic WoW 1.15.6.
-
-=======================================
-RELEASE 11.0.7.1
-Released 2024-12-17
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.0.7.1 for Retail WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for WoW 11.0.7.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 4.4.1.3 for Classic Cataclysm
-Version 1.15.5.2 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- No changes.
-
-=======================================
-RELEASE 11.0.5.3
-Released 2024-11-20
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.0.5.3 for Retail WoW
-Version 4.4.1.2 for Classic Cataclysm
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- No changes.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 1.15.5.1 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Classic WoW 1.15.5.
 
 ]]
 
