@@ -267,21 +267,18 @@ end
 
 function addonTable.Tracking.Initialize()
   local frame = CreateFrame("Frame")
-  -- We initialize everything at PLAYER_LOGIN for 2 reasons
-  -- 1. Character normalized realm name is only available at this point
-  -- 2. To ensure data from Baganator is imported
-  frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+  -- We initialize everything at PLAYER_LOGIN because character normalized
+  -- realm name is only available at this point
+  frame:RegisterEvent("PLAYER_LOGIN")
   frame:SetScript("OnEvent", function()
-    frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    C_Timer.After(0, function()
-      InitializeSavedVariables()
-      InitCurrentCharacter()
-      SetupDataProcessing()
-      SetupItemSummaries()
+    frame:UnregisterEvent("PLAYER_LOGIN")
+    InitializeSavedVariables()
+    InitCurrentCharacter()
+    SetupDataProcessing()
+    SetupItemSummaries()
 
-      addonTable.CallbackRegistry:TriggerEvent("Ready")
-      addonTable.Tracking.isReady = true
-    end)
+    addonTable.CallbackRegistry:TriggerEvent("Ready")
+    addonTable.Tracking.isReady = true
   end)
 
   addonTable.CallbackRegistry:RegisterCallback("CharacterDeleted", function(_, name)

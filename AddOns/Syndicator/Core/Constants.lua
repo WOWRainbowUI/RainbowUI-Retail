@@ -17,8 +17,8 @@ addonTable.Constants = {
   IsMists = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC,
   IsCata = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC,
   IsWrath = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC,
-  IsBC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC or GetBuildInfo():match("^2%.") ~= nil,
-  IsEra = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and GetBuildInfo():match("^1%.") ~= nil,
+  IsBC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC,
+  IsEra = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC,
 
   IsTitan = GetBuildInfo():match("^3%.8") ~= nil,
 
