@@ -9,7 +9,7 @@ local addonName, private = ...
 local addon = private.addon
 local _ = nil
 local L = detailsFramework.Language.GetLanguageTable(addonName)
-local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
+local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 
 function addon.CreateRunSelectorDropdown(readyFrame)
     local buildRunInfoListFromCompressed = function()

@@ -9,7 +9,7 @@ local addonName, private = ...
 ---@type detailsmythicplus
 local addon = private.addon
 local _ = nil
-local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
+local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 
 local CONST_MAX_DEATH_EVENTS = 3
 local CONST_LAST_RUN_TIMEOUT = 5 * 60
@@ -249,7 +249,7 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
                     if (Details:GetCoreVersion() < 166) then
                         for spellName, casts in pairs(mythicPlusOverallSegment:GetCrowdControlSpells(unitName)) do
                             local spellInfo = C_Spell.GetSpellInfo(spellName)
-                            local spellId = spellInfo and spellInfo.spellID or openRaidLib.GetCCSpellIdBySpellName(spellName)
+                            local spellId = spellInfo and spellInfo.spellID or (openRaidLib and openRaidLib.GetCCSpellIdBySpellName(spellName) or 0)
                             if (spellId ~= 197214) then
                                 ccUsed[spellName] = casts
                                 ccTotal = ccTotal + casts
