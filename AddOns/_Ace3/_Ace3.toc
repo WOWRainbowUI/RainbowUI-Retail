@@ -1,4 +1,4 @@
-## Interface: 11508
+## Interface: 11508, 20505, 38000, 50503, 120000
 
 ## Title: Lib: Ace3
 ## Notes: AddOn development framework
@@ -6,7 +6,7 @@
 ## X-Website: http://www.wowace.com
 ## X-Category: Library
 ## X-License: Limited BSD
-## Version: r1386
+## Version: r1388
 ## IconTexture: 135453
 
 ## Title-zhTW: |cffffffff[不要關閉]|r Ace3 共用函式庫
@@ -54,5 +54,3 @@ LibWindow-1.1\LibWindow-1.1.lua
 HereBeDragons\HereBeDragons-2.0.lua
 HereBeDragons\HereBeDragons-Pins-2.0.lua
 HereBeDragons\HereBeDragons-Migrate.lua
-
-LibClassicDurations\LibClassicDurations.xml
