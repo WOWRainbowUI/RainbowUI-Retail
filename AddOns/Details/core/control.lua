@@ -426,9 +426,9 @@
 				Details:CatchRaidBuffUptime("BUFF_UPTIME_IN")
 			end)
 			Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_IN")
-		end
 
-		Details:UptadeRaidMembersCache()
+			Details:UptadeRaidMembersCache()
+		end
 
 		--we already have boss information? build .is_boss table
 		if (Details.encounter_table.id and Details.encounter_table["start"] >= GetTime() - 3 and not Details.encounter_table["end"]) then
@@ -519,10 +519,12 @@
 		--save the unixtime of the latest combat end
 		Details.last_combat_time = _tempo
 
-		Details:CatchRaidBuffUptime("BUFF_UPTIME_OUT")
-		Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_OUT")
-		Details:CloseEnemyDebuffsUptime()
-		Details222.AuraScan.CheckForOneHourBuffs()
+		if not detailsFramework.IsAddonApocalypseWow() then
+			Details:CatchRaidBuffUptime("BUFF_UPTIME_OUT")
+			Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_OUT")
+			Details:CloseEnemyDebuffsUptime()
+			Details222.AuraScan.CheckForOneHourBuffs()
+		end
 
 		Details222.GuessSpecSchedules.ClearSchedules()
 
@@ -826,7 +828,7 @@
 				end
 			end
 		else
-			print("|cFFFF3333 Details discarded the segment")
+			--print("|cFFFF3333 Details discarded the segment")
 			--combat denied: combat did not pass the filter and cannot be added into the segment history
 			--rewind the data set to the first slot in the segments table
 			showTutorialForDiscardedSegment()
@@ -999,6 +1001,7 @@
 	function Details:GuessArenaEnemyUnitId(unitName)
 		for i = 1, #Details222.UnitIdCache.Arena do
 			local unitId = Details222.UnitIdCache.Arena[i]
+			
 			local enemyName = Details:GetFullName(unitId)
 			if (enemyName == unitName) then
 				Details.arena_enemies[enemyName] = unitId

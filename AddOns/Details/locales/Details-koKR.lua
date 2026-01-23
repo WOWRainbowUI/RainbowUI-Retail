@@ -1594,8 +1594,7 @@ L["STRING_TOOOLD"] = "Details! 버전이 너무 오래되어 설치할 수 없�
 L["STRING_TOP"] = "상단"
 L["STRING_TOP_TO_BOTTOM"] = "위에서 아래"
 L["STRING_TOTAL"] = "총량"
---[[Translation missing --]]
-L["STRING_TRAINING_DUMMY"] = "Training Dummy"
+L["STRING_TRAINING_DUMMY"] = "훈련용 허수아비"
 L["STRING_TRANSLATE_LANGUAGE"] = "Details의 번역을 도와주세요!"
 L["STRING_TUTORIAL_FULLY_DELETE_WINDOW"] = [=[창을 닫았지만 언제든 다시 열수 있습니다.
 창을 완전히 삭제하려면 옵션 -> 창: 일반 -> 삭제 항목을 찾아보세요.]=]
