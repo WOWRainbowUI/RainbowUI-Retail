@@ -2,7 +2,7 @@ local _, U1 = ...
 
 local D = {}
 U1.CfgDefaults = D
-D["!!!gmFonts"] = {
+D["__gmFonts"] = {
 	defaultEnable = 1,
 	tags = { "MISC" }, 
 	title = "遊戲字體",
@@ -11,7 +11,7 @@ D["!!!gmFonts"] = {
     {
         text = "設定選項",
         callback = function() 
-			Settings.OpenToCategory("字體")
+			Settings.OpenToCategory(862032892)
 		end,
     },
 	{
@@ -19,21 +19,14 @@ D["!!!gmFonts"] = {
 		text = "|cffFF2D2D特別注意：請不要選擇英文字體，會無法顯示中文字。|r",
 	},
 };
-D["!!NoTaint2"] = {
-	defaultEnable = 0,
-	tags = { "MISC" },
-	title = "無汙染2",
-	desc = "魔獸存在已久的程式碼汙染問題，通常會在排隨機戰場、調整公會功能、使用背包物品、任務道具、設定專注目標... 時發生。隨著一次次的資料片改版已經大幅改善，但是跟著巨龍崛起又瘋狂出現了。``重新載入介面可以清除掉汙染，但是隨著遊戲進行，汙染又會開始慢慢地擴散，導致遊戲介面功能不正常，這版本比較常見的是快速鍵失效（按技能沒反應），以及編輯模式不會儲存。彈出訊息中要你關閉的插件通常不是污染源頭，所以關閉了它也不見得有用。``目前比較有效的方法就是重新載入介面，然後等待暴雪和插件更新修正。特別是打開過編輯模式和選項視窗，就算沒有做任何調整，也建議重新載入介面來清除汙染。``【無汙染2】插件，可以改善汙染問題、減少上述的情況，建議不要關閉。`",
-	icon = "Interface\\Icons\\ability_evoker_emeraldblossom",
-};
-D["!Ace3"] = {
+D["_Ace3"] = {
 	defaultEnable = 1,
 	protected = true, 
 	tags = { "MISC" },
 	title = "Ace3 共用函式庫",
 	desc = "大部分插件都會使用到的函式庫。``|cffFF2D2D請千萬千萬不要關閉!!!|r`",
 };
-D["!BugGrabber"] = { 
+D["_BugGrabber"] = { 
 	defaultEnable = 1,
 	optdeps = { "BugSack", },
 	protected = true, 
@@ -483,7 +476,7 @@ D["BtWQuests"] = {
 };
 D["BugSack"] = {
 	defaultEnable = 1,
-	parent = "!BugGrabber",
+	parent = "_BugGrabber",
 	protected = true,
 	{
         text = "查看錯誤訊息",

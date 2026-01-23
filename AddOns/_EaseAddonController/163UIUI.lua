@@ -152,11 +152,16 @@ function UUI.ReloadFlash(from, enable)
 end
 
 function UUI.ReloadFlashRefresh()
-    local flash = UUI().reload.flash
-    ActionButton_HideOverlayGlow(flash);
+    --[[
+	local LBG = LibStub("LibButtonGlow-1.0")
+	local flash = UUI().reload.flash
+    -- ActionButton_HideOverlayGlow(flash); -- 12.0 fix
+	LBG:HideOverlayGlow(flash)
     if(next(U1GetReloadList()))then
-        ActionButton_ShowOverlayGlow(flash);
+        -- ActionButton_ShowOverlayGlow(flash);
+		LBG:ShowOverlayGlow(flash)
     end
+	--]]
 end
 
 --- Show Main Panel on toplevel, or bottom level when raise == false
@@ -1346,7 +1351,7 @@ function UUI.Right.SetHTML(right, name)
 		-- 加入圖片
 		if info.img then
 			page.html:SetPoint("TOPLEFT", 5, -120)
-			page.html.descImg:SetTexture("Interface\\AddOns\\!!!EaseAddonController\\Images\\"..info.name)
+			page.html.descImg:SetTexture("Interface\\AddOns\\_EaseAddonController\\Images\\"..info.name)
 		else
 			page.html.descImg:SetTexture(nil)
 			page.html:SetPoint("TOPLEFT", 5, -5)

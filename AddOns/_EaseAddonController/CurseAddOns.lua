@@ -1,10 +1,10 @@
 select(2, ...).CurseAddOns = {
-  {"!!!easeaddoncontroller",10},
+  {"_easeaddoncontroller",10},
   {"!!!garbageprotector",17},
   {"!betterfont",17},
   {"!betterreputationcolors",17},
   {"!blizzbugssuck",17},
-  {"!buggrabber",31},
+  {"_buggrabber",31},
   {"!chats",1},
   {"!classcolors",17},
   {"!cputhieves",31},
