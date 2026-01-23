@@ -1,9 +1,11 @@
 <Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="Libs\XamInsightToolKit\XamInsightToolKit.lua" />
+	<Script file="Libs\EZBlizzardUiPopups\EZBlizzardUiPopups_db.lua" />
+	<Script file="Libs\EZBlizzardUiPopups\EZBlizzardUiPopups.lua" />
 	<Script file="localization\localization.lua"/>
 	<Script file="localization\localization_zhTW.lua"/>
 	<Script file="embeds.lua"/>
 	<Script file="CalReminder.lua"/>
-	<Script file="CalReminderBusiness.lua"/>
 	<Script file="CalReminderOptions.lua"/>
 	<Script file="Sharing.lua" />
 	<FontString name="CalReminderWindowTitleTemplate" inherits="GameFontNormal" virtual="true">

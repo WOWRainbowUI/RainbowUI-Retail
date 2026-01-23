@@ -1,4 +1,13 @@
-﻿- v1.3.8
+- v1.4.3
+	- Code optimization.
+- v1.4.1
+	- ChatFrame_AddMessageEventFilter deprecated.
+- v1.4
+	- TOC for 12.0.0.
+	- Added: NPCs.
+	- Code optimization.
+	- [ACE3] 12.0.0 changes integration.
+- v1.3.8
 	- TOC for 11.2.7.
 - v1.3.7
 	- TOC for 11.2.5.
