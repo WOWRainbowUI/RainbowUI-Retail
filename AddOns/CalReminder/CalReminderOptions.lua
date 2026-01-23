@@ -190,7 +190,8 @@ function loadCalReminderOptions()
 						width = "double",
 						name = string.format(L["CALREMINDER_OPTIONS_NPC"], FACTION_ALLIANCE),
 						desc = string.format(L["CALREMINDER_OPTIONS_NPC_DESC"], FACTION_ALLIANCE),
-						values = alliancenpcValues,
+						values = allianceNpcValues,
+						sorting = allianceNpcValuesSorting,
 						set = function(info, val)
 							CalReminderOptionsData["ALLIANCE_NPC"] = val
 							local chiefList = CalReminder_allianceNpcValues
@@ -202,7 +203,7 @@ function loadCalReminderOptions()
 							EZBUP.PlayNPCRandomSound(chief, "Dialog", not CalReminderOptionsData["SoundsDisabled"] and not CalReminderOptionsData["QuotesDisabled"])
 						end,
 						get = function(info)
-							return CalReminderOptionsData["ALLIANCE_NPC"] or "SHANDRIS"
+							return CalReminderOptionsData["ALLIANCE_NPC"] or "RANDOM"
 						end
 					},
 					horde = {
@@ -211,6 +212,7 @@ function loadCalReminderOptions()
 						name = string.format(L["CALREMINDER_OPTIONS_NPC"], FACTION_HORDE),
 						desc = string.format(L["CALREMINDER_OPTIONS_NPC_DESC"], FACTION_HORDE),
 						values = hordeNpcValues,
+						sorting = hordeNpcValuesSorting,
 						set = function(info, val)
 							CalReminderOptionsData["HORDE_NPC"] = val
 							local chiefList = CalReminder_hordeNpcValues
@@ -222,7 +224,7 @@ function loadCalReminderOptions()
 							EZBUP.PlayNPCRandomSound(chief, "Dialog", not CalReminderOptionsData["SoundsDisabled"] and not CalReminderOptionsData["QuotesDisabled"])
 						end,
 						get = function(info)
-							return CalReminderOptionsData["HORDE_NPC"] or "GAMON"
+							return CalReminderOptionsData["HORDE_NPC"] or "RANDOM"
 						end
 					},
 				},

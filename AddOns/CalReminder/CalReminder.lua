@@ -56,7 +56,7 @@ local playerNotFoundMsg = string.gsub(ERR_CHAT_PLAYER_NOT_FOUND_S, "%%s", "(.-)"
 function CalReminder:ChatFilter(event, msg, author, ...)
 	if string.match(msg, playerNotFoundMsg) then
 		local actualTime = GetTime()
-		if lastCalReminderSendCommMessage and actualTime <= lastCalReminderSendCommMessage + 5 then
+		if lastCalReminderSendCommMessage and actualTime <= lastCalReminderSendCommMessage + 1 then
 			return true
 		end
 	end
