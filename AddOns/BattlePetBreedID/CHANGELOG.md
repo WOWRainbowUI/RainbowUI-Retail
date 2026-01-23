@@ -1,6 +1,7 @@
 # Battle Pet BreedID
 
-## [v1.38.2](https://github.com/MMOSimca/BattlePetBreedID/tree/v1.38.2) (2026-01-02)
-[Full Changelog](https://github.com/MMOSimca/BattlePetBreedID/compare/v1.38.1...v1.38.2) [Previous Releases](https://github.com/MMOSimca/BattlePetBreedID/releases)
+## [v1.39.0](https://github.com/MMOSimca/BattlePetBreedID/tree/v1.39.0) (2026-01-20)
+[Full Changelog](https://github.com/MMOSimca/BattlePetBreedID/compare/v1.38.2...v1.39.0) [Previous Releases](https://github.com/MMOSimca/BattlePetBreedID/releases)
 
-- Added Tiny Snow Buddy, fixing #39.  
+- Bumped Interface version for Patch 12.0.0; untested so far.  
+- Updated pet base stats for 12.0.0; also fixes #41.  
