@@ -1,7 +1,8 @@
 # AppearanceTooltip
 
-## [v68](https://github.com/kemayo/wow-appearancetooltip/tree/v68) (2026-01-14)
-[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v67...v68) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
+## [v70](https://github.com/kemayo/wow-appearancetooltip/tree/v70) (2026-01-21)
+[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v69...v70) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
 
-- TOC for 2.5.5  
-- Fix an error when multiple comparison tooltips are shown  
+- Avoid some secret value issues in Midnight prepatch  
+- Avoid a very intermittent error when showing comparisons  
+    Either the center or the scale of the comparison tooltip was nil...  

@@ -266,11 +266,12 @@ do
     local category = Settings.GetCategory(panel.parent)
     local subcategory, layout = Settings.RegisterCanvasLayoutSubcategory(category, panel, panel.name, panel.name)
     subcategory.ID = panel.name
+	category.ID = 1632293877
 end
 
 -- Slash handler
 SlashCmdList.APPEARANCETOOLTIP = function(msg)
-    Settings.OpenToCategory(myname)
+    Settings.OpenToCategory(1632293877)
 end
 SLASH_APPEARANCETOOLTIP1 = "/appearancetooltip"
 SLASH_APPEARANCETOOLTIP2 = "/aptip"

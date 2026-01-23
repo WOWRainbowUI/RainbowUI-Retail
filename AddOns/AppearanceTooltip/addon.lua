@@ -153,13 +153,20 @@ classwarning:SetText("Your class can't transmogrify this item")
 classwarning:Show()
 
 -- Ye showing:
-do
-    local function GetTooltipItem(tip)
-        if _G.C_TooltipInfo then
-            return TooltipUtil.GetDisplayedItem(tip)
+local function GetTooltipItem(tip)
+    if _G.C_TooltipInfo then
+        if issecretvalue then
+            -- getdisplayeditem attempts this comparison...
+            local primaryInfo = tip:GetPrimaryTooltipInfo();
+            if issecretvalue(primaryInfo and primaryInfo.tooltipData and primaryInfo.tooltipData.type and primaryInfo.tooltipData.type) then
+                return
+            end
         end
-        return tip:GetItem()
+        return TooltipUtil.GetDisplayedItem(tip)
     end
+    return tip:GetItem()
+end
+do
     local function OnTooltipSetItem(self)
         local name, link, id = GetTooltipItem(self)
         ns:ShowItem(link, self)
@@ -263,7 +270,10 @@ do
             local comparisonTooltip1, comparisonTooltip2 = unpack( owner.shoppingTooltips )
             if comparisonTooltip1:IsShown() or comparisonTooltip2:IsShown() then
                 if comparisonTooltip1:IsShown() and comparisonTooltip2:IsShown() then
-                    if comparisonTooltip1:GetCenter() > comparisonTooltip2:GetCenter() then
+                    local c1x, c2x = comparisonTooltip1:GetCenter(), comparisonTooltip2:GetCenter()
+                    if issecretvalue(c1x) then
+                        outermostComparisonShown = nil
+                    elseif c1x > c2x then
                         -- 1 is right of 2
                         outermostComparisonShown = biasLeft and comparisonTooltip2 or comparisonTooltip1
                     else
@@ -274,8 +284,8 @@ do
                     outermostComparisonShown = comparisonTooltip1:IsShown() and comparisonTooltip1 or comparisonTooltip2
                 end
                 if outermostComparisonShown then
-                    local outerx = outermostComparisonShown:GetCenter() * outermostComparisonShown:GetEffectiveScale()
-                    local ownerx = owner:GetCenter() * owner:GetEffectiveScale()
+                    local outerx = (outermostComparisonShown:GetCenter() or 0) * (outermostComparisonShown:GetEffectiveScale() or 1)
+                    local ownerx = (owner:GetCenter() or 0) * (owner:GetEffectiveScale() or 1)
                     if
                         -- outermost is right of owner while we're biasing left
                         (biasLeft and outerx > ownerx)
@@ -315,9 +325,12 @@ do
             end
         end
         if
-            -- would we be pushing against the edge of the screen?
-            (primary == "left" and (owner:GetLeft() - tooltip:GetWidth()) < 0)
-            or (primary == "right" and (owner:GetRight() + tooltip:GetWidth() > GetScreenWidth()))
+            (not issecretvalue or (not issecretvalue(owner:GetLeft()) and issecretvalue(tooltip:GetWidth()))) and
+            (
+                -- would we be pushing against the edge of the screen?
+                (primary == "left" and (owner:GetLeft() - tooltip:GetWidth()) < 0)
+                or (primary == "right" and (owner:GetRight() + tooltip:GetWidth() > GetScreenWidth()))
+            )
         then
             return self:ComputeTooltipAnchors(originalOwner, "vertical")
         end
@@ -340,11 +353,7 @@ hider:Hide()
 local shouldHide = function(owner)
     if not owner then return true end
     if not owner:IsShown() then return true end
-    if _G.C_TooltipInfo then
-        if not TooltipUtil.GetDisplayedItem(owner) then return true end
-    else
-        if not owner:GetItem() then return true end
-    end
+    if not GetTooltipItem(owner) then return true end
     return false
 end
 hider:SetScript("OnUpdate", function(self)
@@ -723,6 +732,8 @@ end
 
 local brokenItems = {
     -- itemid : {appearanceid, sourceid}
+    [253520] = {21670, 298859}, -- Enclave Aspirant's Hatchet
+    [153267] = {21670, 90806}, -- Enclave Aspirant's Hatchet
     [153268] = {25124, 90807}, -- Enclave Aspirant's Axe
     [153316] = {25123, 90885}, -- Praetor's Ornamental Edge
 }
@@ -734,6 +745,7 @@ function ns.PlayerHasAppearance(itemLinkOrID)
     if not itemID then return end
     local probablyEnsemble = IsDressableItem(itemID) and not C_Item.IsEquippableItem(itemID)
     if probablyEnsemble then
+        -- TODO: Enum.TooltipDataLineType.LearnTransmogSet  is Coming Soon ("with setID arg")
         -- *not* ERR_COSMETIC_KNOWN which is "Item Known"
         return ns.CheckTooltipFor(itemID, ITEM_SPELL_KNOWN), false, true
     end
