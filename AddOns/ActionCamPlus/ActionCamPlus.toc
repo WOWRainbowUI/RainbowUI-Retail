@@ -1,10 +1,11 @@
-## Interface: 110002
+## Interface: 120000, 120001, 50503, 20505, 11508
 ## Title: ActionCamPlus
 ## Notes: Makes Blizzard's experimental Action Camera more usable.
 ## Author: Anorian
 ## SavedVariables: ActionCamPlusDB
 ## Version: 0.22
 ## OptionalDeps: ACP
+## AddonCompartmentFunc: ActionCamPlus_ToggleConfigFrame
 
 ActionCamPlus.lua
 ActionCamPlusConfig.lua
