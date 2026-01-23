@@ -399,8 +399,8 @@ end
 
 function addon:OpenOptions() 
 	-- open the profiles tab before, so the menu expands
-	Settings.OpenToCategory(addon.LocName)
-	Settings.OpenToCategory(addon.optionsFrames.General)
+	Settings.OpenToCategory(self.optionsCategoryId)
+	-- Settings.OpenToCategory(addon.optionsFrames.General)
 end
 
 local function giveProfiles()
@@ -412,7 +412,9 @@ function addon:SetupOptions()
 
 	-- setup options table
 	AceConfigReg:RegisterOptionsTable(addon.LocName, getOptions)
-	self.optionsFrames.General = AceConfigDialog:AddToBlizOptions(addon.LocName, nil, nil, "general")
+	local frame, categoryId = AceConfigDialog:AddToBlizOptions(addon.LocName, nil, nil, "general") -- 12.0 fix
+	self.optionsFrames.General = frame
+	self.optionsCategoryId = categoryId -- 將 ID 存起來供之後使用
 
 	self:RegisterModuleOptions("Profiles", giveProfiles, L["Profile Options"])
 end

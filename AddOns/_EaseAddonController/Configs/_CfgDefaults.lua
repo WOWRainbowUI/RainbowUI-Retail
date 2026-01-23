@@ -19,14 +19,14 @@ D["__gmFonts"] = {
 		text = "|cffFF2D2D特別注意：請不要選擇英文字體，會無法顯示中文字。|r",
 	},
 };
-D["_Ace3"] = {
+D["Ace3"] = {
 	defaultEnable = 1,
 	protected = true, 
 	tags = { "MISC" },
 	title = "Ace3 共用函式庫",
 	desc = "大部分插件都會使用到的函式庫。``|cffFF2D2D請千萬千萬不要關閉!!!|r`",
 };
-D["_BugGrabber"] = { 
+D["!BugGrabber"] = { 
 	defaultEnable = 1,
 	optdeps = { "BugSack", },
 	protected = true, 
@@ -61,7 +61,7 @@ D["Accountant_Classic"] = {
     {
         text = "設定選項",
         callback = function() 
-			Settings.OpenToCategory("個人會計")
+			Accountant_Classic:OpenOptions();
 		end,
     },
 	{
@@ -476,7 +476,7 @@ D["BtWQuests"] = {
 };
 D["BugSack"] = {
 	defaultEnable = 1,
-	parent = "_BugGrabber",
+	parent = "!BugGrabber",
 	protected = true,
 	{
         text = "查看錯誤訊息",
