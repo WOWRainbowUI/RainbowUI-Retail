@@ -1,6 +1,7 @@
 # Auctionator
 
-## [309](https://github.com/TheMouseNest/Auctionator/tree/309) (2026-01-14)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/308...309) 
+## [311](https://github.com/TheMouseNest/Auctionator/tree/311) (2026-01-21)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/310...311) 
 
-- Rearrange loading order to reduce risk of timeout  
+- Fix "Open Options" button in Auctionator tab  
+- Retail: Fix displaying crafted item qualities in AH UI  
