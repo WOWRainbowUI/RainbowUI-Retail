@@ -271,7 +271,7 @@ end
 
 -- Slash handler
 SlashCmdList.APPEARANCETOOLTIP = function(msg)
-    Settings.OpenToCategory("塑形預覽")
+    Settings.OpenToCategory(1632293877)
 end
 SLASH_APPEARANCETOOLTIP1 = "/appearancetooltip"
 SLASH_APPEARANCETOOLTIP2 = "/aptip"
