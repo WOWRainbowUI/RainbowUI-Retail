@@ -3587,20 +3587,19 @@ function Database:Search(tbl, query, character)
         start = start .. character
         if self.buckets[start] ~= nil then
             prefixlist = self.buckets[start]
-            break
         end
-        for _,items in ipairs(self.buckets) do
+        for i,items in ipairs(self.buckets) do
             if items[start] ~= nil then
                 for i,item in ipairs(items[start]) do
                     prefixlist = prefixlist or {}
                     prefixlist[#prefixlist+1] = item
                 end
                 items[start] = nil
-                break
             end
         end
         if prefixlist then
             self.buckets[start] = prefixlist
+            break
         end
     end
 
