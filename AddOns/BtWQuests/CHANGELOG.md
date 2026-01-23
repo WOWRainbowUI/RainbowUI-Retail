@@ -1,3 +1,9 @@
+# v2.60.0
+
+- Added Midnight Prologue
+- Updated localizations
+- Fixed an issue with search not updating when new expansions are loaded
+
 # v2.59.0
 
 - Added Arcane Desolation questline
