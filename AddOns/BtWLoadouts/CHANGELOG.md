@@ -1,3 +1,20 @@
+# v1.20.19
+
+- Fixed an error checking boss conditions, it may cause some bosses to not proc conditions correctly
+
+# v1.20.18
+
+- Fixed an error checking talent cooldowns while in combat
+- Fixed an error when updating equipment tooltips
+
+# v1.20.17
+
+- Updated for 12.0.0
+
+# v1.20.16
+
+- Updated for 11.2.7
+
 # v1.20.15
 
 - Fixed an issue where the talents and hero talents panes were empty
