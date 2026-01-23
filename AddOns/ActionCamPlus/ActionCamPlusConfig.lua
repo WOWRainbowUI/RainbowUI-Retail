@@ -321,7 +321,7 @@ end
 
 -- Function to change a setting
 function ACP.SettingUpdate(setting, settingtype)
-	if settingtype == "checkbutton" then 
+	if settingtype == "checkbutton" then
 		if setting:GetChecked() then
 			ActionCamPlusDB[setting:GetName()] = true
 		else
@@ -359,7 +359,7 @@ function ACP.createCheckButton(name, parent, anchor, offX, offY, label, tooltip,
 	return checkButton
 end
 
-function ActionCamPlusConfig_OnClick(self, mousebutton, down) 
+function ActionCamPlusConfig_OnClick(self, mousebutton, down)
 	ACP.SettingUpdate(self, "checkbutton")
 
 	if self:GetChecked() and self:IsSoftDisabled() then
