@@ -1,3 +1,0 @@
-##Changelog:
-###v11.1.0
-* Add Season 2 raid Liberation of Undermine
