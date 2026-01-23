@@ -1195,7 +1195,7 @@ function D:OnEnable() -- called after PLAYER_LOGIN -- {{{
     if not DC.MN then
         D.eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
     else
-        D:PPrint("CLEU no longer supported (Midnight restrictions), Decursive will not work as expected.")
+        -- D:PPrint("CLEU no longer supported (Midnight restrictions), Decursive will not work as expected.")
     end
 
     D.eventFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN");
