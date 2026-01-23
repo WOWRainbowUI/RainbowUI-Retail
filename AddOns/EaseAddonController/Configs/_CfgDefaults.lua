@@ -114,45 +114,6 @@ D["AdventureGuideLockouts"] = {
 	desc = "在冒險指南中顯示副本首領和世界王的擊殺進度，方便查看否已經打過。``注意：僅限目前登入的角色，若要查看其他分身角色的副本進度，請改用 '我的分身名冊' 插件。",
 	img = true,
 };
-D["Align"] = {
-	defaultEnable = 0,
-	tags = { "MISC" },
-	title = "對齊網格",
-	desc = "顯示調整UI時方便用來對齊位置的網格線。`",
-	icon = "Interface\\Icons\\inv_misc_net_01",
-	img = true,
-    {
-        text = "32x32 網格",
-        callback = function() SlashCmdList["TOGGLEGRID"]("32") end,
-    },
-	{
-        text = "64x64 網格",
-        callback = function() SlashCmdList["TOGGLEGRID"]("64") end,
-    },
-	{
-        text = "128x128 網格",
-        callback = function() SlashCmdList["TOGGLEGRID"]("128") end,
-    },
-	{
-        text = "256x256 網格",
-        callback = function() SlashCmdList["TOGGLEGRID"]("256") end,
-    },
-	{
-		type = "text",
-        text = "按一下顯示，再按一下隱藏網格。\n",       
-	},
-};
-D["AngryKeystones"] = {
-	defaultEnable = 0,
-	title = "M+ 時間 (舊版)",
-	desc = "在傳奇鑰石的副本中，會在遊戲內建的任務追蹤清單顯示兩箱、三箱的時間，打完副本時會顯示統計時間等額外資訊。``|cffFF2D2D特別注意: 有載入 '任務追蹤清單增強' 插件時，將無法在任務追蹤清單顯示兩箱、三箱的時間。|r`",
-	modifier = "BNS, 彩虹ui",
-	icon = "Interface\\Icons\\ability_evoker_timedilation",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["AngryKeystones"]("") end,
-    },
-};
 D["AppearanceTooltip"] = {
 	defaultEnable = 1,
 	title = "塑形外觀預覽",

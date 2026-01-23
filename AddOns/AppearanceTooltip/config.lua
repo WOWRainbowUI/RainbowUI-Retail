@@ -266,6 +266,7 @@ do
     local category = Settings.GetCategory(panel.parent)
     local subcategory, layout = Settings.RegisterCanvasLayoutSubcategory(category, panel, panel.name, panel.name)
     subcategory.ID = panel.name
+	category.ID = 1632293877
 end
 
 -- Slash handler
