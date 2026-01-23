@@ -8,6 +8,11 @@ local CONST_MAX_LOGLINES = 100
 ---@type string, private
 local tocFileName, private = ...
 
+local _, _, _, buildVersion = GetBuildInfo()
+_ = nil
+private.buildVersion = buildVersion
+private.buildVersionCutOff = 50000 --the addon will take cautions for versions before this build
+
 --localization
 local L = detailsFramework.Language.GetLanguageTable(tocFileName)
 
@@ -199,6 +204,10 @@ local HandleMinimapTooltip = function(tooltip)
 end
 
 function addon.RegisterAddonCompartment()
+    if not AddonCompartmentFrame then
+        return
+    end
+
     AddonCompartmentFrame:RegisterAddon({
         text = L["ADDON_MENU_ADDONS_TITLE"],
         icon = "4352494",

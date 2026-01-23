@@ -6,6 +6,8 @@
 ---@class private : table
 ---@field addon detailsmythicplus
 ---@field log fun(...) log a message to the addon logs
+---@field buildVersion number the current wow build version
+---@field buildVersionCutOff number the build version cutoff to apply certain code paths
 
 ---@class combattimetype : table
 ---@field RunTime number

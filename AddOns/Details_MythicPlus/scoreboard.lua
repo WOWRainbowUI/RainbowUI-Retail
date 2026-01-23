@@ -15,7 +15,7 @@ local addonName, private = ...
 local addon = private.addon
 local _ = nil
 local L = detailsFramework.Language.GetLanguageTable(addonName)
-local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
+local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 
 ---@class scoreboard_object : table
 ---@field lines scoreboard_line[]
@@ -614,7 +614,7 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
                 thisPlayerData.role = "DAMAGER"
             end
 
-            local playerKeystoneInfo = openRaidLib.GetKeystoneInfo(unitId)
+            local playerKeystoneInfo = openRaidLib and openRaidLib.GetKeystoneInfo(unitId)
             if (playerKeystoneInfo) then
                 thisPlayerData.keystoneLevel = playerKeystoneInfo.level or thisPlayerData.keystoneLevel --default zero
                 thisPlayerData.keystoneMapId = playerKeystoneInfo.challengeMapID or thisPlayerData.keystoneMapId
