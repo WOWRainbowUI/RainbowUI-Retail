@@ -8,6 +8,22 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 12.0.0.1
+Released 2026-01-23
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 12.0.0.1 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Retail WoW 12.0.0.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 5.5.3.2 for Classic Mists of Pandaria
+Version 2.5.5.2 for Classic Burning Crusade
+Version 1.15.8.4 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No changes.
+
+=======================================
 RELEASE 11.2.7.2
 Released 2026-01-20
 
@@ -19,14 +35,14 @@ CursorTrail has NOT been updated to work with WoW Midnight.
 My computer is too old to run Midnight, so I am attempting to switch to Linux.  New hardware should arrive in 2-3 weeks.  Hopefully, I can get the game running and test CursorTrail on Midnight after that.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 2.5.5.1 for Classic Burning Crusade
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Added support for Classic TBC 2.5.5 anniversary release.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 5.5.3.1 for Classic Mists of Pandaria
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 - Updated for Classic MoP 5.5.3.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 2.5.5.1 for Classic Burning Crusade
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Added support for Classic TBC 2.5.5 anniversary release.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 1.15.8.3 for Classic WoW
@@ -149,34 +165,6 @@ Version 1.15.6.4 for Classic WoW
 - Changed the "Electric" default.  ("Fade out when idle" is now on.)
 - Minor improvements to error handling.
 - Minor changes to help text.
-
-=======================================
-RELEASE 11.0.7.3
-Released 2025-02-18
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.0.7.3 for Retail WoW
-Version 4.4.2.1 for Classic Cataclysm
-Version 1.15.6.2 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-NEW FEATURES:
-- Added new defaults:
-        Ring Dim Mouse Look
-
-- Added slash command:
-        /ct combat      (Toggles the 'Show only in combat' setting.  All layers set same as first layer.)
-
-CHANGES:
-- Fixed "Show during Mouse Look" so it works properly while the options window is open.
-
-- No longer create a backup named "@Original".  Renamed existing "@Original" backup to "Original" so it can be deleted.
-
-- Removed "New" feature indicators for master scale and layer tabs.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 4.4.2.1 for Classic Cataclysm
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Classic Cataclysm 4.4.2.
 
 ]]
 
