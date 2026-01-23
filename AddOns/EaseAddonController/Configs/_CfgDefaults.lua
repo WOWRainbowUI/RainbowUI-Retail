@@ -91,22 +91,6 @@ D["ActionCamPlus"] = {
         callback = function() SlashCmdList["ACTIONCAMPLUS"]("h") end,
     },
 };
-D["AdiBags"] = {
-	defaultEnable = 1,
-	tags = { "ITEM" },
-	title = "Adi 分類背包",
-	desc = "會自動分類物品的整合背包，預設有多種分類，可以自訂分類，也可以安裝外掛套件增加新的分類。``如果你喜歡一個不分類的大背包，遊戲內建就有了! 打開內建背包>點一下背包左上角的圖示>轉換為合併背包。``如果你想要將 Adi 背包變成一個不分類的大背包，打開背包 > 在背包視窗內的空白處點右鍵 > 過濾方式 > 把每一個分類的 '啟用' 都分別取消打勾即可。`",
-	modifier = "arithmandar, BNS, mccma, sheahoi, yunrong81, 彩虹ui",
-	icon = "Interface\\Icons\\inv_misc_bag_08",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["ACECONSOLE_ADIBAGS"]("") end,
-    },
-	{
-		type = "text",
-        text = "在背包視窗內的空白處點一下滑鼠右鍵也可以打開設定選項。\n",       
-	},
-};
 D["AdvancedInterfaceOptions"] = {
 	defaultEnable = 0,
 	tags = { "MISC" },
@@ -126,7 +110,7 @@ D["AdvancedInterfaceOptions"] = {
 D["AdventureGuideLockouts"] = {
 	defaultEnable = 1,
 	tags = { "BOSSRAID" },
-	title = "冒險指南 (副本進度)",
+	title = "副本進度 (冒險指南)",
 	desc = "在冒險指南中顯示副本首領和世界王的擊殺進度，方便查看否已經打過。``注意：僅限目前登入的角色，若要查看其他分身角色的副本進度，請改用 '我的分身名冊' 插件。",
 	img = true,
 };
