@@ -1,3 +1,0 @@
-##Changelog:
-###v11.2.5.1
-* Updates to get a workable version for Midnight
