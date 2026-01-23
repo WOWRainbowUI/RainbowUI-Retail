@@ -2129,8 +2129,8 @@ local iconFrame_OnEnter = function(self)
 
 		elseif (actor.nome) then --ensure it's an actor table
 			local serial = actor.serial
-			local name = actor:name()
-			local class = actor:class()
+			local name = actor.nome
+			local class = actor.classe
 			local spec = Details.cached_specs[serial] or actor.spec
 			local talents = Details.cached_talents[serial]
 			local ilvl = Details.ilevel:GetIlvl(serial)
@@ -4230,6 +4230,8 @@ function gump:CreateNewLine(instance, index)
 	---@field sourceSpells damagemeter_unit_spells
 	---@field sessionType string
 	---@field sessionNumber number
+	---@field sessionTypeParam number
+	---@field damageMeterType number
 	---@field lineIndex number
 	---@field statusbar statusbar
 	---@field extraStatusbar statusbar
@@ -6148,7 +6150,7 @@ function Details:ToolbarMenuSetButtons(_mode, _segment, _attributes, _report, _r
 			end
 		end
 
-		if detailsFramework.IsAddonApocalypseWow() then
+		if detailsFramework.IsAddonApocalypseWow() and self.lastIcon then
 			local anchorFrame = self.lastIcon.widget or self.lastIcon
 			self.baseframe.SwapDamageMeterButton:ClearAllPoints()
 
@@ -6332,10 +6334,12 @@ local build_mode_list = function(self, deltaTime)
 			end
 		end
 
-		gameCooltip:AddMenu(2, createAllInOneWindow, true, instance, nil, "Create Midnight Window (12.0)", _, true)
-		gameCooltip:AddIcon([[Interface\AddOns\Details\assets\textures\icons\midnight.png]], 2, 1, 16, 14)
-		if (hasClosedInstances) then
-			GameCooltip:AddLine("$div", nil, 2, nil, -5, -11)
+		if not detailsFramework.IsAddonApocalypseWow() then
+			gameCooltip:AddMenu(2, createAllInOneWindow, true, instance, nil, "Create Midnight Window (12.0)", _, true)
+			gameCooltip:AddIcon([[Interface\AddOns\Details\assets\textures\icons\midnight.png]], 2, 1, 16, 14)
+			if (hasClosedInstances) then
+				GameCooltip:AddLine("$div", nil, 2, nil, -5, -11)
+			end
 		end
 
 		local ClosedInstances = 0
@@ -7811,7 +7815,11 @@ function Details:UpdateClickThrough()
 				self.windowBackgroundDisplay:EnableMouse(false)
 				self.baseframe.UPFrame:EnableMouse(false)
 				self.baseframe.DOWNFrame:EnableMouse(false)
-
+				self.baseframe.UPFrameConnect:EnableMouse(false)
+				self.baseframe.UPFrameLeftPart:EnableMouse(false)
+				self.baseframe.resize_direita:EnableMouse(false)
+				self.baseframe.resize_esquerda:EnableMouse(false)
+				self.baseframe.lock_button:EnableMouse(false)
 
 			else
 				self.baseframe:EnableMouse(true)
@@ -7822,6 +7830,18 @@ function Details:UpdateClickThrough()
 				self.windowBackgroundDisplay:EnableMouse(true)
 				self.baseframe.UPFrame:EnableMouse(true)
 				self.baseframe.DOWNFrame:EnableMouse(true)
+				self.baseframe.UPFrameConnect:EnableMouse(true)
+				self.baseframe.UPFrameLeftPart:EnableMouse(true)
+
+				if (self.baseframe.isLocked) then
+					self.baseframe.resize_direita:EnableMouse(false)
+					self.baseframe.resize_esquerda:EnableMouse(false)
+					self.baseframe.lock_button:EnableMouse(false)
+				else
+					self.baseframe.resize_direita:EnableMouse(true)
+					self.baseframe.resize_esquerda:EnableMouse(true)
+					self.baseframe.lock_button:EnableMouse(true)
+				end
 			end
 
 			--titlebar icons
@@ -7853,6 +7873,18 @@ function Details:UpdateClickThrough()
 			self.windowBackgroundDisplay:EnableMouse(true)
 			self.baseframe.UPFrame:EnableMouse(true)
 			self.baseframe.DOWNFrame:EnableMouse(true)
+			self.baseframe.UPFrameConnect:EnableMouse(true)
+			self.baseframe.UPFrameLeftPart:EnableMouse(true)
+
+			if (self.baseframe.isLocked) then
+				self.baseframe.resize_direita:EnableMouse(false)
+				self.baseframe.resize_esquerda:EnableMouse(false)
+				self.baseframe.lock_button:EnableMouse(false)
+			else
+				self.baseframe.resize_direita:EnableMouse(true)
+				self.baseframe.resize_esquerda:EnableMouse(true)
+				self.baseframe.lock_button:EnableMouse(true)
+			end
 
 			--titlebar icons, forcing true because the player isn't in combat and the inCombat setting is enabled
 			local toolbar_buttons = {}
@@ -7891,6 +7923,12 @@ function Details:UpdateClickThrough()
 			self.windowBackgroundDisplay:EnableMouse(false)
 			self.baseframe.UPFrame:EnableMouse(false)
 			self.baseframe.DOWNFrame:EnableMouse(false)
+			self.baseframe.UPFrameConnect:EnableMouse(false)
+			self.baseframe.UPFrameLeftPart:EnableMouse(false)
+			self.baseframe.resize_direita:EnableMouse(false)
+			self.baseframe.resize_esquerda:EnableMouse(false)
+			self.baseframe.lock_button:EnableMouse(false)
+
 		else
 			self.baseframe:EnableMouse(true)
 			self.bgframe:EnableMouse(true)
@@ -7900,6 +7938,18 @@ function Details:UpdateClickThrough()
 			self.windowBackgroundDisplay:EnableMouse(true)
 			self.baseframe.UPFrame:EnableMouse(true)
 			self.baseframe.DOWNFrame:EnableMouse(true)
+			self.baseframe.UPFrameConnect:EnableMouse(true)
+			self.baseframe.UPFrameLeftPart:EnableMouse(true)
+
+			if (self.baseframe.isLocked) then
+				self.baseframe.resize_direita:EnableMouse(false)
+				self.baseframe.resize_esquerda:EnableMouse(false)
+				self.baseframe.lock_button:EnableMouse(false)
+			else
+				self.baseframe.resize_direita:EnableMouse(true)
+				self.baseframe.resize_esquerda:EnableMouse(true)
+				self.baseframe.lock_button:EnableMouse(true)
+			end
 		end
 
 		--titlebar icons
@@ -8305,6 +8355,12 @@ end
 function Details:TitleTextTickTimer(instance)
 	--hold the time value to show in the title bar
 	local timer
+
+	if detailsFramework.IsAddonApocalypseWow() then
+		if Details222.BParser.InSecretLockdown() then
+			return
+		end
+	end
 
 	if (instance.attribute_text.enabled) then
 		local zoneType = Details:GetZoneType()
@@ -10014,6 +10070,16 @@ function gump:CriaCabecalho (baseframe, instancia)
 	local swapDamageMeterButton = gump:NewButton(baseframe, nil, "DetailsSwapDamageMeterButton"..instancia.meu_id, nil, 16, 16, swapDamageMeterOnClick)
 	baseframe.SwapDamageMeterButton = swapDamageMeterButton
 	swapDamageMeterButton:SetFrameLevel(baseframe:GetFrameLevel()+5)
+
+	
+	local _, _, _, buildVersion = GetBuildInfo()
+	if buildVersion == 120000 then
+		swapDamageMeterButton:Show()
+	else
+		swapDamageMeterButton:Hide()
+	end
+
+	swapDamageMeterButton:Hide()
 
 	swapDamageMeterButton:SetScript("OnEnter", function()
 		--show gamecooltip saying "swap to blizzard damage meter"

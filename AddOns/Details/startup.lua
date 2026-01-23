@@ -14,6 +14,8 @@ function Details222.StartUp.StartMeUp()
 	end
 	Details.AndIWillNeverStop = true
 
+	Details.damage_meter_type = 0 --disable blizzard toggle
+
 	--note: this runs after profile loaded
 
 	--set default time for arena and bg to be the Details! load time in case the client loads mid event
@@ -783,6 +785,24 @@ function Details222.StartUp.StartMeUp()
 	if (not Details.slash_me_used) then
 		if (math.random(25) == 1) then
 			--Details:Msg("use '/details me' macro to open the player breakdown for you!")
+		end
+	end
+
+	if detailsFramework.IsAddonApocalypseWow() then
+		if not Details.switch_post_apoc then
+			Details.switch_post_apoc = true
+
+			Details.switch.slots = 6
+			Details.switch.table = {
+				{["atributo"] = 1, ["sub_atributo"] = 1}, --damage done
+				{["atributo"] = 2, ["sub_atributo"] = 1}, --healing done
+				{["atributo"] = 4, ["sub_atributo"] = 3}, --interrupts
+				{["atributo"] = 4, ["sub_atributo"] = 4}, --dispels
+				{["atributo"] = 1, ["sub_atributo"] = 3}, --damage taken
+				{["atributo"] = 2, ["sub_atributo"] = 3}, --overhealing
+			}
+
+			Details:Msg("Bookmarks has been reset.")
 		end
 	end
 

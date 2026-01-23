@@ -12,6 +12,15 @@ local _
 ---@field ParserFrame frame
 
 local debug = false
+local L = {}
+
+local debugMode = false
+
+local printDebug = function(...)
+    if debugMode then
+        print("|cFFFFFF22Details!Debug:", ...)
+    end
+end
 
 local combatStartTime = 0 --GetTime()
 local combatEndTime = 0 --GetTime()
@@ -87,7 +96,13 @@ end
 bParser.WipeStoredSessionIds = wipeStoredSessionIds
 
 local getSessionCombatTime = function(sessionId)
-    return sessionCache[sessionId] and sessionCache[sessionId].endTime - sessionCache[sessionId].startTime or 0.1
+    local session = sessionCache[sessionId]
+    if session then
+        local startTime = session.startTime
+        local endTime = session.endTime or GetTime()
+        return endTime - startTime
+    end
+    return 0
 end
 
 local getSessionStartAndEndTime = function(sessionId)
@@ -255,15 +270,6 @@ local doUpdate = function()
     --Details:InstanceCallDetailsFunc(Details.AtualizaSoloMode_AfertReset)
     --Details:InstanceCallDetailsFunc(Details.ResetaGump)
     Details:RefreshMainWindow(-1, true)
-
-    local isshowning = 0
-    local children = {DetailsRowFrame1:GetChildren()}
-    for i = 1, #children do
-        local line = children[i]
-        if line:IsShown() then
-            isshowning = isshowning + 1
-        end
-    end
 end
 
 local scheduledUpdateObject
@@ -271,6 +277,31 @@ function bParser.DoUpdateOnDetails()
     scheduledUpdateObject = nil
     doUpdate()
     C_Timer.After(Details.update_speed+0.03, doUpdate)
+end
+
+local waitSecretDropTimer
+local startWaitSecretDropTimer = function()
+    if not waitSecretDropTimer then
+        C_Timer.NewTicker(0.3, function(timerObject)
+            local stateCombat = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Combat)
+            local stateEncounter = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Encounter)
+            --local stateChallengeMode = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.ChallengeMode)
+            if stateCombat == 0 and stateEncounter == 0 then -- and stateChallengeMode == 0
+                if not InCombatLockdown() then
+                    timerObject:Cancel()
+                    waitSecretDropTimer = nil
+                    L.ParseSegments()
+                end
+            end
+        end)
+    end
+end
+
+local cancelWaitSecretDropTimer = function()
+    if waitSecretDropTimer then
+        waitSecretDropTimer:Cancel()
+        waitSecretDropTimer = nil
+    end
 end
 
 ---@param parameterType any
@@ -284,6 +315,18 @@ local addSegment = function(parameterType, session, bIsUpdate)
 
     ---@type combat
     local currentCombat
+
+    -------DAMAGE DONE
+    ---@type damagemeter_combat_session
+    local blzDamageContainer = C_DamageMeter.GetCombatSessionFromID(sessionId, Enum.DamageMeterType.DamageDone)
+    local damageActorList = blzDamageContainer.combatSources
+
+    if issecretvalue((damageActorList and damageActorList[1] and damageActorList[1].name) or "") then
+        --it is in secret lockdown, start a timer to wait until the lockdown drop
+        printDebug("combat dropped but secret lockdown detected.")
+        startWaitSecretDropTimer()
+        return
+    end
 
     if not bIsUpdate then
         Details222.StartCombat()
@@ -320,10 +363,8 @@ local addSegment = function(parameterType, session, bIsUpdate)
 
     local order = Details:GetOrderNumber()
 
-    -------DAMAGE DONE
-    ---@type damagemeter_combat_session
-    local blzDamageContainer = C_DamageMeter.GetCombatSessionFromID(sessionId, Enum.DamageMeterType.DamageDone)
-    local damageActorList = blzDamageContainer.combatSources
+
+
 
     for i = 1, #damageActorList do
         ---@type damagemeter_combat_source
@@ -540,7 +581,7 @@ local addSegment = function(parameterType, session, bIsUpdate)
     if not bIsUpdate then
         if not bCombatEnded then
             Details:SairDoCombate()
-            
+
         end
         currentCombat.combatSessionId = sessionId
         storeSessionId(sessionId)
@@ -551,9 +592,10 @@ end
 
 local parseSegments = function()
     if debug then
-        
+
     end
-    
+
+    cancelWaitSecretDropTimer()
 
     local parameterType = DAMAGE_METER_SESSIONPARAMETER_ID
     local currentSessionId = getCurrentSessionId()
@@ -574,7 +616,6 @@ local parseSegments = function()
         local session = sessions[i].session
         local sessionId = sessions[i].sessionId
         if not session.added then
-            
             if (addSegment(parameterType, session, false)) then
                 needUpdate = true
                 session.added = true
@@ -583,7 +624,6 @@ local parseSegments = function()
             if currentSessionId-2 <= sessionId then
                 if C_DamageMeter.GetCombatSessionFromID(sessionId, Enum.DamageMeterType.DamageDone) then
                     if Details:GetCombatWithSessionId(sessionId) then
-                        
                         addSegment(parameterType, session, true)
                     end
                 end
@@ -597,6 +637,8 @@ local parseSegments = function()
         end
     end
 end
+
+L.ParseSegments = parseSegments
 
 ---@class detailstooltip : button
 ---@field maxAmount number
@@ -886,10 +928,24 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
     --local firstCombatant = blzDamageContainer.combatSources[1]
     --local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromType(Enum.DamageMeterSessionType.Current, Enum.DamageMeterType.DamageDone, UnitGUID("player"))
 
-    local sourceSpells = instanceLine.sourceSpells
+    local sourceSpells
+
+    local sessionType = instanceLine.sessionType
+    local sessionNumber = instanceLine.sessionNumber
+    local sessionTypeParam = instanceLine.sessionTypeParam
+    local damageMeterType = instanceLine.damageMeterType
+
+    if sessionType == DAMAGE_METER_SESSIONPARAMETER_ID then
+        --local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromID(sessionNumber, Enum.DamageMeterType.DamageDone, UnitGUID("player")) --waiting blizzard fix this
+        sourceSpells = C_DamageMeter.GetCombatSessionSourceFromID(sessionNumber, damageMeterType, UnitGUID("player"))
+
+    elseif (sessionType == DAMAGE_METER_SESSIONPARAMETER_TYPE) then
+        --local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromID(sessionTypeParam, Enum.DamageMeterType.DamageDone, actorGUID) --waiting blizzard fix this
+        sourceSpells = C_DamageMeter.GetCombatSessionSourceFromType(sessionTypeParam, damageMeterType, UnitGUID("player"))
+    end
 
     if not sourceSpells then
-        
+
         return
     end
 
@@ -899,8 +955,6 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
 
     tooltip:SetMaxAmount(maxAmount)
     tooltip:SetHeight(spellAmount * (tooltipLineHeight+1) + 4)
-
-
 
     ---@type addonapoc_tooltipdata[]
     local tooltipData = {}
@@ -912,6 +966,13 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         --local spellPercent = (spellAmount / maxAmount) * 100 --nop
 
         local spellInfo = C_Spell.GetSpellInfo(spellID)
+        if not spellInfo then
+            ---@diagnostic disable-next-line: missing-fields
+            spellInfo = {
+                name = "Unknown Spell",
+                iconID = 136243, --question mark
+            }
+        end
 
         ---@class addonapoc_tooltipdata
         ---@field name string
@@ -956,7 +1017,7 @@ combatAcknowledgeListener.ParserFrame:SetScript("OnEvent", function(self, event,
 end)
 
 ---@class details
----@field update_speed number
+---@field GetFormattedTimeForTitleBar fun(self:instance):string return a formatted string containing the elapsed time of the combat shown in the instance
 ---@field InstanceCall fun(self:details, function:fun(instance:instance), ...:any?)
 ---@field GetAllLines fun(self:details):frame[]
 
@@ -998,24 +1059,27 @@ local abbreviateOptionsDamage =
     },
     {
         breakpoint = 1000000,
-        abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
+        --abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
+        abbreviation = "M",
         significandDivisor = 10000,
         fractionDivisor = 100,
-        --abbreviationIsGlobal = false
+        abbreviationIsGlobal = false
     },
     {
         breakpoint = 10000,
-        abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+        --abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+        abbreviation = "K",
         significandDivisor = 1000,
         fractionDivisor = 1,
-        --abbreviationIsGlobal = true,
+        abbreviationIsGlobal = false,
     },
     {
         breakpoint = 1000,
-        abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+        --abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+        abbreviation = "K",
         significandDivisor = 100,
         fractionDivisor = 10,
-        --abbreviationIsGlobal = true,
+        abbreviationIsGlobal = false,
     },
     {
         breakpoint = 1,
@@ -1033,21 +1097,23 @@ local abbreviateOptionsDPS =
         abbreviation = "THIRD_NUMBER_CAP_NO_SPACE",
         significandDivisor = 10000000,
         fractionDivisor = 100,
-        --abbreviationIsGlobal = false
+        abbreviationIsGlobal = false
     },
     {
         breakpoint = 1000000,
-        abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
+        --abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
+        abbreviation = "M",
         significandDivisor = 10000,
         fractionDivisor = 100,
-        --abbreviationIsGlobal = false
+        abbreviationIsGlobal = false
     },
     {
         breakpoint = 1000,
-        abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+        --abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+        abbreviation = "K",
         significandDivisor = 100,
         fractionDivisor = 10,
-        --abbreviationIsGlobal = true,
+        abbreviationIsGlobal = false,
     },
     {
         breakpoint = 1,
@@ -1069,11 +1135,35 @@ if CreateAbbreviateConfig then
     abbreviateSettingsDPS = {config = abbreviateSettingsDPS}
 end
 
+local tt = GetTime()
+local createFakeSources = function()
+    local s = {
+        maxAmount = 198700,
+        combatSources = {
+            [1] = {
+                classFilename = "MAGE",
+                name = "Aazz",
+                isLocalPlayer = true,
+                amountPerSecond = 1095.5953369141,
+                specIconID = 135932,
+                totalAmount = 98700,
+                sourceGUID = "Player-969-00B07A55"
+            }
+        }
+    }
+    return s
+end
+
 ---update the window in real time
 ---@param instance instance
 local updateWindow = function(instance) --~update
     ---@type attributeid, attributeid
     local mainDisplay, subDisplay = instance:GetDisplay()
+
+    --which data the line will show (total, dps, percent)
+    local barsShowData = instance.row_info.textR_show_data
+	local barsBrackets = instance:GetBarBracket()
+	local barsSeparator = instance:GetBarSeparator()
 
     ---@type damagemeter_type
     local damageMeterType = bParser.GetDamageMeterTypeFromDisplay(mainDisplay, subDisplay)
@@ -1093,7 +1183,7 @@ local updateWindow = function(instance) --~update
         instanceLine.lineText14:SetText("")
     end
 
-    if (damageMeterType) then
+    if (damageMeterType and damageMeterType < 100) then
         ---@type segmentid
         local segmentId = instance:GetSegmentId()
 
@@ -1106,7 +1196,7 @@ local updateWindow = function(instance) --~update
             session = C_DamageMeter.GetCombatSessionFromType(Enum.DamageMeterSessionType.Overall, damageMeterType)
             sessionType = DAMAGE_METER_SESSIONPARAMETER_TYPE
             sessionTypeParam = Enum.DamageMeterSessionType.Overall
-
+            --/dump C_DamageMeter.GetCombatSessionFromType(1, 0)
         elseif segmentId == 0 then
             session = C_DamageMeter.GetCombatSessionFromType(Enum.DamageMeterSessionType.Current, damageMeterType)
             sessionType = DAMAGE_METER_SESSIONPARAMETER_TYPE
@@ -1132,9 +1222,12 @@ local updateWindow = function(instance) --~update
             ---@type damagemeter_combat_source[]
             local combatSources = session.combatSources
             if not combatSources then
-                
+
                 return
             end
+
+            --combatSources = createFakeSources()
+            --combatSources = combatSources.combatSources
 
             local amountOfSources = #combatSources
 
@@ -1153,6 +1246,8 @@ local updateWindow = function(instance) --~update
                     instanceLine.sourceData = source
                     instanceLine.sessionType = sessionType
                     instanceLine.sessionNumber = sessionNumber
+                    instanceLine.sessionTypeParam = sessionTypeParam
+                    instanceLine.damageMeterType = damageMeterType
 
                     local actorName = source.name --secret
                     local actorGUID = source.sourceGUID --secret
@@ -1177,32 +1272,47 @@ local updateWindow = function(instance) --~update
                     ---@field locale string?
                     ---@field config table?
 
-                    --65294
-                    instanceLine.lineText11:SetText(actorName)
-                    --instanceLine.lineText12:SetText(AbbreviateNumbers(value))
-                    instanceLine.lineText13:SetText(AbbreviateNumbers(value, abbreviateSettingsDamage))
+                    actorName = UnitName(actorName)
+                    instanceLine.lineText11:SetText(actorName) --left text
 
-                    local abbrv = AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS)
-                    instanceLine.lineText14:SetText(abbrv) --format("%.1f", abbrv)
+                    if instance.use_multi_fontstrings then
+                        instanceLine.lineText12:SetText("") --left right text
+                        instanceLine.lineText13:SetText(AbbreviateNumbers(value, abbreviateSettingsDamage)) --middle right text
+
+                        local abbrv = AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS)
+                        instanceLine.lineText14:SetText(abbrv) --format("%.1f", abbrv) --right right text
+                    else
+                        --barsShowData
+                        local formattedTotal = ""
+                        local formattedDPS = ""
+                        local formattedPercent = ""
+
+                        if (barsShowData[1] and barsShowData[2]) then --total and dps
+                            formattedTotal = AbbreviateNumbers(value, abbreviateSettingsDamage)
+                            formattedDPS = AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS)
+                            local rightText = format("%s %s%s%s", formattedTotal, barsBrackets[1], formattedDPS, barsBrackets[2])
+                            instanceLine.lineText14:SetText(rightText)
+
+                        elseif (barsShowData[2]) then --only total
+                            formattedTotal = AbbreviateNumbers(value, abbreviateSettingsDamage)
+                            instanceLine.lineText14:SetText(formattedTotal)
+
+                        elseif (barsShowData[3]) then --only dps
+                            formattedDPS = AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS)
+                            instanceLine.lineText14:SetText(formattedDPS)
+                        end
+
+                        --percent not available now
+                    end
 
                     --instanceLine.lineText13:SetText(value)
                     --instanceLine.lineText14:SetText(totalAmountPerSecond)
 
 
 
-                    if sessionType == DAMAGE_METER_SESSIONPARAMETER_ID then
-                        --local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromID(sessionNumber, Enum.DamageMeterType.DamageDone, UnitGUID("player")) --waiting blizzard fix this
-                        local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromID(sessionNumber, Enum.DamageMeterType.DamageDone, UnitGUID("player"))
-                        instanceLine.sourceSpells = sourceSpells
-
-                    elseif (sessionType == DAMAGE_METER_SESSIONPARAMETER_TYPE) then
-                        --local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromID(sessionTypeParam, Enum.DamageMeterType.DamageDone, actorGUID) --waiting blizzard fix this
-                        local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromType(sessionTypeParam, Enum.DamageMeterType.DamageDone, UnitGUID("player"))
-                        instanceLine.sourceSpells = sourceSpells
-                    end
-
-                    instanceLine.statusbar:SetMinMaxValues(0, topValue)
-                    instanceLine.statusbar:SetValue(value)
+                    instanceLine.statusbar:SetMinMaxValues(0, topValue, Enum.StatusBarInterpolation.ExponentialEaseOut)
+                    instanceLine.statusbar:SetValue(value, Enum.StatusBarInterpolation.ExponentialEaseOut)
+                    --apply curve
 
                     if specIcon then
                         instanceLine.icone_classe:SetTexture(specIcon)
@@ -1231,24 +1341,30 @@ local updateWindow = function(instance) --~update
                 end
             end
         end
-
+    else
+        if (damageMeterType and damageMeterType == 100) then
+            instance:SetDisplay(DETAILS_ATTRIBUTE_DAMAGE, DETAILS_SUBATTRIBUTE_DAMAGEDONE)
+        end
     end
 end
 
-local updateOpenedWindows = function()
+local updateOpenWindows = function()
     Details:InstanceCall(updateWindow)--update all opened details! windows with the new data from blizzard damage meter
 end
 
-local switchWindowFontStrings = function(instance)
+local showFontStringsForPrivateText = function(instance)
     local allInstanceLines = instance.barras
 
     for i = 1, #allInstanceLines do
         ---@type detailsline
         local line = allInstanceLines[i]
+        --clear the regular font string
         line.lineText1:SetText("")
         line.lineText2:SetText("")
         line.lineText3:SetText("")
         line.lineText4:SetText("")
+
+        --show the secret font strings
         line.lineText11:SetShown(true)
         line.lineText12:SetShown(true)
         line.lineText13:SetShown(true)
@@ -1258,27 +1374,103 @@ local switchWindowFontStrings = function(instance)
     end
 end
 
+---@param self instance
+function Details:GetFormattedTimeForTitleBar()
+    local combat = self:GetCombat()
+    local elapsedTime = 0
+
+    if not detailsFramework.IsAddonApocalypseWow() then
+        elapsedTime = combat:GetCombatTime()
+    else
+        local currentSessionId = getCurrentSessionId()
+        local segmentId = self:GetSegmentId()
+
+        if segmentId == DETAILS_SEGMENTID_OVERALL then
+            if bRegenIsDisabled then
+                local thisSessionTime = getSessionCombatTime(currentSessionId)
+                elapsedTime = combat:GetCombatTime() + thisSessionTime
+            else
+                elapsedTime = combat:GetCombatTime()
+            end
+
+        elseif segmentId == DETAILS_SEGMENTID_CURRENT then
+            if bRegenIsDisabled then
+                elapsedTime = getSessionCombatTime(currentSessionId)
+            else
+                elapsedTime = combat:GetCombatTime()
+            end
+        else
+            elapsedTime = combat:GetCombatTime()
+        end
+    end
+
+    if elapsedTime > 0 then
+        local minutes = math.floor(elapsedTime / 60)
+        local seconds = math.floor(elapsedTime % 60)
+        local timeString = string.format("%02d:%02d", minutes, seconds)
+        return timeString
+    end
+
+    return "00:00"
+end
+
+local timerUpdateInterval = 1 --time in seconds
+local timerUpdateObject = nil
+local updateTime = function(timerObject)
+    local instance = timerObject.instance
+    local timeString = instance:GetFormattedTimeForTitleBar()
+    if instance:GetSegmentId() ~= DETAILS_SEGMENTID_OVERALL then
+        local attributeText = instance:GetInstanceAttributeText() --this return 'damage done'
+        timeString = timeString .. " " .. attributeText
+        instance:SetTitleBarText(timeString)
+    end
+end
+
+--this function update the time in settings shown in the window
+local startElapsedTimeUpdate = function()
+    local lowerInstanceId = Details:GetLowerInstanceNumber()
+    if lowerInstanceId then
+        local instance = Details:GetInstance(lowerInstanceId)
+        if instance then
+            if (timerUpdateObject) then
+                timerUpdateObject:Cancel()
+                timerUpdateObject = nil
+            end
+            timerUpdateObject = C_Timer.NewTicker(timerUpdateInterval, updateTime)
+            timerUpdateObject.instance = instance
+        end
+    end
+end
+
 local updaterTicker = nil
 local startUpdater = function()
-    Details:InstanceCall(switchWindowFontStrings)
+    --bParser.MakeAsOverlay()
+    if (bRegenIsDisabled) then
+        Details:InstanceCall(showFontStringsForPrivateText)
 
-    --start a ticker that will update opened details! windows every X seconds
-    if (not updaterTicker) then
-        updaterTicker = C_Timer.NewTicker(Details.update_speed, function()
-            if (bRegenIsDisabled) then
-                updateOpenedWindows()
-            end
-        end)
-        
+        startElapsedTimeUpdate()
+
+        --start a ticker that will update opened details! windows every X seconds
+        if (not updaterTicker) then
+            updaterTicker = C_Timer.NewTicker(Details.update_speed, function()
+                updateOpenWindows()
+            end)
+        end
     end
 end
 
 local stopUpdaterAndClearWindow = function()
+    --bParser.UnmakeAsOverlay()
+
     if (updaterTicker) then
         updaterTicker:Cancel()
         updaterTicker = nil
-        
         Details:InstanceCall(clearWindow)
+    end
+
+    if (timerUpdateObject) then
+        timerUpdateObject:Cancel()
+        timerUpdateObject = nil
     end
 end
 
@@ -1312,12 +1504,10 @@ parserFrame:SetScript("OnEvent", function(self, event, ...)
         if sessionId ~= 0 then
             local existingSession = getSession(sessionId)
             if not existingSession then
-                
                 createAndAddSession(sessionId)
 
                 if not isUpdaterRunning() then
                     if Details:ArePlayersInCombat() then
-                        
                         startUpdater()
                     end
                 end
@@ -1341,7 +1531,7 @@ parserFrame:SetScript("OnEvent", function(self, event, ...)
                 previousSession.endTime = GetTime()
                 previousSession.endUnixTime = time()
                 previousSession.endDate = date("%H:%M:%S")
-                
+
             end
         else
             --no previous session found
@@ -1368,11 +1558,9 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
         bRegenIsDisabled = UnitAffectingCombat("player")
         C_Timer.After(1, function()
             if not bRegenIsDisabled then
-               
+
             end
         end)
-
-
 
     elseif (ev == "DAMAGE_METER_RESET") then
         --if bRegenIsDisabled then
@@ -1385,27 +1573,46 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
         local inCombat = ...
         if inCombat then
             bPlayerInCombat = true
-            
+
             local now = GetTime()
             if (now ~= evTime) then
                 if debug then
-                    
+
                 end
             end
             evTime = GetTime()
         else
             evTime = GetTime()
             bPlayerInCombat = false
-            
+
         end
 
         if debug then
-            
+
         end
 
     elseif (ev == "PLAYER_REGEN_ENABLED") then --left the combat
         if debug then
 
+        end
+
+        printDebug("PLAYER_REGEN_ENABLED fired")
+
+        if IsEncounterInProgress and IsEncounterInProgress() then
+            printDebug("PLAYER_REGEN_ENABLED encounter in progress.")
+            return
+
+        elseif InCombatLockdown() then
+            return
+        end
+
+        if IsInInstance() then
+            local isDeadOrGhost = UnitIsDeadOrGhost("player")
+            if isDeadOrGhost then
+                if Details:ArePlayersInCombat() then
+                    return
+                end
+            end
         end
 
         local sessionId = getCurrentSessionId()
@@ -1416,13 +1623,13 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
             session.endUnixTime = time()
             session.endDate = date("%H:%M:%S")
         else
-            
+
             --player left combat but no session found
             local combatWithSessionId = Details:GetCombatWithSessionId(sessionId)
             if combatWithSessionId then
-                
+
             else
-                
+
             end
         end
 
@@ -1435,7 +1642,7 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
         local now = GetTime()
         if (now ~= evTime) then
             if debug then
-                
+
             end
         end
 
@@ -1455,20 +1662,20 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
         end
 
         if debug then
-            
+
             if (bRegenIsDisabled) then
-                
+
             end
         end
 
     elseif (ev == "ENCOUNTER_START") then
         if debug then
-            
+
         end
 
     elseif (ev == "ENCOUNTER_END") then
         if debug then
-            
+
         end
     end
 end)
@@ -1477,7 +1684,9 @@ local detailsListener = Details:CreateEventListener()
 
 local onEvent = function(event, instance, ...)
     if event == "DETAILS_DATA_RESET" then
-        onDataReset()
+        if detailsFramework.IsAddonApocalypseWow() then
+            onDataReset()
+        end
     end
 end
 
@@ -1491,17 +1700,17 @@ function bParser.SetSessionCache(t)
     sessionCache = t
 
     local availableCombatSessions = C_DamageMeter.GetAvailableCombatSessions()
-    
+
 
     local latestSession = availableCombatSessions[#availableCombatSessions]
     if latestSession then
         local latestSessionId = latestSession.sessionID
-        
+
 
         for sessionId in pairs(sessionCache) do
             if sessionId > latestSessionId then
                 sessionCache[sessionId] = nil
-                
+
             end
         end
     else
