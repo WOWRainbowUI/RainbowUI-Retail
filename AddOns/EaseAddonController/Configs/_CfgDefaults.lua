@@ -2408,9 +2408,7 @@ D["Syndicator"] = {
 	modifier = "BNS, plusmouse, 彩虹ui",
     {
         text = "設定選項",
-        callback = function()
-			Settings.OpenToCategory("Syndicator")
-		end,
+        callback = function() SlashCmdList["Syndicator"]("") end,
     },
 	{
 		type = "text",
