@@ -1,63 +1,69 @@
 local ACR = LibStub("AceConfigRegistry-3.0")
 local ACD = LibStub("AceConfigDialog-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("CalReminder", true)
-
-if not CalReminderOptionsData then
-	CalReminderOptionsData = {}
-end
+local XITK = LibStub("XamInsightToolKit")
+local EZBUP = LibStub("EZBlizzardUiPopups")
 
 CalReminder_allianceNpcValues = {
-	"ANDUIN"               ,
-	"ALLIANCE_GUILD_HERALD",
-	"VARIAN"               ,
-	"HEMET"                ,
-	"RAVERHOLDT"           ,
-	"UTHER"                ,
-	"VELEN"                ,
-	"NOBUNDO"              ,
-	"CHEN"                 ,
-	"MALFURION"            ,
-	"ILLIDAN"              ,
-	"LICH_KING"            ,
-	"SHANDRIS"             ,
-	"SHAW"                 ,
-	"VALEERA"              ,
-	"JAINA"                ,
-	"KANRETHAD"            ,
-	"BOLVAR"               ,
-	"TURALYON"             ,
-	"ALLERIA"              ,
-	"AZURATHEL"            ,
-	"DINAIRE"              ,
-	"VEREESA"              ,
-	"ABIGAIL"              ,
-	"XAL'ATATH"            ,
+	230055, -- ANDUIN
+	49587,  -- ALLIANCE_GUILD_HERALD
+	29611,  -- VARIAN
+	191205, -- HEMET
+	229150, -- RAVERHOLDT
+	185157, -- Uther
+	210670, -- VELEN
+	212343, -- NOBUNDO
+	250594, -- Chen Stormstout
+	216069, -- Malfurion Stormrage
+	129114, -- Illidan Stormrage
+	36597,  -- LICH_KING
+	216682, -- Shandris Feathermoon
+	216115, -- Master Mathias Shaw
+	229128, -- VALEERA
+	216168, -- JAINA
+	118618, -- Kanrethad Ebonlocke
+	164079, -- BOLVAR
+	223205, -- TURALYON
+	230062, -- ALLERIA
+	181056, -- AZURATHEL
+	206533, -- DINAIRE
+	250382, -- Vereesa Windrunner
+	224220, -- ABIGAIL
+	235448, -- XAL'ATATH
+	241743, -- Archmage Khadgar
+	215113, -- Orweyna
+	207471, -- Widow Arak'nai
 }
 
 CalReminder_hordeNpcValues = {
-	"BAINE"             ,
-	"SYLVANAS"          ,
-	"HEMET"             ,
-	"RAVERHOLDT"        ,
-	"ILLIDAN"           ,
-	"LICH_KING"         ,
-	"HORDE_GUILD_HERALD",
-	"THRALL"            ,
-	"GALLYWIX"          ,
-	"GAMON"             ,
-	"REXXAR"            ,
-	"VALEERA"           ,
-	"HAMUUL"            ,
-	"SAURFANG"          ,
-	"GARROSH"           ,
-	"LIADRIN"           ,
-	"FAOL"              ,
-	"KAELTHAS"          ,
-	"CINDRETHRESH"      ,
-	"DINAIRE"           ,
-	"VEREESA"           ,
-	"ABIGAIL"           ,
-	"XAL'ATATH"         ,
+	203314, -- Baine Bloodhoof
+	177114, -- SYLVANAS
+	191205, -- HEMET
+	229150, -- RAVERHOLDT
+	250594, -- Chen Stormstout
+	129114, -- Illidan Stormrage
+	36597,  -- LICH_KING
+	49590,  -- HORDE_GUILD_HERALD
+	229321, -- THRALL
+	136683, -- Trade Prince Gallywix
+	172181, -- Gamon
+	200648, -- Rexxar
+	229128, -- VALEERA
+	107025, -- Archdruid Hamuul Runetotem
+	156180, -- SAURFANG
+	143425, -- GARROSH
+	226656, -- LIADRIN
+	186182, -- FAOL
+	177216, -- Kael'thas Sunstrider
+	181055, -- CINDRETHRESH
+	206533, -- DINAIRE
+	250382, -- Vereesa Windrunner
+	224220, -- ABIGAIL
+	235448, -- XAL'ATATH
+	241743, -- Archmage Khadgar
+	230062, -- ALLERIA
+	215113, -- Orweyna
+	207471, -- Widow Arak'nai
 }
 
 
@@ -92,7 +98,7 @@ end
 function loadCalReminderOptions()
 	local allianceNpcValues = {}
 	for _, entry in ipairs(CalReminder_allianceNpcValues) do
-        allianceNpcValues[entry] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels[entry]["CreatureId"])
+        allianceNpcValues[entry] = XITK.GetNameFromNpcID(entry)
     end
 
 	local allianceNpcValuesSorting = sorTableByNames(allianceNpcValues, "RANDOM")
@@ -100,7 +106,7 @@ function loadCalReminderOptions()
 	
 	local hordeNpcValues = {}
 	for _, entry in ipairs(CalReminder_hordeNpcValues) do
-        hordeNpcValues[entry] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels[entry]["CreatureId"])
+        hordeNpcValues[entry] = XITK.GetNameFromNpcID(entry)
     end
 
 	local hordeNpcValuesSorting = sorTableByNames(hordeNpcValues, "RANDOM")
@@ -131,11 +137,14 @@ function loadCalReminderOptions()
 							return enabled
 						end
 					},
-					enableDeathQuotes = {
+					enableQuotes = {
 						type = "toggle", order = 2,
 						width = "normal",
 						name = L["CALREMINDER_OPTIONS_QUOTES"],
 						desc = L["CALREMINDER_OPTIONS_QUOTES_DESC"],
+						disabled = function()
+							return CalReminderOptionsData["SoundsDisabled"]
+						end,
 						set = function(info, val) 
 							CalReminderOptionsData["QuotesDisabled"] = not val
 							if val then
@@ -150,7 +159,7 @@ function loadCalReminderOptions()
 									if chief == "RANDOM" then
 										chief = chiefList[math.random(1, #chiefList)]
 									end
-									EZBlizzUiPop_PlayNPCRandomSound(chief, "Dialog", true)
+									EZBUP.PlayNPCRandomSound(chief, "Dialog", not CalReminderOptionsData["SoundsDisabled"])
 								end
 							end
 						end,
@@ -190,7 +199,8 @@ function loadCalReminderOptions()
 							if chief == "RANDOM" then
 								chief = chiefList[math.random(1, #chiefList)]
 							end
-							EZBlizzUiPop_PlayNPCRandomSound(chief, "Dialog", true)
+							EZBUP.npcDialog(chief, string.format(L["CALREMINDER_DDAY_REMINDER"], UnitName("player"), "???"))
+							EZBUP.PlayNPCRandomSound(chief, "Dialog", not CalReminderOptionsData["SoundsDisabled"] and not CalReminderOptionsData["QuotesDisabled"])
 						end,
 						get = function(info)
 							return CalReminderOptionsData["ALLIANCE_NPC"] or "RANDOM"
@@ -210,7 +220,8 @@ function loadCalReminderOptions()
 							if chief == "RANDOM" then
 								chief = chiefList[math.random(1, #chiefList)]
 							end
-							EZBlizzUiPop_PlayNPCRandomSound(chief, "Dialog", true)
+							EZBUP.npcDialog(chief, string.format(L["CALREMINDER_DDAY_REMINDER"], UnitName("player"), "???"))
+							EZBUP.PlayNPCRandomSound(chief, "Dialog", not CalReminderOptionsData["SoundsDisabled"] and not CalReminderOptionsData["QuotesDisabled"])
 						end,
 						get = function(info)
 							return CalReminderOptionsData["HORDE_NPC"] or "RANDOM"

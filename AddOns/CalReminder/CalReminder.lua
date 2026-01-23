@@ -1,6 +1,8 @@
 CalReminder = LibStub("AceAddon-3.0"):NewAddon("CalReminder", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("CalReminder", true)
 local ACD = LibStub("AceConfigDialog-3.0")
+local XITK = LibStub("XamInsightToolKit")
+local EZBUP = LibStub("EZBlizzardUiPopups")
 
 CalReminderGlobal_CommPrefix = "CalReminder"
 
@@ -17,6 +19,16 @@ function CalReminder:OnInitialize()
 	-- Called when the addon is loaded
 	self:RegisterComm(CalReminderGlobal_CommPrefix, "ReceiveData")
 	
+	if not CalReminderOptionsData then
+		CalReminderOptionsData = {}
+	end
+	if not CalReminderOptionsData.soundHandler then
+		CalReminderOptionsData.soundHandler = {}
+	end
+	if CalReminderOptionsData.soundHandler.soundHandle then
+		StopSound(CalReminderOptionsData.soundHandler.soundHandle)
+		CalReminderOptionsData.soundHandler.soundHandle = nil
+	end
 	if not CalReminderOptionsData.delay then
 		CalReminderOptionsData.delay = 7
 	end
@@ -37,7 +49,7 @@ function CalReminder:OnInitialize()
 		CalReminderData.events = {}
 	end
 	
-	ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", self.ChatFilter)
+	ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_SYSTEM", self.ChatFilter)
 end
 
 local playerNotFoundMsg = string.gsub(ERR_CHAT_PLAYER_NOT_FOUND_S, "%%s", "(.-)")
@@ -51,6 +63,12 @@ function CalReminder:ChatFilter(event, msg, author, ...)
 	return false, msg, author, ...
 end
 
+local function CalReminderFinishLoad()
+	loadCalReminderOptions()
+	CalReminder:RegisterChatCommand("crm", "CalReminderChatCommand")
+	CalReminder:Print(L["CALREMINDER_WELCOME"])
+end
+
 function CalReminder:OnEnable()
 	-- Called when the addon is enabled
 	C_Calendar.OpenCalendar()
@@ -62,8 +80,25 @@ function CalReminder:OnEnable()
 	
     --self:RegisterEvent("CALENDAR_ACTION_PENDING", "ReloadData")
 
-	self:RegisterChatCommand("crm", "CalReminderChatCommand")
-	self:Print(L["CALREMINDER_WELCOME"])
+	-- Preload NPC names
+	for _, entry in ipairs(CalReminder_allianceNpcValues) do
+		XITK.GetNameFromNpcID(entry)
+    end
+	for _, entry in ipairs(CalReminder_hordeNpcValues) do
+        XITK.GetNameFromNpcID(entry)
+    end
+
+	local witnessItemId = 118427
+	local witnessItem = select(2, GetItemInfo(witnessItemId))
+	if witnessItem then
+		CalReminderFinishLoad()
+	else
+		self:RegisterEvent("GET_ITEM_INFO_RECEIVED", function()
+			self:UnregisterEvent("GET_ITEM_INFO_RECEIVED")
+			CalReminderFinishLoad()
+		end)
+		C_Item.RequestLoadItemDataByID(witnessItemId)
+	end
 end
 
 function CalReminder:CalReminderChatCommand()
@@ -71,9 +106,6 @@ function CalReminder:CalReminderChatCommand()
 end
 
 function CalReminder_OpenOptions()
-	if not CalReminderOptionsLoaded then
-		loadCalReminderOptions()
-	end
 	ACD:Open("CalReminder")
 end
 
@@ -141,7 +173,7 @@ function setCalReminderData(eventID, data, aValue, player)
 		CalReminderData.events[eventID].players[player] = {}
 	end
 	if not dataTime or dataTime == "" then
-		dataTime = tostring(CalReminder_getTimeUTCinMS())
+		dataTime = tostring(XITK.getTimeUTCinMS())
 	end
 	if player then
 		CalReminderData.events[eventID].players[player][data] = value.."|"..dataTime
@@ -273,8 +305,8 @@ StaticPopupDialogs["CALREMINDER_CALLTOARMS_DIALOG"] = {
 			
 			-- Send message to Invitees
 			for _, inviteInfo in ipairs(data.list) do
-				local fullName = CalReminder_addRealm(inviteInfo.name)
-				if not CalReminder_isPlayerCharacter(fullName) then
+				local fullName = XITK.addRealm(inviteInfo.name)
+				if not XITK.isPlayerCharacter(fullName) then
 					SendChatMessage(messageText, "WHISPER", nil, fullName)
 				end
 			end
@@ -522,7 +554,7 @@ function CalReminder:CreateCalReminderButtons(event, addOnName)
 			if ownerRegion and ownerRegion.eventIndex and rootDescription then
 				local currentEventInfo = C_Calendar.ContextMenuGetEventIndex()
 				local eventInfo = currentEventInfo and C_Calendar.GetDayEvent(currentEventInfo.offsetMonths, currentEventInfo.monthDay, currentEventInfo.eventIndex)
-				if eventInfo and eventInfo.calendarType == "PLAYER" or eventInfo.calendarType == "GUILD_EVENT" then
+				if eventInfo and (eventInfo.calendarType == "PLAYER" or eventInfo.calendarType == "GUILD_EVENT") then
 					local inviteInfo = {}
 					inviteInfo.eventID = eventInfo.eventID
 					inviteInfo.guid = UnitGUID("player")
@@ -557,44 +589,90 @@ function CalReminder:CreateCalReminderButtons(event, addOnName)
 end
 
 function CalReminder_browseEvents()
+	-- Retrieve current in-game time
 	local curHour, curMinute = GetGameTime()
-	local curDay, curMonth, curYear = CalReminder_getCurrentDate()
+
+	-- Retrieve real calendar date (day, month, year)
+	local curDay, curMonth, curYear = XITK.getCurrentDate()
+
+	-- Retrieve the currently displayed month in Blizzard's calendar
 	local calDate = C_Calendar.GetMonthInfo()
+	if not calDate then
+		-- Safety guard: should not happen, but prevents nil crashes
+		return
+	end
+
 	local calMonth, calYear = calDate.month, calDate.year
+
+	-- Compute how many months we need to shift to align calendar display with the real date
 	local monthOffset = 12 * (curYear - calYear) + curMonth - calMonth
-		
+
+	-- Save the event the player was viewing, if any
 	local actualEventInfo = C_Calendar.GetEventIndex()
+
+	-- Move calendar to the correct month offset
 	C_Calendar.SetMonth(monthOffset)
-	
+
+	-- Loop control variables (kept as in original logic)
 	local monthOffsetLoopId = 0
 	local dayLoopId = curDay
 	local loopId = 1
 	local dayOffsetLoopId = 0
+
+	-- Reset global flags used by the reminder system
 	firstPendingEvent = false
+	firstEvent = nil
+	firstEventMonthOffset = nil
+	firstEventDay = nil
+	firstEventId = nil
+	firstEventIsTomorrow = false
+	firstEventIsToday = false
+
+	-- Main scanning loop: search day-by-day for a pending event
 	while not firstPendingEvent and dayOffsetLoopId <= CalReminderOptionsData.delay do
+		
+		-- Scan the days of the current month
 		while not firstPendingEvent and dayLoopId <= 31 and dayOffsetLoopId <= CalReminderOptionsData.delay do
-			local numEvents = C_Calendar.GetNumDayEvents(0, dayLoopId)
+			
+			-- Retrieve number of events for this day
+			local numEvents = C_Calendar.GetNumDayEvents(0, dayLoopId) or 0
+
+			-- Iterate through each event
 			while not firstPendingEvent and loopId <= numEvents do
 				local event = C_Calendar.GetDayEvent(0, dayLoopId, loopId)
+
 				if event then
+					-- Disable CALENDAR_ACTION_PENDING temporarily to avoid UI flicker or recursion
 					CalReminder:UnregisterEvent("CALENDAR_ACTION_PENDING")
+
+					-- Filter only PLAYER or GUILD events
 					if event.calendarType == "PLAYER" or event.calendarType == "GUILD_EVENT" then
+						
+						-- Skip events that already started today
 						if monthOffsetLoopId == 0
 							and dayLoopId == curDay
 								and (curHour > event.startTime.hour
 									or (curHour == event.startTime.hour
-										and curMinute >= event.startTime.minute)) then 
+										and curMinute >= event.startTime.minute)) then
+							
+							-- Already too late for this event today
 							--CalReminder:Print("too late")
+						
 						else
-							if not firstPendingEvent 
-									and (event.inviteStatus == Enum.CalendarStatus.Invited
-										or event.inviteStatus == Enum.CalendarStatus.Tentative) then
+							-- Check if player is invited or tentative
+							if event.inviteStatus == Enum.CalendarStatus.Invited
+								or event.inviteStatus == Enum.CalendarStatus.Tentative then
+								
 								local eventFound = true
+
+								-- If Tentative, apply reminder logic based on stored "reason"
 								if event.inviteStatus == Enum.CalendarStatus.Tentative then
 									local eventInfo = C_Calendar.GetDayEvent(monthOffsetLoopId, dayLoopId, loopId)
-									local reasonID = eventInfo.eventID and getCalReminderData(eventInfo.eventID, "reason", UnitGUID("player"))
-									local reminder = reasonID and reasonsDropdownOptions[reasonID] and reasonsDropdownOptions[reasonID].reminder
-									if reasonID and reasonsDropdownOptions[reasonID] then
+									if eventInfo then
+										local reasonID = eventInfo.eventID and getCalReminderData(eventInfo.eventID, "reason", UnitGUID("player"))
+										local reminder = reasonID and reasonsDropdownOptions[reasonID] and reasonsDropdownOptions[reasonID].reminder
+
+										-- If a reminder delay is specified, suppress the event until the appropriate number of days
 										if reminder then
 											if dayLoopId - reminder > curDay then
 												eventFound = false
@@ -604,14 +682,17 @@ function CalReminder_browseEvents()
 										end
 									end
 								end
+
 								if eventFound then
-									--need response
+									-- Mark this as the first pending event
 									firstEvent = event
+
 									if dayLoopId == curDay then
 										firstEventIsToday = true
 									elseif dayLoopId == curDay + 1 then
 										firstEventIsTomorrow = true
 									end
+
 									firstEventMonthOffset = monthOffsetLoopId
 									firstEventDay = dayLoopId
 									firstEventId = loopId
@@ -621,18 +702,25 @@ function CalReminder_browseEvents()
 						end
 					end
 				end
+
 				loopId = loopId + 1
 			end
+
 			dayLoopId = dayLoopId + 1
 			dayOffsetLoopId = dayOffsetLoopId + 1
 			loopId = 1
 		end
+
+		-- Move calendar forward one month and continue scanning
 		C_Calendar.SetMonth(1)
 		monthOffsetLoopId = monthOffsetLoopId + 1
 		dayLoopId = 1
 	end
-	
+
+	-- Restore the calendar month view to its original offset
 	C_Calendar.SetMonth(- monthOffset - monthOffsetLoopId)
+
+	-- Restore previously opened event or close event view
 	if actualEventInfo then
 		C_Calendar.OpenEvent(0, actualEventInfo.monthDay, actualEventInfo.eventIndex)
 	else
@@ -650,7 +738,7 @@ function CalReminder:ReloadData()
 		if calendarIsShown then
 			currentEventInfo = C_Calendar.GetEventIndex()
 			if currentEventInfo then
-				local _, curMonth, curYear = CalReminder_getCurrentDate()
+				local _, curMonth, curYear = XITK.getCurrentDate()
 				local calDate = C_Calendar.GetMonthInfo()
 				local calMonth, calYear = calDate.month, calDate.year
 				local monthOffset = 12 * (curYear - calYear) + curMonth - calMonth
@@ -692,15 +780,15 @@ function CalReminder:ReloadData()
 			if firstEventIsToday or firstEventIsTomorrow then
 				local message = (firstEventIsToday and L["CALREMINDER_DDAY_REMINDER"]) or L["CALREMINDER_LDAY_REMINDER"]
 				if not CalReminderOptionsData["SoundsDisabled"] then
-					if CalReminderOptionsData["QuotesDisabled"] or not EZBlizzUiPop_PlayNPCRandomSound(chief, "Dialog", true) then
-						EZBlizzUiPop_PlaySound(12867)
+					if not EZBUP.PlayNPCRandomSound(chief, "Dialog", not CalReminderOptionsData["QuotesDisabled"]) then
+						XITK.PlaySound(12867) -- AlarmClockWarning2
 					end
 				end
-				frame = EZBlizzUiPop_npcDialog(chief, string.format(message, UnitName("player"), firstEvent.title), "CalReminderFrameTemplate")
+				frame = EZBUP.npcDialog(chief, string.format(message, UnitName("player"), firstEvent.title), "CalReminderFrameTemplate")
 			end
 			if not frame then
 				local isGuildEvent = GetGuildInfo("player") ~= nil and firstEvent.calendarType == "GUILD_EVENT"
-				EZBlizzUiPop_ToastFakeAchievement(CalReminder, not CalReminderOptionsData["SoundsDisabled"], 4, nil, firstEvent.title, nil, 237538, isGuildEvent, L["CALREMINDER_ACHIV_REMINDER"], true, function()  CalReminderShowCalendar(firstEventMonthOffset, firstEventDay, firstEventId)  end)
+				EZBUP.ToastFakeAchievement(CalReminder, not CalReminderOptionsData["SoundsDisabled"], 4, nil, firstEvent.title, nil, 237538, isGuildEvent, L["CALREMINDER_ACHIV_REMINDER"], true, function()  CalReminderShowCalendar(firstEventMonthOffset, firstEventDay, firstEventId)  end)
 			end
 		end
 	end
@@ -711,6 +799,20 @@ function CalReminderShowCalendar(monthOffset, day, id)
 		UIParentLoadAddOn("Blizzard_Calendar")
 	end
 	if ( Calendar_Toggle ) then
+		if CalReminderOptionsData.soundHandler.soundHandle then
+			StopSound(CalReminderOptionsData.soundHandler.soundHandle)
+			CalReminderOptionsData.soundHandler.soundHandle = nil
+		end
+		if not CalReminderOptionsData["SoundsDisabled"] then
+			local willPlay, soundHandle = PlaySound(48826) -- Ticking sound
+			CalReminderOptionsData.soundHandler.soundHandle = soundHandle
+			C_Timer.After(2, function()
+				StopSound(soundHandle)
+				if CalReminderOptionsData.soundHandler.soundHandle and CalReminderOptionsData.soundHandler.soundHandle == soundHandle then
+					CalReminderOptionsData.soundHandler.soundHandle = nil
+				end
+			end)
+		end
 		Calendar_Toggle()
 		ShowUIPanel(CalendarFrame)
 	end
