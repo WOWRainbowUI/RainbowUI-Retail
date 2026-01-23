@@ -597,7 +597,6 @@ function CTT:OnEnable()
     self:RegisterEvent("PLAYER_TARGET_CHANGED")
     self:RegisterEvent("CHALLENGE_MODE_COMPLETED")
     self:RegisterEvent("CHALLENGE_MODE_START")
-    self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     self:RegisterEvent("CHALLENGE_MODE_RESET")
 end
 
@@ -669,42 +668,9 @@ function CTT:ADDON_LOADED()
         self.elapsed = self.elapsed - elapsed
         if self.elapsed > 0 then return end
         self.elapsed = 0.05
-        -- rest of the code here
-        -- print(cttStopwatchGuiTargetText:GetText())
         if UnitAffectingCombat("player") or bossEncounter or not db.profile.cttMenuOptions.resetCounterOnEndOfCombat then
-            --CTT:Print(cttElapsedSeconds)
             CTT_CheckForTarget()
-            local times = GetTime() - time
-            local time = cttElapsedSeconds
-            totalSeconds = floor(time)
-            hours = floor(time / 3600)
-            minutes = floor((time - floor(time / 3600) * 3600) / 60)
-            seconds = floor(time - floor(time / 3600) * 3600 - floor((time - floor(time / 3600) * 3600) / 60) * 60)
-            miliseconds = floor((
-                time - floor(time / 3600) * 3600 - floor((time - floor(time / 3600) * 3600) / 60) * 60 -
-                floor(time - floor(time / 3600) * 3600 - floor((time - floor(time / 3600) * 3600) / 60) * 60)) * 100)
-
-            if seconds < 10 then
-                --local temp = tostring(seconds)
-                seconds = "0" .. seconds
-            end
-            if minutes < 10 then
-                --local temp = tostring(minutes)
-                minutes = "0" .. minutes
-            end
-            if hours < 10 then
-                --local temp = tostring(hours)
-                hours = "0" .. hours
-            end
-            if totalSeconds < 10 then
-                --local temp = tostring(totalSeconds)
-                totalSeconds = "0" .. totalSeconds
-            end
-            if miliseconds < 10 then
-                miliseconds = "0" .. miliseconds
-            end
-
-            --db.profile.cttMenuOptions.timeValues = {hours, minutes, seconds, tonumber(string.format("%02.f", math.floor(times)))}
+            hours, minutes, seconds, totalSeconds, miliseconds = CalculateTimeParts(cttElapsedSeconds)
             CTT_UpdateText(hours, minutes, seconds, miliseconds, db.profile.cttMenuOptions.dropdownValue, 1)
             if (lastBossSoundPlayed ~= totalSeconds) then
                 CTT_CheckToPlaySound()
@@ -836,17 +802,17 @@ function CTT:CHALLENGE_MODE_START(mapID)
     end
 end
 
-function CTT:COMBAT_LOG_EVENT_UNFILTERED()
-    local playerGUID = UnitGUID("player")
-    local timestamp, subevent, _, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool, amount, overkill, school, resisted, blocked, absorbed, critical, glancing, crushing, isOffHand =
-        CombatLogGetCurrentEventInfo()
+-- function CTT:COMBAT_LOG_EVENT_UNFILTERED()
+--     local playerGUID = UnitGUID("player")
+--     local timestamp, subevent, _, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool, amount, overkill, school, resisted, blocked, absorbed, critical, glancing, crushing, isOffHand =
+--         CombatLogGetCurrentEventInfo()
 
-    if sourceGUID == playerGUID and subevent == "SPELL_CAST_SUCCESS" and
-        not CTT_TableContainsValue(NonHearthstones, spellName) and
-        string.find(spellName, "Hearthstone") then
-        ResetInstances();
-    end
-end
+--     if sourceGUID == playerGUID and subevent == "SPELL_CAST_SUCCESS" and
+--         not CTT_TableContainsValue(NonHearthstones, spellName) and
+--         string.find(spellName, "Hearthstone") then
+--         ResetInstances();
+--     end
+-- end
 
 function CTT:CHALLENGE_MODE_RESET(mapID)
 
@@ -1003,6 +969,16 @@ end
 --| Non AceAddon functions --|
 --|--------------------------|
 
+-- Helper to calculate time parts from elapsed seconds
+function CalculateTimeParts(elapsed)
+    local total = math.floor(elapsed)
+    local h = math.floor(total / 3600)
+    local m = math.floor((total % 3600) / 60)
+    local s = total % 60
+    local ms = math.floor((elapsed - total) * 100)
+    return string.format("%02d", h), string.format("%02d", m), string.format("%02d", s), tostring(total), string.format("%02d", ms)
+end
+
 -- function to check if a ui reset is needed.
 function CTT_CheckForReload()
     if db.profile.cttMenuOptions.lastVersion == nil then
@@ -1030,26 +1006,11 @@ end
 function CTT_CheckForTarget()
     if not db.profile.cttMenuOptions.toggleTarget then return end
     local target = GetUnitName("Target", false)
-    local raidMarkerIcon = target ~= nil and GetRaidTargetIndex("Target") or nil
     if target ~= nil then
         cttStopwatchGuiTargetText:SetText(target)
         cttStopwatchGuiTargetText:Show()
-        if raidMarkerIcon ~= nil then
-            cttStopwatchGuiTargetIcon:SetTexture("Interface/TargetingFrame/UI-RaidTargetingIcon_" .. raidMarkerIcon, true)
-            cttStopwatchGuiTargetIcon:Show()
-            cttStopwatchGuiTargetIcon2:SetTexture("Interface/TargetingFrame/UI-RaidTargetingIcon_" .. raidMarkerIcon,
-                true)
-            cttStopwatchGuiTargetIcon2:Show()
-        else
-            cttStopwatchGuiTargetIcon:Hide()
-            cttStopwatchGuiTargetIcon2:Hide()
-        end
     else
         cttStopwatchGuiTargetText:Hide()
-        if cttStopwatchGuiTargetIcon:IsShown() then
-            cttStopwatchGuiTargetIcon:Hide()
-            cttStopwatchGuiTargetIcon2:Hide()
-        end
     end
 end
 
@@ -1155,43 +1116,29 @@ end
 -- function to display results on ecounter end or regen enabled
 function CTT_DisplayResults(newRecord)
     if not db.profile.cttMenuOptions.togglePrint then return end
+    local t = db.profile.cttMenuOptions.timeValues or {"00", "00", "00", "00", "00"}
+    local h = tostring(t[1] or "00")
+    local m = tostring(t[2] or "00")
+    local s = tostring(t[3] or "00")
+    local ts = tostring(t[4] or "00")
+    local ms = tostring(t[5] or "00")
     if db.profile.cttMenuOptions.dropdownValue == 1 then
         if newRecord then
-            CTT:Print(L["New Record! Fight ended in "] ..
-                db.profile.cttMenuOptions.timeValues[4] ..
-                "." .. db.profile.cttMenuOptions.timeValues[5] .. " " .. L["seconds"] .. "!")
+            CTT:Print(L["New Record! Fight ended in "] .. ts .. "." .. ms .. " " .. L["seconds"] .. "!")
         else
-            CTT:Print(L["Fight ended in "] ..
-                db.profile.cttMenuOptions.timeValues[4] ..
-                "." .. db.profile.cttMenuOptions.timeValues[5] .. " " .. L["seconds"] .. ".")
+            CTT:Print(L["Fight ended in "] .. ts .. "." .. ms .. " " .. L["seconds"] .. ".")
         end
     elseif db.profile.cttMenuOptions.dropdownValue == 2 then
         if newRecord then
-            CTT:Print(L["New Record! Fight ended in "] ..
-                "(MM:SS.MS): " ..
-                db.profile.cttMenuOptions.timeValues[2] ..
-                ":" .. db.profile.cttMenuOptions.timeValues[3] .. "." .. db.profile.cttMenuOptions.timeValues[5] .. "!")
+            CTT:Print(L["New Record! Fight ended in "] .. "(MM:SS.MS): " .. m .. ":" .. s .. "." .. ms .. "!")
         else
-            CTT:Print(L["Fight ended in "] ..
-                "(MM:SS.MS): " ..
-                db.profile.cttMenuOptions.timeValues[2] ..
-                ":" .. db.profile.cttMenuOptions.timeValues[3] .. "." .. db.profile.cttMenuOptions.timeValues[5] .. ".")
+            CTT:Print(L["Fight ended in "] .. "(MM:SS.MS): " .. m .. ":" .. s .. "." .. ms .. ".")
         end
     else
         if newRecord then
-            CTT:Print(L["New Record! Fight ended in "] ..
-                "(HH:MM:SS.MS): " ..
-                db.profile.cttMenuOptions.timeValues[1] ..
-                ":" ..
-                db.profile.cttMenuOptions.timeValues[2] ..
-                ":" .. db.profile.cttMenuOptions.timeValues[3] .. "." .. db.profile.cttMenuOptions.timeValues[5] .. "!")
+            CTT:Print(L["New Record! Fight ended in "] .. "(HH:MM:SS.MS): " .. h .. ":" .. m .. ":" .. s .. "." .. ms .. "!")
         else
-            CTT:Print(L["Fight ended in "] ..
-                "(HH:MM:SS.MS): " ..
-                db.profile.cttMenuOptions.timeValues[1] ..
-                ":" ..
-                db.profile.cttMenuOptions.timeValues[2] ..
-                ":" .. db.profile.cttMenuOptions.timeValues[3] .. "." .. db.profile.cttMenuOptions.timeValues[5] .. ".")
+            CTT:Print(L["Fight ended in "] .. "(HH:MM:SS.MS): " .. h .. ":" .. m .. ":" .. s .. "." .. ms .. ".")
         end
     end
 end
@@ -1248,43 +1195,39 @@ function CTT_StoreBossKills(expansion, raidInstance, bossName, groupSize, diffic
     local key = 0
 
     if db.profile.RaidKills ~= nil then
-        key = table.getn(db.profile.RaidKills) + 1
+        key = #db.profile.RaidKills + 1
         db.profile.RaidKills[key] = data
     else
         db.profile.RaidKills = {}
-        db.profile.RaidKills[key] = data
+        db.profile.RaidKills[1] = data
     end
 end
 
 -- function to fix display results on a boss encounter ending
 function CTT_DisplayResultsBosses(bossEncounter, wasAKill)
     if not db.profile.cttMenuOptions.togglePrint then return end
+    local ms = tostring(miliseconds or "00")
+    local s = tostring(seconds or "00")
+    local m = tostring(minutes or "00")
+    local h = tostring(hours or "00")
+    local ts = tostring(totalSeconds or "00")
     if db.profile.cttMenuOptions.dropdownValue == 1 then
         if wasAKill then
-            CTT:Print(L["You have successfully killed "] ..
-                bossEncounter ..
-                " " .. L["after"] .. " " .. totalSeconds .. "." .. miliseconds .. " " .. L["seconds"] .. "!")
+            CTT:Print(L["You have successfully killed "] .. bossEncounter .. " " .. L["after"] .. " " .. ts .. "." .. ms .. " " .. L["seconds"] .. "!")
         else
-            CTT:Print(L["You have wiped on "] ..
-                bossEncounter .. L["after"] .. " " .. totalSeconds .. "." .. miliseconds .. ".")
+            CTT:Print(L["You have wiped on "] .. bossEncounter .. L["after"] .. " " .. ts .. "." .. ms .. ".")
         end
     elseif db.profile.cttMenuOptions.dropdownValue == 2 then
         if wasAKill then
-            CTT:Print(L["You have successfully killed "] ..
-                bossEncounter .. " " .. L["after"] .. " " .. minutes .. ":" .. seconds .. "." .. miliseconds .. "!")
+            CTT:Print(L["You have successfully killed "] .. bossEncounter .. " " .. L["after"] .. " " .. m .. ":" .. s .. "." .. ms .. "!")
         else
-            CTT:Print(L["You have wiped on "] ..
-                bossEncounter .. " " .. L["after"] .. " " .. minutes .. ":" .. seconds .. "." .. miliseconds .. ".")
+            CTT:Print(L["You have wiped on "] .. bossEncounter .. " " .. L["after"] .. " " .. m .. ":" .. s .. "." .. ms .. ".")
         end
     else
         if wasAKill then
-            CTT:Print(L["You have successfully killed "] ..
-                bossEncounter ..
-                " " .. L["after"] .. " " .. hours .. ":" .. minutes .. ":" .. seconds .. "." .. miliseconds .. ".")
+            CTT:Print(L["You have successfully killed "] .. bossEncounter .. " " .. L["after"] .. " " .. h .. ":" .. m .. ":" .. s .. "." .. ms .. ".")
         else
-            CTT:Print(L["You have wiped on "] ..
-                bossEncounter ..
-                " " .. L["after"] .. " " .. hours .. ":" .. minutes .. ":" .. seconds .. "." .. miliseconds .. ".")
+            CTT:Print(L["You have wiped on "] .. bossEncounter .. " " .. L["after"] .. " " .. h .. ":" .. m .. ":" .. s .. "." .. ms .. ".")
         end
     end
 end
@@ -1362,6 +1305,83 @@ end
 --|-----------------------|
 --| AceGUI Options Menu --|
 --|-----------------------|
+
+-- Helper function to create a checkbox
+local function CreateCheckBox(container, opts)
+    local cb = AceGUI:Create("CheckBox")
+    cb:SetLabel(opts.label)
+    if opts.width then cb:SetWidth(opts.width) end
+    if opts.height then cb:SetHeight(opts.height) end
+    cb:SetType("checkbox")
+    cb:ClearAllPoints()
+    if opts.value ~= nil then cb:SetValue(opts.value) end
+    if opts.point then cb:SetPoint(unpack(opts.point)) end
+    if opts.callback then cb:SetCallback("OnValueChanged", opts.callback) end
+    container:AddChild(cb)
+    if opts.name then container[opts.name] = cb end
+    return cb
+end
+
+-- Helper function to create a dropdown
+local function CreateDropdown(container, opts)
+    local dd = AceGUI:Create("Dropdown")
+    dd:SetLabel(opts.label)
+    if opts.width then dd:SetWidth(opts.width) end
+    dd:SetMultiselect(false)
+    dd:ClearAllPoints()
+    if opts.list then dd:SetList(opts.list) end
+    if opts.text then dd:SetText(opts.text) end
+    if opts.value then dd:SetValue(opts.value) end
+    if opts.point then dd:SetPoint(unpack(opts.point)) end
+    if opts.callback then dd:SetCallback("OnValueChanged", opts.callback) end
+    container:AddChild(dd)
+    if opts.name then container[opts.name] = dd end
+    return dd
+end
+
+-- Helper function to create a button
+local function CreateButton(container, opts)
+    local btn = AceGUI:Create("Button")
+    btn:SetText(opts.text)
+    if opts.width then btn:SetWidth(opts.width) end
+    btn:ClearAllPoints()
+    if opts.point then btn:SetPoint(unpack(opts.point)) end
+    if opts.callback then btn:SetCallback("OnClick", opts.callback) end
+    container:AddChild(btn)
+    if opts.name then container[opts.name] = btn end
+    return btn
+end
+
+-- Helper function to create a color picker
+local function CreateColorPicker(container, opts)
+    local cp = AceGUI:Create("ColorPicker")
+    if opts.color then cp:SetColor(unpack(opts.color)) end
+    cp:SetLabel(opts.label)
+    if opts.width then cp:SetWidth(opts.width) end
+    cp:ClearAllPoints()
+    if opts.point then cp:SetPoint(unpack(opts.point)) end
+    if opts.callback then cp:SetCallback("OnValueChanged", opts.callback) end
+    container:AddChild(cp)
+    if opts.name then container[opts.name] = cp end
+    return cp
+end
+
+-- Helper function to create a slider
+local function CreateSlider(container, opts)
+    local slider = AceGUI:Create("Slider")
+    slider:SetLabel(opts.label)
+    if opts.width then slider:SetWidth(opts.width) end
+    if opts.isPercent then slider:SetIsPercent(true) end
+    if opts.value ~= nil then slider:SetValue(opts.value) end
+    if opts.sliderValues then slider:SetSliderValues(unpack(opts.sliderValues)) end
+    slider:ClearAllPoints()
+    if opts.point then slider:SetPoint(unpack(opts.point)) end
+    if opts.onValueChanged then slider:SetCallback("OnValueChanged", opts.onValueChanged) end
+    if opts.onMouseUp then slider:SetCallback("OnMouseUp", opts.onMouseUp) end
+    container:AddChild(slider)
+    if opts.name then container[opts.name] = slider end
+    return slider
+end
 
 -- function to toggle the options menu
 function CTT_ToggleMenu()
@@ -1445,7 +1465,7 @@ end
 
 -- function to update the tracker size from user settings on login
 function CTT_SetTrackerSizeOnLogin()
-    if table.getn(db.profile.cttMenuOptions.timeTrackerSize) == 2 and db.profile.cttMenuOptions.fontVal and
+    if #db.profile.cttMenuOptions.timeTrackerSize == 2 and db.profile.cttMenuOptions.fontVal and
         db.profile.cttMenuOptions.fontName and db.profile.cttMenuOptions.backDropAlphaSlider then
         cttStopwatchGui:SetWidth(db.profile.cttMenuOptions.timeTrackerSize[1])
         cttStopwatchGui:SetHeight(db.profile.cttMenuOptions.timeTrackerSize[2])
@@ -1478,7 +1498,7 @@ end
 function CTT_FontPickerDropDownState(widget, event, key, checked)
     db.profile.cttMenuOptions.fontPickerDropDown = key
     db.profile.cttMenuOptions.fontName = LSM:Fetch("font", fontTableOptions[key])
-    if table.getn(db.profile.cttMenuOptions.timeTrackerSize) == 2 and db.profile.cttMenuOptions.fontVal and
+    if #db.profile.cttMenuOptions.timeTrackerSize == 2 and db.profile.cttMenuOptions.fontVal and
         db.profile.cttMenuOptions.fontName then
         cttStopwatchGui:SetWidth(db.profile.cttMenuOptions.timeTrackerSize[1])
         cttStopwatchGui:SetHeight(db.profile.cttMenuOptions.timeTrackerSize[2])
@@ -1624,8 +1644,11 @@ end
 
 function CTT_PlaySoundOnDropDownSelect(widget, event, key, checked)
     db.profile.cttMenuOptions.soundDropDownValue = key
-    db.profile.cttMenuOptions.soundName = LSM:Fetch("sound", soundTableOptions[key])
-    PlaySoundFile(LSM:Fetch("sound", soundTableOptions[key]), "Master")
+    local soundPath = LSM:Fetch("sound", soundTableOptions[key])
+    db.profile.cttMenuOptions.soundName = soundPath
+    if soundPath then
+        PlaySoundFile(soundPath, "Master")
+    end
 end
 
 function CTT_AlertTimeOnEnterPressed(widget, event, text)
@@ -1677,17 +1700,19 @@ end
 
 function CTT_AlertAddButtonClicked(widget, event)
     local timeInSeconds = IsInt(db.profile.cttMenuOptions.localStore)
-    local key = 0
-    if db.profile.cttMenuOptions.alerts[table.getn(db.profile.cttMenuOptions.alerts)] ~= {} then key = 1 end
-    if db.profile.cttMenuOptions.localStore ~= nil and timeInSeconds and db.profile.cttMenuOptions.raidDropdown ~= nil
-        and db.profile.cttMenuOptions.bossDropdown ~= nil then
-        db.profile.cttMenuOptions.alerts[table.getn(db.profile.cttMenuOptions.alerts) + key] = {
-            tonumber(db.profile.cttMenuOptions
-                .localStore), raidInstanceZones[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey],
-            raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey][
-                db.profile.cttMenuOptions.bossDropDownkey],
-            raidEncounterIDs[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey][
-                db.profile.cttMenuOptions.bossDropDownkey] }
+    if db.profile.cttMenuOptions.alerts == nil then
+        db.profile.cttMenuOptions.alerts = {}
+    end
+    local alerts = db.profile.cttMenuOptions.alerts
+    local canAdd = db.profile.cttMenuOptions.localStore ~= nil and timeInSeconds and db.profile.cttMenuOptions.raidDropdown ~= nil
+        and db.profile.cttMenuOptions.bossDropdown ~= nil
+    if canAdd then
+        alerts[#alerts + 1] = {
+            tonumber(db.profile.cttMenuOptions.localStore),
+            raidInstanceZones[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey],
+            raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey][db.profile.cttMenuOptions.bossDropDownkey],
+            raidEncounterIDs[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey][db.profile.cttMenuOptions.bossDropDownkey]
+        }
         CTT.menu.tab:SelectTab("alerts")
     else
         if not timeInSeconds then
@@ -1701,12 +1726,16 @@ function CTT_AlertAddButtonClicked(widget, event)
 end
 
 function CTT_AlertDeleteButtonClicked(widget, event, key)
-    table.remove(db.profile.cttMenuOptions.alerts, key)
+    if db.profile.cttMenuOptions.alerts ~= nil then
+        table.remove(db.profile.cttMenuOptions.alerts, key)
+    end
     CTT.menu.tab:SelectTab("alerts")
 end
 
 function CTT_AlertDeleteButtonClickedForRaidTab(widget, event, key)
-    table.remove(db.profile.RaidKills, key)
+    if db.profile.RaidKills ~= nil then
+        table.remove(db.profile.RaidKills, key)
+    end
     CTT.menu.tab:SelectTab("raids")
 end
 
@@ -1803,239 +1832,166 @@ end
 --function that draws the widgets for the first tab
 local function OptionsMenu(container)
     -- frame lock button
-    local lockFrameCheckButton = AceGUI:Create("CheckBox")
-    lockFrameCheckButton:SetLabel(L["Lock"])
-    lockFrameCheckButton:SetWidth(60)
-    lockFrameCheckButton:SetHeight(22)
-    lockFrameCheckButton:SetType("checkbox")
-    lockFrameCheckButton:ClearAllPoints()
-    if db.profile.cttMenuOptions.lockFrameCheckButton ~= nil then lockFrameCheckButton:SetValue(db.profile.cttMenuOptions.lockFrameCheckButton) end
-    lockFrameCheckButton:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 0)
-    lockFrameCheckButton:SetCallback("OnValueChanged", CTT_LockFrameCheckBoxState)
-    container:AddChild(lockFrameCheckButton)
-    container.lockFrameCheckButton = lockFrameCheckButton
+    local lockFrameCheckButton = CreateCheckBox(container, {
+        label = L["Lock"],
+        width = 60,
+        height = 22,
+        value = db.profile.cttMenuOptions.lockFrameCheckButton,
+        point = { "TOPLEFT", container.tab, "TOPLEFT", 6, 0 },
+        callback = CTT_LockFrameCheckBoxState,
+        name = "lockFrameCheckButton",
+    })
 
     -- minimap icon check button
-    local minimapIconCheckButton = AceGUI:Create("CheckBox")
-    minimapIconCheckButton:SetLabel("Hide Minimap")
-    minimapIconCheckButton:SetWidth(120)
-    minimapIconCheckButton:SetHeight(22)
-    minimapIconCheckButton:SetType("checkbox")
-    minimapIconCheckButton:ClearAllPoints()
-    if db.profile.cttMenuOptions.minimapIconCheckButton ~= nil then
-        minimapIconCheckButton:SetValue(db.profile.cttMenuOptions.minimapIconCheckButton)
-    else
-        minimapIconCheckButton:SetValue(false)
-    end
-    minimapIconCheckButton:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 0)
-    --minimapIconCheckButton:SetCallBack("OnValueChanged", CTT_MinimapIconCheckButton)
-    minimapIconCheckButton:SetCallback("OnValueChanged", CTT_MinimapIconCheckButton)
-    container:AddChild(minimapIconCheckButton)
-    container.minimapIconCheckButton = minimapIconCheckButton
+    local minimapIconCheckButton = CreateCheckBox(container, {
+        label = "Hide Minimap",
+        width = 120,
+        height = 22,
+        value = db.profile.cttMenuOptions.minimapIconCheckButton,
+        point = { "TOPLEFT", container.tab, "TOPLEFT", 6, 0 },
+        callback = CTT_MinimapIconCheckButton,
+        name = "minimapIconCheckButton",
+    })
 
     -- toggle target checkbox
-    local toggleTarget = AceGUI:Create("CheckBox")
-    toggleTarget:SetLabel("Show Target")
-    toggleTarget:SetWidth(115)
-    toggleTarget:SetHeight(22)
-    toggleTarget:SetType("checkbox")
-    toggleTarget:ClearAllPoints()
-    if db.profile.cttMenuOptions.toggleTarget ~= nil then
-        toggleTarget:SetValue(db.profile.cttMenuOptions.toggleTarget)
-    else
-        toggleTarget:SetValue(true)
-    end
-    toggleTarget:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 0)
-    toggleTarget:SetCallback("OnValueChanged", CTT_ToggleTargetCheckButton)
-    container:AddChild(toggleTarget)
-    container.toggleTarget = toggleTarget
+    local toggleTarget = CreateCheckBox(container, {
+        label = "Show Target",
+        width = 115,
+        height = 22,
+        value = db.profile.cttMenuOptions.toggleTarget,
+        point = { "TOPLEFT", container.tab, "TOPLEFT", 6, 0 },
+        callback = CTT_ToggleTargetCheckButton,
+        name = "toggleTarget",
+    })
 
     -- toggle printing
-    local togglePrint = AceGUI:Create("CheckBox")
-    togglePrint:SetLabel("Toggle Messages")
-    togglePrint:SetWidth(150)
-    togglePrint:SetHeight(22)
-    togglePrint:SetType("checkbox")
-    togglePrint:ClearAllPoints()
-    if db.profile.cttMenuOptions.togglePrint ~= nil then
-        togglePrint:SetValue(db.profile.cttMenuOptions.togglePrint)
-    else
-        togglePrint:SetValue(true)
-    end
-    togglePrint:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 0)
-    togglePrint:SetCallback("OnValueChanged", CTT_TogglePrintCheckButton)
-    container:AddChild(togglePrint)
-    container.togglePrint = togglePrint
+    local togglePrint = CreateCheckBox(container, {
+        label = "Toggle Messages",
+        width = 150,
+        height = 22,
+        value = db.profile.cttMenuOptions.togglePrint,
+        point = { "TOPLEFT", container.tab, "TOPLEFT", 6, 0 },
+        callback = CTT_TogglePrintCheckButton,
+        name = "togglePrint",
+    })
 
     -- color picker
-    local textColorPicker = AceGUI:Create("ColorPicker")
-    if db.profile.cttMenuOptions.textColorPicker ~= nil then
-        textColorPicker:SetColor(db.profile.cttMenuOptions.textColorPicker[1],
-            db.profile.cttMenuOptions.textColorPicker[2], db.profile.cttMenuOptions.textColorPicker[3],
-            db.profile.cttMenuOptions.textColorPicker[4])
-    else
-        textColorPicker:SetColor(255, 255, 255)
-    end
-    textColorPicker:SetLabel(L["Text Color"])
-    textColorPicker:SetWidth(100)
-    textColorPicker:ClearAllPoints()
-    textColorPicker:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 0)
-    textColorPicker:SetCallback("OnValueChanged", CTT_ColorPickerConfirmed)
-    container:AddChild(textColorPicker)
-    container.textColorPicker = textColorPicker
+    local textColorPicker = CreateColorPicker(container, {
+        color = db.profile.cttMenuOptions.textColorPicker,
+        label = L["Text Color"],
+        width = 100,
+        point = { "TOPLEFT", container.tab, "TOPLEFT", 6, 0 },
+        callback = CTT_ColorPickerConfirmed,
+        name = "textColorPicker",
+    })
 
     -- checkbox for text outline
-    local textFlagsButton = AceGUI:Create("CheckBox")
-    textFlagsButton:SetLabel("TextOutline")
-    textFlagsButton:SetWidth(125)
-    textFlagsButton:SetHeight(22)
-    textFlagsButton:SetType("checkbox")
-    textFlagsButton:ClearAllPoints()
-    textFlagsButton:SetValue(db.profile.cttMenuOptions.textFlags)
-    textFlagsButton:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 0)
-    textFlagsButton:SetCallback("OnValueChanged", CTT_ToggleTextFlagsButton)
-    container:AddChild(textFlagsButton)
-    container.textFlagsButton = textFlagsButton
+    local textFlagsButton = CreateCheckBox(container, {
+        label = "TextOutline",
+        width = 125,
+        height = 22,
+        value = db.profile.cttMenuOptions.textFlags,
+        point = { "TOPLEFT", container.tab, "TOPLEFT", 6, 0 },
+        callback = CTT_ToggleTextFlagsButton,
+        name = "textFlagsButton",
+    })
 
     -- Checkbox for not resetting tracter after combat
-    local resetTrackerOnCombatEnding = AceGUI:Create("CheckBox")
-    resetTrackerOnCombatEnding:SetLabel("Reset After Combat")
-    resetTrackerOnCombatEnding:SetWidth(160)
-    resetTrackerOnCombatEnding:SetHeight(22)
-    resetTrackerOnCombatEnding:SetType("checkbox")
-    resetTrackerOnCombatEnding:ClearAllPoints()
-    resetTrackerOnCombatEnding:SetValue(db.profile.cttMenuOptions.resetCounterOnEndOfCombat)
-    resetTrackerOnCombatEnding:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 0)
-    resetTrackerOnCombatEnding:SetCallback("OnValueChanged", CTT_ResetTrackerOnCombatEnding)
-    container:AddChild(resetTrackerOnCombatEnding)
-    container.resetTrackerOnCombatEnding = resetTrackerOnCombatEnding
+    local resetTrackerOnCombatEnding = CreateCheckBox(container, {
+        label = "Reset After Combat",
+        width = 160,
+        height = 22,
+        value = db.profile.cttMenuOptions.resetCounterOnEndOfCombat,
+        point = { "TOPLEFT", container.tab, "TOPLEFT", 6, 0 },
+        callback = CTT_ResetTrackerOnCombatEnding,
+        name = "resetTrackerOnCombatEnding",
+    })
 
     -- different text options
-    local textStyleDropDown = AceGUI:Create("Dropdown")
-    textStyleDropDown:SetLabel(L["Text Format"])
-    textStyleDropDown:SetWidth(125)
-    textStyleDropDown:SetMultiselect(false)
-    textStyleDropDown:ClearAllPoints()
-    textStyleDropDown:SetList(db.profile.cttMenuOptions.cttTextFormatOptions)
-    textStyleDropDown:SetText(db.profile.cttMenuOptions.cttTextFormatOptions[db.profile.cttMenuOptions.dropdownValue])
-    textStyleDropDown:SetValue(db.profile.cttMenuOptions.dropdownValue)
-    textStyleDropDown:SetPoint("LEFT", container.tab, "LEFT", 6, 0)
-    textStyleDropDown:SetCallback("OnValueChanged", CTT_DropdownState)
-    container:AddChild(textStyleDropDown)
-    container.textStyleDropDown = textStyleDropDown
+    local textStyleDropDown = CreateDropdown(container, {
+        label = L["Text Format"],
+        width = 125,
+        list = db.profile.cttMenuOptions.cttTextFormatOptions,
+        text = db.profile.cttMenuOptions.cttTextFormatOptions[db.profile.cttMenuOptions.dropdownValue],
+        value = db.profile.cttMenuOptions.dropdownValue,
+        point = { "LEFT", container.tab, "LEFT", 6, 0 },
+        callback = CTT_DropdownState,
+        name = "textStyleDropDown",
+    })
 
     -- slider for changing the size of the tracker and text
-    local textFrameSizeSlider = AceGUI:Create("Slider")
-    textFrameSizeSlider:SetLabel(L["Tracker Size"])
-    textFrameSizeSlider:SetWidth(150)
-    textFrameSizeSlider:SetIsPercent(true)
-    if db.profile.cttMenuOptions.textFrameSizeSlider ~= nil then
-        textFrameSizeSlider:SetValue(db.profile.cttMenuOptions
-            .textFrameSizeSlider)
-    end
-    textFrameSizeSlider:SetSliderValues(0, 1, .01)
-    textFrameSizeSlider:ClearAllPoints()
-    textFrameSizeSlider:SetPoint("LEFT", container.tab, "LEFT", 6, 0)
-    textFrameSizeSlider:SetCallback("OnValueChanged", CTT_ResizeFrameSliderUpdater)
-    textFrameSizeSlider:SetCallback("OnMouseUp", CTT_ResizeFrameSliderDone)
-    container:AddChild(textFrameSizeSlider)
-    container.textFrameSizeSlider = textFrameSizeSlider
+    local textFrameSizeSlider = CreateSlider(container, {
+        label = L["Tracker Size"],
+        width = 150,
+        isPercent = true,
+        value = db.profile.cttMenuOptions.textFrameSizeSlider,
+        sliderValues = { 0, 1, .01 },
+        point = { "LEFT", container.tab, "LEFT", 6, 0 },
+        onValueChanged = CTT_ResizeFrameSliderUpdater,
+        onMouseUp = CTT_ResizeFrameSliderDone,
+        name = "textFrameSizeSlider",
+    })
 
     -- Slider for the opacity of the backdrop and/or border
-    local backDropAlphaSlider = AceGUI:Create("Slider")
-    backDropAlphaSlider:SetLabel(L["Backdrop Opacity"])
-    backDropAlphaSlider:SetWidth(150)
-    backDropAlphaSlider:SetIsPercent(true)
-    if db.profile.cttMenuOptions.backDropAlphaSlider ~= nil then
-        backDropAlphaSlider:SetValue(db.profile.cttMenuOptions.backDropAlphaSlider)
-    else
-        backDropAlphaSlider:SetValue(1)
-    end
-    backDropAlphaSlider:SetSliderValues(0, 1, .01)
-    backDropAlphaSlider:ClearAllPoints()
-    backDropAlphaSlider:SetPoint("LEFT", container.tab, "LEFT", 6, 0)
-    backDropAlphaSlider:SetCallback("OnValueChanged", CTT_BackDropSliderOnValueChanged)
-    backDropAlphaSlider:SetCallback("OnMouseUp", CTT_BackDropSliderDone)
-    container:AddChild(backDropAlphaSlider)
-    container.backDropAlphaSlider = backDropAlphaSlider
+    local backDropAlphaSlider = CreateSlider(container, {
+        label = L["Backdrop Opacity"],
+        width = 150,
+        isPercent = true,
+        value = db.profile.cttMenuOptions.backDropAlphaSlider,
+        sliderValues = { 0, 1, .01 },
+        point = { "LEFT", container.tab, "LEFT", 6, 0 },
+        onValueChanged = CTT_BackDropSliderOnValueChanged,
+        onMouseUp = CTT_BackDropSliderDone,
+        name = "backDropAlphaSlider",
+    })
 
     -- toggle click through
-    local clickThrough = AceGUI:Create("CheckBox")
-    clickThrough:SetLabel("Click Through")
-    clickThrough:SetWidth(120)
-    clickThrough:SetHeight(22)
-    clickThrough:SetType("checkbox")
-    clickThrough:ClearAllPoints()
-    if db.profile.cttMenuOptions.clickThrough ~= nil then
-        clickThrough:SetValue(db.profile.cttMenuOptions.clickThrough)
-    else
-        db.profile.cttMenuOptions.clickThrough = true
-        clickThrough:SetValue(true)
-    end
-    cttStopwatchGui:EnableMouse(db.profile.cttMenuOptions.clickThrough)
-    clickThrough:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 0)
-    clickThrough:SetCallback("OnValueChanged", CTT_ToggleClickThroughCheckButton)
-    container:AddChild(clickThrough)
-    container.clickThrough = clickThrough
+    local clickThrough = CreateCheckBox(container, {
+        label = "Click Through",
+        width = 120,
+        height = 22,
+        value = db.profile.cttMenuOptions.clickThrough,
+        point = { "TOPLEFT", container.tab, "TOPLEFT", 6, 0 },
+        callback = CTT_ToggleClickThroughCheckButton,
+        name = "clickThrough",
+    })
 
 
     -- Dropdown for different font options
-    local fontPickerDropDown = AceGUI:Create("Dropdown")
-    fontPickerDropDown:SetLabel(L["Choose Font"])
-    fontPickerDropDown:SetWidth(270)
-    fontPickerDropDown:SetMultiselect(false)
-    fontPickerDropDown:ClearAllPoints()
-    fontPickerDropDown:SetList(LSM:List("font"))
-    if db.profile.cttMenuOptions.fontName ~= nil and db.profile.cttMenuOptions.fontPickerDropDown ~= nil then
-        fontPickerDropDown:SetText(fontTableOptions[db.profile.cttMenuOptions.fontPickerDropDown])
-        fontPickerDropDown:SetValue(db.profile.cttMenuOptions.fontPickerDropDown)
-    else
-        fontPickerDropDown:SetText("Morpheus")
-        fontPickerDropDown:SetValue(fontDropDownMorpheus)
-    end
-    fontPickerDropDown:SetPoint("LEFT", container.tab, "LEFT", 6, 0)
-    fontPickerDropDown:SetCallback("OnValueChanged", CTT_FontPickerDropDownState)
-    container:AddChild(fontPickerDropDown)
-    container.fontPickerDropDown = fontPickerDropDown
+    local fontPickerDropDown = CreateDropdown(container, {
+        label = L["Choose Font"],
+        width = 270,
+        list = LSM:List("font"),
+        text = fontTableOptions[db.profile.cttMenuOptions.fontPickerDropDown],
+        value = db.profile.cttMenuOptions.fontPickerDropDown,
+        point = { "LEFT", container.tab, "LEFT", 6, 0 },
+        callback = CTT_FontPickerDropDownState,
+        name = "fontPickerDropDown",
+    })
 
     -- Dropdown for different sound options
-    local soundPickerDropDown = AceGUI:Create("Dropdown")
-    soundPickerDropDown:SetLabel("Choose Sound")
-    soundPickerDropDown:SetWidth(270)
-    soundPickerDropDown:SetMultiselect(false)
-    soundPickerDropDown:ClearAllPoints()
-    soundPickerDropDown:SetList(LSM:List("sound"))
-    if db.profile.cttMenuOptions.soundName ~= nil and db.profile.cttMenuOptions.soundDropDownValue ~= nil then
-        soundPickerDropDown:SetText(soundTableOptions[db.profile.cttMenuOptions.soundDropDownValue])
-        soundPickerDropDown:SetValue(db.profile.cttMenuOptions.soundDropDownValue)
-    else
-        soundPickerDropDown:SetText("")
-        soundPickerDropDown:SetValue(1)
-    end
-    soundPickerDropDown:SetPoint("LEFT", container.tab, "LEFT", 6, 0)
-    soundPickerDropDown:SetCallback("OnValueChanged", CTT_PlaySoundOnDropDownSelect)
-    container:AddChild(soundPickerDropDown)
-    container.soundPickerDropDown = soundPickerDropDown
+    local soundPickerDropDown = CreateDropdown(container, {
+        label = "Choose Sound",
+        width = 270,
+        list = LSM:List("sound"),
+        text = soundTableOptions[db.profile.cttMenuOptions.soundDropDownValue],
+        value = db.profile.cttMenuOptions.soundDropDownValue,
+        point = { "LEFT", container.tab, "LEFT", 6, 0 },
+        callback = CTT_PlaySoundOnDropDownSelect,
+        name = "soundPickerDropDown",
+    })
 
     -- Dropdown for different options to show the tracker
-    local instanceType = AceGUI:Create("Dropdown")
-    instanceType:SetLabel("Show Tracker When?")
-    instanceType:SetWidth(150)
-    instanceType:SetMultiselect(false)
-    instanceType:ClearAllPoints()
-    instanceType:SetList(instanceTypes)
-    --TODO add conditionals to display the menu text as needed once list is made
-    if db.profile.cttMenuOptions.instanceType ~= nil then
-        instanceType:SetText(instanceTypes[db.profile.cttMenuOptions.instanceType])
-        instanceType:SetValue(db.profile.cttMenuOptions.instanceType)
-    else
-        instanceType:SetText(instanceType[4])
-        instanceType:SetValue(4)
-    end
-    instanceType:SetPoint("LEFT", container.tab, "LEFT", 6, 0)
-    instanceType:SetCallback("OnValueChanged", CTT_InstanceTypeDropDown)
-    container:AddChild(instanceType)
-    container.instanceType = instanceType
+    local instanceType = CreateDropdown(container, {
+        label = "Show Tracker When?",
+        width = 150,
+        list = instanceTypes,
+        text = instanceTypes[db.profile.cttMenuOptions.instanceType],
+        value = db.profile.cttMenuOptions.instanceType,
+        point = { "LEFT", container.tab, "LEFT", 6, 0 },
+        callback = CTT_InstanceTypeDropDown,
+        name = "instanceType",
+    })
 
     -- Editbox for entering profile name
     local profileName = AceGUI:Create("EditBox")
@@ -2047,49 +2003,44 @@ local function OptionsMenu(container)
     container.profileName = profileName
 
     -- button to actually create the profile
-    local profileAddButton = AceGUI:Create("Button")
-    profileAddButton:SetText("Create Profile")
-    profileAddButton:SetWidth(125)
-    profileAddButton:ClearAllPoints()
-    profileAddButton:SetPoint("LEFT", container.tab, "LEFT", 6, 10)
-    profileAddButton:SetCallback("OnClick", CTT_ProfileAddButton)
-    container:AddChild(profileAddButton)
-    container.profileAddButton = profileAddButton
+    local profileAddButton = CreateButton(container, {
+        text = "Create Profile",
+        width = 125,
+        point = { "LEFT", container.tab, "LEFT", 6, 10 },
+        callback = CTT_ProfileAddButton,
+        name = "profileAddButton",
+    })
 
     -- dropdown to choose from existing profiles
-    local profileDropDownPicker = AceGUI:Create("Dropdown")
-    profileDropDownPicker:SetLabel("Choose Profile")
-    profileDropDownPicker:SetMultiselect(false)
-    profileDropDownPicker:ClearAllPoints()
-    profileDropDownPicker:SetList(db:GetProfiles())
-
-    profileDropDownPicker:SetValue(activeProfileKey)
-    profileDropDownPicker:SetPoint("LEFT", container.tab, "LEFT", 6, 0)
-    profileDropDownPicker:SetCallback("OnValueChanged", CTT_ProfileDropDownPicker)
-    container:AddChild(profileDropDownPicker)
-    container.profileDropDownPicker = profileDropDownPicker
+    local profileDropDownPicker = CreateDropdown(container, {
+        label = "Choose Profile",
+        multiselect = false,
+        list = db:GetProfiles(),
+        value = activeProfileKey,
+        point = { "LEFT", container.tab, "LEFT", 6, 0 },
+        callback = CTT_ProfileDropDownPicker,
+        name = "profileDropDownPicker",
+    })
 
     -- dropdown to copy settings from an existing profile to current profile
-    local profileCopyDropdown = AceGUI:Create("Dropdown")
-    profileCopyDropdown:SetLabel("Copy Profile")
-    profileCopyDropdown:SetMultiselect(false)
-    profileCopyDropdown:ClearAllPoints()
-    profileCopyDropdown:SetList(db:GetProfiles())
-    profileCopyDropdown:SetPoint("LEFT", container.tab, "LEFT", 6, 0)
-    profileCopyDropdown:SetCallback("OnValueChanged", CTT_ProfileCopyDropdown)
-    container:AddChild(profileCopyDropdown)
-    container.profileCopyDropdown = profileCopyDropdown
+    local profileCopyDropdown = CreateDropdown(container, {
+        label = "Copy Profile",
+        multiselect = false,
+        list = db:GetProfiles(),
+        point = { "LEFT", container.tab, "LEFT", 6, 0 },
+        callback = CTT_ProfileCopyDropdown,
+        name = "profileCopyDropdown",
+    })
 
     -- dropdown to delete existing profiles
-    local profileDeleteDropdown = AceGUI:Create("Dropdown")
-    profileDeleteDropdown:SetLabel("Delete Profile")
-    profileDeleteDropdown:SetMultiselect(false)
-    profileDeleteDropdown:ClearAllPoints()
-    profileDeleteDropdown:SetList(db:GetProfiles())
-    profileDeleteDropdown:SetPoint("LEFT", container.tab, "LEFT", 6, 0)
-    profileDeleteDropdown:SetCallback("OnValueChanged", CTT_ProfileDeleteDropdown)
-    container:AddChild(profileDeleteDropdown)
-    container.profileDeleteDropdown = profileDeleteDropdown
+    local profileDeleteDropdown = CreateDropdown(container, {
+        label = "Delete Profile",
+        multiselect = false,
+        list = db:GetProfiles(),
+        point = { "LEFT", container.tab, "LEFT", 6, 0 },
+        callback = CTT_ProfileDeleteDropdown,
+        name = "profileDeleteDropdown",
+    })
 end
 
 -- function that draws the dungeons tab
@@ -2109,100 +2060,90 @@ end
 -- function that draws the raid tab
 local function Raids(container)
     --select xpac
-    local xpacDropdown = AceGUI:Create("Dropdown")
-    xpacDropdown:SetLabel("Expasion")
-    xpacDropdown:SetMultiselect(false)
-    xpacDropdown:SetList(xpacs)
-    xpacDropdown:SetText(xpacs[db.profile.cttMenuOptions.xpacKey])
-    xpacDropdown:SetValue(db.profile.cttMenuOptions.xpacKey)
-    xpacDropdown:SetWidth(125)
-    xpacDropdown:ClearAllPoints()
-    xpacDropdown:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 10)
-    xpacDropdown:SetCallback("OnValueChanged", CTT_ExpansionDropDownForRaidTab)
-    container:AddChild(xpacDropdown)
-    container.xpacDropdown = xpacDropdown
+    CreateDropdown(container, {
+        label = "Expasion",
+        list = xpacs,
+        text = xpacs[db.profile.cttMenuOptions.xpacKey],
+        value = db.profile.cttMenuOptions.xpacKey,
+        width = 125,
+        point = {"TOPLEFT", container.tab, "TOPLEFT", 6, 10},
+        callback = CTT_ExpansionDropDownForRaidTab,
+        name = "xpacDropdown"
+    })
 
     -- Select Raid
-    local raidDropdown = AceGUI:Create("Dropdown")
-    raidDropdown:SetLabel("Raid")
-    raidDropdown:SetMultiselect(false)
-    raidDropdown:SetList(raidInstanceZones[db.profile.cttMenuOptions.xpacKey])
-    raidDropdown:SetText(raidInstanceZones[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey])
-    raidDropdown:SetValue(db.profile.cttMenuOptions.raidKey)
-    raidDropdown:SetWidth(225)
-    raidDropdown:ClearAllPoints()
-    raidDropdown:SetPoint("LEFT", container.tab, "LEFT", 12, 10)
-    raidDropdown:SetCallback("OnValueChanged", CTT_AlertRaidDropDownForRaidTab)
-    container:AddChild(raidDropdown)
-    container.raidDropdown = raidDropdown
+    CreateDropdown(container, {
+        label = "Raid",
+        list = raidInstanceZones[db.profile.cttMenuOptions.xpacKey],
+        text = raidInstanceZones[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey],
+        value = db.profile.cttMenuOptions.raidKey,
+        width = 225,
+        point = {"LEFT", container.tab, "LEFT", 12, 10},
+        callback = CTT_AlertRaidDropDownForRaidTab,
+        name = "raidDropdown"
+    })
 
     -- Select Boss
-    local bossDropdown = AceGUI:Create("Dropdown")
-    bossDropdown:SetLabel("Boss")
-    bossDropdown:SetMultiselect(false)
-    bossDropdown:SetList(raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey])
-    bossDropdown:SetText(raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey][
-    db.profile.cttMenuOptions.bossDropDownkey])
-    bossDropdown:SetValue(db.profile.cttMenuOptions.bossDropDownkey)
-    bossDropdown:SetWidth(250)
-    bossDropdown:ClearAllPoints()
-    bossDropdown:SetPoint("LEFT", container.tab, "LEFT", 6, 10)
-    bossDropdown:SetCallback("OnValueChanged", CTT_AlertBossDropDownForRaidTab)
-    container:AddChild(bossDropdown)
-    container.bossDropdown = bossDropdown
+    CreateDropdown(container, {
+        label = "Boss",
+        list = raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey],
+        text = raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey][db.profile.cttMenuOptions.bossDropDownkey],
+        value = db.profile.cttMenuOptions.bossDropDownkey,
+        width = 250,
+        point = {"LEFT", container.tab, "LEFT", 6, 10},
+        callback = CTT_AlertBossDropDownForRaidTab,
+        name = "bossDropdown"
+    })
 
     -- Add alert to list
-    local deleteKillsButton = AceGUI:Create("Button")
-    deleteKillsButton:SetText("Clear All")
-    deleteKillsButton:SetWidth(125)
-    deleteKillsButton:ClearAllPoints()
-    deleteKillsButton:SetPoint("LEFT", container.tab, "LEFT", 6, 10)
-    deleteKillsButton:SetCallback("OnClick", CTT_ClearAlertBossRaidTab)
-    container:AddChild(deleteKillsButton)
-    container.deleteKillsButton = deleteKillsButton
+    CreateButton(container, {
+        text = "Clear All",
+        width = 125,
+        point = {"LEFT", container.tab, "LEFT", 6, 10},
+        callback = CTT_ClearAlertBossRaidTab,
+        name = "deleteKillsButton"
+    })
 
     -- scroll frame for timers
-    scrollcontainer = AceGUI:Create("InlineGroup")
+    local scrollcontainer = AceGUI:Create("InlineGroup")
     scrollcontainer:SetFullWidth(true)
     scrollcontainer:SetFullHeight(true)
     scrollcontainer:SetLayout("Fill")
-
     container:AddChild(scrollcontainer)
 
-    scroll = AceGUI:Create("ScrollFrame")
+    local scroll = AceGUI:Create("ScrollFrame")
     scroll:SetLayout("Flow")
     scroll:SetStatusTable(db.profile.RaidKills)
     scrollcontainer:AddChild(scroll)
 
     -- handle the scrollable alerts.
-    if db.profile.RaidKills ~= nil and table.getn(db.profile.RaidKills) > 0 then
+    if db.profile.RaidKills ~= nil and #db.profile.RaidKills > 0 then
         for i, v in ipairs(db.profile.RaidKills) do
             if (v.Expansion == xpacs[db.profile.cttMenuOptions.xpacKey]
                 and v.RaidInstance == raidInstanceZones[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey]
                 and v.BossName == raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey][db.profile.cttMenuOptions.bossDropDownkey])
-                then
-                    local value = "value" .. i
-                    value = AceGUI:Create("Label")
-                    value:SetText(v.BossName .. " was killed on: " .. v.LocalKillTime ..", with a Kill Time of: " .. v.KillTime.. ", raid difficulty: " .. v.Difficulty .. ", with " .. v.GroupSize .. " players" .. ", and was killed successfully: " .. tostring(v.Success))
-                    value:SetColor(255, 255, 0)
-                    if (table.getn(db.profile.RaidKills) > 10) then
-                        value:SetWidth(600)
-                    else
-                        value:SetWidth(625)
-                    end
-                    value:ClearAllPoints()
-                    value:SetPoint("LEFT", nil, "LEFT", 6, 10)
-                    scroll:AddChild(value)
-        
-                    local deleteBtn = "btn" .. i
-                    deleteBtn = AceGUI:Create("Button")
-                    deleteBtn:SetText("X")
-                    deleteBtn:SetWidth(40)
-                    deleteBtn:ClearAllPoints()
-                    deleteBtn:SetPoint("LEFT", nil, "LEFT", 6, 10)
-                    deleteBtn:SetCallback("OnClick", function(widget) CTT_AlertDeleteButtonClickedForRaidTab(widget, event, i) end)
-                    scroll:AddChild(deleteBtn) 
+            then
+                local label = AceGUI:Create("Label")
+                label:SetText(v.BossName .. " was killed on: " .. v.LocalKillTime ..", with a Kill Time of: " .. v.KillTime.. ", raid difficulty: " .. v.Difficulty .. ", with " .. v.GroupSize .. " players" .. ", and was killed successfully: " .. tostring(v.Success))
+                label:SetColor(255, 255, 0)
+                if (#db.profile.RaidKills > 10) then
+                    label:SetWidth(600)
+                else
+                    label:SetWidth(625)
                 end
+                label:ClearAllPoints()
+                -- Do not use .frame, just set point relative to parent
+                label:SetPoint("LEFT", 6, 10)
+                scroll:AddChild(label)
+
+                local deleteBtn = AceGUI:Create("Button")
+                deleteBtn:SetText("X")
+                deleteBtn:SetWidth(40)
+                deleteBtn:ClearAllPoints()
+                deleteBtn:SetPoint("LEFT", 6, 10)
+                deleteBtn:SetCallback("OnClick", function(widget) CTT_AlertDeleteButtonClickedForRaidTab(widget, event, i) end)
+                scroll:AddChild(deleteBtn)
+            end
         end
     end
 end
@@ -2210,18 +2151,16 @@ end
 -- function that draws the Alert Times tab
 local function Alerts(container)
     --select xpac
-    local xpacDropdown = AceGUI:Create("Dropdown")
-    xpacDropdown:SetLabel("Expasion")
-    xpacDropdown:SetMultiselect(false)
-    xpacDropdown:SetList(xpacs)
-    xpacDropdown:SetText(xpacs[db.profile.cttMenuOptions.xpacKey])
-    xpacDropdown:SetValue(db.profile.cttMenuOptions.xpacKey)
-    xpacDropdown:SetWidth(125)
-    xpacDropdown:ClearAllPoints()
-    xpacDropdown:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 10)
-    xpacDropdown:SetCallback("OnValueChanged", CTT_ExpansionDropDown)
-    container:AddChild(xpacDropdown)
-    container.xpacDropdown = xpacDropdown
+    CreateDropdown(container, {
+        label = "Expasion",
+        list = xpacs,
+        text = xpacs[db.profile.cttMenuOptions.xpacKey],
+        value = db.profile.cttMenuOptions.xpacKey,
+        width = 125,
+        point = {"TOPLEFT", container.tab, "TOPLEFT", 6, 10},
+        callback = CTT_ExpansionDropDown,
+        name = "xpacDropdown"
+    })
 
     -- Input field to get the time (in seconds)
     local timeInput = AceGUI:Create("EditBox")
@@ -2229,88 +2168,86 @@ local function Alerts(container)
     timeInput:SetWidth(85)
     timeInput:ClearAllPoints()
     if db.profile.cttMenuOptions.localStore ~= nil then timeInput:SetText(db.profile.cttMenuOptions.localStore) end
-    timeInput:SetPoint("LEFT", container.tab, "LEFT", 6, 10)
+    timeInput:SetPoint("LEFT", 6, 10)
     timeInput:SetCallback("OnEnterPressed", CTT_AlertTimeOnEnterPressed)
     container:AddChild(timeInput)
     container.timeInput = timeInput
 
     -- Select Raid
-    local raidDropdown = AceGUI:Create("Dropdown")
-    raidDropdown:SetLabel("Raid")
-    raidDropdown:SetMultiselect(false)
-    raidDropdown:SetList(raidInstanceZones[db.profile.cttMenuOptions.xpacKey])
-    raidDropdown:SetText(raidInstanceZones[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey])
-    raidDropdown:SetValue(db.profile.cttMenuOptions.raidKey)
-    raidDropdown:SetWidth(225)
-    raidDropdown:ClearAllPoints()
-    raidDropdown:SetPoint("LEFT", container.tab, "LEFT", 12, 10)
-    raidDropdown:SetCallback("OnValueChanged", CTT_AlertRaidDropDown)
-    container:AddChild(raidDropdown)
-    container.raidDropdown = raidDropdown
+    CreateDropdown(container, {
+        label = "Raid",
+        list = raidInstanceZones[db.profile.cttMenuOptions.xpacKey],
+        text = raidInstanceZones[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey],
+        value = db.profile.cttMenuOptions.raidKey,
+        width = 225,
+        point = {"LEFT", 12, 10},
+        callback = CTT_AlertRaidDropDown,
+        name = "raidDropdown"
+    })
 
     -- Select Boss
-    local bossDropdown = AceGUI:Create("Dropdown")
-    bossDropdown:SetLabel("Boss")
-    bossDropdown:SetMultiselect(false)
-    bossDropdown:SetList(raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey])
-    bossDropdown:SetText(raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey][
-    db.profile.cttMenuOptions.bossDropDownkey])
-    bossDropdown:SetValue(db.profile.cttMenuOptions.bossDropDownkey)
-    bossDropdown:SetWidth(250)
-    bossDropdown:ClearAllPoints()
-    bossDropdown:SetPoint("LEFT", container.tab, "LEFT", 6, 10)
-    bossDropdown:SetCallback("OnValueChanged", CTT_AlertBossDropDown)
-    container:AddChild(bossDropdown)
-    container.bossDropdown = bossDropdown
+    CreateDropdown(container, {
+        label = "Boss",
+        list = raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey],
+        text = raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey][db.profile.cttMenuOptions.bossDropDownkey],
+        value = db.profile.cttMenuOptions.bossDropDownkey,
+        width = 250,
+        point = {"LEFT", 6, 10},
+        callback = CTT_AlertBossDropDown,
+        name = "bossDropdown"
+    })
 
     -- Add alert to list
-    local addAlertButton = AceGUI:Create("Button")
-    addAlertButton:SetText("Add")
-    addAlertButton:SetWidth(75)
-    addAlertButton:ClearAllPoints()
-    addAlertButton:SetPoint("LEFT", container.tab, "LEFT", 6, 10)
-    addAlertButton:SetCallback("OnClick", CTT_AlertAddButtonClicked)
-    container:AddChild(addAlertButton)
-    container.addAlertButton = addAlertButton
+    CreateButton(container, {
+        text = "Add",
+        width = 75,
+        point = {"LEFT", 6, 10},
+        callback = CTT_AlertAddButtonClicked,
+        name = "addAlertButton"
+    })
+
+    -- Clear All Alerts button (far right under Boss dropdown)
+    CreateButton(container, {
+        text = "Clear All Alerts",
+        width = 140,
+        point = {"RIGHT", 410, 10}, -- far right, adjust as needed for your layout
+        callback = function()
+            db.profile.cttMenuOptions.alerts = {}
+            CTT.menu.tab:SelectTab("alerts")
+        end,
+        name = "clearAllAlertsButton"
+    })
 
     -- scroll frame for timers
-    scrollcontainer = AceGUI:Create("InlineGroup")
+    local scrollcontainer = AceGUI:Create("InlineGroup")
     scrollcontainer:SetFullWidth(true)
     scrollcontainer:SetFullHeight(true)
     scrollcontainer:SetLayout("Fill")
-
     container:AddChild(scrollcontainer)
 
-    scroll = AceGUI:Create("ScrollFrame")
+    local scroll = AceGUI:Create("ScrollFrame")
     scroll:SetLayout("Flow")
     scroll:SetStatusTable(db.profile.cttMenuOptions.alerts)
     scrollcontainer:AddChild(scroll)
 
-
-
     for i, v in ipairs(db.profile.cttMenuOptions.alerts) do
-        local value = "value" .. i
-        value = AceGUI:Create("Label")
-        value:SetText("Seconds into fight: " ..
-            db.profile.cttMenuOptions.alerts[i][1] ..
-            ", Raid: " .. db.profile.cttMenuOptions.alerts[i][2] .. ", Boss: " .. db.profile.cttMenuOptions.alerts[i][3])
-        value:SetColor(255, 255, 0)
-        -- value:SetFont("Fonts\\MORPHEUS_CYR.TTF", 10)
-        if (table.getn(db.profile.cttMenuOptions.alerts) > 10) then
-            value:SetWidth(600)
+        local label = AceGUI:Create("Label")
+        label:SetText("Seconds into fight: " .. v[1] .. ", Raid: " .. v[2] .. ", Boss: " .. v[3])
+        label:SetColor(255, 255, 0)
+        if (#db.profile.cttMenuOptions.alerts > 10) then
+            label:SetWidth(600)
         else
-            value:SetWidth(625)
+            label:SetWidth(625)
         end
-        value:ClearAllPoints()
-        value:SetPoint("LEFT", nil, "LEFT", 6, 10)
-        scroll:AddChild(value)
+        label:ClearAllPoints()
+        label:SetPoint("LEFT", 6, 10)
+        scroll:AddChild(label)
 
-        local deleteBtn = "btn" .. i
-        deleteBtn = AceGUI:Create("Button")
+        local deleteBtn = AceGUI:Create("Button")
         deleteBtn:SetText("X")
         deleteBtn:SetWidth(40)
         deleteBtn:ClearAllPoints()
-        deleteBtn:SetPoint("LEFT", nil, "LEFT", 6, 10)
+        deleteBtn:SetPoint("LEFT", 6, 10)
         deleteBtn:SetCallback("OnClick", function(widget) CTT_AlertDeleteButtonClicked(widget, event, i) end)
         scroll:AddChild(deleteBtn)
     end
@@ -2342,7 +2279,6 @@ function CTT:CreateOptionsMenu()
     menu:Hide()
     CTT.menu = menu
 
-    CTT_menu = menu.frame
     menu.frame:SetResizeBounds(750, 750, 750, 750)
     menu.frame:SetFrameStrata("HIGH")
     menu.frame:SetFrameLevel(1)
@@ -2368,10 +2304,3 @@ function CTT:CreateOptionsMenu()
     _G["CombatTimeTrackerMenu"] = menu.frame
     tinsert(UISpecialFrames, "CombatTimeTrackerMenu")
 end
-
---|-----------------------|
---|  CTT Debug Functions  |
---|-----------------------|
-
---[==[@debug@
---@end-debug@]==]

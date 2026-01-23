@@ -1,12 +1,11 @@
-## Interface: 110100
+## Interface: 110205, 110207, 120000
 ## Title: Combat |cffff930fTime Tracker|r
-## Version: v11.1.0
+## Version: v11.2.5.1
 ## Notes: Fully automatic custom stopwatch to keep track of time spent in combat.
 ## Author: Bowtiesphd
 ## OptionalDeps: Ace3
 ## X-Embeds: Ace3
 ## X-Curse-Project-ID: 305012
-## Globe: check-classic
 
 
 ## SavedVariablesPerCharacter: longestMin, longestSec, activeProfileKey, activeProfile
