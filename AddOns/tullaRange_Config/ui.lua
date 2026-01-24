@@ -204,6 +204,8 @@ end
 
 local category = Settings.RegisterCanvasLayoutCategory(AddonSettingsFrame, L.AddonNameLoc)
 
-category.ID = "tullaRange"
+-- category.ID = "tullaRange" - 12.0 fix
 
 Settings.RegisterAddOnCategory(category)
+
+TULLARANGE_COLORS.categoryID = category:GetID() -- 自行加入

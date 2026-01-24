@@ -1,4 +1,4 @@
-## Interface: 11508, 50503, 110205, 110207
+## Interface: 11508, 50503, 120000
 ## Title: tullaRange
 ## Author: Tuller
 ## Category: Action Bars

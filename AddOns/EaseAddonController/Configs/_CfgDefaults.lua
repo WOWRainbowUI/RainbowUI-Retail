@@ -1528,19 +1528,6 @@ D["TinyInspect"] = {
         callback = function() SlashCmdList["TinyInspect"]("") end,
     },
 };
-D["TinyInspect-Reforged"] = {
-    defaultEnable = 1,
-	tags = { "ITEM" },
-	title = "(請刪除) 裝備觀察",
-	desc = "|cffFF2D2D這是舊的插件，已改用另一個裝備觀察插件。|r``請刪除 AddOns 裡面的 TinyInspect-Reforged 資料夾，以避免發生衝突。`",
-};
-D["TinyTooltip"] = {
-    defaultEnable = 0,
-	tags = { "ENHANCEMENT" },
-	title = "(請刪除) 浮動提示資訊增強",
-	desc = "這是舊的插件，已改用另一個浮動提示資訊增強插件。``請刪除舊的資料夾 (AddOns 裡面的 TinyTooltip) 以避免發生衝突。`",
-	modifier = "彩虹ui",
-};
 D["TinyTooltip-Reforged"] = {
     defaultEnable = 1,
 	tags = { "ENHANCEMENT" },
@@ -1567,21 +1554,6 @@ D["TinyTooltip-Reforged"] = {
 		text = "移動位置：在遊戲內建的編輯模式中勾選 '浮動提示資訊' 來移動位置。\n\n查看法術ID：滑鼠指向時按住 Alt 鍵。\n\n戰鬥中顯示滑鼠提示：在設定選項中取消勾選 '戰鬥中隱藏'，玩家和NPC的戰鬥中隱藏也要分別取消勾選。\n\nDIY 模式：在設定選項中按下 DIY，可以分別拖曳每種資訊文字，自行安排呈現的位置。\n\n|cffFF2D2D請勿同時開啟 功能百寶箱 > 界面設置 > 增強工具提示 的功能，以免發生衝突。|r\n",
 	},
 };
-D["TroveTally"] = {
-    defaultEnable = 0,
-	tags = { "COLLECTION" },
-	title = "混搭收藏單",
-	desc = "出混搭再造：軍臨天下所有可收藏的物品，已經收集到的會打勾，方便查看還有哪些未收集的物品。`",
-	icon = "Interface\\Icons\\inv_scroll_15",
-	{
-        text = "打開主視窗",
-        callback = function() SlashCmdList["TROVE"]("") end,
-    },
-	{
-		type = "text",
-		text = "點小地圖按鈕的 '混搭收藏單' 按鈕也可以打開主視窗。",
-	}
-};
 D["tullaRange"] = {
     defaultEnable = 1,
 	title = "射程著色",
@@ -1590,7 +1562,7 @@ D["tullaRange"] = {
     {
         text = "設定選項",
         callback = function() 
-			Settings.OpenToCategory("tullaRange")
+			Settings.OpenToCategory(TULLARANGE_COLORS.categoryID)
 		end,
     },
 };
