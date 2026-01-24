@@ -8,11 +8,6 @@
 ## RequiredDep: Blizzard_MapCanvas
 ## LoadWith: Blizzard_Collections
 ## LoadOnDemand: 1
-## Interface: 110205, 110207
-
-## Title-zhTW: |cff96FF73[戰寵]|r 助手-寵物日誌
-## Notes-zhTW: PetTracker Journal |n|n需要時才會載入的寵物日誌調整。
-## Category-zhTW: 戰寵
-## DefaultState: disabled
+## Interface: 120000
 
 ..\PetTracker\addons\journal\journal.xml

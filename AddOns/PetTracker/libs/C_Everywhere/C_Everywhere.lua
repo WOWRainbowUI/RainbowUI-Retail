@@ -1,5 +1,5 @@
 --[[
-Copyright 2022-2025 João Cardoso
+Copyright 2022-2026 João Cardoso
 C_Everywhere is distributed under the terms of the GNU General Public License (Version 3).
 As a special exception, the copyright holders of this library give you permission to embed it
 with independent modules to produce an addon, regardless of the license terms of these
@@ -15,7 +15,7 @@ GNU General Public License for more details.
 This file is part of C_Everywhere.
 --]]
 
-local C = LibStub:NewLibrary('C_Everywhere', 17)
+local C = LibStub:NewLibrary('C_Everywhere', 18)
 if C then
 	wipe(C)
 else
@@ -95,6 +95,7 @@ stub(C.QuestLog, 'IsComplete', function(id) return select(6, GetQuestLogTitle(Ge
 stub(C.Bank, 'PurchaseBankTab', PurchaseSlot)
 stub(C.Bank, 'CanUseBank', function(i) return i == 0 end)
 stub(C.Bank, 'CanViewBank', function(i) return i == 0 end)
+stub(C.Bank, 'IsItemAllowedInBankType', function(i) return i == 0 end)
 stub(C.Bank, 'FetchNextPurchasableBankTabData', function(i) return {tabCost = i == 0 and GetBankSlotCost() or C.Bank.FetchNextPurchasableBankTabCost(i)} end)
 stub(C.Texture, 'GetAtlasExists', C.Texture.GetAtlasInfo)
 
