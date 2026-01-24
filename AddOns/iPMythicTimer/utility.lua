@@ -75,3 +75,13 @@ function Addon:PrepareName(playerName)
     end
     return playerName
 end
+
+function Addon:SetPortraitToTexture(frame, texture)
+    frame.Portrait:SetTexture(texture)
+    if not frame.portraitMask then
+        frame.portraitMask = frame:CreateMaskTexture()
+        frame.portraitMask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask")
+        frame.portraitMask:SetAllPoints(frame.Portrait)
+        frame.Portrait:AddMaskTexture(frame.portraitMask)
+    end
+end

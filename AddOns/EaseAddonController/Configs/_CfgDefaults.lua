@@ -787,41 +787,11 @@ D["HandyNotes"] = {
         text = "如果覺得地圖上的圖示太多太亂，可以在設定選項中關閉不想看到的特定圖示。\n",       
 	},
 };
-D["Hekili"] = {
-	defaultEnable = 0,
-	title = "Hekili 輸出助手",
-	desc = "畫面上會顯示3個圖示，提示現在和接下來建議施放的技能，跟著圖示按技能，做為輸出迴圈的新手教學，快速上手這個職業。``也可以在設定中啟用快捷列閃爍的功能，提示你該施放的技能，哪個亮就按哪個。`",
-	modifier = "彩虹ui",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["ACECONSOLE_HEKILI"]("") end,
-    },
-	{
-        text = "解鎖/鎖定位置",
-        callback = function() SlashCmdList["ACECONSOLE_HEKILI"]("move") end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
-	},
-	{
-		type = "text",
-        text = "點 'Hekili 輸出助手' 的小地圖按鈕也可以打開設定選項。\n\n快捷列閃爍: 設定選項 > 主要 > SpellFlash > 啟用。\n",       
-	},
-};
 D["HideActionbarAnimations"] = {
 	defaultEnable = 0,
 	tags = { "ACTIONBAR" },
 	title = "隱藏快捷列動畫特效",
 	desc = "不要顯示 10.1.5 新增的，快捷列圖示施法讀條效果和完成閃光動畫。`",
-};
-D["HealthstoneAutoMacro"] = {
-	defaultEnable = 0,
-	tags = { "ITEM" },
-	title = "(請刪除) 一鍵吃糖",
-	desc = "|cffFF2D2D此插件的資料夾名稱已經變更，請刪除 AddOns 裡面的 HealthstoneAutoMacro 資料夾!`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\inv_alchemy_80_potion01red",
 };
 D["HidingBar"] = {
 	defaultEnable = 1,
@@ -832,130 +802,6 @@ D["HidingBar"] = {
     {
         text = "設定選項",
         callback = function() SlashCmdList["HIDDINGBAR"]("") end,
-    },
-};
-D["IcyVeinsStatPriority"] = {
-	defaultEnable = 1,
-	tags = { "ITEM" },
-	title = "裝備屬性參考",
-	desc = "根據職業和專精，在角色資訊視窗上方顯示裝備屬性選擇優先順序的參考值。``此優先順序僅適用於大部分的情況，但因為天賦、配裝和手法流派不同，所需求的屬性可能不太一樣。尤其是要打  M+、英雄和M團本的玩家，建議依據你的實際配裝和手法，到網站爬文或和其他玩家討論。``另一種用法是，自行編輯屬性順序或加上註解，以符合個人需求。``資料來源：icy-veins.com`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\ability_paladin_beaconoflight",
-	-- img = true,
-	{
-		type = "text",
-		text = "在屬性建議文字上面點一下\n\n左鍵: 打開設定選項。\n\n右鍵: 查看所有職業的屬性。\n\n",
-	},
-	{
-		type = "text",
-		text = "自訂屬性順序: 用記事本編輯\nAddOns\IcyVeinsStatPriority\Data.lua\n",
-	},
-};
-D["Immersion"] = {
-    defaultEnable = 0,
-	title = "任務對話 (對話頭像)",
-	desc = "與NPC對話、接受/交回任務時，會使用遊戲內建 '說話的頭' 風格的對話方式，取代傳統的任務說明。``讓你更能享受並融入任務內容的對話劇情。``|cffFF2D2D任務對話 (FF XIV 風格)、任務對話 (說話的頭風格) 和任務對話 (電影風格) 選擇其中一種使用即可，請勿同時載入使用。|r`",
-	author = "MunkDev",
-	modifier = "彩虹ui",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["IMMERSION"]("") end,
-    },
-	{
-		type = "text",
-        text = "鍵盤操作方式：\n\n繼續下一步、接受/交回任務：\n滑鼠或空白鍵。\n\n選擇對話項目：1~9 數字鍵。\n\n回上一步：倒退鍵。\n\n取消對話：Esc 鍵。\n",
-	},
-	{
-		type = "text",
-        text = "移動位置：從設定選項 > 綜合 > 鎖定框架位置 > 將 '模型/文字' 取消打勾，即可用滑鼠拖曳移動 NPC 的對話視窗。\n\n移動對話選項：直接使用滑鼠拖曳移動。\n\n移動遊戲內建說話的頭：從設定選項 > 綜合 > 整合說話的頭框架 > 將 '已啟用' 打勾。說話的頭便會和插件的位置一起移動。",
-	},
-};
-D["InProgressMissions"] = {
-    defaultEnable = 0,
-	tags = { "QUEST" },
-	title = "指揮桌任務報告",
-	desc = "列出所有角色的指揮桌任務進度，包括暗影之境夥伴、艾澤拉斯勇士、職業大廳和要塞追隨者。``|cffFF2D2D其他角色必須先登入過遊戲，並且也有載入這個插件才會顯示在報告中。|r`",
-	icon = "Interface\\Icons\\inv_icon_mission_complete_order",
-	img = true,
-    {
-        text = "顯示任務報告",
-        callback = function() SlashCmdList["InProgressMissions"]("") end,
-    },
-	{
-		type = "text",
-        text = "點小地圖按鈕的 '任務報告' 按鈕也可以打開主視窗。",
-    },
-	{
-		type = "text",
-        text = "隱藏舊版本資料片的任務：在任務名稱上面點右鍵。\n\n|cffFF2D2D如果無法顯示任務報告或發生錯誤，請確認該角色是否已經開啟要塞和誓盟的指揮桌功能。|r\n",
-    },
-};
-D["InstanceAchievementTracker"] = {
-    defaultEnable = 0,
-	tags = { "COLLECTION" },
-	title = "副本成就追蹤",
-	desc = "副本中的成就條件達成或失敗時，會在聊天視窗顯示提醒。``也有提供相關的戰術、成就解法。`",
-	icon = "Interface\\Icons\\ACHIEVEMENT_GUILDPERK_MRPOPULARITY",
-	img = true,
-    {
-        text = "顯示主視窗",
-        callback = function() SlashCmdList["IAT"]("") end,
-    },
-	{
-		type = "text",
-        text = "點小地圖按鈕的 '副本成就追蹤' 按鈕也可以打開主視窗。",
-    },
-};
-D["InputInput"] = {
-    defaultEnable = 1,
-	tags = { "SOCIAL" },
-	title = "大型聊天輸入框",
-	desc = "位於角色下方超大號的聊天文字輸入框，習慣了就會愛上它!",
-	modifier = "彩虹ui",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["INPUTINPUT"]("") end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
-	},
-	{
-		type = "text",
-        text = "移動: Shift+左鍵拖曳輸入框\n\n縮放: Shift+左鍵拖曳右邊箭頭\n\n重置: Shift+右鍵點擊輸入框\n",
-    },
-	{
-		type = "text",
-        text = "切換頻道: 按 Tab 鍵\n\n歷史記錄: 方向鍵上/下\n\n表情圖案: 輸入 {\n\n(搭配 '聊天按鈕和功能增強' 插件一起使用時)\n",
-    },
-};
-D["InterruptedIn"] = {
-	defaultEnable = 0,
-	tags = { "MISC" },
-	title = "巨集指令 /iin",
-	desc = "讓你可以使用 /iin 指令製作具有時間性的發話巨集，具備中斷發話的功能。``例如開怪倒數巨集：`/iin stop`/stopmacro [btn:2]`/pull 5`/iin 0 大家注意要開怪啦 >>%T<<`/iin 1 4...`/iin 2 3...`/iin 3 2...偷爆發`/iin 4 1...`/iin 5 上!!!`/iin start``中斷倒數巨集：`/iin stop`/pull 0`/iin 0 >>>已中斷!!!<<<`/iin start``分裝倒數巨集：`/iin stop`/stopmacro [btn:2]`/iin 0.1 %L 倒數開始囉，要的骰！`/iin 5 5...`/iin 6 4...`/iin 7 3...`/iin 8 2...`/iin 9 1...`/iin 10 0!!!`/iin start``詳細說明和更多範例請看`https://goo.gl/yN2S5n`",
-	author = "永恆滿月",
-	icon = "Interface\\Icons\\spell_holy_borrowedtime",
-	img = true,
-};
-D["InvenUnitFrames"] = {
-    defaultEnable = 0,
-	tags = { "UNITFRAME" },
-	title = "IUF 頭像",
-	desc = "喜歡傳統風格頭像的玩家不要錯過! 提供多種外觀樣式可供選擇，還有豐富的自訂選項。`",
-	modifier = "彩虹ui",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["INVENUNITFRAMES"]("") end,
-    },
-	{
-		type = "text",
-		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
-	},
-	{
-		type = "text",
-        text = "更改外觀: 設定選項>整體>基本>外觀主題，選擇外觀。|n|n移動位置：設定選項>整體>基本>鎖定框架，取消打勾。|n|n(不是使用編輯模式移動!)|n",
     },
 };
 D["iPMythicTimer"] = {

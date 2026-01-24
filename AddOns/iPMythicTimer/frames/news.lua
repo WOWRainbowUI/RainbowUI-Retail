@@ -2,7 +2,7 @@ local AddonName, Addon = ...
 
 function Addon:RenderNews()
     local width = 600
-    local heigth = 410
+    local heigth = 440
 
     -- News Frame
     Addon.fNews = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
