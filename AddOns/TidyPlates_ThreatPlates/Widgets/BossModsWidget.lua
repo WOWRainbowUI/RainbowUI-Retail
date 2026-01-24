@@ -1,5 +1,6 @@
 local ADDON_NAME, Addon = ...
-local ThreatPlates = Addon.ThreatPlates
+
+if Addon.ExpansionIsAtLeastMidnight then return end
 
 local Widget = Addon.Widgets:NewWidget("BossMods")
 
@@ -18,9 +19,9 @@ local tremove, sort = tremove, sort
 local strbyte, strsub = strbyte, strsub
 
 -- ThreatPlates APIs
-local L = Addon.ThreatPlates.L
+local L = Addon.L
 local BackdropTemplate = Addon.BackdropTemplate
-local RGB, RGB_P, RGB_WITH_HEX = ThreatPlates.RGB, ThreatPlates.RGB_P, ThreatPlates.RGB_WITH_HEX
+local RGB, RGB_P, RGB_WITH_HEX = Addon.RGB, Addon.RGB_P, Addon.RGB_WITH_HEX
 local Font = Addon.Font
 local MODE_FOR_STYLE, AnchorFrameTo = Addon.MODE_FOR_STYLE, Addon.AnchorFrameTo
 local CUSTOM_GLOW_FUNCTIONS, CUSTOM_GLOW_WRAPPER_FUNCTIONS = Addon.CUSTOM_GLOW_FUNCTIONS, Addon.CUSTOM_GLOW_WRAPPER_FUNCTIONS
@@ -639,7 +640,7 @@ function Widget:UpdateSettings()
 
   GlowHighlightStartFunction = CUSTOM_GLOW_WRAPPER_FUNCTIONS[CUSTOM_GLOW_FUNCTIONS[Settings.Glow.Type][1]]
   GlowHighlightStopFunction = Addon.LibCustomGlow[CUSTOM_GLOW_FUNCTIONS[Settings.Glow.Type][2]]
-  DefaultGlowColor = ThreatPlates.DEFAULT_SETTINGS.profile.uniqueSettings["**"].Effects.Glow.Color
+  DefaultGlowColor = Addon.DEFAULT_SETTINGS.profile.uniqueSettings["**"].Effects.Glow.Color
 
   if DBM and DBM.RegisterCallback and DBM.UnregisterCallback then
     if Settings.ShowAuras then
@@ -703,7 +704,7 @@ function Addon:ConfigBossModsWidget()
   local event = "Configuration Mode"
   
   if not EnabledConfigMode then
-    local tp_frame = Widget:GetThreatPlateForUnit("target")
+    local tp_frame = Addon:GetThreatPlateForUnit("target")
     if tp_frame then
       local guid = _G.UnitGUID("target")
       

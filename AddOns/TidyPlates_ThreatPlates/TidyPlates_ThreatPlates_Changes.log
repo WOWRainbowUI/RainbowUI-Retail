@@ -1,4 +1,15 @@
-﻿------------------------------------------------------
+------------------------------------------------------
+13.0.0 - Release for Midnight Pre-Patch (2026-01-20)
+------------------------------------------------------
+* Coloring modes for friendly and enemy units can now be configured separately in health bar and name-only mode.
+* Added a highlight border for custom style icons (like totems)
+* Added an option to show/hide the source unit for a interrupt.
+* Added animations for nameplates when they change size.
+* Added Masque support for (some) icons.
+* Removed Disconnected option for coloring of healthbars.
+* Updated integrated libraries (Ace3 r1387-alpha, LibSharedMedia-3.0 v11.2.1)
+
+------------------------------------------------------
 12.6.5 (2026-01-14)
 ------------------------------------------------------
 * Added support for WoW Burning Crusade Classic Anniversary Edition.

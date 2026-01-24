@@ -1,7 +1,7 @@
-## Interface: 11508, 50502, 110205, 110207
+## Interface: 120000
 
 ## Title: Threat Plates
-## Version: 12.6.5
+## Version: 13.0.0-beta3
 ## Notes: Threat-reactive nameplates.
 ## Notes-deDE: Bedrohungsreaktive Namensplaketten.
 ## Notes-esES: Placas Identificativas de Amenaza
@@ -23,6 +23,10 @@
 ## RequiredDeps:
 ## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibCustomGlow-1.0, LibDeflate, LibDualSpec-1.0
 ## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibCustomGlow-1.0, LibDeflate, LibDualSpec-1.0
+#@version-tbc@
+## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibCustomGlow-1.0, LibDeflate, LibDualSpec-1.0
+## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibCustomGlow-1.0, LibDeflate, LibDualSpec-1.0
+#@end-version-tbc@
 
 ## X-License: GNU General Public License
 ## X-Credits: danltiger (for Tidy Plates), Tosaido (for quest handling code from QuestMobs)
@@ -34,24 +38,26 @@
 Libs\Libs.xml
 Locales\Locales.xml
 
+ThreatPlates.xml
+
 Init.lua
+Debug.lua
 Compatibility.lua
-Localization.lua
+Modules\Localization.lua
+EventService.lua
 CVarsManager.lua
 Media.lua
 Constants.lua
+Modules\Modules.xml
 Elements\Elements.xml
-
 Widgets\WidgetHandler.lua
 
-# Integration of TidyPlates for standalone version
-TidyPlatesInternal\TidyPlates.xml
-
+Nameplate.lua
 Database.lua
-Core.lua
+Addon.lua
 Commands.lua
+AceGUIPreviewImage.lua
 Options.lua
 
 Styles\Styles.xml
-Functions\Functions.xml
 Widgets\Widgets.xml
