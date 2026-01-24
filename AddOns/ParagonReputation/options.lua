@@ -307,7 +307,7 @@ end
 function ParagonReputation:LockButton()
 	local point,_,relative,x,y = PR.toast:GetPoint()
 	PR.DB.point = {point,relative,x,y}
-	Settings.OpenToCategory(PR.options.name)
+	Settings.OpenToCategory(PR.DB.categoryID) -- 自行修正
 	PR.toast:Hide()
 	PR.toast.reset:Hide()
 	PR.toast.lock:Hide()
