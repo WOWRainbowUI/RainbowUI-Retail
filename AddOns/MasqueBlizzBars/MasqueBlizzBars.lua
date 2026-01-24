@@ -113,13 +113,25 @@ function Addon:SpellFlyout_Toggle(_, flyoutID)
 	end
 end
 
-function Addon:CooldownViewer_RefreshLayout()
+function Addon:PreHook_CooldownViewer()
 	local frameName = self:GetName()
-	if frameName and Groups.CooldownViewer.Buttons[frameName] then
+	if frameName and Groups[frameName] and Groups[frameName].Buttons[frameName] then
 		-- Map the Mask to a key and hide the overlay
-		for _, frame in ipairs(self:GetItemFrames()) do
-			if not frame.Mask then
-				frame.Mask = frame.Icon:GetMaskTexture(1)
+		for frame in self.itemFramePool:EnumerateActive() do
+			if frame.ChargeCount and frame.ChargeCount.Current and not frame.Count then
+				frame.Count = frame.ChargeCount.Current
+			end
+			if frame.Applications and frame.Applications.Applications and not frame.Count then
+				frame.Count = frame.Applications.Applications
+			end
+			if frame.DebuffBorder and not frame.DebuffBorderMBB then
+				frame.DebuffBorderMBB = frame:CreateTexture(nil, "ARTWORK", nil, 0)
+				frame.DebuffBorderMBB:SetVertexColor(0, 0, 0, 0)
+				hooksecurefunc(frame, "RefreshIconBorder",
+				               Addon.CooldownViewerItem_RefreshIconBorder)
+			end
+			if not frame.IconMask then
+				frame.IconMask = frame.Icon:GetMaskTexture(1)
 			end
 			if not frame.IconOverlay then
 				-- There should be one region left that isn't mapped
@@ -130,10 +142,54 @@ function Addon:CooldownViewer_RefreshLayout()
 					end
 				end
 			end
-			frame.IconOverlay:Hide()
+			if Core:CheckVersion({ 120000, nil }) then
+				hooksecurefunc(frame, "ShowPandemicStateFrame",
+				               Addon.CooldownViewerItem_ShowPandemicStateFrame)
+				hooksecurefunc(frame, "HidePandemicStateFrame",
+				               Addon.CooldownViewerItem_HidePandemicStateFrame)
+			end
+
+			local groupDisabled = Groups[frameName].Group.db.Disabled
+			frame.IconOverlay:SetShown(groupDisabled)
+			if frame.DebuffBorder then
+				frame.DebuffBorder.Texture:SetShown(groupDisabled)
+			end
 		end
-		Core:Skin(Groups.CooldownViewer.Buttons[frameName], Groups.CooldownViewer.Group, nil, nil, self, frameName)
+
 	end
+end
+
+function Addon:CooldownViewerItem_RefreshIconBorder()
+	local frame = self
+	if frame and frame.DebuffBorderMBB then
+		local frameName = frame:GetParent():GetName()
+		if frameName and Groups[frameName] then
+			local groupDisabled = Groups[frameName].Group.db.Disabled
+			frame.DebuffBorder.Texture:SetShown(groupDisabled)
+			if frame.auraInstanceID and frame.auraDataUnit == "target" and not groupDisabled then
+				local color = C_UnitAuras.GetAuraDispelTypeColor(frame.auraDataUnit, frame.auraInstanceID, Addon.DispelCurve)
+				frame.DebuffBorderMBB:SetVertexColor(color.r, color.g, color.b, color.a)
+			else
+				frame.DebuffBorderMBB:SetVertexColor(0, 0, 0, 0)
+			end
+		end
+	end
+end
+
+function Addon:CooldownViewerItem_ShowPandemicStateFrame()
+	local frame = self
+	if frame and frame.DebuffBorderMBB and frame.PandemicIcon then
+		local frameName = frame:GetParent():GetName()
+		if frameName and Groups[frameName] then
+			local groupDisabled = Groups[frameName].Group.db.Disabled
+			if not groupDisabled then
+				-- TODO: Handle Pandemic Overlay?
+			end
+		end
+	end
+end
+
+function Addon:CooldownViewerItem_HidePandemicStateFrame()
 end
 
 -- Attempt to adopt the ZoneAbilityButton, which has no name, when Blizzard
@@ -182,14 +238,21 @@ function Addon:Init()
 		               Addon.SpellFlyout_Toggle)
 	end
 
-	-- Cooldown Viewer
-	if Core:CheckVersion({ 110105, nil }) then
-		hooksecurefunc(BuffIconCooldownViewer, "RefreshLayout",
-		               Addon.CooldownViewer_RefreshLayout)
-		hooksecurefunc(EssentialCooldownViewer, "RefreshLayout",
-		               Addon.CooldownViewer_RefreshLayout)
-		hooksecurefunc(UtilityCooldownViewer, "RefreshLayout",
-		               Addon.CooldownViewer_RefreshLayout)
+	-- Cooldown Manager hook setup
+	Groups.BuffIconCooldownViewer.PreHookFunction  = Addon.PreHook_CooldownViewer
+	Groups.EssentialCooldownViewer.PreHookFunction = Addon.PreHook_CooldownViewer
+	Groups.UtilityCooldownViewer.PreHookFunction   = Addon.PreHook_CooldownViewer
+
+	-- ColorCurve needed for Dispel Types
+	if Core:CheckVersion({ 120000, nil }) then
+		Addon.DispelCurve = C_CurveUtil.CreateColorCurve()
+		Addon.DispelCurve:SetType(Enum.LuaCurveType.Step)
+		Addon.DispelCurve:AddPoint(0, CreateColor(0.800, 0.000, 0.000, 1))
+		Addon.DispelCurve:AddPoint(1, CreateColor(0.000, 0.505, 1.000, 1))
+		Addon.DispelCurve:AddPoint(2, CreateColor(0.624, 0.023, 0.894, 1))
+		Addon.DispelCurve:AddPoint(3, CreateColor(0.945, 0.416, 0.035, 1))
+		Addon.DispelCurve:AddPoint(4, CreateColor(0.482, 0.780, 0.000, 1))
+		Addon.DispelCurve:AddPoint(5, CreateColor(0.721, 0.000, 0.059, 1))
 	end
 
         -- Check if MoveAny is installed and handle the bar modifications it makes
