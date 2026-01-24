@@ -1,4 +1,4 @@
-## Interface: 110205, 110207
+## Interface: 120000
 ## Title: Random Hearthstone
 ## Author: JamienAU
 ## Version: r28
