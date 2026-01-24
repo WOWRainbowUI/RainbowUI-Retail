@@ -2,16 +2,16 @@
 local addon = TinyTooltipReforged
  
 addon.db = {
-    version = 11.0,
+    version = 12.0,
     general = {
-        scale             = 1,
+        scale             = 1.2,
         mask              = true,
         bgfile            = "Blizzard Parchment",
         background        = {0, 0, 0, 0.7},
         borderSize        = 1,
         borderCorner      = "Blizzard Tooltip",
         borderColor       = {0.6, 0.6, 0.6, 0.8},
-        statusbarEnabled  = true,
+        statusbarEnabled  = false,
 		statusbarHeight   = 6,
         statusbarPosition = "default",
         statusbarOffsetX  = 0,

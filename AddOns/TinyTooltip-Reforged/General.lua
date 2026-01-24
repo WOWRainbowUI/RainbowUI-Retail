@@ -90,7 +90,8 @@ LibEvent:attachEvent("VARIABLES_LOADED", function()
         ItemRefCloseButton:GetNormalTexture():SetVertexColor(0.9, 0.6, 0)
     end
     --StatusBar
-    local bar = GameTooltipStatusBar
+    --[[
+	local bar = GameTooltipStatusBar
     bar.bg = bar:CreateTexture(nil, "BACKGROUND")
     bar.bg:SetAllPoints()
     bar.bg:SetColorTexture(1, 1, 1)
@@ -114,6 +115,8 @@ LibEvent:attachEvent("VARIABLES_LOADED", function()
             self:Hide()
         end        
     end)
+	--]]
+	
     --Variables
     if (IsTableEmpty(TinyTooltipReforgedDB) or 
         (addon.db.general.SavedVariablesPerCharacter and IsTableEmpty(TinyTooltipReforgedCharacterDB)) ) then
@@ -146,6 +149,7 @@ LibEvent:attachTrigger("tooltip:cleared, tooltip:hide", function(self, tip)
     if (tip.NineSlice) then tip.NineSlice:Hide() end
 end)
 
+--[[
 LibEvent:attachTrigger("tooltip:show", function(self, tip)
     if (tip ~= GameTooltip) then return end
     LibEvent:trigger("tooltip.statusbar.position", addon.db.general.statusbarPosition, addon.db.general.statusbarOffsetX, addon.db.general.statusbarOffsetY)
@@ -157,3 +161,4 @@ LibEvent:attachTrigger("tooltip:show", function(self, tip)
         end
     end
 end)
+--]]

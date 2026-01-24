@@ -44,7 +44,8 @@ local function CallTrigger(keystring, value)
             LibEvent:trigger("tooltip.style.bgfile", tip, value)
         end
     end
-    if (keystring == "general.statusbarEnabled") then
+    --[[
+	if (keystring == "general.statusbarEnabled") then
       LibEvent:trigger("tooltip.statusbar.height", value)
     elseif (keystring == "general.statusbarText") then
         LibEvent:trigger("tooltip.statusbar.text", value)
@@ -59,6 +60,7 @@ local function CallTrigger(keystring, value)
     elseif (strfind(keystring, "general.bodyFont")) then
         LibEvent:trigger("tooltip.style.font.body", tip, addon.db.general.bodyFont, addon.db.general.bodyFontSize, addon.db.general.bodyFontFlag)
     end
+	--]]
 end
 
 local function GetVariable(keystring, tbl)
@@ -609,6 +611,7 @@ if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
 			{ keystring = "unit.npc.elements.reactionName", type = "element", color = true, wildcard = true, filter = true, },
 			{ keystring = "unit.npc.elements.moveSpeed",    type = "element", color = true, wildcard = true, filter = true, },
 		},
+		--[[
 		statusbar = {
 			{ keystring = "general.statusbarEnabled",   type = "checkbox" },
 			{ keystring = "general.statusbarText",      type = "checkbox" },
@@ -623,6 +626,7 @@ if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
 			{ keystring = "general.statusbarColor",     type = "dropdown", dropdata = {"default","auto","smooth"} },
 			{ keystring = "general.statusbarTextFormat", type = "dropdown", dropdata = {"healthmaxpercent", "healthpercent", "healthmax", "health", "percent"} },
 		},
+		--]]
 		spell = {
 			{ keystring = "spell.showIcon",             type = "checkbox" },
 			{ keystring = "spell.background",           type = "colorpick", hasopacity = true },
@@ -716,6 +720,7 @@ else
 			{ keystring = "unit.npc.elements.reactionName", type = "element", color = true, wildcard = true, filter = true, },
 			{ keystring = "unit.npc.elements.moveSpeed",    type = "element", color = true, wildcard = true, filter = true, },
 		},
+		--[[
 		statusbar = {
 			{ keystring = "general.statusbarEnabled",   type = "checkbox" },
 			{ keystring = "general.statusbarText",      type = "checkbox" },
@@ -730,6 +735,7 @@ else
 			{ keystring = "general.statusbarColor",     type = "dropdown", dropdata = {"default","auto","smooth"} },
 			{ keystring = "general.statusbarTextFormat", type = "dropdown", dropdata = {"healthmaxpercent", "healthpercent", "healthmax", "health", "percent"} },
 		},
+		--]]
 		spell = {
 			{ keystring = "spell.showIcon",             type = "checkbox" },
 			{ keystring = "spell.background",           type = "colorpick", hasopacity = true },
@@ -830,6 +836,7 @@ frameNPCScrollFrame:SetScrollChild(frameNPC)
 frameNPCScrollFrame.parent = L["Tooltip"]
 frameNPCScrollFrame.name = "NPC"
 
+--[[
 local frameStatusbar = CreateFrame("Frame", nil, UIParent)
 frameStatusbar.anchor = CreateFrame("Frame", nil, frameStatusbar)
 frameStatusbar.anchor:SetPoint("TOPLEFT", 32, -16)
@@ -838,11 +845,15 @@ if (clientToc == 30400) then
 else
   frame.anchor:SetSize(SettingsPanel:GetWidth()-64, 1)
 end
+--]]
+
+--[[
 frameStatusbar.title = frameStatusbar:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 frameStatusbar.title:SetPoint("TOPLEFT", 18, -16)
 frameStatusbar.title:SetText(format("%s |cff33eeff%s|r", L["TinyTooltip"], L["StatusBar"]))
 frameStatusbar.parent = L["Tooltip"]
 frameStatusbar.name = L["StatusBar"]
+--]]
 
 local frameSpell = CreateFrame("Frame", nil, UIParent)
 frameSpell.anchor = CreateFrame("Frame", nil, frameSpell)
@@ -932,7 +943,7 @@ LibEvent:attachEvent("VARIABLES_LOADED", function()
     InitOptions(options.general, frame, 32)
     InitOptions(options.pc, framePC, 29)
     InitOptions(options.npc, frameNPC, 27)
-    InitOptions(options.statusbar, frameStatusbar, 36)
+    -- InitOptions(options.statusbar, frameStatusbar, 36)
     InitOptions(options.spell, frameSpell, 32)
     InitOptions(options.font, frameFont, 32)
     InitVariablesFrame()
@@ -952,8 +963,8 @@ if Settings and Settings.RegisterCanvasLayoutCategory then
   Settings.RegisterAddOnCategory(category1)
 --  framePCScrollFrame.categoryID = category2:GetID()
 
-  local category1 = Settings.RegisterCanvasLayoutSubcategory(category, frameStatusbar, frameStatusbar.name)
-  Settings.RegisterAddOnCategory(category1)
+  -- local category1 = Settings.RegisterCanvasLayoutSubcategory(category, frameStatusbar, frameStatusbar.name)
+  -- Settings.RegisterAddOnCategory(category1)
 --  framePCScrollFrame.categoryID = category1:GetID()
 
   local category1 = Settings.RegisterCanvasLayoutSubcategory(category, frameSpell, frameSpell.name)
