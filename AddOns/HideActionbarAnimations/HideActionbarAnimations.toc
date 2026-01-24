@@ -1,4 +1,4 @@
-## Interface: 110205, 110207
+## Interface: 120000
 ## Title: HideActionbarAnimations
 ## Notes: Hides the Actionbar Animations added in 10.1.5
 ## IconTexture: Interface\Addons\HideActionbarAnimations\HideActionbarAnimationsIcon
@@ -7,7 +7,7 @@
 ## Notes-zhTW: HideActionbarAnimations |n|n不要顯示快捷列新的施法讀條效果和完成閃光動畫。
 ## Category-zhTW: 快捷列
 ## DefaultState: disabled
-## Version: 2.8
+## Version: 2.9
 
 HideActionbarAnimations.lua
 SpellActivationAlert.lua

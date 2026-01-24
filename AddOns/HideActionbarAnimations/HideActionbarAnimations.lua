@@ -29,9 +29,3 @@
 			end
 		end)
 	end)
-
-	hooksecurefunc("CooldownFrame_Set", function(self)
-		if not self:IsForbidden() then
-			self:SetEdgeTexture("Interface\\Cooldown\\edge")
-		end
-	end)

@@ -53,6 +53,7 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 
 		overlay:SetScript("OnUpdate", function(button, elapsed)
 			AnimateTexCoords(button.Ants, 256, 256, 48, 48, 22, elapsed, 0.01)
+			--[[ attempt to compare a secret value
 			local cooldown = button:GetParent().cooldown
 			-- we need some threshold to avoid dimming the glow during the gdc
 			-- (using 1500 exactly seems risky, what if casting speed is slowed or something?)
@@ -61,6 +62,7 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 			else
 				button:SetAlpha(1.0)
 			end
+			--]]
 		end)
 
 		overlay.animIn = overlay:CreateAnimationGroup()
