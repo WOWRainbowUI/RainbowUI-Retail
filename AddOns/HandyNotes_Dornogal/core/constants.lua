@@ -47,8 +47,6 @@ constants.defaults = {
         icon_alpha_transmogrifier = 1,
         icon_scale_vendor = 1.25,
         icon_alpha_vendor = 1,
-        icon_scale_void = 1.25,
-        icon_alpha_void = 1,
         icon_scale_others = 1.25,
         icon_alpha_others = 1,
 
@@ -69,7 +67,6 @@ constants.defaults = {
         show_trainer = true,
         show_transmogrifier = true,
         show_vendor = true,
-        show_void = true,
         show_others = true,
 
         show_onlymytrainers = false,
@@ -113,7 +110,6 @@ constants.icongroup = {
     "trainer",
     "transmogrifier",
     "vendor",
-    "void",
     "others"
 }
 
@@ -141,7 +137,6 @@ constants.icon = {
     transmogrifier  = "Interface\\MINIMAP\\TRACKING\\Transmogrifier",
     tpplatform      = "Interface\\MINIMAP\\TempleofKotmogu_ball_cyan",
     vendor          = "Interface\\AddOns\\" .. FOLDER_NAME .. "\\icons\\vendor",
-    void            = "Interface\\AddOns\\" .. FOLDER_NAME .. "\\icons\\void",
 
     -- profession icons (since Dragonflight)
     alchemy = "Interface\\ICONS\\ui_profession_alchemy",

@@ -44,13 +44,14 @@ DB.nodes = {
         [37644088] = { icon = "mail", label = L["Mailbox"] },
         [45364822] = { icon = "mail", label = L["Mailbox"] },
 
-        [56724666] = { icon = "auctioneer", npc = 219040, sublabel = '' }, -- Auctioneer Prana
+        [56574708] = { icon = "auctioneer", npc = 219040, sublabel = '' }, -- Auctioneer Prana
         [56924692] = { icon = "auctioneer", npc = 219037, sublabel = '' }, -- Auctioneer Durzin
-        [57074719] = { icon = "auctioneer", npc = 219039, sublabel = '' }, -- Auctioneer Zyrgas
+        [56834746] = { icon = "auctioneer", npc = 219039, sublabel = '' }, -- Auctioneer Zyrgas
 
-        [51174334] = { icon = "portal", label = L["Portal to The Timeways"], level = 80 }, -- RE(MOVED) / Needs S1?
+        [53963872] = { icon = "portal", label = L["Portal to The Timeways"], level = 80 },
 
         [54023820] = { icon = "vendor", npc=222561 }, -- Agmera
+        [57985686] = { icon = "vendor", npc=234906 }, -- Syenite
 
         -- Delver's Headqarters
         [47464362] = { icon = "vendor", npc = 208070 }, -- Sir Finley Mrrgglton
@@ -109,7 +110,6 @@ DB.nodes = {
 
         -- The Ether House
         [58064879] = { icon = "transmogrifier", npc = 219053 }, -- Warpweaver Dezeeran
-        [57704746] = { icon = "void", npc = 219054 }, -- Vaultkeeper Xir
 
         -- Shadestone Elixirs
         [61695186] = { icon = "vendor", npc = 219312 }, -- Gorenda
