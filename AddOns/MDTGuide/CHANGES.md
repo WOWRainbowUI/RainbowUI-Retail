@@ -1,1 +1,3 @@
-- Remove debug code
+- Updated ToC version for patch 12.0
+- Remove route (path estimation) mode, as it's no longer possible to track kills
+- Replace deprecated API calls

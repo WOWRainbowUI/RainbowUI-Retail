@@ -6,10 +6,6 @@ local Addon = select(2, ...)
 MDTG = Addon
 MDTGuideDB = {
     active = false,
-    ---@type number?
-    dungeon = nil,
-    ---@type { path: string, kills: number[] }
-    route = { path = "", kills = {} },
     options = {
         height = 200,
         widthSide = 200,
@@ -18,8 +14,7 @@ MDTGuideDB = {
         animate = true,
         fade = false,
         hide = false,
-        route = false,
-        version = 1,
+        version = 2,
     }
 }
 
@@ -636,27 +631,20 @@ end
 
 function Addon.GetCurrentPull()
     if not Addon.IsCurrentInstance() then return end
-
-    if Addon.UseRoute() then
-        return Addon.GetCurrentPullByRoute()
-    else
-        return Addon.GetCurrentPullByEnemyForces()
-    end
+    return Addon.GetCurrentPullByEnemyForces()
 end
 
 function Addon.ZoomToCurrentPull(refresh)
-    if Addon.UseRoute() and refresh then
-        Addon.UpdateRoute(true)
-    elseif Addon.IsActive() then
-        local n, pull = Addon.GetCurrentPull()
-        if not n then return end ---@cast pull -?
+    if not Addon.IsActive() then return end
 
-        MDT:SetSelectionToPull(n)
+    local n, pull = Addon.GetCurrentPull()
+    if not n then return end ---@cast pull -?
 
-        if MDT:GetCurrentSubLevel() == Addon.GetBestSubLevel(pull) then return end
+    MDT:SetSelectionToPull(n)
 
-        Addon.ZoomToPull(n)
-    end
+    if MDT:GetCurrentSubLevel() == Addon.GetBestSubLevel(pull) then return end
+
+    Addon.ZoomToPull(n)
 end
 
 function Addon.ColorEnemy(enemyId, cloneId, color)
@@ -670,31 +658,19 @@ end
 
 function Addon.ColorEnemies()
     if Addon.IsActive() and Addon.IsCurrentInstance() then
-        if Addon.UseRoute() then
-            local n = Addon.GetCurrentPullByRoute()
-            if n and n > 0 then
-                Addon.IteratePull(n, function(_, _, cloneId, enemyId)
-                    Addon.ColorEnemy(enemyId, cloneId, Addon.COLOR_CURR)
-                end)
-            end
-            for enemyId, cloneId in MDTGuideDB.route.path:gmatch("-e(%d+)c(%d+)-") do
-                Addon.ColorEnemy(tonumber(enemyId), tonumber(cloneId), Addon.COLOR_DEAD)
-            end
-        else
-            local n = Addon.GetCurrentPullByEnemyForces()
-            if n and n > 0 then
-                local enemyForces = Addon.GetEnemyForces()
+        local n = Addon.GetCurrentPullByEnemyForces()
+        if n and n > 0 then
+            local enemyForces = Addon.GetEnemyForces()
 
-                Addon.IteratePulls(function(_, enemy, cloneId, enemyId, _, i)
-                    if i > n then return true end
+            Addon.IteratePulls(function(_, enemy, cloneId, enemyId, _, i)
+                if i > n then return true end
 
-                    enemyForces = enemyForces - enemy.count
+                enemyForces = enemyForces - enemy.count
 
-                    local color = i == n and (enemyForces < 0 or enemy.isBoss) and Addon.COLOR_CURR or Addon.COLOR_DEAD
+                local color = i == n and (enemyForces < 0 or enemy.isBoss) and Addon.COLOR_CURR or Addon.COLOR_DEAD
 
-                    Addon.ColorEnemy(enemyId, cloneId, color)
-                end)
-            end
+                Addon.ColorEnemy(enemyId, cloneId, color)
+            end)
         end
     end
 end
@@ -849,11 +825,6 @@ local OnEvent = function(_, ev, ...)
                 Addon.HideDungeonButtons()
             end)
 
-            -- Hook dungeon selection
-            hooksecurefunc(MDT, "ZoomMapToDefault", function()
-                Addon.SetCurrentDungeon()
-            end)
-
             -- Hook pull selection
             hooksecurefunc(MDT, "SetSelectionToPull", function(_, pull)
                 if Addon.IsActive() and tonumber(pull) and Addon.GetLastSubLevel(pull) == MDT:GetCurrentSubLevel() then
@@ -933,7 +904,7 @@ local OnEvent = function(_, ev, ...)
                 until not frame
             end)
         end
-    elseif ev == "SCENARIO_CRITERIA_UPDATE" and not Addon.UseRoute() then
+    elseif ev == "SCENARIO_CRITERIA_UPDATE" then
         Addon.ZoomToCurrentPull(true)
     elseif ev == "PLAYER_REGEN_ENABLED" or ev == "PLAYER_REGEN_DISABLED" then
         if not MDTGuideDB.active or not MDT.main_frame then return end
@@ -978,12 +949,8 @@ function SlashCmdList.MDTG(args)
     local cmd, arg1, arg2 = strsplit(' ', args)
 
     -- Route
-    if cmd == "route" then
-        Addon.UseRoute(arg1 ~= "off")
-        Addon.Echo("Route estimation", op.route and "enabled" or "disabled")
-
     -- Zoom
-    elseif cmd == "zoom" then
+    if cmd == "zoom" then
         local min = tonumber(arg1)
         if not min then return Addon.Echo(cmd, "First parameter must be a number.") end
 
@@ -1018,7 +985,6 @@ function SlashCmdList.MDTG(args)
     -- Help
     else
         Addon.Echo("Usage")
-        Addon.Command("route [on/off]", "Enable/Disable route estimation. (%s, off)", op.route and "on" or "off")
         Addon.Command("zoom <min-or-both> [<max>]", "Scale default min/max visible area size when zooming. (%s/%s, 1/1)", op.zoomMin, op.zoomMax)
         Addon.Command("fade [on/off/<opacity>]", "Enable/Disable fading or set opacity. (%s, 0.3)", op.fade or "off")
         Addon.Command("hide [on/off]", "Enable/Disable hiding in combat. (%s, off)", op.hide and "on" or "off")
