@@ -74,8 +74,21 @@ function ClockModule:OnDisable()
     self.clockFrame:Hide()
 end
 
+function ClockModule:EnsureFrames()
+    if self.framesInitialized then return end
+    if self.clockFrame == nil then
+        self.clockFrame = CreateFrame("FRAME", nil, xb:GetFrame('bar'))
+        xb:RegisterFrame('clockFrame', self.clockFrame)
+    end
+    self.clockFrame:Show()
+    self:CreateFrames()
+    self:RegisterFrameEvents()
+    self.framesInitialized = true
+end
+
 function ClockModule:Refresh()
     local db = xb.db.profile
+    self:EnsureFrames()
     if self.clockFrame == nil then
         return;
     end
@@ -84,17 +97,25 @@ function ClockModule:Refresh()
         return;
     end
 
-    if InCombatLockdown() then
+    --[[ if InCombatLockdown() then
         self:SetClockColor()
         return
-    end
+    end ]]
 
     self.clockText:SetFont(xb:GetFont(db.modules.clock.fontSize))
+    local dateString = nil
+    if xb.db.profile.modules.clock.serverTime then
+        dateString = GetServerTimeString(xb.db.profile.modules.clock.timeFormat)
+    else
+        local clockTime = time()
+        dateString = date(ClockModule.timeFormats[xb.db.profile.modules.clock.timeFormat], clockTime)
+    end
+    self.clockText:SetText(dateString)
     self:SetClockColor()
 
     self.clockFrame:SetSize(self.clockText:GetStringWidth(), self.clockText:GetStringHeight())
     self.clockFrame:SetPoint('CENTER')
-
+        
     self.clockTextFrame:SetSize(self.clockText:GetStringWidth(), self.clockText:GetStringHeight())
     self.clockTextFrame:SetPoint('CENTER')
 
@@ -104,6 +125,8 @@ function ClockModule:Refresh()
     self.eventText:SetPoint('CENTER', self.clockText, xb.miniTextPosition)
     if xb.db.profile.modules.clock.hideEventText then
         self.eventText:Hide()
+    else
+        self.eventText:Show()
     end
 end
 
@@ -130,7 +153,7 @@ function ClockModule:RegisterFrameEvents()
             end
             ClockModule.clockText:SetText(dateString)
 
-            if not xb.db.profile.modules.clock.hideEventText then
+            if not xb.db.profile.modules.clock.hideEventText and C_Calendar and C_Calendar.GetNumPendingInvites then
                 local eventInvites = C_Calendar.GetNumPendingInvites()
                 if eventInvites > 0 then
                     ClockModule.eventText:SetText(string.format("%s  (|cffffff00%i|r)", L['New Event!'], eventInvites))
@@ -143,9 +166,9 @@ function ClockModule:RegisterFrameEvents()
     end)
 
     self.clockTextFrame:SetScript('OnEnter', function()
-        if InCombatLockdown() then
+        --[[ if InCombatLockdown() then
             return;
-        end
+        end ]]
         ClockModule:SetClockColor()
         GameTooltip:SetOwner(ClockModule.clockTextFrame, 'ANCHOR_' .. xb.miniTextPosition, 0, 3)
         -- GameTooltip:SetPoint(xb.db.profile.general.barPosition, self.clockTextFrame, xb.miniTextPosition, 0, 1)

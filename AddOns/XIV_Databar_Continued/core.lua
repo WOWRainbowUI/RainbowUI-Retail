@@ -249,6 +249,36 @@ function XIVBar:OnInitialize()
             }
         end
 
+        -- Checking localized "Bugfix" category
+        local bugfix_localized = {}
+        if data.bugfix and data.bugfix[GetLocale()] ~= nil and next(data.bugfix[GetLocale()]) ~= nil then
+            bugfix_localized = data.bugfix[GetLocale()]
+        elseif data.bugfix then
+            bugfix_localized = data.bugfix["enUS"]
+        end
+
+        local bugfix = data.bugfix and bugfix_localized
+        if bugfix and #bugfix > 0 then
+            page.bugfixHeader = {
+                order = 9,
+                type = "header",
+                name = orange(L["Bugfix"]) or orange("Bugfix")
+            }
+            page.bugfix = {
+                order = 10,
+                type = "description",
+                name = function()
+                    local text = ""
+                    for index, line in ipairs(bugfix) do
+                        text = text .. index .. ". " ..
+                                   renderChangelogLine(line) .. "\n"
+                    end
+                    return text .. "\n"
+                end,
+                fontSize = "medium"
+            }
+        end
+
         -- Checking localized "New" category
         local new_localized = {}
         if data.new[GetLocale()] ~= nil and next(data.new[GetLocale()]) ~= nil then
@@ -323,11 +353,12 @@ function XIVBar:OnInitialize()
     AceConfig:RegisterOptionsTable(AddOnName .. "_ProfileSharing", profileSharingOptions)
 
     -- Add to Blizzard options
-    AceConfigDialog:AddToBlizOptions(AddOnName, "XIV Bar Continued")
+    local _, mainCategory = AceConfigDialog:AddToBlizOptions(AddOnName, "XIV Bar Continued")
     AceConfigDialog:AddToBlizOptions(AddOnName .. "_Modules", L['Modules'], "XIV Bar Continued")
     AceConfigDialog:AddToBlizOptions(AddOnName .. "_Changelog", L['Changelog'], "XIV Bar Continued")
     AceConfigDialog:AddToBlizOptions(AddOnName .. "_Profiles", 'Profiles', "XIV Bar Continued")
     AceConfigDialog:AddToBlizOptions(AddOnName .. "_ProfileSharing", 'Profile Sharing', "XIV Bar Continued")
+    self.optionsCategory = mainCategory
 
     self.timerRefresh = false
 
@@ -662,7 +693,11 @@ function XIVBar:OnEnable()
 end
 
 function XIVBar:ToggleConfig()
-    Settings.OpenToCategory("XIV Bar Continued")
+    if self.optionsCategory then
+        Settings.OpenToCategory(self.optionsCategory)
+    else
+        Settings.OpenToCategory("XIV Bar Continued")
+    end
 end
 
 function XIVBar:SetColor(name, r, g, b, a)
@@ -821,7 +856,9 @@ function XIVBar:Refresh()
     end
 
     local barColor = self.db.profile.color.barColor
-    self.frames.bar:ClearAllPoints()
+    if not InCombatLockdown() then
+        self.frames.bar:ClearAllPoints()
+    end
     
     -- Use saved position if not in fullscreen mode
     if not self.db.profile.general.barFullscreen then
@@ -847,14 +884,18 @@ function XIVBar:Refresh()
         end
         self.frames.bar:SetWidth(self.db.profile.general.barWidth)
     else
-        self.frames.bar:SetPoint(self.db.profile.general.barPosition)
-        self.frames.bar:SetPoint("LEFT", self.db.profile.general.barMargin, 0)
-        self.frames.bar:SetPoint("RIGHT", -self.db.profile.general.barMargin, 0)
+        if not InCombatLockdown() then
+            self.frames.bar:SetPoint(self.db.profile.general.barPosition)
+            self.frames.bar:SetPoint("LEFT", self.db.profile.general.barMargin, 0)
+            self.frames.bar:SetPoint("RIGHT", -self.db.profile.general.barMargin, 0)
+        end
     end
     
-    self.frames.bar:SetHeight(self:GetHeight())
-    self.frames.bgTexture:SetColorTexture(self:GetColor('barColor'))
-    self.frames.bgTexture:SetAllPoints()
+    if not InCombatLockdown() then
+        self.frames.bar:SetHeight(self:GetHeight())
+        self.frames.bgTexture:SetColorTexture(self:GetColor('barColor'))
+        self.frames.bgTexture:SetAllPoints()
+    end
 
     for name, module in self:IterateModules() do
         if module['Refresh'] == nil then return; end
@@ -906,15 +947,17 @@ function OffsetUI()
     local buffsAreaTopOffset = offset;
 
     if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
-        if (PlayerFrame and not PlayerFrame:IsUserPlaced() and
-            not PlayerFrame_IsAnimatedOut(PlayerFrame)) then
-            PlayerFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", -19,
-                                 -4 - offset)
-        end
+        if not (XIVBar.compat and XIVBar.compat.isTBC) then
+            if (PlayerFrame and not PlayerFrame:IsUserPlaced() and
+                not PlayerFrame_IsAnimatedOut(PlayerFrame)) then
+                PlayerFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", -19,
+                                     -4 - offset)
+            end
 
-        if (TargetFrame and not TargetFrame:IsUserPlaced()) then
-            TargetFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 250,
-                                 -4 - offset);
+            if (TargetFrame and not TargetFrame:IsUserPlaced()) then
+                TargetFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 250,
+                                     -4 - offset);
+            end
         end
 
         local ticketStatusFrameShown = TicketStatusFrame and

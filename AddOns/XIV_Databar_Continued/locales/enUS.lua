@@ -68,6 +68,13 @@ L['Hover'] = true;
 
 L['Micromenu'] = true;
 L['Show Social Tooltips'] = true;
+L['Blizzard Micromenu'] = true;
+L['Disable Blizzard Micromenu'] = true;
+L["Keep Queue Status Icon"] = true;
+L['Blizzard Micromenu Disclaimer'] = 'If you use another UI addon (e.g. ElvUI), hide its microbar in that addon\'s settings.';
+L['Blizzard Bags Bar'] = true;
+L['Disable Blizzard Bags Bar'] = true;
+L['Blizzard Bags Bar Disclaimer'] = 'If you use another UI addon (e.g. ElvUI), hide its bags bar in that addon\'s settings.';
 L['Main Menu Icon Right Spacing'] = true;
 L['Icon Spacing'] = true;
 L["Hide BNet App Friends"] = true;
@@ -176,12 +183,12 @@ L['M+ Teleports'] = true;
 L['Only show current season'] = true;
 L["Mythic+ Teleports"] = true;
 L['Show Mythic+ Teleports'] = true;
-L['Use Random Hearthstone'] = true;
-L['Empty Hearthstones List'] =
-"If you see an empty list, /reload your UI a few seconds after the initial loading (Blizzard is loading items informations asynchronously so that's the only solution for now)."
+L['Use Random Hearthstone'] = "Use Random Hearthstone";
+local retrievingData = "Retrieving data..."
+L['Retrieving data'] = retrievingData;
+L['Empty Hearthstones List'] = "If you see '" .. retrievingData .. "' in the list below, simply switch tabs or reopen this menu to refresh the data.";
 L['Hearthstones Select'] = true;
-L['Hearthstones Select Desc'] =
-"Select which hearthstones to use (be careful if you select multiple hearthstones, you might want to check the 'Hearthstones Select' option)";
+L['Hearthstones Select Desc'] = "Select which hearthstones to use (be careful if you select multiple hearthstones, you might want to check the 'Hearthstones Select' option)";
 
 L["Classic"] = true;
 L["Burning Crusade"] = true;
@@ -221,4 +228,5 @@ L["Version"] = true;
 L["Important"] = true;
 L["New"] = true;
 L["Improvment"] = true;
+L["Bugfix"] = true;
 L["Changelog"] = true;

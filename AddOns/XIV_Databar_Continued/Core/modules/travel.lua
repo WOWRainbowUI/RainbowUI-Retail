@@ -2,6 +2,7 @@ local AddOnName, XIVBar = ...;
 local _G = _G;
 local xb = XIVBar;
 local L = XIVBar.L;
+local compat = xb.compat
 
 local TravelModule = xb:NewModule("TravelModule", 'AceEvent-3.0')
 
@@ -60,7 +61,10 @@ function TravelModule:OnInitialize()
         556, -- Astral Recall
         168907, -- Holographic Digitalization Hearthstone
         142298, -- Astonishingly Scarlet Slippers
-        210455 -- Draenic Hologem
+        210455, -- Draenic Hologem
+        260221, -- Naaru's Embrace (Classic)
+        263489, -- Naaru's Embrace (Retail)
+        184871 -- Dark Portal (Classic)
     }
 
     self.portButtons = {}
@@ -159,15 +163,6 @@ function TravelModule:CreateFrames()
     self.portText = self.portText or
                         self.portButton:CreateFontString(nil, 'OVERLAY')
 
-    -- Mythic+ Part
-    self.mythicButton = self.mythicButton or
-                            CreateFrame('BUTTON', 'mythicButton',
-                                        self.hearthFrame,
-                                        'SecureActionButtonTemplate')
-    self.mythicIcon = self.mythicIcon or
-                          self.mythicButton:CreateTexture(nil, 'OVERLAY')
-    self.mythicText = self.mythicText or
-                          self.mythicButton:CreateFontString(nil, 'OVERLAY')
 
     local template =
         (TooltipBackdropTemplateMixin and "TooltipBackdropTemplate") or
@@ -198,11 +193,40 @@ function TravelModule:CreateFrames()
         end
     end
 
-    -- Mythic+ popup
-    self.mythicPopup = self.mythicPopup or
-                           CreateFrame('FRAME', 'mythicPopup',
-                                       self.mythicButton,
-                                       'UIDropDownMenuTemplate')
+end
+
+function TravelModule:CreateMythicFrames()
+    if self.mythicButton or InCombatLockdown() then
+        return
+    end
+
+    self.mythicButton = CreateFrame('BUTTON', 'mythicButton', self.hearthFrame,
+                                    'InsecureActionButtonTemplate')
+    self.mythicIcon = self.mythicButton:CreateTexture(nil, 'OVERLAY')
+    self.mythicText = self.mythicButton:CreateFontString(nil, 'OVERLAY')
+    self.mythicPopup = CreateFrame('FRAME', 'mythicPopup', self.mythicButton,
+                                   'UIDropDownMenuTemplate')
+
+    self.mythicButton:EnableMouse(true)
+    self.mythicButton:RegisterForClicks('LeftButtonUp', 'LeftButtonDown')
+    self.mythicButton:SetAttribute('type', 'mythicFunction')
+    self.mythicButton.HandlesGlobalMouseEvent = function() return true end
+
+    self.mythicButton.mythicFunction = function()
+        if not InCombatLockdown() then
+            ToggleDropDownMenu(1, nil, self.mythicPopup, self.mythicButton, 0, 0)
+        end
+    end
+
+    self.mythicButton:SetScript('OnEnter', function()
+        TravelModule:SetMythicColor()
+        if InCombatLockdown() then return end
+    end)
+
+    self.mythicButton:SetScript('OnLeave', function()
+        TravelModule:SetMythicColor()
+        GameTooltip:Hide()
+    end)
 end
 
 function TravelModule:RegisterFrameEvents()
@@ -238,18 +262,6 @@ function TravelModule:RegisterFrameEvents()
         if button == 'RightButton' then self:Hide() end
     end)
 
-    self.mythicButton:EnableMouse(true)
-    self.mythicButton:RegisterForClicks('LeftButtonUp', 'LeftButtonDown')
-    self.mythicButton:SetAttribute('type', 'mythicFunction')
-    self.mythicButton.HandlesGlobalMouseEvent = function() return true end
-
-    self.mythicButton.mythicFunction = self.mythicButton.mythicFunction or
-                                           function()
-            if not InCombatLockdown() then
-                ToggleDropDownMenu(1, nil, self.mythicPopup, self.mythicButton,
-                                   0, 0)
-            end
-        end
 
     -- Heartstone Randomizer
     if xb.db.profile.randomizeHs then
@@ -288,15 +300,6 @@ function TravelModule:RegisterFrameEvents()
         GameTooltip:Hide()
     end)
 
-    self.mythicButton:SetScript('OnEnter', function()
-        TravelModule:SetMythicColor()
-        if InCombatLockdown() then return end
-    end)
-
-    self.mythicButton:SetScript('OnLeave', function()
-        TravelModule:SetMythicColor()
-        GameTooltip:Hide()
-    end)
 
     self.portButton:SetScript('OnEnter', function()
         TravelModule:SetPortColor()
@@ -444,11 +447,11 @@ function TravelModule:SetHearthColor()
                 if hearthName ~= nil then
                     if xb.db.profile.randomizeHs then
                         table.insert(keyset, i)
-                        self.availableHearthstones[v] = {name = hearthName}
+                        self.availableHearthstones[v] = {macro = "/use item:" .. v}
                     else
                         hearthActive = true
                         self.hearthButton:SetAttribute("macrotext",
-                                                       "/cast " .. hearthName)
+                                                       "/use item:" .. v)
                         break
                     end
                 end
@@ -457,15 +460,18 @@ function TravelModule:SetHearthColor()
         if PlayerHasToy(v) then
             --if GetItemCooldown(v) == 0 then
                 local _, name, _, _, _, _ = C_ToyBox.GetToyInfo(v)
+                if not name then
+                    name = GetItemInfo(v)
+                end
                 hearthName = name
                 if hearthName ~= nil then
                     if xb.db.profile.randomizeHs then
                         table.insert(keyset, i)
-                        self.availableHearthstones[v] = {name = hearthName}
+                        self.availableHearthstones[v] = {macro = "/use item:" .. v}
                     else
                         hearthActive = true
                         self.hearthButton:SetAttribute("macrotext",
-                                                       "/cast " .. hearthName)
+                                                       "/use item:" .. v)
                         break
                     end
                 end
@@ -481,7 +487,7 @@ function TravelModule:SetHearthColor()
                     hearthName = spellInfo.name
                     if xb.db.profile.randomizeHs then
                         table.insert(keyset, i)
-                        self.availableHearthstones[v] = {name = hearthName}
+                        self.availableHearthstones[v] = {macro = "/cast " .. hearthName}
                     else
                         hearthActive = true
                         self.hearthButton:SetAttribute("macrotext",
@@ -496,7 +502,7 @@ function TravelModule:SetHearthColor()
         random_elem = usedHearthstones[math.random(#usedHearthstones)]
         for k, v in pairs(self.availableHearthstones) do
             if k == random_elem then
-                self.hearthButton:SetAttribute("macrotext", "/cast " .. v.name)
+                self.hearthButton:SetAttribute("macrotext", v.macro)
                 break
             end
         end
@@ -643,6 +649,9 @@ end
 
 -- Utility function to check if any mythic teleport is available
 function TravelModule:HasAvailableMythicTeleports()
+    if not compat.isMainline then
+        return false
+    end
     local currentSeason = self:GetCurrentSeason()
 
     if xb.db.profile.curSeasonOnly then
@@ -862,6 +871,9 @@ function TravelModule:CreatePortPopup()
 end
 
 function TravelModule:CreateMythicPopup()
+    if not compat.isMainline then
+        return
+    end
     -- Get the current season
     local currentSeason = self:GetCurrentSeason()
 
@@ -1056,18 +1068,70 @@ function TravelModule:Refresh()
         end)
     end
 
+    local db = xb.db.profile
+    local allowMythic = compat.isMainline and db.enableMythicPortals
+
+    self:UpdatePortOptions()
+    local hasPortOptions = false
+    if self.portOptions then
+        for _, option in pairs(self.portOptions) do
+            if option and option.portId and self:IsUsable(option.portId) then
+                hasPortOptions = true
+                break
+            end
+        end
+    end
+
+    if allowMythic and not self.mythicButton then
+        if InCombatLockdown() then
+            self.pendingMythicCreate = true
+        else
+            self:CreateMythicFrames()
+        end
+    end
+
+    if not allowMythic and self.mythicButton and not InCombatLockdown() then
+        self.mythicButton:Hide()
+    end
+
+    if not hasPortOptions and self.portButton and not InCombatLockdown() then
+        self.portButton:Hide()
+    end
+
     if InCombatLockdown() then
+        if not select(1, self.hearthText:GetFont()) then
+            self.hearthText:SetFont(xb:GetFont(xb.db.profile.text.fontSize))
+        end
+        if not select(1, self.portText:GetFont()) then
+            self.portText:SetFont(xb:GetFont(xb.db.profile.text.fontSize))
+        end
+
         self.hearthText:SetText(GetBindLocation())
         self.portText:SetText(xb.db.char.portItem.text)
         self:SetHearthColor()
         self:SetPortColor()
-        self:SetMythicColor()
+        if allowMythic then
+            self:SetMythicColor()
+        end
+
+        local totalWidth = self.hearthButton:GetWidth() + db.general.barPadding
+        if hasPortOptions and self.portButton and not self.portButton:IsVisible() then
+            self.portButton:Show()
+        end
+        if self.portButton:IsVisible() then
+            totalWidth = totalWidth + self.portButton:GetWidth()
+        end
+
+        if allowMythic and self.mythicButton and self.mythicButton:IsVisible() then
+            totalWidth = totalWidth + self.mythicButton:GetWidth()
+        end
+
+        --self.hearthFrame:SetSize(totalWidth, xb:GetHeight())
+        --self.hearthFrame:SetPoint("RIGHT", -(db.general.barPadding), 0)
+        --self.hearthFrame:Show()
         return
     end
 
-    self:UpdatePortOptions()
-
-    local db = xb.db.profile
     -- local iconSize = (xb:GetHeight() / 2)
     local iconSize = db.text.fontSize + db.general.barPadding
 
@@ -1090,30 +1154,38 @@ function TravelModule:Refresh()
     self:SetHearthColor()
 
     -- Portals Part
-    self.portText:SetFont(xb:GetFont(db.text.fontSize))
-    self.portText:SetText(xb.db.char.portItem.text)
+    if hasPortOptions then
+        self.portButton:Show()
+        self.portText:SetFont(xb:GetFont(db.text.fontSize))
+        self.portText:SetText(xb.db.char.portItem.text)
 
-    self.portButton:SetSize(self.portText:GetWidth() + iconSize +
-                                db.general.barPadding, xb:GetHeight())
-    self.portButton:SetPoint("RIGHT", self.hearthButton, "LEFT",
-                             -(db.general.barPadding), 0)
+        self.portButton:SetSize(self.portText:GetWidth() + iconSize +
+                                    db.general.barPadding, xb:GetHeight())
+        self.portButton:SetPoint("RIGHT", self.hearthButton, "LEFT",
+                                 -(db.general.barPadding), 0)
 
-    self.portText:SetPoint("RIGHT")
+        self.portText:SetPoint("RIGHT")
 
-    self.portIcon:SetTexture(xb.constants.mediaPath .. 'datatexts\\garr')
-    self.portIcon:SetSize(iconSize, iconSize)
+        self.portIcon:SetTexture(xb.constants.mediaPath .. 'datatexts\\garr')
+        self.portIcon:SetSize(iconSize, iconSize)
 
-    self.portIcon:SetPoint("RIGHT", self.portText, "LEFT",
-                           -(db.general.barPadding), 0)
+        self.portIcon:SetPoint("RIGHT", self.portText, "LEFT",
+                               -(db.general.barPadding), 0)
 
-    self:SetPortColor()
+        self:SetPortColor()
 
-    self:CreatePortPopup()
+        self:CreatePortPopup()
+    else
+        self.portButton:Hide()
+        self.portPopup:Hide()
+    end
 
     -- M+ Part
-    if self.mythicButton then self.mythicButton:Hide() end
+    if self.mythicButton and not InCombatLockdown() then
+        self.mythicButton:Hide()
+    end
 
-    if (xb.db.profile.enableMythicPortals) then
+    if allowMythic and self.mythicButton then
         -- Only show the button if teleports are available
         if self:HasAvailableMythicTeleports() then
             self.mythicText:SetFont(xb:GetFont(db.text.fontSize))
@@ -1153,26 +1225,27 @@ function TravelModule:Refresh()
     self:SkinFrame(self.portPopup, "SpecToolTip")
     self.portPopup:Hide()
 
-    self.mythicPopup:ClearAllPoints()
+    if self.mythicPopup then
+        self.mythicPopup:ClearAllPoints()
 
-    if db.general.barPosition == 'TOP' then
-        self.mythicPopup.point = "TOP"
-        self.mythicPopup.relativePoint = "BOTTOM"
-    else
-        self.mythicPopup.point = "BOTTOM"
-        self.mythicPopup.relativePoint = "TOP"
+        if db.general.barPosition == 'TOP' then
+            self.mythicPopup.point = "TOP"
+            self.mythicPopup.relativePoint = "BOTTOM"
+        else
+            self.mythicPopup.point = "BOTTOM"
+            self.mythicPopup.relativePoint = "TOP"
+        end
+
+        self:SkinFrame(self.mythicPopup, "SpecToolTip")
+        self.mythicPopup:Hide()
     end
 
-    self:SkinFrame(self.mythicPopup, "SpecToolTip")
-    self.mythicPopup:Hide()
-
     local totalWidth = self.hearthButton:GetWidth() + db.general.barPadding
-    self.portButton:Show()
     if self.portButton:IsVisible() then
         totalWidth = totalWidth + self.portButton:GetWidth()
     end
 
-    if (xb.db.profile.enableMythicPortals) then
+    if allowMythic and self.mythicButton then
         if self.mythicButton:IsVisible() then
             totalWidth = totalWidth + self.mythicButton:GetWidth()
         end
@@ -1192,12 +1265,11 @@ function TravelModule:ShowTooltip()
         -- Show hearthstone cooldown
         local hearthstoneId = 6948 -- Regular Hearthstone ID
         local remainingCooldown = 0
-        if GetItemCount and GetItemCount(hearthstoneId) and GetItemCount(hearthstoneId) > 0 then
-            local startTime, duration = GetItemCooldown(hearthstoneId)
-            if type(startTime) == "number" and type(duration) == "number" and duration > 0 then
-                remainingCooldown = (startTime + duration - GetTime())
-            end
+        local startTime, duration = GetItemCooldown(hearthstoneId)
+        if type(startTime) == "number" and type(duration) == "number" and duration > 0 then
+            remainingCooldown = (startTime + duration - GetTime())
         end
+
         local cdString = self:FormatCooldown(math.max(0, remainingCooldown))
         GameTooltip:AddDoubleLine(L['Hearthstone'], cdString, r, g, b, 1, 1, 1)
 
@@ -1324,21 +1396,48 @@ function TravelModule:GetDefaultOptions()
     xb.db.char.portItem = xb.db.char.portItem or firstItem
     return 'travel', {
         enabled = true,
-        enableMythicPortals = true,
+        enableMythicPortals = compat.isMainline,
         curSeasonOnly = false,
         randomizeHs = false
     }
 end
 
-function TravelModule:GetConfig()
-    local hearthstonesTable = {}
-
-    if xb.db.profile.hearthstonesList then
-        for i, v in pairs(xb.db.profile.hearthstonesList) do
-            table.insert(hearthstonesTable, i, v)
-        end
+function TravelModule:GetHearthstoneValues()
+    if xb.db.profile.hearthstoneCache == nil then
+        xb.db.profile.hearthstoneCache = {}
     end
 
+    local values = {}
+    for i, v in ipairs(self.hearthstones) do
+        if self:IsUsable(v) then
+            local name = GetItemInfo(v)
+
+            if not name then
+                local _, toyName = C_ToyBox.GetToyInfo(v)
+                name = toyName
+            end
+
+            if not name and IsPlayerSpell(v) then
+                local spellInfo = GetSpellInfo(v)
+                if spellInfo then name = spellInfo.name end
+            end
+
+            if name then
+                values[v] = name
+                xb.db.profile.hearthstoneCache[v] = name
+            else
+                if xb.db.profile.hearthstoneCache[v] then
+                    values[v] = xb.db.profile.hearthstoneCache[v]
+                else
+                    values[v] = L['Retrieving data'] .. " (" .. v .. ")"
+                end
+            end
+        end
+    end
+    return values
+end
+
+function TravelModule:GetConfig()
     return {
         name = self:GetName(),
         type = "group",
@@ -1364,11 +1463,13 @@ function TravelModule:GetConfig()
                 order = 18,
                 name = L['Mythic+ Teleports'],
                 type = 'header',
+                hidden = function() return not compat.isMainline end
             },
             enableMythicPortals = {
                 name = L['Show Mythic+ Teleports'],
                 order = 20,
                 type = "toggle",
+                hidden = function() return not compat.isMainline end,
                 get = function()
                     return xb.db.profile.enableMythicPortals;
                 end,
@@ -1382,6 +1483,7 @@ function TravelModule:GetConfig()
                 name = L['Only show current season'],
                 order = 25,
                 type = "toggle",
+                hidden = function() return not compat.isMainline end,
                 get = function()
                     return xb.db.profile.curSeasonOnly;
                 end,
@@ -1419,7 +1521,7 @@ function TravelModule:GetConfig()
                 name = L['Hearthstones Select'],
                 desc = L['Hearthstones Select Desc'],
                 type = "multiselect",
-                values = hearthstonesTable,
+                values = function() return self:GetHearthstoneValues() end,
                 get = function(_, key)
                     return xb.db.profile.selectedHearthstones[key]
                 end,
