@@ -1,6 +1,9 @@
 # Premade Groups Filter
 
-## [6.13.0](https://github.com/0xbs/premade-groups-filter/tree/6.13.0) (2025-12-29)
-[Full Changelog](https://github.com/0xbs/premade-groups-filter/compare/6.12.0...6.13.0) [Previous Releases](https://github.com/0xbs/premade-groups-filter/releases)
+## [7.1.0](https://github.com/0xbs/premade-groups-filter/tree/7.1.0) (2026-01-22)
+[Full Changelog](https://github.com/0xbs/premade-groups-filter/compare/7.0.3...7.1.0) [Previous Releases](https://github.com/0xbs/premade-groups-filter/releases)
 
-- Add keywords eng, ger, fra, ita, spa, por, rus to filter for realm languages on EU realm (see #355)  
+- Rename playstyle keywords to learning, relaxed, competitive, carry  
+    This is in fact the new "generalPlaystyle", the old "playstyle" is no longer set  
+- Update copyright year  
+- Add new option to make list entries more compact (hide the playstyle)  

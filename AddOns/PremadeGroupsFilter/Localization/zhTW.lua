@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 -- Premade Groups Filter
 -------------------------------------------------------------------------------
--- Copyright (C) 2025 Bernhard Saumweber
+-- Copyright (C) 2026 Bernhard Saumweber
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -156,3 +156,5 @@ L["settings.rioRatingColors.title"] = "使用 Raider.IO 顏色評分"
 L["settings.rioRatingColors.tooltip"] = "如果已載入 Raider.IO 插件，則使用 Raider.IO 的顏色方案進行 M+ 評分。"
 L["settings.cancelOldestApp.title"] = "取消最舊的申請"
 L["settings.cancelOldestApp.tooltip"] = "如果你的待處理申請達到上限，點擊任意小組以先取消最舊的申請。然後再點擊一次以申請。"
+L["settings.compactListEntries.title"] = "精簡列表項目"
+L["settings.compactListEntries.tooltip"] = "隱藏遊戲風格，讓隊伍列表的項目佔用更少的垂直空間（如同《至暗之夜》版本前夕內容更新之前）。"
