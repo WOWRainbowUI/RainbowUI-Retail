@@ -29,7 +29,7 @@ end
 
 LibEvent:attachTrigger("tooltip:spell", function(self, tip)
     if (tip ~= GameTooltip) then return end
-    SpellIcon(tip)
+    -- SpellIcon(tip)
     ColorBorder(tip)
     ColorBackground(tip)
 end)
