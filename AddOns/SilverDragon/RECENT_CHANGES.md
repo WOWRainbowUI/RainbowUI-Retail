@@ -1,7 +1,5 @@
-## Changed in v2026.3
+## Changed in v2026.6
 
-* Updated for Burning Crusade Anniversary (2.5.5)
-* Darkshore: add the new decor rewards from 11.2.7
-* Legion: add Broodmother Shu'malis to the tunnels
-* Midnight: world boss loot in Eversong, Zul'Aman, Harandar
+* Several midnight issues secret issues: detecting the current shard, and syncing with your group in combat
+* New version of LibSink-2.0 which fixes a problem with blizzard's scrolling combat text
 
