@@ -100,10 +100,12 @@ local createColorPicker; do -- I wish Settings.CreateColorPicker was a thing
 		self:SetSize(280, 26) -- templates have a size
 
 		-- creating widgets would be equal to :OnLoad()
-		self.Swatch = CreateFrame('Button', nil, self, 'ColorSwatchTemplate')
-		self.Swatch:SetSize(30, 30)
-		self.Swatch:SetPoint('LEFT', self, 'CENTER', -80, 0)
-		self.Swatch:SetScript('OnClick', onClick)
+		if not self.Swatch then
+			self.Swatch = CreateFrame('Button', nil, self, 'ColorSwatchTemplate')
+			self.Swatch:SetSize(30, 30)
+			self.Swatch:SetPoint('LEFT', self, 'CENTER', -80, 0)
+			self.Swatch:SetScript('OnClick', onClick)
+		end
 
 		-- setting up state would be equal to :Init()
 		local setting = initializer:GetSetting()
@@ -254,7 +256,6 @@ local settingsCategoryID
 local function registerSettings(savedvariable, settings, title)
 	local categoryName = title or C_AddOns.GetAddOnMetadata(addonName, 'Title') -- 暫時修正
 	local category = Settings.RegisterVerticalLayoutCategory(categoryName)
-	category.ID = addonName  -- 暫時修正
 	Settings.RegisterAddOnCategory(category)
 	settingsCategoryID = category:GetID()
 
