@@ -1,13 +1,16 @@
 ﻿-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
 -- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
--- See Readme.htm for more information.
+-- See Readme.md for more information.
 
 --
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1300
+PawnVersion = 2.1302
+
+-- Remove this when 12.0's item level APIs are working or a workaround is found.
+PawnTempBlockItemLevelUpgradeFeatures = VgerCore.IsMidnight
 
 -- Pawn requires this version of VgerCore:
 local PawnVgerCoreVersionRequired = 1.20
@@ -54,7 +57,7 @@ PawnScaleProviders = { }
 local PawnScaleProvidersInitialized
 
 -- Third-party bags
--- PawnThirdPartyBags["My Bag Addon"] = { }
+-- PawnThirdPartyBags["My Bag Addon"] = { RefreshAll = function() ... end }
 local PawnThirdPartyBags = { }
 PawnIsAThirdPartyBagRegistered = false
 
@@ -402,9 +405,8 @@ function PawnInitialize()
 			end)
 	end
 
-	-- Dragonflight replaces SetCompareItem with ProcessInfo. (ProcessInfo is now used internally by lots of
-	-- methods, but only in Dragonflight.)
-
+	-- 11.0 replaces SetCompareItem with ProcessInfo. (ProcessInfo is now used internally by lots of
+	-- methods, but only in 11.0+.)
 	if ShoppingTooltip1.ProcessInfo then
 		hooksecurefunc(ShoppingTooltip1, "ProcessInfo", function()
 			local _, ItemLink = TooltipUtil.GetDisplayedItem(ShoppingTooltip1)
@@ -893,7 +895,7 @@ function PawnIsItemDefinitivelyAnUpgrade(ItemLink, CheckLevel)
 		if Item == nil or Item.Link == nil then return nil end
 		local UpgradeInfo, ItemLevelIncrease = PawnIsItemAnUpgrade(Item)
 		-- If upgrade info was returned, it's an upgrade OR if there is an item level increase, it's an upgrade
-		return UpgradeInfo ~= nil or (PawnCommon.ShowItemLevelUpgrades and ItemLevelIncrease ~= nil)
+		return UpgradeInfo ~= nil or (PawnCommon.ShowItemLevelUpgrades and (not PawnTempBlockItemLevelUpgradeFeatures) and ItemLevelIncrease ~= nil)
 	elseif PawnCommon.ShowRelicUpgrades and PawnCanItemBeArtifactUpgrade(ItemLink) then
 		-- If there is artifact relic upgrade information, it's an upgrade.
 		return PawnGetRelicUpgradeInfo(ItemLink) ~= nil
@@ -1116,8 +1118,14 @@ function PawnResetTooltip(TooltipName)
 end
 
 -- Invalidate the in-bag upgrade arrows.
+-- If a third-party bag addon has been registered, it is notified that it should do the same.
 function PawnResetBags()
 	if PawnBags then PawnBags:RefreshAll() end
+	if PawnIsAThirdPartyBagRegistered then
+		for _, Overrides in pairs(PawnThirdPartyBags) do
+			if Overrides.RefreshAll then Overrides.RefreshAll() end
+		end
+	end
 end
 
 -- Recalculates the total value of all stats in a scale, as well as all of the best gems for that scale.
@@ -1750,7 +1758,7 @@ function PawnUpdateTooltip(TooltipName, MethodName, Param1, ...)
 		end
 
 		-- Add the item level info to the tooltip.
-		if ItemLevelIncrease and PawnCommon.ShowItemLevelUpgrades then
+		if ItemLevelIncrease and PawnCommon.ShowItemLevelUpgrades and not PawnTempBlockItemLevelUpgradeFeatures then
 			-- Find which line of the tooltip (2-4) contains the text "Item Level" and annotate that.
 			local AnnotatedItemLevel
 			for i = 2, 5 do
@@ -1780,7 +1788,7 @@ function PawnUpdateTooltip(TooltipName, MethodName, Param1, ...)
 
 	-- Color or reset the tooltip border as necessary.
 	if PawnCommon.ColorTooltipBorder then
-		if UpgradeInfo or (ItemLevelIncrease and PawnCommon.ShowItemLevelUpgrades) then PawnSetTooltipBorderColor(Tooltip, 0, 1, 0) else PawnSetTooltipBorderColor(Tooltip, 1, 1, 1) end
+		if UpgradeInfo or ((not PawnTempBlockItemLevelUpgradeFeatures) and ItemLevelIncrease and PawnCommon.ShowItemLevelUpgrades) then PawnSetTooltipBorderColor(Tooltip, 0, 1, 0) else PawnSetTooltipBorderColor(Tooltip, 1, 1, 1) end
 	end
 
 	-- Add the item ID to the tooltip if known.
@@ -1797,7 +1805,18 @@ function PawnUpdateTooltip(TooltipName, MethodName, Param1, ...)
 	end
 
 	-- Show the updated tooltip.
-	if TooltipWasUpdated then Tooltip:Show() end
+	if TooltipWasUpdated then
+		if TooltipName == "ShoppingTooltip1" or TooltipName == "ShoppingTooltip2" then
+			-- This is a targeted hack for a problem introduced in 12.0 that I've only observed on ShoppingTooltip1 and 2:
+			-- 1. Pawn hooks ShoppingTooltip1.ProcessInfo with PawnUpdateTooltip
+			-- 2. We call GameTooltip:Show here
+			-- 3. That calls calls Blizzard_MoneyFrame's UpdateFunc
+			-- 4. If we're on combat, we introduce taint into MoneyFrame.staticMoney
+			-- 5. Later calls to MoneyFrame_Update fail due to taint
+		else
+			Tooltip:Show()
+		end
+	end
 
 	if Item and PawnCommon.DebugDoubleTooltips and TooltipName == "GameTooltip" then
 		VgerCore.Message("===== Annotating " .. TooltipName .. " for " .. tostring(Item.Name) .. ": =====")
@@ -3760,7 +3779,7 @@ function PawnIsItemAnUpgrade(Item, DoNotRescan)
 	if UpgradeTable then sort(UpgradeTable, PawnLocalizedScaleNameComparer) end
 
 	local ItemLevelIncrease
-	if PawnCommon.ShowItemLevelUpgrades then
+	if PawnCommon.ShowItemLevelUpgrades and not PawnTempBlockItemLevelUpgradeFeatures then
 		ItemLevelIncrease = PawnIsItemAnItemLevelUpgrade(Item)
 	end
 
@@ -3954,26 +3973,27 @@ function PawnFindBestItems(ScaleName, InventoryOnly)
 				if Location and Location > 1 then
 					-- Getting the item link for an equipment set item is a pain in the ass...
 					local ItemLink
-					local IsOnPlayer, IsInBank, IsInBags, IsInVoidStorage, SetSlot, Bag, Tab, VoidSlot
-					if VgerCore.IsCataclysm or VgerCore.IsMists then
-						-- EquipmentManager_UnpackLocation in Cataclysm Classic removes IsInVoidStorage from the return values, shifting everything over.
-						IsOnPlayer, IsInBank, IsInBags, SetSlot, Bag, Tab, VoidSlot = EquipmentManager_UnpackLocation(Location)
+					local LocationData
+					if EquipmentManager_GetLocationData then
+						-- WoW 12.0 removed UnpackLocation
+						LocationData = EquipmentManager_GetLocationData(Location)
 					else
-						IsOnPlayer, IsInBank, IsInBags, IsInVoidStorage, SetSlot, Bag, Tab, VoidSlot = EquipmentManager_UnpackLocation(Location)
-					end
-					if IsInVoidStorage then
-						-- The item link for this item should be GetVoidItemHyperlinkString(VoidSlot), but we'll never get here; location will
-						-- be -1 (item unavailable) for items in void storage.
-						ItemLink = nil --GetVoidItemHyperlinkString(VoidSlot) -- API no longer exists in 8.0
-						VgerCore.Fail("Didn't expect to find an equipment set item in void storage!")
-					elseif not IsInBags then
-						VgerCore.Assert(IsOnPlayer or IsInBank, "Equipment set contains new location data that Pawn doesn't understand; EquipmentManager_UnpackLocation may have been updated.")
-						ItemLink = GetInventoryItemLink("player", SetSlot)
-					else
-						if C_Container and C_Container.GetContainerItemLink then
-							ItemLink = C_Container.GetContainerItemLink(Bag, SetSlot)
+						-- But older versions don't have GetLocationData yet
+						LocationData = {}
+						if VgerCore.IsWrath then
+							-- EquipmentManager_UnpackLocation in Wrath Classic has an extra IsInVoidStorage return value not present in other versions.
+							LocationData.isPlayer, LocationData.isBank, LocationData.isBags, _, LocationData.slot, LocationData.bag = EquipmentManager_UnpackLocation(Location)
 						else
-							ItemLink = GetContainerItemLink(Bag, SetSlot)
+							LocationData.isPlayer, LocationData.isBank, LocationData.isBags, LocationData.slot, LocationData.bag = EquipmentManager_UnpackLocation(Location)
+						end
+					end
+					if LocationData.isPlayer then
+						ItemLink = GetInventoryItemLink("player", LocationData.slot)
+					else -- isBags or isBank
+						if C_Container and C_Container.GetContainerItemLink then
+							ItemLink = C_Container.GetContainerItemLink(LocationData.bag, LocationData.slot)
+						else
+							ItemLink = GetContainerItemLink(LocationData.bag, LocationData.slot)
 						end
 					end
 
@@ -4218,7 +4238,7 @@ function PawnFindInterestingItems(List)
 			Info.Result = "trinket"
 		end
 		local UpgradeInfo, ItemLevelIncrease = PawnIsItemAnUpgrade(Info.Item)
-		if Info.Usable and (UpgradeInfo or (PawnCommon.ShowItemLevelUpgrades and ItemLevelIncrease)) then
+		if Info.Usable and (UpgradeInfo or (PawnCommon.ShowItemLevelUpgrades and ItemLevelIncrease and not PawnTempBlockItemLevelUpgradeFeatures)) then
 			-- If it's usable and an upgrade, mark it as such.
 			Info.Result = "upgrade"
 			-- If it's a choice item, then we shouldn't pick a choice item to vendor.
@@ -5975,7 +5995,7 @@ function PawnShouldItemLinkHaveUpgradeArrowUnbudgeted(ItemLink, CheckLevel)
 			return UpgradeInfo ~= nil
 		else
 			local UpgradeInfo, ItemLevelIncrease = PawnIsItemAnUpgrade(Item)
-			return UpgradeInfo ~= nil or (PawnCommon.ShowItemLevelUpgrades and ItemLevelIncrease ~= nil)
+			return UpgradeInfo ~= nil or (PawnCommon.ShowItemLevelUpgrades and ItemLevelIncrease ~= nil and not PawnTempBlockItemLevelUpgradeFeatures)
 		end
 	elseif PawnCommon.ShowRelicUpgrades and PawnCanItemBeArtifactUpgrade(ItemLink) then
 		return PawnGetRelicUpgradeInfo(ItemLink) ~= nil
