@@ -1285,25 +1285,6 @@ D["REPorter"] = {
         text = "切換地圖顯示內容：按住 Shift+Alt 或 Shift+Ctrl 點地圖。\n\n喊話通報到頻道：點地圖上的點，或是地圖旁的按鈕。\n",       
 	},
 };
-D["SavedInstances"] = {
-    defaultEnable = 0,
-	title = "角色進度",
-	desc = "記錄所有角色的團隊/英雄/世界首領擊殺進度、傳奇鑰石/最佳成績、每日/每週任務、兌換通貨數量、專業冷卻時間... 還有更多!`",
-	modifier = "a9012456, andy52005, BNS, eke00372, machihchung, oscarucb, skywalkertw, yujiago, zhTW, 彩虹ui",
-	icon = "Interface\\Icons\\inv_misc_key_05",
-	{
-        text = "顯示/隱藏角色進度",
-        callback = function() SlashCmdList["ACECONSOLE_SAVEDINSTANCES"]("show") end,
-    },
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["ACECONSOLE_SAVEDINSTANCES"]("config") end,
-    },
-	{
-		type = "text",
-		text = "點小地圖按鈕的 '角色進度' 按鈕也可以打開主視窗。",
-	}
-};
 D["SexyMap"] = {
     defaultEnable = 0,
 	title = "性感小地圖",
@@ -1319,11 +1300,6 @@ D["SexyMap"] = {
 		text = "坐標：在設定選項中啟用。\n",
 	},
 };
-D["SharedMedia"] = {
-    defaultEnable = 0,
-	title = "(請刪除) 共享媒體庫",
-	desc = "這個插件已改名為 '彩虹字體材質包'，資料夾名稱也不同。``請刪除舊的資料夾 (AddOns 裡面的 SharedMedia) 以避免發生衝突。`",
-};
 D["SharedMedia_Rainbow"] = {
     defaultEnable = 1,
 	tags = { "MISC" },
@@ -1336,18 +1312,6 @@ D["SharedMedia_BNS"] = {
 	tags = { "MISC" },
 	title = "BNS 音效材質包",
 	desc = "讓不同的插件能夠共享材質、背景、邊框、字體和音效，也提供了多種中英文字體、音效和材質可供 WA 和其他插件使用。`",
-};
-D["SharedMedia_Causese"] = {
-    defaultEnable = 0,
-	tags = { "MISC" },
-	title = "Causese x 安格斯 WA 語音包",
-	desc = "此為 WA 用的語音包，原版為英文語音，已替換為安格斯中文語音。``|cffFF2D2D特別注意：需要同時載入 'WA 技能提醒' 插件，並且匯入特定的 M+/團本 WA 字串後才能使用。``安格斯 WA 字串下載網址：`https://addons.miliui.com/wow/157 |r`",
-};
-D["SharedMedia_Saha"] = {
-    defaultEnable = 0,
-	tags = { "MISC" },
-	title = "安格斯 WA 團本/副本語音提醒",
-	desc = "你還在為了巨龍崛起團副本各種莫名其妙、喪心病狂的機制煩惱嗎?`你是否當過明明要找人分攤，卻自己跑出去被瑪格雷吃掉的雷包呢～(我有ＸＤ)`你是否覺得你們ＲＬ有點忙，常常來不及告訴你要注意什麼～(我...我我沒有在說你唷！ｗｗｗｗ)`你是否覺得大秘副本要注意的東西也太多到底要打斷誰啊?!``那麼你相當適合給他裝下去!``這個可幫助攻略團副本時，第一時間透過語音提醒與提示知道哪些地方需要注意，直接攻擊BOSS們的村莊(?)!不再當雷隊友～!棒棒!``|cffFF2D2D特別注意：此為 WA 語音包，需要同時載入 'WA 技能提醒' 插件，並且匯入 '安格斯 WA 團本/副本技能語音提醒' 的 WA 字串後才能使用。``安格斯 WA 字串下載網址：`https://addons.miliui.com/wow/157 |r`",
 };
 D["Shooter"] = {
 	defaultEnable = 1,
@@ -1384,75 +1348,6 @@ D["SilverPlateTweaks"] = {
 	icon = "Interface\\Icons\\spell_misc_hellifrepvpcombatmorale",
 	img = true,
 };
-D["SimpleAddonManager"] = {
-	defaultEnable = 0,
-	tags = { "ENHANCEMENT" },
-	title = "插件管理員",
-	desc = "簡單版的插件管理員，有分類和搜尋插件的功能。``可以將已載入的插件儲存成設定檔，依據不同的玩法需求，快速切換適合的插件設定檔使用。`",
-	modifier = "BNS, 彩虹ui",
-	icon = "Interface\\Icons\\inv_10_engineering_manufacturedparts_gear_frost",
-	{
-        text = "打開插件管理員",
-        callback = function() SlashCmdList["ACECONSOLE_SIMPLEADDONMANAGER"]("") end,
-    },
-	{
-		type = "text",
-        text = "按 Esc > 插件，或是點 '插件管理員' 的小地圖按鈕都可以打開主視窗。",
-    },
-};
-D["SimpleItemLevel"] = {
-	defaultEnable = 0,
-	tags = { "ITEM" },
-	title = "(請刪除) 顯示物品等級",
-	desc = "|cffFF2D2D'裝備觀察' 插件已有顯示物品等級的功能，不再需要這個插件。|r``請刪除 AddOns 裡面的 SimpleItemLevel 資料夾。`",
-	icon = "Interface\\Icons\\achievement_garrisonfollower_itemlevel600",
-};
-D["SimpleVignette"] = {
-    defaultEnable = 0,
-	tags = { "MAP" },
-	title = "稀有怪和寶箱通知",
-	desc = "簡單輕巧的稀有怪通知插件，小地圖上出現稀有怪和寶箱時，會在畫面中間顯示文字並播放音效通知你。``在設定選項中可以開啟音效和選擇音效。``|cffFF2D2D特別注意：小地圖上出現的任何圖示都會通知，不只有稀有怪和寶箱，若覺得吵請關閉這個插件，可以改用 '稀有怪獸與牠們的產地' 插件。``要尋找舊地圖、小地圖上不會顯示星號的稀有怪也可以使用 '稀有怪獸與牠們的產地' 插件。|r`",
-	modifier = "BNS, 彩虹ui",
-	icon = "Interface\\Icons\\inv_foxpet",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["SIMPLEVIGNETTE"]("") end,
-    },
-};
-D["Skada"] = {
-    defaultEnable = 0,
-	title = "Skada 戰鬥統計",
-	desc = "可以看自己和隊友的 DPS、HPS...等模組化的戰鬥統計資訊。``|cffFF2D2D特別注意：請勿同時載入兩種戰鬥統計插件，只要載入其中一個就好。`",
-	modifier = "a9012456, Adavak, andy52005, BNS, chenyuli, haidaodou, oscarucb, twkaixa, Whyv, Zarnivoop",
-	icon = "Interface\\Icons\\Spell_Lightning_LightningBolt01",
-	img = true,
-    {
-        text = "顯示/隱藏戰鬥統計",
-        callback = function() SlashCmdList["SKADA"]("toggle") end,
-    },
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["SKADA"]("config") end,
-    },
-	{
-		type = "text",
-        text = "單位顯示為萬: 載入 '傷害統計-中文單位'，並且在設定選項 > 一般選項 > 數字格式 > 選擇 '精簡的'。但如果傷害沒有達到萬時，會顯示為 0 萬哦~",
-    },
-};
-D["Skillet"] = {
-    defaultEnable = 0,
-	tags = { "PROFESSION" },
-	title = "專業助手",
-	desc = "取代遊戲內建的專業視窗，提供更清楚的資訊、更容易瀏覽的畫面、還有排程的功能。`",
-	modifier = "BNS, bsmorgan , 彩虹ui",
-	icon = "Interface\\Icons\\ability_mount_rocketmount",
-    {
-        text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory("專業-助手")
-		end,
-    },
-};
 D["SmartQuest"] = {
     defaultEnable = 1,
 	title = "智能任務通報",
@@ -1463,22 +1358,6 @@ D["SmartQuest"] = {
         text = "設定選項",
         callback = function() SlashCmdList["SMARTQUEST"]("OPTIONS") end,
     },
-};
-D["Sorted"] = {
-    defaultEnable = 0,
-	tags = { "ITEM" },
-	title = "分類清單背包",
-	desc = "使用清單列表的方式來顯示背包物品，並且提供完整的分類方便快速篩選物品。``還有離線銀行和瀏覽其他角色背包的功能。`",
-	modifier = "BNS, 彩虹ui",
-	icon = "Interface\\Icons\\inv_tailoring_70_silkweaveimbuedbag",
-    {
-		type = "text",
-        text = "|cffFF2D2DDJ 智能分類背包、分類整合背包和分類清單背包只要選擇其中一種使用即可，請勿同時載入。|r\n",
-	},
-	{
-		type = "text",
-        text = "設定選項：點背包視窗左上角的背包圖示。\n\n自訂顯示欄位: 在欄位標題 (例如稀有度) 上面點右鍵，勾選要顯示哪些欄位。",
-	},	
 };
 D["Spy"] = {
     defaultEnable = 0,
@@ -1513,7 +1392,7 @@ D["Spy"] = {
     },
 };
 D["Stuf"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	title = "Stuf 頭像",
 	desc = "玩家、目標、小隊和首領頭像血條框架，簡單好用自訂性高!``也有傳統頭像樣式和其他外觀樣式可供選擇，詳細用法說明請看：`http://wp.me/p7DTni-142`",
 	modifier = "彩虹ui",
@@ -1562,7 +1441,8 @@ D["TankMD"] = {
 	 {
         text = "設定選項",
         callback = function()
-			Settings.OpenToCategory(GetLocale() == "zhTW" and "一鍵誤導" or "TankMD")
+			local TankMDSettings = LibStub("AceDB-3.0"):New("TankMDDB")
+			Settings.OpenToCategory(TankMDSettings.profile.categoryID)
 		end,
     },
 	{
