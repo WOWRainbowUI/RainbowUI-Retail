@@ -459,12 +459,6 @@ end
 function ImportHelper:SetAutoImport(info,state)
 	db["importers"][info.arg].autoImport = state
 end
-function ImportHelper:GetBCOnly(info,k)
-	return db["importers"][info.arg].bcOnly
-end
-function ImportHelper:SetBCOnly(info,state)
-	db["importers"][info.arg].bcOnly = state
-end
 function ImportHelper:GetExpacOnly(info,k)
 	return db["importers"][info.arg].expacOnly
 end
@@ -1286,6 +1280,7 @@ function Config:CheckAutoImport()
 					addon:CleanupImportData()
 					Config:SendMessage("GatherMate2ConfigChanged")
 					v["lastImport"] = dataVersion
+					GatherMate:RemoveDepracatedNodes()
 					print(L["Auto import complete for addon "]..k)
 				end
 			end
