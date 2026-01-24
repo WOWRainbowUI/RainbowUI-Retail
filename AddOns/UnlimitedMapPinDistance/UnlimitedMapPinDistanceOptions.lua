@@ -104,8 +104,8 @@ function UMPD_Init()
     local category, layout = Settings.RegisterCanvasLayoutCategory(UMPDO, _UMPD.name);
     layout:AddAnchorPoint("TOPLEFT", 0, 0);
     layout:AddAnchorPoint("BOTTOMRIGHT", 0, 0);
-    category.ID = UMPDO.name
     Settings.RegisterAddOnCategory(category)
+	UMPDO.categoryID = category:GetID() -- 自行修改
     
     -- Title
     local title = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
@@ -204,7 +204,7 @@ end
 SlashCmdList.UMPDO = function(msg)
 	msg = msg:lower()
 	if not InCombatLockdown() then
-        Settings.OpenToCategory(UMPDO.name)
+        Settings.OpenToCategory(UMPDO.categoryID) -- 自行修改
 	else
 		DEFAULT_CHAT_FRAME:AddMessage(format("%s | 戰鬥中無法更改選項", _UMPD.name))
 	end
