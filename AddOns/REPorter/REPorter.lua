@@ -641,7 +641,6 @@ function RE:OnEvent(self, event, ...)
 		RE.ConfigFrame, RE.Settings.profile.categoryID = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("REPorter", L["REPorter"]) -- 自行修改
 		SettingsPanel:HookScript("OnHide", function() RE:HideDummyMap(true) end)
 		RE:UpdateConfig()
-		print(RE.Settings.profile.categoryID)
 
 		RegisterAddonMessagePrefix("REPorter")
 		BINDING_NAME_REPORTERINC1 = L["Incoming"].." 1"
