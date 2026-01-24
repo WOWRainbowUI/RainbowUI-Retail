@@ -1,5 +1,5 @@
 --[[
-Copyright 2013-2025 João Cardoso
+Copyright 2013-2026 João Cardoso
 SecureTabs is distributed under the terms of the GNU General Public License (or the Lesser GPL).
 This file is part of SecureTabs.
 
@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 13)
+local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 15)
 if not Lib then
 	return
 elseif not old then
@@ -39,10 +39,12 @@ function Lib:Add(panel, frame, label)
 	local anchor = id > 0 and 'SecureTab' .. (id-1) or 'Tab' .. panel.numTabs
 
 	local tab = CreateFrame('Button', '$parentSecureTab' .. id, panel, self.template)
-	tab:SetPoint('LEFT', panel:GetName() .. anchor, 'RIGHT', WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 3 or -16, 0)
-	tab:SetScript('OnClick', function(tab) self:Select(tab) end)
-	tab:SetText(label)
 	tab.frame = frame
+	tab.Select = function(tab) self:Select(tab) end
+	tab:SetPoint('LEFT', panel:GetName() .. anchor, 'RIGHT', WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 3 or -16, 0)
+	tab:SetFrameLevel(panel:GetFrameLevel() + 610)
+	tab:SetScript('OnClick', tab.Select)
+	tab:SetText(label)
 	tinsert(secureTabs, tab)
 	PanelTemplates_DeselectTab(tab)
 
@@ -72,12 +74,12 @@ function Lib:Update(panel, selection)
 	for i, tab in ipairs(secureTabs) do
 		local selected = tab == selection
 		if selected then
-			if not tab.active and tab.OnSelect then
-				tab:OnSelect()
+			if tab:IsEnabled() and tab.OnSelect then
+				xpcall(tab.OnSelect, CallErrorHandler, tab)
 			end
 		else
-			if tab.active and tab.OnDeselect then
-				tab:OnDeselect()
+			if not tab:IsEnabled() and tab.OnDeselect then
+				xpcall(tab.OnDeselect, CallErrorHandler, tab)
 			end
 		end
 
@@ -89,23 +91,15 @@ function Lib:Update(panel, selection)
 				frame:SetParent(panel)
 				frame:EnableMouse(true)
 				frame:SetAllPoints(true)
-				frame:SetFrameLevel(panel:GetFrameLevel() + 20)
+				frame:SetFrameLevel(panel:GetFrameLevel() + 600)
 
-				if frame.CloseButton then
-					frame.CloseButton:SetScript('OnClick', function() -- could never find an 100% taint free method for this
-						local original = frame:GetParent() and frame:GetParent().CloseButton
-						if original then
-							ExecuteFrameScript(original, 'OnClick') -- make sure any additional behaviour is replicated
-						end
-
-						HideUIPanel(frame) -- safest hiding method
-					end)
+				if frame.CloseButton and panel.CloseButton then
+					panel.CloseButton:SetFrameLevel(frame.CloseButton:GetFrameLevel() + 10)
 				end
 			end
 		end
 
 		(tab == selection and PanelTemplates_SelectTab or PanelTemplates_DeselectTab)(tab)
-		tab.active = selected
 	end
 
 	if panel.selectedTab then

@@ -4,7 +4,7 @@
 ## Author: Jaliborc (João Cardoso)
 ## X-Category: Battle Pets
 
-## Interface: 120000, 110205
+## Interface: 120001, 120000
 ## Dependencies: PetTracker
 ## LoadOnDemand: 1
 
