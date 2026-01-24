@@ -1,12 +1,14 @@
 local _, T = ...
 
 function T.WhatsNewData(vh, uv, li)
+	vh("v7.11.3")
+	uv([[Compatibility update for Burning Crusade Anniversary.]])
 	vh("v7.11.2")
 	uv([[Nested rings used as on-open actions now respect rotation-related <b>Display as</b> settings.]])
 	uv([[Quick action repeat triggers are now available for rings opened via a jump slice.]])
 	vh("v7.11.1")
 	uv([[Added <tt>[in:legacy]</tt> extended conditional token, satisfied when legacy loot rules are active.]])
-	li([[Added an in-game <b>What's New</b> list, accessible from the new <b>Home</b> tab in the <b>Options</b> window. (Hi!)]])
+	li([[Added an in-game <b>What's New</b> list, accessible from the new <b>Home</b> tab in the <b>Options</b> window.]])
 	vh("Ånd 7.5 (2025-10-31)")
 	li([[Loot toasts are now dismissed by default when you open an OPie ring. You can control this behavior using the <b>Hide toasts on ring open</b> checkbox in the Behavior section of <tt>/opie</tt> options.]])
 	li([[Feedback for |cff71d5ffSingle-Button Assitant|r macros now reflects the spell the assistant will cast.]])
