@@ -1050,61 +1050,6 @@ D["MRT"] = {
 		text = "點小地圖按鈕的 'MRT 團隊工具包' 按鈕也可以開啟設定選項。",
 	}
 };
-D["NameplateCCnTrinket"] = {
-    defaultEnable = 0,
-	tags = { "PVP" },
-	title = "控場和飾品監控 (血條)",
-	desc = "在血條兩側顯示控場遞減和飾品冷卻的監控圖示。`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\achievement_pvp_h_01",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["ACECONSOLE_NAMEPLATECCNTRINKET"]("") end,
-    },
-	{
-		type = "text",
-		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
-	},
-};
-D["NameplateCooldowns"] = {
-    defaultEnable = 0,
-	title = "敵方技能監控 (血條)",
-	desc = "在血條上方顯示敵人的技能冷卻時間。`",
-	author = "StoleWaterTotem",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\achievement_pvp_a_01",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["NAMEPLATECOOLDOWNS"]("") end,
-    },
-	{
-		type = "text",
-		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
-	},
-};
-D["NameplateSCT"] = {
-    defaultEnable = 1,
-	tags = { "COMBAT" },
-	title = "血條浮動戰鬥文字",
-	desc = "『我輸出超高的！』``喜歡高爽度的爆擊數字，想要看清楚每一發打出的傷害有多少嗎?`` 讓打怪的傷害數字在血條周圍跳動，完全可以自訂字體、大小、顏色和動畫效果。也可以在傷害數字旁顯示法術圖示、依據傷害類型顯示文字顏色，更容易分辨是哪個技能打出的傷害。``不擋畫面，清楚就是爽！``|cffFF2D2D只會套用到打怪的傷害數字，不會影響其它浮動戰鬥文字。|r`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\achievement_guild_level10",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["ACECONSOLE_NSCT"]("") end,
-    },
-	{
-		type = "text",
-		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
-	},
-	{
-		type = "text",
-        text = "|cffFF2D2D需要開啟血條才能看到傷害數字。|r\n\n傷害數字重複了? 在設定選項中停用遊戲內建的浮動戰鬥文字。\n\n選擇要顯示哪些類型的傷害和治療數字：到 '進階遊戲選項' 插件設定浮動戰鬥文字。\n\n還有 Esc > 介面 > 戰鬥 > 自己的戰鬥文字捲動，也要勾選。",
-	},
-};
 D["NoAutoClose"] = {
     defaultEnable = 0,
 	tags = { "ENHANCEMENT" },
@@ -1115,60 +1060,6 @@ D["NoAutoClose"] = {
         text = "設定選項",
         callback = function() SlashCmdList["NOAUTOCLOSE"]("") end,
     },
-};
-D["NugComboBar"] = {
-    defaultEnable = 0,
-	tags = { "CLASSALL" },
-	title = "連擊點數-3D圓",
-	desc = "使用精美的3D圓形來顯示連擊點數。``支援死亡騎士符文、盜賊和德魯伊的連擊點數、術士靈魂裂片、法師祕法充能、聖騎士聖能和武僧真氣。`",
-	icon = "Interface\\Icons\\ability_mage_greaterpyroblast",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["NCBSLASH"]("gui") end,
-    },
-};
-D["OmniBar"] = {
-    defaultEnable = 0,
-	title = "敵方技能監控 (條列)",
-	desc = "監控敵人的技能冷卻時間，可以建立多組技能圖示列，擺在畫面上的任何位置。`",
-	modifier = "彩虹ui",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["OmniBar"]("") end,
-    },
-};
-D["OmniCC"] = {
-    defaultEnable = 1,
-	tags = { "ACTIONBAR" },
-	title = "冷卻時間",
-	desc = "所有東西的冷卻倒數計時，冷卻完畢會顯示動畫效果提醒。``遊戲本身已有內建的冷卻時間，從 Esc > 介面 > 快捷列 > 冷卻時間，可以開啟/關閉。若要使用插件的功能，請關閉遊戲內建的冷卻時間，避免兩種冷卻時間數字重疊。``|cffFF2D2D特別注意：這個插件的CPU使用量較大。電腦較慢，或不需要使用時請勿載入，也可以改用遊戲內建的冷卻時間。|r`",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["OmniCC"]("") end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D副本中請關閉友方血條，避免和冷卻時間插件相衝突而發生錯誤。|r",       
-	},
-};
-D["OmniCD"] = {
-    defaultEnable = 0,
-	tags = { "BOSSRAID" },
-	title = "隊友技能冷卻監控",
-	desc = "在隊伍框架旁顯示隊友的技能、斷法冷卻時間，監控起來簡單又方便。可以在設定選項中自行選擇要監控哪些法術技能，PvP/PvE 都適用!``|cffFF2D2D要監控團隊的技能建議改用 'MRT團隊工具包' 裡面的 '團隊技能冷卻' 功能。``競技場建議改用 '競技場頭像Ex' 插件，功能更完整。|r`",
-	modifier = "彩虹ui",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["OmniCD"]("") end,
-    },
-	{
-		type = "text",
-        text = "選擇要對齊到哪種隊伍框架：在設定選項 > 地城 (或其他區域) > 位置。\n\n使用遊戲內建的隊伍框架：必須在 Esc > 介面 > 團隊檔案 > 勾選 '使用團隊風格的隊伍框架'，才會顯示隊友技能監控。\n\n手動調整位置：在設定選項 > 地城 (或其他區域) > 位置 > (最下方的) 手動調整模式 > 開啟，打勾。\n\n在隨機隊伍使用：預設只會在非隨機5人副本內啟用 (例如 M+)，要在隨機隊伍中使用前，需要先在設定選項 > 顯示 > 隊伍搜尋器 > 開啟，打勾。\n",
-	},
 };
 D["OPie"] = {
     defaultEnable = 0,
@@ -1189,19 +1080,6 @@ D["OPie"] = {
         text = " ",
 	},
 };
-D["ParagonAnnouncer"] = {
-    defaultEnable = 0,
-	tags = { "QUEST" },
-	title = "巔峰箱通知 (舊版)",
-	desc = "接到可以去領巔峰箱的任務時，會彈出訊息來通知你。`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\item_bastion_paragonchest_02",
-	-- img = true,
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["PARANNOUNCER"]("") end,
-    },
-};
 D["ParagonReputation"] = {
     defaultEnable = 0,
 	tags = { "ENHANCEMENT" },
@@ -1211,7 +1089,7 @@ D["ParagonReputation"] = {
      {
         text = "設定選項",
         callback = function() 
-			Settings.OpenToCategory("聲望")
+			Settings.OpenToCategory(ParagonReputationDB.categoryID)
 		end,
     },
 };

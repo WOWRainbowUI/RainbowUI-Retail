@@ -115,8 +115,9 @@ function ParagonReputation:CreateOptions()
 	PR.options.name = PR.L["Paragon Reputation"]
 	
 	local category = Settings.RegisterCanvasLayoutCategory(PR.options,PR.options.name)
-	category.ID = PR.options.name
+	-- category.ID = PR.options.name -- 自行修改
 	Settings.RegisterAddOnCategory(category)
+	PR.DB.categoryID = category:GetID() -- 自行修改
 	--InterfaceOptions_AddCategory(PR.options)
 
 	-- [Interface Options] Title
