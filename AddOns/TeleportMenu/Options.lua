@@ -65,7 +65,6 @@ root.logo:SetSize(30, 30)
 root.logo:Show()
 
 local rootCategory = Settings.RegisterCanvasLayoutCategory(root, L["ADDON_NAME"])
-rootCategory.ID = "TeleportMenu"
 local generalOptions = Settings.RegisterVerticalLayoutSubcategory(rootCategory, L["GENERAL"])
 local buttonOptions = Settings.RegisterVerticalLayoutSubcategory(rootCategory, L["BUTTON_SETTINGS"])
 local teleportsOptions = Settings.RegisterVerticalLayoutSubcategory(rootCategory, L["TELEPORT_SETTINGS"])

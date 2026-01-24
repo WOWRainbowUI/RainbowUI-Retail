@@ -1450,19 +1450,6 @@ D["TankMD"] = {
 		text = "快速鍵：從 Esc > 選項 > 按鍵綁定 > 插件 > 一鍵誤導/偷天/啟動，設定按鍵。\n\n快捷列按鈕：新增巨集拉到快捷列上。\n\n誤導給第一個坦克的巨集內容為：\n\n#showtooltip 誤導\n/click TankMDButton1 LeftButton 1\n/click TankMDButton1 LeftButton 0\n\n誤導給第二個坦克的巨集內容為：\n\n#showtooltip 誤導\n/click TankMDButton2 LeftButton 1\n/click TankMDButton2 LeftButton 0\n\n(每個 /click ... 為同一行不換行)\n\n盜賊和德魯伊請自行將誤導改為偷天換日或啟動\n\n這是插件所提供的巨集指令，需要載入插件才能使用。",
 	}
 };
-D["TargetNameplateIndicator"] = {
-	defaultEnable = 1,
-	tags = { "ENHANCEMENT" },
-	title = "目標指示箭頭",
-	desc = "在當前目標、專注目標、滑鼠指向目標和目標的目標血條上方顯示箭頭，讓目標更明顯。``|cffFF2D2D特別注意：一定要開啟敵方和友方的名條/血條，才能顯示出箭頭。|r`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\ability_warrior_charge",
-	img = true,
-	{
-        text = "設定選項",
-        callback = function() SlashCmdList["ACECONSOLE_TNI"]("") end,
-    },
-};
 D["TeleportMenu"] = {
 	defaultEnable = 1,
 	tags = { "ENHANCEMENT" },
@@ -1472,9 +1459,7 @@ D["TeleportMenu"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory("TeleportMenu")
-		end,
+        callback = function() SlashCmdList["TPMENU"]("") end,
     },
 };
 D["TidyPlates_ThreatPlates"] = {
