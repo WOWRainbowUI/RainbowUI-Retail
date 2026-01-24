@@ -1,6 +1,6 @@
-## Interface: 11503, 30403, 40400, 110205, 110207
+## Interface: 11508, 20205, 38000, 50503, 120000
 ## Title: Masque Skinner: Blizz Buffs
-## Version: 10.1.0
+## Version: 12.0.0
 ## Author: Cybeloras of Aerie Peak
 ## Notes: Skins the Blizzard buff and debuff frames with Masque
 ## RequiredDeps: Masque
