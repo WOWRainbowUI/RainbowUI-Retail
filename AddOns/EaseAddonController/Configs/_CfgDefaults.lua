@@ -1110,36 +1110,6 @@ D["Pawn"] = {
         text = "遊戲有內建裝備比較的功能，只要滑指向裝備物品時，按住 Shift 鍵不放，便能和自己身上的裝備做比較。\n\n如果想要不用按 Shift 鍵，總是會自動比較裝備，請輸入: \n\n/console set alwaysCompareItems 1\n\n(必須輸入在同一行，不要換行)",       
 	},
 };
-D["PersoLootRoll"] = {
-    defaultEnable = 0,
-	tags = { "BOSSRAID" },
-	title = "個人拾取分享助手",
-	desc = "好東西要和好基友分享，個人拾取分享助手讓個人拾取分享裝備更容易!``拿到自己不需要且能夠交易的裝備時，可以在骰裝視窗中將它送出去。``隊友如果也有安裝這個插件，分享他不需要的裝備時，會跳出骰子面板讓你按需求或貪婪。`",
-    author = "Shrugal",
-	modifier = "BNS, 彩虹ui",
-	img = true,
-	icon = "Interface\\Buttons\\UI-GroupLoot-Dice-Up",
-	{
-        text = "設定選項",
-        callback = function() SlashCmdList["ACECONSOLE_PERSOLOOTROLL"]("options") end,
-    },
-	{
-        text = "顯示分裝視窗",
-        callback = function() SlashCmdList["ACECONSOLE_PERSOLOOTROLL"]("") end,
-    },
-	{
-        text = "擲骰說明",
-        callback = function() SlashCmdList["ACECONSOLE_PERSOLOOTROLL"]("roll") end,
-    },
-	{
-        text = "競標說明",
-        callback = function() SlashCmdList["ACECONSOLE_PERSOLOOTROLL"]("bid") end,
-    },
-	{
-		type = "text",
-        text = "點小地圖按鈕的 '個人拾取分享助手' 也可以開啟分裝視窗。",       
-	},
-};
 D["PetTracker"] = {
     defaultEnable = 0,
 	title = "戰寵助手",
@@ -1148,7 +1118,7 @@ D["PetTracker"] = {
     {
         text = "設定選項",
         callback = function() 
-			Settings.OpenToCategory("|Tinterface/addons/pettracker/art/compass:16:16|t 戰寵")
+			Settings.OpenToCategory(PetTracker_Sets.categoryID)
 		end,
     },
 	{
