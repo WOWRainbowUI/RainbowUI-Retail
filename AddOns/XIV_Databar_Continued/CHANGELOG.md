@@ -1,14 +1,16 @@
 # XIV_Databar Continued
 
-## [3.8](https://github.com/ZelionGG/XIV_Databar-Continued/releases/tag/3.8) (2025-12-04)
+## [4.0.2](https://github.com/ZelionGG/XIV_Databar-Continued/releases/tag/4.0.2) (2026-01-23)
 
-[Full Changelog](https://github.com/ZelionGG/XIV_Databar-Continued/compare/v3.7.6...v3.8) [Previous Releases](https://github.com/ZelionGG/XIV_Databar-Continued/releases)
+[Full Changelog](https://github.com/ZelionGG/XIV_Databar-Continued/compare/v4.0.1...v4.0.2) [Previous Releases](https://github.com/ZelionGG/XIV_Databar-Continued/releases)
+
+### _Global :_
+
+- Fixed multiple LUA errors in some modules.
+- German translation updated, thank you **DlargeX**.
+- Fixed the **Current specialization** option not working in the **Loot specialization** selector of the **Talents** module.
 
 ### _Retail :_
 
-- Added Housing Dashboard button to **Micromenu** module (enabled by default).
-- Disabled all **Micromenu** buttons in combat to avoid Taint errors.
+- Added Devourer Demon Hunter's icon to the **Talents** module.
 
-### _Improvements :_
-
-- Improved French locale.

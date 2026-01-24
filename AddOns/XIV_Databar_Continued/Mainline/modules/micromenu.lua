@@ -2,6 +2,7 @@ local AddOnName, XIVBar = ...;
 local _G = _G;
 local xb = XIVBar;
 local L = XIVBar.L;
+local compat = xb.compat
 
 local MenuModule = xb:NewModule("MenuModule", 'AceEvent-3.0')
 
@@ -127,6 +128,81 @@ function MenuModule:SkinFrame(frame, name)
     end
 end
 
+function MenuModule:ToggleBlizzardMicroMenu(force)
+    local hide = xb.db.profile.modules.microMenu.disableBlizzardMicroMenu
+    if force ~= nil then
+        hide = force
+    end
+
+    if InCombatLockdown() then
+        self:RegisterEvent('PLAYER_REGEN_ENABLED', function()
+            self:ToggleBlizzardMicroMenu(force)
+            self:UnregisterEvent('PLAYER_REGEN_ENABLED')
+        end)
+        return
+    end
+
+    self.hiddenByXIV = self.hiddenByXIV or {}
+
+    local frames = {
+        _G.MicroMenuContainer,
+        _G.MainMenuBarMicroButtons,
+        _G.MicroButtonAndBagsBar,
+    }
+
+    for _, frame in ipairs(frames) do
+        if frame then
+            if hide then
+                if frame:IsShown() then
+                    frame:Hide()
+                    self.hiddenByXIV[frame] = true
+                end
+            else
+                if self.hiddenByXIV[frame] then
+                    frame:Show()
+                    self.hiddenByXIV[frame] = nil
+                end
+            end
+        end
+    end
+
+    local keepQueueStatus = xb.db.profile.modules.microMenu.keepQueueStatusIcon
+    local queueButton = _G.QueueStatusButton
+    if queueButton then
+        if hide and keepQueueStatus then
+            if not self.queueStatusOriginalParent then
+                self.queueStatusOriginalParent = queueButton:GetParent()
+                self.queueStatusOriginalPoint = {queueButton:GetPoint(1)}
+            end
+            queueButton:SetParent(UIParent)
+            if self.queueStatusOriginalPoint and self.queueStatusOriginalPoint[1] then
+                queueButton:ClearAllPoints()
+                queueButton:SetPoint(self.queueStatusOriginalPoint[1], UIParent,
+                                     self.queueStatusOriginalPoint[1],
+                                     self.queueStatusOriginalPoint[4],
+                                     self.queueStatusOriginalPoint[5])
+            end
+            queueButton:Show()
+        elseif hide and not keepQueueStatus then
+            if self.queueStatusOriginalParent then
+                queueButton:SetParent(self.queueStatusOriginalParent)
+                if self.queueStatusOriginalPoint and self.queueStatusOriginalPoint[1] then
+                    queueButton:ClearAllPoints()
+                    queueButton:SetPoint(unpack(self.queueStatusOriginalPoint))
+                end
+            end
+            queueButton:Hide()
+        elseif not hide and self.queueStatusOriginalParent then
+            queueButton:SetParent(self.queueStatusOriginalParent)
+            if self.queueStatusOriginalPoint and self.queueStatusOriginalPoint[1] then
+                queueButton:ClearAllPoints()
+                queueButton:SetPoint(unpack(self.queueStatusOriginalPoint))
+            end
+            queueButton:Show()
+        end
+    end
+end
+
 function MenuModule:OnEnable()
     if not xb.db.profile.modules.microMenu.enabled then
         return;
@@ -137,6 +213,7 @@ function MenuModule:OnEnable()
     end
 
     self.microMenuFrame:Show()
+    self:ToggleBlizzardMicroMenu()
 
     if not self.frames.menu then
         self:CreateFrames()
@@ -148,6 +225,7 @@ end
 
 function MenuModule:OnDisable()
     self.microMenuFrame:Hide()
+    self:ToggleBlizzardMicroMenu(false)
     self:UnregisterFrameEvents()
     xb:Refresh()
 end
@@ -157,6 +235,8 @@ function MenuModule:Refresh()
         self:Disable();
         return;
     end
+
+    self:ToggleBlizzardMicroMenu()
 
     if self.frames.menu == nil then
         return;
@@ -807,7 +887,7 @@ function MenuModule:SocialHover(hoverFunc)
                                     end
                                     -- player did not use a modifier when left clicking on the friend, send a bnet whisper
                                 else
-                                    ChatFrame_SendBNetTell(friendAccInfo.accountName)
+                                    ChatFrameUtil.SendBNetTell(friendAccInfo.accountName)
                                 end
 
                                 -- player right clicked on the friend, send an ingame whisper if the player is not playing classic or of the opposite faction
@@ -1058,7 +1138,11 @@ function MenuModule:CreateClickFunctions()
             return;
         end
         if button == "LeftButton" then
-            _G.ChatFrameMenuButton:OpenMenu()
+            if compat and compat.ToggleChatMenu then
+                compat.ToggleChatMenu()
+            elseif _G.ChatFrameMenuButton and _G.ChatFrameMenuButton.OpenMenu then
+                _G.ChatFrameMenuButton:OpenMenu()
+            end
         end
     end; -- chat
 
@@ -1121,7 +1205,11 @@ function MenuModule:CreateClickFunctions()
             return;
         end
         if button == "LeftButton" then
-            ToggleLFDParentFrame()
+            if compat and compat.ToggleLFG then
+                compat.ToggleLFG()
+            else
+                ToggleLFDParentFrame()
+            end
         end
     end; -- lfg
 
@@ -1157,7 +1245,11 @@ function MenuModule:CreateClickFunctions()
             return;
         end
         if button == "LeftButton" then
-            TogglePVPUI()
+            if compat and compat.TogglePVP then
+                compat.TogglePVP()
+            else
+                TogglePVPUI()
+            end
         end
     end; -- pvp
 
@@ -1167,7 +1259,11 @@ function MenuModule:CreateClickFunctions()
             return;
         end
         if button == "LeftButton" then
-            ToggleStoreUI()
+            if compat and compat.ToggleStore then
+                compat.ToggleStore()
+            else
+                ToggleStoreUI()
+            end
         end
     end; -- shop
 
@@ -1196,7 +1292,9 @@ function MenuModule:GetDefaultOptions()
     return 'microMenu', {
         enabled = true,
         showTooltips = true,
-        combatEn = true,
+        disableBlizzardMicroMenu = false,
+        keepQueueStatusIcon = false,
+        combatEn = false,
         mainMenuSpacing = 2,
         iconSpacing = 2,
         modifierTooltip = 1,
@@ -1257,6 +1355,54 @@ function MenuModule:GetConfig()
                     xb.db.profile.modules.microMenu.showTooltips = val;
                     self:Refresh();
                 end
+            },
+
+            blizzardMicroMenu = {
+                type = "group",
+                name = L['Blizzard Micromenu'],
+                order = 1.5,
+                inline = true,
+                args = {
+                    disableBlizzardMicroMenu = {
+                        name = L['Disable Blizzard Micromenu'],
+                        order = 1,
+                        type = "toggle",
+                        width = "full",
+                        get = function()
+                            return xb.db.profile.modules.microMenu.disableBlizzardMicroMenu
+                        end,
+                        set = function(_, val)
+                            xb.db.profile.modules.microMenu.disableBlizzardMicroMenu = val
+                            self:ToggleBlizzardMicroMenu()
+                            self:Refresh()
+                        end
+                    },
+
+                    keepQueueStatusIcon = {
+                        name = L['Keep Queue Status Icon'],
+                        order = 2,
+                        type = "toggle",
+                        width = "full",
+                        disabled = function()
+                            return not xb.db.profile.modules.microMenu.disableBlizzardMicroMenu
+                        end,
+                        get = function()
+                            return xb.db.profile.modules.microMenu.keepQueueStatusIcon
+                        end,
+                        set = function(_, val)
+                            xb.db.profile.modules.microMenu.keepQueueStatusIcon = val
+                            self:ToggleBlizzardMicroMenu()
+                            self:Refresh()
+                        end
+                    },
+
+                    blizzardMicroMenuDisclaimer = {
+                        name = "|TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:16:16:0:0|t " .. L['Blizzard Micromenu Disclaimer'],
+                        order = 3,
+                        type = "description",
+                        width = "full"
+                    },
+                }
             },
 
             appFriendsHide = {

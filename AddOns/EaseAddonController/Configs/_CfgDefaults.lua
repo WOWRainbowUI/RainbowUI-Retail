@@ -1605,26 +1605,6 @@ D["VuhDo"] = {
         text = "設定檔懶人包匯入教學請看\nhttps://addons.miliui.com/show/49/4\n\n更多設定檔下載\nhttps://wago.io/vuhdo\n",
 	},
 };
-D["WeakAuras"] = {
-    defaultEnable = 0,
-	tags = { "MISC" },
-	title = "WA 技能提醒",
-	desc = "功能強大實用、全面性的技能提醒工具，會依據增益/減益和各種觸發效果顯示圖形和資訊，以便做醒目的提醒。``需要手動設定來建立監控的效果。``使用教學與範例：`https://rainbowui.wordpress.com/tag/wa技能提醒/``各種WA提醒效果字串下載：`https://wago.io`",
-	modifier = "a9012456, BNS, scars377, Stanzilla, Wowords, 彩虹ui",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["WEAKAURAS"]("") end,
-    },
-	{
-		type = "text",
-        text = "輸入 /wa 也可以開啟設定選項。\n\n分享給隊友：在 WA技能提醒的設定視窗中，按住 Shift 鍵點視窗左側的提醒效果名稱，可以將連結貼到隊伍聊天頻道，隊友點一下連結即可直接匯入。\n",
-	},
-	{
-		type = "text",
-        text = " ",       
-	},
-};
 D["WIM"] = {
     defaultEnable = 1,
 	title = "魔獸世界即時通",
@@ -1658,27 +1638,6 @@ D["WorldQuestTracker"] = {
 	},
 
 };
-D["WorldMapTrackingEnhanced"] = {
-	defaultEnable = 1,
-	tags = { "MAP" },
-	title = "世界地圖追蹤增強",
-	desc = "加強世界地圖右上角放大鏡的追蹤功能，提供更多的項目，隨時選擇地圖上要顯示、不顯示哪些圖示。``支援地圖標記相關模組、採集助手、戰寵助手和世界任務追蹤插件，讓你可以快速開關地圖上的圖示，不需要分別停用每個插件。`",
-	img = true,
-	{
-        text = "設定選項",
-        callback = function() 
-			WorldMapTrackingEnhanced:OpenOptions()
-		end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
-	},
-	{
-		type = "text",
-        text = "點世界地圖右上角的放大鏡，選擇要顯示/隱藏哪些圖示。",
-	},
-};
 D["WorldQuestTab"] = {
 	defaultEnable = 1,
 	tags = { "QUEST" },
@@ -1696,27 +1655,6 @@ D["XandY"] = {
 	title = "地圖座標",
 	desc = "簡單的小插件，在世界地圖的標題列，和小地圖地名旁邊顯示座標值。`",
 };
-D["xanSoundAlerts"] = {
-	defaultEnable = 1,
-	tags = { "COMBAT" },
-	title = "血量/法力過低音效",
-	desc = "血量或法力/能量太低時，會發出音效來提醒。``支援多種能量類型，可在設定選項中勾選。",
-	{
-        text = "設定選項",
-        callback = function() SlashCmdList["XANSOUNDALERTS"]("") end,
-    },
-	{
-		type = "text",
-        text = "更改要提醒的血量/法力百分比：請用記事本或 Notepad++ 編輯 AddOns\\xanSoundAlerts\\　xanSoundAlerts.lua\n\n自訂音效：將聲音檔案 (MP3 或 OGG) 複製到 AddOns\\ xanSoundAlerts\\sounds 資料夾裡面，然後用記事本編輯 xanSoundAlerts.lua，分別搜尋 LowHealth.ogg (低血量音效) 和 LowMana.ogg (低法力音效) 這兩個英文檔名文字，修改為自己的聲音檔案名稱，要記得加上副檔名 .mp3 或 .ogg。\n\n更改完成後要重新啟動遊戲才會生效，重新載入無效。\n",
-	},
-};
-D["XIV_Databar"] = {
-    defaultEnable = 0,
-	tags = { "ENHANCEMENT" },
-	title = "(請刪除) 功能資訊列",
-	desc = "這是舊的插件，已改用另一個功能資訊列插件。``請刪除舊的資料夾 (AddOns 裡面的 XIV_Databar) 以避免發生衝突。`",
-	modifier = "彩虹ui",
-};
 D["XIV_Databar_Continued"] = {
     defaultEnable = 1,
 	tags = { "ENHANCEMENT" },
@@ -1726,8 +1664,9 @@ D["XIV_Databar_Continued"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory("資訊列")
+		callback = function()
+			local XIVBarSettings = LibStub("AceDB-3.0"):New("XIVBarDB")
+			Settings.OpenToCategory(XIVBarSettings.profile.categoryID)
 		end,
     },
 	{
