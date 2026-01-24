@@ -1126,28 +1126,6 @@ D["PetTracker"] = {
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
-D["PersonalBuff"] = {
-	defaultEnable = 0,
-	tags = { "UNITFRAME" },
-	title = "個人資源條增強",
-	desc = "如果你有習慣使用人物下方的個人資源條 (自己的血量和法力條) 推薦搭配這個插件一起使用。``讓個人資源條能夠自訂要顯示哪些增益/減益圖示，還可以自訂位置、字體、顯示數值、永遠顯示...等。`",
-	author = "Killangel41",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\ability_earthen_azeritesurge",
-	{
-        text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory("個人資源條")
-		end,
-    },
-};
-D["Plumber"] = {
-	defaultEnable = 0,
-	tags = { "ENHANCEMENT" },
-	title = "夢境工具組",
-	desc = "讓你在世界地圖上就能看到夢境種子的位置和生長時間，稍微改善貢獻種子的介面，還有其他功能。``請到 Esc>選項>插件>夢境工具，查看詳細介紹。`",
-	modifier = "BNS",
-};
 D["Postal"] = {
 	defaultEnable = 1,
 	title = "超強信箱",
@@ -1165,18 +1143,9 @@ D["PremadeGroupsFilter"] = {
 	{
         text = "設定選項",
         callback = function() 
-			Settings.OpenToCategory("PremadeGroupsFilter")
+			premadeGroupsFilterOpenSettings()
 		end,
     },
-};
-D["PremakeGroupsHelper"] = {
-    defaultEnable = 0,
-	tags = { "BOSSRAID" },
-	title = "(請刪除) 預組隊伍增強",
-	desc = "|cffFF2D2D遊戲改版後此插件已無法使用，而且遊戲已經內建此功能。請刪除 AddOns 裡面的 PremakeGroupsHelper 資料夾。|r`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\ability_dualwieldspecialization",
-	img = true,
 };
 D["PremadeSort"] = {
     defaultEnable = 1,

@@ -174,7 +174,6 @@ function PGFSettings:OnLoad()
     ScrollUtil.InitScrollBoxListWithScrollBar(self.ScrollBox, self.ScrollBar, view)
 
     local category, layout = Settings.RegisterCanvasLayoutCategory(self, L["addon.name.long"])
-	category.ID = "PremadeGroupsFilter"
     Settings.RegisterAddOnCategory(category)
     PGF.settingsCategory = category
 end
@@ -233,6 +232,10 @@ function PGFSettings:OnRefresh()
 end
 
 function PGF.OpenSettings()
+    Settings.OpenToCategory(PGF.settingsCategory.ID)
+end
+
+function premadeGroupsFilterOpenSettings() -- 自行加入
     Settings.OpenToCategory(PGF.settingsCategory.ID)
 end
 
