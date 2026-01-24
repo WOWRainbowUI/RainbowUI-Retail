@@ -615,7 +615,7 @@ end
 if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 	local mouseButtonNote = "\n在寵物日誌、寵物對戰、聊天連結和拍賣場的浮動提示資訊中顯示寵物的品級。";
 	AddonCompartmentFrame:RegisterAddon({
-		text = addonname,
+		text = C_AddOns.GetAddOnMetadata(addonname, "Title"),
 		icon = "Interface/Icons/petjournalportrait.blp",
 		notCheckable = true,
 		func = function(button, menuInputData, menu)
