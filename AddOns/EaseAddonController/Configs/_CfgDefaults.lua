@@ -663,32 +663,8 @@ D["EditModeExpanded"] = {
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
-D["EnhBloodlust"] = {
-	defaultEnable = 1,
-	tags = { "COMBAT" },
-	title = "嗜血音樂",
-	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`OKP Cipher`by Avantgardey``https://www.youtube.com/watch?v=KP7SZGylejQ",
-	icon = "Interface\\Icons\\spell_nature_bloodlust",
-	img = true,
-	{
-        text = "測試音樂",
-        callback = function() SlashCmdList["ENHBLOODLUST"]("") end,
-    },
-	{
-        text = "測試短嗜血音樂",
-        callback = function() SlashCmdList["ENHBLOODLUST"](true) end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D需要進入戰鬥中再開嗜血才有音樂，非戰鬥中開嗜血沒有音樂。|r\n\n測試音樂則不需要進入戰鬥，任何職業都可以測試音樂。",       
-	},
-	{
-		type = "text",
-		text = "調整音量：調整遊戲的主音量。\n\n自訂音樂：把你的音樂檔案重新命名為 music.mp3 ，放到 EnhBloodlust 資料夾內，覆蓋取代原有的檔案即可。\n",
-	}
-};
 D["Exlist"] = {
-	defaultEnable = 1,
+	defaultEnable = 0,
 	tags = { "BOSSRAID" },
 	title = "我的分身名冊",
 	desc = "快速查看自己所有分身的地城/團隊/世界王擊殺進度、傳奇鑰石/最佳成績、每日/每週/世界任務、金錢、兌換通貨數量、專業、裝備... 還有更多!`",
@@ -716,59 +692,12 @@ D["Exlist"] = {
 		text = "在設定選項中選擇要顯示哪些資訊，角色要橫向或直向排列。\n\n每個分身至少需要登入一次，才會記錄相關資訊。\n",
 	}
 };
-D["ExRT"] = {
-	defaultEnable = 0,
-	title = "MRT 合併 ExRT 舊資料",
-	desc = "ExRT 團隊工具包已經改名為 MRT 團隊工具包，這個插件現在只是用來將 ExRT 的舊資料合併到 MRT 裡面，如果沒有需要合併舊的記錄，可以不用載入。`",
-	icon = "Interface\\AddOns\\MRT\\media\\OptionLogom4",
-};
-D["ExtVendor"] = {
-	defaultEnable = 0,
-	title = "(請刪除) 商人介面增強",
-	desc = "這是舊的插件，已改用另一個商人介面增強插件。``請刪除舊的資料夾 (AddOns 裡面的 ExtVendor) 以避免發生衝突。`",
-	modifier = "BNS, 彩虹ui",
-	icon = "Interface\\Icons\\inv_misc_coin_16",
-};
-D["FatalArenaFrames"] = {
-	defaultEnable = 0,
-	tags = { "PVP" },
-	title = "隱藏內建競技場頭像",
-	desc = "競技場頭像插件有時不會自動隱藏遊戲內建的競技場頭像，如果你遇到這個問題，請使用這個插件來隱藏遊戲內建的競技場頭像。`",
-	icon = "Interface\\Icons\\achievement_pvp_h_12",
-};
 D["FFLU"] = {
 	defaultEnable = 1,
 	tags = { "QUEST" },
 	title = "FF XIV 升級音效",
 	desc = "升級時會播放最終幻想14的升級音效。`",
 	icon = "Interface\\Icons\\achievement_level_70",
-};
-D["Favorites"] = {
-	defaultEnable = 0,
-	tags = { "SOCIAL" },
-	title = "(請刪除) 最愛好友名單",
-	desc = "這是舊的插件，已改用另一個好友群組插件。``請刪除舊的資料夾 (AddOns 裡面的 Favorites) 以避免發生衝突。`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\petbattle_health",
-};
-D["FocusInterruptSounds"] = {
-	defaultEnable = 0,
-	tags = { "CLASSALL" },
-	title = "斷法提醒和通報",
-	desc = "你的敵對目標開始施放可以中斷的法術時，會有語音提醒快打斷。``成功打斷時會在聊天視窗顯示訊息告知你的隊友，可以自行設定其他要提醒打斷和不要提醒的法術。``PvE 和 PvP 都適用哦！`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\spell_arcane_arcane04",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory("斷法")
-		end,
-    },
-	{
-		type = "text",
-        text = "開始使用：在設定選項中加入自己的斷法技能名稱，刪除其他的。",       
-	},
 };
 D["FriendGroups"] = {
 	defaultEnable = 1,
@@ -780,24 +709,6 @@ D["FriendGroups"] = {
 	{
 		type = "text",
         text = "加入/移出群組: 在好友名字上面點右鍵。\n\n新增/刪除群組/設定選項: 在群組名稱或 [沒有群組] 上面點右鍵。\n",       
-	},
-};
-D["FriendListColors"] = {
-	defaultEnable = 0,
-	tags = { "SOCIAL" },
-	title = "彩色好友名單 (舊版)",
-	desc = "有好友的人生是彩色的!``好友名單顯示職業顏色，還可以自訂要顯示哪些內容。`",
-	modifier = "彩虹ui",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory("好友名單")
-		end,
-    },
-	{
-		type = "text",
-        text = "使用方法：按 O 開啟好友名單。",       
 	},
 };
 D["GatherMate2"] = {
@@ -815,57 +726,6 @@ D["GatherMate2"] = {
 		type = "text",
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r\n\n匯入資料庫：從設定選項>匯入資料>勾選草藥學、採礦...等你想看到的採集點>匯入GatherMate2Data。\n\n只需要匯入一次即可。",
 	},
-};
-D["GladiatorlosSA2"] = {
-	defaultEnable = 0,
-	title = "敵方技能監控 (語音)",
-	desc = "用語音報出敵方玩家正在施放的技能。`",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() Settings.OpenToCategory("PvP 技能語音") end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
-	},
-};
-D["GladiusEx"] = {
-	defaultEnable = 0,
-	title = "競技場頭像Ex",
-	desc = "加強版的競技場專用單位框架，提供友方和敵方框架以及更多功能。`",
-	author = "slaren, vendethiel64928",
-	modifier = "HouMuYi, jyzjl, 彩虹ui",
-	icon = "Interface\\Icons\\achievement_pvp_a_12",
-	img = true,
-	{
-        text = "設定選項",
-        callback = function() SlashCmdList["GLADIUSEX"]("ui") end,
-    },
-	{
-        text = "顯示測試框架",
-        callback = function() SlashCmdList["GLADIUSEX"]("test 3") end,
-    },
-	{
-        text = "隱藏測試框架",
-        callback = function() SlashCmdList["GLADIUSEX"]("hide") end,
-    },    
-	{
-        text = "恢復為預設值",
-        callback = function() SlashCmdList["GLADIUSEX"]("reset") end,
-    },
-	{
-		type = "text",
-        text = "滑鼠點擊框架設為目標/專注目標的功能，可以在設定選項 > 競技場 (或隊伍) > 滑鼠點擊 > 啟用組件，開啟。\n\n|cffFF2D2D特別注意：如果開啟後遇到無法旋轉畫面的問題，將滑鼠點擊功能關閉即可。|r\n",       
-	},
-};
-D["Glass"] = {
-	defaultEnable = 0,
-	tags = { "SOCIAL" }, 
-	title = "(請刪除) 聊天視窗美化",
-	desc = "這是舊的插件，已改用另一個聊天視窗美化插件。``請刪除舊的資料夾 (AddOns 裡面的 XIV_Databar) 以避免發生衝突。`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\inv_gizmo_adamantiteframe",
 };
 D["GTFO"] = {
 	defaultEnable = 1,
@@ -903,7 +763,7 @@ D["HandyMinimapArrow"] = {
     {
         text = "設定選項",
         callback = function() 
-			Settings.OpenToCategory("HandyMinimapArrow")
+			Settings.OpenToCategory(37920793)
 		end,
     },
 };

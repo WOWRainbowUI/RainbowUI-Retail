@@ -1,4 +1,4 @@
-## Interface: 110205, 110207
+## Interface: 11508, 20205, 50503, 120000
 ## Title: Handy Minimap Arrow
 ## Author: Kemayo
 ## Notes: Put an arrow higher up on the minimap, so other addons won't overlap it
@@ -15,7 +15,7 @@
 ## Category-zhCN: 地图
 ## Category-zhTW: 地圖
 ## SavedVariables: HandyMinimapArrowDB
-## Version: v6
+## Version: v9
 
 ## X-Curse-Project-ID: 513744
 
