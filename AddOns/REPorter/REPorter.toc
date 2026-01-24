@@ -1,10 +1,21 @@
-## Interface: 100207
+## Interface: 120000
 ## Title: |cFF74D06CRE|rPorter
 ## Notes: Provide battleground map.
-## Version: 2.10.3
+## Version: 2.10.11
 ## Author: AcidWeb
 ## SavedVariables: REPorterSettings
 ## IconTexture: Interface\AddOns\REPorter\RELogo
+## Category-enUS: PvP
+## Category-deDE: PvP
+## Category-esES: JcJ
+## Category-esMX: JcJ
+## Category-frFR: JcJ
+## Category-itIT: PvP
+## Category-koKR: 전적
+## Category-ptBR: JxJ
+## Category-ruRU: PvP
+## Category-zhCN: PvP
+## Category-zhTW: PvP
 ## X-WoWI-ID: 21089
 ## X-Wago-ID: Xb6X0o6p
 

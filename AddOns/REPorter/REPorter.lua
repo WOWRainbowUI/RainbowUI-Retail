@@ -67,6 +67,7 @@ local BFW = 1334
 local CI = 1335
 local ASH = 1478
 local KR = 1537
+local DR = 2345
 
 RE.POIIconSize = 30
 RE.POINumber = 40
@@ -113,7 +114,7 @@ RE.BlinkPOIValue = 0.3
 RE.BlinkPOIUp = true
 
 RE.FoundNewVersion = false
-RE.AddonVersionCheck = 21003
+RE.AddonVersionCheck = 21011
 RE.ScreenHeight, RE.ScreenWidth = UIParent:GetCenter()
 
 RE.MapSettings = {
@@ -131,13 +132,15 @@ RE.MapSettings = {
 	[SS] = {["PlayerNumber"] = 10, ["NodeTimer"] = 40},
 	[BFW] = {["PlayerNumber"] = 40},
 	[CI] = {["PlayerNumber"] = 10},
-	[ASH] = {["PlayerNumber"] = 40}
+	[ASH] = {["PlayerNumber"] = 40},
+	[DR] = {["PlayerNumber"] = 10, ["WidgetID"] = 1687}
 }
 RE.ZonesWithoutSubZones = {
 	[SM] = true,
 	[TOK] = true,
 	[TMVS] = true,
-	[CI] = true
+	[CI] = true,
+	[DR] = true
 }
 RE.POICaptureStatus = {
 	[4] = FACTION_ALLIANCE, -- Graveyard
@@ -239,27 +242,6 @@ RE.BackdropC = {
 	insets = { left = 5, right = 5, top = 5, bottom = 5 },
 }
 
-RE.POIDropDown = {
-	{ text = L["Incoming"], hasArrow = true, notCheckable = true,
-	menuList = {
-		{ text = "1", notCheckable = true, minWidth = 15, func = function() RE:SmallButton(1, true); CloseDropDownMenus() end },
-		{ text = "2", notCheckable = true, minWidth = 15, func = function() RE:SmallButton(2, true); CloseDropDownMenus() end },
-		{ text = "3", notCheckable = true, minWidth = 15, func = function() RE:SmallButton(3, true); CloseDropDownMenus() end },
-		{ text = "4", notCheckable = true, minWidth = 15, func = function() RE:SmallButton(4, true); CloseDropDownMenus() end },
-		{ text = "5", notCheckable = true, minWidth = 15, func = function() RE:SmallButton(5, true); CloseDropDownMenus() end },
-		{ text = "5+", notCheckable = true, minWidth = 15, func = function() RE:SmallButton(6, true); CloseDropDownMenus() end }
-	} },
-	{ text = HELP_LABEL, notCheckable = true, func = function() RE:BigButton(true, true) end },
-	{ text = L["Clear"], notCheckable = true, func = function() RE:BigButton(false, true) end },
-	{ text = "", notCheckable = true, disabled = true },
-	{ text = ATTACK, notCheckable = true, func = function() RE:ReportDropDownClick("Attack") end },
-	{ text = L["Guard"], notCheckable = true, func = function() RE:ReportDropDownClick("Guard") end },
-	{ text = L["Heavily defended"], notCheckable = true, func = function() RE:ReportDropDownClick("Heavily defended") end },
-	{ text = L["Losing"], notCheckable = true, func = function() RE:ReportDropDownClick("Losing") end },
-	{ text = "", notCheckable = true, disabled = true },
-	{ text = L["On my way"], notCheckable = true, func = function() RE:ReportDropDownClick("On my way") end },
-	{ text = L["Report status"], notCheckable = true, func = function() RE:ReportDropDownClick("") end }
-}
 RE.DefaultConfig = {
 	profile = {
 		BarHandle = 11,
@@ -286,7 +268,8 @@ RE.DefaultConfig = {
 			[SS] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 360, ["wh"] = 385, ["mx"] = 66, ["my"] = -63, ["ms"] = 1},
 			[BFW] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 500, ["wh"] = 320, ["mx"] = -3, ["my"] = -84, ["ms"] = 1},
 			[CI] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 270, ["wh"] = 305, ["mx"] = -30, ["my"] = 55, ["ms"] = 1},
-			[ASH] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 270, ["wh"] = 330, ["mx"] = 15, ["my"] = -40, ["ms"] = 1}
+			[ASH] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 270, ["wh"] = 330, ["mx"] = 15, ["my"] = -40, ["ms"] = 1},
+			[DR] = {["wx"] = RE.ScreenHeight, ["wy"] = RE.ScreenWidth, ["ww"] = 270, ["wh"] = 330, ["mx"] = 15, ["my"] = -40, ["ms"] = 1}
 		}
 	}
 }
@@ -409,7 +392,8 @@ RE.AceConfig = {
 						[SS] = GetMapInfo(SS).name,
 						[BFW] = GetMapInfo(BFW).name,
 						[CI] = GetMapInfo(CI).name,
-						[ASH] = GetMapInfo(ASH).name
+						[ASH] = GetMapInfo(ASH).name,
+						[DR] = GetMapInfo(DR).name
 					},
 					set = function(_, val) RE.LastMap = val; RE:ShowDummyMap(val) end,
 					get = function(_) return RE.LastMap end
@@ -493,6 +477,26 @@ function RE:FramesOverlap(frameA, frameB)
 	and (frameB:GetLeft() * sB) < (frameA:GetRight() * sA)
 	and (frameA:GetBottom() * sA) < (frameB:GetTop() * sB)
 	and (frameB:GetBottom() * sB) < (frameA:GetTop() * sA)
+end
+
+function RE:POIDropDown(root)
+	local submenu = root:CreateButton(L["Incoming"])
+	submenu:CreateButton("1", function() RE:SmallButton(1, true) end)
+	submenu:CreateButton("2", function() RE:SmallButton(2, true) end)
+	submenu:CreateButton("3", function() RE:SmallButton(3, true) end)
+	submenu:CreateButton("4", function() RE:SmallButton(4, true) end)
+	submenu:CreateButton("5", function() RE:SmallButton(5, true) end)
+	submenu:CreateButton("5+", function() RE:SmallButton(6, true) end)
+    root:CreateButton(HELP_LABEL, function() RE:BigButton(true, true) end)
+	root:CreateButton(L["Clear"], function() RE:BigButton(false, true) end)
+	root:CreateDivider()
+	root:CreateButton(ATTACK, function() RE:ReportDropDownClick("Attack") end)
+	root:CreateButton(L["Guard"], function() RE:ReportDropDownClick("Guard") end)
+	root:CreateButton(L["Heavily defended"], function() RE:ReportDropDownClick("Heavily defended") end)
+	root:CreateButton(L["Losing"], function() RE:ReportDropDownClick("Losing") end)
+	root:CreateDivider()
+	root:CreateButton(L["On my way"], function() RE:ReportDropDownClick("On my way") end)
+	root:CreateButton(L["Report status"], function() RE:ReportDropDownClick("") end)
 end
 
 function RE:CreatePOI(index)
@@ -633,9 +637,10 @@ function RE:OnEvent(self, event, ...)
 		RE.AceConfig.args.Profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(RE.Settings)
 
 		LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("REPorter", RE.AceConfig)
-		RE.ConfigFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("REPorter", "REPorter")
+		RE.ConfigFrame, RE.Settings.profile.categoryID = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("REPorter", "REPorter") -- 自行修改
 		SettingsPanel:HookScript("OnHide", function() RE:HideDummyMap(true) end)
 		RE:UpdateConfig()
+		print(RE.Settings.profile.categoryID)
 
 		RegisterAddonMessagePrefix("REPorter")
 		BINDING_NAME_REPORTERINC1 = L["Incoming"].." 1"
@@ -762,7 +767,7 @@ function RE:OnEvent(self, event, ...)
 	elseif event == "UPDATE_UI_WIDGET" then
 		local WidgetInfo = ...
 		if WidgetInfo and WidgetInfo.widgetID == RE.MapSettings[RE.CurrentMap].WidgetID then
-			if RE.CurrentMap == SM then
+			if RE.CurrentMap == SM or RE.CurrentMap == DR then
 				RE:OnPointsUpdate(-1)
 			else
 				if RE.EstimatorData[5] == -1 then
@@ -1254,7 +1259,7 @@ function RE:OnClickPOI(self)
 
 	CloseDropDownMenus()
 	RE.ClickedPOI = RE.POINodes[self.name].name
-	EasyMenu(RE.POIDropDown, REPorterReportDropDown, self, 0 , 0, "MENU")
+	MenuUtil.CreateContextMenu(UIParent, RE.POIDropDown)
 end
 ---
 
@@ -1327,7 +1332,7 @@ function RE:Create()
 		RE.IoCGateEstimator[FACTION_ALLIANCE] = RE.IoCGateHealth
 		RE.IoCGateEstimator[FACTION_HORDE] = RE.IoCGateHealth
 		RE.IoCGateEstimatorText = ""
-	elseif RE.CurrentMap == SM then
+	elseif RE.CurrentMap == SM or RE.CurrentMap == DR then
 		RE.SMEstimatorText = ""
 		RE.SMEstimatorReport = ""
 	else
@@ -1345,7 +1350,7 @@ function RE:Create()
 	else
 		RE.CareAboutNodes = false
 	end
-	if Contains({BFG, EOTS, AB, DG, SM}, RE.CurrentMap) then
+	if Contains({BFG, EOTS, AB, DG, SM, DR}, RE.CurrentMap) then
 		RE.CareAboutPoints = true
 		REPorterFrame:RegisterEvent("UPDATE_UI_WIDGET")
 	else
@@ -1357,12 +1362,12 @@ function RE:Create()
 	else
 		RE.CareAboutGates = false
 	end
-	if Contains({WG, TP, EOTS, TOK, CI}, RE.CurrentMap) then
+	if Contains({WG, TP, EOTS, TOK, CI, DR}, RE.CurrentMap) then
 		RE.CareAboutFlags = true
 	else
 		RE.CareAboutFlags = false
 	end
-	if Contains({IOC, SM, BFW}, RE.CurrentMap) then
+	if Contains({IOC, SM, BFW, DR}, RE.CurrentMap) then
 		RE.CareAboutVehicles = true
 	else
 		RE.CareAboutVehicles = false
