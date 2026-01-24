@@ -261,7 +261,11 @@ function WorldMapOptionsButtonMixin:InitializeDropDown(level)
             disabled = not map.settings,
             func = function(button, option)
                 HideUIPanel(WorldMapFrame)
-                Settings.OpenToCategory(L["map_button_title"])
+                for _, category in ipairs(SettingsPanel:GetAllCategories()) do
+                    if category:GetName() == L["map_button_title"] then
+                        Settings.OpenToCategory(category:GetID())
+                    end
+                end
                 LibStub('AceConfigDialog-3.0'):SelectGroup('HandyNotes',
                     'plugins', EJ_GetTierInfo(ns.expansion), 'ZonesTab', 'Zone_' .. map.id)
             end
