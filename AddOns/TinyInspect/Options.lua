@@ -347,7 +347,6 @@ frame.name = L.OptionName
 
 CreateCheckbox(options, frame, frame.title, 18, 9)
 local category = Settings.RegisterCanvasLayoutCategory(frame, frame.name)
-category.ID = frame.name
 Settings.RegisterAddOnCategory(category)
 
 LibEvent:attachEvent("VARIABLES_LOADED", function()
@@ -373,5 +372,5 @@ function SlashCmdList.TinyInspect(msg, editbox)
     if (msg == "raid") then
         return ToggleFrame(TinyInspectRaidFrame)
     end
-    Settings.OpenToCategory(frame.name)
+    Settings.OpenToCategory(category:GetID())
 end
