@@ -100,6 +100,8 @@ end
 ---@param customIcon string|number? Custom Icon, Only used for secret textures so also used as a nil check
 ---@param noSound boolean?
 function DBM:AddSpecialWarning(text, force, specWarnObject, number, customIcon, noSound)
+	--Now, check if all special warning filters are enabled to save cpu and abort immediately if true and it comes from RAID_WARNING API
+	if customIcon and self.Options.HideDBMWarnings or (self.Options.DontPlaySpecialWarningSound and self.Options.DontShowSpecialWarningFlash and self.Options.DontShowSpecialWarningText) then return end
 	local added = false
 	local formatedText
 	if C_StringUtil and customIcon then
@@ -107,31 +109,33 @@ function DBM:AddSpecialWarning(text, force, specWarnObject, number, customIcon, 
 	else
 		formatedText = text
 	end
-	if not frame.font1ticker then
-		font1elapsed = 0
-		font1.lastUpdate = GetTime()
-		font1:SetText(formatedText)
-		font1:Show()
-		added = true
-		frame.font1ticker = frame.font1ticker or C_Timer.NewTicker(0.05, fontHide1)
-	elseif not frame.font2ticker or force then
-		font2elapsed = 0
-		font2.lastUpdate = GetTime()
-		font2:SetText(formatedText)
-		font2:Show()
-		added = true
-		frame.font2ticker = frame.font2ticker or C_Timer.NewTicker(0.05, fontHide2)
-	end
-	if not added then
-		if not customIcon then
-			--GetText can't be called on secrets, so if customIcon exists this code path is skipped
-			local prevText1 = font2:GetText()
-			font1:SetText(prevText1)
-			font1elapsed = font2elapsed
-			self:AddSpecialWarning(text, true, specWarnObject, number, customIcon, noSound)
+	if not self.Options.DontShowSpecialWarningText then
+		if not frame.font1ticker then
+			font1elapsed = 0
+			font1.lastUpdate = GetTime()
+			font1:SetText(formatedText)
+			font1:Show()
+			added = true
+			frame.font1ticker = frame.font1ticker or C_Timer.NewTicker(0.05, fontHide1)
+		elseif not frame.font2ticker or force then
+			font2elapsed = 0
+			font2.lastUpdate = GetTime()
+			font2:SetText(formatedText)
+			font2:Show()
+			added = true
+			frame.font2ticker = frame.font2ticker or C_Timer.NewTicker(0.05, fontHide2)
 		end
-	else
-		test:Trace(specWarnObject and specWarnObject.mod or self, "ShowSpecialWarning", specWarnObject, text)
+		if not added then
+			if not customIcon then
+				--GetText can't be called on secrets, so if customIcon exists this code path is skipped
+				local prevText1 = font2:GetText()
+				font1:SetText(prevText1)
+				font1elapsed = font2elapsed
+				self:AddSpecialWarning(text, true, specWarnObject, number, customIcon, noSound)
+			end
+		else
+			test:Trace(specWarnObject and specWarnObject.mod or self, "ShowSpecialWarning", specWarnObject, text)
+		end
 	end
 	--DUPLICATE CODE
 	--This code is for special warnings that bypass normal "show" method of hard coded objects (such as midnight secrets)
@@ -393,7 +397,7 @@ function specialWarningPrototype:Show(...)
 	--Check if option for this warning is even enabled
 	if (not self.option or self.mod.Options[self.option]) and not moving and frame then
 		--Now, check if all special warning filters are enabled to save cpu and abort immediately if true.
-		if DBM.Options.DontPlaySpecialWarningSound and DBM.Options.DontShowSpecialWarningFlash and DBM.Options.DontShowSpecialWarningText then return end
+		if DBM.Options.HideDBMWarnings or (DBM.Options.DontPlaySpecialWarningSound and DBM.Options.DontShowSpecialWarningFlash and DBM.Options.DontShowSpecialWarningText) then return end
 		--Next, we check if trash mod warning and if so check the filter trash warning filter for trivial difficulties
 		if self.mod.isTrashMod and DBM.Options.FilterTrashWarnings2 and (self.mod:IsEasyDungeon() or DBM:IsTrivial()) then return end
 		--We also check if person has the role filter turned on (typical for highest end raiders who don't want as much handholding from DBM)
@@ -547,7 +551,7 @@ function specialWarningPrototype:CombinedShow(delay, ...)
 	--Check if option for this warning is even enabled
 	if self.option and not self.mod.Options[self.option] then return end
 	--Now, check if all special warning filters are enabled to save cpu and abort immediately if true.
-	if DBM.Options.DontPlaySpecialWarningSound and DBM.Options.DontShowSpecialWarningFlash and DBM.Options.DontShowSpecialWarningText then return end
+	if DBM.Options.HideDBMWarnings or (DBM.Options.DontPlaySpecialWarningSound and DBM.Options.DontShowSpecialWarningFlash and DBM.Options.DontShowSpecialWarningText) then return end
 	--Next, we check if trash mod warning and if so check the filter trash warning filter for trivial difficulties
 	if self.mod:IsEasyDungeon() and self.mod.isTrashMod and DBM.Options.FilterTrashWarnings2 then return end
 	local argTable = {...}
@@ -576,7 +580,7 @@ function specialWarningPrototype:PreciseShow(maxTotal, ...)
 	--Check if option for this warning is even enabled
 	if self.option and not self.mod.Options[self.option] then return end
 	--Now, check if all special warning filters are enabled to save cpu and abort immediately if true.
-	if DBM.Options.DontPlaySpecialWarningSound and DBM.Options.DontShowSpecialWarningFlash and DBM.Options.DontShowSpecialWarningText then return end
+	if DBM.Options.HideDBMWarnings or (DBM.Options.DontPlaySpecialWarningSound and DBM.Options.DontShowSpecialWarningFlash and DBM.Options.DontShowSpecialWarningText) then return end
 	--Next, we check if trash mod warning and if so check the filter trash warning filter for trivial difficulties
 	if self.mod:IsEasyDungeon() and self.mod.isTrashMod and DBM.Options.FilterTrashWarnings2 then return end
 	local argTable = {...}
@@ -1236,18 +1240,18 @@ end
 --{ Name = "shouldShowChatMessage", Type = "bool", Nilable = false },
 --{ Name = "shouldShowWarning", Type = "bool", Nilable = false },
 function DBM:ENCOUNTER_WARNING(encounterWarningInfo)
+	if self.Options.HideDBMWarnings then return end
 	--Secrets
 	local text = encounterWarningInfo.text
 	local casterName = encounterWarningInfo.casterName
 	local targetName = encounterWarningInfo.targetName
 	local targetGUID = encounterWarningInfo.targetGUID
 	local formattedTargetName = targetName
-	if self.Options.DebugMode then
-		if targetGUID ~= nil then
-			local _, className = GetPlayerInfoByGUID(targetGUID);
+	if targetGUID then
+		local _, className = GetPlayerInfoByGUID(targetGUID)
+		if className then
 			local classColor = C_ClassColor.GetClassColor(className)
-
-			if classColor ~= nil then
+			if classColor then
 			    formattedTargetName = classColor:WrapTextInColorCode(formattedTargetName);
 			end
 		end

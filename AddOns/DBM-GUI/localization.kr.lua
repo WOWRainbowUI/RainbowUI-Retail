@@ -87,6 +87,7 @@ L.Button_InfoFrame			= "정보 창 표시/숨기기"
 L.Button_TestBars			= "테스트 바 시작"
 L.Button_MoveBars			= "바 이동"
 L.Button_ResetInfoRange		= "정보/거리 창 위치 초기화"
+L.Button_ShowMidnightWizard			= "한밤 설정 마법사"
 
 L.ModelOptions				= "3D 모델 뷰어 설정"
 L.EnableModels				= "보스 설정에 3D 모델 사용"
@@ -104,7 +105,7 @@ L.UIGroupingOptions			= "UI 그룹 설정 (이미 로딩이 된 모드는 UI 재
 L.GroupOptionsExcludeIcon	= "주문 단위로 형성된 그룹에서 '공격대 징표' 설정 제외 (제외된 설정들은 '공격대 징표' 카테고리에 배치)"
 L.GroupOptionsExcludePrivateAura	= "주문 단위로 형성된 그룹에서 '비공개 오라' 효과음 설정 제외 (제외된 설정들은 '비공개 오라' 카테고리에 배치)"
 
-L.AutoExpandSpellGroups		= "주문 단위로 그룹이 형성된 설정들을 자동으로 펼치기"
+L.AutoExpandSpellGroups2		= "주문 단위로 그룹이 형성된 설정들을 자동으로 펼치기"
 L.ShowWAKeys				= "보스 모드 활성 조건을 이용한 WeakAuras 제작을 지원하기 위해 주문 이름 옆에 WeakAuras 키를 표시합니다."
 --L.ShowSpellDescWhenExpanded	= "설정 그룹이 펼쳐진 상태에서도 주문 설명 계속 표시"--Might not be used
 L.NoDescription				= "이 능력에 대한 설명이 없습니다"
@@ -453,7 +454,11 @@ L.Area_BlizzFiltersSetup	= "블리자드 기능 필터 가이드"
 -- Panel: Toggle DBM Features
 L.Panel_SpamFilter			= "DBM 기능 끄기"
 
-L.Area_SpamFilter_SpecFeatures		= "알림 기능"
+L.Area_Global_Toggles				= "전체 기능 켜기/끄기"
+L.NoWarnings						= "모든 DBM 알림 끄기"
+L.NoTimers							= "모든 DBM 타이머 바 끄기"
+
+L.Area_SpamFilter_SpecFeatures		= "세부 알림 기능 (위에서 전체 비활성화를 하지 않을 때만 적용)"
 L.SpamBlockNoShowAnnounce	= "모든 알림 및 효과음 재생 안함"
 L.SpamBlockNoSpecWarnText	= "특수 알림 텍스트 표시 안함"
 L.SpamBlockNoSpecWarnFlash	= "특수 알림에 화면 점멸 사용 안함"
@@ -461,7 +466,7 @@ L.SpamBlockNoSpecWarnVibrate		= "특수 알림에 컨트롤러 진동 안함"
 L.SpamBlockNoSpecWarnSound	= "특수 알림 효과음 재생 안함 (초읽기와 음성팩 메뉴에서 활성화된 음성팩은 계속 작동)"
 L.SpamBlockNoPrivateAuraSound		= "비공개 오라 효과음 등록 안함"
 
-L.Area_SpamFilter_Timers	= "타이머"
+L.Area_SpamFilter_Timers			= "세부 타이머 기능 (위에서 전체 비활성화를 하지 않을 때만 적용)"
 L.SpamBlockNoShowBossTimers		= "던전/레이드 보스 타이머 표시 안함"
 L.SpamBlockNoShowTrashTimers		= "던전/레이드 일반몹 타이머 표시 안함 (알림: 이름표의 쿨타임도 표시되지 않습니다)"
 L.SpamBlockNoShowEventTimers		= "이벤트나 알림 타이머 표시 안함 (대기열, 보스 재생성 등)"
