@@ -1,4 +1,4 @@
-## Interface: 110205, 110207
+## Interface: 120000
 ## Title: |cffEEE4AEPremade Group Sort|r
 ## Author: Yuyuli
 ## Version: 36
