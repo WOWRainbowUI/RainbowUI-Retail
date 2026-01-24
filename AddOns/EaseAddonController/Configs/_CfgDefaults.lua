@@ -1276,7 +1276,8 @@ D["REPorter"] = {
 	{
         text = "設定選項",
         callback = function() 
-			Settings.OpenToCategory("PvP 戰場地圖")
+			local REPorterSettings = LibStub("AceDB-3.0"):New("REPorterSettings")
+			Settings.OpenToCategory(REPorterSettings.profile.categoryID)
 		end,
     },
 	{
