@@ -1,6 +1,6 @@
-## Interface: 110205, 110207
+## Interface: 120000
 ## Author: Keyboardturner
-## Version: 1.0.8
+## Version: 1.0.9
 ## Title: Dragon Rider
 ## Notes: Displays a speedometer paired with the vigor bar and some other dragonriding-related options.
 ## AddonCompartmentFunc: DragonRider_OnAddonCompartmentClick
