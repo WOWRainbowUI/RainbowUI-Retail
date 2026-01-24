@@ -210,40 +210,6 @@ D["Baganator"] = {
         text = "外觀主題: 載入 '多角色背包外觀-簡單黑' 插件就會改變背包的外觀。\n\n要恢復成原本的外觀只要取消載入外觀插件即可。\n",       
 	},
 };
-D["BagSync"] = {
-	defaultEnable = 0,
-	title = "物品數量統計 (舊版)",
-	desc = "在物品的滑鼠提示中顯示所有角色擁有相同物品的數量。``|cffFF2D2D需要將其他角色登入一次才會計算該角色的物品數量。|r`",
-	modifier = "BNS, 彩虹ui",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("config") end,
-    },
-	{
-        text = "搜尋",
-        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("search") end,
-    },
-	{
-        text = "金錢",
-        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("gold") end,
-    },
-	{
-        text = "黑名單",
-        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("blacklist") end,
-    },
-	{
-        text = "優化資料庫",
-        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("fixdb") end,
-    },
-	{
-        text = "重置資料庫",
-        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("resetdb") end,
-    },
-	{
-        text = "刪除角色資料",
-        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("profiles") end,
-    },
-};
 D["BattleGroundEnemies"] = {
 	defaultEnable = 0,
 	tags = { "PVP" },
@@ -276,40 +242,6 @@ D["BattlePetBreedID"] = {
 		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
 	},
 };
-D["BetterBags"] = {
-	defaultEnable = 0,
-	tags = { "ITEM" },
-	title = "掰特包",
-	desc = "Adi 背包的進化版，效能好、bug 少、東西不亂跑，分類清楚好好找。``也可以變成不分類的合併背包，或是清單背包。背包大小、分類都可以自行調整，還有有多種分類外掛模組可供選用。``|cffFF2D2D特別注意: 要自行追蹤兌換通貨時，請在 '夢境工具組' 插件的設定中關閉 '背包物品追蹤' 的功能，以避免重疊顯示。|r`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\reliquarybag_icon",
-	{
-        text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory(GetLocale() == "zhTW" and "背包" or "BetterBags")
-		end,
-    },
-	{
-		type = "text",
-		text = "點背包視窗左上角的背包圖示，也可以顯示設定選單。\n",
-	},
-};
-D["BigDebuffs"] = {
-    defaultEnable = 0,
-	title = "大型控場圖示",
-	desc = "在血條右側顯示很大的控制技能圖示和時間，更容易看到。``使用 '暴雪頭像' 插件或遊戲內建頭像時，被控場時也會將自己的頭像圖案變成控制技能圖示。使用 'Stuf 頭像' 時不會有變化。``|cffFF2D2D特別注意：不能與 'M+ 小怪%' 插件一起使用，血條旁不會顯示圖示。``使用此插件時建議在威力血條設定>套件>光環>控場，關閉所有單位的控場圖示，以避免重複。`",
-	modifier = "Kokusho",
-    {
-        text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory("PvP 控場圖示")
-		end,
-    },
-	{
-		type = "text",
-		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
-	},
-};
 D["BlizzMove"] = {
 	defaultEnable = 1,
 	tags = { "ENHANCEMENT" }, 
@@ -325,64 +257,6 @@ D["BlizzMove"] = {
 		type = "text",
 		text = "移動視窗: 按住左鍵拖曳視窗標題，或拖曳視窗內沒有功能的地方來移動位置。\n\n縮放視窗: 按住 Ctrl 在視窗標題列上滾動滑鼠滾輪。\n\n重置位置: 按住 Shift 在視窗標題列上點右鍵。\n\n重置縮放: 按住 Ctrl 在視窗標題列上點右鍵。\n",
 	},
-};
-D["BlockMessageTeamGuard"] = {
-    defaultEnable = 1,
-	tags = { "SOCIAL" },
-	title = "廣告守衛",
-	desc = "過濾掉聊天訊息中的廣告、自動拒絕陌生人的組隊邀請，讓你有個乾淨舒服的遊戲環境。``可以自訂關鍵字，還有更多功能。",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["BlockMessageTeamGuard"]("") end,
-    },
-};
-D["Breakables"] = {
-    defaultEnable = 0,
-	title = "快速分解物品",
-	desc = "提供快速拆裝分解、研磨草藥、勘探寶石和開鎖的功能!``有你的專業可以分解的物品時，畫面上會自動出現可供分解物品的分解快捷列，點一下物品圖示即可分解，不用到背包中去尋找物品。`",
-	modifier = "alec65, BNS, HouMuYi, 彩虹ui",
-	icon = "Interface\\Icons\\inv_enchant_disenchant",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory("專業-分解")
-		end,
-    },
-	{
-		type = "text",
-        text = "分解物品：左鍵點一下分解快捷列上的物品圖示。\n\n加入忽略清單：右鍵點一下分解快捷列上的物品圖示。\n\n在設定選項中可以管理忽略清單。\n\n移動快捷列：Shift+左鍵 拖曳移動。\n",
-	},
-};
-D["BountyHelper"] = {
-    defaultEnable = 1,
-	tags = { "COLLECTION" },
-	title = "賞金小幫手",
-	desc = "顯示每個坐騎的位置、機率和擊殺狀態，設定導航。幫助你在 '收集者的賞金' 掉落率提高的活動期間，收集到最多、最想要的坐騎!!`",
-	modifier = "彩虹ui",
-    {
-        text = "顯示主視窗",
-        callback = function() 
-			SlashCmdList["CBH"]()
-		end,
-    },
-	{
-		type = "text",
-        text = "點小地圖按鈕的 '賞金小幫手' 按鈕也可以打開主視窗。\n",
-	},
-};
-D["BravosUIImprovements"] = {
-    defaultEnable = 0,
-	tags = { "ENHANCEMENT" },
-	title = "內建介面增強",
-	desc = "提供幾個簡單的功能來稍微改善遊戲預設介面，主要是讓施法條能顯示施法時間和法術圖示。`",
-	modifier = "彩虹ui",
-    {
-        text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory("介面增強")
-		end,
-    },
 };
 D["BtWLoadouts"] = {
     defaultEnable = 0,
@@ -501,31 +375,6 @@ D["Cell"] = {
         callback = function() SlashCmdList["CELL"]("resetall") end,
     },
 };
-D["ClassicPlatesPlus"] = {
-	defaultEnable = 0,
-	tags = { "UNITFRAME" },
-	title = "經典血條 Plus",
-	desc = "還原並美化經典版本的血條，有超清楚的個人資源條和簡單的自訂選項。`",
-	modifier = "彩虹ui",
-	{
-        text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory("ClassicPlatesPlus")
-		end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
-	},
-	{
-		type = "text",
-        text = "|cffFF2D2D請勿和 '威力血條' 同時載入使用。|r",       
-	},
-	{
-		type = "text",
-        text = "按住 Ctrl 鍵可以拖曳移動腳下的個人資源條。",       
-	},
-};
 D["ClearMapPin"] = {
 	defaultEnable = 1,
 	tags = { "MAP" },
@@ -545,55 +394,6 @@ D["ColorPickerPlus"] = {
 	desc = "提供更方便的方式來選擇顏色，可以輸入顏色數值、直接選擇職業顏色，或是將自訂顏色儲存成色票供日後使用。``選擇顏色時會自動出現。`",
 	modifier = "彩虹ui",
 	img = true,
-};
-D["CombatTimeTracker"] = {
-	defaultEnable = 0,
-	tags = { "COMBAT" },
-	title = "戰鬥時間追蹤",
-	desc = "顯示這次戰鬥的經過時間，方便觀察戰鬥的時間軸、可以開幾次大招...等等。``可以自訂位置、大小、字體和顏色。`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\inv_belt_armor_waistoftime_d_01",
-	img = true,
-	{
-        text = "設定選項",
-        callback = function() SlashCmdList["ACECONSOLE_CTT"]("") end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。\n",
-	},
-	{
-        type = "text",
-		text = "點小地圖按鈕的 '戰鬥時間追蹤' 按鈕也可以開啟設定選項。",
-    },
-	{
-        type = "text",
-		text = "移動位置：在設定選項中解鎖位置後，便可拖曳移動。",
-    },
-};
-D["Combuctor"] = {
-	defaultEnable = 0,
-	title = "分類整合背包",
-	desc = "將所有背包顯示在同一個視窗中，並且提供分類標籤頁面的功能，方便尋找物品。``還有離線銀行，能夠隨時查看其他角色的背包和銀行。`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\inv_tailoring_hexweavebag",
-	img = true,
-	{
-        text = "設定選項",
-        callback = function() SlashCmdList["Combuctor"]("options") end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。\n\nDJ 智能分類背包、分類整合背包和分類清單背包只要選擇其中一種使用即可，請勿同時載入。|r\n",
-	},
-	{
-		type = "text",
-        text = "整理背包: 點背包視窗右上角的圖示。\n\n調整背包視窗大小: 拖曳背包視窗最右下角。\n\n切換成其他角色的背包: 點背包視窗左上角的人物頭像圖案。",
-	},
-	{
-		type = "text",
-        text = " ",
-	},
 };
 D["ConsolePort"] = {
 	defaultEnable = 0,
@@ -619,21 +419,6 @@ D["CopyAnything"] = {
 	{
 		type = "text",
 		text = "|cffFF2D2D小技巧：滑鼠指向文字後，連按兩次 Ctrl+C 會直接快速複製整段文字。|r\n",
-	},
-};
-D["CraftSim"] = {
-    defaultEnable = 0,
-	tags = { "PROFESSION" },
-	title = "專業製造模擬器",
-	desc = "幫忙計算使用最低成本的材料製造出最高品質的物品，打開專業製造視窗時會自動顯示。`",
-	modifier = "Tmv3v, 彩虹ui",
-	{
-        text = "設定選項",
-        callback = function() SlashCmdList["CRAFTSIM"]("") end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
 D["CursorTrail"] = {
@@ -825,7 +610,7 @@ D["DragonRider"] = {
 	{
         text = "設定選項",
 		callback = function()
-			Settings.OpenToCategory("DragonRider")
+			SlashCmdList["DRAGONRIDER"]("option")
 		end,
     },
 	{

@@ -576,7 +576,8 @@ local function HandleSlashCommands(str)
 					path = path[arg]; -- another sub-table found!
 				end
 				else
-					DR.commands[L["COMMAND_journal"]]();
+					Settings.OpenToCategory(DR.SettingsCategoryID);
+					-- DR.commands[L["COMMAND_journal"]]();
 				return;
 			end
 		end
@@ -1022,7 +1023,6 @@ function DR.OnAddonLoaded()
 
 			local setting = RegisterSetting(variable, defaultValue, name);
 			CreateCheckbox(categorySpeedometer, setting, tooltip)
-		category.ID = "DragonRider" -- 自行加入
 		end
 
 		do
