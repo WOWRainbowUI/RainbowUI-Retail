@@ -4,6 +4,15 @@ local AddonName, Addon = ...
 -- ChallengeMapID: https://wago.tools/db2/MapChallengeMode?page=1
 
 Addon.MDTdungeon = {
+-- Midnight
+    [557] = 152,-- Windrunner Spire
+    [559] = 155,-- Nexus Point Xenas
+    [560] = 154,-- Maisara Caverns
+--  [0] = 160,-- Murder Row
+--  [0] = 0, -- Den of Nalorakk
+--  [0] = nil, -- The Blinding Vale
+--  [0] = nil, -- Voidscar Arena
+
 -- TWW
     [499] = 115,-- Priory of the Sacred Flame
     [500] = 118,-- The Rookery
@@ -67,8 +76,10 @@ Addon.MDTdungeon = {
     [227] = 9, -- Karazhan Lower
     [233] = 2, -- Cathedral of Eternal Night
     [234] = 10, -- Karazhan Upper
+    [239] = 11, -- Seat of the Triumvirate
 
 -- WoD
+    [161] = 151, -- Skyreach
     [165] = 46, -- Shadowmoon Burial Grounds
     [166] = 40, -- Grimrail Depot
     [168] = 104, -- The Everbloom
@@ -81,6 +92,12 @@ Addon.MDTdungeon = {
     [438] = 77, -- The Vortex Pinnacle
     [456] = 105, -- Throne of Tides
     [507] = 112, -- Grim Batol
+
+-- WotLK
+    [556] = 150, -- Pit of Saron
+
+-- BC
+    [558] = 153, -- Magister's Terrace
 }
 
 
@@ -115,7 +132,7 @@ end
 
 function Addon:MDTHasDB()
     for mapID in pairs(Addon.MDTdungeon) do
-        if #MDT.dungeonEnemies[Addon.MDTdungeon[mapID]] > 0 then
+        if MDT.dungeonEnemies[Addon.MDTdungeon[mapID]] ~= nil and #MDT.dungeonEnemies[Addon.MDTdungeon[mapID]] > 0 then
             return true
         end
     end

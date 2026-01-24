@@ -640,7 +640,7 @@ local function initAffixes(affixes)
                 name = name,
                 text = description,
             }
-            SetPortraitToTexture(Addon.fMain.affix[count].Portrait, filedataid)
+            Addon:SetPortraitToTexture(Addon.fMain.affix[count], filedataid)
         end
 
         if affix == Addon.AFFIX_TEEMING then
@@ -684,7 +684,6 @@ local function ShowTimer()
         Addon.fMain.dungeonname.text:SetText(dungeonName)
         Addon.fMain.dungeonname:EnableMouse(false)
 
-        Addon.fMain:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         Addon.fMain:RegisterEvent("ENCOUNTER_END")
         Addon.fMain:RegisterEvent("ENCOUNTER_START")
         Addon.fMain:RegisterEvent("GROUP_JOINED")
@@ -707,7 +706,6 @@ local function HideTimer()
         Addon.fMain:Hide()
     end
     IPMTDungeon.keyActive = false
-    Addon.fMain:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     Addon.fMain:UnregisterEvent("ENCOUNTER_END")
     Addon.fMain:UnregisterEvent("ENCOUNTER_START")
     Addon.fMain:UnregisterEvent("GROUP_JOINED")
@@ -785,8 +783,6 @@ function Addon:OnEvent(self, event, ...)
         end
     elseif event == "CHALLENGE_MODE_KEYSTONE_RECEPTABLE_OPEN" then
         InsertKeystone()
-    elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-        Addon:CombatLogEvent()
     elseif event == "ENCOUNTER_START" then
         IPMTDungeon.combat.boss = true
     elseif event == "ENCOUNTER_END" then

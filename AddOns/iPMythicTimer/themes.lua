@@ -150,7 +150,7 @@ function Addon:FillDummy(onlyText)
     if IPMTDungeon == nil or not IPMTDungeon.keyActive then
         local name, description, filedataid = C_ChallengeMode.GetAffixInfo(117) -- Reaping icon
         for i = 1,4 do
-            SetPortraitToTexture(Addon.fMain.affix[i].Portrait, filedataid)
+            Addon:SetPortraitToTexture(Addon.fMain.affix[i], filedataid)
             Addon.fMain.affix[i]:Show()
         end
         if Addon.fool and Addon.fMain.affix[Addon.affixesCount]:IsShown() then
