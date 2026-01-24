@@ -2175,8 +2175,8 @@ if LOCALE == "zhCN" then
 	L["ShowVigorTooltipTT"] = "切换精力条上鼠标提示的显示。"
 	L["FadeVigor"] = "淡出精力条"
 	L["FadeVigorTT"] = "在不滑翔和充满精力时切换精力条的淡出。"
-	L["LightningRush"] = "闪电冲刺显示" -- Changed in 11.2.7
-	L["LightningRushTT"] = "切换用于“闪电冲击”技能的静电充能球体。" -- Changed in 11.2.7
+	L["LightningRush"] = "闪电冲击" -- Changed in 11.2.7
+	L["LightningRushTT"] = "显示技能“闪电冲击”的静电充能球体。" -- Changed in 11.2.7
 	L["DynamicFOV"] = "动态视野"
 	L["DynamicFOVTT"] = "能够根据飞行速度调整镜头视野。"
 	L["Normal"] = "普通" -- translated (https://legacy.curseforge.com/wow/addons/dragon-rider#c43)
@@ -2244,14 +2244,14 @@ if LOCALE == "zhCN" then
 	L["SpeedometerBar_Slow_ColorPickerTT"] = "选择慢速值的颜色。"
 	L["SpeedometerBar_Recharge_ColorPicker"] = "充能颜色"
 	L["SpeedometerBar_Recharge_ColorPickerTT"] = "选择充能速度增加时的颜色（“天雷之力”效果）。"
-	L["SpeedometerBar_Over_ColorPicker"] = "超速颜色"
+	L["SpeedometerBar_Over_ColorPicker"] = "极速颜色"
 	L["SpeedometerBar_Over_ColorPickerTT"] = "选择超过自然最大值的颜色（65%显示）。"
 	L["SpeedometerText_Slow_ColorPicker"] = "慢速文字颜色"
 	L["SpeedometerText_Slow_ColorPickerTT"] = "选择慢速文字的颜色。"
 	L["SpeedometerText_Recharge_ColorPicker"] = "充能文字颜色"
 	L["SpeedometerText_Recharge_ColorPickerTT"] = "选择充能文字的颜色。"
-	L["SpeedometerText_Over_ColorPicker"] = "超速文字颜色"
-	L["SpeedometerText_Over_ColorPickerTT"] = "选择超速文字的颜色。"
+	L["SpeedometerText_Over_ColorPicker"] = "极速文字颜色"
+	L["SpeedometerText_Over_ColorPickerTT"] = "选择极速文字的颜色。"
 	L["SpeedometerCover_ColorPicker"] = "速度表覆盖颜色"
 	L["SpeedometerCover_ColorPickerTT"] = "选择覆盖颜色。"
 	L["SpeedometerTick_ColorPicker"] = "刻度线颜色"
@@ -2268,9 +2268,9 @@ if LOCALE == "zhCN" then
 	-- New Vigor Bar Settings
 	L["VigorTheme"] = "活力主题"
 	L["VigorThemeTT"] = "设置活力面板主题。"
-	L["VigorPosXName"] = "活力面板X位置"
+	L["VigorPosXName"] = "活力面板X轴位置"
 	L["VigorPosXNameTT"] = "设置活力面板水平位置。"
-	L["VigorPosYName"] = "活力面板Y位置"
+	L["VigorPosYName"] = "活力面板Y轴位置"
 	L["VigorPosYNameTT"] = "设置活力面板垂直位置。"
 	L["VigorBarWidthName"] = "活力格宽度"
 	L["VigorBarWidthNameTT"] = "设置每个活力格的宽度。"
@@ -2302,9 +2302,9 @@ if LOCALE == "zhCN" then
 	L["ModelThemeNameTT"] = "更改活力模型主题。"
 	L["SideArtStyleName"] = "侧边装饰主题"
 	L["SideArtStyleNameTT"] = "更改侧边装饰风格。"
-	L["SideArtPosX"] = "侧边装饰X位置"
+	L["SideArtPosX"] = "侧边装饰X轴位置"
 	L["SideArtPosXTT"] = "设置侧边装饰水平位置。"
-	L["SideArtPosY"] = "侧边装饰Y位置"
+	L["SideArtPosY"] = "侧边装饰Y轴位置"
 	L["SideArtPosYTT"] = "设置侧边装饰垂直位置。"
 	L["SideArtRot"] = "侧边装饰旋转"
 	L["SideArtRotTT"] = "设置侧边装饰旋转角度。"
@@ -2620,3 +2620,4 @@ if LOCALE == "zhTW" then
 
 
 return end
+
