@@ -1,3 +1,10 @@
+01/24/2026 version 5.3.1
+- Targeting hostiles that would trigger a Midnight-specific "secret value" lua error are silently ignored and will not add to target history
+
+01/20/2026 version 5.3.0
+- toc update for Midnight
+- Let me know at https://www.wowinterface.com/downloads/info22190-Rematch.html if any issues
+
 08/08/2025 version 5.2.11
 - toc update for 11.2 patch
 
