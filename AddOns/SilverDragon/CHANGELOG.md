@@ -1,5 +1,21 @@
 # Changelog
 
+## Changed in v2026.6
+
+* Several midnight issues secret issues: detecting the current shard, and syncing with your group in combat
+* New version of LibSink-2.0 which fixes a problem with blizzard's scrolling combat text
+
+## Changed in v2026.5
+
+* Midnight: restore the disabled death-detection for popups
+* Minor data tweaks
+
+## Changed in v2026.4
+
+* Avoid a secret value issue when scanning chat
+* Midnight: add Predaxas world boss in Voidstorm
+* Add the Enclave Aspirant's Hatchet to the broken transmog items list
+
 ## Changed in v2026.3
 
 * Updated for Burning Crusade Anniversary (2.5.5)
