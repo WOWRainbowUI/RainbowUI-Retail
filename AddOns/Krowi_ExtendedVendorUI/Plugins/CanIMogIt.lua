@@ -1,10 +1,12 @@
 local _, addon = ...
 local canIMogIt = {}
-KrowiEVU.PluginsApi:RegisterPlugin('CanIMogIt', canIMogIt)
+local pluginName = 'CanIMogIt'
+local L_Prefix = 'Plugin_' .. pluginName .. '_'
+KrowiEVU.PluginsApi:RegisterPlugin(pluginName, canIMogIt)
 
 function canIMogIt:InjectOptions()
-    addon.InjectOptions:AddPluginTable('CanIMogIt', addon.L['Can I Mog It'], addon.L['Can I Mog It Desc']:K_ReplaceVars(addon.L['Can I Mog It']), function()
-        return C_AddOns.IsAddOnLoaded('CanIMogIt')
+    addon.InjectOptions:AddPluginTable(pluginName, addon.L[L_Prefix .. 'Name'], addon.L[L_Prefix .. 'Desc']:K_ReplaceVars(addon.L[L_Prefix .. 'Name']), function()
+        return C_AddOns.IsAddOnLoaded(pluginName)
     end)
 end
 

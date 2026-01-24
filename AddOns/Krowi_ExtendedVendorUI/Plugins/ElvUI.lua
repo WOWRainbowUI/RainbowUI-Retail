@@ -1,6 +1,8 @@
 local _, addon = ...
 local elv = {}
-KrowiEVU.PluginsApi:RegisterPlugin('ElvUI', elv)
+local pluginName = 'ElvUI'
+local L_Prefix = 'Plugin_' .. pluginName .. '_'
+KrowiEVU.PluginsApi:RegisterPlugin(pluginName, elv)
 
 local function IsLoaded()
     return ElvUI ~= nil
@@ -94,8 +96,8 @@ end
 local function AddInfo(localizationName, getFunction, hidden)
     return {
         order = KrowiEVU.UtilApi.InjectOptions.AutoOrderPlusPlus(), type = 'toggle', width = 'full',
-        name = addon.L['ElvUI ' .. localizationName],
-        desc = addon.L['ElvUI ' .. localizationName .. ' Desc'],
+        name = addon.L[L_Prefix .. localizationName],
+        desc = addon.L[L_Prefix .. localizationName .. '_Desc'],
         descStyle = 'inline',
         get = getFunction,
         disabled = true,
@@ -106,15 +108,15 @@ end
 function elv:InjectOptions()
     local pluginTable = KrowiEVU.UtilApi.InjectOptions:AddPluginTable(
         'ElvUI',
-        addon.L['ElvUI'],
-        addon.L['ElvUI Desc'],
+        addon.L[L_Prefix .. 'Name'],
+        addon.L[L_Prefix .. 'Desc'],
         function()
             return IsLoaded()
         end
     )
-    KrowiEVU.UtilApi.InjectOptions:AddTable(pluginTable, 'SkinMerchant', AddInfo('Skin Merchant', function() return doSkin.Merchant end))
-    KrowiEVU.UtilApi.InjectOptions:AddTable(pluginTable, 'SkinMiscFrames', AddInfo('Skin Misc Frames', function() return doSkin.MiscFrames end))
-    KrowiEVU.UtilApi.InjectOptions:AddTable(pluginTable, 'SkinTooltip', AddInfo('Skin Tooltip', function() return doSkin.Tooltip end))
+    KrowiEVU.UtilApi.InjectOptions:AddTable(pluginTable, 'SkinMerchant', AddInfo('SkinMerchant', function() return doSkin.Merchant end))
+    KrowiEVU.UtilApi.InjectOptions:AddTable(pluginTable, 'SkinMiscFrames', AddInfo('SkinMiscFrames', function() return doSkin.MiscFrames end))
+    KrowiEVU.UtilApi.InjectOptions:AddTable(pluginTable, 'SkinTooltip', AddInfo('SkinTooltip', function() return doSkin.Tooltip end))
 
 end
 

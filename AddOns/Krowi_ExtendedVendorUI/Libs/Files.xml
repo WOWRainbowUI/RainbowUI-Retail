@@ -1,11 +1,10 @@
 <Ui>
-    <Script file="LibDataBroker-1.1\LibDataBroker-1.1.lua" />
-    
-    <Include file="Krowi_Util\Krowi_Util-1.0.xml" />
-    <Include file="Krowi_PopupDialog\Krowi_PopupDialog-1.0.xml" />
-    <Include file="Krowi_Menu\Krowi_Menu-1.0.xml" />
-    <Include file="Krowi_Currency\Krowi_Currency-1.0.xml" />
+    <Include file='Krowi_Util\Krowi_Util.xml' />
 
-    <Script file="Krowi_Util\Options\InjectOptions.lua" />
-    <Script file="Libs.lua" />
+    <Include file='Krowi_PopupDialog\Krowi_PopupDialog.xml' />
+    <Include file='Krowi_Menu\Krowi_Menu.xml' />
+    <Include file='Krowi_Currency\Krowi_Currency.xml' />
+
+    <Script file='Krowi_Util\Options\InjectOptions.lua' />
+    <Script file='Libs.lua' />
 </Ui>

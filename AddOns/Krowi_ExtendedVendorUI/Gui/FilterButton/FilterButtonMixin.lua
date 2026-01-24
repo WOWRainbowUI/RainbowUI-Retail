@@ -48,7 +48,7 @@ function KrowiEVU_FilterButtonMixin:OnLoad()
 			OnRadioSelect = 'OnRadioSelect',
 			OnAllSelect = 'OnAllSelect',
 		}),
-		translations = addon.L
+		translations = addon.Util.L
 	}
 
 	-- Initialize MenuBuilder

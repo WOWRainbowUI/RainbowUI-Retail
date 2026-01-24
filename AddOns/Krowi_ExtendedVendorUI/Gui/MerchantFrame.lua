@@ -66,7 +66,7 @@ do
 end
 
 function merchantFrame.SetMerchantFrameSize()
-	if  MerchantFrame.selectedTab == 1 then
+	if MerchantFrame.selectedTab == 1 then
 		local numExtraColumns = addon.Options.db.profile.NumColumns - merchantItemsContainer.DefaultMerchantInfoNumColumns
 		local numExtraRows = addon.Options.db.profile.NumRows - merchantItemsContainer.DefaultMerchantInfoNumRows
 		local itemWidth = merchantItemsContainer.OffsetX + merchantItemsContainer.ItemWidth
@@ -77,7 +77,7 @@ function merchantFrame.SetMerchantFrameSize()
 			height = height - 36
 		end
 		MerchantFrame:SetSize(width, height)
-	else
+	elseif MerchantFrame.selectedTab == 2 then
 		MerchantFrame:SetSize(originalWidth, originalHeight)
 	end
 end
