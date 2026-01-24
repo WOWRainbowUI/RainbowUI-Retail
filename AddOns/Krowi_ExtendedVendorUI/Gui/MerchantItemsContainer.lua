@@ -110,7 +110,7 @@ function merchantItemsContainer:DrawItemSlot(index, row, column, offsetX, offset
 end
 
 function merchantItemsContainer:DrawItemSlots(numRows, numColumns, offsetX, offsetY)
-    if addon.Options.db.profile.Direction == addon.L['Columns first'] then
+    if addon.Options.db.profile.Direction == 'Columns' then
         for row = 1, numRows, 1 do
             for column = 1, numColumns, 1 do
                 local index = (column - 1) * numRows + row

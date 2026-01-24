@@ -7,9 +7,6 @@ local major = string.match(version, '(%d+)%.(%d+)%.(%d+)(%w?)')
 addon.IsWrathClassic = major == '3'
 addon.IsDragonflightRetail = major == '10'
 
--- [[ Ace ]] --
-addon.L = LibStub(addon.Libs.AceLocale):GetLocale(addonName)
-
 -- [[ Load addon ]] --
 local loadHelper = CreateFrame('Frame')
 loadHelper:RegisterEvent('ADDON_LOADED')

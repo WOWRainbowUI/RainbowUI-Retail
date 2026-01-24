@@ -12,9 +12,7 @@ local function UpdateView()
 end
 
 function KrowiEVU_OptionsButtonMixin:OnLoad()
-	local lib = LibStub('Krowi_MenuBuilder-1.0')
-
-	menuBuilder = lib:New({
+	menuBuilder = addon.MenuBuilder:New({
 		uniqueTag = 'KEVU_OPTIONS',
 		callbacks = {
 			OnRadioSelect = function(filters, keys, value)
@@ -52,9 +50,9 @@ local function ReplaceVarsWithMenu(str, vars)
         str = vars[1]
     end
     vars['arrow'] = '|T' .. media .. 'ui-backarrow:0|t'
-    vars['gameMenu'] = addon.L['Game Menu']
-    vars['interface'] = addon.L['Interface']
-    vars['addOns'] = addon.L['AddOns']
+    vars['gameMenu'] = addon.Util.L['Game Menu']
+    vars['interface'] = addon.Util.L['Interface']
+    vars['addOns'] = addon.Util.L['AddOns']
     vars['addonName'] = addon.Metadata.Title
     return addon.Util.Strings.ReplaceVars(str, vars)
 end
@@ -93,15 +91,13 @@ function KrowiEVU_OptionsButtonMixin:CreateMenu(menuObj)
 	end
 	menuBuilder:CreateDivider(rows)
 	menuBuilder:CreateButtonAndAdd(rows, addon.L['Set custom'], function()
-		local lib = LibStub('Krowi_PopupDialog-1.0')
+		local lib = LibStub('Krowi_PopupDialog_2')
 		lib.ShowNumericInput({
-			text = addon.L['Enter number of rows (1-99):'],
-			acceptText = addon.L['Accept'],
-			cancelText = addon.L['Cancel'],
-			min = 1,
-			max = 99,
-			default = profile.NumRows or 1,
-			callback = function(value)
+			Text = addon.L['Enter number of rows'],
+			Min = 1,
+			Max = 99,
+			Default = profile.NumRows or 1,
+			Callback = function(value)
 				profile.NumRows = value
 				UpdateView()
 			end
@@ -128,19 +124,11 @@ function KrowiEVU_OptionsButtonMixin:CreateMenu(menuObj)
 	end
 	menuBuilder:CreateDivider(columns)
 	menuBuilder:CreateButtonAndAdd(columns, addon.L['Set custom'], function()
-		local lib = LibStub('Krowi_PopupDialog-1.0')
-		lib.ShowNumericInput({
-			text = addon.L['Enter number of columns (2-99):'],
-			acceptText = addon.L['Accept'],
-			cancelText = addon.L['Cancel'],
-			min = 2,
-			max = 99,
-			default = profile.NumColumns or 2,
-			callback = function(value)
-				profile.NumColumns = value
-				UpdateView()
-			end
-		})
+		local lib = LibStub('Krowi_PopupDialog_2')
+		lib.ShowNumericInput(addon.L['Enter number of columns'], 2, 99, profile.NumColumns or 2, function(value)
+			profile.NumColumns = value
+			UpdateView()
+		end)
 	end)
 	menuBuilder:AddChildMenu(menuObj, columns)
 
@@ -174,15 +162,13 @@ function KrowiEVU_OptionsButtonMixin:CreateMenu(menuObj)
 
 		menuBuilder:CreateDivider(housingQuantity)
 		menuBuilder:CreateButtonAndAdd(housingQuantity, addon.L['Set custom'], function()
-			local lib = LibStub('Krowi_PopupDialog-1.0')
+			local lib = LibStub('Krowi_PopupDialog_2')
 			lib.ShowNumericInput({
-				text = addon.L['Enter housing quantity (1-999):'],
-				acceptText = addon.L['Accept'],
-				cancelText = addon.L['Cancel'],
-				min = 1,
-				max = 999,
-				default = addon.Filters.db.profile.HousingQuantity or 1,
-				callback = function(value)
+				Text = addon.L['Enter housing quantity'],
+				Min = 1,
+				Max = 999,
+				Default = addon.Filters.db.profile.HousingQuantity or 1,
+				Callback = function(value)
 					addon.Filters.db.profile.HousingQuantity = value
 					UpdateView()
 				end
@@ -198,13 +184,13 @@ function KrowiEVU_OptionsButtonMixin:CreateMenu(menuObj)
 	-- Hide button
 	if profile.ShowHideOption then
 		menuBuilder:CreateDivider(menuObj)
-		menuBuilder:CreateButtonAndAdd(menuObj, addon.L['Hide'], function()
+		menuBuilder:CreateButtonAndAdd(menuObj, addon.Util.L['Hide'], function()
 			if not StaticPopup_IsCustomGenericConfirmationShown('KrowiEVU_ConfirmHideOptionsButton') then
 				StaticPopup_ShowCustomGenericConfirmation(
 					{
 						text = addon.L['Are you sure you want to hide the options button?']:K_ReplaceVarsWithMenu{
-							general = addon.L['General'],
-							options = addon.L['Options']
+							general = addon.Util.L['General'],
+							options = addon.Util.L['Options']
 						},
 						callback = function()
 							HideOptionsButtonCallback(self)

@@ -9,7 +9,7 @@ local OrderPP = addon.InjectOptions.AutoOrderPlusPlus
 
 function credits.RegisterOptionsTable()
     LibStub('AceConfig-3.0'):RegisterOptionsTable(addon.Metadata.Prefix .. '_Credits', options.OptionsTable.args.Credits)
-    LibStub('AceConfigDialog-3.0'):AddToBlizOptions(addon.Metadata.Prefix .. '_Credits', addon.L['Credits'], addon.Metadata.Title)
+    LibStub('AceConfigDialog-3.0'):AddToBlizOptions(addon.Metadata.Prefix .. '_Credits', addon.Util.L['Credits'], addon.Metadata.Title)
 end
 
 function credits.PostLoad()
@@ -43,21 +43,21 @@ end
 
 options.OptionsTable.args['Credits'] = {
     type = 'group',
-    name = addon.L['Credits'],
+    name = addon.Util.L['Credits'],
     args = {
         SpecialThanks = {
             order = 1, type = 'group', inline = true,
-            name = addon.L['Special thanks'],
+            name = addon.Util.L['Special thanks'],
             args = { --[[ Automatically generated ]] }
         },
         Donations = {
             order = 2, type = 'group', inline = true,
-            name = addon.L['Donations'],
+            name = addon.Util.L['Donations'],
             args = { --[[ Automatically generated ]] }
         },
         Localizations = {
             order = 3, type = 'group', inline = true,
-            name = addon.L['Localizations'],
+            name = addon.Util.L['Localizations'],
             args = { --[[ Automatically generated ]] }
         }
     }

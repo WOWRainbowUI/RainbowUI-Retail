@@ -1,9 +1,10 @@
 local _, addon = ...
 local icon = addon.Icon
 
+local instructionsFormat = '%s: %s'
 function icon.SetMoreTooltipContent(tooltip)
-    tooltip:AddLine(addon.L['Left click'] .. ' ' .. addon.L['Icon Left click']:SetColorAddonBlue())
-    tooltip:AddLine(addon.L['Right click'] .. ' '  .. addon.L['Icon Right click']:SetColorAddonBlue())
+    tooltip:AddLine(string.format(instructionsFormat, addon.Util.L['Left-Click'], addon.L['Icon Left click']):SetColorTpInstr())
+    tooltip:AddLine(string.format(instructionsFormat, addon.Util.L['Right-Click'], addon.L['Icon Right click']):SetColorTpInstr())
 end
 
 function icon.OnLeftClick()

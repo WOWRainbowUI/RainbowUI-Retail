@@ -231,12 +231,11 @@ function tokenBanner:CreateOptionsMenu(menuObj, menuBuilder)
 
     local tokenBannerMenu = menuBuilder:CreateSubmenuButton(menuObj, addon.L['Token Banner'])
 
-	local lib = LibStub('Krowi_Currency-1.0')
-	lib:CreateMoneyOptionsMenu(tokenBannerMenu, menuBuilder, profile)
+	addon.CurrencyLib:CreateMoneyOptionsMenu(tokenBannerMenu, menuBuilder, profile)
 
 	menuBuilder:CreateDivider(tokenBannerMenu)
 
-	lib:CreateCurrencyOptionsMenu(tokenBannerMenu, menuBuilder, profile)
+	addon.CurrencyLib:CreateCurrencyOptionsMenu(tokenBannerMenu, menuBuilder, profile)
 
     menuBuilder:AddChildMenu(menuObj, tokenBannerMenu)
 end

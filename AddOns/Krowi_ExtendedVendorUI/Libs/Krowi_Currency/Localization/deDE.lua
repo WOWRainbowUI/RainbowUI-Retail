@@ -1,35 +1,26 @@
 --[[
     Copyright (c) 2026 Krowi
-
-    All Rights Reserved unless otherwise explicitly stated.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+    Licensed under the terms of the LICENSE file in this repository.
 ]]
 
 ---@diagnostic disable: undefined-global
 
-local lib = LibStub("Krowi_Currency-1.0", true)
+local lib = KROWI_LIBMAN:GetCurrentLibrary(true)
 if not lib then	return end
 
-local L = lib.Localization.GetLocale('deDE')
+local L = lib.Localization.NewLocale('deDE')
 if not L then return end
-lib.L = L
 
--- [[ https://legacy.curseforge.com/wow/addons/krowi-currency/localization ]] --
 -- [[ Everything after this line is automatically generated from CurseForge and is not meant for manual edit - SOURCETOKEN - AUTOGENTOKEN ]] --
 
--- [[ Exported at 2026-01-02 11-03-56 ]] --
+-- [[ Exported at 2026-01-14 16-25-18 ]] --
 L["1k"] = "1T"
 L["1m"] = "1M"
 L["Comma"] = "Komma"
+L["Copper Label"] = "k"
 L["Currency Abbreviate"] = "Währung Abkürzen"
 L["Currency Options"] = "Währungsoptionen"
+L["Gold Label"] = "g"
 L["Icon"] = "Symbol"
 L["Millions Suffix"] = "M"
 L["Money Abbreviate"] = "Geld Abkürzen"
@@ -39,6 +30,7 @@ L["Money Label"] = "Geldbeschriftung"
 L["Money Options"] = "Geldoptionen"
 L["None"] = "Keine"
 L["Period"] = "Punkt"
+L["Silver Label"] = "s"
 L["Space"] = "Leerzeichen"
 L["Text"] = true
 L["Thousands Separator"] = "Tausendertrennzeichen"

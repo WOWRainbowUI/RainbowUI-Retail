@@ -1,7 +1,7 @@
 local _, addon = ...
 
 local TEXTURE_SIZE = 14
-local currency = LibStub('Krowi_Currency-1.0')
+local currency = KROWI_LIBMAN:GetLibrary('Krowi_Currency_2')
 
 KrowiEVU_TokenMixin = {}
 
@@ -14,9 +14,6 @@ local function GetOptionsForLib()
 		MoneyGoldOnly = options.MoneyGoldOnly,
 		MoneyColored = options.MoneyColored,
 		CurrencyAbbreviate = options.CurrencyAbbreviate,
-		GoldLabel = addon.L['Gold Label'],
-		SilverLabel = addon.L['Silver Label'],
-		CopperLabel = addon.L['Copper Label'],
 		TextureSize = TEXTURE_SIZE
 	}
 end
