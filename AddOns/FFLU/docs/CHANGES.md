@@ -1,0 +1,1 @@
+- Re-added Vanilla toc
