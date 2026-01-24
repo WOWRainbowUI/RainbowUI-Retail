@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus Locale for The War Within
+-- 	Leatrix Plus Locale for Midnight
 ----------------------------------------------------------------------
 
 -- Create locale structure
