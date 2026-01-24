@@ -71,3 +71,6 @@ L["TYPE_WORLD_QUEST"] = "世界任務"
 L["VFX"] = "視覺效果"
 L["YOU_LOST"] = "你失去"
 L["YOU_RECEIVED"] = "你收到"
+
+-- 自行加入
+L["LS_TOASTS"] = "通知面板增強"

@@ -111,19 +111,20 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 		end
 	end
 
-	addon:CreateBlizzConfig()
+	-- addon:CreateBlizzConfig() -- 移除內建選項
 	addon:CreateAceConfig()
 
 	AddonCompartmentFrame:RegisterAddon({
-		text = L["LS_TOASTS"],
+		text = C_AddOns.GetAddOnMetadata("ls_Toasts", "Title"),
 		icon = "Interface\\AddOns\\ls_Toasts\\assets\\logo-32",
 		func = function()
-			if IsShiftKeyDown() then
+			-- if IsShiftKeyDown() then
 				addon:OpenAceConfig()
-			else
-				addon:OpenBlizzConfig()
-			end
+			-- else
+			--	addon:OpenBlizzConfig()
+			--end
 		end,
+		--[[
 		funcOnEnter = function(button)
 			GameTooltip:SetOwner(button, "ANCHOR_BOTTOMRIGHT")
 			GameTooltip:AddLine(L["AC_TOOLTIP"], 1, 1, 1)
@@ -132,6 +133,7 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 		funcOnLeave = function()
 			GameTooltip:Hide()
 		end,
+		--]]
 	})
 
 	E:RegisterEvent("PLAYER_LOGIN", function()
