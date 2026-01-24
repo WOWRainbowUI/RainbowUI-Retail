@@ -6,6 +6,7 @@ local LibDualSpec = LibStub("LibDualSpec-1.0", true)
 local ACD = LibStub("AceConfigDialog-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(OptionsAppName)
 local Settings = Settings
+local categoryID
 
 local MinFontSize = 5
 local MaxFontSize = 30
@@ -46,7 +47,7 @@ function RangeDisplay:openConfigDialog(ud)
   ud = ud or lastConfiguredUd
   if Settings then
     -- TODO: find out how to open to a sub-category...
-    Settings.OpenToCategory(L["RangeDisplay"])
+    Settings.OpenToCategory(categoryID)
     return
   end
   if ud then
@@ -532,7 +533,7 @@ do
 
   addConfigFunctions(self.units)
   ACR:RegisterOptionsTable(self.AppName, mainOptions)
-  self.opts = ACD:AddToBlizOptions(self.AppName, L["RangeDisplay"])
+  self.opts, categoryID = ACD:AddToBlizOptions(self.AppName, L["RangeDisplay"]) -- 自行修改
   for i, ud in ipairs(self.units) do
     local unitOpts = makeUnitOptions(ud)
     ud.opts = registerSubOptions(ud.unit, unitOpts)
