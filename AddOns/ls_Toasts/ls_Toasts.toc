@@ -1,6 +1,6 @@
-## Interface: 110205, 110207
+## Interface: 120000
 ## Author: lightspark
-## Version: 110207.02
+## Version: 120000.03
 ## Title: LS: |cff1cd3a2Toasts|r
 ## Notes: Better toasts, cheers!
 ## IconTexture: Interface\AddOns\ls_Toasts\assets\logo-64
@@ -12,8 +12,9 @@
 ## Category-zhTW: 介面
 
 embeds\AceGUI-3.0-LSWidgets\_widgets.xml
-locales\_locales.xml
 core\_core.xml
+locales\_locales.xml
 skins\_skins.xml
 systems\_systems.xml
+
 init.lua
