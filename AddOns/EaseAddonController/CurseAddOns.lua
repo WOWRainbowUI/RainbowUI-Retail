@@ -4,7 +4,7 @@ select(2, ...).CurseAddOns = {
   {"!betterfont",17},
   {"!betterreputationcolors",17},
   {"!blizzbugssuck",17},
-  {"!buggrabber",31},
+  {"aabuggrabber",31},
   {"!chats",1},
   {"!classcolors",17},
   {"!cputhieves",31},
