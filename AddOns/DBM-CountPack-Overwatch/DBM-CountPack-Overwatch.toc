@@ -1,4 +1,4 @@
-## Interface: 110205, 110207
+## Interface: 110207, 120000, 120001
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM Media|r|cffffe00a>|r |cff308530Countpack Overwatch|r
@@ -6,7 +6,7 @@
 ## DefaultState: enabled
 ## RequiredDeps: DBM-Core
 ## Author: MysticalOS, Domekologe
-## Version: 1.4.48
+## Version: 1.4.49
 ## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## X-DBM-CountPack: 1
 ## X-DBM-CountPack-GlobalName: DBMCPOverwatch
