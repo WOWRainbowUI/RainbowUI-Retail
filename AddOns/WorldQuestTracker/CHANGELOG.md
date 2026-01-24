@@ -1,6 +1,6 @@
 # World Quest Tracker
 
-## [v11.2.7.541](https://github.com/Tercioo/World-Quest-Tracker/tree/v11.2.7.541) (2025-12-10)
-[Full Changelog](https://github.com/Tercioo/World-Quest-Tracker/compare/v11.2.0.540...v11.2.7.541) 
+## [v12.0.0.545](https://github.com/Tercioo/World-Quest-Tracker/tree/v12.0.0.545) (2026-01-21)
+[Full Changelog](https://github.com/Tercioo/World-Quest-Tracker/compare/v12.0.0.544...v12.0.0.545) 
 
-- ToC Update  
+- Fix another bug  
