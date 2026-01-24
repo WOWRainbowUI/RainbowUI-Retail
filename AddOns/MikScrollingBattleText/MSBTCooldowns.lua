@@ -66,7 +66,7 @@ local function DebugPrint(...)
     if DEBUG_MODE then print("|cff00ffff[MSBT]|r", ...) end
 end
 
-print("|cff00ffff[MSBT]|r Cooldowns 12.0.1: Learning Cache Active")
+-- print("|cff00ffff[MSBT]|r Cooldowns 12.0.1: Learning Cache Active")
 
 local function IsSecret(value)
     if issecretvalue then return issecretvalue(value) end
