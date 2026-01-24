@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.0.11] - 2026-01-17
+
+- Add support for Burning Crusade Anniversary
+
+## [2.0.10] - 2025-12-30
+
+- Version updates
+
+## [2.0.9] - 2025-11-05
+
+### Fixed
+
+- Junk icons not appearing with Bagnon ([#250](https://github.com/moody/Dejunk/issues/250))
+
 ## [2.0.8] - 2025-08-06
 
 ### Fixed
