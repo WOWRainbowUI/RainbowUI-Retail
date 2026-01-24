@@ -1,5 +1,5 @@
 
-local dversion = 642
+local dversion = 657
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -69,6 +69,7 @@ DF.GamePatch = g --string "10.2.7"
 DF.BuildId = b --string "55000"
 DF.Toc = t --number 100000
 DF.Exp = floor(DF.Toc/10000)
+DF.typeF = "function"
 
 local buildInfo = DF.Toc
 
@@ -261,7 +262,7 @@ end
 ---@return boolean
 function DF.IsNonRetailWowWithRetailAPI()
     local _, _, _, buildInfo = GetBuildInfo()
-    if (buildInfo < 60000 and buildInfo >= 30401) or (buildInfo < 20000 and buildInfo >= 11404) then
+    if (buildInfo < 60000 and buildInfo >= 20000) or (buildInfo < 20000 and buildInfo >= 11404) then
         return true
     end
 	return false
@@ -273,7 +274,7 @@ function DF.ExpansionHasAugEvoker()
 end
 
 
-local GetSpecializationRole = not DF.IsClassicWow() and GetSpecializationRole or C_SpecializationInfo.GetSpecializationRole
+local GetSpecializationRole = not DF.IsClassicWow() and not DF.IsTBCWow() and GetSpecializationRole or C_SpecializationInfo.GetSpecializationRole
 
 ---for classic wow, get the role using the texture from the talents frame
 local roleBySpecTextureName = {
@@ -695,6 +696,7 @@ end
 ------------------------------------------------------------------------------------------------------------
 --table
 
+---@diagnostic disable-next-line: missing-fields
 DF.table = {}
 
 ---find a value inside a table and return the index
@@ -1701,7 +1703,7 @@ function DF:CreateTextureInfo(texture, textureWidth, textureHeight, left, right,
 	return textureInfo
 end
 
----add a texture to the start or end of a string
+---add a texture to the start or end of a string using scape sequence
 ---@param text string
 ---@param textureInfo table
 ---@param bAddSpace any
@@ -1729,6 +1731,7 @@ function DF:AddTextureToText(text, textureInfo, bAddSpace, bAddAfterText)
 end
 
 ---return the size of a fontstring
+---usage: local fontsize = DF:GetFontSize(myFontString)
 ---@param fontString table
 ---@return number
 function DF:GetFontSize(fontString)
@@ -1737,6 +1740,7 @@ function DF:GetFontSize(fontString)
 end
 
 ---return the font of a fontstring
+---usage: local fontface = DF:GetFontFace(myFontString), fontface can also be called fontFile.
 ---@param fontString table
 ---@return string
 function DF:GetFontFace(fontString)
@@ -1753,6 +1757,8 @@ local ValidOutlines = {
 	["THICKOUTLINEMONOCHROME"] = true,
 }
 
+--outline flags are used with the function SetFont on fontstrings, signiture: fontString:SetFont(fontFile, size, outlineFlags) -> outlineFlags are usually just called 'flags', 'size' can also be found named as 'height'.
+--in the first index of the sub table there is the value to be used on SetFont, in the second index there is a user friendly name
 DF.FontOutlineFlags = {
 	{"", "None"},
 	{"MONOCHROME", "Monochrome"},
@@ -1763,6 +1769,7 @@ DF.FontOutlineFlags = {
 }
 
 ---set the outline of a fontstring, outline is a black border around the text, can be "NONE", "MONOCHROME", "OUTLINE" or "THICKOUTLINE"
+---usage: DF:SetFontOutline(fontString, "OUTLINE")
 ---@param fontString table
 ---@param outline outline
 function DF:SetFontOutline(fontString, outline)
@@ -1795,6 +1802,7 @@ function DF:SetFontOutline(fontString, outline)
 end
 
 ---remove spaces from the start and end of the string
+---usage: DF:Trim("   Hello World   ") --> "Hello World"
 ---@param string string
 ---@return string
 function DF:Trim(string)
@@ -1806,6 +1814,7 @@ function DF:trim(string)
 end
 
 ---truncate removing at a maximum of 10 character from the string
+---usage: local fontString:SetText("Hello WorldState Timer Start At") -> DF:TruncateTextSafe(fontString, 100) -> "Hello WorldState Time" -> the result is still above the maxWidth after removing 10 characters, the loop stops
 ---@param fontString table
 ---@param maxWidth number
 function DF:TruncateTextSafe(fontString, maxWidth)
@@ -1830,6 +1839,7 @@ function DF:TruncateTextSafe(fontString, maxWidth)
 end
 
 ---truncate removing characters from the string until the maxWidth is reach
+---usage: local fontString:SetText("Hello WorldState Timer Start At") -> DF:TruncateText(fontString, 100) -> "Hello WorldStat" -> the result is exactly the maxWidth or below
 ---@param fontString table
 ---@param maxWidth number
 function DF:TruncateText(fontString, maxWidth)
@@ -1931,6 +1941,7 @@ function DF:CleanTruncateUTF8String(text)
 end
 
 ---truncate the amount of numbers used to show the fraction part of a number
+---usage: DF:TruncateNumber(3.14159265, 2) -> 3.14
 ---@param number number
 ---@param fractionDigits number
 ---@return number
@@ -1950,6 +1961,10 @@ function DF:TruncateNumber(number, fractionDigits)
 	return truncatedNumber
 end
 
+---return the x and y position of the mouse (cursor) position scaled by the UIParent scale
+---@param self table
+---@return number xScaled
+---@return number yScaled
 function DF:GetCursorPosition()
 	local x, y = GetCursorPosition()
 	local scale = UIParent:GetEffectiveScale()
@@ -2101,123 +2116,123 @@ function DF:GetAllTalents()
 	return allTalents
 end
 
----return a table where keys are spellIds (number) and the value is true
----@return table<number, boolean>
-function DF:GetAvailableSpells()
-    local completeListOfSpells = {}
+	---return a table where keys are spellIds (number) and the value is true
+	---@return table<number, boolean>
+	function DF:GetAvailableSpells()
+		local completeListOfSpells = {}
 
-    --this line might not be compatible with classic
-    local specId, specName, _, specIconTexture = GetSpecializationInfo(GetSpecialization())
-    --local classNameLoc, className, classId = UnitClass("player") --not in use
-    local locPlayerRace, playerRace, playerRaceId = UnitRace("player")
+		--this line might not be compatible with classic
+		local specId, specName, _, specIconTexture = GetSpecializationInfo(GetSpecialization())
+		--local classNameLoc, className, classId = UnitClass("player") --not in use
+		local locPlayerRace, playerRace, playerRaceId = UnitRace("player")
 
-    --get racials from the general tab
-	local generalTabIndex = 1
-    local tabName, tabTexture, offset, numSpells, isGuild, offspecId = GetSpellTabInfo(generalTabIndex)
-    offset = offset + 1
-    local tabEnd = offset + numSpells
-    for entryOffset = offset, tabEnd - 1 do
-        local spellType, spellId = GetSpellBookItemInfo(entryOffset, SPELLBOOK_BANK_PLAYER)
-        local spellData = LIB_OPEN_RAID_COOLDOWNS_INFO[spellId]
-        if (spellData) then
-            local raceId = spellData.raceid
-            if (raceId) then
-                if (type(raceId) == "table") then
-                    if (raceId[playerRaceId]) then
-                        spellId = GetOverrideSpell(spellId)
-                        local spellName = GetSpellInfo(spellId)
-                        local bIsPassive = IsPassiveSpell(spellId, SPELLBOOK_BANK_PLAYER)
-                        if (spellName and not bIsPassive) then
-                            completeListOfSpells[spellId] = true
-                        end
-                    end
+		--get racials from the general tab
+		local generalTabIndex = 1
+		local tabName, tabTexture, offset, numSpells, isGuild, offspecId = GetSpellTabInfo(generalTabIndex)
+		offset = offset + 1
+		local tabEnd = offset + numSpells
+		for entryOffset = offset, tabEnd - 1 do
+			local spellType, spellId = GetSpellBookItemInfo(entryOffset, SPELLBOOK_BANK_PLAYER)
+			local spellData = LIB_OPEN_RAID_COOLDOWNS_INFO[spellId]
+			if (spellData) then
+				local raceId = spellData.raceid
+				if (raceId) then
+					if (type(raceId) == "table") then
+						if (raceId[playerRaceId]) then
+							spellId = GetOverrideSpell(spellId)
+							local spellName = GetSpellInfo(spellId)
+							local bIsPassive = IsPassiveSpell(spellId, SPELLBOOK_BANK_PLAYER)
+							if (spellName and not bIsPassive) then
+								completeListOfSpells[spellId] = true
+							end
+						end
 
-                elseif (type(raceId) == "number") then
-                    if (raceId == playerRaceId) then
-                        spellId = GetOverrideSpell(spellId)
-                        local spellName = GetSpellInfo(spellId)
-                        local bIsPassive = IsPassiveSpell(spellId, SPELLBOOK_BANK_PLAYER)
-                        if (spellName and not bIsPassive) then
-                            completeListOfSpells[spellId] = true
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-	local spellBookPlayerEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player or "player"
-
-	--get spells from the Spec spellbook
-	for i = 1, GetNumSpellTabs() do --called "lines" in new v11 api
-        local tabName, tabTexture, offset, numSpells, isGuild, offSpecId, shouldHide, specID = GetSpellTabInfo(i)
-		if (tabTexture == specIconTexture) then
-			offset = offset + 1
-			local tabEnd = offset + numSpells
-			--local bIsOffSpec = offSpecId ~= 0
-			for entryOffset = offset, tabEnd - 1 do
-				local spellType, spellId = GetSpellBookItemInfo(entryOffset, spellBookPlayerEnum)
-				if (spellId) then
-					if (spellType == "SPELL" or spellType == 1) then
-						spellId = GetOverrideSpell(spellId)
-						local spellName = GetSpellInfo(spellId)
-						local bIsPassive = IsPassiveSpell(entryOffset, spellBookPlayerEnum)
-						if (spellName and not bIsPassive) then
-							completeListOfSpells[spellId] = true --bIsOffSpec == false
+					elseif (type(raceId) == "number") then
+						if (raceId == playerRaceId) then
+							spellId = GetOverrideSpell(spellId)
+							local spellName = GetSpellInfo(spellId)
+							local bIsPassive = IsPassiveSpell(spellId, SPELLBOOK_BANK_PLAYER)
+							if (spellName and not bIsPassive) then
+								completeListOfSpells[spellId] = true
+							end
 						end
 					end
 				end
 			end
 		end
-    end
 
-	local CONST_SPELLBOOK_CLASSSPELLS_TABID = 2
-	local CONST_SPELLBOOK_GENERAL_TABID = 1
+		local spellBookPlayerEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player or "player"
 
-    --get class shared spells from the spell book
-	--[=
-    local tabName, tabTexture, offset, numSpells, isGuild, offSpecId = GetSpellTabInfo(CONST_SPELLBOOK_CLASSSPELLS_TABID)
-    offset = offset + 1
-    local tabEnd = offset + numSpells
-	--local bIsOffSpec = offSpecId ~= 0
-    for entryOffset = offset, tabEnd - 1 do
-        local spellType, spellId = GetSpellBookItemInfo(entryOffset, spellBookPlayerEnum)
-        if (spellId) then
-            if (spellType == "SPELL" or spellType == 1) then
-                spellId = GetOverrideSpell(spellId)
-                local spellName = GetSpellInfo(spellId)
-                local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
+		--get spells from the Spec spellbook
+		for i = 1, GetNumSpellTabs() do --called "lines" in new v11 api
+			local tabName, tabTexture, offset, numSpells, isGuild, offSpecId, shouldHide, specID = GetSpellTabInfo(i)
+			if (tabTexture == specIconTexture) then
+				offset = offset + 1
+				local tabEnd = offset + numSpells
+				--local bIsOffSpec = offSpecId ~= 0
+				for entryOffset = offset, tabEnd - 1 do
+					local spellType, spellId = GetSpellBookItemInfo(entryOffset, spellBookPlayerEnum)
+					if (spellId) then
+						if (spellType == "SPELL" or spellType == 1) then
+							spellId = GetOverrideSpell(spellId)
+							local spellName = GetSpellInfo(spellId)
+							local bIsPassive = IsPassiveSpell(entryOffset, spellBookPlayerEnum)
+							if (spellName and not bIsPassive) then
+								completeListOfSpells[spellId] = true --bIsOffSpec == false
+							end
+						end
+					end
+				end
+			end
+		end
 
-				if (spellName and not bIsPassive) then
-                    completeListOfSpells[spellId] = true --bIsOffSpec == false
-                end
-            end
-        end
-    end
-	--]=]
+		local CONST_SPELLBOOK_CLASSSPELLS_TABID = 2
+		local CONST_SPELLBOOK_GENERAL_TABID = 1
 
-    local getNumPetSpells = function()
-        --'HasPetSpells' contradicts the name and return the amount of pet spells available instead of a boolean
-        return HasPetSpells()
-    end
+		--get class shared spells from the spell book
+		--[=
+		local tabName, tabTexture, offset, numSpells, isGuild, offSpecId = GetSpellTabInfo(CONST_SPELLBOOK_CLASSSPELLS_TABID)
+		offset = offset + 1
+		local tabEnd = offset + numSpells
+		--local bIsOffSpec = offSpecId ~= 0
+		for entryOffset = offset, tabEnd - 1 do
+			local spellType, spellId = GetSpellBookItemInfo(entryOffset, spellBookPlayerEnum)
+			if (spellId) then
+				if (spellType == "SPELL" or spellType == 1) then
+					spellId = GetOverrideSpell(spellId)
+					local spellName = GetSpellInfo(spellId)
+					local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
 
-    --get pet spells from the pet spellbook
-    local numPetSpells = getNumPetSpells()
-    if (numPetSpells) then
-        for i = 1, numPetSpells do
-            local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, spellBookPetEnum)
-            if (unmaskedSpellId) then
-                unmaskedSpellId = GetOverrideSpell(unmaskedSpellId)
-                local bIsPassive = IsPassiveSpell(i, spellBookPetEnum)
-                if (spellName and not bIsPassive) then
-                    completeListOfSpells[unmaskedSpellId] = true
-                end
-            end
-        end
-    end
+					if (spellName and not bIsPassive) then
+						completeListOfSpells[spellId] = true --bIsOffSpec == false
+					end
+				end
+			end
+		end
+		--]=]
 
-    return completeListOfSpells
-end
+		local getNumPetSpells = function()
+			--'HasPetSpells' contradicts the name and return the amount of pet spells available instead of a boolean
+			return HasPetSpells()
+		end
+
+		--get pet spells from the pet spellbook
+		local numPetSpells = getNumPetSpells()
+		if (numPetSpells) then
+			for i = 1, numPetSpells do
+				local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, spellBookPetEnum)
+				if (unmaskedSpellId) then
+					unmaskedSpellId = GetOverrideSpell(unmaskedSpellId)
+					local bIsPassive = IsPassiveSpell(i, spellBookPetEnum)
+					if (spellName and not bIsPassive) then
+						completeListOfSpells[unmaskedSpellId] = true
+					end
+				end
+			end
+		end
+
+		return completeListOfSpells
+	end
 
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -2368,7 +2383,7 @@ end
 ---@field x number
 ---@field y number
 
-
+---@type string[]
 DF.AnchorPoints = {
 	"Top Left",
 	"Left",
@@ -2389,6 +2404,7 @@ DF.AnchorPoints = {
 	"Inside Top Right", --17
 }
 
+---@type string[]
 DF.AnchorPointsByIndex = {
 	"topleft", --1
 	"left", --2
@@ -2401,6 +2417,7 @@ DF.AnchorPointsByIndex = {
 	"center", --9
 }
 
+---@type table<number, number>
 DF.AnchorPointsToInside = {
 	[9] = 9,
 	[8] = 12,
@@ -2413,6 +2430,7 @@ DF.AnchorPointsToInside = {
 	[1] = 14,
 }
 
+---@type table<number, number>
 DF.InsidePointsToAnchor = {
 	[9] = 9,
 	[12] = 8,
@@ -3641,6 +3659,38 @@ end
 function DF:Mixin(object, ...)
 	return Mixin(object, ...)
 end
+function DF:MixinX(object, ...)
+	for i = 1, select("#", ...) do
+		local kv = select(i, ...)
+		for k, v in pairs(kv) do
+			if (_G[k] and type(k) == "string") then
+				if (type(_G[k]) == DF.typeF) then
+					if (type(v) ~= "userdata") then
+						object[k] = _G[k]() or v
+						if (type(object[k]) == "string") then
+							--check if this is a hex color
+							if (object[k]:match("^0x")) then
+								local r, g, b, a = DF:ParseColors(object[k])
+								if (r) then
+									--r, g, b, a
+									object[k] = {r, g, b, a}
+								end
+							end
+						end
+						object[k:sub(1, 1)] = object[k]
+						if (type(v) == "table") then
+							DF:MixinX(v, {})
+						end
+					end
+				else
+					object[k] = v
+				end
+			else
+				object[k] = v
+			end
+		end
+	end
+end
 
 -----------------------------
 --animations
@@ -4195,7 +4245,7 @@ function DF:CreateGlowOverlay(parent, antsColor, glowColor)
 	end
 
 	local glowFrame
-	if (buildInfo >= 110107) then --24-05-2025: in the 11.1.7 patch, the template used here does not exist anymore, replacement used
+	if (buildInfo >= 110107 or DF.IsTBCWow()) then --24-05-2025: in the 11.1.7 patch, the template used here does not exist anymore, replacement used
 		glowFrame = CreateFrame("frame", frameName, parent, "ActionButtonSpellAlertTemplate")
 	else
 		glowFrame = CreateFrame("frame", frameName, parent, "ActionBarButtonSpellActivationAlert")
