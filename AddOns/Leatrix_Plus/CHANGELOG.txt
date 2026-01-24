@@ -1,4 +1,17 @@
-﻿11.2.27 - 7th January 2026
+﻿12.0.01 - 23rd January 2026
+- For 'Invite from whispers' ('Social') fixed an issue which caused a Lua error when receiving secret messages.
+- For 'Recent chat window' ('Chat'), fixed an issue which caused a Lua error when showing chats containing secret messages.
+- For 'Restore chat messages' ('Chat'), fixed an issue which caused a Lua error when saving and restoring chats containing secret messages.
+- For 'Enhance dressup' ('Interface'), fixed a minor issue which caused the mount journal positioning controls to show.
+
+12.0.00 - 21st January 2026
+- Welcome to Midnight!
+- For 'Media', added main title music for Midnight ('Various' > 'Main Titles').
+
+11.2.29.alpha.1 - 17th January 2026
+- For 'Remove transforms' ('System'), added 'Noggenfogger Elixir'.  If enabled, the slow fall and shrink effects of Noggenfogger Elixir will be removed when applied while keeping the skeleton transform intact.
+
+11.2.27 - 7th January 2026
 - Midnight Beta: Updated settings tooltips and help buttons.
 - For 'Release in PvP' ('Automation'), fixed an issue which prevented automatic release in the world zones of Wintergrasp, Tol Barad (PvP) and Ashran.
 

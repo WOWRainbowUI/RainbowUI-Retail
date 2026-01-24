@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.2.28 (14th January 2026)
+-- 	Leatrix Plus 12.0.01 (23rd January 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.2.28"
+	LeaPlusLC["AddonVer"] = "12.0.01"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -27,10 +27,10 @@
 	-- Check Wow version is valid
 	do
 		local gameversion, gamebuild, gamedate, gametocversion = GetBuildInfo()
-		if gametocversion and gametocversion < 110000 then
-			-- Game client is Wow Classic
+		if gametocversion and gametocversion < 120000 then
+			-- Game client is not Midnight
 			C_Timer.After(2, function()
-				print(L["LEATRIX PLUS: THIS IS FOR THE WAR WITHIN ONLY!"])
+				print(L["LEATRIX PLUS: WRONG VERSION INSTALLED!"])
 			end)
 			return
 		end
@@ -190,13 +190,8 @@
 						eFrame:Hide()
 						LeaPlusLC:DisplayMessage(L["Copied to clipboard."], true)
 						if LeaPlusLC.FactoryEditBoxFocusChat then
-							if LeaPlusLC.NewPatch then
-								local eBox = ChatFrameUtil.ChooseBoxForSend()
-								ChatFrameUtil.ActivateChat(eBox)
-							else
-								local eBox = ChatEdit_ChooseBoxForSend()
-								ChatEdit_ActivateChat(eBox)
-							end
+							local eBox = ChatFrameUtil.ChooseBoxForSend()
+							ChatFrameUtil.ActivateChat(eBox)
 						end
 					end)
 				end
@@ -647,7 +642,6 @@
 		or	(LeaPlusLC["TipModEnable"]			~= LeaPlusDB["TipModEnable"])			-- Enhance tooltip
 		or	(LeaPlusLC["TipNoHealthBar"]		~= LeaPlusDB["TipNoHealthBar"])			-- Tooltip hide health bar
 		or	(LeaPlusLC["EnhanceDressup"]		~= LeaPlusDB["EnhanceDressup"])			-- Enhance dressup
-		or	(LeaPlusLC["DressupWiderPreview"]	~= LeaPlusDB["DressupWiderPreview"])	-- Enhance dressup wider character preview
 		or	(LeaPlusLC["DressupMoreZoomOut"]	~= LeaPlusDB["DressupMoreZoomOut"])		-- Enhance dressup increase zoom out distance
 		or	(LeaPlusLC["ShowVolume"]			~= LeaPlusDB["ShowVolume"])				-- Show volume slider
 		or	(LeaPlusLC["ShowCooldowns"]			~= LeaPlusDB["ShowCooldowns"])			-- Show cooldowns
@@ -967,6 +961,7 @@
 
 			local frame = CreateFrame("FRAME")
 			frame:SetScript("OnEvent", function(self, event, arg1, arg2, ...)
+				if not canaccessvalue(arg1) or not canaccessvalue(arg2) then return end
 				if (not UnitExists("party1") or UnitIsGroupLeader("player") or UnitIsGroupAssistant("player")) and strlower(strtrim(arg1)) == strlower(LeaPlusLC["InvKey"]) then
 					if not LeaPlusLC:IsInLFGQueue() then
 						if event == "CHAT_MSG_WHISPER" then
@@ -1874,9 +1869,8 @@
 			LeaPlusLC:MakeCB(DressupPanel, "DressupAnimControl", "Show animation slider", 16, -112, false, "If checked, an animation slider will be shown in the dressing room.")
 
 			LeaPlusLC:MakeTx(DressupPanel, "Transmogrify character preview", 16, -152)
-			LeaPlusLC:MakeCB(DressupPanel, "DressupWiderPreview", "Wider character preview", 16, -172, true, "If checked, the transmogrify character preview will be wider.")
-			LeaPlusLC:MakeCB(DressupPanel, "DressupMoreZoomOut", "Increase zoom out distance", 16, -192, true, "If checked, you will be able to zoom out further with the transmogrify character preview.")
-			LeaPlusLC:MakeCB(DressupPanel, "DressupTransmogAnim", "Show animation slider", 16, -212, false, "If checked, an animation slider will be shown in the transmogrify character preview.")
+			LeaPlusLC:MakeCB(DressupPanel, "DressupMoreZoomOut", "Increase zoom out distance", 16, -172, true, "If checked, you will be able to zoom out further with the transmogrify character preview.")
+			LeaPlusLC:MakeCB(DressupPanel, "DressupTransmogAnim", "Show animation slider", 16, -192, false, "If checked, an animation slider will be shown in the transmogrify character preview.")
 
 			LeaPlusLC:MakeTx(DressupPanel, "Zoom speed", 356, -72)
 			LeaPlusLC:MakeSL(DressupPanel, "DressupFasterZoom", "Drag to set the character model zoom speed.", 1, 10, 1, 356, -92, "%.0f")
@@ -1970,28 +1964,17 @@
 						end
 					end)
 
-					if LeaPlusLC.NewPatch then
-						-- Temporary fix for SetHyperlink
-						slotBtn:SetScript("OnEnter", function(self)
-							GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-							if self.item and self.slot then
+					slotBtn:SetScript("OnEnter", function(self)
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+						if self.item then
+							GameTooltip:SetHyperlink(self.item)
+						else
+							if self.slot then
 								GameTooltip:SetText(_G[string.upper(self.slot)])
 							end
-						end)
-						slotBtn:SetScript("OnLeave", GameTooltip_Hide)
-					else
-						slotBtn:SetScript("OnEnter", function(self)
-							GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-							if self.item then
-								GameTooltip:SetHyperlink(self.item)
-							else
-								if self.slot then
-									GameTooltip:SetText(_G[string.upper(self.slot)])
-								end
-							end
-						end)
-						slotBtn:SetScript("OnLeave", GameTooltip_Hide)
-					end
+						end
+					end)
+					slotBtn:SetScript("OnLeave", GameTooltip_Hide)
 
 					-- Slot button textures
 					slotBtn.t = slotBtn:CreateTexture(nil, "BACKGROUND")
@@ -2020,69 +2003,34 @@
 					MakeSlotButton(slotTable[i], "TOPRIGHT", -12, -70 + -40 * (i - 8))
 				end
 
-				if LeaPlusLC.NewPatch then
-
-					-- Updates slots
-					hooksecurefunc(DressUpFrame.CustomSetDropdown, "UpdateSaveButton", function()
-						local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
-						if playerActor then
-							for slot, slotButtons in pairs(buttons) do
-								if slotTable[slot] and GetInventorySlotInfo(slotTable[slot]) then
-									local slotID, slotTexture = GetInventorySlotInfo(slotTable[slot])
-									local itemTransmogInfo = playerActor:GetItemTransmogInfo(slotID)
-									if itemTransmogInfo == nil then
-										buttons[slot].item = nil
-										buttons[slot].text = nil
-										buttons[slot].t:SetTexture(slotTexture)
+				-- Updates slots
+				hooksecurefunc(DressUpFrame.CustomSetDropdown, "UpdateSaveButton", function()
+					local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
+					if playerActor then
+						for slot, slotButtons in pairs(buttons) do
+							if slotTable[slot] and GetInventorySlotInfo(slotTable[slot]) then
+								local slotID, slotTexture = GetInventorySlotInfo(slotTable[slot])
+								local itemTransmogInfo = playerActor:GetItemTransmogInfo(slotID)
+								if itemTransmogInfo == nil then
+									buttons[slot].item = nil
+									buttons[slot].text = nil
+									buttons[slot].t:SetTexture(slotTexture)
+								else
+									local appearanceSourceInfo = C_TransmogCollection.GetAppearanceSourceInfo(itemTransmogInfo.appearanceID)
+									buttons[slot].item = appearanceSourceInfo.itemLink
+									buttons[slot].text = UNKNOWN
+									if C_TransmogCollection.IsAppearanceHiddenVisual(itemTransmogInfo.appearanceID) then
+										-- Hidden item
+										buttons[slot].t:SetAtlas("transmog-icon-hidden")
 									else
-										local appearanceSourceInfo = C_TransmogCollection.GetAppearanceSourceInfo(itemTransmogInfo.appearanceID)
-										buttons[slot].item = appearanceSourceInfo.itemLink
-										buttons[slot].text = UNKNOWN
-										if C_TransmogCollection.IsAppearanceHiddenVisual(itemTransmogInfo.appearanceID) then
-											-- Hidden item
-											buttons[slot].t:SetAtlas("transmog-icon-hidden")
-										else
-											-- Visible item
-											buttons[slot].t:SetTexture(appearanceSourceInfo.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
-										end
+										-- Visible item
+										buttons[slot].t:SetTexture(appearanceSourceInfo.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
 									end
 								end
 							end
 						end
-					end)
-
-				else
-
-					-- Updates slots
-					hooksecurefunc(DressUpFrame.OutfitDropdown, "UpdateSaveButton", function()
-						local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
-						if playerActor then
-							for slot, slotButtons in pairs(buttons) do
-								if slotTable[slot] and GetInventorySlotInfo(slotTable[slot]) then
-									local slotID, slotTexture = GetInventorySlotInfo(slotTable[slot])
-									local itemTransmogInfo = playerActor:GetItemTransmogInfo(slotID)
-									if itemTransmogInfo == nil then
-										buttons[slot].item = nil
-										buttons[slot].text = nil
-										buttons[slot].t:SetTexture(slotTexture)
-									else
-										local void, void, void, icon, void, link = C_TransmogCollection.GetAppearanceSourceInfo(itemTransmogInfo.appearanceID)
-										buttons[slot].item = link
-										buttons[slot].text = UNKNOWN
-										if C_TransmogCollection.IsAppearanceHiddenVisual(itemTransmogInfo.appearanceID) then
-											-- Hidden item
-											buttons[slot].t:SetAtlas("transmog-icon-hidden")
-										else
-											-- Visible item
-											buttons[slot].t:SetTexture(icon or "Interface\\Icons\\INV_Misc_QuestionMark")
-										end
-									end
-								end
-							end
-						end
-					end)
-
-				end
+					end
+				end)
 
 				-- Function to set item buttons
 				local function ToggleItemButtons()
@@ -2318,15 +2266,7 @@
 			end)
 
 			-- Hide frame when outfit changes
-			if LeaPlusLC.NewPatch then
-
-				hooksecurefunc(DressUpFrame.CustomSetDropdown, "UpdateSaveButton", function() pFrame:Hide() end)
-
-			else
-
-				hooksecurefunc(DressUpFrame.OutfitDropdown, "UpdateSaveButton", function() pFrame:Hide() end)
-
-			end
+			hooksecurefunc(DressUpFrame.CustomSetDropdown, "UpdateSaveButton", function() pFrame:Hide() end)
 
 			-- Add background color
 			pFrame.t = pFrame:CreateTexture(nil, "BACKGROUND")
@@ -2370,20 +2310,9 @@
 			LeaPlusCB["DressUpLinkChatBtn"]:SetScript("OnClick", function()
 				local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
 				local itemTransmogInfoList = playerActor and playerActor:GetItemTransmogInfoList()
-				local hyperlink
-				if LeaPlusLC.NewPatch then
-					hyperlink = C_TransmogCollection.GetCustomSetHyperlinkFromItemTransmogInfoList(itemTransmogInfoList)
-				else
-					hyperlink = C_TransmogCollection.GetOutfitHyperlinkFromItemTransmogInfoList(itemTransmogInfoList)
-				end
-				if LeaPlusLC.NewPatch then
-					if not ChatFrameUtil.InsertLink(hyperlink) then
-						ChatFrame_OpenChat(hyperlink)
-					end
-				else
-					if not ChatEdit_InsertLink(hyperlink) then
-						ChatFrame_OpenChat(hyperlink)
-					end
+				local hyperlink = C_TransmogCollection.GetCustomSetHyperlinkFromItemTransmogInfoList(itemTransmogInfoList)
+				if not ChatFrameUtil.InsertLink(hyperlink) then
+					ChatFrame_OpenChat(hyperlink)
 				end
 			end)
 
@@ -2395,12 +2324,7 @@
 			LeaPlusCB["DressUpLinkSlashBtn"]:SetScript("OnClick", function()
 				local playerActor = DressUpFrame.ModelScene:GetPlayerActor()
 				local itemTransmogInfoList = playerActor and playerActor:GetItemTransmogInfoList()
-				local slashCommand
-				if LeaPlusLC.NewPatch then
-					slashCommand = TransmogUtil.CreateCustomSetSlashCommand(itemTransmogInfoList)
-				else
-					slashCommand = TransmogUtil.CreateOutfitSlashCommand(itemTransmogInfoList)
-				end
+				local slashCommand = TransmogUtil.CreateCustomSetSlashCommand(itemTransmogInfoList)
 
 				-- Function to refresh editbox text
 				local function RefreshEditBoxText()
@@ -2481,284 +2405,111 @@
 				end
 			end)
 
+			-- Hide controls for mount journal
+			EventUtil.ContinueOnAddOnLoaded("Blizzard_Collections",function()
+				MountJournal.MountDisplay.ModelScene.ControlFrame:HookScript("OnShow", function()
+					MountJournal.MountDisplay.ModelScene.ControlFrame:Hide()
+				end)
+			end)
+
 			-- Hide controls for housing dashboard
-			if LeaPlusLC.NewPatch then
-				EventUtil.ContinueOnAddOnLoaded("Blizzard_HousingDashboard", function()
-					HousingDashboardFrame.CatalogContent.PreviewFrame.ModelSceneControls:HookScript("OnShow", function()
-						HousingDashboardFrame.CatalogContent.PreviewFrame.ModelSceneControls:Hide()
-					end)
+			EventUtil.ContinueOnAddOnLoaded("Blizzard_HousingDashboard", function()
+				HousingDashboardFrame.CatalogContent.PreviewFrame.ModelSceneControls:HookScript("OnShow", function()
+					HousingDashboardFrame.CatalogContent.PreviewFrame.ModelSceneControls:Hide()
 				end)
-			end
+			end)
 
 			----------------------------------------------------------------------
-			-- Wardrobe and inspect system for Midnight
+			-- Wardrobe and inspect system
 			----------------------------------------------------------------------
 
-			if LeaPlusLC.NewPatch then
-				EventUtil.ContinueOnAddOnLoaded("Blizzard_Transmog",function()
+			EventUtil.ContinueOnAddOnLoaded("Blizzard_Transmog",function()
 
-					-- Hide positioning controls for wardrobe
-					TransmogFrame.CharacterPreview.ModelScene.ControlFrame:HookScript("OnShow", TransmogFrame.CharacterPreview.ModelScene.ControlFrame.Hide)
+				-- Hide positioning controls for wardrobe
+				TransmogFrame.CharacterPreview.ModelScene.ControlFrame:HookScript("OnShow", TransmogFrame.CharacterPreview.ModelScene.ControlFrame.Hide)
 
-					-- Set zoom speed for wardrobe
-					TransmogFrame.CharacterPreview.ModelScene:SetScript("OnMouseWheel", function(self, delta)
-						for i = 1, LeaPlusLC["DressupFasterZoom"] do
-							if TransmogFrame.CharacterPreview.ModelScene.activeCamera then
-								TransmogFrame.CharacterPreview.ModelScene.activeCamera:OnMouseWheel(delta)
-							end
+				-- Set zoom speed for wardrobe
+				TransmogFrame.CharacterPreview.ModelScene:SetScript("OnMouseWheel", function(self, delta)
+					for i = 1, LeaPlusLC["DressupFasterZoom"] do
+						if TransmogFrame.CharacterPreview.ModelScene.activeCamera then
+							TransmogFrame.CharacterPreview.ModelScene.activeCamera:OnMouseWheel(delta)
 						end
-					end)
-
-					-- Increase zoom out distance
-					if LeaPlusLC["DressupMoreZoomOut"] == "On" then
-						hooksecurefunc(TransmogFrame.CharacterPreview.ModelScene, "TransitionToModelSceneID", function(self)
-							local activeCamera = self:GetActiveCamera()
-							if activeCamera then
-								local currentZoom = activeCamera:GetZoomDistance()
-								activeCamera:SetMaxZoomDistance(5)
-								activeCamera:SetZoomDistance(currentZoom)
-							end
-						end)
 					end
-
-					----------------------------------------------------------------------
-					-- Transmogrify animation slider
-					----------------------------------------------------------------------
-
-					do
-
-						local transmogAnimTable = {0, 4, 5, 143, 119, 26, 25, 27, 28, 108, 120, 51, 124, 52, 125, 126, 62, 63, 41, 42, 43, 44, 132, 38, 14, 115, 193, 48, 110, 109, 134, 197, 0}
-						local transmogLastSetting
-
-						LeaPlusLC["TransmogAnim"] = 0 -- Defined here since the setting is not saved
-						LeaPlusLC:MakeSL(TransmogFrame, "TransmogAnim", "", 1, #transmogAnimTable - 1, 1, 356, -92, "%.0f")
-						LeaPlusCB["TransmogAnim"]:ClearAllPoints()
-						LeaPlusCB["TransmogAnim"]:SetPoint("BOTTOM", 0, 6)
-						if LeaPlusLC["DressupWiderPreview"] == "On" then
-							LeaPlusCB["TransmogAnim"]:SetWidth(240)
-						else
-							LeaPlusCB["TransmogAnim"]:SetWidth(216)
-						end
-						LeaPlusCB["TransmogAnim"]:SetFrameLevel(5)
-						LeaPlusCB["TransmogAnim"]:HookScript("OnValueChanged", function(self, setting)
-							local playerActor = TransmogFrame.CharacterPreview.ModelScene:GetPlayerActor()
-							setting = math.floor(setting + 0.5)
-							if playerActor and setting ~= lastSetting then
-								lastSetting = setting
-								playerActor:SetAnimation(transmogAnimTable[setting], 0, 1, 1)
-							end
-						end)
-
-						-- Function to show animation control
-						local function SetAnimationSlider()
-							if LeaPlusLC["DressupTransmogAnim"] == "On" then
-								LeaPlusCB["TransmogAnim"]:Show()
-							else
-								LeaPlusCB["TransmogAnim"]:Hide()
-							end
-							LeaPlusCB["TransmogAnim"]:SetValue(1)
-						end
-
-						-- Set animation control with option, startup, preset and reset
-						LeaPlusCB["DressupTransmogAnim"]:HookScript("OnClick", SetAnimationSlider)
-						SetAnimationSlider()
-						LeaPlusCB["EnhanceDressupBtn"]:HookScript("OnClick", function()
-							if IsShiftKeyDown() and IsControlKeyDown() then
-								LeaPlusLC["DressupTransmogAnim"] = "On"
-								SetAnimationSlider()
-							end
-						end)
-						DressupPanel.r:HookScript("OnClick", function()
-							LeaPlusLC["DressupTransmogAnim"] = "Off"
-							SetAnimationSlider()
-							DressupPanel:Hide(); DressupPanel:Show()
-						end)
-
-						-- Reset animation when slider is shown
-						LeaPlusCB["TransmogAnim"]:HookScript("OnShow", SetAnimationSlider)
-
-						-- Skin slider for ElvUI
-						if LeaPlusLC.ElvUI then
-							_G.LeaPlusGlobalTransmogAnim = LeaPlusCB["TransmogAnim"]
-							LeaPlusLC.ElvUI:GetModule("Skins"):HandleSliderFrame(_G.LeaPlusGlobalTransmogAnim, false)
-						end
-
-					end
-
 				end)
 
-				-- Lock settings not compatible with Midnight
-				local function LockDF(option, reason)
-					LeaPlusLC[option] = "Off"
-					LeaPlusDB[option] = "Off"
-					LeaPlusLC:LockItem(LeaPlusCB[option], true)
-					if reason then
-						LeaPlusCB[option].tiptext = LeaPlusCB[option].tiptext .. "|n|n|cff00AAFF" .. L[reason]
-					end
+				-- Increase zoom out distance
+				if LeaPlusLC["DressupMoreZoomOut"] == "On" then
+					hooksecurefunc(TransmogFrame.CharacterPreview.ModelScene, "TransitionToModelSceneID", function(self)
+						local activeCamera = self:GetActiveCamera()
+						if activeCamera then
+							local currentZoom = activeCamera:GetZoomDistance()
+							activeCamera:SetMaxZoomDistance(5)
+							activeCamera:SetZoomDistance(currentZoom)
+						end
+					end)
 				end
-				LockDF("DressupWiderPreview", "This option is not available in Midnight.")
 
-			end
+				----------------------------------------------------------------------
+				-- Transmogrify animation slider
+				----------------------------------------------------------------------
 
-			----------------------------------------------------------------------
-			-- Wardrobe and inspect system for The War Within
-			----------------------------------------------------------------------
+				do
 
-			if not LeaPlusLC.NewPatch then
+					local transmogAnimTable = {0, 4, 5, 143, 119, 26, 25, 27, 28, 108, 120, 51, 124, 52, 125, 126, 62, 63, 41, 42, 43, 44, 132, 38, 14, 115, 193, 48, 110, 109, 134, 197, 0}
+					local transmogLastSetting
 
-				-- Wardrobe (used by transmogrifier NPC) and mount journal
-				EventUtil.ContinueOnAddOnLoaded("Blizzard_Collections",function()
-
-					-- Hide positioning controls for mount journal
-					MountJournal.MountDisplay.ModelScene.ControlFrame:HookScript("OnShow", MountJournal.MountDisplay.ModelScene.ControlFrame.Hide)
-					-- Hide positioning controls for wardrobe
-					WardrobeTransmogFrame.ModelScene.ControlFrame:HookScript("OnShow", WardrobeTransmogFrame.ModelScene.ControlFrame.Hide)
-					-- Set zoom speed for wardrobe
-					WardrobeTransmogFrame.ModelScene:SetScript("OnMouseWheel", function(self, delta)
-						for i = 1, LeaPlusLC["DressupFasterZoom"] do
-							if WardrobeTransmogFrame.ModelScene.activeCamera then
-								WardrobeTransmogFrame.ModelScene.activeCamera:OnMouseWheel(delta)
-							end
+					LeaPlusLC["TransmogAnim"] = 0 -- Defined here since the setting is not saved
+					LeaPlusLC:MakeSL(TransmogFrame, "TransmogAnim", "", 1, #transmogAnimTable - 1, 1, 356, -92, "%.0f")
+					LeaPlusCB["TransmogAnim"]:ClearAllPoints()
+					LeaPlusCB["TransmogAnim"]:SetPoint("BOTTOM", 0, 6)
+					LeaPlusCB["TransmogAnim"]:SetWidth(216)
+					LeaPlusCB["TransmogAnim"]:SetFrameLevel(5)
+					LeaPlusCB["TransmogAnim"]:HookScript("OnValueChanged", function(self, setting)
+						local playerActor = TransmogFrame.CharacterPreview.ModelScene:GetPlayerActor()
+						setting = math.floor(setting + 0.5)
+						if playerActor and setting ~= lastSetting then
+							lastSetting = setting
+							playerActor:SetAnimation(transmogAnimTable[setting], 0, 1, 1)
 						end
 					end)
-					-- Set zoom speed for mount journal
-					MountJournal.MountDisplay.ModelScene:SetScript("OnMouseWheel", function(self, delta)
-						for i = 1, LeaPlusLC["DressupFasterZoom"] do
-							if MountJournal.MountDisplay.ModelScene.activeCamera then
-								MountJournal.MountDisplay.ModelScene.activeCamera:OnMouseWheel(delta)
-							end
-						end
-					end)
-					-- Wider transmogrifier character preview
-					if LeaPlusLC["DressupWiderPreview"] == "On" then
 
-						local width = 1200 -- Default is 965
-						WardrobeFrame:SetWidth(width)
-						WardrobeTransmogFrame:SetWidth(width - 665)
-						WardrobeTransmogFrame.Inset.BG:SetWidth(width - 671)
-						WardrobeTransmogFrame.ModelScene:SetWidth(width - 671)
-
-						-- Left slots column
-						WardrobeTransmogFrame.HeadButton:ClearAllPoints()
-						WardrobeTransmogFrame.HeadButton:SetPoint("TOPLEFT", 15, -40)
-
-						-- Right slots column
-						WardrobeTransmogFrame.HandsButton:ClearAllPoints()
-						WardrobeTransmogFrame.HandsButton:SetPoint("TOPRIGHT", -15, -60)
-
-						-- Weapons
-						WardrobeTransmogFrame.SecondaryHandButton:ClearAllPoints()
-						WardrobeTransmogFrame.SecondaryHandButton:SetPoint("TOP", WardrobeTransmogFrame.FeetButton, "BOTTOM", 0, -96)
-						WardrobeTransmogFrame.SecondaryHandEnchantButton:ClearAllPoints()
-						WardrobeTransmogFrame.SecondaryHandEnchantButton:SetPoint("BOTTOM", WardrobeTransmogFrame.SecondaryHandButton, "BOTTOM", 0, -15)
-
-						WardrobeTransmogFrame.MainHandButton:ClearAllPoints()
-						WardrobeTransmogFrame.MainHandButton:SetPoint("BOTTOM", WardrobeTransmogFrame.SecondaryHandButton, "TOP", 0, 30)
-						WardrobeTransmogFrame.MainHandEnchantButton:ClearAllPoints()
-						WardrobeTransmogFrame.MainHandEnchantButton:SetPoint("BOTTOM", WardrobeTransmogFrame.MainHandButton, "BOTTOM", 0, -15)
-
-						-- Checkbox for transmog each shoulder separately
-						WardrobeTransmogFrame.ToggleSecondaryAppearanceCheckbox:ClearAllPoints()
-						WardrobeTransmogFrame.ToggleSecondaryAppearanceCheckbox:SetPoint("BOTTOMLEFT", WardrobeTransmogFrame, "BOTTOMLEFT", 583, 15)
-
-					else
-
-						-- Wider character preview is disabled so move the right column up
-						WardrobeTransmogFrame.HandsButton:ClearAllPoints()
-						WardrobeTransmogFrame.HandsButton:SetPoint("TOPRIGHT", -6, -60)
-
-						-- Show weapons in the right column
-						WardrobeTransmogFrame.SecondaryHandButton:ClearAllPoints()
-						WardrobeTransmogFrame.SecondaryHandButton:SetPoint("TOP", WardrobeTransmogFrame.FeetButton, "BOTTOM", 0, -96)
-						WardrobeTransmogFrame.SecondaryHandEnchantButton:ClearAllPoints()
-						WardrobeTransmogFrame.SecondaryHandEnchantButton:SetPoint("BOTTOM", WardrobeTransmogFrame.SecondaryHandButton, "BOTTOM", 0, -15)
-
-						WardrobeTransmogFrame.MainHandButton:ClearAllPoints()
-						WardrobeTransmogFrame.MainHandButton:SetPoint("BOTTOM", WardrobeTransmogFrame.SecondaryHandButton, "TOP", 0, 30)
-						WardrobeTransmogFrame.MainHandEnchantButton:ClearAllPoints()
-						WardrobeTransmogFrame.MainHandEnchantButton:SetPoint("BOTTOM", WardrobeTransmogFrame.MainHandButton, "BOTTOM", 0, -15)
-
-					end
-
-					-- Increase zoom out distance
-					if LeaPlusLC["DressupMoreZoomOut"] == "On" then
-						hooksecurefunc(WardrobeTransmogFrame.ModelScene, "TransitionToModelSceneID", function(self)
-							local activeCamera = self:GetActiveCamera()
-							if activeCamera then
-								local currentZoom = activeCamera:GetZoomDistance()
-								activeCamera:SetMaxZoomDistance(5)
-								activeCamera:SetZoomDistance(currentZoom)
-							end
-						end)
-					end
-
-					----------------------------------------------------------------------
-					-- Transmogrify animation slider
-					----------------------------------------------------------------------
-
-					do
-
-						local transmogAnimTable = {0, 4, 5, 143, 119, 26, 25, 27, 28, 108, 120, 51, 124, 52, 125, 126, 62, 63, 41, 42, 43, 44, 132, 38, 14, 115, 193, 48, 110, 109, 134, 197, 0}
-						local transmogLastSetting
-
-						LeaPlusLC["TransmogAnim"] = 0 -- Defined here since the setting is not saved
-						LeaPlusLC:MakeSL(WardrobeTransmogFrame, "TransmogAnim", "", 1, #transmogAnimTable - 1, 1, 356, -92, "%.0f")
-						LeaPlusCB["TransmogAnim"]:ClearAllPoints()
-						LeaPlusCB["TransmogAnim"]:SetPoint("BOTTOM", 0, 6)
-						if LeaPlusLC["DressupWiderPreview"] == "On" then
-							LeaPlusCB["TransmogAnim"]:SetWidth(240)
+					-- Function to show animation control
+					local function SetAnimationSlider()
+						if LeaPlusLC["DressupTransmogAnim"] == "On" then
+							LeaPlusCB["TransmogAnim"]:Show()
 						else
-							LeaPlusCB["TransmogAnim"]:SetWidth(216)
+							LeaPlusCB["TransmogAnim"]:Hide()
 						end
-						LeaPlusCB["TransmogAnim"]:SetFrameLevel(5)
-						LeaPlusCB["TransmogAnim"]:HookScript("OnValueChanged", function(self, setting)
-							local playerActor = WardrobeTransmogFrame.ModelScene:GetPlayerActor()
-							setting = math.floor(setting + 0.5)
-							if playerActor and setting ~= lastSetting then
-								lastSetting = setting
-								playerActor:SetAnimation(transmogAnimTable[setting], 0, 1, 1)
-							end
-						end)
-
-						-- Function to show animation control
-						local function SetAnimationSlider()
-							if LeaPlusLC["DressupTransmogAnim"] == "On" then
-								LeaPlusCB["TransmogAnim"]:Show()
-							else
-								LeaPlusCB["TransmogAnim"]:Hide()
-							end
-							LeaPlusCB["TransmogAnim"]:SetValue(1)
-						end
-
-						-- Set animation control with option, startup, preset and reset
-						LeaPlusCB["DressupTransmogAnim"]:HookScript("OnClick", SetAnimationSlider)
-						SetAnimationSlider()
-						LeaPlusCB["EnhanceDressupBtn"]:HookScript("OnClick", function()
-							if IsShiftKeyDown() and IsControlKeyDown() then
-								LeaPlusLC["DressupTransmogAnim"] = "On"
-								SetAnimationSlider()
-							end
-						end)
-						DressupPanel.r:HookScript("OnClick", function()
-							LeaPlusLC["DressupTransmogAnim"] = "Off"
-							SetAnimationSlider()
-							DressupPanel:Hide(); DressupPanel:Show()
-						end)
-
-						-- Reset animation when slider is shown
-						LeaPlusCB["TransmogAnim"]:HookScript("OnShow", SetAnimationSlider)
-
-						-- Skin slider for ElvUI
-						if LeaPlusLC.ElvUI then
-							_G.LeaPlusGlobalTransmogAnim = LeaPlusCB["TransmogAnim"]
-							LeaPlusLC.ElvUI:GetModule("Skins"):HandleSliderFrame(_G.LeaPlusGlobalTransmogAnim, false)
-						end
-
+						LeaPlusCB["TransmogAnim"]:SetValue(1)
 					end
 
-				end)
+					-- Set animation control with option, startup, preset and reset
+					LeaPlusCB["DressupTransmogAnim"]:HookScript("OnClick", SetAnimationSlider)
+					SetAnimationSlider()
+					LeaPlusCB["EnhanceDressupBtn"]:HookScript("OnClick", function()
+						if IsShiftKeyDown() and IsControlKeyDown() then
+							LeaPlusLC["DressupTransmogAnim"] = "On"
+							SetAnimationSlider()
+						end
+					end)
+					DressupPanel.r:HookScript("OnClick", function()
+						LeaPlusLC["DressupTransmogAnim"] = "Off"
+						SetAnimationSlider()
+						DressupPanel:Hide(); DressupPanel:Show()
+					end)
 
-			end
+					-- Reset animation when slider is shown
+					LeaPlusCB["TransmogAnim"]:HookScript("OnShow", SetAnimationSlider)
+
+					-- Skin slider for ElvUI
+					if LeaPlusLC.ElvUI then
+						_G.LeaPlusGlobalTransmogAnim = LeaPlusCB["TransmogAnim"]
+						LeaPlusLC.ElvUI:GetModule("Skins"):HandleSliderFrame(_G.LeaPlusGlobalTransmogAnim, false)
+					end
+
+				end
+
+			end)
 
 			-- Inspect System
 			EventUtil.ContinueOnAddOnLoaded("Blizzard_InspectUI",function()
@@ -3106,7 +2857,7 @@
 			-- Hide backpack clean-up button and make item search box longer
 			BagItemAutoSortButton:HookScript("OnShow", BagItemAutoSortButton.Hide)
 			hooksecurefunc(ContainerFrame1, "SetSearchBoxPoint", function()
-				if BagItemSearchBox:GetWidth() ~= 120 then 
+				if BagItemSearchBox:GetWidth() ~= 120 then
 					BagItemSearchBox:SetWidth(120)
 				end
 			end)
@@ -3897,12 +3648,7 @@
 							if tipList[i] and tipList[i] > 0 and tipList[i] < 999999999 then
 								local void, tLink, Rarity, void, void, void, void, void, void, void, ItemPrice = C_Item.GetItemInfo(tipList[i])
 								if tLink and tLink ~= "" then
-									local linkCol
-									if LeaPlusLC.NewPatch then
-										linkCol = string.sub(tLink, 1, 7)
-									else
-										linkCol = string.sub(tLink, 1, 10)
-									end
+									local linkCol = string.sub(tLink, 1, 7)
 									if linkCol then
 										local linkName = tLink:match("%[(.-)%]")
 										if linkName and ItemPrice then
@@ -3990,18 +3736,16 @@
 			eb.Text:SetScript("OnLeave", GameTooltip_Hide)
 
 			-- Show item ID in item tooltips while configuration panel is showing
-			if not LeaPlusLC.NewPatch then
-				TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self)
-					if self ~= GameTooltip then return end
-					if SellJunkFrame:IsShown() then
-						local void, itemLink = self:GetItem()
-						if itemLink then
-							local itemID = GetItemInfoFromHyperlink(itemLink)
-							if itemID then self:AddLine(L["Item ID"] .. ": " .. itemID) end
-						end
+			TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self)
+				if self ~= GameTooltip then return end
+				if SellJunkFrame:IsShown() then
+					local void, itemLink = self:GetItem()
+					if itemLink then
+						local itemID = GetItemInfoFromHyperlink(itemLink)
+						if itemID then self:AddLine(L["Item ID"] .. ": " .. itemID) end
 					end
-				end)
-			end
+				end
+			end)
 
 			-- Vendor function
 			local function SellJunkFunc()
@@ -4855,15 +4599,13 @@
 			local void, TypeDeleteLine = strsplit("@", TypeDeleteLine, 2)
 
 			-- Add hyperlinks to regular item destroy
-			if not LeaPlusLC.NewPatch then
-				-- Taint in Midnight: Enter Stockade, loot junk, go vendor with transmog items Lisbeth Schneider 58.2 67.0 Stormwind, auto sell, close and shift reopen
-				StaticPopupDialogs["DELETE_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
-				StaticPopupDialogs["DELETE_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
-				StaticPopupDialogs["DELETE_QUEST_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
-				StaticPopupDialogs["DELETE_QUEST_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
-				StaticPopupDialogs["DELETE_GOOD_QUEST_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
-				StaticPopupDialogs["DELETE_GOOD_QUEST_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
-			end
+			-- Taint previously in Midnight: Enter Stockade, loot junk, go vendor with transmog items Lisbeth Schneider 58.2 67.0 Stormwind, auto sell, close and shift reopen
+			StaticPopupDialogs["DELETE_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
+			StaticPopupDialogs["DELETE_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
+			StaticPopupDialogs["DELETE_QUEST_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
+			StaticPopupDialogs["DELETE_QUEST_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
+			StaticPopupDialogs["DELETE_GOOD_QUEST_ITEM"].OnHyperlinkEnter = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkEnter
+			StaticPopupDialogs["DELETE_GOOD_QUEST_ITEM"].OnHyperlinkLeave = StaticPopupDialogs["DELETE_GOOD_ITEM"].OnHyperlinkLeave
 
 			-- Hide editbox and set item link
 			local easyDelFrame = CreateFrame("FRAME")
@@ -5215,7 +4957,7 @@
 									if NumMsg > 256 then StartMsg = NumMsg - 255 end
 									for iMsg = StartMsg, NumMsg do
 										local chatMessage, r, g, b, chatTypeID = chtfrm:GetMessageInfo(iMsg)
-										if chatMessage then
+										if chatMessage and canaccessvalue(chatMessage) then
 											if r and g and b then
 												local colorCode = RGBToColorCode(r, g, b)
 												chatMessage = colorCode .. chatMessage
@@ -5246,7 +4988,7 @@
 								local NumMsg = chtfrm:GetNumMessages()
 								for iMsg = 1, NumMsg do
 									local chatMessage, r, g, b, chatTypeID = chtfrm:GetMessageInfo(iMsg)
-									if chatMessage then
+									if chatMessage and canaccessvalue(chatMessage) then
 										if r and g and b then
 											local colorCode = RGBToColorCode(r, g, b)
 											chatMessage = colorCode .. chatMessage
@@ -6525,26 +6267,6 @@
 
 		do
 
-			-- LeaPlusLC.NewPatch: Temporary UpdateVars for the old Transform professions to the new individual professions
-			local function UpdateVars(oldvar, newvar)
-					if LeaPlusDB[oldvar] and not LeaPlusDB[newvar] then LeaPlusDB[newvar] = LeaPlusDB[oldvar]; end
-			end
-
-			UpdateVars("TransProfessions", "TransBlacksmithing")
-			UpdateVars("TransProfessions", "TransJewelcrafting")
-			UpdateVars("TransProfessions", "TransTailoring")
-			UpdateVars("TransProfessions", "TransEngineering")
-			UpdateVars("TransProfessions", "TransEnchanting")
-			UpdateVars("TransProfessions", "TransAlchemy")
-			UpdateVars("TransProfessions", "TransInscription")
-			UpdateVars("TransProfessions", "TransLeatherworking")
-			UpdateVars("TransProfessions", "TransHerbalism")
-			UpdateVars("TransProfessions", "TransMining")
-			UpdateVars("TransProfessions", "TransSkinning")
-			UpdateVars("TransProfessions", "TransCooking")
-			UpdateVars("TransProfessions", "TransFishing")
-			LeaPlusDB["TransProfessions"] = nil
-
 			local transTable = {
 
 				-- Single spell IDs
@@ -6609,6 +6331,12 @@
 				["TransCooking"] 		= {--[[Cooking: What's Cookin', Good Lookin'?]] 391775,},
 				["TransFishing"] 		= {--[[Fishing: Fishing For Attention 394009 - Handled separately]]},
 
+				-- Noggenfogger Elixir
+				["TransNoggenfogger"] = {
+					--[[You feel light]] 16593, 1223630,
+					--[[You feel smaller]] 16595, 1223629,
+				},
+
 			}
 
 			-- Give table file level scope (its used during logout and for admin command)
@@ -6669,6 +6397,7 @@
 
 			row = row + 2; LeaPlusLC:MakeTx(transPanel.scrollChild, "Items", 16,  -(row - 1) * 20 - 2)
 			row = row + 1; LeaPlusLC:MakeCB(transPanel.scrollChild, "TransCursedPickaxe", "Cursed Pickaxe", 16,  -((row - 1) * 20) - 2, false, "If checked, the Cursed Pickaxe transform will be removed when applied.|n|nYou can mute the associated sounds with the mute game sounds combat shouts option.")
+			row = row + 1; LeaPlusLC:MakeCB(transPanel.scrollChild, "TransNoggenfogger", "Noggenfogger Elixir", 16,  -((row - 1) * 20) - 2, false, "If checked, the slow fall and shrink effects of Noggenfogger Elixir will be removed when applied while keeping the skeleton transform intact.")
 
 			-- Debug
 			-- RemoveCommentToEnableDebug = true
@@ -6679,7 +6408,7 @@
 				LeaPlusLC["CancelDevotion"] = "On"
 
 				row = row + 1; LeaPlusLC:MakeCB(transPanel.scrollChild, "CancelStealth", "Stealth", 16, -((row - 1) * 20) - 2, false, "")
-				transTable["CancelStealth"] = {1784}
+				transTable["CancelStealth"] = {115191} -- Old: 1784
 				LeaPlusLC["CancelStealth"] = "On"
 
 				row = row + 1; LeaPlusLC:MakeCB(transPanel.scrollChild, "CancelIntel", "Intellect", 16, -((row - 1) * 20) - 2, false, "")
@@ -6707,27 +6436,13 @@
 			local fishEvent = CreateFrame("FRAME")
 			fishEvent:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", "player")
 			fishEvent:SetScript("OnEvent", function(self, event, unit, void, spellID)
-				if LeaPlusLC.NewPatch then
-					if LeaPlusLC["NoTransforms"] == "On" and LeaPlusLC["TransFishing"] == "On" and canaccessvalue(spellID) and spellID == 131476 then -- Fishing
-						for i = 1, 40 do
-							local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
-							if BuffData then
-								local spellID = BuffData.spellId
-								if spellID and canaccessvalue(spellID) and spellID == 394009 and not UnitAffectingCombat("player") then -- Fishing For Attention
-									CancelUnitBuff("player", i)
-								end
-							end
-						end
-					end
-				else
-					if LeaPlusLC["NoTransforms"] == "On" and LeaPlusLC["TransFishing"] == "On" and spellID == 131476 then -- Fishing
-						for i = 1, 40 do
-							local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
-							if BuffData then
-								local spellID = BuffData.spellId
-								if spellID and spellID == 394009 and not UnitAffectingCombat("player") then -- Fishing For Attention
-									CancelUnitBuff("player", i)
-								end
+				if LeaPlusLC["NoTransforms"] == "On" and LeaPlusLC["TransFishing"] == "On" and canaccessvalue(spellID) and spellID == 131476 then -- Fishing
+					for i = 1, 40 do
+						local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
+						if BuffData then
+							local spellID = BuffData.spellId
+							if spellID and canaccessvalue(spellID) and spellID == 394009 and not UnitAffectingCombat("player") then -- Fishing For Attention
+								CancelUnitBuff("player", i)
 							end
 						end
 					end
@@ -6739,9 +6454,7 @@
 			local spellFrame = CreateFrame("FRAME")
 			local fisherTicker, castingSpellID
 
-			if LeaPlusLC.NewPatch then
-				spellFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-			end
+			spellFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 
 			-- Function to cancel buffs
 			local function eventFunc()
@@ -6749,19 +6462,9 @@
 					local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
 					if BuffData then
 						local spellID = BuffData.spellId
-						if LeaPlusLC.NewPatch then
-							if spellID and canaccessvalue(spellID) and cTable[spellID] then
-								if not UnitAffectingCombat("player") then
-									CancelUnitBuff("player", i)
-								end
-							end
-						else
-							if spellID and cTable[spellID] then
-								if UnitAffectingCombat("player") then
-									spellFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-								else
-									CancelUnitBuff("player", i)
-								end
+						if spellID and canaccessvalue(spellID) and cTable[spellID] then
+							if not UnitAffectingCombat("player") then
+								CancelUnitBuff("player", i)
 							end
 						end
 					end
@@ -6775,17 +6478,9 @@
 						if updatedAuras.isFullUpdate then
 							eventFunc()
 						elseif updatedAuras.addedAuras then
-							if LeaPlusLC.NewPatch then
-								for void, aura in ipairs(updatedAuras.addedAuras) do
-									if aura.spellId and canaccessvalue(aura.spellId) and cTable[aura.spellId] then
-										eventFunc()
-									end
-								end
-							else
-								for void, aura in ipairs(updatedAuras.addedAuras) do
-									if aura.spellId and cTable[aura.spellId] then
-										eventFunc()
-									end
+							for void, aura in ipairs(updatedAuras.addedAuras) do
+								if aura.spellId and canaccessvalue(aura.spellId) and cTable[aura.spellId] then
+									eventFunc()
 								end
 							end
 						end
@@ -6797,15 +6492,8 @@
 						local BuffData = C_UnitAuras.GetBuffDataByIndex("player", i)
 						if BuffData then
 							local spellID = BuffData.spellId
-							if LeaPlusLC.NewPatch then
-								if spellID and canaccessvalue(spellID) and cTable[spellID] then
-									CancelUnitBuff("player", i)
-								end
-							else
-								if spellID and cTable[spellID] then
-									spellFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
-									CancelUnitBuff("player", i)
-								end
+							if spellID and canaccessvalue(spellID) and cTable[spellID] then
+								CancelUnitBuff("player", i)
 							end
 						end
 					end
@@ -6818,9 +6506,7 @@
 				if LeaPlusLC["NoTransforms"] == "On" then
 					eventFunc()
 					spellFrame:RegisterUnitEvent("UNIT_AURA", "player")
-					if LeaPlusLC.NewPatch then
-						spellFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-					end
+					spellFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 				else
 					spellFrame:UnregisterEvent("UNIT_AURA")
 					spellFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -7086,70 +6772,36 @@
 
 			-- Enable or disable chat filter settings
 			local function SetChatFilter()
-				if LeaPlusLC.NewPatch then
-					if LeaPlusLC["BlockSpellLinks"] == "On" then
-						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_SAY", ChatFilterFunc)
-						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_PARTY", ChatFilterFunc)
-						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_PARTY_LEADER", ChatFilterFunc)
-						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_RAID", ChatFilterFunc)
-						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_RAID_LEADER", ChatFilterFunc)
-						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", ChatFilterFunc)
-						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", ChatFilterFunc)
-						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_EMOTE", ChatFilterFunc)
-						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_YELL", ChatFilterFunc)
-					else
-						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_SAY", ChatFilterFunc)
-						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_PARTY", ChatFilterFunc)
-						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_PARTY_LEADER", ChatFilterFunc)
-						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_RAID", ChatFilterFunc)
-						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_RAID_LEADER", ChatFilterFunc)
-						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", ChatFilterFunc)
-						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", ChatFilterFunc)
-						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_EMOTE", ChatFilterFunc)
-						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_YELL", ChatFilterFunc)
-					end
-					if LeaPlusLC["BlockDrunkenSpam"] == "On" or LeaPlusLC["BlockDuelSpam"] == "On" then
-						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
-					else
-						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
-					end
-					if LeaPlusLC["BlockAngelisSinny"] == "On" then
-						ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
-					else
-						ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
-					end
+				if LeaPlusLC["BlockSpellLinks"] == "On" then
+					ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_SAY", ChatFilterFunc)
+					ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_PARTY", ChatFilterFunc)
+					ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_PARTY_LEADER", ChatFilterFunc)
+					ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_RAID", ChatFilterFunc)
+					ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_RAID_LEADER", ChatFilterFunc)
+					ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", ChatFilterFunc)
+					ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", ChatFilterFunc)
+					ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_EMOTE", ChatFilterFunc)
+					ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_YELL", ChatFilterFunc)
 				else
-					if LeaPlusLC["BlockSpellLinks"] == "On" then
-						ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", ChatFilterFunc)
-						ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY", ChatFilterFunc)
-						ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY_LEADER", ChatFilterFunc)
-						ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID", ChatFilterFunc)
-						ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID_LEADER", ChatFilterFunc)
-						ChatFrame_AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", ChatFilterFunc)
-						ChatFrame_AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", ChatFilterFunc)
-						ChatFrame_AddMessageEventFilter("CHAT_MSG_EMOTE", ChatFilterFunc)
-						ChatFrame_AddMessageEventFilter("CHAT_MSG_YELL", ChatFilterFunc)
-					else
-						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SAY", ChatFilterFunc)
-						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_PARTY", ChatFilterFunc)
-						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_PARTY_LEADER", ChatFilterFunc)
-						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_RAID", ChatFilterFunc)
-						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_RAID_LEADER", ChatFilterFunc)
-						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", ChatFilterFunc)
-						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", ChatFilterFunc)
-						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_EMOTE", ChatFilterFunc)
-						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_YELL", ChatFilterFunc)
-					end
-					if LeaPlusLC["BlockDrunkenSpam"] == "On" or LeaPlusLC["BlockDuelSpam"] == "On" then
-						ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
-					else
-						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
-					end
-					if LeaPlusLC["BlockAngelisSinny"] == "On" then
-						ChatFrame_AddMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
-					else
-						ChatFrame_RemoveMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
-					end
+					ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_SAY", ChatFilterFunc)
+					ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_PARTY", ChatFilterFunc)
+					ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_PARTY_LEADER", ChatFilterFunc)
+					ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_RAID", ChatFilterFunc)
+					ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_RAID_LEADER", ChatFilterFunc)
+					ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", ChatFilterFunc)
+					ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", ChatFilterFunc)
+					ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_EMOTE", ChatFilterFunc)
+					ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_YELL", ChatFilterFunc)
+				end
+				if LeaPlusLC["BlockDrunkenSpam"] == "On" or LeaPlusLC["BlockDuelSpam"] == "On" then
+					ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
+				else
+					ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
+				end
+				if LeaPlusLC["BlockAngelisSinny"] == "On" then
+					ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
+				else
+					ChatFrameUtil.RemoveMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
 				end
 			end
 
@@ -8662,7 +8314,7 @@
 				local totalMsgCount = 0
 				for iMsg = StartMsg, NumMsg do
 					local chatMessage, r, g, b, chatTypeID = chtfrm:GetMessageInfo(iMsg)
-					if chatMessage then
+					if chatMessage and canaccessvalue(chatMessage) then
 
 						-- Handle Battle.net messages
 						if string.match(chatMessage, "k:(%d+):(%d+):BN_WHISPER:")
@@ -8886,21 +8538,12 @@
 							icon[i]:Hide()
 
 							-- If buff matches cooldown we want, start the cooldown
-							if LeaPlusLC.NewPatch then
-								AuraUtil.ForEachAura(owner, "HELPFUL", nil, function(aura)
-									if aura.spellId and canaccessvalue(aura.spellId) and aura.spellId == id and aura.expirationTime and aura.duration then
-										icon[i]:Show()
-										CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
-									end
-								end, true)
-							else
-								AuraUtil.ForEachAura(owner, "HELPFUL", nil, function(aura)
-									if aura.spellId and aura.spellId == id and aura.expirationTime and aura.duration then
-										icon[i]:Show()
-										CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
-									end
-								end, true)
-							end
+							AuraUtil.ForEachAura(owner, "HELPFUL", nil, function(aura)
+								if aura.spellId and canaccessvalue(aura.spellId) and aura.spellId == id and aura.expirationTime and aura.duration then
+									icon[i]:Show()
+									CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
+								end
+							end, true)
 
 						end
 					end)
@@ -8976,9 +8619,7 @@
 			LeaPlusLC:MakeCB(CooldownPanel, "NoCooldownDuration", "Hide cooldown duration numbers (if enabled)", 16, -112, false, "If checked, cooldown duration numbers will not be shown over the cooldowns.|n|nIf unchecked, cooldown duration numbers will be shown over the cooldowns if they are enabled in the game options panel ('ActionBars' menu).")
 			LeaPlusLC:MakeCB(CooldownPanel, "CooldownsOnPlayer", "Show cooldowns above the player frame", 16, -132, false, "If checked, cooldown icons will be shown above the player frame.|n|nIf unchecked, cooldown icons will be shown above the target frame.")
 
-			if LeaPlusLC.NewPatch then
-				LeaPlusLC:CreateHelpButton("ShowCooldownsMidnightButton", CooldownPanel, settingsButton, "Note that during instanced combat encounters, cooldown icons will not show and any active timers will be reset.")
-			end
+			LeaPlusLC:CreateHelpButton("ShowCooldownsMidnightButton", CooldownPanel, settingsButton, "Note that during instanced combat encounters, cooldown icons will not show and any active timers will be reset.")
 
 			-- Function to save the panel control settings and refresh the cooldown icons
 			local function SavePanelControls()
@@ -9029,21 +8670,12 @@
 						icon[i]:Hide()
 
 						-- If buff matches spell we want, show cooldown icon
-						if LeaPlusLC.NewPatch then
-							AuraUtil.ForEachAura(newowner, "HELPFUL", nil, function(aura)
-								if aura.spellId and canaccessvalue(aura.spellId) and aura.spellId == newspell and aura.expirationTime and aura.duration then
-									icon[i]:Show()
-									CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
-								end
-							end, true)
-						else
-							AuraUtil.ForEachAura(newowner, "HELPFUL", nil, function(aura)
-								if aura.spellId and aura.spellId == newspell and aura.expirationTime and aura.duration then
-									icon[i]:Show()
-									CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
-								end
-							end, true)
-						end
+						AuraUtil.ForEachAura(newowner, "HELPFUL", nil, function(aura)
+							if aura.spellId and canaccessvalue(aura.spellId) and aura.spellId == newspell and aura.expirationTime and aura.duration then
+								icon[i]:Show()
+								CooldownFrame_Set(icon[i].c, aura.expirationTime - aura.duration, aura.duration, 1)
+							end
+						end, true)
 
 					end
 
@@ -9246,12 +8878,10 @@
 			LeaPlusLC:MakeCB(SideTip, "TipNoHealthBar", "Hide the health bar", 16, -172, true, "If checked, the health bar will not be shown.")
 
 			-- Show restrictions to tooltips in Midnight
-			if LeaPlusLC.NewPatch then
-				LeaPlusCB["TipShowRank"].tiptext = LeaPlusCB["TipShowRank"].tiptext .. "|n|n" .. L["This setting does not apply during instanced combat encounters."]
-				LeaPlusCB["TipShowOtherRank"].tiptext = LeaPlusCB["TipShowOtherRank"].tiptext .. "|n|n" .. L["This setting does not apply during instanced combat encounters."]
-				LeaPlusCB["TipShowTarget"].tiptext = LeaPlusCB["TipShowTarget"].tiptext .. "|n|n" .. L["This setting does not apply during instanced combat encounters."]
-				LeaPlusCB["TipBackSimple"].tiptext = LeaPlusCB["TipBackSimple"].tiptext .. "|n|n" .. L["This setting does not apply during instanced combat encounters."]
-			end
+			LeaPlusCB["TipShowRank"].tiptext = LeaPlusCB["TipShowRank"].tiptext .. "|n|n" .. L["This setting does not apply during instanced combat encounters."]
+			LeaPlusCB["TipShowOtherRank"].tiptext = LeaPlusCB["TipShowOtherRank"].tiptext .. "|n|n" .. L["This setting does not apply during instanced combat encounters."]
+			LeaPlusCB["TipShowTarget"].tiptext = LeaPlusCB["TipShowTarget"].tiptext .. "|n|n" .. L["This setting does not apply during instanced combat encounters."]
+			LeaPlusCB["TipBackSimple"].tiptext = LeaPlusCB["TipBackSimple"].tiptext .. "|n|n" .. L["This setting does not apply during instanced combat encounters."]
 
 			LeaPlusLC:MakeTx(SideTip, "Hide tooltips", 16, -212)
 			LeaPlusLC:MakeCB(SideTip, "TipHideInCombat", "Hide tooltips for world units during combat", 16, -232, false, "If checked, tooltips for world units will be hidden during combat.")
@@ -9666,12 +9296,10 @@
 				end
 
 				-- Do nothing if tooltip text is secret
-				if LeaPlusLC.NewPatch then
-					local secTip = GameTooltipTextLeft1 and GameTooltipTextLeft1:GetText()
-					if secTip and canaccessvalue(secTip) then
-					else
-						return
-					end
+				local secTip = GameTooltipTextLeft1 and GameTooltipTextLeft1:GetText()
+				if secTip and canaccessvalue(secTip) then
+				else
+					return
 				end
 
 				-- Get unit information
@@ -10029,10 +9657,8 @@
 					-- Get target
 					LT["Target"] = UnitName(LT["Unit"] .. "target");
 
-					if LeaPlusLC.NewPatch then
-						-- Return for now because it's last
-						if not canaccessvalue(LT["Target"]) then return end
-					end
+					-- Return because showing target is the last thing to do
+					if not canaccessvalue(LT["Target"]) then return end
 
 					-- If target doesn't exist, quit
 					if LT["Target"] == nil or LT["Target"] == "" then return end
@@ -10287,17 +9913,11 @@
 				local btn = CreateFrame("Button", "LeaPlusGlobalFlare" .. i, nil, "SecureActionButtonTemplate")
 				btn:SetAttribute("type", "macro")
 				if i == 9 then
-					if LeaPlusLC.NewPatch then
-						-- Currently on beta clearworldmarker 0 has no effect
-						btn:SetAttribute("macrotext", "/clearworldmarker 1\n/clearworldmarker 2\n/clearworldmarker 3\n/clearworldmarker 4\n/clearworldmarker 5\n/clearworldmarker 6\n/clearworldmarker 7\n/clearworldmarker 8")
-					else
-						btn:SetAttribute("macrotext", "/clearworldmarker 0")
-					end
+					btn:SetAttribute("macrotext", "/clearworldmarker 1\n/clearworldmarker 2\n/clearworldmarker 3\n/clearworldmarker 4\n/clearworldmarker 5\n/clearworldmarker 6\n/clearworldmarker 7\n/clearworldmarker 8")
 				else
 					btn:SetAttribute("macrotext", "/clearworldmarker " .. i .. "\n/worldmarker " .. i)
 				end
-				-- btn:RegisterForClicks("AnyDown") -- Shadowlands
-				btn:RegisterForClicks("AnyUp", "AnyDown") -- Currently needed in Dragonflight
+				btn:RegisterForClicks("AnyUp", "AnyDown")
 			end
 		end
 
@@ -11104,7 +10724,7 @@
 			pTex:SetAlpha(0.2)
 			pTex:SetTexCoord(0, 1, 1, 0)
 
-			expTitle:SetText(L["The War Within"] .. "|n" .. L["Midnight Beta"]) -- LeaPlusLC.NewPatch
+			expTitle:SetText(L["Midnight"])
 			local category = Settings.RegisterCanvasLayoutCategory(interPanel, L["Leatrix Plus"])
 			Settings.RegisterAddOnCategory(category)
 
@@ -11314,7 +10934,6 @@
 				LeaPlusLC:LoadVarChk("EnhanceDressup", "Off")				-- Enhance dressup
 				LeaPlusLC:LoadVarChk("DressupItemButtons", "On")			-- Dressup item buttons
 				LeaPlusLC:LoadVarChk("DressupAnimControl", "On")			-- Dressup animation control
-				LeaPlusLC:LoadVarChk("DressupWiderPreview", "On")			-- Dressup wider character preview
 				LeaPlusLC:LoadVarChk("DressupMoreZoomOut", "Off")			-- Dressup increase zoom out distance
 				LeaPlusLC:LoadVarChk("DressupTransmogAnim", "Off")			-- Dressup show transmogrify animation control
 				LeaPlusLC:LoadVarNum("DressupFasterZoom", 3, 1, 10)			-- Dressup zoom speed
@@ -11538,7 +11157,7 @@
 				end
 
 				if LeaPlusLC.NewPatch then
-					-- Disable bag automation (enter Stockade, go vendor with transmog items 58.2 67.0 Stormwind, auto sell, close and shift reopen)
+					-- Disable bag automation (enter Stockade, go vendor with transmog items Lisbeth Schneider 58.2 67.0 Stormwind, auto sell, close and shift reopen)
 					-- LockDF("NoBagAutomation", "This option is not currently available.")
 				end
 
@@ -11680,7 +11299,6 @@
 			LeaPlusDB["EnhanceDressup"]			= LeaPlusLC["EnhanceDressup"]
 			LeaPlusDB["DressupItemButtons"]		= LeaPlusLC["DressupItemButtons"]
 			LeaPlusDB["DressupAnimControl"]		= LeaPlusLC["DressupAnimControl"]
-			LeaPlusDB["DressupWiderPreview"]	= LeaPlusLC["DressupWiderPreview"]
 			LeaPlusDB["DressupMoreZoomOut"]		= LeaPlusLC["DressupMoreZoomOut"]
 			LeaPlusDB["DressupTransmogAnim"]	= LeaPlusLC["DressupTransmogAnim"]
 			LeaPlusDB["DressupFasterZoom"]		= LeaPlusLC["DressupFasterZoom"]
@@ -14397,7 +14015,6 @@
 				LeaPlusDB["TipCursorX"] = 0						-- X offset
 				LeaPlusDB["TipCursorY"] = 0						-- Y offset
 				LeaPlusDB["EnhanceDressup"] = "On"				-- Enhance dressup
-				LeaPlusDB["DressupWiderPreview"] = "On"			-- Enhance dressup wider character preview
 				LeaPlusDB["DressupMoreZoomOut"] = "Off"			-- Enhance dressup increase zoom out distance
 				LeaPlusDB["DressupTransmogAnim"] = "Off"		-- Enhance dressup transmogrify animation control
 				LeaPlusDB["DressupFasterZoom"] = 3				-- Dressup zoom speed
