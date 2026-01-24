@@ -1,4 +1,4 @@
-## Interface: 110205, 110207
+## Interface: 120000
 ## Category: Combat
 ## Category-deDE: Kampf
 ## Category-esES: Combate
@@ -16,7 +16,7 @@
 ## DefaultState: enabled
 ## SavedVariables: VCBrNumber VCBrProfile VCBrCounterLoading VCBrCounterDeleting
 ## SavedVariablesPerCharacter: VCBrPlayer VCBrTarget VCBrFocus VCBrBoss VCBrArena
-## Version: 1.8001
+## Version: 1.8001 Fix
 ## Author: The_Indolent
 ## X-Website: https://panosanastasiou.rocks/
 
