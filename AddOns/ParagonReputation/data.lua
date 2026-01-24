@@ -1,5 +1,5 @@
 		-------------------------------------------------
-		-- Paragon Reputation 1.67 by Fail US-Ragnaros --
+		-- Paragon Reputation 1.71 by Fail US-Ragnaros --
 		-------------------------------------------------
 
 		  --[[	  Special thanks to Ammako for
@@ -554,6 +554,10 @@ PR.PARAGON_DATA = {
 		[79220] = { -- The Assembly of the Deep
 			factionID = 2594,
 			cache = 225245,
+		},
+		[85109] = { -- The K'aresh Trust
+			factionID = 2658,
+			cache = 230032,
 		},
 		[85805] = { -- The Cartels of Undermine
 			factionID = 2653,
