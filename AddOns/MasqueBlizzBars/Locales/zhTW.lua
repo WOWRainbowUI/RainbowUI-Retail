@@ -39,6 +39,9 @@ L["Possess Bar"] = "控制列"
 L["Spell Flyouts"] = "技能彈出選單"
 L["Stance Bar"] = "形態列"
 L["Vehicle Bar"] = "載具列"
+L["Tracked Buffs"] = "追蹤的增益效果"
+L["Essential Cooldowns"] = "關鍵冷卻技能"
+L["Utility Cooldowns"] = "效用冷卻技能"
 
 -- 自行加入
 L["Blizzard Action Bars"] = "內建快捷列"
