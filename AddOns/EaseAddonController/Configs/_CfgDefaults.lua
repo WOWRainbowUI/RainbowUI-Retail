@@ -26,7 +26,7 @@ D["Ace3"] = {
 	title = "Ace3 共用函式庫",
 	desc = "大部分插件都會使用到的函式庫。``|cffFF2D2D請千萬千萬不要關閉!!!|r`",
 };
-D["!BugGrabber"] = { 
+D["AABugGrabber"] = { 
 	defaultEnable = 1,
 	optdeps = { "BugSack", },
 	protected = true, 
@@ -295,7 +295,7 @@ D["BtWQuests"] = {
 };
 D["BugSack"] = {
 	defaultEnable = 1,
-	parent = "!BugGrabber",
+	parent = "AABugGrabber",
 	protected = true,
 	{
         text = "查看錯誤訊息",
