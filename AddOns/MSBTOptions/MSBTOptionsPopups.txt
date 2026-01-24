@@ -1507,7 +1507,7 @@ local function CreateScrollAreaMoverFrame(scrollArea)
 		frame:SetScript("OnMouseUp", MoverFrameOnMouseUp)
 
 		local fontString = frame:CreateFontString(nil, "OVERLAY")
-		local fontPath = STANDARD_TEXT_FONT
+		local fontPath = "Fonts\\ARIALN.TTF"
 		if (GetLocale() == "koKR") then fontPath = "Fonts\\2002.TTF" end
 		fontString:SetFont(fontPath, 12)
 		fontString:SetPoint("CENTER")
@@ -3356,20 +3356,16 @@ local function CreateTriggerPopup()
 		[2] = TALENT_SPEC_SECONDARY,
 	}
 
--- 12.0.1 Safety: Blizzard removed some old Stance IDs. 
-	-- We wrap these in pcall to prevent chat spam and crashes.
+	-- Localized warrior stances.
 	local warriorStances
 	if not IsVanillaClassic then
-		warriorStances = {}
-		local stanceIDs = {[1] = 2457, [2] = 71, [3] = 2458}
-		for index, id in pairs(stanceIDs) do
-			local name = GetSkillName(id)
-			if name and name ~= "" then
-				warriorStances[index] = name
-			end
-		end
+		warriorStances = {
+			[1] = GetSkillName(2457),
+			[2] = GetSkillName(71),
+			[3] = GetSkillName(2458),
+		}
 	end
-	
+
 	-- Localized zone types.
 	local zoneTypes = {arena = objLocale["zoneTypeArena"], pvp = objLocale["zoneTypePvP"], party = objLocale["zoneTypeParty"], raid = objLocale["zoneTypeRaid"]}
 
@@ -3558,6 +3554,7 @@ local function ShowTrigger(configTable)
 	local frame = popupFrames.triggerFrame
 	ChangePopupParent(frame, configTable.parentFrame)
 
+
 	-- Populate data.
 	local triggerKey = configTable.triggerKey
 	local settings = MSBTProfiles.currentProfile.triggers[triggerKey]
@@ -3584,12 +3581,7 @@ local function ShowTrigger(configTable)
 			conditions = {}
 			if (eventConditions ~= "") then
 				for conditionEntry in string.gmatch(eventConditions .. ";;", "(.-);;") do
-					-- 12.0.1 Safety Guard: Use MSBTTriggers.ConvertType if available, else use raw value
-					local val = conditionEntry
-					if MSBTTriggers and MSBTTriggers.ConvertType then
-						val = MSBTTriggers.ConvertType(conditionEntry)
-					end
-					conditions[#conditions + 1] = val
+					conditions[#conditions + 1] = ConvertType(conditionEntry)
 				end
 			end
 			frame.eventConditions[#frame.eventConditions + 1] = conditions
@@ -3601,12 +3593,7 @@ local function ShowTrigger(configTable)
 	EraseTable(frame.exceptions)
 	if (settings.exceptions and settings.exceptions ~= "") then
 		for exceptionCondition in string.gmatch(settings.exceptions .. ";;", "(.-);;") do
-			-- 12.0.1 Safety Guard: Use MSBTTriggers.ConvertType if available, else use raw value
-			local val = exceptionCondition
-			if MSBTTriggers and MSBTTriggers.ConvertType then
-				val = MSBTTriggers.ConvertType(exceptionCondition)
-			end
-			frame.exceptions[#frame.exceptions + 1] = val
+			frame.exceptions[#frame.exceptions + 1] = ConvertType(exceptionCondition)
 		end
 	end
 	UpdateExceptions()
@@ -3620,6 +3607,7 @@ local function ShowTrigger(configTable)
 	frame:Show()
 	frame:Raise()
 end
+
 
 -------------------------------------------------------------------------------
 -- Item list frame functions.

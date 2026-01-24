@@ -69,17 +69,19 @@ local lastHorizontalDirection = {}
 local function AnimatePowNormal(displayEvent, animationProgress)
 	local fadeInPercent = POW_FADE_IN_TIME / displayEvent.scrollTime
 
-	-- Scale the text height.
 	if animationProgress <= fadeInPercent then
-		displayEvent.fontString:SetTextHeight(displayEvent.fontSize * (1 + ((1 - animationProgress / fadeInPercent) * POW_TEXT_DELTA)))
-
-	-- Reset the font properties to normal.
+		-- 12.0.1 Safety: Only scale if the font is fully loaded
+		if displayEvent.fontString:GetFont() then
+			displayEvent.fontString:SetTextHeight(displayEvent.fontSize * (1 + ((1 - animationProgress / fadeInPercent) * POW_TEXT_DELTA)))
+		end
 	else
+		-- Reset to normal
 		local fontPath, _, fontOutline = displayEvent.fontString:GetFont()
-		displayEvent.fontString:SetFont(fontPath, displayEvent.fontSize, fontOutline)
+		if fontPath then
+			displayEvent.fontString:SetFont(fontPath, displayEvent.fontSize, fontOutline)
+		end
 	end
 end
-
 
 -- ****************************************************************************
 -- Animates the passed display event using using the jiggle pow style.

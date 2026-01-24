@@ -1,6 +1,6 @@
 -------------------------------------------------------------------------------
 -- Title: Mik's Scrolling Battle Text Animations
--- Author: Mikord
+-- Author: Mikord (12.0.1 Midnight Compliant)
 -------------------------------------------------------------------------------
 
 -- Create module and set its name.
@@ -8,48 +8,31 @@ local module = {}
 local moduleName = "Animations"
 MikSBT[moduleName] = module
 
-
 -------------------------------------------------------------------------------
 -- Imports.
 -------------------------------------------------------------------------------
-
--- Local references to various modules for faster access.
 local MSBTMedia = MikSBT.Media
 local MSBTProfiles = MikSBT.Profiles
 local L = MikSBT.translations
 
--- Local references to various functions for faster access.
 local table_remove = table.remove
 local string_find = string.find
 local string_lower = string.lower
-
 local IsModDisabled = MSBTProfiles.IsModDisabled
 local EraseTable = MikSBT.EraseTable
 
--- Local references to various variables for faster access.
 local fonts = MSBTMedia.fonts
 local sounds = MSBTMedia.sounds
-
 
 -------------------------------------------------------------------------------
 -- Constants.
 -------------------------------------------------------------------------------
-
--- Max number of animations to show in a scroll area and animation defaults.
 local MAX_ANIMATIONS_PER_AREA = 15
 local DEFAULT_SCROLL_TIME = 3
 local DEFAULT_FADE_PERCENT = 0.8
-
--- The amount of time to delay between updating an animating object.
 local ANIMATION_DELAY = 0.015
-
--- Left, Center, Right Text Aligns.
 local TEXT_ALIGN_MAP = {"BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT"}
-
--- Outline styles.
 local OUTLINE_MAP = {"", "OUTLINE", "THICKOUTLINE", "MONOCHROME", "MONOCHROME,OUTLINE", "MONOCHROME,THICKOUTLINE"}
-
--- Defaults for certain parameters.
 local DEFAULT_FONT_SIZE = 18
 local DEFAULT_FONT_PATH = L.FONT_FILES[L.DEFAULT_FONT_NAME]
 local DEFAULT_TEXT_ALIGN = TEXT_ALIGN_MAP[2]
@@ -59,41 +42,21 @@ local DEFAULT_SCROLL_HEIGHT = 260
 local DEFAULT_SCROLL_WIDTH = 40
 local DEFAULT_ANIMATION_STYLE = "Straight"
 local DEFAULT_STICKY_ANIMATION_STYLE = "Pow"
-
--- Path to look for sound files.
 local DEFAULT_SOUND_PATH = "Interface\\AddOns\\MikScrollingBattleText\\Sounds\\"
-
--- Path to the temporary texture Blizzard uses when a skill texture is not known.
 local TEMP_TEXTURE_PATH = "Interface\\Icons\\Temp"
-
 
 -------------------------------------------------------------------------------
 -- Private variables.
 -------------------------------------------------------------------------------
-
--- Prevent tainting global _.
 local _
-
--- Dynamically created frame for animation updates.
 local animationFrame
-
--- Pools of dynamically created display events and textures that are reused.
 local displayEventCache = {}
 local textureCache = {}
-
--- Animating display events.
 local animationData = {normal = {}, sticky = {}}
-
--- Animation style and scroll area information.
 local animationStyles = {}
 local stickyAnimationStyles = {}
 local scrollAreas = {}
-
--- Scroll area table to be returned for external use.
 local externalScrollAreas = {}
-
--- Dynmically create frame and font strings used to do initial load of used
--- fonts.
 local fontLoaderFrame
 local loadedFontStrings = {}
 
@@ -101,50 +64,26 @@ local loadedFontStrings = {}
 -- Utility functions.
 -------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Returns whether or not the passed scroll area is valid and enabled.
--- ****************************************************************************
 local function IsScrollAreaActive(scrollArea)
 	local saSettings = scrollAreas[scrollArea] or scrollAreas[DEFAULT_SCROLL_AREA]
-
-	-- Return false if the scroll area is invalid or disabled.
-	if not saSettings or saSettings.disabled then
-		return false
-	end
-
-	-- Return true to indicate the scroll area is active.
+	if not saSettings or saSettings.disabled then return false end
 	return true
 end
 
-
--- ****************************************************************************
--- Returns whether or not the passed scroll area is set to display icons.
--- ****************************************************************************
 local function IsScrollAreaIconShown(scrollArea)
 	local saSettings = scrollAreas[scrollArea] or scrollAreas[DEFAULT_SCROLL_AREA]
-
-	-- Return true if the scroll area valid and the icons are not disabled.
 	return saSettings and not saSettings.skillIconsDisabled or false
 end
 
-
--- ****************************************************************************
--- Updates the available scroll areas.
--- ****************************************************************************
 local function UpdateScrollAreas()
-	-- Erase the current scroll areas.
 	EraseTable(scrollAreas)
 	EraseTable(externalScrollAreas)
-
-	-- Add scroll areas from the current profile.
 	if rawget(MSBTProfiles.currentProfile, "scrollAreas") then
 		for saKey, saSettings in pairs(MSBTProfiles.currentProfile.scrollAreas) do
 			scrollAreas[saKey] = saSettings
 			externalScrollAreas[saKey] = saSettings.name
 		end
 	end
-
-	-- Add scroll areas available in the master profile that aren't in the current profile.
 	for saKey, saSettings in pairs(MSBTProfiles.masterProfile.scrollAreas) do
 		if not scrollAreas[saKey] then
 			scrollAreas[saKey] = saSettings
@@ -153,100 +92,39 @@ local function UpdateScrollAreas()
 	end
 end
 
-
--- ****************************************************************************
--- Registers an animation style for non sticky events.
--- See the included API.html file for usage info.
--- ****************************************************************************
 local function RegisterAnimationStyle(styleID, initHandler, availableDirections, availableBehaviors, localizationTable)
-	-- Make sure there isn't already an animation style with the same name and the passed init function is valid.
 	if not animationStyles[styleID] and initHandler then
-		-- Create new animation style.
-		local animStyleSettings = {}
-		animStyleSettings.initHandler = initHandler
-		animStyleSettings.availableDirections = availableDirections
-		animStyleSettings.availableBehaviors = availableBehaviors
-		animStyleSettings.localizationTable = localizationTable
-
-		-- Add the new style to the animation styles table.
+		local animStyleSettings = { initHandler = initHandler, availableDirections = availableDirections, availableBehaviors = availableBehaviors, localizationTable = localizationTable }
 		animationStyles[styleID] = animStyleSettings
 	end
 end
 
-
--- ****************************************************************************
--- Registers an animation style for sticky events.
--- See the included API.html file for usage info.
--- ****************************************************************************
 local function RegisterStickyAnimationStyle(styleID, initHandler, availableDirections, availableBehaviors, localizationTable)
-	-- Make sure there isn't already an animation style with the same name and the passed init function is valid.
 	if not stickyAnimationStyles[styleID] and initHandler then
-		-- Create new animation style.
-		local animStyleSettings = {}
-		animStyleSettings.initHandler = initHandler
-		animStyleSettings.availableDirections = availableDirections
-		animStyleSettings.availableBehaviors = availableBehaviors
-		animStyleSettings.localizationTable = localizationTable
-
-		-- Add the new style to the sticky animation styles table.
+		local animStyleSettings = { initHandler = initHandler, availableDirections = availableDirections, availableBehaviors = availableBehaviors, localizationTable = localizationTable }
 		stickyAnimationStyles[styleID] = animStyleSettings
 	end
 end
 
+local function IterateScrollAreas() return pairs(externalScrollAreas) end
 
--- ****************************************************************************
--- Returns an iterator for the table containing the available scroll areas.
--- See the included API.html file for usage info.
--- ****************************************************************************
-local function IterateScrollAreas()
-	return pairs(externalScrollAreas)
-end
-
-
--- ****************************************************************************
--- Loads the provided name into its own invisible font string in the animation
--- frame. This is used to force fonts to load during initial start and profile
--- switches so they are ready to be used for showing events.
--- ****************************************************************************
 local function LoadFont(fontName)
 	local fontPath = MikSBT.Media.fonts[fontName]
-	if fontPath == nil then
-		return
-	end
-
-	-- Don't load the font a second time.
-	local fontString = loadedFontStrings[fontName]
-	if fontString ~= nil then
-		return
-	end
-
-	-- Create the font string and load the font. Since it's only being used to
-	-- cause the font to be loaded by the game, the default font size and outline
-	-- flags are acceptable to use.
+	if fontPath == nil or loadedFontStrings[fontName] then return end
 	fontLoaderFrame:Show()
-	fontString = fontLoaderFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	local fontString = fontLoaderFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	fontString:SetPoint("BOTTOM")
-	--fontString:SetFont(DEFAULT_FONT_PATH, DEFAULT_FONT_SIZE, DEFAULT_FONT_OUTLINE)
-	fontString:SetText("Font Loader")
-	fontString:SetFont(fontPath, DEFAULT_FONT_SIZE, DEFAULT_FONT_OUTLINE)
-	fontString:SetText("")
+	fontString:SetFont(fontPath, DEFAULT_FONT_SIZE, "")
 	fontString:SetAlpha(0)
 	loadedFontStrings[fontName] = fontString
 	fontLoaderFrame:Hide()
 end
 
-
 -------------------------------------------------------------------------------
 -- Display functions.
 -------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Creates a display event using the passed settings. If the max number of
--- allowed animations for a scroll area are already active, the oldest one is
--- reused.
--- ****************************************************************************
 local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fontSize, fontPath, outlineIndex, fontAlpha, texturePath)
-	-- Get the correct animation style settings.
 	local animStyleSettings, direction, behavior, textAlignIndex
 	if isSticky then
 		animStyleSettings = stickyAnimationStyles[saSettings.stickyAnimationStyle] or stickyAnimationStyles[DEFAULT_STICKY_ANIMATION_STYLE]
@@ -260,40 +138,25 @@ local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fo
 		textAlignIndex = saSettings.textAlignIndex
 	end
 
-	-- Leave the function if the animation style is invalid.
-	if not animStyleSettings then
-		return
-	end
+	if not animStyleSettings then return end
+	if not animationData.normal[saSettings] then animationData.normal[saSettings] = {} end
+	if isSticky and not animationData.sticky[saSettings] then animationData.sticky[saSettings] = {} end
 
-	-- Create arrays to track the active display events for the scroll area if they haven't already been created.
-	if not animationData.normal[saSettings] then
-		animationData.normal[saSettings] = {}
-	end
-	if isSticky and not animationData.sticky[saSettings] then
-		animationData.sticky[saSettings] = {}
-	end
-
-	-- Get the correct animation array.
 	local animationArray = isSticky and animationData.sticky[saSettings] or animationData.normal[saSettings]
 
-	-- Reuse the oldest display event if the max number of allowed animations for the scroll
-	-- area has been reached. Otherwise acquire one from cache or create a new one if there
-	-- aren't any available in cache.
 	local displayEvent
 	if #animationArray >= MAX_ANIMATIONS_PER_AREA then
 		displayEvent = table_remove(animationArray, 1)
-		displayEvent.fontString:SetAlpha(0)
-		if displayEvent.texture then
-			displayEvent.texture:SetAlpha(0)
-		end
+		if displayEvent.fontString then displayEvent.fontString:SetAlpha(0) end
+		if displayEvent.texture then displayEvent.texture:SetAlpha(0) end
 	else
-		displayEvent = table_remove(displayEventCache) or { fontString = animationFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal") }
+		displayEvent = table_remove(displayEventCache) or {}
+		if not displayEvent.fontString then
+			displayEvent.fontString = animationFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+		end
 	end
 
-	-- Get a local reference to the current profile.
 	local currentProfile = MSBTProfiles.currentProfile
-
-	-- Set scroll area related fields.
 	displayEvent.offsetX = saSettings.offsetX or 0
 	displayEvent.offsetY = saSettings.offsetY or 0
 	displayEvent.anchorPoint = TEXT_ALIGN_MAP[textAlignIndex] or DEFAULT_TEXT_ALIGN
@@ -301,113 +164,73 @@ local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fo
 	displayEvent.scrollWidth = saSettings.scrollWidth or DEFAULT_SCROLL_WIDTH
 	displayEvent.animationSpeed = (saSettings.animationSpeed or currentProfile.animationSpeed) / 100
 	displayEvent.masterAlpha = fontAlpha / 100
-
-	-- Default starting alpha and x/y positions.
 	displayEvent.alpha = 1
 	displayEvent.positionX = 0
 	displayEvent.positionY = 0
 	displayEvent.fontSize = fontSize
 
-	-- Set font string properties. The font is set to the default font first to
-	-- ensure any invalid font paths revert to the default.
 	local fontString = displayEvent.fontString
 	local fontOutline = OUTLINE_MAP[outlineIndex] or DEFAULT_OUTLINE
-	if not fontPath then
-		fontPath = DEFAULT_FONT_PATH
-	end
+	if not fontPath or fontPath == "" then fontPath = DEFAULT_FONT_PATH end
+	
 	fontString:ClearAllPoints()
-	if fontPath == DEFAULT_FONT_PATH then
-		fontString:SetFont(DEFAULT_FONT_PATH, fontSize, fontOutline)
+	
+	-- 12.0.1 Persistent Font Load Fix
+	local success = pcall(function() fontString:SetFont(fontPath, fontSize, fontOutline) end)
+	if not success or not fontString:GetFont() then
+		fontString:SetFont("Fonts\\FRIZQT__.TTF", fontSize, fontOutline)
 	end
-	fontString:SetFont(fontPath, fontSize, fontOutline)
+	
 	fontString:SetTextColor(colorR, colorG, colorB)
-	fontString:SetDrawLayer(isSticky and "OVERLAY" or "ARTWORK")
-	if not currentProfile.textShadowingDisabled then
-		fontString:SetShadowColor(0, 0, 0, 1)
-		fontString:SetShadowOffset(1, -1)
-	else
-		fontString:SetShadowColor(0, 0, 0, 0)
-		fontString:SetShadowOffset(0, 0)
-	end
-	fontString:SetAlpha(0)
-	fontString:SetText(message)
+	fontString:SetDrawLayer("OVERLAY", 7)
+	fontString:SetText(message or " ")
+	fontString:SetAlpha(0) 
 
-	-- Set texture properties if there is a texture path that isn't the temp texture and icons are enabled.
 	if texturePath and texturePath ~= TEMP_TEXTURE_PATH and not saSettings.skillIconsDisabled and not currentProfile.skillIconsDisabled then
-		-- Reuse the texture for the current display event if there is one.
 		local texture = displayEvent.texture
-
-		-- No texture so acquire one from cache or create a new one if there aren't any available in cache.
 		if not texture then
-			texture = table_remove(textureCache) or animationFrame:CreateTexture(nil, "ARTWORK")
+			texture = table_remove(textureCache) or animationFrame:CreateTexture(nil, "OVERLAY")
 		end
-
-		-- Set texture properties.
 		texture:ClearAllPoints()
 		texture:SetTexture(texturePath)
-		texture:SetWidth(fontSize)
-		texture:SetHeight(fontSize)
+		texture:SetSize(fontSize, fontSize)
 		texture:SetTexCoord(0.125, 0.875, 0.125, 0.875)
 		if saSettings.iconAlign == "Right" then
 			texture:SetPoint("LEFT", fontString, "RIGHT", 4, 0)
 		else
 			texture:SetPoint("RIGHT", fontString, "LEFT", -4, 0)
 		end
-		texture:SetDrawLayer(isSticky and "OVERLAY" or "ARTWORK")
 		texture:SetAlpha(0)
 		displayEvent.texture = texture
 	end
 
-	-- Initialize timing properties.
 	displayEvent.elapsedTime = 0
 	displayEvent.timeSinceLastUpdate = 0
 	displayEvent.scrollTime = DEFAULT_SCROLL_TIME
 	displayEvent.fadePercent = DEFAULT_FADE_PERCENT
 
-	-- Call the initialize function, set the text position accordingly, and scale the scroll time
-	-- by the animation speed.
 	animStyleSettings.initHandler(displayEvent, animationArray, direction, behavior)
-	fontString:SetPoint(displayEvent.anchorPoint, displayEvent.offsetX + displayEvent.positionX, displayEvent.offsetY + displayEvent.positionY)
+	-- 12.0.1 FIX: Explicitly clear points before re-anchoring to the 1x1 parent
+	fontString:ClearAllPoints()
+	fontString:SetPoint(displayEvent.anchorPoint, animationFrame, "CENTER", displayEvent.offsetX + displayEvent.positionX, displayEvent.offsetY + displayEvent.positionY)
 	displayEvent.scrollTime = displayEvent.scrollTime / displayEvent.animationSpeed
 
-	-- Add the display event to the appropriate scroll area array.
 	animationArray[#animationArray + 1] = displayEvent
-
-	-- Check if the animation frame is not visible and make it visible so the OnUpdate events start firing.
-	-- This is done to keep the number of OnUpdate events down to a minimum for better performance.
-	if not animationFrame:IsVisible() then
-		animationFrame:Show()
-	end
+	if not animationFrame:IsVisible() then animationFrame:Show() end
 end
 
-
--- ****************************************************************************
--- Displays the passed message using the passed event settings.
--- ****************************************************************************
 local function DisplayEvent(eventSettings, message, texturePath)
-	-- Get a local reference to the current profile.
 	local currentProfile = MSBTProfiles.currentProfile
-
-	-- Get the scroll area settings for the event.
 	local saSettings = scrollAreas[eventSettings.scrollArea] or scrollAreas[DEFAULT_SCROLL_AREA]
+	if not saSettings or saSettings.disabled then return end
 
-	-- Leave the function if the scroll area is invalid or disabled.
-	if not saSettings or saSettings.disabled then
-		return
-	end
-
-
-	-- Get the inherited font values.
 	local fontSize, fontName, outlineIndex, fontAlpha, isSticky
 	if eventSettings.isCrit then
 		fontSize = eventSettings.fontSize or saSettings.critFontSize or currentProfile.critFontSize
 		fontName = eventSettings.fontName or saSettings.critFontName or currentProfile.critFontName
 		outlineIndex = eventSettings.outlineIndex or saSettings.critOutlineIndex or currentProfile.critOutlineIndex
 		fontAlpha = eventSettings.fontAlpha or saSettings.critFontAlpha or currentProfile.critFontAlpha
-
-		if not currentProfile.stickyCritsDisabled then
-			isSticky = true
-		end
+		if not currentProfile.stickyCritsDisabled then isSticky = true end
 	else
 		fontSize = eventSettings.fontSize or saSettings.normalFontSize or currentProfile.normalFontSize
 		fontName = eventSettings.fontName or saSettings.normalFontName or currentProfile.normalFontName
@@ -417,28 +240,13 @@ local function DisplayEvent(eventSettings, message, texturePath)
 
 	isSticky = isSticky or eventSettings.alwaysSticky
 
-	-- Play the event's sound file if there is one and sounds are enabled.
 	local soundFile = eventSettings.soundFile
 	if soundFile and not currentProfile.soundsDisabled then
 		for soundName, soundPath in MikSBT.IterateSounds() do
-			if soundName == soundFile then
-				soundFile = soundPath
-			end
+			if soundName == soundFile then soundFile = soundPath; break end
 		end
-		--print(soundFile)
-		if type(soundFile) == "string" then
-			if soundFile ~= "" then
-				local soundFileLower = string.lower(soundFile)
-				-- If the sound file doesn't contain any slashes, assume it is in MSBT's sound folder
-				if soundFile ~= "" and not string.find(soundFile, "\\", nil, 1) and not string.find(soundFile, "/", nil, 1) then
-					soundFile = DEFAULT_SOUND_PATH .. soundFile
-				-- If the sound file doesn't begin with "Interface", don't bother trying
-				elseif (string.find(soundFileLower, "interface", nil, 1) or 0) ~= 1 then
-					return
-				end
-				PlaySoundFile(soundFile, "Master")
-			end
-		else
+		if type(soundFile) == "string" and soundFile ~= "" then
+			if not string_find(soundFile, "\\", nil, 1) then soundFile = DEFAULT_SOUND_PATH .. soundFile end
 			PlaySoundFile(soundFile, "Master")
 		end
 	end
@@ -446,206 +254,108 @@ local function DisplayEvent(eventSettings, message, texturePath)
 	Display(message, saSettings, isSticky, eventSettings.colorR or 1, eventSettings.colorG or 1, eventSettings.colorB or 1, fontSize, fonts[fontName], outlineIndex, fontAlpha, texturePath)
 end
 
-
--- ****************************************************************************
--- Displays the passed message using the passed parameters. This function is
--- for easy displaying of messages from external sources. See the included
--- API.html file for usage info.
--- ****************************************************************************
 local function DisplayMessage(message, scrollArea, isSticky, colorR, colorG, colorB, fontSize, fontName, outlineIndex, texturePath)
-	-- Do nothing if no message was passed or the mod is disabled.
-	if not message or IsModDisabled() then
-		return
-	end
-
-	-- Attempt to get the scroll area settings for the passed scroll area.
+	if not message or IsModDisabled() then return end
 	local saSettings = scrollAreas[scrollArea]
 	if not saSettings then
-		-- Loop through all of the scroll areas to see if the passed scroll area matches one of the names.
-		for _, settings in pairs(scrollAreas) do
-			if scrollArea == settings.name then
-				saSettings = settings
-			end
-		end
+		for _, settings in pairs(scrollAreas) do if scrollArea == settings.name then saSettings = settings; break end end
 	end
-
-	-- Use the default scroll area settings if a valid one could not be found.
 	saSettings = saSettings or scrollAreas[DEFAULT_SCROLL_AREA]
+	if not saSettings or saSettings.disabled then return end
 
-	-- Leave the function if the scroll area is invalid or disabled.
-	if not saSettings or saSettings.disabled then
-		return
-	end
+	colorR = (colorR == nil or colorR < 0 or colorR > 255) and 255 or colorR
+	colorG = (colorG == nil or colorG < 0 or colorG > 255) and 255 or colorG
+	colorB = (colorB == nil or colorB < 0 or colorB > 255) and 255 or colorB
 
-
-	-- Set the red, green, and blue color values to default if they are invalid.
-	if colorR == nil or colorR < 0 or colorR > 255 then
-		colorR = 255
-	end
-	if colorG == nil or colorG < 0 or colorG > 255 then
-		colorG = 255
-	end
-	if colorB == nil or colorB < 0 or colorB > 255 then
-		colorB = 255
-	end
-
-
-	-- Get a local reference to the current profile.
 	local currentProfile = MSBTProfiles.currentProfile
-
-	-- Inherit the font size if the passed value is invalid.
-	if fontSize == nil or fontSize < 4 or fontSize > 38 then
-		fontSize = saSettings.normalFontSize or currentProfile.normalFontSize
-	end
-
-	-- Inherit the font if the passed value is invalid.
+	fontSize = (fontSize == nil or fontSize < 4 or fontSize > 38) and (saSettings.normalFontSize or currentProfile.normalFontSize) or fontSize
 	local fontPath = fonts[fontName] or fonts[saSettings.normalFontName or currentProfile.normalFontName]
-
-	-- Inherit the font outline if the passed value is invalid.
-	if not OUTLINE_MAP[outlineIndex] then
-		outlineIndex = saSettings.normalOutlineIndex or currentProfile.normalOutlineIndex
-	end
-
-	-- Inherit the font alpha.
+	if not OUTLINE_MAP[outlineIndex] then outlineIndex = saSettings.normalOutlineIndex or currentProfile.normalOutlineIndex end
 	local fontAlpha = saSettings.normalFontAlpha or currentProfile.normalFontAlpha
 
 	Display(message, saSettings, isSticky, colorR / 255, colorG / 255, colorB / 255, fontSize, fontPath, outlineIndex, fontAlpha, texturePath)
 end
 
-
--- ****************************************************************************
--- Animates the passed display event.
--- ****************************************************************************
 local function AnimateEvent(displayEvent)
 	local fontString = displayEvent.fontString
 	local texture = displayEvent.texture
 	local percentDone = displayEvent.elapsedTime / displayEvent.scrollTime
 
 	if percentDone <= 1 then
-		-- Call the correct animation function for the display event.
 		displayEvent.animationHandler(displayEvent, percentDone)
-
-		-- Smoothly fade the text out as the animation completes.
 		local fadePercent = displayEvent.fadePercent
-		if percentDone >= fadePercent then
-			displayEvent.alpha = (1 - percentDone) / (1 - fadePercent)
-		end
-
-		-- Move the text and set its alpha.
+		if percentDone >= fadePercent then displayEvent.alpha = (1 - percentDone) / (1 - fadePercent) end
 		fontString:SetPoint(displayEvent.anchorPoint, displayEvent.offsetX + displayEvent.positionX, displayEvent.offsetY + displayEvent.positionY)
 		fontString:SetAlpha(displayEvent.masterAlpha * displayEvent.alpha)
-		if texture then
-			texture:SetAlpha(displayEvent.masterAlpha * displayEvent.alpha)
-		end
+		if texture then texture:SetAlpha(displayEvent.masterAlpha * displayEvent.alpha) end
 	else
-		-- Hide the text and set the animation complete flag.
 		fontString:SetAlpha(0)
-		if texture then
-			texture:SetAlpha(0)
-		end
+		if texture then texture:SetAlpha(0) end
 		displayEvent.animationComplete = true
 	end
 end
 
-
--- ****************************************************************************
--- Called when the animation frame is updated.
--- ****************************************************************************
 local function OnUpdateAnimationFrame(this, elapsed)
-	-- Flag for whether or not all the animations are inactive.
 	local allInactive = true
-
-	-- Local variables to hold display event info.
 	local numEvents, displayEvent, texture
 
-	-- Loop through all of the animation arrays.
 	for _, animationArray in pairs(animationData) do
-		-- Loop through all of the display event arrays in the animation array.
 		for _, displayEvents in pairs(animationArray) do
 			numEvents = #displayEvents
-
-			-- Loop through all the display events for the scroll area.
 			for i = 1, numEvents do
 				displayEvent = displayEvents[i]
 				displayEvent.timeSinceLastUpdate = displayEvent.timeSinceLastUpdate + elapsed
-
-				-- Animate the event if enough time has passed and reset the last updated time.
 				if displayEvent.timeSinceLastUpdate >= ANIMATION_DELAY then
 					displayEvent.elapsedTime = displayEvent.elapsedTime + displayEvent.timeSinceLastUpdate
 					AnimateEvent(displayEvent)
 					displayEvent.timeSinceLastUpdate = 0
 				end
-
-
-				-- Clear the all inactive flag
 				allInactive = false
 			end
-
-			-- Loop backwards through all the display events for the animation array and remove the ones
-			-- that are complete.
 			for i = numEvents, 1, -1 do
 				displayEvent = displayEvents[i]
 				if displayEvent.animationComplete then
 					table_remove(displayEvents, i)
-
-					-- Reclaim the texture to cache and clear it so it can be reused if there is one.
 					texture = displayEvent.texture
-					if texture then
-						textureCache[#textureCache + 1] = texture
-						texture:SetTexture(nil)
-						displayEvent.texture = nil
-					end
-
-					-- Reclaim the display event to cache so it can be reused.
+					if texture then textureCache[#textureCache + 1] = texture; texture:SetTexture(nil); displayEvent.texture = nil end
 					displayEventCache[#displayEventCache + 1] = displayEvent
 					displayEvent.animationComplete = false
 				end
 			end
-		end -- Loop through display event arrays.
-	end -- Loop through animation arrays.
-
-
-	-- Hide the animation frame if there are no active animations so the OnUpdate events stop firing.
-	-- This is done to keep the number of OnUpdate events down to a minimum for better performance.
-	if allInactive then
-		this:Hide()
+		end
 	end
+	if allInactive then this:Hide() end
 end
-
 
 -------------------------------------------------------------------------------
 -- Initialization.
 -------------------------------------------------------------------------------
 
--- Create a frame for receiving animation updates.
+-- 12.0.1 Midnight Visibility Canvas
+-- ****************************************************************************
+-- 12.0.1 Final Visibility Fix: Non-zero size but localized center point.
+-- ****************************************************************************
 animationFrame = CreateFrame("Frame", "MSBTAnimationFrame", UIParent)
 animationFrame:SetFrameStrata("HIGH")
-animationFrame:SetPoint("BOTTOM", UIParent, "CENTER")
-animationFrame:SetWidth(0.0001)
-animationFrame:SetHeight(0.0001)
+-- 12.0.1 FIX: 1x1 size is large enough to render, but small enough to keep
+-- coordinate math centered at (0,0).
+animationFrame:SetSize(1, 1)
+animationFrame:SetPoint("CENTER", UIParent, "CENTER")
+animationFrame:SetMouseClickEnabled(false)
 animationFrame:Hide()
 animationFrame:SetScript("OnUpdate", OnUpdateAnimationFrame)
 
--- Create a frame for preloading fonts. It seems that it needs to be anchored
--- and have a height and width in order for the fonts to actually to be loaded.
+-- Font Loader frame
 fontLoaderFrame = CreateFrame("Frame", nil, UIParent)
 fontLoaderFrame:SetPoint("BOTTOM")
-fontLoaderFrame:SetWidth(0.0001)
-fontLoaderFrame:SetHeight(0.0001)
+fontLoaderFrame:SetSize(1, 1)
 fontLoaderFrame:Hide()
-
-
-
 -------------------------------------------------------------------------------
 -- Module interface.
 -------------------------------------------------------------------------------
-
--- Protected Variables.
 module.scrollAreas					= scrollAreas
 module.animationStyles				= animationStyles
 module.stickyAnimationStyles		= stickyAnimationStyles
-
--- Protected Functions.
 module.IsScrollAreaActive			= IsScrollAreaActive
 module.IsScrollAreaIconShown		= IsScrollAreaIconShown
 module.UpdateScrollAreas			= UpdateScrollAreas
