@@ -144,7 +144,7 @@ do
 	function module:ResetStates()
 		stateHidden = true
 	end
-	if ExRT.isMN then
+	if ExRT.isMN and false then
 		function module:timer(elapsed)
 			local chargeInfo = C_Spell.GetSpellCharges(20484)
 			if not chargeInfo then
@@ -285,7 +285,7 @@ do
 	frame.charge:SetShadowOffset(1,-1)
 	frame.charge:SetTextColor(1,1,1,1)
 
-	if ExRT.isMN then
+	if ExRT.isMN and false then
 		frame.cooldown:Show()
 		frame.cooldown:SetDrawEdge(true)
 		frame.cooldown:SetHideCountdownNumbers(false)

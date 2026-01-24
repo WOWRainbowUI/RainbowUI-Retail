@@ -537,12 +537,9 @@ end
 
 local GSUB_AutoColor_Data = {}
 local function GSUB_AutoColorCreate()
-	if canaccessvalue and ((IsInRaid() and not canaccessvalue("raid1")) or (not IsInRaid() and not canaccessvalue("party1"))) then
-		return
-	end
 	wipe(GSUB_AutoColor_Data)
-	for _, name, subgroup, class, guid, rank, level, online, isDead, combatRole in MRT.F.IterateRoster, MRT.F.GetRaidDiffMaxGroup() do
-		if class and name then
+	for _, name, subgroup, class, guid, rank, level, online, isDead, combatRole, unitID in MRT.F.IterateRoster, MRT.F.GetRaidDiffMaxGroup() do
+		if (not canaccessvalue or canaccessvalue(name)) and class and name then
 			class = MRT.F.classColor(class)
 			GSUB_AutoColor_Data[ name ] = "|c"..class..name.."|r"
 			name = strsplit("-",name)
@@ -784,6 +781,7 @@ function module.options:Load()
 		tinsert(module.db.encountersList,MRT.F.table_find(module.db.encountersList,909,1) or #module.db.encountersList,{EXPANSION_NAME7..": "..DUNGEONS,-1012,-968,-1041,-1022,-1030,-1023,-1002,-1001,-1036,-1021})
 	else
 		module.db.encountersList = {}
+		tinsert(module.db.encountersList,MRT.F.table_copy2(MRT.F.table_find3(MRT.GDB.EncountersList,508,1)))
 		tinsert(module.db.encountersList,MRT.F.table_copy2(MRT.F.table_find3(MRT.GDB.EncountersList,456,1)))
 		tinsert(module.db.encountersList,MRT.F.table_copy2(MRT.F.table_find3(MRT.GDB.EncountersList,474,1)))
 		tinsert(module.db.encountersList,MRT.F.table_copy2(MRT.F.table_find3(MRT.GDB.EncountersList,471,1)))
@@ -2200,21 +2198,23 @@ function module.options:Load()
 		local rosterType = module.options.rosterType or 1
 		for i=1,8 do gruevent[i] = 0 end
 		if rosterType == 1 then
-			for _,name, subgroup, class, guid, rank, level, online, isDead, combatRole in MRT.F.IterateRoster do
-				gruevent[subgroup] = gruevent[subgroup] + 1
-		
-				local POS = gruevent[subgroup] + (subgroup - 1) * 5
-				local obj = module.options.raidnames[POS]
-		
-				if obj then
-					local cR,cG,cB = MRT.F.classColorNum(class)
-					name = MRT.F.delUnitNameServer(name)
-					local colorCode = MRT.F.classColor(class)
-					obj.iconText = "||c"..colorCode..name.."||r "
-					obj.iconTextShift = name
-					local roleicon = combatRole and roleToIcon[combatRole]
-					obj.html:SetText((roleicon or "")..name)
-					obj.html:SetTextColor(cR, cG, cB, 1)
+			for _,name, subgroup, class, guid, rank, level, online, isDead, combatRole, unitID in MRT.F.IterateRoster do
+				if not canaccessvalue or canaccessvalue(name) then
+					gruevent[subgroup] = gruevent[subgroup] + 1
+			
+					local POS = gruevent[subgroup] + (subgroup - 1) * 5
+					local obj = module.options.raidnames[POS]
+			
+					if obj then
+						local cR,cG,cB = MRT.F.classColorNum(class)
+						name = MRT.F.delUnitNameServer(name)
+						local colorCode = MRT.F.classColor(class)
+						obj.iconText = "||c"..colorCode..name.."||r "
+						obj.iconTextShift = name
+						local roleicon = combatRole and roleToIcon[combatRole]
+						obj.html:SetText((roleicon or "")..name)
+						obj.html:SetTextColor(cR, cG, cB, 1)
+					end
 				end
 			end
 			module.options.rosterPage:Hide()

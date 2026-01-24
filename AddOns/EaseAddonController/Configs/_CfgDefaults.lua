@@ -907,34 +907,6 @@ D["Leatrix_Plus"] = {
         text = "點小地圖按鈕的 '功能百寶箱' 按鈕，也可以打開主視窗。",
     },
 };
-D["LiteButtonAuras"] = {
-    defaultEnable = 1,
-	tags = { "ACTIONBAR" },
-	title = "光環時間 (快捷列)",
-	desc = "直接在快捷列的技能圖示上面顯示你自己身上的增益效果，和你的當前目標身上的減益效果時間，方便監控。``對敵方目標施放的 DOT 會顯示紅色邊框，自己身上的 HOT/BUFF 會顯示綠色邊框。`",
-	modifier = "彩虹ui",
-	{
-        text = "設定選項",
-        callback = function() Settings.OpenToCategory("光環時間") end,
-    },
-};
-D["LOIHLoot"] = {
-    defaultEnable = 1,
-	tags = { "BOSSRAID" },
-	title = "戰利品願望清單",
-	desc = "在冒險指南中將你想要的裝備/戰利品加入願望清單，方便自己挑選。``也可以將願望清單同步給團隊隊長，方便決定最佳的分裝方式。`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\battleground_strongbox_gold_alliance",
-	img = true,
-    {
-        text = "打開主視窗",
-        callback = function() SlashCmdList["LOIHLOOT"]("") end,
-    },
-	{
-		type = "text",
-        text = "加入願望清單：在冒險指南中每個團隊副本首領的戰利品標籤頁面中勾選。\n\n同步願望清單：團隊隊長在主視窗中按下同步按鈕。\n\n輸入 /lloot 也可以打開主視窗。\n",       
-	},
-};
 D["ls_Glass"] = {
     defaultEnable = 1,
 	tags = { "SOCIAL" },
@@ -967,13 +939,6 @@ D["ls_Toasts"] = {
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
-D["LuckyAres"] = {
-    defaultEnable = 0,
-	tags = { "UNITFRAME" },
-	title = "友方只顯示名字 (備用)",
-	desc = "在副本內開啟友方血條時，只會顯示隊友的名字，不會顯示隊友的血條和施法條，讓畫面不會那麼混亂。``|cffFF2D2D特別注意：每次進入副本後都需要手動重新載入介面一次，才會有效果。``如果使用 '友善友方名條' 插件有效果，建議關閉這個插件改用 '友善友方名條'。不需要每次重新載入介面，還可以調整字體、大小...等。``請勿和 '友善友方名條' 插件同時載入使用。``使用威力血條時，要在副本內顯示隊友名字，請在威力血條設定>自動>隱藏友方血條，取消打勾。|r`",
-	icon = "Interface\\Icons\\boss_odunrunes_green",
-};
 D["MailLogger"] = {
     defaultEnable = 1,
 	tags = { "AUCTION" },
@@ -995,35 +960,6 @@ D["MailLogger"] = {
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
-D["MapPinEnhanced"] = {
-    defaultEnable = 0,
-	tags = { "MAP" },
-	title = "地圖標記點增強",
-	desc = "讓你能夠加入多個地圖標記點、批次匯入/匯出多個地圖坐標。`",
-	modifier = "彩虹ui",
-	icon = "Interface\\MINIMAP\\Minimap-Waypoint-MapPin-Tracked",
-	-- img = true,
-	{
-        text = "顯示標記點清單",
-        callback = function() SlashCmdList["MPH"]("pintracker") end,
-    },
-    {
-        text = "顯示匯入視窗",
-        callback = function() SlashCmdList["MPH"]("import") end,
-    },
-	{
-        text = "清除所有標記點",
-        callback = function() SlashCmdList["MPH"]("removeall") end,
-    },
-	{
-		type = "text",
-        text = "點小地圖按鈕也可以打開清單和視窗。\n",       
-	},
-	{
-		type = "text",
-        text = "輸入 /way x y 或 /pin x y 坐標來加入地圖標記點。\n",       
-	},
-};
 D["Masque"] = {
     defaultEnable = 0,
 	tags = { "ACTIONBAR" },
@@ -1039,57 +975,6 @@ D["Masque"] = {
 		type = "text",
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
-};
-D["MazeHelper"] = {
-    defaultEnable = 1,
-	tags = { "BOSSRAID" },
-	title = "迷霧助手",
-	desc = "幫忙快速解答特那希迷霧的猜猜看遊戲，平時也可以當作小遊戲玩來練習。``進入副本後會出現包含各種圖案的小視窗，你在遊戲中看到的哪個圖案，就點一下小視窗中相同的圖案，都點完了之後會幫你選出正確答案。`",
-	modifier = "BNS, Voopie, 彩虹ui",
-    {
-        text = "顯示主視窗",
-        callback = function() SlashCmdList["MAZEHELPER"]("") end,
-    },
-	{
-		type = "text",
-        text = "點 '迷霧助手' 的小地圖按鈕也可以打開主視窗。",
-    },
-};
-D["MBB"] = {
-    defaultEnable = 0,
-	title = "小地圖按鈕選單 (舊版)",
-	desc = "將小地圖周圍的按鈕，整合成一個彈出式按鈕選單!`",
-	img = true,
-    {
-        text = "重置按鈕位置",
-        callback = function() SlashCmdList["MBB"]("reset position") end,
-    },
-	{
-        text = "恢復為預設值",
-        callback = function() SlashCmdList["MBB"]("reset all") end,
-    },
-	{
-		type = "text",
-        text = "無法重置的話請重新載入後再試",
-    },
-	{
-		type = "text",
-        text = "左鍵：展開按鈕選單。\n\n拖曳：移動位置。\n\n右鍵：設定選項。\n\nCtrl+右鍵：與小地圖分離或結合。",
-    },
-	
-};
-D["MeepMerp"] = {
-	defaultEnable = 1,
-	tags = { "COMBAT" },
-	title = "超出法術範圍音效",
-	desc = "距離過遠、超出法術可以施放的範圍時會發出「咕嚕嚕嚕～」的音效來提醒。`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\spell_holy_blessingofstrength",
-	img = true,
-	{
-		type = "text",
-        text = "自訂音效：將聲音檔案 (MP3 或 OGG) 複製到 AddOns\\MeepMerp 資料夾裡面，然後用記事本編輯 MeepMerp.lua，將音效檔案位置和檔名那一行裡面的 Bonk.ogg 修改為新的聲音檔案名稱，要記得加上副檔名 .mp3 或 .ogg。\n\n更改完成後要重新啟動遊戲才會生效，重新載入無效。\n",
-    },
 };
 D["MythicDungeonTools"] = {
     defaultEnable = 0,
@@ -1126,40 +1011,6 @@ D["MikScrollingBattleText"] = {
         text = "設定選項",
         callback = function() SlashCmdList["MSBT"]("") end,
     },
-};
-D["MythicPlusLoot"] = {
-    defaultEnable = 0,
-	tags = { "BOSSRAID" },
-	title = "M+ 裝備查詢 (舊版)",
-	desc = "方便搜尋在 M+ 地城和寶庫可取得的裝備，可以依照職業、專精、部位和物品等級來找裝備。`",
-	icon = "Interface\\AddOns\\MythicPlusLoot\\textures\\icon",
-    {
-        text = "打開主視窗",
-        callback = function() SlashCmdList["MYTHICPLUSLOOT"]("") end,
-    },
-};
-D["MythicPlusPullReEstimated"] = {
-    defaultEnable = 1,
-	tags = { "BOSSRAID" },
-	title = "M+ 小怪%",
-	desc = "預設在畫面右側、任務清單上方顯示拉怪的預估%，在滑鼠指向的浮動提示資訊中顯示每一隻小怪的%，也可以在敵人的血條旁顯示% (需要在選項中啟用)。`",
-    {
-        text = "設定選項",
-		callback = function() 
-			Settings.OpenToCategory("M+ 小怪%")
-		end,
-    },
-	{
-		type = "text",
-        text = "【沒有拉怪或沒有開啟血條】這行文字: 當坦開始拉怪時這行文字就會變成預估的小怪%。|n|n直接拖曳它可以移動位置，無法拖曳的話在設定選項>拉怪估計框架>鎖定框架，取消打勾。|n|n如果不需要也可以在設定選項中停用當前拉怪框架。|n|n要在副本外調整這行文字的位置，請在設定選項>開發者選項>模擬模式，打勾，即會顯示出來，調整好再將模擬模式取消打勾。",
-    },
-};
-D["MinimapRangeExtender"] = {
-    defaultEnable = 0,
-	tags = { "MAP" },
-	title = "小地圖範圍加大",
-	desc = "加大小地圖的偵測範圍，能夠早一點看到小地圖上的稀有怪和資源。`",
-	icon = "Interface\\Icons\\inv_misc_map08",
 };
 D["Molinari"] = {
     defaultEnable = 0,

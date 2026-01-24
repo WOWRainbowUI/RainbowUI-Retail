@@ -222,7 +222,9 @@ local function InspectNext()
 	if RaidInCombat() or (InspectFrame and InspectFrame:IsShown()) then
 		return
 	end
-	if canaccessvalue and not canaccessvalue(UnitName'target') then
+	if C_Secrets and C_Secrets.ShouldUnitIdentityBeSecret('target') then
+		return
+	elseif canaccessvalue and not canaccessvalue(UnitName'target') then
 		return
 	end
 	local nowTime = GetTime()
@@ -885,7 +887,7 @@ do
 
 	local lastInspectTime = {}
 	function module.main:INSPECT_READY(arg)
-		if module.db.inspectCleared or RaidInCombat() or (canaccessvalue and not canaccessvalue(UnitName("target"))) then
+		if module.db.inspectCleared or RaidInCombat() or (canaccessvalue and not canaccessvalue(UnitName("target"))) or (C_Secrets and C_Secrets.ShouldUnitIdentityBeSecret("target")) then
 			return
 		end
 		ExRT.F.dprint('INSPECT_READY',arg)
