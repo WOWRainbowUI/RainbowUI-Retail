@@ -2,6 +2,7 @@ local COMPAT, _, T = select(4,GetBuildInfo()), ...
 local L, R = T.L, OPie.CustomRings
 if not (R and R.AddDefaultRing) then return end
 local MODERN, CF_WRATH, CF_CATA = COMPAT > 10e4 or nil, COMPAT < 10e4 and COMPAT > 3e4 or nil, COMPAT < 10e4 and COMPAT > 4e4 or nil
+local CF_TBC = COMPAT < 10e4 and COMPAT > 2e4 or nil
 
 R:AddDefaultRing("RaidSymbols", {
 	{"raidmark", 1, _u="y"}, -- yellow star
@@ -27,9 +28,10 @@ do
 		{id="/cast [mod] {{spell:818}}; {{spell:2550/51296}}; {{spell:818}}", _u="c"}, -- cooking/campfire
 		{id="/cast {{spell:4036/51306}}", _u="g"}, -- engineering
 		{id=MODERN and nodeOverload:format("mine", 388213, 423394, 2656) or 2656, _u="m"}, -- smelting/mining journal
-		(MODERN or CF_WRATH) and {id="/cast [mod] {{spell:31252}}; {{spell:25229/51311}}", _u="j"} -- jewelcrafting/prospecting
+		(MODERN or CF_TBC) and {id="/cast [mod] {{spell:31252}}; {{spell:25229/51311}}", _u="j"} -- jewelcrafting/prospecting
 		        or firstAid,
-		(MODERN or CF_WRATH) and {id="/cast [mod] {{spell:51005}}; {{spell:45357/45363}}", _u="i"}, -- inscription/milling
+		(MODERN or CF_WRATH) and {id="/cast [mod] {{spell:51005}}; {{spell:45357/45363}}", _u="i"} -- inscription/milling
+		        or CF_TBC and firstAid,
 		(MODERN or CF_WRATH) and {id=53428, _u="u"}, -- runeforging
 		(MODERN or CF_CATA) and {id="/cast [mod] {{spell:80451}}; {{spell:78670/89722}}", _u="r"} -- archaeology
 		        or CF_WRATH and firstAid,
@@ -40,7 +42,7 @@ do
 		MODERN and {id=439871, show="[in:tww]", _u="ht"}, -- green thumb
 		MODERN and {id=440977, show="[in:tww]", _u="sk"}, -- sharpen your knife
 		MODERN and {id=442615, show="[in:tww]", _u="sm"}, -- carve meat
-		name=L"Trade Skills", hotkey="ALT-T", _u="OPCCT", v=5
+		name=L"Trade Skills", hotkey="ALT-T", _u="OPCCT", v=6
 	})
 end
 R:AddDefaultRing("OPieAutoQuest", {

@@ -1,5 +1,6 @@
 local COMPAT, _, T = select(4, GetBuildInfo()), ...
-local EV, frame, pendingValue = T.Evie, COMPAT > 10e4 and StanceBar or StanceBarFrame, nil
+local PLAIN_STANCEBAR = COMPAT > 10e4 or (COMPAT > 20504 and COMPAT < 3e4)
+local EV, frame, pendingValue = T.Evie, PLAIN_STANCEBAR and StanceBar or StanceBarFrame or StanceBar, nil
 local keeper, parent = CreateFrame("Frame"), frame:GetParent()
 keeper:Hide()
 

@@ -3,30 +3,30 @@ local _, T = ...
 
 local C, z, V, K = GetLocale(), nil
 V =
-    C == "zhCN" and { -- 218/229 (95%)
+    C == "zhCN" and { -- 229/229 (100%)
       "%d 分钟前 (%s)", "%s取消", "%s在当前结果内搜索", "（所有套装）", "(默认)", "（输入图标名称或路径）", "添加环", "添加一个新功能", "使用后进阶显示", "所有%s角色",
       "%s的所有专精", "所有设置", "全部角色", "允许作为快捷动作", "Alt单击设置条件绑定", "动画过渡", "动画", "外观", "分配到所有专精", "在HUD提示位置",
-      "在环中心", "按功能显示", "行为", "快捷键冲突", "快捷键：", "视角模拟摇杆", "取消", "改变行为", z, "修改将不被保存",
-      "为此环绑定快捷键，或在OPie设置中启用%s选项。", "关闭环", "执行快速动作后关闭环", "颜色：", "战斗", "条件快捷键", "快捷键冲突：%s", "手柄方向输入：", z, "创建配置文件",
-      "创建一份新的配置文件", "创建一个新的环", "创建新配置", "自定义环", "自定义功能", "修改已有环或创建你自己的环来个性化OPie。", "在下面自定义OPie快捷键。|cffa0a0a0灰色|r和|cffFA2800红色|r分别代表按键绑定有冲突和当前未激活。", z, z, "自定义OPie的外观和行为。右键点击选项框可将该项恢复为默认值。",
+      "在环中心", "按功能显示", "行为", "快捷键冲突", "快捷键：", "视角模拟摇杆", "取消", "改变行为", "标记为%s的修改是受提交的反馈启发而作出的。", "修改将不被保存",
+      "为此环绑定快捷键，或在OPie设置中启用%s选项。", "关闭环", "执行快速动作后关闭环", "颜色：", "战斗", "条件快捷键", "快捷键冲突：%s", "手柄方向输入：", "复制上面显示的URL，并使用网页浏览器访问它。", "创建配置文件",
+      "创建一份新的配置文件", "创建一个新的环", "创建新配置", "自定义环", "自定义功能", "修改已有环或创建你自己的环来个性化OPie。", "在下面自定义OPie快捷键。|cffa0a0a0灰色|r和|cffFA2800红色|r分别代表按键绑定有冲突和当前未激活。", "自定义OPie环和环内按键绑定。", "自定义OPie的外观和行为。", "自定义OPie的外观和行为。右键点击选项框可将该项恢复为默认值。",
       "自定义绑定", "自定义环内按键绑定", "自定义选项", "自定义图标", "默认按键已禁用", "默认", "全局默认", "删除当前配置", "删除环", "删除功能",
-      "召唤恶魔", "已停用", "显示跳跃功能", "显示为嵌套环", "显示为：", "不显示", "什么也不做", "您想要将所有 %s 设置重置为其默认值，还是仅重置 %s 类别中的设置？", z, "默认嵌入其它环",
+      "召唤恶魔", "已停用", "显示跳跃功能", "显示为嵌套环", "显示为：", "不显示", "什么也不做", "您想要将所有 %s 设置重置为其默认值，还是仅重置 %s 类别中的设置？", "编辑现有的环，或创建您自己的自定义OPie环。", "默认嵌入其它环",
       "嵌入这个环中的功能", "空环", "放大选中的功能", "套装方案", "装备方案", "例如：%s.", "额外操作", "更多传送门", "野性", "如需其他选项，请使用{visibility conditional}。",
-      "炉石", "隐藏环", "隐藏姿势条", "隐藏此环", "打开圆环时隐藏提示信息", "图标：", z, "如果环已打开：", "如果这个宏条件的返回值为%s，或者没有适用条件，此功能将被隐藏。", "导入%s个嵌套环",
+      "炉石", "隐藏环", "隐藏姿势条", "隐藏此环", "打开圆环时隐藏提示信息", "图标：", "如果OPie中的某些内容表现得不正确（或者您希望它表现得不同），请访问以下链接创建问题：", "如果环已打开：", "如果这个宏条件的返回值为%s，或者没有适用条件，此功能将被隐藏。", "导入%s个嵌套环",
       "导入快照", "单击上面的%s以导入快照。", "环内按键绑定", "未激活的环", "包含嵌套环", "输入功能动作说明：", "安装此外观的更新版本以选择它", "安装并启用 %s 以按文件名搜索。", "将指针捕捉到鼠标光标", "互动",
       "点击后依然显示", "左键点击应用绑定", "可用此环的角色：", "小地图追踪", "无鼠标", "下移环", "右移环", "移动模拟摇杆", "嵌套环：%s", "嵌套环",
       "创建新环", "新配置名称：", "没有%s专精", "空", "未绑定", "不能针对每个环进行单独配置。", "未自定义", "所选外观不支持此功能。", "OPie环", "OPie环：%s",
       "OPie环", "左键点击：", "右键点击：", "按下环按键绑定：", "放开按键绑定：", "仅%s", "打开嵌套环", "在鼠标位置打开环", "在屏幕中心打开环", "选项：",
       "旋转消失", "覆盖图标", "覆盖标签：", "英雄之路", "独立角色的环旋转", "预设环功能按键", "宠物", "变形术", "传送门与传送", "预选快捷功能",
       "按%s键保存。", "按%s搜索", "环功能置顶", "配置", "在你切换专精后相应配置文件会自动激活。", "配置文件保存设置与环快捷键。", "任务物品", "快速", "环中央使用快捷功能", "鼠标悬停时的快速动作。",
-      "快速重复动作：", "使用后随机切换", "显示时随机", "放松", "记住最近的选择", "重新打开环", z, "显示时重置", "重启魔兽世界。如果此信息持续存在，删除后重装OPie。", "重置为默认设置",
+      "快速重复动作：", "使用后随机切换", "显示时随机", "放松", "记住最近的选择", "重新打开环", "报告问题", "显示时重置", "重启魔兽世界。如果此信息持续存在，删除后重装OPie。", "重置为默认设置",
       "恢复默认设置", "回复已删除的环", "还原...", "右键点击解除绑定", "环快捷键", "环名称：", "环尺寸", "环边", "环：%s", "旋转：",
-      "旋转嵌套环（下）", "旋转嵌套环（上）", "搜索", "选择 %s 互动方式以启用此选项。", "选择要修改的环", "双击一个动作以加入到这个环", z, "选择的功能（关闭环）", "当前选择环（环保持打开）", "设置名称过滤器：",
+      "旋转嵌套环（下）", "旋转嵌套环（上）", "搜索", "选择 %s 互动方式以启用此选项。", "选择要修改的环", "双击一个动作以加入到这个环", "以下总结了OPie最近更新的精选亮点。有关完整的发行说明，请访问%s", "选择的功能（关闭环）", "当前选择环（环保持打开）", "设置名称过滤器：",
       "变形", "分享环", "按住 Shift 键单击查看环宏命令", "显示冷却数字", "显示充能数字", "显示功能标签", "显示给：", "显示鼠标提示", "模拟右键点击", "功能#%d",
       "快照：", "专精和旅行", "通过输入图标文件名、纹理路径、纹理图集名称或已知的技能名称来指定图标。", "获取该环的快照与他人分享。", "标记目标", "如果你已经开启了该副本的英雄之路，便可直接传送至你需要的副本。", "按键设置将根据该宏条件的返回值更新。", "用以下宏命令打开此环：", "这些设置", "此外观可能不支持全部的OPie功能。",
-      "此快捷键正被另一个插件使用。", "此快捷键当前无法使用，因为它和另一个绑定冲突。", "专业技能", z, "按下绑定按键触发", "松开绑定按键触发", "明白了；继续编辑", "撤销变动", "未移动的光标", "光标未移动，或者在环中心",
-      "需要更新", "使用默认环快捷键", "打开时使用第一个功能", "使用全局设定", "使用功能", "使用功能并关闭环", "工具", "虚拟鼠标光标", "可见条件：", z,
-      "环展开时：", "世界标记", "由于内存不足，魔兽世界不能加载已保存的OPie变量。请尝试禁用其他插件。现在你所做的任何改动都不会被保存。", "您可以稍后取消或恢复到之前的设置。", z, "你可以使用扩展的宏条件；详情见%s。", "必须为此环启用%s选项，以使用快捷动作。", "你的当前角色目前无法使用该物品。", "默认",
+      "此快捷键正被另一个插件使用。", "此快捷键当前无法使用，因为它和另一个绑定冲突。", "专业技能", "翻译OPie", "按下绑定按键触发", "松开绑定按键触发", "明白了；继续编辑", "撤销变动", "未移动的光标", "光标未移动，或者在环中心",
+      "需要更新", "使用默认环快捷键", "打开时使用第一个功能", "使用全局设定", "使用功能", "使用功能并关闭环", "工具", "虚拟鼠标光标", "可见条件：", "最新动态",
+      "环展开时：", "世界标记", "由于内存不足，魔兽世界不能加载已保存的OPie变量。请尝试禁用其他插件。现在你所做的任何改动都不会被保存。", "您可以稍后取消或恢复到之前的设置。", "您可以通过访问以下链接来帮助翻译OPie：", "你可以使用扩展的宏条件；详情见%s。", "必须为此环启用%s选项，以使用快捷动作。", "你的当前角色目前无法使用该物品。", "默认",
     }
     or C == "zhTW" and { -- 214/229 (93%)
       "%d 分鐘前 (%s)", "%s取消", "%s在目前的結果內搜尋", "(所有套裝)", "(預設)", "(在此輸入圖示名稱或路徑)", "新增環", "加入一個新的功能", "使用後進階顯示", "所有 %s 角色",
@@ -77,7 +77,7 @@ K = V and {
       "Snapshot:", "Specializations and Travel", "Specify an icon by entering an icon file name, texture path, atlas name, or a known ability name.", "Take a snapshot of this ring to share it with others.", "Target Markers", "Teleport to where you are needed... if you know that Path.", "The binding will update to reflect the value of this macro options expression.", "The following macro command opens this ring:", "These Settings", "This appearance may not support all OPie features.",
       "This binding is currently used by another addon.", "This binding is not currently active because it conflicts with another.", "Trade Skills", "Translate OPie", "Trigger on binding press", "Trigger on binding release", "Understood; edit anyway", "Undo changes", "Unmoved cursor", "Unmoved cursor, or at ring center",
       "Update required", "Use default ring bindings", "Use first slice when opened", "Use global setting", "Use slice", "Use slice and close ring", "Utility", "Virtual mouse cursor", "Visibility conditional:", "What's New",
-      "While a ring is open:", "World Markers", "World of Warcraft could not load OPie's saved variables due to a lack of memory. Try disabling other addons.\n\nAny changes you make now will not be saved.", "You can cancel or revert to previous settings later.", "You can help translate OPie by visiting:", "You may use extended conditionals; see %s for details.", "You must enable a %s interaction for this ring in OPie options to use quick actions.", "Your character currently cannot use this.", "default", "OPie",
+      "While a ring is open:", "World Markers", "World of Warcraft could not load OPie's saved variables due to a lack of memory. Try disabling other addons.\n\nAny changes you make now will not be saved.", "You can cancel or revert to previous settings later.", "You can help translate OPie by visiting:", "You may use extended conditionals; see %s for details.", "You must enable a %s interaction for this ring in OPie options to use quick actions.", "Your character currently cannot use this.", "default","OPie",
 }
 
 local L = K and {}
