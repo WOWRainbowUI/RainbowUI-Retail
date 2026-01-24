@@ -3,14 +3,14 @@ local L = LibStub("AceLocale-3.0"):NewLocale("HandyNotes_Dornogal", "zhCN", fals
 if not L then return end
 -- Simplified Chinese localization by nbyang ( https://www.curseforge.com/members/nbyang )
 --  zhCN client: (NGA-男爵凯恩)
---  Last update: 2023/11/17
+--  Last update: 2024/08/31
 if L then
 ----------------------------------------------------------------------------------------------------
 -----------------------------------------------CONFIG-----------------------------------------------
 ----------------------------------------------------------------------------------------------------
 
 L["config_plugin_name"] = "多恩诺嘉尔"
--- L["config_plugin_desc"] = ""
+L["config_plugin_desc"] = "在世界地图和小地图上显示多恩诺嘉尔各种NPC及传送门位置。"
 
 L["config_tab_general"] = "通用"
 L["config_tab_scale_alpha"] = "缩放/透明度"
@@ -74,9 +74,6 @@ L["config_transmogrifier_desc"] = "显示幻化师的位置"
 
 L["config_vendor"] = "商人"
 L["config_vendor_desc"] = "显示商人的位置"
-
-L["config_void"] = "虚空仓库"
-L["config_void_desc"] = "显示虚空仓库的位置"
 
 L["config_others"] = "其他"
 L["config_others_desc"] = "显示其他的点"

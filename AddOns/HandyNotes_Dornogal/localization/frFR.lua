@@ -73,9 +73,6 @@ L["config_transmogrifier_desc"] = "Affiche l’emplacement du transmogrifieur."
 L["config_vendor"] = "Vendeurs"
 L["config_vendor_desc"] = "Affiche l’emplacements des vendeurs."
 
-L["config_void"] = "Chambre du Vide"
-L["config_void_desc"] = "Affiche l’emplacement de la Chambre du Vide."
-
 L["config_others"] = "Autres"
 L["config_others_desc"] = "Affiche l’emplacements des autres endroits importants."
 
@@ -148,5 +145,5 @@ L["Portal to Orgrimmar"] = "Portail vers Orgrimmar"
 L["Portal to Stormwind"] = "Portail vers Hurlevent"
 L["Rostrum of Transformation"] = "Tribune de transformation"
 L["Portal to The Timeways"] = "Portail vers les voies temporelles"
--- L["The Catalyst"] = ""
+L["The Catalyst"] = "Le catalyseur"
 end

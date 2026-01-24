@@ -73,9 +73,6 @@ L["config_transmogrifier_desc"] = "Show the transmogrifier location."
 L["config_vendor"] = "Vendor"
 L["config_vendor_desc"] = "Show the vendor locations."
 
-L["config_void"] = "Void Storage"
-L["config_void_desc"] = "Show the void storage location."
-
 L["config_others"] = "Others"
 L["config_others_desc"] = "Show all the other POIs."
 
