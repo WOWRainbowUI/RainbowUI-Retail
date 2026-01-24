@@ -80,7 +80,7 @@ function addon.GetLayoutChangeOptions()
             name = function()
                 local _, specName = C_SpecializationInfo.GetSpecializationInfo(specIndex)
                 if specName then
-                    return specName .. " - Group Type"
+                    return specName .. L[" - Group Type"]
                 end
                 return "N/A"
             end,
@@ -105,8 +105,8 @@ function addon.GetLayoutChangeOptions()
         order = order + 1
         
         options["row"..specIndex].args["spec"..specIndex.."size"] = {
-            name = "Group Size",
-            desc = "You do not need to set a profile for every size, the next-smallest size will be used if nothing is set!",
+            name = L["Group Size"],
+            desc = L["You do not need to set a profile for every size, the next-smallest size will be used if nothing is set!"],
             type = "range",
             min = 1,
             max = 40,
@@ -133,7 +133,7 @@ function addon.GetLayoutChangeOptions()
         order = order + 1
         
         options["row"..specIndex].args["spec"..specIndex.."layout"] = {
-            name = "Selected Layout",
+            name = L["Selected Layout"],
             type = "select",
             values = getLayouts,
             hidden = function()

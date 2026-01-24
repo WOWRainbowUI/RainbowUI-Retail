@@ -2,7 +2,7 @@
 -- Internal variables
 --
 
-local MAJOR, MINOR = "EditModeExpanded-1.0", 105
+local MAJOR, MINOR = "EditModeExpanded-1.0", 107
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -180,8 +180,7 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
                 EditModeExpandedSystemSettingsDialog:AttachToSystemFrame(frame)
             end
         end)
-        registerFrameMovableWithArrowKeys(frame)
-        
+
         frame.Selection:HookScript("OnDragStop", function(self)
             EditModeExpandedSystemSettingsDialog:UpdateSettings(frame)
             if frame:IsUserPlaced() then
@@ -197,7 +196,11 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
         local profileName = layoutInfo.layoutType.."-"..layoutInfo.layoutName
         if layoutInfo.layoutType == Enum.EditModeLayoutType.Character then
             local unitName, unitRealm = UnitFullName("player")
-            profileName = layoutInfo.layoutType.."-"..unitName.."-"..unitRealm.."-"..layoutInfo.layoutName
+            -- See https://github.com/teelolws/EditModeExpanded/issues/201
+            -- Despite the docs, it seems unitRealm can still sometimes be nil
+            if unitName and unitRealm then
+                profileName = layoutInfo.layoutType.."-"..unitName.."-"..unitRealm.."-"..layoutInfo.layoutName
+            end
         end
         
         if not db.profiles then db.profiles = {} end
@@ -743,7 +746,7 @@ function lib:RegisterCoordinates(frame)
     coordinatePanel.label = coordinatePanel:CreateFontString(nil, nil, "GameTooltipText")
     local label = coordinatePanel.label
     label.layoutIndex = 1
-    label:SetText("Coordinates:")
+    label:SetText("螢幕座標:")
     
     coordinatePanel.xEditBox = CreateFrame("EditBox", nil, coordinatePanel, "InputBoxTemplate")
     local xEditBox = coordinatePanel.xEditBox
@@ -1450,6 +1453,7 @@ hooksecurefunc(f, "OnLoad", function()
                     self.Buttons:SetPoint("TOP", self.Title, "BOTTOM", 0, -12);
                 else
                     self.Settings:Show();
+                    self.Settings:SetSize(1,1)
                     self.Settings:Layout();
                     for settingFrame, settingData in pairs(settingsToSetup) do
                         settingFrame:SetupSetting(settingData);

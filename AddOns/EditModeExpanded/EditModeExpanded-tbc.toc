@@ -1,4 +1,4 @@
-## Interface: 120000
+## Interface: 20505
 ## Title: Edit Mode Expanded
 ## Version: 12.0-006
 ## Notes: Expands Edit Mode to apply to other frames
@@ -26,60 +26,41 @@
 libs\EditModeExpanded-1.0\EditModeExpanded-1.0.xml
 
 Locales\enus.lua
+Locales\zhCN.lua
 Locales\zhTW.lua
 
 FrameHandlers\ActionBars.lua
-FrameHandlers\AlertFrame.lua
 FrameHandlers\BelowMinimapContainer.lua
 FrameHandlers\BonusRoll.lua
 FrameHandlers\Buffs.lua
-FrameHandlers\ChatButtons.lua
-FrameHandlers\CooldownManager.lua
-FrameHandlers\DurationBars.lua
+FrameHandlers\ChatButtons-tbc.lua
 FrameHandlers\ExtraActionButton.lua
 FrameHandlers\FocusCast.lua
 FrameHandlers\FocusFrame.lua
 FrameHandlers\FocusToT.lua
 FrameHandlers\GameMenu.lua
 FrameHandlers\GroupLoot.lua
-FrameHandlers\Housing.lua
-FrameHandlers\LFG.lua
-FrameHandlers\LossOfControl.lua
 FrameHandlers\Menu.lua
 FrameHandlers\Minimap.lua
 FrameHandlers\ObjectiveTracker.lua
-FrameHandlers\PersonalResourceDisplay.lua
 FrameHandlers\Pet.lua
 FrameHandlers\PlayerFrame.lua
 FrameHandlers\Raid.lua
 FrameHandlers\StanceBar.lua
 FrameHandlers\StatusTrackingBar.lua
-FrameHandlers\TalkingHead.lua
 FrameHandlers\TargetCast.lua
 FrameHandlers\TargetFrame.lua
 FrameHandlers\TargetOfTarget.lua
-FrameHandlers\Tooltip.lua
+FrameHandlers\Tooltip-tbc.lua
 FrameHandlers\TopCenterContainer.lua
-FrameHandlers\TotemFrame.lua
-
-FrameHandlers\ClassResources\ArcaneCharges.lua
-FrameHandlers\ClassResources\ChiBar.lua
-FrameHandlers\ClassResources\ComboPoints.lua
-FrameHandlers\ClassResources\Essences.lua
-FrameHandlers\ClassResources\HolyPower.lua
-FrameHandlers\ClassResources\Runes.lua
-FrameHandlers\ClassResources\SoulShards.lua
 
 AutoLayoutChanges.lua
-Options.lua
+Options-tbc.lua
 RegisterFrame.lua
 ResetFrame.lua
 HookOnce.lua
 AnchorToDropdown.lua
-MicroMenu.lua
 RegisteredSystemFrames.lua
 CombatManager.lua
-EditModeExpanded.lua
+EditModeExpanded-tbc.lua
 WarningFrame.xml
-Vigor.lua
-Vigor.xml
