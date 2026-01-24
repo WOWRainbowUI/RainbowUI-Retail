@@ -122,12 +122,14 @@ function Addon:CloseOptions()
     Addon:CloseImport()
     Addon.fMain:SetMovable(false)
     Addon.fMain:EnableMouse(false)
-    if not IPMTDungeon.keyActive then
-        Addon.fMain:Hide()
-    end
-    if IPMTDungeon.deathes and IPMTDungeon.deathes.list == nil or #IPMTDungeon.deathes.list == 0 then
-        Addon.fMain.deathTimer:Hide()
-    end
+    if IPMTDungeon then -- 暫時修正
+		if not IPMTDungeon.keyActive then
+			Addon.fMain:Hide()
+		end
+		if IPMTDungeon.deathes and IPMTDungeon.deathes.list == nil or #IPMTDungeon.deathes.list == 0 then
+			Addon.fMain.deathTimer:Hide()
+		end
+	end
     Addon.fMain.timer:EnableMouse(true)
     Addon.fMain.deathTimer:EnableMouse(true)
     Addon.fMain.bosses:EnableMouse(true)
