@@ -620,30 +620,6 @@ D["DragonRider"] = {
 		end,
     },
 };
-D["Drift"] = {
-	defaultEnable = 0,
-	tags = { "ENHANCEMENT" }, 
-	title = "(請刪除) 移動和縮放視窗",
-	desc = "允許自由拖曳移動和縮放遊戲內建的各種視窗，並且會保存位置，就算登出登入後位置也不會跑掉。``如果怕不小心移動到，可以在設定選項中勾選鎖定移動和鎖定縮放，並且設定需要按住的按鍵，才能拖曳/縮放。``|cffFF2D2D特別注意：使用 '任務追蹤清單增強' 插件時，請勿在設定選項中勾選 '任務追蹤清單'。要移動任務追蹤清單請到 '任務追蹤清單增強' 插件的設定選項中調整。|r`",
-	modifier = "彩虹ui",
-	{
-        text = "設定選項",
-		callback = function()
-			Settings.OpenToCategory("移動視窗")
-		end,
-    },
-	{
-		type = "text",
-		text = "移動視窗: 按住左鍵拖曳視窗標題，或拖曳視窗內沒有功能的地方來移動位置。\n\n縮放視窗: 按住右鍵往上或往下拖曳來縮放視窗大小。\n",
-	},
-};
-D["EasyConversion"] = {
-	defaultEnable = 0,
-	tags = { "SOCIAL" }, 
-	title = "聊天文字簡轉繁",
-	desc = "將聊天視窗中的簡體字轉換成繁體，看起來更輕鬆，溝通無障礙!``如果你不太習慣看簡體字，可以使用這個插件。``|cffFF2D2D特別注意：只會轉換聊天視窗中的文字，其他任何地方的文字都不會轉換，玩家名字也不會轉換。|r`",
-	icon = "Interface\\Icons\\ability_evoker_innatemagic5",
-};
 D["EasyFrames"] = {
 	defaultEnable = 0,
 	title = "暴雪頭像 (美化調整)",
@@ -679,7 +655,7 @@ D["EditModeExpanded"] = {
     {
         text = "設定選項",
         callback = function() 
-			Settings.OpenToCategory("編輯模式")
+			Settings.OpenToCategory(EditModeExpandedADB.global.EMEOptions.categoryID)
 		end,
     },
 	{
