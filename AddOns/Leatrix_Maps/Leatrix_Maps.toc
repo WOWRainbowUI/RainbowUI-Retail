@@ -1,4 +1,4 @@
-## Interface: 110207, 120000, 120001
+## Interface: 120000, 120001
 
 ## Title: Leatrix Maps
 
@@ -16,7 +16,7 @@
 ## Notes-zhTW: curseforge.com/wow/addons/leatrix-maps
 ## Notes-zhCN: curseforge.com/wow/addons/leatrix-maps
 
-## Version: 11.2.28
+## Version: 12.0.00
 ## Author: Leatrix
 ## SavedVariables: LeaMapsDB
 ## LoadSavedVariablesFirst: true

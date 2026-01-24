@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 11.2.28 (14th January 2026)
+	-- 	Leatrix Maps 12.0.00 (21st January 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "11.2.28"
+	LeaMapsLC["AddonVer"] = "12.0.00"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -21,10 +21,10 @@
 	-- Check Wow version is valid
 	do
 		local gameversion, gamebuild, gamedate, gametocversion = GetBuildInfo()
-		if gametocversion and gametocversion < 110000 then
-			-- Game client is Wow Classic
+		if gametocversion and gametocversion < 120000 then
+			-- Game client is not Midnight
 			C_Timer.After(2, function()
-				print(L["LEATRIX MAPS: THIS IS FOR THE WAR WITHIN ONLY!"])
+				print(L["LEATRIX MAPS: WRONG VERSION INSTALLED!"])
 			end)
 			return
 		end
@@ -1408,7 +1408,7 @@
 			pTex:SetAlpha(0.2)
 			pTex:SetTexCoord(0, 1, 1, 0)
 
-			expTitle:SetText(L["The War Within"] .. "|n" .. L["Midnight Beta"]) -- LeaMapsLC.NewPatch
+			expTitle:SetText(L["Midnight"])
 			local category = Settings.RegisterCanvasLayoutCategory(interPanel, "Leatrix Maps")
 			Settings.RegisterAddOnCategory(category)
 
@@ -2174,21 +2174,6 @@
 			-- Set initial minimum button position
 			if not LeaMapsDB["minimapPos"] then
 				LeaMapsDB["minimapPos"] = 204
-			end
-
-			-- Lock options currently not compatible with Dragonflight (LeaMapsLC.DF)
-			local function LockDF(option, reason)
-				LeaMapsLC[option] = "Off"
-				LeaMapsDB[option] = "Off"
-				LeaMapsLC:LockItem(LeaMapsCB[option], true)
-				if reason then
-					LeaMapsCB[option].tiptext = LeaMapsCB[option].tiptext .. "|n|n|cff00AAFF" .. L[reason]
-				end
-			end
-
-			if LeaMapsLC.NewPatch then
-			else
-				-- LockDF("NoMapTabs", "This is for game patch 11.1.0.")
 			end
 
 		elseif event == "PLAYER_LOGIN" then
