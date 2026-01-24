@@ -1,12 +1,11 @@
-## Interface: 110205, 110207
-## Version: 11.2.0
-## Title: Friend Groups
-## Author: Mikeprod
-## Edited by Thainii
-## Edited by Hayato
-## IconTexture: Interface/Icons/Achievement_guildperk_everybodysfriend.blp
-## Notes: Addon managing your contact list with groups
+## Interface: 120000
+## Version: 12.0.1
+## Title: FriendGroups
+## Notes:|cfffe7b2cFriendGroups is a powerful contact manager and list enhancer. Organize friends with custom groups, advanced search capabilities, and seamless mass invites.|r
+## Author: Updated for Midnight Pre-Patch (12.0) by Osiris the Kiwi / Discord: osirisnz / Original authors: mkp_tv / Hayato2846 / Thainii
+## IconTexture: 134149
 ## SavedVariables: FriendGroups_SavedVars
+## X-License: GPLv3
 
 ## Category: User Interface
 ## Category-enUS: User Interface
@@ -25,5 +24,6 @@
 ## Notes-zhTW: FriendGroups |n|n增強遊戲內建的好友名單，可以建立多個不同的群組來分類管理好友名單、顯示職業顏色、搜尋好友、還有更多自訂選項。|n|n|cffffd200使用方法: |r在好友名字上點右鍵來新增或加入群組，在群組名稱或[沒有群組]上面點右鍵進入設定選項。
 ## Category-zhTW: 聊天
 
+locales\localizations.xml
 FriendGroups.lua
 FriendGroups.xml

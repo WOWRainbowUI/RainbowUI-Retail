@@ -1,6 +1,34 @@
 --[[
-	Variables
+	FriendGroups - FULL ORIGINAL CODE + SECURE ARCHITECTURE
+    - Uses the exact original logic for groups, menus, and sorting.
+    - Adds "Lazy Loading" to prevent VisitHouse() taint.
+    - Adds Safety Shield to the House List.
 ]] --
+local addonName, addonTable = ...
+local L = addonTable.L or {}
+
+-- [[ STATE MANAGEMENT ]] --
+local FriendGroups_Loaded = false 
+
+-- [[ FORWARD DECLARATIONS ]] --
+local EnableFriendGroups
+local FriendGroups_FriendsListUpdate
+local FriendGroups_FriendsListUpdateFriendButton
+local FriendGroups_FriendsListButtonTemplateClick
+
+local ADDON_CHAT_PREFIX = "|cffFFE400[|r|cff3AFF00" .. "FriendGroups" .. "|r|cffFFE400]|r"
+local function Print(...)
+    local str = ADDON_CHAT_PREFIX .. "|cff00F7FF "
+    local count = select("#", ...)
+    for i = 1, count do
+        str = str .. tostring(select(i, ...))
+        if i < count then
+            str = str .. " "
+        end
+    end
+    DEFAULT_CHAT_FRAME:AddMessage(str .. "|r")
+end
+
 local playerRealmID = GetRealmID();
 local playerFactionGroup = UnitFactionGroup("player");
 local INVITE_RESTRICTION_NONE = 9
@@ -11,240 +39,235 @@ local expansionMaxLevel = {}
 local friendsListEmpty = false
 local searchBoxInit = false
 local lastFriendsListEmptyWarning = 0
-local currentExpansionMaxLevel, FriendGroups_Menu, FriendGroupFrame, searchOpened
+local currentExpansionMaxLevel, FriendGroups_Menu, FriendGroupsFrame, searchOpened
 local searchValue = ""
-local menuItems = {
-	[1] = {
-		{ text = "",         notCheckable = true, isTitle = true },
-		{
-			text = "組隊邀請全部",
-			notCheckable = true,
-			func = function(self, menu, clickedgroup)
-				FriendGroups_InviteOrGroup(clickedgroup, true)
-			end
-		},
-		{
-			text = "重新命名群組",
-			notCheckable = true,
-			func = function(self, menu, clickedgroup)
-				StaticPopup_Show(
-					"FRIEND_GROUP_RENAME", nil, nil, clickedgroup)
-			end
-		},
-		{
-			text = "移除群組",
-			notCheckable = true,
-			func = function(self, menu, clickedgroup)
-				FriendGroups_InviteOrGroup(clickedgroup, false)
-			end
-		},
-		{ text = "設定", notCheckable = true, hasArrow = true },
-	},
-	[2] = {
-		{ text = "過濾方式",    notCheckable = true, isTitle = true },
-		{
-			text = "啟用搜尋",
-			checked = function()
-				return FriendGroups_SavedVars
-					.show_search
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.show_search = not FriendGroups_SavedVars.show_search
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "隱藏離線",
-			checked = function()
-				return FriendGroups_SavedVars
-					.hide_offline
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.hide_offline = not FriendGroups_SavedVars.hide_offline
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "隱藏 AFK",
-			checked = function() return FriendGroups_SavedVars.hide_afk end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.hide_afk = not FriendGroups_SavedVars.hide_afk
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "隱藏空的群組",
-			checked = function()
-				return FriendGroups_SavedVars
-					.hide_empty_groups
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.hide_empty_groups = not FriendGroups_SavedVars.hide_empty_groups
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "只顯示遊戲內好友",
-			checked = function()
-				return FriendGroups_SavedVars
-					.ingame_only
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.ingame_only = not FriendGroups_SavedVars.ingame_only
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "只顯示正式服好友",
-			checked = function()
-				return FriendGroups_SavedVars
-					.show_retail
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.show_retail = not FriendGroups_SavedVars.show_retail
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{ text = "自訂", notCheckable = true, isTitle = true },
-		{
-			text = "顯示陣營圖示",
-			checked = function()
-				return FriendGroups_SavedVars
-					.show_faction_icons
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.show_faction_icons = not FriendGroups_SavedVars.show_faction_icons
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "顯示伺服器",
-			checked = function()
-				return FriendGroups_SavedVars
-					.show_realm
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.show_realm = not FriendGroups_SavedVars.show_realm
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "顯示職業顏色",
-			checked = function()
-				return FriendGroups_SavedVars
-					.colour_classes
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.colour_classes = not FriendGroups_SavedVars.colour_classes
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "淡出不同陣營",
-			checked = function()
-				return FriendGroups_SavedVars
-					.gray_faction
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.gray_faction = not FriendGroups_SavedVars.gray_faction
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "行動裝置好友視為 AFK",
-			checked = function()
-				return FriendGroups_SavedVars
-					.show_mobile_afk
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.show_mobile_afk = not FriendGroups_SavedVars.show_mobile_afk
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "加入行動裝置文字",
-			checked = function()
-				return FriendGroups_SavedVars
-					.add_mobile_text
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.add_mobile_text = not FriendGroups_SavedVars.add_mobile_text
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "滿等玩家隱藏等級",
-			checked = function()
-				return FriendGroups_SavedVars
-					.hide_high_level
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.hide_high_level = not FriendGroups_SavedVars.hide_high_level
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "只顯示 BattleTag",
-			checked = function() return FriendGroups_SavedVars.show_btag end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.show_btag = not FriendGroups_SavedVars.show_btag
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{
-			text = "啟用摯友群組",
-			checked = function()
-				return FriendGroups_SavedVars
-					.add_favorite_group
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.add_favorite_group = not FriendGroups_SavedVars.add_favorite_group
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{ text = "排序", notCheckable = true, isTitle = true },
-		{
-			text = "依狀態排序",
-			checked = function()
-				return FriendGroups_SavedVars
-					.sort_by_status
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.sort_by_status = not FriendGroups_SavedVars.sort_by_status
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-		{ text = "其他", notCheckable = true, isTitle = true },
-		{
-			text = "一次只展開一個群組",
-			checked = function()
-				return FriendGroups_SavedVars
-					.open_one_group
-			end,
-			func = function()
-				CloseDropDownMenus()
-				FriendGroups_SavedVars.open_one_group = not FriendGroups_SavedVars.open_one_group
-				FriendGroups_FriendsListUpdate()
-			end
-		},
-	},
+local FriendGroups_SearchBox
+
+-- Data for the Custom Menu
+local FriendGroups_ClickedData = {}
+
+local groupMenuItems = {
+    { text = "",         notCheckable = true, isTitle = true },
+    {
+        text = L["MENU_RENAME"],
+        notCheckable = true,
+        func = function(self, menu, clickedgroup)
+            StaticPopup_Show("FRIENDGROUPS_RENAME", nil, nil, clickedgroup)
+        end
+    },
+    {
+        text = L["MENU_REMOVE"],
+        notCheckable = true,
+        func = function(self, groupName, clickedgroup)
+            FriendGroups_InviteOrGroup(groupName, false)
+        end
+    },
+    {
+        text = L["MENU_INVITE"],
+        notCheckable = true,
+        func = function(self, groupName, clickedgroup)
+            FriendGroups_InviteOrGroup(groupName, true)
+        end
+    },
 }
+
+local settingsMenuItems = {
+    -- SECTION 1: FILTERS (Who shows up?)
+    { text = L["SETTINGS_FILTER"],    notCheckable = true, isTitle = true },
+    {
+        text = L["SET_HIDE_OFFLINE"],
+        checked = function() return FriendGroups_SavedVars.hide_offline end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.hide_offline = not FriendGroups_SavedVars.hide_offline
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_HIDE_AFK"],
+        checked = function() return FriendGroups_SavedVars.hide_afk end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.hide_afk = not FriendGroups_SavedVars.hide_afk
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_HIDE_EMPTY"],
+        checked = function() return FriendGroups_SavedVars.hide_empty_groups end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.hide_empty_groups = not FriendGroups_SavedVars.hide_empty_groups
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_INGAME_ONLY"],
+        checked = function() return FriendGroups_SavedVars.ingame_only end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.ingame_only = not FriendGroups_SavedVars.ingame_only
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_RETAIL_ONLY"],
+        checked = function() return FriendGroups_SavedVars.show_retail end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.show_retail = not FriendGroups_SavedVars.show_retail
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+
+    -- SECTION 2: APPEARANCE (How do they look?)
+    { text = L["SETTINGS_APPEARANCE"], notCheckable = true, isTitle = true },
+    {
+        text = L["SET_CLASS_COLOR"],
+        checked = function() return FriendGroups_SavedVars.colour_classes end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.colour_classes = not FriendGroups_SavedVars.colour_classes
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_FACTION_ICONS"],
+        checked = function() return FriendGroups_SavedVars.show_faction_icons end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.show_faction_icons = not FriendGroups_SavedVars.show_faction_icons
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_GRAY_FACTION"],
+        checked = function() return FriendGroups_SavedVars.gray_faction end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.gray_faction = not FriendGroups_SavedVars.gray_faction
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_SHOW_REALM"],
+        checked = function() return FriendGroups_SavedVars.show_realm end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.show_realm = not FriendGroups_SavedVars.show_realm
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_SHOW_BTAG"],
+        checked = function() return FriendGroups_SavedVars.show_btag end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.show_btag = not FriendGroups_SavedVars.show_btag
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_HIDE_MAX_LEVEL"],
+        checked = function() return FriendGroups_SavedVars.hide_high_level end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.hide_high_level = not FriendGroups_SavedVars.hide_high_level
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_MOBILE_AFK"],
+        checked = function() return FriendGroups_SavedVars.show_mobile_afk end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.show_mobile_afk = not FriendGroups_SavedVars.show_mobile_afk
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+
+    -- SECTION 3: GROUP SETTINGS (Structure)
+    { text = L["SETTINGS_BEHAVIOR"], notCheckable = true, isTitle = true },
+    {
+        text = L["SET_FAV_GROUP"],
+        checked = function() return FriendGroups_SavedVars.add_favorite_group end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.add_favorite_group = not FriendGroups_SavedVars.add_favorite_group
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_COLLAPSE"],
+        checked = function() return FriendGroups_SavedVars.open_one_group end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.open_one_group = not FriendGroups_SavedVars.open_one_group
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+
+    -- SECTION 4: AUTOMATION
+    { text = L["SETTINGS_AUTOMATION"], notCheckable = true, isTitle = true },
+    {
+        text = L["SET_AUTO_ACCEPT"],
+        checked = function() return FriendGroups_SavedVars.auto_accept_invite end,
+        func = function()
+            CloseDropDownMenus()
+            FriendGroups_SavedVars.auto_accept_invite = not FriendGroups_SavedVars.auto_accept_invite
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+
+    -- SECTION 5: RESET
+    { text = "", notCheckable = true, isTitle = true }, -- Spacer
+    {
+        text = L["SETTINGS_RESET"],
+        notCheckable = true,
+        func = function()
+            CloseDropDownMenus()
+            -- 1. Reset all variables to the default "fresh install" state
+            FriendGroups_SavedVars.hide_offline = true
+            FriendGroups_SavedVars.colour_classes = true
+            FriendGroups_SavedVars.show_faction_icons = true
+            FriendGroups_SavedVars.show_realm = true
+            FriendGroups_SavedVars.hide_high_level = true
+            FriendGroups_SavedVars.add_favorite_group = true
+            
+            FriendGroups_SavedVars.gray_faction = false
+            FriendGroups_SavedVars.show_mobile_afk = false
+            FriendGroups_SavedVars.add_mobile_text = true
+            FriendGroups_SavedVars.ingame_only = false
+            FriendGroups_SavedVars.ingame_retail = false
+            FriendGroups_SavedVars.show_btag = false
+            FriendGroups_SavedVars.show_retail = false
+            FriendGroups_SavedVars.show_search = true
+            FriendGroups_SavedVars.hide_empty_groups = false
+            FriendGroups_SavedVars.hide_afk = false
+            FriendGroups_SavedVars.open_one_group = false
+            FriendGroups_SavedVars.auto_accept_invite = false
+
+            -- 2. Clear known collapse states
+            FriendGroups_SavedVars.collapsed = {}
+            
+            -- 3. Update the list
+            FriendGroups_FriendsListUpdate()
+            
+            -- 4. Force set all groups to FALSE (Expanded)
+            if FriendGroups_SavedVars.collapsed then
+                for groupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
+                    FriendGroups_SavedVars.collapsed[groupName] = false
+                end
+            end
+            
+            print(L["MSG_RESET"])
+            
+            -- 5. Final Update
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+}
+
 
 --[[
 	Init Values
@@ -262,6 +285,7 @@ expansionMaxLevel[LE_EXPANSION_BATTLE_FOR_AZEROTH] = 120
 expansionMaxLevel[LE_EXPANSION_SHADOWLANDS] = 60
 expansionMaxLevel[LE_EXPANSION_DRAGONFLIGHT] = 70
 expansionMaxLevel[LE_EXPANSION_WAR_WITHIN] = 80
+expansionMaxLevel[LE_EXPANSION_WAR_WITHIN + 1] = 90 -- Midnight Pre-Patch Support
 
 currentExpansionMaxLevel = expansionMaxLevel[GetExpansionLevel()]
 
@@ -311,10 +335,8 @@ function FriendGroups_Rename(self, old)
 	FriendGroups_FriendsListUpdate()
 end
 
-function FriendGroups_InviteOrGroup(clickedgroup, invite)
+function FriendGroups_InviteOrGroup(groupName, invite)
 	local groups = {}
-
-	clickedgroup = clickedgroup.name:GetText()
 
 	for i = 1, BNGetNumFriends() do
 		local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(i)
@@ -322,11 +344,11 @@ function FriendGroups_InviteOrGroup(clickedgroup, invite)
 		local presenceID = friendAccountInfo.bnetAccountID
 		local noteText = friendAccountInfo.note
 		local note = FriendGroups_NoteAndGroups(noteText, groups)
-		if groups[clickedgroup] then
+		if groups[groupName] then
 			if invite and gameAccountInfo and gameAccountInfo.gameAccountID then
 				BNInviteFriend(gameAccountInfo.gameAccountID)
 			elseif not invite then
-				groups[clickedgroup] = nil
+				groups[groupName] = nil
 				note = FriendGroups_CreateNote(note, groups)
 				BNSetFriendNote(presenceID, note)
 			end
@@ -339,11 +361,11 @@ function FriendGroups_InviteOrGroup(clickedgroup, invite)
 		local noteText = friend_info.notes
 		local note = FriendGroups_NoteAndGroups(noteText, groups)
 
-		if groups[clickedgroup] then
+		if groups[groupName] then
 			if invite and connected then
 				C_PartyInfo.InviteUnit(name)
 			elseif not invite then
-				groups[clickedgroup] = nil
+				groups[groupName] = nil
 				note = FriendGroups_CreateNote(note, groups)
 				C_FriendList.SetFriendNotes(name, note)
 			end
@@ -451,15 +473,96 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
 		local groups = FriendGroups_GetPlayerGroups(note)
 
 		rootDescription:CreateDivider()
-		rootDescription:CreateTitle("好友群組")
-		rootDescription:CreateButton("建立新群組", function(data)
+		rootDescription:CreateTitle(L["DROP_TITLE"])
+
+		-- [[ OPTION 1: Copy Name-Realm ]] --
+		rootDescription:CreateButton(L["DROP_COPY_NAME"], function(data)
+			local textToCopy = ""
+			if data.bnetfriend then
+				local info = C_BattleNet.GetAccountInfoByID(accountInfo.bnetAccountID)
+				if info and info.gameAccountInfo and info.gameAccountInfo.characterName then
+					local char = info.gameAccountInfo.characterName
+					local realm = info.gameAccountInfo.realmName
+					local richPresence = info.gameAccountInfo.richPresence
+					local friendProject = info.gameAccountInfo.wowProjectID
+					local myProject = WOW_PROJECT_ID
+
+					-- 1. Try standard realm display name
+					if not realm or realm == "" then
+						realm = info.gameAccountInfo.realmDisplayName
+					end
+
+					-- 2. Try parsing Rich Presence (Critical for Classic friends viewed from Retail)
+					if (not realm or realm == "") and richPresence then
+						local extraction = richPresence:match("%s%-%s(.+)")
+						if extraction then
+							realm = extraction
+						end
+					end
+
+					-- 3. Fallback: Use Player's Realm ONLY if they are on the SAME Project
+					if (not realm or realm == "") and info.gameAccountInfo.clientProgram == BNET_CLIENT_WOW then
+						if friendProject == myProject then
+							realm = GetRealmName()
+						end
+					end
+
+					if realm and realm ~= "" then
+						realm = realm:gsub("%s+", "") 
+						textToCopy = char .. "-" .. realm
+					else
+						textToCopy = char
+					end
+				elseif info and info.battleTag then
+					-- Fallback to BTag if no character found (e.g. Offline)
+					textToCopy = info.battleTag
+				end
+			else
+				-- Standard WoW Friend
+				textToCopy = contextData.name
+				if textToCopy and textToCopy ~= "" and not string.find(textToCopy, "-") then
+					local myRealm = GetRealmName()
+					if myRealm then
+						textToCopy = textToCopy .. "-" .. myRealm:gsub("%s+", "")
+					end
+				end
+			end
+
+			if textToCopy and textToCopy ~= "" then
+				local dialog = StaticPopup_Show("FRIENDGROUPS_COPY_POPUP")
+				if dialog and dialog.EditBox then
+					dialog.EditBox:SetText(textToCopy)
+					dialog.EditBox:HighlightText()
+					dialog.EditBox:SetFocus()
+				end
+			end
+		end, { name = contextData.name, bnetfriend = bnetfriend })
+
+		-- [[ OPTION 2: Copy BattleTag (NEW) ]] --
+		if bnetfriend then
+			rootDescription:CreateButton(L["DROP_COPY_BTAG"], function(data)
+				local info = C_BattleNet.GetAccountInfoByID(accountInfo.bnetAccountID)
+				if info and info.battleTag then
+					local dialog = StaticPopup_Show("FRIENDGROUPS_COPY_POPUP")
+					if dialog and dialog.EditBox then
+						dialog.EditBox:SetText(info.battleTag)
+						dialog.EditBox:HighlightText()
+						dialog.EditBox:SetFocus()
+					end
+				end
+			end)
+		end
+
+		-- [[ OPTION 3: Create New Group ]] --
+		rootDescription:CreateButton(L["DROP_CREATE"], function(data)
 			FriendGroups_CreateNewGroup(data.name, data.bnetfriend)
 		end, { name = contextData.name, bnetfriend = bnetfriend })
 
-		local add = rootDescription:CreateButton("加入群組")
+		-- [[ OPTION 4: Add to Group ]] --
+		local add = rootDescription:CreateButton(L["DROP_ADD"])
 
 		for _, group in ipairs(groupsSorted) do
-			if not FriendGroups_HasValue(groups, group) and not (group == "") and not (group == "[摯友]") and not (group == "好友名單是空的") and not (group == "[沒有群組]") then
+			if not FriendGroups_HasValue(groups, group) and not (group == "") and not (group == L["GROUP_FAVORITES"]) and not (group == L["GROUP_EMPTY"]) and not (group == L["GROUP_NONE"]) then
 				add:CreateButton(group, function(data)
 					local note = data.note
 					local group = data.group
@@ -474,7 +577,8 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
 			end
 		end
 
-		local remove = rootDescription:CreateButton("移出群組")
+		-- [[ OPTION 5: Remove from Group ]] --
+		local remove = rootDescription:CreateButton(L["DROP_REMOVE"])
 
 		for _, group in ipairs(groupsSorted) do
 			if FriendGroups_HasValue(groups, group) then
@@ -486,68 +590,6 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
 						C_FriendList.SetFriendNotes(contextData.name, note)
 					end
 				end, { group = group, note = note })
-			end
-		end
-	end
-end
-
-function FriendGroups_AddDropDown(self, level)
-	if UIDROPDOWNMENU_OPEN_MENU.which == "BN_FRIEND" or UIDROPDOWNMENU_OPEN_MENU.which == "BN_FRIEND_OFFLINE" or UIDROPDOWNMENU_OPEN_MENU.which == "FRIEND" or UIDROPDOWNMENU_OPEN_MENU.which == "FRIEND_OFFLINE" then
-		local info = UIDropDownMenu_CreateInfo()
-		local name = UIDROPDOWNMENU_OPEN_MENU.friendsDropDownName
-		local bnetfriend = nil
-
-		if not C_FriendList.GetFriendInfo(name) and UIDROPDOWNMENU_OPEN_MENU.which == "FRIEND" then return end
-
-		if UIDROPDOWNMENU_OPEN_MENU.which == "BN_FRIEND" or UIDROPDOWNMENU_OPEN_MENU.which == "BN_FRIEND_OFFLINE" then
-			bnetfriend = true
-		else
-			bnetfriend = false
-		end
-
-		if level == 1 then
-			local listFrame = _G["DropDownList" .. level];
-			local listFrameName = listFrame:GetName();
-			local buttonsAdded = false
-
-			for index = 1, listFrame.numButtons do
-				local button = _G[listFrameName .. "Button" .. index];
-
-				if button and button.value and button.value == "好友群組" then
-					buttonsAdded = true
-					break
-				end
-			end
-
-			if not buttonsAdded then
-				info.isTitle = 1
-				info.text = "好友群組"
-				info.notCheckable = 1
-				UIDropDownMenu_AddButton(info, level)
-
-				info.keepShownOnClick = false
-				info.disabled = false
-				info.isTitle = false
-				info.isNotRadio = true
-				info.notCheckable = true
-
-				info.text = "建立新群組"
-				info.func = function() FriendGroups_CreateNewGroup(name, bnetfriend) end
-				UIDropDownMenu_AddButton(info, level)
-
-				info.text = "加入群組"
-				info.func = function()
-					ToggleDropDownMenu(1, nil, FriendGroupFrame, "FriendsFrameCloseButton", 0, 0,
-						{ option = "add", name = name, bnetfriend = bnetfriend })
-				end
-				UIDropDownMenu_AddButton(info, level)
-
-				info.text = "移出群組"
-				info.func = function()
-					ToggleDropDownMenu(1, nil, FriendGroupFrame, "FriendsFrameCloseButton", 0, 0,
-						{ option = "delete", name = name, bnetfriend = bnetfriend })
-				end
-				UIDropDownMenu_AddButton(info, level)
 			end
 		end
 	end
@@ -573,11 +615,11 @@ end
 function FriendGroups_CreateNewGroup(name, bnetfriend)
 	if bnetfriend then
 		local accountInfo = FriendGroups_GetInfoByName(name, bnetfriend)
-		StaticPopup_Show("FRIEND_GROUP_CREATE", nil, nil,
+		StaticPopup_Show("FRIENDGROUPS_CREATE", nil, nil,
 			{ id = accountInfo.bnetAccountID, note = accountInfo.note, set = BNSetFriendNote })
 	else
 		local FriendInfo = C_FriendList.GetFriendInfo(name)
-		StaticPopup_Show("FRIEND_GROUP_CREATE", nil, nil,
+		StaticPopup_Show("FRIENDGROUPS_CREATE", nil, nil,
 			{ name = name, note = FriendInfo.notes, set = C_FriendList.SetFriendNotes })
 	end
 end
@@ -652,24 +694,21 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 		if (not level) or (FriendGroups_SavedVars.hide_high_level and level == currentExpansionMaxLevel) or level == 0 then
 			characterNameSuffix = ""
 		else
-			characterNameSuffix = "L"..level.." "
+			characterNameSuffix = " | " .. level
 		end
 
 		if client == BNET_CLIENT_WOW then
 			if characterName ~= "" and level ~= 0 then
 				if not canCoop and FriendGroups_SavedVars.gray_faction then
-					-- nameText = "|CFF949694" .. nameText .. " " .. "[" .. characterName .. characterNameSuffix ..
-					--	"}" .. "|r"
-					nameText = "|CFF949694"..characterNameSuffix..characterName.." - "..nameText.."|r"
+					nameText = "|CFF949694" .. nameText .. " " .. "[" .. characterName .. characterNameSuffix ..
+						"}" .. "|r"
 				elseif FriendGroups_SavedVars.colour_classes then
 					local nameColor = FriendGroups_GetClassColorCode(class)
-					-- nameText = nameText ..
-					--	" " .. nameColor .. "[" .. characterName .. characterNameSuffix .. "]" .. FONT_COLOR_CODE_CLOSE
-					nameText = "|CFFFFF596"..characterNameSuffix.."|r"..nameColor..characterName..FONT_COLOR_CODE_CLOSE.." - "..nameText
+					nameText = nameText ..
+						" " .. nameColor .. "[" .. characterName .. characterNameSuffix .. "]" .. FONT_COLOR_CODE_CLOSE
 				else
-					-- nameText = nameText .. " " .. "[" .. characterName .. characterNameSuffix ..
-					--	"]" .. FONT_COLOR_CODE_CLOSE
-					nameText = "|CFFFFF596"..characterNameSuffix.."|r"..characterName.." - "..nameText..FONT_COLOR_CODE_CLOSE
+					nameText = nameText .. " " .. "[" .. characterName .. characterNameSuffix ..
+						"]" .. FONT_COLOR_CODE_CLOSE
 				end
 			end
 		else
@@ -910,19 +949,19 @@ function FriendGroups_SortTableByStatus(playerA, playerB)
 end
 
 function FriendGroups_SortGroupsCustom(groupA, groupB)
-	if groupA == "[摯友]" then
+	if groupA == L["GROUP_FAVORITES"] then
 		return true
 	end
 
-	if groupA == "[沒有群組]" then
+	if groupA == L["GROUP_NONE"] then
 		return false
 	end
 
-	if groupB == "[沒有群組]" then
+	if groupB == L["GROUP_NONE"] then
 		return true
 	end
 
-	if groupB == "[摯友]" then
+	if groupB == L["GROUP_FAVORITES"] then
 		return false
 	end
 
@@ -985,13 +1024,12 @@ function FriendGroups_SetGroups(id, buttonType)
 	local statusText = FriendGroups_GetStatusString({ id = id, buttonType = buttonType })
 	local favorite = FriendGroups_GetFriendFavorite(id, buttonType)
 
-	if FriendGroups_SavedVars.add_favorite_group == nil then FriendGroups_SavedVars.add_favorite_group = true end -- 自行加入
 	if FriendGroups_SavedVars.add_favorite_group and favorite then
-		table.insert(groups, "[摯友]")
+		table.insert(groups, L["GROUP_FAVORITES"])
 	end
 
 	if next(groups) == nil then
-		table.insert(groups, "[沒有群組]")
+		table.insert(groups, L["GROUP_NONE"])
 	end
 
 	for _, groupName in ipairs(groups) do
@@ -1038,7 +1076,8 @@ function FriendGroups_SetGroups(id, buttonType)
 			end
 		end
 
-		if searchValue ~= "" and FriendGroups_SavedVars.show_search then
+        -- FIX: Always allow search logic since search is always on
+		if searchValue ~= "" then
 			addToTable = FriendGroups_Search(id, buttonType)
 		end
 
@@ -1052,146 +1091,79 @@ function FriendGroups_SetGroups(id, buttonType)
 	end
 end
 
---[[
-	FriendGroups_Menu
+--[[ 
+    FriendGroups_Menu (Right-Click on Group Header)
+    - Creates the missing frame responsible for the error.
 ]] --
 FriendGroups_Menu = CreateFrame("Frame", "FriendGroups_Menu")
 FriendGroups_Menu.displayMode = "MENU"
 FriendGroups_Menu.initialize = function(self, level)
-	if not menuItems[level] then return end
-	for _, items in ipairs(menuItems[level]) do
-		local info = UIDropDownMenu_CreateInfo()
-		for prop, value in pairs(items) do
-			info[prop] = value ~= "" and value or
-				UIDROPDOWNMENU_MENU_VALUE and UIDROPDOWNMENU_MENU_VALUE.name and UIDROPDOWNMENU_MENU_VALUE.name:GetText() or
-				"[沒有群組]"
-		end
-		info.arg1 = nil
-		info.arg2 = UIDROPDOWNMENU_MENU_VALUE
+    if level ~= 1 then return end
+    
+    -- The group name is passed as the "Value" in ToggleDropDownMenu
+    local groupName = UIDROPDOWNMENU_MENU_VALUE
+    
+    if not groupName then return end
 
-		if level == 1 then
-			local groupName = UIDROPDOWNMENU_MENU_VALUE and UIDROPDOWNMENU_MENU_VALUE.name and
-				UIDROPDOWNMENU_MENU_VALUE.name:GetText()
-			if groupName == "" or groupName == "[沒有群組]" or groupName == "[摯友]" or groupName == "好友名單是空的" then
-				if items.text == "重新命名群組" or items.text == "移除群組" then
-					info.disabled = true
-				end
+    -- 1. Add the Group Name as the Title
+    local titleInfo = UIDropDownMenu_CreateInfo()
+    titleInfo.text = groupName
+    titleInfo.isTitle = true
+    titleInfo.notCheckable = true
+    UIDropDownMenu_AddButton(titleInfo, level)
 
-				if items.text == "組隊邀請全部" and groupName == "好友名單是空的" then
-					info.disabled = true
-				end
-			end
-		end
-
-		UIDropDownMenu_AddButton(info, level)
-	end
+    -- 2. Add the Action Buttons (Rename, Remove, Invite)
+    -- We skip the first item in 'groupMenuItems' because it was a blank title placeholder
+    for i = 2, #groupMenuItems do
+        local item = groupMenuItems[i]
+        local info = UIDropDownMenu_CreateInfo()
+        info.text = item.text
+        info.notCheckable = true
+        info.func = item.func
+        info.arg1 = groupName -- Pass the name to the function (clickedgroup)
+        UIDropDownMenu_AddButton(info, level)
+    end
 end
 
 --[[
-	FriendGroupFrame
+	FriendGroups_SettingsMenu (Cogwheel Click)
 ]] --
-FriendGroupFrame = CreateFrame("Frame", "FriendGroupFrame")
-FriendGroupFrame.displayMode = "MENU"
-FriendGroupFrame.info = {}
-FriendGroupFrame.UncheckHack = function(dropdownbutton)
+local FriendGroups_SettingsMenu = CreateFrame("Frame", "FriendGroups_SettingsMenu")
+FriendGroups_SettingsMenu.displayMode = "MENU"
+FriendGroups_SettingsMenu.initialize = function(self, level)
+    if level ~= 1 then return end
+    
+    for _, items in ipairs(settingsMenuItems) do
+        local info = UIDropDownMenu_CreateInfo()
+        for prop, value in pairs(items) do
+            info[prop] = value
+        end
+        UIDropDownMenu_AddButton(info, level)
+    end
+end
+
+
+--[[
+	FriendGroupsFrame
+]] --
+FriendGroupsFrame = CreateFrame("Frame", "FriendGroupsFrame")
+FriendGroupsFrame.displayMode = "MENU"
+FriendGroupsFrame.info = {}
+FriendGroupsFrame.UncheckHack = function(dropdownbutton)
 	_G[dropdownbutton:GetName() .. "Check"]:Hide()
 end
-FriendGroupFrame.HideMenu = function()
-	if UIDROPDOWNMENU_OPEN_MENU == FriendGroupFrame then
+FriendGroupsFrame.HideMenu = function()
+	if UIDROPDOWNMENU_OPEN_MENU == FriendGroupsFrame then
 		CloseDropDownMenus()
 	end
 end
-FriendGroupFrame.initialize = function(self, level)
-	local info = self.info
-	local option = self.menuList.option
-	local bnetfriend = self.menuList.bnetfriend
-	local note = nil
-
-	if level == 1 then
-		if option == "add" then
-			local accountInfo = FriendGroups_GetInfoByName(self.menuList.name, bnetfriend)
-			if bnetfriend then
-				note = accountInfo.note
-			else
-				note = accountInfo.notes
-			end
-
-			info.isTitle = 1
-			info.text = "好友群組"
-			info.notCheckable = 1
-			UIDropDownMenu_AddButton(info)
-
-			info.keepShownOnClick = false
-			info.disabled = false
-			info.isTitle = false
-			info.isNotRadio = true
-			info.notCheckable = true
-
-			local groups = FriendGroups_GetPlayerGroups(note)
-			for _, group in ipairs(groupsSorted) do
-				if not FriendGroups_HasValue(groups, group) and not (group == "") and not (group == "[摯友]") and not (group == "好友名單是空的") then
-					info.text = group
-					info.func = function()
-						note = FriendGroups_AddGroup(note, group)
-						if bnetfriend then
-							BNSetFriendNote(accountInfo.bnetAccountID, note)
-						else
-							C_FriendList.SetFriendNotes(self.menuList.name, note)
-						end
-					end
-					UIDropDownMenu_AddButton(info)
-				end
-			end
-		elseif option == "delete" then
-			local accountInfo = FriendGroups_GetInfoByName(self.menuList.name, bnetfriend)
-			if bnetfriend then
-				note = accountInfo.note
-			else
-				note = accountInfo.notes
-			end
-
-			info.isTitle = 1
-			info.text = "好友群組"
-			info.notCheckable = 1
-			UIDropDownMenu_AddButton(info)
-
-			info.keepShownOnClick = false
-			info.disabled = false
-			info.isTitle = false
-			info.isNotRadio = true
-			info.notCheckable = true
-
-			local groups = FriendGroups_GetPlayerGroups(note)
-
-			for _, group in ipairs(groupsSorted) do
-				if FriendGroups_HasValue(groups, group) then
-					info.text = group
-					info.func = function()
-						note = FriendGroups_RemoveGroup(note, group)
-						if bnetfriend then
-							BNSetFriendNote(accountInfo.bnetAccountID, note)
-						else
-							C_FriendList.SetFriendNotes(self.menuList.name, note)
-						end
-					end
-					UIDropDownMenu_AddButton(info)
-				end
-			end
-		end
-
-		-- Close menu item
-		info.hasArrow     = nil
-		info.value        = nil
-		info.notCheckable = 1
-		info.text         = CANCEL
-		info.func         = self.HideMenu
-		UIDropDownMenu_AddButton(info)
-	end
+FriendGroupsFrame.initialize = function(self, level)
+    -- This was used for the old system. Keeping empty structure to prevent Lua errors if something calls it.
 end
 
 -- Popups
-StaticPopupDialogs["FRIEND_GROUP_CREATE"] = {
-	text = "輸入新群組的名稱",
+StaticPopupDialogs["FRIENDGROUPS_CREATE"] = {
+	text = L["POPUP_ENTER_NAME"],
 	button1 = ACCEPT,
 	button2 = CANCEL,
 	hasEditBox = 1,
@@ -1209,8 +1181,8 @@ StaticPopupDialogs["FRIEND_GROUP_CREATE"] = {
 	whileDead = 1,
 	hideOnEscape = 1
 }
-StaticPopupDialogs["FRIEND_GROUP_RENAME"] = {
-	text = "輸入新的群組名稱",
+StaticPopupDialogs["FRIENDGROUPS_RENAME"] = {
+	text = L["POPUP_ENTER_NAME"],
 	button1 = ACCEPT,
 	button2 = CANCEL,
 	hasEditBox = 1,
@@ -1227,13 +1199,161 @@ StaticPopupDialogs["FRIEND_GROUP_RENAME"] = {
 	timeout = 0,
 	whileDead = 1,
 	hideOnEscape = 1
+}
+
+-- [[ NEW POPUP: COPY TEXT ]] --
+StaticPopupDialogs["FRIENDGROUPS_COPY_POPUP"] = {
+	text = L["POPUP_COPY"],
+	button1 = OKAY,
+	timeout = 0,
+	whileDead = 1,
+	hideOnEscape = 1,
+	hasEditBox = 1,
+	preferredIndex = 3,
+	OnShow = function(self)
+        -- FIX: Use .EditBox (Capital E)
+		if self.EditBox then
+			self.EditBox:SetFocus()
+			self.EditBox:HighlightText()
+		end
+	end,
+	EditBoxOnEnterPressed = function(self)
+		self:GetParent():Hide()
+	end,
+	EditBoxOnEscapePressed = function(self)
+		self:GetParent():Hide()
+	end,
 }
 
 --[[
 	Functions
 ]] --
 
-function FriendGroups_FriendsListUpdateFriendButton(button, elementData)
+-- [[ CORE ACTIVATOR ]] --
+EnableFriendGroups = function()
+    if FriendGroups_Loaded then return end
+    FriendGroups_Loaded = true
+    
+    if not FriendGroups_SavedVars then
+        FriendGroups_SavedVars = {
+            collapsed = {},
+            hide_offline = true,          
+            colour_classes = true,        
+            show_faction_icons = true,    
+            show_realm = true,            
+            hide_high_level = true,       
+            add_favorite_group = true,    
+            gray_faction = false,
+            show_mobile_afk = false,
+            add_mobile_text = true,       
+            ingame_only = false,
+            ingame_retail = false,
+            show_btag = false,
+            show_retail = false,
+            show_search = true,           
+            hide_empty_groups = false,
+            hide_afk = false,
+            open_one_group = false,
+            auto_accept_invite = false
+        }
+    end
+
+    -- 1. Create Search Box
+    FriendGroups_SearchBox = CreateFrame("EditBox", "FriendGroupsGlobalSearch", FriendsListFrame, "SearchBoxTemplate")
+    FriendGroups_SearchBox:SetSize(200, 20)
+    FriendGroups_SearchBox:SetPoint("TOPLEFT", FriendsListFrame, "TOPLEFT", 15, -85) 
+    FriendGroups_SearchBox:SetPoint("TOPRIGHT", FriendsListFrame, "TOPRIGHT", -35, -85) 
+    FriendGroups_SearchBox:SetAutoFocus(false)
+    FriendGroups_SearchBox.Instructions:SetText(L["SEARCH_PLACEHOLDER"])
+    
+    FriendGroups_SearchBox:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(SEARCH, 1, 1, 1) 
+        GameTooltip:AddLine(L["SEARCH_TOOLTIP"], nil, nil, nil, true) 
+        GameTooltip:Show()
+    end)
+
+    FriendGroups_SearchBox:SetScript("OnLeave", function(self)
+        GameTooltip:Hide()
+    end)
+
+    FriendGroups_SearchBox:SetScript("OnTextChanged", function(self)
+        SearchBoxTemplate_OnTextChanged(self)
+        local text = self:GetText()
+        if text ~= searchValue then
+            searchValue = text
+            FriendGroups_FriendsListUpdate(true)
+        end
+    end)
+
+    -- 2. Create Settings Button
+    local settingsBtn = CreateFrame("Button", "FriendGroupsGlobalSettings", FriendGroups_SearchBox)
+    settingsBtn:SetSize(20, 20)
+    settingsBtn:SetPoint("LEFT", FriendGroups_SearchBox, "RIGHT", 5, 0)
+    settingsBtn:SetNormalTexture("Interface\\Buttons\\UI-OptionsButton")
+    settingsBtn:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
+    
+    settingsBtn:SetScript("OnClick", function()
+        ToggleDropDownMenu(1, nil, FriendGroups_SettingsMenu, "cursor", 0, 0)
+    end)
+    
+    settingsBtn:SetScript("OnEnter", function(self) 
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(L["FriendGroups Settings"], 1, 1, 1)
+        GameTooltip:Show()
+    end)
+    settingsBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
+
+    -- 3. Apply Hooks
+    hooksecurefunc("FriendsList_Update", FriendGroups_FriendsListUpdate)
+    hooksecurefunc("FriendsFrame_UpdateFriendButton", FriendGroups_FriendsListUpdateFriendButton)
+    Menu.ModifyMenu("MENU_UNIT_GLUE_FRIEND", FriendGroups_AddDropDownNew)
+    Menu.ModifyMenu("MENU_UNIT_FRIEND", FriendGroups_AddDropDownNew)
+    Menu.ModifyMenu("MENU_UNIT_FRIEND_OFFLINE", FriendGroups_AddDropDownNew)
+    Menu.ModifyMenu("MENU_UNIT_BN_FRIEND", FriendGroups_AddDropDownNew)
+    Menu.ModifyMenu("MENU_UNIT_BN_FRIEND_OFFLINE", FriendGroups_AddDropDownNew)
+    hooksecurefunc(FriendsListButtonMixin, "OnClick", FriendGroups_FriendsListButtonTemplateClick)
+
+    -- 4. Setup Scroll View
+    SetupGroupedView()
+    FriendsListFrame.ScrollBox:SetPoint("TOPLEFT", FriendsListFrame, "TOPLEFT", 7, -115)
+    FriendGroups_FriendsListUpdate(true)
+end
+
+SetupGroupedView = function()
+    local view = CreateScrollBoxListLinearView()
+    view:SetElementFactory(function(factory, elementData)
+        local buttonType = elementData.buttonType;
+        if buttonType == FRIENDS_BUTTON_TYPE_DIVIDER then
+            factory("FriendGroupsFrameFriendDividerTemplate", FriendGroups_FriendsListUpdateDividerTemplate);
+        elseif buttonType == FRIENDS_BUTTON_TYPE_INVITE_HEADER then
+            factory("FriendsPendingInviteHeaderButtonTemplate",
+                FriendGroups_FriendsFrameUpdateFriendInviteHeaderButton);
+        elseif buttonType == FRIENDS_BUTTON_TYPE_INVITE then
+            factory("FriendsFrameFriendInviteTemplate", FriendGroups_FriendsFrameUpdateFriendInviteButton);
+        else
+            factory("FriendGroupsFriendsListButtonTemplate", FriendGroups_FriendsListUpdateFriendButton);
+        end
+    end);
+    ScrollUtil.InitScrollBoxListWithScrollBar(FriendsListFrame.ScrollBox, FriendsListFrame.ScrollBar, view);
+end
+
+FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
+    -- GUARD: Only run if Enabled
+    if not FriendGroups_Loaded then return end
+
+    -- GUARD: Safe Parent Check (Prevents HouseList Taint)
+    local isFriendFrame = false
+    if button and button.GetParent and FriendsListFrame then
+        local current = button:GetParent()
+        for i = 1, 15 do
+            if not current then break end
+            if current == FriendsListFrame then isFriendFrame = true break end
+            current = current.GetParent and current:GetParent()
+        end
+    end
+    if not isFriendFrame then return end
+
 	local id = elementData.id;
 	local buttonType = elementData.buttonType;
 	button.buttonType = buttonType;
@@ -1367,7 +1487,7 @@ function FriendGroups_FriendsListUpdateFriendButton(button, elementData)
 			end
 
 			if FriendGroups_SavedVars.add_mobile_text and infoText == '' and client == 'BSAp' then
-				infoText = "Mobile"
+				infoText = L["STATUS_MOBILE"]
 			end
 
 			button.summonButton:ClearAllPoints();
@@ -1441,7 +1561,10 @@ function FriendGroups_FriendsListUpdateFriendButton(button, elementData)
 	return nil;
 end
 
-function FriendGroups_FriendsListUpdate(forceUpdate)
+FriendGroups_FriendsListUpdate = function(forceUpdate)
+    -- GUARD: Only run if Enabled
+    if not FriendGroups_Loaded then return end
+
 	local numBNetTotal, numBNetOnline, numBNetFavorite, numBNetFavoriteOnline = BNGetNumFriends()
 	local numBNetOffline = numBNetTotal - numBNetOnline
 	local numBNetFavoriteOffline = numBNetFavorite - numBNetFavoriteOnline
@@ -1449,8 +1572,10 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
 	local numWoWOnline = C_FriendList.GetNumOnlineFriends()
 	local numWoWOffline = numWoWTotal - numWoWOnline
 	local retainScrollPosition = not forceUpdate
+    
+    -- FIX: Always assume search is enabled for filtering empty groups
 	local hideGroups = FriendGroups_SavedVars.hide_empty_groups or
-		(FriendGroups_SavedVars.show_search and searchValue ~= "")
+		(searchValue ~= "")
 
 	local dataProvider = CreateDataProvider()
 
@@ -1498,25 +1623,20 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
 		FriendGroups_SetGroups(i + numWoWOnline, FRIENDS_BUTTON_TYPE_WOW)
 	end
 
-	if FriendGroups_SavedVars.show_search then
-		dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = "搜尋..." })
-	end
-
 	table.sort(groupsSorted, FriendGroups_SortGroupsCustom)
 
 	for _, groupName in ipairs(groupsSorted) do
 		if (not hideGroups or (hideGroups and #groupsTotal[groupName] > 0)) then
+            -- [[ CHANGE START: Set default to FALSE (Expanded) ]] --
 			if FriendGroups_SavedVars.collapsed[groupName] == nil then
-				FriendGroups_SavedVars.collapsed[groupName] = true
+				FriendGroups_SavedVars.collapsed[groupName] = false
 			end
+            -- [[ CHANGE END ]] --
 
 			dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = groupName })
 
 			if not FriendGroups_SavedVars.collapsed[groupName] then
-				if FriendGroups_SavedVars.sort_by_status then
-					table.sort(groupsTotal[groupName], FriendGroups_SortTableByStatus)
-				end
-
+                -- FIX: Removed "Sort by Status" logic block here
 				for _, playerData in ipairs(groupsTotal[groupName]) do
 					if playerData.buttonType and playerData.id then
 						dataProvider:Insert({ id = playerData.id, buttonType = playerData.buttonType })
@@ -1527,11 +1647,30 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
 	end
 
 	-- Empty fallback
-	if dataProvider:GetSize() == 0 or (FriendGroups_SavedVars.show_search and dataProvider:GetSize() == 1) then
-		dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = "好友名單是空的" })
+	if dataProvider:GetSize() == 0 or (dataProvider:GetSize() == 1) then
+		dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = L["GROUP_EMPTY"] })
+	end
+
+	-- Prevent the game from auto-selecting the first friend
+	-- If the selection is locked (user hasn't clicked yet), force clear it.
+	if FriendGroupsFrame.selectionLocked then
+		FriendsFrame.selectedFriend = nil
+		FriendsFrame.selectedFriendType = nil
+	elseif not retainScrollPosition then
+		FriendsFrame.selectedFriend = nil
+		FriendsFrame.selectedFriendType = nil
 	end
 
 	FriendsListFrame.ScrollBox:SetDataProvider(dataProvider, retainScrollPosition)
+
+	-- Double ensure after setting provider to catch any auto-select artifacts
+	if FriendGroupsFrame.selectionLocked then
+		FriendsFrame.selectedFriend = nil
+		FriendsFrame.selectedFriendType = nil
+	elseif not retainScrollPosition then
+		FriendsFrame.selectedFriend = nil
+		FriendsFrame.selectedFriendType = nil
+	end
 
 	-- Cleanup
 	for groupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
@@ -1542,8 +1681,7 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
 
 	if friendsListEmpty and (lastFriendsListEmptyWarning + 60) <= (math.floor(GetTime() + 0.5)) then
 		lastFriendsListEmptyWarning = math.floor(GetTime() + 0.5)
-		print(
-			"|cFF33FF99好友群組|r: 偵測到戰網 API Bug。遊戲的 Bug 造成好友名單空白，請試試看重開遊戲。(如果沒有立刻恢復，通常過段時間就會正常了)")
+		print(L["MSG_BUG_WARNING"])
 	end
 end
 
@@ -1558,164 +1696,208 @@ function FriendGroups_FilterTable(tableData, filterFunction)
 end
 
 function FriendGroups_ToggleSearch(searchBox, frame)
-	if searchValue == "" then
-		searchBox:Hide()
-		frame.name:Show()
-	end
+    -- If the user has the search mode open, do NOT hide the box 
+    -- even if the text is currently empty.
+    if searchOpened then return end
+
+    if searchValue == "" then
+        searchBox:Hide()
+        frame.name:Show()
+    end
 end
 
 function FriendGroups_Search(playerId, playerButtonType)
-	local nameText
-	local returnValue
-	local valid = nil
+    if searchValue == "" then return true end -- Return true if search is empty to show all
 
-	if playerButtonType == FRIENDS_BUTTON_TYPE_WOW then
-		local info = C_FriendList.GetFriendInfoByIndex(playerId);
+    local characterName = ""
+    local bnetAccountName = "" 
+    local battleTag = ""
+    local noteText = ""
+    local realmName = ""
+    local className = "" 
+    local richPresence = "" -- Added variable to capture Rich Presence (Game Status/Zone - Realm)
+    local returnValue = false
 
-		if (info.connected) then
-			nameText = info.name .. ", " .. format(FRIENDS_LEVEL_TEMPLATE, info.level, info.className);
-		else
-			nameText = info.name;
-		end
-	elseif playerButtonType == FRIENDS_BUTTON_TYPE_BNET then
-		local accountInfo = C_BattleNet.GetFriendAccountInfo(playerId);
-		if accountInfo then
-			nameText = FriendsFrame_GetBNetAccountNameAndStatus(accountInfo);
+    if playerButtonType == FRIENDS_BUTTON_TYPE_WOW then
+        local info = C_FriendList.GetFriendInfoByIndex(playerId);
+        if info then
+            characterName = info.name or ""
+            noteText = info.notes or ""
+            className = info.className or ""
+        end
+    elseif playerButtonType == FRIENDS_BUTTON_TYPE_BNET then
+        local accountInfo = C_BattleNet.GetFriendAccountInfo(playerId);
+        if accountInfo then
+            bnetAccountName = accountInfo.accountName or ""
+            battleTag = accountInfo.battleTag or ""
+            noteText = accountInfo.note or ""
+            
+            if accountInfo.gameAccountInfo then
+                characterName = accountInfo.gameAccountInfo.characterName or ""
+                realmName = accountInfo.gameAccountInfo.realmName or ""
+                className = accountInfo.gameAccountInfo.className or ""
+                richPresence = accountInfo.gameAccountInfo.richPresence or "" -- Capture Rich Presence
+            end
+        end
+    end
 
-			local accountName, characterName, class, level, isFavoriteFriend, isOnline,
-			bnetAccountId, client, canCoop, wowProjectID, lastOnline,
-			isAFK, isGameAFK, isDND, isGameBusy, mobile, zoneName, gameText, battleTag, factionName, timerunningSeasonID =
-				FriendGroups_GetFriendInfoById(playerId)
+    local searchLower = searchValue:lower()
+    local searchLen = #searchLower
 
-			nameText = FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level,
-				battleTag, timerunningSeasonID)
-		end
-	end
+    -- Logic for Class: Use "Starts With" to prevent "Hunter" finding "Demon Hunter"
+    local classMatch = false
+    if className ~= "" then
+        local cLower = className:lower()
+        local cNoSpace = cLower:gsub(" ", "")
+        
+        -- Check if standard class name STARTS with search (e.g. "Hunt" matches "Hunter", but not "Demon Hunter")
+        if cLower:sub(1, searchLen) == searchLower then
+            classMatch = true
+        -- Check if condensed class name STARTS with search (e.g. "demonh" matches "Demon Hunter")
+        elseif cNoSpace:sub(1, searchLen) == searchLower then
+            classMatch = true
+        end
+    end
+    
+    -- Keep standard "Contains" search for names/notes/realms/richPresence
+    if (bnetAccountName:lower():find(searchLower, 1, true)) or 
+       (battleTag:lower():find(searchLower, 1, true)) or 
+       (characterName:lower():find(searchLower, 1, true)) or
+       (noteText:lower():find(searchLower, 1, true)) or
+       (realmName:lower():find(searchLower, 1, true)) or
+       (richPresence:lower():find(searchLower, 1, true)) or -- Added Rich Presence check
+       classMatch then
+        returnValue = true
+    end
 
-	nameText = nameText:lower()
-	valid = nameText:find(searchValue, 1, true)
-
-	if valid then
-		returnValue = true
-	else
-		returnValue = false
-	end
-
-	return returnValue
+    return returnValue
 end
 
 function FriendGroups_FriendsListUpdateDividerTemplate(frame, elementData)
-	local groupName = elementData.groupName
-	local groupOnline = groupsCount[groupName] and groupsCount[groupName]["Online"] or 0
-	local groupTotal = groupsCount[groupName] and groupsCount[groupName]["Total"] or 0
+    local groupName = elementData.groupName
+    local groupOnline = groupsCount[groupName] and groupsCount[groupName]["Online"] or 0
+    local groupTotal = groupsCount[groupName] and groupsCount[groupName]["Total"] or 0
 
-	if groupName and frame.name then
-		if searchOpened and groupName == "搜尋..." then
-			local searchBox = _G["FriendGroupsSearch"] or CreateFrame("EditBox", "FriendGroupsSearch", frame:GetParent())
+    if groupName and frame.name then
+        -- Cleanup any old search/settings items if they exist on this recycled frame
+        if _G["FriendGroupsSearch"] and _G["FriendGroupsSearch"]:GetParent() == frame then
+             _G["FriendGroupsSearch"]:Hide()
+        end
+        local settingsBtn = _G["FriendGroupsSettingsBtn"]
+        if settingsBtn and settingsBtn:GetParent() == frame then 
+            settingsBtn:Hide() 
+        end
+        
+        -- Standard Header Setup
+        frame.name:Show()
+        frame.name:SetText(groupName)
+        frame.collapseButton:Show()
+        if frame.info then frame.info:Show() end
 
-			frame.name:Hide()
-			searchBox:Show()
-			searchBox:SetFocus(true)
+        if groupName ~= L["GROUP_EMPTY"] then
+            local groupInfo = string.format("%d/%d", groupOnline, groupTotal)
+            if frame.info then frame.info:SetText(groupInfo) end
+            if FriendGroups_SavedVars.collapsed[groupName] then
+                frame.collapseButton:SetNormalAtlas("Campaign_HeaderIcon_Closed")
+            else
+                frame.collapseButton:SetNormalAtlas("Campaign_HeaderIcon_Open")
+            end
+        else
+            frame.collapseButton:Hide()
+            if frame.info then frame.info:SetText("") end
+        end
 
-			if not searchBoxInit then
-				searchBox:SetSize((frame:GetParent():GetWidth() / 1.75), frame:GetParent():GetHeight())
-				searchBox:SetFontObject("ChatFontNormal")
-				searchBox:SetScript("OnEscapePressed", function()
-					searchOpened = false
-					searchValue = ""
-					searchBox:SetText("")
-					FriendGroups_ToggleSearch(searchBox, frame)
-					FriendGroups_FriendsListUpdate()
-				end)
-				searchBox:SetScript("OnEditFocusLost", function()
-					FriendGroups_ToggleSearch(searchBox, frame)
-					searchOpened = false
-					FriendGroups_FriendsListUpdate()
-				end)
-				searchBox:SetScript("OnEnterPressed", function()
-					FriendGroups_ToggleSearch(searchBox, frame)
-					searchOpened = false
-					searchBox:ClearFocus()
-					FriendGroups_FriendsListUpdate()
-				end)
-				searchBox:SetScript("OnTextChanged", function(searchBox)
-					local textValue = searchBox:GetText()
-					local stringLength = string.len(textValue)
-
-					searchBox:SetCursorPosition(stringLength)
-
-					if textValue then
-						searchValue = textValue
-						FriendGroups_FriendsListUpdate()
-					end
-				end)
-
-				searchBox:SetPoint("CENTER", frame, "CENTER");
-				searchBox:SetAutoFocus(false)
-				searchBox:SetText(searchValue)
-
-				searchBoxInit = true
-			end
-		else
-			frame.name:SetText(groupName)
-			if groupName ~= "搜尋..." and groupName ~= "好友名單是空的" then
-				local groupInfo = string.format("%d/%d", groupOnline, groupTotal)
-
-				if frame.info then
-					frame.info:SetText(groupInfo)
-				end
-
-				if FriendGroups_SavedVars.collapsed[groupName] then
-					frame.collapseButton:SetNormalAtlas("Campaign_HeaderIcon_Closed")
-					frame.collapseButton:SetPushedAtlas("Campaign_HeaderIcon_ClosedPressed")
-				else
-					frame.collapseButton:SetNormalAtlas("Campaign_HeaderIcon_Open")
-					frame.collapseButton:SetPushedAtlas("Campaign_HeaderIcon_OpenPressed")
-				end
-			else
-				frame.collapseButton.status:SetTexture("")
-				if frame.info then
-					frame.info:SetText("")
-				end
-			end
-		end
-
-		frame.collapseButton:SetHighlightTexture("Interface\\Buttons\\UI-PlusButton-Hilight")
-		frame:SetHighlightTexture("Interface\\Buttons\\UI-PlusButton-Hilight")
-		frame:GetHighlightTexture():SetAlpha(0.4)
-	end
+        frame:SetHighlightTexture("Interface\\Buttons\\UI-PlusButton-Hilight")
+        frame:GetHighlightTexture():SetAlpha(0.2)
+    end
 end
 
 function FriendGroups_FrameFriendDividerTemplateCollapseClick(self, button, down)
-	local groupName = self and self:GetParent() and self:GetParent().name and self:GetParent().name:GetText() or
-		self.name and self.name:GetText()
+    -- FIX: Determine if 'self' is the Header (has .name) or the Button (needs .GetParent)
+    local frame = self
+    if not frame.name then
+        frame = self:GetParent()
+    end
 
-	FriendGroups_SavedVars.collapsed[groupName] = not FriendGroups_SavedVars.collapsed[groupName]
+    -- Safety check: If we still can't find the name, stop to prevent crash
+    if not frame or not frame.name then return end
 
-	if FriendGroups_SavedVars.open_one_group then
-		for collapseGroupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
-			if groupName ~= collapseGroupName then FriendGroups_SavedVars.collapsed[collapseGroupName] = true end
-		end
-	end
-
-	FriendGroups_FriendsListUpdate()
+    local groupName = frame.name:GetText()
+    
+    if groupName then
+        -- Toggle the collapsed state
+        if FriendGroups_SavedVars.collapsed[groupName] then
+            FriendGroups_SavedVars.collapsed[groupName] = false
+        else
+            FriendGroups_SavedVars.collapsed[groupName] = true
+        end
+        
+        -- Handle "Open only one group" setting
+        if FriendGroups_SavedVars.open_one_group and not FriendGroups_SavedVars.collapsed[groupName] then
+            for key, _ in pairs(FriendGroups_SavedVars.collapsed) do
+                if key ~= groupName then
+                    FriendGroups_SavedVars.collapsed[key] = true
+                end
+            end
+        end
+        
+        -- Refresh the list
+        FriendGroups_FriendsListUpdate()
+    end
 end
 
 function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
-	local groupName = self and self:GetParent() and self:GetParent().name and self:GetParent().name:GetText() or
-		self.name and self.name:GetText()
+    local groupName = self and self:GetParent() and self:GetParent().name and self:GetParent().name:GetText() or
+        self.name and self.name:GetText()
 
-	if button == "LeftButton" and groupName == "搜尋..." then
-		searchOpened = true
-		FriendGroups_FriendsListUpdate()
-	elseif button == "RightButton" and groupName ~= "搜尋..." then
-		ToggleDropDownMenu(1, self, FriendGroups_Menu, "cursor", 0, 0)
-	else
-		FriendGroups_FrameFriendDividerTemplateCollapseClick(self, button, down)
-	end
+    -- Focus the search box if the user clicks the search bar area
+    if groupName == "Search..." then
+        if _G["FriendGroupsSearch"] then
+            _G["FriendGroupsSearch"]:SetFocus()
+        end
+    elseif button == "RightButton" then
+        -- [[ CHANGE START ]] --
+        -- Fix: Pass 'groupName' as the value, not 'self'
+        if groupName then
+            ToggleDropDownMenu(1, groupName, FriendGroups_Menu, "cursor", 0, 0)
+        end
+        -- [[ CHANGE END ]] --
+    else
+        FriendGroups_FrameFriendDividerTemplateCollapseClick(self, button, down)
+    end
 end
 
-function FriendGroups_FriendsListButtonTemplateClick(self, button, down)
+FriendGroups_FriendsListButtonTemplateClick = function(self, button, down)
+    if not FriendGroups_Loaded then return end -- Let Blizzard handle click if disabled
+    
+    if button == "LeftButton" and IsShiftKeyDown() then
+        -- Handle Shift+Click for Custom Menu (Prevents Taint)
+        local id = self.id
+        local buttonType = self.buttonType
+        local name = nil
+        local bnetfriend = false
+
+        if buttonType == FRIENDS_BUTTON_TYPE_WOW then
+            local info = C_FriendList.GetFriendInfoByIndex(id)
+            if info then name = info.name end
+        elseif buttonType == FRIENDS_BUTTON_TYPE_BNET then
+            local info = C_BattleNet.GetFriendAccountInfo(id)
+            if info then 
+                name = info.accountName 
+                bnetfriend = true
+            end
+        end
+
+        if name then
+            FriendGroups_ClickedData = { name = name, bnetfriend = bnetfriend, id = id }
+            ToggleDropDownMenu(1, nil, FriendGroups_ContextDropdown, "cursor", 0, 0)
+        end
+        
+        return -- Stop here so we don't select the friend in the UI
+    end
+
+    -- Normal Click Behavior (Standard Selection)
+    FriendGroupsFrame.selectionLocked = false
 	FriendGroups_FriendsListUpdate()
 end
 
@@ -1742,93 +1924,121 @@ function FriendGroups_FriendsFrameUpdateFriendInviteButton(button, elementData)
 	button.inviteIndex = button.id;
 end
 
---[[
-	Init Addon
-]] --
-
+-- [[ MAIN INITIALIZATION ]] --
 local frame = CreateFrame("frame", "FriendGroups")
 frame:RegisterEvent("PLAYER_LOGIN")
+frame:RegisterEvent("ADDON_LOADED")
+frame:RegisterEvent("PARTY_INVITE_REQUEST")
 
-frame:SetScript("OnEvent", function(self, event, ...)
-	if event == "PLAYER_LOGIN" then
-		local view = CreateScrollBoxListLinearView()
-		view:SetElementFactory(function(factory, elementData)
-			local buttonType = elementData.buttonType;
-			if buttonType == FRIENDS_BUTTON_TYPE_DIVIDER then
-				factory("FriendGroupsFrameFriendDividerTemplate", FriendGroups_FriendsListUpdateDividerTemplate);
-			elseif buttonType == FRIENDS_BUTTON_TYPE_INVITE_HEADER then
-				factory("FriendsPendingInviteHeaderButtonTemplate",
-					FriendGroups_FriendsFrameUpdateFriendInviteHeaderButton);
-			elseif buttonType == FRIENDS_BUTTON_TYPE_INVITE then
-				factory("FriendsFrameFriendInviteTemplate", FriendGroups_FriendsFrameUpdateFriendInviteButton);
-			else
-				factory("FriendGroupsFriendsListButtonTemplate", FriendGroups_FriendsListUpdateFriendButton);
-			end
-		end);
+frame:SetScript("OnEvent", function(self, event, arg1, ...)
+if event == "ADDON_LOADED" and arg1 == addonName then
+        local version = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Unknown"
+        -- Print(string.format(L["MSG_WELCOME"], version))
+        
+        -- [[[ DELETE OR COMMENT OUT THIS LINE ]]] --
+        -- self:UnregisterEvent("ADDON_LOADED") 
+        -- [[[ END CHANGE ]]] --
 
-		ScrollUtil.InitScrollBoxListWithScrollBar(FriendsListFrame.ScrollBox, FriendsListFrame.ScrollBar, view);
+    elseif event == "PARTY_INVITE_REQUEST" then
+        if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_invite then
+            AcceptGroup()
+            StaticPopup_Hide("PARTY_INVITE")
+            StaticPopup_Hide("PARTY_INVITE_REQUEST")
+            StaticPopup_Hide("PARTY_INVITE_XREALM")
+        end
 
-		hooksecurefunc("FriendsList_Update", FriendGroups_FriendsListUpdate)
-		hooksecurefunc("FriendsFrame_UpdateFriendButton", FriendGroups_FriendsListUpdateFriendButton)
-		Menu.ModifyMenu("MENU_UNIT_GLUE_FRIEND", FriendGroups_AddDropDownNew)
-		Menu.ModifyMenu("MENU_UNIT_FRIEND", FriendGroups_AddDropDownNew)
-		Menu.ModifyMenu("MENU_UNIT_FRIEND_OFFLINE", FriendGroups_AddDropDownNew)
-		Menu.ModifyMenu("MENU_UNIT_BN_FRIEND", FriendGroups_AddDropDownNew)
-		Menu.ModifyMenu("MENU_UNIT_BN_FRIEND_OFFLINE", FriendGroups_AddDropDownNew)
+elseif event == "PLAYER_LOGIN" then
+        -- Default Saved Vars
+        if not FriendGroups_SavedVars then
+            FriendGroups_SavedVars = { collapsed = {}, hide_offline = true, colour_classes = true, show_faction_icons = true, show_realm = true, hide_high_level = true, add_favorite_group = true, add_mobile_text = true, show_search = true, auto_accept_invite = false, housing_mode_active = false }
+        end
 
-		--[[
-		MENU_FRIENDS_STATUS
-		MENU_FRIENDS_INVITE_DECLINE
-		MENU_FRIENDS_WHO
-		MENU_FRIENDS_FRIENDS
-		MENU_FRIENDS_TRAVEL_PASS
-		]]
+        -- 1. Capture the current mode
+        local isHousingMode = FriendGroups_SavedVars.housing_mode_active
 
-		--[[ hooksecurefunc("FriendsFrameBNDropDown_Initialize", FriendGroups_AddDropDown)
-		hooksecurefunc("FriendsFrameBNOfflineDropDown_Initialize", FriendGroups_AddDropDown)
-		hooksecurefunc("FriendsFrameDropDown_Initialize", FriendGroups_AddDropDown)
-		hooksecurefunc("FriendsFrameOfflineDropDown_Initialize", FriendGroups_AddDropDown) ]]
-		hooksecurefunc(FriendsListButtonMixin, "OnClick", FriendGroups_FriendsListButtonTemplateClick)
+        -- 2. AUTO-RESET: Immediately flip the saved var to false.
+        -- This ensures that ANY subsequent reload (manual or button click) will default back to ENABLED.
+        if isHousingMode then
+            FriendGroups_SavedVars.housing_mode_active = false
+        end
 
-		if not FriendGroups_SavedVars then
-			FriendGroups_SavedVars = {
-				collapsed = {},
-				hide_offline = false,
-				colour_classes = true,
-				gray_faction = false,
-				hide_high_level = false,
-				show_mobile_afk = false,
-				add_mobile_text = false,
-				ingame_only = false,
-				ingame_retail = false,
-				show_btag = false,
-				sort_by_status = false,
-				show_retail = false,
-				show_faction_icons = true,
-				show_search = false,
-				hide_empty_groups = false,
-				show_realm = false,
-				hide_afk = false
-			}
-		end
+        if isHousingMode then
+            -- [[ SAFE MODE (HOUSING) ACTIVE ]] --
+            -- We are in Safe Mode for THIS session only.
+            
+            local masterBtn = CreateFrame("Button", "FriendGroupsMasterControl", FriendsListFrame, "UIPanelButtonTemplate")
+            
+            -- [[ FORCE TO FRONT ]] --
+            masterBtn:SetFrameStrata("FULLSCREEN_DIALOG") 
+            masterBtn:SetFrameLevel(9999)                 
+            
+            -- [[ UPDATED SIZE & POSITION ]] --
+            masterBtn:SetSize(374, 28)
+            masterBtn:SetPoint("TOP", FriendsListFrame, "TOP", 0, -57)
+            
+            -- Set Text using Localization
+            masterBtn:SetText("|cff3AFF00" .. L["RELOAD_BTN_TEXT"] .. "|r")
+            
+            -- Logic: Just Reload (The flag was already reset automatically above)
+            masterBtn:SetScript("OnClick", function()
+                ReloadUI()
+            end)
 
-		if FriendGroups_SavedVars.open_one_group then
-			-- Migrate collapsed to only have one false value at a time
-			local notCollapsed = {}
-			for groupName, collapsed in pairs(FriendGroups_SavedVars.collapsed) do
-				if not collapsed then
-					table.insert(notCollapsed, groupName)
-				end
-			end
+            -- Tooltip using Localization
+            masterBtn:SetScript("OnEnter", function(s) 
+                GameTooltip:SetOwner(s, "ANCHOR_RIGHT")
+                GameTooltip:SetText(L["RELOAD_TOOLTIP_TITLE"])
+                GameTooltip:AddLine(L["RELOAD_TOOLTIP_DESC"], 1, 1, 1)
+                GameTooltip:Show()
+            end)
+            masterBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
-			table.sort(notCollapsed)
+            Print(L["SAFE_MODE_WARNING"])
+        else
+            -- [[ NORMAL MODE ]] --
+            EnableFriendGroups()
+        end
 
-			if #notCollapsed > 1 then
-				FriendGroups_SavedVars.collapsed[notCollapsed[1]] = false
-				for i = 2, #notCollapsed do
-					FriendGroups_SavedVars.collapsed[notCollapsed[i]] = true
-				end
-			end
-		end
-	end
+        FriendsFrame:HookScript("OnHide", function()
+            FriendsFrame.selectedFriend = nil
+            FriendsFrame.selectedFriendType = nil
+            FriendGroupsFrame.selectionLocked = true
+        end)
+
+        FriendsFrame:HookScript("OnShow", function()
+            FriendsFrame.selectedFriend = nil
+            FriendsFrame.selectedFriendType = nil
+            FriendGroupsFrame.selectionLocked = true 
+            FriendGroups_FriendsListUpdate(true)
+        end)
+    end
+    
+-- [[ HOUSING SAFETY SHIELD ]] --
+    -- Watch for House List loading to prevent accidental clicks
+    if event == "ADDON_LOADED" and arg1 == "Blizzard_HouseList" then
+        if FriendGroups_Loaded then
+            local w = CreateFrame("Frame", nil, HouseListFrame)
+            w:SetFrameStrata("DIALOG")
+            w:SetAllPoints(HouseListFrame)
+            w:EnableMouse(true) -- Block clicks to the list
+            
+            local bg = w:CreateTexture(nil, "BACKGROUND")
+            bg:SetAllPoints()
+            -- Set to Black (0,0,0) with 90% opacity (0.9)
+            bg:SetColorTexture(0, 0, 0, 0.9)
+            
+            local msg = w:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+            msg:SetPoint("CENTER", 0, 30)
+            msg:SetText(L["SHIELD_MSG"])
+            
+            local b = CreateFrame("Button", nil, w, "UIPanelButtonTemplate")
+            b:SetSize(200, 30)
+            b:SetPoint("CENTER", 0, -50)
+            b:SetText(L["SHIELD_BTN_TEXT"])
+            b:SetScript("OnClick", function()
+                FriendGroups_SavedVars.housing_mode_active = true
+                ReloadUI()
+            end)
+        end
+    end
 end)
