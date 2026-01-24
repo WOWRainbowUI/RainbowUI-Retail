@@ -4548,9 +4548,11 @@ function module.main:ADDON_LOADED()
 		module:RegisterEvents('PLAYER_ENTERING_WORLD')
 	end
 
-	for _ in pairs(module.db.spellCDSync) do
-		module:RegisterEvents('SPELL_UPDATE_COOLDOWN')
-		break
+	if not ExRT.isMN then
+		for _ in pairs(module.db.spellCDSync) do
+			module:RegisterEvents('SPELL_UPDATE_COOLDOWN')
+			break
+		end
 	end
 
 	module:RegisterSlash()

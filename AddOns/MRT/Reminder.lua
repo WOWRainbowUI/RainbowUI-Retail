@@ -3480,272 +3480,275 @@ function options:Load()
 		local subMenu = {}
 		local res
 
-		for _, h_key in pairs({"history","historySession"}) do
-			local sepAdded
-			for i=1,#module.db[h_key] do
-				local fight = module.db[h_key][i]
-				local fightLen = #fight > 1 and fight[#fight][1] - fight[1][1]
-				local text = (#fight > 0 and fight[1][4] or L.ReminderFight.." "..i)..(fightLen and format(" %d:%02d",fightLen/60,fightLen%60) or "")
-				local boss_list = {
-					text = text,
-					arg1 = fight,
-					arg2 = text,
-					arg3 = 2,
-					func = self.SetValue,
-				}
-				if #fight > 0 and fight[1][2] == 22 then
-					boss_list.arg3 = 5
-					boss_list.text = boss_list.text:gsub(" %d+:"," +"..(fight[1][5] or 0).."%1")
-					local mplusSubMenu
-					local start = nil
-					for j=1,#fight do
-						if fight[j][2] == 3 then
-							start = j
-						elseif start and fight[j][2] == 0 then
-							local newFight = {}
-							for k=start,j do
-								newFight[#newFight+1] = fight[k]
+		if not ExRT.isMN then
+			for _, h_key in pairs({"history","historySession"}) do
+				local sepAdded
+				for i=1,#module.db[h_key] do
+					local fight = module.db[h_key][i]
+					local fightLen = #fight > 1 and fight[#fight][1] - fight[1][1]
+					local text = (#fight > 0 and fight[1][4] or L.ReminderFight.." "..i)..(fightLen and format(" %d:%02d",fightLen/60,fightLen%60) or "")
+					local boss_list = {
+						text = text,
+						arg1 = fight,
+						arg2 = text,
+						arg3 = 2,
+						func = self.SetValue,
+					}
+					if #fight > 0 and fight[1][2] == 22 then
+						boss_list.arg3 = 5
+						boss_list.text = boss_list.text:gsub(" %d+:"," +"..(fight[1][5] or 0).."%1")
+						local mplusSubMenu
+						local start = nil
+						for j=1,#fight do
+							if fight[j][2] == 3 then
+								start = j
+							elseif start and fight[j][2] == 0 then
+								local newFight = {}
+								for k=start,j do
+									newFight[#newFight+1] = fight[k]
+								end
+								start = nil
+								if not mplusSubMenu then
+									mplusSubMenu = {}
+								end
+								local nf_fightLen = newFight[#newFight][1] - newFight[1][1]
+								local nf_text = (newFight[1][4] or L.ReminderFight.." "..i)..format(" %d:%02d",nf_fightLen/60,nf_fightLen%60)
+								local ej = ExRT.GDB.encounterIDtoEJ[ newFight[1][3] ]
+								local nf_icon,nf_iconsize
+								if ej and EJ_GetCreatureInfo then
+									nf_icon = select(5, EJ_GetCreatureInfo(1, ej))
+									nf_iconsize = 32
+								end
+								mplusSubMenu[#mplusSubMenu+1] = {
+									text = nf_text,
+									arg1 = newFight,
+									arg2 = nf_text,
+									arg3 = 2,
+									func = self.SetValue,
+									icon = nf_icon,
+									iconsize = nf_iconsize,
+								}
 							end
-							start = nil
-							if not mplusSubMenu then
-								mplusSubMenu = {}
-							end
-							local nf_fightLen = newFight[#newFight][1] - newFight[1][1]
-							local nf_text = (newFight[1][4] or L.ReminderFight.." "..i)..format(" %d:%02d",nf_fightLen/60,nf_fightLen%60)
-							local ej = ExRT.GDB.encounterIDtoEJ[ newFight[1][3] ]
-							local nf_icon,nf_iconsize
-							if ej and EJ_GetCreatureInfo then
-								nf_icon = select(5, EJ_GetCreatureInfo(1, ej))
-								nf_iconsize = 32
-							end
-							mplusSubMenu[#mplusSubMenu+1] = {
-								text = nf_text,
-								arg1 = newFight,
-								arg2 = nf_text,
-								arg3 = 2,
-								func = self.SetValue,
-								icon = nf_icon,
-								iconsize = nf_iconsize,
-							}
 						end
-					end
-					if mplusSubMenu then
-						boss_list.subMenu = mplusSubMenu
-					end
-				elseif #fight > 0 and fight[1][2] == 3 then
-					local ej = ExRT.GDB.encounterIDtoEJ[ fight[1][3] ]
-					if ej and EJ_GetCreatureInfo then
-						boss_list.icon = select(5, EJ_GetCreatureInfo(1, ej))
-						boss_list.iconsize = 32
-					end
-				elseif #fight > 0 and fight[1][2] == 0 then
-					boss_list.arg1 = ExRT.F.table_copy2(fight)
-					boss_list.arg1[1][3] = select(8,GetInstanceInfo())
-					boss_list.arg3 = 5
-				end
-				if fightLen then
-					if not sepAdded then
-						sepAdded = true
-						if #subMenu > 0 then
-							subMenu[#subMenu+1] = {
-								text = " ",
-								isTitle = true,
-							}
+						if mplusSubMenu then
+							boss_list.subMenu = mplusSubMenu
 						end
+					elseif #fight > 0 and fight[1][2] == 3 then
+						local ej = ExRT.GDB.encounterIDtoEJ[ fight[1][3] ]
+						if ej and EJ_GetCreatureInfo then
+							boss_list.icon = select(5, EJ_GetCreatureInfo(1, ej))
+							boss_list.iconsize = 32
+						end
+					elseif #fight > 0 and fight[1][2] == 0 then
+						boss_list.arg1 = ExRT.F.table_copy2(fight)
+						boss_list.arg1[1][3] = select(8,GetInstanceInfo())
+						boss_list.arg3 = 5
 					end
-
-					subMenu[#subMenu+1] = boss_list
+					if fightLen then
+						if not sepAdded then
+							sepAdded = true
+							if #subMenu > 0 then
+								subMenu[#subMenu+1] = {
+									text = " ",
+									isTitle = true,
+								}
+							end
+						end
+	
+						subMenu[#subMenu+1] = boss_list
+					end
 				end
 			end
-		end
 
-		if module.db.historyTL then
-			if #subMenu > 0 then
+			if module.db.historyTL then
+				if #subMenu > 0 then
+					subMenu[#subMenu+1] = {
+						text = " ",
+						isTitle = true,
+					}
+				end
+				local syncSubMenu = {}
 				subMenu[#subMenu+1] = {
-					text = " ",
+					text = "Synced history",
+					subMenu = syncSubMenu,
+				}
+				for i=1,#module.db.historyTL do
+					local data = module.db.historyTL[i]
+					local bossID = data.bossID or 0
+					local text = ExRT.L.bossName[bossID]..(data.len and format(" %d:%02d",data.len/60,data.len%60) or "")
+					local boss_list = {
+						text = text,
+						arg1 = bossID,
+						arg2 = text,
+						arg3 = 3,
+						arg4 = {tl = data[1],id = bossID},
+						tooltip = data.player,
+						func = self.SetValue,
+					}
+					syncSubMenu[#syncSubMenu+1] = boss_list
+				end
+			end
+	
+			if #subMenu == 0 then
+				subMenu[#subMenu+1] = {
+					text = L.ReminderRecordsYet,
 					isTitle = true,
 				}
 			end
-			local syncSubMenu = {}
-			subMenu[#subMenu+1] = {
-				text = "Synced history",
-				subMenu = syncSubMenu,
-			}
-			for i=1,#module.db.historyTL do
-				local data = module.db.historyTL[i]
-				local bossID = data.bossID or 0
-				local text = ExRT.L.bossName[bossID]..(data.len and format(" %d:%02d",data.len/60,data.len%60) or "")
-				local boss_list = {
-					text = text,
-					arg1 = bossID,
-					arg2 = text,
-					arg3 = 3,
-					arg4 = {tl = data[1],id = bossID},
-					tooltip = data.player,
-					func = self.SetValue,
-				}
-				syncSubMenu[#syncSubMenu+1] = boss_list
-			end
-		end
 
-		if #subMenu == 0 then
 			subMenu[#subMenu+1] = {
-				text = L.ReminderRecordsYet,
+				text = " ",
 				isTitle = true,
 			}
-		end
 
-		subMenu[#subMenu+1] = {
-			text = " ",
-			isTitle = true,
-		}
-		subMenu[#subMenu+1] = {
-			text = L.ReminderFightExport,
-			func = function()
-				ELib:DropDownClose()
-
-				local str = options:GetHistoryString()
-				--local str = options:GetHistoryTimelineString()
-
-				local compressed
-				if #str < 1000000 then
-					compressed = LibDeflate:CompressDeflate(str,{level = 5})
-				end
-				local encoded = "MRTREMH"..(compressed and "1" or "0")..LibDeflate:EncodeForPrint(compressed or str)
-
-				options.timeLine.historyExportWindow.Edit:SetText(encoded)
-				options.timeLine.historyExportWindow:Show()
-			end,
-		}
-		subMenu[#subMenu+1] = {
-			text = L.ReminderFightImport,
-			func = function()
-				ELib:DropDownClose()
-
-				options.timeLine.historyImportWindow:NewPoint("CENTER",UIParent,0,0)
-				options.timeLine.historyImportWindow:Show()
-			end,
-		}
-		subMenu[#subMenu+1] = {
-			text = L.ReminderLogNextFight,
-			tooltip = L.ReminderLogNextFightTip,
-			func = function()
-				ELib:DropDownClose()
-
-				module:HistoryLogNextFight()
-			end,
-			isTitle = module.db.historyNextFight and true or false,
-		}
-
-		self.List[ #self.List+1 ] = {
-			text = L.ReminderFightSaved,
-			subMenu = subMenu,
-			prio = 100001,
-		}
-
-		if VMRT.Reminder2.TLHistory then
-			local tlSubMenu = {}
-			self.List[#self.List+1] = {
-				text = "Per boss saved history",
-				subMenu = tlSubMenu,
-				Lines=15,
-				prio = 100000,
-			}
-			for diffID,diffData in pairs(VMRT.Reminder2.TLHistory) do
-				for bossID,bossData in pairs(diffData) do
-					if type(bossID) == "number" then	--unk error fix
-						local toadd
+			subMenu[#subMenu+1] = {
+				text = L.ReminderFightExport,
+				func = function()
+					ELib:DropDownClose()
 	
-						local zone, bossNum
-						for i=1,#ExRT.GDB.EncountersList do
-							local z = ExRT.GDB.EncountersList[i]
-							for j=2,#z do
-								if z[j] == bossID then
-									zone = z
-									bossNum = j
-									break
-								end
-							end
-						end
-						if zone then
-							toadd = ExRT.F.table_find3(tlSubMenu,zone[1],"arg3")
-							if not toadd then
-								local text = GetMapNameByID(zone[1])
+					local str = options:GetHistoryString()
+					--local str = options:GetHistoryTimelineString()
+	
+					local compressed
+					if #str < 1000000 then
+						compressed = LibDeflate:CompressDeflate(str,{level = 5})
+					end
+					local encoded = "MRTREMH"..(compressed and "1" or "0")..LibDeflate:EncodeForPrint(compressed or str)
+	
+					options.timeLine.historyExportWindow.Edit:SetText(encoded)
+					options.timeLine.historyExportWindow:Show()
+				end,
+			}
+			subMenu[#subMenu+1] = {
+				text = L.ReminderFightImport,
+				func = function()
+					ELib:DropDownClose()
+	
+					options.timeLine.historyImportWindow:NewPoint("CENTER",UIParent,0,0)
+					options.timeLine.historyImportWindow:Show()
+				end,
+			}
+			subMenu[#subMenu+1] = {
+				text = L.ReminderLogNextFight,
+				tooltip = L.ReminderLogNextFightTip,
+				func = function()
+					ELib:DropDownClose()
+	
+					module:HistoryLogNextFight()
+				end,
+				isTitle = module.db.historyNextFight and true or false,
+			}
+	
+			self.List[ #self.List+1 ] = {
+				text = L.ReminderFightSaved,
+				subMenu = subMenu,
+				prio = 100001,
+			}
+
+			if VMRT.Reminder2.TLHistory then
+				local tlSubMenu = {}
+				self.List[#self.List+1] = {
+					text = "Per boss saved history",
+					subMenu = tlSubMenu,
+					Lines=15,
+					prio = 100000,
+				}
+				for diffID,diffData in pairs(VMRT.Reminder2.TLHistory) do
+					for bossID,bossData in pairs(diffData) do
+						if type(bossID) == "number" then	--unk error fix
+							local toadd
 		
-								local zoneImg
-								local zoneMapID
-								local ej_bossID = ExRT.GDB.encounterIDtoEJ[bossID]
-								if ej_bossID and EJ_GetEncounterInfo then
-									local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, instanceID = EJ_GetEncounterInfo(ej_bossID)
-									if journalInstanceID then
-										local name, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID, link, shouldDisplayDifficulty, mapID = EJ_GetInstanceInfo(journalInstanceID)
-										zoneImg = buttonImage1
-										text = name or text
-										zoneMapID = mapID
+							local zone, bossNum
+							for i=1,#ExRT.GDB.EncountersList do
+								local z = ExRT.GDB.EncountersList[i]
+								for j=2,#z do
+									if z[j] == bossID then
+										zone = z
+										bossNum = j
+										break
 									end
 								end
-		
-								toadd = {text = text, arg3 = zone[1], subMenu = {}, zonemd = zone, prio = 40000+zone[1]+(zoneMapID and SORT_DUNG_LIST[ zoneMapID ] and SORT_DUNG_LIST[ zoneMapID ]*5000 or 0), icon = zoneImg}
-								tlSubMenu[#tlSubMenu+1] = toadd
 							end
-							toadd = toadd.subMenu
-						end
-						if not toadd then
-							toadd = tlSubMenu
-						end
-	
-						local bossImg
-						if ExRT.GDB.encounterIDtoEJ[bossID] and EJ_GetCreatureInfo then
-							bossImg = select(5, EJ_GetCreatureInfo(1, ExRT.GDB.encounterIDtoEJ[bossID]))
-						end
-						local bossName = ExRT.L.bossName[bossID]
-	
-						local toadd2 = ExRT.F.table_find3(toadd,bossID,"arg3")
-						if not toadd2 then
-							toadd2 = {
-								text = bossName,
-								arg3 = bossID,
-								subMenu = {},
-								icon = bossImg,
-								iconsize = 32,
-								prio = bossNum or 1+(bossID/100000),
-							}
-							toadd[#toadd+1] = toadd2
-						end
-						toadd2 = toadd2.subMenu
-	
-						for _,fightData in pairs(bossData) do
-							local data = fightData
-							local text = (GetDifficultyInfo and GetDifficultyInfo(diffID) or "diff ID: "..diffID)..(fightData.d and fightData.d[2] and format(" %d:%02d",fightData.d[2]/60,fightData.d[2]%60) or "")
-							local boss_list = {
-								text = text,
-								arg1 = bossID,
-								arg2 = bossName.." "..text,
-								arg3 = 3,
-								arg4 = {tl = data,id = bossID},
-								func = self.SetValue,
-							}
-							toadd2[#toadd2+1] = boss_list
+							if zone then
+								toadd = ExRT.F.table_find3(tlSubMenu,zone[1],"arg3")
+								if not toadd then
+									local text = GetMapNameByID(zone[1])
+			
+									local zoneImg
+									local zoneMapID
+									local ej_bossID = ExRT.GDB.encounterIDtoEJ[bossID]
+									if ej_bossID and EJ_GetEncounterInfo then
+										local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, instanceID = EJ_GetEncounterInfo(ej_bossID)
+										if journalInstanceID then
+											local name, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID, link, shouldDisplayDifficulty, mapID = EJ_GetInstanceInfo(journalInstanceID)
+											zoneImg = buttonImage1
+											text = name or text
+											zoneMapID = mapID
+										end
+									end
+			
+									toadd = {text = text, arg3 = zone[1], subMenu = {}, zonemd = zone, prio = 40000+zone[1]+(zoneMapID and SORT_DUNG_LIST[ zoneMapID ] and SORT_DUNG_LIST[ zoneMapID ]*5000 or 0), icon = zoneImg}
+									tlSubMenu[#tlSubMenu+1] = toadd
+								end
+								toadd = toadd.subMenu
+							end
+							if not toadd then
+								toadd = tlSubMenu
+							end
+		
+							local bossImg
+							if ExRT.GDB.encounterIDtoEJ[bossID] and EJ_GetCreatureInfo then
+								bossImg = select(5, EJ_GetCreatureInfo(1, ExRT.GDB.encounterIDtoEJ[bossID]))
+							end
+							local bossName = ExRT.L.bossName[bossID]
+		
+							local toadd2 = ExRT.F.table_find3(toadd,bossID,"arg3")
+							if not toadd2 then
+								toadd2 = {
+									text = bossName,
+									arg3 = bossID,
+									subMenu = {},
+									icon = bossImg,
+									iconsize = 32,
+									prio = bossNum or 1+(bossID/100000),
+								}
+								toadd[#toadd+1] = toadd2
+							end
+							toadd2 = toadd2.subMenu
+		
+							for _,fightData in pairs(bossData) do
+								local data = fightData
+								local text = (GetDifficultyInfo and GetDifficultyInfo(diffID) or "diff ID: "..diffID)..(fightData.d and fightData.d[2] and format(" %d:%02d",fightData.d[2]/60,fightData.d[2]%60) or "")
+								local boss_list = {
+									text = text,
+									arg1 = bossID,
+									arg2 = bossName.." "..text,
+									arg3 = 3,
+									arg4 = {tl = data,id = bossID},
+									func = self.SetValue,
+								}
+								toadd2[#toadd2+1] = boss_list
+							end
 						end
 					end
 				end
-			end
-
-			for i=1,#tlSubMenu do
-				local list = tlSubMenu[i]
-				if list.zonemd then
-					sort(list.subMenu,function(a,b) return (a.prio or 0) > (b.prio or 0) end)
+	
+				for i=1,#tlSubMenu do
+					local list = tlSubMenu[i]
+					if list.zonemd then
+						sort(list.subMenu,function(a,b) return (a.prio or 0) > (b.prio or 0) end)
+					end
 				end
-			end
-			sort(tlSubMenu,function(a,b)
-				return (a.prio or 0) > (b.prio or 0) 
-			end)
-
-			if #tlSubMenu == 0 then
-				tlSubMenu[#tlSubMenu+1] = {
-					isTitle = true,
-					text = "No fight saved yet",
-				}
+				sort(tlSubMenu,function(a,b)
+					return (a.prio or 0) > (b.prio or 0) 
+				end)
+	
+				if #tlSubMenu == 0 then
+					tlSubMenu[#tlSubMenu+1] = {
+						isTitle = true,
+						text = "No fight saved yet",
+					}
+				end
 			end
 		end
 
