@@ -1,5 +1,7 @@
+---------------------------------------------------------------------------------------------------
+-- Module: Font
+---------------------------------------------------------------------------------------------------
 local ADDON_NAME, Addon = ...
-local ThreatPlates = Addon.ThreatPlates
 
 ---------------------------------------------------------------------------------------------------
 -- Imported functions and constants
@@ -16,8 +18,10 @@ local ANCHOR_POINT_TEXT = Addon.ANCHOR_POINT_TEXT
 
 -- Cached database settings
 
-local Font = {}
-Addon.Font = Font
+---------------------------------------------------------------------------------------------------
+-- Module Setup
+---------------------------------------------------------------------------------------------------
+local FontModule = Addon.Font
 
 ---------------------------------------------------------------------------------------------------
 -- Backup system fonts for recovery if necessary
@@ -33,7 +37,7 @@ local function BackupSystemFont(font_instance)
   }
 end
 
-Font.DefaultSystemFonts = {
+local DefaultSystemFonts = {
   NamePlate = BackupSystemFont(SystemFont_NamePlate),
   NamePlateFixed = BackupSystemFont(SystemFont_NamePlateFixed),
   LargeNamePlate = BackupSystemFont(SystemFont_LargeNamePlate),
@@ -62,7 +66,20 @@ local AnchorFrameTo = Addon.AnchorFrameTo
 -- Element code
 ---------------------------------------------------------------------------------------------------
 
-function Font:UpdateTextFont(font, db)
+function FontModule.SetJustify(font_string, horz, vert)
+  local align_horz, align_vert = font_string:GetJustifyH(), font_string:GetJustifyV()
+  if align_horz ~= horz or align_vert ~= vert then
+    font_string:SetJustifyH(horz)
+    font_string:SetJustifyV(vert)
+
+    -- Set text to nil to enforce text string update, otherwise updates to justification will not take effect
+    local text = font_string:GetText()
+    font_string:SetText(nil)
+    font_string:SetText(text)
+  end
+end
+
+local function UpdateTextFont(font, db)
   font:SetFont(Addon.LibSharedMedia:Fetch('font', db.Typeface), db.Size, db.flags)
 
   if db.Shadow then
@@ -76,8 +93,7 @@ function Font:UpdateTextFont(font, db)
     font:SetTextColor(db.Color.r, db.Color.g, db.Color.b, db.Transparency or 1)
   end
 
-  font:SetJustifyH(db.HorizontalAlignment or "CENTER")
-  font:SetJustifyV(db.VerticalAlignment or "MIDDLE")
+  FontModule.SetJustify(font, db.HorizontalAlignment or "CENTER", db.VerticalAlignment or "MIDDLE")
 
   -- Set text to nil to enforce text string update, otherwise updates to justification will not take effect
   local text = font:GetText()
@@ -85,12 +101,12 @@ function Font:UpdateTextFont(font, db)
   font:SetText(text)
 end
 
-function Font:UpdateText(parent, font, db)
-  self:UpdateTextFont(font, db.Font)
+function FontModule.UpdateText(parent, font, db)
+  UpdateTextFont(font, db.Font)
   AnchorFrameTo(db, font, parent)
 end
 
-function Font:UpdateTextSize(parent, font, db)
+function FontModule.UpdateTextSize(parent, font, db)
   local width, height = parent:GetSize()
   if db.AutoSizing == nil or db.AutoSizing then
     font:SetSize(width, height)
@@ -119,7 +135,7 @@ local function UpdateSystemFont(obj, db)
   end
 end
 
-function Font:SetNamesFonts()
+function FontModule.SetNamesFonts()
   local db = Addon.db.profile.BlizzardSettings.Names
   if db.Enabled then
     db = db.Font
@@ -130,16 +146,16 @@ function Font:SetNamesFonts()
   end
 end
 
-function Font:ResetNamesFonts()
-  UpdateSystemFont(SystemFont_NamePlate, self.DefaultSystemFonts.NamePlate)
-  UpdateSystemFont(SystemFont_NamePlateFixed, self.DefaultSystemFonts.NamePlateFixed)
-  UpdateSystemFont(SystemFont_LargeNamePlate, self.DefaultSystemFonts.LargeNamePlate)
-  UpdateSystemFont(SystemFont_LargeNamePlateFixed, self.DefaultSystemFonts.LargeNamePlateFixed)
+function FontModule.ResetNamesFonts()
+  UpdateSystemFont(SystemFont_NamePlate, DefaultSystemFonts.NamePlate)
+  UpdateSystemFont(SystemFont_NamePlateFixed, DefaultSystemFonts.NamePlateFixed)
+  UpdateSystemFont(SystemFont_LargeNamePlate, DefaultSystemFonts.LargeNamePlate)
+  UpdateSystemFont(SystemFont_LargeNamePlateFixed, DefaultSystemFonts.LargeNamePlateFixed)
 end
 
 ---------------------------------------------------------------------------------------------------
 -- Update of settings
 ---------------------------------------------------------------------------------------------------
 
--- function Font:UpdateConfiguration()
+-- function FontModule:UpdateSettings()
 -- end

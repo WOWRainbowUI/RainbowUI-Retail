@@ -3,7 +3,9 @@
 ---------------------------------------------------------------------------------------------------
 local ADDON_NAME, Addon = ...
 
-local Widget = (Addon.IS_CLASSIC and {}) or Addon.Widgets:NewWidget("Arena")
+if Addon.IS_CLASSIC then return end
+
+local Widget = Addon.Widgets:NewWidget("Arena")
 
 ---------------------------------------------------------------------------------------------------
 -- Imported functions and constants
@@ -13,9 +15,8 @@ local Widget = (Addon.IS_CLASSIC and {}) or Addon.Widgets:NewWidget("Arena")
 local pairs = pairs
 
 -- WoW APIs
--- local GetNumArenaOpponents = GetNumArenaOpponents
-local UnitExists = UnitExists
 local IsInInstance = IsInInstance
+local UnitExists = UnitExists
 local IsInBrawl = C_PvP.IsInBrawl
 local UnitIsUnit = UnitIsUnit
 local UnitInParty = UnitInParty
@@ -26,7 +27,7 @@ local GetAddOnEnableState = (C_AddOns and C_AddOns.GetAddOnEnableState)
     or function(name, character) return GetAddOnEnableState(character, name) end
 
 -- ThreatPlates APIs
-local Font = Addon.Font
+local FontUpdateText = Addon.Font.UpdateText
 
 local _G =_G
 -- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
@@ -116,12 +117,12 @@ function Widget:PLAYER_ENTERING_WORLD()
   
     -- Arenas are available from TBC Classic on. But ARENA_OPPONENT_UPDATE is also fired in BGs, 
     -- at least in Classic, not sure if also in Wrath/TBC Classic, so it's only enabled when in an arena
-    self:RegisterEvent("ARENA_OPPONENT_UPDATE")
+    self:SubscribeEvent("ARENA_OPPONENT_UPDATE")
     -- Register GROUP_ROSTER_UPDATE here is it only should be used while in an arena, not in, e.g., a dungeon.
-    self:RegisterEvent("GROUP_ROSTER_UPDATE")
+    self:SubscribeEvent("GROUP_ROSTER_UPDATE")
   else
-    self:UnregisterEvent("ARENA_OPPONENT_UPDATE")
-    self:UnregisterEvent("GROUP_ROSTER_UPDATE")
+    self:UnsubscribeEvent("ARENA_OPPONENT_UPDATE")
+    self:UnsubscribeEvent("GROUP_ROSTER_UPDATE")
 
     InArena = false
     PlayerGUIDToNumber = {}
@@ -211,11 +212,15 @@ function Widget:IsEnabled()
 end
 
 function Widget:OnEnable()
-  self:RegisterEvent("PLAYER_ENTERING_WORLD")
-  self:RegisterEvent("PVP_MATCH_ACTIVE")
+  self:SubscribeEvent("PLAYER_ENTERING_WORLD")
+  self:SubscribeEvent("PVP_MATCH_ACTIVE")
 
   self:PLAYER_ENTERING_WORLD()
 end
+
+-- function Widget:OnDisable()
+--   self:UnsubscribeAllEvents()
+-- end
 
 function Widget:EnabledForStyle(style, unit)
   return unit.reaction ~= "NEUTRAL" and not (style == "NameOnly" or style == "NameOnly-Unique" or style == "etotem")
@@ -260,10 +265,10 @@ function Widget:OnUnitAdded(widget_frame, unit)
     widget_frame.NumText:Hide()
   end
 
-  if settings.HideName then
-    widget_frame:GetParent().visual.name:Hide()
-  elseif Addon.db.profile.settings.name.show then
-    widget_frame:GetParent().visual.name:Show()
+  if Settings.HideName then
+    widget_frame:GetParent().visual.Name:Hide()
+  elseif Addon.db.profile.Name.HealthbarMode.Enabled then
+    widget_frame:GetParent().visual.Name:Show()
   end
 
   widget_frame:Show()
@@ -279,7 +284,7 @@ function Widget:UpdateLayout(widget_frame)
   
   Addon:SetIconTexture(widget_frame.Icon, "Arena")
   
-  Font:UpdateText(widget_frame, widget_frame.NumText, Settings.NumberText)
+  FontUpdateText(widget_frame, widget_frame.NumText, Settings.NumberText)
 end
 
 function Widget:UpdateSettings()

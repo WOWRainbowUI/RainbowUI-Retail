@@ -2,7 +2,6 @@
 -- Target Art Widget
 ---------------------------------------------------------------------------------------------------
 local ADDON_NAME, Addon = ...
-local ThreatPlates = Addon.ThreatPlates
 
 local FocusWidget = (Addon.ExpansionIsAtLeastTBC and Addon.Widgets:NewFocusWidget("Focus")) or {}
 local Widget = Addon.Widgets:NewTargetWidget("TargetArt")
@@ -12,7 +11,7 @@ local Widget = Addon.Widgets:NewTargetWidget("TargetArt")
 ---------------------------------------------------------------------------------------------------
 
 -- Lua APIs
-local pairs = pairs
+local abs, max, min = abs, max, min
 
 -- WoW APIs
 local GetNamePlateForUnit = C_NamePlate.GetNamePlateForUnit
@@ -21,6 +20,7 @@ local UnitIsUnit = UnitIsUnit
 
 -- ThreatPlates APIs
 local BackdropTemplate = Addon.BackdropTemplate
+local MathClamp = Addon.Clamp
 local MODE_FOR_STYLE, AnchorFrameTo = Addon.MODE_FOR_STYLE, Addon.AnchorFrameTo
 local CVars = Addon.CVars
 
@@ -29,26 +29,25 @@ local _G =_G
 -- List them here for Mikk's FindGlobals script
 -- GLOBALS: CreateFrame
 
-local ART_PATH = "Interface\\AddOns\\TidyPlates_ThreatPlates\\Widgets\\TargetArtWidget\\"
 local BACKDROP = {
   default = {
-    edgeFile = ThreatPlates.Art .. "TP_WhiteSquare",
+    edgeFile = Addon.PATH_ARTWORK .. "TP_WhiteSquare",
     edgeSize = 1.8,
     offset = 4,
   },
   squarethin = {
-    edgeFile = ThreatPlates.Art .. "TP_WhiteSquare",
+    edgeFile = Addon.PATH_ARTWORK .. "TP_WhiteSquare",
     edgeSize = 1,
     offset = 3,
   },
   threat_glow = {
-    edgeFile = ThreatPlates.Art .. "TP_Threat",
+    edgeFile = Addon.PATH_ARTWORK .. "TP_Threat",
     edgeSize = 10,
     offset = 5,
   },
   glow = {
-    bgFile = ThreatPlates.Art .. "TP_WhiteSquare",
-    edgeFile = ART_PATH .. "glow_border",
+    bgFile = Addon.PATH_ARTWORK .. "TP_WhiteSquare",
+    edgeFile = "Interface\\AddOns\\TidyPlates_ThreatPlates\\Widgets\\TargetArtWidget\\glow_border",
     edgeSize = 10,
     offset = 5,
     inset = 5,
@@ -94,6 +93,8 @@ local FRAME_LEVEL_BY_TEXTURE = {
   Stripes = 0,
 }
 
+local WidgetFrame
+
 ---------------------------------------------------------------------------------------------------
 -- Cached configuration settings
 ---------------------------------------------------------------------------------------------------
@@ -114,7 +115,6 @@ local SoftTargetSettings = {
 }
 local UpdateTexture, ShowBorder, NameModeOffsetX, NameModeOffsetY
 
-local SettingsHV, FocusSettingsHV
 local FocusWidgetFrame
 local FocusUpdateTexture, FocusShowBorder, FocusNameModeOffsetX, FocusNameModeOffsetY
 
@@ -161,10 +161,7 @@ local  function UpdateBorderTexture(db, widget_frame, texture_frame)
 
   local r, g, b, a = GetHighlightColor(widget_frame)
   texture_frame:SetBackdropBorderColor(r, g, b, a)
-  local backdrop_alpha = a - 0.70 -- 80/255 => 1 - 0.69
-  if backdrop_alpha < 0 then
-    backdrop_alpha = 0
-  end
+  local backdrop_alpha = MathClamp(a - 0.70, 0, 1)  -- 80/255 => 1 - 0.69
   texture_frame:SetBackdropColor(r, g, b, backdrop_alpha)
 
   texture_frame.LeftTexture:Hide()
@@ -232,21 +229,21 @@ local UPDATE_TEXTURE_FUNCTIONS = {
   threat_glow = UpdateBorderTexture,
   arrows_legacy = UpdateSideTexture,
   bubble = UpdateSideTexture,
-  crescent = UpdateSideTexture,
+  crescent = UpdattareSideTexture,
   Stripes = UpdateOverlayTexture,
 }
 
-local function GetHeadlineViewHeight(db)
-  return abs(max(db.name.y, db.customtext.y) - min(db.name.y, db.customtext.y)) + (db.name.size + db.customtext.size) / 2
+local function GetHeadlineViewHeight(db_name, db_statustext)
+  return abs(max(db_name.VerticalOffset, db_statustext.VerticalOffset) - min(db_name.VerticalOffset, db_statustext.VerticalOffset)) + (db_name.Font.Size + db_statustext.Font.Size) / 2
 end
 
-local function GetTargetTextureY(db)
-  if db.name.y >= db.customtext.y then
+local function GetTargetTextureY(db_name, db_statustext)
+  if db_name.VerticalOffset >= db_statustext.VerticalOffset then
     -- name above status text
-    return db.name.y - 10 + (db.name.size / 2) - ((GetHeadlineViewHeight(db) - 18) / 2)
+    return db_name.VerticalOffset - 10 + (db_name.Font.Size / 2) - ((GetHeadlineViewHeight(db_name, db_statustext) - 18) / 2)
   else
     -- status text above name
-    return db.customtext.y - 10 + (db.customtext.size / 2) - ((GetHeadlineViewHeight(db) - 18) / 2)
+    return db_name.VerticalOffset - 10 + (db_statustext.Font.Size / 2) - ((GetHeadlineViewHeight(db_name, db_statustext) - 18) / 2)
   end
 end
 
@@ -288,11 +285,11 @@ local function PlayerTargetChanged(target_unitid)
   local widget_frame = TargetHighlightFrames[target_unitid]
   
   -- ! Don't overwrite the target with a style if it's becoming a action target as well
-  local tp_frame = Widget:GetThreatPlateForUnit(target_unitid)
+  local tp_frame = Addon:GetThreatPlateForUnit(target_unitid)
   if tp_frame and (not UnitIsUnit("target", tp_frame.unit.unitid) or target_unitid == "target") then
     local unit = tp_frame.unit
     if Widget:EnabledForStyle(unit.style, unit) then
-      local healthbar = tp_frame.visual.healthbar
+      local healthbar = tp_frame.visual.Healthbar
       widget_frame:SetParent(tp_frame)
       widget_frame:SetFrameLevel(healthbar:GetFrameLevel() + FRAME_LEVEL_BY_TEXTURE[Settings.theme])
       --widget_frame.HealthbarMode:SetFrameLevel(widget_frame:GetFrameLevel())
@@ -333,7 +330,8 @@ end
 
 local function UpdateTargetHighlightFrame(widget_frame)
   UpdateTexture(Settings, widget_frame, widget_frame.HealthbarMode)
-  widget_frame.NameModeTexture:SetSize(128, 32 * GetHeadlineViewHeight(SettingsHV) / 18)
+  local db = Addon.db.profile
+  widget_frame.NameModeTexture:SetSize(128, 32 * GetHeadlineViewHeight(db.Name.NameMode, db.StatusText.NameMode) / 18)
   widget_frame.NameModeTexture:SetPoint("CENTER", widget_frame, "CENTER", NameModeOffsetX, NameModeOffsetY)
 end
 
@@ -352,7 +350,7 @@ local function CreateTargetHighlightFrame(target_unitid)
     widget_frame.HealthbarMode = healthbar_mode_frame
 
     widget_frame.NameModeTexture = widget_frame:CreateTexture(nil, "BACKGROUND", nil, 0)
-    widget_frame.NameModeTexture:SetTexture(ThreatPlates.Art .. "Target")
+    widget_frame.NameModeTexture:SetTexture(Addon.PATH_ARTWORK .. "Target")
 
     -- Create soft target / interact icon
     local soft_target_icon_frame = _G.CreateFrame("Frame",nil, widget_frame, BackdropTemplate)
@@ -390,20 +388,24 @@ function Widget:Create()
 end
 
 function Widget:IsEnabled()
-  local db = Addon.db.profile
-  return db.targetWidget.ON or db.HeadlineView.ShowTargetHighlight
+  local db = Addon.db.profile.targetWidget
+  return db.ON or db.ShowInHeadlineView
 end
 
 function Widget:OnEnable()
-  self:RegisterEvent("PLAYER_TARGET_CHANGED")
-  self:RegisterEvent("PLAYER_SOFT_FRIEND_CHANGED")
-  self:RegisterEvent("PLAYER_SOFT_ENEMY_CHANGED")
-  self:RegisterEvent("PLAYER_SOFT_INTERACT_CHANGED")
+  self:SubscribeEvent("PLAYER_TARGET_CHANGED")
+  self:SubscribeEvent("PLAYER_SOFT_FRIEND_CHANGED")
+  self:SubscribeEvent("PLAYER_SOFT_ENEMY_CHANGED")
+  self:SubscribeEvent("PLAYER_SOFT_INTERACT_CHANGED")
 end
+
+-- function Widget:OnDisable()
+--   self:UnsubscribeAllEvents()
+-- end
 
 function Widget:EnabledForStyle(style, unit)
   if (style == "NameOnly" or style == "NameOnly-Unique") then
-    return SettingsHV.ShowTargetHighlight
+    return Settings.ShowTargetHighlight
   else
     return Settings.ON
   end
@@ -476,18 +478,24 @@ function Widget:OnTargetUnitRemoved(tp_frame, unit)
   end
 end
 
-function Widget:UpdateSettings()
-  Settings = Addon.db.profile.targetWidget
-  SettingsHV = Addon.db.profile.HeadlineView
+function Widget:UpdateLayout()
+  local widget_frame = WidgetFrame
 
-  NameModeOffsetX = SettingsHV.name.x
-  NameModeOffsetY = GetTargetTextureY(SettingsHV)
+  UpdateTexture(Settings, widget_frame, widget_frame.HealthbarMode)
+  local db = Addon.db.profile
+  widget_frame.NameModeTexture:SetSize(128, 32 * GetHeadlineViewHeight(db.Name.NameMode, db.StatusText.NameMode) / 18)
+  widget_frame.NameModeTexture:SetPoint("CENTER", widget_frame, "CENTER", NameModeOffsetX, NameModeOffsetY)
+end
+
+function Widget:UpdateSettings()
+  local db = Addon.db.profile
+  Settings = db.targetWidget
+
+  NameModeOffsetX = db.Name.NameMode.HorizontalOffset
+  NameModeOffsetY = GetTargetTextureY(db.Name.NameMode, db.StatusText.NameMode)
 
   UpdateTexture = UPDATE_TEXTURE_FUNCTIONS[Settings.theme]
   ShowBorder = (UpdateTexture == UpdateBorderTexture)
-
-  -- Update mouseover settings as they depend on target highlight being shown or not
-  Addon.Element_Mouseover_UpdateSettings()
 
   SoftTargetSettings.target.Enabled = Settings.SoftTarget.Icon.SoftTargetIconTarget
   SoftTargetSettings.softenemy.Enabled = CVars:GetAsBool("SoftTargetIconEnemy")
@@ -505,6 +513,10 @@ function Widget:UpdateSettings()
   SoftTargetSettings.softfriend.Color = Settings.SoftTarget.HighlightColorForFriend
   SoftTargetSettings.softinteract.Color = Settings.SoftTarget.HighlightColorForInteract
 
+  self:UpdateAllFramesAfterSettingsUpdate()
+end
+
+function Widget:UpdateAllFramesAfterSettingsUpdate()
   -- Update the widget if it was already created (not true for immediately after Reload UI or if it was never enabled
   -- in this since last Reload UI)
   for target_unitid, widget_frame in pairs(TargetHighlightFrames) do
@@ -548,7 +560,7 @@ function FocusWidget:Create()
     widget_frame.HealthbarMode = healthbar_mode_frame
 
     widget_frame.NameModeTexture = widget_frame:CreateTexture(nil, "BACKGROUND", nil, -1)
-    widget_frame.NameModeTexture:SetTexture(ThreatPlates.Art .. "Target")
+    widget_frame.NameModeTexture:SetTexture(Addon.PATH_ARTWORK .. "Target")
 
     self:UpdateLayout()
   end
@@ -557,17 +569,21 @@ function FocusWidget:Create()
 end
 
 function FocusWidget:IsEnabled()
-  local db = Addon.db.profile
-  return db.FocusWidget.ON or db.HeadlineView.ShowFocusHighlight
+  local db = Addon.db.profile.FocusWidget
+  return db.ON or db.ShowInHeadlineView
 end
 
 function FocusWidget:OnEnable()
-  self:RegisterEvent("PLAYER_FOCUS_CHANGED")
+  self:SubscribeEvent("PLAYER_FOCUS_CHANGED")
 end
+
+-- function Widget:OnDisable()
+--   self:UnsubscribeAllEvents()
+-- end
 
 function FocusWidget:EnabledForStyle(style, unit)
   if (style == "NameOnly" or style == "NameOnly-Unique") then
-    return FocusSettingsHV.ShowFocusHighlight
+    return FocusSettings.FocusSettings
   elseif style ~= "etotem" then
     return FocusSettings.ON
   end
@@ -579,7 +595,7 @@ function FocusWidget:OnFocusUnitAdded(tp_frame, unit)
   local widget_frame = FocusWidgetFrame
 
   if self:EnabledForStyle(unit.style, unit) then
-    local healthbar = tp_frame.visual.healthbar
+    local healthbar = tp_frame.visual.Healthbar
     widget_frame:SetParent(tp_frame)
     widget_frame:SetFrameLevel(healthbar:GetFrameLevel() + FRAME_LEVEL_BY_TEXTURE[FocusSettings.theme])
     --widget_frame.HealthbarMode:SetFrameLevel(widget_frame:GetFrameLevel())
@@ -624,22 +640,27 @@ function FocusWidget:UpdateLayout()
   local widget_frame = FocusWidgetFrame
 
   FocusUpdateTexture(FocusSettings, widget_frame, widget_frame.HealthbarMode)
-  widget_frame.NameModeTexture:SetSize(128, 32 * GetHeadlineViewHeight(FocusSettingsHV) / 18)
+  local db = Addon.db.profile
+  widget_frame.NameModeTexture:SetSize(128, 32 * GetHeadlineViewHeight(db.Name.NameMode, db.StatusText.NameMode) / 18)
   widget_frame.NameModeTexture:SetPoint("CENTER", widget_frame, "CENTER", FocusNameModeOffsetX, FocusNameModeOffsetY)
 end
 
 function FocusWidget:UpdateSettings()
-  FocusSettings = Addon.db.profile.FocusWidget
-  FocusSettingsHV = Addon.db.profile.HeadlineView
+  local db = Addon.db.profile
+  FocusSettings = db.FocusWidget
 
-  FocusNameModeOffsetX = FocusSettingsHV.name.x
-  FocusNameModeOffsetY = GetTargetTextureY(FocusSettingsHV)
+  FocusNameModeOffsetX = db.Name.NameMode.HorizontalOffset
+  FocusNameModeOffsetY = GetTargetTextureY(db.Name.NameMode, db.StatusText.NameMode)
 
   FocusUpdateTexture = UPDATE_TEXTURE_FUNCTIONS[FocusSettings.theme]
   FocusShowBorder = (FocusUpdateTexture == UpdateBorderTexture)
 
   SoftTargetSettings.focus.Color = FocusSettings
 
+  self:UpdateAllFramesAfterSettingsUpdate()
+end
+
+function FocusWidget:UpdateAllFramesAfterSettingsUpdate()
   -- Update the widget if it was already created (not true for immediately after Reload UI or if it was never enabled
   -- in this since last Reload UI)
   if FocusWidgetFrame then

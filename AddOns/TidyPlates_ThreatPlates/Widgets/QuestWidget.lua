@@ -2,9 +2,10 @@
 -- Quest Widget
 ---------------------------------------------------------------------------------------------------
 local ADDON_NAME, Addon = ...
-local ThreatPlates = Addon.ThreatPlates
 
 if not Addon.ExpansionIsAtLeastMists then return end
+
+if Addon.ExpansionIsAtLeastMidnight then return end
 
 local Widget = Addon.Widgets:NewWidget("Quest")
 
@@ -17,9 +18,8 @@ local string, tonumber, pairs = string, tonumber, pairs
 local string_match = string.match
 
 -- WoW APIs
-local InCombatLockdown, IsInInstance = InCombatLockdown, IsInInstance
-local UnitName, UnitIsUnit = UnitName, UnitIsUnit
-local UnitExists = UnitExists
+local InCombatLockdown = InCombatLockdown
+local UnitName, UnitExists = UnitName, UnitExists
 local IsInRaid, IsInGroup, GetNumGroupMembers, GetNumSubgroupMembers = IsInRaid, IsInGroup, GetNumGroupMembers, GetNumSubgroupMembers
 local wipe = wipe
 
@@ -30,9 +30,11 @@ local GetNumQuestLogEntries = C_QuestLog and C_QuestLog.GetNumQuestLogEntries or
 local C_TooltipInfo_GetUnit = C_TooltipInfo and C_TooltipInfo.GetUnit -- Added in 10.0.2
 local GetNamePlateForUnit = C_NamePlate.GetNamePlateForUnit
 
+local GetNamePlates = C_NamePlate.GetNamePlates
+
 -- ThreatPlates APIs
 local PlayerName = Addon.PlayerName
-local RGB_P = ThreatPlates.RGB_P
+local RGB_P = Addon.RGB_P
 local UnitDetailedThreatSituationWrapper = Addon.UnitDetailedThreatSituationWrapper
 
 local _G =_G
@@ -50,6 +52,8 @@ local TEXTURE_SCALING = 0.5
 ---------------------------------------------------------------------------------------------------
 -- Local variables
 ---------------------------------------------------------------------------------------------------
+local Settings
+local HideInCombat
 local QuestLogNotComplete = true
 local UnitQuestLogChanged = false
 --local QuestAcceptedUpdatePending = true
@@ -264,12 +268,12 @@ end
 local function ShowQuestUnit(unit)
   local db = Addon.db.profile.questWidget
 
-  if IsInInstance() and db.HideInInstance then
+  if Addon.IsInPvEInstance and db.HideInInstance then
     return false
   end
 
   if InCombatLockdown() or InCombat then -- InCombat is necessary here - at least was - forgot why, though
-    if db.HideInCombat then
+    if HideInCombat then
       return false
     elseif db.HideInCombatAttacked then
       local _, threatStatus = UnitDetailedThreatSituationWrapper("player", unit.unitid)
@@ -280,12 +284,10 @@ local function ShowQuestUnit(unit)
   return true
 end
 
-local function ShowQuestUnitHealthbar(unit)
+function Addon.ShowQuestUnit(unit)
   local db = Addon.db.profile.questWidget
   return db.ON and db.ModeHPBar and ShowQuestUnit(unit)
 end
-
-ThreatPlates.ShowQuestUnit = ShowQuestUnitHealthbar
 
 local function CacheQuestObjectives(quest)
   quest.Objectives = quest.Objectives or {}
@@ -355,8 +357,25 @@ end
 -- Event Watcher Code for Quest Widget
 ---------------------------------------------------------------------------------------------------
 
-function Widget:QUEST_ACCEPTED(quest_id)
+-- Same as Widget:UpdateAllFramesWithPublish but with the additiona check of widget_frame.IsQuestUnit
+function Widget:RefreshCombatVisisbility()
+  local frame, widget_frame
+  for _, plate in pairs(GetNamePlates()) do
+    frame = plate and plate.TPFrame
+    if frame and frame.Active then
+      widget_frame = frame.widgets.Quest
+      if widget_frame.IsQuestUnit then
+        -- Call UpdateFrame as widget may be non-initialized if player entered world while in combat
+        if widget_frame.Active then
+          self:UpdateFrame(widget_frame, frame.unit)
+        end
+        self:PublishEvent("SituationalColorUpdate", frame)  -- to update healthbar/name color, if necessary
+      end
+    end
+  end
+end
 
+function Widget:QUEST_ACCEPTED(quest_id)
   CacheQuestByQuestID(quest_id)
   if QuestByID[quest_id] == "UpdatePending" then
     --print ("QUEST_ACCEPTED:", quest_id)
@@ -379,7 +398,7 @@ function Widget:QUEST_DATA_LOAD_RESULT(quest_id, success)
     --print ("QUEST_DATA_LOAD_RESULT:", quest_id, success)
     --print ("  => Loading delayed quest information")
     CacheQuestByQuestID(quest_id)
-    self:UpdateAllFramesAndNameplateColor()
+    self:UpdateAllFramesWithPublish("SituationalColorUpdate")
   end
 end
 
@@ -411,35 +430,37 @@ function Widget:QUEST_LOG_UPDATE()
       QuestsToUpdate[quest_id] = nil
     end
 
-    -- We need to do this to update all progressbar quests - their quest progress cannot be cached
-    self:UpdateAllFramesAndNameplateColor()
+    -- Re-scan all nameplates for updated quest information (not only new quest targets, but
+    -- also, e.g., changes to the progress information
+    -- TODO: RefreshCombatVisibility would be sufficient here if new quest targets would only be signaled
+    -- by QUEST_ACCEPTED - with quest with multiple intermediate steps, I am not sure if that is true
+    self:UpdateAllFramesWithPublish("SituationalColorUpdate")
   end
   
   -- It does seem that this is no longer necessary
   if QuestLogNotComplete then
     QuestLogNotComplete = false
     self:GenerateQuestCache()
-    self:UpdateAllFramesAndNameplateColor()
+    self:UpdateAllFramesWithPublish()
   end
 end
 
---function Widget:QUEST_POI_UPDATE()
---  print ("QUEST_POI_UPDATE:")
---  if QuestAcceptedUpdatePending then
---    -- After login, sometimes the quest list is empty when the widget is loaded.
---    -- So, update the internal quest list after the first POI update after login.
---    -- At that point, the quest list is available
---    if FirstPOIUpateAfterLogin then
---      FirstPOIUpateAfterLogin = false
---      -- The following should be an alternative as QUEST_LOG_UPDATE seems to be fired after QUEST_POI_UPDATE in every case
---      -- QuestLogNotComplete = true
---      self:GenerateQuestCache()
---    end
---
---    self:UpdateAllFramesAndNameplateColor()
---    QuestAcceptedUpdatePending = false
---  end
---end
+-- function Widget:QUEST_POI_UPDATE()
+--   if QuestAcceptedUpdatePending then
+--     -- After login, sometimes the quest list is empty when the widget is loaded.
+--     -- So, update the internal quest list after the first POI update after login.
+--     -- At that point, the quest list is available
+--     if FirstPOIUpateAfterLogin then
+--       FirstPOIUpateAfterLogin = false
+--       -- The following should be an alternative as QUEST_LOG_UPDATE seems to be fired after QUEST_POI_UPDATE in every case
+--       -- QuestLogNotComplete = true
+--       self:GenerateQuestCache()
+--     end
+
+--     self:UpdateAllFramesWithPublish("SituationalColorUpdate")
+--     QuestAcceptedUpdatePending = false
+--   end
+-- end
 
 function Widget:QUEST_REMOVED(quest_id, _)
   --print ("QUEST_REMOVED:", quest_id)
@@ -453,7 +474,7 @@ function Widget:QUEST_REMOVED(quest_id, _)
   -- Plates only need to be updated if the quest was actually tracked
   if quest_title then
     QuestByTitle[quest_title] = nil
-    self:UpdateAllFramesAndNameplateColor()
+    self:UpdateAllFramesWithPublish("SituationalColorUpdate")
   end
 end
 
@@ -494,29 +515,31 @@ function Widget:UNIT_QUEST_LOG_CHANGED(unitid)
 end
 
 function Widget:PLAYER_ENTERING_WORLD()
-  self:UpdateAllFramesAndNameplateColor()
+  self:UpdateAllFramesWithPublish("SituationalColorUpdate")
 end
 
 function Widget:PLAYER_REGEN_DISABLED()
   InCombat = true
-  self:UpdateAllFramesAndNameplateColor()
+  if HideInCombat then
+    Widget:RefreshCombatVisisbility()
   end
+end
 
 function Widget:PLAYER_REGEN_ENABLED()
   InCombat = false
-	self:UpdateAllFramesAndNameplateColor()
+  if HideInCombat then
+    Widget:RefreshCombatVisisbility()
+  end
 end
 
-function Widget:UNIT_THREAT_LIST_UPDATE(unitid)
-  if not unitid or unitid == 'player' or UnitIsUnit('player', unitid) then return end
-
-  local plate = GetNamePlateForUnit(unitid)
-  if plate and plate.TPFrame.Active then
-    local widget_frame = plate.TPFrame.widgets.Quest
+function Widget:ThreatUpdate(frame)
+  local widget_frame = frame.widgets.Quest
+  if not HideInCombat and widget_frame.IsQuestUnit then
+    -- Call UpdateFrame as widget may be non-initialized if player entered world while in combat
     if widget_frame.Active then
-      self:UpdateFrame(widget_frame, plate.TPFrame.unit)
-      Addon:UpdateIndicatorNameplateColor(plate.TPFrame)
+      self:UpdateFrame(widget_frame, frame.unit)
     end
+    self:PublishEvent("SituationalColorUpdate", frame) -- to update healthbar/name color, if necessary
   end
 end
 
@@ -540,7 +563,6 @@ function Widget:GROUP_ROSTER_UPDATE()
     end
   end
 
-
 --  if is_in_group then
 --    for i = 1, ((is_in_raid and GetNumGroupMembers()) or GetNumSubgroupMembers()) do
 --      local unit_name = UnitName(group_type .. i)
@@ -552,7 +574,6 @@ function Widget:GROUP_ROSTER_UPDATE()
 --      end
 --    end
 --  end
-
 end
 
 function Widget:GROUP_LEFT()
@@ -599,41 +620,49 @@ end
 function Widget:OnEnable()
   self:GenerateQuestCache()
 
-  self:RegisterEvent("QUEST_ACCEPTED")
-  --self:RegisterEvent("QUEST_AUTOCOMPLETE")
-  --self:RegisterEvent("QUEST_COMPLETE")
-  self:RegisterEvent("QUEST_DATA_LOAD_RESULT")
-  --self:RegisterEvent("QUEST_DETAIL")
-  --self:RegisterEvent("QUEST_LOG_CRITERIA_UPDATE")
-  self:RegisterEvent("QUEST_LOG_UPDATE")
-  --self:RegisterEvent("QUEST_POI_UPDATE")
+  -- self:SubscribeEvent("PLAYER_ENTERING_WORLD") -- Disabled as nameplates are not yet created when this event fires
+
+  self:SubscribeEvent("QUEST_ACCEPTED")
+    --self:SubscribeEvent("QUEST_AUTOCOMPLETE")
+  --self:SubscribeEvent("QUEST_COMPLETE")
+  self:SubscribeEvent("QUEST_DATA_LOAD_RESULT")
+  --self:SubscribeEvent("QUEST_DETAIL")
+  --self:SubscribeEvent("QUEST_LOG_CRITERIA_UPDATE")
+  self:SubscribeEvent("QUEST_LOG_UPDATE")
+  --self:SubscribeEvent("QUEST_POI_UPDATE")
   -- QUEST_REMOVED fires whenever the player turns in a quest, whether automatically with a Task-type quest
   -- (Bonus Objectives/World Quests), or by pressing the Complete button in a quest dialog window.
   -- also handles abandon quest
-  self:RegisterEvent("QUEST_REMOVED")
-  --self:RegisterEvent("QUEST_TURNED_IN")
-  --self:RegisterEvent("QUEST_WATCH_LIST_CHANGED")
-  self:RegisterEvent("QUEST_WATCH_UPDATE")
-  --self:RegisterEvent("QUESTLINE_UPDATE")
-  --self:RegisterEvent("WORLD_QUEST_COMPLETED_BY_SPELL")
-  self:RegisterUnitEvent("UNIT_QUEST_LOG_CHANGED", "player")
+  self:SubscribeEvent("QUEST_REMOVED")
+  --self:SubscribeEvent("QUEST_TURNED_IN")
+  --self:SubscribeEvent("QUEST_WATCH_LIST_CHANGED")
+  self:SubscribeEvent("QUEST_WATCH_UPDATE")
+  --self:SubscribeEvent("QUESTLINE_UPDATE")
+  --self:SubscribeEvent("WORLD_QUEST_COMPLETED_BY_SPELL")
+  self:SubscribeUnitEvent("UNIT_QUEST_LOG_CHANGED", "player")
 
-  self:RegisterEvent("PLAYER_ENTERING_WORLD")
+  self:SubscribeEvent("PLAYER_ENTERING_WORLD")
 
   -- Handle in-combat situations:
-  self:RegisterEvent("PLAYER_REGEN_ENABLED")
-  self:RegisterEvent("PLAYER_REGEN_DISABLED")
-  -- Also use UNIT_THREAT_LIST_UPDATE as new mobs may enter the combat mid-fight (PLAYER_REGEN_DISABLED already triggered)
-  self:RegisterEvent("UNIT_THREAT_LIST_UPDATE")
+  self:SubscribeEvent("PLAYER_REGEN_ENABLED")
+  self:SubscribeEvent("PLAYER_REGEN_DISABLED")
+  -- Also use ThreatUpdate Threatas new mobs may enter the combat mid-fight (PLAYER_REGEN_DISABLED already triggered)
+  self:SubscribeEvent("ThreatUpdate")
 
   -- To handle objectives correctly when quest objectives of group memebers are shown in the tooltip, we need to keep a
   -- list of all players in the group
-  self:RegisterEvent("GROUP_ROSTER_UPDATE")
-  self:RegisterEvent("GROUP_LEFT")
+  self:SubscribeEvent("GROUP_ROSTER_UPDATE")
+  self:SubscribeEvent("GROUP_LEFT")
+
+  Addon.CVars:Overwrite("showQuestTrackingTooltips", 1)
 
   InCombat = InCombatLockdown()
   self:GROUP_ROSTER_UPDATE()
 end
+
+-- function Widget:OnDisable()
+--   self:UnsubscribeAllEvents()
+-- end
 
 function Widget:EnabledForStyle(style, unit)
   if (style == "NameOnly" or style == "NameOnly-Unique") then
@@ -659,6 +688,8 @@ end
 
 function Widget:UpdateFrame(widget_frame, unit)
   local show, quest_type, current = IsQuestUnit(unit, true)
+
+  widget_frame.IsQuestUnit = show
 
   local db = Addon.db.profile.questWidget
   if show and db.ModeIcon and ShowQuestUnit(unit) then
@@ -715,6 +746,13 @@ function Widget:UpdateFrame(widget_frame, unit)
   else
     widget_frame:Hide()
   end
+end
+
+function Widget:UpdateSettings()
+  Settings = Addon.db.profile.questWidget
+
+  HideInCombat = Settings.HideInCombat
+  Font = Addon.LibSharedMedia:Fetch('font', Settings.Font)
 end
 
 local function tablelength(T)

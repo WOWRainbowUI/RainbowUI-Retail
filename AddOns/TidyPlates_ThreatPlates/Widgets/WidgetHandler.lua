@@ -11,10 +11,11 @@ local ADDON_NAME, Addon = ...
 local pairs, next = pairs, next
 
 -- WoW APIs
-local GetNamePlateForUnit = C_NamePlate.GetNamePlateForUnit
-local UnitIsUnit = UnitIsUnit
+local GetNamePlates, GetNamePlateForUnit = C_NamePlate.GetNamePlates, C_NamePlate.GetNamePlateForUnit
 
 -- ThreatPlates APIs
+local EventServiceSubscribe, EventServiceSubscribeUnitEvent, EventServicePublish = Addon.EventService.Subscribe, Addon.EventService.SubscribeUnitEvent, Addon.EventService.Publish
+local EventServiceUnsubscribe, EventServiceUnsubscribeAll = Addon.EventService.Unsubscribe, Addon.EventService.UnsubscribeAll
 
 local _G = _G
 -- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
@@ -26,7 +27,7 @@ local WidgetHandler = {
   EnabledWidgets = {},
   EnabledTargetWidgets = {},
   EnabledFocusWidget = nil,
-  RegisteredEventsByWidget = {}
+  --RegisteredEventsByWidget = {}
 }
 
 Addon.Widgets = WidgetHandler
@@ -34,84 +35,90 @@ Addon.Widgets = WidgetHandler
 ---------------------------------------------------------------------------------------------------
 -- Event handling stuff
 ---------------------------------------------------------------------------------------------------
-local function EventHandler(self, event, ...)
-  local widgets = WidgetHandler.RegisteredEventsByWidget[event]
-
-  if widgets then
-    for widget, func in pairs(widgets) do
-      if func == true then
-        widget[event](widget, ...)
-      else
-        func(event, ...)
-      end
-    end
-  end
-end
-
-local function UnitEventHandler(self, event, ...)
-  local widget = self.Widget
-  local func = widget.RegistedUnitEvents[event]
-
-  if func == true then
-    widget[event](widget, ...)
-  else
-    func(event, ...)
-  end
-end
-
+--local function EventHandler(self, event, ...)
+--  local widgets = WidgetHandler.RegisteredEventsByWidget[event]
+--
+--  if widgets then
+--    for widget, func in pairs(widgets) do
+--      if func == true then
+--        widget[event](widget, ...)
+--      else
+--        func(event, ...)
+--      end
+--    end
+--  end
+--end
+--
+--local function UnitEventHandler(self, event, ...)
+--  local widget = self.Widget
+--  local func = widget.RegistedUnitEvents[event]
+--
+--  if func == true then
+--    widget[event](widget, ...)
+--  else
+--    func(event, ...)
+--  end
+--end
+--
 WidgetHandler.EventHandlerFrame = _G.CreateFrame("Frame", nil, WorldFrame)
-WidgetHandler.EventHandlerFrame:SetScript("OnEvent", EventHandler)
+--WidgetHandler.EventHandlerFrame:SetScript("OnEvent", EventHandler)
 
-local function RegisterEvent(widget, event, func, register_for_current_expansion)
-  if not Addon:ExpansionSupportsEvent(event, register_for_current_expansion) then return end
+local function SubscribeEvent(widget, event, func)
+  EventServiceSubscribe(widget, event, func)
 
-  if not WidgetHandler.RegisteredEventsByWidget[event] then
-    WidgetHandler.RegisteredEventsByWidget[event] = {}
-  end  
-
-  WidgetHandler.RegisteredEventsByWidget[event][widget] = func or true
-  Addon:RegisterEvent(WidgetHandler.EventHandlerFrame, event, register_for_current_expansion)
+  --  if not WidgetHandler.RegisteredEventsByWidget[event] then
+--    WidgetHandler.RegisteredEventsByWidget[event] = {}
+--  end
+--
+--  WidgetHandler.RegisteredEventsByWidget[event][widget] = func or true
+--  WidgetHandler.EventHandlerFrame:RegisterEvent(event)
 end
 
-local function RegisterUnitEvent(widget, event, unitid, func, register_for_current_expansion)
-  if not Addon:ExpansionSupportsEvent(event, register_for_current_expansion) then return end
+local function SubscribeUnitEvent(widget, event, unitid, func)
+  EventServiceSubscribeUnitEvent(widget, event, unitid, func)
 
-  if not widget.EventHandlerFrame then
-    widget.EventHandlerFrame = _G.CreateFrame("Frame", nil, WorldFrame)
-    widget.EventHandlerFrame.Widget = widget
-    widget.EventHandlerFrame:SetScript("OnEvent", UnitEventHandler)
-  end
-
-  widget.RegistedUnitEvents[event] = func or true
-  Addon:RegisterUnitEvent(widget.EventHandlerFrame, event, unitid, register_for_current_expansion)
+  --  if not widget.EventHandlerFrame then
+  WidgetHandler.EventHandlerFrame = _G.CreateFrame("Frame", nil, WorldFrame)
+  --    widget.EventHandlerFrame.Widget = widget
+  --    widget.EventHandlerFrame:SetScript("OnEvent", UnitEventHandler)
+  --  end
+  --
+  --  widget.RegistedUnitEvents[event] = func or true
+  --  widget.EventHandlerFrame:RegisterUnitEvent(event, unitid)
 end
 
-local function UnregisterEvent(widget, event)
-  if not Addon:ExpansionSupportsEvent(event) then return end
-
-  if WidgetHandler.RegisteredEventsByWidget[event] then
-    WidgetHandler.RegisteredEventsByWidget[event][widget] = nil
-
-    if next(WidgetHandler.RegisteredEventsByWidget[event]) == nil then -- last registered widget removed?
-      Addon:UnregisterEvent(WidgetHandler.EventHandlerFrame, event)
-    end
-  end
-
-  if widget.EventHandlerFrame then
-    Addon:UnregisterEvent(widget.EventHandlerFrame, event)
-    widget.RegistedUnitEvents[event] = nil
-  end
+local function PublishEvent(widget, event, ...)
+  EventServicePublish(event, ...)
 end
 
-local function UnregisterAllEvents(widget)
-  for event, _ in pairs(WidgetHandler.RegisteredEventsByWidget) do
-    UnregisterEvent(widget, event)
-  end
+local function UnsubscribeEvent(widget, event)
+  EventServiceUnsubscribe(widget, event)
 
-  for event, _ in pairs(widget.RegistedUnitEvents) do
-    Addon:UnregisterEvent(widget.EventHandlerFrame, event)
-  end
-  widget.RegistedUnitEvents = {}
+--  if WidgetHandler.RegisteredEventsByWidget[event] then
+--    WidgetHandler.RegisteredEventsByWidget[event][widget] = nil
+--
+--    if next(WidgetHandler.RegisteredEventsByWidget[event]) == nil then -- last registered widget removed?
+--      WidgetHandler.EventHandlerFrame:UnregisterEvent(event)
+--    end
+--  end
+--
+--  if widget.EventHandlerFrame then
+--    widget.EventHandlerFrame:UnregisterEvent(event)
+--    widget.RegistedUnitEvents[event] = nil
+--  end
+end
+
+local function UnsubscribeAllEvents(widget)
+  EventServiceUnsubscribeAll(widget)
+--  for event, _ in pairs(WidgetHandler.RegisteredEventsByWidget) do
+--    UnregisterEvent(widget, event)
+--  end
+--
+--  -- Also remove all remaining registered unit events (that are not in RegisteredEventsByWidget)
+--  for event, _ in pairs(widget.RegistedUnitEvents) do
+--    widget.EventHandlerFrame:UnregisterEvent(event)
+--  end
+--  widget.RegistedUnitEvents = {}
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -119,26 +126,32 @@ end
 ---------------------------------------------------------------------------------------------------
 
 local function UpdateAllFrames(widget)
-  for plate, _ in pairs(Addon.PlatesVisible) do
-    local tp_frame = plate.TPFrame
-
-    local widget_frame = tp_frame.widgets[widget.Name]
-    if widget_frame.Active then
-      widget:UpdateFrame(widget_frame, tp_frame.unit)
+  local frame, widget_frame
+  for _, plate in pairs(GetNamePlates()) do
+    frame = plate and plate.TPFrame
+    if frame and frame.Active then
+      widget_frame = frame.widgets[widget.Name]
+      if widget_frame.Active then
+        widget:UpdateFrame(widget_frame, frame.unit)
+      end
     end
   end
 end
 
-local function UpdateAllFramesAndNameplateColor(widget)
-  for plate, _ in pairs(Addon.PlatesVisible) do
-    local tp_frame = plate.TPFrame
+-- If no event to fire as part of the update is specified, QuestUpdate is used
+local function UpdateAllFramesWithPublish(widget, event)
+  local frame, widget_frame
+  for _, plate in pairs(GetNamePlates()) do
+    frame = plate and plate.TPFrame
+    if frame and frame.Active then
+      widget_frame = frame.widgets[widget.Name]
+      if widget_frame.Active then
+        widget:UpdateFrame(widget_frame, frame.unit)
+      end
 
-    local widget_frame = tp_frame.widgets[widget.Name]
-    if widget_frame.Active then
-      widget:UpdateFrame(widget_frame, tp_frame.unit)
-
-      -- Also update healthbar and name color
-      Addon:UpdateIndicatorNameplateColor(tp_frame)
+      -- Publish that unit data was changed (for color updates of healthbar/name)
+      --print ("UpdateAllFramesWithPublish: Fire Event =>", event, "for", tp_frame.unit.name)
+      widget:PublishEvent(event, frame)
     end
   end
 end
@@ -148,12 +161,14 @@ end
 --   * InitializeWidget and InitializeAllWidgets
 --       - To initialize a widget, first Widget:IsEnabled() is called. You should at least check if the
 --         widget is enabled in general (db.ON, db.ShowInHeadlineView).
---         You may check additional conditions (like Combo Points widget checks for the current
---         spec actually having combo points). But if these conditions may change without Reload UI
---         make sure to keep a even active (e.g., ACTIVE_TALENT_GROUP_CHANGED) to be able to react
---         to that.
---           - If you are using Widget:UpdateSettings() to cache settings from the configuration, make sure that
---             it is called before Widget:Create() as it probably will depend on some of these settings.
+--           * You need to make sure that all configuration settings that are checked here, i.e., that
+--             define if a widget is enabled or not, use SetValueEnabled as setter function. If you just
+--             use the default GetValue, the widget is not enabled (as only UpdateSettings is called)
+--             and, e.g., events may not be registered.
+--           * You may check additional conditions (like Combo Points widget checks for the current
+--             spec actually having combo points). But if these conditions may change without Reload UI
+--             make sure to keep a even active (e.g., ACTIVE_TALENT_GROUP_CHANGED) to be able to react
+--             to that.
 --       - After that, eithr WidgetHandler:EnableWidget() or WidgetHandler:DisableWidget() are called.
 --         For EnableWidget(): Here, for all nameplates created
 --           - the widget frame is created (if not already done) with Widget:Create(),
@@ -182,7 +197,7 @@ end
 --   are up-to-date. Otherwise widget frames are created/updated/accessed with deprecated settings
 --   which may - worst case scenario - result in Lua errors.
 --   <to be described>
--- When iterating over widget frames (PlatesVisible or PlatesCreated) be sure to always consider the
+-- When iterating over widget frames (GetNamePlates() or PlatesCreated) be sure to always consider the
 -- following:
 --
 ---------------------------------------------------------------------------------------------------
@@ -191,45 +206,29 @@ function WidgetHandler:NewWidget(widget_name)
     Name = widget_name,
     WidgetHandler = WidgetHandler,
     --
-    RegistedUnitEvents = {},
+    --RegistedUnitEvents = {},
     --
-    RegisterEvent = RegisterEvent,
-    RegisterUnitEvent = RegisterUnitEvent,
-    UnregisterEvent = UnregisterEvent,
-    UnregisterAllEvents = UnregisterAllEvents,
+    SubscribeEvent = SubscribeEvent,
+    SubscribeUnitEvent = SubscribeUnitEvent,
+    PublishEvent = PublishEvent,
+    UnsubscribeEvent = UnsubscribeEvent,
+    UnsubscribeAllEvents = UnsubscribeAllEvents,
     --
     UpdateAllFrames = UpdateAllFrames,
-    UpdateAllFramesAndNameplateColor = UpdateAllFramesAndNameplateColor,
+    UpdateAllFramesWithPublish = UpdateAllFramesWithPublish,
     -- Default functions for enabling/disabling the widget
     OnEnable = function(self) end, -- do nothing
     OnDisable = function(self)
-      self:UnregisterAllEvents()
-    end,
-    GetThreatPlateForUnit = function(self, unitid)
-      if not unitid or unitid == "player" or UnitIsUnit("player", unitid) then return end
-
-      local plate = GetNamePlateForUnit(unitid)
-      if plate and plate.TPFrame.Active then
-        return plate.TPFrame
-      end
+      self:UnsubscribeAllEvents()
     end,
     GetWidgetFrameForUnit = function(self, unitid)
-      if not unitid or unitid == "player" or UnitIsUnit("player", unitid) then return end
-
-      local plate = GetNamePlateForUnit(unitid)
-      if plate and plate.TPFrame.Active then
-        local widget_frame = plate.TPFrame.widgets[self.Name]
-        if widget_frame.Active then
+      local tp_frame = Addon:GetThreatPlateForUnit(unitid)
+      if tp_frame then
+        local widget_frame = tp_frame.widgets[self.Name]
+        if widget_frame and widget_frame.Active then
           return widget_frame
         end
       end
-      -- local tp_frame = self:GetThreatPlateForUnit(unitid)
-      -- if tp_frame then
-      --   local widget_frame = tp_frame.widgets[self.Name]
-      --   if widget_frame.Active then
-      --     return widget_frame
-      --   end
-      -- end
     end,
   }
 
@@ -252,6 +251,11 @@ function WidgetHandler:NewFocusWidget(widget_name)
   widget.FocusOnly = true
 
   return widget
+end
+
+function WidgetHandler:IsEnabled(widget_name)
+  local widget = self.Widgets[widget_name]
+  return widget and widget:IsEnabled()
 end
 
 function WidgetHandler:InitializeWidget(widget_name)
@@ -363,11 +367,13 @@ function WidgetHandler:DisableWidget(widget_name)
 end
 
 function WidgetHandler:OnPlateCreated(tp_frame)
-  local plate_widgets = tp_frame.widgets
+  local plate_widgets = {}
 
   for widget_name, widget in pairs(self.EnabledWidgets) do
     plate_widgets[widget_name] = widget:Create(tp_frame)
   end
+
+  tp_frame.widgets = plate_widgets
 end
 
 -- TODO: Seperate UnitAdded from UpdateSettings/UpdateConfiguration (unit independent stuff)
@@ -444,17 +450,16 @@ function WidgetHandler:UpdateSettings(widget_name)
 
   if widget.UpdateSettings then
     widget:UpdateSettings()
-  end
 
-  if not (widget.TargetOnly or widget.FocusOnly) then
-    self:UpdateLayoutOfAllPlates(widget)
+    if not (widget.TargetOnly or widget.FocusOnly) then
+      self:UpdateLayoutOfAllPlates(widget)
+    end
   end
 end
 
 function WidgetHandler:UpdateLayoutOfAllPlates(widget)
-  for _, tp_frame in pairs(Addon.PlatesCreated) do
-    local widget_frame = tp_frame.widgets[widget.Name]
-
+  for _, frame in pairs(Addon.PlatesCreated) do
+    local widget_frame = frame.widgets[widget.Name]
     -- widget_frame could be nil if the widget as disabled and is enabled as part of a profile switch
     -- For these frames, UpdateAuraWidgetLayout will be called anyway when the widget is initalized
     -- (which happens after the settings update)
@@ -463,9 +468,18 @@ function WidgetHandler:UpdateLayoutOfAllPlates(widget)
         widget:UpdateLayout(widget_frame)
       end
 
-      -- plate is visible and widget is active, i.e., shown currently
-      if tp_frame.Active and widget_frame.Active then
-        widget:OnUnitAdded(widget_frame, widget_frame.unit)
+      -- As we iterate over PlatesCreated - which is necessary to update the layout of currently not shown plates (but which
+      -- might be re-used later by the game) - we need only re-evaluate active frames to check if they are again
+      -- or no longer shown based on their style - after the settings change.
+      if frame.Active then
+        widget_frame.Active = frame.stylename ~= "empty" and widget:EnabledForStyle(frame.stylename, widget_frame.unit)  
+        if widget_frame.Active then
+          widget:OnUnitAdded(widget_frame, widget_frame.unit)
+        else
+          widget_frame:Hide()
+        end
+      else
+        widget_frame:Hide()
       end
     end
   end
