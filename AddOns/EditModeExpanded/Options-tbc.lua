@@ -23,9 +23,7 @@ local defaults = {
     },
     global = {
         EMEOptions = {
-            lfg = true,
             holyPower = true,
-            totem = true,
             soulShards = true,
             achievementAlert = true, -- alertFrame, using the name acheivement for backward compatibility
             targetOfTarget = true,
@@ -64,22 +62,16 @@ local defaults = {
             debuffFrame = true,
             objectiveTrackerFrame = true,
             targetFrameBuffs = false,
-            focusFrameBuffs = false,
             gameMenu = true,
             gameTooltip = true,
-            lossOfControl = true,
             pet = true,
             extraActionButton = true,
-            cooldownManager = true,
             durationBars = true,
             allowSetCoordinates = false,
             raidSizeLayoutSwitching = false,
             vigorBar = true,
             housingControlsFrame = true,
-            personalResourceDisplay = false,
         },
-        QueueStatusButton = {},
-        TotemFrame = {},
         HolyPower = {},
         Achievements = {}, -- alertFrame, using Acheivements for backward compatibility
         SoulShards = {},
@@ -122,21 +114,12 @@ local defaults = {
         MinimapSeparated = {},
         TargetDebuffs = {},
         TargetBuffs = {},
-        FocusBuffs = {},
         GameMenuFrame = {},
         LOC = {},
         PetFrame = {},
         ExtraActionButton = {},
-        EssentialCooldownViewer = {},
-        UtilityCooldownViewer = {},
-        BuffIconCooldownViewer = {},
-        BuffBarCooldownViewer = {},
-        MirrorTimerContainer = {},
         VigorBar = {},
         HousingControlsFrame = {},
-        PersonalResourceDisplayHealth = {},
-        PersonalResourceDisplayPower = {},
-        PersonalResourceDisplayClass = {},
     }
 }
 
@@ -180,14 +163,9 @@ local options = {
                     desc = string.format(L["TOGGLE_SUPPORT_STRING"], CHI_POWER),
                     type = "toggle",
                 },
-                evokerEssences = {
-                    name = POWER_TYPE_ESSENCE,
-                    desc = string.format(L["TOGGLE_SUPPORT_STRING"], POWER_TYPE_ESSENCE),
-                    type = "toggle",
-                },
                 comboPoints = {
-                    name = COMBO_POINTS_POWER,
-                    desc = string.format(L["TOGGLE_SUPPORT_STRING"], COMBO_POINTS_POWER),
+                    name = COMBAT_TEXT_SHOW_COMBO_POINTS_TEXT,
+                    desc = string.format(L["TOGGLE_SUPPORT_STRING"], COMBAT_TEXT_SHOW_COMBO_POINTS_TEXT),
                     type = "toggle",
                 },
             },
@@ -231,31 +209,11 @@ local options = {
                     desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], FOCUS),
                     type = "toggle",
                 },
-                focusFrameBuffs = {
-                    name = FOCUS.." "..BUFFOPTIONS_LABEL,
-                    desc = string.format(L["TOGGLE_SUPPORT_STRING"], FOCUS.." "..BUFFOPTIONS_LABEL),
-                    type = "toggle",
-                },
             },
-        },
-        totem = {
-            name = UNIT_NAME_FRIENDLY_TOTEMS,
-            desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], UNIT_NAME_FRIENDLY_TOTEMS),
-            type = "toggle",
-        },
-        achievementAlert = {
-            name = L["Alert"],
-            desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], L["Alert"]),
-            type = "toggle",
         },
         compactRaidFrameContainer = {
             name = HUD_EDIT_MODE_RAID_FRAMES_LABEL,
             desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], HUD_EDIT_MODE_RAID_FRAMES_LABEL),
-            type = "toggle",
-        },
-        talkingHead = {
-            name = HUD_EDIT_MODE_TALKING_HEAD_FRAME_LABEL,
-            desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], HUD_EDIT_MODE_TALKING_HEAD_FRAME_LABEL),
             type = "toggle",
         },
         minimapGroup = {
@@ -338,11 +296,6 @@ local options = {
                     desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], BAGSLOTTEXT),
                     type = "toggle",
                 },
-                lfg = {
-                    name = L["LFG Button"],
-                    desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], L["LFG Button"]),
-                    type = "toggle", 
-                },
             },
         },
         buffFrame = {
@@ -381,18 +334,13 @@ local options = {
             type = "toggle",
         },
         backpack = {
-            name = BAG_NAME_BACKPACK,
-            desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], BAG_NAME_BACKPACK),
+            name = BACKPACK_TOOLTIP,
+            desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], BACKPACK_TOOLTIP),
             type = "toggle",
         },
         gameTooltip = {
             name = HUD_EDIT_MODE_HUD_TOOLTIP_LABEL,
             desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], HUD_EDIT_MODE_HUD_TOOLTIP_LABEL),
-            type = "toggle",
-        },
-        lossOfControl = {
-            name = LOSS_OF_CONTROL,
-            desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], LOSS_OF_CONTROL),
             type = "toggle",
         },
         pet = {
@@ -403,11 +351,6 @@ local options = {
         extraActionButton = {
             name = BINDING_NAME_EXTRAACTIONBUTTON1,
             desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], BINDING_NAME_EXTRAACTIONBUTTON1),
-            type = "toggle",
-        },
-        cooldownManager = {
-            name = COOLDOWN_VIEWER_LABEL,
-            desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], COOLDOWN_VIEWER_LABEL),
             type = "toggle",
         },
         durationBars = {
@@ -425,16 +368,6 @@ local options = {
             type = "toggle",
             desc = "Add the pre-11.2.7 Dragonriding Vigor bar"
         },
-        housingControlsFrame = {
-            name = BINDING_HEADER_HOUSING_SYSTEM,
-            type = "toggle",
-            desc = string.format(L["TOGGLE_ADDITIONAL_OPTIONS_SUPPORT_STRING"], BINDING_HEADER_HOUSING_SYSTEM),
-        },
-        personalResourceDisplay = {
-            name = DISPLAY_PERSONAL_RESOURCE,
-            type = "toggle",
-            desc = "Splits the Personal Resource Display into 3 separate frames: HP, Power (mana/energy/etc), and Class (holy power, etc). That way you can move them separately, or shove one of them off screen if you want.",
-        },
     },
 }
 
@@ -442,6 +375,5 @@ function addon:initOptions()
     addon.db = LibStub("AceDB-3.0"):New("EditModeExpandedADB", defaults)
             
     AceConfigRegistry:RegisterOptionsTable(addonName, options)
-    local frame, categoryId = AceConfigDialog:AddToBlizOptions(addonName)
-	addon.db.global.EMEOptions.categoryID = categoryId
+    AceConfigDialog:AddToBlizOptions(addonName)
 end

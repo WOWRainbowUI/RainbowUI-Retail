@@ -3,7 +3,8 @@ local addonName, addon = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 EventUtil.RegisterOnceFrameEventAndCallback("PLAYER_ENTERING_WORLD", function()
-    addon:registerSecureFrameHideable(BossTargetFrameContainer)
+    -- Exists in TBC as Boss1TargetFrame, Boss2TargetFrame, etc
+    --addon:registerSecureFrameHideable(BossTargetFrameContainer)
     
     if addon.db.global.EMEOptions.showCoordinates then 
         hooksecurefunc(EditModeExpandedSystemSettingsDialog, "AttachToSystemFrame", function(self, frame)
@@ -14,14 +15,12 @@ EventUtil.RegisterOnceFrameEventAndCallback("PLAYER_ENTERING_WORLD", function()
         end)
     end
 
-    addon:initAlertFrame()
     addon:initTargetFrame()    
     addon:initFocusFrame()
     addon:initTargetOfTarget()
     addon:initTargetCastBar()
     addon:initFocusToT()
-    addon:initFocusCastBar()    
-    addon:initLFG()
+    addon:initFocusCastBar()
     addon:initMinimap()
     addon:initTopCenterContainer()
     addon:initBelowMinimapContainer()    
@@ -34,44 +33,10 @@ EventUtil.RegisterOnceFrameEventAndCallback("PLAYER_ENTERING_WORLD", function()
     addon:initActionBars()    
     addon:initChatButtons()
     addon:initBuffs()
-    addon:initObjectiveTracker()
     addon:initGameMenu()
     addon:initTooltip()
-    addon:initLossOfControl()
     addon:initPet()
     addon:initExtraActionButton()
-    addon:initCooldownManager()
-    addon:initTotemFrame()
-    addon:initDurationBars()
-    addon:initVigorBar()
-    addon:initPersonalResourceDisplay()
-        
-    local class = UnitClassBase("player")
-        
-    if class == "PALADIN" then
-        addon:initHolyPower()
-    elseif class == "WARLOCK" then
-        addon:initSoulShards()
-        
-    elseif class == "MONK" then
-        addon:initChiBar()
-            
-    elseif class == "DEATHKNIGHT" then
-        addon:initRunes()
-    
-    elseif class == "MAGE" then
-        addon:initArcaneCharges()
-
-    elseif class == "EVOKER" then
-        addon:initEssences()
-            
-    elseif class == "ROGUE" then
-        addon:initRogueComboPoints()
-        
-    elseif class == "DRUID" then
-        addon:initDruidComboPoints()
-
-    end
 end)
 
 EventUtil.RegisterOnceFrameEventAndCallback("EDIT_MODE_LAYOUTS_UPDATED", function()
@@ -99,7 +64,6 @@ end)
 EventUtil.ContinueOnAddOnLoaded(addonName, function()
     addon:initOptions()
     addon:initSystemFrames()
-    addon:initTalkingHead()
 end)
 
 EventUtil.ContinueOnAddOnLoaded("Blizzard_AuctionHouseUI", function()
