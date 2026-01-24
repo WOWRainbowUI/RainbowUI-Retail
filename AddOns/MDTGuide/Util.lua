@@ -213,7 +213,7 @@ end
 ---@param msg string
 Addon.Chat = function (msg)
     if IsInGroup() then
-        SendChatMessage(msg, IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "PARTY")
+        C_ChatInfo.SendChatMessage(msg, IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "PARTY")
     else
         Addon.Echo(nil, msg:gsub("%%", "%%%%"))
     end

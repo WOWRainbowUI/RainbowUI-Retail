@@ -1,3 +1,7 @@
+Version 1.44
+
+- Remove debug code
+
 Version 1.43
 
 - Fix dungeon detection for Tazavesh Gambit
