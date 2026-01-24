@@ -6990,6 +6990,7 @@ local function CreateHealthbarOptions()
             inline = true,
             args = {
               ColorLow = {
+                name = L["Low Color"],
                 order = 30,
                 type = "color",
                 desc = "",
@@ -6997,6 +6998,7 @@ local function CreateHealthbarOptions()
                 arg = { "ColorByHealth", "Low" },
               },
               ColorHigh = {
+                name = L["High Color"],
                 order = 40,
                 type = "color",
                 desc = "",
@@ -7004,8 +7006,6 @@ local function CreateHealthbarOptions()
                 arg = { "ColorByHealth", "High" },
               },
             },
-                name = L["Low Color"],
-                name = L["High Color"],
           },
         },
       },
