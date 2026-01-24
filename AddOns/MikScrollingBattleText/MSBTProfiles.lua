@@ -1,6 +1,12 @@
 -------------------------------------------------------------------------------
 -- Title: Mik's Scrolling Battle Text Profiles
 -- Author: Mikord
+-- 12.0.1 Compatibility: Minor modification to show user notification
+--
+-- CHANGES FOR 12.0.1:
+-- - Added call to MSBTMain.Show12_0_1Notice() on first load
+-- - This displays a one-time message about buff/debuff limitations
+-- - No other functionality changed
 -------------------------------------------------------------------------------
 
 -- Create module and set its name.
@@ -3356,6 +3362,7 @@ local function DisableBlizzardCombatText()
 		SetCVar("floatingCombatTextCombatHealing", 0)
 	end
 	SetCVar("floatingCombatTextCombatDamage", 0)
+	SetCVar("floatingCombatTextSpellMechanics", 0)  -- 12.0.1: Disable spell mechanics (buffs, absorbs)
 	SHOW_COMBAT_TEXT = "0"
 	if (CombatText_UpdateDisplayedMessages) then CombatText_UpdateDisplayedMessages() end
 end
@@ -3769,7 +3776,16 @@ local function OnEvent(this, event, arg1)
 		SetOptionUserDisabled(IsModDisabled())
 
 		-- Disable Blizzard's combat text if it's the first load.
-		if (isFirstLoad) then DisableBlizzardCombatText() end
+		if (isFirstLoad) then 
+			DisableBlizzardCombatText()
+			
+			-- 12.0.1 COMPATIBILITY: Show user notification about API limitations.
+			-- This calls MSBTMain.Show12_0_1Notice() which displays a one-time
+			-- message explaining that buff/debuff notifications don't work in combat.
+			if (MikSBT.Main and MikSBT.Main.Show12_0_1Notice) then
+				MikSBT.Main.Show12_0_1Notice()
+			end
+		end
 
 		-- Support CUSTOM_CLASS_COLORS.
 		if (CUSTOM_CLASS_COLORS) then

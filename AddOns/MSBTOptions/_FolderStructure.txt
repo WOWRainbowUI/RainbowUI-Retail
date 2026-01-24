@@ -1,0 +1,37 @@
+MSBTOptions
+|   MSBTOptions.toc
+|   MSBTOptionsControls.lua
+|   MSBTOptionsMain.lua
+|   MSBTOptionsPopups.lua
+|   MSBTOptionsPopups.txt
+|   MSBTOptionsTabs.lua
+|   MSBTOptionsTabs.txt
+|   _FolderStructure.txt
+|   
++---Artwork
+|       ConfigureIcon.blp
+|       ConfigureIconDisable.blp
+|       ConfigureIconHighlight.blp
+|       DeleteIcon.blp
+|       DeleteIconDisable.blp
+|       DeleteIconHighlight.blp
+|       FontSettingsIcon.blp
+|       FontSettingsIconDisable.blp
+|       FontSettingsIconHighlight.blp
+|       PlainBackdrop.blp
+|       TriggerSettingsIcon.blp
+|       TriggerSettingsIconDisable.blp
+|       TriggerSettingsIconHighlight.blp
+|       
+\---Localization
+        localization.de.lua
+        localization.fr.lua
+        localization.it.lua
+        localization.kr.lua
+        localization.lua
+        localization.ru.lua
+        localization.xml
+        localization.zhcn.lua
+        localization.zhtw.lua
+        
+
