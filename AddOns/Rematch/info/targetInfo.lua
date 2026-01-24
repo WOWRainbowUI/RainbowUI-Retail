@@ -121,14 +121,17 @@ end
 -- returns the npcID of the given unit ("target"/"mouseover"), or nil if unit doesn't exist/is a player
 function rematch.targetInfo:GetUnitNpcID(unit)
 	if UnitExists(unit) then
-		local npcID = tonumber((UnitGUID(unit) or ""):match(".-%-%d+%-%d+%-%d+%-%d+%-(%d+)"))
-		if npcID and npcID~=0 then
-			if rematch.targetData.redirects[npcID] then -- targeting a redirected target
-				return rematch.targetData.redirects[npcID] -- return redirected npcID
-			else
-				return npcID -- otherwise return the npcID
-			end
-		end
+        local guid = UnitGUID(unit) or ""
+        if not issecretvalue(guid) then
+            local npcID = tonumber((UnitGUID(unit) or ""):match(".-%-%d+%-%d+%-%d+%-%d+%-(%d+)"))
+            if npcID and npcID~=0 then
+                if rematch.targetData.redirects[npcID] then -- targeting a redirected target
+                    return rematch.targetData.redirects[npcID] -- return redirected npcID
+                else
+                    return npcID -- otherwise return the npcID
+                end
+            end
+        end
 	end
 end
 
