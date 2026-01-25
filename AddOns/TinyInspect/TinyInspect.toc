@@ -1,6 +1,6 @@
 ## Interface: 120000
 ## Title: TinyInspect
-## Version: 11.2.2 Fix
+## Version: 12.0.0
 ## Notes: Show ItemLevel For Inspect & Party & Raid & Mouse & Bag & Bank ...
 ## Notes-zhCN: 装等观察,装等显示
 ## Notes-zhTW: 裝等觀察,裝等顯示
