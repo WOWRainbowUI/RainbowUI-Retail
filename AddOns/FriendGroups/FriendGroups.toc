@@ -1,5 +1,5 @@
-## Interface: 120000
-## Version: 12.0.1
+## Interface: 120000, 120001
+## Version: 12.0.2
 ## Title: FriendGroups
 ## Notes:|cfffe7b2cFriendGroups is a powerful contact manager and list enhancer. Organize friends with custom groups, advanced search capabilities, and seamless mass invites.|r
 ## Author: Updated for Midnight Pre-Patch (12.0) by Osiris the Kiwi / Discord: osirisnz / Original authors: mkp_tv / Hayato2846 / Thainii
@@ -25,5 +25,6 @@
 ## Category-zhTW: 聊天
 
 locales\localizations.xml
+Realms.lua
 FriendGroups.lua
 FriendGroups.xml

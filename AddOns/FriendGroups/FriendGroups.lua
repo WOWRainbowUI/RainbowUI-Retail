@@ -51,157 +51,194 @@ local groupMenuItems = {
     {
         text = L["MENU_RENAME"],
         notCheckable = true,
-        func = function(self, menu, clickedgroup)
-            StaticPopup_Show("FRIENDGROUPS_RENAME", nil, nil, clickedgroup)
+        func = function(self, groupName)
+            StaticPopup_Show("FRIENDGROUPS_RENAME", nil, nil, groupName)
         end
     },
     {
         text = L["MENU_REMOVE"],
         notCheckable = true,
-        func = function(self, groupName, clickedgroup)
+        func = function(self, groupName)
             FriendGroups_InviteOrGroup(groupName, false)
         end
     },
     {
         text = L["MENU_INVITE"],
         notCheckable = true,
-        func = function(self, groupName, clickedgroup)
+        func = function(self, groupName)
             FriendGroups_InviteOrGroup(groupName, true)
         end
     },
 }
 
 local settingsMenuItems = {
-    -- SECTION 1: FILTERS (Who shows up?)
+    -- SECTION 0: SIZE
+    { text = L["SETTINGS_SIZE"], notCheckable = true, isTitle = true },
+    {
+        text = L["SET_SIZE_SMALL"],
+        checked = function() return (FriendGroups_SavedVars.extra_height or 0) == 0 end,
+        func = function()
+            FriendGroups_SavedVars.extra_height = 0
+            FriendGroups_UpdateSize()
+        end
+    },
+    {
+        text = L["SET_SIZE_MEDIUM"],
+        checked = function() return (FriendGroups_SavedVars.extra_height or 0) == 190 end,
+        func = function()
+            FriendGroups_SavedVars.extra_height = 190
+            FriendGroups_UpdateSize()
+        end
+    },
+    {
+        text = L["SET_SIZE_LARGE"],
+        checked = function() return (FriendGroups_SavedVars.extra_height or 0) == 380 end,
+        func = function()
+            FriendGroups_SavedVars.extra_height = 380
+            FriendGroups_UpdateSize()
+        end
+    },
+
+    -- SECTION 1: FILTERS
     { text = L["SETTINGS_FILTER"],    notCheckable = true, isTitle = true },
     {
         text = L["SET_HIDE_OFFLINE"],
+        keepShownOnClick = true, 
         checked = function() return FriendGroups_SavedVars.hide_offline end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.hide_offline = not FriendGroups_SavedVars.hide_offline
             FriendGroups_FriendsListUpdate()
         end
     },
     {
         text = L["SET_HIDE_AFK"],
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.hide_afk end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.hide_afk = not FriendGroups_SavedVars.hide_afk
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    -- [[ MOVED HERE: Mobile AFK ]] --
+    {
+        text = L["SET_MOBILE_AFK"],
+        keepShownOnClick = true,
+        checked = function() return FriendGroups_SavedVars.show_mobile_afk end,
+        func = function()
+            FriendGroups_SavedVars.show_mobile_afk = not FriendGroups_SavedVars.show_mobile_afk
             FriendGroups_FriendsListUpdate()
         end
     },
     {
         text = L["SET_HIDE_EMPTY"],
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.hide_empty_groups end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.hide_empty_groups = not FriendGroups_SavedVars.hide_empty_groups
             FriendGroups_FriendsListUpdate()
         end
     },
     {
         text = L["SET_INGAME_ONLY"],
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.ingame_only end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.ingame_only = not FriendGroups_SavedVars.ingame_only
             FriendGroups_FriendsListUpdate()
         end
     },
     {
         text = L["SET_RETAIL_ONLY"],
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.show_retail end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.show_retail = not FriendGroups_SavedVars.show_retail
             FriendGroups_FriendsListUpdate()
         end
     },
 
-    -- SECTION 2: APPEARANCE (How do they look?)
+    -- SECTION 2: APPEARANCE
     { text = L["SETTINGS_APPEARANCE"], notCheckable = true, isTitle = true },
     {
+        text = L["SET_SHOW_FLAGS"],
+        keepShownOnClick = true,
+        checked = function() return FriendGroups_SavedVars.show_flags end,
+        func = function()
+            FriendGroups_SavedVars.show_flags = not FriendGroups_SavedVars.show_flags
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_SHOW_REALM"],
+        keepShownOnClick = true,
+        checked = function() return FriendGroups_SavedVars.show_realm end,
+        func = function()
+            FriendGroups_SavedVars.show_realm = not FriendGroups_SavedVars.show_realm
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
         text = L["SET_CLASS_COLOR"],
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.colour_classes end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.colour_classes = not FriendGroups_SavedVars.colour_classes
             FriendGroups_FriendsListUpdate()
         end
     },
     {
         text = L["SET_FACTION_ICONS"],
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.show_faction_icons end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.show_faction_icons = not FriendGroups_SavedVars.show_faction_icons
             FriendGroups_FriendsListUpdate()
         end
     },
     {
         text = L["SET_GRAY_FACTION"],
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.gray_faction end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.gray_faction = not FriendGroups_SavedVars.gray_faction
             FriendGroups_FriendsListUpdate()
         end
     },
     {
-        text = L["SET_SHOW_REALM"],
-        checked = function() return FriendGroups_SavedVars.show_realm end,
-        func = function()
-            CloseDropDownMenus()
-            FriendGroups_SavedVars.show_realm = not FriendGroups_SavedVars.show_realm
-            FriendGroups_FriendsListUpdate()
-        end
-    },
-    {
         text = L["SET_SHOW_BTAG"],
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.show_btag end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.show_btag = not FriendGroups_SavedVars.show_btag
             FriendGroups_FriendsListUpdate()
         end
     },
     {
         text = L["SET_HIDE_MAX_LEVEL"],
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.hide_high_level end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.hide_high_level = not FriendGroups_SavedVars.hide_high_level
             FriendGroups_FriendsListUpdate()
         end
     },
-    {
-        text = L["SET_MOBILE_AFK"],
-        checked = function() return FriendGroups_SavedVars.show_mobile_afk end,
-        func = function()
-            CloseDropDownMenus()
-            FriendGroups_SavedVars.show_mobile_afk = not FriendGroups_SavedVars.show_mobile_afk
-            FriendGroups_FriendsListUpdate()
-        end
-    },
 
-    -- SECTION 3: GROUP SETTINGS (Structure)
+    -- SECTION 3: GROUP SETTINGS
     { text = L["SETTINGS_BEHAVIOR"], notCheckable = true, isTitle = true },
     {
         text = L["SET_FAV_GROUP"],
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.add_favorite_group end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.add_favorite_group = not FriendGroups_SavedVars.add_favorite_group
             FriendGroups_FriendsListUpdate()
         end
     },
     {
         text = L["SET_COLLAPSE"],
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.open_one_group end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.open_one_group = not FriendGroups_SavedVars.open_one_group
             FriendGroups_FriendsListUpdate()
         end
@@ -211,22 +248,31 @@ local settingsMenuItems = {
     { text = L["SETTINGS_AUTOMATION"], notCheckable = true, isTitle = true },
     {
         text = L["SET_AUTO_ACCEPT"],
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.auto_accept_invite end,
         func = function()
-            CloseDropDownMenus()
             FriendGroups_SavedVars.auto_accept_invite = not FriendGroups_SavedVars.auto_accept_invite
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    {
+        text = L["SET_AUTO_PARTY_SYNC"],
+        keepShownOnClick = true,
+        checked = function() return FriendGroups_SavedVars.auto_accept_sync end,
+        func = function()
+            FriendGroups_SavedVars.auto_accept_sync = not FriendGroups_SavedVars.auto_accept_sync
             FriendGroups_FriendsListUpdate()
         end
     },
 
     -- SECTION 5: RESET
-    { text = "", notCheckable = true, isTitle = true }, -- Spacer
+    { text = "", notCheckable = true, isTitle = true },
     {
         text = L["SETTINGS_RESET"],
         notCheckable = true,
         func = function()
             CloseDropDownMenus()
-            -- 1. Reset all variables to the default "fresh install" state
+            -- 1. Reset all variables to the default
             FriendGroups_SavedVars.hide_offline = true
             FriendGroups_SavedVars.colour_classes = true
             FriendGroups_SavedVars.show_faction_icons = true
@@ -245,29 +291,21 @@ local settingsMenuItems = {
             FriendGroups_SavedVars.hide_empty_groups = false
             FriendGroups_SavedVars.hide_afk = false
             FriendGroups_SavedVars.open_one_group = false
-            FriendGroups_SavedVars.auto_accept_invite = false
-
-            -- 2. Clear known collapse states
+            
+            FriendGroups_SavedVars.auto_accept_invite = true
+            FriendGroups_SavedVars.auto_accept_sync = true
+            
+            FriendGroups_SavedVars.extra_height = 380 
             FriendGroups_SavedVars.collapsed = {}
             
-            -- 3. Update the list
+            -- Apply Reset
+            FriendGroups_UpdateSize()
             FriendGroups_FriendsListUpdate()
-            
-            -- 4. Force set all groups to FALSE (Expanded)
-            if FriendGroups_SavedVars.collapsed then
-                for groupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
-                    FriendGroups_SavedVars.collapsed[groupName] = false
-                end
-            end
             
             print(L["MSG_RESET"])
-            
-            -- 5. Final Update
-            FriendGroups_FriendsListUpdate()
         end
     },
 }
-
 
 --[[
 	Init Values
@@ -302,12 +340,37 @@ function FriendGroups_DebugLog(tData, strName)
 	end
 end
 
-function FriendGroups_Rename(self, old)
+local FriendGroups_OriginalHeight = nil
+local FriendGroupsList_OriginalHeight = nil
+
+function FriendGroups_UpdateSize()
+    -- 1. Store the original Blizzard defaults the very first time we run
+    if not FriendGroups_OriginalHeight then
+        FriendGroups_OriginalHeight = FriendsFrame:GetHeight()
+        FriendGroupsList_OriginalHeight = FriendsListFrame:GetHeight()
+    end
+
+    -- 2. Determine target height based on saved variable
+    local extra = FriendGroups_SavedVars.extra_height or 0
+
+    -- 3. Apply
+    FriendsFrame:SetHeight(FriendGroups_OriginalHeight + extra)
+    FriendsListFrame:SetHeight(FriendGroupsList_OriginalHeight + extra)
+
+    -- 4. Re-anchor ScrollBox to fill the new space
+    FriendsListFrame.ScrollBox:ClearAllPoints()
+    FriendsListFrame.ScrollBox:SetPoint("TOPLEFT", FriendsListFrame, "TOPLEFT", 7, -115)
+    FriendsListFrame.ScrollBox:SetPoint("BOTTOMRIGHT", FriendsListFrame, "BOTTOMRIGHT", -26, 35)
+end
+
+function FriendGroups_Rename(self, oldGroup)
 	local input = self:GetEditBox():GetText()
-	local oldGroup = old.name:GetText()
-	if input == "" then
+    
+    -- Safety Check
+	if input == "" or not oldGroup then
 		return
 	end
+
 	local groups = {}
 	for i = 1, BNGetNumFriends() do
 		local presenceID = C_BattleNet.GetFriendAccountInfo(i).bnetAccountID
@@ -670,7 +733,7 @@ function FriendGroups_GetClassColorCode(class, returnTable)
 end
 
 function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag,
-											timerunningSeasonID)
+											timerunningSeasonID, realmName)
 	local nameText
 
 	-- set up player name and character name
@@ -1254,8 +1317,14 @@ EnableFriendGroups = function()
             hide_empty_groups = false,
             hide_afk = false,
             open_one_group = false,
-            auto_accept_invite = false
+            auto_accept_invite = true,
+            auto_accept_sync = true,
+            show_flags = true
         }
+    end
+
+    if FriendGroups_SavedVars.show_flags == nil then
+        FriendGroups_SavedVars.show_flags = true
     end
 
     -- 1. Create Search Box
@@ -1299,7 +1368,7 @@ EnableFriendGroups = function()
     
     settingsBtn:SetScript("OnEnter", function(self) 
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText(L["FriendGroups Settings"], 1, 1, 1)
+        GameTooltip:SetText(L["SETTINGS_TITLE"] or "Settings", 1, 1, 1)
         GameTooltip:Show()
     end)
     settingsBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -1316,7 +1385,13 @@ EnableFriendGroups = function()
 
     -- 4. Setup Scroll View
     SetupGroupedView()
-    FriendsListFrame.ScrollBox:SetPoint("TOPLEFT", FriendsListFrame, "TOPLEFT", 7, -115)
+    
+    -- [[ UPDATED DEFAULT: Set to 380 (Large) ]] --
+    if not FriendGroups_SavedVars.extra_height then
+        FriendGroups_SavedVars.extra_height = 380
+    end
+    FriendGroups_UpdateSize()
+
     FriendGroups_FriendsListUpdate(true)
 end
 
@@ -1338,11 +1413,72 @@ SetupGroupedView = function()
     ScrollUtil.InitScrollBoxListWithScrollBar(FriendsListFrame.ScrollBox, FriendsListFrame.ScrollBar, view);
 end
 
+-- [[ HELPER: Scans Text to find Realm & Region ]] --
+function FriendGroups_GetRealmInfo(gameAccountInfo)
+    if not gameAccountInfo then return nil, nil end
+
+    local rawRealm = gameAccountInfo.realmName
+    local richPresence = gameAccountInfo.richPresence or ""
+    
+    -- 1. Create a "Clean Blob" of text (remove all spaces & punctuation)
+    -- This turns "AFK - Elwynn Forest - Nightslayer" into "AFKElwynnForestNightslayer"
+    local cleanBlob = (richPresence .. (rawRealm or "")):gsub("%p", ""):gsub("%s+", "") 
+
+    -- 2. Priority Scan for Manual Classic Names (The "Ghosts")
+    local classicPriority = {
+        ["Nightslayer"] = { icon="FlagUS.tga", region="US" },
+        ["Dreamscythe"] = { icon="FlagUS.tga", region="US" },
+        ["Doomhowl"] = { icon="FlagUS.tga", region="US" },
+        ["Maladath"] = { icon="FlagAU.tga", region="Oceania" },
+        ["Shadowstrike"] = { icon="FlagAU.tga", region="Oceania" },
+        ["Penance"] = { icon="FlagAU.tga", region="Oceania" },
+        ["DefiasPillager"] = { icon="FlagUS.tga", region="US" },
+        ["SkullRock"] = { icon="FlagUS.tga", region="US" },
+        ["CrusaderStrike"] = { icon="FlagUS.tga", region="US" },
+        ["LivingFlame"] = { icon="FlagUS.tga", region="US" },
+        ["WildGrowth"] = { icon="FlagUS.tga", region="US" },
+        ["LoneWolf"] = { icon="FlagUS.tga", region="US" },
+        ["LavaLash"] = { icon="FlagUS.tga", region="US" },
+        ["ChaosBolt"] = { icon="FlagUS.tga", region="US" },
+        ["Thunderstrike"] = { icon="FlagGB.tga", region="EU" },
+        ["Spineshatter"] = { icon="FlagGB.tga", region="EU" },
+        ["Soulseeker"] = { icon="FlagGB.tga", region="EU" }
+    }
+
+    -- If the blob contains a known Classic name, return immediately.
+    for name, data in pairs(classicPriority) do
+        if cleanBlob:find(name, 1, true) then
+            return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
+        end
+    end
+
+    -- 3. Standard Retail Check (Using Realms.lua DB)
+    if rawRealm and rawRealm ~= "" and rawRealm ~= "WoW Classic" and rawRealm ~= "World of Warcraft Classic" then
+        local cleanRealm = rawRealm:gsub("%s+", "") -- Remove spaces
+        local data = FriendGroups_RealmData[cleanRealm] or (FriendGroups_RealmDataEU and FriendGroups_RealmDataEU[cleanRealm])
+        
+        if data then
+            return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
+        end
+    end
+
+    -- 4. Last Resort: Extraction from Rich Presence dash
+    local extraction = richPresence:match("%s%-%s(.+)$")
+    if extraction then
+        local cleanEx = extraction:gsub("%s+", "")
+        local data = FriendGroups_RealmData[cleanEx] or (FriendGroups_RealmDataEU and FriendGroups_RealmDataEU[cleanEx])
+        if data then
+            return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
+        end
+    end
+
+    return nil, nil
+end
+
 FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
-    -- GUARD: Only run if Enabled
     if not FriendGroups_Loaded then return end
 
-    -- GUARD: Safe Parent Check (Prevents HouseList Taint)
+    -- Safe Parent Check
     local isFriendFrame = false
     if button and button.GetParent and FriendsListFrame then
         local current = button:GetParent()
@@ -1360,31 +1496,25 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 	button.id = id;
 
 	if button.facIcon then button.facIcon:Hide() end
+    if button.realmFlag then button.realmFlag:Hide() end 
 
 	local nameText, nameColor, infoText, isFavoriteFriend, statusTexture;
 	local hasTravelPassButton = false;
 	local isCrossFactionInvite = false;
 	local inviteFaction = nil;
+
 	if button.buttonType == FRIENDS_BUTTON_TYPE_WOW then
 		local info = C_FriendList.GetFriendInfoByIndex(id);
-
 		if (info.connected) then
-			button.background:SetColorTexture(FRIENDS_WOW_BACKGROUND_COLOR.r, FRIENDS_WOW_BACKGROUND_COLOR.g,
-				FRIENDS_WOW_BACKGROUND_COLOR.b, FRIENDS_WOW_BACKGROUND_COLOR.a);
-			if (info.afk) then
-				button.status:SetTexture(FRIENDS_TEXTURE_AFK);
-			elseif (info.dnd) then
-				button.status:SetTexture(FRIENDS_TEXTURE_DND);
-			else
-				button.status:SetTexture(FRIENDS_TEXTURE_ONLINE);
-			end
-
+			button.background:SetColorTexture(FRIENDS_WOW_BACKGROUND_COLOR.r, FRIENDS_WOW_BACKGROUND_COLOR.g, FRIENDS_WOW_BACKGROUND_COLOR.b, FRIENDS_WOW_BACKGROUND_COLOR.a);
+			if (info.afk) then button.status:SetTexture(FRIENDS_TEXTURE_AFK);
+			elseif (info.dnd) then button.status:SetTexture(FRIENDS_TEXTURE_DND);
+			else button.status:SetTexture(FRIENDS_TEXTURE_ONLINE); end
 			nameText = info.name .. ", " .. format(FRIENDS_LEVEL_TEMPLATE, info.level, info.className);
 			nameColor = FRIENDS_WOW_NAME_COLOR;
 			infoText = FriendGroups_GetOnlineInfoText(BNET_CLIENT_WOW, info.mobile, info.rafLinkType, info.area);
 		else
-			button.background:SetColorTexture(FRIENDS_OFFLINE_BACKGROUND_COLOR.r, FRIENDS_OFFLINE_BACKGROUND_COLOR.g,
-				FRIENDS_OFFLINE_BACKGROUND_COLOR.b, FRIENDS_OFFLINE_BACKGROUND_COLOR.a);
+			button.background:SetColorTexture(FRIENDS_OFFLINE_BACKGROUND_COLOR.r, FRIENDS_OFFLINE_BACKGROUND_COLOR.g, FRIENDS_OFFLINE_BACKGROUND_COLOR.b, FRIENDS_OFFLINE_BACKGROUND_COLOR.a);
 			button.status:SetTexture(FRIENDS_TEXTURE_OFFLINE);
 			nameText = info.name;
 			nameColor = FRIENDS_GRAY_COLOR;
@@ -1394,101 +1524,99 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 		button.summonButton:ClearAllPoints();
 		button.summonButton:SetPoint("TOPRIGHT", button, "TOPRIGHT", 1, -1);
 		FriendsFrame_SummonButton_Update(button.summonButton);
+
 	elseif button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
 		local accountInfo = C_BattleNet.GetFriendAccountInfo(id);
-
 		if accountInfo then
 			nameText, nameColor, statusTexture = FriendsFrame_GetBNetAccountNameAndStatus(accountInfo);
+			local accountName, characterName, class, level, _, _, _, client, canCoop, _, _, _, isGameAFK, isDND, isGameBusy, mobile, zoneName, gameText, battleTag, factionName, timerunningSeasonID = FriendGroups_GetFriendInfoById(button.id)
 
-			local accountName, characterName, class, level, _, _,
-			_, client, canCoop, _, _,
-			_, isGameAFK, isDND, isGameBusy, mobile, zoneName, gameText, battleTag, factionName, timerunningSeasonID =
-				FriendGroups_GetFriendInfoById(button.id)
+			if FriendGroups_SavedVars.show_mobile_afk and client == 'BSAp' then statusTexture = FRIENDS_TEXTURE_AFK end
 
-			if FriendGroups_SavedVars.show_mobile_afk and client == 'BSAp' then
-				statusTexture = FRIENDS_TEXTURE_AFK
-			end
-
-			nameText = FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level,
-				battleTag, timerunningSeasonID)
-
+			nameText = FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag, timerunningSeasonID, realmName)
 			isFavoriteFriend = accountInfo.isFavorite;
-
 			button.status:SetTexture(statusTexture);
-
 			isCrossFactionInvite = accountInfo.gameAccountInfo.factionName ~= playerFactionGroup;
 			inviteFaction = accountInfo.gameAccountInfo.factionName;
 
 			if accountInfo.gameAccountInfo.isOnline then
-				button.background:SetColorTexture(FRIENDS_BNET_BACKGROUND_COLOR.r, FRIENDS_BNET_BACKGROUND_COLOR.g,
-					FRIENDS_BNET_BACKGROUND_COLOR.b, FRIENDS_BNET_BACKGROUND_COLOR.a);
+				button.background:SetColorTexture(FRIENDS_BNET_BACKGROUND_COLOR.r, FRIENDS_BNET_BACKGROUND_COLOR.g, FRIENDS_BNET_BACKGROUND_COLOR.b, FRIENDS_BNET_BACKGROUND_COLOR.a);
 
 				if FriendGroups_ShowRichPresenceOnly(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.wowProjectID, accountInfo.gameAccountInfo.factionName, accountInfo.gameAccountInfo.realmID, accountInfo.gameAccountInfo.areaName) then
-					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram,
-						accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType,
-						accountInfo.gameAccountInfo.richPresence);
+					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.richPresence);
 				else
-					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram,
-						accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType,
-						accountInfo.gameAccountInfo.areaName, accountInfo.gameAccountInfo.realmName);
+					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.areaName, accountInfo.gameAccountInfo.realmName);
 				end
 
-				C_Texture.SetTitleIconTexture(button.gameIcon, accountInfo.gameAccountInfo.clientProgram,
-					Enum.TitleIconVersion.Medium);
-
-				local fadeIcon = (accountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW) and
-					(accountInfo.gameAccountInfo.wowProjectID ~= WOW_PROJECT_ID);
-				if fadeIcon then
-					button.gameIcon:SetAlpha(0.6);
-				else
-					button.gameIcon:SetAlpha(1);
-				end
-
-				--Note - this logic should match the logic in FriendsFrame_ShouldShowSummonButton
+				C_Texture.SetTitleIconTexture(button.gameIcon, accountInfo.gameAccountInfo.clientProgram, Enum.TitleIconVersion.Medium);
+				local fadeIcon = (accountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW) and (accountInfo.gameAccountInfo.wowProjectID ~= WOW_PROJECT_ID);
+				if fadeIcon then button.gameIcon:SetAlpha(0.6); else button.gameIcon:SetAlpha(1); end
 
 				local shouldShowSummonButton = FriendsFrame_ShouldShowSummonButton(button.summonButton);
 				button.gameIcon:SetShown(not shouldShowSummonButton);
 
-				-- travel pass
 				hasTravelPassButton = true;
 				local restriction = FriendsFrame_GetInviteRestriction(button.id);
-				if restriction == INVITE_RESTRICTION_NONE then
-					button.travelPassButton:Enable();
-				else
-					button.travelPassButton:Disable();
-				end
+				if restriction == INVITE_RESTRICTION_NONE then button.travelPassButton:Enable(); else button.travelPassButton:Disable(); end
 
-				if FriendGroups_SavedVars.show_faction_icons then
-					if not button.facIcon then
-						button.facIcon = button:CreateTexture("facIcon");
-						button.facIcon:ClearAllPoints();
-						button.facIcon:SetPoint("RIGHT", button.gameIcon, "LEFT", 0, 0);
-						button.facIcon:SetWidth(button.gameIcon:GetWidth())
-						button.facIcon:SetHeight(button.gameIcon:GetHeight())
-					end
-					button.facIcon:SetTexture(FriendGroups_GetFactionIcon(accountInfo.gameAccountInfo.factionName));
-					button.facIcon:Show()
+                -- [[ 1. REALM FLAG LOGIC (Uses Helper) ]] --
+                local flagShown = false
+                if FriendGroups_SavedVars.show_flags then
+                    if not button.realmFlag then
+                        button.realmFlag = button:CreateTexture("realmFlag")
+                        button.realmFlag:SetSize(button.gameIcon:GetWidth(), button.gameIcon:GetHeight())
+                    end
+                    
+                    -- Use the Helper to get the correct icon and region
+                    local flagTexture, _ = FriendGroups_GetRealmInfo(accountInfo.gameAccountInfo)
 
-					if accountInfo.gameAccountInfo.factionName == "Horde" then
-						button.background:SetColorTexture(0.7, 0.2, 0.2, 0.2);
-					elseif accountInfo.gameAccountInfo.factionName == "Alliance" then
-						button.background:SetColorTexture(0.2, 0.2, 0.7, 0.2);
-					end
-				else
-					if button.facIcon then
-						button.facIcon:Hide()
-					end
-				end
+                    if flagTexture then
+                        button.realmFlag:SetTexture(flagTexture)
+                        button.realmFlag:Show()
+                        button.realmFlag:ClearAllPoints()
+                        button.realmFlag:SetPoint("RIGHT", button.gameIcon, "LEFT", 0, 0)
+                        flagShown = true
+                    else
+                        button.realmFlag:Hide()
+                    end
+                else
+                     if button.realmFlag then button.realmFlag:Hide() end
+                end
+
+                -- [[ 2. FACTION ICON LOGIC ]] --
+                if FriendGroups_SavedVars.show_faction_icons then
+                    if not button.facIcon then
+                        button.facIcon = button:CreateTexture("facIcon");
+                        button.facIcon:SetWidth(button.gameIcon:GetWidth())
+                        button.facIcon:SetHeight(button.gameIcon:GetHeight())
+                    end
+                    button.facIcon:ClearAllPoints();
+                    
+                    if flagShown then
+                        button.facIcon:SetPoint("RIGHT", button.realmFlag, "LEFT", 0, 0);
+                    else
+                        button.facIcon:SetPoint("RIGHT", button.gameIcon, "LEFT", 0, 0);
+                    end
+                    
+                    button.facIcon:SetTexture(FriendGroups_GetFactionIcon(accountInfo.gameAccountInfo.factionName));
+                    button.facIcon:Show()
+
+                    if accountInfo.gameAccountInfo.factionName == "Horde" then
+                        button.background:SetColorTexture(0.7, 0.2, 0.2, 0.2);
+                    elseif accountInfo.gameAccountInfo.factionName == "Alliance" then
+                        button.background:SetColorTexture(0.2, 0.2, 0.7, 0.2);
+                    end
+                else
+                    if button.facIcon then button.facIcon:Hide() end
+                end
+
 			else
-				button.background:SetColorTexture(FRIENDS_OFFLINE_BACKGROUND_COLOR.r, FRIENDS_OFFLINE_BACKGROUND_COLOR.g,
-					FRIENDS_OFFLINE_BACKGROUND_COLOR.b, FRIENDS_OFFLINE_BACKGROUND_COLOR.a);
+				button.background:SetColorTexture(FRIENDS_OFFLINE_BACKGROUND_COLOR.r, FRIENDS_OFFLINE_BACKGROUND_COLOR.g, FRIENDS_OFFLINE_BACKGROUND_COLOR.b, FRIENDS_OFFLINE_BACKGROUND_COLOR.a);
 				button.gameIcon:Hide();
 				infoText = FriendsFrame_GetLastOnlineText(accountInfo);
 			end
 
-			if FriendGroups_SavedVars.add_mobile_text and infoText == '' and client == 'BSAp' then
-				infoText = L["STATUS_MOBILE"]
-			end
+			if FriendGroups_SavedVars.add_mobile_text and infoText == '' and client == 'BSAp' then infoText = L["STATUS_MOBILE"] end
 
 			button.summonButton:ClearAllPoints();
 			button.summonButton:SetPoint("CENTER", button.gameIcon, "CENTER", 1, 0);
@@ -1496,22 +1624,16 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 		end
 	end
 
-	if hasTravelPassButton then
-		button.travelPassButton:Show();
-	else
-		button.travelPassButton:Hide();
-	end
+	if hasTravelPassButton then button.travelPassButton:Show(); else button.travelPassButton:Hide(); end
 
 	local selected = (FriendsFrame.selectedFriendType == buttonType) and (FriendsFrame.selectedFriend == id);
 	FriendsFrame_FriendButtonSetSelection(button, selected);
 
-	-- finish setting up button if it's not a header
 	if nameText then
 		button.name:SetText(nameText);
 		button.name:SetTextColor(nameColor.r, nameColor.g, nameColor.b);
 		button.info:SetText(infoText);
 		button:Show();
-
 		if isFavoriteFriend then
 			button.Favorite:Show();
 			button.Favorite:ClearAllPoints()
@@ -1522,12 +1644,9 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 	else
 		button:Hide();
 	end
-	-- update the tooltip if hovering over a button
-	if (FriendsTooltip.button == button) or (button:IsMouseMotionFocus()) then
-		button:OnEnter()
-	end
+	
+	if (FriendsTooltip.button == button) or (button:IsMouseMotionFocus()) then button:OnEnter() end
 
-	-- show cross faction helptip on first online cross faction friend
 	if hasTravelPassButton and isCrossFactionInvite and not GetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_CROSS_FACTION_INVITE) then
 		local helpTipInfo = {
 			text = CROSS_FACTION_INVITE_HELPTIP,
@@ -1541,7 +1660,7 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 		crossFactionHelpTipButton = button;
 		HelpTip:Show(FriendsFrame, helpTipInfo, button.travelPassButton);
 	end
-	-- update invite button atlas to show faction for cross faction players, or reset to default for same faction players
+
 	if hasTravelPassButton then
 		if isCrossFactionInvite and inviteFaction == "Horde" then
 			button.travelPassButton.NormalTexture:SetAtlas("friendslist-invitebutton-horde-normal");
@@ -1707,7 +1826,7 @@ function FriendGroups_ToggleSearch(searchBox, frame)
 end
 
 function FriendGroups_Search(playerId, playerButtonType)
-    if searchValue == "" then return true end -- Return true if search is empty to show all
+    if searchValue == "" then return true end
 
     local characterName = ""
     local bnetAccountName = "" 
@@ -1715,8 +1834,12 @@ function FriendGroups_Search(playerId, playerButtonType)
     local noteText = ""
     local realmName = ""
     local className = "" 
-    local richPresence = "" -- Added variable to capture Rich Presence (Game Status/Zone - Realm)
+    local richPresence = ""
+    local classMatch = false
     local returnValue = false
+
+    local searchLower = searchValue:lower()
+    local searchLen = #searchLower
 
     if playerButtonType == FRIENDS_BUTTON_TYPE_WOW then
         local info = C_FriendList.GetFriendInfoByIndex(playerId);
@@ -1736,36 +1859,32 @@ function FriendGroups_Search(playerId, playerButtonType)
                 characterName = accountInfo.gameAccountInfo.characterName or ""
                 realmName = accountInfo.gameAccountInfo.realmName or ""
                 className = accountInfo.gameAccountInfo.className or ""
-                richPresence = accountInfo.gameAccountInfo.richPresence or "" -- Capture Rich Presence
+                richPresence = accountInfo.gameAccountInfo.richPresence or ""
             end
         end
     end
 
-    local searchLower = searchValue:lower()
-    local searchLen = #searchLower
-
-    -- Logic for Class: Use "Starts With" to prevent "Hunter" finding "Demon Hunter"
-    local classMatch = false
-    if className ~= "" then
+    -- [[ CLASS SEARCH: Starts With Only ]] --
+    -- Prevents "Hunter" from finding "Demon Hunter"
+    if className and className ~= "" then
         local cLower = className:lower()
         local cNoSpace = cLower:gsub(" ", "")
         
-        -- Check if standard class name STARTS with search (e.g. "Hunt" matches "Hunter", but not "Demon Hunter")
-        if cLower:sub(1, searchLen) == searchLower then
-            classMatch = true
-        -- Check if condensed class name STARTS with search (e.g. "demonh" matches "Demon Hunter")
+        if cLower:sub(1, searchLen) == searchLower then 
+            classMatch = true 
         elseif cNoSpace:sub(1, searchLen) == searchLower then
             classMatch = true
         end
     end
-    
-    -- Keep standard "Contains" search for names/notes/realms/richPresence
+
+    -- [[ GENERAL SEARCH ]] --
+    -- Searches: Name, BTag, Note, Realm Name (e.g. "Frostmourne"), and Rich Presence (e.g. "Nightslayer")
     if (bnetAccountName:lower():find(searchLower, 1, true)) or 
        (battleTag:lower():find(searchLower, 1, true)) or 
        (characterName:lower():find(searchLower, 1, true)) or
        (noteText:lower():find(searchLower, 1, true)) or
        (realmName:lower():find(searchLower, 1, true)) or
-       (richPresence:lower():find(searchLower, 1, true)) or -- Added Rich Presence check
+       (richPresence:lower():find(searchLower, 1, true)) or 
        classMatch then
         returnValue = true
     end
@@ -1929,6 +2048,7 @@ local frame = CreateFrame("frame", "FriendGroups")
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PARTY_INVITE_REQUEST")
+frame:RegisterEvent("QUEST_SESSION_CREATED")
 
 frame:SetScript("OnEvent", function(self, event, arg1, ...)
 if event == "ADDON_LOADED" and arg1 == addonName then
@@ -1947,44 +2067,68 @@ if event == "ADDON_LOADED" and arg1 == addonName then
             StaticPopup_Hide("PARTY_INVITE_XREALM")
         end
 
-elseif event == "PLAYER_LOGIN" then
+    -- [[ SMART FIX: Auto Accept Party Sync ]] --
+    elseif event == "QUEST_SESSION_CREATED" then
+        if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_sync then
+            
+            -- DEFINITION: A recursive function that tries to click, catches crashes, and retries.
+            local function AttemptSyncAccept()
+                -- 1. Stop if the dialog is gone (User closed it, or we already accepted)
+                if not (QuestSessionManager and QuestSessionManager.StartDialog and QuestSessionManager.StartDialog:IsShown()) then
+                    return 
+                end
+
+                -- 2. "Protected Call" (pcall). This wraps the click in a safety bubble.
+                -- success = true if it clicked okay. 
+                -- success = false if Blizzard's code crashed (nil table error).
+                local success, err = pcall(function()
+                    QuestSessionManager.StartDialog:Confirm()
+                end)
+
+                if success then
+                    -- It worked! Clean up the UI.
+                    QuestSessionManager.StartDialog:Hide()
+                else
+                    -- It crashed (Race Condition). 
+                    -- We ignore the crash and try again in 0.5 seconds.
+                    C_Timer.After(0.5, AttemptSyncAccept)
+                end
+            end
+
+            -- START the loop
+            AttemptSyncAccept()
+        end
+
+    elseif event == "PLAYER_LOGIN" then
         -- Default Saved Vars
         if not FriendGroups_SavedVars then
-            FriendGroups_SavedVars = { collapsed = {}, hide_offline = true, colour_classes = true, show_faction_icons = true, show_realm = true, hide_high_level = true, add_favorite_group = true, add_mobile_text = true, show_search = true, auto_accept_invite = false, housing_mode_active = false }
+            FriendGroups_SavedVars = { collapsed = {}, hide_offline = true, colour_classes = true, show_faction_icons = true, show_realm = true, hide_high_level = true, add_favorite_group = true, add_mobile_text = true, show_search = true, auto_accept_invite = false, housing_mode_active = false, auto_accept_sync = false }
         end
 
         -- 1. Capture the current mode
         local isHousingMode = FriendGroups_SavedVars.housing_mode_active
 
         -- 2. AUTO-RESET: Immediately flip the saved var to false.
-        -- This ensures that ANY subsequent reload (manual or button click) will default back to ENABLED.
         if isHousingMode then
             FriendGroups_SavedVars.housing_mode_active = false
         end
 
         if isHousingMode then
             -- [[ SAFE MODE (HOUSING) ACTIVE ]] --
-            -- We are in Safe Mode for THIS session only.
-            
             local masterBtn = CreateFrame("Button", "FriendGroupsMasterControl", FriendsListFrame, "UIPanelButtonTemplate")
             
-            -- [[ FORCE TO FRONT ]] --
             masterBtn:SetFrameStrata("FULLSCREEN_DIALOG") 
             masterBtn:SetFrameLevel(9999)                 
             
-            -- [[ UPDATED SIZE & POSITION ]] --
             masterBtn:SetSize(374, 28)
             masterBtn:SetPoint("TOP", FriendsListFrame, "TOP", 0, -57)
             
-            -- Set Text using Localization
             masterBtn:SetText("|cff3AFF00" .. L["RELOAD_BTN_TEXT"] .. "|r")
             
-            -- Logic: Just Reload (The flag was already reset automatically above)
             masterBtn:SetScript("OnClick", function()
                 ReloadUI()
             end)
 
-            -- Tooltip using Localization
             masterBtn:SetScript("OnEnter", function(s) 
                 GameTooltip:SetOwner(s, "ANCHOR_RIGHT")
                 GameTooltip:SetText(L["RELOAD_TOOLTIP_TITLE"])
@@ -2014,17 +2158,15 @@ elseif event == "PLAYER_LOGIN" then
     end
     
 -- [[ HOUSING SAFETY SHIELD ]] --
-    -- Watch for House List loading to prevent accidental clicks
     if event == "ADDON_LOADED" and arg1 == "Blizzard_HouseList" then
         if FriendGroups_Loaded then
             local w = CreateFrame("Frame", nil, HouseListFrame)
             w:SetFrameStrata("DIALOG")
             w:SetAllPoints(HouseListFrame)
-            w:EnableMouse(true) -- Block clicks to the list
+            w:EnableMouse(true)
             
             local bg = w:CreateTexture(nil, "BACKGROUND")
             bg:SetAllPoints()
-            -- Set to Black (0,0,0) with 90% opacity (0.9)
             bg:SetColorTexture(0, 0, 0, 0.9)
             
             local msg = w:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -2042,3 +2184,4 @@ elseif event == "PLAYER_LOGIN" then
         end
     end
 end)
+
