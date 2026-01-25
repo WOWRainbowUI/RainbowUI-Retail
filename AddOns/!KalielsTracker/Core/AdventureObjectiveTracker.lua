@@ -243,11 +243,13 @@ function KT_AdventureObjectiveTrackerMixin:OnTrackableItemCollected(trackableTyp
 		local info = C_TransmogCollection.GetSourceInfo(trackableID);
 		local icon = C_TransmogCollection.GetSourceIcon(trackableID);
 		local item = Item:CreateFromItemID(info.itemID);
+
 		t.label = item:GetItemName();
 		t.texture = icon;
 	elseif trackableType == Enum.ContentTrackingType.Decor then
 		local decorIcon = C_HousingDecor.GetDecorIcon(trackableID);
 		local decorName = C_HousingDecor.GetDecorName(trackableID);
+
 		t.label = decorName;
 		t.texture = decorIcon;
 	end

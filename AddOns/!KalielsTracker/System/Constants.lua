@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -11,8 +11,12 @@ local addonName, KT = ...
 KT.TITLE = C_AddOns.GetAddOnMetadata(addonName, "Title")
 KT.VERSION = C_AddOns.GetAddOnMetadata(addonName, "Version")
 KT.AUTHOR = C_AddOns.GetAddOnMetadata(addonName, "Author")
-KT.GAME_VERSION = GetBuildInfo()
 KT.LOCALE = GetLocale()
+do
+    local version, build = GetBuildInfo()
+    KT.GAME_VERSION = version
+    KT.GAME_BUILD = build
+end
 
 KT.MEDIA_PATH = "Interface\\AddOns\\"..addonName.."\\Media\\"
 
@@ -26,7 +30,8 @@ KT.MODULES = {
     "KT_AdventureObjectiveTracker",
     "KT_AchievementObjectiveTracker",
     "KT_MonthlyActivitiesObjectiveTracker",
-    "KT_ProfessionsRecipeTracker"
+    "KT_InitiativeTasksObjectiveTracker",
+    "KT_ProfessionsRecipeTracker",
 }
 
 KT.EXPANSION = EXPANSION_NAME10
@@ -119,6 +124,32 @@ KT.MAP_CONTINENT_INFO = setmetatable({}, {
     end
 })
 
+-- Visibility
+KT.VISIBILITY_CONTEXTS = {
+    "world",
+    "city",
+    "house",
+    "dungeon",
+    "mythicplus",
+    "raid",
+    "arena",
+    "battleground",
+    "petbattle",
+    "rare"
+}
+KT.VISIBILITY_CONTEXTS_LOCALIZED = {
+    world = "World",
+    city = "City",
+    house = "House",
+    dungeon = "Dungeon",
+    mythicplus = "Mythic+",
+    raid = "Raid",
+    arena = "Arena",
+    battleground = "Battleground",
+    petbattle = "Pet Battle",
+    rare = "Rare NPC"
+}
+
 -- Major Cities
 KT.MAJOR_CITY_MAPS = {
     -- Kalimdor
@@ -163,7 +194,15 @@ KT.MAJOR_CITY_MAPS = {
     [2339] = "Dornogal",
 }
 
--- Blizzard Constants
+-- Keybindings
+KT.KEYBINDINGS = {
+    keyBindCollapse = { frameName = addonName.."MinimizeButton" },
+    keyBindHide = { frameName = "KT_BindingButton" },
+    keyBindClosestQuest = { frameName = addonName.."MinimizeButton", mouse = "RightButton" },
+    EXTRAACTIONBUTTON1 = false
+}
+
+-- Core Constants
 KT_OBJECTIVE_TRACKER_COLOR["Header"] = { r = 1, g = 0.5, b = 0 }                 -- orange
 KT_OBJECTIVE_TRACKER_COLOR["Complete"] = { r = 0.1, g = 0.85, b = 0.1 }          -- green
 KT_OBJECTIVE_TRACKER_COLOR["CompleteHighlight"] = { r = 0, g = 1, b = 0 }        -- green
@@ -188,5 +227,5 @@ KT_OBJECTIVE_TRACKER_COLOR["ZoneHighlight"].reverse = KT_OBJECTIVE_TRACKER_COLOR
 KT_OBJECTIVE_TRACKER_COLOR["Inactive"].reverse = KT_OBJECTIVE_TRACKER_COLOR["InactiveHighlight"]
 KT_OBJECTIVE_TRACKER_COLOR["InactiveHighlight"].reverse = KT_OBJECTIVE_TRACKER_COLOR["Inactive"]
 
--- Max Quests - fix Blizz bug
-MAX_QUESTS = C_QuestLog.GetMaxNumQuestsCanAccept()
+-- Blizzard Constants
+MAX_QUESTS = C_QuestLog.GetMaxNumQuestsCanAccept()  -- fix Blizz bug

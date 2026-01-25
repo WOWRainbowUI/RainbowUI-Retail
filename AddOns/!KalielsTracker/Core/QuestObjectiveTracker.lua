@@ -3,7 +3,7 @@ local _, KT = ...
 
 local settings = {
 	headerText = TRACKER_HEADER_QUESTS,
-	events = { "QUEST_LOG_UPDATE", "QUEST_WATCH_LIST_CHANGED", "QUEST_AUTOCOMPLETE", "SUPER_TRACKING_CHANGED", "QUEST_TURNED_IN", "QUEST_POI_UPDATE" },
+	events = { "QUEST_LOG_UPDATE", "QUEST_WATCH_LIST_CHANGED", "QUEST_AUTOCOMPLETE", "SUPER_TRACKING_CHANGED", "QUEST_TURNED_IN", "QUEST_POI_UPDATE", "SUPER_TRACKING_PATH_UPDATED" },
 	lineTemplate = "KT_QuestObjectiveLineTemplate",
 	blockTemplate = "KT_ObjectiveTrackerQuestPOIBlockTemplate",
 	rightEdgeFrameSpacing = 2,
@@ -219,7 +219,9 @@ function KT_QuestObjectiveTrackerMixin:DoQuestObjectives(block, questCompleted, 
 						end
 					end
 				else
-					if not questSequenced or not objectiveCompleting then
+					-- don't show a new objective if it's a sequenced quest if completion anim is playing on another objective
+					local skipObjective = not line and questSequenced and objectiveCompleting;
+					if not skipObjective then
 						-- new objectives need to animate in
 						if questSequenced and isExistingBlock and not line then
 							line = block:AddObjective(objectiveIndex, text, nil, useFullHeight);
@@ -262,13 +264,16 @@ function KT_QuestObjectiveTrackerMixin:DoQuestObjectives(block, questCompleted, 
 end
 
 function KT_QuestObjectiveTrackerMixin:UpdateSingle(quest)
+    KT.T_Set("questData", quest, self.name)
 	local questID = quest:GetID();
 	local isComplete = quest:IsComplete();
+    KT.T_Set("isComplete", isComplete, self.name, "questData")
 	local isSuperTracked = (questID == C_SuperTrack.GetSuperTrackedQuestID());
 	local useFullHeight = true; -- Always use full height of the block for the quest tracker.
 	local shouldShowWaypoint = isSuperTracked or (questID == QuestMapFrame_GetFocusedQuestID());
 	local isSequenced = IsQuestSequenced(questID);
 	local questLogIndex = quest:GetQuestLogIndex();
+    KT.T_Set("questLogIndex", questLogIndex, self.name, "questData")
 	local block, isExistingBlock = self:GetBlock(questID);
 
 	if QuestUtil.CanCreateQuestGroup(questID) then

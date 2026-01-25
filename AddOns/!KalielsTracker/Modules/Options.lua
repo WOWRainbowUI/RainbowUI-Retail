@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -38,18 +38,11 @@ local textures = { "無", "預設 (暴雪)", "單線", "雙線" }
 local modifiers = { [""] = "無", ["ALT"] = "Alt", ["CTRL"] = "Ctrl", ["ALT-CTRL"] = "Alt + Ctrl" }
 local SOUND_CHANNELS = { "Master", "Music", "SFX", "Ambience" }
 local SOUND_CHANNELS_LOCALIZED = { Master = "主聲道", Music = MUSIC_VOLUME, SFX = FX_VOLUME, Ambience = AMBIENCE_VOLUME }
-local VISIBILITY_CONTEXTS = { "world", "city", "house", "dungeon", "mythicplus", "raid", "arena", "battleground", "petbattle", "rare" }
-local VISIBILITY_CONTEXTS_LOCALIZED = { world = "野外", city = "城內", house = "住宅", dungeon = "地城", mythicplus = "M+", raid = "團隊", arena = "競技場", battleground = "戰場", petbattle = "寵物對戰", rare = "稀有怪" }
 local VISIBILITY_OPTIONS = { "show", "hide", "expand", "collapse" }
 local VISIBILITY_OPTIONS_LOCALIZED = { show = "顯示", hide = "隱藏", expand = "顯示 + 展開", collapse = "顯示 + 收合" }
 local realmZones = { ["EU"] = "歐洲", ["NA"] = "北美" }
-local KEYBINDINGS = {
-	keyBindCollapse = { frameName = addonName.."MinimizeButton" },
-	keyBindHide = { frameName = "KT_BindingButton" },
-	keyBindClosestQuest = { frameName = addonName.."MinimizeButton", mouse = "RightButton" },
-	EXTRAACTIONBUTTON1 = false
-}
 local ICON_HEART = "|T"..KT.MEDIA_PATH.."Help\\help_patreon:14:14:0:0:256:32:174:190:0:16|t"
+local defaults
 
 local cTitle = " "..NORMAL_FONT_COLOR_CODE
 local cBold = "|cff00ffe3"
@@ -65,115 +58,6 @@ local OTF = KT_ObjectiveTrackerFrame
 local KTSetHeight = KTF.SetHeight
 
 local MoveModule, SetSharedColor, IsSpecialLocale, Keybind  -- functions
-
-local defaults = {
-	profile = {
-		anchorPoint = "TOPRIGHT",
-		xOffset = 0,
-		yOffset = -280,
-		width = 305,
-		maxHeight = 600,
-		frameScale = 1,
-		frameStrata = "LOW",
-		frameScrollbar = true,
-		
-		bgr = "Solid",
-		bgrColor = { r=0, g=0, b=0, a=0 },
-		border = "無",
-		borderColor = KT.TRACKER_DEFAULT_COLOR,
-		classBorder = false,
-		borderAlpha = 1,
-		borderThickness = 16,
-		bgrInset = 4,
-		progressBar = "Blizzard",
-
-		font = LSM:GetDefault("font"),
-		fontSize = 16,
-		fontFlag = "",
-		fontShadow = 1,
-		colorDifficulty = false,
-		textWordWrap = false,
-		objNumSwitch = false,
-
-		hdrBgr = 2,
-		hdrBgrColor = KT.TRACKER_DEFAULT_COLOR,
-		hdrBgrColorShare = false,
-		hdrTxtColor = KT.TRACKER_DEFAULT_COLOR,
-		hdrTxtColorShare = false,
-		hdrBtnColor = KT.TRACKER_DEFAULT_COLOR,
-		hdrBtnColorShare = false,
-		hdrQuestsTitleAppend = true,
-		hdrAchievsTitleAppend = true,
-		hdrPetTrackerTitleAppend = true,
-		hdrTrackerBgrShow = false,
-		hdrCollapsedTxt = 1,
-		hdrOtherButtons = false,
-
-		qiBgrBorder = false,
-		qiXOffset = -5,
-		qiActiveButton = false,
-		qiActiveButtonBindingShow = false,
-
-		hideEmptyTracker = false,
-
-		tooltipShow = true,
-		tooltipShowRewards = true,
-		tooltipShowID = false,
-        menuWowheadURL = true,
-        menuWowheadURLModifier = "",
-		menuYouTubeURL = true,
-		menuYouTubeURLModifier = "",
-        questDefaultActionMap = true,
-		questShowTags = true,
-		questShowZones = true,
-		taskShowFactions = true,
-		questAutoFocusClosest = false,
-
-		messageQuest = true,
-		messageAchievement = true,
-		sink20OutputSink = "RaidWarning",
-		sink20Sticky = false,
-		soundChannel = "Master",
-		soundQuest = false,
-		soundQuestComplete = "KT - Default",
-
-		modulesOrder = KT.MODULES,
-
-		addonMasque = false,
-		addonPetTracker = true,
-		addonTomTom = false,
-		addonRareScanner = false,
-		addonAuctionator = false,
-		addonBtWQuests = false,
-
-		hackLFG = true,
-		hackWorldMap = true,
-	},
-	char = {
-		collapsed = false,
-		quests = {
-			num = 0,
-			favorites = {},
-			cache = {}
-		},
-		achievements = {
-			favorites = {}
-		},
-		waypoint = {
-			mapID = 0,
-			id = 0,
-			type = nil
-		}
-	}
-}
-for cmd, int in pairs(KEYBINDINGS) do
-	if int then
-		defaults.profile[cmd] = ""
-	end
-end
-for _, ctx in ipairs(VISIBILITY_CONTEXTS) do
-	defaults.profile["visibility"..ctx] = "show"
-end
 
 -- Edit Mode - Mover
 local moverOptions
@@ -355,7 +239,9 @@ moverOptions = {
 				},
 				xOffset = {
 					name = "水平位移",
-					desc = "水平位置\n- 預設值: "..defaults.profile.xOffset.."\n- 每次: 1",
+					desc = function()
+						return "水平位置\n- 預設值: "..defaults.profile.xOffset.."\n- 每次: 1"
+					end,
 					type = "range",
 					min = 0,
 					max = 0,
@@ -369,7 +255,9 @@ moverOptions = {
 				},
 				yOffset = {
 					name = "垂直位移",
-					desc = "垂直位置\n- 預設值: "..defaults.profile.yOffset.."\n- 每次: 1",
+					desc = function()
+						return "垂直位置\n- 預設值: "..defaults.profile.yOffset.."\n- 每次: 1"
+					end,
 					type = "range",
 					min = 0,
 					max = 0,
@@ -385,10 +273,12 @@ moverOptions = {
 				},
 				width = {
 					name = "寬度",
-					desc = "- 預設值: "..defaults.profile.width.."\n- 每次: 1",
+					desc = function()
+						return "- 預設值: "..defaults.profile.width.."\n- 每次: 1"
+					end,
 					type = "range",
-					min = defaults.profile.width,
-					max = defaults.profile.width,
+					min = function() return defaults.profile.width end,
+					max = function() return defaults.profile.width end,
 					step = 1,
 					disabled = true,
 					set = function(_, value)
@@ -400,7 +290,9 @@ moverOptions = {
 				},
 				maxHeight = {
 					name = "最大高度",
-					desc = "- 預設值: "..defaults.profile.maxHeight.."\n- 每次: 1",
+					desc = function()
+						return "- 預設值: "..defaults.profile.maxHeight.."\n- 每次: 1"
+					end,
 					type = "range",
 					min = 130,
 					max = 130,
@@ -422,7 +314,9 @@ moverOptions = {
 				},
 				frameScale = {
 					name = "縮放大小",
-					desc = "- 預設值: "..defaults.profile.frameScale.."\n- 每次: 0.001",
+					desc = function()
+						return "- 預設值: "..defaults.profile.frameScale.."\n- 每次: 0.001"
+					end,
 					type = "range",
 					min = 0.4,
 					max = 1.7,
@@ -454,7 +348,9 @@ moverOptions = {
 				},
 				frameStrata = {
 					name = "框架層級",
-					desc = "- 預設值: "..defaults.profile.frameStrata,
+					desc = function()
+						return "- 預設值: "..defaults.profile.frameStrata
+					end,
 					type = "select",
 					values = strata,
 					get = function()
@@ -475,12 +371,8 @@ moverOptions = {
 	},
 }
 KT.EditMode = KT:EditMode_Create(addonName, moverOptions, "tracker", 440, 420)
-
-local function EditMode_Enter()
-	if not KT.InCombatBlocked() then
-		KT.EditMode:ShowMover()
-		KT.EditMode:OpenOptions()
-	end
+KT.EditMode.OnOpen = function()
+    KT:SetHidden(false)
 end
 
 -- Options
@@ -573,7 +465,9 @@ local options = {
 							name = "編輯模式",
 							desc = "解鎖插件介面元素。",
 							type = "execute",
-							func = EditMode_Enter,
+							func = function()
+                                KT.EditMode:Open()
+                            end,
 							order = 1,
 						},
 						editModeNote = {
@@ -686,7 +580,9 @@ local options = {
 						},
 						borderAlpha = {
 							name = "邊框透明度",
-							desc = "- 預設: "..defaults.profile.borderAlpha.."\n- 單位: 0.05",
+							desc = function()
+								return "- 預設值: "..defaults.profile.borderAlpha.."\n- 每次: 0.05"
+							end,
 							type = "range",
 							min = 0.1,
 							max = 1,
@@ -699,7 +595,9 @@ local options = {
 						},
 						borderThickness = {
 							name = "邊框粗細",
-							desc = "- 預設: "..defaults.profile.borderThickness.."\n- 單位: 0.5",
+							desc = function()
+								return "- 預設值: "..defaults.profile.borderThickness.."\n- 每次: 0.5"
+							end,
 							type = "range",
 							min = 1,
 							max = 24,
@@ -712,7 +610,9 @@ local options = {
 						},
 						bgrInset = {
 							name = "背景內縮",
-							desc = "- 預設: "..defaults.profile.bgrInset.."\n- 單位: 0.5",
+							desc = function()
+								return "- 預設值: "..defaults.profile.bgrInset.."\n- 每次: 0.5"
+							end,
 							type = "range",
 							min = 0,
 							max = 10,
@@ -1819,7 +1719,7 @@ local options = {
 							order = 4.1,
 						},
 						addonRareScannerDesc = {
-							name = beta.." 啟用在追蹤清單中顯示偵測到的稀有怪。",
+							name = "啟用在追蹤清單中顯示偵測到的稀有怪。",
 							type = "description",
 							width = "double",
 							order = 4.2,
@@ -1942,12 +1842,12 @@ local options = {
 					order = 2,
 					args = {
 						hackWorldMap = {
-							name = "世界地圖修正 "..beta,
+							name = "世界地圖修正 ",
 							desc = cBold.."影響世界地圖|r並且移除汙染錯誤。"..
 									"這個遊戲修正避免呼叫受限制的函數。"..
 									"停用遊戲修正時，世界地圖顯示會導致錯誤。"..
 									"由於追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-									cWarning2.."負面影響:|r 在魔獸世界 11.2.7 尚未可知。\n",
+									cWarning2.."負面影響:|r 在魔獸世界 12.0.0 尚未可知。\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",
@@ -1980,6 +1880,7 @@ function KT:CheckAddOn(addon, version, isUI)
 	if C_AddOns.IsAddOnLoaded(addon) then
 		local actualVersion = C_AddOns.GetAddOnMetadata(addon, "Version") or "unknown"
 		actualVersion = gsub(actualVersion, "(.*%S)%s+", "%1")
+		self.T_Set(addon, actualVersion, "supportedAddons")
 		ver = isUI and "  -  " or ""
 		ver = (ver.."|cff%s"..actualVersion.."|r"):format(actualVersion == version and "00d200" or "ff0000")
 		result = true
@@ -1998,7 +1899,7 @@ end
 
 function KT:OpenOptions()
 	if self.optionsFrame and not EditModeManagerFrame:IsEditModeActive() then
-		Settings.OpenToCategory(self.optionsFrame.general.name, true)
+		Settings.OpenToCategory(self.optionsFrame.general.name, self.TITLE)
 	end
 end
 
@@ -2011,13 +1912,13 @@ local function Visibility_ShowActiveContext(_, contexts)
 	local sep = "|r  |cff808080>|r  "
 	local opt = controls.args.sec3.args
 
-	for _, ctx in ipairs(VISIBILITY_CONTEXTS) do
+	for _, ctx in ipairs(KT.VISIBILITY_CONTEXTS) do
 		local prefix = " "
 		local suffix = ctx == "dungeon" and "|r *" or "|r"
 		if ctx == contexts[1] then
 			prefix = prefix..color
 		end
-		opt["visibility"..ctx.."Label"].name = prefix..VISIBILITY_CONTEXTS_LOCALIZED[ctx]..suffix
+		opt["visibility"..ctx.."Label"].name = prefix..KT.VISIBILITY_CONTEXTS_LOCALIZED[ctx]..suffix
 	end
 
 	local text = " "..color
@@ -2025,7 +1926,7 @@ local function Visibility_ShowActiveContext(_, contexts)
 		if i > 1 then
 			text = text..sep
 		end
-		text = text..VISIBILITY_CONTEXTS_LOCALIZED[ctx]
+		text = text..KT.VISIBILITY_CONTEXTS_LOCALIZED[ctx]
 	end
 	opt.activeContext.name = text
 
@@ -2033,10 +1934,10 @@ local function Visibility_ShowActiveContext(_, contexts)
 end
 
 local function Visibility_CreateContextOptions(args)
-	for i, ctx in ipairs(VISIBILITY_CONTEXTS) do
+	for i, ctx in ipairs(KT.VISIBILITY_CONTEXTS) do
 		local name = "visibility"..ctx
 		args[name.."Label"] = {
-			name = " "..VISIBILITY_CONTEXTS_LOCALIZED[ctx]..(ctx == "dungeon" and " *" or ""),
+			name = " "..KT.VISIBILITY_CONTEXTS_LOCALIZED[ctx]..(ctx == "dungeon" and " *" or ""),
 			type = "description",
 			width = 0.7,
 			fontSize = "medium",
@@ -2159,14 +2060,9 @@ function IsSpecialLocale()
 			KT.LOCALE == "ruRU")
 end
 
-local function Init()
-	KT.db = LibStub("AceDB-3.0"):New(strsub(addonName, 2).."DB", defaults, true)
-	KT.options = options
-	db = KT.db.profile
-	dbChar = KT.db.char
-end
-
 local function Setup()
+	KT.options = options
+
 	local opt = general.args.sec2.args
 	opt.classBorder.name = opt.classBorder.name:format(KT.RgbToHex(KT.classColor))
 
@@ -2226,13 +2122,14 @@ local function Setup()
 
 	ACR:RegisterOptionsTable(addonName, options, true)
 
+	local parentID
 	KT.optionsFrame = {}
-	KT.optionsFrame.general = ACD:AddToBlizOptions(addonName, "任務-清單", nil, "general")
-	KT.optionsFrame.controls = ACD:AddToBlizOptions(addonName, controls.name, "任務-清單", "controls")
-	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, modules.name, "任務-清單", "modules")
-	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, addons.name, "任務-清單", "addons")
-	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, hacks.name, "任務-清單", "hacks")
-	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, profiles.name, "任務-清單", "profiles")
+	KT.optionsFrame.general, parentID = ACD:AddToBlizOptions(addonName, "任務-清單", nil, "general")
+	KT.optionsFrame.controls = ACD:AddToBlizOptions(addonName, controls.name, parentID, "controls")
+	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, modules.name, parentID, "modules")
+	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, addons.name, parentID, "addons")
+	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, hacks.name, parentID, "hacks")
+	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, profiles.name, parentID, "profiles")
 
 	KT.db.RegisterCallback(KT, "OnProfileChanged", "InitProfile")
 	KT.db.RegisterCallback(KT, "OnProfileCopied", "InitProfile")
@@ -2313,7 +2210,7 @@ local function SetupModules()
 end
 
 local function ActivateBinding()
-	for cmd, data in pairs(KEYBINDINGS) do
+	for cmd, data in pairs(KT.KEYBINDINGS) do
 		if data and db[cmd] ~= "" then
 			SetOverrideBindingClick(KTF, false, db[cmd], data.frameName, data.mouse)
 		end
@@ -2322,7 +2219,7 @@ end
 
 function Keybind(key, command)
 	local needSave = false
-	for cmd, data in pairs(KEYBINDINGS) do
+	for cmd, data in pairs(KT.KEYBINDINGS) do
 		if data then
 			if db[cmd] == key then
 				SetOverrideBinding(KTF, false, db[cmd], nil)
@@ -2335,7 +2232,7 @@ function Keybind(key, command)
 		end
 	end
 
-	local data = KEYBINDINGS[command]
+	local data = KT.KEYBINDINGS[command]
 	if data then
 		SetOverrideBinding(KTF, false, db[command], nil)
 		if key ~= "" then
@@ -2362,7 +2259,9 @@ end
 
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
-	Init()
+	defaults = KT.db.defaults
+	db = KT.db.profile
+	dbChar = KT.db.char
     self.isAvailable = true
 
     db.questAutoFocusClosest = false

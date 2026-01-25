@@ -3,7 +3,7 @@ local _, KT = ...
 
 local settings = {
 	headerText = TRACKER_HEADER_CAMPAIGN_QUESTS,
-	events = { "QUEST_LOG_UPDATE", "QUEST_WATCH_LIST_CHANGED" },
+	events = { "QUEST_LOG_UPDATE", "QUEST_WATCH_LIST_CHANGED", "SUPER_TRACKING_PATH_UPDATED" },
 	lineTemplate = "KT_ObjectiveTrackerAnimLineTemplate",
 };
 

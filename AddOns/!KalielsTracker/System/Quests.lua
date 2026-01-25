@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -32,6 +32,7 @@ function KT.QuestsCache_Update(force)
                             zone = headerTitle,
                             isCalling = C_QuestLog.IsQuestCalling(questInfo.questID),
                             startMapID = quest and quest.startMapID,
+                            state = quest and quest.state or "",
                             updateTime = quest and quest.updateTime or 0
                         }
                         questsCache[questInfo.questID] = quest

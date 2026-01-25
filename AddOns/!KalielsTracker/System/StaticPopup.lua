@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -131,6 +131,7 @@ StaticPopupDialogs[addonName.."_WowheadURL"] = {
         local name = "..."
         local domain = "https://www.wowhead.com/"
         local path = type.."="..id
+        local info
 
         if type == "quest" then
             name = QuestUtils_GetQuestName(id)
@@ -139,11 +140,17 @@ StaticPopupDialogs[addonName.."_WowheadURL"] = {
         elseif type == "spell" then
             name = C_Spell.GetSpellName(id)
         elseif type == "activity" then
-            local activityInfo = C_PerksActivities.GetPerksActivityInfo(id)
-            if activityInfo then
-                name = activityInfo.activityName
+            info = C_PerksActivities.GetPerksActivityInfo(id)
+            if info then
+                name = info.activityName
             end
             path = "trading-post-activity/"..id
+        elseif type == "endeavor" then
+            info = C_NeighborhoodInitiative.GetInitiativeTaskInfo(id)
+            if info then
+                name = info.taskName
+            end
+            path = "endeavor-task/"..id
         end
 
         local lang = KT.LOCALE:sub(1, 2)
@@ -206,6 +213,7 @@ StaticPopupDialogs[addonName.."_YouTubeURL"] = {
         local name = "..."
         local url = "https://www.youtube.com/results?search_query=wow"
         local params = "+"..type
+        local info
 
         if type == "quest" then
             name = QuestUtils_GetQuestName(id)
@@ -214,11 +222,17 @@ StaticPopupDialogs[addonName.."_YouTubeURL"] = {
         elseif type == "spell" then
             name = C_Spell.GetSpellName(id)
         elseif type == "activity" then
-            local activityInfo = C_PerksActivities.GetPerksActivityInfo(id)
-            if activityInfo then
-                name = activityInfo.activityName
+            info = C_PerksActivities.GetPerksActivityInfo(id)
+            if info then
+                name = info.activityName
             end
             params = "+trading+post"
+        elseif type == "endeavor" then
+            info = C_NeighborhoodInitiative.GetInitiativeTaskInfo(id)
+            if info then
+                name = info.taskName
+            end
+            params = "+endeavor+task"
         end
         params = params.."+\""..gsub(name, " ", "+").."\""
 

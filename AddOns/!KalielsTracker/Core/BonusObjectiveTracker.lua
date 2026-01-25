@@ -470,6 +470,16 @@ end
 function KT_BonusObjectiveTrackerMixin:AddQuest(questID, isTrackedWorldQuest)
 	local isWorldQuest = self.showWorldQuests;
 	local isInArea, isOnMap, numObjectives, taskName, displayAsObjective = GetTaskInfo(questID);
+    if numObjectives then
+        KT.T_Set("showWorldQuests", self.showWorldQuests, self.name)
+        KT.T_Set("questID", questID, self.name, "taskData")
+        KT.T_Set("isTrackedWorldQuest", isTrackedWorldQuest, self.name, "taskData")
+        KT.T_Set("isInArea", isInArea, self.name, "taskData")
+        KT.T_Set("isOnMap", isOnMap, self.name, "taskData")
+        KT.T_Set("numObjectives", numObjectives, self.name, "taskData")
+        KT.T_Set("taskName", taskName, self.name, "taskData")
+        KT.T_Set("displayAsObjective", displayAsObjective, self.name, "taskData")
+    end
 	local treatAsInArea = isTrackedWorldQuest or isInArea;
 	-- show task if we're in the area and it's not being toasted
 	if numObjectives and treatAsInArea and questID ~= KT_ObjectiveTrackerTopBannerFrame:GetQuestID() then

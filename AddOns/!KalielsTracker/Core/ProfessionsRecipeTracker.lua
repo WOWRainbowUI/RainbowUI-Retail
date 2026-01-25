@@ -129,7 +129,7 @@ function KT_ProfessionsRecipeTrackerMixin:AddRecipes(isRecraft)
 end
 
 function KT_ProfessionsRecipeTrackerMixin:AddRecipe(recipeID, isRecraft)
-	local recipeSchematic = C_TradeSkillUI.GetRecipeSchematic(recipeID, isRecraft);
+	local recipeSchematic = ProfessionsUtil.GetRecipeSchematic(recipeID, isRecraft);
 	local blockID = NegateIf(recipeID, isRecraft);
 	local block = self:GetBlock(blockID);
 	local blockName = isRecraft and PROFESSIONS_CRAFTING_FORM_RECRAFTING_HEADER:format(recipeSchematic.name) or recipeSchematic.name;
@@ -151,8 +151,6 @@ function KT_ProfessionsRecipeTrackerMixin:AddRecipe(recipeID, isRecraft)
 		local reagentSlotSchematic = tbl.reagentSlotSchematic;
 		if ProfessionsUtil.IsReagentSlotRequired(reagentSlotSchematic) then
 			local reagent = reagentSlotSchematic.reagents[1];
-			local quantityRequired = reagentSlotSchematic.quantityRequired;
-			local quantity = ProfessionsUtil.AccumulateReagentsInPossession(reagentSlotSchematic.reagents);
 			local name = nil;
 
 			if ProfessionsUtil.IsReagentSlotBasicRequired(reagentSlotSchematic) then
@@ -172,14 +170,31 @@ function KT_ProfessionsRecipeTrackerMixin:AddRecipe(recipeID, isRecraft)
 			end
 
 			if name then
-				local text = PROFESSIONS_TRACKER_REAGENT_FORMAT:format(PROFESSIONS_TRACKER_REAGENT_COUNT_FORMAT:format(quantity, quantityRequired), name)
-				local metQuantity = quantity >= quantityRequired;
-				local dashStyle = metQuantity and KT_OBJECTIVE_DASH_STYLE_HIDE or KT_OBJECTIVE_DASH_STYLE_SHOW;
-				local colorStyle = KT_OBJECTIVE_TRACKER_COLOR[metQuantity and "Complete" or "Normal"];
-				local line = block:AddObjective(slotIndex, text, nil, nil, dashStyle, colorStyle);
-				line.Icon:SetShown(metQuantity);
-				if metQuantity then
-					line.Icon:SetAtlas("ui-questtracker-tracker-check", false);
+				--[[
+				Variable quantity reagent tracking is not supported yet because we don't persist the player
+				choices in the crafting form. There shouldn't be any recipes in 12.0 utilizing variable-quantity
+				reagents on required slots, however in case that changes, display the range until the implementation
+				details are sorted out.
+				]]--
+				if reagentSlotSchematic:IsVariableQuantityReagent(reagent) then
+					local min, max = reagentSlotSchematic:GetVariableQuantityRange(reagent);
+					local text = PROFESSIONS_TRACKER_REAGENT_FORMAT:format(PROFESSIONS_TRACKER_REAGENT_RANGE_FORMAT:format(min, max), name);
+					local colorStyle = KT_OBJECTIVE_TRACKER_COLOR["Normal"];
+					local dashStyle = KT_OBJECTIVE_DASH_STYLE_SHOW;
+					local line = block:AddObjective(slotIndex, text, nil, nil, dashStyle, colorStyle);
+					line.Icon:SetShown(false);
+				else
+					local quantityRequired = reagentSlotSchematic:GetQuantityRequired(reagent);
+					local quantity = ProfessionsUtil.AccumulateReagentsInPossession(reagentSlotSchematic.reagents);
+					local text = PROFESSIONS_TRACKER_REAGENT_FORMAT:format(PROFESSIONS_TRACKER_REAGENT_COUNT_FORMAT:format(quantity, quantityRequired), name);
+					local metQuantity = quantity >= quantityRequired;
+					local dashStyle = metQuantity and KT_OBJECTIVE_DASH_STYLE_HIDE or KT_OBJECTIVE_DASH_STYLE_SHOW;
+					local colorStyle = KT_OBJECTIVE_TRACKER_COLOR[metQuantity and "Complete" or "Normal"];
+					local line = block:AddObjective(slotIndex, text, nil, nil, dashStyle, colorStyle);
+					line.Icon:SetShown(metQuantity);
+					if metQuantity then
+						line.Icon:SetAtlas("ui-questtracker-tracker-check", false);
+					end
 				end
 			end
 		end

@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -229,7 +229,7 @@ local function SetupTutorials()
 					"這個遊戲修正避免呼叫受限制的函數。"..
 					"停用遊戲修正時，世界地圖顯示會導致錯誤。"..
 					"由於任務追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-					cWarning2.."負面影響:|r 在魔獸世界 11.2.7 尚未可知。",
+					cWarning2.."負面影響:|r 在魔獸世界 12.0.0 尚未可知。",
 		},
 		{	-- 9
 			image = HELP_PATH.."help_events",
@@ -303,7 +303,7 @@ local function SetupTutorials()
 		},
 		{	-- 13
 			image = HELP_PATH.."help_addon-rarescanner",
-			heading = "支援插件 RareScanner "..beta,
+			heading = "支援插件 RareScanner ",
 			text = "RareScanner 支援會取代原本的 RareScanner 按鈕，並將偵測到的稀有 NPC "..
 					"直接顯示在任務追蹤清單內，作為獨立模組。\n\n"..
 					"功能：\n"..
@@ -360,35 +360,23 @@ local function SetupTutorials()
 			heading = "     最新功能",
 			headingFont = "Fonts\\bLEI00D.ttf",
 			headingSize = 26,
-			text = "如果你喜歡 "..KT.TITLE.."，請考慮在 Patreon 贊助 "..ICON_HEART.."|r\n"..ebSpace.."\n"..
+			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 7.18.1|r\n"..
-					"- 修改 - 插件支援 - Auctionator 306\n"..
-					"- 修改 - 插件支援 - RareScanner 11.2.7.3\n"..
-					"- 修改 - 插件支援 - TomTom 4.2.8\n"..
-					"- 修改 - 插件支援 - PetTracker 11.2.7\n"..
-					"- 修改 - 插件支援 - Masque 11.2.9\n"..
-					"- 修正 - Masque - 啟用外觀後，當前按鈕樣式不會被移除\n"..
+					(cTitle.."版本 8.0.0|r\n"..
+					"- 新增 - 支援 WoW 12.0.0.65512\n"..
+					"- 更新 - 插件支援 - PetTracker 12.0.0\n"..
+					"- 更新 - 插件支援 - TomTom 4.2.15\n"..
+					"- 更新 - 插件支援 - RareScanner 12.0.0.3\n"..
+					"- 更新 - 插件支援 - Masque 11.2.10\n"..
+					"- 更新 - 插件支援 - Auctionator 312\n"..
+					"- 更新 - 插件支援 - BtWQuests 2.60.0\n"..
+					"- 更新 (說明) - 目前的贊助者名單\n"..
+					"- 改進 - 音效優化 – 聲音不重疊，僅在觸發時播放\n"..
+					"- 更新 - 函式庫 (Libs)\n"..
 					"\n")..
 
-					(cTitle.."Version 7.18.0|r\n"..
-					"- 新增 - TomTom - 住宅地塊的航點支援\n"..
-					"- 新增 - 支援 WoW 11.2.7.64704\n"..
-					"- 修改 - 插件支援 - ElvUI 14.04, Tukui 20.463\n"..
-					"- 修改 (過濾器) - 改善副本成就過濾功能\n"..
-					"- 修改 - 插件區塊 - 改進 (左鍵/右鍵點擊)\n"..
-					"- 修改 - 選項 - 新增基於住宅偵測的顯示規則\n"..
-					"- 修改 - 插件支援 - BtWQuests 2.58.0\n"..
-					"- 修改 - 插件支援 - Auctionator 305\n"..
-					"- 修改 - 插件支援 - Masque 11.2.7\n"..
-					"- 修改 - 插件支援 - RareScanner 11.2.7\n"..
-					"- 修改 - 插件支援 - TomTom 4.2.4\n"..
-					"- 修正 (過濾器) - 當缺少任務地圖資訊時的錯誤\n"..
-					"- 修正 - 當缺少任務區域資訊時的錯誤\n"..
-					"\n")..
-
-					cTitle.."Issue reporting|r\n"..
-					"For reporting please use "..cBold.."Tickets|r instead of Comments on CurseForge.\n"..ebSpace.."\n"..
+					cTitle.."問題回報|r\n"..
+					"若要回報問題，請至 CurseForge 使用 "..cBold.."Tickets (工單)|r，而不要使用 Comments (留言)。\n"..ebSpace.."\n"..
 
 					cWarning.."回報錯誤之前，請先停用所有其他的插件，以確保不是和其他插件相衝突。|r",
 			editbox = {
@@ -460,13 +448,14 @@ local function SetupTutorials()
 		paddingTop = 26,
 		paddingBottom = 24,
 		{	-- 1
-			heading = "       成為贊助者",
-			text = "如果你喜歡 "..KT.TITLE..", 請在 |cfff34a54Patreon|r 贊助我。\n\n"..
-					"在 CurseForge 的插件頁面點一下 |T"..HELP_PATH.."help_patreon:20:173:0:0:256:32:0:173:0:20|t 按鈕。\n\n"..
-					"經過了 10 年的插件工作後，我啟用了 Patreon，作為開發插件所需時間的補償。\n\n"..
-					"                                    非常感謝所有贊助者  |T"..HELP_PATH.."help_patreon:16:16:0:0:256:32:174:190:0:16|t\n\n"..
+			heading = "      Become a Patron",
+			text = KT.TITLE.." 是由一人獨自開發與維護的。\n\n\n\n"..
+					"在 Patreon 創立之前，本插件已經歷了超過 10 年的開發歲月。隨著時間推移，它已從"..
+					"一個小型的個人專案，成長為需要投入大量時間且持續維護的龐大系統。\n\n"..
+					"非常感謝所有協助維持本專案運作的支持者們 "..ICON_HEART.."\n\n\n"..
 					cTitle.."Active Patrons|r\n"..
                     SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
+                    SetFormatedPatronName("Epic", "Soromeister")..
                     SetFormatedPatronName("Rare", "Ian F")..
                     SetFormatedPatronName("Rare", "Spance")..
                     SetFormatedPatronName("Uncommon", "Charles Howarth")..

@@ -27,9 +27,7 @@ local function UpdateText(self)
 	if self.ispercent then
 		self.editbox:SetText(("%s%%"):format(floor(value * 1000 + 0.5) / 10))
 	elseif self.isRaw then  -- MSA
-		local decimals = strlen(self.step) - 2
-		value = tonumber(string.format("%."..decimals.."f", value))
-		self.editbox:SetText(value)
+		self.editbox:SetText(floor(value / self.step + 0.5) * self.step)
 	else
 		self.editbox:SetText(floor(value * 100 + 0.5) / 100)
 	end

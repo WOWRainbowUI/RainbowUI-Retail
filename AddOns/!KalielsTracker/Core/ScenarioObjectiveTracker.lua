@@ -346,6 +346,7 @@ function KT_ScenarioObjectiveTrackerMixin:OnEndSlide(slideOut, finished)
 	self.StageBlock.CompleteLabel:Hide();
 
 	if not finished then
+		self:MarkDirty();	-- Need to still call MarkDirty even if the slideout didn't finish
 		return;
 	end
 	
@@ -831,7 +832,7 @@ KT_ScenarioChallengeModeAffixMixin = {};
 
 function KT_ScenarioChallengeModeAffixMixin:SetUp(affixID)
 	local _, _, filedataid = C_ChallengeMode.GetAffixInfo(affixID);
-	SetPortraitToTexture(self.Portrait, filedataid);
+	self.Portrait:SetTexture(filedataid);
 
 	self.affixID = affixID;
 
