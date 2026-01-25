@@ -1540,20 +1540,27 @@ D["TinyInspect"] = {
     },
 };
 D["TinyTooltip-Reforged"] = {
+    defaultEnable = 0,
+	title = "(請刪除) 浮動提示資訊增強",
+	desc = "這是舊版的插件，已經移除。`請自行刪除 AddOns 裡面的 TinyTooltip-Reforged 資料夾。`",
+	modifier = "彩虹ui",
+	icon = "Interface\\Icons\\inv_wand_02",
+};
+D["TinyTooltip-Remake"] = {
     defaultEnable = 1,
 	tags = { "ENHANCEMENT" },
 	title = "浮動提示資訊增強",
-	desc = "提供更多的選項讓你可以自訂滑鼠指向時所顯示的提示說明。`",
+	desc = "重製並優化遊戲中的浮動提示資訊，讓玩家在查看目標資訊時能獲得更清晰、直觀的體驗。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\inv_wand_02",
 	img = true,
     {
         text = "設定選項",
-        callback = function() SlashCmdList["TinyTooltipReforged"]("") end,
+        callback = function() SlashCmdList["TinyTooltip"]("general") end,
     },
 	{
         text = "恢復為預設值",
-        callback = function() SlashCmdList["TinyTooltipReforged"]("reset") end,
+        callback = function() SlashCmdList["TinyTooltip"]("reset") end,
 		reload = true,
     },
 	{
