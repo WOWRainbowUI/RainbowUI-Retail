@@ -961,7 +961,7 @@ hooksecurefunc(f, "OnLoad", function()
     end)
     
     EditModeManagerExpandedFrame.Title = EditModeManagerExpandedFrame.Title or EditModeManagerExpandedFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlightLarge")
-    EditModeManagerExpandedFrame.Title:SetText("選項中可啟用更多框架")
+    EditModeManagerExpandedFrame.Title:SetText("擴充包 (設定選項中還可啟用更多框架)")
     EditModeManagerExpandedFrame.Title.layoutIndex = 1
     EditModeManagerExpandedFrame.Title.align = "center"
     EditModeManagerExpandedFrame.Title.topPadding = 15
