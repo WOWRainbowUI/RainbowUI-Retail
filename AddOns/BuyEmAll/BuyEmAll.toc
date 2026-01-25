@@ -1,0 +1,24 @@
+## Interface: 120000, 120001
+## Author: Jordy141
+## Notes: Replaces shift-click interface at vendors, making it easier to buy large amounts of items at once.
+## Title: BuyEmAll
+## Version: 4.1.3
+## SavedVariablesPerCharacter: BEAConfirmToggle
+## LoadManagers: AddonLoader
+## X-LoadOn-Merchant: true
+## X-LoadOn-Slash: /buyemall
+## X-Build-Type: Release
+## X-Curse-Project-ID: 2590
+## X-WoWI-ID: 5217
+## X-Wago-ID: kRNLnQKo
+
+## Title-zhTW: |cffFFFF99[商人]|r 大量購買
+## Notes-zhTW: BuyEmAll |n|n在商人視窗按 Shift+左鍵 點擊物品可一次購買多個數量。
+## Category-zhTW: 交易
+
+init.lua
+
+localisation/index.xml
+
+BuyEmAll.lua
+BuyEmAll.xml

@@ -1,11 +1,11 @@
 
 
 if GetLocale() == "enUS" or GetLocale == 'enGB' then
-	BUYEMALL_LOCALS = {
+	BuyEmAll.L = {
 	MAX 			= "Max",
 	STACK 			= "Stack",
 	CONFIRM 		= "Are you sure you want to buy\n %d × %s?",
-	STACK_PURCH		= "Stack Purchase",
+	STACK_PURCH		= "Stack purchase",
 	STACK_SIZE 		= "Stack size",
 	PARTIAL 		= "Partial stack",
 	MAX_PURCH		= "Maximum purchase",
@@ -14,5 +14,3 @@ if GetLocale() == "enUS" or GetLocale == 'enGB' then
 	AVAILABLE		= "Vendor has",
 }
 end
-
-local L = BUYEMALL_LOCALS;

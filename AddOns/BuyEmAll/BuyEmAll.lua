@@ -1,8 +1,4 @@
--- BuyEmAll - Originally created and developed by Cogwheel up to version 2.8.4, Shinisuryu up to version 3.5.5, now developed by Jordy141.
-
-BuyEmAll = {}
-
-local L = BUYEMALL_LOCALS;
+local L = BuyEmAll.L;
 
 -- These are used for the text on the Max and Stack buttons. See BuyEmAll.xml.
 
@@ -73,8 +69,8 @@ function BuyEmAll:ItemIsUnique(itemIDOrLink)
 
     local tooltip = C_TooltipInfo.GetItemByID(itemIDOrLink);
     for _, line in ipairs(tooltip.lines) do
-        if line.leftText and line.leftText == 'Unique' then
-            return true
+        if(line.leftText == 'Unique') then
+            return true;
         end
     end
    
@@ -109,8 +105,8 @@ end
 
 function BuyEmAll:GetFreeBagSpace(itemID)
     local canFit = 0;
-    local itemType = C_Item.GetItemFamily(itemID);
-    local stackSize = select(8, C_Item.GetItemInfo(itemID));
+    local itemType = GetItemFamily(itemID);
+    local stackSize = select(8, GetItemInfo(itemID));
 
     for currentBag = 0, 4 do
         local freeSpace, bagType = C_Container.GetContainerNumFreeSlots(currentBag);
@@ -154,9 +150,17 @@ function BuyEmAll:MerchantItemButton_OnModifiedClick(frame, button)
         self.AltCurrencyMode = false;
         self.AtVendor = true; -- Currently at the vendor, for later purchase interruption.
 
-        local name, texture, price, quantity, numAvailable, _, _, hasExtendedCostInfo =
-            GetMerchantItemInfo(self.itemIndex);
-        
+        -- C_MerchantFrame.GetItemInfo returns a table in WoW 11.0.5+
+        local info = C_MerchantFrame.GetItemInfo(self.itemIndex);
+        if not info then return end
+
+        local name = info.name;
+        local texture = info.texture;
+        local price = info.price;
+        local quantity = info.stackCount;  -- was 'quantity' in old API
+        local numAvailable = info.numAvailable;
+        local hasExtendedCostInfo = info.hasExtendedCost;  -- was 'hasExtendedCostInfo' in old API
+
         self.itemName = name;
         self.price = price;
         self.preset = quantity;
@@ -296,7 +300,8 @@ function BuyEmAll:AltCurrencyHandling(itemIndex, frame)
     -- Misc variables for help with error logs.
 
     self.NPCName = UnitName("npc");
-    self.ItemName = select(1, GetMerchantItemInfo(self.itemIndex));
+    local itemInfo = C_MerchantFrame.GetItemInfo(self.itemIndex);
+    self.ItemName = itemInfo and itemInfo.name or nil;
 
     self:Show(frame);
 end

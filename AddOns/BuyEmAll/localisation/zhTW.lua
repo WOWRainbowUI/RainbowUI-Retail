@@ -1,7 +1,7 @@
 -- Thanks to q09q09 and networm!
 
 if GetLocale() == "zhTW" then
-	BUYEMALL_LOCALS = {
+	BuyEmAll.L = {
 	MAX				= "最多",
 	STACK			= "一組",
 	CONFIRM			= "是否要買\n%2$s × %1$d個？",
@@ -14,5 +14,3 @@ if GetLocale() == "zhTW" then
 	AVAILABLE		= "商人存貨數量",
 }
 end
-
-local L = BUYEMALL_LOCALS;

@@ -1,4 +1,33 @@
-﻿v3.5.17
+﻿v4.1.0
+- Restore modification of the shift-click frame, hopefully restoring compatibility with most addons
+
+v4.0.5
+- Fix error that would pop up when the vendor window was reopened after being moved by BlizzMove.
+
+v4.0.4
+- The BuyEmAll frame can now be moved with BlizzMove
+
+v4.0.3
+- Support for Scrap added
+- Support added for addon tabs added to MerchantFrame through the SecureTabs-2.0 library
+- Prepare support for Krowi's Extended Vendor UI (KEVU). KEVU needs an update as well. BuyEmAll 4.0.3+ and KEVU 8.4+ will be be able to work together.
+
+v4.0.2
+- Remove forgotten print statement from code
+
+v4.0.1
+- Fix lua error that occurs when another addon changes MERCHANT_ITEMS_PER_PAGE
+- Added compatibility with SellJunk
+- Suppress ArkInventory warning about HookOpenAllBags:BuyEmAllFrame not existing
+
+v4.0.0
+- BuyEmAll is now compatible with The War Within (11.0.2).
+- The addon has been rewritten to no longer manipulate the existing Blizzard merchant frame, but now has its own merchant frame using code from the original.
+  This frame looks exactly the same as blizzard's frame, and works the same,
+  but the code has been changed in a few places to show the BuyEmAll bulk buying frame rather than blizzard's own "stack buying frame".
+  All taint errors in the Dragonflight versions of the addon should be gone thanks to this rewrite.
+
+v3.5.17
 - Update to patch 10.1
 
 v3.5.16
