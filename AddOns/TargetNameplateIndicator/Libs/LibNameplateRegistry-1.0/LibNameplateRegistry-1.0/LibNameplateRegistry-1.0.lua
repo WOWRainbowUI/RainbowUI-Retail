@@ -19,7 +19,7 @@
     You should have received a copy of the GNU Lesser Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-This file was last updated on 2025-01-06T11:26:57Z by Archarodim
+This file was last updated on 2026-01-24T22:20:17Z by Archarodim
 
 --]]
 
@@ -43,7 +43,7 @@ This file was last updated on 2025-01-06T11:26:57Z by Archarodim
 --
 
 -- Library framework {{{
-local MAJOR, MINOR = "LibNameplateRegistry-1.0", 21
+local MAJOR, MINOR = "LibNameplateRegistry-1.0", 23
 
 -- used to be set using debug packager tags but they've been broken ever since the new wowace.com...
 -- see: https://www.curseforge.com/forums/wow-sites/wow-sites-feedback/185461-curse-keyword-substitution-not-applied-for
@@ -136,6 +136,7 @@ local C_Timer               = _G.C_Timer;
 local GetNamePlateForUnit   = _G.C_NamePlate.GetNamePlateForUnit
 local GetNamePlateSizes     = _G.C_NamePlate.GetNamePlateSizes
 local GetNamePlates         = _G.C_NamePlate.GetNamePlates
+local canaccessvalue        = _G.canaccessvalue or function(_) return true; end
 --local GetNumNamePlateMotionTypes = C_NamePlate.GetNumNamePlateMotionTypes
 --local SetNamePlateSizes          = C_NamePlate.SetNamePlateSizes
 
@@ -163,6 +164,9 @@ local ActivePlates_per_frame    =  {};
 local ActivePlateFrames_per_unitToken =  {};
 local CurrentTarget             = false;
 local HasTarget                 = false;
+local _, _, _, tocversion = GetBuildInfo();
+
+local restrictionsCheckNeeded = tocversion >= 120000
 
 --[==[@debug@
 local callbacks_consisistency_check = {};
@@ -505,7 +509,7 @@ do
         PlateData.unitToken = namePlateUnitToken;
         PlateData.name      = UnitName(namePlateUnitToken);
         -- if UnitName fails, store nothing and let the metaTable retry the query later
-        if PlateData.name == 'Unknown' then PlateData.name = nil end
+        if canaccessvalue(PlateData.name) and PlateData.name == 'Unknown' then PlateData.name = nil end
         PlateData.reaction, PlateData.type = LNR_Private.RawGetPlateType(namePlateFrameBase);
         PlateData.GUID      = UnitGUID(namePlateUnitToken);
 
@@ -515,8 +519,10 @@ do
 
         LNR_Private:Fire("LNR_ON_NEW_PLATE", namePlateFrameBase, PlateData);
 
+        local isNTarget = UnitExists('target') and UnitIsUnit('target', namePlateUnitToken)
+
         -- is it currently targeted?
-        if UnitExists('target') and UnitIsUnit('target', namePlateUnitToken) then
+        if canaccessvalue(isNTarget) and isNTarget then
             if CurrentTarget and CurrentTarget ~= namePlateFrameBase then
                 Debug(ERROR, 'target tracking inconsistency');
                 self:PLAYER_TARGET_CHANGED();
@@ -764,7 +770,7 @@ function LNR_Public:GetPlateByGUID (GUID)
 
     if GUID then
         for frame, data in pairs(ActivePlates_per_frame) do
-            if data.GUID == GUID and LNR_Private:ValidateCache(frame, 'GUID') == 0 then
+            if canaccessvalue(data.GUID) and data.GUID == GUID and LNR_Private:ValidateCache(frame, 'GUID') == 0 then
                 return frame, data;
             end
         end
@@ -819,7 +825,7 @@ do
             return nil;
         end
 
-        if Name == Data.name and LNR_Private:ValidateCache(CurrentPlate, 'name') == 0 then
+        if canaccessvalue(Data.name) and Name == Data.name and LNR_Private:ValidateCache(CurrentPlate, 'name') == 0 then
             return CurrentPlate, Data;
         else
             return iter();
