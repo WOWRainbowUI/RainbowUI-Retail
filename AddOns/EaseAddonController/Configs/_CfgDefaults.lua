@@ -485,7 +485,7 @@ D["DBM-VPSahaJh"] = {defaultEnable = 1,};
 D["Decursive"] = {
 	defaultEnable = 0,
 	tags = { "CLASSALL" },
-	title = "一鍵驅散",
+	title = "(暫時停用) 一鍵驅散",
 	desc = "每個隊友會顯示成一個小方格，當隊友獲得 Debuff (負面狀態效果) 時，小方格會亮起來。``點一下亮起來的小方格，立即驅散。``設定選項中還可以設定進階過濾和優先權。`",
 	modifier = "Adavak, Archarodim, BNS, deleted_1214024, laincat, sheahoi, titanium0107, YuiFAN, zhTW, 彩虹ui",
 	img = true,

@@ -48,35 +48,3 @@
 ## Notes-zhTW: Decursive|cffff00ff-Ace3-|r |n|n清除單人、小隊和團隊的有害狀態，並可設定進階過濾和優先權。 (內含 Ace3 程式庫) |n|n|cffffd200使用方法: |r點一下亮起來的小方格，可以驅散該隊友身上DEBUFF。|n滑鼠滑到第一個小方格的上方，出現一個小亮點時，按住 Alt 不放來拖曳可以移動位置。|n輸入 /decursive 開啟設定。
 ## Category-zhTW: 職業
 ## DefaultState: disabled
-
-Dcr_preload.lua
-
-embeds.xml
-
-Dcr_DIAG.lua
-Dcr_DIAG.xml
-
-Localization\load.xml
-
-DCR_init.lua
-Dcr_LDB.lua
-Dcr_utils.lua
-
-
-Dcr_opt.lua
-Dcr_Events.lua
-
-Dcr_Raid.lua
-
-Decursive.lua
-Decursive.xml
-
-Dcr_lists.lua
-Dcr_lists.xml
-
-Dcr_DebuffsFrame.lua
-Dcr_DebuffsFrame.xml
-
-Dcr_LiveList.lua
-Dcr_LiveList.xml
-
