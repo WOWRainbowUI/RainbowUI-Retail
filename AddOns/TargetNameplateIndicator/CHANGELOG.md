@@ -1,3 +1,10 @@
+# 1.61
+- Bump TOC Interface version for Retail, TBC Classic and MoP Classic
+- Update to support 12.0 nameplate changes
+
+# 1.60
+- Bump TOC Interface version for Retail, Cataclysm Classic and MoP Classic
+
 # 1.59
 - Add recoloured textures from Tushar Saxena
 - Add green_arrow_down_11384 to CONTRIBUTORS.md
