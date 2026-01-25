@@ -442,6 +442,5 @@ function addon:initOptions()
     addon.db = LibStub("AceDB-3.0"):New("EditModeExpandedADB", defaults)
             
     AceConfigRegistry:RegisterOptionsTable(addonName, options)
-    local frame, categoryId = AceConfigDialog:AddToBlizOptions(addonName)
-	addon.db.global.EMEOptions.categoryID = categoryId
+    AceConfigDialog:AddToBlizOptions(addonName)
 end
