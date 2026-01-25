@@ -6,7 +6,6 @@ local LibDualSpec = LibStub("LibDualSpec-1.0", true)
 local ACD = LibStub("AceConfigDialog-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(OptionsAppName)
 local Settings = Settings
-local categoryID
 
 local MinFontSize = 5
 local MaxFontSize = 30
@@ -45,9 +44,13 @@ local SectionNames = {
 
 function RangeDisplay:openConfigDialog(ud)
   ud = ud or lastConfiguredUd
+  if C_SettingsUtil and C_SettingsUtil.OpenSettingsPanel then
+    C_SettingsUtil.OpenSettingsPanel(ud and ud.optsId or self.optsId)
+    return
+  end
   if Settings then
     -- TODO: find out how to open to a sub-category...
-    Settings.OpenToCategory(categoryID)
+    Settings.OpenToCategory(self.optsId)
     return
   end
   if ud then
@@ -533,10 +536,10 @@ do
 
   addConfigFunctions(self.units)
   ACR:RegisterOptionsTable(self.AppName, mainOptions)
-  self.opts, categoryID = ACD:AddToBlizOptions(self.AppName, L["RangeDisplay"]) -- 自行修改
+  self.opts, self.optsId = ACD:AddToBlizOptions(self.AppName, L["RangeDisplay"]) -- 自行修改
   for i, ud in ipairs(self.units) do
     local unitOpts = makeUnitOptions(ud)
-    ud.opts = registerSubOptions(ud.unit, unitOpts)
+    ud.opts, ud.optsId = registerSubOptions(ud.unit, unitOpts)
   end
   local profiles =  AceDBOptions:GetOptionsTable(self.db)
   if LibDualSpec then
@@ -546,7 +549,7 @@ do
     lastConfiguredUd = fakeUdForProfiles
     return false
   end
-  self.profiles = registerSubOptions('profiles', profiles)
+  self.profiles, self.profilesId = registerSubOptions('profiles', profiles)
   fakeUdForProfiles.opts = self.profiles
 end
 
