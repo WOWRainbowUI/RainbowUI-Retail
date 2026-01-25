@@ -71,6 +71,7 @@ L['Hover'] = "滑鼠指向時";
 L['Social'] = "好友";
 L['Micromenu'] = "微型選單";
 L['Show Social Tooltips'] = "顯示公會/好友名單";
+L['Show Accessibility Tooltips'] = true; -- Needs Translation
 L['Blizzard Micromenu'] = true;
 L['Disable Blizzard Micromenu'] = true;
 L["Keep Queue Status Icon"] = true;
@@ -176,6 +177,8 @@ L['Remaining'] = "還需要";
 L['Available Ranks'] = "神兵武器等級";
 L['Artifact Knowledge'] = "神兵知識等級";
 
+L['Show Button Text'] = true; -- Needs Translation 
+
 -- Travel
 L['Hearthstone'] = true;
 L['M+ Teleports'] = true;
@@ -224,6 +227,8 @@ L['Call of Duty: MW2'] = "決勝時刻: 現代戰爭2"
 L['Call of Duty: BOCW'] = "決勝時刻: 黑色行動冷戰"
 L['Call of Duty: Vanguard'] = "決勝時刻: 先鋒"
 L["Hide when in flight"] = "使用鳥點飛行時隱藏"
+L["Show on mouseover"] = true; -- Needs translation 
+L["Show the bar only when you mouseover it"] = true; -- Needs translation
 L["Classic"] = "《經典版》"
 L['Warcraft 3 Reforged'] = "魔獸爭霸III: 淬鍊重生"
 L['Diablo II: Resurrected'] = "暗黑破壞神II: 獄火重生"

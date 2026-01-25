@@ -22,6 +22,8 @@ L['Use Class Color for Bar'] = "Использовать цвет класса �
 L["Miscellaneous"] = "Разное";
 L['Hide Bar in combat'] = "Прятать полосу во время боя";
 L["Hide when in flight"] = true;
+L["Show on mouseover"] = true; -- Needs translation 
+L["Show the bar only when you mouseover it"] = true; -- Needs translation
 L['Bar Padding'] = "Заполнение";
 L['Module Spacing'] = "Расстояние между модулями";
 L['Bar Margin'] = "Маржа бара"; -- Need Translation ?
@@ -67,6 +69,7 @@ L['Hover'] = "По наведению";
 
 L['Micromenu'] = "Микроменю";
 L['Show Social Tooltips'] = "Показывать подсказки гильдии и друзей";
+L['Show Accessibility Tooltips'] = true; -- Needs Translation
 L['Blizzard Micromenu'] = true;
 L['Disable Blizzard Micromenu'] = true;
 L["Keep Queue Status Icon"] = true;
@@ -172,6 +175,8 @@ L['Open Artifact'] = "Открыть меню артефакта";
 L['Remaining'] = "Осталось";
 L['Available Ranks'] = "Доступно уровней";
 L['Artifact Knowledge'] = "Знание артефакта";
+
+L['Show Button Text'] = true; -- Needs Translation 
 
 -- Travel (Translation needed)
 L['Hearthstone'] = true;

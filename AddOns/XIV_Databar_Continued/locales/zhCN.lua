@@ -22,6 +22,8 @@ L['Use Class Color for Bar'] = "条使用职业颜色";
 L["Miscellaneous"] = "杂项";
 L['Hide Bar in combat'] = "战斗中隐藏";
 L["Hide when in flight"] = true;
+L["Show on mouseover"] = true; -- Needs translation 
+L["Show the bar only when you mouseover it"] = true; -- Needs translation
 L['Bar Padding'] = "条填充";
 L['Module Spacing'] = "模块间距";
 L['Bar Margin'] = "条形边距";
@@ -67,6 +69,7 @@ L['Hover'] = "鼠标悬停";
 
 L['Micromenu'] = "微型菜单";
 L['Show Social Tooltips'] = "显示社交提示";
+L['Show Accessibility Tooltips'] = true; -- Needs Translation
 L['Blizzard Micromenu'] = true;
 L['Disable Blizzard Micromenu'] = true;
 L["Keep Queue Status Icon"] = true;
@@ -172,6 +175,8 @@ L['Open Artifact'] = "打开神器";
 L['Remaining'] = "剩余";
 L['Available Ranks'] = "神器等级";
 L['Artifact Knowledge'] = "神器知识";
+
+L['Show Button Text'] = true; -- Needs Translation 
 
 -- Travel (Translation needed)
 L['Hearthstone'] = true;

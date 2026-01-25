@@ -22,6 +22,8 @@ L['Use Class Color for Bar'] = "Cor da classe na barra";
 L["Miscellaneous"] = "Outros";
 L['Hide Bar in combat'] = "Ocultar barra em combate";
 L["Hide when in flight"] = "Ocultar durante voo";
+L["Show on mouseover"] = true; -- Needs translation 
+L["Show the bar only when you mouseover it"] = true; -- Needs translation
 L['Bar Padding'] = "Preenchimento da Barra";
 L['Module Spacing'] = "Espaçamento entre Módulos";
 L['Bar Margin'] = "Margem da Barra";
@@ -67,6 +69,7 @@ L['Hover'] = "Mouse sobre";
 
 L['Micromenu'] = true;
 L['Show Social Tooltips'] = "Mostrar informações da lista de amigos";
+L['Show Accessibility Tooltips'] = "Mostrar informações de acessibilidade";
 L['Blizzard Micromenu'] = true;
 L['Disable Blizzard Micromenu'] = true;
 L["Keep Queue Status Icon"] = true;
@@ -173,6 +176,8 @@ L['Open Artifact'] = "Abrir Artefato";
 L['Remaining'] = "Restante";
 L['Available Ranks'] = "Ranks Disponíveis";
 L['Artifact Knowledge'] = "Conhecimento de Artefato";
+
+L['Show Button Text'] = true; -- Needs Translation 
 
 -- Travel (Translation needed)
 L['Hearthstone'] = "Pedra de Regresso";

@@ -22,6 +22,8 @@ L['Use Class Color for Bar'] = "Benutze Klassenfarbe für Leiste";
 L["Miscellaneous"] = "Verschiedenes";
 L['Hide Bar in combat'] = "Verstecke die Leiste im Kampf";
 L["Hide when in flight"] = "Im Flug verstecken";
+L["Show on mouseover"] = true; -- Needs translation 
+L["Show the bar only when you mouseover it"] = true; -- Needs translation
 L['Bar Padding'] = "Leistenabstand";
 L['Module Spacing'] = "Abstand zwischen Modulen";
 L['Bar Margin'] = "Balkenrand";
@@ -67,6 +69,7 @@ L['Hover'] = "Mouseover";
 
 L['Micromenu'] = "Mikromenü";
 L['Show Social Tooltips'] = "Social Tooltips anzeigen";
+L['Show Accessibility Tooltips'] = true; -- Needs Translation
 L['Blizzard Micromenu'] = true; -- No Translate needed
 L['Disable Blizzard Micromenu'] = "Deaktiviere Blizzard Micromenu";
 L["Keep Queue Status Icon"] = "Zeige Wartenschlangen Statussymbol";
@@ -172,6 +175,8 @@ L['Open Artifact'] = "Artefakt öffen";
 L['Remaining'] = "Verbleibend";
 L['Available Ranks'] = "Verfügbare Ränge";
 L['Artifact Knowledge'] = "Artefaktwissen";
+
+L['Show Button Text'] = true; -- Needs Translation 
 
 -- Travel (Translation needed)
 L['Hearthstone'] = "Ruhestein";

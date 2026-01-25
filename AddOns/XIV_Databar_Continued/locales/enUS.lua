@@ -23,6 +23,8 @@ L['Use Class Color for Bar'] = true;
 L["Miscellaneous"] = true;
 L['Hide Bar in combat'] = true;
 L["Hide when in flight"] = true;
+L["Show on mouseover"] = true;
+L["Show the bar only when you mouseover it"] = true;
 L['Bar Padding'] = true;
 L['Module Spacing'] = true;
 L['Bar Margin'] = true;
@@ -68,6 +70,7 @@ L['Hover'] = true;
 
 L['Micromenu'] = true;
 L['Show Social Tooltips'] = true;
+L['Show Accessibility Tooltips'] = true;
 L['Blizzard Micromenu'] = true;
 L['Disable Blizzard Micromenu'] = true;
 L["Keep Queue Status Icon"] = true;
@@ -176,6 +179,8 @@ L['Kills to level'] = true;
 L['Last xp gain'] = true;
 L['Available Ranks'] = true;
 L['Artifact Knowledge'] = true;
+
+L['Show Button Text'] = true;
 
 -- Travel
 L['Hearthstone'] = true;

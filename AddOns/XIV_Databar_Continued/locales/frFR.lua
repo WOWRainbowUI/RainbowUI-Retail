@@ -22,6 +22,8 @@ L['Use Class Color for Bar'] = "Utiliser la couleur de classe pour la barre";
 L["Miscellaneous"] = "Divers";
 L['Hide Bar in combat'] = "Cacher la barre en combat";
 L["Hide when in flight"] = "Cacher la barre en vol";
+L["Show on mouseover"] = "Afficher au survol";
+L["Show the bar only when you mouseover it"] = "Afficher la barre uniquement au survol";
 L['Bar Padding'] = "Décalage de la barre";
 L['Module Spacing'] = "Espacement des modules";
 L['Bar Margin'] = "Marge des modules en bord d'écran";
@@ -67,6 +69,7 @@ L['Hover'] = "Survol";
 
 L['Micromenu'] = "Micro menu";
 L['Show Social Tooltips'] = "Montrer les bulles de contacts";
+L['Show Accessibility Tooltips'] = "Montrer les bulles d'accessibilité";
 L['Blizzard Micromenu'] = "Micro menu Blizzard";
 L['Disable Blizzard Micromenu'] = "Désactiver le micro menu Blizzard";
 L['Keep Queue Status Icon'] = "Garder l'icône de la file d'attente";
@@ -172,6 +175,8 @@ L['Open Artifact'] = "Ouvrir l'Arme Prodigieuse";
 L['Remaining'] = "Restant";
 L['Available Ranks'] = "Rangs disponibles";
 L['Artifact Knowledge'] = "Connaissance de l'arme prodigieuse";
+
+L['Show Button Text'] = "Afficher le texte du bouton";
 
 -- Travel
 L['Hearthstone'] = "Pierre de foyer";
