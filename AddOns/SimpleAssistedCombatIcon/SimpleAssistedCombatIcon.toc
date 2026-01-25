@@ -1,0 +1,18 @@
+## Interface: 120000
+## OptionalDeps: Ace3, LibSharedMedia-3.0
+## IconTexture: Interface/Icons/ui_spellbook_onebutton.blp
+## Category: Combat
+## Title: Simple Assisted Combat Icon
+## Notes: A simple icon to display the current recommended ability from Blizzards Assisted Combat API.
+## Author: Katur239
+## Version: 12.0.0.6a
+## SavedVariables: SCAIDB
+
+## Title-zhTW: |cffFF2D2D[戰鬥]|r 簡易輸出助手
+## Notes-zhTW: Simple Assisted Combat Icon |n|n將當前建議施放的技能 以圖示形式顯示在螢幕上，讓玩家不必時刻盯著快捷列，就能快速掌握戰鬥節奏。|n|cffffd200使用方法：|r從Esc>選項>插件>輸出助手，進行設定。
+## X-Category-zhTW: 戰鬥
+
+Libs\LibKeyBound-1.0\lib.xml
+
+Core.lua
+CombatAssistIcon.xml

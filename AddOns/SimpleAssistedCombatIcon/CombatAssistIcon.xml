@@ -1,0 +1,32 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+	<Script file="CombatAssistIcon.lua"/>
+
+    <Frame name="AssistedCombatIconFrame" inherits="BackdropTemplate" mixin="AssistedCombatIconMixin" parent="UIParent" movable="true" enableMouse="true" clampedToScreen="true" hidden="false">
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon" setAllPoints="true" />
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Keybind" inherits="NumberFontNormalSmall" justifyH="RIGHT" />
+                <FontString parentKey="Count" inherits="NumberFontNormal" justifyH="RIGHT" />
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="Overlay" enableMouse="false" setAllPoints="true" />
+            <Cooldown parentKey="Cooldown" enableMouse="false" inherits="CooldownFrameTemplate" setAllPoints="true" />
+			<Cooldown parentKey="chargeCooldown" enableMouse="false" inherits="CooldownFrameTemplate" hideCountdownNumbers="true" />
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEvent method="OnEvent"/>
+            <OnDragStart method="OnDragStart"/>
+            <OnDragStop method="OnDragStop"/>
+        </Scripts>
+    </Frame>
+</Ui>
