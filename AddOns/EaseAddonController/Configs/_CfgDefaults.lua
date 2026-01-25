@@ -19,6 +19,17 @@ D["AAgmFonts"] = {
 		text = "|cffFF2D2D特別注意：請不要選擇英文字體，會無法顯示中文字。|r",
 	},
 };
+D["AbilityTimeline"] = {
+	defaultEnable = 1,
+	tags = { "BOSSRAID" }, 
+	title = "首領時間線增強",
+	desc = "優化並擴展遊戲內建的首領時間線顯示功能。它的特色是和 WA 的風格一致，同時加入更多實用的提示與自訂選項，讓玩家在團隊副本或地城中能更清晰掌握技能冷卻與戰鬥節奏。`",
+	modifier = "彩虹ui",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["ACECONSOLE_AT"]("") end,
+    },
+};
 D["Ace3"] = {
 	defaultEnable = 1,
 	protected = true, 
@@ -1649,12 +1660,6 @@ D["WorldQuestTab"] = {
         text = "設定選項：點世界地圖旁的世界任務標籤頁 > 過濾方式 > 設定。",
 	},
 };
-D["XandY"] = {
-	defaultEnable = 0,
-	tags = { "MAP" },
-	title = "地圖座標",
-	desc = "簡單的小插件，在世界地圖的標題列，和小地圖地名旁邊顯示座標值。`",
-};
 D["XIV_Databar_Continued"] = {
     defaultEnable = 1,
 	tags = { "ENHANCEMENT" },
@@ -1684,33 +1689,4 @@ D["YouGotMail"] = {
 	title = "新郵件通知音效",
 	desc = "收到新的郵件時會播放 You got mail 經典音效。`",
 	icon = "Interface\\Icons\\achievement_guildperk_gmail",
-};
-D["zZ_Bufftimes"] = {
-	defaultEnable = 1,
-	tags = { "ENHANCEMENT" },
-	title = "增益/減益時間微調",
-	desc = "調整畫面右上方增益/減益效果圖示和時間數字的距離，讓數字能貼齊圖示。``也稍微調整了時間格式，少於5分鐘會顯示秒數。`",
-	icon = "Interface\\Icons\\ability_evoker_blessingofthebronze",
-	{
-		type = "text",
-		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
-	},
-	{
-		type = "text",
-		text = "選擇要顯示中文或英文的時間單位，步驟為：\n\n1.用記事本編輯 AddOns > zZ_Bufftimes > zZ_Bufftimes.lua。\n\n2.找到這一行 local aa = 2; \n\n3.將這一行中的數字改為 1 是英文時間單位，數字改為 2 是中文時間單位。\n\n中文和英文時間單位的格式和顏色都稍有不同，請依照自己的喜好來使用。\n\n",
-	},
-};
-D["zz_itemsdb"] = {
-	defaultEnable = 0,
-	tags = { "ITEM" },
-	title = "物品數量追蹤 (舊版)",
-	desc = "在物品的滑鼠提示中顯示其他角色擁有相同物品的數量。``請在設定選項中勾選要追蹤背包、銀行、公會銀行、兌換通貨... 等等哪些地方的物品數量，以及刪除不再需要追蹤的角色資料。``|cffFF2D2D需要將其他角色登入一次才會計算該角色的物品數量。|r`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\achievement_guild_otherworldlydiscounts",
-	{
-        text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory("背包-物品數量")
-		end,
-    },
 };

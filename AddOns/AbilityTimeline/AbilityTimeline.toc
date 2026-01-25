@@ -1,0 +1,80 @@
+## Interface: 120000
+## Title: AbilityTimeline
+## Version: v0.16
+## Notes: Adds various improvements to blizzards encounter ability timeline.
+## SavedVariables: AbilityTimeline
+## Author: Jods
+## X-Curse-Project-ID: 1365171
+## X-Wago-ID: qGYMWpGg
+## OptionalDeps: Ace3, DevTool, CustomNames
+## AddonCompartmentFunc: AbilityTimeline_AddonCompartmentFunction
+## IconTexture: Interface\AddOns\AbilityTimeline\Media\Logo.tga
+## Category-enUS: Dungeons & Raids
+## Category-deDE: Dungeons & Schlachtzüge
+## Category-esES: Mazmorras y bandas
+## Category-esMX: Calabozos y bandas
+## Category-frFR: Donjons et raids
+## Category-itIT: Spedizioni e incursioni
+## Category-koKR: 던전 및 공격대
+## Category-ptBR: Masmorras e Raides
+## Category-ruRU: Подземелья и рейды
+## Category-zhCN: 地下城和团队副本
+## Category-zhTW: 地城與團隊
+
+## Title-zhTW: |cffFF2D2D[戰鬥]|r 首領時間線增強
+## Notes-zhTW: AbilityTimeline |n|n優化並擴展遊戲內建的首領時間線顯示功能。它的特色是和 WA 的風格一致，同時加入更多實用的提示與自訂選項，讓玩家在團隊副本或地城中能更清晰掌握技能冷卻與戰鬥節奏。|n|cffffd200使用方法：|r從Esc>選項>插件>首領時間線，進行設定。
+## X-Category-zhTW: 戰鬥
+
+#Libs
+Libs\LibEditMode\embed.xml
+
+#util
+Util\Debug.lua
+Util\EditMode.lua
+Util\ModernizeSettings.lua
+Util\Tooltip.lua
+Util\EncounterBrowser.lua
+
+# Locales
+Locales\enUS.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+ 
+Locales\Locales.lua
+
+#templates
+Templates\AtTextCopyFrame.lua
+Templates\AtReminderCreator.lua
+Templates\AtTimelineTick.lua
+Templates\AtEditorSpellIcon.lua
+Templates\AtTimingsEditorTimelineFrame.lua
+Templates\AtTimingsEditorDataFrame.lua
+Templates\ATTimingsEditorContainer.lua
+Templates\AtAbilitySpellIcon.lua
+Templates\AtTimelineFrame.lua
+Templates\AtBigIconFrame.lua
+Templates\AtTextHighlightFrame.lua
+Templates\AtBigIcon.lua
+Templates\AtTextHighlight.lua
+Templates\AtSpellIconSettingsFrame.lua
+
+#data
+Data\dungeons.xml
+Data\seasons.lua
+Data\dispellTypes.lua
+
+#plugins
+Plugins\TextHighlight.lua
+Plugins\BigIcon.lua
+Plugins\SoundAlert.lua
+Plugins\Glow.lua
+Plugins\Reminders.lua
+
+# Core
+Options\Options.lua
+Options\TimingEditor.lua
+Options\SpellIconsSettings.lua
+Main.lua
+AbilityTimeline.lua
+
+
