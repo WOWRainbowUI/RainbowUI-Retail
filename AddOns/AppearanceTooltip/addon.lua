@@ -12,6 +12,26 @@ local LAI = LibStub("LibAppropriateItems-1.0")
 -- minor compat:
 local IsDressableItem = _G.IsDressableItem or C_Item.IsDressableItemByID
 local issecretvalue = _G.issecretvalue or function() return false end
+local isanyvaluesecret = function(...)
+    for i=1, select("#", ...) do
+        if issecretvalue((select(i, ...))) then
+            return true
+        end
+    end
+    return false
+end
+local function PlayerHasTransmogByItemInfo(itemLinkOrID)
+    -- Cata classic is specifically missing C_TransmogCollection.PlayerHasTransmogByItemInfo
+    if C_TransmogCollection.PlayerHasTransmogByItemInfo then
+        return C_TransmogCollection.PlayerHasTransmogByItemInfo(itemLinkOrID)
+    end
+    local itemID = C_Item.GetItemInfoInstant(itemLinkOrID)
+    if itemID then
+        -- this is a bit worse, because of items with varying appearances based on the link-details
+        -- but because this path should only be hit in classic, we should be fine
+        return C_TransmogCollection.PlayerHasTransmog(itemID)
+    end
+end
 
 ns.CLASSIC = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE -- rolls forward
 ns.CLASSICERA = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC -- forever vanilla
@@ -136,12 +156,12 @@ do
     tooltip.modelScene = makeModel("ModelScene", "PanningModelSceneMixinTemplate")
 end
 
-local known = tooltip:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-known:SetWordWrap(true)
-known:SetTextColor(0.5333, 0.6666, 0.9999, 0.9999)
-known:SetPoint("BOTTOMLEFT", tooltip, "BOTTOMLEFT", 6, 12)
-known:SetPoint("BOTTOMRIGHT", tooltip, "BOTTOMRIGHT", -6, 12)
-known:Show()
+local modelLabel = tooltip:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+modelLabel:SetWordWrap(true)
+modelLabel:SetTextColor(0.5333, 0.6666, 0.9999, 0.9999)
+modelLabel:SetPoint("BOTTOMLEFT", tooltip, "BOTTOMLEFT", 6, 12)
+modelLabel:SetPoint("BOTTOMRIGHT", tooltip, "BOTTOMRIGHT", -6, 12)
+modelLabel:Show()
 
 local classwarning = tooltip:CreateFontString(nil, "OVERLAY", "GameFontRed")
 classwarning:SetWordWrap(true)
@@ -155,14 +175,11 @@ classwarning:Show()
 -- Ye showing:
 local function GetTooltipItem(tip)
     if _G.C_TooltipInfo then
-        if issecretvalue then
-            -- getdisplayeditem attempts this comparison...
-            local primaryInfo = tip:GetPrimaryTooltipInfo();
-            if issecretvalue(primaryInfo and primaryInfo.tooltipData and primaryInfo.tooltipData.type and primaryInfo.tooltipData.type) then
-                return
-            end
+        -- getdisplayeditem attempts this comparison...
+        local primaryInfo = tip:GetPrimaryTooltipInfo();
+        if issecretvalue(primaryInfo and primaryInfo.tooltipData and primaryInfo.tooltipData.type and primaryInfo.tooltipData.type) then
+            return
         end
-        return TooltipUtil.GetDisplayedItem(tip)
     end
     return tip:GetItem()
 end
@@ -325,9 +342,8 @@ do
             end
         end
         if
-            (not issecretvalue or (not issecretvalue(owner:GetLeft()) and issecretvalue(tooltip:GetWidth()))) and
-            (
-                -- would we be pushing against the edge of the screen?
+            anchor ~= "vertical" and
+            not isanyvaluesecret(owner:GetLeft(), tooltip:GetWidth()) and (
                 (primary == "left" and (owner:GetLeft() - tooltip:GetWidth()) < 0)
                 or (primary == "right" and (owner:GetRight() + tooltip:GetWidth() > GetScreenWidth()))
             )
@@ -401,14 +417,21 @@ function ns:ShowItem(link, for_tooltip)
         local found
         local counts = {}
         local counts_known = {}
-        for itemid, tclass, relevant in LAT:IterateItemsForToken(id) do
-            found = found or itemid
-            if relevant then
-                found = itemid -- make *sure* the item shown is a relevant one, if one exists
-                AddItemToTooltip(itemid, for_tooltip, tclass == class and class_colored or tclass)
-            else
-                counts[tclass] = (counts[tclass] or 0) + 1
-                counts_known[tclass] = (counts_known[tclass] or 0) + (ns.PlayerHasAppearance(itemid) and 1 or 0)
+        for itemid, tclass, relevant, variants in LAT:IterateItemsForToken(link) do
+            local itemLinkOrID = itemid
+            for _, variant in ipairs(variants or {false}) do
+                if variant then
+                    itemLinkOrID = LAT:GetBareLinkForItem(itemid, variant)
+                end
+                found = found or itemLinkOrID
+                if relevant then
+                    found = itemLinkOrID -- make *sure* the item shown is a relevant one, if one exists
+
+                    AddItemToTooltip(itemLinkOrID, for_tooltip, tclass == class and class_colored or tclass)
+                else
+                    counts[tclass] = (counts[tclass] or 0) + 1
+                    counts_known[tclass] = (counts_known[tclass] or 0) + (ns.PlayerHasAppearance(itemLinkOrID) and 1 or 0)
+                end
             end
         end
         for tclass, count in pairs(counts) do
@@ -447,7 +470,7 @@ function ns:ShowItem(link, for_tooltip)
         local model, cameraID
         local isHeld = self.slot_held[slot]
         local shouldZoom = (db.zoomWorn and not isHeld) or (db.zoomHeld and isHeld)
-        local appearanceID = C_TransmogCollection.GetItemInfo(link) or C_TransmogCollection.GetItemInfo(id)
+        local appearanceID = ns.GetTransmogInfo(link)
 
         if shouldZoom then
             cameraID = appearanceID and C_TransmogCollection.GetAppearanceCameraID(appearanceID)
@@ -575,14 +598,14 @@ function ns:ShowItem(link, for_tooltip)
     end
 
     classwarning:Hide()
-    known:Hide()
+    modelLabel:Hide()
 
+    local label
     if db.notifyKnown then
         local hasAppearance, appearanceFromOtherItem, probablyEnsemble = ns.PlayerHasAppearance(link)
 
-        local label
         if not ns.CanTransmogItem(link) and not probablyEnsemble then
-            label = "|c00ffff00" .. TRANSMOGRIFY_INVALID_DESTINATION
+            label = "|c00ffff00" .. TRANSMOGRIFY_INVALID_DESTINATION .. "|r"
         else
             if hasAppearance then
                 if appearanceFromOtherItem then
@@ -591,18 +614,23 @@ function ns:ShowItem(link, for_tooltip)
                     label = "|TInterface\\RaidFrame\\ReadyCheck-Ready:0|t " .. TRANSMOGRIFY_TOOLTIP_APPEARANCE_KNOWN
                 end
             else
-                label = "|TInterface\\RaidFrame\\ReadyCheck-NotReady:0|t |cffff0000" .. TRANSMOGRIFY_TOOLTIP_APPEARANCE_UNKNOWN
+                label = "|TInterface\\RaidFrame\\ReadyCheck-NotReady:0|t |cffff0000" .. TRANSMOGRIFY_TOOLTIP_APPEARANCE_UNKNOWN .. "|r"
             end
             classwarning:SetShown(not appropriateItem and not probablyEnsemble)
         end
-        if setID then
-            local setName = C_Item.GetItemSetInfo(setID)
-            if setName then
-                label = label .. '|r\n' .. ITEM_SET_BONUS:format(setName)
-            end
+    end
+    if token then
+        label = label .. "\n" .. string.gsub(link, "[%[%]]", "")
+    end
+    if setID then
+        local setName = C_Item.GetItemSetInfo(setID)
+        if setName then
+            label = label .. '\n' .. ITEM_SET_BONUS:format(setName)
         end
-        known:SetText(label)
-        known:Show()
+    end
+    if label then
+        modelLabel:SetText(label)
+        modelLabel:Show()
     end
 end
 function ns:ShowTooltip(for_tooltip)
@@ -713,6 +741,7 @@ ns.modifiers = {
 -- Utility fun
 
 --/dump C_Transmog.CanTransmogItem(C_Item.GetItemInfoInstant(""))
+--/dump C_TransmogCollection.GetSourceInfo(select(2, C_TransmogCollection.GetItemInfo("")))
 function ns.CanTransmogItem(itemLink)
     local itemID = C_Item.GetItemInfoInstant(itemLink)
     if itemID then
@@ -720,14 +749,22 @@ function ns.CanTransmogItem(itemLink)
             local canBeChanged, noChangeReason, canBeSource, noSourceReason = C_Transmog.CanTransmogItem(itemID)
             return canBeSource, noSourceReason
         else
-            -- Midnight
-            local appearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemLink)
-            if sourceID then
-                local info = C_TransmogCollection.GetSourceInfo(sourceID)
-                return info and (info.playerCanCollect or info.isCollected or info.canDisplayOnPlayer) -- info.isValidSourceForPlayer also exists, seems to be whether the player could actually transmog it
+            -- Midnight; it *seems* that anything which this function returns
+            -- data for is usable as a transmog source now. Checked on
+            -- Warglaive of Azzinoth (32837) which returns nil.
+            -- 2026/1/23: Apart from Legion artifacts, but they've always been
+            -- weird and might be bugged at the moment anyway.
+            if ns.GetTransmogInfo(itemLink) then
+                return true
+            end
+            -- sometimes this doesn't return info for valid items, but
+            -- anything you have the transmog for *must* be transmoggable...
+            if PlayerHasTransmogByItemInfo(itemLink) then
+                return true
             end
         end
     end
+    return nil, 'NO_ITEM'
 end
 
 local brokenItems = {
@@ -737,6 +774,25 @@ local brokenItems = {
     [153268] = {25124, 90807}, -- Enclave Aspirant's Axe
     [153316] = {25123, 90885}, -- Praetor's Ornamental Edge
 }
+function ns.GetTransmogInfo(itemLinkOrID)
+    local appearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemLinkOrID)
+    if appearanceID then
+        return appearanceID, sourceID
+    end
+    local itemID = C_Item.GetItemInfoInstant(itemLinkOrID)
+    if itemID then
+        -- sometimes the link won't actually give us an appearance, but itemID will
+        -- e.g. mythic Drape of Iron Sutures from Shadowmoon Burial Grounds
+        appearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemLinkOrID)
+        if appearanceID then
+            return appearanceID, sourceID
+        end
+        if brokenItems[itemID] then
+            -- ...and there's a few that just need to be hardcoded
+            return unpack(brokenItems[itemID])
+        end
+    end
+end
 -- /dump C_TransmogCollection.GetAppearanceSourceInfo(select(2, C_TransmogCollection.GetItemInfo("")))
 -- /dump C_TransmogCollection.GetAppearanceInfoBySource(select(2, C_TransmogCollection.GetItemInfo("")))
 function ns.PlayerHasAppearance(itemLinkOrID)
@@ -778,17 +834,16 @@ function ns.PlayerHasAppearance(itemLinkOrID)
             return false, false, true
         end
     end
-    local appearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemLinkOrID)
+    local appearanceID, sourceID = ns.GetTransmogInfo(itemLinkOrID)
     if not appearanceID then
-        -- sometimes the link won't actually give us an appearance, but itemID will
-        -- e.g. mythic Drape of Iron Sutures from Shadowmoon Burial Grounds
-        appearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemID)
+        if PlayerHasTransmogByItemInfo(itemLinkOrID) then
+            -- avoid more detailed checks if possible; we don't do
+            -- this *first* because it sometimes gets it wrong with items
+            -- that have variants based on link bonuses
+            return true, false
+        end
+        return
     end
-    if not appearanceID and brokenItems[itemID] then
-        -- ...and there's a few that just need to be hardcoded
-        appearanceID, sourceID = unpack(brokenItems[itemID])
-    end
-    if not appearanceID then return end
     -- /dump C_TransmogCollection.PlayerHasTransmogItemModifiedAppearance(C_TransmogCollection.GetItemInfo(""))
     local fromCurrentItem = C_TransmogCollection.PlayerHasTransmogItemModifiedAppearance(sourceID)
     if fromCurrentItem then
