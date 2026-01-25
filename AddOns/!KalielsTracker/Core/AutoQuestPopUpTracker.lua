@@ -146,7 +146,7 @@ function KT_AutoQuestPopupBlockMixin:UpdateExclamationIcon(itemID, popUpType)
 	if texture then
 		icon:SetTexCoord(0.078125, 0.921875, 0.078125, 0.921875);
 		icon:SetSize(35, 35);
-		SetPortraitToTexture(icon, texture);
+		icon:SetTexture(texture);
 	else
 		icon:SetTexture("Interface\\QuestFrame\\AutoQuest-Parts");
 		icon:SetTexCoord(0.13476563, 0.17187500, 0.01562500, 0.53125000);

@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -42,7 +42,7 @@ local function Masque_Callback(self, option, value)
 end
 
 local function Masque_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Masque", "11.2.9") and db.addonMasque)
+    local isLoaded = (KT:CheckAddOn("Masque", "11.2.10") and db.addonMasque)
     if isLoaded then
         KT:Alert_IncompatibleAddon("Masque", "11.0.1")
         msqGroup[1] = MSQ:Group(KT.TITLE, "Quest Item Buttons")
@@ -53,7 +53,7 @@ end
 
 -- Auctionator
 local function Auctionator_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Auctionator", "306") and db.addonAuctionator)
+    local isLoaded = (KT:CheckAddOn("Auctionator", "312") and db.addonAuctionator)
     if isLoaded then
         hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
             local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame
@@ -66,24 +66,22 @@ end
 
 -- BtWQuests
 local function BtWQuests_SetSupport()
-    local isLoaded = (KT:CheckAddOn("BtWQuests", "2.58.0") and db.addonBtWQuests)
+    local isLoaded = (KT:CheckAddOn("BtWQuests", "2.60.0") and db.addonBtWQuests)
     if isLoaded then
         local function MenuUpdate(_, info, type, questID)
             if type ~= "quest" then return end
             local item = BtWQuestsDatabase:GetQuestItem(questID, BtWQuestsCharacters:GetPlayer())
             if item then
                 if not info.KTmenuExtended then
-                    MSA_DropDownMenu_AddSeparator(info)
+                    KT.Menu_AddSeparator()
                     info.KTmenuExtended = true
                 end
 
-                info.text = "|cff33ff99BtWQ|r - "..BtWQuests.L["BTWQUESTS_OPEN_QUEST_CHAIN"]
-                info.func = function()
+                KT.Menu_AddButton("|cff33ff99BtWQ|r - "..BtWQuests.L["BTWQUESTS_OPEN_QUEST_CHAIN"], function()
                     BtWQuestsFrame:SelectCharacter(UnitName("player"), GetRealmName())
                     BtWQuestsFrame:SelectItem(item.item)
                     BtWQuestsFrame:SelectItem(item.item)
-                end
-                MSA_DropDownMenu_AddButton(info)
+                end)
             end
         end
         KT:RegSignal("CONTEXT_MENU_UPDATE", MenuUpdate, BtWQuests)

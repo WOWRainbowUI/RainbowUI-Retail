@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -38,18 +38,11 @@ local textures = { "None", "Default (Blizzard)", "One line", "Two lines" }
 local modifiers = { [""] = "None", ["ALT"] = "Alt", ["CTRL"] = "Ctrl", ["ALT-CTRL"] = "Alt + Ctrl" }
 local SOUND_CHANNELS = { "Master", "Music", "SFX", "Ambience" }
 local SOUND_CHANNELS_LOCALIZED = { Master = "Master", Music = MUSIC_VOLUME, SFX = FX_VOLUME, Ambience = AMBIENCE_VOLUME }
-local VISIBILITY_CONTEXTS = { "world", "city", "house", "dungeon", "mythicplus", "raid", "arena", "battleground", "petbattle", "rare" }
-local VISIBILITY_CONTEXTS_LOCALIZED = { world = "World", city = "City", house = "House", dungeon = "Dungeon", mythicplus = "Mythic+", raid = "Raid", arena = "Arena", battleground = "Battleground", petbattle = "Pet Battle", rare = "Rare NPC" }
 local VISIBILITY_OPTIONS = { "show", "hide", "expand", "collapse" }
 local VISIBILITY_OPTIONS_LOCALIZED = { show = "Show", hide = "Hide", expand = "Show + Expand", collapse = "Show + Collapse" }
 local realmZones = { ["EU"] = "Europe", ["NA"] = "North America" }
-local KEYBINDINGS = {
-	keyBindCollapse = { frameName = addonName.."MinimizeButton" },
-	keyBindHide = { frameName = "KT_BindingButton" },
-	keyBindClosestQuest = { frameName = addonName.."MinimizeButton", mouse = "RightButton" },
-	EXTRAACTIONBUTTON1 = false
-}
 local ICON_HEART = "|T"..KT.MEDIA_PATH.."Help\\help_patreon:14:14:0:0:256:32:174:190:0:16|t"
+local defaults
 
 local cTitle = " "..NORMAL_FONT_COLOR_CODE
 local cBold = "|cff00ffe3"
@@ -65,115 +58,6 @@ local OTF = KT_ObjectiveTrackerFrame
 local KTSetHeight = KTF.SetHeight
 
 local MoveModule, SetSharedColor, IsSpecialLocale, Keybind  -- functions
-
-local defaults = {
-	profile = {
-		anchorPoint = "TOPRIGHT",
-		xOffset = -115,
-		yOffset = -280,
-		width = 305,
-		maxHeight = 600,
-		frameScale = 1,
-		frameStrata = "LOW",
-		frameScrollbar = true,
-		
-		bgr = "Solid",
-		bgrColor = { r=0, g=0, b=0, a=0.7 },
-		border = "None",
-		borderColor = KT.TRACKER_DEFAULT_COLOR,
-		classBorder = false,
-		borderAlpha = 1,
-		borderThickness = 16,
-		bgrInset = 4,
-		progressBar = "Blizzard",
-
-		font = LSM:GetDefault("font"),
-		fontSize = 12,
-		fontFlag = "",
-		fontShadow = 1,
-		colorDifficulty = false,
-		textWordWrap = false,
-		objNumSwitch = false,
-
-		hdrBgr = 2,
-		hdrBgrColor = KT.TRACKER_DEFAULT_COLOR,
-		hdrBgrColorShare = false,
-		hdrTxtColor = KT.TRACKER_DEFAULT_COLOR,
-		hdrTxtColorShare = false,
-		hdrBtnColor = KT.TRACKER_DEFAULT_COLOR,
-		hdrBtnColorShare = false,
-		hdrQuestsTitleAppend = true,
-		hdrAchievsTitleAppend = true,
-		hdrPetTrackerTitleAppend = true,
-		hdrTrackerBgrShow = true,
-		hdrCollapsedTxt = 2,
-		hdrOtherButtons = true,
-
-		qiBgrBorder = false,
-		qiXOffset = -5,
-		qiActiveButton = true,
-		qiActiveButtonBindingShow = true,
-
-		hideEmptyTracker = false,
-
-		tooltipShow = true,
-		tooltipShowRewards = true,
-		tooltipShowID = true,
-        menuWowheadURL = true,
-        menuWowheadURLModifier = "",
-		menuYouTubeURL = true,
-		menuYouTubeURLModifier = "",
-        questDefaultActionMap = true,
-		questShowTags = true,
-		questShowZones = true,
-		taskShowFactions = true,
-		questAutoFocusClosest = false,
-
-		messageQuest = true,
-		messageAchievement = true,
-		sink20OutputSink = "UIErrorsFrame",
-		sink20Sticky = false,
-		soundChannel = "Master",
-		soundQuest = true,
-		soundQuestComplete = "KT - Default",
-
-		modulesOrder = KT.MODULES,
-
-		addonMasque = false,
-		addonPetTracker = false,
-		addonTomTom = false,
-		addonRareScanner = false,
-		addonAuctionator = false,
-		addonBtWQuests = false,
-
-		hackLFG = true,
-		hackWorldMap = true,
-	},
-	char = {
-		collapsed = false,
-		quests = {
-			num = 0,
-			favorites = {},
-			cache = {}
-		},
-		achievements = {
-			favorites = {}
-		},
-		waypoint = {
-			mapID = 0,
-			id = 0,
-			type = nil
-		}
-	}
-}
-for cmd, int in pairs(KEYBINDINGS) do
-	if int then
-		defaults.profile[cmd] = ""
-	end
-end
-for _, ctx in ipairs(VISIBILITY_CONTEXTS) do
-	defaults.profile["visibility"..ctx] = "show"
-end
 
 -- Edit Mode - Mover
 local moverOptions
@@ -355,7 +239,9 @@ moverOptions = {
 				},
 				xOffset = {
 					name = "X offset",
-					desc = "Horizontal position\n- Default: "..defaults.profile.xOffset.."\n- Step: 1",
+					desc = function()
+						return "Horizontal position\n- Default: "..defaults.profile.xOffset.."\n- Step: 1"
+					end,
 					type = "range",
 					min = 0,
 					max = 0,
@@ -369,7 +255,9 @@ moverOptions = {
 				},
 				yOffset = {
 					name = "Y offset",
-					desc = "Vertical position\n- Default: "..defaults.profile.yOffset.."\n- Step: 1",
+					desc = function()
+						return "Vertical position\n- Default: "..defaults.profile.yOffset.."\n- Step: 1"
+					end,
 					type = "range",
 					min = 0,
 					max = 0,
@@ -385,10 +273,12 @@ moverOptions = {
 				},
 				width = {
 					name = "Width",
-					desc = "- Default: "..defaults.profile.width.."\n- Step: 1",
+					desc = function()
+						return "- Default: "..defaults.profile.width.."\n- Step: 1"
+					end,
 					type = "range",
-					min = defaults.profile.width,
-					max = defaults.profile.width,
+					min = function() return defaults.profile.width end,
+					max = function() return defaults.profile.width end,
 					step = 1,
 					disabled = true,
 					set = function(_, value)
@@ -400,7 +290,9 @@ moverOptions = {
 				},
 				maxHeight = {
 					name = "Max. height",
-					desc = "- Default: "..defaults.profile.maxHeight.."\n- Step: 1",
+					desc = function()
+						return "- Default: "..defaults.profile.maxHeight.."\n- Step: 1"
+					end,
 					type = "range",
 					min = 130,
 					max = 130,
@@ -422,7 +314,9 @@ moverOptions = {
 				},
 				frameScale = {
 					name = "Scale",
-					desc = "- Default: "..defaults.profile.frameScale.."\n- Step: 0.001",
+					desc = function()
+						return "- Default: "..defaults.profile.frameScale.."\n- Step: 0.001"
+					end,
 					type = "range",
 					min = 0.4,
 					max = 1.7,
@@ -454,7 +348,9 @@ moverOptions = {
 				},
 				frameStrata = {
 					name = "Strata",
-					desc = "- Default: "..defaults.profile.frameStrata,
+					desc = function()
+						return "- Default: "..defaults.profile.frameStrata
+					end,
 					type = "select",
 					values = strata,
 					get = function()
@@ -475,12 +371,8 @@ moverOptions = {
 	},
 }
 KT.EditMode = KT:EditMode_Create(addonName, moverOptions, "tracker", 440, 420)
-
-local function EditMode_Enter()
-	if not KT.InCombatBlocked() then
-		KT.EditMode:ShowMover()
-		KT.EditMode:OpenOptions()
-	end
+KT.EditMode.OnOpen = function()
+    KT:SetHidden(false)
 end
 
 -- Options
@@ -573,7 +465,9 @@ local options = {
 							name = "Edit Mode",
 							desc = "Unlock addon UI elements.",
 							type = "execute",
-							func = EditMode_Enter,
+							func = function()
+                                KT.EditMode:Open()
+                            end,
 							order = 1,
 						},
 						editModeNote = {
@@ -686,7 +580,9 @@ local options = {
 						},
 						borderAlpha = {
 							name = "Border transparency",
-							desc = "- Default: "..defaults.profile.borderAlpha.."\n- Step: 0.05",
+							desc = function()
+								return "- Default: "..defaults.profile.borderAlpha.."\n- Step: 0.05"
+							end,
 							type = "range",
 							min = 0.1,
 							max = 1,
@@ -699,7 +595,9 @@ local options = {
 						},
 						borderThickness = {
 							name = "Border thickness",
-							desc = "- Default: "..defaults.profile.borderThickness.."\n- Step: 0.5",
+							desc = function()
+								return "- Default: "..defaults.profile.borderThickness.."\n- Step: 0.5"
+							end,
 							type = "range",
 							min = 1,
 							max = 24,
@@ -712,7 +610,9 @@ local options = {
 						},
 						bgrInset = {
 							name = "Background inset",
-							desc = "- Default: "..defaults.profile.bgrInset.."\n- Step: 0.5",
+							desc = function()
+								return "- Default: "..defaults.profile.bgrInset.."\n- Step: 0.5"
+							end,
 							type = "range",
 							min = 0,
 							max = 10,
@@ -1819,7 +1719,7 @@ local options = {
 							order = 4.1,
 						},
 						addonRareScannerDesc = {
-							name = beta.." Enables display of detected Rare NPCs inside the tracker.",
+							name = "Enables display of detected Rare NPCs inside the tracker.",
 							type = "description",
 							width = "double",
 							order = 4.2,
@@ -1947,7 +1847,7 @@ local options = {
 									"restricted functions. When the hack is inactive, the World Map display causes errors. "..
 									"It is not possible to get rid of these errors, since the tracker has a lot of interaction "..
 									"with the game frames.\n\n"..
-									cWarning2.."Negative impacts:|r unknown in WoW 11.2.7\n",
+									cWarning2.."Negative impacts:|r unknown in WoW 12.0.0\n",
 							descStyle = "inline",
 							type = "toggle",
 							width = "full",
@@ -1980,6 +1880,7 @@ function KT:CheckAddOn(addon, version, isUI)
 	if C_AddOns.IsAddOnLoaded(addon) then
 		local actualVersion = C_AddOns.GetAddOnMetadata(addon, "Version") or "unknown"
 		actualVersion = gsub(actualVersion, "(.*%S)%s+", "%1")
+		self.T_Set(addon, actualVersion, "supportedAddons")
 		ver = isUI and "  -  " or ""
 		ver = (ver.."|cff%s"..actualVersion.."|r"):format(actualVersion == version and "00d200" or "ff0000")
 		result = true
@@ -1998,7 +1899,7 @@ end
 
 function KT:OpenOptions()
 	if self.optionsFrame and not EditModeManagerFrame:IsEditModeActive() then
-		Settings.OpenToCategory(self.optionsFrame.general.name, true)
+		Settings.OpenToCategory(self.optionsFrame.general.name, self.TITLE)
 	end
 end
 
@@ -2011,13 +1912,13 @@ local function Visibility_ShowActiveContext(_, contexts)
 	local sep = "|r  |cff808080>|r  "
 	local opt = controls.args.sec3.args
 
-	for _, ctx in ipairs(VISIBILITY_CONTEXTS) do
+	for _, ctx in ipairs(KT.VISIBILITY_CONTEXTS) do
 		local prefix = " "
 		local suffix = ctx == "dungeon" and "|r *" or "|r"
 		if ctx == contexts[1] then
 			prefix = prefix..color
 		end
-		opt["visibility"..ctx.."Label"].name = prefix..VISIBILITY_CONTEXTS_LOCALIZED[ctx]..suffix
+		opt["visibility"..ctx.."Label"].name = prefix..KT.VISIBILITY_CONTEXTS_LOCALIZED[ctx]..suffix
 	end
 
 	local text = " "..color
@@ -2025,7 +1926,7 @@ local function Visibility_ShowActiveContext(_, contexts)
 		if i > 1 then
 			text = text..sep
 		end
-		text = text..VISIBILITY_CONTEXTS_LOCALIZED[ctx]
+		text = text..KT.VISIBILITY_CONTEXTS_LOCALIZED[ctx]
 	end
 	opt.activeContext.name = text
 
@@ -2033,10 +1934,10 @@ local function Visibility_ShowActiveContext(_, contexts)
 end
 
 local function Visibility_CreateContextOptions(args)
-	for i, ctx in ipairs(VISIBILITY_CONTEXTS) do
+	for i, ctx in ipairs(KT.VISIBILITY_CONTEXTS) do
 		local name = "visibility"..ctx
 		args[name.."Label"] = {
-			name = " "..VISIBILITY_CONTEXTS_LOCALIZED[ctx]..(ctx == "dungeon" and " *" or ""),
+			name = " "..KT.VISIBILITY_CONTEXTS_LOCALIZED[ctx]..(ctx == "dungeon" and " *" or ""),
 			type = "description",
 			width = 0.7,
 			fontSize = "medium",
@@ -2159,14 +2060,9 @@ function IsSpecialLocale()
 			KT.LOCALE == "ruRU")
 end
 
-local function Init()
-	KT.db = LibStub("AceDB-3.0"):New(strsub(addonName, 2).."DB", defaults, true)
-	KT.options = options
-	db = KT.db.profile
-	dbChar = KT.db.char
-end
-
 local function Setup()
+	KT.options = options
+
 	local opt = general.args.sec2.args
 	opt.classBorder.name = opt.classBorder.name:format(KT.RgbToHex(KT.classColor))
 
@@ -2226,13 +2122,14 @@ local function Setup()
 
 	ACR:RegisterOptionsTable(addonName, options, true)
 
+	local parentID
 	KT.optionsFrame = {}
-	KT.optionsFrame.general = ACD:AddToBlizOptions(addonName, KT.TITLE, nil, "general")
-	KT.optionsFrame.controls = ACD:AddToBlizOptions(addonName, controls.name, KT.TITLE, "controls")
-	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, modules.name, KT.TITLE, "modules")
-	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, addons.name, KT.TITLE, "addons")
-	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, hacks.name, KT.TITLE, "hacks")
-	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, profiles.name, KT.TITLE, "profiles")
+	KT.optionsFrame.general, parentID = ACD:AddToBlizOptions(addonName, KT.TITLE, nil, "general")
+	KT.optionsFrame.controls = ACD:AddToBlizOptions(addonName, controls.name, parentID, "controls")
+	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, modules.name, parentID, "modules")
+	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, addons.name, parentID, "addons")
+	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, hacks.name, parentID, "hacks")
+	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, profiles.name, parentID, "profiles")
 
 	KT.db.RegisterCallback(KT, "OnProfileChanged", "InitProfile")
 	KT.db.RegisterCallback(KT, "OnProfileCopied", "InitProfile")
@@ -2313,7 +2210,7 @@ local function SetupModules()
 end
 
 local function ActivateBinding()
-	for cmd, data in pairs(KEYBINDINGS) do
+	for cmd, data in pairs(KT.KEYBINDINGS) do
 		if data and db[cmd] ~= "" then
 			SetOverrideBindingClick(KTF, false, db[cmd], data.frameName, data.mouse)
 		end
@@ -2322,7 +2219,7 @@ end
 
 function Keybind(key, command)
 	local needSave = false
-	for cmd, data in pairs(KEYBINDINGS) do
+	for cmd, data in pairs(KT.KEYBINDINGS) do
 		if data then
 			if db[cmd] == key then
 				SetOverrideBinding(KTF, false, db[cmd], nil)
@@ -2335,7 +2232,7 @@ function Keybind(key, command)
 		end
 	end
 
-	local data = KEYBINDINGS[command]
+	local data = KT.KEYBINDINGS[command]
 	if data then
 		SetOverrideBinding(KTF, false, db[command], nil)
 		if key ~= "" then
@@ -2362,7 +2259,9 @@ end
 
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
-	Init()
+	defaults = KT.db.defaults
+	db = KT.db.profile
+	dbChar = KT.db.char
     self.isAvailable = true
 
     db.questAutoFocusClosest = false

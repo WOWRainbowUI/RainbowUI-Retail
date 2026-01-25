@@ -207,6 +207,7 @@ function KT.ObjectiveTrackerManager:OnPlayerEnteringWorld(isInitialLogin, isRelo
 			KT_AdventureObjectiveTracker,
 			KT_AchievementObjectiveTracker,
 			KT_MonthlyActivitiesObjectiveTracker,
+			KT_InitiativeTasksObjectiveTracker,
 			KT_ProfessionsRecipeTracker,
 			KT_BonusObjectiveTracker,
 			KT_WorldQuestObjectiveTracker,

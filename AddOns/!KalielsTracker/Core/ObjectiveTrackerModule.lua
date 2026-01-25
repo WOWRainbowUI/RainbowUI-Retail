@@ -71,6 +71,7 @@ function KT_ObjectiveTrackerModuleMixin:SetContainer(container)
 
 	if not self.init then
 		self.init = true;
+        self.name = self:GetName()  -- MSA
 		-- register events
 		if self.events then
 			for i, event in ipairs(self.events) do

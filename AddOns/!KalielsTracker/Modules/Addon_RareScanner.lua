@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -323,7 +323,7 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-    self.isAvailable = (KT:CheckAddOn("RareScanner", "11.2.7.3") and db.addonRareScanner)
+    self.isAvailable = (KT:CheckAddOn("RareScanner", "12.0.0.3") and db.addonRareScanner)
 
 	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("RareScanner", "11.2.0.11")

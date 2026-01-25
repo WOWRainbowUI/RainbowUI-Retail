@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -200,65 +200,44 @@ local function SetFrames()
 end
 
 local function FilterMenuUpdate(self, info, level)
-	if level == 1 then
-		MSA_DropDownMenu_AddSeparator(info)
+	if MSA_DROPDOWNMENU_MENU_LEVEL == 1 then
+		KT.Menu_AddSeparator()
 
-		info.text = PETS
-		info.isTitle = true
-		MSA_DropDownMenu_AddButton(info)
-
-		info.isTitle = false
-		info.disabled = false
+		KT.Menu_AddTitle(PETS)
 		info.notCheckable = false
 
-		info.text = texts.TrackPets
-		info.checked = (PetTracker.sets.zoneTracker)
-		info.func = function()
+		KT.Menu_AddCheck(texts.TrackPets, { PetTracker.sets, "zoneTracker" }, function()
 			PetTracker.ToggleOption("zoneTracker")
 			if KT:IsCollapsed() and PetTracker.sets.zoneTracker then
 				KT:MinimizeButton_OnClick()
 			end
-		end
-		MSA_DropDownMenu_AddButton(info)
+		end)
 
-		info.text = texts.CapturedPets
-		info.checked = (PetTracker.sets.capturedPets)
-		info.func = function()
+		info.keepShownOnClick = true
+
+		KT.Menu_AddCheck(texts.CapturedPets, { PetTracker.sets, "capturedPets" }, function()
 			PetTracker.ToggleOption("capturedPets")
-		end
-		MSA_DropDownMenu_AddButton(info)
+		end)
 
 		info.notCheckable = true
 
-		info.text = texts.DisplayCondition
-		info.keepShownOnClick = true
 		info.hasArrow = true
 		info.value = 3
 		info.func = nil
-		MSA_DropDownMenu_AddButton(info)
-	elseif level == 2 then
+		KT.Menu_AddButton(texts.DisplayCondition)
+	elseif MSA_DROPDOWNMENU_MENU_LEVEL == 2 then
 		if MSA_DROPDOWNMENU_MENU_VALUE == 3 then
+			info.keepShownOnClick = true
 			info.notCheckable = false
 			info.isNotRadio = false
-			info.func = function(_, arg)
+			info.func = function(obj, arg)
 				PetTracker.SetOption("targetQuality", arg)
-				KT:Filter_DropDown_Toggle()
+				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
 			end
 
-			info.text = texts.DisplayAlways
-			info.arg1 = PetTracker.MaxQuality
-			info.checked = (PetTracker.sets.targetQuality == info.arg1)
-			MSA_DropDownMenu_AddButton(info, level)
-
-			info.text = texts.DisplayMissingRares
-			info.arg1 = PetTracker.MaxPlayerQuality
-			info.checked = (PetTracker.sets.targetQuality == info.arg1)
-			MSA_DropDownMenu_AddButton(info, level)
-
-			info.text = texts.DisplayMissingPets
-			info.arg1 = 1
-			info.checked = (PetTracker.sets.targetQuality == info.arg1)
-			MSA_DropDownMenu_AddButton(info, level)
+			KT.Menu_AddRadio(texts.DisplayAlways, { PetTracker.sets, "targetQuality" }, PetTracker.MaxQuality)
+			KT.Menu_AddRadio(texts.DisplayMissingRares, { PetTracker.sets, "targetQuality" }, PetTracker.MaxPlayerQuality)
+			KT.Menu_AddRadio(texts.DisplayMissingPets, { PetTracker.sets, "targetQuality" }, 1)
 		end
 	end
 end
@@ -318,7 +297,7 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-    self.isAvailable = (KT:CheckAddOn("PetTracker", "11.2.7") and db.addonPetTracker)
+    self.isAvailable = (KT:CheckAddOn("PetTracker", "12.0.0") and db.addonPetTracker)
 
 	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("PetTracker", "11.1.10")

@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -79,7 +79,7 @@ local function SetupOptions()
 			},
 		}
 
-		KT.optionsFrame.tomtom = ACD:AddToBlizOptions(addonName, "Addon - "..KT.options.args.tomtom.name, KT.TITLE, "tomtom")
+		KT.optionsFrame.tomtom = ACD:AddToBlizOptions(addonName, "Addon - "..KT.options.args.tomtom.name, KT.optionsFrame.general.name, "tomtom")
 	end
 
 	-- Reverts the option to display Quest Objectives
@@ -722,7 +722,7 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-    self.isAvailable = (KT:CheckAddOn("TomTom", "v4.2.8-release") and db.addonTomTom)
+    self.isAvailable = (KT:CheckAddOn("TomTom", "v4.2.15-release") and db.addonTomTom)
 
 	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("TomTom", "v4.1.2-release")

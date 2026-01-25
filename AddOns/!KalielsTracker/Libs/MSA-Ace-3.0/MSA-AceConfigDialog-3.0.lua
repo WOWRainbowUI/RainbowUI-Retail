@@ -7,7 +7,7 @@ local LibStub = LibStub
 local gui = LibStub("AceGUI-3.0")
 local reg = LibStub("AceConfigRegistry-3.0")
 
-local MAJOR, MINOR = "MSA-AceConfigDialog-3.0", 86  -- MSA
+local MAJOR, MINOR = "MSA-AceConfigDialog-3.0", 89  -- MSA
 local AceConfigDialog, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceConfigDialog then return end
@@ -146,7 +146,7 @@ local stringIsLiteral = {
 	width = true,
 	image = true,
 	fontSize = true,
-	tooltipHyperlink = true,
+	tooltipHyperlink = true
 }
 
 --Is Never a function or method
@@ -517,7 +517,7 @@ local function OptionOnMouseOver(widget, event)
 
 	if descStyle and descStyle ~= "tooltip" then return end
 
-	GameTooltip:SetText(name, 1, .82, 0, true)
+	GameTooltip:SetText(name, 1, .82, 0, 1, true)
 
 	if opt.type == "multiselect" then
 		GameTooltip:AddLine(user.text, 0.5, 0.5, 0.8, true)
@@ -526,7 +526,7 @@ local function OptionOnMouseOver(widget, event)
 		GameTooltip:AddLine(desc, 1, 1, 1, true)
 	end
 	if type(usage) == "string" then
-		GameTooltip:AddLine("Usage: "..usage, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, true)
+		GameTooltip:AddLine(usage, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, true)
 	end
 
 	GameTooltip:Show()
@@ -1165,8 +1165,11 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 						end
 					end
 				elseif v.type == "range" then
-					control = CreateControl(v.dialogControl or v.control, "MSA-Slider")
+					control = CreateControl(v.dialogControl or v.control, "MSA-Slider")  -- MSA
 					control:SetLabel(name)
+					v.min = GetOptionsMemberValue("min", v, options, path, appName)    -- MSA
+					v.max = GetOptionsMemberValue("max", v, options, path, appName)    -- MSA
+					v.step = GetOptionsMemberValue("step", v, options, path, appName)  -- MSA
 					control:SetSliderValues(v.softMin or v.min or 0, v.softMax or v.max or 100, v.bigStep or v.step or 0)
 					control:SetIsPercent(v.isPercent)
 					control:SetIsRaw(v.isRaw)  -- MSA
@@ -1476,7 +1479,7 @@ local function TreeOnButtonEnter(widget, event, uniquevalue, button)
 		GameTooltip:SetPoint("LEFT",button,"RIGHT")
 	end
 
-	GameTooltip:SetText(name, 1, .82, 0, true)
+	GameTooltip:SetText(name, 1, .82, 0, 1, true)
 
 	if type(desc) == "string" then
 		GameTooltip:AddLine(desc, 1, 1, 1, true)
@@ -2003,8 +2006,8 @@ function AceConfigDialog:AddToBlizOptions(appName, name, parent, ...)
 				local category = Settings.RegisterCanvasLayoutCategory(group.frame, categoryName)
 				-- using appName here would be cleaner, but would not be 100% compatible
 				-- but for top-level categories it should be fine, as these are typically addon names
-				category.ID = categoryName
-				group:SetName(categoryName, parent)
+				-- MSA - for 12.x.x changed to the same behavior as subcategories
+				group:SetName(category.ID, parent)
 				Settings.RegisterAddOnCategory(category)
 			end
 		else

@@ -40,6 +40,8 @@
     <Include file="ObjectiveTrackerUIWidgetContainer.xml"/>
     <Script file="WorldQuestObjectiveTracker.lua"/>
     <Include file="WorldQuestObjectiveTracker.xml"/>
+    <Script file="InitiativeTasksObjectiveTracker.lua"/>
+    <Include file="InitiativeTasksObjectiveTracker.xml"/>
 
     <Script file="ObjectiveTracker.lua"/>
     <Include file="ObjectiveTracker.xml"/>

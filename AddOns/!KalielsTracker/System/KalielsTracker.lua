@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -973,7 +973,7 @@ local function SetHooks()
 			GameTooltip:Hide()
 		end
 	end
-	Default_SetChangedMixin("OnBlockHeaderLeave", "KT_QuestObjectiveTracker", "KT_CampaignQuestObjectiveTracker", "KT_AchievementObjectiveTracker", "KT_MonthlyActivitiesObjectiveTracker", "KT_ProfessionsRecipeTracker")
+	Default_SetChangedMixin("OnBlockHeaderLeave", "KT_QuestObjectiveTracker", "KT_CampaignQuestObjectiveTracker", "KT_AchievementObjectiveTracker", "KT_MonthlyActivitiesObjectiveTracker", "KT_InitiativeTasksObjectiveTracker", "KT_ProfessionsRecipeTracker")
 
 	function KT_BonusObjectiveBlockMixin:TryShowRewardsTooltip()  -- R
 		if db.tooltipShow then
@@ -1017,41 +1017,89 @@ local function SetHooks()
 	end
 
 	function KT_MonthlyActivitiesObjectiveTracker:OnBlockHeaderEnter(block)
-		if db.tooltipShow then
-			local activityInfo = C_PerksActivities.GetPerksActivityInfo(block.id)
-			if activityInfo then
-				TooltipPosition(block)
+        if not db.tooltipShow then return end
 
-				GameTooltip_SetTitle(GameTooltip, activityInfo.activityName, NORMAL_FONT_COLOR, true)
-				GameTooltip:AddLine(" ")
+        local info = C_PerksActivities.GetPerksActivityInfo(block.id)
+        if not info then return end
 
-				if activityInfo.description ~= "" then
-					GameTooltip:AddLine(activityInfo.description, 1, 1, 1, true)
-					GameTooltip:AddLine(" ")
-				end
+        TooltipPosition(block)
 
-				GameTooltip:AddLine(REQUIREMENTS..":")
-				for _, requirement in ipairs(activityInfo.requirementsList) do
-					local tooltipLine = requirement.requirementText
-					tooltip4Line = string.gsub(tooltipLine, " / ", "/")
-					local color = not requirement.completed and WHITE_FONT_COLOR or DISABLED_FONT_COLOR
-					GameTooltip:AddLine(tooltipLine, color.r, color.g, color.b)
-				end
+        GameTooltip_SetTitle(GameTooltip, info.activityName, NORMAL_FONT_COLOR)
+        GameTooltip:AddLine(" ")
 
-				if db.tooltipShowRewards then
-					GameTooltip:AddLine(" ")
-					GameTooltip:AddLine(REWARDS..":")
-					GameTooltip:AddLine(FormatLargeNumber(activityInfo.thresholdContributionAmount).." "..MONTHLY_ACTIVITIES_POINTS, 1, 1, 1)
-				end
+        if info.description ~= "" then
+            GameTooltip:AddLine(info.description, 1, 1, 1, true)
+            GameTooltip:AddLine(" ")
+        end
 
-				if db.tooltipShowID then
-					GameTooltip:AddLine(" ")
-					GameTooltip:AddDoubleLine(" ", "ID: |cffffffff"..block.id)
-				end
-				GameTooltip:Show()
-			end
-		end
-	end
+        GameTooltip:AddLine(REQUIREMENTS..":")
+        for _, requirement in ipairs(info.requirementsList) do
+            local tooltipLine = requirement.requirementText
+            tooltipLine = string.gsub(tooltipLine, " / ", "/")
+            local color = not requirement.completed and WHITE_FONT_COLOR or DISABLED_FONT_COLOR
+            GameTooltip_AddColoredLine(GameTooltip, tooltipLine, color)
+        end
+
+        if db.tooltipShowRewards then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine(REWARDS..":")
+            GameTooltip:AddLine(FormatLargeNumber(info.thresholdContributionAmount).." "..MONTHLY_ACTIVITIES_POINTS, 1, 1, 1)
+        end
+
+        if db.tooltipShowID then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddDoubleLine(" ", "ID: |cffffffff"..block.id)
+        end
+
+        GameTooltip:Show()
+    end
+
+    function KT_InitiativeTasksObjectiveTracker:OnBlockHeaderEnter(block)
+        if not db.tooltipShow then return end
+
+        local info = C_NeighborhoodInitiative.GetInitiativeTaskInfo(block.id)
+        if not info then return end
+
+        TooltipPosition(block)
+
+        if info.timesCompleted and info.timesCompleted > 0 and info.taskType == Enum.NeighborhoodInitiativeTaskType.RepeatableInfinite then
+            GameTooltip_SetTitle(GameTooltip, HOUSING_DASHBOARD_REPEATABLE_TASK_TITLE_TOOLTIP_FORMAT:format(info.taskName, info.timesCompleted), NORMAL_FONT_COLOR)
+        else
+            GameTooltip_SetTitle(GameTooltip, info.taskName, NORMAL_FONT_COLOR)
+        end
+        if info.taskType == Enum.NeighborhoodInitiativeTaskType.RepeatableInfinite then
+            GameTooltip_AddNormalLine(GameTooltip, HOUSING_ENDEAVOR_REPEATABLE_TASK)
+        end
+        GameTooltip:AddLine(" ")
+
+        if info.description ~= "" then
+            GameTooltip:AddLine(info.description, 1, 1, 1, true)
+            GameTooltip:AddLine(" ")
+        end
+
+        GameTooltip:AddLine(REQUIREMENTS..":")
+        for _, requirement in ipairs(info.requirementsList) do
+            local tooltipLine = requirement.requirementText
+            tooltipLine = string.gsub(tooltipLine, " / ", "/")
+            local color = not requirement.completed and WHITE_FONT_COLOR or DISABLED_FONT_COLOR
+            GameTooltip_AddColoredLine(GameTooltip, tooltipLine, color)
+        end
+
+        if db.tooltipShowRewards then
+            GameTooltip:AddLine(" ")
+            local rewardQuestID = info.rewardQuestID
+            if rewardQuestID then
+                GameTooltip_AddQuestRewardsToTooltip(GameTooltip, rewardQuestID, TOOLTIP_QUEST_REWARDS_STYLE_INITIATIVE_TASK)
+            end
+        end
+
+        if db.tooltipShowID then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddDoubleLine(" ", "ID: |cffffffff"..block.id)
+        end
+
+        GameTooltip:Show()
+    end
 
 	function KT_ProfessionsRecipeTracker:OnBlockHeaderEnter(block)
 		if db.tooltipShow then
@@ -1064,6 +1112,7 @@ local function SetHooks()
 				GameTooltip:AddLine(" ")
 				GameTooltip:AddDoubleLine(" ", "ID: |cffffffff"..recipeID)
 			end
+
 			GameTooltip:Show()
 		end
 	end
@@ -1339,8 +1388,11 @@ local function SetHooks()
 				text = KT:CreateQuestTag(quest.level, tagInfo.tagID, quest.frequency, quest.suggestedGroup)..text
 			end
 			self.level = quest.level
+            KT.T_Set("level", self.level, self.parentModule.name, "block")
 			self.title = text
+            KT.T_Set("title", self.title, self.parentModule.name, "block")
 			self.questCompleted = isQuestComplete
+            KT.T_Set("questComplete", self.questCompleted, self.parentModule.name, "block")
 		end
 
 		KT.KT_ObjectiveTrackerBlockMixin.SetHeader(self, text)
@@ -1361,6 +1413,7 @@ local function SetHooks()
 		if questID then
 			if not isTask then
 				local questsCache = dbChar.quests.cache
+                KT.T_Set("cache", questsCache[questID], self.parentModule.name, "questData")
 				if db.questShowZones and questsCache[questID] then
 					local infoText = questsCache[questID].zone
 					if infoText then
@@ -1649,7 +1702,8 @@ local function SetHooks()
 
 	-- ContentTrackingManager.lua
 	local function OnContentTrackingUpdate(self, trackableType, id, isTracked)
-		if trackableType == Enum.ContentTrackingType.Appearance or trackableType == Enum.ContentTrackingType.Mount then
+		-- Assume other types don't need bespoke behavior (Enum.ContentTrackingType.Appearance, Enum.ContentTrackingType.Mount, Enum.ContentTrackingType.Decor)
+		if trackableType ~= Enum.ContentTrackingType.Achievement then
 			KT_AdventureObjectiveTracker:MarkDirty()
 		end
 	end
@@ -1823,7 +1877,7 @@ local function SetHooks()
 		end
 		dropDown.activeFrame = frame;
 		dropDown.initialize = handlerFunc;
-		MSA_ToggleDropDownMenu(1, nil, dropDown, "cursor", 3, -3, nil, nil, MSA_DROPDOWNMENU_SHOW_TIME);
+		MSA_ToggleDropDownMenu(1, nil, dropDown, "cursor", 3, -3);
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 	end
 
@@ -1868,72 +1922,50 @@ local function SetHooks()
 	KT_CampaignQuestObjectiveTracker.OnBlockHeaderClick = KT_QuestObjectiveTracker.OnBlockHeaderClick
 
 	function KT_QuestObjectiveTracker_OnOpenDropDown(self)
-		local block = self.activeFrame;
+		local block = self.activeFrame
 
-		local info = MSA_DropDownMenu_CreateInfo();
-		info.text = C_QuestLog.GetTitleForQuestID(block.id);
-		info.isTitle = 1;
-		info.notCheckable = 1;
-		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
+		local info = KT.Menu_CreateInfo()
+		KT.Menu_AddTitle(C_QuestLog.GetTitleForQuestID(block.id))
 
-		info = MSA_DropDownMenu_CreateInfo();
-		info.notCheckable = 1;
-
+		local text, func
 		if C_SuperTrack.GetSuperTrackedQuestID() ~= block.id then
-			info.text = SUPER_TRACK_QUEST
-			info.func = function()
+			text = SUPER_TRACK_QUEST
+			func = function()
 				C_SuperTrack.SetSuperTrackedQuestID(block.id)
 			end
 		else
-			info.text = STOP_SUPER_TRACK_QUEST
-			info.func = function()
+			text = STOP_SUPER_TRACK_QUEST
+			func = function()
 				C_SuperTrack.SetSuperTrackedQuestID(0)
 			end
 		end
-		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
+		KT.Menu_AddButton(text, func)
 
 		local toggleDetailsText = QuestUtil.IsShowingQuestDetails(block.id) and OBJECTIVES_HIDE_VIEW_IN_QUESTLOG or OBJECTIVES_VIEW_IN_QUESTLOG;
-		info.text = toggleDetailsText;
-		info.func = function()
+		KT.Menu_AddButton(toggleDetailsText, function()
 			QuestUtil.OpenQuestDetails(block.id)
-		end;
-		info.noClickSound = 1;
-		info.checked = false;
-		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
+		end)
 
-		info.text = OBJECTIVES_SHOW_QUEST_MAP;
-		info.func = function()
+		KT.Menu_AddButton(OBJECTIVES_SHOW_QUEST_MAP, function()
 			QuestMapFrame_OpenToQuestDetails(block.id)
-		end;
-		info.checked = false;
-		info.noClickSound = 1;
-		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
+		end)
 
 		if ( C_QuestLog.IsPushableQuest(block.id) and IsInGroup() ) then
-			info.text = SHARE_QUEST;
-			info.func = function()
+			KT.Menu_AddButton(SHARE_QUEST, function()
 				QuestUtil.ShareQuest(block.id)
-			end;
-			info.checked = false;
-			MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
+			end)
 		end
 
-		info.text = OBJECTIVES_STOP_TRACKING;
-		info.func = function()
+		KT.Menu_AddButton(OBJECTIVES_STOP_TRACKING, function()
 			block.parentModule:UntrackQuest(block.id)
-		end;
-		info.checked = false;
-		info.disabled = (dbChar.filterAuto[1]);
-		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
+		end, (dbChar.filterAuto[1] ~= nil))
 
-		info.disabled = false;
+		info.disabled = false
 
 		if C_QuestLog.CanAbandonQuest(block.id) then
-			info.text = ABANDON_QUEST;
-			info.func = function()
+			KT.Menu_AddButton(ABANDON_QUEST, function()
 				QuestMapQuestOptions_AbandonQuest(block.id)
-			end;
-			MSA_DropDownMenu_AddButton(info, MSA_DROPDOWNMENU_MENU_LEVEL);
+			end)
 		end
 
 		KT:SendSignal("CONTEXT_MENU_UPDATE", info, "quest", block.id)
@@ -1972,34 +2004,21 @@ local function SetHooks()
 	end
 
 	function KT_AchievementObjectiveTracker_OnOpenDropDown(self)
-		local block = self.activeFrame;
-		local _, achievementName = GetAchievementInfo(block.id);
+		local block = self.activeFrame
+		local _, achievementName = GetAchievementInfo(block.id)
 
-		local info = MSA_DropDownMenu_CreateInfo();
-		info.text = achievementName;
-		info.isTitle = 1;
-		info.notCheckable = 1;
-		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
+		local info = KT.Menu_CreateInfo()
+		KT.Menu_AddTitle(achievementName)
 
-		info = MSA_DropDownMenu_CreateInfo();
-		info.notCheckable = 1;
-
-		info.text = OBJECTIVES_VIEW_ACHIEVEMENT;
-		info.func = function()
+		KT.Menu_AddButton(OBJECTIVES_VIEW_ACHIEVEMENT, function()
 			OpenAchievementFrameToAchievement(block.id)
-		end;
-		info.checked = false;
-		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
+		end)
 
-		info.text = OBJECTIVES_STOP_TRACKING;
-		info.func = function()
+		KT.Menu_AddButton(OBJECTIVES_STOP_TRACKING, function()
 			block.parentModule:UntrackAchievement(block.id)
-		end;
-		info.checked = false;
-		info.disabled = (dbChar.filterAuto[2]);
-		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
+		end, (dbChar.filterAuto[2] ~= nil))
 
-		info.disabled = false;
+		info.disabled = false
 
 		KT:SendSignal("CONTEXT_MENU_UPDATE", info, "achievement", block.id)
 	end
@@ -2048,13 +2067,13 @@ local function SetHooks()
 		local questID = block.id;
 		local addStopTracking = QuestUtils_IsQuestWatched(questID);
 
-		local info = MSA_DropDownMenu_CreateInfo();
+		local info = KT.Menu_CreateInfo();
 		info.text = C_TaskQuest.GetQuestInfoByQuestID(questID) or C_QuestLog.GetTitleForQuestID(questID)
 		info.isTitle = 1;
 		info.notCheckable = 1;
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
 
-		info = MSA_DropDownMenu_CreateInfo();
+		info = KT.Menu_CreateInfo();
 		info.notCheckable = 1;
 
 		local isWorldQuest = block.parentModule.showWorldQuests
@@ -2134,13 +2153,13 @@ local function SetHooks()
 		local block = self.activeFrame;
 		local recipeID = KT.GetRecipeID(block);
 
-		local info = MSA_DropDownMenu_CreateInfo();
+		local info = KT.Menu_CreateInfo();
 		info.text = C_Spell.GetSpellName(recipeID);
 		info.isTitle = 1;
 		info.notCheckable = 1;
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
 
-		info = MSA_DropDownMenu_CreateInfo();
+		info = KT.Menu_CreateInfo();
 		info.notCheckable = 1;
 
 		local spellBank = Enum.SpellBookSpellBank.Player;
@@ -2191,17 +2210,17 @@ local function SetHooks()
 	function KT_MonthlyActivitiesObjectiveTracker_OnOpenDropDown(self)
 		local block = self.activeFrame;
 
-		local info = MSA_DropDownMenu_CreateInfo();
+		local info = KT.Menu_CreateInfo();
 		info.text = block.name;
 		info.isTitle = 1;
 		info.notCheckable = 1;
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
 
-		info = MSA_DropDownMenu_CreateInfo();
+		info = KT.Menu_CreateInfo();
 		info.notCheckable = 1;
 
 		info.text = "Open "..TRACKER_HEADER_MONTHLY_ACTIVITIES;
-		info.func = function ()
+		info.func = function()
 			block.parentModule:OpenFrameToActivity(block.id)
 		end;
 		info.checked = false;
@@ -2216,6 +2235,50 @@ local function SetHooks()
 
 		KT:SendSignal("CONTEXT_MENU_UPDATE", info, "activity", block.id)
 	end
+
+    function KT_InitiativeTasksObjectiveTracker:OnBlockHeaderClick(block, mouseButton)  -- R
+        if IsModifiedClick("CHATLINK") and ChatFrameUtil.GetActiveWindow() then
+            local initiativeTaskLink = C_NeighborhoodInitiative.GetInitiativeTaskChatLink(block.id);
+            ChatFrameUtil.InsertLink(initiativeTaskLink);
+        elseif mouseButton ~= "RightButton" then
+            if IsModifiedClick("QUESTWATCHTOGGLE") then
+                self:UntrackInitiativeTask(block.id);
+            else
+                HousingFramesUtil.OpenFrameToTaskID(block.id)
+            end
+
+            PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+        else
+            KT_ObjectiveTracker_ToggleDropDown(block, KT_InitiativeTasksObjectiveTracker_OnOpenDropDown)
+        end
+    end
+
+    function KT_InitiativeTasksObjectiveTracker_OnOpenDropDown(self)
+        local block = self.activeFrame;
+
+        local info = KT.Menu_CreateInfo();
+        info.text = block.name;
+        info.isTitle = 1;
+        info.notCheckable = 1;
+        MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
+
+        info = KT.Menu_CreateInfo();
+        info.notCheckable = 1;
+
+        info.text = OBJECTIVES_VIEW_IN_QUESTLOG;
+        info.func = function()
+            HousingFramesUtil.OpenFrameToTaskID(block.id)
+        end;
+        info.checked = false;
+        MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
+
+        info.text = OBJECTIVES_STOP_TRACKING;
+        info.func = function()
+            block.parentModule:UntrackInitiativeTask(block.id);
+        end;
+        info.checked = false;
+        MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
+    end
 
 	function KT_AdventureObjectiveTracker:OnBlockHeaderClick(block, mouseButton)  -- R
 		if not ContentTrackingUtil.ProcessChatLink(block.trackableType, block.trackableID) then
@@ -2242,13 +2305,13 @@ local function SetHooks()
 	function KT_AdventureObjectiveTracker_OnOpenDropDown(self)
 		local block = self.activeFrame;
 
-		local info = MSA_DropDownMenu_CreateInfo();
+		local info = KT.Menu_CreateInfo();
 		info.text = block.name;
 		info.isTitle = 1;
 		info.notCheckable = 1;
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
 
-		info = MSA_DropDownMenu_CreateInfo();
+		info = KT.Menu_CreateInfo();
 		info.notCheckable = 1;
 
 		if block.trackableType == Enum.ContentTrackingType.Appearance then
@@ -2876,8 +2939,8 @@ function KT:SetMessage(text, r, g, b, pattern, icon, x, y)
 	if icon then
 		x = x or 0
 		y = y or 0
-		if db.sink20OutputSink == "Blizzard" then
-			x = floor(x * 3)
+		if db.sink20OutputSink == "Default" or db.sink20OutputSink == "Blizzard" then
+			x = x - 6 - (db.sink20Sticky and 2 or 0)
 			y = y - 8
 		end
 		text = format("|T%s:0:0:%d:%d|t%s", icon, x, y, text)
@@ -2885,14 +2948,19 @@ function KT:SetMessage(text, r, g, b, pattern, icon, x, y)
 	self:Pour(text, r, g, b)
 end
 
-local SOUND_COOLDOWN = 2
-local lastSoundTime = 0
-function KT:PlaySound(key)
-	local now = GetTime()
-	if now - lastSoundTime >= SOUND_COOLDOWN then
-		PlaySoundFile(LSM:Fetch("sound", key), db.soundChannel)
-		lastSoundTime = now
-	end
+local SOUND_COOLDOWN = 1
+local soundLocked = false
+function KT:PlaySound(key, forceChannel)
+	if soundLocked then return end
+
+	local sound = LSM:Fetch("sound", key)
+	if not sound then return end
+
+	soundLocked = true
+	PlaySoundFile(sound, forceChannel or db.soundChannel)
+	C_Timer.After(SOUND_COOLDOWN, function()
+		soundLocked = false
+	end)
 end
 
 function KT:MergeTables(source, target)
@@ -2962,8 +3030,9 @@ function KT:OnInitialize()
 	self.playerName = UnitName("player")
 	self.playerFaction = UnitFactionGroup("player")
 	self.playerLevel = UnitLevel("player")
-	local _, class = UnitClass("player")
-	self.classColor = RAID_CLASS_COLORS[class]
+	local className, classFile = UnitClass("player")
+	self.playerClass = className
+	self.classColor = RAID_CLASS_COLORS[classFile]
 
 	-- Tracker data
 	self.headers = {}
@@ -2984,7 +3053,8 @@ function KT:OnInitialize()
 	self.locked = false
 	self.initialized = false
 
-	self.Storage_Init()
+	self:Config_Init()
+	self:Storage_Init()
 
 	SetHooks_Init()
 end

@@ -1,8 +1,8 @@
 --- MSA-EditMode-1.0
---- Copyright (c) 2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2024-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 
-local name, version = "MSA-EditMode-1.0", 0
+local name, version = "MSA-EditMode-1.0", 1
 
 local lib = LibStub:NewLibrary(name, version)
 if not lib then return end
@@ -173,15 +173,40 @@ function EditModeMixin:Init(addonName, options, node, width, height)
     self.optionsNode = node
     self.opened = false
 
+    self.OnOpen = nil
+    self.OnClose = nil
+
     ACR:RegisterOptionsTable(self.name, options, true)
     ACD:SetDefault(self.name, width or 500, height or 500, "MSA-Frame", function()
+        self:Close()
+    end)
+    self:AddButtonBlizEditMode()
+end
+
+function EditModeMixin:Open()
+    if not InCombatLockdown() then
+        self:ShowMover()
+        self:OpenOptions()
+
+        if self.OnOpen then
+            self:OnOpen()
+        end
+    end
+end
+
+function EditModeMixin:Close()
+    if not InCombatLockdown() then
+        self:CloseOptions()
         self:HideMover()
         if openFromEditMode then
             EMmanager:Show()
             openFromEditMode = false
         end
-    end)
-    self:AddButtonBlizEditMode()
+
+        if self.OnClose then
+            self:OnClose()
+        end
+    end
 end
 
 function EditModeMixin:ShowMover(name)
@@ -221,6 +246,10 @@ function EditModeMixin:OpenOptions()
     frame:ApplyStatus()
 end
 
+function EditModeMixin:CloseOptions()
+    ACD:Close(self.name)
+end
+
 function EditModeMixin:AddButtonBlizEditMode()
     if not EMmanager then return end
 
@@ -232,8 +261,7 @@ function EditModeMixin:AddButtonBlizEditMode()
         if not InCombatLockdown() then
             openFromEditMode = true
             EMmanager:Hide()
-            self:ShowMover()
-            self:OpenOptions()
+            self:Open()
         end
     end)
     tinsert(lib.buttons, button)

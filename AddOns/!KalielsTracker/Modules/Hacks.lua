@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -31,7 +31,7 @@ local function Hack_LFG()
         local bck_LFGListEntryCreation_SetTitleFromActivityInfo = LFGListEntryCreation_SetTitleFromActivityInfo
         LFGListEntryCreation_SetTitleFromActivityInfo = function(self, ...)
             local activityID = self.selectedActivity or 0
-            local activityInfo =  C_LFGList.GetActivityInfoTable(activityID)
+            local activityInfo = C_LFGList.GetActivityInfoTable(activityID)
             if activityInfo and activityInfo.isMythicPlusActivity then
                 return
             else
@@ -45,7 +45,7 @@ end
 -- Affects the World Map and removes taint errors. The hack prevents calls to restricted functions.
 -- When the hack is inactive, the World Map display causes errors. It is not possible to get rid of these errors,
 -- since the tracker has a lot of interaction with the game frames.
--- Negative impacts: unknown in WoW 11.2.7
+-- Negative impacts: unknown in WoW 12.0.0
 local function Hack_WorldMap()
     if db.hackWorldMap then
         -- Blizzard_MapCanvas.lua
@@ -118,6 +118,7 @@ local function Hack_WorldMap()
                 self.ScrollContainer:MarkCanvasDirty();
                 pin:Show();
                 pin:OnAcquired(...);
+
                 self:RegisterPin(pin);
 
                 return pin;
@@ -142,15 +143,16 @@ local function Hack_WorldMap()
     end
 end
 
--- Open/Close tainted frames during combat
+-- Open/Close blocked frames during combat
 -- Negative impacts: unknown
-local function Hack_TaintedFrames()
+local function Hack_BlockedFrames()
     local activeFrame
     local bypassFrames = {
         WorldMapFrame = true,
         QuestLogPopupDetailFrame = true,
         AchievementFrame = true,
         EncounterJournal = true,
+        HousingDashboardFrame = true,
         PVEFrame = true,
     }
 
@@ -204,6 +206,13 @@ local function Hack_TaintedFrames()
             KT:UnregEvent(eventID)
         end
     end, M)
+
+    KT:RegEvent("ADDON_LOADED", function(eventID, addon)
+        if addon == "Blizzard_HousingDashboard" then
+            InitFrame(HousingDashboardFrame)
+            KT:UnregEvent(eventID)
+        end
+    end, M)
 end
 
 function M:OnInitialize()
@@ -214,6 +223,6 @@ function M:OnInitialize()
     if self.isAvailable then
         Hack_LFG()
         Hack_WorldMap()
-        Hack_TaintedFrames()
+        Hack_BlockedFrames()
     end
 end

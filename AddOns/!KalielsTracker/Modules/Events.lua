@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -92,7 +92,7 @@ function KT_EventObjectiveTrackerMixin:StopUpdate()
     if self.stopUpdate and dbChar.filter.events.track then
         self.stopUpdate = false
     end
-    if self.stopUpdate or not C_PlayerInfo.CanPlayerUseEventScheduler() then
+    if self.stopUpdate or not C_EventScheduler.CanShowEvents() then
         return true
     end
     return false
@@ -227,36 +227,27 @@ end
 function KT_EventObjectiveTracker_OnOpenDropDown(self)
     local block = self.activeFrame
 
-    local info = MSA_DropDownMenu_CreateInfo()
-    info.text = block.poiInfo.name
-    info.isTitle = 1
-    info.notCheckable = 1
-    MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
+    local info = KT.Menu_CreateInfo()
+    KT.Menu_AddTitle(block.poiInfo.name)
 
-    info = MSA_DropDownMenu_CreateInfo()
-    info.notCheckable = 1
-
+    local text, func
     local _, areaPoiID = C_SuperTrack.GetSuperTrackedMapPin(Enum.SuperTrackingMapPinType.AreaPOI)
     if areaPoiID ~= block.id then
-        info.text = POI_FOCUS
-        info.func = function()
+        text = POI_FOCUS
+        func = function()
             C_SuperTrack.SetSuperTrackedMapPin(Enum.SuperTrackingMapPinType.AreaPOI, block.id)
         end
     else
-        info.text = POI_REMOVE_FOCUS
-        info.func = function()
+        text = POI_REMOVE_FOCUS
+        func = function()
             C_SuperTrack.ClearSuperTrackedMapPin(Enum.SuperTrackingMapPinType.AreaPOI)
         end
     end
-    MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
+    KT.Menu_AddButton(text, func)
 
-    info.text = OBJECTIVES_SHOW_QUEST_MAP
-    info.func = function()
+    KT.Menu_AddButton(OBJECTIVES_SHOW_QUEST_MAP, function()
         QuestMapFrame_OpenToEvent(block.id)
-    end
-    info.checked = false
-    info.noClickSound = 1
-    MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
+    end)
 end
 
 function M:OnInitialize()

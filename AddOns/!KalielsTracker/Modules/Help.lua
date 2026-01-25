@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -228,7 +228,7 @@ local function SetupTutorials()
 					cBold.."Affects the World Map|r and removes taint errors. The hack prevents calls to restricted "..
 					"functions. When the hack is inactive, the World Map display causes errors. It is not possible to "..
 					"get rid of these errors, since the tracker has a lot of interaction with the game frames.\n\n"..
-					cWarning2.."Negative impacts:|r unknown in WoW 11.2.7",
+					cWarning2.."Negative impacts:|r unknown in WoW 12.0.0",
 		},
 		{	-- 9
 			image = HELP_PATH.."help_events",
@@ -301,7 +301,7 @@ local function SetupTutorials()
 		},
 		{	-- 13
 			image = HELP_PATH.."help_addon-rarescanner",
-			heading = "Support addon RareScanner "..beta,
+			heading = "Support addon RareScanner",
 			text = "RareScanner support replaces the original RareScanner button and displays detected Rare NPCs "..
 					"directly inside "..KT.TITLE.." as a separate module.\n\n"..
 					"Features:\n"..
@@ -359,31 +359,19 @@ local function SetupTutorials()
 			heading = "     What's New",
 			headingFont = "Fonts\\MORPHEUS.ttf",
 			headingSize = 26,
-			text = "If you like "..KT.TITLE..", consider supporting it on Patreon "..ICON_HEART.."|r\n"..ebSpace.."\n"..
+			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 7.18.1|r\n"..
-					"- CHANGED - addon support - Auctionator 306\n"..
-					"- CHANGED - addon support - RareScanner 11.2.7.3\n"..
-					"- CHANGED - addon support - TomTom 4.2.8\n"..
-					"- CHANGED - addon support - PetTracker 11.2.7\n"..
-					"- CHANGED - addon support - Masque 11.2.9\n"..
-					"- FIXED - Masque - Active Button style not removed with enabled skin\n"..
-					"\n")..
-
-					(cTitle.."Version 7.18.0|r\n"..
-					"- ADDED - TomTom - waypoint support for Housing plots\n"..
-					"- ADDED - support for WoW 11.2.7.64704\n"..
-					"- CHANGED - addon support - ElvUI 14.04, Tukui 20.463\n"..
-					"- CHANGED (Filters) - improve instance achievement filtering\n"..
-					"- CHANGED - AddonCompartment - improvement (left/right click)\n"..
-					"- CHANGED - Options - add visibility rule based on House detection\n"..
-					"- CHANGED - addon support - BtWQuests 2.58.0\n"..
-					"- CHANGED - addon support - Auctionator 305\n"..
-					"- CHANGED - addon support - Masque 11.2.7\n"..
-					"- CHANGED - addon support - RareScanner 11.2.7\n"..
-					"- CHANGED - addon support - TomTom 4.2.4\n"..
-					"- FIXED (Filters) - error when quest map information is missing\n"..
-					"- FIXED - error when quest zone information is missing\n"..
+					(cTitle.."Version 8.0.0|r\n"..
+					"- ADDED - support for WoW 12.0.0.65512\n"..
+					"- CHANGED - addon support - PetTracker 12.0.0\n"..
+					"- CHANGED - addon support - TomTom 4.2.15\n"..
+					"- CHANGED - addon support - RareScanner 12.0.0.3\n"..
+					"- CHANGED - addon support - Masque 11.2.10\n"..
+					"- CHANGED - addon support - Auctionator 312\n"..
+					"- CHANGED - addon support - BtWQuests 2.60.0\n"..
+					"- CHANGED (help) - Active Patrons\n"..
+					"- CHANGED - sound improvements – no overlap, play only on trigger\n"..
+					"- CHANGED - Libs\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
@@ -460,12 +448,13 @@ local function SetupTutorials()
 		paddingBottom = 24,
 		{	-- 1
 			heading = "      Become a Patron",
-			text = "If you like "..KT.TITLE..", consider supporting it on Patreon.\n\n\n\n"..
-					"After 10 years of working on this addon, I started Patreon. It's created as\na compensation for "..
-					"the amount of time that addon development requires.\n\n"..
-					"                                    Many thanks to all supporters "..ICON_HEART.."\n\n"..
+			text = KT.TITLE.." is developed and maintained by one person.\n\n\n\n"..
+					"The addon was developed for more than 10 years before Patreon was created. Over time, it grew from "..
+					"a small personal project into a large time-intensive system that requires continuous work.\n\n"..
+					"Many thanks to all supporters who help keep the project alive "..ICON_HEART.."\n\n\n"..
 					cTitle.."Active Patrons|r\n"..
                     SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
+                    SetFormatedPatronName("Epic", "Soromeister")..
                     SetFormatedPatronName("Rare", "Ian F")..
                     SetFormatedPatronName("Rare", "Spance")..
                     SetFormatedPatronName("Uncommon", "Charles Howarth")..

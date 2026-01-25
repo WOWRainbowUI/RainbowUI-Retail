@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -19,7 +19,7 @@ end
 
 local function Compartment_OnEnter(self)
     GameTooltip:SetOwner(self, "ANCHOR_NONE")
-    GameTooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -10, 7)
+    GameTooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -11, 7)
     GameTooltip:AddLine(KT.TITLE)
     GameTooltip:AddLine("Left Click - Show / Hide tracker", 1, 1, 1)
     GameTooltip:AddLine("Right Click - Open addon Options", 1, 1, 1)

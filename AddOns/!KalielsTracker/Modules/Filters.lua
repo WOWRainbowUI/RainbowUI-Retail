@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -136,19 +136,12 @@ local function SetHooks()
 	hooksecurefunc("KT_QuestObjectiveTracker_OnOpenDropDown", function(self)
 		local block = self.activeFrame
 
-		local info = MSA_DropDownMenu_CreateInfo()
-		info.isNotRadio = true
-
-		MSA_DropDownMenu_AddSeparator(info)
-
-		info.text = "Favorite"
-		info.colorCode = "|cff009bff"
+		local info = KT.Menu_CreateInfo()
+		KT.Menu_AddSeparator()
 		info.notCheckable = false
-		info.func = ToggleFavorite
-		info.arg1 = "quests"
-		info.arg2 = block.id
-		info.checked = (IsFavorite(info.arg1, info.arg2))
-		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
+
+		info.colorCode = "|cff009bff"
+		KT.Menu_AddCheck("Favorite", IsFavorite("quests", block.id), ToggleFavorite, "quests", block.id)
 	end)
 	
 	-- Achievements
@@ -162,19 +155,12 @@ local function SetHooks()
 	hooksecurefunc("KT_AchievementObjectiveTracker_OnOpenDropDown", function(self)
 		local block = self.activeFrame
 
-		local info = MSA_DropDownMenu_CreateInfo()
-		info.isNotRadio = true
-
-		MSA_DropDownMenu_AddSeparator(info)
-
-		info.text = "Favorite"
-		info.colorCode = "|cff009bff"
+		local info = KT.Menu_CreateInfo()
+		KT.Menu_AddSeparator()
 		info.notCheckable = false
-		info.func = ToggleFavorite
-		info.arg1 = "achievements"
-		info.arg2 = block.id
-		info.checked = (IsFavorite(info.arg1, info.arg2))
-		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
+
+		info.colorCode = "|cff009bff"
+		KT.Menu_AddCheck("Favorite", IsFavorite("achievements", block.id), ToggleFavorite, "achievements", block.id)
 	end)
 
 	-- Quest Log - QuestMapFrame.lua
@@ -777,7 +763,7 @@ local function Filter_Menu_AutoTrack(self, id, spec)
 			KTF.FilterButton:GetNormalTexture():SetVertexColor(KT.hdrBtnColor.r, KT.hdrBtnColor.g, KT.hdrBtnColor.b)
 		end
 	end
-	KT:Filter_DropDown_Toggle()
+	KT:Filter_DropDown_Toggle(self)
 end
 
 local function Filter_AchievCat_CheckAll(self, state)
@@ -786,10 +772,8 @@ local function Filter_AchievCat_CheckAll(self, state)
 	end
 	if dbChar.filterAuto[2] then
 		Filter_Menu_Achievements(self, dbChar.filterAuto[2])
-		MSA_CloseDropDownMenus()
 	else
-		local listFrame = _G["MSA_DropDownList"..MSA_DROPDOWNMENU_MENU_LEVEL]
-		KT:Filter_DropDown_Toggle(MSA_DROPDOWNMENU_MENU_LEVEL, _G["MSA_DropDownList"..listFrame.parentLevel.."Button"..listFrame.parentID])
+		MSA_DropDownMenu_Refresh(KT.DropDown, nil, self:GetParent():GetID())
 	end
 end
 
@@ -804,192 +788,109 @@ end
 
 local function DropDown_Initialize(self, level)
 	local numEntries = C_QuestLog.GetNumQuestLogEntries()
-	local info = MSA_DropDownMenu_CreateInfo()
-	info.isNotRadio = true
+	local info = KT.Menu_CreateInfo()
 
-	if level == 1 then
-		info.notCheckable = true
-
+	if MSA_DROPDOWNMENU_MENU_LEVEL == 1 then
 		-- Quests
-		info.text = TRACKER_HEADER_QUESTS
-		info.isTitle = true
-		MSA_DropDownMenu_AddButton(info)
-
-		info.isTitle = false
-		info.disabled = (dbChar.filterAuto[1])
+		KT.Menu_AddTitle(TRACKER_HEADER_QUESTS)
+		info.disabled = (dbChar.filterAuto[1] ~= nil)
 		info.func = Filter_Menu_Quests
 
-		info.text = "All  ("..dbChar.quests.num..")"
-		info.hasArrow = not (dbChar.filterAuto[1])
+		info.hasArrow = (dbChar.filterAuto[1] == nil)
 		info.value = "questCategories"
-		info.arg1 = "all"
-		MSA_DropDownMenu_AddButton(info)
+		KT.Menu_AddButton("All  ("..dbChar.quests.num..")", "all")
 
 		info.hasArrow = false
 
-		info.text = "Favorites"
 		info.colorCode = "|cff009bff"
-		info.arg1 = "favorites"
-		info.disabled = (dbChar.filterAuto[1] or #dbChar.quests.favorites == 0)
-		MSA_DropDownMenu_AddButton(info)
+		KT.Menu_AddButton("Favorites", "favorites", (dbChar.filterAuto[1] ~= nil or #dbChar.quests.favorites == 0))
 
 		info.colorCode = nil
-		info.disabled = (dbChar.filterAuto[1])
+		info.disabled = (dbChar.filterAuto[1] ~= nil)
 
-		info.text = "Zone"
-		info.arg1 = "zone"
-		MSA_DropDownMenu_AddButton(info)
+		KT.Menu_AddButton("Zone", "zone")
+		KT.Menu_AddButton("Campaign", "campaign")
+		KT.Menu_AddButton("Daily / Weekly", "daily")
+		KT.Menu_AddButton("Instance", "instance")
+		KT.Menu_AddButton("Unfinished", "unfinished")
+		KT.Menu_AddButton("Complete", "complete")
+		KT.Menu_AddButton("Untrack All", "", (dbChar.filterAuto[1] ~= nil or C_QuestLog.GetNumQuestWatches() == 0))
 
-		info.text = "Campaign"
-		info.arg1 = "campaign"
-		MSA_DropDownMenu_AddButton(info)
-
-		info.text = "Daily / Weekly"
-		info.arg1 = "daily"
-		MSA_DropDownMenu_AddButton(info)
-
-		info.text = "Instance"
-		info.arg1 = "instance"
-		MSA_DropDownMenu_AddButton(info)
-
-		info.text = "Unfinished"
-		info.arg1 = "unfinished"
-		MSA_DropDownMenu_AddButton(info)
-
-		info.text = "Complete"
-		info.arg1 = "complete"
-		MSA_DropDownMenu_AddButton(info)
-
-		info.text = "Untrack All"
-		info.disabled = (dbChar.filterAuto[1] or C_QuestLog.GetNumQuestWatches() == 0)
-		info.arg1 = ""
-		MSA_DropDownMenu_AddButton(info)
-
-		info.text = "Sorting"
-		info.keepShownOnClick = true
-		info.hasArrow = true
 		info.disabled = false
+		info.keepShownOnClick = true
+
+		info.hasArrow = true
 		info.value = "sorting"
 		info.func = nil
-		MSA_DropDownMenu_AddButton(info)
+		KT.Menu_AddButton("Sorting")
 
-		info.keepShownOnClick = false
 		info.hasArrow = false
 		info.notCheckable = false
 
-		info.text = "Show all Campaign"
-		info.keepShownOnClick = true
-		info.checked = dbChar.filter.quests.showCampaign
-		info.func = function()
+		KT.Menu_AddCheck("Show all Campaign", { dbChar.filter.quests, "showCampaign" }, function()
 			dbChar.filter.quests.showCampaign = not dbChar.filter.quests.showCampaign
 			if dbChar.filterAuto[1] == "zone" then
 				Filter_Menu_Quests(_, "zone")
 			end
-		end
-		MSA_DropDownMenu_AddButton(info)
+		end)
 
-		info.text = "|cff00ff00Auto|r Zone"
-		info.keepShownOnClick = false
-		info.arg1 = 1
-		info.arg2 = "zone"
-		info.checked = (dbChar.filterAuto[info.arg1] == info.arg2)
-		info.func = Filter_Menu_AutoTrack
-		MSA_DropDownMenu_AddButton(info)
-
-		MSA_DropDownMenu_AddSeparator(info)
+		KT.Menu_AddCheck("|cff00ff00Auto|r Zone", { dbChar.filterAuto, 1, "zone" }, Filter_Menu_AutoTrack, 1, "zone")
 
 		-- Events
-		info.text = EVENTS_LABEL
-		info.isTitle = true
-		MSA_DropDownMenu_AddButton(info)
+		if C_EventScheduler.CanShowEvents() then
+			KT.Menu_AddSeparator()
 
-		info.isTitle = false
-		info.disabled = false
-		info.notCheckable = false
+			KT.Menu_AddTitle(EVENTS_LABEL)
+			info.notCheckable = false
 
-		info.text = "Track Events"
-		info.checked = dbChar.filter.events.track
-		info.func = function()
-			dbChar.filter.events.track = not dbChar.filter.events.track
-			KT_EventObjectiveTracker:MarkDirty()
+			KT.Menu_AddCheck("Track Events", { dbChar.filter.events, "track" }, function()
+				dbChar.filter.events.track = not dbChar.filter.events.track
+				KT_EventObjectiveTracker:MarkDirty()
+			end)
+			KT.Menu_AddCheck("Show Long Events", { dbChar.filter.events, "showLong" }, function()
+				dbChar.filter.events.showLong = not dbChar.filter.events.showLong
+				KT_EventObjectiveTracker:MarkDirty()
+			end)
 		end
-		MSA_DropDownMenu_AddButton(info)
 
-		info.text = "Show Long Events"
-		info.checked = dbChar.filter.events.showLong
-		info.func = function()
-			dbChar.filter.events.showLong = not dbChar.filter.events.showLong
-			KT_EventObjectiveTracker:MarkDirty()
-		end
-		MSA_DropDownMenu_AddButton(info)
-
-		MSA_DropDownMenu_AddSeparator(info)
+		KT.Menu_AddSeparator()
 
 		-- Achievements
-		info.text = TRACKER_HEADER_ACHIEVEMENTS
-		info.isTitle = true
-		MSA_DropDownMenu_AddButton(info)
+		KT.Menu_AddTitle(TRACKER_HEADER_ACHIEVEMENTS)
 
-		info.isTitle = false
-		info.disabled = false
-
-		info.text = "Categories"
 		info.keepShownOnClick = true
 		info.hasArrow = true
 		info.value = "achievementCategories"
 		info.func = nil
-		MSA_DropDownMenu_AddButton(info)
+		KT.Menu_AddButton("Categories")
 
 		info.keepShownOnClick = false
 		info.hasArrow = false
 		info.func = Filter_Menu_Achievements
 
-		info.text = "Favorites"
 		info.colorCode = "|cff009bff"
-		info.arg1 = "favorites"
-		info.disabled = (dbChar.filterAuto[2] or #dbChar.achievements.favorites == 0)
-		MSA_DropDownMenu_AddButton(info)
+		KT.Menu_AddButton("Favorites", "favorites", (dbChar.filterAuto[2] ~= nil or #dbChar.achievements.favorites == 0))
 
 		info.colorCode = nil
-		info.disabled = (dbChar.filterAuto[2])
+		info.disabled = (dbChar.filterAuto[2] ~= nil)
 
-		info.text = "Zone"
-		info.arg1 = "zone"
-		MSA_DropDownMenu_AddButton(info)
+		KT.Menu_AddButton("Zone", "zone")
+		KT.Menu_AddButton("World Event", "wevent")
+		KT.Menu_AddButton("Untrack All", "", (dbChar.filterAuto[2] ~= nil or KT.GetNumTrackedAchievements() == 0))
 
-		info.text = "World Event"
-		info.arg1 = "wevent"
-		MSA_DropDownMenu_AddButton(info)
-
-		info.text = "Untrack All"
-		info.disabled = (dbChar.filterAuto[2] or KT.GetNumTrackedAchievements() == 0)
-		info.arg1 = ""
-		MSA_DropDownMenu_AddButton(info)
-
-		info.notCheckable = false
 		info.disabled = false
-
-		info.text = "Show continent achievs"
 		info.keepShownOnClick = true
-		info.checked = dbChar.filter.achievements.showContinent
-		info.func = function()
+		info.notCheckable = false
+
+		KT.Menu_AddCheck("Show continent achievs", { dbChar.filter.achievements, "showContinent" }, function()
 			dbChar.filter.achievements.showContinent = not dbChar.filter.achievements.showContinent
 			if dbChar.filterAuto[2] == "zone" then
 				Filter_Menu_Achievements(_, "zone")
 			end
-		end
-		MSA_DropDownMenu_AddButton(info)
+		end)
 
-		info.text = "|cff00ff00Auto|r Zone"
-		info.keepShownOnClick = false
-		info.arg1 = 2
-		info.arg2 = "zone"
-		info.checked = (dbChar.filterAuto[info.arg1] == info.arg2)
-		info.func = Filter_Menu_AutoTrack
-		MSA_DropDownMenu_AddButton(info)
-	elseif level == 2 then
-		info.notCheckable = true
-
+		KT.Menu_AddCheck("|cff00ff00Auto|r Zone", { dbChar.filterAuto, 2, "zone" }, Filter_Menu_AutoTrack, 2, "zone")
+	elseif MSA_DROPDOWNMENU_MENU_LEVEL == 2 then
 		if MSA_DROPDOWNMENU_MENU_VALUE == "questCategories" then
 			info.arg1 = "group"
 			info.func = Filter_Menu_Quests
@@ -1007,12 +908,11 @@ local function DropDown_Initialize(self, level)
 							headerShown = false
 						elseif not questInfo.isTask and (not questInfo.isBounty or C_QuestLog.IsComplete(questInfo.questID)) then
 							if not headerShown then
-								info.text = (headerOnMap and "|cff00ff00" or "")..headerTitle
+								local text = (headerOnMap and "|cff00ff00" or "")..headerTitle
 								if headerCampaign then
-									info.text = info.text.." ("..TRACKER_HEADER_CAMPAIGN_QUESTS..")"
+									text = text.." ("..TRACKER_HEADER_CAMPAIGN_QUESTS..")"
 								end
-								info.arg2 = i
-								MSA_DropDownMenu_AddButton(info, level)
+								KT.Menu_AddButton(text, nil, i)
 								headerShown = true
 							end
 						end
@@ -1020,79 +920,48 @@ local function DropDown_Initialize(self, level)
 				end
 			end
 		elseif MSA_DROPDOWNMENU_MENU_VALUE == "achievementCategories" then
+			info.keepShownOnClick = not dbChar.filterAuto[2]
 			info.func = Filter_AchievCat_CheckAll
 
-			info.text = "Check All"
-			info.arg1 = true
-			MSA_DropDownMenu_AddButton(info, level)
+			KT.Menu_AddButton("Check All", true, false)     -- last false is disabled state
+			KT.Menu_AddButton("Uncheck All", false, false)  -- last false is disabled state
 
-			info.text = "Uncheck All"
-			info.arg1 = false
-			MSA_DropDownMenu_AddButton(info, level)
-
-			info.keepShownOnClick = true
 			info.notCheckable = false
+			info.func = function(_, arg)
+				dbChar.filterAchievCat[arg] = not dbChar.filterAchievCat[arg]
+				if dbChar.filterAuto[2] then
+					Filter_Menu_Achievements(_, dbChar.filterAuto[2])
+				end
+			end
 
 			for _, id in ipairs(achievCategory) do
 				if dbChar.filterAchievCat[id] ~= nil then
-					info.text = GetCategoryInfo(id)
-					info.checked = (dbChar.filterAchievCat[id])
-					info.arg1 = id
-					info.func = function(_, arg)
-						dbChar.filterAchievCat[arg] = not dbChar.filterAchievCat[arg]
-						if dbChar.filterAuto[2] then
-							Filter_Menu_Achievements(_, dbChar.filterAuto[2])
-							MSA_CloseDropDownMenus()
-						end
-					end
-					MSA_DropDownMenu_AddButton(info, level)
+					KT.Menu_AddCheck(GetCategoryInfo(id), { dbChar.filterAchievCat, id }, id)
 				end
 			end
 		elseif MSA_DROPDOWNMENU_MENU_VALUE == "sorting" then
+			info.keepShownOnClick = true
 			info.notCheckable = false
 			info.isNotRadio = false
-			info.func = function(_, arg)
+			info.func = function(obj, arg)
 				dbChar.filter.quests.sort = arg
-				local listFrame = _G["MSA_DropDownList"..MSA_DROPDOWNMENU_MENU_LEVEL]
-				KT:Filter_DropDown_Toggle(MSA_DROPDOWNMENU_MENU_LEVEL, _G["MSA_DropDownList"..listFrame.parentLevel.."Button"..listFrame.parentID])
 				KT:Update()
+				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
 			end
 
-			info.text = "Disabled"
-			info.arg1 = nil
-			info.checked = (dbChar.filter.quests.sort == info.arg1)
-			MSA_DropDownMenu_AddButton(info, level)
-
-			info.text = "by Newest"
-			info.arg1 = "newest"
-			info.checked = (dbChar.filter.quests.sort == info.arg1)
-			MSA_DropDownMenu_AddButton(info, level)
-
-			info.text = "by Zone"
-			info.arg1 = "zone"
-			info.checked = (dbChar.filter.quests.sort == info.arg1)
-			MSA_DropDownMenu_AddButton(info, level)
-
-			info.text = "by Level"
-			info.arg1 = "level"
-			info.checked = (dbChar.filter.quests.sort == info.arg1)
-			MSA_DropDownMenu_AddButton(info, level)
-
-			info.text = "by Title"
-			info.arg1 = "title"
-			info.checked = (dbChar.filter.quests.sort == info.arg1)
-			MSA_DropDownMenu_AddButton(info, level)
+			KT.Menu_AddRadio("Disabled", { dbChar.filter.quests, "sort" })
+			KT.Menu_AddRadio("by Newest", { dbChar.filter.quests, "sort" }, "newest")
+			KT.Menu_AddRadio("by Zone", { dbChar.filter.quests, "sort" }, "zone")
+			KT.Menu_AddRadio("by Level", { dbChar.filter.quests, "sort" }, "level")
+			KT.Menu_AddRadio("by Title", { dbChar.filter.quests, "sort" }, "title")
 
 			info.isNotRadio = true
 
-			info.text = "Top Meta quests"
-			info.keepShownOnClick = true
-			info.checked = dbChar.filter.quests.sortTopOverride
-			info.func = function()
+			KT.Menu_AddCheck("Top Meta quests", { dbChar.filter.quests, "sortTopOverride" }, function(obj)
 				dbChar.filter.quests.sortTopOverride = not dbChar.filter.quests.sortTopOverride
 				KT:Update()
-			end
-			MSA_DropDownMenu_AddButton(info, level)
+				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
+			end)
 		end
 	end
 
@@ -1280,15 +1149,11 @@ function M:OnEnable()
     end, self)
 end
 
-function KT:Filter_DropDown_Toggle(level, button)
+function KT:Filter_DropDown_Toggle(button, level)
+	MSA_CloseDropDownMenus()
+
 	local dropDown = self.DropDown
-	if dropDown.activeFrame ~= KTF.FilterButton then
-		MSA_CloseDropDownMenus()
-	end
-	dropDown.activeFrame = KTF.FilterButton
-	dropDown.initialize = DropDown_Initialize
-	MSA_ToggleDropDownMenu(level or 1, button and MSA_DROPDOWNMENU_MENU_VALUE or nil, dropDown, KTF.FilterButton, -15, -1, nil, button or nil, MSA_DROPDOWNMENU_SHOW_TIME)
-	if button then
-		_G["MSA_DropDownList"..MSA_DROPDOWNMENU_MENU_LEVEL].showTimer = nil
-	end
+	local value = button and button.value or nil
+	MSA_DropDownMenu_SetInitializeFunction(dropDown, DropDown_Initialize)
+	MSA_ToggleDropDownMenu(level or 1, value, dropDown, KTF.FilterButton, -15, -1, nil, button)
 end
