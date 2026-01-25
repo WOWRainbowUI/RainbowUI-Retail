@@ -99,6 +99,8 @@ end
 
 -- and the actual config now
 
+local categoryID
+
 do
     local panel = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
     panel:Hide()
@@ -214,10 +216,9 @@ do
     -- customRaceDropdown:SetPoint("LEFT", customModel.Text, "RIGHT", 12, -2)
     -- customGenderDropdown:SetPoint("TOPLEFT", customRaceDropdown, "TOPRIGHT", 4, 0)
 
-    -- InterfaceOptions_AddCategory(panel)
     local category, layout = Settings.RegisterCanvasLayoutCategory(panel, panel.name, panel.name)
-    category.ID = panel.name
     Settings.RegisterAddOnCategory(category)
+    categoryID = category:GetID()
 end
 
 -- Overlay config
@@ -227,7 +228,7 @@ do
     panel:Hide()
     panel:SetAllPoints()
     panel.name = "未收藏圖示"
-    panel.parent = "塑形預覽"
+    panel.parent = categoryID
 
     local title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 16, -16)
@@ -264,14 +265,14 @@ do
 	setjournal:SetPoint("TOPLEFT", encounterjournal, "BOTTOMLEFT", 0, -4)
 
     local category = Settings.GetCategory(panel.parent)
-    local subcategory, layout = Settings.RegisterCanvasLayoutSubcategory(category, panel, panel.name, panel.name)
-    subcategory.ID = panel.name
-	category.ID = 1632293877
+    local subcategory, layout = Settings.RegisterCanvasLayoutSubcategory(category, panel, panel.name)
 end
 
 -- Slash handler
 SlashCmdList.APPEARANCETOOLTIP = function(msg)
-    Settings.OpenToCategory(1632293877)
+    if categoryID then
+        Settings.OpenToCategory(categoryID)
+    end
 end
 SLASH_APPEARANCETOOLTIP1 = "/appearancetooltip"
 SLASH_APPEARANCETOOLTIP2 = "/aptip"
