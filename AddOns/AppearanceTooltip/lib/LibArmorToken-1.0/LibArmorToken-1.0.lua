@@ -3201,6 +3201,8 @@ ITEMDATA = {
     -- 10.1.7 Dreambound
     -- 10.2.0 Amirdrassil: below
     -- 11.0.0 Adventurer's Warbound (Delve rewards)
+    -- 11.1.0 Liberation of Undermine: below
+    -- 11.2.0 Manaforge Omega: below
 }
 
 -- Common case is everything from a given set having a shared set of link modifiers that represent the difficulty variants
@@ -3799,6 +3801,247 @@ addItemsWithVariants({
         MONK = {212045}, -- Gatecrasher's Enduring Effigy
         ROGUE = {212036}, -- K'areshi Phantom's Shoulderpads
         WARRIOR = {211982}, -- Warsculptor's Horned Spaulders
+    },
+})
+
+-- 11.1.0 Liberation of Undermine
+addItemsWithVariants({
+    {instanceDifficultyID=Enum.ItemCreationContext.RaidFinder, bonusIDs={3524}},
+    {instanceDifficultyID=Enum.ItemCreationContext.RaidNormal, bonusIDs={3524}},
+    {instanceDifficultyID=Enum.ItemCreationContext.RaidHeroic, bonusIDs={3524}},
+    {instanceDifficultyID=Enum.ItemCreationContext.RaidMythic, bonusIDs={3524}},
+}, {
+    -- Dreadful (Death Knight, Demon Hunter, Warlock)
+    [228799] = { -- Dreadful Greased Gallybux (Chest)
+        DEATHKNIGHT = {229256}, -- Cauldron Champion's Ribcage
+        DEMONHUNTER = {229319}, -- Fel-Dealer's Soul Engine
+        WARLOCK = {229328}, -- Spliced Fiendtrader's Surgical Gown
+    },
+    [228803] = { -- Dreadful Bloody Gallybux (Hands)
+        DEATHKNIGHT = {229254}, -- Cauldron Champion's Fistguards
+        DEMONHUNTER = {229317}, -- Fel-Dealer's Underhandlers
+        WARLOCK = {229326}, -- Spliced Fiendtrader's Demonic Grasp
+    },
+    [228807] = { -- Dreadful Gilded Gallybux (Helm)
+        DEATHKNIGHT = {229253}, -- Cauldron Champion's Crown
+        DEMONHUNTER = {229316}, -- Fel-Dealer's Visor
+        WARLOCK = {229325}, -- Spliced Fiendtrader's Transcendence
+    },
+    [228811] = { -- Dreadful Rusty Gallybux (Legs)
+        DEATHKNIGHT = {229252}, -- Cauldron Champion's Tattered Cuisses
+        DEMONHUNTER = {229315}, -- Fel-Dealer's Fur Kilt
+        WARLOCK = {229324}, -- Spliced Fiendtrader's Skin Tights
+    },
+    [228815] = { -- Dreadful Polished Gallybux (Shoulders)
+        DEATHKNIGHT = {229251}, -- Cauldron Champion's Screamplate
+        DEMONHUNTER = {229314}, -- Fel-Dealer's Recycled Reavers
+        WARLOCK = {229323}, -- Spliced Fiendtrader's Loyal Servants
+    },
+
+    -- Mystic (Druid, Hunter, Mage)
+    [228800] = { -- Mystic Greased Gallybux (Chest)
+        DRUID = {229310}, -- Robes of Reclaiming Blight
+        HUNTER = {229274}, -- Tireless Collector's Battlegear
+        MAGE = {229346}, -- Aspectral Emissary's Primal Robes
+    },
+    [228804] = { -- Mystic Bloody Gallybux (Hands)
+        DRUID = {229308}, -- Grips of Reclaiming Blight
+        HUNTER = {229272}, -- Tireless Collector's Gauntlets
+        MAGE = {229344}, -- Aspectral Emissary's Hardened Grasp
+    },
+    [228808] = { -- Mystic Gilded Gallybux (Helm)
+        DRUID = {229307}, -- Branches of Reclaiming Blight
+        HUNTER = {229271}, -- Tireless Collector's Chained Cowl
+        MAGE = {229343}, -- Aspectral Emissary's Crystalline Cowl
+    },
+    [228812] = { -- Mystic Rusty Gallybux (Legs)
+        DRUID = {229306}, -- Breeches of Reclaiming Blight
+        HUNTER = {229270}, -- Tireless Collector's Armored Breeches
+        MAGE = {229342}, -- Aspectral Emissary's Trousers
+    },
+    [228816] = { -- Mystic Polished Gallybux (Shoulders)
+        DRUID = {229305}, -- Jaws of Reclaiming Blight
+        HUNTER = {229269}, -- Tireless Collector's Hunted Heads
+        MAGE = {229341}, -- Aspectral Emissary's Arcane Vents
+    },
+
+    -- Venerated (Paladin, Priest, Shaman)
+    [228801] = { -- Venerated Greased Gallybux (Chest)
+        PALADIN = {229247}, -- Aureate Sentry's Encasement
+        PRIEST = {229337}, -- Confessor's Unshakable Vestment
+        SHAMAN = {229265}, -- Gale Sovereign's Clouded Hauberk
+    },
+    [228805] = { -- Venerated Bloody Gallybux (Hands)
+        PALADIN = {229245}, -- Aureate Sentry's Gauntlets
+        PRIEST = {229335}, -- Confessor's Unshakable Mitts
+        SHAMAN = {229263}, -- Gale Sovereign's Grasps
+    },
+    [228809] = { -- Venerated Gilded Gallybux (Helm)
+        PALADIN = {229244}, -- Aureate Sentry's Pledge
+        PRIEST = {229334}, -- Confessor's Unshakable Halo
+        SHAMAN = {229262}, -- Gale Sovereign's Charged Hood
+    },
+    [228813] = { -- Venerated Rusty Gallybux (Legs)
+        PALADIN = {229243}, -- Aureate Sentry's Legguards
+        PRIEST = {229333}, -- Confessor's Unshakable Leggings
+        SHAMAN = {229261}, -- Gale Sovereign's Pantaloons
+    },
+    [228817] = { -- Venerated Polished Gallybux (Shoulders)
+        PALADIN = {229242}, -- Aureate Sentry's Roaring Will
+        PRIEST = {229332}, -- Confessor's Unshakable Radiance
+        SHAMAN = {229260}, -- Gale Sovereign's Zephyrs
+    },
+
+    -- Zenith (Evoker, Monk, Rogue, Warrior)
+    [228802] = { -- Zenith Greased Gallybux (Chest)
+        EVOKER = {229283}, -- Opulent Treasurescale's Tunic
+        MONK = {229301}, -- Ageless Serpent's Inked Coils
+        ROGUE = {229292}, -- Spectral Gambler's Vest
+        WARRIOR = {229238}, -- Enforcer's Backalley Vestplate
+    },
+    [228806] = { -- Zenith Bloody Gallybux (Hands)
+        EVOKER = {229281}, -- Opulent Treasurescale's Gold-Counters
+        MONK = {229299}, -- Ageless Serpent's Handguards
+        ROGUE = {229290}, -- Spectral Gambler's Gloves
+        WARRIOR = {229236}, -- Enforcer's Backalley Crushers
+    },
+    [228810] = { -- Zenith Gilded Gallybux (Helm)
+        EVOKER = {229280}, -- Opulent Treasurescale's Crowned Jewel
+        MONK = {229298}, -- Ageless Serpent's Mane
+        ROGUE = {229289}, -- Spectral Gambler's Damned Visage
+        WARRIOR = {229235}, -- Enforcer's Backalley Faceshield
+    },
+    [228814] = { -- Zenith Rusty Gallybux (Legs)
+        EVOKER = {229279}, -- Opulent Treasurescale's Petticoat
+        MONK = {229297}, -- Ageless Serpent's Leggings
+        ROGUE = {229288}, -- Spectral Gambler's Pantaloons
+        WARRIOR = {229234}, -- Enforcer's Backalley Chausses
+    },
+    [228818] = { -- Zenith Polished Gallybux (Shoulders)
+        EVOKER = {229278}, -- Opulent Treasurescale's Gleaming Mantle
+        MONK = {229296}, -- Ageless Serpent's Shoulderpads
+        ROGUE = {229287}, -- Spectral Gambler's Bladed Mantle
+        WARRIOR = {229233}, -- Enforcer's Backalley Shoulderplates
+    },
+})
+
+addItemsWithVariants({
+    {instanceDifficultyID=Enum.ItemCreationContext.RaidFinder, bonusIDs={3524}},
+    {instanceDifficultyID=Enum.ItemCreationContext.RaidNormal, bonusIDs={3524}},
+    {instanceDifficultyID=Enum.ItemCreationContext.RaidHeroic, bonusIDs={3524}},
+    {instanceDifficultyID=Enum.ItemCreationContext.RaidMythic, bonusIDs={3524}},
+}, {
+    -- Dreadful (Death Knight, Demon Hunter, Warlock)
+    [237581] = { -- Dreadful Voidglass Contaminant (Chest)
+        DEATHKNIGHT = {237631}, -- Hollow Sentinel's Breastplate
+        DEMONHUNTER = {237694}, -- Charhound's Vicious Bindings
+        WARLOCK = {237703}, -- Inquisitor's Robes of Madness
+    },
+    [237585] = { -- Dreadful Binding Agent (Hands)
+        DEATHKNIGHT = {237629}, -- Hollow Sentinel's Gauntlets
+        DEMONHUNTER = {237692}, -- Charhound's Vicious Felclaws
+        WARLOCK = {237701}, -- Inquisitor's Clutches of Madness
+    },
+    [237589] = { -- Dreadful Foreboding Beaker (Head)
+        DEATHKNIGHT = {237628}, -- Hollow Sentinel's Stonemask
+        DEMONHUNTER = {237691}, -- Charhound's Vicious Scalp
+        WARLOCK = {237700}, -- Inquisitor's Portal to Madness
+    },
+    [237593] = { -- Dreadful Silken Offering (Legs)
+        DEATHKNIGHT = {237627}, -- Hollow Sentinel's Stonekilt
+        DEMONHUNTER = {237690}, -- Charhound's Vicious Hidecoat
+        WARLOCK = {237699}, -- Inquisitor's Leggings of Madness
+    },
+    [237597] = { -- Dreadful Yearning Cursemark (Shoulders)
+        DEATHKNIGHT = {237626}, -- Hollow Sentinel's Perches
+        DEMONHUNTER = {237689}, -- Charhound's Vicious Hornguards
+        WARLOCK = {237698}, -- Inquisitor's Gaze of Madness
+    },
+
+    -- Mystic (Druid, Hunter, Mage)
+    [237582] = { -- Mystic Voidglass Contaminant (Chest)
+        DRUID = {237685}, -- Vest of the Mother Eagle
+        HUNTER = {237649}, -- Midnight Herald's Hauberk
+        MAGE = {237721}, -- Augur's Ephemeral Habiliments
+    },
+    [237586] = { -- Mystic Binding Agent (Hands)
+        DRUID = {237683}, -- Wings of the Mother Eagle
+        HUNTER = {237647}, -- Midnight Herald's Gloves
+        MAGE = {237719}, -- Augur's Ephemeral Mitts
+    },
+    [237590] = { -- Mystic Foreboding Beaker (Head)
+        DRUID = {237682}, -- Skymane of the Mother Eagle
+        HUNTER = {237646}, -- Midnight Herald's Cowl
+        MAGE = {237718}, -- Augur's Ephemeral Wide-Brim
+    },
+    [237594] = { -- Mystic Silken Offering (Legs)
+        DRUID = {237681}, -- Breeches of the Mother Eagle
+        HUNTER = {237645}, -- Midnight Herald's Petticoat
+        MAGE = {237717}, -- Augur's Ephemeral Trousers
+    },
+    [237598] = { -- Mystic Yearning Cursemark (Shoulders)
+        DRUID = {237680}, -- Ritual Pauldrons of the Mother Eagle
+        HUNTER = {237644}, -- Midnight Herald's Shadowguards
+        MAGE = {237716}, -- Augur's Ephemeral Orbs of Power
+    },
+
+    -- Venerated (Paladin, Priest, Shaman)
+    [237583] = { -- Venerated Voidglass Contaminant (Chest)
+        PALADIN = {237622}, -- Cuirass of the Lucent Battalion
+        PRIEST = {237712}, -- Dying Star's Cassock
+        SHAMAN = {237640}, -- Furs of Channeled Fury
+    },
+    [237587] = { -- Venerated Binding Agent (Hands)
+        PALADIN = {237620}, -- Protectors of the Lucent Battalion
+        PRIEST = {237710}, -- Dying Star's Caress
+        SHAMAN = {237638}, -- Claws of Channeled Fury
+    },
+    [237591] = { -- Venerated Foreboding Beaker (Head)
+        PALADIN = {237619}, -- Lightmane of the Lucent Battalion
+        PRIEST = {237709}, -- Dying Star's Veil
+        SHAMAN = {237637}, -- Aspect of Channeled Fury
+    },
+    [237595] = { -- Venerated Silken Offering (Legs)
+        PALADIN = {237618}, -- Cuisses of the Lucent Battalion
+        PRIEST = {237708}, -- Dying Star's Leggings
+        SHAMAN = {237636}, -- Tassets of Channeled Fury
+    },
+    [237599] = { -- Venerated Yearning Cursemark (Shoulders)
+        PALADIN = {237617}, -- Chargers of the Lucent Battalion
+        PRIEST = {237707}, -- Dying Star's Pyrelights
+        SHAMAN = {237635}, -- Fangs of Channeled Fury
+    },
+
+    -- Zenith (Evoker, Monk, Rogue, Warrior)
+    [237584] = { -- Zenith Voidglass Contaminant (Chest)
+        EVOKER = {237658}, -- Spellweaver's Immaculate Crestward
+        MONK = {237676}, -- Gi of Fallen Storms
+        ROGUE = {237667}, -- Tactical Vest of the Sudden Eclipse
+        WARRIOR = {237613}, -- Living Weapon's Bulwark
+    },
+    [237588] = { -- Zenith Binding Agent (Hands)
+        EVOKER = {237656}, -- Spellweaver's Immaculate Scaleguards
+        MONK = {237674}, -- Grasp of Fallen Storms
+        ROGUE = {237665}, -- Deathgrips of the Sudden Eclipse
+        WARRIOR = {237611}, -- Living Weapon's Crushers
+    },
+    [237592] = { -- Zenith Foreboding Beaker (Head)
+        EVOKER = {237655}, -- Spellweaver's Immaculate Focus
+        MONK = {237673}, -- Half-Mask of Fallen Storms
+        ROGUE = {237664}, -- Hood of the Sudden Eclipse
+        WARRIOR = {237610}, -- Living Weapon's Faceshield
+    },
+    [237596] = { -- Zenith Silken Offering (Legs)
+        EVOKER = {237654}, -- Spellweaver's Immaculate Runeslacks
+        MONK = {237672}, -- Legwraps of Fallen Storms
+        ROGUE = {237663}, -- Pants of the Sudden Eclipse
+        WARRIOR = {237609}, -- Living Weapon's Legguards
+    },
+    [237600] = { -- Zenith Yearning Cursemark (Shoulders)
+        EVOKER = {237653}, -- Spellweaver's Immaculate Pauldrons
+        MONK = {237671}, -- Glyphs of Fallen Storms
+        ROGUE = {237662}, -- Smokemantle of the Sudden Eclipse
+        WARRIOR = {237608}, -- Living Weapon's Ramparts
     },
 })
 
