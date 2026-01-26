@@ -11,6 +11,7 @@
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r 簡易輸出助手
 ## Notes-zhTW: Simple Assisted Combat Icon |n|n將當前建議施放的技能 以圖示形式顯示在螢幕上，讓玩家不必時刻盯著快捷列，就能快速掌握戰鬥節奏。|n|cffffd200使用方法：|r從Esc>選項>插件>輸出助手，進行設定。
 ## X-Category-zhTW: 戰鬥
+## DefaultState: disabled
 
 Libs\LibKeyBound-1.0\lib.xml
 

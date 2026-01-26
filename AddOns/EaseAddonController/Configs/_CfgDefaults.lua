@@ -1351,7 +1351,7 @@ D["SilverPlateTweaks"] = {
 	img = true,
 };
 D["SimpleAssistedCombatIcon"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "COMBAT" },
 	title = "簡易輸出助手",
 	desc = "將當前建議施放的技能以圖示形式顯示在螢幕上，讓玩家不必時刻盯著快捷列，就能快速掌握戰鬥節奏。`",
