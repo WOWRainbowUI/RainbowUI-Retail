@@ -1,6 +1,10 @@
 # Details!: Mythic Plus Extension
 
-## [DMP.20260117.016](https://github.com/Tercioo/Details--Damage-Meter-Mythic-Plus-Extension/tree/DMP.20260117.016) (2026-01-17)
-[Full Changelog](https://github.com/Tercioo/Details--Damage-Meter-Mythic-Plus-Extension/compare/DMP.20251210.015...DMP.20260117.016) 
+## [DMP.20260125.018](https://github.com/Tercioo/Details--Damage-Meter-Mythic-Plus-Extension/tree/DMP.20260125.018) (2026-01-25)
+[Full Changelog](https://github.com/Tercioo/Details--Damage-Meter-Mythic-Plus-Extension/compare/DMP.20260122.017...DMP.20260125.018) 
 
-- Stop erroring on old versions of the game  
+- Prevent invalid classes to cause error  
+- Merge pull request #112 from linaori/disable-combat-log-midnight  
+- The apocalypse is here (for real now)  
+- The apocalypse is here  
+- Disable the combat log listening on midnight  
