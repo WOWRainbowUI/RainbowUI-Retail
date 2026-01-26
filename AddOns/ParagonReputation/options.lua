@@ -1,5 +1,5 @@
 		-------------------------------------------------
-		-- Paragon Reputation 1.71 by Fail US-Ragnaros --
+		-- Paragon Reputation 1.72 by Fail US-Ragnaros --
 		-------------------------------------------------
 
 		  --[[	  Special thanks to Ammako for
@@ -115,7 +115,8 @@ function ParagonReputation:CreateOptions()
 	PR.options.name = "Paragon Reputation"
 	
 	local category = Settings.RegisterCanvasLayoutCategory(PR.options,PR.options.name)
-	category.ID = PR.options.name
+	--category.ID = PR.options.name
+	PR.options.ID = category:GetID()
 	Settings.RegisterAddOnCategory(category)
 	--InterfaceOptions_AddCategory(PR.options)
 
@@ -306,7 +307,7 @@ end
 function ParagonReputation:LockButton()
 	local point,_,relative,x,y = PR.toast:GetPoint()
 	PR.DB.point = {point,relative,x,y}
-	Settings.OpenToCategory(PR.options.name)
+	Settings.OpenToCategory(PR.options.ID)
 	PR.toast:Hide()
 	PR.toast.reset:Hide()
 	PR.toast.lock:Hide()
