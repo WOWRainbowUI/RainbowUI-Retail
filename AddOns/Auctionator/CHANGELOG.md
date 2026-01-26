@@ -1,7 +1,8 @@
 # Auctionator
 
-## [311](https://github.com/TheMouseNest/Auctionator/tree/311) (2026-01-21)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/310...311) 
+## [312](https://github.com/TheMouseNest/Auctionator/tree/312) (2026-01-25)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/311...312) 
 
-- Fix "Open Options" button in Auctionator tab  
-- Retail: Fix displaying crafted item qualities in AH UI  
+- Retail: Fix item level matching failing (causing 0 results to show)  
+    Note: Favourites you \_do not\_ have in your bags will not do item level  
+    matching properly, this is a limitation of the APIs from Blizzard  
