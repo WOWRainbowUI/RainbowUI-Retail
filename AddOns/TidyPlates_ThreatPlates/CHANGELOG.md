@@ -1,4 +1,4 @@
-# 13.0.0-beta3 (2026-01-23)
+# 13.0.0-beta4 (2026-01-25)
 
 This is a basic version with Midnight support. Expect lots of missing features and Lua errors. Report any bugs at https://github.com/Backupiseasy/ThreatPlates/issues.
 
@@ -11,7 +11,5 @@ This is a basic version with Midnight support. Expect lots of missing features a
 * Updated integrated libraries (Ace3 r1387-alpha, LibSharedMedia-3.0 v11.2.1)
 
 Beta changes:
-* Fixed a Lua error that occurred when setting a target marker [Comment #7826, #7821]
-* Fixed a Lua error that occurred when occluded transparency was enabled [GH-631].
-* Fixed a Lua error that occurred when mouseover transparency was enabled [GH-631].
-* Fixed a Lua error when health-based coloring for healthbar or name was used (health-based coloring is disabled for now) [GH-633].
+* Fixed several Lua errors caused by nameplate size changes. 
+* Updated nameplate show/hide CVars (partially).

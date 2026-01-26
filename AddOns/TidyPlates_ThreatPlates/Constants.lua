@@ -690,17 +690,12 @@ Addon.DEFAULT_SETTINGS = {
       ForceFriendlyInCombat = "NONE",
     },
     Visibility = {
-      FriendlyPlayer = { Show = true, UseHeadlineView = true },
+      FriendlyPlayer = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyPlayers") or true, UseHeadlineView = true },
       FriendlyNPC = { Show = "nameplateShowFriendlyNPCs", UseHeadlineView = true },
-      -- nameplateShowFriendlyPlayerGuardians
-      -- nameplateShowFriendlyPlayerMinions
-      -- nameplateShowFriendlyPlayerPets
-      -- nameplateShowFriendlyPlayers
-      -- nameplateShowFriendlyPlayerTotems
-      FriendlyMinion = { Show = "nameplateShowFriendlyMinions",  },
-      FriendlyPet = { Show = "nameplateShowFriendlyPets", UseHeadlineView = true },
-      FriendlyGuardian = { Show = "nameplateShowFriendlyGuardians", UseHeadlineView = true },
-      FriendlyTotem = { Show = "nameplateShowFriendlyTotems", UseHeadlineView = true },
+      FriendlyMinion = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyPlayerMinions") or "nameplateShowFriendlyMinions", UseHeadlineView = true },
+      FriendlyPet = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyPlayerPets") or "nameplateShowFriendlyPets", UseHeadlineView = true },
+      FriendlyGuardian = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyPlayerGuardians") or "nameplateShowFriendlyGuardians", UseHeadlineView = true },
+      FriendlyTotem = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyPlayerTotems") or "nameplateShowFriendlyTotems", UseHeadlineView = true },
       FriendlyMinus = { Show = true, UseHeadlineView = true },
       EnemyPlayer = { Show = true, UseHeadlineView = false },
       EnemyNPC = { Show = true, UseHeadlineView = false },
