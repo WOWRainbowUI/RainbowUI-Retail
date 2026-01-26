@@ -253,6 +253,21 @@ D["BattlePetBreedID"] = {
 		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
 	},
 };
+D["BetterBlizzFrames"] = {
+	defaultEnable = 0,
+	tags = { "UNITFRAME" }, 
+	title = "內建頭像增強",
+	desc = "改良並強化暴雪原生的單位框架。它的特色在於保留原始框架的風格，同時加入更多功能與設定選項，讓玩家能更靈活地調整介面。``首次載入使用請到設定選項中選擇一種設定檔，才會有效果。`",
+	modifier = "彩虹ui",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["BBF"]("") end,
+    },
+	{
+		type = "text",
+		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
+	},
+};
 D["BlizzMove"] = {
 	defaultEnable = 1,
 	tags = { "ENHANCEMENT" }, 
@@ -631,32 +646,6 @@ D["DragonRider"] = {
 		end,
     },
 };
-D["EasyFrames"] = {
-	defaultEnable = 0,
-	title = "暴雪頭像 (美化調整)",
-	desc = "喜愛遊戲內建的頭像推薦使用這個插件，讓內建頭像變得更漂亮，還額外提供了許多自訂化的選項。``|cffFF2D2D請勿和 'Stuf 頭像' 同時載入使用。|r`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\inv_pet_babyblizzardbear",
-	img = true,
-    {
-        text = "設定選項",
-		callback = function() 
-			SlashCmdList["ACECONSOLE_EASYFRAMES"]("")
-		end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
-	},
-	{
-		type = "text",
-        text = "|cffFF2D2D使用 '暴雪頭像' 插件時，請千萬不要啟用 '功能百寶箱 > 框架相關' 裡面的管理框架面版、框架職業染色、職業圖示頭像和顯示玩家邊框...等功能，以避免發生衝突，導致頭像框架不正常。|r",
-	},
-	{
-		type = "text",
-        text = "顯示血量數字和百分比：按 Esc > 介面 > 顯示 > 狀態文字 > 選擇 '數值'，然後便可以在暴雪頭像 (美化調整) 的設定選項中調整血量條文字格式。\n\n分兩邊顯示血量數字和百分比：按 Esc > 介面 > 顯示 > 狀態文字 > 選擇 '兩者'，此方式無法在暴雪頭像 (美化調整) 的設定選項中調整文字格式。\n",
-	},
-};
 D["EditModeExpanded"] = {
 	defaultEnable = 1,
 	tags = { "ENHANCEMENT" },
@@ -1011,6 +1000,10 @@ D["MidnightSimpleUnitFrames"] = {
         text = "設定選項",
         callback = function() SlashCmdList["MIDNIGHTSUF"]("") end,
     },
+	{
+		type = "text",
+		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
+	},
 };
 D["MikScrollingBattleText"] = {
     defaultEnable = 0,
