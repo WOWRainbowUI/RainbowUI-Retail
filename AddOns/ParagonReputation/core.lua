@@ -1,5 +1,5 @@
 		-------------------------------------------------
-		-- Paragon Reputation 1.71 by Fail US-Ragnaros --
+		-- Paragon Reputation 1.72 by Fail US-Ragnaros --
 		-------------------------------------------------
 
 		  --[[	  Special thanks to Ammako for
@@ -56,16 +56,18 @@ end
 -- [GameTooltip] Show the GameTooltip with the Item Reward on mouseover. (Thanks Brudarek)
 function ParagonReputation:Tooltip(self)
 	if not self.questID or not PR.PARAGON_DATA[self.questID] or self.tooLowLevelForParagon then return end
+	local originalWidth = EmbeddedItemTooltip:GetWidth()
 	EmbeddedItemTooltip:ClearLines()
 	EmbeddedItemTooltip:SetOwner(self,"ANCHOR_RIGHT")
 	ReputationParagonFrame_SetupParagonTooltip(self)
-	GameTooltip_SetBottomText(EmbeddedItemTooltip,REPUTATION_BUTTON_TOOLTIP_CLICK_INSTRUCTION,GREEN_FONT_COLOR)
 	AddParagonRewardsToTooltip(self,EmbeddedItemTooltip,PR.PARAGON_DATA[self.questID].rewards)
+	GameTooltip_SetBottomText(EmbeddedItemTooltip,REPUTATION_BUTTON_TOOLTIP_CLICK_INSTRUCTION,GREEN_FONT_COLOR)
 	EmbeddedItemTooltip:AddLine(" ")
 	EmbeddedItemTooltip:AddLine(string.format(ARCHAEOLOGY_COMPLETION,self.count))
 	EmbeddedItemTooltip:AddLine(" ")
 	EmbeddedItemTooltip:SetClampedToScreen(true)
 	EmbeddedItemTooltip:Show()
+	EmbeddedItemTooltip:SetWidth(math.max(EmbeddedItemTooltip:GetWidth(),originalWidth)) -- something changed and the width is not updated on :Show(), I don't know why...
 end
 
 local ACTIVE_TOAST = false
