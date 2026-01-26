@@ -35,7 +35,7 @@ L["SET_RETAIL_ONLY"]     = "Show Only Retail Friends"
 -- [[ SETTINGS: APPEARANCE ]]
 -- ============================================================================
 L["SET_SHOW_FLAGS"]      = "Show Realm Flags"
-L["SET_SHOW_REALM"]      = "Show Realm Name"
+L["SET_SHOW_REALM"]      = "Show Realm Names"
 L["SET_CLASS_COLOR"]     = "Use Class Color Names"
 L["SET_FACTION_ICONS"]   = "Show Faction Icons"
 L["SET_GRAY_FACTION"]    = "Dim Opposing Faction"

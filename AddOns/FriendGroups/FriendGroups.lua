@@ -360,7 +360,7 @@ function FriendGroups_UpdateSize()
     -- 4. Re-anchor ScrollBox to fill the new space
     FriendsListFrame.ScrollBox:ClearAllPoints()
     FriendsListFrame.ScrollBox:SetPoint("TOPLEFT", FriendsListFrame, "TOPLEFT", 7, -115)
-    FriendsListFrame.ScrollBox:SetPoint("BOTTOMRIGHT", FriendsListFrame, "BOTTOMRIGHT", -26, 35)
+    FriendsListFrame.ScrollBox:SetPoint("BOTTOMRIGHT", FriendsListFrame, "BOTTOMRIGHT", -28, 35)
 end
 
 function FriendGroups_Rename(self, oldGroup)
@@ -1154,45 +1154,63 @@ function FriendGroups_SetGroups(id, buttonType)
 	end
 end
 
---[[ 
-    FriendGroups_Menu (Right-Click on Group Header)
-    - Creates the missing frame responsible for the error.
-]] --
-FriendGroups_Menu = CreateFrame("Frame", "FriendGroups_Menu")
+-- ============================================================================
+-- [[ MENU INITIALIZATION ]]
+-- ============================================================================
+
+-- 1. Create the Frame object first
+FriendGroups_Menu = CreateFrame("Frame", "FriendGroups_Menu", UIParent, "UIDropDownMenuTemplate")
 FriendGroups_Menu.displayMode = "MENU"
+
+-- 2. Define the behavior (Right-Click on Group Header)
 FriendGroups_Menu.initialize = function(self, level)
     if level ~= 1 then return end
     
-    -- The group name is passed as the "Value" in ToggleDropDownMenu
     local groupName = UIDROPDOWNMENU_MENU_VALUE
-    
     if not groupName then return end
 
-    -- 1. Add the Group Name as the Title
+    -- Add Group Name Title 
     local titleInfo = UIDropDownMenu_CreateInfo()
     titleInfo.text = groupName
     titleInfo.isTitle = true
     titleInfo.notCheckable = true
     UIDropDownMenu_AddButton(titleInfo, level)
 
-    -- 2. Add the Action Buttons (Rename, Remove, Invite)
-    -- We skip the first item in 'groupMenuItems' because it was a blank title placeholder
+    -- Add Action Buttons (Rename, Remove, Invite) 
     for i = 2, #groupMenuItems do
         local item = groupMenuItems[i]
         local info = UIDropDownMenu_CreateInfo()
         info.text = item.text
         info.notCheckable = true
         info.func = item.func
-        info.arg1 = groupName -- Pass the name to the function (clickedgroup)
+        info.arg1 = groupName 
+
+        -- RESTORED LOGIC: PROTECT SPECIAL GROUPS 
+        if groupName == L["GROUP_NONE"] or groupName == L["GROUP_FAVORITES"] or groupName == L["GROUP_EMPTY"] or groupName == "" then
+            if item.text == L["MENU_RENAME"] or item.text == L["MENU_REMOVE"] then
+                info.disabled = true
+            end
+            if item.text == L["MENU_INVITE"] and groupName == L["GROUP_EMPTY"] then
+                info.disabled = true
+            end
+        end
+        
+        -- RESTORED LOGIC: 40 PLAYER LIMIT 
+        if item.text == L["MENU_INVITE"] then
+            if groupsCount[groupName] and groupsCount[groupName].Total > 40 then
+                info.disabled = true
+                info.text = item.text .. L["MENU_MAX_40"]
+            end
+        end
+
         UIDropDownMenu_AddButton(info, level)
     end
 end
 
---[[
-	FriendGroups_SettingsMenu (Cogwheel Click)
-]] --
-local FriendGroups_SettingsMenu = CreateFrame("Frame", "FriendGroups_SettingsMenu")
+-- 3. Also initialize the Settings Menu to prevent similar errors
+FriendGroups_SettingsMenu = CreateFrame("Frame", "FriendGroups_SettingsMenu", UIParent, "UIDropDownMenuTemplate")
 FriendGroups_SettingsMenu.displayMode = "MENU"
+
 FriendGroups_SettingsMenu.initialize = function(self, level)
     if level ~= 1 then return end
     
@@ -1204,7 +1222,6 @@ FriendGroups_SettingsMenu.initialize = function(self, level)
         UIDropDownMenu_AddButton(info, level)
     end
 end
-
 
 --[[
 	FriendGroupsFrame
@@ -1331,7 +1348,7 @@ EnableFriendGroups = function()
     FriendGroups_SearchBox = CreateFrame("EditBox", "FriendGroupsGlobalSearch", FriendsListFrame, "SearchBoxTemplate")
     FriendGroups_SearchBox:SetSize(200, 20)
     FriendGroups_SearchBox:SetPoint("TOPLEFT", FriendsListFrame, "TOPLEFT", 15, -85) 
-    FriendGroups_SearchBox:SetPoint("TOPRIGHT", FriendsListFrame, "TOPRIGHT", -35, -85) 
+    FriendGroups_SearchBox:SetPoint("TOPRIGHT", FriendsListFrame, "TOPRIGHT", -30, -85) 
     FriendGroups_SearchBox:SetAutoFocus(false)
     FriendGroups_SearchBox.Instructions:SetText(L["SEARCH_PLACEHOLDER"])
     
@@ -1358,7 +1375,7 @@ EnableFriendGroups = function()
     -- 2. Create Settings Button
     local settingsBtn = CreateFrame("Button", "FriendGroupsGlobalSettings", FriendGroups_SearchBox)
     settingsBtn:SetSize(20, 20)
-    settingsBtn:SetPoint("LEFT", FriendGroups_SearchBox, "RIGHT", 5, 0)
+    settingsBtn:SetPoint("LEFT", FriendGroups_SearchBox, "RIGHT", 1, 0)
     settingsBtn:SetNormalTexture("Interface\\Buttons\\UI-OptionsButton")
     settingsBtn:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
     
@@ -1419,54 +1436,57 @@ function FriendGroups_GetRealmInfo(gameAccountInfo)
 
     local rawRealm = gameAccountInfo.realmName
     local richPresence = gameAccountInfo.richPresence or ""
-    
-    -- 1. Create a "Clean Blob" of text (remove all spaces & punctuation)
-    -- This turns "AFK - Elwynn Forest - Nightslayer" into "AFKElwynnForestNightslayer"
     local cleanBlob = (richPresence .. (rawRealm or "")):gsub("%p", ""):gsub("%s+", "") 
 
-    -- 2. Priority Scan for Manual Classic Names (The "Ghosts")
+    -- [[ 1. DETECT PLAYER REGION ]] --
+    -- Region 1 = Americas/Oceania, Region 3 = Europe
+    local myRegion = GetCurrentRegion() 
+    local primaryTable = (myRegion == 3) and FriendGroups_RealmDataEU or FriendGroups_RealmData
+    local secondaryTable = (myRegion == 3) and FriendGroups_RealmData or FriendGroups_RealmDataEU
+
+    -- [[ 2. REORGANIZED CLASSIC PRIORITY (Region-Sensitive) ]] --
     local classicPriority = {
+        -- US/Oceanic Classic Hubs
         ["Nightslayer"] = { icon="FlagUS.tga", region="US" },
         ["Dreamscythe"] = { icon="FlagUS.tga", region="US" },
         ["Doomhowl"] = { icon="FlagUS.tga", region="US" },
+        ["Whitemane"] = { icon="FlagUS.tga", region="US" },
+        ["Mankrik"] = { icon="FlagUS.tga", region="US" },
         ["Maladath"] = { icon="FlagAU.tga", region="Oceania" },
         ["Shadowstrike"] = { icon="FlagAU.tga", region="Oceania" },
-        ["Penance"] = { icon="FlagAU.tga", region="Oceania" },
-        ["DefiasPillager"] = { icon="FlagUS.tga", region="US" },
-        ["SkullRock"] = { icon="FlagUS.tga", region="US" },
-        ["CrusaderStrike"] = { icon="FlagUS.tga", region="US" },
-        ["LivingFlame"] = { icon="FlagUS.tga", region="US" },
-        ["WildGrowth"] = { icon="FlagUS.tga", region="US" },
-        ["LoneWolf"] = { icon="FlagUS.tga", region="US" },
-        ["LavaLash"] = { icon="FlagUS.tga", region="US" },
-        ["ChaosBolt"] = { icon="FlagUS.tga", region="US" },
+
+        -- EU Classic Hubs (Fixed to FlagGB)
         ["Thunderstrike"] = { icon="FlagGB.tga", region="EU" },
         ["Spineshatter"] = { icon="FlagGB.tga", region="EU" },
-        ["Soulseeker"] = { icon="FlagGB.tga", region="EU" }
+        ["Soulseeker"] = { icon="FlagGB.tga", region="EU" },
+        ["Firemaw"] = { icon="FlagGB.tga", region="EU" },
+        ["Gehennas"] = { icon="FlagGB.tga", region="EU" },
+        ["Stitches"] = { icon="FlagGB.tga", region="EU" }
     }
 
-    -- If the blob contains a known Classic name, return immediately.
     for name, data in pairs(classicPriority) do
         if cleanBlob:find(name, 1, true) then
             return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
         end
     end
 
-    -- 3. Standard Retail Check (Using Realms.lua DB)
-    if rawRealm and rawRealm ~= "" and rawRealm ~= "WoW Classic" and rawRealm ~= "World of Warcraft Classic" then
-        local cleanRealm = rawRealm:gsub("%s+", "") -- Remove spaces
-        local data = FriendGroups_RealmData[cleanRealm] or (FriendGroups_RealmDataEU and FriendGroups_RealmDataEU[cleanRealm])
+    -- [[ 3. SMART LOOKUP ]] --
+    if rawRealm and rawRealm ~= "" then
+        local cleanRealm = rawRealm:gsub("%s+", "")
+        
+        -- Check Local Region Table First (Solves Blackhand overlap)
+        local data = primaryTable[cleanRealm] or secondaryTable[cleanRealm]
         
         if data then
             return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
         end
     end
 
-    -- 4. Last Resort: Extraction from Rich Presence dash
+    -- 4. Final Fallback (Extraction)
     local extraction = richPresence:match("%s%-%s(.+)$")
     if extraction then
         local cleanEx = extraction:gsub("%s+", "")
-        local data = FriendGroups_RealmData[cleanEx] or (FriendGroups_RealmDataEU and FriendGroups_RealmDataEU[cleanEx])
+        local data = primaryTable[cleanEx] or secondaryTable[cleanEx]
         if data then
             return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
         end
@@ -1559,55 +1579,56 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 				local restriction = FriendsFrame_GetInviteRestriction(button.id);
 				if restriction == INVITE_RESTRICTION_NONE then button.travelPassButton:Enable(); else button.travelPassButton:Disable(); end
 
-                -- [[ 1. REALM FLAG LOGIC (Uses Helper) ]] --
-                local flagShown = false
+-- [[ 1. SWAPPED ICON LOGIC: FACTION THEN FLAG ]] --
+                local factionShown = false
+                if FriendGroups_SavedVars.show_faction_icons then
+                    if not button.facIcon then
+                        button.facIcon = button:CreateTexture("facIcon")
+                        button.facIcon:SetSize(button.gameIcon:GetWidth(), button.gameIcon:GetHeight())
+                    end
+                    
+                    button.facIcon:ClearAllPoints()
+                    -- Anchor Faction Icon to the LEFT of the Game Icon
+                    button.facIcon:SetPoint("RIGHT", button.gameIcon, "LEFT", 0, 0)
+                    button.facIcon:SetTexture(FriendGroups_GetFactionIcon(accountInfo.gameAccountInfo.factionName))
+                    button.facIcon:Show()
+                    factionShown = true
+
+                    -- Faction background coloring
+                    if accountInfo.gameAccountInfo.factionName == "Horde" then
+                        button.background:SetColorTexture(0.7, 0.2, 0.2, 0.2)
+                    elseif accountInfo.gameAccountInfo.factionName == "Alliance" then
+                        button.background:SetColorTexture(0.2, 0.2, 0.7, 0.2)
+                    end
+                else
+                    if button.facIcon then button.facIcon:Hide() end
+                end
+
+                -- [[ 2. FLAG LOGIC: ANCHORED TO FACTION ]] --
                 if FriendGroups_SavedVars.show_flags then
                     if not button.realmFlag then
                         button.realmFlag = button:CreateTexture("realmFlag")
-                        button.realmFlag:SetSize(button.gameIcon:GetWidth(), button.gameIcon:GetHeight())
+                        button.realmFlag:SetSize(button.gameIcon:GetWidth() * 0.75, button.gameIcon:GetHeight() * 0.75)
                     end
                     
-                    -- Use the Helper to get the correct icon and region
                     local flagTexture, _ = FriendGroups_GetRealmInfo(accountInfo.gameAccountInfo)
 
                     if flagTexture then
                         button.realmFlag:SetTexture(flagTexture)
                         button.realmFlag:Show()
                         button.realmFlag:ClearAllPoints()
-                        button.realmFlag:SetPoint("RIGHT", button.gameIcon, "LEFT", 0, 0)
-                        flagShown = true
+                        
+                        -- Anchor Flag to the LEFT of the Faction Icon (or Game Icon if faction is hidden)
+                        if factionShown then
+                            button.realmFlag:SetPoint("RIGHT", button.facIcon, "LEFT", -1, 0)
+                        else
+                            button.realmFlag:SetPoint("RIGHT", button.gameIcon, "LEFT", 0, 0)
+                        end
                     else
                         button.realmFlag:Hide()
                     end
                 else
-                     if button.realmFlag then button.realmFlag:Hide() end
-                end
-
-                -- [[ 2. FACTION ICON LOGIC ]] --
-                if FriendGroups_SavedVars.show_faction_icons then
-                    if not button.facIcon then
-                        button.facIcon = button:CreateTexture("facIcon");
-                        button.facIcon:SetWidth(button.gameIcon:GetWidth())
-                        button.facIcon:SetHeight(button.gameIcon:GetHeight())
-                    end
-                    button.facIcon:ClearAllPoints();
-                    
-                    if flagShown then
-                        button.facIcon:SetPoint("RIGHT", button.realmFlag, "LEFT", 0, 0);
-                    else
-                        button.facIcon:SetPoint("RIGHT", button.gameIcon, "LEFT", 0, 0);
-                    end
-                    
-                    button.facIcon:SetTexture(FriendGroups_GetFactionIcon(accountInfo.gameAccountInfo.factionName));
-                    button.facIcon:Show()
-
-                    if accountInfo.gameAccountInfo.factionName == "Horde" then
-                        button.background:SetColorTexture(0.7, 0.2, 0.2, 0.2);
-                    elseif accountInfo.gameAccountInfo.factionName == "Alliance" then
-                        button.background:SetColorTexture(0.2, 0.2, 0.7, 0.2);
-                    end
-                else
-                    if button.facIcon then button.facIcon:Hide() end
+                    if button.realmFlag then button.realmFlag:Hide() end
                 end
 
 			else
@@ -1825,71 +1846,105 @@ function FriendGroups_ToggleSearch(searchBox, frame)
     end
 end
 
+-- [[ UPDATED SEARCH: Supports Region AND Faction Keywords ]] --
+-- [[ UPDATED SEARCH: Filters by Specific Region Names in Realms.lua ]] --
 function FriendGroups_Search(playerId, playerButtonType)
     if searchValue == "" then return true end
 
-    local characterName = ""
-    local bnetAccountName = "" 
-    local battleTag = ""
-    local noteText = ""
-    local realmName = ""
-    local className = "" 
-    local richPresence = ""
+    local characterName, bnetAccountName, battleTag, noteText, realmName, className, richPresence, regionSearchText, factionSearchText = "", "", "", "", "", "", "", "", ""
     local classMatch = false
-    local returnValue = false
-
     local searchLower = searchValue:lower()
     local searchLen = #searchLower
 
-    if playerButtonType == FRIENDS_BUTTON_TYPE_WOW then
-        local info = C_FriendList.GetFriendInfoByIndex(playerId);
+    if playerButtonType == FRIENDS_BUTTON_TYPE_BNET then
+        local accountInfo = C_BattleNet.GetFriendAccountInfo(playerId)
+        if accountInfo and accountInfo.gameAccountInfo then
+            bnetAccountName = accountInfo.accountName or ""
+            battleTag = accountInfo.battleTag or ""
+            noteText = accountInfo.note or ""
+            characterName = accountInfo.gameAccountInfo.characterName or ""
+            realmName = accountInfo.gameAccountInfo.realmName or ""
+            className = accountInfo.gameAccountInfo.className or ""
+            richPresence = accountInfo.gameAccountInfo.richPresence or ""
+            factionSearchText = accountInfo.gameAccountInfo.factionName or ""
+
+            -- [[ 1. DATABASE LOOKUP FOR REGION NAME ]] --
+            local rid = accountInfo.gameAccountInfo.regionID
+            local database = (rid == 3) and FriendGroups_RealmDataEU or FriendGroups_RealmData
+            
+            if realmName ~= "" then
+                local cleanRealm = realmName:gsub("%s+", "")
+                local data = database[cleanRealm]
+                if data and data.region then
+                    regionSearchText = data.region -- This captures "Oceania", "Brazil", etc.
+                end
+            end
+        end
+    elseif playerButtonType == FRIENDS_BUTTON_TYPE_WOW then
+        local info = C_FriendList.GetFriendInfoByIndex(playerId)
         if info then
             characterName = info.name or ""
             noteText = info.notes or ""
             className = info.className or ""
-        end
-    elseif playerButtonType == FRIENDS_BUTTON_TYPE_BNET then
-        local accountInfo = C_BattleNet.GetFriendAccountInfo(playerId);
-        if accountInfo then
-            bnetAccountName = accountInfo.accountName or ""
-            battleTag = accountInfo.battleTag or ""
-            noteText = accountInfo.note or ""
-            
-            if accountInfo.gameAccountInfo then
-                characterName = accountInfo.gameAccountInfo.characterName or ""
-                realmName = accountInfo.gameAccountInfo.realmName or ""
-                className = accountInfo.gameAccountInfo.className or ""
-                richPresence = accountInfo.gameAccountInfo.richPresence or ""
-            end
+            factionSearchText = playerFactionGroup or ""
+            regionSearchText = "Local" -- Standard WoW friends are always local
         end
     end
 
-    -- [[ CLASS SEARCH: Starts With Only ]] --
-    -- Prevents "Hunter" from finding "Demon Hunter"
-    if className and className ~= "" then
-        local cLower = className:lower()
-        local cNoSpace = cLower:gsub(" ", "")
-        
-        if cLower:sub(1, searchLen) == searchLower then 
-            classMatch = true 
-        elseif cNoSpace:sub(1, searchLen) == searchLower then
-            classMatch = true
-        end
-    end
+    -- Match Class
+    if className ~= "" and className:lower():sub(1, searchLen) == searchLower then classMatch = true end
 
-    -- [[ GENERAL SEARCH ]] --
-    -- Searches: Name, BTag, Note, Realm Name (e.g. "Frostmourne"), and Rich Presence (e.g. "Nightslayer")
+    -- [[ 2. MASTER SEARCH LOGIC ]] --
     if (bnetAccountName:lower():find(searchLower, 1, true)) or 
        (battleTag:lower():find(searchLower, 1, true)) or 
        (characterName:lower():find(searchLower, 1, true)) or
        (noteText:lower():find(searchLower, 1, true)) or
        (realmName:lower():find(searchLower, 1, true)) or
        (richPresence:lower():find(searchLower, 1, true)) or 
+       (regionSearchText:lower():find(searchLower, 1, true)) or -- Matches against "Oceania", "Germany", etc.
+       (factionSearchText:lower():find(searchLower, 1, true)) or 
        classMatch then
-        returnValue = true
+        return true
+    end
+    return false
+end
+
+-- [[ REALM INFO: Using RegionID to prevent table overlap ]] --
+function FriendGroups_GetRealmInfo(gameAccountInfo)
+    if not gameAccountInfo then return nil, nil end
+
+    -- Detect regionID: 1=US, 2=KR, 3=EU, 4=TW, 5=CN
+    local rid = gameAccountInfo.regionID
+    local database = FriendGroups_RealmData -- Default Region 1
+    
+    if rid == 3 then 
+        database = FriendGroups_RealmDataEU 
+    elseif rid == 2 or rid == 4 or rid == 5 then 
+        database = FriendGroups_RealmDataAsia
+    end
+    
+    local rawRealm = gameAccountInfo.realmName
+    if rawRealm and rawRealm ~= "" then
+        local cleanRealm = rawRealm:gsub("%s+", "")
+        local data = database[cleanRealm]
+        
+        if data then
+            return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
+        end
+    end
+    
+    -- Final Fallback: Parse Rich Presence
+    local richPresence = gameAccountInfo.richPresence or ""
+    local extraction = richPresence:match("%s%-%s(.+)$")
+    if extraction then
+        local cleanEx = extraction:gsub("%s+", "")
+        local data = database[cleanEx]
+        if data then
+            return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
+        end
     end
 
-    return returnValue
+    return nil, nil
 end
 
 function FriendGroups_FriendsListUpdateDividerTemplate(frame, elementData)
