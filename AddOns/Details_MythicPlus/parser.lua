@@ -29,18 +29,25 @@ parserFrame:RegisterEvent("CHALLENGE_MODE_DEATH_COUNT_UPDATED")
 parserFrame:SetScript("OnEvent", function (self, ...) self:OnEvent(...) end)
 parserFrame.isParsing = false
 
-function addon.StartParser()
-    parserFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    parserFrame.isParsing = true
+-- Linaori: Keeping this support in case older versions ever need this through "classic" versions
+local supportCombatLog = not detailsFramework.IsAddonApocalypseWow()
 
+function addon.StartParser()
+    if supportCombatLog then
+        parserFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    end
+
+    parserFrame.isParsing = true
     private.log("Parser started")
 end
 
 function addon.StopParser()
-    parserFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    if supportCombatLog then
+        parserFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    end
+
     addon.CountInterruptOverlaps()
     parserFrame.isParsing = false
-
     private.log("Parser stopped")
 end
 

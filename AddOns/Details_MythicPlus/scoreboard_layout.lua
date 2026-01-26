@@ -324,8 +324,19 @@ do -- player portrait
         frame.Portrait:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1)
         if (not portraitTexture) then
             local class = playerData.class
-            frame.Portrait:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
-            frame.Portrait:SetTexCoord(unpack(CLASS_ICON_TCOORDS[class]))
+            if CLASS_ICON_TCOORDS[class] then
+                frame.Portrait:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
+                frame.Portrait:SetTexCoord(unpack(CLASS_ICON_TCOORDS[class]))
+            else
+                if Details then
+                    local texturePath, left, right, top, bottom = Details:GetClassIcon(class)
+                    frame.Portrait:SetTexture(texturePath)
+                    frame.Portrait:SetTexCoord(left, right, top, bottom)
+                else
+                    frame.Portrait:SetTexture("Interface\\ICONS\\INV_Misc_QuestionMark")
+                    frame.Portrait:SetTexCoord(0, 1, 0, 1)
+                end
+            end
         end
 
         if (playerData.ilevel) then
