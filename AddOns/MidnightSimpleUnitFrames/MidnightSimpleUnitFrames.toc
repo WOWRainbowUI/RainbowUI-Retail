@@ -1,0 +1,46 @@
+## Interface: 120000
+## Title: Midnight Simple UnitFrames
+## Notes: Unitframe Addon by Mapko 
+## Author: Mapkó
+## Version: 1.8r3
+## Category: Combat
+## SavedVariables: MSUF_Config
+## SavedVariables: MSUF_DB, MSUF_GlobalDB
+## IconTexture: Interface\AddOns\MidnightSimpleUnitFrames\Media\MSUF_MinimapIcon.tga
+## X-Wago-ID: XKq9aoKy
+
+## Title-zhTW: |cff4DD2FF[頭像]|r至暗之夜頭像
+## Notes-zhTW: Midnight Simple UnitFrames |n|n替換遊戲內建的單位框架，提供更簡潔、直觀且可高度自訂的介面。它的設計理念是將戰鬥資訊集中在角色附近，避免玩家需要分散注意力到螢幕角落。|n|n|cffffd200使用方法: |r輸入 /msuf ，或從 Esc>選項>插件>頭像，開啟設定。|n|n|cffFF2D2D特別注意: |r請勿和其他頭像插件同時載入使用。
+## X-Category-zhTW: 介面
+## DefaultState: disabled
+
+MSUF_UpdateManager.lua
+MSUF_EventBus.lua
+MSUF_Libs.lua
+MSUF_Defaults.lua
+MSUF_Profiles.lua
+MSUF_Util.lua
+MSUF_Style.lua
+MSUF_Castbars_LoDStub.lua
+Options\MSUF_Options_Core.lua
+Options\MSUF_Options_Player.lua
+Options\MSUF_Options_Misc.lua
+Options\MSUF_Options_Fonts.lua
+Options\MSUF_Options_Auras.lua
+Media\MSUF_Media.lua
+Core\MSUF_ProfileIO.lua
+Core\MSUF_StatusIndicators.lua
+Core\MSUF_SetupWizard.lua
+Core\MSUF_ChatAndTooltips.lua
+Core\MSUF_UnitframeCore.lua
+MidnightSimpleUnitFrames.lua
+MSUF_Presets.lua
+MidnightSimpleUnitFrames_SlashMenu.lua
+MidnightSimpleUnitFrames_MinimapButton.lua
+MSUF_EditMode.lua
+MidnightSimpleUnitFrames_Colors.lua
+MidnightSimpleUnitFrames_Auras.lua
+MidnightSimpleUnitFrames_Gameplay.lua
+Modules\MidnightSimpleUnitFrames_FocusKickIcon.lua
+Modules\MSUF_RoundedUnitframes.lua
+Modules\MSUF_3DPortraits.lua

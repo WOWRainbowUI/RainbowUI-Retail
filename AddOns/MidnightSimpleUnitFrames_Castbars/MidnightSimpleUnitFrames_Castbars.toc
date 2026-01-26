@@ -1,0 +1,30 @@
+## Interface: 120000
+## Title: Midnight Simple UnitFrames - Castbars
+## Notes: Castbar LoD for MSUF
+## Author: Midnight
+## Version: 1.8r3
+## Category: Combat
+## Dependencies: MidnightSimpleUnitFrames
+## LoadOnDemand: 1
+## IconTexture: Interface\AddOns\MidnightSimpleUnitFrames\Media\MSUF_MinimapIcon.tga
+## X-Wago-ID: XKq9aoKy
+
+## Title-zhTW: |cff4DD2FF[頭像]|r至暗之夜頭像-施法條
+## Notes-zhTW: Midnight Simple UnitFrames - Castbars |n|n替換遊戲內建的單位框架，提供更簡潔、直觀且可高度自訂的介面。它的設計理念是將戰鬥資訊集中在角色附近，避免玩家需要分散注意力到螢幕角落。|n|n|cffffd200使用方法: |r輸入 /msuf ，或從 Esc>選項>插件>頭像，開啟設定。|n|n|cffFF2D2D特別注意: |r請勿和其他頭像插件同時載入使用。
+## X-Category-zhTW: 介面
+## DefaultState: disabled
+
+Castbars\MSUF_CastbarRegistry.lua
+Castbars\MSUF_CastbarStyle.lua
+Castbars\MSUF_CastbarUtils.lua
+Castbars\MSUF_CastbarFrames.lua
+Castbars\MSUF_CastbarPreviewEdit.lua
+Castbars\MSUF_CastbarPreviews.lua
+Castbars\MSUF_CastbarVisuals.lua
+Castbars\MSUF_BossPreviewTextHook.lua
+Castbars\MSUF_CastbarEngine.lua
+Castbars\MSUF_CastbarDriver.lua
+Castbars\MSUF_FocusKick_StateDriver.lua
+Modules\MidnightSimpleUnitFrames_BossCastbars.lua
+
+MSUF_Castbars.lua
