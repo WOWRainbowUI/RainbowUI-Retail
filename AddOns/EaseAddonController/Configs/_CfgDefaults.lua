@@ -919,20 +919,11 @@ D["Leatrix_Plus"] = {
     },
 };
 D["ls_Glass"] = {
-    defaultEnable = 1,
-	tags = { "SOCIAL" },
-	title = "聊天視窗美化",
-	desc = "極簡風格的聊天視窗，會自動淡出聊天文字，讓你更能沉浸在遊戲中，並且提供更多的選項來自訂聊天視窗。`",
+    defaultEnable = 0,
+	title = "(請刪除) 聊天視窗美化",
+	desc = "這是舊版的插件，已經移除。`請自行刪除 AddOns 裡面的 ls_Glass 資料夾。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_evoker_powerswell",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["LSGLASS"]("") end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
-	},
 };
 D["ls_Toasts"] = {
     defaultEnable = 1,
