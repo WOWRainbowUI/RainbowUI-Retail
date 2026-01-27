@@ -1,5 +1,5 @@
 		-------------------------------------------------
-		-- Paragon Reputation 1.72 by Fail US-Ragnaros --
+		-- Paragon Reputation 1.73 by Fail US-Ragnaros --
 		-------------------------------------------------
 
 		  --[[	  Special thanks to Ammako for
@@ -154,7 +154,7 @@ end
 -- [Reputation Frame] Change the Reputation Bars accordingly.
 local function UpdateBar(self)
 	if not self.Content or not self.Content.ReputationBar then return end
-	if self.factionID and C_Reputation.IsFactionParagon(self.factionID) then
+	if self.factionID and C_Reputation.IsFactionParagonForCurrentPlayer(self.factionID) then
 		if not self.paragon_hook and self.ShowParagonRewardsTooltip then
 			hooksecurefunc(self,"ShowParagonRewardsTooltip",function(_self)
 				PR:Tooltip(_self)
