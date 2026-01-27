@@ -56,6 +56,7 @@ local T = {
     ["unit.player.elements.factionIcon"]    = "陣營圖示",
     ["unit.player.elements.classIcon"]      = "職業圖示",
     ["unit.player.elements.friendIcon"]     = "好友圖示",
+	["unit.player.elements.mplusScore"]     = "M+分數",
 	["unit.player.elements.title"]          = "頭銜",
     ["unit.player.elements.name"]           = "名稱",
     ["unit.player.elements.realm"]          = "伺服器",
@@ -102,6 +103,7 @@ local T = {
     ["spell.background"]                    = "背景顔色",
     ["spell.borderColor"]                   = "邊框顔色",
 	["spell.showIcon"]                      = "法術圖示",
+	["Mythic+ Score"]                       = "M+分數",
     
     ["dropdown.inherit"]        = "|cffffee00沿用整體設定|r",
     ["dropdown.default"]        = "|cffaaaaaa系統預設值|r",
