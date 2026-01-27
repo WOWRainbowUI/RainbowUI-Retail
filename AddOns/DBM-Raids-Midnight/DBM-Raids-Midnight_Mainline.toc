@@ -1,6 +1,6 @@
 ## Interface: 120000
 ## X-Min-Interface: 120000
-## Version: 12.0.15
+## Version: 12.0.16
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffff6010Raids (Midnight)|r
