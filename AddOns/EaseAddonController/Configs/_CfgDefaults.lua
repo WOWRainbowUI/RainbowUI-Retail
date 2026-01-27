@@ -416,7 +416,7 @@ D["ClearMapPin"] = {
 D["Clique"] = {
     defaultEnable = 0,
 	tags = { "COMBAT" },
-	title = "Clique 點擊施法",
+	title = "可麗果點擊施法",
 	desc = "提供強大的點滑鼠擊施法與懸停施法功能。玩家可以將幾乎任何滑鼠或鍵盤組合綁定到技能或巨集，並直接在單位框架或 3D 遊戲世界中施放。這大幅簡化了操作流程，讓你能更快選擇技能並指定目標，省去額外的點擊步驟。`",
 	modifier = "彩虹ui",
 	{
