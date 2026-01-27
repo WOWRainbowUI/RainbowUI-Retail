@@ -1,25 +1,24 @@
 ## Interface: 11508, 20205, 50503, 120000
 
+## Author: StormFX, dlecina, ricgingell
 ## Title: Masque: Squat
+## Version: 2.0.0
+
+## Category: Masque
+## Dependencies: Masque
+## IconTexture: Interface\AddOns\Masque_Squat\Textures\Icon
+
 ## Notes: Squat skin for Masque.
 ## Notes-deDE: Squat-Skin für Masque.
-## Notes-esES: Skin Squat para Masque.
 ## Notes-esMX: Skin Squat para Masque.
+## Notes-esES: Skin Squat para Masque.
 ## Notes-frFR: Skin de Squat pour Masque.
 ## Notes-itIT: Skin Squat per Masque.
 ## Notes-ruRU: Скин Squat для Masque.
 ## Notes-zhTW: Masque的Squat皮膚。
 
-## Version: 1.12.2
-## Author: dlecina
-## Dependencies: Masque
-
-## X-Website: https://github.com/dlecina/Masque_Squat
 ## X-Category: Interface Enhancements
-## X-Credits: Zeal, Caith, dlecina
-## X-Curse-Project-ID: 388786
-## X-WoWI-ID: XXXX
-## X-Wago-ID: qv63go6b
+## X-Credits: Zeal, Caith, StormFX, dlecina, ricgingell
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 按鈕外觀主題-深蹲
 ## Notes-zhTW: Masque: Squat |n|n矮又好看的按鈕外觀佈景主題。
