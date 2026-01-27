@@ -1,0 +1,49 @@
+## Interface: 11508, 20205, 38000, 50503, 120000
+## Title: Account Wide Interface Settings
+## Version: v2.1.8-beta1
+## Notes: Synchronises various Character-Specific Interface Settings Account Wide. /awi
+## Author: ConineSpiritwolf
+## SavedVariables: AccWideUIAceDB, AccWideUI_AccountData
+## DefaultState: enabled
+## OptionalDeps: BlockBlizzChatChannels, Ace3, MoveAny, EditModeExpanded
+
+## IconTexture: interface\icons\inv_misc_punchcards_yellow.blp
+## X-Category: HUDs
+## X-Website: https://github.com/NinerBull/AccWideUILayoutSelection
+## X-Curse-Project-ID: 700820
+## X-WoWI-ID: 26459
+## X-Wago-ID: n6VPMLGd
+
+## Category: User Interface
+## Category-deDE: Benutzerinterface
+## Category-esES: Interfaz de usuario
+## Category-esMX: Interfaz de usuario
+## Category-frFR: Interface utilisateur
+## Category-itIT: Interfaccia utente
+## Category-koKR: 사용자 인터페이스
+## Category-ptBR: Interface do usuário
+## Category-ruRU: Интерфейс пользователя
+## Category-zhCN: 用户界面
+## Category-zhTW: 使用者介面
+
+## Title-zhTW: |cffFF9900[進階]|r 帳號共用介面設定
+## Notes-zhTW: Account Wide Interface Settings |n|n讓角色專用的介面設定可以在整個帳號中同步，避免每次創建新角色或切換角色時都要重新調整設定。它會自動將你常用的介面選項套用到所有角色。|n|n|cffffd200使用方法: |r從Esc>選項>插件>帳號共用設定，進行設定。
+## DefaultState: disabled
+## X-Category-zhTW: 進階
+
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+
+locale/locale.enUS.lua
+# locale/locale.zhCN.lua
+locale/locale.zhTW.lua
+
+Core.lua
+HelperFunctions.lua
+CVarLists.lua
+V1Migration.lua
+ChatChannels.lua
+SaveFunction.lua
+LoadFunction.lua
+Options.lua
+Onboarding.lua
+AddonCompartment.lua

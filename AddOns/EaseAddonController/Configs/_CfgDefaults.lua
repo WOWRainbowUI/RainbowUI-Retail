@@ -30,6 +30,17 @@ D["AbilityTimeline"] = {
         callback = function() SlashCmdList["ACECONSOLE_AT"]("") end,
     },
 };
+D["AccWideUILayoutSelection"] = {
+	defaultEnable = 0,
+	tags = { "MISC" }, 
+	title = "帳號共用介面設定",
+	desc = "讓角色專用的介面設定可以在整個帳號中同步，避免每次創建新角色或切換角色時都要重新調整設定。``它會自動將你常用的介面選項套用到所有角色。``注意：若要讓不同的角色載入相同的插件，請使用插件控制台上方的 '方案管理' 功能。`",
+	modifier = "彩虹ui",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["ACECONSOLE_AWI"]("") end,
+    },
+};
 D["Ace3"] = {
 	defaultEnable = 1,
 	protected = true, 
