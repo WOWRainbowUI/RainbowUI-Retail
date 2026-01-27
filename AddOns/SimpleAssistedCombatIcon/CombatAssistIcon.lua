@@ -20,6 +20,7 @@ local Masque = LibStub("Masque",true)
 
 local HasBartender = false
 local HasDominos = false
+local HasElvUI = false
 local BarAddonLoaded = false
 
 local AddonOverrideActionBySlot 
@@ -29,26 +30,6 @@ local AddonLookupButtonByAction = {}
 
 local LookupActionBySlot = {}
 local LookupButtonByAction = {}
-
-local DefaultActionSlotMap = {
-    --Default UI Slot mapping https://warcraft.wiki.gg/wiki/Action_slot
-    { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 1,  last = 12},--Action Bar 1 (Main Bar)
-    { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 13, last = 24},--Action Bar 1 (Page 2)
-    { actionPrefix = "MULTIACTIONBAR3BUTTON", buttonPrefix ="MultiBarRightButton",      start = 25, last = 36},--Action Bar 4 (Right)
-    { actionPrefix = "MULTIACTIONBAR4BUTTON", buttonPrefix ="MultiBarLeftButton",       start = 37, last = 48},--Action Bar 5 (Left)
-    { actionPrefix = "MULTIACTIONBAR2BUTTON", buttonPrefix ="MultiBarBottomRightButton",start = 49, last = 60},--Action Bar 3 (Bottom Right)
-    { actionPrefix = "MULTIACTIONBAR1BUTTON", buttonPrefix ="MultiBarBottomLeftButton", start = 61, last = 72},--Action Bar 2 (Bottom Left)
-    { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 73, last = 84},--Class Bar 1
-    { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 85, last = 96},--Class Bar 2
-    { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 97, last = 108},--Class Bar 3
-    { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 109,last = 120},--Class Bar 4
-    { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 121,last = 132},--Action Bar 1 (Skyriding)
-  --{ actionPrefix = "UNKNOWN",               buttonPrefix ="",                         start = 133,last = 144},--Unknown
-    { actionPrefix = "MULTIACTIONBAR5BUTTON", buttonPrefix ="MultiBar5Button",          start = 145,last = 156},--Action Bar 6
-    { actionPrefix = "MULTIACTIONBAR6BUTTON", buttonPrefix ="MultiBar6Button",          start = 157,last = 168},--Action Bar 7
-    { actionPrefix = "MULTIACTIONBAR7BUTTON", buttonPrefix ="MultiBar7Button",          start = 169,last = 180},--Action Bar 8
-    { actionPrefix = "SHAPESHIFTBUTTON",      buttonPrefix ="StanceButton",             start = 901,last = 907},--Stance Bar. Dummy slots
-}
 
 local Colors = {
 	UNLOCKED = CreateColor(0, 1, 0, 1.0),
@@ -128,6 +109,12 @@ local function GetBindingForSlots(slots, spellID)
             if not text then
                 text = GetBindingForAction(defaultAction)
             end 
+
+            if addon.db.profile.Keybind.ConsolePort and ConsolePort then 
+                local bindingID = ConsolePort:GetActionBinding(slot)
+                local binding = ConsolePort:GetFormattedBindingOwner(bindingID)
+                if binding and binding ~= "" then return binding end
+            end
 
             if buttonFrame and (slot > 900 or
                buttonFrame.action == slot) and text then
@@ -237,9 +224,77 @@ local function LoadActionSlotMap()
         end
 
         HasBartender = true
+    elseif C_AddOns.IsAddOnLoaded("ElvUI") then 
+        local AddonActionSlotMap = {
+            { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ElvUI_Bar1Button",    start = 1,  last = 12}, --Bar 1 
+            { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ElvUI_Bar1Button",    start = 13, last = 24}, --Bar 2
+            { actionPrefix = "MULTIACTIONBAR3BUTTON", buttonPrefix ="ElvUI_Bar3Button",    start = 25, last = 36}, --Bar 3
+            { actionPrefix = "MULTIACTIONBAR4BUTTON", buttonPrefix ="ElvUI_Bar4Button",    start = 37, last = 48}, --Bar 4 
+            { actionPrefix = "MULTIACTIONBAR2BUTTON", buttonPrefix ="ElvUI_Bar5Button",    start = 49, last = 60}, --Bar 5 
+            { actionPrefix = "MULTIACTIONBAR1BUTTON", buttonPrefix ="ElvUI_Bar6Button",    start = 61, last = 72}, --Bar 6
+            { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ElvUI_Bar1Button",    start = 73, last = 84}, --Bar 7
+            { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ElvUI_Bar1Button",    start = 85, last = 96}, --Bar 8
+            { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ElvUI_Bar1Button",    start = 97, last = 108},--Bar 9
+            { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ElvUI_Bar1Button",    start = 109,last = 120},--Bar 10
+            { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ElvUI_Bar1Button",    start = 121,last = 132},--Bar 11
+            { actionPrefix = "MULTIACTIONBAR5BUTTON", buttonPrefix ="ElvUI_Bar13Button",   start = 145,last = 156},--Bar 13
+            { actionPrefix = "MULTIACTIONBAR6BUTTON", buttonPrefix ="ElvUI_Bar14Button",   start = 157,last = 168},--Bar 14
+            { actionPrefix = "MULTIACTIONBAR7BUTTON", buttonPrefix ="ElvUI_Bar15Button",   start = 169,last = 180},--Bar 15
+            { actionPrefix = "SHAPESHIFTBUTTON",      buttonPrefix ="ElvUI_StanceBarButton", start = 901,last = 907},--Stance Bar. Dummy slots
+        }
+
+        local OverrideSlotMap = {
+            { actionPrefix = "ELVUIBAR2BUTTON",  buttonPrefix ="ElvUI_Bar2Button",  start = 13, last = 24}, --Bar 2
+            { actionPrefix = "ELVUIBAR7BUTTON",  buttonPrefix ="ElvUI_Bar7Button",  start = 73, last = 84}, --Bar 7
+            { actionPrefix = "ELVUIBAR8BUTTON",  buttonPrefix ="ElvUI_Bar8Button",  start = 85, last = 96}, --Bar 8
+            { actionPrefix = "ELVUIBAR9BUTTON",  buttonPrefix ="ElvUI_Bar9Button",  start = 97, last = 108},--Bar 9
+            { actionPrefix = "ELVUIBAR10BUTTON", buttonPrefix ="ElvUI_Bar10Button", start = 109,last = 120},--Bar 10
+        }
+
+        for _, info in ipairs(AddonActionSlotMap) do
+            for slot = info.start, info.last do
+                local id = slot - info.start + 1
+                AddonLookupActionBySlot[slot] = info.actionPrefix..id
+                AddonLookupButtonByAction[AddonLookupActionBySlot[slot]] = info.buttonPrefix..id
+            end
+        end
+
+        AddonOverrideActionBySlot = {}
+        AddonOverrideButtonByAction = {}
+        for _, info in ipairs(OverrideSlotMap) do
+            for slot = info.start, info.last do
+                local id = slot - info.start + 1
+                AddonOverrideActionBySlot[slot] = info.actionPrefix..id
+                AddonOverrideButtonByAction[AddonOverrideActionBySlot[slot]] = info.buttonPrefix..id
+            end
+        end
+
+        HasElvUI = true
     end
 
-    BarAddonLoaded = HasBartender or HasDominos
+    BarAddonLoaded = HasBartender or HasDominos or HasElvUI
+
+
+    --Default UI
+    local DefaultActionSlotMap = {
+        --Default UI Slot mapping https://warcraft.wiki.gg/wiki/Action_slot
+        { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 1,  last = 12},--Action Bar 1 (Main Bar)
+        { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 13, last = 24},--Action Bar 1 (Page 2)
+        { actionPrefix = "MULTIACTIONBAR3BUTTON", buttonPrefix ="MultiBarRightButton",      start = 25, last = 36},--Action Bar 4 (Right)
+        { actionPrefix = "MULTIACTIONBAR4BUTTON", buttonPrefix ="MultiBarLeftButton",       start = 37, last = 48},--Action Bar 5 (Left)
+        { actionPrefix = "MULTIACTIONBAR2BUTTON", buttonPrefix ="MultiBarBottomRightButton",start = 49, last = 60},--Action Bar 3 (Bottom Right)
+        { actionPrefix = "MULTIACTIONBAR1BUTTON", buttonPrefix ="MultiBarBottomLeftButton", start = 61, last = 72},--Action Bar 2 (Bottom Left)
+        { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 73, last = 84},--Class Bar 1
+        { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 85, last = 96},--Class Bar 2
+        { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 97, last = 108},--Class Bar 3
+        { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 109,last = 120},--Class Bar 4
+        { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 121,last = 132},--Action Bar 1 (Skyriding)
+    --{ actionPrefix = "UNKNOWN",               buttonPrefix ="",                         start = 133,last = 144},--Unknown
+        { actionPrefix = "MULTIACTIONBAR5BUTTON", buttonPrefix ="MultiBar5Button",          start = 145,last = 156},--Action Bar 6
+        { actionPrefix = "MULTIACTIONBAR6BUTTON", buttonPrefix ="MultiBar6Button",          start = 157,last = 168},--Action Bar 7
+        { actionPrefix = "MULTIACTIONBAR7BUTTON", buttonPrefix ="MultiBar7Button",          start = 169,last = 180},--Action Bar 8
+        { actionPrefix = "SHAPESHIFTBUTTON",      buttonPrefix ="StanceButton",             start = 901,last = 907},--Stance Bar. Dummy slots
+    }
 
     for _, info in ipairs(DefaultActionSlotMap) do
         for slot = info.start, info.last do
@@ -272,7 +327,6 @@ function AssistedCombatIconMixin:OnLoad()
 
     self.spellID = 61304
     self.combatUpdateInterval = tonumber(C_CVar.GetCVar("assistedCombatIconUpdateRate")) or 0.3
-    self.lastUpdateTime = 0
     self.updateInterval = 1
 
     self.Keybind:SetParent(self.Overlay)
@@ -364,7 +418,7 @@ end
 
 function AssistedCombatIconMixin:Stop()
     self.isTicking = false
-    self:SetShown(false) 
+    self:SetShown(false)
 end
 
 function AssistedCombatIconMixin:Tick()
@@ -391,6 +445,15 @@ function AssistedCombatIconMixin:Tick()
     end)
 end
 
+function AssistedCombatIconMixin:SetVisible(visibility)
+    if self.db.fadeOutHide then 
+        self:SetAlpha(visibility and self.db.alpha or self.db.fadeOutAlpha)
+        self:SetShown(true)
+    else
+        self:SetShown(visibility)
+    end
+end
+
 function AssistedCombatIconMixin:UpdateVisibility()
     local db = self.db
     local display = db.display
@@ -398,21 +461,19 @@ function AssistedCombatIconMixin:UpdateVisibility()
     if not self.isTicking then self:SetShown(false) end
 
     if display.ALWAYS or not db.locked then
-        self:SetShown(true)
+        self:SetVisible(true)
         return
     end
 
-    if     (display.HOSTILE_TARGET and not UnitCanAttack("player", "target"))
-        or (display.IN_COMBAT and not InCombatLockdown())
-        or (display.HideInVehicle and UnitInVehicle("player"))
-        or (display.HideAsHealer and UnitGroupRolesAssigned("player") == "HEALER")
-        or (display.HideOnMount and IsMounted())
-    then
-        self:SetShown(false)
-        return
-    end
+    local show =   (display.HOSTILE_TARGET and UnitCanAttack("player", "anyenemy"))
+                or (display.IN_COMBAT and InCombatLockdown())
+                or (not display.IN_COMBAT and not display.HOSTILE_TARGET)
 
-    self:SetShown(true)
+    local hide =   (display.HideInVehicle and UnitInVehicle("player"))
+                or (display.HideAsHealer and UnitGroupRolesAssigned("player") == "HEALER")
+                or (display.HideOnMount and IsMounted())
+
+    self:SetVisible(show and not hide)
 end
 
 function AssistedCombatIconMixin:Update()
@@ -523,13 +584,13 @@ function AssistedCombatIconMixin:ApplyOptions()
 end
 
 function AssistedCombatIconMixin:UpdateCooldown()
-    if not IsValidSpellID(self.spellID) and not self:IsShown() then return end
+    if not IsValidSpellID(self.spellID) or not self:IsShown() then return end
     local spellID = self.spellID
 
-    local cdInfo = C_Spell.GetSpellCooldown(spellID)
+    local cdInfo = self.db.cooldown.showSwipe and C_Spell.GetSpellCooldown(spellID)
     local chargeInfo = C_Spell.GetSpellCharges(spellID)
 
-    if cdInfo and self.db.cooldown.showSwipe then
+    if cdInfo then
         self.Cooldown.currentCooldownType = COOLDOWN_TYPE_NORMAL
         self.Cooldown:SetCooldown(cdInfo.startTime, cdInfo.duration, cdInfo.modRate)
     else
