@@ -53,11 +53,12 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 
 		overlay:SetScript("OnUpdate", function(button, elapsed)
 			AnimateTexCoords(button.Ants, 256, 256, 48, 48, 22, elapsed, 0.01)
-			--[[ attempt to compare a secret value
+			--[[ Opting to just disable this as I don't like it being different alpha in combat vs out of combat, maybe revisit in future
 			local cooldown = button:GetParent().cooldown
 			-- we need some threshold to avoid dimming the glow during the gdc
 			-- (using 1500 exactly seems risky, what if casting speed is slowed or something?)
-			if(cooldown and cooldown:IsShown() and cooldown:GetCooldownDuration() > 3000) then
+			--if(cooldown and cooldown:IsShown() and cooldown:GetCooldownDuration() > 3000) then 
+			if(cooldown and cooldown:IsShown() and issecretvalue(cooldown:GetCooldownDuration() == false) and cooldown:GetCooldownDuration() > 3000) then
 				button:SetAlpha(0.5)
 			else
 				button:SetAlpha(1.0)
