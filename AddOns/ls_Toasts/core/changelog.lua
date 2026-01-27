@@ -6,7 +6,7 @@ local _G = getfenv(0)
 
 -- Mine
 E.CHANGELOG = [[
-### Loot (Common)
+### Transmogrification
 
-- Fixed an issue where secret player GUID could break the toast. Some toasts will be missing, but overall it shouldn't be too bad.
+- Fixed an issue that prevented transmog toasts from working altogether.
 ]]
