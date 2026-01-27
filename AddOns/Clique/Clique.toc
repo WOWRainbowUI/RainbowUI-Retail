@@ -1,0 +1,63 @@
+## Interface: 120000
+## Title: Clique
+## Author: Cladhaire
+## Version: v4.3.4-release
+## Notes: Simply powerful click-casting interface
+## Notes-ruRU: Простой и мощный интерфейс для привязки заклинаний к щелчку мыши.
+## IconTexture: Interface\AddOns\Clique\images\icon_square_64.tga
+## SavedVariables: CliqueDB, CliqueDB3
+## X-Curse-Project-ID: 15564
+## X-WoWI-ID: 5108
+## X-Wago-ID: Mj6jLxGR
+
+## X-Localizations: enUS, enGB, ruRU, zhCN, zhTW
+## X-CompatibleLocales: enUS, enGB, deDE, frFR, esES, esMX, zhCN, zhTW, koKR, ruRU
+
+## Title-zhTW: |cffFF2D2D[戰鬥]|r Clique 點擊施法
+## Notes-zhTW: Clique |n|n提供強大的點滑鼠擊施法與懸停施法功能。玩家可以將幾乎任何滑鼠或鍵盤組合綁定到技能或巨集，並直接在單位框架或 3D 遊戲世界中施放。這大幅簡化了操作流程，讓你能更快選擇技能並指定目標，省去額外的點擊步驟。|n|cffffd200使用方法：|r點擊法術書右邊外側的按鈕綁定法術，從Esc>選項>插件>點擊施法，進行設定。
+## X-Category-zhTW: 戰鬥
+## DefaultState: disabled
+
+AddonCore.lua
+i18n\Localization.enUS.lua
+i18n\Localization.zhCN.lua
+i18n\Localization.zhTW.lua
+
+libs\LibDropDown\embed.xml
+
+DatabaseDefaults.lua
+ClickCastTemplate.xml
+
+Clique.xml
+Clique.lua
+
+catalog/LibCatalog.lua
+catalog/ActionCatalog.lua
+catalog/MacroCatalog.lua
+catalog/SpellbookCatalog.lua
+
+config/BindingConfig.lua
+config/BrowsePage.lua
+config/EditPage.lua
+config/EditMacroPage.lua
+config/ActionCatalogWindow.lua
+config/Utils.lua
+
+Utils.lua
+ImportExport.lua
+
+options\OptionsPanel.lua
+options\BlizzardFramesConfig.lua
+options\DenylistConfig.lua
+
+modules\Blizzard_utils.lua
+modules\Blizzard_classic.lua
+modules\Blizzard_classic_era_bcc.lua
+modules\Blizzard_wrath.lua
+modules\Blizzard_dragonflight.lua
+modules\Blizzard_warwithin.lua
+modules\Blizzard_midnight.lua
+
+#tests\HeaderTest.xml
+#tests\HeaderTest.lua
+#tests\TestSuite.lua

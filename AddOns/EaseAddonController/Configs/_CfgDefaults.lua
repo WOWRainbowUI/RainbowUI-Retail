@@ -413,6 +413,25 @@ D["ClearMapPin"] = {
 		text = "第一次使用: 從 Esc > 選項 > 按鍵綁定 > 插件 > 清除地圖標記，設定快速鍵。\n\n放在快捷列上使用: 建立一個巨集，內容如下 (不換行):\n/script C_Map.ClearUserWaypoint()\n",
     },
 };
+D["Clique"] = {
+    defaultEnable = 0,
+	tags = { "COMBAT" },
+	title = "Clique 點擊施法",
+	desc = "提供強大的點滑鼠擊施法與懸停施法功能。玩家可以將幾乎任何滑鼠或鍵盤組合綁定到技能或巨集，並直接在單位框架或 3D 遊戲世界中施放。這大幅簡化了操作流程，讓你能更快選擇技能並指定目標，省去額外的點擊步驟。`",
+	modifier = "彩虹ui",
+	{
+        text = "綁定法術",
+        callback = function() SlashCmdList["CLIQUE"]("") end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+	{
+		type = "text",
+		text = "點擊法術書右邊外側的按鈕也能綁定法術。\n",
+	},
+};
 D["ColorPickerPlus"] = {
 	defaultEnable = 1,
 	tags = { "ENHANCEMENT" },

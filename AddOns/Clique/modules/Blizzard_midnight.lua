@@ -1,0 +1,133 @@
+--[[-------------------------------------------------------------------------
+-- Blizzard_warwithin.lua
+--
+-- Blizzard frame integration for the Retail branch for The War Within
+-------------------------------------------------------------------------]]--
+
+---@class addon
+local addon = select(2, ...)
+local L = addon.L
+
+-- Only load if this is Retail AND Dragonflight
+if not (addon:ProjectIsRetail() and addon:ProjectIsMidnight()) then
+    return
+end
+
+local module = {}
+
+function addon:IntegrateBlizzardFrames()
+    module:MidnightPlayerFrame()
+    module:MidnightTargetFrame()
+    module:MidnightFocusFrame()
+    module:MidnightPartyFrame()
+
+    module:MidnightCompactRaidFrames()
+    module:MidnightBossFrames()
+end
+
+function module:RegisterBlizzardFrame(...)
+    return addon:RegisterBlizzardFrame(...)
+end
+
+function module:MidnightPlayerFrame()
+    if addon.settings.blizzframes.PlayerFrame then
+        self:RegisterBlizzardFrame("PlayerFrame")
+    end
+
+    if addon.settings.blizzframes.PetFrame then
+        self:RegisterBlizzardFrame("PetFrame")
+    end
+end
+
+function module:MidnightTargetFrame()
+    if addon.settings.blizzframes.TargetFrame then
+        self:RegisterBlizzardFrame("TargetFrame")
+    end
+
+    if addon.settings.blizzframes.TargetFrameToT then
+        self:RegisterBlizzardFrame("TargetFrameToT")
+    end
+end
+
+function module:MidnightFocusFrame()
+    if addon.settings.blizzframes.FocusFrame then
+        self:RegisterBlizzardFrame("FocusFrame")
+    end
+
+    if addon.settings.blizzframes.FocusFrameToT then
+        self:RegisterBlizzardFrame("FocusFrameToT")
+    end
+end
+
+function module:MidnightPartyFrame()
+    if not addon.settings.blizzframes.party then
+        return
+    end
+
+    local frame = CreateFrame("Frame")
+    frame:RegisterEvent("GROUP_ROSTER_UPDATE")
+
+    local eventHandler = function(self, event, ...)
+        local partyframe = _G["PartyFrame"]
+        if partyframe then
+            for memberFrame in partyframe.PartyMemberFramePool:EnumerateActive() do
+                addon:RegisterBlizzardFrame(memberFrame)
+                addon:RegisterBlizzardFrame(memberFrame.PetFrame)
+            end
+
+            -- -- This is an ipairs for some reason
+            -- for _, memberFrame in partyframe.PartyMemberFramePool:EnumerateInactive() do
+            --     addon:RegisterBlizzardFrame(memberFrame)
+            -- end
+        end
+    end
+
+    frame:SetScript("OnEvent", eventHandler)
+
+    -- Trigger the event handler now
+    eventHandler()
+end
+
+local function enableCompactUnitFrame(name)
+    addon:RegisterBlizzardFrame(name)
+
+    for i = 1, 3 do
+        addon:RegisterBlizzardFrame(name .. "Buff" .. i)
+        addon:RegisterBlizzardFrame(name .. "Debuff" .. i)
+        addon:RegisterBlizzardFrame(name .. "DispelDebuff" .. i)
+    end
+
+    addon:RegisterBlizzardFrame(name .. "CenterStatusIcon")
+end
+
+function module:MidnightCompactRaidFrames()
+    if not addon.settings.blizzframes.compactraid then
+        return
+    end
+
+    -- If the player frame is created, register it
+    if _G["CompactPartyFrameMember1"] then
+        enableCompactUnitFrame("CompactPartyFrameMember1")
+    end
+
+    hooksecurefunc("CompactUnitFrame_SetUpFrame", function(frame, ...)
+        addon:RegisterBlizzardFrame(frame)
+    end)
+end
+
+function module:MidnightBossFrames()
+    if not addon.settings.blizzframes.boss then
+        return
+    end
+
+    local frames = {
+        "Boss1TargetFrame",
+        "Boss2TargetFrame",
+        "Boss3TargetFrame",
+        "Boss4TargetFrame",
+        "Boss5TargetFrame",
+    }
+    for idx, frame in ipairs(frames) do
+        addon:RegisterBlizzardFrame(frame)
+    end
+end
