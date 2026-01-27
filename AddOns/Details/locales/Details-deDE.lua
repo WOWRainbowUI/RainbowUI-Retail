@@ -1586,8 +1586,7 @@ L["STRING_TOOOLD"] = "konnte nicht installiert werden, weil deine Details!-Versi
 L["STRING_TOP"] = "oben"
 L["STRING_TOP_TO_BOTTOM"] = "Oben nach Unten"
 L["STRING_TOTAL"] = "Gesamt"
---[[Translation missing --]]
-L["STRING_TRAINING_DUMMY"] = "Training Dummy"
+L["STRING_TRAINING_DUMMY"] = "Trainingsattrappe"
 L["STRING_TRANSLATE_LANGUAGE"] = "Hilf mit bei der Details!-Übersetzung"
 L["STRING_TUTORIAL_FULLY_DELETE_WINDOW"] = [=[Du hast ein Fenster geschlossen, du kannst es jederzeit erneut öffnen.
 Um ein Fenster komplett zu löschen, gehe zu den Optionen  -> Fenster: Allgemein -> Löschen.]=]

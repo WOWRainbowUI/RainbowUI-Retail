@@ -940,24 +940,30 @@
 			local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("party" .. i) or "DAMAGER"
 			if (role ~= "NONE" and UnitExists("party" .. i)) then
 				local unitName = Details:GetFullName("party" .. i)
-				Details.arena_table [unitName] = {role = role, guid = UnitGUID("party" .. i)}
+				if not issecretvalue or not issecretvalue(unitName) then
+					Details.arena_table [unitName] = {role = role, guid = UnitGUID("party" .. i)}
+				end
 			end
 		end
 
 		local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("player") or "DAMAGER"
 		if (role ~= "NONE") then
 			local playerName = Details:GetFullName("player")
-			Details.arena_table [playerName] = {role = role, guid = UnitGUID("player")}
+			if not issecretvalue or not issecretvalue(playerName) then
+				Details.arena_table [playerName] = {role = role, guid = UnitGUID("player")}
+			end
 		end
 
 		--enemies
 		local enemiesAmount = GetNumArenaOpponentSpecs and GetNumArenaOpponentSpecs() or 5
 		Details:Destroy(Details.arena_enemies)
 
-		for i = 1, enemiesAmount do
-			local enemyName = Details:GetFullName("arena" .. i)
-			if (enemyName) then
-				Details.arena_enemies[enemyName] = "arena" .. i
+		if not detailsFramework.IsAddonApocalypseWow() then
+			for i = 1, enemiesAmount do
+				local enemyName = Details:GetFullName("arena" .. i)
+				if (enemyName) then
+					Details.arena_enemies[enemyName] = "arena" .. i
+				end
 			end
 		end
 	end
@@ -1063,6 +1069,10 @@
 	]]
 
 	function Details:CreateArenaSegment()
+		if detailsFramework.IsAddonApocalypseWow() then
+			return
+		end
+
 		Details:GetPlayersInArena()
 
 		Details.arena_begun = true
@@ -1110,7 +1120,9 @@
 	local tdebugframe = CreateFrame("Frame", "DetailsParserDebugFrameASD", UIParent)
 
 	if (detailsFramework.IsDragonflightAndBeyond()) then
-		tdebugframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+		if not detailsFramework.IsAddonApocalypseWow() then
+			tdebugframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+		end
 	end
 
 	tdebugframe:SetScript("OnEvent", function(self, event, ...)
@@ -1156,6 +1168,10 @@
 	end
 
 	function Details:StartArenaSegment(...)
+		if detailsFramework.IsAddonApocalypseWow() then
+			return
+		end
+
 		if (Details.debug) then
 			Details:Msg("(debug) starting a new arena segment.")
 		end
@@ -1184,6 +1200,10 @@
 	end
 
 	function Details:LeftArena()
+		if detailsFramework.IsAddonApocalypseWow() then
+			return
+		end
+
 		if (Details.debug) then
 			Details:Msg("(debug) player LeftArena().")
 		end
@@ -1219,7 +1239,9 @@
 		--reset the update speed, as it could have changed when the arena started.
 		Details:SetWindowUpdateSpeed(Details.update_speed)
 
-		Details222.ArenaSummary.OnArenaEnd()
+		if not detailsFramework.IsAddonApocalypseWow() then
+			Details222.ArenaSummary.OnArenaEnd()
+		end
 	end
 
 	function Details:FlagActorsOnPvPCombat()

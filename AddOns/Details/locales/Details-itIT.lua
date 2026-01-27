@@ -1318,8 +1318,7 @@ L["STRING_TOOOLD"] = "non può essere installato perché il tuo Details! ha la v
 L["STRING_TOP"] = "alto"
 L["STRING_TOP_TO_BOTTOM"] = "Dall'alto al basso"
 L["STRING_TOTAL"] = "Totale"
---[[Translation missing --]]
-L["STRING_TRAINING_DUMMY"] = "Training Dummy"
+L["STRING_TRAINING_DUMMY"] = "Manichino d'Allenamento"
 L["STRING_TRANSLATE_LANGUAGE"] = "Aiuta a Tradurre Details!"
 L["STRING_TUTORIAL_FULLY_DELETE_WINDOW"] = "Hai chiuso una finestra e puoi riaprirla in qualsiasi momento. Per eliminare completamente una finestra, vai su Opzioni -> Finestra: Generale -> Elimina."
 L["STRING_TUTORIAL_OVERALL1"] = "I dati generali si aggiornano solo al termine del combattimento, se desideri aggiornamenti regolari fai clic con il pulsante destro del mouse sulla barra del titolo e seleziona \"Dati generali dinamici\"."

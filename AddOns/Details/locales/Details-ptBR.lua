@@ -1584,8 +1584,7 @@ L["STRING_TOOOLD"] = "não pode ser instalado pois sua versão do Details! e mui
 L["STRING_TOP"] = "topo"
 L["STRING_TOP_TO_BOTTOM"] = "Cima para Baixo"
 L["STRING_TOTAL"] = "Total"
---[[Translation missing --]]
-L["STRING_TRAINING_DUMMY"] = "Training Dummy"
+L["STRING_TRAINING_DUMMY"] = "Boneco de Treinamento"
 L["STRING_TRANSLATE_LANGUAGE"] = "Ajude a traduzir o Details!"
 L["STRING_TUTORIAL_FULLY_DELETE_WINDOW"] = [=[Você fechou uma janela e pode reabri-la quando quiser.
 Para deleta-la por completo, vá nas opções -> Janela: Geral -> Deletar.]=]
