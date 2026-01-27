@@ -1,0 +1,52 @@
+## Interface: 120001, 120000, 50503, 38000, 30405, 20505, 11508
+## Title: Account Wide Interface Settings
+## Version: v2.1.8-beta1
+## Notes: Synchronises various Character-Specific Interface Settings Account Wide. /awi
+## Author: ConineSpiritwolf
+## SavedVariables: AccWideUIAceDB, AccWideUI_AccountData
+## DefaultState: enabled
+## OptionalDeps: BlockBlizzChatChannels, Ace3, MoveAny, EditModeExpanded
+
+## IconTexture: interface\icons\inv_misc_punchcards_yellow.blp
+## X-Category: HUDs
+## X-Website: https://github.com/NinerBull/AccWideUILayoutSelection
+## X-Curse-Project-ID: 700820
+## X-WoWI-ID: 26459
+## X-Wago-ID: n6VPMLGd
+
+## Category: User Interface
+## Category-deDE: Benutzerinterface
+## Category-esES: Interfaz de usuario
+## Category-esMX: Interfaz de usuario
+## Category-frFR: Interface utilisateur
+## Category-itIT: Interfaccia utente
+## Category-koKR: 사용자 인터페이스
+## Category-ptBR: Interface do usuário
+## Category-ruRU: Интерфейс пользователя
+## Category-zhCN: 用户界面
+## Category-zhTW: 使用者介面
+
+embeds.xml
+
+locale/locale.enUS.lua
+# locale/locale.koKR.lua
+# locale/locale.frFR.lua
+# locale/locale.deDE.lua
+# locale/locale.zhCN.lua
+# locale/locale.esES.lua
+# locale/locale.zhTW.lua
+# locale/locale.esMX.lua
+locale/locale.ruRU.lua
+# locale/locale.ptBR.lua
+# locale/locale.itIT.lua
+
+Core.lua
+HelperFunctions.lua
+CVarLists.lua
+V1Migration.lua
+ChatChannels.lua
+SaveFunction.lua
+LoadFunction.lua
+Options.lua
+Onboarding.lua
+AddonCompartment.lua
