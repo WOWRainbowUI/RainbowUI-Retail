@@ -1587,8 +1587,7 @@ L["STRING_TOOOLD"] = "無法安裝，因為你的 Details! 版本太舊。"
 L["STRING_TOP"] = "上"
 L["STRING_TOP_TO_BOTTOM"] = "從上到下"
 L["STRING_TOTAL"] = "總計"
---[[Translation missing --]]
-L["STRING_TRAINING_DUMMY"] = "Training Dummy"
+L["STRING_TRAINING_DUMMY"] = "訓練假人"
 L["STRING_TRANSLATE_LANGUAGE"] = "請幫忙翻譯 Details!"
 L["STRING_TUTORIAL_FULLY_DELETE_WINDOW"] = [=[你關閉了視窗，任何時候都可以再次將它打開。
 
