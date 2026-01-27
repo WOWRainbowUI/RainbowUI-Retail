@@ -691,7 +691,7 @@ Addon.DEFAULT_SETTINGS = {
     },
     Visibility = {
       FriendlyPlayer = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyPlayers") or true, UseHeadlineView = true },
-      FriendlyNPC = { Show = "nameplateShowFriendlyNPCs", UseHeadlineView = true },
+      FriendlyNPC = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyNpcs") or "nameplateShowFriendlyNPCs", UseHeadlineView = true },
       FriendlyMinion = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyPlayerMinions") or "nameplateShowFriendlyMinions", UseHeadlineView = true },
       FriendlyPet = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyPlayerPets") or "nameplateShowFriendlyPets", UseHeadlineView = true },
       FriendlyGuardian = { Show = (Addon.ExpansionIsAtLeastMidnight and "nameplateShowFriendlyPlayerGuardians") or "nameplateShowFriendlyGuardians", UseHeadlineView = true },
