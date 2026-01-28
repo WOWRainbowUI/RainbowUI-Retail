@@ -1,6 +1,4 @@
-## Changed in v2026.7
+## Changed in v2026.8
 
-* Tweak checks for knowable transmog items for Midnight
-* Zereth Mortis: add the vignette for The Engulfer
-* Add some protection against nils entering the queue of popups while in combat
+* If you're in Midnight, and your preferences for message announcements would be sending them to Blizzard's floating combat text, this is being forcibly changed so they go to the UIErrorsFrame instead, as new taint issues mean that any addon use of Blizzard's system makes it stop working for regular combat messages.
 
