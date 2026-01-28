@@ -5728,7 +5728,7 @@ function _G.MSUF_A2_EnsureAuraPositionPopup()
 
     MSUF_InitEditPopupFrame(pf, {
         w = 320,
-        h = 440,
+        h = 480,
         backdrop = {
             bgFile   = 'Interface\\DialogFrame\\UI-DialogBox-Background-Dark',
             edgeFile = 'Interface\\DialogFrame\\UI-DialogBox-Border',
@@ -5815,7 +5815,15 @@ uconf.layout = uconf.layout or {}
             local curStackTextSize = uconf.layout.stackTextSize or a2db.shared.stackTextSize or 14
             local curCooldownTextSize = uconf.layout.cooldownTextSize or a2db.shared.cooldownTextSize or 14
 
+            -- Private Auras: extra per-unit offset for the private-aura row only (independent from normal aura offsets)
+            local havePrivateOffsets = (uconf.layout.privateOffsetX ~= nil) or (uconf.layout.privateOffsetY ~= nil)
+                or (a2db.shared.privateOffsetX ~= nil) or (a2db.shared.privateOffsetY ~= nil)
+            local curPrivateOffX = (uconf.layout.privateOffsetX ~= nil) and uconf.layout.privateOffsetX or (a2db.shared.privateOffsetX or 0)
+            local curPrivateOffY = (uconf.layout.privateOffsetY ~= nil) and uconf.layout.privateOffsetY or (a2db.shared.privateOffsetY or 0)
 
+            -- Private Auras: optional separate icon size for the private-aura row.
+            local havePrivateSize = (uconf.layout.privateSize ~= nil) or (a2db.shared.privateSize ~= nil)
+            local curPrivateSize = (uconf.layout.privateSize ~= nil) and uconf.layout.privateSize or (a2db.shared.privateSize or curSize)
 
 
             local haveStackOffsets = (uconf.layout.stackTextOffsetX ~= nil) or (uconf.layout.stackTextOffsetY ~= nil)
@@ -5841,6 +5849,10 @@ uconf.layout = uconf.layout or {}
 
             local cooldownTextOffsetX = readNum(pf.cooldownTextOffsetXBox, curCooldownOffX)
             local cooldownTextOffsetY = readNum(pf.cooldownTextOffsetYBox, curCooldownOffY)
+
+            local privateOffsetX = readNum(pf.privateOffsetXBox, curPrivateOffX)
+            local privateOffsetY = readNum(pf.privateOffsetYBox, curPrivateOffY)
+            local privateSize = readNum(pf.privateSizeBox, curPrivateSize)
             x = MSUF_SanitizePopupOffset(x, 0)
             y = MSUF_SanitizePopupOffset(y, 0)
 
@@ -5851,6 +5863,12 @@ uconf.layout = uconf.layout or {}
             cooldownTextOffsetX = MSUF_SanitizePopupOffset(cooldownTextOffsetX, 0)
             cooldownTextOffsetY = MSUF_SanitizePopupOffset(cooldownTextOffsetY, 0)
 
+            privateOffsetX = MSUF_SanitizePopupOffset(privateOffsetX, 0)
+            privateOffsetY = MSUF_SanitizePopupOffset(privateOffsetY, 0)
+
+            -- sane clamps
+            privateSize = math.max(10, math.min(80, tonumber(privateSize) or curPrivateSize))
+
             local writeStackOffsets = haveStackOffsets
                 or (math.abs(tonumber(stackTextOffsetX) or 0) > 0.0001)
                 or (math.abs(tonumber(stackTextOffsetY) or 0) > 0.0001)
@@ -5858,6 +5876,13 @@ uconf.layout = uconf.layout or {}
             local writeCooldownOffsets = haveCooldownOffsets
                 or (math.abs(tonumber(cooldownTextOffsetX) or 0) > 0.0001)
                 or (math.abs(tonumber(cooldownTextOffsetY) or 0) > 0.0001)
+
+            local writePrivateOffsets = havePrivateOffsets
+                or (math.abs(tonumber(privateOffsetX) or 0) > 0.0001)
+                or (math.abs(tonumber(privateOffsetY) or 0) > 0.0001)
+
+            local writePrivateSize = havePrivateSize
+                or (math.abs((tonumber(privateSize) or curPrivateSize) - (tonumber(size) or curSize)) > 0.0001)
             -- sane clamps
             size = math.max(10, math.min(80, tonumber(size) or curSize))
             spacing = math.max(0, math.min(30, tonumber(spacing) or curSpacing))
@@ -5891,6 +5916,21 @@ local function ApplyLayoutToUnit(k)
         uc.layout.cooldownTextOffsetX = nil
         uc.layout.cooldownTextOffsetY = nil
     end
+
+    if writePrivateOffsets then
+        uc.layout.privateOffsetX = math.floor(privateOffsetX + 0.5)
+        uc.layout.privateOffsetY = math.floor(privateOffsetY + 0.5)
+    else
+        uc.layout.privateOffsetX = nil
+        uc.layout.privateOffsetY = nil
+    end
+
+    if writePrivateSize then
+        uc.layout.privateSize = math.floor(privateSize + 0.5)
+    else
+        uc.layout.privateSize = nil
+    end
+
     -- Keep the edit mover box derived from iconSize/spacing/perRow (no manual box overrides).
     uc.layout.width = nil
     uc.layout.height = nil
@@ -5955,10 +5995,39 @@ end
         { key = "cooldownTextSize", label = "Text size (Cooldown):", box = "$parentCooldownTextSizeBox", dy = -8, live = true, labelTemplate = "GameFontHighlightSmall", requireCompleteNumber = false },
         { key = "cooldownTextOffsetX", label = "Cooldown text X:", box = "$parentCooldownTextOffsetXBox", dy = -8, live = true, labelTemplate = "GameFontHighlightSmall", requireCompleteNumber = false },
         { key = "cooldownTextOffsetY", label = "Cooldown text Y:", box = "$parentCooldownTextOffsetYBox", dy = -8, live = true, labelTemplate = "GameFontHighlightSmall", requireCompleteNumber = false },
+
+        { key = "privateOffsetX", label = "Private aura X:", box = "$parentPrivateOffsetXBox", dy = -10, live = true, labelTemplate = "GameFontHighlightSmall", requireCompleteNumber = false },
+        { key = "privateOffsetY", label = "Private aura Y:", box = "$parentPrivateOffsetYBox", dy = -8, live = true, labelTemplate = "GameFontHighlightSmall", requireCompleteNumber = false },
+        { key = "privateSize", label = "Private icon size:", box = "$parentPrivateSizeBox", dy = -8, live = true, labelTemplate = "GameFontHighlightSmall", requireCompleteNumber = false },
 }
 
     -- Initially anchor stacks below spacing; sync code may re-anchor below bossTogetherCheck when visible
     MSUF_EM_BuildNumericRows(pf, rows2, pf.spacingLabel, "BOTTOMLEFT", 0, Apply, "Auras2Popup:LiveApply")
+
+    -- Private Auras: Preview toggle (shared; synced with Options menu via shared DB key).
+    if not pf.privatePreviewCheck then
+        pf.privatePreviewCheck = ns.MSUF_EM_UIH.TextCheck(pf, "$parentPrivatePreviewCheck",
+            "TOPLEFT", pf.privateSizeBox or pf.privateOffsetYBox or pf.cooldownTextOffsetYBox or pf.spacingLabel, "BOTTOMLEFT",
+            0, -10,
+            "Preview private auras",
+            function(btn)
+                local enabled = (btn and btn.GetChecked and btn:GetChecked()) and true or false
+                if _G and type(_G.MSUF_SetPrivateAuraPreviewEnabled) == "function" then
+                    _G.MSUF_SetPrivateAuraPreviewEnabled(enabled)
+                else
+                    MSUF_EM_EnsureDB()
+                    if MSUF_DB and MSUF_DB.auras2 and MSUF_DB.auras2.shared then
+                        MSUF_DB.auras2.shared.highlightPrivateAuras = enabled
+                    end
+                    if _G and type(_G.MSUF_Auras2_RefreshAll) == "function" then
+                        _G.MSUF_Auras2_RefreshAll()
+                    end
+                end
+            end,
+            { font = "GameFontHighlightSmall", dx = 4, dy = 0 }
+        )
+    end
+
 
 
 local function OnEnterPressed(self)
@@ -5969,7 +6038,8 @@ local function OnEnterPressed(self)
         pf.xBox, pf.yBox, pf.sizeBox, pf.spacingBox,
         pf.stackTextSizeBox, pf.stackTextOffsetXBox, pf.stackTextOffsetYBox,
         pf.cooldownTextSizeBox,
-        pf.cooldownTextOffsetXBox, pf.cooldownTextOffsetYBox
+        pf.cooldownTextOffsetXBox, pf.cooldownTextOffsetYBox,
+        pf.privateOffsetXBox, pf.privateOffsetYBox, pf.privateSizeBox
     )
 
 -- Copy Settings Dropdown (bottom, like Unitframe/Castbar popups)
@@ -6050,6 +6120,9 @@ local function MSUF_A2_CopyAuraLayout(srcKey, dstKey)
 
     local sCdOffX = (srcLay.cooldownTextOffsetX ~= nil) and srcLay.cooldownTextOffsetX or a2db.shared.cooldownTextOffsetX
     local sCdOffY = (srcLay.cooldownTextOffsetY ~= nil) and srcLay.cooldownTextOffsetY or a2db.shared.cooldownTextOffsetY
+    local sPrivOffX = (srcLay.privateOffsetX ~= nil) and srcLay.privateOffsetX or a2db.shared.privateOffsetX
+    local sPrivOffY = (srcLay.privateOffsetY ~= nil) and srcLay.privateOffsetY or a2db.shared.privateOffsetY
+    local sPrivSize = (srcLay.privateSize ~= nil) and srcLay.privateSize or a2db.shared.privateSize
     local dstKeys
     if MSUF_A2_IsBossAuraKey(dstKey) and bossTogether then
         dstKeys = { "boss1","boss2","boss3","boss4","boss5" }
@@ -6072,6 +6145,9 @@ local function MSUF_A2_CopyAuraLayout(srcKey, dstKey)
 
         if sCdOffX ~= nil then dc.layout.cooldownTextOffsetX = sCdOffX end
         if sCdOffY ~= nil then dc.layout.cooldownTextOffsetY = sCdOffY end
+        if sPrivOffX ~= nil then dc.layout.privateOffsetX = sPrivOffX end
+        if sPrivOffY ~= nil then dc.layout.privateOffsetY = sPrivOffY end
+        if sPrivSize ~= nil then dc.layout.privateSize = sPrivSize end
         -- keep width/height unused in Auras2 (derived)
         dc.layout.width = nil
         dc.layout.height = nil
@@ -6156,6 +6232,9 @@ pf.RefreshCopyAuraDropdown = MSUF_A2_RefreshCopyAuraDropdown
         if pf.cooldownTextSizeBox and GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus() == pf.cooldownTextSizeBox then pf.cooldownTextSizeBox:ClearFocus() end
         if pf.cooldownTextOffsetXBox and GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus() == pf.cooldownTextOffsetXBox then pf.cooldownTextOffsetXBox:ClearFocus() end
         if pf.cooldownTextOffsetYBox and GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus() == pf.cooldownTextOffsetYBox then pf.cooldownTextOffsetYBox:ClearFocus() end
+        if pf.privateOffsetXBox and GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus() == pf.privateOffsetXBox then pf.privateOffsetXBox:ClearFocus() end
+        if pf.privateOffsetYBox and GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus() == pf.privateOffsetYBox then pf.privateOffsetYBox:ClearFocus() end
+        if pf.privateSizeBox and GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus() == pf.privateSizeBox then pf.privateSizeBox:ClearFocus() end
         pf:Hide()
     end)
     pf.cancelBtn = cancelBtn
@@ -6261,6 +6340,9 @@ end
     local cooldownTextOffsetY = (uconf.overrideLayout and lay.cooldownTextOffsetY ~= nil) and lay.cooldownTextOffsetY or (shared.cooldownTextOffsetY or 0)
     local stackTextOffsetX = (uconf.overrideLayout and lay.stackTextOffsetX ~= nil) and lay.stackTextOffsetX or (shared.stackTextOffsetX or 0)
     local stackTextOffsetY = (uconf.overrideLayout and lay.stackTextOffsetY ~= nil) and lay.stackTextOffsetY or (shared.stackTextOffsetY or 0)
+    local privateOffsetX = (uconf.overrideLayout and lay.privateOffsetX ~= nil) and lay.privateOffsetX or (shared.privateOffsetX or 0)
+    local privateOffsetY = (uconf.overrideLayout and lay.privateOffsetY ~= nil) and lay.privateOffsetY or (shared.privateOffsetY or 0)
+    local privateSize = (uconf.overrideLayout and lay.privateSize ~= nil) and lay.privateSize or (shared.privateSize or iconSize)
     iconSize = tonumber(iconSize) or 26
     spacing  = tonumber(spacing)  or 2
     stackTextSize = tonumber(stackTextSize) or 14
@@ -6271,6 +6353,9 @@ end
     stackTextOffsetY = MSUF_SanitizePopupOffset(tonumber(stackTextOffsetY) or 0, 0)
     cooldownTextOffsetX = MSUF_SanitizePopupOffset(tonumber(cooldownTextOffsetX) or 0, 0)
     cooldownTextOffsetY = MSUF_SanitizePopupOffset(tonumber(cooldownTextOffsetY) or 0, 0)
+    privateOffsetX = MSUF_SanitizePopupOffset(tonumber(privateOffsetX) or 0, 0)
+    privateOffsetY = MSUF_SanitizePopupOffset(tonumber(privateOffsetY) or 0, 0)
+    privateSize = math.max(10, math.min(80, tonumber(privateSize) or iconSize))
     x = MSUF_SanitizePopupOffset(x, 0)
     y = MSUF_SanitizePopupOffset(y, 0)
 
@@ -6304,6 +6389,20 @@ end
     end
     if pf.cooldownTextOffsetYBox and not pf.cooldownTextOffsetYBox:HasFocus() then
         pf.cooldownTextOffsetYBox:SetText(tostring(math.floor(cooldownTextOffsetY + 0.5)))
+    end
+    if pf.privateOffsetXBox and not pf.privateOffsetXBox:HasFocus() then
+        pf.privateOffsetXBox:SetText(tostring(math.floor(privateOffsetX + 0.5)))
+    end
+    if pf.privateOffsetYBox and not pf.privateOffsetYBox:HasFocus() then
+        pf.privateOffsetYBox:SetText(tostring(math.floor(privateOffsetY + 0.5)))
+    end
+    if pf.privateSizeBox and not pf.privateSizeBox:HasFocus() then
+        pf.privateSizeBox:SetText(tostring(math.floor(privateSize + 0.5)))
+    end
+
+    -- Private preview toggle (shared setting, synced with Options menu)
+    if pf.privatePreviewCheck and pf.privatePreviewCheck.SetChecked then
+        pf.privatePreviewCheck:SetChecked((shared.highlightPrivateAuras == true) and true or false)
     end
     if pf.RefreshCopyAuraDropdown then
         pf.RefreshCopyAuraDropdown()

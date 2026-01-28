@@ -135,11 +135,17 @@ end
 
 
 -- New install defaults (UI scale + Flash menu anchor)
-if g.globalUiScalePreset == nil then
-    g.globalUiScalePreset = "1080p"
+-- Default: scaling OFF. Blizzard handles UI scale unless the user explicitly enables MSUF scaling.
+if g.disableScaling == nil then
+    g.disableScaling = true
 end
-if g.globalUiScaleValue == nil then
-    g.globalUiScaleValue = 0.71111111111111
+if g.globalUiScalePreset == nil then
+    g.globalUiScalePreset = "auto"
+end
+-- Nil value = Auto (no enforced custom global UI scale)
+-- (Do NOT seed a default globalUiScaleValue on fresh installs.)
+if g.msufUiScale == nil then
+    g.msufUiScale = 1.0
 end
 
 if g.flashFullPoint == nil then g.flashFullPoint = "LEFT" end
@@ -776,6 +782,38 @@ end
         end
         if u.hpTextSpacerX == nil then
             u.hpTextSpacerX = 140
+        end
+    end
+
+
+    -- Power text spacer (per-unit; matches HP spacer behavior)
+    if g.powerTextSpacerEnabled == nil then
+        g.powerTextSpacerEnabled = false
+    end
+    if g.powerTextSpacerX == nil then
+        g.powerTextSpacerX = 140
+    end
+
+    do
+        local legacyEnabled = g.powerTextSpacerEnabled
+        local legacyX = g.powerTextSpacerX
+
+        for _, unitKey in ipairs({"player","target","focus","targettarget","pet","boss"}) do
+            local u = MSUF_DB[unitKey]
+            if type(u) == "table" then
+                if u.powerTextSpacerEnabled == nil and legacyEnabled ~= nil then
+                    u.powerTextSpacerEnabled = legacyEnabled
+                end
+                if u.powerTextSpacerX == nil and legacyX ~= nil then
+                    u.powerTextSpacerX = legacyX
+                end
+                if u.powerTextSpacerEnabled == nil then
+                    u.powerTextSpacerEnabled = false
+                end
+                if u.powerTextSpacerX == nil then
+                    u.powerTextSpacerX = 140
+                end
+            end
         end
     end
     if g.powerTextMode == nil then
