@@ -1,6 +1,6 @@
 # Astral Keys
 
-## [4.38](https://github.com/astralguild/AstralKeys/tree/4.38) (2026-01-21)
-[Full Changelog](https://github.com/astralguild/AstralKeys/compare/4.37...4.38) [Previous Releases](https://github.com/astralguild/AstralKeys/releases)
+## [4.39](https://github.com/astralguild/AstralKeys/tree/4.39) (2026-01-28)
+[Full Changelog](https://github.com/astralguild/AstralKeys/compare/4.38...4.39) [Previous Releases](https://github.com/astralguild/AstralKeys/releases)
 
-- Add both versions  
+- Fix tooltip error and up version  
