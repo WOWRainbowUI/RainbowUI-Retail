@@ -1,4 +1,0 @@
-- Added - Login message displaying addon name, version, and icon on player login, styled similarly to FFLU - [QuestPlates.lua]
-- Fixed - Resolved a case sensitivity issue in `PLAYER_LOGIN` where `task.questId` was used instead of `task.questID`, causing nil `questID` errors in certain zones (e.g., Undermine, Nazjatar) - [QuestPlates.lua]
-- Added - Nil check for `questID` in `PLAYER_LOGIN` to prevent invalid API calls to `C_TaskQuest.GetQuestInfoByQuestID` - [QuestPlates.lua]
-- Updated - Styled TOC title with custom color #58be81 and added email field, aligning with FFLU addon style - [QuestPlates.toc]
