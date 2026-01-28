@@ -14,7 +14,7 @@ do
 	end
 
 	specificCases = {
-		function(frame) -- Chat frame
+		function(frame)         -- Chat frame
 			if frame.GetMessageInfo then -- chat frame
 				local messages = {}
 				for i = 1, frame:GetNumMessages() do
@@ -49,9 +49,9 @@ do
 		while frame do
 			local regions = { frame:GetRegions() }
 			for _, region in next, regions do
-				-- much faster to check if GetText than to use GetObjectType and check if FontString
+				-- much faster to check if GetText exists rather than to use GetObjectType and check if FontString
 				if region.GetText and condition(region) then
-					fontStrings[#fontStrings+1] = region
+					fontStrings[#fontStrings + 1] = region
 				end
 			end
 			frame = EnumerateFrames(frame)
@@ -60,7 +60,8 @@ do
 	end
 
 	local function filter(fontString)
-		if fontString:IsVisible() then
+		local isSecret = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and fontString:IsAnchoringSecret()
+		if not isSecret and fontString:IsVisible() then
 			-- No way of knowing if the region is restricted, so just skip this one
 			-- if it is restricted or has any other error.
 			local status, isMouseOver = pcall(function()
@@ -94,7 +95,7 @@ do
 		local frame = EnumerateFrames()
 		while frame do
 			if condition(frame) then
-				frames[#frames+1] = frame
+				frames[#frames + 1] = frame
 			end
 			frame = EnumerateFrames(frame)
 		end
@@ -137,9 +138,28 @@ function addon:GetMouseoverFramesText()
 	local frames = self:GetMouseoverFrames()
 	local texts = {}
 	for _, frame in ipairs(frames) do
-		texts[#texts+1] = self:GetSpecificFrameText(frame)
+		texts[#texts + 1] = self:GetSpecificFrameText(frame)
 	end
 	return table.concat(texts, "\n")
+end
+
+--------------------------------------------------------------------------------
+-- Search by mouse focus
+--
+function addon:GetMouseFocusText()
+	local frames
+	if GetMouseFoci then
+		frames = GetMouseFoci()
+	else
+		frames = { GetMouseFocus() }
+	end
+	local lines = {}
+	for _, frame in next, frames do
+		if frame ~= WorldFrame then
+			lines[#lines + 1] = self:GetSpecificFrameText(frame)
+		end
+	end
+	return table.concat(lines, "\n")
 end
 
 --------------------------------------------------------------------------------
@@ -189,10 +209,13 @@ function addon:FontStringsToString(fontStrings)
 	local texts = {}
 	local foundOne = false
 	for _, fs in ipairs(fontStrings) do
-		local text = fs:GetText()
-		if text then
-			foundOne = true
-			texts[#texts+1] = text
+		local isSecret = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and fs:IsAnchoringSecret()
+		if not isSecret then
+			local text = fs:GetText()
+			if text then
+				foundOne = true
+				texts[#texts + 1] = text
+			end
 		end
 	end
 	return foundOne and table.concat(texts, "\n")
@@ -211,7 +234,7 @@ do
 			local subChildren = GetAllChildren(child)
 			if subChildren then
 				for _, subChild in ipairs(subChildren) do
-					children[#children+1] = subChild
+					children[#children + 1] = subChild
 				end
 			end
 		end
