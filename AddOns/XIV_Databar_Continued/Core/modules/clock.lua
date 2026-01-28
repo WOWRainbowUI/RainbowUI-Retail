@@ -18,6 +18,13 @@ local function GetServerTimeString(optFormat)
     return date(ClockModule.timeFormats[optFormat], constructedServerTime)
 end
 
+function ClockModule:OnLeaveCombat()
+    if self.needsResize then
+        self.needsResize = false
+        self:Refresh()
+    end
+end
+
 function ClockModule:GetName()
     return TIMEMANAGER_TITLE;
 end
@@ -64,15 +71,18 @@ function ClockModule:OnEnable()
     end
     self.clockFrame:Show()
     self.elapsed = 0
+    self.needsResize = false
     self:CreateFrames()
     self:CreateClickFunctions()
     self:RegisterFrameEvents()
+    self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnLeaveCombat")
 	self:OffsetY()
     self:Refresh()
 	
 end
 
 function ClockModule:OnDisable()
+    self:UnregisterEvent("PLAYER_REGEN_ENABLED")
     self.clockFrame:Hide()
 end
 
@@ -126,6 +136,11 @@ function ClockModule:Refresh()
     end
     self.clockText:SetText(dateString)
     self:SetClockColor()
+
+    if InCombatLockdown() then
+        self.needsResize = true
+        return
+    end
 
     self.clockFrame:SetSize(self.clockText:GetStringWidth(), self.clockText:GetStringHeight())
     self.clockFrame:SetPoint('CENTER', 0, clockFrameOffsetY)
