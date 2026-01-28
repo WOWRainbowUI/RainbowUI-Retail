@@ -18,7 +18,7 @@ local globalWidth, globalHeight = 40, 40 -- defaults
 local IsSpellKnown = C_SpellBook.IsSpellKnown
 
 local issecretvalue = issecretvalue or function() return false end
-local function isSecret(value)
+function tpm:IsSecret(value)
 	return issecretvalue(value)
 end
 
@@ -171,7 +171,8 @@ local shortNames = {
 local tpTable = {
 	-- Hearthstones
 	{ id = 6948, type = "item", hearthstone = true }, -- Hearthstone
-	{ id = 1233637, type = "housing"}, -- Teleport Home (Housing)
+	{ id = 1233637, type = "housing", faction = "Alliance"}, -- Teleport Home (Alliance House)
+	{ id = 1233637, type = "housing", faction = "Horde"}, -- Teleport Home (Horde House)
 	{ id = 556, type = "spell" }, -- Astral Recall (Shaman)
 	{ id = 110560, type = "toy", quest = { 34378, 34586 } }, -- Garrison Hearthstone
 	{ id = 140192, type = "toy", quest = { 44184, 44663 } }, -- Dalaran Hearthstone
@@ -259,7 +260,7 @@ local function setCombatTooltip(self)
 	GameTooltip:Show()
 end
 
-local function setToolTip(self, type, id, hs)
+local function setToolTip(self, tpType, id, hs)
 	GameTooltip:SetOwner(self, "ANCHOR_NONE")
 	local yOffset = globalHeight / 2
 	GameTooltip:SetPoint("BOTTOMLEFT", TeleportMeButtonsFrameRight, "TOPRIGHT", 0, yOffset)
@@ -268,23 +269,23 @@ local function setToolTip(self, type, id, hs)
 		GameTooltip:SetText(L["Random Hearthstone"], 1, 1, 1)
 		GameTooltip:AddLine(L["Random Hearthstone Tooltip"], 1, 1, 1)
 		GameTooltip:AddLine(L["Random Hearthstone Location"]:format(bindLocation), 1, 1, 1)
-	elseif type == "item" then
+	elseif tpType == "item" then
 		GameTooltip:SetItemByID(id)
-	elseif type == "item_teleports" then
+	elseif tpType == "item_teleports" then
 		GameTooltip:SetText(L["Item Teleports"] .. "\n" .. L["Item Teleports Tooltip"], 1, 1, 1)
-	elseif type == "toy" then
+	elseif tpType == "toy" then
 		GameTooltip:SetToyByItemID(id)
-	elseif type == "spell" then
+	elseif tpType == "spell" then
 		GameTooltip:SetSpellByID(id)
-	elseif type == "flyout" then
+	elseif tpType == "flyout" then
 		local name = GetFlyoutInfo(id)
 		GameTooltip:SetText(name, 1, 1, 1)
-	elseif type == "profession" then
+	elseif tpType == "profession" then
 		local professionInfo = C_TradeSkillUI.GetProfessionInfoBySkillLineID(id)
 		if professionInfo then
 			GameTooltip:SetText(professionInfo.professionName, 1, 1, 1)
 		end
-	elseif type == "seasonalteleport" then
+	elseif tpType == "seasonalteleport" then
 		local currExpID = GetExpansionLevel()
 		local expName = _G["EXPANSION_NAME" .. currExpID]
 		local title = MYTHIC_DUNGEON_SEASON:format(expName, tpm.settings.current_season)
@@ -330,7 +331,7 @@ local function createCooldownFrame(frame)
 			duration = cooldown.duration
 			enabled = true
 		end
-		if enabled and not isSecret(duration) and duration > 0 then
+		if enabled and not tpm:IsSecret(duration) and duration > 0 then
 			self:SetCooldown(start, duration)
 		else
 			self:Clear()
@@ -375,6 +376,7 @@ local function createFlyOutButton(flyOutFrame, flyoutData, tooltipData, side) --
 	-- Mouse Interaction
 	flyOutButton:EnableMouse(true)
 	flyOutButton:RegisterForClicks("AnyDown", "AnyUp")
+	flyOutButton:SetAttribute("useOnKeyDown", true)
 
 	-- Tooltips
 	local tooltipType = "flyout"
@@ -467,49 +469,32 @@ local function ClearAllInvalidHighlights()
 	end
 end
 
-local housingButton = nil
 
 ---@param frame Frame
----@param type string
+---@param buttonType string
 ---@param text string|nil
 ---@param id integer
 ---@param hearthstone? boolean
 ---@return Frame
-local function CreateSecureButton(frame, type, text, id, hearthstone)
+local function CreateSecureButton(frame, buttonType, text, id, hearthstone)
 	local button
-	if type == "housing" then -- special case for now
-		button = housingButton
-		if not button then
-			button = CreateFrame("Button", nil, UIParent, "SecureActionButtonTemplate")
-			button:SetAttribute("type1", "macro")
-			local IsInsideHouseOrPlot = C_Housing.IsInsideHouseOrPlot()
-			button:SetAttribute("macrotext1", "/run local h=C_Housing.GetCurrentHouseInfo()C_Housing.TeleportHome(h.neighborhoodGUID,h.houseGUID,h.plotID)") -- Housing Macro
-			button.text = button:CreateFontString(nil, "OVERLAY")
-			button:LockHighlight()
-			button.text:SetPoint("BOTTOM", button, "BOTTOM", 0, 5)
-			button.cooldownFrame = createCooldownFrame(button)
-			housingButton = button
-		end
+
+	if next(secureButtonsPool) then
+		button = table.remove(secureButtonsPool)
 	else
-		if next(secureButtonsPool) then
-			button = table.remove(secureButtonsPool)
-		else
-			button = CreateFrame("Button", nil, nil, "SecureActionButtonTemplate")
-			button.cooldownFrame = createCooldownFrame(button)
-			button.text = button:CreateFontString(nil, "OVERLAY")
-			button:LockHighlight()
-			button.text:SetPoint("BOTTOM", button, "BOTTOM", 0, 5)
-			table.insert(secureButtons, button)
-		end
+		button = CreateFrame("Button", nil, nil, "SecureActionButtonTemplate")
+		button.cooldownFrame = createCooldownFrame(button)
+		button.text = button:CreateFontString(nil, "OVERLAY")
+		button:LockHighlight()
+		button.text:SetPoint("BOTTOM", button, "BOTTOM", 0, 5)
+		table.insert(secureButtons, button)
 	end
 
 	function button:Recycle()
+		self:ClearHighlightTexture()
 		self:SetParent(nil)
 		self:ClearAllPoints()
 		self:Hide()
-		if type == "item" and not C_Item.IsEquippedItem(id) then
-			self:ClearHighlightTexture()
-		end
 		table.insert(secureButtonsPool, self)
 	end
 
@@ -517,8 +502,36 @@ local function CreateSecureButton(frame, type, text, id, hearthstone)
 		self:SetHighlightAtlas("talents-node-choiceflyout-square-green")
 	end
 
+	-- Interaction
 	button:EnableMouse(true)
 	button:RegisterForClicks("AnyDown", "AnyUp")
+	button:SetAttribute("useOnKeyDown", true)
+	button:SetScript("PostClick", function(self)
+		if buttonType == "item" and C_Item.IsEquippableItem(id) then
+			C_Timer.After(0.25, function() -- Slight delay due to equipping the item not being instant.
+				if IsItemEquipped(id) then
+					ClearAllInvalidHighlights()
+					self:Highlight()
+				end
+			end)
+			if IsItemEquipped(id) then
+				tpm:CloseMainMenu()
+			end
+		else
+			tpm:CloseMainMenu()
+		end
+	end)
+	button:SetScript("OnLeave", function(self)
+		GameTooltip:Hide()
+	end)
+
+	button:SetScript("OnEnter", function(self)
+		setToolTip(self,buttonType, id, hearthstone)
+	end)
+
+	button:SetScript("OnShow", function(self)
+		self.cooldownFrame:CheckCooldown(id, buttonType)
+	end)
 
 	-- Text
 	button.text:SetFont(STANDARD_TEXT_FONT, db["Button:Text:Size"], "OUTLINE")
@@ -529,48 +542,26 @@ local function CreateSecureButton(frame, type, text, id, hearthstone)
 		button.text:Show()
 	end
 
-	-- Scripts
-	button:SetScript("OnLeave", function(self)
-		GameTooltip:Hide()
-	end)
-	button:SetScript("OnEnter", function(self)
-		setToolTip(self, type, id, hearthstone)
-	end)
-	button:SetScript("OnShow", function(self)
-		self.cooldownFrame:CheckCooldown(id, type)
-	end)
-	button:SetScript("PostClick", function(self)
-		if type == "item" and C_Item.IsEquippableItem(id) then
-			C_Timer.After(0.25, function() -- Slight delay due to equipping the item not being instant.
-				if IsItemEquipped(id) then
-					ClearAllInvalidHighlights()
-					self:Highlight()
-				end
-			end)
-		end
-	end)
-	button.cooldownFrame:CheckCooldown(id, type)
+	-- Cooldown
+	button.cooldownFrame:CheckCooldown(id, buttonType)
 
 	-- Textures
-	if type == "spell" then
+	if buttonType == "spell" then
 		local spellTexture = C_Spell.GetSpellTexture(id)
-		button:SetNormalTexture(spellTexture)
-	elseif type == "housing" then
-		local spellTexture = C_Spell.GetSpellTexture(1263273)
 		button:SetNormalTexture(spellTexture)
 	else -- item or toy
 		SetTextureByItemId(button, id)
 	end
 
 	-- Attributes
-	button:SetAttribute("type", type)
-	if type == "item" then
-		button:SetAttribute(type, "item:" .. id)
+	button:SetAttribute("type", buttonType)
+	if buttonType == "item" then
+		button:SetAttribute(buttonType, "item:" .. id)
 		if C_Item.IsEquippableItem(id) and IsItemEquipped(id) then
 			button:Highlight()
 		end
 	else
-		button:SetAttribute(type, id)
+		button:SetAttribute(buttonType, id)
 	end
 
 	-- Positioning/Size
@@ -941,10 +932,18 @@ local function createAnchors()
 			end
 			buttonsFrameLeft:IncrementButtons()
 		elseif teleport.type == "housing" and C_Housing and C_Housing.HasHousingExpansionAccess() then
-			local button = CreateSecureButton(buttonsFrameLeft, teleport.type)
-			local yOffset = -globalHeight * buttonsFrameLeft:GetButtonAmount()
-			button:SetPoint("LEFT", buttonsFrameLeft, "TOPRIGHT", 0, yOffset)
-			buttonsFrameLeft:IncrementButtons()
+			local playerFaction = UnitFactionGroup("player")
+			if tpm.Housing:GetActiveHousingButtons() == 0 and (#houseData == 1 or playerFaction == teleport.faction) then -- only 1 house for now, fix more
+				local button = tpm.Housing:CreateSecureHousingButton(teleport.faction)
+				button:SetParent(buttonsFrameLeft)
+				button:SetSize(globalWidth, globalHeight)
+				-- button:SetFrameStrata("HIGH")
+				-- button:SetFrameLevel(102) -- This needs to be lower than the flyout frame
+				button:Show()
+				local yOffset = -globalHeight * buttonsFrameLeft:GetButtonAmount()
+				button:SetPoint("LEFT", buttonsFrameLeft, "TOPRIGHT", 0, yOffset)
+				buttonsFrameLeft:IncrementButtons()
+			end
 		elseif teleport.type == "wormholes" then
 			local created = tpm:CreateWormholeFlyout(teleport)
 			if created then
@@ -976,6 +975,9 @@ local function createAnchors()
 end
 
 function tpm:ReloadFrames()
+	if not GameMenuFrame:IsShown() then
+		return
+	end
 	if InCombatLockdown() then
 		return
 	end
@@ -993,12 +995,24 @@ function tpm:ReloadFrames()
 	for _, secureButton in ipairs(secureButtons) do
 		secureButton:Recycle()
 	end
+	tpm.Housing:RecycleHousingButtons()
 
 	if TeleportMeButtonsFrameRight then
 		TeleportMeButtonsFrameRight.reload = true
 	end
 
+	-- Why can't we clear these? causes bugs when re-sizing.
+	-- secureButtons = {}
+	-- housingButtons = {}
+
 	createAnchors()
+end
+
+function tpm:CloseMainMenu()
+	local db = tpm:GetOptions()
+	if db["General:AutoClose"] and GameMenuFrame:IsShown() then
+		HideUIPanel(GameMenuFrame)
+	end
 end
 
 -- Slash Commands
@@ -1061,6 +1075,7 @@ function tpm:Setup()
 	tpm:UpdateAvailableWormholes()
 	tpm:UpdateAvailableSeasonalTeleports()
 	tpm:UpdateAvailableItemTeleports()
+	tpm:LoadHouses()
 
 	if
 		db["Teleports:Hearthstone"]
@@ -1094,7 +1109,7 @@ function events:ADDON_LOADED(...)
 		db = tpm:GetOptions()
 		tpm.settings.current_season = 3
 
-		db.debug = true
+		db.debug = false
 		f:UnregisterEvent("ADDON_LOADED")
 	end
 end
