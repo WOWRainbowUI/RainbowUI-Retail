@@ -1533,9 +1533,9 @@ D["TeleportMenu"] = {
     },
 };
 D["TidyPlates_ThreatPlates"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "UNITFRAME" },
-	title = "威力血條",
+	title = "(暫時停用) 威力血條",
 	desc = "威力強大、能夠根據仇恨值變化血條、提供更多自訂選項的血條。還可以幫指定的怪自訂血條樣式，讓血條更清楚明顯。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_warrior_innerrage",
