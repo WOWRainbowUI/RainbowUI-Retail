@@ -1,3 +1,4 @@
+- Refactored quest detection logic to use tooltip scanning, significantly improving accuracy for item-based quests and objectives with multiple mob types.
 - Fixed "table index is secret" error in nameplate show/hide when UnitGUID returns restricted values
 - Fixed "attempt to compare secret value" error in quest progress detection when UnitName returns restricted values
 - Added pcall protection for WoW API restriction system compatibility

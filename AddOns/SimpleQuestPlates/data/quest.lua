@@ -45,59 +45,150 @@ function SQP:GetQuestProgress(unitID)
 
     local nameOk, unitName = pcall(UnitName, unitID)
     if not nameOk or not unitName then return end
-    -- Verify the name is usable (not a "secret" restricted value)
+
     local testOk, testResult = pcall(function() return unitName == "" end)
-    if not testOk then return end
-    if testResult then return end
+    if not testOk or testResult then
+        return
+    end
 
     local itemsNeeded, objectiveCount, progressGlob, questType, questIdForItems = 0, 0, nil, nil, nil
+    
+    -- *****************************************************************************
+    -- ** Primary Method: Tooltip Scanning (New, More Accurate)
+    -- *****************************************************************************
+    local tooltipLines = {}
+    if SQP.isRetail then
+        local tooltipData = C_TooltipInfo and C_TooltipInfo.GetUnit(unitID)
+        if tooltipData and tooltipData.lines then
+            tooltipLines = tooltipData.lines
+        end
+    else
+        local scanTooltip = SQPScanTooltip or CreateFrame("GameTooltip", "SQPScanTooltip", nil, "GameTooltipTemplate")
+        scanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+        scanTooltip:SetUnit(unitID)
+        for i = 1, scanTooltip:NumLines() do
+            local textLeft = _G["SQPScanTooltipTextLeft"..i]
+            if textLeft and textLeft:GetText() then
+                local r, g, b = textLeft:GetTextColor()
+                local isQuestText = (r > 0.6 and r < 0.8) and (g > 0.6 and g < 0.8) and (b > 0.6 and b < 0.8)
+                if isQuestText then
+                    table.insert(tooltipLines, { leftText = textLeft:GetText() })
+                end
+            end
+        end
+        scanTooltip:Hide()
+    end
 
-    local function processObjectives(questID)
-        if not questID then return end
-        local objectives = SQP.Compat.GetQuestObjectives(questID)
-        for _, obj in ipairs(objectives) do
-            if obj.text and obj.text:find(unitName, 1, true) then
-                local x, y = strmatch(obj.text, '(%d+)/(%d+)')
-                if x and y then
-                    local numLeft = tonumber(y) - tonumber(x)
-                    if numLeft > 0 then
+    if #tooltipLines > 0 then
+        local tooltip_progressText, tooltip_amountNeeded, tooltip_questID = nil, nil, nil
+
+        for _, line in ipairs(tooltipLines) do
+            local text = line.leftText
+            local x, y = strmatch(text, '(%d+)/(%d+)')
+            if x and y then
+                local numLeft = tonumber(y) - tonumber(x)
+                if numLeft > 0 then
+                    tooltip_progressText = text
+                    tooltip_amountNeeded = numLeft
+                    tooltip_questID = line.questID -- Will be nil in Classic
+                    break
+                end
+            else
+                local progress = tonumber(strmatch(text, '([%d%.]+)%%'))
+                if progress and progress < 100 then
+                    tooltip_progressText = text
+                    tooltip_amountNeeded = ceil(100 - progress)
+                    tooltip_questID = line.questID
+                    questType = 3 -- Percentage quest
+                    break
+                end
+            end
+        end
+
+        if tooltip_progressText then
+            local function findAndProcessMatchingQuest(questID)
+                local objectives = SQP.Compat.GetQuestObjectives(questID)
+                for _, obj in ipairs(objectives) do
+                    if obj.text and obj.text == tooltip_progressText then
                         if obj.type == 'item' or obj.type == 'object' then
-                            if numLeft > itemsNeeded then itemsNeeded = numLeft end
+                            itemsNeeded = tooltip_amountNeeded
                         else -- kill or other
-                            if numLeft > objectiveCount then objectiveCount = numLeft end
+                            objectiveCount = tooltip_amountNeeded
                         end
-                        progressGlob = obj.text
+                        progressGlob = tooltip_progressText
                         questIdForItems = questID
+                        return true -- Match found and processed
                     end
-                else
-                    -- Handle percentage-based objectives
-                    local progress = tonumber(strmatch(obj.text, '([%d%.]+)%%'))
-                    if progress and progress < 100 then
-                        objectiveCount = ceil(100 - progress)
-                        questType = 3
-                        progressGlob = obj.text
-                        questIdForItems = questID
+                end
+                return false
+            end
+
+            if tooltip_questID then
+                findAndProcessMatchingQuest(tooltip_questID)
+            else
+                -- For Classic, iterate all quests to find a match
+                if SQP.Compat.GetNumQuestLogEntries then
+                    for i = 1, SQP.Compat.GetNumQuestLogEntries() do
+                        local info = SQP.Compat.GetInfo(i)
+                        if info and info.questID and not info.isHeader and (not info.isComplete or info.isComplete == 0) then
+                            if findAndProcessMatchingQuest(info.questID) then
+                                break
+                            end
+                        end
                     end
                 end
             end
         end
     end
 
-    -- Process regular quests
-    if SQP.Compat.GetNumQuestLogEntries then
-        for i = 1, SQP.Compat.GetNumQuestLogEntries() do
-            local info = SQP.Compat.GetInfo(i)
-            if info and info.questID and not info.isHeader and (not info.isComplete or info.isComplete == 0) then
-                processObjectives(info.questID)
+    -- *****************************************************************************
+    -- ** Fallback Method: Name Matching (Original Logic)
+    -- *****************************************************************************
+    if not progressGlob then
+        local function processObjectivesFallback(questID)
+            if not questID then return end
+            local objectives = SQP.Compat.GetQuestObjectives(questID)
+            for _, obj in ipairs(objectives) do
+                if obj.text and obj.text:find(unitName, 1, true) then
+                    local x, y = strmatch(obj.text, '(%d+)/(%d+)')
+                    if x and y then
+                        local numLeft = tonumber(y) - tonumber(x)
+                        if numLeft > 0 then
+                            if obj.type == 'item' or obj.type == 'object' then
+                                if numLeft > itemsNeeded then itemsNeeded = numLeft end
+                            else -- kill or other
+                                if numLeft > objectiveCount then objectiveCount = numLeft end
+                            end
+                            progressGlob = obj.text
+                            questIdForItems = questID
+                        end
+                    else
+                        local progress = tonumber(strmatch(obj.text, '([%d%.]+)%%'))
+                        if progress and progress < 100 then
+                            objectiveCount = ceil(100 - progress)
+                            questType = 3
+                            progressGlob = obj.text
+                            questIdForItems = questID
+                        end
+                    end
+                end
             end
         end
-    end
 
-    -- Process world quests (retail only)
-    if C_TaskQuest then
-        for questName, questID in pairs(self.ActiveWorldQuests) do
-            if questID then
-                processObjectives(questID)
+        if SQP.Compat.GetNumQuestLogEntries then
+            for i = 1, SQP.Compat.GetNumQuestLogEntries() do
+                local info = SQP.Compat.GetInfo(i)
+                if info and info.questID and not info.isHeader and (not info.isComplete or info.isComplete == 0) then
+                    processObjectivesFallback(info.questID)
+                end
+            end
+        end
+
+        if C_TaskQuest then
+            for _, questID in pairs(self.ActiveWorldQuests) do
+                if questID then
+                    processObjectivesFallback(questID)
+                end
             end
         end
     end
