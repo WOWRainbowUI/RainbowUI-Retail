@@ -3001,7 +3001,7 @@ local function MSUF_SelectCastbarSubPage(unitKey)
 end
 
 local MIRROR_PAGES = {
-    home     = { title = "Midnight Simple Unitframes (發佈版本 1.8r3)", nav = "Dashboard", build = nil },
+    home     = { title = "Midnight Simple Unitframes (Version 1.85r1)", nav = "Dashboard", build = nil },
     main     = { title = "MSUF 選項",  nav = "Options",  build = MSUF_EnsureMainOptionsPanelBuilt,
         select = function(subkey)
             if not subkey then return end
@@ -4402,7 +4402,7 @@ local close = UI_CloseButton(f, "TOPRIGHT", f, "TOPRIGHT", -4, -4)
     tipBox:SetHeight(22)
 
     local tipLabel = tipBox:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-    tipLabel:SetPoint("TOPLEFT", tipBox, "TOPLEFT", 0, 0)
+    tipLabel:SetPoint("TOPLEFT", tipBox, "TOPLEFT", 0, -10)
     tipLabel:SetJustifyH("LEFT")
     tipLabel:SetJustifyV("TOP")
     tipLabel:SetAlpha(0.82)
@@ -4453,7 +4453,7 @@ local close = UI_CloseButton(f, "TOPRIGHT", f, "TOPRIGHT", -4, -4)
         if self._msufStatusLine and self._msufStatusLine.SetText then
             local edit = MSUF_IsMSUFEditModeActive() and "開啟" or "關閉"
             local combat = (InCombatLockdown and InCombatLockdown()) and "戰鬥中" or "非戰鬥中"
-            self._msufStatusLine:SetText("設定檔：" .. tostring(prof) .. "   •   編輯模式：" .. edit .. "   •   " .. combat)
+            self._msufStatusLine:SetText("設定檔：" .. tostring(prof) .. "   ●   編輯模式：" .. edit .. "   ●   " .. combat)
         end
     end)
 
@@ -4463,8 +4463,8 @@ MSUF_ForceItalicFont(tipText)
 
 -- Status line (profile + Edit Mode + combat state)
 local statusLine = home:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-statusLine:SetPoint("TOPLEFT", tipBox, "BOTTOMLEFT", 0, -6)
-statusLine:SetPoint("TOPRIGHT", tipBox, "BOTTOMRIGHT", 0, -6)
+statusLine:SetPoint("TOPLEFT", tipBox, "BOTTOMLEFT", 0, -9)
+statusLine:SetPoint("TOPRIGHT", tipBox, "BOTTOMRIGHT", 0, -9)
 statusLine:SetJustifyH("LEFT")
 statusLine:SetJustifyV("TOP")
 statusLine:SetAlpha(0.78)

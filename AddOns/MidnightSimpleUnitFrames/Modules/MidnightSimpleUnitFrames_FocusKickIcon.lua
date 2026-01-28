@@ -1232,14 +1232,14 @@ function MSUF_InitFocusKickIconOptions()
     -- Place this toggle in the left column under the enable description.
     previewCheck:SetPoint("TOPLEFT", desc, "BOTTOMLEFT", -2, -10)
     if previewCheck.Text then
-        previewCheck.Text:SetText("Show on Screen Preview")
+        previewCheck.Text:SetText("在畫面預覽中顯示")
     end
     panel._msufFocusKickPreviewCheck = previewCheck
 
     previewCheck:SetScript("OnClick", function(self)
         if panel._msufSyncing then return end
         if InCombatLockdown and InCombatLockdown() then
-            FocusKick_PrintSystem("In combat - cannot toggle Focus Interrupt Tracker preview.")
+            FocusKick_PrintSystem("戰鬥中 - 無法切換專注打斷追蹤器預覽")
             panel._msufSyncing = true
             self:SetChecked(FocusKickPreviewEnabled and true or false)
             panel._msufSyncing = false

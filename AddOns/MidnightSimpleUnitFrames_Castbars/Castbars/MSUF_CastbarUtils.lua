@@ -94,16 +94,20 @@ function _G.MSUF_Castbar_ApplyNonInterruptibleTint(frame, rawNotInterruptible,
   local usedC = false
 
   if tex and tex.SetVertexColorFromBoolean and CreateColor then
-    -- Do NOT evaluate rawNotInterruptible in Lua; pass straight into the C method.
+    -- IMPORTANT (Midnight/Beta, secret-safe):
+    --  - Never boolean-test `rawNotInterruptible` in Lua (may be secret).
+    --  - Never pass nil into SetVertexColorFromBoolean (hard error).
+    -- We pass the raw value straight into the C method when present; otherwise we use a normal Lua boolean fallback.
     local nonCol = CreateColor(nonIntR, nonIntG, nonIntB, nonIntA or 1)
     local intCol = CreateColor(intR, intG, intB, intA or 1)
 
-    -- rawNotInterruptible can be secret OR nil depending on API/source.
-    -- Do not boolean-test it in Lua. Attempt the C helper and fall back cleanly.
-    local ok = pcall(tex.SetVertexColorFromBoolean, tex, rawNotInterruptible, nonCol, intCol)
-    if ok then
-      usedC = true
+    local v = rawNotInterruptible
+    if v == nil then
+      v = (wantNI == true)
     end
+
+    tex:SetVertexColorFromBoolean(v, nonCol, intCol)
+    usedC = true
   end
 
   if not usedC then

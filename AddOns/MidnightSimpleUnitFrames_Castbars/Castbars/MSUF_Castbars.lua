@@ -2803,7 +2803,7 @@ function _G.MSUF_SetBossCastbarTestMode(active, keepSetting)
                 end
 
                 if f.castText and f.castText.SetText then
-                    f.castText:SetText("Boss castbar preview")
+                    f.castText:SetText("首領施法條預覽")
                 end
                 if f.timeText and f.timeText.SetText then
                     f.timeText:SetText("")

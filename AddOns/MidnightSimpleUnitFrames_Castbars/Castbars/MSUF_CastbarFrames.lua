@@ -162,10 +162,10 @@ function _G.MSUF_CreateCastbarPreviewFrame(kind, frameName, opts)
 
     local label = opts.label
     if not label then
-        if kind == "player" then label = "Player castbar preview"
-        elseif kind == "target" then label = "Target castbar preview"
-        elseif kind == "focus" then label = "Focus castbar preview"
-        elseif kind == "boss" then label = "Boss castbar preview"
+        if kind == "player" then label = "玩家施法條預覽"
+        elseif kind == "target" then label = "目標施法條預覽"
+        elseif kind == "focus" then label = "專注目標施法條預覽"
+        elseif kind == "boss" then label = "首領施法條預覽"
         else label = "Castbar preview"
         end
     end
