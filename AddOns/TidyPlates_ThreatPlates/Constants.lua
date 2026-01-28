@@ -605,13 +605,13 @@ Addon.DEFAULT_SETTINGS = {
         VerticalOffset = 13,
         Font = {
           Typeface = Addon.DEFAULT_FONT, -- old default: "Accidental Presidency",
-          Size = 10, -- old default: 14
+          Size = 14, -- old default: 14
           flags = "NONE",
           Shadow = true,
           HorizontalAlignment = "CENTER",
           VerticalAlignment = "MIDDLE",
           Width = 140, -- old default: 116,
-          Height = 14,
+          Height = 16,
         },
       },
       NameMode = {
@@ -627,7 +627,7 @@ Addon.DEFAULT_SETTINGS = {
         HorizontalOffset = 0,
         VerticalOffset = 4,
         Font = {
-          Size = 10,
+          Size = 14,
           -- Width = 140, -- same as for healthbar view -- old default: 116,
           -- Height = 14, -- same as for healthbar view
           HorizontalAlignment = "CENTER",

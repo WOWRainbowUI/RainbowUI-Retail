@@ -39,8 +39,8 @@ local MAP_LOCALE_CONTENT = {
     DefaultSmallFont = "默认", -- "AR ZhongkaiGBK Medium"
   },
   zhTW = { -- Traditional Chinese
-    DefaultFont = "預設",       -- "AR Kaiti Medium B5"
-    DefaultSmallFont = "預設",  -- "AR Kaiti Medium B5"
+    DefaultFont = " 方正准圓123",       -- "AR Kaiti Medium B5"
+    DefaultSmallFont = " 方正准圓123",  -- "AR Kaiti Medium B5"
   },
   ruRU = { -- Russian
     DefaultFont = "Friz Quadrata TT", -- "FrizQuadrataCTT"
