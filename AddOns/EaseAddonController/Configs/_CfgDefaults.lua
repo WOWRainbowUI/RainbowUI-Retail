@@ -1161,6 +1161,20 @@ D["PetTracker"] = {
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
+D["Platynator"] = {
+    defaultEnable = 1,
+	tags = { "UNITFRAME" },
+	title = "鉑金血條",
+	desc = "簡單易用、可高度自訂的名條插件，設計上兼顧效能與靈活性。它提供即時視覺化編輯器，讓玩家能快速調整名條外觀。`",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["Platynator"]("") end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+};
 D["Postal"] = {
 	defaultEnable = 1,
 	title = "超強信箱",
