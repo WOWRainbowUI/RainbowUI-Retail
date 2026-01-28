@@ -1,4 +1,4 @@
-# 13.0.0-beta7 (2026-01-26)
+# 13.0.0-beta8 (2026-01-27)
 
 This is a basic version with Midnight support. Expect lots of missing features and Lua errors. Report any bugs at https://github.com/Backupiseasy/ThreatPlates/issues.
 
@@ -11,6 +11,4 @@ This is a basic version with Midnight support. Expect lots of missing features a
 * Updated integrated libraries (Ace3 r1387-alpha, LibSharedMedia-3.0 v11.2.1)
 
 Beta changes:
-* Fixed frame strata for Threat Plates (BACKGROUND) [GH-637].
-* Fixed wrong definitions for WoW API function LoadAddOn [GH-638].
-* Fixed several Lua errors caused by secret values [GH-639].
+* Fixed a root cause for lots of Lua errors caused by secret values (but probably not all of them).
