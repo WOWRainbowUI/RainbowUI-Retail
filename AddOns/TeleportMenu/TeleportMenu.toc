@@ -17,7 +17,7 @@
 ## Category-zhTW: 使用者介面
 
 ## Author: Justwait
-## Version: v11.5
+## Version: v11.6
 ## SavedVariables: TeleportMenuDB
 
 ## X-Curse-Project-ID: 1087836
