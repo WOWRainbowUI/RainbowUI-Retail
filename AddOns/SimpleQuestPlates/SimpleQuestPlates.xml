@@ -1,0 +1,29 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\..\FrameXML\UI.xsd">
+    <!-- Localization files -->
+    <Script file="locales\enUS.lua"/>
+    <Script file="locales\zhCN.lua"/>
+    <Script file="locales\zhTW.lua"/>
+    
+    <!-- Core files -->
+    <Script file="data\core.lua"/>
+    <Script file="data\compat.lua"/>
+    <Script file="data\compat_mop.lua"/>
+    <Script file="data\nameplates.lua"/>
+    <Script file="data\quest.lua"/>
+    <Script file="data\events.lua"/>
+    <Script file="data\commands.lua"/>
+    
+    <!-- Options panel files -->
+    <Script file="data\options_core.lua"/>
+    <Script file="data\options_widgets.lua"/>
+    <Script file="data\options_tabs.lua"/>
+    <Script file="data\options_header.lua"/>
+    <Script file="data\options_preview.lua"/>
+    
+    <!-- Options sections -->
+    <Script file="data\options_general.lua"/>
+    <Script file="data\options_font.lua"/>
+    <Script file="data\options_icon.lua"/>
+    <Script file="data\options_about.lua"/>
+    <Script file="data\options_rgx.lua"/>
+</Ui>

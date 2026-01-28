@@ -1228,9 +1228,8 @@ D["Quartz"] = {
 D["QuestPlates"] = {
     defaultEnable = 1,
 	tags = { "QUEST" },
-	title = "任務怪提示",
-	desc = "在任務怪名字和血條的左側顯示任務目標進度的提示圖示，開啟敵方血條就會出現。``圖示內的數字表示完成任務還需要多少數量或百分比。",
-	-- icon = "Interface\\Icons\\achievement_garrisonquests_0100",
+	title = "(請刪除) 任務怪提示",
+	desc = "這是舊版的插件，已經移除。`請自行刪除 AddOns 裡面的 QuestPlates 資料夾。`",
 	img = true,
 };
 D["QuickTargets"] = {
@@ -1392,6 +1391,18 @@ D["SimpleAssistedCombatIcon"] = {
     {
         text = "設定選項",
         callback = function() SlashCmdList["ACECONSOLE_SACI"]("") end,
+    },
+};
+D["SimpleQuestPlates"] = {
+    defaultEnable = 1,
+	tags = { "QUEST" },
+	title = "簡易任務怪提示",
+	desc = "在任務怪名字和血條的左側顯示任務目標進度的提示圖示，開啟敵方血條就會出現。``圖示內的數字表示完成任務還需要多少數量或百分比。",
+	modifier = "彩虹ui",
+	img = true,
+	{
+        text = "設定選項",
+        callback = function() SlashCmdList["SQP"]("") end,
     },
 };
 D["SmartQuest"] = {
