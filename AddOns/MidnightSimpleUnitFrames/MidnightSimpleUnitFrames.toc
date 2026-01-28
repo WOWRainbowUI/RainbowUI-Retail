@@ -1,0 +1,41 @@
+## Interface: 120001, 120000
+## Title: Midnight Simple UnitFrames
+## Notes: Unitframe Addon by Mapko 
+## Author: Mapkó
+## Version: 1.8r3
+## Category: Combat
+## SavedVariables: MSUF_Config
+## SavedVariables: MSUF_DB, MSUF_GlobalDB
+## IconTexture: Interface\AddOns\MidnightSimpleUnitFrames\Media\MSUF_MinimapIcon.tga
+## X-Wago-ID: XKq9aoKy
+
+MSUF_UpdateManager.lua
+MSUF_EventBus.lua
+MSUF_Libs.lua
+MSUF_Defaults.lua
+MSUF_Profiles.lua
+MSUF_Util.lua
+MSUF_Style.lua
+MSUF_Castbars_LoDStub.lua
+Options\MSUF_Options_Core.lua
+Options\MSUF_Options_Player.lua
+Options\MSUF_Options_Misc.lua
+Options\MSUF_Options_Fonts.lua
+Options\MSUF_Options_Auras.lua
+Media\MSUF_Media.lua
+Core\MSUF_ProfileIO.lua
+Core\MSUF_StatusIndicators.lua
+Core\MSUF_SetupWizard.lua
+Core\MSUF_ChatAndTooltips.lua
+Core\MSUF_UnitframeCore.lua
+MidnightSimpleUnitFrames.lua
+MSUF_Presets.lua
+MidnightSimpleUnitFrames_SlashMenu.lua
+MidnightSimpleUnitFrames_MinimapButton.lua
+MSUF_EditMode.lua
+MidnightSimpleUnitFrames_Colors.lua
+MidnightSimpleUnitFrames_Auras.lua
+MidnightSimpleUnitFrames_Gameplay.lua
+Modules\MidnightSimpleUnitFrames_FocusKickIcon.lua
+Modules\MSUF_RoundedUnitframes.lua
+Modules\MSUF_3DPortraits.lua
