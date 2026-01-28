@@ -69,7 +69,7 @@ XIVBar.defaults = {
                 a = RAID_CLASS_COLORS[XIVBar.constants.playerClass].a
             }
         },
-        text = {fontSize = 12, smallFontSize = 11, font = 'Homizio Bold'},
+        text = {fontSize = 12, smallFontSize = 11, font = ' 方正准圓123'},
         modules = {}
     },
     global = {
