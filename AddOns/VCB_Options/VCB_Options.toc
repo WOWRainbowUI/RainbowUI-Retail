@@ -1,4 +1,8 @@
-## Interface: 110207
+## Interface: 110207, 120000
+## IconAtlas: Relic-Fel-TraitBG
+## Title: Voodoo |cFF9ACD32Casting|r Bar |cFF9ACD32Options|r
+## Notes: |cFFF0E68COptions for the |cFF9ACD32Voodoo|r Casting |cFF9ACD32Bar|r!|r
+## Version: 2.00.00
 ## Category: Combat
 ## Category-deDE: Kampf
 ## Category-esES: Combate
@@ -10,17 +14,14 @@
 ## Category-ruRU: Бой
 ## Category-zhCN: 战斗
 ## Category-zhTW: 戰鬥
-## Title: Voodoo |cff9ACD32Casting|r Bar |cff9ACD32Options|r
-## Notes: |cffF0E68COptions for the |cff9ACD32Voodoo|r Casting |cff9ACD32Bar|r|r!
-## IconAtlas: Relic-Fel-TraitBG
-## DefaultState: enabled
-## LoadOnDemand: 1
+## Group: VDWS
 ## Dependencies: VCB
-## Version: 1.8001
+## LoadOnDemand: 1
+## DefaultState: enabled
 ## Author: The_Indolent
 ## X-Website: https://panosanastasiou.rocks/
 
-VCB_Virtuals.xml
+VCB_Options_L.lua
 VCB_Options_0.xml
 VCB_Options_1.xml
 VCB_Options_2.xml

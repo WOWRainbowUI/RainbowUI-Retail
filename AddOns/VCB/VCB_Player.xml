@@ -1,16 +1,37 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
-..\..\Blizzard_SharedXML\UI.xsd">
-	<Frame name="vcbFrameGCDparent" parent="UIParent" frameStrata="BACKGROUND" frameLevel="0">
-		<Anchors>
-			<Anchor point="RIGHT" relativeTo="PlayerCastingBarFrame" relativePoint="LEFT" x ="0" y="0"/>
-		</Anchors>
-		<Size x="36" y="36"/>
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/AddOns/Blizzard_SharedXML/UI.xsd">
+	<Frame name="vcbGCDparent" parent="UIParent" frameStrata="BACKGROUND" frameLevel="0">
+		<Size x="32" y="32"/>
 <!-- Global Cooldown Classic -->
 		<Frames>
-			<Cooldown name="vcbFrameGCD" setAllPoints="true" reverse="true" hideCountdownNumbers="false" drawEdge="true" drawBling="false" drawSwipe="true">
+			<Cooldown name="vcbGCD1" setAllPoints="true" reverse="true" hideCountdownNumbers="false" drawEdge="true" drawBling="false" drawSwipe="true">
 				<SwipeTexture file="Interface\ICONS\UI_AllianceIcon-round"/>
 				<EdgeTexture file="Interface\Cooldown\UI-HUD-ActionBar-LoC"/>
 			</Cooldown>
+			<StatusBar name="vcbGCD2" inherits="CastingBarFrameAnimsTemplate" hidden="true">
+				<BarTexture atlas="ui-castingbar-filling-standard" useAtlasSize="true"/>
+				<Size x="150" y="10"/>
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="0">
+						<Texture parentKey="Background" atlas="ui-castingbar-background">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="0" y="0"/>
+								<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+						<Layer level="OVERLAY">
+							<Texture parentKey="Border" atlas="ui-castingbar-frame">
+								<Anchors>
+									<Anchor point="TOPLEFT" x="-1" y="2"/>
+									<Anchor point="BOTTOMRIGHT" x="1" y="-2"/>
+								</Anchors>
+							</Texture>
+						</Layer>
+				</Layers>
+			</StatusBar>
 		</Frames>
 	</Frame>
 	<Script file="VCB_Player.lua"/>

@@ -1,5 +1,4 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
-..\FrameXML\UI.xsd">
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/AddOns/Blizzard_SharedXML/UI.xsd">
 	<Frame name="vcbZlave" parent="UIParent" frameStrata="BACKGROUND" frameLevel="0" hidden="true">
 		<Scripts>
 			<OnLoad>
@@ -9,9 +8,9 @@
 				self:RegisterEvent("UNIT_SPELLCAST_START")
 				self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 				self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
-				self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 				self:RegisterEvent("PLAYER_FOCUS_CHANGED")
 				self:RegisterEvent("PLAYER_TARGET_CHANGED")
+				self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 			</OnLoad>
 		</Scripts>
 	</Frame>
