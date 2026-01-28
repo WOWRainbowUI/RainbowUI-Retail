@@ -1,7 +1,7 @@
 ## Interface: 11508,40402,50503,120000,120001
 ## Title: |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r
 ## Notes: Displays quest progress icons on enemy nameplates.|nType |cff58be81/sqp|r for options.|n|cff8B1538[RGX]|r |cff58be81By DonnieDice|r
-## Version: 1.6.3
+## Version: 1.6.4
 ## Author: DonnieDice
 ## Email: donniedice@protonmail.com
 ## SavedVariables: SQPSettings

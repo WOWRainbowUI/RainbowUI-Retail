@@ -7,6 +7,7 @@
 
 local addonName, SQP = ...
 
+
 -- Get WoW version
 local tocversion = select(4, GetBuildInfo())
 local isRetail = tocversion >= 100000  -- Dragonflight and later
