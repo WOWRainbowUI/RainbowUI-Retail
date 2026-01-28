@@ -1,4 +1,7 @@
-﻿12.0.00 - 21st January 2026
+﻿12.0.02 - 28th January 2026
+- Fixed the issue with 'Disable reading emote' which prevented it from working as intended.
+
+12.0.00 - 21st January 2026
 - Welcome to Midnight!
 
 11.2.26 - 31st December 2025
