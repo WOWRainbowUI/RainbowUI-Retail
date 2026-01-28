@@ -32,23 +32,25 @@
 		end
 	end)
 
+	local function ApplyEdgeTexture(frame)
+		if frame and issecretvalue(frame) then return end
+		if frame and not frame:IsForbidden() then
+			if frame:GetObjectType() == "Cooldown" then
+				if frame.SetEdgeTexture then
+					frame:SetEdgeTexture("Interface\\Cooldown\\edge")
+				end
+			end
+		end
+	end
 	if ActionButton_ApplyCooldown then -- Action Buttons no longer use CooldownFrame_Set
 		hooksecurefunc("ActionButton_ApplyCooldown", function(normalCooldown, cooldownInfo, chargeCooldown, chargeInfo, lossOfControlCooldown, lossOfControlInfo)
-			if normalCooldown and not normalCooldown:IsForbidden() then
-				normalCooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
-			end
-			if chargeCooldown and not chargeCooldown:IsForbidden() then
-				chargeCooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
-			end
-			if lossOfControlCooldown and not lossOfControlCooldown:IsForbidden() then
-				lossOfControlCooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
-			end
+			ApplyEdgeTexture(normalCooldown)
+			ApplyEdgeTexture(chargeCooldown)
+			ApplyEdgeTexture(lossOfControlCooldown)
 		end)
 	end
 	if CooldownFrame_Set then
 		hooksecurefunc("CooldownFrame_Set", function(self)
-			if self and not self:IsForbidden() then
-				self:SetEdgeTexture("Interface\\Cooldown\\edge")
-			end
+			ApplyEdgeTexture(self)
 		end)
 	end
