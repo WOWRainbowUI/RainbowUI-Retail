@@ -1,6 +1,6 @@
 ## Interface: 120000
 ## Title: Premade Groups Filter
-## Version: 7.1.0
+## Version: 7.1.1
 ## IconTexture: 397907
 ## X-Flavor: Retail
 ## Notes: Allows filtering of premade groups using an UI or advanced filter expressions.
