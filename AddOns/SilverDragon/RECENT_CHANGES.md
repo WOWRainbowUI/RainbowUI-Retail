@@ -1,4 +1,5 @@
-## Changed in v2026.9
+## Changed in v2026.10
 
-* Rares for the Twilight Ascension event
+* Slightly better coords for Twilight Ascension
+* Fixed some errors when sharing links due to Midnight secrets
 
