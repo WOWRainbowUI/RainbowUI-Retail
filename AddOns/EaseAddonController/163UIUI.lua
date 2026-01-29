@@ -151,17 +151,22 @@ function UUI.ReloadFlash(from, enable)
     UUI.ReloadFlashRefresh();
 end
 
+local LCG = LibStub("LibCustomGlow-1.0", true) 
+
 function UUI.ReloadFlashRefresh()
-    --[[
-	local LBG = LibStub("LibButtonGlow-1.0")
-	local flash = UUI().reload.flash
-    -- ActionButton_HideOverlayGlow(flash); -- 12.0 fix
-	LBG:HideOverlayGlow(flash)
-    if(next(U1GetReloadList()))then
-        -- ActionButton_ShowOverlayGlow(flash);
-		LBG:ShowOverlayGlow(flash)
+    local flash = UUI().reload.flash
+    
+    -- 安全檢查：確保庫已載入
+    if LCG then
+        -- 停止發光 (替代 HideOverlayGlow)
+        LCG.ButtonGlow_Stop(flash)
+        
+        -- 判斷是否需要重新顯示
+        if(next(U1GetReloadList()))then
+            -- 開始發光 (替代 ShowOverlayGlow)
+            LCG.ButtonGlow_Start(flash)
+        end
     end
-	--]]
 end
 
 --- Show Main Panel on toplevel, or bottom level when raise == false
