@@ -12,9 +12,9 @@
 ## Category-zhTW: 戰鬥
 ## DefaultState: disabled
 
-# Localization\localization.xml
+Localization\localization.xml
 
-# MSBTOptionsControls.lua
-# MSBTOptionsPopups.lua
-# MSBTOptionsMain.lua
-# MSBTOptionsTabs.lua
+MSBTOptionsControls.lua
+MSBTOptionsPopups.lua
+MSBTOptionsMain.lua
+MSBTOptionsTabs.lua
