@@ -121,6 +121,7 @@ do
     subText:SetText("這些選項可以調整如何顯示滑鼠提示的外觀預覽")
 
     local dressed = newCheckbox(panel, 'dressed', '穿上所有衣服 (不要脫光)', "同時顯示要預覽的物品，以及目前身上所穿的裝備。")
+    local dressed_ensemble = newCheckbox(panel, 'dressed_ensemble', '穿上衣服 (套裝)', "如上，但特別針對套裝")
     local uncover = newCheckbox(panel, 'uncover', '不要遮住預覽的物品', "移除會遮住的衣物，讓目前正要預覽的物品可以完整呈現。")
     local mousescroll = newCheckbox(panel, 'mousescroll', '使用滑鼠滾輪旋轉', "使用滑鼠滾輪旋轉預覽模特兒。")
     local spin = newCheckbox(panel, 'spin', '自動旋轉', "預覽模型顯示時會持續旋轉。")
@@ -195,7 +196,8 @@ do
     zoomMasked:SetPoint("TOPLEFT", zoomHeld, "BOTTOMLEFT", 0, -4)
 
     dressed:SetPoint("TOPLEFT", zoomMasked, "BOTTOMLEFT", 0, -4)
-    uncover:SetPoint("TOPLEFT", dressed, "BOTTOMLEFT", 0, -4)
+    dressed_ensemble:SetPoint("TOPLEFT", dressed, "BOTTOMLEFT", 0, -4)
+    uncover:SetPoint("TOPLEFT", dressed_ensemble, "BOTTOMLEFT", 0, -4)
     tokens:SetPoint("TOPLEFT", uncover, "BOTTOMLEFT", 0, -4)
     notifyKnown:SetPoint("TOPLEFT", tokens, "BOTTOMLEFT", 0, -4)
     alerts:SetPoint("TOPLEFT", notifyKnown, "BOTTOMLEFT", 0, -4)
