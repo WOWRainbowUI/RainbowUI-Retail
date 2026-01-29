@@ -204,7 +204,7 @@ local tpTable = {
 	{ id = 227, type = "flyout", iconId = 4640496, name = L["Dragonflight"], subtype = "path" }, -- Hero's Path: Dragonflight
 	{ id = 231, type = "flyout", iconId = 5342925, name = L["Dragonflight Raids"], subtype = "path" }, -- Hero's Path: Dragonflight Raids
 	{ id = 232, type = "flyout", iconId = 5872031, name = L["The War Within"], subtype = "path" }, -- Hero's Path: The War Within
-	{ id = 242, type = "flyout", iconId = 6392630, name = L["The War Within Raids"], subtype = "path", currentExpansion=true }, -- Hero's Path: The War Within Raids
+	{ id = 242, type = "flyout", iconId = 6997112, name = L["The War Within Raids"], subtype = "path", currentExpansion=true }, -- Hero's Path: The War Within Raids
 }
 
 local GetItemCount = C_Item.GetItemCount
@@ -268,7 +268,7 @@ local function setToolTip(self, tpType, id, hs)
 		local bindLocation = GetBindLocation()
 		GameTooltip:SetText(L["Random Hearthstone"], 1, 1, 1)
 		GameTooltip:AddLine(L["Random Hearthstone Tooltip"], 1, 1, 1)
-		GameTooltip:AddLine(L["Random Hearthstone Location"]:format(bindLocation), 1, 1, 1)
+		GameTooltip:AddLine(L["Random Hearthstone Location"]:format(bindLocation), 1, 1, 1, true) -- `false` is supposed to disable text wrapping, but somehow `true` works that way in action
 	elseif tpType == "item" then
 		GameTooltip:SetItemByID(id)
 	elseif tpType == "item_teleports" then
@@ -881,8 +881,8 @@ local function createAnchors()
 	buttonsFrameRight.buttonAmount = 0
 	buttonsFrameLeft.buttonAmount = 0
 	local buttonFrameYOffset = globalHeight / 2
-	buttonsFrameLeft:SetPoint("TOPRIGHT", GameMenuFrame,  "TOPLEFT", -globalHeight, -buttonFrameYOffset)
-	buttonsFrameRight:SetPoint("TOPLEFT", GameMenuFrame,  "TOPRIGHT", 0, -buttonFrameYOffset)
+	buttonsFrameLeft:SetPoint("TOPRIGHT", GameMenuFrame,  "TOPLEFT", -globalHeight - 1, -buttonFrameYOffset + 1)
+	buttonsFrameRight:SetPoint("TOPLEFT", GameMenuFrame,  "TOPRIGHT", 0, -buttonFrameYOffset + 1)
 
 	for _, teleport in ipairs(tpTable) do
 		local showHearthstone = db["Teleports:Hearthstone"] ~= "disabled"
