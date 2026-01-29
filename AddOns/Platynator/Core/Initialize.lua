@@ -50,6 +50,10 @@ function addonTable.Core.UpgradeDesign(design)
     if text.layer == nil then
       text.layer = 2
     end
+    if text.maxWidth == nil then
+      text.maxWidth = math.floor((text.widthLimit or 0) / addonTable.Assets.BarBordersSize.width * 100) / 100
+      text.widthLimit = nil
+    end
   end
   for _, marker in ipairs(design.markers) do
     if not marker.color then
@@ -179,6 +183,9 @@ function addonTable.Core.UpgradeDesign(design)
     end
     if bar.kind == "health" and not bar.absorb.color then
       bar.absorb.color = GetColor("FFFFFF")
+    end
+    if bar.kind == "health" and bar.animate == nil then
+      bar.animate = false
     end
     if bar.layer == nil then
       bar.layer = 1
@@ -358,6 +365,10 @@ function addonTable.Core.UpgradeDesign(design)
       highlight.color.a = 1
     end
 
+    if highlight.kind == "mouseover" and highlight.includeTarget == nil then
+      highlight.includeTarget = true
+    end
+
     if not addonTable.Assets.Highlights[highlight.asset] then
       local old = addonTable.Assets.HighlightsLegacy[highlight.asset]
       highlight.asset = addonTable.Assets.HighlightsLegacy[highlight.asset].tag
@@ -388,6 +399,11 @@ function addonTable.Core.UpgradeDesign(design)
     design.font.outline = design.font.flags == "OUTLINE"
     design.font.flags = nil
   end
+
+  if design.font.slug == nil then
+    design.font.slug = true
+  end
+  design.slug = nil
 
   if design.font.asset == "ArialShort" then
     design.font.asset = "ArialNarrow"
@@ -520,7 +536,7 @@ local function UpdateRect(design)
 
   for _, textDetails in ipairs(design.texts) do
     if textDetails.kind == "creatureName" then
-      local rect = GetRect({width = textDetails.widthLimit, height = 10 * textDetails.scale}, 1, textDetails.anchor)
+      local rect = GetRect({width = textDetails.maxWidth * addonTable.Assets.BarBordersSize.width, height = 10 * textDetails.scale}, 1, textDetails.anchor)
       CacheSize(rect)
     end
   end
