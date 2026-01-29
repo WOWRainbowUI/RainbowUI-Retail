@@ -1147,7 +1147,7 @@ D["Pawn"] = {
 };
 D["PetTracker"] = {
     defaultEnable = 0,
-	title = "戰寵助手",
+	title = "(暫時停用) 戰寵助手",
 	desc = "追蹤你在該區域已有和缺少的戰寵。`",
 	img = true,
     {

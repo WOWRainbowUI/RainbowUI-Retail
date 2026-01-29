@@ -15,4 +15,4 @@
 ## Category-zhTW: 戰寵
 ## DefaultState: disabled
 
-..\PetTracker\addons\journal\journal.xml
+# ..\PetTracker\addons\journal\journal.xml

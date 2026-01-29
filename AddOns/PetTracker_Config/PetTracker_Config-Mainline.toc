@@ -13,4 +13,4 @@
 ## Category-zhTW: 戰寵
 ## DefaultState: disabled
 
-..\PetTracker\addons\config\config.xml
+# ..\PetTracker\addons\config\config.xml
