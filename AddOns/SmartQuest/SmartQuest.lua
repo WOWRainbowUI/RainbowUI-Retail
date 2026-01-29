@@ -712,7 +712,7 @@ end
 
 function SmartQuest_Command_Options()
 	if (not InterfaceOptions_AddCategory) then
-		Settings.OpenToCategory("SmartQuest");
+		Settings.OpenToCategory(SmartQuest.SettingsCategoryId);
 	else
 		InterfaceOptionsFrame_OpenToCategory("SmartQuest");
 		InterfaceOptionsFrame_OpenToCategory("SmartQuest"); -- Do it twice because first time you load up, it doesn't work
@@ -770,8 +770,8 @@ function SmartQuest_RenderOptions()
 	ConfigurationPanel.name = "任務-通報";
 	if (not InterfaceOptions_AddCategory) then
 		category, layout = Settings.RegisterCanvasLayoutCategory(ConfigurationPanel, ConfigurationPanel.name);
-		category.ID = "SmartQuest"
 		Settings.RegisterAddOnCategory(category);
+		SmartQuest.SettingsCategoryId = category:GetID();
 	else
 		InterfaceOptions_AddCategory(ConfigurationPanel);	
 	end
