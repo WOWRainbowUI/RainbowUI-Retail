@@ -1535,6 +1535,26 @@ L["STRING_SEGMENTS_LIST_WASTED_TIME"] = "Не в бою"
 L["STRING_SHIELD_HEAL"] = "Предотвращено"
 L["STRING_SHIELD_OVERHEAL"] = "Впустую"
 L["STRING_SHORTCUT_RIGHTCLICK"] = "ПКМ, чтобы закрыть"
+L["STRING_SIMPLE_TEXT_FORMAT"] = "Использовать простое форматирование текста"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"] = "Использовать выровненный текст"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"] = "Текст выравнивается по колонкам, настройте расстояние между колонками."
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = "Расстояние между колонками"
+L["STRING_SIMPLE_TEXT_FORMAT_DESC"] = "Включает использование трёх правил ниже."
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"] = "Не показывать проценты"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE3"] = "Показывать только сумму"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE4"] = "Разделять с помощью | как разделителя"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE5"] = "Разделять с помощью [квадратных скобок]"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE6"] = "Сумма (DPS) Проценты"
+L["STRING_SIMPLE_TEXT_FORMAT_TITLE"] = "Текст справа: Простой или Выровненный"
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] = [=[Когда строка содержит информацию
+о сумме и процентах.
+|cFFAAAAAA%s порядок: сумма, проценты.]=]
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE2"] = [=[Когда строка содержит информацию
+о сумме и в секунду.
+|cFFAAAAAA%s порядок: сумма, в секунду.]=]
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE3"] = [=[Когда строка содержит информацию
+о сумме, в секунду и процентах.
+|cFFAAAAAA%s порядок: сумма, в секунду, проценты.]=]
 L["STRING_SLASH_API_DESC"] = "открыть панель API для сборки плагинов, своих дисплеев, аур и т.д."
 L["STRING_SLASH_CAPTURE_DESC"] = "вкл. или выкл., всех записанных данных."
 L["STRING_SLASH_CAPTUREOFF"] = "все захваты были откл."

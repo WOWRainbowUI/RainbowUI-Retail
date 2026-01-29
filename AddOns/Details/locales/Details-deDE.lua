@@ -1530,6 +1530,26 @@ L["STRING_SEGMENTS_LIST_WASTED_TIME"] = "Nicht im Kampf"
 L["STRING_SHIELD_HEAL"] = "verhindert"
 L["STRING_SHIELD_OVERHEAL"] = "Vergeudet"
 L["STRING_SHORTCUT_RIGHTCLICK"] = "Rechtsklick, um zu schließen"
+L["STRING_SIMPLE_TEXT_FORMAT"] = "Einfache Textformatierung verwenden"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"] = "Ausgerichteten Text verwenden"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"] = "Der Text wird in Spalten ausgerichtet, den Abstand zwischen den Spalten einstellen."
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = "Abstand zwischen Spalten"
+L["STRING_SIMPLE_TEXT_FORMAT_DESC"] = "Aktiviert die Verwendung der drei untenstehenden Regeln."
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"] = "Prozent nicht anzeigen"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE3"] = "Nur Gesamt anzeigen"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE4"] = "Trennen mit | als Trennzeichen"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE5"] = "Trennen mit [eckigen Klammern]"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE6"] = "Gesamt (DPS) Prozent"
+L["STRING_SIMPLE_TEXT_FORMAT_TITLE"] = "Text rechts: Einfach oder Ausgerichtet"
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] = [=[Wenn die Zeile Informationen
+über Gesamt und Prozent enthält.
+|cFFAAAAAA%s Reihenfolge: Gesamt, Prozent.]=]
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE2"] = [=[Wenn die Zeile Informationen
+über Gesamt und pro Sekunde enthält.
+|cFFAAAAAA%s Reihenfolge: Gesamt, pro Sekunde.]=]
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE3"] = [=[Wenn die Zeile Informationen
+über Gesamt, pro Sekunde und Prozent enthält.
+|cFFAAAAAA%s Reihenfolge: Gesamt, pro Sekunde, Prozent.]=]
 L["STRING_SLASH_API_DESC"] = "Öffne das API-Menü zur Erzeugung von Zusatzmodulen, benutzerdefinierten Anzeigen, Auren etc."
 L["STRING_SLASH_CAPTURE_DESC"] = "Alle Datenerfassungen ein-/ausschalten."
 L["STRING_SLASH_CAPTUREOFF"] = "Jede Datenerfassung deaktiviert."

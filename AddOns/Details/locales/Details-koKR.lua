@@ -1538,6 +1538,23 @@ L["STRING_SEGMENTS_LIST_WASTED_TIME"] = "전투 중이 아님"
 L["STRING_SHIELD_HEAL"] = "막음"
 L["STRING_SHIELD_OVERHEAL"] = "낭비됨"
 L["STRING_SHORTCUT_RIGHTCLICK"] = "오른쪽 클릭으로 닫기"
+L["STRING_SIMPLE_TEXT_FORMAT"] = "단순 텍스트 형식 사용"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"] = "정렬된 텍스트 사용"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"] = "텍스트가 열로 정렬됩니다. 열 사이 간격을 설정하세요."
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = "열 사이 간격"
+L["STRING_SIMPLE_TEXT_FORMAT_DESC"] = "아래 세 가지 규칙을 사용합니다."
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"] = "백분율 표시 안 함"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE3"] = "총합만 표시"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE4"] = "| 기호로 구분"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE5"] = "[대괄호]로 구분"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE6"] = "총합 (DPS) 백분율"
+L["STRING_SIMPLE_TEXT_FORMAT_TITLE"] = "오른쪽 텍스트: 단순 또는 정렬됨"
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] = [=[줄에 총합 및 백분율 정보가 있을 때.
+|cFFAAAAAA%s 순서: 총합, 백분율.]=]
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE2"] = [=[줄에 총합 및 초당 정보가 있을 때.
+|cFFAAAAAA%s 순서: 총합, 초당.]=]
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE3"] = [=[줄에 총합, 초당, 백분율 정보가 있을 때.
+|cFFAAAAAA%s 순서: 총합, 초당, 백분율.]=]
 L["STRING_SLASH_API_DESC"] = "플러그인, 사용자 설정 디스플레이, 오라 등을 만드는 API 창을 엽니다."
 L["STRING_SLASH_CAPTURE_DESC"] = "모든 데이터 수집을 켜거나 끕니다."
 L["STRING_SLASH_CAPTUREOFF"] = "모든 수집 중지."

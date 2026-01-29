@@ -1268,6 +1268,26 @@ L["STRING_SEGMENTS_LIST_WASTED_TIME"] = "Hors combat"
 L["STRING_SHIELD_HEAL"] = "Empêché"
 L["STRING_SHIELD_OVERHEAL"] = "Perdu"
 L["STRING_SHORTCUT_RIGHTCLICK"] = "clic droit pour fermer"
+L["STRING_SIMPLE_TEXT_FORMAT"] = "Utiliser le format de texte simple"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"] = "Utiliser le texte aligné"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"] = "Le texte est aligné en colonnes, configurez l'espacement entre les colonnes."
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = "Espace entre les colonnes"
+L["STRING_SIMPLE_TEXT_FORMAT_DESC"] = "Active l'utilisation des trois règles ci-dessous."
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"] = "Ne pas afficher le pourcentage"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE3"] = "Afficher uniquement le total"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE4"] = "Séparer avec | comme séparateur"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE5"] = "Séparer avec [crochets]"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE6"] = "Total (DPS) Pourcentage"
+L["STRING_SIMPLE_TEXT_FORMAT_TITLE"] = "Texte droit : Simple ou Aligné"
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] = [=[Quand la ligne contient des informations
+sur le total et le pourcentage.
+|cFFAAAAAA%s ordre : total, pourcentage.]=]
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE2"] = [=[Quand la ligne contient des informations
+sur le total et par seconde.
+|cFFAAAAAA%s ordre : total, par seconde.]=]
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE3"] = [=[Quand la ligne contient des informations
+sur le total, par seconde et le pourcentage.
+|cFFAAAAAA%s ordre : total, par seconde, pourcentage.]=]
 L["STRING_SLASH_API_DESC"] = "ouvre le panneau de l'API pour construire des plugins, des affichages personnalisés, des auras, etc."
 L["STRING_SLASH_CAPTURE_DESC"] = "active ou désactive toutes les captures de données."
 L["STRING_SLASH_CAPTUREOFF"] = "toutes les captures ont été désactivées."

@@ -1266,6 +1266,26 @@ L["STRING_SEGMENTS_LIST_WASTED_TIME"] = "Non In Combattimento"
 L["STRING_SHIELD_HEAL"] = "Prevenuto"
 L["STRING_SHIELD_OVERHEAL"] = "Sprecato"
 L["STRING_SHORTCUT_RIGHTCLICK"] = "tasto destro per chiudere"
+L["STRING_SIMPLE_TEXT_FORMAT"] = "Usa formattazione testo semplice"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"] = "Usa testo allineato"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"] = "Il testo è allineato in colonne, imposta la spaziatura tra le colonne."
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = "Spazio tra le colonne"
+L["STRING_SIMPLE_TEXT_FORMAT_DESC"] = "Abilita l'uso delle tre regole sottostanti."
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"] = "Non mostrare percentuale"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE3"] = "Mostra solo totale"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE4"] = "Separare con | come separatore"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE5"] = "Separare con [parentesi quadre]"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE6"] = "Totale (DPS) Percentuale"
+L["STRING_SIMPLE_TEXT_FORMAT_TITLE"] = "Testo a destra: Semplice o Allineato"
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] = [=[Quando la riga contiene informazioni
+su totale e percentuale.
+|cFFAAAAAA%s ordine: totale, percentuale.]=]
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE2"] = [=[Quando la riga contiene informazioni
+su totale e al secondo.
+|cFFAAAAAA%s ordine: totale, al secondo.]=]
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE3"] = [=[Quando la riga contiene informazioni
+su totale, al secondo e percentuale.
+|cFFAAAAAA%s ordine: totale, al secondo, percentuale.]=]
 L["STRING_SLASH_API_DESC"] = "apri il pannello API per creare plug-in, visualizzazioni personalizzate, aure, ecc."
 L["STRING_SLASH_CAPTURE_DESC"] = "attivare o disattivare tutte le acquisizioni di dati."
 L["STRING_SLASH_CAPTUREOFF"] = "tutte le acquisizioni sono state disattivate."

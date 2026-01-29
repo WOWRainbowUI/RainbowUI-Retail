@@ -1528,6 +1528,26 @@ L["STRING_SEGMENTS_LIST_WASTED_TIME"] = "Fora de Combate"
 L["STRING_SHIELD_HEAL"] = "Prevenido"
 L["STRING_SHIELD_OVERHEAL"] = "Desperdiçado"
 L["STRING_SHORTCUT_RIGHTCLICK"] = "Menu de Atalho (botão direito para fechar)"
+L["STRING_SIMPLE_TEXT_FORMAT"] = "Usar formatação de texto simples"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"] = "Usar texto alinhado"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"] = "O texto é alinhado em colunas, configure o espaçamento entre colunas."
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = "Espaço entre colunas"
+L["STRING_SIMPLE_TEXT_FORMAT_DESC"] = "Habilita o uso das três regras abaixo."
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"] = "Não mostrar porcentagem"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE3"] = "Mostrar apenas total"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE4"] = "Separar com | como separador"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE5"] = "Separar com [colchetes]"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE6"] = "Total (DPS) Porcentagem"
+L["STRING_SIMPLE_TEXT_FORMAT_TITLE"] = "Texto à Direita: Simples ou Alinhado"
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] = [=[Quando a linha possui informações
+sobre total e porcentagem.
+|cFFAAAAAA%s ordem: total, porcentagem.]=]
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE2"] = [=[Quando a linha possui informações
+sobre total e por segundo.
+|cFFAAAAAA%s ordem: total, por segundo.]=]
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE3"] = [=[Quando a linha possui informações
+sobre total, por segundo e porcentagem.
+|cFFAAAAAA%s ordem: total, por segundo, porcentagem.]=]
 L["STRING_SLASH_API_DESC"] = "abre o painel da API (em inglês) para construir plugins, displays customizados, auras, etc."
 L["STRING_SLASH_CAPTURE_DESC"] = "liga ou desliga toda captura de dados."
 L["STRING_SLASH_CAPTUREOFF"] = "todas as capturas foram desligadas."
