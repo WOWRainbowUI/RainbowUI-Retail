@@ -2,7 +2,7 @@
 -- Internal variables
 --
 
-local MAJOR, MINOR = "EditModeExpanded-1.0", 108
+local MAJOR, MINOR = "EditModeExpanded-1.0", 110
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -347,7 +347,8 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
     resetButton:SetScript("OnClick", function()
         local profiledb = framesDB[frame.system]
         frame:ClearAllPoints()
-        frame:SetScaleOverride(1)
+        frame:SetClampedToScreen(true)
+
         if not profiledb.defaultX then profiledb.defaultX = 0 end
         if not profiledb.defaultY then profiledb.defaultY = 0 end
         local x, y = getOffsetXY(frame, profiledb.defaultX, profiledb.defaultY)
@@ -356,9 +357,11 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
             frame:SetPoint("BOTTOMLEFT", nil, "BOTTOMLEFT", x, y)
         end
         
+        profiledb.clamped = true
         profiledb.x = profiledb.defaultX
         profiledb.y = profiledb.defaultY
-        profiledb.settings[ENUM_EDITMODEACTIONBARSETTING_FRAMESIZE] = 100
+        frame:SetScaleOverride(profiledb.defaultScale)
+        profiledb.settings[ENUM_EDITMODEACTIONBARSETTING_FRAMESIZE] = profiledb.defaultScale
         EditModeExpandedSystemSettingsDialog:Hide()
         frame:HighlightSystem()
         
@@ -699,7 +702,7 @@ end
 local extraDialogItems = {}
 -- call this to register a custom button
 -- the button will not save any settings
-function lib:RegisterCustomButton(frame, name, onClick)
+function lib:RegisterCustomButton(frame, name, onClick, internalName)
     local systemID = getSystemID(frame)
     
     local button = CreateFrame("Button", nil, EditModeExpandedSystemSettingsDialog.Settings, "UIPanelButtonTemplate,ResizeLayoutFrame")
@@ -717,6 +720,16 @@ function lib:RegisterCustomButton(frame, name, onClick)
     )
     
     table.insert(extraDialogItems, button)
+    
+    local function getCurrentDB()
+        local db = framesDB[getSystemID(frame)]
+        if not db.settings[ENUM_EDITMODEACTIONBARSETTING_BUTTON] then db.settings[ENUM_EDITMODEACTIONBARSETTING_BUTTON] = {} end
+        if not db.settings[ENUM_EDITMODEACTIONBARSETTING_BUTTON][internalName] then db.settings[ENUM_EDITMODEACTIONBARSETTING_BUTTON][internalName] = {} end
+        
+        return db.settings[ENUM_EDITMODEACTIONBARSETTING_BUTTON][internalName]
+    end
+    
+    return getCurrentDB
 end
 
 -- call this to register a frame to have its position specified by the user using screen coordinates
