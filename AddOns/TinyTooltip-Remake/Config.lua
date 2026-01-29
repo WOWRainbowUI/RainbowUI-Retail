@@ -18,6 +18,7 @@ addon.db = {
         statusbarFontSize = 10,                     --HP文字大小
         statusbarFontFlag = "THINOUTLINE",          --HP文字樣式
         statusbarText     = true,                   --HP文字
+        statusbarPercent  = true,                  --HP百分比
         statusbarHide     = false,                  --隱藏狀態條
         statusbarColor    = "auto",                 --HP顔色 default|auto|smooth
         statusbarTexture  = "Interface\\AddOns\\TinyTooltip\\texture\\StatusBar", --HP材質
@@ -69,9 +70,11 @@ addon.db = {
                 moveSpeed   = { enable = false, color = "e8e7a8",  wildcard = "%d%%", filter = "none" },
                 mplusScore  = { enable = true,  color = "mplus",   wildcard = "%s",  filter = "none" },
                 zone        = { enable = false,  color = "ffffff",  wildcard = "%s", filter = "none" },
+                mount       = { enable = true,  color = "ffffff",  wildcard = "%s", filter = "none" },
                 { "friendIcon", "raidIcon", "roleIcon", "pvpIcon", "factionIcon", "classIcon", "title", "name", "realm", "statusAFK", "statusDND", "statusDC", },
                 { "guildName", "guildIndex", "guildRank", "guildRealm", },
                 { "levelValue", "factionName", "gender", "raceName", "className", "isPlayer", "role", "moveSpeed", },
+                { "mount" },
                 { "mplusScore" },
                 { "zone" },
             },

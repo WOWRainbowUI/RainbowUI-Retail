@@ -106,6 +106,14 @@ local function CallTrigger(keystring, value)
     end
     if (keystring == "general.statusbarText") then
         LibEvent:trigger("tooltip.statusbar.text", value)
+    elseif (keystring == "general.statusbarPercent") then
+        LibEvent:trigger("tooltip.statusbar.text", addon.db.general.statusbarText)
+        if (GameTooltipStatusBar and GameTooltipStatusBar.GetScript) then
+            local fn = GameTooltipStatusBar:GetScript("OnValueChanged")
+            if (fn) then
+                pcall(fn, GameTooltipStatusBar, GameTooltipStatusBar:GetValue())
+            end
+        end
     elseif (keystring == "general.statusbarHide") then
         LibEvent:trigger("tooltip.statusbar.visible", value)
     elseif (keystring == "general.statusbarHeight") then
@@ -671,6 +679,19 @@ function widgets:element(parent, config)
     if (config.wildcard) then
         frame.editbox = self:editbox(frame, {keystring=config.keystring..".wildcard"})
         frame.editbox:SetPoint("LEFT", 330, 0)
+        frame.editbox:HookScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText(L["wildcard.help"] or "Format: use %s to insert the value.")
+            if (config.keystring and config.keystring:find("moveSpeed")) then
+                GameTooltip:AddLine(L["wildcard.help.moveSpeed"] or "Example: %d%%", 0.8, 0.8, 0.8, true)
+            else
+                GameTooltip:AddLine(L["wildcard.help.example"] or "Example: (%s) or [%s]", 0.8, 0.8, 0.8, true)
+            end
+            GameTooltip:Show()
+        end)
+        frame.editbox:HookScript("OnLeave", function()
+            GameTooltip:Hide()
+        end)
     end
     if (config.filter) then
         frame.filterdropdown = self:dropdown(frame, {keystring=config.keystring..".filter",dropdata=self.filterDropdata}, "")
@@ -814,6 +835,7 @@ local options = {
         { keystring = "unit.player.elements.moveSpeed",   type = "element", color = true, wildcard = true, filter = true, },
         { keystring = "unit.player.elements.mplusScore",  type = "element", color = true, wildcard = true, filter = true, },
         { keystring = "unit.player.elements.zone",        type = "element", color = true, wildcard = true, filter = true, },
+        { keystring = "unit.player.elements.mount",       type = "element", color = true, wildcard = true, filter = true, },
     },
     npc = {
         { keystring = "unit.npc.showTarget",            type = "checkbox" },
@@ -839,6 +861,7 @@ local options = {
     },
     statusbar = {
         { keystring = "general.statusbarText",      type = "checkbox" },
+        { keystring = "general.statusbarPercent",   type = "checkbox" },
         { keystring = "general.statusbarHide",      type = "checkbox" },
         { keystring = "general.statusbarHeight",    type = "slider", min = 0, max = 24, step = 1 },
         { keystring = "general.statusbarOffsetX",   type = "slider", min = -50, max = 50, step = 1 },
@@ -1052,6 +1075,7 @@ end
 local function ResetUnitSection(sectionKey, parent)
     if (not addon.defaults or not addon.defaults.unit or not addon.defaults.unit[sectionKey]) then return end
     addon.db.unit[sectionKey] = CopyTable(addon.defaults.unit[sectionKey])
+    LibEvent:trigger("tooltip:variables:loaded")
     RefreshOptions(parent)
     if (sectionKey == "player") then
         LibEvent:trigger("tinytooltip:diy:player", "player", true)
@@ -1073,6 +1097,7 @@ local function ResetAllSettings()
     TinyTooltipRemakeDB = CopyTable(addon.defaults)
     TinyTooltipRemakeCharacterDB = {}
     addon.db = TinyTooltipRemakeDB
+    LibEvent:trigger("tooltip:variables:loaded")
     LibEvent:trigger("TINYTOOLTIP_GENERAL_INIT")
     RefreshOptions(frame)
     RefreshOptions(framePC)
@@ -1349,6 +1374,7 @@ local placeholder = {
     pvpIcon    = addon.icons.pvp,
     roleIcon   = addon.icons.DAMAGER,
     raidIcon   = ICON_LIST[8] .. "0|t",
+    mount      = L["mount"] or "mount",
 }
 setmetatable(placeholder, {__index = function(_, k) return k end})
 
