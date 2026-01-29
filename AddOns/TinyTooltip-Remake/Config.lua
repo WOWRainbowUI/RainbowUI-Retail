@@ -4,27 +4,26 @@ local addon = TinyTooltip
 addon.db = {
     version = 2.8,
     general = {
-        scale             = 1.1,
-        mask              = true,
-        bgfile            = "Blizzard Parchment",
-        background        = {0, 0, 0, 0.7},
-        borderSize        = 1,
-        borderCorner      = "Blizzard Tooltip",
-        borderColor       = {0.6, 0.6, 0.6, 0.8},
-        statusbarEnabled  = true,
-		statusbarHeight   = 6,
-        statusbarPosition = "default",
-        statusbarOffsetX  = 0,
-        statusbarOffsetY  = 0,
-	statusbarFont	  = "default",
-        statusbarFontSize = 10,
-        statusbarFontFlag = "THINOUTLINE",
-        statusbarText     = true,
-        statusbarColor    = "auto",
-        statusbarTexture  = "Blizzard",
-	statusbarTextFormat = "healthmaxpercent",
-        anchor            = { position = "default", hiddenInCombat = false, defaultInCombat = true, defaultOnUnitFrame = false, cp = "BOTTOMLEFT", p = "BOTTOMRIGHT", cx = 20, cy = 0, },
-        alwaysShowIdInfo  = false,
+        scale             = 1.1,                    --縮放
+        mask              = true,                   --頂部遮罩層
+        bgfile            = "rock",                 --背景
+        background        = {0, 0, 0, 0.7},         --背景顔色和透明度
+        borderSize        = 1,                      --邊框大小（直角邊框才生效）
+        borderCorner      = "default",              --邊框類型 default|angular:直角邊框
+        borderColor       = {0.6, 0.6, 0.6, 0.8},   --邊框顔色和透明度
+        statusbarHeight   = 4,                      --HP高度
+        statusbarPosition = "bottom",               --HP位置 default|bottom|top
+        statusbarOffsetX  = 0,                      --HP X偏移 0:自動
+        statusbarOffsetY  = 0,                      --HP Y偏移 0:自動
+        statusbarFontSize = 10,                     --HP文字大小
+        statusbarFontFlag = "THINOUTLINE",          --HP文字樣式
+        statusbarText     = false,                  --HP文字
+        statusbarPercent  = false,                  --HP百分比
+        statusbarHide     = true,                   --隱藏狀態條
+        statusbarColor    = "auto",                 --HP顔色 default|auto|smooth
+        statusbarTexture  = "Interface\\AddOns\\TinyTooltip\\texture\\StatusBar", --HP材質
+        anchor            = { position = "default", hiddenInCombat = false, returnInCombat = true, returnOnUnitFrame = false, cp = "BOTTOM", p = "BOTTOMRIGHT", }, --鼠標位置 default|cursor|static|cursorRight
+        alwaysShowIdInfo  = true,
         skinMoreFrames    = true,
         headerFont        = "default",
         headerFontSize    = "default",
@@ -72,9 +71,11 @@ addon.db = {
                 moveSpeed   = { enable = false, color = "e8e7a8",  wildcard = "%d%%", filter = "none" },
                 mplusScore  = { enable = true,  color = "mplus",   wildcard = "%s",  filter = "none" },
                 zone        = { enable = false,  color = "ffffff",  wildcard = "%s", filter = "none" },
+                mount       = { enable = true,  color = "ffffff",  wildcard = "%s", filter = "none" },
                 { "friendIcon", "raidIcon", "roleIcon", "pvpIcon", "factionIcon", "classIcon", "title", "name", "realm", "statusAFK", "statusDND", "statusDC", },
                 { "guildName", "guildIndex", "guildRank", "guildRealm", },
                 { "levelValue", "factionName", "gender", "raceName", "className", "isPlayer", "role", "moveSpeed", },
+                { "mount" },
                 { "mplusScore" },
                 { "zone" },
             },

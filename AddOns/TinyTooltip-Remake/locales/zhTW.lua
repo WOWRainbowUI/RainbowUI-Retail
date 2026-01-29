@@ -7,7 +7,8 @@ addon.L = addon.L or {}
 local L = addon.L
 local T = {
 ["general.mask"]                        = "頂部光澤",
-    ["general.statusbarText"]               = "血量文字",
+    ["general.statusbarText"]               = "顯示血量數字",
+	["general.statusbarPercent"]            = "顯示血量百分比",
     ["general.background"]                  = "背景顔色",
     ["general.borderColor"]                 = "邊框顔色",
     ["general.scale"]                       = "縮放大小",
@@ -168,6 +169,11 @@ local T = {
     ["Anchor"]   = "移動",
     ["Caster"]	 = "施法者",
     ["TargetBy"] = "被關注",
+	["unit.player.elements.mount"] = "坐騎",
+    ["mount"] = "坐騎",
+    ["Mount"] = "坐騎",
+    ["collected"] = "已收集",
+    ["uncollected"] = "未收集",
     ["menu.general"] = "綜合",
     ["menu.player"] = "玩家",
     ["menu.npc"] = "NPC",
@@ -180,6 +186,21 @@ local T = {
 	["Tooltip"] = "浮動提示資訊",
 	["button.resetAll"] = "全部重置",
 	["button.resetSection"] = "預設值",
+	
+	["about.desc"] = "簡單的浮動提示資訊，基於 TinyTooltip",
+    ["about.version.label"] = "版本",
+    ["about.author.label"] = "作者",
+    ["about.author.name"] = "星野绫 - 罗宁 CN",
+    ["about.help.title"] = "回報 Bug / 反饋",
+    ["about.credits.title"] = "致謝",
+    ["about.credits.content"] = "感謝 TinyTooltip 原作者 M 及所有貢獻者\n",
+    ["wildcard.help"]               = "自訂格式：按 Enter 鍵生效",
+    ["wildcard.help.example"]       = "範例：(%s) 或 [%s]",
+    ["wildcard.help.moveSpeed"]     = "範例：%d%%",
+
+
+
+    ["<Drag element to customize the style>"] = "<拖曳元素來自訂樣式>"
     
 }
 for k, v in pairs(T) do
