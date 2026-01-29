@@ -1,8 +1,7 @@
 # AppearanceTooltip
 
-## [v75](https://github.com/kemayo/wow-appearancetooltip/tree/v75) (2026-01-26)
-[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v74...v75) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
+## [v77](https://github.com/kemayo/wow-appearancetooltip/tree/v77) (2026-01-29)
+[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v76...v77) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
 
-- Update readme  
-- Fix the itemID fallback in GetTransmogInfo  
-    copy/paste mixup  
+- Make separate ModelScenes for each type to avoid the zoom getting weird  
+    It was mostly when you moved between decor and other types.  

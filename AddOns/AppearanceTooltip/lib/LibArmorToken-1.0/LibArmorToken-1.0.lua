@@ -3,8 +3,6 @@ if not lib then return end
 
 local ITEMDATA
 
-local empty = {}
-
 local armorTypes = {
     PLATE = {"PALADIN", "WARRIOR", "DEATHKNIGHT"},
     MAIL = {"SHAMAN", "HUNTER", "EVOKER"},
@@ -19,6 +17,62 @@ for armorType, classes in pairs(armorTypes) do
             classArmorType[class] = armorType
         end
     end
+end
+
+-- this mapping came from Blizzard_Reports.lua
+local fields = {
+   "itemID", "enchantID", "gemID1", "gemID2", "gemID3",
+   "gemID4", "suffixID", "uniqueID", "linkLevel", "specializationID",
+   "upgradeTypeID", "instanceDifficultyID", "numBonusIDs", -- [:bonusID1:bonusID2:...]
+   --[:upgradeValue1:upgradeValue2:...]:relic1NumBonusIDs[:relic1BonusID1:relic1BonusID2:...]:relic2NumBonusIDs[:relic2BonusID1:relic2BonusID2:...]:relic3NumBonusIDs[:relic3BonusID1:relic3BonusID2:...]
+}
+local function LinkOptions(link)
+    local linkType, linkOptions, displayText = LinkUtil.ExtractLink(link)
+    local splitOptions = {LinkUtil.SplitLinkOptions(linkOptions)}
+    local options = {}
+    for i, field in ipairs(fields) do
+        options[field] = tonumber(splitOptions[i])
+    end
+    local numBonusIDs = tonumber(options.numBonusIDs)
+    if numBonusIDs and numBonusIDs > 0 then
+        local b = {}
+        for i=1, numBonusIDs, 1 do
+            local bonusID = tonumber(splitOptions[#fields + i])
+            table.insert(b, bonusID)
+            options["bonusID"..i] = bonusID
+        end
+        options.bonusIDs = b
+    end
+    --TODO: support the rest of the fields if they ever become relevant
+    return options, linkType, displayText
+end
+local function IsVariantRelevant(linkOptions, variant)
+    -- variant is a linkoptions table
+    for field, value in pairs(variant) do
+        if field == "bonusIDs" then
+            for _, bonusID in ipairs(value) do
+                if not tContains(linkOptions.bonusIDs, bonusID) then
+                    return false
+                end
+            end
+        else
+            if linkOptions[field] ~= value then
+                return false
+            end
+        end
+    end
+    return true
+end
+local function RelevantVariants(itemLinkOrId, variants)
+    if not (variants and type(itemLinkOrId) == "string") then return end
+    local linkOptions = LinkOptions(itemLinkOrId)
+    local relevant = {}
+    for _, variant in ipairs(variants) do
+        if IsVariantRelevant(linkOptions, variant) then
+            table.insert(relevant, variant)
+        end
+    end
+    return #relevant > 0 and relevant or nil
 end
 
 -- API
@@ -47,87 +101,33 @@ end
 
 do
     local t = {}
-    function lib:IterateItemsForTokenAndClass(itemid, class)
-        if not (ITEMDATA[itemid] and (ITEMDATA[itemid][class] or ITEMDATA[itemid][classArmorType[class]])) then
-            return ipairs({})
-        end
+    function lib:IterateItemsForTokenAndClass(itemLinkOrId, class)
+        -- TODO: this doesn't support variants, and the API would need to change for it to do so.
+        -- Insofar as it's a wrapper for IterateItemsForToken with a parameter provided, combining
+        -- it with GetTokenVariants should be sufficient.
         wipe(t)
-        if ITEMDATA[itemid][class] then
-            -- class-specific
-            tAppendAll(t, ITEMDATA[itemid][class])
-        end
-        if ITEMDATA[itemid][classArmorType[class]] then
-            -- armor-type
-            tAppendAll(t, ITEMDATA[itemid][classArmorType[class]])
-        end
-        if ITEMDATA[itemid]["ALL"] then
-            -- anyone
-            tAppendAll(t, ITEMDATA[itemid]["ALL"])
+        for itemid in self:IterateItemsForToken(itemLinkOrId, class) do
+            table.insert(t, itemid)
         end
         return ipairs(t)
     end
 end
 
+function lib:GetTokenVariants(itemLinkOrId)
+    local itemid = C_Item.GetItemInfoInstant(itemLinkOrId)
+    if not (itemid and ITEMDATA[itemid] and ITEMDATA[itemid]._variants) then return end
+    local relevantVariants = RelevantVariants(itemLinkOrId, ITEMDATA[itemid]._variants)
+    if relevantVariants then
+        return relevantVariants
+    end
+    return {unpack(ITEMDATA[itemid]._variants)}
+end
+
 do
-    -- this mapping came from Blizzard_Reports.lua
-    local fields = {
-       "itemID", "enchantID", "gemID1", "gemID2", "gemID3",
-       "gemID4", "suffixID", "uniqueID", "linkLevel", "specializationID",
-       "upgradeTypeID", "instanceDifficultyID", "numBonusIDs", -- [:bonusID1:bonusID2:...]
-       --[:upgradeValue1:upgradeValue2:...]:relic1NumBonusIDs[:relic1BonusID1:relic1BonusID2:...]:relic2NumBonusIDs[:relic2BonusID1:relic2BonusID2:...]:relic3NumBonusIDs[:relic3BonusID1:relic3BonusID2:...]
-    }
-    local function LinkOptions(link)
-        local linkType, linkOptions, displayText = LinkUtil.ExtractLink(link)
-        local splitOptions = {LinkUtil.SplitLinkOptions(linkOptions)}
-        local options = {}
-        for i, field in ipairs(fields) do
-            options[field] = tonumber(splitOptions[i])
-        end
-        local numBonusIDs = tonumber(options.numBonusIDs)
-        if numBonusIDs and numBonusIDs > 0 then
-            local b = {}
-            for i=1, numBonusIDs, 1 do
-                local bonusID = tonumber(splitOptions[#fields + i])
-                table.insert(b, bonusID)
-                options["bonusID"..i] = bonusID
-            end
-            options.bonusIDs = b
-        end
-        --TODO: support the rest of the fields if they ever become relevant
-        return options, linkType, displayText
-    end
-    local function IsVariantRelevant(linkOptions, variant)
-        -- variant is a linkoptions table
-        for field, value in pairs(variant) do
-            if field == "bonusIDs" then
-                for _, bonusID in ipairs(value) do
-                    if not tContains(linkOptions.bonusIDs, bonusID) then
-                        return false
-                    end
-                end
-            else
-                if linkOptions[field] ~= value then
-                    return false
-                end
-            end
-        end
-        return true
-    end
-    local function RelevantVariants(itemLinkOrId, variants)
-        if not (variants and type(itemLinkOrId) == "string") then return end
-        local linkOptions = LinkOptions(itemLinkOrId)
-        local relevant = {}
-        for _, variant in ipairs(variants) do
-            if IsVariantRelevant(linkOptions, variant) then
-                table.insert(relevant, variant)
-            end
-        end
-        return #relevant > 0 and relevant or nil
-    end
-    local co = function(t, classOnly, itemLinkOrId)
-        local relevantVariants = RelevantVariants(itemLinkOrId, t._variants)
+    local co = function(tokenData, classOnly, itemLinkOrId)
+        local relevantVariants = RelevantVariants(itemLinkOrId, tokenData._variants)
         local playerClass = select(2, UnitClass("player"))
-        for class, citems in pairs(t) do
+        for class, citems in pairs(tokenData) do
             if (class ~= "_variants") and ((not classOnly) or (class == classOnly) or (class == "ALL") or (class == classArmorType[classOnly])) then
                 for _, ci in ipairs(citems) do
                     -- relevant means "is specific to the player's class OR is non-class-specific and of the player's armor-type"
@@ -135,8 +135,8 @@ do
                     if not relevant and armorTypes[class] then
                         relevant = class == classArmorType[playerClass]
                     end
-                    if t._variants and not relevantVariants then
-                        coroutine.yield(ci, class, relevant, {unpack(t._variants)})
+                    if tokenData._variants and not relevantVariants then
+                        coroutine.yield(ci, class, relevant, {unpack(tokenData._variants)})
                     else
                         coroutine.yield(ci, class, relevant, relevantVariants)
                     end
@@ -144,11 +144,10 @@ do
             end
         end
     end
-    -- iterates over `itemid, restriction, relevant[, bonusid OR bonusids]`
-    -- `restriction` will be either CLASSNAME or ARMORTYPE
+    -- iterates over `itemid, restriction, relevant[, variants]`
+    -- `restriction` will be either CLASSNAME, ARMORTYPE, or "ALL"
     -- `relevant` means it's either the armortype for the current player-class, or class-specific to the current player-class
-    -- `bonusid` will be the link-specific bonus, if this was called with a link that maps to a relevant bonus
-    -- `bonusids` will be a table of all possible bonuses otherwise
+    -- `variants` will be nil or a table; if an itemLink was provided for the token, the table will be filtered to only variants that apply to the link
     function lib:IterateItemsForToken(itemLinkOrId, classOnly)
         local itemid = C_Item.GetItemInfoInstant(itemLinkOrId)
         if not ITEMDATA[itemid] then
@@ -156,25 +155,22 @@ do
         end
         return coroutine.wrap(function() return co(ITEMDATA[itemid], classOnly, itemLinkOrId) end)
     end
+end
 
-    function lib:GetTokenVariants(itemid)
-        return unpack((ITEMDATA[itemid] or empty)._variants or empty)
+-- Helper function for the above, if you get a variant from it and need to e.g. check transmog.
+-- Its goal is to make just enough of a link for it to be valid input to core Blizzard functions
+function lib:GetBareLinkForItem(itemid, variant, itemName)
+    if not variant then return (string.format("|Hitem:%d|h[%s]|h", itemid, itemName or itemid)) end
+    local linkFields = {itemID=itemid, numBonusIDs=variant.numBonusIDs or (variant.bonusIDs and #variant.bonusIDs or 0)}
+    MergeTable(linkFields, variant)
+    local link = {}
+    for i, field in ipairs(fields) do
+        table.insert(link, linkFields[field] or "")
     end
-
-    -- Helper function for the above, if you get a variant from it and need to e.g. check transmog
-    function lib:GetBareLinkForItem(itemid, variant)
-        if not variant then return (string.format("|Hitem:%d|h[%d]|h", itemid, itemid)) end
-        local linkFields = {itemID=itemid, numBonusIDs=variant.numBonusIDs or (variant.bonusIDs and #variant.bonusIDs or 0)}
-        MergeTable(linkFields, variant)
-        local link = {}
-        for i, field in ipairs(fields) do
-            table.insert(link, linkFields[field] or "")
-        end
-        if variant.bonusIDs then
-            tAppendAll(link, variant.bonusIDs)
-        end
-        return (string.format("|Hitem:%s|h[%d]|h", table.concat(link, ":"), itemid))
+    if variant.bonusIDs then
+        tAppendAll(link, variant.bonusIDs)
     end
+    return (string.format("|Hitem:%s|h[%s]|h", table.concat(link, ":"), itemName or itemid))
 end
 
 -- DATA
@@ -3199,10 +3195,144 @@ ITEMDATA = {
     -- 10.0 Vault of the Incarnates: below
     -- 10.1.0 Aberrus: below
     -- 10.1.7 Dreambound
+    [208911] = { -- Dreambound Cloth Belt
+        CLOTH = {209406}, -- Cord
+    },
+    [208917] = { -- Dreambound Cloth Boots
+        CLOTH = {209410}, -- Sandals
+    },
+    [208908] = { -- Dreambound Cloth Bracers
+        CLOTH = {209405}, -- Cuffs
+    },
+    [208895] = { -- Dreambound Cloth Chestpiece
+        CLOTH = {209411}, -- Vestment
+    },
+    [208918] = { -- Dreambound Cloth Gloves
+        CLOTH = {209409}, -- Mitts
+    },
+    [208891] = { -- Dreambound Cloth Helm
+        CLOTH = {209408}, -- Crown
+    },
+    [208900] = { -- Dreambound Cloth Leggings
+        CLOTH = {209407}, -- Pants
+    },
+    [208903] = { -- Dreambound Cloth Spaulders
+        CLOTH = {209380}, -- Shoulderpads
+    },
+    [208913] = { -- Dreambound Leather Belt
+        LEATHER = {209400}, -- Sash
+    },
+    [208914] = { -- Dreambound Leather Boots
+        LEATHER = {209404}, -- Waders
+    },
+    [208906] = { -- Dreambound Leather Bracers
+        LEATHER = {209399}, -- Bindings
+    },
+    [208897] = { -- Dreambound Leather Chestpiece
+        LEATHER = {209382}, -- Vest
+    },
+    [208921] = { -- Dreambound Leather Gloves
+        LEATHER = {209403}, -- Handwraps
+    },
+    [208893] = { -- Dreambound Leather Helm
+        LEATHER = {209402}, -- Cowl
+    },
+    [208898] = { -- Dreambound Leather Leggings
+        LEATHER = {209401}, -- Breeches
+    },
+    [208905] = { -- Dreambound Leather Spaulders
+        LEATHER = {209381}, -- Epaulets
+    },
+    [208912] = { -- Dreambound Mail Belt
+        MAIL = {209392}, -- Cinch
+    },
+    [208915] = { -- Dreambound Mail Boots
+        MAIL = {209397}, -- Striders
+    },
+    [208907] = { -- Dreambound Mail Bracers
+        MAIL = {209391}, -- Vambraces
+    },
+    [208896] = { -- Dreambound Mail Chestpiece
+        MAIL = {209398}, -- Chainmail
+    },
+    [208920] = { -- Dreambound Mail Gloves
+        MAIL = {209396}, -- Grips
+    },
+    [208892] = { -- Dreambound Mail Helm
+        MAIL = {209395}, -- Coif
+    },
+    [208899] = { -- Dreambound Mail Leggings
+        MAIL = {209394}, -- Greaves
+    },
+    [208904] = { -- Dreambound Mail Spaulders
+        MAIL = {209393}, -- Shoulderguards
+    },
+    [208910] = { -- Dreambound Plate Belt
+        PLATE = {209384}, -- Girdle
+    },
+    [208916] = { -- Dreambound Plate Boots
+        PLATE = {209388}, -- Sabatons
+    },
+    [208909] = { -- Dreambound Plate Bracers
+        PLATE = {209383}, -- Armplates
+    },
+    [208894] = { -- Dreambound Plate Chestpiece
+        PLATE = {209389}, -- Breastplate
+    },
+    [208919] = { -- Dreambound Plate Gloves
+        PLATE = {209387}, -- Gauntlets
+    },
+    [208890] = { -- Dreambound Plate Helm
+        PLATE = {209390}, -- Faceplate
+    },
+    [208901] = { -- Dreambound Plate Leggings
+        PLATE = {209386}, -- Legguards
+    },
+    [208902] = { -- Dreambound Plate Spaulders
+        PLATE = {209385}, -- Mantle
+    },
+    [208922] = { -- Dreambound Cloak
+        ALL = {
+            --209414, -- Drape (WH comments suggest this can't generate?)
+            209412, -- Greatcloak
+            209413, -- Cape
+            209357, -- Shawl
+        },
+    },
+    [208923] = { -- Dreambound Ring
+        ALL = {
+            {209368}, -- Loop
+            {209367}, -- Signet
+            {209358}, -- Band
+        },
+    },
+    [208924] = { -- Dreambound Necklace
+        ALL = {209356}, -- Choker
+    },
+    -- [208925] = { -- Dreambound Trinket
+    --     ALL = {},
+    -- },
+    [208926] = { -- Dreambound Weapon
+        -- These are a bit spec-based as well, but...
+        PALADIN = {209378, 209366, 209363, 209364, 209371, 209374, 209361, 209379, 209369}, -- Scepter (int Off-hand), Hacker (str 1h Axe), Mallet (str 1h Mace), Censer (int 1h Mace), Sword (1h Sword), Spellblade (1h Sword), Halberd (str Polearm), Barrier (Shield), Greatsword (2h sword)
+        WARRIOR = {209366, 209363, 209371, 209361, 209379, 209369}, -- Hacker (str 1h Axe), Mallet (str 1h Mace), Sword (1h Sword), Halberd (str Polearm), Barrier (Shield), Greatsword (2h sword)
+        DEATHKNIGHT = {209378, 209366, 209363, 209371, 209361, 209369}, -- Scepter (int Off-hand), Hacker (str 1h Axe), Mallet (str 1h Mace), Sword (1h Sword), Halberd (str Polearm), Greatsword (2h sword)
+        DEMONHUNTER = {209365, 209370, 209374, 209359}, -- Cleaver (agi 1h Axe), Blade (1h Sword), Spellblade (1h Sword), Warglaive
+        HUNTER = {209375, 209376}, -- Rifle (Gun), Polearm (agi Polearm)
+        ROGUE = {209373, 209365, 209362, 209370}, -- Shank (agi Dagger), Cleaver (agi 1h Axe), Cudgel (agi 1h Mace), Blade (1h Sword)
+        MONK = {209378, 209365, 209362, 209364, 209370, 209374, 209376, 209360}, -- Scepter (int Off-hand), Cleaver (agi 1h Axe), Cudgel (agi 1h Mace), Censer (int 1h Mace), Blade (1h Sword), Spellblade (1h Sword), Polearm (agi Polearm), Staff (int Staff)
+        MAGE = {209372, 209378, 209374, 209360, 209377}, -- Kris (int Dagger), Scepter (int Off-hand), Spellblade (1h Sword), Staff (int Staff), Wand (Wand)
+        DRUID = {209372, 209378, 209364, 209376, 209360}, -- Kris (int Dagger), Scepter (int Off-hand), Censer (int 1h Mace), Polearm (agi Polearm), Staff (int Staff)
+        PRIEST = {209372, 209378, 209364, 209360, 209377}, -- Kris (int Dagger), Scepter (int Off-hand), Censer (int 1h Mace), Staff (int Staff), Wand (Wand)
+        SHAMAN = {209372, 209378, 209365, 209362, 209364, 209379, 209360}, -- Kris (int Dagger), Scepter (int Off-hand), Cleaver (agi 1h Axe), Cudgel (agi 1h Mace), Censer (int 1h Mace), Barrier (Shield), Staff (int Staff)
+        WARLOCK = {209372, 209378, 209374, 209360, 209377}, -- Kris (int Dagger), Scepter (int Off-hand), Spellblade (1h Sword), Staff (int Staff), Wand (Wand)
+        EVOKER = {209372, 209378, 209364, 209374, 209360}, -- Kris (int Dagger), Scepter (int Off-hand), Censer (int 1h Mace), Spellblade (1h Sword), Staff (int Staff)
+    },
     -- 10.2.0 Amirdrassil: below
-    -- 11.0.0 Adventurer's Warbound (Delve rewards)
+    -- 11.0.0 Adventurer's Warbound (Delve rewards -- turned into non-token gray after Season 1)
     -- 11.1.0 Liberation of Undermine: below
     -- 11.2.0 Manaforge Omega: below
+    -- 12.0 The Voidspire: below
 }
 
 -- Common case is everything from a given set having a shared set of link modifiers that represent the difficulty variants
@@ -3215,7 +3345,7 @@ local function addItemsWithVariants(variants, items)
 end
 local function addItemsWithBonuses(bonuses, items)
     for i, bonusID in ipairs(bonuses) do
-        bonuses[i] = {bonusIDs={bonuses[i]}}
+        bonuses[i] = {bonusIDs={bonusID}}
     end
     return addItemsWithVariants(bonuses, items)
 end
@@ -3925,6 +4055,7 @@ addItemsWithVariants({
     },
 })
 
+-- 12.0 The Voidspire
 addItemsWithVariants({
     {instanceDifficultyID=Enum.ItemCreationContext.RaidFinder, bonusIDs={3524}},
     {instanceDifficultyID=Enum.ItemCreationContext.RaidNormal, bonusIDs={3524}},
@@ -4042,6 +4173,105 @@ addItemsWithVariants({
         MONK = {237671}, -- Glyphs of Fallen Storms
         ROGUE = {237662}, -- Smokemantle of the Sudden Eclipse
         WARRIOR = {237608}, -- Living Weapon's Ramparts
+    },
+})
+
+addItemsWithVariants({
+    {instanceDifficultyID=Enum.ItemCreationContext.RaidFinder, bonusIDs={3524}},
+    {instanceDifficultyID=Enum.ItemCreationContext.RaidNormal, bonusIDs={3524}},
+    {instanceDifficultyID=Enum.ItemCreationContext.RaidHeroic, bonusIDs={3524}},
+    {instanceDifficultyID=Enum.ItemCreationContext.RaidMythic, bonusIDs={3524}},
+}, {
+    -- Voidforged (Warrior, Paladin, Death Knight)
+    [249354] = { -- Voidforged Hungering Nullcore (Hands)
+        WARRIOR = {249953}, -- Night Ender's Fists
+        PALADIN = {249962}, -- Luminant Verdict's Gauntlets
+        DEATHKNIGHT = {249971}, -- Relentless Rider's Bonegrasps
+    },
+    [249358] = { -- Voidforged Fanatical Nullcore (Head)
+        WARRIOR = {249952}, -- Night Ender's Tusks
+        PALADIN = {249961}, -- Luminant Verdict's Unwavering Gaze
+        DEATHKNIGHT = {249970}, -- Relentless Rider's Crown
+    },
+    [249362] = { -- Voidforged Corrupted Nullcore (Legs)
+        WARRIOR = {249951}, -- Night Ender's Chausses
+        PALADIN = {249960}, -- Luminant Verdict's Greaves
+        DEATHKNIGHT = {249969}, -- Relentless Rider's Legguards
+    },
+    [249366] = { -- Voidforged Unraveled Nullcore (Shoulders)
+        WARRIOR = {249950}, -- Night Ender's Pauldrons
+        PALADIN = {249959}, -- Luminant Verdict's Providence Watch
+        DEATHKNIGHT = {249968}, -- Relentless Rider's Dreadthorns
+    },
+
+    -- Voidcured (Rogue, Monk, Druid, Demon Hunter)
+    [249352] = { -- Voidcured Hungering Nullcore (Hands)
+        ROGUE = {250007}, -- Sleight of Hand of the Grim Jest
+        MONK = {250016}, -- Thunderfists of Ra-den's Chosen
+        DRUID = {250025}, -- Arbortenders of the Luminous Bloom
+        DEMONHUNTER = {250034}, -- Devouring Reaver's Essence Grips
+    },
+    [249356] = { -- Voidcured Fanatical Nullcore (Head)
+        ROGUE = {250006}, -- Masquerade of the Grim Jest
+        MONK = {250015}, -- Fearsome Visage of Ra-den's Chosen
+        DRUID = {250024}, -- Branches of the Luminous Bloom
+        DEMONHUNTER = {250033}, -- Devouring Reaver's Intake
+    },
+    [249360] = { -- Voidcured Corrupted Nullcore (Legs)
+        ROGUE = {250005}, -- Blade Holsters of the Grim Jest
+        MONK = {250014}, -- Swiftsweepers of Ra-den's Chosen
+        DRUID = {250023}, -- Phloemwraps of the Luminous Bloom
+        DEMONHUNTER = {250032}, -- Devouring Reaver's Pistons
+    },
+    [249364] = { -- Voidcured Unraveled Nullcore (Shoulders)
+        ROGUE = {250004}, -- Venom Casks of the Grim Jest
+        MONK = {250013}, -- Aurastones of Ra-den's Chosen
+        DRUID = {250022}, -- Seedpods of the Luminous Bloom
+        DEMONHUNTER = {250031}, -- Devouring Reaver's Exhaustplates
+    },
+
+    -- Voidcast (Hunter, Shaman, Evoker)
+    [249353] = { -- Voidcast Hungering Nullcore (Hands)
+        HUNTER = {249989}, -- Primal Sentry's Talonguards
+        SHAMAN = {249980}, -- Earthgrips of the Primal Core
+        EVOKER = {249998}, -- Enforcer's Grips of the Black Talon
+    },
+    [249357] = { -- Voidcast Fanatical Nullcore (Head)
+        HUNTER = {249988}, -- Primal Sentry's Maw
+        SHAMAN = {249979}, -- Locus of the Primal Core
+        EVOKER = {249997}, -- Hornhelm of the Black Talon
+    },
+    [249361] = { -- Voidcast Corrupted Nullcore (Legs)
+        HUNTER = {249987}, -- Primal Sentry's Legguards
+        SHAMAN = {249978}, -- Leggings of the Primal Core
+        EVOKER = {249996}, -- Greaves of the Black Talon
+    },
+    [249365] = { -- Voidcast Unraveled Nullcore (Shoulders)
+        HUNTER = {249986}, -- Primal Sentry's Trophies
+        SHAMAN = {249977}, -- Tempests of the Primal Core
+        EVOKER = {249995}, -- Beacons of the Black Talon
+    },
+
+    -- Voidwoven (Priest, Mage, Warlock)
+    [249351] = { -- Voidwoven Hungering Nullcore (Hands)
+        PRIEST = {250052}, -- Blind Oath's Touch
+        MAGE = {250061}, -- Voidbreaker's Gloves
+        WARLOCK = {250043}, -- Abyssal Immolator's Grasps
+    },
+    [249355] = { -- Voidwoven Fanatical Nullcore (Head)
+        PRIEST = {250051}, -- Blind Oath's Winged Crest
+        MAGE = {250060}, -- Voidbreaker's Veil
+        WARLOCK = {250042}, -- Abyssal Immolator's Smoldering Flames
+    },
+    [249359] = { -- Voidwoven Corrupted Nullcore (Legs)
+        PRIEST = {250050}, -- Blind Oath's Leggings
+        MAGE = {250059}, -- Voidbreaker's Britches
+        WARLOCK = {250041}, -- Abyssal Immolator's Pillars
+    },
+    [249363] = { -- Voidwoven Unraveled Nullcore (Shoulders)
+        PRIEST = {250049}, -- Blind Oath's Seraphguards
+        MAGE = {250058}, -- Voidbreaker's Leyline Nexi
+        WARLOCK = {250040}, -- Abyssal Immolator's Fury
     },
 })
 
