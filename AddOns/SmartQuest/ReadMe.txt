@@ -237,3 +237,10 @@ Change Log:
 
 1.30.4
 * Updated TOC to 11.2
+
+1.30.5
+* Updated TOC to 12.0
+* Updated TOC for Classic 1.15.8
+* Updated TOC for TBC 2.5.5
+* Updated TOC for Wrath 3.4.5
+* Updated TOC for Mists 5.5.3
