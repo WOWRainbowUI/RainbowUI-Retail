@@ -2,7 +2,7 @@ local _, U1 = ...
 
 local D = {}
 U1.CfgDefaults = D
-D["AAgmFonts"] = {
+D["!gmFonts"] = {
 	defaultEnable = 1,
 	tags = { "MISC" }, 
 	title = "遊戲字體",
@@ -18,6 +18,12 @@ D["AAgmFonts"] = {
 		type = "text",
 		text = "|cffFF2D2D特別注意：請不要選擇英文字體，會無法顯示中文字。|r",
 	},
+};
+D["AAgmFonts"] = {
+	defaultEnable = 0,
+	title = "(請刪除) 遊戲字體",
+	desc = "這個插件的資料夾已經改名為 !gmFonts。`請自行刪除 AddOns 裡面的 AAgmFonts 資料夾。`",
+	modifier = "彩虹ui",
 };
 D["AbilityTimeline"] = {
 	defaultEnable = 1,
