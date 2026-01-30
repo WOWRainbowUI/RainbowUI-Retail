@@ -1,5 +1,5 @@
 ## Interface: 120001, 110207, 120000
-## Version: v11.2.3
+## Version: v12.0.0
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-deDE: Spice up your minimap with some sexy options.
@@ -50,5 +50,4 @@ Clock.lua
 Coordinates.lua
 HudMap.lua
 Movers.lua
-Ping.lua
 ZoneText.lua
