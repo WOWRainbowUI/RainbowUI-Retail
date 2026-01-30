@@ -68,7 +68,54 @@ local createGeneralSettings = function(widget, parentWindow, iconSettings, maxIc
         widget:ApplySettings()
     end)
     scroll:AddChild(dangerIconSetting)
-    
+
+
+    return scrollContainer
+end
+
+local createHighlightTextGeneralSettings = function(widget, parentWindow, Settings)
+    local scrollContainer = AceGUI:Create("SimpleGroup")
+    local scroll = AceGUI:Create("ScrollFrame")
+    scrollContainer:SetLayout("Fill") -- important!
+    scrollContainer:SetFullWidth(true)
+    scrollContainer:SetHeight(parentWindow.frame:GetHeight() - 115)
+    scroll:SetLayout("Flow")
+    scroll:SetFullWidth(true)
+    scrollContainer:AddChild(scroll)
+
+
+    local dispellIconSetting = AceGUI:Create("CheckBox")
+    dispellIconSetting:SetLabel(private.getLocalisation("TextDispellIcon"))
+    private.AddFrameTooltip(dispellIconSetting.frame, "TextDispellIconDescription")
+    dispellIconSetting:SetValue(Settings.dispellIcons)
+    dispellIconSetting:SetCallback("OnValueChanged", function(_, _, value)
+        Settings.dispellIcons = value
+    end)
+    scroll:AddChild(dispellIconSetting)
+
+    local dispellTextColorSetting = AceGUI:Create("CheckBox")
+    dispellTextColorSetting:SetLabel(private.getLocalisation("DispellTextColor"))
+    private.AddFrameTooltip(dispellTextColorSetting.frame, "DispellTextColorDescription")
+    dispellTextColorSetting:SetValue(Settings.dispellTextColor)
+    dispellTextColorSetting:SetCallback("OnValueChanged", function(_, _, value)
+        Settings.dispellTextColor = value
+        if value then
+            widget.frame.SpellName:SetTextColor(0, 0.5019607843137255, 1)
+        else
+            widget.frame.SpellName:SetTextColor(1, 1, 1)
+        end
+    end)
+    scroll:AddChild(dispellTextColorSetting)
+
+    -- local dangerIconSetting = AceGUI:Create("CheckBox")
+    -- dangerIconSetting:SetLabel(private.getLocalisation("IconDangerIcon"))
+    -- private.AddFrameTooltip(dangerIconSetting.frame, "IconDangerIconDescription")
+    -- dangerIconSetting:SetValue(Settings.dangerIcon)
+    -- dangerIconSetting:SetCallback("OnValueChanged", function(_, _, value)
+    --     Settings.dangerIcon = value
+    --     widget:ApplySettings()
+    -- end)
+    -- scroll:AddChild(dangerIconSetting)
 
     return scrollContainer
 end
@@ -105,7 +152,7 @@ local createTextSettings = function(widget, parentWindow, iconSettings, textSett
         elseif activeAnchor == "BOTTOM" then
             textSettings.text_anchor = "LEFT"
         end
-    elseif isVerticalEnabled then 
+    elseif isVerticalEnabled then
         if activeAnchor == "RIGHT" then
             textSettings.text_anchor = "TOP"
         elseif activeAnchor == "LEFT" then
@@ -243,18 +290,133 @@ local createTextSettings = function(widget, parentWindow, iconSettings, textSett
     return scrollContainer
 end
 
+local createHighlightTextTextSettings = function(widget, parentWindow, textSettings)
+    local scrollContainer = AceGUI:Create("SimpleGroup")
+    local scroll = AceGUI:Create("ScrollFrame")
+    scrollContainer:SetLayout("Fill") -- important!
+    scrollContainer:SetFullWidth(true)
+    scrollContainer:SetHeight(parentWindow.frame:GetHeight() - 115)
+    scroll:SetLayout("Flow")
+    scroll:SetFullWidth(true)
+    scrollContainer:AddChild(scroll)
+
+    local fontSizeSetting = AceGUI:Create("Slider")
+    fontSizeSetting:SetLabel(private.getLocalisation("SpellnameFontSize"))
+    private.AddFrameTooltip(fontSizeSetting.frame, "SpellnameFontSizeDescription")
+    fontSizeSetting:SetSliderValues(1, 64, 1)
+    fontSizeSetting:SetValue(textSettings.fontSize)
+    fontSizeSetting:SetCallback("OnValueChanged", function(_, _, value)
+        textSettings.fontSize = value
+        widget:ApplySettings()
+    end)
+    fontSizeSetting:SetRelativeWidth(0.5)
+    scroll:AddChild(fontSizeSetting)
+
+    local fontSetting = AceGUI:Create("Dropdown")
+    fontSetting:SetText(textSettings.font)
+    fontSetting:SetLabel(private.getLocalisation("SpellnameFont"))
+    private.AddFrameTooltip(fontSetting.frame, "SpellnameFontDescription")
+    for _, texName in ipairs(SharedMedia:List("font")) do
+        fontSetting:AddItem(texName, texName)
+    end
+    fontSetting:SetCallback("OnValueChanged", function(_, _, value)
+        textSettings.font = value
+        widget:ApplySettings()
+    end)
+    fontSetting:SetRelativeWidth(0.5)
+    scroll:AddChild(fontSetting)
+
+    local textDefaultColorSetting = AceGUI:Create("ColorPicker")
+    textDefaultColorSetting:SetLabel(private.getLocalisation("SpellnameDefaultColor"))
+    private.AddFrameTooltip(textDefaultColorSetting.frame, "SpellnameDefaultColorDescription")
+    textDefaultColorSetting:SetColor(textSettings.defaultColor.r,
+        textSettings.defaultColor.g,
+        textSettings.defaultColor.b
+    )
+    textDefaultColorSetting:SetCallback("OnValueChanged", function(_, _, r, g, b)
+        textSettings.defaultColor.r = r
+        textSettings.defaultColor.g = g
+        textSettings.defaultColor.b = b
+        widget:ApplySettings()
+    end)
+    scroll:AddChild(textDefaultColorSetting)
+
+    local textBackgroundToggle = AceGUI:Create("CheckBox")
+    textBackgroundToggle:SetValue(textSettings.useBackground)
+    textBackgroundToggle:SetLabel(private.getLocalisation("SpellnameBackground"))
+    private.AddFrameTooltip(textBackgroundToggle.frame, "SpellnameBackgroundDescription")
+    textBackgroundToggle:SetCallback("OnValueChanged", function(_, _, value)
+        textSettings.useBackground = value
+        widget:ApplySettings()
+    end)
+    scroll:AddChild(textBackgroundToggle)
+
+    local TextureSettings = {
+    }
+    for _, texName in ipairs(SharedMedia:List("background")) do
+        local texPath = SharedMedia:Fetch("background", texName) or ""
+        local display = ("|T%s:16:128|t %s"):format(tostring(texPath), texName)
+        table.insert(TextureSettings, {
+            text = display,
+            value = texName,
+            isRadio = false,
+        })
+    end
+    local textBackgroundTextureSetting = AceGUI:Create("Dropdown")
+    textBackgroundTextureSetting:SetText(textSettings.backgroundTexture)
+    textBackgroundTextureSetting:SetLabel(private.getLocalisation("SpellnameBackgroundTexture"))
+    private.AddFrameTooltip(textBackgroundTextureSetting.frame, "SpellnameBackgroundTextureDescription")
+    for _, setting in ipairs(TextureSettings) do
+        textBackgroundTextureSetting:AddItem(setting.value, setting.text)
+    end
+    textBackgroundTextureSetting:SetCallback("OnValueChanged", function(_, _, value)
+        textSettings.backgroundTexture = value
+        widget:ApplySettings()
+    end)
+    textBackgroundTextureSetting:SetRelativeWidth(1.0)
+    scroll:AddChild(textBackgroundTextureSetting)
+
+    local textBackgroundTextureOffsetX = AceGUI:Create("Slider")
+    textBackgroundTextureOffsetX:SetLabel(private.getLocalisation("TextBackgroundOffsetX"))
+    private.AddFrameTooltip(textBackgroundTextureOffsetX.frame, "TextBackgroundOffsetXDescription")
+    textBackgroundTextureOffsetX:SetSliderValues(-50, 50, 1)
+    textBackgroundTextureOffsetX:SetValue(textSettings.backgroundTextureOffset.x)
+    textBackgroundTextureOffsetX:SetCallback("OnValueChanged", function(_, _, value)
+        textSettings.backgroundTextureOffset.x = value
+        widget:ApplySettings()
+    end)
+    textBackgroundTextureOffsetX:SetRelativeWidth(0.5)
+    scroll:AddChild(textBackgroundTextureOffsetX)
+
+    local textBackgroundTextureOffsetX = AceGUI:Create("Slider")
+    textBackgroundTextureOffsetX:SetLabel(private.getLocalisation("TextBackgroundOffsetY"))
+    private.AddFrameTooltip(textBackgroundTextureOffsetX.frame, "TextBackgroundOffsetYDescription")
+    textBackgroundTextureOffsetX:SetSliderValues(-50, 50, 1)
+    textBackgroundTextureOffsetX:SetValue(textSettings.backgroundTextureOffset.y)
+    textBackgroundTextureOffsetX:SetCallback("OnValueChanged", function(_, _, value)
+        textSettings.backgroundTextureOffset.y = value
+        widget:ApplySettings()
+    end)
+    textBackgroundTextureOffsetX:SetRelativeWidth(0.5)
+    scroll:AddChild(textBackgroundTextureOffsetX)
+
+    return scrollContainer
+end
 
 local createCooldownSubSettings
 ---handles the cooldown color change options
 ---@param parentGroup AceGUIWidget
 ---@param scrollContainer AceGUIWidget scroll container to do layout on after changes
 ---@param cooldownColorChanges table table of cooldown color changes expected to include time and color = {r,g,b}
-local handleCooldownColorChangeOptions = function(parentGroup, scrollContainer, widget, cooldownColorChanges) end -- this weird syntax is needed to allow recursion
-handleCooldownColorChangeOptions = function(parentGroup, scrollContainer, widget, cooldownColorChanges)
+local handleCooldownColorChangeOptions = function(parentGroup, scrollContainer, widget, cooldownColorChanges,
+                                                  disableGlowSettings, disableFontSettings)
+end                                                                                             -- this weird syntax is needed to allow recursion
+handleCooldownColorChangeOptions = function(parentGroup, scrollContainer, widget, cooldownColorChanges,
+                                            disableGlowSettings, disableFontSettings)
     parentGroup:ReleaseChildren()
     for i, value in pairs(cooldownColorChanges) do
         local time, color, useGlow, glowType, glowColor = value.time, value.color, value.useGlow, value.glowType,
-        value.glowColor
+            value.glowColor
         local group = AceGUI:Create("InlineGroup")
         group:SetLayout("Flow")
         group:SetFullWidth(true)
@@ -269,7 +431,7 @@ handleCooldownColorChangeOptions = function(parentGroup, scrollContainer, widget
             table.remove(private.db.profile.cooldown_settings.cooldown_highlight.highlights, i)
             table.sort(private.db.profile.cooldown_settings.cooldown_highlight.highlights,
                 function(a, b) return a.time < b.time end)
-            createCooldownSubSettings(scrollContainer, widget)
+            createCooldownSubSettings(scrollContainer, widget, disableGlowSettings, disableFontSettings)
         end)
 
         group:AddChild(removeChangeButton)
@@ -302,38 +464,38 @@ handleCooldownColorChangeOptions = function(parentGroup, scrollContainer, widget
         colorPicker:SetCallback("OnValueChanged", function(_, _, r, g, b)
             value.color = { r = r, g = g, b = b }
         end)
+        if not disableGlowSettings then
+            local isGlowEnabled = AceGUI:Create("CheckBox")
+            isGlowEnabled:SetValue(useGlow)
+            isGlowEnabled:SetLabel(private.getLocalisation("EnableCooldownGlowChange"))
+            private.AddFrameTooltip(isGlowEnabled.frame, "EnableCooldownGlowChangeDescription")
+            isGlowEnabled:SetCallback("OnValueChanged", function(_, _, enabled)
+                value.useGlow = enabled
+            end)
+            group:AddChild(isGlowEnabled)
 
-        local isGlowEnabled = AceGUI:Create("CheckBox")
-        isGlowEnabled:SetValue(useGlow)
-        isGlowEnabled:SetLabel(private.getLocalisation("EnableCooldownGlowChange"))
-        private.AddFrameTooltip(isGlowEnabled.frame, "EnableCooldownGlowChangeDescription")
-        isGlowEnabled:SetCallback("OnValueChanged", function(_, _, enabled)
-            value.useGlow = enabled
-        end)
-        group:AddChild(isGlowEnabled)
+            local glowTypeSetting = AceGUI:Create("Dropdown")
+            glowTypeSetting:SetLabel(private.getLocalisation("CooldownGlowType"))
+            private.AddFrameTooltip(glowTypeSetting.frame, "CooldownGlowTypeDescription")
+            glowTypeSetting:SetList(private.GlowTypes)
+            glowTypeSetting:SetValue(glowType)
+            glowTypeSetting:SetCallback("OnValueChanged", function(_, _, type)
+                value.glowType = type
+            end)
+            glowTypeSetting:SetRelativeWidth(0.5)
+            group:AddChild(glowTypeSetting)
 
-        local glowTypeSetting = AceGUI:Create("Dropdown")
-        glowTypeSetting:SetLabel(private.getLocalisation("CooldownGlowType"))
-        private.AddFrameTooltip(glowTypeSetting.frame, "CooldownGlowTypeDescription")
-        glowTypeSetting:SetList(private.GlowTypes)
-        glowTypeSetting:SetValue(glowType)
-        glowTypeSetting:SetCallback("OnValueChanged", function(_, _, type)
-            value.glowType = type
-        end)
-        glowTypeSetting:SetRelativeWidth(0.5)
-        group:AddChild(glowTypeSetting)
-
-        local glowColorPicker = AceGUI:Create("ColorPicker")
-        private.AddFrameTooltip(glowColorPicker.frame, "CooldownGlowColorDescription")
-        glowColorPicker:SetLabel(private.getLocalisation("CooldownGlowColor"))
-        glowColorPicker:SetColor(glowColor.r, glowColor.g, glowColor.b, glowColor.a)
-        glowColorPicker:SetHasAlpha(true)
-        glowColorPicker:SetRelativeWidth(0.5)
-        glowColorPicker:SetCallback("OnValueChanged", function(_, _, r, g, b, a)
-            value.glowColor = { r = r, g = g, b = b, a = a }
-        end)
-        group:AddChild(glowColorPicker)
-
+            local glowColorPicker = AceGUI:Create("ColorPicker")
+            private.AddFrameTooltip(glowColorPicker.frame, "CooldownGlowColorDescription")
+            glowColorPicker:SetLabel(private.getLocalisation("CooldownGlowColor"))
+            glowColorPicker:SetColor(glowColor.r, glowColor.g, glowColor.b, glowColor.a)
+            glowColorPicker:SetHasAlpha(true)
+            glowColorPicker:SetRelativeWidth(0.5)
+            glowColorPicker:SetCallback("OnValueChanged", function(_, _, r, g, b, a)
+                value.glowColor = { r = r, g = g, b = b, a = a }
+            end)
+            group:AddChild(glowColorPicker)
+        end
 
 
         -- add all settings to container
@@ -342,7 +504,8 @@ handleCooldownColorChangeOptions = function(parentGroup, scrollContainer, widget
     scrollContainer:DoLayout()
 end
 
-local addCooldownColorHighlightSettings = function(cooldownColorChangeGroup, scroll, widget)
+local addCooldownColorHighlightSettings = function(cooldownColorChangeGroup, scroll, widget, disableGlowSettings,
+                                                   disableFontSettings)
     local cooldownColorChangeLabel = AceGUI:Create("Label")
     cooldownColorChangeLabel:SetText(private.getLocalisation("CooldownColorChanges"))
     cooldownColorChangeLabel:SetRelativeWidth(0.5)
@@ -360,48 +523,55 @@ local addCooldownColorHighlightSettings = function(cooldownColorChangeGroup, scr
     cooldownColorChangeCreator:SetLayout("Flow")
 
     handleCooldownColorChangeOptions(cooldownColorChangeCreator, scroll, widget,
-        private.db.profile.cooldown_settings.cooldown_highlight.highlights)
+        private.db.profile.cooldown_settings.cooldown_highlight.highlights, disableGlowSettings, disableFontSettings)
 
     addChangeButton:SetCallback("OnClick", function()
         table.insert(private.db.profile.cooldown_settings.cooldown_highlight.highlights, {
             time = 10,
-            color = private.db.profile.cooldown_settings.cooldown_color
+            color = private.db.profile.cooldown_settings.cooldown_color,
+            useGlow = false,
+            glowType = private.GlowTypes.PROC,
+            glowColor = { r = 1, g = 1, b = 1, a = 1 },
         })
         table.sort(private.db.profile.cooldown_settings.cooldown_highlight.highlights,
             function(a, b) return a.time < b.time end)
-        createCooldownSubSettings(scroll, widget)
+        createCooldownSubSettings(scroll, widget, disableGlowSettings, disableFontSettings)
     end)
 
     cooldownColorChangeGroup:AddChild(cooldownColorChangeCreator)
 end
 
-createCooldownSubSettings = function(scroll, widget)
+createCooldownSubSettings = function(scroll, widget, disableGlowSettings, disableFontSettings)
     scroll:ReleaseChildren()
-    local fontSizeSetting = AceGUI:Create("Slider")
-    fontSizeSetting:SetLabel(private.getLocalisation("CooldownFontSize"))
-    private.AddFrameTooltip(fontSizeSetting.frame, "CooldownFontSizeDescription")
-    fontSizeSetting:SetSliderValues(1, 64, 1)
-    fontSizeSetting:SetValue(private.db.profile.cooldown_settings.fontSize)
-    fontSizeSetting:SetRelativeWidth(0.5)
-    fontSizeSetting:SetCallback("OnValueChanged", function(_, _, value)
-        private.db.profile.cooldown_settings.fontSize = value
-        widget:ApplySettings()
-    end)
-    scroll:AddChild(fontSizeSetting)
+    if not disableFontSettings then
+        print("adding font settings")
+        print(disableFontSettings)
+        local fontSizeSetting = AceGUI:Create("Slider")
+        fontSizeSetting:SetLabel(private.getLocalisation("CooldownFontSize"))
+        private.AddFrameTooltip(fontSizeSetting.frame, "CooldownFontSizeDescription")
+        fontSizeSetting:SetSliderValues(1, 64, 1)
+        fontSizeSetting:SetValue(private.db.profile.cooldown_settings.fontSize)
+        fontSizeSetting:SetRelativeWidth(0.5)
+        fontSizeSetting:SetCallback("OnValueChanged", function(_, _, value)
+            private.db.profile.cooldown_settings.fontSize = value
+            widget:ApplySettings()
+        end)
+        scroll:AddChild(fontSizeSetting)
 
-    local fontSetting = AceGUI:Create("Dropdown")
-    fontSetting:SetText(private.db.profile.cooldown_settings.font)
-    fontSetting:SetLabel(private.getLocalisation("CooldownFont"))
-    private.AddFrameTooltip(fontSetting.frame, "CooldownFontDescription")
-    for _, texName in ipairs(SharedMedia:List("font")) do
-        fontSetting:AddItem(texName, texName)
+        local fontSetting = AceGUI:Create("Dropdown")
+        fontSetting:SetText(private.db.profile.cooldown_settings.font)
+        fontSetting:SetLabel(private.getLocalisation("CooldownFont"))
+        private.AddFrameTooltip(fontSetting.frame, "CooldownFontDescription")
+        for _, texName in ipairs(SharedMedia:List("font")) do
+            fontSetting:AddItem(texName, texName)
+        end
+        fontSetting:SetCallback("OnValueChanged", function(_, _, value)
+            private.db.profile.cooldown_settings.font = value
+            widget:ApplySettings()
+        end)
+        fontSetting:SetRelativeWidth(0.5)
+        scroll:AddChild(fontSetting)
     end
-    fontSetting:SetCallback("OnValueChanged", function(_, _, value)
-        private.db.profile.cooldown_settings.font = value
-        widget:ApplySettings()
-    end)
-    fontSetting:SetRelativeWidth(0.5)
-    scroll:AddChild(fontSetting)
 
     local defaultCooldownColorPicker = AceGUI:Create("ColorPicker")
     defaultCooldownColorPicker:SetLabel(private.getLocalisation("DefaultCooldownColor"))
@@ -431,14 +601,14 @@ createCooldownSubSettings = function(scroll, widget)
         local cooldownColorChangeGroup = AceGUI:Create("InlineGroup")
         cooldownColorChangeGroup:SetLayout("Flow")
         cooldownColorChangeGroup:SetFullWidth(true)
-        addCooldownColorHighlightSettings(cooldownColorChangeGroup, scroll)
+        addCooldownColorHighlightSettings(cooldownColorChangeGroup, scroll, disableGlowSettings, disableFontSettings)
         scroll:AddChild(cooldownColorChangeGroup)
     end
 end
 ---Creates the cooldown settings tab content
 ---@param widget AceGUIWidget
 ---@return AceGUIWidget
-local createCooldownSettings = function(widget, parentWindow)
+local createCooldownSettings = function(widget, parentWindow, disableGlowSettings, disableFontSettings)
     local scrollContainer = AceGUI:Create("SimpleGroup")
     local scroll = AceGUI:Create("ScrollFrame")
     scrollContainer:SetLayout("Fill")
@@ -448,7 +618,7 @@ local createCooldownSettings = function(widget, parentWindow)
     scroll:SetFullWidth(true)
     scrollContainer:AddChild(scroll)
     -- TODO template this nonsense we should be getting arrested for this
-    createCooldownSubSettings(scroll, widget)
+    createCooldownSubSettings(scroll, widget, disableGlowSettings, disableFontSettings)
 
     return scrollContainer
 end
@@ -477,6 +647,14 @@ local createSpellIconSettingsFrame = function()
         end
         widget.HandleCooldown(widget.frame, math.ceil((widget.startTime + widget.duration) - GetTime()))
     end) -- loop cooldown display
+
+    widget.frame.DispellTypeIcons[1]:SetAtlas('icons_16x16_magic')
+    for _, edgeTexture in pairs(widget.frame.DispellTypeBorderEdges[3]) do
+        edgeTexture:SetColorTexture(private.dispellTypeList[3].color.r, private.dispellTypeList[3].color.g,
+            private.dispellTypeList[3].color.b, private.dispellTypeList[3].color.a)
+    end
+    widget.frame.DangerIcon[1]:SetAtlas('icons_16x16_deadly')
+
     widget.frame:Show()
     widget.frame:SetFrameStrata("DIALOG")
     widget.frame:SetPoint("CENTER", private.SPELL_ICON_SETTINGS_WINDOW.rightContent, "CENTER", 0, 0)
@@ -502,11 +680,13 @@ local createSpellIconSettingsFrame = function()
         private.Debug("Selected tab: " .. value)
         tabGroup:ReleaseChildren()
         if value == "TextSettings" then
-            tabGroup:AddChild(createTextSettings(widget, private.SPELL_ICON_SETTINGS_WINDOW, private.db.profile.icon_settings, private.db.profile.text_settings, false))
+            tabGroup:AddChild(createTextSettings(widget, private.SPELL_ICON_SETTINGS_WINDOW,
+                private.db.profile.icon_settings, private.db.profile.text_settings, false))
         elseif value == "CooldownSettings" then
             tabGroup:AddChild(createCooldownSettings(widget, private.SPELL_ICON_SETTINGS_WINDOW))
         else
-            tabGroup:AddChild(createGeneralSettings(widget, private.SPELL_ICON_SETTINGS_WINDOW, private.db.profile.icon_settings, 100))
+            tabGroup:AddChild(createGeneralSettings(widget, private.SPELL_ICON_SETTINGS_WINDOW,
+                private.db.profile.icon_settings, 100))
         end
     end)
     tabGroup:SetFullWidth(true)
@@ -515,76 +695,6 @@ local createSpellIconSettingsFrame = function()
 
 
     return private.SPELL_ICON_SETTINGS_WINDOW
-end
-
-local createBigIconSettingsFrame = function()
-    private.Debug("Creating Big Icon Settings Frame")
-    private.BIG_ICON_SETTINGS_WINDOW = AceGUI:Create("AtSpellIconSettingsFrame")
-    private.Debug(private.BIG_ICON_SETTINGS_WINDOW, "AT_BIG_ICON_SETTINGS_WINDOW")
-
-    local widget = AceGUI:Create("AtBigIcon")
-    local eventInfo = {
-        duration = 15,
-        maxQueueDuration = 0,
-        spellName = private.getLocalisation("TestIcon"),
-        spellID = 0,
-        iconFileID = 237538,
-        severity = 1,
-        paused = false
-    }
-    widget:SetEventInfo(eventInfo, true)
-    widget.startTime = GetTime()
-    widget.duration = 5
-    widget.frame.Cooldown:SetCooldown(widget.startTime, widget.duration)
-    widget.frame:SetScript("OnUpdate", function()
-        if widget.startTime + widget.duration < GetTime() then
-            widget.startTime = GetTime()
-            widget.frame.Cooldown:SetCooldown(widget.startTime, widget.duration)
-        end
-        widget.HandleCooldown(widget.frame, math.ceil((widget.startTime + widget.duration) - GetTime()))
-    end) -- loop cooldown display
-    widget.frame:Show()
-    private.BIG_ICON_SETTINGS_WINDOW.frame.CloseButton:SetScript("OnClick", function() private.closeBigIconSettings() end)
-    widget:ClearAllPoints()
-    widget.frame:SetFrameStrata("DIALOG")
-    widget.frame:SetPoint("CENTER", private.BIG_ICON_SETTINGS_WINDOW.rightContent, "CENTER", 0, 0)
-    widget.frame:SetFrameLevel(private.BIG_ICON_SETTINGS_WINDOW.rightContent:GetFrameLevel() + 1)
-    widget:SetParent(private.BIG_ICON_SETTINGS_WINDOW)
-
-    local tabGroup = AceGUI:Create("TabGroup")
-    tabGroup:SetTabs({
-        {
-            text = private.getLocalisation("GeneralSettings"),
-            value = "GeneralSettings"
-        },
-        {
-            text = private.getLocalisation("TextSettings"),
-            value = "TextSettings"
-        },
-        {
-            text = private.getLocalisation("CooldownSettings"),
-            value = "CooldownSettings"
-        }
-    })
-    tabGroup:SetCallback("OnGroupSelected", function(_, _, value)
-        private.Debug("Selected tab: " .. value)
-        tabGroup:ReleaseChildren()
-        if value == "TextSettings" then
-            local isVerticalEnabled = (private.db.global.bigicon[private.ACTIVE_EDITMODE_LAYOUT].grow_direction == "RIGHT") or
-            (private.db.global.bigicon[private.ACTIVE_EDITMODE_LAYOUT].grow_direction == "LEFT")
-            tabGroup:AddChild(createTextSettings(widget, private.BIG_ICON_SETTINGS_WINDOW, private.db.profile.big_icon_settings, private.db.profile.big_icon_text_settings, isVerticalEnabled))
-        elseif value == "CooldownSettings" then
-            tabGroup:AddChild(createCooldownSettings(widget, private.BIG_ICON_SETTINGS_WINDOW))
-        else
-            tabGroup:AddChild(createGeneralSettings(widget, private.BIG_ICON_SETTINGS_WINDOW, private.db.profile.big_icon_settings, 150))
-        end
-    end)
-    tabGroup:SetFullWidth(true)
-    tabGroup:SelectTab("GeneralSettings")
-    private.BIG_ICON_SETTINGS_WINDOW:AddChild(tabGroup)
-
-
-    return private.BIG_ICON_SETTINGS_WINDOW
 end
 
 private.openSpellIconSettings = function()
@@ -613,6 +723,84 @@ private.closeSpellIconSettings = function()
     end
 end
 
+local createBigIconSettingsFrame = function()
+    private.Debug("Creating Big Icon Settings Frame")
+    private.BIG_ICON_SETTINGS_WINDOW = AceGUI:Create("AtSpellIconSettingsFrame")
+    private.Debug(private.BIG_ICON_SETTINGS_WINDOW, "AT_BIG_ICON_SETTINGS_WINDOW")
+
+    local widget = AceGUI:Create("AtBigIcon")
+    local eventInfo = {
+        duration = 15,
+        maxQueueDuration = 0,
+        spellName = private.getLocalisation("TestIcon"),
+        spellID = 0,
+        iconFileID = 237538,
+        severity = 1,
+        paused = false
+    }
+    widget:SetEventInfo(eventInfo, true)
+    widget.startTime = GetTime()
+    widget.duration = 5
+    widget.frame.Cooldown:SetCooldown(widget.startTime, widget.duration)
+    widget.frame:SetScript("OnUpdate", function()
+        if widget.startTime + widget.duration < GetTime() then
+            widget.startTime = GetTime()
+            widget.frame.Cooldown:SetCooldown(widget.startTime, widget.duration)
+        end
+        widget.HandleCooldown(widget.frame, math.ceil((widget.startTime + widget.duration) - GetTime()))
+    end) -- loop cooldown display
+    widget.frame.DispellTypeIcons[1]:SetAtlas('icons_16x16_magic')
+    for _, edgeTexture in pairs(widget.frame.DispellTypeBorderEdges[3]) do
+        edgeTexture:SetColorTexture(private.dispellTypeList[3].color.r, private.dispellTypeList[3].color.g,
+            private.dispellTypeList[3].color.b, private.dispellTypeList[3].color.a)
+    end
+    widget.frame.DangerIcon[1]:SetAtlas('icons_16x16_deadly')
+    widget.frame:Show()
+    private.BIG_ICON_SETTINGS_WINDOW.frame.CloseButton:SetScript("OnClick", function() private.closeBigIconSettings() end)
+    widget:ClearAllPoints()
+    widget.frame:SetFrameStrata("DIALOG")
+    widget.frame:SetPoint("CENTER", private.BIG_ICON_SETTINGS_WINDOW.rightContent, "CENTER", 0, 0)
+    widget.frame:SetFrameLevel(private.BIG_ICON_SETTINGS_WINDOW.rightContent:GetFrameLevel() + 1)
+    widget:SetParent(private.BIG_ICON_SETTINGS_WINDOW)
+
+    local tabGroup = AceGUI:Create("TabGroup")
+    tabGroup:SetTabs({
+        {
+            text = private.getLocalisation("GeneralSettings"),
+            value = "GeneralSettings"
+        },
+        {
+            text = private.getLocalisation("TextSettings"),
+            value = "TextSettings"
+        },
+        {
+            text = private.getLocalisation("CooldownSettings"),
+            value = "CooldownSettings"
+        }
+    })
+    tabGroup:SetCallback("OnGroupSelected", function(_, _, value)
+        private.Debug("Selected tab: " .. value)
+        tabGroup:ReleaseChildren()
+        if value == "TextSettings" then
+            local isVerticalEnabled = (private.db.global.bigicon[private.ACTIVE_EDITMODE_LAYOUT].grow_direction == "RIGHT") or
+                (private.db.global.bigicon[private.ACTIVE_EDITMODE_LAYOUT].grow_direction == "LEFT")
+            tabGroup:AddChild(createTextSettings(widget, private.BIG_ICON_SETTINGS_WINDOW,
+                private.db.profile.big_icon_settings, private.db.profile.big_icon_text_settings, isVerticalEnabled))
+        elseif value == "CooldownSettings" then
+            tabGroup:AddChild(createCooldownSettings(widget, private.BIG_ICON_SETTINGS_WINDOW))
+        else
+            tabGroup:AddChild(createGeneralSettings(widget, private.BIG_ICON_SETTINGS_WINDOW,
+                private.db.profile.big_icon_settings, 150))
+        end
+    end)
+    tabGroup:SetFullWidth(true)
+    tabGroup:SelectTab("GeneralSettings")
+    private.BIG_ICON_SETTINGS_WINDOW:AddChild(tabGroup)
+
+
+    return private.BIG_ICON_SETTINGS_WINDOW
+end
+
 private.openBigIconSettings = function()
     if not private.BIG_ICON_SETTINGS_WINDOW then
         createBigIconSettingsFrame()
@@ -631,6 +819,110 @@ private.closeBigIconSettings = function()
     private.BIG_ICON_SETTINGS_WINDOW.frame:Hide()
     private.BIGICON_FRAME:SetWidth(private.db.profile.big_icon_settings.size)
     private.BIGICON_FRAME:SetHeight(private.db.profile.big_icon_settings.size)
+
+    if not EditModeManagerFrame:IsShown() and private.wasEditModeOpen then
+        private.wasEditModeOpen = false
+        ShowUIPanel(EditModeManagerFrame)
+    end
+end
+
+local createHighlightTextSettingsFrame = function()
+    private.Debug("Creating Highlight Text Settings Frame")
+    private.HIGHLIGHT_TEXT_SETTINGS_WINDOW = AceGUI:Create("AtSpellIconSettingsFrame")
+    private.Debug(private.HIGHLIGHT_TEXT_SETTINGS_WINDOW, "AT_HIGHLIGHT_TEXT_SETTINGS_WINDOW")
+
+    local widget = AceGUI:Create("AtTextHighlight")
+    local eventInfo = {
+        duration = 15,
+        maxQueueDuration = 0,
+        spellName = private.getLocalisation("TestIcon"),
+        spellID = 0,
+        iconFileID = 237538,
+        severity = 1,
+        paused = false
+    }
+    widget:SetEventInfo(eventInfo, true)
+    widget.startTime = GetTime()
+    widget.duration = 5
+    if private.db.profile.highlight_text_settings.dispellTextColor then
+        widget.frame.SpellName:SetTextColor(0, 0.5019607843137255, 1)
+    else
+        widget.frame.SpellName:SetTextColor(1, 1, 1)
+    end
+    widget.frame:SetScript("OnUpdate", function(self)
+        if widget.startTime + widget.duration < GetTime() then
+            widget.startTime = GetTime()
+        end
+        local remainingDuration = (widget.startTime + widget.duration) - GetTime()
+        local textColor = widget:GetTextColor(remainingDuration)
+        if private.db.profile.highlight_text_settings.dispellIcons then
+            self.SpellName:SetFormattedText("|A:%s:20:20|a %s in |c%s%i|r", 'icons_16x16_magic', eventInfo.spellName,
+                textColor, math.ceil(remainingDuration))
+        else
+            self.SpellName:SetFormattedText("%s in |c%s%i|r", eventInfo.spellName, textColor,
+                math.ceil(remainingDuration))
+        end
+    end)
+    widget.frame:Show()
+    private.HIGHLIGHT_TEXT_SETTINGS_WINDOW.frame.CloseButton:SetScript("OnClick",
+        function() private.closeHighlightTextSettings() end)
+    widget:ClearAllPoints()
+    widget.frame:SetFrameStrata("DIALOG")
+    widget.frame:SetPoint("CENTER", private.HIGHLIGHT_TEXT_SETTINGS_WINDOW.rightContent, "CENTER", 0, 0)
+    widget.frame:SetFrameLevel(private.HIGHLIGHT_TEXT_SETTINGS_WINDOW.rightContent:GetFrameLevel() + 1)
+    widget:SetParent(private.HIGHLIGHT_TEXT_SETTINGS_WINDOW)
+
+    local tabGroup = AceGUI:Create("TabGroup")
+    tabGroup:SetTabs({
+        {
+            text = private.getLocalisation("GeneralSettings"),
+            value = "GeneralSettings"
+        },
+        {
+            text = private.getLocalisation("TextSettings"),
+            value = "TextSettings"
+        },
+        {
+            text = private.getLocalisation("CooldownSettings"),
+            value = "CooldownSettings"
+        }
+    })
+    tabGroup:SetCallback("OnGroupSelected", function(_, _, value)
+        private.Debug("Selected tab: " .. value)
+        tabGroup:ReleaseChildren()
+        if value == "TextSettings" then
+            tabGroup:AddChild(createHighlightTextTextSettings(widget, private.HIGHLIGHT_TEXT_SETTINGS_WINDOW,
+                private.db.profile.highlight_text_settings))
+        elseif value == "CooldownSettings" then
+            tabGroup:AddChild(createCooldownSettings(widget, private.HIGHLIGHT_TEXT_SETTINGS_WINDOW, true, true))
+        else
+            tabGroup:AddChild(createHighlightTextGeneralSettings(widget, private.HIGHLIGHT_TEXT_SETTINGS_WINDOW,
+                private.db.profile.highlight_text_settings))
+        end
+    end)
+    tabGroup:SetFullWidth(true)
+    tabGroup:SelectTab("GeneralSettings")
+    private.HIGHLIGHT_TEXT_SETTINGS_WINDOW:AddChild(tabGroup)
+
+
+    return private.HIGHLIGHT_TEXT_SETTINGS_WINDOW
+end
+
+private.openHighlightTextSettings = function()
+    if not private.HIGHLIGHT_TEXT_SETTINGS_WINDOW then
+        createHighlightTextSettingsFrame()
+    else
+        private.HIGHLIGHT_TEXT_SETTINGS_WINDOW.frame:Show()
+    end
+
+    if EditModeManagerFrame:IsShown() then
+        private.wasEditModeOpen = true
+        HideUIPanel(EditModeManagerFrame)
+    end
+end
+
+private.closeHighlightTextSettings = function()
+    private.HIGHLIGHT_TEXT_SETTINGS_WINDOW.frame:Hide()
 
     if not EditModeManagerFrame:IsShown() and private.wasEditModeOpen then
         private.wasEditModeOpen = false

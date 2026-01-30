@@ -41,6 +41,8 @@ if L then
     L["IconDangerIcon"] = "Enable Danger Icon"
     L["enableDNDMessageDescription"] = "Enables setting a 'Do Not Disturb' message when entering an encounter or Mythic+ dungeon."
     L["enableDNDMessage"] = "Enable 'Do Not Disturb' Message"
+    L["disableLoginMessage"] = "Disable Login Message"
+    L["disableLoginMessageDescription"] = "Disables the login message that shows how to open the Options."
 
     -- reminders
     L["ReminderEditTitle"] = "Edit Reminder"
@@ -87,6 +89,8 @@ if L then
     L["IconDispellBorderDescription"] = "Toggles the dispell type border around the spell icon."
     L["IconDispellIcon"] = "Dispell Icon"
     L["IconDispellIconDescription"] = "Toggles the dispell type icon overlay on the spell icon."
+    L["TextDispellIcon"] = "Dispell Icon"
+    L["TextDispellIconDescription"] = "Toggles the dispell type icon in the text."
     L['TextCopyHint'] = "Hint: Press Ctrl+C to copy the text to your clipboard."
     L['CopyText'] = "Copy Text"
     L['DiscordDescription'] = "Join my Discord for support and updates"
@@ -137,6 +141,8 @@ if L then
     L['TextBackgroundOffsetXDescription'] = "Sets the X offset of the background relative to the text."
     L['TextBackgroundOffsetY'] = "Text Background Offset Y"
     L['TextBackgroundOffsetYDescription'] = "Sets the Y offset of the background relative to the text."
+    L['DispellTextColor'] = "Dispell Text Color"
+    L['DispellTextColorDescription'] = "Enables coloring the spell name text based on the dispell type."
 
 
 
@@ -173,6 +179,7 @@ if L then
     L["TimelineTexture"] = "Timeline Texture"
     L["TimelineTextureDescription"] = "Sets the texture of the timeline background."
     L["OpenIconEditor"] = "Edit Icons"
+    L["OpenTextEditor"] = "Edit Texts"
     L['BigIconMargin'] = "Margin"
     L['BigIconMarginDescription'] = "Sets the space between big icons."
     L['TextHighlightMargin'] = "Margin"
@@ -184,6 +191,31 @@ if L then
     L["InvalidTextPosition"] = "Invalid text anchor position please alert the author."
     L["WrongWoWVersionMessage"] = "AbilityTimeline requires WoW version 12.0.0 (Midnight) or higher to run."
 
-
+    -- importing
+    L["ImportDialogTitle"] = "Import Reminders"
+    L["ImportPopupTitle"] = "Importing Reminders"
+    L["ImportDialogFreeOfCharge"] = "This Addon and its features is created in my free time and I do not make money off of it. If you paid for these reminders consider supporting the addon creation instead."
+    L["ImportButton"] = "Import"
+    L["ImportParseError"] = "Could not parse import format. Supported formats: Encoded, Viserio, MRT notes, or JSON"
+    L["ImportTextPlaceholder"] = "Paste import data here..."
+    L["ImportRelevant"] = "Only import relevant reminders"
+    L["ImportRelevantDescription"] = "Only import reminders that are relevant for your Name/Nickname, role or specialization."
+    L["ImportMergeMode"] = "Merge with existing reminders"
+    L["ImportMergeModeDescription"] = "If unchecked, existing reminders will be replaced with the imported ones."
+    L["ImportError"] = "Import failed: %s"
+    L["ImportPreview"] = "%d reminder found"
+    L["ImportPreviewEmpty"] = "Paste import data to get started"
+    L["ImportPreviewFiltered"] = "%d of %d reminders for your character"
+    L["ImportEncounterMismatch"] = "|cffff6600Warning: Import is for another encounter|r"
+    L["ReminderImportButton"] = "Import Reminders"
+    L["ReminderExportButton"] = "Export Reminders"
+    L["ExportDialogTitle"] = "Export Reminders"
+    L["ExportAsJSON"] = "Export as JSON"
+    L["ExportAsMRT"] = "Export as MRT"
+    L["ReminderSendToChatButton"] = "Send to Group Chat"
+    L["ExportAsEncoded"] = "Export as Encoded"
+    L["ExportAsViserio"] = "Export as Viserio"
+    L["ExportCopyHint"] = "Use Ctrl+C to copy the exported text to your clipboard."
+    L["SupportButton"] = "Support"
     private.localisation = L
 end

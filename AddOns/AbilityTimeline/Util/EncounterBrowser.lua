@@ -64,7 +64,8 @@ local function ensureEJButton()
     hooksecurefunc("EncounterJournal_DisplayEncounter", function(encounterIndexOrID)
         -- Try to resolve passed value as either a journalEncounterID, a dungeonEncounterID, or an encounter index.
         -- Prefer the dungeonEncounterID (the numeric id fired by ENCOUNTER_START) when available.
-        local name, _, journalEncounterID, _, _, journalInstanceID, dungeonEncounterID = EJ_GetEncounterInfo(encounterIndexOrID)
+        local name, _, journalEncounterID, _, _, journalInstanceID, dungeonEncounterID = EJ_GetEncounterInfo(
+        encounterIndexOrID)
         if not journalEncounterID then
             -- get currently selected instance in EJ
             name, _, journalEncounterID, _, _, journalInstanceID, dungeonEncounterID = EJ_GetInstanceInfo()
@@ -83,25 +84,66 @@ local function ensureEJButton()
         if not infoFrame.AbilityTimelineAddButton then
             local btn = CreateFrame("Button", "AbilityTimelineEJAddButton", infoFrame, "EncounterTabTemplate")
             btn:SetPoint("TOP", EncounterJournalEncounterFrameInfoModelTab, "BOTTOM", 0, 0)
-            
+
             btn.texture = btn:CreateTexture(nil, "ARTWORK")
             btn.texture:SetAllPoints()
-            
+
             -- for some reason the texture sometimes randomly vanishes so we just reset it on show TODO fix properly
             local function applyTexture()
                 btn.texture:SetTexture("Interface\\AddOns\\AbilityTimeline\\Media\\Textures\\logo_transparent.tga")
                 btn.texture:Show()
+
+                -- match skinning of EJ tabs if relevant for things like elvui
+                if EncounterJournalEncounterFrameInfoModelTab.backdrop then
+                    btn:CreateBackdrop('Transparent')
+                    btn.backdrop:SetInside(nil, 2, 2)
+                    local normalTexture = EncounterJournalEncounterFrameInfoModelTab:GetNormalTexture()
+                    if normalTexture then
+                        local texture = normalTexture:GetTexture()
+                         if texture then
+                            btn:SetNormalTexture(texture)
+                         end
+                    end
+                    local pushedTexture = EncounterJournalEncounterFrameInfoModelTab:GetPushedTexture()
+                    if pushedTexture then
+                        local texture = pushedTexture:GetTexture()
+                         if texture then
+                            btn:SetPushedTexture(texture)
+                         end
+                    end
+                    local disabledTexture = EncounterJournalEncounterFrameInfoModelTab:GetDisabledTexture()
+                    if disabledTexture then
+                        local texture = disabledTexture:GetTexture()
+                         if texture then
+                            btn:SetDisabledTexture(texture)
+                         end
+                    end
+                    local highlight = EncounterJournalEncounterFrameInfoModelTab:GetHighlightTexture()
+                    if highlight then
+                        local texture = highlight:GetTexture()
+                        local blendMode = highlight:GetBlendMode()
+                        if texture and blendMode then
+                            btn:SetHighlightTexture(texture, blendMode)
+                            btn:GetHighlightTexture():SetColorTexture(highlight:GetColorTexture())
+                            btn:GetHighlightTexture():SetInside(btn.backdrop:GetInside())
+                        end
+                    end
+                end
+
             end
+            
             applyTexture()
             btn:HookScript("OnShow", applyTexture)
-            
+
             btn.tooltip = private.getLocalisation("EditRemindersForEncounter")
             btn:SetText(private.getLocalisation("EditRemindersForEncounter"))
             btn:SetScript("OnClick", function()
                 local entry = lastDisplayedEncounter
                 if not entry or (not entry.journalEncounterID and not entry.dungeonEncounterID and not entry.raw) then
-                    StaticPopupDialogs["ABILITYTIMELINE_CANNOT_RESOLVE"] = StaticPopupDialogs["ABILITYTIMELINE_CANNOT_RESOLVE"] or {
-                        text = private.getLocalisation and private.getLocalisation("CannotResolveEncounter") or "Could not resolve encounter",
+                    StaticPopupDialogs["ABILITYTIMELINE_CANNOT_RESOLVE"] = StaticPopupDialogs
+                    ["ABILITYTIMELINE_CANNOT_RESOLVE"] or {
+                        text = private.getLocalisation and private.getLocalisation("CannotResolveEncounter") or
+                        "Could not resolve encounter",
                         button1 = OKAY,
                         timeout = 0,
                         whileDead = true,
@@ -113,7 +155,9 @@ local function ensureEJButton()
                 -- Register encounter and open editor using explicit EJ ids
                 local key = entry.dungeonEncounterID or entry.journalEncounterID or entry.raw
                 key = tonumber(key) or key
-                private.RegisterEncounter(key, { name = entry.name, instanceID = entry.journalInstanceID, journalID = entry.journalEncounterID }, true)
+                private.RegisterEncounter(key,
+                    { name = entry.name, instanceID = entry.journalInstanceID, journalID = entry.journalEncounterID },
+                    true)
                 local params = {
                     journalEncounterID = entry.journalEncounterID,
                     journalInstanceID = entry.journalInstanceID,

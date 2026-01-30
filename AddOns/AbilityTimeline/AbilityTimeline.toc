@@ -1,6 +1,6 @@
 ## Interface: 120000
 ## Title: AbilityTimeline
-## Version: v0.16
+## Version: v0.17
 ## Notes: Adds various improvements to blizzards encounter ability timeline.
 ## SavedVariables: AbilityTimeline
 ## Author: Jods
@@ -34,6 +34,8 @@ Util\EditMode.lua
 Util\ModernizeSettings.lua
 Util\Tooltip.lua
 Util\EncounterBrowser.lua
+Util\ImportUtil.lua
+Util\ChatTransmission.lua
 
 # Locales
 Locales\enUS.lua
@@ -43,8 +45,10 @@ Locales\zhTW.lua
 Locales\Locales.lua
 
 #templates
+Templates\AtImportPopup.lua
 Templates\AtTextCopyFrame.lua
 Templates\AtReminderCreator.lua
+Templates\AtImportDialog.lua
 Templates\AtTimelineTick.lua
 Templates\AtEditorSpellIcon.lua
 Templates\AtTimingsEditorTimelineFrame.lua
@@ -62,6 +66,7 @@ Templates\AtSpellIconSettingsFrame.lua
 Data\dungeons.xml
 Data\seasons.lua
 Data\dispellTypes.lua
+Data\specPosition.lua
 
 #plugins
 Plugins\TextHighlight.lua
@@ -72,6 +77,7 @@ Plugins\Reminders.lua
 
 # Core
 Options\Options.lua
+Options\ImportDialogHandler.lua
 Options\TimingEditor.lua
 Options\SpellIconsSettings.lua
 Main.lua

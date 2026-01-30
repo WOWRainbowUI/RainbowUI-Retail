@@ -10,7 +10,6 @@ function AbilityTimeline:OnInitialize()
     local buildVersion, buildNumber, buildDate, interfaceVersion, localizedVersion, buildInfo = GetBuildInfo()  -- Mainline
     assert(interfaceVersion >= 120000, private.getLocalisation("WrongWoWVersionMessage"))
     -- Called when the addon is loaded
-    -- AbilityTimeline:Print(private.getLocalisation("AccessOptionsMessage"))
     AbilityTimeline:RegisterEvent("ENCOUNTER_TIMELINE_EVENT_ADDED")
     AbilityTimeline:RegisterEvent("ENCOUNTER_TIMELINE_EVENT_REMOVED")
     AbilityTimeline:RegisterEvent("ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED")
@@ -35,6 +34,9 @@ function AbilityTimeline:OnInitialize()
             rest = private.options
         }
     }
+    if not private.db.profile.disableLoginMessage then
+        AbilityTimeline:Print(private.getLocalisation("AccessOptionsMessage"))
+    end
     AceConfig:RegisterOptionsTable(appName, OptionTable) --
     AceConfigDialog:AddToBlizOptions(appName, private.getLocalisation(appName)) -- 修改選項名稱
     self:RegisterChatCommand("at", "SlashCommand")
@@ -149,6 +151,7 @@ function AbilityTimeline:ENCOUNTER_START(event, encounterID, encounterName, diff
     end
     if not C_ChatInfo.InChatMessagingLockdown() and private.db.profile.enableDNDMessage then
         local name, groupType, isHeroic, isChallengeMode, displayHeroic, displayMythic, toggleDifficultyID, isLFR, minPlayers, maxPlayers = GetDifficultyInfo(difficultyID)
+        private.db.global.active = true
         C_ChatInfo.SendChatMessage(private.getLocalisation("CurrentlyBusyInEncounter"):format(encounterName, name), "DND") 
     end
 
@@ -164,7 +167,10 @@ function AbilityTimeline:ENCOUNTER_END(event, encounterID, encounterName, diffic
     end
 
     if not C_ChatInfo.InChatMessagingLockdown() and private.db.profile.enableDNDMessage then
-        C_ChatInfo.SendChatMessage("", "DND") -- clear dnd message
+        if private.db.global.active then
+            C_ChatInfo.SendChatMessage("", "DND") -- clear dnd message
+            private.db.global.active = false
+        end
     end
 end
 
@@ -222,7 +228,7 @@ function AbilityTimeline:PullCommand(msg)
 end
 
 function AbilityTimeline:START_PLAYER_COUNTDOWN(event, initiatedBy, timeRemaining, totalTime, informChat, initiatedByName)
-    local timeleft = tonumber(timeRemaining) or 35
+    local timeleft = tonumber(timeRemaining)
     local color
     local name = initiatedByName
     if initiatedByName and UnitClass(initiatedByName) then
@@ -241,6 +247,11 @@ function AbilityTimeline:START_PLAYER_COUNTDOWN(event, initiatedBy, timeRemainin
 
     if name then
         overrideName = private.getLocalisation("PullTimerBy") .. " " .. WrapTextInColorCode(name, color)
+    end
+
+    if private.PullTimerEventId and C_EncounterTimeline.GetEventState(private.PullTimerEventId) and C_EncounterTimeline.GetEventState(private.PullTimerEventId) ==Enum.EncounterTimelineEventState.Active then
+        C_EncounterTimeline.CancelScriptEvent(private.PullTimerEventId)
+        private.PullTimerEventId = nil
     end
 
     local eventinfo = {
@@ -265,8 +276,9 @@ function AbilityTimeline:CANCEL_PLAYER_COUNTDOWN()
 end
 
 function AbilityTimeline:CHALLENGE_MODE_RESET(event, mapID)
-    if not C_ChatInfo.InChatMessagingLockdown() and private.db.profile.enableDNDMessage then
+    if not C_ChatInfo.InChatMessagingLockdown() and private.db.profile.enableDNDMessage and private.db.global.active then
         C_ChatInfo.SendChatMessage(private.getLocalisation("CurrentlyDoingMplusKeyFallback"), "DND") 
+        private.db.global.active = false
     end
 end
 
@@ -286,6 +298,7 @@ function AbilityTimeline:CHALLENGE_MODE_START()
             end
         end
         C_ChatInfo.SendChatMessage(message, "DND") 
+        private.db.global.active = true
     end
 end
 
@@ -309,7 +322,7 @@ function AbilityTimeline:CHALLENGE_MODE_COMPLETED()
         private.Debug("Challenge mode completed Adding timer for key reroll: 5 minutes.")
         private.RerollKeyEventId = C_EncounterTimeline.AddScriptEvent(eventinfo)
     end
-    if private.db.profile.enableDNDMessage then
+    if private.db.profile.enableDNDMessage and private.db.global.active then
         C_ChatInfo.SendChatMessage("", "DND") 
     end
 end
@@ -319,7 +332,7 @@ function AbilityTimeline:ZONE_CHANGED_NEW_AREA()
         C_EncounterTimeline.CancelScriptEvent(private.RerollKeyEventId)
         private.RerollKeyEventId = nil
     end
-    if private.db.profile.enableDNDMessage then
+    if private.db.profile.enableDNDMessage and private.db.global.active then
         C_ChatInfo.SendChatMessage("", "DND") 
     end
 end
