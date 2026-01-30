@@ -685,7 +685,7 @@ Addon.DEFAULT_SETTINGS = {
       useScaling = false,
       ShowMouseoverHighlight = true,
       ForceHealthbarOnTarget = false,
-      ForceOutOfCombat = true,
+      ForceOutOfCombat = false,
       ForceNonAttackableUnits = true,
       ForceFriendlyInCombat = "NONE",
     },
@@ -1782,75 +1782,6 @@ Addon.DEFAULT_SETTINGS = {
           },
         }
       },
-	  {
-		Trigger = {
-		  Type = "Name",
-          Name = {
-            Input = "炸藥",
-            AsArray = {"炸藥",},
-          },
-        },
-		Enable = {
-		  UnitReaction = {
-		    FRIENDLY = false,
-		  },
-		  OutOfInstances = false,
-		},
-		name = "炸藥",
-		showIcon = false,
-		useColor = false,
-		overrideAlpha = false,
-		scale = 1.5,
-	  },
-	  {
-		scale = 1.2,
-		showIcon = false,
-		useColor = true,
-		Trigger = {
-		  Type = "Aura",
-		  Name = {
-		    Input = "",
-		  },
-		  Aura = {
-		    Input = "狂怒;激勵",
-			AsArray = {
-				"狂怒",
-				"激勵",
-			},
-		  },
-		},
-		overrideAlpha = true,
-		color = {
-		  g = 0.5019607843137255,
-		  b = 0,
-		},
-		Enable = {
-		  UnitReaction = {
-			FRIENDLY = false,
-		  },
-		},
-		allowMarked = false,
-	  },
-	  {
-		Trigger = {
-		  Type = "Name",
-          Name = {
-            Input = "幻影複製體",
-            AsArray = {"幻影複製體",},
-          },
-        },
-		Enable = {
-		  UnitReaction = {
-		    FRIENDLY = false,
-		  },
-		  OutOfInstances = false,
-		},
-		name = "幻影複製體",
-		showIcon = false,
-		useColor = false,
-		overrideAlpha = true,
-		scale = 0.7,
-	  },
 	},
     CVarsBackup = {}, -- Backup for CVars that should be restored when TP is disabled
     settings = {
