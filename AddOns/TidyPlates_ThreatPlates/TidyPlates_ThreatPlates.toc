@@ -31,7 +31,33 @@
 ## X-License: GNU General Public License
 ## X-Credits: danltiger (for Tidy Plates), Tosaido (for quest handling code from QuestMobs)
 
-## Title-zhTW: |cff0099FF[介面]|r (暫時停用) 威力血條
+## Title-zhTW: |cff0099FF[介面]|r 威力血條
 ## Notes-zhTW: Threat Plates|r |n|n威力強大、能夠根據仇恨值變化血條、提供更多自訂選項的血條。還可以幫指定的怪自訂血條樣式，讓血條更清楚明顯。|n|n|cffffd200使用方法: |r輸入 /tptp 或從Esc>選項>插件>血條，進行設定。
 ## Category-zhTW: 血條
-## DefaultState: disabled
+
+Libs\Libs.xml
+Locales\Locales.xml
+
+ThreatPlates.xml
+
+Init.lua
+Debug.lua
+Compatibility.lua
+Modules\Localization.lua
+EventService.lua
+CVarsManager.lua
+Media.lua
+Constants.lua
+Modules\Modules.xml
+Elements\Elements.xml
+Widgets\WidgetHandler.lua
+
+Nameplate.lua
+Database.lua
+Addon.lua
+Commands.lua
+AceGUIPreviewImage.lua
+Options.lua
+
+Styles\Styles.xml
+Widgets\Widgets.xml
