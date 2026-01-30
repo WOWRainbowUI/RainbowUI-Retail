@@ -295,7 +295,7 @@ local function createRow(self, reminder, index)
 
     local label = AceGUI:Create("InteractiveLabel")
     local name = reminder.name or reminder.spellName or private.getLocalisation("ReminderCreatorTitle")
-    label:SetText(string.format("%s - %s", name, formatTime(reminder.CombatTime)))
+    label:SetText(string.format("%s - %s", tostring(name), formatTime(reminder.CombatTime)))
     label:SetFullWidth(true)
     label:SetCallback("OnClick", function()
         self:OpenReminderDialog(index)
@@ -537,7 +537,11 @@ local function OpenReminderDialog(self, reminderIndex)
         local spellId = tonumber(spellIdText)
         local spellName, icon
         if spellId then
-            spellName, _, icon = C_Spell.GetSpellInfo(spellId)
+            local spellInfo = C_Spell.GetSpellInfo(spellId)
+            if spellInfo then
+                spellName = spellInfo.name
+                icon = spellInfo.iconID
+            end
         end
 
         if icon then
@@ -575,9 +579,9 @@ local function OpenReminderDialog(self, reminderIndex)
             return
         end
         local startTimeAfter = tonumber(startTimerAfterBox:GetText())
-        local spellId = tonumber(spellIdBox:GetText())
-        local spellInfo  = spellId and C_Spell.GetSpellInfo(spellId) or nil
-        local reminder = {
+        local spellId        = tonumber(spellIdBox:GetText())
+        local spellInfo      = spellId and C_Spell.GetSpellInfo(spellId) or nil
+        local reminder       = {
             name = nameBox:GetText() ~= "" and nameBox:GetText() or nil,
             spellId = spellId,
             spellName = spellInfo and spellInfo.name or nil,
@@ -642,17 +646,18 @@ local function loadReminders(self, encounterID)
 end
 
 local function SetEncounter(self, encounterParams)
-
     assert(type(encounterParams) == "table", "SetEncounter requires a table parameter")
-    assert(encounterParams.journalEncounterID and encounterParams.journalInstanceID or encounterParams.dungeonEncounterID,
+    assert(
+        encounterParams.journalEncounterID and encounterParams.journalInstanceID or encounterParams.dungeonEncounterID,
         "SetEncounter requires journalEncounterID, journalInstanceID, and dungeonEncounterID")
-    self.journalEncounterID = encounterParams.journalEncounterID 
-    self.journalInstanceID = encounterParams.journalInstanceID 
-    self.encounterID =encounterParams.dungeonEncounterID
+    self.journalEncounterID = encounterParams.journalEncounterID
+    self.journalInstanceID = encounterParams.journalInstanceID
+    self.encounterID = encounterParams.dungeonEncounterID
 
     local instanceName = EJ_GetInstanceInfo(self.journalInstanceID)
     local encounterName = EJ_GetEncounterInfo(self.journalEncounterID)
-    self.container:SetTitle(string.format("%s%s - %s", private.getLocalisation("TimingsEditorTitle"), instanceName or "", encounterName or ""))
+    self.container:SetTitle(string.format("%s%s - %s", private.getLocalisation("TimingsEditorTitle"), instanceName,
+        encounterName))
     -- Clear any existing pins/rows before loading new encounter data
     clearPins(self)
     clearReminderRows(self)
@@ -712,6 +717,18 @@ local function Constructor()
     addEntryButton:SetRelativeWidth(1)
     addEntryButton:SetHeight(20)
     controlsContainer:AddChild(addEntryButton)
+
+    local importButton = AceGUI:Create("Button")
+    importButton:SetText(private.getLocalisation("ReminderImportButton"))
+    importButton:SetRelativeWidth(1)
+    importButton:SetHeight(20)
+    controlsContainer:AddChild(importButton)
+
+    local exportButton = AceGUI:Create("Button")
+    exportButton:SetText(private.getLocalisation("ReminderExportButton"))
+    exportButton:SetRelativeWidth(1)
+    exportButton:SetHeight(20)
+    controlsContainer:AddChild(exportButton)
 
     -- encounter picker removed; use Options -> Encounter Browser to add encounters or the EJ button.
 
@@ -792,6 +809,7 @@ local function Constructor()
         rightContent = rightContent,
         leftContent = controlsContainer,
         addEntryButton = addEntryButton,
+        importButton = importButton,
         SetEncounter = SetEncounter,
         timeline = timeline,
         reminderList = reminderList,
@@ -806,6 +824,7 @@ local function Constructor()
         HandleTicks = HandleTicks,
         SetCombatDuration = SetCombatDuration,
         RefreshReminders = RefreshReminders,
+        LoadReminders = loadReminders,
         OpenReminderDialog = OpenReminderDialog,
         SaveReminders = SaveReminders,
         SortReminders = SortReminders,
@@ -816,6 +835,18 @@ local function Constructor()
     durationBox:SetCallback("OnEnterPressed", function(_, _, value)
         widget:SetCombatDuration(value)
         widget:RefreshReminders()
+    end)
+
+    importButton:SetCallback("OnClick", function()
+        if widget.encounterID then
+            private.showImportDialog(widget.encounterID, widget)
+        end
+    end)
+
+    exportButton:SetCallback("OnClick", function()
+        if widget.encounterID then
+            private.showExportDialog(widget.encounterID)
+        end
     end)
 
     return AceGUI:RegisterAsWidget(widget)

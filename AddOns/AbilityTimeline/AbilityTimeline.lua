@@ -1,5 +1,5 @@
-local addonName, private = ...
-local AceGUI = LibStub("AceGUI-3.0")
+local addonName, private               = ...
+local AceGUI                           = LibStub("AceGUI-3.0")
 
 local activeFrames                     = {}
 private.ENCOUNTER_TIMELINE_EVENT_ADDED = function(self, eventInfo, initialState)
@@ -9,13 +9,13 @@ private.ENCOUNTER_TIMELINE_EVENT_ADDED = function(self, eventInfo, initialState)
    private.createTimelineIcon(eventInfo)
 end
 
-private.TIMELINE_TICKS                         = { 5 }
-private.AT_THRESHHOLD                          = 0.8
-private.AT_THRESHHOLD_TIME                     = 10
+private.TIMELINE_TICKS                 = { 5 }
+private.AT_THRESHHOLD                  = 0.8
+private.AT_THRESHHOLD_TIME             = 10
 
-BIGICON_THRESHHOLD_TIME    = 5
+BIGICON_THRESHHOLD_TIME                = 5
 
-private.createTimelineIcon = function(eventInfo)
+private.createTimelineIcon             = function(eventInfo)
    local frame = AceGUI:Create("AtAbilitySpellIcon")
    frame:SetEventInfo(eventInfo)
    activeFrames[eventInfo.id] = frame
@@ -46,7 +46,7 @@ private.createTimelineIcon = function(eventInfo)
    -- frame.border:SetVertexColor(DebuffTypeColor[eventInfo.dispelType])
 end
 
-private.ENCOUNTER_STATES           = {
+private.ENCOUNTER_STATES               = {
    Active = 0,
    Paused = 1,
    Finished = 2,
@@ -54,41 +54,23 @@ private.ENCOUNTER_STATES           = {
    Blocked = 4,
 }
 
-local function removeFrame(eventID, animation)
+private.removeAtIconFrame = function(eventID, animation)
    local frame = activeFrames[eventID]
    if frame then
       frame.frame:Hide()
       frame:Release()
+      activeFrames[eventID] = nil
    end
 end
 
 private.ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED = function(self, eventID)
    local newState = C_EncounterTimeline.GetEventState(eventID)
    if newState == private.ENCOUNTER_STATES.Finished then
-      removeFrame(eventID, 'PlayFinishAnimation')
+      private.removeAtIconFrame(eventID, 'PlayFinishAnimation')
    elseif newState == private.ENCOUNTER_STATES.Canceled then
-      removeFrame(eventID, 'PlayCancelAnimation')
+      private.removeAtIconFrame(eventID, 'PlayCancelAnimation')
    elseif newState == private.ENCOUNTER_STATES.Paused then
    elseif newState == private.ENCOUNTER_STATES.Active then
-      local frame = activeFrames[eventID]
-      if frame then
-         local eventInfo = C_EncounterTimeline.GetEventInfo(eventID)
-         frame.Cooldown:Resume()
-         frame:SetPoint("CENTER", private.TIMELINE_FRAME.frame, "CENTER")
-         -- frame:SetScript("OnUpdate", function(self)
-         --    local timeElapsed = C_EncounterTimeline.GetEventTimeElapsed(eventID)
-         --    if not timeElapsed or timeElapsed < 0 then timeElapsed = eventInfo.duration end
-         --    local y = (timeElapsed / eventInfo.duration) * private.TIMELINE_FRAME:GetHeight() - frame:GetHeight() / 2
-         --    frame:SetPoint("CENTER", private.TIMELINE_FRAME, "TOP", 0, -y)
-         -- end)
-         -- if frame.SpellName then
-         --    frame.SpellName:Hide()
-         --    frame.SpellName = nil
-         -- end
-         frame.SpellName = frame:CreateFontString(nil, "OVERLAY", "SystemFont_Shadow_Med3")
-         frame.SpellName:SetPoint("RIGHT", frame, "LEFT", -10, 0)
-         frame.SpellName:SetText(eventInfo.spellName)
-      end
    end
 end
 

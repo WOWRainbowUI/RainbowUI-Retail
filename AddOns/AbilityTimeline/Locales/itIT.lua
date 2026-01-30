@@ -75,9 +75,17 @@ L["disableAllOnEncounterEnd"] = "Remove active Reminders"
 --[[Translation missing --]]
 L["disableAllOnEncounterEndDescription"] = "Disables all active reminder events when an encounter ends."
 --[[Translation missing --]]
+L["disableLoginMessage"] = "Disable Login Message"
+--[[Translation missing --]]
+L["disableLoginMessageDescription"] = "Disables the login message that shows how to open the Options."
+--[[Translation missing --]]
 L["DiscordDescription"] = "Join my Discord for support and updates"
 --[[Translation missing --]]
 L["DiseaseEffect"] = "Disease |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:39:57|t"
+--[[Translation missing --]]
+L["DispellTextColor"] = "Dispell Text Color"
+--[[Translation missing --]]
+L["DispellTextColorDescription"] = "Enables coloring the spell name text based on the dispell type."
 --[[Translation missing --]]
 L["DpsRole"] = "Dps |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:7:25|t"
 --[[Translation missing --]]
@@ -114,6 +122,18 @@ L["EnableTicks"] = "Enable Ticks"
 L["EnableTicksDescription"] = "Toggles the visibility of the timeline ticks."
 --[[Translation missing --]]
 L["EnrageEffect"] = "Enrage |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
+--[[Translation missing --]]
+L["ExportAsEncoded"] = "Export as Encoded"
+--[[Translation missing --]]
+L["ExportAsJSON"] = "Export as JSON"
+--[[Translation missing --]]
+L["ExportAsMRT"] = "Export as MRT"
+--[[Translation missing --]]
+L["ExportAsViserio"] = "Export as Viserio"
+--[[Translation missing --]]
+L["ExportCopyHint"] = "Use Ctrl+C to copy the exported text to your clipboard."
+--[[Translation missing --]]
+L["ExportDialogTitle"] = "Export Reminders"
 --[[Translation missing --]]
 L["GeneralSettings"] = "General Settings"
 --[[Translation missing --]]
@@ -153,6 +173,36 @@ L["IconZoom"] = "Icon Zoom"
 --[[Translation missing --]]
 L["IconZoomDescription"] = "Sets the zoom level of the spell icon."
 --[[Translation missing --]]
+L["ImportButton"] = "Import"
+--[[Translation missing --]]
+L["ImportDialogFreeOfCharge"] = "This Addon and its features is created in my free time and I do not make money off of it. If you paid for these reminders consider supporting the addon creation instead."
+--[[Translation missing --]]
+L["ImportDialogTitle"] = "Import Reminders"
+--[[Translation missing --]]
+L["ImportEncounterMismatch"] = "|cffff6600Warning: Import is for another encounter|r"
+--[[Translation missing --]]
+L["ImportError"] = "Import failed: %s"
+--[[Translation missing --]]
+L["ImportMergeMode"] = "Merge with existing reminders"
+--[[Translation missing --]]
+L["ImportMergeModeDescription"] = "If unchecked, existing reminders will be replaced with the imported ones."
+--[[Translation missing --]]
+L["ImportParseError"] = "Could not parse import format. Supported formats: Encoded, Viserio, MRT notes, or JSON"
+--[[Translation missing --]]
+L["ImportPopupTitle"] = "Importing Reminders"
+--[[Translation missing --]]
+L["ImportPreview"] = "%d reminder found"
+--[[Translation missing --]]
+L["ImportPreviewEmpty"] = "Paste import data to get started"
+--[[Translation missing --]]
+L["ImportPreviewFiltered"] = "%d of %d reminders for your character"
+--[[Translation missing --]]
+L["ImportRelevant"] = "Only import relevant reminders"
+--[[Translation missing --]]
+L["ImportRelevantDescription"] = "Only import reminders that are relevant for your Name/Nickname, role or specialization."
+--[[Translation missing --]]
+L["ImportTextPlaceholder"] = "Paste import data here..."
+--[[Translation missing --]]
 L["InvalidTextPosition"] = "Invalid text anchor position please alert the author."
 --[[Translation missing --]]
 L["InverseTravelDirection"] = "Inverse Travel Direction"
@@ -166,6 +216,8 @@ L["OpenIconEditor"] = "Edit Icons"
 L["OpenSelectedReminderEditor"] = "Open Reminder Editor"
 --[[Translation missing --]]
 L["OpenSelectedReminderEditorDescription"] = "Opens the Reminder Editor for the selected encounter."
+--[[Translation missing --]]
+L["OpenTextEditor"] = "Edit Texts"
 --[[Translation missing --]]
 L["PatreonDescription"] = "Support the development on Patreon"
 --[[Translation missing --]]
@@ -205,6 +257,10 @@ L["ReminderEditTitle"] = "Edit Reminder"
 --[[Translation missing --]]
 L["ReminderEffectTypesLabel"] = "Effect Types"
 --[[Translation missing --]]
+L["ReminderExportButton"] = "Export Reminders"
+--[[Translation missing --]]
+L["ReminderImportButton"] = "Import Reminders"
+--[[Translation missing --]]
 L["ReminderInvalidSpell"] = "Spell not found. Please enter a valid Spell ID."
 --[[Translation missing --]]
 L["ReminderInvalidTime"] = "Please enter a valid time in seconds."
@@ -218,6 +274,8 @@ L["reminderOptions"] = "Reminder Options"
 L["reminderOptionsDescription"] = "Easy access to create current Seasons Reminders"
 --[[Translation missing --]]
 L["ReminderSaveButton"] = "Save"
+--[[Translation missing --]]
+L["ReminderSendToChatButton"] = "Send to Group Chat"
 --[[Translation missing --]]
 L["ReminderSeverityLabel"] = "Severity"
 --[[Translation missing --]]
@@ -253,6 +311,8 @@ L["StartTimerAfterDescription"] = "Delay (in seconds) after which the reminder s
 --[[Translation missing --]]
 L["StartTimerAfterLabel"] = "Start Delay (seconds)"
 --[[Translation missing --]]
+L["SupportButton"] = "Support"
+--[[Translation missing --]]
 L["TankRole"] = "Tank |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:7:25:7:25|t"
 --[[Translation missing --]]
 L["TestIcon"] = "Test Icon"
@@ -278,6 +338,10 @@ L["TextBackgroundOffsetY"] = "Text Background Offset Y"
 L["TextBackgroundOffsetYDescription"] = "Sets the Y offset of the background relative to the text."
 --[[Translation missing --]]
 L["TextCopyHint"] = "Hint: Press Ctrl+C to copy the text to your clipboard."
+--[[Translation missing --]]
+L["TextDispellIcon"] = "Dispell Icon"
+--[[Translation missing --]]
+L["TextDispellIconDescription"] = "Toggles the dispell type icon in the text."
 --[[Translation missing --]]
 L["TextGrowDirectionDescription"] = "Sets the grow direction of different text elements."
 --[[Translation missing --]]

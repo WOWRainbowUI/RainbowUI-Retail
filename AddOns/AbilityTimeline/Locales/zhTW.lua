@@ -6,332 +6,201 @@ if L then
 
 
 -- LocalisationData[""] =
---[[Translation missing --]]
-L["AccessOptionsMessage"] = "Access the options via /at"
---[[Translation missing --]]
-L["AddCooldownColorChangeTooltip"] = "Adds a new cooldown color change."
---[[Translation missing --]]
-L["addonOptions"] = "Ability Timeline Options"
---[[Translation missing --]]
-L["BigIconMargin"] = "Margin"
---[[Translation missing --]]
-L["BigIconMarginDescription"] = "Sets the space between big icons."
---[[Translation missing --]]
-L["BleedEffect"] = "Bleed |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:158:192:32:64|t"
---[[Translation missing --]]
-L["CooldownColorChangeColor"] = "Color"
---[[Translation missing --]]
-L["CooldownColorChangeColorDescription"] = "Sets the color of the cooldown text when this timing is reached."
---[[Translation missing --]]
-L["CooldownColorChanges"] = "Cooldown Color Changes"
---[[Translation missing --]]
-L["CooldownColorChangesDescription"] = "Sets the color changes of the cooldown text based on remaining time."
---[[Translation missing --]]
-L["CooldownColorChangeTiming"] = "Timing"
---[[Translation missing --]]
-L["CooldownColorChangeTimingDescription"] = "Sets the timing (in seconds) when this color change should occur."
---[[Translation missing --]]
-L["CooldownFont"] = "Cooldown Font"
---[[Translation missing --]]
-L["CooldownFontDescription"] = "Sets the font of the cooldown text on the icon."
---[[Translation missing --]]
-L["CooldownFontSize"] = "Cooldown Font Size"
---[[Translation missing --]]
-L["CooldownFontSizeDescription"] = "Sets the font size of the cooldown text on the icon."
---[[Translation missing --]]
-L["CooldownGlowColor"] = "Glow Color"
---[[Translation missing --]]
-L["CooldownGlowColorDescription"] = "Sets the glow color for this cooldown timing."
---[[Translation missing --]]
-L["CooldownGlowType"] = "Glow Type"
---[[Translation missing --]]
-L["CooldownGlowTypeDescription"] = "Sets the glow type for this cooldown timing."
---[[Translation missing --]]
-L["CooldownSettings"] = "Cooldown Settings"
---[[Translation missing --]]
-L["CopyText"] = "Copy Text"
---[[Translation missing --]]
-L["CreatedReminders"] = "Created Reminders"
---[[Translation missing --]]
-L["CreatedRemindersDescription"] = "Select an encounter to edit its reminders."
---[[Translation missing --]]
-L["CurrentlyBusyInEncounter"] = "[BetterTimeline] Currently busy fighting %s <%s>!"
---[[Translation missing --]]
-L["CurrentlyDoingMplusKey"] = "[BetterTimeline] Currently busy doing Mythic +%i %s timer expires around %i!"
---[[Translation missing --]]
-L["CurrentlyDoingMplusKeyFallback"] = "[BetterTimeline] Currently busy doing a Mythic+ dungeon!"
---[[Translation missing --]]
-L["CurseEffect"] = "Curse |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:7:25:39:57|t"
---[[Translation missing --]]
-L["DeadlyEffect"] = "Deadly |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:135:153:7:25|t"
---[[Translation missing --]]
-L["debugMode"] = "Debug Mode"
---[[Translation missing --]]
-L["debugModeDescription"] = "Enables debug mode, which outputs additional information to the chat window."
---[[Translation missing --]]
-L["DefaultCooldownColor"] = "Cooldown Color"
---[[Translation missing --]]
-L["disableAllOnEncounterEnd"] = "Remove active Reminders"
---[[Translation missing --]]
-L["disableAllOnEncounterEndDescription"] = "Disables all active reminder events when an encounter ends."
---[[Translation missing --]]
-L["DiscordDescription"] = "Join my Discord for support and updates"
---[[Translation missing --]]
-L["DiseaseEffect"] = "Disease |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:39:57|t"
---[[Translation missing --]]
-L["DpsRole"] = "Dps |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:7:25|t"
---[[Translation missing --]]
-L["EditRemindersForEncounter"] = "Edit Reminders for Encounter"
---[[Translation missing --]]
-L["EditTimingsForEncounter"] = "Edit Timings for Encounter"
---[[Translation missing --]]
-L["EnableBigIcon"] = "Enable Big Icon"
---[[Translation missing --]]
-L["EnableBigIconDescription"] = "Toggles the visibility of the big icon frame."
---[[Translation missing --]]
-L["EnableCooldownGlowChange"] = "Enable Glow"
---[[Translation missing --]]
-L["EnableCooldownGlowChangeDescription"] = "Enables glow effect for this cooldown timing."
---[[Translation missing --]]
-L["EnableCooldownHighlight"] = "Cooldown Changes"
---[[Translation missing --]]
-L["EnableCooldownHighlightDescription"] = "Enables changes of the cooldown display based on remaining time."
---[[Translation missing --]]
-L["enableDNDMessage"] = "Enable 'Do Not Disturb' Message"
---[[Translation missing --]]
-L["enableDNDMessageDescription"] = "Enables setting a 'Do Not Disturb' message when entering an encounter or Mythic+ dungeon."
---[[Translation missing --]]
-L["enableKeyRerollTimer"] = "Enable Key Reroll Timer"
---[[Translation missing --]]
-L["enableKeyRerollTimerDescription"] = "Enables a timer for you to reroll your Mythic+ key after completing a dungeon."
---[[Translation missing --]]
-L["EnableTextHighlight"] = "Enable Text Highlight"
---[[Translation missing --]]
-L["EnableTextHighlightDescription"] = "Toggles the visibility of the text highlight frame."
---[[Translation missing --]]
-L["EnableTicks"] = "Enable Ticks"
---[[Translation missing --]]
-L["EnableTicksDescription"] = "Toggles the visibility of the timeline ticks."
---[[Translation missing --]]
-L["EnrageEffect"] = "Enrage |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
---[[Translation missing --]]
-L["GeneralSettings"] = "General Settings"
---[[Translation missing --]]
-L["GrowDirection"] = "Grow Direction"
---[[Translation missing --]]
-L["GrowDirectionDown"] = "Down"
---[[Translation missing --]]
-L["GrowDirectionLeft"] = "Left"
---[[Translation missing --]]
-L["GrowDirectionRight"] = "Right"
---[[Translation missing --]]
-L["GrowDirectionUp"] = "Up"
---[[Translation missing --]]
-L["HealerRole"] = "Healer |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:7:25|t"
---[[Translation missing --]]
-L["IconDangerIcon"] = "Enable Danger Icon"
---[[Translation missing --]]
-L["IconDangerIconDescription"] = "Displays a danger icon |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:135:153:7:25|t on the timeline for effects which are classified as Deadly by Blizzard."
---[[Translation missing --]]
-L["IconDispellBorder"] = "Dispell Border"
---[[Translation missing --]]
-L["IconDispellBorderDescription"] = "Toggles the dispell type border around the spell icon."
---[[Translation missing --]]
-L["IconDispellIcon"] = "Dispell Icon"
---[[Translation missing --]]
-L["IconDispellIconDescription"] = "Toggles the dispell type icon overlay on the spell icon."
---[[Translation missing --]]
-L["IconGrowDirectionDescription"] = "Sets the grow direction of different icon elements."
---[[Translation missing --]]
-L["IconPreview"] = "Icon Preview"
---[[Translation missing --]]
-L["IconSize"] = "Icon Size"
---[[Translation missing --]]
-L["IconSizeDescription"] = "Sets the size of the spell icon."
---[[Translation missing --]]
-L["IconZoom"] = "Icon Zoom"
---[[Translation missing --]]
-L["IconZoomDescription"] = "Sets the zoom level of the spell icon."
---[[Translation missing --]]
-L["InvalidTextPosition"] = "Invalid text anchor position please alert the author."
---[[Translation missing --]]
-L["InverseTravelDirection"] = "Inverse Travel Direction"
---[[Translation missing --]]
-L["InverseTravelDirectionDescription"] = "Inverts the travel direction of the timeline."
---[[Translation missing --]]
-L["MagicEffect"] = "Magic |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:231:249:7:25|t"
---[[Translation missing --]]
-L["OpenIconEditor"] = "Edit Icons"
---[[Translation missing --]]
-L["OpenSelectedReminderEditor"] = "Open Reminder Editor"
---[[Translation missing --]]
-L["OpenSelectedReminderEditorDescription"] = "Opens the Reminder Editor for the selected encounter."
---[[Translation missing --]]
-L["PatreonDescription"] = "Support the development on Patreon"
---[[Translation missing --]]
-L["PoisonEffect"] = "Poison |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:39:57|t"
---[[Translation missing --]]
-L["PullTimer"] = "Pull Timer"
---[[Translation missing --]]
-L["PullTimerBy"] = "Pull Timer by"
---[[Translation missing --]]
-L["ReadyCheck"] = "Ready Check"
---[[Translation missing --]]
-L["ReadyCheckBy"] = "Ready Check by"
---[[Translation missing --]]
-L["ReminderAddTitle"] = "Add New Reminder"
---[[Translation missing --]]
-L["reminderBrowser"] = "Reminder Browser"
---[[Translation missing --]]
-L["reminderBrowserDescription"] = "Browse and manage your created encounter reminders."
---[[Translation missing --]]
-L["ReminderCancelButton"] = "Cancel"
---[[Translation missing --]]
-L["ReminderCreatorAddButton"] = "Save Reminder"
---[[Translation missing --]]
-L["ReminderCreatorTimingLabel"] = "Time (seconds)"
---[[Translation missing --]]
-L["ReminderDelayDescription"] = "How long the reminder should continue to show besides the timeline after the initial time has passed."
---[[Translation missing --]]
-L["ReminderDelayLabel"] = "Duration to show"
---[[Translation missing --]]
-L["ReminderDeleteButton"] = "Delete"
---[[Translation missing --]]
-L["ReminderDurationLabel"] = "Encounter Duration (seconds)"
---[[Translation missing --]]
-L["ReminderEditButton"] = "Edit"
---[[Translation missing --]]
-L["ReminderEditTitle"] = "Edit Reminder"
---[[Translation missing --]]
-L["ReminderEffectTypesLabel"] = "Effect Types"
---[[Translation missing --]]
-L["ReminderInvalidSpell"] = "Spell not found. Please enter a valid Spell ID."
---[[Translation missing --]]
-L["ReminderInvalidTime"] = "Please enter a valid time in seconds."
---[[Translation missing --]]
-L["ReminderListEmpty"] = "No reminders yet. Add one to get started."
---[[Translation missing --]]
-L["ReminderNameLabel"] = "Name"
---[[Translation missing --]]
-L["reminderOptions"] = "Reminder Options"
---[[Translation missing --]]
-L["reminderOptionsDescription"] = "Easy access to create current Seasons Reminders"
---[[Translation missing --]]
-L["ReminderSaveButton"] = "Save"
---[[Translation missing --]]
-L["ReminderSeverityLabel"] = "Severity"
---[[Translation missing --]]
-L["ReminderSpellIdLabel"] = "Spell ID"
---[[Translation missing --]]
-L["RemoveCooldownColorChangeTooltip"] = "Removes this cooldown color change."
---[[Translation missing --]]
-L["RerollKey"] = "Reroll Mythic + Key"
---[[Translation missing --]]
-L["SpellIconSettings"] = "Spell Icon Settings"
---[[Translation missing --]]
-L["SpellnameBackground"] = "Enable Text Background"
---[[Translation missing --]]
-L["SpellnameBackgroundDescription"] = "Enables a background behind the spell name text."
---[[Translation missing --]]
-L["SpellnameBackgroundTexture"] = "Text Background Texture"
---[[Translation missing --]]
-L["SpellnameBackgroundTextureDescription"] = "Sets the texture of the background behind the spell name."
---[[Translation missing --]]
-L["SpellnameDefaultColor"] = "Default Text Color"
---[[Translation missing --]]
-L["SpellnameDefaultColorDescription"] = "Sets the default color of the text besides the icon when not impacted by specific information like the type of debuff e.G. Poison."
---[[Translation missing --]]
-L["SpellnameFont"] = "Font"
---[[Translation missing --]]
-L["SpellnameFontDescription"] = "Sets the font of the text besides the icon."
---[[Translation missing --]]
-L["SpellnameFontSize"] = "Font Size"
---[[Translation missing --]]
-L["SpellnameFontSizeDescription"] = "Sets the font size of the text besides the icon."
---[[Translation missing --]]
-L["StartTimerAfterDescription"] = "Delay (in seconds) after which the reminder should start to be displayed on the timeline once the encounter begins."
---[[Translation missing --]]
-L["StartTimerAfterLabel"] = "Start Delay (seconds)"
---[[Translation missing --]]
-L["TankRole"] = "Tank |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:7:25:7:25|t"
---[[Translation missing --]]
-L["TestIcon"] = "Test Icon"
---[[Translation missing --]]
-L["TextAnchor"] = "Text Anchor"
---[[Translation missing --]]
-L["TextAnchorBottom"] = "Bottom"
---[[Translation missing --]]
-L["TextAnchorDescription"] = "Sets the anchor position of the text relative to the icons."
---[[Translation missing --]]
-L["TextAnchorLeft"] = "Left"
---[[Translation missing --]]
-L["TextAnchorRight"] = "Right"
---[[Translation missing --]]
-L["TextAnchorTop"] = "Top"
---[[Translation missing --]]
-L["TextBackgroundOffsetX"] = "Text Background Offset X"
---[[Translation missing --]]
-L["TextBackgroundOffsetXDescription"] = "Sets the X offset of the background relative to the text."
---[[Translation missing --]]
-L["TextBackgroundOffsetY"] = "Text Background Offset Y"
---[[Translation missing --]]
-L["TextBackgroundOffsetYDescription"] = "Sets the Y offset of the background relative to the text."
---[[Translation missing --]]
-L["TextCopyHint"] = "Hint: Press Ctrl+C to copy the text to your clipboard."
---[[Translation missing --]]
-L["TextGrowDirectionDescription"] = "Sets the grow direction of different text elements."
---[[Translation missing --]]
-L["TextHighlightMargin"] = "Margin"
---[[Translation missing --]]
-L["TextHighlightMarginDescription"] = "Sets the space between text highlights."
---[[Translation missing --]]
-L["TextOffsetX"] = "Text Offset X"
---[[Translation missing --]]
-L["TextOffsetXDescription"] = "Sets the X offset of the text relative to the icon."
---[[Translation missing --]]
-L["TextOffsetY"] = "Text Offset Y"
---[[Translation missing --]]
-L["TextOffsetYDescription"] = "Sets the Y offset of the text relative to the icon."
---[[Translation missing --]]
-L["TextSettings"] = "Text Settings"
---[[Translation missing --]]
-L["TimelineNotEnabledMessage"] = "The timeline feature is not enabled."
---[[Translation missing --]]
-L["TimelineNotSupportedMessage"] = "The timeline feature is not supported on this version."
---[[Translation missing --]]
-L["TimelineOtherSize"] = "Timeline Other Size"
---[[Translation missing --]]
-L["TimelineOtherSizeDescription"] = "Sets the other Size of the timeline. (Width on Horizontal, Height on Vertical)"
---[[Translation missing --]]
-L["TimelineTexture"] = "Timeline Texture"
---[[Translation missing --]]
-L["TimelineTextureColor"] = "Timeline Texture Color"
---[[Translation missing --]]
-L["TimelineTextureColorDescription"] = "Sets the color of the timeline background. Note: Not all textures support coloring and might only use the alpha. For Example the default Blizzard-Dialog-Background does NOT use the color."
---[[Translation missing --]]
-L["TimelineTextureDescription"] = "Sets the texture of the timeline background."
---[[Translation missing --]]
-L["TimelineTravelSize"] = "Timeline Travel Size"
---[[Translation missing --]]
-L["TimelineTravelSizeDescription"] = "Sets the travel Size of the timeline. (Height on Horizontal, Width on Vertical)"
---[[Translation missing --]]
-L["TimingsEditorAddEntryButton"] = "Add Reminder"
---[[Translation missing --]]
-L["TimingsEditorTitle"] = "Timings Editor for: "
---[[Translation missing --]]
-L["TravelDirection"] = "Travel Direction"
---[[Translation missing --]]
-L["TravelDirectionDescription"] = "Travel Direction of the timeline."
---[[Translation missing --]]
-L["TravelDirectionHorizontal"] = "Horizontal"
---[[Translation missing --]]
-L["TravelDirectionVertical"] = "Vertical"
---[[Translation missing --]]
-L["useAudioCountdowns"] = "Use Audio Countdowns"
---[[Translation missing --]]
-L["useAudioCountdownsDescription"] = "Enables audio countdowns of the last 5 seconds for upcoming events."
---[[Translation missing --]]
-L["WrongWoWVersionMessage"] = "AbilityTimeline requires WoW version 12.0.0 (Midnight) or higher to run."
+L["AccessOptionsMessage"] = "輸入 /at 命令開啟選項"
+L["AddCooldownColorChangeTooltip"] = "添加一個新的冷卻顏色變化。"
+L["addonOptions"] = "技能時間線選項"
+L["BigIconMargin"] = "間距"
+L["BigIconMarginDescription"] = "設定大圖示的間隔距離。"
+L["BleedEffect"] = "流血 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:158:192:32:64|t"
+L["CooldownColorChangeColor"] = "顏色"
+L["CooldownColorChangeColorDescription"] = "設定在到達此計時的冷卻文字顏色。"
+L["CooldownColorChanges"] = "冷卻時間顏色變化"
+L["CooldownColorChangesDescription"] = "根據剩餘時間設定冷卻時間文字的顏色變化。"
+L["CooldownColorChangeTiming"] = "計時"
+L["CooldownColorChangeTimingDescription"] = "設定應進行此顏色變化的計時（以秒為單位）。"
+L["CooldownFont"] = "冷卻字體"
+L["CooldownFontDescription"] = "設置圖示上冷卻文字的字體。"
+L["CooldownFontSize"] = "冷卻文字大小"
+L["CooldownFontSizeDescription"] = "設定圖示上冷卻文字的字體大小。"
+L["CooldownGlowColor"] = "光暈顏色"
+L["CooldownGlowColorDescription"] = "設定此冷卻計時的光暈顏色。"
+L["CooldownGlowType"] = "光暈類型"
+L["CooldownGlowTypeDescription"] = "設定此冷卻計時的光暈類型。"
+L["CooldownSettings"] = "冷卻設定"
+L["CopyText"] = "複製文字"
+L["CreatedReminders"] = "已建立的提醒"
+L["CreatedRemindersDescription"] = "選擇一個首領戰以編輯其提醒。"
+L["CurrentlyBusyInEncounter"] = "[BetterTimeline] 目前正忙於與%s奮戰 <%s>！"
+L["CurrentlyDoingMplusKey"] = "[BetterTimeline] 目前正忙於傳奇+%i %s 時間將於%i後超過！"
+L["CurrentlyDoingMplusKeyFallback"] = "[BetterTimeline] 目前正忙於通關傳奇+地下城！"
+L["CurseEffect"] = "詛咒 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:7:25:39:57|t"
+L["DeadlyEffect"] = "滅團技 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:135:153:7:25|t"
+L["debugMode"] = "偵錯模式"
+L["debugModeDescription"] = "啟用偵錯模式，將於聊天視窗發出額外訊息。"
+L["DefaultCooldownColor"] = "冷卻顏色"
+L["disableAllOnEncounterEnd"] = "移除現有的提醒"
+L["disableAllOnEncounterEndDescription"] = "在首領戰結束時，停用全部現有的提醒事件。"
+L["disableLoginMessage"] = "停用登入訊息"
+L["disableLoginMessageDescription"] = "停用在登入時顯示如何開啟選項的訊息。"
+L["DiscordDescription"] = "加入我的Discord以獲取支援與更新"
+L["DiseaseEffect"] = "疾病 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:39:57|t"
+L["DispellTextColor"] = "驅散文字顏色"
+L["DispellTextColorDescription"] = "可根據驅散類型為法術名稱文字著色。"
+L["DpsRole"] = "傷害輸出 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:7:25|t"
+L["EditRemindersForEncounter"] = "編輯首領戰提醒"
+L["EditTimingsForEncounter"] = "編輯首領戰計時"
+L["EnableBigIcon"] = "啟用大圖示"
+L["EnableBigIconDescription"] = "切換大圖示框架的可見性。"
+L["EnableCooldownGlowChange"] = "啟用光暈"
+L["EnableCooldownGlowChangeDescription"] = "為此冷卻計時啟用光暈效果。"
+L["EnableCooldownHighlight"] = "冷卻變化"
+L["EnableCooldownHighlightDescription"] = "根據剩餘時間啟用冷卻顯示的更改。"
+L["enableDNDMessage"] = "啟用 '請勿打擾' 訊息"
+L["enableDNDMessageDescription"] = "當進入首領戰或傳奇+地下城時，啟用 '請勿打擾'訊息的設定。"
+L["enableKeyRerollTimer"] = "啟用鑰石重骰計時器"
+L["enableKeyRerollTimerDescription"] = "啟用一個計時器，用於在完成一個傳奇地下城後重骰你的傳奇鑰石。"
+L["EnableTextHighlight"] = "啟用文字高亮"
+L["EnableTextHighlightDescription"] = "切換文字高亮框架的可見性。"
+L["EnableTicks"] = "啟用計時刻度"
+L["EnableTicksDescription"] = "切換時間線計時刻度的可見性。"
+L["EnrageEffect"] = "激怒 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
+L["ExportAsEncoded"] = "以編碼方式匯出"
+L["ExportAsJSON"] = "以JSON方式匯出"
+L["ExportAsMRT"] = "以MRT方式匯出"
+L["ExportAsViserio"] = "以Viserio方式匯出"
+L["ExportCopyHint"] = "使用 Ctrl+C 來複製匯出的文字到你的剪貼簿。"
+L["ExportDialogTitle"] = "匯出提醒"
+L["GeneralSettings"] = "通用設定"
+L["GrowDirection"] = "延展方向"
+L["GrowDirectionDown"] = "下"
+L["GrowDirectionLeft"] = "左"
+L["GrowDirectionRight"] = "右"
+L["GrowDirectionUp"] = "上"
+L["HealerRole"] = "治療 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:7:25|t"
+L["IconDangerIcon"] = "啟用'危險'圖示"
+L["IconDangerIconDescription"] = "在時間線上被暴雪指定為'致命'的效果，顯示一個危險圖示 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:135:153:7:25|t。"
+L["IconDispellBorder"] = "驅散邊框"
+L["IconDispellBorderDescription"] = "切換法術圖示周圍的驅散類型邊框。"
+L["IconDispellIcon"] = "驅散圖示"
+L["IconDispellIconDescription"] = "切換法術圖示上的驅散類型圖層。"
+L["IconGrowDirectionDescription"] = "設定不同圖示元素的延展方向。"
+L["IconPreview"] = "圖示預覽"
+L["IconSize"] = "圖示大小"
+L["IconSizeDescription"] = "設定法術圖示的大小。"
+L["IconZoom"] = "圖示縮放"
+L["IconZoomDescription"] = "設定法術圖示的縮放等級。"
+L["ImportButton"] = "匯入"
+L["ImportDialogFreeOfCharge"] = "這個插件及其功能都是我空閒時間製作的，我並不從中賺錢。如果你付費購買這些提醒，建議考慮支持插件的創建。"
+L["ImportDialogTitle"] = "匯入提醒"
+L["ImportEncounterMismatch"] = "|cffff6600警告：匯入的是其他的首領戰|r"
+L["ImportError"] = "匯入失敗：%s"
+L["ImportMergeMode"] = "與現有提醒合併"
+L["ImportMergeModeDescription"] = "如果未勾選，現有的提醒將被匯入的提醒取代。"
+L["ImportParseError"] = "無法解析匯入格式。支援格式：Encoded、Viserio、MRT筆記或JSON"
+L["ImportPopupTitle"] = "匯入提醒中"
+L["ImportPreview"] = "發現 %d 提醒"
+L["ImportPreviewEmpty"] = "貼上匯入資料來開始"
+L["ImportPreviewFiltered"] = "在你的角色有 %d之%d 提醒"
+L["ImportRelevant"] = "只匯入相關的提醒"
+L["ImportRelevantDescription"] = "只匯入與你的名字/暱稱、職責或專精相關的提醒。"
+L["ImportTextPlaceholder"] = "在此貼上匯入資料..."
+L["InvalidTextPosition"] = "文字定位點位置無效，請通知作者。"
+L["InverseTravelDirection"] = "反轉時間線方向"
+L["InverseTravelDirectionDescription"] = "反轉時間線的行進方向。"
+L["MagicEffect"] = "魔法 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:231:249:7:25|t"
+L["OpenIconEditor"] = "編輯圖示"
+L["OpenSelectedReminderEditor"] = "開啟提醒編輯器"
+L["OpenSelectedReminderEditorDescription"] = "為所選首領戰開啟提醒編輯器。"
+L["OpenTextEditor"] = "編輯文字"
+L["PatreonDescription"] = "在Patreon上支援開發"
+L["PoisonEffect"] = "中毒 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:39:57|t"
+L["PullTimer"] = "開怪計時器"
+L["PullTimerBy"] = "開怪倒數計時："
+L["ReadyCheck"] = "準備確認"
+L["ReadyCheckBy"] = "準備確認："
+L["ReminderAddTitle"] = "加入新提醒"
+L["reminderBrowser"] = "提醒瀏覽器"
+L["reminderBrowserDescription"] = "瀏覽與管理你建立的首領戰提醒。"
+L["ReminderCancelButton"] = "取消"
+L["ReminderCreatorAddButton"] = "儲存提醒"
+L["ReminderCreatorTimingLabel"] = "時間 (秒)"
+L["ReminderDelayDescription"] = "提醒訊息在初始時間結束後，應在時間線旁持續顯示多長時間。"
+L["ReminderDelayLabel"] = "顯示的持續時間"
+L["ReminderDeleteButton"] = "刪除"
+L["ReminderDurationLabel"] = "首領戰持續時間 (秒)"
+L["ReminderEditButton"] = "編輯"
+L["ReminderEditTitle"] = "編輯提醒"
+L["ReminderEffectTypesLabel"] = "效果類型"
+L["ReminderExportButton"] = "匯出提醒"
+L["ReminderImportButton"] = "匯入提醒"
+L["ReminderInvalidSpell"] = "為找到法術，請輸入有效的法術ID。"
+L["ReminderInvalidTime"] = "請輸入有效時間 (以秒計)。"
+L["ReminderListEmpty"] = "暫無提醒，請加入一個來開始。"
+L["ReminderNameLabel"] = "名稱"
+L["reminderOptions"] = "提醒選項"
+L["reminderOptionsDescription"] = "快速訪問以建立當前賽季的提醒"
+L["ReminderSaveButton"] = "儲存"
+L["ReminderSendToChatButton"] = "發送到團隊聊天"
+L["ReminderSeverityLabel"] = "嚴重程度"
+L["ReminderSpellIdLabel"] = "法術ID"
+L["RemoveCooldownColorChangeTooltip"] = "移除此冷卻顏色變化。"
+L["RerollKey"] = "重骰傳奇+鑰石"
+L["SpellIconSettings"] = "法術圖示設定"
+L["SpellnameBackground"] = "啟用文字背景"
+L["SpellnameBackgroundDescription"] = "啟用在法術名稱文字背後的背景。"
+L["SpellnameBackgroundTexture"] = "文字背景材質"
+L["SpellnameBackgroundTextureDescription"] = "設定法術名稱後面背景的材質。"
+L["SpellnameDefaultColor"] = "預設文字顏色"
+L["SpellnameDefaultColorDescription"] = "設定圖示旁文字的預設顏色，當不受特定資訊影響時，例如中毒。"
+L["SpellnameFont"] = "字體"
+L["SpellnameFontDescription"] = "設定圖示旁文字的字體。"
+L["SpellnameFontSize"] = "字體大小"
+L["SpellnameFontSizeDescription"] = "設定圖示旁文字的字體大小。"
+L["StartTimerAfterDescription"] = "首領戰開始後，提醒訊息在時間軸上開始顯示前的延遲時間（秒）。"
+L["StartTimerAfterLabel"] = "開始延遲 (秒)"
+L["SupportButton"] = "支援"
+L["TankRole"] = "坦克 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:7:25:7:25|t"
+L["TestIcon"] = "測試圖示"
+L["TextAnchor"] = "文字定位點"
+L["TextAnchorBottom"] = "底部"
+L["TextAnchorDescription"] = "設定文字相對於圖示的定位點位置。"
+L["TextAnchorLeft"] = "左側"
+L["TextAnchorRight"] = "右側"
+L["TextAnchorTop"] = "頂部"
+L["TextBackgroundOffsetX"] = "文字背景X偏移"
+L["TextBackgroundOffsetXDescription"] = "設定背景相對於文字的X軸位置。"
+L["TextBackgroundOffsetY"] = "文字背景Y偏移"
+L["TextBackgroundOffsetYDescription"] = "設定背景相對於文字的Y軸位置。"
+L["TextCopyHint"] = "提示：按下Ctrl+C可將文字複製到剪貼簿。"
+L["TextDispellIcon"] = "驅散圖示"
+L["TextDispellIconDescription"] = "切換文字中的驅散類型圖示。"
+L["TextGrowDirectionDescription"] = "設定不同文字元素的延展方向。"
+L["TextHighlightMargin"] = "邊距"
+L["TextHighlightMarginDescription"] = "設定文字高亮之間的間距。"
+L["TextOffsetX"] = "文字X偏移"
+L["TextOffsetXDescription"] = "設定文字相對於圖示的X軸位置。"
+L["TextOffsetY"] = "文字Y偏移"
+L["TextOffsetYDescription"] = "設定文字相對於圖示的Y軸位置。"
+L["TextSettings"] = "文字設定"
+L["TimelineNotEnabledMessage"] = "時間線功能尚未啟用。"
+L["TimelineNotSupportedMessage"] = "此版本不支援時間線功能。"
+L["TimelineOtherSize"] = "時間線次要尺寸"
+L["TimelineOtherSizeDescription"] = "設置時間線的次要尺寸。（水平方向時為寬度，垂直方向時為高度）"
+L["TimelineTexture"] = "時間線材質"
+L["TimelineTextureColor"] = "時間線材質顏色"
+L["TimelineTextureColorDescription"] = "設定時間線背景的顏色。注意：並非所有材質都支援著色，可能只使用到透明圖層。例如，預設的暴雪對話背景不會使用該顏色。"
+L["TimelineTextureDescription"] = "設定時間線背景的材質。"
+L["TimelineTravelSize"] = "時間線行進尺寸"
+L["TimelineTravelSizeDescription"] = "設置時間線的行進尺寸。（水平方向時為高度，垂直方向時為寬度）"
+L["TimingsEditorAddEntryButton"] = "新增提醒"
+L["TimingsEditorTitle"] = "計時編輯器："
+L["TravelDirection"] = "行進方向"
+L["TravelDirectionDescription"] = "時間線的行進方向。"
+L["TravelDirectionHorizontal"] = "水平"
+L["TravelDirectionVertical"] = "垂直"
+L["useAudioCountdowns"] = "使用語音倒數計時"
+L["useAudioCountdownsDescription"] = "為即將到來的事件啟用最後5秒的語音倒數計時。"
+L["WrongWoWVersionMessage"] = "技能時間線插件需要《魔獸世界》12.0.0（至暗之夜）或更高版本才能運行。"
 
 
 

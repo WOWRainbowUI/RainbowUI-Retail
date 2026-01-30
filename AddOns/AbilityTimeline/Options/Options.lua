@@ -48,8 +48,12 @@ private.options = {
             local stored = private.db.profile.reminders[sel]
             local first = stored[1]
             if first then
-              local params = { journalEncounterID = first.journalEncounterID, journalInstanceID = first.journalInstanceID, dungeonEncounterID =
-              tonumber(sel) }
+              local params = {
+                journalEncounterID = first.journalEncounterID,
+                journalInstanceID = first.journalInstanceID,
+                dungeonEncounterID =
+                    tonumber(sel)
+              }
               private.openTimingsEditor(params)
             end
           end,
@@ -65,7 +69,18 @@ private.options = {
       set = function(info, val) private.db.profile.debugMode = val end, --Sets value of SavedVariables depending on toggles
       get = function(info)
         return private.db.profile
-        .debugMode                                                      --Sets value of toggles depending on SavedVariables
+            .debugMode --Sets value of toggles depending on SavedVariables
+      end,
+    },
+    disableLoginMessage = {
+      name = private.getLocalisation("disableLoginMessage"),
+      desc = private.getLocalisation("disableLoginMessageDescription"),
+      order = 31,
+      width = "full",
+      type = "toggle",
+      set = function(info, val) private.db.profile.disableLoginMessage = val end, --Sets value of SavedVariables depending on toggles
+      get = function(info)
+        return private.db.profile.disableLoginMessage --Sets value of toggles depending on SavedVariables
       end,
     },
     disableAllOnEncounterEnd = {
@@ -87,7 +102,8 @@ private.options = {
       type = "toggle",
       set = function(info, val) private.db.profile.useAudioCountdowns = val end, --Sets value of SavedVariables depending on toggles
       get = function(info)
-        return private.db.profile.useAudioCountdowns                             --Sets value of toggles depending on SavedVariables
+        return private.db.profile
+        .useAudioCountdowns                                                      --Sets value of toggles depending on SavedVariables
       end,
     },
     enableKeyRerollTimer = {
@@ -98,7 +114,8 @@ private.options = {
       type = "toggle",
       set = function(info, val) private.db.profile.enableKeyRerollTimer = val end, --Sets value of SavedVariables depending on toggles
       get = function(info)
-        return private.db.profile.enableKeyRerollTimer                             --Sets value of toggles depending on SavedVariables
+        return private.db.profile
+        .enableKeyRerollTimer                                                      --Sets value of toggles depending on SavedVariables
       end,
     },
     enableDNDMessage = {
@@ -109,7 +126,8 @@ private.options = {
       type = "toggle",
       set = function(info, val) private.db.profile.enableDNDMessage = val end, --Sets value of SavedVariables depending on toggles
       get = function(info)
-        return private.db.profile.enableDNDMessage                             --Sets value of toggles depending on SavedVariables
+        return private.db.profile
+        .enableDNDMessage                                                      --Sets value of toggles depending on SavedVariables
       end,
     },
     encounterOptions = {
@@ -152,9 +170,14 @@ private.buildInstanceOptions = function()
             type = "execute",
             order = 0,
             func = function()
-              local params = { journalEncounterID = journalEncounterID, journalInstanceID = journalInstanceID, dungeonEncounterID =
-              dungeonEncounterID, name = EncounterName }
-              private.openTimingsEditor(params)         
+              local params = {
+                journalEncounterID = journalEncounterID,
+                journalInstanceID = journalInstanceID,
+                dungeonEncounterID =
+                    dungeonEncounterID,
+                name = EncounterName
+              }
+              private.openTimingsEditor(params)
             end
           },
         }

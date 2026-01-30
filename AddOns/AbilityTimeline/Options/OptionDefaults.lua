@@ -4,8 +4,8 @@ private.OptionDefaults = {
 	profile = {
 		debugMode = false,
 		useAudioCountdowns = true,
-		enableKeyRerollTimer = true,	
-		icon_settings ={
+		enableKeyRerollTimer = true,
+		icon_settings = {
 			size = 50,
 			iconMargin = 5,
 		},
@@ -15,5 +15,6 @@ private.OptionDefaults = {
 		},
 		disableAllOnEncounterEnd = true,
 		enableDNDMessage = true,
+		disableLoginMessage = false,
 	}
 }

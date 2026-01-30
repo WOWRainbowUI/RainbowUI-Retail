@@ -12,7 +12,9 @@ private.createReminders = function(encounterID)
         local duration = tonumber(reminder.CombatTime) or 0
         local delay = tonumber(reminder.CombatTimeDelay) or 0
         local spellId = reminder.spellId or 0
-        local spellName, _, icon = C_Spell.GetSpellInfo(spellId)
+        local spellInfo = C_Spell.GetSpellInfo(spellId)
+        local spellName = spellInfo and spellInfo.name
+        local icon = spellInfo and spellInfo.iconID
         if reminder.StartTimerAfter and reminder.StartTimerAfter > 0 then
             local eventinfo = {
                 duration = duration - reminder.StartTimerAfter,
@@ -44,7 +46,7 @@ private.createReminders = function(encounterID)
     end
 end
 
-private.cancelSheduledReminders= function()
+private.cancelSheduledReminders = function()
     for _, timerObject in ipairs(private.sheduledReminders) do
         if timerObject and timerObject.Cancel then
             timerObject:Cancel()
