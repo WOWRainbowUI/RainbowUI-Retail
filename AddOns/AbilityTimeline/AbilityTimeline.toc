@@ -24,6 +24,7 @@
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r 首領時間線增強
 ## Notes-zhTW: AbilityTimeline |n|n優化並擴展遊戲內建的首領時間線顯示功能。它的特色是和 WA 的風格一致，同時加入更多實用的提示與自訂選項，讓玩家在團隊副本或地城中能更清晰掌握技能冷卻與戰鬥節奏。|n|cffffd200使用方法：|r從Esc>選項>插件>首領時間線，進行設定。
 ## X-Category-zhTW: 戰鬥
+## DefaultState: disabled
 
 #Libs
 Libs\LibEditMode\embed.xml

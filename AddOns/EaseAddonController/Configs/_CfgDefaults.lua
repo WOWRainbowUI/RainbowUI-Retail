@@ -26,7 +26,7 @@ D["AAgmFonts"] = {
 	modifier = "彩虹ui",
 };
 D["AbilityTimeline"] = {
-	defaultEnable = 1,
+	defaultEnable = 0,
 	tags = { "BOSSRAID" }, 
 	title = "首領時間線增強",
 	desc = "優化並擴展遊戲內建的首領時間線顯示功能。它的特色是和 WA 的風格一致，同時加入更多實用的提示與自訂選項，讓玩家在團隊副本或地城中能更清晰掌握技能冷卻與戰鬥節奏。`",
