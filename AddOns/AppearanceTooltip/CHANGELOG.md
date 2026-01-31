@@ -1,7 +1,9 @@
 # AppearanceTooltip
 
-## [v77](https://github.com/kemayo/wow-appearancetooltip/tree/v77) (2026-01-29)
-[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v76...v77) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
+## [v78](https://github.com/kemayo/wow-appearancetooltip/tree/v78) (2026-01-30)
+[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v77...v78) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
 
-- Make separate ModelScenes for each type to avoid the zoom getting weird  
-    It was mostly when you moved between decor and other types.  
+- Adjust how the model is being attached to avoid secret errors  
+    Refs #29  
+- Add some demo buttons to the config for easier testing  
+- Fix the auto-spinning option for mount/pet/decor previews  
