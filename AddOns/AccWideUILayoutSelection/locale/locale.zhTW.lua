@@ -168,8 +168,23 @@ L["ACCWUI_UTILITY_TXT_ZONEMAPPOS"] = "將區域地圖移動到螢幕中央。如
 
 L["ACCWUI_JOINING_CHANNEL"] = "正在自動加入 %s 頻道。輸入 %s 進行設定。"
 L["ACCWUI_LEAVING_CHANNEL"] = "正在自動離開 %s 頻道。輸入 %s 進行設定。"
+L["ACCWUI_UTILITY_BTN_RESETDMGMETER"] = "重置傷害統計設定"
+L["ACCWUI_UTILITY_TXT_RESETDMGMETER"] = "將所有傷害統計設定清除並恢復為預設值。當視窗卡在螢幕角落無法移動時特別有用。\n\n此操作將會重新載入你的介面 (/reload)。"
 
 L["ACCWUI_ABOUT"] = "%s 作者 %s - 獻給 Petrel <3"
 L["ACCWUI_ISSUES"] = "有問題？請造訪 https://github.com/NinerBull/AccWideUILayoutSelection/issues"
 
 L["ACCWUI_WAIT_TILL_COMBAT"] = "無法在戰鬥中載入設定，將在戰鬥結束後載入。"
+L["ACCWUI_WAIT_TILL_COMBAT2"] = "戰鬥中無法執行此操作。"
+
+L["ACCWUI_IE_IMPORT"] = "匯入設定檔"
+L["ACCWUI_IE_EXPORT"] = "匯出設定檔"
+L["ACCWUI_IE_IMPORTEXPORT"] = "匯入/匯出設定檔"
+L["ACCWUI_IE_IMPORTSTRING"] = "匯入設定檔字串"
+L["ACCWUI_IE_IMPORTSTRING_DESC"] = "允許你透過他人分享的文字字串來匯入設定檔。"
+L["ACCWUI_IE_EXPORTSTRING"] = "匯出設定檔字串"
+L["ACCWUI_IE_EXPORTSTRING_DESC"] = "允許你將目前的設定檔匯出為文字字串，並分享給其他人。"
+L["ACCWUI_IE_EXPORT_DESC"] = "你可以複製下方的字串並貼到網路上，與其他人分享目前的設定檔，或匯入到你擁有的另一個魔獸世界帳號。"
+L["ACCWUI_IE_IMPORT_DESC"] = "將匯入字串貼到下方的框中並點擊「匯入字串」。這會將其設定匯入到你目前選擇的設定檔，並覆蓋原有設定。"
+L["ACCWUI_IE_IMPORT_SUCCESS"] = "匯入完成！"
+L["ACCWUI_IE_IMPORT_FAIL"] = "匯入失敗。你輸入的字串無效。"

@@ -850,11 +850,39 @@ function AccWideUIAceAddon:GenerateOptions()
 							},
 						}
 					},
+					profileImportExport = {
+						type = "group",
+						name = L["ACCWUI_IE_IMPORTEXPORT"],
+						inline = true,
+						order = 3,
+						args = {
+							btnImportProfile = {
+								type = "execute",
+								name = L["ACCWUI_IE_IMPORTSTRING"],
+								desc = L["ACCWUI_IE_IMPORTSTRING_DESC"],
+								width = thisCheckboxWidth2,
+								order = 1,
+								func = function()
+									self:ImportProfile()
+								end,
+							},
+							btnExportProfile = {
+								type = "execute",
+								name = L["ACCWUI_IE_EXPORTSTRING"],
+								desc = L["ACCWUI_IE_EXPORTSTRING_DESC"],
+								width = thisCheckboxWidth2,
+								order = 2,
+								func = function()
+									self:ExportProfile()
+								end,
+							},
+						}
+					},
 					debug = {
 						type = "group",
 						name = L["ACCWUI_DEBUG_TITLE"],
 						inline = true,
-						order = 3,
+						order = 4,
 						args = {
 							printWelcomeMessage = {
 								type = "toggle",
@@ -891,13 +919,13 @@ function AccWideUIAceAddon:GenerateOptions()
 						type = "group",
 						name = L["ACCWUI_UTILITY_TITLE"],
 						inline = true,
-						order = 4,
+						order = 5,
 						args = {
 							btnResetZoneMapPos = {
 								type = "execute",
 								name = L["ACCWUI_UTILITY_BTN_ZONEMAPPOS"],
 								desc = L["ACCWUI_UTILITY_TXT_ZONEMAPPOS"],
-								width = 2,
+								width = thisCheckboxWidth2,
 								order = 1,
 								func = function()
 									BattlefieldMapTab:ClearAllPoints()
@@ -905,6 +933,20 @@ function AccWideUIAceAddon:GenerateOptions()
 									--BattlefieldMapTab:Show()
 									BattlefieldMapFrame:RefreshAlpha()
 									BattlefieldMapFrame:UpdateUnitsVisibility()
+								end,
+							},
+							btnResetDamageMeter = {
+								type = "execute",
+								name = L["ACCWUI_UTILITY_BTN_RESETDMGMETER"],
+								desc = L["ACCWUI_UTILITY_TXT_RESETDMGMETER"],
+								width = thisCheckboxWidth2,
+								order = 2,
+								func = function()
+									C_CVar.SetCVar("damageMeterEnabled", 0)
+									self:ForceSaveSettings()
+									DamageMeterPerCharacterSettings = nil
+									self.db.profile.syncData.damageMeter.special = {}
+									C_UI.Reload()
 								end,
 							},
 						}
@@ -977,6 +1019,7 @@ function AccWideUIAceAddon:GenerateOptions()
 		self.optionsData.args.settings.args.syncToggles.args.groupCombat.args.assistedCombat = nil
 		self.optionsData.args.settings.args.syncToggles.args.groupSocial.args.locationVisibility = nil
 		self.optionsData.args.settings.args.syncToggles.args.groupSocial.args.blockNeighborhoodInvites = nil
+		self.optionsData.args.advanced.args.utility.args.btnResetDamageMeter = nil
 
 		self.optionsData.args.settings.args.syncToggles.args.experimentalSyncToggles.args.bagOrganisation = nil
 		self.optionsData.args.advanced.args.advanced.args.allowExperimentalSyncs = nil
