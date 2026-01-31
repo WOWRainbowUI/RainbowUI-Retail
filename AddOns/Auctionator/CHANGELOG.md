@@ -1,8 +1,7 @@
 # Auctionator
 
-## [312](https://github.com/TheMouseNest/Auctionator/tree/312) (2026-01-25)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/311...312) 
+## [313](https://github.com/TheMouseNest/Auctionator/tree/313) (2026-01-30)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/312...313) 
 
-- Retail: Fix item level matching failing (causing 0 results to show)  
-    Note: Favourites you \_do not\_ have in your bags will not do item level  
-    matching properly, this is a limitation of the APIs from Blizzard  
+- [Fixes #1761] Fix some searches in Selling tab not working  
+- Classic Anniversary: Fix time left text on list views  
