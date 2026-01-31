@@ -1,9 +1,19 @@
-local COMPAT, _, T = select(4, GetBuildInfo()), ...
+local ADDON, T = ...
 if T.TenEnv then T.TenEnv() end
-local FRAME_BUFFER_OK = COMPAT == 40400
+local XU = T.exUI
+local _assert, getWidgetData, newWidgetData, _setWidgetData, _AddObjectMethods, _CallObjectScript = XU:GetImpl()
+
+local IndicatorData, Indicator = {}, {}
+local IndicatorProps = {
+	api=Indicator,
+	iconAspect=1,
+	ustate=-1,
+	rcTextShown=false,
+	cdTextShown=false,
+}
 
 local gx do
-	local b = ([[Interface\AddOns\%s\gfx\]]):format((...))
+	local b = ([[Interface\AddOns\%s\gfx\]]):format(ADDON)
 	gx = {
 		BorderLow = b .. "borderlo",
 		BorderHigh = b .. "borderhi",
@@ -16,7 +26,6 @@ local gx do
 		IconMask = b .. "iconmask",
 	}
 end
-
 local darken do
 	local CSL = CreateFrame("ColorSelect")
 	function darken(r,g,b, vf, sf)
@@ -25,9 +34,6 @@ local darken do
 		CSL:SetColorHSV(h, s*(sf or 1), v*(vf or 1))
 		return CSL:GetColorRGB()
 	end
-end
-local function shortBindName(bind)
-	return GetBindingText(bind, 1)
 end
 local qualAtlas = {} do
 	for i=1,5 do
@@ -45,71 +51,67 @@ local function cooldownFormat(cd)
 	elseif cd >= 9.95 then n = ceil(n) end
 	return f, n, unit
 end
-local function adjustIconAspect(self, aspect)
-	if self.iconAspect ~= aspect then
-		self.iconAspect = aspect
-		local w, h = self.iconbg:GetSize()
-		self.icon:SetSize(aspect < 1 and h*aspect or w, aspect > 1 and w/aspect or h)
+local function adjustIconAspect(d, aspect)
+	if d.iconAspect ~= aspect then
+		d.iconAspect = aspect
+		local w, h = d.iconbg:GetSize()
+		d.icon:SetSize(aspect < 1 and h*aspect or w, aspect > 1 and w/aspect or h)
 	end
 end
 
-local indicatorAPI = {}
-do -- inherit SetPoint, SetScale, GetScale, SetShown, SetParent
-	local m = getmetatable(UIParent).__index
-	for k in ("SetPoint SetScale GetScale SetShown SetParent"):gmatch("%S+") do
-		local f = m[k]
-		indicatorAPI[k] = function(self, ...)
-			return f(self[0], ...)
-		end
-	end
-end
-function indicatorAPI:SetIcon(texture, aspect)
-	self.icon:SetTexture(texture)
+function Indicator:SetIcon(texture, aspect)
+	local d = getWidgetData(self, IndicatorData)
+	d.icon:SetTexture(texture)
 	local ofs = 2.5/64
-	self.icon:SetTexCoord(ofs, 1-ofs, ofs, 1-ofs)
-	return adjustIconAspect(self, aspect)
+	d.icon:SetTexCoord(ofs, 1-ofs, ofs, 1-ofs)
+	return adjustIconAspect(d, aspect)
 end
-function indicatorAPI:SetIconAtlas(atlas, aspect)
-	self.icon:SetAtlas(atlas)
-	return adjustIconAspect(self, aspect)
+function Indicator:SetIconAtlas(atlas, aspect)
+	local d = getWidgetData(self, IndicatorData)
+	d.icon:SetAtlas(atlas)
+	return adjustIconAspect(d, aspect)
 end
-function indicatorAPI:SetIconTexCoord(a,b,c,d, e,f,g,h)
-	if a and b and c and d then
+function Indicator:SetIconTexCoord(a,b,c,dc, e,f,g,h)
+	if a and b and c and dc then
+		local d = getWidgetData(self, IndicatorData)
 		if e and f and g and h then
-			self.icon:SetTexCoord(a,b,c,d, e,f,g,h)
+			d.icon:SetTexCoord(a,b,c,dc, e,f,g,h)
 		else
-			self.icon:SetTexCoord(a,b,c,d)
+			d.icon:SetTexCoord(a,b,c,dc)
 		end
 	end
 end
-function indicatorAPI:SetIconVertexColor(r,g,b)
-	self.icon:SetVertexColor(r,g,b)
+function Indicator:SetIconVertexColor(r,g,b)
+	local d = getWidgetData(self, IndicatorData)
+	d.icon:SetVertexColor(r,g,b)
 end
-function indicatorAPI:SetUsable(usable, _usableCharge, _cd, nomana, norange)
+function Indicator:SetUsable(usable, _usableCharge, _cd, nomana, norange)
+	local d = getWidgetData(self, IndicatorData)
 	local state = usable and 0 or (norange and 1 or (nomana and 2 or 3))
-	if self.ustate == state then return end
-	self.ustate = state
+	d.veil:SetAlpha(usable and 0 or 0.40)
+	if d.ustate == state then return end
+	d.ustate = state
 	if not usable and (nomana or norange) then
-		self.ribbon:Show()
+		d.ribbon:Show()
 		if norange then
-			self.ribbon:SetVertexColor(1, 0.20, 0.15)
+			d.ribbon:SetVertexColor(1, 0.20, 0.15)
 		else
-			self.ribbon:SetVertexColor(0.15, 0.75, 1)
+			d.ribbon:SetVertexColor(0.15, 0.75, 1)
 		end
 	else
-		self.ribbon:Hide()
+		d.ribbon:Hide()
 	end
-	self.veil:SetAlpha(usable and 0 or 0.40)
 end
-function indicatorAPI:SetDominantColor(r,g,b)
+function Indicator:SetDominantColor(r,g,b)
+	local d = getWidgetData(self, IndicatorData)
 	r, g, b = r or 1, g or 1, b or 0.6
-	local cd, r2, g2, b2 = self.cd, darken(r,g,b, 0.20)
+	local cd, r2, g2, b2 = d.cd, darken(r,g,b, 0.20)
 	local r3, g3, b3 = darken(r,g,b, 0.10, 0.50)
-	self.hiEdge:SetVertexColor(r, g, b)
-	self.iglow:SetVertexColor(r, g, b)
-	self.oglow:SetVertexColor(r, g, b)
-	self.edge:SetVertexColor(darken(r,g,b, 0.80))
-	self.cdText:SetTextColor(r, g, b)
+	d.hiEdge:SetVertexColor(r, g, b)
+	d.iglow:SetVertexColor(r, g, b)
+	d.oglow:SetVertexColor(r, g, b)
+	d.edge:SetVertexColor(darken(r,g,b, 0.80))
+	d.cdText:SetTextColor(r, g, b)
 	cd.spark:SetVertexColor(r, g, b)
 	for i=1,4 do
 		cd[i]:SetVertexColor(r2, g2, b2)
@@ -117,8 +119,8 @@ function indicatorAPI:SetDominantColor(r,g,b)
 	end
 	cd[9]:SetVertexColor(r3, g3, b3)
 end
-function indicatorAPI:SetOverlayIcon(tex, w, h, ...)
-	local oi = self.overIcon
+function Indicator:SetOverlayIcon(tex, w, h, ...)
+	local oi = getWidgetData(self, IndicatorData).overIcon
 	if not tex then
 		return oi:Hide()
 	end
@@ -131,25 +133,28 @@ function indicatorAPI:SetOverlayIcon(tex, w, h, ...)
 		oi:SetTexCoord(0,1, 0,1)
 	end
 end
-function indicatorAPI:SetOverlayIconVertexColor(...)
-	self.overIcon:SetVertexColor(...)
+function Indicator:SetOverlayIconVertexColor(...)
+	getWidgetData(self, IndicatorData).overIcon:SetVertexColor(...)
 end
-function indicatorAPI:SetCount(count)
-	self.count:SetText(count or "")
+function Indicator:SetCount(count)
+	getWidgetData(self, IndicatorData).count:SetText(count or "")
 end
-function indicatorAPI:SetBinding(binding)
-	self.key:SetText(binding and shortBindName(binding) or "")
+function Indicator:SetBinding(binding)
+	binding = binding and GetBindingText(binding, 1) or ""
+	getWidgetData(self, IndicatorData).key:SetText(binding)
 end
-function indicatorAPI:SetCooldown(remain, duration, usable)
+function Indicator:SetCooldown(remain, duration, usable)
+	local d = getWidgetData(self, IndicatorData)
+	d.cooldownHintID = nil
 	if (duration or 0) <= 0 or (remain or 0) <= 0 then
-		self.cd:Hide()
-		self.cdText:SetText("")
+		d.cd:Hide()
+		d.cdText:SetText("")
 	else
 		local now = GetTime()
-		local expire, usable, cd = now + remain, not not usable, self.cd
-		local d = expire - (cd.expire or 0)
-		if d < -0.05 or d > 0.05 then
-			cd.duration, cd.expire, cd.updateCooldownStep, cd.updateCooldown = duration, expire, duration/1536/self[0]:GetEffectiveScale()
+		local expire, usable, cd = now + remain, not not usable, d.cd
+		local td = expire - (cd.expire or 0)
+		if td < -0.05 or td > 0.05 then
+			cd.duration, cd.expire, cd.updateCooldownStep, cd.updateCooldown = duration, expire, duration/1536/d.self:GetEffectiveScale()
 			cd:Show()
 			cd.spark:SetShown(usable)
 		end
@@ -160,27 +165,29 @@ function indicatorAPI:SetCooldown(remain, duration, usable)
 			cd.spark:SetShown(usable)
 		end
 		local gcS, gcL = GetSpellCooldown(61304)
-		if (duration ~= gcL or gcS+gcL-now < remain) and self[usable and "rcTextShown" or "cdTextShown"] then
-			self.cdText:SetFormattedText(cooldownFormat(remain))
+		if (duration ~= gcL or gcS+gcL-now < remain) and d[usable and "rcTextShown" or "cdTextShown"] then
+			d.cdText:SetFormattedText(cooldownFormat(remain))
 		else
-			self.cdText:SetText("")
+			d.cdText:SetText("")
 		end
 	end
 end
-function indicatorAPI:SetCooldownTextShown(cooldownShown, rechargeShown)
-	self.cdTextShown, self.rcTextShown = cooldownShown, rechargeShown
+function Indicator:SetCooldownTextShown(cooldownShown, rechargeShown)
+	local d = getWidgetData(self, IndicatorData)
+	d.cdTextShown, d.rcTextShown = cooldownShown, rechargeShown
 end
-function indicatorAPI:SetHighlighted(highlight)
-	self.hiEdge:SetShown(highlight)
+function Indicator:SetHighlighted(highlight)
+	getWidgetData(self, IndicatorData).hiEdge:SetShown(highlight)
 end
-function indicatorAPI:SetActive(active)
-	self.iglow:SetShown(active)
+function Indicator:SetActive(active)
+	getWidgetData(self, IndicatorData).iglow:SetShown(active)
 end
-function indicatorAPI:SetOuterGlow(shown)
-	self.oglow:SetShown(shown)
+function Indicator:SetOuterGlow(shown)
+	getWidgetData(self, IndicatorData).oglow:SetShown(shown)
 end
-function indicatorAPI:SetEquipState(isInContainer, isInInventory)
-	local s, v, r, g, b = self.equipBanner, isInContainer or isInInventory, 0.1, 0.9, 0.15
+function Indicator:SetEquipState(isInContainer, isInInventory)
+	local s = getWidgetData(self, IndicatorData).equipBanner
+	local v, r, g, b = isInContainer or isInInventory, 0.1, 0.9, 0.15
 	s:SetShown(v)
 	if v then
 		if not isInInventory then
@@ -189,13 +196,22 @@ function indicatorAPI:SetEquipState(isInContainer, isInInventory)
 		s:SetVertexColor(r, g, b)
 	end
 end
-function indicatorAPI:SetShortLabel(text)
-	self.label:SetText(text)
+function Indicator:SetShortLabel(text)
+	getWidgetData(self, IndicatorData).label:SetText(text)
 end
-function indicatorAPI:SetQualityOverlay(qual)
-	local s, qa = self.qualityMark, qualAtlas[qual]
+function Indicator:SetQualityOverlay(qual)
+	local s = getWidgetData(self, IndicatorData).qualityMark
+	local qa = qualAtlas[qual]
 	s:SetAtlas(qa)
 	s:SetShown(qa ~= nil)
+end
+function Indicator:SetCooldownPH(hintID, qf, _holdCount)
+	local d = getWidgetData(self, IndicatorData)
+	local dur = d.ustate == 0 and qf(hintID, "cooldownDuration")
+	d.cooldownHintID = hintID
+	if dur then
+		d.veil:SetAlpha(C_CurveUtil.EvaluateColorValueFromBoolean(dur:IsZero(), 0, 0.40))
+	end
 end
 
 local CreateCooldown do
@@ -296,8 +312,8 @@ local CreateCooldown do
 		cd:SetScript("OnShow", cdOnShow)
 		cd:SetScript("OnHide", cdOnHide)
 		cd:SetScript("OnUpdate", cdOnUpdate)
-		cd.cdText = cd:CreateFontString(nil, "OVERLAY", "GameFontNormalLargeOutline")
-		cd.cdText:SetPoint("CENTER")
+		local cdText = cd:CreateFontString(nil, "OVERLAY", "GameFontNormalLargeOutline")
+		cdText:SetPoint("CENTER")
 		
 		w = (overParent or cd):CreateTexture(nil, "OVERLAY", nil, 2)
 		w:SetTexture(gx.CooldownSpark)
@@ -347,92 +363,76 @@ local CreateCooldown do
 		cd[9] = parent:CreateTexture(nil, "ARTWORK", nil, 3)
 		cd[9]:SetTexture(gx.Tri)
 		
-		return cd
+		return cd, cdText
 	end
 end
 
-local CreateIndicator do
-	local apimeta = {__index=indicatorAPI}
-	function CreateIndicator(name, parent, size, nested)
-		local cf = CreateFrame("Frame", name, parent)
-			cf:SetSize(size, size)
-		local bf = CreateFrame("Frame", nil, cf)
-			bf:SetAllPoints()
-			bf:SetFlattensRenderLayers(true)
-			bf:SetIsFrameBuffer(FRAME_BUFFER_OK)
-		local ef = CreateFrame("Frame", nil, bf)
-			ef:SetAllPoints()
-		local uf = CreateFrame("Frame", nil, cf)
-			uf:SetAllPoints()
-			uf:SetFrameLevel(bf:GetFrameLevel()+5)
-		local r, w = setmetatable({[0]=cf, cd=CreateCooldown(ef, size, uf), bf=bf}, apimeta)
-		w = ef:CreateTexture(nil, "OVERLAY")
-			w:SetAllPoints()
-			w:SetTexture(gx.BorderLow)
-		w, r.edge = ef:CreateTexture(nil, "OVERLAY", nil, 1), w
-			w:SetAllPoints()
-			w:SetTexture(gx.BorderHigh)
-		w, r.hiEdge = T.CreateQuadTexture("BACKGROUND", size*2, gx.OuterGlow, cf), w
-			w:SetShown(false)
-		w, r.oglow = ef:CreateTexture(nil, "ARTWORK", nil, 1), w
-			w:SetAllPoints()
-			w:SetTexture(gx.InnerGlow)
-			w:SetAlpha(nested and 0.6 or 1)
-		w, r.iglow = ef:CreateTexture(nil, "ARTWORK"), w
-			w:SetPoint("CENTER")
-			w:SetSize(60*size/64, 60*size/64)
-		w, r.icon = ef:CreateTexture(nil, "ARTWORK", nil, -2), w
-			w:SetPoint("CENTER")
-			w:SetSize(60*size/64, 60*size/64)
-			w:SetColorTexture(0.15, 0.15, 0.15, 0.85)
-		w, r.iconbg = ef:CreateTexture(nil, "ARTWORK", nil, 2), w
-			w:SetSize(60*size/64, 60*size/64)
-			w:SetPoint("CENTER")
-			w:SetColorTexture(0,0,0)
-		w, r.veil = ef:CreateTexture(nil, "ARTWORK", nil, 3), w
-			w:SetAllPoints()
-			w:SetTexture(gx.Ribbon)
-			w:Hide()
-		w, r.ribbon = ef:CreateTexture(nil, "ARTWORK", nil, 4), w
-			w:SetPoint("BOTTOMLEFT", 4, 4)
-		w, r.overIcon = ef:CreateFontString(nil, "OVERLAY", "NumberFontNormal"), w
-			w:SetJustifyH("RIGHT")
-			w:SetPoint("BOTTOMRIGHT", -2, 4)
-		w, r.count = ef:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmallGray"), w
-			w:SetJustifyH("RIGHT")
-			w:SetPoint("TOPRIGHT", -2, -3)
-		w, r.key = ef:CreateTexture(nil, "ARTWORK", nil, 2), w
-			w:SetSize(size/5, size/4)
-			w:SetTexture("Interface\\GuildFrame\\GuildDifficulty")
-			w:SetTexCoord(0, 42/128, 6/64, 52/64)
-			w:SetPoint("TOPLEFT", 6*size/64, -3*size/64)
-		w, r.equipBanner = ef:CreateFontString(nil, "OVERLAY", "TextStatusBarText", -1), w
-			w:SetSize(size-4, 12)
-			w:SetJustifyH("CENTER")
-			w:SetJustifyV("BOTTOM")
-			w:SetMaxLines(1)
-			w:SetPoint("BOTTOMLEFT", 3, 4)
-			w:SetPoint("BOTTOMRIGHT", r.count, "BOTTOMLEFT", 2, 0)
-		w, r.label = ef:CreateTexture(nil, "ARTWORK", nil, 3), w
-			w:SetPoint("TOPLEFT", 4, -4)
-			w:SetSize(14,14)
-			w:Hide()
-		w, r.qualityMark = ef:CreateMaskTexture(), w
-			w:SetTexture(gx.IconMask)
-			w:SetAllPoints()
-			r.icon:AddMaskTexture(w)
-		r.cdText = r.cd.cdText
-		r.iconAspect = 1
-		return r
-	end
+local function CreateIndicator(name, parent, size, nested)
+	local cf, d, w, ef = CreateFrame("Frame", name, parent)
+		cf:SetSize(size, size)
+	d = newWidgetData(cf, IndicatorData, IndicatorProps)
+	ef = CreateFrame("Frame", nil, cf)
+		ef:SetAllPoints()
+	w = CreateFrame("Frame", nil, cf)
+		w:SetAllPoints()
+		w:SetFrameLevel(ef:GetFrameLevel()+5)
+	w, d.cd, d.cdText = ef:CreateTexture(nil, "OVERLAY"), CreateCooldown(ef, size, w)
+		w:SetAllPoints()
+		w:SetTexture(gx.BorderLow)
+	w, d.edge = ef:CreateTexture(nil, "OVERLAY", nil, 1), w
+		w:SetAllPoints()
+		w:SetTexture(gx.BorderHigh)
+	w, d.hiEdge = T.CreateQuadTexture("BACKGROUND", size*2, gx.OuterGlow, cf), w
+		w:SetShown(false)
+	w, d.oglow = ef:CreateTexture(nil, "ARTWORK", nil, 1), w
+		w:SetAllPoints()
+		w:SetTexture(gx.InnerGlow)
+		w:SetAlpha(nested and 0.6 or 1)
+	w, d.iglow = ef:CreateTexture(nil, "ARTWORK"), w
+		w:SetPoint("CENTER")
+		w:SetSize(60*size/64, 60*size/64)
+	w, d.icon = ef:CreateTexture(nil, "ARTWORK", nil, -2), w
+		w:SetPoint("CENTER")
+		w:SetSize(60*size/64, 60*size/64)
+		w:SetColorTexture(0.15, 0.15, 0.15, 0.85)
+	w, d.iconbg = ef:CreateTexture(nil, "ARTWORK", nil, 2), w
+		w:SetSize(60*size/64, 60*size/64)
+		w:SetPoint("CENTER")
+		w:SetColorTexture(0,0,0)
+	w, d.veil = ef:CreateTexture(nil, "ARTWORK", nil, 3), w
+		w:SetAllPoints()
+		w:SetTexture(gx.Ribbon)
+		w:Hide()
+	w, d.ribbon = ef:CreateTexture(nil, "ARTWORK", nil, 4), w
+		w:SetPoint("BOTTOMLEFT", 4, 4)
+	w, d.overIcon = ef:CreateFontString(nil, "OVERLAY", "NumberFontNormal"), w
+		w:SetJustifyH("RIGHT")
+		w:SetPoint("BOTTOMRIGHT", -2, 4)
+	w, d.count = ef:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmallGray"), w
+		w:SetJustifyH("RIGHT")
+		w:SetPoint("TOPRIGHT", -2, -3)
+	w, d.key = ef:CreateTexture(nil, "ARTWORK", nil, 2), w
+		w:SetSize(size/5, size/4)
+		w:SetTexture("Interface\\GuildFrame\\GuildDifficulty")
+		w:SetTexCoord(0, 42/128, 6/64, 52/64)
+		w:SetPoint("TOPLEFT", 6*size/64, -3*size/64)
+	w, d.equipBanner = ef:CreateFontString(nil, "OVERLAY", "TextStatusBarText", -1), w
+		w:SetSize(size-4, 12)
+		w:SetJustifyH("CENTER")
+		w:SetJustifyV("BOTTOM")
+		w:SetMaxLines(1)
+		w:SetPoint("BOTTOMLEFT", 3, 4)
+		w:SetPoint("BOTTOMRIGHT", d.count, "BOTTOMLEFT", 2, 0)
+	w, d.label = ef:CreateTexture(nil, "ARTWORK", nil, 3), w
+		w:SetPoint("TOPLEFT", 4, -4)
+		w:SetSize(14,14)
+		w:Hide()
+	w, d.qualityMark = ef:CreateMaskTexture(), w
+		w:SetTexture(gx.IconMask)
+		w:SetAllPoints()
+		d.icon:AddMaskTexture(w)
+		d.iconMask = w
+	return cf
 end
 
-T.Mirage = {
-	name="OPie",
-	apiLevel=3,
-	CreateIndicator=CreateIndicator,
-
-	supportsCooldownNumbers=true,
-	supportsShortLabels=true,
-	onParentAlphaChanged=FRAME_BUFFER_OK and function(self, pea) self.bf:SetAlpha(pea) end or nil,
-}
+XU:RegisterFactory("OPie:MirageIndicator", CreateIndicator)

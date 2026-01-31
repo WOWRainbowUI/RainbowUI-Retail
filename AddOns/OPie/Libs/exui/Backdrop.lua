@@ -16,11 +16,7 @@ local function unpackColor(c)
 	local c0, c1, c2 = c % 2^8, c % 2^16, c % 2^24
 	return (c2 - c1) / (2^16 * 255), (c1 - c0) / (2^8 * 255), c0 / 255, c > c2 and (c - c2) / (2^24 * 255) or 1
 end
-
-local Backdrop, BackdropData = {}, {}
-function Backdrop:SetBackdrop(info)
-	local d = assert(getWidgetData(self, BackdropData), "Invalid object type")
-	assert(type(info) == "table", 'Syntax: Backdrop:SetBackdrop(props)')
+local function setBackdrop(d, info)
 	if info.bgFile then
 		local bg, insets = d.bg or d.host:CreateTexture(), info.insets
 		local tileH, tileV = not not (info.tileH == nil and info.tile or info.tileH), not not (info.tileV == nil and info.tile or info.tileV)
@@ -56,6 +52,13 @@ function Backdrop:SetBackdrop(info)
 	elseif d.edge[1] then
 		d.edge:Hide()
 	end
+end
+
+local Backdrop, BackdropData = {}, {}
+function Backdrop:SetBackdrop(info)
+	local d = assert(getWidgetData(self, BackdropData), "Invalid object type")
+	assert(type(info) == "table", 'Syntax: Backdrop:SetBackdrop(props)')
+	return setBackdrop(d, info)
 end
 
 local backdrop_mt = {__index=Backdrop}
