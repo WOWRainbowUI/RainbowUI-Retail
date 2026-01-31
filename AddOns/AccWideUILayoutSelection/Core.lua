@@ -1,4 +1,7 @@
 AccWideUIAceAddon = LibStub("AceAddon-3.0"):NewAddon("AccWideUIAceAddon", "AceEvent-3.0", "AceConsole-3.0", "AceHook-3.0", "AceTimer-3.0")
+AccWideUIAceAddon.AceGUI = LibStub("AceGUI-3.0")
+AccWideUIAceAddon.LibSerialize = LibStub("LibSerialize")
+AccWideUIAceAddon.LibDeflate = LibStub:GetLibrary("LibDeflate")
 local L = LibStub("AceLocale-3.0"):GetLocale("AccWideUIAceAddonLocale")
 local AC = LibStub("AceConfig-3.0")
 local ACD = LibStub("AceConfigDialog-3.0")
@@ -89,7 +92,7 @@ function AccWideUIAceAddon:OnEnable()
 				self.db.profile.syncData.battlefieldMap.options.position.x, self.db.profile.syncData.battlefieldMap.options.position.y = BattlefieldMapTab:GetCenter()
 			end
 			
-			self.db.profile.syncData.battlefieldMap.options.opacity = OpacityFrameSlider:GetValue() or BattlefieldMapOptions.opacity or 0.7
+			--self.db.profile.syncData.battlefieldMap.options.opacity = OpacityFrameSlider:GetValue() or BattlefieldMapOptions.opacity or 0.7
 			
 		end
 	end)
@@ -318,10 +321,19 @@ end
 function AccWideUIAceAddon:BlizzChannelManager()
 
 	if (C_AddOns.IsAddOnLoaded("BlockBlizzChatChannels") == false) then
+	
+		if (C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown()) then
+		
+			if (self.db.global.printDebugTextToChat == true) then
+				self:Print("[Channel Manager] Chat in Lockdown.")
+			end
+		
+			return
+		end
 
 		if (self.db.global.hasDoneFirstTimeSetup == true and not self.TempData.ThrottleJoinLeaveChannels) then
 
-
+			
 
 			-- Join player to channels if they're allowed
 			if (self.db.profile.blizzChannels.general == "join") then

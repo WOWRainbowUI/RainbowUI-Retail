@@ -1,6 +1,6 @@
 ## Interface: 120001, 120000, 50503, 38000, 30405, 20505, 11508
 ## Title: Account Wide Interface Settings
-## Version: v2.1.8-beta2
+## Version: v2.1.9-beta7
 ## Notes: Synchronises various Character-Specific Interface Settings Account Wide. /awi
 ## Author: ConineSpiritwolf
 ## SavedVariables: AccWideUIAceDB, AccWideUI_AccountData
@@ -50,3 +50,4 @@ LoadFunction.lua
 Options.lua
 Onboarding.lua
 AddonCompartment.lua
+ImportExport.lua
