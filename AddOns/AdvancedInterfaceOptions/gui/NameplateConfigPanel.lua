@@ -42,10 +42,10 @@ function addon:CreateNameplateOptions()
         name = "友方名條顯示職業顏色",
         desc = "友方名條顯示職業顏色",
         get = function()
-          return C_CVar.GetCVarBool("ShowClassColorInFriendlyNameplate")
+          return C_CVar.GetCVarBool("nameplateShowFriendlyClassColor")
         end,
         set = function(_, value)
-          self:SetCVar("ShowClassColorInFriendlyNameplate", value)
+          self:SetCVar("nameplateShowFriendlyClassColor", value)
         end,
         width = "full",
         order = 12,
