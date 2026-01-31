@@ -4,11 +4,13 @@ local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title")
 
 local LSM = LibStub("LibSharedMedia-3.0")
 
+local Masque = LibStub("Masque",true)
 local AceAddon = LibStub("AceAddon-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceDB = LibStub("AceDB-3.0")
-local DB_VERSION = 3
+
+local DB_VERSION = 4
 
 addon = AceAddon:NewAddon(addon, addonName, "AceConsole-3.0", "AceEvent-3.0")
 
@@ -23,6 +25,7 @@ local defaults = {
             HOSTILE_TARGET = false,
             IN_COMBAT = false,
             ALWAYS = true,
+            ONLY_ALL_CONDITIONS = false,
         },
         cooldown = {
             edge = true,
@@ -116,6 +119,27 @@ function addon:UpdateDB()
         profile.DBVERSION = 3
     end
 
+    if profile.DBVERSION < 4 then
+        local points = {
+            ["TOPLEFT"] =       "TOPLEFT",
+            ["TOP"] =           "TOP",
+            ["TOPRIGHT"] =      "TOPRIGHT",
+            ["LEFT"] =          "LEFT",
+            ["CENTER"] =        "CENTER",
+            ["RIGHT"] =         "RIGHT",
+            ["BOTTOMLEFT"] =    "BOTTOMLEFT",
+            ["BOTTOM"] =        "BOTTOM",
+            ["BOTTOMRIGHT"] =   "BOTTOMRIGHT",
+        }
+        if not points[profile.position.point] then
+            profile.position.point = "CENTER"
+        end
+        if not points[profile.position.relativePoint] then
+            profile.position.relativePoint = "CENTER"
+        end
+        profile.DBVERSION = 4
+    end
+
     profile.DBVERSION = DB_VERSION
 end
 
@@ -125,21 +149,21 @@ function addon:NormalizeDisplayOptions(key, val)
 
     if key == "ALWAYS" and val then
         for k in pairs(display) do
-            if k ~= "ALWAYS" then
+            if k ~= "ALWAYS" and k ~= "ONLY_ALL_CONDITIONS" then
                 display[k] = false
             end
         end
         return
     end
 
-    if key ~= "ALWAYS" and val then
+    if key ~= "ALWAYS" and k ~= "ONLY_ALL_CONDITIONS" and val then
         display.ALWAYS = false
         return
     end
 
     if not val then
-        for _, v in pairs(display) do
-            if v then
+        for k, v in pairs(display) do
+            if v and k ~= "ONLY_ALL_CONDITIONS" then
                 return
             end
         end
@@ -177,7 +201,7 @@ function addon:SetupOptions()
             locked = {
                 type = "toggle",
                 name = "Lock Frame",
-                desc = "Lock or unlock the frame for movement.",
+                desc = "Lock or unlock the frame for movement.\n\n|cffffa000TIP: Press and Hold the CONTROL key while hovering over the icon to show a Lock/Unlock toggle button!|r",
                 get = function() return addon.db.profile.locked end,
                 set = function(_, val)
                     addon.db.profile.locked = val
@@ -192,7 +216,7 @@ function addon:SetupOptions()
                 desc = "Enable or disable the cooldown and charge swipe animations.",
                 get = function() return addon.db.profile.cooldown.showSwipe end,
                 set = function(_, val)
-                    addon.db.profile.showCooldownSwipe = val
+                    addon.db.profile.cooldown.showSwipe = val
                     AssistedCombatIconFrame:ApplyOptions()
                 end,
                 order = 2,
@@ -271,7 +295,7 @@ function addon:SetupOptions()
                         args = {
                             HOSTILE_TARGET = {
                                 type = "toggle",
-                                name = "Show only with target",
+                                name = "Show with target",
                                 order = 1,
                                 width = 1.1,
                                 get = function(info)
@@ -306,7 +330,7 @@ function addon:SetupOptions()
                         args = {
                             IN_COMBAT = {
                                 type = "toggle",
-                                name = "Show only in combat",
+                                name = "Show in combat",
                                 order = 1,
                                 width = 1.1,
                                 get = function(info)
@@ -335,6 +359,29 @@ function addon:SetupOptions()
                             },
                         },
                     },
+                    r4 = {
+                        type = "group",
+                        name = "",
+                        order = 8,
+                        args = {
+                            IN_COMBAT = {
+                                type = "toggle",
+                                name = "All Conditions Only",
+                                desc = "Only show when all of the selected conditions are met instead of any condition.",
+                                order = 1,
+                                width = 1.5,
+                                get = function(info)
+                                    return addon.db.profile.display.ONLY_ALL_CONDITIONS
+                                end,
+                                set = function(info, val)
+                                    addon.db.profile.display.ONLY_ALL_CONDITIONS = val
+                                    addon:NormalizeDisplayOptions("ONLY_ALL_CONDITIONS", val)
+                                    AssistedCombatIconFrame:UpdateVisibility()
+                                end,
+                                disabled = function() return addon.db.profile.display.ALWAYS end,
+                            },
+                        },
+                    },
                     grp2 = {
                         type = "group",
                         name = "",
@@ -356,7 +403,7 @@ function addon:SetupOptions()
                             },
                             alpha = {
                                 type = "range",
-                                name = " Fade out Alpha",
+                                name = "Fade out Alpha",
                                 desc = "Set the alpha to fade to when 'hidden'.",
                                 min = 0, max = 1, step = 0.01,
                                 get = function() return addon.db.profile.fadeOutAlpha end,
@@ -413,9 +460,15 @@ function addon:SetupOptions()
                 inline = true,
                 order = 4,
                 args = {
+                    masqueWarning = {
+                        type = "description",
+                        name = "|cffffa000Border is currently overridden by Masque.|r",
+                        hidden = function() return not (Masque and AssistedCombatIconFrame.MSQGroup and not AssistedCombatIconFrame.MSQGroup.db.Disabled) end,
+                        order = 9.1,
+                    },
                     borderColor = {
                         type = "color",
-                        name = " Border Color",
+                        name = "Color",
                         desc = "Change the text color of the border",
                         hasAlpha = false,
                         get = function()
@@ -426,12 +479,12 @@ function addon:SetupOptions()
                             addon.db.profile.border.color = { r = r, g = g, b = b }
                             AssistedCombatIconFrame:ApplyOptions()
                         end,
-                        order = 4,
-                        width = "normal",
+                        hidden = function() return (Masque and AssistedCombatIconFrame.MSQGroup and not AssistedCombatIconFrame.MSQGroup.db.Disabled) end,
+                        order = 2,
                     },
                     borderThickness = {
                         type = "range",
-                        name = " Border Thickness",
+                        name = " Thickness",
                         desc = "Change the thickness of the icon border",
                         min = 0, max = 10, step = 1,
                         get = function() return addon.db.profile.border.thickness end,
@@ -439,8 +492,8 @@ function addon:SetupOptions()
                             addon.db.profile.border.thickness = val
                             AssistedCombatIconFrame:ApplyOptions()
                         end,
-                        order = 5,
-                        width = "normal",
+                        hidden = function() return (Masque and AssistedCombatIconFrame.MSQGroup and not AssistedCombatIconFrame.MSQGroup.db.Disabled) end,
+                        order = 1,
                     },
                 },
             }, 
@@ -449,7 +502,7 @@ function addon:SetupOptions()
 
     local cooldownOptions = {
         type = "group",
-        name = "Cooldown",
+        name = "Cooldown & Charges",
         inline = false,
         order = 3,
         args = {
@@ -576,7 +629,7 @@ function addon:SetupOptions()
                                     AssistedCombatIconFrame:ApplyOptions()
                                 end,
                                 order = 2,
-                                width = 0.8,
+                                width = 0.7,
                             },
                             fontOutline = {
                                 type = "toggle",
@@ -839,29 +892,28 @@ function addon:SetupOptions()
                 args = {
                     point = {
                         type = "select",
-                        name = "Anchor",
-                        desc = "Choose the side of the screen to anchor the icon to",
+                        name = "Relative Anchor Point",
+                        desc = "What point on the Screen or parent frame to anchor to.",
                         values = function()
                             local points = {
-                                ["TOPLEFT"] = "TOPLEFT",
-                                ["TOP"] = "TOP",
-                                ["TOPRIGHT"] = "TOPRIGHT",
-                                ["LEFT"] = "LEFT",
-                                ["CENTER"] = "CENTER",
-                                ["RIGHT"] = "RIGHT",
-                                ["BOTTOMLEFT"] = "BOTTOMLEFT",
-                                ["BOTTOM"] = "BOTTOM",
-                                ["BOTTOMRIGHT"] = "BOTTOMRIGHT",
+                                ["TOPLEFT"] =       "TOPLEFT",
+                                ["TOP"] =           "TOP",
+                                ["TOPRIGHT"] =      "TOPRIGHT",
+                                ["LEFT"] =          "LEFT",
+                                ["CENTER"] =        "CENTER",
+                                ["RIGHT"] =         "RIGHT",
+                                ["BOTTOMLEFT"] =    "BOTTOMLEFT",
+                                ["BOTTOM"] =        "BOTTOM",
+                                ["BOTTOMRIGHT"] =   "BOTTOMRIGHT",
                             }
                             return points
                         end,
-                        get = function() return addon.db.profile.position.point end,
+                        get = function() return addon.db.profile.position.relativePoint end,
                         set = function(_, val)
-                            addon.db.profile.position.point = val
                             addon.db.profile.position.relativePoint = val
                             AssistedCombatIconFrame:ApplyOptions()
                         end,
-                        order = 5,
+                        order = 1,
                         width = 0.8,
                     },
                     fontX = {
@@ -918,7 +970,7 @@ function addon:SetupOptions()
                             addon.db.profile.position.strata = val
                             AssistedCombatIconFrame:ApplyOptions()
                         end,
-                        order = 5,
+                        order = 1,
                         width = 0.8,
                     },
                 }
@@ -928,7 +980,7 @@ function addon:SetupOptions()
                 name = "Advanced",
                 inline = true,
                 args = {
-                    point = {
+                    parent = {
                         type = "input",
                         name = " Frame Parent",
                         desc = "Enter a frame name to anchor the icon to.",
@@ -946,6 +998,32 @@ function addon:SetupOptions()
                             return true
                         end,
                         order = 1,
+                    },
+                    point = {
+                        type = "select",
+                        name = "Icon Anchor Point",
+                        desc = "What point on the Icon should it be anchored by",
+                        values = function()
+                            local points = {
+                                ["TOPLEFT"] = "TOPLEFT",
+                                ["TOP"] = "TOP",
+                                ["TOPRIGHT"] = "TOPRIGHT",
+                                ["LEFT"] = "LEFT",
+                                ["CENTER"] = "CENTER",
+                                ["RIGHT"] = "RIGHT",
+                                ["BOTTOMLEFT"] = "BOTTOMLEFT",
+                                ["BOTTOM"] = "BOTTOM",
+                                ["BOTTOMRIGHT"] = "BOTTOMRIGHT",
+                            }
+                            return points
+                        end,
+                        get = function() return addon.db.profile.position.point end,
+                        set = function(_, val)
+                            addon.db.profile.position.point = val
+                            AssistedCombatIconFrame:ApplyOptions()
+                        end,
+                        order = 2,
+                        width = 0.8,
                     },
                 },
             },
@@ -989,17 +1067,30 @@ function addon:SlashCommand(input)
         DEFAULT_CHAT_FRAME:AddMessage(
             PREFIX .. (self.db.profile.locked and "Locked" or "Unlocked")
         )
+    elseif input =="unlock" then
+        self.db.profile.locked = false
+        AssistedCombatIconFrame:Lock(false)
+        DEFAULT_CHAT_FRAME:AddMessage(
+            PREFIX .. "Unlocked"
+        )
     elseif input =="toggle" then
         self.db.profile.enabled = not self.db.profile.enabled
         DEFAULT_CHAT_FRAME:AddMessage(
             PREFIX .. (self.db.profile.enabled and "Enabled" or "Disabled")
         )
+    elseif input =="reload" then
+        AssistedCombatIconFrame:Reload()
+        DEFAULT_CHAT_FRAME:AddMessage(PREFIX.."Reloaded!")
+    elseif input =="debug" then
+        AssistedCombatIconFrame:Debug()
     else
         DEFAULT_CHAT_FRAME:AddMessage( PREFIX .. 
             "Usage:\n" ..
-            "/saci             - Open Config Menu\n" ..
-            "/saci lock       - Toggle Locking the Icon \n" ..
-            "/saci toggle    - Toggle the addon On or Off"
+            "/saci          -Open Config Menu\n" ..
+            "/saci lock     -Toggle Locking the Icon \n" ..
+            "/saci unlock   -Unlock the Icon \n" ..
+            "/saci reload   -Restart the addon \n" ..
+            "/saci toggle   -Toggle the addon On or Off"
         )
     end
     
