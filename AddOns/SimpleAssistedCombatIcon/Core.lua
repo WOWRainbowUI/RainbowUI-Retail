@@ -367,8 +367,8 @@ function addon:SetupOptions()
                         args = {
                             IN_COMBAT = {
                                 type = "toggle",
-                                name = "僅符合所有條件"
-								desc = "僅在符合所有已選條件時顯示，而不是任一條件。"
+                                name = "僅符合所有條件",
+								desc = "僅在符合所有已選條件時顯示，而不是任一條件。",
                                 order = 1,
                                 width = 1.5,
                                 get = function(info)
