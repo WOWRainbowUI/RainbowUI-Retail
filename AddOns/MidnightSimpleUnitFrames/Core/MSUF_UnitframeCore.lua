@@ -122,7 +122,11 @@ local DIRTY_VISUAL   = 0x00000100  -- forces a one-shot legacy pass for bar colo
 local DIRTY_FAST = bor(DIRTY_HEALTH, DIRTY_POWER)
 
 local MASK_UNIT_EVENT_FALLBACK = bor(DIRTY_HEALTH, DIRTY_POWER, DIRTY_IDENTITY, DIRTY_STATUS, DIRTY_PORTRAIT, DIRTY_INDICATOR, DIRTY_TOTINLINE)
-local MASK_UNIT_SWAP = bor(MASK_UNIT_EVENT_FALLBACK, DIRTY_VISUAL)
+local MASK_UNIT_SWAP = bor(DIRTY_HEALTH, DIRTY_POWER, DIRTY_IDENTITY, DIRTY_STATUS, DIRTY_INDICATOR, DIRTY_TOTINLINE)
+
+-- When a frame becomes visible again, refresh only dynamic values (no layout).
+-- This matches the "no layout in runtime" goal while preventing stale displays after being hidden.
+local MASK_SHOW_REFRESH = MASK_UNIT_SWAP
 
 -- ------------------------------------------------------------
 -- Frame registry
@@ -233,11 +237,21 @@ local Elements = {}
 local UFCore_GetTargetToTInlineConf -- forward decl (used by ToTInline before its definition)
 Core.Elements = Elements
 
-local function _Has(fnName)
-    local fn = _G[fnName]
-    if type(fn) == "function" then return fn end
-    return nil
+
+-- Fast function refs (resolved once; avoids _G lookups in element hot paths).
+local FN_UpdateHealthFast, FN_UpdateHpTextFast, FN_UpdatePowerBarFast, FN_UpdatePowerTextFast, FN_SetTextIfChanged
+
+local function UFCore_ResolveFastFns()
+    -- Resolve lazily; safe to call multiple times (non-hot paths only).
+    if not FN_UpdateHealthFast then local fn = _G.MSUF_UFCore_UpdateHealthFast; if type(fn) == "function" then FN_UpdateHealthFast = fn end end
+    if not FN_UpdateHpTextFast then local fn = _G.MSUF_UFCore_UpdateHpTextFast; if type(fn) == "function" then FN_UpdateHpTextFast = fn end end
+    if not FN_UpdatePowerBarFast then local fn = _G.MSUF_UFCore_UpdatePowerBarFast; if type(fn) == "function" then FN_UpdatePowerBarFast = fn end end
+    if not FN_UpdatePowerTextFast then local fn = _G.MSUF_UFCore_UpdatePowerTextFast; if type(fn) == "function" then FN_UpdatePowerTextFast = fn end end
+    if not FN_SetTextIfChanged then local fn = _G.MSUF_SetTextIfChanged; if type(fn) == "function" then FN_SetTextIfChanged = fn end end
 end
+
+
+
 
 local function _SetShown(obj, show)
     if not obj then return end
@@ -254,8 +268,9 @@ end
 
 local function _SetText(fs, txt)
     if not fs then return end
-    if type(_G.MSUF_SetTextIfChanged) == "function" then
-        _G.MSUF_SetTextIfChanged(fs, txt or "")
+    local fn = FN_SetTextIfChanged
+    if fn then
+        fn(fs, txt or "")
     else
         if fs.SetText then fs:SetText(txt or "") end
     end
@@ -263,34 +278,67 @@ end
 
 local function _UpdateIdentityColors(frame)
     if not frame or not frame.nameText then return end
+
     local db = _G.MSUF_DB
     local g = (type(db) == "table" and type(db.general) == "table") and db.general or {}
+
     local r, gCol, b
 
+    -- Player name class coloring (supports MSUF overrides)
     if g.nameClassColor and frame.unit and UnitIsPlayer and UnitIsPlayer(frame.unit) then
         local _, classToken = UnitClass(frame.unit)
-        if classToken and type(_G.MSUF_GetClassBarColor) == "function" then
-            r, gCol, b = _G.MSUF_GetClassBarColor(classToken)
-        end
-    end
-
-    if (not (r and gCol and b)) and g.npcNameRed and frame.unit and UnitIsPlayer and (not UnitIsPlayer(frame.unit)) then
-        if UnitIsDeadOrGhost and UnitIsDeadOrGhost(frame.unit) and type(_G.MSUF_GetNPCReactionColor) == "function" then
-            r, gCol, b = _G.MSUF_GetNPCReactionColor("dead")
-        else
-            local reaction = UnitReaction and UnitReaction("player", frame.unit)
-            if reaction and type(_G.MSUF_GetNPCReactionColor) == "function" then
-                if reaction >= 5 then
-                    r, gCol, b = _G.MSUF_GetNPCReactionColor("friendly")
-                elseif reaction == 4 then
-                    r, gCol, b = _G.MSUF_GetNPCReactionColor("neutral")
-                else
-                    r, gCol, b = _G.MSUF_GetNPCReactionColor("enemy")
+        if classToken then
+            if db and type(db.classColors) == "table" then
+                local override = db.classColors[classToken]
+                if type(override) == "table" and type(override.r) == "number" and type(override.g) == "number" and type(override.b) == "number" then
+                    r, gCol, b = override.r, override.g, override.b
+                elseif type(override) == "string" and type(_G.MSUF_FONT_COLORS) == "table" and type(_G.MSUF_FONT_COLORS[override]) == "table" then
+                    local c = _G.MSUF_FONT_COLORS[override]
+                    r, gCol, b = c[1], c[2], c[3]
                 end
+            end
+
+            if not (r and gCol and b) then
+                local c = (RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken]) or nil
+                if c then r, gCol, b = c.r, c.g, c.b end
             end
         end
     end
 
+    -- NPC name coloring by reaction (supports MSUF overrides)
+    if (not (r and gCol and b)) and g.npcNameRed and frame.unit and UnitExists and UnitExists(frame.unit) and UnitIsPlayer and (not UnitIsPlayer(frame.unit)) then
+        local kind
+        if UnitIsDeadOrGhost and UnitIsDeadOrGhost(frame.unit) then
+            kind = "dead"
+        else
+            local reaction = UnitReaction and UnitReaction("player", frame.unit) or nil
+            if reaction and reaction >= 5 then
+                kind = "friendly"
+            elseif reaction == 4 then
+                kind = "neutral"
+            else
+                kind = "enemy"
+            end
+        end
+
+        local t = (db and type(db.npcColors) == "table") and db.npcColors[kind] or nil
+        if type(t) == "table" and type(t.r) == "number" and type(t.g) == "number" and type(t.b) == "number" then
+            r, gCol, b = t.r, t.g, t.b
+        else
+            -- Defaults match main file.
+            if kind == "friendly" then
+                r, gCol, b = 0, 1, 0
+            elseif kind == "neutral" then
+                r, gCol, b = 1, 1, 0
+            elseif kind == "enemy" then
+                r, gCol, b = 0.85, 0.10, 0.10
+            elseif kind == "dead" then
+                r, gCol, b = 0.4, 0.4, 0.4
+            end
+        end
+    end
+
+    -- Fallback to configured global font color
     if not (r and gCol and b) then
         if type(_G.MSUF_GetConfiguredFontColor) == "function" then
             r, gCol, b = _G.MSUF_GetConfiguredFontColor()
@@ -367,6 +415,176 @@ local function UFCore_UpdateStatusFast(frame, conf)
     return true
 end
 
+
+-- ---------------------------------------------------------------------------
+-- UFCore: fast health bar color refresh (fixes "unit colors not updating" after
+-- spike fix removed legacy full UpdateSimpleUnitFrame() on target/focus swaps).
+--
+-- Why needed: MSUF_UFCore_UpdateHealthFast() updates min/max + value, but does
+-- NOT set hpBar:SetStatusBarColor(). That is normally done in the main file's
+-- heavy-visual pass, which we no longer run on every unit swap.
+-- ---------------------------------------------------------------------------
+
+local function UFCore_GetNPCReactionColorFast(kind)
+    local defaultR, defaultG, defaultB
+    if kind == "friendly" then
+        defaultR, defaultG, defaultB = 0, 1, 0
+    elseif kind == "neutral" then
+        defaultR, defaultG, defaultB = 1, 1, 0
+    elseif kind == "enemy" then
+        defaultR, defaultG, defaultB = 0.85, 0.10, 0.10
+    elseif kind == "dead" then
+        defaultR, defaultG, defaultB = 0.4, 0.4, 0.4
+    else
+        defaultR, defaultG, defaultB = 1, 1, 1
+    end
+
+    local db = UFCore_EnsureDBOnce()
+    if not db then
+        return defaultR, defaultG, defaultB
+    end
+    local t = (type(db.npcColors) == "table") and db.npcColors[kind] or nil
+    if type(t) == "table" and type(t.r) == "number" and type(t.g) == "number" and type(t.b) == "number" then
+        return t.r, t.g, t.b
+    end
+    return defaultR, defaultG, defaultB
+end
+
+local function UFCore_GetClassBarColorFast(classToken)
+    local defaultR, defaultG, defaultB = 0, 1, 0
+    if not classToken then
+        return defaultR, defaultG, defaultB
+    end
+
+    local db = UFCore_EnsureDBOnce()
+    if db and type(db.classColors) == "table" then
+        local override = db.classColors[classToken]
+        if type(override) == "table" and type(override.r) == "number" and type(override.g) == "number" and type(override.b) == "number" then
+            return override.r, override.g, override.b
+        end
+        if type(override) == "string" and type(_G.MSUF_FONT_COLORS) == "table" and type(_G.MSUF_FONT_COLORS[override]) == "table" then
+            local c = _G.MSUF_FONT_COLORS[override]
+            return c[1], c[2], c[3]
+        end
+    end
+
+    local color = (RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken]) or nil
+    if color then
+        return color.r, color.g, color.b
+    end
+    if C_ClassColor and C_ClassColor.GetClassColor then
+        local cc = C_ClassColor.GetClassColor(classToken)
+        if cc and cc.GetRGB then
+            return cc:GetRGB()
+        end
+    end
+    return defaultR, defaultG, defaultB
+end
+
+local function UFCore_RefreshHealthBarColorFast(frame, conf)
+    if not frame or not frame.unit or not frame.hpBar or not frame.hpBar.SetStatusBarColor then return end
+    local unit = frame.unit
+
+    if UnitExists and (not UnitExists(unit)) then
+        return
+    end
+
+    local db = UFCore_EnsureDBOnce()
+    local g = (db and type(db.general) == "table") and db.general or {}
+
+    -- Make sure the unit-type flags are up to date (pet, player, boss, etc.)
+    InitUnitFlags(frame)
+
+    -- Bar mode (authoritative): "dark" | "class" | "unified"
+    -- Backwards compatibility: if barMode is missing/invalid, derive it from legacy flags.
+    local mode = g.barMode
+    if mode ~= "dark" and mode ~= "class" and mode ~= "unified" then
+        mode = (g.useClassColors and "class") or (g.darkMode and "dark") or "dark"
+    end
+
+    local barR, barG, barB
+
+    if mode == "dark" then
+        local darkR, darkG, darkB = 0, 0, 0
+        local _gray = g.darkBarGray
+        if type(_gray) == "number" then
+            if _gray < 0 then _gray = 0 end
+            if _gray > 1 then _gray = 1 end
+            darkR, darkG, darkB = _gray, _gray, _gray
+        else
+            local toneKey = g.darkBarTone or "black"
+            local tone = _G.MSUF_DARK_TONES and _G.MSUF_DARK_TONES[toneKey]
+            if tone then
+                darkR, darkG, darkB = tone[1], tone[2], tone[3]
+            end
+        end
+        barR, barG, barB = darkR, darkG, darkB
+
+    elseif mode == "unified" then
+        local ur, ug, ub = g.unifiedBarR, g.unifiedBarG, g.unifiedBarB
+        if type(ur) ~= "number" then ur = 0.10 end
+        if type(ug) ~= "number" then ug = 0.60 end
+        if type(ub) ~= "number" then ub = 0.90 end
+        if ur < 0 then ur = 0 elseif ur > 1 then ur = 1 end
+        if ug < 0 then ug = 0 elseif ug > 1 then ug = 1 end
+        if ub < 0 then ub = 0 elseif ub > 1 then ub = 1 end
+        barR, barG, barB = ur, ug, ub
+
+    else
+        -- mode == "class": players = class, NPCs = reaction
+        if UnitIsPlayer and UnitIsPlayer(unit) then
+            local _, classToken = UnitClass(unit)
+            barR, barG, barB = UFCore_GetClassBarColorFast(classToken)
+        else
+            if UnitIsDeadOrGhost and UnitIsDeadOrGhost(unit) then
+                barR, barG, barB = UFCore_GetNPCReactionColorFast("dead")
+            else
+                local reaction = UnitReaction and UnitReaction("player", unit) or nil
+                if reaction and reaction >= 5 then
+                    barR, barG, barB = UFCore_GetNPCReactionColorFast("friendly")
+                elseif reaction == 4 then
+                    barR, barG, barB = UFCore_GetNPCReactionColorFast("neutral")
+                else
+                    barR, barG, barB = UFCore_GetNPCReactionColorFast("enemy")
+                end
+            end
+        end
+
+        -- Pet frame override (only when using Class mode)
+        if frame._msufIsPet then
+            local pr, pg, pb = g.petFrameColorR, g.petFrameColorG, g.petFrameColorB
+            if type(pr) == "number" and type(pg) == "number" and type(pb) == "number" then
+                if pr < 0 then pr = 0 elseif pr > 1 then pr = 1 end
+                if pg < 0 then pg = 0 elseif pg > 1 then pg = 1 end
+                if pb < 0 then pb = 0 elseif pb > 1 then pb = 1 end
+                barR, barG, barB = pr, pg, pb
+            end
+        end
+    end
+
+    -- Cache to avoid redundant UI work.
+    if frame._msufLastHPBarR == barR and frame._msufLastHPBarG == barG and frame._msufLastHPBarB == barB and frame._msufLastHPBarMode == mode then
+        return
+    end
+    frame._msufLastHPBarR, frame._msufLastHPBarG, frame._msufLastHPBarB, frame._msufLastHPBarMode = barR, barG, barB, mode
+
+    frame.hpBar:SetStatusBarColor(barR or 0, barG or 1, barB or 0, 1)
+
+    -- Keep gradients/background in sync if present (cheap + stamp-gated in main code).
+    local fnGrad = _G.MSUF_ApplyHPGradient
+    if type(fnGrad) == "function" then
+        if frame.hpGradients then
+            fnGrad(frame)
+        elseif frame.hpGradient then
+            fnGrad(frame.hpGradient)
+        end
+    end
+    local fnBg = _G.MSUF_ApplyBarBackgroundVisual
+    if type(fnBg) == "function" and frame.bg then
+        fnBg(frame)
+    end
+end
+
 Elements.Health = {
     key = "Health",
     bit = EL_HEALTH,
@@ -375,18 +593,20 @@ Elements.Health = {
         "UNIT_HEALTH", "UNIT_MAXHEALTH",
         "UNIT_ABSORB_AMOUNT_CHANGED", "UNIT_HEAL_ABSORB_AMOUNT_CHANGED",
         "UNIT_HEAL_PREDICTION", "UNIT_MAXHEALTHMODIFIER",
+        "UNIT_FACTION", "UNIT_FLAGS",
+
     },
     Enable = function(f, conf) end,
     Disable = function(f) end,
-    Update = function(f)
-        local fnH = _Has("MSUF_UFCore_UpdateHealthFast")
-        if fnH then
-            local hp = select(1, fnH(f))
-            local fnTxt = _Has("MSUF_UFCore_UpdateHpTextFast")
-            if fnTxt then fnTxt(f, hp) end
-            return true
-        end
-        return false
+    Update = function(f, conf)
+        local fnH = FN_UpdateHealthFast
+        if not fnH then return false end
+        local hp = select(1, fnH(f))
+        local fnTxt = FN_UpdateHpTextFast
+        if fnTxt then fnTxt(f, hp) end
+        -- Fix: ensure HP bar color updates immediately on unit swaps/show.
+        UFCore_RefreshHealthBarColorFast(f, conf)
+        return true
     end,
 }
 
@@ -406,7 +626,7 @@ Elements.Power = {
 
         local pt = f.powerText
         if pt then
-            local fnSet = _Has("MSUF_SetTextIfChanged")
+            local fnSet = FN_SetTextIfChanged
             if fnSet then
                 fnSet(pt, "")
             else
@@ -431,8 +651,8 @@ Elements.Power = {
         end
     end,
     Update = function(f)
-        local fnBar = _Has("MSUF_UFCore_UpdatePowerBarFast")
-        local fnTxt = _Has("MSUF_UFCore_UpdatePowerTextFast")
+        local fnBar = FN_UpdatePowerBarFast
+        local fnTxt = FN_UpdatePowerTextFast
         local ok = false
         if fnBar then fnBar(f); ok = true end
         if fnTxt then fnTxt(f); ok = true end
@@ -910,6 +1130,7 @@ end
 	-- Cache for unit-event names that are not supported on this client/branch.
 	-- (Some beta branches ship with different unit events; RegisterUnitEvent throws on unknown ones.)
 	local unsupported = Core._unsupportedUFCoreUnitEvents
+	local IsEventValid = (C_EventUtils and C_EventUtils.IsEventValid)
 	local function _UFCore_IsGlobalEvent(ev)
 		return (ev == "PLAYER_FLAGS_CHANGED")
 			or (ev == "PLAYER_REGEN_DISABLED")
@@ -964,7 +1185,9 @@ end
 	-- which can desync our bookkeeping table. UnregisterEvent() throws in that case.
 	for ev in pairs(reg) do
 		if not desired[ev] then
-			pcall(f.UnregisterEvent, f, ev)
+			if (not f.IsEventRegistered) or f:IsEventRegistered(ev) then
+				f:UnregisterEvent(ev)
+			end
 			reg[ev] = nil
 		end
 	end
@@ -982,13 +1205,13 @@ end
 					if unsupported and unsupported[ev] then
 						-- Skip unsupported events permanently on this client.
 					else
-						local ok = pcall(f.RegisterUnitEvent, f, ev, f.unit)
-						if ok then
-							reg[ev] = true
-						else
+						if IsEventValid and (not IsEventValid(ev)) then
 							unsupported = unsupported or {}
 							Core._unsupportedUFCoreUnitEvents = unsupported
 							unsupported[ev] = true
+						else
+							f:RegisterUnitEvent(ev, f.unit)
+							reg[ev] = true
 						end
 					end
                 end
@@ -1425,6 +1648,28 @@ function _G.MSUF_QueueUnitframeVisual(f)
     EnsureFlushEnabled()
 end
 
+-- Defer swap-heavy work to the next frame:
+--  - Portrait/model updates can be expensive on PLAYER_TARGET_CHANGED / PLAYER_FOCUS_CHANGED.
+--  - Rare bar visuals (colors/gradients/background) are queued into the Visual lane.
+local After0 = _G.C_Timer and _G.C_Timer.After
+local function DeferSwapWork(unit, why, wantPortrait)
+    if not After0 or not unit then return end
+    local f = FramesByUnit[unit]
+    if not f or f._msufSwapDeferPending then return end
+    f._msufSwapDeferPending = true
+    After0(0, function()
+        if not f then return end
+        f._msufSwapDeferPending = nil
+        if f:IsVisible() or f.MSUF_AllowHiddenEvents then
+            if wantPortrait then
+                Core.MarkDirty(f, DIRTY_PORTRAIT, false, why or "SWAP_DEFER_PORTRAIT")
+            end
+            _G.MSUF_QueueUnitframeVisual(f)
+        end
+    end)
+end
+
+
 -- ------------------------------------------------------------
 -- Flush
 -- ------------------------------------------------------------
@@ -1522,6 +1767,26 @@ local function RunUpdate(f)
         DIRTY_HEALTH, DIRTY_POWER, DIRTY_PORTRAIT,
         DIRTY_IDENTITY, DIRTY_STATUS, DIRTY_TOTINLINE, DIRTY_INDICATOR
     )
+
+    -- DIRTY_VISUAL: refresh rare visuals (outline/background/gradients) without
+    -- forcing a legacy full update + layout. This is the main source of large spikes
+    -- on TARGET/FOCUS acquire (frames were hidden → OnShow + UNIT_SWAP).
+    if mask ~= 0 and band(mask, DIRTY_VISUAL) ~= 0 then
+        local fn = _G.MSUF_RefreshRareBarVisuals
+        if type(fn) ~= "function" then fn = _G.MSUF_ApplyRareVisuals end
+        if type(fn) == "function" then
+            fn(f)
+        else
+            -- Fallback for older builds: keep correctness.
+            upd(f)
+            AfterLegacyFullUpdate(f)
+            return
+        end
+        mask = band(mask, bnot(DIRTY_VISUAL))
+        if mask == 0 then
+            return
+        end
+    end
 
     if mask ~= 0 and band(mask, bnot(HOT_MASK)) == 0 then
         -- HEALTH
@@ -1696,7 +1961,7 @@ local UNIT_EVENT_MAP = {
     UNIT_NAME_UPDATE                = { mask = DIRTY_IDENTITY, urgent = true },
     UNIT_LEVEL                      = { mask = DIRTY_IDENTITY, urgent = true },
     UNIT_CLASSIFICATION_CHANGED     = { mask = DIRTY_IDENTITY, urgent = true },
-    UNIT_FACTION                    = { mask = DIRTY_IDENTITY, urgent = true },
+    UNIT_FACTION                    = { mask = bor(DIRTY_IDENTITY, DIRTY_VISUAL), urgent = true },
 
     -- PORTRAIT
     UNIT_PORTRAIT_UPDATE            = { mask = DIRTY_PORTRAIT, urgent = false },
@@ -1760,6 +2025,9 @@ end
 function Core.AttachFrame(f)
     if not f or not f.unit then return end
 
+    -- Resolve hot-path fast helpers once (main file loads after UFCore).
+    UFCore_ResolveFastFns()
+
     InitUnitFlags(f)
     FramesByUnit[f.unit] = f
 
@@ -1789,7 +2057,8 @@ function Core.AttachFrame(f)
     if not f._msufUFCoreShowHooked and f.HookScript then
         f._msufUFCoreShowHooked = true
         f:HookScript("OnShow", function(self)
-            Core.MarkDirty(self, DIRTY_FULL, true, "OnShow")
+            Core.MarkDirty(self, MASK_SHOW_REFRESH, true, "OnShow")
+            DeferSwapWork(self.unit, "OnShow", true)
         end)
     end
     -- Apply initial layout stamps once.
@@ -1851,6 +2120,7 @@ end
 
 local Global = CreateFrame("Frame")
 Core._globalDriver = Global
+_G.MSUF_UFCore_HasToTInlineDriver = true
 
 Global:RegisterEvent("PLAYER_LOGIN")
 Global:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -1876,6 +2146,9 @@ end
 
 Global:SetScript("OnEvent", function(_, event, arg1)
     if event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" then
+        -- Resolve hot-path fast helpers now that the main file has loaded.
+        UFCore_ResolveFastFns()
+
         -- Ensure DB exists before we compute element masks (important for ToT-inline bootstrap).
         UFCore_EnsureDBOnce()
 
@@ -1912,6 +2185,8 @@ Global:SetScript("OnEvent", function(_, event, arg1)
         QueueUnit("target", true, MASK_UNIT_SWAP, event)
         -- Urgent lane: keep ToT snappy (no perceptible delay).
         QueueUnit("targettarget", true, MASK_UNIT_SWAP, event)
+        DeferSwapWork("target", event, true)
+        DeferSwapWork("targettarget", event, false)
         return
     end
 
@@ -1925,11 +2200,13 @@ Global:SetScript("OnEvent", function(_, event, arg1)
         end
         -- If the ToT unitframe exists/attached, keep it responsive too.
         QueueUnit("targettarget", true, MASK_UNIT_SWAP, event)
+        DeferSwapWork("targettarget", event, false)
         return
     end
 
     if event == "PLAYER_FOCUS_CHANGED" then
         QueueUnit("focus", true, MASK_UNIT_SWAP, event)
+        DeferSwapWork("focus", event, true)
         return
     end
 
