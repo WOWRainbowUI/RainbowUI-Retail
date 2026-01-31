@@ -1,5 +1,4 @@
-## Changed in v2026.10
+## Changed in v2026.11
 
-* Slightly better coords for Twilight Ascension
-* Fixed some errors when sharing links due to Midnight secrets
+* Improve the visibility of notes (yes, so it's easier to notice them to see the Twilight Ascension rare order)
 
