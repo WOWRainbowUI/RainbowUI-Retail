@@ -4,11 +4,13 @@ local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title")
 
 local LSM = LibStub("LibSharedMedia-3.0")
 
+local Masque = LibStub("Masque",true)
 local AceAddon = LibStub("AceAddon-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceDB = LibStub("AceDB-3.0")
-local DB_VERSION = 3
+
+local DB_VERSION = 4
 
 addon = AceAddon:NewAddon(addon, addonName, "AceConsole-3.0", "AceEvent-3.0")
 
@@ -23,6 +25,7 @@ local defaults = {
             HOSTILE_TARGET = false,
             IN_COMBAT = false,
             ALWAYS = true,
+            ONLY_ALL_CONDITIONS = false,
         },
         cooldown = {
             edge = true,
@@ -116,6 +119,27 @@ function addon:UpdateDB()
         profile.DBVERSION = 3
     end
 
+    if profile.DBVERSION < 4 then
+        local points = {
+            ["TOPLEFT"] =       "TOPLEFT",
+            ["TOP"] =           "TOP",
+            ["TOPRIGHT"] =      "TOPRIGHT",
+            ["LEFT"] =          "LEFT",
+            ["CENTER"] =        "CENTER",
+            ["RIGHT"] =         "RIGHT",
+            ["BOTTOMLEFT"] =    "BOTTOMLEFT",
+            ["BOTTOM"] =        "BOTTOM",
+            ["BOTTOMRIGHT"] =   "BOTTOMRIGHT",
+        }
+        if not points[profile.position.point] then
+            profile.position.point = "CENTER"
+        end
+        if not points[profile.position.relativePoint] then
+            profile.position.relativePoint = "CENTER"
+        end
+        profile.DBVERSION = 4
+    end
+
     profile.DBVERSION = DB_VERSION
 end
 
@@ -125,21 +149,21 @@ function addon:NormalizeDisplayOptions(key, val)
 
     if key == "ALWAYS" and val then
         for k in pairs(display) do
-            if k ~= "ALWAYS" then
+            if k ~= "ALWAYS" and k ~= "ONLY_ALL_CONDITIONS" then
                 display[k] = false
             end
         end
         return
     end
 
-    if key ~= "ALWAYS" and val then
+    if key ~= "ALWAYS" and k ~= "ONLY_ALL_CONDITIONS" and val then
         display.ALWAYS = false
         return
     end
 
     if not val then
-        for _, v in pairs(display) do
-            if v then
+        for k, v in pairs(display) do
+            if v and k ~= "ONLY_ALL_CONDITIONS" then
                 return
             end
         end
@@ -178,7 +202,7 @@ function addon:SetupOptions()
             locked = {
                 type = "toggle",
                 name = "鎖定框架",
-                desc = "鎖定或解鎖框架以便移動。",
+                desc = "鎖定或解鎖框架以進行移動。\n\n|cffffa000提示：將滑鼠移到圖示上時，按住 CTRL 鍵即可顯示鎖定/解鎖切換按鈕！|r",
                 get = function() return addon.db.profile.locked end,
                 set = function(_, val)
                     addon.db.profile.locked = val
@@ -193,7 +217,7 @@ function addon:SetupOptions()
                 desc = "啟用或停用冷卻與充能的轉圈動畫。",
                 get = function() return addon.db.profile.cooldown.showSwipe end,
                 set = function(_, val)
-                    addon.db.profile.showCooldownSwipe = val
+                    addon.db.profile.cooldown.showSwipe = val
                     AssistedCombatIconFrame:ApplyOptions()
                 end,
                 order = 2,
@@ -272,7 +296,7 @@ function addon:SetupOptions()
                         args = {
                             HOSTILE_TARGET = {
                                 type = "toggle",
-                                name = "僅在有敵對目標時顯示",
+                                name = "僅在有目標時顯示",
                                 order = 1,
                                 width = 1.1,
                                 get = function(info)
@@ -307,7 +331,7 @@ function addon:SetupOptions()
                         args = {
                             IN_COMBAT = {
                                 type = "toggle",
-                                name = "僅在戰鬥中顯示",
+                                name = "在戰鬥中顯示",
                                 order = 1,
                                 width = 1.1,
                                 get = function(info)
@@ -336,6 +360,29 @@ function addon:SetupOptions()
                             },
                         },
                     },
+                    r4 = {
+                        type = "group",
+                        name = "",
+                        order = 8,
+                        args = {
+                            IN_COMBAT = {
+                                type = "toggle",
+                                name = "僅符合所有條件"
+								desc = "僅在符合所有已選條件時顯示，而不是任一條件。"
+                                order = 1,
+                                width = 1.5,
+                                get = function(info)
+                                    return addon.db.profile.display.ONLY_ALL_CONDITIONS
+                                end,
+                                set = function(info, val)
+                                    addon.db.profile.display.ONLY_ALL_CONDITIONS = val
+                                    addon:NormalizeDisplayOptions("ONLY_ALL_CONDITIONS", val)
+                                    AssistedCombatIconFrame:UpdateVisibility()
+                                end,
+                                disabled = function() return addon.db.profile.display.ALWAYS end,
+                            },
+                        },
+                    },
                     grp2 = {
                         type = "group",
                         name = "",
@@ -344,8 +391,8 @@ function addon:SetupOptions()
                         args = {
                             iconSize = {
                                 type = "toggle",
-                                name = "Fade instead of Hiding",
-                                desc = "Set the icon Alpha level instead of hiding.",
+                                name = "淡出而非隱藏",
+								desc = "設定圖示的透明度等級，而不是直接隱藏。",
                                 get = function() return addon.db.profile.fadeOutHide end,
                                 set = function(_, val)
                                     addon.db.profile.fadeOutHide = val
@@ -357,8 +404,8 @@ function addon:SetupOptions()
                             },
                             alpha = {
                                 type = "range",
-                                name = " Fade out Alpha",
-                                desc = "Set the alpha to fade to when 'hidden'.",
+                                name = "淡出透明度",
+								desc = "設定在『隱藏』時淡出的透明度值。",
                                 min = 0, max = 1, step = 0.01,
                                 get = function() return addon.db.profile.fadeOutAlpha end,
                                 set = function(_, val)
@@ -414,10 +461,16 @@ function addon:SetupOptions()
                 inline = true,
                 order = 4,
                 args = {
+                    masqueWarning = {
+                        type = "description",
+                        name = "|cffffa000邊框目前已被 Masque 覆蓋。|r",
+                        hidden = function() return not (Masque and AssistedCombatIconFrame.MSQGroup and not AssistedCombatIconFrame.MSQGroup.db.Disabled) end,
+                        order = 9.1,
+                    },
                     borderColor = {
                         type = "color",
                         name = "邊框顏色",
-                        desc = "變更邊框的顏色",
+                        desc = "變更邊框的文字顏色",
                         hasAlpha = false,
                         get = function()
                             local c = addon.db.profile.border.color
@@ -427,8 +480,8 @@ function addon:SetupOptions()
                             addon.db.profile.border.color = { r = r, g = g, b = b }
                             AssistedCombatIconFrame:ApplyOptions()
                         end,
-                        order = 4,
-                        width = "normal",
+                        hidden = function() return (Masque and AssistedCombatIconFrame.MSQGroup and not AssistedCombatIconFrame.MSQGroup.db.Disabled) end,
+                        order = 2,
                     },
                     borderThickness = {
                         type = "range",
@@ -440,8 +493,8 @@ function addon:SetupOptions()
                             addon.db.profile.border.thickness = val
                             AssistedCombatIconFrame:ApplyOptions()
                         end,
-                        order = 5,
-                        width = "normal",
+                        hidden = function() return (Masque and AssistedCombatIconFrame.MSQGroup and not AssistedCombatIconFrame.MSQGroup.db.Disabled) end,
+                        order = 1,
                     },
                 },
             }, 
@@ -450,7 +503,7 @@ function addon:SetupOptions()
 
     local cooldownOptions = {
         type = "group",
-        name = "冷卻",
+        name = "冷卻 & 充能",
         inline = false,
         order = 3,
         args = {
@@ -577,7 +630,7 @@ function addon:SetupOptions()
                                     AssistedCombatIconFrame:ApplyOptions()
                                 end,
                                 order = 2,
-                                width = 0.8,
+                                width = 0.7,
                             },
                             fontOutline = {
                                 type = "toggle",
@@ -840,29 +893,28 @@ function addon:SetupOptions()
                 args = {
                     point = {
                         type = "select",
-                        name = "定位點",
-                        desc = "選擇圖示要錨定到螢幕的哪一側",
+                        name = "相對對齊點",
+                        desc = "要對齊到畫面或父層框架的哪個位置。",
                         values = function()
                             local points = {
-                                ["TOPLEFT"] = "左上",
-                                ["TOP"] = "上方",
-                                ["TOPRIGHT"] = "右上",
-                                ["LEFT"] = "左側",
-                                ["CENTER"] = "中間",
-                                ["RIGHT"] = "右側",
-                                ["BOTTOMLEFT"] = "左下",
-                                ["BOTTOM"] = "下方",
-                                ["BOTTOMRIGHT"] = "右下",
+                                ["TOPLEFT"] =       "TOPLEFT",
+                                ["TOP"] =           "TOP",
+                                ["TOPRIGHT"] =      "TOPRIGHT",
+                                ["LEFT"] =          "LEFT",
+                                ["CENTER"] =        "CENTER",
+                                ["RIGHT"] =         "RIGHT",
+                                ["BOTTOMLEFT"] =    "BOTTOMLEFT",
+                                ["BOTTOM"] =        "BOTTOM",
+                                ["BOTTOMRIGHT"] =   "BOTTOMRIGHT",
                             }
                             return points
                         end,
-                        get = function() return addon.db.profile.position.point end,
+                        get = function() return addon.db.profile.position.relativePoint end,
                         set = function(_, val)
-                            addon.db.profile.position.point = val
                             addon.db.profile.position.relativePoint = val
                             AssistedCombatIconFrame:ApplyOptions()
                         end,
-                        order = 5,
+                        order = 1,
                         width = 0.8,
                     },
                     fontX = {
@@ -919,7 +971,7 @@ function addon:SetupOptions()
                             addon.db.profile.position.strata = val
                             AssistedCombatIconFrame:ApplyOptions()
                         end,
-                        order = 5,
+                        order = 1,
                         width = 0.8,
                     },
                 }
@@ -929,7 +981,7 @@ function addon:SetupOptions()
                 name = "進階設定",
                 inline = true,
                 args = {
-                    point = {
+                    parent = {
                         type = "input",
                         name = "父框架名稱",
                         desc = "輸入要錨定圖示的框架名稱。",
@@ -947,6 +999,32 @@ function addon:SetupOptions()
                             return true
                         end,
                         order = 1,
+                    },
+                    point = {
+                        type = "select",
+                        name = "圖示對齊點",
+                        desc = "圖示應該以哪個位置對齊",
+                        values = function()
+                            local points = {
+                                ["TOPLEFT"] = "TOPLEFT",
+                                ["TOP"] = "TOP",
+                                ["TOPRIGHT"] = "TOPRIGHT",
+                                ["LEFT"] = "LEFT",
+                                ["CENTER"] = "CENTER",
+                                ["RIGHT"] = "RIGHT",
+                                ["BOTTOMLEFT"] = "BOTTOMLEFT",
+                                ["BOTTOM"] = "BOTTOM",
+                                ["BOTTOMRIGHT"] = "BOTTOMRIGHT",
+                            }
+                            return points
+                        end,
+                        get = function() return addon.db.profile.position.point end,
+                        set = function(_, val)
+                            addon.db.profile.position.point = val
+                            AssistedCombatIconFrame:ApplyOptions()
+                        end,
+                        order = 2,
+                        width = 0.8,
                     },
                 },
             },
@@ -988,20 +1066,33 @@ function addon:SlashCommand(input)
         self.db.profile.locked = not self.db.profile.locked
         AssistedCombatIconFrame:Lock(self.db.profile.locked)
         DEFAULT_CHAT_FRAME:AddMessage(
-            PREFIX .. (self.db.profile.locked and "Locked" or "Unlocked")
+            PREFIX .. (self.db.profile.locked and "已鎖定" or "已解鎖")
+        )
+    elseif input =="unlock" then
+        self.db.profile.locked = false
+        AssistedCombatIconFrame:Lock(false)
+        DEFAULT_CHAT_FRAME:AddMessage(
+            PREFIX .. "已解鎖"
         )
     elseif input =="toggle" then
         self.db.profile.enabled = not self.db.profile.enabled
         DEFAULT_CHAT_FRAME:AddMessage(
-            PREFIX .. (self.db.profile.enabled and "Enabled" or "Disabled")
+            PREFIX .. (self.db.profile.enabled and "已啟用" or "已停用")
         )
+    elseif input =="reload" then
+        AssistedCombatIconFrame:Reload()
+        DEFAULT_CHAT_FRAME:AddMessage(PREFIX.."重新載入!")
+    elseif input =="debug" then
+        AssistedCombatIconFrame:Debug()
     else
         DEFAULT_CHAT_FRAME:AddMessage( PREFIX .. 
-            "Usage:\n" ..
-            "/saci             - Open Config Menu\n" ..
-            "/saci lock       - Toggle Locking the Icon \n" ..
-            "/saci toggle    - Toggle the addon On or Off"
-        )
+			"用法:\n" ..
+			"/saci          -開啟設定選單\n" ..
+			"/saci lock     -切換圖示鎖定\n" ..
+			"/saci unlock   -解除圖示鎖定\n" ..
+			"/saci reload   -重新載入插件\n" ..
+			"/saci toggle   -切換插件啟用或停用"
+		)
     end
     
 end
