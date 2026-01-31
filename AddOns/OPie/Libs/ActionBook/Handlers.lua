@@ -63,8 +63,28 @@ local function toCooldown(now, start, duration, enabled)
 	if start and start > now then
 		start = start - 2^32/1000
 	end
-	duration = duration or 0
+	duration, enabled = duration or 0, enabled and enabled ~= 0 and 1 or 0
 	return duration > 0 and enabled ~= 0 and start+duration-now or 0, duration, enabled
+end
+
+local spellPHS, actionPHS if MODERN then
+	local phSpell = {
+		count = C_Spell.GetSpellDisplayCount,
+		cooldownInfo = GetSpellCooldown,
+		cooldownDuration = C_Spell.GetSpellCooldownDuration,
+		chargeInfo = GetSpellCharges,
+		chargeDuration = C_Spell.GetSpellChargeDuration,
+	}
+	local phAction = {
+		count = C_ActionBar.GetActionDisplayCount,
+		cooldownInfo = GetActionCooldown,
+		cooldownDuration = C_ActionBar.GetActionCooldownDuration,
+		chargeInfo = GetActionCharges,
+		chargeDuration = C_ActionBar.GetActionChargeDuration,
+	}
+
+	spellPHS = AB:ReservePartialHintSuffix(phSpell)
+	actionPHS = AB:ReservePartialHintSuffix(phAction)
 end
 
 securecall(function() -- mount: mount ID
@@ -108,8 +128,16 @@ securecall(function() -- mount: mount ID
 	function mountHint(id)
 		local usable = (not (InCombatLockdown() or IsIndoors())) and HasFullControl() and not UnitIsDeadOrGhost("player")
 		local cname, sid, icon, active, usable2 = C_MountJournal.GetMountInfoByID(id)
-		local cdLeft, cdLength = toCooldown(GetTime(), GetSpellCooldown(sid))
-		return usable and cdLeft == 0 and usable2, active and 1 or 0, icon, cname, 0, cdLeft, cdLength, callMethod.SetMountBySpellID, sid
+		local state, skipCD, cdLeft, cdLength = (active and 1 or 0), nil, GetSpellCooldown(sid)
+		if MODERN and issecretvalue(cdLeft) then
+			if sid then
+				skipCD, cdLeft = 1
+				state, cdLength = state + 524288, spellPHS + sid
+			end
+		else
+			cdLeft, cdLength = toCooldown(GetTime(), cdLeft, cdLength)
+		end
+		return usable and (skipCD or cdLeft == 0) and usable2, state, icon, cname, 0, cdLeft, cdLength, callMethod.SetMountBySpellID, sid
 	end
 	local actionMap = {}
 	local function createMount(id)
@@ -220,16 +248,30 @@ securecall(function() -- spell: spell ID + mount spell ID
 		local mjID = sid and getSpellMountID(sid)
 		if mjID then return mountHint(mjID) end
 		if not sname then return end
-		local now, msid = GetTime(), sid or spellMap[lowered[n]]
+		local state, now, msid = 0, GetTime(), sid or spellMap[lowered[n]]
 		local inRange, usable, nomana, hasRange = NormalizeInRange[IsSpellInRange(sid and RUNE_BASESPELL_CACHE[sid] or n, target or "target")], IsUsableSpell(n)
 		inRange, hasRange = inRange ~= 0, inRange ~= nil
-		local cdLeft, cdLength, enabled = toCooldown(now, GetSpellCooldown(n))
-		local count, charges, maxCharges, ccdStart, ccdLength = GetSpellCount(n), GetSpellCharges(n)
-		local state = ((IsSelectedSpellBookItem(n) or IsCurrentSpell(n) or isCurrentForm(n, sid) or enabled == 0) and 1 or 0) +
-		              (MODERN and IsSpellOverlayed(msid or 0) and 2 or 0) + (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) +
-		              (hasRange and 512 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
-		usable = not not (usable and inRange and (cdLeft == 0 or enabled == 0))
-		if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
+		local skipCD, overCount, useChargeCooldown
+		local cdLeft, cdLength, enabled = GetSpellCooldown(n)
+		local count, charges, maxCharges, ccdStart, ccdLength
+		if MODERN and issecretvalue(cdLeft) then
+			skipCD, count, cdLeft, cdLength, enabled = 1, 1
+			if msid then
+				state, cdLength = 524288, spellPHS + msid
+				overCount = C_Spell.GetSpellDisplayCount(msid)
+			end
+		else
+			count, charges, maxCharges, ccdStart, ccdLength = GetSpellCount(n), GetSpellCharges(n)
+			cdLeft, cdLength, enabled = toCooldown(now, cdLeft, cdLength, enabled)
+			if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
+				useChargeCooldown = 1
+			end
+		end
+		state = state + ((IsSelectedSpellBookItem(n) or IsCurrentSpell(n) or isCurrentForm(n, sid) or enabled == 0) and 1 or 0)
+		      + (MODERN and IsSpellOverlayed(msid or 0) and 2 or 0) + (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0)
+		      + (hasRange and 512 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
+		usable = not not (usable and inRange and (cdLeft == 0 or enabled == 0 or skipCD))
+		if useChargeCooldown then
 			cdLeft, cdLength = toCooldown(now, ccdStart, ccdLength, 1)
 		end
 		local ih, ico, ohUsable = iconOverrideHandlers[msid], nil
@@ -240,7 +282,8 @@ securecall(function() -- spell: spell ID + mount spell ID
 			end
 		end
 		local sbslot = msid and msid ~= 161691 and FindSpellBookSlotBySpellID(msid)
-		return usable, state, ico or GetSpellTexture(n), sname, count <= 1 and charges or count, cdLeft, cdLength, sbslot and SetSpellBookItem or msid and SetSpellByID, sbslot or msid
+		overCount = overCount or count <= 1 and charges or count
+		return usable, state, ico or GetSpellTexture(n), sname, overCount, cdLeft, cdLength, sbslot and SetSpellBookItem or msid and SetSpellByID, sbslot or msid
 	end
 	function spellFeedback(sname, target, spellId)
 		spellMap[sname] = spellId or spellMap[sname] or getSpellIDFromName(sname)
@@ -970,19 +1013,33 @@ securecall(function() -- extrabutton
 		if not HasExtraActionBar() then
 			return false, 0, "Interface/Icons/temp", "", 0, 0, 0
 		end
-		local now, at, aid = GetTime(), GetActionInfo(slot)
+		local now, state, at, aid = GetTime(), 0, GetActionInfo(slot)
 		local inRange, usable, nomana, hasRange = NormalizeInRange[IsActionInRange(slot)], IsUsableAction(slot)
 		inRange, hasRange = inRange ~= 0, inRange ~= nil
-		local cdLeft, cdLength, enabled = toCooldown(now, GetActionCooldown(slot))
-		local count, charges, maxCharges, ccdStart, ccdLength = GetActionCount(slot), GetActionCharges(slot)
-		local state = ((IsCurrentAction(slot) or enabled == 0) and 1 or 0) +
-		              (at == "spell" and IsSpellOverlayed(aid) and 2 or 0) +
-		              (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) + (hasRange and 512 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
-		if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
+		local skipCD, overCount, useChargeCooldown
+		local cdLeft, cdLength, enabled = nil, GetActionCooldown(slot)
+		local count, charges, maxCharges, ccdStart, ccdLength
+		if MODERN and issecretvalue(cdLeft) then
+			skipCD, cdLeft, enabled, charges, maxCharges, ccdStart, ccdLength = 1, nil
+			state, cdLength = state + 524288, actionPHS + slot
+			overCount, count = C_ActionBar.GetActionDisplayCount(slot), 1
+		else
+			count, charges, maxCharges, ccdStart, ccdLength = GetActionCount(slot), GetActionCharges(slot)
+			cdLeft, cdLength, enabled = toCooldown(now, cdLeft, cdLeft, enabled)
+			if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
+				useChargeCooldown = 1
+			end
+		end
+		state = state + ((IsCurrentAction(slot) or enabled == 0) and 1 or 0)
+		      + (at == "spell" and IsSpellOverlayed(aid) and 2 or 0)
+		      + (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) + (hasRange and 512 or 0)
+		      + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
+		usable = not not (usable and inRange and (skipCD or cdLeft == 0 or enabled == 0 or charges > 0))
+		if useChargeCooldown then
 			cdLeft, cdLength = toCooldown(now, ccdStart, ccdLength, 1)
 		end
-		usable = not not (usable and inRange and (cdLeft == 0 or enabled == 0 or charges > 0))
-		return usable, state, GetActionTexture(slot), GetActionText(slot) or (at == "spell" and GetSpellInfo(aid)), count <= 1 and charges or count, cdLeft, cdLength, callMethod.SetAction, slot
+		overCount = overCount or count <= 1 and charges or count
+		return usable, state, GetActionTexture(slot), GetActionText(slot) or (at == "spell" and GetSpellInfo(aid)), overCount, cdLeft, cdLength, callMethod.SetAction, slot
 	end
 	local aid = slot and AB:CreateActionSlot(extrabuttonHint, nil, "conditional", "[extrabar]", "attribute", "type","action", "action",slot)
 	local aid2 = slot and AB:CreateActionSlot(extrabuttonHint, nil, "attribute", "type","action", "action",slot)
@@ -1201,6 +1258,10 @@ securecall(function() -- toy: item ID, flags[FORCE_SHOW]
 		state = state + (inRange and 0 or 16) + (hasRange and 512 or 0) + (enabled == 0 and 2048 or 0)
 		if sid then
 			local charges, maxCharges, ccdStart, ccdLength = GetSpellCharges(sid)
+			if MODERN and issecretvalue(charges) then
+				charges, maxCharges, ccdStart, ccdLength = nil
+				--FIXME: BUG[12.0.0/2601]: this breaks Humans' hearthstone bonus charge recharge visualization while in combat
+			end
 			-- BUG[11.0.2/2409]: GetSpellCharges[The Innkeeper's Daughter] returns the unified hearthstone state,
 			-- but the *item cooldown* is actually enforced (longer + no second charge for Humans).
 			count = charges and charges > 0 and cdLength == 0 and charges or count
@@ -1314,10 +1375,16 @@ securecall(function() -- disenchant: iid
 		local name = C_Item.GetItemNameByID(ident)
 		local qual = MODERN and ident and (C_TradeSkillUI.GetItemReagentQualityByItemInfo(ident) or C_TradeSkillUI.GetItemCraftedQualityByItemInfo(ident))
 		qual = qual and qual > 0 and qual < 8 and (qual * 16384) or 0
-		local cdLeft, cdLength, enabled = toCooldown(GetTime(), GetSpellCooldown(DISENCHANT_SID))
-		local state = (C_Item.IsCurrentItem(ident) and 1 or 0) + (usable and 0 or 1024) + qual + 131072 + (enabled == 0 and 2048 or 0)
+		local state, skipCD, cdLeft, cdLength, enabled = 0, nil, GetSpellCooldown(DISENCHANT_SID)
+		if MODERN and issecretvalue(cdLeft) then
+			skipCD, cdLeft, enabled = 1
+			state, cdLength = state + 524288, DISENCHANT_SID + spellPHS
+		else
+			cdLeft, cdLength, enabled = toCooldown(GetTime(), cdLeft, cdLength, enabled)
+		end
+		state = state + qual + 131072 + (C_Item.IsCurrentItem(ident) and 1 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
 		local disName = ICON_PREFIX .. (name or ("item:" .. ident))
-		return not not (usable and cdLeft == 0), state, C_Item.GetItemIconByID(ident), disName, count,
+		return not not (usable and (skipCD or cdLeft == 0)), state, C_Item.GetItemIconByID(ident), disName, count,
 			cdLeft or 0, cdLength or 0, disenchantTip, ident
 	end
 	local function createDisenchant(iid)

@@ -1,17 +1,17 @@
 ## Interface: 11508, 20205, 50503, 120000
 ## Title: OPie
-## Version: 7.11.ERR
+## Version: 8.1.1
+## License: All rights reserved. Do not redistribute, in whole or in part, without explicit prior permission from the author.
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
 ## X-Website: https://www.townlong-yak.com/addons/opie
-## License: All rights reserved. Do not redistribute, in whole or in part, without explicit prior permission from the author.
 ## AddonCompartmentFunc: OPie_OpenSettings
 ## IconTexture: Interface/AddOns/OPie/gfx/opie_ring_icon
 ## Notes-deDE: Fähigkeiten in Ringen gruppieren, die erscheinen, wenn eine Tastenbelegung ausgelöst wird.
 ## Notes-esES: Agrupa habilidades en anillos que se muestran al pulsar una tecla.
 ## Notes-esMX: Agrupar habilitades en anillos que se aparecen al presionar teclados.
 ## Notes-frFR: Regrouper les sorts dans des anneaux qui apparaissent quand vous maintenez un raccourci
-## Notes-itIT: Raggruppa le abilità in anelli che compaiono quando tieni premuto un legame.
+## Notes-itIT: Raggruppa le abilità in anelli che appaiono quando tieni premuto un tasto di scelta rapida.
 ## Notes-koKR: 단축키를 눌렀을 때 표시되는 고리로 능력을 분류합니다.
 ## Notes-ruRU: Объединяет умения в кольца, которые появляются при нажатии назначенных клавиш.
 ## Notes-zhCN: 当你按下快捷键时显示一个环形的技能分组.
@@ -26,16 +26,16 @@
 ## Category-zhTW: 快捷列
 ## DefaultState: disabled
 
-Meta\PackTag-5.lua
+Meta\PackTag-6.lua
 Libs\Evie.lua
 Libs\Niji.lua
 Libs\exui\exui.xml
 Libs\Ware.lua
 Libs\ActionBook\ActionBook.xml
-Libs\Mirage.lua
 Libs\NotGameTooltip.lua
 Libs\TenSettings.lua
 UI\Widgets.lua
+UI\Mirage.lua
 Locale.lua
 WhatsNew.lua
 OPieCore.lua

@@ -766,7 +766,7 @@ end
 function OPC_AppearanceFactory:formatText(key, outOfDate, name, disabled)
 	name = name or T.OPieUI:GetIndicatorConstructorName(key)
 	if not name then
-		name = "|cffa0a0a0*[" .. T.OPieUI:GetIndicatorConstructorName() .. "]|r"
+		name = "|cffa0a0a0*[" .. (T.OPieUI:GetIndicatorConstructorName() or "??") .. "]|r"
 	end
 	if disabled then
 		name = "|cff909090" .. name .. "|r"

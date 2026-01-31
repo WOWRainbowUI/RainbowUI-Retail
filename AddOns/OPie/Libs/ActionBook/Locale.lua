@@ -28,11 +28,11 @@ V =
       "Divers", "Monture", "Montures", "Nouvelle Macro", "Afficher seulement quand équipé", "Compétence du Familier", "Compétences du familier", "Marqueur de Raid", "Marqueur de Terrain", "Marqueurs de Raid",
       "Afficher un remplacement quand indisponible", "Sort", "Jouet", "Jouets", "Fenêtres de l'interface", "Utiliser le rang le plus élevé connu", "Compétences de zone",
     }
-    or C == "itIT" and { -- 26/37 (70%)
-      z, "Usa anche gli oggetti con lo stesso nome", z, z, z, z, z, z, z, z,
-      "Equipaggiato/a", z, "Cavalcatura Volanti", "Menu di gioco", "Cavalcature a terra", "Pannello di Interfaccia", "Oggetto", "Oggetti", "La macro", "Le macro",
-      "Varie", "Cavalcatura", "Cavalcature", "Nuovo Macro", "Mostra solo quando è equipaggiato", z, "Abilità di animali domestici", "Segnalini Raid", "Segnalini mondiali di raid", "Segnalini raid",
-      "Mostra sempre questo segnaposto quando è disponibile", "Incanto", "Gioccatolo", "Gioccatoli", "Pannelli dell'interfaccia utente", "Usare il grado più alto conosciuto.", "Abilità di Zona.",
+    or C == "itIT" and { -- 36/37 (97%)
+      "Abilità", "Usa anche gli oggetti con lo stesso nome", "Mascotte", "Mascotte", "Calendario", "Macro Personalizzate", z, "Set equipaggiamento", "Slot equipaggiamento", "Collezione di set",
+      "Equipaggiato", "Pulsante azioni extra", "Cavalcatura volante", "Menu di gioco", "Cavalcatura terrestre", "Pannello UI", "Oggetto", "Oggetti", "Macro", "Le macro",
+      "Varie", "Cavalcatura", "Cavalcature", "Nuova Macro", "Mostra solo se equipaggiato", "Abilità del famiglio", "Collezione abilità del famiglio", "Segnalini Raid", "Segnalini raid mondiali", "Segnalini raid",
+      "Mostra un segnaposto quando non disponibile", "Incantesimo", "Giocattolo", "Giocattoli", "Pannelli UI", "Usare il grado più alto conosciuto.", "Abilità di Zona.",
     }
     or C == "koKR" and { -- 37/37 (100%)
       "능력", "같은 이름의 아이템 사용", "애완동물 대전", "전투 애완동물", "달력", "사용자 정의 매크로", "용조련술 탈것", "장비 구성", "장비 칸", "장비 구성",

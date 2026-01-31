@@ -1,7 +1,9 @@
 local COMPAT, _, T = select(4, GetBuildInfo()), ...
-local PC, EV, api, iapi, configCache, vis = T.OPieCore, T.Evie, {}, {}, {}, {}
-local GameTooltip = T.NotGameTooltip or GameTooltip
+local PC, EV, XU, GameTooltip = T.OPieCore, T.Evie, T.exUI, T.NotGameTooltip or GameTooltip
+local api, iapi, configCache, vis = {}, {}, {}, {}
 local max, min, abs, floor, sin, cos = math.max, math.min, math.abs, math.floor, sin, cos
+local GetPartialHintRaw = PC.GetPartialHintRaw
+local MODERN = COMPAT > 11e4
 local MIN_ANIMATION_FPS, LOCKED_FRAMERATE = 20, 60 do
 	local ticks = 0
 	local function unlockTick()
@@ -16,7 +18,7 @@ local MIN_ANIMATION_FPS, LOCKED_FRAMERATE = 20, 60 do
 end
 
 local Slices, GhostIndication, IndicatorFactories = {}, {}, {}
-local CreateIndicator, ActiveIndicatorFactory, LastRegisteredIndicatorFactory = T.Mirage.CreateIndicator
+local ActiveIndicatorFactory, LastRegisteredIndicatorFactory
 
 local function assert(condition, text, level)
 	return condition or error(text, (level or 1)+1)((0)[0])
@@ -51,6 +53,9 @@ local function FramePool_IteratedReleaseAll(pool)
 	while pool:GetNextActive() do
 		pool:ReleaseAll()
 	end
+end
+local function CreateIndicator(name, parent, size, nested)
+	return XU:Create("OPie:MirageIndicator", name, parent, size, nested)
 end
 
 local gfxBase = ([[Interface\AddOns\%s\gfx\]]):format((...))
@@ -116,6 +121,23 @@ end
 local function setIndicationShown(shown)
 	mainFrame:SetShown(shown)
 	proxyFrame:SetShown(shown)
+end
+if MODERN then
+	local s = CreateFrame("StatusBar", nil, mainFrame)
+	s:SetPoint("CENTER")
+	s:SetSize(100, 1)
+	s:SetStatusBarTexture("Interface/Buttons/White8x8")
+	s:SetAlpha(0)
+	s:SetMinMaxValues(-2^-20, 1)
+	s:SetValue(0)
+	local t = s:GetStatusBarTexture()
+	function iapi.updateReadyGlowValue(target)
+		if target then
+			s:SetValue(target, 1)
+		end
+		local _, _, _, _, w = t:GetTexCoord()
+		centerGlow:SetAlpha(w)
+	end
 end
 
 local function setAngle(self, angle, radius)
@@ -265,6 +287,7 @@ local SwitchIndicatorFactory, ValidateIndicator do
 		SetOverlayIcon=0, SetOverlayIconVertexColor=1,
 		SetUsable=0, SetCount=0, SetBinding=0,
 		SetCooldown=0, SetCooldownTextShown="supportsCooldownNumbers", SetShortLabel="supportsShortLabels",
+		SetCooldownPH="supportsCooldownPH",
 		SetEquipState=0, SetHighlighted=0, SetActive=0, SetOuterGlow=0,
 		SetQualityOverlay=2,
 	}
@@ -408,8 +431,9 @@ local function anchorTooltip(tt, owner, at, angle)
 		tt:SetPoint(left and "LEFT" or "RIGHT", proxyFrame, "CENTER", (vis.radius+60)*(left and s or -s), 0)
 	end
 end
-local function updateCentralElements(_self, si, _, tok, usable, state, icon, caption, _, _, _, tipFunc, tipArg, _, stext)
+local function updateCentralElements(_self, si, _, tok, usable, state, icon, caption, _, cd, cd2, tipFunc, tipArg, _, stext)
 	local osi, time = vis.oldSlice, GetTime()
+	vis.oldSlice = si
 
 	if tok then
 		local r,g,b = getSliceColor(tok, tokenIcon[tok] or icon or "Interface/Icons/INV_Misc_QuestionMark")
@@ -439,27 +463,33 @@ local function updateCentralElements(_self, si, _, tok, usable, state, icon, cap
 	end
 
 	local sm = state and (state % 4 > 1) and 0.625 or 1
+	local isPartiallyHinted = state and state % 1048576 >= 524288
+	local cdHintID = isPartiallyHinted and cd == nil and cd2
 	if vis.rotPeriod ~= sm then
 		vis.rotPeriod = sm
 		setRingRotationPeriod(configCache.XTRotationPeriod*sm)
 	end
-
-	local gAnim, gEnd, oIG, usable = vis.gAnim, vis.gEnd, vis.oldIsGlowing, usable or (state and usable ~= false) or false
-	if usable ~= oIG then
-		gAnim, gEnd = usable and "in" or "out",  time + 0.3 - (gEnd and gEnd > time and (gEnd-time) or 0)
-		vis.oldIsGlowing, vis.gAnim, vis.gEnd = usable, gAnim, gEnd
-		centerGlow:SetShown(true)
+	local sUsable = usable or (state and usable ~= false) or false
+	local cdDuration = sUsable and cdHintID and GetPartialHintRaw(cdHintID, "cooldownDuration")
+	local glowAlpha = cdDuration and C_CurveUtil.EvaluateColorValueFromBoolean(cdDuration:IsZero(), 0.75, 0) or sUsable and 0.75 or 0
+	if MODERN then
+		iapi.updateReadyGlowValue(glowAlpha)
+	else
+		local GLOW_FADE_TIME, gTarget, gEnd = 0.3, vis.glowTarget, vis.glowEnd
+		if gTarget ~= glowAlpha then
+			gTarget, gEnd = glowAlpha, time + GLOW_FADE_TIME - (gEnd and gEnd > time and (gEnd-time) or 0)
+			vis.glowTarget, vis.glowEnd = gTarget, gEnd
+		end
+		if not gEnd then
+		elseif gEnd > time then
+			local r = (gEnd-time)/GLOW_FADE_TIME
+			local a = gTarget > 0 and gTarget*(1-r) or (0.75*r)
+			centerGlow:SetAlpha(a > 0 and a or 0)
+		else
+			centerGlow:SetAlpha(gTarget)
+			vis.glowEnd = nil
+		end
 	end
-	if gAnim and gEnd <= time or oIG == nil then
-		vis.gAnim, vis.gEnd = nil, nil
-		centerGlow:SetShown(usable)
-		centerGlow:SetAlpha(0.75)
-	elseif gAnim then
-		local pg = (gEnd-time)/0.3*0.75
-		local a = usable and (pg > 0.75 and 0 or (0.75 - pg)) or pg
-		centerGlow:SetAlpha(a < 0 and 0 or a)
-	end
-	vis.oldSlice = si
 end
 local function updateSlice(self, originAngle, selected, tok, usable, state, icon, _, count, cd, cd2, _tf, _ta, ext, stext)
 	local isJump, origIcon, tokIcon, jumpOtherTok, isJumpIconOverlay, isAtlasIcon = false, icon, tokenIcon[tok]
@@ -472,7 +502,10 @@ local function updateSlice(self, originAngle, selected, tok, usable, state, icon
 	local active, overlay, faded, usableCharge = state % 2 >= 1, state % 4 >= 2, not usable, usable or (state % 128 >= 64)
 	local isInContainer, isInInventory, isQuestStartItem = state % 256 >= 128, state % 512 >= 256, tokenQuest[tok] or (state % 64 >= 32)
 	local isDisenchanting = state % 262144 >= 131072
+	local isPartiallyHinted = state % 1048576 >= 524288
+	local cdHintID, holdCount = isPartiallyHinted and cd == nil and cd2, isPartiallyHinted and state % 2097152 >= 1048576
 	local onCooldown, noMana, noRange, qual = cd and cd > 0, state % 16 >= 8, state % 32 >= 16, state % qualMod
+	cd2 = cd and cd2 or nil
 	qual = qual >= qualModLow and qualMap[qual - qual % qualModLow] or 0
 	self[isAtlasIcon and "SetIconAtlas" or "SetIcon"](self, icon, isAtlasIcon and atlasRatio[icon] or 1)
 	if ext then securecall(applyExtIconCoord, self, ext) end
@@ -504,10 +537,15 @@ local function updateSlice(self, originAngle, selected, tok, usable, state, icon
 		self:SetShortLabel(configCache.ShowShortLabels and (tokenLabel[tok] or stext) or "")
 	end
 	self:SetQualityOverlay(qual)
-	self:SetCooldown(cd, cd2, usableCharge)
+	local hideCount = configCache.ShowOneCount and 0 or 1
+	local showCount = MODERN and issecretvalue(count) or ((count or 0) > hideCount)
+	self:SetCount(showCount and count, holdCount)
+	if cdHintID and not cd and ActiveIndicatorFactory.supportsCooldownPH then
+		self:SetCooldownPH(cdHintID, GetPartialHintRaw, holdCount)
+	else
+		self:SetCooldown(cd, cd2, usableCharge)
+	end
 	self:SetEquipState(isInContainer, isInInventory)
-	local ct = configCache.ShowOneCount and 0 or 1
-	self:SetCount((count or 0) > ct and count)
 	self:SetActive(active)
 	self:SetHighlighted(selected and not faded)
 end
@@ -712,7 +750,7 @@ function iapi:Show(_, _, fastOpen)
 	end
 	setupTransitionAnimation(fastOpen and "fast-in" or "in", OnUpdate_ZoomIn)
 	setIndicationShown(true)
-	if configCache.DeclutterOnOpen and COMPAT > 11e4 then
+	if configCache.DeclutterOnOpen and MODERN then
 		FramePool_IteratedReleaseAll(LootAlertSystem.alertFramePool)
 	end
 end
@@ -747,6 +785,8 @@ function api:SetIconDefaultColor(icon, r,g,b)
 	setIconColorOverride(icon, r,g,b)
 end
 
+api.GetPartialHint = PC.GetPartialHint -- ... <-- (_, hintID, aspect)
+
 function api:RegisterIndicatorConstructor(key, info)
 	assert(type(key) == "string" and type(info) == "table", 'Syntax: OPieUI:RegisterIndicatorConstructor("key", infoTable)', 2)
 	local func, apiLevel, iname, reqAPILevel = info.CreateIndicator, info.apiLevel, info.name, info.reqAPILevel
@@ -759,7 +799,7 @@ function api:RegisterIndicatorConstructor(key, info)
 	assert(type(onPAC) == "function" or onPAC == nil, 'RegisterIndicatorConstructor: info.onParentAlphaChanged, if set, must be a function', 2)
 
 	local mainPool, err = ValidateIndicator(apiLevel, reqAPILevel, info)
-	local fbKey = key == "elvui" and (COMPAT > 11e4 and "fixedFrameBuffering" or COMPAT > 2e4 and "fixedFrameBufferingClassic" or "fixedFrameBufferingEra")
+	local fbKey = key == "elvui" and (MODERN and "fixedFrameBuffering" or COMPAT > 2e4 and "fixedFrameBufferingClassic" or "fixedFrameBufferingEra")
 	if fbKey and not info[fbKey] then
 		-- BUG[2408/11.0.2,1.15.4,4.4.1]: Showing buffered frames while a model frame is visible can crash to desktop with an assertion failure (test builds)/restart the renderer in a loop/crash the client
 		mainPool, err = nil, 'Disabled to avoid triggering a client crash (missing flag: ' .. fbKey .. ').'
@@ -772,6 +812,7 @@ function api:RegisterIndicatorConstructor(key, info)
 		ghostPool = {},
 		supportsCooldownNumbers = not not info.supportsCooldownNumbers,
 		supportsShortLabels = not not info.supportsShortLabels,
+		supportsCooldownPH = not not info.supportsCooldownPH,
 		onParentAlphaChanged = onPAC,
 		err = err,
 	}
@@ -787,6 +828,14 @@ for k,v in pairs({IndicatorFactory="_",
 }) do
 	PC:RegisterOption(k,v)
 end
-api:RegisterIndicatorConstructor("mirage", T.Mirage)
+api:RegisterIndicatorConstructor("mirage", {
+	name="OPie",
+	apiLevel=3,
+	CreateIndicator=CreateIndicator,
+
+	supportsCooldownNumbers=true,
+	supportsShortLabels=true,
+	supportsCooldownPH=true,
+})
 
 T.OPieUI, OPie.UI = iapi, api

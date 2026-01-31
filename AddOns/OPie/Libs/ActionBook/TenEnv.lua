@@ -43,7 +43,7 @@ function env.GetSpellCooldown(id)
 	id = id and C_Spell.GetOverrideSpell(id)
 	local ci = id and C_Spell.GetSpellCooldown(id)
 	if ci then
-		return ci.startTime, ci.duration, ci.isEnabled and 1 or 0, ci.modRate
+		return ci.startTime, ci.duration, ci.isEnabled, ci.modRate
 	end
 end
 function env.GetSpellCharges(id)
@@ -63,6 +63,19 @@ env.GetSpellTexture = C_Spell.GetSpellTexture
 env.DoesSpellExist = C_Spell.DoesSpellExist
 env.GetSpellLink = C_Spell.GetSpellLink
 env.IsSpellOverlayed = C_SpellActivationOverlay.IsSpellOverlayed
+function env.GetActionCharges(slot)
+	local ci = slot and C_ActionBar.GetActionCharges(slot)
+	if ci then
+		return ci.currentCharges, ci.maxCharges, ci.cooldownStartTime, ci.cooldownDuration, ci.chargeModRate
+	end
+end
+function env.GetActionCooldown(slot)
+	local ci = slot and C_ActionBar.GetActionCooldown(slot)
+	if ci then
+		return ci.startTime, ci.duration, ci.isEnabled, ci.modRate
+	end
+end
+
 
 function env.GetStablePetInfo(idx)
 	local si = C_StableInfo.GetStablePetInfo(idx)
