@@ -97,14 +97,30 @@ function tooltip:PLAYER_LOGIN()
     C_CVar.SetCVar("missingTransmogSourceInItemTooltips", "1")
 end
 
+local function scrollActiveModel(amount)
+    if not (tooltip.activeModel and tooltip.activeModel:IsVisible()) then
+        return
+    end
+    if tooltip.activeModel.GetActiveCamera then
+        local camera = tooltip.activeModel:GetActiveCamera()
+        local mode = ORBIT_CAMERA_MOUSE_MODE_YAW_ROTATION
+        local snapToValue = false
+        camera:HandleMouseMovement(mode, amount, snapToValue)
+    else
+        tooltip.activeModel:SetFacing(tooltip.activeModel:GetFacing() + amount)
+    end
+    return true
+end
+
 do
     local scrollup = CreateFrame("Button", "AppearanceTooltipScrollUpButton", tooltip)
     scrollup:SetScript("OnClick", function(self, button, down)
-        tooltip.activeModel:SetFacing(tooltip.activeModel:GetFacing() + 0.3)
+        scrollActiveModel(0.3)
     end)
+    scrollup:RegisterForClicks("AnyDown", "AnyUp")
     local scrolldown = CreateFrame("Button", "AppearanceTooltipScrollDownButton", tooltip)
     scrolldown:SetScript("OnClick", function(self, button, down)
-        tooltip.activeModel:SetFacing(tooltip.activeModel:GetFacing() - 0.3)
+        scrollActiveModel(-0.3)
     end)
 
     local function ClearBindings()
@@ -135,8 +151,12 @@ do
     local function makeModel(frameType, template)
         local model = CreateFrame(frameType, nil, tooltip, template)
         model:SetFrameLevel(1)
-        model:SetPoint("TOPLEFT", tooltip, "TOPLEFT", 5, -5)
-        model:SetPoint("BOTTOMRIGHT", tooltip, "BOTTOMRIGHT", -5, 5)
+        model:SetScript("OnShow", function()
+            -- This is mostly in service of avoiding secret-spread
+            model:ClearAllPoints()
+            model:SetPoint("TOPLEFT", tooltip, "TOPLEFT", 5, -5)
+            model:SetPoint("BOTTOMRIGHT", tooltip, "BOTTOMRIGHT", -5, 5)
+        end)
 
         return model
     end
@@ -247,9 +267,11 @@ positioner:SetScript("OnUpdate", function(self, elapsed)
     self.elapsed = 0
 
     local owner, our_point, owner_point = ns:ComputeTooltipAnchors(tooltip.owner, db.anchor)
+    tooltip:ClearAllPoints()
     if our_point and owner_point then
-        tooltip:ClearAllPoints()
         tooltip:SetPoint(our_point, owner, owner_point)
+    else
+        tooltip:Hide()
     end
 end)
 
@@ -370,10 +392,9 @@ end
 local spinner = CreateFrame("Frame", nil, tooltip);
 spinner:Hide()
 spinner:SetScript("OnUpdate", function(self, elapsed)
-    if not (tooltip.activeModel and tooltip.activeModel:IsVisible()) then
-        return self:Hide()
+    if not scrollActiveModel(elapsed) then
+        self:Hide()
     end
-    tooltip.activeModel:SetFacing(tooltip.activeModel:GetFacing() + elapsed)
 end)
 
 local hider = CreateFrame("Frame")
@@ -561,6 +582,8 @@ function ns:ShowItem(link, for_tooltip)
             end
             modelScene:Show()
 
+            tooltip.activeModel = modelScene
+
             self:ShowTooltip(for_tooltip)
         end
     elseif C_MountJournal and C_MountJournal.GetMountFromItem and classID == Enum.ItemClass.Miscellaneous and subclassID == Enum.ItemMiscellaneousSubclass.Mount then
@@ -589,6 +612,8 @@ function ns:ShowItem(link, for_tooltip)
                 modelScene:AttachPlayerToMount(mountActor, animID, isSelfMount, disablePlayerMountPreview)
                 modelScene:Show()
 
+                tooltip.activeModel = modelScene
+
                 self:ShowTooltip(for_tooltip)
             end
         end
@@ -607,6 +632,8 @@ function ns:ShowItem(link, for_tooltip)
                 battlePetActor:SetModelByCreatureDisplayID(displayID, true)
                 battlePetActor:SetAnimationBlendOperation(Enum.ModelBlendOperation.None)
             end
+
+            tooltip.activeModel = modelScene
 
             modelScene:Show()
             self:ShowTooltip(for_tooltip)
