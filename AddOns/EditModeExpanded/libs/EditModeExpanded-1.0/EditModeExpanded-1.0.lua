@@ -2,7 +2,7 @@
 -- Internal variables
 --
 
-local MAJOR, MINOR = "EditModeExpanded-1.0", 111
+local MAJOR, MINOR = "EditModeExpanded-1.0", 113
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -950,6 +950,9 @@ hooksecurefunc(f, "OnLoad", function()
     end
     EditModeManagerExpandedFrame:Hide();
     
+    -- Cannot parent it to EditModeManagerFrame, as I'd have to set a "ignoreInLayout" value, which would then spread taint
+    EditModeManagerExpandedFrame:SetFrameStrata("DIALOG")
+    
     EditModeManagerExpandedFrame:ClearAllPoints()
     EditModeManagerExpandedFrame:SetPoint("TOPLEFT", EditModeManagerFrame, "BOTTOMLEFT", 0, -2)
     EditModeManagerExpandedFrame:SetPoint("TOPRIGHT", EditModeManagerFrame, "BOTTOMRIGHT", 0, -2)
@@ -1128,6 +1131,8 @@ hooksecurefunc(f, "OnLoad", function()
             EditModeExpandedSystemSettingsDialog:Hide()
         end
         
+        if InCombatLockdown() then return end
+        
         for _, frame in ipairs(frames) do
             if systemFrame ~= frame then
                 frame:HighlightSystem()
@@ -1136,6 +1141,7 @@ hooksecurefunc(f, "OnLoad", function()
     end)
     
     hooksecurefuncWrapper(EditModeManagerFrame, "MakeNewLayout", function(self, _, layoutType, layoutName)
+        if InCombatLockdown() then return end
         local oldProfileName = previousProfileNames[2]
         if not oldProfileName then
             oldProfileName = previousProfileNames[1]
