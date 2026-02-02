@@ -34,6 +34,7 @@ local L = Shared.Locale
 --L["Vehicle Bar"] = "Vehicle Bar"
 --L["Extra Ability Buttons"] = "Extra Ability Buttons"
 --L["Pet Battle Bar"] = "Pet Battle Bar"
+--L["Tracked Bars"] = "Tracked Bars"
 --L["Tracked Buffs"] = "Tracked Buffs"
 --L["Essential Cooldowns"] = "Essential Cooldowns"
 --L["Utility Cooldowns"] = "Utility Cooldowns"
