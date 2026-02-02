@@ -37,7 +37,7 @@ SmartQuest = {
 	--
 	-- **********************************************************************************************
 
-	Version = "1.30.5";
+	Version = "1.31";
 	ModCode = "KSQ";
 	DataCode = "1";
 	Quest = { };
@@ -122,13 +122,12 @@ function SmartQuest_OnEvent(self, event, ...)
 		SmartQuestFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
 		SmartQuestFrame:RegisterEvent("PLAYER_LEAVING_WORLD");
 		
-		if (SmartQuestOptions.Setting and SmartQuestOptions.Setting[SmartQuest.Data.Me]) then -- 暫時修正
+		if (SmartQuestOptions.Setting and SmartQuestOptions.Setting[SmartQuest.Data.Me]) then
 			-- Migrate and delete old settings
 			SmartQuest_ErrorPrint("Migrating old profile settings to new system.");
 			SmartQuestOptions.Setting[SmartQuest.Data.MeFull] = SmartQuestOptions.Setting[SmartQuest.Data.Me];
 			SmartQuestOptions.Setting[SmartQuest.Data.Me] = nil;
 		end
-
 		
 		if (SmartQuestOptions.DataCode ~= SmartQuest.DataCode or not (SmartQuestOptions.Setting)) then
 			SmartQuestOptions = { };
