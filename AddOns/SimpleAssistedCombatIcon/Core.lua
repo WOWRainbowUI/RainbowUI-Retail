@@ -18,6 +18,7 @@ local defaults = {
     profile = {
         enabled = true,
         locked = false,
+        lockButtonMouseover = true,
         display = {
             HideInVehicle = false,
             HideInHealerRole = false,
@@ -346,7 +347,7 @@ function addon:SetupOptions()
                             HideAsHealer = {
                                 type = "toggle",
                                 name = "治療專精時隱藏",
-                                desc = "在隊伍內容中擔任治療角色時隱藏圖示。\n\n單人遊玩時仍會顯示圖示。",
+                                desc = "在隊伍內容中擔任治療角色時隱藏圖示。\n\n |cffffa000單人遊玩時仍會顯示圖示。|r",
                                 order = 2,
                                 width = 1.1,
                                 get = function(info)
@@ -1026,10 +1027,24 @@ function addon:SetupOptions()
                         order = 2,
                         width = 0.8,
                     },
+                    warning = {
+                        type = "group",
+                        name = "",
+                        inline = true,
+                        order = 3,
+                        args = {
+                            parentWarning = {
+                                type = "description",
+                                name = "|cffffa000拖曳圖示會將父框架重置回 UIParent。|r\n|cffffa000設定此選項也會停用按住 Ctrl 鍵並滑鼠指向時的鎖定/解鎖按鈕。|r",
+                            },
+                        },
+                    },
                 },
             },
         },
     }
+
+
 
     local options = {
         type = "group",
