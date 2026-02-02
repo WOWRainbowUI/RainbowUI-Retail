@@ -216,6 +216,8 @@ local function ShowBigFactionIcon(tip, config, raw)
     end
 end
 
+
+
 local function PlayerCharacter(tip, unit, config, raw)
     local specLine = GetOriginalSpecLine(tip, raw and raw.className)
     if (specLine) then
@@ -277,6 +279,23 @@ local function NonPlayerCharacter(tip, unit, config, raw)
     addon:AutoSetTooltipWidth(tip)
 end
 
+local function IsUnitTooltip(tt)
+    local owner = tt and tt:GetOwner()
+    if not owner then return false end
+    
+    -- 安全访问 owner.unit
+    local ok, unit = pcall(function() return owner.unit end)
+    if (ok and unit) then return true end
+    
+    -- 安全访问 GetAttribute
+    if (owner.GetAttribute) then
+        local okAttr, attrUnit = pcall(owner.GetAttribute, owner, "unit")
+        if (okAttr and attrUnit) then return true end
+    end
+    
+    return false
+end
+
 LibEvent:attachTrigger("tooltip:unit", function(self, tip, unit)
     if (not unit or not SafeBool(UnitExists, unit)) then return end
     local raw = addon:GetUnitInfo(unit)
@@ -286,6 +305,94 @@ LibEvent:attachTrigger("tooltip:unit", function(self, tip, unit)
         NonPlayerCharacter(tip, unit, addon.db.unit.npc, raw)
     end
 end)
+
+LibEvent:attachTrigger("tooltip:show", function(self, tip)
+    if (tip ~= GameTooltip) then return end
+    if (FACTION_ALLIANCE) then addon:HideLine(tip, "^" .. FACTION_ALLIANCE) end
+    if (FACTION_HORDE) then addon:HideLine(tip, "^" .. FACTION_HORDE) end
+end)
+
+local function RemoveFactionLinesPost(tip)
+    if (not tip or not tip.GetName) then return end
+    for i = 2, tip:NumLines() do
+        local line = _G[tip:GetName() .. "TextLeft" .. i]
+        local text = line and line:GetText()
+        local stripped = SafeStripText(text)
+        if (stripped and (stripped == FACTION_ALLIANCE or stripped == FACTION_HORDE)) then
+            line:SetText("")
+            --line:Hide() -- somehow not working but I will keep it in  here
+        end
+    end
+end
+
+if (TooltipDataProcessor and TooltipDataProcessor.AddTooltipPostCall and Enum and Enum.TooltipDataType) then
+    TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tip)
+        RemoveFactionLinesPost(tip)
+    end)
+end
+
+local function RemoveRightClickHint(tt)
+    local removed = false
+    if (not tt or not tt.GetName) then return false end
+    for i = 2, tt:NumLines() do
+        local line = _G[tt:GetName() .. "TextLeft" .. i]
+        local text
+        if (line and line.GetText) then
+            local ok, value = pcall(line.GetText, line)
+            if (ok) then
+                text = value
+            end
+        end
+        if (type(text) == "string") then
+            if (issecretvalue and issecretvalue(text)) then
+                -- can't safely read/strip secret text
+            else
+                local ok, stripped = pcall(function()
+                    local s = text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
+                    return s:gsub("^%s+", ""):gsub("%s+$", "")
+                end)
+                if (ok and type(stripped) == "string") then
+                    if (UNIT_POPUP_RIGHT_CLICK and stripped == UNIT_POPUP_RIGHT_CLICK) then
+                        line:SetText("")
+                        --line:Hide()
+                        removed = true
+                    end
+                end
+            end
+        end
+    end
+    return removed
+end
+
+if (GameTooltip_AddInstructionLine) then
+    hooksecurefunc("GameTooltip_AddInstructionLine", function(tt, text)
+        if (not addon.db.general.hideUnitFrameHint) then return end
+        if (tt ~= GameTooltip) then return end
+        if (not IsUnitTooltip(tt)) then return end
+        -- debug output removed
+        
+        local removed = false
+        if (UNIT_POPUP_RIGHT_CLICK and text == UNIT_POPUP_RIGHT_CLICK) then
+            local i = tt:NumLines()
+            local line = _G[tt:GetName() .. "TextLeft" .. i]
+            if (line) then
+                pcall(line.SetText, line, "")
+                pcall(line.Hide, line)
+                removed = true
+            end
+            local mLine = _G[tt:GetName() .. "TextLeft" .. (i - 1)]
+            if (mLine and mLine.GetText) then
+                local okPrev, prevText = pcall(mLine.GetText, mLine)
+                if (okPrev and (not (issecretvalue and issecretvalue(prevText))) and prevText == " ") then
+                    pcall(mLine.Hide, mLine)
+                end
+            end
+        end
+        if (not removed) then
+            removed = RemoveRightClickHint(tt)
+        end
+    end)
+end
 
 addon.ColorUnitBorder = ColorBorder
 addon.ColorUnitBackground = ColorBackground
