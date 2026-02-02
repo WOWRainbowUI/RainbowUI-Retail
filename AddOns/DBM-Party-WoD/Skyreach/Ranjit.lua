@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20251117220446")
+mod:SetRevision("20260125033236")
 mod:SetCreatureID(75964)
 mod:SetEncounterID(1698)
 
@@ -37,7 +37,7 @@ local skyTrashMod = DBM:GetModByName("SkyreachTrash")
 
 function mod:OnCombatStart(delay)
 	timerFourWindsCD:Start(-delay)
-	if skyTrashMod.Options.RangeFrame and skyTrashMod.vb.debuffCount ~= 0 then--In case of bug where range frame gets stuck open from trash pulls before this boss.
+	if skyTrashMod and skyTrashMod.Options.RangeFrame and skyTrashMod.vb.debuffCount ~= 0 then--In case of bug where range frame gets stuck open from trash pulls before this boss.
 		skyTrashMod.vb.debuffCount = 0--Fix variable
 		DBM.RangeCheck:Hide()--Close range frame.
 	end
