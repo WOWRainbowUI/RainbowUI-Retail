@@ -17,8 +17,9 @@
 ## Category-zhTW: 使用者介面
 
 ## Author: Justwait
-## Version: v11.7
+## Version: v12
 ## SavedVariables: TeleportMenuDB
+## OptionalDeps: Masque
 
 ## X-Curse-Project-ID: 1087836
 
