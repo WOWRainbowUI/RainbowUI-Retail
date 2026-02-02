@@ -121,4 +121,11 @@ if (GetLocale() == "zhTW") then
 	L.UI_IgnoreTime = "警報延遲時間";
 	L.UI_IgnoreTimeDescription = "警報音效間隔的最小延遲時間。如果警報太頻繁，請增加此數值。";
 	L.UI_IgnoreTime_Seconds = "秒";
+	-- 6.0
+	L.Help_SettingsDuringCombat = "無法在戰鬥中開啟 GTFO 設定。";
+	L.UI_BrokenReason = "由於《至暗之夜》(12.0) 引入的全新暴雪插件限制，此功能已被停用";
+	L.UI_BrokenPartialReason = "由於《至暗之夜》(12.0) 引入的全新暴雪插件限制，部分功能已被停用";
+	L.UI_BrokenExplanation_Header = "插件限制";
+	L.UI_BrokenExplanation_Text = "數個 GTFO 功能目前已被鎖定。\n\n暴雪在《至暗之夜》(12.0) 引入了新的插件限制。這些限制使得 GTFO 無法可靠地偵測數類可避免的傷害，因此已停用這些選項以避免誤報或漏報。\n\n僅保留在新限制下仍可運作的功能。";
+	L.UI_LowDamage2 = "低傷害音效";
 end

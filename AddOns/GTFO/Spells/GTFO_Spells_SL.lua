@@ -254,31 +254,40 @@ GTFO.SpellID["324283"] = {
 GTFO.SpellID["323001"] = {
   --desc = "Glass Shards (Halkias)";
   sound = 1;
+  encounter = 2401;
+  instance = 2287;
 };
 
 GTFO.SpellID["324044"] = {
   --desc = "Refracted Sinlight (Halkias)";
   sound = 1;
+  encounter = 2401;
+  instance = 2287;
 };
 
 GTFO.SpellID["319703"] = {
   --desc = "Blood Torrent (Echelon)";
   sound = 1;
+  encounter = 2380;
+  instance = 2287;
 };
 
 GTFO.SpellID["323853"] = {
   --desc = "Pulse from Beyond (Ghastly Parishioner) -- Area damage version";
   sound = 0;
+  instance = 2287;
 };
 
 GTFO.SpellID["326891"] = {
   --desc = "Anguish (Inquisitor Sigar)";
   sound = 1;
+  instance = 2287;
 };
 
 GTFO.SpellID["324211"] = {
   --desc = "Gaseous Collapse";
   sound = 1;
+  instance = 2287;
 };
 
 --- **************
@@ -288,6 +297,7 @@ GTFO.SpellID["324211"] = {
 GTFO.SpellID["330069"] = {
   --desc = "Concentrated Plague";
   applicationOnly = true;
+  sound = 2;
   soundFunction = function() 
 		local stacks = GTFO_DebuffStackCount("player", 330069);
 		if (stacks >= 3) then
@@ -864,11 +874,15 @@ GTFO.SpellID["355581"] = {
 GTFO.SpellID["346961"] = {
   --desc = "Purging Field (Hylbrande)";
   sound = 1;
+  encounter = 2426;
+  instance = 2441;
 };
 
 GTFO.SpellID["346828"] = {
   --desc = "Sanitizing Field (Hylbrande)";
   sound = 1;
+  encounter = 2426;
+  instance = 2441;
 };
 
 GTFO.SpellID["354497"] = {
@@ -891,11 +905,15 @@ GTFO.SpellID["346028"] = {
 GTFO.SpellID["348366"] = {
   --desc = "Armed Security (Zo'phex)";
   sound = 1;
-};
+  encounter = 2425;
+  instance = 2441;
+ };
 
 GTFO.SpellID["346329"] = {
   --desc = "Spilled Liquids (P.O.S.T. Master)";
   sound = 1;
+  encounter = 2424;
+  instance = 2441;
 };
 
 GTFO.SpellID["350090"] = {
@@ -912,6 +930,8 @@ GTFO.SpellID["350013"] = {
 GTFO.SpellID["358947"] = {
   --desc = "Burning Tar (Hourglass Cannon)";
   sound = 1;
+  encounter = 2419;
+  instance = 2441;
 };
 
 GTFO.SpellID["356163"] = {
