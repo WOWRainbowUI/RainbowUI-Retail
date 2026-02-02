@@ -44,6 +44,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
   self:RegisterEvent("PLAYER_FOCUS_CHANGED")
   self:RegisterEvent("PLAYER_LOGIN")
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
+  self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
   if C_EventUtils.IsEventValid("GARRISON_UPDATE") then
     self:RegisterEvent("GARRISON_UPDATE")
   end
@@ -413,17 +414,19 @@ function addonTable.Display.ManagerMixin:UpdateInstanceShowState()
     return
   end
 
+  local relevantInstance = addonTable.Display.Utilities.IsInRelevantInstance()
+
   if state == "name_only" and C_CVar.GetCVarInfo("nameplateShowOnlyNameForFriendlyPlayerUnits") then
-    C_CVar.SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", "1")
+    C_CVar.SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", relevantInstance and "1" or "0")
   end
   if state == "name_only" and C_CVar.GetCVarInfo("nameplateUseClassColorForFriendlyPlayerUnitNames") then
-    C_CVar.SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", "1")
+    C_CVar.SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", relevantInstance and "1" or "0")
   end
 
   local values = GetCVarsForNameplates()
   local currentShow = addonTable.Config.Get(addonTable.Config.Options.SHOW_NAMEPLATES)
 
-  if addonTable.Display.Utilities.IsInRelevantInstance() then
+  if relevantInstance then
     if not self.toggledFriendly and
       (state == "name_only" and not currentShow.friendlyPlayer
       or state == "never" and (currentShow.friendlyPlayer or currentShow.friendlyNPC)
@@ -872,7 +875,7 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
       end
     end
     self:UpdateNamePlateSize()
-  elseif eventName == "PLAYER_ENTERING_WORLD" then
+  elseif eventName == "PLAYER_ENTERING_WORLD" or eventName == "ZONE_CHANGED_NEW_AREA" then
     self:UpdateInstanceShowState()
     self:UpdateNamePlateSize()
     self:UpdateClickable()
