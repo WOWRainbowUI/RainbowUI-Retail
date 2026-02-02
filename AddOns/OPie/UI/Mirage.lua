@@ -112,7 +112,7 @@ function Indicator:SetDominantColor(r,g,b)
 	d.oglow:SetVertexColor(r, g, b)
 	d.edge:SetVertexColor(darken(r,g,b, 0.80))
 	d.cdText:SetTextColor(r, g, b)
-	cd.spark:SetVertexColor(r, g, b)
+	d.cdSpark:SetVertexColor(r, g, b)
 	for i=1,4 do
 		cd[i]:SetVertexColor(r2, g2, b2)
 		cd[i+4]:SetVertexColor(r3, g3, b3)
@@ -156,13 +156,13 @@ function Indicator:SetCooldown(remain, duration, usable)
 		if td < -0.05 or td > 0.05 then
 			cd.duration, cd.expire, cd.updateCooldownStep, cd.updateCooldown = duration, expire, duration/1536/d.self:GetEffectiveScale()
 			cd:Show()
-			cd.spark:SetShown(usable)
+			d.cdSpark:SetShown(usable)
 		end
-		if cd.usable ~= usable then
-			cd.usable = usable
+		if d.cdUsable ~= usable then
+			d.cdUsable = usable
 			for i=1,4 do cd[i]:SetAlpha(usable and 0.45 or 1) end
 			for i=5,9 do cd[i]:SetAlpha(usable and 0.25 or 0.85) end
-			cd.spark:SetShown(usable)
+			d.cdSpark:SetShown(usable)
 		end
 		local gcS, gcL = GetSpellCooldown(61304)
 		if (duration ~= gcL or gcS+gcL-now < remain) and d[usable and "rcTextShown" or "cdTextShown"] then
@@ -211,6 +211,8 @@ function Indicator:SetCooldownPH(hintID, qf, _holdCount)
 	d.cooldownHintID = hintID
 	if dur then
 		d.veil:SetAlpha(C_CurveUtil.EvaluateColorValueFromBoolean(dur:IsZero(), 0, 0.40))
+		d.cd:Hide()
+		d.cdText:SetText("")
 	end
 end
 
@@ -306,20 +308,19 @@ local CreateCooldown do
 		return cdOnUpdate(self, 0)
 	end
 	function CreateCooldown(parent, size, overParent)
-		local cd, scale, w, b = CreateFrame("Frame", nil, parent), size * 87/4032
+		local cd, scale, b = CreateFrame("Frame", nil, parent), size * 87/4032
+		local w, cdText, cdSpark
 		cd:SetScale(size/48)
 		cd:SetAllPoints()
 		cd:SetScript("OnShow", cdOnShow)
 		cd:SetScript("OnHide", cdOnHide)
 		cd:SetScript("OnUpdate", cdOnUpdate)
-		local cdText = cd:CreateFontString(nil, "OVERLAY", "GameFontNormalLargeOutline")
-		cdText:SetPoint("CENTER")
-		
-		w = (overParent or cd):CreateTexture(nil, "OVERLAY", nil, 2)
+		w, cd.scale = cd:CreateFontString(nil, "OVERLAY", "GameFontNormalLargeOutline"), scale
+		w:SetPoint("CENTER")
+		w, cdText = (overParent or cd):CreateTexture(nil, "OVERLAY", nil, 2), w
 		w:SetTexture(gx.CooldownSpark)
 		w:SetSize(24,24)
-		cd.scale, cd.spark = scale, w
-		w = w:CreateAnimationGroup()
+		w, cd.spark, cdSpark = w:CreateAnimationGroup(), w, w
 		w:SetLooping("REPEAT")
 		b = w:CreateAnimation("Rotation")
 		b:SetDegrees(90)
@@ -363,7 +364,7 @@ local CreateCooldown do
 		cd[9] = parent:CreateTexture(nil, "ARTWORK", nil, 3)
 		cd[9]:SetTexture(gx.Tri)
 		
-		return cd, cdText
+		return cd, cdText, cdSpark
 	end
 end
 
@@ -376,7 +377,8 @@ local function CreateIndicator(name, parent, size, nested)
 	w = CreateFrame("Frame", nil, cf)
 		w:SetAllPoints()
 		w:SetFrameLevel(ef:GetFrameLevel()+5)
-	w, d.cd, d.cdText = ef:CreateTexture(nil, "OVERLAY"), CreateCooldown(ef, size, w)
+	d.cd, d.cdText, d.cdSpark = CreateCooldown(ef, size, w)
+	w = ef:CreateTexture(nil, "OVERLAY")
 		w:SetAllPoints()
 		w:SetTexture(gx.BorderLow)
 	w, d.edge = ef:CreateTexture(nil, "OVERLAY", nil, 1), w
