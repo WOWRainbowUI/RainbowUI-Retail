@@ -64,13 +64,13 @@ function addonTable.Display.Utilities.IsInRelevantInstance()
     return false
   end
   local _, instanceType = GetInstanceInfo()
-  return instanceType == "raid" or instanceType == "party" or instanceType == "arenas"
+  return instanceType == "raid" or instanceType == "party" or instanceType == "arenas" or instanceType == "scenario"
 end
 
 local interruptMap = {
-  ["DEATHKNIGHT"] = {47528, 47476},
+  ["DEATHKNIGHT"] = {47528},
   ["WARRIOR"] = {6552},
-  ["WARLOCK"] = {19647, 119910, 132409, 1276467, 89766},
+  ["WARLOCK"] = {19647, 89766, 119910, 1276467, 132409},
   ["SHAMAN"] = {57994},
   ["ROGUE"] = {1766},
   ["PRIEST"] = {15487},
@@ -147,10 +147,6 @@ do
       end
     end
 
-    if class == "WARLOCK" and currentInterrupt then -- While other spells exist the cooldown is still reported on the base
-      currentInterrupt = interruptSpells[1]
-    end
-
     currentExecute = 0
     for s, amount in pairs(executeMap) do
       if C_SpellBook.IsSpellKnown(s) then
@@ -195,4 +191,123 @@ if addonTable.Constants.IsClassic then
     end
     return tostring(value);
   end
+end
+
+if addonTable.Constants.IsRetail then
+  local questData = {}
+  do
+    local frame = CreateFrame("Frame")
+    frame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
+    frame:RegisterEvent("QUEST_LOG_UPDATE")
+    frame:SetScript("OnEvent", function(_, event, unit)
+      if event == "NAME_PLATE_UNIT_REMOVED" then
+        questData[unit] = nil
+      elseif event == "QUEST_LOG_UPDATE" then
+        questData = {}
+        addonTable.CallbackRegistry:TriggerEvent("QuestInfoUpdate")
+      end
+    end)
+  end
+
+  local questLineTypes = {
+    [Enum.TooltipDataLineType.QuestObjective] = true,
+    [Enum.TooltipDataLineType.QuestTitle] = true,
+    [Enum.TooltipDataLineType.QuestPlayer] = true,
+  }
+  local playerName = UnitName("player")
+
+  function addonTable.Display.Utilities.GetQuestInfo(unit)
+    if questData[unit] then
+      return questData[unit]
+    end
+    if addonTable.Display.Utilities.IsInRelevantInstance() then
+      questData[unit] = {}
+      return questData[unit]
+    end
+
+    local info = C_TooltipInfo.GetUnit(unit)
+    if info then
+      local lines = tFilter(info.lines, function(l)
+        return questLineTypes[l.type]
+      end, true)
+      local data = {}
+      local ignoreUntilTitle = false
+      for _, l in ipairs(lines) do
+        if not ignoreUntilTitle and l.type == Enum.TooltipDataLineType.QuestObjective then
+          local count1, count2 = l.leftText:match("(%d+)%/(%d+)")
+          if count1 ~= count2 then
+            table.insert(data, count1 .. "/" .. count2)
+          end
+          local percent = l.leftText:match("(%d+)%%")
+          if percent and percent ~= "100" then
+            table.insert(data, percent .. "%")
+          end
+        elseif l.type == Enum.TooltipDataLineType.QuestTitle then
+          ignoreUntilTitle = false
+        elseif l.type == Enum.TooltipDataLineType.QuestPlayer then
+          if l.leftText == playerName then
+            ignoreUntilTitle = false
+          else
+            ignoreUntilTitle = true
+          end
+        end
+      end
+      questData[unit] = data
+    else
+      questData[unit] = {}
+    end
+
+    return questData[unit]
+  end
+else
+  local questData = {}
+  local frame = CreateFrame("Frame")
+  frame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
+  frame:SetScript("OnEvent", function(_, _, unit)
+    questData[unit] = nil
+  end)
+
+  local QuestieTooltips
+
+  addonTable.Utilities.OnAddonLoaded("Questie", function()
+    Questie.API.RegisterOnReady(function()
+      QuestieTooltips = QuestieLoader:ImportModule("QuestieTooltips")
+      addonTable.CallbackRegistry:TriggerEvent("QuestInfoUpdate")
+      Questie.API.RegisterForQuestUpdates(function()
+        questData = {}
+        addonTable.CallbackRegistry:TriggerEvent("QuestInfoUpdate")
+      end)
+    end)
+  end)
+
+  function addonTable.Display.Utilities.GetQuestInfo(unit)
+    if not Questie or not Questie.API.isReady then
+      return {}
+    end
+
+    local npcID = UnitGUID(unit):match("Creature%-%d+%-%d+%-%d+%-%d+%-(%d+)")
+    if not npcID then
+      return {}
+    end
+    local status = pcall(function()
+      local data = QuestieTooltips.lookupByKey["m_" .. npcID]
+      if data then
+        local result = {}
+        for _, tooltip in pairs(data) do
+          if not tooltip.name then
+            local objective = tooltip.objective
+            if objective.Collected ~= objective.Needed then
+              table.insert(result, objective.Collected .. "/" .. objective.Needed)
+            end
+          end
+        end
+        questData[unit] = result
+      end
+    end)
+    if not status then
+      questData[unit] = {Questie.API.GetQuestObjectiveIconForUnit(UnitGUID(unit)) ~= nil and "" or nil}
+    end
+    return questData[unit] or {}
+  end
+
 end

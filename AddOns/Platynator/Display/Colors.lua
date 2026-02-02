@@ -72,6 +72,7 @@ local inRelevantInstance = false
 
 local instanceTracker = CreateFrame("Frame")
 instanceTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
+instanceTracker:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 instanceTracker:SetScript("OnEvent", function()
   inRelevantInstance = addonTable.Display.Utilities.IsInRelevantInstance()
   if PLATYNATOR_LAST_INSTANCE == nil or inRelevantInstance ~= PLATYNATOR_LAST_INSTANCE.inInstance or PLATYNATOR_LAST_INSTANCE.lastLFGInstanceID ~= select(10, GetInstanceInfo()) then
@@ -109,7 +110,7 @@ local stateToCalculator = {
     state.channelInfo = {UnitChannelInfo(unit)}
   end,
   quest = function(state, unit)
-    state.quest = C_QuestLog.UnitIsRelatedToActiveQuest and C_QuestLog.UnitIsRelatedToActiveQuest(unit)
+    state.quest = #addonTable.Display.Utilities.GetQuestInfo(unit) > 0
   end,
   threat = function(state, unit)
     state.threat = UnitThreatSituation("player", unit)
@@ -184,15 +185,31 @@ local kindToEvent = {
     "UNIT_SPELLCAST_CHANNEL_STOP",
   },
 }
+local kindToCallback = {
+  quest = {"QuestInfoUpdate"},
+}
 
 function addonTable.Display.UnregisterForColorEvents(frame)
+  if frame.colorState then
+    for _, s in ipairs(frame.colorSettings) do
+      local ec = kindToCallback[s.kind]
+      if ec then
+        for _, e in ipairs(ec) do
+          addonTable.CallbackRegistry:UnregisterCallback(e, frame.colorState)
+        end
+      end
+    end
+  end
+
   frame.ColorEventHandler = nil
   frame.colorState = nil
+  frame.colorSettings = nil
 end
 
 function addonTable.Display.RegisterForColorEvents(frame, settings)
   local events = {}
   frame.colorState = {}
+  frame.colorSettings = settings
   for _, s in ipairs(settings) do
     local es = kindToEvent[s.kind]
     if es then
@@ -208,6 +225,14 @@ function addonTable.Display.RegisterForColorEvents(frame, settings)
         else
           frame:RegisterEvent(e)
         end
+      end
+    end
+    local ec = kindToCallback[s.kind]
+    if ec then
+      for _, e in ipairs(ec) do
+        addonTable.CallbackRegistry:RegisterCallback(e, function()
+          frame:SetColor(addonTable.Display.GetColor(settings, frame.colorState, frame.unit))
+        end, frame.colorState)
       end
     end
   end
