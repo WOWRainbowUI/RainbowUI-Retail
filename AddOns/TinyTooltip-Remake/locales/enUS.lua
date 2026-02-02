@@ -10,6 +10,7 @@ local T = {
     ["general.statusbarHide"]   = "Hide Status Bar",
     ["general.alwaysShowIdInfo"] = "Always Show Id Info (Otherwise hold down SHIFT/ALT)",
     ["general.skinMoreFrames"]   = "Skin More Frames |cffcccc33(need to /reload)|r",
+    ["general.hideUnitFrameHint"] = "Hide Unit Frame Right-Click Setup Hint",
     ["dropdown.inherit"]        = "|cffffee00inherit|r",
     ["dropdown.default"]        = "|cffaaaaaadefault|r",
     ["dropdown.cursor"]         = "|cff33ccffcursor|r",
@@ -55,7 +56,11 @@ local T = {
     ["wildcard.help.example"]     = "Example: (%s) or [%s]",
     ["wildcard.help.moveSpeed"]   = "Example: %d%%",
 
-}
+    ["hint.anchor.returnInCombat"] = "When mouseover in combat, the tooltip are fixed at the default position.",
+    ["hint.anchor.returnOnUnitFrame"] = "Tooltips from unit frames are fixed at the default position.",
+    ["anchor.offset.locked"]      = "Offset is disabled when anchor point is Bottom.",
+    ["anchor.none"]             = "None",
+}   
 for k, v in pairs(T) do
     L[k] = v
 end

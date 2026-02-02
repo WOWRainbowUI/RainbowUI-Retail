@@ -21,10 +21,9 @@ local T = {
     ["general.statusbarOffsetY"]            = "血量垂直間距",
     ["general.statusbarFontSize"]           = "血量文字大小",
 	["general.statusbarFont"]               = "血量文字字體",
-    ["general.statusbarFontFlag"]           = "血量文字外框",
+	["general.statusbarFontFlag"]           = "血量文字外框",
     ["general.statusbarTexture"]            = "血量文字背景材質",
     ["general.statusbarColor"]              = "血量顔色",
-    ["general.statusbarTextFormat"]         = "狀態列文字格式",
     ["general.anchor.position"]             = "位置",
     ["general.anchor.hiddenInCombat"]         = "戰鬥中隱藏",
     ["general.anchor.returnInCombat"]       = "戰鬥中固定位置",
@@ -32,7 +31,8 @@ local T = {
     ["general.alwaysShowIdInfo"]            = "永遠顯示物品/法術ID 和施法者 (停用時可按住 Alt 或 Shift 鍵來顯示)",
 	["general.skinMoreFrames"]   = "外觀套用到更多框架 |cffcccc33(需要重新載入 /reload)|r",
 	["general.SavedVariablesPerCharacter"]  = "角色專用設定",
-    
+	["general.hideUnitFrameHint"]            = "隱藏頭像框右鍵設定提示",
+
     ["item.coloredItemBorder"]              = "顯示物品邊框顏色",
 	["item.showItemIcon"]                   = "顯示物品圖示",
 	["item.showExpansionInformation"]	    = "顯示更多物品資訊",
@@ -200,7 +200,11 @@ local T = {
 
 
 
-    ["<Drag element to customize the style>"] = "<拖曳元素來自訂樣式>"
+    ["<Drag element to customize the style>"] = "<拖曳元素來自訂樣式>",
+	["hint.anchor.returnInCombat"]          = "戰鬥中在預設位置顯示浮動提示資訊",
+    ["hint.anchor.returnOnUnitFrame"]       = "戰鬥中在預設位置顯示框架的浮動提示資訊",
+    ["anchor.offset.locked"]                = "對齊位置為下方時無法調整偏移量",
+    ["anchor.none"]                         = "無",
     
 }
 for k, v in pairs(T) do
