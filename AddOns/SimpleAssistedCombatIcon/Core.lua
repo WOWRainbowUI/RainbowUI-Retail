@@ -83,6 +83,11 @@ function addon:OnInitialize()
     self.db = AceDB:New("SCAIDB", defaults, true)
     AssistedCombatIconFrame:OnAddonLoaded();
 
+    self.db.RegisterCallback(self, "OnNewProfile", "OnProfileChanged")
+    self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
+    self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
+    self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
+
     self:SetupOptions()
 
     self:UpdateDB()
@@ -1062,12 +1067,17 @@ function addon:SetupOptions()
     AceConfigDialog:AddToBlizOptions(addonName, addonTitle)
 
     self:RegisterChatCommand("saci", "SlashCommand")
-    
+
     AddonCompartmentFrame:RegisterAddon({
         text = addonTitle,
         icon = C_AddOns.GetAddOnMetadata(addonName, "IconTexture"),
         func = function() AceConfigDialog:Open(addonName) end
     })
+end
+
+function addon:OnProfileChanged()
+    AssistedCombatIconFrame.db = addon.db.profile
+    AssistedCombatIconFrame:ApplyOptions()
 end
 
 function addon:SlashCommand(input)
