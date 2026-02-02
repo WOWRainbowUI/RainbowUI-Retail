@@ -1,4 +1,4 @@
-local MAJ, REV, COMPAT, _, T = 1, 15, select(4,GetBuildInfo()), ...
+local MAJ, REV, COMPAT, _, T = 1, 16, select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 local _GG, TWELVE = _G, COMPAT >= 12e4
 if T.TenEnv then T.TenEnv() end
@@ -421,9 +421,9 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 					end
 				elseif st == "FLYOUT" then
 					for j=1,select(3,GetFlyoutInfo(id)) do
-						local sid, _, _, sname = GetFlyoutSlotInfo(id, j)
+						local sid, _, isKnown, sname = GetFlyoutSlotInfo(id, j)
 						if sid and type(sname) == "string" then
-							addSpell(sname, sid)
+							addSpell(sname, sid, isKnown)
 						end
 					end
 				end

@@ -181,6 +181,7 @@ securecall(function() -- failing ability rank disambiguation
 		783, -- druid
 		126892, -- monk
 		372048, -- evoker
+		467553, 467555, -- motherlode teleport
 	}
 	local function checkForcedIDCastable(id)
 		return not not FindSpellBookSlotBySpellID(id), "forced-id-cast"
