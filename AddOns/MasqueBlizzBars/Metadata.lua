@@ -31,7 +31,7 @@ Metadata.MasqueFriendlyName = L["Blizzard Action Bars"]
 --  This can be repeated for multiple ranges
 -- Buttons should contain a list of frame names with an integer value
 --  If a string, assume to be a function or table of buttons
---  If nil, assume to be a singular button with that name
+--  If -1, assume to be a singular button with that name
 --  If  0, this is a dynamic frame to be skinned later
 --  If >0, attempt to loop through frames with the name prefix suffixed with
 --  the integer range
@@ -162,6 +162,17 @@ Metadata.Groups = {
 			-- battle
 		}
 	},
+	BuffBarCooldownViewer = {
+		Title = "Tracked Bars",
+		Versions = { 110105, nil },
+		-- These are populated after the UI loads when the RefreshLayout
+		-- function is called
+		Delayed = true,
+		HookFunction = 'RefreshLayout',
+		Buttons = {
+			BuffBarCooldownViewer = 'GetItemIconFrames'
+		}
+	},
 	BuffIconCooldownViewer = {
 		Title = "Tracked Buffs",
 		Versions = { 110105, nil },
@@ -211,9 +222,17 @@ local BuffIconViewerMap = {
 	DebuffBorder = "DebuffBorderMBB"
 }
 
+-- The BuffBarCooldownViewer Cooldown is on the bar, not the icon
+local BuffBarViewerMap = {
+	Icon = "Icon",
+	Count = "Count",
+	DebuffBorder = "DebuffBorderMBB"
+}
+
 Metadata.Types = {
 	-- This will be passed for all buttons unless it's otherwise overridden
 	DEFAULT = { type = "Action" },
+	BuffBarCooldownViewer = { type = "Debuff", map = BuffBarViewerMap },
 	BuffIconCooldownViewer = { type = "Debuff", map = BuffIconViewerMap },
 	EssentialCooldownViewer = { type = "Action", map = CooldownViewerMap },
 	UtilityCooldownViewer = { type = "Action", map = CooldownViewerMap }
