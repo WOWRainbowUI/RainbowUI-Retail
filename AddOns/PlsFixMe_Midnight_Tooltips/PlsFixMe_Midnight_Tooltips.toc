@@ -1,0 +1,13 @@
+## Interface: 120000
+## Title: PlsFixMe_Midnight_Tooltips
+## Version: 1.0.1
+## Notes: Fixing missing tooltips when hovering over world quest icons and comparing items
+## Author: 4kraba
+## DefaultState: enabled
+## IconTexture: 136243
+
+## Title-zhTW: |cffffffee[系統]|r 修正浮動提示
+## Notes-zhTW: PlsFixMe_Midnight_Tooltips |n|n這是一個臨時修正插件，用來解決因暴雪 API 改動而導致的 Lua 錯誤與缺失的提示訊息。
+## X-Category-zhTW: 進階
+
+PlsFixMe_Midnight_Tooltips.lua

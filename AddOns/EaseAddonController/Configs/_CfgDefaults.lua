@@ -1181,6 +1181,12 @@ D["Platynator"] = {
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
+D["PlsFixMe_Midnight_Tooltips"] = {
+    defaultEnable = 1,
+	tags = { "MISC" },
+	title = "修正浮動提示",
+	desc = "這是一個臨時修正插件，用來解決因暴雪 API 改動而導致的 Lua 錯誤與缺失的提示訊息。`",
+};
 D["Postal"] = {
 	defaultEnable = 1,
 	title = "超強信箱",
