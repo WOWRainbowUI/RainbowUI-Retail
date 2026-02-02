@@ -1,7 +1,7 @@
 ## Interface: 30405, 38000
 ## X-Min-Interface-Wrath: 30400
 ## Title: SmartQuest
-## Version: 1.30.5
+## Version: 1.31
 ## Notes: Group Quest Tracking
 ## Author: Zensunim of Dragonblight
 ## DefaultState: Enabled

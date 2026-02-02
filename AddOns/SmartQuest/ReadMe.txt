@@ -244,3 +244,6 @@ Change Log:
 * Updated TOC for TBC 2.5.5
 * Updated TOC for Wrath 3.4.5
 * Updated TOC for Mists 5.5.3
+
+1.31
+* Fixed migration problems
