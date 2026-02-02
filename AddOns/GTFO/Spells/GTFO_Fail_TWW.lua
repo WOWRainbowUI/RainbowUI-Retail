@@ -730,18 +730,24 @@ GTFO.SpellID["433662"] = {
 GTFO.SpellID["432132"] = {
   --desc = "Erupting Webs (Ki'katal the Harvester)";
   sound = 3;
+  encounter = 2901;
+  instance = 2660;
 };
 
 GTFO.SpellID["432031"] = {
   --desc = "Grasping Blood (Ki'katal the Harvester - Black Blood)";
   applicationOnly = true;
   sound = 3;
+  encounter = 2901;
+  instance = 2660;
 };
 
 GTFO.SpellID["432119"] = {
   --desc = "Faded (Ki'katal the Harvester)";
   applicationOnly = true;
   sound = 3;
+  encounter = 2901;
+  instance = 2660;
 };
 
 GTFO.SpellID["453767"] = {
@@ -753,6 +759,8 @@ GTFO.SpellID["461507"] = {
   --desc = "Cultivated Poisons (Ki'katal the Harvester)";
   sound = 3;
   applicationOnly = true;
+  encounter = 2901;
+  instance = 2660;
 };
 
 GTFO.SpellID["456320"] = {
@@ -1105,6 +1113,7 @@ GTFO.SpellID["427472"] = {
 GTFO.SpellID["424621"] = {
   --desc = "Brutal Smash (Sergeant Shaynemail)";
   sound = 3;
+  instance = 2649;
 };
 
 GTFO.SpellID["427601"] = {
@@ -1127,12 +1136,6 @@ GTFO.SpellID["423121"] = {
   sound = 3;
 };
 
-GTFO.SpellID["446657"] = {
-  --desc = "Burning Light (Baron Braunpyke)";
-  sound = 3;
-  test = true; -- Verification, need more info about this one
-};
-
 GTFO.SpellID["451818"] = {
   --desc = "Crushing Leap (Sir Braunpyke)";
   sound = 3;
@@ -1143,6 +1146,8 @@ GTFO.SpellID["451606"] = {
   --desc = "Holy Flame (Prioress Murrpray)";
   sound = 3;
   applicationOnly = true;
+  encounter = 2848;
+  instance = 2649;
 };
 
 GTFO.SpellID["423019"] = {
@@ -1154,6 +1159,8 @@ GTFO.SpellID["428170"] = {
   --desc = "Blinding Light (Prioress Murrpray)";
   applicationOnly = true;
   sound = 3;
+  encounter = 2848;
+  instance = 2649;
 };
 
 --- *******************
@@ -1230,12 +1237,16 @@ GTFO.SpellID["427007"] = {
   --desc = "Terrifying Slam (Anub'ikkaj)";
   applicationOnly = true;
   sound = 3;
+  encounter = 2838;
+  instance = 2662;
 };
 
 GTFO.SpellID["427378"] = {
   --desc = "Dark Scars (Anub'ikkaj)";
   applicationOnly = true;
   sound = 3;
+  encounter = 2838;
+  instance = 2662;
   trivialLevel = 90;
 };
 
@@ -1244,12 +1255,17 @@ GTFO.SpellID["434441"] = {
   applicationOnly = true;
   negatingDebuffSpellID = 434576; -- Acidic Stupor
   sound = 3;
+  test = true; -- New private aura system might not respect negating debuff
+  encounter = 2839;
+  instance = 2662;
 };
 
 GTFO.SpellID["448215"] = {
   --desc = "Expel Webs (Rasha'nan)";
   sound = 3;
   test = true; -- Verify
+  encounter = 2839;
+  instance = 2662;
 };
 
 --- ***************
@@ -2519,6 +2535,8 @@ GTFO.SpellID["460965"] = {
   --desc = "Barreling Charge (Bront)";
   applicationOnly = true;
   sound = 3;
+  encounter = 3019;
+  instance = 2773;
 };
 
 GTFO.SpellID["1214341"] = {
@@ -2555,7 +2573,9 @@ GTFO.SpellID["465982"] = {
   --desc = "Turbo Bolt (Geezle Gigazap)";
   applicationOnly = true;
   sound = 3;
-};
+  encounter = 3054;
+  instance = 2773;
+ };
 
 GTFO.SpellID["468604"] = {
   --desc = "Dam Rubble (Geezle Gigazap)";
@@ -2566,7 +2586,9 @@ GTFO.SpellID["468647"] = {
   --desc = "Leaping Spark (Leaping Spark)";
   applicationOnly = true;
   sound = 3;
-};
+  encounter = 3054;
+  instance = 2773;
+ };
 
 GTFO.SpellID["257371"] = {
   --desc = "Tear Gas (Mechanized Peacekeeper)";
@@ -2975,6 +2997,8 @@ GTFO.SpellID["1217439"] = {
   applicationOnly = true;
   sound = 3;
   test = true; -- Avoidable?
+  encounter = 3107;
+  instance = 2830;
 };
 
 GTFO.SpellID["1231224"] = {
@@ -3030,6 +3054,8 @@ GTFO.SpellID["1218625"] = {
   --desc = "Displacement Matrix (Plexus Sentinel)";
   applicationOnly = true;
   sound = 3;
+  encounter = 3129;
+  instance = 2810;
 };
 
 GTFO.SpellID["1219471"] = {
@@ -3070,12 +3096,16 @@ GTFO.SpellID["1227277"] = {
   --desc = "Soulfray Annihilation (Soulbinder Naazindhri)";
   applicationOnly = true;
   sound = 3;
+  encounter = 3130;
+  instance = 2810;
 };
 
 GTFO.SpellID["1226827"] = {
   --desc = "Soulrend Orb (Soulbinder Naazindhri)";
   applicationOnly = true;
   sound = 3;
+  encounter = 3130;
+  instance = 2810;
 };
 
 GTFO.SpellID["1223883"] = {
@@ -3092,6 +3122,7 @@ GTFO.SpellID["1234324"] = {
   applicationOnly = true;
   --desc = "Photon Blast (Arcane Collector)";
   sound = 3;
+  instance = 2810;
 };
 
 GTFO.SpellID["1225167"] = {
@@ -3118,6 +3149,7 @@ GTFO.SpellID["1228168"] = {
 GTFO.SpellID["1250600"] = {
   --desc = "Void Lightning";
   sound = 3;
+  instance = 2810;
 };
 
 GTFO.SpellID["1227340"] = {
@@ -3289,6 +3321,54 @@ GTFO.SpellID["1238878"] = {
   applicationOnly = true;
   sound = 3;
 };
+
+--- *************************
+--- * Brawler's Guild (TWW) *
+--- *************************
+
+GTFO.SpellID["1256775"] = {
+  --desc = "Thorn Eruption (Sunny)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["1257189"] = {
+  --desc = "Tentickles (The Quacken)";
+  sound = 3;
+};
+
+GTFO.SpellID["233225"] = {
+  --desc = "Horrific Pursuit (Ooliss)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["234489"] = {
+  --desc = "Shotgun Roar (Oso)";
+  sound = 3;
+};
+
+GTFO.SpellID["233159"] = {
+  --desc = "Attack (Ash'katzuum)";
+  sound = 3;
+};
+
+GTFO.SpellID["236875"] = {
+  --desc = "Klunk (Klunk)";
+  sound = 3;
+};
+
+GTFO.SpellID["232267"] = {
+  --desc = "Dino Dash (Topps)";
+  sound = 3;
+};
+
+GTFO.SpellID["229396"] = {
+  --desc = "Lava Wave (Carl)";
+  applicationOnly = true;
+  sound = 3;
+};
+
 
 end
 

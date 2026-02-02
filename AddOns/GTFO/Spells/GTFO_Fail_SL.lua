@@ -1714,6 +1714,8 @@ GTFO.SpellID["347481"] = {
   --desc = "Shuri (So'azmi)";
   applicationOnly = true;
   sound = 3;
+  encounter = 2437;
+  instance = 2441;
 };
 
 GTFO.SpellID["355584"] = {
@@ -1754,6 +1756,8 @@ GTFO.SpellID["351101"] = {
   --desc = "Energy Fragmentation (So'leah)";
   applicationOnly = true;
   sound = 3;
+  encounter = 2442;
+  instance = 2441;
 };
 
 GTFO.SpellID["355306"] = {
@@ -1781,6 +1785,8 @@ GTFO.SpellID["355440"] = {
 GTFO.SpellID["349999"] = {
   --desc = "Anima Detonation (Achillite)";
   sound = 3;
+  encounter = 2441;
+  instance = 2441;
 };
 
 GTFO.SpellID["349663"] = {
@@ -1812,6 +1818,8 @@ GTFO.SpellID["357226"] = {
 GTFO.SpellID["347094"] = {
   --desc = "Titanic Crash (Hylbrande)";
   sound = 3;
+  encounter = 2426;
+  instance = 2441;
 };
 
 --- *******************************
