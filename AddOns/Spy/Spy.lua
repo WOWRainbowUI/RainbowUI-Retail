@@ -1675,7 +1675,7 @@ function Spy:SetupOptions()
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("Spy Commands", Spy.optionsSlash, "spy")
 
 	local ACD3 = LibStub("AceConfigDialog-3.0")
-	self.optionsFrames.Spy = ACD3:AddToBlizOptions("Spy", L["Spy Option"], nil, "General")
+	self.optionsFrames.Spy, self.categoryID = ACD3:AddToBlizOptions("Spy", L["Spy Option"], nil, "General")
 	self.optionsFrames.About = ACD3:AddToBlizOptions("Spy", L["About"], L["Spy Option"], "About")
 	self.optionsFrames.DisplayOptions = ACD3:AddToBlizOptions("Spy", L["DisplayOptions"], L["Spy Option"], "DisplayOptions")
 	self.optionsFrames.AlertOptions = ACD3:AddToBlizOptions("Spy", L["AlertOptions"], L["Spy Option"], "AlertOptions")
@@ -1727,7 +1727,7 @@ function Spy:ShowConfig()
 --	InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.Profiles)
 --	Settings.OpenToCategory('Profiles') 	
 --	InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.Spy)
-	Settings.OpenToCategory(L["Spy Option"])
+	Settings.OpenToCategory(self.categoryID)
 end
 
 function Spy:OnEnable(first)
