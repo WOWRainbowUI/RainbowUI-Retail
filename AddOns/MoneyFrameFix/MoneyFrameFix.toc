@@ -1,0 +1,12 @@
+## Interface: 120000
+## Title: |cFFFF6B6BMoney Frame Fix|r
+## Notes: Money Frame Fix
+## Version: 1.2.1
+## Author: Galehad
+## IconTexture: 136243
+
+## Title-zhTW: |cffffffee[系統]|r 修正金錢提示
+## Notes-zhTW: Money Frame Fix |n|n這是一個臨時修正插件，用來解決 MoneyFrame 的浮動提示發生錯誤的問題。
+## X-Category-zhTW: 進階
+
+MoneyFrameFix.lua

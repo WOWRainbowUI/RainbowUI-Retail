@@ -1070,6 +1070,12 @@ D["Molinari"] = {
         text = "分解物品：滑鼠指向背包內要分解或處理的物品，按住 Ctrl+Alt 鍵不放，再用滑鼠左鍵點一下物品，即可執行專業技能的處理動作。\n\n只能分解或處理背包和交易視窗內的物品，銀行中的不行。\n\n|cffFF2D2D使用 'DJ智能分類背包' 時，請勿將一鍵分解物品的輔助鍵設為只有 Alt 鍵，以避免和自訂物品分類的快速鍵相衝突。|r",
     },
 };
+D["MoneyFrameFix"] = {
+    defaultEnable = 1,
+	tags = { "MISC" },
+	title = "修正金錢提示",
+	desc = "這是一個臨時修正插件，用來解決 MoneyFrame 的浮動提示發生錯誤的問題。`",
+};
 D["MRT"] = {
 	defaultEnable = 0,
 	tags = { "BOSSRAID" },
