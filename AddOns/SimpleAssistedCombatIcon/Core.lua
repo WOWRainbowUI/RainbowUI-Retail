@@ -3,6 +3,7 @@ local addonName, addon = ...
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title")
 
 local LSM = LibStub("LibSharedMedia-3.0")
+local LDS = LibStub("LibDualSpec-1.0")
 
 local Masque = LibStub("Masque",true)
 local AceAddon = LibStub("AceAddon-3.0")
@@ -81,7 +82,8 @@ local defaults = {
 
 function addon:OnInitialize()
     self.db = AceDB:New("SCAIDB", defaults, true)
-    AssistedCombatIconFrame:OnAddonLoaded();
+    LDS:EnhanceDatabase(self.db, addonName)
+    AssistedCombatIconFrame:OnAddonLoaded()
 
     self.db.RegisterCallback(self, "OnNewProfile", "OnProfileChanged")
     self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
@@ -180,6 +182,8 @@ end
 
 function addon:SetupOptions()
     local profileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(addon.db)
+    LDS:EnhanceOptions(profileOptions, self.db)
+
     profileOptions.inline = false
     profileOptions.name = "設定檔" -- 翻譯 Profile 選單名稱
     profileOptions.order = 9
@@ -351,8 +355,8 @@ function addon:SetupOptions()
                             },
                             HideAsHealer = {
                                 type = "toggle",
-                                name = "治療專精時隱藏",
-                                desc = "在隊伍內容中擔任治療角色時隱藏圖示。\n\n |cffffa000單人遊玩時仍會顯示圖示。|r",
+                                name = "在治療者角色時隱藏",
+                                desc = "在以治療者角色進行隊伍內容時隱藏圖示。\n\n|cffffa000單人時仍會顯示圖示。|r\n\n|cffffa000提示：可以在設定檔選項中使用專精設定檔，依據專精來隱藏。|r",
                                 order = 2,
                                 width = 1.1,
                                 get = function(info)
@@ -1049,8 +1053,6 @@ function addon:SetupOptions()
         },
     }
 
-
-
     local options = {
         type = "group",
         name = "簡易輸出助手",
@@ -1077,8 +1079,8 @@ function addon:SetupOptions()
 end
 
 function addon:OnProfileChanged()
-    AssistedCombatIconFrame.db = addon.db.profile
-    AssistedCombatIconFrame:ApplyOptions()
+    self:UpdateDB()
+    AssistedCombatIconFrame:Reload()
 end
 
 function addon:SlashCommand(input)
