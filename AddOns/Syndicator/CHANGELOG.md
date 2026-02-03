@@ -1,8 +1,7 @@
 # Syndicator
 
-## [259](https://github.com/TheMouseNest/Syndicator/tree/259) (2026-01-15)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/258...259) 
+## [260](https://github.com/TheMouseNest/Syndicator/tree/260) (2026-02-02)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/259...260) 
 
-- Remove usage of PLAYER\_ENTERING\_WORLD for initialization  
-    This mitigates any impact of the new CPU consumption restrictions  
-- Update constants (as workaround to detect TBC anniversary no longer needed)  
+- Fix for ItemVersion API changing  
+- Add "cata" as abbreviation for cataclysm  
