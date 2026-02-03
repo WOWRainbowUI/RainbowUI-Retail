@@ -1,7 +1,6 @@
 # Auctionator
 
-## [313](https://github.com/TheMouseNest/Auctionator/tree/313) (2026-01-30)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/312...313) 
+## [315](https://github.com/TheMouseNest/Auctionator/tree/315) (2026-02-02)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/314...315) 
 
-- [Fixes #1761] Fix some searches in Selling tab not working  
-- Classic Anniversary: Fix time left text on list views  
+- Fix tooltips on classic  
