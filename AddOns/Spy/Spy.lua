@@ -7,7 +7,7 @@ local fonts = SM:List("font")
 local _
 
 Spy = LibStub("AceAddon-3.0"):NewAddon("Spy", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceTimer-3.0")
-Spy.Version = "3.11.3"
+Spy.Version = "3.12.0"
 Spy.DatabaseVersion = "1.1"
 Spy.Signature = "[Spy]"
 Spy.ButtonLimit = 15
@@ -237,7 +237,7 @@ Spy.options = {
 						Spy.db.profile.ShowOnlyPvPFlagged = value
 					end,
 				},	]]--
-				ShowKoSButton = {
+--[[				ShowKoSButton = {
 					name = L["ShowKoSButton"],
 					desc = L["ShowKoSButtonDescription"],
 					type = "toggle",
@@ -249,7 +249,7 @@ Spy.options = {
 					set = function(info, value)
 						Spy.db.profile.ShowKoSButton = value
 					end,
-				},
+				},]]--
 			},
 		},
 		DisplayOptions = {
@@ -1446,7 +1446,7 @@ local Default_Profile = {
 		ShowOnDetection=true,
 		HideSpy=false,
 --		ShowOnlyPvPFlagged=false,
-		ShowKoSButton=false,
+--		ShowKoSButton=false,
 		InvertSpy=false,
 		ResizeSpy=true,
 		ResizeSpyLimit=15,
@@ -1741,13 +1741,13 @@ function Spy:OnEnable(first)
 	Spy:RegisterEvent("UNIT_FACTION", "ZoneChangedEvent")
 	Spy:RegisterEvent("PLAYER_TARGET_CHANGED", "PlayerTargetEvent")
 	Spy:RegisterEvent("UPDATE_MOUSEOVER_UNIT", "PlayerMouseoverEvent")
-	Spy:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", "CombatLogEvent")
+--	Spy:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", "CombatLogEvent")
 	Spy:RegisterEvent("UNIT_PET", "UnitPets")
 	Spy:RegisterEvent("PLAYER_REGEN_ENABLED", "LeftCombatEvent")
 	Spy:RegisterEvent("PLAYER_DEAD", "PlayerDeadEvent")
 	Spy:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE", "ChannelNoticeEvent")
-	Spy:RegisterEvent("NAME_PLATE_UNIT_ADDED", "NamePlateEvent")
-	Spy:RegisterEvent("NAME_PLATE_UNIT_REMOVED", "NamePlateEvent")
+--	Spy:RegisterEvent("NAME_PLATE_UNIT_ADDED", "NamePlateEvent")
+--	Spy:RegisterEvent("NAME_PLATE_UNIT_REMOVED", "NamePlateEvent")
 	Spy:RegisterComm(Spy.Signature, "CommReceived")
 	Spy.IsEnabled = true
 --	Spy:RefreshCurrentList()
@@ -1768,12 +1768,12 @@ function Spy:OnDisable()
 	Spy:UnregisterEvent("UNIT_FACTION")
 	Spy:UnregisterEvent("PLAYER_TARGET_CHANGED")
 	Spy:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
-	Spy:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+--	Spy:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	Spy:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	Spy:UnregisterEvent("PLAYER_DEAD")
 	Spy:UnregisterEvent("CHAT_MSG_CHANNEL_NOTICE")
-	Spy:UnregisterEvent("NAME_PLATE_UNIT_ADDED")
-	Spy:UnregisterEvent("NAME_PLATE_UNIT_REMOVED")
+--	Spy:UnregisterEvent("NAME_PLATE_UNIT_ADDED")
+--	Spy:UnregisterEvent("NAME_PLATE_UNIT_REMOVED")
 	Spy:UnregisterComm(Spy.Signature)
 	Spy.IsEnabled = false
 end
@@ -1889,7 +1889,7 @@ function Spy:OnInitialize()
 	end
 	Spy:PurgeUndetectedData()
 	Spy:CreateMainWindow()
-	Spy:CreateKoSButton()
+--	Spy:CreateKoSButton()
 	Spy:UpdateTimeoutSettings()
 
 	SM.RegisterCallback(Spy, "LibSharedMedia_Registered", "UpdateBarTextures")
@@ -1902,7 +1902,7 @@ function Spy:OnInitialize()
 	Spy:ClampToScreen(Spy.db.profile.ClampToScreen)	
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", Spy.FilterNotInParty)
 	Spy.WoWBuildInfo = select(4, GetBuildInfo())
-	if Spy.WoWBuildInfo < 110000 then
+	if Spy.WoWBuildInfo < 120000 then
 		DEFAULT_CHAT_FRAME:AddMessage(L["VersionCheck"])
 	end
 end
@@ -1964,17 +1964,17 @@ function Spy:ZoneChanged()
 			Spy.EnabledInZone = false
 		else
 			Spy.EnabledInZone = true
-			local inInstance, instanceType = IsInInstance()
-			if inInstance then
-				Spy.InInstance = true
-				if instanceType == "party" or instanceType == "raid" or (not Spy.db.profile.EnabledInBattlegrounds and instanceType == "pvp") or (not Spy.db.profile.EnabledInArenas and instanceType == "arena") then
-					Spy.EnabledInZone = false
-				end
-			elseif pvpType == "combat" then
-				if not Spy.db.profile.EnabledInWintergrasp then
-					Spy.EnabledInZone = false
-				end
---			elseif (pvpType == "friendly" or pvpType == nil) then
+		local inInstance, instanceType = IsInInstance()
+		if inInstance then
+			Spy.InInstance = true
+--			if instanceType == "party" or instanceType == "raid" or (not Spy.db.profile.EnabledInBattlegrounds and instanceType == "pvp") or (not Spy.db.profile.EnabledInArenas and instanceType == "arena") then
+				Spy.EnabledInZone = false
+--			end
+		elseif pvpType == "combat" then
+--			if not Spy.db.profile.EnabledInWintergrasp then
+				Spy.EnabledInZone = false
+--			end
+--		elseif (pvpType == "friendly" or pvpType == nil) then
 			elseif UnitIsPVP("player") == false and Spy.db.profile.DisableWhenPVPUnflagged then
 				Spy.EnabledInZone = false
 --				end
@@ -2093,7 +2093,7 @@ function Spy:PlayerMouseoverEvent()
 		end
 	end
 end
-
+--[[
 function Spy:NamePlateEvent(_, unit)
 	local name = GetUnitName(unit, true)
 	if name and UnitIsPlayer(unit) and not SpyPerCharDB.IgnoreData[name] then
@@ -2137,7 +2137,7 @@ function Spy:NamePlateEvent(_, unit)
 		end
 	end
 end
-
+]]--
 function Spy:CombatLogEvent(info, timestamp, event, hideCaster, srcGUID, srcName, srcFlags, sourceRaidFlags, dstGUID, dstName, dstFlags, destRaidFlags, ...)
 timestamp, event, hideCaster, srcGUID, srcName, srcFlags, sourceRaidFlags, dstGUID, dstName, dstFlags, destRaidFlags, arg12, arg13, arg14, arg15, arg16 = CombatLogGetCurrentEventInfo()
 	if Spy.EnabledInZone then

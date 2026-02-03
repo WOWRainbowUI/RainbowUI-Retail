@@ -1303,7 +1303,7 @@ function Spy:BarsChanged()
 	end
 	Spy:ResizeMainWindow()
 end
-
+--[[
 function Spy:CreateKoSButton()
 	if not Spy.KoSButton then
 		Spy.KoSButton = CreateFrame("Button", "Spy_KoSButton", TargetFrame)
@@ -1347,18 +1347,18 @@ function Spy:CreateKoSButton()
 end
 
 --hooksecurefunc("TargetFrame_Update", function()
-hooksecurefunc(TargetFrame, "Update", function()
-	if Spy.db.profile.ShowKoSButton then
-		if (UnitIsEnemy("player","target") and UnitIsPlayer("target")) then
-			local name = GetUnitName("target", true)	
-			if SpyPerCharDB.KOSData[name] then
-				Spy.KoSButton.Icon:SetTexture("Interface\\AddOns\\Spy\\Textures\\button-on.tga")
-			else	
-				Spy.KoSButton.Icon:SetTexture("Interface\\AddOns\\Spy\\Textures\\button-off.tga")
-			end
-			Spy.KoSButton:Show()
-		else
-			Spy.KoSButton:Hide()
-		end
-	end	
-end)
+--hooksecurefunc(TargetFrame, "Update", function()
+--	if Spy.db.profile.ShowKoSButton then
+--		if (UnitIsEnemy("player","target") and UnitIsPlayer("target")) then
+--			local name = GetUnitName("target", true)	
+--			if SpyPerCharDB.KOSData[name] then
+--	Spy.KoSButton.Icon:SetTexture("Interface\\AddOns\\Spy\\Textures\\button-on.tga")
+--			else	
+--	Spy.KoSButton.Icon:SetTexture("Interface\\AddOns\\Spy\\Textures\\button-off.tga")
+--			end
+--			Spy.KoSButton:Show()
+--		else
+--			Spy.KoSButton:Hide()
+--		end
+--	end	
+end) ]]--

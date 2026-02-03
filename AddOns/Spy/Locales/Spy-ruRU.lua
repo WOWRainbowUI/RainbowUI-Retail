@@ -491,7 +491,7 @@ L["Mechagnome"] = "Механогном"
 L["Vulpera"] = "Вульпера"
 L["Dracthyr"] = "Драктир"
 L["Earthen"] = "Земельник"
- 
+
 -- Stealth abilities
 L["Stealth"] = "Незаметность"
 L["Prowl"] = "Крадущийся зверь"

@@ -8,7 +8,7 @@
 		<HighlightTexture file="Interface\CharacterFrame\BarFill.blp" alphaMode="ADD" setAllPoints="true" hidden="true"/>
 		<Scripts>
 			<OnLoad>
-<!--				self:RegisterForClicks("LeftButtonUp", "RightButtonUp"); -->
+<!--			self:RegisterForClicks("LeftButtonUp", "RightButtonUp"); -->
 				self:RegisterForClicks("AnyDown", "AnyUp");
 				self:SetAttribute("type1", "macro");
 				self:SetAttribute("macrotext", "/targetexact nil");

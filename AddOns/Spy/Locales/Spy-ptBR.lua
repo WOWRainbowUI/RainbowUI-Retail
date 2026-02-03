@@ -16,16 +16,16 @@ Spy é um addon que vai alerta-lo da presença de jogadores inimigos nas proximi
 ]]
 
 L["SpyDescription2"] = [[
-|cffffd000Lista de Proximidades|cffffffff
+|cffffd000 Lista de Proximidades |cffffffff
 A lista de Proximidades mostra qualquer inimigo detectado nas proximidades. Jogadores são removidos da lista se não forem mais detectados após um certo período de tempo.
 
-|cffffd000Lista de Última Hora|cffffffff
+|cffffd000 Lista de Última Hora |cffffffff
 Exibe todos os inimigos detectados em uma hora.
 
-|cffffd000Lista de Ignorados|cffffffff
+|cffffd000 Lista de Ignorados |cffffffff
 Jogadores que são adicionados à lista de Ignorados não serão reportados pelo Spy. Você pode adicionar ou remover jogadores dessa lista usando o menu de contexto ou segurando Ctrl enquanto clicando no botão.
 
-|cffffd000Lista Negra|cffffffff
+|cffffd000 Lista Negra |cffffffff
 Jogadores que são adicionados à Lista Negra são reportados pelo Spy através de um alarme sonoro.  Você pode adicionar ou remover jogadores dessa lista usando o menu de contexto ou segurando Shift enquanto clica no botão. O menu de contexto também permite que você justifique as razões que o levou a colocar determinada pessoa na Lista Negra. Se quiser colocar uma motivo especifico que não tenha na lista, em seguida, use "Digite seu próprio motivo..." em Outra lista.
 
 ]]
@@ -354,7 +354,7 @@ L["AddToIgnoreList"] = "Adicionar à lista de Ignorados"
 L["AddToKOSList"] = "Adicionar à Lista Negra"
 L["RemoveFromIgnoreList"] = "Remover da lista de Ignorados"
 L["RemoveFromKOSList"] = "Remover da Lista Negra"
-L["RemoveFromStatsList"] = "Remover da Lista de Estatísticas"   --++
+L["RemoveFromStatsList"] = "Remover da Lista de Estatísticas"
 L["AnnounceDropDownMenu"] = "Anunciar"
 L["KOSReasonDropDownMenu"] = "Determinar motivo de estar na Lista Negra"
 L["PartyDropDownMenu"] = "Grupo"

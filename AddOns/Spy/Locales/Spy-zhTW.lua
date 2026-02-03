@@ -310,7 +310,7 @@ L["HonorKills"] = "榮譽擊殺"
 L["PvPDeaths"] = "PvP 死亡"
 
 -- Output messages
-L["VersionCheck"] = "|cffc41e3a警告！ 安裝了錯誤的Spy版本。 Uninstall this version and install the one that matches your current game version."
+L["VersionCheck"] = "|cffc41e3a警告！ 安裝了錯誤的Spy版本。 Uninstall this version and install the one that matches your current game version。"
 L["SpyEnabled"] = "|cff9933ff偵測敵方玩家插件已啟用。"
 L["SpyDisabled"] = "|cff9933ff偵測敵方玩家插件已停用，輸入 |cffffffff/spy show|cff9933ff 來啟用。"
 L["UpgradeAvailable"] = "|cff9933ff偵測敵方玩家插件已有新版本，可以到這裡下載：\n|cffffffffhttps://www.curseforge.com/wow/addons/spy"

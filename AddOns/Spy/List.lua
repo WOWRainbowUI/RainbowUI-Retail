@@ -1059,7 +1059,7 @@ function Spy:ParseUnitAbility(analyseSpell, event, player, class, race, spellId,
 						end
 					end	
 				else	
---					print(spellId, " - ", spellName, " - ", class)
+					print(spellId, " - ", spellName, " - ", class)
 				end
 				if class and race and level == Spy.MaximumPlayerLevel then
 					isGuess = false
