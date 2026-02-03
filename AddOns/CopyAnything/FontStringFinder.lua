@@ -36,7 +36,8 @@ function addon:GetMouseoverText()
 	local function mouseoverFontStringsIter()
 		local fontString = fontStringsIter()
 		while fontString do
-			if fontString:IsVisible() then
+			local isVisible = fontString:IsVisible()
+			if canAccessValueCompat(isVisible) and isVisible then
 				-- No way of knowing if the region is restricted, so just skip this one
 				-- if it is restricted or has any other error.
 				local status, isMouseOver = pcall(function()
