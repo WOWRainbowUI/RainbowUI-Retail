@@ -1915,6 +1915,8 @@ L["mawOfSoulsShortName"] = "MOS"
 L["Mchimba the Embalmer"] = "장의사 음침바"
 L["MDI Mode"] = "MDI 모드"
 L["MDT Error"] = "MDT 오류"
+--[[Translation missing --]]
+L["MDT Legacy maps"] = "MDT Legacy maps"
 L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: 적을 추가할 수 없습니다. 같은 종류의 적을 너무 많이 추가하려고 합니다."
 L["MDT: Error importing preset"] = "MDT: 경로 가져오기 오류 "
 L["MDT: Spells for %s:"] = "MDT: %s의 마법"
@@ -2256,6 +2258,8 @@ L["Portrait"] = "초상화"
 L["Posh Vacationer"] = "호화로운 행락객"
 --[[Translation missing --]]
 L["Potatoad"] = "Potatoad"
+--[[Translation missing --]]
+L["PREPATCH_LAUNCH_WARNING_TEXT"] = "The next expansion launches on March 3, 2026. Until then, MDT shows the next expansion dungeons by default. If you want the old dungeon maps, please install the MDT_Legacy AddOn:"
 L["Preset '%s' already exists"] = "'%s%'(이)라는 길이 이미 있습니다"
 L["Preset Export"] = "길 내보내기"
 L["Preset Name"] = "경로 이름"

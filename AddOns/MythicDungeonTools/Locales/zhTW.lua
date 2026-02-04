@@ -1768,6 +1768,8 @@ L["mawOfSoulsShortName"] = "靈魂"
 L["Mchimba the Embalmer"] = "『墓葬者』瑪欽巴"
 L["MDI Mode"] = "MDI 模式"
 L["MDT Error"] = "MDT Error"
+--[[Translation missing --]]
+L["MDT Legacy maps"] = "MDT Legacy maps"
 L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: 無法加入敵人 - 你已加入太多同類型的敵人"
 L["MDT: Error importing preset"] = "MDT: 匯入路線時發生錯誤"
 L["MDT: Spells for %s:"] = "MDT: %s 的技能:"
@@ -2101,6 +2103,8 @@ L["Portrait"] = "頭像"
 L["Posh Vacationer"] = "时髦的游客"
 --[[Translation missing --]]
 L["Potatoad"] = "Potatoad"
+--[[Translation missing --]]
+L["PREPATCH_LAUNCH_WARNING_TEXT"] = "The next expansion launches on March 3, 2026. Until then, MDT shows the next expansion dungeons by default. If you want the old dungeon maps, please install the MDT_Legacy AddOn:"
 L["Preset '%s' already exists"] = "路線 '%s' 已經存在"
 L["Preset Export"] = "匯出路線"
 L["Preset Name"] = "路線名稱"

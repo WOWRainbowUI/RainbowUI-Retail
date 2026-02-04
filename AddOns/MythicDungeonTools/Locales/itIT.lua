@@ -2105,6 +2105,8 @@ L["MDI Mode"] = "Modalità MDI"
 --[[Translation missing --]]
 L["MDT Error"] = "MDT Error"
 --[[Translation missing --]]
+L["MDT Legacy maps"] = "MDT Legacy maps"
+--[[Translation missing --]]
 L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"
 L["MDT: Error importing preset"] = "MDT: Si è verificato un errore durante l'importazione del percorso"
 L["MDT: Spells for %s:"] = "MDT: Abilità di %s:"
@@ -2505,6 +2507,8 @@ L["Portrait"] = "Ritratto"
 L["Posh Vacationer"] = "Vacanziera Elegante"
 --[[Translation missing --]]
 L["Potatoad"] = "Potatoad"
+--[[Translation missing --]]
+L["PREPATCH_LAUNCH_WARNING_TEXT"] = "The next expansion launches on March 3, 2026. Until then, MDT shows the next expansion dungeons by default. If you want the old dungeon maps, please install the MDT_Legacy AddOn:"
 L["Preset '%s' already exists"] = "Il percorso '%s' esiste già"
 L["Preset Export"] = "Esporta percorso"
 L["Preset Name"] = "Nome percorso"

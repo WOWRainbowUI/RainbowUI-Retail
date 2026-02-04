@@ -1695,6 +1695,8 @@ L["mawOfSoulsShortName"] = "MOS"
 L["Mchimba the Embalmer"] = "Mchimba der Balsamierer"
 L["MDI Mode"] = "MDI Modus"
 L["MDT Error"] = "MDT Fehler"
+--[[Translation missing --]]
+L["MDT Legacy maps"] = "MDT Legacy maps"
 L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: Gegner kann nicht hinzugefügt werden - Du versuchst zu viele Gegner des gleichen Typs hinzuzufügen"
 L["MDT: Error importing preset"] = "MDT: Fehler beim importieren der Route"
 L["MDT: Spells for %s:"] = "Zauber für %s:"
@@ -2021,6 +2023,8 @@ L["Portrait"] = "Portrait"
 L["Posh Vacationer"] = "Luxusurlauberin"
 --[[Translation missing --]]
 L["Potatoad"] = "Potatoad"
+--[[Translation missing --]]
+L["PREPATCH_LAUNCH_WARNING_TEXT"] = "The next expansion launches on March 3, 2026. Until then, MDT shows the next expansion dungeons by default. If you want the old dungeon maps, please install the MDT_Legacy AddOn:"
 L["Preset '%s' already exists"] = "Route '%s' ist bereits vorhanden"
 L["Preset Export"] = "Route exportieren"
 L["Preset Name"] = "Name der Route"
