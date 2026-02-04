@@ -2,7 +2,8 @@
 local addonName, MDT = ...
 local L = MDT.L
 L = L or {}
-
+L["MDT Legacy maps"] = "MDT Legacy maps"
+L["PREPATCH_LAUNCH_WARNING_TEXT"] = "The next expansion launches on March 3, 2026. Until then, MDT shows the next expansion dungeons by default. If you want the old dungeon maps, please install the MDT_Legacy AddOn:"
 L["Cannot share routes right now due to blizzard restrictions."] = "Cannot share routes right now due to blizzard restrictions."
 L["exampleItemNameNoSpellId"] = "Example Item (No Spell ID)"
 L["exampleItemDescriptionNoSpellId"] = "A sample item with no associated spell ID.%s%sNew lines supported"
@@ -4850,6 +4851,7 @@ L["mawOfSoulsShortName"] = "MOS"
 L["Mchimba the Embalmer"] = "Mchimba the Embalmer"
 L["MDI Mode"] = "MDI Mode"
 L["MDT Error"] = "MDT Error"
+L["MDT Legacy maps"] = "MDT Legacy maps"
 L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"
 L["MDT: Error importing preset"] = "MDT: Error importing route"
 L["MDT: Spells for %s:"] = "MDT: Spells for %s:"
@@ -5155,6 +5157,7 @@ L["Portalmancer Zo'honn"] = "Portalmancer Zo'honn"
 L["Portrait"] = "Portrait"
 L["Posh Vacationer"] = "Posh Vacationer"
 L["Potatoad"] = "Potatoad"
+L["PREPATCH_LAUNCH_WARNING_TEXT"] = "The next expansion launches on March 3, 2026. Until then, MDT shows the next expansion dungeons by default. If you want the old dungeon maps, please install the MDT_Legacy AddOn:"
 L["Preset '%s' already exists"] = "Route '%s' already exists"
 L["Preset Export"] = "Route Export"
 L["Preset Name"] = "Route Name"
