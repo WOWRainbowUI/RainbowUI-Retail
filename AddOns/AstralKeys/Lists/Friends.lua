@@ -666,26 +666,30 @@ do
 end
 
 local function TooltipHook(self)
-    if not AstralKeysSettings.general.show_tooltip_key.isEnabled then return end
-	if self.GetUnit~=nil then 
-    local _, uid = self:GetUnit()
+	if not AstralKeysSettings.general.show_tooltip_key.isEnabled then return end
 
-	if type(uid) ~= "string" or not UnitExists(uid) or not UnitIsPlayer(uid) then
-		return
-	end
+	-- TooltipDataProcessor already guarantees this is a Unit tooltip
+	local data = self.processingInfo
+	if not data or not data.unitToken then return end
 
-    local unitName, unitRealm = UnitFullName(uid)
-    unitRealm = ((unitRealm ~= '' and unitRealm) or GetRealmName()):gsub('%s+', '')
-    local unit = string.format('%s-%s', unitName, (unitRealm or GetRealmName()):gsub('%s+', ''))
+	-- NEVER call Unit* APIs here
+	local name, realm = data.name, data.realm
+	if not name then return end
 
-    local id = addon.UnitID(unit)
-    if id then
-    	GameTooltip:AddLine(' ')
-        GameTooltip:AddLine(L['Current Keystone'])
-        GameTooltip:AddDoubleLine(addon.GetMapName(addon.UnitMapID(id) or UNKONW), addon.UnitKeyLevel(id) or "", 1, 1, 1, 1, 1, 1) -- 暫時修正
-        return
-    end
-	end
+	realm = (realm and realm ~= "" and realm or GetRealmName()):gsub("%s+", "")
+	local unit = string.format("%s-%s", name, realm)
+
+	local id = addon.UnitID(unit)
+	if not id then return end
+
+	local unitMapId = addon.UnitMapID(id)
+	local unitMapName = addon.GetMapName(unitMapId)
+	local unitKeyLevel = addon.UnitKeyLevel(id)
+
+	-- Add tooltip lines
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddLine(L["Current Keystone"])
+	GameTooltip:AddDoubleLine(unitMapName, unitKeyLevel, 1, 1, 1, 1, 1, 1)
 end
 
 TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, TooltipHook)
@@ -700,7 +704,6 @@ local function FriendUnitFunction(self, unit, class, mapID, keyLevel, weekly_bes
 	else
 		self.bestString:SetText(nil)
 	end
-	--self.weeklyTexture:SetShown(cache == 1)
 
 	if mplus_score then
 		local colour = addon.GetScoreColour(mplus_score)
