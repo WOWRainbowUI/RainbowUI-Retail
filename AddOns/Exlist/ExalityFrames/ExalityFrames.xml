@@ -1,0 +1,32 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+  <!-- Core -->
+  <Script file="Core.lua"/>
+  <Script file="PixelPerfect.lua" />
+  <!-- Frame -->
+  <Script file="Frames/Inputs/Tooltip.lua" />
+  <Script file="Frames/Inputs/EditBox.lua" />
+  <Script file="Frames/Inputs/Range.lua" />
+  <Script file="Frames/Inputs/Toggle.lua" />
+  <Script file="Frames/Inputs/Button.lua" />
+  <Script file="Frames/Inputs/ToggleButton.lua" />
+  <Script file="Frames/Inputs/LuaEditor.lua" />
+  <Script file="Frames/Inputs/Keybind.lua" />
+  <Script file="Frames/Inputs/Dropdown.lua" />
+  <Script file="Frames/Inputs/Spacer.lua" />
+  <Script file="Frames/Inputs/Title.lua" />
+  <Script file="Frames/Inputs/Description.lua" /> 
+  <Script file="Frames/Inputs/ColorPicker.lua" />
+  <Script file="Frames/Inputs/SlimDropdown.lua" />
+  <Script file="Frames/OptionFrames/ModuleItem.lua" />
+  <Script file="Frames/Dialog.lua" />
+  <Script file="Frames/SplitOptions.lua" />
+  <Script file="Frames/Tabs.lua" />
+  <Script file="Frames/WindowManager.lua" />
+  <Script file="Frames/Window.lua" />
+  <Script file="Frames/Panel.lua" />
+  <Script file="Frames/ScrollFrame.lua" />
+  <Script file="Frames/InputGroup.lua" />
+  <Script file="Frames/Inputs/CheckBox.lua" />
+  <Script file="Frames/InputDialog.lua" />
+</Ui>

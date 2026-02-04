@@ -700,7 +700,7 @@ D["EditModeExpanded"] = {
 	},
 };
 D["Exlist"] = {
-	defaultEnable = 0,
+	defaultEnable = 1,
 	tags = { "BOSSRAID" },
 	title = "我的分身名冊",
 	desc = "快速查看自己所有分身的地城/團隊/世界王擊殺進度、傳奇鑰石/最佳成績、每日/每週/世界任務、金錢、兌換通貨數量、專業、裝備... 還有更多!`",
