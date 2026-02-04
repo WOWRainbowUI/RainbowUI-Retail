@@ -1,6 +1,6 @@
 local MAJ, REV, COMPAT, _, T = 1, 16, select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
-local _GG, TWELVE = _G, COMPAT >= 12e4
+local _GG = _G
 if T.TenEnv then T.TenEnv() end
 
 local EV, AB, RW = T.Evie, T.ActionBook:compatible(2,34), T.ActionBook:compatible("Rewire", 1,27)
@@ -765,7 +765,7 @@ do -- Editor UI
 		prefix = skipPrefixSpace and (prefix or "") or (prefix and prefix .. " " or " ")
 		eb:Insert(prefix .. (atext or link:match("|h%[?(.-[^%]])%]?|h") or stripUIEscapes(link)))
 	end
-	hooksecurefunc(TWELVE and ChatFrameUtil or _GG, TWELVE and "InsertLink" or "ChatEdit_InsertLink", insertLinkHook)
+	hooksecurefunc(MODERN and ChatFrameUtil or _GG, MODERN and "InsertLink" or "ChatEdit_InsertLink", insertLinkHook)
 
 	function eb:SetAction(owner, action)
 		local op = eb:GetParent()

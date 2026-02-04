@@ -1,4 +1,4 @@
-local MAJ, REV, _, T = 3, 63, ...
+local MAJ, REV, _, T = 3, 64, ...
 local EV, ORI, PC = T.Evie, OPie.UI, T.OPieCore
 local AB, RW, IM = T.ActionBook:compatible(2,37), T.ActionBook:compatible("Rewire", 1,10), T.ActionBook:compatible("Imp", 1, 0)
 assert(ORI and AB and RW and IM and EV and PC and 1, "Missing required libraries")
@@ -654,6 +654,10 @@ function api:SetExternalRing(name, desc)
 	RK_FluxRings[name] = true
 	RK_SetRingDesc(name, desc)
 end
+function api:GetDefaultDescription(name)
+	assert(type(name) == "string", 'Syntax: desc = RK:GetDefaultDescription("name")', 2)
+	return queue[name] and copy(queue[name]) or false
+end
 
 -- HIDDEN, UNSUPPORTED METHODS: May vanish at any time.
 local hum = {}
@@ -773,10 +777,6 @@ function private:RestoreDefaults(name)
 		self:SetRing(name, queue[name])
 		return true
 	end
-end
-function private:GetDefaultDescription(name)
-	assert(type(name) == "string", 'Syntax: desc = RK:GetDefaultDescription("name")', 2)
-	return queue[name] and copy(queue[name]) or false
 end
 function private:GetDeletedRings()
 	return ringIterator, true, nil
