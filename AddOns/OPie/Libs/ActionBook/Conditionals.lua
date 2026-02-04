@@ -3,6 +3,7 @@ if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
 local MODERN, CI_ERA, CF_CATA, CF_MISTS = COMPAT >= 11e4, COMPAT < 2e4, COMPAT > 4e4 and COMPAT < 11e4, COMPAT > 5e4 and COMPAT < 11e4
+local NO_SECRETS = not MODERN
 local EV, WR = T.Evie, T.Ware
 local AB = T.ActionBook:compatible(2, 31)
 local KR = T.ActionBook:compatible("Kindred", 1,33)
@@ -264,7 +265,7 @@ securecall(function() -- ready:spell name/spell id/item name/item id
 	KR:SetNonSecureConditional("ready", function(_name, args)
 		local gcS, gcL = GetSpellCooldown(61304)
 		if not args or args == "" then
-			return gcS == 0 and gcL == 0
+			return MODERN and gcL and issecretvalue(gcL) and "lockdown" or (gcS == 0 and gcL == 0)
 		end
 		
 		local at = stringArgCache[args]
@@ -279,7 +280,9 @@ securecall(function() -- ready:spell name/spell id/item name/item id
 					cdS, cdL, _cdA = C_Container.GetItemCooldown(iid)
 				end
 			end
-			if cdL == 0 or (cdS and cdL and (cdS + cdL) <= gcE) then
+			if MODERN and cdL and issecretvalue(cdL) then
+				return "lockdown"
+			elseif cdL == 0 or (cdS and cdL and (cdS + cdL) <= gcE) then
 				return true
 			end
 		end
@@ -313,10 +316,14 @@ securecall(function() -- self(de)buff:name, own(de)buff:name, (de)buff:name, cle
 		return select("#", ...), tk, ...
 	end
 	local function checkAura(name, args, target)
+		if MODERN and C_Secrets.ShouldAurasBeSecret() then
+			return "lockdown"
+		end
 		target = (name == "selfbuff" or name == "selfdebuff") and "player" or target or "target"
 		if not args or args == "" or not UnitExists(target) then
 			return false
 		end
+		local issecretvalue = MODERN and issecretvalue
 		local at, query, filter = stringArgCache[args], C_UnitAuras.GetAuraSlots, conditionalFilter[name]
 		local count, ctok, a,b,c,d,e
 		repeat
@@ -325,7 +332,7 @@ securecall(function() -- self(de)buff:name, own(de)buff:name, (de)buff:name, cle
 				local dat = C_UnitAuras.GetAuraDataBySlot(target, a)
 				local name = dat and dat.name
 				for j=1, name and #at or 0 do
-					if strcmputf8i(name, at[j]) == 0 then
+					if (NO_SECRETS or not issecretvalue(name)) and strcmputf8i(name, at[j]) == 0 then
 						return true
 					end
 				end

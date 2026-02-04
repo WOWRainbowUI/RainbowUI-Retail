@@ -2,6 +2,7 @@ local _, T = ...
 
 function T.WhatsNewData(vh, uv, li)
 	vh("v8.1")
+	uv("[.3] Fixed an error that could occur in PvP matches or Mythic+ when using certain insecure macro conditionals on patch 12.0.0.")
 	uv("[.2] Fixed an error that occurred when viewing target marker slices with an already-marked target on patch 12.0.0.")
 	li("Compatibility update for patch 12.0.0.")
 	li("OPie does not currently show ability cooldowns while in combat on patch 12.0.0.")
