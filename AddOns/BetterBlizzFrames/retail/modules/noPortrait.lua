@@ -13,8 +13,16 @@ local focusDefaultTex = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\
 local partyDefaultTex = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
 local petDefaultTex = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
 
-local flashTex = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
-local flashNoLvl = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
+local playerFlashTex = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
+local targetFlashTex = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
+local focusFlashTex = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
+local petFlashTex = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
+
+local playerFlashNoLvl = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
+local targetFlashNoLvl = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
+local focusFlashNoLvl = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
+local petFlashNoLvl = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
+
 local minusTex = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Minus.tga"
 
 
@@ -28,8 +36,14 @@ local function UpdateTextureVariables()
         focusDefaultTex = nil
         partyDefaultTex = nil
         petDefaultTex = nil
-        flashTex = nil
-        flashNoLvl = nil
+        playerFlashTex = nil
+        targetFlashTex = nil
+        focusFlashTex = nil
+        petFlashTex = nil
+        playerFlashNoLvl = nil
+        targetFlashNoLvl = nil
+        focusFlashNoLvl = nil
+        petFlashNoLvl = nil
         minusTex = nil
         return
     end
@@ -76,6 +90,16 @@ local function UpdateTextureVariables()
     else
         partyDefaultTex = "Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Player-PortraitOff-Large.tga"
     end
+
+    -- Set flash textures to match the corresponding default textures
+    playerFlashTex = playerDefaultTex
+    playerFlashNoLvl = playerDefaultTex
+    targetFlashTex = targetDefaultTex
+    targetFlashNoLvl = targetDefaultTex
+    focusFlashTex = focusDefaultTex
+    focusFlashNoLvl = focusDefaultTex
+    petFlashTex = petDefaultTex
+    petFlashNoLvl = petDefaultTex
 end
 
 local function GetPlayerBackgroundYOffset()
@@ -705,7 +729,7 @@ local function MakeNoPortraitMode(frame)
             else
                 container.FrameTexture:ClearAllPoints()
                 container.FrameTexture:SetPoint("TOPLEFT", 20.5, -18)
-                container.Flash:SetTexture((frame == TargetFrame) and targetDefaultTex or focusDefaultTex)
+                container.Flash:SetTexture((frame == TargetFrame) and targetFlashTex or focusFlashTex)
                 container.Flash:SetTexCoord(1, 0, 0, 1)
                 container.Flash:ClearAllPoints()
                 container.Flash:SetAllPoints(frame.noPortraitMode.Texture)
@@ -732,6 +756,33 @@ local function MakeNoPortraitMode(frame)
             if db.noPortraitPixelBorder then
                 SetBarMask(hpContainer.HealthBar, hpContainer.HealthBarMask, true)
                 SetBarMask(manaBar, manaBar.ManaBarMask, true)
+
+                local hideMana = (frame == TargetFrame and db.hideUnitFrameTargetMana) or (frame == FocusFrame and db.hideUnitFrameFocusMana)
+
+                if not manaBar:IsShown() then
+                    if not hideMana then
+                        if manaBar.BBFPositionFrame then
+                            manaBar.BBFPositionFrame:Show()
+                            manaBar.BBFPositionFrame:SetParent(frame.noPortraitMode)
+                            manaBar.BBFPositionFrame:SetAlpha(1)
+                        end
+                        if manaBar.BBFPixelBorder then
+                            manaBar.BBFPixelBorder:Show()
+                        end
+                        if manaBar.pixelBorderBackground then
+                            manaBar.pixelBorderBackground:Show()
+                            manaBar.pixelBorderBackground:SetParent(frame.noPortraitMode)
+                            manaBar.pixelBorderBackground:SetAlpha(1)
+                        end
+                    end
+                else
+                    if manaBar.BBFPositionFrame then
+                        manaBar.BBFPositionFrame:SetParent(manaBar)
+                    end
+                    if manaBar.pixelBorderBackground then
+                        manaBar.pixelBorderBackground:SetParent(manaBar)
+                    end
+                end
             else
                 hpContainer.HealthBarMask:SetTexture("interface/hud/uipartyframeportraitoffhealthmask")
                 SetXYPoint(hpContainer.HealthBarMask, -35, 5)
@@ -1432,20 +1483,9 @@ local function MakeNoPortraitMode(frame)
                 PlayerFrameBottomManagedFramesContainer:SetScale(scale)
                 PlayerFrameBottomManagedFramesContainer:SetFrameStrata("HIGH")
             else
-                PlayerFrameBottomManagedFramesContainer.positionNeedsUpdate = true
-                if not BBF.CombatWaiter then
-                    BBF.CombatWaiter = CreateFrame("Frame")
-                    BBF.CombatWaiter:SetScript("OnEvent", function(self)
-                        if PlayerFrameBottomManagedFramesContainer.positionNeedsUpdate then
-                            PlayerFrameBottomManagedFramesContainer.positionNeedsUpdate = false
-                            UpdateResourcePosition()
-                        end
-                        self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-                    end)
-                end
-                if not BBF.CombatWaiter:IsEventRegistered("PLAYER_REGEN_ENABLED") then
-                    BBF.CombatWaiter:RegisterEvent("PLAYER_REGEN_ENABLED")
-                end
+                BBF.RunAfterCombat(function()
+                    UpdateResourcePosition()
+                end)
             end
         end
 
@@ -1493,9 +1533,9 @@ local function MakeNoPortraitMode(frame)
                 playerElite:SetDesaturated(false)
             else
                 frame.noPortraitMode.Texture:SetTexture(playerDefaultTex)
-                frameContainer.FrameFlash:SetTexture(flashTex)
+                frameContainer.FrameFlash:SetTexture(playerFlashTex)
                 frameContainer.FrameFlash:SetTexCoord(0, 1, 0, 1)
-                contentMain.StatusTexture:SetTexture(playerDefaultTex)
+                contentMain.StatusTexture:SetTexture(playerFlashTex)
             -- elseif mode == 4 then -- Only 3 available for classic
             --     db.playerEliteFrameMode = 3
             --     playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Elite")
@@ -1506,14 +1546,14 @@ local function MakeNoPortraitMode(frame)
         local function ToggleNoLevelFrame(noLvl)
             if noLvl then
                 frame.noPortraitMode.Texture:SetTexture(playerDefaultTex)
-                frameContainer.FrameFlash:SetTexture(flashNoLvl)
+                frameContainer.FrameFlash:SetTexture(playerFlashNoLvl)
                 frameContainer.FrameFlash:SetTexCoord(0, 1, 0, 1)
-                contentMain.StatusTexture:SetTexture(playerDefaultTex)
+                contentMain.StatusTexture:SetTexture(playerFlashTex)
             else
                 frame.noPortraitMode.Texture:SetTexture(playerDefaultTex)
-                frameContainer.FrameFlash:SetTexture(flashTex)
+                frameContainer.FrameFlash:SetTexture(playerFlashTex)
                 frameContainer.FrameFlash:SetTexCoord(0, 1, 0, 1)
-                contentMain.StatusTexture:SetTexture(playerDefaultTex)
+                contentMain.StatusTexture:SetTexture(playerFlashTex)
             end
         end
 
@@ -1571,9 +1611,9 @@ local function MakeNoPortraitMode(frame)
             frame.noPortraitMode.Texture:SetSize(254, 46)
             if db.playerEliteFrame then
                 PlayerEliteFrame()
-                frameContainer.FrameFlash:SetTexture(flashTex)
+                frameContainer.FrameFlash:SetTexture(playerFlashTex)
                 frameContainer.FrameFlash:SetTexCoord(0, 1, 0, 1)
-                contentMain.StatusTexture:SetTexture(playerDefaultTex)
+                contentMain.StatusTexture:SetTexture(playerFlashTex)
                 -- Handle level text for playerEliteFrame
                 local mode = BetterBlizzFramesDB.playerEliteFrameMode
                 if mode > 3 and (alwaysHideLvl or (hideLvl and UnitLevel("player") == (BBF.isMidnight and 90 or 80))) then
@@ -1667,7 +1707,7 @@ local function MakeNoPortraitMode(frame)
 
             frameContainer.FrameFlash:SetParent(frame)
             frameContainer.FrameFlash:SetSize(255, 45)
-            frameContainer.FrameFlash:SetTexture(playerDefaultTex)
+            frameContainer.FrameFlash:SetTexture(playerFlashTex)
             frameContainer.FrameFlash:SetTexCoord(0, 1, 0, 1)
             frameContainer.FrameFlash:ClearAllPoints()
             frameContainer.FrameFlash:SetAllPoints(frame.noPortraitMode.Texture)
@@ -1676,7 +1716,7 @@ local function MakeNoPortraitMode(frame)
             contentContext.RoleIcon:ClearAllPoints()
             contentContext.RoleIcon:SetPoint("TOPLEFT", 81, -36)
 
-            contentMain.StatusTexture:SetTexture(playerDefaultTex)
+            contentMain.StatusTexture:SetTexture(playerFlashTex)
             contentMain.StatusTexture:SetTexCoord(0, 1, 0, 1)
             contentMain.StatusTexture:ClearAllPoints()
             contentMain.StatusTexture:SetAllPoints(frame.noPortraitMode.Texture)
@@ -1904,9 +1944,11 @@ local function AdjustAlternateBars()
         local yOffset = shouldMoveUp and 11 or 0
 
         if db.noPortraitPixelBorder then
-            bar:SetSize(124, 10)
-            bar:ClearAllPoints()
-            bar:SetPoint("BOTTOMLEFT", 85, 16 + yOffset)
+            BBF.RunAfterCombat(function()
+                bar:SetSize(124, 10)
+                bar:ClearAllPoints()
+                bar:SetPoint("BOTTOMLEFT", 85, 16 + yOffset)
+            end)
 
             local cfg = BorderPositions.player.alt
             BlackBorder(bar, cfg.width, cfg.height, cfg.startX, cfg.startY)
@@ -1920,9 +1962,11 @@ local function AdjustAlternateBars()
                 end
             end
         else
-            bar:SetSize(126, 9)
-            bar:ClearAllPoints()
-            bar:SetPoint("BOTTOMLEFT", 86, 19.2 + yOffset)
+            BBF.RunAfterCombat(function()
+                bar:SetSize(126, 9)
+                bar:ClearAllPoints()
+                bar:SetPoint("BOTTOMLEFT", 86, 19.2 + yOffset)
+            end)
 
             if bar.PowerBarMask then
                 bar.PowerBarMask:ClearAllPoints()
@@ -1935,7 +1979,7 @@ local function AdjustAlternateBars()
             bar.s:SetFrameStrata("HIGH")
             bar.s:SetAllPoints(bar)
         end
-        
+
         -- Set frame level above pixel borders if they exist
         if db.noPortraitPixelBorder and bar.BBFPixelBorder then
             bar.s:SetFrameLevel(bar.BBFPixelBorder:GetFrameLevel() + 1)
@@ -1986,7 +2030,7 @@ local function AdjustAlternateBars()
                         else
                             r, g, b = 0.11, 0.34, 0.71
                         end
-                        
+
                         -- Check for custom power colors if enabled
                         if BetterBlizzFramesDB.customHealthbarColors and BetterBlizzFramesDB.customPowerColors and BetterBlizzFramesDB.customColorsUnitFrames then
                             local powerToken = self.powerToken or self.powerName
@@ -1997,14 +2041,14 @@ local function AdjustAlternateBars()
                                 end
                             end
                         end
-                        
+
                         self:SetStatusBarTexture(BBF.manaTexture)
                         self:SetStatusBarColor(r, g, b)
                     end)
                 else
                     hooksecurefunc(bar, "EvaluateUnit", function(self)
                         if bar.keepFancyManas and fancyManas[bar.bbfPowerToken] then return end
-                        
+
                         -- Check for custom power colors if enabled
                         if BetterBlizzFramesDB.customHealthbarColors and BetterBlizzFramesDB.customPowerColors and BetterBlizzFramesDB.customColorsUnitFrames then
                             local powerToken = self.powerToken or self.powerName
@@ -2015,7 +2059,7 @@ local function AdjustAlternateBars()
                                 end
                             end
                         end
-                        
+
                         self:SetStatusBarTexture(BBF.manaTexture)
                         self:SetStatusBarColor(r, g, b)
                     end)
@@ -2246,16 +2290,16 @@ local function MakeClassicPartyFrame()
         local function hbAdjust()
             frame.bbfName:SetWidth(76)
             local needsCombatUpdate = false
-            
+
             if db.noPortraitPixelBorder then
                 SetBarMask(hpContainer.HealthBar, hpContainer.HealthBarMask, true)
                 SetBarMask(manaBar, manaBar.ManaBarMask, true)
 
                 if not InCombatLockdown() then
                     hpContainer.HealthBar:ClearAllPoints()
-                    manaBar:ClearAllPoints()
                     hpContainer.HealthBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -2, 6)
                     hpContainer.HealthBar:SetSize(76, 18)
+                    manaBar:ClearAllPoints()
                     manaBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -2, -13)
                     manaBar:SetSize(76, 5)
                 else
@@ -2296,7 +2340,7 @@ local function MakeClassicPartyFrame()
             overlay.RoleIcon:SetPoint("BOTTOMLEFT", 38.5, 35.5)
 
             BBF.UpdateNoPortraitText(nil, "party")
-            
+
             if needsCombatUpdate then
                 if not frame.bbfPartyCombatUpdate:IsEventRegistered("PLAYER_REGEN_ENABLED") then
                     frame.bbfPartyCombatUpdate:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -2348,20 +2392,42 @@ local function MakeClassicPartyFrame()
         -- we are extremely lucky in that ToPlayerArt() calls UnitFrame_SetUnit() which calls :SetAttribute()
         -- so we can hook OnAttributeChanged in the restricted environment and make our changes there
         -- this allows us to run code during combat
-        SecureHandlerWrapScript(frame, "OnAttributeChanged", frame, [[
-            local hpContainer = self:GetFrameRef("HealthBarContainer")
-            local healthBar = self:GetFrameRef("HealthBar") 
-            local manaBar = self:GetFrameRef("ManaBar") 
 
-            healthBar:ClearAllPoints()
-            healthBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -2, 8)
-            healthBar:SetPoint("BOTTOMRIGHT", hpContainer, "TOPLEFT", 74, -10)
+        if BetterBlizzFramesDB.noPortraitPixelBorder then
+            SecureHandlerWrapScript(frame, "OnAttributeChanged", frame, [[
+                local hpContainer = self:GetFrameRef("HealthBarContainer")
+                local healthBar = self:GetFrameRef("HealthBar") 
+                local manaBar = self:GetFrameRef("ManaBar") 
 
-            manaBar:ClearAllPoints()
-            manaBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -5, -8)
-            manaBar:SetWidth(78)
-            manaBar:SetHeight(9)
-        ]])
+                healthBar:ClearAllPoints()
+                healthBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -2, 6)
+                healthBar:SetPoint("BOTTOMRIGHT", hpContainer, "TOPLEFT", 74, -10)
+                healthBar:SetWidth(76)
+                healthBar:SetHeight(18)
+
+                manaBar:ClearAllPoints()
+                manaBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -2, -13)
+                manaBar:SetWidth(76)
+                manaBar:SetHeight(5)
+            ]])
+        else
+            SecureHandlerWrapScript(frame, "OnAttributeChanged", frame, [[
+                local hpContainer = self:GetFrameRef("HealthBarContainer")
+                local healthBar = self:GetFrameRef("HealthBar") 
+                local manaBar = self:GetFrameRef("ManaBar") 
+
+                healthBar:ClearAllPoints()
+                healthBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -2, 8)
+                healthBar:SetPoint("BOTTOMRIGHT", hpContainer, "TOPLEFT", 74, -10)
+                healthBar:SetWidth(76)
+                healthBar:SetHeight(18)
+
+                manaBar:ClearAllPoints()
+                manaBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -5, -8)
+                manaBar:SetWidth(78)
+                manaBar:SetHeight(9)
+            ]])
+        end
     end
 end
 
@@ -2697,17 +2763,7 @@ end
 
 function BBF.noPortraitModes()
     if not BetterBlizzFramesDB.noPortraitModes and not BetterBlizzFramesDB.noPortraitPixelBorder then return end
-    if BetterBlizzFramesDB.noPortraitPixelBorder then
-        BetterBlizzFramesDB.noPortraitModes = true
-        playerDefaultTex = nil
-        playerAltTex = nil
-        targetDefaultTex = nil
-        focusDefaultTex = nil
-        partyDefaultTex = nil
-        flashTex = nil
-        flashNoLvl = nil
-        minusTex = nil
-    end
+    UpdateTextureVariables()
     if not BetterBlizzFramesDB.noPortraitSkipTarget then
         MakeNoPortraitMode(TargetFrame)
     end
