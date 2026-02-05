@@ -146,6 +146,11 @@ local function EnsureGameplayDefaults()
         g.lockCombatTimer = false
     end
 
+
+    -- Anchor target for the combat timer (none/player/target/focus)
+    if g.combatTimerAnchor == nil then
+        g.combatTimerAnchor = "none"
+    end
     -- Combat timer text color (configured from the Colors menu)
     if type(g.combatTimerColor) ~= "table" then
         g.combatTimerColor = { 1, 1, 1 } -- default white
@@ -277,7 +282,8 @@ end
     if type(g.playerTotemsAnchorTo) ~= "string" or g.playerTotemsAnchorTo == "" then
         g.playerTotemsAnchorTo = "BOTTOMLEFT"
     end
-    if g.playerTotemsGrowthDirection ~= "LEFT" and g.playerTotemsGrowthDirection ~= "RIGHT" then
+    if g.playerTotemsGrowthDirection ~= "LEFT" and g.playerTotemsGrowthDirection ~= "RIGHT"
+        and g.playerTotemsGrowthDirection ~= "UP" and g.playerTotemsGrowthDirection ~= "DOWN" then
         g.playerTotemsGrowthDirection = "RIGHT"
     end
     if g.playerTotemsFontSize == nil or g.playerTotemsFontSize <= 0 then
@@ -850,7 +856,7 @@ EnsureCombatStateText = function()
 
         combatStateFrame:SetScript("OnDragStop", function(self)
             self:StopMovingOrSizing()
-            local x, y = self:GetCenter()
+        local x, y = self:GetCenter()
             local ux, uy = UIParent:GetCenter()
             local dx = x - ux
             local dy = y - uy
@@ -1402,6 +1408,67 @@ end
 
 
 
+-- Combat Timer anchor helpers
+local function _MSUF_ValidateCombatTimerAnchor(v)
+    if v == "player" or v == "target" or v == "focus" then
+        return v
+    end
+    return "none"
+end
+
+local function _MSUF_GetUnitFrameForAnchor(key)
+    if not key or key == "" then return nil end
+    local list = _G and _G.MSUF_UnitFrames
+    if list and list[key] then
+        return list[key]
+    end
+    local gname = "MSUF_" .. key
+    local f = _G and _G[gname]
+    if f then
+        return f
+    end
+    return nil
+end
+
+local function _MSUF_GetCombatTimerAnchorFrame(g)
+    local key = _MSUF_ValidateCombatTimerAnchor(g and g.combatTimerAnchor)
+    if key == "none" then
+        return UIParent
+    end
+    local f = _MSUF_GetUnitFrameForAnchor(key)
+    if f and f.GetCenter then
+        return f
+    end
+    return UIParent
+end
+
+local function MSUF_Gameplay_ApplyCombatTimerAnchor(g)
+    if not combatFrame then
+        return
+    end
+
+    g = g or EnsureGameplayDefaults()
+    local anchor = _MSUF_GetCombatTimerAnchorFrame(g)
+
+    combatFrame:ClearAllPoints()
+    combatFrame:SetPoint("CENTER", anchor, "CENTER", tonumber(g.combatOffsetX) or 0, tonumber(g.combatOffsetY) or 0)
+
+    -- If the user chose a unit anchor but it isn't available yet, retry once shortly after.
+    local want = _MSUF_ValidateCombatTimerAnchor(g.combatTimerAnchor)
+    if want ~= "none" and anchor == UIParent then
+        if not combatFrame._msufAnchorRetryPending and C_Timer and C_Timer.After then
+            combatFrame._msufAnchorRetryPending = true
+            C_Timer.After(0.2, function()
+                if combatFrame then
+                    combatFrame._msufAnchorRetryPending = nil
+                    MSUF_Gameplay_ApplyCombatTimerAnchor()
+                end
+            end)
+        end
+    end
+end
+
+
 -- Export so the main file can call this from UpdateAllFonts()
 function ns.MSUF_ApplyGameplayFontFromGlobal()
     ApplyFontToCounter()
@@ -1416,7 +1483,7 @@ local function CreateCombatTimerFrame()
 
     combatFrame = CreateFrame("Frame", "MSUF_CombatTimerFrame", UIParent)
     combatFrame:SetSize(220, 60)
-    combatFrame:SetPoint("CENTER", UIParent, "CENTER", g.combatOffsetX, g.combatOffsetY)
+    MSUF_Gameplay_ApplyCombatTimerAnchor(g)
     combatFrame:SetFrameStrata("DIALOG")
     combatFrame:SetClampedToScreen(true)
     combatFrame:SetMovable(true)
@@ -1433,12 +1500,25 @@ local function CreateCombatTimerFrame()
     combatFrame:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
         local x, y = self:GetCenter()
-        local uiX, uiY = UIParent:GetCenter()
-        local dx = x - uiX
-        local dy = y - uiY
+        if not x or not y then
+            return
+        end
+
         local db = EnsureGameplayDefaults()
-        db.combatOffsetX = dx
-        db.combatOffsetY = dy
+        local anchor = _MSUF_GetCombatTimerAnchorFrame(db)
+        local ax, ay
+        if anchor and anchor.GetCenter then
+            ax, ay = anchor:GetCenter()
+        end
+        if not ax or not ay then
+            ax, ay = UIParent:GetCenter()
+        end
+        if not ax or not ay then
+            return
+        end
+
+        db.combatOffsetX = x - ax
+        db.combatOffsetY = y - ay
     end)
 
     combatTimerText = combatFrame:CreateFontString(nil, "OVERLAY")
@@ -2119,6 +2199,69 @@ do
         return string_format("%d:%02d", m, s)
     end
 
+------------------------------------------------------
+-- Totems preview drag positioning
+-- Workflow:
+-- 1) Use "Preview" to show the totem row.
+-- 2) Drag the preview to place it roughly.
+-- 3) Use X/Y sliders for fine tuning.
+--
+-- Dragging updates ONLY the stored offsets (playerTotemsOffsetX/Y).
+-- It does NOT call the full Gameplay Apply path on every mouse move.
+------------------------------------------------------
+
+local function _MSUF_RoundInt(v)
+    if type(v) ~= "number" then
+        return 0
+    end
+    if v >= 0 then
+        return math.floor(v + 0.5)
+    end
+    return math.ceil(v - 0.5)
+end
+
+local function _ApplyTotemsAnchorOnly(g, offX, offY)
+    if not totemsFrame then
+        return
+    end
+
+    local playerFrame = _G and _G.MSUF_player
+
+    local anchorFrom = (g and type(g.playerTotemsAnchorFrom) == "string" and g.playerTotemsAnchorFrom ~= "") and g.playerTotemsAnchorFrom or "TOPLEFT"
+    local anchorTo = (g and type(g.playerTotemsAnchorTo) == "string" and g.playerTotemsAnchorTo ~= "") and g.playerTotemsAnchorTo or "BOTTOMLEFT"
+
+    totemsFrame:ClearAllPoints()
+
+    local x = (type(offX) == "number") and offX or (tonumber(g and g.playerTotemsOffsetX) or 0)
+    local y = (type(offY) == "number") and offY or (tonumber(g and g.playerTotemsOffsetY) or -6)
+
+    if playerFrame then
+        totemsFrame:SetPoint(anchorFrom, playerFrame, anchorTo, x, y)
+    else
+        totemsFrame:SetPoint("CENTER", UIParent, "CENTER", x, y)
+    end
+end
+
+local function _SetTotemsDragEnabled(on)
+    if not totemsFrame then
+        return
+    end
+    local ov = totemsFrame._msufDragOverlay
+    if not ov then
+        return
+    end
+
+    if on then
+        ov:Show()
+        ov:EnableMouse(true)
+    else
+        ov:EnableMouse(false)
+        ov:SetScript("OnUpdate", nil)
+        ov._msufDragging = nil
+        ov:Hide()
+    end
+end
+
     local function _EnsureTotemsFrame()
         if totemsFrame then
             return totemsFrame
@@ -2156,9 +2299,104 @@ do
 				-- lastText cache intentionally not used (secret-safe: never compare secret strings)
 				lastText = nil,
             }
-        end
 
-        totemsFrame:Hide()
+end
+
+-- Drag overlay for Preview positioning (X/Y sliders remain for fine tuning).
+if not totemsFrame._msufDragOverlay then
+    local ov = CreateFrame("Button", nil, totemsFrame)
+    ov:SetAllPoints(totemsFrame)
+    ov:SetFrameLevel(totemsFrame:GetFrameLevel() + 200)
+    ov:EnableMouse(false)
+    ov:Hide()
+
+    local hi = ov:CreateTexture(nil, "OVERLAY")
+    hi:SetAllPoints()
+    hi:SetColorTexture(1, 1, 1, 0.08)
+    hi:Hide()
+    ov._msufHi = hi
+
+    ov:SetScript("OnEnter", function(self)
+        if self._msufHi then self._msufHi:Show() end
+        if GameTooltip then
+            GameTooltip:SetOwner(self, "ANCHOR_TOP")
+            GameTooltip:AddLine("Totems Preview", 1, 1, 1)
+            GameTooltip:AddLine("Drag to move.", 0.9, 0.9, 0.9)
+            GameTooltip:AddLine("Use X/Y offsets for fine tuning.", 0.7, 0.7, 0.7)
+            GameTooltip:Show()
+        end
+    end)
+    ov:SetScript("OnLeave", function(self)
+        if self._msufHi then self._msufHi:Hide() end
+        if GameTooltip then GameTooltip:Hide() end
+    end)
+
+    ov:SetScript("OnMouseDown", function(self, btn)
+        if btn ~= "LeftButton" then return end
+
+        local g = EnsureGameplayDefaults()
+        self._msufDragG = g
+
+        local scale = (UIParent and UIParent.GetEffectiveScale and UIParent:GetEffectiveScale()) or 1
+        local cx, cy = GetCursorPosition()
+        cx = cx / scale
+        cy = cy / scale
+
+        self._msufDragStartCursorX = cx
+        self._msufDragStartCursorY = cy
+        self._msufDragStartOffX = tonumber(g.playerTotemsOffsetX) or 0
+        self._msufDragStartOffY = tonumber(g.playerTotemsOffsetY) or -6
+        self._msufDragLastOffX = self._msufDragStartOffX
+        self._msufDragLastOffY = self._msufDragStartOffY
+        self._msufDragging = true
+
+        self:SetScript("OnUpdate", function(self)
+            if not self._msufDragging then return end
+            local g = self._msufDragG
+            if not g then return end
+
+            local scale = (UIParent and UIParent.GetEffectiveScale and UIParent:GetEffectiveScale()) or 1
+            local x, y = GetCursorPosition()
+            x = x / scale
+            y = y / scale
+
+            local dx = x - (self._msufDragStartCursorX or x)
+            local dy = y - (self._msufDragStartCursorY or y)
+
+            local offX = _MSUF_RoundInt((self._msufDragStartOffX or 0) + dx)
+            local offY = _MSUF_RoundInt((self._msufDragStartOffY or -6) + dy)
+
+            if offX ~= self._msufDragLastOffX or offY ~= self._msufDragLastOffY then
+                self._msufDragLastOffX = offX
+                self._msufDragLastOffY = offY
+                g.playerTotemsOffsetX = offX
+                g.playerTotemsOffsetY = offY
+
+                _ApplyTotemsAnchorOnly(g, offX, offY)
+
+                local opt = _G and _G.MSUF_GameplayPanel
+                if opt and opt.MSUF_SyncTotemOffsetSliders then
+                    opt:MSUF_SyncTotemOffsetSliders()
+                end
+            end
+        end)
+    end)
+
+    ov:SetScript("OnMouseUp", function(self, btn)
+        if btn ~= "LeftButton" then return end
+        self._msufDragging = nil
+        self:SetScript("OnUpdate", nil)
+
+        local opt = _G and _G.MSUF_GameplayPanel
+        if opt and opt.MSUF_SyncTotemOffsetSliders then
+            opt:MSUF_SyncTotemOffsetSliders()
+        end
+    end)
+
+    totemsFrame._msufDragOverlay = ov
+end
+
+totemsFrame:Hide()
         return totemsFrame
     end
 
@@ -2166,6 +2404,7 @@ do
         if totemsFrame then
             totemsFrame._msufPreviewActive = nil
         end
+        _SetTotemsDragEnabled(false)
     end
 
     local function _ApplyTotemsPreview(g)
@@ -2201,6 +2440,8 @@ do
                 end
             end
         end
+
+        _SetTotemsDragEnabled(true)
     end
 
     local function _ApplyTotemsLayout(g)
@@ -2239,41 +2480,62 @@ do
             fontSize = _MSUF_Clamp(math.floor(size * 0.55 + 0.5), 8, 64)
         end
 
-        local tr, tg, tb = _MSUF_NormalizeRGB(g.playerTotemsTextColor, 1, 1, 1)
+            local tr, tg, tb = _MSUF_NormalizeRGB(g.playerTotemsTextColor, 1, 1, 1)
 
-        for i = 1, 4 do
-            local slot = totemSlots[i]
-            if slot and slot.btn then
-                slot.btn:SetSize(size, size)
-                slot.text:SetFont(fontPath, fontSize, fontFlags)
-                slot.text:SetTextColor(tr, tg, tb, 1)
+    -- Growth direction:
+    --  RIGHT/LEFT = horizontal row
+    --  UP/DOWN    = vertical column
+    local growth = g.playerTotemsGrowthDirection
+    if growth ~= "LEFT" and growth ~= "RIGHT" and growth ~= "UP" and growth ~= "DOWN" then
+        growth = "RIGHT"
+    end
+    local vertical = (growth == "UP" or growth == "DOWN")
 
-                slot.btn:ClearAllPoints()
+    for i = 1, 4 do
+        local slot = totemSlots[i]
+        if slot and slot.btn then
+            slot.btn:SetSize(size, size)
+            slot.text:SetFont(fontPath, fontSize, fontFlags)
+            slot.text:SetTextColor(tr, tg, tb, 1)
 
-                local growth = g.playerTotemsGrowthDirection
-                if growth ~= "LEFT" and growth ~= "RIGHT" then
-                    growth = "RIGHT"
+            slot.btn:ClearAllPoints()
+
+            if i == 1 then
+                if growth == "LEFT" then
+                    slot.btn:SetPoint("TOPRIGHT", f, "TOPRIGHT", 0, 0)
+                elseif growth == "UP" then
+                    slot.btn:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 0, 0)
+                elseif growth == "DOWN" then
+                    slot.btn:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
+                else -- RIGHT
+                    slot.btn:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
                 end
-
-                if i == 1 then
+            else
+                local prev = totemSlots[i-1] and totemSlots[i-1].btn
+                if prev then
                     if growth == "LEFT" then
-                        slot.btn:SetPoint("TOPRIGHT", f, "TOPRIGHT", 0, 0)
-                    else
-                        slot.btn:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
+                        slot.btn:SetPoint("RIGHT", prev, "LEFT", -spacing, 0)
+                    elseif growth == "UP" then
+                        slot.btn:SetPoint("BOTTOM", prev, "TOP", 0, spacing)
+                    elseif growth == "DOWN" then
+                        slot.btn:SetPoint("TOP", prev, "BOTTOM", 0, -spacing)
+                    else -- RIGHT
+                        slot.btn:SetPoint("LEFT", prev, "RIGHT", spacing, 0)
                     end
                 else
-                    if growth == "LEFT" then
-                        slot.btn:SetPoint("RIGHT", totemSlots[i-1].btn, "LEFT", -spacing, 0)
-                    else
-                        slot.btn:SetPoint("LEFT", totemSlots[i-1].btn, "RIGHT", spacing, 0)
-                    end
+                    -- Fallback: should not happen, but keep stable
+                    slot.btn:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
                 end
-
             end
         end
+    end
 
+    if vertical then
+        f:SetSize(size, (size * 4) + (spacing * 3))
+    else
         f:SetSize((size * 4) + (spacing * 3), size)
     end
+end
 
 local function _FormatTotemTime(left)
     -- Midnight/Beta secret-safe:
@@ -2575,6 +2837,7 @@ function GameplayFeatures.CombatTimer.Apply(g)
     -- Ensure lock state is applied too
     ApplyLockState()
     if combatFrame then
+        MSUF_Gameplay_ApplyCombatTimerAnchor(g)
         combatFrame:SetShown(g.enableCombatTimer)
     end
 end
@@ -2759,6 +3022,10 @@ function ns.MSUF_RegisterGameplayOptions_Full(parentCategory)
 
     local function BindSlider(sl, key, roundFunc, after, applyNow)
         sl:SetScript("OnValueChanged", function(self, value)
+            -- UI sync (panel:refresh / drag-sync) should not write DB or trigger apply.
+            if panel and panel._msufSuppressSliderChanges then
+                return
+            end
             local g = EnsureGameplayDefaults()
             if roundFunc then value = roundFunc(value) end
             g[key] = value
@@ -3315,12 +3582,126 @@ end)
         return b
     end
 
+local function _MSUF_Dropdown(name, point, rel, relPoint, x, y, width, field)
+    -- Simple UIDropDownMenu-based control (used sparingly in Gameplay to avoid heavy UI scaffolding).
+    local dd = CreateFrame("Frame", name, content, "UIDropDownMenuTemplate")
+    dd:SetPoint(point, rel, relPoint, x or 0, y or 0)
+    if UIDropDownMenu_SetWidth then
+        UIDropDownMenu_SetWidth(dd, width or 120)
+    end
+    if field then
+        panel[field] = dd
+    end
+    return dd
+end
+
+
     -- Combat Timer header + separator
     local combatSeparator = _MSUF_Sep(subText, -36)
     local combatHeader = _MSUF_Header(combatSeparator, "Combat Timer")
 
     -- In-combat timer checkbox
     local combatTimerCheck = _MSUF_Check("MSUF_Gameplay_CombatTimerCheck", "TOPLEFT", combatHeader, "BOTTOMLEFT", 0, -8, "Enable in-combat timer", "combatTimerCheck", "enableCombatTimer")
+
+    -- Combat Timer anchor dropdown (None / Player / Target / Focus)
+    local combatTimerAnchorLabel = _MSUF_Label("GameFontNormal", "LEFT", combatTimerCheck, "RIGHT", 220, 0, "Anchor", "combatTimerAnchorLabel")
+    local combatTimerAnchorDD = _MSUF_Dropdown("MSUF_Gameplay_CombatTimerAnchorDropDown", "LEFT", combatTimerAnchorLabel, "RIGHT", 6, -2, 120, "combatTimerAnchorDropdown")
+
+    local function _CombatTimerAnchor_Validate(v)
+        if v ~= "none" and v ~= "player" and v ~= "target" and v ~= "focus" then
+            return "none"
+        end
+        return v
+    end
+
+    local function _CombatTimerAnchor_Text(v)
+        if v == "player" then return "Player" end
+        if v == "target" then return "Target" end
+        if v == "focus" then return "Focus" end
+        return "None"
+    end
+
+    local function _CombatTimerAnchor_Set(v)
+        local g = MSUF_DB and MSUF_DB.gameplay
+        if not g then return end
+
+        local preX, preY
+        if combatFrame and combatFrame.GetCenter then
+            preX, preY = combatFrame:GetCenter()
+        end
+
+        local val = _CombatTimerAnchor_Validate(v)
+        g.combatTimerAnchor = val
+
+        -- Keep the timer in the same on-screen position when switching anchors
+        if preX and preY then
+            local anchor = _MSUF_GetCombatTimerAnchorFrame(g)
+            local ax, ay
+            if anchor and anchor.GetCenter then
+                ax, ay = anchor:GetCenter()
+            end
+            if not ax or not ay then
+                ax, ay = UIParent:GetCenter()
+            end
+            if ax and ay then
+                g.combatOffsetX = preX - ax
+                g.combatOffsetY = preY - ay
+            end
+        end
+
+        
+        -- Apply anchor immediately (independent of lock state)
+        if combatFrame then
+            MSUF_Gameplay_ApplyCombatTimerAnchor(g)
+            -- Refresh preview text positioning right away (no 1s wait)
+            MSUF_Gameplay_TickCombatTimer()
+        end
+
+        if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(combatTimerAnchorDD, val) end
+        if UIDropDownMenu_SetText then UIDropDownMenu_SetText(combatTimerAnchorDD, _CombatTimerAnchor_Text(val)) end
+
+        if ns and ns.MSUF_RequestGameplayApply then
+            ns.MSUF_RequestGameplayApply()
+        end
+        if panel and panel.refresh then
+            panel:refresh()
+        end
+    end
+
+    if UIDropDownMenu_Initialize and UIDropDownMenu_CreateInfo and UIDropDownMenu_AddButton then
+        UIDropDownMenu_Initialize(combatTimerAnchorDD, function(self, level)
+            local g = MSUF_DB and MSUF_DB.gameplay
+            local cur = _CombatTimerAnchor_Validate(g and g.combatTimerAnchor)
+
+            local items = {
+                {"none",  "None"},
+                {"player", "Player"},
+                {"target", "Target"},
+                {"focus",  "Focus"},
+            }
+
+            for i = 1, #items do
+                local value = items[i][1]
+                local text  = items[i][2]
+                local info = UIDropDownMenu_CreateInfo()
+                info.text = text
+                info.value = value
+                info.checked = (cur == value)
+                info.func = function(btn)
+                    _CombatTimerAnchor_Set(btn and btn.value)
+                    if CloseDropDownMenus then CloseDropDownMenus() end
+                end
+                UIDropDownMenu_AddButton(info, level)
+            end
+        end)
+    end
+
+    do
+        local g = MSUF_DB and MSUF_DB.gameplay
+        local cur = _CombatTimerAnchor_Validate(g and g.combatTimerAnchor)
+        if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(combatTimerAnchorDD, cur) end
+        if UIDropDownMenu_SetText then UIDropDownMenu_SetText(combatTimerAnchorDD, _CombatTimerAnchor_Text(cur)) end
+    end
 
     -- Combat Timer size slider
     local combatSlider = _MSUF_Slider("MSUF_Gameplay_CombatFontSizeSlider", "TOPLEFT", combatTimerCheck, "BOTTOMLEFT", 0, -24, 220, 10, 64, 1, "10 px", "64 px", "Timer size", "combatFontSizeSlider", "combatFontSize",
@@ -3508,7 +3889,12 @@ end)
         end)
         _RefreshTotemsPreviewButton()
 
-        _totemsLeftBottom = totemsPreviewBtn
+        
+-- Tip: positioning workflow
+local totemsDragHint = _MSUF_Label("GameFontDisableSmall", "TOPLEFT", totemsPreviewBtn, "BOTTOMLEFT", 0, -4, "Tip: Move the preview via mousedrag", "playerTotemsDragHint")
+panel.playerTotemsDragHint = totemsDragHint
+
+_totemsLeftBottom = totemsDragHint
 
 	        -- Right column for layout/size controls (keeps the left side clean, avoids clipping)
 	        local _totemsRightX = 300
@@ -3562,19 +3948,68 @@ end)
                 end
             end
             return anchorPoints[1]
+                end
+
+        -- Growth direction dropdown (RIGHT / LEFT / UP / DOWN)
+        local growthDD = _MSUF_Dropdown("MSUF_Gameplay_PlayerTotemsGrowthDropDown", "TOPLEFT", totemsLayoutLabel, "BOTTOMLEFT", -16, -10, 110, "playerTotemsGrowthDropdown")
+
+        local function _TotemsGrowth_Validate(v)
+            if v ~= "LEFT" and v ~= "RIGHT" and v ~= "UP" and v ~= "DOWN" then
+                return "RIGHT"
+            end
+            return v
         end
 
-	        local growthBtn = _MSUF_Button("MSUF_Gameplay_PlayerTotemsGrowthBtn", "TOPLEFT", totemsLayoutLabel, "BOTTOMLEFT", 0, -6, 110, 20, "Growth: RIGHT", "playerTotemsGrowthButton", function()
+        local function _TotemsGrowth_Set(v)
             local g = MSUF_DB and MSUF_DB.gameplay
             if not g then return end
-            local cur = g.playerTotemsGrowthDirection
-            g.playerTotemsGrowthDirection = (cur == "LEFT") and "RIGHT" or "LEFT"
+            local val = _TotemsGrowth_Validate(v)
+            g.playerTotemsGrowthDirection = val
+
+            if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(growthDD, val) end
+            if UIDropDownMenu_SetText then UIDropDownMenu_SetText(growthDD, val) end
+
             if panel and panel.refresh then panel:refresh() end
             if ns and ns.MSUF_RequestGameplayApply then ns.MSUF_RequestGameplayApply() end
-        end)
-        panel.playerTotemsGrowthButton = growthBtn
+        end
 
-	        local anchorFromBtn = _MSUF_Button("MSUF_Gameplay_PlayerTotemsAnchorFromBtn", "TOPLEFT", growthBtn, "TOPRIGHT", 8, 0, 122, 20, "From: TOPLEFT", "playerTotemsAnchorFromButton", function()
+        if UIDropDownMenu_Initialize and UIDropDownMenu_CreateInfo and UIDropDownMenu_AddButton then
+            UIDropDownMenu_Initialize(growthDD, function(self, level)
+                local g = MSUF_DB and MSUF_DB.gameplay
+                local cur = _TotemsGrowth_Validate(g and g.playerTotemsGrowthDirection)
+
+                local items = {
+                    {"RIGHT", "Grow Right"},
+                    {"LEFT",  "Grow Left"},
+                    {"UP",    "Vertical Up"},
+                    {"DOWN",  "Vertical Down"},
+                }
+
+                for i = 1, #items do
+                    local value = items[i][1]
+                    local text  = items[i][2]
+                    local info = UIDropDownMenu_CreateInfo()
+                    info.text = text
+                    info.value = value
+                    info.checked = (cur == value)
+                    info.func = function(btn)
+                        _TotemsGrowth_Set(btn and btn.value)
+                    end
+                    UIDropDownMenu_AddButton(info, level)
+                end
+            end)
+        end
+
+        -- Initial label/selection (kept in sync by panel.refresh)
+        do
+            local g = MSUF_DB and MSUF_DB.gameplay
+            local cur = _TotemsGrowth_Validate(g and g.playerTotemsGrowthDirection)
+            if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(growthDD, cur) end
+            if UIDropDownMenu_SetText then UIDropDownMenu_SetText(growthDD, cur) end
+        end
+
+
+	        local anchorFromBtn = _MSUF_Button("MSUF_Gameplay_PlayerTotemsAnchorFromBtn", "TOPLEFT", growthDD, "TOPRIGHT", 8, -4, 122, 20, "From: TOPLEFT", "playerTotemsAnchorFromButton", function()
             local g = MSUF_DB and MSUF_DB.gameplay
             if not g then return end
             g.playerTotemsAnchorFrom = _NextAnchor(g.playerTotemsAnchorFrom)
@@ -3583,7 +4018,7 @@ end)
         end)
         panel.playerTotemsAnchorFromButton = anchorFromBtn
 
-	        local anchorToBtn = _MSUF_Button("MSUF_Gameplay_PlayerTotemsAnchorToBtn", "TOPLEFT", growthBtn, "BOTTOMLEFT", 0, -6, 240, 20, "To: BOTTOMLEFT", "playerTotemsAnchorToButton", function()
+	        local anchorToBtn = _MSUF_Button("MSUF_Gameplay_PlayerTotemsAnchorToBtn", "TOPLEFT", growthDD, "BOTTOMLEFT", 16, -6, 240, 20, "To: BOTTOMLEFT", "playerTotemsAnchorToButton", function()
             local g = MSUF_DB and MSUF_DB.gameplay
             if not g then return end
             g.playerTotemsAnchorTo = _NextAnchor(g.playerTotemsAnchorTo)
@@ -3966,6 +4401,26 @@ end)
         btn:SetAlpha(enabled and 1 or 0.6)
     end
 
+local function _MSUF_SetDropdownEnabled(dd, enabled)
+    if not dd then return end
+    if enabled then
+        if UIDropDownMenu_EnableDropDown then
+            UIDropDownMenu_EnableDropDown(dd)
+        elseif dd.EnableMouse then
+            dd:EnableMouse(true)
+        end
+        if dd.SetAlpha then dd:SetAlpha(1) end
+    else
+        if UIDropDownMenu_DisableDropDown then
+            UIDropDownMenu_DisableDropDown(dd)
+        elseif dd.EnableMouse then
+            dd:EnableMouse(false)
+        end
+        if dd.SetAlpha then dd:SetAlpha(0.6) end
+    end
+end
+
+
     local function _MSUF_SetEditBoxEnabled(eb, enabled)
         if not eb then return end
         if not enabled and eb.ClearFocus then
@@ -4002,6 +4457,8 @@ end)
         local timerOn = g.enableCombatTimer and true or false
         _MSUF_SetSliderEnabled(self.combatFontSizeSlider, timerOn)
         _MSUF_SetCheckEnabled(self.lockCombatTimerCheck, timerOn)
+        _MSUF_SetFontStringEnabled(self.combatTimerAnchorLabel, timerOn, false)
+        _MSUF_SetDropdownEnabled(self.combatTimerAnchorDropdown, timerOn)
 
         -- Combat Enter/Leave dependents
         local stateOn = g.enableCombatStateText and true or false
@@ -4035,7 +4492,8 @@ end)
 
         _MSUF_SetButtonEnabled(self.playerTotemsPreviewButton, isShaman)
 
-        local totemsOn = (isShaman and g.enablePlayerTotems) and true or false
+        local previewActive = (ns and ns.MSUF_PlayerTotems_IsPreviewActive and ns.MSUF_PlayerTotems_IsPreviewActive()) and true or false
+        local totemsOn = (isShaman and (g.enablePlayerTotems or previewActive)) and true or false
         _MSUF_SetCheckEnabled(self.playerTotemsShowTextCheck, totemsOn)
         _MSUF_SetCheckEnabled(self.playerTotemsScaleByIconCheck, (totemsOn and g.playerTotemsShowText) and true or false)
 
@@ -4044,7 +4502,7 @@ end)
         _MSUF_SetSliderEnabled(self.playerTotemsOffsetXSlider, totemsOn)
         _MSUF_SetSliderEnabled(self.playerTotemsOffsetYSlider, totemsOn)
 
-        _MSUF_SetButtonEnabled(self.playerTotemsGrowthButton, totemsOn)
+        _MSUF_SetDropdownEnabled(self.playerTotemsGrowthDropdown, totemsOn)
         _MSUF_SetButtonEnabled(self.playerTotemsAnchorFromButton, totemsOn)
         _MSUF_SetButtonEnabled(self.playerTotemsAnchorToButton, totemsOn)
         local textOn = (totemsOn and g.playerTotemsShowText) and true or false
@@ -4116,6 +4574,7 @@ end)
 
         "combatOffsetX",
         "combatOffsetY",
+        "combatTimerAnchor",
         "combatFontSize",
         "enableCombatTimer",
         "lockCombatTimer",
@@ -4169,6 +4628,7 @@ end)
     end
 
     panel.refresh = function(self)
+        self._msufSuppressSliderChanges = true
         local g = EnsureGameplayDefaults()
 
         -- Melee spell selection (shared)
@@ -4238,10 +4698,7 @@ end)
             {"combatStateDurationSlider", "combatStateDuration", 1.5},
 
             {"playerTotemsIconSizeSlider", "playerTotemsIconSize", 24},
-            {"playerTotemsSpacingSlider", "playerTotemsSpacing",
-        "playerTotemsAnchorFrom",
-        "playerTotemsAnchorTo",
-        "playerTotemsGrowthDirection", 4},
+            {"playerTotemsSpacingSlider", "playerTotemsSpacing", 4},
             {"playerTotemsFontSizeSlider", "playerTotemsFontSize", 14},
             {"playerTotemsOffsetXSlider", "playerTotemsOffsetX", 0},
             {"playerTotemsOffsetYSlider", "playerTotemsOffsetY", -6},
@@ -4249,6 +4706,21 @@ end)
         for i = 1, #sliders do
             local t = sliders[i]
             SetSlider(t[1], t[2], t[3])
+        end
+
+        -- Combat Timer anchor dropdown
+        if self.combatTimerAnchorDropdown then
+            local v = g.combatTimerAnchor
+            if v ~= "none" and v ~= "player" and v ~= "target" and v ~= "focus" then
+                v = "none"
+            end
+            local txt
+            if v == "player" then txt = "Player"
+            elseif v == "target" then txt = "Target"
+            elseif v == "focus" then txt = "Focus"
+            else txt = "None" end
+            if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(self.combatTimerAnchorDropdown, v) end
+            if UIDropDownMenu_SetText then UIDropDownMenu_SetText(self.combatTimerAnchorDropdown, txt) end
         end
 
         -- Combat state texts
@@ -4280,14 +4752,13 @@ end)
         if self.MSUF_UpdateCrosshairPreview then
             self.MSUF_UpdateCrosshairPreview()
         end
-
-
-        if self.playerTotemsGrowthButton and self.playerTotemsGrowthButton.SetText then
+        if self.playerTotemsGrowthDropdown then
             local growth = g.playerTotemsGrowthDirection
-            if growth ~= "LEFT" and growth ~= "RIGHT" then
+            if growth ~= "LEFT" and growth ~= "RIGHT" and growth ~= "UP" and growth ~= "DOWN" then
                 growth = "RIGHT"
             end
-            self.playerTotemsGrowthButton:SetText("Growth: " .. growth)
+            if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(self.playerTotemsGrowthDropdown, growth) end
+            if UIDropDownMenu_SetText then UIDropDownMenu_SetText(self.playerTotemsGrowthDropdown, growth) end
         end
 
         if self.playerTotemsAnchorFromButton and self.playerTotemsAnchorFromButton.SetText then
@@ -4308,12 +4779,28 @@ end)
         if self.playerTotemsColorSwatch and self.playerTotemsColorSwatch.MSUF_Refresh then
             self.playerTotemsColorSwatch:MSUF_Refresh()
         end
-
         -- Grey out dependent controls when their parent toggle is off
         if self.MSUF_UpdateGameplayDisabledStates then
             self:MSUF_UpdateGameplayDisabledStates()
         end
+
+        -- Done syncing; re-enable bindings.
+        self._msufSuppressSliderChanges = false
     end
+
+
+
+-- Live-sync: allow the Totem preview frame to drag-update X/Y without spamming Apply().
+function panel:MSUF_SyncTotemOffsetSliders()
+    if not self.playerTotemsOffsetXSlider or not self.playerTotemsOffsetYSlider then
+        return
+    end
+    local g = EnsureGameplayDefaults()
+    self._msufSuppressSliderChanges = true
+    self.playerTotemsOffsetXSlider:SetValue(tonumber(g.playerTotemsOffsetX) or 0)
+    self.playerTotemsOffsetYSlider:SetValue(tonumber(g.playerTotemsOffsetY) or -6)
+    self._msufSuppressSliderChanges = false
+end
 
     -- Most controls apply immediately, but "Okay" is still called by the Settings/Interface panel system.
     -- We use it as a safe "finalize" hook.
