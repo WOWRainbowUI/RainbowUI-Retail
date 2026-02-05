@@ -841,18 +841,9 @@ D["HidingBar"] = {
     },
 };
 D["iPMythicTimer"] = {
-    defaultEnable = 1,
-	tags = { "BOSSRAID" },
-	title = "M+ 時間",
-	desc = "在傳奇鑰石的副本中，顯示兩箱、三箱的時間和小怪進度。`",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["IPMTOPTS"]("") end,
-    },
-	{
-		type = "text",
-        text = "點小地圖按鈕的 'M+ 時間' 按鈕也可以打開設定選項。|n|n移動位置：打開設定選項後，拖曳框架中空白的地方來移動。|n",
-    },
+    defaultEnable = 0,
+	title = "(請刪除) M+ 時間",
+	desc = "這是舊版的插件，已經移除。`請自行刪除 AddOns 裡面的 iPMythicTimer 資料夾。`",
 };
 D["JsFilter"] = {
     defaultEnable = 1,
