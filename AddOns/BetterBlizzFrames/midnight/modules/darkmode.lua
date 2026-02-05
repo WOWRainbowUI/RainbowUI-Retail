@@ -238,7 +238,7 @@ function BBF.DarkmodeFrames(bypass)
     if BetterBlizzFramesDB.darkModeColor == 0 then
         if BetterBlizzFramesDB.darkModeActionBars then
             actionBarColor = 0
-            birdColor = 0.07
+            birdColor = 0.2
         end
         rogueCombo = 0.25
         rogueComboActive = 0.15
@@ -428,6 +428,12 @@ function BBF.DarkmodeFrames(bypass)
         end
     end
 
+    for i = 1, 3 do
+        local frame = _G["DamageMeterSessionWindow"..i]
+        if frame then
+            applySettings(frame.Header, desaturationValue, vertexColor)
+        end
+    end
 
     applySettings(ObjectiveTrackerFrame.Header.Background, objectiveSat, objectiveColor)
     applySettings(CampaignQuestObjectiveTracker.Header.Background, objectiveSat, objectiveColor)

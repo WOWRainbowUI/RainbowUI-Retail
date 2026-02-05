@@ -3,7 +3,7 @@ local specIDToName = {
     -- Death Knight
     [250] = "Blood", [251] = "Frost", [252] = "Unholy",
     -- Demon Hunter
-    [577] = "Havoc", [581] = "Vengeance",
+    [577] = "Havoc", [581] = "Vengeance", [1480] = "Devourer",
     -- Druid
     [102] = "Balance", [103] = "Feral", [104] = "Guardian", [105] = "Restoration",
     -- Evoker
@@ -32,7 +32,7 @@ local specIDToNameShort = {
     -- Death Knight
     [250] = "Blood", [251] = "Frost", [252] = "Unholy",
     -- Demon Hunter
-    [577] = "Havoc", [581] = "Vengeance",
+    [577] = "Havoc", [581] = "Vengeance", [1480] = "Devourer",
     -- Druid
     [102] = "Balance", [103] = "Feral", [104] = "Guardian", [105] = "Resto",
     -- Evoker
@@ -352,6 +352,20 @@ local function GetSpecID(unit)
     end
 
     local guid = UnitGUID(unit)
+    if issecretvalue(guid) then
+        if C_PvP.IsArena() then
+            for i = 1, 3 do
+                local arenaUnit = "arena" .. i
+                if UnitIsUnit(unit, arenaUnit) then
+                    local specID = GetArenaOpponentSpec(i)
+                    if specID then
+                        return specID
+                    end
+                end
+            end
+        end
+        return
+    end
 
     -- Return cached specID if already found
     if SpecCache[guid] then

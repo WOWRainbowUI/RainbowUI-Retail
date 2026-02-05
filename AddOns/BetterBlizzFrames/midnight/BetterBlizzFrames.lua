@@ -343,22 +343,12 @@ local defaultSettings = {
     raidFrameBgTexture = "Solid",
     unitFrameBgTexture = "Solid",
 
-    auraWhitelist = {
-        ["example aura :3 (delete me)"] = {name = "Example Aura :3 (delete me)"}
-    },
-    auraBlacklist = {
-        ["sign of the skirmisher"] = {name = "Sign of the Skirmisher"},
-        ["sign of the scourge"] = {name = "Sign of the Scourge"},
-        ["stormwind champion"] = {name = "Stormwind Champion"},
-        ["honorless target"] = {name = "Honorless Target"},
-        ["guild champion"] = {name = "Guild Champion"},
-        ["sign of iron"] = {name = "Sign of Iron"},
-        ["enlisted"] = {name = "Enlisted"},
-        [397734] = {name = "Word of a Worthy Ally", id = 397734},
-        [186403] = {name = "Sign of Battle", id = 186403},
-        [32727] = {name = "Arena Preparation", id = 32727},
-        [93805] = {name = "Ironforge Champion", id = 93805},
-    },
+    auraWhitelist = {},
+    auraBlacklist = {},
+
+    auraCdTextSize = 0.55,
+    partyFrameRangeAlpha = 0.55,
+    partyFrameRangeAlphaSolidBackground = true,
 }
 BBF.defaultSettings = defaultSettings
 
@@ -1992,20 +1982,29 @@ end
 
 
 
+if not BBF.combatQueue then
+    BBF.combatQueue = {}
+end
 local combatCheck = CreateFrame("Frame")
 function BBF.RunAfterCombat(func)
-    if InCombatLockdown() then
-        --DEFAULT_CHAT_FRAME:AddMessage("|A:gmchat-icon-blizz:16:16|a Better|cff00c0ffBlizz|rFrames: You cannot change CVar's in combat. Waiting for combat to end...")
+    if not InCombatLockdown() then
+        func()
+        return
+    end
+
+    table.insert(BBF.combatQueue, func)
+
+    if not combatCheck:IsEventRegistered("PLAYER_REGEN_ENABLED") then
         combatCheck:RegisterEvent("PLAYER_REGEN_ENABLED")
         combatCheck:SetScript("OnEvent", function(self, event)
             if event == "PLAYER_REGEN_ENABLED" then
-                func()
+                for _, queuedFunc in ipairs(BBF.combatQueue) do
+                    pcall(queuedFunc)
+                end
+                BBF.combatQueue = {}
                 self:UnregisterEvent(event)
-                self:SetScript("OnEvent", nil)
             end
         end)
-    else
-        func()
     end
 end
 
@@ -2092,6 +2091,10 @@ function BBF.HookAndUpdatePartyFrameRangeAlpha(toggle)
         if frame:IsForbidden() or string.match(frame.displayedUnit, "nameplate") then return end
         local inRange = UnitInRange(frame.displayedUnit)
         frame:SetAlphaFromBoolean(inRange, 1, BetterBlizzFramesDB.partyFrameRangeAlpha or 0.55)
+        if BetterBlizzFramesDB.partyFrameRangeAlphaSolidBackground then
+            frame.background:SetIgnoreParentAlpha(true)
+            frame.background:SetAlpha(1)
+        end
     end
     if toggle then
         for i = 1, 5 do
@@ -3263,7 +3266,13 @@ local function ApplyTextureChange(type, statusBar, parent, classic, party, altBa
 
     -- Change the texture
     if not keepFancyManas then
-        statusBar:SetStatusBarTexture((type == "health" and (classicTexture or texture)) or manaTexture)
+        if (parent and parent:GetName() == "PetFrame") then -- causes weird issues if not delayed
+            C_Timer.After(0.1, function()
+                statusBar:SetStatusBarTexture((type == "health" and (classicTexture or texture)) or manaTexture)
+            end)
+        else
+            statusBar:SetStatusBarTexture((type == "health" and (classicTexture or texture)) or manaTexture)
+        end
     else
         statusBar.keepFancyManas = BetterBlizzFramesDB.changeUnitFrameManaBarTextureKeepFancy
     end
@@ -3739,13 +3748,15 @@ function BBF.HookUnitFrameTextures()
                 originalTexture:SetDrawLayer(originalLayer)
 
                 local castTexture = statusBar:GetStatusBarTexture()
-                statusBar.MaskTexture = statusBar:CreateMaskTexture()
-                statusBar.MaskTexture:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\RetailCastMask.tga",
-                    "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
-                statusBar.MaskTexture:SetPoint("TOPLEFT", statusBar, "TOPLEFT", -1, 0)
-                statusBar.MaskTexture:SetPoint("BOTTOMRIGHT", statusBar, "BOTTOMRIGHT", 1, 0)
-                statusBar.MaskTexture:Show()
-                castTexture:AddMaskTexture(statusBar.MaskTexture)
+                if not db.casbarPixelBorder then
+                    statusBar.MaskTexture = statusBar:CreateMaskTexture()
+                    statusBar.MaskTexture:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\RetailCastMask.tga",
+                        "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+                    statusBar.MaskTexture:SetPoint("TOPLEFT", statusBar, "TOPLEFT", -1, 0)
+                    statusBar.MaskTexture:SetPoint("BOTTOMRIGHT", statusBar, "BOTTOMRIGHT", 1, 0)
+                    statusBar.MaskTexture:Show()
+                    castTexture:AddMaskTexture(statusBar.MaskTexture)
+                end
 
                 local bg = statusBar.Background
                 bg:ClearAllPoints()
@@ -4916,9 +4927,11 @@ Frame:SetScript("OnEvent", function(...)
     BBF.LegacyBlueCombos()
     BBF.HideClassResourceTooltip()
 
-    C_Timer.After(3.5, function()
-        BBF.Print(L["Print_Bugs_Expected"])
-    end)
+    if not BetterBlizzFramesDB.skipBugWarning then
+        C_Timer.After(3.5, function()
+            BBF.Print(L["Print_Bugs_Expected"])
+        end)
+    end
 
     local function LoginVariablesLoaded()
         if BBF.variablesLoaded then
@@ -5069,7 +5082,7 @@ SlashCmdList["BBF"] = function(msg)
             BBF.Print(L["Print_Usage_Blacklist"])
         end
     elseif command == "ver" or command == "version" then
-        BBF.Print("Version "..addonUpdates, true)
+        BBF.Print(addonUpdates, true)
     elseif command == "dump" then
         local exportVersion = BetterBlizzFramesDB.exportVersion or L["Chat_No_Export_Version"]
         BBF.Print("\n\n"..exportVersion)
@@ -5119,6 +5132,18 @@ First:SetScript("OnEvent", function(_, event, addonName)
         BetterBlizzFramesDB.wasOnLoadingScreen = true
 
         InitializeSavedVariables()
+
+        if BetterBlizzFramesDB.hideTargetAuras then
+            BetterBlizzFramesDB.hideTargetBuffs = true
+            BetterBlizzFramesDB.hideTargetDebuffs = true
+            BetterBlizzFramesDB.hideTargetAuras = nil
+        end
+
+        if BetterBlizzFramesDB.hideFocusAuras then
+            BetterBlizzFramesDB.hideFocusBuffs = true
+            BetterBlizzFramesDB.hideFocusDebuffs = true
+            BetterBlizzFramesDB.hideFocusAuras = nil
+        end
         FetchAndSaveValuesOnFirstLogin()
         TurnTestModesOff()
         BBF.FixLegacyComboPointsLocation()
@@ -5140,9 +5165,6 @@ First:SetScript("OnEvent", function(_, event, addonName)
         end)
         BBF.ClassicFrames()
         BBF.noPortraitModes()
-        if BetterBlizzFramesDB.enableBigDebuffs then
-            BBF.CreateBigDebuffs()
-        end
         BBF.PlayerElite(BetterBlizzFramesDB.playerEliteFrameMode)
         BBF.ReduceEditModeAlpha()
         BBF.SymmetricPlayerFrame()
@@ -5174,6 +5196,9 @@ First:SetScript("OnEvent", function(_, event, addonName)
         BBF.MoveableFPSCounter(false, BetterBlizzFramesDB.fpsCounterFontOutline)
 
         C_Timer.After(1, function()
+            if BetterBlizzFramesDB.enableBigDebuffs then
+                BBF.CreateBigDebuffs()
+            end
             if BetterBlizzFramesDB.tempOmniCCFix then
                 BetterBlizzFramesDB.tempOmniCCFix = nil
             end
@@ -5189,6 +5214,12 @@ First:SetScript("OnEvent", function(_, event, addonName)
             BBF.SetCustomFonts()
             BBF.PlayerReputationColor()
             BBF.FontColors()
+
+            if BetterBlizzFramesDB.castbarPixelBorder then
+                BBF.SetupBorderOnFrame(PlayerCastingBarFrame)
+                BBF.SetupBorderOnFrame(TargetFrameSpellBar)
+                BBF.SetupBorderOnFrame(FocusFrameSpellBar)
+            end
         end)
         --TurnOnEnabledFeaturesOnLogin()
 
@@ -5312,6 +5343,7 @@ PlayerEnteringWorld:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 
 function BBF.CreateBigDebuffs()
+    if C_AddOns.IsAddOnLoaded("MiniCC") or BetterBlizzFramesDB.noPortraitModes then return end
     local function CreateDebuffFrame(unitFrame, portraitMask)
         local frame = CreateFrame("Frame", nil, unitFrame)
         frame:SetSize(36, 36)

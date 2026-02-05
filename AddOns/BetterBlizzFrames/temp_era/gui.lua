@@ -835,7 +835,7 @@ local function CreateTooltipTwo(widget, title, mainText, subText, anchor, cvarNa
         GameTooltip:AddLine(mainText, 1, 1, 1, true) -- true for wrap text
 
         -- Add specific tooltip conditions
-        if title == "Class Color Healthbars" then
+        if title == L["Tooltip_Class_Color_Healthbars_Title"] then
             local green = "|cff32f795"
             local babyBlue = "|cff7fc6ff"
             local reset = "|r"
@@ -2192,7 +2192,7 @@ local function CreateTitle(parent)
     addonNameIcon:SetPoint("LEFT", addonNameText, "RIGHT", -2, -1)
     local verNumber = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     verNumber:SetPoint("LEFT", addonNameText, "RIGHT", 25, 0)
-    verNumber:SetText("v" .. BBF.VersionNumber)
+    verNumber:SetText(BBF.VersionNumber)
 end
 
 local function CreateSearchFrame()
@@ -2535,7 +2535,7 @@ local function guiGeneralTab()
     -- addonNameIcon:SetPoint("LEFT", addonNameText, "RIGHT", -2, -1)
     -- local verNumber = BetterBlizzFrames:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     -- verNumber:SetPoint("LEFT", addonNameText, "RIGHT", 25, 0)
-    -- verNumber:SetText("v" .. BBF.VersionNumber)
+    -- verNumber:SetText(BBF.VersionNumber)
     CreateTitle(BetterBlizzFrames)
 
     ----------------------
