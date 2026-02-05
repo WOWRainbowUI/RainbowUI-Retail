@@ -1,6 +1,9 @@
 # Platynator
 
-## [301](https://github.com/TheMouseNest/Platynator/tree/301) (2026-02-04)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/300...301) 
+## [302](https://github.com/TheMouseNest/Platynator/tree/302) (2026-02-05)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/301...302) 
 
-- Fix secrets issue with quest tooltip scanning  
+- Prevent flickering of interrupt ready marker  
+- Remove leftover prints  
+- Fixes for interrupt marker and interrupt ready colors not refreshing soon enough  
+- Retail: Fix interrupt marker staying visible after interrupt used on another mob  
