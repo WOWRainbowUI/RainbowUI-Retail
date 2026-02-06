@@ -486,6 +486,34 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 						end
 					end
 				end
+				
+				
+				-- Newcomer Chat Exception
+				if (self:IsMainline() and self.chatChannelNames.newcomerChat) then
+				
+					if (((GetChannelName(self.chatChannelNames.newcomerChat))) ~= 0) then
+					
+						if (self.db.global.printDebugTextToChat == true) then
+							self:Print("[Chat Window] Saving Newcomer Chat Settings.")
+						end
+							
+						local thisChannelName = "CHANNEL" .. ((GetChannelName(AccWideUIAceAddon.chatChannelNames.newcomerChat)))
+						local thisChannelInfo = ChatTypeInfo[thisChannelName]
+						
+						if thisChannelInfo then
+							
+							self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelIndex = ((GetChannelName(AccWideUIAceAddon.chatChannelNames.newcomerChat)))
+							self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelColor = {
+								r = thisChannelInfo.r,
+								g = thisChannelInfo.g,
+								b = thisChannelInfo.b
+							}
+							self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelColorByClass = thisChannelInfo.colorNameByClass
+						
+						end					
+						
+					end
+				end
 			
 			end
 			
@@ -604,6 +632,14 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 					for k, v in pairs(self.CVars.CooldownViewer) do
 						self.db.profile.syncData.cooldownViewer.cvars[v] = GetCVar(v) or nil
 					end
+					
+					--[[if (self:IsMainline() == true) then
+						if (C_CooldownViewer.IsCooldownViewerAvailable()) then
+							local thisClass = UnitClassBase("player")
+							self.db.profile.syncData.cooldownViewer.classes[thisClass] = C_CooldownViewer.GetLayoutData()
+							--self.db.profile.syncData.cooldownViewer.classes[thisClass] = CooldownViewerSettings:GetSerializer():GetSerializedData()
+						end
+					end]]
 				
 				end
 				
@@ -659,30 +695,40 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 						self.db.profile.syncData.damageMeter.cvars[v] = GetCVar(v) or nil
 					end
 					
+					
+					self.db.profile.syncData.damageMeter.special.settings = {
+						windowDataList = {}
+					}
 					if (DamageMeterPerCharacterSettings) then
-						self.db.profile.syncData.damageMeter.special.settings = {}
 						self.db.profile.syncData.damageMeter.special.settings = CopyTable(DamageMeterPerCharacterSettings)
 					end
 					
 					for i = 1, DamageMeter:GetMaxSessionWindowCount() do 
 						self.db.profile.syncData.damageMeter.special.position[i] = nil
 						
-						local thisDamageMeter = _G["DamageMeterSessionWindow" .. i]
-						if (thisDamageMeter and DamageMeter:CanMoveOrResizeSessionWindow(thisDamageMeter)) then -- First Window is set by Edit Mode
-							
-							self.db.profile.syncData.damageMeter.special.size[i] = {}
-							self.db.profile.syncData.damageMeter.special.size[i].x = thisDamageMeter:GetWidth()
-							self.db.profile.syncData.damageMeter.special.size[i].y = thisDamageMeter:GetHeight()
+						local thisDamageMeter = DamageMeter:GetSessionWindow(i) -- DamageMeterSessionWindow
 						
-							self.db.profile.syncData.damageMeter.special.position[i] = {}
-							self.db.profile.syncData.damageMeter.special.position[i].point = select(1, thisDamageMeter:GetPoint())
-							self.db.profile.syncData.damageMeter.special.position[i].relativePoint = select(3, thisDamageMeter:GetPoint())
-							self.db.profile.syncData.damageMeter.special.position[i].offsetX = select(4, thisDamageMeter:GetPoint())
-							self.db.profile.syncData.damageMeter.special.position[i].offsetY = select(5, thisDamageMeter:GetPoint())
-							--self.db.profile.syncData.damageMeter.special.position[i].offsetX = thisDamageMeter:GetLeft()
-							--self.db.profile.syncData.damageMeter.special.position[i].offsetY = thisDamageMeter:GetTop()
+						if (thisDamageMeter) then
+						
+							self.db.profile.syncData.damageMeter.special.settings.windowDataList[i].damageMeterType = DamageMeter:GetSessionWindowDamageMeterType(thisDamageMeter)
 							
+							if (DamageMeter:CanMoveOrResizeSessionWindow(thisDamageMeter)) then -- First Window is set by Edit Mode
+								
+								self.db.profile.syncData.damageMeter.special.size[i] = {}
+								self.db.profile.syncData.damageMeter.special.size[i].x = thisDamageMeter:GetWidth()
+								self.db.profile.syncData.damageMeter.special.size[i].y = thisDamageMeter:GetHeight()
 							
+								self.db.profile.syncData.damageMeter.special.position[i] = {}
+								self.db.profile.syncData.damageMeter.special.position[i].point = select(1, thisDamageMeter:GetPoint())
+								self.db.profile.syncData.damageMeter.special.position[i].relativePoint = select(3, thisDamageMeter:GetPoint())
+								self.db.profile.syncData.damageMeter.special.position[i].offsetX = select(4, thisDamageMeter:GetPoint())
+								self.db.profile.syncData.damageMeter.special.position[i].offsetY = select(5, thisDamageMeter:GetPoint())
+								--self.db.profile.syncData.damageMeter.special.position[i].offsetX = thisDamageMeter:GetLeft()
+								--self.db.profile.syncData.damageMeter.special.position[i].offsetY = thisDamageMeter:GetTop()
+								
+								
+							end
+						
 						end
 						
 					end
