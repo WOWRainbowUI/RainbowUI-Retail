@@ -1,6 +1,6 @@
 ## Interface: 11508, 20205, 50503, 120000
 ## Title: Platynator
-## Version: 302
+## Version: 303
 ## Author: plusmouse
 ## SavedVariables: PLATYNATOR_CONFIG
 ## SavedVariablesPerCharacter: PLATYNATOR_CURRENT_PROFILE, PLATYNATOR_LAST_INSTANCE
