@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX | Simple Quest Plates! - options_preview.lua
--- Version: 1.0.0
+
 -- Author: DonnieDice
 -- Description: Preview nameplate for options panel
 --=====================================================================================
