@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX | Simple Quest Plates! - compat.lua
--- Version: 1.1.0
+
 -- Author: DonnieDice
 -- Description: API compatibility layer for different WoW versions
 --=====================================================================================
@@ -9,20 +9,19 @@ local addonName, SQP = ...
 
 
 -- Get WoW version
-local tocversion = select(4, GetBuildInfo())
-local isRetail = tocversion >= 100000  -- Dragonflight and later
-local isLegion = tocversion >= 70000   -- Legion+ has modern APIs
-local isClassic = tocversion < 70000   -- Pre-Legion uses Classic APIs
-local isMoP = tocversion >= 50400 and tocversion < 60000
-local isCata = tocversion >= 40400 and tocversion < 50000
-local isWrath = tocversion >= 30400 and tocversion < 40000
-local isVanilla = tocversion < 20000
+
+local isRetail = SQP.tocversion >= 100000  -- Dragonflight and later
+local isLegion = SQP.tocversion >= 70000   -- Legion+ has modern APIs
+local isClassic = SQP.tocversion < 70000   -- Pre-Legion uses Classic APIs
+local isMoP = SQP.tocversion >= 50400 and SQP.tocversion < 60000
+local isCata = SQP.tocversion >= 40400 and SQP.tocversion < 50000
+local isWrath = SQP.tocversion >= 30400 and SQP.tocversion < 40000
+local isVanilla = SQP.tocversion < 20000
 
 -- Store version info globally
 SQP.isRetail = isRetail
 SQP.isClassic = isClassic
 SQP.isMoP = isMoP
-SQP.tocversion = tocversion
 
 -- Create compatibility namespace
 SQP.Compat = {}

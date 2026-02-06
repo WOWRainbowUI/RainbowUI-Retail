@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX | Simple Quest Plates! - options_tabs.lua
--- Version: 1.0.0
+
 -- Author: DonnieDice
 -- Description: Tab system for options panel
 --=====================================================================================

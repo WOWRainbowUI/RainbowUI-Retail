@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX | Simple Quest Plates! - options_core.lua
--- Version: 1.0.0
+
 -- Author: DonnieDice
 -- Description: Core options panel framework
 --=====================================================================================
@@ -8,7 +8,7 @@
 local addonName, SQP = ...
 
 -- Constants
-SQP.PANEL_NAME = "|TInterface\\AddOns\\SimpleQuestPlates\\images\\icon:0|t - |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r"
+SQP.PANEL_NAME = "|TInterface\\AddOns\\SimpleQuestPlates\\images\\icon:0|t |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r"
 SQP.SECTION_COLOR = {0.345, 0.745, 0.506} -- #58be81
 SQP.PANEL_WIDTH = 700
 SQP.PANEL_HEIGHT = 600

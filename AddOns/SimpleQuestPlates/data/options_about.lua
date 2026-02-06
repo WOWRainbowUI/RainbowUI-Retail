@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX | Simple Quest Plates! - options_about.lua
--- Version: 1.0.0
+
 -- Author: DonnieDice
 -- Description: About options tab content
 --=====================================================================================

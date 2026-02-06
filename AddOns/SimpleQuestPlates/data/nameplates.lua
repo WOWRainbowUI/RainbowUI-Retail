@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX | Simple Quest Plates! - nameplates.lua
--- Version: 1.0.0
+
 -- Author: DonnieDice
 -- Description: Nameplate management and tracking system
 --=====================================================================================
