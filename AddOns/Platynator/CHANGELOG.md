@@ -1,9 +1,6 @@
 # Platynator
 
-## [302](https://github.com/TheMouseNest/Platynator/tree/302) (2026-02-05)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/301...302) 
+## [303](https://github.com/TheMouseNest/Platynator/tree/303) (2026-02-05)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/302...303) 
 
-- Prevent flickering of interrupt ready marker  
-- Remove leftover prints  
-- Fixes for interrupt marker and interrupt ready colors not refreshing soon enough  
-- Retail: Fix interrupt marker staying visible after interrupt used on another mob  
+- Fix interrupt marker shifting and persistent visibility of said marker  
