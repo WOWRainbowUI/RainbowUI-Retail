@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX | Simple Quest Plates! - quest.lua
-
+-- Version: 1.0.0
 -- Author: DonnieDice
 -- Description: Quest detection and progress tracking
 --=====================================================================================
@@ -207,7 +207,7 @@ function SQP:UpdateQuestIcon(plate, unitID)
     if not unitID then return end
     
     -- Check if should hide in combat
-    if SQPSettings.hideInCombat and UnitAffectingCombat("player") then
+    if SQPSettings.hideInCombat and InCombatLockdown() then
         Q:Hide()
         return
     end
@@ -280,7 +280,7 @@ function SQP:UpdateQuestIcon(plate, unitID)
                 Q.icon:SetVertexColor(1, 1, 1, 1)
             end
             if SQPSettings.debug then
-                self:PrintMessage(format("Showing quest plate for %s", UnitName(unitID) or "Unknown"), "DEBUG")
+                self:PrintMessage(format("Showing quest plate for %s", UnitName(unitID) or "Unknown"))
             end
         end
     else
