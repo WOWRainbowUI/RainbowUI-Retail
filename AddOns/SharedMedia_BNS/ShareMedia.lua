@@ -48,16 +48,33 @@ LSM:Register(MediaType_FONT, "Refunk",							[[Interface\Addons\SharedMedia_BNS\
 -- -----
 --   SOUND
 -- -----
+LSM:Register("sound", "!|cff00c0ff音效：CSC_attention|r", [[Interface\Addons\SharedMedia_BNS\sound\CSC_attention.ogg]])
+LSM:Register("sound", "!|cff00c0ff音效：CSC_teleporter|r", [[Interface\Addons\SharedMedia_BNS\sound\CSC_teleporter.ogg]])
 LSM:Register("sound", "#|cff00c0ff語音：快驅散|r", [[Interface\Addons\SharedMedia_BNS\sound\dispelnow.ogg]]) 
 LSM:Register("sound", "#|cff00c0ff語音：快打斷|r", [[Interface\Addons\SharedMedia_BNS\sound\kickcast.ogg]]) 
 LSM:Register("sound", "!|cff00c0ff音效：低血量|r", [[Interface\Addons\SharedMedia_BNS\sound\LowHealth.ogg]]) 
 LSM:Register("sound", "!|cff00c0ff音效：低法力|r", [[Interface\Addons\SharedMedia_BNS\sound\LowMana.ogg]]) 
+LSM:Register("sound", "!|cff00c0ff音效：MGS警告|r", [[Interface\Addons\SharedMedia_BNS\sound\MGS Alert.ogg]]) 
+LSM:Register("sound", "!|cff00c0ff音效：警報|r", [[Interface\Addons\SharedMedia_BNS\sound\SP_Alarm_01.ogg]])
 LSM:Register("sound", "!|cff00c0ff音效：mgsdrop|r", [[Interface\Addons\SharedMedia_BNS\sound\mgsdrop.ogg]]) 
 LSM:Register("sound", "!|cff00c0ff音效：mgsmail|r", [[Interface\Addons\SharedMedia_BNS\sound\mgsmail.ogg]]) 
 LSM:Register("sound", "!|cff00c0ff音效：mgsopen|r", [[Interface\Addons\SharedMedia_BNS\sound\mgsopen.ogg]]) 
 LSM:Register("sound", "!|cff00c0ff音效：瑪利歐金幣|r", [[Interface\Addons\SharedMedia_BNS\sound\super_mario_bros_coin.ogg]])
 LSM:Register("sound", "!|cff00c0ff音效：瑪利歐GG|r", [[Interface\Addons\SharedMedia_BNS\sound\super_mario_bros_game_over.ogg]])
 LSM:Register("sound", "!|cff00c0ff音效：瑪利歐變大|r", [[Interface\Addons\SharedMedia_BNS\sound\super_mario_bros_powerup.ogg]])
+LSM:Register("sound", "!|cff00c0ff音效：去死|r", [[Interface\Addons\SharedMedia_BNS\sound\Touch of Death_1.ogg]])
+LSM:Register("sound", "!|cff00c0ff音效：Tuturu|r", [[Interface\Addons\SharedMedia_BNS\sound\Tuturu.ogg]])
+LSM:Register("sound", "#|cff00c0ff語音：快跑位|r", [[Interface\Addons\SharedMedia_BNS\sound\movesoon.ogg]]) 
+LSM:Register("sound", "#|cff00c0ff語音：快躲開|r", [[Interface\Addons\SharedMedia_BNS\sound\runaway.ogg]]) 
+LSM:Register("sound", "#|cff00c0ff語音：注意踩圈|r", [[Interface\Addons\SharedMedia_BNS\sound\stepring.ogg]]) 
+LSM:Register("sound", "#|cff00c0ff語音：注意腳下|r", [[Interface\Addons\SharedMedia_BNS\sound\watchstep.ogg]])
+LSM:Register("sound", "#|cff00c0ff語音：你被點名|r", [[Interface\Addons\SharedMedia_BNS\sound\你被點名.ogg]])
+LSM:Register("sound", "#|cff00c0ff語音：危險危險|r", [[Interface\Addons\SharedMedia_BNS\sound\stilldanger.ogg]])
+LSM:Register("sound", "#|cff00c0ff語音：注意減傷|r", [[Interface\Addons\SharedMedia_BNS\sound\defensive.ogg]])
+LSM:Register("sound", "#|cff00c0ff語音：跑開人群|r", [[Interface\Addons\SharedMedia_BNS\sound\runout.ogg]])
+LSM:Register("sound", "#|cff00c0ff語音：躲開正面|r", [[Interface\Addons\SharedMedia_BNS\sound\躲開正面.ogg]])
+LSM:Register("sound", "$|cff00c0ff爐石：好膽麥走|r", [[Interface\Addons\SharedMedia_BNS\sound\好膽麥走.ogg]]) 
+LSM:Register("sound", "$|cff00c0ff爐石：開火|r", [[Interface\Addons\SharedMedia_BNS\sound\開火.ogg]]) 
 
 -- -----
 --   STATUSBAR

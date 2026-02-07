@@ -1,7 +1,7 @@
 ﻿## Interface: 120000
 ## Title: SharedMedia |cff00c0ffBNS|r
 ## Notes: BNS素材包，內含中英字型以及材質，還有少數音效，其他所有使用SharedMedia函數庫的插件都可以使用。
-## Version: 1.41
+## Version: 1.42
 ## Author: BNS (三皈依-暗影之月@TW)
 ## Category-zhTW: 進階
 ## IconTexture: Interface\Icons\Achievement_ChallengeMode_Gold
