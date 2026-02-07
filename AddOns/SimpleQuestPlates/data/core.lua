@@ -20,13 +20,61 @@ SQP.isVanilla = tocversion < 20000
 SQP.isClassic = tocversion < 110000  -- Any non-retail version
 SQP.isMoP = tocversion >= 50400 and tocversion < 60000
 
--- Constants
-local ADDON_NAME = "Simple Quest Plates"
-local ADDON_SHORT = "SQP"
-local ADDON_PREFIX = "|cff58be81SQP|r"
-local ADDON_ICON = "|TInterface\\AddOns\\SimpleQuestPlates\\images\\icon:0|t"
-local DISCORD_LINK = "discord.gg/N7kdKAHVVF"
-local CURSE_PROJECT_ID = "1319776"
+-- Lua Globals
+local UnitName = UnitName
+local UnitExists = UnitExists
+local UnitGUID = UnitGUID
+local UnitIsPlayer = UnitIsPlayer
+local UnitIsFriend = UnitIsFriend
+local UnitIsEnemy = UnitIsEnemy
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local GetBuildInfo = GetBuildInfo
+local PlaySound = PlaySound
+local GetCursorPosition = GetCursorPosition
+local GetCurrentMapAreaID = GetCurrentMapAreaID
+local IsInInstance = IsInInstance
+
+-- Addon namespace
+-- SQP will be initialized by the XML
+if not SQP then SQP = {} end
+
+-- Addon metadata
+local function GetAddOnMetadataCompat(name, field)
+    if C_AddOns and C_AddOns.GetAddOnMetadata then
+        return C_AddOns.GetAddOnMetadata(name, field)
+    end
+    if GetAddOnMetadata then
+        return GetAddOnMetadata(name, field)
+    end
+    if GetAddOnInfo then
+        local _, title, notes = GetAddOnInfo(name)
+        if field == "Title" then
+            return title
+        elseif field == "Notes" then
+            return notes
+        end
+    end
+    return nil
+end
+
+SQP.VERSION = "1.6.12" -- Addon version (also in TOC file)
+SQP.NAME = GetAddOnMetadataCompat(addonName, "Title") or addonName or "SimpleQuestPlates"
+SQP.AUTHOR = GetAddOnMetadataCompat(addonName, "Author") or "DonnieDice"
+SQP.LOCALE = GetLocale()
+SQP.ICON_TEXTURE = GetAddOnMetadataCompat(addonName, "IconTexture")
+    or ("Interface\\AddOns\\" .. (addonName or "SimpleQuestPlates") .. "\\images\\icon")
+
+do
+    local _, _, _, tocversion = GetBuildInfo and GetBuildInfo() or nil
+    tocversion = tonumber(tocversion)
+    if not tocversion then
+        local interfaceString = GetAddOnMetadataCompat(addonName, "Interface")
+        if type(interfaceString) == "string" then
+            tocversion = tonumber(interfaceString:match("%d+"))
+        end
+    end
+    SQP.tocversion = tocversion or 0
+end
 
 -- Default settings
 local DEFAULTS = {
