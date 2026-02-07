@@ -134,7 +134,6 @@ GameCooltipFrame2 = {}
 ---| "switch"
 ---| "slider"
 
-
 ---@class detailsframework
 ---@field dversion number
 ---@field OnLoginSchedules function[]
@@ -148,6 +147,7 @@ GameCooltipFrame2 = {}
 ---@field TimeLine_LineMixin df_timeline_line_mixin
 ---@field TimeLineMixin df_timeline_mixin
 ---@field NameplateBorderMixin df_nameplate_border_mixin
+---@field SavedVars addon_savedvariables
 ---@field RoleTypes roleinfo[]
 ---@field Language df_language
 ---@field Ejc df_ejc
@@ -213,6 +213,10 @@ GameCooltipFrame2 = {}
 ---@field IsNotMidnightWow fun():boolean
 ---@field IsWarWowOrBelow fun():boolean
 ---@field IsAddonApocalypseWow fun():boolean
+---@field CreateHealthBar fun(self:table, parent:frame, name:string, settingsOverride:table) : df_healthbar
+---@field CreateCastBar fun(self:table, parent:frame, name:string, settingsOverride:table) : df_castbar
+---@field CreateUnitFrame fun(self:table, parent:frame, name:string, settingsOverride:table) : df_unitframe
+---@field CreatePowerBar fun(self:table, parent:frame, name:string, settingsOverride:table) : df_powerbar
 ---@field CreateFullBorder fun(self:table, name:string, parent:frame) : border_frame
 ---@field CreateButton fun(self:table, parent:frame, func:function, width:number, height:number, text:any, param1:any, param2:any, texture:atlasname|texturepath|textureid|nil, member:string?, name:string?, shortMethod:any, buttonTemplate:table?, textTemplate:table?) : df_button callback function(blizzButton, clickType, param1, param2) end
 ---@field CreateCloseButton fun(self:table, parent:frame, frameName:string?) : df_closebutton
