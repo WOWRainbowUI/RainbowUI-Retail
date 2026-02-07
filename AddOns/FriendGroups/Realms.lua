@@ -4,7 +4,20 @@
 
 -- [[ REGION 1: AMERICAS & OCEANIA ]] --
 FriendGroups_RealmData = {
-    -- Australia / Oceania (FlagAU.tga)
+    -- [[ BRAZIL (FlagBR.tga) ]] --
+    ["Azralon"] = {icon = "FlagBR.tga", region = "Brazil"},
+    ["Gallywix"] = {icon = "FlagBR.tga", region = "Brazil"},
+    ["Goldrinn"] = {icon = "FlagBR.tga", region = "Brazil"},
+    ["Nemesis"] = {icon = "FlagBR.tga", region = "Brazil"},
+    ["TolBarad"] = {icon = "FlagBR.tga", region = "Brazil"},
+
+    -- [[ LATIN AMERICA (FlagMX.tga) ]] --
+    ["Drakkari"] = {icon = "FlagMX.tga", region = "Latin America"},
+    ["Quel'Thalas"] = {icon = "FlagMX.tga", region = "Latin America"},
+    ["Ragnaros"] = {icon = "FlagMX.tga", region = "Latin America"},
+    ["Loatheb"] = {icon = "FlagMX.tga", region = "Latin America"}, -- Classic
+
+    -- [[ OCEANIA (FlagAU.tga) ]] --
     ["Aman'Thul"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Barthilas"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Caelestrasz"] = {icon = "FlagAU.tga", region = "Oceania"},
@@ -17,20 +30,14 @@ FriendGroups_RealmData = {
     ["Nagrand"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Saurfang"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Thaurissan"] = {icon = "FlagAU.tga", region = "Oceania"},
+    ["Arugal"] = {icon = "FlagAU.tga", region = "Oceania"}, -- Classic
+    ["Yojamba"] = {icon = "FlagAU.tga", region = "Oceania"}, -- Classic
+    ["Remulos"] = {icon = "FlagAU.tga", region = "Oceania"}, -- Classic
+    ["Felstriker"] = {icon = "FlagAU.tga", region = "Oceania"}, -- Classic
+    ["Shadowstrike"] = {icon = "FlagAU.tga", region = "Oceania"}, -- SOD
+    ["Penance"] = {icon = "FlagAU.tga", region = "Oceania"}, -- SOD
 
-    -- Brazil (FlagBR.tga)
-    ["Azralon"] = {icon = "FlagBR.tga", region = "Brazil"},
-    ["Gallywix"] = {icon = "FlagBR.tga", region = "Brazil"},
-    ["Goldrinn"] = {icon = "FlagBR.tga", region = "Brazil"},
-    ["Nemesis"] = {icon = "FlagBR.tga", region = "Brazil"},
-    ["TolBarad"] = {icon = "FlagBR.tga", region = "Brazil"},
-
-    -- Mexico / Latin America (FlagMX.tga)
-    ["Drakkari"] = {icon = "FlagMX.tga", region = "Mexico"},
-    ["Quel'Thalas"] = {icon = "FlagMX.tga", region = "Mexico"},
-    ["Ragnaros"] = {icon = "FlagMX.tga", region = "Mexico"},
-
-    -- North America (FlagUS.tga)
+    -- [[ US / NORTH AMERICA (FlagUS.tga) ]] --
     ["Aegwynn"] = {icon = "FlagUS.tga", region = "US"},
     ["AeriePeak"] = {icon = "FlagUS.tga", region = "US"},
     ["Agamaggan"] = {icon = "FlagUS.tga", region = "US"},
@@ -235,7 +242,7 @@ FriendGroups_RealmData = {
     ["Trollbane"] = {icon = "FlagUS.tga", region = "US"},
     ["Turalyon"] = {icon = "FlagUS.tga", region = "US"},
     ["TwistingNether"] = {icon = "FlagUS.tga", region = "US"},
-    ["Uldaman"] = {icon = "FlagUS.tga", region = "US"},
+    ["Uldaman"] = {icon = "FlagUS.tga", region = "US"}, -- US VERSION
     ["Uldum"] = {icon = "FlagUS.tga", region = "US"},
     ["Undermine"] = {icon = "FlagUS.tga", region = "US"},
     ["Ursin"] = {icon = "FlagUS.tga", region = "US"},
@@ -255,7 +262,7 @@ FriendGroups_RealmData = {
     ["Zul'jin"] = {icon = "FlagUS.tga", region = "US"},
     ["Zuluhed"] = {icon = "FlagUS.tga", region = "US"},
 
-    -- Classic / Era Hubs (FlagUS.tga)
+    -- [[ US CLASSIC / SEASONAL / ERA ]] --
     ["Ashkandi"] = {icon = "FlagUS.tga", region = "US"},
     ["Atiesh"] = {icon = "FlagUS.tga", region = "US"},
     ["Benediction"] = {icon = "FlagUS.tga", region = "US"},
@@ -266,28 +273,199 @@ FriendGroups_RealmData = {
     ["OldBlanchy"] = {icon = "FlagUS.tga", region = "US"},
     ["Westfall"] = {icon = "FlagUS.tga", region = "US"},
     ["Whitemane"] = {icon = "FlagUS.tga", region = "US"},
-
--- 2026 Anniversary / Fresh
     ["ChaosBolt"] = {icon = "FlagUS.tga", region = "US"},
     ["CrusaderStrike"] = {icon = "FlagUS.tga", region = "US"},
     ["DefiasPillager"] = {icon = "FlagUS.tga", region = "US"},
-    ["Doomhowl"] = {icon = "FlagUS.tga", region = "US"}, -- Hardcore Anniversary
-    ["Dreamscythe"] = {icon = "FlagUS.tga", region = "US"}, -- Normal Anniversary
+    ["Doomhowl"] = {icon = "FlagUS.tga", region = "US"},
+    ["Dreamscythe"] = {icon = "FlagUS.tga", region = "US"},
     ["LavaLash"] = {icon = "FlagUS.tga", region = "US"},
     ["LivingFlame"] = {icon = "FlagUS.tga", region = "US"},
     ["LoneWolf"] = {icon = "FlagUS.tga", region = "US"},
-    ["Maladath"] = {icon = "FlagAU.tga", region = "Oceania"}, -- OC Anniversary Hub
-    ["Nightslayer"] = {icon = "FlagUS.tga", region = "US"}, -- PvP Anniversary
+    ["Nightslayer"] = {icon = "FlagUS.tga", region = "US"},
     ["Pagle"] = {icon = "FlagUS.tga", region = "US"},
     ["SkullRock"] = {icon = "FlagUS.tga", region = "US"},
     ["WildGrowth"] = {icon = "FlagUS.tga", region = "US"},
-
+    ["Maladath"] = {icon = "FlagAU.tga", region = "Oceania"}, 
 }
 
 -- [[ REGION 3: EUROPE & RUSSIA ]] --
 FriendGroups_RealmDataEU = {
-    -- European English / UK (FlagGB.tga)
-    ["AeriePeak"] = {icon = "FlagGB.tga", region = "EU"},
+    -- [[ GERMAN (FlagDE.tga) ]] --
+    ["Aegwynn"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Alexstrasza"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Alleria"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Ambossar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Aman'Thul"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Antonidas"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Anub'arak"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Area52"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Arthas"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Arygos"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Azshara"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Baelgun"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Blackhand"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Blackmoore"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Blackrock"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Blutkessel"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Dalvengyr"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DasKonsortium"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DasSyndikat"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DerMithrilorden"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DerRatvonDalaran"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Destromath"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Dethecus"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DieAldor"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DieArguswacht"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DieewigeWacht"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DieNachtwache"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DieSilberneHand"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DieTodeskrallen"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["DunMorogh"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Echsenkessel"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Eredar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Everlook"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["FestungderStürme"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Forscherliga"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Frostmourne"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Frostwolf"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Garrosh"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Gilneas"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Gorgonnash"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Gul'dan"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Kargath"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Kel'Thuzad"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Khaz'goroth"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Kil'jaeden"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Krag'jin"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Lothar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Madmortem"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Mal'Ganis"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Malfurion"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Malorne"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Malygos"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Mannoroth"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Mug'thol"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Nathrezim"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Nazjatar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Nera'thor"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Nethersturm"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Norgannon"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Nozdormu"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Onyxia"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Perenolde"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Proudmoore"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Rajaxx"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Rexxar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Sen'jin"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Shattrath"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Shen'dralar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["SteamwheedleCartel"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Taerar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Teldrassil"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Terrordar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Theradras"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Thrall"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Tichondrius"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Tirion"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Todeswache"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Ulduar"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Un'Goro"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Vek'lor"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Venoxis"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Wrathbringer"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Ysera"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["ZirkeldesCenarius"] = {icon = "FlagDE.tga", region = "Germany"},
+    ["Zuluhed"] = {icon = "FlagDE.tga", region = "Germany"},
+
+    -- [[ FRENCH (FlagFR.tga) ]] --
+    ["Arak-arahm"] = {icon = "FlagFR.tga", region = "France"},
+    ["Arathi"] = {icon = "FlagFR.tga", region = "France"},
+    ["Archimonde"] = {icon = "FlagFR.tga", region = "France"},
+    ["Auberdine"] = {icon = "FlagFR.tga", region = "France"},
+    ["Chantséternels"] = {icon = "FlagFR.tga", region = "France"},
+    ["Cho'gall"] = {icon = "FlagFR.tga", region = "France"},
+    ["Chromaggus"] = {icon = "FlagFR.tga", region = "France"},
+    ["ConfrérieduThorium"] = {icon = "FlagFR.tga", region = "France"},
+    ["ConseildesOmbres"] = {icon = "FlagFR.tga", region = "France"},
+    ["CulteDeLaRiveNoire"] = {icon = "FlagFR.tga", region = "France"},
+    ["Dalaran"] = {icon = "FlagFR.tga", region = "France"},
+    ["Drek'Thar"] = {icon = "FlagFR.tga", region = "France"},
+    ["Eitrigg"] = {icon = "FlagFR.tga", region = "France"},
+    ["Eldre'Thalas"] = {icon = "FlagFR.tga", region = "France"},
+    ["Elune"] = {icon = "FlagFR.tga", region = "France"},
+    ["Garona"] = {icon = "FlagFR.tga", region = "France"},
+    ["Hyjal"] = {icon = "FlagFR.tga", region = "France"},
+    ["Illidan"] = {icon = "FlagFR.tga", region = "France"},
+    ["Kael'thas"] = {icon = "FlagFR.tga", region = "France"},
+    ["KhazModan"] = {icon = "FlagFR.tga", region = "France"},
+    ["KirinTor"] = {icon = "FlagFR.tga", region = "France"},
+    ["Krasus"] = {icon = "FlagFR.tga", region = "France"},
+    ["LaCroisadeécarlate"] = {icon = "FlagFR.tga", region = "France"},
+    ["LesClairvoyants"] = {icon = "FlagFR.tga", region = "France"},
+    ["LesSentinelles"] = {icon = "FlagFR.tga", region = "France"},
+    ["MarécagedeZangar"] = {icon = "FlagFR.tga", region = "France"},
+    ["Medivh"] = {icon = "FlagFR.tga", region = "France"},
+    ["Naxxramas"] = {icon = "FlagFR.tga", region = "France"},
+    ["Ner'zhul"] = {icon = "FlagFR.tga", region = "France"},
+    ["Rashgarroth"] = {icon = "FlagFR.tga", region = "France"},
+    ["Sargeras"] = {icon = "FlagFR.tga", region = "France"},
+    ["Sinstralis"] = {icon = "FlagFR.tga", region = "France"},
+    ["Suramar"] = {icon = "FlagFR.tga", region = "France"},
+    ["Templenoir"] = {icon = "FlagFR.tga", region = "France"},
+    ["Throk'Feroth"] = {icon = "FlagFR.tga", region = "France"},
+    ["Uldaman"] = {icon = "FlagFR.tga", region = "France"}, -- FRENCH VERSION
+    ["Varimathras"] = {icon = "FlagFR.tga", region = "France"},
+    ["Vol'jin"] = {icon = "FlagFR.tga", region = "France"},
+    ["Ysondre"] = {icon = "FlagFR.tga", region = "France"},
+
+    -- [[ SPANISH (FlagES.tga) ]] --
+    ["C'Thun"] = {icon = "FlagES.tga", region = "Spain"},
+    ["ColinasPardas"] = {icon = "FlagES.tga", region = "Spain"},
+    ["DunModr"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Exodar"] = {icon = "FlagES.tga", region = "Spain"},
+    ["LosErrantes"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Mandokir"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Minahonda"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Sanguino"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Shen'dralar"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Tyrande"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Uldum"] = {icon = "FlagES.tga", region = "Spain"},
+    ["Zul'jin"] = {icon = "FlagES.tga", region = "Spain"},
+
+    -- [[ ITALIAN (FlagIT.tga) ]] --
+    ["Nemesis"] = {icon = "FlagIT.tga", region = "Italy"},
+    ["Pozzodell'Eternità"] = {icon = "FlagIT.tga", region = "Italy"},
+
+    -- [[ PORTUGUESE (FlagPT.tga) ]] --
+    ["Aggra"] = {icon = "FlagPT.tga", region = "Portugal"},
+    ["GrimBatol"] = {icon = "FlagPT.tga", region = "Portugal"}, -- Often mixed, but Aggra is the main one
+
+    -- [[ RUSSIAN (FlagRU.tga) ]] --
+    ["Ashenvale"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Azuregos"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Blackscar"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["BootyBay"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["BoreanTundra"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Chromie"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Deathguard"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Deepholm"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Eversong"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Flamegor"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Fordragon"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Galakrond"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Goldrinn"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Gordunni"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Grommash"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["HowlingFjord"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["LichKing"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["MoltenCore"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Razuvious"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Soulflayer"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Theradras"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Thermaplugg"] = {icon = "FlagRU.tga", region = "Russia"},
+    ["Wyrmthalak"] = {icon = "FlagRU.tga", region = "Russia"},
+
+    -- [[ ENGLISH / UK (FlagGB.tga) ]] --
     ["Agamaggan"] = {icon = "FlagGB.tga", region = "EU"},
     ["Aggramar"] = {icon = "FlagGB.tga", region = "EU"},
     ["Ahn'Qiraj"] = {icon = "FlagGB.tga", region = "EU"},
@@ -373,7 +551,6 @@ FriendGroups_RealmDataEU = {
     ["Skullcrusher"] = {icon = "FlagGB.tga", region = "EU"},
     ["Spinebreaker"] = {icon = "FlagGB.tga", region = "EU"},
     ["Sporeggar"] = {icon = "FlagGB.tga", region = "EU"},
-    ["SteamwheedleCartel"] = {icon = "FlagGB.tga", region = "EU"},
     ["Stormrage"] = {icon = "FlagGB.tga", region = "EU"},
     ["Stormreaver"] = {icon = "FlagGB.tga", region = "EU"},
     ["Stormscale"] = {icon = "FlagGB.tga", region = "EU"},
@@ -397,60 +574,7 @@ FriendGroups_RealmDataEU = {
     ["Xavius"] = {icon = "FlagGB.tga", region = "EU"},
     ["Zenedar"] = {icon = "FlagGB.tga", region = "EU"},
 
-    -- [[ GERMAN (FlagDE.tga) ]] --
-    ["Aegwynn"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Alexstrasza"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Alleria"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Ambossar"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Antonidas"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Blackhand"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Blackrock"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["DieAldor"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Everlook"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Thrall"] = {icon = "FlagDE.tga", region = "Germany"},
-    ["Venoxis"] = {icon = "FlagDE.tga", region = "Germany"},
-
-    -- [[ FRENCH (FlagFR.tga) ]] --
-    ["Auberdine"] = {icon = "FlagFR.tga", region = "France"},
-    ["Chantséternels"] = {icon = "FlagFR.tga", region = "France"},
-    ["Dalaran"] = {icon = "FlagFR.tga", region = "France"},
-    ["Hyjal"] = {icon = "FlagFR.tga", region = "France"},
-    ["Suramar"] = {icon = "FlagFR.tga", region = "France"},
-    ["Ysondre"] = {icon = "FlagFR.tga", region = "France"},
-
-    -- [[ SPANISH (FlagES.tga) ]] --
-    ["C'Thun"] = {icon = "FlagES.tga", region = "Spain"},
-    ["ColinasPardas"] = {icon = "FlagES.tga", region = "Spain"},
-    ["DunModr"] = {icon = "FlagES.tga", region = "Spain"},
-    ["Exodar"] = {icon = "FlagES.tga", region = "Spain"},
-    ["Mandokir"] = {icon = "FlagES.tga", region = "Spain"},
-    ["Sanguino"] = {icon = "FlagES.tga", region = "Spain"},
-    ["Tyrande"] = {icon = "FlagES.tga", region = "Spain"},
-
-    -- [[ ITALIAN (FlagIT.tga) ]] --
-    ["Nemesis"] = {icon = "FlagIT.tga", region = "Italy"},
-    ["Pozzodell'Eternità"] = {icon = "FlagIT.tga", region = "Italy"},
-
-    -- [[ PORTUGUESE (FlagPT.tga) ]] --
-    ["Aggra"] = {icon = "FlagPT.tga", region = "Portugal"},
-
-    -- Russian (FlagRU.tga)
-    ["Ashenvale"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Azuregos"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["BootyBay"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Deathguard"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Deepholm"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Eversong"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Galakrond"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Goldrinn"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Gordunni"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["HowlingFjord"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["LichKing"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Razuvious"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Soulflayer"] = {icon = "FlagRU.tga", region = "Russia"},
-    ["Theradras"] = {icon = "FlagRU.tga", region = "Russia"},
-
-    -- Anniversary / Classic EU Hubs
+    -- [[ CLASSIC / ERA EU ]] --
     ["Firemaw"] = {icon = "FlagGB.tga", region = "EU"},
     ["Gehennas"] = {icon = "FlagGB.tga", region = "EU"},
     ["Golemagg"] = {icon = "FlagGB.tga", region = "EU"},
@@ -464,9 +588,6 @@ FriendGroups_RealmDataEU = {
     ["Thunderstrike"] = {icon = "FlagGB.tga", region = "EU"},
     ["WildGrowth"] = {icon = "FlagGB.tga", region = "EU"},
     ["ZandalarTribe"] = {icon = "FlagGB.tga", region = "EU"},
-
-    -- Fallback
-    ["DEFAULT_EU"] = {icon = "FlagGB.tga", region = "EU"}
 }
 
 -- [[ REGIONS 2, 4, 5: ASIA & CHINA ]] --

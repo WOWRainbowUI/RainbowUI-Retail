@@ -53,6 +53,17 @@ L["SET_COLLAPSE"]        = "自動折疊群組"
 -- ============================================================================
 L["SET_AUTO_ACCEPT"]     = "自動接受組隊邀請"
 L["SET_AUTO_PARTY_SYNC"] = "自動接受隊伍同步"
+L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s 邀請你加入隊伍。自動接受 |cff00ff00已啟用|r"
+L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s 邀請你進行隊伍同步。自動接受 |cff00ff00已啟用|r"
+
+-- Spirit Behavior Sub-Menu
+L["SET_SPIRIT_HEADER"]   = "靈魂行為"
+L["SET_SPIRIT_NONE"]     = "無"
+L["SET_SPIRIT_RES"]      = "自動接受復活"
+L["SET_SPIRIT_RELEASE"]  = "自動釋放靈魂"
+
+L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s 正在復活你。自動接受 |cff00ff00已啟用|r"
+L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: 你已經死亡。自動釋放靈魂 |cff00ff00已啟用|r"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]
@@ -103,3 +114,6 @@ L["RELOAD_TOOLTIP_DESC"]  = "重載介面以還原 FriendGroups。"
 L["SHIELD_MSG"]           = "|cffFF0000FriendGroups 已啟用|r\n\n由於暴雪安全框架限制，\n你需要重載介面才能檢視房屋。"
 L["SHIELD_BTN_TEXT"]      = "重載以檢視房屋"
 L["SAFE_MODE_WARNING"]    = "|cffFF0000房屋:|r FriendGroups 已停用以檢視房屋。重載以啟用。"
+
+-- 自行加入
+L["SETTINGS_TITLE"] = "設定選項"
