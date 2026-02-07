@@ -17,8 +17,8 @@
 		end
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
-		Details.build_counter = 14358
-		Details.alpha_build_counter = 14358 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 14502
+		Details.alpha_build_counter = 14502 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -122,6 +122,15 @@
 			[114840] = true, --orgrimmar
 			[114832] = true, --stormwind
 			[153292] = true, --stormwind
+			[225982] = true, --dornogal
+			[225977] = true, --dornogal
+			[225983] = true, --dornogal
+			[225978] = true, --dornogal
+			[219250] = true, --dornogal
+			[225985] = true, --dornogal
+			[225976] = true, --dornogal
+			[225984] = true, --dornogal
+			
 		}
 
 		---@type details_storage_feature
@@ -1490,7 +1499,7 @@ do
 			Details.Schedules.After(5, _detalhes.wipe_combat_after_failed_load)
 		end
 
-		Details.failed_to_load = C_Timer.NewTimer(1, function() Details.Schedules.NewTimer(20, _detalhes.WelcomeMsgLogon) end)
+		--Details.failed_to_load = C_Timer.NewTimer(1, function() Details.Schedules.NewTimer(20, _detalhes.WelcomeMsgLogon) end)
 
 	--key binds
 	--[=
@@ -1767,10 +1776,10 @@ function Details:DestroyActor(actorObject, actorContainer, combatObject, callSta
 
 	--remove the actor from the parser cache
 	local c1, c2, c3, c4 = Details222.Cache.GetParserCacheTables()
-	c1[actorObject.serial] = nil
-	c2[actorObject.serial] = nil
-	c3[actorObject.serial] = nil
-	c4[actorObject.serial] = nil
+	c1[actorObject.serial or "a"] = nil
+	c2[actorObject.serial or "a"] = nil
+	c3[actorObject.serial or "a"] = nil
+	c4[actorObject.serial or "a"] = nil
 
 	if (not actorObject.ownerName) then --not a pet
 		if (containerType == 1 or containerType == 2) then --damage|healing done
