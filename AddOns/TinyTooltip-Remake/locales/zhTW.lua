@@ -205,6 +205,10 @@ local T = {
     ["hint.anchor.returnOnUnitFrame"]       = "戰鬥中在預設位置顯示框架的浮動提示資訊",
     ["anchor.offset.locked"]                = "對齊位置為下方時無法調整偏移量",
     ["anchor.none"]                         = "無",
+	["id.item"]                             = "物品ID",
+    ["id.spell"]                            = "法術ID",
+    ["id.icon"]                             = "圖示ID",
+    ["id.maxStack"]                         = "最大堆疊數",
     
 }
 for k, v in pairs(T) do
