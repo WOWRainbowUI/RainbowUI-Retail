@@ -53,6 +53,17 @@ L["SET_COLLAPSE"]        = "Auto Collapse Groups"
 -- ============================================================================
 L["SET_AUTO_ACCEPT"]     = "Auto Accept Group Invite"
 L["SET_AUTO_PARTY_SYNC"] = "Auto Accept Party Sync"
+L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s invites you to a group. Auto Accept |cff00ff00ENABLED|r"
+L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s invites you to Party Sync. Auto Accept |cff00ff00ENABLED|r"
+
+-- Spirit Behavior Sub-Menu
+L["SET_SPIRIT_HEADER"]   = "Spirit Behavior"
+L["SET_SPIRIT_NONE"]     = "None"
+L["SET_SPIRIT_RES"]      = "Auto Accept Resurrection"
+L["SET_SPIRIT_RELEASE"]  = "Auto Release Spirit"
+
+L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s is resurrecting you. Auto Accept |cff00ff00ENABLED|r"
+L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: You have died. Auto Release |cff00ff00ENABLED|r"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]

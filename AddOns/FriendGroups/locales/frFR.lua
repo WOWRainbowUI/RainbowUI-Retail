@@ -51,8 +51,19 @@ L["SET_COLLAPSE"]        = "Fermer groupes auto"
 -- ============================================================================
 -- [[ SETTINGS: AUTOMATION ]]
 -- ============================================================================
-L["SET_AUTO_ACCEPT"]     = "Accepter invit. groupe auto"
-L["SET_AUTO_PARTY_SYNC"] = "Accepter Sync. groupe auto"
+L["SET_AUTO_ACCEPT"]     = "Accepter l'invitation automatiquement"
+L["SET_AUTO_PARTY_SYNC"] = "Accepter la Synchro de groupe automatiquement"
+L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s vous invite dans un groupe. Auto-acceptation |cff00ff00ACTIVÉE|r"
+L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s vous invite à la Synchro de groupe. Auto-acceptation |cff00ff00ACTIVÉE|r"
+
+-- Spirit Behavior Sub-Menu
+L["SET_SPIRIT_HEADER"]   = "Comportement de l'esprit"
+L["SET_SPIRIT_NONE"]     = "Aucun"
+L["SET_SPIRIT_RES"]      = "Accepter la résurrection automatiquement"
+L["SET_SPIRIT_RELEASE"]  = "Libérer l'esprit automatiquement"
+
+L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s vous ressuscite. Auto-acceptation |cff00ff00ACTIVÉE|r"
+L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: Vous êtes mort. Libération auto |cff00ff00ACTIVÉE|r"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]

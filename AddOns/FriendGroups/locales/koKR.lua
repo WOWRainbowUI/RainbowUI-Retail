@@ -51,8 +51,19 @@ L["SET_COLLAPSE"]        = "그룹 자동 접기"
 -- ============================================================================
 -- [[ SETTINGS: AUTOMATION ]]
 -- ============================================================================
-L["SET_AUTO_ACCEPT"]     = "그룹 초대 자동 수락"
+L["SET_AUTO_ACCEPT"]     = "파티 초대 자동 수락"
 L["SET_AUTO_PARTY_SYNC"] = "파티 동기화 자동 수락"
+L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s님이 파티에 초대했습니다. 자동 수락 |cff00ff00활성화됨|r"
+L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s님이 파티 동기화를 요청했습니다. 자동 수락 |cff00ff00활성화됨|r"
+
+-- Spirit Behavior Sub-Menu
+L["SET_SPIRIT_HEADER"]   = "유령 행동"
+L["SET_SPIRIT_NONE"]     = "없음"
+L["SET_SPIRIT_RES"]      = "부활 자동 수락"
+L["SET_SPIRIT_RELEASE"]  = "자동 영혼 놓아주기"
+
+L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s님이 부활을 시도합니다. 자동 수락 |cff00ff00활성화됨|r"
+L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: 사망했습니다. 자동 영혼 놓아주기 |cff00ff00활성화됨|r"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]

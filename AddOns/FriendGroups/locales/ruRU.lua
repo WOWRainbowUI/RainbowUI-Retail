@@ -52,7 +52,18 @@ L["SET_COLLAPSE"]        = "Авто-сворачивание групп"
 -- [[ SETTINGS: AUTOMATION ]]
 -- ============================================================================
 L["SET_AUTO_ACCEPT"]     = "Авто-прием приглашений"
-L["SET_AUTO_PARTY_SYNC"] = "Авто-прием синхронизации"
+L["SET_AUTO_PARTY_SYNC"] = "Авто-прием синхр. группы"
+L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s приглашает в группу. Авто-прием |cff00ff00ВКЛЮЧЕН|r"
+L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s предлагает синхронизацию. Авто-прием |cff00ff00ВКЛЮЧЕН|r"
+
+-- Spirit Behavior Sub-Menu
+L["SET_SPIRIT_HEADER"]   = "Поведение духа"
+L["SET_SPIRIT_NONE"]     = "Нет"
+L["SET_SPIRIT_RES"]      = "Авто-прием воскрешения"
+L["SET_SPIRIT_RELEASE"]  = "Автоматически покинуть тело"
+
+L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s воскрешает вас. Авто-прием |cff00ff00ВКЛЮЧЕН|r"
+L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: Вы умерли. Авто-выход из тела |cff00ff00ВКЛЮЧЕН|r"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]

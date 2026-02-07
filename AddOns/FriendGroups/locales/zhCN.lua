@@ -52,7 +52,18 @@ L["SET_COLLAPSE"]        = "自动折叠分组"
 -- [[ SETTINGS: AUTOMATION ]]
 -- ============================================================================
 L["SET_AUTO_ACCEPT"]     = "自动接受组队邀请"
-L["SET_AUTO_PARTY_SYNC"] = "自动接受队伍同步"
+L["SET_AUTO_PARTY_SYNC"] = "自动接受小队同步"
+L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s 邀请你加入队伍。自动接受 |cff00ff00已启用|r"
+L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s 邀请你进行小队同步。自动接受 |cff00ff00已启用|r"
+
+-- Spirit Behavior Sub-Menu
+L["SET_SPIRIT_HEADER"]   = "灵魂行为"
+L["SET_SPIRIT_NONE"]     = "无"
+L["SET_SPIRIT_RES"]      = "自动接受复活"
+L["SET_SPIRIT_RELEASE"]  = "自动释放灵魂"
+
+L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s 正在复活你。自动接受 |cff00ff00已启用|r"
+L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: 你已经死亡。自动释放灵魂 |cff00ff00已启用|r"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]

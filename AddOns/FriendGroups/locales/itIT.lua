@@ -51,8 +51,19 @@ L["SET_COLLAPSE"]        = "Collassa Gruppi Auto"
 -- ============================================================================
 -- [[ SETTINGS: AUTOMATION ]]
 -- ============================================================================
-L["SET_AUTO_ACCEPT"]     = "Accetta Invito Gruppo Auto"
-L["SET_AUTO_PARTY_SYNC"] = "Accetta Sincronia Gruppo Auto"
+L["SET_AUTO_ACCEPT"]     = "Accetta invito gruppo autom."
+L["SET_AUTO_PARTY_SYNC"] = "Accetta Sincronia gruppo autom."
+L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s ti invita in un gruppo. Accettazione autom. |cff00ff00ABILITATA|r"
+L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s ti invita alla Sincronia. Accettazione autom. |cff00ff00ABILITATA|r"
+
+-- Spirit Behavior Sub-Menu
+L["SET_SPIRIT_HEADER"]   = "Comportamento Spirito"
+L["SET_SPIRIT_NONE"]     = "Nessuno"
+L["SET_SPIRIT_RES"]      = "Accetta resurrezione autom."
+L["SET_SPIRIT_RELEASE"]  = "Rilascia Spirito autom."
+
+L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s ti sta resuscitando. Accettazione autom. |cff00ff00ABILITATA|r"
+L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: Sei morto. Rilascio autom. |cff00ff00ABILITATO|r"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]

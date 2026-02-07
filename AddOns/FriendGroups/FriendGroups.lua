@@ -244,7 +244,7 @@ local settingsMenuItems = {
         end
     },
 
-    -- SECTION 4: AUTOMATION
+-- SECTION 4: AUTOMATION
     { text = L["SETTINGS_AUTOMATION"], notCheckable = true, isTitle = true },
     {
         text = L["SET_AUTO_ACCEPT"],
@@ -261,6 +261,42 @@ local settingsMenuItems = {
         checked = function() return FriendGroups_SavedVars.auto_accept_sync end,
         func = function()
             FriendGroups_SavedVars.auto_accept_sync = not FriendGroups_SavedVars.auto_accept_sync
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    -- Spirit Behavior Header
+    { text = "  " .. L["SET_SPIRIT_HEADER"], notCheckable = true, isTitle = true },
+
+    -- Option 1: None (Default) - Strict Single Selection
+    {
+        text = L["SET_SPIRIT_NONE"],
+        leftPadding = 16,
+        checked = function() return not FriendGroups_SavedVars.auto_accept_res and not FriendGroups_SavedVars.auto_release end,
+        func = function()
+            FriendGroups_SavedVars.auto_accept_res = false
+            FriendGroups_SavedVars.auto_release = false
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    -- Option 2: Auto Resurrection - Strict Single Selection
+    {
+        text = L["SET_SPIRIT_RES"],
+        leftPadding = 16,
+        checked = function() return FriendGroups_SavedVars.auto_accept_res end,
+        func = function()
+            FriendGroups_SavedVars.auto_accept_res = true
+            FriendGroups_SavedVars.auto_release = false
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+    -- Option 3: Auto Release - Strict Single Selection
+    {
+        text = L["SET_SPIRIT_RELEASE"],
+        leftPadding = 16,
+        checked = function() return FriendGroups_SavedVars.auto_release end,
+        func = function()
+            FriendGroups_SavedVars.auto_release = true
+            FriendGroups_SavedVars.auto_accept_res = false
             FriendGroups_FriendsListUpdate()
         end
     },
@@ -294,7 +330,9 @@ local settingsMenuItems = {
             
             FriendGroups_SavedVars.auto_accept_invite = true
             FriendGroups_SavedVars.auto_accept_sync = true
-            
+            FriendGroups_SavedVars.auto_accept_res = false
+            FriendGroups_SavedVars.auto_release = false
+
             FriendGroups_SavedVars.extra_height = 380 
             FriendGroups_SavedVars.collapsed = {}
             
@@ -1336,6 +1374,7 @@ EnableFriendGroups = function()
             open_one_group = false,
             auto_accept_invite = true,
             auto_accept_sync = true,
+	    auto_accept_res = false,
             show_flags = true
         }
     end
@@ -2102,8 +2141,6 @@ end
 local frame = CreateFrame("frame", "FriendGroups")
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("ADDON_LOADED")
-frame:RegisterEvent("PARTY_INVITE_REQUEST")
-frame:RegisterEvent("QUEST_SESSION_CREATED")
 
 frame:SetScript("OnEvent", function(self, event, arg1, ...)
 if event == "ADDON_LOADED" and arg1 == addonName then
@@ -2113,46 +2150,6 @@ if event == "ADDON_LOADED" and arg1 == addonName then
         -- [[[ DELETE OR COMMENT OUT THIS LINE ]]] --
         -- self:UnregisterEvent("ADDON_LOADED") 
         -- [[[ END CHANGE ]]] --
-
-    elseif event == "PARTY_INVITE_REQUEST" then
-        if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_invite then
-            AcceptGroup()
-            StaticPopup_Hide("PARTY_INVITE")
-            StaticPopup_Hide("PARTY_INVITE_REQUEST")
-            StaticPopup_Hide("PARTY_INVITE_XREALM")
-        end
-
-    -- [[ SMART FIX: Auto Accept Party Sync ]] --
-    elseif event == "QUEST_SESSION_CREATED" then
-        if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_sync then
-            
-            -- DEFINITION: A recursive function that tries to click, catches crashes, and retries.
-            local function AttemptSyncAccept()
-                -- 1. Stop if the dialog is gone (User closed it, or we already accepted)
-                if not (QuestSessionManager and QuestSessionManager.StartDialog and QuestSessionManager.StartDialog:IsShown()) then
-                    return 
-                end
-
-                -- 2. "Protected Call" (pcall). This wraps the click in a safety bubble.
-                -- success = true if it clicked okay. 
-                -- success = false if Blizzard's code crashed (nil table error).
-                local success, err = pcall(function()
-                    QuestSessionManager.StartDialog:Confirm()
-                end)
-
-                if success then
-                    -- It worked! Clean up the UI.
-                    QuestSessionManager.StartDialog:Hide()
-                else
-                    -- It crashed (Race Condition). 
-                    -- We ignore the crash and try again in 0.5 seconds.
-                    C_Timer.After(0.5, AttemptSyncAccept)
-                end
-            end
-
-            -- START the loop
-            AttemptSyncAccept()
-        end
 
     elseif event == "PLAYER_LOGIN" then
         -- Default Saved Vars
@@ -2240,3 +2237,99 @@ if event == "ADDON_LOADED" and arg1 == addonName then
     end
 end)
 
+-- ============================================================================
+-- [[ AUTOMATION LOGIC ]]
+-- ============================================================================
+local FriendGroups_Automation = CreateFrame("Frame")
+FriendGroups_Automation:RegisterEvent("PARTY_INVITE_REQUEST")
+FriendGroups_Automation:RegisterEvent("RESURRECT_REQUEST")
+FriendGroups_Automation:RegisterEvent("PLAYER_DEAD")
+
+pcall(function()
+    FriendGroups_Automation:RegisterEvent("QUEST_SESSION_CREATED")
+end)
+
+FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
+    -- 1. Auto Accept Group Invites (FIXED: Restored Popup Cleanup)
+    if event == "PARTY_INVITE_REQUEST" then
+        local inviterName = ...
+        if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_invite then
+            if L["MSG_AUTO_INVITE"] then
+                DEFAULT_CHAT_FRAME:AddMessage(string.format(L["MSG_AUTO_INVITE"], inviterName or "Unknown"))
+            end
+            
+            C_Timer.After(1.5, function()
+                AcceptGroup()
+                -- [[ RESTORED CODE START ]] --
+                for i = 1, (STATICPOPUP_NUMDIALOGS or 4) do
+                    local frame = _G["StaticPopup"..i]
+                    if frame and frame:IsShown() and (frame.which == "PARTY_INVITE" or frame.which == "PARTY_INVITE_XREALM") then
+                        frame:Hide()
+                    end
+                end
+                -- [[ RESTORED CODE END ]] --
+            end)
+        end
+
+    -- 2. Auto Accept Resurrection
+    elseif event == "RESURRECT_REQUEST" then
+        local inviterName = ...
+        if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_res then
+            if L["MSG_AUTO_RES"] then
+                DEFAULT_CHAT_FRAME:AddMessage(string.format(L["MSG_AUTO_RES"], inviterName or "Unknown"))
+            end
+            C_Timer.After(1.5, function()
+                AcceptResurrect()
+                -- Cleanup Popup
+                for i = 1, (STATICPOPUP_NUMDIALOGS or 4) do
+                    local frame = _G["StaticPopup"..i]
+                    if frame and frame:IsShown() and frame.which == "RESURRECT" then frame:Hide() end
+                end
+            end)
+        end
+
+    -- 3. Auto Release Spirit
+    elseif event == "PLAYER_DEAD" then
+        if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_release then
+            if L["MSG_AUTO_RELEASE"] then
+                DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_RELEASE"])
+            end
+            C_Timer.After(1.5, function()
+                -- Safety: Don't release if you have a Soulstone or Reincarnation option
+                -- Uses modern C_DeathInfo API instead of the removed HasSoulstone()
+                local selfResOptions = C_DeathInfo.GetSelfResurrectOptions()
+                if not selfResOptions or #selfResOptions == 0 then 
+                    RepopMe()
+                end
+            end)
+        end
+
+    -- 4. Auto Accept Party Sync
+    elseif event == "QUEST_SESSION_CREATED" then
+        if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_sync then
+            if UnitIsGroupLeader("player") then return end
+            
+            local leaderName = "Party Leader"
+            if IsInGroup() then
+                for i = 1, 4 do
+                    local unit = "party"..i
+                    if UnitIsGroupLeader(unit) then
+                        leaderName = UnitName(unit) or leaderName
+                        break
+                    end
+                end
+            end
+
+            if L["MSG_AUTO_SYNC"] then
+                DEFAULT_CHAT_FRAME:AddMessage(string.format(L["MSG_AUTO_SYNC"], leaderName))
+            end
+
+            C_Timer.After(1.5, function()
+                if QuestSessionManager and QuestSessionManager.StartDialog and QuestSessionManager.StartDialog:IsShown() then
+                    QuestSessionManager.StartDialog:Confirm()
+                    QuestSessionManager.StartDialog:Hide()
+                end
+            end)
+        end
+    end
+end)
