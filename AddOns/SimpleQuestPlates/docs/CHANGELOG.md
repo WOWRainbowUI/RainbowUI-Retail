@@ -1,4 +1,4 @@
 # Changelog
 
-## v1.6.11
-- Add chat prefix icon and grey DEBUG tag for debug output.
+## v1.6.12
+- Fix retail quest log compatibility by using C_QuestLog availability instead of legacy globals.
