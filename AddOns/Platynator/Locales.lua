@@ -18,6 +18,8 @@ PLATYNATOR_LOCALES = Locales
 
 local L = Locales.enUS
 
+L["THANKS_FOR_USING_PLATYNATOR_DONATE"] = "Thanks for using Platynator. Consider donating to support development"
+
 L["PLATYNATOR"] = "Platynator"
 L["DESIGNER"] = "Designer"
 L["BEHAVIOUR"] = "Behaviour"
@@ -261,6 +263,9 @@ L["INCLUDE_TARGET"] = "Include target"
 L["ANIMATE"] = "Animate"
 L["ENABLE_IF_LINES_FALLING_OFF_FONT"] = "Enable if lines falling off font"
 L["EXECUTE"] = "Execute"
+L["ANIMATED_BORDER"] = "Animated Border"
+L["BORDER_WIDTH"] = "Border width"
+L["CLASS"] = "Class"
 
 L["WHAT_TO_EXPORT"] = "What to export?"
 L["STYLE"] = "Style"
