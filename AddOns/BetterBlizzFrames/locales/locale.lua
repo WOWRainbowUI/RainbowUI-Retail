@@ -1,7 +1,4 @@
 -- Locale system for BetterBlizzFrames
--- Initializes the localization table and fallback system
-
-local addonName = "BetterBlizzFrames"
 
 -- Initialize locale table
 BBF.L = BBF.L or {}
@@ -22,6 +19,3 @@ local L_mt = {
 }
 
 setmetatable(BBF.L, L_mt)
-
--- Create global L alias for convenience
-L = BBF.L
