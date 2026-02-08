@@ -3743,9 +3743,9 @@ function BBF.HookUnitFrameTextures()
         if db.changeUnitFrameCastbarTexture and not BBF.castbarTexturesHooked then
             local function ApplyCastbarTexture(statusBar)
                 local originalTexture = statusBar:GetStatusBarTexture()
-                local originalLayer = originalTexture:GetDrawLayer()
+                --local originalLayer = originalTexture:GetDrawLayer()
                 statusBar:SetStatusBarTexture(castbarTexture)
-                originalTexture:SetDrawLayer(originalLayer)
+                originalTexture:SetDrawLayer("ARTWORK", 0)
 
                 local castTexture = statusBar:GetStatusBarTexture()
                 if not db.casbarPixelBorder then
@@ -3766,15 +3766,20 @@ function BBF.HookUnitFrameTextures()
                 if not BBF.RecolorCastbarHooked then
                     statusBar:HookScript("OnEvent", function(self)
                         self:SetStatusBarTexture(castbarTexture)
-                        if self.barType == "uninterruptable" then
-                            self:SetStatusBarColor(0.7, 0.7, 0.7)
-                        elseif self.barType == "channel" then
+                        if self.channeling then
                             self:SetStatusBarColor(0, 1, 0)
-                        elseif self.barType == "interrupted" then
-                            self:SetStatusBarColor(1, 0, 0)
                         else
                             self:SetStatusBarColor(1, 0.7, 0)
                         end
+                        -- if self.barType == "uninterruptable" then
+                        --     self:SetStatusBarColor(0.7, 0.7, 0.7)
+                        -- elseif self.barType == "channel" then
+                        --     self:SetStatusBarColor(0, 1, 0)
+                        -- elseif self.barType == "interrupted" then
+                        --     self:SetStatusBarColor(1, 0, 0)
+                        -- else
+                        --     self:SetStatusBarColor(1, 0.7, 0)
+                        -- end
                     end)
                 else
                     statusBar:HookScript("OnEvent", function(self)
