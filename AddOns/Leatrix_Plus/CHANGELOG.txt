@@ -1,4 +1,8 @@
-﻿12.0.02 - 28th January 2026
+﻿12.0.03 - 8th February 2026
+- For 'Enhance minimap' ('Interface'), the new 'Minimap button bag' button is now compatible with the Square Minimap addon and the Basic Minimap addon.  For Basic Minimap, you need to have the 'Hide addon buttons' setting unchecked in the Basic Minimap configuration panel.  If all you want is a square minimap or a clean minimap, you can do that in Leatrix Plus without needing other addons.
+- For the rare announcer command ('/ltp ra'), fixed an issue which caused a Lua error.  The command will no longer show the unit's remaining health.
+
+12.0.02 - 28th January 2026
 - Midnight Beta: Updated for game patch 12.0.1.
 - Midnight Beta: For 'Enhance minimap', the 'Show who pinged' setting is not currently available.
 - For 'Automate quests' ('Automation'), fixed a situational issue which caused a Lua error when opening quest windows containing secrets.
