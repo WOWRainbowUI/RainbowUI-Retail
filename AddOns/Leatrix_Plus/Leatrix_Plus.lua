@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.02 (28th January 2026)
+-- 	Leatrix Plus 12.0.03 (8th February 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.02"
+	LeaPlusLC["AddonVer"] = "12.0.03"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -5523,6 +5523,9 @@
 
 			if LeaPlusLC["MinimapButtonBag"] == "On" then
 
+				-- Create minimap button bag button
+				local mbtn = CreateFrame("Button", nil, MinimapCluster.BorderTop)
+
 				-- Lock out hide minimap buttons
 				LeaPlusLC:LockItem(LeaPlusCB["HideMiniAddonButtons"], true)
 				LeaPlusCB["HideMiniAddonButtons"].tiptext = LeaPlusCB["HideMiniAddonButtons"].tiptext .. "|n|n|cff00AAFF" .. L["Cannot be used with Minimap button bag."]
@@ -5551,7 +5554,7 @@
 				bFrame:HookScript("OnShow", function()
 					if ButtonFrameTicker then ButtonFrameTicker:Cancel() end
 					ButtonFrameTicker = C_Timer.NewTicker(2, function()
-						if not bFrame:IsMouseOver() and not Minimap:IsMouseOver() then
+						if not bFrame:IsMouseOver() and not Minimap:IsMouseOver() and not mbtn:IsMouseOver() then
 							bFrame:Hide()
 							if ButtonFrameTicker then ButtonFrameTicker:Cancel() end
 						end
@@ -5612,7 +5615,6 @@
 				MinimapZoneText:SetWidth(MinimapZoneText:GetWidth() - 26)
 				MinimapCluster.ZoneTextButton:SetHitRectInsets(16, 0, 0, 0)
 
-				local mbtn = CreateFrame("Button", nil, MinimapCluster.BorderTop)
 				mbtn:Show()
 				mbtn:SetSize(18, 18)
 				mbtn:SetPoint("LEFT", MinimapCluster.BorderTop, "LEFT", -2, 0)
@@ -5622,6 +5624,71 @@
 				mbtn:SetHighlightTexture("Interface\\WorldMap\\Gear_64.png")
 				mbtn:GetHighlightTexture():SetTexCoord(0, 0.50, 0, 0.50)
 
+				-- Fix for Basic Minimap addon
+				EventUtil.ContinueOnAddOnLoaded("BasicMinimap",function()
+
+					local tab = CreateFrame("Button", nil, MinimapCluster, "BackdropTemplate")
+					tab:SetSize(30, 20)
+					tab:ClearAllPoints()
+					tab:SetPoint("TOPRIGHT", Minimap, "TOPRIGHT", 0, -216)
+
+					tab:SetBackdrop({
+						bgFile = "Interface\\BUTTONS\\WHITE8X8",
+						edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+						tile = false,
+						tileSize = 14,
+						edgeSize = 14,
+						insets = { left = 4, right = 4, top = 4, bottom = 4 },
+					})
+
+					tab:SetBackdropColor(0, 0, 0, 1)
+					mbtn:ClearAllPoints()
+					mbtn:SetPoint("CENTER", tab, "CENTER", 0, 0)
+					mbtn:SetParent(tab)
+					mbtn:SetScale(1.0)
+				end)
+
+				-- Fix for Square Minimap addon
+				EventUtil.ContinueOnAddOnLoaded("Square_Minimap",function()
+
+					local tab = CreateFrame("Button", nil, MinimapCluster, "BackdropTemplate")
+					tab:SetSize(30, 20)
+
+					-- Position next to zone name or under minimap
+					local function SetPlacement()
+						if Square_Minimap and Square_Minimap.db and Square_Minimap.db.profile and Square_Minimap.db.profile.showZoneName then
+							tab:ClearAllPoints()
+							tab:SetPoint("TOPLEFT", Minimap, "TOPLEFT", -(30 + 4), -((0 - 1) * (30 + -3)))
+						else
+							tab:ClearAllPoints()
+							tab:SetPoint("TOPRIGHT", Minimap, "TOPRIGHT", 0, -201)
+						end
+					end
+
+					-- Update position when Square Minimap updates the minimap and on startup
+					SetPlacement()
+					if Square_Minimap and Square_Minimap.UpdateMinimap then
+						hooksecurefunc(Square_Minimap, "UpdateMinimap", SetPlacement)
+					end
+
+					tab:SetBackdrop({
+						bgFile = "Interface\\BUTTONS\\WHITE8X8",
+						edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+						tile = false,
+						tileSize = 14,
+						edgeSize = 14,
+						insets = { left = 4, right = 4, top = 4, bottom = 4 },
+					})
+
+					tab:SetBackdropColor(0, 0, 0, 1)
+					mbtn:ClearAllPoints()
+					mbtn:SetPoint("CENTER", tab, "CENTER", 0, 0)
+					mbtn:SetParent(tab)
+					mbtn:SetScale(1.0)
+
+				end)
+
+				-- Continue
 				mbtn:HookScript("OnEnter", function()
 					 GameTooltip:SetOwner(mbtn, "ANCHOR_LEFT")
 					 GameTooltip:SetText(L["Minimap Button Bag"], 1, 1, 1)
@@ -9152,9 +9219,6 @@
 
 				-- Nameplate tooltip
 				if NamePlateTooltip then NamePlateTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"]) end
-
-				-- Game settings panel tooltip
-				if SettingsTooltip then SettingsTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"]) end
 
 				-- LibDBIcon
 				if LibDBIconTooltip then LibDBIconTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"]) end
@@ -13269,8 +13333,6 @@
 							if pos.x and pos.x ~= "0" and pos.y and pos.y ~= "0" then
 								local mapPoint = UiMapPoint.CreateFromVector2D(mapID, pos)
 								if mapPoint then
-									local uHealth = UnitHealth("target")
-									local uHealthMax = UnitHealthMax("target")
 									-- Store original pin if there is one
 									local currentPin = C_Map.GetUserWaypointHyperlink()
 									-- Set map pin and get the link
@@ -13284,14 +13346,14 @@
 										end)
 									end
 									-- Announce in chat
-									if uHealth and uHealth > 0 and uHealthMax and uHealthMax > 0 and myPin then
+									if myPin then
 										-- Get unit classification (elite, rare, rare elite or boss)
 										local unitType, unitTag = UnitClassification("target"), ""
 										if unitType then
 											if unitType == "rare" or unitType == "rareelite" then unitTag = "(" .. L["Rare"] .. ") " elseif unitType == "worldboss" then unitTag = "(" .. L["Boss"] .. ") " end
 										end
-										C_ChatInfo.SendChatMessage(format("%%t " .. unitTag .. "(%d%%)%s", uHealth / uHealthMax * 100, " ") .. " " .. myPin, "CHANNEL", nil, index)
---										C_ChatInfo.SendChatMessage(format("%%t " .. unitTag .. "(%d%%)%s", uHealth / uHealthMax * 100, " ") .. " " .. myPin, "WHISPER", nil, GetUnitName("player")) -- Debug
+										C_ChatInfo.SendChatMessage(format("%%t " .. unitTag, " ") .. " " .. myPin, "CHANNEL", nil, index)
+--										C_ChatInfo.SendChatMessage(format("%%t " .. unitTag, " ") .. " " .. myPin, "WHISPER", nil, GetUnitName("player")) -- Debug
 										C_Map.ClearUserWaypoint()
 									else
 										LeaPlusLC:Print("Invalid target.")
