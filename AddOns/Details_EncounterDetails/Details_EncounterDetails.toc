@@ -13,12 +13,12 @@
 ## Category-zhTW: 戰鬥
 ## DefaultState: disabled
 
-enUS.lua
-zhTW.lua
+# enUS.lua
+# zhTW.lua
 
-Details_EncounterDetails.lua
-frames_chart.lua
-frames_emote.lua
-frames_phases.lua
-frames_summary.lua
-frames.lua
+# Details_EncounterDetails.lua
+# frames_chart.lua
+# frames_emote.lua
+# frames_phases.lua
+# frames_summary.lua
+# frames.lua
