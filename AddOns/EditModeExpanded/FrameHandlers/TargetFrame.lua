@@ -49,5 +49,9 @@ function addon:initTargetFrame()
             end,
             "HideName"
         )
+        
+        if db.EMEOptions.targetFrameResize then
+            lib:RegisterResizable(TargetFrame)
+        end
     end
 end

@@ -63,6 +63,8 @@ L["Raid (40)"] = true
 L["AUTO_LAYOUT_CHANGE_DESCRIPTION"] = "Allows you to automatically change Edit Mode Layouts based on your group size"
 L["HIDE_WHEN_NOT_MOUSEOVER_DESCRIPTION"] = "Hide until mouseover"
 L["Vigor Bar"] = true
+L["Resize Target Frame"] = true
+L["RESIZE_TARGET_FRAME_DESCRIPTION"] = "Allows the Player Frame to be resized to a smaller size than the default UI allows. NOTE: You may get unexpected results if you use both sliders."
 
 -- 自行加入
 L["Target of Target"] = true

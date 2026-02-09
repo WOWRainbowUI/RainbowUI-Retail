@@ -60,6 +60,9 @@ L["Raid (25)"] = "團隊 (25)"
 L["Raid (40)"] = "團隊 (40)"
 L["AUTO_LAYOUT_CHANGE_DESCRIPTION"] = "允許依據隊伍大小自動更改編輯模式配置"
 L["HIDE_WHEN_NOT_MOUSEOVER_DESCRIPTION"] = "隱藏，滑鼠指向才顯示"
+L["Resize Target Frame"] = "調整目標框架大小"
+L["RESIZE_TARGET_FRAME_DESCRIPTION"] = "允許玩家框架縮小到比預設介面所允許的更小尺寸。注意：如果同時使用兩個滑桿，可能會出現非預期的結果。"
+
 
 -- 自行加入
 L["Target of Target"] = "目標的目標"
@@ -87,7 +90,7 @@ L["Sort Icons:"] = "排序圖示:"
 L["Enabled"] = "啟用"
 L["Focus Buffs"] = "追蹤的增益效果"
 L["Splits the Personal Resource Display into 3 separate frames: HP, Power (mana/energy/etc), and Class (holy power, etc). That way you can move them separately, or shove one of them off screen if you want."] = "將顯示個人資源拆分為 3 個獨立的框架：血量（HP）、能量（法力/能量/等），以及職業資源（神聖能量等）。如此一來，你可以分別移動它們，或依需求將其中一個移到畫面外。"
-L["Vigor Bar"] = "精力條"
+L["Vigor Bar"] = "活力條"
 L["Add the pre-11.2.7 Dragonriding Vigor bar"] = "加入 11.2.7 以前的天空騎術精力條"
 L["Layout Switching"] = "切換版面設定"
 L["Allow custom coordinates"] = "允許輸入螢幕座標"

@@ -77,6 +77,7 @@ local defaults = {
             vigorBar = true,
             housingControlsFrame = true,
             personalResourceDisplay = false,
+            targetFrameResize = false,
         },
         QueueStatusButton = {},
         TotemFrame = {},
@@ -235,6 +236,11 @@ local options = {
                 focusFrameBuffs = {
                     name = FOCUS.." "..BUFFOPTIONS_LABEL,
                     desc = string.format(L["TOGGLE_SUPPORT_STRING"], FOCUS.." "..BUFFOPTIONS_LABEL),
+                    type = "toggle",
+                },
+                targetFrameResize = {
+                    name = L["Resize Target Frame"],
+                    desc = L["RESIZE_TARGET_FRAME_DESCRIPTION"],
                     type = "toggle",
                 },
             },
