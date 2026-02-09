@@ -107,7 +107,7 @@ function Swing:OnEnable()
 	self:RegisterEvent("START_AUTOREPEAT_SPELL")
 	self:RegisterEvent("STOP_AUTOREPEAT_SPELL")
 
-	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
 
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	-- slam stuff
@@ -141,7 +141,10 @@ end
 
 function Swing:PLAYER_ENTER_COMBAT()
 	local _,_,offhandlow, offhandhigh = UnitDamage("player")
-	if math_abs(offhandlow - offhandhigh) <= 0.1 or playerclass == "DRUID" then
+	-- UnitDamage may return secret values - skip dual-wield detection if so
+	if issecretvalue(offhandlow) or issecretvalue(offhandhigh) then
+		swingmode = 0 -- assume not dual-wielding when values are secret
+	elseif math_abs(offhandlow - offhandhigh) <= 0.1 or playerclass == "DRUID" then
 		swingmode = 0 -- shouldn"t be dual-wielding
 	end
 end
@@ -162,15 +165,7 @@ function Swing:STOP_AUTOREPEAT_SPELL()
 	end
 end
 
-function Swing:COMBAT_LOG_EVENT_UNFILTERED()
-	if swingmode ~= 0 then return end
-	local timestamp, combatevent, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstName, dstGUID, dstFlags, dstRaidFlags, spellID, spellName = CombatLogGetCurrentEventInfo()
-	if (combatevent == "SWING_DAMAGE" or combatevent == "SWING_MISSED") and (bit_band(srcFlags, COMBATLOG_FILTER_ME) == COMBATLOG_FILTER_ME) then
-		self:MeleeSwing()
-	elseif (combatevent == "SWING_MISSED") and (bit_band(dstFlags, COMBATLOG_FILTER_ME) == COMBATLOG_FILTER_ME) and spellID == "PARRY" and duration then
-		duration = duration * 0.6
-	end
-end
+
 
 function Swing:UNIT_SPELLCAST_SUCCEEDED(event, unit, guid, spell)
 	if unit ~= "player" then return end
@@ -207,38 +202,63 @@ function Swing:UNIT_ATTACK(event, unit)
 		if not swingmode then
 			return
 		elseif swingmode == 0 then
-			duration = UnitAttackSpeed("player")
+			self:MeleeSwing()
 		else
-			duration = UnitRangedDamage("player")
+			self:Shoot()
 		end
-		durationtext:SetFormattedText("%.1f", duration)
 	end
 end
 
 function Swing:MeleeSwing()
 	duration = UnitAttackSpeed("player")
-	if not duration or duration == 0 then
+	-- In 12.0.0, duration may be a secret value
+	if not duration then
 		duration = nil
 		starttime = nil
 		swingbar:Hide()
 		return
 	end
-
-	durationtext:SetFormattedText("%.1f", duration)
+	
+	-- Check if duration is secret before comparing or formatting
+	if issecretvalue(duration) then
+		-- Can still pass secret values to StatusBar:SetValue() but cannot format as text
+		durationtext:SetText("")
+	else
+		if duration == 0 then
+			duration = nil
+			starttime = nil
+			swingbar:Hide()
+			return
+		end
+		durationtext:SetFormattedText("%.1f", duration)
+	end
 	starttime = GetTime()
 	swingbar:Show()
 end
 
 function Swing:Shoot()
 	duration = UnitRangedDamage("player")
-	if not duration or duration == 0 then
+	-- In 12.0.0, duration may be a secret value
+	if not duration then
 		duration = nil
 		starttime = nil
 		swingbar:Hide()
 		return
 	end
-
-	durationtext:SetFormattedText("%.1f", duration)
+	
+	-- Check if duration is secret before comparing or formatting
+	if issecretvalue(duration) then
+		-- Can still pass secret values to StatusBar:SetValue() but cannot format as text
+		durationtext:SetText("")
+	else
+		if duration == 0 then
+			duration = nil
+			starttime = nil
+			swingbar:Hide()
+			return
+		end
+		durationtext:SetFormattedText("%.1f", duration)
+	end
 	starttime = GetTime()
 	swingbar:Show()
 end

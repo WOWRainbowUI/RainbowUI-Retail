@@ -1243,9 +1243,7 @@ D["Quartz"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function() 
-			Settings.OpenToCategory("施法條")
-		end,
+        callback = function() SlashCmdList["ACECONSOLE_QUARTZ"]("") end,
     },
 };
 D["QuestPlates"] = {

@@ -110,19 +110,7 @@ local defaults = {
 	}
 }
 
-do
-	function OnUpdate(frame)
-		local currentTime = GetTime()
-		local endTime = frame.endTime
-		if currentTime > endTime then
-			Buff:UpdateBars()
-		else
-			local remaining = (currentTime - frame.startTime)
-			frame:SetValue(endTime - remaining)
-			frame.timetext:SetFormattedText(TimeFmt(endTime - currentTime))
-		end
-	end
-end
+
 
 local function OnShow(frame)
 	frame:SetScript("OnUpdate", OnUpdate)
@@ -141,9 +129,35 @@ local framefactory = {
 		bar:SetScript("OnShow", OnShow)
 		bar:SetScript("OnHide", OnHide)
 		bar:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16})
-		bar:SetBackdropColor(0,0,0)
+		bar:SetBackdropColor(0,0,0,0) -- Transparent backdrop
+		
+		-- Name Text
 		bar.text = bar:CreateFontString(nil, "OVERLAY")
-		bar.timetext = bar:CreateFontString(nil, "OVERLAY")
+
+		-- Background texture for "Inverse Fill" - this shows the BUFF COLOR
+		bar.bg = bar:CreateTexture(nil, "BACKGROUND")
+		bar.bg:SetAllPoints(bar)
+
+		-- Cooldown frame for secret values (timer display only)
+		bar.cd = CreateFrame("Cooldown", nil, bar, "CooldownFrameTemplate")
+		bar.cd:SetAllPoints(bar)
+		bar.cd:SetReverse(true)
+		bar.cd:SetDrawEdge(false)
+		bar.cd:SetDrawSwipe(false)
+		bar.cd:SetHideCountdownNumbers(false)
+		bar.cd:Hide()
+		
+		bar:SetReverseFill(true)
+
+		for _, region in pairs({bar.cd:GetRegions()}) do
+			if region:GetObjectType() == "FontString" then
+				bar.cd.timerText = region
+				bar.cd.timerText:ClearAllPoints()
+				bar.cd.timerText:SetPoint("RIGHT", bar, "RIGHT", -2, 0)
+				break
+			end
+		end
+
 		bar.icon = bar:CreateTexture(nil, "ARTWORK")
 		if k == 1 then
 			bar:SetMovable(true)
@@ -835,6 +849,56 @@ function Buff:UNIT_AURA(units)
 	end
 end
 
+
+
+function Buff:GetDispelColorCurve(isBuff)
+	local cacheKey = isBuff and "_buffCurve" or "_debuffCurve"
+	
+	if( self[cacheKey] ) then return self[cacheKey] end
+	if( not C_CurveUtil or not C_CurveUtil.CreateColorCurve ) then return nil end
+
+	local curve = C_CurveUtil.CreateColorCurve()
+	-- Use Enum values if available to ensure correct mapping
+	local E = Enum and Enum.AuraDispelType
+	local noneID = (E and E.None) or 0
+	local magicID = (E and E.Magic) or 1
+	local curseID = (E and E.Curse) or 2
+	local diseaseID = (E and E.Disease) or 3
+	local poisonID = (E and E.Poison) or 4
+	
+	if( curve.SetType and Enum and Enum.LuaCurveType and Enum.LuaCurveType.Step ) then
+		curve:SetType(Enum.LuaCurveType.Step)
+	end
+
+	-- Hardcode standard colors
+	local baseR, baseG, baseB
+	if( isBuff ) then
+		baseR, baseG, baseB = unpack(db.buffcolor)
+	else
+		baseR, baseG, baseB = unpack(db.debuffcolor)
+	end
+	
+	-- Add points using the resolved IDs
+	curve:AddPoint(noneID, CreateColor(baseR, baseG, baseB))
+	curve:AddPoint(magicID, CreateColor(unpack(db.Magic or {0.2, 0.6, 1})))
+	curve:AddPoint(curseID, CreateColor(unpack(db.Curse or {0.6, 0, 1})))
+	curve:AddPoint(diseaseID, CreateColor(unpack(db.Disease or {0.6, 0.4, 0})))
+	curve:AddPoint(poisonID, CreateColor(unpack(db.Poison or {0, 0.6, 0})))
+	
+	-- Add a "Cap" point to catch any IDs higher than Poison
+	local capID = math.max(noneID, magicID, curseID, diseaseID, poisonID) + 1
+	curve:AddPoint(capID, CreateColor(baseR, baseG, baseB))
+	curve:AddPoint(255, CreateColor(baseR, baseG, baseB)) -- Safety max
+	
+    -- Ensure the curve covers the range
+    if( curve.SetMinMaxValues ) then
+	    curve:SetMinMaxValues(0, 255)
+    end
+	
+	self[cacheKey] = curve
+	return curve
+end
+
 function Buff:CheckForUpdate()
 	if targetbars[1]:IsShown() then
 		self:UpdateTargetBars()
@@ -857,244 +921,177 @@ do
 		return entry
 	end
 	local function del(tbl)
-		-- these 2 values are not in every table, clear them
-		tbl.isbuff, tbl.dispeltype = nil, nil
+		tbl.isbuff, tbl.dispeltype, tbl.isSecret, tbl.auraInstanceID = nil, nil, nil, nil
 		tblCache[tbl] = true
 	end
 
-	local function mysort(a,b)
-		if db.timesort then
-			if a.isbuff == b.isbuff then
-				return a.remaining < b.remaining
-			else
-				return a.isbuff
+	-- Helper: Scan auras for a unit and populate tmp table
+	local function scanAuras(unit, isBuffScan, tmp, currentTime)
+		local maxIndex = isBuffScan and 40 or 40
+		local getAuraFunc = isBuffScan and C_UnitAuras.GetBuffDataByIndex or C_UnitAuras.GetDebuffDataByIndex
+		local filter = isBuffScan and "HELPFUL|PLAYER" or "HARMFUL|PLAYER"
+		
+		for i = 1, maxIndex do
+			local auraData = getAuraFunc(unit, i)
+			if (not auraData) or (not auraData.name) then break end
+			
+			local isSecret = issecretvalue(auraData.expirationTime)
+			local remaining = nil
+			if not isSecret then
+				remaining = auraData.expirationTime and (auraData.expirationTime - currentTime) or nil
 			end
+			
+			local isPlayerAura = not C_UnitAuras.IsAuraFilteredOutByInstanceID(unit, auraData.auraInstanceID, filter)
+			
+			if isPlayerAura and (isSecret or auraData.duration > 0) then
+				local t = new()
+				tmp[#tmp+1] = t
+				t.name = auraData.name
+				t.texture = auraData.icon
+				t.duration = auraData.duration
+				t.remaining = remaining
+				t.isbuff = isBuffScan
+				t.applications = auraData.applications
+				t.isSecret = isSecret
+				t.auraInstanceID = auraData.auraInstanceID
+				if not isBuffScan then
+					t.dispeltype = auraData.dispelName
+				end
+			end
+		end
+	end
+	
+	-- Helper: Configure bar with duration and cooldown
+	local function configureBar(bar, unit, auraInstanceID)
+		local durationInfo = C_UnitAuras.GetAuraDuration(unit, auraInstanceID)
+		if durationInfo then
+			bar:SetTimerDuration(durationInfo)
+			if bar.cd then
+				bar.cd:SetCooldownFromDurationObject(durationInfo)
+				bar.cd:Show()
+				if bar.cd.timerText then
+					bar.cd.timerText:SetFont(media:Fetch("font", db.bufffont), db.bufffontsize)
+					bar.cd.timerText:SetTextColor(unpack(db.bufftextcolor))
+				end
+			end
+		end
+		bar:SetScript("OnUpdate", nil)
+		if bar.timetext then bar.timetext:Hide() end
+	end
+	
+	-- Helper: Apply color to bar based on buff/debuff type
+	local function applyBarColor(selfRef, bar, unit, auraData)
+		local r, g, b = 1, 1, 1
+		if auraData.isbuff then
+			r, g, b = unpack(db.buffcolor)
 		else
-			if a.isbuff == b.isbuff then
-				return a.name < b.name
+			local colorSet = false
+			if db.debuffsbytype then
+				if C_UnitAuras.GetAuraDispelTypeColor and C_CurveUtil then
+					local curve = selfRef:GetDispelColorCurve(false)
+					if curve then
+						local color = C_UnitAuras.GetAuraDispelTypeColor(unit, auraData.auraInstanceID, curve)
+						if color then
+							r, g, b = color:GetRGB()
+							colorSet = true
+						end
+					end
+				end
+				if not colorSet then
+					local dispeltype = auraData.dispeltype
+					if dispeltype and not issecretvalue(dispeltype) then
+						r, g, b = unpack(db[dispeltype])
+					else
+						r, g, b = unpack(db.debuffcolor)
+					end
+				end
 			else
-				return a.isbuff
+				r, g, b = unpack(db.debuffcolor)
 			end
+		end
+		if bar.bg then
+			bar.bg:SetVertexColor(r, g, b, 1)
+		end
+	end
+	
+	-- Helper: Disable bar interactions
+	local function disableBars(bars)
+		bars[1].Hide = nil
+		bars[1]:EnableMouse(false)
+		bars[1]:SetScript("OnDragStart", nil)
+		bars[1]:SetScript("OnDragStop", nil)
+		for i = 1, #bars do
+			bars[i]:Hide()
 		end
 	end
 
 	local tmp = {}
-	local called = false -- prevent recursive calls when new bars are created.
-	function Buff:UpdateTargetBars()
-		if called then
-			return
-		end
+	local called = false
+	
+	-- Generic update function for both target and focus
+	local function updateBarsForUnit(selfRef, unit, bars, otherBars, enabledKey, buffsKey, debuffsKey)
+		if called then return end
 		called = true
-		if db.target then
+		
+		if db[enabledKey] then
 			local currentTime = GetTime()
 			for k in pairs(tmp) do
 				tmp[k] = del(tmp[k])
 			end
-			if db.targetbuffs then
-				for i = 1, 32 do
-					local auraData = C_UnitAuras.GetBuffDataByIndex("target", i)
-					if (not auraData) or (not auraData.name) then
-						break
-					end
-					local remaining = auraData.expirationTime and (auraData.expirationTime - GetTime()) or nil
-					if (auraData.sourceUnit == "player" or auraData.sourceUnit == "pet" or auraData.sourceUnit == "vehicle") and auraData.duration > 0 then
-						local t = new()
-						tmp[#tmp+1] = t
-						t.name = auraData.name
-						t.texture = auraData.icon
-						t.duration = auraData.duration
-						t.remaining = remaining
-						t.isbuff = true
-						t.applications = auraData.applications
-					end
-				end
+			
+			if db[buffsKey] then
+				scanAuras(unit, true, tmp, currentTime)
 			end
-			if db.targetdebuffs then
-				for i = 1, 40 do
-					local auraData = C_UnitAuras.GetDebuffDataByIndex("target", i)
-					if (not auraData) or (not auraData.name) then
-						break
-					end
-					local remaining = auraData.expirationTime and (auraData.expirationTime - GetTime()) or nil
-					if (auraData.sourceUnit == "player" or auraData.sourceUnit == "pet" or auraData.sourceUnit == "vehicle") and auraData.duration > 0 then
-						local t = new()
-						tmp[#tmp+1] = t
-						t.name = auraData.name
-						t.texture = auraData.icon
-						t.duration = auraData.duration
-						t.remaining = remaining
-						t.dispeltype = auraData.dispelName
-						t.applications = auraData.applications
-					end
-				end
+			if db[debuffsKey] then
+				scanAuras(unit, false, tmp, currentTime)
 			end
-			sort(tmp, mysort)
+			
 			local maxindex = 0
-			for k=1,#tmp do
+			for k = 1, #tmp do
 				local v = tmp[k]
 				maxindex = k
-				local bar = targetbars[k]
-				if v.applications > 1 then
+				local bar = bars[k]
+				
+				if (not issecretvalue(v.applications)) and (v.applications > 1) then
 					bar.text:SetFormattedText("%s (%s)", v.name, v.applications)
 				else
 					bar.text:SetText(v.name)
 				end
 				bar.icon:SetTexture(v.texture)
-				local elapsed = (v.duration - v.remaining)
-				local startTime, endTime = (currentTime - elapsed), (currentTime + v.remaining)
-				if db.targetfixedduration > 0 then
-					startTime = endTime - db.targetfixedduration
-				end
-				bar.startTime = startTime
-				bar.endTime = endTime
-				bar:SetMinMaxValues(startTime, endTime)
+				
+				configureBar(bar, unit, v.auraInstanceID)
 				bar:Show()
-				if v.isbuff then
-					bar:SetStatusBarColor(unpack(db.buffcolor))
-				else
-					if db.debuffsbytype then
-						local dispeltype = v.dispeltype
-						if dispeltype then
-							bar:SetStatusBarColor(unpack(db[dispeltype]))
-						else
-							bar:SetStatusBarColor(unpack(db.debuffcolor))
-						end
-					else
-						bar:SetStatusBarColor(unpack(db.debuffcolor))
-					end
-				end
+				applyBarColor(selfRef, bar, unit, v)
 			end
-			for i = maxindex+1, #targetbars do
-				targetbars[i]:Hide()
+			
+			for i = maxindex + 1, #bars do
+				bars[i]:Hide()
 			end
 		else
-			targetbars[1].Hide = nil
-			targetbars[1]:EnableMouse(false)
-			targetbars[1]:SetScript("OnDragStart", nil)
-			targetbars[1]:SetScript("OnDragStop", nil)
-			for i=1,#targetbars do
-				targetbars[i]:Hide()
+			disableBars(bars)
+		end
+		
+		-- Auto update timer management
+		if bars[1]:IsShown() then
+			if not selfRef.autoUpdateTimer then
+				selfRef.autoUpdateTimer = selfRef:ScheduleRepeatingTimer("CheckForUpdate", 3)
+			end
+		elseif not otherBars[1]:IsShown() then
+			if selfRef.autoUpdateTimer then
+				selfRef:CancelTimer(selfRef.autoUpdateTimer)
+				selfRef.autoUpdateTimer = nil
 			end
 		end
-		if targetbars[1]:IsShown() then
-			if not self.autoUpdateTimer then
-				self.autoUpdateTimer = self:ScheduleRepeatingTimer("CheckForUpdate", 3)
-			end
-		elseif not focusbars[1]:IsShown() then
-			if self.autoUpdateTimer then
-				self:CancelTimer(self.autoUpdateTimer)
-				self.autoUpdateTimer = nil
-			end
-		end
+		
 		called = false
 	end
+	
+	function Buff:UpdateTargetBars()
+		updateBarsForUnit(self, "target", targetbars, focusbars, "target", "targetbuffs", "targetdebuffs")
+	end
+	
 	function Buff:UpdateFocusBars()
-		if called then
-			return
-		end
-		called = true
-		if db.focus then
-			local currentTime = GetTime()
-			for k in pairs(tmp) do
-				tmp[k] = del(tmp[k])
-			end
-			if db.focusbuffs then
-				for i = 1, 32 do
-					local auraData = C_UnitAuras.GetBuffDataByIndex("focus", i)
-					if (not auraData) or (not auraData.name) then
-						break
-					end
-					local remaining = auraData.expirationTime and (auraData.expirationTime - GetTime()) or nil
-					if (auraData.sourceUnit == "player" or auraData.sourceUnit == "pet" or auraData.sourceUnit == "vehicle") and auraData.duration > 0 then
-						local t = new()
-						tmp[#tmp+1] = t
-						t.name = auraData.name
-						t.texture = auraData.icon
-						t.duration = auraData.duration
-						t.remaining = remaining
-						t.isbuff = true
-						t.applications = auraData.applications
-					end
-				end
-			end
-			if db.focusdebuffs then
-				for i = 1, 40 do
-					local auraData = C_UnitAuras.GetDebuffDataByIndex("focus", i)
-					if (not auraData) or (not auraData.name) then
-						break
-					end
-					local remaining = auraData.expirationTime and (auraData.expirationTime - GetTime()) or nil
-					if (auraData.sourceUnit == "player" or auraData.sourceUnit == "pet" or auraData.sourceUnit == "vehicle") and auraData.duration > 0 then
-						local t = new()
-						tmp[#tmp+1] = t
-						t.name = auraData.name
-						t.texture = auraData.icon
-						t.duration = auraData.duration
-						t.remaining = remaining
-						t.dispeltype = auraData.dispelName
-						t.applications = auraData.applications
-					end
-				end
-			end
-			sort(tmp, mysort)
-			local maxindex = 0
-			for k=1,#tmp do
-				local v = tmp[k]
-				maxindex = k
-				local bar = focusbars[k]
-				if v.applications > 1 then
-					bar.text:SetFormattedText("%s (%s)", v.name, v.applications)
-				else
-					bar.text:SetText(v.name)
-				end
-				bar.icon:SetTexture(v.texture)
-				local elapsed = (v.duration - v.remaining)
-				local startTime, endTime = (currentTime - elapsed), (currentTime + v.remaining)
-				if db.focusfixedduration > 0 then
-					startTime = endTime - db.focusfixedduration
-				end
-				bar.startTime = startTime
-				bar.endTime = endTime
-				bar:SetMinMaxValues(startTime, endTime)
-				bar:Show()
-				if v.isbuff then
-					bar:SetStatusBarColor(unpack(db.buffcolor))
-				else
-					if db.debuffsbytype then
-						local dispeltype = v.dispeltype
-						if dispeltype then
-							bar:SetStatusBarColor(unpack(db[dispeltype]))
-						else
-							bar:SetStatusBarColor(unpack(db.debuffcolor))
-						end
-					else
-						bar:SetStatusBarColor(unpack(db.debuffcolor))
-					end
-				end
-			end
-			for i = maxindex+1, #focusbars do
-				focusbars[i]:Hide()
-			end
-		else
-			focusbars[1].Hide = nil
-			focusbars[1]:EnableMouse(false)
-			focusbars[1]:SetScript("OnDragStart", nil)
-			focusbars[1]:SetScript("OnDragStop", nil)
-			for i=1,#focusbars do
-				focusbars[i]:Hide()
-			end
-		end
-		if focusbars[1]:IsShown() then
-			if not self.autoUpdateTimer then
-				self.autoUpdateTimer = self:ScheduleRepeatingTimer("CheckForUpdate", 3)
-			end
-		elseif not targetbars[1]:IsShown() then
-			if self.autoUpdateTimer then
-				self:CancelTimer(self.autoUpdateTimer)
-				self.autoUpdateTimer = nil
-			end
-		end
-		called = false
+		updateBarsForUnit(self, "focus", focusbars, targetbars, "focus", "focusbuffs", "focusdebuffs")
 	end
 end
 do
@@ -1130,8 +1127,20 @@ do
 			width = db.focuswidth
 			height = db.focusheight
 		end
+
 		bar:ClearAllPoints()
-		bar:SetStatusBarTexture(media:Fetch("statusbar", db.bufftexture))
+		
+		-- Inverse Fill
+		-- bar.bg = User Texture
+		-- StatusBar = Black mask that grows to cover it
+		local tex = media:Fetch("statusbar", db.bufftexture)
+		if bar.bg then
+			bar.bg:SetTexture(tex)
+		end
+		
+		bar:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
+		bar:GetStatusBarTexture():SetVertexColor(0, 0, 0, 1)
+		
 		bar:SetWidth(width)
 		bar:SetHeight(height)
 		bar:SetScale(qpdb.scale)
@@ -1227,27 +1236,25 @@ do
 			end
 		end
 
-		local timetext = bar.timetext
-		if db.bufftimetext then
-			timetext:Show()
-			timetext:ClearAllPoints()
-			timetext:SetWidth(width)
-			timetext:SetPoint("RIGHT", bar, "RIGHT", -2, 0)
-			timetext:SetJustifyH("RIGHT")
-		else
-			timetext:Hide()
-		end
-		timetext:SetFont(media:Fetch("font", db.bufffont), db.bufffontsize)
-		timetext:SetShadowColor( 0, 0, 0, 1)
-		timetext:SetShadowOffset( 0.8, -0.8 )
-		timetext:SetTextColor(unpack(db.bufftextcolor))
-		timetext:SetNonSpaceWrap(false)
-		timetext:SetHeight(height)
 
-		local temptext = timetext:GetText()
-		timetext:SetText("10.0")
-		local normaltimewidth = timetext:GetStringWidth()
-		timetext:SetText(temptext)
+		local timerText = bar.cd and bar.cd.timerText
+		if timerText then
+			if db.bufftimetext then
+				timerText:Show()
+				timerText:ClearAllPoints()
+				timerText:SetPoint("RIGHT", bar, "RIGHT", -2, 0)
+				timerText:SetJustifyH("RIGHT")
+				
+				timerText:SetFont(media:Fetch("font", db.bufffont), db.bufffontsize)
+				timerText:SetShadowColor( 0, 0, 0, 1)
+				timerText:SetTextColor(unpack(db.bufftextcolor))
+			else
+				timerText:Hide()
+			end
+		end
+
+		local timerWidth = db.bufftimetext and 30 or 0
+
 
 		local text = bar.text
 		if db.buffnametext then
@@ -1256,7 +1263,7 @@ do
 			text:SetPoint("LEFT", bar, "LEFT", 2, 0)
 			text:SetJustifyH("LEFT")
 			if db.bufftimetext then
-				text:SetWidth(width - normaltimewidth)
+				text:SetWidth(width - timerWidth)
 			else
 				text:SetWidth(width)
 			end

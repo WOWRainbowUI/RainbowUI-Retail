@@ -46,17 +46,16 @@ function Interrupt:OnInitialize()
 end
 
 function Interrupt:OnEnable()
-	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 end
 
 function Interrupt:ApplySettings()
 	db = self.db.profile
 end
 
-function Interrupt:COMBAT_LOG_EVENT_UNFILTERED()
-	local timestamp, combatEvent, _, _, sourceName, _, _, _, _, destFlags = CombatLogGetCurrentEventInfo()
-	if combatEvent == "SPELL_INTERRUPT" and destFlags == 0x511 then
-		Player.Bar.Text:SetFormattedText(L["INTERRUPTED (%s)"], (sourceName or UNKNOWN):upper())
+function Interrupt:UNIT_SPELLCAST_INTERRUPTED(event, unit, castGUID, spellID)
+	if unit == "player" then
+		Player.Bar.Text:SetFormattedText(L["INTERRUPTED (%s)"], UNKNOWN)
 		Player.Bar.Bar:SetStatusBarColor(unpack(db.interruptcolor))
 		Player.Bar.stopTime = GetTime()
 	end
