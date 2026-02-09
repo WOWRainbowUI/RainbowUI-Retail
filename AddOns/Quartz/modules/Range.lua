@@ -85,10 +85,10 @@ function Range:UNIT_SPELLCAST_START(event, unit)
 	if unit ~= "player" then
 		return
 	end
-	if not castBar then
+	if not castBar and Player.Bar then
 		castBar = Player.Bar.Bar
 	end
-	if target then
+	if target and castBar then
 		spell = UnitCastingInfo(unit)
 		modified, r, g, b = nil, nil, nil, nil
 		f:SetScript("OnUpdate", OnUpdate)
@@ -99,10 +99,10 @@ function Range:UNIT_SPELLCAST_CHANNEL_START(event, unit)
 	if unit ~= "player" then
 		return
 	end
-	if not castBar then
+	if not castBar and Player.Bar then
 		castBar = Player.Bar.Bar
 	end
-	if target then
+	if target and castBar then
 		spell = UnitChannelInfo(unit)
 		modified, r, g, b = nil, nil, nil, nil
 		f:SetScript("OnUpdate", OnUpdate)
@@ -113,7 +113,8 @@ function Range:UNIT_SPELLCAST_SENT(event, unit, name)
 	if unit ~= "player" then
 		return
 	end
-	if name then
+	-- Skip target detection if name is secret (placeholder, will come back to this)
+	if name and not issecretvalue(name) then
 		if name == UnitName("player") then
 			target = "player"
 		elseif name == UnitName("target") then

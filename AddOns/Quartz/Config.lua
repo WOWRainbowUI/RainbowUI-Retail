@@ -198,7 +198,12 @@ function Quartz3:ChatCommand(input)
 			InterfaceOptionsFrame_OpenToCategory(Quartz3.optFrames.Profiles)
 			InterfaceOptionsFrame_OpenToCategory(Quartz3.optFrames.Quartz3)
 		else
-			Settings.OpenToCategory("Quartz 3")
+			-- 12.0.0+: Use the category object, not the string name
+			if InCombatLockdown() then
+				print("|cffff0000Quartz: Cannot open options in combat.|r")
+			else
+				Settings.OpenToCategory(Quartz3.optFrames.Quartz3.name)
+			end
 		end
 	else
 		LibStub("AceConfigCmd-3.0").HandleCommand(Quartz3, "quartz", "Quartz3", input)

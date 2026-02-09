@@ -1,8 +1,8 @@
 ## Title: Quartz
-## Interface: 110200,110205
+## Interface: 11508,20505,50503,120000
 ## Notes: Modular casting bar.
 ## Author: Nevcairiel, Nymbia
-## Version: 3.7.16a
+## Version: 3.7.19
 ## X-License: GPL v2
 ## X-Credits: Ammo (some code based on PitBull_CastBar), kergoth (Tradeskill Merge module idea), Roartindon (Lag Embed mode for Latency module)
 ## X-Curse-Project-ID: 4558
@@ -36,6 +36,7 @@ libs\LibSharedMedia-3.0\lib.xml
 libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
 libs\LibDualSpec-1.0\LibDualSpec-1.0.lua
 libs\LibWindow-1.1\LibWindow-1.1.lua
+libs\LibClassicCasterino\LibClassicCasterino.lua [AllowLoadGameType vanilla]
 #@end-no-lib-strip@
 
 locale\locale.xml

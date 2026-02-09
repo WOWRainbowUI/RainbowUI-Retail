@@ -69,6 +69,7 @@ local defaults = {
 
 		textcolor = {1, 1, 1},
 		barcolor = {0.71, 0, 1},
+		noInterruptColor = {0.5, 0.5, 0.5},
 
 		instanceonly = true,
 	}
@@ -86,9 +87,22 @@ local castbars = setmetatable({}, {
 		bar:SetScript("OnHide", OnHide)
 		bar:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16})
 		bar:SetBackdropColor(0,0,0)
-		bar.Text = bar:CreateFontString(nil, "OVERLAY")
-		bar.TimeText = bar:CreateFontString(nil, "OVERLAY")
+		
+		-- Create NoInterruptOverlay for uninterruptible cast indication
+		bar.NoInterruptOverlay = Quartz3:CreateStatusBar(nil, bar)
+		bar.NoInterruptOverlay:SetAllPoints(bar)
+		bar.NoInterruptOverlay:SetFrameLevel(bar:GetFrameLevel() + 1)
+		bar.NoInterruptOverlay:Hide()
+		
+		-- TextFrame ensures text is always above bars and overlays (like CastBarTemplate)
+		bar.TextFrame = CreateFrame("Frame", nil, bar)
+		bar.TextFrame:SetAllPoints(bar)
+		bar.TextFrame:SetFrameLevel(bar:GetFrameLevel() + 4)
+		
+		bar.Text = bar.TextFrame:CreateFontString(nil, "OVERLAY")
+		bar.TimeText = bar.TextFrame:CreateFontString(nil, "OVERLAY")
 		bar.Icon = bar:CreateTexture(nil, "ARTWORK")
+		
 		if k == 1 then
 			bar:SetMovable(true)
 			bar:RegisterForDrag("LeftButton")
@@ -124,7 +138,19 @@ function Enemy:OnInitialize()
 end
 
 function Enemy:OnEnable()
-	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", "CLEUHandler")
+	self:RegisterEvent("UNIT_SPELLCAST_START")
+	self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+	self:RegisterEvent("UNIT_SPELLCAST_STOP")
+	self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+	self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+	self:RegisterEvent("UNIT_SPELLCAST_FAILED")
+	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	-- Clean up when nameplates are removed (recycled)
+	self:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
+	-- Clean up when leaving combat or dying
+	self:RegisterEvent("PLAYER_REGEN_ENABLED")
+	self:RegisterEvent("PLAYER_DEAD")
+	
 	media.RegisterCallback(self, "LibSharedMedia_SetGlobal", function(mtype, override)
 		if mtype == "statusbar" then
 			for i, v in pairs(castbars) do
@@ -144,6 +170,25 @@ function Enemy:OnEnable()
 	self:ApplySettings()
 end
 
+-- Refresh bars when leaving combat or dying
+function Enemy:PLAYER_REGEN_ENABLED()
+	self:UpdateBars()
+end
+
+function Enemy:PLAYER_DEAD()
+	-- Hide all bars on death and clear OnUpdate
+	for i, bar in pairs(castbars) do
+		bar:Hide()
+		bar:SetScript("OnUpdate", nil)
+		bar.durationObj = nil
+	end
+end
+
+-- Clean up when nameplate is removed
+function Enemy:NAME_PLATE_UNIT_REMOVED(event, unit)
+	self:UpdateBars()
+end
+
 function Enemy:OnDisable()
 	castbars[1].Hide = nil
 	castbars[1]:EnableMouse(false)
@@ -158,88 +203,116 @@ function Enemy:OnDisable()
 	media.UnregisterCallback(self, "LibSharedMedia_Registered")
 end
 
-function Enemy:CLEUHandler()
-	if db.instanceonly and not IsInInstance() then return end
-	local timestamp, event, hideCaster, sGUID, sName, sFlags, sRaidFlags, dGUID, dName, dFlags, dRaidFlags, spellId, spellName = CombatLogGetCurrentEventInfo()
-	if
-		bit_band(sFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) == COMBATLOG_OBJECT_REACTION_FRIENDLY or
-		bit_band(sFlags, COMBATLOG_OBJECT_CONTROL_NPC) == 0
-	then
-		return
-	end
-	if event == "SPELL_CAST_START" then
-		if not casts[sGUID] then
-			casts[sGUID] = new()
-		end
-		local texture, castTime, _
-		if C_Spell and C_Spell.GetSpellInfo then
-			local info = C_Spell.GetSpellInfo(spellId)
-			if info then
-				texture = info.iconID
-				castTime = info.castTime
-			end
-		else
-			texture, castTime = select(3, GetSpellInfo(spellId))
-		end
-		casts[sGUID].name = sName
-		casts[sGUID].spellName = spellName
-		casts[sGUID].spellId = spellId
-		casts[sGUID].texture = texture
-		casts[sGUID].duration = castTime / 1000 * (1 + (CR_HASTE_SPELL and (GetCombatRatingBonus(CR_HASTE_SPELL) / 100) or 0))
-		casts[sGUID].startTime = GetTime()
-		casts[sGUID].endTime = casts[sGUID].startTime + casts[sGUID].duration
-
-		self:UpdateBars()
-	elseif event == "SPELL_CAST_FAILED" or event == "SPELL_CAST_SUCCESS" and casts[sGUID] then
-		del(casts[sGUID])
-		casts[sGUID] = nil
-		self:UpdateBars()
-	end
+function Enemy:UNIT_SPELLCAST_START(event, unit)
+	-- Only trigger for nameplate units
+	if not unit:match("^nameplate") then return end
+	self:UpdateBars()
 end
 
-do
-	local function onUpdate(bar)
-		local currentTime = GetTime()
-		local endTime = bar.endTime
+function Enemy:UNIT_SPELLCAST_CHANNEL_START(event, unit)
+	if not unit:match("^nameplate") then return end
+	self:UpdateBars()
+end
 
-		if currentTime > endTime then
-			Enemy:UpdateBars()
-		else
-			bar:SetValue(currentTime)
-			bar.TimeText:SetFormattedText(TimeFmt(endTime - currentTime))
+function Enemy:UNIT_SPELLCAST_STOP(event, unit)
+	if not unit:match("^nameplate") then return end
+	self:UpdateBars()
+end
+Enemy.UNIT_SPELLCAST_CHANNEL_STOP = Enemy.UNIT_SPELLCAST_STOP
+Enemy.UNIT_SPELLCAST_INTERRUPTED = Enemy.UNIT_SPELLCAST_STOP
+Enemy.UNIT_SPELLCAST_FAILED = Enemy.UNIT_SPELLCAST_STOP
+Enemy.UNIT_SPELLCAST_SUCCEEDED = Enemy.UNIT_SPELLCAST_STOP
+
+
+do
+	-- Use durationObj:GetRemainingDuration() for time text
+	
+	local function onUpdate(bar)
+		if bar.durationObj and db.timetext then
+			local remaining = bar.durationObj:GetRemainingDuration()
+			bar.TimeText:SetFormattedText("%.1f", remaining)
 		end
 	end
-
-	local function barSorter(a, b)
-		return a.endTime < b.endTime
-	end
-
+	
 	function Enemy:UpdateBars()
-		local tmp = new()
-		local currentTime = GetTime()
-		for guid, details in pairs(casts) do
-			if details.endTime > currentTime then
-				tinsert(tmp, details)
+		-- Hide ALL existing bars first
+		for i, bar in pairs(castbars) do
+			bar:Hide()
+			bar.durationObj = nil
+		end
+		
+		-- Don't show bars if player is dead or not in combat
+		if UnitIsDeadOrGhost("player") then return end
+		if not UnitAffectingCombat("player") then return end
+		
+		-- Instance only filter
+		if db.instanceonly and not IsInInstance() then return end
+		
+		-- Scan all nameplates directly instead of using stored state
+		-- This avoids issues with stale entries and secret value comparisons
+		local barIndex = 0
+		
+		for i = 1, 40 do -- Max nameplates
+			local unit = "nameplate" .. i
+			-- Only show casts from enemies that are in combat
+			if UnitExists(unit) and UnitIsEnemy("player", unit) and UnitAffectingCombat(unit) then
+				-- Check for cast
+				local spellName, _, texture, _, _, _, _, notInterruptible = UnitCastingInfo(unit)
+				local isChannel = false
+				local durationObj
+				
+				if spellName then
+					durationObj = UnitCastingDuration(unit)
+				else
+					-- Check for channel
+					spellName, _, texture, _, _, _, notInterruptible = UnitChannelInfo(unit)
+					if spellName then
+						isChannel = true
+						durationObj = UnitChannelDuration(unit)
+					end
+				end
+				
+				-- Show bar if there's an active cast/channel with duration
+				if spellName and durationObj then
+					barIndex = barIndex + 1
+					local bar = castbars[barIndex]
+					
+					bar.Text:SetText(spellName)
+					bar.Icon:SetTexture(texture)
+					bar:SetMinMaxValues(0, 1)
+					bar:SetTimerDuration(durationObj)
+					
+					-- Store durationObj on bar for OnUpdate time text
+					bar.durationObj = durationObj
+					bar:SetScript("OnUpdate", onUpdate)
+					
+					-- Handle notInterruptible status with overlay
+					if bar.NoInterruptOverlay then
+						if issecretvalue(notInterruptible) then
+							-- Use SetAlphaFromBoolean for secret value
+							bar.NoInterruptOverlay:SetStatusBarTexture(media:Fetch("statusbar", db.texture))
+							bar.NoInterruptOverlay:SetStatusBarColor(unpack(db.noInterruptColor or {1, 0.2, 0.2}))
+							bar.NoInterruptOverlay:SetMinMaxValues(0, 1)
+							bar.NoInterruptOverlay:SetTimerDuration(durationObj)
+							bar.NoInterruptOverlay:Show()
+							bar.NoInterruptOverlay:SetAlphaFromBoolean(notInterruptible, 1, 0)
+							-- Reset main bar to default color
+							bar:SetStatusBarColor(unpack(db.barcolor))
+						elseif notInterruptible then
+							-- Non-secret true: change bar color directly
+							bar:SetStatusBarColor(unpack(db.noInterruptColor or {1, 0.2, 0.2}))
+							bar.NoInterruptOverlay:Hide()
+						else
+							-- Interruptible: use normal bar color
+							bar:SetStatusBarColor(unpack(db.barcolor))
+							bar.NoInterruptOverlay:Hide()
+						end
+					end
+					
+					bar:Show()
+				end
 			end
 		end
-		tsort(tmp, barSorter)
-		for i=1,#tmp do
-			local v = tmp[i]
-			local bar = castbars[i]
-
-			bar.Text:SetText(v.spellName)
-			bar.Icon:SetTexture(v.texture)
-			bar:SetMinMaxValues(v.startTime, v.endTime)
-			bar.startTime = v.startTime
-			bar.endTime = v.endTime
-			bar:Show()
-			bar:SetScript("OnUpdate", onUpdate)
-		end
-
-		for i = #tmp+1, #castbars do
-			castbars[i]:Hide()
-		end
-		del(tmp)
 	end
 end
 
@@ -371,10 +444,7 @@ do
 		timetext:SetNonSpaceWrap(false)
 		timetext:SetHeight(db.height)
 
-		local temptext = timetext:GetText()
-		timetext:SetText("10.0")
-		local normaltimewidth = timetext:GetStringWidth()
-		timetext:SetText(temptext)
+		local normaltimewidth = db.fontsize * 3
 
 		local text = bar.Text
 		if db.nametext then
@@ -645,17 +715,25 @@ do
 								set = setColor,
 								order = 113,
 							},
+							noInterruptColor = {
+								type = "color",
+								name = L["Uninterruptible Color"],
+								desc = L["Set the color of the bars for uninterruptible casts"],
+								get = getColor,
+								set = setColor,
+								order = 114,
+							},
 							nl5 = {
 								type = "description",
 								name = "",
-								order = 114,
+								order = 115,
 							},
 							width = {
 								type = "range",
 								name = L["Bar Width"],
 								desc = L["Set the width of the bars"],
 								min = 50, max = 300, step = 1,
-								order = 115,
+								order = 116,
 							},
 							height = {
 								type = "range",

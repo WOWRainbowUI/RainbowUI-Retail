@@ -47,7 +47,6 @@ local defaults = {
 		hideblizz = true,
 		showticks = true,
 		-- no interrupt is pointless for player, disable all options
-		noInterruptBorderChange = false,
 		noInterruptColorChange = false,
 		noInterruptShield = false,
 		targetnamestyle = "default"

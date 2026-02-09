@@ -113,6 +113,14 @@ end
 function Latency:UNIT_SPELLCAST_START(object, bar, unit, guid, spellID)
 	self.hooks[object].UNIT_SPELLCAST_START(object, bar, unit, guid, spellID)
 
+	-- Cast times may be secret - skip latency display
+	if bar.hasSecretTiming then
+		lagbox:Hide()
+		lagtext:Hide()
+		sendTime = nil
+		return
+	end
+
 	local startTime, endTime = bar.startTime, bar.endTime
 	if not sendTime or not endTime then return end
 
@@ -187,6 +195,11 @@ end
 
 function Latency:UNIT_SPELLCAST_DELAYED(object, bar, unit)
 	self.hooks[object].UNIT_SPELLCAST_DELAYED(object, bar, unit)
+
+	-- Skip if cast bar has secret timing
+	if bar.hasSecretTiming then
+		return
+	end
 
 	if db.lagembed and timeDiff then
 		local startTime = bar.startTime - timeDiff + db.lagpadding

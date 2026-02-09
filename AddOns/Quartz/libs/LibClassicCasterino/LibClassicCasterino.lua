@@ -177,122 +177,9 @@ local function CastStop(srcGUID, castType, suffix, suffix2 )
     end
 end
 
-function f:COMBAT_LOG_EVENT_UNFILTERED(event)
 
-    local timestamp, eventType, hideCaster,
-    srcGUID, srcName, srcFlags, srcFlags2,
-    dstGUID, dstName, dstFlags, dstFlags2,
-    spellID, spellName, arg3, arg4, arg5,
-    arg6, resisted, blocked, absorbed = CombatLogGetCurrentEventInfo()
 
-    local isSrcPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_TYPE_PLAYER_OR_PET) > 0
-    if isSrcPlayer and spellID == 0 then
-        spellID = spellNameToID[spellName]
-    end
-    if eventType == "SPELL_CAST_START" then
-        if isSrcPlayer then
-            local isCasting = classCasts[spellID]
-            if isCasting then
-                local isSrcFriendlyPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
-                CastStart(srcGUID, "CAST", spellName, spellID, nil, not isSrcFriendlyPlayer)
-            end
-        else
-            local castUID = makeCastUID(srcGUID, spellName)
-            local cachedTime = castTimeCache[castUID]
-            local spellID = NPCspellNameToID[spellName] -- just for the icon
-            if not spellID then
-                spellID = 4036 -- Engineering Icon
-            end
-            if cachedTime then
-                CastStart(srcGUID, "CAST", spellName, spellID, cachedTime*1000)
-            else
-                castTimeCacheStartTimes[srcGUID..castUID] = GetTime()
-                CastStart(srcGUID, "CAST", spellName, spellID, 1500) -- using default 1.5s cast time for now
-            end
-        end
-    elseif eventType == "SPELL_CAST_FAILED" then
 
-            CastStop(srcGUID, "CAST", "INTERRUPTED", "STOP")
-
-    elseif eventType == "SPELL_CAST_SUCCESS" then
-            if isSrcPlayer then
-                if classChannelsByAura[spellID] then
-                    -- SPELL_CAST_SUCCESS can come right after AURA_APPLIED, so ignoring it
-                    return
-                elseif classChannelsByCast[spellID] then
-                    -- Channels fire SPELL_CAST_SUCCESS at their start
-                    local isChanneling = classChannelsByCast[spellID]
-                    if isChanneling then
-                        local isSrcFriendlyPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
-                        CastStart(srcGUID, "CHANNEL", spellName, spellID, nil, not isSrcFriendlyPlayer)
-                    end
-                    return
-                end
-            end
-            if not isSrcPlayer then
-                local castUID = makeCastUID(srcGUID, spellName)
-                local cachedTime = castTimeCache[castUID]
-                if not cachedTime then
-                    local restoredStartTime = castTimeCacheStartTimes[srcGUID..castUID]
-                    if restoredStartTime then
-                        local now = GetTime()
-                        local castTime = now - restoredStartTime
-                        if castTime < 10 then
-                            castTimeCache[castUID] = castTime
-                        end
-                    end
-                end
-            end
-            CastStop(srcGUID, nil, "SUCCEEDED", "STOP")
-
-    elseif eventType == "SPELL_INTERRUPT" then
-
-            CastStop(dstGUID, nil, "INTERRUPTED", "STOP")
-    elseif eventType == "UNIT_DIED" then
-            CastStop(dstGUID, nil, "INTERRUPTED", "STOP")
-
-    elseif  eventType == "SPELL_AURA_APPLIED" or
-            eventType == "SPELL_AURA_REFRESH" or
-            eventType == "SPELL_AURA_APPLIED_DOSE"
-    then
-        if isSrcPlayer then
-            if crowdControlAuras[spellName] then
-                CastStop(dstGUID, nil, "INTERRUPTED", "STOP")
-                return
-            end
-
-            local isChanneling = classChannelsByAura[spellID]
-            if isChanneling then
-                local isSrcFriendlyPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
-                CastStart(srcGUID, "CHANNEL", spellName, spellID, nil, not isSrcFriendlyPlayer)
-            end
-        end
-    elseif eventType == "SPELL_AURA_REMOVED" then
-        if isSrcPlayer then
-            local isChanneling = classChannelsByAura[spellID]
-            if isChanneling then
-                CastStop(srcGUID, "CHANNEL", "STOP")
-            end
-        end
-    elseif castingAimedShot and dstGUID == UnitGUID("player") then
-        if eventType == "SWING_DAMAGE" or
-           eventType == "ENVIRONMENTAL_DAMAGE" or
-           eventType == "RANGE_DAMAGE" or
-           eventType == "SPELL_DAMAGE"
-        then
-            if resisted or blocked or absorbed then return end
-            local currentCast = casters[UnitGUID("player")]
-            if currentCast then
-                refreshCastTable(currentCast, currentCast[1], currentCast[2], currentCast[3], currentCast[4], currentCast[5] + (AimedDelay *1000))
-                if AimedDelay > 0.2 then
-                    AimedDelay = AimedDelay - 0.2
-                end
-                callbacks:Fire("UNIT_SPELLCAST_DELAYED", "player")
-            end
-        end
-    end
-
-end
 
 local castTimeIncreases = {
     [1714] = 1.5,    -- Curse of Tongues (Rank 1) (50%)
@@ -409,7 +296,7 @@ f.UNIT_SPELLCAST_SUCCEEDED = Passthrough
 
 function callbacks.OnUsed()
     if isVanilla then
-        f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
         -- for unit lookup
         f:RegisterEvent("GROUP_ROSTER_UPDATE")
         f:RegisterEvent("NAME_PLATE_UNIT_ADDED")

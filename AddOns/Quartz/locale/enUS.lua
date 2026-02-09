@@ -26,8 +26,8 @@ L["Alpha"] = true
 L["Anchor Frame"] = true
 L["Anchor point"] = true
 L["AOE Rez"] = true
-L["BACKGROUND"] = true
 L["Background"] = true
+L["BACKGROUND"] = true
 L["Background Alpha"] = true
 L["Bar Color"] = true
 L["Bar Height"] = true
@@ -349,3 +349,18 @@ L["Width"] = true
 L["X"] = true
 L["Y"] = true
 
+-- GCD icon mode strings
+L["Size"] = true
+L["Set the size of the GCD icon"] = true
+L["Set the alpha of the GCD icon"] = true
+L["Set the position of the GCD icon"] = true
+L["Tweak the distance of the GCD icon from the cast bar"] = true
+L["Set the color of the GCD swipe overlay"] = true
+L["Border Size"] = true
+L["Set the border size."] = true
+L["Set the border color."] = true
+L["Set the border texture."] = true
+
+-- EnemyCasts module
+L["Uninterruptible Color"] = true
+L["Set the color of the bars for uninterruptible casts"] = true

@@ -18,6 +18,7 @@
 ]]
 local Quartz3 = LibStub("AceAddon-3.0"):GetAddon("Quartz3")
 local L = LibStub("AceLocale-3.0"):GetLocale("Quartz3")
+local media = LibStub("LibSharedMedia-3.0")
 
 local MODNAME = "GCD"
 local GCD = Quartz3:NewModule(MODNAME, "AceEvent-3.0")
@@ -28,47 +29,34 @@ local Player = Quartz3:GetModule("Player")
 local CreateFrame, GetTime, UIParent = CreateFrame, GetTime, UIParent
 local unpack = unpack
 
-local gcdbar, gcdbar_width, gcdspark
-local starttime, duration, warned
+local gcdbar, gcdbar_width
 
 local db, getOptions
 
 local defaults = {
 	profile = {
-		sparkcolor = {1, 1, 1},
+		sparkcolor = {1, 1, 1, 0.5},
 		gcdalpha = 0.9,
-		gcdheight = 4,
-		gcdposition = "bottom",
-		gcdgap = -4,
+		gcdsize = 24,
+		gcdposition = "left",
+		gcdgap = 4,
 
-		deplete = false,
+		border = "Blizzard Tooltip",
+		bordercolor = {0.5, 0.5, 0.5},
+		bordersize = 12,
 
 		x = 500,
 		y = 300,
 	}
 }
 
-local function OnUpdate()
-	if not starttime then return gcdbar:Hide() end
-	gcdspark:ClearAllPoints()
-	local perc = (GetTime() - starttime) / duration
-	if perc > 1 then
-		return gcdbar:Hide()
-	else
-		if db.deplete then
-			gcdspark:SetPoint("CENTER", gcdbar, "LEFT", gcdbar_width * (1-perc), 0)
-		else
-			gcdspark:SetPoint("CENTER", gcdbar, "LEFT", gcdbar_width * perc, 0)
-		end
-	end
-end
 
 local function OnHide()
-	gcdbar:SetScript("OnUpdate", nil)
+	-- Clean up if needed
 end
 
 local function OnShow()
-	gcdbar:SetScript("OnUpdate", OnUpdate)
+	-- Clean up if needed
 end
 
 function GCD:OnInitialize()
@@ -79,10 +67,12 @@ function GCD:OnInitialize()
 	Quartz3:RegisterModuleOptions(MODNAME, getOptions, L["GCD"])
 end
 
+
 function GCD:OnEnable()
 	--self:RegisterEvent("UNIT_SPELLCAST_SENT","CheckGCD")
 	self:RegisterEvent("UNIT_SPELLCAST_START","CheckGCD")
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED","CheckGCD")
+	self:RegisterEvent("SPELL_UPDATE_COOLDOWN","CheckGCD")
 	if not gcdbar then
 		gcdbar = CreateFrame("Frame", "Quartz3GCDBar", UIParent, "BackdropTemplate")
 		gcdbar:SetFrameStrata("HIGH")
@@ -91,9 +81,17 @@ function GCD:OnEnable()
 		gcdbar:SetMovable(true)
 		gcdbar:RegisterForDrag("LeftButton")
 		gcdbar:SetClampedToScreen(true)
-
-		gcdspark = gcdbar:CreateTexture(nil, "ARTWORK")
-		gcdbar:Hide()
+		
+		-- Class Icon as background
+		gcdbar.icon = gcdbar:CreateTexture(nil, "BACKGROUND")
+		gcdbar.icon:SetAllPoints(gcdbar)
+		local _, class = UnitClass("player")
+		if class and CLASS_ICON_TCOORDS and CLASS_ICON_TCOORDS[class] then
+			gcdbar.icon:SetTexture("Interface\\GLUES\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES")
+			local coords = CLASS_ICON_TCOORDS[class]
+			local inset = 0.02
+			gcdbar.icon:SetTexCoord(coords[1] + inset, coords[2] - inset, coords[3] + inset, coords[4] - inset)
+		end
 	end
 	self:ApplySettings()
 end
@@ -103,20 +101,36 @@ function GCD:OnDisable()
 end
 
 function GCD:CheckGCD(event, unit, guid, spell)
-	if unit == "player" then
+	if (event == "SPELL_UPDATE_COOLDOWN") or (unit == "player") then
+		local gcdSpellID = 61304
 		local start, dur
 		if C_Spell and C_Spell.GetSpellCooldown then
-			local cooldown = C_Spell.GetSpellCooldown(spell)
+			local cooldown = C_Spell.GetSpellCooldown(gcdSpellID)
 			if cooldown then
 				start, dur = cooldown.startTime, cooldown.duration
 			end
 		else
-			start, dur = GetSpellCooldown(spell)
+			start, dur = GetSpellCooldown(gcdSpellID)
 		end
-		if dur and dur > 0 and dur <= 1.5 then
-			starttime = start
-			duration = dur
-			gcdbar:Show()
+		
+		if dur and (issecretvalue(dur) or dur > 0) then
+			if gcdbar.cd then
+				gcdbar.cd:SetCooldown(start, dur)
+				gcdbar:Show()
+				gcdbar:SetAlpha(db.gcdalpha) -- Reset alpha in case of fade out
+				if gcdbar.fadeAnim and gcdbar.fadeAnim:IsPlaying() then
+					gcdbar.fadeAnim:Stop()
+				end
+			end
+		else
+
+			if gcdbar:IsShown() then
+				if gcdbar.fadeAnim and not gcdbar.fadeAnim:IsPlaying() then
+					gcdbar.fadeAnim:Play()
+				end
+			else
+				gcdbar:Hide()
+			end
 		end
 	end
 end
@@ -125,26 +139,66 @@ function GCD:ApplySettings()
 	db = self.db.profile
 	if gcdbar and self:IsEnabled() then
 		gcdbar:ClearAllPoints()
-		gcdbar:SetHeight(db.gcdheight)
-		gcdbar_width = Player.Bar:GetWidth() - 8
-		gcdbar:SetWidth(gcdbar_width)
-		gcdbar:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16})
-		gcdbar:SetBackdropColor(0,0,0)
+		
+		-- Square icon
+		local size = db.gcdsize or 24
+		gcdbar:SetHeight(size)
+		gcdbar:SetWidth(size)
+		
+		gcdbar:SetBackdrop({
+			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+			edgeFile = media:Fetch("border", db.border),
+			edgeSize = db.bordersize,
+			tile = true, tileSize = 16,
+			insets = { left = 4, right = 4, top = 4, bottom = 4 }
+		})
+		gcdbar:SetBackdropColor(0,0,0,0) -- Transparent bg so icon shows through
+		gcdbar:SetBackdropBorderColor(unpack(db.bordercolor))
 		gcdbar:SetAlpha(db.gcdalpha)
 		gcdbar:SetScale(Player.db.profile.scale)
-		if db.gcdposition == "bottom" then
-			gcdbar:SetPoint("TOP", Player.Bar, "BOTTOM", 0, -1 * db.gcdgap)
-		elseif db.gcdposition == "top" then
-			gcdbar:SetPoint("BOTTOM", Player.Bar, "TOP", 0, db.gcdgap)
-		else -- L["Free"]
+		
+		-- Positioning
+		if db.gcdposition == "left" then
+			gcdbar:SetPoint("RIGHT", Player.Bar, "LEFT", -db.gcdgap, 0)
+		elseif db.gcdposition == "right" then
+			gcdbar:SetPoint("LEFT", Player.Bar, "RIGHT", db.gcdgap, 0)
+		else -- "free"
 			gcdbar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", db.x, db.y)
 		end
 
-		gcdspark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-		gcdspark:SetVertexColor(unpack(db.sparkcolor))
-		gcdspark:SetBlendMode("ADD")
-		gcdspark:SetWidth(25)
-		gcdspark:SetHeight(db.gcdheight*2.5)
+		-- Setup Cooldown Frame for GCD
+		if not gcdbar.cd then
+			gcdbar.cd = CreateFrame("Cooldown", nil, gcdbar, "CooldownFrameTemplate")
+			gcdbar.cd:SetAllPoints(gcdbar)
+			gcdbar.cd:SetHideCountdownNumbers(true)
+			gcdbar.cd:SetScript("OnCooldownDone", function()
+				if gcdbar.fadeAnim then
+					gcdbar.fadeAnim:Play()
+				else
+					gcdbar:Hide()
+				end
+			end)
+		end
+		
+		-- Setup Fade Out Animation
+		if not gcdbar.fadeAnim then
+			gcdbar.fadeAnim = gcdbar:CreateAnimationGroup()
+			local alpha = gcdbar.fadeAnim:CreateAnimation("Alpha")
+			alpha:SetFromAlpha(1)
+			alpha:SetToAlpha(0)
+			alpha:SetDuration(0.5) -- Fade duration
+			alpha:SetSmoothing("OUT")
+			gcdbar.fadeAnim:SetScript("OnFinished", function() gcdbar:Hide() end)
+		end
+		
+
+		gcdbar.cd:SetDrawEdge(false)
+		gcdbar.cd:SetDrawSwipe(true)
+		gcdbar.cd:SetSwipeTexture("Interface\\BUTTONS\\WHITE8X8")
+		local r, g, b, a = unpack(db.sparkcolor)
+		gcdbar.cd:SetSwipeColor(r, g, b, a or 0.5)
+		
+		gcdbar:Hide()
 	end
 end
 
@@ -207,31 +261,55 @@ do
 					sparkcolor = {
 						type = "color",
 						name = L["Spark Color"],
-						desc = L["Set the color of the GCD bar spark"],
+						desc = L["Set the color of the GCD swipe overlay"],
+						hasAlpha = true,
 						get = getColor,
 						set = setColor,
 						order = 103,
 					},
-					gcdheight = {
+					border = {
+						type = "select",
+						dialogControl = "LSM30_Border",
+						name = L["Border"],
+						desc = L["Set the border texture."],
+						values = AceGUIWidgetLSMlists.border,
+						order = 115,
+					},
+					bordercolor = {
+						type = "color",
+						name = L["Border Color"],
+						desc = L["Set the border color."],
+						get = getColor,
+						set = setColor,
+						order = 116,
+					},
+					bordersize = {
 						type = "range",
-						name = L["Height"],
-						desc = L["Set the height of the GCD bar"],
-						min = 1, max = 30, step = 1,
+						name = L["Border Size"],
+						desc = L["Set the border size."],
+						min = 1, max = 32, step = 1,
+						order = 117,
+					},
+					gcdsize = {
+						type = "range",
+						name = L["Size"],
+						desc = L["Set the size of the GCD icon"],
+						min = 12, max = 64, step = 1,
 						order = 104,
 					},
 					gcdalpha = {
 						type = "range",
 						name = L["Alpha"],
-						desc = L["Set the alpha of the GCD bar"],
+						desc = L["Set the alpha of the GCD icon"],
 						min = 0.05, max = 1, bigStep = 0.05,
 						isPercent = true,
 						order = 105,
 					},
 					gcdposition = {
 						type = "select",
-						name = L["Bar Position"],
-						desc = L["Set the position of the GCD bar"],
-						values = {["top"] = L["Top"], ["bottom"] = L["Bottom"], ["free"] = L["Free"]},
+						name = L["Position"],
+						desc = L["Set the position of the GCD icon"],
+						values = {["left"] = L["Left"], ["right"] = L["Right"], ["free"] = L["Free"]},
 						order = 106,
 					},
 					lock = {
@@ -274,20 +352,14 @@ do
 						name = L["Y"],
 						desc = L["Set an exact Y value for this bar's position."],
 						min = 0, max = 1600, step = 1,
-						order = 108,
+						order = 109,
 						hidden = hiddennofree,
 					},
 					gcdgap = {
 						type = "range",
 						name = L["Gap"],
-						desc = L["Tweak the distance of the GCD bar from the cast bar"],
+						desc = L["Tweak the distance of the GCD icon from the cast bar"],
 						min = -35, max = 35, step = 1,
-						order = 109,
-					},
-					deplete = {
-						type = "toggle",
-						name = L["Deplete"],
-						desc = L["Reverses the direction of the GCD spark, causing it to move right-to-left"],
 						order = 110,
 					},
 				},
