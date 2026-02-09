@@ -28,9 +28,9 @@ GTFO = {
 		BrannMode = 0;
 		IgnoreTimeAmount = .2;
 	};
-	Version = "6.0"; -- Version number (text format)
+	Version = "6.1"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 60000; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 60100; -- Numeric version number for checking out-of-date clients (retail)
 	ClassicVersionNumber = 60000; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 60000; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 60000; -- Numeric version number for checking out-of-date clients (Wrath classic)
@@ -276,6 +276,8 @@ function GTFO_Command(arg1)
 		GTFO_Command_BrannMode();
 	elseif (Command == "IGNORE") then
 		GTFO_Command_IgnoreSpell(Description);
+	elseif (Command == "REPORT" and GTFO.PrivateAuraScan) then
+		GTFO.PrivateAuraScan();
 	else
 		GTFO_Command_Help();
 	end
@@ -774,6 +776,21 @@ function GTFO_Option_FriendlyFireReset()
 	GTFO_SaveSettings();
 	GTFO_Option_FriendlyFireTest();
 	GTFO_ChatPrint(string.format(GTFOLocal.UI_CustomSounds_Removed, GTFOLocal.AlertType_FriendlyFire));
+end
+
+function GTFO.AlertText(iAlert)
+	local alert = tonumber(iAlert);
+	if (alert == 1) then
+		return GTFOLocal.AlertType_High;
+	elseif (alert == 2) then
+		return GTFOLocal.AlertType_Low;
+	elseif (alert == 3) then
+		return GTFOLocal.AlertType_Fail;
+	elseif (alert == 4) then
+		return GTFOLocal.AlertType_FriendlyFire;
+	else
+		return GTFOLocal.Group_None;
+	end
 end
 
 -- Get a list of all the people in your group/raid using GTFO and their version numbers
@@ -1339,7 +1356,7 @@ end
 
 function GTFO_GetSpellName(spellId)
 	if (C_Spell and C_Spell.GetSpellInfo) then
-		local spell = C_Spell.GetSpellInfo(spellId);
+		local spell = C_Spell.GetSpellInfo(tonumber(spellId));
 		if (spell) then
 			return spell.name;
 		end

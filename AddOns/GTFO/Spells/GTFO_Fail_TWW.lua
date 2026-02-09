@@ -1256,16 +1256,16 @@ GTFO.SpellID["434441"] = {
   negatingDebuffSpellID = 434576; -- Acidic Stupor
   sound = 3;
   test = true; -- New private aura system might not respect negating debuff
-  encounter = 2839;
-  instance = 2662;
+  encounters = { 2839, 2918 };
+  instances = { 2662, 2657 };
 };
 
 GTFO.SpellID["448215"] = {
   --desc = "Expel Webs (Rasha'nan)";
   sound = 3;
   test = true; -- Verify
-  encounter = 2839;
-  instance = 2662;
+  encounters = { 2839, 2918 };
+  instances = { 2662, 2657 };
 };
 
 --- ***************
@@ -2576,6 +2576,14 @@ GTFO.SpellID["465982"] = {
   encounter = 3054;
   instance = 2773;
  };
+ 
+GTFO.SpellID["468741"] = {
+  --desc = "Shock Water - Stun (Geezle Gigazap)";
+  applicationOnly = true;
+  sound = 3;
+  encounter = 3054;
+  instance = 2773;
+};
 
 GTFO.SpellID["468604"] = {
   --desc = "Dam Rubble (Geezle Gigazap)";
@@ -3084,6 +3092,8 @@ GTFO.SpellID["1237307"] = {
   --desc = "Lair Weaving (Loom'ithar)";
   applicationOnly = true;
   sound = 3;
+  encounter = 3131;
+  instance = 2810;
 };
 
 GTFO.SpellID["1227140"] = {
@@ -3157,6 +3167,21 @@ GTFO.SpellID["1227340"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1223624"] = {
+  --desc = "Sigil of Chains (Ilyssa Darksorrow)";
+  sound = 3;
+  encounter = 3122;
+  instance = 2810;
+};
+
+GTFO.SpellID["1225303"] = {
+  --desc = "Sigil of Misery (Ilyssa Darksorrow)";
+  sound = 3;
+  applicationOnly = true;
+  encounter = 3122;
+  instance = 2810;
+};
+
 GTFO.SpellID["1232130"] = {
   --desc = "Nexus Shrapnel (Fractillus)";
   sound = 3;
@@ -3201,12 +3226,16 @@ GTFO.SpellID["1238369"] = {
 GTFO.SpellID["1238773"] = {
   --desc = "Extinction (Dimensius)";
   sound = 3;
+  encounter = 3135;
+  instance = 2810;
 };
 
 GTFO.SpellID["1229325"] = {
   --desc = "Oblivion (Dimensius)";
   applicationOnly = true;
   sound = 3;
+  encounter = 3135;
+  instance = 2810;
 };
 
 GTFO.SpellID["1237080"] = {
@@ -3218,6 +3247,8 @@ GTFO.SpellID["1239270"] = {
   --desc = "Voidwarding (Voidwarden)";
   sound = 3;
   applicationOnly = true;
+  encounter = 3135;
+  instance = 2810;
 };
 
 GTFO.SpellID["1233292"] = {
@@ -3256,9 +3287,14 @@ GTFO.SpellID["1230674"] = {
 
 GTFO.SpellID["1234054"] = {
   --desc = "Shadowquake (Dimensius)";
+  soundFunctionRetail = function() -- Can't tell how many stacks we have due to new addon restrictions, disabling alert
+    return 0;
+  end;
   sound = 3;
   applicationOnly = true;
   minimumStacks = 1;
+  encounter = 3135;
+  instance = 2810;
 };
 
 GTFO.SpellID["1234266"] = {
@@ -3266,6 +3302,8 @@ GTFO.SpellID["1234266"] = {
   applicationOnly = true;
   sound = 3;
   tankSound = 0;
+  encounter = 3135;
+  instance = 2810;
 };
 
 GTFO.SpellID["1252456"] = {
@@ -3292,6 +3330,8 @@ GTFO.SpellID["1243699"] = {
   --desc = "Spatial Fragment (Dimensius)";
   sound = 3;
   applicationOnly = true;
+  encounter = 3135;
+  instance = 2810;
 };
 
 GTFO.SpellID["1230999"] = {

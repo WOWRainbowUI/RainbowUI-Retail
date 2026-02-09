@@ -37,6 +37,12 @@ Sample:
 		casterOnly = true;
 		meleeOnly = true;
 		spellType = "SPELL_AURA_REFRESH";
+		instance = 123;
+		instances = { 123, 234 };
+		encounter = 12;
+		encounters = { 12, 34 };
+		soundFunction = function() { return 1; };
+		soundFunctionRetail = function() { return 1; };
 	};
 		
 ]]--

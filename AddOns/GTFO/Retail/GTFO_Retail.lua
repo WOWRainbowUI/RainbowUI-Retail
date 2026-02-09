@@ -223,10 +223,10 @@ end
 function GTFO.RegisterEncounter(encounterId)
 	if (encounterId) then
 		GTFO.CurrentEncounterId = encounterId;
-		--GTFO_DebugPrint("Register for encounter "..GTFO.CurrentEncounterId);
+		GTFO_DebugPrint("Register for encounter "..GTFO.CurrentEncounterId);
 		local spells = GTFO.EncounterIndex[GTFO.CurrentEncounterId];
 		if (spells and #spells > 0) then
-			--GTFO_DebugPrint("Found "..#spells.." spell(s) for "..GTFO.CurrentEncounterId);
+			GTFO_DebugPrint("Found "..#spells.." spell(s) for "..GTFO.CurrentEncounterId);
 			GTFO.RegisterSpellList(spells, GTFO.EncounterPrivateAuraSoundIds);
 		end
 	end
@@ -244,10 +244,10 @@ end
 function GTFO.RegisterInstance()
 	local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID = GetInstanceInfo();
 	if (instanceID) then
-		--GTFO_DebugPrint("Register for instance "..tostring(instanceID));
+		GTFO_DebugPrint("Register for instance "..tostring(instanceID));
 		local spells = GTFO.InstanceIndex[instanceID];
 		if (spells and #spells > 0) then
-			--GTFO_DebugPrint("Found "..#spells.." spell(s) for "..tostring(instanceID));
+			GTFO_DebugPrint("Found "..#spells.." spell(s) for "..tostring(instanceID));
 			GTFO.RegisterSpellList(spells, GTFO.InstancePrivateAuraSoundIds);
 		end
 	end
@@ -993,79 +993,145 @@ function GTFO.DisableBrokenSlider(slider, reason)
 	end
 end
 
--- Private, developer-only scan
--- /run GTFO.PrivateAuraScan()
+-- Dev-only scan to help identify private auras
 function GTFO.PrivateAuraScan()
-	if (not C_UnitAuras or not C_UnitAuras.AuraIsPrivate) then
-		print("GTFO.PrivateAuraScan: C_UnitAuras.AuraIsPrivate not available.");
+	if (not GTFO.Settings.ScanMode) then
+		GTFO_ErrorPrint("Scan mode was not enabled. Turn it on and reload UI before trying again.");
 		return;
 	end
 
-	GTFO.PrivateAuraSpellID = GTFO.PrivateAuraSpellID or {};
+	if (not C_UnitAuras or not C_UnitAuras.AuraIsPrivate) then
+		GTFO_ErrorPrint("C_UnitAuras.AuraIsPrivate not available.");
+		return;
+	end
 
-	local function AddFromTable(tbl)
+	local BlizzardPrivateAuraSpellIDs = { 346297, 346962, 348567, 418589, 423601, 426735, 426736, 432031, 434655, 448888, 461487, 473713, 1218148, 1219248, 1219354, 1219607, 1221490, 1222232, 1222310, 1223725, 1224414, 1224737, 1225616, 1226362, 1226493, 1226827, 1227052, 1227276, 1227373, 1228188, 1228214, 1228219, 1231097, 1231871, 1232412, 1233076, 1233968, 1235045, 1236207, 1241100, 1241917, 1242088, 1242284, 1242304, 1243641, 1243901, 1247415, 1247424, 1248171, 1251417,
+319703, 345770, 346329, 346828, 346844, 347481, 349627, 349954, 350101, 350885, 351119, 352345, 419060, 421829, 423015, 423051, 424414, 424621, 425525, 425544, 427722, 428901, 433740, 434670, 434830, 436614, 438957, 442210, 446403, 447439, 451606, 453212, 468616, 473070, 1223859, 1225444, 1227376, 1232760, 1233105, 1233381, 1233657, 1233979, 1234529, 1234539, 1238874, 1240005, 1240097, 1240705, 1242086, 1281839,
+323001, 344874, 346961, 347094, 348366, 350010, 350804, 350922, 353421, 353835, 356796, 358131, 358947, 421461, 424426, 424431, 425556, 427378, 430048, 434096, 434576, 434668, 435088, 435793, 439815, 463428, 465325, 468486, 473287, 1217241, 1217446, 1218625, 1219459, 1222307, 1224795, 1225179, 1227378, 1227470, 1233074, 1233999, 1238782, 1242071, 1242157, 1242883, 1245688, 1248211, 1249609, 1282027, 1283069, 1284699,
+345990, 349999, 355360, 426370, 428170, 428988, 432119, 433517, 434579, 436663, 436666, 439191, 439783, 448215, 448515, 451704, 460163, 460165, 460965, 466155, 468815, 473836, 1214757, 1214759, 1217439, 1218550, 1219649, 1220390, 1220427, 1220671, 1220679, 1223624, 1224816, 1224855, 1224865, 1225317, 1227748, 1227847, 1228506, 1231086, 1232775, 1233418, 1233449, 1233620, 1233780, 1241137, 1243873, 1245384, 1249139, 1261720,
+351101, 355439, 369134, 421825, 421826, 423080, 425888, 426161, 428970, 436665, 439070, 446649, 459669, 461507, 465982, 468723, 468811, 472132, 472136, 472819, 472878, 1215805, 1219279, 1219439, 1223160, 1223485, 1223493, 1224117, 1224858, 1224859, 1224860, 1224861, 1224862, 1224864, 1225058, 1225208, 1225221, 1225227, 1225303, 1226018, 1226489, 1226601, 1227051, 1234324, 1236126, 1240362, 1249558, 1281184, 1282006, 1284786,
+324044, 369133, 406317, 410317, 410326, 410966, 417938, 420545, 421828, 425468, 425596, 425963, 426865, 427007, 427379, 435466, 436664, 436671, 436677, 438141, 439200, 439790, 450969, 453173, 461994, 463754, 466344, 468573, 472131, 472134, 472135, 472137, 472138, 472139, 472140, 472141, 472143, 472144, 472145, 473354, 1226602, 1228215, 1232774, 1236513, 1237108, 1237607, 1244165, 1245669, 1248464, 1250185,
+473508, 474719, 474732, 474733, 474735, 1214749, 1214750, 1214758, 1214760, 1214761, 1214762, 1214764, 1214765, 1214766, 1214767, 1215808, 1215812, 1220674, 1223177, 1223202, 1223483, 1223484, 1224828, 1224857, 1225057, 1225059, 1225203, 1226831, 1227549, 1227582, 1227604, 1227766, 1227767, 1228081, 1228116, 1228196, 1228453, 1232115, 1232792, 1233411, 1233667, 1233669, 1233671, 1233673, 1233675, 1233676, 1233801, 1233802, 1233804, 1233891,
+291937, 337929, 407182, 421827, 422520, 425469, 425964, 434090, 434113, 435534, 436870, 463273, 463276, 465970, 468647, 468741, 470503, 472129, 472354, 473051, 473224, 1215804, 1219535, 1223489, 1225056, 1225060, 1225316, 1225318, 1225626, 1225673, 1226413, 1226444, 1227607, 1228114, 1233454, 1233893, 1234119, 1235151, 1237193, 1240356, 1240562, 1241090, 1244171, 1245752, 1248128, 1248979, 1249065, 1282272, 1285211, 1285510,
+425962, 426010, 434441, 446657, 470041, 1225055, 1225311, 1225327, 1225629, 1227683, 1232704, 1241946, 1243721, 1244523, 1249550, 1249562, 1249565, 1249566, 1281743, 1282016, 1282035, 1282036, 1282039, 1282049, 1282470, 1282678, 1282724, 1282768, 1282770, 1282776, 1282892, 1282911, 1282982, 1283236, 1283247, 1283506, 1284527, 1284533, 1285504, 1286294 };
+
+	-- Local only, this function produces a report and should not persist results
+	local privateSet = {};
+	local badSet = {};
+
+	local function AddToSet(setTable, spellID)
+		setTable[spellID] = true;
+	end
+
+	local function SetToSortedList(setTable)
+		local list = {};
+		for spellID in pairs(setTable) do
+			list[#list + 1] = spellID;
+		end
+		table.sort(list);
+		return list;
+	end
+
+
+	local function PrintSpellLine(prefix, spellID)
+		GTFO_ChatPrint(tostring(prefix or "")..tostring(GTFO.SpellTooltip(spellID) or "").." - "..tostring(GTFO_GetSpellName(spellID) or ""));
+	end
+
+	-- Scan GTFO tables:
+	-- - If data has encounter/instance metadata, it is expected to already be curated, verify it's still private.
+	-- - Otherwise, treat it as unclassified and discover private auras.
+	local function ScanGTFOTable(tbl)
 		if (not tbl) then
-			return 0, 0;
+			return 0, 0, 0;
 		end
 
 		local scanned = 0;
 		local found = 0;
+		local bad = 0;
 
 		for k, data in pairs(tbl) do
 			local spellID = tonumber(k);
 			if (spellID) then
-				-- Skip spells already classified (any non-nil encounter/instance property)
-				if (data and (data.encounter ~= nil or data.instance ~= nil or data.encounterId ~= nil or data.instanceId ~= nil)) then
-					-- skip
+				local isClassified = (data and (data.encounter ~= nil or data.instance ~= nil or data.instances ~= nil));
+				if (isClassified) then
+					if (not C_UnitAuras.AuraIsPrivate(spellID)) then
+						bad = bad + 1;
+						AddToSet(badSet, spellID);
+					end
 				else
 					scanned = scanned + 1;
-
-					local ok, isPrivate = pcall(C_UnitAuras.AuraIsPrivate, spellID);
-					if (ok and isPrivate) then
+					if (C_UnitAuras.AuraIsPrivate(spellID)) then
 						found = found + 1;
-						GTFO.PrivateAuraSpellID[tostring(spellID)] = true;
+						AddToSet(privateSet, spellID);
 					end
 				end
 			end
 		end
 
-		return scanned, found;
+		return scanned, found, bad;
 	end
 
-	local scanned1, found1 = AddFromTable(GTFO.SpellID);
-	local scanned2, found2 = AddFromTable(GTFO.FFSpellID);
+	local function ScanBlizzardListForMissing()
+		local missing = {};
+		local missingCount = 0;
 
-	-- Return a sorted list for quick copy/paste from chat frame output
-	local list = {};
-	for k in pairs(GTFO.PrivateAuraSpellID) do
-		list[#list + 1] = tonumber(k) or k;
-	end
-	table.sort(list, function(a, b) return a < b; end);
+		if (not BlizzardPrivateAuraSpellIDs) then
+			return missing, 0;
+		end
 
-	GTFO_ChatPrint("GTFO.PrivateAuraScan: scanned " .. (scanned1 + scanned2) .. " entries, found " .. (found1 + found2) .. " private-aura spellIDs.");
-
-	for i = 1, #list do
-		local spellID = list[i];
-		local name;
-
-		if (C_Spell and C_Spell.GetSpellInfo) then
-			local info = C_Spell.GetSpellInfo(spellID);
-			if (info and info.name) then
-				name = info.name;
+		for i = 1, #BlizzardPrivateAuraSpellIDs do
+			local spellID = BlizzardPrivateAuraSpellIDs[i];
+			if (spellID) then
+				local spellKey = tostring(spellID);
+				local handled = (GTFO.SpellID and GTFO.SpellID[spellKey]) or (GTFO.FFSpellID and GTFO.FFSpellID[spellKey]) or (GTFO.IgnoreScan and GTFO.IgnoreScan[spellKey]);
+				if (not handled) then
+					missingCount = missingCount + 1;
+					missing[#missing + 1] = spellID;
+				end
 			end
 		end
 
-		if ((not name) and GetSpellInfo) then
-			name = GetSpellInfo(spellID);
-		end
-
-		name = name or "Unknown";
-
-		GTFO_ChatPrint("Missing Private Aura: "..name.." "..GTFO.SpellTooltip(spellID));
+		table.sort(missing);
+		return missing, missingCount;
 	end
+
+	local scanned1, found1, bad1 = ScanGTFOTable(GTFO.SpellID);
+	local scanned2, found2, bad2 = ScanGTFOTable(GTFO.FFSpellID);
+
+	local missingFromGTFO, missingCount = ScanBlizzardListForMissing();
+
+	local privateList = SetToSortedList(privateSet);
+	local badList = SetToSortedList(badSet);
+
+	GTFO_ChatPrint(
+		"GTFO.PrivateAuraScan: scanned " .. (scanned1 + scanned2) ..
+		" entries, found " .. (found1 + found2) ..
+		" private-aura spellIDs, found " .. (bad1 + bad2) ..
+		" misclassified auras, found Blizzard list missing from GTFO: " .. missingCount .. "."
+	);
+
+	for i = 1, #privateList do
+		PrintSpellLine("Found potential spells: ", privateList[i]);
+	end
+
+	for i = 1, #badList do
+		PrintSpellLine("Bad spells: ", badList[i]);
+	end
+
+	for i = 1, #missingFromGTFO do
+		local spellID = missingFromGTFO[i];
+		GTFO_ChatPrint("GTFO.IgnoreScan[\""..tostring(spellID).."\"] = true; -- "..(GTFO_GetSpellName(spellID) or "Unknown"));
+	end
+
+	local list = {};
+	for i = 1, #privateList do
+		list[#list + 1] = privateList[i];
+	end
+	table.sort(list, function(a, b) return a < b; end);
 
 	return list;
 end
+
 
 function GTFO.SpellTooltip(spellId, text, color)
 	return "|c"..tostring(color or "ff71d5ff").."|Hspell:"..spellId.."|h["..(tostring(text or spellId)).."]|h|r";
@@ -1073,27 +1139,50 @@ end
 
 
 function GTFO.BuildIndexes()
-	-- Intended for spells with encounter identifiers
+	-- Intended for spells with instance/encounter identifiers
+	local counter = 0;
+	local excluded = 0;
 	GTFO.EncounterIndex = { };
 	GTFO.InstanceIndex = { };
 	for spellId, data in pairs(GTFO.SpellID) do
-		if (data.encounter or data.instance) then
-			if (data.instance) then
+		if (data.encounter or data.instance or data.instances or data.encounters) then
+			if (data.instances and #data.instances > 0) then
+				for i, instanceId in pairs(data.instances) do
+					if (not GTFO.InstanceIndex[instanceId]) then
+						GTFO.InstanceIndex[instanceId] = { };
+					end
+					GTFO.AddUnique(GTFO.InstanceIndex[instanceId], spellId);
+					counter = counter + 1;
+				end
+			elseif (data.instance) then
 				local instanceId = tonumber(data.instance);
 				if (not GTFO.InstanceIndex[instanceId]) then
 					GTFO.InstanceIndex[instanceId] = { };
 				end
 				GTFO.AddUnique(GTFO.InstanceIndex[instanceId], spellId);
+				counter = counter + 1;
+			elseif (data.encounters and #data.encounters > 0) then
+				for i, encounterId in pairs(data.encounters) do
+					if (not GTFO.EncounterIndex[encounterId]) then
+						GTFO.EncounterIndex[encounterId] = { };
+					end
+					GTFO.AddUnique(GTFO.EncounterIndex[encounterId], spellId);
+					counter = counter + 1;
+				end
 			elseif (data.encounter) then
 				local encounterId = tonumber(data.encounter);
 				if (not GTFO.EncounterIndex[encounterId]) then
 					GTFO.EncounterIndex[encounterId] = { };
 				end
 				GTFO.AddUnique(GTFO.EncounterIndex[encounterId], spellId);
+				counter = counter + 1;
 			end
-		elseif (not GTFO.Settings.ScanMode) then
-			-- Scanner is not turned on, go ahead and remove spells that don't matter
-			GTFO.SpellID[spellId] = nil;
+		else
+			if (not GTFO.Settings.ScanMode) then
+				-- Scanner is not turned on, go ahead and remove spells that don't matter
+				GTFO.SpellID[spellId] = nil;
+			end
+			excluded = excluded + 1;
 		end
 	end
 
@@ -1103,4 +1192,6 @@ function GTFO.BuildIndexes()
 	for _, i in pairs(GTFO.InstanceIndex) do
 		table.sort(i);
 	end
+	GTFO_DebugPrint("Total spells indexed: "..counter);
+	GTFO_DebugPrint("Total spells excluded: "..excluded);
 end

@@ -2267,6 +2267,8 @@ GTFO.SpellID["246026"] = {
   --desc = "Void Trap (Saprish)";
   applicationOnly = true;
   sound = 3;
+  instance = 1753;
+  encounter = 2065;
 };
 
 GTFO.SpellID["250188"] = {

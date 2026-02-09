@@ -830,6 +830,8 @@ GTFO.SpellID["388957"] = {
 GTFO.SpellID["386201"] = {
   --desc = "Corrupted Mana (Vexamus)";
   sound = 1;
+  encounter = 2562;
+  instance = 2526;
 };
 
 GTFO.SpellID["388546"] = {
@@ -848,6 +850,8 @@ GTFO.SpellID["389007"] = {
   --desc = "Wild Energy (Echo of Doragosa)";
   applicationOnly = true;
   sound = 1;
+  encounter = 2565;
+  instance = 2526;
 };
 
 --- *************
