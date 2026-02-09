@@ -1,10 +1,10 @@
-lightweight tag c71087c4acb37ae5c06e866a864621e0e84d46c0 12.0.0
+lightweight tag a6d6a03cae0ac9ff12c1f8d251d66210d22eabff 12.0.1
 Author:	Andrew Scott <ascott18@gmail.com>
-Date:	Tue Jan 20 22:23:11 2026 -0800
+Date:	Sun Feb 8 21:22:57 2026 -0800
 
-commit c71087c4acb37ae5c06e866a864621e0e84d46c0
+commit a6d6a03cae0ac9ff12c1f8d251d66210d22eabff
 Author: Andrew Scott <ascott18@gmail.com>
-Date:   Tue Jan 20 22:23:11 2026 -0800
+Date:   Sun Feb 8 21:20:50 2026 -0800
 
-    chore: bump to 12.0.0
+    fix: handle edit mode orientation customization
 
