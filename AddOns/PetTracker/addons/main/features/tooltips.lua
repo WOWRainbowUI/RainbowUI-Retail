@@ -13,8 +13,8 @@ end
 
 function Tooltips.OnUnit(tip)
 	local name = TooltipUtil.GetDisplayedUnit(tip)
-	local specie = name and C_PetJournal.FindPetIDByName(name)
-	if specie then
+	local success, specie = pcall(C_PetJournal.FindPetIDByName, name)
+	if success and specie then
 		local owned = Addon.Specie(specie):GetOwnedText()
 		if owned then
 			for i = 1, tip:NumLines() do
