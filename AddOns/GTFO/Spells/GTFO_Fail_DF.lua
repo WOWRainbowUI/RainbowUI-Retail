@@ -1647,6 +1647,8 @@ GTFO.SpellID["377383"] = {
 GTFO.SpellID["376449"] = {
   --desc = "Firestorm (Goal of the Searing Blaze)";
   sound = 3;
+  encounter = 2564;
+  instance = 2526;
 };
 
 GTFO.SpellID["377009"] = {
@@ -1658,6 +1660,8 @@ GTFO.SpellID["377009"] = {
 		GTFO_AddEvent("AADeafeningScreech", 2);
 		return 0;
 	end;
+	encounter = 2564;
+	instance = 2526;
 };
 
 GTFO.SpellID["377034"] = {
@@ -2557,7 +2561,7 @@ GTFO.SpellID["409598"] = {
 };
 
 GTFO.SpellID["407220"] = {
-  --desc = "Rushing Darkness (Neltharion)";
+  --desc = "Rushing Darkness - Silence debuff (Neltharion)";
   applicationOnly = true;
   sound = 3;
 };

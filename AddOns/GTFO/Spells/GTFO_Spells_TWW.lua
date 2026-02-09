@@ -282,6 +282,12 @@ GTFO.SpellID["434830"] = {
   instance = 2660;
 };
 
+GTFO.SpellID["435466"] = {
+  --desc = "Vile Webbing - Private aura version";
+  sound = 1;
+  instance = 2660;
+};
+
 GTFO.SpellID["438825"] = {
   --desc = "Poisonous Cloud (Atik - Residue)";
   ignoreApplication = true;
@@ -523,8 +529,17 @@ GTFO.SpellID["434096"] = {
   --desc = "Sticky Webs (Rasha'nan)";
   ignoreApplication = true;
   sound = 1;
-  encounter = 2839;
-  instance = 2662;
+  encounters = { 2839, 2918 };
+  instances = { 2662, 2657 };
+};
+
+GTFO.SpellID["435793"] = {
+  --desc = "Tacky Burst (Rasha'nan)";
+  applicationOnly = true;
+  sound = 0;
+  tankSound = 1;
+  encounters = { 2839, 2918 };
+  instances = { 2662, 2657 };
 };
 
 GTFO.SpellID["453214"] = {
@@ -946,6 +961,14 @@ GTFO.SpellID["457467"] = {
   test = true;
 };
 
+GTFO.SpellID["438957"] = {
+  --desc = "Acid Pools - Private Aura (Rasha'nan)";
+  sound = 1;
+  ignoreApplication = true;
+  encounters = { 2839, 2918 };
+  instances = { 2662, 2657 };
+};
+
 GTFO.SpellID["439780"] = {
   --desc = "Sticky Webs (Rasha'nan)";
   ignoreApplication = true;
@@ -1093,13 +1116,11 @@ GTFO.SpellID["464469"] = {
 GTFO.SpellID["474350"] = {
   --desc = "Shreddation Sawblade (Shreddinator 3000)";
   sound = 1;
-  instance = 2773;
 };
 
 GTFO.SpellID["474388"] = {
   --desc = "Flamethrower (Shreddinator 3000)";
   sound = 1;
-  instance = 2773;
 };
 
 GTFO.SpellID["465128"] = {
@@ -1152,6 +1173,7 @@ GTFO.SpellID["468723"] = {
   encounter = 3054;
   instance = 2773;
 };
+
 
 --- ***************************
 --- * Liberation of Undermine *
@@ -1393,12 +1415,24 @@ GTFO.SpellID["1226366"] = {
   --desc = "Living Silk (Loom'ithar)";
   ignoreApplication = true;
   sound = 1;
+  encounter = 3131;
+  instance = 2810;
 };
 
 GTFO.SpellID["1243771"] = {
   --desc = "Arcane Ichor (Loom'ithar)";
   ignoreApplication = true;
   sound = 1;
+  encounter = 3131;
+  instance = 2810;
+};
+
+GTFO.SpellID["1242086"] = {
+  --desc = "Arcane Energy (Soulbinder Naazindhri)";
+  ignoreApplication = true;
+  sound = 1;
+  encounter = 3130;
+  instance = 2810;
 };
 
 GTFO.SpellID["1225219"] = {
@@ -1415,7 +1449,14 @@ GTFO.SpellID["1233074"] = {
 };
 
 GTFO.SpellID["1232412"] = {
-  --desc = "Focusing Iris (Manaforge)";
+  --desc = "Focusing Iris (Forgeweaver Araz)";
+  ignoreApplication = true;
+  sound = 1;
+  instance = 2810;
+};
+
+GTFO.SpellID["1250185"] = {
+  --desc = "Focusing Iris (Forgeweaver Araz)";
   ignoreApplication = true;
   sound = 1;
   instance = 2810;
@@ -1440,6 +1481,16 @@ GTFO.SpellID["1227119"] = {
 };
 
 GTFO.SpellID["1235045"] = {
+  --desc = "Encroaching Oblivion (Adarus Duskblaze)";
+  negatingDebuffSpellID = 1222232; -- Devourer's Ire
+  ignoreApplication = true;
+  sound = 1;
+  encounter = 3122;
+  instance = 2810;
+  test = true;
+};
+
+GTFO.SpellID["1223202"] = {
   --desc = "Encroaching Oblivion (Adarus Duskblaze)";
   negatingDebuffSpellID = 1222232; -- Devourer's Ire
   ignoreApplication = true;
@@ -1484,9 +1535,24 @@ GTFO.SpellID["1236872"] = {
   tankSound = 0;
 };
 
+GTFO.SpellID["1228196"] = {
+  --desc = "Dimension Breath (The Royal Voidwing)";
+  sound = 1;
+  tankSound = 0;
+  encounter = 3134;
+  instance = 2810;
+};
+
 GTFO.SpellID["1227472"] = {
   --desc = "Besiege (Nexus-King Salhadaar)";
   sound = 1;
+};
+
+GTFO.SpellID["1227470"] = {
+  --desc = "Besiege (Nexus-King Salhadaar)";
+  sound = 1;
+  encounter = 3134;
+  instance = 2810;
 };
 
 GTFO.SpellID["1228080"] = {
@@ -1509,16 +1575,29 @@ GTFO.SpellID["1225445"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1225444"] = {
+  --desc = "Atomized (Nexus-King Salhadaar)";
+  ignoreApplication = true;
+  sound = 1;
+  encounter = 3134;
+  instance = 2810;
+};
+
+
 GTFO.SpellID["1231002"] = {
   --desc = "Dark Energy (Dimensius)";
   ignoreApplication = true;
   sound = 1;
+  encounter = 3135;
+  instance = 2810;
 };
 
 GTFO.SpellID["1237696"] = {
   --desc = "Debris Field (Dimensius)";
   ignoreApplication = true;
   sound = 1;
+  encounter = 3135;
+  instance = 2810;
 };
 
 GTFO.SpellID["1242212"] = {

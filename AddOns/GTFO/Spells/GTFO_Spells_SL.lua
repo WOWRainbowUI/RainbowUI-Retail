@@ -265,6 +265,13 @@ GTFO.SpellID["324044"] = {
   instance = 2287;
 };
 
+GTFO.SpellID["337929"] = {
+  --desc = "Refracted Sinlight - Private Aura version (Halkias)";
+  sound = 1;
+  encounter = 2401;
+  instance = 2287;
+};
+
 GTFO.SpellID["319703"] = {
   --desc = "Blood Torrent (Echelon)";
   sound = 1;
@@ -275,19 +282,16 @@ GTFO.SpellID["319703"] = {
 GTFO.SpellID["323853"] = {
   --desc = "Pulse from Beyond (Ghastly Parishioner) -- Area damage version";
   sound = 0;
-  instance = 2287;
 };
 
 GTFO.SpellID["326891"] = {
   --desc = "Anguish (Inquisitor Sigar)";
   sound = 1;
-  instance = 2287;
 };
 
 GTFO.SpellID["324211"] = {
   --desc = "Gaseous Collapse";
   sound = 1;
-  instance = 2287;
 };
 
 --- **************

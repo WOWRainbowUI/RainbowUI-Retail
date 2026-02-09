@@ -1897,6 +1897,8 @@ GTFO.SpellID["253990"] = {
 GTFO.SpellID["244588"] = {
   --desc = "Void Sludge (Zuraal the Ascended)";
   sound = 1;
+  instance = 1753;
+  encounter = 2065;
 };
 
 GTFO.SpellID["244906"] = {

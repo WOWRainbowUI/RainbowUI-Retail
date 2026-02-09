@@ -1735,6 +1735,13 @@ GTFO.SpellID["346877"] = {
   tankSound = 0;
 };
 
+GTFO.SpellID["356796"] = {
+  --desc = "Runic Feedback (Hylbrande)";
+  sound = 3;
+  encounter = 2426;
+  instance = 2441;
+};
+
 GTFO.SpellID["347149"] = {
   --desc = "Infinite Breath (Timecap'n Hooktail)";
   sound = 3;
