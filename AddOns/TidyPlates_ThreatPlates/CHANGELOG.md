@@ -1,4 +1,4 @@
-# 13.0.0-beta9 (2026-01-29)
+# 13.0.0-beta10 (2026-02-09)
 
 This is a basic version with Midnight support. Expect lots of missing features and Lua errors. Report any bugs at https://github.com/Backupiseasy/ThreatPlates/issues.
 
@@ -9,7 +9,26 @@ This is a basic version with Midnight support. Expect lots of missing features a
 * Added Masque support for (some) icons.
 * Removed Disconnected option for coloring of healthbars.
 * Updated integrated libraries (Ace3 r1387-alpha, LibSharedMedia-3.0 v11.2.1)
-
+* Added options to configure parent frame and frame strata of Threat Plates [GH-193, GH-399].
+ 
 Beta changes:
+* Disabled cast target in instances as UnitName returns secret values [Comment #7885].
+* Disabled off-tank detection as UnitIsUnit returns secret values [Comment #7898].
+* Fixed wrong header for key bindings in WoW options in WoW Midnight.
+
+* Fixed a Lua error that occurred when WoW events for protected nameplates were processed (e..g, friendy players in instances) [Comment #7870]
+* Consolidated accessing nameplates using unitid into central defined functions to reduce errors caused by non/wrong initialized Threat Plates. This should fix Comment #7870.
 * Made some code Midnight only to fix Lua errors in other versions of WoW.
 * Fixed different nameplate size for Threat Plates in 13.x release. 
+* Fixed a root cause for lots of Lua errors caused by secret values (but probably not all of them).
+* Fixed several Lua errors caused by secret values [GH-639].
+* Fixed frame strata for Threat Plates (BACKGROUND) [GH-637].
+* Fixed wrong definitions for WoW API function LoadAddOn [GH-638].
+* Fixed several Lua errors caused by nameplate size changes. 
+* Updated nameplate show/hide CVars (partially).
+* Health-based coloring for healthbar, name, and status text now works in WoW Midnight.
+* Fixed a Lua error that occurred when setting a target marker [Comment #7826, #7821]
+* Fixed a Lua error that occurred when occluded transparency was enabled [GH-631].
+* Fixed a Lua error that occurred when mouseover transparency was enabled [GH-631].
+* Fixed a Lua error when health-based coloring for healthbar or name was used (health-based coloring is disabled for now) [GH-633].
+* Fixed interface version for WoW Retail (12.0.0).

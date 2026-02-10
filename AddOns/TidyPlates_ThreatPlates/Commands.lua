@@ -5,7 +5,7 @@
 ---------------------------------------------------------------------------------------------------
 local L = Addon.L
 
-Addon.DEBUG = Addon.Meta("version") == "13.0.0-beta9"
+Addon.DEBUG = Addon.Meta("version") == "13.0.0-beta10"
 
 local function toggleDPS()
   if Addon.db.profile.optionRoleDetectionAutomatic then
@@ -275,13 +275,6 @@ local function ChatCommandDebug(cmd_list)
 				end
 			end
 		end
-	elseif command == "test" then
-    local plate = C_NamePlate.GetNamePlateForUnit("target")
-    if not plate then return end
-
-		print("SetSize")
-	  plate.UnitFrame.healthBar:SetSize(300, 80)
-		plate.UnitFrame:SetSize(300, 80)
 	elseif command == "restrictions" then
 		local cvar_type = cmd_list[2]
 		local all = {
@@ -332,6 +325,14 @@ local function ChatCommandDebug(cmd_list)
 		else
 			Addon.Logging.Info(L["Set restriction: "] .. cvar_type)
 		end
+	elseif command == "test" then
+    local plate = C_NamePlate.GetNamePlateForUnit("target", true)
+    if not plate then return end
+
+		print("IsForbidden:", plate:IsForbidden())
+		print("  TP State:", plate.TPFrame and "TPFrame" or "<>", "-", plate.TPFrame and Addon.PlatesByUnit[plate.UnitFrame.unit] and "PlatesByUnit" or "<>" )
+		print("Scale:", plate.TPFrame:GetScale())
+		print("UI Prent:", UIParent:GetEffectiveScale())
 	else
 		Addon.Logging.Error(L["Unknown option: "] .. command)
 		PrintHelp()

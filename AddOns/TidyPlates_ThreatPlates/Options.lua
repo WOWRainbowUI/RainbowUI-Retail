@@ -5541,22 +5541,6 @@ local function CreateVisibilityTab()
             arg = "nameplateShowFriends",
             hidden = Addon.ExpansionIsAtLeastMidnight
           },
-          AllFriendlyPlayers = {
-            name = L["Show Friendly Player Nameplates"],
-            type = "toggle",
-            order = 31,
-            width = "full",
-            arg = "nameplateShowFriendlyPlayers",
-            hidden = not Addon.ExpansionIsAtLeastMidnight
-          },
-          AllFriendlyNPCs = {
-            name = L["Show Friendly NPC Nameplates"],
-            type = "toggle",
-            order = 32,
-            width = "full",
-            arg = "nameplateShowFriendlyNPCs",
-            hidden = not Addon.ExpansionIsAtLeastMidnight
-          },
           AllHostile = {
             name = L["Show Enemy Nameplates"],
             order = 40,
@@ -5689,6 +5673,7 @@ local function CreateLocalizationSettings()
         order = 20,
         type = "group",
         inline = true,
+        hidden = Addon.ExpansionIsAtLeastMidnight,
         args = {
           MetricUnitSymbols = {
             name = L["Metric Unit Symbols"],
@@ -5697,7 +5682,6 @@ local function CreateLocalizationSettings()
             width = "double",
             desc = L["If enabled, the truncated health text will be localized, i.e. local metric unit symbols (like k for thousands) will be used."],
             arg = { "text", "LocalizedUnitSymbol" },
-            hidden = Addon.ExpansionIsAtLeastMidnight,
           },
         },
       },
@@ -6110,6 +6094,7 @@ local function CreateBlizzardSettings()
             order = 40,
             type = "group",
             inline = true,
+            hidden = Addon.ExpansionIsAtLeastMidnight,
             args = {
               OtherTopInset = {
                 name = L["Top Inset"],
@@ -6504,6 +6489,39 @@ local function CreateAppearanceTab()
           },
         },
       },
+      FrameStrata = {
+        name = L["Frame Strata"],
+        type = "group",
+        order = 25,
+        inline = true,
+        args = {
+          ParentFrame = {
+            name = L["Anchor"],
+            type = "select",
+            order = 10,
+            set = function(info, val)
+              SetValueGeneral(info, val)
+              Addon:UpdateNameplateFrameProperties()
+              Addon:UpdateFramePropertiesOfPlatesCreated()
+            end,
+            values = { WORLD_FRAME = "World Frame", UI_PARENT = "UI Parent",  PLATE = "Nameplate"},
+            arg = { "Appearance", "AnchorFrame" }
+          },
+          FrameStrata = {
+            name = L["Frame Strata"],
+            type = "select",
+            order = 20,
+            set = function(info, val)
+              SetValueGeneral(info, val)
+              Addon:UpdateNameplateFrameProperties()
+              Addon:UpdateFramePropertiesOfPlatesCreated()
+            end,
+            values = { BACKGROUND = "BACKGROUND", LOW = "LOW",  MEDIUM = "MEDIUM", HIGH = "HIGH", DIALOG = "DIALOG", TOOLTIP = "TOOLTIP" } ,
+            desc = L["Which frame strata the nameplate will be placed in."],
+            arg = { "Appearance", "FrameStrata" }
+          },
+        },
+      },      
       Icons = {
         name = L["Icons"],
         type = "group",
@@ -6517,13 +6535,7 @@ local function CreateAppearanceTab()
             arg = { "Appearance", "UseBorderlessIcons" }
           },
           Masque = {
-            name = function()
-              if Addon.LibMasque then
-                return L["Masque"]
-              else
-                return L["Masque (Not installed)"]
-              end
-            end,
+            name = (Addon.LibMasque and L["Masque"]) or L["Masque (Not installed)"],
             type = "toggle",
             order = 30,
             set = function(info, val)
