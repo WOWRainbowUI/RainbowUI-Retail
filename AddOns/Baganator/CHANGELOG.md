@@ -1,7 +1,9 @@
 # Baganator
 
-## [784](https://github.com/TheMouseNest/Baganator/tree/784) (2026-01-30)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/783...784) 
+## [785](https://github.com/TheMouseNest/Baganator/tree/785) (2026-02-09)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/784...785) 
 
-- Retail: Fix "Item Level" corner widget for cached bag views  
-- Retail: Fix "Item Level" sorting method  
+- Fix adding a new category  
+- [Fixes #612] Fix "Cannot equip" red text causing "Usable" detection to break  
+- Customise: Fix sliders  
+- Sync config code with other -ator addons  
