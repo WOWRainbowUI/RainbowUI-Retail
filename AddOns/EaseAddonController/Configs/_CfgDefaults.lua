@@ -1148,6 +1148,22 @@ D["Pawn"] = {
         text = "遊戲有內建裝備比較的功能，只要滑指向裝備物品時，按住 Shift 鍵不放，便能和自己身上的裝備做比較。\n\n如果想要不用按 Shift 鍵，總是會自動比較裝備，請輸入: \n\n/console set alwaysCompareItems 1\n\n(必須輸入在同一行，不要換行)",       
 	},
 };
+D["PersonalResourceReskin"] = {
+    defaultEnable = 0,
+	tags = { "UNITFRAME" },
+	title = "個人資源條外觀增強",
+	desc = "用來強化並自訂遊戲內建的 '顯示個人資源'。提供更現代化的外觀、可調整的介面元素，以及額外的資源顯示功能，讓玩家更容易追蹤血量、法力、能量、怒氣與職業專屬資源。`",
+    {
+        text = "設定選項",
+        callback = function() 
+			Settings.OpenToCategory(_G.PersonalResourceReskinCategoryID)
+		end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+};
 D["PetTracker"] = {
     defaultEnable = 0,
 	title = "戰寵助手",
