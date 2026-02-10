@@ -1,12 +1,14 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r224](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r224) (2026-02-01)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r223...r224) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r225](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r225) (2026-02-10)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r224...r225) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Add voidscar Arena private auras to midnight dungeons  
-- Add Den of Nalorakk private aura sounds to midnight dungeons  
-- Add private aura sounds to the blinding vale midnight dungeon  
-- Add private aura sounds to Magisters Terrace (new) Midnight Dungeon  
-- Add private aura sounds to Windrunner Spire Midnight Dungeon  
-    Add private aura sounds to Murder Row Midnight Dungeon  
-- Add further trash mod checks.  
+- First half of Tazevesh updates for midnight  
+- Update halls of atonement for midnight 12.0.1 features  
+- Update rest of holiday events for midnight while at it  
+- Restore the RP/combat timers to chem bro holiday boss  
+- Push the motherload test boss mod for DBM midnight feature testing  
+- this is some dumb stuff to nitpick over LuaLS  
+- Missed one secret check  
+- rework darkmoon faire mods to use midnight compatible checking to restore most functionality (minus the combat addons for rabbit and moonfang)  
+- Update koKR line in toc (#579)  
