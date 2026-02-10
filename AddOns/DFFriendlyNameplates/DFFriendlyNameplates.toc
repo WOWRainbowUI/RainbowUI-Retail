@@ -1,14 +1,22 @@
 ## Interface: 120000
 ## Title: DF Friendly Nameplates [Midnight]
 ## Author: Httpsx
-## Version: 1.1
+## Version: 2.0
 ## Notes: Friendly nameplates for raids/dungeons WoW Retail.
 ## SavedVariables: DFFriendlyNamePlates
+## IconTexture: Interface/AddOns/DFFriendlyNamePlates/icon.png
 
 ## Title-zhTW: |cff0099FF[介面]|r 友善友方名條
 ## Notes-zhTW: DF Friendly Nameplates |n|n讓你可以設定在副本內開啟友方名條時，是否只要顯示隊友的名字，不顯示隊友的血條和施法條，讓畫面不會那麼混亂。|n|n還可以設定字體、大小...等更多自訂選項，進入副本不需要重新載入介面。|n|n|cffffd200使用方法: |r輸入 /dffn 打開設定選項。
 ## Category-zhTW: 血條
-## IconTexture: Interface\Icons\boss_odunrunes_green
 ## DefaultState: disabled
 
+## X-Curse-Project-ID: 818206
+## X-Wago-ID: yQKy1vK7
+
+httpsxLib.lua
 core.lua
+
+nameplates.lua
+worldtext.lua
+extended.lua
