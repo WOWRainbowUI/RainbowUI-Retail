@@ -1,17 +1,17 @@
 ## Interface: 120000
 ## Title: |cFF74D06CRE|rPorter
 ## Notes: Provide battleground map.
-## Version: 2.10.11
+## Version: 3.0.0
 ## Author: AcidWeb
 ## SavedVariables: REPorterSettings
 ## IconTexture: Interface\AddOns\REPorter\RELogo
-## Category-enUS: PvP
+## Category: PvP
 ## Category-deDE: PvP
 ## Category-esES: JcJ
 ## Category-esMX: JcJ
 ## Category-frFR: JcJ
 ## Category-itIT: PvP
-## Category-koKR: 전적
+## Category-koKR: PvP
 ## Category-ptBR: JxJ
 ## Category-ruRU: PvP
 ## Category-zhCN: PvP
