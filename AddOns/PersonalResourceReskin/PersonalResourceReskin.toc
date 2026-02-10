@@ -1,0 +1,71 @@
+## Interface: 120000,120001
+## Title: Personal Resource Display Reskin
+## Notes: Reskins the Personal Resource Display bar using LibSharedMedia
+## Author: Ckraigfriend
+## Version: 1.0.0
+## Category: Unit Frames
+## OptionalDeps: Ace3, LibSharedMedia-3.0
+## SavedVariables: PersonalResourceReskinDB,PlayerPowerTextDB,PlayerHealthTextDB,PRDHealthToggleDB,AbsorbBarsBlizzard_Config,CustomEssenceBarDB.locked,CustomEssenceBarDB.orbHeight,CustomEssenceBarDB.orbWidth,CustomEssenceBarDB,CustomHolyPowerBarDB,CustomDeathKnightRuneBarDB,CustomSoulShardBarDB,PRDRightClickMenuConfig,CustomDruidComboBarDB,CustomRogueComboBarDB,CustomMageArcaneOrbDB,CustomWindwalkerMonkOrbBarDB,CustomDruidComboBar
+## SavedVariables: GuardianIronfurTrackerDB
+
+# Portions of this addon are based on Enhanced Cooldown Manager by Argium (GPL-3)
+# See README.md and LICENSE for details.
+
+Libs\LibStub\LibStub.lua
+
+# Core library bootstrap
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
+
+# Media & utility libraries
+libs\LibDataBroker-1.1.lua
+libs\LibDBIcon-1.0\lib.xml
+libs\LibSharedMedia-3.0\lib.xml
+libs\LibDeflate\LibDeflate.lua
+libs\LibCustomGlow-1.0\LibCustomGlow-1.0.lua
+libs\TaintLess\TaintLess.xml
+libs\LibDualSpec-1.0\LibDualSpec-1.0.lua
+libs\LibButtonGlow-1.0\LibButtonGlow-1.0.lua
+
+# Ace3 libraries
+libs\AceAddon-3.0\AceAddon-3.0.xml
+libs\AceDB-3.0\AceDB-3.0.xml
+libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+libs\AceEvent-3.0\AceEvent-3.0.xml
+libs\AceConsole-3.0\AceConsole-3.0.xml
+libs\AceHook-3.0\AceHook-3.0.xml
+libs\AceLocale-3.0\AceLocale-3.0.xml
+libs\AceGUI-3.0\AceGUI-3.0.xml
+libs\AceConfig-3.0\AceConfig-3.0.xml
+libs\AceSerializer-3.0\AceSerializer-3.0.xml
+# Media & utility libraries
+Libs/LibSharedMedia-3.0/lib.xml
+
+
+
+PersonalResourceReskin.lua
+Options_Main.lua
+PlayerPowerText.lua
+PRDPowerToggle.lua
+MoveClassResource.lua
+PRDHealthToggle.lua
+PlayerHealthText.lua
+AbsorbBars_Blizzard.lua
+Core.lua
+DevourText.lua
+CustomEssenceBar.lua
+CustomHolyPowerBar.lua
+CustomSoulShardBar.lua
+DodgeDisplay.lua
+soulstrackerveng.lua
+CustomRogueComboBar.lua
+CustomRogueComboBarOptions.lua
+CustomDruidComboBar.lua
+CustomDruidComboBarOptions.lua
+CustomMageArcaneOrb.lua
+CustomMageArcaneOrbOptions.lua
+CustomWindwalkerMonkOrbBar.lua
+monkorb.lua
+CustomDeathKnightRuneBar.lua
+WarriorTracker.lua
+GuardianIronfurTracker.lua
