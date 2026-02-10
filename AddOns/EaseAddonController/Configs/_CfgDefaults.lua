@@ -1324,9 +1324,21 @@ D["Rematch"] = {
 };
 D["REPorter"] = {
 	defaultEnable = 0,
-	title = "(請刪除) 戰場地圖",
-	desc = "這是舊版的插件，已經移除。`請自行刪除 AddOns 裡面的 REPorter 資料夾。`",
+	title = "戰場地圖",
+	desc = "加強型的戰場地圖，包含戰場喊話的功能。`",
 	modifier = "chenyuli, ningxi, 彩虹ui",
+	img = true,
+	{
+        text = "設定選項",
+        callback = function() 
+			local REPorterSettings = LibStub("AceDB-3.0"):New("REPorterSettings")
+			Settings.OpenToCategory(REPorterSettings.profile.categoryID)
+		end,
+    },
+	{
+		type = "text",
+        text = "切換地圖顯示內容：按住 Shift+Alt 或 Shift+Ctrl 點地圖。\n\n喊話通報到頻道：點地圖上的點，或是地圖旁的按鈕。\n",       
+	},
 };
 D["SexyMap"] = {
     defaultEnable = 0,
