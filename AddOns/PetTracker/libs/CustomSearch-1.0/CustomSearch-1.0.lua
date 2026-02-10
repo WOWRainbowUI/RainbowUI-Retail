@@ -18,13 +18,14 @@ along with the library. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
 This file is part of CustomSearch.
 --]]
 
-local Lib = LibStub:NewLibrary('CustomSearch-1.0', 13)
+local Lib = LibStub:NewLibrary('CustomSearch-1.0', 14)
 if not Lib then return end
 
 local Cache = setmetatable({}, {__mode = 'k'})
 local None = {}
 
 local pairs, select, format, tinsert, tconcat = pairs, select, format, tinsert, table.concat
+local yup = function(v) return v and true end
 local join = function(words, sep)
 	if #words > 1 then
 		return '(' .. tconcat(words, sep) .. ')'
@@ -43,10 +44,10 @@ function Lib:Matches(object, search, filters)
 			Cache[filters] = cache
 		end
 
-		local func = cache[search]
+		local func = cache[search or '']
 		if not func then
 			func = self:Compile(search, filters)
-			cache[search] = func
+			cache[search or ''] = func
 		end
 
 		return func(object)
@@ -56,16 +57,20 @@ end
 function Lib:Compile(search, filters)
 	self.filters = filters
 
-	local code = format([[
-		local self, filters = ...
-		return function(object)
-			if object then
-				self.object = object
-				return %s
-			end
-		end]], self:CompileAND(' ' .. self:Clean(search or '') .. ' ') or 'true')
+	local condition = self:CompileAND(' ' .. self:Clean(search or '') .. ' ')
+	if condition then
+		local code = format([[
+			local self, filters = ...
+			return function(object)
+				if object then
+					self.object = object
+					return %s
+				end
+			end]], condition)
 
-	return loadstring(code)(self, filters)
+		return loadstring(code)(self, filters)
+	end
+	return yup
 end
 
 function Lib:CompileAND(search)
