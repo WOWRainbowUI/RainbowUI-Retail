@@ -5,11 +5,12 @@
 ## X-License: All Rights Reserved
 ## Category: Battle Pets
 
+## X-Development: True
 ## OptionalDeps: WoWUnit
 ## SavedVariablesPerCharacter: PetTracker_State
 ## SavedVariables: PetTracker_Sets
 ## Interface: 120001, 120000, 50501
-## Version: 12.0.0
+## Version: 12.0.2
 
 ## Title-zhTW: |cff96FF73[戰寵]|r 助手
 ## Notes-zhTW: PetTracker |n|n追蹤你在該區域已有和缺少的戰寵。|n|n|cffffd200使用方法: |r從Esc>選項>插件>戰寵，進行設定。
