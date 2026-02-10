@@ -1,490 +1,463 @@
-local fontMain = "Interface\\Addons\\DFFriendlyNameplates\\Media\\Fonts\\FiraMono-Medium.ttf" 
-local pathToMedia = "Interface\\Addons\\DFFriendlyNameplates\\Media\\"
-local backdrop = { edgeFile = pathToMedia.."Textures\\WHITE8X8.BLP", edgeSize = 1 }
-local backdrop2 = { bgFile = pathToMedia.."Textures\\UI-Tooltip-Background.blp", tile = true, tileSize = 16, edgeFile = pathToMedia.."Textures\\WHITE8X8.BLP", edgeSize = 2 }
+local _, DFFN = ...
 
-local LSM = LibStub("LibSharedMedia-3.0")
+local HttpsxLib = DFFN.httpsxLib
 
 local httpsxFriendlyNamePlates = CreateFrame("Frame")
 httpsxFriendlyNamePlates.hideCastBar = CreateFrame("Frame")
 httpsxFriendlyNamePlates.config = {}
 
-local function frameAddBg(frame, bd, color, border)
-    frame:SetBackdrop(bd)
-    frame:SetBackdropColor(unpack(color or {0,0,0,1}))
-    frame:SetBackdropBorderColor(unpack(border or {1,1,1,1}))
+local DFFNamePlates = {}
+DFFNamePlates.tabs = {}
+DFFNamePlates.settings = {}
+DFFNamePlates.gameFonts = { SystemFont_NamePlate_Outlined, SystemFont_NamePlate }
+
+DFFN.DFFNamePlates = DFFNamePlates
+
+local defaultFont, defaultFontSize, defaultFontFlags = SystemFont_NamePlate_Outlined:GetFont() --unitNameInside
+local defaultFont2, defaultFontSize2, defaultFontFlags2 = SystemFont_NamePlate:GetFont()
+
+DFFNamePlates.defaultFont = {
+    name = defaultFont,
+    size = defaultFontSize,
+    flags = defaultFontFlags,
+}
+DFFNamePlates.defaultFont2 = {
+    name = defaultFont2,
+    size = defaultFontSize2,
+    flags = defaultFontFlags2,
+}
+
+local ADDON_VERSION = "2.0"
+local CONFIG_VERSION = "2.6"
+DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE = 0
+DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA = 0.5
+
+function DFFNamePlates:UpdateFontFrame(frame)
+    if not DFFriendlyNamePlates.NamePlatesSettings["customFont"] then return end
+    frame:SetFont(DFFriendlyNamePlates.NamePlatesSettings["fontName"],
+        DFFriendlyNamePlates.NamePlatesSettings["fontSize"],
+        DFFriendlyNamePlates.NamePlatesSettings["fontStyle"])
 end
-local function WidgetTab_OnEnter(self)
-    if (self.active ~= true) then
-        self:SetBackdropColor(1, 1, 1, 0.3)
-        self["BottomEdge"]:Show()
-        self:SetBackdropBorderColor(1.0,0.74,0,1)  
+
+function DFFNamePlates:setFontForAll()
+    for _, frame in pairs(C_NamePlate.GetNamePlates()) do --Skip forbiddenNP
+        if frame and frame.UnitFrame and frame.UnitFrame.name then
+            DFFNamePlates:UpdateFontFrame(frame.UnitFrame.name)
+        end
     end
 end
 
-local function WidgetTab_OnLeave(self)
-    self:SetBackdropColor(1, 1, 1, 0)
-    if (self.active ~= true) then
-        self["BottomEdge"]:Hide()
+function DFFNamePlates:UpdateFont()
+    if not DFFriendlyNamePlates.NamePlatesSettings["customFont"] then return end
+    for _, v in pairs(DFFNamePlates.gameFonts) do
+        v:SetFont(DFFriendlyNamePlates.NamePlatesSettings["fontName"],
+            DFFriendlyNamePlates.NamePlatesSettings["fontSize"],
+            DFFriendlyNamePlates.NamePlatesSettings["fontStyle"])
     end
-    self:SetBackdropBorderColor(0.59,0.98,0.59,1)  
 end
 
-local function frame_OnDragStart(self)
-    self:StartMoving()
-end
-
-local function frame_OnDragStop(self)
-    self:StopMovingOrSizing()
-end
-
-local function EditBoxEscapePressed(self)
-    self:ClearFocus()
-end
-
-local function createEditBox(frame,xSize,ySize)
-    local editBox = CreateFrame("EditBox", nil, frame, 'BackdropTemplate')
-    editBox:SetSize(xSize, ySize)
-    editBox:SetPoint("BOTTOM", frame, 0, -ySize - 3)
-    frameAddBg(editBox, backdrop2, {0,0,0,0.3}, {1,1,1,0.3})
-    editBox:SetTextInsets(4, 4, 0, 0)
-    editBox:SetFont(fontMain, 12, "")
-    editBox:SetAutoFocus(false)
-    editBox:SetScript("OnEscapePressed",EditBoxEscapePressed)
-    editBox:SetScript("OnEnter",function(self) self:SetBackdropBorderColor(1.0,0.74,0, 0.5)  end)
-    editBox:SetScript("OnLeave",function(self) self:SetBackdropBorderColor(1,1,1,0.3)  end)
-    editBox:SetNumeric(true)
-    editBox:SetJustifyH("CENTER")
-    return editBox
-end
-
-local function createCheckButton(frame, x, y, text, dop)
-    local checkButton = CreateFrame("CheckButton", nil, frame, "ChatConfigCheckButtonTemplate");
-    checkButton:SetPoint("TOPLEFT", frame, x, y)
-    checkButton:SetSize(25,25)
-    checkButton.text = checkButton:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-    checkButton.text:SetPoint("LEFT",  checkButton, 25, 0)
-    checkButton.text:SetText(text)
-    checkButton.text:SetFont(fontMain, 12, "")
-    if dop then 
-        checkButton.dopText = checkButton:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-        checkButton.dopText:SetPoint("LEFT",  checkButton, 155, -2)
-        checkButton.dopText:SetText("(Required ReloadUI)") 
-        checkButton.dopText:SetFont(fontMain, 8, "")
-        checkButton.dopText:SetTextColor(1, 0.31, 0.31, 1.0)
+function DFFNamePlates:forceUpdateFont(needDelay)
+    if not DFFriendlyNamePlates.NamePlatesSettings["customFont"] then return end
+    for _, v in pairs(DFFNamePlates.gameFonts) do
+        v:SetFont(DFFriendlyNamePlates.NamePlatesSettings["fontName"],
+            DFFriendlyNamePlates.NamePlatesSettings["fontSize"] - 1,
+            DFFriendlyNamePlates.NamePlatesSettings["fontStyle"])
     end
-    return checkButton
-end
-
-local httpsxNamePlatesSettings = CreateFrame('Frame', nil, UIParent, 'BackdropTemplate')
-httpsxNamePlatesSettings:ClearAllPoints()
-httpsxNamePlatesSettings:SetSize(320, 370)
-httpsxNamePlatesSettings:SetPoint("CENTER")
-httpsxNamePlatesSettings:EnableMouse(true)
-httpsxNamePlatesSettings:SetClampedToScreen(true)
-httpsxNamePlatesSettings:SetDontSavePosition(true)
-httpsxNamePlatesSettings:SetMovable(true)
-httpsxNamePlatesSettings:RegisterForDrag("LeftButton")
-httpsxNamePlatesSettings:SetScript("OnDragStart", frame_OnDragStart)
-httpsxNamePlatesSettings:SetScript("OnDragStop", frame_OnDragStop)  
-httpsxNamePlatesSettings:SetScale(1)
-frameAddBg(httpsxNamePlatesSettings, backdrop2, {0,0,0,0.6}, {1,1,1,0.3})
-httpsxNamePlatesSettings:Hide()
-_G["httpsxNamePlatesSettings"] = httpsxNamePlatesSettings
-tinsert(UISpecialFrames, "httpsxNamePlatesSettings")
-
-httpsxNamePlatesSettings.closeButton = CreateFrame('Button', nil, httpsxNamePlatesSettings, 'BackdropTemplate')
-httpsxNamePlatesSettings.closeButton:ClearAllPoints()
-httpsxNamePlatesSettings.closeButton:SetPoint("TOPRIGHT", httpsxNamePlatesSettings, "TOPRIGHT", 3, 3)
-httpsxNamePlatesSettings.closeButton:SetSize(25, 25)
-httpsxNamePlatesSettings.closeButton.texture = httpsxNamePlatesSettings.closeButton:CreateTexture("Texture", 'ARTWORK')
-httpsxNamePlatesSettings.closeButton.texture:SetPoint('CENTER')
-httpsxNamePlatesSettings.closeButton.texture:SetTexture(pathToMedia.."Textures\\cancel-icon.tga")
-httpsxNamePlatesSettings.closeButton.texture:SetSize(15, 15)
-httpsxNamePlatesSettings.closeButton.texture:SetDesaturated(1)
-httpsxNamePlatesSettings.closeButton:SetScript("OnEnter", function(self) self.texture:SetDesaturated(nil) end)
-httpsxNamePlatesSettings.closeButton:SetScript("OnLeave", function(self) self.texture:SetDesaturated(1) end)
-httpsxNamePlatesSettings.closeButton:SetScript("OnClick", function(self) self:GetParent():Hide();httpsxNamePlatesSettings:Hide(); end)
-
-httpsxNamePlatesSettings.VersionText =  httpsxNamePlatesSettings:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-httpsxNamePlatesSettings.VersionText:SetPoint("BOTTOM",  httpsxNamePlatesSettings, "BOTTOM", 0, 10)
-httpsxNamePlatesSettings.VersionText:SetText("DF Friendly Nameplates 1.1")
-httpsxNamePlatesSettings.VersionText:SetFont(fontMain, 12, "OUTLINE")
-
-httpsxNamePlatesSettings.header = CreateFrame('Frame', nil, httpsxNamePlatesSettings, 'BackdropTemplate')
-httpsxNamePlatesSettings.header:ClearAllPoints()
-httpsxNamePlatesSettings.header:SetPoint("TOPLEFT", httpsxNamePlatesSettings, "TOPLEFT", 0, 0)
-httpsxNamePlatesSettings.header:SetSize(320, 32)
-frameAddBg(httpsxNamePlatesSettings.header, backdrop, {0,0,0,0.6}, {1,1,1,0.3})
-local nfx = {"BottomLeftCorner","BottomRightCorner","LeftEdge","RightEdge","TopEdge","TopLeftCorner","TopRightCorner"}
-for x=1, #nfx do
-    httpsxNamePlatesSettings.header[nfx[x]]:Hide()
-end
-
-httpsxNamePlatesSettings.header.tabs = {}
-
-local tabs = {"General","World text"}
-
-for i=1, #tabs do 
-    
-    httpsxNamePlatesSettings.header.tabs[i] = CreateFrame('Button', nil, httpsxNamePlatesSettings.header, 'BackdropTemplate')
-    httpsxNamePlatesSettings.header.tabs[i]:SetPoint("BOTTOMLEFT", httpsxNamePlatesSettings.header, ((i-1)*90) + ((i-1)*5) + 2, 8)
-    httpsxNamePlatesSettings.header.tabs[i]:SetSize(90, 16)
-    frameAddBg(httpsxNamePlatesSettings.header.tabs[i], backdrop2, {1,1,1,0}, {0.59,0.98,0.59,1})
-    httpsxNamePlatesSettings.header.tabs[i]:SetScript("OnEnter", WidgetTab_OnEnter)
-    httpsxNamePlatesSettings.header.tabs[i]:SetScript("OnLeave", WidgetTab_OnLeave)
-    httpsxNamePlatesSettings.header.tabs[i].text = httpsxNamePlatesSettings.header.tabs[i]:CreateFontString(nil, nil, "GameFontNormal")
-    httpsxNamePlatesSettings.header.tabs[i].text:SetPoint("CENTER")
-    httpsxNamePlatesSettings.header.tabs[i].text:SetTextColor(1,1,1,1)
-    httpsxNamePlatesSettings.header.tabs[i].text:SetText(tabs[i])
-    httpsxNamePlatesSettings.header.tabs[i].text:SetJustifyH("CENTER")
-    httpsxNamePlatesSettings.header.tabs[i].text:SetFont(fontMain, 10, "")
-    httpsxNamePlatesSettings.header.tabs[i].active = false
-    
-    local nf = {"BottomLeftCorner","BottomRightCorner","LeftEdge","RightEdge","TopEdge","TopLeftCorner","TopRightCorner", "BottomEdge"}
-    for x=1, #nf do
-        httpsxNamePlatesSettings.header.tabs[i][nf[x]]:Hide()
+    if not needDelay then
+        DFFNamePlates:UpdateFont()
+        return
+    else
+        C_Timer.After(0.1, function() DFFNamePlates:UpdateFont() end)
     end
-    
-end
-httpsxNamePlatesSettings.header.tabs[1].active = true 
-httpsxNamePlatesSettings.header.tabs[1]["BottomEdge"]:Show()
-
-httpsxNamePlatesSettings.contents = {}
-for i=1, #tabs do
-    httpsxNamePlatesSettings.contents[i] = CreateFrame('Frame', nil, httpsxNamePlatesSettings, 'BackdropTemplate') 
-    httpsxNamePlatesSettings.contents[i]:ClearAllPoints()
-    httpsxNamePlatesSettings.contents[i]:SetPoint("TOPLEFT", httpsxNamePlatesSettings, "TOPLEFT", 0, -32)
-    httpsxNamePlatesSettings.contents[i]:SetSize(320, 338)
-    frameAddBg(httpsxNamePlatesSettings.contents[i], backdrop, {1,1,1,0.6}, {1,1,1,0.3})
-    httpsxNamePlatesSettings.contents[i].lines = {}
-    httpsxNamePlatesSettings.contents[i].sp = 0
-    httpsxNamePlatesSettings.contents[i]:Hide()
 end
 
-for i=1, #tabs do 
-    httpsxNamePlatesSettings.header.tabs[i]:SetScript("OnClick",  function(self) 
-            for x=1, #tabs do
-                if (httpsxNamePlatesSettings.header.tabs[x].active == true) then
-                    httpsxNamePlatesSettings.header.tabs[x].active = false
-                    httpsxNamePlatesSettings.header.tabs[x]["BottomEdge"]:Hide()
-                    httpsxNamePlatesSettings.header.tabs[x]:SetBackdropBorderColor(0.59,0.98,0.59,0)  
-                    httpsxNamePlatesSettings.header.tabs[x]:SetBackdropColor(1, 1, 1, 0)
-                    httpsxNamePlatesSettings.contents[x]:Hide()
-                end
-            end
-            
-            self:SetBackdropBorderColor(0.59,0.98,0.59,1)  
-            self:SetBackdropColor(1, 1, 1, 0)
-            httpsxNamePlatesSettings.contents[i]:Show()
-            
-            self.active = true 
-            self["BottomEdge"]:Show()   
+function DFFNamePlates:SwitchTab(name)
+    for k, mod in pairs(self.tabs) do
+        if mod.Hide then mod:Hide() end
+    end
+    if self.tabs[name] and self.tabs[name].Show then
+        self.tabs[name]:Show()
+    end
+end
+
+function DFFNamePlates:SetActiveTab(btn)
+    if self.activeTab then
+        self.activeTab:SetBackdropColor(0.12, 0.12, 0.18, 0.8)
+        self.activeTab:SetBackdropBorderColor(0.3, 0.3, 0.4, 0.6)
+        self.activeTab.text:SetTextColor(0.9, 0.8, 0.6)
+        self.activeTab.activeIndicator:Hide()
+    end
+
+    self.activeTab = btn
+
+    btn:SetBackdropColor(0.25, 0.25, 0.35, 1)
+    btn:SetBackdropBorderColor(0.6, 0.6, 0.8, 1)
+    btn.text:SetTextColor(1, 0.95, 0.8)
+    btn.activeIndicator:Show()
+    btn.activeIndicator:SetVertexColor(0.8, 0.6, 0.2, 1)
+
+    local animGroup = btn.activeIndicator:CreateAnimationGroup()
+    local fadeIn = animGroup:CreateAnimation("Alpha")
+    fadeIn:SetDuration(0.2)
+    fadeIn:SetFromAlpha(0)
+    fadeIn:SetToAlpha(1)
+    fadeIn:SetSmoothing("IN")
+
+    animGroup:Play()
+end
+
+function DFFNamePlates:AddTabFrame(name, module)
+    local tab = {}
+    tab.frame = CreateFrame("Frame", nil, DFFNamePlates.mainContent)
+    tab.frame:SetAllPoints()
+    tab.module = module
+
+    local title = HttpsxLib:CreateText(tab.frame, name, "TOP", tab.frame, "TOP", 0, -10, 12,
+        { 0.9, 0.8, 0.5, 1 }, "OUTLINE")
+
+    function tab:Show()
+        self.frame:Show()
+    end
+
+    function tab:Hide()
+        self.frame:Hide()
+    end
+
+    tab:Hide()
+
+    DFFNamePlates.tabs[name] = tab
+
+    return tab
+end
+
+function DFFNamePlates:AddTabButton(name, index, module)
+    local btn = CreateFrame("Button", nil, self.frame.tabList, BackdropTemplateMixin and "BackdropTemplate")
+    btn:SetSize(91, 25)
+    btn:SetPoint("TOPLEFT", 5 + (index - 1) * 94, -5)
+
+    btn:SetBackdrop({
+        bgFile = "Interface\\AddOns\\DFFriendlyNameplates\\Media\\Textures\\WHITE8X8",
+        edgeFile =
+        "Interface\\AddOns\\DFFriendlyNameplates\\Media\\border.tga",
+        edgeSize = 12,
+        tileSize = 0,
+        insets = { left = 2.5, right = 2.5, top = 2.5, bottom = 2.5 }
+    })
+    btn:SetBackdropColor(0.12, 0.12, 0.18, 0.8)
+    btn:SetBackdropBorderColor(0.3, 0.3, 0.4, 0.6)
+
+    btn.name = name
+
+    local textMap = {
+        ["Nameplates"] = "Nameplates",
+        ["WorldText"] = "World Text",
+        ["Extended"] = "Extended",
+    }
+
+    btn.text = HttpsxLib:CreateText(btn, textMap[name] or name, "CENTER", btn, "CENTER", 0, 0, 11.5, { 0.9, 0.8, 0.6 }, "")
+
+    btn.activeIndicator = btn:CreateTexture(nil, "OVERLAY")
+    btn.activeIndicator:SetSize(86, 3)
+    btn.activeIndicator:SetPoint("BOTTOM", btn, "BOTTOM", 0, 0)
+    btn.activeIndicator:SetTexture("Interface\\AddOns\\DFFriendlyNameplates\\Media\\Textures\\WHITE8x8")
+    btn.activeIndicator:SetVertexColor(0.8, 0.6, 0.2, 0)
+    btn.activeIndicator:Hide()
+
+    btn:SetScript("OnEnter", function()
+        if self.activeTab ~= btn then
+            btn:SetBackdropColor(0.18, 0.18, 0.25, 0.9)
+            btn:SetBackdropBorderColor(0.5, 0.5, 0.6, 0.8)
+            btn.text:SetTextColor(1, 0.9, 0.7)
+        end
     end)
-end
 
-local function newLine(frame, isSpace)
-    local x = #frame.lines
-    
-    frame.lines[x+1] = CreateFrame('Frame', nil, frame, 'BackdropTemplate')
-    frame.lines[x+1]:ClearAllPoints()
-    frame.lines[x+1]:SetSize(300, 25)
-    frame.lines[x+1]:SetPoint("TOPLEFT", 10, -5 - (26 * (x-frame.sp))-(13 * (frame.sp)))
-    if (isSpace) then
-        frame.sp = frame.sp + 1
-        frame.lines[x+1]:SetSize(300, 12)
-    end
-    --frameAddBg(frame.lines[x+1], backdrop2, {0,0,0,0.3}, {1,1,1,0.3})
-    return (x+1)
-end
-
-httpsxNamePlatesSettings.contents[1]:Show()
-
-local checkButtonSettings = {}
-local checkCNamePlates = {}
-local checkButtonGeneralSettings = {}
-local checkButtonFontOutline = {}
-
-local btnName = {
-    {name="Enable world text names", tab=2, dop=false, space=false},
-    
-}
-
-local btcNameGeneral = {
-    {name="Show only name", tab=1, dop=false, space=false},
-}
-
-for i=1, #btnName  do
-    local lname, ltabID, ldop, lspace = btnName[i].name, btnName[i].tab, btnName[i].dop, btnName[i].space
-    if (lspace) then 
-        newLine(httpsxNamePlatesSettings.contents[ltabID], true)
-    end
-    local lid = newLine(httpsxNamePlatesSettings.contents[ltabID], false)
-    checkButtonSettings[i] = createCheckButton(httpsxNamePlatesSettings.contents[ltabID].lines[lid], 0, 0, lname, ldop)
-end
-
-for i=1, #btcNameGeneral  do
-    local lname, ltabID, ldop, lspace = btcNameGeneral[i].name, btcNameGeneral[i].tab, btcNameGeneral[i].dop, btcNameGeneral[i].space
-    if (lspace) then 
-        newLine(httpsxNamePlatesSettings.contents[ltabID], true)
-    end
-    local lid = newLine(httpsxNamePlatesSettings.contents[ltabID], false)
-    checkButtonGeneralSettings[i] = createCheckButton(httpsxNamePlatesSettings.contents[ltabID].lines[lid], 0, 0, lname, ldop)
-end
-
-newLine(httpsxNamePlatesSettings.contents[1], true)
-
-newLine(httpsxNamePlatesSettings.contents[1], true)
-
-newLine(httpsxNamePlatesSettings.contents[2], true)
-newLine(httpsxNamePlatesSettings.contents[2], true)
-
-local lid = newLine(httpsxNamePlatesSettings.contents[2], false)
-
-local worldTextSizeSlider = CreateFrame("Slider", "SliderCFRNaddon", httpsxNamePlatesSettings.contents[2].lines[lid], "OptionsSliderTemplate");
-worldTextSizeSlider:SetPoint("BOTTOMLEFT", httpsxNamePlatesSettings.contents[2].lines[lid], 75, 0)
-worldTextSizeSlider:SetMinMaxValues(0, 64);
-worldTextSizeSlider:SetValue(12);
-worldTextSizeSlider:SetValueStep(1);
-worldTextSizeSlider.tooltipText = "Default = 0"
-worldTextSizeSlider:SetObeyStepOnDrag(true)
-worldTextSizeSlider.disable = nil;
-worldTextSizeSlider.Low:SetText(0)
-worldTextSizeSlider.High:SetText(64)
-worldTextSizeSlider:SetSize(150,10)
---frameAddBg(sliderScale, backdrop2, {0,0,0,0.6}, {1,1,1,0.3})
-worldTextSizeSlider.textBox = worldTextSizeSlider:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-worldTextSizeSlider.textBox:SetPoint("TOP",  worldTextSizeSlider, 0, 14)
-worldTextSizeSlider.textBox:SetText("World Text Size:")
-worldTextSizeSlider.textBox:SetTextColor(1.0,0.74,0,1)
-local sliderWorldTextSizeEditBox = createEditBox(worldTextSizeSlider, 55, 18)
-sliderWorldTextSizeEditBox:SetText(worldTextSizeSlider:GetValue())
-worldTextSizeSlider:SetScript("OnValueChanged", function(self, value)
-        if self.disable then
-            return
+    btn:SetScript("OnLeave", function()
+        if self.activeTab ~= btn then
+            btn:SetBackdropColor(0.12, 0.12, 0.18, 0.8)
+            btn:SetBackdropBorderColor(0.3, 0.3, 0.4, 0.6)
+            btn.text:SetTextColor(0.9, 0.8, 0.6)
         end
-        sliderWorldTextSizeEditBox:SetText(string.format("%.3g", value))
-        if (DFFriendlyNamePlates.WorldTextSettings[1] == false) then
-            return
-        end 
-        DFFriendlyNamePlates.WorldTextSettings[2] = value;
-        SetCVar("WorldTextMinSize", value);
-end)
-sliderWorldTextSizeEditBox:SetScript("OnEnterPressed", function(self)
-        worldTextSizeSlider:SetValue(self:GetNumber());
-        self:ClearFocus();
-end)
+    end)
 
-newLine(httpsxNamePlatesSettings.contents[2], true)
-newLine(httpsxNamePlatesSettings.contents[2], true)
+    btn:SetScript("OnClick", function()
+        self:SwitchTab(name)
+        self:SetActiveTab(btn)
+    end)
 
-lid = newLine(httpsxNamePlatesSettings.contents[2], false)
+    --table.insert(self.tabButtons, btn)
+    self.tabButtons[index] = btn
 
-local worldTextMinAlphaSlider = CreateFrame("Slider", "SliderCFRNaddon2", httpsxNamePlatesSettings.contents[2].lines[lid], "OptionsSliderTemplate");
-worldTextMinAlphaSlider:SetPoint("BOTTOMLEFT", httpsxNamePlatesSettings.contents[2].lines[lid], 75, 0)
-worldTextMinAlphaSlider:SetMinMaxValues(0, 1);
-worldTextMinAlphaSlider:SetValue(0.5);
-worldTextMinAlphaSlider:SetValueStep(0.01);
-worldTextMinAlphaSlider.tooltipText = "Default = 0.5"
-worldTextMinAlphaSlider:SetObeyStepOnDrag(true)
-worldTextMinAlphaSlider.disable = nil;
-worldTextMinAlphaSlider.Low:SetText(0)
-worldTextMinAlphaSlider.High:SetText(1)
-worldTextMinAlphaSlider:SetSize(150,10)
---frameAddBg(sliderScale, backdrop2, {0,0,0,0.6}, {1,1,1,0.3})
-worldTextMinAlphaSlider.textBox = worldTextMinAlphaSlider:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-worldTextMinAlphaSlider.textBox:SetPoint("TOP",  worldTextMinAlphaSlider, 0, 14)
-worldTextMinAlphaSlider.textBox:SetText("World Text Alpha:")
-worldTextMinAlphaSlider.textBox:SetTextColor(1.0,0.74,0,1)
-local sliderWorldTextAlphaEditBox = createEditBox(worldTextMinAlphaSlider, 55, 18)
-sliderWorldTextAlphaEditBox:SetNumeric(false) 
+    return DFFNamePlates:AddTabFrame(name, module)
+end
 
-sliderWorldTextAlphaEditBox:SetText(worldTextMinAlphaSlider:GetValue())
-worldTextMinAlphaSlider:SetScript("OnValueChanged", function(self, value)
-        if self.disable then
-            return
-        end
-        sliderWorldTextAlphaEditBox:SetText(string.format("%.2f", value))
-        if (DFFriendlyNamePlates.WorldTextSettings[1] == false) then
-            return
-        end 
-        DFFriendlyNamePlates.WorldTextSettings[3] = value;
-        SetCVar("WorldTextMinAlpha", value);
-end)
-sliderWorldTextSizeEditBox:SetScript("OnEnterPressed", function(self)
-        worldTextMinAlphaSlider:SetValue(self:GetNumber());
-        self:ClearFocus();
-end)
-
-
-local function safeForbiddenAccess(table, attributeTable, setChange)
-    table[attributeTable.attribute] = setChange;
-    local tableInspectorPool = CreateFramePool("FRAME", UIParent, "TableAttributeDisplayTemplate");
-    local attributeDisplay = tableInspectorPool:Acquire();
-    attributeDisplay:OnLoad();
-    --attributeDisplay:SetTableFocusedCallback(tableFocusedCallback);
-    --attributeDisplay:InspectTable(focusedTable, customTitle);
-    attributeDisplay:SetPoint("LEFT", 64 + math.random(0, 64), math.random(0, 64));
-    attributeDisplay:Hide();
-    attributeDisplay:InspectTable(table)
-    attributeDisplay.dataProviders[2].lines[3]:GetTableInspector():SetDynamicUpdates(true)
-    attributeDisplay.dataProviders[2].lines[3]:GetTableInspector():SetDynamicUpdates(false)
-    for i=1, #attributeDisplay.dataProviders[2].lines do
-        if (attributeDisplay.dataProviders[2].lines[i].Value ~= nil) then
-            if (attributeDisplay.dataProviders[2].lines[i]:GetAttributeData().type == "boolean") then
-                TableAttributeDisplayEditBox_OnEnterPressed(attributeDisplay.dataProviders[2].lines[i].Value)
-            end
+function DFFNamePlates:IterateMediaData(mediaType)
+    local mediaTable = {}
+    local keys = {}
+    if LibStub then
+        local loaded, media = pcall(LibStub, "LibSharedMedia-3.0")
+        if loaded and media then
+            mediaTable = media:HashTable(mediaType)
         end
     end
-    SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits",GetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits"));
+    for name in pairs(mediaTable) do
+        table.insert(keys, name)
+    end
+    table.sort(keys)
+    local i = 0
+    return function()
+        i = i + 1
+        local key = keys[i]
+        if key then
+            return key, mediaTable[key]
+        end
+    end
 end
 
-local forbiddenNPAccess = {
-    {attribute="displayName", r=1},
-}
+function DFFNamePlates:CreateMainUI()
+    local f = CreateFrame("Frame", "DFFNamePlatesMainFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
+    f:SetSize(320, 400)
+    f:SetPoint("CENTER")
+    f:SetMovable(true)
+    f:EnableMouse(true)
+    f:RegisterForDrag("LeftButton")
+    f:SetScript("OnDragStart", f.StartMoving)
+    f:SetScript("OnDragStop", f.StopMovingOrSizing)
+    f:Hide()
 
-checkButtonGeneralSettings[1]:SetScript("OnClick",  function(self) 
-        local setChange = self:GetChecked();
-        SetCVar("nameplateshowfriendlyPlayers", "1");
-        SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", setChange)
-        DFFriendlyNamePlates.NamePlatesGeneralSettings[1] = setChange
-        checkButtonSettings[1]:SetChecked(false);
-        DFFriendlyNamePlates.WorldTextSettings[1] = false
-        --safeForbiddenAccess(DefaultCompactNamePlateFrameSetUpOptions, {attribute="hideHealthbar", r=0}, setChange)
-        --ReloadUI();
-end)
+    table.insert(UISpecialFrames, f:GetName())
 
-checkButtonSettings[1]:SetScript("OnClick",  function(self) 
-        local setChange = self:GetChecked();
-        DFFriendlyNamePlates.WorldTextSettings[1] = setChange
-        if (setChange) then
-            checkButtonGeneralSettings[1]:SetChecked(false);
-            DFFriendlyNamePlates.NamePlatesGeneralSettings[1] = false
-            SetCVar("WorldTextMinSize", DFFriendlyNamePlates.WorldTextSettings[2]);
-            SetCVar("WorldTextMinAlpha", DFFriendlyNamePlates.WorldTextSettings[3]);
-            SetCVar("nameplateshowfriendlyPlayers", "0");
+    f:SetBackdrop({
+        bgFile = "Interface\\Addons\\DFFriendlyNameplates\\Media\\Textures\\WHITE8x8",
+        edgeFile = "Interface\\Addons\\DFFriendlyNameplates\\Media\\Textures\\WHITE8x8",
+        tile = false,
+        tileSize = 0,
+        edgeSize = 2,
+        insets = { left = 2, right = 2, top = 2, bottom = 2 }
+    })
+    f:SetBackdropColor(0.05, 0.05, 0.08, 0.98)
+    f:SetBackdropBorderColor(0.4, 0.4, 0.5, 1)
+
+    f:SetFrameStrata("HIGH")
+
+    f.title = HttpsxLib:CreateText(f, "DF Friendly Nameplates - Midnight", "TOPLEFT", f, "TOPLEFT", 20, -15, 13,
+        { 1, 0.9, 0.6 }, "OUTLINE")
+
+    f.subtitle = HttpsxLib:CreateText(f, "Version: " .. ADDON_VERSION, "TOPLEFT", f.title, "BOTTOMLEFT", 0, -5, 11,
+        { 0.7, 0.7, 0.8, 0.8 }, "")
+
+    f.closeButton = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+    f.closeButton:SetPoint("TOPRIGHT", f, "TOPRIGHT", -5, -5)
+    f.closeButton:SetSize(24, 24)
+
+    f.tabList = CreateFrame("Frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
+    f.tabList:SetSize(290, 35)
+    f.tabList:SetPoint("TOPLEFT", 15, -60)
+    f.tabList:SetBackdrop({
+        bgFile = "Interface\\AddOns\\DFFriendlyNameplates\\Media\\Textures\\WHITE8X8",
+        edgeFile =
+        "Interface\\AddOns\\DFFriendlyNameplates\\Media\\border.tga",
+        edgeSize = 12,
+        tileSize = 0,
+        insets = { left = 2.5, right = 2.5, top = 2.5, bottom = 2.5 }
+    })
+    f.tabList:SetBackdropColor(0.08, 0.08, 0.12, 0.95)
+    f.tabList:SetBackdropBorderColor(0.3, 0.3, 0.4, 1)
+
+    f.mainContent = CreateFrame("Frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
+    f.mainContent:SetSize(290, 295)
+    f.mainContent:SetPoint("TOPLEFT", 15, -95)
+    f.mainContent:SetBackdrop({
+        bgFile = "Interface\\AddOns\\DFFriendlyNameplates\\Media\\Textures\\WHITE8X8",
+        edgeFile =
+        "Interface\\AddOns\\DFFriendlyNameplates\\Media\\border.tga",
+        edgeSize = 12,
+        tileSize = 0,
+        insets = { left = 2.5, right = 2.5, top = 2.5, bottom = 2.5 }
+    })
+    f.mainContent:SetBackdropColor(0.1, 0.1, 0.13, 0.97)
+    f.mainContent:SetBackdropBorderColor(0.3, 0.3, 0.35, 1)
+
+    self.frame = f
+    self.mainContent = f.mainContent
+    self.tabButtons = {}
+
+    for i, v in pairs({ "httpsxnp", "cfrn", "friendlynameplates", "dffn" }) do
+        _G["SLASH_CFRN" .. i] = "/" .. v
+    end
+
+    SlashCmdList["CFRN"] = function()
+        if f:IsShown() then
+            f:Hide()
         else
-            SetCVar("WorldTextMinSize", 0);
-            SetCVar("WorldTextMinAlpha", 0.5);
-            SetCVar("nameplateshowfriendlyPlayers", "1");
+            f:Show()
+            f:SetAlpha(0)
+            f:Show()
+            UIFrameFadeIn(f, 0.3, 0, 1)
         end
-end)
+    end
+end
 
+DFFNamePlates:CreateMainUI()
 
-httpsxFriendlyNamePlates:RegisterEvent("PLAYER_ENTERING_WORLD")
+httpsxFriendlyNamePlates:RegisterEvent("PLAYER_LOGIN")
 httpsxFriendlyNamePlates:SetScript("OnEvent", function()
-        
-        --UIParentLoadAddOn("Blizzard_DebugTools")
-        
-        httpsxFriendlyNamePlates.config.default = {
-            ["NamePlatesSettings"] = {
-                true,
-                true,
-                true
-            },
-            ["WorldTextSettings"] = {
-                false, -- [1]
-                10,
-                1,
-            },
-            ["NamePlatesGeneralSettings"] = {
-                true,
-            },
-        }
-        
-        if not DFFriendlyNamePlates 
-        or not DFFriendlyNamePlates.NamePlatesGeneralSettings
+    --UIParentLoadAddOn("Blizzard_DebugTools")
+
+    for name, tab in pairs(DFFNamePlates.tabs) do
+        if type(tab.module.OnLoad) == "function" then
+            tab.module:OnLoad()
+        end
+    end
+
+    DFFNamePlates:SwitchTab("Nameplates")
+    DFFNamePlates:SetActiveTab(DFFNamePlates.tabButtons[1])
+
+    httpsxFriendlyNamePlates.config.default = {
+        ["NamePlatesSettings"] = {
+            ["enabled"] = true,
+            ["showOnlyName"] = true,
+            ["showClassColor"] = true,
+            ["customFont"] = false,
+            ["fontName"] = defaultFont,
+            ["fontSize"] = defaultFontSize,
+            ["fontStyle"] = defaultFontFlags,
+            ["hideCastBar"] = false,
+        },
+        ["WorldTextSettings"] = {
+            ["enabled"] = false,
+            ["alwaysShow"] = false,
+            ["hidePlayerGuild"] = GetCVar("UnitNamePlayerGuild") and GetCVar("UnitNamePlayerGuild") == "0" or false,
+            ["hidePlayerTitle"] = GetCVar("UnitNamePlayerPVPTitle") and GetCVar("UnitNamePlayerPVPTitle") == "0" or false,
+            ["worldTextSize"] = GetCVar("WorldTextMinSize") or DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE,
+            ["worldTextAlpha"] = GetCVar("WorldTextMinAlpha_v2") or DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA,
+        },
+        ["ExtendedSettings"] = {
+        },
+        ["Settings"] = {
+            ["version"] = CONFIG_VERSION,
+        },
+    }
+
+    if not DFFriendlyNamePlates
+        or not DFFriendlyNamePlates.NamePlatesSettings
         or not DFFriendlyNamePlates.WorldTextSettings
-        then
-            local updateConfig = false
-            local oldConfig = false
-            local oldCname = false
-            if (DFFriendlyNamePlates and DFFriendlyNamePlates.NamePlatesSettings) then oldConfig = DFFriendlyNamePlates.NamePlatesSettings end
+        or not DFFriendlyNamePlates.Settings
+        or DFFriendlyNamePlates.Settings.version ~= CONFIG_VERSION
+    then
+        DFFriendlyNamePlates = httpsxFriendlyNamePlates.config.default
+    end
 
-            if (oldConfig and #oldConfig == 1) then
-                updateConfig = true
-            end
-            DFFriendlyNamePlates = httpsxFriendlyNamePlates.config.default
-            
-            if (updateConfig) then
-                --print("Update config 1.0 -> 1.1")
-                --DFFriendlyNamePlates.NamePlatesFriendlySettings[1] = oldConfig[2]
-            end
-            
-        end
-        
-        for i=1, #checkButtonGeneralSettings do
-            local setChange = DFFriendlyNamePlates.NamePlatesGeneralSettings[i]; 
-            checkButtonGeneralSettings[i]:SetChecked(setChange);
-            if (i==1 and setChange) then
-                SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", setChange)
-                SetCVar("nameplateshowfriendlyPlayers", "1");
-            end
-        end
 
-        for i=1, #checkButtonSettings do
-            local setChange = DFFriendlyNamePlates.WorldTextSettings[i]; 
-            checkButtonSettings[i]:SetChecked(setChange);
-            if (i==1) then
-                if (setChange) then
-                    SetCVar("WorldTextMinSize", DFFriendlyNamePlates.WorldTextSettings[2]);
-                    SetCVar("WorldTextMinAlpha", DFFriendlyNamePlates.WorldTextSettings[3]);
-                    SetCVar("nameplateshowfriendlyPlayers", "0");
-                else
-                    SetCVar("WorldTextMinSize", 0);
-                    SetCVar("WorldTextMinAlpha", 0.5);
-                    SetCVar("nameplateshowfriendlyPlayers", "1");
-                end
-            end
-        end
+    DFFNamePlates.settings.NamePlatesSettings["showOnlyName"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
+        ["showOnlyName"])
+    DFFNamePlates.settings.NamePlatesSettings["showClassColor"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
+        ["showClassColor"])
+    DFFNamePlates.settings.NamePlatesSettings["customFont"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
+        ["customFont"])
+    DFFNamePlates.settings.NamePlatesSettings["fontName"]:SetValue(DFFriendlyNamePlates.NamePlatesSettings["fontName"])
+    DFFNamePlates.settings.NamePlatesSettings["fontSize"]:SetValue(DFFriendlyNamePlates.NamePlatesSettings["fontSize"])
+    DFFNamePlates.settings.NamePlatesSettings["fontStyle"]:SetValue(DFFriendlyNamePlates.NamePlatesSettings["fontStyle"])
+    DFFNamePlates.settings.NamePlatesSettings["enabled"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings["enabled"])
+    DFFNamePlates.settings.NamePlatesSettings["hideCastBar"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
+        ["hideCastBar"])
 
-        worldTextMinAlphaSlider:SetValue(DFFriendlyNamePlates.WorldTextSettings[3]);
-        worldTextSizeSlider:SetValue(DFFriendlyNamePlates.WorldTextSettings[2]);
+    DFFNamePlates.settings.WorldTextSettings["enabled"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings["enabled"])
+    DFFNamePlates.settings.WorldTextSettings["alwaysShow"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings
+        ["alwaysShow"])
+    DFFNamePlates.settings.WorldTextSettings["worldTextSize"]:SetValue(DFFriendlyNamePlates.WorldTextSettings
+        ["worldTextSize"])
+    DFFNamePlates.settings.WorldTextSettings["worldTextAlpha"]:SetValue(DFFriendlyNamePlates.WorldTextSettings
+        ["worldTextAlpha"])
+    DFFNamePlates.settings.WorldTextSettings["hidePlayerGuild"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings
+        ["hidePlayerGuild"])
+    DFFNamePlates.settings.WorldTextSettings["hidePlayerTitle"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings
+        ["hidePlayerTitle"])
 
-        --TableAttributeDisplay safe copy
-        --local tableInspectorPool = CreateFramePool("FRAME", UIParent, "TableAttributeDisplayTemplate");
-        --local attributeDisplay = tableInspectorPool:Acquire();
-        --attributeDisplay:OnLoad();
-        --attributeDisplay:SetTableFocusedCallback(tableFocusedCallback);
-        --attributeDisplay:InspectTable(focusedTable, customTitle);
-        --attributeDisplay:SetPoint("LEFT", 64 + math.random(0, 64), math.random(0, 64));
-        --attributeDisplay:Hide();      
-        --attributeDisplay:InspectTable(DefaultCompactNamePlateFriendlyFrameOptions)
-        --attributeDisplay.dataProviders[2].lines[3]:GetTableInspector():SetDynamicUpdates(true)
-       -- attributeDisplay.dataProviders[2].lines[3]:GetTableInspector():SetDynamicUpdates(false)
-        --for i=1, #attributeDisplay.dataProviders[2].lines do
-        --    if (attributeDisplay.dataProviders[2].lines[i].Value ~= nil) then
-        --       TableAttributeDisplayEditBox_OnEnterPressed(attributeDisplay.dataProviders[2].lines[i].Value)
-        --    end
-        --end
-                
-        --local needHideCastBar = DFFriendlyNamePlates.NamePlatesGeneralSettings[2];
-        local needHideCastBar = false;
-        if needHideCastBar then
-            --httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("NAME_PLATE_UNIT_ADDED")
-            --httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("FORBIDDEN_NAME_PLATE_UNIT_ADDED")
-            --httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
-            --httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("FORBIDDEN_NAME_PLATE_UNIT_REMOVED")
+
+    --nameplates
+    if DFFriendlyNamePlates.NamePlatesSettings["enabled"] then
+        SetCVar("nameplateshowfriendlyPlayers", "1");
+        DFFNamePlates:SetNPSettingsEnabled(true)
+    else
+        SetCVar("nameplateshowfriendlyPlayers", "0");
+        DFFNamePlates:SetNPSettingsEnabled(false)
+    end
+
+    if DFFriendlyNamePlates.NamePlatesSettings["showOnlyName"] then
+        SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", true)
+    end
+    if DFFriendlyNamePlates.NamePlatesSettings["showClassColor"] then
+        SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", true)
+    end
+    if DFFriendlyNamePlates.NamePlatesSettings["customFont"] then
+        DFFNamePlates:SetFontSettingsEnabled(true)
+        DFFNamePlates:UpdateFont()
+    else
+        DFFNamePlates:SetFontSettingsEnabled(false)
+    end
+
+    hooksecurefunc(NamePlateDriverFrame, "UpdateNamePlateSize", function(self)
+        if not DFFriendlyNamePlates.NamePlatesSettings["customFont"] then return end
+        DFFNamePlates:forceUpdateFont(true)
+    end)
+    hooksecurefunc(NamePlateDriverFrame, "OnNamePlateAdded", function(self, namePlateUnitToken)
+        if not DFFriendlyNamePlates.NamePlatesSettings["customFont"] then return end
+        if not namePlateUnitToken:match("^nameplate") then return end
+        local np = C_NamePlate.GetNamePlateForUnit(namePlateUnitToken)
+        if not np then
+            DFFNamePlates:forceUpdateFont(false)
+            -- print("player/forbiddenNP -> forceupdatefont")
+        else
+            DFFNamePlates:UpdateFontFrame(np.UnitFrame.name)
         end
-        
-        httpsxFriendlyNamePlates:UnregisterEvent("PLAYER_ENTERING_WORLD"); 
+    end)
+    --world text
+
+    if DFFriendlyNamePlates.WorldTextSettings["enabled"]
+        or DFFriendlyNamePlates.WorldTextSettings["alwaysShow"] then
+        SetCVar("WorldTextMinSize", DFFriendlyNamePlates.WorldTextSettings["worldTextSize"]);
+        SetCVar("WorldTextMinAlpha_v2", DFFriendlyNamePlates.WorldTextSettings["worldTextAlpha"]);
+    else
+        SetCVar("WorldTextMinSize", DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE);
+        SetCVar("WorldTextMinAlpha_v2", DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA);
+    end
+
+    if DFFriendlyNamePlates.WorldTextSettings["hidePlayerGuild"] then
+        SetCVar("UnitNamePlayerGuild", "0");
+    else
+        SetCVar("UnitNamePlayerGuild", "1");
+    end
+
+    if DFFriendlyNamePlates.WorldTextSettings["hidePlayerTitle"] then
+        SetCVar("UnitNamePlayerPVPTitle", "0");
+    else
+        SetCVar("UnitNamePlayerPVPTitle", "1");
+    end
+
+    --extended
+    DFFNamePlates.settings.ExtendedSettings["blizzardSize"]:SetValue(tonumber(GetCVar("nameplateSize")))
+    DFFNamePlates.settings.ExtendedSettings["blizzardStyle"]:SetValue(tostring(GetCVar("nameplateStyle")))
+
+    local needHideCastBar = DFFriendlyNamePlates.NamePlatesSettings["hideCastBar"];
+    if needHideCastBar then
+        httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("NAME_PLATE_UNIT_ADDED")
+        httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("FORBIDDEN_NAME_PLATE_UNIT_ADDED")
+        httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
+        httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("FORBIDDEN_NAME_PLATE_UNIT_REMOVED")
+    end
+
+    httpsxFriendlyNamePlates:UnregisterEvent("PLAYER_LOGIN");
 end)
 
 httpsxFriendlyNamePlates.hideCastBar:SetScript("OnEvent", function()
-        for _, frame in pairs(C_NamePlate.GetNamePlates(true)) do
-            if frame.template=="ForbiddenNamePlateUnitFrameTemplate" then
-                frame.UnitFrame.CastBar.showCastbar = false
-            else
-                frame.UnitFrame.CastBar.showCastbar = true
-            end
+    if not DFFriendlyNamePlates.NamePlatesSettings["hideCastBar"] then return end
+    if not DFFriendlyNamePlates.NamePlatesSettings["enabled"] then return end
+
+    for _, frame in pairs(C_NamePlate.GetNamePlates(true)) do
+        if frame.unitFrameTemplate == "ForbiddenNamePlateUnitFrameTemplate" then
+            TableUtil.TrySet(frame.UnitFrame.castBar, "showOnlyName")
+        else
+            frame.UnitFrame.castBar:SetShowOnlyName(false)
         end
+    end
 end)
-
-for i, v in pairs({"httpsxnp", "cfrn", "friendlynameplates", "dffn"}) do
-    _G["SLASH_CFRN"..i] = "/"..v
-end
-
-function SlashCmdList.CFRN()
-    local isShown = httpsxNamePlatesSettings:IsShown()
-    httpsxNamePlatesSettings:SetShown(not isShown)
-end
