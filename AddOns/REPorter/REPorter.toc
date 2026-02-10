@@ -24,6 +24,5 @@
 ## Category-zhTW: PvP
 ## DefaultState: disabled
 
-Libs\LibBabble-SubZone-3.0\lib.xml
 Locale\Locale.xml
 REPorter.xml
