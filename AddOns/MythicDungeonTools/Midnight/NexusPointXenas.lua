@@ -23,7 +23,7 @@ MDT.dungeonSubLevels[dungeonIndex] = {
   [1] = L["NexusPointXenas"],
 }
 
-MDT.dungeonTotalCount[dungeonIndex] = { normal = 572 }
+MDT.dungeonTotalCount[dungeonIndex] = { normal = 596 }
 
 MDT.mapPOIs[dungeonIndex] = {
   [1] = {
@@ -43,11 +43,19 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Shadowguard Defender",
     ["id"] = 241643,
     ["count"] = 5,
-    ["health"] = 1408385,
+    ["health"] = 1549222,
     ["scale"] = 1,
     ["displayId"] = 131485,
     ["creatureType"] = "Humanoid",
     ["level"] = 90,
+    ["spells"] = {
+      [1249645] = {
+      },
+      [1252218] = {
+      },
+      [1282745] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 398.11195411135,
@@ -133,17 +141,27 @@ MDT.dungeonEnemies[dungeonIndex] = {
         ["g"] = 34,
         ["sublevel"] = 1,
       },
+      [15] = {
+        ["x"] = 217.72797989989,
+        ["y"] = -252.34183271088,
+        ["g"] = 40,
+        ["sublevel"] = 1,
+      },
     },
   },
   [2] = {
     ["name"] = "Reformed Voidling",
     ["id"] = 248501,
     ["count"] = 1,
-    ["health"] = 579923,
+    ["health"] = 637915,
     ["scale"] = 1,
     ["displayId"] = 131529,
     ["creatureType"] = "Aberration",
     ["level"] = 90,
+    ["spells"] = {
+      [1252218] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 527.45840850745,
@@ -259,11 +277,25 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Corewright Arcanist",
     ["id"] = 241644,
     ["count"] = 5,
-    ["health"] = 1325539,
+    ["health"] = 1458091,
     ["scale"] = 1,
     ["displayId"] = 131625,
     ["creatureType"] = "Humanoid",
     ["level"] = 90,
+    ["spells"] = {
+      [1249815] = {
+      },
+      [1249818] = {
+      },
+      [1252218] = {
+      },
+      [1277451] = {
+      },
+      [1285445] = {
+      },
+      [1285450] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 417.79267582613,
@@ -331,11 +363,19 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Hollowsoul Scrounger",
     ["id"] = 241645,
     ["count"] = 3,
-    ["health"] = 1104616,
+    ["health"] = 1215076,
     ["scale"] = 1,
     ["displayId"] = 131528,
     ["creatureType"] = "Aberration",
     ["level"] = 90,
+    ["spells"] = {
+      [1227020] = {
+      },
+      [1252204] = {
+      },
+      [1252218] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 414.20048722761,
@@ -450,11 +490,19 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Flux Engineer",
     ["id"] = 241647,
     ["count"] = 7,
-    ["health"] = 1380770,
+    ["health"] = 1518845,
     ["scale"] = 1,
     ["displayId"] = 131487,
     ["creatureType"] = "Humanoid",
     ["level"] = 90,
+    ["spells"] = {
+      [1257124] = {
+      },
+      [1269283] = {
+      },
+      [1282950] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 294.73025087526,
@@ -510,11 +558,15 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Nexus Adept",
     ["id"] = 248708,
     ["count"] = 7,
-    ["health"] = 690385,
+    ["health"] = 759423,
     ["scale"] = 1,
     ["displayId"] = 131532,
     ["creatureType"] = "Humanoid",
     ["level"] = 90,
+    ["spells"] = {
+      [1271094] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 216.91638850047,
@@ -546,11 +598,23 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Circuit Seer",
     ["id"] = 248373,
     ["count"] = 15,
-    ["health"] = 1988307,
+    ["health"] = 2187135,
     ["scale"] = 1.5,
     ["displayId"] = 131484,
     ["creatureType"] = "Humanoid",
     ["level"] = 91,
+    ["spells"] = {
+      [1249801] = {
+      },
+      [1249806] = {
+      },
+      [1257100] = {
+      },
+      [1257103] = {
+      },
+      [1257105] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 252.49613284904,
@@ -582,11 +646,15 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Cursed Voidcaller",
     ["id"] = 248706,
     ["count"] = 3,
-    ["health"] = 552308,
+    ["health"] = 607538,
     ["scale"] = 1,
     ["displayId"] = 131624,
     ["creatureType"] = "Aberration",
     ["level"] = 90,
+    ["spells"] = {
+      [1281636] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 532.95354449314,
@@ -630,11 +698,27 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Dreadflail",
     ["id"] = 248506,
     ["count"] = 8,
-    ["health"] = 2347309,
+    ["health"] = 2582037,
     ["scale"] = 1.5,
     ["displayId"] = 131531,
     ["creatureType"] = "Aberration",
     ["level"] = 91,
+    ["spells"] = {
+      [1252218] = {
+      },
+      [1252436] = {
+      },
+      [1252437] = {
+      },
+      [1252438] = {
+      },
+      [1252621] = {
+      },
+      [1252622] = {
+      },
+      [1252628] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 649.54784169807,
@@ -648,11 +732,23 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Duskfright Herald",
     ["id"] = 241660,
     ["count"] = 15,
-    ["health"] = 1767384,
+    ["health"] = 1944120,
     ["scale"] = 1.5,
     ["displayId"] = 131525,
     ["creatureType"] = "Aberration",
     ["level"] = 91,
+    ["spells"] = {
+      [1252062] = {
+      },
+      [1252076] = {
+      },
+      [1252134] = {
+      },
+      [1254096] = {
+      },
+      [1259359] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 567.55919991938,
@@ -684,11 +780,23 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Grand Nullifier",
     ["id"] = 251853,
     ["count"] = 7,
-    ["health"] = 1380770,
+    ["health"] = 1518845,
     ["scale"] = 1.5,
     ["displayId"] = 137240,
     ["creatureType"] = "Aberration",
     ["level"] = 90,
+    ["spells"] = {
+      [1252218] = {
+      },
+      [1258681] = {
+      },
+      [1258684] = {
+      },
+      [1281634] = {
+      },
+      [1281637] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 634.36005781442,
@@ -697,15 +805,15 @@ MDT.dungeonEnemies[dungeonIndex] = {
         ["sublevel"] = 1,
       },
       [2] = {
-        ["x"] = 692.23721765508,
-        ["y"] = -227.05743574988,
-        ["g"] = 19,
+        ["x"] = 686.01836103421,
+        ["y"] = -226.43557314597,
+        ["g"] = 18,
         ["sublevel"] = 1,
       },
       [3] = {
-        ["x"] = 650.44668284871,
-        ["y"] = -204.17216860449,
-        ["g"] = 20,
+        ["x"] = 653.24512221175,
+        ["y"] = -206.97062443765,
+        ["g"] = 18,
         ["sublevel"] = 1,
       },
       [4] = {
@@ -732,11 +840,23 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Null Sentinel",
     ["id"] = 248502,
     ["count"] = 15,
-    ["health"] = 2209232,
+    ["health"] = 2430152,
     ["scale"] = 1.5,
     ["displayId"] = 131526,
     ["creatureType"] = "Aberration",
     ["level"] = 91,
+    ["spells"] = {
+      [1252218] = {
+      },
+      [1252406] = {
+      },
+      [1252414] = {
+      },
+      [1252417] = {
+      },
+      [1252429] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 583.57670289594,
@@ -762,11 +882,25 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Lingering Image",
     ["id"] = 241642,
     ["count"] = 15,
-    ["health"] = 2015924,
+    ["health"] = 2217514,
     ["scale"] = 1.5,
     ["displayId"] = 140945,
     ["creatureType"] = "Humanoid",
     ["level"] = 91,
+    ["spells"] = {
+      [1257701] = {
+      },
+      [1257736] = {
+      },
+      [1257745] = {
+      },
+      [1257746] = {
+      },
+      [1264354] = {
+      },
+      [1281657] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 405.90992001108,
@@ -799,8 +933,8 @@ MDT.dungeonEnemies[dungeonIndex] = {
         ["sublevel"] = 1,
       },
       [6] = {
-        ["x"] = 463.88212073668,
-        ["y"] = -176.80920963743,
+        ["x"] = 451.05173171499,
+        ["y"] = -182.83163147635,
         ["g"] = 47,
         ["sublevel"] = 1,
       },
@@ -810,18 +944,18 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Radiant Swarm",
     ["id"] = 254932,
     ["count"] = 2,
-    ["health"] = 483270,
+    ["health"] = 531596,
     ["scale"] = 0.7,
     ["displayId"] = 52309,
     ["creatureType"] = "Not specified",
     ["level"] = 90,
-    ["clones"] = {
-      [1] = {
-        ["x"] = 353.25090628382,
-        ["y"] = -198.71623221971,
-        ["g"] = 53,
-        ["sublevel"] = 1,
+    ["spells"] = {
+      [1263775] = {
       },
+      [1282944] = {
+      },
+    },
+    ["clones"] = {
       [2] = {
         ["x"] = 409.15652072169,
         ["y"] = -272.33034074797,
@@ -846,94 +980,40 @@ MDT.dungeonEnemies[dungeonIndex] = {
         ["g"] = 43,
         ["sublevel"] = 1,
       },
-      [6] = {
-        ["x"] = 348.64987940566,
-        ["y"] = -191.76872608053,
-        ["g"] = 53,
-        ["sublevel"] = 1,
-      },
-      [7] = {
-        ["x"] = 341.99327609441,
-        ["y"] = -192.23191516308,
-        ["g"] = 53,
-        ["sublevel"] = 1,
-      },
-      [8] = {
-        ["x"] = 346.24569996831,
-        ["y"] = -198.40485171519,
-        ["g"] = 53,
-        ["sublevel"] = 1,
-      },
-      [9] = {
-        ["x"] = 350.83890292803,
-        ["y"] = -205.20758334891,
-        ["g"] = 53,
-        ["sublevel"] = 1,
-      },
       [10] = {
-        ["x"] = 334.41288380602,
-        ["y"] = -147.9781316614,
-        ["g"] = 54,
+        ["x"] = 348.71616838937,
+        ["y"] = -152.95319719395,
+        ["g"] = 58,
         ["sublevel"] = 1,
       },
       [11] = {
-        ["x"] = 342.25780171474,
-        ["y"] = -149.35540900944,
-        ["g"] = 54,
+        ["x"] = 354.38449306883,
+        ["y"] = -154.95235361602,
+        ["g"] = 58,
         ["sublevel"] = 1,
       },
       [12] = {
-        ["x"] = 331.29696887089,
-        ["y"] = -155.5506828708,
-        ["g"] = 54,
+        ["x"] = 345.60025345424,
+        ["y"] = -159.28202319553,
+        ["g"] = 58,
         ["sublevel"] = 1,
       },
       [13] = {
-        ["x"] = 339.2570205441,
-        ["y"] = -158.09060808032,
-        ["g"] = 54,
+        ["x"] = 352.93840958328,
+        ["y"] = -160.57812437647,
+        ["g"] = 58,
         ["sublevel"] = 1,
       },
       [14] = {
         ["x"] = 396.18409755766,
         ["y"] = -166.97110472802,
-        ["g"] = 52,
+        ["g"] = 56,
         ["sublevel"] = 1,
       },
       [15] = {
-        ["x"] = 396.28355073165,
-        ["y"] = -173.88637152002,
-        ["g"] = 52,
-        ["sublevel"] = 1,
-      },
-      [16] = {
-        ["x"] = 500.16195474675,
-        ["y"] = -214.92672506072,
-        ["g"] = 46,
-        ["sublevel"] = 1,
-      },
-      [17] = {
-        ["x"] = 504.6775963795,
-        ["y"] = -209.64460725483,
-        ["g"] = 46,
-        ["sublevel"] = 1,
-      },
-      [18] = {
-        ["x"] = 508.66957431929,
-        ["y"] = -204.33625282895,
-        ["g"] = 46,
-        ["sublevel"] = 1,
-      },
-      [19] = {
-        ["x"] = 506.51764235857,
-        ["y"] = -216.45971566447,
-        ["g"] = 46,
-        ["sublevel"] = 1,
-      },
-      [20] = {
-        ["x"] = 511.587799371,
-        ["y"] = -211.44421625026,
-        ["g"] = 46,
+        ["x"] = 399.4256766287,
+        ["y"] = -173.62454156485,
+        ["g"] = 56,
         ["sublevel"] = 1,
       },
       [21] = {
@@ -949,26 +1029,26 @@ MDT.dungeonEnemies[dungeonIndex] = {
         ["sublevel"] = 1,
       },
       [23] = {
-        ["x"] = 474.82724449175,
-        ["y"] = -157.27087213913,
+        ["x"] = 474.56541453658,
+        ["y"] = -171.93418180368,
         ["g"] = 49,
         ["sublevel"] = 1,
       },
       [24] = {
-        ["x"] = 470.07834786724,
-        ["y"] = -162.38161401541,
+        ["x"] = 469.55466021773,
+        ["y"] = -165.26190995729,
         ["g"] = 49,
         ["sublevel"] = 1,
       },
       [25] = {
-        ["x"] = 382.29122245199,
-        ["y"] = -146.27492662392,
+        ["x"] = 387.26628286148,
+        ["y"] = -151.24997316383,
         ["g"] = 55,
         ["sublevel"] = 1,
       },
       [26] = {
-        ["x"] = 373.83358849259,
-        ["y"] = -145.27992016477,
+        ["x"] = 380.11785415627,
+        ["y"] = -149.20759140566,
         ["g"] = 55,
         ["sublevel"] = 1,
       },
@@ -978,11 +1058,17 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Lightwrought",
     ["id"] = 254926,
     ["count"] = 7,
-    ["health"] = 1173655,
+    ["health"] = 1291018,
     ["scale"] = 1,
     ["displayId"] = 140804,
     ["creatureType"] = "Elemental",
     ["level"] = 90,
+    ["spells"] = {
+      [1263892] = {
+      },
+      [1277557] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 415.62412300243,
@@ -997,27 +1083,27 @@ MDT.dungeonEnemies[dungeonIndex] = {
         ["sublevel"] = 1,
       },
       [3] = {
-        ["x"] = 352.19215181557,
-        ["y"] = -167.04568223801,
+        ["x"] = 348.0517160701,
+        ["y"] = -169.4513836421,
         ["g"] = 58,
         ["sublevel"] = 1,
       },
       [4] = {
-        ["x"] = 352.62754325617,
-        ["y"] = -147.45643433742,
+        ["x"] = 354.19862007428,
+        ["y"] = -145.88539912806,
         ["g"] = 58,
         ["sublevel"] = 1,
       },
       [5] = {
-        ["x"] = 400.45020225422,
-        ["y"] = -182.71713974911,
-        ["g"] = 51,
+        ["x"] = 392.85671746677,
+        ["y"] = -179.05132620255,
+        ["g"] = 56,
         ["sublevel"] = 1,
       },
       [6] = {
-        ["x"] = 462.88711427753,
-        ["y"] = -187.25688286733,
-        ["g"] = 47,
+        ["x"] = 463.41085740536,
+        ["y"] = -169.97513495524,
+        ["g"] = 49,
         ["sublevel"] = 1,
       },
     },
@@ -1026,11 +1112,17 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Flarebat",
     ["id"] = 254928,
     ["count"] = 3,
-    ["health"] = 11506416,
+    ["health"] = 2217514,
     ["scale"] = 1,
     ["displayId"] = 138559,
     ["creatureType"] = "Beast",
     ["level"] = 90,
+    ["spells"] = {
+      [1263783] = {
+      },
+      [1263785] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 399.70388030315,
@@ -1045,8 +1137,8 @@ MDT.dungeonEnemies[dungeonIndex] = {
         ["sublevel"] = 1,
       },
       [3] = {
-        ["x"] = 386.83093007726,
-        ["y"] = -161.13782877851,
+        ["x"] = 387.35460385719,
+        ["y"] = -169.51688664896,
         ["g"] = 56,
         ["sublevel"] = 1,
       },
@@ -1057,9 +1149,9 @@ MDT.dungeonEnemies[dungeonIndex] = {
         ["sublevel"] = 1,
       },
       [5] = {
-        ["x"] = 471.08271839177,
-        ["y"] = -182.62879303655,
-        ["g"] = 47,
+        ["x"] = 467.67873480039,
+        ["y"] = -177.39191654147,
+        ["g"] = 49,
         ["sublevel"] = 1,
       },
     },
@@ -1068,7 +1160,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Kasreth",
     ["id"] = 241539,
     ["count"] = 0,
-    ["health"] = 9061303,
+    ["health"] = 9967420,
     ["scale"] = 1.5,
     ["displayId"] = 131510,
     ["creatureType"] = "Humanoid",
@@ -1076,6 +1168,34 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["isBoss"] = true,
     ["encounterID"] = 2658,
     ["instanceID"] = 0,
+    ["spells"] = {
+      [1250553] = {
+      },
+      [1251626] = {
+      },
+      [1251767] = {
+      },
+      [1251772] = {
+      },
+      [1257509] = {
+      },
+      [1257512] = {
+      },
+      [1257524] = {
+      },
+      [1264040] = {
+      },
+      [1264042] = {
+      },
+      [1264048] = {
+      },
+      [1265894] = {
+      },
+      [1276485] = {
+      },
+      [1282915] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 177.61211723048,
@@ -1088,7 +1208,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Corewarden Nysarra",
     ["id"] = 241542,
     ["count"] = 0,
-    ["health"] = 28766040,
+    ["health"] = 31642602,
     ["scale"] = 1.5,
     ["displayId"] = 131511,
     ["creatureType"] = "Aberration",
@@ -1096,6 +1216,26 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["isBoss"] = true,
     ["encounterID"] = 2658,
     ["instanceID"] = 0,
+    ["spells"] = {
+      [1247937] = {
+      },
+      [1248007] = {
+      },
+      [1249014] = {
+      },
+      [1249027] = {
+      },
+      [1252875] = {
+      },
+      [1252883] = {
+      },
+      [1254096] = {
+      },
+      [1259359] = {
+      },
+      [1271433] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 744.40628827143,
@@ -1109,7 +1249,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Lothraxion",
     ["id"] = 241546,
     ["count"] = 0,
-    ["health"] = 11506416,
+    ["health"] = 12657041,
     ["scale"] = 1.5,
     ["displayId"] = 137705,
     ["creatureType"] = "Humanoid",
@@ -1117,6 +1257,26 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["isBoss"] = true,
     ["encounterID"] = 2658,
     ["instanceID"] = 0,
+    ["spells"] = {
+      [1253855] = {
+      },
+      [1253950] = {
+      },
+      [1255208] = {
+      },
+      [1255310] = {
+      },
+      [1255335] = {
+      },
+      [1255503] = {
+      },
+      [1257595] = {
+      },
+      [1257613] = {
+      },
+      [1282791] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 432.53485037704,
@@ -1130,11 +1290,15 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Smudge",
     ["id"] = 248769,
     ["count"] = 0,
-    ["health"] = 167968,
+    ["health"] = 197950,
     ["scale"] = 1,
     ["displayId"] = 141002,
     ["creatureType"] = "Elemental",
     ["level"] = 90,
+    ["spells"] = {
+      [1257268] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 282.11639963109,
@@ -1147,11 +1311,15 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "[DNT] Conduit Stalker",
     ["id"] = 250299,
     ["count"] = 0,
-    ["health"] = 230128,
+    ["health"] = 253141,
     ["scale"] = 1,
     ["displayId"] = 169,
     ["creatureType"] = "Not specified",
     ["level"] = 90,
+    ["spells"] = {
+      [1251579] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 324.14694630317,
@@ -1164,11 +1332,19 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Null Guardian",
     ["id"] = 251024,
     ["count"] = 0,
-    ["health"] = 460257,
+    ["health"] = 556910,
     ["scale"] = 1,
-    ["displayId"] = 131526,
+    ["displayId"] = 131531,
     ["creatureType"] = "Aberration",
     ["level"] = 91,
+    ["spells"] = {
+      [1282663] = {
+      },
+      [1282664] = {
+      },
+      [1282665] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 323.04205576769,
@@ -1181,15 +1357,21 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Wretched Supplicant",
     ["id"] = 251031,
     ["count"] = 0,
-    ["health"] = 276154,
-    ["scale"] = 2.3,
+    ["health"] = 303769,
+    ["scale"] = 1.2,
     ["displayId"] = 137240,
     ["creatureType"] = "Aberration",
     ["level"] = 91,
+    ["spells"] = {
+      [1282722] = {
+      },
+      [1282723] = {
+      },
+    },
     ["clones"] = {
       [1] = {
-        ["x"] = 344.87503936583,
-        ["y"] = -68.737018437066,
+        ["x"] = 342.88502644753,
+        ["y"] = -74.707057191973,
         ["sublevel"] = 1,
       },
     },
@@ -1198,11 +1380,21 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Fractured Image",
     ["id"] = 251568,
     ["count"] = 0,
-    ["health"] = 99983,
+    ["health"] = 142370,
     ["scale"] = 1,
     ["displayId"] = 136110,
     ["creatureType"] = "Humanoid",
     ["level"] = 92,
+    ["spells"] = {
+      [1257601] = {
+      },
+      [1269220] = {
+      },
+      [1269222] = {
+      },
+      [1271956] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 422.82128032426,
@@ -1256,7 +1448,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Mana Battery",
     ["id"] = 252825,
     ["count"] = 0,
-    ["health"] = 207116,
+    ["health"] = 227827,
     ["scale"] = 1,
     ["displayId"] = 137629,
     ["creatureType"] = "Not specified",
@@ -1273,7 +1465,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Corespark Conduit",
     ["id"] = 252852,
     ["count"] = 0,
-    ["health"] = 662769,
+    ["health"] = 729045,
     ["scale"] = 1,
     ["displayId"] = 138268,
     ["creatureType"] = "Not specified",
@@ -1290,11 +1482,15 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Corewarden Nysarra",
     ["id"] = 254227,
     ["count"] = 0,
-    ["health"] = 66276960,
+    ["health"] = 72904560,
     ["scale"] = 1,
     ["displayId"] = 131511,
     ["creatureType"] = "Aberration",
     ["level"] = 92,
+    ["spells"] = {
+      [1271388] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 759.94296060257,
@@ -1320,11 +1516,17 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Broken Pipe",
     ["id"] = 254459,
     ["count"] = 0,
-    ["health"] = 19618,
+    ["health"] = 132410,
     ["scale"] = 1,
     ["displayId"] = 169,
     ["creatureType"] = "Not specified",
     ["level"] = 90,
+    ["spells"] = {
+      [1262088] = {
+      },
+      [1262630] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 339.4225445404,
@@ -1337,11 +1539,17 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Corespark Pylon",
     ["id"] = 254485,
     ["count"] = 0,
-    ["health"] = 100419,
+    ["health"] = 145651,
     ["scale"] = 1,
     ["displayId"] = 169,
     ["creatureType"] = "Not specified",
     ["level"] = 90,
+    ["spells"] = {
+      [1262088] = {
+      },
+      [1262630] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 351.907576893,
@@ -1354,11 +1562,15 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Fractured Image",
     ["id"] = 255179,
     ["count"] = 0,
-    ["health"] = 1610898,
+    ["health"] = 1771986,
     ["scale"] = 1,
     ["displayId"] = 140945,
     ["creatureType"] = "Humanoid",
     ["level"] = 91,
+    ["spells"] = {
+      [1264429] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 449.53959586199,
@@ -1378,11 +1590,15 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Mana Battery",
     ["id"] = 259569,
     ["count"] = 0,
-    ["health"] = 236191,
+    ["health"] = 227827,
     ["scale"] = 1,
-    ["displayId"] = 121037,
-    ["creatureType"] = "Humanoid",
+    ["displayId"] = 137629,
+    ["creatureType"] = "Not specified",
     ["level"] = 90,
+    ["spells"] = {
+      [1257126] = {
+      },
+    },
     ["clones"] = {
       [1] = {
         ["x"] = 293.93148432953,
@@ -1395,7 +1611,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Core Technician",
     ["id"] = 249711,
     ["count"] = 1,
-    ["health"] = 486031,
+    ["health"] = 534633,
     ["scale"] = 1,
     ["displayId"] = 132030,
     ["creatureType"] = "Humanoid",
