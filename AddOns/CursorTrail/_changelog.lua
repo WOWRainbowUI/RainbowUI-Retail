@@ -8,13 +8,32 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 12.0.1.1
+Released 2026-02-10
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 12.0.1.1 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for Retail WoW 12.0.1.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 5.5.3.3 for Classic Mists of Pandaria
+Version 2.5.5.3 for Classic Burning Crusade
+Version 1.15.8.5 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No changes.
+
+Known Issues:
+- In Classic Burning Crusade, some of the choices in models list do not work properly.  (e.g. "Spots - Flare" and Glow - Electric, Red".)
+
+=======================================
 RELEASE 12.0.0.1
 Released 2026-01-23
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 12.0.0.1 for Retail WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Retail WoW 12.0.0.
+- Updated for Retail WoW 12.0.0 (Midnight).
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 5.5.3.2 for Classic Mists of Pandaria
@@ -30,7 +49,7 @@ Released 2026-01-20
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 11.2.7.2 for Retail WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
-:ATTENTION:  
+:ATTENTION:
 CursorTrail has NOT been updated to work with WoW Midnight.
 My computer is too old to run Midnight, so I am attempting to switch to Linux.  New hardware should arrive in 2-3 weeks.  Hopefully, I can get the game running and test CursorTrail on Midnight after that.
 
@@ -56,7 +75,7 @@ Released 2025-12-02
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 11.2.7.1 for Retail WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Retail WoW 11.2.7.
+- Updated for Retail WoW 11.2.7 (The War Within).
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 5.5.2.2 for Classic Mists of Pandaria
@@ -95,7 +114,7 @@ Released 2025-08-05
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 11.2.0.1 for Retail WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Retail WoW 11.2.0.
+- Updated for Retail WoW 11.2.0 (The War Within).
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 11.2.0.1 for Retail WoW
@@ -127,7 +146,7 @@ Released 2025-06-17
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 11.1.7.1 for Retail WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Retail WoW 11.1.7.
+- Updated for Retail WoW 11.1.7 (The War Within).
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 4.4.2.6 for Classic Cataclysm
@@ -154,7 +173,7 @@ Released 2025-02-26
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 Version 11.1.0.1 for Retail WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Retail WoW 11.1.0.
+- Updated for Retail WoW 11.1.0 (The War Within).
 - Fixed bug that caused cursor FX to not move while CursorTrail settings were open and the mouse was over the world background.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -

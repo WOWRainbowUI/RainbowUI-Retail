@@ -1,8 +1,8 @@
-## Interface: 120000
+## Interface: 120001
 ## Title: CursorTrail
 ## Notes: Adds a shape, shadow, and glowing trail effect to your mouse cursor.
 ## Author: UppyDan
-## Version: 12.0.0.1
+## Version: 12.0.1.1
 ## IconTexture: Interface\Icons\INV_Enchant_EssenceEternalLarge
 ## SavedVariables: CursorTrail_Config
 ## SavedVariablesPerCharacter: CursorTrail_PlayerConfig
