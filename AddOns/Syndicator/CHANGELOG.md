@@ -1,7 +1,7 @@
 # Syndicator
 
-## [260](https://github.com/TheMouseNest/Syndicator/tree/260) (2026-02-02)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/259...260) 
+## [261](https://github.com/TheMouseNest/Syndicator/tree/261) (2026-02-10)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/260...261) 
 
-- Fix for ItemVersion API changing  
-- Add "cata" as abbreviation for cataclysm  
+- Update toc for 12.0.1  
+- Fix access to ItemVersion lookup structure (#84)  
