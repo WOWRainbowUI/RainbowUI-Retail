@@ -1876,7 +1876,7 @@ do
 				C_CVar.SetCVar("encounterTimelineShowSequenceCount", "1")--Enable count on timers
 				--Another white bar hack to restore respawn timer back to users default bar color
 				local timerRed, timerGreen, timerBlue = DBT:GetColorForType(0)
-				C_EncounterEvents.SetEventColor(160, {r = timerRed, g = timerGreen, b = timerBlue})
+				-- C_EncounterEvents.SetEventColor(160, {r = timerRed, g = timerGreen, b = timerBlue}) 暫時修正
 				if self.Options.HideBlizzardTimeline then
 					C_CVar.SetCVar("encounterTimelineEnabled", "0")
 					if EncounterTimeline.View then
