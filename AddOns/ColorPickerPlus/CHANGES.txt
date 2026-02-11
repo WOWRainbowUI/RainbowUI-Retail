@@ -1,10 +1,20 @@
-tag 4cd580ad911e7308a7397bc8e9ebb2bbc165cd41 r65
+tag 8b0af56817dbaf2b92d306865bca66d4d6e69556 r66
 Author:	Benjamin Staneck <staneck@gmail.com>
-Date:	Fri May 16 20:26:14 2025 +0200
+Date:	Wed Feb 11 00:08:52 2026 +0100
 
-commit 1804c8f546cbdb4e3eb0a23c6b784db7bdfca3a3
+commit 323e288993645ec4c21daedf2a467a445fbb47a2
 Author: Benjamin Staneck <staneck@gmail.com>
-Date:   Fri May 16 20:25:55 2025 +0200
+Date:   Wed Feb 11 00:08:42 2026 +0100
 
-    feat: support MoP
+    chore: update toc
+
+commit f15f4cfbc162f8d9a5cfcad9eebb0890cb9a67a9
+Author: Body <79547183+Bodify@users.noreply.github.com>
+Date:   Mon Dec 29 15:14:13 2025 +0100
+
+    tbc support (#28)
+    
+    * fixup tbc support
+    
+    * move isTBC local up for orders sake
 
