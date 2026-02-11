@@ -92,9 +92,10 @@ end
 function Target:OnEnable()
 	self.Bar:RegisterEvents()
 	self.Bar:RegisterEvent("PLAYER_TARGET_CHANGED")
-	if TargetFrameSpellBar then
-		self:HookScript(TargetFrameSpellBar, "OnEvent", "Target_Spellbar_OnEvent")
-	end
+	
+	self:RegisterEvent("CVAR_UPDATE")
+	self:RegisterEvent("VARIABLES_LOADED")
+
 	self.Bar.PLAYER_TARGET_CHANGED = self.Bar.UpdateUnit
 	self.lastNotInterruptible = false
 	self:ApplySettings()
@@ -103,6 +104,7 @@ end
 function Target:OnDisable()
 	self.Bar:UnregisterEvents()
 	self.Bar:Hide()
+	self:UnregisterAllEvents()
 end
 
 function Target:PreShowCondition(bar, unit)
@@ -117,12 +119,9 @@ function Target:ApplySettings()
 
 	if TargetFrameSpellBar then
 		if self:IsEnabled() and db.hideblizz then
-			TargetFrameSpellBar.showCastbar = false
+			TargetFrameSpellBar:UnregisterAllEvents()
 			TargetFrameSpellBar:Hide()
-		else
-			if GetCVar("showTargetCastbar") ~= "0" then
-				TargetFrameSpellBar.showCastbar = true
-			end
+		-- We cannot safely re-enable it without a reload because we stripped its events
 		end
 	end
 
@@ -132,11 +131,17 @@ function Target:ApplySettings()
 	end
 end
 
-function Target:Target_Spellbar_OnEvent(frame, event, arg1)
-	if (event == "VARIABLES_LOADED" or (event == "CVAR_UPDATE" and arg1 == "SHOW_TARGET_CASTBAR")) and self:IsEnabled() and db.hideblizz then
-		TargetFrameSpellBar.showCastbar = false
-		TargetFrameSpellBar:Hide()
+function Target:CVAR_UPDATE(event, cvar)
+	if cvar == "SHOW_TARGET_CASTBAR" and self:IsEnabled() and db.hideblizz then
+		if TargetFrameSpellBar then
+			TargetFrameSpellBar:UnregisterAllEvents()
+			TargetFrameSpellBar:Hide()
+		end
 	end
+end
+
+function Target:VARIABLES_LOADED()
+	self:ApplySettings()
 end
 
 function Target:Unlock()

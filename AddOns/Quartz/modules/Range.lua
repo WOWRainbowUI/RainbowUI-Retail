@@ -115,11 +115,15 @@ function Range:UNIT_SPELLCAST_SENT(event, unit, name)
 	end
 	-- Skip target detection if name is secret (placeholder, will come back to this)
 	if name and not issecretvalue(name) then
-		if name == UnitName("player") then
+		local playerName = UnitName("player")
+		local targetName = UnitName("target")
+		local focusName = UnitName("focus")
+
+		if not issecretvalue(playerName) and name == playerName then
 			target = "player"
-		elseif name == UnitName("target") then
+		elseif not issecretvalue(targetName) and name == targetName then
 			target = "target"
-		elseif name == UnitName("focus") then
+		elseif not issecretvalue(focusName) and name == focusName then
 			target = "focus"
 		else
 			target = nil

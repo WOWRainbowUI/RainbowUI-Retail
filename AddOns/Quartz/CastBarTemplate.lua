@@ -240,6 +240,7 @@ local function ToggleCastNotInterruptible(self, notInterruptible, init)
 		-- Shield handling with SetAlphaFromBoolean
 		if self.Shield then
 			if not db.hideicon and db.noInterruptShield and self.Shield.SetAlphaFromBoolean then
+				self.Shield:Show()
 				self.Shield:SetAlphaFromBoolean(notInterruptible, 1, 0)
 			else
 				self.Shield:Hide()
@@ -1258,9 +1259,16 @@ function Quartz3.CastBarTemplate:new(parent, unit, name, localizedName, config)
 	bar.Icon     = bar.Bar:CreateTexture(nil, "ARTWORK")
 	bar.Spark    = bar.Bar:CreateTexture(nil, "OVERLAY")
 	if unit ~= "player" then
-		bar.Shield = bar.Bar:CreateTexture(nil, "ARTWORK")
-		bar.Shield:SetTexture("Interface\\CastingBar\\UI-CastingBar-Small-Shield")
-		bar.Shield:SetTexCoord(0, 36/256, 0, 1)
+		bar.Shield = CreateFrame("Frame", nil, bar.Bar)
+		bar.Shield:SetFrameLevel(bar.Bar:GetFrameLevel() + 2)
+		
+		local shieldTexture = bar.Shield:CreateTexture(nil, "ARTWORK")
+		shieldTexture:SetAllPoints(bar.Shield)
+		shieldTexture:SetTexture("Interface\\CastingBar\\UI-CastingBar-Small-Shield")
+		shieldTexture:SetTexCoord(0, 36/256, 0, 1)
+		
+		bar.Shield.Texture = shieldTexture
+		
 		bar.Shield:SetWidth(36)
 		bar.Shield:SetHeight(64)
 		bar.Shield:SetPoint("CENTER", bar.Icon, "CENTER", -2, -1)
