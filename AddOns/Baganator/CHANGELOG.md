@@ -1,9 +1,6 @@
 # Baganator
 
-## [785](https://github.com/TheMouseNest/Baganator/tree/785) (2026-02-09)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/784...785) 
+## [786](https://github.com/TheMouseNest/Baganator/tree/786) (2026-02-10)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/785...786) 
 
-- Fix adding a new category  
-- [Fixes #612] Fix "Cannot equip" red text causing "Usable" detection to break  
-- Customise: Fix sliders  
-- Sync config code with other -ator addons  
+- Update toc for 12.0.1  
