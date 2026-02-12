@@ -1018,6 +1018,21 @@ D["MythicDungeonTools"] = {
         text = "迷你視窗：點主視窗右上角的縮小箭頭切換成迷你導覽視窗。\n\n(下方的插件模組需要打勾載入)\n",
     },
 };
+D["MythicPlusTimer"] = {
+    defaultEnable = 1,
+	tags = { "BOSSRAID" },
+	title = "M+ 時間",
+	desc = "強化傳奇+地城的計時與進度顯示。提供比遊戲內建更精準、更直觀的資訊，顯示兩箱、三箱的時間等，幫助玩家在挑戰高層鑰石時掌握時間與敵方進度。`",
+	modifier = "彩虹ui",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["MYTHICPLUSTIMER"]("config") end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+};
 D["MidnightSimpleUnitFrames"] = {
     defaultEnable = 0,
 	tags = { "UNITFRAME" },

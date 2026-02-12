@@ -1,0 +1,22 @@
+## Interface: 120000
+## Version: 7.0.1
+## Title: MythicPlusTimer
+## Author: Fabys
+## Notes: Custom Mythic+ timer appearance
+## SavedVariables: MythicPlusTimerDB
+## IconTexture: Interface\Icons\ability_racial_timeismoney
+
+## Title-zhTW: |cffFF7F00[M+]|r 時間
+## Notes-zhTW: MythicPlusTimer |n|n強化傳奇+地城的計時與進度顯示。提供比遊戲內建更精準、更直觀的資訊，顯示兩箱、三箱的時間等，幫助玩家在挑戰高層鑰石時掌握時間與敵方進度。|n|n|cffffd200使用方法: |r從Esc>選項>插件>M+ 時間，進行設定。
+## X-Category-zhTW: 團隊
+
+addon.lua
+locales.lua
+config_gui.lua
+
+config.lua
+main.lua
+timer.lua
+criteria.lua
+infos.lua
+keystone.lua
