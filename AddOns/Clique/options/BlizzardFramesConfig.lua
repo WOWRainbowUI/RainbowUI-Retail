@@ -87,15 +87,11 @@ function panel:CreateOptions()
     table.insert(bits, self.TargetFrameToT)
 
     -- No focus frames in Classic
-    if not addon:ProjectIsClassic() then
-        table.insert(bits, self.FocusFrame)
-        table.insert(bits, self.FocusFrameToT)
-    end
+    table.insert(bits, self.FocusFrame)
+    table.insert(bits, self.FocusFrameToT)
 
     -- Arena comes in in retail
-    if addon:ProjectIsRetail() then
-        table.insert(bits, self.arena)
-    end
+    table.insert(bits, self.arena)
 
     -- Group these together
     bits[1]:SetPoint("TOPLEFT", 5, -5)

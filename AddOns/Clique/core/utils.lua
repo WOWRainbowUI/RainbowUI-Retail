@@ -1,15 +1,6 @@
---[[-------------------------------------------------------------------------
--- Utils.lua
---
--- This file contains a series of general utility functions that could be
--- used throughout the addon, although in practice they are mostly used in
--- the GUI.
---
--- Events registered:
---   None
--------------------------------------------------------------------------]]--
-
-local addonName = select(1, ...)
+--[[-------------------------------------------------------------------
+--  Clique - Copyright 2006-2026 - James N. Whitehead II
+-------------------------------------------------------------------]]--
 
 --- @class CliqueAddon
 local addon = select(2, ...)
@@ -18,6 +9,14 @@ local L = addon.L
 
 local strconcat = strconcat
 local strsplit = string.split
+
+function addon.tcontains(arr, value)
+    for _, key in ipairs(arr) do
+        if key == value then
+            return true
+        end
+    end
+end
 
 -- Returns the prefix string for the current keyboard state.
 --
@@ -30,7 +29,7 @@ function addon:GetPrefixString(extended)
     local alt, lalt, ralt = IsAltKeyDown(), IsLeftAltKeyDown() IsRightAltKeyDown()
     local meta, lmeta, rmeta = false, false, false
 
-    if addon:ProjectIsRetail() then
+    if self:ProjectIsRetail() then
         meta, lmeta, rmeta = IsMetaKeyDown(), IsLeftMetaKeyDown(), IsRightMetaKeyDown()
     end
 
@@ -184,9 +183,9 @@ function addon:GetBindingActionText(btype, binding, skipSubName)
     elseif btype == "target" then
         return L["Target clicked unit"]
     elseif btype == "spell" and skipSubName then
-        return L["Cast %s"]:format(addon:SpellTextWithoutSubName(binding))
+        return L["Cast %s"]:format(self:SpellTextWithoutSubName(binding))
     elseif btype == "spell" then
-        return L["Cast %s"]:format(addon:SpellTextWithSubName(binding))
+        return L["Cast %s"]:format(self:SpellTextWithSubName(binding))
     elseif btype == "macro" and type(binding) == "table" and binding.macro then
         return L["Run macro '%s'"]:format(tostring(binding.macro))
     elseif btype == "macro" and binding.macrotext then
@@ -281,7 +280,7 @@ function addon:GetCapturedKey(key)
 
     -- Splitting modifier keys into left/right has some odd
     -- behaviour at the moment, so let's not enable that.
-    local prefix = addon:GetPrefixString(false)
+    local prefix = self:GetPrefixString(false)
     return tostring(prefix) .. tostring(key)
 end
 
@@ -368,80 +367,14 @@ function addon:GetSelfCastKeyText()
     return selfCastKey:upper()
 end
 
--- Target, menu, spell macro
--- Within each sort by name, then by binding key, then by random ID
-
-local actionTypeSortValue = {
-    target = 1,
-    menu = 2,
-    spell = 3,
-    macro = 4,
-}
-
-local sortComparison = function(a, b)
-    if a.type == b.type then
-        local texta = addon:GetBindingActionText(a.type, a)
-        local textb = addon:GetBindingActionText(b.type, b)
-        if texta == textb then
-            local keya = addon:GetBindingKey(a)
-            local keyb = addon:GetBindingKey(b)
-            if keya == keyb then
-                return tostring(a) < tostring(b)
-            else
-                return keya < keyb
-            end
-        else
-            return texta < textb
-        end
-    else
-        local aVal = actionTypeSortValue[a.type]
-        local bVal = actionTypeSortValue[b.type]
-        if not aVal then aVal = 999 end
-        if not bVal then bVal = 999 end
-
-        return aVal < bVal
-    end
-end
-
-local memoizeBindings = {}
-local compareFunctions
-compareFunctions = {
-    name = function(a, b)
-        local texta = addon:GetBindingActionText(a.type, a)
-        local textb = addon:GetBindingActionText(b.type, b)
-        if texta == textb then
-            return compareFunctions.key(a, b)
-        end
-        return texta < textb
-    end,
-    key = function(a, b)
-        local keya = addon:GetBindingKey(a)
-        local keyb = addon:GetBindingKey(b)
-        if keya == keyb then
-            return tostring(a) < tostring(b)
-        elseif not keya or not keyb then
-            return false
-        else
-            return keya < keyb
-        end
-    end,
-    binding = function(a, b)
-        local mem = memoizeBindings
-        if mem[a] == mem[b] then
-            return compareFunctions.name(a, b)
-        else
-            return mem[a] < mem[b]
-        end
-    end,
-}
-
 local buttonSortValues = {
     BUTTON1 = 1,
     BUTTON2 = 2,
     BUTTON3 = 3,
 }
 
-local compareFunctions = {
+local compareFunctions
+compareFunctions = {
     name = function(a, b)
         local texta = addon:GetBindingActionText(a.type, a)
         local textb = addon:GetBindingActionText(b.type, b)
