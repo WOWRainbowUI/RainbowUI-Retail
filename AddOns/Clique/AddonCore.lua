@@ -34,6 +34,7 @@ local addonName = select(1, ...)
 ---@field ProjectIsMidnight fun(self: AddonCore): boolean
 ---@field Printf fun(self: AddonCore, msg: string, ...: any)
 ---@field version string
+---@field IsInitialized fun(self: AddonCore): boolean
 ---@field RegisterModule fun(self: AddonCore, module: table, name: string)
 ---@field RegisterMessage fun(self: AddonCore, name: string, handler: EventHandler?)
 ---@field UnregisterMessage fun(self: AddonCore, name: string)
@@ -393,10 +394,16 @@ end
 --  Setup Initialize/Enable support
 -------------------------------------------------------------------------]]--
 
+local initializeFrame = CreateFrame("Frame")
+
 local enableCalled = false
 local initializeCalled = false
 
-local enableHandler = function(event, ...)
+function addon:IsInitialized()
+    return initializeCalled
+end
+
+local enableHandler = function()
     enableCalled = true
     local handler = "Enable"
 
@@ -404,7 +411,7 @@ local enableHandler = function(event, ...)
         xpcall(addon[handler], errorHandler, addon)
     end
 
-    for idx, module in ipairs(modules) do
+    for _, module in ipairs(modules) do
         if type(module[handler]) == "function" then
             xpcall(module[handler], errorHandler, module)
         end
@@ -417,23 +424,20 @@ initializeHandler = function(event, ...)
     initializeCalled = true
     local handler = "Initialize"
 
-    if ... == addonName then
-        addon:UnregisterEvent("ADDON_LOADED", initializeHandler)
-        if type(addon[handler]) == "function" then
-            xpcall(addon[handler], errorHandler, addon)
-        end
+    if type(addon[handler]) == "function" then
+        xpcall(addon[handler], errorHandler, addon)
+    end
 
-        for idx, module in ipairs(modules) do
-            if type(module[handler]) == "function" then
-                xpcall(module[handler], errorHandler, module)
-            end
+    for _, module in ipairs(modules) do
+        if type(module[handler]) == "function" then
+            xpcall(module[handler], errorHandler, module)
         end
+    end
 
-        -- If this addon was loaded-on-demand, trigger 'Enable' as well
-        if IsLoggedIn() then
-            -- defer to the enableHandler directly
-            enableHandler()
-        end
+    -- If this addon was loaded-on-demand, trigger 'Enable' as well
+    if IsLoggedIn() then
+        -- defer to the enableHandler directly
+        enableHandler()
     end
 end
 
@@ -447,8 +451,16 @@ initializeModule = function(module)
     end
 end
 
-addon:RegisterEvent("PLAYER_LOGIN", enableHandler)
-addon:RegisterEvent("ADDON_LOADED", initializeHandler)
+initializeFrame:RegisterEvent("PLAYER_LOGIN", enableHandler)
+initializeFrame:RegisterEvent("ADDON_LOADED", initializeHandler)
+initializeFrame:SetScript("OnEvent", function(_, event, arg1)
+    if event == "PLAYER_LOGIN" and not enableCalled then
+        enableHandler()
+    elseif event == "ADDON_LOADED" and arg1 == addonName and not initializeCalled then
+        initializeFrame:UnregisterEvent("ADDON_LOADED")
+        initializeHandler()
+    end
+end)
 
 --[[-------------------------------------------------------------------------
 --  Support for deferred execution (when in-combat)
@@ -469,25 +481,22 @@ end
 -- This method will defer the execution of a method or function until the
 -- player has exited combat. If they are already out of combat, it will
 -- execute the function immediately.
-function addon:Defer(...)
-    for i = 1, select("#", ...) do
-        local thing = select(i, ...)
-        local thing_t = type(thing)
-        if thing_t == "string" or thing_t == "function" then
-            if InCombatLockdown() then
-                deferframe.queue[#deferframe.queue + 1] = select(i, ...)
-            else
-                runDeferred(thing)
-            end
+function addon:Defer(thing)
+    local thing_t = type(thing)
+    if thing_t == "string" or thing_t == "function" then
+        if InCombatLockdown() then
+            deferframe.queue[#deferframe.queue + 1] = thing
         else
-            error("Invalid object passed to 'Defer'")
+            runDeferred(thing)
         end
+    else
+        error("Invalid object passed to 'Defer'")
     end
 end
 
 deferframe:RegisterEvent("PLAYER_REGEN_ENABLED")
 deferframe:SetScript("OnEvent", function(self, event, ...)
-    for idx, thing in ipairs(deferframe.queue) do
+    for _, thing in ipairs(deferframe.queue) do
         runDeferred(thing)
     end
     twipe(deferframe.queue)

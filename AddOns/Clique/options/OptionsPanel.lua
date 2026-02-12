@@ -191,9 +191,6 @@ function panel:CreateOptions()
     self.updown = make_checkbox("CliqueOptionsUpDownClick", self)
     self.updown.text:SetText(L["Trigger bindings on the 'down' portion of the click (experimental)"])
 
-    self.fastooc = make_checkbox("CliqueOptionsFastOoc", self)
-    self.fastooc.text:SetText(L["Disable out of combat clicks when party members enter combat"])
-
     -- Set up multiple talent profiles
     self.talentProfiles = {}
     self.specswap = make_checkbox("CliqueOptionsSpecSwap", self)
@@ -279,7 +276,6 @@ function panel:CreateOptions()
     -- Collect and anchor the bits together
     table.insert(bits, self.disableDuringHousing)
     table.insert(bits, self.updown)
-    table.insert(bits, self.fastooc)
     table.insert(bits, self.stopcastingfix)
 
     if #self.talentProfiles > 0 then
@@ -570,7 +566,6 @@ function panel.refresh()
 
     panel.disableDuringHousing:SetChecked(settings.disableInHousing)
     panel.updown:SetChecked(settings.downclick)
-    panel.fastooc:SetChecked(settings.fastooc)
     panel.stopcastingfix:SetChecked(settings.stopcastingfix)
 
     end, geterrorhandler())
@@ -588,7 +583,6 @@ function panel.okay()
     settings.disableInHousing = not not panel.disableDuringHousing:GetChecked()
     settings.downclick = not not panel.updown:GetChecked()
     settings.stopcastingfix = not not panel.stopcastingfix:GetChecked()
-    settings.fastooc = not not panel.fastooc:GetChecked()
 
     if #panel.talentProfiles > 0 then
         settings.specswap = not not panel.specswap:GetChecked()
@@ -606,7 +600,6 @@ function panel.okay()
         end
     end
 
-    addon:UpdateCombatWatch()
     addon:HouseEditorModeChanged()
 
     if changed then
