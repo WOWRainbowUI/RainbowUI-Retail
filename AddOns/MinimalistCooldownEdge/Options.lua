@@ -12,6 +12,7 @@ local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Dev"
 local FONT_OPTIONS = {
     ["Interface\\Addons\\SharedMedia_Rainbow\\fonts\\bHEI00M\\bHEI00M.ttf"] = "方正准圓",
     ["Interface\\Addons\\SharedMedia_Rainbow\\fonts\\Rawhide_Raw\\Rawhide_Raw.ttf"] = "王漢宗綜藝體",
+    ["Interface\\Addons\\SharedMedia_Rainbow\\fonts\\GenRyuMin\\GenRyuMin-B-Hoefler.ttf"] = "源流明體",
 	["Interface\\Addons\\SharedMedia_BNS\\font\\MoonStarsKai-Bold.ttf"] = "月星楷",
     ["Interface\\Addons\\SharedMedia_BNS\\font\\ChironHeiHKText-Bold.ttf"] = "昭源黑體改",
     ["Interface\\Addons\\SharedMedia_BNS\\font\\ZhuqueFangsong-Semibold.ttf"] = "朱雀仿宋",
