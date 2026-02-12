@@ -133,6 +133,11 @@ compat.features = {
         lfg = true,
         pvp = true,
         pet = not compat.isClassicOrTBC,
-        journal = compat.isMainline or compat.isClassicProgression
+        journal = compat.isMainline or compat.isClassicProgression,
+        shop = not compat.isClassicOrTBC,
+    },
+    currency = {
+        -- No currencies in Classic Era/TBC, we only keep the XP bar
+        available = not compat.isClassicOrTBC,
     }
 }

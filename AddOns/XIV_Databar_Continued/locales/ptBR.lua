@@ -143,6 +143,7 @@ L['Session Total'] = "Total da Sessão";
 L['Daily Total'] = "Total do Dia";
 L['Gold rounded values'] = "Valores arredondados de ouro";
 
+-- Currency
 L['Show XP Bar Below Max Level'] = "Mostrar barra de XP abaixo do nível máximo";
 L['Use Class Colors for XP Bar'] = "Usar cores de classe para a barra de XP";
 L['Show Tooltips'] = "Mostrar informações";
@@ -152,7 +153,15 @@ L['First Currency'] = "Moeda #1";
 L['Second Currency'] = "Moeda #2";
 L['Third Currency'] = "Moeda #3";
 L['Rested'] = "Descansado";
+L['Show More Currencies on Shift+Hover'] = true; -- To Translate
+L['Max currencies shown when holding Shift'] = true; -- To Translate
+L['Only Show Module Icon'] = true; -- To Translate
+L['Number of Currencies on Bar'] = true; -- To Translate
+L['Currency Selection'] = true; -- To Translate
+L['Select All'] = true; -- To Translate
+L['Unselect All'] = true; -- To Translate
 
+-- System
 L['Show World Ping'] = "Mostrar Ping Global";
 L['Number of Addons To Show'] = "Número de Addons a Mostrar";
 L['Addons to Show in Tooltip'] = "Addons a Mostrar no Tooltip";
@@ -184,6 +193,7 @@ L['Hearthstone'] = "Pedra de Regresso";
 L['M+ Teleports'] =  "Teleportes de M+";
 L['Only show current season'] = "Mostrar Temporada Atual";
 L["Mythic+ Teleports"] = "Teleportes de Mitica+";
+L['Hide M+ Teleports text'] = true; -- Needs Translate
 L['Show Mythic+ Teleports'] = "Mostrar Teleportes de Mitica+";
 L['Use Random Hearthstone'] = "Usar Pedra de Regresso aleatória";
 local retrievingData = "Recuperando dados..."
@@ -191,6 +201,8 @@ L['Retrieving data'] = retrievingData;
 L['Empty Hearthstones List'] = "Se você vir '" .. retrievingData .. "' na lista abaixo, basta mudar de aba ou reabrir este menu para atualizar os dados."
 L['Hearthstones Select'] = "Selecionar Pedra de Regresso";
 L['Hearthstones Select Desc'] = "Selecionar a Pedra de Regresso";
+L['Hide Hearthstone Button'] = true; -- To Translate
+L['Hide Port Button'] = true; -- To Translate
 
 L["Classic"] = true;
 L["Burning Crusade"] = true;

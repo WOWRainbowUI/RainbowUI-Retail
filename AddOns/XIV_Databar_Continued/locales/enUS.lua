@@ -143,6 +143,7 @@ L['Session Total'] = true;
 L['Daily Total'] = true;
 L['Gold rounded values'] = true;
 
+-- Currency
 L['Show XP Bar Below Max Level'] = true;
 L['Use Class Colors for XP Bar'] = true;
 L['Show Tooltips'] = true;
@@ -152,7 +153,15 @@ L['First Currency'] = true;
 L['Second Currency'] = true;
 L['Third Currency'] = true;
 L['Rested'] = true;
+L['Show More Currencies on Shift+Hover'] = true;
+L['Max currencies shown when holding Shift'] = true;
+L['Only Show Module Icon'] = true;
+L['Number of Currencies on Bar'] = true;
+L['Currency Selection'] = true;
+L['Select All'] = true;
+L['Unselect All'] = true;
 
+-- System
 L['Show World Ping'] = true;
 L['Number of Addons To Show'] = true;
 L['Addons to Show in Tooltip'] = true;
@@ -187,6 +196,7 @@ L['Hearthstone'] = true;
 L['M+ Teleports'] = true;
 L['Only show current season'] = true;
 L["Mythic+ Teleports"] = true;
+L['Hide M+ Teleports text'] = true;
 L['Show Mythic+ Teleports'] = true;
 L['Use Random Hearthstone'] = "Use Random Hearthstone";
 local retrievingData = "Retrieving data..."
@@ -194,6 +204,8 @@ L['Retrieving data'] = retrievingData;
 L['Empty Hearthstones List'] = "If you see '" .. retrievingData .. "' in the list below, simply switch tabs or reopen this menu to refresh the data.";
 L['Hearthstones Select'] = true;
 L['Hearthstones Select Desc'] = "Select which hearthstones to use (be careful if you select multiple hearthstones, you might want to check the 'Hearthstones Select' option)";
+L['Hide Hearthstone Button'] = true;
+L['Hide Port Button'] = true;
 
 L["Classic"] = true;
 L["Burning Crusade"] = true;

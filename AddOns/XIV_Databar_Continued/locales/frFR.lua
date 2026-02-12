@@ -59,9 +59,9 @@ L['Text Style'] = "Style du texte";
 L["Colors"] = "Couleurs";
 L['Text Colors'] = "Couleurs du texte";
 L['Normal'] = "Normale";
+L['Inactive'] = "Inactif";
 L['Use Class Color for Text'] = "Utiliser la couleur de classe pour le texte";
 L['Only the alpha can be set with the color picker'] = "Seul l'alpha peut être réglé avec la sélection de couleur";
-L['Inactive'] = "Inactif";
 L['Use Class Colors for Hover'] = "Utiliser la couleur de classe lors du survol";
 L['Hover'] = "Survol";
 
@@ -142,6 +142,7 @@ L['Session Total'] = "Total sur la session";
 L['Daily Total'] = "Total quotidien";
 L['Gold rounded values'] = "Valeurs arrondies au po";
 
+-- Currency
 L['Show XP Bar Below Max Level'] = "Montrer la barre d'XP quand le niveau max n'est pas atteint";
 L['Use Class Colors for XP Bar'] = "Utiliser la couleur de classe pour la barre d'XP";
 L['Show Tooltips'] = "Montrer les bulles";
@@ -151,7 +152,15 @@ L['First Currency'] = "Première monnaie";
 L['Second Currency'] = "Seconde monnaie";
 L['Third Currency'] = "Troisième monnaie";
 L['Rested'] = "Reposé";
+L['Show More Currencies on Shift+Hover'] = "Montrer plus de monnaies avec Maj+Survol";
+L['Max currencies shown when holding Shift'] = "Nombre maximum de monnaies affichées avec Maj";
+L['Only Show Module Icon'] = "Montrer uniquement l'icône du module";
+L['Number of Currencies on Bar'] = "Nombre de monnaies dans la barre";
+L['Currency Selection'] = "Sélection des monnaies";
+L['Select All'] = "Tout sélectionner";
+L['Unselect All'] = "Tout désélectionner";
 
+-- System
 L['Show World Ping'] = "Montrer la latence monde";
 L['Number of Addons To Show'] = "Nombre d'addon à lister";
 L['Addons to Show in Tooltip'] = "Addon à lister dans la bulle";
@@ -183,6 +192,7 @@ L['Hearthstone'] = "Pierre de foyer";
 L['M+ Teleports'] = "Téléportations M+";
 L['Only show current season'] = "N'afficher que les téléportations de la saison courante.";
 L["Mythic+ Teleports"] = "Téléportations Mythique+";
+L['Hide M+ Teleports text'] = "Masquer le texte des téléportations M+";
 L['Show Mythic+ Teleports'] = "Montrer les téléportations Mythique+";
 L['Use Random Hearthstone'] = "Utiliser une pierre de foyer aléatoire";
 local retrievingData = "Récupération des données..."
@@ -190,6 +200,8 @@ L['Retrieving data'] = retrievingData;
 L['Empty Hearthstones List'] = "Si vous voyez '" .. retrievingData .. "' dans la liste ci-dessous, changez simplement d'onglet ou rouvrez ce menu pour rafraîchir les données."
 L['Hearthstones Select'] = "Sélection des pierres de foyers";
 L['Hearthstones Select Desc'] = "Sélectionner les pierres de foyers à utiliser (Attention, si vous sélectionnez plusieurs pierres de foyers, il faudrait cocher l'option 'Sélection des pierres de foyers')";
+L['Hide Hearthstone Button'] = "Masquer le bouton de la pierre de foyer";
+L['Hide Port Button'] = "Masquer le bouton des téléportations secondaires";
 
 L["Classic"] = true;
 L["Burning Crusade"] = true;

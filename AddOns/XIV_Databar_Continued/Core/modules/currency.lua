@@ -48,10 +48,29 @@ function CurrencyModule:OnEnable()
     self:CreateFrames()
     self:RegisterFrameEvents()
     self:Refresh()
+
+    if ShouldUseSelectedCurrencies() and C_CurrencyInfo and
+        C_CurrencyInfo.GetCurrencyListSize then
+        if C_CurrencyInfo.GetCurrencyListSize() == 0 then
+            self.currencyRetryTicker = C_Timer.NewTicker(0.5, function()
+                if C_CurrencyInfo.GetCurrencyListSize() > 0 then
+                    if self.currencyRetryTicker then
+                        self.currencyRetryTicker:Cancel()
+                        self.currencyRetryTicker = nil
+                    end
+                    self:Refresh()
+                end
+            end, 20) -- Max 20 tentatives (10 secondes)
+        end
+    end
 end
 
 function CurrencyModule:OnDisable()
     self.currencyFrame:Hide()
+    if self.currencyRetryTicker then
+        self.currencyRetryTicker:Cancel()
+        self.currencyRetryTicker = nil
+    end
     self:UnregisterEvent('CURRENCY_DISPLAY_UPDATE')
     self:UnregisterEvent('PLAYER_XP_UPDATE')
     self:UnregisterEvent('PLAYER_LEVEL_UP')
@@ -84,6 +103,7 @@ function CurrencyModule:Refresh()
         self.curButtons[i]:Hide()
     end
     self.xpFrame:Hide()
+    self.moduleIconFrame:Hide()
 
     if xb.constants.playerLevel < maxLevel and db.modules.currency.showXPbar then
         local textHeight = floor((xb:GetHeight() - 4) / 2)
@@ -119,35 +139,57 @@ function CurrencyModule:Refresh()
         self.xpFrame:SetAllPoints()
         self.xpFrame:Show()
     elseif not compat.isClassicOrTBC then
-        local iconsWidth = 0
-        if ShouldUseSelectedCurrencies() and C_CurrencyInfo then
-            for i = 1, 3 do
-                if db.modules.currency[self.intToOpt[i]] ~= '0' then
-                    iconsWidth = iconsWidth +
-                        self:StyleCurrencyFrame(tonumber(db.modules.currency[self.intToOpt[i]]), nil, i)
+        -- Check if 'icon only' mode is enabled
+        if db.modules.currency.showOnlyModuleIcon then
+            -- Show only the module icon
+            local icon = xb.constants.mediaPath .. 'datatexts\\garres'
+            self.moduleIcon:SetTexture(icon)
+            self.moduleIcon:SetSize(iconSize, iconSize)
+            self.moduleIcon:SetPoint('RIGHT')
+            self.moduleIcon:SetVertexColor(xb:GetColor('normal'))
+            self.moduleIconFrame:SetSize(iconSize, xb:GetHeight())
+            self.moduleIconFrame:SetPoint('RIGHT', self.currencyFrame, 'RIGHT', 0, 0)
+            self.moduleIconFrame:Show()
+            self.currencyFrame:SetSize(iconSize, xb:GetHeight())
+        else
+            local iconsWidth = 0
+            local buttonIndex = 1
+            local maxCurrencies = db.modules.currency.numCurrenciesOnBar or 3
+            if ShouldUseSelectedCurrencies() and C_CurrencyInfo then
+                local selectedCurrencies = db.modules.currency.selectedCurrencies
+                for i, currencyId in ipairs(selectedCurrencies) do
+                    if buttonIndex <= maxCurrencies then
+                        local width = self:StyleCurrencyFrame(tonumber(currencyId), nil, buttonIndex)
+                        if width > 0 then
+                            iconsWidth = iconsWidth + width
+                            if buttonIndex == 1 then
+                                self.curButtons[1]:SetPoint('RIGHT')
+                            elseif buttonIndex == 2 then
+                                self.curButtons[2]:SetPoint('RIGHT', self.curButtons[1], 'LEFT', -5, 0)
+                            elseif buttonIndex == 3 then
+                                self.curButtons[3]:SetPoint('RIGHT', self.curButtons[2], 'LEFT', -5, 0)
+                            end
+                            buttonIndex = buttonIndex + 1
+                        end
+                    end
                 end
-            end
-            if self.curButtons[1]:IsShown() then
-                self.curButtons[1]:SetPoint('LEFT')
-                self.curButtons[2]:SetPoint('LEFT', self.curButtons[1], 'RIGHT', 5, 0)
-                self.curButtons[3]:SetPoint('LEFT', self.curButtons[2], 'RIGHT', 5, 0)
-            end
-        elseif GetNumWatchedTokens and type(GetNumWatchedTokens) == "function" then
-            for i = 1, GetNumWatchedTokens() do
-                local name, count, _, currencyID = GetBackpackCurrencyInfo(i)
-                if name then
-                    iconsWidth = iconsWidth + self:StyleCurrencyFrame(currencyID, count, i)
-                    if i == 1 then
-                        self.curButtons[1]:SetPoint('LEFT')
-                    elseif i == 2 then
-                        self.curButtons[2]:SetPoint('LEFT', self.curButtons[1], 'RIGHT', 5, 0)
-                    elseif i == 3 then
-                        self.curButtons[3]:SetPoint('LEFT', self.curButtons[2], 'RIGHT', 5, 0)
+            elseif GetNumWatchedTokens and type(GetNumWatchedTokens) == "function" then
+                for i = 1, GetNumWatchedTokens() do
+                    local name, count, _, currencyID = GetBackpackCurrencyInfo(i)
+                    if name then
+                        iconsWidth = iconsWidth + self:StyleCurrencyFrame(currencyID, count, i)
+                        if i == 1 then
+                            self.curButtons[1]:SetPoint('RIGHT')
+                        elseif i == 2 then
+                            self.curButtons[2]:SetPoint('RIGHT', self.curButtons[1], 'LEFT', -5, 0)
+                        elseif i == 3 then
+                            self.curButtons[3]:SetPoint('RIGHT', self.curButtons[2], 'LEFT', -5, 0)
+                        end
                     end
                 end
             end
+            self.currencyFrame:SetSize(iconsWidth, xb:GetHeight())
         end
-        self.currencyFrame:SetSize(iconsWidth, xb:GetHeight())
     end
 
     local relativeAnchorPoint = 'RIGHT'
@@ -233,32 +275,38 @@ function CurrencyModule:CreateFrames()
     self.xpBar = self.xpBar or CreateFrame('STATUSBAR', nil, self.xpFrame)
     self.xpBarBg = self.xpBarBg or self.xpBar:CreateTexture(nil, 'BACKGROUND')
     self.xpFrame:Hide()
+
+    -- Module icon frame for 'icon only' mode
+    self.moduleIconFrame = self.moduleIconFrame or CreateFrame("BUTTON", nil, self.currencyFrame)
+    self.moduleIcon = self.moduleIcon or self.moduleIconFrame:CreateTexture(nil, 'OVERLAY')
+    self.moduleIconFrame:Hide()
 end
 
 function CurrencyModule:RegisterFrameEvents()
     for i = 1, 3 do
-        self.curButtons[i]:EnableMouse(true)
-        self.curButtons[i]:RegisterForClicks("AnyUp")
-        self.curButtons[i]:SetScript('OnEnter', function()
+        local buttonIndex = i  -- Capture index for closures
+        self.curButtons[buttonIndex]:EnableMouse(true)
+        self.curButtons[buttonIndex]:RegisterForClicks("AnyUp")
+        self.curButtons[buttonIndex]:SetScript('OnEnter', function()
             if InCombatLockdown() then
                 return;
             end
-            self.curText[i]:SetTextColor(unpack(xb:HoverColors()))
+            self.curText[buttonIndex]:SetTextColor(unpack(xb:HoverColors()))
             if xb.db.profile.modules.currency.showTooltip then
                 self:ShowTooltip()
             end
         end)
-        self.curButtons[i]:SetScript('OnLeave', function()
+        self.curButtons[buttonIndex]:SetScript('OnLeave', function()
             if InCombatLockdown() then
                 return;
             end
             local db = xb.db.profile
-            self.curText[i]:SetTextColor(xb:GetColor('normal'))
+            self.curText[buttonIndex]:SetTextColor(xb:GetColor('normal'))
             if db.modules.currency.showTooltip then
                 GameTooltip:Hide()
             end
         end)
-        self.curButtons[i]:SetScript('OnClick', function()
+        self.curButtons[buttonIndex]:SetScript('OnClick', function()
             if InCombatLockdown() then
                 return;
             end
@@ -271,6 +319,34 @@ function CurrencyModule:RegisterFrameEvents()
     if _G.BackpackTokenFrame_Update then
         self:SecureHook('BackpackTokenFrame_Update', 'Refresh')
     end
+
+    -- Module icon frame events for 'icon only' mode
+    self.moduleIconFrame:EnableMouse(true)
+    self.moduleIconFrame:RegisterForClicks("AnyUp")
+    self.moduleIconFrame:SetScript('OnEnter', function()
+        if InCombatLockdown() then
+            return;
+        end
+        self.moduleIcon:SetVertexColor(unpack(xb:HoverColors()))
+        if xb.db.profile.modules.currency.showTooltip then
+            self:ShowTooltip()
+        end
+    end)
+    self.moduleIconFrame:SetScript('OnLeave', function()
+        if InCombatLockdown() then
+            return;
+        end
+        self.moduleIcon:SetVertexColor(xb:GetColor('normal'))
+        if xb.db.profile.modules.currency.showTooltip then
+            GameTooltip:Hide()
+        end
+    end)
+    self.moduleIconFrame:SetScript('OnClick', function()
+        if InCombatLockdown() then
+            return;
+        end
+        ToggleCharacter('TokenFrame')
+    end)
 
     self.currencyFrame:EnableMouse(true)
     self.currencyFrame:SetScript('OnEnter', function()
@@ -389,20 +465,101 @@ function CurrencyModule:ShowTooltip()
         GameTooltip:AddLine("|cFFFFFFFF[|r" .. CURRENCY .. "|cFFFFFFFF]|r", r, g, b)
         GameTooltip:AddLine(" ")
 
-        if ShouldUseSelectedCurrencies() and C_CurrencyInfo then
-            for i = 1, 3 do
-                if xb.db.profile.modules.currency[self.intToOpt[i]] ~= '0' then
-                    local curId = tonumber(xb.db.profile.modules.currency[self.intToOpt[i]])
-                    local curInfo = C_CurrencyInfo.GetCurrencyInfo(curId)
-                    if curInfo then
-                        if curInfo.useTotalEarnedForMaxQty then
-                            GameTooltip:AddDoubleLine(curInfo.name,
-                                string.format('%d (%d/%d)', curInfo.quantity, curInfo.totalEarned,
-                                    curInfo.maxQuantity), r, g, b, 1, 1, 1)
-                        else
-                            GameTooltip:AddDoubleLine(curInfo.name, string.format('%d', curInfo.quantity), r, g, b, 1,
-                                1, 1)
+        -- Display selected currencies grouped by categories
+        local selectedCurrencies = xb.db.profile.modules.currency.selectedCurrencies
+        local showAllOnShift = xb.db.profile.modules.currency.showMoreCurrenciesOnShift
+        local shiftIsDown = IsShiftKeyDown()
+        local showAllCurrencies = showAllOnShift and shiftIsDown
+        local maxCurrencies = xb.db.profile.modules.currency.maxCurrenciesTooltipShift or 30
+        local currencyCount = 0
+
+        if #selectedCurrencies > 0 and C_CurrencyInfo then
+            -- Create a set to quickly check if a currency is selected
+            local selectedSet = {}
+            for _, currencyId in ipairs(selectedCurrencies) do
+                selectedSet[currencyId] = true
+            end
+
+            -- Get currencies by expansion for ordering
+            local expansionCurrencies = self:GetCurrenciesByExpansion()
+
+            for _, expansionData in ipairs(expansionCurrencies) do
+                -- Stop if we reached the limit (only when showing all currencies)
+                if showAllCurrencies and currencyCount >= maxCurrencies then
+                    break
+                end
+
+                local hasCurrencyInCategory = false
+                local currenciesToShow = {}
+
+                -- Check if this category has selected currencies (or show more if Shift is held)
+                for _, currencyInfo in ipairs(expansionData.currencies) do
+                    if showAllCurrencies then
+                        -- When showing all, respect the limit
+                        if currencyCount + #currenciesToShow < maxCurrencies then
+                            hasCurrencyInCategory = true
+                            table.insert(currenciesToShow, currencyInfo)
                         end
+                    elseif selectedSet[currencyInfo.id] then
+                        hasCurrencyInCategory = true
+                        table.insert(currenciesToShow, currencyInfo)
+                    end
+                end
+
+                -- Display header (except Legacy) and currencies
+                if hasCurrencyInCategory then
+                    -- Add golden header except if it's Legacy
+                    if expansionData.header ~= "Legacy" then
+                        GameTooltip:AddLine('-- ' .. expansionData.header .. ' --', 1, 0.82, 0)  -- Golden color
+                    end
+
+                    -- Display currencies from this category
+                    for _, currencyInfo in ipairs(currenciesToShow) do
+                        local curInfo = C_CurrencyInfo.GetCurrencyInfo(tonumber(currencyInfo.id))
+                        if curInfo then
+                            local iconString = string.format("|T%s:16:16:0:0|t ", curInfo.iconFileID or "")
+                            local quantityText = tostring(curInfo.quantity)
+                            local isAtMax = false
+
+                            -- Check if currency has a max quantity (like Valorstones with 2000 cap)
+                            if curInfo.maxQuantity and curInfo.maxQuantity > 0 then
+                                -- Check if at max capacity (seasonal or possession cap)
+                                if curInfo.useTotalEarnedForMaxQty and curInfo.totalEarned then
+                                    -- For seasonal currencies: check totalEarned against max
+                                    if curInfo.totalEarned >= curInfo.maxQuantity then
+                                        isAtMax = true
+                                    end
+                                else
+                                    -- For possession cap currencies
+                                    if curInfo.quantity >= curInfo.maxQuantity then
+                                        isAtMax = true
+                                    end
+                                end
+
+                                -- For currencies with weekly or total caps
+                                if curInfo.useTotalEarnedForMaxQty and curInfo.totalEarned then
+                                    -- Show: quantity (earned/max)
+                                    quantityText = string.format('%d (%d/%d)', curInfo.quantity, curInfo.totalEarned, curInfo.maxQuantity)
+                                else
+                                    -- Show: quantity/max
+                                    quantityText = string.format('%d/%d', curInfo.quantity, curInfo.maxQuantity)
+                                end
+                            end
+
+                            -- Use red color if at max, otherwise white
+                            local qtyR, qtyG, qtyB = 1, 1, 1
+                            if isAtMax then
+                                qtyR, qtyG, qtyB = 1, 0, 0  -- Red
+                            end
+
+                            GameTooltip:AddDoubleLine(iconString .. curInfo.name, quantityText, r, g, b, qtyR, qtyG, qtyB)
+                            currencyCount = currencyCount + 1
+                        end
+                    end
+
+                    -- Add space between categories (except after Legacy if no header)
+                    if expansionData.header ~= "Legacy" then
+                        GameTooltip:AddLine(" ")
                     end
                 end
             end
@@ -439,6 +596,41 @@ function CurrencyModule:GetCurrencyOptions()
     return curOpts
 end
 
+function CurrencyModule:GetCurrenciesByExpansion()
+    local expansionCurrencies = {}
+    if not C_CurrencyInfo or not C_CurrencyInfo.GetCurrencyListSize then
+        return expansionCurrencies
+    end
+
+    local currentHeader = nil
+    local currentHeaderIndex = nil
+
+    for i = 1, C_CurrencyInfo.GetCurrencyListSize() do
+        local listInfo = C_CurrencyInfo.GetCurrencyListInfo(i)
+        if listInfo.isHeader then
+            currentHeader = listInfo.name
+            currentHeaderIndex = #expansionCurrencies + 1
+            table.insert(expansionCurrencies, {
+                header = currentHeader,
+                currencies = {}
+            })
+        elseif not listInfo.isTypeUnused and currentHeader and currentHeaderIndex then
+            local cL = C_CurrencyInfo.GetCurrencyListLink(i)
+            local currencyID = C_CurrencyInfo.GetCurrencyIDFromLink(cL)
+            local curInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID)
+            if curInfo then
+                table.insert(expansionCurrencies[currentHeaderIndex].currencies, {
+                    id = tostring(currencyID),
+                    name = curInfo.name,
+                    iconFileID = curInfo.iconFileID,
+                    index = i
+                })
+            end
+        end
+    end
+    return expansionCurrencies
+end
+
 function CurrencyModule:GetDefaultOptions()
     return 'currency', {
         enabled = true,
@@ -446,13 +638,16 @@ function CurrencyModule:GetDefaultOptions()
         xpBarCC = false,
         showTooltip = true,
         textOnRight = true,
-        currencyOne = '0',
-        currencyTwo = '0',
-        currencyThree = '0'
+        showOnlyModuleIcon = false,
+        numCurrenciesOnBar = 3,
+        selectedCurrencies = {},  -- Array of selected currency IDs
+        showMoreCurrenciesOnShift = false,  -- Setting to display more currencies while using Shift+Hover
+        maxCurrenciesTooltipShift = 30  -- Maximum number of currencies displayed during Shift+Hover
     }
 end
 
 function CurrencyModule:GetConfig()
+    local hasCurrencyUI = compat.features and compat.features.currency and compat.features.currency.available
     local args = {
         enable = {
             name = ENABLE,
@@ -520,67 +715,215 @@ function CurrencyModule:GetConfig()
             set = function(_, val)
                 xb.db.profile.modules.currency.textOnRight = val;
                 self:Refresh();
+            end,
+            hidden = function()
+                return not hasCurrencyUI
+            end
+        },
+        showOnlyModuleIcon = {
+            name = L['Only Show Module Icon'],
+            order = 5,
+            type = "toggle",
+            get = function()
+                return xb.db.profile.modules.currency.showOnlyModuleIcon;
+            end,
+            set = function(_, val)
+                xb.db.profile.modules.currency.showOnlyModuleIcon = val;
+                self:Refresh();
+            end,
+            hidden = function()
+                return not hasCurrencyUI
+            end
+        },
+        numCurrenciesOnBar = {
+            name = L['Number of Currencies on Bar'],
+            order = 6,
+            type = "range",
+            min = 1,
+            max = 3,
+            step = 1,
+            get = function()
+                return xb.db.profile.modules.currency.numCurrenciesOnBar;
+            end,
+            set = function(_, val)
+                xb.db.profile.modules.currency.numCurrenciesOnBar = val;
+                self:Refresh();
+            end,
+            disabled = function()
+                return xb.db.profile.modules.currency.showOnlyModuleIcon
+            end,
+            hidden = function()
+                return not hasCurrencyUI
+            end
+        },
+        showMoreCurrenciesOnShift = {
+            name = L['Show More Currencies on Shift+Hover'],
+            order = 7,
+            type = "toggle",
+            get = function()
+                return xb.db.profile.modules.currency.showMoreCurrenciesOnShift;
+            end,
+            set = function(_, val)
+                xb.db.profile.modules.currency.showMoreCurrenciesOnShift = val;
+                self:Refresh();
+            end,
+            hidden = function()
+                return not hasCurrencyUI
+            end
+        },
+        maxCurrenciesTooltipShift = {
+            name = L['Max currencies shown when holding Shift'],
+            order = 8,
+            type = "range",
+            min = 10,
+            max = 50,
+            step = 5,
+            get = function()
+                return xb.db.profile.modules.currency.maxCurrenciesTooltipShift;
+            end,
+            set = function(_, val)
+                xb.db.profile.modules.currency.maxCurrenciesTooltipShift = val;
+                self:Refresh();
+            end,
+            disabled = function()
+                return not xb.db.profile.modules.currency.showMoreCurrenciesOnShift
+            end,
+            hidden = function()
+                return not hasCurrencyUI
             end
         }
     }
 
-    if ShouldUseSelectedCurrencies() then
-        args.currency = {
+    if ShouldUseSelectedCurrencies() and hasCurrencyUI then
+        local expansionCurrencies = self:GetCurrenciesByExpansion()
+        local order = 9
+
+        -- Select All and Unselect All buttons
+        args['currency_buttons'] = {
             type = 'group',
-            name = L['Currency Select'],
-            order = 5,
+            name = L['Currency Selection'],
+            order = order,
             inline = true,
             args = {
-                currencyOne = {
-                    name = L['First Currency'],
-                    type = "select",
+                selectAll = {
+                    name = L['Select All'],
+                    type = "execute",
                     order = 1,
-                    values = function()
-                        return self:GetCurrencyOptions();
-                    end,
-                    style = "dropdown",
-                    get = function()
-                        return xb.db.profile.modules.currency.currencyOne;
-                    end,
-                    set = function(info, value)
-                        xb.db.profile.modules.currency.currencyOne = value;
-                        self:Refresh();
+                    func = function()
+                        local allCurrencies = {}
+                        for _, expansionData in ipairs(expansionCurrencies) do
+                            for _, currencyInfo in ipairs(expansionData.currencies) do
+                                table.insert(allCurrencies, currencyInfo.id)
+                            end
+                        end
+                        xb.db.profile.modules.currency.selectedCurrencies = allCurrencies
+                        self:Refresh()
                     end
                 },
-                currencyTwo = {
-                    name = L['Second Currency'],
-                    type = "select",
+                unselectAll = {
+                    name = L['Unselect All'],
+                    type = "execute",
                     order = 2,
-                    values = function()
-                        return self:GetCurrencyOptions();
-                    end,
-                    style = "dropdown",
-                    get = function()
-                        return xb.db.profile.modules.currency.currencyTwo;
-                    end,
-                    set = function(info, value)
-                        xb.db.profile.modules.currency.currencyTwo = value;
-                        self:Refresh();
-                    end
-                },
-                currencyThree = {
-                    name = L['Third Currency'],
-                    type = "select",
-                    order = 3,
-                    values = function()
-                        return self:GetCurrencyOptions();
-                    end,
-                    style = "dropdown",
-                    get = function()
-                        return xb.db.profile.modules.currency.currencyThree;
-                    end,
-                    set = function(info, value)
-                        xb.db.profile.modules.currency.currencyThree = value;
-                        self:Refresh();
+                    func = function()
+                        xb.db.profile.modules.currency.selectedCurrencies = {}
+                        self:Refresh()
                     end
                 }
             }
         }
+        order = order + 1
+
+        for _, expansionData in ipairs(expansionCurrencies) do
+            -- If it's Legacy, create a header instead of a group
+            if expansionData.header == "Legacy" then
+                args['header_legacy'] = {
+                    type = 'header',
+                    name = expansionData.header,
+                    order = order
+                }
+                order = order + 1
+
+                -- Add all Legacy currencies directly without sub-groups
+                for _, currencyInfo in ipairs(expansionData.currencies) do
+                    local iconString = string.format("|T%s:16:16:0:0|t ", currencyInfo.iconFileID or "")
+                    args['currency_' .. currencyInfo.id] = {
+                        name = iconString .. currencyInfo.name,
+                        type = "toggle",
+                        order = order,
+                        get = function()
+                            local selected = xb.db.profile.modules.currency.selectedCurrencies
+                            for _, id in ipairs(selected) do
+                                if id == currencyInfo.id then
+                                    return true
+                                end
+                            end
+                            return false
+                        end,
+                        set = function(_, val)
+                            local selected = xb.db.profile.modules.currency.selectedCurrencies
+                            if val then
+                                table.insert(selected, currencyInfo.id)
+                            else
+                                for i, id in ipairs(selected) do
+                                    if id == currencyInfo.id then
+                                        table.remove(selected, i)
+                                        break
+                                    end
+                                end
+                            end
+                            self:Refresh()
+                        end
+                    }
+                    order = order + 1
+                end
+            else
+                -- Normal behavior for other expansions
+                local expansionArgs = {}
+                local expansionOrder = 1
+
+                for _, currencyInfo in ipairs(expansionData.currencies) do
+                    local iconString = string.format("|T%s:16:16:0:0|t ", currencyInfo.iconFileID or "")
+                    expansionArgs['currency_' .. currencyInfo.id] = {
+                        name = iconString .. currencyInfo.name,
+                        type = "toggle",
+                        order = expansionOrder,
+                        get = function()
+                            local selected = xb.db.profile.modules.currency.selectedCurrencies
+                            for _, id in ipairs(selected) do
+                                if id == currencyInfo.id then
+                                    return true
+                                end
+                            end
+                            return false
+                        end,
+                        set = function(_, val)
+                            local selected = xb.db.profile.modules.currency.selectedCurrencies
+                            if val then
+                                table.insert(selected, currencyInfo.id)
+                            else
+                                for i, id in ipairs(selected) do
+                                    if id == currencyInfo.id then
+                                        table.remove(selected, i)
+                                        break
+                                    end
+                                end
+                            end
+                            self:Refresh()
+                        end
+                    }
+                    expansionOrder = expansionOrder + 1
+                end
+
+                args['expansion_' .. expansionData.header] = {
+                    type = 'group',
+                    name = expansionData.header,
+                    order = order,
+                    inline = true,
+                    args = expansionArgs
+                }
+                order = order + 1
+            end
+        end
     end
 
     return {

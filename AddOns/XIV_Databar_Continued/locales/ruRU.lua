@@ -142,6 +142,7 @@ L['Session Total'] = "Всего за сессию";
 L['Daily Total'] = true;
 L['Gold rounded values'] = true;
 
+-- Currency
 L['Show XP Bar Below Max Level'] = "Показывать полоску опыта персонажам, не достигшим максимального уровня";
 L['Use Class Colors for XP Bar'] = "Использовать цвет класса для полоски опыта";
 L['Show Tooltips'] = "Показывать подсказки";
@@ -151,7 +152,15 @@ L['First Currency'] = "Валюта №1";
 L['Second Currency'] = "Валюта №2";
 L['Third Currency'] = "Валюта №3";
 L['Rested'] = "Отдых";
+L['Show More Currencies on Shift+Hover'] = true; -- To Translate
+L['Max currencies shown when holding Shift'] = true; -- To Translate
+L['Only Show Module Icon'] = true; -- To Translate
+L['Number of Currencies on Bar'] = true; -- To Translate
+L['Currency Selection'] = true; -- To Translate
+L['Select All'] = true; -- To Translate
+L['Unselect All'] = true; -- To Translate
 
+-- System
 L['Show World Ping'] = "Показывать задержку сервера";
 L['Number of Addons To Show'] = "Сколько аддонов показывать";
 L['Addons to Show in Tooltip'] = "Сколько аддонов показывать";
@@ -183,6 +192,7 @@ L['Hearthstone'] = true;
 L['M+ Teleports'] = true;
 L['Only show current season'] = true;
 L["Mythic+ Teleports"] = true;
+L['Hide M+ Teleports text'] = true; -- Needs Translate
 L['Show Mythic+ Teleports'] = true;
 L['Use Random Hearthstone'] = true;
 local retrievingData = "Получение данных..."
@@ -190,6 +200,8 @@ L['Retrieving data'] = retrievingData;
 L['Empty Hearthstones List'] = "Если вы видите '" .. retrievingData .. "' в списке ниже, просто переключите вкладку или откройте это меню заново, чтобы обновить данные.";
 L['Hearthstones Select'] = true;
 L['Hearthstones Select Desc'] = "Select which hearthstones to use (be careful if you select multiple hearthstones, you might want to check the 'Hearthstones Select' option)";
+L['Hide Hearthstone Button'] = true; -- To Translate
+L['Hide Port Button'] = true; -- To Translate
 
 L["Classic"] = true;
 L["Burning Crusade"] = true;
