@@ -143,6 +143,7 @@ L['Session Total'] = "汇总";
 L['Daily Total'] = true;
 L['Gold rounded values'] = true;
 
+-- Currency
 L['Show XP Bar Below Max Level'] = "未满级时显示经验条";
 L['Use Class Colors for XP Bar'] = "经验条使用职业颜色";
 L['Show Tooltips'] = "显示提示";
@@ -152,7 +153,15 @@ L['First Currency'] = "第一种货币";
 L['Second Currency'] = "第二种货币";
 L['Third Currency'] = "第三种货币";
 L['Rested'] = "精力充沛";
+L['Show More Currencies on Shift+Hover'] = true; -- To Translate
+L['Max currencies shown when holding Shift'] = true; -- To Translate
+L['Only Show Module Icon'] = true; -- To Translate
+L['Number of Currencies on Bar'] = true; -- To Translate
+L['Currency Selection'] = true; -- To Translate
+L['Select All'] = true; -- To Translate
+L['Unselect All'] = true; -- To Translate
 
+-- System
 L['Show World Ping'] = "显示世界延迟";
 L['Number of Addons To Show'] = "显示插件的数量";
 L['Addons to Show in Tooltip'] = "在提示中显示的插件";
@@ -184,6 +193,7 @@ L['Hearthstone'] = true;
 L['M+ Teleports'] = true;
 L['Only show current season'] = true;
 L["Mythic+ Teleports"] = true;
+L['Hide M+ Teleports text'] = true; -- Needs Translate
 L['Show Mythic+ Teleports'] = true;
 L['Use Random Hearthstone'] = true;
 local retrievingData = "正在读取数据..."
@@ -191,6 +201,8 @@ L['Retrieving data'] = retrievingData;
 L['Empty Hearthstones List'] = "如果你在下面的列表中看到 '" .. retrievingData .. "'，只需切换标签页或重新打开此菜单即可刷新数据。";
 L['Hearthstones Select'] = true;
 L['Hearthstones Select Desc'] = "Select which hearthstones to use (be careful if you select multiple hearthstones, you might want to check the 'Hearthstones Select' option)";
+L['Hide Hearthstone Button'] = true; -- To Translate
+L['Hide Port Button'] = true; -- To Translate
 
 L["Classic"] = true;
 L["Burning Crusade"] = true;

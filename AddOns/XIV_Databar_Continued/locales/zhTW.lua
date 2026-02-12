@@ -142,6 +142,7 @@ L['Shorten Gold'] = "金額縮寫";
 L['Toggle Bags'] = "打開/關閉背包";
 L['Session Total'] = "本次登入總計";
 
+-- Currency
 L['Show XP Bar Below Max Level'] = "未滿等時顯示經驗條";
 L['Use Class Colors for XP Bar'] = "使用職業顏色";
 L['Show Tooltips'] = "顯示浮動提示資訊";
@@ -151,7 +152,15 @@ L['First Currency'] = "第一種兌換通貨";
 L['Second Currency'] = "第二種兌換通貨";
 L['Third Currency'] = "第三種兌換通貨";
 L['Rested'] = "休息加成";
+L['Show More Currencies on Shift+Hover'] = true; -- To Translate
+L['Max currencies shown when holding Shift'] = true; -- To Translate
+L['Only Show Module Icon'] = true; -- To Translate
+L['Number of Currencies on Bar'] = true; -- To Translate
+L['Currency Selection'] = true; -- To Translate
+L['Select All'] = true; -- To Translate
+L['Unselect All'] = true; -- To Translate
 
+-- System
 L['Show World Ping'] = "顯示世界延遲";
 L['Number of Addons To Show'] = "顯示的插件數目";
 L['Addons to Show in Tooltip'] = "顯示插件數目";
@@ -187,6 +196,7 @@ L['Hearthstones'] = "爐石";
 L['M+ Teleports'] = "M+ 傳送門";
 L['Only show current season'] = "只顯示當前賽季";
 L["Mythic+ Teleports"] = "M+ 傳送門";
+L['Hide M+ Teleports text'] = "隱藏 M+ 傳送門文字";
 L['Show Mythic+ Teleports'] = "顯示 M+ 傳送門";
 L['Use Random Hearthstone'] = "使用隨機爐石";
 local retrievingData = "正在讀取資料..."
@@ -194,6 +204,8 @@ L['Retrieving data'] = retrievingData;
 L['Empty Hearthstones List'] = "如果你在下方的清單中看到 '" .. retrievingData .. "'，只需切換分頁或重新開啟此選單即可重新整理資料。";
 L['Hearthstones Select'] = "選擇爐石";
 L['Hearthstones Select Desc'] = "選擇要使用哪個爐石 (如果選擇了多個爐石，請勾選 \"使用隨機爐石\" 選項)";
+L['Hide Hearthstone Button'] = true; -- To Translate
+L['Hide Port Button'] = true; -- To Translate
 
 L["Classic"] = "經典時期";
 L["Burning Crusade"] = "燃燒的遠征";
