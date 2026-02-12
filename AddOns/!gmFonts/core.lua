@@ -58,7 +58,7 @@ local function UpdateFonts()
 	-- CHAT_FONT_HEIGHTS = {7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24}
 
 	UNIT_NAME_FONT     = GMFONTS["N"]
-	DAMAGE_TEXT_FONT   = GMFONTS["NR"]
+	-- DAMAGE_TEXT_FONT   = GMFONTS["NR"]
 	STANDARD_TEXT_FONT = GMFONTS["N"]
 	NAMEPLATE_FONT     = GMFONTS["B"]
 
@@ -112,7 +112,7 @@ local function UpdateFonts()
 
 	-- Derived fonts
 	SetFont(_G.BossEmoteNormalHuge,     			GMFONTS["BI"], 27, "THICKOUTLINE")
-	SetFont(_G.CombatTextFont,          			GMFONTS["N"], 26, "")
+	-- SetFont(_G.CombatTextFont,          			GMFONTS["N"], 26, "")
 	SetFont(_G.ErrorFont,               			GMFONTS["I"], 16, "", 0.6)
 	SetFont(_G.QuestFontNormalSmall,    			GMFONTS["B"], 13, "", nil, nil, nil, 0.54, 0.4, 0.1)
 	SetFont(_G.WorldMapTextFont,        			GMFONTS["BI"], 31, "THICKOUTLINE",  0.4, nil, nil, 0, 0, 0, 1, -1)
