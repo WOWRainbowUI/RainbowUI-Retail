@@ -1033,6 +1033,23 @@ D["MythicPlusTimer"] = {
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
+D["NiceDamage"] = {
+    defaultEnable = 1,
+	tags = { "COMBAT" },
+	title = "美化戰鬥文字",
+	desc = "輕量化的魔獸世界戰鬥文字字型插件，主要功能是美化並自訂暴雪原生的傷害與治療數字顯示。它不會影響遊戲效能，適合希望提升戰鬥文字美觀度的玩家。`",
+	modifier = "彩虹ui",
+    {
+        text = "設定選項",
+        callback = function() 
+			Settings.OpenToCategory(NiceDamageDBv1.categoryID)
+		end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新登入遊戲。|r",       
+	},
+};
 D["MidnightSimpleUnitFrames"] = {
     defaultEnable = 0,
 	tags = { "UNITFRAME" },
@@ -1139,7 +1156,7 @@ D["ParagonReputation"] = {
 	title = "巔峰聲望",
 	desc = "顯示巔峰聲望進度、聲望獎勵的收集進度，以及領取巔峰箱的通知。`",
 	modifier = "彩虹ui",
-     {
+    {
         text = "設定選項",
         callback = function() 
 			Settings.OpenToCategory(ParagonReputationDB.categoryID)

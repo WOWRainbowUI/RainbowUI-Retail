@@ -1,0 +1,40 @@
+## Interface: 120001, 50503, 38000, 20505, 11508
+
+## Title: NiceDamage (Reloaded)
+## Notes: NiceDamage font for your combat text.
+
+## Category: Combat
+## Category-deDE: Kampf
+## Category-esES: Combate
+## Category-esMX: Combate
+## Category-frFR: Combat
+## Category-itIT: Combattimento
+## Category-koKR: 전투
+## Category-ptBR: Combate
+## Category-ruRU: Бой
+## Category-zhCN: 战斗
+## Category-zhTW: 戰鬥
+
+## Version: 2.3.5
+
+## IconTexture: Interface\ICONS\Inv_knife_1H_Rogue_C_01
+
+## Author: Azaiko
+## X-Email: azaiko22@gmail.com
+
+## X-Category: Actionbars
+## X-Website: https://www.curseforge.com/wow/addons/nicedamage-reloaded
+## X-Feedback: https://www.curseforge.com/wow/addons/nicedamage-reloaded
+## X-Curse-Project-ID: 1431980
+## X-Wago-ID: jK8gXX6y
+## X-WoWI-ID: 27010
+
+## SavedVariables: NiceDamageDBv1
+
+## Title-zhTW: |cffFF2D2D[戰鬥]|r 美化戰鬥文字
+## Notes-zhTW: NiceDamage (Reloaded) |n|n輕量化的魔獸世界戰鬥文字字型插件，主要功能是美化並自訂暴雪原生的傷害與治療數字顯示。它不會影響遊戲效能，適合希望提升戰鬥文字美觀度的玩家。|n|n|cffffd200使用方法: |r從Esc>選項>插件>戰鬥-文字，進行設定。
+## X-Category-zhTW: 戰鬥
+
+NiceDamage.lua 
+Config.lua
+Fonts.lua
