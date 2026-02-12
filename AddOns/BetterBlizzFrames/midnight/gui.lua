@@ -3120,7 +3120,7 @@ local function guiProfiles()
     frame.streamerText:SetText(L["Profile_Streamers"])
 
     frame.infoText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    frame.infoText:SetPoint("BOTTOM", frame, "BOTTOM", 2, 200)
+    frame.infoText:SetPoint("BOTTOM", frame, "BOTTOM", 2, 160)
     frame.infoText:SetText(L["Profile_Info_Message"])
     frame.infoText:SetWidth(100)
 
@@ -5443,10 +5443,15 @@ local function guiGeneralTab()
     end)
     aeghisButton:SetPoint("TOP", profilesFrame.streamerText, "BOTTOM", 0, -3)
 
+    local aswogButton = CreateClassButton(BetterBlizzFrames, "PALADIN", "Aswog", "aswog", function()
+        ShowProfileConfirmation("Aswog", "PALADIN", BBF.AswogProfile)
+    end)
+    aswogButton:SetPoint("TOP", aeghisButton, "BOTTOM", 0, btnGap)
+
     local bualockButton = CreateClassButton(BetterBlizzFrames, "WARLOCK", "Bualock", "bualock", function()
         ShowProfileConfirmation("Bualock", "WARLOCK", BBF.BualockProfile)
     end)
-    bualockButton:SetPoint("TOP", aeghisButton, "BOTTOM", 0, btnGap)
+    bualockButton:SetPoint("TOP", aswogButton, "BOTTOM", 0, btnGap)
 
     local kalvishButton = CreateClassButton(BetterBlizzFrames, "ROGUE", "Kalvish", "kalvish", function()
         ShowProfileConfirmation("Kalvish", "ROGUE", BBF.KalvishProfile)
@@ -7810,8 +7815,12 @@ local function guiFrameAuras()
         end
     end)
 
+    local hideUnitframeAuraTooltips = CreateCheckbox("hideUnitframeAuraTooltips", L["Hide_UnitFrame_Aura_Tooltips"], playerAuraFiltering)
+    hideUnitframeAuraTooltips:SetPoint("TOPLEFT", increaseAuraStrata, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(hideUnitframeAuraTooltips, L["Hide_UnitFrame_Aura_Tooltips"], L["Tooltip_Hide_UnitFrame_Aura_Tooltips"])
+
     local pixelBorderAuras = CreateCheckbox("pixelBorderAuras", L["Pixel_Border_Auras"], playerAuraFiltering)
-    pixelBorderAuras:SetPoint("TOPLEFT", increaseAuraStrata, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    pixelBorderAuras:SetPoint("TOPLEFT", hideUnitframeAuraTooltips, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(pixelBorderAuras, L["Pixel_Border_Auras"], L["Tooltip_Pixel_Border_Auras_Desc"])
     pixelBorderAuras:HookScript("OnClick", function(self)
         StaticPopup_Show("BBF_CONFIRM_RELOAD")
@@ -7912,8 +7921,16 @@ local function guiFrameAuras()
     local enablePlayerBuffFiltering = CreateCheckbox("enablePlayerBuffFiltering", L["Enable_Player_Aura_Adjustments"], playerAuraFiltering)
     enablePlayerBuffFiltering:SetPoint("TOPLEFT", playerAuraSettings, "BOTTOMLEFT", -10, 0)
 
+    local clickthroughPlayerAuras = CreateCheckbox("clickthroughPlayerAuras", L["Clickthrough_Player_Auras"], enablePlayerBuffFiltering)
+    clickthroughPlayerAuras:SetPoint("TOPLEFT", enablePlayerBuffFiltering, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltip(clickthroughPlayerAuras, L["Tooltip_Clickthrough_Player_Auras"], "ANCHOR_LEFT")
+
+    local hidePlayerAuraTooltips = CreateCheckbox("hidePlayerAuraTooltips", L["Hide_Player_Aura_Tooltips"], enablePlayerBuffFiltering)
+    hidePlayerAuraTooltips:SetPoint("TOPLEFT", clickthroughPlayerAuras, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltip(hidePlayerAuraTooltips, L["Tooltip_Hide_Player_Aura_Tooltips"], "ANCHOR_LEFT")
+
     local playerAuraSpacingX = CreateSlider(enablePlayerBuffFiltering, L["Horizontal_Padding"], 0, 10, 1, "playerAuraSpacingX", "X")
-    playerAuraSpacingX:SetPoint("TOP", playerAuraSettings, "BOTTOM", 0, -40)
+    playerAuraSpacingX:SetPoint("TOPLEFT", hidePlayerAuraTooltips, "BOTTOMLEFT", 0, -20)
     CreateTooltip(playerAuraSpacingX, L["Tooltip_Horizontal_Aura_Padding"], "ANCHOR_LEFT")
 
     local playerAuraSpacingY = CreateSlider(enablePlayerBuffFiltering, L["Vertical_Padding"], -10, 10, 1, "playerAuraSpacingY", "Y")
@@ -8678,28 +8695,28 @@ local function guiImportAndExport()
 
     local fullProfile = CreateImportExportUI(guiImportAndExport, "Full Profile", BetterBlizzFramesDB, 20, -20, "fullProfile")
 
-    local auraWhitelist = CreateImportExportUI(fullProfile, "Aura Whitelist", BetterBlizzFramesDB.auraWhitelist, 0, -100, "auraWhitelist")
-    local auraBlacklist = CreateImportExportUI(auraWhitelist, "Aura Blacklist", BetterBlizzFramesDB.auraBlacklist, 210, 0, "auraBlacklist")
+    -- local auraWhitelist = CreateImportExportUI(fullProfile, "Aura Whitelist", BetterBlizzFramesDB.auraWhitelist, 0, -100, "auraWhitelist")
+    -- local auraBlacklist = CreateImportExportUI(auraWhitelist, "Aura Blacklist", BetterBlizzFramesDB.auraBlacklist, 210, 0, "auraBlacklist")
 
-    local importPVPWhitelist = CreateFrame("Button", nil, guiImportAndExport, "UIPanelButtonTemplate")
-    importPVPWhitelist:SetSize(150, 35)
-    importPVPWhitelist:SetPoint("TOP", auraWhitelist, "BOTTOM", 0, -25)
-    importPVPWhitelist:SetText(L["Import_PvP_Whitelist"])
-    importPVPWhitelist:SetScript("OnClick", function()
-        StaticPopup_Show("BBF_CONFIRM_PVP_WHITELIST")
-    end)
-    local coloredText = L["Whitelist_Colors"]
+    -- local importPVPWhitelist = CreateFrame("Button", nil, guiImportAndExport, "UIPanelButtonTemplate")
+    -- importPVPWhitelist:SetSize(150, 35)
+    -- importPVPWhitelist:SetPoint("TOP", auraWhitelist, "BOTTOM", 0, -25)
+    -- importPVPWhitelist:SetText(L["Import_PvP_Whitelist"])
+    -- importPVPWhitelist:SetScript("OnClick", function()
+    --     StaticPopup_Show("BBF_CONFIRM_PVP_WHITELIST")
+    -- end)
+    -- local coloredText = L["Whitelist_Colors"]
 
-    CreateTooltipTwo(importPVPWhitelist, L["Import_PvP_Whitelist"], string.format(L["Tooltip_Import_PvP_Whitelist_Desc"], coloredText))
+    -- CreateTooltipTwo(importPVPWhitelist, L["Import_PvP_Whitelist"], string.format(L["Tooltip_Import_PvP_Whitelist_Desc"], coloredText))
 
-    local importPVPBlacklist = CreateFrame("Button", nil, guiImportAndExport, "UIPanelButtonTemplate")
-    importPVPBlacklist:SetSize(150, 35)
-    importPVPBlacklist:SetPoint("TOP", auraBlacklist, "BOTTOM", 0, -25)
-    importPVPBlacklist:SetText(L["Import_PvP_Blacklist"])
-    importPVPBlacklist:SetScript("OnClick", function()
-        StaticPopup_Show("BBF_CONFIRM_PVP_BLACKLIST")
-    end)
-    CreateTooltipTwo(importPVPBlacklist, L["Import_PvP_Blacklist"], L["Tooltip_Import_Blacklist_Desc"])
+    -- local importPVPBlacklist = CreateFrame("Button", nil, guiImportAndExport, "UIPanelButtonTemplate")
+    -- importPVPBlacklist:SetSize(150, 35)
+    -- importPVPBlacklist:SetPoint("TOP", auraBlacklist, "BOTTOM", 0, -25)
+    -- importPVPBlacklist:SetText(L["Import_PvP_Blacklist"])
+    -- importPVPBlacklist:SetScript("OnClick", function()
+    --     StaticPopup_Show("BBF_CONFIRM_PVP_BLACKLIST")
+    -- end)
+    -- CreateTooltipTwo(importPVPBlacklist, L["Import_PvP_Blacklist"], L["Tooltip_Import_Blacklist_Desc"])
 
 end
 
@@ -8725,19 +8742,17 @@ local function guiCustomCode()
     discordLinkEditBox:SetAutoFocus(false)
     discordLinkEditBox:SetFontObject("ChatFontSmall")
     discordLinkEditBox:SetText("https://discord.gg/cjqVaEMm25")
-    discordLinkEditBox:SetCursorPosition(0) -- Places cursor at start of the text
-    discordLinkEditBox:ClearFocus() -- Removes focus from the EditBox
+    discordLinkEditBox:SetCursorPosition(0)
+    discordLinkEditBox:ClearFocus()
     discordLinkEditBox:SetScript("OnEscapePressed", function(self)
-        self:ClearFocus() -- Allows user to press escape to unfocus the EditBox
+        self:ClearFocus()
     end)
 
-    -- Make the EditBox text selectable and readonly
     discordLinkEditBox:SetScript("OnTextChanged", function(self)
         self:SetText("https://discord.gg/cjqVaEMm25")
     end)
-    --discordLinkEditBox:HighlightText() -- Highlights the text for easy copying
-    discordLinkEditBox:SetScript("OnCursorChanged", function() end) -- Prevents cursor changes
-    discordLinkEditBox:SetScript("OnEditFocusGained", function(self) self:HighlightText() end) -- Re-highlights text when focused
+    discordLinkEditBox:SetScript("OnCursorChanged", function() end)
+    discordLinkEditBox:SetScript("OnEditFocusGained", function(self) self:HighlightText() end)
     discordLinkEditBox:SetScript("OnMouseUp", function(self)
         if not self:IsMouseOver() then
             self:ClearFocus()
@@ -8759,19 +8774,17 @@ local function guiCustomCode()
     boxOne:SetAutoFocus(false)
     boxOne:SetFontObject("ChatFontSmall")
     boxOne:SetText("https://patreon.com/bodifydev")
-    boxOne:SetCursorPosition(0) -- Places cursor at start of the text
-    boxOne:ClearFocus() -- Removes focus from the EditBox
+    boxOne:SetCursorPosition(0)
+    boxOne:ClearFocus()
     boxOne:SetScript("OnEscapePressed", function(self)
-        self:ClearFocus() -- Allows user to press escape to unfocus the EditBox
+        self:ClearFocus()
     end)
 
-    -- Make the EditBox text selectable and readonly
     boxOne:SetScript("OnTextChanged", function(self)
         self:SetText("https://patreon.com/bodifydev")
     end)
-    --boxOne:HighlightText() -- Highlights the text for easy copying
-    boxOne:SetScript("OnCursorChanged", function() end) -- Prevents cursor changes
-    boxOne:SetScript("OnEditFocusGained", function(self) self:HighlightText() end) -- Re-highlights text when focused
+    boxOne:SetScript("OnCursorChanged", function() end)
+    boxOne:SetScript("OnEditFocusGained", function(self) self:HighlightText() end)
     boxOne:SetScript("OnMouseUp", function(self)
         if not self:IsMouseOver() then
             self:ClearFocus()
@@ -8793,19 +8806,16 @@ local function guiCustomCode()
     boxTwo:SetAutoFocus(false)
     boxTwo:SetFontObject("ChatFontSmall")
     boxTwo:SetText("https://paypal.me/bodifydev")
-    boxTwo:SetCursorPosition(0) -- Places cursor at start of the text
-    boxTwo:ClearFocus() -- Removes focus from the EditBox
+    boxTwo:SetCursorPosition(0)
+    boxTwo:ClearFocus()
     boxTwo:SetScript("OnEscapePressed", function(self)
-        self:ClearFocus() -- Allows user to press escape to unfocus the EditBox
+        self:ClearFocus()
     end)
-
-    -- Make the EditBox text selectable and readonly
     boxTwo:SetScript("OnTextChanged", function(self)
         self:SetText("https://paypal.me/bodifydev")
     end)
-    --boxTwo:HighlightText() -- Highlights the text for easy copying
-    boxTwo:SetScript("OnCursorChanged", function() end) -- Prevents cursor changes
-    boxTwo:SetScript("OnEditFocusGained", function(self) self:HighlightText() end) -- Re-highlights text when focused
+    boxTwo:SetScript("OnCursorChanged", function() end)
+    boxTwo:SetScript("OnEditFocusGained", function(self) self:HighlightText() end)
     boxTwo:SetScript("OnMouseUp", function(self)
         if not self:IsMouseOver() then
             self:ClearFocus()
@@ -8821,16 +8831,9 @@ local function guiCustomCode()
     palText:SetPoint("LEFT", boxTwoTex, "RIGHT", 14, -1)
     palText:SetText("Paypal")
 
-
-
-
-
-
-
-    -- Implementing the code editor inside the guiCustomCode frame
     local FAIAP = BBF.indent
 
-    -- Define your color table for syntax highlighting
+    -- Syntax highlighting
     local colorTable = {
         [FAIAP.tokens.TOKEN_SPECIAL] = "|c00F1D710",
         [FAIAP.tokens.TOKEN_KEYWORD] = "|c00BD6CCC",
@@ -8844,33 +8847,28 @@ local function guiCustomCode()
         [0] = "|r",  -- Reset color
     }
 
-    -- Add a scroll frame for the code editor
     local scrollFrame = CreateFrame("ScrollFrame", nil, guiCustomCode, "UIPanelScrollFrameTemplate")
     scrollFrame:SetPoint("TOP", guiCustomCode, "TOP", -10, -110)
-    scrollFrame:SetSize(620, 440)  -- Fixed size for the entire editor box
+    scrollFrame:SetSize(620, 440)
 
-    -- Label for the custom code box
     local customCodeText = guiCustomCode:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
     customCodeText:SetPoint("BOTTOM", scrollFrame, "TOP", 0, 5)
     customCodeText:SetText(L["Custom_Code_Text"])
 
-    -- Create the code editor
     local codeEditBox = CreateFrame("EditBox", nil, scrollFrame)
     codeEditBox:SetMultiLine(true)
     codeEditBox:SetFontObject("ChatFontSmall")
-    codeEditBox:SetSize(600, 370)  -- Smaller than the scroll frame to allow scrolling
+    codeEditBox:SetSize(600, 370)
     codeEditBox:SetAutoFocus(false)
     codeEditBox:SetCursorPosition(0)
     codeEditBox:SetText(BetterBlizzFramesDB.customCode or "")
     codeEditBox:ClearFocus()
-
-    -- Attach the EditBox to the scroll frame
     scrollFrame:SetScrollChild(codeEditBox)
 
-    -- Add a static custom background to the scroll frame
+
     local bg = scrollFrame:CreateTexture(nil, "BACKGROUND")
-    bg:SetColorTexture(0, 0, 0, 0.6)  -- Semi-transparent black background
-    bg:SetAllPoints(scrollFrame)  -- Apply the background to the entire scroll frame
+    bg:SetColorTexture(0, 0, 0, 0.6)
+    bg:SetAllPoints(scrollFrame)
 
     -- Add a static custom border around the scroll frame
     local border = CreateFrame("Frame", nil, scrollFrame, BackdropTemplateMixin and "BackdropTemplate")
@@ -8880,10 +8878,13 @@ local function guiCustomCode()
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
         edgeSize = 14,
     })
-    border:SetBackdropBorderColor(0.8, 0.8, 0.8, 1)  -- Light gray border
-
-    -- Optional: Set padding or insets if needed
+    border:SetBackdropBorderColor(0.8, 0.8, 0.8, 1)
     codeEditBox:SetTextInsets(6, 10, 4, 10)
+
+    scrollFrame:EnableMouse(true)
+    scrollFrame:SetScript("OnMouseDown", function()
+        codeEditBox:SetFocus()
+    end)
 
     -- Track changes to detect unsaved edits
     local unsavedChanges = false
@@ -8900,11 +8901,10 @@ local function guiCustomCode()
     end)
 
     -- Enable syntax highlighting and indentation with FAIAP
-    FAIAP.enable(codeEditBox, colorTable, 4)  -- Assuming a tab width of 4
+    FAIAP.enable(codeEditBox, colorTable, 4)
 
     local customCodeSaved = L["Print_Custom_Code_Saved"]
 
-    -- Create Save Button
     local saveButton = CreateFrame("Button", nil, guiCustomCode, "UIPanelButtonTemplate")
     saveButton:SetSize(120, 30)
     saveButton:SetPoint("TOP", scrollFrame, "BOTTOM", 0, -10)
@@ -8918,7 +8918,6 @@ local function guiCustomCode()
     -- Flag to prevent double triggering of the prompt
     local promptShown = false
 
-    -- Function to show the save prompt if needed
     local function showSavePrompt()
         if unsavedChanges and not promptShown then
             promptShown = true
@@ -9454,10 +9453,15 @@ function BBF.CreateIntroMessageWindow()
     end)
     aeghisButton:SetPoint("TOP", bodifyButton, "BOTTOM", -150, -40)
 
+    local aswogButton = CreateClassButton(BBF.IntroMessageWindow, "PALADIN", "Aswog", "aswog", function()
+        ShowProfileConfirmation("Aswog", "PALADIN", BBF.AswogProfile)
+    end)
+    aswogButton:SetPoint("TOP", aeghisButton, "BOTTOM", 0, btnGap)
+
     local bualockButton = CreateClassButton(BBF.IntroMessageWindow, "WARLOCK", "Bualock", "bualock", function()
         ShowProfileConfirmation("Bualock", "WARLOCK", BBF.BualockProfile)
     end)
-    bualockButton:SetPoint("TOP", aeghisButton, "BOTTOM", 0, btnGap)
+    bualockButton:SetPoint("TOP", aswogButton, "BOTTOM", 0, btnGap)
 
     local kalvishButton = CreateClassButton(BBF.IntroMessageWindow, "ROGUE", "Kalvish", "kalvish", function()
         ShowProfileConfirmation("Kalvish", "ROGUE", BBF.KalvishProfile)
@@ -9482,12 +9486,12 @@ function BBF.CreateIntroMessageWindow()
     local mysticallButton = CreateClassButton(BBF.IntroMessageWindow, "MONK", "Mysticall", "mysticallx", function()
         ShowProfileConfirmation("Mysticall", "MONK", BBF.MysticallProfile)
     end)
-    mysticallButton:SetPoint("TOP", mmarkersButton, "BOTTOM", 0, btnGap)
+    mysticallButton:SetPoint("TOP", bodifyButton, "BOTTOM", 0, -40)
 
     local nahjButton = CreateClassButton(BBF.IntroMessageWindow, "ROGUE", "Nahj", "nahj", function()
         ShowProfileConfirmation("Nahj", "ROGUE", BBF.NahjProfile)
     end)
-    nahjButton:SetPoint("TOP", bodifyButton, "BOTTOM", 0, -40)
+    nahjButton:SetPoint("TOP", mysticallButton, "BOTTOM", 0, btnGap)
 
     local pmakeButton = CreateClassButton(BBF.IntroMessageWindow, "MAGE", "Pmake", "pmakewow", function()
         ShowProfileConfirmation("Pmake", "MAGE", BBF.PmakeProfile)
@@ -9515,14 +9519,14 @@ function BBF.CreateIntroMessageWindow()
     wolfButton:SetPoint("TOP", venrukiButton, "BOTTOM", 0, btnGap)
 
     local orText2 = BBF.IntroMessageWindow:CreateFontString(nil, "OVERLAY", "GameFontNormalMed2")
-    orText2:SetPoint("CENTER", mysticallButton, "BOTTOM", 75, -20)
+    orText2:SetPoint("CENTER", mmarkersButton, "BOTTOM", 75, -20)
     orText2:SetText(L["OR"])
     orText2:SetJustifyH("CENTER")
 
     local buttonLast = CreateFrame("Button", nil, BBF.IntroMessageWindow, "GameMenuButtonTemplate")
     buttonLast:SetSize(btnWidth, btnHeight)
     buttonLast:SetText(L["Exit_No_Profile"])
-    buttonLast:SetPoint("TOP", mysticallButton, "BOTTOM", 75, -40)
+    buttonLast:SetPoint("TOP", mmarkersButton, "BOTTOM", 75, -40)
     buttonLast:SetNormalFontObject("GameFontNormal")
     buttonLast:SetHighlightFontObject("GameFontHighlight")
     buttonLast:SetScript("OnClick", function()
