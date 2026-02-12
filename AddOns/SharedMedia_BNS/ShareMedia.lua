@@ -27,9 +27,9 @@ LSM:Register(MediaType_BORDER, "fer13", [[Interface\AddOns\SharedMedia_BNS\Borde
 -- -----
 --   FONT
 -- -----
-LSM:Register(MediaType_FONT, " 昭源黑體改",						[[Interface\Addons\SharedMedia_BNS\font\ChironHeiHKText-Bold.ttf]], zhCN + zhTW + western)
-LSM:Register(MediaType_FONT, " 芫荽+霞鹜文楷",					[[Interface\Addons\SharedMedia_BNS\font\bLEI00D.ttf]], zhCN + zhTW + western)
-LSM:Register(MediaType_FONT, " 更莎黑體等寬",					[[Interface\Addons\SharedMedia_BNS\font\SarasaMonoTC-Regular.ttf]], zhCN + zhTW + western)
+LSM:Register(MediaType_FONT, " 昭源黑體改123",					[[Interface\Addons\SharedMedia_BNS\font\ChironHeiHKText-Bold.ttf]], zhCN + zhTW + western)
+LSM:Register(MediaType_FONT, " 月星楷123",					    [[Interface\Addons\SharedMedia_BNS\font\MoonStarsKai-Bold.ttf]], zhCN + zhTW + western)
+LSM:Register(MediaType_FONT, " 朱雀仿宋123",					[[Interface\Addons\SharedMedia_BNS\font\ZhuqueFangsong-Semibold.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "Alata",							[[Interface\Addons\SharedMedia_BNS\font\Alata.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "MaJi Bold",						[[Interface\Addons\SharedMedia_BNS\font\MaJi-Bold.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "US Damage text",					[[Interface\Addons\SharedMedia_BNS\font\US_damage_Font_Bold.TTF]], zhCN + zhTW + western)
@@ -62,7 +62,8 @@ LSM:Register("sound", "!|cff00c0ff音效：mgsopen|r", [[Interface\Addons\Shared
 LSM:Register("sound", "!|cff00c0ff音效：瑪利歐金幣|r", [[Interface\Addons\SharedMedia_BNS\sound\super_mario_bros_coin.ogg]])
 LSM:Register("sound", "!|cff00c0ff音效：瑪利歐GG|r", [[Interface\Addons\SharedMedia_BNS\sound\super_mario_bros_game_over.ogg]])
 LSM:Register("sound", "!|cff00c0ff音效：瑪利歐變大|r", [[Interface\Addons\SharedMedia_BNS\sound\super_mario_bros_powerup.ogg]])
-LSM:Register("sound", "!|cff00c0ff音效：去死|r", [[Interface\Addons\SharedMedia_BNS\sound\Touch of Death_1.ogg]])
+LSM:Register("sound", "!|cff00c0ff音效：死咧！|r", [[Interface\Addons\SharedMedia_BNS\sound\Touch of Death_1.ogg]])
+LSM:Register("sound", "!|cff00c0ff音效：那泥？|r", [[Interface\Addons\SharedMedia_BNS\sound\hurt_5.ogg]])
 LSM:Register("sound", "!|cff00c0ff音效：Tuturu|r", [[Interface\Addons\SharedMedia_BNS\sound\Tuturu.ogg]])
 LSM:Register("sound", "#|cff00c0ff語音：快跑位|r", [[Interface\Addons\SharedMedia_BNS\sound\movesoon.ogg]]) 
 LSM:Register("sound", "#|cff00c0ff語音：快躲開|r", [[Interface\Addons\SharedMedia_BNS\sound\runaway.ogg]]) 
@@ -90,6 +91,7 @@ LSM:Register(MediaType_STATUSBAR, "Glamour4",			[[Interface\Addons\SharedMedia_B
 LSM:Register(MediaType_STATUSBAR, "Glamour5",			[[Interface\Addons\SharedMedia_BNS\statusbar\Glamour5]])
 LSM:Register(MediaType_STATUSBAR, "Glamour6",			[[Interface\Addons\SharedMedia_BNS\statusbar\Glamour6]])
 LSM:Register(MediaType_STATUSBAR, "Glamour7",			[[Interface\Addons\SharedMedia_BNS\statusbar\Glamour7]])
+LSM:Register(MediaType_STATUSBAR, "Okidoki",			[[Interface\Addons\SharedMedia_BNS\statusbar\Okidoki]])
 LSM:Register(MediaType_STATUSBAR, "Perl v2",			[[Interface\Addons\SharedMedia_BNS\statusbar\Perl2]])
 LSM:Register(MediaType_STATUSBAR, "Rainbow",			[[Interface\Addons\SharedMedia_BNS\statusbar\Rainbow]])
 LSM:Register(MediaType_STATUSBAR, "Rocks",				[[Interface\Addons\SharedMedia_BNS\statusbar\Rocks]])
