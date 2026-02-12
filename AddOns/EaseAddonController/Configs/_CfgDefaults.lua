@@ -1725,16 +1725,11 @@ D["UnlimitedMapPinDistance"] = {
     },
 };
 D["VCB"] = {
-    defaultEnable = 1,
-	tags = { "UNITFRAME" },
-	title = "內建施法條增強",
-	desc = "幫遊戲內建的施法條加入一些巫毒魔法，顯示法術圖示、時間、延遲和施法斷點。``|cffFF2D2D特別注意：請勿和 'Quartz 施法條' 插件一起使用。|r`",
+    defaultEnable = 0,
+	title = "(請刪除) 內建施法條增強",
+	desc = "這是舊版的插件，已經移除。`請自行刪除 AddOns 裡面的 VCB 和 VuhDoOptions 資料夾。`",
 	icon = "Interface\\Icons\\spell_holy_surgeoflight_shadow",
 	modifier = "彩虹ui",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["VCB"]("") end,
-    },
 };
 D["VuhDo"] = {
     defaultEnable = 0,
