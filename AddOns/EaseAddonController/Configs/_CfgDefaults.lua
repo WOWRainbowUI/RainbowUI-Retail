@@ -1076,6 +1076,16 @@ D["MikScrollingBattleText"] = {
         callback = function() SlashCmdList["MSBT"]("") end,
     },
 };
+D["MinimalistCooldownEdge"] = {
+    defaultEnable = 0,
+	tags = { "ACTIONBAR" },
+	title = "極簡冷卻時間",
+	desc = "輕量化冷卻計時插件。以高效能、低資源消耗為核心，作為經典插件 OmniCC 的現代替代方案，提供乾淨、專業且可高度自訂的冷卻顯示效果。`",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["ACECONSOLE_MCE"]("") end,
+    },
+};
 D["Molinari"] = {
     defaultEnable = 0,
 	title = "一鍵分解物品",
