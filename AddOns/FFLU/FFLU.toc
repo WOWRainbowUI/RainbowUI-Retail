@@ -1,4 +1,4 @@
-## Interface: 11508, 20205, 50503, 120000
+## Interface: 11508, 20205, 50503, 120001
 ## Version: 2.1.25
 ## Title: - |cffffe568F|r|cffffffffinal|r |cffffe568F|r|cffffffffantasy|r |cffffe568L|r|cffffffffevel|r |cffffe568U|r|cffffffffp!|r
 ## Notes: Play the iconic Final Fantasy level-up sound!  |n|r  |cffffe568/fflu -|r Open help  |n|r   |cffffe568By DonnieDice|r

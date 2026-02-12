@@ -1,4 +1,4 @@
-## Interface: 120001, 120000
+## Interface: 120001, 120001
 ## Title: Lib: CustomGlow
 ## Notes: Creates custom glow functions
 ## Author: deezo

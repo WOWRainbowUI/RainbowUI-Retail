@@ -1,4 +1,4 @@
-## Interface: 120000
+## Interface: 120001
 ## Title: Personal Resource Display Reskin
 ## Notes: Reskins the Personal Resource Display bar using LibSharedMedia
 ## Author: Ckraigfriend

@@ -1,4 +1,4 @@
-## Interface: 11508, 20205, 38000, 50503, 120000
+## Interface: 11508, 20205, 38000, 50503, 120001
 ## Title: BlizzMove
 ## Notes: Makes blizzard frames movable
 ## Author: Kiatra, zaCade, Numy - github.com/Kiatra/BlizzMove/

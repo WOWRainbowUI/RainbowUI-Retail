@@ -1,4 +1,4 @@
-## Interface: 120000
+## Interface: 120001
 ## Title: BtWLoadouts
 ## Version: v1.20.19
 ## Notes: Change your characters spec, talents, equipment, essences, and action bars all at once

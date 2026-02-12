@@ -1,4 +1,4 @@
-## Interface: 50503, 120000
+## Interface: 50503, 120001
 ## Title: BtWQuests
 ## Version: 2.60.0
 ## Notes: 

@@ -1,4 +1,4 @@
-## Interface: 11508, 20505, 38000, 50503, 120000
+## Interface: 11508, 20505, 38000, 50503, 120001
 ## Version: 0.6.8b
 
 ## Title: Dialogue UI

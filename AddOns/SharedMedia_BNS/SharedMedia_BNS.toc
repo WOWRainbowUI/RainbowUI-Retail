@@ -1,4 +1,4 @@
-﻿## Interface: 120000
+﻿## Interface: 120001
 ## Title: SharedMedia |cff00c0ffBNS|r
 ## Notes: BNS素材包，內含中英字型以及材質，還有少數音效，其他所有使用SharedMedia函數庫的插件都可以使用。
 ## Version: 1.42

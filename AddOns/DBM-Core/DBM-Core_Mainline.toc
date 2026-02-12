@@ -1,4 +1,4 @@
-## Interface: 110207, 120000, 120001
+## Interface: 110207, 120001, 120001
 ## X-Min-Interface: 110200
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Main Core|r

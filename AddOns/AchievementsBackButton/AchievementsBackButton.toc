@@ -1,4 +1,4 @@
-## Interface: 38000, 50503, 120000
+## Interface: 38000, 50503, 120001
 ## Version: 1.6.5
 ## Title: Achievements Back Button
 ## IconAtlas: questlog-questtypeicon-story

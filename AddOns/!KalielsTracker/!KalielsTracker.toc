@@ -1,4 +1,4 @@
-## Interface: 120000
+## Interface: 120001
 ## Title: Kaliel's Tracker
 ## Notes: |nImproved Objective Tracker|n|cff999999by Kaliel (Marouan Sabbagh)|n|n
 ## Version: 8.0.0

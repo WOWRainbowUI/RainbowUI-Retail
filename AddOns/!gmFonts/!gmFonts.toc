@@ -1,4 +1,4 @@
-## Interface: 120000
+## Interface: 120001
 ## Version: 1010-2023050901 12.0 Fix
 ## Title: gmFonts
 ## Notes: A small addon for changing default UI fonts and/or adding in SharedMedia

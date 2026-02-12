@@ -1,4 +1,4 @@
-## Interface: 120000
+## Interface: 120001
 ## Title: |cffEEE4AEPremade Group Sort|r
 ## Author: Yuyuli
 ## Version: 36
