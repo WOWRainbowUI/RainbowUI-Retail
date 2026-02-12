@@ -1,0 +1,14 @@
+## Interface: 120001
+## Title: Details! Skin Midnight
+## Notes: Adds the Midnight skin to Details!
+## Author: Midnight
+## Version: 1.6
+## Dependencies: Details
+
+## Title-zhTW: |cffFF2D2D[戰鬥]|r Details! 戰鬥統計外觀-至暗之夜
+## Notes-zhTW: Details! Skin Midnight |n|n至暗之夜的戰鬥統計視窗外觀。|n|n|cffffd200使用方法: |r打開 Details!選項>外觀>外觀，下拉選單選擇 "至暗之夜"。
+## X-Category-zhTW: 戰鬥
+## IconTexture: Interface\AddOns\Details\images\minimap
+## DefaultState: disabled
+
+Details_Midnight.lua
