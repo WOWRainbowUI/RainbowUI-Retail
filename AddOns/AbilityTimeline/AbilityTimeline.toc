@@ -1,12 +1,12 @@
-## Interface: 120000
+## Interface: 120000, 120001
 ## Title: AbilityTimeline
-## Version: v0.17
+## Version: v0.18
 ## Notes: Adds various improvements to blizzards encounter ability timeline.
 ## SavedVariables: AbilityTimeline
 ## Author: Jods
 ## X-Curse-Project-ID: 1365171
 ## X-Wago-ID: qGYMWpGg
-## OptionalDeps: Ace3, DevTool, CustomNames
+## OptionalDeps: Ace3, DevTool, CustomNames, ElvUI
 ## AddonCompartmentFunc: AbilityTimeline_AddonCompartmentFunction
 ## IconTexture: Interface\AddOns\AbilityTimeline\Media\Logo.tga
 ## Category-enUS: Dungeons & Raids
@@ -32,6 +32,7 @@ Util\Tooltip.lua
 Util\EncounterBrowser.lua
 Util\ImportUtil.lua
 Util\ChatTransmission.lua
+Util\Zoom.lua
 
 # Locales
 Locales\enUS.lua

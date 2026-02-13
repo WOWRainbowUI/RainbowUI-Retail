@@ -12,6 +12,10 @@ L["addonOptions"] = "Ability Timeline选项"
 L["BigIconMargin"] = "间距"
 L["BigIconMarginDescription"] = "设置大图标的间隔距离。"
 L["BleedEffect"] = "流血|TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:158:192:32:64|t"
+--[[Translation missing --]]
+L["CollapseTravelSettings"] = "Collapse Travel Settings"
+--[[Translation missing --]]
+L["CollapseVisualSettings"] = "Collapse Visual Settings"
 L["CooldownColorChangeColor"] = "颜色"
 L["CooldownColorChangeColorDescription"] = "设置在到达此计时的冷却文本颜色。"
 L["CooldownColorChanges"] = "冷却时间颜色变化"
@@ -68,6 +72,10 @@ L["EnableTextHighlightDescription"] = "切换文本高亮框体的可见性。"
 L["EnableTicks"] = "启用时间刻度"
 L["EnableTicksDescription"] = "切换时间刻度的可见性。"
 L["EnrageEffect"] = "激怒 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
+--[[Translation missing --]]
+L["ExpandTravelSettings"] = "Expand Travel Settings"
+--[[Translation missing --]]
+L["ExpandVisualSettings"] = "Expand Visual Settings"
 L["ExportAsEncoded"] = "导出格式：编码"
 L["ExportAsJSON"] = "导出格式：JSON"
 L["ExportAsMRT"] = "导出格式：MRT"
@@ -88,6 +96,10 @@ L["IconDispellBorderDescription"] = "切换法术图标周围的驱散类型边�
 L["IconDispellIcon"] = "驱散类型图标"
 L["IconDispellIconDescription"] = "切换法术图标上叠加的驱散类型图标。"
 L["IconGrowDirectionDescription"] = "设置不同图标元素的增长方向。"
+--[[Translation missing --]]
+L["IconMargin"] = "Icon Margin"
+--[[Translation missing --]]
+L["IconMarginDescription"] = "Sets the space between spell icons."
 L["IconPreview"] = "图标预览"
 L["IconSize"] = "图标尺寸"
 L["IconSizeDescription"] = "设置法术图标的尺寸。"
@@ -207,8 +219,12 @@ L["TravelDirection"] = "行进方向"
 L["TravelDirectionDescription"] = "时间轴的行进方向。"
 L["TravelDirectionHorizontal"] = "水平"
 L["TravelDirectionVertical"] = "垂直"
+--[[Translation missing --]]
+L["TravelSettingsDescription"] = "Settings to customize the traveling of the icons on the timeline."
 L["useAudioCountdowns"] = "使用语音倒计时"
 L["useAudioCountdownsDescription"] = "为即将到来的事件启用最后5秒的语音倒计时。"
+--[[Translation missing --]]
+L["VisualSettingsDescription"] = "Settings to customize the visual appearance of the timeline."
 L["WrongWoWVersionMessage"] = "AbilityTimeline 需要《魔兽世界》12.0.0（至暗之夜）或更高版本才能运行。"
 
 

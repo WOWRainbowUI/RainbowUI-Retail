@@ -1,26 +1,16 @@
 # AbilityTimeline
 
-## [v0.17](https://github.com/Jods-GH/AbilityTimeline/tree/v0.17) (2026-01-29)
-[Full Changelog](https://github.com/Jods-GH/AbilityTimeline/compare/v0.16...v0.17) [Previous Releases](https://github.com/Jods-GH/AbilityTimeline/releases)
+## [v0.18](https://github.com/Jods-GH/AbilityTimeline/tree/v0.18) (2026-02-07)
+[Full Changelog](https://github.com/Jods-GH/AbilityTimeline/compare/v0.17...v0.18) [Previous Releases](https://github.com/Jods-GH/AbilityTimeline/releases)
 
-- add an option to hide "blocked" icons  
-    This adheres to the blizzard option to turn these off  
-- add option to disable login message  
-- overwrite pulltimer if one is already active  
-- nilchjeck all textures before trying to set them  
-- apply dummy settings in settings frame insead of the templates  
-- properly apply highlight text settings to colored texts  
-- add some skinning compatibility for the encounter browser  
-- lint  
-- add missing translation  
-- add highlight texts despell type text color  
-- fix adding new cooldown highlights accidentally breaking the ui  
-- add basic highlight text settings closes #24  
-- save import checkbox in between sessions  
-- only clear dnd message when one was active  
-- add reminder sharing via chat  
-- small fixes  
-- adjust import popup translation  
-- fix text copy frame sometimes not properly showing editbox  
-- remove unneccesary translations  
-- add exporting and importing of reminders  
+- chore: Update toc to newest wow interface version (#33)  
+    Co-authored-by: Jodsderechte <39654549+Jodsderechte@users.noreply.github.com>  
+- start work on being able to turn off timeline  
+- auto detect current expansion for encounterFetcher  
+- properly skin the encounter journal button when elvui is loaded  
+- properly put zoom in it's own util  
+- fix bigicon growing up not working correctly  
+    closes #31  
+- add auto toc workflow  
+- add option to change spacing between icons  
+- reformat edite mode setting to use expanders  

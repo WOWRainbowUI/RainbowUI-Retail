@@ -19,6 +19,10 @@ L["BigIconMarginDescription"] = "Sets the space between big icons."
 --[[Translation missing --]]
 L["BleedEffect"] = "Bleed |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:158:192:32:64|t"
 --[[Translation missing --]]
+L["CollapseTravelSettings"] = "Collapse Travel Settings"
+--[[Translation missing --]]
+L["CollapseVisualSettings"] = "Collapse Visual Settings"
+--[[Translation missing --]]
 L["CooldownColorChangeColor"] = "Color"
 --[[Translation missing --]]
 L["CooldownColorChangeColorDescription"] = "Sets the color of the cooldown text when this timing is reached."
@@ -123,6 +127,10 @@ L["EnableTicksDescription"] = "Toggles the visibility of the timeline ticks."
 --[[Translation missing --]]
 L["EnrageEffect"] = "Enrage |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
 --[[Translation missing --]]
+L["ExpandTravelSettings"] = "Expand Travel Settings"
+--[[Translation missing --]]
+L["ExpandVisualSettings"] = "Expand Visual Settings"
+--[[Translation missing --]]
 L["ExportAsEncoded"] = "Export as Encoded"
 --[[Translation missing --]]
 L["ExportAsJSON"] = "Export as JSON"
@@ -162,6 +170,10 @@ L["IconDispellIcon"] = "Dispell Icon"
 L["IconDispellIconDescription"] = "Toggles the dispell type icon overlay on the spell icon."
 --[[Translation missing --]]
 L["IconGrowDirectionDescription"] = "Sets the grow direction of different icon elements."
+--[[Translation missing --]]
+L["IconMargin"] = "Icon Margin"
+--[[Translation missing --]]
+L["IconMarginDescription"] = "Sets the space between spell icons."
 --[[Translation missing --]]
 L["IconPreview"] = "Icon Preview"
 --[[Translation missing --]]
@@ -391,9 +403,13 @@ L["TravelDirectionHorizontal"] = "Horizontal"
 --[[Translation missing --]]
 L["TravelDirectionVertical"] = "Vertical"
 --[[Translation missing --]]
+L["TravelSettingsDescription"] = "Settings to customize the traveling of the icons on the timeline."
+--[[Translation missing --]]
 L["useAudioCountdowns"] = "Use Audio Countdowns"
 --[[Translation missing --]]
 L["useAudioCountdownsDescription"] = "Enables audio countdowns of the last 5 seconds for upcoming events."
+--[[Translation missing --]]
+L["VisualSettingsDescription"] = "Settings to customize the visual appearance of the timeline."
 --[[Translation missing --]]
 L["WrongWoWVersionMessage"] = "AbilityTimeline requires WoW version 12.0.0 (Midnight) or higher to run."
 
