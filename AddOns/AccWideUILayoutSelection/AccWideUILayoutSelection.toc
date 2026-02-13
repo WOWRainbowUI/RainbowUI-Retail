@@ -1,6 +1,6 @@
 ## Interface: 11508, 20205, 38000, 50503, 120001
 ## Title: Account Wide Interface Settings
-## Version: v2.2.1
+## Version: v2.2.2
 ## Notes: Synchronises various Character-Specific Interface Settings Account Wide. /awi
 ## Author: ConineSpiritwolf
 ## SavedVariables: AccWideUIAceDB, AccWideUI_AccountData
