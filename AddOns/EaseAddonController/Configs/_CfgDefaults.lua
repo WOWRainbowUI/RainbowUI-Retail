@@ -1304,6 +1304,16 @@ D["Quartz"] = {
         callback = function() SlashCmdList["ACECONSOLE_QUARTZ"]("") end,
     },
 };
+D["RaidFrameSettings"] = {
+	defaultEnable = 1,
+	tags = { "UNITFRAME" },
+	title = "內建團隊框架增強",
+	desc = "自訂暴雪原生的團隊框架，提供額外的設定選項，讓玩家能更靈活地調整團隊框架的外觀與功能，以符合個人需求或團隊戰鬥的習慣。`",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["RAID_FRAME_SETTINGS"]("") end,
+    },
+};
 D["QuestPlates"] = {
     defaultEnable = 1,
 	tags = { "QUEST" },

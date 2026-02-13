@@ -1,0 +1,38 @@
+## Interface: 120001
+## Version: 4.4.0
+## Title: RaidFrameSettings Options
+## LoadOnDemand: 1
+## Dependencies: RaidFrameSettings
+## IconTexture: Interface\AddOns\RaidFrameSettings\Data\Textures\Icon.tga
+## OptionalDeps: Ace3
+## Author: Slothpala
+
+## Title-zhTW: |cffFF7F00[團隊]|r 內建團隊框架增強-設定選項
+## Notes-zhTW: RaidFrameSettings Options |n自訂暴雪原生的團隊框架，提供額外的設定選項，讓玩家能更靈活地調整團隊框架的外觀與功能，以符合個人需求或團隊戰鬥的習慣。|n|cffffd200使用方法：|r輸入 /rfs 打開設定選項。
+## Category-zhTW: 單位框架
+
+Locales\locales.xml
+
+Templates\RaidFrameSettings_HeaderTemplate.xml
+Templates\RaidFrameSettings_ColorPickerTemplate.xml
+Templates\RaidFrameSettings_ColorModeTemplate.xml
+Templates\RaidFrameSettings_DropdownSelectionTemplate.xml
+Templates\RaidFrameSettings_DropdownSelectionTemplate_Texture.xml
+Templates\RaidFrameSettings_ToggleTemplate.xml
+Templates\RaidFrameSettings_AnchorTemplate.xml
+Templates\RaidFrameSettings_FontSelectionTemplate.xml
+Templates\RaidFrameSettings_SingleChoiceColorPicker.xml
+Templates\RaidFrameSettings_SliderTemplate.xml
+Templates\RaidFrameSettings_EditBoxAndButtonTemplate.xml
+Templates\RaidFrameSettings_ButtonTemplate.xml
+
+OptionsFrame.lua
+
+DataProvider\DataHandler.lua
+DataProvider\GeneralSettingsDataProvider.lua
+DataProvider\TextSettingsDataProvider.lua
+DataProvider\AuraSettingsDataProvider.lua
+DataProvider\ProfilesSettingsDataProvider.lua
+
+OptionsFactory.lua
+
