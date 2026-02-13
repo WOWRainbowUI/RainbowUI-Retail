@@ -137,8 +137,7 @@ function VolumeModule:Refresh()
 end
 
 function VolumeModule:MasterVolume_Update_Value()
-	local volume = tonumber(GetCVar("Sound_MasterVolume"));
-	if not volume then return end -- 暫時修正
+	local volume = tonumber(GetCVar("Sound_MasterVolume")) or 0;
 	local volumePercent = (volume * 100);
 	local volumePercentTrimed = tonumber(string.format("%.1f", volumePercent));
 	if self.text and self.frame then

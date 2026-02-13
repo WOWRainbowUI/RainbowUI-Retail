@@ -24,7 +24,7 @@ L['Bar Color'] = "資訊列顏色";
 L['Use Class Color for Bar'] = "使用職業顏色";
 L["Miscellaneous"] = "其他";
 L['Hide Bar in combat'] = "戰鬥中隱藏";
-L["Hide when in flight"] = true;
+L["Hide when in flight"] = "飛行時隱藏";
 L['Bar Padding'] = "資訊列內距";
 L['Module Spacing'] = "模組間距";
 L['Bar Margin'] = "資訊列間距";
@@ -152,13 +152,14 @@ L['First Currency'] = "第一種兌換通貨";
 L['Second Currency'] = "第二種兌換通貨";
 L['Third Currency'] = "第三種兌換通貨";
 L['Rested'] = "休息加成";
-L['Show More Currencies on Shift+Hover'] = true; -- To Translate
-L['Max currencies shown when holding Shift'] = true; -- To Translate
-L['Only Show Module Icon'] = true; -- To Translate
-L['Number of Currencies on Bar'] = true; -- To Translate
-L['Currency Selection'] = true; -- To Translate
-L['Select All'] = true; -- To Translate
-L['Unselect All'] = true; -- To Translate
+L['Show More Currencies on Shift+Hover'] = "顯示更多貨幣 (按住 Shift + 滑鼠指向)";
+L['Max currencies shown when holding Shift'] = "按住 Shift 時顯示的最大貨幣數量";
+L['Only Show Module Icon'] = "只顯示模組圖示";
+L['Number of Currencies on Bar'] = "貨幣列上的貨幣數量";
+L['Currency Selection'] = "選擇貨幣";
+L['Select All'] = "全選";
+L['Unselect All'] = "取消全選";
+
 
 -- System
 L['Show World Ping'] = "顯示世界延遲";
@@ -204,8 +205,9 @@ L['Retrieving data'] = retrievingData;
 L['Empty Hearthstones List'] = "如果你在下方的清單中看到 '" .. retrievingData .. "'，只需切換分頁或重新開啟此選單即可重新整理資料。";
 L['Hearthstones Select'] = "選擇爐石";
 L['Hearthstones Select Desc'] = "選擇要使用哪個爐石 (如果選擇了多個爐石，請勾選 \"使用隨機爐石\" 選項)";
-L['Hide Hearthstone Button'] = true; -- To Translate
-L['Hide Port Button'] = true; -- To Translate
+L['Hide Hearthstone Button'] = "隱藏爐石按鈕"; -- To Translate
+L['Hide Port Button'] = "隱藏傳送門按鈕"; -- To Translate
+L['Hide Home Button'] = "隱藏主按鈕"; -- To Translate
 
 L["Classic"] = "經典時期";
 L["Burning Crusade"] = "燃燒的遠征";
