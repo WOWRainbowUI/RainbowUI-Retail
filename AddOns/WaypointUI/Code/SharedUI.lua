@@ -1,0 +1,15 @@
+local env                                                                                                                                                 = select(2, ...)
+local UIKit                                                                                                                                               = env.WPM:Import("wpm_modules\\ui-kit")
+local Frame, LayoutGrid, LayoutHorizontal, LayoutVertical, Text, ScrollView, LazyScrollView, ScrollBar, ScrollViewEdge, Input, LinearSlider, HitRect, List = unpack(UIKit.UI.Frames)
+local UICCommon                                                                                                                                           = env.WPM:Import("wpm_modules\\uic-common")
+
+UICCommon.Prompt("WUISharedPrompt")
+    :id("WUISharedPrompt")
+    :frameStrata(UIKit.Enum.FrameStrata.FullscreenDialog)
+    :parent(UIParent)
+    :anchor(StaticPopup1)
+    :point(UIKit.Enum.Point.Center)
+    :_Render()
+
+WUISharedPrompt = UIKit.GetElementById("WUISharedPrompt")
+WUISharedPrompt:Hide()

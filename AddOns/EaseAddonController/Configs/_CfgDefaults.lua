@@ -1723,10 +1723,10 @@ D["tullaRange"] = {
     },
 };
 D["UnlimitedMapPinDistance"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "MAP" },
-	title = "無限距離導航",
-	desc = "移除遊戲內建的任務導航/地圖標記導航距離只有 1000 碼的限制，很遠的地方都能導航。但有些受限制的區域仍無法導航。``並且提供輸入指令 /way、/uway 或 /pin 加上坐標數字來建立地圖標記導航的功能。``還能自動開始導航，(按住 Ctrl 鍵在世界地圖上點一下) 建立遊戲內建的地圖標記後，會自動開始導航，不用再多點一下剛建立的地圖標記。`",
+	title = "無限距離導航 (備用)",
+	desc = "|cffFF2D2D特別注意: 已經使用 '導航標記增強' 插件時，請不要載入這個插件，避免功能重覆、影響遊戲效能，該插件已經有無限距離導航的功能。``只有當你因為電腦效能問題無法使用 '導航標記增強' 插件時，才改用這個插件。|r``移除遊戲內建的任務導航/地圖標記導航距離只有 1000 碼的限制，很遠的地方都能導航。但有些受限制的區域仍無法導航。``並且提供輸入指令 /way、/uway 或 /pin 加上坐標數字來建立地圖標記導航的功能。``還能自動開始導航，(按住 Ctrl 鍵在世界地圖上點一下) 建立遊戲內建的地圖標記後，會自動開始導航，不用再多點一下剛建立的地圖標記。`",
 	icon = "Interface\\Icons\\inv_10_elementalcombinedfoozles_titan",
 	img = true,
 	{
@@ -1754,6 +1754,22 @@ D["VuhDo"] = {
 	{
 		type = "text",
         text = "設定檔懶人包匯入教學請看\nhttps://addons.miliui.com/show/49/4\n\n更多設定檔下載\nhttps://wago.io/vuhdo\n",
+	},
+};
+D["WaypointUI"] = {
+    defaultEnable = 1,
+	tags = { "MAP" },
+	title = "導航標記增強",
+	desc = "增強遊戲內建的地圖標記功能，將任務、地圖標記、POI (重要地點) 等資訊用更明顯的方式顯示在遊戲場景中，讓玩家更直覺地追蹤目標位置。``|cffFF2D2D特別注意：此插件佔用電腦資源稍高，如果電腦老舊影響遊戲效能，請不要載入使用。|r`",
+    {
+        text = "設定選項",
+		callback = function()
+			Settings.OpenToCategory(WaypointDB_Global.categoryID)
+		end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
 D["WIM"] = {
