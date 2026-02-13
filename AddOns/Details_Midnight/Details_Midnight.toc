@@ -2,7 +2,7 @@
 ## Title: Details! Skin Midnight
 ## Notes: Adds the Midnight skin to Details!
 ## Author: Midnight
-## Version: 1.6
+## Version: 1.8
 ## Dependencies: Details
 
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r Details! 戰鬥統計外觀-至暗之夜

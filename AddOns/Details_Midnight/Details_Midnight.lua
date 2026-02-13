@@ -7,15 +7,31 @@ local addonPath = "Interface\\AddOns\\" .. addonName
 -- - skinNameNoBackground: same skin but wallpaper alpha forced to 0
 -- - skinNameRounded: Midnight (Rounded) variant with alternate bar texture
 -- - skinNameRoundedNoBackground: Rounded variant with wallpaper alpha forced to 0
--- - skinNamePersonal: Midnight (Personal) variant with MelliDark bars
--- - skinNamePersonalNoBackground: Personal variant with wallpaper alpha forced to 0
+-- - skinNameMelPlusPlus: Midnight (Mel++) variant with MelliDarkRough bars
+-- - skinNameMelPlusPlusNoBackground: Mel++ variant with wallpaper alpha forced to 0
+-- - skinNameMelPlus: Midnight (Mel+) variant with MelliDark bars
+-- - skinNameMelPlusNoBackground: Mel+ variant with wallpaper alpha forced to 0
+-- - skinNameMel: Midnight (Mel) variant with Melli bars
+-- - skinNameMelNoBackground: Mel variant with wallpaper alpha forced to 0
+-- - skinNameDF: Midnight (DF) variant with Dragonflight bars
+-- - skinNameDFNoBackground: DF variant with wallpaper alpha forced to 0
+-- - skinNameSv2: Midnight (Sv2) variant with Smoothv2 bars
+-- - skinNameSv2NoBackground: Sv2 variant with wallpaper alpha forced to 0
 -- ============================================================================
 local skinName = "|cff7fd8ff至暗之夜|r"
 local skinNameNoBackground = "|cff7fd8ff至暗之夜|r (無背景)"
 local skinNameRounded = "|cff7fd8ff至暗之夜|r (圓角)"
 local skinNameRoundedNoBackground = "|cff7fd8ff至暗之夜|r (圓角無背景)"
-local skinNamePersonal = "|cff7fd8ff至暗之夜|r (個人)"
-local skinNamePersonalNoBackground = "|cff7fd8ff至暗之夜|r (個人無背景)"
+local skinNameMelPlusPlus = "|cff7fd8ff至暗之夜|r (Mel++)"
+local skinNameMelPlusPlusNoBackground = "|cff7fd8ff至暗之夜|r (Mel++ 無背景)"
+local skinNameMelPlus = "|cff7fd8ff至暗之夜|r (Mel+)"
+local skinNameMelPlusNoBackground = "|cff7fd8ff至暗之夜|r (Mel+ 無背景)"
+local skinNameMel = "|cff7fd8ff至暗之夜|r (Mel)"
+local skinNameMelNoBackground = "|cff7fd8ff至暗之夜|r (Mel 無背景)"
+local skinNameDF = "|cff7fd8ff至暗之夜|r (DF)"
+local skinNameDFNoBackground = "|cff7fd8ff至暗之夜|r (DF 無背景)"
+local skinNameSv2 = "|cff7fd8ff至暗之夜|r (Sv2)"
+local skinNameSv2NoBackground = "|cff7fd8ff至暗之夜|r (Sv2 無背景)"
 
 -- ============================================================================
 -- TEXTURE CONFIG
@@ -29,15 +45,30 @@ local textureFiles = {
     -- Rounded variant bar texture.
     testBar = addonPath .. "\\Textures\\ui-hud-cooldownmanager-bar-2x.png",
 
-    -- Personal variant bar texture.
-    personalBar = addonPath .. "\\Textures\\MelliDarkRough.tga"
+    -- Mel++ variant bar texture.
+    melPlusPlusBar = addonPath .. "\\Textures\\MelliDarkRough.tga",
+
+    -- Mel+ variant bar texture.
+    melPlusBar = addonPath .. "\\Textures\\MelliDark.tga",
+
+    -- Mel variant bar texture.
+    melBar = addonPath .. "\\Textures\\Melli.tga",
+
+    -- Dragonflight variant bar texture.
+    dfBar = addonPath .. "\\Textures\\Dragonflight.tga",
+
+    -- Smoothv2 variant bar texture.
+    sv2Bar = addonPath .. "\\Textures\\Smoothv2.tga"
 }
 
 local textureHeader = "Midnight Header"
 local textureBar = "Midnight Bar"
-local textureWindowBackground = "Midnight Window Background"
 local textureBarRounded = "Midnight Rounded Bar"
-local textureBarPersonal = "Midnight Personal Bar"
+local textureBarMelPlusPlus = "Midnight Mel++ Bar"
+local textureBarMelPlus = "Midnight Mel+ Bar"
+local textureBarMel = "Midnight Mel Bar"
+local textureBarDF = "Midnight DF Bar"
+local textureBarSv2 = "Midnight Sv2 Bar"
 
 -- ============================================================================
 -- STYLE CONFIG
@@ -80,6 +111,7 @@ local styleConfig = {
     }
 }
 
+-- Cached style values used throughout the skin builder and runtime adjusters.
 local wallpaperAlphaDefault = styleConfig.wallpaperAlpha
 local wallpaperAlphaNoBackground = styleConfig.noBackgroundSkin.wallpaperAlpha
 local specIconInset = 2 / 512
@@ -91,76 +123,74 @@ local headerTexCoordRight = styleConfig.headerTexCoordRight
 local headerTexCoordTop = styleConfig.headerTexCoordTop
 local headerTexCoordBottom = styleConfig.headerTexCoordBottom
 
-local originalSpecCoords
-local croppedSpecCoords
+-- Runtime state guards.
+-- hookedSizeFrames is weak-keyed so frames can still be garbage-collected.
 local hookedSizeFrames = setmetatable({}, {__mode = "k"})
+local classIconHookInstalled = false
+local adjustmentRefreshQueued = false
+local runningSkinRefresh = false
 
--- Match both Midnight variants so all behavior stays identical.
+-- True when the provided skin name belongs to any Midnight variant.
 local function isMidnightSkin(skin)
     return skin == skinName
         or skin == skinNameNoBackground
         or skin == skinNameRounded
         or skin == skinNameRoundedNoBackground
-        or skin == skinNamePersonal
-        or skin == skinNamePersonalNoBackground
+        or skin == skinNameMelPlusPlus
+        or skin == skinNameMelPlusPlusNoBackground
+        or skin == skinNameMelPlus
+        or skin == skinNameMelPlusNoBackground
+        or skin == skinNameMel
+        or skin == skinNameMelNoBackground
+        or skin == skinNameDF
+        or skin == skinNameDFNoBackground
+        or skin == skinNameSv2
+        or skin == skinNameSv2NoBackground
 end
 
-local function copySpecCoords(source)
-    local copied = {}
-    for specId, coord in pairs(source or {}) do
-        copied[specId] = {coord[1], coord[2], coord[3], coord[4]}
-    end
-    return copied
-end
-
-local function buildCroppedSpecCoords(source, inset)
-    local cropped = {}
-    for specId, coord in pairs(source or {}) do
-        local l, r, t, b = coord[1], coord[2], coord[3], coord[4]
-        if (r - l) > (inset * 2) and (b - t) > (inset * 2) then
-            cropped[specId] = {l + inset, r - inset, t + inset, b - inset}
-        else
-            cropped[specId] = {l, r, t, b}
-        end
-    end
-    return cropped
-end
-
-local function hasActiveMidnightSkin()
-    if not Details or not Details.GetNumInstances or not Details.GetInstance then
-        return false
-    end
-
-    for instanceId = 1, Details:GetNumInstances() do
-        local instance = Details:GetInstance(instanceId)
-        if instance and instance.ativa and isMidnightSkin(instance.skin) then
-            return true
-        end
-    end
-
-    return false
-end
-
-local function updateSpecIconCoords()
-    if not Details or not Details.class_specs_coords then
+-- Applies a tiny inset crop to spec icons, but only on Midnight windows.
+local function applyMidnightSpecInsetToTexture(texture, instance)
+    if not texture or not instance or not isMidnightSkin(instance.skin) then
         return
     end
 
-    if not originalSpecCoords then
-        originalSpecCoords = copySpecCoords(Details.class_specs_coords)
+    local rowInfo = instance.row_info
+    if not rowInfo or not rowInfo.use_spec_icons then
+        return
     end
 
-    if not croppedSpecCoords then
-        croppedSpecCoords = buildCroppedSpecCoords(originalSpecCoords, specIconInset)
+    local specFile = rowInfo.spec_file
+    if not specFile or texture:GetTexture() ~= specFile then
+        return
     end
 
-    if hasActiveMidnightSkin() then
-        Details.class_specs_coords = croppedSpecCoords
-    else
-        Details.class_specs_coords = originalSpecCoords
+    local l, r, t, b = texture:GetTexCoord()
+    if not l or not r or not t or not b then
+        return
     end
+
+    if (r - l) <= (specIconInset * 2) or (b - t) <= (specIconInset * 2) then
+        return
+    end
+
+    texture:SetTexCoord(l + specIconInset, r - specIconInset, t + specIconInset, b - specIconInset)
 end
 
+-- Installs a single hook into Details.SetClassIcon so Midnight can tweak spec icon texcoords.
+local function ensureClassIconHook()
+    if classIconHookInstalled or not hooksecurefunc or not Details or not Details.SetClassIcon then
+        return
+    end
+
+    -- Keep spec icon crop local to Midnight windows instead of mutating global coords.
+    hooksecurefunc(Details, "SetClassIcon", function(actorObject, texture, instance)
+        applyMidnightSpecInsetToTexture(texture, instance)
+    end)
+
+    classIconHookInstalled = true
+end
+
+-- Sets custom titlebar crop only for Midnight skins; resets to full texture for other skins.
 local function updateTitleBarTexCoordForInstance(instance)
     if not instance or not instance.baseframe or not instance.baseframe.titleBar or not instance.baseframe.titleBar.texture then
         return
@@ -173,17 +203,7 @@ local function updateTitleBarTexCoordForInstance(instance)
     end
 end
 
-local function updateTitleBarTexCoords()
-    if not Details or not Details.GetNumInstances or not Details.GetInstance then
-        return
-    end
-
-    for instanceId = 1, Details:GetNumInstances() do
-        local instance = Details:GetInstance(instanceId)
-        updateTitleBarTexCoordForInstance(instance)
-    end
-end
-
+-- Recomputes left/right bar insets from current window width so bars stay proportionally padded.
 local function applyBarInsetsForInstance(instance)
     if not instance or not isMidnightSkin(instance.skin) then
         return
@@ -233,6 +253,7 @@ local function applyBarInsetsForInstance(instance)
 
 end
 
+-- Reanchors wallpaper each time size changes so it covers header + body using configured insets.
 local function applyWallpaperInsetsForInstance(instance)
     if not instance or not isMidnightSkin(instance.skin) then
         return
@@ -257,6 +278,7 @@ local function applyWallpaperInsetsForInstance(instance)
     baseframe.wallpaper:SetPoint("bottomright", baseframe, "bottomright", -insetX, 0)
 end
 
+-- Hides the default no-statusbar corner ornaments that can leak through on Midnight skins.
 local function hideNoStatusbarCornersForInstance(instance)
     if not instance or not isMidnightSkin(instance.skin) then
         return
@@ -276,6 +298,7 @@ local function hideNoStatusbarCornersForInstance(instance)
     end
 end
 
+-- Hooks window resize once per frame so percentage-based insets stay correct while resizing.
 local function ensureBarInsetResizeHook(instance)
     if not instance or not instance.baseframe then
         return
@@ -292,22 +315,48 @@ local function ensureBarInsetResizeHook(instance)
     hookedSizeFrames[instance.baseframe] = true
 end
 
-local function updateBarInsets()
+-- Runs all runtime visual fixes over active Details windows.
+local function applyMidnightAdjustmentsForAllInstances()
     if not Details or not Details.GetNumInstances or not Details.GetInstance then
         return
     end
 
     for instanceId = 1, Details:GetNumInstances() do
         local instance = Details:GetInstance(instanceId)
-        if instance and instance.ativa and isMidnightSkin(instance.skin) then
-            ensureBarInsetResizeHook(instance)
-            applyBarInsetsForInstance(instance)
-            applyWallpaperInsetsForInstance(instance)
-            hideNoStatusbarCornersForInstance(instance)
+        if instance and instance.baseframe and instance.ativa then
+            updateTitleBarTexCoordForInstance(instance)
+
+            if isMidnightSkin(instance.skin) then
+                ensureBarInsetResizeHook(instance)
+                applyBarInsetsForInstance(instance)
+                applyWallpaperInsetsForInstance(instance)
+                hideNoStatusbarCornersForInstance(instance)
+            end
         end
     end
 end
 
+-- Debounces adjustment passes to avoid running multiple times in the same frame.
+local function scheduleMidnightAdjustments()
+    if adjustmentRefreshQueued then
+        return
+    end
+
+    adjustmentRefreshQueued = true
+
+    local runAdjustments = function()
+        adjustmentRefreshQueued = false
+        applyMidnightAdjustmentsForAllInstances()
+    end
+
+    if C_Timer and C_Timer.After then
+        C_Timer.After(0, runAdjustments)
+    else
+        runAdjustments()
+    end
+end
+
+-- Registers all textures used by Midnight skins in LibSharedMedia.
 local function registerMedia()
     if not LibStub then
         return
@@ -321,10 +370,14 @@ local function registerMedia()
     LSM:Register("statusbar", textureHeader, textureFiles.header)
     LSM:Register("statusbar", textureBar, textureFiles.bar)
     LSM:Register("statusbar", textureBarRounded, textureFiles.testBar)
-    LSM:Register("statusbar", textureBarPersonal, textureFiles.personalBar)
-    LSM:Register("background", textureWindowBackground, textureFiles.windowBackground)
+    LSM:Register("statusbar", textureBarMelPlusPlus, textureFiles.melPlusPlusBar)
+    LSM:Register("statusbar", textureBarMelPlus, textureFiles.melPlusBar)
+    LSM:Register("statusbar", textureBarMel, textureFiles.melBar)
+    LSM:Register("statusbar", textureBarDF, textureFiles.dfBar)
+    LSM:Register("statusbar", textureBarSv2, textureFiles.sv2Bar)
 end
 
+-- Builds a Details skin table with optional wallpaper alpha and bar texture overrides.
 local function buildSkinTable(wallpaperAlpha, textureOverrides)
     if type(wallpaperAlpha) ~= "number" then
         wallpaperAlpha = wallpaperAlphaDefault
@@ -519,6 +572,7 @@ local function buildSkinTable(wallpaperAlpha, textureOverrides)
     return skinTable
 end
 
+-- Installs all Midnight skin variants into Details.
 local function installSkins()
     if not Details or not Details.InstallSkin then
         return false
@@ -542,39 +596,101 @@ local function installSkins()
         barTextureFile = textureFiles.testBar
     }))
 
-    -- Fifth skin variant: Personal bars with wallpaper visible.
-    local okPersonal = pcall(Details.InstallSkin, Details, skinNamePersonal, buildSkinTable(wallpaperAlphaDefault, {
-        barTextureName = textureBarPersonal,
-        barTextureFile = textureFiles.personalBar
+    -- Fifth skin variant: Mel++ bars with wallpaper visible.
+    local okMelPlusPlus = pcall(Details.InstallSkin, Details, skinNameMelPlusPlus, buildSkinTable(wallpaperAlphaDefault, {
+        barTextureName = textureBarMelPlusPlus,
+        barTextureFile = textureFiles.melPlusPlusBar
     }))
 
-    -- Sixth skin variant: Personal bars with no wallpaper background.
-    local okPersonalNoBackground = pcall(Details.InstallSkin, Details, skinNamePersonalNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
-        barTextureName = textureBarPersonal,
-        barTextureFile = textureFiles.personalBar
+    -- Sixth skin variant: Mel++ bars with no wallpaper background.
+    local okMelPlusPlusNoBackground = pcall(Details.InstallSkin, Details, skinNameMelPlusPlusNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
+        barTextureName = textureBarMelPlusPlus,
+        barTextureFile = textureFiles.melPlusPlusBar
     }))
 
-    return okMain and okNoBackground and okRounded and okRoundedNoBackground and okPersonal and okPersonalNoBackground
+    -- Seventh skin variant: Mel+ bars with wallpaper visible.
+    local okMelPlus = pcall(Details.InstallSkin, Details, skinNameMelPlus, buildSkinTable(wallpaperAlphaDefault, {
+        barTextureName = textureBarMelPlus,
+        barTextureFile = textureFiles.melPlusBar
+    }))
+
+    -- Eighth skin variant: Mel+ bars with no wallpaper background.
+    local okMelPlusNoBackground = pcall(Details.InstallSkin, Details, skinNameMelPlusNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
+        barTextureName = textureBarMelPlus,
+        barTextureFile = textureFiles.melPlusBar
+    }))
+
+    -- Ninth skin variant: Mel bars with wallpaper visible.
+    local okMel = pcall(Details.InstallSkin, Details, skinNameMel, buildSkinTable(wallpaperAlphaDefault, {
+        barTextureName = textureBarMel,
+        barTextureFile = textureFiles.melBar
+    }))
+
+    -- Tenth skin variant: Mel bars with no wallpaper background.
+    local okMelNoBackground = pcall(Details.InstallSkin, Details, skinNameMelNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
+        barTextureName = textureBarMel,
+        barTextureFile = textureFiles.melBar
+    }))
+
+    -- Eleventh skin variant: Dragonflight bars with wallpaper visible.
+    local okDF = pcall(Details.InstallSkin, Details, skinNameDF, buildSkinTable(wallpaperAlphaDefault, {
+        barTextureName = textureBarDF,
+        barTextureFile = textureFiles.dfBar
+    }))
+
+    -- Twelfth skin variant: Dragonflight bars with no wallpaper background.
+    local okDFNoBackground = pcall(Details.InstallSkin, Details, skinNameDFNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
+        barTextureName = textureBarDF,
+        barTextureFile = textureFiles.dfBar
+    }))
+
+    -- Thirteenth skin variant: Smoothv2 bars with wallpaper visible.
+    local okSv2 = pcall(Details.InstallSkin, Details, skinNameSv2, buildSkinTable(wallpaperAlphaDefault, {
+        barTextureName = textureBarSv2,
+        barTextureFile = textureFiles.sv2Bar
+    }))
+
+    -- Fourteenth skin variant: Smoothv2 bars with no wallpaper background.
+    local okSv2NoBackground = pcall(Details.InstallSkin, Details, skinNameSv2NoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
+        barTextureName = textureBarSv2,
+        barTextureFile = textureFiles.sv2Bar
+    }))
+
+    return okMain
+        and okNoBackground
+        and okRounded
+        and okRoundedNoBackground
+        and okMelPlusPlus
+        and okMelPlusPlusNoBackground
+        and okMelPlus
+        and okMelPlusNoBackground
+        and okMel
+        and okMelNoBackground
+        and okDF
+        and okDFNoBackground
+        and okSv2
+        and okSv2NoBackground
 end
 
+-- Reapplies skin to active Midnight windows and then runs the runtime adjustment pass.
 local function refreshActiveWindows()
     if not Details or not Details.GetNumInstances or not Details.GetInstance then
         return
     end
 
+    runningSkinRefresh = true
     for instanceId = 1, Details:GetNumInstances() do
         local instance = Details:GetInstance(instanceId)
-        if instance and instance.baseframe and instance.ativa and instance.ChangeSkin then
+        if instance and instance.baseframe and instance.ativa and instance.ChangeSkin and isMidnightSkin(instance.skin) then
             pcall(instance.ChangeSkin, instance)
-            updateTitleBarTexCoordForInstance(instance)
-            ensureBarInsetResizeHook(instance)
-            applyBarInsetsForInstance(instance)
-            applyWallpaperInsetsForInstance(instance)
-            hideNoStatusbarCornersForInstance(instance)
         end
     end
+    runningSkinRefresh = false
+
+    applyMidnightAdjustmentsForAllInstances()
 end
 
+-- Waits for Details load state, then registers media, installs skins, hooks, and refreshes windows.
 local function setupAfterLogin()
     if Details and Details.IsLoaded and not Details.IsLoaded() then
         C_Timer.After(0.2, setupAfterLogin)
@@ -583,21 +699,21 @@ local function setupAfterLogin()
 
     registerMedia()
     installSkins()
-    updateSpecIconCoords()
-    updateTitleBarTexCoords()
-    updateBarInsets()
+    ensureClassIconHook()
 
     if hooksecurefunc and Details and Details.ChangeSkin then
         hooksecurefunc(Details, "ChangeSkin", function()
-            updateSpecIconCoords()
-            updateTitleBarTexCoords()
-            updateBarInsets()
+            if runningSkinRefresh then
+                return
+            end
+            scheduleMidnightAdjustments()
         end)
     end
 
     refreshActiveWindows()
 end
 
+-- Bootstrap on login.
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:SetScript("OnEvent", setupAfterLogin)
