@@ -1,0 +1,25 @@
+## Interface: 120001
+## Version: 1.3.2
+## Title: Waypoint UI
+## Notes: An in-world waypoint and pinpoint to show relevant information directly in world-space.
+## Author: AdaptiveX
+## IconTexture: Interface\AddOns\WaypointUI\Art\Icon\IconAltLight.png
+## SavedVariables: WaypointDB_Global, WaypointDB_Global_Persistent
+## SavedVariablesPerCharacter: WaypointDB_Local, WaypointDB_Local_Persistent
+## AddonCompartmentFunc: WaypointUIAPI_OpenSettingUI
+
+
+wpm_modules\packages.xml
+
+Preload.lua
+Locales\Locales.xml
+
+Code\SharedUtil.lua
+Code\SharedUI.lua
+Code\MapPin\MapPin.xml
+Code\Waypoint\Waypoint.xml
+Code\Setting\Setting.xml
+Code\Support\Support.xml
+Code\ExtraFeatures\ExtraFeatures.xml
+
+API.lua
