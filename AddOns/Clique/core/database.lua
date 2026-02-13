@@ -32,7 +32,7 @@ addon.databaseDefaults = {
             boss = true,
         },
         stopcastingfix = false,
-        usecvardirection = false,
+        usecvardirection = true,
     },
     profile = {
         bindings = {
