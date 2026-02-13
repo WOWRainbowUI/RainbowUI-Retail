@@ -172,7 +172,7 @@ function CurrencyModule:Refresh()
                 local selectedCurrencies = db.modules.currency.selectedCurrencies
                 for i, currencyId in ipairs(selectedCurrencies) do
                     if buttonIndex <= maxCurrencies then
-                        local width = self:StyleCurrencyFrame(tonumber(currencyId), nil, buttonIndex)
+                        local width = self:StyleCurrencyFrame(currencyId, nil, buttonIndex)
                         if width > 0 then
                             iconsWidth = iconsWidth + width
                             if buttonIndex == 1 then
@@ -236,7 +236,6 @@ function CurrencyModule:StyleCurrencyFrame(curId, curQuantity, i)
     local quantity = curQuantity
     if quantity == nil then
         local curInfo = C_CurrencyInfo.GetCurrencyInfoFromLink(curId)
-        print(curInfo)
         if curInfo then
             quantity = curInfo.quantity
         end
@@ -600,7 +599,7 @@ function CurrencyModule:GetCurrencyOptions()
 
     for i = 1, compat.GetCurrencyListSize() do
         local listInfo = compat.GetCurrencyListInfo(i)
-        if not listInfo.isHeader and not listInfo.isTypeUnused then
+        if listInfo and not listInfo.isHeader and not listInfo.isTypeUnused then
             local cL = compat.GetCurrencyListLink(i)
             curOpts[tostring(compat.GetCurrencyIDFromLink(cL))] =
                 compat.GetBasicCurrencyInfo(compat.GetCurrencyIDFromLink(cL)).name
@@ -620,7 +619,9 @@ function CurrencyModule:GetCurrenciesByExpansion()
 
     for i = 1, compat.GetCurrencyListSize() do
         local listInfo = compat.GetCurrencyListInfo(i)
-        if listInfo.isHeader then
+        if not listInfo then
+            -- Skip nil entries (can happen when switching characters)
+        elseif listInfo.isHeader then
             compat.ExpandCurrencyList(i, true)
             currentHeader = listInfo.name
             currentHeaderIndex = #expansionCurrencies + 1
@@ -790,7 +791,7 @@ function CurrencyModule:GetConfig()
             type = "range",
             min = 10,
             max = 50,
-            step = 5,
+            step = 1,
             get = function()
                 return xb.db.profile.modules.currency.maxCurrenciesTooltipShift;
             end,
