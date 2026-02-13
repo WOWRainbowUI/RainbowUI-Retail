@@ -64,10 +64,24 @@ function addon:IsFrameBlacklisted(frame)
 end
 
 function addon:UpdateGlobalButtonClicks()
-    self.globutton:RegisterForClicks("AnyUp", "AnyDown")
+    -- We own this button so we can force certain behaviour,
+    -- such as always activating on the 'Down' part of clicks.
+    self.globutton:SetAttribute("useOnKeyDown", true)
+    self.globutton:RegisterForClicks("AnyDown")
 end
 
 function addon:GetButtonDirections()
+    if self.settings.usecvardirection then
+        local keyDown = C_CVar.GetCVarBool("ActionButtonUseKeyDown")
+
+        if keyDown then
+            return "AnyDown"
+        else
+            return "AnyUp"
+        end
+    end
+
+    -- Old behaviour
     if self:ProjectIsBCC() then
         return "AnyDown"
     else

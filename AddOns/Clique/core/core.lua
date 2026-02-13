@@ -13,9 +13,9 @@ local twipe = table.wipe
 function addon:Initialize()
     self:SetupDatabase()
     self:SetupUnitFrameRegistry()
-    self:CaptureGlobalRegistry()
     self:SetupSecureHeader()
     self:SetupGlobalButtons()
+    self:CaptureGlobalRegistry()
 
     local setup, remove = self:GetClickAttributes()
     self.header:SetAttribute("setup_clicks", setup)

@@ -188,6 +188,9 @@ function panel:CreateOptions()
     self.disableDuringHousing = make_checkbox("CliqueOptionsDisableDuringHousing", self)
     self.disableDuringHousing.text:SetText(L["Disable all bindings when in housing edit mode"])
 
+    self.cvardirection = make_checkbox("CliqueOptionsCvarDirection", self)
+    self.cvardirection.text:SetText(L["[Temp] Match the behaviour of the ActionButtonUseKeyDown CVar"])
+
     self.updown = make_checkbox("CliqueOptionsUpDownClick", self)
     self.updown.text:SetText(L["Trigger bindings on the 'down' portion of the click (experimental)"])
 
@@ -275,6 +278,7 @@ function panel:CreateOptions()
 
     -- Collect and anchor the bits together
     table.insert(bits, self.disableDuringHousing)
+    table.insert(bits, self.cvardirection)
     table.insert(bits, self.updown)
     table.insert(bits, self.stopcastingfix)
 
@@ -566,6 +570,7 @@ function panel.refresh()
 
     panel.disableDuringHousing:SetChecked(settings.disableInHousing)
     panel.updown:SetChecked(settings.downclick)
+    panel.cvardirection:SetChecked(settings.usecvardirection)
     panel.stopcastingfix:SetChecked(settings.stopcastingfix)
 
     end, geterrorhandler())
@@ -582,6 +587,7 @@ function panel.okay()
     -- Update the saved variables
     settings.disableInHousing = not not panel.disableDuringHousing:GetChecked()
     settings.downclick = not not panel.updown:GetChecked()
+    settings.usecvardirection = not not panel.cvardirection:GetChecked()
     settings.stopcastingfix = not not panel.stopcastingfix:GetChecked()
 
     if #panel.talentProfiles > 0 then

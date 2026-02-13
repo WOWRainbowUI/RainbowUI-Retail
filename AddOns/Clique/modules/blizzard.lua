@@ -237,16 +237,17 @@ function addon:IntegrateBlizzardFrames()
 
     -- Standard party frames
     local PartyFrame = _G["PartyFrame"]
-    local partyFramePool = PartyFrame.PartyMemberFramePool
-    if settings.party and PartyFrame and partyFramePool then
+    if settings.party and PartyFrame and PartyFrame.PartyMemberFramePool then
         local index = 1
 
-        for frame in partyFramePool:EnumerateActive() do
+        for frame in PartyFrame.PartyMemberFramePool:EnumerateActive() do
             addon:RegisterUnitFrame(frame)
             addon:RegisterUnitFrame(frame.PetFrame)
 
             index = index + 1
         end
+
+    -- Classic style party frames
     elseif settings.party then
         for idx = 1, 4 do
             local name = string.format("PartyMemberFrame%d", idx)
