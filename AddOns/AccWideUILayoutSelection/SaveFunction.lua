@@ -259,6 +259,20 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 			end
 			
 			
+			-- Save Minimap Settings
+			if (self.db.profile.syncToggles.minimap == true) then
+			
+				if (self.db.global.printDebugTextToChat == true) then
+					self:Print("[Minimap] Saving Settings.")
+				end
+			
+				for k, v in pairs(self.CVars.Minimap) do
+					self.db.profile.syncData.minimap.cvars[v] = GetCVar(v) or nil
+				end
+			
+			end
+			
+			
 			-- Save Calendar Filter Settings
 			if (self.db.profile.syncToggles.calendarFilters == true) then
 			
@@ -695,10 +709,11 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 						self.db.profile.syncData.damageMeter.cvars[v] = GetCVar(v) or nil
 					end
 					
-					
+					--[[
 					self.db.profile.syncData.damageMeter.special.settings = {
 						windowDataList = {}
 					}
+					
 					if (DamageMeterPerCharacterSettings) then
 						self.db.profile.syncData.damageMeter.special.settings = CopyTable(DamageMeterPerCharacterSettings)
 					end
@@ -732,6 +747,7 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 						end
 						
 					end
+					]]
 				
 				end
 			
