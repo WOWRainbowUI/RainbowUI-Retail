@@ -206,8 +206,8 @@ L['Empty Hearthstones List'] = "如果你在下方的清單中看到 '" .. retri
 L['Hearthstones Select'] = "選擇爐石";
 L['Hearthstones Select Desc'] = "選擇要使用哪個爐石 (如果選擇了多個爐石，請勾選 \"使用隨機爐石\" 選項)";
 L['Hide Hearthstone Button'] = "隱藏爐石按鈕"; -- To Translate
-L['Hide Port Button'] = "隱藏傳送門按鈕"; -- To Translate
-L['Hide Home Button'] = "隱藏主按鈕"; -- To Translate
+L['Hide Port Button'] = "隱藏傳送按鈕"; -- To Translate
+L['Hide Home Button'] = "隱藏回家按鈕"; -- To Translate
 
 L["Classic"] = "經典時期";
 L["Burning Crusade"] = "燃燒的遠征";
