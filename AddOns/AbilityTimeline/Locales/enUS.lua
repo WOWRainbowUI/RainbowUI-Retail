@@ -186,6 +186,14 @@ if L then
     L['TextHighlightMarginDescription'] = "Sets the space between text highlights."
     L["TimelineTextureColorDescription"] = "Sets the color of the timeline background. Note: Not all textures support coloring and might only use the alpha. For Example the default Blizzard-Dialog-Background does NOT use the color."
     L["TimelineTextureColor"] = "Timeline Texture Color"
+    L["IconMarginDescription"] = "Sets the space between spell icons."
+    L["IconMargin"] = "Icon Margin"
+    L["VisualSettingsDescription"] = "Settings to customize the visual appearance of the timeline."
+    L["CollapseVisualSettings"] = "Collapse Visual Settings"
+    L["ExpandVisualSettings"] = "Expand Visual Settings"
+    L["TravelSettingsDescription"] = "Settings to customize the traveling of the icons on the timeline."
+    L["CollapseTravelSettings"] = "Collapse Travel Settings"
+    L["ExpandTravelSettings"] = "Expand Travel Settings"
 
     -- errors
     L["InvalidTextPosition"] = "Invalid text anchor position please alert the author."

@@ -12,6 +12,10 @@ L["addonOptions"] = "首領時間線選項"
 L["BigIconMargin"] = "間距"
 L["BigIconMarginDescription"] = "設定大圖示的間隔距離。"
 L["BleedEffect"] = "流血 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:158:192:32:64|t"
+--[[Translation missing --]]
+L["CollapseTravelSettings"] = "收合移動方式設定"
+--[[Translation missing --]]
+L["CollapseVisualSettings"] = "收合外觀設定"
 L["CooldownColorChangeColor"] = "顏色"
 L["CooldownColorChangeColorDescription"] = "設定在到達此計時的冷卻文字顏色。"
 L["CooldownColorChanges"] = "冷卻時間顏色變化"
@@ -64,6 +68,10 @@ L["EnableTextHighlightDescription"] = "切換文字高亮框架的可見性。"
 L["EnableTicks"] = "啟用計時刻度"
 L["EnableTicksDescription"] = "切換時間線計時刻度的可見性。"
 L["EnrageEffect"] = "激怒 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
+--[[Translation missing --]]
+L["ExpandTravelSettings"] = "展開移動方式設定"
+--[[Translation missing --]]
+L["ExpandVisualSettings"] = "展開外觀設定"
 L["ExportAsEncoded"] = "以編碼方式匯出"
 L["ExportAsJSON"] = "以JSON方式匯出"
 L["ExportAsMRT"] = "以MRT方式匯出"
@@ -84,6 +92,10 @@ L["IconDispellBorderDescription"] = "切換法術圖示周圍的驅散類型邊�
 L["IconDispellIcon"] = "驅散圖示"
 L["IconDispellIconDescription"] = "切換法術圖示上的驅散類型圖層。"
 L["IconGrowDirectionDescription"] = "設定不同圖示元素的延展方向。"
+--[[Translation missing --]]
+L["IconMargin"] = "圖示間距"
+--[[Translation missing --]]
+L["IconMarginDescription"] = "設定法術圖示之間的距離。"
 L["IconPreview"] = "圖示預覽"
 L["IconSize"] = "圖示大小"
 L["IconSizeDescription"] = "設定法術圖示的大小。"
@@ -198,9 +210,14 @@ L["TravelDirection"] = "行進方向"
 L["TravelDirectionDescription"] = "時間線的行進方向。"
 L["TravelDirectionHorizontal"] = "水平"
 L["TravelDirectionVertical"] = "垂直"
+--[[Translation missing --]]
+L["TravelSettingsDescription"] = "用來自訂時間線上圖示移動方式的設定。"
 L["useAudioCountdowns"] = "使用語音倒數計時"
 L["useAudioCountdownsDescription"] = "為即將到來的事件啟用最後5秒的語音倒數計時。"
-L["WrongWoWVersionMessage"] = "首領時間線插件需要《魔獸世界》12.0.0（至暗之夜）或更高版本才能運行。"
+--[[Translation missing --]]
+L["VisualSettingsDescription"] = "用來自訂時間線外觀的設定。"
+L["WrongWoWVersionMessage"] = "技能時間線插件需要《魔獸世界》12.0.0（至暗之夜）或更高版本才能運行。"
+
 
 -- 自行加入
 L["AbilityTimeline"] = "首領時間線"
