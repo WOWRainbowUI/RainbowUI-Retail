@@ -202,6 +202,7 @@ L['Hearthstones Select'] = true;
 L['Hearthstones Select Desc'] = "Select which hearthstones to use (be careful if you select multiple hearthstones, you might want to check the 'Hearthstones Select' option)";
 L['Hide Hearthstone Button'] = true; -- To Translate
 L['Hide Port Button'] = true; -- To Translate
+L['Hide Home Button'] = true; -- To Translate
 
 L["Classic"] = true;
 L["Burning Crusade"] = true;
