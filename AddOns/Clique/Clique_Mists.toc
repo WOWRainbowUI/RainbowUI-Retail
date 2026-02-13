@@ -1,4 +1,4 @@
-## Interface: 120001
+## Interface: 50503
 ## Title: Clique
 ## Author: Cladhaire
 ## Version: v4.5.0-release
@@ -13,16 +13,17 @@
 ## X-Localizations: enUS, enGB, ruRU, zhCN, zhTW
 ## X-CompatibleLocales: enUS, enGB, deDE, frFR, esES, esMX, zhCN, zhTW, koKR, ruRU
 
-## Title-zhTW: |cffFF2D2D[戰鬥]|r 可麗果點擊施法
-## Notes-zhTW: Clique |n|n提供強大的點滑鼠擊施法與懸停施法功能。玩家可以將幾乎任何滑鼠或鍵盤組合綁定到技能或巨集，並直接在單位框架或 3D 遊戲世界中施放。這大幅簡化了操作流程，讓你能更快選擇技能並指定目標，省去額外的點擊步驟。|n|cffffd200使用方法：|r點擊法術書右邊外側的按鈕綁定法術，從Esc>選項>插件>點擊施法，進行設定。
-## X-Category-zhTW: 戰鬥
-## DefaultState: disabled
-
 AddonCore.lua
 i18n\Localization.enUS.lua
+i18n\Localization.ruRU.lua
 i18n\Localization.zhCN.lua
 i18n\Localization.zhTW.lua
 
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\AceDB-3.0\AceDB-3.0.xml
+libs\LibDeflate\LibDeflate.lua
+libs\LibSerialize\LibSerialize.lua
 libs\LibDropDown\embed.xml
 
 core/core.lua
