@@ -1,4 +1,4 @@
-## Interface: 110207, 120001, 120001
+## Interface: 110207, 120000, 120001
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Midnight)|r
@@ -28,7 +28,7 @@
 ## X-Curse-Project-ID: 314994
 ## X-WoWI-ID: 24904
 ## X-Wago-ID: xZKxZENk
-## Version: r225
+## Version: r226
 
 # localization.en.lua
 
