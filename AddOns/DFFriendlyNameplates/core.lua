@@ -10,6 +10,7 @@ local DFFNamePlates = {}
 DFFNamePlates.tabs = {}
 DFFNamePlates.settings = {}
 DFFNamePlates.gameFonts = { SystemFont_NamePlate_Outlined, SystemFont_NamePlate }
+DFFNamePlates.instanceType = "none"
 
 DFFN.DFFNamePlates = DFFNamePlates
 
@@ -27,10 +28,14 @@ DFFNamePlates.defaultFont2 = {
     flags = defaultFontFlags2,
 }
 
-local ADDON_VERSION = "2.0"
-local CONFIG_VERSION = "2.6"
+local ADDON_VERSION = "2.1"
+local CONFIG_VERSION = "2.7"
 DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE = 0
 DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA = 0.5
+
+function DFFNamePlates:reloadNP()
+    SetCVar("UnitNameFriendlyPlayerName", GetCVar("UnitNameFriendlyPlayerName"))
+end
 
 function DFFNamePlates:UpdateFontFrame(frame)
     if not DFFriendlyNamePlates.NamePlatesSettings["customFont"] then return end
@@ -154,7 +159,8 @@ function DFFNamePlates:AddTabButton(name, index, module)
         ["Extended"] = "擴充功能",
     }
 
-    btn.text = HttpsxLib:CreateText(btn, textMap[name] or name, "CENTER", btn, "CENTER", 0, 0, 11.5, { 0.9, 0.8, 0.6 }, "")
+    btn.text = HttpsxLib:CreateText(btn, textMap[name] or name, "CENTER", btn, "CENTER", 0, 0, 11.5, { 0.9, 0.8, 0.6 },
+        "")
 
     btn.activeIndicator = btn:CreateTexture(nil, "OVERLAY")
     btn.activeIndicator:SetSize(86, 3)
@@ -215,7 +221,7 @@ end
 
 function DFFNamePlates:CreateMainUI()
     local f = CreateFrame("Frame", "DFFNamePlatesMainFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
-    f:SetSize(320, 400)
+    f:SetSize(320, 430)
     f:SetPoint("CENTER")
     f:SetMovable(true)
     f:EnableMouse(true)
@@ -264,7 +270,7 @@ function DFFNamePlates:CreateMainUI()
     f.tabList:SetBackdropBorderColor(0.3, 0.3, 0.4, 1)
 
     f.mainContent = CreateFrame("Frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
-    f.mainContent:SetSize(290, 295)
+    f.mainContent:SetSize(290, 325)
     f.mainContent:SetPoint("TOPLEFT", 15, -95)
     f.mainContent:SetBackdrop({
         bgFile = "Interface\\AddOns\\DFFriendlyNameplates\\Media\\Textures\\WHITE8X8",
@@ -299,154 +305,214 @@ end
 
 DFFNamePlates:CreateMainUI()
 
+local function ApplyDefaults(dst, src)
+    for k, v in pairs(src) do
+        if type(v) == "table" then
+            dst[k] = ApplyDefaults(dst[k] or {}, v)
+        else
+            if dst[k] == nil then
+                dst[k] = v
+            end
+        end
+    end
+    return dst
+end
+
 httpsxFriendlyNamePlates:RegisterEvent("PLAYER_LOGIN")
-httpsxFriendlyNamePlates:SetScript("OnEvent", function()
+httpsxFriendlyNamePlates:RegisterEvent("PLAYER_ENTERING_WORLD")
+httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
     --UIParentLoadAddOn("Blizzard_DebugTools")
 
-    for name, tab in pairs(DFFNamePlates.tabs) do
-        if type(tab.module.OnLoad) == "function" then
-            tab.module:OnLoad()
+    if event == "PLAYER_LOGIN" then
+        for name, tab in pairs(DFFNamePlates.tabs) do
+            if type(tab.module.OnLoad) == "function" then
+                tab.module:OnLoad()
+            end
         end
-    end
 
-    DFFNamePlates:SwitchTab("Nameplates")
-    DFFNamePlates:SetActiveTab(DFFNamePlates.tabButtons[1])
+        DFFNamePlates:SwitchTab("Nameplates")
+        DFFNamePlates:SetActiveTab(DFFNamePlates.tabButtons[1])
 
-    httpsxFriendlyNamePlates.config.default = {
-        ["NamePlatesSettings"] = {
-            ["enabled"] = true,
-            ["showOnlyName"] = true,
-            ["showClassColor"] = true,
-            ["customFont"] = false,
-            ["fontName"] = defaultFont,
-            ["fontSize"] = defaultFontSize,
-            ["fontStyle"] = defaultFontFlags,
-            ["hideCastBar"] = false,
-        },
-        ["WorldTextSettings"] = {
-            ["enabled"] = false,
-            ["alwaysShow"] = false,
-            ["hidePlayerGuild"] = GetCVar("UnitNamePlayerGuild") and GetCVar("UnitNamePlayerGuild") == "0" or false,
-            ["hidePlayerTitle"] = GetCVar("UnitNamePlayerPVPTitle") and GetCVar("UnitNamePlayerPVPTitle") == "0" or false,
-            ["worldTextSize"] = GetCVar("WorldTextMinSize") or DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE,
-            ["worldTextAlpha"] = GetCVar("WorldTextMinAlpha_v2") or DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA,
-        },
-        ["ExtendedSettings"] = {
-        },
-        ["Settings"] = {
-            ["version"] = CONFIG_VERSION,
-        },
-    }
+        httpsxFriendlyNamePlates.config.default = {
+            ["NamePlatesSettings"] = {
+                ["enabled"] = true,
+                ["showOnlyName"] = true,
+                ["showOnlyNameNpc"] = true,
+                ["showOnlyNameNpcType"] = "dungeon",
+                ["showClassColor"] = true,
+                ["customFont"] = false,
+                ["fontName"] = defaultFont,
+                ["fontSize"] = defaultFontSize,
+                ["fontStyle"] = defaultFontFlags,
+                ["hideCastBar"] = false,
+            },
+            ["WorldTextSettings"] = {
+                ["enabled"] = false,
+                ["alwaysShow"] = false,
+                ["hidePlayerGuild"] = GetCVar("UnitNamePlayerGuild") and GetCVar("UnitNamePlayerGuild") == "0" or false,
+                ["hidePlayerTitle"] = GetCVar("UnitNamePlayerPVPTitle") and GetCVar("UnitNamePlayerPVPTitle") == "0" or
+                    false,
+                ["worldTextSize"] = GetCVar("WorldTextMinSize") or DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE,
+                ["worldTextAlpha"] = GetCVar("WorldTextMinAlpha_v2") or DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA,
+            },
+            ["ExtendedSettings"] = {
+            },
+            ["Settings"] = {
+                ["version"] = CONFIG_VERSION,
+            },
+        }
 
-    if not DFFriendlyNamePlates
-        or not DFFriendlyNamePlates.NamePlatesSettings
-        or not DFFriendlyNamePlates.WorldTextSettings
-        or not DFFriendlyNamePlates.Settings
-        or DFFriendlyNamePlates.Settings.version ~= CONFIG_VERSION
-    then
-        DFFriendlyNamePlates = httpsxFriendlyNamePlates.config.default
-    end
-
-
-    DFFNamePlates.settings.NamePlatesSettings["showOnlyName"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
-        ["showOnlyName"])
-    DFFNamePlates.settings.NamePlatesSettings["showClassColor"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
-        ["showClassColor"])
-    DFFNamePlates.settings.NamePlatesSettings["customFont"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
-        ["customFont"])
-    DFFNamePlates.settings.NamePlatesSettings["fontName"]:SetValue(DFFriendlyNamePlates.NamePlatesSettings["fontName"])
-    DFFNamePlates.settings.NamePlatesSettings["fontSize"]:SetValue(DFFriendlyNamePlates.NamePlatesSettings["fontSize"])
-    DFFNamePlates.settings.NamePlatesSettings["fontStyle"]:SetValue(DFFriendlyNamePlates.NamePlatesSettings["fontStyle"])
-    DFFNamePlates.settings.NamePlatesSettings["enabled"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings["enabled"])
-    DFFNamePlates.settings.NamePlatesSettings["hideCastBar"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
-        ["hideCastBar"])
-
-    DFFNamePlates.settings.WorldTextSettings["enabled"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings["enabled"])
-    DFFNamePlates.settings.WorldTextSettings["alwaysShow"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings
-        ["alwaysShow"])
-    DFFNamePlates.settings.WorldTextSettings["worldTextSize"]:SetValue(DFFriendlyNamePlates.WorldTextSettings
-        ["worldTextSize"])
-    DFFNamePlates.settings.WorldTextSettings["worldTextAlpha"]:SetValue(DFFriendlyNamePlates.WorldTextSettings
-        ["worldTextAlpha"])
-    DFFNamePlates.settings.WorldTextSettings["hidePlayerGuild"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings
-        ["hidePlayerGuild"])
-    DFFNamePlates.settings.WorldTextSettings["hidePlayerTitle"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings
-        ["hidePlayerTitle"])
+        if not DFFriendlyNamePlates
+            or not DFFriendlyNamePlates.NamePlatesSettings
+            or not DFFriendlyNamePlates.WorldTextSettings
+            or not DFFriendlyNamePlates.Settings
+            or DFFriendlyNamePlates.Settings.version ~= CONFIG_VERSION
+        then
+            local config = CopyTable(httpsxFriendlyNamePlates.config.default)
+            if not DFFriendlyNamePlates then
+                DFFriendlyNamePlates = {}
+            end
+            DFFriendlyNamePlates = ApplyDefaults(DFFriendlyNamePlates, config)
+            DFFriendlyNamePlates.Settings.version = CONFIG_VERSION
+        end
 
 
-    --nameplates
-    if DFFriendlyNamePlates.NamePlatesSettings["enabled"] then
-        SetCVar("nameplateshowfriendlyPlayers", "1");
-        DFFNamePlates:SetNPSettingsEnabled(true)
-    else
-        SetCVar("nameplateshowfriendlyPlayers", "0");
-        DFFNamePlates:SetNPSettingsEnabled(false)
-    end
+        DFFNamePlates.settings.NamePlatesSettings["showOnlyName"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
+            ["showOnlyName"])
+        DFFNamePlates.settings.NamePlatesSettings["showClassColor"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
+            ["showClassColor"])
+        DFFNamePlates.settings.NamePlatesSettings["customFont"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
+            ["customFont"])
+        DFFNamePlates.settings.NamePlatesSettings["fontName"]:SetValue(DFFriendlyNamePlates.NamePlatesSettings
+            ["fontName"])
+        DFFNamePlates.settings.NamePlatesSettings["fontSize"]:SetValue(DFFriendlyNamePlates.NamePlatesSettings
+            ["fontSize"])
+        DFFNamePlates.settings.NamePlatesSettings["fontStyle"]:SetValue(DFFriendlyNamePlates.NamePlatesSettings
+            ["fontStyle"])
+        DFFNamePlates.settings.NamePlatesSettings["enabled"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
+            ["enabled"])
+        DFFNamePlates.settings.NamePlatesSettings["hideCastBar"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
+            ["hideCastBar"])
 
-    if DFFriendlyNamePlates.NamePlatesSettings["showOnlyName"] then
-        SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", true)
-    end
-    if DFFriendlyNamePlates.NamePlatesSettings["showClassColor"] then
-        SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", true)
-    end
-    if DFFriendlyNamePlates.NamePlatesSettings["customFont"] then
-        DFFNamePlates:SetFontSettingsEnabled(true)
-        DFFNamePlates:UpdateFont()
-    else
-        DFFNamePlates:SetFontSettingsEnabled(false)
-    end
+        DFFNamePlates.settings.WorldTextSettings["enabled"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings["enabled"])
+        DFFNamePlates.settings.WorldTextSettings["alwaysShow"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings
+            ["alwaysShow"])
+        DFFNamePlates.settings.WorldTextSettings["worldTextSize"]:SetValue(DFFriendlyNamePlates.WorldTextSettings
+            ["worldTextSize"])
+        DFFNamePlates.settings.WorldTextSettings["worldTextAlpha"]:SetValue(DFFriendlyNamePlates.WorldTextSettings
+            ["worldTextAlpha"])
+        DFFNamePlates.settings.WorldTextSettings["hidePlayerGuild"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings
+            ["hidePlayerGuild"])
+        DFFNamePlates.settings.WorldTextSettings["hidePlayerTitle"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings
+            ["hidePlayerTitle"])
+        DFFNamePlates.settings.NamePlatesSettings["showOnlyNameNpc"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
+            ["showOnlyNameNpc"])
+        DFFNamePlates.settings.NamePlatesSettings["showOnlyNameNpcType"]:SetValue(DFFriendlyNamePlates
+            .NamePlatesSettings
+            ["showOnlyNameNpcType"])
 
-    hooksecurefunc(NamePlateDriverFrame, "UpdateNamePlateSize", function(self)
-        if not DFFriendlyNamePlates.NamePlatesSettings["customFont"] then return end
-        DFFNamePlates:forceUpdateFont(true)
-    end)
-    hooksecurefunc(NamePlateDriverFrame, "OnNamePlateAdded", function(self, namePlateUnitToken)
-        if not DFFriendlyNamePlates.NamePlatesSettings["customFont"] then return end
-        if not namePlateUnitToken:match("^nameplate") then return end
-        local np = C_NamePlate.GetNamePlateForUnit(namePlateUnitToken)
-        if not np then
-            DFFNamePlates:forceUpdateFont(false)
-            -- print("player/forbiddenNP -> forceupdatefont")
+
+
+        --nameplates
+        if DFFriendlyNamePlates.NamePlatesSettings["enabled"] then
+            SetCVar("nameplateshowfriendlyPlayers", "1");
+            DFFNamePlates:SetNPSettingsEnabled(true)
         else
-            DFFNamePlates:UpdateFontFrame(np.UnitFrame.name)
+            SetCVar("nameplateshowfriendlyPlayers", "0");
+            DFFNamePlates:SetNPSettingsEnabled(false)
         end
-    end)
-    --world text
 
-    if DFFriendlyNamePlates.WorldTextSettings["enabled"]
-        or DFFriendlyNamePlates.WorldTextSettings["alwaysShow"] then
-        SetCVar("WorldTextMinSize", DFFriendlyNamePlates.WorldTextSettings["worldTextSize"]);
-        SetCVar("WorldTextMinAlpha_v2", DFFriendlyNamePlates.WorldTextSettings["worldTextAlpha"]);
-    else
-        SetCVar("WorldTextMinSize", DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE);
-        SetCVar("WorldTextMinAlpha_v2", DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA);
+        if DFFriendlyNamePlates.NamePlatesSettings["showOnlyName"] then
+            SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", true)
+        end
+        if DFFriendlyNamePlates.NamePlatesSettings["showClassColor"] then
+            SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", true)
+        end
+        if DFFriendlyNamePlates.NamePlatesSettings["customFont"] then
+            DFFNamePlates:SetFontSettingsEnabled(true)
+            DFFNamePlates:UpdateFont()
+        else
+            DFFNamePlates:SetFontSettingsEnabled(false)
+        end
+
+        hooksecurefunc(NamePlateDriverFrame, "UpdateNamePlateSize", function(self)
+            if not DFFriendlyNamePlates.NamePlatesSettings["customFont"] then return end
+            DFFNamePlates:forceUpdateFont(true)
+        end)
+
+        hooksecurefunc(NamePlateUnitFrameMixin, "UpdateNameClassColor", function(self)
+            if not DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] then return end
+
+            local mode = DFFriendlyNamePlates.NamePlatesSettings.showOnlyNameNpcType
+            local it = DFFNamePlates.instanceType
+
+            if mode == "dungeon" and it ~= "party" then
+                return
+            end
+            if mode == "raids" and it ~= "raid" then
+                return
+            end
+            if mode == "dungeon_raids" and it ~= "party" and it ~= "raid" then
+                return
+            end
+
+            local np = C_NamePlate.GetNamePlateForUnit(self.unit)
+            if not np then
+                TableUtil.TrySet(self.HealthBarsContainer.healthBar, "showOnlyName")
+                TableUtil.TrySet(self.castBar, "showOnlyName")
+            end
+        end)
+
+        hooksecurefunc(NamePlateDriverFrame, "OnNamePlateAdded", function(self, namePlateUnitToken)
+            if not DFFriendlyNamePlates.NamePlatesSettings["customFont"] then return end
+            if not namePlateUnitToken:match("^nameplate") then return end
+            local np = C_NamePlate.GetNamePlateForUnit(namePlateUnitToken)
+            if not np then
+                DFFNamePlates:forceUpdateFont(false)
+                -- print("player/forbiddenNP -> forceupdatefont")
+            else
+                DFFNamePlates:UpdateFontFrame(np.UnitFrame.name)
+            end
+        end)
+        --world text
+
+        if DFFriendlyNamePlates.WorldTextSettings["enabled"]
+            or DFFriendlyNamePlates.WorldTextSettings["alwaysShow"] then
+            SetCVar("WorldTextMinSize", DFFriendlyNamePlates.WorldTextSettings["worldTextSize"]);
+            SetCVar("WorldTextMinAlpha_v2", DFFriendlyNamePlates.WorldTextSettings["worldTextAlpha"]);
+        else
+            SetCVar("WorldTextMinSize", DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE);
+            SetCVar("WorldTextMinAlpha_v2", DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA);
+        end
+
+        if DFFriendlyNamePlates.WorldTextSettings["hidePlayerGuild"] then
+            SetCVar("UnitNamePlayerGuild", "0");
+        else
+            SetCVar("UnitNamePlayerGuild", "1");
+        end
+
+        if DFFriendlyNamePlates.WorldTextSettings["hidePlayerTitle"] then
+            SetCVar("UnitNamePlayerPVPTitle", "0");
+        else
+            SetCVar("UnitNamePlayerPVPTitle", "1");
+        end
+
+        --extended
+        DFFNamePlates.settings.ExtendedSettings["blizzardSize"]:SetValue(tonumber(GetCVar("nameplateSize")))
+        DFFNamePlates.settings.ExtendedSettings["blizzardStyle"]:SetValue(tostring(GetCVar("nameplateStyle")))
+
+        local needHideCastBar = DFFriendlyNamePlates.NamePlatesSettings["hideCastBar"];
+        if needHideCastBar then
+            httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("NAME_PLATE_UNIT_ADDED")
+            httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("FORBIDDEN_NAME_PLATE_UNIT_ADDED")
+            httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
+            httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("FORBIDDEN_NAME_PLATE_UNIT_REMOVED")
+        end
+
+        httpsxFriendlyNamePlates:UnregisterEvent("PLAYER_LOGIN");
+    elseif event == "PLAYER_ENTERING_WORLD" then
+        DFFNamePlates.instanceType = select(2, IsInInstance())
     end
-
-    if DFFriendlyNamePlates.WorldTextSettings["hidePlayerGuild"] then
-        SetCVar("UnitNamePlayerGuild", "0");
-    else
-        SetCVar("UnitNamePlayerGuild", "1");
-    end
-
-    if DFFriendlyNamePlates.WorldTextSettings["hidePlayerTitle"] then
-        SetCVar("UnitNamePlayerPVPTitle", "0");
-    else
-        SetCVar("UnitNamePlayerPVPTitle", "1");
-    end
-
-    --extended
-    DFFNamePlates.settings.ExtendedSettings["blizzardSize"]:SetValue(tonumber(GetCVar("nameplateSize")))
-    DFFNamePlates.settings.ExtendedSettings["blizzardStyle"]:SetValue(tostring(GetCVar("nameplateStyle")))
-
-    local needHideCastBar = DFFriendlyNamePlates.NamePlatesSettings["hideCastBar"];
-    if needHideCastBar then
-        httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("NAME_PLATE_UNIT_ADDED")
-        httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("FORBIDDEN_NAME_PLATE_UNIT_ADDED")
-        httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
-        httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("FORBIDDEN_NAME_PLATE_UNIT_REMOVED")
-    end
-
-    httpsxFriendlyNamePlates:UnregisterEvent("PLAYER_LOGIN");
 end)
 
 httpsxFriendlyNamePlates.hideCastBar:SetScript("OnEvent", function()
