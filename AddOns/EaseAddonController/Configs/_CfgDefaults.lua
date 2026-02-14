@@ -457,6 +457,21 @@ D["ColorPickerPlus"] = {
 	modifier = "彩虹ui",
 	img = true,
 };
+D["CooldownManagerCentered"] = {
+    defaultEnable = 0,
+	tags = { "COMBAT" },
+	title = "內建技能監控美化",
+	desc = "改善遊戲內建的技能監控，不會改變你能看到的冷卻資訊，而是重新設計顯示方式，讓冷卻提示更直覺、更集中，提升戰鬥中的操作流暢度。`",
+	modifier = "彩虹ui",
+	{
+        text = "設定選項",
+        callback = function() SlashCmdList["CMC_SETTINGS"]("") end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+};
 D["ConsolePort"] = {
 	defaultEnable = 0,
 	tags = { "ENHANCEMENT" },
