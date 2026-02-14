@@ -66,6 +66,7 @@ end
 
 MCE.defaults = {
     profile = {
+        debugMode = false,
         scanDepth = 10,
         categories = {
             actionbar = GetCategoryDefaults(true,  18),
