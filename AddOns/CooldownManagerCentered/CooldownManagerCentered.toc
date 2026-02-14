@@ -1,0 +1,58 @@
+## Interface: 120001
+## Title: |cff008945Cool|r|cff1e9a4e|r|cff3faa4fdown Ma|r|cff5fb64anag|r|cff7ac243er Ce|r|cff8ccd00ntered|r
+## Notes: Cooldown Manager tweaks and styling
+## Author: Wildu
+## Version: 1.14.22
+## X-Wago-ID: b6mvbYKP
+## SavedVariables: CooldownManagerCenteredDB
+## IconTexture: Interface\Addons\CooldownManagerCentered\Media\CooldownManagerCenteredIcon
+## Category: Combat
+## Category-deDE: Kampf
+## Category-esES: Combate
+## Category-esMX: Combate
+## Category-frFR: Combat
+## Category-itIT: Combattimento
+## Category-koKR: 전투
+## Category-ptBR: Combate
+## Category-ruRU: Бой
+## Category-zhCN: 战斗
+## Category-zhTW: 戰鬥
+
+## Title-zhTW: |cffFF2D2D[戰鬥]|r 內建技能監控美化
+## Notes-zhTW: |cff008945Cool|r|cff1e9a4e|r|cff3faa4fdown Ma|r|cff5fb64anag|r|cff7ac243er Ce|r|cff8ccd00ntered|r |n|n改善遊戲內建的技能監控，不會改變你能看到的冷卻資訊，而是重新設計顯示方式，讓冷卻提示更直覺、更集中，提升戰鬥中的操作流暢度。|n|n|cffffd200使用方法: |r從Esc>選項>插件>技能監控，進行設定。
+## DefaultState: disabled
+
+loadLibs.xml
+libs/LibActionButton-1.0/LibActionButton-1.0.lua
+
+# Core Modules
+core/config.lua
+core/profiles.lua
+core/api.lua
+core/scaling.lua
+core/spellIdOverrides.lua
+core/uiCore.lua
+
+# Settings System - Centralized Settings Management
+settings/ProfileSettings.lua
+settings/WilduSettings_UI.lua
+
+# Other Modules
+
+modules/cooldownManager.lua
+modules/editModeHelp.lua
+modules/styled.lua
+modules/stacks.lua
+modules/keybinds.lua
+modules/assistant.lua
+modules/onCooldownTracker.lua
+modules/swipe.lua
+modules/cooldownFont.lua
+modules/noAuras.lua
+modules/buttonPress.lua
+modules/trinketRacialTracker.lua
+
+# TO NOTE last one to registerCallback is called... first
+modules/runtime.lua
+
+CooldownManagerCentered.lua
