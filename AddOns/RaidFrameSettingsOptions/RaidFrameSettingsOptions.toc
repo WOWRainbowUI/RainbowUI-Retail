@@ -10,6 +10,7 @@
 ## Title-zhTW: |cffFF7F00[團隊]|r 內建團隊框架增強-設定選項
 ## Notes-zhTW: RaidFrameSettings Options |n自訂暴雪原生的團隊框架，提供額外的設定選項，讓玩家能更靈活地調整團隊框架的外觀與功能，以符合個人需求或團隊戰鬥的習慣。|n|cffffd200使用方法：|r輸入 /rfs 打開設定選項。
 ## Category-zhTW: 單位框架
+## DefaultState: disabled
 
 Locales\locales.xml
 
