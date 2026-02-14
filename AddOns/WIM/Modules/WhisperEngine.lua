@@ -403,6 +403,11 @@ local CMS_PATTERNS = {
 };
 
 function WhisperEngine.ChatMessageEventFilter (frame, event, ...)
+	-- check if message or sender is secret, if so, do not process
+	if IsSecretValue(select(1, ...)) or IsSecretValue(select(2, ...)) then
+		return false
+	end
+
 	-- Process all events except for CHAT_MSG_SYSTEM
 	if (event ~= "CHAT_MSG_SYSTEM") then
 		local ignore, block = (IgnoreOrBlockEvent or function () end)(event, ...)
@@ -467,7 +472,7 @@ function WhisperEngine.ChatMessageEventFilter (frame, event, ...)
 		end
 	end
 
-	return false, ...
+	return false
 end
 
 -- compatibility function for processing message event filters
@@ -507,6 +512,11 @@ WhisperEngine.processMessageEventFilters = processMessageEventFilters; -- make a
 
 function WhisperEngine:CHAT_MSG_WHISPER(...)
 	local arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17 = ...;
+
+	-- check if sender is secret, if so, do not process
+	if IsSecretValue(arg2) then
+		return false;
+	end
 
 	arg2 = _G.Ambiguate(arg2, "none")
 
@@ -554,6 +564,10 @@ end
 function WhisperEngine:CHAT_MSG_WHISPER_INFORM(...)
     local arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17 = ...;
 
+	if IsSecretValue(arg2) then
+		return;
+	end
+
 	arg2 = _G.Ambiguate(arg2, "none")
 
 	local win, isNew = getWhisperWindowByUser(arg2, nil, nil, true);
@@ -583,6 +597,10 @@ end
 
 function WhisperEngine:CHAT_MSG_BN_WHISPER_INFORM(...)
     local arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17 = ...;
+
+	if IsSecretValue(arg2) then
+		return;
+	end
 
 	local win, isNew = getWhisperWindowByUser(arg2, true, arg13, true);
 	if not win then return end	--due to a client bug, we can not receive the other player's name, so do nothing
@@ -620,6 +638,10 @@ end
 
 function WhisperEngine:CHAT_MSG_BN_WHISPER(...)
     local arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17 = ...;
+
+	if IsSecretValue(arg2) then
+		return;
+	end
 
 	local win, isNew = getWhisperWindowByUser(arg2, true, arg13, true);
 	if not win then return end	--due to a client bug, we can not receive the other player's name, so do nothing
@@ -668,6 +690,10 @@ end
 
 local CMS_SLUG = {};
 function WhisperEngine:CHAT_MSG_SYSTEM(...)
+	if IsSecretValue(select(1, ...)) then
+		return;
+	end
+
 	-- the proccessing of the actual message is taking place within the ChatMessageFilter
 	CMS_SLUG._isWIM = true;
 	processMessageEventFilters(CMS_SLUG, 'CHAT_MSG_SYSTEM', ...);
@@ -694,6 +720,59 @@ end
 --------------------------------------
 --          Whisper Related Hooks   --
 --------------------------------------
+local function processChatType(editBox, msg, index, send)
+	local target, chatType, targetFound, parsedMsg;
+
+	-- whispers
+	if (index == "WHISPER" or index == "SMART_WHISPER") then
+		targetFound, target, chatType, parsedMsg = (editBox.ExtractTellTarget or _G.ChatEdit_ExtractTellTarget)(editBox, msg, index);
+		if not targetFound then
+			return
+		end
+
+	-- reply
+	elseif (index == "REPLY") then
+		target, chatType = (ChatFrameUtil and ChatFrameUtil.GetLastTellTarget or _G.ChatEdit_GetLastTellTarget)();
+		if not target then
+			return
+		end
+
+	-- other unsupported
+	else
+		return
+	end
+
+	-- handle the whisper interception
+	if (target and db and db.enabled) then
+		local curState = curState;
+		curState = db.pop_rules.whisper.alwaysOther and "other" or curState;
+		if (db.pop_rules.whisper.intercept and db.pop_rules.whisper[curState].onSend) then
+			-- target = _G.Ambiguate(target, "none")--For good measure, ambiguate again cause it seems some mods interfere with this process
+
+			local bNetID = nil;
+			if chatType == "BN_WHISPER" then
+				bNetID = _G.BNet_GetBNetIDAccount(target);
+			end
+
+			local win = getWhisperWindowByUser(target, bNetID and true, bNetID);
+
+			if not win then return end	--due to a client bug, we can not receive the other player's name, so do nothing
+
+			win.widgets.msg_box.setText = 1;
+			win:Pop(true); -- force popup
+			win.widgets.msg_box:SetFocus();
+
+			if _G.ChatFrameEditBoxMixin and _G.ChatFrameEditBoxMixin.ClearChat then
+				-- editBox:ClearChat();
+				editBox:SetText("");
+				editBox:Hide();
+			else
+				_G.ChatEdit_OnEscapePressed(editBox);
+			end
+		end
+	end
+end
+
 local function replyTellTarget(TellNotTold)
 	if (db.enabled) then
 		local lastTell, lastTellType;
@@ -804,20 +883,26 @@ local function editBoxUpdateHeader(self)
 	local chatType = self:GetAttribute("chatType");
 	if (chatType == "WHISPER" or chatType == "BN_WHISPER") then
 		local target = self:GetAttribute("tellTarget");
-		if (target) then
-			-- target = _G.Ambiguate(target, "none")
-			local bNetID;
-			if (chatType == "BN_WHISPER" or target:find("^|K")) then
-				bNetID = _G.BNet_GetBNetIDAccount(target);
-			end
 
-			local win = getWhisperWindowByUser(target, bNetID and true, bNetID);
-			if win then
-				win.widgets.msg_box.setText = 1;
-				win:Pop(true); -- force popup
-				win.widgets.msg_box:SetFocus();
+		-- handle the whisper interception
+		if (target and db and db.enabled) then
+			local curState = curState;
+			curState = db.pop_rules.whisper.alwaysOther and "other" or curState;
+			if (db.pop_rules.whisper.intercept and db.pop_rules.whisper[curState].onSend) then
 
-				self:ClearChat();
+				local bNetID;
+				if (chatType == "BN_WHISPER" or target:find("^|K")) then
+					bNetID = _G.BNet_GetBNetIDAccount(target);
+				end
+
+				local win = getWhisperWindowByUser(target, bNetID and true, bNetID);
+				if win then
+					win.widgets.msg_box.setText = 1;
+					win:Pop(true); -- force popup
+					win.widgets.msg_box:SetFocus();
+
+					self:ClearChat();
+				end
 			end
 		end
 	end

@@ -1,9 +1,7 @@
 # WIM
 
-## [3.15.1](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/tree/3.15.1) (2026-02-13)
-[Full Changelog](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/compare/3.15.0...3.15.1) [Previous Releases](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/releases)
+## [3.15.3](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/tree/3.15.3) (2026-02-13)
+[Full Changelog](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/compare/3.15.2...3.15.3) [Previous Releases](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/releases)
 
-- Fix: process is secret error  
-- chore: reduce global indexing  
-- Fix "unable to whisper '%s'...". simplified the interception process. #208  
-- Fix character details spacing #185  
+- Refactor to avoid compilation warnings.  
+- Fix handling of secrets. WIM will ignore all chat events that contain a secret falling back to WoW's default behavior of handling messages. WIM will NOT be able to display this messages, nor will they be able to filter or save to history messages which contain secrets.  
