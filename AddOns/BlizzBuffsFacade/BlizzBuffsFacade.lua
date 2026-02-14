@@ -7,6 +7,25 @@ local Debuffs = LMB:Group("內建增益/減益", "減益")
 local TargetBuffs = LMB:Group("內建增益/減益", "目標增益")
 local TargetDebuffs = LMB:Group("內建增益/減益", "目標減益")
 
+
+local dispelColorCurve
+if C_CurveUtil then
+	local DEBUFF_DISPLAY_COLOR_INFO = {
+		[0] = DEBUFF_TYPE_NONE_COLOR,
+		[1] = DEBUFF_TYPE_MAGIC_COLOR,
+		[2] = DEBUFF_TYPE_CURSE_COLOR,
+		[3] = DEBUFF_TYPE_DISEASE_COLOR,
+		[4] = DEBUFF_TYPE_POISON_COLOR,
+		[9] = DEBUFF_TYPE_BLEED_COLOR, -- enrage
+		[11] = DEBUFF_TYPE_BLEED_COLOR,
+	}
+	dispelColorCurve = C_CurveUtil.CreateColorCurve()
+	dispelColorCurve:SetType(Enum.LuaCurveType.Step)
+	for i, c in pairs(DEBUFF_DISPLAY_COLOR_INFO) do
+		dispelColorCurve:AddPoint(i, c)
+	end
+end
+
 if AuraButtonMixin then
 	-- Dragonflight+
 	local skinned = {}
@@ -44,17 +63,40 @@ if AuraButtonMixin then
 						end
 						if frame.DebuffBorder then
 							frame.DebuffBorder:SetParent(skinWrapper);
-							if AuraUtil.SetAuraBorderAtlas then
+							if AuraUtil.SetAuraBorderAtlas and dispelColorCurve then
 								-- WoW Midnight+ - convert atlas that can't be skinned into vertex color
 								local texture
 								hooksecurefunc(frame.DebuffBorder, "SetAtlas", function(self, atlas)
-									for type, info in pairs(AuraUtil.GetDebuffDisplayInfoTable()) do
-										if atlas == info.dispelAtlas or atlas == info.basicAtlas then
-											self:SetVertexColor(info.color:GetRGB())
-											self:SetTexture(texture)
-											break
+									if texture then
+										self:SetTexture(texture)
+									end
+
+									if not issecretvalue(atlas) then
+										-- This handles edit mode, and auras out of secret lockdown.
+										for type, info in pairs(AuraUtil.GetDebuffDisplayInfoTable()) do
+											if atlas == info.dispelAtlas or atlas == info.basicAtlas then
+												self:SetVertexColor(info.color:GetRGB())
+												return
+											end
 										end
 									end
+
+									-- Handle auras while in combat, where atlas is secret.
+
+									local buttonInfo = frame.buttonInfo
+
+									local auraInstanceID = frame.deadlyInstanceID or (buttonInfo and buttonInfo.auraInstanceID)
+									if not auraInstanceID and buttonInfo and buttonInfo.index then
+										local aura = C_UnitAuras.GetAuraDataByIndex(frame.unit, buttonInfo.index, frame:GetFilter())
+										auraInstanceID = aura and aura.auraInstanceID
+									end
+									if not auraInstanceID then
+										self:SetVertexColor(DEBUFF_TYPE_NONE_COLOR:GetRGB())
+										return
+									end
+
+									local color = C_UnitAuras.GetAuraDispelTypeColor("player", auraInstanceID, dispelColorCurve)
+									self:SetVertexColor(color:GetRGB())
 								end)
 								hooksecurefunc(frame.DebuffBorder, "SetTexture", function(self, tex)
 									-- Capture the texture that gets set by masque so we can override it after the atlas gets set

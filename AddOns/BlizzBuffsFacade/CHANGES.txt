@@ -1,10 +1,10 @@
-lightweight tag a6d6a03cae0ac9ff12c1f8d251d66210d22eabff 12.0.1
+lightweight tag ae078af8d5296b4b75008409aeb265d61d64eba0 12.0.3
 Author:	Andrew Scott <ascott18@gmail.com>
-Date:	Sun Feb 8 21:22:57 2026 -0800
+Date:	Fri Feb 13 19:55:17 2026 -0800
 
-commit a6d6a03cae0ac9ff12c1f8d251d66210d22eabff
+commit ae078af8d5296b4b75008409aeb265d61d64eba0
 Author: Andrew Scott <ascott18@gmail.com>
-Date:   Sun Feb 8 21:20:50 2026 -0800
+Date:   Fri Feb 13 19:55:17 2026 -0800
 
-    fix: handle edit mode orientation customization
+    fix: missing early return for non-secret atlas
 
