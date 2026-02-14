@@ -48,7 +48,7 @@ function module:OnLoad()
     local customWidthBox = HttpsxLib:CreateNumberEditBox(content, 50, 20, "RIGHT", customWidthCB.text, 110, 0, 132,
         function(self, value)
             C_NamePlate.SetNamePlateSize(value, 26);
-            SetCVar("UnitNameFriendlyPlayerName", GetCVar("UnitNameFriendlyPlayerName"))
+            DFFNamePlates:reloadNP()
         end
     )
 
@@ -56,7 +56,7 @@ function module:OnLoad()
     customWidthBox:Hide() --Disabled until Blizzard separates width settings for friendly and enemy nameplates
 
     local moreSettingsButton = HttpsxLib:CreateButton(content, "Open Blizzard Nameplate settings", 270, 25, "TOPLEFT",
-        content, 10, -260)
+        content, 10, -290)
     moreSettingsButton.icon = moreSettingsButton:CreateTexture(nil, "OVERLAY")
     moreSettingsButton.icon:SetSize(26, 26)
     moreSettingsButton.icon:SetPoint("LEFT", moreSettingsButton, "LEFT", 4, 1)

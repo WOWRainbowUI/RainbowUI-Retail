@@ -1,7 +1,7 @@
 ## Interface: 120000, 120001
 ## Title: DF Friendly Nameplates [Midnight]
 ## Author: Httpsx
-## Version: 2.0
+## Version: 2.1
 ## Notes: Friendly nameplates for raids/dungeons WoW Retail.
 ## DefaultState: Enabled
 ## SavedVariables: DFFriendlyNamePlates
