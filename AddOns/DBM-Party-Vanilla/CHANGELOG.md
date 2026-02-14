@@ -1,10 +1,8 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r226](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r226) (2026-02-13)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r225...r226) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r227](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r227) (2026-02-14)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r226...r227) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- disable parallel workers on LuaLS  
-- Fix two mistakes copilot left behind  
-- Update Floodgate with custom sounds and bar colors for midnight  
-- Add custom sounds and timer colors to Priority for midnight api  
-- Push second half of tazavesh midnight work  
+- Update Eco Dome for midnight apis  
+- update dawnbreaker to new midnight apis  
+- arakara updated for latest midnight apis  
