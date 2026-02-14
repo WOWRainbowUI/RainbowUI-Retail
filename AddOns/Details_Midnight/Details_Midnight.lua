@@ -7,6 +7,8 @@ local addonPath = "Interface\\AddOns\\" .. addonName
 -- - skinNameNoBackground: same skin but wallpaper alpha forced to 0
 -- - skinNameRounded: Midnight (Rounded) variant with alternate bar texture
 -- - skinNameRoundedNoBackground: Rounded variant with wallpaper alpha forced to 0
+-- - skinNameRoundedBordered: Rounded variant with bordered bar background
+-- - skinNameRoundedBorderedNoBackground: Rounded-Bordered variant with wallpaper alpha forced to 0
 -- - skinNameMelPlusPlus: Midnight (Mel++) variant with MelliDarkRough bars
 -- - skinNameMelPlusPlusNoBackground: Mel++ variant with wallpaper alpha forced to 0
 -- - skinNameMelPlus: Midnight (Mel+) variant with MelliDark bars
@@ -21,7 +23,9 @@ local addonPath = "Interface\\AddOns\\" .. addonName
 local skinName = "|cff7fd8ff至暗之夜|r"
 local skinNameNoBackground = "|cff7fd8ff至暗之夜|r (無背景)"
 local skinNameRounded = "|cff7fd8ff至暗之夜|r (圓角)"
-local skinNameRoundedNoBackground = "|cff7fd8ff至暗之夜|r (圓角無背景)"
+local skinNameRoundedNoBackground = "|cff7fd8ff至暗之夜|r (圓角 無背景)"
+local skinNameRoundedBordered = "|cff7fd8ff至暗之夜|r (圓角外框)"
+local skinNameRoundedBorderedNoBackground = "|cff7fd8ff至暗之夜|r (圓角外框 無背景)"
 local skinNameMelPlusPlus = "|cff7fd8ff至暗之夜|r (Mel++)"
 local skinNameMelPlusPlusNoBackground = "|cff7fd8ff至暗之夜|r (Mel++ 無背景)"
 local skinNameMelPlus = "|cff7fd8ff至暗之夜|r (Mel+)"
@@ -43,7 +47,19 @@ local textureFiles = {
     windowBackground = addonPath .. "\\Textures\\damagemeters-background.png",
 
     -- Rounded variant bar texture.
-    testBar = addonPath .. "\\Textures\\ui-hud-cooldownmanager-bar-2x.png",
+    roundedBar = addonPath .. "\\Textures\\ui-hud-cooldownmanager-bar-2x.png",
+
+    -- Rounded variant bar background texture.
+    roundedBarBackground = addonPath .. "\\Textures\\ui-damagemeters-bar-shadowbg-2x.png",
+
+    -- Rounded-Bordered variant bar texture (custom matched canvas).
+    roundedBorderedBar = addonPath .. "\\Textures\\rounded_fill_256x32(y1).png",
+
+    -- Rounded-Bordered variant bar background texture.
+    roundedBorderedBarBackground = addonPath .. "\\Textures\\rounded_bg_256x32.png",
+
+    -- Shared flat bar background (used by all non-rounded skins).
+    solidBarBackground = addonPath .. "\\Textures\\solid.png",
 
     -- Mel++ variant bar texture.
     melPlusPlusBar = addonPath .. "\\Textures\\MelliDarkRough.tga",
@@ -64,11 +80,15 @@ local textureFiles = {
 local textureHeader = "Midnight Header"
 local textureBar = "Midnight Bar"
 local textureBarRounded = "Midnight Rounded Bar"
+local textureBarRoundedBordered = "Midnight Rounded-Bordered Bar"
 local textureBarMelPlusPlus = "Midnight Mel++ Bar"
 local textureBarMelPlus = "Midnight Mel+ Bar"
 local textureBarMel = "Midnight Mel Bar"
 local textureBarDF = "Midnight DF Bar"
 local textureBarSv2 = "Midnight Sv2 Bar"
+local textureBarRoundedBackground = "Midnight Rounded Bar Background"
+local textureBarRoundedBorderedBackground = "Midnight Rounded-Bordered Bar Background"
+local textureBarBackgroundSolid = "Midnight Solid Bar Background"
 
 -- ============================================================================
 -- STYLE CONFIG
@@ -82,6 +102,8 @@ local styleConfig = {
     barInsetPercent = 0.02,
     -- Bar height in pixels (major factor for how many bars fit).
     barHeight = 20,
+    -- Rounded skin row height override (Rounded / Rounded 無背景 / Rounded-Bordered).
+    roundedRowHeight = 24,
     -- Vertical spacing between bars.
     barSpacingBetween = 5,
     -- Vertical gap between header and first bar.
@@ -99,11 +121,19 @@ local styleConfig = {
 
     -- Header controls.
     titlebarHeight = 32,
+    -- Header title text size.
+    headerTextSize = 12,
     -- Horizontal crop for header texture (0-1). Use to trim transparent side padding.
     headerTexCoordLeft = 0.045,
     headerTexCoordRight = 0.965,    
     headerTexCoordTop = 4 / 60,
     headerTexCoordBottom = 56 / 60,
+
+    -- Row controls.
+    barFontSize = 14,
+    rowSpaceLeft = 5,
+    rowSpaceRight = -5,
+    defaultIconOffset = {-30, 0},
 
     -- No-background variants share this override value.
     noBackgroundSkin = {
@@ -136,6 +166,8 @@ local function isMidnightSkin(skin)
         or skin == skinNameNoBackground
         or skin == skinNameRounded
         or skin == skinNameRoundedNoBackground
+        or skin == skinNameRoundedBordered
+        or skin == skinNameRoundedBorderedNoBackground
         or skin == skinNameMelPlusPlus
         or skin == skinNameMelPlusPlusNoBackground
         or skin == skinNameMelPlus
@@ -369,12 +401,16 @@ local function registerMedia()
 
     LSM:Register("statusbar", textureHeader, textureFiles.header)
     LSM:Register("statusbar", textureBar, textureFiles.bar)
-    LSM:Register("statusbar", textureBarRounded, textureFiles.testBar)
+    LSM:Register("statusbar", textureBarRounded, textureFiles.roundedBar)
+    LSM:Register("statusbar", textureBarRoundedBordered, textureFiles.roundedBorderedBar)
     LSM:Register("statusbar", textureBarMelPlusPlus, textureFiles.melPlusPlusBar)
     LSM:Register("statusbar", textureBarMelPlus, textureFiles.melPlusBar)
     LSM:Register("statusbar", textureBarMel, textureFiles.melBar)
     LSM:Register("statusbar", textureBarDF, textureFiles.dfBar)
     LSM:Register("statusbar", textureBarSv2, textureFiles.sv2Bar)
+    LSM:Register("statusbar", textureBarRoundedBackground, textureFiles.roundedBarBackground)
+    LSM:Register("statusbar", textureBarRoundedBorderedBackground, textureFiles.roundedBorderedBarBackground)
+    LSM:Register("statusbar", textureBarBackgroundSolid, textureFiles.solidBarBackground)
 end
 
 -- Builds a Details skin table with optional wallpaper alpha and bar texture overrides.
@@ -386,8 +422,17 @@ local function buildSkinTable(wallpaperAlpha, textureOverrides)
     textureOverrides = textureOverrides or {}
     local barTextureName = textureOverrides.barTextureName or textureBar
     local barTextureFile = textureOverrides.barTextureFile or textureFiles.bar
-    local barBackgroundTextureName = textureOverrides.barBackgroundTextureName or barTextureName
-    local barBackgroundTextureFile = textureOverrides.barBackgroundTextureFile or barTextureFile
+    local barBackgroundTextureName = textureOverrides.barBackgroundTextureName or textureBarBackgroundSolid
+    local barBackgroundTextureFile = textureOverrides.barBackgroundTextureFile or textureFiles.solidBarBackground
+    local barBackgroundAlpha = textureOverrides.barBackgroundAlpha or styleConfig.barBackgroundAlpha
+    local barBackgroundColor = textureOverrides.barBackgroundColor or {0, 0, 0, barBackgroundAlpha}
+    local rowHeight = textureOverrides.rowHeight or styleConfig.barHeight
+    local defaultIconOffset = styleConfig.defaultIconOffset or {-30, 0}
+    local iconOffset = textureOverrides.iconOffset or defaultIconOffset
+    local attributeTextShadow = textureOverrides.attributeTextShadow == true
+    local rowTextShadow = textureOverrides.rowTextShadow == true
+    local rowTextOutlineSmall = textureOverrides.rowTextOutlineSmall == true
+    local rowTextShadowColor = textureOverrides.rowTextShadowColor or {0, 0, 0, 1}
 
     local version = "1.0.0"
     if C_AddOns and C_AddOns.GetAddOnMetadata then
@@ -404,7 +449,7 @@ local function buildSkinTable(wallpaperAlpha, textureOverrides)
         micro_frames = {
             color = {1, 1, 1, 1},
             font = "Friz Quadrata TT",
-            size = 14,
+            size = 12,
             textymod = 1
         },
 
@@ -437,9 +482,9 @@ local function buildSkinTable(wallpaperAlpha, textureOverrides)
             menu_anchor_down = {16, -3},
             attribute_text = {
                 enabled = true,
-                shadow = false,
+                shadow = attributeTextShadow,
                 side = 1,
-                text_size = 16,
+                text_size = styleConfig.headerTextSize,
                 custom_text = "{name}",
                 text_face = "Friz Quadrata TT",
                 anchor = {-4, 10},
@@ -457,14 +502,19 @@ local function buildSkinTable(wallpaperAlpha, textureOverrides)
                 texture_highlight = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
                 fixed_text_color = {1, 1, 1},
                 fixed_texture_color = {1, 1, 1, 1},
-                fixed_texture_background_color = {0, 0, 0, styleConfig.barBackgroundAlpha},
+                fixed_texture_background_color = {
+                    barBackgroundColor[1] or 0,
+                    barBackgroundColor[2] or 0,
+                    barBackgroundColor[3] or 0,
+                    barBackgroundColor[4] or barBackgroundAlpha
+                },
 
                 texture_background_class_color = false,
                 texture_class_colors = true,
                 alpha = 1,
 
-                height = styleConfig.barHeight,
-                space = {left = 5, right = -5, between = styleConfig.barSpacingBetween},
+                height = rowHeight,
+                space = {left = styleConfig.rowSpaceLeft, right = styleConfig.rowSpaceRight, between = styleConfig.barSpacingBetween},
                 row_offsets = {left = 30, right = -40, top = styleConfig.barOffsetTop, bottom = styleConfig.barOffsetBottom},
 
                 no_icon = false,
@@ -473,7 +523,7 @@ local function buildSkinTable(wallpaperAlpha, textureOverrides)
                 spec_file = addonPath .. "\\Textures\\spec_icons_normal.jpg",
                 icon_mask = "",
                 icon_file = addonPath .. "\\Textures\\classes_small",
-                icon_offset = {-30, 0},
+                icon_offset = {iconOffset[1] or defaultIconOffset[1] or -30, iconOffset[2] or defaultIconOffset[2] or 0},
                 icon_size_offset = 0,
 
                 texture = barTextureName,
@@ -483,14 +533,21 @@ local function buildSkinTable(wallpaperAlpha, textureOverrides)
 
                 font_face = "Friz Quadrata TT",
                 font_face_file = "Fonts\\FRIZQT__.TTF",
-                font_size = 16,
+                font_size = styleConfig.barFontSize,
                 text_yoffset = 0,
 
                 textL_show_number = true,
                 textL_enable_custom_text = false,
                 textL_custom_text = "{data3}",
                 textL_class_colors = false,
-                textL_outline = false,
+                textL_outline = rowTextShadow,
+                textL_outline_small = rowTextOutlineSmall,
+                textL_outline_small_color = {
+                    rowTextShadowColor[1] or 0,
+                    rowTextShadowColor[2] or 0,
+                    rowTextShadowColor[3] or 0,
+                    rowTextShadowColor[4] or 1
+                },
 
                 textR_enable_custom_text = false,
                 textR_custom_text = "{data1} ({data2}, {data3}%)",
@@ -498,7 +555,14 @@ local function buildSkinTable(wallpaperAlpha, textureOverrides)
                 textR_separator = ",",
                 textR_bracket = "(",
                 textR_class_colors = false,
-                textR_outline = false,
+                textR_outline = rowTextShadow,
+                textR_outline_small = rowTextOutlineSmall,
+                textR_outline_small_color = {
+                    rowTextShadowColor[1] or 0,
+                    rowTextShadowColor[2] or 0,
+                    rowTextShadowColor[3] or 0,
+                    rowTextShadowColor[4] or 1
+                },
 
                 percent_type = 1,
                 fast_ps_update = false
@@ -586,71 +650,113 @@ local function installSkins()
 
     -- Third skin variant: same as main Midnight, but with rounded bar texture.
     local okRounded = pcall(Details.InstallSkin, Details, skinNameRounded, buildSkinTable(wallpaperAlphaDefault, {
+        rowHeight = styleConfig.roundedRowHeight,
         barTextureName = textureBarRounded,
-        barTextureFile = textureFiles.testBar
+        barTextureFile = textureFiles.roundedBar,
+        barBackgroundTextureName = textureBarRoundedBackground,
+        barBackgroundTextureFile = textureFiles.roundedBarBackground,
+        -- Use texture's own color/alpha without darkening.
+        barBackgroundColor = {1, 1, 1, 1}
     }))
 
     -- Fourth skin variant: rounded bars with no wallpaper background.
     local okRoundedNoBackground = pcall(Details.InstallSkin, Details, skinNameRoundedNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
+        rowHeight = styleConfig.roundedRowHeight,
         barTextureName = textureBarRounded,
-        barTextureFile = textureFiles.testBar
+        barTextureFile = textureFiles.roundedBar,
+        barBackgroundTextureName = textureBarRoundedBackground,
+        barBackgroundTextureFile = textureFiles.roundedBarBackground,
+        -- Use texture's own color/alpha without darkening.
+        barBackgroundColor = {1, 1, 1, 1}
     }))
 
-    -- Fifth skin variant: Mel++ bars with wallpaper visible.
+    -- Fifth skin variant: rounded bars with bordered background and full bg alpha.
+    local okRoundedBordered = pcall(Details.InstallSkin, Details, skinNameRoundedBordered, buildSkinTable(wallpaperAlphaDefault, {
+        rowHeight = styleConfig.roundedRowHeight,
+        barTextureName = textureBarRoundedBordered,
+        barTextureFile = textureFiles.roundedBorderedBar,
+        barBackgroundTextureName = textureBarRoundedBorderedBackground,
+        barBackgroundTextureFile = textureFiles.roundedBorderedBarBackground,
+        -- Keep fill start aligned with row background on the left edge.
+        iconOffset = {-styleConfig.roundedRowHeight, 0},
+        -- Rounded-Bordered: add shadow to header text and row texts.
+        attributeTextShadow = true,
+        rowTextShadow = true,
+        -- Use texture's own color/alpha without darkening.
+        barBackgroundColor = {1, 1, 1, 1}
+    }))
+
+    -- Sixth skin variant: rounded bordered bars with no wallpaper background.
+    local okRoundedBorderedNoBackground = pcall(Details.InstallSkin, Details, skinNameRoundedBorderedNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
+        rowHeight = styleConfig.roundedRowHeight,
+        barTextureName = textureBarRoundedBordered,
+        barTextureFile = textureFiles.roundedBorderedBar,
+        barBackgroundTextureName = textureBarRoundedBorderedBackground,
+        barBackgroundTextureFile = textureFiles.roundedBorderedBarBackground,
+        -- Keep fill start aligned with row background on the left edge.
+        iconOffset = {-styleConfig.roundedRowHeight, 0},
+        -- Rounded-Bordered: add shadow to header text and row texts.
+        attributeTextShadow = true,
+        rowTextShadow = true,
+        -- Use texture's own color/alpha without darkening.
+        barBackgroundColor = {1, 1, 1, 1}
+    }))
+
+    -- Seventh skin variant: Mel++ bars with wallpaper visible.
     local okMelPlusPlus = pcall(Details.InstallSkin, Details, skinNameMelPlusPlus, buildSkinTable(wallpaperAlphaDefault, {
         barTextureName = textureBarMelPlusPlus,
         barTextureFile = textureFiles.melPlusPlusBar
     }))
 
-    -- Sixth skin variant: Mel++ bars with no wallpaper background.
+    -- Eighth skin variant: Mel++ bars with no wallpaper background.
     local okMelPlusPlusNoBackground = pcall(Details.InstallSkin, Details, skinNameMelPlusPlusNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
         barTextureName = textureBarMelPlusPlus,
         barTextureFile = textureFiles.melPlusPlusBar
     }))
 
-    -- Seventh skin variant: Mel+ bars with wallpaper visible.
+    -- Ninth skin variant: Mel+ bars with wallpaper visible.
     local okMelPlus = pcall(Details.InstallSkin, Details, skinNameMelPlus, buildSkinTable(wallpaperAlphaDefault, {
         barTextureName = textureBarMelPlus,
         barTextureFile = textureFiles.melPlusBar
     }))
 
-    -- Eighth skin variant: Mel+ bars with no wallpaper background.
+    -- Tenth skin variant: Mel+ bars with no wallpaper background.
     local okMelPlusNoBackground = pcall(Details.InstallSkin, Details, skinNameMelPlusNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
         barTextureName = textureBarMelPlus,
         barTextureFile = textureFiles.melPlusBar
     }))
 
-    -- Ninth skin variant: Mel bars with wallpaper visible.
+    -- Eleventh skin variant: Mel bars with wallpaper visible.
     local okMel = pcall(Details.InstallSkin, Details, skinNameMel, buildSkinTable(wallpaperAlphaDefault, {
         barTextureName = textureBarMel,
         barTextureFile = textureFiles.melBar
     }))
 
-    -- Tenth skin variant: Mel bars with no wallpaper background.
+    -- Twelfth skin variant: Mel bars with no wallpaper background.
     local okMelNoBackground = pcall(Details.InstallSkin, Details, skinNameMelNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
         barTextureName = textureBarMel,
         barTextureFile = textureFiles.melBar
     }))
 
-    -- Eleventh skin variant: Dragonflight bars with wallpaper visible.
+    -- Thirteenth skin variant: Dragonflight bars with wallpaper visible.
     local okDF = pcall(Details.InstallSkin, Details, skinNameDF, buildSkinTable(wallpaperAlphaDefault, {
         barTextureName = textureBarDF,
         barTextureFile = textureFiles.dfBar
     }))
 
-    -- Twelfth skin variant: Dragonflight bars with no wallpaper background.
+    -- Fourteenth skin variant: Dragonflight bars with no wallpaper background.
     local okDFNoBackground = pcall(Details.InstallSkin, Details, skinNameDFNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
         barTextureName = textureBarDF,
         barTextureFile = textureFiles.dfBar
     }))
 
-    -- Thirteenth skin variant: Smoothv2 bars with wallpaper visible.
+    -- Fifteenth skin variant: Smoothv2 bars with wallpaper visible.
     local okSv2 = pcall(Details.InstallSkin, Details, skinNameSv2, buildSkinTable(wallpaperAlphaDefault, {
         barTextureName = textureBarSv2,
         barTextureFile = textureFiles.sv2Bar
     }))
 
-    -- Fourteenth skin variant: Smoothv2 bars with no wallpaper background.
+    -- Sixteenth skin variant: Smoothv2 bars with no wallpaper background.
     local okSv2NoBackground = pcall(Details.InstallSkin, Details, skinNameSv2NoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
         barTextureName = textureBarSv2,
         barTextureFile = textureFiles.sv2Bar
@@ -660,6 +766,8 @@ local function installSkins()
         and okNoBackground
         and okRounded
         and okRoundedNoBackground
+        and okRoundedBordered
+        and okRoundedBorderedNoBackground
         and okMelPlusPlus
         and okMelPlusPlusNoBackground
         and okMelPlus
