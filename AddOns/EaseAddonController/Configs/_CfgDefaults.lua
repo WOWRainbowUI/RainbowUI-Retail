@@ -1305,10 +1305,10 @@ D["Quartz"] = {
     },
 };
 D["RaidFrameSettings"] = {
-	defaultEnable = 0,
+	defaultEnable = 1,
 	tags = { "UNITFRAME" },
 	title = "內建團隊框架增強",
-	desc = "自訂暴雪原生的團隊框架，提供額外的設定選項，讓玩家能更靈活地調整團隊框架的外觀與功能，以符合個人需求或團隊戰鬥的習慣。``|cffFF2D2D特別注意：載入這個插件時，打開編輯模式會發生錯誤，在修正之前，如果要使用編輯模式，請暫時關閉這個插件，使用完編輯模式再載入這個插件。|r`",
+	desc = "自訂暴雪原生的團隊框架，提供額外的設定選項，讓玩家能更靈活地調整團隊框架的外觀與功能，以符合個人需求或團隊戰鬥的習慣。`",
     {
         text = "設定選項",
         callback = function() SlashCmdList["RAID_FRAME_SETTINGS"]("") end,
