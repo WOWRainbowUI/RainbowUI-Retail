@@ -198,11 +198,10 @@ function addon:GetClickAttributes(global)
                 bits[#bits + 1] = ATTR(indent, prefix, "type", suffix, entry.type)
                 rembits[#rembits + 1] = REMATTR(prefix, "type", suffix)
             elseif entry.type == "menu" then
-                local set_text = ATTR(indent, prefix, "type", suffix, "togglemenu")
-                bits[#bits + 1] = string.gsub(set_text, '"togglemenu"', 'button:GetAttribute("*type2") == "menu" and "menu" or "togglemenu"')
-
+                -- For some reason, the menu only triggers on 'up' clicks so we need to use
+                -- togglemenu always now.
+                bits[#bits + 1] = ATTR(indent, prefix, "type", suffix, "togglemenu")
                 rembits[#rembits + 1] = REMATTR(prefix, "type", suffix)
-
             elseif entry.type == "spell" and self.settings.stopcastingfix then
                 -- Implement the 'stop casting' fix
                 local macrotext
