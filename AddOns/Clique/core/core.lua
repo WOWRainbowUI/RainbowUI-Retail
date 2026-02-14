@@ -12,10 +12,8 @@ local twipe = table.wipe
 
 function addon:Initialize()
     self:SetupDatabase()
-    self:SetupUnitFrameRegistry()
     self:SetupSecureHeader()
     self:SetupGlobalButtons()
-    self:CaptureGlobalRegistry()
 
     local setup, remove = self:GetClickAttributes()
     self.header:SetAttribute("setup_clicks", setup)
@@ -29,11 +27,6 @@ function addon:Initialize()
     -- Get the override binding attributes for the global click frame
     self.globutton.setup, self.globutton.remove = self:GetClickAttributes(true)
     self.globutton.setbinds, self.globutton.clearbinds = self:GetBindingAttributes(true)
-
-    self:IntegrateBlizzardFrames()
-
-    -- Make sure the namedbutton is registered
-    self:RegisterUnitFrame(self.namedbutton)
 
     self:RegisterEvent("PLAYER_REGEN_DISABLED", "EnteringCombat")
     self:RegisterEvent("PLAYER_REGEN_ENABLED", "LeavingCombat")
@@ -51,6 +44,15 @@ function addon:Initialize()
 
     -- Support multiple talent specs
     self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED", "TalentGroupChanged")
+
+    -- Wait to set up the registry until attributes are in place
+    self:SetupUnitFrameRegistry()
+    self:CaptureGlobalRegistry()
+
+    self:IntegrateBlizzardFrames()
+
+    -- Make sure the namedbutton is registered
+    self:RegisterUnitFrame(self.namedbutton)
 end
 
 function addon:Enable()
