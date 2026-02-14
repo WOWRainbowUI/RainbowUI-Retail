@@ -2,11 +2,11 @@
 ## Title: |cff00ccffMiniCE|r (MinimalistCooldownEdge)
 ## Notes: Clean cooldowns with category-specific styles.
 ## Author: Anahkas
-## Version: 2.7.0
+## Version: 2.8.2
 ## IconTexture: Interface\AddOns\MinimalistCooldownEdge\MinimalistCooldownEdge
 ## Category: Action Bars
 ## X-Curse-Project-ID: 1443896
-## SavedVariables: MinimalistCooldownEdgeDB_v2
+## SavedVariables: MinimalistCooldownEdgeDB_v2, MinimalistCooldownEdge_DebugLog
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 極簡冷卻時間
 ## Notes-zhTW: |cff00ccffMiniCE|r (MinimalistCooldownEdge) |n|n輕量化冷卻計時插件。以高效能、低資源消耗為核心，作為經典插件 OmniCC 的現代替代方案，提供乾淨、專業且可高度自訂的冷卻顯示效果。|n|n|cffffd200使用方法: |r從Esc>選項>插件>冷卻時間，進行設定。

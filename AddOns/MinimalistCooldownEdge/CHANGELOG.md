@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.8.2] - 2026-02-14
+### Added
+- Debug logging system
+### Improved
+- Centralized and extended blacklist logic for frame exclusion.
+
+## [2.8.1] - 2026-02-13
+### Fixed
+- **Cooldown Edge Timing:** Fixed a deferred global styling loop that could delay edge reappearance after casting a spell.
+
+## [2.8.0] - 2026-02-13
+### Improved
+- **Refactor:** Consolidated repeated nameplate detection checks into a shared helper to reduce duplication and improve maintainability.
+- **Stability:** Hook installation is now idempotent, preventing duplicate hook registration if the addon is disabled/re-enabled.
+- **Lifecycle:** Moved nameplate/combat event registration to `OnEnable()` and added explicit cleanup in `OnDisable()` (including ticker cancellation).
+- **Performance:** Upvalued frequently used globals (`InCombatLockdown`, `EnumerateFrames`, `hooksecurefunc`, `UIParent`) to reduce repeated global lookups in hot paths.
+
 ## [2.7.0] - 2026-02-11
 ### Improved
 - **Performance:** Upvalued frequently called globals (`string.find`, `pcall`, `C_Timer.After`, etc.) to reduce table lookups.
