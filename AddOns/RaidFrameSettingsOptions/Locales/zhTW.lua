@@ -28,7 +28,7 @@ L["option_player_color"] = "玩家顏色"
 L["option_npc_color"] = "NPC顏色"
 L["option_anchor"] = "位置"
 
-L["border_color"] = "邊框顏色"
+L["border_color"] = "外框顏色"
 
 L["option_power_bars"] = "能量條"
 L["option_show"] = "顯示"
@@ -118,6 +118,7 @@ L["title_debuffs"] = "減益"
 L["aura_border_color"] = "外框顏色"
 L["aura_border_size"] = "外框粗細"
 L["aura_show_countdown_numbers"] = "顯示倒數"
+L["aura_show_dispel_type_border"] = "減益類型外框"
 
 -- Profiles
 L["profiles_header_1"] = "設定檔 - 當前設定檔："
