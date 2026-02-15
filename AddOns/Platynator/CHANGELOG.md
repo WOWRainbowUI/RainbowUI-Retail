@@ -1,11 +1,6 @@
 # Platynator
 
-## [314](https://github.com/TheMouseNest/Platynator/tree/314) (2026-02-12)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/313...314) 
+## [319](https://github.com/TheMouseNest/Platynator/tree/319) (2026-02-14)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/318...319) 
 
-- Revert "Optimisations to color processing" (didn't help)  
-- Remove unused event for colors  
-- Fixes for aura display  
-- Optimisations to color processing  
-- Update aura filtering to use addon-specific code where possible  
-- Cleanup  
+- More aura fixes. Resolve auras not appearing if a unit changes attackability  
