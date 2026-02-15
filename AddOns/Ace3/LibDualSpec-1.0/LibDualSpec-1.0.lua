@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -- Only load in Classic Era on Season of Discovery and Anniversary realms
 if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and C_Seasons.GetActiveSeason() ~= 2 and C_Seasons.GetActiveSeason() ~= 11 and C_Seasons.GetActiveSeason() ~= 12 then return end
 
-local MAJOR, MINOR = "LibDualSpec-1.0", 28
+local MAJOR, MINOR = "LibDualSpec-1.0", 29
 assert(LibStub, MAJOR.." requires LibStub")
 local lib, minor = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
@@ -324,9 +324,9 @@ options.enabled = {
 		if lib.currentSpec == 0 then
 			local _, reason = CanPlayerUseTalentSpecUI()
 			if not reason or reason == "" or reason == "LEVEL_TOO_LOW" then
-				reason = isSpecBased and "TALENT_MICRO_BUTTON_NO_SPEC" or "INSTANCE_UNAVAILABLE_SELF_LEVEL_TOO_LOW"
+				reason = isSpecBased and _G["TALENT_MICRO_BUTTON_NO_SPEC"] or _G["INSTANCE_UNAVAILABLE_SELF_LEVEL_TOO_LOW"]
 			end
-			desc = desc .. "\n\n" .. RED_FONT_COLOR:WrapTextInColorCode(_G[reason])
+			desc = desc .. "\n\n" .. RED_FONT_COLOR:WrapTextInColorCode(reason)
 		end
 		return desc
 	end,
