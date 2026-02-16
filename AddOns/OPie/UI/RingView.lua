@@ -1,4 +1,4 @@
-local COMPAT, _, T = select(4, GetBuildInfo()), ...
+local COMPAT, ADDON, T = select(4, GetBuildInfo()), ...
 local PC, EV, XU, GameTooltip = T.OPieCore, T.Evie, T.exUI, T.NotGameTooltip or GameTooltip
 local api, iapi, configCache, vis = {}, {}, {}, {}
 local max, min, abs, floor, sin, cos = math.max, math.min, math.abs, math.floor, sin, cos
@@ -54,8 +54,24 @@ local function FramePool_IteratedReleaseAll(pool)
 		pool:ReleaseAll()
 	end
 end
-local function CreateIndicator(name, parent, size, nested)
-	return XU:Create("OPie:MirageIndicator", name, parent, size, nested)
+local CreateIndicator do
+	local gx do
+		local b = ([[Interface\AddOns\%s\gfx\]]):format(ADDON)
+		gx = {
+			BorderLow = b .. "borderlo",
+			BorderHigh = b .. "borderhi",
+			OuterGlow = b .. "oglow",
+			InnerGlow = b .. "iglow",
+			Ribbon = b .. "ribbon",
+			CooldownStar = [[Interface\cooldown\star4]],
+			CooldownSpark = b .. "spark",
+			IconMask = b .. "iconmask",
+			White128 = b .. "white128",
+		}
+	end
+	function CreateIndicator(name, parent, size, nested)
+		return XU:Create("OPie:MirageIndicator", name, parent, size, nested, gx)
+	end
 end
 
 local gfxBase = ([[Interface\AddOns\%s\gfx\]]):format((...))
