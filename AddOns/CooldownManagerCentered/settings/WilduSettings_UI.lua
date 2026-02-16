@@ -162,36 +162,18 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
     })
 
-    SettingsLib:CreateCheckboxSlider(category, {
+    SettingsLib:CreateCheckbox(category, {
         prefix = "CMC_",
-        key = "cooldownManager_utility_dimWhenNotOnCD",
-        name = "Dim Utility when not on CD",
-        searchtags = { "Dim", "Opacity", "Faded", "Transparent", "Utility", "Cooldown", "Hide", "Icons" },
-        default = false,
+        key = "tracker_enabled",
+        name = "Enable Custom |cff8ccd00Tracker|r|cffff0000*|r",
+        searchtags = { "Dynamic", "Alignment", "Position", "Layout", "Anchor", "Auto", "Center", "Adaptive" },
+        default = true,
         get = function()
-            return ns.db.profile.cooldownManager_utility_dimWhenNotOnCD
+            return ns.db.profile.tracker_enabled
         end,
         set = function(value)
-            ns.db.profile.cooldownManager_utility_dimWhenNotOnCD = value
-            ns.CooldownManager.ForceRefresh({ utility = true })
-        end,
-        desc = "Dim Utility Cooldown icons when they are not on cooldown.",
-
-        sliderKey = "cooldownManager_utility_dimOpacity",
-        sliderName = "Dim Opacity",
-        sliderMin = 0,
-        sliderMax = 0.9,
-        sliderStep = 0.05,
-        sliderDefault = 0.3,
-        sliderGet = function()
-            return ns.db.profile.cooldownManager_utility_dimOpacity
-        end,
-        sliderSet = function(value)
-            ns.db.profile.cooldownManager_utility_dimOpacity = value
-            ns.CooldownManager.ForceRefresh({ utility = true })
-        end,
-        sliderFormatter = function(value)
-            return string.format("%.0f%%", value * 100)
+            ns.db.profile.tracker_enabled = value
+            ns.API:ShowReloadUIConfirmation()
         end,
     })
 
@@ -1640,6 +1622,268 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
     })
 
+    local trackerStyleSection = SettingsLib:CreateExpandableSection(category, {
+        name = "|cffeeeeeeTracker|r Styling",
+        expanded = false,
+        colorizeTitle = true,
+    })
+
+    local function BuildRacialsOptions()
+        local options = {}
+        local spellNameToIds = {}
+
+        for _, spellId in ipairs(ns.TrinketRacialTracker.RACIALS) do
+            local spellInfo = C_Spell.GetSpellInfo(spellId)
+            if spellInfo and spellInfo.name then
+                if not spellNameToIds[spellInfo.name] then
+                    spellNameToIds[spellInfo.name] = {
+                        ids = {},
+                        icon = spellInfo.iconID,
+                    }
+                end
+                table.insert(spellNameToIds[spellInfo.name].ids, spellId)
+            end
+        end
+
+        local sortedNames = {}
+        for name in pairs(spellNameToIds) do
+            table.insert(sortedNames, name)
+        end
+        table.sort(sortedNames)
+
+        for _, name in ipairs(sortedNames) do
+            local data = spellNameToIds[name]
+            local iconText = "|T" .. (data.icon or "Interface\\Icons\\INV_Misc_QuestionMark") .. ":16:16:0:0|t "
+            table.insert(options, {
+                value = name,
+                text = iconText .. name,
+                label = iconText .. name,
+            })
+        end
+
+        return options
+    end
+
+    SettingsLib:CreateCheckbox(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_squareIcons",
+        name = "Square Icons",
+        searchtags = { "Trinket", "Racial", "Tracker", "Square", "Icons", "Style" },
+        default = false,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_squareIcons
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_squareIcons = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+            ns.API:ShowReloadUIConfirmation()
+        end,
+        desc = "Apply square icon styling to the Trinket, Potion & Racial Tracker. When disabled, the default cooldown manager mask (texture 6707800) is used.",
+    })
+
+    SettingsLib:CreateSlider(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_borderThickness",
+        name = "Border Thickness",
+        searchtags = { "Trinket", "Racial", "Tracker", "Border", "Thickness", "Width" },
+        default = 1,
+        min = 0,
+        max = 6,
+        step = 1,
+        formatter = function(value)
+            return string.format("%.0fpx", value)
+        end,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_borderThickness or 1
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_borderThickness = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        desc = "Border thickness for tracker icons (space between icon edge and texture).",
+    })
+
+    SettingsLib:CreateSlider(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_iconZoom",
+        name = "Icon Zoom",
+        searchtags = { "Trinket", "Racial", "Tracker", "Zoom", "Scale", "Crop" },
+        default = 0.3,
+        min = 0,
+        max = 0.5,
+        step = 0.01,
+        formatter = function(value)
+            return string.format("%.2f", value)
+        end,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_iconZoom or 0.3
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_iconZoom = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        desc = "Zoom level for tracker icons (0 = no zoom, 0.5 = maximum zoom).",
+    })
+
+    SettingsLib:CreateHeader(category, {
+        parentSection = trackerStyleSection,
+        name = "Stack/Count Number",
+    })
+
+    local anchorPointValues = {
+        TOPLEFT = "Top Left",
+        TOP = "Top",
+        TOPRIGHT = "Top Right",
+        LEFT = "Left",
+        CENTER = "Center",
+        RIGHT = "Right",
+        BOTTOMLEFT = "Bottom Left",
+        BOTTOM = "Bottom",
+        BOTTOMRIGHT = "Bottom Right",
+    }
+    local anchorPointOrder = {
+        "TOPLEFT",
+        "TOP",
+        "TOPRIGHT",
+        "LEFT",
+        "CENTER",
+        "RIGHT",
+        "BOTTOMLEFT",
+        "BOTTOM",
+        "BOTTOMRIGHT",
+    }
+
+    SettingsLib:CreateDropdown(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_stackAnchor",
+        name = "Stack Anchor",
+        searchtags = { "Trinket", "Racial", "Tracker", "Stack", "Anchor", "Position", "Count" },
+        default = "BOTTOMRIGHT",
+        values = anchorPointValues,
+        order = anchorPointOrder,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_stackAnchor or "BOTTOMRIGHT"
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_stackAnchor = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        desc = "Anchor point for stack/count number position on tracker icons.",
+    })
+
+    SettingsLib:CreateSlider(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_stackFontSize",
+        name = "Stack Font Size",
+        searchtags = { "Trinket", "Racial", "Tracker", "Stack", "Font", "Size", "Count" },
+        default = 14,
+        min = 8,
+        max = 32,
+        step = 1,
+        formatter = function(value)
+            return string.format("%.0f", value)
+        end,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_stackFontSize or 14
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_stackFontSize = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        desc = "Font size for stack/count numbers on tracker icons.",
+    })
+
+    SettingsLib:CreateSlider(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_stackOffsetX",
+        name = "X Offset",
+        searchtags = { "Trinket", "Racial", "Tracker", "Stack", "Offset", "X", "Horizontal" },
+        default = -1,
+        min = -40,
+        max = 40,
+        step = 1,
+        formatter = function(value)
+            return string.format("%.0f", value)
+        end,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_stackOffsetX or -1
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_stackOffsetX = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        desc = "Horizontal offset for stack/count number position.",
+    })
+
+    SettingsLib:CreateSlider(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_stackOffsetY",
+        name = "Y Offset",
+        searchtags = { "Trinket", "Racial", "Tracker", "Stack", "Offset", "Y", "Vertical" },
+        default = 1,
+        min = -40,
+        max = 40,
+        step = 1,
+        formatter = function(value)
+            return string.format("%.0f", value)
+        end,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_stackOffsetY or 1
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_stackOffsetY = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        desc = "Vertical offset for stack/count number position.",
+    })
+
+    SettingsLib:CreateText(category, {
+        parentSection = trackerStyleSection,
+        name = "Note: Stack font name and flags are taken from the global Stack Font settings.",
+    })
+
     local tweaksHeader = SettingsLib:CreateHeader(category, {
         name = "|cff008945Wildu|r|cff8ccd00Tweaks|r for Cooldown Manager",
         searchtags = {
@@ -1741,8 +1985,42 @@ local function WilduSettings_BuildCooldown(category, layout)
             ns.db.profile.cooldownManager_limitUtilitySizeToEssential = value
             ns.CooldownManager.ForceRefreshAll()
         end,
-        desc = "Set |cffff0000maximum|r Utility width to the width of Essential\n|cffff0000It will not get narrower than 6 icons or limit you set in |r|cff87bbcaEdit Mode|r",
+        desc = "Set |cffff0000maximum|r Utility width to the width of Essential\nIt will |cffff0000not get narrower than 6|r icons or limit you set in |cff87bbcaEdit Mode|r",
     })
+
+    SettingsLib:CreateCheckboxSlider(category, {
+        prefix = "CMC_",
+        key = "cooldownManager_utility_dimWhenNotOnCD",
+        name = "Dim Utility when not on CD",
+        searchtags = { "Dim", "Opacity", "Faded", "Transparent", "Utility", "Cooldown", "Hide", "Icons" },
+        default = false,
+        get = function()
+            return ns.db.profile.cooldownManager_utility_dimWhenNotOnCD
+        end,
+        set = function(value)
+            ns.db.profile.cooldownManager_utility_dimWhenNotOnCD = value
+            ns.CooldownManager.ForceRefresh({ utility = true })
+        end,
+        desc = "Dim Utility Cooldown icons when they are not on cooldown.\n|cffff0000Higher CPU usage|r",
+
+        sliderKey = "cooldownManager_utility_dimOpacity",
+        sliderName = "Dim Opacity",
+        sliderMin = 0,
+        sliderMax = 0.9,
+        sliderStep = 0.05,
+        sliderDefault = 0.3,
+        sliderGet = function()
+            return ns.db.profile.cooldownManager_utility_dimOpacity
+        end,
+        sliderSet = function(value)
+            ns.db.profile.cooldownManager_utility_dimOpacity = value
+            ns.CooldownManager.ForceRefresh({ utility = true })
+        end,
+        sliderFormatter = function(value)
+            return string.format("%.0f%%", value * 100)
+        end,
+    })
+
     local version = C_AddOns.GetAddOnMetadata("CooldownManagerCentered", "version")
     SettingsLib:CreateText(category, {
         name = "|cffccccccAddon version: " .. version .. "|r",
@@ -1782,370 +2060,53 @@ local function WilduSettings_BuildCooldown(category, layout)
         searchtags = { "Hide", "Auras", "Experimental", "Cooldowns", "Buffs", "Debuffs" },
         default = false,
         get = function()
-            return ns.db.profile.cooldownManager_experimental_hideAuras
+            -- return ns.db.profile.cooldownManager_experimental_hideAuras
+            return false
         end,
         set = function(value)
-            ns.db.profile.cooldownManager_experimental_hideAuras = value
+            -- ns.db.profile.cooldownManager_experimental_hideAuras = value
+            return false
+        end,
+        isEnabled = function()
+            return false
         end,
         desc = "Hide auras on icons, always show only cooldowns of the abilities. |cffff0000Experimental feature, may cause issues!|r",
-    })
-    SettingsLib:CreateText(experimentalCategory, {
-        name = "Hide auras, always show only cooldowns of the abilites",
     })
 
     SettingsLib:CreateCheckbox(experimentalCategory, {
         prefix = "CMC_",
         key = "cooldownManager_experimental_trinketRacialTracker",
-        name = "Trinket, Potion & Racial Tracker",
+        name = "Trinket, Consumables & Racial Tracker",
         searchtags = { "Trinket", "Racial", "Tracker", "Experimental", "Cooldowns", "Icons", "Potion", "Healthstone" },
         default = false,
         get = function()
-            return ns.db.profile.cooldownManager_experimental_trinketRacialTracker
+            -- return ns.db.profile.cooldownManager_experimental_trinketRacialTracker
+            return false
+        end,
+        isEnabled = function()
+            return false
         end,
         set = function(value)
-            ns.db.profile.cooldownManager_experimental_trinketRacialTracker = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:OnSettingChanged()
-            end
+            -- ns.db.profile.cooldownManager_experimental_trinketRacialTracker = value
+            -- if ns.TrinketRacialTracker then
+            --     ns.TrinketRacialTracker:OnSettingChanged()
+            -- end
         end,
         desc = "Show a separate tracking bar for trinkets, potions, healthstones, and racial abilities. |cffff0000Experimental feature, may cause issues!|r",
     })
     SettingsLib:CreateText(experimentalCategory, {
-        name = "Track cooldowns for trinkets, potions, healthstones, and racial abilities in a movable bar",
+        name = "Tracker & Hide/Show Auras settings are now configurable within the Cooldown Settings 3rd tab",
     })
-
-    local trackerStyleSection = SettingsLib:CreateExpandableSection(experimentalCategory, {
-        name = "|cffeeeeeeTrinket Tracker|r Styling",
-        expanded = false,
-        colorizeTitle = true,
-    })
-
-    local function BuildRacialsOptions()
-        local options = {}
-        local spellNameToIds = {}
-
-        for _, spellId in ipairs(ns.TrinketRacialTracker.RACIALS) do
-            local spellInfo = C_Spell.GetSpellInfo(spellId)
-            if spellInfo and spellInfo.name then
-                if not spellNameToIds[spellInfo.name] then
-                    spellNameToIds[spellInfo.name] = {
-                        ids = {},
-                        icon = spellInfo.iconID,
-                    }
-                end
-                table.insert(spellNameToIds[spellInfo.name].ids, spellId)
-            end
-        end
-
-        local sortedNames = {}
-        for name in pairs(spellNameToIds) do
-            table.insert(sortedNames, name)
-        end
-        table.sort(sortedNames)
-
-        for _, name in ipairs(sortedNames) do
-            local data = spellNameToIds[name]
-            local iconText = "|T" .. (data.icon or "Interface\\Icons\\INV_Misc_QuestionMark") .. ":16:16:0:0|t "
-            table.insert(options, {
-                value = name,
-                text = iconText .. name,
-                label = iconText .. name,
-            })
-        end
-
-        return options
-    end
-
-    SettingsLib:CreateMultiDropdown(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_ignoredRacials",
-        name = "Ignored Racials",
-        customText = "All Racials shown",
-        searchtags = { "Trinket", "Racial", "Tracker", "Ignore", "Hide", "Filter" },
-        defaultSelection = {},
-        optionfunc = BuildRacialsOptions,
-        getSelection = function()
-            return ns.db.profile.trinketRacialTracker_ignoredRacials or {}
-        end,
-        setSelection = function(value)
-            ns.db.profile.trinketRacialTracker_ignoredRacials = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshAll()
+    SettingsLib:CreateButton(experimentalCategory, {
+        text = "Open Cooldown Settings",
+        func = function()
+            if not InCombatLockdown() then
+                HideUIPanel(SettingsPanel)
+                C_Timer.After(0.1, function()
+                    CooldownViewerSettings:ShowUIPanel(false)
+                end)
             end
         end,
-        summary = function(selectionMap, selectedLabels)
-            if #selectedLabels == 0 then
-                return ""
-            end
-            return "Ignoring " .. #selectedLabels .. " Racial" .. (#selectedLabels > 1 and "s" or "")
-        end,
-        desc = "Select racial abilities to hide from the tracker. Multiple spell IDs with the same name will all be hidden.",
-    })
-
-    local function BuildItemsOptions()
-        local options = {}
-        local itemNameToIds = {}
-
-        for _, itemId in ipairs(ns.TrinketRacialTracker.ITEMS) do
-            local itemName = C_Item.GetItemNameByID(itemId)
-            local itemIcon = C_Item.GetItemIconByID(itemId)
-            local itemQuality = C_Item.GetItemQualityByID(itemId)
-
-            if itemName then
-                if not itemNameToIds[itemName] then
-                    itemNameToIds[itemName] = {
-                        ids = {},
-                        icon = itemIcon,
-                        quality = itemQuality,
-                    }
-                end
-                table.insert(itemNameToIds[itemName].ids, itemId)
-            end
-        end
-
-        local sortedNames = {}
-        for name in pairs(itemNameToIds) do
-            table.insert(sortedNames, name)
-        end
-        table.sort(sortedNames)
-
-        for _, name in ipairs(sortedNames) do
-            local data = itemNameToIds[name]
-            local iconText = "|T" .. (data.icon or "Interface\\Icons\\INV_Misc_QuestionMark") .. ":16:16:0:0|t "
-            table.insert(options, {
-                value = name,
-                text = iconText .. name,
-                label = iconText .. name,
-            })
-        end
-
-        return options
-    end
-
-    SettingsLib:CreateMultiDropdown(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_ignoredItems",
-        name = "Ignored Items",
-        searchtags = { "Trinket", "Item", "Potion", "Tracker", "Ignore", "Hide", "Filter", "Healthstone" },
-        defaultSelection = {},
-        optionfunc = BuildItemsOptions,
-        getSelection = function()
-            return ns.db.profile.trinketRacialTracker_ignoredItems or {}
-        end,
-        setSelection = function(value)
-            ns.db.profile.trinketRacialTracker_ignoredItems = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshAll()
-            end
-        end,
-        customText = "All Items shown",
-        summary = function(selectionMap, selectedLabels)
-            if #selectedLabels == 0 then
-                return ""
-            end
-            return "Ignoring " .. #selectedLabels .. " Item" .. (#selectedLabels > 1 and "s" or "")
-        end,
-        desc = "Select items (potions, healthstones) to hide from the tracker.",
-    })
-
-    SettingsLib:CreateCheckbox(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_squareIcons",
-        name = "Square Icons",
-        searchtags = { "Trinket", "Racial", "Tracker", "Square", "Icons", "Style" },
-        default = false,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_squareIcons
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_squareIcons = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "Apply square icon styling to the Trinket, Potion & Racial Tracker. When disabled, the default cooldown manager mask (texture 6707800) is used.",
-    })
-
-    SettingsLib:CreateSlider(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_borderThickness",
-        name = "Border Thickness",
-        searchtags = { "Trinket", "Racial", "Tracker", "Border", "Thickness", "Width" },
-        default = 1,
-        min = 0,
-        max = 6,
-        step = 1,
-        formatter = function(value)
-            return string.format("%.0fpx", value)
-        end,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_borderThickness or 1
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_borderThickness = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "Border thickness for tracker icons (space between icon edge and texture).",
-    })
-
-    SettingsLib:CreateSlider(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_iconZoom",
-        name = "Icon Zoom",
-        searchtags = { "Trinket", "Racial", "Tracker", "Zoom", "Scale", "Crop" },
-        default = 0.3,
-        min = 0,
-        max = 0.5,
-        step = 0.01,
-        formatter = function(value)
-            return string.format("%.2f", value)
-        end,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_iconZoom or 0.3
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_iconZoom = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "Zoom level for tracker icons (0 = no zoom, 0.5 = maximum zoom).",
-    })
-
-    SettingsLib:CreateHeader(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        name = "Stack/Count Number",
-    })
-
-    local anchorPointValues = {
-        TOPLEFT = "Top Left",
-        TOP = "Top",
-        TOPRIGHT = "Top Right",
-        LEFT = "Left",
-        CENTER = "Center",
-        RIGHT = "Right",
-        BOTTOMLEFT = "Bottom Left",
-        BOTTOM = "Bottom",
-        BOTTOMRIGHT = "Bottom Right",
-    }
-    local anchorPointOrder = {
-        "TOPLEFT",
-        "TOP",
-        "TOPRIGHT",
-        "LEFT",
-        "CENTER",
-        "RIGHT",
-        "BOTTOMLEFT",
-        "BOTTOM",
-        "BOTTOMRIGHT",
-    }
-
-    SettingsLib:CreateDropdown(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_stackAnchor",
-        name = "Stack Anchor",
-        searchtags = { "Trinket", "Racial", "Tracker", "Stack", "Anchor", "Position", "Count" },
-        default = "BOTTOMRIGHT",
-        values = anchorPointValues,
-        order = anchorPointOrder,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_stackAnchor or "BOTTOMRIGHT"
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_stackAnchor = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "Anchor point for stack/count number position on tracker icons.",
-    })
-
-    SettingsLib:CreateSlider(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_stackFontSize",
-        name = "Stack Font Size",
-        searchtags = { "Trinket", "Racial", "Tracker", "Stack", "Font", "Size", "Count" },
-        default = 14,
-        min = 8,
-        max = 32,
-        step = 1,
-        formatter = function(value)
-            return string.format("%.0f", value)
-        end,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_stackFontSize or 14
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_stackFontSize = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "Font size for stack/count numbers on tracker icons.",
-    })
-
-    SettingsLib:CreateSlider(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_stackOffsetX",
-        name = "X Offset",
-        searchtags = { "Trinket", "Racial", "Tracker", "Stack", "Offset", "X", "Horizontal" },
-        default = -1,
-        min = -40,
-        max = 40,
-        step = 1,
-        formatter = function(value)
-            return string.format("%.0f", value)
-        end,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_stackOffsetX or -1
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_stackOffsetX = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "Horizontal offset for stack/count number position.",
-    })
-
-    SettingsLib:CreateSlider(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_stackOffsetY",
-        name = "Y Offset",
-        searchtags = { "Trinket", "Racial", "Tracker", "Stack", "Offset", "Y", "Vertical" },
-        default = 1,
-        min = -40,
-        max = 40,
-        step = 1,
-        formatter = function(value)
-            return string.format("%.0f", value)
-        end,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_stackOffsetY or 1
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_stackOffsetY = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "Vertical offset for stack/count number position.",
-    })
-
-    SettingsLib:CreateText(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        name = "Note: Stack font name and flags are taken from the global Stack Font settings.",
     })
 end
 

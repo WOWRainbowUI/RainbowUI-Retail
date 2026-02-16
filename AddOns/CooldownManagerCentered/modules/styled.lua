@@ -247,10 +247,12 @@ local function ProcessViewer(viewer, viewerSettingName, applySquareStyle)
                 end)
             end
             if child.DebuffBorder then
-                -- DevTools_Dump(child.DebuffBorder.Texture:GetAtlas()) -- secret and only set AFTER show event
                 if applySquareStyle then
-                    child.DebuffBorder:SetScale(1.7) -- magic numbers - TODO fix someday
+                    -- TODO replace with libbuttonGlows
+                    child.DebuffBorder:SetAlpha(0) -- hide the default border, since it doesn't scale well
+                    -- child.DebuffBorder:SetScale(1.76) -- magic numbers - TODO fix someday
                 else
+                    child.DebuffBorder:SetAlpha(1)
                     child.DebuffBorder:SetScale(1.0)
                 end
             end

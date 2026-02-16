@@ -229,47 +229,53 @@ for _, viewerInfo in ipairs(viewers) do
 end
 
 local function AddArrowsToTrinketRacialTracker()
-    local viewerName = "CMCTrinketRacialTracker"
-    if arrowsForViewers[viewerName] or not _G[viewerName] then
-        return
-    end
-    local arrowFrames = {
-        top = {
-            frame = CreateFrame("Frame", nil, UIParent),
-            anchor = "BOTTOM",
-        },
-        left = {
-            frame = CreateFrame("Frame", nil, UIParent),
-            anchor = "RIGHT",
-        },
-        right = {
-            frame = CreateFrame("Frame", nil, UIParent),
-            anchor = "LEFT",
-        },
-        bottom = {
-            frame = CreateFrame("Frame", nil, UIParent),
-            anchor = "TOP",
-        },
+    local viewerNames = {
+        "CMCTracker1",
+        "CMCTracker2",
     }
-    for name, info in pairs(arrowFrames) do
-        local frame = info.frame
-        frame:SetSize(10, 14)
-        frame:SetScale(1)
-        frame.background = frame:CreateTexture(nil, "BACKGROUND")
-        frame.background:ClearAllPoints()
-        frame.background:SetAllPoints()
-        frame.background:SetAtlas("bags-greenarrow", false)
-        frame.background:SetRotation(
-            name == "left" and math.pi / 2 or (name == "right" and -math.pi / 2 or (name == "bottom" and math.pi or 0))
-        )
-        frame:SetFrameStrata("HIGH")
-        frame:Hide()
+    for _, viewerName in ipairs(viewerNames) do
+        if arrowsForViewers[viewerName] or not _G[viewerName] then
+            return
+        end
+        local arrowFrames = {
+            top = {
+                frame = CreateFrame("Frame", nil, UIParent),
+                anchor = "BOTTOM",
+            },
+            left = {
+                frame = CreateFrame("Frame", nil, UIParent),
+                anchor = "RIGHT",
+            },
+            right = {
+                frame = CreateFrame("Frame", nil, UIParent),
+                anchor = "LEFT",
+            },
+            bottom = {
+                frame = CreateFrame("Frame", nil, UIParent),
+                anchor = "TOP",
+            },
+        }
+        for name, info in pairs(arrowFrames) do
+            local frame = info.frame
+            frame:SetSize(10, 14)
+            frame:SetScale(1)
+            frame.background = frame:CreateTexture(nil, "BACKGROUND")
+            frame.background:ClearAllPoints()
+            frame.background:SetAllPoints()
+            frame.background:SetAtlas("bags-greenarrow", false)
+            frame.background:SetRotation(
+                name == "left" and math.pi / 2
+                    or (name == "right" and -math.pi / 2 or (name == "bottom" and math.pi or 0))
+            )
+            frame:SetFrameStrata("HIGH")
+            frame:Hide()
+        end
+        arrowsForViewers[viewerName] = arrowFrames
+        table.insert(viewers, {
+            frame = _G[viewerName],
+            viewerName = viewerName,
+        })
     end
-    arrowsForViewers[viewerName] = arrowFrames
-    table.insert(viewers, {
-        frame = _G[viewerName],
-        viewerName = viewerName,
-    })
 end
 
 local ticker = nil

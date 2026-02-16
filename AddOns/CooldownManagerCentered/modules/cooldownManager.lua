@@ -60,7 +60,7 @@ local viewerToSettingKey = {
     ["BuffIconCooldownViewer"] = "BuffIcons",
 }
 
-function LayoutEngine.CenteredRowXOffsets(count, itemWidth, padding, directionModifier, iconLimit, iconRef)
+function LayoutEngine.CenteredRowXOffsets(count, itemWidth, padding, directionModifier, iconLimit)
     if not count or count <= 0 then
         return {}
     end
@@ -69,12 +69,13 @@ function LayoutEngine.CenteredRowXOffsets(count, itemWidth, padding, directionMo
     local startX = ((itemWidth + padding) * iconsMissing / 2) * dir
     local offsets = {}
     for i = 1, count do
-        offsets[i] = ns.Scaling:RoundToPixelSize(startX + (i - 1) * (itemWidth + padding) * dir, iconRef)
+        offsets[i] = startX + (i - 1) * (itemWidth + padding) * dir
     end
+
     return offsets
 end
 
-function LayoutEngine.CenteredColYOffsets(count, itemHeight, padding, directionModifier, iconLimit, iconRef)
+function LayoutEngine.CenteredColYOffsets(count, itemHeight, padding, directionModifier, iconLimit)
     if not count or count <= 0 then
         return {}
     end
@@ -83,7 +84,7 @@ function LayoutEngine.CenteredColYOffsets(count, itemHeight, padding, directionM
     local startY = -((itemHeight + padding) * iconsMissing / 2) * dir
     local offsets = {}
     for i = 1, count do
-        offsets[i] = ns.Scaling:RoundToPixelSize(startY - (i - 1) * (itemHeight + padding) * dir, iconRef)
+        offsets[i] = startY - (i - 1) * (itemHeight + padding) * dir
     end
     return offsets
 end
@@ -275,7 +276,7 @@ function ViewerAdapters.UpdateBuffIcons()
             anchor = iconDirection == "NORMAL" and "TOPRIGHT" or "TOPLEFT"
             relativePoint = iconDirection == "NORMAL" and "TOPRIGHT" or "TOPLEFT"
         else -- CENTER
-            offsets = LayoutEngine.CenteredRowXOffsets(count, iconWidth, padding, iconDirectionModifier, total, refIcon)
+            offsets = LayoutEngine.CenteredRowXOffsets(count, iconWidth, padding, iconDirectionModifier, total)
             anchor = iconDirection == "NORMAL" and "TOPLEFT" or "TOPRIGHT"
             relativePoint = iconDirection == "NORMAL" and "TOPLEFT" or "TOPRIGHT"
         end
@@ -350,21 +351,35 @@ function ViewerAdapters.UpdateBuffBars()
     end
 end
 
-function ViewerAdapters.CollectViewerChildren(viewer)
-    -- Why: Standardized filtered list of visible icon-like children sorted by layoutIndex.
-    -- When: Building rows/columns for Essential/Utility centered layouts.
-    local all = {}
-    local viewerName = viewer:GetName()
-    local toDim = viewerName == "UtilityCooldownViewer" and ns.db.profile.cooldownManager_utility_dimWhenNotOnCD
+local _dimCurve = nil
+local _dimCurveOpacity = nil
+
+local function GetDimCurve(toDimOpacity)
+    if _dimCurve and _dimCurveOpacity == toDimOpacity then
+        return _dimCurve
+    end
+    _dimCurve = C_CurveUtil.CreateCurve()
+    _dimCurve:AddPoint(0.0, toDimOpacity)
+    _dimCurve:AddPoint(0.1, 1)
+    _dimCurveOpacity = toDimOpacity
+    return _dimCurve
+end
+
+function ViewerAdapters.UpdateUtilityDimming()
+    local viewer = UtilityCooldownViewer
+    if not viewer then
+        return
+    end
+    local toDim = ns.db.profile.cooldownManager_utility_dimWhenNotOnCD
+    if not toDim then
+        return
+    end
     local toDimOpacity = ns.db.profile.cooldownManager_utility_dimOpacity or 0.3
 
     local children = { viewer:GetChildren() }
     for _, child in ipairs(children) do
         if child and child:IsShown() and child.Icon then
-            all[#all + 1] = child
-
-            -- TODO move from cooldown manager.lua
-            if child.cooldownID and toDim then
+            if child.cooldownID then
                 local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(child.cooldownID)
                 local spellID = info.overrideSpellID or info.spellID
                 if not C_Spell.GetSpellCooldown(spellID).isOnGCD then
@@ -375,37 +390,44 @@ function ViewerAdapters.CollectViewerChildren(viewer)
                         cd = ns.CooldownTracker:getSpellCD(spellID)
                     end
 
-                    local curve = C_CurveUtil.CreateCurve()
-                    curve:AddPoint(0.0, toDimOpacity)
-                    curve:AddPoint(0.1, 1)
+                    local curve = GetDimCurve(toDimOpacity)
                     local EvaluateDuration = cd.EvaluateRemainingDuration and cd:EvaluateRemainingDuration(curve)
 
                     child:SetAlpha(EvaluateDuration)
+                else
+                    child:SetAlpha(toDimOpacity)
                 end
-            else
-                child:SetAlpha(1)
             end
         end
     end
-    table.sort(all, function(a, b)
-        return (a.layoutIndex or 0) < (b.layoutIndex or 0)
-    end)
-    return all
 end
 
-local function PositionRowHorizontal(
-    viewer,
-    row,
-    yOffset,
-    w,
-    padding,
-    iconDirectionModifier,
-    rowAnchor,
-    iconLimit,
-    iconRef
-)
+function ViewerAdapters.CollectViewerChildren(viewer)
+    -- Why: Standardized filtered list of visible icon-like children sorted by layoutIndex.
+    -- When: Building rows/columns for Essential/Utility centered layouts.
+    local viewerName = viewer:GetName()
+
+    -- Direct insert by layoutIndex to avoid sorting
+    local indexed = {}
+    local children = { viewer:GetChildren() }
+    for _x, child in ipairs(children) do
+        local li = child.layoutIndex
+        if child and child:IsShown() and child.Icon and li then
+            if indexed[li] then
+                PrintDebug(
+                    "|cffff0000[CooldownManager]|r Warning: Duplicate layoutIndex " .. li .. " in " .. viewerName
+                )
+            end
+            indexed[li] = child
+        end
+    end
+
+    return indexed
+end
+
+local function PositionRowHorizontal(viewer, row, yOffset, w, padding, iconDirectionModifier, rowAnchor, iconLimit)
     local count = #row
-    local xOffsets = LayoutEngine.CenteredRowXOffsets(count, w, padding, iconDirectionModifier, iconLimit, iconRef)
+    local xOffsets = LayoutEngine.CenteredRowXOffsets(count, w, padding, iconDirectionModifier, iconLimit)
 
     for i, icon in ipairs(row) do
         local x = xOffsets[i] or 0
@@ -433,17 +455,7 @@ local function PositionRowHorizontal(
     end
 end
 
-local function PositionRowVertical(
-    viewer,
-    row,
-    xOffset,
-    h,
-    padding,
-    iconDirectionModifier,
-    colAnchor,
-    iconLimit,
-    iconRef
-)
+local function PositionRowVertical(viewer, row, xOffset, h, padding, iconDirectionModifier, colAnchor, iconLimit)
     local count = #row
     local yOffsets = LayoutEngine.CenteredColYOffsets(count, h, padding, iconDirectionModifier, iconLimit)
 
@@ -456,9 +468,9 @@ local function PositionRowVertical(
             if offsetX ~= nil and offsetY ~= nil then
                 local xDiff = math.abs(xOffset - offsetX)
                 local yDiff = math.abs(y - offsetY)
-                if point == colAnchor and relativePoint == colAnchor and xDiff <= 1 and yDiff <= 1 then
+                if point == colAnchor and relativePoint == colAnchor and xDiff < 1 and yDiff < 1 then
                     stillNeedToSet = false
-                -- No need to reposition
+                    -- No need to reposition
                 else
                     if yDiff <= 1 then
                         y = offsetY
@@ -523,6 +535,9 @@ end
 
 function ViewerAdapters.UpdateUtility()
     ViewerAdapters.UpdateCDViewer(UtilityCooldownViewer, ns.db.profile.cooldownManager_centerUtility_growFromDirection)
+    C_Timer.After(0, function()
+        ViewerAdapters.UpdateUtilityDimming()
+    end)
 end
 
 function ViewerAdapters.UpdateCDViewer(viewer, fromDirection)
@@ -540,7 +555,6 @@ function ViewerAdapters.UpdateCDViewer(viewer, fromDirection)
     end
 
     local children = ViewerAdapters.CollectViewerChildren(viewer)
-    -- todo refactor DIMing as now we have to "early" return after collecting children, to leave dimming working
     if fromDirection == "Disable" or #children == 0 then
         return
     end
@@ -589,17 +603,14 @@ function ViewerAdapters.UpdateCDViewer(viewer, fromDirection)
         local fromAnchor2 = iconDirection == "NORMAL" and "LEFT" or "RIGHT"
         local rowAnchor = fromAnchor1 .. fromAnchor2
 
-        -- if viewer == EssentialCooldownViewer then
-        --     print(ns.Scaling:GetPixelSize(viewer), ns.Scaling:GetPixelSize(first))
-        -- end
         local cumulativeOffset = 0
         for iRow, row in ipairs(rows) do
             local currentRowHeight = h
 
             local yOffset = cumulativeOffset * rowOffsetModifier
-            PositionRowHorizontal(viewer, row, yOffset, w, padding, iconDirectionModifier, rowAnchor, maxIcons, first)
+            PositionRowHorizontal(viewer, row, yOffset, w, padding, iconDirectionModifier, rowAnchor, maxIcons)
 
-            cumulativeOffset = cumulativeOffset + ns.Scaling:RoundToPixelSize(currentRowHeight + padding)
+            cumulativeOffset = cumulativeOffset + currentRowHeight + padding
         end
     else
         local rowOffsetModifier = fromDirection == "BOTTOM" and -1 or 1
@@ -612,9 +623,9 @@ function ViewerAdapters.UpdateCDViewer(viewer, fromDirection)
             local currentColWidth = w
 
             local xOffset = cumulativeOffset * rowOffsetModifier
-            PositionRowVertical(viewer, row, xOffset, h, padding, iconDirectionModifier, colAnchor, maxIcons, first)
+            PositionRowVertical(viewer, row, xOffset, h, padding, iconDirectionModifier, colAnchor, maxIcons)
 
-            cumulativeOffset = cumulativeOffset + ns.Scaling:RoundToPixelSize(currentColWidth + padding)
+            cumulativeOffset = cumulativeOffset + currentColWidth + padding
         end
     end
     ViewerAdapters.UpdateViewerSizeIfChanged(viewer)
@@ -645,6 +656,10 @@ end
 
 function CooldownManager.ForceRefreshAll()
     CooldownManager.ForceRefresh({ icons = true, bars = true, essential = true, utility = true })
+end
+
+function CooldownManager.UpdateUtilityDimming()
+    ViewerAdapters.UpdateUtilityDimming()
 end
 
 local viewerReasonPartsMap = {

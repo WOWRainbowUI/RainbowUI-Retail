@@ -113,11 +113,17 @@ local function GetSpellIdFromButton(btn)
     end
     return nil
 end
+local viewerSettingMap = {
+    ["EssentialCooldownViewer"] = "cooldownManager_squareIcons_Essential",
+    ["UtilityCooldownViewer"] = "cooldownManager_squareIcons_Utility",
+}
 
 local function CreateOrGetTextureFrame(icon)
     if icon.HighlightTexture then
         return icon.HighlightTexture
     end
+
+    local parent = icon:GetParent()
 
     local frame = CreateFrame("Frame", nil, icon, "BackdropTemplate")
     frame:SetFrameLevel(icon:GetFrameLevel() + 10)
@@ -129,8 +135,15 @@ local function CreateOrGetTextureFrame(icon)
         tex:SetTexture("Interface\\AddOns\\CooldownManagerCentered\\Media\\Art\\Square")
         tex:SetBlendMode("ADD")
         tex:SetColorTexture(0.8, 0.8, 0.8, 0.3)
-        if frame.SetInside then
+        if tex.SetInside then
             tex:SetInside()
+        end
+        local settingKey = viewerSettingMap[parent:GetName()]
+        if not ns.db.profile[settingKey] then
+            local mask = frame:CreateMaskTexture(nil, "ARTWORK")
+            mask:SetAllPoints(frame)
+            mask:SetAtlas("UI-HUD-CoolDownManager-Mask")
+            tex:AddMaskTexture(mask)
         end
     else
         tex:SetAtlas("UI-HUD-ActionBar-IconFrame-Down", true)
