@@ -2,15 +2,16 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 31
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 34
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
 
 
 local math, next, ipairs, rawget, type, wipe = math, next, ipairs, rawget, type, wipe
-local CreateFrame, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, UIParent, GetCursorPosition, InCombatLockdown = CreateFrame, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, UIParent, GetCursorPosition, InCombatLockdown
+local CreateFrame, CreateFont, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, UIParent, GetCursorPosition, InCombatLockdown = CreateFrame, CreateFont, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, UIParent, GetCursorPosition, InCombatLockdown
 local SearchBoxTemplate_OnTextChanged, CreateScrollBoxListLinearView, ScrollBoxConstants, ScrollUtil, CreateDataProvider, GetAtlasInfo = SearchBoxTemplate_OnTextChanged, CreateScrollBoxListLinearView, ScrollBoxConstants, ScrollUtil, CreateDataProvider, C_Texture.GetAtlasInfo
+local GameFontHighlightLeft, GameFontNormalLeft, GameFontDisableLeft, GameFontHighlightRight, GameFontHighlightSmall, GameFontHighlight = GameFontHighlightLeft, GameFontNormalLeft, GameFontDisableLeft, GameFontHighlightRight, GameFontHighlightSmall, GameFontHighlight
 
 if oldminor < 1 then
 	lib._v = {
@@ -246,9 +247,9 @@ end
 function v.getFontObject(self, font, fontObject)
 	if not self._fontObject then
 		self._fontObject = CreateFont(v.getNextWidgetName("font"))
-		self._fontObject:CopyFontObject(GameFontHighlightLeft)
 	end
-	local _, size, outline = (fontObject or GameFontHighlightLeft):GetFont()
+	self._fontObject:CopyFontObject(fontObject or GameFontHighlightLeft)
+	local _, size, outline = self._fontObject:GetFont()
 	self._fontObject:SetFont(font, size, outline)
 	return self._fontObject
 end
@@ -1056,12 +1057,13 @@ do
 	local movableColors = {}
 
 	local function find(text, str, hColor)
+		local colorStart, colorEnd, resetStart, resetEnd, nextStart, nextEnd, subStr, curStr
 		wipe(colorMap)
 
 		while true do
-			local colorStart, colorEnd = text:find(colorPattern, lastPos)
-			local resetStart, resetEnd = text:find(resetPattern, lastPos)
-			local nextStart = math.min(
+			colorStart, colorEnd = text:find(colorPattern)
+			resetStart, resetEnd = text:find(resetPattern)
+			nextStart = math.min(
 				colorStart and colorEnd - colorStart == colorLen and colorStart or math.huge,
 				resetStart and resetEnd - resetStart == resetLen and resetStart or math.huge
 			)
@@ -1069,12 +1071,16 @@ do
 			if nextStart == math.huge then break end
 
 			if nextStart == colorStart then
-				colorMap[colorStart] = text:sub(colorStart, colorEnd)
-				text = text:sub(0, colorStart - 1)..text:sub(colorEnd + 1)
+				nextEnd = colorEnd
+				subStr = text:sub(colorStart, colorEnd)
 			else
-				colorMap[resetStart] = colorReset
-				text = text:sub(0, resetStart - 1)..text:sub(resetEnd + 1)
+				nextEnd = resetEnd
+				subStr = colorReset
 			end
+
+			curStr = colorMap[nextStart]
+			colorMap[nextStart] = curStr and curStr..subStr or subStr
+			text = text:sub(0, nextStart - 1)..text:sub(nextEnd + 1)
 		end
 
 		local hStart, hEnd = text:lower():find(str, 1, true)
@@ -1084,19 +1090,12 @@ do
 		wipe(movableColors)
 		movableColors[1] = colorReset
 
+		local segment
 		for i = hStart, hEnd do
-			local segment = colorMap[i]
+			segment = colorMap[i]
 			if segment ~= nil then
 				colorMap[i] = nil
-				if segment == colorReset then
-					if #movableColors > 1 then
-						movableColors[#movableColors] = nil
-					else
-						hColor = colorReset..hColor
-					end
-				else
-					movableColors[#movableColors + 1] = segment
-				end
+				movableColors[#movableColors + 1] = segment
 			end
 		end
 
@@ -1104,7 +1103,7 @@ do
 		colorMap[hEnd] = concat(movableColors)
 
 		for i = #text, 1, -1 do
-			local segment = colorMap[i]
+			segment = colorMap[i]
 			if segment then
 				text = text:sub(0, i - 1)..segment..text:sub(i)
 			end
@@ -1113,7 +1112,7 @@ do
 		return text
 	end
 
-	function search(str, text, rightText, info, hColor)
+	local function search(str, text, rightText, info, hColor)
 		if #str == 0 or not (text or rightText) then return true end
 		local sText = text and find(text, str, hColor)
 		local sRText = rightText and find(rightText, str, hColor)
@@ -2576,7 +2575,7 @@ if oldminor < 28 then
 	end
 end
 
-if oldminor < 30 then
+if oldminor < 34 then
 	for i, f in lib:IterateSearchFrames() do
 		for k, v in next, DropDownMenuSearchMixin do f[k] = v end
 		f.buttonsList = nil
