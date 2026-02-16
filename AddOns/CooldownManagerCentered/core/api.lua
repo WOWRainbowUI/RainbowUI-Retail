@@ -147,9 +147,9 @@ function API:IsSomeAddOnRestrictionActive()
 end
 
 StaticPopupDialogs["CMC_RELOAD_UI_ASK"] = {
-    text = "Some settings won't take effect until you reload the UI. Reload now?",
-    button1 = "Reload",
-    button2 = "Not now",
+    text = "部分設定在重新載入介面之前不會生效。要立即重新載入嗎?",
+    button1 = "重新載入",
+    button2 = "現在不要",
     OnAccept = function(self, profileName)
         ReloadUI()
     end,
@@ -164,7 +164,7 @@ end
 
 function API:ToggleEditMode()
     if InCombatLockdown and InCombatLockdown() then
-        ns.Addon:Print("Cannot toggle Edit Mode while in combat.")
+        ns.Addon:Print("戰鬥中無法打開編輯模式。")
         return
     end
     local frame = _G.EditModeManagerFrame
@@ -179,7 +179,7 @@ function API:ToggleEditMode()
         return
     end
     if frame.CanEnterEditMode and not frame:CanEnterEditMode() then
-        ns.Addon:Print("Cannot enter Edit Mode right now.")
+        ns.Addon:Print("現在無法進入編輯模式。")
         return
     end
     if frame:IsShown() then
@@ -198,9 +198,9 @@ function API:ToggleEditMode()
 end
 
 StaticPopupDialogs["CMC_ELVUI_SKINNING_ASK"] = {
-    text = "ElvUI Cooldown Manager skinning is enabled. It will conflict with Cooldown Manager Centered styling. Disable ElvUI skinning?",
-    button1 = "Yes, I will use CMC styling",
-    button2 = "No\nI want to keep using ElvUI skinning",
+    text = "ElvUI 冷卻管理器的外觀套用已啟用。它會與內建技能監控美化插件發生衝突。要停用 ElvUI 外觀套用嗎？",
+	button1 = "是，我要使用 CMC 樣式",
+	button2 = "否\n我想繼續使用 ElvUI 外觀套用",
     OnAccept = function(self, profileName)
         API:DisableElvUICDMSkinning()
         ReloadUI()
@@ -214,9 +214,9 @@ StaticPopupDialogs["CMC_ELVUI_SKINNING_ASK"] = {
 }
 
 StaticPopupDialogs["CMC_CMC_SKINNING_ASK"] = {
-    text = "Disable CMC skinning then?",
-    button1 = "Yes, disable CMC styling",
-    button2 = "No, I want to keep both",
+    text = "要停用 CMC 外觀套用嗎？",
+	button1 = "是，停用 CMC 樣式",
+	button2 = "否，我想同時保留兩者",
     OnAccept = function(self, profileName)
         ns.db.profile.cooldownManager_normalizeUtilitySize = false
         ns.db.profile.cooldownManager_squareIcons_Essential = false

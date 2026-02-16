@@ -172,36 +172,18 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
     })
 
-    SettingsLib:CreateCheckboxSlider(category, {
+    SettingsLib:CreateCheckbox(category, {
         prefix = "CMC_",
-        key = "cooldownManager_utility_dimWhenNotOnCD",
-        name = "不在冷卻中時調暗輔助技能",
-        searchtags = { "調暗", "不透明度", "淡出", "透明", "輔助", "冷卻", "隱藏", "圖示", "Dim", "Opacity", "Faded", "Transparent", "Utility", "Cooldown", "Hide", "Icons" },
-        default = false,
+        key = "tracker_enabled",
+        name = "啟用自訂|cff8ccd00監控|r|cffff0000*|r",
+        searchtags = { "Dynamic", "Alignment", "Position", "Layout", "Anchor", "Auto", "Center", "Adaptive" },
+        default = true,
         get = function()
-            return ns.db.profile.cooldownManager_utility_dimWhenNotOnCD
+            return ns.db.profile.tracker_enabled
         end,
         set = function(value)
-            ns.db.profile.cooldownManager_utility_dimWhenNotOnCD = value
-            ns.CooldownManager.ForceRefresh({ utility = true })
-        end,
-        desc = "當輔助技能不在冷卻中時，調暗其圖示。",
-
-        sliderKey = "cooldownManager_utility_dimOpacity",
-        sliderName = "調暗不透明度",
-        sliderMin = 0,
-        sliderMax = 0.9,
-        sliderStep = 0.05,
-        sliderDefault = 0.3,
-        sliderGet = function()
-            return ns.db.profile.cooldownManager_utility_dimOpacity
-        end,
-        sliderSet = function(value)
-            ns.db.profile.cooldownManager_utility_dimOpacity = value
-            ns.CooldownManager.ForceRefresh({ utility = true })
-        end,
-        sliderFormatter = function(value)
-            return string.format("%.0f%%", value * 100)
+            ns.db.profile.tracker_enabled = value
+            ns.API:ShowReloadUIConfirmation()
         end,
     })
 
@@ -217,7 +199,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         parentSection = cooldownSection,
     })
     SettingsLib:CreateButton(category, {
-        text = "開啟冷卻設定",
+        text = "開啟冷卻技能設定",
         func = function()
             if not InCombatLockdown() then
                 HideUIPanel(SettingsPanel)
@@ -229,7 +211,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         parentSection = cooldownSection,
     })
     SettingsLib:CreateText(category, {
-        name = "您可以輸入 |cfffff100/cds|r 或 |cfffff100/cdm|r 前往 |cfffff100冷卻設定|r",
+        name = "您可以輸入 |cfffff100/cds|r 或 |cfffff100/cdm|r 前往 |cfffff100冷卻技能設定|r",
     })
 
     local squareIconsSection = SettingsLib:CreateExpandableSection(category, {
@@ -829,7 +811,7 @@ local function WilduSettings_BuildCooldown(category, layout)
     )
 
     local stackNumberSection = SettingsLib:CreateExpandableSection(category, {
-        name = "技能|cffeeeeee堆疊|r層數設定",
+        name = "技能|cffeeeeee層數|r設定",
         expanded = false,
         colorizeTitle = true,
     })
@@ -854,7 +836,7 @@ local function WilduSettings_BuildCooldown(category, layout)
             ns.db.profile.cooldownManager_stackFontName = value
             ns.Stacks:OnSettingChanged()
         end,
-        desc = "選擇技能堆疊層數的字型。若可用將使用 SharedMedia 字型。",
+        desc = "選擇技能層數的字型。若可用將使用 SharedMedia 字型。",
         generator = function(dropdown, rootDescription)
             dropdown.fontPool = {}
             if not dropdown._CMC_FontFace_Dropdown_OnMenuClosed_hooked then
@@ -924,7 +906,7 @@ local function WilduSettings_BuildCooldown(category, layout)
             ns.db.profile.cooldownManager_stackFontFlags = value
             ns.Stacks:OnSettingChanged()
         end,
-        desc = "選擇技能堆疊層數的文字樣式。",
+        desc = "選擇技能層數的文字樣式。",
     })
 
     local fontSizeValues = {
@@ -1001,7 +983,7 @@ local function WilduSettings_BuildCooldown(category, layout)
 
     SettingsLib:CreateHeader(category, {
         parentSection = stackNumberSection,
-        name = "追蹤的增益圖示上的堆疊層數",
+        name = "追蹤的增益圖示上的層數",
     })
     SettingsLib:CreateCheckboxDropdown(category, {
         parentSection = stackNumberSection,
@@ -1052,7 +1034,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         parentSection = stackNumberSection,
         prefix = "CMC_",
         key = "cooldownManager_stackAnchorBuffIcons_offsetX",
-        name = "X 偏移",
+        name = "水平偏移",
         default = 0,
         min = -40,
         max = 40,
@@ -1073,7 +1055,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         parentSection = stackNumberSection,
         prefix = "CMC_",
         key = "cooldownManager_stackAnchorBuffIcons_offsetY",
-        name = "Y 偏移",
+        name = "垂直偏移",
         default = 0,
         min = -40,
         max = 40,
@@ -1093,7 +1075,7 @@ local function WilduSettings_BuildCooldown(category, layout)
 
     SettingsLib:CreateHeader(category, {
         parentSection = stackNumberSection,
-        name = "關鍵冷卻圖示上的堆疊層數",
+        name = "關鍵冷卻圖示上的層數",
     })
     SettingsLib:CreateCheckboxDropdown(category, {
         parentSection = stackNumberSection,
@@ -1144,7 +1126,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         parentSection = stackNumberSection,
         prefix = "CMC_",
         key = "cooldownManager_stackAnchorEssential_offsetX",
-        name = "X 偏移",
+        name = "水平偏移",
         default = 0,
         min = -40,
         max = 40,
@@ -1165,7 +1147,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         parentSection = stackNumberSection,
         prefix = "CMC_",
         key = "cooldownManager_stackAnchorEssential_offsetY",
-        name = "Y 偏移",
+        name = "垂直偏移",
         default = 0,
         min = -40,
         max = 40,
@@ -1185,7 +1167,7 @@ local function WilduSettings_BuildCooldown(category, layout)
 
     SettingsLib:CreateHeader(category, {
         parentSection = stackNumberSection,
-        name = "輔助冷卻圖示上的堆疊層數",
+        name = "輔助冷卻圖示上的層數",
     })
     SettingsLib:CreateCheckboxDropdown(category, {
         parentSection = stackNumberSection,
@@ -1215,7 +1197,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         dropdownValues = anchorPointValues,
         dropdownOrder = anchorPointOrder,
-        desc = "啟用並選擇輔助冷卻堆疊計數位置的對齊點。",
+        desc = "啟用並選擇輔助冷卻層數計數位置的對齊點。",
     })
 
     CreateStackFontSizeDropdown(stackNumberSection, "cooldownManager_stackFontSizeUtility", "文字大小", function()
@@ -1236,7 +1218,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         parentSection = stackNumberSection,
         prefix = "CMC_",
         key = "cooldownManager_stackAnchorUtility_offsetX",
-        name = "X 偏移",
+        name = "水平偏移",
         default = 0,
         min = -40,
         max = 40,
@@ -1257,7 +1239,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         parentSection = stackNumberSection,
         prefix = "CMC_",
         key = "cooldownManager_stackAnchorUtility_offsetY",
-        name = "Y 偏移",
+        name = "垂直偏移",
         default = 0,
         min = -40,
         max = 40,
@@ -1493,7 +1475,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         parentSection = keybindsSection,
         prefix = "CMC_",
         key = "cooldownManager_keybindOffsetX_Essential",
-        name = "X 偏移",
+        name = "水平偏移",
         default = -3,
         min = -40,
         max = 40,
@@ -1518,7 +1500,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         parentSection = keybindsSection,
         prefix = "CMC_",
         key = "cooldownManager_keybindOffsetY_Essential",
-        name = "Y 偏移",
+        name = "垂直偏移",
         default = -3,
         min = -40,
         max = 40,
@@ -1607,7 +1589,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         parentSection = keybindsSection,
         prefix = "CMC_",
         key = "cooldownManager_keybindOffsetX_Utility",
-        name = "X 偏移",
+        name = "水平偏移",
         default = -3,
         min = -40,
         max = 40,
@@ -1630,7 +1612,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         parentSection = keybindsSection,
         prefix = "CMC_",
         key = "cooldownManager_keybindOffsetY_Utility",
-        name = "Y 偏移",
+        name = "垂直偏移",
         default = -3,
         min = -40,
         max = 40,
@@ -1648,6 +1630,269 @@ local function WilduSettings_BuildCooldown(category, layout)
                 ns.Keybinds:ApplyKeybindSettings("UtilityCooldownViewer")
             end
         end,
+    })
+
+    local trackerStyleSection = SettingsLib:CreateExpandableSection(category, {
+        name = "|cffeeeeee追蹤器|r樣式",
+        expanded = false,
+        colorizeTitle = true,
+    })
+
+    local function BuildRacialsOptions()
+        local options = {}
+        local spellNameToIds = {}
+
+        for _, spellId in ipairs(ns.TrinketRacialTracker.RACIALS) do
+            local spellInfo = C_Spell.GetSpellInfo(spellId)
+            if spellInfo and spellInfo.name then
+                if not spellNameToIds[spellInfo.name] then
+                    spellNameToIds[spellInfo.name] = {
+                        ids = {},
+                        icon = spellInfo.iconID,
+                    }
+                end
+                table.insert(spellNameToIds[spellInfo.name].ids, spellId)
+            end
+        end
+
+        local sortedNames = {}
+        for name in pairs(spellNameToIds) do
+            table.insert(sortedNames, name)
+        end
+        table.sort(sortedNames)
+
+        for _, name in ipairs(sortedNames) do
+            local data = spellNameToIds[name]
+            local iconText = "|T" .. (data.icon or "Interface\\Icons\\INV_Misc_QuestionMark") .. ":16:16:0:0|t "
+            table.insert(options, {
+                value = name,
+                text = iconText .. name,
+                label = iconText .. name,
+            })
+        end
+
+        return options
+    end
+
+    SettingsLib:CreateCheckbox(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_squareIcons",
+        name = "方形圖示",
+        searchtags = { "Trinket", "Racial", "Tracker", "Square", "Icons", "Style" },
+        default = false,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_squareIcons
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_squareIcons = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+            ns.API:ShowReloadUIConfirmation()
+        end,
+        desc = "將方形圖示樣式套用到飾品、藥水與種族技能追蹤器。停用後，會改用預設的冷卻管理器遮罩 (材質 6707800)。",
+    })
+
+    SettingsLib:CreateSlider(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_borderThickness",
+        name = "邊框粗細",
+        searchtags = { "Trinket", "Racial", "Tracker", "Border", "Thickness", "Width" },
+        default = 1,
+        min = 0,
+        max = 6,
+        step = 1,
+        formatter = function(value)
+            return string.format("%.0fpx", value)
+        end,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_borderThickness or 1
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_borderThickness = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        desc = "追蹤器圖示的邊框厚度（圖示邊緣與材質之間的間距）。",
+    })
+
+    SettingsLib:CreateSlider(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_iconZoom",
+        name = "圖示縮放",
+        searchtags = { "Trinket", "Racial", "Tracker", "Zoom", "Scale", "Crop" },
+        default = 0.3,
+        min = 0,
+        max = 0.5,
+        step = 0.01,
+        formatter = function(value)
+            return string.format("%.2f", value)
+        end,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_iconZoom or 0.3
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_iconZoom = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        desc = "追蹤器圖示的縮放等級（0 = 不縮放，0.5 = 最大縮放）。",
+    })
+
+    SettingsLib:CreateHeader(category, {
+        parentSection = trackerStyleSection,
+        name = "層數數字",
+    })
+
+    local anchorPointValues = {
+		TOPLEFT = "左上",
+		TOP = "上",
+		TOPRIGHT = "右上",
+		LEFT = "左",
+		CENTER = "中央",
+		RIGHT = "右",
+		BOTTOMLEFT = "左下",
+		BOTTOM = "下",
+		BOTTOMRIGHT = "右下",
+	}
+
+    local anchorPointOrder = {
+        "TOPLEFT",
+        "TOP",
+        "TOPRIGHT",
+        "LEFT",
+        "CENTER",
+        "RIGHT",
+        "BOTTOMLEFT",
+        "BOTTOM",
+        "BOTTOMRIGHT",
+    }
+
+    SettingsLib:CreateDropdown(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_stackAnchor",
+        name = "層數位置",
+        searchtags = { "Trinket", "Racial", "Tracker", "Stack", "Anchor", "Position", "Count" },
+        default = "BOTTOMRIGHT",
+        values = anchorPointValues,
+        order = anchorPointOrder,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_stackAnchor or "BOTTOMRIGHT"
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_stackAnchor = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        desc = "追蹤器圖示上層數/計數數字的位置。",
+    })
+
+    SettingsLib:CreateSlider(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_stackFontSize",
+        name = "層數數字大小",
+        searchtags = { "Trinket", "Racial", "Tracker", "Stack", "Font", "Size", "Count" },
+        default = 14,
+        min = 8,
+        max = 32,
+        step = 1,
+        formatter = function(value)
+            return string.format("%.0f", value)
+        end,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_stackFontSize or 14
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_stackFontSize = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        desc = "追蹤器圖示上層數/計數數字的文字大小。",
+    })
+
+    SettingsLib:CreateSlider(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_stackOffsetX",
+        name = "水平偏移",
+        searchtags = { "Trinket", "Racial", "Tracker", "Stack", "Offset", "X", "Horizontal" },
+        default = -1,
+        min = -40,
+        max = 40,
+        step = 1,
+        formatter = function(value)
+            return string.format("%.0f", value)
+        end,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_stackOffsetX or -1
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_stackOffsetX = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        desc = "層數/計數數字位置的水平偏移量。",
+    })
+
+    SettingsLib:CreateSlider(category, {
+        parentSection = trackerStyleSection,
+        prefix = "CMC_",
+        key = "trinketRacialTracker_stackOffsetY",
+        name = "垂直偏移",
+        searchtags = { "Trinket", "Racial", "Tracker", "Stack", "Offset", "Y", "Vertical" },
+        default = 1,
+        min = -40,
+        max = 40,
+        step = 1,
+        formatter = function(value)
+            return string.format("%.0f", value)
+        end,
+        get = function()
+            return ns.db.profile.trinketRacialTracker_stackOffsetY or 1
+        end,
+        set = function(value)
+            ns.db.profile.trinketRacialTracker_stackOffsetY = value
+            if ns.TrinketRacialTracker then
+                ns.TrinketRacialTracker:RefreshStyling()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        desc = "層數/計數數字位置的垂直偏移量。",
+    })
+
+    SettingsLib:CreateText(category, {
+        parentSection = trackerStyleSection,
+        name = "注意：層數字體名稱與樣式會沿用整體的層數數字設定。",
     })
 
     local tweaksHeader = SettingsLib:CreateHeader(category, {
@@ -1766,8 +2011,42 @@ local function WilduSettings_BuildCooldown(category, layout)
             ns.db.profile.cooldownManager_limitUtilitySizeToEssential = value
             ns.CooldownManager.ForceRefreshAll()
         end,
-        desc = "將輔助區塊的|cffff0000最大|r寬度設定為關鍵區塊的寬度\n|cffff0000寬度不會小於 6 個圖示，或您在|r|cff87bbca編輯模式|r中設定的限制",
+        desc = "將|cffff0000最大|r輔助技能寬度設為與關鍵技能相同，它|cffff0000不會比 6 個|r圖示更窄，或比你在|cff87bbca編輯模式|r中設定的限制更窄",
     })
+
+    SettingsLib:CreateCheckboxSlider(category, {
+        prefix = "CMC_",
+        key = "cooldownManager_utility_dimWhenNotOnCD",
+        name = "在技能不處於冷卻中時使輔助技能變暗。",
+        searchtags = { "Dim", "Opacity", "Faded", "Transparent", "Utility", "Cooldown", "Hide", "Icons" },
+        default = false,
+        get = function()
+            return ns.db.profile.cooldownManager_utility_dimWhenNotOnCD
+        end,
+        set = function(value)
+            ns.db.profile.cooldownManager_utility_dimWhenNotOnCD = value
+            ns.CooldownManager.ForceRefresh({ utility = true })
+        end,
+        desc = "當冷卻圖示不在冷卻中時，將輔助技能冷卻圖示顯示為變暗。|cffff0000CPU 使用率較高|r",
+
+        sliderKey = "cooldownManager_utility_dimOpacity",
+        sliderName = "變暗透明度",
+        sliderMin = 0,
+        sliderMax = 0.9,
+        sliderStep = 0.05,
+        sliderDefault = 0.3,
+        sliderGet = function()
+            return ns.db.profile.cooldownManager_utility_dimOpacity
+        end,
+        sliderSet = function(value)
+            ns.db.profile.cooldownManager_utility_dimOpacity = value
+            ns.CooldownManager.ForceRefresh({ utility = true })
+        end,
+        sliderFormatter = function(value)
+            return string.format("%.0f%%", value * 100)
+        end,
+    })
+
     local version = C_AddOns.GetAddOnMetadata("CooldownManagerCentered", "version")
     SettingsLib:CreateText(category, {
         name = "|cffcccccc插件版本: " .. version .. "|r",
@@ -1807,370 +2086,53 @@ local function WilduSettings_BuildCooldown(category, layout)
         searchtags = { "隱藏", "光環", "實驗性", "冷卻", "增益", "減益", "Hide", "Auras", "Experimental", "Cooldowns", "Buffs", "Debuffs" },
         default = false,
         get = function()
-            return ns.db.profile.cooldownManager_experimental_hideAuras
+            -- return ns.db.profile.cooldownManager_experimental_hideAuras
+            return false
         end,
         set = function(value)
-            ns.db.profile.cooldownManager_experimental_hideAuras = value
+            -- ns.db.profile.cooldownManager_experimental_hideAuras = value
+            return false
+        end,
+        isEnabled = function()
+            return false
         end,
         desc = "在圖示上隱藏光環，始終只顯示技能的冷卻時間。|cffff0000實驗性功能，可能會導致問題！|r",
-    })
-    SettingsLib:CreateText(experimentalCategory, {
-        name = "隱藏光環，始終只顯示技能的冷卻時間",
     })
 
     SettingsLib:CreateCheckbox(experimentalCategory, {
         prefix = "CMC_",
         key = "cooldownManager_experimental_trinketRacialTracker",
-        name = "飾品、藥水與種族特長追蹤器",
-        searchtags = { "飾品", "種族", "追蹤器", "實驗性", "冷卻", "圖示", "藥水", "治療石", "Trinket", "Racial", "Tracker", "Experimental", "Cooldowns", "Icons", "Potion", "Healthstone" },
+        name = "監控飾品、藥水與種族特長",
+        searchtags = { "Trinket", "Racial", "Tracker", "Experimental", "Cooldowns", "Icons", "Potion", "Healthstone" },
         default = false,
         get = function()
-            return ns.db.profile.cooldownManager_experimental_trinketRacialTracker
+            -- return ns.db.profile.cooldownManager_experimental_trinketRacialTracker
+            return false
+        end,
+        isEnabled = function()
+            return false
         end,
         set = function(value)
-            ns.db.profile.cooldownManager_experimental_trinketRacialTracker = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:OnSettingChanged()
-            end
+            -- ns.db.profile.cooldownManager_experimental_trinketRacialTracker = value
+            -- if ns.TrinketRacialTracker then
+            --     ns.TrinketRacialTracker:OnSettingChanged()
+            -- end
         end,
         desc = "顯示一個獨立的追蹤條，用於監控飾品、藥水、治療石和種族特長的冷卻時間。|cffff0000實驗性功能，可能會導致問題！|r",
     })
     SettingsLib:CreateText(experimentalCategory, {
-        name = "在可移動的條上追蹤飾品、藥水、治療石和種族特長的冷卻時間",
+        name = "追蹤器與顯示/隱藏光環的設定，現在可以在冷卻技能設定的第三個分頁中進行調整",
     })
-
-    local trackerStyleSection = SettingsLib:CreateExpandableSection(experimentalCategory, {
-        name = "|cffeeeeee飾品追蹤器|r樣式",
-        expanded = false,
-        colorizeTitle = true,
-    })
-
-    local function BuildRacialsOptions()
-        local options = {}
-        local spellNameToIds = {}
-
-        for _, spellId in ipairs(ns.TrinketRacialTracker.RACIALS) do
-            local spellInfo = C_Spell.GetSpellInfo(spellId)
-            if spellInfo and spellInfo.name then
-                if not spellNameToIds[spellInfo.name] then
-                    spellNameToIds[spellInfo.name] = {
-                        ids = {},
-                        icon = spellInfo.iconID,
-                    }
-                end
-                table.insert(spellNameToIds[spellInfo.name].ids, spellId)
-            end
-        end
-
-        local sortedNames = {}
-        for name in pairs(spellNameToIds) do
-            table.insert(sortedNames, name)
-        end
-        table.sort(sortedNames)
-
-        for _, name in ipairs(sortedNames) do
-            local data = spellNameToIds[name]
-            local iconText = "|T" .. (data.icon or "Interface\\Icons\\INV_Misc_QuestionMark") .. ":16:16:0:0|t "
-            table.insert(options, {
-                value = name,
-                text = iconText .. name,
-                label = iconText .. name,
-            })
-        end
-
-        return options
-    end
-
-    SettingsLib:CreateMultiDropdown(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_ignoredRacials",
-        name = "忽略的種族特長",
-        customText = "顯示所有種族特長",
-        searchtags = { "飾品", "種族", "追蹤器", "忽略", "隱藏", "過濾", "Trinket", "Racial", "Tracker", "Ignore", "Hide", "Filter" },
-        defaultSelection = {},
-        optionfunc = BuildRacialsOptions,
-        getSelection = function()
-            return ns.db.profile.trinketRacialTracker_ignoredRacials or {}
-        end,
-        setSelection = function(value)
-            ns.db.profile.trinketRacialTracker_ignoredRacials = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshAll()
+    SettingsLib:CreateButton(experimentalCategory, {
+        text = "打開冷卻技能設定",
+        func = function()
+            if not InCombatLockdown() then
+                HideUIPanel(SettingsPanel)
+                C_Timer.After(0.1, function()
+                    CooldownViewerSettings:ShowUIPanel(false)
+                end)
             end
         end,
-        summary = function(selectionMap, selectedLabels)
-            if #selectedLabels == 0 then
-                return ""
-            end
-            return "忽略 " .. #selectedLabels .. " 個種族特長"
-        end,
-        desc = "選擇要從追蹤器中隱藏的種族特長。相同名稱的多個法術 ID 將全部隱藏。",
-    })
-
-    local function BuildItemsOptions()
-        local options = {}
-        local itemNameToIds = {}
-
-        for _, itemId in ipairs(ns.TrinketRacialTracker.ITEMS) do
-            local itemName = C_Item.GetItemNameByID(itemId)
-            local itemIcon = C_Item.GetItemIconByID(itemId)
-            local itemQuality = C_Item.GetItemQualityByID(itemId)
-
-            if itemName then
-                if not itemNameToIds[itemName] then
-                    itemNameToIds[itemName] = {
-                        ids = {},
-                        icon = itemIcon,
-                        quality = itemQuality,
-                    }
-                end
-                table.insert(itemNameToIds[itemName].ids, itemId)
-            end
-        end
-
-        local sortedNames = {}
-        for name in pairs(itemNameToIds) do
-            table.insert(sortedNames, name)
-        end
-        table.sort(sortedNames)
-
-        for _, name in ipairs(sortedNames) do
-            local data = itemNameToIds[name]
-            local iconText = "|T" .. (data.icon or "Interface\\Icons\\INV_Misc_QuestionMark") .. ":16:16:0:0|t "
-            table.insert(options, {
-                value = name,
-                text = iconText .. name,
-                label = iconText .. name,
-            })
-        end
-
-        return options
-    end
-
-    SettingsLib:CreateMultiDropdown(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_ignoredItems",
-        name = "忽略的物品",
-        searchtags = { "飾品", "物品", "藥水", "追蹤器", "忽略", "隱藏", "過濾", "治療石", "Trinket", "Item", "Potion", "Tracker", "Ignore", "Hide", "Filter", "Healthstone" },
-        defaultSelection = {},
-        optionfunc = BuildItemsOptions,
-        getSelection = function()
-            return ns.db.profile.trinketRacialTracker_ignoredItems or {}
-        end,
-        setSelection = function(value)
-            ns.db.profile.trinketRacialTracker_ignoredItems = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshAll()
-            end
-        end,
-        customText = "顯示所有物品",
-        summary = function(selectionMap, selectedLabels)
-            if #selectedLabels == 0 then
-                return ""
-            end
-            return "忽略 " .. #selectedLabels .. " 個物品"
-        end,
-        desc = "選擇要從追蹤器中隱藏的物品（藥水、治療石）。",
-    })
-
-    SettingsLib:CreateCheckbox(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_squareIcons",
-        name = "方形圖示",
-        searchtags = { "飾品", "種族", "追蹤器", "方形", "圖示", "樣式", "Trinket", "Racial", "Tracker", "Square", "Icons", "Style" },
-        default = false,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_squareIcons
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_squareIcons = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "將方形圖示樣式套用到飾品、藥水與種族特長追蹤器。停用時將使用預設冷卻管理員遮罩（材質 6707800）。",
-    })
-
-    SettingsLib:CreateSlider(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_borderThickness",
-        name = "邊框粗細",
-        searchtags = { "飾品", "種族", "追蹤器", "邊框", "粗細", "寬度", "Trinket", "Racial", "Tracker", "Border", "Thickness", "Width" },
-        default = 1,
-        min = 0,
-        max = 6,
-        step = 1,
-        formatter = function(value)
-            return string.format("%.0fpx", value)
-        end,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_borderThickness or 1
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_borderThickness = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "追蹤器圖示的邊框粗細（圖示邊緣與材質之間的空間）。",
-    })
-
-    SettingsLib:CreateSlider(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_iconZoom",
-        name = "圖示縮放",
-        searchtags = { "飾品", "種族", "追蹤器", "縮放", "比例", "裁切", "Trinket", "Racial", "Tracker", "Zoom", "Scale", "Crop" },
-        default = 0.3,
-        min = 0,
-        max = 0.5,
-        step = 0.01,
-        formatter = function(value)
-            return string.format("%.2f", value)
-        end,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_iconZoom or 0.3
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_iconZoom = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "追蹤器圖示的縮放等級（0 = 無縮放，0.5 = 最大縮放）。",
-    })
-
-    SettingsLib:CreateHeader(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        name = "堆疊/計數數字",
-    })
-
-    local anchorPointValues = {
-        TOPLEFT = "左上",
-        TOP = "上方",
-        TOPRIGHT = "右上",
-        LEFT = "左側",
-        CENTER = "中間",
-        RIGHT = "右側",
-        BOTTOMLEFT = "左下",
-        BOTTOM = "下方",
-        BOTTOMRIGHT = "右下",
-    }
-    local anchorPointOrder = {
-        "TOPLEFT",
-        "TOP",
-        "TOPRIGHT",
-        "LEFT",
-        "CENTER",
-        "RIGHT",
-        "BOTTOMLEFT",
-        "BOTTOM",
-        "BOTTOMRIGHT",
-    }
-
-    SettingsLib:CreateDropdown(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_stackAnchor",
-        name = "堆疊對齊點",
-        searchtags = { "飾品", "種族", "追蹤器", "堆疊", "對齊點", "位置", "計數", "Trinket", "Racial", "Tracker", "Stack", "Anchor", "Position", "Count" },
-        default = "BOTTOMRIGHT",
-        values = anchorPointValues,
-        order = anchorPointOrder,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_stackAnchor or "BOTTOMRIGHT"
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_stackAnchor = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "追蹤器圖示上堆疊/計數數字的對齊點位置。",
-    })
-
-    SettingsLib:CreateSlider(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_stackFontSize",
-        name = "堆疊文字大小",
-        searchtags = { "飾品", "種族", "追蹤器", "堆疊", "字型", "大小", "計數", "Trinket", "Racial", "Tracker", "Stack", "Font", "Size", "Count" },
-        default = 14,
-        min = 8,
-        max = 32,
-        step = 1,
-        formatter = function(value)
-            return string.format("%.0f", value)
-        end,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_stackFontSize or 14
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_stackFontSize = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "追蹤器圖示上堆疊/計數數字的文字大小。",
-    })
-
-    SettingsLib:CreateSlider(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_stackOffsetX",
-        name = "X 偏移",
-        searchtags = { "飾品", "種族", "追蹤器", "堆疊", "偏移", "X", "水平", "Trinket", "Racial", "Tracker", "Stack", "Offset", "X", "Horizontal" },
-        default = -1,
-        min = -40,
-        max = 40,
-        step = 1,
-        formatter = function(value)
-            return string.format("%.0f", value)
-        end,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_stackOffsetX or -1
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_stackOffsetX = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "堆疊/計數數字位置的水平偏移。",
-    })
-
-    SettingsLib:CreateSlider(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        prefix = "CMC_",
-        key = "trinketRacialTracker_stackOffsetY",
-        name = "Y 偏移",
-        searchtags = { "飾品", "種族", "追蹤器", "堆疊", "偏移", "Y", "垂直", "Trinket", "Racial", "Tracker", "Stack", "Offset", "Y", "Vertical" },
-        default = 1,
-        min = -40,
-        max = 40,
-        step = 1,
-        formatter = function(value)
-            return string.format("%.0f", value)
-        end,
-        get = function()
-            return ns.db.profile.trinketRacialTracker_stackOffsetY or 1
-        end,
-        set = function(value)
-            ns.db.profile.trinketRacialTracker_stackOffsetY = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
-        end,
-        desc = "堆疊/計數數字位置的垂直偏移。",
-    })
-
-    SettingsLib:CreateText(experimentalCategory, {
-        parentSection = trackerStyleSection,
-        name = "注意：堆疊字型名稱與標籤採用全域堆疊字型設定。",
     })
 end
 

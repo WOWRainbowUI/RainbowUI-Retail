@@ -60,17 +60,23 @@ function addon:RefreshConfig()
     if ns.Assistant then
         ns.Assistant:Initialize()
     end
-    if ns.Swipe then
-        ns.Swipe:Initialize()
-    end
     if ns.CooldownFont then
         ns.CooldownFont:Initialize()
     end
-    if ns.NoAuras then
-        ns.NoAuras:Initialize()
-    end
     if ns.TrinketRacialTracker then
         ns.TrinketRacialTracker:Initialize()
+    end
+    if ns.TrackerDB then
+        ns.TrackerDB:InitializeDB()
+    end
+    if ns.TrackerItemViewer then
+        ns.TrackerItemViewer:Initialize()
+    end
+    if ns.CooldownStyle then
+        ns.CooldownStyle:Initialize()
+    end
+    if ns.ButtonPress then
+        ns.ButtonPress:Initialize()
     end
 
     ns.API:RefreshCooldownManager()
@@ -97,6 +103,21 @@ local function _cleanup()
     ns.db.profile.cooldownManager_experimental_subsequentRowScaling = nil
     ns.db.profile.cooldownManager_experimental_subsequentRowScaling_Essential = nil
     ns.db.profile.cooldownManager_experimental_subsequentRowScaling_Utility = nil
+    ns.db.profile.cooldownManager_experimental_hideAuras = nil
+    if ns.db.profile.cooldownManager_experimental_trinketRacialTracker ~= nil then
+        ns.db.profile.tracker_enabled = ns.db.profile.cooldownManager_experimental_trinketRacialTracker
+        local oldTrackerPosition = ns.db.profile.editMode.trinketRacialTracker
+        for k, v in pairs(oldTrackerPosition) do
+            ns.db.profile.editMode.tracker1[k] = v
+        end
+
+        -- cleanup old settings... later
+        -- ns.db.profile.editMode.trinketRacialTracker = nil
+        -- ns.db.profile.trinketRacialTracker_position = nil
+        -- ns.db.profile.trinketRacialTracker_ignoredRacials = nil
+        -- ns.db.profile.trinketRacialTracker_ignoredItems = nil
+        ns.db.profile.cooldownManager_experimental_trinketRacialTracker = nil
+    end
 
     if ns.db.profile.cooldownManager_experimental_buttonPress ~= nil then
         ns.db.profile.cooldownManager_buttonPress = ns.db.profile.cooldownManager_experimental_buttonPress
@@ -105,6 +126,7 @@ local function _cleanup()
 end
 
 function addon:OnEnable()
+    _cleanup()
     C_CVar.SetCVar("cooldownViewerEnabled", "1")
     if ns.StyledIcons then
         ns.StyledIcons:Initialize()
@@ -121,20 +143,21 @@ function addon:OnEnable()
     if ns.Assistant then
         ns.Assistant:Initialize()
     end
-    if ns.Swipe then
-        ns.Swipe:Initialize()
-    end
     if ns.CooldownFont then
         ns.CooldownFont:Initialize()
     end
-    if ns.NoAuras then
-        ns.NoAuras:Initialize()
+    if ns.TrackerDB then
+        ns.TrackerDB:InitializeDB()
     end
-    if ns.TrinketRacialTracker then
-        ns.TrinketRacialTracker:Initialize()
+    if ns.TrackerItemViewer then
+        ns.TrackerItemViewer:Initialize()
     end
-    _cleanup()
-    ns.ButtonPress:Initialize()
+    if ns.CooldownStyle then
+        ns.CooldownStyle:Initialize()
+    end
+    if ns.ButtonPress then
+        ns.ButtonPress:Initialize()
+    end
 end
 local gameVersion = select(1, GetBuildInfo())
 addon.isMidnight = gameVersion:match("^12")

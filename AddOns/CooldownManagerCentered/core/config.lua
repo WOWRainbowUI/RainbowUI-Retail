@@ -104,9 +104,8 @@ ns.DEFAULT_SETTINGS = {
 
         cooldownManager_experimental_hideAuras = false,
         cooldownManager_experimental_enableRectangularIcons = false,
-        cooldownManager_experimental_trinketRacialTracker = false,
 
-        trinketRacialTracker_position = nil,
+        -- used for new tracker as well - legacy name
         trinketRacialTracker_squareIcons = false,
         trinketRacialTracker_borderThickness = 1,
         trinketRacialTracker_iconZoom = 0.3,
@@ -114,11 +113,17 @@ ns.DEFAULT_SETTINGS = {
         trinketRacialTracker_stackFontSize = 14,
         trinketRacialTracker_stackOffsetX = -1,
         trinketRacialTracker_stackOffsetY = 1,
-        trinketRacialTracker_ignoredRacials = {},
-        trinketRacialTracker_ignoredItems = {},
 
+        tracker_enabled = false,
+        tracker = {},
+        cooldownStyleSettings = {
+            spellSettings = {},
+        },
         editMode = {
             trinketRacialTracker = {},
+            tracker1 = {},
+            tracker2 = {},
+            tracker3 = {},
         },
     },
 }
