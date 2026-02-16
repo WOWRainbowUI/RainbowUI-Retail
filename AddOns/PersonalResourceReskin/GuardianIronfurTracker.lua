@@ -430,10 +430,7 @@ GuardianIronfurTrackerOptions = {
 }
 
 -- Register options as a standalone AceConfig page
-local AceConfig = LibStub("AceConfig-3.0")
-local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-AceConfig:RegisterOptionsTable("GuardianIronfurTracker", GuardianIronfurTrackerOptions)
-AceConfigDialog:AddToBlizOptions("GuardianIronfurTracker", "守護者鐵鬃")
+-- Moved to RegisterGuardianIronfurTrackerOptions() to only register for Druids
 
 _G.GuardianIronfurTrackerOptions = GuardianIronfurTrackerOptions
 _G.GuardianIronfurTracker_Update = UpdateSegments
@@ -503,6 +500,11 @@ end
 local optionsEventFrame = CreateFrame("Frame")
 optionsEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 optionsEventFrame:SetScript("OnEvent", function(self, event, ...)
+    local _, class = UnitClass("player")
+    if class ~= "DRUID" then
+        self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+        return
+    end
     RegisterGuardianIronfurTrackerOptions()
     if InitIronfurBar then InitIronfurBar() end
     self:UnregisterEvent("PLAYER_ENTERING_WORLD")

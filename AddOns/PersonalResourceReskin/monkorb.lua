@@ -1,4 +1,7 @@
 
+local _, class = UnitClass("player")
+if class ~= "MONK" then return end
+
 -- monkorb.lua
 -- Originally from: Enhanced Cooldown Manager by Argium, Copyright (C) 2023 Argium
 -- Modified for PersonalResourceReskin by [Ckraigfriend], 2026
@@ -258,11 +261,8 @@ end
 
 local function GetPRDPowerBar()
     local prd = _G.PersonalResourceDisplayFrame
-    if prd and prd.PowerBarsContainer and prd.PowerBarsContainer.powerBar then
-        return prd.PowerBarsContainer.powerBar
-    end
-    if _G.PersonalResourceDisplayPowerBar then
-        return _G.PersonalResourceDisplayPowerBar
+    if prd and prd.PowerBar then
+        return prd.PowerBar
     end
     return nil
 end

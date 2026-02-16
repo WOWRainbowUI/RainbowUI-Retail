@@ -30,8 +30,10 @@ end
 
 local function AnchorFrame()
     f:ClearAllPoints()
-    local anchor = _G["PersonalResourceDisplayFrame"] and _G["PersonalResourceDisplayFrame"].AlternatePowerBar and _G["PersonalResourceDisplayFrame"].AlternatePowerBar.background
-    if anchor then
+    local prd = _G["PersonalResourceDisplayFrame"]
+    local altBar = prd and prd.AlternatePowerBar
+    local anchor = altBar and altBar.background
+    if anchor and altBar:IsShown() and not IsMounted() then
         f:SetPoint("RIGHT", anchor, "RIGHT", 34, 0)
         f:Show()
     else
@@ -69,9 +71,14 @@ local function InitializeDodgeDisplay()
     f:RegisterEvent("UNIT_AURA")
     f:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
     f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+    f:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
 
     f:SetScript("OnEvent", function(self, event)
         if not IsBrewmasterMonk() then
+            f:Hide()
+            return
+        end
+        if IsMounted() then
             f:Hide()
             return
         end
