@@ -1,9 +1,10 @@
-local ADDON, T = ...
+local COMPAT, _, T = select(4,GetBuildInfo()), ...
 if T.TenEnv then T.TenEnv() end
 local XU = T.exUI
-local _assert, getWidgetData, newWidgetData, _setWidgetData, _AddObjectMethods, _CallObjectScript = XU:GetImpl()
+local SECRETS = COMPAT >= 12e4 or nil
+local _assert, getWidgetData, newWidgetData, setWidgetData, _AddObjectMethods, _CallObjectScript = XU:GetImpl()
 
-local IndicatorData, Indicator = {}, {}
+local IndicatorData, Indicator, CooldownData = {}, {}, {}
 local IndicatorProps = {
 	api=Indicator,
 	iconAspect=1,
@@ -12,20 +13,6 @@ local IndicatorProps = {
 	cdTextShown=false,
 }
 
-local gx do
-	local b = ([[Interface\AddOns\%s\gfx\]]):format(ADDON)
-	gx = {
-		BorderLow = b .. "borderlo",
-		BorderHigh = b .. "borderhi",
-		OuterGlow = b .. "oglow",
-		InnerGlow = b .. "iglow",
-		Ribbon = b .. "ribbon",
-		CooldownStar = [[Interface\cooldown\star4]],
-		CooldownSpark = b .. "spark",
-		Tri = b .. "tri",
-		IconMask = b .. "iconmask",
-	}
-end
 local darken do
 	local CSL = CreateFrame("ColorSelect")
 	function darken(r,g,b, vf, sf)
@@ -46,8 +33,7 @@ local function cooldownFormat(cd)
 	local f, n, unit = cd >= 9.95 and "%d%s" or "%.1f", cd, ""
 	if n > 86400 then n, unit = ceil(n/86400), "d"
 	elseif n > 3600 then n, unit = ceil(n/3600), "h"
-	elseif n > 89 then n, unit = ceil(n/60), "m"
-	elseif n > 60 then f, n, unit = "%d:%02d", n/60, ceil(n % 60)
+	elseif n > 90 then n, unit = ceil(n/60), "m"
 	elseif cd >= 9.95 then n = ceil(n) end
 	return f, n, unit
 end
@@ -56,6 +42,408 @@ local function adjustIconAspect(d, aspect)
 		d.iconAspect = aspect
 		local w, h = d.iconbg:GetSize()
 		d.icon:SetSize(aspect < 1 and h*aspect or w, aspect > 1 and w/aspect or h)
+	end
+end
+local CreateCooldown, CallCooldownUpdate do
+	local ninf = -math.huge
+	local AROUND_LEFT, TAU = {x=0, y=0.5}, 2*math.pi
+	local sparkPos, SPARK_CORNER_PROG do
+		local CORNER_CUT = 3.5/62
+		local CORNER_A4MIN = math.atan2(0.5-CORNER_CUT, 0.5)
+		local CORNER_A4MAX = math.atan2(0.5, 0.5-CORNER_CUT)
+		local CORNER_R = (0.5 - CORNER_CUT + CORNER_CUT^2)^0.5
+		SPARK_CORNER_PROG = 0.125-CORNER_A4MIN/TAU
+		local mcos, msin, mtan = math.cos, math.sin, math.tan
+		function sparkPos(p)
+			local a4, x, y = (p % 0.25) * TAU
+			if a4 > CORNER_A4MIN and a4 < CORNER_A4MAX then
+				x, y = mcos(a4)*CORNER_R, msin(a4)*CORNER_R
+			elseif a4 <= CORNER_A4MIN then
+				x, y = 0.5, 0.5*mtan(a4)
+			else
+				x, y = 0.5/mtan(a4), 0.5
+			end
+			if p < 0.25 then
+				x, y = y, x
+			elseif p < 0.50 then
+				x, y = x, -y
+			elseif p < 0.75 then
+				x, y = -y, -x
+			else
+				x, y = -x, y
+			end
+			return x+0.5, y+0.5
+		end
+	end
+	local Curve = SECRETS and (function()
+		local function addPoints(c, x, y, z, zz, ...)
+			if x == nil then
+				return c
+			elseif x == z then
+				c:AddPoint(z, zz)
+				z, zz = x, y
+			else
+				c:AddPoint(x, y)
+			end
+			return addPoints(c, z, zz, ...)
+		end
+		local function curve(ct, ...)
+			local c = C_CurveUtil.CreateCurve()
+			c:SetType(ct)
+			return addPoints(c, ...)
+		end
+		local function bindCurve(m, c)
+			return function(o, ...)
+				return o[m](o, c, ...)
+			end
+		end
+		local function boundCurve(m, ...)
+			return bindCurve(m, curve(...))
+		end
+		local function bp(n, t)
+			return {breakpoint=n, abbreviation="|r" .. t, abbreviationIsGlobal=false, significandDivisor=n, fractionDivisor=1}
+		end
+		local sformat = string.format
+
+		local rdQuant = curve(0, 0,0,90,90, 90,1.5,5400,90, 5400,1.5,84600,23.5, 84600,23.5/24, 8596800,99.5)
+		local rdUnit = curve(1, 0,1e1, 90,1e2, 5400,1e3, 84600,1e4)
+		local rdDecimal = curve(1, 0,1, 9.95,0)
+		local timeAbbrevConfig = {locale="US",
+			--[[ BUG[2602/12.0.1]: cannot use cached configuration here due to memory corruption
+			config=CreateAbbreviateConfig={
+			--]]breakpointData={
+				bp(1e4, "d"),
+				bp(1e3, "h"),
+				bp(1e2, "m"),
+				bp(1e1, ""),
+			}
+		}
+		local function abbrevRemainingDuration(dur)
+			local quant = dur:EvaluateRemainingDuration(rdQuant)
+			local unit = dur:EvaluateRemainingDuration(rdUnit)
+			local prec = dur:EvaluateRemainingDuration(rdDecimal)
+			return sformat("%." .. prec .. "f|cff00000%s", quant, AbbreviateNumbers(unit, timeAbbrevConfig))
+		end
+
+		local sparkX, sparkY = C_CurveUtil.CreateCurve(), C_CurveUtil.CreateCurve() do
+			local function addX(px)
+				local p2 = px >= 0.5 and (px - 0.5) or (px + 0.5)
+				sparkX:AddPoint(px, (sparkPos(px)))
+				sparkX:AddPoint(p2, (sparkPos(p2)))
+			end
+			local function addY(py)
+				local _, vy = sparkPos(py)
+				local _, vy2 = sparkPos(0.5 + py)
+				sparkY:AddPoint(py, vy)
+				sparkY:AddPoint(0.5+py, vy2)
+			end
+			for i=0, 120 do
+				local sp = i/480
+				addX((0.875 + sp) % 1)
+				addY(0.125 + sp)
+			end
+			for i=1, 2 do
+				addX(0.125+SPARK_CORNER_PROG/i)
+				addX(0.875-SPARK_CORNER_PROG/i)
+				addY(0.125-SPARK_CORNER_PROG/i)
+				addY(0.375+SPARK_CORNER_PROG/i)
+			end
+		end
+
+		return {
+			AbbrevRemainingDuration=abbrevRemainingDuration,
+			ZeroRemainingDurationAlpha=boundCurve("EvaluateRemainingDuration", 1, 0,0, 2^-40,1),
+			CooldownSpiralAngle=boundCurve("EvaluateRemainingPercent", 0, 0,0, 1,2*math.pi),
+			MaskedBorder={
+				boundCurve("EvaluateRemainingPercent", 1, 0,0,  0.50,1.00),
+				boundCurve("EvaluateRemainingPercent", 1, 0,0, 2^-20,1.00, 0.50,0),
+				boundCurve("EvaluateRemainingPercent", 1, 0,0,  0.50,0.45),
+				boundCurve("EvaluateRemainingPercent", 1, 0,0, 2^-20,0.45, 0.50,0),
+			},
+			RestBorder={
+				boundCurve("EvaluateRemainingPercent", 1, 0,0, 0.50,0),
+				boundCurve("EvaluateRemainingPercent", 1, 0,0, 0.50,1),
+				boundCurve("EvaluateRemainingPercent", 1, 0,0, 0.50,0),
+				boundCurve("EvaluateRemainingPercent", 1, 0,0, 0.50,0.45),
+			},
+			MaskedVeil={
+				boundCurve("EvaluateRemainingPercent", 1, 0,0,  0.50,0.85),
+				boundCurve("EvaluateRemainingPercent", 1, 0,0, 2^-20,0.85, 0.50,0),
+				boundCurve("EvaluateRemainingPercent", 1, 0,0,  0.50,0.25),
+				boundCurve("EvaluateRemainingPercent", 1, 0,0, 2^-20,0.25, 0.50,0),
+			},
+			RestVeil={
+				boundCurve("EvaluateRemainingPercent", 1, 0,0, 0.50,0),
+				boundCurve("EvaluateRemainingPercent", 1, 0,0, 0.50,0.85),
+				boundCurve("EvaluateRemainingPercent", 1, 0,0, 0.50,0),
+				boundCurve("EvaluateRemainingPercent", 1, 0,0, 0.50,0.25),
+			},
+			SparkX=bindCurve("EvaluateElapsedPercent", sparkX),
+			SparkY=bindCurve("EvaluateElapsedPercent", sparkY),
+		}
+	end)()
+	local function cdMarkSecret(d)
+		d.secretMode = 1
+		local spark, s0, s1, s2 = d.spark, d, d.sst1, d.sst2
+		for i=1, 4 do
+			s0[i]:Show()
+			s1[i]:Show()
+			s2[i]:Show()
+		end
+		spark:Show()
+		spark:SetAlpha(0)
+		spark:ClearAllPoints()
+		spark:SetPoint("CENTER", d.sparkYT, "TOPLEFT")
+	end
+	local function cdClearSecret(d)
+		local s2 = d.sst2
+		d.secretMode, d.pos, d.updateCooldown = nil
+		d.parentControl.rcText:SetText("")
+		d.spark:SetAlpha(1)
+		d.parentControl.veil:SetAlpha(d.parentControl.ustate == 0 and 0 or 0.40)
+		for i=1, 4 do
+			s2[i]:SetAlpha(0)
+		end
+	end
+	local function cdOnUpdate_Secret(d, _elapsed)
+		if d.secretMode ~= 1 then
+			cdMarkSecret(d)
+		end
+		local ev = C_CurveUtil.EvaluateColorValueFromBoolean
+		local qf, hintID, pd, s0, s1, s2 = d.hintQF, d.hintID, d.parentControl, d, d.sst1, d.sst2
+		local showRC, rcAlpha, chargeSpark, usable = pd.rcTextShown, 1, false, d.usable
+		local dur = qf(hintID, "cooldownDuration")
+		local cdur = qf(hintID, "chargeDuration")
+		local MaskBorder, MaskVeil = Curve.MaskedBorder, Curve.MaskedVeil
+		local RestBorder, RestVeil = Curve.RestBorder, Curve.RestVeil
+		if dur then
+			local zero = dur:IsZero()
+			if pd.cdTextShown then
+				pd.cdText:SetText(Curve.AbbrevRemainingDuration(dur))
+				pd.cdText:SetAlpha(ev(zero, 0, 1))
+				rcAlpha = showRC and ev(zero, 1, 0) or rcAlpha
+			else
+				pd.cdText:SetText("")
+			end
+			s1.mask:SetRotation(Curve.CooldownSpiralAngle(dur), AROUND_LEFT)
+			pd.veil:SetAlpha(usable and ev(zero, 0, 0.40) or 0.40)
+			for i=1, 2 do
+				local j = i+2
+				s1[i]:SetAlpha(MaskBorder[i](dur))
+				s1[j]:SetAlpha(MaskVeil[i](dur))
+				s0[i]:SetAlpha(RestBorder[i](dur))
+				s0[j]:SetAlpha(RestVeil[i](dur))
+			end
+			chargeSpark = zero
+		else
+			chargeSpark = true
+			pd.veil:SetAlpha(0)
+			for i=1,4 do
+				s0[i]:SetAlpha(0)
+				s1[i]:SetAlpha(0)
+			end
+		end
+		showRC = showRC and cdur ~= nil
+		pd.rcText:SetText(showRC and Curve.AbbrevRemainingDuration(cdur) or "")
+		pd.rcText:SetAlpha(showRC and Curve.ZeroRemainingDurationAlpha(cdur) or 0)
+		pd.rcContainer:SetAlpha(rcAlpha)
+		if cdur then
+			d.spark:Show()
+			local chargeAlpha = Curve.ZeroRemainingDurationAlpha(cdur)
+			d.spark:SetAlpha(usable and ev(chargeSpark, chargeAlpha, 0) or 0)
+			d.sparkX:SetValue(Curve.SparkX(cdur))
+			d.sparkY:SetValue(Curve.SparkY(cdur))
+			for i=1,2 do
+				local j = 2+i
+				local k = j
+				local s0b, s0v = s0[i], s0[j]
+				local s1b, s1v = s1[i], s1[j]
+				s0b:SetAlphaFromBoolean(chargeSpark, RestBorder[k](cdur), s0b:GetAlpha())
+				s0v:SetAlphaFromBoolean(chargeSpark, RestVeil[k](cdur), s0v:GetAlpha())
+				s1b:SetAlphaFromBoolean(chargeSpark, 0, s1b:GetAlpha())
+				s1v:SetAlphaFromBoolean(chargeSpark, 0, s1v:GetAlpha())
+				s2[i]:SetAlphaFromBoolean(chargeSpark, MaskBorder[k](cdur), 0)
+				s2[j]:SetAlphaFromBoolean(chargeSpark, MaskVeil[k](cdur), 0)
+			end
+			s2.mask:SetRotation(Curve.CooldownSpiralAngle(cdur), AROUND_LEFT)
+		else
+			d.spark:SetAlpha(0)
+			for i=1,4 do
+				s2[i]:SetAlpha(0)
+			end
+		end
+	end
+	local function cdOnUpdate(self, elapsed)
+		local d = getWidgetData(self, CooldownData)
+		if d.hintID then
+			d.updateCooldown = 0
+			return cdOnUpdate_Secret(d, elapsed)
+		elseif d.secretMode then
+			cdClearSecret(d)
+		end
+		local ucd, expire, time = d.updateCooldown or 0, d.expire or ninf, GetTime()
+		if ucd > elapsed and time < expire then
+			d.updateCooldown = ucd - elapsed
+			return
+		end
+		d.updateCooldown = d.updateCooldownStep
+
+		local duration, progress = d.duration or 0, expire - time
+		if progress >= duration or duration == 0 then
+			self:Hide()
+			return
+		end
+		local s0, s1 = d, d.sst1
+		progress = progress < 0 and 0 or (1 - progress/duration)
+		local pos = progress >= 0.5 and 2 or 1
+		for i=1, d.pos ~= pos and 2 or 0 do
+			local j = i+2
+			s0[i]:SetShown(i > pos)
+			s0[j]:SetShown(i > pos)
+			s1[i]:SetShown(i == pos)
+			s1[j]:SetShown(i == pos)
+		end
+		d.pos = pos
+		s1.mask:SetRotation((1-progress)*TAU, AROUND_LEFT)
+
+		local sx, sy = sparkPos(progress)
+		d.spark:SetPoint("CENTER", self, "CENTER", 45*(sx-0.5), 45*(sy-0.5))
+	end
+	local function cdSetVeilShown(d, shown)
+		local s1, s2 = d.sst1, d.sst2
+		for i=3, 4 do
+			 d[i]:SetShown(shown)
+			s1[i]:SetShown(shown)
+			s2[i]:SetShown(shown)
+		end
+	end
+	local function cdOnHide(self)
+		local d = getWidgetData(self, CooldownData)
+		local toExpire = GetTime() - (d.expire or 0)
+		d.expire, d.pos, d.hintID, d.hintQF = nil
+		cdSetVeilShown(d, false)
+		d.self:Hide()
+		d.spark:Hide()
+		if -0.1 < toExpire and toExpire < 0.25 then
+			d.flashAG:Play()
+		end
+	end
+	local function cdOnShow(self)
+		local d = getWidgetData(self, CooldownData)
+		cdSetVeilShown(d, true)
+		d.pos = nil -- Forces quad texture update
+		return cdOnUpdate(self, 0)
+	end
+	function CallCooldownUpdate(d)
+		local self = d.self
+		d.updateCooldown = nil
+		self:Show()
+		if d.updateCooldown == nil then
+			return cdOnUpdate(self, 0)
+		end
+	end
+	local function maybeAddMask(tex, mask)
+		return mask and tex:AddMaskTexture(mask)
+	end
+	local function createSpiralOverlay(cd, parent, d, borderTex, white128, scale, mask, iconmask)
+		local w, l
+		if mask then
+			w = parent:CreateMaskTexture()
+			w:SetTexture(white128, 'CLAMPTOBLACKADDITIVE', 'CLAMPTOBLACKADDITIVE', 'NEAREST')
+			w:SetSize(34*scale, 68*scale)
+			w:SetPoint("LEFT", parent, "CENTER")
+			d.mask, mask = w, w
+		end
+		for i=1,2 do
+			w = cd:CreateTexture(nil, "ARTWORK", nil, 2)
+			l, d[i] = i == 2, w
+			w:SetTexture(borderTex)
+			w:SetSize(24, 48)
+			w:SetTexCoord(l and 0 or 0.5, l and 0.5 or 1, 0, 1)
+			w:SetPoint(l and "RIGHT" or "LEFT", cd, "CENTER")
+			maybeAddMask(w, mask)
+			w:Hide()
+			w = parent:CreateTexture(nil, "ARTWORK", nil, 4)
+			w:SetColorTexture(1,1,1)
+			w:SetPoint(l and "RIGHT" or "LEFT", cd, "CENTER")
+			w:SetSize(21*scale, 42*scale)
+			maybeAddMask(w, mask)
+			maybeAddMask(w, iconmask)
+			w:Hide()
+			d[2+i] = w
+		end
+		return d
+	end
+	function CreateCooldown(parent, size, overParent, gx, pd, iconmask)
+		local cd, scale = CreateFrame("Frame", nil, parent), size * 87/4032
+		local d, w, b = setWidgetData(cd, CooldownData, {self=cd, parent=parent, parentControl=pd, secretMode=0})
+		cd:SetScale(size/48)
+		cd:SetAllPoints()
+		cd:SetScript("OnShow", cdOnShow)
+		cd:SetScript("OnHide", cdOnHide)
+		cd:SetScript("OnUpdate", cdOnUpdate)
+		w = (overParent or cd):CreateTexture(nil, "OVERLAY", nil, 2)
+		w:SetTexture(gx.CooldownSpark)
+		w:SetSize(24,24)
+		w, d.spark = w:CreateAnimationGroup(), w
+		w:SetLooping("REPEAT")
+		b = w:CreateAnimation("Rotation")
+		b:SetDegrees(90)
+		b:SetDuration(1/3)
+		w:Play()
+
+		w = parent:CreateTexture(nil, "OVERLAY")
+		w:SetSize(size*60/64, size*60/64)
+		w:SetPoint("CENTER")
+		w:SetTexture(gx.CooldownStar)
+		w:SetBlendMode("ADD")
+		w:SetAlpha(0)
+		w, d.flash = w:CreateAnimationGroup(), w
+		b, d.flashAG = w:CreateAnimation("ROTATION"), w
+		b:SetDuration(1/2)
+		b:SetDegrees(-90)
+		b = w:CreateAnimation("Alpha")
+		b:SetFromAlpha(0)
+		b:SetToAlpha(0.7)
+		b:SetDuration(1/8)
+		b = w:CreateAnimation("Alpha")
+		b:SetFromAlpha(0.7)
+		b:SetToAlpha(0)
+		b:SetDuration(1/8)
+		b:SetStartDelay(3/8)
+
+		createSpiralOverlay(cd, parent, d, gx.BorderLow, gx.White128, scale, false, iconmask)
+		local s1 = createSpiralOverlay(cd, parent, {}, gx.BorderLow, gx.White128, scale, true, iconmask)
+		local s2 = createSpiralOverlay(cd, parent, {}, gx.BorderLow, gx.White128, scale, true, iconmask)
+		for i=1, 4 do
+			s2[i]:SetAlpha(0)
+		end
+		d.sst1, d.sst2 = s1, s2
+
+		if SECRETS then
+			local c = (overParent or cd):CreateTexture()
+			c:SetSize(45, 45)
+			c:SetPoint("CENTER")
+			local cd, w, mx, my = d.self
+			for i=1, 2 do
+				w = CreateFrame("StatusBar", nil, cd)
+				w:SetScale(2^-15)
+				w:SetMinMaxValues(0, 1)
+				w:SetValue(0.5)
+				w:SetStatusBarTexture("Interface/Buttons/White8x8")
+				w:SetAlpha(0)
+				my, mx = w, my
+			end
+			mx:SetHeight(1)
+			mx:SetPoint("LEFT", c, "BOTTOMLEFT")
+			mx:SetPoint("RIGHT", c, "BOTTOMRIGHT")
+			my:SetWidth(1)
+			my:SetOrientation("VERTICAL")
+			my:SetPoint("BOTTOMLEFT", mx:GetStatusBarTexture(), "RIGHT", 0, 0)
+			my:SetPoint("TOP", c)
+			d.sparkX, d.sparkY, d.sparkYT = mx, my, my:GetStatusBarTexture()
+		end
+		return cd, d
 	end
 end
 
@@ -105,19 +493,27 @@ end
 function Indicator:SetDominantColor(r,g,b)
 	local d = getWidgetData(self, IndicatorData)
 	r, g, b = r or 1, g or 1, b or 0.6
-	local cd, r2, g2, b2 = d.cd, darken(r,g,b, 0.20)
+	local cdd, r2, g2, b2 = d.cdControl, darken(r,g,b, 0.20)
 	local r3, g3, b3 = darken(r,g,b, 0.10, 0.50)
+	local s1, s2 = cdd.sst1, cdd.sst2
 	d.hiEdge:SetVertexColor(r, g, b)
 	d.iglow:SetVertexColor(r, g, b)
 	d.oglow:SetVertexColor(r, g, b)
 	d.edge:SetVertexColor(darken(r,g,b, 0.80))
 	d.cdText:SetTextColor(r, g, b)
-	d.cdSpark:SetVertexColor(r, g, b)
-	for i=1,4 do
-		cd[i]:SetVertexColor(r2, g2, b2)
-		cd[i+4]:SetVertexColor(r3, g3, b3)
+	d.rcText:SetTextColor(r, g, b)
+	cdd.spark:SetVertexColor(r, g, b)
+	for i=1,2 do
+		local j = i+2
+		cdd[i]:SetVertexColor(r2, g2, b2)
+		cdd[j]:SetVertexColor(r3, g3, b3)
+		if s1 then
+			s1[i]:SetVertexColor(r2, g2, b2)
+			s1[j]:SetVertexColor(r3, g3, b3)
+			s2[i]:SetVertexColor(r2, g2, b2)
+			s2[j]:SetVertexColor(r3, g3, b3)
+		end
 	end
-	cd[9]:SetVertexColor(r3, g3, b3)
 end
 function Indicator:SetOverlayIcon(tex, w, h, ...)
 	local oi = getWidgetData(self, IndicatorData).overIcon
@@ -143,33 +539,43 @@ function Indicator:SetBinding(binding)
 	binding = binding and GetBindingText(binding, 1) or ""
 	getWidgetData(self, IndicatorData).key:SetText(binding)
 end
-function Indicator:SetCooldown(remain, duration, usable)
+function Indicator:SetCooldown(remain, duration, usableCharge)
 	local d = getWidgetData(self, IndicatorData)
-	d.cooldownHintID = nil
+	local cdd = d.cdControl
+	cdd.hintID, cdd.hintQF = nil
 	if (duration or 0) <= 0 or (remain or 0) <= 0 then
 		d.cd:Hide()
 		d.cdText:SetText("")
 	else
 		local now = GetTime()
-		local expire, usable, cd = now + remain, not not usable, d.cd
-		local td = expire - (cd.expire or 0)
-		if td < -0.05 or td > 0.05 then
-			cd.duration, cd.expire, cd.updateCooldownStep, cd.updateCooldown = duration, expire, duration/1536/d.self:GetEffectiveScale()
-			cd:Show()
-			d.cdSpark:SetShown(usable)
+		local expire, usable = now + remain, not not usableCharge
+		local td, showSpark, secret = expire - (cdd.expire or 0), usable and d.ustate == 0, cdd.secretMode
+		if td < -0.05 or td > 0.05 or secret then
+			cdd.duration, cdd.expire, cdd.updateCooldownStep, cdd.updateCooldown = duration, expire, duration/1536/d.self:GetEffectiveScale()
+			cdd.spark:SetShown(showSpark)
 		end
-		if d.cdUsable ~= usable then
-			d.cdUsable = usable
-			for i=1,4 do cd[i]:SetAlpha(usable and 0.45 or 1) end
-			for i=5,9 do cd[i]:SetAlpha(usable and 0.25 or 0.85) end
-			d.cdSpark:SetShown(usable)
+		if cdd.usable ~= usable or secret then
+			cdd.usable = usable
+			local s0, s1, s2 = cdd, cdd.sst1, cdd.sst2
+			for i=1,2 do
+				local j = 2+i
+				s0[i]:SetAlpha(usable and 0.45 or 1)
+				s0[j]:SetAlpha(usable and 0.25 or 0.85)
+				s1[i]:SetAlpha(usable and 0.45 or 1)
+				s1[j]:SetAlpha(usable and 0.25 or 0.85)
+				s2[i]:SetAlpha(0)
+				s2[j]:SetAlpha(0)
+			end
+			cdd.spark:SetShown(showSpark)
 		end
 		local gcS, gcL = GetSpellCooldown(61304)
-		if (duration ~= gcL or gcS+gcL-now < remain) and d[usable and "rcTextShown" or "cdTextShown"] then
+		if (duration ~= gcL or gcS+gcL-now < remain) and d[usableCharge and "rcTextShown" or "cdTextShown"] then
 			d.cdText:SetFormattedText(cooldownFormat(remain))
+			d.cdText:SetAlpha(1)
 		else
 			d.cdText:SetText("")
 		end
+		CallCooldownUpdate(cdd)
 	end
 end
 function Indicator:SetCooldownTextShown(cooldownShown, rechargeShown)
@@ -207,177 +613,17 @@ function Indicator:SetQualityOverlay(qual)
 end
 function Indicator:SetCooldownPH(hintID, qf, _holdCount)
 	local d = getWidgetData(self, IndicatorData)
-	local dur = d.ustate == 0 and qf(hintID, "cooldownDuration")
-	d.cooldownHintID = hintID
-	if dur then
-		d.veil:SetAlpha(C_CurveUtil.EvaluateColorValueFromBoolean(dur:IsZero(), 0, 0.40))
-		d.cd:Hide()
-		d.cdText:SetText("")
-	end
+	local cdd = d.cdControl
+	cdd.hintID, cdd.hintQF, cdd.usable, cdd.expire = hintID, qf, d.ustate == 0, nil
+	CallCooldownUpdate(cdd)
 end
 
-local CreateCooldown do
-	local function cdOnUpdate(self, elapsed)
-		local ucd, expire, time = self.updateCooldown or 0, self.expire or 0, GetTime()
-		if ucd > elapsed and time < expire then
-			self.updateCooldown = ucd - elapsed
-			return
-		end
-		self.updateCooldown = self.updateCooldownStep
-		local duration, progress = self.duration or 0, expire - time
-
-		if progress >= duration or duration == 0 then
-			self:Hide()
-		else
-			progress = progress < 0 and 0 or (1 - progress/duration)
-			local tri, pos, sp, pp, scale = self[9], 1+4*(progress - progress % 0.25), progress % 0.25 >= 0.125, (progress % 0.125) * 8, self.scale
-			if self.pos ~= pos then
-				for i=1,4 do
-					self[i]:SetShown(i >= pos)
-					self[4+i]:SetShown(i > pos or (i == pos and not sp))
-					if i > pos then
-						self[i]:SetSize(24, 24)
-						local l, t = i > 2, i == 1 or i == 4
-						self[i]:SetTexCoord(l and 0 or 0.5, l and 0.5 or 1, t and 0 or 0.5, t and 0.5 or 1)
-						self[4+i]:SetSize(21*scale, 21*scale)
-					end
-				end
-				tri:ClearAllPoints()
-				tri:SetPoint((pos % 4 < 2 and "BOTTOM" or "TOP") .. (pos < 3 and "LEFT" or "RIGHT") , self, "CENTER")
-				local iH, iV = pos == 2 or pos == 3, pos > 2
-				tri:SetTexCoord(iH and 1 or 0, iH and 0 or 1, iV and 1 or 0, iV and 0 or 1)
-				self.pos = pos
-			end
-
-			local l, r, inv = sp and 21 or (pp * 21), 21 - (sp and pp * 21 or 0), pos == 2 or pos == 4
-			l, r = l > 0 and l or 0.00000001, r > 0 and r or 0.00000001
-			tri:SetSize((inv and r or l)*scale, (inv and l or r)*scale)
-
-			local chunk, shrunk = self[4+pos], 21 - 21*pp
-			chunk:SetSize((inv and 21 or shrunk)*scale, (inv and shrunk or 21)*scale)
-			chunk:SetShown(not sp or pp >= 0.9999)
-
-			local p1, p2, e, p1a, p2a = sp and 1 or pp, sp and pp or 0, self[pos]
-			if p1 > 0.9 and p2 < 0.1 then
-				p1a = 0.9 + (p1 + p2 - 0.9)/2
-				p2a = 1-(1.81 - p1a*p1a)^0.5
-			else
-				p1a, p2a = p1, p2
-			end
-			if p2 > 0.5 then
-			elseif p2 > 0.06 then
-				p2 = 0.20 + (p2 - 0.06)*30/44
-			elseif p1 > 0.96 then
-				p1, p2 = 1, (p2 + p1 - 0.96) * 2
-			elseif p1 > 0.56 then
-				p1 = p1 + (p1 - 0.56)*0.1
-			end
-			local p1c, p2c = 24 - 21*p1, 24 - 24*p2
-			e:SetSize(inv and p2c or p1c, inv and p1c or p2c)
-			if pos == 1 then
-				e:SetTexCoord(0.5 + 28/64*p1, 1, 0.5*p2, 0.5)
-				self.spark:SetPoint("CENTER", self, "TOP", 22.5 * p1a, -22.5*p2a-1.5)
-			elseif pos == 2 then
-				e:SetTexCoord(0.5, 1-0.5*p2, 0.5 + 28/64*p1, 1)
-				self.spark:SetPoint("CENTER", self, "RIGHT", -22.5*p2a-1.5, -22.5*p1a)
-			elseif pos == 3 then
-				e:SetTexCoord(0, 0.5 - 28/64*p1, 0.5, 1 - 0.5*p2)
-				self.spark:SetPoint("CENTER", self, "BOTTOM", -22.5 * p1a, 1.5+22.5*p2a)
-			else
-				e:SetTexCoord(0.5*p2, 0.5, 0, 0.5 - 28/64*p1)
-				self.spark:SetPoint("CENTER", self, "LEFT", 1.5+22.5*p2a, 22.5*p1a)
-			end
-			if p2 >= 0.9999 then
-				e:Hide()
-			end
-		end
-	end
-	local function cdOnHide(self)
-		local toExpire = GetTime() - (self.expire or 0)
-		self.expire, self.pos = nil
-		for i=5,9 do self[i]:Hide() end
-		if -0.1 < toExpire and toExpire < 0.25 then
-			self.flashAG:Play()
-		end
-		self:Hide()
-		self.spark:Hide()
-	end
-	local function cdOnShow(self)
-		self[9]:Show()
-		self.pos = nil -- Forces quad texture update; probably redundant with onHide
-		return cdOnUpdate(self, 0)
-	end
-	function CreateCooldown(parent, size, overParent)
-		local cd, scale, b = CreateFrame("Frame", nil, parent), size * 87/4032
-		local w, cdText, cdSpark
-		cd:SetScale(size/48)
-		cd:SetAllPoints()
-		cd:SetScript("OnShow", cdOnShow)
-		cd:SetScript("OnHide", cdOnHide)
-		cd:SetScript("OnUpdate", cdOnUpdate)
-		w, cd.scale = cd:CreateFontString(nil, "OVERLAY", "GameFontNormalLargeOutline"), scale
-		w:SetPoint("CENTER")
-		w, cdText = (overParent or cd):CreateTexture(nil, "OVERLAY", nil, 2), w
-		w:SetTexture(gx.CooldownSpark)
-		w:SetSize(24,24)
-		w, cd.spark, cdSpark = w:CreateAnimationGroup(), w, w
-		w:SetLooping("REPEAT")
-		b = w:CreateAnimation("Rotation")
-		b:SetDegrees(90)
-		b:SetDuration(1/3)
-		w:Play()
-		
-		w = parent:CreateTexture(nil, "OVERLAY")
-		w:SetSize(60*size/64, 60*size/64)
-		w:SetPoint("CENTER")
-		w:SetTexture(gx.CooldownStar)
-		w:SetBlendMode("ADD")
-		w:SetAlpha(0)
-		w, cd.flash = w:CreateAnimationGroup(), w
-		b, cd.flashAG = w:CreateAnimation("ROTATION"), w
-		b:SetDuration(1/2)
-		b:SetDegrees(-90)
-		b = w:CreateAnimation("Alpha")
-		b:SetFromAlpha(0)
-		b:SetToAlpha(0.7)
-		b:SetDuration(1/8)
-		b = w:CreateAnimation("Alpha")
-		b:SetFromAlpha(0.7)
-		b:SetToAlpha(0)
-		b:SetDuration(1/8)
-		b:SetStartDelay(3/8)
-		
-		for i=1,4 do
-			cd[i] = cd:CreateTexture(nil, "ARTWORK")
-			cd[i]:SetTexture(gx.BorderLow)
-		end
-		cd[1]:SetPoint("BOTTOMRIGHT", cd, "RIGHT")
-		cd[2]:SetPoint("BOTTOMLEFT", cd, "BOTTOM")
-		cd[3]:SetPoint("TOPLEFT", cd, "LEFT")
-		cd[4]:SetPoint("TOPRIGHT", cd, "TOP")
-		for i=1,4 do
-			w = parent:CreateTexture(nil, "ARTWORK", nil, 3)
-			w:SetColorTexture(1,1,1)
-			w:SetPoint((i % 4 < 2 and "TOP" or "BOTTOM") .. (i < 3 and "RIGHT" or "LEFT"), cd, "CENTER", (i < 3 and 21 or -21)*scale, (i % 4 < 2 and 21 or -21)*scale)
-			cd[4+i] = w
-		end
-		cd[9] = parent:CreateTexture(nil, "ARTWORK", nil, 3)
-		cd[9]:SetTexture(gx.Tri)
-		
-		return cd, cdText, cdSpark
-	end
-end
-
-local function CreateIndicator(name, parent, size, nested)
+local function CreateIndicator(name, parent, size, nested, gx)
 	local cf, d, w, ef = CreateFrame("Frame", name, parent)
 		cf:SetSize(size, size)
 	d = newWidgetData(cf, IndicatorData, IndicatorProps)
 	ef = CreateFrame("Frame", nil, cf)
 		ef:SetAllPoints()
-	w = CreateFrame("Frame", nil, cf)
-		w:SetAllPoints()
-		w:SetFrameLevel(ef:GetFrameLevel()+5)
-	d.cd, d.cdText, d.cdSpark = CreateCooldown(ef, size, w)
 	w = ef:CreateTexture(nil, "OVERLAY")
 		w:SetAllPoints()
 		w:SetTexture(gx.BorderLow)
@@ -397,7 +643,22 @@ local function CreateIndicator(name, parent, size, nested)
 		w:SetPoint("CENTER")
 		w:SetSize(60*size/64, 60*size/64)
 		w:SetColorTexture(0.15, 0.15, 0.15, 0.85)
-	w, d.iconbg = ef:CreateTexture(nil, "ARTWORK", nil, 2), w
+	w, d.iconbg = ef:CreateMaskTexture(), w
+		w:SetTexture(gx.IconMask)
+		w:SetAllPoints()
+		d.icon:AddMaskTexture(w)
+		d.iconbg:AddMaskTexture(w)
+	w, d.iconmask = CreateFrame("Frame", nil, cf), w
+		w:SetAllPoints()
+		w:SetFrameLevel(ef:GetFrameLevel()+5)
+	d.cd, d.cdControl = CreateCooldown(ef, size, w, gx, d, d.iconmask)
+	w = CreateFrame("Frame", nil, d.cd)
+		w:SetAllPoints()
+	w, d.rcContainer = w:CreateFontString(nil, "OVERLAY", "GameFontNormalLargeOutline"), w
+		w:SetPoint("CENTER")
+	w, d.rcText = d.cd:CreateFontString(nil, "OVERLAY", "GameFontNormalLargeOutline"), w
+		w:SetPoint("CENTER")
+	w, d.cdText = ef:CreateTexture(nil, "ARTWORK", nil, 2), w
 		w:SetSize(60*size/64, 60*size/64)
 		w:SetPoint("CENTER")
 		w:SetColorTexture(0,0,0)
@@ -405,7 +666,7 @@ local function CreateIndicator(name, parent, size, nested)
 		w:SetAllPoints()
 		w:SetTexture(gx.Ribbon)
 		w:Hide()
-	w, d.ribbon = ef:CreateTexture(nil, "ARTWORK", nil, 4), w
+	w, d.ribbon = ef:CreateTexture(nil, "ARTWORK", nil, 5), w
 		w:SetPoint("BOTTOMLEFT", 4, 4)
 	w, d.overIcon = ef:CreateFontString(nil, "OVERLAY", "NumberFontNormal"), w
 		w:SetJustifyH("RIGHT")
@@ -429,11 +690,7 @@ local function CreateIndicator(name, parent, size, nested)
 		w:SetPoint("TOPLEFT", 4, -4)
 		w:SetSize(14,14)
 		w:Hide()
-	w, d.qualityMark = ef:CreateMaskTexture(), w
-		w:SetTexture(gx.IconMask)
-		w:SetAllPoints()
-		d.icon:AddMaskTexture(w)
-		d.iconMask = w
+	d.qualityMark = w
 	return cf
 end
 
