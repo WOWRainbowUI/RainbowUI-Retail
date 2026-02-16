@@ -1,0 +1,18 @@
+## Interface: 120001
+## Title: |cffC69B6DBloodlustPump|r
+## Notes: Lightweight Baby! Workout motivation for pumpers.
+## Author: Kongscandikk
+## Version: 1.0.5
+## SavedVariables: BloodlustpumpDB
+## IconTexture: Interface\AddOns\BloodlustPump\Images\icon
+
+# -----------------------------------------------------------------
+# 100% Vibecoded by Kongscandikk
+# Twitch: https://www.twitch.tv/kongscandikk
+# -----------------------------------------------------------------
+
+## Title-zhTW: |cffFF2D2D[戰鬥]|r 嗜血引擎
+## Notes-zhTW: |cffC69B6DBloodlustPump|r |n會在你觸發嗜血、英勇、時間扭曲、狂暴飾品觸發或其他加速爆發時，自動播放激勵動畫與音效，讓你在最關鍵的秒數裡保持專注與激情。它不僅是數值追蹤器，更是一個 '戰鬥氛圍加速器'。|n|cffffd200使用方法：|r從Esc>介面>插件>嗜血音樂，進行設定。
+## Category-zhTW: 戰鬥
+ 
+BloodLustPump.lua

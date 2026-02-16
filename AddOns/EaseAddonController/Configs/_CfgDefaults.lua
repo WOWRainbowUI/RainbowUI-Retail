@@ -301,6 +301,25 @@ D["BlizzMove"] = {
 		text = "移動視窗: 按住左鍵拖曳視窗標題，或拖曳視窗內沒有功能的地方來移動位置。\n\n縮放視窗: 按住 Ctrl 在視窗標題列上滾動滑鼠滾輪。\n\n重置位置: 按住 Shift 在視窗標題列上點右鍵。\n\n重置縮放: 按住 Ctrl 在視窗標題列上點右鍵。\n",
 	},
 };
+D["BloodlustPump"] = {
+	defaultEnable = 1,
+	tags = { "COMBAT" }, 
+	title = "嗜血引擎",
+	desc = "會在你觸發嗜血、英勇、時間扭曲、狂暴飾品觸發或其他加速爆發時，自動播放激勵動畫與音效，讓你在最關鍵的秒數裡保持專注與激情。它不僅是數值追蹤器，更是一個 '戰鬥氛圍加速器'。`",
+	modifier = "彩虹ui",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["BLOODLUSTPUMP"]("") end,
+    },
+	{
+		type = "text",
+		text = "|cffFF2D2D替換檔案後需要重新載入介面。|r",
+	},
+	{
+		type = "text",
+		text = "替換音樂和語音：將自己的 mp3 檔案放到 AddOns > BloodlustPump > Sounds 資料夾內，改名為 music1.mp3、music2.mp3 或 music3.mp3 替換掉原有的檔案。|n|n語音檔案改名為 voice1.mp3 或 voice1.mp3 或 voice1.mp3，替換掉原有的檔案。|n|n然後回到遊戲中重新載入介面即可。|n",
+	},
+};
 D["BtWLoadouts"] = {
     defaultEnable = 0,
 	tags = { "MISC" },
