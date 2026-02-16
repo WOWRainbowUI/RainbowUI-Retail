@@ -1,0 +1,9 @@
+## Interface: 120001
+## Title: LSGlassRevive
+## Notes: Configurable addon to setup chat windows
+## Version: 1.0.1
+## Authors: FlowBlaq & ChatGPT 5.2
+## SavedVariables: LSGlassReviveDB
+
+LSGlassRevive.lua
+LSGlassRevive_options.lua
