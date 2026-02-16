@@ -62,7 +62,7 @@ if powerBar then
     text = powerBar:CreateFontString("PlayerPowerTextFontString", "OVERLAY", "GameFontNormal")
     text:SetPoint("CENTER", powerBar, "CENTER", 0, 0)
     text:SetText("")
-    text:SetDrawLayer("OVERLAY", 7)
+    text:SetDrawLayer("OVERLAY")
     if text.SetFrameStrata then
         text:SetFrameStrata("HIGH")
     elseif text:GetParent() and text:GetParent().SetFrameStrata then

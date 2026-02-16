@@ -160,7 +160,7 @@ end
 local function ReskinAlternatePowerBar(bar)
     if not bar then return end
     local profile = GetProfile()
-    local tex = LSM:Fetch("statusbar", profile.texture) or "Interface\\TARGETINGFRAME\\UI-StatusBar"
+    local tex = LSM:Fetch("statusbar", profile.altTexture or profile.texture) or "Interface\\TARGETINGFRAME\\UI-StatusBar"
     if bar.SetStatusBarTexture then pcall(bar.SetStatusBarTexture, bar, tex) end
     if bar.Texture and bar.Texture.SetTexture then pcall(bar.Texture.SetTexture, bar.Texture, tex) end
     if bar.texture and bar.texture.SetTexture then pcall(bar.texture.SetTexture, bar.texture, tex) end
@@ -435,10 +435,18 @@ local options = {
             },
         },
         move = {
-            name = "Alternate Power Bar Position",
+            name = "Alternate Power Bar",
             type = "group",
             inline = true,
             args = {
+                altTexture = {
+                    name = "Alternate Power Bar Texture",
+                    type = "select",
+                    values = function() return LSM:HashTable("statusbar") end,
+                    get = function() return GetProfile().altTexture or GetProfile().texture end,
+                    set = function(_, val) GetProfile().altTexture = val; ApplyReskinToPRD() end,
+                    dialogControl = "Dropdown",
+                },
                 altX = {
                     name = "X Offset",
                     type = "range",

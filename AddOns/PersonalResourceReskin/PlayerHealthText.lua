@@ -27,6 +27,7 @@ local defaults = {
     color = {1, 1, 1},
     displayMode = "both",
     visibleAlpha = 1.0,
+    showAbsorbs = false,
 }
 
 local function CopyDefaults(dest, src)
@@ -228,23 +229,14 @@ function UpdateHealthText()
     local Max = UnitHealthMax(Unit)
     local displayMode = PlayerHealthTextDB and PlayerHealthTextDB.displayMode or "percent"
     if displayMode == "absorbs" then
-        local calculator = UnitHealPredictionCalculator and UnitHealPredictionCalculator.Create and UnitHealPredictionCalculator:Create(Unit)
-        local damageAbsorbs, damageAbsorbsClamped = 0, false
-        local healAbsorbs, healAbsorbsClamped = 0, false
-        if calculator then
-            damageAbsorbs, damageAbsorbsClamped = calculator:GetDamageAbsorbs()
-            healAbsorbs, healAbsorbsClamped = calculator:GetHealAbsorbs()
-        end
+        local absorb = UnitGetTotalAbsorbs(Unit)
         local function abbr(val)
             if type(AbbreviateNumbers) == "function" and type(val) == "number" then
                 return AbbreviateNumbers(val, abbrevData)
             end
             return tostring(val)
         end
-        local absorbParts = {}
-        table.insert(absorbParts, "Absorb " .. abbr(damageAbsorbs))
-        table.insert(absorbParts, "HealAbsorb " .. abbr(healAbsorbs))
-        local textStr = table.concat(absorbParts, ", ")
+        local textStr = "Absorbs " .. abbr(absorb)
         text:SetText(textStr)
     elseif displayMode == "full" or displayMode == "bothfull" then
         local calculator = UnitHealPredictionCalculator and UnitHealPredictionCalculator.Create and UnitHealPredictionCalculator:Create(Unit)
@@ -252,9 +244,27 @@ function UpdateHealthText()
         local damageAbsorbs, damageAbsorbsClamped = 0, false
         local healAbsorbs, healAbsorbsClamped = 0, false
         if calculator then
-            incomingHeals, fromHealer, fromOthers, incomingHealsClamped = calculator:GetIncomingHeals()
-            damageAbsorbs, damageAbsorbsClamped = calculator:GetDamageAbsorbs()
-            healAbsorbs, healAbsorbsClamped = calculator:GetHealAbsorbs()
+            calculator:ResetPredictedValues()
+            local hasSecretValues = calculator:HasSecretValues()
+            local predictedValues = calculator:GetPredictedValues()
+            local amount, amountFromHealer, amountFromOthers, clamped = calculator:GetIncomingHeals()
+            calculator:SetToDefaults()
+            calculator:SetPredictedValues(predictedValues)
+            local incomingHealOverflowPercent = 0
+            calculator:SetIncomingHealOverflowPercent(incomingHealOverflowPercent)
+            local incomingHealClampMode = calculator:GetIncomingHealClampMode()
+            calculator:SetIncomingHealClampMode(incomingHealClampMode)
+            local damageAbsorbClampMode = calculator:GetDamageAbsorbClampMode()
+            calculator:SetDamageAbsorbClampMode(damageAbsorbClampMode)
+            local healAbsorbMode = calculator:GetHealAbsorbMode()
+            local healAbsorbClampMode = calculator:GetHealAbsorbClampMode()
+            calculator:SetHealAbsorbClampMode(healAbsorbClampMode)
+            calculator:SetHealAbsorbMode(healAbsorbMode)
+            -- New APIs
+            calculator:SetMaximumHealthMode(Enum and Enum.UnitMaximumHealthMode and Enum.UnitMaximumHealthMode.IncludeAbsorbs or 1) -- Assume 1 is include
+            incomingHeals = calculator:GetTotalIncomingHeals()
+            damageAbsorbs = calculator:GetTotalDamageAbsorbs()
+            healAbsorbs = calculator:GetTotalHealAbsorbs()
         end
         local function abbr(val)
             if type(AbbreviateNumbers) == "function" and type(val) == "number" then
@@ -282,12 +292,65 @@ function UpdateHealthText()
         text:SetText(textStr)
     elseif displayMode == "both" then
         text:SetText(FormatText("both", Current, nil, Percent))
+        if PlayerHealthTextDB.showAbsorbs then
+            local absorb = UnitGetTotalAbsorbs(Unit)
+            if absorb then
+                local function abbr(val)
+                    if type(val) == "number" then
+                        if AbbreviateNumbers then
+                            return AbbreviateNumbers(val, abbrevData)
+                        end
+                    end
+                    return tostring(val)
+                end
+                text:SetText(text:GetText() .. " +" .. abbr(absorb))
+            end
+        end
     elseif displayMode == "current" then
         text:SetText(FormatText("current", Current, nil, Percent))
+        if PlayerHealthTextDB.showAbsorbs then
+            local absorb = UnitGetTotalAbsorbs(Unit)
+            local absorbNum = absorb and tonumber(tostring(absorb)) or 0
+            if absorbNum > 0 then
+                local function abbr(val)
+                    if type(AbbreviateNumbers) == "function" and type(val) == "number" then
+                        return AbbreviateNumbers(val, abbrevData)
+                    end
+                    return tostring(val)
+                end
+                text:SetText(text:GetText() .. " +" .. abbr(absorbNum))
+            end
+        end
     elseif displayMode == "currentmax" then
         text:SetText(FormatText("currentmax", Current, Max, Percent))
+        if PlayerHealthTextDB.showAbsorbs then
+            local absorb = UnitGetTotalAbsorbs(Unit)
+            local absorbNum = absorb and tonumber(tostring(absorb)) or 0
+            if absorbNum > 0 then
+                local function abbr(val)
+                    if type(AbbreviateNumbers) == "function" and type(val) == "number" then
+                        return AbbreviateNumbers(val, abbrevData)
+                    end
+                    return tostring(val)
+                end
+                text:SetText(text:GetText() .. " +" .. abbr(absorbNum))
+            end
+        end
     else -- percent
         text:SetText(FormatText("percent", Current, nil, Percent))
+        if PlayerHealthTextDB.showAbsorbs then
+            local absorb = UnitGetTotalAbsorbs(Unit)
+            local absorbNum = absorb and tonumber(tostring(absorb)) or 0
+            if absorbNum > 0 then
+                local function abbr(val)
+                    if type(AbbreviateNumbers) == "function" and type(val) == "number" then
+                        return AbbreviateNumbers(val, abbrevData)
+                    end
+                    return tostring(val)
+                end
+                text:SetText(text:GetText() .. " +" .. abbr(absorbNum))
+            end
+        end
     end
     text:Show()
 end
@@ -297,6 +360,7 @@ end
 local evt = CreateFrame("Frame")
 evt:RegisterUnitEvent("UNIT_HEALTH", "player")
 evt:RegisterUnitEvent("UNIT_MAXHEALTH", "player")
+evt:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", "player")
 evt:RegisterEvent("PLAYER_ENTERING_WORLD")
 evt:RegisterEvent("PLAYER_UNGHOST")
 evt:RegisterEvent("PLAYER_ALIVE")
@@ -325,8 +389,22 @@ SlashCmdList["PLAYERHEALTHTEXT"] = function(msg)
             print("Usage: /pht displaymode <current|percent|both|currentmax|full|bothfull|absorbs>")
         end
         return
+    elseif cmd == "showabsorbs" then
+        if arg == "true" or arg == "on" or arg == "1" then
+            PlayerHealthTextDB.showAbsorbs = true
+            UpdateHealthText()
+            print("Player health text show absorbs enabled")
+        elseif arg == "false" or arg == "off" or arg == "0" then
+            PlayerHealthTextDB.showAbsorbs = false
+            UpdateHealthText()
+            print("Player health text show absorbs disabled")
+        else
+            print("Usage: /pht showabsorbs <true|false>")
+        end
+        return
     end
     print("Commands: /pht displaymode <current|percent|both|currentmax|full|bothfull|absorbs>")
+    print("          /pht showabsorbs <true|false> (or use the Style dropdown in options)")
 end
 
 

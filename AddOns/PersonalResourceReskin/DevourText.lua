@@ -1,5 +1,9 @@
 
 
+-- Only load for Demon Hunters
+local _, class = UnitClass("player")
+if class ~= "DEMONHUNTER" then return end
+
 local frame = CreateFrame("Frame", "DevourTextFrame", UIParent)
 frame:SetSize(60, 30)
 frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)

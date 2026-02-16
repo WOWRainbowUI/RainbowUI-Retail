@@ -1,3 +1,6 @@
+local _, class = UnitClass("player")
+if class ~= "DEATHKNIGHT" then return end
+
 -- PRD anchor helpers (copied from Rogue/Mage bars)
 local function GetPRDHealthBar()
     local prd = _G.PersonalResourceDisplayFrame

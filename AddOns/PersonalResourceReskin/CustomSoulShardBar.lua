@@ -1,4 +1,87 @@
 
+    -- ...existing code...
+
+    _G.CustomSoulShardBarOptions = {
+        name = "|cFF8787EDSoul Shard Bar|r",
+        type = "group",
+        args = {
+            showCountText = {
+                type = "toggle",
+                name = "Show Soul Shard Number Text",
+                desc = "Show or hide the number text in the center of the Soul Shard bar.",
+                order = 9.1,
+                get = function() return CustomSoulShardBarDB.showCountText ~= false end,
+                set = function(_, val)
+                    CustomSoulShardBarDB.showCountText = val
+                    if type(UpdateSoulShards) == "function" then
+                        UpdateSoulShards()
+                    end
+                end,
+            },
+            -- ...existing options...
+            anchoring = {
+                type = "group",
+                name = "Anchoring",
+                order = 20,
+                args = {
+                    anchorToPRD = {
+                        type = "toggle",
+                        name = "Anchor to PRD",
+                        desc = "Anchor the Soul Shard bar to the Personal Resource Display (PRD) health or power bar.",
+                        get = function() return CustomSoulShardBarDB.anchorToPRD end,
+                        set = function(_, val)
+                            CustomSoulShardBarDB.anchorToPRD = val
+                            ApplyBarSettings()
+                        end,
+                        order = 1,
+                    },
+                    anchorTarget = {
+                        type = "select",
+                        name = "Anchor Target",
+                        desc = "Choose whether to anchor to the PRD health or power bar.",
+                        values = { HEALTH = "Health Bar", POWER = "Power Bar" },
+                        get = function() return CustomSoulShardBarDB.anchorTarget or "HEALTH" end,
+                        set = function(_, val)
+                            CustomSoulShardBarDB.anchorTarget = val
+                            ApplyBarSettings()
+                        end,
+                        order = 2,
+                        disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
+                    },
+                    anchorPosition = {
+                        type = "select",
+                        name = "Anchor Position",
+                        desc = "Position the Soul Shard bar above or below the anchor.",
+                        values = { ABOVE = "Above", BELOW = "Below" },
+                        get = function() return CustomSoulShardBarDB.anchorPosition or "BELOW" end,
+                        set = function(_, val)
+                            CustomSoulShardBarDB.anchorPosition = val
+                            ApplyBarSettings()
+                        end,
+                        order = 3,
+                        disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
+                    },
+                    anchorOffset = {
+                        type = "range",
+                        name = "Anchor Offset",
+                        desc = "Offset from the anchor bar (pixels).",
+                        min = -100, max = 100, step = 1,
+                        get = function() return CustomSoulShardBarDB.anchorOffset or 10 end,
+                        set = function(_, val)
+                            CustomSoulShardBarDB.anchorOffset = val
+                            ApplyBarSettings()
+                        end,
+                        order = 4,
+                        disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
+                    },
+                }
+            },
+        }
+    }
+
+local _, class = UnitClass("player")
+if class ~= "WARLOCK" then return end
+
 local function HideBlizzardSoulShardOrbs()
     local _, class = UnitClass("player")
     if class == "ROGUE" then return end
@@ -57,6 +140,19 @@ _G.CustomSoulShardBarOptions = {
     name = "|cFF8787EDSoul Shard Bar|r",
     type = "group",
     args = {
+        showCountText = {
+            type = "toggle",
+            name = "Show Soul Shard Number Text",
+            desc = "Show or hide the number text in the center of the Soul Shard bar.",
+            order = 9.1,
+            get = function() return CustomSoulShardBarDB.showCountText ~= false end,
+            set = function(_, val)
+                CustomSoulShardBarDB.showCountText = val
+                if type(UpdateSoulShards) == "function" then
+                    UpdateSoulShards()
+                end
+            end,
+        },
         fillDirection = {
             type = "select",
             name = "Fill Direction",
@@ -112,6 +208,64 @@ _G.CustomSoulShardBarOptions = {
                 ApplyBarSettings()
             end,
             order = 4,
+        },
+        anchoring = {
+            type = "group",
+            name = "Anchoring",
+            order = 4.1,
+            inline = true,
+            args = {
+                anchorToPRD = {
+                    type = "toggle",
+                    name = "Anchor to PRD",
+                    desc = "Anchor the Soul Shard bar to the Personal Resource Display (PRD) health or power bar.",
+                    get = function() return CustomSoulShardBarDB.anchorToPRD end,
+                    set = function(_, val)
+                        CustomSoulShardBarDB.anchorToPRD = val
+                        ApplyBarSettings()
+                    end,
+                    order = 1,
+                },
+                anchorTarget = {
+                    type = "select",
+                    name = "Anchor Target",
+                    desc = "Choose whether to anchor to the PRD health or power bar.",
+                    values = { HEALTH = "Health Bar", POWER = "Power Bar" },
+                    get = function() return CustomSoulShardBarDB.anchorTarget or "HEALTH" end,
+                    set = function(_, val)
+                        CustomSoulShardBarDB.anchorTarget = val
+                        ApplyBarSettings()
+                    end,
+                    order = 2,
+                    disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
+                },
+                anchorPosition = {
+                    type = "select",
+                    name = "Anchor Position",
+                    desc = "Position the Soul Shard bar above or below the anchor.",
+                    values = { ABOVE = "Above", BELOW = "Below" },
+                    get = function() return CustomSoulShardBarDB.anchorPosition or "BELOW" end,
+                    set = function(_, val)
+                        CustomSoulShardBarDB.anchorPosition = val
+                        ApplyBarSettings()
+                    end,
+                    order = 3,
+                    disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
+                },
+                anchorOffset = {
+                    type = "range",
+                    name = "Anchor Offset",
+                    desc = "Offset from the anchor bar (pixels).",
+                    min = -100, max = 100, step = 1,
+                    get = function() return CustomSoulShardBarDB.anchorOffset or 10 end,
+                    set = function(_, val)
+                        CustomSoulShardBarDB.anchorOffset = val
+                        ApplyBarSettings()
+                    end,
+                    order = 4,
+                    disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
+                },
+            }
         },
         orbBgColor = {
             type = "color",
@@ -387,21 +541,22 @@ _G.CustomSoulShardBarOptions = {
             end,
             order = 9,
         },
+        showOnlyInCombat = {
+            type = "toggle",
+            name = "Show Only In Combat",
+            desc = "Show the custom Soul Shard bar only while you are in combat.",
+            get = function() return CustomSoulShardBarDB.showOnlyInCombat end,
+            set = function(_, val)
+                CustomSoulShardBarDB.showOnlyInCombat = val
+                UpdateVisibility()
+            end,
+            order = 9.1,
+        },
     },
 }
 
 -- Standalone AceConfig registration for Soul Shard Bar
-local AceConfig = LibStub and LibStub("AceConfig-3.0", true)
-local AceConfigDialog = LibStub and LibStub("AceConfigDialog-3.0", true)
-if AceConfig and AceConfigDialog and _G.CustomSoulShardBarOptions then
-    if not (AceConfigDialog.BlizOptions and AceConfigDialog.BlizOptions["CustomSoulShardBar"]) then
-        AceConfig:RegisterOptionsTable("CustomSoulShardBar", _G.CustomSoulShardBarOptions)
-        AceConfigDialog:AddToBlizOptions("CustomSoulShardBar", "Soul Shard Bar")
-        print("[Soul Shard Bar] Options registered!")
-    else
-        print("[Soul Shard Bar] Options already registered, skipping duplicate.")
-    end
-end
+
 
 ApplyBarSettings = nil
 UpdateSoulShards = nil
@@ -478,8 +633,8 @@ if not shardBar.countText then
     shardBar.countText:SetDrawLayer("OVERLAY", 1)
     local tooltipFrame = CreateFrame("Frame", nil, shardBar)
     tooltipFrame:SetAllPoints(shardBar.countText)
-    tooltipFrame:SetFrameStrata("TOOLTIP")
-    shardBar.countText:SetParent(tooltipFrame)
+        tooltipFrame:SetFrameStrata("MEDIUM")
+        shardBar.countText:SetParent(tooltipFrame)
     if shardBar.countText.SetFont then
         local font, size, flags = shardBar.countText:GetFont()
         shardBar.countText:SetFont(font, size, "OUTLINE")
@@ -546,6 +701,11 @@ UpdateSoulShards = function()
 
     local display = string.format("%.1f/%d", current, NUM_SOUL_SHARDS)
     shardBar.countText:SetText(display)
+    if CustomSoulShardBarDB and CustomSoulShardBarDB.showCountText == false then
+        shardBar.countText:Hide()
+    else
+        shardBar.countText:Show()
+    end
 end
 
 -- Event handler
@@ -570,10 +730,13 @@ local function ShouldShowSoulShardBar()
     if CustomSoulShardBarDB.hideWhileMounted and IsMounted and IsMounted() then
         return false
     end
+    if CustomSoulShardBarDB.showOnlyInCombat and not InCombatLockdown() then
+        return false
+    end
     return true
 end
 
-local function UpdateVisibility()
+function UpdateVisibility()
     if ShouldShowSoulShardBar() then
         shardBar:Show()
         UpdateSoulShards()
@@ -593,20 +756,83 @@ local function FullUpdateHandler(self, event, ...)
     end
 end
 
+
 shardBar:RegisterEvent("PLAYER_LOGIN")
 shardBar:RegisterEvent("PLAYER_ENTERING_WORLD")
 shardBar:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 shardBar:RegisterEvent("UNIT_AURA") 
 shardBar:RegisterEvent("UPDATE_OVERRIDE_ACTIONBAR") 
+shardBar:RegisterEvent("PLAYER_REGEN_ENABLED")
+shardBar:RegisterEvent("PLAYER_REGEN_DISABLED")
 shardBar:SetScript("OnEvent", FullUpdateHandler)
 
+
+
+-- PRD anchoring helpers (mirroring soulstrackerveng.lua)
+local function GetPRDHealthBar()
+    local prd = _G.PersonalResourceDisplayFrame
+    if prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
+        return prd.HealthBarsContainer.healthBar
+    end
+    return _G.PersonalResourceDisplayHealthBar
+end
+
+local function GetPRDPowerBar()
+    local prd = _G.PersonalResourceDisplayFrame
+    if prd and prd.PowerBarsContainer and prd.PowerBarsContainer.powerBar then
+        return prd.PowerBarsContainer.powerBar
+    end
+    if prd and prd.PowerBar then
+        return prd.PowerBar
+    end
+    return _G.PersonalResourceDisplayPowerBar
+end
+
+local function GetPRDAnchorFrame()
+    if not CustomSoulShardBarDB.anchorToPRD then return nil end
+    local target = CustomSoulShardBarDB.anchorTarget or "HEALTH"
+    local f = (target == "POWER") and GetPRDPowerBar() or GetPRDHealthBar()
+    return f
+end
+
+local prdHooked = false
+local function HookPRDAnchor()
+    local anchorFrame = GetPRDAnchorFrame()
+    if not anchorFrame or prdHooked then return end
+    local function OnPRDChange()
+        ApplyBarSettings()
+    end
+    anchorFrame:HookScript("OnSizeChanged", OnPRDChange)
+    if anchorFrame.SetPoint then
+        hooksecurefunc(anchorFrame, "SetPoint", OnPRDChange)
+    end
+    if anchorFrame.SetScale then
+        hooksecurefunc(anchorFrame, "SetScale", OnPRDChange)
+    end
+    prdHooked = true
+end
 
 ApplyBarSettings = function()
     local spacing = 0
     local totalWidth = (CustomSoulShardBarDB.orbWidth + spacing) * #shardBar.orbs - spacing
     shardBar:SetSize(totalWidth, CustomSoulShardBarDB.orbHeight)
     shardBar:ClearAllPoints()
-    shardBar:SetPoint("CENTER", UIParent, "CENTER", CustomSoulShardBarDB.x, CustomSoulShardBarDB.y)
+    local anchorFrame = GetPRDAnchorFrame()
+    if anchorFrame then
+        local pos = CustomSoulShardBarDB.anchorPosition or "BELOW"
+        local offset = CustomSoulShardBarDB.anchorOffset or 10
+        if pos == "ABOVE" then
+            shardBar:SetPoint("BOTTOM", anchorFrame, "TOP", 0, offset)
+        else
+            shardBar:SetPoint("TOP", anchorFrame, "BOTTOM", 0, -offset)
+        end
+        if not prdHooked then
+            HookPRDAnchor()
+        end
+    else
+        -- Use Bar X Position and Bar Y Position for SetPoint
+        shardBar:SetPoint("CENTER", UIParent, "CENTER", CustomSoulShardBarDB.x or 0, CustomSoulShardBarDB.y or 0)
+    end
     for i, orb in ipairs(shardBar.orbs) do
         orb:SetSize(CustomSoulShardBarDB.orbWidth, CustomSoulShardBarDB.orbHeight)
         orb:ClearAllPoints()

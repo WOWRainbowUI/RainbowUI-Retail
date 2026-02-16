@@ -6,6 +6,10 @@
 -- Changelog:
 -- [2026-01-23] Adapted for PersonalResourceReskin by [Ckraigfriend]
 
+-- Only load for Demon Hunters
+local _, class = UnitClass("player")
+if class ~= "DEMONHUNTER" then return end
+
 -- SoulsTrackerVeng options
 local function get(info)
     local key = info[#info]
@@ -25,6 +29,18 @@ end
 -- Expose bar for options handlers
 local bar
 
+local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
+local function GetLSMStatusbarList()
+    if not LSM then return { ["Blizzard"] = "Blizzard" } end
+    local bars = LSM:HashTable("statusbar")
+    local list = {}
+    for k, v in pairs(bars) do
+        local filename = v:match("[^\\/]+$") or v
+        list[k] = filename
+    end
+    return list
+end
+
 local SoulsTrackerVengOptions = {
     type = "group",
     name = "|cFFA330C9Vengeance Soul Fragments|r",
@@ -34,6 +50,42 @@ local SoulsTrackerVengOptions = {
             order = 0,
             type = "header",
             name = "Vengeance Demon Hunter Soul Fragments Bar",
+        },
+        fillingTexture = {
+            order = 2.5,
+            type = "select",
+            name = "Filling Texture",
+            desc = "Select the filling (main bar) texture from SharedMedia.",
+            dialogControl = "LSM30_Statusbar",
+            values = function() return GetLSMStatusbarList() end,
+            get = function()
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                return db and db.SoulsTrackerVeng_fillingTexture or "Blizzard"
+            end,
+            set = function(_, val)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if not db then return end
+                db.SoulsTrackerVeng_fillingTexture = val
+                if _G.SoulsTrackerVeng_Update then _G.SoulsTrackerVeng_Update() end
+            end,
+        },
+        tickTexture = {
+            order = 2.6,
+            type = "select",
+            name = "Segment Texture",
+            desc = "Select the segment (tick) texture from SharedMedia.",
+            dialogControl = "LSM30_Statusbar",
+            values = function() return GetLSMStatusbarList() end,
+            get = function()
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                return db and db.SoulsTrackerVeng_tickTexture or "Blizzard"
+            end,
+            set = function(_, val)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if not db then return end
+                db.SoulsTrackerVeng_tickTexture = val
+                if _G.SoulsTrackerVeng_Update then _G.SoulsTrackerVeng_Update() end
+            end,
         },
         enabled = {
             order = 1,
@@ -57,7 +109,7 @@ local SoulsTrackerVengOptions = {
             end,
             set = function(_, r, g, b, a)
                 set({"bgColor"}, {r, g, b, a})
-                        _G.SoulsTrackerVengFrame:SetShown(val)
+                if _G.SoulsTrackerVeng_Update then _G.SoulsTrackerVeng_Update() end
             end,
         },
         segmentGradientStart = {
@@ -277,7 +329,6 @@ local SOUL_BG_COLOR = {0.08, 0.08, 0.08, 0.75}
 
 bar = CreateFrame("StatusBar", nil, SoulsTrackerVeng)
 bar:SetAllPoints(SoulsTrackerVeng)
-bar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
 bar:SetStatusBarColor(unpack(SOUL_COLOR))
 bar:SetFrameStrata("LOW")
 -- Background
@@ -285,17 +336,20 @@ local bg = bar:CreateTexture(nil, "BACKGROUND")
 bg:SetAllPoints(bar)
 bg:SetColorTexture(unpack(SOUL_BG_COLOR))
 bar.bg = bg
-        -- Background
 -- Dynamic tick drawing
 local ticks = {}
 local function UpdateTicks(numSouls)
     for _, tick in ipairs(ticks) do tick:Hide() end
     local w, h = bar:GetWidth(), bar:GetHeight()
+    local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+    local tickTextureName = db and db.SoulsTrackerVeng_tickTexture or "Blizzard"
+    local tickTexture = LSM and LSM:Fetch("statusbar", tickTextureName) or "Interface\\TARGETINGFRAME\\UI-StatusBar"
     for i = 1, (numSouls or DEFAULT_NUM_SOULS) - 1 do
         if not ticks[i] then
             ticks[i] = bar:CreateTexture(nil, "OVERLAY")
-            ticks[i]:SetColorTexture(0, 0, 0, 1)
         end
+        ticks[i]:SetTexture(tickTexture)
+        ticks[i]:SetVertexColor(0, 0, 0, 1)
         ticks[i]:SetSize(2, h)
         ticks[i]:SetPoint("LEFT", bar, "LEFT", i * (w / (numSouls or DEFAULT_NUM_SOULS)) - 1, 0)
         ticks[i]:Show()
@@ -316,6 +370,10 @@ end
 local function ApplySavedOptions()
     local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
     if not db then return end
+    -- Filling texture
+    local texName = db.SoulsTrackerVeng_fillingTexture or "Blizzard"
+    local tex = LSM and LSM:Fetch("statusbar", texName) or "Interface\\TARGETINGFRAME\\UI-StatusBar"
+    if bar and bar.SetStatusBarTexture then bar:SetStatusBarTexture(tex) end
     -- Color or gradient
     local gradStart = db.SoulsTrackerVeng_segmentGradientStart
     local gradEnd = db.SoulsTrackerVeng_segmentGradientEnd
@@ -362,6 +420,8 @@ local function ApplySavedOptions()
     local enabled = db.SoulsTrackerVeng_enabled ~= false
     SoulsTrackerVeng:SetShown(enabled)
 end
+
+ApplySavedOptions() -- Apply initial textures
 
 local prdHooked = false
 

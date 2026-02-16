@@ -1,3 +1,6 @@
+local _, class = UnitClass("player")
+if class ~= "EVOKER" then return end
+
 -- CustomEssenceBar.lua
 local function GetMaxEssence()
     -- Power Nexus: spellid 369908
@@ -260,7 +263,7 @@ essenceBar:SetScript("OnEvent", function(self, event, ...)
 end)
 
 -- Update bar size and position
-local function ApplyBarSettings()
+ApplyBarSettings = function()
     local spacing = CustomEssenceBarDB.orbSpacing
     if spacing == nil then spacing = 0 end
     local numEssence = GetMaxEssence()

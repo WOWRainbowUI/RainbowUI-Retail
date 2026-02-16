@@ -1,3 +1,6 @@
+local _, class = UnitClass("player")
+if class ~= "WARRIOR" then return end
+
 -- WarriorTracker.lua
 -- Based on SoulsTrackerVeng by Argium, adapted for Warrior
 -- Modified for PersonalResourceReskin by [Ckraigfriend], 2026
@@ -28,7 +31,10 @@ local function GetLSMStatusbarList()
     if not LSM then return { ["Blizzard"] = "Blizzard" } end
     local bars = LSM:HashTable("statusbar")
     local list = {}
-    for k, v in pairs(bars) do list[k] = k end
+    for k, v in pairs(bars) do
+        local filename = v:match("[^\\/]+$") or v
+        list[k] = filename
+    end
     return list
 end
 
@@ -47,6 +53,7 @@ local WarriorTrackerOptions = {
             type = "select",
             name = "Filling Texture",
             desc = "Select the filling (main bar) texture from SharedMedia.",
+            dialogControl = "LSM30_Statusbar",
             values = function() return GetLSMStatusbarList() end,
             get = function()
                 local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile

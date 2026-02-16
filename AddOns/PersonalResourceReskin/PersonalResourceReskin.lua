@@ -30,6 +30,29 @@ end
 BlockAllClampRectInsets()
 
 -- Re-block after Edit Mode or world entry, but only if not in combat or Edit Mode
+
+-- Frame to handle hiding prdClassFrame when custom Soul Shard bar is set to show only in combat
+local prdClassFrameHideFrame = CreateFrame("Frame")
+prdClassFrameHideFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+prdClassFrameHideFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+prdClassFrameHideFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+prdClassFrameHideFrame:SetScript("OnEvent", function(_, event)
+    local shouldHide = false
+    if _G.CustomSoulShardBarDB and _G.CustomSoulShardBarDB.showOnlyInCombat then
+        if not InCombatLockdown() then
+            shouldHide = true
+        end
+    end
+    local prdClassFrame = _G.prdClassFrame
+    if prdClassFrame then
+        if shouldHide then
+            prdClassFrame:Hide()
+        else
+            prdClassFrame:Show()
+        end
+    end
+end)
+
 local reblockFrame = CreateFrame("Frame")
 reblockFrame:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
 reblockFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -153,8 +176,13 @@ end
         ApplyLegacyComboSpacing = function()
             local spacing = PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.legacyComboSpacing or 0
             local scaleVal = PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.legacyComboScale or 1
+            local xOffset = PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.legacyComboXOffset or 0
+            local yOffset = PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.legacyComboYOffset or 0
             if _G.LegacyComboFrame then
                 centerChildren(_G.LegacyComboFrame, "ComboPoint", 10, scaleVal, spacing)
+                -- Set position
+                _G.LegacyComboFrame:ClearAllPoints()
+                _G.LegacyComboFrame:SetPoint("CENTER", UIParent, "CENTER", xOffset, yOffset)
                 -- centerChildren(_G.LegacyComboFrame, "Rune", 6, scaleVal, spacing) -- Disabled: do not touch Blizzard runes
             end
             -- PRD class resource frame (if needed)
@@ -294,7 +322,7 @@ end
 local function ReskinBar(bar, barType)
     if not bar then return end
     local profile = GetProfile()
-    local tex = LSM:Fetch("statusbar", profile.texture) or "Blizzard"
+    local tex = LSM:Fetch("statusbar", (barType == "altpower" and profile.altTexture) or profile.texture) or "Blizzard"
     if bar.SetStatusBarTexture then
         bar:SetStatusBarTexture(tex)
     end
@@ -345,7 +373,7 @@ local function ReskinBar(bar, barType)
             if not bar.__PRD_IMarker then
                 -- Vertical line
                 local vLine = bar:CreateTexture(nil, "OVERLAY")
-                vLine:SetColorTexture(0, 0, 0, 1)
+                vLine:SetColorTexture(1, 1, 1, 1)
                 vLine:SetSize(2, bar:GetHeight() * 1)
                 -- Horizontal line
                 local hLine = bar:CreateTexture(nil, "OVERLAY")
@@ -376,7 +404,7 @@ local function ReskinBar(bar, barType)
             if not bar.__PRD_IMarker then
                 -- Vertical line
                 local vLine = bar:CreateTexture(nil, "OVERLAY")
-                vLine:SetColorTexture(0, 0, 0, 1)
+                vLine:SetColorTexture(1, 1, 1, 1)
                 vLine:SetSize(2, bar:GetHeight() * 1)
                 -- Horizontal line
                 local hLine = bar:CreateTexture(nil, "OVERLAY")
@@ -814,12 +842,16 @@ local function ApplyReskinToPRD()
                     local profile = GetProfile()
                     local c1 = profile.altPowerGradientColor1 or {0.6, 0.2, 1, 1}
                     local c2 = profile.altPowerGradientColor2 or {1, 0.2, 0.8, 1}
+                    local tex = LSM:Fetch("statusbar", profile.altTexture or profile.texture) or "Blizzard"
                     local texObj = prd.AlternatePowerBar:GetStatusBarTexture() or prd.AlternatePowerBar.Texture
-                    if texObj and texObj.SetGradient then
-                        texObj:SetGradient("HORIZONTAL",
-                            CreateColor(c1[1], c1[2], c1[3], c1[4]),
-                            CreateColor(c2[1], c2[2], c2[3], c2[4])
-                        )
+                    if texObj then
+                        texObj:SetTexture(tex)
+                        if texObj.SetGradient then
+                            texObj:SetGradient("HORIZONTAL",
+                                CreateColor(c1[1], c1[2], c1[3], c1[4]),
+                                CreateColor(c2[1], c2[2], c2[3], c2[4])
+                            )
+                        end
                     end
                 end
                 hooksecurefunc(prd.AlternatePowerBar, "SetStatusBarColor", reapplyAltGradient)
@@ -973,24 +1005,57 @@ function PersonalResourceReskin:OnInitialize()
                     },
                     phtStyle = {
                         name = "Set Style",
-                        desc = "Set health text style: Percent, Current, or Current / Percent.",
+                        desc = "Set health text style: Percent, Current, Current / Percent, or with Absorbs.",
                         type = "select",
-                        values = { percent = "Percent", current = "Current", both = "Current / Percent" },
+                        values = { 
+                            percent = "Percent", 
+                            current = "Current", 
+                            both = "Current / Percent",
+                            percent= "Percent",
+                            current = "Current",
+                            both_absorbs = "Current / Percent + Absorbs",
+                            absorbs = "Absorbs Only"
+                        },
                         get = function()
                             local db = _G.PlayerHealthTextDB or {}
                             local mode = db.displayMode or "percent"
-                            if mode == "both" then return "both"
-                            elseif mode == "current" then return "current"
-                            else return "percent" end
+                            local showAbs = db.showAbsorbs or false
+                            if mode == "absorbs" then return "absorbs"
+                            elseif showAbs then
+                                if mode == "both" then return "both_absorbs"
+                                elseif mode == "current" then return "current_absorbs"
+                                elseif mode == "percent" then return "percent_absorbs"
+                                end
+                            else
+                                if mode == "both" then return "both"
+                                elseif mode == "current" then return "current"
+                                else return "percent" end
+                            end
+                            return "percent"
                         end,
                         set = function(_, val)
                             if not _G.PlayerHealthTextDB then _G.PlayerHealthTextDB = {} end
-                            if val == "both" then
+                            if val == "absorbs" then
+                                _G.PlayerHealthTextDB.displayMode = "absorbs"
+                                _G.PlayerHealthTextDB.showAbsorbs = false
+                            elseif val == "both_absorbs" then
                                 _G.PlayerHealthTextDB.displayMode = "both"
+                                _G.PlayerHealthTextDB.showAbsorbs = true
+                            elseif val == "current_absorbs" then
+                                _G.PlayerHealthTextDB.displayMode = "current"
+                                _G.PlayerHealthTextDB.showAbsorbs = true
+                            elseif val == "percent_absorbs" then
+                                _G.PlayerHealthTextDB.displayMode = "percent"
+                                _G.PlayerHealthTextDB.showAbsorbs = true
+                            elseif val == "both" then
+                                _G.PlayerHealthTextDB.displayMode = "both"
+                                _G.PlayerHealthTextDB.showAbsorbs = false
                             elseif val == "current" then
                                 _G.PlayerHealthTextDB.displayMode = "current"
+                                _G.PlayerHealthTextDB.showAbsorbs = false
                             else
                                 _G.PlayerHealthTextDB.displayMode = "percent"
+                                _G.PlayerHealthTextDB.showAbsorbs = false
                             end
                             if type(_G.UpdateHealthText) == "function" then pcall(_G.UpdateHealthText) end
                         end,
@@ -1021,19 +1086,25 @@ function PersonalResourceReskin:OnInitialize()
                 },
             },
             -- All other options (pptLock, playerPowerTextOptions, texture, absorbTexture, etc.) must be moved here inside args
-            pptLock = {
-                name = "Lock Player Power Text",
-                desc = "Lock or unlock the PlayerPowerText frame for dragging.",
+            pptShowHide = {
+                name = "Show Player Power Text",
+                desc = "Show or hide the PlayerPowerText display.",
                 type = "toggle",
                 get = function()
-                    return _G.PlayerPowerTextDB and _G.PlayerPowerTextDB.locked
+                    return not (_G.PlayerPowerTextDB and _G.PlayerPowerTextDB.hidden)
                 end,
                 set = function(_, val)
-                    if not _G.PlayerPowerTextDB then return end
-                    _G.PlayerPowerTextDB.locked = val
-                    local frame = _G.PlayerPowerTextFrame
-                    if frame and type(frame.StopMovingOrSizing) == "function" then pcall(frame.StopMovingOrSizing, frame) end
-                    if type(_G.ApplyDisplaySettings) == "function" then pcall(_G.ApplyDisplaySettings) end
+                    if not _G.PlayerPowerTextDB then _G.PlayerPowerTextDB = {} end
+                    _G.PlayerPowerTextDB.hidden = not val
+                    local text = _G.PlayerPowerTextFontString
+                    if not val then
+                        if text then text:Hide() end
+                        print("|cff00ff80PlayerPowerText|r: Power text hidden and will stay after reload.")
+                    else
+                        if text then text:Show() end
+                        print("|cff00ff80PlayerPowerText|r: Power text shown and will stay after reload.")
+                    end
+                    if type(_G.UpdatePlayerPowerText) == "function" then _G.UpdatePlayerPowerText() end
                 end,
                 order = 0.6,
             },
@@ -1112,7 +1183,6 @@ function PersonalResourceReskin:OnInitialize()
                         end
                     end
                 end,
-                dialogControl = "Dropdown",
                 width = 2,
             },
             absorbTexture = {
@@ -1144,7 +1214,6 @@ function PersonalResourceReskin:OnInitialize()
                         bg:SetStatusBarTexture(tex)
                     end
                 end,
-                dialogControl = "Dropdown",
                 width = 2,
             },
             -- Font dropdown removed as requested
@@ -1318,6 +1387,28 @@ function PersonalResourceReskin:OnInitialize()
                     ApplyReskinToPRD()
                 end,
             },
+            altTexture = {
+                name = "Alternate Power Bar Texture",
+                desc = "Set the texture for the Alternate Power Bar.",
+                type = "select",
+                hidden = function()
+                    local _, class = UnitClass("player")
+                    local enabled = (GetProfile().altPowerGradientEnabled or {})[class]
+                    return enabled == false
+                end,
+                values = function()
+                    local LSM = LibStub("LibSharedMedia-3.0")
+                    local textures = LSM:HashTable("statusbar")
+                    local short = {}
+                    for k, v in pairs(textures) do
+                        short[k] = k -- use key as display name
+                    end
+                    return short
+                end,
+                get = function() return GetProfile().altTexture or GetProfile().texture end,
+                set = function(_, val) GetProfile().altTexture = val; ApplyReskinToPRD() end,
+                order = 0.445,
+            },
         healthBgColor = {
             name = "Health Bar Background",
             desc = "Set the background color for the health bar.",
@@ -1344,6 +1435,21 @@ function PersonalResourceReskin:OnInitialize()
                 local prd = _G["PersonalResourceDisplayFrame"]
                 if prd and prd.AlternatePowerBar and prd.AlternatePowerBar.__PRD_BG then
                     prd.AlternatePowerBar.__PRD_BG:SetColorTexture(r, g, b, a)
+                end
+                ApplyReskinToPRD()
+            end,
+        },
+        powerBgColor = {
+            name = "Power Bar Background",
+            desc = "Set the background color for the power bar.",
+            type = "color",
+            hasAlpha = true,
+            get = function() return unpack(GetProfile().powerBgColor) end,
+            set = function(_, r, g, b, a)
+                GetProfile().powerBgColor = {r, g, b, a}
+                local prd = _G["PersonalResourceDisplayFrame"]
+                if prd and prd.PowerBar and prd.PowerBar.__PRD_BG then
+                    prd.PowerBar.__PRD_BG:SetColorTexture(r, g, b, a)
                 end
                 ApplyReskinToPRD()
             end,
@@ -1589,7 +1695,13 @@ function PersonalResourceReskin:OnInitialize()
             type = "select",
             values = function()
                 local LSM = LibStub("LibSharedMedia-3.0")
-                return LSM:HashTable("statusbar")
+                local textures = LSM:HashTable("statusbar")
+                local short = {}
+                for k, v in pairs(textures) do
+                    local filename = v:match("[^\\/]+$") or v
+                    short[k] = filename
+                end
+                return short
             end,
             get = function()
                 return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and (PersonalResourceReskin.db.profile.manaCostPredictionBarTexture or "Blizzard")
@@ -1756,17 +1868,23 @@ function PersonalResourceReskin:OnInitialize()
         if _G.SoulsTrackerVengOptions then
             PersonalResourceReskinPlus_Options.RegisterSubOptions("SoulsTrackerVeng", _G.SoulsTrackerVengOptions)
         end
-        -- Register MonkOrbTracker options as a subpage if available
-        if _G.MonkOrbTrackerOptions then
-            PersonalResourceReskinPlus_Options.RegisterSubOptions("MonkOrbTracker", _G.MonkOrbTrackerOptions)
+        -- Register MonkOrbTracker options as a subpage if available ONLY if player is a Monk
+        local _, class = UnitClass("player")
+        if class == "MONK" then
+            if _G.MonkOrbTrackerOptions then
+                PersonalResourceReskinPlus_Options.RegisterSubOptions("MonkOrbTracker", _G.MonkOrbTrackerOptions)
+            end
         end
             -- Register WarriorPainTracker options as a subpage if available
             if _G.WarriorPainTrackerOptions then
                 PersonalResourceReskinPlus_Options.RegisterSubOptions("WarriorPainTracker", _G.WarriorPainTrackerOptions)
             end
-        -- Register WarriorTracker options as a subpage if available (Fury Warrior Whirlwind tracker)
-        if _G.WarriorTrackerOptions then
-            PersonalResourceReskinPlus_Options.RegisterSubOptions("WarriorTracker", _G.WarriorTrackerOptions)
+        -- Register WarriorTracker options as a subpage if available (Fury Warrior Whirlwind tracker) ONLY if player is a Warrior
+        local _, class = UnitClass("player")
+        if class == "WARRIOR" then
+            if _G.WarriorTrackerOptions then
+                PersonalResourceReskinPlus_Options.RegisterSubOptions("WarriorTracker", _G.WarriorTrackerOptions)
+            end
         end
         -- Add a dedicated Profile Management subpage using AceDBOptions-3.0
         local AceDBOptions = LibStub and LibStub("AceDBOptions-3.0", true)
@@ -1807,11 +1925,15 @@ function PersonalResourceReskin:OnInitialize()
 
         -- Add Custom Rogue Combo Bar options if available
         -- Load Rogue Combo Bar Options if not already loaded
-        if not _G.CustomRogueComboBarOptions and type(loadfile) == "function" then
-            pcall(function() loadfile("Interface/AddOns/PersonalResourceReskin/CustomRogueComboBarOptions.lua")() end)
-        end
-        if _G.CustomRogueComboBarOptions then
-            PersonalResourceReskinPlus_Options.RegisterSubOptions("CustomRogueComboBar", _G.CustomRogueComboBarOptions)
+        -- Load and register Rogue Combo Bar Options ONLY if player is a Rogue
+        local _, class = UnitClass("player")
+        if class == "ROGUE" then
+            if not _G.CustomRogueComboBarOptions and type(loadfile) == "function" then
+                pcall(function() loadfile("Interface/AddOns/PersonalResourceReskin/CustomRogueComboBarOptions.lua")() end)
+            end
+            if _G.CustomRogueComboBarOptions then
+                PersonalResourceReskinPlus_Options.RegisterSubOptions("CustomRogueComboBar", _G.CustomRogueComboBarOptions)
+            end
         end
 
         -- Load and register Druid Combo Bar Options ONLY if player is a Druid
