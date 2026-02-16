@@ -28,8 +28,8 @@ DFFNamePlates.defaultFont2 = {
     flags = defaultFontFlags2,
 }
 
-local ADDON_VERSION = "2.1"
-local CONFIG_VERSION = "2.7"
+local ADDON_VERSION = "2.2"
+local CONFIG_VERSION = "2.9"
 DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE = 0
 DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA = 0.5
 
@@ -137,8 +137,8 @@ end
 
 function DFFNamePlates:AddTabButton(name, index, module)
     local btn = CreateFrame("Button", nil, self.frame.tabList, BackdropTemplateMixin and "BackdropTemplate")
-    btn:SetSize(91, 25)
-    btn:SetPoint("TOPLEFT", 5 + (index - 1) * 94, -5)
+    btn:SetSize(94, 25)
+    btn:SetPoint("TOPLEFT", 5 + (index - 1) * 97, -5)
 
     btn:SetBackdrop({
         bgFile = "Interface\\AddOns\\DFFriendlyNameplates\\Media\\Textures\\WHITE8X8",
@@ -163,7 +163,7 @@ function DFFNamePlates:AddTabButton(name, index, module)
         "")
 
     btn.activeIndicator = btn:CreateTexture(nil, "OVERLAY")
-    btn.activeIndicator:SetSize(86, 3)
+    btn.activeIndicator:SetSize(89, 3)
     btn.activeIndicator:SetPoint("BOTTOM", btn, "BOTTOM", 0, 0)
     btn.activeIndicator:SetTexture("Interface\\AddOns\\DFFriendlyNameplates\\Media\\Textures\\WHITE8x8")
     btn.activeIndicator:SetVertexColor(0.8, 0.6, 0.2, 0)
@@ -221,7 +221,7 @@ end
 
 function DFFNamePlates:CreateMainUI()
     local f = CreateFrame("Frame", "DFFNamePlatesMainFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
-    f:SetSize(320, 430)
+    f:SetSize(330, 480)
     f:SetPoint("CENTER")
     f:SetMovable(true)
     f:EnableMouse(true)
@@ -256,7 +256,7 @@ function DFFNamePlates:CreateMainUI()
     f.closeButton:SetSize(24, 24)
 
     f.tabList = CreateFrame("Frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
-    f.tabList:SetSize(290, 35)
+    f.tabList:SetSize(300, 35)
     f.tabList:SetPoint("TOPLEFT", 15, -60)
     f.tabList:SetBackdrop({
         bgFile = "Interface\\AddOns\\DFFriendlyNameplates\\Media\\Textures\\WHITE8X8",
@@ -270,7 +270,7 @@ function DFFNamePlates:CreateMainUI()
     f.tabList:SetBackdropBorderColor(0.3, 0.3, 0.4, 1)
 
     f.mainContent = CreateFrame("Frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
-    f.mainContent:SetSize(290, 325)
+    f.mainContent:SetSize(300, 375)
     f.mainContent:SetPoint("TOPLEFT", 15, -95)
     f.mainContent:SetBackdrop({
         bgFile = "Interface\\AddOns\\DFFriendlyNameplates\\Media\\Textures\\WHITE8X8",
@@ -333,6 +333,12 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
         DFFNamePlates:SwitchTab("Nameplates")
         DFFNamePlates:SetActiveTab(DFFNamePlates.tabButtons[1])
 
+        local default_np_colors = false
+        if C_AddOns.IsAddOnLoaded("Plater") or C_AddOns.IsAddOnLoaded("Platynator") or
+            C_AddOns.IsAddOnLoaded("ElvUI") then
+            default_np_colors = true
+        end
+
         httpsxFriendlyNamePlates.config.default = {
             ["NamePlatesSettings"] = {
                 ["enabled"] = true,
@@ -345,6 +351,7 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
                 ["fontSize"] = defaultFontSize,
                 ["fontStyle"] = defaultFontFlags,
                 ["hideCastBar"] = false,
+                ["showColorBySelection"] = default_np_colors,
             },
             ["WorldTextSettings"] = {
                 ["enabled"] = false,
@@ -356,6 +363,7 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
                 ["worldTextAlpha"] = GetCVar("WorldTextMinAlpha_v2") or DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA,
             },
             ["ExtendedSettings"] = {
+                ["hideInOpenWorld"] = false,
             },
             ["Settings"] = {
                 ["version"] = CONFIG_VERSION,
@@ -410,6 +418,12 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
         DFFNamePlates.settings.NamePlatesSettings["showOnlyNameNpcType"]:SetValue(DFFriendlyNamePlates
             .NamePlatesSettings
             ["showOnlyNameNpcType"])
+        DFFNamePlates.settings.NamePlatesSettings["showColorBySelection"]:SetChecked(DFFriendlyNamePlates
+            .NamePlatesSettings
+            ["showColorBySelection"])
+
+        DFFNamePlates.settings.ExtendedSettings["hideInOpenWorld"]:SetChecked(DFFriendlyNamePlates.ExtendedSettings
+            ["hideInOpenWorld"])
 
 
 
@@ -440,6 +454,7 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
             DFFNamePlates:forceUpdateFont(true)
         end)
 
+
         hooksecurefunc(NamePlateUnitFrameMixin, "UpdateNameClassColor", function(self)
             if not DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] then return end
 
@@ -460,6 +475,11 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
             if not np then
                 TableUtil.TrySet(self.HealthBarsContainer.healthBar, "showOnlyName")
                 TableUtil.TrySet(self.castBar, "showOnlyName")
+                if DFFriendlyNamePlates.NamePlatesSettings["showColorBySelection"] then
+                    --if not self.isPlayer then
+                    TableUtil.TrySet(self.optionTable, "colorNameBySelection")
+                    --end
+                end
             end
         end)
 
@@ -512,6 +532,19 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
         httpsxFriendlyNamePlates:UnregisterEvent("PLAYER_LOGIN");
     elseif event == "PLAYER_ENTERING_WORLD" then
         DFFNamePlates.instanceType = select(2, IsInInstance())
+        if DFFriendlyNamePlates.ExtendedSettings["hideInOpenWorld"] then
+            if DFFriendlyNamePlates.NamePlatesSettings["enabled"] then
+                if DFFNamePlates.instanceType == "none" then
+                    SetCVar("nameplateshowfriendlyPlayers", "0")
+                else
+                    SetCVar("nameplateshowfriendlyPlayers", "1")
+                end
+            end
+        else
+            if GetCVar("nameplateshowfriendlyPlayers") == "0" and DFFriendlyNamePlates.NamePlatesSettings["enabled"] then
+                SetCVar("nameplateshowfriendlyPlayers", "1")
+            end
+        end
     end
 end)
 

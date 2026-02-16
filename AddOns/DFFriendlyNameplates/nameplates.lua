@@ -43,14 +43,15 @@ function module:OnLoad()
         DFFNamePlates:SetNpcTypeEnabled(checked)
     end)
 
-        local npcType = {
+    local npcType = {
         { text = "總是",          value = "always" },
-        { text = "只有地城",       value = "dungeon" },
-        { text = "只有團本",          value = "raids" },
-        { text = "地城+團本", value = "dungeon_raids"}
+        { text = "只有地城",    value = "dungeon" },
+        { text = "只有團本",      value = "raids" },
+        { text = "地城+團本", value = "dungeon_raids" }
     }
 
-    local showOnlyNameNpcDropdown = HttpsxLib:CreateDropDown(content, 100, npcType, "LEFT", showOnlyNameNpcCB.text, 145, 0,
+    local showOnlyNameNpcDropdown = HttpsxLib:CreateDropDown(content, 110, npcType, "LEFT", showOnlyNameNpcCB.text, 145,
+        0,
         "always",
         function(self, value, text)
             if value == nil or text == nil then return end
@@ -59,15 +60,7 @@ function module:OnLoad()
         end)
 
 
-    local showClassColorCB = HttpsxLib:CreateCheckBox(content, "顯示職業顏色", "TOPLEFT", content, 5, -120)
-
-    showClassColorCB:SetScript("OnClick", function(self)
-        local checked = self:GetChecked()
-        DFFriendlyNamePlates.NamePlatesSettings["showClassColor"] = checked
-        SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", checked and "1" or "0");
-    end)
-
-    local hideCastBarCB = HttpsxLib:CreateCheckBox(content, "隱藏施法條", "TOPLEFT", content, 5, -150)
+    local hideCastBarCB = HttpsxLib:CreateCheckBox(content, "隱藏施法條", "TOPLEFT", content, 5, -120)
 
     local warningHideCastBar = HttpsxLib:CreateText(content, "需要重新載入介面", "LEFT", hideCastBarCB.text, "RIGHT",
         10, 0, 9,
@@ -103,9 +96,41 @@ function module:OnLoad()
     end)
 
 
-    local customFontCB = HttpsxLib:CreateCheckBox(content, "自訂字體", "TOPLEFT", content, 5, -180)
+    local titleColors = HttpsxLib:CreateText(content, "顏色:", "TOP", tab.frame, "TOP", 0, -140, 12,
+        { 0.9, 0.8, 0.5, 1 }, "OUTLINE")
 
-    local fontSettingsTitle = HttpsxLib:CreateText(content, "字體:", "TOPLEFT", content, "TOPLEFT", 10, -220, 11.5,
+
+    local showClassColorCB = HttpsxLib:CreateCheckBox(content, "名字顯示職業顏色", "TOPLEFT", content, 5, -160)
+
+    showClassColorCB:SetScript("OnClick", function(self)
+        local checked = self:GetChecked()
+        DFFriendlyNamePlates.NamePlatesSettings["showClassColor"] = checked
+        SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", checked and "1" or "0");
+    end)
+
+    local showColorBySelectionCB = HttpsxLib:CreateCheckBox(content, "選取的顯示顏色", "TOPLEFT", content, 5,
+        -190)
+
+    showColorBySelectionCB:SetScript("OnClick", function(self)
+        local checked = self:GetChecked()
+        DFFriendlyNamePlates.NamePlatesSettings["showColorBySelection"] = checked
+
+        if checked then
+        DFFNamePlates:reloadNP()
+        else
+            local ns = GetCVar("nameplateShowOnlyNamesnameplateStyle")
+            SetCVar("nameplateStyle", 10)
+            C_Timer.After(0.133, function() SetCVar("nameplateStyle", ns) end)
+        end
+    end)
+
+
+    local titleColors = HttpsxLib:CreateText(content, "文字:", "TOP", tab.frame, "TOP", 0, -220, 12,
+        { 0.9, 0.8, 0.5, 1 }, "OUTLINE")
+
+    local customFontCB = HttpsxLib:CreateCheckBox(content, "自訂文字", "TOPLEFT", content, 5, -240)
+
+    local fontSettingsTitle = HttpsxLib:CreateText(content, "字體:", "TOPLEFT", content, "TOPLEFT", 10, -270, 11.5,
         { 0.9, 0.9, 0.9, 1 }, "")
 
     local fonts = {
@@ -125,7 +150,7 @@ function module:OnLoad()
             DFFNamePlates:setFontForAll()
         end)
 
-    local SizeSettingsTitle = HttpsxLib:CreateText(content, "大小:", "TOPLEFT", content, "TOPLEFT", 10, -280, 11.5,
+    local SizeSettingsTitle = HttpsxLib:CreateText(content, "大小:", "TOPLEFT", content, "TOPLEFT", 10, -330, 11.5,
         { 0.9, 0.9, 0.9, 1 }, "")
 
     local fontSizeSlider = HttpsxLib:CreateSlider(content, 140, 1, 116, 1, "LEFT", SizeSettingsTitle, 50, 5,
@@ -136,7 +161,7 @@ function module:OnLoad()
             DFFNamePlates:setFontForAll()
         end)
 
-    local fontStyleTitle = HttpsxLib:CreateText(content, "樣式:", "TOPLEFT", content, "TOPLEFT", 10, -250, 11.5,
+    local fontStyleTitle = HttpsxLib:CreateText(content, "樣式:", "TOPLEFT", content, "TOPLEFT", 10, -300, 11.5,
         { 0.9, 0.9, 0.9, 1 }, "")
 
     local styles = {
@@ -232,4 +257,5 @@ function module:OnLoad()
     DFFNamePlates.settings.NamePlatesSettings["hideCastBar"] = hideCastBarCB
     DFFNamePlates.settings.NamePlatesSettings["showOnlyNameNpc"] = showOnlyNameNpcCB
     DFFNamePlates.settings.NamePlatesSettings["showOnlyNameNpcType"] = showOnlyNameNpcDropdown
+    DFFNamePlates.settings.NamePlatesSettings["showColorBySelection"] = showColorBySelectionCB
 end
