@@ -1,4 +1,4 @@
-# 13.0.0-beta12 (2026-02-14)
+# 13.0.0-beta14 (2026-02-15)
 
 This is a basic version with Midnight support. Expect lots of missing features and Lua errors. Report any bugs at https://github.com/Backupiseasy/ThreatPlates/issues.
 
@@ -7,11 +7,15 @@ This is a basic version with Midnight support. Expect lots of missing features a
 * Added an option to show/hide the source unit for a interrupt.
 * Added animations for nameplates when they change size.
 * Added Masque support for (some) icons.
-* Removed Disconnected option for coloring of healthbars.
-* Updated integrated libraries (Ace3 r1387-alpha, LibSharedMedia-3.0 v11.2.1)
 * Added options to configure parent frame and frame strata of Threat Plates [GH-193, GH-399].
+* Removed Disconnected option for coloring of healthbars.
+* Fixed a bug that prevented the target highlight from being shown in headline view mode.
+* Updated integrated libraries (Ace3 r1387-alpha, LibSharedMedia-3.0 v11.2.1)
  
 Beta changes:
+* Fixed a Lua error that occurred when opening options which hovering over a nameplate.
+* Fixed a Lua error that occurred when hovering over a nameplate [Comment #7849]
+* Fixed a bug that prevented any nameplates from being updated [Comment #7961].
 * Hopefully fixed Lua errors that occurred because of accessing nameplates using unit tokens that are not allowed for this purpose (arenaN, bossN) [Comment #7944, #7939,# 7938, GH-654].
 * Disabled HealerTracker widget because of BG scoreboard restrictions.
 * Fixed a Lua error that occurred due to an error in the code for disabling off-tank detection for Midnight [Comment #7923, #7922, #7916, #7917, #7915].
