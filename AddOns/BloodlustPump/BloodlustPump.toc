@@ -1,0 +1,14 @@
+## Interface: 120000, 120001
+## Title: |cffC69B6DBloodlustPump|r
+## Notes: Lightweight Baby! Workout motivation for pumpers.
+## Author: Kongscandikk
+## Version: 1.0.5
+## SavedVariables: BloodlustpumpDB
+## IconTexture: Interface\AddOns\BloodlustPump\Images\icon
+
+# -----------------------------------------------------------------
+# 100% Vibecoded by Kongscandikk
+# Twitch: https://www.twitch.tv/kongscandikk
+# -----------------------------------------------------------------
+
+BloodLustPump.lua
