@@ -43,7 +43,23 @@ function module:OnLoad()
             SetCVar("nameplateStyle", value);
         end)
 
-    local customWidthCB = HttpsxLib:CreateCheckBox(content, "Custom Width", "TOPLEFT", content, 10, -190)
+    local hideInOpenWorldCB = HttpsxLib:CreateCheckBox(content, "Hide Friendly Nameplates in Open World", "TOPLEFT",
+        content, 10, -170)
+
+    hideInOpenWorldCB:SetScript("OnClick", function(self)
+        local checked = self:GetChecked()
+        DFFriendlyNamePlates.ExtendedSettings["hideInOpenWorld"] = checked
+
+            if DFFriendlyNamePlates.NamePlatesSettings["enabled"] then
+                if DFFNamePlates.instanceType == "none" and checked then
+                    SetCVar("nameplateshowfriendlyPlayers", "0")
+                else
+                    SetCVar("nameplateshowfriendlyPlayers", "1")
+                end
+            end
+    end)
+
+    local customWidthCB = HttpsxLib:CreateCheckBox(content, "Custom Width", "TOPLEFT", content, 10, -230)
 
     local customWidthBox = HttpsxLib:CreateNumberEditBox(content, 50, 20, "RIGHT", customWidthCB.text, 110, 0, 132,
         function(self, value)
@@ -55,8 +71,8 @@ function module:OnLoad()
     customWidthCB:Hide()  --Disabled until Blizzard separates width settings for friendly and enemy nameplates
     customWidthBox:Hide() --Disabled until Blizzard separates width settings for friendly and enemy nameplates
 
-    local moreSettingsButton = HttpsxLib:CreateButton(content, "Open Blizzard Nameplate settings", 270, 25, "TOPLEFT",
-        content, 10, -290)
+    local moreSettingsButton = HttpsxLib:CreateButton(content, "Open Blizzard Nameplate settings", 280, 25, "TOPLEFT",
+        content, 10, -340)
     moreSettingsButton.icon = moreSettingsButton:CreateTexture(nil, "OVERLAY")
     moreSettingsButton.icon:SetSize(26, 26)
     moreSettingsButton.icon:SetPoint("LEFT", moreSettingsButton, "LEFT", 4, 1)
@@ -70,4 +86,5 @@ function module:OnLoad()
     DFFNamePlates.settings.ExtendedSettings = {}
     DFFNamePlates.settings.ExtendedSettings["blizzardSize"] = blizzardSizeSlider
     DFFNamePlates.settings.ExtendedSettings["blizzardStyle"] = blizzardStyleDropdown
+    DFFNamePlates.settings.ExtendedSettings["hideInOpenWorld"] = hideInOpenWorldCB
 end
