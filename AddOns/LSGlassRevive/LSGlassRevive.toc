@@ -1,0 +1,13 @@
+## Interface: 120001
+## Title: LSGlassRevive
+## Notes: Configurable addon to setup chat windows
+## Version: 1.0.1
+## Authors: FlowBlaq & ChatGPT 5.2
+## SavedVariables: LSGlassReviveDB
+
+## Title-zhTW: |cffFF9999[聊天]|r 隱形聊天視窗
+## Notes-zhTW: LSGlassRevive |n|n輕量化聊天介面插件，目標是讓遊戲介面更乾淨、沉浸，避免佔據過多畫面空間。它復刻並改良了過去廣受好評的 Glass/LSGlass 插件，讓玩家能再次享受「隱形聊天視窗」的體驗。|n|n|cffffd200使用方法: |rEsc>選項>插件>聊天視窗>開啟設定。
+## X-Category-zhTW: 社交
+
+LSGlassRevive.lua
+LSGlassRevive_options.lua
