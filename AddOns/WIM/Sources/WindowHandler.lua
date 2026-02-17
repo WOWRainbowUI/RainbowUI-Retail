@@ -945,23 +945,28 @@ local function instantiateWindow(obj)
 
 		nextColor.r, nextColor.g, nextColor.b = r, g, b;
 
+		self.nextStamp = select(29, ...) or self.nextStamp;
+
+		local spreadArgs = {select(2, ...)}
 		local messageFormatter = function (msg)
-			return applyMessageFormatting(self.widgets.chat_display, event, msg or arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17);
+			return applyMessageFormatting(self.widgets.chat_display, event, msg or arg1, unpack(spreadArgs));
 		end
 
 		local str = messageFormatter();
 
 		-- if censoring is supported by client
 		if (
+			false and
 			_G.C_ChatInfo and
 			_G.C_ChatInfo.IsChatLineCensored and
 			_G.ChatHistory_GetAccessID and
 			_G.ChatHistory_GetAccessID and
-			_G.Chat_GetChatCategory
+			_G.Chat_GetChatCategory and
+			arg11 and _G.C_ChatInfo.IsChatLineCensored(arg11)
 		) then
 
 			local infoType = strsub(event, 10);
-			local chatGroup = _G.Chat_GetChatCategory(infoType);
+			local chatGroup = (_G.ChatFrameUtil and _G.ChatFrameUtil.GetChatCategory or _G.Chat_GetChatCategory)(infoType);
 			local info = _G.ChatTypeInfo[infoType];
 
 			local chatTarget;
@@ -971,9 +976,15 @@ local function instantiateWindow(obj)
 				chatTarget = arg2;
 			end
 
-			local isChatLineCensored = _G.C_ChatInfo.IsChatLineCensored(arg11);
 			local accessID = _G.ChatHistory_GetAccessID(chatGroup, chatTarget);
 			local typeID = _G.ChatHistory_GetAccessID(infoType, chatTarget, arg12 or arg13);
+
+			_G.DevTools_Dump({
+				isChatLineCensored = isChatLineCensored,
+				accessID = accessID,
+				typeID = typeID,
+			})
+
 
 			local eventArgs;
 			if isChatLineCensored then
