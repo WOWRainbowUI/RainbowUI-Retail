@@ -207,10 +207,19 @@ local function ActionCatalogButton_OnMouseWheel(activeButton, delta)
     end
 end
 
+local function ActionCatalogButton_OnGamePadButtonDown(button, key)
+    if config:InQuickbindMode() then
+        local captured = addon:GetCapturedKey(key)
+        window:AddNewBindingFromButton(button, captured)
+    end
+end
+
 function window:ActionCatalogButton_Initialize(button)
     button:SetScript("OnClick", ActionCatalogButton_OnClick)
     button:SetScript("OnKeyDown", ActionCatalogButton_OnKeyDown)
     button:SetScript("OnMouseWheel", ActionCatalogButton_OnMouseWheel)
+    button:SetScript("OnGamePadButtonDown", ActionCatalogButton_OnGamePadButtonDown)
+    button:EnableGamePadButton(false)
 end
 
 function window:AddNewBindingFromButton(button, key)
@@ -240,6 +249,9 @@ local function ActionCatalogButton_OnEnter(button, motion)
     -- Check if we're quickbinding, we need to do some extra things there
     if config:InQuickbindMode() then
         button:EnableKeyboard(true)
+        if addon:IsGamePadEnabled() then
+            button:EnableGamePadButton(true)
+        end
     end
 
     config:ShowTooltip(button, button.type, button.id)
@@ -247,6 +259,7 @@ end
 
 local function ActionCatalogButton_OnLeave(self, motion)
     self:EnableKeyboard(false)
+    self:EnableGamePadButton(false)
     config:HideTooltip()
 end
 

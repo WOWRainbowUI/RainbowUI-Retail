@@ -87,11 +87,18 @@ function page:Initialize()
     frame.bindSummary:SetPoint("TOPLEFT", frame, "TOPLEFT", 15, -65)
     frame.bindSummary:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -15, -65)
 
-    frame.changeBinding = CreateFrame("Button", nil, frame, "UIMenuButtonStretchTemplate")
+    frame.changeBinding = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     frame.changeBinding:SetText(L["Change binding"])
     frame.changeBinding:ClearAllPoints()
     frame.changeBinding:SetPoint("TOPRIGHT", frame.bindSummary, "BOTTOMRIGHT", 0, -5)
-    frame.changeBinding:SetWidth(125)
+    frame.changeBinding:SetWidth(150)
+    frame.changeBinding:SetHeight(32)
+    frame.changeBinding.border = frame.changeBinding:CreateTexture(nil, "OVERLAY")
+    frame.changeBinding.border:SetTexture("Interface\\Buttons\\UI-Panel-Button-Highlight")
+    frame.changeBinding.border:SetTexCoord(0, 0.625, 0, 0.6875)
+    frame.changeBinding.border:SetBlendMode("ADD")
+    frame.changeBinding.border:SetAllPoints()
+    frame.changeBinding.border:Hide()
 
     -- Glow box for when changing a binding
     frame.changeBindingArrow = CreateFrame("Frame", nil, frame, "GlowBoxArrowTemplate")
@@ -131,7 +138,7 @@ function page:Initialize()
     frame.addBindingHelpBox:SetFrameStrata("HIGH")
     frame.addBindingHelpBox:Show()
 
-    frame.changeBinding:RegisterForClicks("AnyUp")
+    frame.changeBinding:RegisterForClicks("AnyDown")
     page:ChangeBindingButton_Initialize(frame.changeBinding)
 
     frame.editMacro = CreateFrame("Button", nil, frame, "UIMenuButtonStretchTemplate")
@@ -296,11 +303,15 @@ end
 local function ChangeBindingButton_OnEnter(self, motion)
     if motion and self.bindMode then
         self:EnableKeyboard(true)
+        if addon:IsGamePadEnabled() then
+            self:EnableGamePadButton(true)
+        end
     end
 end
 
 local function ChangeBindingButton_OnLeave(self, motion)
     self:EnableKeyboard(false)
+    self:EnableGamePadButton(false)
 end
 
 local function ChangeBindingButton_CaptureAndEndBinding(key)
@@ -310,6 +321,7 @@ local function ChangeBindingButton_CaptureAndEndBinding(key)
         page.frame.changeBinding.bindMode = false
         page.frame.changeBindingArrow:Hide()
         page:UpdateEditPage()
+        page.frame.changeBinding.border:Hide()
     end
 end
 
@@ -317,7 +329,11 @@ local function ChangeBindingButton_OnClick(self, button)
     if not self.bindMode then
         self.bindMode = true
         page.frame.changeBindingArrow:Show()
+        page.frame.changeBinding.border:Show()
         self:EnableKeyboard(true)
+        if addon:IsGamePadEnabled() then
+            self:EnableGamePadButton(true)
+        end
     else
         ChangeBindingButton_CaptureAndEndBinding(button)
     end
@@ -336,13 +352,21 @@ local function ChangeBindingButton_OnMouseWheel(self, delta)
     end
 end
 
+local function ChangeBindingButton_OnGamePadButtonDown(self, key)
+    if self.bindMode then
+        ChangeBindingButton_CaptureAndEndBinding(key)
+    end
+end
+
 function page:ChangeBindingButton_Initialize(button)
     button:SetScript("OnEnter", ChangeBindingButton_OnEnter)
     button:SetScript("OnLeave", ChangeBindingButton_OnLeave)
     button:SetScript("OnClick", ChangeBindingButton_OnClick)
     button:SetScript("OnKeyDown", ChangeBindingButton_OnKeyDown)
     button:SetScript("OnMouseWheel", ChangeBindingButton_OnMouseWheel)
+    button:SetScript("OnGamePadButtonDown", ChangeBindingButton_OnGamePadButtonDown)
     button:EnableKeyboard(false)
+    button:EnableGamePadButton(false)
 end
 
 local pageMode = {

@@ -38,3 +38,6 @@ If you are going to submit a bug report, please include the following informatio
 * What specific bindings are not working
 
 Some folks have asked for how they can donate money, and for many years I've enjoyed hearing about how my addons have helped other people enjoy World of Warcraft. If you would like to donate, I'd ask you to make a donation to the [Colorectal Cancer Alliance](https://www.ccalliance.org/donate), a worthy organisation that helped my sister immensely from her diagnosis through her final years. If you or a family member suspect you might have something not right in your butt, please have a doctor check it out. Colorectal cancer is one of the most preventable cancers in the world.
+
+This repository is source-available but not open source.
+All rights are reserved.

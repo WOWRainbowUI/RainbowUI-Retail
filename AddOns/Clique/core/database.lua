@@ -32,7 +32,9 @@ addon.databaseDefaults = {
             boss = true,
         },
         stopcastingfix = false,
-        usecvardirection = true,
+        downClick = true,
+        removeWildcardActions = false,
+        enableGamePad = false,
     },
     profile = {
         bindings = {
