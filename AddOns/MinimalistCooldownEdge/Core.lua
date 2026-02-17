@@ -131,7 +131,7 @@ local function IsNameplateContext(name, objType, unit)
         or strfind(name, "NamePlate", 1, true)
         or strfind(name, "Plater", 1, true)
         or strfind(name, "Kui", 1, true)
-        or (unit and strfind(unit, "nameplate", 1, true))
+        or (unit and type(unit) == "string" and strfind(unit, "nameplate", 1, true)) -- 暫時修正
 end
 
 -- === FONT STYLE NORMALIZER ===
@@ -139,6 +139,16 @@ end
 local function NormalizeFontStyle(style)
     if not style or style == "NONE" then return "" end
     return style
+end
+
+-- === FONT RESOLVER ===
+-- Resolves font paths; handles "GAMEDEFAULT" by using WoW's native font.
+local function ResolveFontPath(fontPath)
+    if fontPath == "GAMEDEFAULT" then
+        -- Get the game's default font (respects locale)
+        return GameFontNormal:GetFont()
+    end
+    return fontPath
 end
 
 -- === ACE ADDON LIFECYCLE ===
@@ -349,7 +359,8 @@ function MCE:StyleStackCount(cooldownFrame, config, category)
     if countRegion:GetObjectType() ~= "FontString" then return end
     if IsForbiddenFrame(countRegion) then return end
 
-    countRegion:SetFont(config.stackFont, config.stackSize, NormalizeFontStyle(config.stackStyle))
+    local resolvedStackFont = ResolveFontPath(config.stackFont)
+    countRegion:SetFont(resolvedStackFont, config.stackSize, NormalizeFontStyle(config.stackStyle))
     local sc = config.stackColor
     countRegion:SetTextColor(sc.r, sc.g, sc.b, sc.a)
     countRegion:ClearAllPoints()
@@ -455,11 +466,12 @@ function MCE:ApplyCustomStyle(cdFrame, forcedCategory, skipGlobalDefer)
     if numRegions == 0 then return end
 
     local fontStyle = NormalizeFontStyle(config.fontStyle)
+    local resolvedFont = ResolveFontPath(config.font)
     local regions   = { cdFrame:GetRegions() }
     for i = 1, numRegions do
         local region = regions[i]
         if region:GetObjectType() == "FontString" and not IsForbiddenFrame(region) then
-            region:SetFont(config.font, config.fontSize, fontStyle)
+            region:SetFont(resolvedFont, config.fontSize, fontStyle)
             if config.textColor then
                 local tc = config.textColor
                 region:SetTextColor(tc.r, tc.g, tc.b, tc.a)
