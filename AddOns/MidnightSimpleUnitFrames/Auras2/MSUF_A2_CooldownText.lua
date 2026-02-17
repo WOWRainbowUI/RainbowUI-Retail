@@ -1,696 +1,915 @@
 -- MSUF_A2_CooldownText.lua
--- Auras 2.0 cooldown text handling.
--- Phase 4: extract cooldown text manager out of Render for line-reduction + clarity.
+-- Auras 2.0 (Midnight/Beta): Secret-safe cooldown text coloring.
 --
--- Goals:
---  * One centralized manager (single OnUpdate) for cooldown-text coloring + optional text.
---  * Secret-safe: prefer Duration Objects / C_UnitAuras.GetAuraDurationRemaining.
---  * OmniCC is not assumed in Midnight.
+-- This implementation is tuned for maximum runtime performance:
+--   * 0 protected-call wrappers
+--   * No custom time formatting / no text overrides (no abbreviations)
+--   * No per-icon remaining-seconds math (secret-safe by design)
+--   * Discrete scheduled tick manager (no per-frame OnUpdate)
+--   * Cached Cooldown FontString lookup (EnumerateRegions, no table alloc)
 
 local addonName, ns = ...
-ns = ns or {}
 
-ns.MSUF_Auras2 = (type(ns.MSUF_Auras2) == "table") and ns.MSUF_Auras2 or {}
+ns = (rawget(_G, "MSUF_NS") or ns) or {}
+-- =========================================================================
+-- PERF LOCALS (Auras2 runtime)
+--  - Reduce global table lookups in high-frequency aura pipelines.
+--  - Secret-safe: localizing function references only (no value comparisons).
+-- =========================================================================
+local type, tostring, tonumber, select = type, tostring, tonumber, select
+local pairs, ipairs, next = pairs, ipairs, next
+local math_min, math_max, math_floor = math.min, math.max, math.floor
+local string_format, string_match, string_sub = string.format, string.match, string.sub
+local CreateFrame, GetTime = CreateFrame, GetTime
+local UnitExists = UnitExists
+local InCombatLockdown = InCombatLockdown
+local C_Timer = C_Timer
+local C_UnitAuras = C_UnitAuras
+local C_Secrets = C_Secrets
+local C_CurveUtil = C_CurveUtil
+ns.MSUF_Auras2 = ns.MSUF_Auras2 or {}
 local API = ns.MSUF_Auras2
 
-API.CooldownText = (type(API.CooldownText) == "table") and API.CooldownText or {}
+API.CooldownText = API.CooldownText or {}
 local CT = API.CooldownText
 
+local _G = _G
+local type = _G.type
+local CreateFrame = _G.CreateFrame
+local CreateColor = _G.CreateColor
+local GetTime = _G.GetTime
+local tonumber = _G.tonumber
+local strmatch = _G.string and _G.string.match
+local strlower = _G.string and _G.string.lower
+
+local C_CurveUtil = _G.C_CurveUtil
+local C_Timer = _G.C_Timer
+
+local C_Secrets = _G.C_Secrets
+
+-- Step 6 perf: lightweight secret-value check. issecretvalue() is a single C-function call,
+-- much cheaper than C_Secrets.IsSecret() which goes through namespace resolution.
+-- Fallback to C_Secrets.IsSecret if issecretvalue isn't available yet (load-order defense).
+local issecretvalue = _G.issecretvalue
+    or (C_Secrets and type(C_Secrets.IsSecret) == "function" and C_Secrets.IsSecret)
+    or nil
+
 -- ------------------------------------------------------------
--- DB helpers (avoid hard dependency on Render-local EnsureDB)
+-- Secret mode detection (cached; avoids secret-value compares)
 -- ------------------------------------------------------------
 
-local function EnsureDB()
-    local db = API.DB
-    if db and db.Ensure then
-        db.Ensure()
-        return
+local _secretMode = false
+local _secretNextCheck = 0
+local SECRET_CHECK_INTERVAL = 0.50
+
+local function IsSecretMode(now)
+    if not C_Secrets or type(C_Secrets.ShouldAurasBeSecret) ~= "function" then
+        return false
     end
-    -- Fallback (should be rare): assume core MSUF_DB exists.
+    if type(now) ~= "number" then
+        now = GetTime()
+    end
+    if now >= (_secretNextCheck or 0) then
+        _secretNextCheck = now + SECRET_CHECK_INTERVAL
+        -- ShouldAurasBeSecret() is cheap and avoids per-aura IsSecret checks.
+        _secretMode = (C_Secrets.ShouldAurasBeSecret() == true)
+    end
+    return _secretMode == true
 end
 
 -- ------------------------------------------------------------
--- Locate the Blizzard cooldown countdown FontString (lazy-built)
+-- DB access (cheap + load-order safe)
 -- ------------------------------------------------------------
 
-function MSUF_A2_GetCooldownFontString(icon)
+local function EnsureDB()
+    if API and API.EnsureDB then
+        API.EnsureDB()
+        return
+    end
+    if API and API.DB and API.DB.RebuildCache and API.GetDB then
+        -- Fallback for odd load order (should be rare)
+        local a2, s = API.GetDB()
+        if a2 and s then
+            API.DB.RebuildCache(a2, s)
+        end
+    end
+end
+
+local function GetGeneral()
+    local db = _G and _G.MSUF_DB
+    local g = db and db.general
+    if type(g) ~= "table" then
+        return nil
+    end
+    return g
+end
+
+local function ReadColor(t, defR, defG, defB, defA)
+    if type(t) ~= "table" then
+        return defR, defG, defB, defA
+    end
+
+    local r = t[1]; if r == nil then r = t.r end
+    local g = t[2]; if g == nil then g = t.g end
+    local b = t[3]; if b == nil then b = t.b end
+    local a = t[4]; if a == nil then a = t.a end
+
+    if type(r) ~= "number" then r = defR end
+    if type(g) ~= "number" then g = defG end
+    if type(b) ~= "number" then b = defB end
+    if type(a) ~= "number" then a = defA end
+
+    return r, g, b, a
+end
+
+-- ------------------------------------------------------------
+-- Cooldown fontstring discovery (no table alloc)
+-- ------------------------------------------------------------
+
+local function MSUF_A2_GetCooldownFontString(icon, now)
     local cd = icon and icon.cooldown
-    if not cd or not cd.GetRegions then return nil end
+    if not cd then
+        return nil
+    end
 
     local cached = cd._msufCooldownFontString
     if cached and cached ~= false then
         return cached
     end
 
-    -- If we previously failed to find the fontstring, retry occasionally because
-    -- Blizzard may build the countdown text lazily.
-    local now = (GetTime and GetTime()) or 0
-    if cached == false then
-        local last = cd._msufCooldownFontStringLastTry or 0
-        if (now - last) < 0.5 then
-            return nil
-        end
-    end
-    cd._msufCooldownFontStringLastTry = now
-
-    local regions = { cd:GetRegions() }
-    for i = 1, #regions do
-        local r = regions[i]
-        if r and r.GetObjectType and r:GetObjectType() == "FontString" then
-            cd._msufCooldownFontString = r
-            return r
-        end
+    -- Cooldown count text can be created lazily; retry at a low frequency.
+    local retryAt = cd._msufCooldownFontStringRetryAt
+    if type(retryAt) == "number" and type(now) == "number" and now < retryAt then
+        return nil
     end
 
+    if cd.EnumerateRegions then
+        for region in cd:EnumerateRegions() do
+            if region and region.GetObjectType and region:GetObjectType() == "FontString" then
+                cd._msufCooldownFontString = region
+                cd._msufCooldownFontStringRetryAt = nil
+                return region
+            end
+        end
+    else
+        -- Rare fallback: one-time pack (only if EnumerateRegions is not available)
+        local regions = { cd:GetRegions() }
+        for i = 1, #regions do
+            local region = regions[i]
+            if region and region.GetObjectType and region:GetObjectType() == "FontString" then
+                cd._msufCooldownFontString = region
+                cd._msufCooldownFontStringRetryAt = nil
+                return region
+            end
+        end
+    end
+
+    -- Cache miss; retry later.
+    cd._msufCooldownFontStringRetryAt = (type(now) == "number" and (now + 0.50)) or nil
     cd._msufCooldownFontString = false
     return nil
 end
 
 CT.GetCooldownFontString = MSUF_A2_GetCooldownFontString
 
+if _G and type(_G.MSUF_A2_GetCooldownFontString) ~= "function" then
+    _G.MSUF_A2_GetCooldownFontString = function(icon)
+        return MSUF_A2_GetCooldownFontString(icon, GetTime())
+    end
+end
+
 -- ------------------------------------------------------------
--- Bucket colors + curve
+-- Settings cache + curve
 -- ------------------------------------------------------------
 
-local MSUF_A2_CooldownColorCurve
-local MSUF_A2_CooldownTextColors
-local MSUF_A2_CooldownTextThresholds
-local MSUF_A2_BucketColoringEnabled
-local MSUF_A2_CooldownTextMgr
+local settingsDirty = true
+local bucketsEnabled = true
+local safeR, safeG, safeB, safeA = 1, 1, 1, 1
+local normalR, normalG, normalB, normalA = 1, 1, 1, 1
+local warnR, warnG, warnB, warnA = 1, 0.85, 0.2, 1
+local urgR,  urgG,  urgB,  urgA  = 1, 0.45, 0.1, 1
+local expR,  expG,  expB,  expA  = 1, 0.12, 0.12, 1
+local curve = nil
 
--- Curve API compatibility:
--- Some clients expose Curve:AddPoint(point) instead of Curve:AddPoint(x, value).
--- We detect the required calling convention once per session.
-local MSUF_A2_CurveAddMode -- nil | "xy" | "point" | "none"
+-- Threshold cache (seconds). Used for secret-safe text parsing fallback.
+local thrSafeSeconds = 60
+local thrWarnSeconds = 15
+local thrUrgSeconds  = 5
 
-local function MSUF_A2_CreateCurvePoint(x, value)
-    if C_CurveUtil then
-        local f = C_CurveUtil.CreateCurvePoint or C_CurveUtil.CreatePoint or C_CurveUtil.CreatePoint2D
-        if type(f) == "function" then
-            return f(x, value)
+-- Step 6 perf: per-icon evaluation skip durations (seconds) based on color bucket.
+-- Icons in stable buckets don't need EvaluateRemainingDuration every tick.
+local SKIP_NORMAL = 5.0   -- >safeSeconds: color is static for a long time
+local SKIP_SAFE   = 2.0   -- warnSeconds..safeSeconds: color is static for seconds
+
+local function BuildCurve(g)
+    curve = nil
+
+    if not (C_CurveUtil and type(C_CurveUtil.CreateColorCurve) == "function") then
+        return
+    end
+    if type(CreateColor) ~= "function" then
+        return
+    end
+
+    local c = C_CurveUtil.CreateColorCurve()
+    if not c then
+        return
+    end
+
+    if c.SetType and _G.Enum and _G.Enum.LuaCurveType and _G.Enum.LuaCurveType.Step then
+        c:SetType(_G.Enum.LuaCurveType.Step)
+    end
+
+    -- Thresholds are already clamped/ordered in Render.lua when DB is validated.
+    local safeSeconds = g and g.aurasCooldownTextSafeSeconds or 60
+    local warnSeconds = g and g.aurasCooldownTextWarningSeconds or 15
+    local urgSeconds  = g and g.aurasCooldownTextUrgentSeconds or 5
+
+    -- Colors (stored as plain SV numbers; no clamping here for speed)
+    local safeCR, safeCG, safeCB, safeCA = ReadColor(g and g.aurasCooldownTextSafeColor, safeR, safeG, safeB, safeA)
+    local warnCR, warnCG, warnCB, warnCA = ReadColor(g and g.aurasCooldownTextWarningColor, 1, 0.85, 0.2, 1)
+    local urgCR,  urgCG,  urgCB,  urgCA  = ReadColor(g and g.aurasCooldownTextUrgentColor, 1, 0.45, 0.1, 1)
+    local expCR,  expCG,  expCB,  expCA  = ReadColor(g and g.aurasCooldownTextExpireColor, 1, 0.12, 0.12, 1)
+
+    local safeCol   = CreateColor(safeCR, safeCG, safeCB, safeCA)
+    local warnCol   = CreateColor(warnCR, warnCG, warnCB, warnCA)
+    local urgentCol = CreateColor(urgCR,  urgCG,  urgCB,  urgCA)
+    local expireCol = CreateColor(expCR,  expCG,  expCB,  expCA)
+    local normalCol = CreateColor(normalR, normalG, normalB, normalA)
+
+    -- Step curve points (remaining seconds -> color)
+    c:AddPoint(0, expireCol)
+    c:AddPoint(0.25, urgentCol)
+    c:AddPoint(urgSeconds, warnCol)
+    c:AddPoint(warnSeconds, safeCol)
+    c:AddPoint(safeSeconds, normalCol)
+
+    curve = c
+end
+
+local function EnsureSettings()
+    if not settingsDirty then
+        return
+    end
+
+    settingsDirty = false
+    EnsureDB()
+
+    local g = GetGeneral()
+
+    bucketsEnabled = not (g and g.aurasCooldownTextUseBuckets == false)
+
+    -- Thresholds (used by curve + secret-safe text fallback).
+    do
+        local ss = g and g.aurasCooldownTextSafeSeconds or 60
+        local ws = g and g.aurasCooldownTextWarningSeconds or 15
+        local us = g and g.aurasCooldownTextUrgentSeconds or 5
+
+        if type(ss) ~= "number" then ss = 60 end
+        if type(ws) ~= "number" then ws = 15 end
+        if type(us) ~= "number" then us = 5 end
+
+        -- Keep ordering sane (Render.lua should already validate this; this is a cheap safety net)
+        if ws > ss then ws = ss end
+        if us > ws then us = ws end
+        if us < 0 then us = 0 end
+
+        thrSafeSeconds = ss
+        thrWarnSeconds = ws
+        thrUrgSeconds  = us
+    end
+
+    -- Base/normal color: custom font color if enabled, else white.
+    if g and g.useCustomFontColor == true then
+        local r = g.fontColorCustomR
+        local gg = g.fontColorCustomG
+        local b = g.fontColorCustomB
+        if type(r) == "number" and type(gg) == "number" and type(b) == "number" then
+            normalR, normalG, normalB = r, gg, b
+            normalA = 1
+        else
+            normalR, normalG, normalB, normalA = 1, 1, 1, 1
         end
-    end
-    local g = _G and (_G.CreateCurvePoint or _G.CreatePoint) or nil
-    if type(g) == "function" then
-        return g(x, value)
-    end
-    return nil
-end
-
-local function MSUF_A2_CurveAddPoint(curve, x, value)
-    if not curve then return false end
-
-    if MSUF_A2_CurveAddMode == "xy" then
-        curve:AddPoint(x, value)
-        return true
-    elseif MSUF_A2_CurveAddMode == "point" then
-        local pt = MSUF_A2_CreateCurvePoint(x, value)
-        if not pt then return false end
-        curve:AddPoint(pt)
-        return true
-    elseif MSUF_A2_CurveAddMode == "none" then
-        return false
-    end
-
-    -- Detect once (pcall is fine here; curve builds only on invalidation / options changes).
-    local ok = pcall(curve.AddPoint, curve, x, value)
-    if ok then
-        MSUF_A2_CurveAddMode = "xy"
-        return true
-    end
-
-    local pt = MSUF_A2_CreateCurvePoint(x, value)
-    if pt then
-        ok = pcall(curve.AddPoint, curve, pt)
-        if ok then
-            MSUF_A2_CurveAddMode = "point"
-            return true
-        end
-    end
-
-    MSUF_A2_CurveAddMode = "none"
-    return false
-end
-
-local function MSUF_A2_GetGlobalFontRGB_Fallback()
-    EnsureDB()
-    local g = (_G.MSUF_DB and _G.MSUF_DB.general) or nil
-    if g and g.useCustomFontColor == true
-       and type(g.fontColorCustomR) == "number"
-       and type(g.fontColorCustomG) == "number"
-       and type(g.fontColorCustomB) == "number"
-    then
-        return g.fontColorCustomR, g.fontColorCustomG, g.fontColorCustomB
-    end
-    return 1, 1, 1
-end
-
--- Master toggle (global): when disabled, aura cooldown text always uses the Safe color.
-local function MSUF_A2_IsCooldownTextBucketColoringEnabled()
-    if MSUF_A2_BucketColoringEnabled ~= nil then
-        return MSUF_A2_BucketColoringEnabled
-    end
-    EnsureDB()
-    local g = (_G.MSUF_DB and _G.MSUF_DB.general) or nil
-    -- default = enabled
-    MSUF_A2_BucketColoringEnabled = not (g and g.aurasCooldownTextUseBuckets == false)
-    return MSUF_A2_BucketColoringEnabled
-end
-
-local function Clamp01(v)
-    if v < 0 then return 0 end
-    if v > 1 then return 1 end
-    return v
-end
-
-local function NormalizeColorTable(t, fallbackR, fallbackG, fallbackB)
-    if type(t) ~= "table" then
-        return { fallbackR, fallbackG, fallbackB, 1 }
-    end
-    local r = t[1] or t.r or fallbackR
-    local g = t[2] or t.g or fallbackG
-    local b = t[3] or t.b or fallbackB
-    local a = t[4] or t.a or 1
-    if type(r) ~= "number" then r = fallbackR end
-    if type(g) ~= "number" then g = fallbackG end
-    if type(b) ~= "number" then b = fallbackB end
-    if type(a) ~= "number" then a = 1 end
-    return { Clamp01(r), Clamp01(g), Clamp01(b), Clamp01(a) }
-end
-
-local function MSUF_A2_EnsureCooldownTextColors()
-    if MSUF_A2_CooldownTextColors then
-        return MSUF_A2_CooldownTextColors
-    end
-
-    EnsureDB()
-    local g = (_G.MSUF_DB and _G.MSUF_DB.general) or nil
-
-    local normalR, normalG, normalB = MSUF_A2_GetGlobalFontRGB_Fallback()
-
-    local safe   = NormalizeColorTable(g and g.aurasCooldownTextSafeColor,   normalR, normalG, normalB)
-    local warn   = NormalizeColorTable(g and g.aurasCooldownTextWarningColor, 1, 0.82, 0)
-    local urgent = NormalizeColorTable(g and g.aurasCooldownTextUrgentColor,  1, 0.1, 0.1)
-    local expire = NormalizeColorTable(g and g.aurasCooldownTextExpireColor,  1, 0.1, 0.1)
-
-    MSUF_A2_CooldownTextColors = {
-        normal = { normalR, normalG, normalB, 1 },
-        safe = safe,
-        warning = warn,
-        urgent = urgent,
-        expire = expire,
-    }
-
-    return MSUF_A2_CooldownTextColors
-end
-
-local function MSUF_A2_EnsureCooldownTextThresholds()
-    if MSUF_A2_CooldownTextThresholds then
-        return MSUF_A2_CooldownTextThresholds
-    end
-
-    EnsureDB()
-    local g = (_G.MSUF_DB and _G.MSUF_DB.general) or nil
-
-    local safeSec = g and g.aurasCooldownTextSafeSeconds
-    local warnSec = g and g.aurasCooldownTextWarningSeconds
-    local urgSec  = g and g.aurasCooldownTextUrgentSeconds
-
-    if type(safeSec) ~= "number" then safeSec = 60 end
-    if type(warnSec) ~= "number" then warnSec = 15 end
-    if type(urgSec)  ~= "number" then urgSec  = 5 end
-
-    -- Clamp + ordering guarantees (UI also enforces, but keep it robust)
-    if safeSec < 0 then safeSec = 0 end
-    if safeSec > 600 then safeSec = 600 end
-
-    if warnSec < 0 then warnSec = 0 end
-    if warnSec > 30 then warnSec = 30 end
-    if warnSec > safeSec then warnSec = safeSec end
-
-    if urgSec < 0 then urgSec = 0 end
-    if urgSec > 15 then urgSec = 15 end
-    if urgSec > warnSec then urgSec = warnSec end
-
-    MSUF_A2_CooldownTextThresholds = {
-        expireSec = 0.25, -- "about to expire"
-        urgSec    = urgSec,
-        warnSec   = warnSec,
-        safeSec   = safeSec,
-    }
-
-    return MSUF_A2_CooldownTextThresholds
-end
-
-local function MSUF_A2_GetCooldownTextColorForRemainingSeconds(rem)
-    if type(rem) ~= "number" then return nil end
-    if rem <= 0 then return nil end
-
-    local secrets = C_Secrets
-    if secrets and type(secrets.IsSecret) == "function" and secrets.IsSecret(rem) == true then
-        -- Do not compare/threshold secret numbers; use DurationObject + curve path instead.
-        return nil
-    end
-
-    local t = MSUF_A2_EnsureCooldownTextThresholds()
-    if not t then return nil end
-
-    if rem <= (t.expireSec or 0.25) then
-        return (MSUF_A2_CooldownTextColors and MSUF_A2_CooldownTextColors.expire) or nil
-    elseif rem <= (t.urgSec or 5) then
-        return (MSUF_A2_CooldownTextColors and MSUF_A2_CooldownTextColors.urgent) or nil
-    elseif rem <= (t.warnSec or 15) then
-        return (MSUF_A2_CooldownTextColors and MSUF_A2_CooldownTextColors.warning) or nil
-    elseif rem <= (t.safeSec or 60) then
-        return (MSUF_A2_CooldownTextColors and MSUF_A2_CooldownTextColors.safe) or nil
     else
-        return (MSUF_A2_CooldownTextColors and MSUF_A2_CooldownTextColors.normal) or nil
+        normalR, normalG, normalB, normalA = 1, 1, 1, 1
+    end
+
+    safeR, safeG, safeB, safeA = ReadColor(g and g.aurasCooldownTextSafeColor, normalR, normalG, normalB, normalA)
+
+    warnR, warnG, warnB, warnA = ReadColor(g and g.aurasCooldownTextWarningColor, 1, 0.85, 0.2, 1)
+    urgR,  urgG,  urgB,  urgA  = ReadColor(g and g.aurasCooldownTextUrgentColor, 1, 0.45, 0.1, 1)
+    expR,  expG,  expB,  expA  = ReadColor(g and g.aurasCooldownTextExpireColor, 1, 0.12, 0.12, 1)
+
+    if bucketsEnabled then
+        BuildCurve(g)
+    else
+        curve = nil
     end
 end
 
-local function MSUF_A2_EnsureCooldownColorCurve()
-    -- nil = not built yet; false = unsupported (don't retry)
-    if MSUF_A2_CooldownColorCurve ~= nil then
-        return (MSUF_A2_CooldownColorCurve ~= false) and MSUF_A2_CooldownColorCurve or nil
-    end
-
-    local curveUtil = C_CurveUtil
-    if not curveUtil then
-        MSUF_A2_CooldownColorCurve = false
-        return nil
-    end
-
-    local createCurve = curveUtil.CreateColorCurve or curveUtil.CreateCurve
-    if type(createCurve) ~= "function" then
-        MSUF_A2_CooldownColorCurve = false
-        return nil
-    end
-
-    local curve = createCurve()
-    if not curve then
-        MSUF_A2_CooldownColorCurve = false
-        return nil
-    end
-
-    -- Step curve (bucket colors)
-    if curve.SetType and Enum and Enum.LuaCurveType and Enum.LuaCurveType.Step then
-        curve:SetType(Enum.LuaCurveType.Step)
-    end
-
-    local c = MSUF_A2_EnsureCooldownTextColors()
-    local t = MSUF_A2_EnsureCooldownTextThresholds()
-    if (not c) or (not t) or (type(CreateColor) ~= "function") then
-        MSUF_A2_CooldownColorCurve = false
-        return nil
-    end
-
-    local function C4(tab)
-        if not tab then return nil end
-        return CreateColor(tab[1], tab[2], tab[3], tab[4] or 1)
-    end
-
-    local colExpire = C4(c.expire)  or C4(c.urgent)  or C4(c.warning) or C4(c.safe) or C4(c.normal)
-    local colUrg    = C4(c.urgent)  or C4(c.warning) or C4(c.safe)    or C4(c.normal)
-    local colWarn   = C4(c.warning) or C4(c.safe)    or C4(c.normal)
-    local colSafe   = C4(c.safe)    or C4(c.normal)
-    local colNorm   = C4(c.normal)
-
-    if (not colExpire) or (not colUrg) or (not colWarn) or (not colSafe) or (not colNorm) then
-        MSUF_A2_CooldownColorCurve = false
-        return nil
-    end
-
-    local e = (t.expireSec or 0.25)
-    local u = (t.urgSec or 5)
-    local w = (t.warnSec or 15)
-    local s = (t.safeSec or 60)
-
-    -- Enforce monotonic X (step buckets)
-    if u < e then u = e end
-    if w < u then w = u end
-    if s < w then s = w end
-
-    local function AddColorPoint(x, color)
-        if not curve.AddPoint then return false end
-
-        -- Some builds: AddPoint(x, color)
-        if pcall(curve.AddPoint, curve, x, color) then
-            return true
-        end
-
-        -- Some builds: AddPoint(point) where point = { x = <number>, y = <Color> }
-        if pcall(curve.AddPoint, curve, { x = x, y = color }) then
-            return true
-        end
-
-        -- Some builds: AddPoint(x, r, g, b, a)
-        if color and color.GetRGBA then
-            local r, g, b, a = color:GetRGBA()
-            if pcall(curve.AddPoint, curve, x, r, g, b, a) then
-                return true
-            end
-        end
-
-        return false
-    end
-
-    if not (AddColorPoint(0, colExpire)
-        and AddColorPoint(e, colUrg)
-        and AddColorPoint(u, colWarn)
-        and AddColorPoint(w, colSafe)
-        and AddColorPoint(s, colNorm)) then
-        MSUF_A2_CooldownColorCurve = false
-        return nil
-    end
-
-    MSUF_A2_CooldownColorCurve = curve
-    return curve
-end
-
-local function MSUF_A2_FormatCooldownTimeText(rem)
-    rem = tonumber(rem)
-    if not rem or rem <= 0 then return "" end
-
-    if rem < 10 then
-        local v = math.floor(rem * 10 + 0.5) / 10
-        local s = tostring(v)
-        if not string.find(s, "%.", 1, true) then
-            s = s .. ".0"
-        end
-        return s
-    elseif rem < 60 then
-        return tostring(math.floor(rem + 0.5))
-    end
-
-    if rem < 600 then
-        local m = math.floor(rem / 60)
-        local s = math.floor(rem - (m * 60))
-        if s < 0 then s = 0 end
-        if s < 10 then
-            return tostring(m) .. ":0" .. tostring(s)
-        end
-        return tostring(m) .. ":" .. tostring(s)
-    end
-
-    if rem < 3600 then
-        local m = math.floor(rem / 60 + 0.5)
-        return tostring(m) .. "m"
-    end
-
-    local h = math.floor(rem / 3600 + 0.5)
-    return tostring(h) .. "h"
-end
-
--- ------------------------------------------------------------
--- Public controls: invalidate + recolor
--- ------------------------------------------------------------
-
+-- Public invalidation (Options -> calls this)
 local function MSUF_A2_InvalidateCooldownTextCurve()
-    MSUF_A2_CooldownColorCurve = nil
-    MSUF_A2_CooldownTextColors = nil
-    MSUF_A2_CooldownTextThresholds = nil
-    MSUF_A2_BucketColoringEnabled = nil
+    settingsDirty = true
 end
 
 local function MSUF_A2_ForceCooldownTextRecolor()
-    local mgr = MSUF_A2_CooldownTextMgr
-    if not mgr or not mgr.active then return end
-
-    local bucketsEnabled = MSUF_A2_IsCooldownTextBucketColoringEnabled()
-    local safeCol
-    if not bucketsEnabled then
-        local c = MSUF_A2_EnsureCooldownTextColors()
-        safeCol = c and c.safe or nil
-    end
-
-    local curve = bucketsEnabled and MSUF_A2_EnsureCooldownColorCurve() or nil
-
-    for cooldown, ic in pairs(mgr.active) do
-        if cooldown and ic and ic.IsShown and ic:IsShown() and ic._msufA2_hideCDNumbers ~= true then
-            local r, g, b, a
-
-            if not bucketsEnabled and safeCol then
-                r, g, b, a = safeCol[1], safeCol[2], safeCol[3], safeCol[4]
+    -- Step 6 perf: clear all per-icon skips and cached colors (bucket thresholds may have changed).
+    local mgr = CT._mgr
+    if mgr and mgr.count > 0 then
+        for j = 1, mgr.count do
+            local ic = mgr.icons[j]
+            if ic then
+                ic._msufA2_cdSkipUntil = nil
+                ic._msufA2_cdLastR = nil
+                ic._msufA2_cdLastG = nil
+                ic._msufA2_cdLastB = nil
+                ic._msufA2_cdLastA = nil
             end
-
-            if C_UnitAuras and type(C_UnitAuras.GetAuraDurationRemaining) == "function" then
-                local unit = ic._msufUnit
-                local auraID = ic._msufAuraInstanceID
-                if unit and auraID and type(auraID) == "number" then
-                    local rem = C_UnitAuras.GetAuraDurationRemaining(unit, auraID)
-                    if type(rem) == "number" then
-                        local colT = MSUF_A2_GetCooldownTextColorForRemainingSeconds(rem)
-                        if colT then r, g, b, a = colT[1], colT[2], colT[3], colT[4] end
-                    end
-                end
-            end
-
-            if (not r) and ic._msufA2_isPreview == true then
-                local ps = ic._msufA2_previewCooldownStart
-                local pd = ic._msufA2_previewCooldownDur
-                if type(ps) == "number" and type(pd) == "number" and pd > 0 then
-                    local rem = (ps + pd) - GetTime()
-                    if type(rem) == "number" then
-                        local colT = MSUF_A2_GetCooldownTextColorForRemainingSeconds(rem)
-                        if colT then r, g, b, a = colT[1], colT[2], colT[3], colT[4] end
-                    end
-                end
-            end
-
-            if (not r) and curve then
-                local obj = ic._msufA2_cdDurationObj or cooldown._msufA2_durationObj
-                if obj and type(obj.EvaluateRemainingDuration) == "function" then
-                    local col = obj:EvaluateRemainingDuration(curve)
-                    if col and col.GetRGBA then
-                        r, g, b, a = col:GetRGBA()
-                    end
-                end
-            end
-
-            if r then
-                local fs = cooldown._msufCooldownFontString
-                if fs == false then fs = nil end
-                if not fs then fs = MSUF_A2_GetCooldownFontString(ic) end
-                if fs then cooldown._msufCooldownFontString = fs end
-                if fs then
-                    local aa = a
-                    if type(aa) ~= "number" then aa = 1 end
-                    if fs.SetTextColor then
-                        fs:SetTextColor(r, g, b, aa)
-                    elseif fs.SetVertexColor then
-                        fs:SetVertexColor(r, g, b, aa)
-                    end
-                end
-            end
+        end
+        if mgr._Schedule then
+            mgr._Schedule(0)
         end
     end
 end
 
 CT.InvalidateCurve = MSUF_A2_InvalidateCooldownTextCurve
-CT.ForceRecolor    = MSUF_A2_ForceCooldownTextRecolor
+CT.ForceRecolor = MSUF_A2_ForceCooldownTextRecolor
 
--- Keep old external entry points.
 API.InvalidateCooldownTextCurve = API.InvalidateCooldownTextCurve or MSUF_A2_InvalidateCooldownTextCurve
-API.ForceCooldownTextRecolor    = API.ForceCooldownTextRecolor    or MSUF_A2_ForceCooldownTextRecolor
+API.ForceCooldownTextRecolor = API.ForceCooldownTextRecolor or MSUF_A2_ForceCooldownTextRecolor
 
 if _G and type(_G.MSUF_A2_InvalidateCooldownTextCurve) ~= "function" then
-    _G.MSUF_A2_InvalidateCooldownTextCurve = function() return API.InvalidateCooldownTextCurve() end
-end
-if _G and type(_G.MSUF_A2_ForceCooldownTextRecolor) ~= "function" then
-    _G.MSUF_A2_ForceCooldownTextRecolor = function() return API.ForceCooldownTextRecolor() end
-end
-
--- ------------------------------------------------------------
--- Cooldown Text Manager (single OnUpdate, 10 Hz)
--- ------------------------------------------------------------
-
-MSUF_A2_CooldownTextMgr = {
-    frame = nil,
-    active = {}, -- [cooldownFrame] = icon
-    count = 0,
-    acc = 0,
-}
-
-local function MSUF_A2_CooldownTextMgr_StopIfIdle()
-    if MSUF_A2_CooldownTextMgr.count > 0 then return end
-    MSUF_A2_CooldownTextMgr.count = 0
-    local f = MSUF_A2_CooldownTextMgr.frame
-    if f then
-        f:SetScript("OnUpdate", nil)
-        f:Hide()
+    _G.MSUF_A2_InvalidateCooldownTextCurve = function()
+        return API.InvalidateCooldownTextCurve()
     end
 end
 
-local function MSUF_A2_CooldownTextMgr_EnsureFrame()
-    local f = MSUF_A2_CooldownTextMgr.frame
-    if f then return f end
-    f = CreateFrame("Frame")
-    f:Hide()
-    MSUF_A2_CooldownTextMgr.frame = f
-    return f
+if _G and type(_G.MSUF_A2_ForceCooldownTextRecolor) ~= "function" then
+    _G.MSUF_A2_ForceCooldownTextRecolor = function()
+        return API.ForceCooldownTextRecolor()
+    end
 end
 
-local function MSUF_A2_CooldownTextMgr_OnUpdate(_, elapsed)
-    local mgr = MSUF_A2_CooldownTextMgr
-    mgr.acc = mgr.acc + (elapsed or 0)
-    if mgr.acc < 0.10 then return end -- 10 Hz
-    mgr.acc = 0
+-- ------------------------------------------------------------
+-- Cooldown Text Manager (timer-scheduled; no per-frame OnUpdate)
+--
+-- Why:
+--   Even with an accumulator, a Frame OnUpdate still runs every frame,
+--   doing work (elapsed adds + branches) while the raid is idle.
+--   This manager uses C_Timer to schedule discrete ticks only when needed.
+--   Net result: near-zero idle CPU with many visible auras.
+-- ------------------------------------------------------------
 
-    local bucketsEnabled = MSUF_A2_IsCooldownTextBucketColoringEnabled()
-    local c = MSUF_A2_EnsureCooldownTextColors()
-    local safeCol = c and c.safe or nil
-    local normalCol = c and c.normal or nil
+local function EnsureMgr()
+    local mgr = CT._mgr
+    if mgr then
+        return mgr
+    end
 
-    local curve = bucketsEnabled and MSUF_A2_EnsureCooldownColorCurve() or nil
+    mgr = {
+        icons = {},
+        count = 0,
+        -- Discrete tick scheduling (no per-frame OnUpdate)
+        timer = nil,
+        timerGen = 0,
+        slowInterval = 0.50, -- 2 Hz in normal mode (big idle CPU win in raids)
+        fastInterval = 0.10, -- 10 Hz when a timer is in warning/urgent/expire bucket
+        secretInterval = 0.20, -- 5 Hz in SecretMode (colors still animate; less CPU than 10 Hz)
+        interval = 0.50,
+        fastUntil = 0,
+    }
 
-    local secrets = C_Secrets
-    local isSecret = (secrets and type(secrets.IsSecret) == "function") and secrets.IsSecret or nil
+    CT._mgr = mgr
 
-    local removed = 0
-    for cooldown, ic in pairs(mgr.active) do
-        if (not cooldown) or (not ic) or (not ic.IsShown) or (ic.IsShown and not ic:IsShown()) then
-            mgr.active[cooldown] = nil
-            removed = removed + 1
-        elseif ic._msufA2_hideCDNumbers ~= true then
-            local r, g, b, a
-            local remSeconds
-            local didCurveColor = false
+    local function CancelTimer()
+        local t = mgr.timer
+        if t and t.Cancel then
+            t:Cancel()
+        end
+        mgr.timer = nil
+        -- Guard for C_Timer.After fallback: invalidate any already-queued callbacks.
+        mgr.timerGen = (mgr.timerGen or 0) + 1
+    end
 
-            -- Base color: safe when disabled; normal when enabled (long durations stay default).
-            if not bucketsEnabled then
-                if safeCol then r, g, b, a = safeCol[1], safeCol[2], safeCol[3], safeCol[4] end
+    local function StopIfIdle()
+        if mgr.count > 0 then
+            return
+        end
+        CancelTimer()
+    end
+
+    local function RemoveAt(i)
+        local last = mgr.count
+        local icon = mgr.icons[i]
+        local swap = mgr.icons[last]
+
+        mgr.icons[i] = swap
+        mgr.icons[last] = nil
+        mgr.count = last - 1
+
+        if swap then
+            swap._msufA2_cdMgrIndex = i
+        end
+        if icon then
+            icon._msufA2_cdMgrIndex = nil
+            icon._msufA2_cdMgrRegistered = false
+            icon._msufA2_cdLastFS = nil
+            icon._msufA2_cdLastR = nil
+            icon._msufA2_cdLastG = nil
+            icon._msufA2_cdLastB = nil
+            icon._msufA2_cdLastA = nil
+            icon._msufA2_cdSkipUntil = nil
+            icon._msufA2_cdLastSecret = nil
+        end
+
+        if mgr.count <= 0 then
+            StopIfIdle()
+        end
+    end
+
+    local function Tick()
+        EnsureSettings()
+
+        local now = GetTime()
+
+        local secretsActive = IsSecretMode(now)
+
+        -- If we recently saw a warning/urgent/expire bucket, keep fast ticking briefly.
+        local wantFast = (now < (mgr.fastUntil or 0))
+
+        -- Step 6 perf: lazy-resolve secret-check function once per Tick.
+        -- issecretvalue may have been nil at module load due to load-order; re-check _G.
+        -- If still nil → pre-12.0 client where secret values don't exist → == is safe.
+        local isv = issecretvalue
+        if not isv then
+            isv = _G.issecretvalue
+                or (C_Secrets and type(C_Secrets.IsSecret) == "function" and C_Secrets.IsSecret)
+                or nil
+            if isv then
+                issecretvalue = isv -- cache for future ticks
+            end
+        end
+
+        -- Load-order edge case: if aura secret mode is active but issecretvalue() isn't
+        -- available yet, we must assume returned values could be secret and avoid any
+        -- value comparisons (safety > colors until the next tick).
+        local secretNoDetector = (secretsActive and not isv)
+
+        -- Step 6 perf: per-icon secret check uses isv(r) — ONE C-call per evaluated
+        -- icon instead of the original 4× C_Secrets.IsSecret(r/g/b/a).
+        -- Only r is checked: if r is secret from GetRGBA(), g/b/a from the same
+        -- Color object will be too. Icons in skip (NORMAL/SAFE bucket) don't reach
+        -- the evaluation path at all, reducing total calls to ~5-8 per tick.
+        --
+        -- IMPORTANT: different Duration Objects can have different secret states
+        -- (e.g. non-secret buff + secret debuff). Per-icon check is required.
+
+        -- Iterate backwards so removals are O(1) without skipping.
+        local i = mgr.count
+        while i > 0 do
+            local icon = mgr.icons[i]
+
+            if not icon or not icon.cooldown or not icon.IsShown or not icon:IsShown() then
+                RemoveAt(i)
+            elseif icon._msufA2_hideCDNumbers ~= true then
+                local cd = icon.cooldown
+
+                local fs = cd._msufCooldownFontString
+                if fs == false then
+                    fs = nil
+                end
+                if not fs then
+                    fs = MSUF_A2_GetCooldownFontString(icon, now)
+                    if fs then
+                        cd._msufCooldownFontString = fs
+                    end
+                end
+
+                if fs then
+                    -- Step 6 perf: per-icon evaluation skip.
+                    -- Icons in NORMAL or SAFE buckets don't need EvaluateRemainingDuration
+                    -- every tick because their color is constant until the next threshold.
+                    local skipUntil = icon._msufA2_cdSkipUntil
+                    if skipUntil and now < skipUntil then
+                        -- Bucket hasn't changed since last eval → nothing to do.
+                        -- (fs and color were already set on the last real evaluation.)
+                    else
+                                                -- Full evaluation path (same bucket result as before, just less frequent).
+                        local r, g, b, a = safeR, safeG, safeB, safeA
+                        local bucket = 3 -- safe (default)
+                        local iconSecret = false
+                        local didCurveEval = false
+
+                        if bucketsEnabled and curve then
+                            local obj = icon._msufA2_cdDurationObj or cd._msufA2_durationObj
+                            if obj and type(obj.EvaluateRemainingDuration) == 'function' then
+                                local col = obj:EvaluateRemainingDuration(curve)
+                                if col then
+                                    didCurveEval = true
+                                    if col.GetRGBA then
+                                        r, g, b, a = col:GetRGBA()
+                                    elseif col.GetRGB then
+                                        r, g, b = col:GetRGB()
+                                        a = 1
+                                    end
+                                end
+                            end
+                        end
+
+                        -- Secret handling:
+                        -- 1) If cooldown queries are secret but we can't detect secret values yet,
+                        --    treat as secret to avoid any comparisons/caching mistakes.
+                        -- 2) If curve evaluation returned secret values, we still APPLY them via
+                        --    SetTextColor/SetVertexColor (C-side) but we must not diff/compare them.
+                        if secretsActive and secretNoDetector then
+                            iconSecret = true
+                        elseif isv and isv(r) then
+                            iconSecret = true
+                        end
+
+                        -- If curve is missing or evaluation failed, stay on SAFE color.
+                        if bucketsEnabled and (not curve or not didCurveEval) then
+                            r, g, b, a = safeR, safeG, safeB, safeA
+                            if secretsActive then
+                                iconSecret = true
+                            end
+                            bucket = 3
+                        end
+
+                        -- Identify bucket by color match (non-secret only) → sets wantFast.
+                        if (not iconSecret) and bucketsEnabled then
+                            if r == expR and g == expG and b == expB then
+                                bucket = 0
+                                wantFast = true
+                            elseif r == urgR and g == urgG and b == urgB then
+                                bucket = 1
+                                wantFast = true
+                            elseif r == warnR and g == warnG and b == warnB then
+                                bucket = 2
+                                wantFast = true
+                            elseif r == normalR and g == normalG and b == normalB then
+                                bucket = 4
+                            else
+                                bucket = 3 -- safe (default/fallback)
+                            end
+                        end
+
+                        -- In secret mode we can't diff RGBA. Tick fast enough to keep curve transitions visible.
+                        if iconSecret and bucketsEnabled then
+                            wantFast = true
+                        end
+                        -- Set per-icon skip for stable buckets.
+                        -- (bucket identification is best-effort for skip/wantFast only;
+                        --  if Color precision causes a mismatch, bucket defaults to 3
+                        --  which gives a conservative 2s skip — safe and still beneficial.)
+                        if iconSecret then
+                            icon._msufA2_cdSkipUntil = nil -- secret: re-evaluate each tick
+                        elseif bucket == 4 then
+                            icon._msufA2_cdSkipUntil = now + SKIP_NORMAL
+                        elseif bucket == 3 then
+                            icon._msufA2_cdSkipUntil = now + SKIP_SAFE
+                        else
+                            icon._msufA2_cdSkipUntil = nil -- warn/urgent/expire: evaluate every tick
+                        end
+
+                        -- SetTextColor diff: use actual RGBA values, not integer bucket.
+                        -- CreateColor/GetRGBA round-trip may not produce exact matches
+                        -- with module-level cached floats, so bucket==bucket can't replace
+                        -- r==lastR for SetTextColor decisions.
+                        if iconSecret then
+                            -- Secret RGBA: we cannot safely diff/compare, so apply every evaluation tick.
+                            icon._msufA2_cdLastFS = fs
+                            icon._msufA2_cdLastSecret = true
+                            icon._msufA2_cdLastR = nil
+                            icon._msufA2_cdLastG = nil
+                            icon._msufA2_cdLastB = nil
+                            icon._msufA2_cdLastA = nil
+
+                            if fs.SetTextColor then
+                                fs:SetTextColor(r, g, b, a)
+                            elseif fs.SetVertexColor then
+                                fs:SetVertexColor(r, g, b, a)
+                            end
+                        else
+                            icon._msufA2_cdLastSecret = false
+
+                            if icon._msufA2_cdLastFS ~= fs
+                                or icon._msufA2_cdLastR ~= r
+                                or icon._msufA2_cdLastG ~= g
+                                or icon._msufA2_cdLastB ~= b
+                                or icon._msufA2_cdLastA ~= a then
+
+                                icon._msufA2_cdLastFS = fs
+                                icon._msufA2_cdLastR = r
+                                icon._msufA2_cdLastG = g
+                                icon._msufA2_cdLastB = b
+                                icon._msufA2_cdLastA = a
+
+                                if fs.SetTextColor then
+                                    fs:SetTextColor(r, g, b, a)
+                                elseif fs.SetVertexColor then
+                                    fs:SetVertexColor(r, g, b, a)
+                                end
+                            end
+                        end
+                        end -- skipUntil check
+
+                end
+            end
+
+            i = i - 1
+        end
+
+        if wantFast then
+            mgr.fastUntil = now + 1.50
+            if secretsActive then
+                mgr.interval = mgr.secretInterval or mgr.fastInterval or 0.10
             else
-                if normalCol then r, g, b, a = normalCol[1], normalCol[2], normalCol[3], normalCol[4] end
+                mgr.interval = mgr.fastInterval or 0.10
             end
+        else
+            mgr.interval = mgr.slowInterval or 0.50
+        end
 
-            -- Secret-safe bucket color (preferred): DurationObject + curve evaluation.
-            if bucketsEnabled and curve then
-                local obj = ic._msufA2_cdDurationObj or (cooldown and cooldown._msufA2_durationObj)
-                if obj and type(obj.EvaluateRemainingDuration) == "function" then
-                    local col = obj:EvaluateRemainingDuration(curve)
-                    if col and col.GetRGBA then
-                        r, g, b, a = col:GetRGBA()
-                        didCurveColor = true
-                    elseif col and col.GetRGB then
-                        r, g, b = col:GetRGB()
-                        a = 1
-                        didCurveColor = true
+        StopIfIdle()
+
+        -- Reschedule next discrete tick (if still active)
+        if mgr.count > 0 and mgr._Schedule then
+            mgr._Schedule(mgr.interval)
+        end
+    end
+
+    local function Schedule(delay)
+        if mgr.count <= 0 then
+            StopIfIdle()
+            return
+        end
+
+        if type(delay) ~= "number" or delay < 0 then
+            delay = 0
+        end
+
+        -- Replace any pending timer.
+        CancelTimer()
+
+        local timerAPI = C_Timer
+        if timerAPI and type(timerAPI.NewTimer) == "function" then
+            mgr.timer = timerAPI.NewTimer(delay, function()
+                mgr.timer = nil
+                Tick()
+            end)
+            return
+        end
+
+        -- Fallback (older clients): After() has no cancel; use a generation guard.
+        if timerAPI and type(timerAPI.After) == "function" then
+            mgr.timerGen = (mgr.timerGen or 0) + 1
+            local gen = mgr.timerGen
+            timerAPI.After(delay, function()
+                if mgr.timerGen ~= gen then
+                    return
+                end
+                Tick()
+            end)
+        end
+    end
+
+    mgr._StopIfIdle = StopIfIdle
+    mgr._RemoveAt = RemoveAt
+    mgr._Tick = Tick
+    mgr._Schedule = Schedule
+
+    return mgr
+end
+
+local function RegisterIcon(icon)
+    if not icon or not icon.cooldown then
+        return
+    end
+
+    if icon._msufA2_cdMgrRegistered == true then
+        return
+    end
+
+    local mgr = EnsureMgr()
+
+    local idx = mgr.count + 1
+    mgr.count = idx
+    mgr.icons[idx] = icon
+
+    icon._msufA2_cdMgrRegistered = true
+    icon._msufA2_cdMgrIndex = idx
+
+    if mgr.count == 1 then
+        if mgr._Schedule then
+            mgr._Schedule(0)
+        end
+    end
+end
+
+local function UnregisterIcon(icon)
+    if not icon or icon._msufA2_cdMgrRegistered ~= true then
+        if icon then
+            icon._msufA2_cdMgrIndex = nil
+            icon._msufA2_cdMgrRegistered = false
+        end
+        return
+    end
+
+    local mgr = CT._mgr
+    if not mgr or mgr.count <= 0 then
+        icon._msufA2_cdMgrIndex = nil
+        icon._msufA2_cdMgrRegistered = false
+        return
+    end
+
+    local idx = icon._msufA2_cdMgrIndex
+    if type(idx) == "number" and idx >= 1 and idx <= mgr.count then
+        mgr._RemoveAt(idx)
+        return
+    end
+
+    -- Fallback: rare desync (no search by default; just mark inactive)
+    icon._msufA2_cdMgrIndex = nil
+    icon._msufA2_cdMgrRegistered = false
+end
+
+local function UnregisterAll()
+    local mgr = CT._mgr
+    if not mgr then
+        return
+    end
+
+    for i = 1, mgr.count do
+        local icon = mgr.icons[i]
+        if icon then
+            icon._msufA2_cdMgrIndex = nil
+            icon._msufA2_cdMgrRegistered = false
+        end
+        mgr.icons[i] = nil
+    end
+
+    mgr.count = 0
+    if mgr.timer and mgr.timer.Cancel then
+        mgr.timer:Cancel()
+    end
+    mgr.timer = nil
+    mgr.timerGen = (mgr.timerGen or 0) + 1
+end
+
+local function TouchIcon(icon)
+    -- Step 6 perf: clear per-icon evaluation skip so the next Tick() re-evaluates
+    -- this icon immediately (called when a duration object is reattached).
+    if icon then
+        icon._msufA2_cdSkipUntil = nil
+    end
+    local mgr = CT._mgr
+    if mgr and mgr.count > 0 then
+        -- Tick ASAP (used when Options change or duration objects are reattached).
+        if mgr._Schedule then
+            mgr._Schedule(0)
+        end
+    end
+end
+
+CT.RegisterIcon = RegisterIcon
+CT.UnregisterIcon = UnregisterIcon
+CT.UnregisterAll = UnregisterAll
+CT.TouchIcon = TouchIcon
+
+-- Convenience alias
+API.CooldownText = CT
+
+-- ------------------------------------------------------------
+-- Cold-start resync (load-order safe)
+-- ------------------------------------------------------------
+
+local function ProcessPending()
+    local st = API and API.state
+    local pending = st and st._msufA2_cdPending
+    if type(pending) ~= "table" then
+        return
+    end
+
+    for i = 1, #pending do
+        local icon = pending[i]
+        pending[i] = nil
+        if icon and icon._msufA2_cdMgrRegistered ~= true and icon._msufA2_hideCDNumbers ~= true then
+            RegisterIcon(icon)
+        end
+        if icon then
+            icon._msufA2_cdPending = nil
+        end
+    end
+end
+
+local function ScanAndRegisterExisting()
+    local st = API and API.state
+    local byUnit = st and st.aurasByUnit
+    if type(byUnit) ~= "table" then
+        return
+    end
+
+    for _, entry in pairs(byUnit) do
+        if type(entry) == "table" then
+            local cont = entry.buffs
+            if cont and type(cont._msufIcons) == "table" then
+                local icons = cont._msufIcons
+                for i = 1, #icons do
+                    local icon = icons[i]
+                    if icon
+                        and icon._msufA2_cdMgrRegistered ~= true
+                        and icon._msufA2_hideCDNumbers ~= true
+                        and icon.IsShown and icon:IsShown()
+                        and icon.cooldown
+                        and (icon._msufA2_cdDurationObj ~= nil or icon.cooldown._msufA2_durationObj ~= nil)
+                    then
+                        RegisterIcon(icon)
                     end
                 end
             end
 
-            -- Remaining seconds (for optional live text + non-secret bucket fallback).
-            if C_UnitAuras and type(C_UnitAuras.GetAuraDurationRemaining) == "function" then
-                local unit = ic._msufUnit
-                local auraID = ic._msufAuraInstanceID
-                if unit and auraID and type(auraID) == "number" then
-                    local rem = C_UnitAuras.GetAuraDurationRemaining(unit, auraID)
-                    if type(rem) == "number" then
-                        remSeconds = rem
-
-                        if bucketsEnabled and (not didCurveColor) and (not (isSecret and isSecret(rem))) then
-                            local colT = MSUF_A2_GetCooldownTextColorForRemainingSeconds(rem)
-                            if colT then r, g, b, a = colT[1], colT[2], colT[3], colT[4] end
-                        end
+            cont = entry.debuffs
+            if cont and type(cont._msufIcons) == "table" then
+                local icons = cont._msufIcons
+                for i = 1, #icons do
+                    local icon = icons[i]
+                    if icon
+                        and icon._msufA2_cdMgrRegistered ~= true
+                        and icon._msufA2_hideCDNumbers ~= true
+                        and icon.IsShown and icon:IsShown()
+                        and icon.cooldown
+                        and (icon._msufA2_cdDurationObj ~= nil or icon.cooldown._msufA2_durationObj ~= nil)
+                    then
+                        RegisterIcon(icon)
                     end
                 end
             end
 
-            -- Edit Mode preview: synthetic cooldown timing (always plain numbers).
-            if ic._msufA2_isPreview == true then
-                local ps = ic._msufA2_previewCooldownStart
-                local pd = ic._msufA2_previewCooldownDur
-                if type(ps) == "number" and type(pd) == "number" and pd > 0 then
-                    local rem = (ps + pd) - GetTime()
-                    if type(rem) == "number" then
-                        remSeconds = rem
-                        if bucketsEnabled and (not didCurveColor) then
-                            local colT = MSUF_A2_GetCooldownTextColorForRemainingSeconds(rem)
-                            if colT then r, g, b, a = colT[1], colT[2], colT[3], colT[4] end
-                        end
-                    end
-                end
-            end
-
-            -- Cache cooldown fontstring once (Blizzard may create it lazily)
-            local fs = cooldown and cooldown._msufCooldownFontString
-            if fs == false then fs = nil end
-            if not fs then
-                fs = MSUF_A2_GetCooldownFontString(ic)
-            end
-            if fs and cooldown then
-                cooldown._msufCooldownFontString = fs
-            end
-
-            if fs then
-                -- Optional live text (OmniCC-independent) when we have a plain number.
-                if remSeconds ~= nil and fs.SetText and (not (isSecret and isSecret(remSeconds))) then
-                    local t = MSUF_A2_FormatCooldownTimeText(remSeconds)
-                    if fs._msufA2_lastText ~= t then
-                        fs._msufA2_lastText = t
-                        fs:SetText(t)
-                    end
-                end
-
-                if r then
-                    local aa = a
-                    if type(aa) ~= "number" then aa = 1 end
-                    if fs.SetTextColor then
-                        fs:SetTextColor(r, g, b, aa)
-                    elseif fs.SetVertexColor then
-                        fs:SetVertexColor(r, g, b, aa)
+            cont = entry.mixed
+            if cont and type(cont._msufIcons) == "table" then
+                local icons = cont._msufIcons
+                for i = 1, #icons do
+                    local icon = icons[i]
+                    if icon
+                        and icon._msufA2_cdMgrRegistered ~= true
+                        and icon._msufA2_hideCDNumbers ~= true
+                        and icon.IsShown and icon:IsShown()
+                        and icon.cooldown
+                        and (icon._msufA2_cdDurationObj ~= nil or icon.cooldown._msufA2_durationObj ~= nil)
+                    then
+                        RegisterIcon(icon)
                     end
                 end
             end
         end
     end
+end
 
-    if removed > 0 then
-        mgr.count = mgr.count - removed
-        if mgr.count < 0 then mgr.count = 0 end
-        MSUF_A2_CooldownTextMgr_StopIfIdle()
+CT.ProcessPending = ProcessPending
+CT.ScanExisting = ScanAndRegisterExisting
+
+-- ------------------------------------------------------------
+-- Combat flip recolor
+--
+-- In Midnight 12.0 the aura "secret mode" commonly toggles with combat state.
+-- Our manager uses per-icon skip windows; without a forced refresh, a combat
+-- transition could keep the previous bucket's color for up to SKIP_* seconds.
+--
+-- This hook is extremely cheap (fires twice per combat) and keeps colors
+-- consistent with out-of-combat behavior.
+-- ------------------------------------------------------------
+
+do
+    if not CT._recolorEventFrame and type(CreateFrame) == "function" then
+        local f = CreateFrame("Frame")
+        CT._recolorEventFrame = f
+
+        if f.RegisterEvent then
+            f:RegisterEvent("PLAYER_REGEN_DISABLED")
+            f:RegisterEvent("PLAYER_REGEN_ENABLED")
+            f:RegisterEvent("PLAYER_ENTERING_WORLD")
+        end
+
+        if f.SetScript then
+            f:SetScript("OnEvent", function()
+                local mgr = CT._mgr
+                if mgr and mgr.count and mgr.count > 0 then
+                    MSUF_A2_ForceCooldownTextRecolor()
+                end
+            end)
+        end
     end
 end
 
-local function MSUF_A2_CooldownTextMgr_RegisterIcon(icon)
-    local cd = icon and icon.cooldown
-    if not cd then return end
+-- Run now (common case: this module loads after Render/Apply)
+ProcessPending()
+ScanAndRegisterExisting()
 
-    if MSUF_A2_CooldownTextMgr.active[cd] then
-        return
-    end
-
-    MSUF_A2_CooldownTextMgr.active[cd] = icon
-    MSUF_A2_CooldownTextMgr.count = MSUF_A2_CooldownTextMgr.count + 1
-    icon._msufA2_cdMgrRegistered = true
-
-    local f = MSUF_A2_CooldownTextMgr_EnsureFrame()
-    if MSUF_A2_CooldownTextMgr.count ~= 1 then
-        return
-    end
-
-    MSUF_A2_CooldownTextMgr.acc = 0
-    f:Show()
-    f:SetScript("OnUpdate", MSUF_A2_CooldownTextMgr_OnUpdate)
+-- Run once on next frame (reverse load order)
+if C_Timer and type(C_Timer.After) == "function" then
+    C_Timer.After(0, function()
+        ProcessPending()
+        ScanAndRegisterExisting()
+    end)
 end
-
-local function MSUF_A2_CooldownTextMgr_UnregisterIcon(icon)
-    local cd = icon and icon.cooldown
-    if not cd then return end
-    if not MSUF_A2_CooldownTextMgr.active[cd] then
-        icon._msufA2_cdMgrRegistered = false
-        return
-    end
-    MSUF_A2_CooldownTextMgr.active[cd] = nil
-    MSUF_A2_CooldownTextMgr.count = MSUF_A2_CooldownTextMgr.count - 1
-    if MSUF_A2_CooldownTextMgr.count < 0 then MSUF_A2_CooldownTextMgr.count = 0 end
-    icon._msufA2_cdMgrRegistered = false
-    MSUF_A2_CooldownTextMgr_StopIfIdle()
-end
-
-CT.RegisterIcon   = MSUF_A2_CooldownTextMgr_RegisterIcon
-CT.UnregisterIcon = MSUF_A2_CooldownTextMgr_UnregisterIcon
-
--- Convenience aliases (Render expects these names to exist as locals after it binds them)
-API.CooldownText = CT
-

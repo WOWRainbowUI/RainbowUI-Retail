@@ -49,6 +49,43 @@ end
 
 
 ------------------------------------------------------
+-- Helper: confirm reset (Colors menu)
+-- Reset buttons.
+------------------------------------------------------
+local function MSUF_ConfirmColorReset(label, doReset)
+    if type(doReset) ~= "function" then return end
+
+    local KEY = "MSUF_CONFIRM_COLOR_RESET"
+    _G.MSUF__ColorResetConfirm = _G.MSUF__ColorResetConfirm or {}
+    local st = _G.MSUF__ColorResetConfirm
+    st.fn = doReset
+
+    if not StaticPopupDialogs[KEY] then
+        StaticPopupDialogs[KEY] = {
+            text = "",
+            button1 = OKAY,
+            button2 = CANCEL,
+            OnAccept = function()
+                local state = _G.MSUF__ColorResetConfirm
+                local fn = state and state.fn
+                if fn then
+                    state.fn = nil
+                    fn()
+                end
+            end,
+            timeout = 0,
+            whileDead = 1,
+            hideOnEscape = 1,
+            preferredIndex = 3,
+        }
+    end
+
+    StaticPopupDialogs[KEY].text = "Reset " .. tostring(label) .. " color settings?\n\nThis cannot be undone."
+    StaticPopup_Show(KEY)
+end
+
+
+------------------------------------------------------
 -- Helper: apply visual updates
 ------------------------------------------------------
 local function PushVisualUpdates()
@@ -210,24 +247,31 @@ function ns.MSUF_FixMouseoverHighlightBindings()
 end
 
 -- Throttled scheduler so we don't repeatedly enumerate frames during rapid UI changes.
+-- P1 perf: after one successful scan, never scan again until /reload (session-only).
 do
     local scheduled = false
     function ns.MSUF_ScheduleMouseoverHighlightFix()
+        if ns and ns._msufHoverFixDone then return end
         if scheduled then return end
         scheduled = true
 
-        if _G.C_Timer and _G.C_Timer.After then
-            _G.C_Timer.After(0, function()
-                scheduled = false
-                if ns and ns.MSUF_FixMouseoverHighlightBindings then
-                    ns.MSUF_FixMouseoverHighlightBindings()
-                end
-            end)
-        else
+        local function run()
             scheduled = false
-            if ns and ns.MSUF_FixMouseoverHighlightBindings then
-                ns.MSUF_FixMouseoverHighlightBindings()
+            if not (ns and ns.MSUF_FixMouseoverHighlightBindings) then
+                return
             end
+
+            ns.MSUF_FixMouseoverHighlightBindings()
+
+            -- Mark done for this session. This scan is expensive (EnumerateFrames),
+            -- and should not run again from PushVisualUpdates.
+            ns._msufHoverFixDone = true
+        end
+
+        if _G.C_Timer and _G.C_Timer.After then
+            _G.C_Timer.After(0, run)
+        else
+            run()
         end
     end
 end
@@ -945,6 +989,40 @@ local function SetPowerBarBackgroundColor(r, g, b)
     PushVisualUpdates()
 end
 
+------------------------------------------------------
+-- Helpers: Aggro border (outline indicator) color
+-- Stored under MSUF_DB.general.aggroBorderColorR/G/B.
+------------------------------------------------------
+local function GetAggroBorderColor()
+    local defR, defG, defB = 1, 0.50, 0
+    if EnsureDB and MSUF_DB then
+        EnsureDB()
+        MSUF_DB.general = MSUF_DB.general or {}
+        local g = MSUF_DB.general
+        local r = g.aggroBorderColorR
+        local gg = g.aggroBorderColorG
+        local b = g.aggroBorderColorB
+        if type(r) == "number" and type(gg) == "number" and type(b) == "number" then
+            return r, gg, b
+        end
+    end
+    return defR, defG, defB
+end
+
+local function SetAggroBorderColor(r, g, b)
+    if not EnsureDB or not MSUF_DB then return end
+    EnsureDB()
+    MSUF_DB.general = MSUF_DB.general or {}
+    local gen = MSUF_DB.general
+    gen.aggroBorderColorR = r
+    gen.aggroBorderColorG = g
+    gen.aggroBorderColorB = b
+    PushVisualUpdates()
+end
+
+
+
+
 
 -- Toggle: Match power bar background hue to the CURRENT health bar color.
 -- Stored under MSUF_DB.general.powerBarBgMatchHPColor.
@@ -1186,9 +1264,11 @@ end
     fontResetBtn:SetPoint("TOPLEFT", fontSwatch, "BOTTOMLEFT", 0, -8)
     fontResetBtn:SetText("Use font palette")
     fontResetBtn:SetScript("OnClick", function()
-        ResetGlobalFontToPalette()
-        local r, g, b = GetGlobalFontColor()
-        fontSwatchTex:SetColorTexture(r, g, b)
+        MSUF_ConfirmColorReset("font palette", function()
+                    ResetGlobalFontToPalette()
+                    local r, g, b = GetGlobalFontColor()
+                    fontSwatchTex:SetColorTexture(r, g, b)
+        end)
     end)
 
     --------------------------------------------------
@@ -1278,16 +1358,18 @@ end
     resetClassBtn:SetPoint("TOPLEFT", classSub, "BOTTOMLEFT", 0, resetOffsetY)
     resetClassBtn:SetText("Reset all class colors")
     resetClassBtn:SetScript("OnClick", function()
-        ResetAllClassColors()
-        for _, token in ipairs(CLASS_TOKENS) do
-            local tex   = classSwatches[token]
-            local label = classLabels[token]
-            if tex then
-                local r, g, b = GetClassColor(token)
-                tex:SetColorTexture(r, g, b)
-                F.SetLabelContrast(label, r, g, b)
-            end
-        end
+        MSUF_ConfirmColorReset("class", function()
+                    ResetAllClassColors()
+                    for _, token in ipairs(CLASS_TOKENS) do
+                        local tex   = classSwatches[token]
+                        local label = classLabels[token]
+                        if tex then
+                            local r, g, b = GetClassColor(token)
+                            tex:SetColorTexture(r, g, b)
+                            F.SetLabelContrast(label, r, g, b)
+                        end
+                    end
+        end)
     end)
 
     --------------------------------------------------
@@ -1324,9 +1406,11 @@ end
     classBgResetBtn:SetPoint("TOPLEFT", classBgSwatch, "BOTTOMLEFT", 0, -8)
     classBgResetBtn:SetText("Reset to black")
     classBgResetBtn:SetScript("OnClick", function()
-        ResetClassBarBgColor()
-        local r, g, b = GetClassBarBgColor()
-        classBgSwatchTex:SetColorTexture(r, g, b)
+        MSUF_ConfirmColorReset("class bar background", function()
+                    ResetClassBarBgColor()
+                    local r, g, b = GetClassBarBgColor()
+                    classBgSwatchTex:SetColorTexture(r, g, b)
+        end)
     end)
 
     -- Optional toggle: match background tint to the current HP bar color
@@ -1488,10 +1572,12 @@ end
     end)
 
     unifiedResetBtn:SetScript("OnClick", function()
-        MSUF_ResetUnifiedBarColor()
-        local r, gg, b = MSUF_GetUnifiedBarColor()
-        unifiedTex:SetColorTexture(r, gg, b)
-        PushVisualUpdates()
+        MSUF_ConfirmColorReset("bar", function()
+                    MSUF_ResetUnifiedBarColor()
+                    local r, gg, b = MSUF_GetUnifiedBarColor()
+                    unifiedTex:SetColorTexture(r, gg, b)
+                    PushVisualUpdates()
+        end)
     end)
 
     local function UpdateUnifiedBarControls()
@@ -1695,28 +1781,33 @@ if UpdateDarkBarControls then
 end
 
     --------------------------------------------------
-    -- Extra Color Options (Text links, Bars in Spalte rechts)
+    -- Unitframe Colors + Bar Colors (two-column layout)
     --------------------------------------------------
-    local npcHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    npcHeader:SetPoint("TOPLEFT", darkToneSlider, "BOTTOMLEFT", 0, -48)
-    npcHeader:SetText("Extra Color Options")
-    F.CreateHeaderDividerAbove(npcHeader)
+    local leftHeaderX   = 0
+    local rightHeaderX  = 420
 
-    local npcRowHeight  = 22
-    local npcStartY     = -8
-    local npcLabelX     = 0    -- Text-Start
-    local npcBarX       = 220  -- X-Position aller Bars
-    local npcBarWidth   = 120  -- einheitliche Balkenlänge
+    local rowH          = 22
+    local startY        = -8
+
+    -- Left block: Unitframe Colors
+    local unitHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    unitHeader:SetPoint("TOPLEFT", darkToneSlider, "BOTTOMLEFT", leftHeaderX, -48)
+    unitHeader:SetText("Unitframe Colors")
+    F.CreateHeaderDividerAbove(unitHeader)
+
+    local unitLabelX    = 0
+    local unitBarX      = 220
+    local unitBarW      = 120
 
     -- Friendly
     local friendlyLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-    friendlyLabel:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcLabelX, npcStartY)
+    friendlyLabel:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitLabelX, startY)
     friendlyLabel:SetJustifyH("LEFT")
     friendlyLabel:SetText("Friendly NPC Color")
 
     local npcFriendlySwatch = CreateFrame("Button", "MSUF_Colors_NPCFriendlySwatch", content)
-    npcFriendlySwatch:SetSize(npcBarWidth, 16)
-    npcFriendlySwatch:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcBarX, npcStartY)
+    npcFriendlySwatch:SetSize(unitBarW, 16)
+    npcFriendlySwatch:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitBarX, startY)
 
     npcFriendlyTex = npcFriendlySwatch:CreateTexture(nil, "ARTWORK")
     npcFriendlyTex:SetAllPoints()
@@ -1731,13 +1822,13 @@ end
 
     -- Neutral
     local neutralLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-    neutralLabel:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcLabelX, npcStartY - npcRowHeight)
+    neutralLabel:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitLabelX, startY - rowH)
     neutralLabel:SetJustifyH("LEFT")
     neutralLabel:SetText("Neutral NPC Color")
 
     local npcNeutralSwatch = CreateFrame("Button", "MSUF_Colors_NPCNeutralSwatch", content)
-    npcNeutralSwatch:SetSize(npcBarWidth, 16)
-    npcNeutralSwatch:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcBarX, npcStartY - npcRowHeight)
+    npcNeutralSwatch:SetSize(unitBarW, 16)
+    npcNeutralSwatch:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitBarX, startY - rowH)
 
     npcNeutralTex = npcNeutralSwatch:CreateTexture(nil, "ARTWORK")
     npcNeutralTex:SetAllPoints()
@@ -1752,13 +1843,13 @@ end
 
     -- Enemy
     local enemyLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-    enemyLabel:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcLabelX, npcStartY - 2 * npcRowHeight)
+    enemyLabel:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitLabelX, startY - 2 * rowH)
     enemyLabel:SetJustifyH("LEFT")
     enemyLabel:SetText("Enemy NPC Color")
 
     local npcEnemySwatch = CreateFrame("Button", "MSUF_Colors_NPCEnemySwatch", content)
-    npcEnemySwatch:SetSize(npcBarWidth, 16)
-    npcEnemySwatch:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcBarX, npcStartY - 2 * npcRowHeight)
+    npcEnemySwatch:SetSize(unitBarW, 16)
+    npcEnemySwatch:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitBarX, startY - 2 * rowH)
 
     npcEnemyTex = npcEnemySwatch:CreateTexture(nil, "ARTWORK")
     npcEnemyTex:SetAllPoints()
@@ -1771,16 +1862,15 @@ end
         end)
     end)
 
-
     -- Dead
     local deadLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-    deadLabel:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcLabelX, npcStartY - 3 * npcRowHeight)
+    deadLabel:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitLabelX, startY - 3 * rowH)
     deadLabel:SetJustifyH("LEFT")
     deadLabel:SetText("Dead NPC Color")
 
     local npcDeadSwatch = CreateFrame("Button", "MSUF_Colors_NPCDeadSwatch", content)
-    npcDeadSwatch:SetSize(npcBarWidth, 16)
-    npcDeadSwatch:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcBarX, npcStartY - 3 * npcRowHeight)
+    npcDeadSwatch:SetSize(unitBarW, 16)
+    npcDeadSwatch:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitBarX, startY - 3 * rowH)
 
     npcDeadTex = npcDeadSwatch:CreateTexture(nil, "ARTWORK")
     npcDeadTex:SetAllPoints()
@@ -1795,13 +1885,13 @@ end
 
     -- Pet frame
     local petLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-    petLabel:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcLabelX, npcStartY - 4 * npcRowHeight)
+    petLabel:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitLabelX, startY - 4 * rowH)
     petLabel:SetJustifyH("LEFT")
     petLabel:SetText("Pet Frame Color")
 
     local petFrameSwatch = CreateFrame("Button", "MSUF_Colors_PetFrameSwatch", content)
-    petFrameSwatch:SetSize(npcBarWidth, 16)
-    petFrameSwatch:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcBarX, npcStartY - 4 * npcRowHeight)
+    petFrameSwatch:SetSize(unitBarW, 16)
+    petFrameSwatch:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitBarX, startY - 4 * rowH)
 
     petFrameTex = petFrameSwatch:CreateTexture(nil, "ARTWORK")
     petFrameTex:SetAllPoints()
@@ -1821,21 +1911,31 @@ end
     end)
 
 
+    -- Right block: Bar Colors
+    local barHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    barHeader:SetPoint("TOPLEFT", darkToneSlider, "BOTTOMLEFT", rightHeaderX, -48)
+    barHeader:SetText("Bar Colors")
+    F.CreateHeaderDividerAbove(barHeader)
+
+    local barLabelX     = 0
+    local barSwatchX    = 210
+    local barSwatchW    = 120
+
     -- Absorb overlay
-    petLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-    petLabel:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcLabelX, npcStartY - 5 * npcRowHeight)
-    petLabel:SetJustifyH("LEFT")
-    petLabel:SetText("Absorb Bar Color")
+    local absorbLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    absorbLabel:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barLabelX, startY)
+    absorbLabel:SetJustifyH("LEFT")
+    absorbLabel:SetText("Absorb Bar Color")
 
-    petFrameSwatch = CreateFrame("Button", "MSUF_Colors_AbsorbOverlaySwatch", content)
-    petFrameSwatch:SetSize(npcBarWidth, 16)
-    petFrameSwatch:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcBarX, npcStartY - 5 * npcRowHeight)
+    local absorbSwatch = CreateFrame("Button", "MSUF_Colors_AbsorbOverlaySwatch", content)
+    absorbSwatch:SetSize(barSwatchW, 16)
+    absorbSwatch:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barSwatchX, startY)
 
-    panel.__MSUF_ExtraColorAbsorbTex = petFrameSwatch:CreateTexture(nil, "ARTWORK")
+    panel.__MSUF_ExtraColorAbsorbTex = absorbSwatch:CreateTexture(nil, "ARTWORK")
     panel.__MSUF_ExtraColorAbsorbTex:SetAllPoints()
     panel.__MSUF_ExtraColorAbsorbTex:SetColorTexture(GetAbsorbOverlayColor())
 
-    petFrameSwatch:SetScript("OnClick", function()
+    absorbSwatch:SetScript("OnClick", function()
         local r, g, b = GetAbsorbOverlayColor()
         OpenColorPicker(r, g, b, function(nr, ng, nb)
             SetAbsorbOverlayColor(nr, ng, nb)
@@ -1845,20 +1945,20 @@ end
     end)
 
     -- Heal-Absorb overlay
-    petLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-    petLabel:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcLabelX, npcStartY - 6 * npcRowHeight)
-    petLabel:SetJustifyH("LEFT")
-    petLabel:SetText("Heal-Absorb Bar Color")
+    local healAbsorbLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    healAbsorbLabel:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barLabelX, startY - rowH)
+    healAbsorbLabel:SetJustifyH("LEFT")
+    healAbsorbLabel:SetText("Heal-Absorb Bar Color")
 
-    petFrameSwatch = CreateFrame("Button", "MSUF_Colors_HealAbsorbOverlaySwatch", content)
-    petFrameSwatch:SetSize(npcBarWidth, 16)
-    petFrameSwatch:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcBarX, npcStartY - 6 * npcRowHeight)
+    local healAbsorbSwatch = CreateFrame("Button", "MSUF_Colors_HealAbsorbOverlaySwatch", content)
+    healAbsorbSwatch:SetSize(barSwatchW, 16)
+    healAbsorbSwatch:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barSwatchX, startY - rowH)
 
-    panel.__MSUF_ExtraColorHealAbsorbTex = petFrameSwatch:CreateTexture(nil, "ARTWORK")
+    panel.__MSUF_ExtraColorHealAbsorbTex = healAbsorbSwatch:CreateTexture(nil, "ARTWORK")
     panel.__MSUF_ExtraColorHealAbsorbTex:SetAllPoints()
     panel.__MSUF_ExtraColorHealAbsorbTex:SetColorTexture(GetHealAbsorbOverlayColor())
 
-    petFrameSwatch:SetScript("OnClick", function()
+    healAbsorbSwatch:SetScript("OnClick", function()
         local r, g, b = GetHealAbsorbOverlayColor()
         OpenColorPicker(r, g, b, function(nr, ng, nb)
             SetHealAbsorbOverlayColor(nr, ng, nb)
@@ -1867,24 +1967,22 @@ end
         end)
     end)
 
-
     -- Power bar background
-    petLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-    petLabel:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcLabelX, npcStartY - 7 * npcRowHeight)
-    petLabel:SetJustifyH("LEFT")
-    petLabel:SetText("Power Bar Background Color")
+    local powerBgLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    powerBgLabel:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barLabelX, startY - 2 * rowH)
+    powerBgLabel:SetJustifyH("LEFT")
+    powerBgLabel:SetText("Power Bar Background Color")
 
-    petFrameSwatch = CreateFrame("Button", "MSUF_Colors_PowerBarBackgroundSwatch", content)
+    local powerBgSwatch = CreateFrame("Button", "MSUF_Colors_PowerBarBackgroundSwatch", content)
+    panel.__MSUF_ExtraColorPowerBgSwatch = powerBgSwatch
+    powerBgSwatch:SetSize(barSwatchW, 16)
+    powerBgSwatch:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barSwatchX, startY - 2 * rowH)
 
-    panel.__MSUF_ExtraColorPowerBgSwatch = petFrameSwatch
-    petFrameSwatch:SetSize(npcBarWidth, 16)
-    petFrameSwatch:SetPoint("TOPLEFT", npcHeader, "BOTTOMLEFT", npcBarX, npcStartY - 7 * npcRowHeight)
-
-    panel.__MSUF_ExtraColorPowerBgTex = petFrameSwatch:CreateTexture(nil, "ARTWORK")
+    panel.__MSUF_ExtraColorPowerBgTex = powerBgSwatch:CreateTexture(nil, "ARTWORK")
     panel.__MSUF_ExtraColorPowerBgTex:SetAllPoints()
     panel.__MSUF_ExtraColorPowerBgTex:SetColorTexture(GetPowerBarBackgroundColor())
 
-    petFrameSwatch:SetScript("OnClick", function()
+    powerBgSwatch:SetScript("OnClick", function()
         local r, g, b = GetPowerBarBackgroundColor()
         OpenColorPicker(r, g, b, function(nr, ng, nb)
             SetPowerBarBackgroundColor(nr, ng, nb)
@@ -1893,11 +1991,9 @@ end
         end)
     end)
 
-    -- Optional: dynamically match the Power BG hue to the CURRENT HP bar color
-    -- (useful when the power bar is embedded into the health bar).
     panel.__MSUF_ExtraColorPowerBgMatchCheck = panel.__MSUF_ExtraColorPowerBgMatchCheck or CreateFrame("CheckButton", "MSUF_Colors_PowerBarBgMatchHP", content, "UICheckButtonTemplate")
     panel.__MSUF_ExtraColorPowerBgMatchCheck:ClearAllPoints()
-    panel.__MSUF_ExtraColorPowerBgMatchCheck:SetPoint("LEFT", petFrameSwatch, "RIGHT", 14, 0)
+    panel.__MSUF_ExtraColorPowerBgMatchCheck:SetPoint("LEFT", powerBgSwatch, "RIGHT", 14, 0)
     if not panel.__MSUF_ExtraColorPowerBgMatchCheck.text then
         panel.__MSUF_ExtraColorPowerBgMatchCheck.text = panel.__MSUF_ExtraColorPowerBgMatchCheck:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         panel.__MSUF_ExtraColorPowerBgMatchCheck.text:SetPoint("LEFT", panel.__MSUF_ExtraColorPowerBgMatchCheck, "RIGHT", 2, 0)
@@ -1906,94 +2002,184 @@ end
     panel.__MSUF_ExtraColorPowerBgMatchCheck:SetChecked(GetPowerBarBackgroundMatchHP())
     panel.__MSUF_ExtraColorPowerBgMatchCheck:SetScript("OnClick", function(btn)
         SetPowerBarBackgroundMatchHP(btn:GetChecked())
-        if petFrameSwatch and petFrameSwatch.EnableMouse then
-            petFrameSwatch:EnableMouse(not btn:GetChecked())
+        if powerBgSwatch and powerBgSwatch.EnableMouse then
+            powerBgSwatch:EnableMouse(not btn:GetChecked())
         end
-        if petFrameSwatch and petFrameSwatch.SetAlpha then
-            petFrameSwatch:SetAlpha(btn:GetChecked() and 0.35 or 1)
+        if powerBgSwatch and powerBgSwatch.SetAlpha then
+            powerBgSwatch:SetAlpha(btn:GetChecked() and 0.35 or 1)
         end
     end)
 
-    -- Initial state sync (disable the swatch when Match HP is on)
     if GetPowerBarBackgroundMatchHP() then
-        if petFrameSwatch and petFrameSwatch.EnableMouse then
-            petFrameSwatch:EnableMouse(false)
+        if powerBgSwatch and powerBgSwatch.EnableMouse then
+            powerBgSwatch:EnableMouse(false)
         end
-        if petFrameSwatch and petFrameSwatch.SetAlpha then
-            petFrameSwatch:SetAlpha(0.35)
+        if powerBgSwatch and powerBgSwatch.SetAlpha then
+            powerBgSwatch:SetAlpha(0.35)
         end
     else
-        if petFrameSwatch and petFrameSwatch.EnableMouse then
-            petFrameSwatch:EnableMouse(true)
+        if powerBgSwatch and powerBgSwatch.EnableMouse then
+            powerBgSwatch:EnableMouse(true)
         end
-        if petFrameSwatch and petFrameSwatch.SetAlpha then
-            petFrameSwatch:SetAlpha(1)
+        if powerBgSwatch and powerBgSwatch.SetAlpha then
+            powerBgSwatch:SetAlpha(1)
         end
     end
 
+    -- Aggro border (outline indicator)
+    local aggroLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    aggroLabel:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barLabelX, startY - 3 * rowH)
+    aggroLabel:SetJustifyH("LEFT")
+    aggroLabel:SetText("Aggro Border Color")
 
+    local aggroSwatch = CreateFrame("Button", "MSUF_Colors_AggroBorderSwatch", content)
+    aggroSwatch:SetSize(barSwatchW, 16)
+    aggroSwatch:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barSwatchX, startY - 3 * rowH)
 
-    -- Reset Extra Color
+    panel.__MSUF_ExtraColorAggroBorderTex = aggroSwatch:CreateTexture(nil, "ARTWORK")
+    panel.__MSUF_ExtraColorAggroBorderTex:SetAllPoints()
+    panel.__MSUF_ExtraColorAggroBorderTex:SetColorTexture(GetAggroBorderColor())
+
+    aggroSwatch:SetScript("OnClick", function()
+        local r, g, b = GetAggroBorderColor()
+        OpenColorPicker(r, g, b, function(nr, ng, nb)
+            SetAggroBorderColor(nr, ng, nb)
+            local tex = panel.__MSUF_ExtraColorAggroBorderTex
+            if tex then tex:SetColorTexture(nr, ng, nb) end
+        end)
+    end)
+
+    
+    -- Local helpers: Dispel border (outline indicator) color
+    -- Keep these inside the panel builder to avoid hitting WoW's 60-upvalue limit.
+    local function GetDispelBorderColor()
+        local defR, defG, defB = 0.25, 0.75, 1.00
+        if EnsureDB and MSUF_DB then
+            EnsureDB()
+            MSUF_DB.general = MSUF_DB.general or {}
+            local g = MSUF_DB.general
+            local r = g.dispelBorderColorR
+            local gg = g.dispelBorderColorG
+            local b = g.dispelBorderColorB
+            if type(r) == "number" and type(gg) == "number" and type(b) == "number" then
+                return r, gg, b
+            end
+        end
+        return defR, defG, defB
+    end
+
+    local function SetDispelBorderColor(r, g, b)
+        if not EnsureDB or not MSUF_DB then return end
+        EnsureDB()
+        MSUF_DB.general = MSUF_DB.general or {}
+        local gen = MSUF_DB.general
+        gen.dispelBorderColorR = r
+        gen.dispelBorderColorG = g
+        gen.dispelBorderColorB = b
+        PushVisualUpdates()
+    end
+
+-- Dispel border (outline indicator)
+    local dispelLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    dispelLabel:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barLabelX, startY - 4 * rowH)
+    dispelLabel:SetJustifyH("LEFT")
+    dispelLabel:SetText("Dispel Border Color")
+
+    local dispelSwatch = CreateFrame("Button", "MSUF_Colors_DispelBorderSwatch", content)
+    dispelSwatch:SetSize(barSwatchW, 16)
+    dispelSwatch:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barSwatchX, startY - 4 * rowH)
+
+    panel.__MSUF_ExtraColorDispelBorderTex = dispelSwatch:CreateTexture(nil, "ARTWORK")
+    panel.__MSUF_ExtraColorDispelBorderTex:SetAllPoints()
+    panel.__MSUF_ExtraColorDispelBorderTex:SetColorTexture(GetDispelBorderColor())
+
+    dispelSwatch:SetScript("OnClick", function()
+        local r, g, b = GetDispelBorderColor()
+        OpenColorPicker(r, g, b, function(nr, ng, nb)
+            SetDispelBorderColor(nr, ng, nb)
+            local tex = panel.__MSUF_ExtraColorDispelBorderTex
+            if tex then tex:SetColorTexture(nr, ng, nb) end
+        end)
+    end)
+
+    -- Reset (kept for 0-regression; affects both columns)
     local npcResetBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
     npcResetBtn:SetSize(160, 22)
     npcResetBtn:SetPoint("TOPLEFT", petLabel, "BOTTOMLEFT", 0, -12)
     npcResetBtn:SetText("Reset Extra Color")
     npcResetBtn:SetScript("OnClick", function()
-        if EnsureDB and MSUF_DB then
-            EnsureDB()
-            MSUF_DB.npcColors = nil
+        MSUF_ConfirmColorReset("unitframe + bar", function()
+                    if EnsureDB and MSUF_DB then
+                        EnsureDB()
+                        MSUF_DB.npcColors = nil
+            
+                        MSUF_DB.general = MSUF_DB.general or {}
+                        local gen = MSUF_DB.general
+                        gen.absorbBarColorR, gen.absorbBarColorG, gen.absorbBarColorB = nil, nil, nil
+                        gen.healAbsorbBarColorR, gen.healAbsorbBarColorG, gen.healAbsorbBarColorB = nil, nil, nil
+                        gen.powerBarBgColorR, gen.powerBarBgColorG, gen.powerBarBgColorB = nil, nil, nil
+                        gen.aggroBorderColorR, gen.aggroBorderColorG, gen.aggroBorderColorB = nil, nil, nil
+                        gen.dispelBorderColorR, gen.dispelBorderColorG, gen.dispelBorderColorB = nil, nil, nil
+            
+                        gen.powerBarBgMatchHPColor = nil
+                        MSUF_DB.bars = MSUF_DB.bars or {}
+                        MSUF_DB.bars.powerBarBgMatchBarColor = nil
+            
+                        PushVisualUpdates()
+                    end
+            
+                    if npcFriendlyTex then
+                        local fr, fg, fb = GetNPCColor("friendly")
+                        npcFriendlyTex:SetColorTexture(fr, fg, fb)
+                    end
+                    if npcNeutralTex then
+                        local nr, ng, nb = GetNPCColor("neutral")
+                        npcNeutralTex:SetColorTexture(nr, ng, nb)
+                    end
+                    if npcEnemyTex then
+                        local er, eg, eb = GetNPCColor("enemy")
+                        npcEnemyTex:SetColorTexture(er, eg, eb)
+                    end
+                    if npcDeadTex then
+                        local dr, dg, db = GetNPCColor("dead")
+                        npcDeadTex:SetColorTexture(dr, dg, db)
+                    end
+                    if petFrameTex then
+                        local pr, pg, pb = GetPetFrameColor()
+                        petFrameTex:SetColorTexture(pr, pg, pb)
+                    end
+                    local aTex = panel.__MSUF_ExtraColorAbsorbTex
+                    if aTex then
+                        aTex:SetColorTexture(GetAbsorbOverlayColor())
+                    end
+                    local hTex = panel.__MSUF_ExtraColorHealAbsorbTex
+                    if hTex then
+                        hTex:SetColorTexture(GetHealAbsorbOverlayColor())
+                    end
+                    local pTex = panel.__MSUF_ExtraColorPowerBgTex
+                    if pTex then
+                        pTex:SetColorTexture(GetPowerBarBackgroundColor())
+                    end
 
-            MSUF_DB.general = MSUF_DB.general or {}
-            local gen = MSUF_DB.general
-            gen.absorbBarColorR, gen.absorbBarColorG, gen.absorbBarColorB = nil, nil, nil
-            gen.healAbsorbBarColorR, gen.healAbsorbBarColorG, gen.healAbsorbBarColorB = nil, nil, nil
-            gen.powerBarBgColorR, gen.powerBarBgColorG, gen.powerBarBgColorB = nil, nil, nil
-            gen.powerBarBgMatchHPColor = nil
-            MSUF_DB.bars = MSUF_DB.bars or {}
-            MSUF_DB.bars.powerBarBgMatchBarColor = nil
-
-
-            PushVisualUpdates()
-        end
-
-        if npcFriendlyTex then
-            local fr, fg, fb = GetNPCColor("friendly")
-            npcFriendlyTex:SetColorTexture(fr, fg, fb)
-        end
-        if npcNeutralTex then
-            local nr, ng, nb = GetNPCColor("neutral")
-            npcNeutralTex:SetColorTexture(nr, ng, nb)
-        end
-        if npcEnemyTex then
-            local er, eg, eb = GetNPCColor("enemy")
-            npcEnemyTex:SetColorTexture(er, eg, eb)
-        end
-        if npcDeadTex then
-            local dr, dg, db = GetNPCColor("dead")
-            npcDeadTex:SetColorTexture(dr, dg, db)
-        end
-        local aTex = panel.__MSUF_ExtraColorAbsorbTex
-        if aTex then
-            aTex:SetColorTexture(GetAbsorbOverlayColor())
-        end
-        local hTex = panel.__MSUF_ExtraColorHealAbsorbTex
-        if hTex then
-            hTex:SetColorTexture(GetHealAbsorbOverlayColor())
-        end
-        local pTex = panel.__MSUF_ExtraColorPowerBgTex
-        if pTex then
-            pTex:SetColorTexture(GetPowerBarBackgroundColor())
-        end
-
-        if panel.__MSUF_ExtraColorPowerBgMatchCheck then
-            panel.__MSUF_ExtraColorPowerBgMatchCheck:SetChecked(false)
-        end
-        if panel.__MSUF_ExtraColorPowerBgSwatch and panel.__MSUF_ExtraColorPowerBgSwatch.EnableMouse then
-            panel.__MSUF_ExtraColorPowerBgSwatch:EnableMouse(true)
-        end
-        if panel.__MSUF_ExtraColorPowerBgSwatch and panel.__MSUF_ExtraColorPowerBgSwatch.SetAlpha then
-            panel.__MSUF_ExtraColorPowerBgSwatch:SetAlpha(1)
-        end
+                    local dTex = panel.__MSUF_ExtraColorDispelBorderTex
+                    if dTex then
+                        dTex:SetColorTexture(GetDispelBorderColor())
+                    end
+                    local agTex = panel.__MSUF_ExtraColorAggroBorderTex
+                    if agTex then
+                        agTex:SetColorTexture(GetAggroBorderColor())
+                    end
+            
+                    if panel.__MSUF_ExtraColorPowerBgMatchCheck then
+                        panel.__MSUF_ExtraColorPowerBgMatchCheck:SetChecked(false)
+                    end
+                    if panel.__MSUF_ExtraColorPowerBgSwatch and panel.__MSUF_ExtraColorPowerBgSwatch.EnableMouse then
+                        panel.__MSUF_ExtraColorPowerBgSwatch:EnableMouse(true)
+                    end
+                    if panel.__MSUF_ExtraColorPowerBgSwatch and panel.__MSUF_ExtraColorPowerBgSwatch.SetAlpha then
+                        panel.__MSUF_ExtraColorPowerBgSwatch:SetAlpha(1)
+                    end
+        end)
     end)
 
     lastControl = npcResetBtn
@@ -2268,70 +2454,72 @@ end
     resetCastbarColorsBtn:SetText("Reset castbar colors")
 
     resetCastbarColorsBtn:SetScript("OnClick", function()
-        EnsureDB()
-        local g = MSUF_DB and MSUF_DB.general
-        if not g then return end
-
-        -- Interruptible defaults
-        g.castbarInterruptibleR = nil
-        g.castbarInterruptibleG = nil
-        g.castbarInterruptibleB = nil
-        g.castbarInterruptibleColor = "turquoise"
-
-        -- Non-interruptible defaults
-        g.castbarNonInterruptibleR = nil
-        g.castbarNonInterruptibleG = nil
-        g.castbarNonInterruptibleB = nil
-        g.castbarNonInterruptibleColor = "red"
-
-        -- Interrupt feedback defaults
-        g.castbarInterruptR = nil
-        g.castbarInterruptG = nil
-        g.castbarInterruptB = nil
-        g.castbarInterruptColor = "red"
-
-        -- Player override defaults
-        g.playerCastbarOverrideEnabled = false
-        g.playerCastbarOverrideMode = "CLASS"
-        g.playerCastbarOverrideR = 1
-        g.playerCastbarOverrideG = 1
-        g.playerCastbarOverrideB = 1
-
-        -- Update swatches in the Colors panel
-        if interruptibleTex then
-            local r1, g1, b1 = GetInterruptibleCastColor()
-            interruptibleTex:SetColorTexture(r1, g1, b1)
-        end
-        if nonInterruptibleTex then
-            local r2, g2, b2 = GetNonInterruptibleCastColor()
-            nonInterruptibleTex:SetColorTexture(r2, g2, b2)
-        end
-        if interruptFeedbackTex then
-            local r3, g3, b3 = GetInterruptFeedbackCastColor()
-            interruptFeedbackTex:SetColorTexture(r3, g3, b3)
-        end
-
-        if F.UpdatePlayerOverrideControls then
-            F.UpdatePlayerOverrideControls()
-        end
-
-        -- Update override swatch + toggles
-        if playerOverrideTex then
-            local r4, g4, b4 = GetPlayerCastbarOverrideColor()
-            playerOverrideTex:SetColorTexture(r4, g4, b4)
-        end
-        if F.UpdatePlayerOverrideControls then
-            F.UpdatePlayerOverrideControls()
-        end
-
-        -- Push visuals to active castbars if the helper exists
-        if ns.MSUF_UpdateCastbarVisuals then
-            ns.MSUF_UpdateCastbarVisuals()
-        end
-
-        if PushVisualUpdates then
-            PushVisualUpdates()
-        end
+        MSUF_ConfirmColorReset("castbar", function()
+                    EnsureDB()
+                    local g = MSUF_DB and MSUF_DB.general
+                    if not g then return end
+            
+                    -- Interruptible defaults
+                    g.castbarInterruptibleR = nil
+                    g.castbarInterruptibleG = nil
+                    g.castbarInterruptibleB = nil
+                    g.castbarInterruptibleColor = "turquoise"
+            
+                    -- Non-interruptible defaults
+                    g.castbarNonInterruptibleR = nil
+                    g.castbarNonInterruptibleG = nil
+                    g.castbarNonInterruptibleB = nil
+                    g.castbarNonInterruptibleColor = "red"
+            
+                    -- Interrupt feedback defaults
+                    g.castbarInterruptR = nil
+                    g.castbarInterruptG = nil
+                    g.castbarInterruptB = nil
+                    g.castbarInterruptColor = "red"
+            
+                    -- Player override defaults
+                    g.playerCastbarOverrideEnabled = false
+                    g.playerCastbarOverrideMode = "CLASS"
+                    g.playerCastbarOverrideR = 1
+                    g.playerCastbarOverrideG = 1
+                    g.playerCastbarOverrideB = 1
+            
+                    -- Update swatches in the Colors panel
+                    if interruptibleTex then
+                        local r1, g1, b1 = GetInterruptibleCastColor()
+                        interruptibleTex:SetColorTexture(r1, g1, b1)
+                    end
+                    if nonInterruptibleTex then
+                        local r2, g2, b2 = GetNonInterruptibleCastColor()
+                        nonInterruptibleTex:SetColorTexture(r2, g2, b2)
+                    end
+                    if interruptFeedbackTex then
+                        local r3, g3, b3 = GetInterruptFeedbackCastColor()
+                        interruptFeedbackTex:SetColorTexture(r3, g3, b3)
+                    end
+            
+                    if F.UpdatePlayerOverrideControls then
+                        F.UpdatePlayerOverrideControls()
+                    end
+            
+                    -- Update override swatch + toggles
+                    if playerOverrideTex then
+                        local r4, g4, b4 = GetPlayerCastbarOverrideColor()
+                        playerOverrideTex:SetColorTexture(r4, g4, b4)
+                    end
+                    if F.UpdatePlayerOverrideControls then
+                        F.UpdatePlayerOverrideControls()
+                    end
+            
+                    -- Push visuals to active castbars if the helper exists
+                    if ns.MSUF_UpdateCastbarVisuals then
+                        ns.MSUF_UpdateCastbarVisuals()
+                    end
+            
+                    if PushVisualUpdates then
+                        PushVisualUpdates()
+                    end
+        end)
     end)
 
     lastControl = resetCastbarColorsBtn
@@ -2763,16 +2951,20 @@ combatTimerResetBtn:SetSize(110, 22)
 combatTimerResetBtn:SetPoint("LEFT", combatTimerSwatch, "RIGHT", 12, 0)
 combatTimerResetBtn:SetText("Reset")
 combatTimerResetBtn:SetScript("OnClick", function()
-    F.ResetGameplayCombatTimerColor()
-end)
+        MSUF_ConfirmColorReset("combat timer colors", function()
+                F.ResetGameplayCombatTimerColor()
+        end)
+    end)
 
 combatStateResetBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
 combatStateResetBtn:SetSize(110, 22)
 combatStateResetBtn:SetPoint("LEFT", combatEnterSwatch, "RIGHT", 12, 0)
 combatStateResetBtn:SetText("Reset")
 combatStateResetBtn:SetScript("OnClick", function()
-    F.ResetGameplayCombatStateColors()
-end)
+        MSUF_ConfirmColorReset("combat state colors", function()
+                F.ResetGameplayCombatStateColors()
+        end)
+    end)
 
 combatTimerSwatch:SetScript("OnClick", function()
     local r, gCol, bCol = F.GetCombatTimerColor()
@@ -2907,8 +3099,10 @@ crosshairResetBtn:SetSize(110, 22)
 crosshairResetBtn:SetPoint("LEFT", crosshairInSwatch, "RIGHT", 12, 0)
 crosshairResetBtn:SetText("Reset")
 crosshairResetBtn:SetScript("OnClick", function()
-    F.ResetGameplayCrosshairColors()
-end)
+        MSUF_ConfirmColorReset("crosshair range colors", function()
+                F.ResetGameplayCrosshairColors()
+        end)
+    end)
 
 crosshairInSwatch:SetScript("OnClick", function()
     local r, gCol, bCol = F.GetCrosshairInRangeColor()
@@ -2990,8 +3184,10 @@ F.ResetGameplayTotemTextColor = function()
 end
 
 totemTextResetBtn:SetScript("OnClick", function()
-    F.ResetGameplayTotemTextColor()
-end)
+        MSUF_ConfirmColorReset("totem text colors", function()
+                F.ResetGameplayTotemTextColor()
+        end)
+    end)
 
 totemTextSwatch:SetScript("OnClick", function()
     local r, gCol, bCol = F.GetPlayerTotemsTextColor()
@@ -3147,14 +3343,16 @@ powerColorSwatch:SetScript("OnClick", function()
 end)
 
 powerColorResetBtn:SetScript("OnClick", function()
-    local token = powerTypeDrop._msufSelectedToken or "MANA"
-    F.EnsurePowerColorsDB()
-    if MSUF_DB and MSUF_DB.general and type(MSUF_DB.general.powerColorOverrides) == "table" then
-        MSUF_DB.general.powerColorOverrides[token] = nil
-    end
-    F.UpdatePowerColorControls()
-    PushVisualUpdates()
-end)
+        MSUF_ConfirmColorReset("power colors", function()
+                local token = powerTypeDrop._msufSelectedToken or "MANA"
+                F.EnsurePowerColorsDB()
+                if MSUF_DB and MSUF_DB.general and type(MSUF_DB.general.powerColorOverrides) == "table" then
+                    MSUF_DB.general.powerColorOverrides[token] = nil
+                end
+                F.UpdatePowerColorControls()
+                PushVisualUpdates()
+        end)
+    end)
 
 F.UpdatePowerColorControls()
 
@@ -3498,34 +3696,38 @@ auraCDUrgentSwatch:SetScript("OnMouseUp", function(self, button)
 end)
 
 auraCDResetBtn:SetScript("OnClick", function()
-    F.EnsureAurasColorsDB()
-    MSUF_DB.general.aurasCooldownTextSafeColor = nil
-    MSUF_DB.general.aurasCooldownTextWarningColor = { 1.00, 0.85, 0.20 }
-    MSUF_DB.general.aurasCooldownTextUrgentColor = { 1.00, 0.55, 0.10 }
-    if _G.MSUF_A2_InvalidateCooldownTextCurve then
-        _G.MSUF_A2_InvalidateCooldownTextCurve()
-    end
-    F.ForceAurasCooldownTextRecolor()
-    F.UpdateAurasColorControls()
-    F.PushAuras2ColorRefresh()
-end)
+        MSUF_ConfirmColorReset("aura cooldown colors", function()
+                F.EnsureAurasColorsDB()
+                MSUF_DB.general.aurasCooldownTextSafeColor = nil
+                MSUF_DB.general.aurasCooldownTextWarningColor = { 1.00, 0.85, 0.20 }
+                MSUF_DB.general.aurasCooldownTextUrgentColor = { 1.00, 0.55, 0.10 }
+                if _G.MSUF_A2_InvalidateCooldownTextCurve then
+                    _G.MSUF_A2_InvalidateCooldownTextCurve()
+                end
+                F.ForceAurasCooldownTextRecolor()
+                F.UpdateAurasColorControls()
+                F.PushAuras2ColorRefresh()
+        end)
+    end)
 
 
 auraResetBtn:SetScript("OnClick", function()
-    F.EnsureAurasColorsDB()
-    MSUF_DB.general.aurasOwnBuffHighlightColor = { 1.0, 0.85, 0.2 }
-    MSUF_DB.general.aurasOwnDebuffHighlightColor = { 1.0, 0.85, 0.2 }
-    MSUF_DB.general.aurasStackCountColor = { 1, 1, 1 }
-    MSUF_DB.general.aurasCooldownTextSafeColor = nil
-    MSUF_DB.general.aurasCooldownTextWarningColor = { 1.00, 0.85, 0.20 }
-    MSUF_DB.general.aurasCooldownTextUrgentColor = { 1.00, 0.55, 0.10 }
-    if _G.MSUF_A2_InvalidateCooldownTextCurve then
-        _G.MSUF_A2_InvalidateCooldownTextCurve()
-    end
-    F.ForceAurasCooldownTextRecolor()
-    F.UpdateAurasColorControls()
-    F.PushAuras2ColorRefresh()
-end)
+        MSUF_ConfirmColorReset("aura colors", function()
+                F.EnsureAurasColorsDB()
+                MSUF_DB.general.aurasOwnBuffHighlightColor = { 1.0, 0.85, 0.2 }
+                MSUF_DB.general.aurasOwnDebuffHighlightColor = { 1.0, 0.85, 0.2 }
+                MSUF_DB.general.aurasStackCountColor = { 1, 1, 1 }
+                MSUF_DB.general.aurasCooldownTextSafeColor = nil
+                MSUF_DB.general.aurasCooldownTextWarningColor = { 1.00, 0.85, 0.20 }
+                MSUF_DB.general.aurasCooldownTextUrgentColor = { 1.00, 0.55, 0.10 }
+                if _G.MSUF_A2_InvalidateCooldownTextCurve then
+                    _G.MSUF_A2_InvalidateCooldownTextCurve()
+                end
+                F.ForceAurasCooldownTextRecolor()
+                F.UpdateAurasColorControls()
+                F.PushAuras2ColorRefresh()
+        end)
+    end)
 
 F.UpdateAurasColorControls()
 

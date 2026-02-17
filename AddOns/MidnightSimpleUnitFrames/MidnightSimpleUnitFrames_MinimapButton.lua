@@ -1,328 +1,247 @@
--- Midnight Simple Unit Frames - Minimap Icon (BugSack-style: LDB + LibDBIcon)
---
--- Behavior:
---  - Left-drag: move icon around the minimap (handled by LibDBIcon)
---  - Right-click: open MSUF menu (same as /msuf)
---  - Shift + Right-click: open MSUF Edit Mode
---
--- Notes:
---  - Preferred: LibDataBroker-1.1 + LibDBIcon-1.0 (BugSack-style).
---  - Fallback: if those libs are missing, MSUF creates its own lightweight minimap
---    button so the icon still exists when ONLY MSUF is loaded.
+-- MidnightSimpleUnitFrames_MinimapButton.lua
+-- Minimal, robust minimap icon implementation (LibDataBroker + LibDBIcon, with safe fallback).
 
-local addonName = ...
+local addonName, addonNS = ...
+local ns = (_G and _G.MSUF_NS) or addonNS or {}
+if _G then _G.MSUF_NS = ns end
 
--- -----------------------------------------------------------------------------
--- Backend state (always available)
--- -----------------------------------------------------------------------------
+local _G = _G
+
+local ICON_PATH = "Interface/AddOns/" .. tostring(addonName or "MidnightSimpleUnitFrames") .. "/Media/MSUF_MinimapIcon.tga"
+
+local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end
 
 local function EnsureGeneralDB()
-    if type(_G.MSUF_DB) ~= "table" then
-        _G.MSUF_DB = {}
+    if type(_G.MSUF_DB) ~= "table" then return nil end
+    local db = _G.MSUF_DB
+    if type(db.general) ~= "table" then
+        db.general = {}
     end
-    if type(_G.MSUF_DB.general) ~= "table" then
-        _G.MSUF_DB.general = {}
+    local g = db.general
+    if g.showMinimapIcon == nil then
+        g.showMinimapIcon = true
     end
-    return _G.MSUF_DB.general
+    if type(g.minimapIconDB) ~= "table" then
+        g.minimapIconDB = { minimapPos = 220, hide = not g.showMinimapIcon }
+    else
+        if g.minimapIconDB.minimapPos == nil then g.minimapIconDB.minimapPos = 220 end
+        if g.minimapIconDB.hide == nil then g.minimapIconDB.hide = not g.showMinimapIcon end
+    end
+    return g
 end
 
-local function EnsureMinimapDB()
-    local general = EnsureGeneralDB()
-
-    local db = general.minimapIconDB
-    if type(db) ~= "table" then
-        db = { hide = false }
-        general.minimapIconDB = db
-    end
-
-    -- Canonical, future-friendly toggle for Options -> Misc.
-    if general.showMinimapIcon == false then
-        db.hide = true
-    elseif general.showMinimapIcon == true then
-        db.hide = false
-    elseif db.hide == nil then
-        db.hide = false
-    end
-
-    -- Defaults expected by LibDBIcon (kept even if libs are missing, so the toggle
-    -- can be implemented without touching this file later).
-    if db.minimapPos == nil then db.minimapPos = 220 end
-    if db.radius == nil then db.radius = 80 end
-
-    return general, db
-end
-
--- Local hook that becomes functional once LibDBIcon is present.
-local ApplyMinimapIconVisibility = function() end
-
--- Public API (used later by Options -> Misc toggle). These are defined even if
--- the libs are missing, so calling them never errors.
-function _G.MSUF_GetMinimapIconEnabled()
-    local _, db = EnsureMinimapDB()
-    return not db.hide
-end
-
-function _G.MSUF_SetMinimapIconEnabled(enabled)
-    local general, db = EnsureMinimapDB()
-    general.showMinimapIcon = (enabled and true) or false
-    db.hide = (enabled and false) or true
-    ApplyMinimapIconVisibility()
-end
-
-function _G.MSUF_ToggleMinimapIcon()
-    _G.MSUF_SetMinimapIconEnabled(not _G.MSUF_GetMinimapIconEnabled())
-end
-
--- Use our bundled icon in Media.
-local ICON_PATH = "Interface\\AddOns\\" .. tostring(addonName) .. "\\Media\\MSUF_MinimapIcon.tga"
-
--- Libs are optional; we support a fallback minimap button when they aren't present.
-local libStub = _G.LibStub
-local ldb = (libStub and libStub.GetLibrary and libStub:GetLibrary("LibDataBroker-1.1", true)) or nil
-
-local function GetLibDBIcon()
-    return (libStub and libStub("LibDBIcon-1.0", true)) or nil
-end
-
-local plugin -- created only when LDB exists
-
-local function ChatMsg(msg)
-    if DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
-        DEFAULT_CHAT_FRAME:AddMessage(msg)
-    end
-end
-
-local function OpenMSUFMenu()
-    -- Opening option UIs in combat can be blocked/tainted.
-    if InCombatLockdown and InCombatLockdown() then
-        ChatMsg("|cffff5555MSUF: Can't open the menu in combat.|r")
-        return
-    end
-
-    -- Preferred: open the Flash/Slash menu directly.
-    if type(_G.MSUF_OpenPage) == "function" then
-        _G.MSUF_OpenPage("home")
-        return
-    end
-
-    -- Fallback: some builds expose an options window toggle.
-    if type(_G.MSUF_ToggleOptionsWindow) == "function" then
-        _G.MSUF_ToggleOptionsWindow("main")
-        return
-    end
-
-    -- Last resort: call slash handler if registered.
-    if _G.SlashCmdList then
-        local fn = _G.SlashCmdList.MSUFOPTIONS or _G.SlashCmdList.MIDNIGHTSIMPLEUNITFRAMES or _G.SlashCmdList.MIDNIGHTSUF or _G.SlashCmdList.MSUF
-        if type(fn) == "function" then
-            fn("")
-        end
-    end
-end
-
-local function OpenMSUFEditMode()
-    if InCombatLockdown and InCombatLockdown() then
-        ChatMsg("|cffff5555MSUF: Can't enter Edit Mode in combat.|r")
-        return
-    end
-
-    -- Canonical entry point (preferred; works even when unlinked from Blizzard Edit Mode).
+local function ToggleEditMode()
     if type(_G.MSUF_SetMSUFEditModeDirect) == "function" then
-        _G.MSUF_SetMSUFEditModeDirect(true)
+        local st = _G.MSUF_EditState
+        local nextActive = true
+        if type(st) == "table" and st.active ~= nil then
+            nextActive = not st.active
+        end
+        pcall(_G.MSUF_SetMSUFEditModeDirect, nextActive, nil)
         return
     end
-
-    -- Legacy fallbacks (older builds / compatibility)
     if type(_G.MSUF_ToggleEditMode) == "function" then
-        _G.MSUF_ToggleEditMode()
-    elseif type(_G.MSUF_EditMode_Toggle) == "function" then
-        _G.MSUF_EditMode_Toggle()
-    else
-        ChatMsg("|cffff5555MSUF: Edit Mode function not found.|r")
+        pcall(_G.MSUF_ToggleEditMode)
+        return
+    end
+    if type(_G.MSUF_EditMode_Toggle) == "function" then
+        pcall(_G.MSUF_EditMode_Toggle)
+        return
     end
 end
 
-local function Plugin_OnClick(_, button)
-    -- Keep LeftButton free for LibDBIcon's drag behavior.
-    if button == "RightButton" then
-        if IsShiftKeyDown and IsShiftKeyDown() then
-            OpenMSUFEditMode()
-        else
-            OpenMSUFMenu()
-        end
+local function ToggleOptionsWindow()
+    if type(_G.MSUF_OpenStandaloneOptionsWindow) == "function" then
+        pcall(_G.MSUF_OpenStandaloneOptionsWindow, "home")
+        return
+    end
+    if type(_G.MSUF_ShowStandaloneOptionsWindow) == "function" then
+        pcall(_G.MSUF_ShowStandaloneOptionsWindow, "home")
+        return
+    end
+    -- Fallback: try to open Blizzard settings (if present)
+    if _G.Settings and type(_G.Settings.OpenToCategory) == "function" then
+        pcall(_G.Settings.OpenToCategory, addonName)
+    elseif type(_G.InterfaceOptionsFrame_OpenToCategory) == "function" then
+        pcall(_G.InterfaceOptionsFrame_OpenToCategory, addonName)
     end
 end
 
-local function Plugin_OnTooltipShow(tt)
+local function BuildTooltip(tt)
     if not tt then return end
-    tt:AddLine("Midnight Simple Unit Frames")
-    tt:AddLine("Right-click: open /msuf", 0.2, 1, 0.2)
-    tt:AddLine("Shift + Right-click: MSUF Edit Mode", 0.2, 1, 0.2)
-    tt:AddLine("Left-drag: move icon", 0.2, 1, 0.2)
-end
-
--- If we have LDB, create the broker data object so LibDBIcon (if present) can render it.
-if ldb then
-    plugin = ldb:NewDataObject(addonName, {
-        type = "data source",
-        text = "MSUF",
-        icon = ICON_PATH,
-    })
-    plugin.OnClick = Plugin_OnClick
-    plugin.OnTooltipShow = Plugin_OnTooltipShow
-end
-
--- ----------------------------------------------------------------------------
--- Fallback minimap button (no external libs)
--- ----------------------------------------------------------------------------
-
-local fallbackButton
-local fallbackDragTicker
-
-local function Fallback_UpdatePosition()
-    if not fallbackButton or not Minimap then return end
-    local _, db = EnsureMinimapDB()
-
-    local angle = tonumber(db.minimapPos) or 220
-    local radius = tonumber(db.radius) or 80
-    local rad = math.rad(angle)
-    local x = math.cos(rad) * radius
-    local y = math.sin(rad) * radius
-
-    fallbackButton:ClearAllPoints()
-    fallbackButton:SetPoint("CENTER", Minimap, "CENTER", x, y)
-end
-
-local function Fallback_StopDrag()
-    if fallbackDragTicker then
-        fallbackDragTicker:Cancel()
-        fallbackDragTicker = nil
-    end
-    if fallbackButton then
-        fallbackButton:SetScript("OnUpdate", nil)
+    if tt.AddLine then
+        tt:AddLine("Midnight Simple Unit Frames")
+        tt:AddLine("Left Click: Open MSUF", 1, 1, 1)
+        tt:AddLine("Right Click: Toggle MSUF Edit Mode", 1, 1, 1)
     end
 end
 
-local function Fallback_StartDrag()
-    if not fallbackButton or not Minimap then return end
+-- LDB/DBIcon path
+local LibStub = _G and _G.LibStub
+local LDB = LibStub and LibStub("LibDataBroker-1.1", true) or nil
+local DBIcon = LibStub and LibStub("LibDBIcon-1.0", true) or nil
 
-    -- Update at a modest rate while dragging; no permanent OnUpdate.
-    Fallback_StopDrag()
-    fallbackDragTicker = (C_Timer and C_Timer.NewTicker) and C_Timer.NewTicker(0.02, function()
-        if not fallbackButton or not fallbackButton._msufDragging then
-            Fallback_StopDrag()
-            return
-        end
+local DATA_NAME = "MidnightSimpleUnitFrames"
+local dataObj = nil
+local usingLDB = false
 
-        local mx, my = Minimap:GetCenter()
-        if not mx or not my then return end
+-- Fallback button path
+local fallbackBtn = nil
 
-        local cx, cy = GetCursorPosition()
-        local scale = (Minimap.GetEffectiveScale and Minimap:GetEffectiveScale()) or 1
-        cx, cy = cx / scale, cy / scale
+local function ApplyShowHide(enabled)
+    enabled = not not enabled
 
-        local dx, dy = (cx - mx), (cy - my)
-        local angle = math.deg(math.atan2(dy, dx))
-        -- Convert to 0..360 and rotate so 0 is "east" like LibDBIcon.
-        angle = (angle + 360) % 360
-
-        local _, db = EnsureMinimapDB()
-        db.minimapPos = angle
-        Fallback_UpdatePosition()
-    end) or nil
-end
-
-local function EnsureFallbackButton()
-    if fallbackButton or not Minimap or type(CreateFrame) ~= "function" then
-        return fallbackButton
-    end
-
-    local b = CreateFrame("Button", "MSUF_MinimapButton", Minimap)
-    fallbackButton = b
-    b:SetFrameStrata("MEDIUM")
-    b:SetSize(32, 32)
-    b:RegisterForClicks("RightButtonUp", "LeftButtonUp")
-    b:RegisterForDrag("LeftButton")
-    b:SetClampedToScreen(true)
-
-    local tex = b:CreateTexture(nil, "ARTWORK")
-    tex:SetAllPoints()
-    tex:SetTexture(ICON_PATH)
-    b._msufTex = tex
-
-    -- Tooltip
-    b:SetScript("OnEnter", function(self)
-        if GameTooltip then
-            GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-            Plugin_OnTooltipShow(GameTooltip)
-            GameTooltip:Show()
-        end
-    end)
-    b:SetScript("OnLeave", function()
-        if GameTooltip then GameTooltip:Hide() end
-    end)
-
-    b:SetScript("OnClick", function(_, button)
-        -- Keep behavior identical to the broker plugin.
-        if button == "RightButton" then
-            Plugin_OnClick(nil, "RightButton")
-        end
-    end)
-
-    b:SetScript("OnDragStart", function(self)
-        if not _G.MSUF_GetMinimapIconEnabled() then return end
-        self._msufDragging = true
-        Fallback_StartDrag()
-    end)
-    b:SetScript("OnDragStop", function(self)
-        self._msufDragging = false
-        Fallback_StopDrag()
-    end)
-
-    Fallback_UpdatePosition()
-    return b
-end
-
--- Now that LibDBIcon exists, wire the visibility applier used by the public API.
-ApplyMinimapIconVisibility = function()
-    local _, db = EnsureMinimapDB()
-
-    -- Prefer LibDBIcon if available and registered, otherwise fallback button.
-    local icon = GetLibDBIcon()
-    if icon and plugin then
-        if db.hide then
-            icon:Hide(addonName)
+    if usingLDB and DBIcon and type(DBIcon.Show) == "function" and type(DBIcon.Hide) == "function" then
+        if enabled then
+            pcall(DBIcon.Show, DBIcon, DATA_NAME)
         else
-            icon:Show(addonName)
+            pcall(DBIcon.Hide, DBIcon, DATA_NAME)
         end
-        -- If we are using LibDBIcon, make sure fallback is hidden.
-        if fallbackButton then fallbackButton:Hide() end
         return
     end
 
-    -- No LibDBIcon: use fallback button.
-    local b = EnsureFallbackButton()
-    if not b then return end
-    if db.hide then
-        b:Hide()
-    else
-        b:Show()
-        Fallback_UpdatePosition()
+    if fallbackBtn then
+        if enabled then fallbackBtn:Show() else fallbackBtn:Hide() end
     end
 end
 
-local f = CreateFrame("Frame")
-f:RegisterEvent("PLAYER_LOGIN")
-f:SetScript("OnEvent", function()
-    local _, db = EnsureMinimapDB()
+local function EnsureInitialized()
+    local g = EnsureGeneralDB()
+    if not g then return false end
 
-    local icon = GetLibDBIcon()
-    if icon and plugin then
-        icon:Register(addonName, plugin, db)
-    else
-        EnsureFallbackButton()
+    -- Prefer LibDBIcon if present
+    if LDB and DBIcon then
+        if not dataObj then
+            -- Use a stable stock icon so this never breaks if a custom path is missing.
+            dataObj = LDB:NewDataObject(DATA_NAME, {
+                type = "data source",
+                text = "MSUF",
+                icon = ICON_PATH,
+                OnClick = function(_, button)
+                    if button == "RightButton" then
+                        ToggleEditMode()
+                    else
+                        ToggleOptionsWindow()
+                    end
+                end,
+                OnTooltipShow = function(tt)
+                    BuildTooltip(tt)
+                end,
+            })
+        end
+
+        -- Register once (idempotent)
+        if type(DBIcon.IsRegistered) == "function" then
+            local ok, reg = pcall(DBIcon.IsRegistered, DBIcon, DATA_NAME)
+            if not ok or not reg then
+                pcall(DBIcon.Register, DBIcon, DATA_NAME, dataObj, g.minimapIconDB)
+            end
+        else
+            pcall(DBIcon.Register, DBIcon, DATA_NAME, dataObj, g.minimapIconDB)
+        end
+
+        usingLDB = true
+        ApplyShowHide(not g.minimapIconDB.hide)
+        return true
     end
 
-    -- Ensure current DB visibility state is applied after registration / creation.
-    ApplyMinimapIconVisibility()
+    -- Fallback: simple minimap-attached button
+    if not fallbackBtn and _G.Minimap and type(_G.CreateFrame) == "function" then
+        local b = CreateFrame("Button", "MSUF_MinimapButton", _G.Minimap)
+        b:SetSize(32, 32)
+        b:SetFrameStrata("MEDIUM")
+        b:SetFrameLevel(8)
+
+        b:SetNormalTexture("Interface/Minimap/UI-Minimap-Background")
+        b:SetHighlightTexture("Interface/Minimap/UI-Minimap-ZoomButton-Highlight")
+
+        local icon = b:CreateTexture(nil, "ARTWORK")
+        icon:SetPoint("CENTER")
+        icon:SetSize(18, 18)
+        icon:SetTexture(ICON_PATH)
+        b._msufIcon = icon
+
+        b:SetScript("OnClick", function(_, button)
+            if button == "RightButton" then
+                ToggleEditMode()
+            else
+                ToggleOptionsWindow()
+            end
+        end)
+
+        b:SetScript("OnEnter", function(self)
+            if _G.GameTooltip then
+                _G.GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+                BuildTooltip(_G.GameTooltip)
+                _G.GameTooltip:Show()
+            end
+        end)
+        b:SetScript("OnLeave", function()
+            if _G.GameTooltip then _G.GameTooltip:Hide() end
+        end)
+
+        -- Position by minimapPos degrees (same semantics as LibDBIcon)
+        local function Repos()
+            local gg = EnsureGeneralDB()
+            local pos = (gg and gg.minimapIconDB and tonumber(gg.minimapIconDB.minimapPos)) or 220
+            local r = 80
+            local rad = math.rad(pos)
+            local x = math.cos(rad) * r
+            local y = math.sin(rad) * r
+            b:ClearAllPoints()
+            b:SetPoint("CENTER", _G.Minimap, "CENTER", x, y)
+        end
+
+        b:SetScript("OnDragStart", function(self)
+            self:SetScript("OnUpdate", function()
+                local gg = EnsureGeneralDB()
+                if not gg then return end
+                local mx, my = GetCursorPosition()
+                local scale = _G.Minimap:GetEffectiveScale() or 1
+                mx, my = mx / scale, my / scale
+                local cx, cy = _G.Minimap:GetCenter()
+                local dx, dy = mx - cx, my - cy
+                local angle = math.deg(atan2(dy, dx))
+                -- Convert to LibDBIcon-style degrees (0 on right)
+                gg.minimapIconDB.minimapPos = angle
+                Repos()
+            end)
+        end)
+        b:SetScript("OnDragStop", function(self)
+            self:SetScript("OnUpdate", nil)
+        end)
+        b:RegisterForDrag("LeftButton")
+
+        fallbackBtn = b
+        Repos()
+    end
+
+    usingLDB = false
+    ApplyShowHide(g.showMinimapIcon)
+    return true
+end
+
+-- Public API used by Options_Misc.lua
+function _G.MSUF_SetMinimapIconEnabled(enabled)
+    local g = EnsureGeneralDB()
+    if not g then return end
+
+    enabled = not not enabled
+    g.showMinimapIcon = enabled
+    if type(g.minimapIconDB) ~= "table" then g.minimapIconDB = { minimapPos = 220 } end
+    g.minimapIconDB.hide = not enabled
+
+    EnsureInitialized()
+    ApplyShowHide(enabled)
+end
+
+-- Init on login (DB is expected to exist by then)
+local initFrame = CreateFrame("Frame")
+initFrame:RegisterEvent("PLAYER_LOGIN")
+initFrame:SetScript("OnEvent", function()
+    local g = EnsureGeneralDB()
+    if g then
+        EnsureInitialized()
+        ApplyShowHide(g.showMinimapIcon)
+    end
 end)

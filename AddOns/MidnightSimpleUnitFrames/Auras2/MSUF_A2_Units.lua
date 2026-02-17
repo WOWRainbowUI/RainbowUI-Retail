@@ -3,7 +3,23 @@
 -- Phase 3: centralize unit lists + helpers so Render can loop without repeated string logic.
 
 local addonName, ns = ...
-ns = ns or {}
+ns = (rawget(_G, "MSUF_NS") or ns) or {}
+-- =========================================================================
+-- PERF LOCALS (Auras2 runtime)
+--  - Reduce global table lookups in high-frequency aura pipelines.
+--  - Secret-safe: localizing function references only (no value comparisons).
+-- =========================================================================
+local type, tostring, tonumber, select = type, tostring, tonumber, select
+local pairs, ipairs, next = pairs, ipairs, next
+local math_min, math_max, math_floor = math.min, math.max, math.floor
+local string_format, string_match, string_sub = string.format, string.match, string.sub
+local CreateFrame, GetTime = CreateFrame, GetTime
+local UnitExists = UnitExists
+local InCombatLockdown = InCombatLockdown
+local C_Timer = C_Timer
+local C_UnitAuras = C_UnitAuras
+local C_Secrets = C_Secrets
+local C_CurveUtil = C_CurveUtil
 
 ns.MSUF_Auras2 = (type(ns.MSUF_Auras2) == "table") and ns.MSUF_Auras2 or {}
 local API = ns.MSUF_Auras2
@@ -42,28 +58,29 @@ if type(Units.ALL) ~= "table" then
 end
 
 -- Tiny helpers.
-function Units.IsBoss(unit)
-    if type(unit) ~= "string" then return false end
+function Units.IsBoss(unit) 
+    if type(unit) ~= "string" then  return false end
     return unit:sub(1, 4) == "boss"
 end
 
-function Units.ForEachAll(fn)
-    if type(fn) ~= "function" then return end
+function Units.ForEachAll(fn) 
+    if type(fn) ~= "function" then  return end
     local t = Units.ALL
     for i = 1, #t do
         fn(t[i])
     end
-end
+ end
 
-function Units.ForEachBoss(fn)
-    if type(fn) ~= "function" then return end
+function Units.ForEachBoss(fn) 
+    if type(fn) ~= "function" then  return end
     local t = Units.BOSS
     for i = 1, #t do
         fn(t[i])
     end
-end
+ end
 
 -- Optionally expose simple getter.
-function Units.GetAll()
+function Units.GetAll() 
     return Units.ALL
 end
+

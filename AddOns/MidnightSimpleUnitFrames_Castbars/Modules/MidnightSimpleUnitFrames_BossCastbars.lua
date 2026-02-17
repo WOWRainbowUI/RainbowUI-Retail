@@ -46,14 +46,10 @@ local function SafeCall(fn, ...)
     return nil
 end
 
+-- PERF: Resolve time source once at load.
+local _BossNow = _G.GetTimePreciseSec or _G.GetTime or function() return 0 end
 local function MSUF_Now()
-    if type(_G.GetTimePreciseSec) == "function" then
-        return _G.GetTimePreciseSec()
-    end
-    if type(_G.GetTime) == "function" then
-        return _G.GetTime()
-    end
-    return 0
+    return _BossNow()
 end
 
 -- Canonical-unit helper for boss castbars: when a boss is also your target/focus,
@@ -81,18 +77,49 @@ local function MSUF_GetCanonicalCastUnitForBoss(unit)
 end
 
 
+-- PERF: Pre-built arithmetic probe (avoids closure per ToPlainNumber call).
+local function _bossAddZero(v) return v + 0 end
+
 -- Secret-safe number coercion: returns a plain Lua number or nil if the value is a secret.
 local function ToPlainNumber(v)
     if v == nil then return nil end
-    if type(v) == "number" then return v end
-    local ok, n = pcall(function()
-        return v + 0
-    end)
+    if type(v) == "number" then
+        local s = tostring(v)
+        return tonumber(s)
+    end
+    local ok, n = pcall(_bossAddZero, v)
     if ok and type(n) == "number" then
-        return n
+        local s = tostring(n)
+        return tonumber(s)
     end
     return nil
 end
+
+-- oUF-style snapshot: read remaining ONCE from durationObj, compute absolute end time.
+-- The OnUpdate then uses pure arithmetic (endTime - now) instead of API calls per tick.
+local function Boss_SnapshotPlainTimes(frame, durObj)
+    if not (frame and durObj) then return end
+    local rem
+    if durObj.GetRemainingDuration then
+        rem = durObj:GetRemainingDuration()
+    elseif durObj.GetRemaining then
+        rem = durObj:GetRemaining()
+    end
+    local remNum = ToPlainNumber(rem)
+    if remNum and remNum > 0 then
+        frame._msufPlainEndTime = _BossNow() + remNum
+        frame._msufRemaining = remNum
+    else
+        frame._msufPlainEndTime = nil
+        frame._msufRemaining = nil
+    end
+    local total
+    if durObj.GetTotalDuration then
+        total = durObj:GetTotalDuration()
+    end
+    frame._msufPlainTotal = ToPlainNumber(total)
+end
+
 
 -- ------------------------------------------------------------
 -- Empower support (make boss empower castbars look like player)
@@ -657,14 +684,10 @@ local function BossCastbar_StartWatchdog(frame)
             return
         end
 
+        -- Watchdog only checks unit validity (despawn/death).
+        -- Cast/channel completion is handled by CastbarManager (fast-path rem≤0 + hard-stop).
+        -- Events (STOP/FAILED/INTERRUPTED) handle the normal end-of-cast.
         if not UnitExists(frame.unit) or (UnitIsDeadOrGhost and UnitIsDeadOrGhost(frame.unit)) then
-            BossCastbar_Stop(frame)
-            return
-        end
-
-        local castName = UnitCastingInfo(frame.unit)
-        local chanName = UnitChannelInfo(frame.unit)
-        if not castName and not chanName then
             BossCastbar_Stop(frame)
             return
         end
@@ -686,6 +709,11 @@ BossCastbar_Stop = function(frame)
     BossCastbar_StopWatchdog(frame)
 
     frame.MSUF_durationObj = nil
+    frame._msufPlainEndTime = nil
+    frame._msufRemaining = nil
+    frame._msufFastText = nil
+    frame._msufPlainTotal = nil
+    frame._msufLastTimeDecimal = nil
     frame.MSUF_isChanneled = false
     frame.MSUF_channelDirect = nil
     frame.MSUF_timerRangeSet = nil
@@ -755,6 +783,11 @@ local function BossCastbar_ShowInterruptFeedback(frame, label)
 
     -- Stop driving updates & clear duration object
     frame.MSUF_durationObj = nil
+    frame._msufPlainEndTime = nil
+    frame._msufRemaining = nil
+    frame._msufFastText = nil
+    frame._msufPlainTotal = nil
+    frame._msufLastTimeDecimal = nil
     frame.MSUF_isChanneled = false
     frame.MSUF_channelDirect = nil
     Boss_ClearEmpowerState(frame)
@@ -838,39 +871,70 @@ end
 -- Boss castbars can be driven by the central MSUF CastbarManager, but when that manager is disabled
 -- we self-drive the remaining time text via an OnUpdate. We intentionally avoid any numeric comparisons
 -- (e.g. "remaining > 0") because duration values can be secret in Midnight.
+local _floor = math.floor
+
 local function BossCastbar_OnUpdate(self, elapsed)
     if not self or not self.unit or not self:IsShown() then return end
-    -- Boss can despawn/die without a reliable STOP event; hard-kill the bar if the unit vanishes.
-    if not UnitExists(self.unit) or (UnitIsDeadOrGhost and UnitIsDeadOrGhost(self.unit)) then
-        BossCastbar_Stop(self)
+
+    -- PERF: Gate UnitExists/Dead check at ~4Hz instead of every frame.
+    local now = _BossNow()
+    local nextCheck = self._msufBossExistNext or 0
+    if now >= nextCheck then
+        self._msufBossExistNext = now + 0.25
+        if not UnitExists(self.unit) or (UnitIsDeadOrGhost and UnitIsDeadOrGhost(self.unit)) then
+            BossCastbar_Stop(self)
+            return
+        end
+    end
+
+    -- oUF-style fast path: pure arithmetic time text from snapshot.
+    local endT = self._msufPlainEndTime
+    if endT and self.timeText then
+        local remaining = endT - now
+        if remaining < 0 then remaining = 0 end
+        local dec = _floor(remaining * 10)
+        if dec ~= self._msufLastTimeDecimal then
+            self._msufLastTimeDecimal = dec
+            if self.timeText.SetFormattedText then
+                self.timeText:SetFormattedText("%.1f", remaining)
+            else
+                self.timeText:SetText(string.format("%.1f", remaining))
+            end
+        end
         return
     end
 
+    -- Fallback: no snapshot available (secret values). Try durationObj directly.
     local dObj = (self._msufCastState and self._msufCastState.durationObj) or self.MSUF_durationObj
     local rem
     if dObj then
         if dObj.GetRemainingDuration then
-            rem = SafeCall(dObj.GetRemainingDuration, dObj)
+            rem = dObj:GetRemainingDuration()
         elseif dObj.GetRemaining then
-            rem = SafeCall(dObj.GetRemaining, dObj)
+            rem = dObj:GetRemaining()
         end
     end
 
     local remNum = ToPlainNumber(rem)
 
-    -- Midnight: Remaining can be secret. If we can't coerce to a plain number, don't try to
-    -- "derive" it from StatusBar min/max (those can be secret too). Just clear the time text.
     if (not remNum) and self.timeText then
         self.timeText:SetText("")
     end
 
     if remNum then
         if remNum < 0 then remNum = 0 end
-        if self.timeText and self.timeText.SetFormattedText then
-            SafeCall(self.timeText.SetFormattedText, self.timeText, "%.1f", remNum)
-        elseif self.timeText then
-            local ok, txt = MSUF_FastCall(string.format, "%.1f", remNum)
-            self.timeText:SetText(ok and txt or "")
+        -- Re-snapshot for future ticks.
+        self._msufPlainEndTime = now + remNum
+        if self.timeText then
+            local dec = _floor(remNum * 10)
+            if dec ~= self._msufLastTimeDecimal then
+                self._msufLastTimeDecimal = dec
+                if self.timeText.SetFormattedText then
+                    self.timeText:SetFormattedText("%.1f", remNum)
+                else
+                    self.timeText:SetText(string.format("%.1f", remNum))
+                end
+            end
         end
         return
     end
@@ -883,25 +947,22 @@ local function BossCastbar_OnUpdate(self, elapsed)
         return
     end
 
-    -- Refresh duration object if possible (no comparisons).
+    -- Refresh duration object if possible.
+    local castUnit = MSUF_GetCanonicalCastUnitForBoss(self.unit)
     local newObj
     if chanName then
-        local castUnit = MSUF_GetCanonicalCastUnitForBoss(self.unit)
         newObj = SafeCall(UnitChannelDuration, castUnit)
     else
-        local castUnit = MSUF_GetCanonicalCastUnitForBoss(self.unit)
         newObj = SafeCall(UnitCastingDuration, castUnit)
     end
     if newObj then
         self.MSUF_durationObj = newObj
         if self._msufCastState then self._msufCastState.durationObj = newObj end
-        if self._msufCastState then
-            self._msufCastState.durationObj = newObj
-        end
-        if self._msufCastState then self._msufCastState.durationObj = newObj end
         if self.statusBar and self.statusBar.SetTimerDuration then
             SafeCall(self.statusBar.SetTimerDuration, self.statusBar, newObj, 0)
         end
+        -- Re-snapshot for future ticks.
+        Boss_SnapshotPlainTimes(self, newObj)
     end
 end
 
@@ -951,6 +1012,10 @@ BossCastbar_Start = function(frame)
                 -- Reset any previous cast state.
                 Boss_ClearEmpowerState(frame)
                 frame.MSUF_durationObj = nil
+                frame._msufPlainEndTime = nil
+                frame._msufRemaining = nil
+                frame._msufFastText = nil
+                frame._msufPlainTotal = nil
                 frame.MSUF_isChanneled = false
                 frame.MSUF_channelDirect = nil
                 frame.MSUF_timerRangeSet = nil
@@ -1002,7 +1067,7 @@ BossCastbar_Start = function(frame)
                 if type(_G.MSUF_RegisterCastbar) == "function" then
                     -- Force manager to re-evaluate tick rate (empower wants ~0.03).
                     frame._msufTickInterval = nil
-                    frame._msufNextTick = nil
+                    frame._msufHeavyIn = nil
                     _G.MSUF_RegisterCastbar(frame)
                 end
                 return
@@ -1083,6 +1148,7 @@ BossCastbar_Start = function(frame)
         if frame.statusBar and frame.statusBar.SetTimerDuration then
             SafeCall(frame.statusBar.SetTimerDuration, frame.statusBar, durObj, 0)
         end
+        Boss_SnapshotPlainTimes(frame, durObj)
 	    
 
         -- Apply fill direction immediately for this cast type.
@@ -1156,6 +1222,7 @@ BossCastbar_Start = function(frame)
         if frame.statusBar and frame.statusBar.SetTimerDuration then
             SafeCall(frame.statusBar.SetTimerDuration, frame.statusBar, durObj, 0)
         end
+        Boss_SnapshotPlainTimes(frame, durObj)
 	    
 
         -- Apply fill direction immediately for this cast type.

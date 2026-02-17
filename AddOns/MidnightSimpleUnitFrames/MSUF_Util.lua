@@ -1,6 +1,23 @@
 local addonName, ns = ...
 ns = ns or {}
 
+-- =========================================================================
+-- PERF LOCALS (core runtime)
+--  - Reduce global table lookups in high-frequency event/render paths.
+--  - Secret-safe: localizing function references only (no value comparisons).
+-- =========================================================================
+local type, tostring, tonumber, select = type, tostring, tonumber, select
+local pairs, ipairs, next = pairs, ipairs, next
+local math_min, math_max, math_floor = math.min, math.max, math.floor
+local string_format, string_match, string_sub = string.format, string.match, string.sub
+local UnitExists, UnitIsPlayer = UnitExists, UnitIsPlayer
+local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
+local UnitPower, UnitPowerMax = UnitPower, UnitPowerMax
+local UnitPowerType = UnitPowerType
+local UnitHealthPercent, UnitPowerPercent = UnitHealthPercent, UnitPowerPercent
+local InCombatLockdown = InCombatLockdown
+local CreateFrame, GetTime = CreateFrame, GetTime
+
 -- MSUF_Util.lua
 -- Stateless helpers / pure functions extracted from MidnightSimpleUnitFrames.lua
 -- Keep names stable (globals) to avoid touching call-sites.
@@ -198,6 +215,85 @@ function MSUF_SetTimeTextTenth(fs, seconds)
         MSUF_SetTextIfChanged(fs, string.format("%.1f", tenths / 10))
     end
 end
+
+-- ---------------------------------------------------------------------------
+-- Stamp cache (performance)
+--
+-- Avoid re-applying expensive UI state (SetFont/SetPoint/SetColor/etc.) when
+-- the inputs are unchanged.
+--
+-- Secret-safe rules:
+-- - Only compares primitive Lua types (number/string/boolean/nil).
+-- - Any non-primitive value is treated as "changed" to avoid secret-value
+--   equality errors.
+-- - Stores the last tuple in a reusable table on the target object.
+
+local function _MSUF_IsStampPrimitive(v)
+    local t = type(v)
+    return (t == "number" or t == "string" or t == "boolean" or t == "nil")
+end
+
+function MSUF_StampChanged(obj, stampKey, ...)
+    if not obj or not stampKey then
+        return true
+    end
+    local cacheKey = "_msufStamp_" .. stampKey
+    local prev = obj[cacheKey]
+    if not prev then
+        prev = {}
+        obj[cacheKey] = prev
+        -- store
+        local n = select('#', ...)
+        prev._n = n
+        for i = 1, n do
+            local v = select(i, ...)
+            if not _MSUF_IsStampPrimitive(v) then
+                -- unknown type => always "changed"; do not cache
+                prev._n = 0
+                return true
+            end
+            prev[i] = v
+        end
+        return true
+    end
+
+    local n = select('#', ...)
+    if prev._n ~= n then
+        prev._n = n
+        for i = 1, n do
+            local v = select(i, ...)
+            if not _MSUF_IsStampPrimitive(v) then
+                prev._n = 0
+                return true
+            end
+            prev[i] = v
+        end
+        return true
+    end
+
+    -- compare
+    for i = 1, n do
+        local v = select(i, ...)
+        if not _MSUF_IsStampPrimitive(v) then
+            prev._n = 0
+            return true
+        end
+        if prev[i] ~= v then
+            -- update cached tuple
+            for j = i, n do
+                local vv = select(j, ...)
+                if not _MSUF_IsStampPrimitive(vv) then
+                    prev._n = 0
+                    return true
+                end
+                prev[j] = vv
+            end
+            return true
+        end
+    end
+    return false
+end
+
 
 
 function MSUF_SetAlphaIfChanged(f, a)
@@ -548,6 +644,37 @@ do
         _cachedBase768 = nil
         EnsureBase()
         return true
+    end
+end
+
+-- =============================================================
+-- Phase 2: Global helpers relocated from MSUF_UpdateManager.lua
+-- (These must load before any consumer; MSUF_Util.lua is in TOC slot 2.)
+-- =============================================================
+
+-- Fast-path replacement for protected calls.
+-- Intentionally does NOT catch errors (for maximum performance).
+-- Preserves (ok, ...) return convention and returns false if fn is not callable.
+if not _G.MSUF_FastCall then
+    function _G.MSUF_FastCall(fn, ...)
+        if type(fn) ~= "function" then
+             return false
+        end
+        return true, fn(...)
+    end
+end
+
+-- Global helper: "any edit mode" (MSUF Edit Mode OR Blizzard Edit Mode)
+if not _G.MSUF_IsInAnyEditMode then
+    function _G.MSUF_IsInAnyEditMode()
+        local st = rawget(_G, "MSUF_EditState")
+        if type(st) == "table" and st.active == true then
+             return true
+        end
+        if rawget(_G, "MSUF_UnitEditModeActive") == true then
+             return true
+        end
+         return false
     end
 end
 

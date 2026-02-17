@@ -1,4 +1,20 @@
 local addonName, ns = ...
+
+-- ---------------------------------------------------------------------------
+-- Localization helper (keys are English UI strings; fallback = key)
+-- ---------------------------------------------------------------------------
+ns = ns or {}
+ns.L = ns.L or (_G and _G.MSUF_L) or {}
+local L = ns.L
+if not getmetatable(L) then
+    setmetatable(L, { __index = function(t, k) return k end })
+end
+local isEn = (ns and ns.LOCALE) == "enUS"
+local function TR(v)
+    if type(v) ~= "string" then return v end
+    if isEn then return v end
+    return L[v] or v
+end
 ns = ns or {}
 
 -- Misc Options (spec-driven, single-file)
@@ -18,6 +34,40 @@ function ns.MSUF_Options_Misc_Build(panel, miscGroup)
         MSUF_DB.general = MSUF_DB.general or {}
         return MSUF_DB.general
     end
+
+local function EnsureTarget()
+    local db = _G.MSUF_DB
+    if not db then return {} end
+    local t = db.target
+    if not t then
+        t = {}
+        db.target = t
+    end
+    return t
+end
+
+local function EnsureFocus()
+    local db = _G.MSUF_DB
+    if not db then return {} end
+    local t = db.focus
+    if not t then
+        t = {}
+        db.focus = t
+    end
+    return t
+end
+
+local function EnsureBoss()
+    local db = _G.MSUF_DB
+    if not db then return {} end
+    local t = db.boss
+    if not t then
+        t = {}
+        db.boss = t
+    end
+    return t
+end
+
     local function EnsureGameplay()
         if EnsureDB then EnsureDB() end
         MSUF_DB = MSUF_DB or {}
@@ -549,7 +599,7 @@ function ns.MSUF_Options_Misc_Build(panel, miscGroup)
     local function HardKillTooltip_OnEnter(self)
         if not GameTooltip then return end
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText("Hide Blizzard PlayerFrame (Turn off for other addon compatibility)", 1, 0.9, 0.4)
+        GameTooltip:SetText(TR("Hide Blizzard PlayerFrame (Turn off for other addon compatibility)"), 1, 0.9, 0.4)
         GameTooltip:AddLine("OFF: Keeps PlayerFrame alive as a hidden parent.", 0.95, 0.95, 0.95, true)
         GameTooltip:AddLine("ON: Fully hides PlayerFrame (may break some resource bar addons).", 1, 0.82, 0.2, true)
         GameTooltip:AddLine("Requires a UI reload.", 0.9, 0.9, 0.9, true)
@@ -629,30 +679,10 @@ function ns.MSUF_Options_Misc_Build(panel, miscGroup)
             if v and _G.MSUF_TargetSoundDriver_Ensure then _G.MSUF_TargetSoundDriver_Ensure() end
         end,
     })
-    UI:MakeCheck({
-        name = "MSUF_SpellRangeCheck",
-        parent = rightPanel,
-        template = "InterfaceOptionsCheckButtonTemplate",
-        anchor = targetSoundsCheck,
-        x = 0, y = -12,
-        label = "Spell range check (fade out of range)",
-        get = function()
-            local gp = EnsureGameplay()
-            return (gp.rangeFadeEnabled ~= false) and true or false
-        end,
-        set = function(v)
-            local gp = EnsureGameplay()
-            gp.rangeFadeEnabled = v and true or false
 
-            local RF = _G.MSUF_RangeFade
-            if RF and RF.EnsureTicker and RF.Tick then
-                RF:EnsureTicker()
-                RF:Tick()
-            elseif _G.MSUF_RefreshAllUnitAlphas then
-                _G.MSUF_RefreshAllUnitAlphas()
-            end
-        end,
-    })
+
+
+
 
 
 
@@ -711,6 +741,74 @@ function ns.MSUF_Options_Misc_Build(panel, miscGroup)
     statusLine:SetHeight(1)
     statusLine:SetPoint("TOPLEFT", statusHeader, "BOTTOMLEFT", 0, -8)
     statusLine:SetPoint("TOPRIGHT", bottomPanel, "TOPRIGHT", -14, -42)
+
+
+    -- Range Fade (moved here so it sits at the same height as Indicators, bottom-right column)
+    local rangeFadeHeader = UI:Label(bottomPanel, "Range fade", "TOPLEFT", bottomPanel, LEFT_W + 14, -34)
+    local rangeFadeLine = bottomPanel:CreateTexture(nil, "ARTWORK")
+    rangeFadeLine:SetColorTexture(1, 1, 1, 0.10)
+    rangeFadeLine:SetHeight(1)
+    rangeFadeLine:SetPoint("TOPLEFT", rangeFadeHeader, "BOTTOMLEFT", 0, -8)
+    rangeFadeLine:SetPoint("TOPRIGHT", bottomPanel, "TOPRIGHT", -14, -42)
+
+    local rangeFadeTargetCheck = UI:MakeCheck({
+        name = "MSUF_TargetRangeFadeCheck",
+        parent = bottomPanel,
+        template = "InterfaceOptionsCheckButtonTemplate",
+        anchor = rangeFadeHeader,
+        x = 0, y = -14,
+        label = "Enable Target Range Fade",
+        get = function()
+            local t = EnsureTarget()
+            return (t.rangeFadeEnabled == true)
+        end,
+        set = function(v)
+            local t = EnsureTarget()
+            t.rangeFadeEnabled = v and true or false
+            if _G.MSUF_RangeFade_Reset then _G.MSUF_RangeFade_Reset() end
+            if _G.MSUF_RangeFade_RebuildSpells then _G.MSUF_RangeFade_RebuildSpells() end
+        end,
+    })
+
+    local rangeFadeFocusCheck = UI:MakeCheck({
+        name = "MSUF_FocusRangeFadeCheck",
+        parent = bottomPanel,
+        template = "InterfaceOptionsCheckButtonTemplate",
+        anchor = rangeFadeTargetCheck,
+        x = 0, y = -12,
+        label = "Enable Focus Range Fade",
+        get = function()
+            local t = EnsureFocus()
+            return (t.rangeFadeEnabled == true)
+        end,
+        set = function(v)
+            local t = EnsureFocus()
+            t.rangeFadeEnabled = v and true or false
+            if _G.MSUF_RangeFadeFB_Reset then _G.MSUF_RangeFadeFB_Reset() end
+            if _G.MSUF_RangeFadeFB_RebuildSpells then _G.MSUF_RangeFadeFB_RebuildSpells() end
+            if _G.MSUF_RangeFadeFB_ApplyCurrent then _G.MSUF_RangeFadeFB_ApplyCurrent(true) end
+        end,
+    })
+
+    UI:MakeCheck({
+        name = "MSUF_BossRangeFadeCheck",
+        parent = bottomPanel,
+        template = "InterfaceOptionsCheckButtonTemplate",
+        anchor = rangeFadeFocusCheck,
+        x = 0, y = -12,
+        label = "Enable Boss Range Fade",
+        get = function()
+            local t = EnsureBoss()
+            return (t.rangeFadeEnabled == true)
+        end,
+        set = function(v)
+            local t = EnsureBoss()
+            t.rangeFadeEnabled = v and true or false
+            if _G.MSUF_RangeFadeFB_Reset then _G.MSUF_RangeFadeFB_Reset() end
+            if _G.MSUF_RangeFadeFB_RebuildSpells then _G.MSUF_RangeFadeFB_RebuildSpells() end
+            if _G.MSUF_RangeFadeFB_ApplyCurrent then _G.MSUF_RangeFadeFB_ApplyCurrent(true) end
+        end,
+    })
 
     local _, refH = GetToggleRefSizeAndFont()
     local step = (type(refH) == "number" and refH > 0) and (refH + 6) or 30
