@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.8.3] - 2026-02-16
+### Added
+- **Game Default Font Option:** New font choice that automatically uses WoW's native font, perfect for CN servers and proper locale-specific rendering.
+### Changed
+- **Default Font:** Changed default font to "Game Default" for better locale compatibility.
+
 ## [2.8.2] - 2026-02-14
 ### Added
 - Debug logging system

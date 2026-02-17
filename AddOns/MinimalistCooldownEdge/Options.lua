@@ -10,6 +10,7 @@ local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Dev"
 
 -- === SHARED LOOKUP TABLES ===
 local FONT_OPTIONS = {
+    ["GAMEDEFAULT"]                                                      = "Game Default",
     ["Fonts\\FRIZQT__.TTF"]        = "Friz Quadrata",
     ["Fonts\\FRIZQT___CYR.TTF"]   = "Friz Quadrata (Cyrillic)",
     ["Fonts\\ARIALN.TTF"]         = "Arial Narrow",
@@ -35,7 +36,7 @@ local ANCHOR_OPTIONS = {
 }
 
 -- === DEFAULTS ===
-local DEFAULT_FONT = "Interface\\AddOns\\MinimalistCooldownEdge\\expressway.ttf"
+local DEFAULT_FONT = "GAMEDEFAULT"
 
 local function GetCategoryDefaults(enabled, fontSize)
     return {

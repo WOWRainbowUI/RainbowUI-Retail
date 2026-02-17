@@ -27,6 +27,7 @@ L["Positioning"] = true
 L["Enable %s"] = true
 L["Toggle styling for this category."] = true
 L["Font Face"] = true
+L["Game Default"] = true
 L["Font"] = true
 L["Size"] = true
 L["Outline"] = true
