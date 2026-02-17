@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2601, "DBM-Raids-WarWithin", 3, 1273)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20250619040547")
+mod:SetRevision("20260216034411")
 mod:SetCreatureID(217748)--Needs confirmation, could also use 218510
 mod:SetEncounterID(2920)
 mod:SetUsedIcons(1, 2, 3, 4, 5)
@@ -88,18 +88,10 @@ function mod:OnCombatStart(delay)
 	timerNexusDaggersCD:Start(45.2, 1)
 	timerStarlessNightCD:Start(96, 1)
 	self:EnablePrivateAuraSound(438141, "runout", 2)--Twilight Massacre
-	self:EnablePrivateAuraSound(436671, "lineyou", 17)--Regicide
-	self:EnablePrivateAuraSound(436664, "lineyou", 17, 436671)--Regicide
-	self:EnablePrivateAuraSound(436677, "lineyou", 17, 436671)--Regicide
-	self:EnablePrivateAuraSound(436665, "lineyou", 17, 436671)--Regicide
-	self:EnablePrivateAuraSound(436663, "lineyou", 17, 436671)--Regicide
-	self:EnablePrivateAuraSound(436666, "lineyou", 17, 436671)--Regicide
-	self:EnablePrivateAuraSound(435534, "lineyou", 17, 436671)--Regicide
+	self:EnablePrivateAuraSound({436671,436664,436677,436665,436663,436666,435534}, "lineyou", 17)--Regicide
 	self:EnablePrivateAuraSound(436870, "runout", 2)--Assassination
 	if self:IsHard() then--Only has spread on heroic and mythic
-		self:EnablePrivateAuraSound(437343, "runout", 2)--Queen's bane
-		self:EnablePrivateAuraSound(463273, "runout", 2, 437343)--Queen's bane
-		self:EnablePrivateAuraSound(463276, "runout", 2, 437343)--Queen's bane
+		self:EnablePrivateAuraSound({437343,463273,463276}, "runout", 2)--Queen's bane
 	end
 	if self:IsMythic() then
 		timerDeathMasksCD:Start(18.9, 1)
