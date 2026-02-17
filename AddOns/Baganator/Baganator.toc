@@ -1,6 +1,6 @@
 ## Interface: 120001, 120000, 50503, 38000, 20505, 11508
 ## Title: Baganator
-## Version: 786
+## Version: 787
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -170,4 +170,3 @@ Compatibility\Refunds.lua
 Compatibility\Contexts.lua
 Compatibility\ItemLevels.lua
 Compatibility\AuctionValue.lua
-Compatibility\Midnight.lua
