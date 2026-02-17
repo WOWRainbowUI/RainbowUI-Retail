@@ -1,6 +1,23 @@
 local addonName, ns = ...
 ns = ns or {}
 
+-- =========================================================================
+-- PERF LOCALS (core runtime)
+--  - Reduce global table lookups in high-frequency event/render paths.
+--  - Secret-safe: localizing function references only (no value comparisons).
+-- =========================================================================
+local type, tostring, tonumber, select = type, tostring, tonumber, select
+local pairs, ipairs, next = pairs, ipairs, next
+local math_min, math_max, math_floor = math.min, math.max, math.floor
+local string_format, string_match, string_sub = string.format, string.match, string.sub
+local UnitExists, UnitIsPlayer = UnitExists, UnitIsPlayer
+local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
+local UnitPower, UnitPowerMax = UnitPower, UnitPowerMax
+local UnitPowerType = UnitPowerType
+local UnitHealthPercent, UnitPowerPercent = UnitHealthPercent, UnitPowerPercent
+local InCombatLockdown = InCombatLockdown
+local CreateFrame, GetTime = CreateFrame, GetTime
+
 -- MSUF_Util.lua
 -- Stateless helpers / pure functions extracted from MidnightSimpleUnitFrames.lua
 -- Keep names stable (globals) to avoid touching call-sites.
@@ -198,6 +215,85 @@ function MSUF_SetTimeTextTenth(fs, seconds)
         MSUF_SetTextIfChanged(fs, string.format("%.1f", tenths / 10))
     end
 end
+
+-- ---------------------------------------------------------------------------
+-- Stamp cache (performance)
+--
+-- Avoid re-applying expensive UI state (SetFont/SetPoint/SetColor/etc.) when
+-- the inputs are unchanged.
+--
+-- Secret-safe rules:
+-- - Only compares primitive Lua types (number/string/boolean/nil).
+-- - Any non-primitive value is treated as "changed" to avoid secret-value
+--   equality errors.
+-- - Stores the last tuple in a reusable table on the target object.
+
+local function _MSUF_IsStampPrimitive(v)
+    local t = type(v)
+    return (t == "number" or t == "string" or t == "boolean" or t == "nil")
+end
+
+function MSUF_StampChanged(obj, stampKey, ...)
+    if not obj or not stampKey then
+        return true
+    end
+    local cacheKey = "_msufStamp_" .. stampKey
+    local prev = obj[cacheKey]
+    if not prev then
+        prev = {}
+        obj[cacheKey] = prev
+        -- store
+        local n = select('#', ...)
+        prev._n = n
+        for i = 1, n do
+            local v = select(i, ...)
+            if not _MSUF_IsStampPrimitive(v) then
+                -- unknown type => always "changed"; do not cache
+                prev._n = 0
+                return true
+            end
+            prev[i] = v
+        end
+        return true
+    end
+
+    local n = select('#', ...)
+    if prev._n ~= n then
+        prev._n = n
+        for i = 1, n do
+            local v = select(i, ...)
+            if not _MSUF_IsStampPrimitive(v) then
+                prev._n = 0
+                return true
+            end
+            prev[i] = v
+        end
+        return true
+    end
+
+    -- compare
+    for i = 1, n do
+        local v = select(i, ...)
+        if not _MSUF_IsStampPrimitive(v) then
+            prev._n = 0
+            return true
+        end
+        if prev[i] ~= v then
+            -- update cached tuple
+            for j = i, n do
+                local vv = select(j, ...)
+                if not _MSUF_IsStampPrimitive(vv) then
+                    prev._n = 0
+                    return true
+                end
+                prev[j] = vv
+            end
+            return true
+        end
+    end
+    return false
+end
+
 
 
 function MSUF_SetAlphaIfChanged(f, a)
@@ -424,3 +520,161 @@ end
 
 -- Convenience alias used by some modules (optional).
 _G.MSUF_CombatGate_CallSafe = _G.MSUF_CombatGate_Call
+
+
+do
+    local UIParent = UIParent
+    local GetPhysicalScreenSize = GetPhysicalScreenSize
+    local InCombatLockdown = InCombatLockdown
+
+    local _cachedPhysH
+    local _cachedBase768
+
+    local function EnsureBase()
+        local physH
+        if GetPhysicalScreenSize then
+            local _, h = GetPhysicalScreenSize()
+            physH = h
+        end
+
+        if physH and physH > 0 then
+            if physH ~= _cachedPhysH then
+                _cachedPhysH = physH
+                _cachedBase768 = 768 / physH
+            end
+        else
+            _cachedPhysH = nil
+            _cachedBase768 = nil
+        end
+    end
+
+    local function GetStepFor(frame)
+        EnsureBase()
+
+        local eff = 1
+        if frame and frame.GetEffectiveScale then
+            eff = frame:GetEffectiveScale() or 1
+        elseif UIParent and UIParent.GetEffectiveScale then
+            eff = UIParent:GetEffectiveScale() or 1
+        elseif UIParent and UIParent.GetScale then
+            eff = UIParent:GetScale() or 1
+        end
+        if eff == 0 then eff = 1 end
+
+        if _cachedBase768 then
+            return _cachedBase768 / eff
+        end
+        return 1 / eff
+    end
+
+    local function RoundToGrid(v, step)
+        if step == 0 or v == 0 then
+            return v
+        end
+        local q = v / step
+        if q >= 0 then
+            q = math.floor(q + 0.5)
+        else
+            q = math.ceil(q - 0.5)
+        end
+        local out = q * step
+        if out == 0 then out = 0 end
+        return out
+    end
+
+    function _G.MSUF_Snap(frame, v)
+        if type(v) ~= "number" then
+            return v
+        end
+        local step = GetStepFor(frame)
+        return RoundToGrid(v, step)
+    end
+
+    function _G.MSUF_Pixel(frame)
+        return GetStepFor(frame)
+    end
+
+    function _G.MSUF_Scale(v)
+        return _G.MSUF_Snap(UIParent, v)
+    end
+
+    function _G.MSUF_SetOutside(obj, anchor, xOffset, yOffset, anchor2)
+        if not obj then return end
+        if not anchor and obj.GetParent then
+            anchor = obj:GetParent()
+        end
+        if not anchor then return end
+
+        xOffset = xOffset or 1
+        yOffset = yOffset or 1
+
+        local snap = _G.MSUF_Snap
+        local sx = (type(snap) == "function") and snap(anchor, xOffset) or xOffset
+        local sy = (type(snap) == "function") and snap(anchor, yOffset) or yOffset
+
+        obj:ClearAllPoints()
+        obj:SetPoint("TOPLEFT", anchor, "TOPLEFT", -sx, sy)
+        obj:SetPoint("BOTTOMRIGHT", anchor2 or anchor, "BOTTOMRIGHT", sx, -sy)
+    end
+
+    function _G.MSUF_SetInside(obj, anchor, xOffset, yOffset, anchor2)
+        if not obj then return end
+        if not anchor and obj.GetParent then
+            anchor = obj:GetParent()
+        end
+        if not anchor then return end
+
+        xOffset = xOffset or 1
+        yOffset = yOffset or 1
+
+        local snap = _G.MSUF_Snap
+        local sx = (type(snap) == "function") and snap(anchor, xOffset) or xOffset
+        local sy = (type(snap) == "function") and snap(anchor, yOffset) or yOffset
+
+        obj:ClearAllPoints()
+        obj:SetPoint("TOPLEFT", anchor, "TOPLEFT", sx, -sy)
+        obj:SetPoint("BOTTOMRIGHT", anchor2 or anchor, "BOTTOMRIGHT", -sx, sy)
+    end
+
+    function _G.MSUF_UpdatePixelPerfect()
+        if InCombatLockdown and InCombatLockdown() then
+            return false
+        end
+        _cachedPhysH = nil
+        _cachedBase768 = nil
+        EnsureBase()
+        return true
+    end
+end
+
+-- =============================================================
+-- Phase 2: Global helpers relocated from MSUF_UpdateManager.lua
+-- (These must load before any consumer; MSUF_Util.lua is in TOC slot 2.)
+-- =============================================================
+
+-- Fast-path replacement for protected calls.
+-- Intentionally does NOT catch errors (for maximum performance).
+-- Preserves (ok, ...) return convention and returns false if fn is not callable.
+if not _G.MSUF_FastCall then
+    function _G.MSUF_FastCall(fn, ...)
+        if type(fn) ~= "function" then
+             return false
+        end
+        return true, fn(...)
+    end
+end
+
+-- Global helper: "any edit mode" (MSUF Edit Mode OR Blizzard Edit Mode)
+if not _G.MSUF_IsInAnyEditMode then
+    function _G.MSUF_IsInAnyEditMode()
+        local st = rawget(_G, "MSUF_EditState")
+        if type(st) == "table" and st.active == true then
+             return true
+        end
+        if rawget(_G, "MSUF_UnitEditModeActive") == true then
+             return true
+        end
+         return false
+    end
+end
+

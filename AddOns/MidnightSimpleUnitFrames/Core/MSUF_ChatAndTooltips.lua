@@ -1,9 +1,7 @@
--- Split out of MidnightSimpleUnitFrames.lua
 -- Chat/Slash commands (/msuf) + small tooltip helpers + Blizzard Edit Mode bridge
 -- Thinking about just scrapping this if this causes more erros
 local addonName, ns = ...
 ns = ns or {}
-
 local MSUF_RESET_DEFAULTS = {
     player = { width=275, height=40, offsetX=-260, offsetY=80, showName=true, showHP=true, showPower=true },
     target = { width=275, height=40, offsetX= 260, offsetY=80, showName=true, showHP=true, showPower=true },
@@ -11,40 +9,31 @@ local MSUF_RESET_DEFAULTS = {
     pet    = { width=220, height=30, offsetX=-260, offsetY=135, showName=true, showHP=false, showPower=false },
     targettarget = { width=220, height=30, offsetX=260, offsetY=225, showName=true, showHP=true, showPower=false },
 }
-
 local MSUF_FullResetPending = false
-
 local function MSUF_DoFullReset(opts)
     opts = opts or {}
     local skipReload = (opts.skipReload == true)
-
     if InCombatLockdown and InCombatLockdown() then
         print("|cffff0000MSUF:|r Cannot do FULL reset while in combat.")
-        return
+         return
     end
-
     MSUF_DB = nil
     MSUF_GlobalDB = nil
     MSUF_ActiveProfile = nil
-
     print("|cffff0000MSUF:|r FULL RESET executed – all MSUF profiles & settings deleted for this account.")
-
     if skipReload then
         print("|cffffff00MSUF:|r Reset staged. Please type |cff00ff00/reload|r OR use: MSUF Menu → Advanced → Factory Reset.")
-        return
+         return
     end
-
     print("|cffffff00MSUF:|r Reloading UI to rebuild clean defaults...")
+	-- NOTE: C_UI.Reload() is protected; addons may get ADDON_ACTION_BLOCKED.
+	-- ReloadUI() is the safe public API for addons.
 	if type(ReloadUI) == "function" then
 		ReloadUI()
-	elseif _G.C_UI and type(_G.C_UI.Reload) == "function" then
-		_G.C_UI.Reload()
 	end
-end
-
+ end
 -- Expose for the Slash Menu (button click = hardware event, safe for ReloadUI)
 _G.MSUF_DoFullReset = MSUF_DoFullReset
-
 local function MSUF_PrintHelp()
     print("|cff00ff00MSUF commands:|r")
     print("  /msuf help      - Show this help.")
@@ -53,72 +42,74 @@ local function MSUF_PrintHelp()
     print("                   Confirm stages the reset; reload via /reload or MSUF Menu → Advanced → Factory Reset.")
     print("  /msuf absorb    - Toggle showing total absorb amount in HP text.")
     print("  !msuf help      - Print this help via chat (from your own character).")
-end
-
+ end
 -- Optional chat trigger: "!msuf help" (only from yourself)
 -- Midnight/Beta secret-safe: chat event args can become "secret" in combat.
 -- Never boolean-test/compare them directly and never call string methods via ':'.
+local NotSecretValue = _G.NotSecretValue
+local function MSUF__Chat_IsSafeString(v)
+    -- Secret-safe: never call string methods on secret strings (Midnight 12.0).
+    if type(v) ~= "string" then
+        return false
+    end
+
+    local isv = _G.issecretvalue
+        or (C_Secrets and type(C_Secrets.IsSecret) == "function" and C_Secrets.IsSecret)
+        or nil
+
+    if isv and isv(v) then
+        return false
+    end
+
+    local NotSecretValue = _G.NotSecretValue
+    if NotSecretValue then
+        return NotSecretValue(v)
+    end
+
+    -- If we cannot detect secret values, be conservative in combat.
+    if InCombatLockdown and InCombatLockdown() then
+        return false
+    end
+
+    return true
+end
 local function MSUF__Chat_IsFromSelf(author, ...)
     -- Prefer GUID-based self-check to avoid comparing author strings.
     local senderGUID = select(10, ...)
     local myGUID = UnitGUID and UnitGUID("player")
-
-    if type(senderGUID) == "string" and type(myGUID) == "string" then
-        local ok, same = pcall(function() return senderGUID == myGUID end)
-        if ok and same then
-            return true
-        end
+    if MSUF__Chat_IsSafeString(senderGUID) and MSUF__Chat_IsSafeString(myGUID) then
+        return senderGUID == myGUID
     end
-
-    -- Fallback: compare short author name (strip realm) via guarded string.* and guarded equality.
+    -- Fallback: compare short author name (strip realm) only if strings are safe.
     local myName = UnitName and UnitName("player")
-    if type(myName) ~= "string" or type(author) ~= "string" then
-        return false
+    if not MSUF__Chat_IsSafeString(myName) or not MSUF__Chat_IsSafeString(author) then
+         return false
     end
-
     local shortAuthor = author
-    do
-        local ok, m = pcall(string.match, author, "^[^-]+")
-        if ok and type(m) == "string" then
-            shortAuthor = m
-        end
+    local dash = string.find(author, "-", 1, true)
+    if dash and dash > 1 then
+        shortAuthor = string.sub(author, 1, dash - 1)
     end
-
-    local okEq, sameName = pcall(function() return shortAuthor == myName end)
-    return okEq and sameName
+    return (shortAuthor == myName)
 end
-
 local function MSUF__Chat_GetLowerTrimmed(text)
-    if type(text) ~= "string" then return nil end
-    local okLower, lower = pcall(string.lower, text)
-    if not okLower or type(lower) ~= "string" then return nil end
-    local okTrim, trimmed = pcall(string.gsub, lower, "^%s+", "")
-    if okTrim and type(trimmed) == "string" then
-        return trimmed
-    end
-    return lower
+    if not MSUF__Chat_IsSafeString(text) then  return nil end
+    local lower = string.lower(text)
+    lower = string.gsub(lower, "^%s+", "")
+     return lower
 end
-
 local function MSUF_ChatCommand_OnChatMsg(_, text, author, ...)
     local msgLower = MSUF__Chat_GetLowerTrimmed(text)
-    if not msgLower then return end
-
-    -- Fast reject: only care about "!msuf help"
-    local isHelp = false
-    if msgLower == "!msuf help" then
-        isHelp = true
-    else
-        local ok, m = pcall(string.match, msgLower, "^!msuf%s+help")
-        if ok and m ~= nil then
-            isHelp = true
-        end
-    end
-    if not isHelp then return end
-
-    if not MSUF__Chat_IsFromSelf(author, ...) then return end
+    if not msgLower then  return end
+    -- Fast reject: only care about "!msuf help" (allow extra whitespace)
+    if string.sub(msgLower, 1, 5) ~= "!msuf" then  return end
+    local rest = string.sub(msgLower, 6)
+    rest = string.gsub(rest, "^%s+", "")
+    rest = string.gsub(rest, "%s+$", "")
+    if rest ~= "help" then  return end
+    if not MSUF__Chat_IsFromSelf(author, ...) then  return end
     MSUF_PrintHelp()
-end
-
+ end
 if type(MSUF_EventBus_Register) == "function" then
     local evs = {
         "CHAT_MSG_SAY","CHAT_MSG_YELL","CHAT_MSG_PARTY","CHAT_MSG_PARTY_LEADER",
@@ -130,25 +121,23 @@ if type(MSUF_EventBus_Register) == "function" then
         MSUF_EventBus_Register(e, "MSUF_CHATCMD", MSUF_ChatCommand_OnChatMsg)
     end
 end
-
 SLASH_MIDNIGHTSUF1 = "/msuf"
 SlashCmdList["MIDNIGHTSUF"] = function(msg)
     msg = msg and msg:lower() or ""
     msg = msg:gsub("^%s+", "")
     local cmd = msg:match("^(%S+)") or ""
-
     if cmd == "" or cmd == "help" then
         MSUF_PrintHelp()
-        return
+         return
     end
--- Should clean this up since we have now a button for full reset. 
+-- Should clean this up since we have now a button for full reset.
     if cmd == "fullreset" then
         if not MSUF_FullResetPending then
             MSUF_FullResetPending = true
             print("|cffff0000MSUF WARNING:|r This will delete |cffff0000ALL|r MSUF profiles & settings for this account.")
             print("|cffffcc00MSUF:|r Type |cffffff00/msuf fullreset confirm|r to stage the reset.")
             print("|cffffcc00MSUF:|r Then click: MSUF Menu → Advanced → Factory Reset (or type /reload).")
-            return
+             return
         end
         if msg ~= "fullreset confirm" then
             MSUF_FullResetPending = false
@@ -156,18 +145,16 @@ SlashCmdList["MIDNIGHTSUF"] = function(msg)
             print("  /msuf fullreset")
             print("  /msuf fullreset confirm")
             print("  (then /reload OR MSUF Menu → Advanced → Factory Reset)")
-            return
+             return
         end
         MSUF_FullResetPending = false
         MSUF_DoFullReset({ skipReload = true })
-        return
+         return
     end
-
-
     if cmd == "reset" then
         if InCombatLockdown and InCombatLockdown() then
             print("|cffff0000MSUF:|r Cannot reset while in combat.")
-            return
+             return
         end
         if type(EnsureDB) == "function" then
             EnsureDB()
@@ -191,9 +178,8 @@ SlashCmdList["MIDNIGHTSUF"] = function(msg)
             UpdateAllFonts()
         end
         print("|cff00ff00MSUF:|r Positions and visibility reset to defaults.")
-        return
+         return
     end
-
     if cmd == "absorb" then
         if type(EnsureDB) == "function" then
             EnsureDB()
@@ -201,7 +187,7 @@ SlashCmdList["MIDNIGHTSUF"] = function(msg)
         local g = (type(MSUF_DB) == "table" and type(MSUF_DB.general) == "table") and MSUF_DB.general or nil
         if not g then
             print("|cffff0000MSUF:|r DB not initialized.")
-            return
+             return
         end
         g.showTotalAbsorbAmount = not g.showTotalAbsorbAmount
         if type(ApplyAllSettings) == "function" then
@@ -212,19 +198,15 @@ SlashCmdList["MIDNIGHTSUF"] = function(msg)
         else
             print("|cff00ff00MSUF:|r Total absorb amount in HP text DISABLED.")
         end
-        return
+         return
     end
-
     -- Unknown
     MSUF_PrintHelp()
-end
-
-
-
+ end
 local MSUF_PlayerInfoFrame
 local function MSUF_GetPlayerInfoFrame()
     if MSUF_PlayerInfoFrame then
-        return MSUF_PlayerInfoFrame
+         return MSUF_PlayerInfoFrame
     end
     local f = CreateFrame("Frame", "MSUF_PlayerInfoFrame", UIParent, "BackdropTemplate")
     f:SetSize(260, 90)
@@ -266,7 +248,7 @@ local function MSUF_GetPlayerInfoFrame()
     f.line5 = line5FS
     f:Hide()
     MSUF_PlayerInfoFrame = f
-    return f
+     return f
 end
 local function MSUF_PositionPlayerInfoFrame(frame)
     EnsureDB()
@@ -281,36 +263,35 @@ local function MSUF_PositionPlayerInfoFrame(frame)
     else
         frame:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -16, 180)
     end
-end
+ end
 -- Tooltip helpers (unified; keeps behavior, reduces copy/paste)
 local function MSUF_UnitInfo_GetLocationText()
     local zone = GetZoneText and GetZoneText() or nil
     local subzone = GetSubZoneText and GetSubZoneText() or nil
-
-    if subzone and subzone ~= "" and zone then
-        local ok, diff = pcall(function() return subzone ~= zone end)
-        if ok and diff then
-            return subzone
+    if subzone and subzone ~= "" and zone and zone ~= "" then
+        -- Only compare strings if they're safe; otherwise just prefer subzone when present.
+        if (not NotSecretValue) or (NotSecretValue(subzone) and NotSecretValue(zone)) then
+            if subzone ~= zone then
+                 return subzone
+            end
         end
     end
     return (subzone and subzone ~= "") and subzone or zone
 end
-
 local function MSUF_UnitInfo_BuildNameLine(unit, fallbackName, isPlayer)
     local nameLine = UnitName(unit) or fallbackName
     if isPlayer then
         if UnitIsAFK(unit) then
-            nameLine = nameLine .. " <AFK>"
+            nameLine = nameLine .. " <暫離>"
         elseif UnitIsDND(unit) then
-            nameLine = nameLine .. " <DND>"
+            nameLine = nameLine .. " <勿擾>"
         end
     end
-    return nameLine
+     return nameLine
 end
-
 local function MSUF_UnitInfo_BuildLine4(faction, isPVP)
     if (not faction or faction == "") and not isPVP then
-        return ""
+         return ""
     end
     local text = faction or ""
     if isPVP then
@@ -320,9 +301,8 @@ local function MSUF_UnitInfo_BuildLine4(faction, isPVP)
             text = "PvP"
         end
     end
-    return text
+     return text
 end
-
 local function MSUF_UnitInfo_BuildLine2_Player(level, race, classLoc)
     local n = tonumber(level)
     if n and n > 0 then
@@ -336,33 +316,30 @@ local function MSUF_UnitInfo_BuildLine2_Player(level, race, classLoc)
     end
     return classLoc or ""
 end
-
 local function MSUF_UnitInfo_ClassificationText(classification)
     if classification == "elite" then
-        return "Elite"
+         return "Elite"
     elseif classification == "rare" then
-        return "Rare"
+         return "Rare"
     elseif classification == "rareelite" then
-        return "Rare Elite"
+         return "Rare Elite"
     elseif classification == "worldboss" then
-        return "Boss"
+         return "Boss"
     end
-    return nil
+     return nil
 end
-
 local function MSUF_UnitInfo_BuildLine2_NPC(level, classification)
     local n = tonumber(level)
     if not (n and n > 0) then
-        return ""
+         return ""
     end
     local line2 = string.format("Level %d", n)
     local clsText = MSUF_UnitInfo_ClassificationText(classification)
     if clsText then
         line2 = line2 .. string.format(" (%s)", clsText)
     end
-    return line2
+     return line2
 end
-
 local function MSUF_UnitInfo_ShowFrame(f, nameLine, line2, line3, line4, loc)
     f.name:SetText(nameLine or "")
     f.line2:SetText(line2 or "")
@@ -371,50 +348,41 @@ local function MSUF_UnitInfo_ShowFrame(f, nameLine, line2, line3, line4, loc)
     f.line5:SetText(loc or "")
     MSUF_PositionPlayerInfoFrame(f)
     f:Show()
-end
-
+ end
 local function MSUF_UnitInfo_ShowTargetLike(unit, fallbackName)
     local f = MSUF_GetPlayerInfoFrame()
     if not UnitExists(unit) then
         f:Hide()
-        return
+         return
     end
-
     local level      = UnitLevel(unit)
     local isPlayer   = UnitIsPlayer(unit)
     local race, classLoc, faction, isPVP
-
     if isPlayer then
         race     = UnitRace(unit)
         classLoc = select(1, UnitClass(unit))
         faction  = UnitFactionGroup(unit)
         isPVP    = UnitIsPVP(unit)
     end
-
     local nameLine = MSUF_UnitInfo_BuildNameLine(unit, fallbackName, isPlayer)
     local line2 = isPlayer and MSUF_UnitInfo_BuildLine2_Player(level, race, classLoc)
                     or MSUF_UnitInfo_BuildLine2_NPC(level, UnitClassification(unit))
-
     local line3 = isPlayer and (classLoc or "") or (UnitCreatureType(unit) or "")
     local line4 = isPlayer and MSUF_UnitInfo_BuildLine4(faction, isPVP) or ""
     local loc   = MSUF_UnitInfo_GetLocationText()
-
     MSUF_UnitInfo_ShowFrame(f, nameLine, line2, line3, line4, loc)
-end
-
+ end
 function MSUF_ShowPlayerInfoTooltip()
     local f = MSUF_GetPlayerInfoFrame()
     if not UnitExists("player") then
         f:Hide()
-        return
+         return
     end
-
     local level    = UnitLevel("player")
     local race     = UnitRace("player")
     local classLoc = select(1, UnitClass("player"))
     local faction  = UnitFactionGroup("player")
     local isPVP    = UnitIsPVP("player")
-
     local specName
     if GetSpecialization and GetSpecializationInfo then
         local specIndex = GetSpecialization()
@@ -423,77 +391,63 @@ function MSUF_ShowPlayerInfoTooltip()
             specName = sName
         end
     end
-
     local nameLine = MSUF_UnitInfo_BuildNameLine("player", "Player", true)
     local line2    = MSUF_UnitInfo_BuildLine2_Player(level, race, classLoc)
-
     local line3 = ""
     if specName and classLoc then
         line3 = string.format("%s %s", specName, classLoc)
     elseif specName then
         line3 = specName
     end
-
     local line4 = MSUF_UnitInfo_BuildLine4(faction, isPVP)
     local loc   = MSUF_UnitInfo_GetLocationText()
-
     MSUF_UnitInfo_ShowFrame(f, nameLine, line2, line3, line4, loc)
-end
-
+ end
 function MSUF_ShowTargetInfoTooltip()
     MSUF_UnitInfo_ShowTargetLike("target", "Target")
-end
-
+ end
 function MSUF_ShowFocusInfoTooltip()
     MSUF_UnitInfo_ShowTargetLike("focus", "Focus")
-end
-
+ end
 function MSUF_ShowTargetTargetInfoTooltip()
     MSUF_UnitInfo_ShowTargetLike("targettarget", "Target of Target")
-end
-
+ end
 function MSUF_ShowPetInfoTooltip()
     local f = MSUF_GetPlayerInfoFrame()
     if not UnitExists("pet") then
         f:Hide()
-        return
+         return
     end
-
     local name         = UnitName("pet") or "Pet"
     local level        = UnitLevel("pet")
     local creatureType = UnitCreatureType("pet")
     local loc          = MSUF_UnitInfo_GetLocationText()
-
     local line2 = ""
     local n = tonumber(level)
     if n and n > 0 then
         line2 = string.format("Level %d", n)
     end
-
     MSUF_UnitInfo_ShowFrame(f, name, line2, creatureType or "", "", loc)
-end
-
+ end
 function MSUF_HidePlayerInfoTooltip()
     if MSUF_PlayerInfoFrame then
         MSUF_PlayerInfoFrame:Hide()
     end
-end
-
+ end
 -- [8c6] Removed legacy Options UI relayout functions (Player/Bars).
 -- These were dead/duplicate layout builders superseded by MSUF_Options_Core.lua.
-
 if not _G.MSUF_SetBlizzardEditModeFromMSUF then
     function _G.MSUF_SetBlizzardEditModeFromMSUF(active)
         if InCombatLockdown and InCombatLockdown() then
-            return
+             return
         end
         if type(EnsureDB) == "function" then EnsureDB() end
         if MSUF_DB and MSUF_DB.general and MSUF_DB.general.linkEditModes == false then
-            return
+             return
         end
         local emf = _G.EditModeManagerFrame
         if not emf then
-            return
+             return
         end
         if active then
             if not _G.MSUF_BlizzEditModeStartedByMSUF then
@@ -507,13 +461,13 @@ if not _G.MSUF_SetBlizzardEditModeFromMSUF then
                 elseif emf.EnterEditMode then
                     emf:EnterEditMode()
                 end
-            end)
+             end)
             if not ok then
                 _G.MSUF_BlizzEditModeStartedByMSUF = nil
             end
         else
             if not _G.MSUF_BlizzEditModeStartedByMSUF then
-                return
+                 return
             end
             _G.MSUF_BlizzEditModeStartedByMSUF = nil
             pcall(function()
@@ -527,11 +481,9 @@ if not _G.MSUF_SetBlizzardEditModeFromMSUF then
                 elseif emf.Hide and emf.IsShown and emf:IsShown() then
                     emf:Hide()
                 end
-            end)
+             end)
         end
-    end
+     end
 end
-
 -- [8c6] Removed PLAYER_LOGIN Options relayout hook (Bars).
-
 ns.MSUF_UpdateAllFonts = ns.MSUF_UpdateAllFonts or UpdateAllFonts

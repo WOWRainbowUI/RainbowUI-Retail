@@ -1,34 +1,44 @@
-local addonName, ns = ...
-ns = ns or {}
+local addonName, addonNS = ...
+local ns = (_G and _G.MSUF_NS) or addonNS or {}
+if _G then _G.MSUF_NS = ns end
 
+-- ---------------------------------------------------------------------------
+-- Localization helper (keys are English UI strings; fallback = key)
+-- ---------------------------------------------------------------------------
+ns.L = ns.L or (_G and _G.MSUF_L) or {}
+local L = ns.L
+if not getmetatable(L) then
+    setmetatable(L, { __index = function(t, k) return k end })
+end
+local isEn = (ns and ns.LOCALE) == "enUS"
+local function TR(v)
+    if type(v) ~= "string" then return v end
+    if isEn then return v end
+    return L[v] or v
+end
 -- Ensure the Castbars LoD addon is loaded before calling castbar functions.
 local function MSUF_EnsureCastbars()
     if type(_G.MSUF_EnsureAddonLoaded) == "function" then
         _G.MSUF_EnsureAddonLoaded("MidnightSimpleUnitFrames_Castbars")
-        return
+         return
     end
     local loader = (_G.C_AddOns and _G.C_AddOns.LoadAddOn) or _G.LoadAddOn
     if type(loader) == "function" then
         pcall(loader, "MidnightSimpleUnitFrames_Castbars")
     end
-end
-
-
+ end
 -- Early tab guard helper
 -- Some OnShow handlers call IsFramesTab() before the tab API is constructed.
 -- In this build, the controls are only created for the Frames UI anyway, so this must be safe.
 local function IsFramesTab()
-    return true
+     return true
 end
-
 -- Numeric editbox helper: ensures the number is visible even when set programmatically.
 local function MSUF_SetNumericEditBoxValue(edit, v)
-    if not edit then return end
-    if edit.HasFocus and edit:HasFocus() then return end
-
+    if not edit then  return end
+    if edit.HasFocus and edit:HasFocus() then  return end
     local n = tonumber(v) or 0
     n = math.floor(n + 0.5)
-
     -- Force a readable font + color in our dark UI.
     if edit.SetFontObject then
         edit:SetFontObject(GameFontHighlightSmall)
@@ -36,19 +46,15 @@ local function MSUF_SetNumericEditBoxValue(edit, v)
     if edit.SetTextColor then
         edit:SetTextColor(1, 1, 1, 1)
     end
-
     if edit.SetNumber then
         edit:SetNumber(n)
     else
         edit:SetText(tostring(n))
     end
-
     if edit.SetCursorPosition then
         edit:SetCursorPosition(0)
     end
-end
-
-
+ end
 -- Mockup Unitframe Layout (reusable)
 -- Left:  Frame Basics + Frame Size
 -- Right: Name / HP / Power (X stepper, Y stepper, Size slider)
@@ -56,200 +62,165 @@ end
 -- IMPORTANT: This module is designed to work in two modes depending on the core:
 --  1) Player-only reflector mode (older core): only shows/applies when currentKey == "player".
 --  2) Multi-unit mode (newer core): can be shown for any unit key; handlers write to MSUF_DB[currentKey].
-
 local MSUF_PositionLeaderMiniHeaders
-
 -- Shared label helper for the Leader Icon anchor dropdown.
 -- Must be file-scope so both CreatePanel() and ApplyFromDB() can use it.
 local function MSUF_LeaderAnchorText(v)
-    if v == "TOPLEFT" then return "左上" end
-    if v == "TOPRIGHT" then return "右上" end
-    if v == "BOTTOMLEFT" then return "左下" end
-    if v == "BOTTOMRIGHT" then return "右下" end
-    return "左上"
+    if v == "TOPLEFT" then  return "左上" end
+    if v == "TOPRIGHT" then  return "右上" end
+    if v == "BOTTOMLEFT" then  return "左下" end
+    if v == "BOTTOMRIGHT" then  return "右下" end
+     return "左上"
 end
-
-
 -- Raid marker anchor text helper (used by dropdown + ApplySettingsForKey)
 local function MSUF_RaidMarkerAnchorText(v)
-    if v == "CENTER" then return "中間" end
-    if v == "TOPRIGHT" then return "右上" end
-    if v == "BOTTOMLEFT" then return "左下" end
-    if v == "BOTTOMRIGHT" then return "右下" end
-    return "左上"
+    if v == "CENTER" then  return "中間" end
+    if v == "TOPRIGHT" then  return "右上" end
+    if v == "BOTTOMLEFT" then  return "左下" end
+    if v == "BOTTOMRIGHT" then  return "右下" end
+     return "左上"
 end
-
 local function MSUF_LevelAnchorText(v)
-    if v == "TOPLEFT" then return "左上" end
-    if v == "TOPRIGHT" then return "右上" end
-    if v == "BOTTOMLEFT" then return "左下" end
-    if v == "BOTTOMRIGHT" then return "右下" end
-    if v == "NAMELEFT" then return "名字左側" end
-    if v == "NAMERIGHT" then return "名字右側" end
-    return "名字右側"
+    if v == "TOPLEFT" then  return "左上" end
+    if v == "TOPRIGHT" then  return "右上" end
+    if v == "BOTTOMLEFT" then  return "左下" end
+    if v == "BOTTOMRIGHT" then  return "右下" end
+    if v == "NAMELEFT" then  return "玩家名字左側" end
+    if v == "NAMERIGHT" then  return "玩家名字右側" end
+     return "玩家名字右側"
 end
-
 -- ---------------------------------------------------------------------------
 -- Status icon symbol textures (Classic vs Midnight)
 -- These are used by the Status icon "symbol" dropdowns (Combat/Rested/Incoming Rez).
 -- We store the chosen symbol key per-unit, but the "style" (classic vs midnight) is global.
 -- ---------------------------------------------------------------------------
-
 local function MSUF_GetStatusIconStyleUseMidnight()
     if type(_G.EnsureDB) == "function" then
         _G.EnsureDB()
     end
     local db = _G.MSUF_DB
     local g = (type(db) == "table") and db.general or nil
-    if type(g) ~= "table" then return false end
+    if type(g) ~= "table" then  return false end
     return (g.statusIconsUseMidnightStyle == true)
 end
-
 -- Returns a texture path for a given symbol key.
 -- Symbol keys are grouped by prefix:
 --   weapon_*  -> Media/Symbols/Combat  (128_clean)
 --   rested_*  -> Media/Symbols/Rested  (64)
 local function MSUF_StatusIcon_GetSymbolTexture(symbolKey)
     if type(symbolKey) ~= "string" or symbolKey == "" or symbolKey == "DEFAULT" then
-        return nil
+         return nil
     end
-
     local useMidnight = MSUF_GetStatusIconStyleUseMidnight()
-
-    local folder = "Combat"
+    local folder = "戰鬥"
     local suffix = useMidnight and "_midnight_128_clean.tga" or "_classic_128_clean.tga"
-
     -- Rested icons use a different folder + size/suffix convention.
     if string.find(symbolKey, "^rested_") then
-        folder = "Rested"
+        folder = "休息"
         suffix = useMidnight and "_midnight_64.tga" or "_classic_64.tga"
     end
-
 -- Resurrection icons use a different folder + size/suffix convention.
 if string.find(symbolKey, "^resurrection_") then
-    folder = "Ress"
+    folder = "復活"
     suffix = useMidnight and "_midnight_64.tga" or "_classic_64.tga"
 end
-
-
     return "Interface\\AddOns\\MidnightSimpleUnitFrames\\Media\\Symbols\\" .. folder .. "\\" .. symbolKey .. suffix
 end
-
-
 local _MSUF_STATUSICON_SYMBOLS = {
-    { "預設",       "DEFAULT",                    nil },
-
+    { "預設",    "DEFAULT",                    nil },
     -- Weapon icons (short names, as requested)
     { "斧頭",       "weapon_axes_crossed",        "weapon_axes_crossed" },
-    { "弓",         "weapon_bows_crossed",        "weapon_bows_crossed" },
-    { "十字弓",     "weapon_crossbows_crossed",   "weapon_crossbows_crossed" },
-    { "匕首",       "weapon_daggers_crossed",     "weapon_daggers_crossed" },
-    { "釣竿",       "weapon_fishing_poles_crossed","weapon_fishing_poles_crossed" },
+    { "弓",       "weapon_bows_crossed",        "weapon_bows_crossed" },
+    { "弩",  "weapon_crossbows_crossed",   "weapon_crossbows_crossed" },
+    { "匕首",    "weapon_daggers_crossed",     "weapon_daggers_crossed" },
+    { "釣魚",    "weapon_fishing_poles_crossed","weapon_fishing_poles_crossed" },
     { "拳套",       "weapon_fist_crossed",        "weapon_fist_crossed" },
     { "槍械",       "weapon_guns_crossed",        "weapon_guns_crossed" },
-    { "錘",         "weapon_maces_crossed",       "weapon_maces_crossed" },
-    { "長柄",       "weapon_polearms_crossed",    "weapon_polearms_crossed" },
-    { "手裏劍",     "weapon_shuriken",            "weapon_shuriken" },
-    { "法杖",       "weapon_staves_crossed",      "weapon_staves_crossed" },
-    { "劍",         "weapon_swords_crossed",      "weapon_swords_crossed" },
-    -- (User wording) "Thorn" = Thrown weapons
-    { "投擲",       "weapon_thrown_crossed",      "weapon_thrown_crossed" },
-    { "魔杖",       "weapon_wands_crossed",       "weapon_wands_crossed" },
-    { "戰刃",       "weapon_warglaives_crossed",  "weapon_warglaives_crossed" },
+    { "錘",      "weapon_maces_crossed",       "weapon_maces_crossed" },
+    { "長柄武器",   "weapon_polearms_crossed",    "weapon_polearms_crossed" },
+    { "手裏劍",   "weapon_shuriken",            "weapon_shuriken" },
+    { "法杖",     "weapon_staves_crossed",      "weapon_staves_crossed" },
+    { "劍",     "weapon_swords_crossed",      "weapon_swords_crossed" },
+    -- (User wording) "荊棘" = Thrown weapons
+    { "荊棘",      "weapon_thrown_crossed",      "weapon_thrown_crossed" },
+    { "魔杖",      "weapon_wands_crossed",       "weapon_wands_crossed" },
+    { "戰刃", "weapon_warglaives_crossed",  "weapon_warglaives_crossed" },
 }
-
-
 -- Rested icon symbol set (player only)
 -- Files live in: Media/Symbols/Rested/
 -- Pattern: rested_<name>_{classic|midnight}_64.tga
 local _MSUF_STATUSICON_RESTED_SYMBOLS = {
-    { "預設",        "DEFAULT" },
-
+    { "預設",     "DEFAULT" },
     { "月亮 Zzz",    "rested_moonzzz"  },
     { "月亮 Zzzz",   "rested_moonzzzz" },
-    { "簡潔",        "rested_zzz_compact" },
+    { "緊湊",     "rested_zzz_compact" },
     { "對角",        "rested_zzz_diag" },
-    { "堆疊",        "rested_zzz_stack" },
+    { "堆疊",       "rested_zzz_stack" },
 }
-
-
-
 -- Resurrection icon symbol set (Incoming Rez)
 -- Files live in: Media/Symbols/Ress/
 -- Pattern: resurrection_<name>_{classic|midnight}_64.tga
 local _MSUF_STATUSICON_RESS_SYMBOLS = {
-    { "預設",    "DEFAULT" },
-    { "安卡",    "resurrection_ankh"  },
-    { "十字",    "resurrection_cross" },
+    { "預設", "DEFAULT" },
+    { "十字章",    "resurrection_ankh"  },
+    { "十字架",   "resurrection_cross" },
     { "靈魂",    "resurrection_soul"  },
-    { "翅膀",    "resurrection_wings" },
+    { "翅膀",   "resurrection_wings" },
 }
-
 local function _MSUF_FindStatusIconLabel(symbolKey)
     if symbolKey == nil or symbolKey == "DEFAULT" then
-        return "預設"
+         return "預設"
     end
-
     for i = 1, #_MSUF_STATUSICON_SYMBOLS do
         local row = _MSUF_STATUSICON_SYMBOLS[i]
         if row and row[2] == symbolKey then
             return row[1]
         end
     end
-
     for i = 1, #_MSUF_STATUSICON_RESTED_SYMBOLS do
         local row = _MSUF_STATUSICON_RESTED_SYMBOLS[i]
         if row and row[2] == symbolKey then
             return row[1]
         end
     end
-
-
     for i = 1, #_MSUF_STATUSICON_RESS_SYMBOLS do
         local row = _MSUF_STATUSICON_RESS_SYMBOLS[i]
         if row and row[2] == symbolKey then
             return row[1]
         end
     end
-
     return tostring(symbolKey)
 end
-
 local function MSUF_StatusIcon_SymbolText(v)
     return _MSUF_FindStatusIconLabel(v)
 end
-
 local function MSUF_StatusIcon_GetSymbolChoices()
     local t = {}
     for i = 1, #_MSUF_STATUSICON_SYMBOLS do
         local row = _MSUF_STATUSICON_SYMBOLS[i]
         if row then t[#t+1] = { row[1], row[2] } end
     end
-    return t
+     return t
 end
-
 local function MSUF_StatusIcon_GetRestedSymbolChoices()
     local t = {}
     for i = 1, #_MSUF_STATUSICON_RESTED_SYMBOLS do
         local row = _MSUF_STATUSICON_RESTED_SYMBOLS[i]
         if row then t[#t+1] = { row[1], row[2] } end
     end
-    return t
+     return t
 end
-
 local function MSUF_StatusIcon_GetRessSymbolChoices()
     local t = {}
     for i = 1, #_MSUF_STATUSICON_RESS_SYMBOLS do
         local row = _MSUF_STATUSICON_RESS_SYMBOLS[i]
         if row then t[#t+1] = { row[1], row[2] } end
     end
-    return t
+     return t
 end
-
-
 local function MSUF_StatusIcon_GetSymbolTexture(symbolKey)
     if type(symbolKey) ~= "string" or symbolKey == "" or symbolKey == "DEFAULT" then
-        return nil
+         return nil
     end
     local useMidnight = MSUF_GetStatusIconStyleUseMidnight()
     local suffix = useMidnight and "_midnight_128_clean.tga" or "_classic_128_clean.tga"
@@ -257,53 +228,58 @@ local function MSUF_StatusIcon_GetSymbolTexture(symbolKey)
     -- Folder must match your actual media folder structure.
     return "Interface\\AddOns\\MidnightSimpleUnitFrames\\Media\\Symbols\\Combat\\" .. symbolKey .. suffix
 end
-
-
 -- Shared indicator specs for Options_Player (used by ApplyFromDB layout + InstallHandlers)
 local _MSUF_INDICATOR_SPECS = {
     leader = {
         id = "leader",
         order = 1,
-        allowed = function(key) return (key == "player" or key == "target") end,
-
+        allowed = function(key)  return (key == "player" or key == "target") end,
         showCB = "playerLeaderIconCB", showField = "showLeaderIcon", showDefault = true,
-
+        ui = {
+            cbName = "MSUF_PlayerLeaderIconCB",
+            cbText = "顯示隊長/助理圖示",
+            xName = "MSUF_PlayerLeaderIconOffsetX",
+            yName = "MSUF_PlayerLeaderIconOffsetY",
+            anchorName = "MSUF_PlayerLeaderIconAnchorDropdown",
+            anchorW = 70,
+            sizeName = "MSUF_PlayerLeaderIconSizeEdit",
+        },
         xStepper = "playerLeaderOffsetXStepper", xField = "leaderIconOffsetX", xDefault = 0,
         yStepper = "playerLeaderOffsetYStepper", yField = "leaderIconOffsetY", yDefault = 3,
-
         anchorDrop = "playerLeaderAnchorDrop", anchorLabel = "playerLeaderAnchorLabel",
         anchorField = "leaderIconAnchor", anchorDefault = "TOPLEFT",
-        anchorText = function(v) return MSUF_LeaderAnchorText(v) end,
+        anchorText = function(v)  return MSUF_LeaderAnchorText(v) end,
         anchorChoices = {
             { MSUF_LeaderAnchorText("TOPLEFT"), "TOPLEFT" },
             { MSUF_LeaderAnchorText("TOPRIGHT"), "TOPRIGHT" },
             { MSUF_LeaderAnchorText("BOTTOMLEFT"), "BOTTOMLEFT" },
             { MSUF_LeaderAnchorText("BOTTOMRIGHT"), "BOTTOMRIGHT" },
         },
-
-
         sizeEdit = "playerLeaderSizeEdit", sizeLabel = "playerLeaderSizeLabel",
         sizeField = "leaderIconSize", sizeDefault = 14,
-
         divider = "playerLeaderGroupDivider",
         resetBtn = "playerLeaderResetBtn",
-
         refreshFnName = "MSUF_RefreshLeaderIconFrames",
     },
-
     raidmarker = {
         id = "raidmarker",
         order = 2,
-        allowed = function(_) return true end,
-
+        allowed = function(_)   return true end,
         showCB = "playerRaidMarkerCB", showField = "showRaidMarker", showDefault = true,
-
+        ui = {
+            cbName = "MSUF_PlayerRaidMarkerCB",
+            cbText = "顯示團隊標記圖示",
+            xName = "MSUF_PlayerRaidMarkerOffsetX",
+            yName = "MSUF_PlayerRaidMarkerOffsetY",
+            anchorName = "MSUF_PlayerRaidMarkerAnchorDropdown",
+            anchorW = 70,
+            sizeName = "MSUF_PlayerRaidMarkerSizeEdit",
+        },
         xStepper = "playerRaidMarkerOffsetXStepper", xField = "raidMarkerOffsetX", xDefault = 16,
         yStepper = "playerRaidMarkerOffsetYStepper", yField = "raidMarkerOffsetY", yDefault = 3,
-
         anchorDrop = "playerRaidMarkerAnchorDrop", anchorLabel = "playerRaidMarkerAnchorLabel",
         anchorField = "raidMarkerAnchor", anchorDefault = "TOPLEFT",
-        anchorText = function(v) return MSUF_RaidMarkerAnchorText(v) end,
+        anchorText = function(v)  return MSUF_RaidMarkerAnchorText(v) end,
         anchorChoices = {
             { MSUF_RaidMarkerAnchorText("TOPLEFT"), "TOPLEFT" },
             { MSUF_RaidMarkerAnchorText("TOPRIGHT"), "TOPRIGHT" },
@@ -311,30 +287,31 @@ local _MSUF_INDICATOR_SPECS = {
             { MSUF_RaidMarkerAnchorText("BOTTOMRIGHT"), "BOTTOMRIGHT" },
             { MSUF_RaidMarkerAnchorText("CENTER"), "CENTER" },
         },
-
-
         sizeEdit = "playerRaidMarkerSizeEdit", sizeLabel = "playerRaidMarkerSizeLabel",
         sizeField = "raidMarkerSize", sizeDefault = 18,
-
         divider = "playerRaidMarkerGroupDivider",
         resetBtn = "playerRaidMarkerResetBtn",
-
         refreshFnName = "MSUF_RefreshRaidMarkerFrames",
     },
-
     level = {
         id = "level",
         order = 3,
-        allowed = function(_) return true end,
-
+        allowed = function(_)   return true end,
         showCB = "playerLevelIndicatorCB", showField = "showLevelIndicator", showDefault = true,
-
+        ui = {
+            cbName = "MSUF_PlayerLevelIndicatorCB",
+            cbText = "顯示等級",
+            xName = "MSUF_PlayerLevelOffsetX",
+            yName = "MSUF_PlayerLevelOffsetY",
+            anchorName = "MSUF_PlayerLevelAnchorDropdown",
+            anchorW = 70,
+            sizeName = "MSUF_PlayerLevelSizeEdit",
+        },
         xStepper = "playerLevelOffsetXStepper", xField = "levelIndicatorOffsetX", xDefault = 0,
         yStepper = "playerLevelOffsetYStepper", yField = "levelIndicatorOffsetY", yDefault = 0,
-
         anchorDrop = "playerLevelAnchorDrop", anchorLabel = "playerLevelAnchorLabel",
         anchorField = "levelIndicatorAnchor", anchorDefault = "NAMERIGHT",
-        anchorText = function(v) return MSUF_LevelAnchorText(v) end,
+        anchorText = function(v)  return MSUF_LevelAnchorText(v) end,
         anchorChoices = {
             { MSUF_LevelAnchorText("NAMERIGHT"), "NAMERIGHT" },
             { MSUF_LevelAnchorText("NAMELEFT"), "NAMELEFT" },
@@ -343,34 +320,26 @@ local _MSUF_INDICATOR_SPECS = {
             { MSUF_LevelAnchorText("BOTTOMLEFT"), "BOTTOMLEFT" },
             { MSUF_LevelAnchorText("BOTTOMRIGHT"), "BOTTOMRIGHT" },
         },
-
-
         -- Level: eigene Größe (per-unit). Nil => folgt Name-Fontgröße (Fallback in Apply/Runtime).
         sizeEdit  = "playerLevelSizeEdit",
         sizeLabel = "playerLevelSizeLabel",
         sizeField = "levelIndicatorSize",
         sizeDefault = 14,
-
         divider = "playerLevelGroupDivider",
         resetBtn = "playerLevelResetBtn",
-
         refreshFnName = "MSUF_RefreshLevelIndicatorFrames",
     },
 }
-
 -- ============================================================
 -- Step 4B: ApplyFromDB refactor helpers (spec-driven apply)
 -- ============================================================
-
 local MSUF_INDICATOR_ORDER = { "leader", "raidmarker", "level" }
-
 local function MSUF_ReadBool(conf, g, field, defaultVal)
     local v = conf and conf[field]
     if v == nil and g then v = g[field] end
     if v == nil then v = defaultVal end
     return (v ~= false)
 end
-
 local function MSUF_ReadNumber(conf, g, field, defaultVal)
     local v = conf and conf[field]
     if type(v) ~= "number" then v = nil end
@@ -379,9 +348,8 @@ local function MSUF_ReadNumber(conf, g, field, defaultVal)
         if type(gv) == "number" then v = gv end
     end
     if v == nil then v = defaultVal end
-    return v
+     return v
 end
-
 local function MSUF_ReadString(conf, g, field, defaultVal)
     local v = conf and conf[field]
     if type(v) ~= "string" then v = nil end
@@ -390,22 +358,20 @@ local function MSUF_ReadString(conf, g, field, defaultVal)
         if type(gv) == "string" then v = gv end
     end
     if v == nil then v = defaultVal end
-    return v
+     return v
 end
-
-
 -- ============================================================
 -- Step 4C: Portrait + Alpha + BossSpacing in Specs/Loops
 -- ============================================================
-
 local MSUF_PORTRAIT_OPTIONS = {
-    { value = "OFF",      text = "無頭像" },
-    { value = "2D_LEFT",  text = "2D 頭像 (左)" },
-    { value = "2D_RIGHT", text = "2D 頭像 (右)" },
-    { value = "3D_LEFT",  text = "3D 頭像 (左)" },
-    { value = "3D_RIGHT", text = "3D 頭像 (右)" },
+    { value = "OFF",      text = "關閉頭像" },
+    { value = "2D_LEFT",  text = "2D 頭像左側" },
+    { value = "2D_RIGHT", text = "2D 頭像右側" },
+    { value = "3D_LEFT",  text = "3D 頭像左側" },
+    { value = "3D_RIGHT", text = "3D 頭像右側" },
+    { value = "CLASS_LEFT",  text = "職業圖示左側 (玩家)" },
+    { value = "CLASS_RIGHT", text = "職業圖示右側 (玩家)" },
 }
-
 -- Target-of-Target inline-in-Target separator dropdown (token stored in MSUF_DB.targettarget.totInlineSeparator).
 -- UI shows the raw token; runtime renders it with spaces around it (legacy: " | ").
 local MSUF_TOTINLINE_SEP_OPTIONS = {
@@ -423,7 +389,6 @@ local MSUF_TOTINLINE_SEP_OPTIONS = {
     { value = ">",   text = ">"   },
     { value = "<",   text = "<"   },
 }
-
 -- Fast validation for ToT-inline separator tokens (keeps dropdown checked-state stable
 -- even if profiles/imports contain unknown values).
 local MSUF_TOTINLINE_SEP_LOOKUP = {}
@@ -435,84 +400,84 @@ do
         end
     end
 end
-
 local function MSUF_ToTInlineSepTokenText(v)
-    if type(v) ~= "string" or v == "" then return "|" end
-    if not MSUF_TOTINLINE_SEP_LOOKUP[v] then return "|" end
-    return v
+    if type(v) ~= "string" or v == "" then  return "|" end
+    if not MSUF_TOTINLINE_SEP_LOOKUP[v] then  return "|" end
+     return v
 end
-
 local function MSUF_PortraitModeText(mode)
-    if mode == "2D_LEFT" then return "2D 頭像 (左)" end
-    if mode == "2D_RIGHT" then return "2D 頭像 (右)" end
-    if mode == "3D_LEFT" then return "3D 頭像 (左)" end
-    if mode == "3D_RIGHT" then return "3D 頭像 (右)" end
-    return "無頭像"
+    if mode == "2D_LEFT" then  return "2D 頭像左側" end
+    if mode == "2D_RIGHT" then  return "2D 頭像右側" end
+    if mode == "3D_LEFT" then  return "3D 頭像左側" end
+    if mode == "3D_RIGHT" then  return "3D 頭像右側" end
+    if mode == "CLASS_LEFT" then  return "職業圖示左側 (玩家)" end
+    if mode == "CLASS_RIGHT" then  return "職業圖示右側 (玩家)" end
+     return "關閉頭像"
 end
-
 local function MSUF_GetPortraitDropdownValue(conf)
-    if not conf then return "OFF" end
+    if not conf then  return "OFF" end
     local pm = conf.portraitMode or "OFF"
     if pm ~= "LEFT" and pm ~= "RIGHT" then
-        return "OFF"
+         return "OFF"
     end
-
     local render = conf.portraitRender
+    if render == "CLASS" then
+        return (pm == "LEFT") and "CLASS_LEFT" or "CLASS_RIGHT"
+    end
     if render == "3D" then
         return (pm == "LEFT") and "3D_LEFT" or "3D_RIGHT"
     end
-
     -- Default to 2D for legacy profiles (portraitRender nil/unknown)
     return (pm == "LEFT") and "2D_LEFT" or "2D_RIGHT"
 end
-
 local function MSUF_ApplyPortraitChoice(conf, choice)
-    if not conf then return end
-
+    if not conf then  return end
     if choice == "OFF" then
         conf.portraitMode = "OFF"
-        return
+         return
     end
-
     if choice == "2D_LEFT" then
         conf.portraitMode = "LEFT"
         conf.portraitRender = "2D"
-        return
+         return
     end
     if choice == "2D_RIGHT" then
         conf.portraitMode = "RIGHT"
         conf.portraitRender = "2D"
-        return
+         return
     end
-
     if choice == "3D_LEFT" then
         conf.portraitMode = "LEFT"
         conf.portraitRender = "3D"
-        return
+         return
     end
     if choice == "3D_RIGHT" then
         conf.portraitMode = "RIGHT"
         conf.portraitRender = "3D"
+         return
+    end
+    if choice == "CLASS_LEFT" then
+        conf.portraitMode = "LEFT"
+        conf.portraitRender = "CLASS"
         return
     end
-
+    if choice == "CLASS_RIGHT" then
+        conf.portraitMode = "RIGHT"
+        conf.portraitRender = "CLASS"
+        return
+    end
     -- Fallback
     conf.portraitMode = "OFF"
-end
-
+ end
 local function MSUF_BindPortraitDropdown(panel, fieldName, IsFramesTabFn, EnsureKeyDBFn, ApplyFn)
     local dd = panel and panel[fieldName]
-    if not dd or not UIDropDownMenu_Initialize then return end
-
+    if not dd or not UIDropDownMenu_Initialize then  return end
     local function OnClick(btn, arg1)
-        if IsFramesTabFn and not IsFramesTabFn() then return end
+        if IsFramesTabFn and not IsFramesTabFn() then  return end
         local conf = EnsureKeyDBFn and EnsureKeyDBFn()
-        if not conf then return end
-
+        if not conf then  return end
         local choice = (btn and btn.value) or arg1 or "OFF"
-
         MSUF_ApplyPortraitChoice(conf, choice)
-
         -- Sync dropdown UI based on current frame config (not global state)
         local cur = MSUF_GetPortraitDropdownValue(conf)
         if UIDropDownMenu_SetSelectedValue then
@@ -521,9 +486,7 @@ local function MSUF_BindPortraitDropdown(panel, fieldName, IsFramesTabFn, Ensure
         if UIDropDownMenu_SetText then
             UIDropDownMenu_SetText(dd, MSUF_PortraitModeText(cur))
         end
-
         if ApplyFn then ApplyFn() end
-
         -- Hard-sync portrait visuals immediately. Some core paths skip portrait updates
         -- when portraitMode is OFF, so we must explicitly hide the 3D model if it was
         -- previously visible.
@@ -533,10 +496,9 @@ local function MSUF_BindPortraitDropdown(panel, fieldName, IsFramesTabFn, Ensure
         if key and type(sync) == "function" then
             pcall(sync, key)
         end
-    end
-
+     end
     UIDropDownMenu_Initialize(dd, function(self, level)
-        if not level or level ~= 1 then return end
+        if not level or level ~= 1 then  return end
         for _, opt in ipairs(MSUF_PORTRAIT_OPTIONS or {}) do
             local info = UIDropDownMenu_CreateInfo()
             info.text  = opt.text
@@ -550,33 +512,27 @@ local function MSUF_BindPortraitDropdown(panel, fieldName, IsFramesTabFn, Ensure
             end
             UIDropDownMenu_AddButton(info, level)
         end
-    end)
-end
-
+     end)
+ end
 local function MSUF_BindDropdown(panel, fieldName, confKey, options, textFn, IsFramesTabFn, EnsureKeyDBFn, ApplyFn)
     local dd = panel and panel[fieldName]
-    if not dd or not UIDropDownMenu_Initialize then return end
-
+    if not dd or not UIDropDownMenu_Initialize then  return end
     local function OnClick(btn, arg1)
-        if IsFramesTabFn and not IsFramesTabFn() then return end
+        if IsFramesTabFn and not IsFramesTabFn() then  return end
         local conf = EnsureKeyDBFn and EnsureKeyDBFn()
-        if not conf then return end
-
+        if not conf then  return end
         local value = (btn and btn.value) or arg1 or (options and options[1] and options[1].value) or "OFF"
         conf[confKey] = value
-
         if UIDropDownMenu_SetSelectedValue then
             UIDropDownMenu_SetSelectedValue(dd, value)
         end
         if UIDropDownMenu_SetText and textFn then
             UIDropDownMenu_SetText(dd, textFn(value))
         end
-
         if ApplyFn then ApplyFn() end
-    end
-
+     end
     UIDropDownMenu_Initialize(dd, function(self, level)
-        if not level or level ~= 1 then return end
+        if not level or level ~= 1 then  return end
         for _, opt in ipairs(options or {}) do
             local info = UIDropDownMenu_CreateInfo()
             info.text  = opt.text
@@ -591,112 +547,100 @@ local function MSUF_BindDropdown(panel, fieldName, confKey, options, textFn, IsF
             end
             UIDropDownMenu_AddButton(info, level)
         end
-    end)
-end
-
+     end)
+ end
 local MSUF_ALPHA_SLIDER_SPECS = {
     { field = "playerAlphaInCombatSlider",  isInCombat = true,  otherField = "playerAlphaOutCombatSlider" },
     { field = "playerAlphaOutCombatSlider", isInCombat = false, otherField = "playerAlphaInCombatSlider" },
 }
 local function MSUF_ApplyCheck(panel, widgetKey, show, checked)
-    if not panel or not widgetKey then return end
+    if not panel or not widgetKey then  return end
     local w = panel[widgetKey]
-    if not w then return end
+    if not w then  return end
     if w.SetShown then w:SetShown(show and true or false) end
     if show and w.SetChecked then w:SetChecked(checked and true or false) end
-end
-
+ end
 local function MSUF_ApplyDropdown(panel, widgetKey, show, value, textLabel)
-    if not panel or not widgetKey then return end
+    if not panel or not widgetKey then  return end
     local d = panel[widgetKey]
-    if not d then return end
+    if not d then  return end
     if d.SetShown then d:SetShown(show and true or false) end
     if show then
         if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(d, value) end
         if UIDropDownMenu_SetText and textLabel then UIDropDownMenu_SetText(d, textLabel) end
     end
-end
-
+ end
 local function MSUF_GetShowWithFallback(storedValue, fallbackValue)
     if storedValue == nil then
         return (fallbackValue ~= false)
     end
     return (storedValue ~= false)
 end
-
 local MSUF_BASIC_CB_SPECS = {
-    { w = "playerEnableFrameCB", eval = function(conf) return (conf.enabled ~= false) end },
-    { w = "playerShowNameCB",    eval = function(conf) return (conf.showName ~= false) end },
-    { w = "playerShowHPCB",      eval = function(conf) return (conf.showHP ~= false) end },
-    { w = "playerShowPowerCB",   eval = function(conf) return (conf.showPower ~= false) end },
+    { w = "playerEnableFrameCB", eval = function(conf)  return (conf.enabled ~= false) end },
+    { w = "playerShowNameCB",    eval = function(conf)  return (conf.showName ~= false) end },
+    { w = "playerShowHPCB",      eval = function(conf)  return (conf.showHP ~= false) end },
+    { w = "playerShowPowerCB",   eval = function(conf)  return (conf.showPower ~= false) end },
+    { w = "playerReverseFillBarsCB", eval = function(conf)  return (conf.reverseFillBars == true) end },
 }
-
 local MSUF_CASTBAR_FRAME_TOGGLE_SPECS = {
     { key = "player", enableW = "playerCastbarEnableCB", enableK = "enablePlayerCastbar", timeW = "playerCastbarTimeCB", timeK = "showPlayerCastTime", interruptW = "playerCastbarInterruptCB" },
     { key = "target", enableW = "targetCastbarEnableCB", enableK = "enableTargetCastbar", timeW = "targetCastbarTimeCB", timeK = "showTargetCastTime", interruptW = "targetCastbarInterruptCB" },
     { key = "focus",  enableW = "focusCastbarEnableCB",  enableK = "enableFocusCastbar",  timeW = "focusCastbarTimeCB",  timeK = "showFocusCastTime",  interruptW = "focusCastbarInterruptCB" },
     { key = "boss",   enableW = "bossCastbarEnableCB",   enableK = "enableBossCastbar",   timeW = "bossCastbarTimeCB",   timeK = "showBossCastTime",   interruptW = "bossCastbarInterruptCB" },
 }
-
 local MSUF_CASTBAR_TEXTICON_SPECS = {
     { key = "player", iconW = "playerCastbarShowIconCB", iconK = "castbarPlayerShowIcon", textW = "playerCastbarShowTextCB", textK = "castbarPlayerShowSpellName", textDirect = false },
     { key = "target", iconW = "targetCastbarShowIconCB", iconK = "castbarTargetShowIcon", textW = "targetCastbarShowTextCB", textK = "castbarTargetShowSpellName", textDirect = false },
     { key = "focus",  iconW = "focusCastbarShowIconCB",  iconK = "castbarFocusShowIcon",  textW = "focusCastbarShowTextCB",  textK = "castbarFocusShowSpellName",  textDirect = false },
     { key = "boss",   iconW = "bossCastbarShowIconCB",   iconK = "showBossCastIcon",      textW = "bossCastbarShowTextCB",   textK = "showBossCastName",           textDirect = true },
 }
-
 -- Copy-to-all confirmation dialog helper (used by Copy To dropdowns).
 -- UI-safe: uses a standard StaticPopup YES/NO confirmation.
 local function MSUF_EnsureCopyToAllDialog()
-    if not StaticPopupDialogs then return end
-    if StaticPopupDialogs["MSUF_COPY_TO_ALL_CONFIRM"] then return end
-
+    if not StaticPopupDialogs then  return end
+    if StaticPopupDialogs["MSUF_COPY_TO_ALL_CONFIRM"] then  return end
     StaticPopupDialogs["MSUF_COPY_TO_ALL_CONFIRM"] = {
-        text = "是否將這些設定複製到**所有**單位框架？\n\n這將覆蓋 玩家/目標/專注/首領/寵物/目標的目標 現有的設定。",
+        text = "是否將這些設定複製到「所有」單位框架？\n\n這將會覆蓋 玩家/目標/專注/首領/寵物/目標的目標 現有的設定。",
         button1 = YES or "是",
         button2 = NO or "否",
         OnAccept = function(self, data)
             if type(data) == "function" then
                 data()
             end
-        end,
+         end,
         timeout = 0,
         whileDead = true,
         hideOnEscape = true,
         preferredIndex = 3,
     }
-end
-
+ end
 local function MSUF_ConfirmCopyToAll(callback)
-    if type(callback) ~= "function" then return end
+    if type(callback) ~= "function" then  return end
     MSUF_EnsureCopyToAllDialog()
     if StaticPopup_Show then
         StaticPopup_Show("MSUF_COPY_TO_ALL_CONFIRM", nil, nil, callback)
     else
         callback()
     end
-end
-
+ end
 _G.MSUF_ConfirmCopyToAll = MSUF_ConfirmCopyToAll
-
-
 -- ============================================================
 -- Copy Engine (deduplicated)
 -- ============================================================
 -- This used to be implemented as large per-unit inline blocks.
 -- Keep it centralized so future fields/behavior changes are one edit.
-
 local MSUF_COPY_BASIC_FIELDS = {
     "enabled",
     "showName",
     "showHP",
     "showPower",
+    "reverseFillBars",
     "portraitMode",
     "portraitRender",
     "alphaInCombat",
     "alphaOutOfCombat",
     "alphaSync",
-
     -- Layered alpha (keep text+portrait visible)
     "alphaExcludeTextPortrait",
     "alphaLayerMode", -- stored as 0/1 or "foreground"/"background"
@@ -705,68 +649,57 @@ local MSUF_COPY_BASIC_FIELDS = {
     "alphaBGInCombat",
     "alphaBGOutOfCombat",
 }
-
 local MSUF_COPY_INDICATOR_FIELDS = {
     "showLeaderIcon",
     "leaderIconOffsetX",
     "leaderIconOffsetY",
     "leaderIconAnchor",
     "leaderIconSize",
-
     "showRaidMarker",
     "raidMarkerOffsetX",
     "raidMarkerOffsetY",
     "raidMarkerAnchor",
     "raidMarkerSize",
-
     "showLevelIndicator",
     "levelIndicatorOffsetX",
     "levelIndicatorOffsetY",
     "levelIndicatorAnchor",
     "levelIndicatorSize",
 }
-
 MSUF_COPY_STATUSICON_FIELDS = {
     -- Status Indicators / Icons (per-unitframe)
     "statusIconsTestMode",
     "statusIconsMidnightStyle",
     "statusIconsAlpha",
-
     "showCombatStateIndicator",
     "showRestingIndicator",
     "showIncomingResIndicator",
-
     "combatStateIndicatorOffsetX",
     "combatStateIndicatorOffsetY",
     "combatStateIndicatorAnchor",
     "combatStateIndicatorSize",
     "combatStateIndicatorSymbol",
-
     "restedStateIndicatorOffsetX",
     "restedStateIndicatorOffsetY",
     "restedStateIndicatorAnchor",
     "restedStateIndicatorSize",
     "restedStateIndicatorSymbol",
-
     "incomingResIndicatorOffsetX",
     "incomingResIndicatorOffsetY",
     "incomingResIndicatorAnchor",
     "incomingResIndicatorSize",
     "incomingResIndicatorSymbol",
 }
-
-
 local function MSUF_CanonUnitKey(k)
-    if not k then return nil end
-    if type(k) ~= "string" then return k end
+    if not k then  return nil end
+    if type(k) ~= "string" then  return k end
     k = k:lower()
-    if k:match("^boss") then return "boss" end
+    if k:match("^boss") then  return "boss" end
     if k == "tot" or k == "targetoftarget" or k == "target_of_target" or k == "targettarget" then
-        return "targettarget"
+         return "targettarget"
     end
-    return k
+     return k
 end
-
 local function MSUF_EnsureDB_IfPossible(api)
     -- EnsureDB is typically provided by core (global). Fall back to api.EnsureDB if available.
     if type(_G.EnsureDB) == "function" then
@@ -776,32 +709,27 @@ local function MSUF_EnsureDB_IfPossible(api)
     elseif api and type(api.EnsureDB) == "function" then
         api.EnsureDB()
     end
-end
-
+ end
 local function MSUF_EnsureUnitDB(key)
     MSUF_DB = MSUF_DB or {}
     local k = MSUF_CanonUnitKey(key)
-    if not k then return nil, nil end
-
+    if not k then  return nil, nil end
     if k == "targettarget" then
         -- keep alias in sync for older builds
         MSUF_DB.targettarget = MSUF_DB.targettarget or MSUF_DB.tot or {}
         MSUF_DB.tot = MSUF_DB.targettarget
         return MSUF_DB.targettarget, "targettarget"
     end
-
     MSUF_DB[k] = MSUF_DB[k] or {}
     return MSUF_DB[k], k
 end
-
 local function MSUF_CopyFieldList(dst, src, fields)
-    if not dst or not src or not fields then return end
+    if not dst or not src or not fields then  return end
     for i = 1, #fields do
         local f = fields[i]
         dst[f] = src[f]
     end
-end
-
+ end
 local function MSUF_GetCastbarKeysForUnit(unitKey)
     unitKey = MSUF_CanonUnitKey(unitKey)
     if unitKey == "player" then
@@ -813,60 +741,46 @@ local function MSUF_GetCastbarKeysForUnit(unitKey)
     elseif unitKey == "boss" then
         return { enable = "enableBossCastbar", time = "showBossCastTime", icon = "showBossCastIcon", name = "showBossCastName" }
     end
-    return nil
+     return nil
 end
-
 local function MSUF_CopyCastbarSettings(g, srcUnit, dstUnit)
-    if not g then return end
+    if not g then  return end
     srcUnit = MSUF_CanonUnitKey(srcUnit)
     dstUnit = MSUF_CanonUnitKey(dstUnit)
-
     local srcKeys = MSUF_GetCastbarKeysForUnit(srcUnit)
     local dstKeys = MSUF_GetCastbarKeysForUnit(dstUnit)
-    if not srcKeys or not dstKeys then return end
-
+    if not srcKeys or not dstKeys then  return end
     g[dstKeys.enable] = g[srcKeys.enable]
     g[dstKeys.time]   = g[srcKeys.time]
     g[dstKeys.icon]   = g[srcKeys.icon]
     g[dstKeys.name]   = g[srcKeys.name]
-end
-
+ end
 local function MSUF_CopyUnitSettings(srcKey, destKey, api)
     api = api or nil
-
     MSUF_EnsureDB_IfPossible(api)
     MSUF_DB = MSUF_DB or {}
     MSUF_DB.general = MSUF_DB.general or {}
-
     srcKey = MSUF_CanonUnitKey(srcKey) or "player"
     destKey = (type(destKey) == "string") and destKey or "target"
     destKey = destKey:lower()
-
     local g = MSUF_DB.general
-
     local src, srcCanon = MSUF_EnsureUnitDB(srcKey)
-    if not src or not srcCanon then return end
-
+    if not src or not srcCanon then  return end
     local function CopyOne(toKey)
         local dst, dstCanon = MSUF_EnsureUnitDB(toKey)
-        if not dst or not dstCanon then return end
-        if dstCanon == srcCanon then return end
-
+        if not dst or not dstCanon then  return end
+        if dstCanon == srcCanon then  return end
         MSUF_CopyFieldList(dst, src, MSUF_COPY_BASIC_FIELDS)
         MSUF_CopyFieldList(dst, src, MSUF_COPY_INDICATOR_FIELDS)
         MSUF_CopyFieldList(dst, src, MSUF_COPY_STATUSICON_FIELDS)
-
         -- Per-unit castbar interrupt toggle
         dst.showInterrupt = src.showInterrupt
-
         -- Copy matching castbar settings in general DB (player/target/focus/boss)
         MSUF_CopyCastbarSettings(g, srcCanon, dstCanon)
-
         if api and api.ApplySettingsForKey then
             api.ApplySettingsForKey(dstCanon)
         end
-    end
-
+     end
     if destKey == "all" then
         if _G.MSUF_ConfirmCopyToAll then
             _G.MSUF_ConfirmCopyToAll(function()
@@ -877,59 +791,48 @@ local function MSUF_CopyUnitSettings(srcKey, destKey, api)
                         CopyOne(k)
                     end
                 end
-
                 if _G.MSUF_UpdateCastbarVisuals then
                     _G.MSUF_UpdateCastbarVisuals()
                 end
                 if _G.MSUF_RefreshAllIndicators then
                     _G.MSUF_RefreshAllIndicators()
                 end
-            end)
+             end)
         end
-        return
+         return
     end
-
     CopyOne(destKey)
-
     if _G.MSUF_UpdateCastbarVisuals then
         _G.MSUF_UpdateCastbarVisuals()
     end
     if _G.MSUF_RefreshAllIndicators then
         _G.MSUF_RefreshAllIndicators()
     end
-end
-
+ end
 local function MSUF_BindAllCopyButtons(panel)
-    if not panel then return end
-
+    if not panel then  return end
     local function Bind(btn, srcKey, destVar, defaultDest)
-        if not btn or btn._msufCopyBound then return end
+        if not btn or btn._msufCopyBound then  return end
         btn._msufCopyBound = true
-
         btn:SetScript("OnClick", function()
             local isFramesTab = (panel._msufIsFramesTab and panel._msufIsFramesTab()) or (type(IsFramesTab) == "function" and IsFramesTab()) or true
-            if not isFramesTab then return end
-
+            if not isFramesTab then  return end
             local api = panel._msufAPI
             local destKey = (destVar and panel[destVar]) or defaultDest
             MSUF_CopyUnitSettings(srcKey, destKey, api)
-        end)
-    end
-
+         end)
+     end
     Bind(panel.playerCopyToButton, "player", "_msufCopyDestKey", "target")
     Bind(panel.targetCopyToButton, "target", "_msufCopyDestKey_target", "player")
     Bind(panel.focusCopyToButton,  "focus",  "_msufCopyDestKey_focus",  "target")
     Bind(panel.bossCopyToButton,   "boss",   "_msufCopyDestKey_boss",   "target")
     Bind(panel.petCopyToButton,    "pet",    "_msufCopyDestKey_pet",    "target")
     Bind(panel.totCopyToButton,    "targettarget", "_msufCopyDestKey_tot", "player")
-end
-
-
+ end
 local function CreateGroupBox(parent, title, x, y, w, h, texWhite, texWhite2)
     local box = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     box:SetSize(w, h)
     box:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
-
     box:SetBackdrop({
         bgFile = texWhite or "Interface\\Buttons\\WHITE8X8",
         edgeFile = texWhite2 or "Interface\\Buttons\\WHITE8X8",
@@ -938,102 +841,85 @@ local function CreateGroupBox(parent, title, x, y, w, h, texWhite, texWhite2)
     })
     box:SetBackdropColor(0, 0, 0, 0.25)
     box:SetBackdropBorderColor(0.35, 0.35, 0.35, 0.9)
-
     local titleText = box:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     titleText:SetPoint("TOPLEFT", box, "TOPLEFT", 10, -6)
     titleText:SetText(title or "")
-
     local divider = box:CreateTexture(nil, "ARTWORK")
     divider:SetPoint("TOPLEFT", box, "TOPLEFT", 8, -22)
     divider:SetPoint("TOPRIGHT", box, "TOPRIGHT", -8, -22)
     divider:SetHeight(1)
     divider:SetColorTexture(1, 1, 1, 0.08)
-
     box._msufTitleText = titleText
     box._msufDivider = divider
-    return box
+     return box
 end
-
 -- Expand the clickable area of a Blizzard UIDropDownMenu so the whole dropdown "box" is clickable,
 -- not just the small arrow button. We do this by expanding the Button hit-rect to the dropdown size.
 local function MSUF_ExpandDropdownClickArea(dropdown)
-    if not dropdown or dropdown._msufClickAreaExpanded then return end
+    if not dropdown or dropdown._msufClickAreaExpanded then  return end
     dropdown._msufClickAreaExpanded = true
-
     local function Apply()
         local name = dropdown.GetName and dropdown:GetName()
         local btn = dropdown.Button or (name and _G[name .. "Button"])
-        if not btn or not btn.SetHitRectInsets then return end
-
+        if not btn or not btn.SetHitRectInsets then  return end
         local dw = tonumber(dropdown:GetWidth()) or 0
         local dh = tonumber(dropdown:GetHeight()) or 0
         local bw = tonumber(btn:GetWidth()) or 0
         local bh = tonumber(btn:GetHeight()) or 0
-
         local fallbackW = tonumber(dropdown._msufDropWidth) or 0
         if dw <= 1 and fallbackW > 1 then dw = fallbackW end
-
         -- Defer until we have real sizes (happens after layout/scale is applied).
         if dw <= 1 or dh <= 1 or bw <= 1 or bh <= 1 then
             if _G.C_Timer and type(_G.C_Timer.After) == "function" then
                 _G.C_Timer.After(0, Apply)
             end
-            return
+             return
         end
-
         local extendLeft = math.max(0, dw - bw)
         local extendTop  = math.max(0, (dh - bh) / 2)
-
         -- Negative insets expand the hit rect.
         btn:SetHitRectInsets(-extendLeft - 2, -2, -extendTop - 2, -extendTop - 2)
-    end
-
+     end
     if dropdown.HookScript then
         dropdown:HookScript("OnShow", Apply)
         dropdown:HookScript("OnSizeChanged", Apply)
     end
-
     local name = dropdown.GetName and dropdown:GetName()
     local btn = dropdown.Button or (name and _G[name .. "Button"])
     if btn and btn.HookScript then
         btn:HookScript("OnSizeChanged", Apply)
     end
-
     if _G.C_Timer and type(_G.C_Timer.After) == "function" then
         _G.C_Timer.After(0, Apply)
     else
         Apply()
     end
-end
-
+ end
 local function CreateCheck(parent, name, label, x, y)
     local cb = CreateFrame("CheckButton", name, parent, "UICheckButtonTemplate")
     cb:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
     if cb.Text then
         cb.Text:SetText(label)
     else
-        local t = _G[name .. "Text"]
+        local t = _G[name .. "文字"]
         if t then t:SetText(label) end
     end
-    return cb
+     return cb
 end
-
 local function ResizeStepper(stepper, width, editWidth)
-    if not stepper or not width then return end
+    if not stepper or not width then  return end
     stepper:SetWidth(width)
     if stepper.editBox and editWidth then
         stepper.editBox:SetWidth(editWidth)
     end
-end
-
+ end
 -- Restyle a CreateAxisStepper() control to match the requested "no box" look:
 -- Only +/- buttons are visible, with the axis label above.
 local function RestyleStepperButtonsNoBox(stepper)
-    if not stepper then return end
+    if not stepper then  return end
     local eb = stepper.editBox
     local minus = stepper.minusButton
     local plus  = stepper.plusButton
-
     -- Hide the numeric box entirely (user requested no boxes).
     if eb then
         eb:Hide()
@@ -1044,7 +930,6 @@ local function RestyleStepperButtonsNoBox(stepper)
         eb:SetPoint("TOPLEFT", stepper, "TOPLEFT", -2000, 0)
         eb:SetWidth(1)
     end
-
     -- Place buttons centered under the label.
     if minus then
         minus:ClearAllPoints()
@@ -1054,21 +939,17 @@ local function RestyleStepperButtonsNoBox(stepper)
         plus:ClearAllPoints()
         plus:SetPoint("LEFT", (minus or stepper), "RIGHT", 2, 0)
     end
-
     -- Make the overall control compact.
     local w = 46
     if minus and minus.GetWidth then w = (minus:GetWidth() or 22) + (plus and (plus:GetWidth() or 22) or 0) + 2 end
     stepper:SetWidth(w)
-end
-
-
+ end
 local function ClampNumber(v, minVal, maxVal)
     v = tonumber(v) or 0
     if minVal and v < minVal then v = minVal end
     if maxVal and v > maxVal then v = maxVal end
-    return v
+     return v
 end
-
 local function FormatSliderValue(slider, value)
     local step = (slider and slider.step) or (slider and slider.GetValueStep and slider:GetValueStep()) or 1
     if step and step >= 1 then
@@ -1078,14 +959,12 @@ local function FormatSliderValue(slider, value)
     local precision = 2
     return string.format("%." .. precision .. "f", tonumber(value) or 0)
 end
-
 local function ForceSliderEditBox(slider)
-    if not slider or not slider.editBox then return end
-    if slider.editBox:HasFocus() then return end
+    if not slider or not slider.editBox then  return end
+    if slider.editBox:HasFocus() then  return end
     local v = slider.GetValue and slider:GetValue() or 0
     slider.editBox:SetText(FormatSliderValue(slider, v))
-end
-
+ end
 -- Stepper modifier support (requested):
 -- default = 1px, Shift = 5px, Ctrl = 10px
 -- Alt = grid step (matches Edit Mode)
@@ -1093,7 +972,6 @@ end
 local function MSUF_GetCurrentGridStep()
     local MIN, MAX = 8, 64
     local step
-
     local slider = _G and _G["MSUF_EditModeGridSlider"]
     if slider and slider.GetValue then
         step = slider:GetValue()
@@ -1102,21 +980,17 @@ local function MSUF_GetCurrentGridStep()
     else
         step = 20
     end
-
     step = tonumber(step) or 20
     if step < MIN then step = MIN end
     if step > MAX then step = MAX end
-    return step
+     return step
 end
-
 local function MSUF_GetModifierStep(baseStep)
     baseStep = tonumber(baseStep) or 1
-
     -- Alt: grid step
     if IsAltKeyDown and IsAltKeyDown() then
         return MSUF_GetCurrentGridStep()
     end
-
     local mult = 1
     if IsControlKeyDown and IsControlKeyDown() then
         mult = 10
@@ -1125,15 +999,12 @@ local function MSUF_GetModifierStep(baseStep)
     end
     return baseStep * mult
 end
-
 -- One-time session tip popup for stepper modifiers (Options menu)
 local function MSUF_ShowStepperTipOnce(stepper)
-    if _G.MSUF_OptionsStepperTipShown then return end
+    if _G.MSUF_OptionsStepperTipShown then  return end
     _G.MSUF_OptionsStepperTipShown = true
-
     local parent = (stepper and stepper.GetParent and stepper:GetParent()) or UIParent
     if not parent then parent = UIParent end
-
     local f = parent._msufStepperTipFrame
     if not f then
         f = CreateFrame("Frame", nil, parent, "BackdropTemplate")
@@ -1146,50 +1017,40 @@ local function MSUF_ShowStepperTipOnce(stepper)
         })
         f:SetBackdropColor(0, 0, 0, 0.45)
         f:SetBackdropBorderColor(1, 1, 1, 0.12)
-
         local t = f:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
         t:SetPoint("CENTER", f, "CENTER", 0, 0)
-        t:SetText("提示：按住 SHIFT (5) / CTRL (10) / ALT (網格間距) 可大幅調整數值。")
+        t:SetText(TR("提示：按住 SHIFT (5) / CTRL (10) / ALT (網格間距) 可大幅調整數值。"))
         f.text = t
-
         f:Hide()
         parent._msufStepperTipFrame = f
     end
-
     f:ClearAllPoints()
     f:SetPoint("BOTTOM", parent, "BOTTOM", 0, 8)
-
     local lvl = (parent.GetFrameLevel and parent:GetFrameLevel()) or 0
     if f.SetFrameLevel then f:SetFrameLevel(lvl + 50) end
-
     f:Show()
     if C_Timer and C_Timer.After then
         C_Timer.After(6, function()
             if f and f.Hide then f:Hide() end
-        end)
+         end)
     end
-end
-
+ end
 local function MSUF_ApplyModifierStepper(stepper)
-    if not stepper or not stepper.minusButton or not stepper.plusButton then return end
-
+    if not stepper or not stepper.minusButton or not stepper.plusButton then  return end
     stepper.minusButton:SetScript("OnClick", function()
         MSUF_ShowStepperTipOnce(stepper)
         local delta = MSUF_GetModifierStep(stepper.step or 1)
         stepper:SetValue((stepper:GetValue() or 0) - delta, true)
-    end)
-
+     end)
     stepper.plusButton:SetScript("OnClick", function()
         MSUF_ShowStepperTipOnce(stepper)
         local delta = MSUF_GetModifierStep(stepper.step or 1)
         stepper:SetValue((stepper:GetValue() or 0) + delta, true)
-    end)
-end
-
+     end)
+ end
 -- BUILD
 function ns.MSUF_Options_Player_Build(panel, frameGroup, helpers)
-    if not panel or not frameGroup or not helpers then return end
-
+    if not panel or not frameGroup or not helpers then  return end
     local CreateAxisStepper = helpers.CreateAxisStepper
     local CreateLabeledSlider = helpers.CreateLabeledSlider
     local texWhite = helpers.texWhite
@@ -1200,68 +1061,54 @@ function ns.MSUF_Options_Player_Build(panel, frameGroup, helpers)
     local gap = 16
     local rightX = leftX + leftW + gap
     local rightW = 410
-
     -- Make slider track/line more visible (especially on dark MSUF panels)
     local function MSUF_EnhanceSliderTrack(slider)
-        if not slider or slider._msufTrackEnhanced then return end
-
+        if not slider or slider._msufTrackEnhanced then  return end
         -- Create a higher-contrast "rail" behind the slider bar
         local rail = slider:CreateTexture(nil, "BACKGROUND")
         rail:SetPoint("LEFT", slider, "LEFT", 2, 0)
         rail:SetPoint("RIGHT", slider, "RIGHT", -2, 0)
         rail:SetHeight(10)
         rail:SetColorTexture(0, 0, 0, 0.85)
-
         -- Add a brighter center line to improve readability
         local line = slider:CreateTexture(nil, "BORDER")
         line:SetPoint("LEFT", rail, "LEFT", 0, 0)
         line:SetPoint("RIGHT", rail, "RIGHT", 0, 0)
         line:SetHeight(3)
         line:SetColorTexture(1, 1, 1, 0.65)
-
         -- Subtle border around the rail (helps against dark backgrounds)
         local bTop = slider:CreateTexture(nil, "BORDER")
         bTop:SetPoint("TOPLEFT", rail, "TOPLEFT", -1, 1)
         bTop:SetPoint("TOPRIGHT", rail, "TOPRIGHT", 1, 1)
         bTop:SetHeight(1)
         bTop:SetColorTexture(1, 1, 1, 0.18)
-
         local bBot = slider:CreateTexture(nil, "BORDER")
         bBot:SetPoint("BOTTOMLEFT", rail, "BOTTOMLEFT", -1, -1)
         bBot:SetPoint("BOTTOMRIGHT", rail, "BOTTOMRIGHT", 1, -1)
         bBot:SetHeight(1)
         bBot:SetColorTexture(1, 1, 1, 0.18)
-
         -- Larger thumb for easier grabbing
         local thumb = slider.GetThumbTexture and slider:GetThumbTexture()
         if thumb and thumb.SetSize then
             thumb:SetSize(18, 18)
         end
-
         slider._msufTrackEnhanced = true
         slider._msufTrackRail = rail
         slider._msufTrackLine = line
         slider._msufTrackBorderTop = bTop
         slider._msufTrackBorderBot = bBot
-    end
-
-
-
+     end
     -- Animated "fill" for alpha sliders (visualizes current alpha as a shrinking/growing bar).
     -- Designed to look like Blizzard slider fill (UI-SliderBar-Fill) and animate from filled->empty smoothly.
     function MSUF_EnableAnimatedAlphaFill(slider)
-        if not slider or slider._msufAlphaFillEnabled then return end
-
+        if not slider or slider._msufAlphaFillEnabled then  return end
         -- Ensure we have the enhanced rail to anchor into
         if not slider._msufTrackRail then
             if MSUF_EnhanceSliderTrack then MSUF_EnhanceSliderTrack(slider) end
         end
-
         local rail = slider._msufTrackRail
-        if not rail then return end
-
+        if not rail then  return end
         local insetX, insetY = 2, 2
-
         local fill = slider:CreateTexture(nil, "ARTWORK")
         fill:SetTexture("Interface\\Buttons\\UI-SliderBar-Fill")
         if fill.SetHorizTile then fill:SetHorizTile(true) end
@@ -1269,34 +1116,29 @@ function ns.MSUF_Options_Player_Build(panel, frameGroup, helpers)
         fill:SetPoint("BOTTOMLEFT", rail, "BOTTOMLEFT", insetX, insetY)
         fill:SetWidth(1)
         fill:SetAlpha(0.90)
-
         slider._msufAlphaFill = fill
         slider._msufAlphaFillInsetX = insetX
         slider._msufAlphaFillInsetY = insetY
         slider._msufAlphaFillCur = nil
         slider._msufAlphaFillTarget = nil
         slider._msufAlphaFillEnabled = true
-
         -- Dedicated animation driver so we don't stomp any existing OnUpdate on the slider
         local anim = CreateFrame("Frame", nil, slider)
         anim:Hide()
         slider._msufAlphaFillAnim = anim
-
         local function GetMaxValue()
             if slider.maxVal then return slider.maxVal end
             if slider.GetMinMaxValues then
                 local _, mx = slider:GetMinMaxValues()
-                return mx
+                 return mx
             end
-            return 1
+             return 1
         end
-
         local function Clamp01(x)
-            if x < 0 then return 0 end
-            if x > 1 then return 1 end
-            return x
+            if x < 0 then  return 0 end
+            if x > 1 then  return 1 end
+             return x
         end
-
         local function GetUsableWidth()
             local w = rail.GetWidth and rail:GetWidth() or 0
             if not w or w <= 0 then
@@ -1304,54 +1146,45 @@ function ns.MSUF_Options_Player_Build(panel, frameGroup, helpers)
             end
             w = (w or 0) - (insetX * 2)
             if w < 1 then w = 1 end
-            return w
+             return w
         end
-
         local function ApplyFrac(frac)
             frac = Clamp01(frac or 0)
             local w = GetUsableWidth()
             fill:SetWidth(w * frac)
-        end
-
+         end
         local function SetTarget(frac, instant)
             frac = Clamp01(frac or 0)
-
             if slider._msufAlphaFillCur == nil then
                 slider._msufAlphaFillCur = frac
                 slider._msufAlphaFillTarget = frac
                 ApplyFrac(frac)
-                return
+                 return
             end
-
             slider._msufAlphaFillTarget = frac
-
             if instant then
                 slider._msufAlphaFillCur = frac
                 ApplyFrac(frac)
                 anim:Hide()
-                return
+                 return
             end
-
             -- Start anim
             slider._msufAlphaFillStart = slider._msufAlphaFillCur
             slider._msufAlphaFillStartTime = GetTime()
             slider._msufAlphaFillDur = 0.14
             anim:Show()
-        end
-
+         end
         anim:SetScript("OnUpdate", function(self)
             local t0 = slider._msufAlphaFillStartTime
             local dur = slider._msufAlphaFillDur or 0.14
-            if not t0 then self:Hide(); return end
-
+            if not t0 then self:Hide();  return end
             local p = (GetTime() - t0) / dur
             if p >= 1 then
                 slider._msufAlphaFillCur = slider._msufAlphaFillTarget
                 ApplyFrac(slider._msufAlphaFillCur)
                 self:Hide()
-                return
+                 return
             end
-
             -- easeOutQuad
             local e = 1 - (1 - p) * (1 - p)
             local a = slider._msufAlphaFillStart or 0
@@ -1359,119 +1192,101 @@ function ns.MSUF_Options_Player_Build(panel, frameGroup, helpers)
             local cur = a + (b - a) * e
             slider._msufAlphaFillCur = cur
             ApplyFrac(cur)
-        end)
-
+         end)
         local function UpdateFromValue(value, instant)
             local mx = GetMaxValue()
             if not mx or mx <= 0 then mx = 1 end
             local frac = (value or 0) / mx
             SetTarget(frac, instant)
-        end
-
+         end
         -- Dragging should feel snappy (no laggy animation while moving the thumb)
-        slider:HookScript("OnMouseDown", function() slider._msufAlphaFillDragging = true end)
+        slider:HookScript("OnMouseDown", function()  slider._msufAlphaFillDragging = true  end)
         slider:HookScript("OnMouseUp", function()
             slider._msufAlphaFillDragging = false
             if slider.GetValue then
                 UpdateFromValue(slider:GetValue(), true)
             end
-        end)
-
+         end)
         slider:HookScript("OnValueChanged", function(_, value)
             UpdateFromValue(value, slider._msufAlphaFillDragging)
-        end)
-
+         end)
         -- Size changes / first layout pass
         slider:HookScript("OnSizeChanged", function()
             if slider.GetValue then
                 UpdateFromValue(slider:GetValue(), true)
             end
-        end)
-
+         end)
         -- Initial sync next tick (rail width is 0 at creation time sometimes)
         if C_Timer and C_Timer.After then
             C_Timer.After(0, function()
                 if slider and slider.GetValue then
                     UpdateFromValue(slider:GetValue(), true)
                 end
-            end)
+             end)
         else
             if slider.GetValue then UpdateFromValue(slider:GetValue(), true) end
         end
-    end
-
-    local basicsH = 178
+     end
+    -- Slightly taller: accommodates the per-unit reverse-fill toggle above the portrait dropdown.
+    local basicsH = 202
     -- Slightly taller so the new Alpha dropdown + sliders never clip
     local sizeH = 245
     local bossExtraH = 60
     local sizeBossH = sizeH + bossExtraH
-
     -- Left: Frame Basics
-    local basicsBox = CreateGroupBox(frameGroup, "框架基礎", leftX, topY, leftW, basicsH, texWhite, texWhite2)
+    local basicsBox = CreateGroupBox(frameGroup, "框架基本設定", leftX, topY, leftW, basicsH, texWhite, texWhite2)
     basicsBox:Hide()
     panel.playerBasicsBox = basicsBox
-
     -- Enable/Disable + Display toggles (spec-driven; keep widget names)
     local BASIC_TOGGLES = {
         { field = "playerEnableFrameCB", name = "MSUF_UF_EnableFrameCB", label = "啟用此框架", x = 12, y = -34 },
         { field = "playerShowNameCB",    name = "MSUF_UF_ShowNameCB",   label = "顯示名字",         x = 12, y = -58 },
         { field = "playerShowHPCB",      name = "MSUF_UF_ShowHPCB",     label = "顯示血量文字",      x = 12, y = -82 },
         { field = "playerShowPowerCB",   name = "MSUF_UF_ShowPowerCB",  label = "顯示能量文字",   x = 12, y = -106 },
+        { field = "playerReverseFillBarsCB", name = "MSUF_UF_ReverseFillBarsCB", label = "反向填充 (血量/能量)", x = 12, y = -130 },
     }
     for _, s in ipairs(BASIC_TOGGLES) do
         panel[s.field] = CreateCheck(basicsBox, s.name, s.label, s.x, s.y)
     end
-
     -- Portrait dropdown under display toggles.
-
     local dd = CreateFrame("Frame", "MSUF_UF_PortraitDropDown", basicsBox, "UIDropDownMenuTemplate")
-    dd:SetPoint("TOPLEFT", basicsBox, "TOPLEFT", -6, -142)
+    dd:SetPoint("TOPLEFT", basicsBox, "TOPLEFT", -6, -162)
     dd:Show() -- portrait dropdown (all unitframes)
     panel.playerPortraitDropDown = dd
-
     if UIDropDownMenu_SetWidth then
         UIDropDownMenu_SetWidth(dd, 170)
     end
-    
     dd._msufDropWidth = 170
     MSUF_ExpandDropdownClickArea(dd)
-
     -- Left: Unit Alpha
     local sizeBox = CreateGroupBox(frameGroup, "單位透明度", leftX, topY - basicsH - 12, leftW, sizeH, texWhite, texWhite2)
     sizeBox:Hide()
     panel.playerSizeBox = sizeBox
-
     -- Store base/boss heights for dynamic boss-only extension
     panel._msufBasicsH = basicsH
     panel._msufSizeBaseH = sizeH
     panel._msufSizeBossH = sizeBossH
-
     -- Unit Alpha controls (in/out of combat)
-
     -- Top-right toggle: sync both sliders
     local alphaSyncCB = CreateFrame("CheckButton", "MSUF_UF_AlphaSyncCB", sizeBox, "UICheckButtonTemplate")
     alphaSyncCB:SetPoint("TOPRIGHT", sizeBox, "TOPRIGHT", -12, -6)
     if alphaSyncCB.Text then
-        alphaSyncCB.Text:SetText("同步兩者")
+        alphaSyncCB.Text:SetText(TR("同步兩者"))
         alphaSyncCB.Text:ClearAllPoints()
         alphaSyncCB.Text:SetPoint("RIGHT", alphaSyncCB, "LEFT", -4, 0)
         alphaSyncCB.Text:SetJustifyH("RIGHT")
     end
     panel.playerAlphaSyncCB = alphaSyncCB
-
-
     -- New: Exclude Text/Portrait from Unit Alpha + choose alpha target layer (background/foreground)
     local alphaExcludeCB = CreateFrame("CheckButton", "MSUF_UF_AlphaExcludeTextPortraitCB", sizeBox, "UICheckButtonTemplate")
     alphaExcludeCB:SetPoint("TOPLEFT", sizeBox, "TOPLEFT", 12, -25)
     if alphaExcludeCB.Text then
-        alphaExcludeCB.Text:SetText("保持文字與頭像可見")
+        alphaExcludeCB.Text:SetText(TR("保持文字+頭像可見"))
     end
     panel.playerAlphaExcludeTextPortraitCB = alphaExcludeCB
-
     local alphaLayerLabel = sizeBox:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     alphaLayerLabel:SetPoint("TOPLEFT", sizeBox, "TOPLEFT", 12, -58)
-    alphaLayerLabel:SetText("透明度滑桿影響")
-
+    alphaLayerLabel:SetText(TR("透明度滑桿作用於"))
     local alphaLayerDD = CreateFrame("Frame", "MSUF_UF_AlphaLayerDropDown", sizeBox, "UIDropDownMenuTemplate")
     alphaLayerDD:SetPoint("TOPLEFT", sizeBox, "TOPLEFT", -6, -70)
     alphaLayerDD:Show()
@@ -1483,9 +1298,8 @@ function ns.MSUF_Options_Player_Build(panel, frameGroup, helpers)
     if MSUF_ExpandDropdownClickArea then
         MSUF_ExpandDropdownClickArea(alphaLayerDD)
     end
-
     local function FinalizeCompactSlider(slider, width, opts)
-        if not slider then return end
+        if not slider then  return end
         slider:SetWidth(width or (leftW - 24))
         if slider.editBox then slider.editBox:Hide() end
         if slider.minusButton then slider.minusButton:Hide() end
@@ -1496,23 +1310,18 @@ function ns.MSUF_Options_Player_Build(panel, frameGroup, helpers)
         if opts and opts.animatedFill and MSUF_EnableAnimatedAlphaFill then
             MSUF_EnableAnimatedAlphaFill(slider)
         end
-    end
-
+     end
 local function FinalizeDashboardAlphaSlider(slider, width)
-    if not slider then return end
-
+    if not slider then  return end
     -- Make it easier to grab.
     slider:SetWidth(width or (leftW - 24))
-
     if MSUF_EnhanceSliderTrack then
         MSUF_EnhanceSliderTrack(slider)
     end
-
     -- Stepper row (editbox +/-) like the Dashboard sliders.
     local eb = slider.editBox
     local minus = slider.minusButton
     local plus  = slider.plusButton
-
     if eb then
         eb:Show()
         eb:ClearAllPoints()
@@ -1529,10 +1338,9 @@ local function FinalizeDashboardAlphaSlider(slider, width)
         plus:ClearAllPoints()
         plus:SetPoint("LEFT", (eb or slider), "RIGHT", 4, 0)
     end
-
     local name = slider.GetName and slider:GetName()
-    local low  = name and _G[name .. "Low"]
-    local high = name and _G[name .. "High"]
+    local low  = name and _G[name .. "低"]
+    local high = name and _G[name .. "高"]
     if low then
         low:ClearAllPoints()
         low:SetPoint("TOPLEFT", slider, "BOTTOMLEFT", 0, -2)
@@ -1544,26 +1352,22 @@ local function FinalizeDashboardAlphaSlider(slider, width)
     if slider.SetHitRectInsets then
         slider:SetHitRectInsets(-6, -6, -14, -14)
     end
-
     -- Ensure the thumb is visible immediately.
     local thumb = slider.GetThumbTexture and slider:GetThumbTexture()
     if thumb then
         if thumb.SetAlpha then thumb:SetAlpha(1) end
         if thumb.Show then thumb:Show() end
     end
-end
-
+ end
     -- Push sliders down a bit so the dropdown never overlaps/clips them
     local ALPHA_SPECS = {
         { field = "playerAlphaInCombatSlider",  name = "MSUF_UF_AlphaInCombatSlider",  label = "戰鬥中透明度",      y = -118 },
-        { field = "playerAlphaOutCombatSlider", name = "MSUF_UF_AlphaOutCombatSlider", label = "非戰鬥中透明度", y = -178 },
+        { field = "playerAlphaOutCombatSlider", name = "MSUF_UF_AlphaOutCombatSlider", label = "非戰鬥透明度", y = -178 },
     }
     for _, s in ipairs(ALPHA_SPECS) do
         panel[s.field] = CreateLabeledSlider(s.name, s.label, sizeBox, 0.00, 1.00, 0.05, 12, s.y)
         FinalizeDashboardAlphaSlider(panel[s.field], (leftW - 24))
     end
-
-
     -- Right: Castbar group (Castbar + Indicator)
     -- Keep this compact for ALL unit pages. Status Icons get their own box (player/target only).
     local _msufTextBaseH = 390
@@ -1572,20 +1376,15 @@ end
     textGroup:Hide()
     panel.playerTextLayoutGroup = textGroup
     panel._msufTextGroup = textGroup
-
     -- Separate Status Icons box (player/target only; shown/hidden by LayoutIndicatorTemplate)
     local _msufStatusBoxH = 300
     panel._msufStatusBoxH = _msufStatusBoxH
     local statusBox = CreateGroupBox(frameGroup, "狀態圖示", rightX, topY - _msufTextBaseH - 12, rightW, _msufStatusBoxH, texWhite, texWhite2)
     statusBox:Hide()
     panel._msufStatusIconsGroup = statusBox
-
-
-
 -- ToT-only utility: show Target-of-Target name inline in the Target frame name line.
-panel.totShowInTargetCB = CreateCheck(textGroup, "MSUF_ToTInlineInTargetCB", "在目標框架中顯示 ToT 文字", 12, -32)
+panel.totShowInTargetCB = CreateCheck(textGroup, "MSUF_ToTInlineInTargetCB", "在目標框架顯示目標的目標文字", 12, -32)
 panel.totShowInTargetCB:Hide()
-
 -- Separator dropdown (no title) directly under the toggle.
 local totSepDD = CreateFrame("Frame", "MSUF_ToTInlineSeparatorDropDown", textGroup, "UIDropDownMenuTemplate")
 -- Anchor to the toggle (not the box) so any future/reflowed layout changes can't "strand" the dropdown.
@@ -1607,30 +1406,22 @@ totSepDD._msufDropWidth = 170
 if MSUF_ExpandDropdownClickArea then
     MSUF_ExpandDropdownClickArea(totSepDD)
 end
-
-
-    
-
     -- Player-only: Player castbar toggles live in the Frames tab -> Text box.
-
     -- Castbar toggles (Player/Target/Focus/Boss) live in the Frames tab -> Castbar box.
     -- These overlap each other and are shown/hidden based on the selected unitframe tab.
     local CASTBAR_UI_SPECS = {
-        { key = "player", cap = "Player", enableText = "啟用玩家施法條", timeText = "顯示玩家施法時間", defaultVisible = true },
-        { key = "target", cap = "Target", enableText = "啟用目標施法條", timeText = "顯示目標施法時間" },
-        { key = "focus",  cap = "Focus",  enableText = "啟用專注施法條",  timeText = "顯示專注施法時間"  },
-        { key = "boss",   cap = "Boss",   enableText = "啟用首領施法條", timeText = "顯示首領施法時間"   },
+        { key = "player", cap = "玩家", enableText = "啟用玩家施法條", timeText = "顯示玩家施法時間", defaultVisible = true },
+        { key = "target", cap = "目標", enableText = "啟用目標施法條", timeText = "顯示目標施法時間" },
+        { key = "focus",  cap = "專注目標",  enableText = "啟用專注目標施法條",  timeText = "顯示專注目標施法時間"  },
+        { key = "boss",   cap = "首領",   enableText = "啟用首領施法條", timeText = "顯示首領施法時間"   },
     }
-
     for _, spec in ipairs(CASTBAR_UI_SPECS) do
         local key, cap = spec.key, spec.cap
-
         panel[key .. "CastbarEnableCB"] = CreateCheck(textGroup, "MSUF_" .. cap .. "CastbarEnableCB", spec.enableText, 12, -34)
         panel[key .. "CastbarShowIconCB"] = CreateCheck(textGroup, "MSUF_" .. cap .. "CastbarShowIconCB", "圖示", 230, -34)
         panel[key .. "CastbarShowTextCB"] = CreateCheck(textGroup, "MSUF_" .. cap .. "CastbarShowTextCB", "文字", 300, -34)
         panel[key .. "CastbarTimeCB"]   = CreateCheck(textGroup, "MSUF_" .. cap .. "CastbarTimeCB",   spec.timeText, 12, -58)
-        panel[key .. "CastbarInterruptCB"] = CreateCheck(textGroup, "MSUF_" .. cap .. "CastbarInterruptCB", "顯示打斷", 12, -82)
-
+        panel[key .. "CastbarInterruptCB"] = CreateCheck(textGroup, "MSUF_" .. cap .. "CastbarInterruptCB", "顯示斷法", 12, -82)
         if not spec.defaultVisible then
             if panel[key .. "CastbarEnableCB"] then panel[key .. "CastbarEnableCB"]:Hide() end
             if panel[key .. "CastbarShowIconCB"] then panel[key .. "CastbarShowIconCB"]:Hide() end
@@ -1639,78 +1430,81 @@ end
             if panel[key .. "CastbarInterruptCB"] then panel[key .. "CastbarInterruptCB"]:Hide() end
         end
     end
-
-
-
-
-
 		---------------------------------------------------------------------
 		-- Indicator (Leader / Raid Marker / Level) — spec-driven build
 		-- All layout for other unit tabs is handled by LayoutIndicatorTemplate().
 		---------------------------------------------------------------------
-
 		-- Section title (anchored to first divider in LayoutIndicatorTemplate)
 		if not panel.playerLeaderIndicatorHeader then
 			panel.playerLeaderIndicatorHeader = textGroup:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 		end
-		panel.playerLeaderIndicatorHeader:SetText("指示器")
+		panel.playerLeaderIndicatorHeader:SetText(TR("指示器"))
 		panel.playerLeaderIndicatorHeader:Hide()
-
 		-- Shared layout constants for the indicator template
 		local IND_COL_X          = 175
 		local IND_BASE_TOGGLE_Y  = -163
 		local IND_BASE_CTRL_Y    = -178
 		local IND_ROW_STEP       = -64  -- Y offsets are negative: going "down" means more negative.
 		local IND_DIVIDER_OFFSET = 23
-
 		panel._msufIndicatorLayout = panel._msufIndicatorLayout or {}
 		panel._msufIndicatorLayout.colX          = IND_COL_X
 		panel._msufIndicatorLayout.leaderToggleY = IND_BASE_TOGGLE_Y
 		panel._msufIndicatorLayout.leaderCtrlY   = IND_BASE_CTRL_Y
 		panel._msufIndicatorLayout.rowStep       = IND_ROW_STEP
 		panel._msufIndicatorLayout.dividerOffset = IND_DIVIDER_OFFSET
-
 		-- Boss-only: spacing slider (shown only on boss pages by LayoutIndicatorTemplate)
 		local bossSpacingY = (IND_BASE_CTRL_Y + (2 * IND_ROW_STEP)) - 42
 		panel.playerBossSpacingSlider = panel.playerBossSpacingSlider or CreateLabeledSlider("MSUF_UF_BossSpacingSlider", "首領框架間距", textGroup, -200, 0, 1, 12, bossSpacingY)
 		FinalizeCompactSlider(panel.playerBossSpacingSlider, (rightW - 24))
 		panel.playerBossSpacingSlider:Hide()
-
+		-- Pet-only: anchor pet frame relative to Player/Target (shown only on pet pages by LayoutIndicatorTemplate)
+		if not panel.petAnchorToLabel then
+			panel.petAnchorToLabel = textGroup:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+			panel.petAnchorToLabel:SetJustifyH("LEFT")
+		end
+		panel.petAnchorToLabel:SetText(TR("寵物框架位置至"))
+		panel.petAnchorToLabel:Hide()
+		if not panel.petAnchorToDD then
+			local dd = CreateFrame("Frame", "MSUF_PetAnchorToDropDown", textGroup, "UIDropDownMenuTemplate")
+			panel.petAnchorToDD = dd
+			if UIDropDownMenu_SetWidth then
+				UIDropDownMenu_SetWidth(dd, 180)
+			end
+			dd._msufDropWidth = 180
+			if type(_G.MSUF_ExpandDropdownClickArea) == "function" then
+				_G.MSUF_ExpandDropdownClickArea(dd)
+			elseif type(MSUF_ExpandDropdownClickArea) == "function" then
+				MSUF_ExpandDropdownClickArea(dd)
+			end
+		end
+		panel.petAnchorToDD:Hide()
 		-- Status icons (player/target only; lives in its own box)
 		local statusBox = panel._msufStatusIconsGroup
 		local STATUS_BASE_TOGGLE_Y = -34
 		local STATUS_BASE_CTRL_Y   = -49
 		local STATUS_ROW_STEP      = -64
-
 		panel.statusIconsHeader = panel.statusIconsHeader or (statusBox and statusBox:CreateFontString(nil, "OVERLAY", "GameFontHighlight"))
 		if panel.statusIconsHeader then
-			panel.statusIconsHeader:SetText("狀態圖示")
+			panel.statusIconsHeader:SetText(TR("狀態圖示"))
 			panel.statusIconsHeader:Hide()
 		end
-
-		panel.statusCombatIconCB = panel.statusCombatIconCB or CreateCheck(statusBox or textGroup, "MSUF_StatusCombatIconCB", "戰鬥中", 12, STATUS_BASE_TOGGLE_Y + (0 * STATUS_ROW_STEP))
-		panel.statusRestingIconCB = panel.statusRestingIconCB or CreateCheck(statusBox or textGroup, "MSUF_StatusRestingIconCB", "休息 (僅玩家)", 12, STATUS_BASE_TOGGLE_Y + (1 * STATUS_ROW_STEP))
+		panel.statusCombatIconCB = panel.statusCombatIconCB or CreateCheck(statusBox or textGroup, "MSUF_StatusCombatIconCB", "戰鬥", 12, STATUS_BASE_TOGGLE_Y + (0 * STATUS_ROW_STEP))
+		panel.statusRestingIconCB = panel.statusRestingIconCB or CreateCheck(statusBox or textGroup, "MSUF_StatusRestingIconCB", "休息狀態 (僅限玩家)", 12, STATUS_BASE_TOGGLE_Y + (1 * STATUS_ROW_STEP))
 		panel.statusIncomingResIconCB = panel.statusIncomingResIconCB or CreateCheck(statusBox or textGroup, "MSUF_StatusIncomingResIconCB", "接受復活", 12, STATUS_BASE_TOGGLE_Y + (2 * STATUS_ROW_STEP))
-
 		panel.statusIconsTestModeCB = panel.statusIconsTestModeCB or CreateCheck(statusBox or textGroup, "MSUF_StatusIconsTestModeCB", "測試模式", 12, STATUS_BASE_TOGGLE_Y + (3 * STATUS_ROW_STEP) + 10)
-
-		panel.statusIconsStyleCB = panel.statusIconsStyleCB or CreateCheck(statusBox or textGroup, "MSUF_StatusIconsStyleCB", "使用 Midnight 風格圖示", 12, STATUS_BASE_TOGGLE_Y + (3 * STATUS_ROW_STEP) - 12)
+		panel.statusIconsStyleCB = panel.statusIconsStyleCB or CreateCheck(statusBox or textGroup, "MSUF_StatusIconsStyleCB", "使用至暗之夜風格圖示", 12, STATUS_BASE_TOGGLE_Y + (3 * STATUS_ROW_STEP) - 12)
 		if panel.statusIconsStyleCB then panel.statusIconsStyleCB:Hide() end
-
 		if panel.statusCombatIconCB then panel.statusCombatIconCB:Hide() end
 		if panel.statusRestingIconCB then panel.statusRestingIconCB:Hide() end
 		if panel.statusIncomingResIconCB then panel.statusIncomingResIconCB:Hide() end
 		if panel.statusIconsTestModeCB then panel.statusIconsTestModeCB:Hide() end
 		if panel.statusIconsStyleCB then panel.statusIconsStyleCB:Hide() end
-
 -- Safety: older refactors called this; now it's not needed (layout is already relative).
-		MSUF_PositionLeaderMiniHeaders = MSUF_PositionLeaderMiniHeaders or function() end
-
+		MSUF_PositionLeaderMiniHeaders = MSUF_PositionLeaderMiniHeaders or function()   end
 		local function _MSUF_GetCheckboxIcon(cb)
-			if not cb then return nil end
+			if not cb then  return nil end
 			return cb.Check or (cb.GetName and _G[cb:GetName() .. "Check"]) or nil
 		end
-
 		local function _MSUF_CreateResetButton(field, cb, parentOverride)
 			if panel[field] then
 				panel[field]:Hide()
@@ -1718,27 +1512,24 @@ end
 			else
 				panel[field] = CreateFrame("Button", nil, parentOverride or textGroup, "UIPanelButtonTemplate")
 				panel[field]:SetSize(20, 20)
-				panel[field]:SetText("R")
-
+				panel[field]:SetText(TR("R"))
 				local fs = panel[field].GetFontString and panel[field]:GetFontString()
 				if fs then
 					fs:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE")
 					fs:ClearAllPoints()
 					fs:SetPoint("CENTER", panel[field], "CENTER", 0, 0)
 				end
-
 				panel[field]:SetScript("OnEnter", function(self)
-					if not GameTooltip then return end
+					if not GameTooltip then  return end
 					GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-					GameTooltip:SetText("重置當前指示器", 1, 1, 1)
-					GameTooltip:AddLine("將 X/Y 偏移、位置和大小重置為預設值。", 0.85, 0.85, 0.85, true)
+					GameTooltip:SetText(TR("重置當前指示器"), 1, 1, 1)
+					GameTooltip:AddLine("將 X/Y、位置和大小重置為預設值。", 0.85, 0.85, 0.85, true)
 					GameTooltip:Show()
-				end)
+				 end)
 				panel[field]:SetScript("OnLeave", function()
 					if GameTooltip then GameTooltip:Hide() end
-				end)
+				 end)
 			end
-
 			local chk = _MSUF_GetCheckboxIcon(cb)
 			if chk then
 				panel[field]:SetPoint("TOP", chk, "BOTTOM", 0, -2)
@@ -1747,11 +1538,9 @@ end
 			else
 				panel[field]:SetPoint("TOPLEFT", textGroup, "TOPLEFT", 12, IND_BASE_CTRL_Y + 2)
 			end
-
 			panel[field]:Hide()
 			return panel[field]
 		end
-
 		local function _MSUF_MakeDivider(field, parentOverride)
 			if panel[field] then
 				panel[field]:Hide()
@@ -1762,9 +1551,8 @@ end
 			tex:SetColorTexture(1, 1, 1, 0.08)
 			tex:Hide()
 			panel[field] = tex
-			return tex
+			 return tex
 		end
-
 		local function _MSUF_MakeDrop(field, globalName, width, parentOverride)
 			if panel[field] then
 				panel[field]:Hide()
@@ -1777,10 +1565,9 @@ end
 			dd:SetScale(0.80)
 			dd:Hide()
 			panel[field] = dd
-			return dd
+			 return dd
 		end
-
-		local function _MSUF_MakeLabel(field, text)
+		local function _MSUF_MakeLabel(field, text, parentOverride)
 			if panel[field] then
 				panel[field]:SetText(text)
 				panel[field]:Hide()
@@ -1790,9 +1577,8 @@ end
 			fs:SetText(text)
 			fs:Hide()
 			panel[field] = fs
-			return fs
+			 return fs
 		end
-
 		local function _MSUF_MakeSizeEdit(field, globalName, parentOverride)
 			if panel[field] then
 				panel[field]:Hide()
@@ -1811,9 +1597,8 @@ end
 			end
 			eb:Hide()
 			panel[field] = eb
-			return eb
+			 return eb
 		end
-
 		local function _MSUF_LayoutIndicatorRow(cb, stepperX, stepperY, anchorDrop, anchorLabel, sizeEdit, sizeLabel, iconDrop, iconLabel, colX, ctrlY)
 			-- X stepper is anchored to container; everything else is relative to it
 			if stepperX then
@@ -1830,7 +1615,6 @@ end
 				end
 				stepperX:Hide()
 			end
-
 			if stepperY and stepperX then
 				stepperY:ClearAllPoints()
 				stepperY:SetPoint("LEFT", stepperX, "RIGHT", 6, 0)
@@ -1844,7 +1628,6 @@ end
 				end
 				stepperY:Hide()
 			end
-
 			if anchorDrop and stepperY then
 				anchorDrop:ClearAllPoints()
 				anchorDrop:SetPoint("LEFT", stepperY, "RIGHT", 1, 0)
@@ -1855,7 +1638,6 @@ end
 				end
 				anchorDrop:Hide()
 			end
-
 			if sizeEdit and anchorDrop then
 				sizeEdit:ClearAllPoints()
 				sizeEdit:SetPoint("LEFT", anchorDrop, "RIGHT", 1, 2)
@@ -1866,7 +1648,6 @@ end
 				end
 				sizeEdit:Hide()
 			end
-
 			if iconDrop and sizeEdit then
 				iconDrop:ClearAllPoints()
 				iconDrop:SetPoint("LEFT", sizeEdit, "RIGHT", 1, -2)
@@ -1877,263 +1658,177 @@ end
 				end
 				iconDrop:Hide()
 			end
-
-
 			if cb then cb:Hide() end
+		 end
+		---------------------------------------------------------------------
+		-- Indicator rows (Leader / Raid Marker / Level) — spec-driven
+		---------------------------------------------------------------------
+		local function _MSUF_BuildIndicatorRow(spec, idx)
+			if not spec then  return end
+			local ui = spec.ui or {}
+			-- Divider texture (positioned in LayoutIndicatorTemplate)
+			if spec.divider then
+				_MSUF_MakeDivider(spec.divider)
+			end
+			-- Toggle
+			if spec.showCB and not panel[spec.showCB] then
+				local fallbackName = "MSUF_" .. (spec.showCB:gsub("^%l", string.upper))
+				panel[spec.showCB] = CreateCheck(textGroup, ui.cbName or fallbackName, ui.cbText or "啟用", 12,
+					(IND_BASE_TOGGLE_Y + ((idx - 1) * IND_ROW_STEP)))
+			end
+			if spec.showCB and panel[spec.showCB] then
+				panel[spec.showCB]:Hide()
+			end
+			-- Reset button
+			if spec.resetBtn and spec.showCB then
+				_MSUF_CreateResetButton(spec.resetBtn, panel[spec.showCB])
+			end
+			-- X/Y steppers
+			if spec.xStepper and not panel[spec.xStepper] then
+				panel[spec.xStepper] = CreateAxisStepper(ui.xName or ("MSUF_" .. spec.xStepper), "X", textGroup,
+					spec.xDefault or 0, 0, -200, 200, 1)
+			end
+			if spec.yStepper and not panel[spec.yStepper] then
+				panel[spec.yStepper] = CreateAxisStepper(ui.yName or ("MSUF_" .. spec.yStepper), "Y", textGroup,
+					spec.yDefault or 0, 0, -200, 200, 1)
+			end
+			-- Anchor dropdown + label
+			if spec.anchorDrop and spec.anchorLabel then
+				panel[spec.anchorDrop]  = _MSUF_MakeDrop(spec.anchorDrop, ui.anchorName or ("MSUF_" .. spec.anchorDrop), ui.anchorW or 70)
+				panel[spec.anchorLabel] = _MSUF_MakeLabel(spec.anchorLabel, "位置")
+			end
+			-- Size edit + label
+			if spec.sizeEdit and spec.sizeLabel then
+				panel[spec.sizeEdit]  = _MSUF_MakeSizeEdit(spec.sizeEdit, ui.sizeName or ("MSUF_" .. spec.sizeEdit))
+				panel[spec.sizeLabel] = _MSUF_MakeLabel(spec.sizeLabel, "大小")
+			end
+			-- Relative layout: only X stepper is absolute, everything else follows.
+			_MSUF_LayoutIndicatorRow(
+				spec.showCB and panel[spec.showCB] or nil,
+				spec.xStepper and panel[spec.xStepper] or nil,
+				spec.yStepper and panel[spec.yStepper] or nil,
+				spec.anchorDrop and panel[spec.anchorDrop] or nil,
+				spec.anchorLabel and panel[spec.anchorLabel] or nil,
+				spec.sizeEdit and panel[spec.sizeEdit] or nil,
+				spec.sizeLabel and panel[spec.sizeLabel] or nil,
+				nil,
+				nil,
+				IND_COL_X,
+				IND_BASE_CTRL_Y + ((idx - 1) * IND_ROW_STEP)
+			)
+		 end
+		for idx, id in ipairs({ "leader", "raidmarker", "level" }) do
+			_MSUF_BuildIndicatorRow(_MSUF_INDICATOR_SPECS and _MSUF_INDICATOR_SPECS[id], idx)
 		end
-
-		local _MSUF_IND_UI = {
-			leader = {
-				cbField = "playerLeaderIconCB",
-				cbName  = "MSUF_PlayerLeaderIconCB",
-				cbText  = "顯示隊長/助理圖示",
-				xField  = "playerLeaderOffsetXStepper",
-				xName   = "MSUF_PlayerLeaderIconOffsetX",
-				yField  = "playerLeaderOffsetYStepper",
-				yName   = "MSUF_PlayerLeaderIconOffsetY",
-				dropField = "playerLeaderAnchorDrop",
-				dropName  = "MSUF_PlayerLeaderIconAnchorDropdown",
-				dropW     = 70,
-				anchorLabelField = "playerLeaderAnchorLabel",
-				sizeField  = "playerLeaderSizeEdit",
-				sizeName   = "MSUF_PlayerLeaderIconSizeEdit",
-				sizeLabelField = "playerLeaderSizeLabel",
-				resetField = "playerLeaderResetBtn",
-				dividerField = "playerLeaderGroupDivider",
+		---------------------------------------------------------------------
+		-- Status Icons rows (Combat / Rested / Incoming Rez) — spec-driven
+		---------------------------------------------------------------------
+		local STATUS_ROW_SPECS = {
+			{
+				rowIndex = 0,
+				parent = panel._msufStatusIconsGroup,
+				cbField = "statusCombatIconCB",
+				cbName  = "MSUF_StatusCombatIconCB",
+				cbText  = "戰鬥",
+				divider = "statusCombatGroupDivider",
+				resetBtn = "statusCombatResetBtn",
+				xField = "statusCombatOffsetXStepper", xName = "MSUF_StatusCombatOffsetX",
+				yField = "statusCombatOffsetYStepper", yName = "MSUF_StatusCombatOffsetY",
+				anchorDrop = "statusCombatAnchorDrop", anchorName = "MSUF_StatusCombatAnchorDropdown", anchorLabel = "statusCombatAnchorLabel",
+				sizeEdit = "statusCombatSizeEdit", sizeName = "MSUF_StatusCombatSizeEdit", sizeLabel = "statusCombatSizeLabel",
+				iconDrop = "statusCombatSymbolDrop", iconName = "MSUF_StatusCombatSymbolDropdown", iconW = 92, iconLabel = "statusCombatSymbolLabel",
 			},
-			raidmarker = {
-				cbField = "playerRaidMarkerCB",
-				cbName  = "MSUF_PlayerRaidMarkerCB",
-				cbText  = "顯示團隊標記",
-				xField  = "playerRaidMarkerOffsetXStepper",
-				xName   = "MSUF_PlayerRaidMarkerOffsetX",
-				yField  = "playerRaidMarkerOffsetYStepper",
-				yName   = "MSUF_PlayerRaidMarkerOffsetY",
-				dropField = "playerRaidMarkerAnchorDrop",
-				dropName  = "MSUF_PlayerRaidMarkerAnchorDropdown",
-				dropW     = 70,
-				anchorLabelField = "playerRaidMarkerAnchorLabel",
-				sizeField  = "playerRaidMarkerSizeEdit",
-				sizeName   = "MSUF_PlayerRaidMarkerSizeEdit",
-				sizeLabelField = "playerRaidMarkerSizeLabel",
-				resetField = "playerRaidMarkerResetBtn",
-				dividerField = "playerRaidMarkerGroupDivider",
+			{
+				rowIndex = 1,
+				parent = panel._msufStatusIconsGroup,
+				cbField = "statusRestingIconCB",
+				cbName  = "MSUF_StatusRestingIconCB",
+				cbText  = "休息狀態 (僅限玩家)",
+				divider = "statusRestingGroupDivider",
+				resetBtn = "statusRestingResetBtn",
+				xField = "statusRestingOffsetXStepper", xName = "MSUF_StatusRestingOffsetX",
+				yField = "statusRestingOffsetYStepper", yName = "MSUF_StatusRestingOffsetY",
+				anchorDrop = "statusRestingAnchorDrop", anchorName = "MSUF_StatusRestingAnchorDropdown", anchorLabel = "statusRestingAnchorLabel",
+				sizeEdit = "statusRestingSizeEdit", sizeName = "MSUF_StatusRestingSizeEdit", sizeLabel = "statusRestingSizeLabel",
+				iconDrop = "statusRestingSymbolDrop", iconName = "MSUF_StatusRestingSymbolDropdown", iconW = 92, iconLabel = "statusRestingSymbolLabel",
 			},
-			level = {
-				cbField = "playerLevelIndicatorCB",
-				cbName  = "MSUF_PlayerLevelIndicatorCB",
-				cbText  = "顯示等級",
-				xField  = "playerLevelOffsetXStepper",
-				xName   = "MSUF_PlayerLevelOffsetX",
-				yField  = "playerLevelOffsetYStepper",
-				yName   = "MSUF_PlayerLevelOffsetY",
-				dropField = "playerLevelAnchorDrop",
-				dropName  = "MSUF_PlayerLevelAnchorDropdown",
-				dropW     = 70,
-				anchorLabelField = "playerLevelAnchorLabel",
-				sizeField  = "playerLevelSizeEdit",
-				sizeName   = "MSUF_PlayerLevelSizeEdit",
-				sizeLabelField = "playerLevelSizeLabel",
-				resetField = "playerLevelResetBtn",
-				dividerField = "playerLevelGroupDivider",
+			{
+				rowIndex = 2,
+				parent = panel._msufStatusIconsGroup,
+				cbField = "statusIncomingResIconCB",
+				cbName  = "MSUF_StatusIncomingResIconCB",
+				cbText  = "接受復活",
+				divider = "statusIncomingResGroupDivider",
+				resetBtn = "statusIncomingResResetBtn",
+				xField = "statusIncomingResOffsetXStepper", xName = "MSUF_StatusIncomingResOffsetX",
+				yField = "statusIncomingResOffsetYStepper", yName = "MSUF_StatusIncomingResOffsetY",
+				anchorDrop = "statusIncomingResAnchorDrop", anchorName = "MSUF_StatusIncomingResAnchorDropdown", anchorLabel = "statusIncomingResAnchorLabel",
+				sizeEdit = "statusIncomingResSizeEdit", sizeName = "MSUF_StatusIncomingResSizeEdit", sizeLabel = "statusIncomingResSizeLabel",
+				iconDrop = "statusIncomingResSymbolDrop", iconName = "MSUF_StatusIncomingResSymbolDropdown", iconW = 92, iconLabel = "statusIncomingResSymbolLabel",
 			},
 		}
-
-		for idx, id in ipairs({ "leader", "raidmarker", "level" }) do
-			local spec = _MSUF_INDICATOR_SPECS and _MSUF_INDICATOR_SPECS[id]
-			local ui = _MSUF_IND_UI[id]
-			if spec and ui then
-				-- Divider texture
-				_MSUF_MakeDivider(ui.dividerField)
-
-				-- Toggle
-				if not panel[ui.cbField] then
-					panel[ui.cbField] = CreateCheck(textGroup, ui.cbName, ui.cbText, 12, (IND_BASE_TOGGLE_Y + ((idx - 1) * IND_ROW_STEP)))
-				end
-				panel[ui.cbField]:Hide()
-
-				-- Reset button
-				_MSUF_CreateResetButton(ui.resetField, panel[ui.cbField])
-
-				-- X/Y steppers
-				if not panel[ui.xField] then
-					panel[ui.xField] = CreateAxisStepper(ui.xName, "X", textGroup, spec.xDefault or 0, 0, -200, 200, 1)
-				end
-				if not panel[ui.yField] then
-					panel[ui.yField] = CreateAxisStepper(ui.yName, "Y", textGroup, spec.yDefault or 0, 0, -200, 200, 1)
-				end
-
-				-- Anchor drop + label
-				if ui.dropField then
-					panel[ui.dropField] = _MSUF_MakeDrop(ui.dropField, ui.dropName, ui.dropW or 70)
-					panel[ui.anchorLabelField] = _MSUF_MakeLabel(ui.anchorLabelField, "位置")
-				end
-
-				-- Size edit + label (optional)
-				if ui.sizeField then
-					panel[ui.sizeField] = _MSUF_MakeSizeEdit(ui.sizeField, ui.sizeName)
-					panel[ui.sizeLabelField] = _MSUF_MakeLabel(ui.sizeLabelField, "大小")
-				end
-
-				-- Relative layout: only X stepper is absolute, everything else follows.
-				_MSUF_LayoutIndicatorRow(
-					panel[ui.cbField],
-					panel[ui.xField],
-					panel[ui.yField],
-					panel[ui.dropField],
-					panel[ui.anchorLabelField],
-					panel[ui.sizeField],
-					panel[ui.sizeLabelField],
-					nil,
-					nil,
-					IND_COL_X,
-					IND_BASE_CTRL_Y + ((idx - 1) * IND_ROW_STEP)
-				)
+		local function _MSUF_BuildStatusRow(s)
+			local parent = s.parent or textGroup
+			if s.divider then
+				_MSUF_MakeDivider(s.divider, parent)
 			end
--- ------------------------------------------------------------
--- Status Icons (Step 1): Combat row controls built like Indicator
--- (Player/Target only; Rested/Incoming Rez/TestMode stay as simple toggles for now)
--- ------------------------------------------------------------
-_MSUF_MakeDivider("statusCombatGroupDivider", panel._msufStatusIconsGroup)
-
--- Reuse existing combat toggle checkbox created above
-if panel.statusCombatIconCB then
-	_MSUF_CreateResetButton("statusCombatResetBtn", panel.statusCombatIconCB, panel._msufStatusIconsGroup)
-end
-
-if not panel.statusCombatOffsetXStepper then
-	panel.statusCombatOffsetXStepper = CreateAxisStepper("MSUF_StatusCombatOffsetX", "X", panel._msufStatusIconsGroup or textGroup, 0, 0, -200, 200, 1)
-end
-if not panel.statusCombatOffsetYStepper then
-	panel.statusCombatOffsetYStepper = CreateAxisStepper("MSUF_StatusCombatOffsetY", "Y", panel._msufStatusIconsGroup or textGroup, 0, 0, -200, 200, 1)
-end
-
-panel.statusCombatAnchorDrop  = panel.statusCombatAnchorDrop  or _MSUF_MakeDrop("statusCombatAnchorDrop", "MSUF_StatusCombatAnchorDropdown", 70, panel._msufStatusIconsGroup)
-panel.statusCombatAnchorLabel = panel.statusCombatAnchorLabel or _MSUF_MakeLabel("statusCombatAnchorLabel", "位置", panel._msufStatusIconsGroup)
-
-panel.statusCombatSizeEdit  = panel.statusCombatSizeEdit  or _MSUF_MakeSizeEdit("statusCombatSizeEdit", "MSUF_StatusCombatSizeEdit", panel._msufStatusIconsGroup)
-panel.statusCombatSizeLabel = panel.statusCombatSizeLabel or _MSUF_MakeLabel("statusCombatSizeLabel", "大小", panel._msufStatusIconsGroup)
-panel.statusCombatSymbolDrop  = panel.statusCombatSymbolDrop  or _MSUF_MakeDrop("statusCombatSymbolDrop", "MSUF_StatusCombatSymbolDropdown", 92, panel._msufStatusIconsGroup)
-panel.statusCombatSymbolLabel = panel.statusCombatSymbolLabel or _MSUF_MakeLabel("statusCombatSymbolLabel", "圖示", panel._msufStatusIconsGroup)
-
--- Relative layout: only X stepper is absolute, everything else follows.
-_MSUF_LayoutIndicatorRow(
-	panel.statusCombatIconCB,
-	panel.statusCombatOffsetXStepper,
-	panel.statusCombatOffsetYStepper,
-	panel.statusCombatAnchorDrop,
-	panel.statusCombatAnchorLabel,
-	panel.statusCombatSizeEdit,
-	panel.statusCombatSizeLabel,
-	panel.statusCombatSymbolDrop,
-	panel.statusCombatSymbolLabel,
-	IND_COL_X,
-	STATUS_BASE_CTRL_Y + (0 * STATUS_ROW_STEP)
-)
-
--- ------------------------------------------------------------
--- Status Icons (Step 2): Rested row controls built like Indicator
--- (Player only)
--- ------------------------------------------------------------
-_MSUF_MakeDivider("statusRestingGroupDivider", panel._msufStatusIconsGroup)
-
--- Reuse existing rested toggle checkbox created above
-if panel.statusRestingIconCB then
-	_MSUF_CreateResetButton("statusRestingResetBtn", panel.statusRestingIconCB, panel._msufStatusIconsGroup)
-end
-
-if not panel.statusRestingOffsetXStepper then
-	panel.statusRestingOffsetXStepper = CreateAxisStepper("MSUF_StatusRestingOffsetX", "X", panel._msufStatusIconsGroup or textGroup, 0, 0, -200, 200, 1)
-end
-if not panel.statusRestingOffsetYStepper then
-	panel.statusRestingOffsetYStepper = CreateAxisStepper("MSUF_StatusRestingOffsetY", "Y", panel._msufStatusIconsGroup or textGroup, 0, 0, -200, 200, 1)
-end
-
-panel.statusRestingAnchorDrop  = panel.statusRestingAnchorDrop  or _MSUF_MakeDrop("statusRestingAnchorDrop", "MSUF_StatusRestingAnchorDropdown", 70, panel._msufStatusIconsGroup)
-panel.statusRestingAnchorLabel = panel.statusRestingAnchorLabel or _MSUF_MakeLabel("statusRestingAnchorLabel", "位置", panel._msufStatusIconsGroup)
-
-panel.statusRestingSizeEdit  = panel.statusRestingSizeEdit  or _MSUF_MakeSizeEdit("statusRestingSizeEdit", "MSUF_StatusRestingSizeEdit", panel._msufStatusIconsGroup)
-panel.statusRestingSizeLabel = panel.statusRestingSizeLabel or _MSUF_MakeLabel("statusRestingSizeLabel", "大小", panel._msufStatusIconsGroup)
-panel.statusRestingSymbolDrop  = panel.statusRestingSymbolDrop  or _MSUF_MakeDrop("statusRestingSymbolDrop", "MSUF_StatusRestingSymbolDropdown", 92, panel._msufStatusIconsGroup)
-panel.statusRestingSymbolLabel = panel.statusRestingSymbolLabel or _MSUF_MakeLabel("statusRestingSymbolLabel", "圖示", panel._msufStatusIconsGroup)
-
--- Relative layout: only X stepper is absolute, everything else follows.
-_MSUF_LayoutIndicatorRow(
-	panel.statusRestingIconCB,
-	panel.statusRestingOffsetXStepper,
-	panel.statusRestingOffsetYStepper,
-	panel.statusRestingAnchorDrop,
-	panel.statusRestingAnchorLabel,
-	panel.statusRestingSizeEdit,
-	panel.statusRestingSizeLabel,
-	panel.statusRestingSymbolDrop,
-	panel.statusRestingSymbolLabel,
-	IND_COL_X,
-	STATUS_BASE_CTRL_Y + (1 * STATUS_ROW_STEP)
-)
-
+			-- Toggle (usually already created above)
+			if not panel[s.cbField] then
+				panel[s.cbField] = CreateCheck(parent, s.cbName, s.cbText, 12, STATUS_BASE_TOGGLE_Y + (s.rowIndex * STATUS_ROW_STEP))
+			end
+			if panel[s.cbField] then panel[s.cbField]:Hide() end
+			-- Reset button
+			_MSUF_CreateResetButton(s.resetBtn, panel[s.cbField], parent)
+			-- X/Y steppers
+			if not panel[s.xField] then
+				panel[s.xField] = CreateAxisStepper(s.xName, "X", parent, 0, 0, -200, 200, 1)
+			end
+			if not panel[s.yField] then
+				panel[s.yField] = CreateAxisStepper(s.yName, "Y", parent, 0, 0, -200, 200, 1)
+			end
+			-- Anchor dropdown + label
+			panel[s.anchorDrop]  = panel[s.anchorDrop]  or _MSUF_MakeDrop(s.anchorDrop, s.anchorName, 70, parent)
+			panel[s.anchorLabel] = panel[s.anchorLabel] or _MSUF_MakeLabel(s.anchorLabel, "位置", parent)
+			-- Size edit + label
+			panel[s.sizeEdit]  = panel[s.sizeEdit]  or _MSUF_MakeSizeEdit(s.sizeEdit, s.sizeName, parent)
+			panel[s.sizeLabel] = panel[s.sizeLabel] or _MSUF_MakeLabel(s.sizeLabel, "大小", parent)
+			-- Icon dropdown + label
+			panel[s.iconDrop]  = panel[s.iconDrop]  or _MSUF_MakeDrop(s.iconDrop, s.iconName, s.iconW or 92, parent)
+			panel[s.iconLabel] = panel[s.iconLabel] or _MSUF_MakeLabel(s.iconLabel, "圖示", parent)
+			-- Relative layout: only X stepper is absolute, everything else follows.
+			_MSUF_LayoutIndicatorRow(
+				panel[s.cbField],
+				panel[s.xField],
+				panel[s.yField],
+				panel[s.anchorDrop],
+				panel[s.anchorLabel],
+				panel[s.sizeEdit],
+				panel[s.sizeLabel],
+				panel[s.iconDrop],
+				panel[s.iconLabel],
+				IND_COL_X,
+				STATUS_BASE_CTRL_Y + (s.rowIndex * STATUS_ROW_STEP)
+			)
+		 end
+		for i = 1, #STATUS_ROW_SPECS do
+			_MSUF_BuildStatusRow(STATUS_ROW_SPECS[i])
 		end
--- ------------------------------------------------------------
--- Status Icons (Step 3): Incoming Rez row controls built like Indicator
--- (Player/Target)
--- ------------------------------------------------------------
-_MSUF_MakeDivider("statusIncomingResGroupDivider", panel._msufStatusIconsGroup)
-
--- Reuse existing incoming rez toggle checkbox created above
-if panel.statusIncomingResIconCB then
-	_MSUF_CreateResetButton("statusIncomingResResetBtn", panel.statusIncomingResIconCB, panel._msufStatusIconsGroup)
-end
-
-if not panel.statusIncomingResOffsetXStepper then
-	panel.statusIncomingResOffsetXStepper = CreateAxisStepper("MSUF_StatusIncomingResOffsetX", "X", panel._msufStatusIconsGroup or textGroup, 0, 0, -200, 200, 1)
-end
-if not panel.statusIncomingResOffsetYStepper then
-	panel.statusIncomingResOffsetYStepper = CreateAxisStepper("MSUF_StatusIncomingResOffsetY", "Y", panel._msufStatusIconsGroup or textGroup, 0, 0, -200, 200, 1)
-end
-
-panel.statusIncomingResAnchorDrop  = panel.statusIncomingResAnchorDrop  or _MSUF_MakeDrop("statusIncomingResAnchorDrop", "MSUF_StatusIncomingResAnchorDropdown", 70, panel._msufStatusIconsGroup)
-panel.statusIncomingResAnchorLabel = panel.statusIncomingResAnchorLabel or _MSUF_MakeLabel("statusIncomingResAnchorLabel", "位置", panel._msufStatusIconsGroup)
-
-panel.statusIncomingResSizeEdit  = panel.statusIncomingResSizeEdit  or _MSUF_MakeSizeEdit("statusIncomingResSizeEdit", "MSUF_StatusIncomingResSizeEdit", panel._msufStatusIconsGroup)
-panel.statusIncomingResSizeLabel = panel.statusIncomingResSizeLabel or _MSUF_MakeLabel("statusIncomingResSizeLabel", "大小", panel._msufStatusIconsGroup)
-panel.statusIncomingResSymbolDrop  = panel.statusIncomingResSymbolDrop  or _MSUF_MakeDrop("statusIncomingResSymbolDrop", "MSUF_StatusIncomingResSymbolDropdown", 92, panel._msufStatusIconsGroup)
-panel.statusIncomingResSymbolLabel = panel.statusIncomingResSymbolLabel or _MSUF_MakeLabel("statusIncomingResSymbolLabel", "圖示", panel._msufStatusIconsGroup)
-
--- Relative layout: only X stepper is absolute, everything else follows.
-_MSUF_LayoutIndicatorRow(
-	panel.statusIncomingResIconCB,
-	panel.statusIncomingResOffsetXStepper,
-	panel.statusIncomingResOffsetYStepper,
-	panel.statusIncomingResAnchorDrop,
-	panel.statusIncomingResAnchorLabel,
-	panel.statusIncomingResSizeEdit,
-	panel.statusIncomingResSizeLabel,
-	panel.statusIncomingResSymbolDrop,
-	panel.statusIncomingResSymbolLabel,
-	IND_COL_X,
-	STATUS_BASE_CTRL_Y + (2 * STATUS_ROW_STEP)
-)
-
-
-    local function _MSUF_BuildCopyUI(spec)
+		local function _MSUF_BuildCopyUI(spec)
         local prefix    = spec.prefix
         local destVar   = spec.destVar
         local default   = spec.defaultDest
         local items     = spec.items or {}
         local hintText  = spec.hintText or "複製相容的設定。"
         local dropName  = spec.dropName
-
         local labelKey  = prefix .. "CopyToLabel"
         local dropKey   = prefix .. "CopyToDrop"
         local btnKey    = prefix .. "CopyToButton"
         local hintKey   = prefix .. "CopyToHint"
-
         if not panel[labelKey] then
             panel[labelKey] = (parentOverride or textGroup):CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-            panel[labelKey]:SetText("複製到")
+            panel[labelKey]:SetText(TR("複製到"))
             panel[labelKey]:Hide()
         end
-
         if not panel[dropKey] then
             panel[dropKey] = CreateFrame("Frame", dropName, textGroup, "UIDropDownMenuTemplate")
             if UIDropDownMenu_SetWidth then UIDropDownMenu_SetWidth(panel[dropKey], 150) end
@@ -2141,12 +1836,9 @@ _MSUF_LayoutIndicatorRow(
             if MSUF_ExpandDropdownClickArea then MSUF_ExpandDropdownClickArea(panel[dropKey]) end
             panel[dropKey]:SetScale(0.86)
             panel[dropKey]:Hide()
-
             panel[destVar] = panel[destVar] or default
-
             local function Init(self, level)
-                if not level then return end
-
+                if not level then  return end
                 local function AddItem(text, value)
                     local info = UIDropDownMenu_CreateInfo()
                     info.text = text
@@ -2159,28 +1851,24 @@ _MSUF_LayoutIndicatorRow(
                         local label = (_G._MSUF_CopyDestLabel and _G._MSUF_CopyDestLabel(v)) or tostring(v)
                         if UIDropDownMenu_SetText then UIDropDownMenu_SetText(self, label) end
                         if CloseDropDownMenus then CloseDropDownMenus() end
-                    end
+                     end
                     info.checked = function()
                         return (panel[destVar] == value)
                     end
                     UIDropDownMenu_AddButton(info, level)
-                end
-
+                 end
                 for i = 1, #items do
                     local it = items[i]
                     AddItem(it[1], it[2])
                 end
-
                 local sep = UIDropDownMenu_CreateInfo()
                 sep.text = " "
                 sep.isTitle = true
                 sep.notCheckable = true
                 UIDropDownMenu_AddButton(sep, level)
                 AddItem("全部", "all")
-            end
-
+             end
             UIDropDownMenu_Initialize(panel[dropKey], Init)
-
             if not panel[dropKey]._msufCopySyncHooked and panel[dropKey].HookScript then
                 panel[dropKey]._msufCopySyncHooked = true
                 panel[dropKey]:HookScript("OnShow", function(self)
@@ -2188,37 +1876,30 @@ _MSUF_LayoutIndicatorRow(
                     if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(self, k) end
                     local label = (_G._MSUF_CopyDestLabel and _G._MSUF_CopyDestLabel(k)) or tostring(k)
                     if UIDropDownMenu_SetText then UIDropDownMenu_SetText(self, label) end
-                end)
+                 end)
             end
         end
-
         if not panel[btnKey] then
             panel[btnKey] = CreateFrame("Button", nil, parentOverride or textGroup, "UIPanelButtonTemplate")
             panel[btnKey]:SetSize(64, 20)
-            panel[btnKey]:SetText("複製")
+            panel[btnKey]:SetText(TR("複製"))
             panel[btnKey]:Hide()
         end
-
         if not panel[hintKey] then
             panel[hintKey] = textGroup:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
             panel[hintKey]:SetText(hintText)
             panel[hintKey]:Hide()
         end
-
         -- Single, stable anchor for all copy UIs (above the Edit Mode button, avoids indicator overlap)
         panel[dropKey]:ClearAllPoints()
         panel[dropKey]:SetPoint("BOTTOMLEFT", panel, "BOTTOMLEFT", 52, 96)
-
         panel[labelKey]:ClearAllPoints()
         panel[labelKey]:SetPoint("LEFT", panel[dropKey], "LEFT", -40, 2)
-
         panel[btnKey]:ClearAllPoints()
         panel[btnKey]:SetPoint("LEFT", panel[dropKey], "RIGHT", -14, 2)
-
         panel[hintKey]:ClearAllPoints()
         panel[hintKey]:SetPoint("TOPLEFT", panel[dropKey], "BOTTOMLEFT", -32, -2)
-    end
-
+     end
     local _MSUF_COPY_UI_SPECS = {
         {
             prefix = "player",
@@ -2305,16 +1986,14 @@ _MSUF_LayoutIndicatorRow(
             },
         },
     }
-
     for i = 1, #_MSUF_COPY_UI_SPECS do
         _MSUF_BuildCopyUI(_MSUF_COPY_UI_SPECS[i])
     end
-
     if false and not panel.petEditModeButton then
         panel.petEditModeButton = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
         panel.petEditModeButton:SetSize(220, 28)
         panel.petEditModeButton:SetPoint("BOTTOMLEFT", panel, "BOTTOMLEFT", 12, 20)
-        panel.petEditModeButton:SetText("編輯模式")
+        panel.petEditModeButton:SetText(TR("編輯模式"))
         panel.petEditModeButton:SetScript("OnClick", function()
             local fn = _G and _G.MSUF_SetMSUFEditModeDirect
             if type(fn) == "function" then
@@ -2326,40 +2005,34 @@ _MSUF_LayoutIndicatorRow(
                     fn(true, "pet")
                 end
             end
-        end)
+         end)
         panel.petEditModeButton:Hide()
     end
-
-    end
-
-
+     end
 -- APPLY FROM DB (called from Options Core)
-
-
 -- Reuse the Player indicator block layout as a template for other unitframe pages.
 -- Leader/Assist is only shown on Player + Target; Raid Marker + Level are available for all.
 function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
-    if not panel or not panel._msufIndicatorLayout then return end
-
+    if not panel or not panel._msufIndicatorLayout then  return end
     local l = panel._msufIndicatorLayout
     local container = panel._msufTextGroup or panel.playerTextLayoutGroup or panel
-    if not container then return end
-
+    if not container then  return end
     local isFramesTab = true
     if type(panel._msufIsFramesTab) == "function" then
         isFramesTab = panel._msufIsFramesTab()
     end
-
     local function SetShownByName(name, show)
-        if not name then return end
+        if not name then  return end
         local w = panel[name]
         if w then w:SetShown(show) end
-    end
-
+     end
     -- If we're not on the Frames tab, hard-hide the whole indicator template to avoid stray UI.
     if not isFramesTab then
         if panel._msufStatusIconsGroup then panel._msufStatusIconsGroup:Hide() end
         if panel.playerLeaderIndicatorHeader then panel.playerLeaderIndicatorHeader:Hide() end
+		-- Pet-only widgets inside this template must also be hard-hidden outside the Frames tab.
+		if panel.petAnchorToLabel then panel.petAnchorToLabel:Hide() end
+		if panel.petAnchorToDD then panel.petAnchorToDD:Hide() end
         for _, spec in pairs(_MSUF_INDICATOR_SPECS) do
             SetShownByName(spec.showCB, false)
             SetShownByName(spec.xStepper, false)
@@ -2396,55 +2069,45 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
         SetShownByName("statusRestingAnchorLabel", false)
         SetShownByName("statusRestingSizeEdit", false)
         SetShownByName("statusRestingSizeLabel", false)
-        return
+         return
     end
-
     -- Header: keep it present for all frames pages.
     if panel.playerLeaderIndicatorHeader then
         panel.playerLeaderIndicatorHeader:Show()
         panel.playerLeaderIndicatorHeader:SetJustifyH("LEFT")
     end
-
     local baseToggleY = l.leaderToggleY or -163
     local baseCtrlY   = l.leaderCtrlY   or -178
     local step        = l.rowStep       or -64
     local dividerOffset = l.dividerOffset or 23
-
     -- Pet tab has no Castbar section in this panel; move Indicator up to occupy that space.
     -- This aligns the first indicator row roughly where other tabs place the Castbar controls.
     if currentKey == "pet" then
         baseToggleY = -34
         baseCtrlY   = -49
     end
-
-
     local function PlaceToggle(cb, y)
-        if not cb then return end
+        if not cb then  return end
         cb:ClearAllPoints()
         cb:SetPoint("TOPLEFT", container, "TOPLEFT", 12, y)
-    end
-
+     end
     local function PlaceXStepper(stepper, y)
-        if not stepper then return end
+        if not stepper then  return end
         stepper:ClearAllPoints()
         stepper:SetPoint("TOPLEFT", container, "TOPLEFT", l.colX or 175, y)
-    end
-
+     end
     local function PlaceDivider(tex, toggleY)
-        if not tex then return end
+        if not tex then  return end
         tex:ClearAllPoints()
         tex:SetPoint("TOPLEFT", container, "TOPLEFT", 15, toggleY + dividerOffset)
         tex:SetPoint("TOPRIGHT", container, "TOPRIGHT", -15, toggleY + dividerOffset)
-    end
-
+     end
     local row = 0
     local firstDivider = nil
-
     for _, id in ipairs({ "leader", "raidmarker", "level" }) do
         local spec = _MSUF_INDICATOR_SPECS[id]
         if spec then
             local show = (spec.allowed and spec.allowed(currentKey)) and true or false
-
             SetShownByName(spec.showCB, show)
             SetShownByName(spec.xStepper, show)
             SetShownByName(spec.yStepper, show)
@@ -2454,38 +2117,51 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
             SetShownByName(spec.sizeLabel, show)
             SetShownByName(spec.divider, show)
             SetShownByName(spec.resetBtn, show)
-
             if show then
                 local toggleY = baseToggleY + (row * step)
                 local ctrlY   = baseCtrlY + (row * step)
-
                 PlaceToggle(panel[spec.showCB], toggleY)
                 PlaceXStepper(panel[spec.xStepper], ctrlY)
                 PlaceDivider(panel[spec.divider], toggleY)
-
                 if not firstDivider and spec.divider and panel[spec.divider] then
                     firstDivider = panel[spec.divider]
                 end
-
                 row = row + 1
             end
         end
     end
-
     if panel.playerLeaderIndicatorHeader and firstDivider then
         panel.playerLeaderIndicatorHeader:ClearAllPoints()
         panel.playerLeaderIndicatorHeader:SetPoint("LEFT", firstDivider, "LEFT", 0, 0)
     end
-
-
-
+	-- Pet-only: allow anchoring the pet frame to Player/Target (dropdown lives in the Indicator box).
+	local showPetAnchorTo = (currentKey == "pet") and true or false
+	if panel.petAnchorToLabel then panel.petAnchorToLabel:SetShown(showPetAnchorTo) end
+	if panel.petAnchorToDD then panel.petAnchorToDD:SetShown(showPetAnchorTo) end
+	if showPetAnchorTo then
+		local y = baseToggleY + (row * step) + 6
+		if panel.petAnchorToLabel then
+			panel.petAnchorToLabel:ClearAllPoints()
+			panel.petAnchorToLabel:SetPoint("TOPLEFT", container, "TOPLEFT", 12, y)
+		end
+		if panel.petAnchorToDD then
+			panel.petAnchorToDD:ClearAllPoints()
+			if panel.petAnchorToLabel then
+				panel.petAnchorToDD:SetPoint("TOPLEFT", panel.petAnchorToLabel, "BOTTOMLEFT", -18, -6)
+			else
+				panel.petAnchorToDD:SetPoint("TOPLEFT", container, "TOPLEFT", -6, y - 22)
+			end
+			if panel.petAnchorToDD.SetFrameLevel and container.GetFrameLevel then
+				panel.petAnchorToDD:SetFrameLevel((container:GetFrameLevel() or 0) + 2)
+			end
+		end
+	end
     -- Status icons live in their own box (player/target only).
     local statusBox = panel._msufStatusIconsGroup
     local showStatusIcons = (currentKey == "player" or currentKey == "target") and true or false
     if statusBox then
         statusBox:SetShown(showStatusIcons)
     end
-
     -- Hard-hide all status icon widgets when not needed (prevents stray UI).
     if not showStatusIcons then
         if panel.statusIconsHeader then panel.statusIconsHeader:Hide() end
@@ -2504,7 +2180,6 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
         SetShownByName("statusCombatSizeLabel", false)
         SetShownByName("statusCombatSymbolDrop", false)
         SetShownByName("statusCombatSymbolLabel", false)
-
         SetShownByName("statusRestingGroupDivider", false)
         SetShownByName("statusRestingResetBtn", false)
         SetShownByName("statusRestingOffsetXStepper", false)
@@ -2515,7 +2190,6 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
         SetShownByName("statusRestingSizeLabel", false)
         SetShownByName("statusRestingSymbolDrop", false)
         SetShownByName("statusRestingSymbolLabel", false)
-
         SetShownByName("statusIncomingResGroupDivider", false)
         SetShownByName("statusIncomingResResetBtn", false)
         SetShownByName("statusIncomingResOffsetXStepper", false)
@@ -2532,30 +2206,25 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
         local baseCtrlY   = -49
         local step        = -64
         local dividerOffset = l.dividerOffset or 23
-
         local function PlaceToggleIn(box, cb, y)
-            if not cb then return end
+            if not cb then  return end
             cb:ClearAllPoints()
             cb:SetPoint("TOPLEFT", box, "TOPLEFT", 12, y)
-        end
-
+         end
         local function PlaceXStepperIn(box, stepper, y)
-            if not stepper then return end
+            if not stepper then  return end
             stepper:ClearAllPoints()
             stepper:SetPoint("TOPLEFT", box, "TOPLEFT", l.colX or 175, y)
-        end
-
+         end
         local function PlaceDividerIn(box, tex, toggleY)
-            if not tex then return end
+            if not tex then  return end
             tex:ClearAllPoints()
             tex:SetPoint("TOPLEFT", box, "TOPLEFT", 15, toggleY + dividerOffset)
             tex:SetPoint("TOPRIGHT", box, "TOPRIGHT", -15, toggleY + dividerOffset)
-        end
-
+         end
         if panel.statusIconsHeader then
-            panel.statusIconsHeader:Hide() -- box title already says "Status icons"
+            panel.statusIconsHeader:Hide() -- box title already says "狀態圖示"
         end
-
         -- Combat row
         if panel.statusCombatIconCB then panel.statusCombatIconCB:Show() end
         SetShownByName("statusCombatGroupDivider", true)
@@ -2568,11 +2237,9 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
         SetShownByName("statusCombatSizeLabel", true)
         SetShownByName("statusCombatSymbolDrop", true)
         SetShownByName("statusCombatSymbolLabel", true)
-
         PlaceToggleIn(statusBox, panel.statusCombatIconCB, baseToggleY + (0 * step))
         PlaceXStepperIn(statusBox, panel.statusCombatOffsetXStepper, baseCtrlY + (0 * step))
         PlaceDividerIn(statusBox, panel.statusCombatGroupDivider, baseToggleY + (0 * step))
-
         -- Rested row (player only)
         local showResting = (currentKey == "player") and true or false
         if panel.statusRestingIconCB then panel.statusRestingIconCB:SetShown(showResting) end
@@ -2586,13 +2253,11 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
         SetShownByName("statusRestingSizeLabel", showResting)
         SetShownByName("statusRestingSymbolDrop", showResting)
         SetShownByName("statusRestingSymbolLabel", showResting)
-
         if showResting then
             PlaceToggleIn(statusBox, panel.statusRestingIconCB, baseToggleY + (1 * step))
             PlaceXStepperIn(statusBox, panel.statusRestingOffsetXStepper, baseCtrlY + (1 * step))
             PlaceDividerIn(statusBox, panel.statusRestingGroupDivider, baseToggleY + (1 * step))
         end
-
         -- Incoming Rez row
         if panel.statusIncomingResIconCB then panel.statusIncomingResIconCB:Show() end
         SetShownByName("statusIncomingResGroupDivider", true)
@@ -2605,11 +2270,9 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
         SetShownByName("statusIncomingResSizeLabel", true)
         SetShownByName("statusIncomingResSymbolDrop", true)
         SetShownByName("statusIncomingResSymbolLabel", true)
-
         PlaceToggleIn(statusBox, panel.statusIncomingResIconCB, baseToggleY + (2 * step))
         PlaceXStepperIn(statusBox, panel.statusIncomingResOffsetXStepper, baseCtrlY + (2 * step))
         PlaceDividerIn(statusBox, panel.statusIncomingResGroupDivider, baseToggleY + (2 * step))
-
         -- Remaining status toggles (Test mode / Style)
         if panel.statusIconsTestModeCB then
             panel.statusIconsTestModeCB:Show()
@@ -2620,25 +2283,21 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
             panel.statusIconsStyleCB:ClearAllPoints()
             panel.statusIconsStyleCB:SetPoint("TOPLEFT", statusBox, "TOPLEFT", 220, baseToggleY + (3 * step) + 10)
         end
-
         -- Icon pickers are currently layout-only storage (Step 4.6)
         local function HideIconPicker(label, drop)
             if label then label:Hide() end
             if drop  then drop:Hide() end
-        end
-
+         end
         local function PlaceIconPickerAt(label, drop, titleText, rel, xOff)
-            if not (label and drop and rel) then return end
+            if not (label and drop and rel) then  return end
             label:SetText(titleText)
             label:ClearAllPoints()
             label:SetPoint("TOPLEFT", rel, "BOTTOMLEFT", 2 + (xOff or 0), -8)  -- moved up ~10px and slightly left
             label:Show()
-
             drop:ClearAllPoints()
             drop:SetPoint("TOPLEFT", label, "BOTTOMLEFT", -12, -4)
             drop:Show()
-        end
-
+         end
         local baseRel = panel.statusIconsTestModeCB
         if baseRel then
             PlaceIconPickerAt(panel.statusCombatSymbolLabel, panel.statusCombatSymbolDrop, "戰鬥", baseRel, 0)
@@ -2654,60 +2313,50 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
             HideIconPicker(panel.statusRestingSymbolLabel, panel.statusRestingSymbolDrop)
         end
     end
-
 local isBossKey = false
     if type(currentKey) == "string" then
         if currentKey == "boss" or currentKey:match("^boss") then
             isBossKey = true
         end
     end
-
     if panel.playerBossSpacingSlider then
         local show = isBossKey and true or false
         panel.playerBossSpacingSlider:SetShown(show)
         if panel.playerBossSpacingSlider.editBox then panel.playerBossSpacingSlider.editBox:SetShown(show) end
         if panel.playerBossSpacingSlider.minusButton then panel.playerBossSpacingSlider.minusButton:SetShown(show) end
         if panel.playerBossSpacingSlider.plusButton then panel.playerBossSpacingSlider.plusButton:SetShown(show) end
-
         local n = panel.playerBossSpacingSlider.GetName and panel.playerBossSpacingSlider:GetName()
         if n then
-            local low  = _G[n .. "Low"]
-            local high = _G[n .. "High"]
-            local text = _G[n .. "Text"]
+            local low  = _G[n .. "低"]
+            local high = _G[n .. "高"]
+            local text = _G[n .. "文字"]
             if low  then low:SetShown(show) end
             if high then high:SetShown(show) end
             if text then text:SetShown(show) end
         end
-
         if show then
             local ctrlY = baseCtrlY + (row * step)
             panel.playerBossSpacingSlider:ClearAllPoints()
             panel.playerBossSpacingSlider:SetPoint("TOPLEFT", container, "TOPLEFT", 12, ctrlY)
         end
     end
-end
-
+ end
 function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffsetValue)
-    if not panel or not currentKey then return end
-
+    if not panel or not currentKey then  return end
     -- Be robust when the core passes nil conf/g (e.g. first time opening a unit tab).
     EnsureDB()
     MSUF_DB = MSUF_DB or {}
     MSUF_DB.general = MSUF_DB.general or {}
     g = MSUF_DB.general
-
     local key = currentKey
     if key == "tot" or key == "targetoftarget" then key = "targettarget" end
     MSUF_DB[key] = MSUF_DB[key] or conf or {}
     conf = MSUF_DB[key]
     currentKey = key
     panel._msufLastApplyKey = currentKey
-
     -- If the core is still in player-only mode, it will only show this UI for player.
     -- We still keep ApplyFromDB working for any key (multi-unit core).
-
     -- Basics
-
     -- Unit Alpha: make the left box title reflect the selected unit (Player/Target/Focus/etc.).
     if panel.playerSizeBox and panel.playerSizeBox._msufTitleText then
         local k = currentKey
@@ -2715,7 +2364,7 @@ function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffse
         local titleMap = {
             player = "玩家透明度",
             target = "目標透明度",
-            focus = "專注透明度",
+            focus = "專注目標透明度",
             pet = "寵物透明度",
             boss = "首領透明度",
             targettarget = "目標的目標透明度",
@@ -2728,7 +2377,6 @@ function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffse
             w:SetChecked((s.eval and s.eval(conf)) and true or false)
         end
     end
-
     -- Player-only: Player castbar toggles (Frames tab -> Text box)
     local isPlayerKey = (currentKey == "player")
     local isTargetKey = (currentKey == "target")
@@ -2737,8 +2385,7 @@ function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffse
     local isToTKey    = (currentKey == "targettarget" or currentKey == "tot" or currentKey == "targetoftarget")
     local isPetKey    = (currentKey == "pet")
     local isFramesTab = (panel._msufIsFramesTab and panel._msufIsFramesTab()) or true
-
-    -- ToT-only: inline ToT text in Target name line toggle lives in the right "Castbar" box.
+    -- ToT-only: inline ToT text in Target name line toggle lives in the right "施法條" box.
     if panel.totShowInTargetCB then
         panel.totShowInTargetCB:SetShown(isToTKey and isFramesTab)
         if isToTKey and isFramesTab then
@@ -2757,12 +2404,10 @@ function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffse
                         panel.totInlineSeparatorDD:SetFrameLevel((panel.totShowInTargetCB:GetFrameLevel() or 0) + 2)
                     end
                 end
-
                 local token = MSUF_ReadString(conf, g, "totInlineSeparator", "|")
                 token = MSUF_ToTInlineSepTokenText(token)
                 if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(panel.totInlineSeparatorDD, token) end
                 if UIDropDownMenu_SetText then UIDropDownMenu_SetText(panel.totInlineSeparatorDD, token) end
-
                 -- Grey/disable when inline is off (safe UX, avoids accidental confusion).
                 local enabled = (conf.showToTInTargetName == true)
                 if UIDropDownMenu_EnableDropDown and UIDropDownMenu_DisableDropDown then
@@ -2773,37 +2418,46 @@ function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffse
                 end
             end
         end
-
-    -- Title: Target of Target uses "Inline Text" (it is not a castbar).
-    -- Pet uses this box for indicator settings, so we hide the "Castbar" title there.
+	-- Pet-only: anchor pet frame relative to Player/Target (dropdown lives in the Indicator box).
+	if panel.petAnchorToDD then
+		local show = (isPetKey and isFramesTab) and true or false
+		panel.petAnchorToDD:SetShown(show)
+		if panel.petAnchorToLabel then panel.petAnchorToLabel:SetShown(show) end
+		if show then
+			local v = conf.anchorToUnitframe
+			if v ~= "player" and v ~= "target" then v = "GLOBAL" end
+			if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(panel.petAnchorToDD, v) end
+			if UIDropDownMenu_SetText then
+				local txt = (v == "player" and "玩家框架") or (v == "target" and "目標框架") or "自由 (整體位置)"
+				UIDropDownMenu_SetText(panel.petAnchorToDD, txt)
+			end
+		end
+	end
+	-- Title: Target of Target uses "行內文字" (it is not a castbar).
+    -- Pet uses this box for indicator settings, so we hide the "施法條" title there.
     if panel.playerTextLayoutGroup and panel.playerTextLayoutGroup._msufTitleText then
         local t = panel.playerTextLayoutGroup._msufTitleText
         if isFramesTab and isPetKey then
-            t:SetText("")
+            t:SetText(TR(""))
             t:Hide()
         elseif isToTKey and isFramesTab then
-            t:SetText("行內文字")
+            t:SetText(TR("行內文字"))
             t:Show()
         else
-            t:SetText("施法條")
+            t:SetText(TR("施法條"))
             t:Show()
         end
     end
-
     end
-
-
     -- Copy-to UI visibility (refactored)
     local function _MSUF_SetCopyVisible(prefix, destVar, defaultDest, active)
         local labelKey = prefix .. "CopyToLabel"
         local dropKey  = prefix .. "CopyToDrop"
         local btnKey   = prefix .. "CopyToButton"
         local hintKey  = prefix .. "CopyToHint"
-
         if panel[labelKey] then panel[labelKey]:SetShown(active) end
         if panel[btnKey] then panel[btnKey]:SetShown(active) end
         if panel[hintKey] then panel[hintKey]:SetShown(active) end
-
         local drop = panel[dropKey]
         if drop then
             drop:SetShown(active)
@@ -2815,15 +2469,13 @@ function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffse
                 if UIDropDownMenu_SetText then UIDropDownMenu_SetText(drop, label) end
             end
         end
-    end
-
+     end
     _MSUF_SetCopyVisible("player", "_msufCopyDestKey",        "target", isPlayerKey and isFramesTab)
     _MSUF_SetCopyVisible("target", "_msufCopyDestKey_target", "player", isTargetKey and isFramesTab)
     _MSUF_SetCopyVisible("focus",  "_msufCopyDestKey_focus",  "target", isFocusKey  and isFramesTab)
     _MSUF_SetCopyVisible("boss",   "_msufCopyDestKey_boss",   "target", isBossKey   and isFramesTab)
     _MSUF_SetCopyVisible("pet",    "_msufCopyDestKey_pet",    "target", isPetKey    and isFramesTab)
     _MSUF_SetCopyVisible("tot",    "_msufCopyDestKey_tot",    "player", isToTKey    and isFramesTab)
-
 -- Castbar toggles (Enable / Time / Interrupt) per unit (Frames tab) [spec-driven]
     for _, spec in ipairs(MSUF_CASTBAR_FRAME_TOGGLE_SPECS) do
         local show = (isFramesTab and currentKey == spec.key)
@@ -2831,7 +2483,6 @@ function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffse
         MSUF_ApplyCheck(panel, spec.timeW, show, (g[spec.timeK] ~= false))
         MSUF_ApplyCheck(panel, spec.interruptW, show, (conf.showInterrupt ~= false))
     end
-
 -- Indicators (spec-driven)
     for _, id in ipairs(MSUF_INDICATOR_ORDER) do
         local spec = _MSUF_INDICATOR_SPECS[id]
@@ -2840,7 +2491,6 @@ function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffse
             if spec.showCB and spec.showField and panel[spec.showCB] and panel[spec.showCB].SetChecked then
                 panel[spec.showCB]:SetChecked(MSUF_ReadBool(conf, g, spec.showField, spec.showDefault) and true or false)
             end
-
             -- X/Y offsets
             if spec.xStepper and spec.xField and panel[spec.xStepper] and panel[spec.xStepper].SetValue then
                 panel[spec.xStepper]:SetValue(MSUF_ReadNumber(conf, g, spec.xField, spec.xDefault), false)
@@ -2848,32 +2498,25 @@ function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffse
             if spec.yStepper and spec.yField and panel[spec.yStepper] and panel[spec.yStepper].SetValue then
                 panel[spec.yStepper]:SetValue(MSUF_ReadNumber(conf, g, spec.yField, spec.yDefault), false)
             end
-
             -- Anchor dropdown
             if spec.anchorDrop and spec.anchorField and panel[spec.anchorDrop] then
                 local v = MSUF_ReadString(conf, g, spec.anchorField, spec.anchorDefault)
                 if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(panel[spec.anchorDrop], v) end
                 if UIDropDownMenu_SetText and spec.anchorText then UIDropDownMenu_SetText(panel[spec.anchorDrop], spec.anchorText(v)) end
             end
-
             -- Optional size editbox
             if spec.sizeEdit and spec.sizeField and panel[spec.sizeEdit] then
                 MSUF_SetNumericEditBoxValue(panel[spec.sizeEdit], MSUF_ReadNumber(conf, g, spec.sizeField, spec.sizeDefault))
             end
         end
     end
-
 -- Reflow the indicator block rows depending on which unitframe tab we are on.
 if ns and ns.MSUF_Options_Player_LayoutIndicatorTemplate then
     ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
 end
-
-
-    
 -- Castbar icon/text toggles (per-unit overrides with global fallback) [spec-driven]
     for _, spec in ipairs(MSUF_CASTBAR_TEXTICON_SPECS) do
         local show = (isFramesTab and currentKey == spec.key)
-
         local iconChecked = MSUF_GetShowWithFallback(g[spec.iconK], g.castbarShowIcon)
         local textChecked
         if spec.textDirect then
@@ -2881,42 +2524,31 @@ end
         else
             textChecked = MSUF_GetShowWithFallback(g[spec.textK], g.castbarShowSpellName)
         end
-
         MSUF_ApplyCheck(panel, spec.iconW, show, iconChecked)
         MSUF_ApplyCheck(panel, spec.textW, show, textChecked)
     end
-
-
 -- Portrait dropdown (all unitframes) [spec-driven]
     if panel.playerPortraitDropDown and UIDropDownMenu_SetSelectedValue and UIDropDownMenu_SetText then
         panel.playerPortraitDropDown:Show()
-
         local mode = MSUF_GetPortraitDropdownValue(conf)
         UIDropDownMenu_SetSelectedValue(panel.playerPortraitDropDown, mode)
         UIDropDownMenu_SetText(panel.playerPortraitDropDown, MSUF_PortraitModeText(mode))
     end
-
-
-
     -- Unit Alpha (in/out of combat) [spec-driven]
     local excludeTP = (conf.alphaExcludeTextPortrait == true)
     if panel.playerAlphaExcludeTextPortraitCB then
         panel.playerAlphaExcludeTextPortraitCB:SetChecked(excludeTP and true or false)
     end
-
     local layerMode = MSUF_Alpha_NormalizeMode(conf.alphaLayerMode)
-
     if panel.playerAlphaLayerDropDown and UIDropDownMenu_SetSelectedValue and UIDropDownMenu_SetText then
         panel.playerAlphaLayerDropDown:Show()
         UIDropDownMenu_SetSelectedValue(panel.playerAlphaLayerDropDown, layerMode)
         UIDropDownMenu_SetText(panel.playerAlphaLayerDropDown, (layerMode == "background") and "背景" or "前景")
-
         -- Hard fallback: some dropdown skins won"t display the label unless we also set the FontString.
         local _ddText = (_G and _G["MSUF_UF_AlphaLayerDropDownText"]) or (panel.playerAlphaLayerDropDown and panel.playerAlphaLayerDropDown.Text)
         if _ddText and _ddText.SetText then
             _ddText:SetText((layerMode == "background") and "背景" or "前景")
         end
-
         -- Disable dropdown unless layered alpha is enabled, so users don't pick a mode that does nothing.
         local btn = (_G and _G["MSUF_UF_AlphaLayerDropDownButton"]) or (panel.playerAlphaLayerDropDown and panel.playerAlphaLayerDropDown.Button)
         if btn and btn.Enable and btn.Disable then
@@ -2930,15 +2562,12 @@ end
             end
         end
     end
-
     if panel.playerAlphaSyncCB then
         panel.playerAlphaSyncCB:SetChecked((conf.alphaSync == true) and true or false)
     end
-
     local aIn, aOut = MSUF_Alpha_ReadPair(conf, layerMode)
     MSUF_AlphaUI_SetSlider(panel.playerAlphaInCombatSlider, aIn)
     MSUF_AlphaUI_SetSlider(panel.playerAlphaOutCombatSlider, aOut)
-
 -- Boss-only extension: grow the right-side box for boss-only controls (Boss spacing lives under Indicator now).
     local isBoss = (currentKey == "boss")
     if panel.playerSizeBox and panel._msufSizeBaseH then
@@ -2947,16 +2576,12 @@ end
     if panel.playerTextLayoutGroup and panel._msufTextBaseH then
         panel.playerTextLayoutGroup:SetHeight(panel._msufTextBaseH)
     end
-
     -- Status icons box (player/target only)
     if panel._msufStatusIconsGroup and panel._msufStatusBoxH then
         panel._msufStatusIconsGroup:SetHeight(panel._msufStatusBoxH)
         panel._msufStatusIconsGroup:SetShown((currentKey == "player" or currentKey == "target") and true or false)
     end
-
-
     -- Frame size
-
     -- Boss Spacing (boss only) [spec-driven]
     if panel.playerBossSpacingSlider then
         local show = (currentKey == "boss")
@@ -2972,71 +2597,53 @@ end
             ForceSliderEditBox(panel.playerBossSpacingSlider)
         end
     end
-
     -- Copy settings button (Player menu)
     MSUF_BindAllCopyButtons(panel)
-
     -- Copy settings button (Target menu)
     -- (bound by MSUF_BindAllCopyButtons)
-
     -- Copy settings button (Focus menu)
     -- (bound by MSUF_BindAllCopyButtons)
-
     -- Copy settings button (Target of Target menu)
     -- (bound by MSUF_BindAllCopyButtons)
-
-
     -- Text positioning controls removed (Text group is a placeholder only).
-
-
-    -- Keep mini headers aligned with the "Indicator" title line after layout has settled.
+    -- Keep mini headers aligned with the "指示器" title line after layout has settled.
     if C_Timer and C_Timer.After then
         C_Timer.After(0, function()
             MSUF_PositionLeaderMiniHeaders(panel)
-        end)
+         end)
     else
         MSUF_PositionLeaderMiniHeaders(panel)
     end
-
-end
-
+ end
 -- INSTALL HANDLERS (called from Options Core)
 function ns.MSUF_Options_Player_InstallHandlers(panel, api)
-    if not panel or not api then return end
-
+    if not panel or not api then  return end
     local function IsFramesTab()
         return (api.getTabKey and api.getTabKey() == "frames")
     end
-
     local function CurrentKey()
         return (api.getKey and api.getKey()) or "player"
     end
-
     -- Make current unit key available to CreatePanel callbacks (dropdowns / edits).
     panel._msufGetCurrentKey = CurrentKey
-
     panel._msufIsFramesTab = IsFramesTab
-
     -- Expose API for lightweight UI callbacks (e.g. Copy dropdown)
     panel._msufAPI = api
-
     local function ApplyCurrent()
         if api.ApplySettingsForKey then
             api.ApplySettingsForKey(CurrentKey())
         end
-end
-
+ end
 local function ApplyLayoutCurrent(reason)
     local key = CurrentKey()
     local fn = _G and _G.MSUF_UFCore_RequestLayoutForUnit
     if type(fn) == "function" then
         local urgent = (key == "target" or key == "targettarget" or key == "focus")
         pcall(fn, key, reason or "OPTIONS_LAYOUT", urgent)
-        return
+         return
     end
     ApplyCurrent()
-end
-
+ end
     local function EnsureKeyDB()
         if api.EnsureDB then api.EnsureDB() end
         local key = (CurrentKey and CurrentKey()) or "player"
@@ -3045,48 +2652,40 @@ end
         MSUF_DB[key] = MSUF_DB[key] or {}
         return MSUF_DB[key]
     end
-
     -- Indicator reset binding (shared helper for Leader / Raid Marker / Level)
     local function MSUF_ApplyStepper(stepper, v)
-        if not stepper then return end
+        if not stepper then  return end
         stepper:SetValue(v, false)
         if stepper.editBox and (not stepper.editBox:HasFocus()) then
             stepper.editBox:SetText(tostring(v))
         end
-    end
-
+     end
     local function MSUF_ApplyDropdown(drop, value, textFunc)
-        if not drop then return end
+        if not drop then  return end
         if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(drop, value) end
         if UIDropDownMenu_SetText and textFunc then UIDropDownMenu_SetText(drop, textFunc(value)) end
-    end
+     end
     -- Indicator row specs (shared)
     local INDICATOR_SPECS = _MSUF_INDICATOR_SPECS
-
 local function MSUF_CanonIndicatorKey()
     local key = (CurrentKey and CurrentKey()) or "player"
     if key == "tot" then key = "targettarget" end
     if type(key) == "string" and key:match("^boss") then key = "boss" end
-    return key
+     return key
 end
-
 local function MSUF_GetIndicatorConfAndGeneral()
     EnsureDB()
     MSUF_DB = MSUF_DB or {}
     MSUF_DB.general = MSUF_DB.general or {}
     local g = MSUF_DB.general
-
     local key = MSUF_CanonIndicatorKey()
     MSUF_DB[key] = MSUF_DB[key] or {}
     local conf = MSUF_DB[key]
-    return conf, g, key
+     return conf, g, key
 end
-
 -- Use shared MSUF_ReadBool / MSUF_ReadNumber / MSUF_ReadString helpers (file-scope)
-
 local function MSUF_CallIndicatorRefresh(spec)
-    if not spec then return end
-
+    if not spec then  return end
     -- Some indicator systems still have dedicated refresh helpers (e.g. leader/assist icon rebuild).
     local fnName = spec.refreshFnName
     if fnName then
@@ -3095,18 +2694,14 @@ local function MSUF_CallIndicatorRefresh(spec)
             pcall(fn)
         end
     end
-
     -- Always request a layout pass so size/anchor changes apply without forcing full updates.
     ApplyLayoutCurrent("INDICATOR")
-end
-
+ end
 local function MSUF_ApplyIndicatorUI(spec)
-    if not spec then return end
-    if not IsFramesTab() then return end
-
+    if not spec then  return end
+    if not IsFramesTab() then  return end
     local conf, g, key = MSUF_GetIndicatorConfAndGeneral()
-    if spec.allowed and (not spec.allowed(key)) then return end
-
+    if spec.allowed and (not spec.allowed(key)) then  return end
     if spec.showCB and panel[spec.showCB] and spec.showField then
         panel[spec.showCB]:SetChecked(MSUF_ReadBool(conf, g, spec.showField, spec.showDefault))
     end
@@ -3120,7 +2715,6 @@ local function MSUF_ApplyIndicatorUI(spec)
         local a = MSUF_ReadString(conf, g, spec.anchorField, spec.anchorDefault)
         MSUF_ApplyDropdown(panel[spec.anchorDrop], a, spec.anchorText)
     end
-
     if spec.iconDrop and panel[spec.iconDrop] and spec.iconField then
         local v = MSUF_ReadString(conf, g, spec.iconField, spec.iconDefault)
         MSUF_ApplyDropdown(panel[spec.iconDrop], v, spec.iconText)
@@ -3138,68 +2732,54 @@ local function MSUF_ApplyIndicatorUI(spec)
         if v > 64 then v = 64 end
         MSUF_SetNumericEditBoxValue(panel[spec.sizeEdit], v)
     end
-end
-
+ end
 local function MSUF_ResetIndicatorRow(rowId)
-    if not IsFramesTab() then return end
-    if not rowId then return end
-
+    if not IsFramesTab() then  return end
+    if not rowId then  return end
     local spec = INDICATOR_SPECS[rowId]
-    if not spec then return end
-
+    if not spec then  return end
     local conf, _, key = MSUF_GetIndicatorConfAndGeneral()
-    if spec.allowed and (not spec.allowed(key)) then return end
-
+    if spec.allowed and (not spec.allowed(key)) then  return end
     if spec.xField then conf[spec.xField] = nil end
     if spec.yField then conf[spec.yField] = nil end
     if spec.anchorField then conf[spec.anchorField] = nil end
     if spec.iconField then conf[spec.iconField] = nil end
     if spec.sizeField then conf[spec.sizeField] = nil end
-
     MSUF_ApplyIndicatorUI(spec)
-
     ApplyLayoutCurrent("INDICATOR_RESET")
     MSUF_CallIndicatorRefresh(spec)
-end
-
+ end
     local function MSUF_BindIndicatorResetButton(btn, rowId)
-        if not btn then return end
+        if not btn then  return end
         btn:SetScript("OnClick", function()
             MSUF_ResetIndicatorRow(rowId)
-        end)
-    end
-
+         end)
+     end
     for _, rowId in ipairs(MSUF_INDICATOR_ORDER) do
         local spec = INDICATOR_SPECS[rowId]
         if spec and spec.resetBtn then
             MSUF_BindIndicatorResetButton(panel[spec.resetBtn], rowId)
         end
     end
-
 -- Bind all indicator-row controls from a single spec table
 local function MSUF_BindIndicatorRow(spec)
-    if not spec then return end
-
+    if not spec then  return end
     local function AllowedNow()
         local _, _, key = MSUF_GetIndicatorConfAndGeneral()
-        if spec.allowed and (not spec.allowed(key)) then return false end
-        return true
+        if spec.allowed and (not spec.allowed(key)) then  return false end
+         return true
     end
-
     local function Refresh()
         MSUF_CallIndicatorRefresh(spec)
-    end
-
+     end
     -- Checkbox
     if spec.showCB and panel[spec.showCB] and spec.showField then
         local cb = panel[spec.showCB]
         cb:SetScript("OnClick", function(self)
-            if not IsFramesTab() then return end
-            if not AllowedNow() then return end
-
+            if not IsFramesTab() then  return end
+            if not AllowedNow() then  return end
             local conf, _, key = MSUF_GetIndicatorConfAndGeneral()
             conf[spec.showField] = self:GetChecked() and true or false
-
             Refresh()
             -- Best-effort: immediately refresh current unitframe if present (coalesced)
             local uf = _G and (_G.MSUF_UnitFrames or _G.UnitFrames)
@@ -3209,133 +2789,103 @@ local function MSUF_BindIndicatorRow(spec)
             elseif fr and type(_G.UpdateSimpleUnitFrame) == "function" then
                 _G.UpdateSimpleUnitFrame(fr)
             end
-        end)
-        cb:HookScript("OnShow", function() MSUF_ApplyIndicatorUI(spec) end)
+         end)
+        cb:HookScript("OnShow", function()  MSUF_ApplyIndicatorUI(spec)  end)
     end
-
     -- Steppers (offsets)
     local function BindStepper(stepperName, fieldName, defaultVal)
-        if not stepperName or not fieldName then return end
+        if not stepperName or not fieldName then  return end
         local st = panel[stepperName]
-        if not st then return end
-
+        if not st then  return end
         st.onValueChanged = function(_, v)
-            if not IsFramesTab() then return end
-            if not AllowedNow() then return end
+            if not IsFramesTab() then  return end
+            if not AllowedNow() then  return end
             local conf = MSUF_GetIndicatorConfAndGeneral()
             conf[fieldName] = tonumber(v) or (defaultVal or 0)
             Refresh()
-        end
-
-        st:SetScript("OnShow", function() MSUF_ApplyIndicatorUI(spec) end)
-    end
-
+         end
+        st:SetScript("OnShow", function()  MSUF_ApplyIndicatorUI(spec)  end)
+     end
     BindStepper(spec.xStepper, spec.xField, spec.xDefault)
     BindStepper(spec.yStepper, spec.yField, spec.yDefault)
-
-    
     -- Dropdown (anchor)
     if spec.anchorDrop and panel[spec.anchorDrop] and spec.anchorField and UIDropDownMenu_Initialize then
         local drop = panel[spec.anchorDrop]
-
         UIDropDownMenu_Initialize(drop, function(self, level)
-            if not level or level ~= 1 then return end
-            if not AllowedNow() then return end
-
+            if not level or level ~= 1 then  return end
+            if not AllowedNow() then  return end
             local function GetCurrent()
                 local conf, g = MSUF_GetIndicatorConfAndGeneral()
                 return MSUF_ReadString(conf, g, spec.anchorField, spec.anchorDefault)
             end
-
             local function IsChecked(v)
                 return (GetCurrent() == v)
             end
-
             local function OnSelect(btn, value, textLabel)
-                if not IsFramesTab() then return end
-
+                if not IsFramesTab() then  return end
                 local conf2, _, key2 = MSUF_GetIndicatorConfAndGeneral()
-                if spec.allowed and (not spec.allowed(key2)) then return end
-
+                if spec.allowed and (not spec.allowed(key2)) then  return end
                 local v = (btn and btn.value) or value or spec.anchorDefault
                 conf2[spec.anchorField] = v
-
                 if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(drop, v) end
                 if UIDropDownMenu_SetText then
                     -- Prefer spec.anchorText() for consistent labels, but fall back to the item label.
                     local label = (spec.anchorText and spec.anchorText(v)) or textLabel or tostring(v)
                     UIDropDownMenu_SetText(drop, label)
                 end
-
                 if CloseDropDownMenus then CloseDropDownMenus() end
-
                 -- Live-apply
                 Refresh()
-            end
-
+             end
             for _, pair in ipairs(spec.anchorChoices or {}) do
                 local textLabel, value = pair[1], pair[2]
                 local info = UIDropDownMenu_CreateInfo()
                 info.text  = textLabel
                 info.value = value
-                info.func  = function(btn) OnSelect(btn, value, textLabel) end
-                info.checked = function() return IsChecked(value) end
+                info.func  = function(btn)  OnSelect(btn, value, textLabel)  end
+                info.checked = function()  return IsChecked(value) end
                 info.isNotRadio = false
                 UIDropDownMenu_AddButton(info, level)
             end
-        end)
-
-        drop:SetScript("OnShow", function() MSUF_ApplyIndicatorUI(spec) end)
+         end)
+        drop:SetScript("OnShow", function()  MSUF_ApplyIndicatorUI(spec)  end)
     end
-
-
     -- Dropdown (icon symbol - dummy, wired for DB storage)
     if spec.iconDrop and panel[spec.iconDrop] and spec.iconField and UIDropDownMenu_Initialize then
         local drop2 = panel[spec.iconDrop]
-
         UIDropDownMenu_Initialize(drop2, function(self, level)
-            if not level or level ~= 1 then return end
-            if not AllowedNow() then return end
-
+            if not level or level ~= 1 then  return end
+            if not AllowedNow() then  return end
             local function GetCurrent()
                 local conf3, g3 = MSUF_GetIndicatorConfAndGeneral()
                 return MSUF_ReadString(conf3, g3, spec.iconField, spec.iconDefault)
             end
-
             local function IsChecked(v)
                 return (GetCurrent() == v)
             end
-
             local function OnSelect(btn, value, textLabel)
-                if not IsFramesTab() then return end
-
+                if not IsFramesTab() then  return end
                 local conf4, _, key4 = MSUF_GetIndicatorConfAndGeneral()
-                if spec.allowed and (not spec.allowed(key4)) then return end
-
+                if spec.allowed and (not spec.allowed(key4)) then  return end
                 local v = (btn and btn.value) or value or spec.iconDefault
                 conf4[spec.iconField] = v
-
                 if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(drop2, v) end
                 if UIDropDownMenu_SetText then
                     local label = (spec.iconText and spec.iconText(v)) or textLabel or tostring(v)
                     UIDropDownMenu_SetText(drop2, label)
                 end
-
                 if CloseDropDownMenus then CloseDropDownMenus() end
                 Refresh()
-            end
-
+             end
             local _choices = spec.iconChoices
             if type(_choices) == "function" then
                 _choices = _choices()
             end
-
             for _, pair in ipairs(_choices or {}) do
                 local textLabel, value = pair[1], pair[2]
                 local info = UIDropDownMenu_CreateInfo()
                 info.text  = textLabel
                 info.value = value
-
                 -- Optional icon preview (used by Status icon symbols)
                 local tex = (type(MSUF_StatusIcon_GetSymbolTexture) == "function") and MSUF_StatusIcon_GetSymbolTexture(value) or nil
                 if tex then
@@ -3347,42 +2897,30 @@ local function MSUF_BindIndicatorRow(spec)
                         tFitDropDownSizeX = true,
                     }
                 end
-
-                info.func  = function(btn) OnSelect(btn, value, textLabel) end
-                info.checked = function() return IsChecked(value) end
+                info.func  = function(btn)  OnSelect(btn, value, textLabel)  end
+                info.checked = function()  return IsChecked(value) end
                 info.isNotRadio = false
                 UIDropDownMenu_AddButton(info, level)
             end
-        end)
-
-        drop2:SetScript("OnShow", function() MSUF_ApplyIndicatorUI(spec) end)
+         end)
+        drop2:SetScript("OnShow", function()  MSUF_ApplyIndicatorUI(spec)  end)
     end
-
-
-
     -- Numeric edit box (size)
     if spec.sizeEdit and panel[spec.sizeEdit] and spec.sizeField then
         local edit = panel[spec.sizeEdit]
-
         local function ApplySize()
-            if not IsFramesTab() then return end
-            if not AllowedNow() then return end
-
+            if not IsFramesTab() then  return end
+            if not AllowedNow() then  return end
             local conf, g = MSUF_GetIndicatorConfAndGeneral()
-
             local v = tonumber(edit:GetText())
             if not v then
                 v = MSUF_ReadNumber(conf, g, spec.sizeField, spec.sizeDefault or 14)
             end
-
             v = math.floor((tonumber(v) or (spec.sizeDefault or 14)) + 0.5)
             if v < 8 then v = 8 end
             if v > 64 then v = 64 end
-
             conf[spec.sizeField] = v
             MSUF_SetNumericEditBoxValue(edit, v)
-
-
             -- Level size changes need a font refresh (otherwise it looks like the size box "does nothing").
             if spec.id == "level" then
                 if type(_G.MSUF_UpdateAllFonts_Immediate) == "function" then
@@ -3392,7 +2930,6 @@ local function MSUF_BindIndicatorRow(spec)
                 elseif type(_G.UpdateAllFonts) == "function" then
                     _G.UpdateAllFonts()
                 end
-
                 -- Also poke the current unitframe to ensure immediate visual sync.
                 local _, _, _key = MSUF_GetIndicatorConfAndGeneral()
                 local uf = _G and (_G.MSUF_UnitFrames or _G.UnitFrames)
@@ -3404,12 +2941,11 @@ local function MSUF_BindIndicatorRow(spec)
                 end
             end
             Refresh()
-        end
-
-        edit:SetScript("OnEnterPressed", function(self) ApplySize(); self:ClearFocus() end)
-        edit:SetScript("OnEditFocusLost", function(self) ApplySize() end)
+         end
+        edit:SetScript("OnEnterPressed", function(self)  ApplySize(); self:ClearFocus()  end)
+        edit:SetScript("OnEditFocusLost", function(self)  ApplySize()  end)
         edit:SetScript("OnTextChanged", function(self, userInput)
-            if not userInput then return end
+            if not userInput then  return end
             self._msufIndSizeSeq = (self._msufIndSizeSeq or 0) + 1
             local seq = self._msufIndSizeSeq
             if C_Timer and C_Timer.After then
@@ -3417,25 +2953,84 @@ local function MSUF_BindIndicatorRow(spec)
                     if self._msufIndSizeSeq == seq and self:HasFocus() then
                         ApplySize()
                     end
-                end)
+                 end)
             end
-        end)
-        edit:HookScript("OnShow", function() MSUF_ApplyIndicatorUI(spec) end)
+         end)
+        edit:HookScript("OnShow", function()  MSUF_ApplyIndicatorUI(spec)  end)
     end
-end
-
+ end
 for _, rowId in ipairs(MSUF_INDICATOR_ORDER) do
     MSUF_BindIndicatorRow(INDICATOR_SPECS[rowId])
 end
 
+-- Pet-only: "寵物框架位置至" dropdown (Indicator box)
+if panel.petAnchorToDD and UIDropDownMenu_Initialize then
+    local drop = panel.petAnchorToDD
+    local function GetEffectiveValue(conf)
+        local v = conf and conf.anchorToUnitframe
+        if v == "player" or v == "target" then
+            return v
+        end
+        -- Treat nil/"GLOBAL"/unknown as global anchor.
+        return "GLOBAL"
+    end
+    local function TextFor(v)
+        if v == "player" then return "玩家框架" end
+        if v == "target" then return "目標框架" end
+        return "自由 (整體位置)"
+    end
+    UIDropDownMenu_Initialize(drop, function(self, level)
+        if not level or level ~= 1 then  return end
+        if not IsFramesTab() then  return end
+        local k = (CurrentKey and CurrentKey()) or "player"
+        if k == "tot" then k = "targettarget" end
+        if k ~= "pet" then  return end
+
+        local conf = EnsureKeyDB()
+        local cur = GetEffectiveValue(conf)
+        local choices = {
+            {"自由 (整體位置)", "GLOBAL"},
+            {"玩家框架", "player"},
+            {"目標框架", "target"},
+        }
+        for _, pair in ipairs(choices) do
+            local textLabel, value = pair[1], pair[2]
+            local info = UIDropDownMenu_CreateInfo()
+            info.text = textLabel
+            info.value = value
+            info.func = function()
+                if not IsFramesTab() then  return end
+                local conf2 = EnsureKeyDB()
+                conf2.anchorToUnitframe = value
+                if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(drop, value) end
+                if UIDropDownMenu_SetText then UIDropDownMenu_SetText(drop, textLabel) end
+                if CloseDropDownMenus then CloseDropDownMenus() end
+                -- Apply immediately (PositionUnitFrame uses this field for pet).
+                ApplyCurrent()
+            end
+            info.checked = function()  return (GetEffectiveValue(conf) == value) end
+            info.isNotRadio = false
+            UIDropDownMenu_AddButton(info, level)
+        end
+    end)
+
+    drop:HookScript("OnShow", function()
+        if not IsFramesTab() then  return end
+        local k = (CurrentKey and CurrentKey()) or "player"
+        if k == "tot" then k = "targettarget" end
+        if k ~= "pet" then  return end
+        local conf = EnsureKeyDB()
+        local v = GetEffectiveValue(conf)
+        if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(drop, v) end
+        if UIDropDownMenu_SetText then UIDropDownMenu_SetText(drop, TextFor(v)) end
+    end)
+end
 
 -- Status icons (Step 1): Combat row uses indicator-style controls (player/target)
 _G.MSUF_RequestStatusCombatIndicatorRefresh = _G.MSUF_RequestStatusCombatIndicatorRefresh or function()
     ApplyLayoutCurrent("STATUSICON_COMBAT")
-
     local _, _, key = MSUF_GetIndicatorConfAndGeneral()
-    if not (key == "player" or key == "target") then return end
-
+    if not (key == "player" or key == "target") then  return end
     local uf = _G and (_G.MSUF_UnitFrames or _G.UnitFrames)
     local fr = (uf and key) and uf[key] or nil
     if fr and type(_G.MSUF_RequestUnitframeUpdate) == "function" then
@@ -3443,84 +3038,68 @@ _G.MSUF_RequestStatusCombatIndicatorRefresh = _G.MSUF_RequestStatusCombatIndicat
     elseif fr and type(_G.UpdateSimpleUnitFrame) == "function" then
         pcall(_G.UpdateSimpleUnitFrame, fr, true)
     end
-end
-
+ end
 local function MSUF_BuildStatusCombatSpec()
     local spec = {}
     spec.id = "status_combat"
     spec.order = 100
-    spec.allowed = function(key) return (key == "player" or key == "target") end
-
+    spec.allowed = function(key)  return (key == "player" or key == "target") end
     spec.showCB = "statusCombatIconCB"
     spec.showField = "showCombatStateIndicator"
     spec.showDefault = true
-
     spec.xStepper = "statusCombatOffsetXStepper"
     spec.xField = "combatStateIndicatorOffsetX"
     spec.xDefault = 0
-
     spec.yStepper = "statusCombatOffsetYStepper"
     spec.yField = "combatStateIndicatorOffsetY"
     spec.yDefault = 0
-
     spec.anchorDrop = "statusCombatAnchorDrop"
     spec.anchorLabel = "statusCombatAnchorLabel"
     spec.anchorField = "combatStateIndicatorAnchor"
     spec.anchorDefault = "TOPLEFT"
-    spec.anchorText = function(v) return MSUF_LeaderAnchorText(v) end
+    spec.anchorText = function(v)  return MSUF_LeaderAnchorText(v) end
     spec.anchorChoices = {
         { MSUF_LeaderAnchorText("TOPLEFT"), "TOPLEFT" },
         { MSUF_LeaderAnchorText("TOPRIGHT"), "TOPRIGHT" },
         { MSUF_LeaderAnchorText("BOTTOMLEFT"), "BOTTOMLEFT" },
         { MSUF_LeaderAnchorText("BOTTOMRIGHT"), "BOTTOMRIGHT" },
     }
-
     spec.sizeEdit = "statusCombatSizeEdit"
     spec.sizeLabel = "statusCombatSizeLabel"
     spec.sizeField = "combatStateIndicatorSize"
     spec.sizeDefault = 18
-
     spec.iconDrop = "statusCombatSymbolDrop"
     spec.iconLabel = "statusCombatSymbolLabel"
     spec.iconField = "combatStateIndicatorSymbol"
     spec.iconDefault = "DEFAULT"
     spec.iconText = MSUF_StatusIcon_SymbolText
     spec.iconChoices = MSUF_StatusIcon_GetSymbolChoices
-
     spec.divider = "statusCombatGroupDivider"
     spec.resetBtn = "statusCombatResetBtn"
     spec.refreshFnName = "MSUF_RequestStatusCombatIndicatorRefresh"
-    return spec
+     return spec
 end
-
 local STATUSICON_COMBAT_SPEC = MSUF_BuildStatusCombatSpec()
-
 MSUF_BindIndicatorRow(STATUSICON_COMBAT_SPEC)
-
 -- Reset button: X/Y/Anchor/Size back to global defaults
 if panel.statusCombatResetBtn then
     panel.statusCombatResetBtn:SetScript("OnClick", function()
-        if not IsFramesTab() then return end
+        if not IsFramesTab() then  return end
         local conf, _, key = MSUF_GetIndicatorConfAndGeneral()
-        if not (key == "player" or key == "target") then return end
-
+        if not (key == "player" or key == "target") then  return end
         conf.combatStateIndicatorOffsetX = nil
         conf.combatStateIndicatorOffsetY = nil
         conf.combatStateIndicatorAnchor  = nil
         conf.combatStateIndicatorSize    = nil
-
         MSUF_ApplyIndicatorUI(STATUSICON_COMBAT_SPEC)
         MSUF_CallIndicatorRefresh(STATUSICON_COMBAT_SPEC)
-    end)
+     end)
 end
-
 -- Status icons (Step 2): Rested row uses indicator-style controls (player only)
 _G.MSUF_RequestStatusRestingIndicatorRefresh = _G.MSUF_RequestStatusRestingIndicatorRefresh or function()
     ApplyLayoutCurrent("STATUSICON_RESTED")
-
     local _, _, key = MSUF_GetIndicatorConfAndGeneral()
-    if key ~= "player" then return end
-
+    if key ~= "player" then  return end
     local uf = _G and (_G.MSUF_UnitFrames or _G.UnitFrames)
     local fr = (uf and "player") and uf["player"] or nil
     if fr and type(_G.MSUF_RequestUnitframeUpdate) == "function" then
@@ -3528,85 +3107,69 @@ _G.MSUF_RequestStatusRestingIndicatorRefresh = _G.MSUF_RequestStatusRestingIndic
     elseif fr and type(_G.UpdateSimpleUnitFrame) == "function" then
         pcall(_G.UpdateSimpleUnitFrame, fr, true)
     end
-end
-
+ end
 local function MSUF_BuildStatusRestedSpec()
     local spec = {}
     spec.id = "status_rested"
     spec.order = 110
-    spec.allowed = function(key) return (key == "player") end -- player only
-
+    spec.allowed = function(key)  return (key == "player") end -- player only
     spec.showCB = "statusRestingIconCB"
     spec.showField = "showRestingIndicator"
     spec.showDefault = false
-
     spec.xStepper = "statusRestingOffsetXStepper"
     spec.xField = "restedStateIndicatorOffsetX"
     spec.xDefault = 0
-
     spec.yStepper = "statusRestingOffsetYStepper"
     spec.yField = "restedStateIndicatorOffsetY"
     spec.yDefault = 0
-
     spec.anchorDrop = "statusRestingAnchorDrop"
     spec.anchorLabel = "statusRestingAnchorLabel"
     spec.anchorField = "restedStateIndicatorAnchor"
     spec.anchorDefault = "TOPLEFT"
-    spec.anchorText = function(v) return MSUF_LeaderAnchorText(v) end
+    spec.anchorText = function(v)  return MSUF_LeaderAnchorText(v) end
     spec.anchorChoices = {
         { MSUF_LeaderAnchorText("TOPLEFT"), "TOPLEFT" },
         { MSUF_LeaderAnchorText("TOPRIGHT"), "TOPRIGHT" },
         { MSUF_LeaderAnchorText("BOTTOMLEFT"), "BOTTOMLEFT" },
         { MSUF_LeaderAnchorText("BOTTOMRIGHT"), "BOTTOMRIGHT" },
     }
-
     spec.sizeEdit = "statusRestingSizeEdit"
     spec.sizeLabel = "statusRestingSizeLabel"
     spec.sizeField = "restedStateIndicatorSize"
     spec.sizeDefault = 18
-
     spec.iconDrop = "statusRestingSymbolDrop"
     spec.iconLabel = "statusRestingSymbolLabel"
     spec.iconField = "restedStateIndicatorSymbol"
     spec.iconDefault = "DEFAULT"
     spec.iconText = MSUF_StatusIcon_SymbolText
     spec.iconChoices = MSUF_StatusIcon_GetRestedSymbolChoices
-
     spec.divider = "statusRestingGroupDivider"
     spec.resetBtn = "statusRestingResetBtn"
     spec.refreshFnName = "MSUF_RequestStatusRestingIndicatorRefresh"
-    return spec
+     return spec
 end
-
 local STATUSICON_RESTING_SPEC = MSUF_BuildStatusRestedSpec()
-
 MSUF_BindIndicatorRow(STATUSICON_RESTING_SPEC)
-
 -- Reset button: X/Y/Anchor/Size back to global defaults
 if panel.statusRestingResetBtn then
     panel.statusRestingResetBtn:SetScript("OnClick", function()
-        if not IsFramesTab() then return end
+        if not IsFramesTab() then  return end
         local conf, _, key = MSUF_GetIndicatorConfAndGeneral()
-        if key ~= "player" then return end
-
+        if key ~= "player" then  return end
         conf.restedStateIndicatorOffsetX = nil
         conf.restedStateIndicatorOffsetY = nil
         conf.restedStateIndicatorAnchor  = nil
         conf.restedStateIndicatorSize    = nil
-
         conf.restedStateIndicatorSymbol  = nil
         MSUF_ApplyIndicatorUI(STATUSICON_RESTING_SPEC)
         MSUF_CallIndicatorRefresh(STATUSICON_RESTING_SPEC)
-    end)
+     end)
 end
-
 -- Status icons (Step 3): Incoming Rez row uses indicator-style controls (player/target)
 _G.MSUF_RequestStatusIncomingResIndicatorRefresh = _G.MSUF_RequestStatusIncomingResIndicatorRefresh or function()
     ApplyLayoutCurrent("STATUSICON_INCOMINGRES")
-
     local _, _, key = MSUF_GetIndicatorConfAndGeneral()
-    if not (key == "player" or key == "target") then return end
-
+    if not (key == "player" or key == "target") then  return end
     local uf = _G and (_G.MSUF_UnitFrames or _G.UnitFrames)
     local fr = (uf and key) and uf[key] or nil
     if fr and type(_G.MSUF_RequestUnitframeUpdate) == "function" then
@@ -3614,83 +3177,68 @@ _G.MSUF_RequestStatusIncomingResIndicatorRefresh = _G.MSUF_RequestStatusIncoming
     elseif fr and type(_G.UpdateSimpleUnitFrame) == "function" then
         pcall(_G.UpdateSimpleUnitFrame, fr, true)
     end
-end
-
+ end
 local function MSUF_BuildStatusIncomingResSpec()
     local spec = {}
     spec.id = "status_incoming_res"
     spec.order = 120
-    spec.allowed = function(key) return (key == "player" or key == "target") end
-
+    spec.allowed = function(key)  return (key == "player" or key == "target") end
     spec.showCB = "statusIncomingResIconCB"
     spec.showField = "showIncomingResIndicator"
     spec.showDefault = true
-
     spec.xStepper = "statusIncomingResOffsetXStepper"
     spec.xField = "incomingResIndicatorOffsetX"
     spec.xDefault = 0
-
     spec.yStepper = "statusIncomingResOffsetYStepper"
     spec.yField = "incomingResIndicatorOffsetY"
     spec.yDefault = 0
-
     spec.anchorDrop = "statusIncomingResAnchorDrop"
     spec.anchorLabel = "statusIncomingResAnchorLabel"
     spec.anchorField = "incomingResIndicatorAnchor"
     spec.anchorDefault = "TOPLEFT"
-    spec.anchorText = function(v) return MSUF_LeaderAnchorText(v) end
+    spec.anchorText = function(v)  return MSUF_LeaderAnchorText(v) end
     spec.anchorChoices = {
         { MSUF_LeaderAnchorText("TOPLEFT"), "TOPLEFT" },
         { MSUF_LeaderAnchorText("TOPRIGHT"), "TOPRIGHT" },
         { MSUF_LeaderAnchorText("BOTTOMLEFT"), "BOTTOMLEFT" },
         { MSUF_LeaderAnchorText("BOTTOMRIGHT"), "BOTTOMRIGHT" },
     }
-
     spec.sizeEdit = "statusIncomingResSizeEdit"
     spec.sizeLabel = "statusIncomingResSizeLabel"
     spec.sizeField = "incomingResIndicatorSize"
     spec.sizeDefault = 18
-
     spec.iconDrop = "statusIncomingResSymbolDrop"
     spec.iconLabel = "statusIncomingResSymbolLabel"
     spec.iconField = "incomingResIndicatorSymbol"
     spec.iconDefault = "DEFAULT"
     spec.iconText = MSUF_StatusIcon_SymbolText
     spec.iconChoices = MSUF_StatusIcon_GetRessSymbolChoices
-
     spec.divider = "statusIncomingResGroupDivider"
     spec.resetBtn = "statusIncomingResResetBtn"
     spec.refreshFnName = "MSUF_RequestStatusIncomingResIndicatorRefresh"
-    return spec
+     return spec
 end
-
 local STATUSICON_INCOMINGRES_SPEC = MSUF_BuildStatusIncomingResSpec()
-
 MSUF_BindIndicatorRow(STATUSICON_INCOMINGRES_SPEC)
-
 -- Reset button: X/Y/Anchor/Size back to global defaults
 if panel.statusIncomingResResetBtn then
     panel.statusIncomingResResetBtn:SetScript("OnClick", function()
-        if not IsFramesTab() then return end
+        if not IsFramesTab() then  return end
         local conf, _, key = MSUF_GetIndicatorConfAndGeneral()
-        if not (key == "player" or key == "target") then return end
-
+        if not (key == "player" or key == "target") then  return end
         conf.incomingResIndicatorOffsetX = nil
         conf.incomingResIndicatorOffsetY = nil
         conf.incomingResIndicatorAnchor  = nil
         conf.incomingResIndicatorSize    = nil
-
         MSUF_ApplyIndicatorUI(STATUSICON_INCOMINGRES_SPEC)
         MSUF_CallIndicatorRefresh(STATUSICON_INCOMINGRES_SPEC)
-    end)
+     end)
 end
-
 -- Status icons (Combat / Rested / Incoming Rez) per-unit overrides
 local function MSUF_ApplyStatusIconsUI()
-    if not IsFramesTab() then return end
+    if not IsFramesTab() then  return end
     local conf, g, key = MSUF_GetIndicatorConfAndGeneral()
-    if not (key == "player" or key == "target") then return end
-
+    if not (key == "player" or key == "target") then  return end
     -- Combat row uses indicator-style controls (Step 1)
     if STATUSICON_COMBAT_SPEC then
         MSUF_ApplyIndicatorUI(STATUSICON_COMBAT_SPEC)
@@ -3703,7 +3251,6 @@ local function MSUF_ApplyStatusIconsUI()
     elseif panel.statusRestingIconCB then
         panel.statusRestingIconCB:SetChecked(MSUF_ReadBool(conf, g, "showRestingIndicator", true))
     end
-
     if STATUSICON_INCOMINGRES_SPEC then
         MSUF_ApplyIndicatorUI(STATUSICON_INCOMINGRES_SPEC)
     elseif panel.statusIncomingResIconCB then
@@ -3712,12 +3259,10 @@ local function MSUF_ApplyStatusIconsUI()
     if panel.statusIconsTestModeCB then
         panel.statusIconsTestModeCB:SetChecked((type(g) == "table" and g.stateIconsTestMode == true) or false)
     end
-
     if panel.statusIconsStyleCB then
         panel.statusIconsStyleCB:SetChecked(MSUF_GetStatusIconStyleUseMidnight())
     end
-end
-
+ end
 local function MSUF_RequestStatusIconRefresh(key)
     ApplyLayoutCurrent("STATUSICON_TOGGLE")
     local uf = _G and (_G.MSUF_UnitFrames or _G.UnitFrames)
@@ -3727,61 +3272,51 @@ local function MSUF_RequestStatusIconRefresh(key)
     elseif fr and type(_G.UpdateSimpleUnitFrame) == "function" then
         _G.UpdateSimpleUnitFrame(fr)
     end
-end
-
+ end
 local function MSUF_BindStatusIconToggle(cb, field, allowedKey)
-    if not cb then return end
-
+    if not cb then  return end
     -- Store on the widget itself so we can't accidentally capture the wrong key if this gets
     -- rebound/reused by future refactors.
     cb._msufStatusField = field
     cb._msufStatusAllowedKey = allowedKey
-
     cb:SetScript("OnClick", function(self, button)
-        if not IsFramesTab() then return end
+        if not IsFramesTab() then  return end
         local conf, _, key = MSUF_GetIndicatorConfAndGeneral()
         local fieldName = self._msufStatusField
         local allowKey  = self._msufStatusAllowedKey
-
         if allowKey and key ~= allowKey then
             -- For player-only toggles (Rested), ignore clicks on other tabs.
             MSUF_ApplyStatusIconsUI()
-            return
+             return
         end
-
         if type(fieldName) ~= "string" or fieldName == "" then
-            return
+             return
         end
-
         if button == "RightButton" then
             conf[fieldName] = nil -- reset to global
         else
             conf[fieldName] = self:GetChecked() and true or false
         end
-
         MSUF_ApplyStatusIconsUI()
         MSUF_RequestStatusIconRefresh(key)
-    end)
-
+     end)
     cb:HookScript("OnShow", MSUF_ApplyStatusIconsUI)
     cb:HookScript("OnEnter", function(self)
         if GameTooltip then
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-            GameTooltip:SetText("Status icon")
-            GameTooltip:AddLine("左鍵點擊: 設定此框架", 1, 1, 1)
-            GameTooltip:AddLine("右鍵點擊: 重置為全域設定", 1, 1, 1)
+            GameTooltip:SetText(TR("狀態圖示"))
+            GameTooltip:AddLine("左鍵點擊：設定此框架覆蓋", 1, 1, 1)
+            GameTooltip:AddLine("右鍵點擊：重置為整體設定", 1, 1, 1)
             GameTooltip:Show()
         end
-    end)
-    cb:HookScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
-end
-
+     end)
+    cb:HookScript("OnLeave", function()  if GameTooltip then GameTooltip:Hide() end  end)
+ end
 -- Combat row is bound via MSUF_BindIndicatorRow(STATUSICON_COMBAT_SPEC) (Step 1)
 -- MSUF_BindStatusIconToggle(panel.statusCombatIconCB, "showCombatStateIndicator", nil)
 -- Rested row is bound via MSUF_BindIndicatorRow(STATUSICON_RESTING_SPEC) (Step 2)
 -- MSUF_BindStatusIconToggle(panel.statusRestingIconCB, "showRestingIndicator", "player")
 -- Incoming Rez row is bound via MSUF_BindIndicatorRow(STATUSICON_INCOMINGRES_SPEC) (Step 3)
-
 -- Shared test mode toggle (sync between Player/Target pages + Edit Mode preview checkbox)
 if panel.statusIconsTestModeCB then
     panel.statusIconsTestModeCB:SetScript("OnClick", function(self)
@@ -3792,28 +3327,24 @@ if panel.statusIconsTestModeCB then
             MSUF_DB.general = MSUF_DB.general or {}
             MSUF_DB.general.stateIconsTestMode = self:GetChecked() and true or false
         end
-
         MSUF_ApplyStatusIconsUI()
-
         -- Force-refresh both frames so previews update immediately.
         for _, k in ipairs({ "player", "target" }) do
             MSUF_RequestStatusIconRefresh(k)
         end
-    end)
-
+     end)
     panel.statusIconsTestModeCB:HookScript("OnShow", MSUF_ApplyStatusIconsUI)
     panel.statusIconsTestModeCB:HookScript("OnEnter", function(self)
         if GameTooltip then
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-            GameTooltip:SetText("狀態圖示測試模式")
-            GameTooltip:AddLine("即使實際狀態未啟用，也會顯示啟用的狀態圖示。", 1, 1, 1)
-            GameTooltip:AddLine("這對於定位/偏移測試很有用。", 1, 1, 1)
+            GameTooltip:SetText(TR("狀態圖示測試模式"))
+            GameTooltip:AddLine("即使實際狀態未作用，也顯示已啟用的狀態圖示。", 1, 1, 1)
+            GameTooltip:AddLine("用於測試位置/偏移。", 1, 1, 1)
             GameTooltip:Show()
         end
-    end)
-    panel.statusIconsTestModeCB:HookScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
+     end)
+    panel.statusIconsTestModeCB:HookScript("OnLeave", function()  if GameTooltip then GameTooltip:Hide() end  end)
 end
-
 -- Ensure setter exists (some patches call this as a global helper).
 if type(_G.MSUF_SetStatusIconStyleUseMidnight) ~= "function" then
     function _G.MSUF_SetStatusIconStyleUseMidnight(useMidnight)
@@ -3821,10 +3352,9 @@ if type(_G.MSUF_SetStatusIconStyleUseMidnight) ~= "function" then
             _G.EnsureDB()
         end
         local db = _G.MSUF_DB
-        if type(db) ~= "table" then return end
+        if type(db) ~= "table" then  return end
         if type(db.general) ~= "table" then db.general = {} end
         db.general.statusIconsUseMidnightStyle = (useMidnight == true)
-
         -- Refresh player/target so icons update immediately.
         if type(_G.MSUF_UnitFrames) == "table" and type(_G.UpdateSimpleUnitFrame) == "function" then
             for _, k in ipairs({ "player", "target" }) do
@@ -3834,37 +3364,28 @@ if type(_G.MSUF_SetStatusIconStyleUseMidnight) ~= "function" then
                 end
             end
         end
-
         if type(_G.MSUF_RequestStatusIconsRefreshForCurrent) == "function" then
             pcall(_G.MSUF_RequestStatusIconsRefreshForCurrent)
         end
-    end
+     end
 end
-
 -- Local alias for convenience (older code calls without _G prefix)
 MSUF_SetStatusIconStyleUseMidnight = _G.MSUF_SetStatusIconStyleUseMidnight
-
 -- Global icon style toggle (Classic vs Midnight) affects the symbol dropdown icon previews.
 if panel.statusIconsStyleCB then
     panel.statusIconsStyleCB:SetScript("OnClick", function(self)
         local useMidnight = self:GetChecked() and true or false
         MSUF_SetStatusIconStyleUseMidnight(useMidnight)
-
         -- Re-apply UI so dropdown texts sync (and the checkbox stays consistent on both pages).
         MSUF_ApplyStatusIconsUI()
-
         -- Refresh both frames so any live symbol render (when implemented) will update immediately.
         for _, k in ipairs({ "player", "target" }) do
             MSUF_RequestStatusIconRefresh(k)
         end
-    end)
+     end)
 end
-
-
-
 -- Allow other UI locations (Edit Mode checkbox) to request a live refresh of this section.
 _G.MSUF_RefreshStatusIconsOptionsUI = MSUF_ApplyStatusIconsUI
-
 -- ToT inline-in-Target toggle (stored under MSUF_DB.targettarget)
 if panel.totShowInTargetCB then
     panel.totShowInTargetCB:SetScript("OnClick", function(self)
@@ -3876,7 +3397,6 @@ if panel.totShowInTargetCB then
         if type(_G.MSUF_UpdateTargetToTInlineNow) == "function" then
             _G.MSUF_UpdateTargetToTInlineNow()
         end
-
         -- Keep separator dropdown greyed/active in sync with the toggle.
         if panel.totInlineSeparatorDD then
             local enabled = (MSUF_DB and MSUF_DB.targettarget and MSUF_DB.targettarget.showToTInTargetName == true)
@@ -3887,16 +3407,14 @@ if panel.totShowInTargetCB then
                 if (not enabled) and panel.totInlineSeparatorDD.Button.Disable then panel.totInlineSeparatorDD.Button:Disable() end
             end
         end
-    end)
+     end)
 end
-
 -- ToT-inline separator dropdown (target-only).
 if panel.totInlineSeparatorDD and UIDropDownMenu_Initialize then
     local drop = panel.totInlineSeparatorDD
-
     local function EnsureToTConf()
         EnsureDB()
-        if not MSUF_DB then return nil end
+        if not MSUF_DB then  return nil end
         if type(MSUF_DB.targettarget) ~= "table" then MSUF_DB.targettarget = {} end
         -- Migration fallback: some older builds may have stored the value under target.
         if MSUF_DB.targettarget.totInlineSeparator == nil and type(MSUF_DB.target) == "table" and type(MSUF_DB.target.totInlineSeparator) == "string" then
@@ -3905,31 +3423,26 @@ if panel.totInlineSeparatorDD and UIDropDownMenu_Initialize then
         MSUF_DB.targettarget.totInlineSeparator = MSUF_ToTInlineSepTokenText(MSUF_DB.targettarget.totInlineSeparator)
         return MSUF_DB.targettarget
     end
-
     local function OnSelect(btn, arg1)
         local conf = EnsureToTConf()
-        if not conf then return end
+        if not conf then  return end
         local value = (btn and btn.value) or arg1 or "|"
         value = MSUF_ToTInlineSepTokenText(value)
         conf.totInlineSeparator = value
-
         if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(drop, value) end
         if UIDropDownMenu_SetText then UIDropDownMenu_SetText(drop, value) end
         if CloseDropDownMenus then CloseDropDownMenus() end
-
         -- Targeted live refresh (coalesced entry point if available).
         if type(_G.MSUF_ToTInline_RequestRefresh) == "function" then
             _G.MSUF_ToTInline_RequestRefresh("TOTINLINE_SEP")
         elseif type(_G.MSUF_UpdateTargetToTInlineNow) == "function" then
             _G.MSUF_UpdateTargetToTInlineNow()
         end
-    end
-
+     end
     UIDropDownMenu_Initialize(drop, function(self, level)
-        if not level or level ~= 1 then return end
+        if not level or level ~= 1 then  return end
         local conf = EnsureToTConf()
         local cur = conf and conf.totInlineSeparator
-
         for _, opt in ipairs(MSUF_TOTINLINE_SEP_OPTIONS) do
             local v = opt.value
             local info = UIDropDownMenu_CreateInfo()
@@ -3937,83 +3450,74 @@ if panel.totInlineSeparatorDD and UIDropDownMenu_Initialize then
             info.value = v
             info.arg1 = v
             info.func = OnSelect
-            info.checked = function() return (cur == v) end
+            info.checked = function()  return (cur == v) end
             UIDropDownMenu_AddButton(info, level)
         end
-    end)
+     end)
 end
-
-
     -- Checkboxes
     local function HookCheck(cb, field)
-        if not cb then return end
+        if not cb then  return end
         cb:SetScript("OnClick", function(self)
-            if not IsFramesTab() then return end
+            if not IsFramesTab() then  return end
             local conf = EnsureKeyDB()
             conf[field] = self:GetChecked() and true or false
             ApplyCurrent()
             if type(_G.MSUF_SyncUnitPositionPopup) == "function" then
                 _G.MSUF_SyncUnitPositionPopup(CurrentKey(), conf)
             end
-        end)
-    end
-
+         end)
+     end
     local _basicChecks = {
         {"playerEnableFrameCB", "enabled"},
         {"playerShowNameCB",    "showName"},
         {"playerShowHPCB",      "showHP"},
         {"playerShowPowerCB",   "showPower"},
+        {"playerReverseFillBarsCB", "reverseFillBars"},
     }
     for i = 1, #_basicChecks do
         local wKey, field = _basicChecks[i][1], _basicChecks[i][2]
         HookCheck(panel[wKey], field)
     end
-
-
-    
 -- Castbar toggles (Enable / Time / Interrupt / Icon / Text)
 local function _MSUF_SetCastTimeTextVisible(bar, show)
-    if not bar or not bar.timeText then return end
+    if not bar or not bar.timeText then  return end
     if show then
         bar.timeText:Show()
         bar.timeText:SetAlpha(1)
     else
-        bar.timeText:SetText("")
+        bar.timeText:SetText(TR(""))
         bar.timeText:Show()
         bar.timeText:SetAlpha(0)
     end
-end
-
+ end
 local function _MSUF_ClearInterruptFeedback(bar)
-    if not bar or not bar.interruptFeedbackEndTime then return end
+    if not bar or not bar.interruptFeedbackEndTime then  return end
     bar.interruptFeedbackEndTime = nil
-    if bar.castText then bar.castText:SetText("") end
-    if bar.timeText then bar.timeText:SetText("") end
+    if bar.castText then bar.castText:SetText(TR("")) end
+    if bar.timeText then bar.timeText:SetText(TR("")) end
     bar:Hide()
-end
-
+ end
 local function _MSUF_ClearInterruptFeedback_Boss()
     local frames = _G.MSUF_BossCastbars
-    if not frames then return end
+    if not frames then  return end
     for i = 1, #frames do
         local b = frames[i]
         if b and b.interruptFeedbackEndTime then
             b.interruptFeedbackEndTime = nil
-            if b.castText then b.castText:SetText("") end
-            if b.timeText then b.timeText:SetText("") end
+            if b.castText then b.castText:SetText(TR("")) end
+            if b.timeText then b.timeText:SetText(TR("")) end
             b:Hide()
         end
     end
-end
-
+ end
 local function _MSUF_ForceRefreshCastbarIfCasting(bar, unitToken)
-    if not bar or not bar.Cast then return end
+    if not bar or not bar.Cast then  return end
     local casting = (UnitCastingInfo and UnitCastingInfo(unitToken)) or (UnitChannelInfo and UnitChannelInfo(unitToken))
     if casting then
         pcall(bar.Cast, bar)
     end
-end
-
+ end
 local CASTBAR_HANDLER_SPECS = {
     player = {
         requireKey = nil, -- keep legacy behavior (no CurrentKey check)
@@ -4022,9 +3526,9 @@ local CASTBAR_HANDLER_SPECS = {
         interruptW = "playerCastbarInterruptCB",
         iconW = "playerCastbarShowIconCB", iconK = "castbarPlayerShowIcon",
         textW = "playerCastbarShowTextCB", textK = "castbarPlayerShowSpellName",
-        bar = function() return _G.MSUF_PlayerCastbar end,
-        reanchor = function() if _G.MSUF_ReanchorPlayerCastBar then _G.MSUF_ReanchorPlayerCastBar() end end,
-        preview  = function() if _G.MSUF_PositionPlayerCastbarPreview then _G.MSUF_PositionPlayerCastbarPreview() end end,
+        bar = function()  return _G.MSUF_PlayerCastbar end,
+        reanchor = function()  if _G.MSUF_ReanchorPlayerCastBar then _G.MSUF_ReanchorPlayerCastBar() end  end,
+        preview  = function()  if _G.MSUF_PositionPlayerCastbarPreview then _G.MSUF_PositionPlayerCastbarPreview() end  end,
     },
     target = {
         requireKey = "target",
@@ -4033,9 +3537,9 @@ local CASTBAR_HANDLER_SPECS = {
         interruptW = "targetCastbarInterruptCB",
         iconW = "targetCastbarShowIconCB", iconK = "castbarTargetShowIcon",
         textW = "targetCastbarShowTextCB", textK = "castbarTargetShowSpellName",
-        bar = function() return _G.MSUF_TargetCastbar end,
-        reanchor = function() if _G.MSUF_ReanchorTargetCastBar then _G.MSUF_ReanchorTargetCastBar() end end,
-        preview  = function() if _G.MSUF_PositionTargetCastbarPreview then _G.MSUF_PositionTargetCastbarPreview() end end,
+        bar = function()  return _G.MSUF_TargetCastbar end,
+        reanchor = function()  if _G.MSUF_ReanchorTargetCastBar then _G.MSUF_ReanchorTargetCastBar() end  end,
+        preview  = function()  if _G.MSUF_PositionTargetCastbarPreview then _G.MSUF_PositionTargetCastbarPreview() end  end,
         forceRefreshUnit = "target",
     },
     focus = {
@@ -4045,9 +3549,9 @@ local CASTBAR_HANDLER_SPECS = {
         interruptW = "focusCastbarInterruptCB",
         iconW = "focusCastbarShowIconCB", iconK = "castbarFocusShowIcon",
         textW = "focusCastbarShowTextCB", textK = "castbarFocusShowSpellName",
-        bar = function() return _G.MSUF_FocusCastbar end,
-        reanchor = function() if _G.MSUF_ReanchorFocusCastBar then _G.MSUF_ReanchorFocusCastBar() end end,
-        preview  = function() if _G.MSUF_PositionFocusCastbarPreview then _G.MSUF_PositionFocusCastbarPreview() end end,
+        bar = function()  return _G.MSUF_FocusCastbar end,
+        reanchor = function()  if _G.MSUF_ReanchorFocusCastBar then _G.MSUF_ReanchorFocusCastBar() end  end,
+        preview  = function()  if _G.MSUF_PositionFocusCastbarPreview then _G.MSUF_PositionFocusCastbarPreview() end  end,
         forceRefreshUnit = "focus",
     },
     boss = {
@@ -4057,19 +3561,17 @@ local CASTBAR_HANDLER_SPECS = {
         interruptW = "bossCastbarInterruptCB",
         iconW = "bossCastbarShowIconCB", iconK = "showBossCastIcon",
         textW = "bossCastbarShowTextCB", textK = "showBossCastName",
-        bar = function() return nil end,
-        reanchor = function() end,
-        preview  = function() end,
+        bar = function()   return nil end,
+        reanchor = function()   end,
+        preview  = function()   end,
     },
 }
-
-
 local function _MSUF_BindCastbarGeneralToggle(spec, widgetKey, dbKey, onBoss, onNormal)
     local w = panel[widgetKey]
-    if not w then return end
+    if not w then  return end
     w:SetScript("OnClick", function(self)
-        if not IsFramesTab() then return end
-        if spec.requireKey and CurrentKey() ~= spec.requireKey then return end
+        if not IsFramesTab() then  return end
+        if spec.requireKey and CurrentKey() ~= spec.requireKey then  return end
         MSUF_EnsureDB_IfPossible(api)
         MSUF_DB = MSUF_DB or {}
         MSUF_DB.general = MSUF_DB.general or {}
@@ -4080,42 +3582,35 @@ local function _MSUF_BindCastbarGeneralToggle(spec, widgetKey, dbKey, onBoss, on
         else
             if onNormal then onNormal(spec, g) end
         end
-    end)
-end
-
+     end)
+ end
 local function _MSUF_BossRefreshCastbarLayout()
     if type(_G.MSUF_RefreshBossCastbarLayout) == "function" then _G.MSUF_RefreshBossCastbarLayout() end
-end
-
+ end
 local function _MSUF_BossApplyTimeAndLayout()
     if type(_G.MSUF_ApplyBossCastbarTimeSetting) == "function" then _G.MSUF_ApplyBossCastbarTimeSetting() end
     _MSUF_BossRefreshCastbarLayout()
-end
-
+ end
 local function _MSUF_NonBossVisualRefresh(spec)
     if _G.MSUF_UpdateCastbarVisuals then _G.MSUF_UpdateCastbarVisuals() end
     spec.reanchor()
     spec.preview()
-end
-
+ end
 local function _MSUF_NonBossTimeRefresh(spec, g)
     _MSUF_SetCastTimeTextVisible(spec.bar(), g[spec.timeK] ~= false)
     spec.reanchor()
     spec.preview()
-end
-
-
+ end
 local function _MSUF_BindCastbarEnable(spec)
     local w = panel[spec.enableW]
-    if not w then return end
+    if not w then  return end
     w:SetScript("OnClick", function(self)
         MSUF_EnsureCastbars()
-        if not IsFramesTab() then return end
-        if spec.requireKey and CurrentKey() ~= spec.requireKey then return end
+        if not IsFramesTab() then  return end
+        if spec.requireKey and CurrentKey() ~= spec.requireKey then  return end
         if api.EnsureDB then api.EnsureDB() end
         MSUF_DB.general = MSUF_DB.general or {}
         MSUF_DB.general[spec.enableK] = self:GetChecked() and true or false
-
         -- Boss castbars have a dedicated enable pipeline.
         if spec.requireKey == "boss" then
             if type(_G.MSUF_SetBossCastbarsEnabled) == "function" then
@@ -4125,28 +3620,24 @@ local function _MSUF_BindCastbarEnable(spec)
             end
             if type(_G.MSUF_UpdateBossCastbarPreview) == "function" then _G.MSUF_UpdateBossCastbarPreview() end
             if type(_G.MSUF_RefreshBossCastbarLayout) == "function" then _G.MSUF_RefreshBossCastbarLayout() end
-            return
+             return
         end
-
         spec.reanchor()
         spec.preview()
-
         -- If enabled while unit is already casting/channeling, force-refresh the bar immediately.
         if spec.forceRefreshUnit and MSUF_DB.general[spec.enableK] ~= false then
             _MSUF_ForceRefreshCastbarIfCasting(spec.bar(), spec.forceRefreshUnit)
         end
-    end)
-end
-
+     end)
+ end
 local function _MSUF_BindCastbarInterrupt(spec)
     local w = panel[spec.interruptW]
-    if not w then return end
+    if not w then  return end
     w:SetScript("OnClick", function(self)
-        if not IsFramesTab() then return end
-        if spec.requireKey and CurrentKey() ~= spec.requireKey then return end
+        if not IsFramesTab() then  return end
+        if spec.requireKey and CurrentKey() ~= spec.requireKey then  return end
         local conf = EnsureKeyDB()
         conf.showInterrupt = self:GetChecked() and true or false
-
         -- If disabled while interrupt feedback is showing, hide immediately.
         if conf.showInterrupt == false then
             if spec.requireKey == "boss" then
@@ -4155,35 +3646,29 @@ local function _MSUF_BindCastbarInterrupt(spec)
                 _MSUF_ClearInterruptFeedback(spec.bar())
             end
         end
-    end)
-end
-
+     end)
+ end
 for _, spec in pairs(CASTBAR_HANDLER_SPECS) do
     _MSUF_BindCastbarEnable(spec)
     _MSUF_BindCastbarInterrupt(spec)
-
     _MSUF_BindCastbarGeneralToggle(spec, spec.iconW, spec.iconK, _MSUF_BossRefreshCastbarLayout, _MSUF_NonBossVisualRefresh)
     _MSUF_BindCastbarGeneralToggle(spec, spec.textW, spec.textK, _MSUF_BossRefreshCastbarLayout, _MSUF_NonBossVisualRefresh)
     _MSUF_BindCastbarGeneralToggle(spec, spec.timeW, spec.timeK, _MSUF_BossApplyTimeAndLayout, _MSUF_NonBossTimeRefresh)
 end
-
 -- Indicator live refresh (spec-driven)
 -- Keep this lean: Options-time refresh only, and we rely on core layout helpers when present.
 local MSUF_ALL_UF_TOKENS = { "player","target","focus","pet","tot","targettarget","boss1","boss2","boss3","boss4","boss5" }
-
 local function MSUF_GetUnitFrameToken(unitToken)
     local uf = _G.MSUF_UnitFrames or _G.UnitFrames
     if uf and uf[unitToken] then return uf[unitToken] end
     -- Some builds only store ToT under one key; try common aliases
     if unitToken == "tot" and uf and uf.targettarget then return uf.targettarget end
     if unitToken == "targettarget" and uf and uf.tot then return uf.tot end
-    return nil
+     return nil
 end
-
 local function MSUF_RefreshFrames(unitList, applyLayoutFnName)
     local update = _G.UpdateSimpleUnitFrame
     local applyLayout = applyLayoutFnName and _G[applyLayoutFnName] or nil
-
     for i = 1, #unitList do
         local f = MSUF_GetUnitFrameToken(unitList[i])
         if f then
@@ -4191,34 +3676,22 @@ local function MSUF_RefreshFrames(unitList, applyLayoutFnName)
             if applyLayout then pcall(applyLayout, f) end
         end
     end
-end
-
+ end
 -- Leader icon offsets + size/anchor live refresh (player + target)
 MSUF_RefreshLeaderIconFrames = function()
     MSUF_RefreshFrames({ "player", "target" }, "MSUF_ApplyLeaderIconLayout")
-end
-
+ end
 -- Raid marker offset/anchor/size (per-unit): live update
 MSUF_RefreshRaidMarkerFrames = function()
     MSUF_RefreshFrames(MSUF_ALL_UF_TOKENS, "MSUF_ApplyRaidMarkerLayout")
-end
-
+ end
 -- Level indicator offset/anchor (per-unit): live update
 MSUF_RefreshLevelIndicatorFrames = function()
     MSUF_RefreshFrames(MSUF_ALL_UF_TOKENS, "MSUF_ApplyLevelIndicatorLayout")
-end
-
-
-
-
-
+ end
     -- Portrait dropdown (all unitframes) [spec-driven]
     MSUF_BindPortraitDropdown(panel, "playerPortraitDropDown", IsFramesTab, EnsureKeyDB, ApplyCurrent)
-
-
-
 -- Unit Alpha + Boss spacing sliders [spec-driven]
-
 -- Alpha slider target routing:
 -- Legacy keys: alphaInCombat / alphaOutOfCombat
 -- Layered keys (when alphaExcludeTextPortrait == true):
@@ -4230,33 +3703,29 @@ local function MSUF_Alpha_NormalizeMode(mode)
     --   background: true / 1 / "background"
     --   foreground: false / 0 / "foreground" (default)
     if mode == true or mode == 1 or mode == "background" then
-        return "background"
+         return "background"
     end
     if mode == false or mode == 0 or mode == "foreground" then
-        return "foreground"
+         return "foreground"
     end
-    return "foreground"
+     return "foreground"
 end
-
 local function MSUF_Alpha_GetKeysForMode(conf, mode)
     mode = MSUF_Alpha_NormalizeMode(mode)
     local layered = (conf and conf.alphaExcludeTextPortrait == true)
     if layered then
         if mode == "background" then
-            return "alphaBGInCombat", "alphaBGOutOfCombat"
+             return "alphaBGInCombat", "alphaBGOutOfCombat"
         end
-        return "alphaFGInCombat", "alphaFGOutOfCombat"
+         return "alphaFGInCombat", "alphaFGOutOfCombat"
     end
-    return "alphaInCombat", "alphaOutOfCombat"
+     return "alphaInCombat", "alphaOutOfCombat"
 end
-
 local function MSUF_Alpha_ReadPair(conf, mode)
-    if not conf then return 1, 1 end
+    if not conf then  return 1, 1 end
     mode = MSUF_Alpha_NormalizeMode(mode)
-
     local aInLegacy  = tonumber(conf.alphaInCombat) or 1
     local aOutLegacy = tonumber(conf.alphaOutOfCombat) or 1
-
     local aIn, aOut = aInLegacy, aOutLegacy
     if conf.alphaExcludeTextPortrait == true then
         if mode == "background" then
@@ -4267,21 +3736,18 @@ local function MSUF_Alpha_ReadPair(conf, mode)
             aOut = tonumber(conf.alphaFGOutOfCombat) or aOutLegacy
         end
     end
-
     if conf.alphaSync == true then
         aOut = aIn
     end
-    return aIn, aOut
+     return aIn, aOut
 end
-
 local function MSUF_Alpha_WritePair(conf, mode, aIn, aOut)
-    if not conf then return end
+    if not conf then  return end
     mode = MSUF_Alpha_NormalizeMode(mode)
     local kIn, kOut = MSUF_Alpha_GetKeysForMode(conf, mode)
     conf[kIn] = aIn
     conf[kOut] = aOut
-end
-
+ end
 local function MSUF_AlphaUI_SetSlider(slider, v)
     if slider and slider.SetValue then
         slider.MSUF_SkipCallback = true
@@ -4289,46 +3755,39 @@ local function MSUF_AlphaUI_SetSlider(slider, v)
         slider.MSUF_SkipCallback = false
         if slider.editBox then ForceSliderEditBox(slider) end
     end
-end
-
+ end
 local function MSUF_AlphaUI_RefreshSliders()
-    if not IsFramesTab() then return end
+    if not IsFramesTab() then  return end
     local conf = EnsureKeyDB()
     local mode = MSUF_Alpha_NormalizeMode(conf.alphaLayerMode)
     local aIn, aOut = MSUF_Alpha_ReadPair(conf, mode)
     MSUF_AlphaUI_SetSlider(panel.playerAlphaInCombatSlider, aIn)
     MSUF_AlphaUI_SetSlider(panel.playerAlphaOutCombatSlider, aOut)
-end
-
+ end
 local function ApplyAlphaOnly()
     local fn = (_G and _G.MSUF_RefreshAllUnitAlphas) or MSUF_RefreshAllUnitAlphas
     if type(fn) == "function" then pcall(fn) end
-end
-
+ end
 -- Alpha sync checkbox
 if panel.playerAlphaSyncCB then
     panel.playerAlphaSyncCB:SetScript("OnClick", function(self)
-        if not IsFramesTab() then return end
+        if not IsFramesTab() then  return end
         local conf = EnsureKeyDB()
         conf.alphaSync = self:GetChecked() and true or false
-
         local mode = MSUF_Alpha_NormalizeMode(conf.alphaLayerMode)
         local aIn, aOut = MSUF_Alpha_ReadPair(conf, mode)
-
         if conf.alphaSync == true then
             aOut = aIn
             MSUF_Alpha_WritePair(conf, mode, aIn, aOut)
         end
-
         MSUF_AlphaUI_RefreshSliders()
         ApplyAlphaOnly()
-    end)
+     end)
 end
-
 -- Alpha: keep text/portrait visible (layered alpha enable)
 if panel.playerAlphaExcludeTextPortraitCB then
     panel.playerAlphaExcludeTextPortraitCB:SetScript("OnClick", function(self)
-        if not IsFramesTab() then return end
+        if not IsFramesTab() then  return end
         local conf = EnsureKeyDB()
         local on = self:GetChecked() and true or false
         conf.alphaExcludeTextPortrait = on
@@ -4337,7 +3796,6 @@ if panel.playerAlphaExcludeTextPortraitCB then
             -- Store as number to survive DB sanitizers.
             conf.alphaLayerMode = 0
         end
-
         -- Toggle dropdown enabled state immediately
         local dd = panel.playerAlphaLayerDropDown
         if dd then
@@ -4349,19 +3807,16 @@ if panel.playerAlphaExcludeTextPortraitCB then
                 if on then dd.Text:SetTextColor(1, 1, 1) else dd.Text:SetTextColor(0.5, 0.5, 0.5) end
             end
         end
-
         MSUF_AlphaUI_RefreshSliders()
         ApplyAlphaOnly()
-    end)
+     end)
 end
-
 -- Alpha layer dropdown
 if panel.playerAlphaLayerDropDown and UIDropDownMenu_Initialize then
     UIDropDownMenu_Initialize(panel.playerAlphaLayerDropDown, function(self, level)
-        if not IsFramesTab() then return end
+        if not IsFramesTab() then  return end
         local conf = EnsureKeyDB()
         local excludeOn = (conf.alphaExcludeTextPortrait == true)
-
         -- Ensure the dropdown shows the current DB value immediately (even after /reload).
         local _curMode = MSUF_Alpha_NormalizeMode(conf.alphaLayerMode)
         if UIDropDownMenu_SetSelectedValue then
@@ -4374,7 +3829,6 @@ if panel.playerAlphaLayerDropDown and UIDropDownMenu_Initialize then
         if _ddText and _ddText.SetText then
             _ddText:SetText((_curMode == "background") and "背景" or "前景")
         end
-
         local function AddItem(value, text)
             local info = UIDropDownMenu_CreateInfo()
             info.text = text
@@ -4384,7 +3838,7 @@ if panel.playerAlphaLayerDropDown and UIDropDownMenu_Initialize then
             end
             info.disabled = (excludeOn ~= true)
             info.func = function()
-                if not IsFramesTab() then return end
+                if not IsFramesTab() then  return end
                 local c = EnsureKeyDB()
                 -- Store as number to survive DB sanitizers.
                 c.alphaLayerMode = (value == "background") and 1 or 0
@@ -4393,66 +3847,53 @@ if panel.playerAlphaLayerDropDown and UIDropDownMenu_Initialize then
                 CloseDropDownMenus()
                 MSUF_AlphaUI_RefreshSliders()
                 ApplyAlphaOnly()
-            end
+             end
             UIDropDownMenu_AddButton(info, level)
-        end
-
+         end
         AddItem("foreground", "前景")
         AddItem("background", "背景")
-    end)
+     end)
 end
-
 local function BindAlphaSlider(spec)
     local s = panel[spec.field]
-    if not s then return end
+    if not s then  return end
     s.onValueChanged = function(self, value)
-        if self.MSUF_SkipCallback or not IsFramesTab() then return end
+        if self.MSUF_SkipCallback or not IsFramesTab() then  return end
         local conf = EnsureKeyDB()
         local mode = MSUF_Alpha_NormalizeMode(conf.alphaLayerMode)
-
         local v = tonumber(value) or 1
         if v < 0 then v = 0 elseif v > 1 then v = 1 end
-
         local aIn, aOut = MSUF_Alpha_ReadPair(conf, mode)
-
         if spec.isInCombat then
             aIn = v
         else
             aOut = v
         end
-
         if conf.alphaSync == true then
             aOut = aIn
             local other = panel[spec.otherField]
             MSUF_AlphaUI_SetSlider(other, aOut)
         end
-
         MSUF_Alpha_WritePair(conf, mode, aIn, aOut)
         ApplyAlphaOnly()
-    end
-    if s.HookScript then s:HookScript("OnShow", function() ForceSliderEditBox(s) end) end
-end
-
+     end
+    if s.HookScript then s:HookScript("OnShow", function()  ForceSliderEditBox(s)  end) end
+ end
 for _, spec in ipairs(MSUF_ALPHA_SLIDER_SPECS) do
     BindAlphaSlider(spec)
 end
-
 -- Boss spacing slider (boss key only)
 local bs = panel.playerBossSpacingSlider
 if bs then
     bs.onValueChanged = function(self, value)
-        if not IsFramesTab() or CurrentKey() ~= "boss" then return end
+        if not IsFramesTab() or CurrentKey() ~= "boss" then  return end
         local conf = EnsureKeyDB()
         conf.spacing = math.floor((tonumber(value) or 0) + 0.5)
         ApplyCurrent()
-    end
-    if bs.HookScript then bs:HookScript("OnShow", function() ForceSliderEditBox(bs) end) end
+     end
+    if bs.HookScript then bs:HookScript("OnShow", function()  ForceSliderEditBox(bs)  end) end
 end
-
 -- Copy settings button (Player menu)
     MSUF_BindAllCopyButtons(panel)
-
-
     -- Text positioning controls removed (Text group is a placeholder only).
-
-end
+ end

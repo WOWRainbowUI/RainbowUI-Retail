@@ -48,7 +48,6 @@ end
 local C_Timer      = C_Timer
 local C_Timer_After = C_Timer and C_Timer.After
 
-
 ------------------------------------------------------
 -- Apply queue: coalesce multiple option changes into a single Apply per frame
 ------------------------------------------------------
@@ -77,7 +76,6 @@ do
     end
 end
 
-
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local GetCameraZoom = GetCameraZoom
 local GetNumSpellTabs       = GetNumSpellTabs
@@ -91,17 +89,13 @@ local tonumber              = tonumber
 local table_sort            = table.sort
 local ipairs                = ipairs
 
-
 local LibStub       = LibStub
 local LSM           = LibStub and LibStub("LibSharedMedia-3.0", true)
-
 
 ------------------------------------------------------
 -- UpdateManager accessor (avoid repeating global lookups everywhere)
 ------------------------------------------------------
-local function MSUF_GetUpdateManager()
-    return _G.MSUF_UpdateManager or (ns and ns.MSUF_UpdateManager)
-end
+-- MSUF_GetUpdateManager removed (Phase 7A): UpdateManager no longer exists.
 
 ------------------------------------------------------
 -- SavedVars helper (own sub-table under MSUF_DB)
@@ -146,6 +140,10 @@ local function EnsureGameplayDefaults()
         g.lockCombatTimer = false
     end
 
+    -- Anchor target for the combat timer (none/player/target/focus)
+    if g.combatTimerAnchor == nil then
+        g.combatTimerAnchor = "none"
+    end
     -- Combat timer text color (configured from the Colors menu)
     if type(g.combatTimerColor) ~= "table" then
         g.combatTimerColor = { 1, 1, 1 } -- default white
@@ -183,12 +181,11 @@ local function EnsureGameplayDefaults()
 
     -- Customizable combat enter/leave strings (shown briefly on regen events)
     if g.combatStateEnterText == nil then
-        g.combatStateEnterText = "+戰鬥"
+        g.combatStateEnterText = "+Combat"
     end
     if g.combatStateLeaveText == nil then
-        g.combatStateLeaveText = "-戰鬥"
+        g.combatStateLeaveText = "-Combat"
     end
-
 
 -- Combat state text colors (configured from the Colors menu)
 -- Stored as {r,g,b}. Defaults match the legacy hardcoded colors:
@@ -223,7 +220,6 @@ end
         g.crosshairSize = 40
     end
 
-
     -- Combat crosshair: color by melee range (uses the shared melee spell selection)
     -- Green = in melee range, Red = out of melee range
     if g.enableCombatCrosshairMeleeRangeColor == nil then
@@ -238,10 +234,9 @@ end
     end
     -- Cooldown manager icon mode (for MSUF_CooldownIcons module)
     -- Default OFF to avoid idle CPU when the external viewer/module is present.
-    -- TEMPORARILY DISABLED: CooldownManager "bars as icons" mode will be reworked.
+    -- TEMPORARILY DISABLED: CooldownManager "計量條轉成圖示" mode will be reworked.
     -- Keep the key for backward compatibility, but hard-force OFF for now.
     g.cooldownIcons = false
-
 
     -- Shaman: player totem tracker (player-only for now)
     -- Default ON for Shamans on first run; otherwise default OFF.
@@ -277,7 +272,8 @@ end
     if type(g.playerTotemsAnchorTo) ~= "string" or g.playerTotemsAnchorTo == "" then
         g.playerTotemsAnchorTo = "BOTTOMLEFT"
     end
-    if g.playerTotemsGrowthDirection ~= "LEFT" and g.playerTotemsGrowthDirection ~= "RIGHT" then
+    if g.playerTotemsGrowthDirection ~= "LEFT" and g.playerTotemsGrowthDirection ~= "RIGHT"
+        and g.playerTotemsGrowthDirection ~= "UP" and g.playerTotemsGrowthDirection ~= "DOWN" then
         g.playerTotemsGrowthDirection = "RIGHT"
     end
     if g.playerTotemsFontSize == nil or g.playerTotemsFontSize <= 0 then
@@ -304,7 +300,6 @@ local function GetGameplayDBFast()
     end
     return EnsureGameplayDefaults()
 end
-
 
 ------------------------------------------------------
 -- Cooldown Manager Icon Mode: hard stop idle CPU
@@ -384,9 +379,8 @@ do
     ScheduleHookAttempts()
 end
 
-
 ------------------------------------------------------
--- One-time tip popup: gameplay colors live in Colors → Gameplay
+-- One-time tip popup: gameplay colors live in Colors â†’ Gameplay
 ------------------------------------------------------
 do
     local POPUP_KEY = "MSUF_GAMEPLAY_COLORS_TIP"
@@ -398,7 +392,7 @@ do
         if not _G.StaticPopupDialogs[POPUP_KEY] then
             _G.StaticPopupDialogs[POPUP_KEY] = {
                 -- ASCII only (avoid missing glyph boxes in some fonts)
-                text = "提示：遊戲性相關顏色設定位於「顏色」>「遊戲性」",
+                text = "提示：遊戲顏色設定位於 顏色 > 遊戲",
                 button1 = OKAY,
                 timeout = 0,
                 whileDead = true,
@@ -424,7 +418,6 @@ do
     end
 end
 
-
 ------------------------------------------------------
 -- Font helper: reuse global MSUF text style
 ------------------------------------------------------
@@ -445,7 +438,7 @@ local function GetGameplayFontSettings(kind)
     end
 
     if not fontPath or fontPath == "" then
-        fontPath = "Fonts/bHEI01B.ttf"
+        fontPath = "Fonts/FRIZQT__.TTF"
     end
 
     -- FONT FLAGS (outline)
@@ -491,8 +484,6 @@ local function GetGameplayFontSettings(kind)
 
     return fontPath, flags, fr, fg, fb, effSize, useShadow
 end
-
-
 
 ------------------------------------------------------
 -- Combat state text colors (Enter/Leave)
@@ -547,13 +538,12 @@ end
 ------------------------------------------------------
 local combatFrame
 local combatTimerText
-local combatTimerEventFrame
 local combatStateFrame
 local combatStateText
 local combatEventFrame
+local MSUF_CombatState_OnEvent  -- forward declaration (Phase 7B: used by EventBus)
 local combatCrosshairFrame
 local combatCrosshairEventFrame
-local updater
 
 -- Forward declarations (helpers are referenced before their definitions below)
 local MSUF_CrosshairHasValidTarget
@@ -621,8 +611,6 @@ local function MSUF_CrosshairSyncRangeCacheFromGameplay(g)
     combatCrosshairFrame._msufRangeTickInterval = 0.25
 end
 
-
-
 -- In-combat timer state
 local combatStartTime = nil
 local wasInCombat = false
@@ -646,7 +634,7 @@ local function MSUF_Gameplay_TickCombatTimer()
         return
     end
 
-    -- UnitAffectingCombat is the most reliable signal for "combat started" timing.
+    -- UnitAffectingCombat is the most reliable signal for "戰鬥開始" timing.
     -- InCombatLockdown is a safe fallback.
     local inCombat = (UnitAffectingCombat and UnitAffectingCombat("player")) or (InCombatLockdown and InCombatLockdown()) or false
 
@@ -693,6 +681,15 @@ local firstDanceActive = false
 local firstDanceEndTime = 0
 local firstDanceLastText = nil
 
+local _TickFirstDance  -- forward declaration (defined after StartFirstDanceWindow)
+
+-- Phase 7A: stop the FirstDance OnUpdate tick (event-driven start/stop)
+local function _StopFirstDanceTick()
+    firstDanceActive = false
+    firstDanceEndTime = 0
+    firstDanceLastText = nil
+    if combatStateFrame then combatStateFrame:SetScript("OnUpdate", nil) end
+end
 
 -- Make the combat enter/leave text click-through while it is actively displayed
 -- so it never steals clicks / focus (e.g. targeting) while flashing on screen.
@@ -717,7 +714,6 @@ local function MSUF_CombatState_SetClickThrough(active)
     end
 end
 
-
 local function ApplyFontToCounter()
     -- If nothing exists yet, nothing to do
     if not combatTimerText and not combatStateText then
@@ -726,7 +722,7 @@ local function ApplyFontToCounter()
     -- Combat timer font (uses its own override)
     if combatTimerText then
         local path, flags, r, g, b, size, useShadow = GetGameplayFontSettings("timer")
-        combatTimerText:SetFont(path or "Fonts/bHEI01B.ttf", size or 20, flags or "OUTLINE")
+        combatTimerText:SetFont(path or "Fonts/FRIZQT__.TTF", size or 20, flags or "OUTLINE")
         local gdb = GetGameplayDBFast()
         local tr, tg, tb = _MSUF_NormalizeRGB(gdb and gdb.combatTimerColor, r or 1, g or 1, b or 1)
         combatTimerText:SetTextColor(tr, tg, tb, 1)
@@ -741,7 +737,7 @@ local function ApplyFontToCounter()
     -- Combat state text font (shares combat font settings)
     if combatStateText then
         local path, flags, r, g, b, size, useShadow = GetGameplayFontSettings("state")
-        combatStateText:SetFont(path or "Fonts/bHEI01B.ttf", (size or 24), flags or "OUTLINE")
+        combatStateText:SetFont(path or "Fonts/FRIZQT__.TTF", (size or 24), flags or "OUTLINE")
         combatStateText:SetTextColor(r or 1, g or 1, b or 1, 1)
         if useShadow then
             combatStateText:SetShadowOffset(1, -1)
@@ -765,13 +761,8 @@ local function StartFirstDanceWindow()
 
     -- Feature off = make sure state is hard-reset and updater is off
     if not g.enableFirstDanceTimer then
-        firstDanceActive = false
-        firstDanceEndTime = 0
-        firstDanceLastText = nil
-        local umFD = MSUF_GetUpdateManager()
-        if umFD and umFD.SetEnabled then
-            umFD:SetEnabled("MSUF_GAMEPLAY_FIRSTDANCE", false)
-        end
+        _StopFirstDanceTick()
+
         MSUF_CombatState_SetClickThrough(false)
         return
     end
@@ -781,10 +772,6 @@ local function StartFirstDanceWindow()
     end
 
     if not combatStateText then
-        local umFD = MSUF_GetUpdateManager()
-        if umFD and umFD.SetEnabled then
-            umFD:SetEnabled("MSUF_GAMEPLAY_FIRSTDANCE", false)
-        end
         MSUF_CombatState_SetClickThrough(false)
         return
     end
@@ -795,7 +782,7 @@ local function StartFirstDanceWindow()
 
     -- Make sure font / shadow are up to date
     local path, flags, r, gCol, bCol, size, useShadow = GetGameplayFontSettings("state")
-    combatStateText:SetFont(path or "Fonts/bHEI01B.ttf", (size or 24), flags or "OUTLINE")
+    combatStateText:SetFont(path or "Fonts/FRIZQT__.TTF", (size or 24), flags or "OUTLINE")
     local _er, _eg, _eb, lr, lg, lb = MSUF_GetCombatStateColors(g)
     combatStateText._msufLastState = "dance"
     combatStateText:SetTextColor(lr, lg, lb, 1)
@@ -810,15 +797,13 @@ local function StartFirstDanceWindow()
 
     combatStateText:Show()
 
-    -- Ensure the First Dance tick task exists even if this triggers before a full Apply() pass.
-    if EnsureFirstDanceTaskRegistered then
-        EnsureFirstDanceTaskRegistered()
+    -- Start the tick for this animation window
+    if combatStateFrame then
+        combatStateFrame:SetScript("OnUpdate", function(self, elapsed)
+            _TickFirstDance()
+        end)
     end
 
-    local umFD = MSUF_GetUpdateManager()
-    if umFD and umFD.SetEnabled then
-        umFD:SetEnabled("MSUF_GAMEPLAY_FIRSTDANCE", true)
-    end
 end
 
 ------------------------------------------------------
@@ -850,7 +835,7 @@ EnsureCombatStateText = function()
 
         combatStateFrame:SetScript("OnDragStop", function(self)
             self:StopMovingOrSizing()
-            local x, y = self:GetCenter()
+        local x, y = self:GetCenter()
             local ux, uy = UIParent:GetCenter()
             local dx = x - ux
             local dy = y - uy
@@ -865,7 +850,7 @@ EnsureCombatStateText = function()
 
     -- Use gameplay combat font settings
     local path, flags, r, gCol, bCol, size, useShadow = GetGameplayFontSettings("state")
-    combatStateText:SetFont(path or "Fonts/bHEI01B.ttf", (size or 24), flags or "OUTLINE")
+    combatStateText:SetFont(path or "Fonts/FRIZQT__.TTF", (size or 24), flags or "OUTLINE")
     local _er, _eg, _eb, lr, lg, lb = MSUF_GetCombatStateColors(g)
     combatStateText._msufLastState = "dance"
     combatStateText:SetTextColor(lr, lg, lb, 1)
@@ -881,10 +866,8 @@ EnsureCombatStateText = function()
     combatStateText:Hide()
 
     if not combatEventFrame then
-        combatEventFrame = CreateFrame("Frame", "MSUF_CombatStateEventFrame", UIParent)
-        -- Events are registered/unregistered in ns.MSUF_RequestGameplayApply() for performance.
-        combatEventFrame:UnregisterAllEvents()
-local function MSUF_CombatState_OnEvent(_, event)
+        combatEventFrame = true  -- sentinel: frame replaced by EventBus (Phase 7B)
+MSUF_CombatState_OnEvent = function(event)
     local g = GetGameplayDBFast()
     if not g or (not g.enableCombatStateText and not g.enableFirstDanceTimer) then
         if combatStateText then
@@ -894,9 +877,8 @@ local function MSUF_CombatState_OnEvent(_, event)
         end
         MSUF_CombatState_SetClickThrough(false)
         -- Always hard-stop First Dance if feature is disabled
-        firstDanceActive = false
-        firstDanceEndTime = 0
-        firstDanceLastText = nil
+        _StopFirstDanceTick()
+
         return
     end
 
@@ -910,9 +892,7 @@ local function MSUF_CombatState_OnEvent(_, event)
 
     if event == "PLAYER_REGEN_DISABLED" then
         -- Enter combat: "+Combat"
-        firstDanceActive = false
-        firstDanceEndTime = 0
-        firstDanceLastText = nil
+        _StopFirstDanceTick()
 
         if not wantState then
             if combatStateText then
@@ -925,7 +905,7 @@ local function MSUF_CombatState_OnEvent(_, event)
 
         local enterText = g.combatStateEnterText
         if type(enterText) ~= "string" or enterText == "" then
-            enterText = "+戰鬥"
+            enterText = "+Combat"
         end
 
         local er, eg, eb = MSUF_GetCombatStateColors(g)
@@ -948,9 +928,7 @@ local function MSUF_CombatState_OnEvent(_, event)
 
     elseif event == "PLAYER_REGEN_ENABLED" then
         -- Leave combat: "-Combat" OR First Dance timer
-        firstDanceActive = false
-        firstDanceEndTime = 0
-        firstDanceLastText = nil
+        _StopFirstDanceTick()
 
         if g.enableFirstDanceTimer then
             StartFirstDanceWindow()
@@ -968,7 +946,7 @@ local function MSUF_CombatState_OnEvent(_, event)
 
         local leaveText = g.combatStateLeaveText
         if type(leaveText) ~= "string" or leaveText == "" then
-            leaveText = "-戰鬥"
+            leaveText = "-Combat"
         end
 
         local _er, _eg, _eb, lr, lg, lb = MSUF_GetCombatStateColors(g)
@@ -990,7 +968,7 @@ local function MSUF_CombatState_OnEvent(_, event)
         end
     end
 end
-combatEventFrame:SetScript("OnEvent", MSUF_CombatState_OnEvent)
+-- Phase 7B: combatEventFrame → EventBus. Registration handled in Apply path.
     end
 
 end
@@ -998,25 +976,20 @@ end
 ------------------------------------------------------
 -- "First Dance" countdown tick
 ------------------------------------------------------
-local function _TickFirstDance()
+_TickFirstDance = function()
     if not firstDanceActive then
         return
     end
 
     local gFD = GetGameplayDBFast()
     if not gFD.enableFirstDanceTimer then
-        firstDanceActive = false
-        firstDanceEndTime = 0
-        firstDanceLastText = nil
+        _StopFirstDanceTick()
+
         if combatStateText then
             combatStateText:SetText("")
             combatStateText:Hide()
         end
         MSUF_CombatState_SetClickThrough(false)
-        local umFD = MSUF_GetUpdateManager()
-        if umFD and umFD.SetEnabled then
-            umFD:SetEnabled("MSUF_GAMEPLAY_FIRSTDANCE", false)
-        end
         return
     end
 
@@ -1032,63 +1005,31 @@ local function _TickFirstDance()
     local now = GetTime()
     local remaining = firstDanceEndTime - now
     if remaining <= 0 then
-        firstDanceActive = false
-        firstDanceEndTime = 0
-        firstDanceLastText = nil
+        _StopFirstDanceTick()
+
         combatStateText:SetText("")
         combatStateText:Hide()
         MSUF_CombatState_SetClickThrough(false)
-        local umFD = MSUF_GetUpdateManager()
-        if umFD and umFD.SetEnabled then
-            umFD:SetEnabled("MSUF_GAMEPLAY_FIRSTDANCE", false)
-        end
         return
     end
 
-    local text = string_format("初始之舞：%.1f", remaining)
+    local text = string_format("起手之舞：%.1f", remaining)
     if text ~= firstDanceLastText then
         firstDanceLastText = text
         combatStateText:SetText(text)
     end
 end
 
-
 EnsureFirstDanceTaskRegistered = function()
-    if ns and ns._MSUF_FirstDanceTaskRegistered then
-        return
-    end
-    if not combatStateFrame then
-        return
-    end
-
-    local umFD = MSUF_GetUpdateManager()
-    if umFD and umFD.Register and umFD.SetEnabled then
-        if ns then
-            ns._MSUF_FirstDanceTaskRegistered = true
-        end
-        umFD:Register("MSUF_GAMEPLAY_FIRSTDANCE", _TickFirstDance, 0.10)  -- 10Hz is plenty
-        umFD:SetEnabled("MSUF_GAMEPLAY_FIRSTDANCE", false)
-
-        -- Ensure no leftover per-frame updater stays attached
-        combatStateFrame:SetScript("OnUpdate", nil)
-    else
-        -- Fallback: local OnUpdate if UpdateManager isn't available
-        if ns then
-            ns._MSUF_FirstDanceTaskRegistered = true
-        end
-        combatStateFrame:SetScript("OnUpdate", function(self, elapsed)
-            _TickFirstDance()
-        end)
-    end
+    -- Phase 7A: OnUpdate is now started/stopped directly in StartFirstDanceWindow/_TickFirstDance.
+    -- This function is kept as a no-op for any callers that still reference it.
 end
-
-
 
 ------------------------------------------------------
 -- Combat crosshair (simple green crosshair at player feet)
 ------------------------------------------------------
 
--- Returns true if any Blizzard "find yourself" / self highlight or
+-- Returns true if any Blizzard "尋找自己" / self highlight or
 -- personal nameplate setting is active so we let the crosshair
 -- follow the camera.
 local function MSUF_ShouldCrosshairFollowCamera()
@@ -1103,7 +1044,7 @@ local function MSUF_ShouldCrosshairFollowCamera()
     end
 
     if GetCVarBool then
-        -- Zusätzliche Flags
+        -- ZusÃ¤tzliche Flags
         if GetCVarBool("findYourselfModeAll")
         or GetCVarBool("findYourselfModeAlways")
         or GetCVarBool("findYourselfModeCombat") then
@@ -1139,8 +1080,8 @@ local function MSUF_AnchorCombatCrosshair()
     local offsetX  = 0
     local offsetY  = -20   -- Fallback, wenn wir keine Nameplate haben
 
-    -- Wenn Blizzard-Selfhighlight / Nameplates aktiv sind → an persönliche
-    -- Nameplate hängen und den Offset abhängig vom Zoom berechnen.
+    -- Wenn Blizzard-Selfhighlight / Nameplates aktiv sind â†’ an persÃ¶nliche
+    -- Nameplate hÃ¤ngen und den Offset abhÃ¤ngig vom Zoom berechnen.
     if MSUF_ShouldCrosshairFollowCamera() then
         local personal = _G.NamePlatePersonalFrame
         if personal then
@@ -1154,7 +1095,7 @@ local function MSUF_AnchorCombatCrosshair()
             local maxFactor = tonumber(GetCVar and GetCVar("cameraDistanceMaxZoomFactor") or "1") or 1
             local maxDist = 15 * maxFactor        -- Basis-Maxdistanz in Dragonflight
 
-            -- Normiertes "wie nah bin ich dran?"  (0 = ganz rausgezoomt, 1 = ganz nah)
+            -- Normiertes "我距離多遠？"  (0 = ganz rausgezoomt, 1 = ganz nah)
             local close = 0
             if maxDist > 0 then
                 close = 1 - math_min(zoom / maxDist, 1)
@@ -1238,8 +1179,6 @@ local function EnsureCombatCrosshair()
                     MSUF_RequestCrosshairRangeRefresh()
                 elseif event == "NAME_PLATE_UNIT_REMOVED" and arg1 == "player" then
                     MSUF_AnchorCombatCrosshair()
-                elseif event == "PLAYER_TARGET_CHANGED" then
-                    MSUF_RequestCrosshairRangeRefresh()
                 elseif event == "SPELL_RANGE_CHECK_UPDATE" then
                     MSUF_RequestCrosshairRangeRefresh()
                 elseif event == "DISPLAY_SIZE_CHANGED" then
@@ -1304,49 +1243,7 @@ local function EnsureCombatCrosshair()
         MSUF_CrosshairSyncRangeCacheFromGameplay(g)
         MSUF_UpdateCombatCrosshairRangeColor()
 
-        -- Range color tick: prefer MSUF_UpdateManager (single global OnUpdate) and
--- fall back to a local throttled OnUpdate if needed.
-local umRange = MSUF_GetUpdateManager()
-if umRange and umRange.Register and umRange.SetEnabled then
-    if not ns._MSUF_CrosshairRangeTaskRegistered then
-        ns._MSUF_CrosshairRangeTaskRegistered = true
-        umRange:Register("MSUF_GAMEPLAY_CROSSHAIR_RANGE", function()
-            if not combatCrosshairFrame or not combatCrosshairFrame:IsShown() then
-                return
-            end
-
-            -- No DB reads in the hotpath: rely on cached flags/spellID from Apply.
-            if not combatCrosshairFrame._msufUseRangeColor or (combatCrosshairFrame._msufRangeSpellID or 0) <= 0 then
-                -- Neutralize and stop ticking until config becomes valid again
-                MSUF_UpdateCombatCrosshairRangeColor()
-                umRange:SetEnabled("MSUF_GAMEPLAY_CROSSHAIR_RANGE", false)
-                return
-            end
-
-            if not MSUF_CrosshairHasValidTarget() then
-                -- No valid target: revert to neutral and stop the background tick until a new target appears
-                MSUF_UpdateCombatCrosshairRangeColor()
-                umRange:SetEnabled("MSUF_GAMEPLAY_CROSSHAIR_RANGE", false)
-                return
-            end
-
-            MSUF_UpdateCombatCrosshairRangeColor()
-        end, function()
-            return (combatCrosshairFrame and combatCrosshairFrame._msufRangeTickInterval) or 0.25
-        end)
-        umRange:SetEnabled("MSUF_GAMEPLAY_CROSSHAIR_RANGE", false)
-    end
-
-        MSUF_RefreshCrosshairRangeTaskEnabled()
-
-    -- Kill any older per-frame updater we may have had
-    if combatCrosshairFrame.MSUF_RangeOnUpdate then
-        combatCrosshairFrame:SetScript("OnUpdate", nil)
-        combatCrosshairFrame.MSUF_RangeOnUpdate = nil
-        combatCrosshairFrame.MSUF_RangeElapsed = nil
-    end
-else
-    -- Legacy fallback: local throttled OnUpdate to keep range color responsive while moving
+        -- Phase 7A: direct range-color tick (UpdateManager removed)
     if g.enableCombatCrosshairMeleeRangeColor then
         if not combatCrosshairFrame.MSUF_RangeOnUpdate then
             combatCrosshairFrame.MSUF_RangeOnUpdate = true
@@ -1371,7 +1268,6 @@ else
             combatCrosshairFrame.MSUF_RangeOnUpdate = nil
         end
     end
-end
 
     end
 
@@ -1400,7 +1296,71 @@ local function ApplyLockState()
     end
 end
 
+-- Combat Timer anchor helpers
+local function _MSUF_ValidateCombatTimerAnchor(v)
+    if v == "player" or v == "target" or v == "focus" then
+        return v
+    end
+    return "none"
+end
 
+local function _MSUF_GetUnitFrameForAnchor(key)
+    if not key or key == "" then return nil end
+    local list = _G and _G.MSUF_UnitFrames
+    if list and list[key] then
+        return list[key]
+    end
+    local gname = "MSUF_" .. key
+    local f = _G and _G[gname]
+    if f then
+        return f
+    end
+    return nil
+end
+
+local function _MSUF_GetCombatTimerAnchorFrame(g)
+    local key = _MSUF_ValidateCombatTimerAnchor(g and g.combatTimerAnchor)
+    if key == "none" then
+        return UIParent
+    end
+    local f = _MSUF_GetUnitFrameForAnchor(key)
+    if f and f.GetCenter then
+        return f
+    end
+    return UIParent
+end
+
+local function MSUF_Gameplay_ApplyCombatTimerAnchor(g)
+    if not combatFrame then
+        return
+    end
+
+    -- If the user is currently dragging the timer, do NOT re-anchor it.
+    -- Re-anchoring mid-drag makes movement feel jittery (the frame fights the mouse).
+    if combatFrame._msufDragging then
+        return
+    end
+
+    g = g or EnsureGameplayDefaults()
+    local anchor = _MSUF_GetCombatTimerAnchorFrame(g)
+
+    combatFrame:ClearAllPoints()
+    combatFrame:SetPoint("CENTER", anchor, "CENTER", tonumber(g.combatOffsetX) or 0, tonumber(g.combatOffsetY) or 0)
+
+    -- If the user chose a unit anchor but it isn't available yet, retry once shortly after.
+    local want = _MSUF_ValidateCombatTimerAnchor(g.combatTimerAnchor)
+    if want ~= "none" and anchor == UIParent then
+        if not combatFrame._msufAnchorRetryPending and C_Timer and C_Timer.After then
+            combatFrame._msufAnchorRetryPending = true
+            C_Timer.After(0.2, function()
+                if combatFrame then
+                    combatFrame._msufAnchorRetryPending = nil
+                    MSUF_Gameplay_ApplyCombatTimerAnchor()
+                end
+            end)
+        end
+    end
+end
 
 -- Export so the main file can call this from UpdateAllFonts()
 function ns.MSUF_ApplyGameplayFontFromGlobal()
@@ -1416,7 +1376,7 @@ local function CreateCombatTimerFrame()
 
     combatFrame = CreateFrame("Frame", "MSUF_CombatTimerFrame", UIParent)
     combatFrame:SetSize(220, 60)
-    combatFrame:SetPoint("CENTER", UIParent, "CENTER", g.combatOffsetX, g.combatOffsetY)
+    MSUF_Gameplay_ApplyCombatTimerAnchor(g)
     combatFrame:SetFrameStrata("DIALOG")
     combatFrame:SetClampedToScreen(true)
     combatFrame:SetMovable(true)
@@ -1427,18 +1387,45 @@ local function CreateCombatTimerFrame()
         if gd.lockCombatTimer then
             return
         end
+
+        -- When the timer is anchored to a unitframe, keeping the relative anchor while dragging
+        -- can make the movement feel "sticky"/jittery (SetPoint fights the mouse). Detach it
+        -- to UIParent for the duration of the drag, then re-attach on drag stop.
+        self._msufDragging = true
+        local x, y = self:GetCenter()
+        if x and y then
+            self:ClearAllPoints()
+            self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x, y)
+        end
         self:StartMoving()
     end)
 
     combatFrame:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
+        self._msufDragging = nil
         local x, y = self:GetCenter()
-        local uiX, uiY = UIParent:GetCenter()
-        local dx = x - uiX
-        local dy = y - uiY
+        if not x or not y then
+            return
+        end
+
         local db = EnsureGameplayDefaults()
-        db.combatOffsetX = dx
-        db.combatOffsetY = dy
+        local anchor = _MSUF_GetCombatTimerAnchorFrame(db)
+        local ax, ay
+        if anchor and anchor.GetCenter then
+            ax, ay = anchor:GetCenter()
+        end
+        if not ax or not ay then
+            ax, ay = UIParent:GetCenter()
+        end
+        if not ax or not ay then
+            return
+        end
+
+        db.combatOffsetX = x - ax
+        db.combatOffsetY = y - ay
+
+        -- Re-attach to the configured anchor immediately so it stays stable.
+        MSUF_Gameplay_ApplyCombatTimerAnchor(db)
     end)
 
     combatTimerText = combatFrame:CreateFontString(nil, "OVERLAY")
@@ -1454,7 +1441,6 @@ local function CreateCombatTimerFrame()
     return combatFrame
 end
 
-
 ------------------------------------------------------
 -- Counting logic
 ------------------------------------------------------
@@ -1465,7 +1451,6 @@ local MSUF_MeleeSpellCache
 local MSUF_MeleeSpellCacheBuilt = false
 local MSUF_MeleeSpellCacheBuilding = false
 local MSUF_MeleeSpellCachePending = false
-local MSUF_MeleeSpellCacheEventFrame
 
 local function MSUF_BuildMeleeSpellCache()
     if MSUF_MeleeSpellCacheBuilt then
@@ -1478,20 +1463,17 @@ local function MSUF_BuildMeleeSpellCache()
     -- Never build suggestions in combat: defer until we leave combat to avoid stutters in raids.
     if InCombatLockdown and InCombatLockdown() then
         MSUF_MeleeSpellCachePending = true
-        if not MSUF_MeleeSpellCacheEventFrame then
-            MSUF_MeleeSpellCacheEventFrame = CreateFrame("Frame", "MSUF_MeleeSpellCacheEventFrame", UIParent)
-            local function MSUF_MeleeSpellCache_OnEvent()
-                if not MSUF_MeleeSpellCachePending then
-                    return
-                end
+        -- Phase 7B: one-shot EventBus callback instead of frame
+        if type(MSUF_EventBus_Register) == "function" then
+            MSUF_EventBus_Register("PLAYER_REGEN_ENABLED", "MSUF_MELEE_SPELL_CACHE", function()
+                if not MSUF_MeleeSpellCachePending then return end
                 MSUF_MeleeSpellCachePending = false
-                MSUF_MeleeSpellCacheEventFrame:UnregisterAllEvents()
+                if type(MSUF_EventBus_Unregister) == "function" then
+                    MSUF_EventBus_Unregister("PLAYER_REGEN_ENABLED", "MSUF_MELEE_SPELL_CACHE")
+                end
                 MSUF_BuildMeleeSpellCache()
-            end
-            MSUF_MeleeSpellCacheEventFrame:SetScript("OnEvent", MSUF_MeleeSpellCache_OnEvent)
-
+            end)
         end
-        MSUF_MeleeSpellCacheEventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
         return
     end
 
@@ -1651,8 +1633,9 @@ local function MSUF_BuildMeleeSpellCache()
         MSUF_MeleeSpellCacheBuilding = false
         MSUF_MeleeSpellCacheBuilt = true
         MSUF_MeleeSpellCachePending = false
-        if MSUF_MeleeSpellCacheEventFrame then
-            MSUF_MeleeSpellCacheEventFrame:UnregisterAllEvents()
+        -- Phase 7B: cleanup EventBus registration if any
+        if type(MSUF_EventBus_Unregister) == "function" then
+            MSUF_EventBus_Unregister("PLAYER_REGEN_ENABLED", "MSUF_MELEE_SPELL_CACHE")
         end
     end
 
@@ -1779,9 +1762,25 @@ MSUF_CrosshairHasValidTarget = function()
 end
 
 local function MSUF_SetCrosshairRangeTaskEnabled(enabled)
-    local um = MSUF_GetUpdateManager()
-    if um and um.SetEnabled then
-        um:SetEnabled("MSUF_GAMEPLAY_CROSSHAIR_RANGE", enabled and true or false)
+    -- Phase 7A: toggle the local OnUpdate tick on combatCrosshairFrame directly
+    if not combatCrosshairFrame then return end
+    if enabled then
+        if not combatCrosshairFrame.MSUF_RangeOnUpdate then
+            combatCrosshairFrame.MSUF_RangeOnUpdate = true
+            combatCrosshairFrame.MSUF_RangeElapsed = 0
+            combatCrosshairFrame:SetScript("OnUpdate", function(self, elapsed)
+                if not self:IsShown() then return end
+                self.MSUF_RangeElapsed = (self.MSUF_RangeElapsed or 0) + (elapsed or 0)
+                if self.MSUF_RangeElapsed < 0.15 then return end
+                self.MSUF_RangeElapsed = 0
+                MSUF_UpdateCombatCrosshairRangeColor()
+            end)
+        end
+    else
+        if combatCrosshairFrame.MSUF_RangeOnUpdate then
+            combatCrosshairFrame:SetScript("OnUpdate", nil)
+            combatCrosshairFrame.MSUF_RangeOnUpdate = nil
+        end
     end
 end
 
@@ -1949,22 +1948,17 @@ local function MSUF_Gameplay_ApplyCombatStateText(g)
 
         -- If First Dance is OFF, make sure any leftover state/task is hard-stopped.
         if not wantDance then
-            firstDanceActive = false
-            firstDanceEndTime = 0
-            firstDanceLastText = nil
-            local umFD = MSUF_GetUpdateManager()
-            if umFD and umFD.SetEnabled then
-                umFD:SetEnabled("MSUF_GAMEPLAY_FIRSTDANCE", false)
-            end
+            _StopFirstDanceTick()
+
         end
 
         -- Ensure the frame is draggable again when configuring / previewing
         MSUF_CombatState_SetClickThrough(false)
 
-        -- We need combat regen events for BOTH: enter/leave text + first dance window start.
-        if combatEventFrame then
-            combatEventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-            combatEventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        -- Phase 7B: combat state events via EventBus
+        if type(MSUF_EventBus_Register) == "function" then
+            MSUF_EventBus_Register("PLAYER_REGEN_DISABLED", "MSUF_COMBAT_STATE", MSUF_CombatState_OnEvent)
+            MSUF_EventBus_Register("PLAYER_REGEN_ENABLED", "MSUF_COMBAT_STATE", MSUF_CombatState_OnEvent)
         end
 
         -- Preview while unlocked: show something so the user can position the text
@@ -1972,7 +1966,7 @@ local function MSUF_Gameplay_ApplyCombatStateText(g)
             if wantState then
                 local enterText = g.combatStateEnterText
                 if type(enterText) ~= "string" or enterText == "" then
-                    enterText = "+戰鬥"
+                    enterText = "+Combat"
                 end
                 local er, eg, eb = MSUF_GetCombatStateColors(g)
                 combatStateText._msufLastState = "enter"
@@ -1983,7 +1977,7 @@ local function MSUF_Gameplay_ApplyCombatStateText(g)
                 local _er, _eg, _eb, lr, lg, lb = MSUF_GetCombatStateColors(g)
                 combatStateText._msufLastState = "dance"
                 combatStateText:SetTextColor(lr, lg, lb, 1)
-                combatStateText:SetText("初始之舞：6.0")
+                combatStateText:SetText("First Dance: 6.0")
                 combatStateText:Show()
             end
         elseif combatStateText then
@@ -1998,18 +1992,14 @@ local function MSUF_Gameplay_ApplyCombatStateText(g)
             combatStateText:SetText("")
             combatStateText:Hide()
         end
-        if combatEventFrame then
-            combatEventFrame:UnregisterEvent("PLAYER_REGEN_DISABLED")
-            combatEventFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+        -- Phase 7B: unregister combat state from EventBus
+        if type(MSUF_EventBus_Unregister) == "function" then
+            MSUF_EventBus_Unregister("PLAYER_REGEN_DISABLED", "MSUF_COMBAT_STATE")
+            MSUF_EventBus_Unregister("PLAYER_REGEN_ENABLED", "MSUF_COMBAT_STATE")
         end
 
-        firstDanceActive = false
-        firstDanceEndTime = 0
-        firstDanceLastText = nil
-        local umFD = MSUF_GetUpdateManager()
-        if umFD and umFD.SetEnabled then
-            umFD:SetEnabled("MSUF_GAMEPLAY_FIRSTDANCE", false)
-        end
+        _StopFirstDanceTick()
+
     end
 end
 
@@ -2024,7 +2014,12 @@ local function MSUF_Gameplay_ApplyCombatCrosshair(g)
             combatCrosshairEventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
             combatCrosshairEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
             combatCrosshairEventFrame:RegisterEvent("PLAYER_LOGIN")
-            combatCrosshairEventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+            -- Phase 1: PLAYER_TARGET_CHANGED via EventBus
+            if type(MSUF_EventBus_Register) == "function" then
+                MSUF_EventBus_Register("PLAYER_TARGET_CHANGED", "MSUF_CROSSHAIR", function()
+                    MSUF_RequestCrosshairRangeRefresh()
+                end)
+            end
             -- Only listen for range-check updates when range-color is enabled.
             if combatCrosshairFrame and combatCrosshairFrame._msufUseRangeColor then
                 combatCrosshairEventFrame:RegisterEvent("SPELL_RANGE_CHECK_UPDATE")
@@ -2044,12 +2039,13 @@ local function MSUF_Gameplay_ApplyCombatCrosshair(g)
         if combatCrosshairEventFrame then
             combatCrosshairEventFrame:UnregisterAllEvents()
         end
+        -- Phase 1: also unregister EventBus callback
+        if type(MSUF_EventBus_Unregister) == "function" then
+            MSUF_EventBus_Unregister("PLAYER_TARGET_CHANGED", "MSUF_CROSSHAIR")
+        end
 
         -- Off means off: stop any range-color background task too
-        local umRange = MSUF_GetUpdateManager()
-        if umRange and umRange.SetEnabled then
-            umRange:SetEnabled("MSUF_GAMEPLAY_CROSSHAIR_RANGE", false)
-        end
+        MSUF_SetCrosshairRangeTaskEnabled(false)
 
         if combatCrosshairFrame then
             -- Ensure we do not keep any spell-range-check enabled when the crosshair is disabled.
@@ -2062,8 +2058,6 @@ local function MSUF_Gameplay_ApplyCombatCrosshair(g)
         end
     end
 end
-
-
 
 ------------------------------------------------------
 -- Shaman: Player Totems tracker (player-only)
@@ -2085,7 +2079,6 @@ do
         end
         return false
     end
-
 
     local function _ToNumberSafe(v)
         if type(v) == "number" then
@@ -2118,6 +2111,69 @@ do
         end
         return string_format("%d:%02d", m, s)
     end
+
+------------------------------------------------------
+-- Totems preview drag positioning
+-- Workflow:
+-- 1) Use "預覽" to show the totem row.
+-- 2) Drag the preview to place it roughly.
+-- 3) Use X/Y sliders for fine tuning.
+--
+-- Dragging updates ONLY the stored offsets (playerTotemsOffsetX/Y).
+-- It does NOT call the full Gameplay Apply path on every mouse move.
+------------------------------------------------------
+
+local function _MSUF_RoundInt(v)
+    if type(v) ~= "number" then
+        return 0
+    end
+    if v >= 0 then
+        return math.floor(v + 0.5)
+    end
+    return math.ceil(v - 0.5)
+end
+
+local function _ApplyTotemsAnchorOnly(g, offX, offY)
+    if not totemsFrame then
+        return
+    end
+
+    local playerFrame = _G and _G.MSUF_player
+
+    local anchorFrom = (g and type(g.playerTotemsAnchorFrom) == "string" and g.playerTotemsAnchorFrom ~= "") and g.playerTotemsAnchorFrom or "TOPLEFT"
+    local anchorTo = (g and type(g.playerTotemsAnchorTo) == "string" and g.playerTotemsAnchorTo ~= "") and g.playerTotemsAnchorTo or "BOTTOMLEFT"
+
+    totemsFrame:ClearAllPoints()
+
+    local x = (type(offX) == "number") and offX or (tonumber(g and g.playerTotemsOffsetX) or 0)
+    local y = (type(offY) == "number") and offY or (tonumber(g and g.playerTotemsOffsetY) or -6)
+
+    if playerFrame then
+        totemsFrame:SetPoint(anchorFrom, playerFrame, anchorTo, x, y)
+    else
+        totemsFrame:SetPoint("CENTER", UIParent, "CENTER", x, y)
+    end
+end
+
+local function _SetTotemsDragEnabled(on)
+    if not totemsFrame then
+        return
+    end
+    local ov = totemsFrame._msufDragOverlay
+    if not ov then
+        return
+    end
+
+    if on then
+        ov:Show()
+        ov:EnableMouse(true)
+    else
+        ov:EnableMouse(false)
+        ov:SetScript("OnUpdate", nil)
+        ov._msufDragging = nil
+        ov:Hide()
+    end
+end
 
     local function _EnsureTotemsFrame()
         if totemsFrame then
@@ -2156,9 +2212,104 @@ do
 				-- lastText cache intentionally not used (secret-safe: never compare secret strings)
 				lastText = nil,
             }
-        end
 
-        totemsFrame:Hide()
+end
+
+-- Drag overlay for Preview positioning (X/Y sliders remain for fine tuning).
+if not totemsFrame._msufDragOverlay then
+    local ov = CreateFrame("Button", nil, totemsFrame)
+    ov:SetAllPoints(totemsFrame)
+    ov:SetFrameLevel(totemsFrame:GetFrameLevel() + 200)
+    ov:EnableMouse(false)
+    ov:Hide()
+
+    local hi = ov:CreateTexture(nil, "OVERLAY")
+    hi:SetAllPoints()
+    hi:SetColorTexture(1, 1, 1, 0.08)
+    hi:Hide()
+    ov._msufHi = hi
+
+    ov:SetScript("OnEnter", function(self)
+        if self._msufHi then self._msufHi:Show() end
+        if GameTooltip then
+            GameTooltip:SetOwner(self, "ANCHOR_TOP")
+            GameTooltip:AddLine("圖騰預覽", 1, 1, 1)
+            GameTooltip:AddLine("拖曳以移動。", 0.9, 0.9, 0.9)
+            GameTooltip:AddLine("使用 X/Y 偏移進行微調。", 0.7, 0.7, 0.7)
+            GameTooltip:Show()
+        end
+    end)
+    ov:SetScript("OnLeave", function(self)
+        if self._msufHi then self._msufHi:Hide() end
+        if GameTooltip then GameTooltip:Hide() end
+    end)
+
+    ov:SetScript("OnMouseDown", function(self, btn)
+        if btn ~= "LeftButton" then return end
+
+        local g = EnsureGameplayDefaults()
+        self._msufDragG = g
+
+        local scale = (UIParent and UIParent.GetEffectiveScale and UIParent:GetEffectiveScale()) or 1
+        local cx, cy = GetCursorPosition()
+        cx = cx / scale
+        cy = cy / scale
+
+        self._msufDragStartCursorX = cx
+        self._msufDragStartCursorY = cy
+        self._msufDragStartOffX = tonumber(g.playerTotemsOffsetX) or 0
+        self._msufDragStartOffY = tonumber(g.playerTotemsOffsetY) or -6
+        self._msufDragLastOffX = self._msufDragStartOffX
+        self._msufDragLastOffY = self._msufDragStartOffY
+        self._msufDragging = true
+
+        self:SetScript("OnUpdate", function(self)
+            if not self._msufDragging then return end
+            local g = self._msufDragG
+            if not g then return end
+
+            local scale = (UIParent and UIParent.GetEffectiveScale and UIParent:GetEffectiveScale()) or 1
+            local x, y = GetCursorPosition()
+            x = x / scale
+            y = y / scale
+
+            local dx = x - (self._msufDragStartCursorX or x)
+            local dy = y - (self._msufDragStartCursorY or y)
+
+            local offX = _MSUF_RoundInt((self._msufDragStartOffX or 0) + dx)
+            local offY = _MSUF_RoundInt((self._msufDragStartOffY or -6) + dy)
+
+            if offX ~= self._msufDragLastOffX or offY ~= self._msufDragLastOffY then
+                self._msufDragLastOffX = offX
+                self._msufDragLastOffY = offY
+                g.playerTotemsOffsetX = offX
+                g.playerTotemsOffsetY = offY
+
+                _ApplyTotemsAnchorOnly(g, offX, offY)
+
+                local opt = _G and _G.MSUF_GameplayPanel
+                if opt and opt.MSUF_SyncTotemOffsetSliders then
+                    opt:MSUF_SyncTotemOffsetSliders()
+                end
+            end
+        end)
+    end)
+
+    ov:SetScript("OnMouseUp", function(self, btn)
+        if btn ~= "LeftButton" then return end
+        self._msufDragging = nil
+        self:SetScript("OnUpdate", nil)
+
+        local opt = _G and _G.MSUF_GameplayPanel
+        if opt and opt.MSUF_SyncTotemOffsetSliders then
+            opt:MSUF_SyncTotemOffsetSliders()
+        end
+    end)
+
+    totemsFrame._msufDragOverlay = ov
+end
+
+totemsFrame:Hide()
         return totemsFrame
     end
 
@@ -2166,6 +2317,7 @@ do
         if totemsFrame then
             totemsFrame._msufPreviewActive = nil
         end
+        _SetTotemsDragEnabled(false)
     end
 
     local function _ApplyTotemsPreview(g)
@@ -2201,6 +2353,8 @@ do
                 end
             end
         end
+
+        _SetTotemsDragEnabled(true)
     end
 
     local function _ApplyTotemsLayout(g)
@@ -2239,41 +2393,62 @@ do
             fontSize = _MSUF_Clamp(math.floor(size * 0.55 + 0.5), 8, 64)
         end
 
-        local tr, tg, tb = _MSUF_NormalizeRGB(g.playerTotemsTextColor, 1, 1, 1)
+            local tr, tg, tb = _MSUF_NormalizeRGB(g.playerTotemsTextColor, 1, 1, 1)
 
-        for i = 1, 4 do
-            local slot = totemSlots[i]
-            if slot and slot.btn then
-                slot.btn:SetSize(size, size)
-                slot.text:SetFont(fontPath, fontSize, fontFlags)
-                slot.text:SetTextColor(tr, tg, tb, 1)
+    -- Growth direction:
+    --  RIGHT/LEFT = horizontal row
+    --  UP/DOWN    = vertical column
+    local growth = g.playerTotemsGrowthDirection
+    if growth ~= "LEFT" and growth ~= "RIGHT" and growth ~= "UP" and growth ~= "DOWN" then
+        growth = "RIGHT"
+    end
+    local vertical = (growth == "UP" or growth == "DOWN")
 
-                slot.btn:ClearAllPoints()
+    for i = 1, 4 do
+        local slot = totemSlots[i]
+        if slot and slot.btn then
+            slot.btn:SetSize(size, size)
+            slot.text:SetFont(fontPath, fontSize, fontFlags)
+            slot.text:SetTextColor(tr, tg, tb, 1)
 
-                local growth = g.playerTotemsGrowthDirection
-                if growth ~= "LEFT" and growth ~= "RIGHT" then
-                    growth = "RIGHT"
+            slot.btn:ClearAllPoints()
+
+            if i == 1 then
+                if growth == "LEFT" then
+                    slot.btn:SetPoint("TOPRIGHT", f, "TOPRIGHT", 0, 0)
+                elseif growth == "UP" then
+                    slot.btn:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 0, 0)
+                elseif growth == "DOWN" then
+                    slot.btn:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
+                else -- RIGHT
+                    slot.btn:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
                 end
-
-                if i == 1 then
+            else
+                local prev = totemSlots[i-1] and totemSlots[i-1].btn
+                if prev then
                     if growth == "LEFT" then
-                        slot.btn:SetPoint("TOPRIGHT", f, "TOPRIGHT", 0, 0)
-                    else
-                        slot.btn:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
+                        slot.btn:SetPoint("RIGHT", prev, "LEFT", -spacing, 0)
+                    elseif growth == "UP" then
+                        slot.btn:SetPoint("BOTTOM", prev, "TOP", 0, spacing)
+                    elseif growth == "DOWN" then
+                        slot.btn:SetPoint("TOP", prev, "BOTTOM", 0, -spacing)
+                    else -- RIGHT
+                        slot.btn:SetPoint("LEFT", prev, "RIGHT", spacing, 0)
                     end
                 else
-                    if growth == "LEFT" then
-                        slot.btn:SetPoint("RIGHT", totemSlots[i-1].btn, "LEFT", -spacing, 0)
-                    else
-                        slot.btn:SetPoint("LEFT", totemSlots[i-1].btn, "RIGHT", spacing, 0)
-                    end
+                    -- Fallback: should not happen, but keep stable
+                    slot.btn:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
                 end
-
             end
         end
+    end
 
+    if vertical then
+        f:SetSize(size, (size * 4) + (spacing * 3))
+    else
         f:SetSize((size * 4) + (spacing * 3), size)
     end
+end
 
 local function _FormatTotemTime(left)
     -- Midnight/Beta secret-safe:
@@ -2424,7 +2599,6 @@ local function _UpdateTotemsNow(g)
     return any
 end
 
-
 local function _TickTotemText()
     local g = GetGameplayDBFast()
     if not g or not g.enablePlayerTotems or not g.playerTotemsShowText then
@@ -2465,21 +2639,22 @@ local function _TickTotemText()
     end
 end
 
-
+    local _totemTicker = nil
     local function _UpdateTotemTickEnabled(g, any)
-        local um = MSUF_GetUpdateManager()
-        if not um or not um.Register or not um.SetEnabled then
-            return
-        end
-
-        if not ns._MSUF_PlayerTotemTaskRegistered then
-            ns._MSUF_PlayerTotemTaskRegistered = true
-            local function _Interval() return (ns._MSUF_PlayerTotemsTickInterval or 0.50) end -- dynamic countdown interval
-            um:Register("MSUF_GAMEPLAY_PLAYERTOTEMS", _TickTotemText, _Interval, 90)
-        end
-
         local enableTick = (g and g.enablePlayerTotems and g.playerTotemsShowText and any) and true or false
-        um:SetEnabled("MSUF_GAMEPLAY_PLAYERTOTEMS", enableTick)
+        if enableTick then
+            if not _totemTicker and C_Timer and C_Timer.NewTicker then
+                local interval = (ns._MSUF_PlayerTotemsTickInterval or 0.50)
+                _totemTicker = C_Timer.NewTicker(interval, function()
+                    _TickTotemText()
+                end)
+            end
+        else
+            if _totemTicker then
+                _totemTicker:Cancel()
+                _totemTicker = nil
+            end
+        end
     end
 
     local function _RefreshTotems()
@@ -2556,7 +2731,6 @@ end
 
 end
 
-
 -- Feature tables (single-file modules) for readability and safer future refactors
 local GameplayFeatures = {
     CombatTimer     = {},
@@ -2575,6 +2749,7 @@ function GameplayFeatures.CombatTimer.Apply(g)
     -- Ensure lock state is applied too
     ApplyLockState()
     if combatFrame then
+        MSUF_Gameplay_ApplyCombatTimerAnchor(g)
         combatFrame:SetShown(g.enableCombatTimer)
     end
 end
@@ -2599,93 +2774,93 @@ end
 function ns.MSUF_RequestGameplayApply()
     local g = EnsureGameplayDefaults()
 
-
     Gameplay_ApplyAllFeatures(g)
 
--- Centralized throttling: register combat-timer ticks in the global MSUF_UpdateManager
-    local um = MSUF_GetUpdateManager()
-    if um and um.Register and um.SetEnabled then
-        if not ns._MSUF_GameplayTasksRegistered then
-            ns._MSUF_GameplayTasksRegistered = true
-
-            local function _CombatInterval()
-                -- Timer is formatted as mm:ss, so it only changes once per second.
-                -- Keeping this at 1.0s reduces CPU in raids without any visible downside.
-                return 1.0
-            end
-            um:Register("MSUF_GAMEPLAY_COMBATTIMER", MSUF_Gameplay_TickCombatTimer, _CombatInterval, 90)
-        end
-
-        -- Off means off: enable only what is configured
-        um:SetEnabled("MSUF_GAMEPLAY_COMBATTIMER", g.enableCombatTimer and true or false)
-
-        -- Make combat timer start immediately on combat start (no 0-1s "lag").
-        -- We also set combatStartTime from the event timestamp so the timer isn't permanently behind.
-        if not combatTimerEventFrame then
-            combatTimerEventFrame = CreateFrame("Frame", "MSUF_CombatTimerEventFrame", UIParent)
-            combatTimerEventFrame:SetScript("OnEvent", function(_, event)
-                local gd = GetGameplayDBFast()
-                if not gd or not gd.enableCombatTimer then
-                    return
-                end
-
-                if event == "PLAYER_REGEN_DISABLED" then
-                    combatStartTime = GetTime()
-                    wasInCombat = true
-                    -- Force a refresh even if text would be the same.
-                    lastTimerText = ""
-                    MSUF_Gameplay_TickCombatTimer()
-                elseif event == "PLAYER_REGEN_ENABLED" then
-                    wasInCombat = false
-                    combatStartTime = nil
-                    lastTimerText = ""
-                    MSUF_Gameplay_TickCombatTimer()
-                elseif event == "PLAYER_ENTERING_WORLD" then
-                    -- Safety reset on zoning/loading screens.
-                    lastTimerText = ""
-                    if UnitAffectingCombat and UnitAffectingCombat("player") then
-                        if not combatStartTime then
-                            combatStartTime = GetTime()
-                        end
-                        wasInCombat = true
-                    else
-                        wasInCombat = false
-                        combatStartTime = nil
-                    end
-                    MSUF_Gameplay_TickCombatTimer()
-                end
+-- Phase 7A: combat-timer tick — event-driven start/stop (no permanent ticker)
+    local function _StartCombatTimerTick()
+        if ns._MSUF_CombatTimerTicker then return end  -- already running
+        if C_Timer and C_Timer.NewTicker then
+            ns._MSUF_CombatTimerTicker = C_Timer.NewTicker(1.0, function()
+                MSUF_Gameplay_TickCombatTimer()
             end)
         end
-
-        combatTimerEventFrame:UnregisterAllEvents()
-        if g.enableCombatTimer then
-            combatTimerEventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-            combatTimerEventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-            combatTimerEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-
-            -- If the user enables the timer while already in combat, show it immediately.
-            if UnitAffectingCombat and UnitAffectingCombat("player") then
-                if not combatStartTime then
-                    combatStartTime = GetTime()
-                end
-                wasInCombat = true
-                lastTimerText = ""
-                MSUF_Gameplay_TickCombatTimer()
-            end
-        else
-            -- Ensure state is hard-reset when turned off.
-            wasInCombat = false
-            combatStartTime = nil
-            lastTimerText = ""
-        end
-    else
-        -- Legacy fallback (should be rare): if UpdateManager isn't available, keep existing behavior.
-        if not updater then
-            updater = CreateFrame("Frame")
+    end
+    local function _StopCombatTimerTick()
+        if ns._MSUF_CombatTimerTicker then
+            ns._MSUF_CombatTimerTicker:Cancel()
+            ns._MSUF_CombatTimerTicker = nil
         end
     end
-end
 
+    -- Phase 7B: combat timer events via EventBus (frame eliminated)
+    local function _CombatTimer_OnRegenDisabled()
+        local gd = GetGameplayDBFast()
+        if not gd or not gd.enableCombatTimer then return end
+        combatStartTime = GetTime()
+        wasInCombat = true
+        lastTimerText = ""
+        MSUF_Gameplay_TickCombatTimer()
+        _StartCombatTimerTick()
+    end
+    local function _CombatTimer_OnRegenEnabled()
+        local gd = GetGameplayDBFast()
+        if not gd or not gd.enableCombatTimer then return end
+        _StopCombatTimerTick()
+        wasInCombat = false
+        combatStartTime = nil
+        lastTimerText = ""
+        MSUF_Gameplay_TickCombatTimer()
+    end
+    local function _CombatTimer_OnPEW()
+        local gd = GetGameplayDBFast()
+        if not gd or not gd.enableCombatTimer then return end
+        lastTimerText = ""
+        if UnitAffectingCombat and UnitAffectingCombat("player") then
+            if not combatStartTime then
+                combatStartTime = GetTime()
+            end
+            wasInCombat = true
+            MSUF_Gameplay_TickCombatTimer()
+            _StartCombatTimerTick()
+        else
+            _StopCombatTimerTick()
+            wasInCombat = false
+            combatStartTime = nil
+        end
+        MSUF_Gameplay_TickCombatTimer()
+    end
+
+    -- Unregister previous (idempotent)
+    if type(MSUF_EventBus_Unregister) == "function" then
+        MSUF_EventBus_Unregister("PLAYER_REGEN_DISABLED", "MSUF_COMBAT_TIMER")
+        MSUF_EventBus_Unregister("PLAYER_REGEN_ENABLED", "MSUF_COMBAT_TIMER")
+        MSUF_EventBus_Unregister("PLAYER_ENTERING_WORLD", "MSUF_COMBAT_TIMER")
+    end
+    _StopCombatTimerTick()
+
+    if g.enableCombatTimer then
+        if type(MSUF_EventBus_Register) == "function" then
+            MSUF_EventBus_Register("PLAYER_REGEN_DISABLED", "MSUF_COMBAT_TIMER", _CombatTimer_OnRegenDisabled)
+            MSUF_EventBus_Register("PLAYER_REGEN_ENABLED", "MSUF_COMBAT_TIMER", _CombatTimer_OnRegenEnabled)
+            MSUF_EventBus_Register("PLAYER_ENTERING_WORLD", "MSUF_COMBAT_TIMER", _CombatTimer_OnPEW)
+        end
+
+        -- If the user enables the timer while already in combat, show it immediately.
+        if UnitAffectingCombat and UnitAffectingCombat("player") then
+            if not combatStartTime then
+                combatStartTime = GetTime()
+            end
+            wasInCombat = true
+            lastTimerText = ""
+            MSUF_Gameplay_TickCombatTimer()
+            _StartCombatTimerTick()
+        end
+    else
+        wasInCombat = false
+        combatStartTime = nil
+        lastTimerText = ""
+    end
+end
 
 -- Backwards-compatible entrypoint used by other modules (e.g. Colors)
 -- Apply all Gameplay visuals immediately (frames + fonts + colors).
@@ -2695,7 +2870,6 @@ function ns.MSUF_ApplyGameplayVisuals()
         ns.MSUF_RequestGameplayApply()
     end
 end
-
 
 ------------------------------------------------------
 -- Options panel
@@ -2720,9 +2894,6 @@ function ns.MSUF_RegisterGameplayOptions_Full(parentCategory)
     scrollFrame:SetScrollChild(content)
 
     local lastControl
-
-
-
 
     local function RequestApply()
         if ns and ns.MSUF_RequestGameplayApply then
@@ -2759,6 +2930,10 @@ function ns.MSUF_RegisterGameplayOptions_Full(parentCategory)
 
     local function BindSlider(sl, key, roundFunc, after, applyNow)
         sl:SetScript("OnValueChanged", function(self, value)
+            -- UI sync (panel:refresh / drag-sync) should not write DB or trigger apply.
+            if panel and panel._msufSuppressSliderChanges then
+                return
+            end
             local g = EnsureGameplayDefaults()
             if roundFunc then value = roundFunc(value) end
             g[key] = value
@@ -2769,18 +2944,18 @@ function ns.MSUF_RegisterGameplayOptions_Full(parentCategory)
 
     local title = content:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 16, -16)
-    title:SetText("Midnight Simple Unit Frames - 遊戲性")
+    title:SetText("至暗之夜頭像 - 遊戲輔助")
 
     local subText = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     subText:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
     subText:SetWidth(600)
     subText:SetJustifyH("LEFT")
-    subText:SetText("這裡有一些可以開啟或關閉的遊戲性增強選項。")
+    subText:SetText("這裡有一些遊戲性增強選項，你可以開啟或關閉。")
 
     -- Section header + separator line
     local sectionTitle = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     sectionTitle:SetPoint("TOPLEFT", subText, "BOTTOMLEFT", 0, -14)
-    sectionTitle:SetText("準心近戰法術")
+    sectionTitle:SetText("準星近戰法術")
 
     local separator = content:CreateTexture(nil, "ARTWORK")
     separator:SetColorTexture(1, 1, 1, 0.15)
@@ -2793,12 +2968,12 @@ function ns.MSUF_RegisterGameplayOptions_Full(parentCategory)
 -- Shared melee range spell (shared)
 local meleeSharedTitle = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 meleeSharedTitle:SetPoint("TOPLEFT", separator, "BOTTOMLEFT", 0, -18)
-meleeSharedTitle:SetText("近戰距離法術 (準心)")
+meleeSharedTitle:SetText("近戰範圍法術 (準星)")
 panel.meleeSharedTitle = meleeSharedTitle
 
 local meleeSharedSubText = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 meleeSharedSubText:SetPoint("TOPLEFT", meleeSharedTitle, "BOTTOMLEFT", 0, -4)
-meleeSharedSubText:SetText("用於：準心近戰距離變色。")
+meleeSharedSubText:SetText("用途：準星近戰範圍著色。")
 panel.meleeSharedSubText = meleeSharedSubText
 
 local meleeLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
@@ -2825,25 +3000,24 @@ panel.meleeSpellPerClassCheck = perClassCB
 
 local perClassHint = content:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
 perClassHint:SetPoint("TOPLEFT", perClassCB, "BOTTOMLEFT", 20, -2)
-perClassHint:SetText("保留各角色的設定。")
+perClassHint:SetText("保留個別角色設定。")
 panel.meleeSpellPerClassHint = perClassHint
 
 local meleeSelected = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 meleeSelected:SetPoint("LEFT", meleeInput, "RIGHT", 12, 0)
-meleeSelected:SetText("已選取：(無)")
+meleeSelected:SetText("已選擇：(無)")
 panel.meleeSpellSelectedText = meleeSelected
 
 local meleeUsedBy = content:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
 meleeUsedBy:SetPoint("TOPLEFT", meleeSelected, "BOTTOMLEFT", 0, -6)
-meleeUsedBy:SetText("用於：準心顏色")
+meleeUsedBy:SetText("用途：準星顏色")
 panel.meleeSpellUsedByText = meleeUsedBy
 
 local meleeSharedWarn = content:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
 meleeSharedWarn:SetPoint("TOPLEFT", meleeUsedBy, "BOTTOMLEFT", 0, -2)
-meleeSharedWarn:SetText("|cffff8800未選擇近戰距離法術 — 準心將無法運作。|r")
+meleeSharedWarn:SetText("|cffff8800未選擇近戰範圍法術 — 準星將無法運作。|r")
 meleeSharedWarn:Hide()
 panel.meleeSpellWarningText = meleeSharedWarn
-
 
 local suggestionFrame = CreateFrame("Frame", "MSUF_Gameplay_MeleeSpellSuggestions", content, "BackdropTemplate")
 suggestionFrame:SetPoint("TOPLEFT", meleeInput, "BOTTOMLEFT", 0, -2)
@@ -2930,12 +3104,12 @@ local function UpdateSelectedTextFromDB()
             name = GetSpellInfo(id)
         end
         if name then
-            meleeSelected:SetText(string_format("已選取：%s (%d)", name, id))
+            meleeSelected:SetText(string_format("已選擇：%s (%d)", name, id))
         else
-            meleeSelected:SetText(string_format("已選取：ID %d", id))
+            meleeSelected:SetText(string_format("已選擇：ID %d", id))
         end
     else
-        meleeSelected:SetText("已選取：(無)")
+        meleeSelected:SetText("已選擇：(無)")
     end
 end
 
@@ -2962,7 +3136,6 @@ local function QuerySuggestions(query)
     return out
 end
 
-
 MSUF_SelectMeleeSpell = function(spellID, spellName, preferNameInBox)
     local g = EnsureGameplayDefaults()
     spellID = tonumber(spellID) or 0
@@ -2988,7 +3161,7 @@ MSUF_SelectMeleeSpell = function(spellID, spellName, preferNameInBox)
         MSUF_SuppressMeleeInputChange = false
     end
 
-    meleeSelected:SetText(string_format("已選取：%s (%d)", (spellName and spellName ~= "" and spellName) or ("ID " .. spellID), spellID))
+    meleeSelected:SetText(string_format("已選擇：%s (%d)", (spellName and spellName ~= "" and spellName) or ("ID " .. spellID), spellID))
     if g.enableCombatCrosshair and g.enableCombatCrosshairMeleeRangeColor then
         MSUF_SetEnabledMeleeRangeCheck(spellID)
     end
@@ -3182,7 +3355,6 @@ end)
         return cb
     end
 
-
     local function _MSUF_ColorSwatch(name, point, rel, relPoint, x, y, labelText, field, key, defaultRGB, after)
         local btn = CreateFrame("Button", name, content, "BackdropTemplate")
         btn:SetPoint(point, rel, relPoint, x or 0, y or 0)
@@ -3315,12 +3487,125 @@ end)
         return b
     end
 
+local function _MSUF_Dropdown(name, point, rel, relPoint, x, y, width, field)
+    -- Simple UIDropDownMenu-based control (used sparingly in Gameplay to avoid heavy UI scaffolding).
+    local dd = CreateFrame("Frame", name, content, "UIDropDownMenuTemplate")
+    dd:SetPoint(point, rel, relPoint, x or 0, y or 0)
+    if UIDropDownMenu_SetWidth then
+        UIDropDownMenu_SetWidth(dd, width or 120)
+    end
+    if field then
+        panel[field] = dd
+    end
+    return dd
+end
+
     -- Combat Timer header + separator
     local combatSeparator = _MSUF_Sep(subText, -36)
     local combatHeader = _MSUF_Header(combatSeparator, "戰鬥計時器")
 
     -- In-combat timer checkbox
     local combatTimerCheck = _MSUF_Check("MSUF_Gameplay_CombatTimerCheck", "TOPLEFT", combatHeader, "BOTTOMLEFT", 0, -8, "啟用戰鬥中計時器", "combatTimerCheck", "enableCombatTimer")
+
+    -- Combat Timer anchor dropdown (None / Player / Target / Focus)
+    local combatTimerAnchorLabel = _MSUF_Label("GameFontNormal", "LEFT", combatTimerCheck, "RIGHT", 220, 0, "位置", "combatTimerAnchorLabel")
+    local combatTimerAnchorDD = _MSUF_Dropdown("MSUF_Gameplay_CombatTimerAnchorDropDown", "LEFT", combatTimerAnchorLabel, "RIGHT", 6, -2, 120, "combatTimerAnchorDropdown")
+
+    local function _CombatTimerAnchor_Validate(v)
+        if v ~= "none" and v ~= "player" and v ~= "target" and v ~= "focus" then
+            return "none"
+        end
+        return v
+    end
+
+    local function _CombatTimerAnchor_Text(v)
+        if v == "player" then return "玩家" end
+        if v == "target" then return "目標" end
+        if v == "focus" then return "專注目標" end
+        return "無"
+    end
+
+    local function _CombatTimerAnchor_Set(v)
+        local g = MSUF_DB and MSUF_DB.gameplay
+        if not g then return end
+
+        local preX, preY
+        if combatFrame and combatFrame.GetCenter then
+            preX, preY = combatFrame:GetCenter()
+        end
+
+        local val = _CombatTimerAnchor_Validate(v)
+        g.combatTimerAnchor = val
+
+        -- Keep the timer in the same on-screen position when switching anchors
+        if preX and preY then
+            local anchor = _MSUF_GetCombatTimerAnchorFrame(g)
+            local ax, ay
+            if anchor and anchor.GetCenter then
+                ax, ay = anchor:GetCenter()
+            end
+            if not ax or not ay then
+                ax, ay = UIParent:GetCenter()
+            end
+            if ax and ay then
+                g.combatOffsetX = preX - ax
+                g.combatOffsetY = preY - ay
+            end
+        end
+
+        
+        -- Apply anchor immediately (independent of lock state)
+        if combatFrame then
+            MSUF_Gameplay_ApplyCombatTimerAnchor(g)
+            -- Refresh preview text positioning right away (no 1s wait)
+            MSUF_Gameplay_TickCombatTimer()
+        end
+
+        if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(combatTimerAnchorDD, val) end
+        if UIDropDownMenu_SetText then UIDropDownMenu_SetText(combatTimerAnchorDD, _CombatTimerAnchor_Text(val)) end
+
+        if ns and ns.MSUF_RequestGameplayApply then
+            ns.MSUF_RequestGameplayApply()
+        end
+        if panel and panel.refresh then
+            panel:refresh()
+        end
+    end
+
+    if UIDropDownMenu_Initialize and UIDropDownMenu_CreateInfo and UIDropDownMenu_AddButton then
+        UIDropDownMenu_Initialize(combatTimerAnchorDD, function(self, level)
+            local g = MSUF_DB and MSUF_DB.gameplay
+            local cur = _CombatTimerAnchor_Validate(g and g.combatTimerAnchor)
+
+            local items = {
+                {"none",  "無"},
+                {"player", "玩家"},
+                {"target", "目標"},
+                {"focus",  "專注目標"},
+            }
+
+            for i = 1, #items do
+                local value = items[i][1]
+                local text  = items[i][2]
+                local info = UIDropDownMenu_CreateInfo()
+                info.text = text
+                info.value = value
+                info.checked = (cur == value)
+                info.func = function(btn)
+                    _CombatTimerAnchor_Set(btn and btn.value)
+                    if CloseDropDownMenus then CloseDropDownMenus() end
+                end
+                UIDropDownMenu_AddButton(info, level)
+            end
+        end)
+    end
+
+    do
+        local g = MSUF_DB and MSUF_DB.gameplay
+        local cur = _CombatTimerAnchor_Validate(g and g.combatTimerAnchor)
+        if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(combatTimerAnchorDD, cur) end
+        if UIDropDownMenu_SetText then UIDropDownMenu_SetText(combatTimerAnchorDD, _CombatTimerAnchor_Text(cur)) end
+    end
 
     -- Combat Timer size slider
     local combatSlider = _MSUF_Slider("MSUF_Gameplay_CombatFontSizeSlider", "TOPLEFT", combatTimerCheck, "BOTTOMLEFT", 0, -24, 220, 10, 64, 1, "10 px", "64 px", "計時器大小", "combatFontSizeSlider", "combatFontSize",
@@ -3344,24 +3629,24 @@ end)
     local combatStateCheck = _MSUF_Check("MSUF_Gameplay_CombatStateCheck", "TOPLEFT", combatStateHeader, "BOTTOMLEFT", 0, -8, "顯示進入/離開戰鬥文字", "combatStateCheck", "enableCombatStateText")
 
     -- Custom texts (enter/leave)
-    local combatStateEnterLabel = _MSUF_Label("GameFontNormal", "TOPLEFT", combatStateCheck, "BOTTOMLEFT", 0, -12, "進入戰鬥文字", "combatStateEnterLabel")
+    local combatStateEnterLabel = _MSUF_Label("GameFontNormal", "TOPLEFT", combatStateCheck, "BOTTOMLEFT", 0, -12, "進入文字", "combatStateEnterLabel")
     local combatStateEnterInput = _MSUF_EditBox("MSUF_Gameplay_CombatStateEnterInput", "TOPLEFT", combatStateEnterLabel, "BOTTOMLEFT", 0, -6, 220, 20, "combatStateEnterInput")
 
-    local combatStateLeaveLabel = _MSUF_Label("GameFontNormal", "TOPLEFT", combatStateEnterInput, "BOTTOMLEFT", 0, -12, "離開戰鬥文字", "combatStateLeaveLabel")
+    local combatStateLeaveLabel = _MSUF_Label("GameFontNormal", "TOPLEFT", combatStateEnterInput, "BOTTOMLEFT", 0, -12, "離開文字", "combatStateLeaveLabel")
     local combatStateLeaveInput = _MSUF_EditBox("MSUF_Gameplay_CombatStateLeaveInput", "TOPLEFT", combatStateLeaveLabel, "BOTTOMLEFT", 0, -6, 220, 20, "combatStateLeaveInput")
 
     local function CommitCombatStateTexts()
         local g = EnsureGameplayDefaults()
         g.combatStateEnterText = (combatStateEnterInput:GetText() or "")
         g.combatStateLeaveText = (combatStateLeaveInput:GetText() or "")
-        if ns and ns.MSUF_RequestGameplayApply() then
+        if ns and ns.MSUF_RequestGameplayApply then
             ns.MSUF_RequestGameplayApply()
         end
         -- If we're showing the unlocked preview, refresh it with the new text
         if g.enableCombatStateText and (not g.lockCombatState) and combatStateText then
             local enterText = g.combatStateEnterText
             if type(enterText) ~= "string" or enterText == "" then
-                enterText = "+戰鬥"
+                enterText = "+Combat"
             end
             combatStateText:SetText(enterText)
         end
@@ -3431,7 +3716,7 @@ end)
 
     -- Class-specific toggles header + separator
     local classSpecSeparator = _MSUF_Sep(combatStateSlider, -24)
-    local classSpecHeader = _MSUF_Header(classSpecSeparator, "職業專屬切換")
+    local classSpecHeader = _MSUF_Header(classSpecSeparator, "職業專用切換")
 
     -- Shaman: Player Totem tracker (player-only)
     local _isShaman = false
@@ -3447,17 +3732,17 @@ end)
     local _totemsRightBottom = nil
 
     if _isShaman then
-        local totemsTitle = _MSUF_Label("GameFontNormal", "TOPLEFT", classSpecHeader, "BOTTOMLEFT", 0, -10, "薩滿：圖騰監控", "playerTotemsTitle")
+        local totemsTitle = _MSUF_Label("GameFontNormal", "TOPLEFT", classSpecHeader, "BOTTOMLEFT", 0, -10, "薩滿：圖騰追蹤", "playerTotemsTitle")
         panel.playerTotemsTitle = totemsTitle
 
-        local totemsSub = _MSUF_Label("GameFontDisableSmall", "TOPLEFT", totemsTitle, "BOTTOMLEFT", 0, -2, "僅限玩家。戰鬥中受保護（無法互動）。", "playerTotemsSubText")
+        local totemsSub = _MSUF_Label("GameFontDisableSmall", "TOPLEFT", totemsTitle, "BOTTOMLEFT", 0, -2, "僅限玩家。戰鬥中安全 (Secure)。", "playerTotemsSubText")
 
-        local totemsDismissHint = _MSUF_Label("GameFontDisableSmall", "TOPLEFT", totemsSub, "BOTTOMLEFT", 0, -2, "注意：右鍵取消圖騰受暴雪（安全機制）保護，目前尚未支援。", "playerTotemsDismissHint")
+        local totemsDismissHint = _MSUF_Label("GameFontDisableSmall", "TOPLEFT", totemsSub, "BOTTOMLEFT", 0, -2, "注意：右鍵取消圖騰受暴雪 (安全機制) 保護，目前尚不支援。", "playerTotemsDismissHint")
         panel.playerTotemsDismissHint = totemsDismissHint
 
         panel.playerTotemsSubText = totemsSub
 
-        local totemsCheck = _MSUF_Check("MSUF_Gameplay_PlayerTotemsCheck", "TOPLEFT", totemsDismissHint, "BOTTOMLEFT", 0, -8, "啟用圖騰監控", "playerTotemsCheck", "enablePlayerTotems",
+        local totemsCheck = _MSUF_Check("MSUF_Gameplay_PlayerTotemsCheck", "TOPLEFT", totemsDismissHint, "BOTTOMLEFT", 0, -8, "啟用圖騰追蹤", "playerTotemsCheck", "enablePlayerTotems",
             function()
                 if ns and ns.MSUF_RequestGameplayApply then
                     ns.MSUF_RequestGameplayApply()
@@ -3486,7 +3771,7 @@ end)
             end
         )
 
-        local totemsScaleText = _MSUF_Check("MSUF_Gameplay_PlayerTotemsScaleTextCheck", "TOPLEFT", totemsShowText, "BOTTOMLEFT", 0, -8, "文字隨圖示大小縮放", "playerTotemsScaleByIconCheck", "playerTotemsScaleTextByIconSize",
+        local totemsScaleText = _MSUF_Check("MSUF_Gameplay_PlayerTotemsScaleTextCheck", "TOPLEFT", totemsShowText, "BOTTOMLEFT", 0, -8, "依圖示大小縮放文字", "playerTotemsScaleByIconCheck", "playerTotemsScaleTextByIconSize",
             function()
                 if ns and ns.MSUF_RequestGameplayApply then
                     ns.MSUF_RequestGameplayApply()
@@ -3508,12 +3793,17 @@ end)
         end)
         _RefreshTotemsPreviewButton()
 
-        _totemsLeftBottom = totemsPreviewBtn
+        
+-- Tip: positioning workflow
+local totemsDragHint = _MSUF_Label("GameFontDisableSmall", "TOPLEFT", totemsPreviewBtn, "BOTTOMLEFT", 0, -4, "提示：透過滑鼠拖曳來移動預覽", "playerTotemsDragHint")
+panel.playerTotemsDragHint = totemsDragHint
+
+_totemsLeftBottom = totemsDragHint
 
 	        -- Right column for layout/size controls (keeps the left side clean, avoids clipping)
 	        local _totemsRightX = 300
 
-	        local totemsIconSize = _MSUF_Slider("MSUF_Gameplay_PlayerTotemsIconSizeSlider", "TOPLEFT", totemsCheck, "TOPLEFT", _totemsRightX, -2, 240, 8, 64, 1, "小", "大", "圖示大小", "playerTotemsIconSizeSlider", "playerTotemsIconSize",
+	        local totemsIconSize = _MSUF_Slider("MSUF_Gameplay_PlayerTotemsIconSizeSlider", "TOPLEFT", totemsCheck, "TOPLEFT", _totemsRightX, -2, 240, 8, 64, 1, "Small", "Big", "圖示大小", "playerTotemsIconSizeSlider", "playerTotemsIconSize",
             function(v) return math.floor((v or 0) + 0.5) end,
             function()
                 if ns and ns.MSUF_RequestGameplayApply then ns.MSUF_RequestGameplayApply() end
@@ -3521,32 +3811,31 @@ end)
             true
         )
 
-        local totemsSpacing = _MSUF_Slider("MSUF_Gameplay_PlayerTotemsSpacingSlider", "TOPLEFT", totemsIconSize, "BOTTOMLEFT", 0, -18, 240, 0, 20, 1, "窄", "寬", "間距", "playerTotemsSpacingSlider", "playerTotemsSpacing",
+        local totemsSpacing = _MSUF_Slider("MSUF_Gameplay_PlayerTotemsSpacingSlider", "TOPLEFT", totemsIconSize, "BOTTOMLEFT", 0, -18, 240, 0, 20, 1, "Tight", "Wide", "間距", "playerTotemsSpacingSlider", "playerTotemsSpacing",
             function(v) return math.floor((v or 0) + 0.5) end,
             function() if ns and ns.MSUF_RequestGameplayApply then ns.MSUF_RequestGameplayApply() end end,
             true
         )
 
-        local totemsOffsetX = _MSUF_Slider("MSUF_Gameplay_PlayerTotemsOffsetXSlider", "TOPLEFT", totemsSpacing, "BOTTOMLEFT", 0, -18, 240, -200, 200, 1, "左", "右", "水平偏移 (X)", "playerTotemsOffsetXSlider", "playerTotemsOffsetX",
+        local totemsOffsetX = _MSUF_Slider("MSUF_Gameplay_PlayerTotemsOffsetXSlider", "TOPLEFT", totemsSpacing, "BOTTOMLEFT", 0, -18, 240, -200, 200, 1, "Left", "Right", "X 偏移", "playerTotemsOffsetXSlider", "playerTotemsOffsetX",
             function(v) return math.floor((v or 0) + 0.5) end,
             function() if ns and ns.MSUF_RequestGameplayApply then ns.MSUF_RequestGameplayApply() end end,
             true
         )
 
-        local totemsOffsetY = _MSUF_Slider("MSUF_Gameplay_PlayerTotemsOffsetYSlider", "TOPLEFT", totemsOffsetX, "BOTTOMLEFT", 0, -18, 240, -200, 200, 1, "下", "上", "垂直偏移 (Y)", "playerTotemsOffsetYSlider", "playerTotemsOffsetY",
+        local totemsOffsetY = _MSUF_Slider("MSUF_Gameplay_PlayerTotemsOffsetYSlider", "TOPLEFT", totemsOffsetX, "BOTTOMLEFT", 0, -18, 240, -200, 200, 1, "Down", "Up", "Y 偏移", "playerTotemsOffsetYSlider", "playerTotemsOffsetY",
             function(v) return math.floor((v or 0) + 0.5) end,
             function() if ns and ns.MSUF_RequestGameplayApply then ns.MSUF_RequestGameplayApply() end end,
             true
         )
 
-        local totemsFontSize = _MSUF_Slider("MSUF_Gameplay_PlayerTotemsFontSizeSlider", "TOPLEFT", totemsOffsetY, "BOTTOMLEFT", 0, -18, 240, 8, 64, 1, "小", "大", "字體大小", "playerTotemsFontSizeSlider", "playerTotemsFontSize",
+        local totemsFontSize = _MSUF_Slider("MSUF_Gameplay_PlayerTotemsFontSizeSlider", "TOPLEFT", totemsOffsetY, "BOTTOMLEFT", 0, -18, 240, 8, 64, 1, "Small", "Big", "字體大小", "playerTotemsFontSizeSlider", "playerTotemsFontSize",
             function(v) return math.floor((v or 0) + 0.5) end,
             function() if ns and ns.MSUF_RequestGameplayApply then ns.MSUF_RequestGameplayApply() end end,
             true
         )
 
-
-        local totemsLayoutLabel = _MSUF_Label("GameFontNormal", "TOPLEFT", totemsFontSize, "BOTTOMLEFT", 0, -12, "佈局", "playerTotemsLayoutLabel")
+        local totemsLayoutLabel = _MSUF_Label("GameFontNormal", "TOPLEFT", totemsFontSize, "BOTTOMLEFT", 0, -12, "版面配置", "playerTotemsLayoutLabel")
         panel.playerTotemsLayoutLabel = totemsLayoutLabel
 
         local anchorPoints = {"TOPLEFT","TOP","TOPRIGHT","LEFT","CENTER","RIGHT","BOTTOMLEFT","BOTTOM","BOTTOMRIGHT"}
@@ -3562,19 +3851,67 @@ end)
                 end
             end
             return anchorPoints[1]
+                end
+
+        -- Growth direction dropdown (RIGHT / LEFT / UP / DOWN)
+        local growthDD = _MSUF_Dropdown("MSUF_Gameplay_PlayerTotemsGrowthDropDown", "TOPLEFT", totemsLayoutLabel, "BOTTOMLEFT", -16, -10, 110, "playerTotemsGrowthDropdown")
+
+        local function _TotemsGrowth_Validate(v)
+            if v ~= "LEFT" and v ~= "RIGHT" and v ~= "UP" and v ~= "DOWN" then
+                return "RIGHT"
+            end
+            return v
         end
 
-	        local growthBtn = _MSUF_Button("MSUF_Gameplay_PlayerTotemsGrowthBtn", "TOPLEFT", totemsLayoutLabel, "BOTTOMLEFT", 0, -6, 110, 20, "延伸方向：右", "playerTotemsGrowthButton", function()
+        local function _TotemsGrowth_Set(v)
             local g = MSUF_DB and MSUF_DB.gameplay
             if not g then return end
-            local cur = g.playerTotemsGrowthDirection
-            g.playerTotemsGrowthDirection = (cur == "LEFT") and "RIGHT" or "LEFT"
+            local val = _TotemsGrowth_Validate(v)
+            g.playerTotemsGrowthDirection = val
+
+            if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(growthDD, val) end
+            if UIDropDownMenu_SetText then UIDropDownMenu_SetText(growthDD, val) end
+
             if panel and panel.refresh then panel:refresh() end
             if ns and ns.MSUF_RequestGameplayApply then ns.MSUF_RequestGameplayApply() end
-        end)
-        panel.playerTotemsGrowthButton = growthBtn
+        end
 
-	        local anchorFromBtn = _MSUF_Button("MSUF_Gameplay_PlayerTotemsAnchorFromBtn", "TOPLEFT", growthBtn, "TOPRIGHT", 8, 0, 122, 20, "起點：左上", "playerTotemsAnchorFromButton", function()
+        if UIDropDownMenu_Initialize and UIDropDownMenu_CreateInfo and UIDropDownMenu_AddButton then
+            UIDropDownMenu_Initialize(growthDD, function(self, level)
+                local g = MSUF_DB and MSUF_DB.gameplay
+                local cur = _TotemsGrowth_Validate(g and g.playerTotemsGrowthDirection)
+
+                local items = {
+                    {"RIGHT", "向右增長"},
+                    {"LEFT",  "向左增長"},
+                    {"UP",    "垂直向上"},
+                    {"DOWN",  "垂直向下"},
+                }
+
+                for i = 1, #items do
+                    local value = items[i][1]
+                    local text  = items[i][2]
+                    local info = UIDropDownMenu_CreateInfo()
+                    info.text = text
+                    info.value = value
+                    info.checked = (cur == value)
+                    info.func = function(btn)
+                        _TotemsGrowth_Set(btn and btn.value)
+                    end
+                    UIDropDownMenu_AddButton(info, level)
+                end
+            end)
+        end
+
+        -- Initial label/selection (kept in sync by panel.refresh)
+        do
+            local g = MSUF_DB and MSUF_DB.gameplay
+            local cur = _TotemsGrowth_Validate(g and g.playerTotemsGrowthDirection)
+            if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(growthDD, cur) end
+            if UIDropDownMenu_SetText then UIDropDownMenu_SetText(growthDD, cur) end
+        end
+
+	        local anchorFromBtn = _MSUF_Button("MSUF_Gameplay_PlayerTotemsAnchorFromBtn", "TOPLEFT", growthDD, "TOPRIGHT", 8, -4, 122, 20, "從：左上", "playerTotemsAnchorFromButton", function()
             local g = MSUF_DB and MSUF_DB.gameplay
             if not g then return end
             g.playerTotemsAnchorFrom = _NextAnchor(g.playerTotemsAnchorFrom)
@@ -3583,7 +3920,7 @@ end)
         end)
         panel.playerTotemsAnchorFromButton = anchorFromBtn
 
-	        local anchorToBtn = _MSUF_Button("MSUF_Gameplay_PlayerTotemsAnchorToBtn", "TOPLEFT", growthBtn, "BOTTOMLEFT", 0, -6, 240, 20, "對齊：左下", "playerTotemsAnchorToButton", function()
+	        local anchorToBtn = _MSUF_Button("MSUF_Gameplay_PlayerTotemsAnchorToBtn", "TOPLEFT", growthDD, "BOTTOMLEFT", 16, -6, 240, 20, "到：左下", "playerTotemsAnchorToButton", function()
             local g = MSUF_DB and MSUF_DB.gameplay
             if not g then return end
             g.playerTotemsAnchorTo = _NextAnchor(g.playerTotemsAnchorTo)
@@ -3592,7 +3929,7 @@ end)
         end)
         panel.playerTotemsAnchorToButton = anchorToBtn
 
-	        local resetTotemsBtn = _MSUF_Button("MSUF_Gameplay_PlayerTotemsResetBtn", "TOPLEFT", anchorToBtn, "BOTTOMLEFT", 0, -6, 240, 20, "重置圖騰監控佈局", "playerTotemsResetButton", function()
+	        local resetTotemsBtn = _MSUF_Button("MSUF_Gameplay_PlayerTotemsResetBtn", "TOPLEFT", anchorToBtn, "BOTTOMLEFT", 0, -6, 240, 20, "重置圖騰追蹤版面配置", "playerTotemsResetButton", function()
             local g = MSUF_DB and MSUF_DB.gameplay
             if not g then return end
             g.playerTotemsShowText = true
@@ -3615,11 +3952,10 @@ end)
 
         _classSpecAnchorRef = resetTotemsBtn
     else
-        local shamanHint = _MSUF_Label("GameFontDisableSmall", "TOPLEFT", classSpecHeader, "BOTTOMLEFT", 0, -10, "(圖騰監控僅限薩滿)", "playerTotemsNotShamanHint")
+        local shamanHint = _MSUF_Label("GameFontDisableSmall", "TOPLEFT", classSpecHeader, "BOTTOMLEFT", 0, -10, "(圖騰追蹤僅限薩滿)", "playerTotemsNotShamanHint")
         panel.playerTotemsNotShamanHint = shamanHint
         _classSpecAnchorRef = shamanHint
     end
-
 
     -- Rogue: "The First Dance" tracker (separate class block)
     -- Place it clearly BELOW the Shaman block (right column bottom), aligned to the left column.
@@ -3637,9 +3973,9 @@ end)
         _rogueSep:SetPoint("TOPRIGHT", _rogueAnchorRef, "BOTTOMRIGHT", 0, -18)
     end
 
-    local rogueTitle = _MSUF_Label("GameFontNormal", "TOPLEFT", _rogueSep, "BOTTOMLEFT", 0, -12, "盜賊：「第一支舞」監控", "firstDanceTitle")
-    local rogueSub = _MSUF_Label("GameFontDisableSmall", "TOPLEFT", rogueTitle, "BOTTOMLEFT", 0, -2, "選用輔助。脫離戰鬥後顯示 6 秒計時。", "firstDanceSubText")
-    local firstDanceCheck = _MSUF_Check("MSUF_Gameplay_FirstDanceCheck", "TOPLEFT", rogueSub, "BOTTOMLEFT", 0, -10, "追蹤「第一支舞」（脫戰後 6 秒）", "firstDanceCheck", "enableFirstDanceTimer")
+    local rogueTitle = _MSUF_Label("GameFontNormal", "TOPLEFT", _rogueSep, "BOTTOMLEFT", 0, -12, "盜賊：起手之舞追蹤", "firstDanceTitle")
+    local rogueSub = _MSUF_Label("GameFontDisableSmall", "TOPLEFT", rogueTitle, "BOTTOMLEFT", 0, -2, "選用助手。在離開戰鬥後顯示 6 秒計時器。", "firstDanceSubText")
+    local firstDanceCheck = _MSUF_Check("MSUF_Gameplay_FirstDanceCheck", "TOPLEFT", rogueSub, "BOTTOMLEFT", 0, -10, "追蹤「起手之舞」(離開戰鬥後 6 秒)", "firstDanceCheck", "enableFirstDanceTimer")
     if not _isRogue then
         firstDanceCheck:SetEnabled(false)
     end
@@ -3648,24 +3984,24 @@ end)
 
     local _classSpecBottom = firstDanceCheck
     local crosshairSeparator = _MSUF_Sep(_classSpecBottom, -20)
-    local crosshairHeader = _MSUF_Header(crosshairSeparator, "戰鬥準心")
+    local crosshairHeader = _MSUF_Header(crosshairSeparator, "戰鬥準星")
 
     -- Generic combat crosshair (all classes)
-    local combatCrosshairCheck = _MSUF_Check("MSUF_Gameplay_CombatCrosshairCheck", "TOPLEFT", crosshairHeader, "BOTTOMLEFT", 0, -8, "顯示玩家腳下的綠色戰鬥準心 (戰鬥中)", "combatCrosshairCheck", "enableCombatCrosshair",
+    local combatCrosshairCheck = _MSUF_Check("MSUF_Gameplay_CombatCrosshairCheck", "TOPLEFT", crosshairHeader, "BOTTOMLEFT", 0, -8, "在玩家下方顯示綠色戰鬥準星 (戰鬥中)", "combatCrosshairCheck", "enableCombatCrosshair",
         function() if panel and panel.MSUF_UpdateCrosshairPreview then panel.MSUF_UpdateCrosshairPreview() end end
     )
 
     -- Combat crosshair: melee range coloring (uses the shared melee spell selection)
-    local crosshairRangeColorCheck = _MSUF_Check("MSUF_Gameplay_CrosshairRangeColorCheck", "TOPLEFT", combatCrosshairCheck, "BOTTOMLEFT", 0, -8, "準心：依據目標近戰距離著色 (綠色=範圍內，紅色=範圍外)", "crosshairRangeColorCheck", "enableCombatCrosshairMeleeRangeColor",
+    local crosshairRangeColorCheck = _MSUF_Check("MSUF_Gameplay_CrosshairRangeColorCheck", "TOPLEFT", combatCrosshairCheck, "BOTTOMLEFT", 0, -8, "準星：依目標近戰範圍著色 (綠色=範圍內，紅色=範圍外)", "crosshairRangeColorCheck", "enableCombatCrosshairMeleeRangeColor",
         function() if panel and panel.MSUF_UpdateCrosshairPreview then panel.MSUF_UpdateCrosshairPreview() end end
     )
 
     local crosshairRangeHint = _MSUF_Label("GameFontDisableSmall", "TOPLEFT", crosshairRangeColorCheck, "BOTTOMLEFT", 24, -2, "使用下方選擇的法術。", "crosshairRangeHintText")
 
-    local crosshairRangeWarn = _MSUF_Label("GameFontNormalSmall", "TOPLEFT", crosshairRangeHint, "BOTTOMLEFT", 0, -2, "|cffff8800未選擇近戰距離法術 — 準心將無法運作。|r", "crosshairRangeWarnText")
+    local crosshairRangeWarn = _MSUF_Label("GameFontNormalSmall", "TOPLEFT", crosshairRangeHint, "BOTTOMLEFT", 0, -2, "|cffff8800未選擇近戰範圍法術 — 準星將無法運作。|r", "crosshairRangeWarnText")
     crosshairRangeWarn:Hide()
 
-    -- Move "Melee range spell" selector into the Combat crosshair section (no separate header)
+    -- Move "近戰範圍法術" selector into the Combat crosshair section (no separate header)
     if meleeSharedTitle and meleeSharedSubText and meleeLabel and meleeInput and meleeSelected and meleeUsedBy then
         meleeSharedTitle:ClearAllPoints()
         meleeSharedTitle:SetPoint("TOPLEFT", crosshairRangeWarn, "BOTTOMLEFT", 0, -12)
@@ -3692,7 +4028,6 @@ end)
             meleeSharedWarn:SetPoint("BOTTOMLEFT", meleeSelected, "TOPLEFT", 0, 4)
         end
     end
-
 
     -- Crosshair preview (in-menu)
     -- Shows a live preview of size/thickness and (optionally) the melee-range color mode.
@@ -3829,7 +4164,7 @@ end)
     panel.MSUF_UpdateCrosshairPreview = UpdateCrosshairPreview
 
     -- Combat crosshair thickness slider
-    local crosshairThicknessLabel = _MSUF_Label("GameFontHighlight", "TOPLEFT", meleeSelected or (meleeSharedWarn or crosshairRangeWarn), "BOTTOMLEFT", 0, -24, "準心粗細", "crosshairThicknessLabel")
+    local crosshairThicknessLabel = _MSUF_Label("GameFontHighlight", "TOPLEFT", meleeSelected or (meleeSharedWarn or crosshairRangeWarn), "BOTTOMLEFT", 0, -24, "準星粗細", "crosshairThicknessLabel")
 
     local crosshairThicknessSlider = _MSUF_Slider("MSUF_Gameplay_CrosshairThicknessSlider", "TOPLEFT", crosshairThicknessLabel, "BOTTOMLEFT", 0, -12, 240, 1, 10, 1, "1 px", "10 px", "2 px", "crosshairThicknessSlider", "crosshairThickness",
         function(v) return math.floor(v + 0.5) end,
@@ -3847,7 +4182,7 @@ end)
     end
 
     -- Combat crosshair size slider
-    local crosshairSizeLabel = _MSUF_Label("GameFontHighlight", "TOPLEFT", crosshairThicknessSlider, "BOTTOMLEFT", 0, -24, "準心大小", "crosshairSizeLabel")
+    local crosshairSizeLabel = _MSUF_Label("GameFontHighlight", "TOPLEFT", crosshairThicknessSlider, "BOTTOMLEFT", 0, -24, "準星大小", "crosshairSizeLabel")
 
     local crosshairSizeSlider = _MSUF_Slider("MSUF_Gameplay_CrosshairSizeSlider", "TOPLEFT", crosshairSizeLabel, "BOTTOMLEFT", 0, -14, 240, 20, 80, 2, "20 px", "80 px", "40 px", "crosshairSizeSlider", "crosshairSize",
         function(v)
@@ -3872,7 +4207,7 @@ end)
     local cooldownHeader = _MSUF_Header(cooldownSeparator, "冷卻管理")
     -- NOTE: Temporarily disabled until CooldownManager integration is reworked.
     local cooldownIconsCheck = _MSUF_Check("MSUF_Gameplay_CooldownIconsCheck", "TOPLEFT", cooldownHeader, "BOTTOMLEFT", 0, -8,
-        "以圖示顯示冷卻管理條 (暫時停用)", "cooldownIconsCheck", nil
+        "以圖示顯示技能冷卻量條 (暫時停用)", "cooldownIconsCheck", nil
     )
     cooldownIconsCheck:SetChecked(false)
     if cooldownIconsCheck.Disable then cooldownIconsCheck:Disable() end
@@ -3966,6 +4301,25 @@ end)
         btn:SetAlpha(enabled and 1 or 0.6)
     end
 
+local function _MSUF_SetDropdownEnabled(dd, enabled)
+    if not dd then return end
+    if enabled then
+        if UIDropDownMenu_EnableDropDown then
+            UIDropDownMenu_EnableDropDown(dd)
+        elseif dd.EnableMouse then
+            dd:EnableMouse(true)
+        end
+        if dd.SetAlpha then dd:SetAlpha(1) end
+    else
+        if UIDropDownMenu_DisableDropDown then
+            UIDropDownMenu_DisableDropDown(dd)
+        elseif dd.EnableMouse then
+            dd:EnableMouse(false)
+        end
+        if dd.SetAlpha then dd:SetAlpha(0.6) end
+    end
+end
+
     local function _MSUF_SetEditBoxEnabled(eb, enabled)
         if not eb then return end
         if not enabled and eb.ClearFocus then
@@ -4002,6 +4356,8 @@ end)
         local timerOn = g.enableCombatTimer and true or false
         _MSUF_SetSliderEnabled(self.combatFontSizeSlider, timerOn)
         _MSUF_SetCheckEnabled(self.lockCombatTimerCheck, timerOn)
+        _MSUF_SetFontStringEnabled(self.combatTimerAnchorLabel, timerOn, false)
+        _MSUF_SetDropdownEnabled(self.combatTimerAnchorDropdown, timerOn)
 
         -- Combat Enter/Leave dependents
         local stateOn = g.enableCombatStateText and true or false
@@ -4022,7 +4378,6 @@ end)
         end
         _MSUF_SetCheckEnabled(self.firstDanceCheck, isRogue)
 
-
         -- Shaman: Player Totems dependents
         local isShaman = false
         if UnitClass then
@@ -4035,7 +4390,8 @@ end)
 
         _MSUF_SetButtonEnabled(self.playerTotemsPreviewButton, isShaman)
 
-        local totemsOn = (isShaman and g.enablePlayerTotems) and true or false
+        local previewActive = (ns and ns.MSUF_PlayerTotems_IsPreviewActive and ns.MSUF_PlayerTotems_IsPreviewActive()) and true or false
+        local totemsOn = (isShaman and (g.enablePlayerTotems or previewActive)) and true or false
         _MSUF_SetCheckEnabled(self.playerTotemsShowTextCheck, totemsOn)
         _MSUF_SetCheckEnabled(self.playerTotemsScaleByIconCheck, (totemsOn and g.playerTotemsShowText) and true or false)
 
@@ -4044,7 +4400,7 @@ end)
         _MSUF_SetSliderEnabled(self.playerTotemsOffsetXSlider, totemsOn)
         _MSUF_SetSliderEnabled(self.playerTotemsOffsetYSlider, totemsOn)
 
-        _MSUF_SetButtonEnabled(self.playerTotemsGrowthButton, totemsOn)
+        _MSUF_SetDropdownEnabled(self.playerTotemsGrowthDropdown, totemsOn)
         _MSUF_SetButtonEnabled(self.playerTotemsAnchorFromButton, totemsOn)
         _MSUF_SetButtonEnabled(self.playerTotemsAnchorToButton, totemsOn)
         local textOn = (totemsOn and g.playerTotemsShowText) and true or false
@@ -4101,7 +4457,6 @@ end)
 
     lastControl = cooldownIconsCheck
 
-
     ------------------------------------------------------
     -- Panel scripts (refresh/okay/default)
     ------------------------------------------------------
@@ -4116,6 +4471,7 @@ end)
 
         "combatOffsetX",
         "combatOffsetY",
+        "combatTimerAnchor",
         "combatFontSize",
         "enableCombatTimer",
         "lockCombatTimer",
@@ -4169,6 +4525,7 @@ end)
     end
 
     panel.refresh = function(self)
+        self._msufSuppressSliderChanges = true
         local g = EnsureGameplayDefaults()
 
         -- Melee spell selection (shared)
@@ -4238,10 +4595,7 @@ end)
             {"combatStateDurationSlider", "combatStateDuration", 1.5},
 
             {"playerTotemsIconSizeSlider", "playerTotemsIconSize", 24},
-            {"playerTotemsSpacingSlider", "playerTotemsSpacing",
-        "playerTotemsAnchorFrom",
-        "playerTotemsAnchorTo",
-        "playerTotemsGrowthDirection", 4},
+            {"playerTotemsSpacingSlider", "playerTotemsSpacing", 4},
             {"playerTotemsFontSizeSlider", "playerTotemsFontSize", 14},
             {"playerTotemsOffsetXSlider", "playerTotemsOffsetX", 0},
             {"playerTotemsOffsetYSlider", "playerTotemsOffsetY", -6},
@@ -4251,17 +4605,32 @@ end)
             SetSlider(t[1], t[2], t[3])
         end
 
+        -- Combat Timer anchor dropdown
+        if self.combatTimerAnchorDropdown then
+            local v = g.combatTimerAnchor
+            if v ~= "none" and v ~= "player" and v ~= "target" and v ~= "focus" then
+                v = "none"
+            end
+            local txt
+            if v == "player" then txt = "玩家"
+            elseif v == "target" then txt = "目標"
+            elseif v == "focus" then txt = "專注目標"
+            else txt = "無" end
+            if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(self.combatTimerAnchorDropdown, v) end
+            if UIDropDownMenu_SetText then UIDropDownMenu_SetText(self.combatTimerAnchorDropdown, txt) end
+        end
+
         -- Combat state texts
         local eb = self.combatStateEnterInput
         if eb then
             local v = g.combatStateEnterText
-            eb:SetText((type(v) == "string") and v or "+戰鬥")
+            eb:SetText((type(v) == "string") and v or "+Combat")
         end
 
         eb = self.combatStateLeaveInput
         if eb then
             local v = g.combatStateLeaveText
-            eb:SetText((type(v) == "string") and v or "-戰鬥")
+            eb:SetText((type(v) == "string") and v or "-Combat")
         end
 
         -- Crosshair special values (clamped)
@@ -4280,14 +4649,13 @@ end)
         if self.MSUF_UpdateCrosshairPreview then
             self.MSUF_UpdateCrosshairPreview()
         end
-
-
-        if self.playerTotemsGrowthButton and self.playerTotemsGrowthButton.SetText then
+        if self.playerTotemsGrowthDropdown then
             local growth = g.playerTotemsGrowthDirection
-            if growth ~= "LEFT" and growth ~= "RIGHT" then
+            if growth ~= "LEFT" and growth ~= "RIGHT" and growth ~= "UP" and growth ~= "DOWN" then
                 growth = "RIGHT"
             end
-            self.playerTotemsGrowthButton:SetText("Growth: " .. growth)
+            if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(self.playerTotemsGrowthDropdown, growth) end
+            if UIDropDownMenu_SetText then UIDropDownMenu_SetText(self.playerTotemsGrowthDropdown, growth) end
         end
 
         if self.playerTotemsAnchorFromButton and self.playerTotemsAnchorFromButton.SetText then
@@ -4308,12 +4676,26 @@ end)
         if self.playerTotemsColorSwatch and self.playerTotemsColorSwatch.MSUF_Refresh then
             self.playerTotemsColorSwatch:MSUF_Refresh()
         end
-
         -- Grey out dependent controls when their parent toggle is off
         if self.MSUF_UpdateGameplayDisabledStates then
             self:MSUF_UpdateGameplayDisabledStates()
         end
+
+        -- Done syncing; re-enable bindings.
+        self._msufSuppressSliderChanges = false
     end
+
+-- Live-sync: allow the Totem preview frame to drag-update X/Y without spamming Apply().
+function panel:MSUF_SyncTotemOffsetSliders()
+    if not self.playerTotemsOffsetXSlider or not self.playerTotemsOffsetYSlider then
+        return
+    end
+    local g = EnsureGameplayDefaults()
+    self._msufSuppressSliderChanges = true
+    self.playerTotemsOffsetXSlider:SetValue(tonumber(g.playerTotemsOffsetX) or 0)
+    self.playerTotemsOffsetYSlider:SetValue(tonumber(g.playerTotemsOffsetY) or -6)
+    self._msufSuppressSliderChanges = false
+end
 
     -- Most controls apply immediately, but "Okay" is still called by the Settings/Interface panel system.
     -- We use it as a safe "finalize" hook.
@@ -4387,11 +4769,11 @@ end)
         panel.__MSUF_SettingsRegistered = true
         ns.MSUF_GameplayCategory = subcategory
     elseif InterfaceOptions_AddCategory then
-        panel.parent = "頭像"
+        panel.parent = "Midnight Simple Unit Frames"
         InterfaceOptions_AddCategory(panel)
     end
 
-    -- Beim Öffnen des Panels SavedVariables → UI syncen
+    -- Beim Ã–ffnen des Panels SavedVariables â†’ UI syncen
     panel:refresh()
     UpdateContentHeight()
 
@@ -4404,7 +4786,6 @@ end)
     return panel
 end
 
-
 -- Lightweight wrapper: register the category at login, but build the heavy UI only when opened.
 function ns.MSUF_RegisterGameplayOptions(parentCategory)
     if not Settings or not Settings.RegisterCanvasLayoutSubcategory or not parentCategory then
@@ -4414,7 +4795,6 @@ function ns.MSUF_RegisterGameplayOptions(parentCategory)
 
     local panel = (_G and _G.MSUF_GameplayPanel) or CreateFrame("Frame", "MSUF_GameplayPanel", UIParent)
     panel.name = "Gameplay"
-
 
     -- IMPORTANT: Panels created with UIParent are shown by default.
     -- If we rely on OnShow for first-time build, we must ensure the panel starts hidden,
@@ -4475,7 +4855,6 @@ function ns.MSUF_RegisterGameplayOptions(parentCategory)
 
     end
 
-
 ------------------------------------------------------
 -- Auto-apply Gameplay features on load
 -- Fixes: after /reload or relog, Combat Enter/Leave text (and other Gameplay
@@ -4488,7 +4867,6 @@ do
     local function AutoApplyOnce()
         if didApply then return end
         didApply = true
-
 
         -- Export a global helper so core can force-apply after autoloading this LoD addon.
         if type(ns.MSUF_RequestGameplayApply) == "function" then

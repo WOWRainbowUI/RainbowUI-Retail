@@ -7,15 +7,19 @@
 
 local addonName, ns = ...
 
-local function _EnsureDBSafe()
-    if type(EnsureDB) == "function" then
-        EnsureDB()
-    end
+-- =====================================================================
+-- Phase 1A: Canonical lazy EnsureDB â€” single definition for all files.
+-- After PLAYER_LOGIN, MSUF_DB is always populated; the nil-guard short-circuits.
+-- =====================================================================
+local function _EnsureDBLazy()
+    if not MSUF_DB and type(EnsureDB) == "function" then EnsureDB() end
 end
+-- Export for cross-file use (Engine, Driver, Boss, Castbars).
+_G.MSUF_EnsureDBLazy = _EnsureDBLazy
 
 -- Global: used by castbar positioning logic.
 function _G.MSUF_GetAnchorFrame()
-    _EnsureDBSafe()
+    _EnsureDBLazy()
     local g = (MSUF_DB and MSUF_DB.general) or {}
 
     if g.anchorToCooldown then
@@ -73,6 +77,20 @@ if type(_G.MSUF_SetStatusBarColorIfChanged) ~= "function" then
 end
 
 
+-- Quick Win #13: Cached CreateColor objects for ApplyNonInterruptibleTint.
+-- These colors only change when the user modifies settings, not per-cast.
+local _tintCacheNonInt = { r = nil, g = nil, b = nil, a = nil, obj = nil }
+local _tintCacheInt    = { r = nil, g = nil, b = nil, a = nil, obj = nil }
+
+local function _GetCachedColor(cache, r, g, b, a)
+  if cache.r == r and cache.g == g and cache.b == b and cache.a == a and cache.obj then
+    return cache.obj
+  end
+  cache.r, cache.g, cache.b, cache.a = r, g, b, a
+  cache.obj = CreateColor(r, g, b, a)
+  return cache.obj
+end
+
 -- Applies the correct tint without ever boolean-testing `rawNotInterruptible` (may be secret).
 -- `fallbackIsNonInterruptible` is a NORMAL Lua boolean (event-driven) used only when the C helper is unavailable.
 function _G.MSUF_Castbar_ApplyNonInterruptibleTint(frame, rawNotInterruptible,
@@ -98,8 +116,9 @@ function _G.MSUF_Castbar_ApplyNonInterruptibleTint(frame, rawNotInterruptible,
     --  - Never boolean-test `rawNotInterruptible` in Lua (may be secret).
     --  - Never pass nil into SetVertexColorFromBoolean (hard error).
     -- We pass the raw value straight into the C method when present; otherwise we use a normal Lua boolean fallback.
-    local nonCol = CreateColor(nonIntR, nonIntG, nonIntB, nonIntA or 1)
-    local intCol = CreateColor(intR, intG, intB, intA or 1)
+    -- Quick Win #13: reuse cached color objects (only re-created when RGBA changes).
+    local nonCol = _GetCachedColor(_tintCacheNonInt, nonIntR, nonIntG, nonIntB, nonIntA or 1)
+    local intCol = _GetCachedColor(_tintCacheInt, intR, intG, intB, intA or 1)
 
     local v = rawNotInterruptible
     if v == nil then
@@ -147,13 +166,23 @@ end
 --  - it only consumes the provided state and writes it to the frame
 -- -------------------------------------------------
 
+-- PERF: Resolve once at load, re-resolve after all files loaded.
+local _cachedSetTextIfChanged = _G.MSUF_SetTextIfChanged
+
 local function _MSUF_SetTextIfChanged(fs, s)
     if not (fs and fs.SetText) then return end
-    if type(_G.MSUF_SetTextIfChanged) == "function" then
-        _G.MSUF_SetTextIfChanged(fs, s or "")
+    if _cachedSetTextIfChanged then
+        _cachedSetTextIfChanged(fs, s or "")
     else
         fs:SetText(s or "")
     end
+end
+
+-- Deferred re-cache after all addons loaded.
+if _G.C_Timer and _G.C_Timer.After then
+    _G.C_Timer.After(0, function()
+        _cachedSetTextIfChanged = _G.MSUF_SetTextIfChanged or _cachedSetTextIfChanged
+    end)
 end
 
 local function _MSUF_GetReverseFill(frame, state, isChanneled)
@@ -162,13 +191,105 @@ local function _MSUF_GetReverseFill(frame, state, isChanneled)
         return (state.reverseFill == true)
     end
     -- Otherwise defer to the user setting logic.
-    if type(_G.MSUF_GetCastbarReverseFillForFrame) == "function" then
-        local ok, rev = pcall(_G.MSUF_GetCastbarReverseFillForFrame, frame, isChanneled and true or false)
-        if ok and rev ~= nil then
+    local fn = _G.MSUF_GetCastbarReverseFillForFrame
+    if type(fn) == "function" then
+        -- This is trusted internal code; pcall overhead is unnecessary.
+        local rev = fn(frame, isChanneled and true or false)
+        if rev ~= nil then
             return (rev == true)
         end
     end
     return false
+end
+
+-- Phase 1C: Global export â€” simplified 2-arg form for callers that don't have a state table.
+-- Returns a plain boolean (true/false, never nil).
+function _G.MSUF_GetReverseFillSafe(frame, isChanneled)
+    return _MSUF_GetReverseFill(frame, nil, isChanneled)
+end
+
+-- =====================================================================
+-- Phase 1B: Canonical timer-direction + reverse-fill application.
+-- Contains the full fallback chain with mode-probe cache.
+-- Returns true when timer-driven animation was set up successfully.
+-- =====================================================================
+function _G.MSUF_ApplyTimerAndFill(sb, durationObj, reverseFill)
+    if not sb then return false end
+    local okTimer = false
+    if type(_G.MSUF_ApplyCastbarTimerDirection) == "function" then
+        okTimer = (_G.MSUF_ApplyCastbarTimerDirection(sb, durationObj, reverseFill) == true)
+    elseif type(_G.MSUF_SetStatusBarTimerDuration) == "function" then
+        okTimer = (_G.MSUF_SetStatusBarTimerDuration(sb, durationObj, reverseFill) == true)
+        if sb.SetReverseFill then
+            pcall(sb.SetReverseFill, sb, reverseFill and true or false)
+        end
+    elseif sb.SetTimerDuration then
+        local mode = _G.__MSUF_TimerDurationMode
+        if mode ~= nil then
+            okTimer = (pcall(sb.SetTimerDuration, sb, durationObj, mode) == true)
+        else
+            local ok0 = pcall(sb.SetTimerDuration, sb, durationObj, 0)
+            if ok0 then
+                _G.__MSUF_TimerDurationMode = 0
+                okTimer = true
+            else
+                local okB = pcall(sb.SetTimerDuration, sb, durationObj, true)
+                if okB then
+                    _G.__MSUF_TimerDurationMode = true
+                    okTimer = true
+                end
+            end
+        end
+        if sb.SetReverseFill then
+            pcall(sb.SetReverseFill, sb, reverseFill and true or false)
+        end
+    elseif sb.SetReverseFill then
+        pcall(sb.SetReverseFill, sb, reverseFill and true or false)
+    end
+    return okTimer
+end
+
+-- =====================================================================
+-- Phase 1D: Canonical color resolution for interruptible / non-interruptible.
+-- Returns: ir, ig, ib, nr, ng, nb  (interruptible RGB, non-interruptible RGB)
+-- =====================================================================
+function _G.MSUF_ResolveCastbarColors()
+    _EnsureDBLazy()
+    local g = (MSUF_DB and MSUF_DB.general) or {}
+
+    -- Interruptible color
+    local ir, ig, ib
+    if type(_G.MSUF_GetInterruptibleCastColor) == "function" then
+        ir, ig, ib = _G.MSUF_GetInterruptibleCastColor()
+    end
+    if not (ir and ig and ib) then
+        local key = g.castbarInterruptibleColor or "teal"
+        local c = (type(_G.MSUF_GetColorFromKey) == "function") and _G.MSUF_GetColorFromKey(key) or nil
+        if c and c.GetRGB then
+            ir, ig, ib = c:GetRGB()
+        end
+    end
+    if not (ir and ig and ib) then
+        ir, ig, ib = 0, 0.85, 0.85
+    end
+
+    -- Non-interruptible color
+    local nr, ng, nb
+    if type(_G.MSUF_GetNonInterruptibleCastColor) == "function" then
+        nr, ng, nb = _G.MSUF_GetNonInterruptibleCastColor()
+    end
+    if not (nr and ng and nb) then
+        local key = g.castbarNonInterruptibleColor or "red"
+        local c = (type(_G.MSUF_GetColorFromKey) == "function") and _G.MSUF_GetColorFromKey(key) or nil
+        if c and c.GetRGB then
+            nr, ng, nb = c:GetRGB()
+        end
+    end
+    if not (nr and ng and nb) then
+        nr, ng, nb = 0.9, 0.1, 0.1
+    end
+
+    return ir, ig, ib, nr, ng, nb
 end
 
 -- Apply a normal CAST/CHANNEL state that has a durationObj.
@@ -211,42 +332,8 @@ function _G.MSUF_Castbar_ApplyActiveDuration(frame, state, opts)
 
     local rev = _MSUF_GetReverseFill(frame, state, isChanneled)
 
-    -- Apply timer duration + direction (supports new SetTimerDuration direction signatures)
-    local okTimer = false
-    local sb = frame.statusBar
-    if sb then
-        if type(_G.MSUF_ApplyCastbarTimerDirection) == "function" then
-            okTimer = (_G.MSUF_ApplyCastbarTimerDirection(sb, durObj, rev) == true)
-        elseif type(_G.MSUF_SetStatusBarTimerDuration) == "function" then
-            okTimer = (_G.MSUF_SetStatusBarTimerDuration(sb, durObj, rev) == true)
-            if sb.SetReverseFill then
-                pcall(sb.SetReverseFill, sb, rev and true or false)
-            end
-        elseif sb.SetTimerDuration then
-            -- Cache which signature works (some builds expect numeric direction; others boolean).
-            local mode = _G.__MSUF_TimerDurationMode
-            if mode ~= nil then
-                okTimer = (pcall(sb.SetTimerDuration, sb, durObj, mode) == true)
-            else
-                local ok0 = pcall(sb.SetTimerDuration, sb, durObj, 0)
-                if ok0 then
-                    _G.__MSUF_TimerDurationMode = 0
-                    okTimer = true
-                else
-                    local okB = pcall(sb.SetTimerDuration, sb, durObj, true)
-                    if okB then
-                        _G.__MSUF_TimerDurationMode = true
-                        okTimer = true
-                    end
-                end
-            end
-            if sb.SetReverseFill then
-                pcall(sb.SetReverseFill, sb, rev and true or false)
-            end
-        elseif sb.SetReverseFill then
-            pcall(sb.SetReverseFill, sb, rev and true or false)
-        end
-    end
+    -- Phase 1B: Use shared timer-direction application helper.
+    local okTimer = _G.MSUF_ApplyTimerAndFill(frame.statusBar, durObj, rev)
     frame.MSUF_timerDriven = okTimer and true or false
 
     if frame.UpdateColorForInterruptible then
@@ -363,7 +450,7 @@ function _G.MSUF_PlayCastbarShake(frame)
         return
     end
 
-    _EnsureDBSafe()
+    _EnsureDBLazy()
     local g = (MSUF_DB and MSUF_DB.general) or {}
 
     if g.castbarInterruptShake == false then
@@ -408,7 +495,7 @@ function _G.MSUF_PlayCastbarShake(frame)
 end
 
 function _G.MSUF_GetInterruptibleCastColor()
-    _EnsureDBSafe()
+    _EnsureDBLazy()
     local g = (MSUF_DB and MSUF_DB.general) or {}
     local r = tonumber(g.castbarInterruptibleR)
     local gg = tonumber(g.castbarInterruptibleG)
@@ -419,7 +506,7 @@ function _G.MSUF_GetInterruptibleCastColor()
 end
 
 function _G.MSUF_GetNonInterruptibleCastColor()
-    _EnsureDBSafe()
+    _EnsureDBLazy()
     local g = (MSUF_DB and MSUF_DB.general) or {}
     local r = tonumber(g.castbarNonInterruptibleR)
     local gg = tonumber(g.castbarNonInterruptibleG)
@@ -433,7 +520,9 @@ end
 -- NOTE: This is intentionally texture-agnostic and does not rely on background/foreground textures matching.
 -- It simply blends the current fill color towards white as the cast approaches completion.
 
+-- Fix 3: Fast-path for plain numbers (callers already pass converted values).
 local function _MSUF_ToPlainNumber(x)
+    if type(x) == "number" then return x end
     local fn = _G.MSUF_ToPlainNumber
     if type(fn) == "function" then
         return fn(x)
@@ -443,14 +532,24 @@ local function _MSUF_ToPlainNumber(x)
     return nil
 end
 
+-- Fix 4: Cache IsGlowFadeEnabled per style rev (avoids DB lookup every call).
+local _glowEnabledCache = nil
+local _glowEnabledCacheRev = -1
+
 local function _MSUF_IsGlowFadeEnabled()
-    _EnsureDBSafe()
+    local rev = _G.MSUF__castTimeGlobalRev or 1
+    if _glowEnabledCacheRev == rev and _glowEnabledCache ~= nil then
+        return _glowEnabledCache
+    end
+    _EnsureDBLazy()
     local g = (MSUF_DB and MSUF_DB.general) or nil
     if g and g.castbarShowGlow == false then
-        return false
+        _glowEnabledCache = false
+    else
+        _glowEnabledCache = true
     end
-    -- default ON
-    return true
+    _glowEnabledCacheRev = rev
+    return _glowEnabledCache
 end
 
 function _G.MSUF_ResetCastbarGlowFade(frame)
@@ -614,6 +713,123 @@ function _G.MSUF_CB_ApplyEmpowerTicks(frame, state, ...)
 end
 
 
+-- =====================================================================
+-- Cluster A: Canonical ClearEmpowerState â€” single definition for all files.
+-- Clears all empower-related frame fields and hides tick/segment overlays.
+-- Previously duplicated identically in Driver and Boss.
+-- =====================================================================
+function _G.MSUF_ClearEmpowerState(frame)
+    if not frame then return end
+    frame.isEmpower = nil
+    frame.empowerStartTime = nil
+    frame.empowerStageEnds = nil
+    frame.empowerTotalBase = nil
+    frame.empowerTotalWithGrace = nil
+    frame.empowerNextStage = nil
+    frame.MSUF_empowerLayoutPending = nil
+    frame.MSUF_wantsEmpower = nil
+    frame.MSUF_empowerRetryCount = nil
+    frame.MSUF_empowerRetryActive = nil
+
+    -- Clear cached plain-number conversions.
+    frame._msufEmpowerTotalNum = nil
+    frame._msufEmpowerStartNum = nil
+    frame._msufEmpowerBaseNum = nil
+    frame._msufEmpowerStageEndsNum = nil
+    frame._msufEmpowerMinMaxSet = nil
+    frame._msufEmpowerElapsed = nil
+    frame._msufEmpowerTimerDriven = nil
+
+    if frame.empowerTicks then
+        for i = 1, #frame.empowerTicks do
+            local t = frame.empowerTicks[i]
+            if t then
+                t:Hide()
+                if t.MSUF_glow then t.MSUF_glow:Hide() end
+                if t.MSUF_flash then t.MSUF_flash:Hide() end
+            end
+        end
+    end
+    if frame.empowerSegments then
+        for i = 1, #frame.empowerSegments do
+            local s = frame.empowerSegments[i]
+            if s then s:Hide() end
+        end
+    end
+end
+
+-- =====================================================================
+-- Phase 2A: Shared interrupt feedback bar visuals.
+-- Performs the common visual steps for showing "Interrupted" on any castbar.
+-- Callers handle their own lifecycle (timers, state tracking, cleanup).
+--
+-- opts = {
+--   label      = "Interrupted",     -- text to show
+--   barValue   = 1,                 -- fill value (Boss=1, Player=0.8)
+--   colorR/G/B = 0.8/0.1/0.1,      -- bar color
+--   reverseFill = false,            -- computed reverse fill
+--   skipShake  = false,             -- suppress shake animation
+-- }
+-- =====================================================================
+function _G.MSUF_ApplyInterruptBarVisuals(frame, opts)
+    if not frame then return end
+    opts = opts or {}
+    local sb = frame.statusBar
+    if not sb then return end
+
+    local barVal = opts.barValue or 1
+    local cr = opts.colorR or 0.8
+    local cg = opts.colorG or 0.1
+    local cb = opts.colorB or 0.1
+    local rf = opts.reverseFill
+
+    -- Set bar to full/near-full red
+    if sb.SetMinMaxValues then pcall(sb.SetMinMaxValues, sb, 0, 1) end
+    if sb.SetValue then pcall(sb.SetValue, sb, barVal) end
+
+    -- Apply reverse fill via canonical helper
+    if rf ~= nil then
+        if type(_G.MSUF_ApplyCastbarTimerDirection) == "function" then
+            _G.MSUF_ApplyCastbarTimerDirection(sb, nil, rf)
+        elseif sb.SetReverseFill then
+            pcall(sb.SetReverseFill, sb, rf and true or false)
+        end
+    end
+
+    -- Apply color
+    if type(_G.MSUF_SetStatusBarColorIfChanged) == "function" then
+        _G.MSUF_SetStatusBarColorIfChanged(sb, cr, cg, cb, 1)
+    elseif sb.SetStatusBarColor then
+        sb:SetStatusBarColor(cr, cg, cb, 1)
+    end
+
+    -- Set text
+    local label = opts.label or "已打斷"
+    if frame.castText then
+        if type(_G.MSUF_CB_ApplyTexts) == "function" then
+            _G.MSUF_CB_ApplyTexts(frame, nil, label, nil)
+        elseif frame.castText.SetText then
+            frame.castText:SetText(label)
+        end
+    end
+    if frame.timeText then
+        if type(_G.MSUF_CB_ApplyTexts) == "function" then
+            _G.MSUF_CB_ApplyTexts(frame, nil, nil, "")
+        elseif frame.timeText.SetText then
+            frame.timeText:SetText("")
+        end
+    end
+
+    -- Show + Shake
+    if frame.Show then frame:Show() end
+    if frame.SetAlpha then frame:SetAlpha(1) end
+
+    if not opts.skipShake and type(_G.MSUF_PlayCastbarShake) == "function" then
+        pcall(_G.MSUF_PlayCastbarShake, frame)
+    end
+end
+
+
 -- Stop/Reset reason enum (local, stable strings; used only to select existing stop-path behavior).
 local MSUF_CB_STOP_REASON = {
     SUCCEEDED   = "SUCCEEDED",
@@ -649,6 +865,10 @@ function _G.MSUF_CB_ResetStateOnStop(frame, reasonOrState, opts)
             MSUF_UnregisterCastbar(frame)
         end
         frame.MSUF_durationObj = nil
+        frame._msufPlainEndTime = nil
+        frame._msufRemaining = nil
+        frame._msufFastText = nil
+        frame._msufPlainTotal = nil
         frame.MSUF_isChanneled = nil
         frame.MSUF_channelDirect = nil
         frame.MSUF_timerDriven = nil
@@ -673,6 +893,10 @@ function _G.MSUF_CB_ResetStateOnStop(frame, reasonOrState, opts)
             MSUF_UnregisterCastbar(frame)
         end
         frame.MSUF_durationObj = nil
+        frame._msufPlainEndTime = nil
+        frame._msufRemaining = nil
+        frame._msufFastText = nil
+        frame._msufPlainTotal = nil
         frame.castDuration = nil
         frame.castElapsed  = nil
         frame.MSUF_timerDriven = nil
@@ -698,11 +922,7 @@ function _G.MSUF_CB_ResetStateOnStop(frame, reasonOrState, opts)
     -- This matches the duplicated blocks previously in SetSucceeded/SetInterrupted.
 
     if frame.isEmpower then
-        if type(_G.MSUF_ClearEmpowerState) == "function" then
-            _G.MSUF_ClearEmpowerState(frame)
-        elseif type(MSUF_ClearEmpowerState) == "function" then
-            MSUF_ClearEmpowerState(frame)
-        end
+        _G.MSUF_ClearEmpowerState(frame)
     end
 
     frame:SetScript("OnUpdate", nil)
@@ -724,6 +944,10 @@ function _G.MSUF_CB_ResetStateOnStop(frame, reasonOrState, opts)
     end
 
     frame.MSUF_durationObj = nil
+    frame._msufPlainEndTime = nil
+    frame._msufRemaining = nil
+    frame._msufFastText = nil
+    frame._msufPlainTotal = nil
     frame.MSUF_isChanneled = nil
     frame.MSUF_channelDirect = nil
     frame.MSUF_timerDriven = nil

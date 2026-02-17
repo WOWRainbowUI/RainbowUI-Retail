@@ -392,7 +392,6 @@ do
         if g.enableCombatStateText == true then need = true end
         if g.enableFirstDanceTimer == true then need = true end
         if g.enableCombatCrosshair == true then need = true end
-        if g.enableCombatCrosshairMeleeRangeColor == true then need = true end
 
         if need then
             _G.MSUF_EnsureAddonLoaded("MidnightSimpleUnitFrames_Gameplay")
@@ -406,4 +405,12 @@ do
             end
         end
     end)
+end
+
+
+-- -----------------------------------------------------------------------------
+-- Range checking removed for maximum performance (user request).
+-- Keep a stub so any legacy calls are harmless.
+function _G.MSUF_EnsureLibRangeCheck()
+    return nil
 end

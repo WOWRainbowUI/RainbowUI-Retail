@@ -1,5 +1,5 @@
 -- MidnightSimpleUnitFrames_FocusKickIcon.lua
--- Standalone module for "Focus Kick Icon" mode.
+-- Standalone module for "專注目標斷法圖示" mode.
 -- When enabled:
 --   * Hides the MSUF focus castbar (FocusCastBar) by setting alpha to 0
 --   * Shows a separate icon that mirrors the focus cast spell
@@ -98,7 +98,7 @@ local function FocusKick_ApplyTimeTextFontNow()
     if not MSUF_DB or not MSUF_DB.general then return end
     local g = MSUF_DB.general
 
-    local fontPath = (type(MSUF_GetFontPath) == "function") and (MSUF_GetFontPath() or "Fonts\\bHEI01B.ttf") or "Fonts\\bHEI01B.ttf"
+    local fontPath = (type(MSUF_GetFontPath) == "function") and (MSUF_GetFontPath() or "Fonts\\FRIZQT__.TTF") or "Fonts\\FRIZQT__.TTF"
     local flags    = (type(MSUF_GetFontFlags) == "function") and (MSUF_GetFontFlags() or "OUTLINE") or "OUTLINE"
     local size     = FocusKick_GetDesiredTextSize(g)
 
@@ -841,7 +841,7 @@ local function FocusKick_EnsurePreviewFrame()
     f:SetScript("OnDragStart", function(self)
         if not FocusKickPreviewEnabled then return end
         if InCombatLockdown and InCombatLockdown() then
-            FocusKick_PrintSystem("In combat - cannot move Focus Interrupt Tracker preview.")
+            FocusKick_PrintSystem("戰鬥中 - 無法移動專注目標斷法監控預覽。")
             return
         end
         self:StartMoving()
@@ -908,7 +908,7 @@ local function FocusKick_SetPreviewEnabled(enabled)
             FocusKickPreviewFrame._msufFakeTimerAG:Stop()
         end
         FocusKickPreviewFrame:Hide()
-        FocusKick_PrintSystem("Enable Focus Interrupt Tracker first to use the on-screen preview.")
+        FocusKick_PrintSystem("請先啟用專注目標斷法監控以使用螢幕預覽。")
         if FocusKickOptionsPanelRef and FocusKickOptionsPanelRef._msufFocusKickPreviewCheck then
             FocusKickOptionsPanelRef._msufSyncing = true
             FocusKickOptionsPanelRef._msufFocusKickPreviewCheck:SetChecked(false)
@@ -1040,13 +1040,13 @@ function MSUF_InitFocusKickIconOptions()
     -- Build a clean, boxed 2-column layout (Enable + Description | Size | Position)
     local panel = CreateFrame("Frame", "MSUF_FocusKickOptionsPanel", focusGroup)
     -- Move the whole layout further left and give it more usable width.
-    -- This prevents the right "Position" column from pushing outside the box.
+    -- This prevents the right "位置" column from pushing outside the box.
     panel:SetPoint("TOPLEFT", focusGroup, "TOPLEFT", 10, -170)
     panel:SetPoint("BOTTOMRIGHT", focusGroup, "BOTTOMRIGHT", -10, 70)
 
     local title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOP", panel, "TOP", 0, -18)
-    title:SetText("Focus Interrupt Tracker")
+    title:SetText("專注目標斷法監控")
 
     local topLine = panel:CreateTexture(nil, "ARTWORK")
     topLine:SetColorTexture(1, 1, 1, 0.12)
@@ -1071,16 +1071,16 @@ function MSUF_InitFocusKickIconOptions()
     local cb = CreateFrame("CheckButton", "MSUF_FocusKickIconCheck", panel, "UICheckButtonTemplate")
     cb:SetPoint("TOPLEFT", panel, "TOPLEFT", 18, -64)
     if cb.Text then
-        cb.Text:SetText("Enable Focus Interrupt Tracker")
+        cb.Text:SetText("啟用專注目標斷法監控")
     end
-    cb.tooltipText = "Shows an interrupt reminder icon for your Focus."
-    cb.tooltipRequirement = "Use this to track interrupts on your Focus without showing the Focus castbar."
+    cb.tooltipText = "為你的專注目標顯示斷法提醒圖示。"
+    cb.tooltipRequirement = "使用此功能來監控專注目標的斷法，而無需顯示專注目標施法條。"
 
     local desc = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     desc:SetPoint("TOPLEFT", cb, "BOTTOMLEFT", 2, -6)
     desc:SetWidth(260)
     desc:SetJustifyH("LEFT")
-    desc:SetText("Track interrupts on your Focus without showing the Focus castbar.")
+    desc:SetText("監控專注目標的斷法，而無需顯示專注目標施法條。")
 
     cb:SetScript("OnClick", function(self)
         if panel._msufSyncing then return end
@@ -1102,11 +1102,11 @@ function MSUF_InitFocusKickIconOptions()
     -- MID: Size
     local sizeHeader = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     sizeHeader:SetPoint("TOPLEFT", panel, "TOPLEFT", 290, -62)
-    sizeHeader:SetText("Size")
+    sizeHeader:SetText("大小")
 
     local sliderWidth = FocusKick_CreateSlider(
         "MSUF_FocusKickIconWidthSlider",
-        "Width",
+        "寬度",
         panel,
         16, 128, 1,
         290, -100
@@ -1125,7 +1125,7 @@ function MSUF_InitFocusKickIconOptions()
 
     local sliderHeight = FocusKick_CreateSlider(
         "MSUF_FocusKickIconHeightSlider",
-        "Height",
+        "高度",
         panel,
         16, 128, 1,
         290, -170
@@ -1145,7 +1145,7 @@ function MSUF_InitFocusKickIconOptions()
     -- Text size (mirrors Focus castbar time text; font size only)
     local sliderTextSize = FocusKick_CreateSlider(
         "MSUF_FocusKickTextSizeSlider",
-        "Text Size",
+        "文字大小",
         panel,
         8, 24, 1,
         290, -240
@@ -1179,11 +1179,11 @@ function MSUF_InitFocusKickIconOptions()
     -- RIGHT: Position
     local posHeader = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     posHeader:SetPoint("TOPLEFT", panel, "TOPLEFT", 460, -62)
-    posHeader:SetText("Position")
+    posHeader:SetText("位置")
 
     local sliderOffsetX = FocusKick_CreateSlider(
         "MSUF_FocusKickIconOffsetXSlider",
-        "X offset",
+        "水平偏移",
         panel,
         -500, 500, 1,
         460, -100
@@ -1202,7 +1202,7 @@ function MSUF_InitFocusKickIconOptions()
 
     local sliderOffsetY = FocusKick_CreateSlider(
         "MSUF_FocusKickIconOffsetYSlider",
-        "Y offset",
+        "垂直偏移",
         panel,
         -500, 500, 1,
         460, -170
@@ -1232,14 +1232,14 @@ function MSUF_InitFocusKickIconOptions()
     -- Place this toggle in the left column under the enable description.
     previewCheck:SetPoint("TOPLEFT", desc, "BOTTOMLEFT", -2, -10)
     if previewCheck.Text then
-        previewCheck.Text:SetText("在畫面預覽中顯示")
+        previewCheck.Text:SetText("顯示螢幕預覽")
     end
     panel._msufFocusKickPreviewCheck = previewCheck
 
     previewCheck:SetScript("OnClick", function(self)
         if panel._msufSyncing then return end
         if InCombatLockdown and InCombatLockdown() then
-            FocusKick_PrintSystem("戰鬥中 - 無法切換專注打斷追蹤器預覽")
+            FocusKick_PrintSystem("戰鬥中 - 無法切換專注目標斷法監控預覽。")
             panel._msufSyncing = true
             self:SetChecked(FocusKickPreviewEnabled and true or false)
             panel._msufSyncing = false
@@ -1255,7 +1255,7 @@ function MSUF_InitFocusKickIconOptions()
 local resetBtn = CreateFrame("Button", "MSUF_FocusKickResetPositionButton", panel, "UIPanelButtonTemplate")
     resetBtn:SetSize(150, 24)
     resetBtn:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -16, 18)
-    resetBtn:SetText("Reset Position")
+    resetBtn:SetText("重置位置")
     resetBtn:SetScript("OnClick", function()
         FocusKick_EnsureDB()
         if not MSUF_DB or not MSUF_DB.general then return end
