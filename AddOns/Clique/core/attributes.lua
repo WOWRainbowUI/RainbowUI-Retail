@@ -47,6 +47,11 @@ local function ApplicationOrder(a, b)
 end
 
 local function shouldApply(global, entry)
+    -- Filter out gamepad bindings when the gamepad option is disabled
+    if addon:IsGamePadBinding(entry) and not addon:IsGamePadEnabled() then
+        return false
+    end
+
     -- If this is the global button and this is a 'global' binding
     if global and (entry.sets.hovercast or entry.sets.global) then
         return true
@@ -93,6 +98,51 @@ function addon:GetClickAttributes(global)
 
         rembits[#rembits + 1] = "local name = button:GetName()"
         rembits[#rembits + 1] = "if blacklist[name] then return end"
+    end
+
+    -- Backup and clear wildcard attributes (*type1/*type2) that Blizzard sets
+    -- on unit frames. This must happen after the blacklist check (so we don't
+    -- touch blacklisted frames) and only on non-global frames (the global
+    -- button is Clique's own frame and never has wildcard attributes).
+    if not global and self.settings.removeWildcardActions then
+        table.insert(bits, [[local oldType1 = button:GetAttribute("*type1")]])
+        table.insert(bits, [[if oldType1 then]])
+        table.insert(bits, [[  button:SetAttribute("clique-backup-*type1", oldType1)]])
+        table.insert(bits, [[  button:SetAttribute("*type1", "")]])
+        table.insert(bits, [[end]])
+        table.insert(bits, [[local oldType2 = button:GetAttribute("*type2")]])
+        table.insert(bits, [[if oldType2 then]])
+        table.insert(bits, [[  button:SetAttribute("clique-backup-*type2", oldType2)]])
+        table.insert(bits, [[  button:SetAttribute("*type2", "")]])
+        table.insert(bits, [[end]])
+
+        table.insert(rembits, [[local backup1 = button:GetAttribute("clique-backup-*type1")]])
+        table.insert(rembits, [[if backup1 then]])
+        table.insert(rembits, [[  button:SetAttribute("*type1", backup1)]])
+        table.insert(rembits, [[  button:SetAttribute("clique-backup-*type1", nil)]])
+        table.insert(rembits, [[end]])
+        table.insert(rembits, [[local backup2 = button:GetAttribute("clique-backup-*type2")]])
+        table.insert(rembits, [[if backup2 then]])
+        table.insert(rembits, [[  button:SetAttribute("*type2", backup2)]])
+        table.insert(rembits, [[  button:SetAttribute("clique-backup-*type2", nil)]])
+        table.insert(rembits, [[end]])
+    end
+
+    -- When using AnyDown click mode, Blizzard's "menu" secure action type only
+    -- fires on the Up click. Convert any *type2 "menu" to "togglemenu" which
+    -- works on both up and down clicks. This runs after the wipe/backup block:
+    -- if wipe is ON, *type2 has been cleared so this is a no-op. If wipe is
+    -- OFF, this converts the attribute in place.
+    if not global and self:IsDownClickEnabled() then
+        table.insert(bits, [[local curType2 = button:GetAttribute("*type2")]])
+        table.insert(bits, [[if curType2 == "menu" then]])
+        table.insert(bits, [[  button:SetAttribute("*type2", "togglemenu")]])
+        table.insert(bits, [[end]])
+
+        table.insert(rembits, [[local curType2 = button:GetAttribute("*type2")]])
+        table.insert(rembits, [[if curType2 == "togglemenu" then]])
+        table.insert(rembits, [[  button:SetAttribute("*type2", "menu")]])
+        table.insert(rembits, [[end]])
     end
 
     -- Sort the bindings so they are applied in order. This sort ensures that

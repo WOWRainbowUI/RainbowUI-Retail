@@ -431,6 +431,10 @@ function page:UPDATE_BROWSE_PAGE()
             end
         end
 
+        if addon:IsGamePadBinding(bind) and not addon:IsGamePadEnabled() then
+            data.text = "|cffFF4800" .. L["Disabled - Gamepad not enabled"] .. "|r"
+        end
+
         if page:FilterEntry(data) then
             table.insert(bindingData, data)
         end

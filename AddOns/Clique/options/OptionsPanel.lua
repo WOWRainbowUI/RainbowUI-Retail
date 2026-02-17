@@ -185,14 +185,17 @@ function panel:CreateOptions()
     -- Create the general options panel here:
     local bits = {}
 
+    self.updown = make_checkbox("CliqueOptionsUpDownClick", self)
+    self.updown.text:SetText(L["Trigger bindings on the 'down' portion of the click or keypress"])
+
+    self.removeWildcard = make_checkbox("CliqueOptionsRemoveWildcard", self)
+    self.removeWildcard.text:SetText(L["Remove wildcard target and menu actions on registered frames"])
+
     self.disableDuringHousing = make_checkbox("CliqueOptionsDisableDuringHousing", self)
     self.disableDuringHousing.text:SetText(L["Disable all bindings when in housing edit mode"])
 
-    self.cvardirection = make_checkbox("CliqueOptionsCvarDirection", self)
-    self.cvardirection.text:SetText(L["[Temp] Match the behaviour of the ActionButtonUseKeyDown CVar"])
-
-    self.updown = make_checkbox("CliqueOptionsUpDownClick", self)
-    self.updown.text:SetText(L["Trigger bindings on the 'down' portion of the click (experimental)"])
+    self.enableGamePad = make_checkbox("CliqueOptionsEnableGamePad", self)
+    self.enableGamePad.text:SetText(L["Enable GamePad binding support"])
 
     -- Set up multiple talent profiles
     self.talentProfiles = {}
@@ -277,9 +280,10 @@ function panel:CreateOptions()
     end)
 
     -- Collect and anchor the bits together
-    table.insert(bits, self.disableDuringHousing)
-    table.insert(bits, self.cvardirection)
     table.insert(bits, self.updown)
+    table.insert(bits, self.removeWildcard)
+    table.insert(bits, self.disableDuringHousing)
+    table.insert(bits, self.enableGamePad)
     table.insert(bits, self.stopcastingfix)
 
     if #self.talentProfiles > 0 then
@@ -568,9 +572,10 @@ function panel.refresh()
     end
 
 
+    panel.updown:SetChecked(settings.downClick)
+    panel.removeWildcard:SetChecked(settings.removeWildcardActions)
     panel.disableDuringHousing:SetChecked(settings.disableInHousing)
-    panel.updown:SetChecked(settings.downclick)
-    panel.cvardirection:SetChecked(settings.usecvardirection)
+    panel.enableGamePad:SetChecked(settings.enableGamePad)
     panel.stopcastingfix:SetChecked(settings.stopcastingfix)
 
     end, geterrorhandler())
@@ -582,13 +587,23 @@ function panel.okay()
     local settings = addon.settings
     local currentProfile = addon.db:GetCurrentProfile()
 
-    local changed = (not not panel.stopcastingfix:GetChecked()) ~= settings.stopcastingfix
+    local newDownClick = not not panel.updown:GetChecked()
+    local newRemoveWildcard = not not panel.removeWildcard:GetChecked()
+    local newDisableInHousing = not not panel.disableDuringHousing:GetChecked()
+    local newEnableGamePad = not not panel.enableGamePad:GetChecked()
+    local newStopCasting = not not panel.stopcastingfix:GetChecked()
+
+    local downClickChanged = newDownClick ~= settings.downClick
+    local wildcardChanged = newRemoveWildcard ~= settings.removeWildcardActions
+    local gamePadChanged = newEnableGamePad ~= settings.enableGamePad
+    local stopCastingChanged = newStopCasting ~= settings.stopcastingfix
 
     -- Update the saved variables
-    settings.disableInHousing = not not panel.disableDuringHousing:GetChecked()
-    settings.downclick = not not panel.updown:GetChecked()
-    settings.usecvardirection = not not panel.cvardirection:GetChecked()
-    settings.stopcastingfix = not not panel.stopcastingfix:GetChecked()
+    settings.downClick = newDownClick
+    settings.removeWildcardActions = newRemoveWildcard
+    settings.disableInHousing = newDisableInHousing
+    settings.enableGamePad = newEnableGamePad
+    settings.stopcastingfix = newStopCasting
 
     if #panel.talentProfiles > 0 then
         settings.specswap = not not panel.specswap:GetChecked()
@@ -608,7 +623,11 @@ function panel.okay()
 
     addon:HouseEditorModeChanged()
 
-    if changed then
+    if downClickChanged or gamePadChanged then
+        addon:UpdateRegisteredClicks()
+    end
+
+    if downClickChanged or wildcardChanged or stopCastingChanged or gamePadChanged then
         addon:FireMessage("BINDINGS_CHANGED")
     end
 

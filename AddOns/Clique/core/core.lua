@@ -299,6 +299,14 @@ function addon:LeavingCombat()
     end
 end
 
+function addon:IsDownClickEnabled()
+    return self.settings.downClick
+end
+
+function addon:IsGamePadEnabled()
+    return self.settings.enableGamePad
+end
+
 function addon:HouseEditorModeChanged(event, editMode)
     if not C_HouseEditor then
         return

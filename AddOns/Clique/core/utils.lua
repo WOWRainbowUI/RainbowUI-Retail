@@ -155,8 +155,14 @@ function addon:GetBindingIcon(binding)
     end
 end
 
+function addon:IsGamePadBinding(binding)
+    return type(binding) == "table" and binding.key and IsBindingForGamePad(binding.key, 1)
+end
+
 function addon:GetBindingKeyComboText(binding)
-    if type(binding) == "table" and binding.key then
+    if self:IsGamePadBinding(binding) then
+        return GetBindingText(binding.key, 1)
+    elseif type(binding) == "table" and binding.key then
         return strconcat(convert(strsplit("-", binding.key)))
     elseif type(binding) == "string" then
         return strconcat(convert(strsplit("-", binding)))

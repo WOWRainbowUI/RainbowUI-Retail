@@ -68,24 +68,16 @@ function addon:UpdateGlobalButtonClicks()
     -- such as always activating on the 'Down' part of clicks.
     self.globutton:SetAttribute("useOnKeyDown", true)
     self.globutton:RegisterForClicks("AnyDown")
+    if self:IsGamePadEnabled() then
+        self.globutton:EnableGamePadButton(true)
+    end
 end
 
 function addon:GetButtonDirections()
-    if self.settings.usecvardirection then
-        local keyDown = C_CVar.GetCVarBool("ActionButtonUseKeyDown")
-
-        if keyDown then
-            return "AnyDown"
-        else
-            return "AnyUp"
-        end
-    end
-
-    -- Old behaviour
-    if self:ProjectIsBCC() then
+    if self:IsDownClickEnabled() then
         return "AnyDown"
     else
-        return "AnyUp", "AnyDown"
+        return "AnyUp"
     end
 end
 
@@ -97,10 +89,19 @@ function addon:UpdateRegisteredClicks(button)
         return
     end
 
+    local enableGamePad = self:IsGamePadEnabled()
+
+    -- Note: We intentionally only enable GamePadButton, never disable it.
+    -- WoW frames come with EnableGamePadButton on by default, so we don't
+    -- want to forcibly disable it when the Clique option is off.
+
     -- Short version that only updates clicks for one frame
     if button and not self:IsFrameBlacklisted(button) then
         button:RegisterForClicks(self:GetButtonDirections())
         button:EnableMouseWheel(true)
+        if enableGamePad then
+            button:EnableGamePadButton(true)
+        end
         return
     end
 
@@ -108,6 +109,9 @@ function addon:UpdateRegisteredClicks(button)
         if not self:IsFrameBlacklisted(button) then
             button:RegisterForClicks(self:GetButtonDirections())
             button:EnableMouseWheel(true)
+            if enableGamePad then
+                button:EnableGamePadButton(true)
+            end
         end
     end
 
@@ -115,6 +119,9 @@ function addon:UpdateRegisteredClicks(button)
         if not self:IsFrameBlacklisted(button) then
             button:RegisterForClicks(self:GetButtonDirections())
             button:EnableMouseWheel(true)
+            if enableGamePad then
+                button:EnableGamePadButton(true)
+            end
         end
     end
 
