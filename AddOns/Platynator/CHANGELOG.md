@@ -1,6 +1,9 @@
 # Platynator
 
-## [319](https://github.com/TheMouseNest/Platynator/tree/319) (2026-02-14)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/318...319) 
+## [320](https://github.com/TheMouseNest/Platynator/tree/320) (2026-02-15)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/319...320) 
 
-- More aura fixes. Resolve auras not appearing if a unit changes attackability  
+- Retail: Add slider to rescale blizzard extra widgets for nameplates scale  
+- Fix not unregistering for color events on CreatureTextMSP  
+- Cleanup  
+- Reduce unnecessary buffs showing during PvP encounters with enemy players  
