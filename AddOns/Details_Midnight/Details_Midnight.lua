@@ -102,7 +102,7 @@ local styleConfig = {
     barInsetPercent = 0.02,
     -- Bar height in pixels (major factor for how many bars fit).
     barHeight = 20,
-    -- Rounded skin row height override (Rounded / Rounded 無背景 / Rounded-Bordered).
+    -- Rounded skin row height override (Rounded / Rounded No BG / Rounded-Bordered).
     roundedRowHeight = 24,
     -- Vertical spacing between bars.
     barSpacingBetween = 5,
@@ -178,61 +178,6 @@ local function isMidnightSkin(skin)
         or skin == skinNameDFNoBackground
         or skin == skinNameSv2
         or skin == skinNameSv2NoBackground
-end
-
--- Snapshot fade/context alpha settings so skin refresh doesn't wipe user rules.
-local function captureFadeSettings(instance)
-    if not instance then
-        return nil
-    end
-
-    local snapshot = {
-        hide_in_combat = instance.hide_in_combat,
-        hide_out_of_combat = instance.hide_out_of_combat,
-        hide_in_combat_type = instance.hide_in_combat_type,
-        hide_in_combat_alpha = instance.hide_in_combat_alpha
-    }
-
-    if Details and Details.CopyTable then
-        if instance.menu_alpha then
-            snapshot.menu_alpha = Details.CopyTable(instance.menu_alpha)
-        end
-        if instance.hide_on_context then
-            snapshot.hide_on_context = Details.CopyTable(instance.hide_on_context)
-        end
-    else
-        snapshot.menu_alpha = instance.menu_alpha
-        snapshot.hide_on_context = instance.hide_on_context
-    end
-
-    return snapshot
-end
-
--- Reapply captured fade/context alpha settings after a skin refresh.
-local function restoreFadeSettings(instance, snapshot)
-    if not instance or not snapshot then
-        return
-    end
-
-    instance.hide_in_combat = snapshot.hide_in_combat
-    instance.hide_out_of_combat = snapshot.hide_out_of_combat
-    instance.hide_in_combat_type = snapshot.hide_in_combat_type
-    instance.hide_in_combat_alpha = snapshot.hide_in_combat_alpha
-
-    if snapshot.menu_alpha then
-        instance.menu_alpha = snapshot.menu_alpha
-    end
-    if snapshot.hide_on_context then
-        instance.hide_on_context = snapshot.hide_on_context
-    end
-
-    -- Force Details to recalculate current alpha state from restored settings.
-    if instance.SetMenuAlpha then
-        pcall(instance.SetMenuAlpha, instance)
-    end
-    if instance.AdjustAlphaByContext then
-        pcall(instance.AdjustAlphaByContext, instance)
-    end
 end
 
 -- Applies a tiny inset crop to spec icons, but only on Midnight windows.
@@ -845,9 +790,7 @@ local function refreshActiveWindows()
     for instanceId = 1, Details:GetNumInstances() do
         local instance = Details:GetInstance(instanceId)
         if instance and instance.baseframe and instance.ativa and instance.ChangeSkin and isMidnightSkin(instance.skin) then
-            local fadeSnapshot = captureFadeSettings(instance)
             pcall(instance.ChangeSkin, instance)
-            restoreFadeSettings(instance, fadeSnapshot)
         end
     end
     runningSkinRefresh = false
@@ -860,6 +803,11 @@ local function setupAfterLogin()
     if Details and Details.IsLoaded and not Details.IsLoaded() then
         C_Timer.After(0.2, setupAfterLogin)
         return
+    end
+
+    -- Keep context-based automation alpha settings when Details resets config on ChangeSkin().
+    if Details and Details.instance_skin_ignored_values then
+        Details.instance_skin_ignored_values.hide_on_context = true
     end
 
     registerMedia()
