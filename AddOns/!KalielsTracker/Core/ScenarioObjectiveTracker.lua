@@ -460,7 +460,7 @@ function KT_ScenarioObjectiveTrackerStageMixin:OnEnter()
 		local blankLineAdded = false;
 		if xp > 0 and not IsPlayerAtEffectiveMaxLevel() then
 			GameTooltip_AddBlankLineToTooltip(GameTooltip);
-			GameTooltip_AddNormalLine(GameTooltip, BONUS_OBJECTIVE_EXPERIENCE_FORMAT:format(xp));
+			KT.GameTooltip_AddXP(GameTooltip, xp)  -- MSA
 			blankLineAdded = true;
 		end
 
@@ -468,7 +468,7 @@ function KT_ScenarioObjectiveTrackerStageMixin:OnEnter()
 			if not blankLineAdded then
 				GameTooltip_AddBlankLineToTooltip(GameTooltip);
 			end
-			SetTooltipMoney(GameTooltip, money, nil);
+			KT.GameTooltip_AddMoney(GameTooltip, money)  -- MSA
 		end
 
 		GameTooltip:Show();

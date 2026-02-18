@@ -85,7 +85,7 @@ local function SetupTutorials()
 		icon = HELP_PATH.."KT_logo",
 		font = "Fonts\\bLEI00D.ttf",
 		width = 582,
-		height = 620,
+		height = 632,
 		paddingX = 35,
 		paddingTop = 26,
 		paddingBottom = 24,
@@ -269,24 +269,24 @@ local function SetupTutorials()
 				}
 			},
 		},
-		{	-- 12
+        {	-- 12 
 			image = HELP_PATH.."help_addon-tomtom",
 			heading = "支援插件 TomTom",
-			text = "TomTom 的支援性整合了暴雪的 POI 和 TomTom 的導航箭頭。\n\n"..
+			text = "TomTom 支援結合了暴雪的 POI 與 TomTom 的箭頭。\n\n".. 
 					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
-					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r   當前 POI 按鈕包含 TomTom 導航。\n".. -- Text translated, icons kept
+					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r 啟用的 POI 按鈕，並帶有 TomTom 路徑點。\n"..
 					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
-					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r   當前 POI 按鈕不包含 TomTom 導航 (沒有資料)。\n\n".. -- Text translated, icons kept
-					"功能:\n"..
-					"- 一般任務和世界任務都可以使用，但是只有當前區域的任務才能導航!"..
-					offs.."(這是 TomTom 和暴雪的功能限制)\n"..
-					"- "..cBold.."點一下|r (任務清單中或是世界地圖上的) POI 按鈕會顯示該任務的"..
-					offs.."導航箭頭。\n"..
-					"- 新追蹤或距離最近的任務會自動顯示導航。\n"..
-					"- 取消追蹤或放棄任務時會移除導航。\n"..
+					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r 啟用的 POI 按鈕，但沒有 TomTom 路徑點（無資料）。\n\n"..
+
+					"功能特色：\n"..
+					"- 適用於任務與世界任務，但路徑點僅限於當前"..offs.."大陸（TomTom 與暴雪的限制）。\n"..
+					"- 其他地圖 POI 也可以設置路徑點（見第 14 頁）。\n"..
+					"- "..cBold.."左鍵點擊|r POI 按鈕（在追蹤器或世界地圖上）即可設置路徑點。\n"..
+					"- 新追蹤的任務或最近的任務會自動獲得路徑點。\n"..
+					"- 未追蹤或放棄的任務，其路徑點會被移除。\n"..
 					"- "..cBold.."左鍵點擊|r箭頭 - 打開世界地圖。\n"..
-                    "- "..cBold.."右鍵點擊|r箭頭 - 移除導航並取消選取 POI。\n"..
-                    "- "..cBold.."Shift + 右鍵點擊|r箭頭 - 顯示右鍵選單。\n"..
+					"- "..cBold.."右鍵點擊|r箭頭 - 從箭頭移除路徑點，清除 POI"..offs.."選擇並刪除路徑點（若由 "..KT.TITLE.." 建立）。\n"..
+					"- "..cBold.."Shift + 右鍵點擊|r箭頭 - 打開 TomTom 右鍵選單。\n"..
 					AddonInfo("TomTom"),
 			editbox = {
 				{
@@ -362,17 +362,19 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
-					(cTitle.."版本 8.0.0|r\n"..
-					"- 新增 - 支援 WoW 12.0.0.65512\n"..
-					"- 更新 - 插件支援 - PetTracker 12.0.0\n"..
-					"- 更新 - 插件支援 - TomTom 4.2.15\n"..
-					"- 更新 - 插件支援 - RareScanner 12.0.0.3\n"..
-					"- 更新 - 插件支援 - Masque 11.2.10\n"..
-					"- 更新 - 插件支援 - Auctionator 312\n"..
-					"- 更新 - 插件支援 - BtWQuests 2.60.0\n"..
-					"- 更新 (說明) - 目前的贊助者名單\n"..
-					"- 改進 - 音效優化 – 聲音不重疊，僅在觸發時播放\n"..
-					"- 更新 - 函式庫 (Libs)\n"..
+					(cTitle.."版本 8.1.0|r\n"..
+					"- 新增 - 將捲動指示器替換為可互動的捲軸\n"..
+					"- 新增 - TomTom - 支援收藏來源的路徑點（外觀、裝飾）\n"..
+					"- 新增 - 收藏追蹤（外觀、裝飾） - 下拉選單、提示訊息\n"..
+					"- 新增 - TomTom - 支援其他 TomTom 路徑點\n"..
+					"- 新增 - 威脅任務 - 顯示 POI 按鈕\n"..
+					"- 修改（說明） - 活躍贊助者\n"..
+					"- 修改 - 插件支援 - ElvUI 15.05\n"..
+					"- 修改 - 改善提示訊息中的獎勵顯示\n"..
+					"- 修改 - 函式庫\n"..
+					"- 修正 - 秘密數值污染問題\n"..
+					"- 修正 - 當啟用「隱藏空追蹤器」時，隱藏可見性規則被忽略\n"..
+					"- 修正 - 任務追蹤器中的高 CPU 使用率（暴雪 Bug）\n"..
 					"\n")..
 
 					cTitle.."問題回報|r\n"..
@@ -454,18 +456,23 @@ local function SetupTutorials()
 					"一個小型的個人專案，成長為需要投入大量時間且持續維護的龐大系統。\n\n"..
 					"非常感謝所有協助維持本專案運作的支持者們 "..ICON_HEART.."\n\n\n"..
 					cTitle.."Active Patrons|r\n"..
-                    SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
-                    SetFormatedPatronName("Epic", "Soromeister")..
-                    SetFormatedPatronName("Rare", "Ian F")..
-                    SetFormatedPatronName("Rare", "Spance")..
-                    SetFormatedPatronName("Uncommon", "Charles Howarth")..
-                    SetFormatedPatronName("Uncommon", "Cool Blue")..
-                    SetFormatedPatronName("Uncommon", "David Blanchard")..
-                    SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
-                    SetFormatedPatronName("Uncommon", "Mystekal")..
-                    SetFormatedPatronName("Uncommon", "Paul Westervelt")..
-                    SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
-                    SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
+					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
+					SetFormatedPatronName("Epic", "Soromeister")..
+					SetFormatedPatronName("Rare", "Ian F")..
+					SetFormatedPatronName("Rare", "Sal")..
+					SetFormatedPatronName("Rare", "Spance")..
+					SetFormatedPatronName("Rare", "SublimeHysteria")..
+					SetFormatedPatronName("Uncommon", "Brewnor")..
+					SetFormatedPatronName("Uncommon", "Charles Howarth")..
+					SetFormatedPatronName("Uncommon", "Cool Blue")..
+					SetFormatedPatronName("Uncommon", "David Blanchard")..
+					SetFormatedPatronName("Uncommon", "Gramm", "Ravenholdt")..
+					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
+					SetFormatedPatronName("Uncommon", "Mystekal")..
+					SetFormatedPatronName("Uncommon", "Paul Westervelt")..
+					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
+					SetFormatedPatronName("Uncommon", "Veratais")..
+					SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
                     SetFormatedPatronName("Common", "Darren Divecha")..
 					"\n"..
 					cTitle.."Testers|r\n"..

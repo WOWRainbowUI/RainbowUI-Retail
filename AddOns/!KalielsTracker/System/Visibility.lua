@@ -53,17 +53,17 @@ end
 
 local function ApplyAction(action)
     if action == "show" then
-        KT:SetHidden(false)
+        KT:SetHidden(false, true)
     elseif action == "hide" then
-        KT:SetHidden(true)
+        KT:SetHidden(true, true)
     elseif action == "collapse" then
         if KT.hidden then
-            KT:SetHidden(false)
+            KT:SetHidden(false, true)
         end
         KT:SetCollapsed(true)
     elseif action == "expand" then
         if KT.hidden then
-            KT:SetHidden(false)
+            KT:SetHidden(false, true)
         end
         KT:SetCollapsed(false)
     end

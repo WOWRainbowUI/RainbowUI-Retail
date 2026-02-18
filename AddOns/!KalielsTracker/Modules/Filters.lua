@@ -770,10 +770,9 @@ local function Filter_AchievCat_CheckAll(self, state)
 	for id, _ in pairs(dbChar.filterAchievCat) do
 		dbChar.filterAchievCat[id] = state
 	end
+	MSA_DropDownMenu_Refresh(KT.DropDown, nil, self:GetParent():GetID())
 	if dbChar.filterAuto[2] then
 		Filter_Menu_Achievements(self, dbChar.filterAuto[2])
-	else
-		MSA_DropDownMenu_Refresh(KT.DropDown, nil, self:GetParent():GetID())
 	end
 end
 
@@ -920,7 +919,7 @@ local function DropDown_Initialize(self, level)
 				end
 			end
 		elseif MSA_DROPDOWNMENU_MENU_VALUE == "achievementCategories" then
-			info.keepShownOnClick = not dbChar.filterAuto[2]
+			info.keepShownOnClick = true
 			info.func = Filter_AchievCat_CheckAll
 
 			KT.Menu_AddButton("全選", true, false)     -- last false is disabled state

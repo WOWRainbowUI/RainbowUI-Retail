@@ -25,6 +25,7 @@ KT_QuestObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin,
 function KT_QuestObjectiveTrackerMixin:InitModule()
 	self:AddTag("quest");
 	self:WatchMoney(false);
+	self.pathUpdateHandled = true  -- fix Blizz bug (ignore first STPU)
 end
 
 function KT_QuestObjectiveTrackerMixin:OnEvent(event, ...)
@@ -45,6 +46,14 @@ function KT_QuestObjectiveTrackerMixin:OnEvent(event, ...)
 		local block = self:GetExistingBlock(questID);
 		if block then
 			block:PlayTurnInAnimation();
+		end
+	elseif event == "SUPER_TRACKING_CHANGED" then  -- fix Blizz bug
+		self:MarkDirty()
+		self.pathUpdateHandled = false
+	elseif event == "SUPER_TRACKING_PATH_UPDATED" then  -- fix Blizz bug
+		if not self.pathUpdateHandled then
+			self:MarkDirty()
+			self.pathUpdateHandled = true
 		end
 	else
 		self:MarkDirty();

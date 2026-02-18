@@ -12,7 +12,7 @@ local SS = KT:NewSubsystem("Menu")
 local _info
 local db
 
-local function ExtendContextMenu(_, info, arg1, arg2)
+local function ExtendContextMenu(_, info, arg1, arg2, arg3)
     if not db then return end
 
     if db.menuWowheadURL then
@@ -21,7 +21,7 @@ local function ExtendContextMenu(_, info, arg1, arg2)
             info.KTmenuExtended = true
         end
 
-        KT.Menu_AddButton("|cff33ff99Wowhead|r URL", KT.Alert_WowheadURL, arg1, arg2)
+        KT.Menu_AddButton("|cff33ff99Wowhead|r URL", KT.Alert_WowheadURL, arg1, arg2, arg3)
     end
 
     if db.menuYouTubeURL then
@@ -30,37 +30,42 @@ local function ExtendContextMenu(_, info, arg1, arg2)
             info.KTmenuExtended = true
         end
 
-        KT.Menu_AddButton("|cff33ff99YouTube|r Search URL", KT.Alert_YouTubeURL, arg1, arg2)
+        KT.Menu_AddButton("|cff33ff99YouTube|r Search URL", KT.Alert_YouTubeURL, arg1, arg2, arg3)
     end
 end
 
--- func, ?, ?, boolean
-local function Parse4Args(a, b, c, d)
-    local func, arg1, arg2, disabled
+-- func, ?, ?, ?, boolean
+local function Parse5Args(a, b, c, d, e)
+    local func, arg1, arg2, arg3, disabled
 
-    if type(d) == "boolean" then
+    if type(e) == "boolean" then
+        disabled = e
+    elseif type(d) == "boolean" then
         disabled = d
+        d = nil
     elseif type(c) == "boolean" then
         disabled = c
-        c = nil
+        c, d = nil, nil
     elseif type(b) == "boolean" then
         disabled = b
-        b, c = nil, nil
+        b, c, d = nil, nil, nil
     elseif type(a) == "boolean" then
         disabled = a
-        a, b = nil, nil
+        a, b, c = nil, nil, nil
     end
 
     if type(a) == "function" then
         func = a
         arg1 = b
         arg2 = c
+        arg3 = d
     else
         arg1 = a
         arg2 = b
+        arg3 = c
     end
 
-    return func, arg1, arg2, disabled
+    return func, arg1, arg2, arg3, disabled
 end
 
 -- func, boolean
@@ -97,19 +102,22 @@ function KT.Menu_AddTitle(text)
 end
 
 function KT.Menu_AddSeparator()
-    MSA_DropDownMenu_AddSeparator(_info, MSA_DROPDOWNMENU_MENU_LEVEL)
+    MSA_DropDownMenu_AddSeparator(MSA_DROPDOWNMENU_MENU_LEVEL)
     _info.notCheckable = true
     _info.isNotRadio = true
 end
 
 function KT.Menu_AddButton(text, ...)
-    local func, arg1, arg2, disabled = Parse4Args(...)
+    local func, arg1, arg2, arg3, disabled = Parse5Args(...)
     _info.text = text
     if arg1 ~= nil then
         _info.arg1 = arg1
     end
     if arg2 ~= nil then
         _info.arg2 = arg2
+    end
+    if arg3 ~= nil then
+        _info.arg3 = arg3
     end
     if disabled ~= nil then
         _info.disabled = disabled
@@ -121,7 +129,7 @@ function KT.Menu_AddButton(text, ...)
 end
 
 function KT.Menu_AddCheck(text, state, ...)
-    local func, arg1, arg2, disabled = Parse4Args(...)
+    local func, arg1, arg2, arg3, disabled = Parse5Args(...)
     _info.text = text
     if type(state) == "table" then
         local tbl, key, expected = unpack(state)
@@ -144,6 +152,9 @@ function KT.Menu_AddCheck(text, state, ...)
     end
     if arg2 ~= nil then
         _info.arg2 = arg2
+    end
+    if arg3 ~= nil then
+        _info.arg3 = arg3
     end
     if disabled ~= nil then
         _info.disabled = disabled

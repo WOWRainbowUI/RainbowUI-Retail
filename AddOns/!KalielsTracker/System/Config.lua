@@ -77,7 +77,7 @@ local defaults = {
         sink20OutputSink = "UIErrorsFrame",
         sink20Sticky = false,
         soundChannel = "Master",
-        soundQuest = true,
+        soundQuest = false,
         soundQuestComplete = "KT - Default",
 
         modulesOrder = KT.MODULES,

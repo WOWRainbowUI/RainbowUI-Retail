@@ -2,7 +2,7 @@
 --- Copyright (c) 2024-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 
-local name, version = "MSA-EditMode-1.0", 1
+local name, version = "MSA-EditMode-1.0", 2
 
 local lib = LibStub:NewLibrary(name, version)
 if not lib then return end
@@ -62,7 +62,7 @@ function MoverMixin:Show()
     local mover = self.mover
     if not mover then
         mover = CreateFrame("Frame", nil, self.frame)
-        mover:SetFrameLevel(self.frame:GetFrameLevel() + 12)
+        mover:SetFrameLevel(self.frame:GetFrameLevel() + 20)
         mover.texture = mover:CreateTexture(nil, "BACKGROUND")
         mover.texture:SetAllPoints()
         mover.texture:SetColorTexture(0, 1, 0, 0.3)

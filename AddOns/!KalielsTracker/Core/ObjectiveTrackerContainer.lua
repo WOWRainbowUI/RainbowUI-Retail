@@ -47,7 +47,7 @@ function KT_ObjectiveTrackerContainerMixin:Init()
 end
 
 function KT_ObjectiveTrackerContainerMixin:GetAvailableHeight()
-	return self:GetHeight() - self.topModulePadding;
+	return 8000  -- MSA
 end
 
 function KT_ObjectiveTrackerContainerMixin:Update(dirtyUpdate)
@@ -114,6 +114,11 @@ function KT_ObjectiveTrackerContainerMixin:Update(dirtyUpdate)
 		self:Show();
 	else
 		self:Hide();
+	end]]
+
+	-- MSA
+	--[[if self:IsInDefaultPosition() then
+		UIParent_ManageFramePositions();
 	end]]
 end
 

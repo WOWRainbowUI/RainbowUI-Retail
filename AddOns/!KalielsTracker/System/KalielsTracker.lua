@@ -7,7 +7,7 @@
 local addonName, addon = ...
 
 ---@class KT
-local KT = LibStub("MSA-AceAddon-3.0"):NewAddon(addon, addonName, "LibSink-2.0", "MSA-Event-1.0", "MSA-ProtRouter-1.0", "MSA-EditMode-1.0")
+local KT = LibStub("MSA-AceAddon-3.0"):NewAddon(addon, addonName, "LibSink-2.0", "MSA-Event-1.0", "MSA-ProtRouter-1.0", "MSA-EditMode-1.0", "MSA-AceConfigPatcher-1.0")
 KT:SetDefaultModuleState(false)
 
 local LSM = LibStub("LibSharedMedia-3.0")
@@ -19,14 +19,11 @@ local fmod = math.fmod
 local format = string.format
 local gsub = string.gsub
 local ipairs = ipairs
-local max = math.max
 local pairs = pairs
 local strfind = string.find
 local tonumber = tonumber
 local tinsert = table.insert
 local tremove = table.remove
-local tContains = tContains
-local unpack = unpack
 
 -- WoW API
 local _G = _G
@@ -203,19 +200,6 @@ local function SlashHandler(msg)
 	end
 end
 
-local function SetScrollbarPosition()
-	local xOffset = -5
-	local yOffset = -5
-	local scrollRange = OTF.height - db.maxHeight
-	if scrollRange > 0 then
-		local barSpace = 60  -- 50 + 2×5
-		local usableHeight = db.maxHeight - barSpace
-		local scrollRatio = KTF.Scroll.value / scrollRange
-		yOffset = -1 * KT.round(5 + (usableHeight * scrollRatio))
-	end
-	KTF.Bar:SetPoint("TOPRIGHT", xOffset, yOffset)
-end
-
 local function GetTaskTimeLeftData(questID)
 	local timeString = ""
 	local timeColor = KT_OBJECTIVE_TRACKER_COLOR["TimeLeft2"]
@@ -266,6 +250,11 @@ local function ModuleMinimize_OnClick(module)
 	end
 end
 
+local function InitMainFrame()
+	KTF.Child:SetParent(KTF.Scroll)
+	KTF.Scroll:SetScrollChild(KTF.Child)
+end
+
 -- Init ----------------------------------------------------------------------------------------------------------------
 
 local function Init()
@@ -289,6 +278,7 @@ local function Init()
 		KT:SetQuestsHeaderText()
 		KT:SetAchievsHeaderText()
 
+		InitMainFrame()
 		OTF:Update()
 
 		KT.initialized = true
@@ -468,53 +458,78 @@ local function SetFrames()
 	KT:SetHeaderButtons(1)
 
 	-- Scroll frame
-	local Scroll = CreateFrame("ScrollFrame", addonName.."Scroll", KTF)
+	local Scroll = CreateFrame("ScrollFrame", addonName.."Scroll", KTF, "ScrollFrameTemplate")
 	Scroll:SetPoint("TOPLEFT", KTF.borderSpace, KTF.borderSpace * -1)
 	Scroll:SetPoint("BOTTOMRIGHT", KTF.borderSpace * -1, KTF.borderSpace)
     Scroll:SetClipsChildren(true)
 	Scroll:EnableMouseWheel(true)
-	Scroll.step = 20
 	Scroll.value = 0
-	Scroll:SetScript("OnMouseWheel", function(self, delta)
-		if not KT:IsCollapsed() and OTF.height > db.maxHeight then
-			if delta < 0 then
-				self.value = (self.value+self.step < OTF.height-db.maxHeight) and self.value + self.step or OTF.height - db.maxHeight
-			else
-				self.value = (self.value-self.step > 0) and self.value - self.step or 0
-			end
-			self:SetVerticalScroll(self.value)
-			if db.frameScrollbar then
-				SetScrollbarPosition()
-			end
-			if self.value >= 0 and self.value < OTF.height-db.maxHeight then
-				MSA_CloseDropDownMenus()
-				MawBuffs.List:Hide()
-			end
-			_DBG("SCROLL ... "..self.value.." ... "..OTF.height.." - "..db.maxHeight)
-		end
+	Scroll:SetScript("OnVerticalScroll", function(self, offset)
+		MSA_CloseDropDownMenus()
+		MawBuffs.List:Hide()
 	end)
 	KTF.Scroll = Scroll
 
-	-- Scroll child frame
-	local Child = CreateFrame("Frame", addonName.."ScrollChild", KTF.Scroll)
-	Child:SetSize(db.width - 8, 8000)
-	KTF.Scroll:SetScrollChild(Child)
-	KTF.Child = Child
+	-- Scrollbar
+	local bar = Scroll.ScrollBar
+	bar:SetParent(KTF)
+	bar:SetWidth(4)
+	bar:SetPoint("TOPLEFT", Scroll, "TOPRIGHT", -4, 0)
+	bar:SetPoint("BOTTOMLEFT", Scroll, "BOTTOMRIGHT", -4, 0)
+	bar:SetFrameLevel(headerButtons:GetFrameLevel())
+	bar:SetHideIfUnscrollable(true)
+	bar.minThumbExtent = 52
+	bar.fixedThumbExtent = 52
+	bar.Back:Hide()
+	bar.Forward:Hide()
+	bar.Track:SetWidth(4)
+	bar.Track:ClearAllPoints()
+	bar.Track:SetAllPoints()
+	bar.Track.Begin:Hide()
+	bar.Track.Middle:Hide()
+	bar.Track.End:Hide()
+	local thumb = bar.Track.Thumb
+	thumb:SetWidth(4)
+	thumb.Begin:Hide()
+	thumb.Middle:Hide()
+	thumb.End:Hide()
+	thumb.texture = thumb:CreateTexture()
+	thumb.texture:SetPoint("TOPLEFT", 1, -1)
+	thumb.texture:SetPoint("BOTTOMRIGHT", -1, 1)
+	bar.texture = thumb.texture
+	thumb.isDragging = false
+	bar:SetScript("OnShow", function(self)
+		self:SetShown(db.frameScrollbar)
+	end)
+	thumb:SetScript("OnEnter", function(self)
+		self.texture:SetColorTexture(1, 1, 1, db.borderAlpha)
+	end)
+	thumb:SetScript("OnLeave", function(self)
+		if not self.isDragging then
+			self.texture:SetColorTexture(KT.hdrBtnColor.r, KT.hdrBtnColor.g, KT.hdrBtnColor.b, db.borderAlpha)
+		end
+	end)
+	thumb:SetScript("OnMouseDown", function(self)
+		self.isDragging = true
+	end)
+	thumb:SetScript("OnMouseUp", function(self)
+		self.isDragging = false
+		if not self:IsMouseOver() then
+			self.texture:SetColorTexture(KT.hdrBtnColor.r, KT.hdrBtnColor.g, KT.hdrBtnColor.b, db.borderAlpha)
+		end
+	end)
+	KTF.Bar = bar
 
-	-- Scroll indicator
-	local Bar = CreateFrame("Frame", addonName.."ScrollBar", KTF)
-	Bar:SetSize(2, 50)
-	Bar:SetPoint("TOPRIGHT", -5, -5)
-	Bar:SetFrameLevel(KTF:GetFrameLevel() + 10)
-	Bar.texture = Bar:CreateTexture()
-	Bar.texture:SetAllPoints()
-	Bar:Hide()
-	KTF.Bar = Bar
+	-- Scroll child frame
+	local Child = CreateFrame("Frame", addonName.."ScrollChild", UIParent)
+	Child:SetSize(db.width - 8, 1)
+	Child:SetPoint("TOPLEFT")
+	KTF.Child = Child
 
 	-- Blizzard frames
 	OTF:ClearAllPoints()
 	OTF:SetParent(Scroll)
-	OTF:SetPoint("TOPLEFT", Child, "TOPLEFT", 20, 0)
+	OTF:SetPoint("TOPLEFT", Child, 20, 0)
 	OTF:SetPoint("BOTTOMRIGHT", Child)
 	OTFHeader.MinimizeButton:Hide()
 	OTFHeader.FilterButton:Hide()
@@ -1016,6 +1031,30 @@ local function SetHooks()
 		end
 	end
 
+	hooksecurefunc(KT_AdventureObjectiveTracker, "OnBlockHeaderEnter", function(self, block)
+		if not db.tooltipShow then return end
+
+		local info = KT.GetCollectibleItemInfo(block.trackableType, block.trackableID)
+		if not info then return end
+
+		TooltipPosition(block)
+
+		GameTooltip:SetItemByID(info.itemID)
+
+		if db.tooltipShowID then
+			GameTooltip:AddLine(" ")
+			GameTooltip:AddDoubleLine(" ", "ID: |cffffffff"..info.itemID)
+		end
+
+		GameTooltip:Show()
+	end)
+
+	hooksecurefunc(KT_AdventureObjectiveTracker, "OnBlockHeaderLeave", function(self, block)
+		if db.tooltipShow then
+			GameTooltip:Hide()
+		end
+	end)
+
 	function KT_MonthlyActivitiesObjectiveTracker:OnBlockHeaderEnter(block)
         if not db.tooltipShow then return end
 
@@ -1086,10 +1125,9 @@ local function SetHooks()
         end
 
         if db.tooltipShowRewards then
-            GameTooltip:AddLine(" ")
             local rewardQuestID = info.rewardQuestID
             if rewardQuestID then
-                GameTooltip_AddQuestRewardsToTooltip(GameTooltip, rewardQuestID, TOOLTIP_QUEST_REWARDS_STYLE_INITIATIVE_TASK)
+                KT.GameTooltip_AddQuestRewardsToTooltip(GameTooltip, rewardQuestID)
             end
         end
 
@@ -1555,7 +1593,7 @@ local function SetHooks()
 		if progressBar.KTskinID ~= KT.skinID then
 			block.height = block.height - progressBar.height
 
-			local barHeight = max(12, db.fontSize + fmod(db.fontSize, 2))
+			local barHeight = math.max(12, db.fontSize + fmod(db.fontSize, 2))
 			progressBar:SetSize(240, barHeight)
 			progressBar.height = barHeight
 
@@ -1730,112 +1768,6 @@ local function SetHooks()
 		KT.QuestsCache_UpdateProperty(questID, "startMapID", KT.GetCurrentMapAreaID())
 		KT:SendSignal("QUEST_DATA_CHANGED")
 	end)
-
-	-- TODO: Delete y/n?
-	-- QuestMapFrame.lua (taint)
-	--[[function QuestMapFrame_OpenToQuestDetails(questID)  -- R
-		local mapID = GetQuestUiMapID(questID)
-		if mapID == 0 then
-			mapID = nil
-		end
-		OpenQuestLog(mapID);  -- fix Blizz bug
-		QuestMapFrame_ShowQuestDetails(questID);
-	end]]
-
-	-- QuestUtils.lua
-	local function ShouldShowWarModeBonus(questID, currencyID, firstInstance)
-		if not C_PvP.IsWarModeDesired() then
-			return false;
-		end
-
-		local warModeBonusApplies, limitOncePerTooltip = C_CurrencyInfo.DoesWarModeBonusApply(currencyID);
-		if not warModeBonusApplies or (limitOncePerTooltip and not firstInstance) then
-			return false;
-		end
-
-		return QuestUtils_IsQuestWorldQuest(questID) and C_QuestLog.QuestCanHaveWarModeBonus(questID) and not C_CurrencyInfo.GetFactionGrantedByCurrency(currencyID);
-	end
-
-	function QuestUtils_AddQuestCurrencyRewardsToTooltip(questID, tooltip, currencyContainerTooltip)  -- RO
-		local currencies = { };
-		local uniqueCurrencyIDs = { };
-		local currencyRewards = C_QuestLog.GetQuestRewardCurrencies(questID);
-		for index, currencyReward in ipairs(currencyRewards) do
-			local rarity = C_CurrencyInfo.GetCurrencyInfo(currencyReward.currencyID).quality;
-			local firstInstance = not uniqueCurrencyIDs[currencyReward.currencyID];
-			if firstInstance then
-				uniqueCurrencyIDs[currencyReward.currencyID] = true;
-			end
-			local currencyInfo = { name = currencyReward.name,
-								   texture = currencyReward.texture,
-								   numItems = currencyReward.totalRewardAmount,
-								   currencyID = currencyReward.currencyID,
-								   questRewardContextFlags = currencyReward.questRewardContextFlags,
-								   rarity = rarity,
-								   firstInstance = firstInstance,
-								};
-			if(currencyInfo.currencyID ~= ECHOS_OF_NYLOTHA_CURRENCY_ID or #currencyRewards == 1) then
-				tinsert(currencies, currencyInfo);
-			end
-		end
-
-		table.sort(currencies,
-			function(currency1, currency2)
-				if currency1.rarity ~= currency2.rarity then
-					return currency1.rarity > currency2.rarity;
-				end
-				return currency1.currencyID > currency2.currencyID;
-			end
-		);
-
-		local addedQuestCurrencies = 0;
-		local alreadyUsedCurrencyContainerId = 0; --In the case of multiple currency containers needing to displayed, we only display the first.
-		local alreadyUsedCurrencyContainerInfo = nil;  --In the case of multiple currency containers needing to displayed, we only display the first.
-		local warModeBonus = C_PvP.GetWarModeRewardBonus();
-
-		for i, currencyInfo in ipairs(currencies) do
-			local isCurrencyContainer = C_CurrencyInfo.IsCurrencyContainer(currencyInfo.currencyID, currencyInfo.numItems);
-			if ( currencyContainerTooltip and isCurrencyContainer and (alreadyUsedCurrencyContainerId == 0) ) then
-				if ( EmbeddedItemTooltip_SetCurrencyByID(currencyContainerTooltip, currencyInfo.currencyID, currencyInfo.numItems) ) then
-					if ShouldShowWarModeBonus(questID, currencyInfo.currencyID, currencyInfo.firstInstance) then
-						currencyContainerTooltip.Tooltip:AddLine(WAR_MODE_BONUS_PERCENTAGE_FORMAT:format(warModeBonus));
-						currencyContainerTooltip.Tooltip:Show();
-					end
-
-					if ( not tooltip ) then
-						break;
-					end
-
-					addedQuestCurrencies = addedQuestCurrencies + 1;
-					alreadyUsedCurrencyContainerId = currencyInfo.currencyID;
-					alreadyUsedCurrencyContainerInfo = currencyInfo;
-				end
-			elseif ( tooltip ) then
-				if( alreadyUsedCurrencyContainerId ~= currencyInfo.currencyID ) then --if there's already a currency container of this same type skip it entirely
-					local text, color
-					if currencyInfo.currencyID == 1553 then  -- Azerite
-						text = format(BONUS_OBJECTIVE_ARTIFACT_XP_FORMAT, FormatLargeNumber(currencyInfo.numItems))
-						color = { r = 1, g = 1, b = 1 }
-					else
-						text = BONUS_OBJECTIVE_REWARD_WITH_COUNT_FORMAT:format(currencyInfo.texture, currencyInfo.numItems, currencyInfo.name);
-						local contextIcon = KT.GetBestQuestRewardContextIcon(currencyInfo.questRewardContextFlags)
-						if contextIcon then
-							text = text..CreateAtlasMarkup(contextIcon, 12, 16, 3, -1)
-						end
-						color = GetColorForCurrencyReward(currencyInfo.currencyID, currencyInfo.numItems);
-					end
-					tooltip:AddLine(text, color.r, color.g, color.b)
-
-					if ShouldShowWarModeBonus(questID, currencyInfo.currencyID, currencyInfo.firstInstance) then
-						tooltip:AddLine(WAR_MODE_BONUS_PERCENTAGE_FORMAT:format(warModeBonus));
-					end
-
-					addedQuestCurrencies = addedQuestCurrencies + 1;
-				end
-			end
-		end
-		return addedQuestCurrencies, alreadyUsedCurrencyContainerId > 0, alreadyUsedCurrencyContainerInfo;
-	end
 
 	-- SplashFrame.lua
 	hooksecurefunc(SplashFrame, "SetupFrame", function(self, screenInfo)
@@ -2285,6 +2217,8 @@ local function SetHooks()
 			if mouseButton ~= "RightButton" then
 				if ContentTrackingUtil.IsTrackingModifierDown() then
 					C_ContentTracking.StopTracking(block.trackableType, block.trackableID, Enum.ContentTrackingStopType.Manual);
+				elseif IsModifiedClick(db.menuWowheadURLModifier) then
+					KT:Alert_WowheadURL("item", block.trackableID, block.trackableType)
 				elseif (block.trackableType == Enum.ContentTrackingType.Appearance) and IsModifiedClick("DRESSUP") then
 					DressUpVisual(block.trackableID);
 				elseif block.targetType == Enum.ContentTrackingTargetType.Achievement then
@@ -2329,6 +2263,8 @@ local function SetHooks()
 		end;
 		info.checked = false;
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
+
+		KT:SendSignal("CONTEXT_MENU_UPDATE", info, "item", block.trackableID, block.trackableType)
 	end
 
 	-- Torghast - Blizzard_UIWidgetTemplateStatusBar.lua
@@ -2419,12 +2355,14 @@ end
 
 ---Set tracker hidden state.
 ---@param hidden boolean|nil Hidden state (true = hide, false = show, nil = toggle)
-function KT:SetHidden(hidden)
-	if db.hideEmptyTracker then return end
-	if hidden ~= nil then
-		self.hidden = hidden
-	else
+---@param ignoreHideEmpty boolean Ignore 'Hide empty tracker' override
+function KT:SetHidden(hidden, ignoreHideEmpty)
+	if not ignoreHideEmpty and db.hideEmptyTracker and not HasTrackerContents() then return end
+
+	if hidden == nil then
 		self.hidden = not self.hidden
+	else
+		self.hidden = hidden
 	end
 	_DBG((self.hidden and "HIDE" or "SHOW").." ... collapsed: "..tostring(dbChar.collapsed), true)
 	self.locked = self.hidden
@@ -2490,30 +2428,19 @@ function KT:SetSize(forced)
 
 		if floor(height) > db.maxHeight then
 			_DBG("MOVE ... "..KTF.Scroll.value.." > "..OTF.height.." - "..db.maxHeight)
-			if KTF.Scroll.value > OTF.height-db.maxHeight then
-				KTF.Scroll.value = OTF.height - db.maxHeight
-			end
-			KTF.Scroll:SetVerticalScroll(KTF.Scroll.value)
-			if db.frameScrollbar then
-				SetScrollbarPosition()
-				KTF.Bar:Show()
-			end
 			height = db.maxHeight
 		elseif height <= db.maxHeight then
-			if KTF.Scroll.value > 0 then
-				KTF.Scroll.value = 0
-				KTF.Scroll:SetVerticalScroll(0)
-			end
-			if db.frameScrollbar then
-				KTF.Bar:Hide()
-			end
+			KTF.Scroll.value = 0
 		end
 
 		if height ~= KTF.height or forced then
 			KTSetHeight(KTF, KTF.directionUp and height or db.maxHeight)
 			KTF.Background:SetHeight(height)
 			KTF.height = height
+
+			KTF.Scroll:SetVerticalScroll(KTF.Scroll.value)
 		end
+		KTF.Child:SetHeight(OTF.height - 8)
 
 		self:MoveButtons()
 	else
@@ -2525,20 +2452,16 @@ function KT:SetSize(forced)
 		end
 
 		-- height
-		OTF.height = height - 10
-		if OTF.contentsHeight == 0 then
-			KTF.Scroll.value = 0
-		end
-		KTF.Scroll:SetVerticalScroll(0)
-		if db.frameScrollbar then
-			KTF.Bar:Hide()
-		end
-
+		OTF.height = height - 8
 		if height ~= KTF.height or forced then
+			KTF.Scroll.value = KTF.Scroll:GetVerticalScroll()
+			KTF.Scroll:SetVerticalScroll(0)
+
 			KTSetHeight(KTF, KTF.directionUp and height or db.maxHeight)
 			KTF.Background:SetHeight(height)
 			KTF.height = height
 		end
+		KTF.Child:SetHeight(OTF.height)
 	end
 end
 
