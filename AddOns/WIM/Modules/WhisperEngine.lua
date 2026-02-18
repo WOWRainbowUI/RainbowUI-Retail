@@ -416,9 +416,17 @@ local function setLastToldTarget(name, chatType, ...)
 	lastToldTarget = { name, chatType, ... };
 end
 
-function GetLastWhisperWindow (sent)
-	local target, chatType, extra = unpack(sent and lastToldTarget or lastTellTarget or {});
+function GetLastWhisperTarget (sent)
+	local target, chatType, extra = unpack(sent and lastTellTarget or lastToldTarget or {});
 	if target and chatType and (chatType == "WHISPER" or chatType == "BN_WHISPER") then
+		return target, chatType, extra;
+	end
+	return nil;
+end
+
+function GetLastWhisperWindow (sent)
+	local target, chatType, extra = GetLastWhisperTarget(sent)
+	if target then
 		local win = getWhisperWindowByUser(target, chatType:find("BN_"), extra);
 		if win then
 			win.widgets.msg_box.setText = 1;
@@ -443,7 +451,7 @@ local CMS_PATTERNS = {
 
 function WhisperEngine.ChatMessageEventFilter (frame, event, ...)
 	-- check if message or sender is secret, if so, do not process
-	if HasAnySecretValues(...) then
+	if HasAnySecretValues(...) or not db or not db.enabled then
 		return false
 	end
 
@@ -456,12 +464,6 @@ function WhisperEngine.ChatMessageEventFilter (frame, event, ...)
 			local curState = curState;
 			curState = db.pop_rules.whisper.alwaysOther and "other" or curState;
 			if(WIM.db.pop_rules.whisper[curState].supress) then
-				local chatType = strsub(event, 10):gsub("_INFORM", "");
-				-- if (chatType == "WHISPER" or chatType == "BN_WHISPER") then
-				-- 	local inform = (strsub(event, #event - 5) == "INFORM");
-				-- 	local modern, legacy = inform and "SetLastToldTarget" or "SetLastTellTarget", inform and "ChatEdit_SetLastToldTarget" or "ChatEdit_SetLastTellTarget";
-				-- 	(ChatFrameUtil and ChatFrameUtil[modern] or _G[legacy])(select(2, ...), chatType);
-				-- end
 				return true
 			end
 		elseif (frame._isWIM and ignore or block) then
@@ -815,12 +817,29 @@ hooksecurefunc(_G.C_ChatInfo or _G, "SendChatMessage", function(...)
 	end
 end);
 
-local function editBoxUpdateHeader(self, tellTarget, chatType)
-	chatType, tellTarget = chatType or self:GetAttribute("chatType"),  tellTarget or self:GetAttribute("tellTarget");
+local stickyTypes = {};
+local function setSticky (sticky)
+	for i = 1, #stickyTypes do
+		local chatTypeInfo = _G.ChatTypeInfo[stickyTypes[i]] or {};
+		chatTypeInfo.sticky = sticky and 1 or 0;
+	end
+end
 
-	if HasAnySecretValues(chatType, tellTarget) then
+local prevChatType, prevTellTarget;
+local function editBoxUpdateHeader(self, internalCall)
+	local chatType, tellTarget = self:GetAttribute("chatType"),  self:GetAttribute("tellTarget");
+
+	if HasAnySecretValues(chatType, tellTarget) or not db or not db.enabled then
+		prevChatType, prevTellTarget = nil, nil;
+		setSticky(true);
 		return;
 	end
+
+	-- prevent duplicates
+	if internalCall or (prevChatType == chatType and prevTellTarget == tellTarget) then
+		return;
+	end
+	prevChatType, prevTellTarget = chatType, tellTarget;
 
 	if (chatType == "WHISPER" or chatType == "BN_WHISPER") then
 		local target = tellTarget;
@@ -842,7 +861,18 @@ local function editBoxUpdateHeader(self, tellTarget, chatType)
 					win:Pop(true); -- force popup
 					win.widgets.msg_box:SetFocus();
 
+					if (_G.ChatTypeInfo[chatType] and _G.ChatTypeInfo[chatType].sticky) then
+						table.insert(stickyTypes, chatType);
+						setSticky(false);
+					end
+
 					_G.C_Timer.After(0, function()
+						if self:GetAttribute("chatType"):find("WHISPER") then
+							self:SetAttribute("chatType", "SAY");
+							self:SetAttribute("tellTarget", nil);
+							(self.UpdateHeader or ChatEdit_UpdateHeader)( self, true );
+						end
+
 						if _G.ChatFrameEditBoxMixin and _G.ChatFrameEditBoxMixin.OnEscapePressed then
 							_G.ChatFrameEditBoxMixin.OnEscapePressed(self)
 						else
@@ -851,7 +881,11 @@ local function editBoxUpdateHeader(self, tellTarget, chatType)
 
 					end);
 				end
+			else
+				setSticky(true);
 			end
+		else
+			setSticky(true);
 		end
 	end
 
@@ -880,14 +914,31 @@ end
 -- ReplyTell: LastTellTarget
 hooksecurefunc((ChatFrameUtil and ChatFrameUtil.ReplyTell) and ChatFrameUtil or _G, (ChatFrameUtil and ChatFrameUtil.ReplyTell) and "ReplyTell" or "ChatFrame_ReplyTell", function()
 	if (not InChatMessagingLockdown() and db and db.enabled) then
-		local tellTarget, chatType = unpack(lastTellTarget);
+		local _tellTarget, _chatType = unpack(lastTellTarget or {});
 
-		if (HasAnySecretValues(tellTarget, chatType)) then
+		if (HasAnySecretValues(_tellTarget, _chatType)) then
 			return;
 		end
 
-		if GetLastWhisperWindow() and _G.LAST_ACTIVE_CHAT_EDIT_BOX then
-			(_G.ChatFrameEditBoxMixin and _G.ChatFrameEditBoxMixin.OnEscapePressed or _G.ChatEdit_OnEscapePressed)(_G.LAST_ACTIVE_CHAT_EDIT_BOX)
+		local target, chatType = GetLastWhisperTarget();
+
+		if target and chatType then
+			local curState = curState;
+			curState = db.pop_rules.whisper.alwaysOther and "other" or curState;
+			if (db.pop_rules.whisper.intercept and db.pop_rules.whisper[curState].onSend) then
+				if GetLastWhisperWindow() and _G.LAST_ACTIVE_CHAT_EDIT_BOX then
+					(_G.ChatFrameEditBoxMixin and _G.ChatFrameEditBoxMixin.OnEscapePressed or _G.ChatEdit_OnEscapePressed)(_G.LAST_ACTIVE_CHAT_EDIT_BOX)
+				end
+
+			-- have default UI handle the reply
+			elseif _G.LAST_ACTIVE_CHAT_EDIT_BOX then
+				_G.LAST_ACTIVE_CHAT_EDIT_BOX:SetAttribute("chatType", chatType);
+				_G.LAST_ACTIVE_CHAT_EDIT_BOX:SetAttribute("tellTarget", target);
+				(ChatFrameUtil and ChatFrameUtil.ActivateChat or _G.ChatEdit_ActivateChat)(_G.LAST_ACTIVE_CHAT_EDIT_BOX);
+				_G.LAST_ACTIVE_CHAT_EDIT_BOX.text = "";
+				_G.LAST_ACTIVE_CHAT_EDIT_BOX.setText = 1;
+				(_G.LAST_ACTIVE_CHAT_EDIT_BOX.UpdateHeader or _G.ChatEdit_UpdateHeader)(_G.LAST_ACTIVE_CHAT_EDIT_BOX, true);
+			end
 		end
 	end
 end);
@@ -895,14 +946,31 @@ end);
 -- ReplyTell2: LastToldTarget
 hooksecurefunc((ChatFrameUtil and ChatFrameUtil.ReplyTell2) and ChatFrameUtil or _G, (ChatFrameUtil and ChatFrameUtil.ReplyTell2) and "ReplyTell2" or "ChatFrame_ReplyTell2", function()
 	if (not InChatMessagingLockdown() and db and db.enabled) then
-		local tellTarget, chatType = unpack(lastToldTarget);
+		local _tellTarget, _chatType = unpack(lastTellTarget or {});
 
-		if (HasAnySecretValues(tellTarget, chatType)) then
+		if (HasAnySecretValues(_tellTarget, _chatType)) then
 			return;
 		end
 
-		if GetLastWhisperWindow(true) and _G.LAST_ACTIVE_CHAT_EDIT_BOX then
-			(_G.ChatFrameEditBoxMixin and _G.ChatFrameEditBoxMixin.OnEscapePressed or _G.ChatEdit_OnEscapePressed)(_G.LAST_ACTIVE_CHAT_EDIT_BOX)
+		local target, chatType = GetLastWhisperTarget(true);
+
+		if target and chatType then
+			local curState = curState;
+			curState = db.pop_rules.whisper.alwaysOther and "other" or curState;
+			if (db.pop_rules.whisper.intercept and db.pop_rules.whisper[curState].onSend) then
+				if GetLastWhisperWindow(true) and _G.LAST_ACTIVE_CHAT_EDIT_BOX then
+					(_G.ChatFrameEditBoxMixin and _G.ChatFrameEditBoxMixin.OnEscapePressed or _G.ChatEdit_OnEscapePressed)(_G.LAST_ACTIVE_CHAT_EDIT_BOX)
+				end
+
+			-- have default UI handle the re-tell
+			elseif _G.LAST_ACTIVE_CHAT_EDIT_BOX then
+				_G.LAST_ACTIVE_CHAT_EDIT_BOX:SetAttribute("chatType", chatType);
+				_G.LAST_ACTIVE_CHAT_EDIT_BOX:SetAttribute("tellTarget", target);
+				(ChatFrameUtil and ChatFrameUtil.ActivateChat or _G.ChatEdit_ActivateChat)(_G.LAST_ACTIVE_CHAT_EDIT_BOX);
+				_G.LAST_ACTIVE_CHAT_EDIT_BOX.text = "";
+				_G.LAST_ACTIVE_CHAT_EDIT_BOX.setText = 1;
+				(_G.LAST_ACTIVE_CHAT_EDIT_BOX.UpdateHeader or _G.ChatEdit_UpdateHeader)(_G.LAST_ACTIVE_CHAT_EDIT_BOX, true);
+			end
 		end
 	end
 end);
