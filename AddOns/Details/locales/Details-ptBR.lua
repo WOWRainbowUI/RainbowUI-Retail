@@ -1331,9 +1331,7 @@ L["STRING_OPTIONS_WC_CLOSE_DESC"] = "Fecha esta janela. Quando fechada, a janela
 L["STRING_OPTIONS_WC_CREATE"] = "Criar Janela"
 L["STRING_OPTIONS_WC_CREATE_DESC"] = "Cria uma nova janela."
 L["STRING_OPTIONS_WC_LOCK"] = "Travar"
-L["STRING_OPTIONS_WC_LOCK_DESC"] = [=[Trava ou Destrava a janela.
-
-Quando travada, a janela não pode ser movida.]=]
+L["STRING_OPTIONS_WC_LOCK_DESC"] = "Trava ou Destrava a janela. Quando travada, a janela não pode ser movida."
 L["STRING_OPTIONS_WC_REOPEN"] = "Reabrir"
 L["STRING_OPTIONS_WC_UNLOCK"] = "Destravar"
 L["STRING_OPTIONS_WC_UNSNAP"] = "Desagrupar"
