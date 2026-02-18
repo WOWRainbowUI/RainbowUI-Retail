@@ -477,13 +477,12 @@ local options = {
 							order = 2,
 						},
 						frameScrollbar = {
-							name = "Show scroll indicator",
-							desc = "Show scroll indicator when srolling is enabled. Color is shared with border.",
+							name = "Show Scrollbar",
+							desc = "Show Scrollbar when srolling is enabled. Color is shared with border.",
 							type = "toggle",
 							set = function()
 								db.frameScrollbar = not db.frameScrollbar
 								KTF.Bar:SetShown(db.frameScrollbar)
-								KT:SetSize()
 							end,
 							order = 3,
 						},
@@ -1898,7 +1897,7 @@ function KT:CheckAddOn(addon, version, isUI)
 end
 
 function KT:OpenOptions()
-	if self.optionsFrame and not EditModeManagerFrame:IsEditModeActive() then
+	if not self.InCombatBlocked() and self.optionsFrame and not EditModeManagerFrame:IsEditModeActive() then
 		Settings.OpenToCategory(self.optionsFrame.general.name, self.TITLE)
 	end
 end

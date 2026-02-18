@@ -365,6 +365,23 @@ function KT_BonusObjectiveTrackerMixin:TryAddingExpirationWarningLine(block, que
 	end
 end
 
+-- MSA
+local function SetPOIInfo(block, isWorldQuest)
+	local questID = block.id
+	local isComplete = false
+	local isSuperTracked = (questID == C_SuperTrack.GetSuperTrackedQuestID())
+	local poiInfo = KT.GetBonusPoiInfoCached(questID)
+	if poiInfo then
+		if poiInfo.areaPoiID then
+			local _, superTrackedPoiID = C_SuperTrack.GetSuperTrackedMapPin()
+			isSuperTracked = (poiInfo.areaPoiID == superTrackedPoiID)
+		end
+		block:SetPOIInfo(questID, isComplete, isSuperTracked, isWorldQuest, poiInfo)
+	else
+		block:CheckAndReleasePOIButton()
+	end
+end
+
 function KT_BonusObjectiveTrackerMixin:SetUpQuestBlock(block, forceShowCompleted)
 	local questID = block.id;
 	local questLogIndex = C_QuestLog.GetLogIndexForQuestID(questID);
@@ -388,20 +405,11 @@ function KT_BonusObjectiveTrackerMixin:SetUpQuestBlock(block, forceShowCompleted
 		block:SetPOIInfo(questID, isComplete, isSuperTracked, isWorldQuest);
 	elseif C_QuestLog.IsThreatQuest(questID) then
 		isThreatQuest = true;
+		-- MSA
+		SetPOIInfo(block, isWorldQuest)
 	elseif QuestUtil.IsQuestTrackableTask(questID) then
 		-- MSA
-		local isComplete = false
-		local isSuperTracked = (questID == C_SuperTrack.GetSuperTrackedQuestID())
-		local poiInfo = KT.GetBonusPoiInfoCached(questID)
-		if poiInfo then
-			if poiInfo.areaPoiID then
-				local _, superTrackedPoiID = C_SuperTrack.GetSuperTrackedMapPin()
-				isSuperTracked = (poiInfo.areaPoiID == superTrackedPoiID)
-			end
-			block:SetPOIInfo(questID, isComplete, isSuperTracked, isWorldQuest, poiInfo)
-		else
-			block:CheckAndReleasePOIButton()
-		end
+		SetPOIInfo(block, isWorldQuest)
 	end
 
 	local showAsCompleted = isThreatQuest and isQuestComplete;

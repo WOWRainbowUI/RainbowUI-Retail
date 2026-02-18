@@ -91,15 +91,26 @@ function KT.GetNumTrackedActivities()
 end
 
 -- Collectibles
--- - Appearance (only this works in 10.1.5)
+-- - Appearance (>= 10.1.5)
 -- - Mount
 -- - Achievement
+-- - Decor (>= 12.0.0)
 function KT.GetNumTrackedCollectibles()
     local numCollectibles = 0
     for _, trackableType in ipairs(C_ContentTracking.GetCollectableSourceTypes()) do
         numCollectibles = numCollectibles + #C_ContentTracking.GetTrackedIDs(trackableType)
     end
     return numCollectibles
+end
+
+function KT.GetCollectibleItemInfo(type, id)
+    local info
+    if type == Enum.ContentTrackingType.Appearance then
+        info = C_TransmogCollection.GetSourceInfo(id)
+    elseif type == Enum.ContentTrackingType.Decor then
+        info = C_HousingCatalog.GetCatalogEntryInfoByRecordID(Enum.HousingCatalogEntryType.Decor, id, false)
+    end
+    return info
 end
 
 -- Map
@@ -274,6 +285,122 @@ function KT.RgbToHex(color)
 end
 
 -- GameTooltip
+local function ShouldShowWarModeBonus(questID, currencyID, firstInstance)  -- QuestUtils.lua
+    if not C_PvP.IsWarModeDesired() then
+        return false;
+    end
+
+    local warModeBonusApplies, limitOncePerTooltip = C_CurrencyInfo.DoesWarModeBonusApply(currencyID);
+    if not warModeBonusApplies or (limitOncePerTooltip and not firstInstance) then
+        return false;
+    end
+
+    return QuestUtils_IsQuestWorldQuest(questID) and C_QuestLog.QuestCanHaveWarModeBonus(questID) and not C_CurrencyInfo.GetFactionGrantedByCurrency(currencyID);
+end
+
+local function QuestUtils_AddQuestCurrencyRewardsToTooltip(questID, tooltip, currencyContainerTooltip)  -- QuestUtils.lua
+    local currencies = { };
+    local uniqueCurrencyIDs = { };
+    local currencyRewards = C_QuestLog.GetQuestRewardCurrencies(questID);
+    for index, currencyReward in ipairs(currencyRewards) do
+        local rarity = C_CurrencyInfo.GetCurrencyInfo(currencyReward.currencyID).quality;
+        local firstInstance = not uniqueCurrencyIDs[currencyReward.currencyID];
+        if firstInstance then
+            uniqueCurrencyIDs[currencyReward.currencyID] = true;
+        end
+        local currencyInfo = { name = currencyReward.name,
+                               texture = currencyReward.texture,
+                               numItems = currencyReward.totalRewardAmount,
+                               currencyID = currencyReward.currencyID,
+                               questRewardContextFlags = currencyReward.questRewardContextFlags,
+                               rarity = rarity,
+                               firstInstance = firstInstance,
+        };
+        if(currencyInfo.currencyID ~= ECHOS_OF_NYLOTHA_CURRENCY_ID or #currencyRewards == 1) then
+            tinsert(currencies, currencyInfo);
+        end
+    end
+
+    table.sort(currencies,
+            function(currency1, currency2)
+                if currency1.rarity ~= currency2.rarity then
+                    return currency1.rarity > currency2.rarity;
+                end
+                return currency1.currencyID > currency2.currencyID;
+            end
+    );
+
+    local addedQuestCurrencies = 0;
+    local alreadyUsedCurrencyContainerId = 0; --In the case of multiple currency containers needing to displayed, we only display the first.
+    local alreadyUsedCurrencyContainerInfo = nil;  --In the case of multiple currency containers needing to displayed, we only display the first.
+    local warModeBonus = C_PvP.GetWarModeRewardBonus();
+
+    for i, currencyInfo in ipairs(currencies) do
+        local isCurrencyContainer = C_CurrencyInfo.IsCurrencyContainer(currencyInfo.currencyID, currencyInfo.numItems);
+        if ( currencyContainerTooltip and isCurrencyContainer and (alreadyUsedCurrencyContainerId == 0) ) then
+            if ( EmbeddedItemTooltip_SetCurrencyByID(currencyContainerTooltip, currencyInfo.currencyID, currencyInfo.numItems) ) then
+                if ShouldShowWarModeBonus(questID, currencyInfo.currencyID, currencyInfo.firstInstance) then
+                    currencyContainerTooltip.Tooltip:AddLine(WAR_MODE_BONUS_PERCENTAGE_FORMAT:format(warModeBonus));
+                    currencyContainerTooltip.Tooltip:Show();
+                end
+
+                if ( not tooltip ) then
+                    break;
+                end
+
+                addedQuestCurrencies = addedQuestCurrencies + 1;
+                alreadyUsedCurrencyContainerId = currencyInfo.currencyID;
+                alreadyUsedCurrencyContainerInfo = currencyInfo;
+            end
+        elseif ( tooltip ) then
+            if( alreadyUsedCurrencyContainerId ~= currencyInfo.currencyID ) then --if there's already a currency container of this same type skip it entirely
+                local text, color
+                if currencyInfo.currencyID == 1553 then  -- Azerite
+                    text = format(BONUS_OBJECTIVE_ARTIFACT_XP_FORMAT, FormatLargeNumber(currencyInfo.numItems))
+                    color = { r = 1, g = 1, b = 1 }
+                else
+                    text = BONUS_OBJECTIVE_REWARD_WITH_COUNT_FORMAT:format(currencyInfo.texture, currencyInfo.numItems, currencyInfo.name);
+                    local contextIcon = KT.GetBestQuestRewardContextIcon(currencyInfo.questRewardContextFlags)
+                    if contextIcon then
+                        text = text..CreateAtlasMarkup(contextIcon, 12, 16, 3, -1)
+                    end
+                    color = GetColorForCurrencyReward(currencyInfo.currencyID, currencyInfo.numItems);
+                end
+                tooltip:AddLine(text, color.r, color.g, color.b)
+
+                if ShouldShowWarModeBonus(questID, currencyInfo.currencyID, currencyInfo.firstInstance) then
+                    tooltip:AddLine(WAR_MODE_BONUS_PERCENTAGE_FORMAT:format(warModeBonus));
+                end
+
+                addedQuestCurrencies = addedQuestCurrencies + 1;
+            end
+        end
+    end
+    return addedQuestCurrencies, alreadyUsedCurrencyContainerId > 0, alreadyUsedCurrencyContainerInfo;
+end
+
+function KT.GameTooltip_AddXP(tooltip, xp, prefixText, suffixText)
+    local xpText = format(BONUS_OBJECTIVE_EXPERIENCE_FORMAT, FormatLargeNumber(xp).."|c0000ff00")
+    if prefixText then
+        xpText = prefixText.." "..xpText
+    end
+    if suffixText then
+        xpText = xpText.." "..suffixText
+    end
+    tooltip:AddLine(xpText, 1, 1, 1)
+end
+
+function KT.GameTooltip_AddMoney(tooltip, money, prefixText, suffixText)
+    local moneyText = C_CurrencyInfo.GetCoinTextureString(money, 12)
+    if prefixText then
+        moneyText = prefixText.." "..moneyText
+    end
+    if suffixText then
+        moneyText = moneyText.." "..suffixText
+    end
+    tooltip:AddLine(moneyText, 1, 1, 1)
+end
+
 local colorNotUsable = { r = 1, g = 0, b = 0 }
 function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
     local bckSelectedQuestID = C_QuestLog.GetSelectedQuest()  -- backup selected Quest
@@ -282,6 +409,7 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
     local xp = GetQuestLogRewardXP(questID)
     local money = GetQuestLogRewardMoney(questID)
     local artifactXP = GetQuestLogRewardArtifactXP(questID)
+    local favor = C_QuestInfoSystem.GetQuestLogRewardFavor(questID, true)
     local numQuestCurrencies = #C_QuestLog.GetQuestRewardCurrencies(questID)
     local numQuestRewards = GetNumQuestLogRewards(questID)
     local numQuestSpellRewards, questSpellRewards = KT.GetQuestRewardSpells(questID)
@@ -331,7 +459,7 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
         end
     end
 
-    if xp > 0 or money > 0 or artifactXP > 0 or numQuestCurrencies > 0 or numQuestRewards > 0 or numQuestSpellRewards > 0 or honor > 0 or majorFactionRepRewards or playerTitle then
+    if xp > 0 or money > 0 or artifactXP > 0 or favor > 0 or numQuestCurrencies > 0 or numQuestRewards > 0 or numQuestSpellRewards > 0 or honor > 0 or majorFactionRepRewards or playerTitle then
         local isQuestWorldQuest = QuestUtils_IsQuestWorldQuest(questID)
         local isWarModeDesired = C_PvP.IsWarModeDesired()
         local questHasWarModeBonus = C_QuestLog.QuestCanHaveWarModeBonus(questID)
@@ -343,7 +471,7 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
 
         -- xp
         if xp > 0 then
-            tooltip:AddLine(format(BONUS_OBJECTIVE_EXPERIENCE_FORMAT, FormatLargeNumber(xp).."|c0000ff00"), 1, 1, 1)
+            KT.GameTooltip_AddXP(tooltip, xp)
             if isWarModeDesired and isQuestWorldQuest and questHasWarModeBonus then
                 tooltip:AddLine(WAR_MODE_BONUS_PERCENTAGE_XP_FORMAT:format(C_PvP.GetWarModeRewardBonus()))
             end
@@ -351,10 +479,20 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
 
         -- money
         if money > 0 then
-            tooltip:AddLine(C_CurrencyInfo.GetCoinTextureString(money, 12), 1, 1, 1)
+            KT.GameTooltip_AddMoney(tooltip, money)
             if isWarModeDesired and isQuestWorldQuest and questHasWarModeBonus then
                 tooltip:AddLine(WAR_MODE_BONUS_PERCENTAGE_FORMAT:format(C_PvP.GetWarModeRewardBonus()))
             end
+        end
+
+        -- artifact power
+        if artifactXP > 0 then
+            tooltip:AddLine(format(BONUS_OBJECTIVE_ARTIFACT_XP_FORMAT, FormatLargeNumber(artifactXP)), 1, 1, 1)
+        end
+
+        -- favor
+        if favor > 0 then
+            tooltip:AddLine(format(BONUS_OBJECTIVE_HOUSING_FAVOR_FORMAT, FormatLargeNumber(favor), HOUSING_DASHBOARD_REWARD_ESTATE_XP), 1, 1, 1)
         end
 
         -- title
@@ -389,11 +527,6 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
             end
         end
 
-        -- artifact power
-        if artifactXP > 0 then
-            tooltip:AddLine(format(BONUS_OBJECTIVE_ARTIFACT_XP_FORMAT, FormatLargeNumber(artifactXP)), 1, 1, 1)
-        end
-
         -- currencies
         if numQuestCurrencies > 0 then
             QuestUtils_AddQuestCurrencyRewardsToTooltip(questID, tooltip)
@@ -401,7 +534,7 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
 
         -- honor
         if honor > 0 then
-            tooltip:AddLine(format(BONUS_OBJECTIVE_REWARD_WITH_COUNT_FORMAT, "Interface\\ICONS\\Achievement_LegionPVPTier4", honor, HONOR), 1, 1, 1)
+            tooltip:AddLine(format(BONUS_OBJECTIVE_REWARD_WITH_COUNT_FORMAT, "Interface\\ICONS\\Achievement_LegionPVPTier4", FormatLargeNumber(honor), HONOR), 1, 1, 1)
         end
 
         -- reputation
@@ -688,12 +821,12 @@ function KT:Alert_IncompatibleAddon(addon, version)
     end
 end
 
-function KT:Alert_WowheadURL(type, id)
-    KT.StaticPopup_ShowURL("WowheadURL", type, id)
+function KT:Alert_WowheadURL(type, id, subtype)
+    KT.StaticPopup_ShowURL("WowheadURL", type, id, subtype)
 end
 
-function KT:Alert_YouTubeURL(type, id)
-    KT.StaticPopup_ShowURL("YouTubeURL", type, id)
+function KT:Alert_YouTubeURL(type, id, subtype)
+    KT.StaticPopup_ShowURL("YouTubeURL", type, id, subtype)
 end
 
 -- Sanitize

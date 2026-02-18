@@ -5,7 +5,7 @@
 --- This file is part of addon Kaliel's Tracker.
 
 ---@type KT
-local _, KT = ...
+local addonName, KT = ...
 
 ---@class AddonRareScanner
 local M = KT:NewModule("AddonRareScanner")
@@ -44,6 +44,35 @@ local function RS_SetOptions()
 	profile.display.displayButtonContainers = false
 	profile.loot.numItems = lootNumItems
 	profile.loot.numItemsPerRow = profile.loot.numItems / 2
+end
+
+local function RS_PatchOptions()
+	KT:RegisterOptionsPatch("RareScanner Display", function(options)
+		local target = options.args
+		target.displayMiniature.disabled = true
+		target.displayButtonContainers.disabled = true
+		target.scale.disabled = true
+		target.lockPosition.disabled = true
+		target.resetPosition.disabled = true
+		target.enableNavigation.disabled = true
+		target[addonName.."Warning"] = {
+			name = " "..KT.TEXT.ADDON_IS_ACTIVE_DISABLED,
+			type = "description",
+			order = 0,
+		}
+	end)
+
+	KT:RegisterOptionsPatch("RareScanner Loot Options", function(options)
+		local target = options.args.display_options.args
+		target.lootTooltipPosition.disabled = true
+		target.itemsToShow.disabled = true
+		target.itemsPerRow.disabled = true
+		target[addonName.."Warning"] = {
+			name = " "..KT.TEXT.ADDON_IS_ACTIVE_DISABLED.."\n\n",
+			type = "description",
+			order = 0,
+		}
+	end)
 end
 
 local function RS_OnMouseUp(self, button)
@@ -340,6 +369,7 @@ function M:OnEnable()
 	SetFrames()
 	SetHooks()
 
+	RS_PatchOptions()
 	RS_SetOptions()
 
 	KT:RegSignal("OPTIONS_CHANGED", "SetOptions", self)

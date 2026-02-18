@@ -19,8 +19,6 @@ local _G = _G
 local db
 local OTF = KT_ObjectiveTrackerFrame
 
-local KTwarning = "  |cff00ffffAddon "..KT.TITLE.." is active.  "
-
 -- Internal ------------------------------------------------------------------------------------------------------------
 
 -- Masque
@@ -90,7 +88,7 @@ end
 
 -- ElvUI
 local function ElvUI_SetSupport()
-    if KT:CheckAddOn("ElvUI", "v14.04", true) then
+    if KT:CheckAddOn("ElvUI", "v15.05", true) then
         local E = unpack(_G.ElvUI)
         local B = E:GetModule("Blizzard")
         B.ObjectiveTracker_Setup = function() end  -- preventive
@@ -100,15 +98,15 @@ local function ElvUI_SetSupport()
         hooksecurefunc(E, "CheckIncompatible", function(self)
             self.private.skins.blizzard.objectiveTracker = false
         end)
-        hooksecurefunc(E, "ToggleOptions", function(self)
-            if E.Libs.AceConfigDialog.OpenFrames[self.name] then
-                local options = self.Options.args.general.args.blizzardImprovements.args.objectiveFrameGroup
-                options.args[addonName.."Warning"] = {
-                    name = "\n"..KTwarning,
+        KT:RegisterOptionsPatch("ElvUI", function(options)
+            C_Timer.After(0, function()
+                local target = options.args.general.args.blizzardImprovements.args.objectiveFrameGroup.args
+                target[addonName.."Warning"] = {
+                    name = " "..KT.TEXT.ADDON_IS_ACTIVE_DISABLED,
                     type = "description",
                     order = 0,
                 }
-            end
+            end)
         end)
     end
 end

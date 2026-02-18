@@ -6,4 +6,5 @@
 	<Script file="MSA-AceGUIContainer-Frame.lua"/>
 	<Script file="MSA-AceGUIWidget-Slider.lua"/>
 	<Script file="MSA-AceGUI-3.0-SoundWidget.lua"/>
+	<Script file="MSA-AceConfigPatcher-1.0.lua"/>
 </Ui>

@@ -85,7 +85,7 @@ local function SetupTutorials()
 		icon = HELP_PATH.."KT_logo",
 		font = "Fonts\\FRIZQT__.TTF",
 		width = 582,
-		height = 620,
+		height = 632,
 		paddingX = 35,
 		paddingTop = 26,
 		paddingBottom = 24,
@@ -283,8 +283,9 @@ local function SetupTutorials()
                     "- The newly tracked or closest quest automatically gets a waypoint.\n"..
                     "- Waypoint of untracked or abandoned quest will be removed.\n"..
                     "- "..cBold.."Left Click|r on arrow - opens World Map.\n"..
-                    "- "..cBold.."Right Click|r on arrow - removes the waypoint and clears the POI selection.\n"..
-                    "- "..cBold.."Shift + Right Click|r or arrow - shows the context menu.\n"..
+                    "- "..cBold.."Right Click|r on arrow - removes the waypoint from the arrow, clears the POI"..
+					offs.."selection and deletes the waypoint (if created by "..KT.TITLE..").\n"..
+                    "- "..cBold.."Shift + Right Click|r or arrow - opens the TomTom context menu.\n"..
 					AddonInfo("TomTom"),
 			editbox = {
 				{
@@ -361,17 +362,19 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 8.0.0|r\n"..
-					"- ADDED - support for WoW 12.0.0.65512\n"..
-					"- CHANGED - addon support - PetTracker 12.0.0\n"..
-					"- CHANGED - addon support - TomTom 4.2.15\n"..
-					"- CHANGED - addon support - RareScanner 12.0.0.3\n"..
-					"- CHANGED - addon support - Masque 11.2.10\n"..
-					"- CHANGED - addon support - Auctionator 312\n"..
-					"- CHANGED - addon support - BtWQuests 2.60.0\n"..
+					(cTitle.."Version 8.1.0|r\n"..
+					"- ADDED - replace scroll indicator with interactive scrollbar\n"..
+					"- ADDED - TomTom - waypoint support for Collection sources (Appearances, Decors)\n"..
+					"- ADDED - Collections tracking (Appearance, Decor) - dropdown menu, tooltip\n"..
+					"- ADDED - TomTom - support for other TomTom waypoints\n"..
+					"- ADDED - Threat Quest - show POI button\n"..
 					"- CHANGED (help) - Active Patrons\n"..
-					"- CHANGED - sound improvements – no overlap, play only on trigger\n"..
+					"- CHANGED - addon support - ElvUI 15.05\n"..
+					"- CHANGED - improve rewards in tooltips\n"..
 					"- CHANGED - Libs\n"..
+					"- FIXED - secret number value taint\n"..
+					"- FIXED - Hide visibility rule is ignored when \"Hide empty tracker\" is enabled\n"..
+					"- FIXED - high CPU usage in Quest tracker (Blizz bug)\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
@@ -453,18 +456,23 @@ local function SetupTutorials()
 					"a small personal project into a large time-intensive system that requires continuous work.\n\n"..
 					"Many thanks to all supporters who help keep the project alive "..ICON_HEART.."\n\n\n"..
 					cTitle.."Active Patrons|r\n"..
-                    SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
-                    SetFormatedPatronName("Epic", "Soromeister")..
-                    SetFormatedPatronName("Rare", "Ian F")..
-                    SetFormatedPatronName("Rare", "Spance")..
-                    SetFormatedPatronName("Uncommon", "Charles Howarth")..
-                    SetFormatedPatronName("Uncommon", "Cool Blue")..
-                    SetFormatedPatronName("Uncommon", "David Blanchard")..
-                    SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
-                    SetFormatedPatronName("Uncommon", "Mystekal")..
-                    SetFormatedPatronName("Uncommon", "Paul Westervelt")..
-                    SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
-                    SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
+					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
+					SetFormatedPatronName("Epic", "Soromeister")..
+					SetFormatedPatronName("Rare", "Ian F")..
+					SetFormatedPatronName("Rare", "Sal")..
+					SetFormatedPatronName("Rare", "Spance")..
+					SetFormatedPatronName("Rare", "SublimeHysteria")..
+					SetFormatedPatronName("Uncommon", "Brewnor")..
+					SetFormatedPatronName("Uncommon", "Charles Howarth")..
+					SetFormatedPatronName("Uncommon", "Cool Blue")..
+					SetFormatedPatronName("Uncommon", "David Blanchard")..
+					SetFormatedPatronName("Uncommon", "Gramm", "Ravenholdt")..
+					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
+					SetFormatedPatronName("Uncommon", "Mystekal")..
+					SetFormatedPatronName("Uncommon", "Paul Westervelt")..
+					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
+					SetFormatedPatronName("Uncommon", "Veratais")..
+					SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
                     SetFormatedPatronName("Common", "Darren Divecha")..
 					"\n"..
 					cTitle.."Testers|r\n"..

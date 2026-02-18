@@ -20,13 +20,8 @@ function KT.StaticPopup_Show(token, text, subText, ...)
     })
 end
 
-function KT.StaticPopup_ShowURL(token, param1, value1, param2, value2)
-    return StaticPopup_Show(addonName.."_"..token, nil, nil, {
-        param1 = param1,
-        value1 = value1,
-        param2 = param2,
-        value2 = value2
-    })
+function KT.StaticPopup_ShowURL(token, ...)
+    return StaticPopup_Show(addonName.."_"..token, nil, nil, { ... })
 end
 
 -- GameDialog.lua
@@ -125,7 +120,7 @@ StaticPopupDialogs[addonName.."_WowheadURL"] = {
         self:GetParent():Hide()
     end,
     OnShow = function(self)
-        local type, id = self.data.param1, self.data.value1
+        local type, id, subtype = unpack(self.data)
         if not type or not id then return end
 
         local name = "..."
@@ -139,6 +134,12 @@ StaticPopupDialogs[addonName.."_WowheadURL"] = {
             name = select(2, GetAchievementInfo(id))
         elseif type == "spell" then
             name = C_Spell.GetSpellName(id)
+        elseif type == "item" then
+            info = KT.GetCollectibleItemInfo(subtype, id)
+            if info then
+                name = info.name
+                path = type.."="..info.itemID
+            end
         elseif type == "activity" then
             info = C_PerksActivities.GetPerksActivityInfo(id)
             if info then
@@ -207,7 +208,7 @@ StaticPopupDialogs[addonName.."_YouTubeURL"] = {
         self:GetParent():Hide()
     end,
     OnShow = function(self)
-        local type, id = self.data.param1, self.data.value1
+        local type, id, subtype = unpack(self.data)
         if not type or not id then return end
 
         local name = "..."
@@ -221,6 +222,11 @@ StaticPopupDialogs[addonName.."_YouTubeURL"] = {
             name = select(2, GetAchievementInfo(id))
         elseif type == "spell" then
             name = C_Spell.GetSpellName(id)
+        elseif type == "item" then
+            info = KT.GetCollectibleItemInfo(subtype, id)
+            if info then
+                name = info.name
+            end
         elseif type == "activity" then
             info = C_PerksActivities.GetPerksActivityInfo(id)
             if info then

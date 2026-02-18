@@ -202,6 +202,14 @@ KT.KEYBINDINGS = {
     EXTRAACTIONBUTTON1 = false
 }
 
+-- Texts
+KT.FORMAT_LABEL_VALUE = "%s: %s"
+KT.FORMAT_TEXT_HINT = "%s |cffaaaaaa(%s)|r"
+KT.TEXT = {
+    ADDON_IS_ACTIVE = "|cff00ffffAddon "..KT.TITLE.." is active.|r",
+    ADDON_IS_ACTIVE_DISABLED = "|cff00ffffAddon "..KT.TITLE.." is active. Some options are disabled.|r"
+}
+
 -- Core Constants
 KT_OBJECTIVE_TRACKER_COLOR["Header"] = { r = 1, g = 0.5, b = 0 }                 -- orange
 KT_OBJECTIVE_TRACKER_COLOR["Complete"] = { r = 0.1, g = 0.85, b = 0.1 }          -- green
