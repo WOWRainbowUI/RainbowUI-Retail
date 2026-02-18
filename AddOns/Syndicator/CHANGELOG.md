@@ -1,7 +1,8 @@
 # Syndicator
 
-## [261](https://github.com/TheMouseNest/Syndicator/tree/261) (2026-02-10)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/260...261) 
+## [262](https://github.com/TheMouseNest/Syndicator/tree/262) (2026-02-17)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/261...262) [Previous Releases](https://github.com/TheMouseNest/Syndicator/releases)
 
-- Update toc for 12.0.1  
-- Fix access to ItemVersion lookup structure (#84)  
+- Add GH releases  
+- Remove Wago from build script  
+- Search builder: Add OnMenuKeywordEnter and OnMenuKeywordLeave callbacks  
