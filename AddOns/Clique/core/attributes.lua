@@ -79,11 +79,6 @@ function addon:GetClickAttributes(global)
         "local button = setupbutton or self",
     }
 
-    if self:ShouldRemoveSelfCast() then
-        table.insert(bits, "button:SetAttribute('checkselfcast', false)")
-        table.insert(bits, "button:SetAttribute('checkfocuscast', false)")
-    end
-
     local rembits = {
         "local inCombat = control:GetAttribute('inCombat')",
         "local setupbutton = self:GetFrameRef('cliquesetup_button')",
@@ -100,10 +95,24 @@ function addon:GetClickAttributes(global)
         rembits[#rembits + 1] = "if blacklist[name] then return end"
     end
 
-    -- Backup and clear wildcard attributes (*type1/*type2) that Blizzard sets
-    -- on unit frames. This must happen after the blacklist check (so we don't
-    -- touch blacklisted frames) and only on non-global frames (the global
-    -- button is Clique's own frame and never has wildcard attributes).
+    if self:ShouldRemoveSelfCast() then
+        table.insert(bits, "button:SetAttribute('checkselfcast', false)")
+        table.insert(bits, "button:SetAttribute('checkfocuscast', false)")
+    end
+
+    -- When we're in AnyDown mode the 'menu' action won't work, since its
+    -- hard-coded to only operate on the 'up' portion of the click. So we
+    -- need to convert menu into togglemenu if and when we see that.
+    if not global and self:IsDownClickEnabled() then
+        table.insert(bits, [[local curType2 = button:GetAttribute("*type2")]])
+        table.insert(bits, [[if curType2 == "menu" then]])
+        table.insert(bits, [[  button:SetAttribute("*type2", "togglemenu")]])
+        table.insert(bits, [[end]])
+    end
+
+    -- Backup and remove wildcard attributes on frames, as a nuclear option
+    -- but only when enabled. We're not concerned that we'll back up the
+    -- togglemenu option, as that's the one that works most well for addons.
     if not global and self.settings.removeWildcardActions then
         table.insert(bits, [[local oldType1 = button:GetAttribute("*type1")]])
         table.insert(bits, [[if oldType1 then]])
@@ -128,24 +137,7 @@ function addon:GetClickAttributes(global)
         table.insert(rembits, [[end]])
     end
 
-    -- When using AnyDown click mode, Blizzard's "menu" secure action type only
-    -- fires on the Up click. Convert any *type2 "menu" to "togglemenu" which
-    -- works on both up and down clicks. This runs after the wipe/backup block:
-    -- if wipe is ON, *type2 has been cleared so this is a no-op. If wipe is
-    -- OFF, this converts the attribute in place.
-    if not global and self:IsDownClickEnabled() then
-        table.insert(bits, [[local curType2 = button:GetAttribute("*type2")]])
-        table.insert(bits, [[if curType2 == "menu" then]])
-        table.insert(bits, [[  button:SetAttribute("*type2", "togglemenu")]])
-        table.insert(bits, [[end]])
-
-        table.insert(rembits, [[local curType2 = button:GetAttribute("*type2")]])
-        table.insert(rembits, [[if curType2 == "togglemenu" then]])
-        table.insert(rembits, [[  button:SetAttribute("*type2", "menu")]])
-        table.insert(rembits, [[end]])
-    end
-
-    -- Sort the bindings so they are applied in order. This sort ensures that
+   -- Sort the bindings so they are applied in order. This sort ensures that
     -- any 'ooc' bindings are applied first.
     table.sort(self.bindings, ApplicationOrder)
 

@@ -15,6 +15,9 @@ function addon:Initialize()
     self:SetupSecureHeader()
     self:SetupGlobalButtons()
 
+	-- Get denylist before doing anything else
+    self:PopulateDenylistFromSettings()
+
     local setup, remove = self:GetClickAttributes()
     self.header:SetAttribute("setup_clicks", setup)
     self.header:SetAttribute("remove_clicks", remove)
