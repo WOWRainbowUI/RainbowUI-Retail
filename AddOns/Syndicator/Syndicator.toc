@@ -1,6 +1,6 @@
 ## Interface: 11508, 20505, 38000, 50503, 120001
 ## Title: Syndicator
-## Version: 261
+## Version: 262
 ## Author: plusmouse
 ## SavedVariables: SYNDICATOR_CONFIG, SYNDICATOR_DATA, SYNDICATOR_SUMMARIES
 ## IconTexture: Interface\AddOns\Syndicator\Assets\logo.tga
