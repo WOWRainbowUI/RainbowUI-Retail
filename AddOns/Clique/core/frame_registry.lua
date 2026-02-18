@@ -63,6 +63,20 @@ function addon:IsFrameBlacklisted(frame)
     return self.settings.blacklist[name]
 end
 
+function addon:PopulateDenylistFromSettings()
+    local bits = {
+        "blacklist = table.wipe(blacklist)",
+    }
+
+    for frame, value in pairs(self.settings.blacklist) do
+        if value then
+            bits[#bits + 1] = string.format("blacklist[%q] = true", frame)
+        end
+    end
+
+    self.header:Execute(table.concat(bits, ";\n"))
+end
+
 function addon:UpdateGlobalButtonClicks()
     -- We own this button so we can force certain behaviour,
     -- such as always activating on the 'Down' part of clicks.
@@ -138,18 +152,8 @@ function addon:BLACKLIST_CHANGED()
     -- Clear attributes on all frames
     self:ClearAttributes()
 
-    -- Actually update the blacklist accordingly
-    local bits = {
-        "blacklist = table.wipe(blacklist)",
-    }
-
-    for frame, value in pairs(self.settings.blacklist) do
-        if not not value then
-            bits[#bits + 1] = string.format("blacklist[%q] = true", frame)
-        end
-    end
-
-    self.header:Execute(table.concat(bits, ";\n"))
+    -- Sync the secure blacklist with Lua-side settings
+    self:PopulateDenylistFromSettings()
 
     -- Update the registered clicks, to catch any unblacklisted frames
     self:UpdateRegisteredClicks()
