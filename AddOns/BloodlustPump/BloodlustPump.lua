@@ -2,7 +2,7 @@
 -- Addon: BloodlustPump
 -- Author: Kongscandikk
 -- Twitch: https://www.twitch.tv/kongscandikk
--- Version: 1.0.5
+-- Version: 1.0.6
 -------------------------------------------------------------------
 
 local addonName, addonTable = ...
@@ -163,7 +163,9 @@ local function CheckHasteSpike()
         currentFrame = 0; lustDuration = 40; currentSessionPeak = currentHaste; UpdateVisuals()
 
         local profile = pumperProfiles[BloodlustpumpDB.activeProfile]
-        if BloodlustpumpDB.enableChat then print("|cffFFD700[BloodlustPump]:|r 健身開始...") end
+        if BloodlustpumpDB.enableChat then 
+            print("|cffFFD700[BloodlustPump]:|r 啟動加速! |cffdf8d20+" .. string.format("%.1f", spike) .. "%|r 爆衝!") 
+        end
         
         if BloodlustpumpDB.enableScream then 
             PlaySoundFile(soundPath..profile.scream, BloodlustpumpDB.audioChannel); 
