@@ -1,4 +1,6 @@
-local appName, private = ...
+local appName, app = ...
+---@class AbilityTimeline
+local private = app
 local SharedMedia = LibStub("LibSharedMedia-3.0")
 ---@type AceConfigOptionsTable
 private.options = {
@@ -81,6 +83,17 @@ private.options = {
       set = function(info, val) private.db.profile.disableLoginMessage = val end, --Sets value of SavedVariables depending on toggles
       get = function(info)
         return private.db.profile.disableLoginMessage --Sets value of toggles depending on SavedVariables
+      end,
+    },
+    disableReadyCheck = {
+      name = private.getLocalisation("disableReadyCheck"),
+      desc = private.getLocalisation("disableReadyCheckDescription"),
+      order = 33,
+      width = "full",
+      type = "toggle",
+      set = function(info, val) private.db.profile.disableReadyCheck = val end, --Sets value of SavedVariables depending on toggles
+      get = function(info)
+        return private.db.profile.disableReadyCheck --Sets value of toggles depending on SavedVariables
       end,
     },
     disableAllOnEncounterEnd = {

@@ -1,4 +1,6 @@
-local addonName, private = ...
+local appName, app = ...
+---@class AbilityTimeline
+local private = app
 
 private.modernize = function()
     if not private.db.global.timeline_frame then
@@ -65,6 +67,14 @@ private.modernize = function()
     end
     if private.db.profile.icon_settings.dangerIcon == nil then
         private.db.profile.icon_settings.dangerIcon = true
+    end
+
+    if private.db.profile.icon_settings.roleIcons == nil then
+        private.db.profile.icon_settings.roleIcons = true
+    end
+
+    if private.db.profile.icon_settings.strata == nil then
+        private.db.profile.icon_settings.strata = private.FrameStrata.FULLSCREEN
     end
 
     if not private.db.profile.big_icon_settings then
@@ -172,6 +182,10 @@ private.modernize = function()
 
     if private.db.profile.highlight_text_settings.dispellIcons == nil then
         private.db.profile.highlight_text_settings.dispellIcons = true
+    end
+
+    if private.db.profile.highlight_text_settings.strata == nil then
+        private.db.profile.highlight_text_settings.strata = private.FrameStrata.FULLSCREEN
     end
 
     if private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].text_anchor then
