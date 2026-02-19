@@ -1,33 +1,17 @@
 ## Interface: 120001
 
 ## Title: Leatrix Maps
-
-
-
 ## Notes: curseforge.com/wow/addons/leatrix-maps
-## Notes-deDE: curseforge.com/wow/addons/leatrix-maps
-## Notes-frFR: curseforge.com/wow/addons/leatrix-maps
-## Notes-esES: curseforge.com/wow/addons/leatrix-maps
-## Notes-esMX: curseforge.com/wow/addons/leatrix-maps
-## Notes-ptBR: curseforge.com/wow/addons/leatrix-maps
-## Notes-itIT: curseforge.com/wow/addons/leatrix-maps
-## Notes-ruRU: curseforge.com/wow/addons/leatrix-maps
-## Notes-koKR: curseforge.com/wow/addons/leatrix-maps
-## Notes-zhTW: curseforge.com/wow/addons/leatrix-maps
-## Notes-zhCN: curseforge.com/wow/addons/leatrix-maps
 
-## Version: 12.0.03
+## Version: 12.0.05
 ## Author: Leatrix
 ## SavedVariables: LeaMapsDB
 ## LoadSavedVariablesFirst: true
 
 ## AddonCompartmentFunc:LeaMapsGlobalMiniBtnClickFunc
-
 ## IconTexture: Interface\HELPFRAME\HelpIcon-Bug
-
-## OptionalDeps: Leatrix_enUS, ElvUI
-
 ## X-Curse-Project-ID: 298842
+## OptionalDeps: Leatrix_enUS, ElvUI
 
 ## Title-zhTW: |cff4DFF4D[地圖]|r 世界地圖增強
 ## Notes-zhTW: Leatrix Maps |n|n讓大地圖視窗化，可自由移動位置和調整大小。還有顯示未探索區域、副本入口、區域等級和座標...等功能。|n|n|cffffd200使用方法: 輸入 /ltm 進行設定。
