@@ -1,4 +1,6 @@
-local addonName, private = ...
+local appName, app = ...
+---@class AbilityTimeline
+local private = app
 local LibEditMode = LibStub("LibEditMode")
 
 LibEditMode:RegisterCallback('layout', function(layoutName)
@@ -69,5 +71,12 @@ LibEditMode:RegisterCallback('delete', function(layoutName)
 
     if private.db.global.bigicon_frame and private.db.global.bigicon_frame[layoutName] then
         private.db.global.bigicon_frame[layoutName] = nil
+    end
+end)
+
+LibEditMode:RegisterCallback('exit', function()
+    C_EncounterTimeline.CancelEditModeEvents()
+    if not C_EncounterTimeline.HasActiveEvents() then
+        private.handleFrame(false)
     end
 end)

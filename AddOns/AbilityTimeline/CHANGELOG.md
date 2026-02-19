@@ -1,16 +1,22 @@
 # AbilityTimeline
 
-## [v0.18](https://github.com/Jods-GH/AbilityTimeline/tree/v0.18) (2026-02-07)
-[Full Changelog](https://github.com/Jods-GH/AbilityTimeline/compare/v0.17...v0.18) [Previous Releases](https://github.com/Jods-GH/AbilityTimeline/releases)
+## [v0.19](https://github.com/Jods-GH/AbilityTimeline/tree/v0.19) (2026-02-15)
+[Full Changelog](https://github.com/Jods-GH/AbilityTimeline/compare/v0.18...v0.19) [Previous Releases](https://github.com/Jods-GH/AbilityTimeline/releases)
 
-- chore: Update toc to newest wow interface version (#33)  
+- add dispell text color to timeline icons  
+- make sure we rehide ticks after recreating them  
+    closes #37  
+- fix ticks turning themselves on  
+    closes #37  
+- add missing translation  
+- add basic role icon support  
+- fix addon metadata throwing error  
+- add annotations for namespace  
+- hide long cooldown timers when they are disabled in the settings  
+- add option to adjust framestrata  
+    closes #36  
+- add option to disable readycheck  
+- chore: Update toc to newest wow interface version (#35)  
     Co-authored-by: Jodsderechte <39654549+Jodsderechte@users.noreply.github.com>  
-- start work on being able to turn off timeline  
-- auto detect current expansion for encounterFetcher  
-- properly skin the encounter journal button when elvui is loaded  
-- properly put zoom in it's own util  
-- fix bigicon growing up not working correctly  
-    closes #31  
-- add auto toc workflow  
-- add option to change spacing between icons  
-- reformat edite mode setting to use expanders  
+- make sure we are not hiding too often  
+- properly hide frames even if blizzard isn't firing cancel timer  

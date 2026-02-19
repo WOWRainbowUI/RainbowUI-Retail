@@ -1,5 +1,8 @@
-local appName, private = ...
+local appName, app = ...
+---@class AbilityTimeline
+local private = app
 local AceLocale = LibStub ('AceLocale-3.0')
+
 local L = AceLocale:NewLocale(appName, "enUS", true)
 
 if L then
@@ -43,6 +46,8 @@ if L then
     L["enableDNDMessage"] = "Enable 'Do Not Disturb' Message"
     L["disableLoginMessage"] = "Disable Login Message"
     L["disableLoginMessageDescription"] = "Disables the login message that shows how to open the Options."
+    L["disableReadyCheckDescription"] = "Disables showing ready check in the timeline."
+    L["disableReadyCheck"] = "Disable Ready Check"
 
     -- reminders
     L["ReminderEditTitle"] = "Edit Reminder"
@@ -90,11 +95,14 @@ if L then
     L["IconDispellIcon"] = "Dispell Icon"
     L["IconDispellIconDescription"] = "Toggles the dispell type icon overlay on the spell icon."
     L["TextDispellIcon"] = "Dispell Icon"
+    L["IconRoleIcons"] = "Role Icons"
+    L["IconRoleIconsDescription"] = "Toggles the role icons |TInterface\\EncounterJournal\\UI-EJ-Icons:::::256:64:7:25:7:25|t|TInterface\\EncounterJournal\\UI-EJ-Icons:::::256:64:71:89:7:25|t|TInterface\\EncounterJournal\\UI-EJ-Icons:::::256:64:39:57:7:25|t on the spell icon."
     L["TextDispellIconDescription"] = "Toggles the dispell type icon in the text."
     L['TextCopyHint'] = "Hint: Press Ctrl+C to copy the text to your clipboard."
     L['CopyText'] = "Copy Text"
     L['DiscordDescription'] = "Join my Discord for support and updates"
     L['PatreonDescription'] = "Support the development on Patreon"
+    L["Strata"] = "Frame Strata"
 
     L['TextSettings'] = "Text Settings"
     L["IconSizeDescription"] = "Sets the size of the spell icon."

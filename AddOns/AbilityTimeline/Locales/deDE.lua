@@ -83,6 +83,10 @@ L["disableLoginMessage"] = "Disable Login Message"
 --[[Translation missing --]]
 L["disableLoginMessageDescription"] = "Disables the login message that shows how to open the Options."
 --[[Translation missing --]]
+L["disableReadyCheck"] = "Disable Ready Check"
+--[[Translation missing --]]
+L["disableReadyCheckDescription"] = "Disables showing ready check in the timeline."
+--[[Translation missing --]]
 L["DiscordDescription"] = "Join my Discord for support and updates"
 --[[Translation missing --]]
 L["DiseaseEffect"] = "Disease |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:39:57|t"
@@ -176,6 +180,10 @@ L["IconMargin"] = "Icon Margin"
 L["IconMarginDescription"] = "Sets the space between spell icons."
 --[[Translation missing --]]
 L["IconPreview"] = "Icon Preview"
+--[[Translation missing --]]
+L["IconRoleIcons"] = "Role Icons"
+--[[Translation missing --]]
+L["IconRoleIconsDescription"] = "Toggles the role icons |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:7:25:7:25|t|TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:7:25|t|TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:7:25|t on the spell icon."
 --[[Translation missing --]]
 L["IconSize"] = "Icon Size"
 --[[Translation missing --]]
@@ -322,6 +330,8 @@ L["SpellnameFontSizeDescription"] = "Sets the font size of the text besides the 
 L["StartTimerAfterDescription"] = "Delay (in seconds) after which the reminder should start to be displayed on the timeline once the encounter begins."
 --[[Translation missing --]]
 L["StartTimerAfterLabel"] = "Start Delay (seconds)"
+--[[Translation missing --]]
+L["Strata"] = "Frame Strata"
 --[[Translation missing --]]
 L["SupportButton"] = "Support"
 --[[Translation missing --]]

@@ -1,6 +1,6 @@
-## Interface: 120000, 120001
+## Interface: 120001
 ## Title: AbilityTimeline
-## Version: v0.18
+## Version: v0.19
 ## Notes: Adds various improvements to blizzards encounter ability timeline.
 ## SavedVariables: AbilityTimeline
 ## Author: Jods
@@ -25,6 +25,7 @@
 embeds.xml
 
 #util
+Util\Constants.lua
 Util\Debug.lua
 Util\EditMode.lua
 Util\ModernizeSettings.lua

@@ -12,10 +12,8 @@ L["addonOptions"] = "Ability Timeline选项"
 L["BigIconMargin"] = "间距"
 L["BigIconMarginDescription"] = "设置大图标的间隔距离。"
 L["BleedEffect"] = "流血|TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:158:192:32:64|t"
---[[Translation missing --]]
-L["CollapseTravelSettings"] = "Collapse Travel Settings"
---[[Translation missing --]]
-L["CollapseVisualSettings"] = "Collapse Visual Settings"
+L["CollapseTravelSettings"] = "收起移动设置"
+L["CollapseVisualSettings"] = "收起视觉设置"
 L["CooldownColorChangeColor"] = "颜色"
 L["CooldownColorChangeColorDescription"] = "设置在到达此计时的冷却文本颜色。"
 L["CooldownColorChanges"] = "冷却时间颜色变化"
@@ -44,16 +42,16 @@ L["debugModeDescription"] = "启用调试模式，将在聊天窗口输出额外
 L["DefaultCooldownColor"] = "冷却颜色"
 L["disableAllOnEncounterEnd"] = "禁用所有提醒信息"
 L["disableAllOnEncounterEndDescription"] = "在首领战结束时，禁用所有的事件提醒信息。"
+L["disableLoginMessage"] = "禁用登录信息"
+L["disableLoginMessageDescription"] = "禁用登录时显示的如何打开选项的提示信息。"
 --[[Translation missing --]]
-L["disableLoginMessage"] = "Disable Login Message"
+L["disableReadyCheck"] = "Disable Ready Check"
 --[[Translation missing --]]
-L["disableLoginMessageDescription"] = "Disables the login message that shows how to open the Options."
+L["disableReadyCheckDescription"] = "Disables showing ready check in the timeline."
 L["DiscordDescription"] = "加入我的Discord服务器获取支持和更新信息"
 L["DiseaseEffect"] = "疾病效果 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:39:57|t"
---[[Translation missing --]]
-L["DispellTextColor"] = "Dispell Text Color"
---[[Translation missing --]]
-L["DispellTextColorDescription"] = "Enables coloring the spell name text based on the dispell type."
+L["DispellTextColor"] = "驱散文字颜色"
+L["DispellTextColorDescription"] = "启用根据驱散类型对法术名称文字进行着色。"
 L["DpsRole"] = "伤害输出 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:7:25|t"
 L["EditRemindersForEncounter"] = "编辑首领战提醒"
 L["EditTimingsForEncounter"] = "编辑首领战计时"
@@ -72,10 +70,8 @@ L["EnableTextHighlightDescription"] = "切换文本高亮框体的可见性。"
 L["EnableTicks"] = "启用时间刻度"
 L["EnableTicksDescription"] = "切换时间刻度的可见性。"
 L["EnrageEffect"] = "激怒 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
---[[Translation missing --]]
-L["ExpandTravelSettings"] = "Expand Travel Settings"
---[[Translation missing --]]
-L["ExpandVisualSettings"] = "Expand Visual Settings"
+L["ExpandTravelSettings"] = "展开移动设置"
+L["ExpandVisualSettings"] = "展开视觉设置"
 L["ExportAsEncoded"] = "导出格式：编码"
 L["ExportAsJSON"] = "导出格式：JSON"
 L["ExportAsMRT"] = "导出格式：MRT"
@@ -96,11 +92,13 @@ L["IconDispellBorderDescription"] = "切换法术图标周围的驱散类型边�
 L["IconDispellIcon"] = "驱散类型图标"
 L["IconDispellIconDescription"] = "切换法术图标上叠加的驱散类型图标。"
 L["IconGrowDirectionDescription"] = "设置不同图标元素的增长方向。"
---[[Translation missing --]]
-L["IconMargin"] = "Icon Margin"
---[[Translation missing --]]
-L["IconMarginDescription"] = "Sets the space between spell icons."
+L["IconMargin"] = "图标间距"
+L["IconMarginDescription"] = "设置法术图标之间的间距。"
 L["IconPreview"] = "图标预览"
+--[[Translation missing --]]
+L["IconRoleIcons"] = "Role Icons"
+--[[Translation missing --]]
+L["IconRoleIconsDescription"] = "Toggles the role icons |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:7:25:7:25|t|TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:7:25|t|TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:7:25|t on the spell icon."
 L["IconSize"] = "图标尺寸"
 L["IconSizeDescription"] = "设置法术图标的尺寸。"
 L["IconZoom"] = "图标缩放"
@@ -127,8 +125,7 @@ L["MagicEffect"] = "法术效果 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:
 L["OpenIconEditor"] = "编辑图标"
 L["OpenSelectedReminderEditor"] = "打开提醒编辑器"
 L["OpenSelectedReminderEditorDescription"] = "为所选首领战打开提醒编辑器。"
---[[Translation missing --]]
-L["OpenTextEditor"] = "Edit Texts"
+L["OpenTextEditor"] = "编辑文本"
 L["PatreonDescription"] = "在Patreon上支持开发"
 L["PoisonEffect"] = "中毒效果 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:39:57|t"
 L["PullTimer"] = "开怪计时器"
@@ -175,6 +172,8 @@ L["SpellnameFontSize"] = "字体大小"
 L["SpellnameFontSizeDescription"] = "设置图标旁文本的字体大小。"
 L["StartTimerAfterDescription"] = "首领战开始后，提醒信息在时间轴上开始显示前的延迟时间（秒）。"
 L["StartTimerAfterLabel"] = "开始延迟（秒）"
+--[[Translation missing --]]
+L["Strata"] = "Frame Strata"
 L["SupportButton"] = "支持"
 L["TankRole"] = "坦克 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:7:25:7:25|t"
 L["TestIcon"] = "测试图标"
@@ -189,10 +188,8 @@ L["TextBackgroundOffsetXDescription"] = "设置背景相对于文本的X轴位�
 L["TextBackgroundOffsetY"] = "文本背景Y轴"
 L["TextBackgroundOffsetYDescription"] = "设置背景相对于文本的Y轴位置。"
 L["TextCopyHint"] = "提示：按下 Ctrl+C 可将文本复制到剪贴板。"
---[[Translation missing --]]
-L["TextDispellIcon"] = "Dispell Icon"
---[[Translation missing --]]
-L["TextDispellIconDescription"] = "Toggles the dispell type icon in the text."
+L["TextDispellIcon"] = "驱散图标"
+L["TextDispellIconDescription"] = "切换是否在文本中显示驱散类型图标。"
 L["TextGrowDirectionDescription"] = [=[设置不同文本元素的增长方向。
 
 ]=]
@@ -219,12 +216,10 @@ L["TravelDirection"] = "行进方向"
 L["TravelDirectionDescription"] = "时间轴的行进方向。"
 L["TravelDirectionHorizontal"] = "水平"
 L["TravelDirectionVertical"] = "垂直"
---[[Translation missing --]]
-L["TravelSettingsDescription"] = "Settings to customize the traveling of the icons on the timeline."
+L["TravelSettingsDescription"] = "自定义图标在时间轴上移动方式的设置。"
 L["useAudioCountdowns"] = "使用语音倒计时"
 L["useAudioCountdownsDescription"] = "为即将到来的事件启用最后5秒的语音倒计时。"
---[[Translation missing --]]
-L["VisualSettingsDescription"] = "Settings to customize the visual appearance of the timeline."
+L["VisualSettingsDescription"] = "自定义时间轴视觉外观的设置。"
 L["WrongWoWVersionMessage"] = "AbilityTimeline 需要《魔兽世界》12.0.0（至暗之夜）或更高版本才能运行。"
 
 

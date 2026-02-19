@@ -1,4 +1,6 @@
-local appName, private = ...
+local appName, app = ...
+---@class AbilityTimeline
+local private = app
 local AceGUI = LibStub("AceGUI-3.0")
 local SharedMedia = LibStub("LibSharedMedia-3.0")
 
@@ -39,6 +41,19 @@ local createGeneralSettings = function(widget, parentWindow, iconSettings, maxIc
     end)
     scroll:AddChild(zoomSetting)
 
+    local strataSetting = AceGUI:Create("Dropdown")
+    strataSetting:SetLabel(private.getLocalisation("Strata"))
+    for key, value in ipairs(private.FrameStrataOrder) do
+        strataSetting:AddItem(value, value)
+    end
+    strataSetting:SetCallback("OnValueChanged", function(_, _, value)
+        iconSettings.strata = value
+        widget:ApplySettings()
+    end)
+    strataSetting:SetValue(iconSettings.strata)
+    strataSetting:SetRelativeWidth(0.5)
+    scroll:AddChild(strataSetting)
+
     local dispellIconSetting = AceGUI:Create("CheckBox")
     dispellIconSetting:SetLabel(private.getLocalisation("IconDispellIcon"))
     private.AddFrameTooltip(dispellIconSetting.frame, "IconDispellIconDescription")
@@ -59,6 +74,20 @@ local createGeneralSettings = function(widget, parentWindow, iconSettings, maxIc
     end)
     scroll:AddChild(dispellBorderSetting)
 
+    local dispellTextColorSetting = AceGUI:Create("CheckBox")
+    dispellTextColorSetting:SetLabel(private.getLocalisation("DispellTextColor"))
+    private.AddFrameTooltip(dispellTextColorSetting.frame, "DispellTextColorDescription")
+    dispellTextColorSetting:SetValue(iconSettings.dispellTextColor)
+    dispellTextColorSetting:SetCallback("OnValueChanged", function(_, _, value)
+        iconSettings.dispellTextColor = value
+        if value then
+            widget.frame.SpellName:SetTextColor(0, 0.5019607843137255, 1)
+        else
+            widget.frame.SpellName:SetTextColor(1, 1, 1)
+        end
+    end)
+    scroll:AddChild(dispellTextColorSetting)
+
     local dangerIconSetting = AceGUI:Create("CheckBox")
     dangerIconSetting:SetLabel(private.getLocalisation("IconDangerIcon"))
     private.AddFrameTooltip(dangerIconSetting.frame, "IconDangerIconDescription")
@@ -68,6 +97,16 @@ local createGeneralSettings = function(widget, parentWindow, iconSettings, maxIc
         widget:ApplySettings()
     end)
     scroll:AddChild(dangerIconSetting)
+
+    local roleIconSetting = AceGUI:Create("CheckBox")
+    roleIconSetting:SetLabel(private.getLocalisation("IconRoleIcons"))
+    private.AddFrameTooltip(roleIconSetting.frame, "IconRoleIconsDescription")
+    roleIconSetting:SetValue(iconSettings.roleIcons)
+    roleIconSetting:SetCallback("OnValueChanged", function(_, _, value)
+        iconSettings.roleIcons = value
+        widget:ApplySettings()
+    end)
+    scroll:AddChild(roleIconSetting)
 
 
     return scrollContainer
@@ -82,6 +121,19 @@ local createHighlightTextGeneralSettings = function(widget, parentWindow, Settin
     scroll:SetLayout("Flow")
     scroll:SetFullWidth(true)
     scrollContainer:AddChild(scroll)
+
+    local strataSetting = AceGUI:Create("Dropdown")
+    strataSetting:SetLabel(private.getLocalisation("Strata"))
+    for key, value in ipairs(private.FrameStrataOrder) do
+        strataSetting:AddItem(value, value)
+    end
+    strataSetting:SetCallback("OnValueChanged", function(_, _, value)
+        Settings.strata = value
+        widget:ApplySettings()
+    end)
+    strataSetting:SetValue(Settings.strata)
+    strataSetting:SetRelativeWidth(0.5)
+    scroll:AddChild(strataSetting)
 
 
     local dispellIconSetting = AceGUI:Create("CheckBox")
@@ -227,6 +279,9 @@ local createTextSettings = function(widget, parentWindow, iconSettings, textSett
         widget:ApplySettings()
     end)
     scroll:AddChild(textDefaultColorSetting)
+
+
+    
 
     local textBackgroundToggle = AceGUI:Create("CheckBox")
     textBackgroundToggle:SetValue(textSettings.useBackground)
@@ -544,8 +599,6 @@ end
 createCooldownSubSettings = function(scroll, widget, disableGlowSettings, disableFontSettings)
     scroll:ReleaseChildren()
     if not disableFontSettings then
-        print("adding font settings")
-        print(disableFontSettings)
         local fontSizeSetting = AceGUI:Create("Slider")
         fontSizeSetting:SetLabel(private.getLocalisation("CooldownFontSize"))
         private.AddFrameTooltip(fontSizeSetting.frame, "CooldownFontSizeDescription")
@@ -648,18 +701,24 @@ local createSpellIconSettingsFrame = function()
         widget.HandleCooldown(widget.frame, math.ceil((widget.startTime + widget.duration) - GetTime()))
     end) -- loop cooldown display
 
-    widget.frame.DispellTypeIcons[1]:SetAtlas('icons_16x16_magic')
+    widget.frame.dispellTypeIcons[1]:SetAtlas('icons_16x16_magic')
     for _, edgeTexture in pairs(widget.frame.DispellTypeBorderEdges[3]) do
         edgeTexture:SetColorTexture(private.dispellTypeList[3].color.r, private.dispellTypeList[3].color.g,
             private.dispellTypeList[3].color.b, private.dispellTypeList[3].color.a)
     end
+    widget.frame.RoleIcons[1]:SetAtlas('icons_16x16_heal')
     widget.frame.DangerIcon[1]:SetAtlas('icons_16x16_deadly')
-
+    
+    widget:ApplySettings()
     widget.frame:Show()
     widget.frame:SetFrameStrata("DIALOG")
     widget.frame:SetPoint("CENTER", private.SPELL_ICON_SETTINGS_WINDOW.rightContent, "CENTER", 0, 0)
     widget.frame:SetFrameLevel(private.SPELL_ICON_SETTINGS_WINDOW.rightContent:GetFrameLevel() + 1)
     widget:SetParent(private.SPELL_ICON_SETTINGS_WINDOW)
+
+    if private.db.profile.icon_settings.dispellTextColor then
+        widget.frame.SpellName:SetTextColor(0, 0.5019607843137255, 1)
+    end
 
     local tabGroup = AceGUI:Create("TabGroup")
     tabGroup:SetTabs({

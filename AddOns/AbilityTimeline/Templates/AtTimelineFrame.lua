@@ -1,4 +1,6 @@
-local addonName, private    = ...
+local appName, app = ...
+---@class AbilityTimeline
+local private = app
 local AceGUI                = LibStub("AceGUI-3.0")
 local LibEditMode           = LibStub("LibEditMode")
 local SharedMedia           = LibStub("LibSharedMedia-3.0")
@@ -76,7 +78,7 @@ LibEditMode:RegisterCallback('layout', function(layoutName)
     if not private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].y then
         private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].y = variables.position.y
     end
-    if not private.db.global.timeline_frame[layoutName].ticks_enabled then
+    if private.db.global.timeline_frame[layoutName].ticks_enabled == nil then
         private.db.global.timeline_frame[layoutName].ticks_enabled = variables.ticks_enabled
     end
     if not private.db.global.timeline_frame[layoutName].otherSize then
@@ -108,7 +110,6 @@ LibEditMode:RegisterCallback('layout', function(layoutName)
         private.TIMELINE_FRAME:ClearAllPoints()
         private.TIMELINE_FRAME:SetPoint(private.db.global.timeline_frame[layoutName].point,
             private.db.global.timeline_frame[layoutName].x, private.db.global.timeline_frame[layoutName].y)
-        HandleTickVisibility(layoutName)
         local width, height
         if private.db.global.timeline_frame[layoutName].travel_direction == private.TIMELINE_DIRECTIONS.HORIZONTAL then
             width = private.db.global.timeline_frame[layoutName].travelSize
@@ -119,6 +120,7 @@ LibEditMode:RegisterCallback('layout', function(layoutName)
         end
         SetFrameSize(private.TIMELINE_FRAME, width, height)
         private.TIMELINE_FRAME:HandleTicks()
+        HandleTickVisibility(layoutName)
         private.TIMELINE_FRAME.SetBackDrop(private.TIMELINE_FRAME.frame)
     end
 end)
@@ -253,7 +255,7 @@ local function SetupEditModeSettings(frame)
                 return not areTravelSettingsExpanded
             end,
         },
-                {
+        {
             name = private.getLocalisation("ExpandVisualSettings"),
             expandedLabel = private.getLocalisation("CollapseVisualSettings"),
             collapsedLabel = private.getLocalisation("ExpandVisualSettings"),
@@ -332,6 +334,7 @@ local function SetupEditModeSettings(frame)
                 private.db.global.timeline_frame[layoutName].otherSize = value
                 HandleSizeChanges(private.TIMELINE_FRAME)
                 HandleTicks(private.TIMELINE_FRAME)
+                HandleTickVisibility(layoutName)
             end,
             minValue = 1,
             maxValue = 200,
@@ -352,6 +355,7 @@ local function SetupEditModeSettings(frame)
                 private.db.global.timeline_frame[layoutName].travelSize = value
                 HandleSizeChanges(private.TIMELINE_FRAME)
                 HandleTicks(private.TIMELINE_FRAME)
+                HandleTickVisibility(layoutName)
             end,
             minValue = 1,
             maxValue = 1000,

@@ -1,4 +1,6 @@
-local addonName, private = ...
+local appName, app = ...
+---@class AbilityTimeline
+local private = app
 local AceGUI = LibStub("AceGUI-3.0")
 local SharedMedia = LibStub("LibSharedMedia-3.0")
 local Type = "AtTextHighlight"
@@ -25,6 +27,10 @@ local function ApplySettings(self)
             private.db.profile.highlight_text_settings.defaultColor.b
         )
     end
+
+    if private.db.profile.highlight_text_settings and private.db.profile.highlight_text_settings.strata then
+		self.frame:SetFrameStrata(private.db.profile.highlight_text_settings.strata)
+	end
 
     if private.db.profile.highlight_text_settings.useBackground then
         local texture = SharedMedia:Fetch("background", private.db.profile.highlight_text_settings.backgroundTexture)
@@ -147,7 +153,8 @@ local SetEventInfo = function(widget, eventInfo, disableOnUpdate)
         HandleTexts(widget, eventInfo, eventInfo.duration)
         widget.frame:SetScript("OnUpdate", function(self)
             local remainingDuration = C_EncounterTimeline.GetEventTimeRemaining(widget.eventInfo.id)
-            if not remainingDuration or remainingDuration <= 0 then
+            local state = C_EncounterTimeline.GetEventState(widget.eventInfo.id)
+            if not remainingDuration or remainingDuration <= 0 or state ~= private.ENCOUNTER_STATES.Active then
                 widget:Release()
             else
                 HandleTexts(widget, eventInfo, remainingDuration)
@@ -167,6 +174,7 @@ local function Constructor()
     frame.SpellName = frame:CreateFontString(nil, "OVERLAY", "SystemFont_Shadow_Med3")
     frame.SpellName:SetWordWrap(false)
     frame.SpellName:SetPoint("CENTER", frame, "CENTER")
+    frame:SetFrameStrata(private.FrameStrata.FULLSCREEN)
     frame.DispellTypeSpellNames = {}
 
     for i, value in pairs(private.dispellTypeList) do
