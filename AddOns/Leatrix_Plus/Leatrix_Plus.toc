@@ -1,33 +1,20 @@
 ## Interface: 120001
 
 ## Title: Leatrix Plus
-## Title-zhCN: Leatrix Plus [|cffeda55f功能百宝箱|r]
-## Title-zhTW: Leatrix Plus [|cffeda55f功能百寶箱|r]
-
 ## Notes: curseforge.com/wow/addons/leatrix-plus
-## Notes-deDE: curseforge.com/wow/addons/leatrix-plus
-## Notes-frFR: curseforge.com/wow/addons/leatrix-plus
-## Notes-esES: curseforge.com/wow/addons/leatrix-plus
-## Notes-esMX: curseforge.com/wow/addons/leatrix-plus
-## Notes-ptBR: curseforge.com/wow/addons/leatrix-plus
-## Notes-itIT: curseforge.com/wow/addons/leatrix-plus
-## Notes-ruRU: curseforge.com/wow/addons/leatrix-plus
-## Notes-koKR: curseforge.com/wow/addons/leatrix-plus
-## Notes-zhTW: curseforge.com/wow/addons/leatrix-plus
-## Notes-zhCN: curseforge.com/wow/addons/leatrix-plus
 
-## Version: 12.0.03
+## Version: 12.0.05
 ## Author: Leatrix
 ## SavedVariables: LeaPlusDB
 ## LoadSavedVariablesFirst: true
 
 ## AddonCompartmentFunc:LeaPlusGlobalMiniBtnClickFunc
-
 ## IconTexture: Interface\HELPFRAME\ReportLagIcon-Movement
-
+## X-Curse-Project-ID: 94855
 ## OptionalDeps: Leatrix_enUS, ElvUI
 
-## X-Curse-Project-ID: 94855
+## Title-zhCN: Leatrix Plus [|cffeda55f功能百宝箱|r]
+## Title-zhTW: Leatrix Plus [|cffeda55f功能百寶箱|r]
 
 ## Title-zhTW: |cff0099FF[介面]|r 功能百寶箱
 ## Notes-zhTW: Leatrix Plus |n|n讓生活更美好的插件，提供多種各式各樣的遊戲功能設定。|n|n|cffffd200使用方法: |r點小地圖按鈕的藍色閃電開啟設定。|n|n|cffFF2D2D特別注意: |r請勿使用功能百寶箱 "框架相關" 裡面功能和遊戲內建的編輯模式來調整同一個框架，會發生衝突。
