@@ -24,9 +24,9 @@ local lastTriggerTime = 0
 local PUMP_COOLDOWN = 60
 local hasFiredThisCombat = false
 
-local playing = false
-local Volume = 100
-local AmbienceVolume = 100
+local isMusicplaying = false
+local musicVolume = 100
+local ambienceVolume = 100
 
 -- PROFILE CONFIGURATION
 local pumperProfiles = {
@@ -170,22 +170,35 @@ local function CheckHasteSpike()
             delayTimer = profile.musicDelay
         elseif BloodlustpumpDB.enableMusic then 
             -- 檢查是否已經播放音樂
-			if playing then return end
-			Volume = tonumber(GetCVar("Sound_MusicVolume"))
-			AmbienceVolume = tonumber(GetCVar("Sound_AmbienceVolume"))
+			if isMusicplaying then return end
+			musicVolume = tonumber(GetCVar("Sound_MusicVolume"))
+			ambienceVolume = tonumber(GetCVar("Sound_AmbienceVolume"))
 			if BloodlustpumpDB.audioChannel ~= "Music" then
 					SetCVar("Sound_MusicVolume", 0)
 			end
 			if BloodlustpumpDB.audioChannel ~= "Ambience" then
 				SetCVar("Sound_AmbienceVolume", 0)
 			end
-			playing, musicHandle = PlaySoundFile(soundPath..profile.music, BloodlustpumpDB.audioChannel); 
+			isMusicplaying, musicHandle = PlaySoundFile(soundPath..profile.music, BloodlustpumpDB.audioChannel); 
             delayTimer = nil 
 			
-			C_Timer.After(40, function()
-				SetCVar("Sound_MusicVolume", Volume)
-				SetCVar("Sound_AmbienceVolume", AmbienceVolume)
-				playing = false
+			-- 16秒後檢查是否為小嗜血
+			C_Timer.After(16, function()
+				local spike = lastHaste - GetHaste()
+				if spike < (BloodlustpumpDB.hasteThreshold or 25.0) then
+					if musicHandle then StopSound(musicHandle); musicHandle = nil end; 
+					SetCVar("Sound_MusicVolume", musicVolume)
+					SetCVar("Sound_AmbienceVolume", ambienceVolume)
+					isMusicplaying = false
+					isLustActive = false
+					UpdateVisuals()
+				else
+					C_Timer.After(24, function()
+						SetCVar("Sound_MusicVolume", musicVolume)
+						SetCVar("Sound_AmbienceVolume", ambienceVolume)
+						isMusicplaying = false
+					end)
+				end
 			end)
         end
     end
@@ -224,22 +237,23 @@ local function CreateSettingsMenu()
             if BloodlustpumpDB.enableScream then PlaySoundFile(soundPath..profile.scream, BloodlustpumpDB.audioChannel); delayTimer = profile.musicDelay
             elseif BloodlustpumpDB.enableMusic then
 				-- 檢查是否已經播放音樂
-				if playing then return end
-				Volume = tonumber(GetCVar("Sound_MusicVolume"))
-				AmbienceVolume = tonumber(GetCVar("Sound_AmbienceVolume"))
+				if isMusicplaying then return end
+				musicVolume = tonumber(GetCVar("Sound_MusicVolume"))
+				ambienceVolume = tonumber(GetCVar("Sound_AmbienceVolume"))
 				if BloodlustpumpDB.audioChannel ~= "Music" then
-					SetCVar("Sound_MusicVolume", 0)
+						SetCVar("Sound_MusicVolume", 0)
 				end
 				if BloodlustpumpDB.audioChannel ~= "Ambience" then
 					SetCVar("Sound_AmbienceVolume", 0)
 				end
-				playing, musicHandle = PlaySoundFile(soundPath..profile.music, BloodlustpumpDB.audioChannel); 
+				isMusicplaying, musicHandle = PlaySoundFile(soundPath..profile.music, BloodlustpumpDB.audioChannel); 
 				delayTimer = nil 
-
+				
+				-- 40秒後恢復背景音樂音量
 				C_Timer.After(40, function()
-					SetCVar("Sound_MusicVolume", Volume)
-					SetCVar("Sound_AmbienceVolume", AmbienceVolume)
-					playing = false
+					SetCVar("Sound_MusicVolume", musicVolume)
+					SetCVar("Sound_AmbienceVolume", ambienceVolume)
+					isMusicplaying = false
 				end)
 			end
             self:SetText("停止")
@@ -526,7 +540,7 @@ core:SetScript("OnUpdate", function(self, elapsed)
 
         if not isMoving then
             lustDuration = math.max(0, lustDuration - elapsed)
-            for _, f in ipairs(ronnieFrames) do if f then f.timerText:SetText(string.format("%.1f", lustDuration)) end end
+            for _, f in ipairs(ronnieFrames) do if f then f.timerText:SetText(string.format("%.1f", 40 - lustDuration)) end end -- 改為正數計時
             if lustDuration <= 0 and not isTesting then 
                 isLustActive = false; 
                 needsReport = true; 
