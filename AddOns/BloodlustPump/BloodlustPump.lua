@@ -239,7 +239,7 @@ local function CreateSettingsMenu()
             if BloodlustpumpDB.enableScream then PlaySoundFile(soundPath..profile.scream, BloodlustpumpDB.audioChannel); delayTimer = profile.musicDelay
             elseif BloodlustpumpDB.enableMusic then
 				-- 檢查是否已經播放音樂
-				if isMusicplaying then return end
+				-- if isMusicplaying then return end
 				musicVolume = tonumber(GetCVar("Sound_MusicVolume"))
 				ambienceVolume = tonumber(GetCVar("Sound_AmbienceVolume"))
 				if BloodlustpumpDB.audioChannel ~= "Music" then
@@ -255,7 +255,7 @@ local function CreateSettingsMenu()
 				C_Timer.After(40, function()
 					SetCVar("Sound_MusicVolume", musicVolume)
 					SetCVar("Sound_AmbienceVolume", ambienceVolume)
-					isMusicplaying = false
+					-- isMusicplaying = false
 				end)
 			end
             self:SetText("停止")
