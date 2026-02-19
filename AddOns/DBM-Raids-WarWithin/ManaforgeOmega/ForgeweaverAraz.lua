@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2687, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260208045326")
+mod:SetRevision("20260218222853")
 mod:SetCreatureID(233817)
 mod:SetEncounterID(3132)
 mod:SetHotfixNoticeRev(20250821000000)
@@ -28,11 +28,11 @@ mod:AddCustomTimerOptions(1231720, true, 1, 0)--Invoke Collector
 mod:AddCustomTimerOptions(1243874, true, 1, 0)--Void Harvest
 mod:AddCustomTimerOptions(1238873, true, 3, 0)--Echoing Tempest
 --Midnight private aura replacements
-mod:AddPrivateAuraSoundOption(1228188, true, 1228161, 1)--Silencing Tempest
-mod:AddPrivateAuraSoundOption(1233979, true, 1231015, 3)--Astral Harvest
-mod:AddPrivateAuraSoundOption(1243873, true, 1243874, 3)--Void Harvest
-mod:AddPrivateAuraSoundOption(1228215, true, 1228502, 1)--Overwhelming Power
-mod:AddPrivateAuraSoundOption(1238874, true, 1238873, 1)--Echoing Tempest
+mod:AddPrivateAuraSoundOption(1228188, true, 1228161, 1, 1)--Silencing Tempest
+mod:AddPrivateAuraSoundOption(1233979, true, 1231015, 3, 1)--Astral Harvest
+mod:AddPrivateAuraSoundOption(1243873, true, 1243874, 3, 1)--Void Harvest
+mod:AddPrivateAuraSoundOption(1228215, true, 1228502, 1, 1)--Overwhelming Power
+mod:AddPrivateAuraSoundOption(1238874, true, 1238873, 1, 1)--Echoing Tempest
 
 local berserkTimer = mod:NewBerserkTimer(600)
 

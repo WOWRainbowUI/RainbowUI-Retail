@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2686, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260208045326")
+mod:SetRevision("20260218222853")
 mod:SetCreatureID(233815)
 mod:SetEncounterID(3131)
 mod:SetUsedIcons(1, 2)
@@ -29,8 +29,8 @@ mod:AddCustomTimerOptions(1237272, true, 1, 0)--Lair Weaving
 mod:AddCustomTimerOptions(1247672, true, 5, 0)--Infusion Pylon
 mod:AddCustomTimerOptions(1227782, true, 2, 0)--Arcane Outrage
 --Midnight private aura replacements
-mod:AddPrivateAuraSoundOption(1226311, true, 1226315, 3)--Infusion Tether
-mod:AddPrivateAuraSoundOption(1243771, true, 1243771, 1)--GTFO
+mod:AddPrivateAuraSoundOption(1226311, true, 1226315, 3, 1)--Infusion Tether
+mod:AddPrivateAuraSoundOption(1243771, true, 1243771, 1, 2)--GTFO
 
 function mod:OnLimitedCombatStart()
 	self:DisableSpecialWarningSounds()

@@ -76,16 +76,16 @@ end
 ---@class DBM
 local DBM = private:GetPrototype("DBM")
 _G.DBM = DBM
-DBM.Revision = parseCurseDate("20260217022949")
+DBM.Revision = parseCurseDate("20260218222853")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 local fakeBWVersion, fakeBWHash = 402, "6f82943"--402.3
 local PForceDisable
 -- The string that is shown as version
-DBM.DisplayVersion = "12.0.21"--Core version
+DBM.DisplayVersion = "12.0.22"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 2, 16) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 2, 18) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 PForceDisable = private.isRetail and 22 or 20--When this is incremented, trigger force disable regardless of major patch
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
@@ -426,8 +426,8 @@ DBM.DefaultOptions = {
 	PrivateAurasPlayerSpacing = -1,
 	PrivateAurasPlayerLimit = 5,
 	PrivateAurasPlayerGrowDirection = "RIGHT",
-	PrivateAurasPlayerWidth = 75,
-	PrivateAurasPlayerHeight = 75,
+	PrivateAurasPlayerWidth = 60,
+	PrivateAurasPlayerHeight = 60,
 	PrivateAurasPlayerAnchor = "CENTER",--NYI
 	PrivateAurasPlayerRelativeTo = "CENTER",--NYI
 	PrivateAurasPlayerXOffset = 0,--Partial (drag and drop only, no UI slider/editbox)
@@ -441,8 +441,8 @@ DBM.DefaultOptions = {
 	PrivateAurasCoTankSpacing = -1,
 	PrivateAurasCoTankLimit = 5,
 	PrivateAurasCoTankGrowDirection = "LEFT",
-	PrivateAurasCoTankWidth = 75,
-	PrivateAurasCoTankHeight = 75,
+	PrivateAurasCoTankWidth = 60,
+	PrivateAurasCoTankHeight = 60,
 	PrivateAurasCoTankAnchor = "CENTER",--NYI
 	PrivateAurasCoTankRelativeTo = "CENTER",--NYI
 	PrivateAurasCoTankXOffset = -150,--Partial (drag and drop only, no UI slider/editbox)
@@ -1921,7 +1921,12 @@ do
 					C_EncounterEvents.SetEventColor(i, {r = timerRed, g = timerGreen, b = timerBlue})
 				end
 				if self.Options.HideBlizzardTimeline then
-					C_EncounterTimeline.SetViewType(0)--We use blizzard api to make frame invisible
+					C_CVar.SetCVar("encounterTimelineEnabled", "1")--Force enable timeline, otherwise custom sounds don't play
+					--C_EncounterTimeline.SetViewType(0)--We use blizzard api to make frame invisible
+					EncounterTimeline.TrackView:SetAlpha(0)
+					EncounterTimeline.TimerView:SetAlpha(0)
+				else
+					C_CVar.SetCVar("encounterTimelineEnabled", "1")--Force enable timeline, otherwise custom sounds don't play
 				end
 				if self.Options.HideBossEmoteFrame2 then
 					C_EncounterWarnings.SetWarningsShown(false)
@@ -6484,6 +6489,11 @@ do
 						end
 						mod:OnLimitedCombatStart(nonZeroDelay, startEvent == "PLAYER_REGEN_DISABLED_AND_MESSAGE" or startEvent == "SPELL_CAST_SUCCESS" or startEvent == "MONSTER_MESSAGE", startEvent == "ENCOUNTER_START")
 					end
+					if self.Options.HideBlizzardTimeline then
+						C_CVar.SetCVar("encounterTimelineEnabled", "1")
+						EncounterTimeline.TrackView:SetAlpha(0)
+						EncounterTimeline.TimerView:SetAlpha(0)
+					end
 				end
 				--send "C" sync
 				if not synced and not mod.soloChallenge then
@@ -6651,6 +6661,12 @@ do
 			mod:Stop()
 			if mod.paSounds then
 				mod:DisablePrivateAuraSounds()
+			end
+			if mod.tlTimerEvents then
+				mod:DisableTimelineOptions()
+			end
+			if mod.tlSoundEvents then
+				mod:DisableAlertOptions()
 			end
 			if private.isRetail then
 				self.PrivateAuras:UnregisterPrivateAuras(nil)--Sending no unit unregisters all
@@ -8840,11 +8856,17 @@ function bossModPrototype:AddSpecialWarningOption(name, default, defaultSound, c
 	self:SetOptionCategory(name, cat, optionType, waCustomName)
 end
 
+---@meta
+---@alias paSubTypes
+---|0: Generic subtype for generalized use
+---|1: Custom subtype for when targetted by the private aura spell
+---|2: Custom subtype for when standing in the private aura spell (GTFO)
 ---@param auraspellId number must match debuff ID so EnablePrivateAuraSound function can call right option key and right debuff ID
 ---@param default SpecFlags|boolean?
 ---@param groupSpellId number? is used if a diff option key is used in all other options with spell (will be quite common)
 ---@param defaultSound acceptedSASounds? is used to set default Special announce sound (1-4) just like regular special announce objects
-function bossModPrototype:AddPrivateAuraSoundOption(auraspellId, default, groupSpellId, defaultSound)
+---@param subType paSubTypes? 0/nil: default, 1: targetted, 2:gtfo
+function bossModPrototype:AddPrivateAuraSoundOption(auraspellId, default, groupSpellId, defaultSound, subType)
 	self.DefaultOptions["PrivateAuraSound" .. auraspellId] = (default == nil) or default
 	self.DefaultOptions["PrivateAuraSound" .. auraspellId .. "SWSound"] = defaultSound or 1
 	if type(default) == "string" then
@@ -8854,7 +8876,14 @@ function bossModPrototype:AddPrivateAuraSoundOption(auraspellId, default, groupS
 	--LuaLS is just stupid here. There is no rule that says self.Options.Variable has to be a bool. Entire SWSound variable scope is always a number
 	---@diagnostic disable-next-line: assign-type-mismatch
 	self.Options["PrivateAuraSound" .. auraspellId .. "SWSound"] = defaultSound or 1
-	self.localization.options["PrivateAuraSound" .. auraspellId] = L.AUTO_PRIVATEAURA_OPTION_TEXT:format(auraspellId)
+	subType = subType or 0
+	if subType == 1 then
+		self.localization.options["PrivateAuraSound" .. auraspellId] = L.AUTO_PRIVATEAURA_OPTION_TARGET_TEXT:format(auraspellId)
+	elseif subType == 2 then
+		self.localization.options["PrivateAuraSound" .. auraspellId] = L.AUTO_PRIVATEAURA_OPTION_GTFO_TEXT:format(auraspellId)
+	else
+		self.localization.options["PrivateAuraSound" .. auraspellId] = L.AUTO_PRIVATEAURA_OPTION_TEXT:format(auraspellId)
+	end
 --	if not DBM.Options.GroupOptionsExcludePA then
 		self:GroupSpellsPA(groupSpellId or auraspellId, "PrivateAuraSound" .. auraspellId)
 --	end
@@ -9748,7 +9777,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260217022949" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260218222853" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then

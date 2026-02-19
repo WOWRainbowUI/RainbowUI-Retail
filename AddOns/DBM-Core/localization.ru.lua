@@ -635,7 +635,9 @@ L.AUTO_INFO_FRAME_OPTION_TEXT2		= "Показывать информационн
 L.AUTO_INFO_FRAME_OPTION_TEXT3		= "Показывать информационный фрейм для $spell:%s (при достижении порогового значения %%s)"
 L.AUTO_READY_CHECK_OPTION_TEXT		= "Воспроизводить звук проверки готовности, когда пуллят босса (даже если он не является целью)"
 L.AUTO_SPEEDCLEAR_OPTION_TEXT		= "Показывать таймер для быстрой зачистки %s"
-L.AUTO_PRIVATEAURA_OPTION_TEXT		= "Воспроизводить звуковые оповещения DBM для приватных аур $spell:%s в этом бою."
+L.AUTO_PRIVATEAURA_OPTION_TEXT			= "Воспроизводить звуковые оповещения приватных аур DBM для $spell:%s в этом бою."--Обычный (наиболее распространенный)
+L.AUTO_PRIVATEAURA_OPTION_TARGET_TEXT	= "Воспроизводите звуковые оповещения приватных аур DBM, когда Вы являетесь целью $spell:%s."
+L.AUTO_PRIVATEAURA_OPTION_GTFO_TEXT		= "Воспроизводите звуковые оповещения приватных аур DBM, когда Вам нужно отойти от $spell:%s."
 L.AUTO_CUSTOMTIMER_OPTION_TEXT		= "Показывать таймер для $spell:%s"
 L.AUTO_CUSTOMALERT_OPTION_TEXT		= "Установить звуковой сигнал, который будет воспроизводиться при применении заклинания $spell:%s"
 
@@ -759,6 +761,15 @@ L.KEYSTONE_NAMES[503] = 'АКГО' -- Ara-Kara, City of Echoes
 L.KEYSTONE_NAMES[505] = 'СР' -- The Dawnbreaker
 L.KEYSTONE_NAMES[525] = 'ШЛЮЗ' -- Operation Floodgate
 L.KEYSTONE_NAMES[542] = 'ЗА' -- Eco-Dome Al'dani
+
+L.KEYSTONE_NAMES[161] = 'НП' -- Skyreach
+L.KEYSTONE_NAMES[402] = 'АА' -- Algeth'ar Academy
+L.KEYSTONE_NAMES[556] = 'ЯС' -- Pit of Saron
+L.KEYSTONE_NAMES[557] = 'ШВ' -- Windrunner Spire
+L.KEYSTONE_NAMES[558] = 'ТМ' -- Magister's Terrace (new)
+L.KEYSTONE_NAMES[559] = 'УНЗ' -- Nexus-Point Xenas
+L.KEYSTONE_NAMES[560] = 'ПМ' -- Miasara Caverns
+L.KEYSTONE_NAMES[583] = 'ПТ' -- Hell (IE Seat of the Triumvirate)
 
 -- Midnight jazz
 L.MN_TIMELINE_HEADER	= "Вы хотите использовать временную шкалу Blizzard или полосы DBM?"

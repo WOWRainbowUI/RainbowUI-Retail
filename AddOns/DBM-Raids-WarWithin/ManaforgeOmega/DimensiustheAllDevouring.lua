@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2691, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260213021933")
+mod:SetRevision("20260218222853")
 mod:SetCreatureID(233824, 241517, 234478)--Yes, they're all used
 mod:SetEncounterID(3135)
 mod:SetBossHPInfoToHighest()--Boss Heals
@@ -14,13 +14,13 @@ mod:RegisterCombat("combat")
 
 --Midnight private aura replacements
 --TODO, add Null Binding? spam can't be controlled
-mod:AddPrivateAuraSoundOption(1228206, true, 1228206, 1)
-mod:AddPrivateAuraSoundOption(1243577, true, 1243577, 1)
-mod:AddPrivateAuraSoundOption(1232394, true, 1232394, 1)--P3 gravity Well
-mod:AddPrivateAuraSoundOption(1234243, true, 1234243, 1)
-mod:AddPrivateAuraSoundOption(1234244, true, 1234244, 1)--P2 Inverse gravity
-mod:AddPrivateAuraSoundOption(1249425, true, 1249425, 1)
-mod:AddPrivateAuraSoundOption(1237696, true, 1237696, 1)--GTFO
+mod:AddPrivateAuraSoundOption(1228206, true, 1228206, 1, 1)
+mod:AddPrivateAuraSoundOption(1243577, true, 1243577, 1, 1)
+mod:AddPrivateAuraSoundOption(1232394, true, 1232394, 1, 1)--P3 gravity Well
+mod:AddPrivateAuraSoundOption(1234243, true, 1234243, 1, 1)
+mod:AddPrivateAuraSoundOption(1234244, true, 1234244, 1, 1)--P2 Inverse gravity
+mod:AddPrivateAuraSoundOption(1249425, true, 1249425, 1, 1)
+mod:AddPrivateAuraSoundOption(1237696, true, 1237696, 1, 2)--GTFO
 
 mod:RegisterEventsInCombat(
 	--For whatever reason ENCOUNTER_TIMELINE_EVENT_REMOVED is unrecognized by api LuaLS
