@@ -234,8 +234,9 @@ function addonTable.Display.AurasManagerMixin:DoesBuffFilterIn(auraInstanceID, d
   elseif self.isPlayer then
     return self.knownImportant[auraInstanceID] and not (
       C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|RAID_IN_COMBAT") and
-      C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|BIG_DEFENSIVE")) and
+      C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|BIG_DEFENSIVE") and
       C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|EXTERNAL_DEFENSIVE")
+    )
   else
     return self.knownImportant[auraInstanceID] and not C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter)
   end
@@ -603,6 +604,37 @@ legacy.crowdControlSpells = {
 [326450] = true,
 [117405] = true,
 [236077] = true,
+--adding druid ccs ids
+--pounce
+[9005] = true,
+[9823] = true,
+[9827] = true,
+[27006] = true,
+--roots
+[339] = true,
+[1062] = true,
+[5195] = true,
+[5196] = true,
+[9852] = true,
+[9853] = true,
+[26989] = true,
+--hibernate
+[2637] = true,
+[18657] = true,
+[18658] = true,
+--maim
+[22570] = true,
+--soothe animal
+[2908] = true,
+[8955] = true,
+[9901] = true,
+[26995] = true,
+--cyclone
+[33786] = true,
+--bash
+[5211] = true,
+[6798] = true,
+[8983] = true,
 }
 
 legacy.blacklistedBuffs = {
