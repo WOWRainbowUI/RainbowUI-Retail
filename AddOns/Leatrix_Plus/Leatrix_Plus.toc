@@ -1,33 +1,20 @@
-## Interface: 120000, 120001
+## Interface: 120001
 
 ## Title: Leatrix Plus
-## Title-zhCN: Leatrix Plus [|cffeda55f功能百宝箱|r]
-## Title-zhTW: Leatrix Plus [|cffeda55f功能百寶箱|r]
-
 ## Notes: curseforge.com/wow/addons/leatrix-plus
-## Notes-deDE: curseforge.com/wow/addons/leatrix-plus
-## Notes-frFR: curseforge.com/wow/addons/leatrix-plus
-## Notes-esES: curseforge.com/wow/addons/leatrix-plus
-## Notes-esMX: curseforge.com/wow/addons/leatrix-plus
-## Notes-ptBR: curseforge.com/wow/addons/leatrix-plus
-## Notes-itIT: curseforge.com/wow/addons/leatrix-plus
-## Notes-ruRU: curseforge.com/wow/addons/leatrix-plus
-## Notes-koKR: curseforge.com/wow/addons/leatrix-plus
-## Notes-zhTW: curseforge.com/wow/addons/leatrix-plus
-## Notes-zhCN: curseforge.com/wow/addons/leatrix-plus
 
-## Version: 12.0.03
+## Version: 12.0.05
 ## Author: Leatrix
 ## SavedVariables: LeaPlusDB
 ## LoadSavedVariablesFirst: true
 
 ## AddonCompartmentFunc:LeaPlusGlobalMiniBtnClickFunc
-
 ## IconTexture: Interface\HELPFRAME\ReportLagIcon-Movement
-
+## X-Curse-Project-ID: 94855
 ## OptionalDeps: Leatrix_enUS, ElvUI
 
-## X-Curse-Project-ID: 94855
+## Title-zhCN: Leatrix Plus [|cffeda55f功能百宝箱|r]
+## Title-zhTW: Leatrix Plus [|cffeda55f功能百寶箱|r]
 
 Leatrix_Plus_Library.lua
 Leatrix_Plus_Locale.lua
