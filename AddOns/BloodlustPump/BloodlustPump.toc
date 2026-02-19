@@ -2,7 +2,7 @@
 ## Title: |cffC69B6DBloodlustPump|r
 ## Notes: Lightweight Baby! Workout motivation for pumpers.
 ## Author: Kongscandikk
-## Version: 1.0.6
+## Version: 1.0.6 Fix
 ## SavedVariables: BloodlustpumpDB
 ## IconTexture: Interface\AddOns\BloodlustPump\Images\icon
 
