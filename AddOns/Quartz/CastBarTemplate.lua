@@ -57,17 +57,17 @@ local function call(obj, method, ...)
 	end
 end
 
--- Helper: Cancel native timer animation
+-- Cancel native timer animation and reclaim bar control
 local function CancelTimerAnimation(self)
-	if self.hasSecretTiming and self.Bar.SetTimerDuration and C_DurationUtil and C_DurationUtil.CreateDuration then
-		local zeroDuration = C_DurationUtil.CreateDuration(0)
-		self.Bar:SetTimerDuration(zeroDuration, Enum.StatusBarInterpolation.Immediate, Enum.StatusBarTimerDirection.ElapsedTime)
+	if self.hasSecretTiming then
+		-- Reclaim value control via SetMinMaxValues.
+		self.Bar:SetMinMaxValues(0, 1)
 	end
 	self.hasSecretTiming = nil
 	self.durationObject = nil
 end
 
--- Helper: Apply backdrop settings
+-- Apply backdrop settings
 local function ApplyBackdropSettings(self, db)
 	self.backdrop.edgeFile = media:Fetch("border", db.border)
 	self.backdropInfo = self.backdrop
@@ -80,7 +80,7 @@ local function ApplyBackdropSettings(self, db)
 	self:SetBackdropColor(r, g, b, Quartz3.db.profile.backgroundalpha)
 end
 
--- Helper: Common cleanup after cast ends
+-- Common cleanup after cast ends
 local function CleanupCastEnd(self)
 	self.TimeText:SetText("")
 	if self.NoInterruptOverlay then
@@ -165,6 +165,8 @@ local function OnUpdate(self)
 		end
 
 		if currentTime > endTime then
+			self.Bar:SetValue(self.casting and 1.0 or 0)
+			self.Bar:SetStatusBarColor(unpack(Quartz3.db.profile.completecolor))
 			self.casting, self.channeling = nil, nil
 			self.fadeOut = true
 			self.stopTime = currentTime
@@ -203,7 +205,7 @@ end
 -- Template Methods
 
 function CastBarTemplate:SetNameText(name)
-	if self.config.targetname and self.targetName and self.targetName ~= "" then
+	if self.config.targetname and self.targetName and (issecretvalue(self.targetName) or self.targetName ~= "") then
 		if self.config.targetnamestyle == "on" then
 			self.Text:SetFormattedText(L["%s on %s"], name, self.targetName)
 		else
@@ -314,9 +316,17 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 		notInterruptible = false
 	end
 
-	local isChargeSpell = numStages and numStages > 0
+	-- endTime/numStages can be secret for other players' casts.
+	-- Revisit if Blizzard provides a proper API for empower duration with secrets.
+	local hasSecret = issecretvalue(startTime) or issecretvalue(endTime)
+	local isChargeSpell
+	if hasSecret then
+		isChargeSpell = numStages and (not issecretvalue(numStages) and numStages > 0 or false)
+	else
+		isChargeSpell = numStages and numStages > 0
+	end
 
-	if isChargeSpell then
+	if isChargeSpell and not hasSecret then
 		endTime = endTime + GetUnitEmpowerHoldAtMaxTime(self.unit)
 	end
 
@@ -328,8 +338,8 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 		self.casting, self.channeling, self.chargeSpell = nil, true, nil
 	end
 
-	-- Check if startTime/endTime are secret values
-	if issecretvalue(startTime) or issecretvalue(endTime) then
+	-- Handle secret timing values
+	if hasSecret then
 		self.hasSecretTiming = true
 		
 		-- Try to get Duration object for animation
@@ -603,6 +613,13 @@ function CastBarTemplate:ApplySettings()
 	end
 	local normaltimewidth = self.TimeText:GetStringWidth()
 	self.TimeText:SetText(temptext)
+
+	-- GetStringWidth() returns a secret value when the FontString has secret anchoring
+	-- (from StatusBar using SetTimerDuration during an active cast).
+	-- Fall back to a font-size-based heuristic (same pattern as EnemyCasts.lua).
+	if issecretvalue(normaltimewidth) then
+		normaltimewidth = db.timefontsize * (db.hidecasttime and 3 or 6)
+	end
 
 	if db.hidenametext then
 		self.Text:Hide()

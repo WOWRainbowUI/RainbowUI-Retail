@@ -658,6 +658,11 @@ do
 		local normaltimewidth = timetext:GetStringWidth()
 		timetext:SetText(temptext)
 
+		-- GetStringWidth() may return a secret value if the bar has secret anchoring.
+		if issecretvalue(normaltimewidth) then
+			normaltimewidth = db.mirrorfontsize * 3
+		end
+
 		local text = bar.Text
 		if db.mirrornametext then
 			text:Show()

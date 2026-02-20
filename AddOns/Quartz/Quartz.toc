@@ -2,10 +2,10 @@
 ## Interface: 11508, 20505, 50503, 120001
 ## Notes: Modular casting bar.
 ## Author: Nevcairiel, Nymbia
-## Version: 3.7.20
+## Version: 3.7.22
 ## X-License: GPL v2
 ## X-Credits: Ammo (some code based on PitBull_CastBar), kergoth (Tradeskill Merge module idea), Roartindon (Lag Embed mode for Latency module)
-## X-Curse-Project-ID: 4558
+## X-Curse-Project-ID: 1456942
 ## X-WoWI-ID: 7158
 
 ## Title-ruRU: Кварц
@@ -42,7 +42,7 @@ modules\GCD.lua
 modules\Buff.lua
 modules\Mirror.lua
 modules\Timer.lua
-modules\Swing.lua
+#modules\Swing.lua  # Disabled: broken in 12.0 (secret values)
 modules\Interrupt.lua
 modules\Range.lua
 modules\Flight.lua
