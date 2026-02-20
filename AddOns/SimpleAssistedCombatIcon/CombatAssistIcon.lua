@@ -1,6 +1,7 @@
 local addonName, addon = ...
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title")
 
+local _G                = _G
 local GetTime           = GetTime
 local GetActionInfo     = GetActionInfo
 local GetBindingKey     = GetBindingKey
@@ -16,17 +17,20 @@ local C_StringUtil      = C_StringUtil
 local LSM = LibStub("LibSharedMedia-3.0")
 local LKB = LibStub("LibKeyBound-CUSTOM")
 local ACR = LibStub("AceConfigRegistry-3.0")
+local LAB = LibStub("LibActionButton-1.0", true)
 local Masque = LibStub("Masque",true)
 
 local HasBartender = false
 local HasDominos = false
 local HasElvUI = false
 
-local AddonOverrideActionBySlot 
-local AddonOverrideButtonByAction
+local OverrideBindingByButton
+local BindingByButton = {}
+local SpellIDByButton = {}
+local ButtonsBySlot = {}
+local SlotByButton = {}
 
-local LookupActionBySlot = {}
-local LookupButtonByAction = {}
+local rotationalSpells = {}
 
 local Colors = {
 	UNLOCKED = CreateColor(0, 1, 0, 1.0),
@@ -51,95 +55,168 @@ local function IsValidSpellID(spellID)
             and C_Spell.DoesSpellExist(spellID)
 end
 
-local function IsRelevantAction(actionType, subType, slot)
-    return (actionType == "macro" and subType == "spell")
-        or (actionType == "spell" and subType ~= "assistedcombat")
-        or (slot > 900)
+local function IsRotationalSpell(spellID)
+    return rotationalSpells[spellID] or false
 end
 
-local function GetBindingForAction(action)
-    if not action then return nil end
+local function GetSpellIDFromActionID(action)
+    if not action then return end
 
-    local key = GetBindingKey(action)
-    if not key then return nil end
+    local actionType, id, subType = GetActionInfo(action)
 
-    return LKB:ToShortKey(key)
-end
-
-local function GetStanceSlotBySpellID(spellID)
-    local numForms = GetNumShapeshiftForms() or 0
-    for i = 1, numForms do
-        local _, _, _, formID = GetShapeshiftFormInfo(i)
-        if formID == spellID then
-            return {i + 900}
-        end
+    if (actionType == "macro" and subType == "spell")
+    or (actionType == "spell" and subType ~= "assistedcombat")
+    then
+        return id
     end
 
     return nil
 end
 
-local function GetConsolePortBinding(slots)
-    if not slots then return end
-    
-    for _, slot in ipairs(slots) do
-        local actionType, _, subType = GetActionInfo(slot)
-        if IsRelevantAction(actionType, subType, slot) then
-            local bindingID = ConsolePort:GetActionBinding(slot)
-            local binding = ConsolePort:GetFormattedBindingOwner(bindingID)
-            if binding and binding ~= "" then return binding end
-        end
-    end
+local function GetBindingForAction(action)
+    if not action then return end
+
+    local key = GetBindingKey(action)
+    if not key then return end
+
+    local text = LKB:ToShortKey(key)
+
+    if text then return text end
 end
 
-local function GetBindingForSlots(slots)
-    if not slots then return end
+local function GetButtonsForSpellID(spellID)
+    if not IsValidSpellID(spellID) then return end
+    local baseSpellID = C_SpellBook.FindBaseSpellByID(spellID)
 
-    for _, slot in ipairs(slots) do
-        local actionType, _, subType = GetActionInfo(slot)
-        if IsRelevantAction(actionType, subType, slot) then
-            local action =  LookupActionBySlot[slot]
-            local buttonName = LookupButtonByAction[action]
-
-            local buttonFrame = _G[buttonName]            
-            local text = GetBindingForAction(action)
-
-            if not text or buttonFrame and buttonFrame.action ~= slot then
-                action = AddonOverrideActionBySlot and AddonOverrideActionBySlot[slot]
-                buttonName = AddonOverrideButtonByAction and AddonOverrideButtonByAction[action]
-                local ovrText = GetBindingForAction(action)
-
-                if ovrText then
-                    buttonFrame = _G[buttonName]
-                    text = ovrText
-                end
-            end
-            
-            if buttonFrame and (slot > 900 or
-            buttonFrame.action == slot) and text then
-                return text, slot, buttonName, action
-            end
+    local buttons = {}
+    for buttonName, buttonSpellID in pairs(SpellIDByButton) do
+        local frame = _G[buttonName]
+        if frame and buttonSpellID == baseSpellID then
+            table.insert(buttons, buttonName)
         end
+    end
+    
+    return buttons
+end
+
+local function GetSpellIDFromButton(buttonName)
+    local actionButton = _G[buttonName]
+    if not actionButton then return end
+
+    local spellID
+    if actionButton.spellID then
+        spellID = actionButton.spellID
+    elseif actionButton.action then
+        spellID = GetSpellIDFromActionID(actionButton.action)
+    else
+        local num = buttonName:find("Stance", 1, true) and tonumber(buttonName:match("(%d+)$"))
+        if num then 
+            local _, _, _, formID = GetShapeshiftFormInfo(num)
+            spellID = formID
+        end
+    end
+
+    return spellID
+end
+
+local function UpdateButtonSpellID(buttonName)
+    if not buttonName then return end
+
+    local spellID = GetSpellIDFromButton(buttonName)
+
+    local baseSpellID = spellID and C_SpellBook.FindBaseSpellByID(spellID)
+    local isRotationSpell = IsRotationalSpell(spellID) or IsRotationalSpell(baseSpellID)
+
+    SpellIDByButton[buttonName] = isRotationSpell and baseSpellID or nil
+end
+
+local function UpdateAllButtonsSpellID()
+    for buttonName, buttonSpellID in pairs(SpellIDByButton) do
+        UpdateButtonSpellID(buttonName)
     end
 end
 
 local function GetKeyBindForSpellID(spellID)
     if not IsValidSpellID(spellID) then return end
 
-    local baseSpellID = C_SpellBook.FindBaseSpellByID(spellID)
-    local slots = C_ActionBar.FindSpellActionButtons(baseSpellID)
-    local text, slot, buttonName, action
+    local override = addon.db.profile.Keybind.overrides[spellID]
+    if override then return override end
 
-    if ConsolePort and addon.db.profile.Keybind.ConsolePort then 
-        text = GetConsolePortBinding(slots)
+    local buttons = GetButtonsForSpellID(spellID)
+    if not buttons then return end
+
+    for _,buttonName in ipairs(buttons) do
+        if ConsolePort and addon.db.profile.Keybind.ConsolePort then 
+            local button = _G[buttonName]
+            if button and button.action then 
+                local bindingID = ConsolePort:GetActionBinding(button.action)
+                local binding = ConsolePort:GetFormattedBindingOwner(bindingID)
+                if binding and binding ~= "" then return binding end
+            end
+        end
+
+        local buttonAction = BindingByButton[buttonName]
+        local text = GetBindingForAction(buttonAction)
+        if not text and OverrideBindingByButton then 
+            buttonAction = OverrideBindingByButton[buttonName]
+            text = GetBindingForAction(buttonAction)
+        end
+
         if text then return text end
     end
+end
 
-    text, slot, buttonName, action = GetBindingForSlots(slots, spellID)
-    if text then return text, slot, buttonName, action end
-    
-    slots = GetStanceSlotBySpellID(spellID)
-    text, slot, buttonName, action = GetBindingForSlots(slots)
-    return text, slot, buttonName, action
+local function AddButtonToSlot(buttonName, slot)
+    local oldSlot = SlotByButton[buttonName]
+    if not slot or oldSlot == slot then return end
+
+    if oldSlot then
+        local oldButtons = ButtonsBySlot[oldSlot]
+        if oldButtons then
+            oldButtons[buttonName] = nil
+            if not next(oldButtons) then
+                ButtonsBySlot[oldSlot] = nil
+            end
+        end
+    end
+
+    SlotByButton[buttonName] = slot
+    ButtonsBySlot[slot] = ButtonsBySlot[slot] or {}
+    ButtonsBySlot[slot][buttonName] = true
+end
+
+local function OnActionSlotChanged(slot)
+    if not slot then return end
+
+    local buttons = ButtonsBySlot[slot]
+    if not buttons then return end
+
+    for buttonName in pairs(buttons) do
+        UpdateButtonSpellID(buttonName)
+    end
+end
+
+local function OnActionChanged(self, button, action, ...)
+    if not button then return end
+
+    local buttonName = button:GetName()
+    if not buttonName then return end
+
+    C_Timer.After(0, function() 
+        AddButtonToSlot(buttonName, button.action)
+        UpdateButtonSpellID(buttonName)
+    end)
+end
+
+local function OnSpellsChanged()
+    local spells = C_AssistedCombat.GetRotationSpells()
+	for _, spellID in ipairs(spells) do
+        if C_SpellBook.IsSpellInSpellBook(spellID) then
+		    rotationalSpells[spellID] = true
+        end
+	end
+
+    UpdateAllButtonsSpellID()
 end
 
 local function HideLikelyMasqueRegions(frame)
@@ -151,8 +228,13 @@ local function HideLikelyMasqueRegions(frame)
     end
 end
 
-local function LoadActionSlotMap()
+local function LoadRotationalSpells()
+	wipe(rotationalSpells)
 
+    OnSpellsChanged()
+end
+
+local function LoadActionSlotMap()
     if C_AddOns.IsAddOnLoaded("ElvUI") then
         local E = unpack(ElvUI)
         HasElvUI = E and E.private and E.private.actionbar and E.private.actionbar.enable or false
@@ -164,12 +246,14 @@ local function LoadActionSlotMap()
         DEFAULT_CHAT_FRAME:AddMessage("|cff4cc9f0SACI|r: |cffffa000 Warning! More than 1 Action Bar addon is loaded! Keybinds will be inconsistent!|r")
     end
 
+    local NUM_SHAPESHIFT = GetNumShapeshiftForms()
+
     if HasDominos then
         local DominosActionSlotMap = {
-            { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="DominosActionButton",      start = 1,  last = 12}, --Bar 1 
+            { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="DominosActionButton",      start = 1,  last = 12}, --Bar 1
             { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="DominosActionButton",      start = 13, last = 24}, --Bar 2
             { actionPrefix = "MULTIACTIONBAR3BUTTON", buttonPrefix ="MultiBarRightButton",      start = 25, last = 36}, --Bar 3
-            { actionPrefix = "MULTIACTIONBAR4BUTTON", buttonPrefix ="MultiBarLeftButton",       start = 37, last = 48}, --Bar 4 
+            { actionPrefix = "MULTIACTIONBAR4BUTTON", buttonPrefix ="MultiBarLeftButton",       start = 37, last = 48}, --Bar 4
             { actionPrefix = "MULTIACTIONBAR2BUTTON", buttonPrefix ="MultiBarBottomRightButton",start = 49, last = 60}, --Bar 5 
             { actionPrefix = "MULTIACTIONBAR1BUTTON", buttonPrefix ="MultiBarBottomLeftButton", start = 61, last = 72}, --Bar 6
             { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="DominosActionButton",      start = 73, last = 84}, --Bar 7
@@ -180,7 +264,7 @@ local function LoadActionSlotMap()
             { actionPrefix = "MULTIACTIONBAR5BUTTON", buttonPrefix ="MultiBar5Button",          start = 145,last = 156},--Bar 12
             { actionPrefix = "MULTIACTIONBAR6BUTTON", buttonPrefix ="MultiBar6Button",          start = 157,last = 168},--Bar 13
             { actionPrefix = "MULTIACTIONBAR7BUTTON", buttonPrefix ="MultiBar7Button",          start = 169,last = 180},--Bar 14
-            { actionPrefix = "SHAPESHIFTBUTTON",      buttonPrefix ="DominosStanceButton",      start = 901,last = 907},--Stance Bar. Dummy slots
+            { actionPrefix = "SHAPESHIFTBUTTON",      buttonPrefix ="DominosStanceButton",      start = 901,last = NUM_SHAPESHIFT+900},--Stance Bar. Dummy slots
         }
 
         local DominosOverrideActionPattern = "CLICK %s%s:HOTKEY"
@@ -196,20 +280,36 @@ local function LoadActionSlotMap()
 
         for _, info in ipairs(DominosActionSlotMap) do
             for slot = info.start, info.last do
-                local id = slot - info.start + 1
-                LookupActionBySlot[slot] = info.actionPrefix..id
-                LookupButtonByAction[LookupActionBySlot[slot]] = info.buttonPrefix..id
+                local index = slot - info.start + 1
+                local buttonName = info.buttonPrefix .. index
+
+                BindingByButton[buttonName] = info.actionPrefix .. index
+                
+                UpdateButtonSpellID(buttonName)
+                local button = _G[buttonName]
+                if button and button.action then 
+                    AddButtonToSlot(buttonName, button.action)
+                end
             end
         end
 
-        AddonOverrideActionBySlot = {}
-        AddonOverrideButtonByAction = {}
+        OverrideBindingByButton = {}
         for _, info in ipairs(DominosOverrideSlotMap) do
             for slot = info.start, info.last do
-                AddonOverrideActionBySlot[slot] = DominosOverrideActionPattern:format(DominosOverrideButtonPrefix,slot)
-                AddonOverrideButtonByAction[AddonOverrideActionBySlot[slot]] = DominosOverrideButtonPrefix..slot
+                local index = slot - info.start + 1
+                local buttonName = DominosOverrideButtonPrefix .. slot
+
+                OverrideBindingByButton[buttonName] = DominosOverrideActionPattern:format(DominosOverrideButtonPrefix,slot)
+                UpdateButtonSpellID(buttonName)
+                local button = _G[buttonName]
+                if button and button.action then 
+                    AddButtonToSlot(buttonName, button.action)
+                end
             end
         end
+
+        hooksecurefunc(Dominos.ActionButtons, "OnActionChanged", function(self, name, value, prevValue) OnActionChanged(self,_G[name], value) end)
+
     elseif HasBartender then
         local Bartender4ActionSlotMap = {
             { actionPrefix = "ACTIONBUTTON",id= true, buttonPrefix ="BT4Button",  start = 1,  last = 12}, --Bar 1 
@@ -226,32 +326,48 @@ local function LoadActionSlotMap()
             { actionPrefix = "MULTIACTIONBAR5BUTTON", buttonPrefix ="BT4Button",  start = 145,last = 156},--Bar 13
             { actionPrefix = "MULTIACTIONBAR6BUTTON", buttonPrefix ="BT4Button",  start = 157,last = 168},--Bar 14
             { actionPrefix = "MULTIACTIONBAR7BUTTON", buttonPrefix ="BT4Button",  start = 169,last = 180},--Bar 15
-            { actionPrefix = "SHAPESHIFTBUTTON",      buttonPrefix ="BT4StanceButton",  start = 901,last = 907},--Stance Bar. Dummy slots
+            { actionPrefix = "SHAPESHIFTBUTTON", id=true, buttonPrefix ="BT4StanceButton",  start = 901,last = NUM_SHAPESHIFT+900},--Stance Bar. Dummy slots
         }
 
         local Bartender4OverrideSlotMap = {
             { actionPattern = "CLICK %s%s:Keybind",     buttonPrefix ="BT4Button",       start = 1,  last = 180}, --Action Bars
-            { actionPattern = "CLICK %s%s:LeftButton",  buttonPrefix ="BT4StanceButton", start = 901,last = 907}, --Stance Bar. Dummy slots
+            { actionPattern = "CLICK %s%s:LeftButton",  buttonPrefix ="BT4StanceButton", start = 901,last = NUM_SHAPESHIFT+900}, --Stance Bar. Dummy slots
         }
 
         for _, info in ipairs(Bartender4ActionSlotMap) do
             for slot = info.start, info.last do
-                local id =slot - info.start + 1
-                local button = info.id and id or slot
-                
-                LookupActionBySlot[slot] = info.actionPrefix..id
-                LookupButtonByAction[LookupActionBySlot[slot]] = info.buttonPrefix..button
+                local id = slot - info.start + 1
+                local index = info.id and id or slot
+                local buttonName = info.buttonPrefix .. index
+
+                BindingByButton[buttonName] = info.actionPrefix .. id
+                UpdateButtonSpellID(buttonName)
+                local button = _G[buttonName]
+                if button and button.action then 
+                    AddButtonToSlot(buttonName, button.action)
+                end
             end
         end
 
-        AddonOverrideActionBySlot = {}
-        AddonOverrideButtonByAction = {}
+        OverrideBindingByButton = {}
         for _, info in ipairs(Bartender4OverrideSlotMap) do
             for slot = info.start, info.last do
-                AddonOverrideActionBySlot[slot] = info.actionPattern:format(info.buttonPrefix, slot)
-                AddonOverrideButtonByAction[AddonOverrideActionBySlot[slot]] = info.buttonPrefix..slot
+                local id = slot - info.start + 1
+                local index = slot < 900 and id or slot
+                local buttonName = info.buttonPrefix..index
+                
+                OverrideBindingByButton[buttonName] = info.actionPattern:format(info.buttonPrefix, index)
+                UpdateButtonSpellID(buttonName)
+                local button = _G[buttonName]
+                if button and button.action then 
+                    AddButtonToSlot(buttonName, button.action)
+                end
             end
         end
+
+        LAB = LibStub("LibActionButton-1.0")
+        LAB.RegisterCallback(addon, "OnButtonUpdate", OnActionChanged)
+
     elseif HasElvUI then     
         local ElvUIActionSlotMap = {
             { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ElvUI_Bar1Button",    start = 1,  last = 12}, --Bar 1 
@@ -268,7 +384,7 @@ local function LoadActionSlotMap()
             { actionPrefix = "MULTIACTIONBAR5BUTTON", buttonPrefix ="ElvUI_Bar13Button",   start = 145,last = 156},--Bar 13
             { actionPrefix = "MULTIACTIONBAR6BUTTON", buttonPrefix ="ElvUI_Bar14Button",   start = 157,last = 168},--Bar 14
             { actionPrefix = "MULTIACTIONBAR7BUTTON", buttonPrefix ="ElvUI_Bar15Button",   start = 169,last = 180},--Bar 15
-            { actionPrefix = "SHAPESHIFTBUTTON",      buttonPrefix ="ElvUI_StanceBarButton", start = 901,last = 907},--Stance Bar. Dummy slots
+            { actionPrefix = "SHAPESHIFTBUTTON",      buttonPrefix ="ElvUI_StanceBarButton", start = 901,last = NUM_SHAPESHIFT+900},--Stance Bar. Dummy slots
         }
 
         local ElvUIOverrideSlotMap = {
@@ -282,20 +398,35 @@ local function LoadActionSlotMap()
         for _, info in ipairs(ElvUIActionSlotMap) do
             for slot = info.start, info.last do
                 local id = slot - info.start + 1
-                LookupActionBySlot[slot] = info.actionPrefix..id
-                LookupButtonByAction[LookupActionBySlot[slot]] = info.buttonPrefix..id
+                local buttonName = info.buttonPrefix .. id
+
+                BindingByButton[buttonName] = info.actionPrefix .. id
+                UpdateButtonSpellID(buttonName)
+                local button = _G[buttonName]
+                if button and button.action then 
+                    AddButtonToSlot(buttonName, button.action)
+                end
             end
         end
 
-        AddonOverrideActionBySlot = {}
-        AddonOverrideButtonByAction = {}
+        OverrideBindingByButton = {}
         for _, info in ipairs(ElvUIOverrideSlotMap) do
             for slot = info.start, info.last do
                 local id = slot - info.start + 1
-                AddonOverrideActionBySlot[slot] = info.actionPrefix..id
-                AddonOverrideButtonByAction[AddonOverrideActionBySlot[slot]] = info.buttonPrefix..id
+                local buttonName = info.buttonPrefix..id
+                
+                OverrideBindingByButton[buttonName] = info.actionPrefix..id
+                UpdateButtonSpellID(buttonName)
+                local button = _G[buttonName]
+                if button and button.action then 
+                    AddButtonToSlot(buttonName, button.action)
+                end
             end
         end
+
+        LAB = LibStub("LibActionButton-1.0-ElvUI")
+        LAB.RegisterCallback(addon, "OnButtonUpdate", OnActionChanged)
+
     else
         local DefaultActionSlotMap = {
             --Default UI Slot mapping https://warcraft.wiki.gg/wiki/Action_slot
@@ -310,27 +441,35 @@ local function LoadActionSlotMap()
             { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 97, last = 108},--Class Bar 3
             { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 109,last = 120},--Class Bar 4
             { actionPrefix = "ACTIONBUTTON",          buttonPrefix ="ActionButton",             start = 121,last = 132},--Action Bar 1 (Skyriding)
-          --{ actionPrefix = "UNKNOWN",               buttonPrefix ="",                         start = 133,last = 144},--Unknown
             { actionPrefix = "MULTIACTIONBAR5BUTTON", buttonPrefix ="MultiBar5Button",          start = 145,last = 156},--Action Bar 6
             { actionPrefix = "MULTIACTIONBAR6BUTTON", buttonPrefix ="MultiBar6Button",          start = 157,last = 168},--Action Bar 7
             { actionPrefix = "MULTIACTIONBAR7BUTTON", buttonPrefix ="MultiBar7Button",          start = 169,last = 180},--Action Bar 8
-            { actionPrefix = "SHAPESHIFTBUTTON",      buttonPrefix ="StanceButton",             start = 901,last = 907},--Stance Bar. Dummy slots
+            { actionPrefix = "SHAPESHIFTBUTTON",      buttonPrefix ="StanceButton",             start = 901,last = NUM_SHAPESHIFT+900},--Stance Bar. Dummy slots
         }
 
         for _, info in ipairs(DefaultActionSlotMap) do
             for slot = info.start, info.last do
                 local index = slot - info.start + 1
-                LookupActionBySlot[slot] = info.actionPrefix .. index
-                LookupButtonByAction[LookupActionBySlot[slot]] = info.buttonPrefix .. index
+                local buttonName = info.buttonPrefix .. index
+                
+                BindingByButton[buttonName] = info.actionPrefix .. index
+                AddButtonToSlot(buttonName, slot)
+                UpdateButtonSpellID(buttonName)
             end
         end
+
+        EventRegistry:RegisterCallback("ActionButton.OnActionChanged", OnActionChanged)
     end
+
+    return not HasBartender and not HasDominos and not HasElvUI
 end
+
 
 AssistedCombatIconMixin = {}
 
 function AssistedCombatIconMixin:OnLoad()
     self:RegisterEvent("PLAYER_LOGIN")
+    self:RegisterEvent("SPELLS_CHANGED")
     self:RegisterEvent("SPELL_RANGE_CHECK_UPDATE")
     self:RegisterEvent("SPELL_UPDATE_COOLDOWN")
     self:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -341,6 +480,7 @@ function AssistedCombatIconMixin:OnLoad()
     self:RegisterEvent("ROLE_CHANGED_INFORM")
     self:RegisterEvent("GROUP_ROSTER_UPDATE")
     self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+    self:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
 
     self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     self:RegisterEvent("UNIT_EXITED_VEHICLE")
@@ -350,6 +490,7 @@ function AssistedCombatIconMixin:OnLoad()
 
     self.spellID = 61304
     self.updateInterval = tonumber(C_CVar.GetCVar("assistedCombatIconUpdateRate")) or 0.25
+    self.isDefaultUI = true
     self.lastTickTime = GetTime()
 
     self.Keybind:SetParent(self.Overlay)
@@ -393,7 +534,6 @@ function AssistedCombatIconMixin:OnLoad()
 end
 
 function AssistedCombatIconMixin:OnAddonLoaded()
-    --C_CVar.SetCVar("assistedCombatIconUpdateRate",0.25)
     self.db = addon.db.profile
 end
 
@@ -415,6 +555,8 @@ function AssistedCombatIconMixin:OnEvent(event, ...)
                 self.lockBtn:SetShown(false)
             end
         end
+    elseif event == "ACTIONBAR_SLOT_CHANGED" then
+        OnActionSlotChanged(...)
     elseif event == "PLAYER_REGEN_ENABLED" and self.db.display.IN_COMBAT then
         self:UpdateVisibility()
         self:Update()
@@ -428,15 +570,19 @@ function AssistedCombatIconMixin:OnEvent(event, ...)
         self:UpdateVisibility()
         self:Update()
     elseif (event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE") and self.db.display.HideInVehicle then
-        local unit = ...
-        if unit == "player" then 
+        if ... == "player" then 
             self:UpdateVisibility()
             self:Update()
         end
+    elseif event == "PLAYER_SPECIALIZATION_CHANGED" then
+        LoadRotationalSpells()        
+    elseif event == "SPELLS_CHANGED" then
+        OnSpellsChanged()
     elseif event == "PLAYER_LOGIN" then
-        LoadActionSlotMap()
+        LoadRotationalSpells()
+        self.isDefaultUI = LoadActionSlotMap()
         self:ApplyOptions()
-        
+
         if self.db.enabled then 
             self:Start()
         else
@@ -446,7 +592,7 @@ function AssistedCombatIconMixin:OnEvent(event, ...)
     elseif event == "CVAR_UPDATE" then 
         local arg1, arg2 = ...
         if arg1 =="assistedCombatIconUpdateRate" then
-            self.combatUpdateInterval = tonumber(arg2) or self.combatUpdateInterval
+            self.updateInterval = tonumber(arg2) or self.updateInterval
         end
     end
 end
@@ -477,8 +623,8 @@ function AssistedCombatIconMixin:Tick()
     self:UpdateVisibility()
 
     if self:IsShown() then 
-        local nextSpell = C_AssistedCombat.GetNextCastSpell()
-        if nextSpell and IsValidSpellID(nextSpell) and nextSpell ~= self.spellID then
+        local nextSpell = C_AssistedCombat.GetNextCastSpell(self.db.checkForVisibleButton and self.isDefaultUI)
+        if IsValidSpellID(nextSpell) and nextSpell ~= self.spellID then
             C_Spell.EnableSpellRangeCheck(self.spellID, false)
             self.spellID = nextSpell
             self:UpdateCooldown()
@@ -515,6 +661,7 @@ function AssistedCombatIconMixin:UpdateVisibility()
     if display.ONLY_ALL_CONDITIONS then
         if     (display.HOSTILE_TARGET and not UnitCanAttack("player", "anyenemy"))
             or (display.IN_COMBAT and not InCombatLockdown())
+            or (display.HideInVehicle and C_PetBattles.IsInBattle())
             or (display.HideInVehicle and UnitInVehicle("player"))
             or (display.HideAsHealer and UnitGroupRolesAssigned("player") == "HEALER")
             or (display.HideOnMount and IsMounted())
@@ -529,6 +676,7 @@ function AssistedCombatIconMixin:UpdateVisibility()
                     or (not display.IN_COMBAT and not display.HOSTILE_TARGET)
 
         local hide =   (display.HideInVehicle and UnitInVehicle("player"))
+                    or (display.HideInVehicle and C_PetBattles.IsInBattle())
                     or (display.HideAsHealer and UnitGroupRolesAssigned("player") == "HEALER")
                     or (display.HideOnMount and IsMounted())
 
@@ -641,7 +789,7 @@ function AssistedCombatIconMixin:UpdateCooldown()
     local spellID = self.spellID
 
     local cdInfo = self.db.cooldown.showSwipe and C_Spell.GetSpellCooldown(spellID)
-    local chargeInfo = C_Spell.GetSpellCharges(spellID)
+    local chargeInfo = self.db.cooldown.chargeCooldown.showSwipe and C_Spell.GetSpellCharges(spellID)
 
     if cdInfo then
         self.Cooldown.currentCooldownType = COOLDOWN_TYPE_NORMAL
@@ -650,12 +798,12 @@ function AssistedCombatIconMixin:UpdateCooldown()
         self.Cooldown:Clear()
     end
 
-    local charges = (chargeInfo and self.db.cooldown.chargeCooldown.showCount) and chargeInfo.currentCharges or 0
-    self.Count:SetText(C_StringUtil.TruncateWhenZero(charges))
-
-    if chargeInfo and self.db.cooldown.chargeCooldown.showSwipe then
+    if chargeInfo then
+        local charges = (chargeInfo and self.db.cooldown.chargeCooldown.showCount) and chargeInfo.currentCharges or 0
+        self.Count:SetText(C_StringUtil.TruncateWhenZero(charges))
         self.chargeCooldown:SetCooldown(chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration, chargeInfo.chargeModRate)
     else
+        self.Count:SetText(nil)
         self.chargeCooldown:Clear()
     end
 end
@@ -698,32 +846,59 @@ function AssistedCombatIconMixin:OnDragStop()
 end
 
 function AssistedCombatIconMixin:Debug()
-    for i, spellID in ipairs(C_AssistedCombat.GetRotationSpells()) do
-        if C_SpellBook.IsSpellInSpellBook(spellID) then
-            local text, slot, buttonName, action = GetKeyBindForSpellID(spellID)
-            local spellInfo = C_Spell.GetSpellInfo(spellID)
+    for spellID in pairs(rotationalSpells) do
+        local spellInfo = C_Spell.GetSpellInfo(spellID)
+        local baseSpellID = C_SpellBook.FindBaseSpellByID(spellID)
+        local actions = {}
+        local slots = {}
+        local names = {}
+        local keybinds = {}
 
-            print(spellInfo.name, spellID, "\n|cff4cc9f0 | Keybind:|r ", text, "\n|cff4cc9f0 | Action Slot:|r ", slot,"\n|cff4cc9f0 | Binding Action:|r ", action, "\n|cff4cc9f0 | Button Name:|r ", buttonName)
+        local icon = ""
+        if spellInfo and spellInfo.iconID then
+            icon = ("|T%d:16:16:0:0|t "):format(spellInfo.iconID)
         end
+        local spellName = icon ..spellInfo.name
+
+        for buttonName, buttonSpellID in pairs(SpellIDByButton) do
+            if buttonSpellID == baseSpellID then
+                local binding = BindingByButton[buttonName] or OverrideBindingByButton[buttonName]
+                local button = _G[buttonName]
+                if button and button.action then
+                    slots[#slots + 1] = tostring(button.action)
+                end
+                actions[#actions + 1] = tostring(binding)
+                keybinds[#keybinds + 1] = GetBindingForAction(binding)
+                names[#names + 1] = buttonName
+            end
+        end
+
+        local slot  = table.concat(slots, ", ")
+        local action = table.concat(actions, ", ")
+        local name  = table.concat(names, ", ")
+        local text = table.concat(keybinds,", ")
+
+        print(spellName, spellID, baseSpellID, "\n|cff4cc9f0 | Keybind:|r ", text, "\n|cff4cc9f0 | Action Slot:|r ", slot,"\n|cff4cc9f0 | Binding Action:|r ", action, "\n|cff4cc9f0 | Button Name:|r ", name)
+    end
+    
+    if DevTool then
+        DevTool:ClearAllData()
+        DevTool:AddData(rotationalSpells,"SACI-rotationalSpells")
+        DevTool:AddData(SpellIDByButton,"SACI-SpellIDByButton")
+        DevTool:AddData(BindingByButton,"SACI-BindingByButton")
+        DevTool:AddData(OverrideBindingByButton,"SACI-OverrideBindingByButton")
+        DevTool:AddData(ButtonsBySlot,"SACI-ButtonsBySlot")
+        DevTool:AddData(SlotByButton,"SACI-SlotByButton")
     end
 
+    local nextSpell = C_AssistedCombat.GetNextCastSpell(self.db.checkForVisibleButton and self.isDefaultUI)
+    
     print("Addon Status", 
-        ("\n|cff4cc9f0 | Enabled:|r %s\n|cff4cc9f0 | Health:|r %s\n|cff4cc9f0 | Last Tick:|r %s\n|cff4cc9f0 | Current Time:|r %s"):format(
-        self.db.enabled and "Yes" or "No!", 
-        self:IsTickerStalled() and "BAD!!" or "Good!", 
-        string.format("%d", self.lastTickTime), 
+        ("\n|cff4cc9f0 | Enabled:|r %s\n|cff4cc9f0 | Health:|r %s\n|cff4cc9f0 | Current Spell:|r %s\n|cff4cc9f0 | Next Spell:|r %s\n|cff4cc9f0 | Last Tick:|r %s\n|cff4cc9f0 | Current Time:|r %s"):format(
+        self.db.enabled and "Yes" or "No!",
+        self:IsTickerStalled() and "BAD!!" or "Good!",
+        string.format("%d", self.spellID),
+        string.format("%d", nextSpell),
+        string.format("%d", self.lastTickTime),
         string.format("%d", GetTime())))
-end
-
-function AssistedCombatIconMixin:DebugSlots(start, stop)
-    for i=start,stop do
-        local action = LookupActionBySlot[i]
-        local button = LookupButtonByAction[action]
-        print("Slot ", i, "\n|cff4cc9f0 | Action:|r ",action,"\n|cff4cc9f0 | Button:|r ",button)
-        if AddonOverrideActionBySlot and AddonOverrideActionBySlot[i] then
-            local ovrAction = AddonOverrideActionBySlot[i]
-            local ovrButton = AddonOverrideButtonByAction[ovrAction]
-            print("  ", " ", "|cff4cc9f0 | Override Action:|r ",ovrAction,"\n|cff4cc9f0 | Override Button:|r ",ovrButton)
-        end
-    end
 end

@@ -9,6 +9,7 @@ local Masque = LibStub("Masque",true)
 local AceAddon = LibStub("AceAddon-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local AceDB = LibStub("AceDB-3.0")
 
 local DB_VERSION = 4
@@ -19,7 +20,7 @@ local defaults = {
     profile = {
         enabled = true,
         locked = false,
-        lockButtonMouseover = true,
+        checkForVisibleButton = false,
         display = {
             HideInVehicle = false,
             HideInHealerRole = false,
@@ -76,6 +77,7 @@ local defaults = {
             X = -4,
             Y = -4,
             ConsolePort = false,
+            overrides = {},
         }
     }
 }
@@ -270,7 +272,7 @@ function addon:SetupOptions()
                                 type = "toggle",
                                 name = "總是顯示",
                                 order = 1,
-                                width = 1.1,
+                                width = 1,
                                 get = function(info)
                                     return addon.db.profile.display.ALWAYS
                                 end,
@@ -287,7 +289,7 @@ function addon:SetupOptions()
                                 type = "toggle",
                                 name = "騎乘時隱藏",
                                 order = 2,
-                                width = 1.1,
+                                width = 1.2,
                                 get = function(info)
                                     return addon.db.profile.display.HideOnMount
                                 end,
@@ -308,7 +310,7 @@ function addon:SetupOptions()
                                 type = "toggle",
                                 name = "僅在有目標時顯示",
                                 order = 1,
-                                width = 1.1,
+                                width = 1,
                                 get = function(info)
                                     return addon.db.profile.display.HOSTILE_TARGET
                                 end,
@@ -320,9 +322,9 @@ function addon:SetupOptions()
                             },
                             HideInVehicle = {
                                 type = "toggle",
-                                name = "在載具中隱藏",
+                                name = "在載具 / 寵物對戰中隱藏",
                                 order = 2,
-                                width = 1.1,
+                                width = 1.2,
                                 get = function(info)
                                     return addon.db.profile.display.HideInVehicle
                                 end,
@@ -343,7 +345,7 @@ function addon:SetupOptions()
                                 type = "toggle",
                                 name = "在戰鬥中顯示",
                                 order = 1,
-                                width = 1.1,
+                                width = 1,
                                 get = function(info)
                                     return addon.db.profile.display.IN_COMBAT
                                 end,
@@ -358,7 +360,7 @@ function addon:SetupOptions()
                                 name = "在治療者角色時隱藏",
                                 desc = "在以治療者角色進行隊伍內容時隱藏圖示。\n\n|cffffa000單人時仍會顯示圖示。|r\n\n|cffffa000提示：可以在設定檔選項中使用專精設定檔，依據專精來隱藏。|r",
                                 order = 2,
-                                width = 1.1,
+                                width = 1.2,
                                 get = function(info)
                                     return addon.db.profile.display.HideAsHealer
                                 end,
@@ -462,6 +464,28 @@ function addon:SetupOptions()
                         end,
                         order = 3,
                         width = "normal",
+                    },
+                    grp5 = {
+                        type = "group",
+                        name = "",
+                        inline = true,
+                        order = 5,
+                        args = {
+                            checkVisible = {
+                                type = "toggle",
+                                name = "只顯示可見技能",
+								desc = "設定圖示只顯示目前在快捷列上可以看見的技能。\n\n使用暴雪內建函式判斷技能是否可見，結果可能有所不同。\n只適用於預設介面。",
+                                disabled = function() return not AssistedCombatIconFrame.isDefaultUI end,
+                                hidden = function() return not AssistedCombatIconFrame.isDefaultUI end,
+                                get = function() return addon.db.profile.checkForVisibleButton end,
+                                set = function(_, val)
+                                    addon.db.profile.checkForVisibleButton = val
+                                    AssistedCombatIconFrame:ApplyOptions()
+                                end,
+                                order = 1,
+                                width = 1.5,
+                            },
+                        },
                     },
                 },
             },
@@ -868,20 +892,63 @@ function addon:SetupOptions()
             },
             subgroup3 = {
                 type = "group",
-                name = "Advanced",
+                name = "進階",
                 inline = true,
                 order = 3,
                 args = {
+                    OverrideGrp = {
+                        type = "group",
+                        name = "覆寫文字",
+                        inline = true,
+                        order = 1,
+                        args = {
+                            spell = {
+                                type = "select",
+                                name = "法術",
+                                desc = "選擇要覆寫的法術",
+                                values = function()
+                                    local val = {}
+                                    local spells = C_AssistedCombat.GetRotationSpells()
+                                    for _, spellID in ipairs(spells) do
+                                        local spellInfo = C_Spell.GetSpellInfo(spellID)
+                                        local icon = ""
+                                        if spellInfo and spellInfo.iconID then
+                                             icon = ("|T%d:16:16:0:0|t "):format(spellInfo.iconID)
+                                        end
+                                        val[spellID] = icon ..spellInfo.name
+                                    end
+                                    return val
+                                 end,
+                                get = function() return addon.overrideSpellSelected end,
+                                set = function(_, val) 
+                                    addon.overrideSpellSelected = val 
+                                    AceConfigRegistry:NotifyChange(addonName)
+                                end,
+                                order = 1,
+                                width = 1.2,
+                            },
+                            text = {
+                                type = "input",
+                                name = "覆寫文字",
+								desc = "輸入你希望在此法術的快捷鍵上顯示的文字。",
+                                get = function() return addon.db.profile.Keybind.overrides[addon.overrideSpellSelected] end,
+                                set = function(_, val) addon.db.profile.Keybind.overrides[addon.overrideSpellSelected] = val ~= "" and val or nil end,
+                                disabled = function() return not addon.overrideSpellSelected end,
+                                order = 2,
+                                width = 1.2,
+                            },
+                        },
+                    },
                     ConsolePort = {
                         type = "toggle",
-                        name = "Use ConsolePort Icons",
-                        desc = "Set if Gamepad icons should be shown instead of Keyboard bindings.",
+                        name = "使用 ConsolePort 手把圖示",
+						desc = "設定是否以手把圖示取代鍵盤快捷鍵顯示。\n\n需要安裝 ConsolePort 插件。",
                         get = function() return addon.db.profile.Keybind.ConsolePort end,
                         set = function(_, val)
                             addon.db.profile.Keybind.ConsolePort = val
                         end,
                         disabled = function() return not ConsolePort end,
-                        order = 1,
+                        order = 2,
                         width = 1.2,
                     },
                 },
