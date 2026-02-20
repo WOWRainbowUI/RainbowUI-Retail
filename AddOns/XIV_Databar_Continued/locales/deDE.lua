@@ -169,6 +169,16 @@ L['Memory Usage'] = "Speichernutzung";
 L['Garbage Collect'] = "Speicher säubern";
 L['Cleaned'] = "Gesäubert";
 
+-- Reputation
+L['Open reputation'] = "Öffne " .. REPUTATION;
+L['Paragon Reward available'] = "Paragonbelohnung verfügbar";
+L['Use Class Colors for Reputation Bar'] = "Klassenfarben für die Rufleiste verwenden";
+L['Use Reputation Colors for Reputation Bar'] = "Verwendet Ruffarben für die Rufleiste.";
+L['Flash on Paragon Reward'] = "Aufblitzen bei Paragonbelohnung";
+L["Progress"] = "Fortschritt";
+L["Rank"] = "Rang";
+L["Paragon"] = true; -- No Translate needed
+
 L['Use Class Colors'] = "Klassenfarben benutzen";
 L['Cooldowns'] = "Abklingzeiten";
 L['Toggle Profession Frame'] = "Berufsfenster anzeigen";
@@ -242,5 +252,5 @@ L["Version"] = true; -- No Translate needed
 L["Important"] = "Wichtig";
 L["New"] = "Neu";
 L["Improvment"] = "Verbesserung";
-L["Bugfix"] = true; -- No Translate needed
+L["Bugfix"] = "Fehlerbehebung";
 L["Changelog"] = "Änderungen";
