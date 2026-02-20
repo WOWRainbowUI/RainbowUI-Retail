@@ -170,6 +170,16 @@ L['Memory Usage'] = "記憶體使用量";
 L['Garbage Collect'] = "清理記憶體";
 L['Cleaned'] = "已清理";
 
+-- Reputation
+L['Open reputation'] = "打開聲望";
+L['Paragon Reward available'] = "可領取巔峰獎勵";
+L['Use Class Colors for Reputation Bar'] = "聲望條使用職業顏色";
+L['Use Reputation Colors for Reputation Bar'] = "聲望條使用聲望顏色";
+L['Flash on Paragon Reward'] = "有巔峰獎勵時閃爍提醒";
+L["Progress"] = "進度";
+L["Rank"] = "等級";
+L["Paragon"] = "巔峰";
+
 L['Use Class Colors'] = "使用職業顏色";
 L['Cooldowns'] = "冷卻時間";
 L['Toggle Profession Frame'] = "打開/關閉專業視窗";
@@ -205,9 +215,9 @@ L['Retrieving data'] = retrievingData;
 L['Empty Hearthstones List'] = "如果你在下方的清單中看到 '" .. retrievingData .. "'，只需切換分頁或重新開啟此選單即可重新整理資料。";
 L['Hearthstones Select'] = "選擇爐石";
 L['Hearthstones Select Desc'] = "選擇要使用哪個爐石 (如果選擇了多個爐石，請勾選 \"使用隨機爐石\" 選項)";
-L['Hide Hearthstone Button'] = "隱藏爐石按鈕"; -- To Translate
-L['Hide Port Button'] = "隱藏傳送按鈕"; -- To Translate
-L['Hide Home Button'] = "隱藏回家按鈕"; -- To Translate
+L['Hide Hearthstone Button'] = "隱藏爐石按鈕";
+L['Hide Port Button'] = "隱藏傳送按鈕";
+L['Hide Home Button'] = "隱藏回家按鈕";
 
 L["Classic"] = "經典時期";
 L["Burning Crusade"] = "燃燒的遠征";
@@ -282,5 +292,5 @@ L["Version"] = "版本"
 L["Important"] = "重要"
 L["New"] = "新增"
 L["Improvment"] = "改善"
-L["Bugfix"] = "修正"; -- To Translate
+L["Bugfix"] = "修正";
 L["Changelog"] = "更新記錄"
