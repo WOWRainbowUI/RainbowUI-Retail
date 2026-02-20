@@ -102,7 +102,9 @@
         "ChatEdit_InsertLink",
         "ChatFrameUtil",
         "PLAYER",
-        "class"
+        "class",
+        "StaticPopupDialogs",
+        "StaticPopup_Show"
     ],
     "Lua.diagnostics.disable": [
         "assign-type-mismatch"

@@ -1,0 +1,7 @@
+## Interface: 120000
+## Title: PersonalBuffs
+## Notes: Independent Buff & Trinket Tracker
+## Author: You
+## Version: 1.0
+## SavedVariables: PersonalBuffsDB
+PersonalBuffs.lua

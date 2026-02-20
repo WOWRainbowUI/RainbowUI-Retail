@@ -55,7 +55,7 @@ Core.lua
 DevourText.lua
 CustomEssenceBar.lua
 CustomHolyPowerBar.lua
-CustomSoulShardBar.lua
+
 DodgeDisplay.lua
 soulstrackerveng.lua
 CustomRogueComboBar.lua
@@ -69,3 +69,5 @@ monkorb.lua
 CustomDeathKnightRuneBar.lua
 WarriorTracker.lua
 GuardianIronfurTracker.lua
+AldrachiReaverTrackers.lua
+CustomSoulShardBar.lua

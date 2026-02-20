@@ -1,9 +1,14 @@
 
-local _, class = UnitClass("player")
-if class ~= "MONK" then return end
 
--- monkorb.lua
--- Originally from: Enhanced Cooldown Manager by Argium, Copyright (C) 2023 Argium
+-- Always register options page, only run bar logic for Brewmaster Monk
+local _, class = UnitClass("player")
+local isMonk = class == "MONK"
+local isBrewmaster = false
+if isMonk and GetSpecialization then
+    local spec = GetSpecialization()
+    isBrewmaster = (spec == 1)
+end
+
 -- Modified for PersonalResourceReskin by [Ckraigfriend], 2026
 -- This file is licensed under the GNU General Public License v3.0 (GPL-3.0)
 -- See LICENSE for details.
@@ -28,225 +33,221 @@ end
 
 local bar
 
+
 local MonkOrbTrackerOptions = {
     type = "group",
     name = "|cFF00FF96Brewmaster Stagger Orbs|r",
     order = 900,
     args = {
-        monkOrbSubpage = {
-            type = "group",
-            name = "Brewmaster Orbs Bar",
+        header = {
+            order = 0,
+            type = "header",
+            name = "Brewmaster Monk Stagger Orbs Bar",
+        },
+        enabled = {
             order = 1,
-            args = {
-                header = {
-                    order = 0,
-                    type = "header",
-                    name = "Brewmaster Monk Stagger Orbs Bar",
-                },
-                enabled = {
-                    order = 1,
-                    type = "toggle",
-                    name = "Enable Orbs Tracker",
-                    desc = "Show the segmented stagger orbs bar for Brewmaster Monk.",
-                    get = function() return get({"enabled"}) ~= false end,
-                    set = function(_, val)
-                        set({"enabled"}, val)
-                        if _G.MonkOrbTracker then _G.MonkOrbTracker:SetShown(val) end
-                    end,
-                },
-                bgColor = {
-                    order = 3,
-                    type = "color",
-                    name = "Background Color",
-                    hasAlpha = true,
-                    get = function()
-                        local c = get({"bgColor"}) or {0.08, 0.08, 0.08, 0.75}
-                        return c[1], c[2], c[3], c[4]
-                    end,
-                    set = function(_, r, g, b, a)
-                        set({"bgColor"}, {r, g, b, a})
-                        if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
-                    end,
-                },
-                segmentGradientStart = {
-                    order = 8,
-                    type = "color",
-                    name = "Segment Gradient Start",
-                    hasAlpha = true,
-                    get = function()
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        local c = db and db.MonkOrbTracker_segmentGradientStart or {0.46, 0.98, 1.00, 1}
-                        return c[1], c[2], c[3], c[4]
-                    end,
-                    set = function(_, r, g, b, a)
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        if not db then return end
-                        db.MonkOrbTracker_segmentGradientStart = {r, g, b, a}
-                        if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
-                    end,
-                },
-                segmentGradientEnd = {
-                    order = 9,
-                    type = "color",
-                    name = "Segment Gradient End",
-                    hasAlpha = true,
-                    get = function()
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        local c = db and db.MonkOrbTracker_segmentGradientEnd or {0.00, 0.50, 1.00, 1}
-                        return c[1], c[2], c[3], c[4]
-                    end,
-                    set = function(_, r, g, b, a)
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        if not db then return end
-                        db.MonkOrbTracker_segmentGradientEnd = {r, g, b, a}
-                        if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
-                    end,
-                },
-                hideWhenMounted = {
-                    order = 10,
-                    type = "toggle",
-                    name = "Hide When Mounted",
-                    desc = "Hide the soul fragments bar while mounted.",
-                    get = function()
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        return db and db.MonkOrbTracker_hideWhenMounted or false
-                    end,
-                    set = function(_, val)
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        if not db then return end
-                        db.MonkOrbTracker_hideWhenMounted = val
-                        if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
-                    end,
-                },
-                width = {
-                    order = 4,
-                    type = "range",
-                    name = "Bar Width",
-                    min = 60, max = 400, step = 0.001,
-                    get = function() return get({"width"}) or 120 end,
-                    set = function(_, val)
-                        set({"width"}, val)
-                        if _G.MonkOrbTracker then _G.MonkOrbTracker:SetWidth(val) end
-                    end,
-                },
-                height = {
-                    order = 5,
-                    type = "range",
-                    name = "Bar Height",
-                    min = 8, max = 80, step = 0.001,
-                    get = function() return get({"height"}) or 24 end,
-                    set = function(_, val)
-                        set({"height"}, val)
-                        if _G.MonkOrbTracker then _G.MonkOrbTracker:SetHeight(val) end
-                    end,
-                },
-                yOffset = {
-                    order = 6,
-                    type = "range",
-                    name = "Vertical Offset",
-                    desc = "Vertical position when not anchored.",
-                    min = -400, max = 400, step = 0.001,
-                    get = function() return get({"yOffset"}) or -200 end,
-                    set = function(_, val)
-                        set({"yOffset"}, val)
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        local x = db and (db.MonkOrbTracker_xOffset or 0) or 0
-                        db.MonkOrbTracker_yOffset = val
-                        if _G.MonkOrbTracker then
-                            _G.MonkOrbTracker:ClearAllPoints()
-                            _G.MonkOrbTracker:SetPoint("CENTER", UIParent, "CENTER", x, val)
-                        end
-                    end,
-                    disabled = function() return get({"anchorToPRD"}) end,
-                },
-                anchorToPRD = {
-                    order = 6.1,
-                    type = "toggle",
-                    name = "Anchor to Personal Resource Display",
-                    desc = "Attach to PRD health or power bar.",
-                    get = function() return get({"anchorToPRD"}) end,
-                    set = function(_, val)
-                        set({"anchorToPRD"}, val)
-                    end,
-                },
-                anchorTarget = {
-                    order = 6.2,
-                    type = "select",
-                    name = "Anchor Target",
-                    desc = "Choose which PRD bar to anchor to.",
-                    values = { HEALTH = "Health Bar", POWER = "Power Bar" },
-                    get = function() return get({"anchorTarget"}) or "HEALTH" end,
-                    set = function(_, val)
-                        set({"anchorTarget"}, val)
-                    end,
-                    disabled = function() return not get({"anchorToPRD"}) end,
-                },
-                anchorPosition = {
-                    order = 6.3,
-                    type = "select",
-                    name = "Anchor Position",
-                    desc = "Place above or below the selected PRD bar.",
-                    values = { ABOVE = "Above", BELOW = "Below" },
-                    get = function() return get({"anchorPosition"}) or "BELOW" end,
-                    set = function(_, val)
-                        set({"anchorPosition"}, val)
-                    end,
-                    disabled = function() return not get({"anchorToPRD"}) end,
-                },
-                anchorOffset = {
-                    order = 6.4,
-                    type = "range",
-                    name = "Anchor Offset",
-                    desc = "Vertical offset from the PRD bar when anchored.",
-                    min = -100, max = 200, step = 1,
-                    get = function() return get({"anchorOffset"}) or 10 end,
-                    set = function(_, val)
-                        set({"anchorOffset"}, val)
-                    end,
-                    disabled = function() return not get({"anchorToPRD"}) end,
-                },
-                xOffset = {
-                    order = 7,
-                    type = "range",
-                    name = "Horizontal Offset",
-                    desc = "Horizontal position when not anchored.",
-                    min = -400, max = 400, step = 0.001,
-                    get = function() local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile return db and (db.MonkOrbTracker_xOffset or 0) or 0 end,
-                    set = function(_, val)
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        if not db then return end
-                        db.MonkOrbTracker_xOffset = val
-                        if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
-                    end,
-                    disabled = function() return get({"anchorToPRD"}) end,
-                },
-                link = {
-                    order = 1000,
-                    type = "input",
-                    name = "Original Addon (copy URL):",
-                    get = function() return "https://www.curseforge.com/wow/addons/enhanced-cooldown-manager" end,
-                    set = function() end,
-                    width = "full",
-                    dialogControl = "EditBox",
-                    desc = "Original by Argium. Logo available in addon folder as argium2.tga."
-                },
-                argiumlogo = {
-                    order = 1001,
-                    type = "description",
-                    name = "",
-                    image = "Interface\\AddOns\\PersonalResourceReskin\\argium.tga",
-                    imageWidth = 500,
-                    imageHeight = 500,
-                },
-            },
+            type = "toggle",
+            name = "Enable Orbs Tracker",
+            desc = "Show the segmented stagger orbs bar for Brewmaster Monk.",
+            get = function() return get({"enabled"}) ~= false end,
+            set = function(_, val)
+                set({"enabled"}, val)
+                if _G.MonkOrbTracker then _G.MonkOrbTracker:SetShown(val) end
+            end,
+        },
+        hideWhenMounted = {
+            order = 1.5,
+            type = "toggle",
+            name = "Hide When Mounted",
+            desc = "Hide the orbs bar while mounted.",
+            get = function()
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                return db and db.MonkOrbTracker_hideWhenMounted or false
+            end,
+            set = function(_, val)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if not db then return end
+                db.MonkOrbTracker_hideWhenMounted = val
+                if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
+            end,
+        },
+        bgColor = {
+            order = 2,
+            type = "color",
+            name = "Bar Background Color",
+            hasAlpha = true,
+            get = function()
+                local c = get({"bgColor"}) or {0.08, 0.08, 0.08, 0.75}
+                return c[1], c[2], c[3], c[4]
+            end,
+            set = function(_, r, g, b, a)
+                set({"bgColor"}, {r, g, b, a})
+                if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
+            end,
+        },
+        segmentGradientStart = {
+            order = 3,
+            type = "color",
+            name = "Segment Gradient Start",
+            hasAlpha = true,
+            get = function()
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                local c = db and db.MonkOrbTracker_segmentGradientStart or {0.46, 0.98, 1.00, 1}
+                return c[1], c[2], c[3], c[4]
+            end,
+            set = function(_, r, g, b, a)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if not db then return end
+                db.MonkOrbTracker_segmentGradientStart = {r, g, b, a}
+                if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
+            end,
+        },
+        segmentGradientEnd = {
+            order = 4,
+            type = "color",
+            name = "Segment Gradient End",
+            hasAlpha = true,
+            get = function()
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                local c = db and db.MonkOrbTracker_segmentGradientEnd or {0.00, 0.50, 1.00, 1}
+                return c[1], c[2], c[3], c[4]
+            end,
+            set = function(_, r, g, b, a)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if not db then return end
+                db.MonkOrbTracker_segmentGradientEnd = {r, g, b, a}
+                if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
+            end,
+        },
+        width = {
+            order = 5,
+            type = "range",
+            name = "Bar Width",
+            min = 60, max = 400, step = 0.001,
+            get = function() return get({"width"}) or 120 end,
+            set = function(_, val)
+                set({"width"}, val)
+                if _G.MonkOrbTracker then _G.MonkOrbTracker:SetWidth(val) end
+            end,
+        },
+        height = {
+            order = 6,
+            type = "range",
+            name = "Bar Height",
+            min = 8, max = 80, step = 0.001,
+            get = function() return get({"height"}) or 24 end,
+            set = function(_, val)
+                set({"height"}, val)
+                if _G.MonkOrbTracker then _G.MonkOrbTracker:SetHeight(val) end
+            end,
+        },
+        yOffset = {
+            order = 7,
+            type = "range",
+            name = "Vertical Offset",
+            desc = "Vertical position when not anchored.",
+            min = -400, max = 400, step = 0.001,
+            get = function() return get({"yOffset"}) or -200 end,
+            set = function(_, val)
+                set({"yOffset"}, val)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                local x = db and (db.MonkOrbTracker_xOffset or 0) or 0
+                db.MonkOrbTracker_yOffset = val
+                if _G.MonkOrbTracker then
+                    _G.MonkOrbTracker:ClearAllPoints()
+                    _G.MonkOrbTracker:SetPoint("CENTER", UIParent, "CENTER", x, val)
+                end
+            end,
+            disabled = function() return get({"anchorToPRD"}) end,
+        },
+        xOffset = {
+            order = 8,
+            type = "range",
+            name = "Horizontal Offset",
+            desc = "Horizontal position when not anchored.",
+            min = -400, max = 400, step = 0.001,
+            get = function() local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile return db and (db.MonkOrbTracker_xOffset or 0) or 0 end,
+            set = function(_, val)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if not db then return end
+                db.MonkOrbTracker_xOffset = val
+                if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
+            end,
+            disabled = function() return get({"anchorToPRD"}) end,
+        },
+        anchorToPRD = {
+            order = 9,
+            type = "toggle",
+            name = "Anchor to Personal Resource Display",
+            desc = "Attach to PRD health or power bar.",
+            get = function() return get({"anchorToPRD"}) end,
+            set = function(_, val)
+                set({"anchorToPRD"}, val)
+            end,
+        },
+        anchorTarget = {
+            order = 10,
+            type = "select",
+            name = "Anchor Target",
+            desc = "Choose which PRD bar to anchor to.",
+            values = { HEALTH = "Health Bar", POWER = "Power Bar" },
+            get = function() return get({"anchorTarget"}) or "HEALTH" end,
+            set = function(_, val)
+                set({"anchorTarget"}, val)
+            end,
+            disabled = function() return not get({"anchorToPRD"}) end,
+        },
+        anchorPosition = {
+            order = 11,
+            type = "select",
+            name = "Anchor Position",
+            desc = "Place above or below the selected PRD bar.",
+            values = { ABOVE = "Above", BELOW = "Below" },
+            get = function() return get({"anchorPosition"}) or "BELOW" end,
+            set = function(_, val)
+                set({"anchorPosition"}, val)
+            end,
+            disabled = function() return not get({"anchorToPRD"}) end,
+        },
+        anchorOffset = {
+            order = 12,
+            type = "range",
+            name = "Anchor Offset",
+            desc = "Vertical offset from the PRD bar when anchored.",
+            min = -100, max = 200, step = 1,
+            get = function() return get({"anchorOffset"}) or 10 end,
+            set = function(_, val)
+                set({"anchorOffset"}, val)
+            end,
+            disabled = function() return not get({"anchorToPRD"}) end,
+        },
+        link = {
+            order = 1000,
+            type = "input",
+            name = "Original Addon (copy URL):",
+            get = function() return "https://www.curseforge.com/wow/addons/enhanced-cooldown-manager" end,
+            set = function() end,
+            width = "full",
+            dialogControl = "EditBox",
+            desc = "Original by Argium. Logo available in addon folder as argium2.tga."
+        },
+        argiumlogo = {
+            order = 1001,
+            type = "description",
+            name = "",
+            image = "Interface\\AddOns\\PersonalResourceReskin\\argium.tga",
+            imageWidth = 500,
+            imageHeight = 500,
         },
     }
 }
 
+
 _G.MonkOrbTrackerOptions = MonkOrbTrackerOptions
 
--- SoulsTrackerVeng.lua
--- Standalone Soul Fragments tracker for Vengeance Demon Hunter
+-- Only run the bar logic if Brewmaster Monk
+if not isBrewmaster then return end
+
 
 local function GetPRDHealthBar()
     local prd = _G.PersonalResourceDisplayFrame

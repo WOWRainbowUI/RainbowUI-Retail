@@ -1,205 +1,200 @@
 
-local _, playerClass = UnitClass("player")
-if playerClass ~= "MONK" then return end
-local spec = GetSpecialization and GetSpecialization()
-local specID = spec and GetSpecializationInfo(spec)
-if specID ~= 269 then return end
-function ShowDefaultChiBar() end
-local function RegisterWWMonkOrbOptions()
-    if PersonalResourceReskinPlus_Options and _G.MonkOrbTrackerOptions then
-        if not _G.MonkOrbTrackerOptions.args then _G.MonkOrbTrackerOptions.args = {} end
-        _G.MonkOrbTrackerOptions.args.wwMonkOrbSubpage = {
-            type = "group",
-            name = "Windwalker Monk Chi Orbs Bar",
-            order = 2,
-            args = {
-                header = {
-                    order = 0,
-                    type = "header",
-                    name = "Windwalker Monk Chi Orbs Bar",
-                },
-                enabled = {
-                    order = 1,
-                    type = "toggle",
-                    name = "Enable Chi Orbs Bar",
-                    desc = "Show the custom Windwalker Monk Chi orbs bar.",
-                    get = function() return CustomWindwalkerMonkOrbBarDB.enabled ~= false end,
-                    set = function(_, val)
-                        CustomWindwalkerMonkOrbBarDB.enabled = val
-                        UpdateVisibility()
-                    end,
-                },
-                hideWhenMounted = {
-                    order = 1.5,
-                    type = "toggle",
-                    name = "Hide When Mounted",
-                    desc = "Hide the Chi Orbs bar while mounted.",
-                    get = function() return CustomWindwalkerMonkOrbBarDB.hideWhenMounted end,
-                    set = function(_, val)
-                        CustomWindwalkerMonkOrbBarDB.hideWhenMounted = val
-                        UpdateVisibility()
-                    end,
-                },
-                orbBgColor = {
-                    order = 2,
-                    type = "color",
-                    name = "Orb Background Color",
-                    hasAlpha = true,
-                    get = function() return unpack(CustomWindwalkerMonkOrbBarDB.orbBgColor or {0, 0, 0, 0.5}) end,
-                    set = function(_, r, g, b, a)
-                        CustomWindwalkerMonkOrbBarDB.orbBgColor = {r, g, b, a}
-                        UpdateChi()
-                    end,
-                },
-                gradientColor1 = {
-                    order = 3,
-                    type = "color",
-                    name = "Gradient Start Color",
-                    hasAlpha = true,
-                    get = function() return unpack(CustomWindwalkerMonkOrbBarDB.gradientColor1 or {0.0, 0.8, 0.6, 1}) end,
-                    set = function(_, r, g, b, a)
-                        CustomWindwalkerMonkOrbBarDB.gradientColor1 = {r, g, b, a}
-                        UpdateChi()
-                    end,
-                },
-                gradientColor2 = {
-                    order = 4,
-                    type = "color",
-                    name = "Gradient End Color",
-                    hasAlpha = true,
-                    get = function() return unpack(CustomWindwalkerMonkOrbBarDB.gradientColor2 or {0.0, 1, 0.8, 1}) end,
-                    set = function(_, r, g, b, a)
-                        CustomWindwalkerMonkOrbBarDB.gradientColor2 = {r, g, b, a}
-                        UpdateChi()
-                    end,
-                },
-                orbWidth = {
-                    order = 5,
-                    type = "range",
-                    name = "Orb Width",
-                    min = 10, max = 100, step = 1,
-                    get = function() return CustomWindwalkerMonkOrbBarDB.orbWidth end,
-                    set = function(_, val)
-                        CustomWindwalkerMonkOrbBarDB.orbWidth = val
-                        CreateOrbs()
-                        ApplyBarSettings()
-                    end,
-                },
-                orbHeight = {
-                    order = 6,
-                    type = "range",
-                    name = "Orb Height",
-                    min = 10, max = 100, step = 1,
-                    get = function() return CustomWindwalkerMonkOrbBarDB.orbHeight end,
-                    set = function(_, val)
-                        CustomWindwalkerMonkOrbBarDB.orbHeight = val
-                        ApplyBarSettings()
-                    end,
-                },
-                orbSpacing = {
-                    order = 7,
-                    type = "range",
-                    name = "Orb Spacing",
-                    min = 0, max = 40, step = 0.1,
-                    get = function() return CustomWindwalkerMonkOrbBarDB.orbSpacing or 0 end,
-                    set = function(_, val)
-                        CustomWindwalkerMonkOrbBarDB.orbSpacing = val
-                        CreateOrbs()
-                        ApplyBarSettings()
-                    end,
-                },
-                yOffset = {
-                    order = 8.1,
-                    type = "range",
-                    name = "Vertical Offset",
-                    desc = "Vertical position when not anchored.",
-                    min = -400, max = 400, step = 0.001,
-                    get = function() return CustomWindwalkerMonkOrbBarDB.y or -120 end,
-                    set = function(_, val)
-                        CustomWindwalkerMonkOrbBarDB.y = val
-                        ApplyBarSettings()
-                    end,
-                    disabled = function() return CustomWindwalkerMonkOrbBarDB.anchorToPRD end,
-                },
-                anchorToPRD = {
-                    order = 8.2,
-                    type = "toggle",
-                    name = "Anchor to Personal Resource Display",
-                    desc = "Attach to PRD health or power bar.",
-                    get = function() return CustomWindwalkerMonkOrbBarDB.anchorToPRD end,
-                    set = function(_, val)
-                        CustomWindwalkerMonkOrbBarDB.anchorToPRD = val
-                        ApplyBarSettings()
-                    end,
-                },
-                anchorTarget = {
-                    order = 8.3,
-                    type = "select",
-                    name = "Anchor Target",
-                    desc = "Choose which PRD bar to anchor to.",
-                    values = { HEALTH = "Health Bar", POWER = "Power Bar" },
-                    get = function() return CustomWindwalkerMonkOrbBarDB.anchorTarget or "HEALTH" end,
-                    set = function(_, val)
-                        CustomWindwalkerMonkOrbBarDB.anchorTarget = val
-                        ApplyBarSettings()
-                    end,
-                    disabled = function() return not CustomWindwalkerMonkOrbBarDB.anchorToPRD end,
-                },
-                anchorPosition = {
-                    order = 8.4,
-                    type = "select",
-                    name = "Anchor Position",
-                    desc = "Place above or below the selected PRD bar.",
-                    values = { ABOVE = "Above", BELOW = "Below" },
-                    get = function() return CustomWindwalkerMonkOrbBarDB.anchorPosition or "BELOW" end,
-                    set = function(_, val)
-                        CustomWindwalkerMonkOrbBarDB.anchorPosition = val
-                        ApplyBarSettings()
-                    end,
-                    disabled = function() return not CustomWindwalkerMonkOrbBarDB.anchorToPRD end,
-                },
-                anchorOffset = {
-                    order = 8.5,
-                    type = "range",
-                    name = "Anchor Offset",
-                    desc = "Vertical offset from the PRD bar when anchored.",
-                    min = -100, max = 200, step = 1,
-                    get = function() return CustomWindwalkerMonkOrbBarDB.anchorOffset or 10 end,
-                    set = function(_, val)
-                        CustomWindwalkerMonkOrbBarDB.anchorOffset = val
-                        ApplyBarSettings()
-                    end,
-                    disabled = function() return not CustomWindwalkerMonkOrbBarDB.anchorToPRD end,
-                },
-                totalWidth = {
-                    order = 8,
-                    type = "range",
-                    name = "Total Bar Width",
-                    min = 60, max = 600, step = 1,
-                    get = function() return CustomWindwalkerMonkOrbBarDB.totalWidth or 0 end,
-                    set = function(_, val)
-                        if val > 0 then
-                            CustomWindwalkerMonkOrbBarDB.totalWidth = val
-                        else
-                            CustomWindwalkerMonkOrbBarDB.totalWidth = nil
-                        end
-                        CreateOrbs()
-                        ApplyBarSettings()
-                    end,
-                },
-                locked = {
-                    order = 9,
-                    type = "toggle",
-                    name = "Lock Bar",
-                    desc = "Lock or unlock the bar for dragging.",
-                    get = function() return CustomWindwalkerMonkOrbBarDB.locked end,
-                    set = function(_, val)
-                        CustomWindwalkerMonkOrbBarDB.locked = val
-                        ApplyBarSettings()
-                    end,
-                },
+local function get(info)
+    local key = info[#info]
+    local db = CustomWindwalkerMonkOrbBarDB
+    if not db then return nil end
+    return db[key]
+end
+
+local function set(info, value)
+    local key = info[#info]
+    local db = CustomWindwalkerMonkOrbBarDB
+    if not db then return end
+    db[key] = value
+    if ApplyBarSettings then ApplyBarSettings() end
+end
+
+function RegisterWWMonkOrbOptions()
+    local wwMonkOrbOptions = {
+        type = "group",
+        name = "Windwalker Monk Chi Orbs Bar",
+        order = 1,
+        args = {
+            header = {
+                order = 0,
+                type = "header",
+                name = "Windwalker Monk Chi Orbs Bar",
             },
-        }
+            enabled = {
+                order = 1,
+                type = "toggle",
+                name = "Enable Chi Orbs Bar",
+                desc = "Show the custom Windwalker Monk Chi orbs bar.",
+                get = function() return CustomWindwalkerMonkOrbBarDB.enabled ~= false end,
+                set = function(_, val)
+                    CustomWindwalkerMonkOrbBarDB.enabled = val
+                    UpdateVisibility()
+                end,
+            },
+            hideWhenMounted = {
+                order = 1.5,
+                type = "toggle",
+                name = "Hide When Mounted",
+                desc = "Hide the Chi Orbs bar while mounted.",
+                get = function() return CustomWindwalkerMonkOrbBarDB.hideWhenMounted end,
+                set = function(_, val)
+                    CustomWindwalkerMonkOrbBarDB.hideWhenMounted = val
+                    UpdateVisibility()
+                end,
+            },
+            orbBgColor = {
+                order = 2,
+                type = "color",
+                name = "Orb Background Color",
+                hasAlpha = true,
+                get = function() return unpack(CustomWindwalkerMonkOrbBarDB.orbBgColor or {0, 0, 0, 0.5}) end,
+                set = function(_, r, g, b, a)
+                    CustomWindwalkerMonkOrbBarDB.orbBgColor = {r, g, b, a}
+                    UpdateChi()
+                end,
+            },
+            gradientColor1 = {
+                order = 3,
+                type = "color",
+                name = "Gradient Start Color",
+                hasAlpha = true,
+                get = function() return unpack(CustomWindwalkerMonkOrbBarDB.gradientColor1 or {0.0, 0.8, 0.6, 1}) end,
+                set = function(_, r, g, b, a)
+                    CustomWindwalkerMonkOrbBarDB.gradientColor1 = {r, g, b, a}
+                    UpdateChi()
+                end,
+            },
+            gradientColor2 = {
+                order = 4,
+                type = "color",
+                name = "Gradient End Color",
+                hasAlpha = true,
+                get = function() return unpack(CustomWindwalkerMonkOrbBarDB.gradientColor2 or {0.0, 1, 0.8, 1}) end,
+                set = function(_, r, g, b, a)
+                    CustomWindwalkerMonkOrbBarDB.gradientColor2 = {r, g, b, a}
+                    UpdateChi()
+                end,
+            },
+            orbWidth = {
+                order = 5,
+                type = "range",
+                name = "Orb Width",
+                min = 10, max = 100, step = 1,
+                get = function() return CustomWindwalkerMonkOrbBarDB.orbWidth end,
+                set = function(_, val)
+                    CustomWindwalkerMonkOrbBarDB.orbWidth = val
+                    CreateOrbs()
+                    ApplyBarSettings()
+                end,
+            },
+            orbHeight = {
+                order = 6,
+                type = "range",
+                name = "Orb Height",
+                min = 10, max = 100, step = 1,
+                get = function() return CustomWindwalkerMonkOrbBarDB.orbHeight end,
+                set = function(_, val)
+                    CustomWindwalkerMonkOrbBarDB.orbHeight = val
+                    ApplyBarSettings()
+                end,
+            },
+            orbSpacing = {
+                order = 7,
+                type = "range",
+                name = "Orb Spacing",
+                min = 0, max = 40, step = 0.1,
+                get = function() return CustomWindwalkerMonkOrbBarDB.orbSpacing or 0 end,
+                set = function(_, val)
+                    CustomWindwalkerMonkOrbBarDB.orbSpacing = val
+                    CreateOrbs()
+                    ApplyBarSettings()
+                end,
+            },
+            yOffset = {
+                order = 8.1,
+                type = "range",
+                name = "Vertical Offset",
+                desc = "Vertical position when not anchored.",
+                min = -400, max = 400, step = 0.001,
+                get = function(info) return get(info) or -120 end,
+                set = function(info, val) set(info, val) end,
+                disabled = function() return get({"anchorToPRD"}) end,
+            },
+            anchorToPRD = {
+                order = 8.2,
+                type = "toggle",
+                name = "Anchor to Personal Resource Display",
+                desc = "Attach to PRD health or power bar.",
+                get = function(info) return get(info) end,
+                set = function(info, val) set(info, val) end,
+            },
+            anchorTarget = {
+                order = 8.3,
+                type = "select",
+                name = "Anchor Target",
+                desc = "Choose which PRD bar to anchor to.",
+                values = { HEALTH = "Health Bar", POWER = "Power Bar" },
+                get = function(info) return get(info) or "HEALTH" end,
+                set = function(info, val) set(info, val) end,
+                disabled = function() return not get({"anchorToPRD"}) end,
+            },
+            anchorPosition = {
+                order = 8.4,
+                type = "select",
+                name = "Anchor Position",
+                desc = "Place above or below the selected PRD bar.",
+                values = { ABOVE = "Above", BELOW = "Below" },
+                get = function(info) return get(info) or "BELOW" end,
+                set = function(info, val) set(info, val) end,
+                disabled = function() return not get({"anchorToPRD"}) end,
+            },
+            anchorOffset = {
+                order = 8.5,
+                type = "range",
+                name = "Anchor Offset",
+                desc = "Vertical offset from the PRD bar when anchored.",
+                min = -100, max = 200, step = 1,
+                get = function(info) return get(info) or 10 end,
+                set = function(info, val) set(info, val) end,
+                disabled = function() return not get({"anchorToPRD"}) end,
+            },
+            totalWidth = {
+                order = 8,
+                type = "range",
+                name = "Total Bar Width",
+                min = 60, max = 600, step = 1,
+                get = function() return CustomWindwalkerMonkOrbBarDB.totalWidth or 0 end,
+                set = function(_, val)
+                    if val > 0 then
+                        CustomWindwalkerMonkOrbBarDB.totalWidth = val
+                    else
+                        CustomWindwalkerMonkOrbBarDB.totalWidth = nil
+                    end
+                    CreateOrbs()
+                    ApplyBarSettings()
+                end,
+            },
+            locked = {
+                order = 9,
+                type = "toggle",
+                name = "Lock Bar",
+                desc = "Lock or unlock the bar for dragging.",
+                get = function() return CustomWindwalkerMonkOrbBarDB.locked end,
+                set = function(_, val)
+                    CustomWindwalkerMonkOrbBarDB.locked = val
+                    ApplyBarSettings()
+                end,
+            },
+        },
+    }
+    _G.CustomWindwalkerMonkOrbBarOptions = wwMonkOrbOptions
+    if PersonalResourceReskinPlus_Options and PersonalResourceReskinPlus_Options.RegisterSubOptions then
+        PersonalResourceReskinPlus_Options.RegisterSubOptions("CustomWindwalkerMonkOrbBar", _G.CustomWindwalkerMonkOrbBarOptions)
     end
 end
 
@@ -240,7 +235,65 @@ CustomWindwalkerMonkOrbBarDB = CustomWindwalkerMonkOrbBarDB or {
 
 
 
-local function HideDefaultChiBar() end
+
+
+local function HideDefaultChiBar()
+    local _, class = UnitClass("player")
+    if class ~= "MONK" then return end
+    local prdClassFrame = _G.prdClassFrame or (_G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.classWidgetFrame)
+    if prdClassFrame then
+        for _, child in ipairs({prdClassFrame:GetChildren()}) do
+            if child and child:IsShown() then
+                local n = child.GetName and child:GetName() or ""
+                if n:find("Chi") or child.ChiOrb or child.FX or child.Blur or child.DepleteFlipbook then
+                    child:Hide()
+                    child:SetAlpha(0)
+                    if type(child.UnregisterAllEvents) == "function" then child:UnregisterAllEvents() end
+                    if type(child.SetScript) == "function" then child:SetScript("OnEvent", nil) end
+                end
+            end
+        end
+        prdClassFrame:Hide()
+        prdClassFrame:SetAlpha(0)
+        if type(prdClassFrame.UnregisterAllEvents) == "function" then prdClassFrame:UnregisterAllEvents() end
+    end
+end
+
+local function ShowDefaultChiBar()
+    local _, class = UnitClass("player")
+    if class ~= "MONK" then return end
+    local prdClassFrame = _G.prdClassFrame or (_G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.classWidgetFrame)
+    if prdClassFrame then
+        prdClassFrame:Show()
+        prdClassFrame:SetAlpha(1)
+    end
+end
+
+-- Helper functions to get PRD anchor frames (from soulstrackerveng.lua)
+local function GetPRDHealthBar()
+    local prd = _G.PersonalResourceDisplayFrame
+    if prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
+        return prd.HealthBarsContainer.healthBar
+    end
+    return _G.PersonalResourceDisplayHealthBar
+end
+
+local function GetPRDPowerBar()
+    local prd = _G.PersonalResourceDisplayFrame
+    if prd and prd.PowerBarsContainer and prd.PowerBarsContainer.powerBar then
+        return prd.PowerBarsContainer.powerBar
+    end
+    if prd and prd.PowerBar then
+        return prd.PowerBar
+    end
+    return _G.PersonalResourceDisplayPowerBar
+end
+
+local function GetPRDAnchorFrame()
+    if not CustomWindwalkerMonkOrbBarDB or not CustomWindwalkerMonkOrbBarDB.anchorToPRD then return nil end
+    local target = CustomWindwalkerMonkOrbBarDB.anchorTarget or "HEALTH"
+    return (target == "POWER") and GetPRDPowerBar() or GetPRDHealthBar()
+end
 
 HideDefaultChiBar()
 
@@ -378,9 +431,12 @@ end
 
 function UpdateVisibility()
     local mounted = IsMounted and IsMounted() or (IsPlayerMounted and IsPlayerMounted())
+    local prdClassFrame = _G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.classWidgetFrame
     if CustomWindwalkerMonkOrbBarDB.hideWhenMounted and mounted then
         chiBar:Hide()
         ShowDefaultChiBar()
+        if prdClassFrame then prdClassFrame:Show() end
+        ApplyBarSettings()
         return
     end
     if CustomWindwalkerMonkOrbBarDB.enabled and ShouldShowChiBar() then
@@ -388,9 +444,13 @@ function UpdateVisibility()
         chiBar:Show()
         UpdateChi()
         C_Timer.After(0.05, HideDefaultChiBar)
+        if prdClassFrame then prdClassFrame:Hide() end
+        ApplyBarSettings()
     else
         chiBar:Hide()
         ShowDefaultChiBar()
+        if prdClassFrame then prdClassFrame:Show() end
+        ApplyBarSettings()
     end
 end
 
@@ -410,27 +470,22 @@ function ApplyBarSettings()
     chiBar:ClearAllPoints()
 
     if CustomWindwalkerMonkOrbBarDB.anchorToPRD then
-
-        local prd = _G.PersonalResourceDisplayFrame
-        local anchorFrame = nil
-        if prd then
-            if CustomWindwalkerMonkOrbBarDB.anchorTarget == "POWER" and prd.PowerBarsContainer and prd.PowerBarsContainer.powerBar then
-                anchorFrame = prd.PowerBarsContainer.powerBar
-            elseif prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
-                anchorFrame = prd.HealthBarsContainer.healthBar
-            end
-        end
+        local anchorFrame = GetPRDAnchorFrame()
         if anchorFrame then
-            local relPoint, yOff = "BOTTOM", CustomWindwalkerMonkOrbBarDB.anchorOffset or 10
-            if CustomWindwalkerMonkOrbBarDB.anchorPosition == "ABOVE" then
-                relPoint = "TOP"
-                yOff = -(CustomWindwalkerMonkOrbBarDB.anchorOffset or 10)
+            local pos = CustomWindwalkerMonkOrbBarDB.anchorPosition or "BELOW"
+            local offset = CustomWindwalkerMonkOrbBarDB.anchorOffset or 10
+            chiBar:ClearAllPoints()
+            if pos == "ABOVE" then
+                chiBar:SetPoint("BOTTOM", anchorFrame, "TOP", 0, offset)
+            else
+                chiBar:SetPoint("TOP", anchorFrame, "BOTTOM", 0, -offset)
             end
-            chiBar:SetPoint("CENTER", anchorFrame, relPoint, 0, yOff)
         else
+            chiBar:ClearAllPoints()
             chiBar:SetPoint("CENTER", UIParent, "CENTER", CustomWindwalkerMonkOrbBarDB.x, CustomWindwalkerMonkOrbBarDB.y)
         end
     else
+        chiBar:ClearAllPoints()
         chiBar:SetPoint("CENTER", UIParent, "CENTER", CustomWindwalkerMonkOrbBarDB.x, CustomWindwalkerMonkOrbBarDB.y)
     end
 
