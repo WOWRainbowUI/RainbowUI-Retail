@@ -11,8 +11,9 @@
 
 ## Title-zhTW: |cff4DD2FF[頭像]|r至暗之夜頭像-施法條
 ## Notes-zhTW: Midnight Simple UnitFrames - Castbars |n|n替換遊戲內建的單位框架，提供更簡潔、直觀且可高度自訂的介面。它的設計理念是將戰鬥資訊集中在角色附近，避免玩家需要分散注意力到螢幕角落。|n|n|cffffd200使用方法: |r輸入 /msuf ，或從 Esc>選項>插件>頭像，開啟設定。|n|n|cffFF2D2D特別注意: |r請勿和其他頭像插件同時載入使用。
-## X-Category-zhTW: 介面
+## Category-zhTW: 單位框架
 ## DefaultState: disabled
+
 Castbars\MSUF_CastbarRegistry.lua
 Castbars\MSUF_CastbarStyle.lua
 Castbars\MSUF_CastbarUtils.lua

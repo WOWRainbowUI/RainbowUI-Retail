@@ -13,7 +13,7 @@
 
 ## Title-zhTW: |cff4DD2FF[頭像]|r 個人資源條外觀增強
 ## Notes-zhTW: Personal Resource Display Reskin |n|n用來強化並自訂遊戲內建的顯示個人資源。提供更現代化的外觀、可調整的介面元素，以及額外的資源顯示功能，讓玩家更容易追蹤血量、法力、能量、怒氣與職業專屬資源。|n|n|cffffd200使用方法：|r從Esc>選項>插件>個人資源條，進行設定。
-## X-Category-zhTW: 介面
+## Category-zhTW: 單位框架
 ## IconTexture: Interface\Icons\ability_earthen_azeritesurge
 ## DefaultState: disabled
 
