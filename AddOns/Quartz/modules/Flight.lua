@@ -137,6 +137,10 @@ end]]
 function Flight:BeginFlight(duration, destination)
 	if not Player:IsEnabled() then return end
 
+	-- Clear any secret timing state from previous cast
+	Player.Bar.hasSecretTiming = nil
+	Player.Bar.durationObject = nil
+
 	Player.Bar.casting = true
 	Player.Bar.startTime = GetTime()
 	Player.Bar.endTime = GetTime() + duration
