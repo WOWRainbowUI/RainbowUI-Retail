@@ -1,91 +1,4 @@
 
-    -- ...existing code...
-
-    _G.CustomSoulShardBarOptions = {
-	  name = "|cFF8787ED靈魂裂片條|r",
-	  type = "group",
-	  args = {
-		showCountText = {
-		  type = "toggle",
-		  name = "顯示靈魂裂片數字",
-		  desc = "在靈魂裂片條中央顯示或隱藏數字。",
-		  order = 9.1,
-		  get = function() return CustomSoulShardBarDB.showCountText ~= false end,
-		  set = function(_, val)
-			CustomSoulShardBarDB.showCountText = val
-			if type(UpdateSoulShards) == "function" then
-			  UpdateSoulShards()
-			end
-		  end,
-		},
-
-		-- ...其他既有選項...
-
-		anchoring = {
-		  type = "group",
-		  name = "位置設定",
-		  order = 20,
-		  args = {
-			anchorToPRD = {
-			  type = "toggle",
-			  name = "對齊個人資源條",
-			  desc = "將靈魂裂片條對齊到個人資源條的血量或能量條。",
-			  get = function() return CustomSoulShardBarDB.anchorToPRD end,
-			  set = function(_, val)
-				CustomSoulShardBarDB.anchorToPRD = val
-				ApplyBarSettings()
-			  end,
-			  order = 1,
-			},
-
-			anchorTarget = {
-			  type = "select",
-			  name = "對齊到",
-			  desc = "選擇對齊到個人資源條的血量條或能量條。",
-			  values = { HEALTH = "血量條", POWER = "能量條" },
-			  get = function() return CustomSoulShardBarDB.anchorTarget or "HEALTH" end,
-			  set = function(_, val)
-				CustomSoulShardBarDB.anchorTarget = val
-				ApplyBarSettings()
-			  end,
-			  order = 2,
-			  disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
-			},
-
-			anchorPosition = {
-			  type = "select",
-			  name = "位置",
-			  desc = "將靈魂裂片條放置在上方或下方。",
-			  values = { ABOVE = "上方", BELOW = "下方" },
-			  get = function() return CustomSoulShardBarDB.anchorPosition or "BELOW" end,
-			  set = function(_, val)
-				CustomSoulShardBarDB.anchorPosition = val
-				ApplyBarSettings()
-			  end,
-			  order = 3,
-			  disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
-			},
-
-			anchorOffset = {
-			  type = "range",
-			  name = "偏移",
-			  desc = "與對齊目標的距離 (像素)。",
-			  min = -100,
-			  max = 100,
-			  step = 1,
-			  get = function() return CustomSoulShardBarDB.anchorOffset or 10 end,
-			  set = function(_, val)
-				CustomSoulShardBarDB.anchorOffset = val
-				ApplyBarSettings()
-			  end,
-			  order = 4,
-			  disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
-			},
-		  }
-		},
-	  }
-	}
-
 local _, class = UnitClass("player")
 if class ~= "WARLOCK" then return end
 
@@ -139,6 +52,11 @@ CustomSoulShardBarDB = CustomSoulShardBarDB or {
     gradientColor2 = {1, 0.2, 0.7, 1}, 
     hideWhileMounted = false, 
     fillDirection = "vertical", -- "vertical" or "horizontal"
+    anchorToPRD = false,
+    anchorTarget = "HEALTH",
+    anchorPosition = "BELOW",
+    anchorOffset = 10,
+    countTextSize = 20,
 }
 
 
@@ -147,6 +65,56 @@ _G.CustomSoulShardBarOptions = {
     name = "|cFF8787ED靈魂裂片條|r",
     type = "group",
     args = {
+        anchorToPRD = {
+            order = 8.2,
+            type = "toggle",
+            name = "對齊個人資源條",
+            desc = "對齊到個人資源條的血量或能量條。",
+            get = function() return CustomSoulShardBarDB.anchorToPRD end,
+            set = function(_, val) CustomSoulShardBarDB.anchorToPRD = val; ApplyBarSettings() end,
+        },
+        anchorTarget = {
+            order = 8.3,
+            type = "select",
+            name = "對齊到",
+            desc = "選擇要對齊到的個人資源條。",
+            values = { HEALTH = "血量條", POWER = "能量條" },
+            get = function() return CustomSoulShardBarDB.anchorTarget or "HEALTH" end,
+            set = function(_, val) CustomSoulShardBarDB.anchorTarget = val; ApplyBarSettings() end,
+            disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
+        },
+        anchorPosition = {
+            order = 8.4,
+            type = "select",
+            name = "位置",
+            desc = "放置在選擇的個人資源條的上方或下方。",
+            values = { ABOVE = "上方", BELOW = "下方" },
+            get = function() return CustomSoulShardBarDB.anchorPosition or "BELOW" end,
+            set = function(_, val) CustomSoulShardBarDB.anchorPosition = val; ApplyBarSettings() end,
+            disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
+        },
+        anchorOffset = {
+            order = 8.5,
+            type = "range",
+            name = "偏移",
+            desc = "對齊時與個人資源條的的垂直距離。",
+            min = -100, max = 200, step = 1,
+            get = function() return CustomSoulShardBarDB.anchorOffset or 10 end,
+            set = function(_, val) CustomSoulShardBarDB.anchorOffset = val; ApplyBarSettings() end,
+            disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
+        },
+        countTextSize = {
+            type = "range",
+            name = "裂片數字大小",
+            desc = "設定靈魂裂片數量文字的大小。",
+            min = 8, max = 64, step = 1,
+            order = 9.05,
+            get = function() return CustomSoulShardBarDB.countTextSize or 20 end,
+            set = function(_, val)
+                CustomSoulShardBarDB.countTextSize = val
+                if type(UpdateSoulShards) == "function" then UpdateSoulShards() end
+            end,
+        },
         showCountText = {
             type = "toggle",
             name = "顯示靈魂裂片數字",
@@ -216,65 +184,6 @@ _G.CustomSoulShardBarOptions = {
             end,
             order = 4,
         },
-        anchoring = {
-			type = "group",
-			name = "位置設定",
-			order = 4.1,
-			inline = true,
-			args = {
-				anchorToPRD = {
-					type = "toggle",
-					name = "對齊個人資源條",
-					desc = "將靈魂裂片條對齊到個人資源條的血量或能量條。",
-					get = function() return CustomSoulShardBarDB.anchorToPRD end,
-					set = function(_, val)
-						CustomSoulShardBarDB.anchorToPRD = val
-						ApplyBarSettings()
-					end,
-					order = 1,
-				},
-				anchorTarget = {
-					type = "select",
-					name = "對齊到",
-					desc = "選擇對齊到個人資源條的血量條或能量條。",
-					values = { HEALTH = "血量條", POWER = "能量條" },
-					get = function() return CustomSoulShardBarDB.anchorTarget or "HEALTH" end,
-					set = function(_, val)
-						CustomSoulShardBarDB.anchorTarget = val
-						ApplyBarSettings()
-					end,
-					order = 2,
-					disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
-				},
-				anchorPosition = {
-					type = "select",
-					name = "位置",
-					desc = "將靈魂裂片條放置在上方或下方。",
-					values = { ABOVE = "上方", BELOW = "下方" },
-					get = function() return CustomSoulShardBarDB.anchorPosition or "BELOW" end,
-					set = function(_, val)
-						CustomSoulShardBarDB.anchorPosition = val
-						ApplyBarSettings()
-					end,
-					order = 3,
-					disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
-				},
-				anchorOffset = {
-					type = "range",
-					name = "偏移",
-					desc = "與對齊目標的距離 (像素)。",
-					min = -100, max = 100, step = 1,
-					get = function() return CustomSoulShardBarDB.anchorOffset or 10 end,
-					set = function(_, val)
-						CustomSoulShardBarDB.anchorOffset = val
-						ApplyBarSettings()
-					end,
-					order = 4,
-					disabled = function() return not CustomSoulShardBarDB.anchorToPRD end,
-				},
-			}
-		},
-
         orbBgColor = {
             type = "color",
             name = "裂片背景顏色",
@@ -549,22 +458,21 @@ _G.CustomSoulShardBarOptions = {
             end,
             order = 9,
         },
-        showOnlyInCombat = {
-            type = "toggle",
-            name = "只在戰鬥中顯示",
-			desc = "只在你進入戰鬥時顯示自訂的靈魂裂片條。",
-            get = function() return CustomSoulShardBarDB.showOnlyInCombat end,
-            set = function(_, val)
-                CustomSoulShardBarDB.showOnlyInCombat = val
-                UpdateVisibility()
-            end,
-            order = 9.1,
-        },
     },
 }
 
 -- Standalone AceConfig registration for Soul Shard Bar
-
+local AceConfig = LibStub and LibStub("AceConfig-3.0", true)
+local AceConfigDialog = LibStub and LibStub("AceConfigDialog-3.0", true)
+if AceConfig and AceConfigDialog and _G.CustomSoulShardBarOptions then
+    if not (AceConfigDialog.BlizOptions and AceConfigDialog.BlizOptions["CustomSoulShardBar"]) then
+        AceConfig:RegisterOptionsTable("CustomSoulShardBar", _G.CustomSoulShardBarOptions)
+        AceConfigDialog:AddToBlizOptions("CustomSoulShardBar", "靈魂裂片條")
+        -- print("[Soul Shard Bar] Options registered!")
+    else
+        -- print("[Soul Shard Bar] Options already registered, skipping duplicate.")
+    end
+end
 
 ApplyBarSettings = nil
 UpdateSoulShards = nil
@@ -641,10 +549,11 @@ if not shardBar.countText then
     shardBar.countText:SetDrawLayer("OVERLAY", 1)
     local tooltipFrame = CreateFrame("Frame", nil, shardBar)
     tooltipFrame:SetAllPoints(shardBar.countText)
-        tooltipFrame:SetFrameStrata("MEDIUM")
-        shardBar.countText:SetParent(tooltipFrame)
+    tooltipFrame:SetFrameStrata("MEDIUM")
+    shardBar.countText:SetParent(tooltipFrame)
     if shardBar.countText.SetFont then
-        local font, size, flags = shardBar.countText:GetFont()
+        local font, _, _ = shardBar.countText:GetFont()
+        local size = CustomSoulShardBarDB.countTextSize or 20
         shardBar.countText:SetFont(font, size, "OUTLINE")
         shardBar.countText:SetTextColor(1, 1, 1, 1)
     end
@@ -707,6 +616,13 @@ UpdateSoulShards = function()
         end
     end
 
+    -- Apply font size live
+    if shardBar and shardBar.countText and shardBar.countText.SetFont then
+        local font, _, _ = shardBar.countText:GetFont()
+        local size = CustomSoulShardBarDB.countTextSize or 20
+        shardBar.countText:SetFont(font, size, "OUTLINE")
+    end
+
     local display = string.format("%.1f/%d", current, NUM_SOUL_SHARDS)
     shardBar.countText:SetText(display)
     if CustomSoulShardBarDB and CustomSoulShardBarDB.showCountText == false then
@@ -738,13 +654,10 @@ local function ShouldShowSoulShardBar()
     if CustomSoulShardBarDB.hideWhileMounted and IsMounted and IsMounted() then
         return false
     end
-    if CustomSoulShardBarDB.showOnlyInCombat and not InCombatLockdown() then
-        return false
-    end
     return true
 end
 
-function UpdateVisibility()
+local function UpdateVisibility()
     if ShouldShowSoulShardBar() then
         shardBar:Show()
         UpdateSoulShards()
@@ -764,19 +677,15 @@ local function FullUpdateHandler(self, event, ...)
     end
 end
 
-
 shardBar:RegisterEvent("PLAYER_LOGIN")
 shardBar:RegisterEvent("PLAYER_ENTERING_WORLD")
 shardBar:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 shardBar:RegisterEvent("UNIT_AURA") 
 shardBar:RegisterEvent("UPDATE_OVERRIDE_ACTIONBAR") 
-shardBar:RegisterEvent("PLAYER_REGEN_ENABLED")
-shardBar:RegisterEvent("PLAYER_REGEN_DISABLED")
 shardBar:SetScript("OnEvent", FullUpdateHandler)
 
 
 
--- PRD anchoring helpers (mirroring soulstrackerveng.lua)
 local function GetPRDHealthBar()
     local prd = _G.PersonalResourceDisplayFrame
     if prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
@@ -797,27 +706,9 @@ local function GetPRDPowerBar()
 end
 
 local function GetPRDAnchorFrame()
-    if not CustomSoulShardBarDB.anchorToPRD then return nil end
+    if not CustomSoulShardBarDB or not CustomSoulShardBarDB.anchorToPRD then return nil end
     local target = CustomSoulShardBarDB.anchorTarget or "HEALTH"
-    local f = (target == "POWER") and GetPRDPowerBar() or GetPRDHealthBar()
-    return f
-end
-
-local prdHooked = false
-local function HookPRDAnchor()
-    local anchorFrame = GetPRDAnchorFrame()
-    if not anchorFrame or prdHooked then return end
-    local function OnPRDChange()
-        ApplyBarSettings()
-    end
-    anchorFrame:HookScript("OnSizeChanged", OnPRDChange)
-    if anchorFrame.SetPoint then
-        hooksecurefunc(anchorFrame, "SetPoint", OnPRDChange)
-    end
-    if anchorFrame.SetScale then
-        hooksecurefunc(anchorFrame, "SetScale", OnPRDChange)
-    end
-    prdHooked = true
+    return (target == "POWER") and GetPRDPowerBar() or GetPRDHealthBar()
 end
 
 ApplyBarSettings = function()
@@ -825,21 +716,21 @@ ApplyBarSettings = function()
     local totalWidth = (CustomSoulShardBarDB.orbWidth + spacing) * #shardBar.orbs - spacing
     shardBar:SetSize(totalWidth, CustomSoulShardBarDB.orbHeight)
     shardBar:ClearAllPoints()
-    local anchorFrame = GetPRDAnchorFrame()
-    if anchorFrame then
-        local pos = CustomSoulShardBarDB.anchorPosition or "BELOW"
-        local offset = CustomSoulShardBarDB.anchorOffset or 10
-        if pos == "ABOVE" then
-            shardBar:SetPoint("BOTTOM", anchorFrame, "TOP", 0, offset)
+    if CustomSoulShardBarDB.anchorToPRD then
+        local anchorFrame = GetPRDAnchorFrame()
+        if anchorFrame then
+            local pos = CustomSoulShardBarDB.anchorPosition or "BELOW"
+            local offset = CustomSoulShardBarDB.anchorOffset or 10
+            if pos == "ABOVE" then
+                shardBar:SetPoint("BOTTOM", anchorFrame, "TOP", 0, offset)
+            else
+                shardBar:SetPoint("TOP", anchorFrame, "BOTTOM", 0, -offset)
+            end
         else
-            shardBar:SetPoint("TOP", anchorFrame, "BOTTOM", 0, -offset)
-        end
-        if not prdHooked then
-            HookPRDAnchor()
+            shardBar:SetPoint("CENTER", UIParent, "CENTER", CustomSoulShardBarDB.x, CustomSoulShardBarDB.y)
         end
     else
-        -- Use Bar X Position and Bar Y Position for SetPoint
-        shardBar:SetPoint("CENTER", UIParent, "CENTER", CustomSoulShardBarDB.x or 0, CustomSoulShardBarDB.y or 0)
+        shardBar:SetPoint("CENTER", UIParent, "CENTER", CustomSoulShardBarDB.x, CustomSoulShardBarDB.y)
     end
     for i, orb in ipairs(shardBar.orbs) do
         orb:SetSize(CustomSoulShardBarDB.orbWidth, CustomSoulShardBarDB.orbHeight)

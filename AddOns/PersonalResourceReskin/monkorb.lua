@@ -1,9 +1,14 @@
 
-local _, class = UnitClass("player")
-if class ~= "MONK" then return end
 
--- monkorb.lua
--- Originally from: Enhanced Cooldown Manager by Argium, Copyright (C) 2023 Argium
+-- Always register options page, only run bar logic for Brewmaster Monk
+local _, class = UnitClass("player")
+local isMonk = class == "MONK"
+local isBrewmaster = false
+if isMonk and GetSpecialization then
+    local spec = GetSpecialization()
+    isBrewmaster = (spec == 1)
+end
+
 -- Modified for PersonalResourceReskin by [Ckraigfriend], 2026
 -- This file is licensed under the GNU General Public License v3.0 (GPL-3.0)
 -- See LICENSE for details.
@@ -28,225 +33,220 @@ end
 
 local bar
 
+
 local MonkOrbTrackerOptions = {
     type = "group",
     name = "|cFF00FF96釀酒大師醉仙緩勁條|r",
     order = 900,
     args = {
-        monkOrbSubpage = {
-            type = "group",
-            name = "釀酒大師醉仙緩勁",
+        header = {
+            order = 0,
+            type = "header",
+            name = "釀酒大師醉仙緩勁條",
+        },
+        enabled = {
             order = 1,
-            args = {
-                header = {
-                    order = 0,
-                    type = "header",
-                    name = "釀酒大師武僧醉仙緩勁條",
-                },
-                enabled = {
-                    order = 1,
-                    type = "toggle",
-                    name = "啟用追蹤器",
-                    desc = "顯示釀酒大師的分段醉仙緩勁條。",
-                    get = function() return get({"enabled"}) ~= false end,
-                    set = function(_, val)
-                        set({"enabled"}, val)
-                        if _G.MonkOrbTracker then _G.MonkOrbTracker:SetShown(val) end
-                    end,
-                },
-                bgColor = {
-                    order = 3,
-                    type = "color",
-                    name = "背景顏色",
-                    hasAlpha = true,
-                    get = function()
-                        local c = get({"bgColor"}) or {0.08, 0.08, 0.08, 0.75}
-                        return c[1], c[2], c[3], c[4]
-                    end,
-                    set = function(_, r, g, b, a)
-                        set({"bgColor"}, {r, g, b, a})
-                        if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
-                    end,
-                },
-                segmentGradientStart = {
-                    order = 8,
-                    type = "color",
-                    name = "分段漸層起始色",
-                    hasAlpha = true,
-                    get = function()
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        local c = db and db.MonkOrbTracker_segmentGradientStart or {0.46, 0.98, 1.00, 1}
-                        return c[1], c[2], c[3], c[4]
-                    end,
-                    set = function(_, r, g, b, a)
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        if not db then return end
-                        db.MonkOrbTracker_segmentGradientStart = {r, g, b, a}
-                        if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
-                    end,
-                },
-                segmentGradientEnd = {
-                    order = 9,
-                    type = "color",
-                    name = "分段漸層結束色",
-                    hasAlpha = true,
-                    get = function()
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        local c = db and db.MonkOrbTracker_segmentGradientEnd or {0.00, 0.50, 1.00, 1}
-                        return c[1], c[2], c[3], c[4]
-                    end,
-                    set = function(_, r, g, b, a)
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        if not db then return end
-                        db.MonkOrbTracker_segmentGradientEnd = {r, g, b, a}
-                        if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
-                    end,
-                },
-                hideWhenMounted = {
-                    order = 10,
-                    type = "toggle",
-                    name = "騎乘時隱藏",
-                    desc = "騎乘時隱藏醉仙緩勁條。",
-                    get = function()
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        return db and db.MonkOrbTracker_hideWhenMounted or false
-                    end,
-                    set = function(_, val)
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        if not db then return end
-                        db.MonkOrbTracker_hideWhenMounted = val
-                        if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
-                    end,
-                },
-                width = {
-                    order = 4,
-                    type = "range",
-                    name = "寬度",
-                    min = 60, max = 400, step = 0.001,
-                    get = function() return get({"width"}) or 120 end,
-                    set = function(_, val)
-                        set({"width"}, val)
-                        if _G.MonkOrbTracker then _G.MonkOrbTracker:SetWidth(val) end
-                    end,
-                },
-                height = {
-                    order = 5,
-                    type = "range",
-                    name = "高度",
-                    min = 8, max = 80, step = 0.001,
-                    get = function() return get({"height"}) or 24 end,
-                    set = function(_, val)
-                        set({"height"}, val)
-                        if _G.MonkOrbTracker then _G.MonkOrbTracker:SetHeight(val) end
-                    end,
-                },
-                yOffset = {
-                    order = 6,
-                    type = "range",
-                    name = "垂直偏移",
-                    desc = "未對齊時的垂直位置。",
-                    min = -400, max = 400, step = 0.001,
-                    get = function() return get({"yOffset"}) or -200 end,
-                    set = function(_, val)
-                        set({"yOffset"}, val)
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        local x = db and (db.MonkOrbTracker_xOffset or 0) or 0
-                        db.MonkOrbTracker_yOffset = val
-                        if _G.MonkOrbTracker then
-                            _G.MonkOrbTracker:ClearAllPoints()
-                            _G.MonkOrbTracker:SetPoint("CENTER", UIParent, "CENTER", x, val)
-                        end
-                    end,
-                    disabled = function() return get({"anchorToPRD"}) end,
-                },
-                anchorToPRD = {
-                    order = 6.1,
-                    type = "toggle",
-                    name = "對齊到個人資源條",
-                    desc = "附加到個人資源條的血量條或能量條。",
-                    get = function() return get({"anchorToPRD"}) end,
-                    set = function(_, val)
-                        set({"anchorToPRD"}, val)
-                    end,
-                },
-                anchorTarget = {
-                    order = 6.2,
-                    type = "select",
-                    name = "對齊目標",
-                    desc = "選擇要對齊到哪個個人資源條。",
-                    values = { HEALTH = "血量條", POWER = "能量條" },
-                    get = function() return get({"anchorTarget"}) or "HEALTH" end,
-                    set = function(_, val)
-                        set({"anchorTarget"}, val)
-                    end,
-                    disabled = function() return not get({"anchorToPRD"}) end,
-                },
-                anchorPosition = {
-                    order = 6.3,
-                    type = "select",
-                    name = "對齊位置",
-                    desc = "放置在所選個人資源條的上方或下方。",
-                    values = { ABOVE = "上方", BELOW = "下方" },
-                    get = function() return get({"anchorPosition"}) or "BELOW" end,
-                    set = function(_, val)
-                        set({"anchorPosition"}, val)
-                    end,
-                    disabled = function() return not get({"anchorToPRD"}) end,
-                },
-                anchorOffset = {
-                    order = 6.4,
-                    type = "range",
-                    name = "對齊偏移",
-                    desc = "對齊時與個人資源條的垂直偏移。",
-                    min = -100, max = 200, step = 1,
-                    get = function() return get({"anchorOffset"}) or 10 end,
-                    set = function(_, val)
-                        set({"anchorOffset"}, val)
-                    end,
-                    disabled = function() return not get({"anchorToPRD"}) end,
-                },
-                xOffset = {
-                    order = 7,
-                    type = "range",
-                    name = "水平偏移",
-                    desc = "未對齊時的水平位置。",
-                    min = -400, max = 400, step = 0.001,
-                    get = function() local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile return db and (db.MonkOrbTracker_xOffset or 0) or 0 end,
-                    set = function(_, val)
-                        local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                        if not db then return end
-                        db.MonkOrbTracker_xOffset = val
-                        if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
-                    end,
-                    disabled = function() return get({"anchorToPRD"}) end,
-                },
-                link = {
-                    order = 1000,
-                    type = "input",
-                    name = "原始插件 (複製 URL):",
-                    get = function() return "https://www.curseforge.com/wow/addons/enhanced-cooldown-manager" end,
-                    set = function() end,
-                    width = "full",
-                    dialogControl = "EditBox",
-                    desc = "原作者 Argium。Logo 可在外掛資料夾中找到 argium2.tga。"
-                },
-                argiumlogo = {
-                    order = 1001,
-                    type = "description",
-                    name = "",
-                    image = "Interface\\AddOns\\PersonalResourceReskin\\argium.tga",
-                    imageWidth = 500,
-                    imageHeight = 500,
-                },
-            },
+            type = "toggle",
+            name = "啟用醉仙緩勁條",
+            desc = "顯示釀酒大師的分段醉仙緩勁條。",
+            get = function() return get({"enabled"}) ~= false end,
+            set = function(_, val)
+                set({"enabled"}, val)
+                if _G.MonkOrbTracker then _G.MonkOrbTracker:SetShown(val) end
+            end,
+        },
+        hideWhenMounted = {
+            order = 1.5,
+            type = "toggle",
+            name = "騎乘時隱藏",
+            desc = "騎乘時隱藏醉仙緩勁條。",
+            get = function()
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                return db and db.MonkOrbTracker_hideWhenMounted or false
+            end,
+            set = function(_, val)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if not db then return end
+                db.MonkOrbTracker_hideWhenMounted = val
+                if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
+            end,
+        },
+        bgColor = {
+            order = 2,
+            type = "color",
+            name = "計量條背景色",
+            hasAlpha = true,
+            get = function()
+                local c = get({"bgColor"}) or {0.08, 0.08, 0.08, 0.75}
+                return c[1], c[2], c[3], c[4]
+            end,
+            set = function(_, r, g, b, a)
+                set({"bgColor"}, {r, g, b, a})
+                if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
+            end,
+        },
+        segmentGradientStart = {
+            order = 3,
+            type = "color",
+            name = "分段漸層起始色",
+            hasAlpha = true,
+            get = function()
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                local c = db and db.MonkOrbTracker_segmentGradientStart or {0.46, 0.98, 1.00, 1}
+                return c[1], c[2], c[3], c[4]
+            end,
+            set = function(_, r, g, b, a)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if not db then return end
+                db.MonkOrbTracker_segmentGradientStart = {r, g, b, a}
+                if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
+            end,
+        },
+        segmentGradientEnd = {
+            order = 4,
+            type = "color",
+            name = "分段漸層結束色",
+            hasAlpha = true,
+            get = function()
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                local c = db and db.MonkOrbTracker_segmentGradientEnd or {0.00, 0.50, 1.00, 1}
+                return c[1], c[2], c[3], c[4]
+            end,
+            set = function(_, r, g, b, a)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if not db then return end
+                db.MonkOrbTracker_segmentGradientEnd = {r, g, b, a}
+                if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
+            end,
+        },
+        width = {
+            order = 5,
+            type = "range",
+            name = "計量條寬度",
+            min = 60, max = 400, step = 0.001,
+            get = function() return get({"width"}) or 120 end,
+            set = function(_, val)
+                set({"width"}, val)
+                if _G.MonkOrbTracker then _G.MonkOrbTracker:SetWidth(val) end
+            end,
+        },
+        height = {
+            order = 6,
+            type = "range",
+            name = "計量條高度",
+            min = 8, max = 80, step = 0.001,
+            get = function() return get({"height"}) or 24 end,
+            set = function(_, val)
+                set({"height"}, val)
+                if _G.MonkOrbTracker then _G.MonkOrbTracker:SetHeight(val) end
+            end,
+        },
+        yOffset = {
+            order = 7,
+            type = "range",
+            name = "垂直位置",
+            desc = "未對齊時的垂直位置。",
+            min = -400, max = 400, step = 0.001,
+            get = function() return get({"yOffset"}) or -200 end,
+            set = function(_, val)
+                set({"yOffset"}, val)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                local x = db and (db.MonkOrbTracker_xOffset or 0) or 0
+                db.MonkOrbTracker_yOffset = val
+                if _G.MonkOrbTracker then
+                    _G.MonkOrbTracker:ClearAllPoints()
+                    _G.MonkOrbTracker:SetPoint("CENTER", UIParent, "CENTER", x, val)
+                end
+            end,
+            disabled = function() return get({"anchorToPRD"}) end,
+        },
+        xOffset = {
+            order = 8,
+            type = "range",
+            name = "水平位置",
+            desc = "未對齊時的水平位置。",
+            min = -400, max = 400, step = 0.001,
+            get = function() local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile return db and (db.MonkOrbTracker_xOffset or 0) or 0 end,
+            set = function(_, val)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if not db then return end
+                db.MonkOrbTracker_xOffset = val
+                if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
+            end,
+            disabled = function() return get({"anchorToPRD"}) end,
+        },
+        anchorToPRD = {
+            order = 9,
+            type = "toggle",
+            name = "對齊個人資源條",
+            desc = "對齊到個人資源條的血量或能量條。",
+            get = function() return get({"anchorToPRD"}) end,
+            set = function(_, val)
+                set({"anchorToPRD"}, val)
+            end,
+        },
+        anchorTarget = {
+            order = 10,
+            type = "select",
+            name = "對齊到",
+            desc = "選擇要對齊到的個人資源條。",
+            values = { HEALTH = "血量條", POWER = "能量條" },
+            get = function() return get({"anchorTarget"}) or "HEALTH" end,
+            set = function(_, val)
+                set({"anchorTarget"}, val)
+            end,
+            disabled = function() return not get({"anchorToPRD"}) end,
+        },
+        anchorPosition = {
+            order = 11,
+            type = "select",
+            name = "位置",
+            desc = "放置在選擇的個人資源條的上方或下方。",
+            values = { ABOVE = "上方", BELOW = "下方" },
+            get = function() return get({"anchorPosition"}) or "BELOW" end,
+            set = function(_, val)
+                set({"anchorPosition"}, val)
+            end,
+            disabled = function() return not get({"anchorToPRD"}) end,
+        },
+        anchorOffset = {
+            order = 12,
+            type = "range",
+            name = "偏移",
+            desc = "對齊時與個人資源條的的垂直距離。",
+            min = -100, max = 200, step = 1,
+            get = function() return get({"anchorOffset"}) or 10 end,
+            set = function(_, val)
+                set({"anchorOffset"}, val)
+            end,
+            disabled = function() return not get({"anchorToPRD"}) end,
+        },
+        link = {
+            order = 1000,
+            type = "input",
+            name = "原始插件 (複製網址)：",
+            get = function() return "https://www.curseforge.com/wow/addons/enhanced-cooldown-manager" end,
+            set = function() end,
+            width = "full",
+            dialogControl = "EditBox",
+            desc = "原作者 Argium。Logo 位於插件資料夾中的 argium2.tga。"
+        },
+        argiumlogo = {
+            order = 1001,
+            type = "description",
+            name = "",
+            image = "Interface\\AddOns\\PersonalResourceReskin\\argium.tga",
+            imageWidth = 500,
+            imageHeight = 500,
         },
     }
 }
 
 _G.MonkOrbTrackerOptions = MonkOrbTrackerOptions
 
--- SoulsTrackerVeng.lua
--- Standalone Soul Fragments tracker for Vengeance Demon Hunter
+-- Only run the bar logic if Brewmaster Monk
+if not isBrewmaster then return end
+
 
 local function GetPRDHealthBar()
     local prd = _G.PersonalResourceDisplayFrame

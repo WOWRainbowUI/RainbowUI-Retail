@@ -30,29 +30,6 @@ end
 BlockAllClampRectInsets()
 
 -- Re-block after Edit Mode or world entry, but only if not in combat or Edit Mode
-
--- Frame to handle hiding prdClassFrame when custom Soul Shard bar is set to show only in combat
-local prdClassFrameHideFrame = CreateFrame("Frame")
-prdClassFrameHideFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-prdClassFrameHideFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-prdClassFrameHideFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-prdClassFrameHideFrame:SetScript("OnEvent", function(_, event)
-    local shouldHide = false
-    if _G.CustomSoulShardBarDB and _G.CustomSoulShardBarDB.showOnlyInCombat then
-        if not InCombatLockdown() then
-            shouldHide = true
-        end
-    end
-    local prdClassFrame = _G.prdClassFrame
-    if prdClassFrame then
-        if shouldHide then
-            prdClassFrame:Hide()
-        else
-            prdClassFrame:Show()
-        end
-    end
-end)
-
 local reblockFrame = CreateFrame("Frame")
 reblockFrame:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
 reblockFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
