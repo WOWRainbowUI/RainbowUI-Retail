@@ -9,6 +9,7 @@ local Masque = LibStub("Masque",true)
 local AceAddon = LibStub("AceAddon-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local AceDB = LibStub("AceDB-3.0")
 
 local DB_VERSION = 4
@@ -19,7 +20,7 @@ local defaults = {
     profile = {
         enabled = true,
         locked = false,
-        lockButtonMouseover = true,
+        checkForVisibleButton = false,
         display = {
             HideInVehicle = false,
             HideInHealerRole = false,
@@ -76,6 +77,7 @@ local defaults = {
             X = -4,
             Y = -4,
             ConsolePort = false,
+            overrides = {},
         }
     }
 }
@@ -269,7 +271,7 @@ function addon:SetupOptions()
                                 type = "toggle",
                                 name = "Always Show",
                                 order = 1,
-                                width = 1.1,
+                                width = 1,
                                 get = function(info)
                                     return addon.db.profile.display.ALWAYS
                                 end,
@@ -286,7 +288,7 @@ function addon:SetupOptions()
                                 type = "toggle",
                                 name = "Hide while mounted",
                                 order = 2,
-                                width = 1.1,
+                                width = 1.2,
                                 get = function(info)
                                     return addon.db.profile.display.HideOnMount
                                 end,
@@ -307,7 +309,7 @@ function addon:SetupOptions()
                                 type = "toggle",
                                 name = "Show with target",
                                 order = 1,
-                                width = 1.1,
+                                width = 1,
                                 get = function(info)
                                     return addon.db.profile.display.HOSTILE_TARGET
                                 end,
@@ -319,9 +321,9 @@ function addon:SetupOptions()
                             },
                             HideInVehicle = {
                                 type = "toggle",
-                                name = "Hide while in a Vehicle",
+                                name = "Hide in a Vehicle / Pet Battle",
                                 order = 2,
-                                width = 1.1,
+                                width = 1.2,
                                 get = function(info)
                                     return addon.db.profile.display.HideInVehicle
                                 end,
@@ -342,7 +344,7 @@ function addon:SetupOptions()
                                 type = "toggle",
                                 name = "Show in combat",
                                 order = 1,
-                                width = 1.1,
+                                width = 1,
                                 get = function(info)
                                     return addon.db.profile.display.IN_COMBAT
                                 end,
@@ -357,7 +359,7 @@ function addon:SetupOptions()
                                 name = "Hide in Healer Role",
                                 desc = "Hide the icon while in group content as a healer role.\n\n|cffffa000Icon still displays while solo.|r\n\n|cffffa000TIP: You can use Spec Profiles in the profiles options to hide based on Specs.|r",
                                 order = 2,
-                                width = 1.1,
+                                width = 1.2,
                                 get = function(info)
                                     return addon.db.profile.display.HideAsHealer
                                 end,
@@ -461,6 +463,28 @@ function addon:SetupOptions()
                         end,
                         order = 3,
                         width = "normal",
+                    },
+                    grp5 = {
+                        type = "group",
+                        name = "",
+                        inline = true,
+                        order = 5,
+                        args = {
+                            checkVisible = {
+                                type = "toggle",
+                                name = "Visible Abilities Only",
+                                desc = "Set if the icon should only show the abilities that are currently visible on the action bars.\n\nUses Blizzards own functions to determine if it is visible. Results may vary.\nOnly works on Default UI.",
+                                disabled = function() return not AssistedCombatIconFrame.isDefaultUI end,
+                                hidden = function() return not AssistedCombatIconFrame.isDefaultUI end,
+                                get = function() return addon.db.profile.checkForVisibleButton end,
+                                set = function(_, val)
+                                    addon.db.profile.checkForVisibleButton = val
+                                    AssistedCombatIconFrame:ApplyOptions()
+                                end,
+                                order = 1,
+                                width = 1.5,
+                            },
+                        },
                     },
                 },
             },
@@ -871,16 +895,59 @@ function addon:SetupOptions()
                 inline = true,
                 order = 3,
                 args = {
+                    OverrideGrp = {
+                        type = "group",
+                        name = "Override Text",
+                        inline = true,
+                        order = 1,
+                        args = {
+                            spell = {
+                                type = "select",
+                                name = "Spell",
+                                desc = "Select the spell to override.",
+                                values = function()
+                                    local val = {}
+                                    local spells = C_AssistedCombat.GetRotationSpells()
+                                    for _, spellID in ipairs(spells) do
+                                        local spellInfo = C_Spell.GetSpellInfo(spellID)
+                                        local icon = ""
+                                        if spellInfo and spellInfo.iconID then
+                                             icon = ("|T%d:16:16:0:0|t "):format(spellInfo.iconID)
+                                        end
+                                        val[spellID] = icon ..spellInfo.name
+                                    end
+                                    return val
+                                 end,
+                                get = function() return addon.overrideSpellSelected end,
+                                set = function(_, val) 
+                                    addon.overrideSpellSelected = val 
+                                    AceConfigRegistry:NotifyChange(addonName)
+                                end,
+                                order = 1,
+                                width = 1.2,
+                            },
+                            text = {
+                                type = "input",
+                                name = "Override text",
+                                desc = "Enter the text you wish to be shown for the Keybind for this spell.",
+                                get = function() return addon.db.profile.Keybind.overrides[addon.overrideSpellSelected] end,
+                                set = function(_, val) addon.db.profile.Keybind.overrides[addon.overrideSpellSelected] = val ~= "" and val or nil end,
+                                disabled = function() return not addon.overrideSpellSelected end,
+                                order = 2,
+                                width = 1.2,
+                            },
+                        },
+                    },
                     ConsolePort = {
                         type = "toggle",
-                        name = "Use ConsolePort Icons",
-                        desc = "Set if Gamepad icons should be shown instead of Keyboard bindings.",
+                        name = "Use ConsolePort GamePad Icons",
+                        desc = "Set if GamePad icons should be shown instead of Keyboard bindings.\n\nRequires the ConsolePort addon.",
                         get = function() return addon.db.profile.Keybind.ConsolePort end,
                         set = function(_, val)
                             addon.db.profile.Keybind.ConsolePort = val
                         end,
                         disabled = function() return not ConsolePort end,
-                        order = 1,
+                        order = 2,
                         width = 1.2,
                     },
                 },
