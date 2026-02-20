@@ -30,8 +30,8 @@ function module:OnLoad()
     showOnlyNameCB:SetScript("OnClick", function(self)
         local checked = self:GetChecked()
         DFFriendlyNamePlates.NamePlatesSettings["showOnlyName"] = checked
-        DFFNamePlates:SetNPcastBarEnabled(not checked)
         SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", checked and "1" or "0")
+        DFFNamePlates:reloadNP()
     end)
 
     local showOnlyNameNpcCB = HttpsxLib:CreateCheckBox(content, "只顯示名稱 (NPC)", "TOPLEFT", content, 5, -90)
@@ -69,30 +69,8 @@ function module:OnLoad()
 
     hideCastBarCB:SetScript("OnClick", function(self)
         local checked = self:GetChecked()
-        DFFriendlyNamePlates.NamePlatesSettings["hideCastBar"] = checked
-
-        StaticPopupDialogs["DFFN_RELOAD_UI"] = {
-            text = "重新載入介面？",
-            button1 = "是",
-            button2 = "否",
-            OnAccept = function()
-                ReloadUI()
-            end,
-            timeout = 0,
-            whileDead = true,
-            hideOnEscape = true,
-            preferredIndex = 3,
-        }
-        StaticPopup_Show("DFFN_RELOAD_UI")
-    end)
-
-    hideCastBarCB:SetScript("OnEnter", function(self)
-        if hideCastBarCB:IsEnabled() then
-            warningHideCastBar:Show()
-        end
-    end)
-    hideCastBarCB:SetScript("OnLeave", function(self)
-        warningHideCastBar:Hide()
+        DFFriendlyNamePlates.NamePlatesSettings["hideCastBar2"] = checked
+        DFFNamePlates:reloadNP()
     end)
 
 
@@ -116,9 +94,9 @@ function module:OnLoad()
         DFFriendlyNamePlates.NamePlatesSettings["showColorBySelection"] = checked
 
         if checked then
-        DFFNamePlates:reloadNP()
+            DFFNamePlates:reloadNP()
         else
-            local ns = GetCVar("nameplateShowOnlyNamesnameplateStyle")
+            local ns = GetCVar("nameplateStyle")
             SetCVar("nameplateStyle", 10)
             C_Timer.After(0.133, function() SetCVar("nameplateStyle", ns) end)
         end
@@ -180,15 +158,6 @@ function module:OnLoad()
             DFFNamePlates:setFontForAll()
         end)
 
-    function DFFNamePlates:SetNPcastBarEnabled(checked)
-        local a = checked and 1 or 0.5
-        hideCastBarCB:SetAlpha(a)
-        hideCastBarCB:SetEnabled(checked)
-        if not checked then
-            hideCastBarCB:SetChecked(false)
-            DFFriendlyNamePlates.NamePlatesSettings["hideCastBar"] = false
-        end
-    end
 
     function DFFNamePlates:SetNpcTypeEnabled(checked)
         local a = checked
@@ -206,9 +175,6 @@ function module:OnLoad()
         showClassColorCB:SetEnabled(checked)
         hideCastBarCB:SetEnabled(checked)
 
-        if checked and showOnlyNameCB:GetChecked() then
-            DFFNamePlates:SetNPcastBarEnabled(false)
-        end
     end
 
     function DFFNamePlates:SetFontSettingsEnabled(checked)
@@ -254,7 +220,7 @@ function module:OnLoad()
     DFFNamePlates.settings.NamePlatesSettings["fontSize"] = fontSizeSlider
     DFFNamePlates.settings.NamePlatesSettings["fontStyle"] = fontStyleDropdown
     DFFNamePlates.settings.NamePlatesSettings["enabled"] = enableNameplatesCB
-    DFFNamePlates.settings.NamePlatesSettings["hideCastBar"] = hideCastBarCB
+    DFFNamePlates.settings.NamePlatesSettings["hideCastBar2"] = hideCastBarCB
     DFFNamePlates.settings.NamePlatesSettings["showOnlyNameNpc"] = showOnlyNameNpcCB
     DFFNamePlates.settings.NamePlatesSettings["showOnlyNameNpcType"] = showOnlyNameNpcDropdown
     DFFNamePlates.settings.NamePlatesSettings["showColorBySelection"] = showColorBySelectionCB
