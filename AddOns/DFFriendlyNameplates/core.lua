@@ -28,8 +28,8 @@ DFFNamePlates.defaultFont2 = {
     flags = defaultFontFlags2,
 }
 
-local ADDON_VERSION = "2.2"
-local CONFIG_VERSION = "2.9"
+local ADDON_VERSION = "2.3"
+local CONFIG_VERSION = "3.1"
 DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE = 0
 DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA = 0.5
 
@@ -318,6 +318,23 @@ local function ApplyDefaults(dst, src)
     return dst
 end
 
+function DFFNamePlates:IsShowOnlyNameNPC()
+    local mode = DFFriendlyNamePlates.NamePlatesSettings.showOnlyNameNpcType
+    local it = DFFNamePlates.instanceType
+
+    if mode == "dungeon" and it ~= "party" then
+        return false
+    end
+    if mode == "raids" and it ~= "raid" then
+        return false
+    end
+    if mode == "dungeon_raids" and it ~= "party" and it ~= "raid" then
+        return false
+    end
+
+    return true
+end
+
 httpsxFriendlyNamePlates:RegisterEvent("PLAYER_LOGIN")
 httpsxFriendlyNamePlates:RegisterEvent("PLAYER_ENTERING_WORLD")
 httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
@@ -350,7 +367,7 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
                 ["fontName"] = defaultFont,
                 ["fontSize"] = defaultFontSize,
                 ["fontStyle"] = defaultFontFlags,
-                ["hideCastBar"] = false,
+                ["hideCastBar2"] = true,
                 ["showColorBySelection"] = default_np_colors,
             },
             ["WorldTextSettings"] = {
@@ -399,8 +416,8 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
             ["fontStyle"])
         DFFNamePlates.settings.NamePlatesSettings["enabled"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
             ["enabled"])
-        DFFNamePlates.settings.NamePlatesSettings["hideCastBar"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
-            ["hideCastBar"])
+        DFFNamePlates.settings.NamePlatesSettings["hideCastBar2"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
+            ["hideCastBar2"])
 
         DFFNamePlates.settings.WorldTextSettings["enabled"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings["enabled"])
         DFFNamePlates.settings.WorldTextSettings["alwaysShow"]:SetChecked(DFFriendlyNamePlates.WorldTextSettings
@@ -454,31 +471,36 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
             DFFNamePlates:forceUpdateFont(true)
         end)
 
+        hooksecurefunc(NamePlateUnitFrameMixin, "OnUnitSet", function(self)
+            if not self:IsPlayer() and DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] then
+                if DFFNamePlates:IsShowOnlyNameNPC() then
+                    TableUtil.TrySet(self, "showOnlyName")
+                end
+            end
+            --for allign name, mark in center for any forbidden nameplate (Only npc?)
+        end)
+
 
         hooksecurefunc(NamePlateUnitFrameMixin, "UpdateNameClassColor", function(self)
-            if not DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] then return end
-
-            local mode = DFFriendlyNamePlates.NamePlatesSettings.showOnlyNameNpcType
-            local it = DFFNamePlates.instanceType
-
-            if mode == "dungeon" and it ~= "party" then
-                return
-            end
-            if mode == "raids" and it ~= "raid" then
-                return
-            end
-            if mode == "dungeon_raids" and it ~= "party" and it ~= "raid" then
-                return
-            end
-
             local np = C_NamePlate.GetNamePlateForUnit(self.unit)
             if not np then
-                TableUtil.TrySet(self.HealthBarsContainer.healthBar, "showOnlyName")
-                TableUtil.TrySet(self.castBar, "showOnlyName")
                 if DFFriendlyNamePlates.NamePlatesSettings["showColorBySelection"] then
-                    --if not self.isPlayer then
                     TableUtil.TrySet(self.optionTable, "colorNameBySelection")
-                    --end
+                end
+
+                if DFFriendlyNamePlates.NamePlatesSettings["hideCastBar2"] then
+                    if ((self:IsPlayer() and not DFFriendlyNamePlates.NamePlatesSettings["showOnlyName"]) or
+                            (not self:IsPlayer() and DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] and
+                                DFFNamePlates:IsShowOnlyNameNPC())) then
+                        TableUtil.TrySet(self.castBar, "showOnlyName")
+                        TableUtil.TrySet(self.castBar, "widgetsOnly")
+                    end
+                end
+
+                if DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] then
+                    if not self:IsPlayer() and DFFNamePlates:IsShowOnlyNameNPC() then
+                        TableUtil.TrySet(self.HealthBarsContainer.healthBar, "showOnlyName")
+                    end
                 end
             end
         end)
@@ -521,12 +543,12 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
         DFFNamePlates.settings.ExtendedSettings["blizzardSize"]:SetValue(tonumber(GetCVar("nameplateSize")))
         DFFNamePlates.settings.ExtendedSettings["blizzardStyle"]:SetValue(tostring(GetCVar("nameplateStyle")))
 
-        local needHideCastBar = DFFriendlyNamePlates.NamePlatesSettings["hideCastBar"];
+        local needHideCastBar = DFFriendlyNamePlates.NamePlatesSettings["hideCastBar2"];
         if needHideCastBar then
-            httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("NAME_PLATE_UNIT_ADDED")
-            httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("FORBIDDEN_NAME_PLATE_UNIT_ADDED")
-            httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
-            httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("FORBIDDEN_NAME_PLATE_UNIT_REMOVED")
+            --httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("NAME_PLATE_UNIT_ADDED")
+            --httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("FORBIDDEN_NAME_PLATE_UNIT_ADDED")
+            --httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
+            --httpsxFriendlyNamePlates.hideCastBar:RegisterEvent("FORBIDDEN_NAME_PLATE_UNIT_REMOVED")
         end
 
         httpsxFriendlyNamePlates:UnregisterEvent("PLAYER_LOGIN");
@@ -549,7 +571,7 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
 end)
 
 httpsxFriendlyNamePlates.hideCastBar:SetScript("OnEvent", function()
-    if not DFFriendlyNamePlates.NamePlatesSettings["hideCastBar"] then return end
+    if not DFFriendlyNamePlates.NamePlatesSettings["hideCastBar2"] then return end
     if not DFFriendlyNamePlates.NamePlatesSettings["enabled"] then return end
 
     for _, frame in pairs(C_NamePlate.GetNamePlates(true)) do
