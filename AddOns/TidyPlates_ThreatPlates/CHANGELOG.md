@@ -1,4 +1,4 @@
-# 13.0.0-beta15 (2026-02-16)
+# 13.0.0-beta16 (2026-02-20)
 
 This is a basic version with Midnight support. Expect lots of missing features and Lua errors. Report any bugs at https://github.com/Backupiseasy/ThreatPlates/issues.
 
@@ -13,6 +13,8 @@ This is a basic version with Midnight support. Expect lots of missing features a
 * Updated integrated libraries (Ace3 r1387-alpha, LibSharedMedia-3.0 v11.2.1)
  
 Beta changes:
+* Fixed a Lua error that occurred when a boss's faction changed [Comment #7984].
+* Disabled abbreviation for unit names and transliteration of cyrillic letters as this does not work in Midnight anymore with secret values [Comment #7978].
 * Fixed a Lua error that occurred on Paladins in TBC Classic [Comment #7895].
 * Fixed a Lua error that occurred when opening options which hovering over a nameplate.
 * Fixed a Lua error that occurred when hovering over a nameplate [Comment #7849]
