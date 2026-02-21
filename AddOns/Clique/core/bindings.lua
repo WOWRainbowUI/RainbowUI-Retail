@@ -27,11 +27,6 @@ end
 local allSpecSets = {"spec1", "spec2", "spec3", "spec4", "spec5"}
 
 function addon:IsBindingCorrectSpec(entry)
-    -- Classic era doesn't have talents, simplify here
-    if not self:GameVersionHasTalentSpecs() then
-        return true
-    end
-
     -- Check to ensure we're on the right spec for this binding
     local currentSpec = self:GetActiveTalentSpec()
     if currentSpec and entry.sets["spec" .. tostring(currentSpec)] then

@@ -205,18 +205,20 @@ function page:Initialize()
         },
     }
 
-    for idx = 1, addon:GetNumTalentSpecs() do
-        local name = "Spec" .. idx
-        local key = name:lower()
-        local specName = addon:GetTalentSpecName(idx)
-        local label = L["Active for talent spec: %s (|cffffd100%s|r)"]:format(specName, key)
-        table.insert(bindConfigData, {
-            name = name,
-            key = key,
-            label = label,
-            tooltipTitle = L["Clique: Talent binding-set for '%s'"]:format(specName),
-            tooltip = L["A binding that belongs to this binding-set is only active when the player has the given talent specialization active"],
-        })
+    if addon:PlayerHasMultiTalentSpecs() then
+        for idx = 1, addon:GetNumTalentSpecs() do
+            local name = "Spec" .. idx
+            local key = name:lower()
+            local specName = addon:GetTalentSpecName(idx)
+            local label = L["Active for talent spec: %s (|cffffd100%s|r)"]:format(specName, key)
+            table.insert(bindConfigData, {
+                name = name,
+                key = key,
+                label = label,
+                tooltipTitle = L["Clique: Talent binding-set for '%s'"]:format(specName),
+                tooltip = L["A binding that belongs to this binding-set is only active when the player has the given talent specialization active"],
+            })
+        end
     end
 
     local bindSets = {}

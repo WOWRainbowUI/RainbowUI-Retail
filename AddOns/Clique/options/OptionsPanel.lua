@@ -213,7 +213,7 @@ function panel:CreateOptions()
     end
     self.specswap:SetScript("PostClick", self.specswap.EnableDisable)
 
-    if addon:GameVersionHasTalentSpecs() then
+    if addon:PlayerHasMultiTalentSpecs() then
         for i = 1, addon:GetNumTalentSpecs() do
             local specName = addon:GetTalentSpecName(i)
             local name = "CliqueOptionsSpec" .. i
