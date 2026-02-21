@@ -65,7 +65,16 @@ function addon:Enable()
 
     self:FireMessage("BINDINGS_CHANGED")
     self:FireMessage("BLACKLIST_CHANGED")
-    self:TalentGroupChanged()
+
+    -- If the spec API is already populated, run immediately; otherwise defer
+    -- until the player is fully loaded (e.g. on first login before PLAYER_LOGIN)
+    if self:GetActiveTalentSpec() then
+        self:TalentGroupChanged()
+    else
+        C_Timer.After(1.0, function()
+            self:TalentGroupChanged()
+        end)
+    end
 end
 
 function addon:PlayerEnteringWorld()

@@ -444,15 +444,9 @@ function addon:ApplyAttributes()
         end
     ]])
 
-    -- Now any compat frames that used the old method
-    for button, enabled in pairs(self.ccframes) do
-        -- Unwrap any existing enter/leave scripts
-        self.header:UnwrapScript(button, "OnEnter")
-        self.header:UnwrapScript(button, "OnLeave")
-        self.header:WrapScript(button, "OnEnter", addon.header:GetAttribute("setup_onenter"))
-        self.header:WrapScript(button, "OnLeave", addon.header:GetAttribute("setup_onleave"))
-
-        -- Perform the setup of click bindings
+    -- Update the clicks on frames registered using ClickCastFrames directly.
+    -- No need to update OnEnter and OnLeave anymore.
+    for button in pairs(self.ccframes) do
         self.header:SetFrameRef("cliquesetup_button", button)
         self.header:Execute(self.header:GetAttribute("setup_clicks"), button)
     end
