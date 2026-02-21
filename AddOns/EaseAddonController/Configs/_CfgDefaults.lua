@@ -1724,17 +1724,21 @@ D["TinyChat"] = {
         text = "使用方法：\n\n聊天增強設定選項：右鍵點頻道按鈕最左側的小圖示。\n\n移動頻道按鈕：按住 Alt 鍵拖曳頻道按鈕最左側的小圖示。\n\n顯示/隱藏社群頻道按鈕：設定選項 > 顯示頻道按鈕 > 社群頻道。\n\n切換頻道：左鍵點聊天視窗上方的頻道名稱。\n\n開啟/關閉頻道：右鍵點聊天視窗上方的頻道名稱。\n\n快速切換頻道：輸入文字時按 Tab 鍵。\n\n快速輸入之前的內容：輸入文字時按上下鍵。\n\n快速捲動到最上/下面：按住 Ctrl 滾動滑鼠滾輪。\n\n輸入表情符號：打字時輸入 { 會顯示表情符號選單。\n\n開怪倒數：左鍵點 '開' 會開始倒數，右鍵點 '開' 會取消倒數。\n\n開怪倒數時間和喊話：右鍵點頻道按鈕最左側的小圖示 > 開怪倒數。\n\n對話泡泡：方便快速手動開/關對話泡泡。\n",
 	},
 };
-D["TinyInspect"] = {
+D["TinyInspect-Reforged"] = {
     defaultEnable = 1,
 	tags = { "ITEM" },
 	title = "裝備觀察",
-	desc = "觀察其他玩家和自己時會在角色資訊視窗右方列出已裝備的物品清單，方便查看裝備和物品等級。``還包含裝備欄物品等級、背包中物品等級，和滑鼠提示中顯示玩家專精和裝等的功能。`",
-	icon = "Interface\\Icons\\achievement_garrisonfollower_itemlevel650",
+	desc = "強化角色檢視介面並提供更完整的裝備資訊。不僅能顯示角色的裝備等級，還能在多種介面中提供額外的裝備細節，讓玩家更快掌握隊伍或物品的狀況。`",
 	img = true,
 	{
         text = "設定選項",
-        callback = function() SlashCmdList["TinyInspect"]("") end,
+        callback = function() SlashCmdList["TinyInspectReforged"]("") end,
     },
+};
+D["TinyInspect"] = {
+    defaultEnable = 0,
+	title = "(請刪除) 裝備觀察",
+	desc = "這是舊版的插件，已經替換成新的裝備觀察插件。`請自行刪除 AddOns 裡面的 TinyInspect 資料夾。`",
 };
 D["TinyTooltip-Reforged"] = {
     defaultEnable = 0,
