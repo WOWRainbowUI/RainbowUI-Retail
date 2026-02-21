@@ -221,32 +221,38 @@ function addonTable.Display.AurasManagerMixin:DoesDebuffFilterIn(auraInstanceID)
 end
 
 function addonTable.Display.AurasManagerMixin:DoesBuffFilterIn(auraInstanceID, dispelName)
-  if not self.buffsDetails.filters.important then
-    if self.buffsDetails.filters.dispelable then
-      return dispelName ~= nil and not C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter)
-    else
-      return not C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter)
-    end
-  elseif self.isFriendly then
-    return not C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|RAID_IN_COMBAT|PLAYER")
-  elseif self.buffsDetails.filters.dispelable then
-    return self.knownImportant[auraInstanceID] and dispelName ~= nil and not C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter)
-  elseif self.isPlayer then
-    return self.knownImportant[auraInstanceID] and not (
+  if C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter) then
+    return false
+  end
+
+  if not self.isFriendly and self.isPlayer and self.buffsDetails.filters.defensive and (
       C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|RAID_IN_COMBAT") and
       C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|BIG_DEFENSIVE") and
       C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|EXTERNAL_DEFENSIVE")
-    )
-  else
-    return self.knownImportant[auraInstanceID] and not C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter)
+    ) then
+    return false
   end
+
+  if self.buffsDetails.filters.important and not self.knownImportant[auraInstanceID] then
+    return false
+  end
+
+  if self.buffsDetails.filters.dispelable and dispelName == nil then
+    return false
+  end
+
+  if self.isFriendly and C_UnitAuras.IsAuraFilteredOutByInstanceID(self.unit, auraInstanceID, self.buffFilter .. "|RAID_IN_COMBAT|PLAYER") then
+    return false
+  end
+
+  return true
 end
 
 function addonTable.Display.AurasManagerMixin:SetUnit(unit)
   self.unit = unit
   if unit then
     self.isPlayer = UnitIsPlayer(self.unit)
-    self.isFriendly = UnitIsFriend("player", self.unit)
+    self.isFriendly = UnitIsFriend("player", self.unit) and not UnitCanAttack("player", self.unit)
 
     if UnitCanAttack("player", self.unit) or addonTable.Constants.IsRetail then
       self:FullRefresh()
@@ -331,7 +337,8 @@ function addonTable.Display.AurasManagerMixin:FullRefresh()
 end
 
 function addonTable.Display.AurasManagerMixin:OnEvent(event, _, refreshData)
-  if not UnitCanAttack("player", self.unit) and not addonTable.Constants.IsRetail then
+  local canAttack = UnitCanAttack("player", self.unit)
+  if not canAttack and not addonTable.Constants.IsRetail then
     if next(self.buffs) or next(self.debuffs) or next(self.crowdControl) then
       self.buffs = {}
       self.debuffs = {}
@@ -342,6 +349,8 @@ function addonTable.Display.AurasManagerMixin:OnEvent(event, _, refreshData)
     end
     return
   end
+
+  self.isFriendly = UnitIsFriend("player", self.unit) and not canAttack
 
   if refreshData.isFullUpdate then
     self:FullRefresh()
@@ -635,6 +644,8 @@ legacy.crowdControlSpells = {
 [5211] = true,
 [6798] = true,
 [8983] = true,
+--scatter shot
+[19503] = true,
 }
 
 legacy.blacklistedBuffs = {
