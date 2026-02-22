@@ -200,7 +200,20 @@ do
 								Timer:SendMessage("Quartz3Mirror_UpdateCustom")
 							end
 						end,
-						values = thistimers,
+						values = function()
+							local vals = {}
+							local currentTime = GetTime()
+							for i = #thistimers, 1, -1 do
+								local name = thistimers[i]
+								local timer = rawget(external, name)
+								if timer and timer.endTime and timer.endTime > currentTime then
+									vals[name] = name
+								else
+									table_remove(thistimers, i)
+								end
+							end
+							return vals
+						end,
 						order = -1,
 					},
 				},
