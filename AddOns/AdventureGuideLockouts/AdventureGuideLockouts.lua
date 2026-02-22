@@ -81,6 +81,7 @@ AddOn.worldBosses = {
         }
     },
     {
+        -- TODO: Will show up on Blackrock Foundry.
         instanceID = 1205,                           -- Dragon Isles
         encounters = {
             { encounterID = 2515, questID = 69929 }, -- Strunraan, The Sky's Misery
@@ -98,7 +99,17 @@ AddOn.worldBosses = {
             { encounterID = 2635, questID = 82653 }, -- Aggregation of Horrors
             { encounterID = 2636, questID = 81653 }, -- Shurrai, Atrocity of the Undersea
             { encounterID = 2637, questID = 81630 }, -- Kordac, the Dormant Protector
-            { encounterID = 2683, questID = 85088 }  -- The Gobfather
+            { encounterID = 2683, questID = 85088 }, -- The Gobfather
+            { encounterID = 2762, questID = 87354 }  -- Reshanor, The Untethered
+        }
+    },
+    {
+        instanceID = 1312,                           -- Midnight
+        encounters = {
+            { encounterID = 2827, questID = 92560 }, -- Lu'ashal
+            { encounterID = 2782, questID = 92123 }, -- Cragpine
+            { encounterID = 2828, questID = 92636 }, -- Predaxas
+            { encounterID = 2829, questID = 92034 }  -- Thorm'belan
         }
     }
 }
@@ -111,13 +122,12 @@ function AddOn:RequestWarfrontInfo()
 end
 
 ---@param instanceIndex number
----@return string, number, boolean, string, number, number, number @ instanceName, instanceID, locked, difficultyName, numEncounters, numCompleted, difficulty
+---@return string, number, string, number, number, number @ instanceName, instanceID, difficultyName, numEncounters, numCompleted, difficulty
 function AddOn:GetSavedWorldBossInfo(instanceIndex)
     local instance = self.worldBosses[instanceIndex]
     local instanceID = instance.instanceID
     local instanceName = EJ_GetInstanceInfo(instanceID)
     local difficulty = 2
-    local locked = false
     local difficultyName = RAID_INFO_WORLD_BOSS
     local numEncounters = #instance.encounters
     local numCompleted = 0
@@ -128,17 +138,16 @@ function AddOn:GetSavedWorldBossInfo(instanceIndex)
         if instanceIndex == 5 then
             if encounterIndex == 4 then
                 isDefeated = isDefeated and self.isStromgardeAvailable
-            elseif encounterIndex == 5 then
+            elseif encounterIndex == 8 then
                 isDefeated = isDefeated and self.isDarkshoreAvailable
             end
         end
         if isDefeated then
-            locked = true
             numCompleted = numCompleted + 1
         end
     end
 
-    return instanceName, instanceID, locked, difficultyName, numEncounters, numCompleted, difficulty
+    return instanceName, instanceID, difficultyName, numEncounters, numCompleted, difficulty
 end
 
 ---@param instanceIndex number
@@ -202,36 +211,64 @@ function AddOn:GetInstanceLockout(instanceIndex)
     }
 end
 
+---@param bossName string
+---@return boolean
+local function IsInvasionBossActive(bossName)
+    local zones = C_Map.GetMapChildrenInfo(905, Enum.UIMapType.Zone)
+    for zoneIndex = 1, #zones do
+        local mapID = zones[zoneIndex].mapID
+        local poiIDs = C_AreaPoiInfo.GetAreaPOIForMap(mapID)
+        for poiIndex = 1, #poiIDs do
+            local poi = C_AreaPoiInfo.GetAreaPOIInfo(mapID, poiIDs[poiIndex])
+            if poi.atlasName == "poi-rift2" and string.find(string.lower(poi.description), bossName, 1, true) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 ---@param instanceIndex number
 ---@return table @ instanceLockout
 function AddOn:GetWorldBossLockout(instanceIndex)
-    local instanceName, instanceID, locked, difficultyName, numEncounters, numCompleted, difficulty = self:GetSavedWorldBossInfo(instanceIndex)
-    if not locked then
-        return
-    end
-
+    local instanceName, instanceID, difficultyName, numEncounters, numCompleted, difficulty = self:GetSavedWorldBossInfo(instanceIndex)
     local encounters = {}
     local numAvailableEncounters = 0
+
+    local foundActiveInvasionBoss = false
     for encounterIndex = 1, numEncounters do
-        local isAvailable = true
         local bossName, isKilled = self:GetSavedWorldBossEncounterInfo(instanceIndex, encounterIndex)
-        if instanceIndex == 5 then
-            if encounterIndex == 4 then
-                isAvailable = self.isStromgardeAvailable
-                isKilled = isKilled and isAvailable
-            elseif encounterIndex == 5 then
-                isAvailable = self.isDarkshoreAvailable
-                isKilled = isKilled and isAvailable
+        local isAvailable = false
+
+        if instanceIndex <= 2 then
+            isAvailable = true
+        elseif instanceIndex == 4 and not foundActiveInvasionBoss then
+            isAvailable = IsInvasionBossActive(string.lower(bossName))
+            if isAvailable then
+                foundActiveInvasionBoss = true
             end
-        elseif instanceIndex >= 5 then
-            isAvailable = C_TaskQuest.GetQuestTimeLeftMinutes(self.worldBosses[instanceIndex].encounters[encounterIndex].questID) ~= nil
+        else
+            isAvailable = C_TaskQuest.IsActive(self.worldBosses[instanceIndex].encounters[encounterIndex].questID)
+            if instanceIndex == 5 then
+                if encounterIndex == 4 then
+                    isAvailable = self.isStromgardeAvailable
+                    isKilled = isKilled and isAvailable
+                elseif encounterIndex == 8 then
+                    isAvailable = self.isDarkshoreAvailable
+                    isKilled = isKilled and isAvailable
+                end
+            end
         end
+
         encounters[encounterIndex] = {
             bossName = bossName,
             isKilled = isKilled,
             isAvailable = isAvailable
         }
-        numAvailableEncounters = (isAvailable or isKilled) and numAvailableEncounters + 1 or numAvailableEncounters
+
+        if isAvailable or isKilled then
+            numAvailableEncounters = numAvailableEncounters + 1
+        end
     end
 
     return {
@@ -389,27 +426,28 @@ function AddOn:UpdateInstanceStatusFrame(button, elementData)
     self:UpdateStatusFramePosition(orderIndex)
 end
 
-local function UpdateFrames()
-    EncounterJournal.instanceSelect.ScrollBox:ForEachFrame(function(frame, elementData)
-        AddOn:UpdateInstanceStatusFrame(frame, elementData)
-    end)
+local function UpdateFrame(frame, elementData)
+    AddOn:UpdateInstanceStatusFrame(frame, elementData)
 end
 
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("BOSS_KILL")
 frame:RegisterEvent("UPDATE_INSTANCE_INFO")
-frame:SetScript("OnEvent", function(_, event, arg1)
+frame:SetScript("OnEvent", function(_, event, ...)
     if event == "ADDON_LOADED" then
-        if arg1 == ADDON_NAME then
+        local addonName = ...
+        if addonName == ADDON_NAME then
             local playerFaction = UnitFactionGroup("player")
             AddOn.worldBosses[5].encounters[4].encounterID = playerFaction == "Horde" and 2212 or 2213
             AddOn.worldBosses[5].encounters[4].questID =  playerFaction == "Horde" and 52848 or 52847
             AddOn.worldBosses[5].encounters[8].encounterID = playerFaction == "Horde" and 2329 or 2345
             AddOn.worldBosses[5].encounters[8].questID =  playerFaction == "Horde" and 54896 or 54895
             AddOn.playerFaction = playerFaction
-        elseif arg1 == "Blizzard_EncounterJournal" then
-            hooksecurefunc("EncounterJournal_ListInstances", UpdateFrames)
+        elseif addonName == "Blizzard_EncounterJournal" then
+            hooksecurefunc("EncounterJournal_ListInstances", function()
+                EncounterJournal.instanceSelect.ScrollBox:ForEachFrame(UpdateFrame)
+            end)
         end
     elseif event == "BOSS_KILL" then
         RequestRaidInfo()

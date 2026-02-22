@@ -1,16 +1,64 @@
-lightweight tag c33b14ba896b0744cf98c6d0ef1054856d93cdfa v1.5.2
+lightweight tag 14fce0a3bcd426628e93f49e7597b45423ba3763 v1.5.3
 Author:	Meivyn <793322+Meivyn@users.noreply.github.com>
-Date:	Sun May 18 16:02:55 2025 -0400
+Date:	Fri Feb 20 18:50:40 2026 -0500
 
-commit c33b14ba896b0744cf98c6d0ef1054856d93cdfa
+commit 14fce0a3bcd426628e93f49e7597b45423ba3763
 Author: Meivyn <793322+Meivyn@users.noreply.github.com>
-Date:   Sun May 18 16:02:55 2025 -0400
+Date:   Fri Feb 20 18:50:40 2026 -0500
 
-    Bump version
+    Forgot to assign the active boss variable
 
-commit ea63c40e1230d8b8fd0ff163597bcc9f8afff9c0
+commit 34c29a651e15663a7ee79ec7548256a55189eb3b
 Author: Meivyn <793322+Meivyn@users.noreply.github.com>
-Date:   Sun May 18 16:02:36 2025 -0400
+Date:   Fri Feb 20 18:44:59 2026 -0500
 
-    Add new world boss
+    Optimize inlined functions
+
+commit a727426a557e2421a9117e1693d72466dfae30a9
+Author: Meivyn <793322+Meivyn@users.noreply.github.com>
+Date:   Fri Feb 20 18:44:10 2026 -0500
+
+    Always show up world bosses availability
+
+commit 51ce6e7594a0d9c439a1fd58928d73fd3bf1b9fe
+Author: Meivyn <793322+Meivyn@users.noreply.github.com>
+Date:   Fri Feb 20 18:43:19 2026 -0500
+
+    Fix Invasion Points world bosses availability
+
+commit 3985db9b9dc67351bda031ff2340b28a650c6313
+Author: Meivyn <793322+Meivyn@users.noreply.github.com>
+Date:   Fri Feb 20 18:42:01 2026 -0500
+
+    Fix Darkshore world bosses availability
+
+commit cf00e34ffdf20ef5f49b7280048634b757beaf40
+Author: Jan Rogge <j-p_rogge@live.de>
+Date:   Sat Feb 14 12:52:41 2026 +0100
+
+    Change availability check for world boss encounters
+
+commit cf00e34ffdf20ef5f49b7280048634b757beaf40
+Author: Jan Rogge <j-p_rogge@live.de>
+Date:   Sat Feb 14 12:52:41 2026 +0100
+
+    Change availability check for world boss encounters
+
+commit a0ef1921a8bd22bf070f16cef1ffbd33d78177ae
+Author: Jan Rogge <j-p_rogge@live.de>
+Date:   Fri Feb 13 21:54:14 2026 +0100
+
+    Add new Worldbosses
+
+commit 565c0d01aba7dac6a0f78220c758967467b32642
+Author: Jan Rogge <j-p_rogge@live.de>
+Date:   Fri Feb 13 21:42:24 2026 +0100
+
+    Increase version
+
+commit 8cd0ecfaa811b94942d559fa51e55eac585ff4a8
+Author: Jan Rogge <j-p_rogge@live.de>
+Date:   Fri Feb 13 21:41:42 2026 +0100
+
+    Update TOC
 
