@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2793, "DBM-Party-Midnight", 6, 1313)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260201012346")
+mod:SetRevision("20260221094926")
 mod:SetCreatureID(248015)
 mod:SetEncounterID(3287)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -15,7 +15,7 @@ mod:RegisterCombat("combat")
 
 --)
 
-mod:AddPrivateAuraSoundOption(1263983, true, 1263983, 4)
+mod:AddPrivateAuraSoundOption(1263983, true, 1263983, 4)--Condensed Mass
 mod:AddPrivateAuraSoundOption(1282770, true, 1282770, 1)--Pre debuff
 mod:AddPrivateAuraSoundOption(1248130, true, 1282770, 1)--GTFO
 

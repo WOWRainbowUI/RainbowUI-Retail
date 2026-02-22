@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2769, "DBM-Party-Midnight", 4, 1309)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260201000306")
+mod:SetRevision("20260221094926")
 mod:SetCreatureID(243028)--Meittik only one reported as a main boss
 mod:SetEncounterID(3199)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -17,13 +17,13 @@ mod:RegisterCombat("combat")
 
 --Meittik
 mod:AddTimerLine(DBM:EJ_GetSectionInfo(32514))
-mod:AddPrivateAuraSoundOption(1234802, true, 1234802, 1)
+mod:AddPrivateAuraSoundOption(1234802, true, 1234802, 1)--Fertile Loam
 --Lekshi
 mod:AddTimerLine(DBM:EJ_GetSectionInfo(32517))
-mod:AddPrivateAuraSoundOption(1261276, true, 1261276, 1)
+mod:AddPrivateAuraSoundOption(1261276, true, 1261276, 1)--Thornblade
 --Kezkitt
 mod:AddTimerLine(DBM:EJ_GetSectionInfo(32520))
-mod:AddPrivateAuraSoundOption(1235828, true, 1235828, 1)
+mod:AddPrivateAuraSoundOption(1235828, true, 1235828, 1)--Light-Scorched Earth
 
 function mod:OnLimitedCombatStart()
 	self:EnablePrivateAuraSound(1234802, "watchfeet", 8)

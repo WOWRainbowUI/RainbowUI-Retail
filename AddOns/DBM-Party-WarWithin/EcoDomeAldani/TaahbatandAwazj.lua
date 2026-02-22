@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2676, "DBM-Party-WarWithin", 10, 1303)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260214043004")
+mod:SetRevision("20260221022657")
 mod:SetCreatureID(234933, 237514) -- Taah'bat and Awazj
 mod:SetEncounterID(3108)
 mod:SetHotfixNoticeRev(20250728000000)
@@ -25,7 +25,6 @@ mod:AddPrivateAuraSoundOption(1220427, true, 1220427, 1)--Warp Strike
 mod:AddPrivateAuraSoundOption(1236126, true, 1236126, 1)--Binding Javelin
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 
 	self:EnableAlertOptions(1219482, 484, "defensive", 2)
 	self:EnableAlertOptions(1219700, 487, "specialsoon", 2)

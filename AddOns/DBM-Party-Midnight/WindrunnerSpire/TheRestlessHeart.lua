@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2658, "DBM-Party-Midnight", 1, 1299)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260218202006")
+mod:SetRevision("20260221094926")
 mod:SetCreatureID(231636)
 mod:SetEncounterID(3059)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -20,7 +20,7 @@ mod:AddCustomAlertSoundOption(468429, true, 1)--Bullseye Windblast
 mod:AddCustomAlertSoundOption(472556, true, 2)--Arrow Rain
 mod:AddCustomAlertSoundOption(472662, true, 3)--Tempest Slash
 --Custom timer colors, countdowns, and disables
-mod:AddCustomTimerOptions(468429, true, 3, 0)
+mod:AddCustomTimerOptions(468429, true, 3, 0)--Bullseye Windblast
 mod:AddCustomTimerOptions(474528, true, 1, 0)--Bolt Gale
 mod:AddCustomTimerOptions(472556, true, 3, 0)--Arrow Rain
 mod:AddCustomTimerOptions(472662, true, 5, 0)--Tempest Slash
@@ -32,7 +32,6 @@ mod:AddPrivateAuraSoundOption(472662, true, 472662, 1, 1)--Tempest Slash
 mod:AddPrivateAuraSoundOption(1216042, true, 1216042, 1, 1)--Squall Leap
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 	self:EnableAlertOptions(468429, 21, "watchstep", 2)
 	self:EnableAlertOptions(472556, 23, "specialsoon", 2)
 	if self:IsTank() then

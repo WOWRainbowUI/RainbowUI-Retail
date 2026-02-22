@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2675, "DBM-Party-WarWithin", 10, 1303)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260214043004")
+mod:SetRevision("20260221022657")
 mod:SetCreatureID(234893)
 mod:SetEncounterID(3107)
 mod:SetHotfixNoticeRev(20250728000000)
@@ -24,7 +24,6 @@ mod:AddPrivateAuraSoundOption(1227748, true, 1227748, 1)--Toxic Regurgitation Ta
 mod:AddPrivateAuraSoundOption(1217439, true, 1217446, 1)--GTFO
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 	self:EnableAlertOptions(1217327, 2, "killmob", 1)
 	self:EnableAlertOptions(1217232, 461, "pullin", 2)
 

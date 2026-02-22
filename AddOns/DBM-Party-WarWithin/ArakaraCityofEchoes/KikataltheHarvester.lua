@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2585, "DBM-Party-WarWithin", 6, 1271)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260214030329")
+mod:SetRevision("20260221022657")
 mod:SetCreatureID(215407)
 mod:SetEncounterID(2901)
 mod:SetHotfixNoticeRev(20240818000000)
@@ -24,7 +24,6 @@ mod:AddCustomTimerOptions(461487, nil, 5, 0)--Cultivated Poisons (might also be 
 mod:AddPrivateAuraSoundOption(432119, true, 432119, 1)--Screwing up Cosmic Singularity (Faded)
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 	self:EnableAlertOptions(432117, 552, "movetopool", 15)
 	self:EnableAlertOptions(432130, 553, "watchstep", 2)
 

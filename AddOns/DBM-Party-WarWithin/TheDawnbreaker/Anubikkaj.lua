@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2581, "DBM-Party-WarWithin", 5, 1270)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260214035040")
+mod:SetRevision("20260221022657")
 mod:SetCreatureID(211089)
 mod:SetEncounterID(2838)
 mod:SetHotfixNoticeRev(20240706000000)
@@ -23,7 +23,6 @@ mod:AddCustomTimerOptions(452127, nil, 1, 0)--Animate Shadows
 mod:AddPrivateAuraSoundOption(426865, true, 426860, 1)--Dark Orb target
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 	self:EnableAlertOptions(426787, 622, "aesoon", 2)
 	if self:IsTank() then
 		self:EnableAlertOptions(427001, 624, "carefly", 2)

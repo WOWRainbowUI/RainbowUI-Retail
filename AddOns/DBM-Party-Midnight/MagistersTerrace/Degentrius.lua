@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2662, "DBM-Party-Midnight", 3, 1300)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260218213236")
+mod:SetRevision("20260221094926")
 mod:SetCreatureID(231865)
 mod:SetEncounterID(3074)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -23,13 +23,12 @@ mod:AddCustomAlertSoundOption(1215087, true, 2)--Unstable Void Essence
 mod:AddCustomAlertSoundOption(1280113, true, 1)--Hulking Fragment
 --Custom timer colors, countdowns, and disables
 mod:AddCustomTimerOptions(1215897, true, 3, 0)--Devouring Entropy
-mod:AddCustomTimerOptions(1215087, true, 5, 0)
-mod:AddCustomTimerOptions(1280113, true, 5, 0)
+mod:AddCustomTimerOptions(1215087, true, 5, 0)--Unstable Void Essence
+mod:AddCustomTimerOptions(1280113, true, 5, 0)--Hulking Fragment
 --Midnight private aura replacements
 mod:AddPrivateAuraSoundOption(1215897, true, 1215897, 1, 1)--Devouring Entropy
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 	self:EnableAlertOptions(1215087, 292, "catchballs", 12)
 	if self:IsTank() then
 		self:EnableAlertOptions(1280113, 420, "defensive", 2)

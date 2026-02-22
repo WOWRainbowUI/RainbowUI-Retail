@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2792, "DBM-Party-Midnight", 6, 1313)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260201012346")
+mod:SetRevision("20260221094926")
 mod:SetCreatureID(239008)
 mod:SetEncounterID(3286)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -15,8 +15,8 @@ mod:RegisterCombat("combat")
 
 --)
 
-mod:AddPrivateAuraSoundOption(1283506, true, 1283506, 4)
-mod:AddPrivateAuraSoundOption(1222484, true, 1222484, 1)
+mod:AddPrivateAuraSoundOption(1283506, true, 1283506, 4)--Fixate
+mod:AddPrivateAuraSoundOption(1222484, true, 1222484, 1)--Poison Pool
 
 function mod:OnLimitedCombatStart()
 	self:EnablePrivateAuraSound(1283506, "justrun", 2)

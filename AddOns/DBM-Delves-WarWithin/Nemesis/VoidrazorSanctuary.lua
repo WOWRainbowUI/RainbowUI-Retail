@@ -1,10 +1,10 @@
 local mod	= DBM:NewMod("z2951", "DBM-Delves-WarWithin", 1)
-local L		= mod:GetLocalizedStrings()
+--local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,mythic"
 mod.soloChallenge = true
 
-mod:SetRevision("20260220061402")
+mod:SetRevision("20260221022657")
 mod:SetCreatureID(244752)--Non hard one placeholder on load. Real one set in OnCombatStart
 mod:SetEncounterID(3326, 3325)
 mod:SetHotfixNoticeRev(20250908000000)
@@ -25,7 +25,6 @@ mod:AddCustomTimerOptions(1245203, nil, 5, 0)
 mod:AddCustomTimerOptions(1244462, nil, 6, 0)
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 	self:EnableAlertOptions(1245240, 521, "farfromline", 2)
 	self:EnableAlertOptions(1245582, 522, "pullin", 12)
 	self:EnableAlertOptions(1245203, 523, "ghostsoon", 2)

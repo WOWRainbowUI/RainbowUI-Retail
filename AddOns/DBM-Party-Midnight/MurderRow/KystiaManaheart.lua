@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2679, "DBM-Party-Midnight", 2, 1304)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260131224451")
+mod:SetRevision("20260221094926")
 mod:SetCreatureID(252458)
 mod:SetEncounterID(3101)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -15,7 +15,7 @@ mod:RegisterCombat("combat")
 
 --)
 
-mod:AddPrivateAuraSoundOption(1253813, true, 1253813, 1)
+mod:AddPrivateAuraSoundOption(1253813, true, 1253813, 1)--Fel Spray
 
 function mod:OnLimitedCombatStart()
 	self:EnablePrivateAuraSound(1253813, "watchfeet", 8)

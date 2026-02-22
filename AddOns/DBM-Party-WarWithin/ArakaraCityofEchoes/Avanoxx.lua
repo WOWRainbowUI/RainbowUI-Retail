@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2583, "DBM-Party-WarWithin", 6, 1271)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260214030329")
+mod:SetRevision("20260221022657")
 mod:SetCreatureID(213179)
 mod:SetEncounterID(2926)
 --mod:SetUsedIcons(1, 2, 3, 4)
@@ -26,7 +26,6 @@ mod:AddPrivateAuraSoundOption(439070, true, 439070, 1)
 mod:AddPrivateAuraSoundOption(434830, true, 434830, 1)--GTFO
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 	if self:IsTank() then
 		self:EnableAlertOptions(438471, 539, "defensive", 2)
 	end

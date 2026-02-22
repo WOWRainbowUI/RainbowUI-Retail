@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2584, "DBM-Party-WarWithin", 6, 1271)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260214030329")
+mod:SetRevision("20260221022657")
 mod:SetCreatureID(215405)
 mod:SetEncounterID(2906)
 mod:SetHotfixNoticeRev(20240817000000)
@@ -28,7 +28,6 @@ mod:AddPrivateAuraSoundOption(433740, true, 433740, 1)
 mod:AddPrivateAuraSoundOption(450969, true, 450969, 1)--GTFO
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 	self:EnableAlertOptions(433425, {542,551}, "frontal", 15)
 	self:EnableAlertOptions(439506, 543, "watchstep", 2)
 	self:EnableAlertOptions(1283246, 549, "mobsoon", 2)
