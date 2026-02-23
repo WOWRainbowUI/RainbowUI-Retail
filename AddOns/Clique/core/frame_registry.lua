@@ -22,11 +22,13 @@ function addon:RegisterUnitFrame(frame)
     self.ccframes[frame] = true
     self:UpdateRegisteredClicks(frame)
 
-    -- Wrap the OnEnter and OnLeave scripts once, calling the snippets stored
+    -- Wrap the OnEnter and OnLeave scripts, calling the snippets stored
     -- in the control header. That script gets updated with new attributes
     -- so no need to update the dispatch.
-    self.header:WrapScript(frame, "OnEnter", [[control:RunFor(self, control:GetAttribute('setup_onenter'))]])
-    self.header:WrapScript(frame, "OnLeave", [[control:RunFor(self, control:GetAttribute('setup_onleave'))]])
+    --
+    -- NOTE that these will be nuked if the unit frame sets these scripts,
+    -- as this is just hooking.
+    self:WrapOnEnterOnLeave(frame)
 
     -- Set the attributes on the frame
     self.header:SetFrameRef("cliquesetup_button", frame)
