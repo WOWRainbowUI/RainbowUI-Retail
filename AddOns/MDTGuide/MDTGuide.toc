@@ -2,8 +2,8 @@
 ## Title: MDTGuide
 ## Notes: Guide mode for Mythic Dungeon Tools.
 ## Notes-deDE: Guide-Modus für Mythic Dungeon Tools.
-## Version: 2.00
-## OptionalDeps: MythicDungeonTools
+## Version: 2.01
+## Dependencies: MythicDungeonTools
 ## SavedVariables: MDTGuideDB, MDTGuideActive, MDTGuideOptions
 
 ## Title-zhTW: |cffFF7F00[M+]|r 地城規劃工具-導覽視窗
