@@ -64,6 +64,8 @@ function Details222.StartUp.StartMeUp()
 	end
 
 	if detailsFramework.IsAddonApocalypseWow() then
+		Details.auto_swap_to_dynamic_overall = false
+
 		if (Details.breakdown_spell_tab.spellcontainer_headers["casts"]) then
 			Details.breakdown_spell_tab.spellcontainer_headers["casts"].enabled = false
 		end
@@ -183,6 +185,7 @@ function Details222.StartUp.StartMeUp()
 	--/run Details.ocd_tracker.show_options = true; ReloadUI()
 	--custom window
 	Details.custom = Details.custom or {}
+
 	--Details222.InitRecap()
 
 	--micro button alert
@@ -471,6 +474,13 @@ function Details222.StartUp.StartMeUp()
 	if (Details.is_version_first_run) then
 		if (Details.build_counter == 13096) then
 			Details.mythic_plus.autoclose_time = 90
+		end
+
+		if detailsFramework.IsAddonApocalypseWow() then
+			--remove all custom displays from the previous version of the addon, because they are not compatible with 12.x.x and can cause errors.
+			for i = #Details.custom, 1, -1 do
+				table.remove(Details.custom, i)
+			end
 		end
 
 		local lowerInstanceId = Details:GetLowerInstanceNumber()

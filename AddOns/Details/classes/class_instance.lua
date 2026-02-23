@@ -221,6 +221,8 @@ local instanceMixins = {
 	---set the combatObject by the segmentId the instance is showing
 	---@param instance instance
 	RefreshCombat = function(instance)
+		Details:StopTestBarUpdate()
+
 		---@type segmentid
 		local segmentId = instance:GetSegmentId()
 		if (segmentId == DETAILS_SEGMENTID_OVERALL) then
@@ -270,6 +272,8 @@ local instanceMixins = {
 	---@param resetType number|nil
 	---@param segmentId segmentid|nil
 	ResetWindow = function(instance, resetType, segmentId) --deprecates Details:ResetaGump()
+		Details:StopTestBarUpdate()
+
 		--check the reset type, 0x1: entering in combat
 		if (resetType and resetType == 0x1) then
 			--if is showing the overall data, do nothing
@@ -446,6 +450,8 @@ local instanceMixins = {
 	---@param sessionId number
 	---@param bForceRefresh boolean?
 	SetNewSegmentId = function(instance, sessionId, bForceRefresh)
+		Details:StopTestBarUpdate()
+
 		local old = instance:GetNewSegmentId()
 		if sessionId == old then
 			if not bForceRefresh then
@@ -485,6 +491,8 @@ local instanceMixins = {
 	---@param sessionType number
 	---@param bForceRefresh boolean?
 	SetSegmentType = function(instance, sessionType, bForceRefresh)
+		Details:StopTestBarUpdate()
+
 		local old = instance:GetSegmentType()
 		if sessionType == old then
 			if not bForceRefresh then
@@ -561,6 +569,8 @@ local instanceMixins = {
 	---@param instance instance
 	---@param modeId modeid
 	SetMode = function(instance, modeId)
+		Details:StopTestBarUpdate()
+
 		instance.LastModo = instance.modo
 		instance.modo = modeId
 		instance:CheckIntegrity()
@@ -568,6 +578,7 @@ local instanceMixins = {
 	end,
 
 	SetSegmentFromCooltip = function(_, instance, segmentId, bForceChange)
+		Details:StopTestBarUpdate()
 		return instance:SetSegment(segmentId, bForceChange)
 	end,
 
@@ -576,6 +587,13 @@ local instanceMixins = {
 	---@param segmentId segmentid
 	---@param bForceChange boolean|nil
 	SetSegment = function(instance, segmentId, bForceChange)
+		if Details:IsUsingBlizzardAPI() then
+			--shutdown SetSegment if using blizzard parser
+			--todo: on swap to details temporarly, this function should be reactivated
+			return
+		end
+
+		Details:StopTestBarUpdate()
 		local currentSegment = instance:GetSegmentId()
 		if (segmentId ~= currentSegment or bForceChange) then
 			--check if the instance is frozen
@@ -632,6 +650,8 @@ local instanceMixins = {
 	---@param modeId modeid
 	---@param quickMode boolean?
 	SetDisplay = function(instance, segmentId, attributeId, subAttributeId, modeId, quickMode)
+		Details:StopTestBarUpdate()
+
 		--change the mode of the window if the mode is different
 		---@type modeid
 		local currentModeId = instance:GetMode()
@@ -2783,6 +2803,7 @@ function Details:CheckSwitchToCurrent()
 		instance = instance
 		---@type boolean?
 		local canSwap = false
+
 		if Details:IsUsingBlizzardAPI() then
 			canSwap = instance.ativa and instance.auto_current and instance.baseframe and instance:GetSegmentType() and instance:GetSegmentType() > 1
 		else
@@ -2818,6 +2839,11 @@ function Details:ShowLastBoss()
 	local currentSession = self:GetSegmentObject()
 	local encounterName = currentSession and currentSession.name or ""
 	if encounterName:find("%(!") then
+		return
+	end
+
+	local segmentType = self:GetSegmentType()
+	if segmentType and segmentType == 0 then
 		return
 	end
 

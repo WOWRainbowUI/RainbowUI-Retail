@@ -1818,6 +1818,7 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 		local damageContainer = combatObject[class_type]
 		instanceObject.v_barras = true
 		instanceObject.rows_showing = 0
+
 		return Details:HideBarsNotInUse(instanceObject, damageContainer, 0.01), "", 0, 0
 	end
 
@@ -3188,7 +3189,12 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 	end
 
 	if (instance.row_info.textL_show_number) then
-		instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
+		if issecretvalue(actorName) then
+			instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
+		else
+			actorName = detailsFramework:RemoveRealmName(actorName)
+			instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
+		end
 	else
 		instanceLine.lineText1:SetText(actorName) --left text
 	end
@@ -3284,7 +3290,6 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 
 	instanceLine:SetAlpha(1)
 	instanceLine:Show()
-	--detailsFramework:DebugVisibility(thisLine)
 end
 
 -- ~atualizar ~barra ~update
