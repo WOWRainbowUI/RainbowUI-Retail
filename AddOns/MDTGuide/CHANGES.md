@@ -1,3 +1,3 @@
-- Updated ToC version for patch 12.0
-- Remove route (path estimation) mode, as it's no longer possible to track kills
-- Replace deprecated API calls
+- Updated ToC version for patch 12.0.1
+- Fix current dungeon detection
+- Make dependency on MDT non-optional

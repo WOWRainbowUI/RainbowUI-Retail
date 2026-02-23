@@ -41,6 +41,7 @@ local zoomAnimGrp, fadeAnimGrp
 local fadeTicker, isFaded
 local isHidden
 local previousSublevel
+local retry
 
 -- ---------------------------------------
 --              Toggle mode
@@ -904,8 +905,19 @@ local OnEvent = function(_, ev, ...)
                 until not frame
             end)
         end
+    elseif ev == "PLAYER_ENTERING_WORLD" or ev == "ZONE_CHANGED_NEW_AREA" or ev == "WORLD_STATE_TIMER_START" then
+        local isParty = select(2, IsInInstance()) == "party"
+        if not isParty then return end
+
+        local map = C_Map.GetBestMapForUnit("player")
+        if not map then retry = {ev, ...} return end
+
+        local dungeon = Addon.GetInstanceDungeonId(map)
+        Addon.SetInstanceDungeon(dungeon)
     elseif ev == "SCENARIO_CRITERIA_UPDATE" then
         Addon.ZoomToCurrentPull(true)
+    elseif ev == "SCENARIO_COMPLETED" or ev == "CHAT_MSG_SYSTEM" and canaccessvalue(...) and (...):match(Addon.PATTERN_INSTANCE_RESET) then
+        Addon.SetInstanceDungeon()
     elseif ev == "PLAYER_REGEN_ENABLED" or ev == "PLAYER_REGEN_DISABLED" then
         if not MDTGuideDB.active or not MDT.main_frame then return end
 
@@ -924,18 +936,28 @@ local OnEvent = function(_, ev, ...)
     end
 end
 
-Frame:SetScript("OnEvent", OnEvent)
-Frame:RegisterEvent("ADDON_LOADED")
-Frame:RegisterEvent("SCENARIO_CRITERIA_UPDATE")
-Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-
 local OnUpdate = function ()
     if not MDT then return end
     previousSublevel = MDT:GetCurrentSubLevel()
+
+    if retry then
+        local args = retry
+        retry = nil
+        OnEvent(nil, unpack(args))
+    end
 end
 
+Frame:SetScript("OnEvent", OnEvent)
 Frame:SetScript("OnUpdate", OnUpdate)
+Frame:RegisterEvent("ADDON_LOADED")
+Frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+Frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+Frame:RegisterEvent("WORLD_STATE_TIMER_START")
+Frame:RegisterEvent("SCENARIO_CRITERIA_UPDATE")
+Frame:RegisterEvent("SCENARIO_COMPLETED")
+Frame:RegisterEvent("CHAT_MSG_SYSTEM")
+Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
 
 -- ---------------------------------------
 --                Options
