@@ -25,6 +25,8 @@ ns.DEFAULT_SETTINGS = {
         cooldownManager_cooldownFontSizeUtility = "NIL",
         cooldownManager_cooldownFontSizeBuffIcons_enabled = false,
         cooldownManager_cooldownFontSizeBuffIcons = "NIL",
+        cooldownManager_cooldownFontSizeTracker_enabled = false,
+        cooldownManager_cooldownFontSizeTracker = "NIL",
 
         cooldownManager_stackFontName = "Friz Quadrata TT",
         cooldownManager_stackFontFlags = { OUTLINE = true },
@@ -92,6 +94,8 @@ ns.DEFAULT_SETTINGS = {
         -- Icon Size Normalization
         cooldownManager_normalizeUtilitySize = false,
 
+        cooldownManager_visibility_enabled_rules = {},
+
         cooldownManager_customSwipeColor_enabled = false,
         cooldownManager_customActiveColor_r = 1,
         cooldownManager_customActiveColor_g = 0.95,
@@ -103,7 +107,12 @@ ns.DEFAULT_SETTINGS = {
         cooldownManager_customCDSwipeColor_a = 0.69,
 
         cooldownManager_experimental_hideAuras = false,
-        cooldownManager_experimental_enableRectangularIcons = false,
+        cooldownManager_experimental_enableRectangularIcons_essential = false,
+        cooldownManager_experimental_enableRectangularIcons_essential_percent = 0.8,
+        cooldownManager_experimental_enableRectangularIcons_utility = false,
+        cooldownManager_experimental_enableRectangularIcons_utility_percent = 0.8,
+        cooldownManager_experimental_enableRectangularIcons_buffIcons = false,
+        cooldownManager_experimental_enableRectangularIcons_buffIcons_percent = 0.8,
 
         -- used for new tracker as well - legacy name
         trinketRacialTracker_squareIcons = false,

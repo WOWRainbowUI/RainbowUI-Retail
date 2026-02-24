@@ -11,6 +11,7 @@ local dbDefaults = {
     itemViewerLayouts = {},
     itemSettings = {},
     spellItemSettings = {},
+    wildcardSlotSettings = {},
     showUnusable = false,
 }
 
@@ -128,7 +129,31 @@ function TrackerDB.InitializeDB()
                 }
             end
         end
+        if not db.wildcardSlotSettings.trinket1 then
+            db.wildcardSlotSettings.trinket1 = {
+                state = "hidden",
+                order = 1,
+            }
+        end
+        if not db.wildcardSlotSettings.trinket2 then
+            db.wildcardSlotSettings.trinket2 = {
+                state = "hidden",
+                order = 2,
+            }
+        end
         ns.db.profile._tracker_filled_with_defaults = true
+    end
+
+    db.wildcardSlotSettings = db.wildcardSlotSettings or {}
+    if not db.wildcardSlotSettings.trinket1 then
+        db.wildcardSlotSettings.trinket1 = {
+            state = "hidden",
+        }
+    end
+    if not db.wildcardSlotSettings.trinket2 then
+        db.wildcardSlotSettings.trinket2 = {
+            state = "hidden",
+        }
     end
 end
 
@@ -141,6 +166,12 @@ function TrackerDB.GetSpellItemSettings(spellID)
     local db = TrackerDB.GetDB()
     db.spellItemSettings = db.spellItemSettings or {}
     return db.spellItemSettings[spellID]
+end
+
+function TrackerDB.GetWildcardSlotSettings(slotID)
+    local db = TrackerDB.GetDB()
+    db.wildcardSlotSettings = db.wildcardSlotSettings or {}
+    return db.wildcardSlotSettings[slotID]
 end
 
 function TrackerDB.EnsureItemSettings(itemID)
@@ -160,6 +191,15 @@ function TrackerDB.EnsureSpellItemSettings(spellID)
     return db.spellItemSettings[spellID]
 end
 
+function TrackerDB.EnsureWildcardSlotSettings(slotID)
+    local db = TrackerDB.GetDB()
+    db.wildcardSlotSettings = db.wildcardSlotSettings or {}
+    if db.wildcardSlotSettings[slotID] == nil then
+        db.wildcardSlotSettings[slotID] = {}
+    end
+    return db.wildcardSlotSettings[slotID]
+end
+
 function TrackerDB.GetItemState(itemID)
     local settings = TrackerDB.GetItemSettings(itemID)
     return settings and settings.state or nil
@@ -167,6 +207,11 @@ end
 
 function TrackerDB.GetSpellItemState(spellID)
     local settings = TrackerDB.GetSpellItemSettings(spellID)
+    return settings and settings.state or nil
+end
+
+function TrackerDB.GetWildcardSlotState(slotID)
+    local settings = TrackerDB.GetWildcardSlotSettings(slotID)
     return settings and settings.state or nil
 end
 
@@ -190,6 +235,18 @@ function TrackerDB.SetSpellItemState(spellID, state)
     end
 
     local settings = TrackerDB.EnsureSpellItemSettings(spellID)
+    settings.state = state
+end
+
+function TrackerDB.SetWildcardSlotState(slotID, state)
+    local db = TrackerDB.GetDB()
+    db.wildcardSlotSettings = db.wildcardSlotSettings or {}
+    if state == nil then
+        db.wildcardSlotSettings[slotID] = nil
+        return
+    end
+
+    local settings = TrackerDB.EnsureWildcardSlotSettings(slotID)
     settings.state = state
 end
 

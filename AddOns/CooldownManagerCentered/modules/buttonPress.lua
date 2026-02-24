@@ -1,6 +1,6 @@
 local _, ns = ...
 
-local LAB = ns.LibActionButton
+local LAB = LibStub("LibActionButton-1.0", true)
 local ButtonPress = {}
 ns.ButtonPress = ButtonPress
 
@@ -32,7 +32,7 @@ local function GetSpellIDFromCooldownId(cooldownID)
         return nil
     end
     local cooldownIDInfo = C_CooldownViewer.GetCooldownViewerCooldownInfo(cooldownID)
-    if cooldownIDInfo.spellID then
+    if cooldownIDInfo and cooldownIDInfo.spellID then
         return cooldownIDInfo.spellID, cooldownIDInfo.overrideSpellID
     end
 end
@@ -155,22 +155,29 @@ local function CreateOrGetTextureFrame(icon)
     return frame
 end
 
-local function EnableTexture(icon)
+local function EnableHighlight(icon)
     local iconFrame = CreateOrGetTextureFrame(icon)
     iconFrame:Show()
 end
 
-local function DisableTexture(icon)
-    local iconFrame = CreateOrGetTextureFrame(icon)
-    iconFrame:Hide()
+local function DisableHighlight(icon)
+    if icon.HighlightTexture and icon.HighlightTexture:IsShown() and icon.HighlightTexture.Hide then
+        icon.HighlightTexture:Hide()
+    end
 end
 
 local toHide = {}
+local isCleaningUp = false
 local function cleanupToHide()
-    for _, icon in ipairs(toHide) do
-        DisableTexture(icon)
+    if isCleaningUp then
+        return
     end
-    toHide = {}
+    isCleaningUp = true
+    for i, icon in ipairs(toHide) do
+        DisableHighlight(icon)
+        toHide[i] = nil
+    end
+    isCleaningUp = false
 end
 
 local function ToggleHighlight(icon, show)
@@ -180,48 +187,64 @@ local function ToggleHighlight(icon, show)
     if not icon then
         return
     end
-    local textureFrame = CreateOrGetTextureFrame(icon)
+
     if show then
-        textureFrame:Show()
+        EnableHighlight(icon)
     else
-        textureFrame:Hide()
+        DisableHighlight(icon)
     end
 end
 
-local function ShowHighlight(icon)
-    ToggleHighlight(icon, true)
-end
-
+local isProcessingButtonPress = false
 local function ButtonPressed(button, mouseButton)
+    if isProcessingButtonPress then
+        return
+    end
     if not ns.db.profile.cooldownManager_buttonPress then
         return
     end
     if not button then
         return
     end
+    isProcessingButtonPress = true
     local spellID = GetSpellIdFromButton(button)
     if not spellID then
+        isProcessingButtonPress = false
         return
     end
 
     local icon = GetViewerIconBySpellId(spellID)
     if not icon then
+        isProcessingButtonPress = false
         return
     end
     table.insert(toHide, icon)
 
-    ShowHighlight(icon)
+    EnableHighlight(icon)
+    isProcessingButtonPress = false
 end
 
 local function HookButtonPressToPreClick(button)
+    if not button or button.IsCMCButtonPressHooked then
+        return
+    end
+
+    button.IsCMCButtonPressHooked = true
     button:HookScript("PreClick", function(self, mouseButton, down)
+        if self.IsCMCButtonPressHandlingPreClick then
+            return
+        end
+        self.IsCMCButtonPressHandlingPreClick = true
+
+        local currentTime = GetTimePreciseSec()
         cleanupToHide()
         if not down then
+            self.IsCMCButtonPressHandlingPreClick = nil
             return
         end
         ButtonPressed(self, mouseButton)
+        self.IsCMCButtonPressHandlingPreClick = nil
     end)
-    button.IsCMCButtonPressHooked = true
 end
 
 local function HookDominosButton(button)
@@ -229,7 +252,17 @@ local function HookDominosButton(button)
         return
     end
     local function handler(_, mouseButton, down)
-        ButtonPressed(button, mouseButton, down, nil)
+        if button.IsCMCButtonPressHandlingBindPreClick then
+            return
+        end
+        button.IsCMCButtonPressHandlingBindPreClick = true
+        cleanupToHide()
+        if not down then
+            button.IsCMCButtonPressHandlingBindPreClick = nil
+            return
+        end
+        ButtonPressed(button, mouseButton)
+        button.IsCMCButtonPressHandlingBindPreClick = nil
     end
     if button.bind and not button.IsCMCButtonPress_BindHooked then
         button.bind:HookScript("PreClick", handler)
@@ -266,7 +299,12 @@ local function RegisterLABCallbacks()
     end)
 end
 
+local isElvUICallbackRegistered = false
 function ButtonPress:RegisterElvUICallbacks()
+    if isElvUICallbackRegistered then
+        return
+    end
+    isElvUICallbackRegistered = true
     local ElvUI = _G.ElvUI and _G.ElvUI[1]
     if not ElvUI then
         return
@@ -280,7 +318,11 @@ function ButtonPress:RegisterElvUICallbacks()
     end)
 end
 
+local isDominosHooked = false
 function ButtonPress:HookAllDominosButtons()
+    if isDominosHooked then
+        return
+    end
     local Dominos = _G.Dominos
     if not Dominos or not Dominos.ActionButtons or not Dominos.ActionButtons.GetAll then
         return
@@ -290,12 +332,18 @@ function ButtonPress:HookAllDominosButtons()
             HookDominosButton(button)
         end
     end)
+    isDominosHooked = true
 end
 
+local isInitialized = false
 function ButtonPress:Initialize()
+    if isInitialized then
+        return
+    end
     if not ns.db.profile.cooldownManager_buttonPress then
         return
     end
+    isInitialized = true
     hooksecurefunc("ActionButtonDown", function(id)
         if not ns.db.profile.cooldownManager_buttonPress then
             return
@@ -304,7 +352,7 @@ function ButtonPress:Initialize()
         local spellID, isFromMacro = GetSpellIdFromButton(btn)
         local icon = GetViewerIconBySpellId(spellID)
         if icon then
-            EnableTexture(icon)
+            EnableHighlight(icon)
             if isFromMacro then
                 table.insert(toHide, icon)
             end
@@ -319,7 +367,7 @@ function ButtonPress:Initialize()
         local spellID = GetSpellIdFromButton(btn)
         local icon = GetViewerIconBySpellId(spellID)
         if icon then
-            DisableTexture(icon)
+            DisableHighlight(icon)
         end
         cleanupToHide()
     end)
@@ -332,7 +380,7 @@ function ButtonPress:Initialize()
         local spellID, isFromMacro = GetSpellIdFromButton(btn)
         local icon = GetViewerIconBySpellId(spellID)
         if icon then
-            EnableTexture(icon)
+            EnableHighlight(icon)
         end
         if isFromMacro then
             table.insert(toHide, icon)
@@ -347,7 +395,7 @@ function ButtonPress:Initialize()
         local spellID = GetSpellIdFromButton(btn)
         local icon = GetViewerIconBySpellId(spellID)
         if icon then
-            DisableTexture(icon)
+            DisableHighlight(icon)
         end
         cleanupToHide()
     end)

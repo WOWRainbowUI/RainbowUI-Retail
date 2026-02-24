@@ -14,6 +14,7 @@ end
 Runtime.stop = false
 Runtime.isInEditMode = false
 Runtime.hasSettingsOpened = false
+Runtime.clientSceneActive = false
 
 local viewers = {
     ["BuffIconCooldownViewer"] = BuffIconCooldownViewer,
@@ -261,6 +262,23 @@ EventHandler.events["SPELL_UPDATE_COOLDOWN"] = function(self, event, spellId)
     if ns.CooldownManager then
         ns.CooldownManager.UpdateUtilityDimming()
     end
+end
+C_Timer.NewTicker(1, function()
+    if not Runtime:IsAllReady() then
+        return
+    end
+
+    if ns.CooldownManager then
+        ns.CooldownManager.UpdateUtilityDimming()
+    end
+end)
+
+EventHandler.events["CLIENT_SCENE_OPENED"] = function(self, event, ...)
+    local sceneType = ...
+    Runtime.clientSceneActive = (sceneType == 1)
+end
+EventHandler.events["CLIENT_SCENE_CLOSED"] = function(self, event, ...)
+    Runtime.clientSceneActive = false
 end
 
 for event, handler in pairs(EventHandler.events) do

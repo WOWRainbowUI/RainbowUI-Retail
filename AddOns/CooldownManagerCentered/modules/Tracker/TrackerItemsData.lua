@@ -12,6 +12,20 @@ local ITEM_STATE_HIDDEN = "hidden"
 local ITEM_STATE_TRACKER1 = "tracker1"
 local ITEM_STATE_TRACKER2 = "tracker2"
 
+local ENTRY_KIND_WILDCARD_SLOTS = "wildcardSlots"
+local WILDCARD_SLOT_TRINKET1 = "trinket1"
+local WILDCARD_SLOT_TRINKET2 = "trinket2"
+
+local WILDCARD_SLOT_DISPLAY_NAMES = {
+    [WILDCARD_SLOT_TRINKET1] = "Trinket in first slot",
+    [WILDCARD_SLOT_TRINKET2] = "Trinket in second slot",
+}
+
+local WILDCARD_SLOT_INVENTORY_SLOTS = {
+    [WILDCARD_SLOT_TRINKET1] = INVSLOT_TRINKET1,
+    [WILDCARD_SLOT_TRINKET2] = INVSLOT_TRINKET2,
+}
+
 local RACIAL_NAME_FALLBACK = "Racial"
 local GENERAL_NAME_FALLBACK = "General"
 
@@ -26,6 +40,35 @@ end
 
 local function IsSpellEntry(entry)
     return entry and entry.kind == "spell"
+end
+
+local function IsWildcardSlotEntry(entry)
+    return entry and entry.kind == ENTRY_KIND_WILDCARD_SLOTS
+end
+
+local function IsWildcardSlotID(slotID)
+    return slotID == WILDCARD_SLOT_TRINKET1 or slotID == WILDCARD_SLOT_TRINKET2
+end
+
+local function GetWildcardSlotDisplayName(slotID)
+    return WILDCARD_SLOT_DISPLAY_NAMES[slotID] or tostring(slotID)
+end
+
+local function GetWildcardSlotInventorySlot(slotID)
+    return WILDCARD_SLOT_INVENTORY_SLOTS[slotID]
+end
+
+local function GetWildcardSlotItemID(slotID)
+    local inventorySlot = GetWildcardSlotInventorySlot(slotID)
+    if not inventorySlot then
+        return nil
+    end
+
+    local location = ItemLocation:CreateFromEquipmentSlot(inventorySlot)
+    if location and C_Item.DoesItemExist(location) then
+        return C_Item.GetItemID(location)
+    end
+    return nil
 end
 
 local function EntriesEqual(a, b)
@@ -180,6 +223,9 @@ function ItemsData:GetItemNameByID(itemID)
 end
 
 function ItemsData:GetEntryName(kind, id)
+    if kind == ENTRY_KIND_WILDCARD_SLOTS then
+        return GetWildcardSlotDisplayName(id)
+    end
     if kind == "spell" then
         return GetSpellNameByID(id)
     end
@@ -187,6 +233,9 @@ function ItemsData:GetEntryName(kind, id)
 end
 
 local function GetEntrySettings(entry)
+    if IsWildcardSlotEntry(entry) then
+        return DB.GetWildcardSlotSettings(entry.id)
+    end
     if IsSpellEntry(entry) then
         return DB.GetSpellItemSettings(entry.id)
     end
@@ -194,6 +243,9 @@ local function GetEntrySettings(entry)
 end
 
 local function EnsureEntrySettings(entry)
+    if IsWildcardSlotEntry(entry) then
+        return DB.EnsureWildcardSlotSettings(entry.id)
+    end
     if IsSpellEntry(entry) then
         return DB.EnsureSpellItemSettings(entry.id)
     end
@@ -297,6 +349,9 @@ function ItemsData:InsertItemAt(state, entry, targetEntry, insertBefore)
 end
 
 function ItemsData:GetEntryState(kind, id)
+    if kind == ENTRY_KIND_WILDCARD_SLOTS then
+        return DB.GetWildcardSlotState(id)
+    end
     if kind == "spell" then
         return DB.GetSpellItemState(id)
     end
@@ -304,6 +359,10 @@ function ItemsData:GetEntryState(kind, id)
 end
 
 function ItemsData:SetEntryState(kind, id, state)
+    if kind == ENTRY_KIND_WILDCARD_SLOTS then
+        DB.SetWildcardSlotState(id, state)
+        return
+    end
     if kind == "spell" then
         DB.SetSpellItemState(id, state)
     else
@@ -327,15 +386,22 @@ local function IsTrackableBagItem(itemID)
         return false
     end
     local classID, subclassID = select(6, GetItemInfoInstant(itemID))
-    if classID == Enum.ItemClass.Consumable and subclassID ~= Enum.ItemConsumableSubclass.Other then
+
+    if classID == Enum.ItemClass.Consumable then
         return true
     end
+end
+
+local function IsTrackableWildcardSlot(slotID)
+    local itemID = GetWildcardSlotItemID(slotID)
+    return itemID ~= nil and IsTrackableItem(itemID)
 end
 
 function ItemsData:ScanOwnedItems()
     local owned = {
         items = {},
         spells = {},
+        wildcardSlots = {},
     }
 
     if C_Container and NUM_BAG_SLOTS then
@@ -365,12 +431,16 @@ function ItemsData:ScanOwnedItems()
         owned.spells[spellID] = true
     end
 
+    owned.wildcardSlots[WILDCARD_SLOT_TRINKET1] = true
+    owned.wildcardSlots[WILDCARD_SLOT_TRINKET2] = true
+
     return owned
 end
 
 function ItemsData:EnsureTrackedItems(owned)
     local ownedItems = owned and owned.items or {}
     local ownedSpells = owned and owned.spells or {}
+    local ownedWildcardSlots = owned and owned.wildcardSlots or {}
 
     for itemID in pairs(ownedItems) do
         local state = DB.GetItemState(itemID)
@@ -383,6 +453,15 @@ function ItemsData:EnsureTrackedItems(owned)
         local state = DB.GetSpellItemState(spellID)
         if state == nil then
             DB.SetSpellItemState(spellID, ITEM_STATE_HIDDEN)
+        end
+    end
+
+    for slotID in pairs(ownedWildcardSlots) do
+        if IsWildcardSlotID(slotID) then
+            local state = DB.GetWildcardSlotState(slotID)
+            if state == nil then
+                DB.SetWildcardSlotState(slotID, ITEM_STATE_HIDDEN)
+            end
         end
     end
 end
@@ -400,6 +479,12 @@ function ItemsData:GetEntriesByState(state)
     for spellID, settings in pairs(db.spellItemSettings or {}) do
         if settings.state == state then
             table.insert(entries, MakeEntry("spell", spellID))
+        end
+    end
+
+    for slotID, settings in pairs(db.wildcardSlotSettings or {}) do
+        if settings.state == state and IsWildcardSlotID(slotID) then
+            table.insert(entries, MakeEntry(ENTRY_KIND_WILDCARD_SLOTS, slotID))
         end
     end
 
@@ -442,6 +527,7 @@ function ItemsData:GetTracker1Entries(owned)
     local db = DB.GetDB()
     local ownedItems = owned and owned.items or {}
     local ownedSpells = owned and owned.spells or {}
+    local ownedWildcardSlots = owned and owned.wildcardSlots or {}
 
     for itemID, settings in pairs(db.itemSettings or {}) do
         if settings.state == ITEM_STATE_TRACKER1 and ownedItems[itemID] then
@@ -455,6 +541,12 @@ function ItemsData:GetTracker1Entries(owned)
         end
     end
 
+    for slotID, settings in pairs(db.wildcardSlotSettings or {}) do
+        if settings.state == ITEM_STATE_TRACKER1 and ownedWildcardSlots[slotID] and IsTrackableWildcardSlot(slotID) then
+            table.insert(entries, MakeEntry(ENTRY_KIND_WILDCARD_SLOTS, slotID))
+        end
+    end
+
     EnsureOrderForEntries(entries)
     SortEntries(entries)
     return entries
@@ -465,6 +557,7 @@ function ItemsData:GetTracker2Entries(owned)
     local db = DB.GetDB()
     local ownedItems = owned and owned.items or {}
     local ownedSpells = owned and owned.spells or {}
+    local ownedWildcardSlots = owned and owned.wildcardSlots or {}
 
     for itemID, settings in pairs(db.itemSettings or {}) do
         if settings.state == ITEM_STATE_TRACKER2 and ownedItems[itemID] then
@@ -478,6 +571,12 @@ function ItemsData:GetTracker2Entries(owned)
         end
     end
 
+    for slotID, settings in pairs(db.wildcardSlotSettings or {}) do
+        if settings.state == ITEM_STATE_TRACKER2 and ownedWildcardSlots[slotID] and IsTrackableWildcardSlot(slotID) then
+            table.insert(entries, MakeEntry(ENTRY_KIND_WILDCARD_SLOTS, slotID))
+        end
+    end
+
     EnsureOrderForEntries(entries)
     SortEntries(entries)
     return entries
@@ -486,3 +585,14 @@ end
 ItemsData.ITEM_STATE_HIDDEN = ITEM_STATE_HIDDEN
 ItemsData.ITEM_STATE_TRACKER1 = ITEM_STATE_TRACKER1
 ItemsData.ITEM_STATE_TRACKER2 = ITEM_STATE_TRACKER2
+ItemsData.ENTRY_KIND_WILDCARD_SLOTS = ENTRY_KIND_WILDCARD_SLOTS
+ItemsData.WILDCARD_SLOT_TRINKET1 = WILDCARD_SLOT_TRINKET1
+ItemsData.WILDCARD_SLOT_TRINKET2 = WILDCARD_SLOT_TRINKET2
+
+function ItemsData:GetWildcardSlotItemID(slotID)
+    return GetWildcardSlotItemID(slotID)
+end
+
+function ItemsData:IsTrackableItem(itemID)
+    return IsTrackableItem(itemID)
+end

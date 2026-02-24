@@ -74,7 +74,25 @@ local function GetFormattedKeybind(key)
         return ""
     end
 
+    local bindingText = GetBindingText and GetBindingText(key, "KEY_", true)
+    local displayKey = (bindingText and bindingText ~= "") and bindingText or key
+    if displayKey:find("|", 1, true) then
+        return displayKey
+    end
+
     local upperKey = key:upper()
+
+    upperKey = upperKey:gsub("PADLTRIGGER", "LT")
+    upperKey = upperKey:gsub("PADRTRIGGER", "RT")
+    upperKey = upperKey:gsub("PADLSHOULDER", "LB")
+    upperKey = upperKey:gsub("PADRSHOULDER", "RB")
+    upperKey = upperKey:gsub("PADLSTICK", "LS")
+    upperKey = upperKey:gsub("PADRSTICK", "RS")
+    upperKey = upperKey:gsub("PADDPADUP", "D↑")
+    upperKey = upperKey:gsub("PADDPADDOWN", "D↓")
+    upperKey = upperKey:gsub("PADDPADLEFT", "D←")
+    upperKey = upperKey:gsub("PADDPADRIGHT", "D→")
+    upperKey = upperKey:gsub("^PAD", "")
 
     upperKey = upperKey:gsub("SHIFT%-", "S")
     upperKey = upperKey:gsub("META%-", "M")
@@ -84,6 +102,7 @@ local function GetFormattedKeybind(key)
 
     upperKey = upperKey:gsub("MOUSE%s?WHEEL%s?UP", "MWU")
     upperKey = upperKey:gsub("MOUSE%s?WHEEL%s?DOWN", "MWD")
+    upperKey = upperKey:gsub("MIDDLE%s?MOUSE", "MM")
     upperKey = upperKey:gsub("MOUSE%s?BUTTON%s?", "M")
     upperKey = upperKey:gsub("BUTTON", "M")
 
@@ -95,6 +114,7 @@ local function GetFormattedKeybind(key)
     upperKey = upperKey:gsub("NUMPAD%s?ENTER", "NEnt")
     upperKey = upperKey:gsub("NUMPAD%s?", "N")
     upperKey = upperKey:gsub("NUM%s?", "N")
+    upperKey = upperKey:gsub("NPAD%s?", "N")
 
     upperKey = upperKey:gsub("PAGE%s?UP", "PGU")
     upperKey = upperKey:gsub("PAGE%s?DOWN", "PGD")
@@ -107,6 +127,9 @@ local function GetFormattedKeybind(key)
     upperKey = upperKey:gsub("CAPS%s?LOCK", "Caps")
     upperKey = upperKey:gsub("HOME", "Hom")
     upperKey = upperKey:gsub("END", "End")
+
+    upperKey = upperKey:gsub("%s+", "")
+    upperKey = upperKey:gsub("%-", "")
 
     return upperKey
 end
@@ -167,14 +190,18 @@ function Keybinds:GetActionsTableBySpellId(slotToKeybind)
         if not spellIdToKeyBind[id] then
             if (actionType == "macro" and subType == "spell") or (actionType == "spell") then
                 spellIdToKeyBind[id] = keyBind
-                if ns.SpellIDOverrides[id] then
+                if ns.SpellIDOverrides[id] and not spellIdToKeyBind[ns.SpellIDOverrides[id]] then
                     spellIdToKeyBind[ns.SpellIDOverrides[id]] = keyBind
                 end
             elseif actionType == "macro" then
-                local macroSpellID = GetMacroSpell(id)
-                if macroSpellID then
+                local macroName = GetActionText(slot)
+                local macroSpellID = GetMacroSpell(macroName)
+
+                if macroSpellID and not spellIdToKeyBind[macroSpellID] then
                     spellIdToKeyBind[macroSpellID] = keyBind
-                    if ns.SpellIDOverrides[macroSpellID] then
+                    if
+                        ns.SpellIDOverrides[macroSpellID] and not spellIdToKeyBind[ns.SpellIDOverrides[macroSpellID]]
+                    then
                         spellIdToKeyBind[ns.SpellIDOverrides[macroSpellID]] = keyBind
                     end
                 end
@@ -202,7 +229,8 @@ function Keybinds:GetActionsTableBySpellId(slotToKeybind)
                 end
             end
         end
-    elseif BT4Button1 then
+    end
+    if BT4Button1 then
         for i = 1, 180 do
             local button = _G["BT4Button" .. i]
 
@@ -214,7 +242,8 @@ function Keybinds:GetActionsTableBySpellId(slotToKeybind)
                 end
             end
         end
-    elseif ElvUI_Bar1Button1 then
+    end
+    if ElvUI_Bar1Button1 then
         for i = 1, 15 do
             local bar = ButtonRowsPrefix["elvui"][i]
 
@@ -232,21 +261,20 @@ function Keybinds:GetActionsTableBySpellId(slotToKeybind)
                 end
             end
         end
-    else
-        for i = 1, 8 do
-            local bar = ButtonRowsPrefix["blizzard"][i]
+    end
+    for i = 1, 8 do
+        local bar = ButtonRowsPrefix["blizzard"][i]
 
-            if bar then
-                for j = 1, 12 do
-                    local buttonName = bar .. j
-                    local button = _G[buttonName]
-                    local slot = button and button.action
-                    local keyBoundTarget = button and button.commandName
-                    if button and slot and keyBoundTarget then
-                        local keyBind = GetBindingKey(keyBoundTarget)
-                        if keyBind then
-                            assignResultForSlot(slot, keyBind)
-                        end
+        if bar then
+            for j = 1, 12 do
+                local buttonName = bar .. j
+                local button = _G[buttonName]
+                local slot = button and button.action
+                local keyBoundTarget = button and button.commandName
+                if button and slot and keyBoundTarget then
+                    local keyBind = GetBindingKey(keyBoundTarget)
+                    if keyBind then
+                        assignResultForSlot(slot, keyBind)
                     end
                 end
             end
@@ -460,6 +488,7 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
         or event == "UPDATE_BINDINGS"
         or event == "ACTIONBAR_HIDEGRID"
         or event == "UPDATE_BONUS_ACTIONBAR"
+        or event == "GAME_PAD_ACTIVE_CHANGED"
     then
         spellIDToKeyBindCache = {}
     end
@@ -506,6 +535,7 @@ function Keybinds:Enable()
     eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
     eventFrame:RegisterEvent("ACTIONBAR_HIDEGRID")
     eventFrame:RegisterEvent("ACTIONBAR_PAGE_CHANGED")
+    eventFrame:RegisterEvent("GAME_PAD_ACTIVE_CHANGED")
 
     -- Hook into viewer layout refresh to update keybinds
 

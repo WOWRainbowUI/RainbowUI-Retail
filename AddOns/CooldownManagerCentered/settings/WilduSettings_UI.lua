@@ -579,6 +579,9 @@ local function WilduSettings_BuildCooldown(category, layout)
         set = function(value)
             ns.db.profile.cooldownManager_cooldownFontName = value
             ns.CooldownFont:RefreshAll()
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
         end,
         desc = "選擇技能冷卻數字的字型。若可用將使用 SharedMedia 字型。",
         generator = function(dropdown, rootDescription)
@@ -608,6 +611,9 @@ local function WilduSettings_BuildCooldown(category, layout)
                 end, function()
                     ns.db.profile.cooldownManager_cooldownFontName = fontName
                     ns.CooldownFont:RefreshAll()
+                    if ns.TrackerItemViewer then
+                        ns.TrackerItemViewer:RefreshStyling()
+                    end
                     dropdown:SetText(fontName)
                 end)
 
@@ -649,6 +655,9 @@ local function WilduSettings_BuildCooldown(category, layout)
         setSelection = function(value)
             ns.db.profile.cooldownManager_cooldownFontFlags = value
             ns.CooldownFont:RefreshAll()
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
         end,
         desc = "選擇技能冷卻數字的文字樣式。",
     })
@@ -807,6 +816,40 @@ local function WilduSettings_BuildCooldown(category, layout)
                 ns.API:ShowReloadUIConfirmation()
             end
             ns.CooldownFont:RefreshAll()
+        end
+    )
+    CreateCooldownFontSizeDropdown(
+        cooldownSection,
+        "cooldownManager_cooldownFontSizeTracker",
+        "追蹤器上的變更",
+        function()
+            return ns.db.profile.cooldownManager_cooldownFontSizeTracker ~= nil
+                    and tostring(ns.db.profile.cooldownManager_cooldownFontSizeTracker)
+                or "NIL"
+        end,
+        function(value)
+            if value == "NIL" then
+                ns.db.profile.cooldownManager_cooldownFontSizeTracker = "NIL"
+            else
+                local n = tonumber(value)
+                ns.db.profile.cooldownManager_cooldownFontSizeTracker = n
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        "cooldownManager_cooldownFontSizeTracker_enabled",
+        function()
+            return ns.db.profile.cooldownManager_cooldownFontSizeTracker_enabled
+        end,
+        function(value)
+            ns.db.profile.cooldownManager_cooldownFontSizeTracker_enabled = value
+            if not value then
+                ns.API:ShowReloadUIConfirmation()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
         end
     )
 
@@ -1638,42 +1681,6 @@ local function WilduSettings_BuildCooldown(category, layout)
         colorizeTitle = true,
     })
 
-    local function BuildRacialsOptions()
-        local options = {}
-        local spellNameToIds = {}
-
-        for _, spellId in ipairs(ns.TrinketRacialTracker.RACIALS) do
-            local spellInfo = C_Spell.GetSpellInfo(spellId)
-            if spellInfo and spellInfo.name then
-                if not spellNameToIds[spellInfo.name] then
-                    spellNameToIds[spellInfo.name] = {
-                        ids = {},
-                        icon = spellInfo.iconID,
-                    }
-                end
-                table.insert(spellNameToIds[spellInfo.name].ids, spellId)
-            end
-        end
-
-        local sortedNames = {}
-        for name in pairs(spellNameToIds) do
-            table.insert(sortedNames, name)
-        end
-        table.sort(sortedNames)
-
-        for _, name in ipairs(sortedNames) do
-            local data = spellNameToIds[name]
-            local iconText = "|T" .. (data.icon or "Interface\\Icons\\INV_Misc_QuestionMark") .. ":16:16:0:0|t "
-            table.insert(options, {
-                value = name,
-                text = iconText .. name,
-                label = iconText .. name,
-            })
-        end
-
-        return options
-    end
-
     SettingsLib:CreateCheckbox(category, {
         parentSection = trackerStyleSection,
         prefix = "CMC_",
@@ -1686,9 +1693,6 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_squareIcons = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1715,9 +1719,6 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_borderThickness = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1743,9 +1744,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_iconZoom = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
+
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1796,9 +1795,6 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_stackAnchor = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1824,9 +1820,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_stackFontSize = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
+
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1852,9 +1846,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_stackOffsetX = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
+
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1880,9 +1872,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_stackOffsetY = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
+
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1998,6 +1988,58 @@ local function WilduSettings_BuildCooldown(category, layout)
         },
     })
 
+    SettingsLib:CreateMultiDropdown(category, {
+        prefix = "CMC_",
+        key = "cooldownManager_visibility_enabled_rules",
+        name = "|cff008945S|r|cff1e9a4em|r|cff3faa4fa|r|cff5fb64ar|r|cff8ccd00t|r 可見性",
+		customText = "不變更可見性",
+		searchtags = {
+			"可見性",
+			"規則",
+			"條件",
+			"隱藏",
+			"顯示",
+			"工具",
+			"關鍵",
+			"CDM",
+			"不透明度",
+			"透明度",
+		},
+		defaultSelection = {},
+		values = {
+			["SHOW_IN_COMBAT"] = "戰鬥中總是顯示",
+			["SHOW_WITH_TARGET"] = "有目標時總是顯示",
+			["HIDE_WHEN_MOUNTED"] = "騎乘時隱藏",
+			["HIDE_OUT_OF_COMBAT"] = "非戰鬥時隱藏",
+			["HIDE_IN_VEHICLES"] = "在載具與動態場景中隱藏",
+		},
+
+        order = {
+            "SHOW_IN_COMBAT",
+            "SHOW_WITH_TARGET",
+            "HIDE_WHEN_MOUNTED",
+            "HIDE_OUT_OF_COMBAT",
+            "HIDE_IN_VEHICLES",
+        },
+        getSelection = function()
+            return ns.db.profile.cooldownManager_visibility_enabled_rules or {}
+        end,
+        setSelection = function(value)
+            ns.db.profile.cooldownManager_visibility_enabled_rules = value
+            ns.CMCVisibility:Initialize()
+        end,
+        summary = function(selectionMap, labels)
+            local count = ns.API:GetTableLength(selectionMap)
+            if count == 0 then
+                return "沒有規則"
+            elseif count == 1 then
+                return "1 個規則"
+            else
+                return count .. " 個規則"
+            end
+        end,
+        desc = "選擇冷卻管理器的可見性條件。",
+    })
     SettingsLib:CreateCheckbox(category, {
         prefix = "CMC_",
         key = "cooldownManager_limitUtilitySizeToEssential",
@@ -2059,69 +2101,122 @@ local function WilduSettings_BuildCooldown(category, layout)
         searchtags = { "實驗性", "測試", "功能", "Experimental", "Beta", "Testing", "Feature", "Features" },
     })
 
-    SettingsLib:CreateCheckbox(experimentalCategory, {
+    SettingsLib:CreateHeader(experimentalCategory, {
+        name = "矩形圖示 - 可自訂長寬比",
+		searchtags = { "矩形", "圖示", "實驗性", "長方形", "寬版", "長寬比" },
+    })
+    SettingsLib:CreateCheckboxSlider(experimentalCategory, {
         prefix = "CMC_",
-        key = "cooldownManager_experimental_enableRectangularIcons",
-        name = "長方形圖示",
-        searchtags = { "長方形", "圖示", "實驗性", "矩形", "寬", "長寬比", "Rectangular", "Icons", "Experimental", "Rectangle", "Wide", "Aspect Ratio" },
+        key = "cooldownManager_experimental_enableRectangularIcons_buffIcons",
+        name = "為增益圖示啟用",
+        searchtags = { "長方形", "圖示", "實驗性", "矩形", "寬", "長寬比" },
         default = false,
         get = function()
-            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons
+            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons_buffIcons
         end,
         set = function(value)
-            ns.db.profile.cooldownManager_experimental_enableRectangularIcons = value
+            ns.db.profile.cooldownManager_experimental_enableRectangularIcons_buffIcons = value
             ns.StyledIcons:OnSettingChanged()
-            ns.API:ShowReloadUIConfirmation()
+            if not value then
+                ns.API:ShowReloadUIConfirmation()
+            end
         end,
-        desc = "為冷卻管理員檢視器啟用長方形圖示。|cffff0000實驗性功能，可能會導致問題！|r",
-    })
-    SettingsLib:CreateText(experimentalCategory, {
-        name = '長方形圖示 - 需要啟用「方形樣式」- 尚未完全可配置',
-    })
+        desc = "啟用增益檢視器的矩形圖示。|cffff0000實驗性功能，可能會導致問題！|r",
 
-    SettingsLib:CreateCheckbox(experimentalCategory, {
+        sliderKey = "cooldownManager_experimental_enableRectangularIcons_buffIcons_percent",
+        sliderName = "高度與寬度比例",
+        sliderMin = 0.6,
+        sliderMax = 0.9,
+        sliderStep = 0.1,
+        sliderDefault = 0.8,
+        sliderGet = function()
+            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons_buffIcons_percent
+        end,
+        sliderSet = function(value)
+            local rounded = math.floor((value or 0) * 10 + 0.5) / 10
+            ns.db.profile.cooldownManager_experimental_enableRectangularIcons_buffIcons_percent = rounded
+            ns.StyledIcons:OnSettingChanged()
+        end,
+        sliderFormatter = function(value)
+            return string.format("%.0f%%", value * 100)
+        end,
+    })
+    SettingsLib:CreateCheckboxSlider(experimentalCategory, {
         prefix = "CMC_",
-        key = "cooldownManager_experimental_hideAuras",
-        name = "隱藏光環",
-        searchtags = { "隱藏", "光環", "實驗性", "冷卻", "增益", "減益", "Hide", "Auras", "Experimental", "Cooldowns", "Buffs", "Debuffs" },
+        key = "cooldownManager_experimental_enableRectangularIcons_essential",
+        name = "為關鍵技能啟用",
+        searchtags = { "長方形", "圖示", "實驗性", "Rectangle", "寬", "長寬比" },
         default = false,
         get = function()
-            -- return ns.db.profile.cooldownManager_experimental_hideAuras
-            return false
+            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons_essential
         end,
         set = function(value)
-            -- ns.db.profile.cooldownManager_experimental_hideAuras = value
-            return false
+            ns.db.profile.cooldownManager_experimental_enableRectangularIcons_essential = value
+            ns.StyledIcons:OnSettingChanged()
+            if not value then
+                ns.API:ShowReloadUIConfirmation()
+            end
         end,
-        isEnabled = function()
-            return false
+        desc = "啟用關鍵技能檢視器的矩形圖示。|cffff0000實驗性功能，可能會導致問題！|r",
+
+        sliderKey = "cooldownManager_experimental_enableRectangularIcons_essential_percent",
+        sliderName = "高度與寬度比例",
+        sliderMin = 0.6,
+        sliderMax = 0.9,
+        sliderStep = 0.1,
+        sliderDefault = 0.8,
+        sliderGet = function()
+            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons_essential_percent
         end,
-        desc = "在圖示上隱藏光環，始終只顯示技能的冷卻時間。|cffff0000實驗性功能，可能會導致問題！|r",
+        sliderSet = function(value)
+            local rounded = math.floor((value or 0) * 10 + 0.5) / 10
+            ns.db.profile.cooldownManager_experimental_enableRectangularIcons_essential_percent = rounded
+            ns.StyledIcons:OnSettingChanged()
+        end,
+        sliderFormatter = function(value)
+            return string.format("%.0f%%", value * 100)
+        end,
     })
 
-    SettingsLib:CreateCheckbox(experimentalCategory, {
+    SettingsLib:CreateCheckboxSlider(experimentalCategory, {
         prefix = "CMC_",
-        key = "cooldownManager_experimental_trinketRacialTracker",
-        name = "監控飾品、藥水與種族特長",
-        searchtags = { "Trinket", "Racial", "Tracker", "Experimental", "Cooldowns", "Icons", "Potion", "Healthstone" },
+        key = "cooldownManager_experimental_enableRectangularIcons_utility",
+        name = "為輔助技能啟用長方形圖示",
+        searchtags = { "長方形", "圖示", "實驗性", "Rectangle", "寬", "長寬比" },
         default = false,
         get = function()
-            -- return ns.db.profile.cooldownManager_experimental_trinketRacialTracker
-            return false
-        end,
-        isEnabled = function()
-            return false
+            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons_utility
         end,
         set = function(value)
-            -- ns.db.profile.cooldownManager_experimental_trinketRacialTracker = value
-            -- if ns.TrinketRacialTracker then
-            --     ns.TrinketRacialTracker:OnSettingChanged()
-            -- end
+            ns.db.profile.cooldownManager_experimental_enableRectangularIcons_utility = value
+            ns.StyledIcons:OnSettingChanged()
+            if not value then
+                ns.API:ShowReloadUIConfirmation()
+            end
         end,
-        desc = "顯示一個獨立的追蹤條，用於監控飾品、藥水、治療石和種族特長的冷卻時間。|cffff0000實驗性功能，可能會導致問題！|r",
+        desc = "啟用輔助技能檢視器的矩形圖示。|cffff0000實驗性功能，可能會導致問題！|r",
+
+        sliderKey = "cooldownManager_experimental_enableRectangularIcons_utility_percent",
+        sliderName = "高度與寬度比例",
+        sliderMin = 0.6,
+        sliderMax = 0.9,
+        sliderStep = 0.1,
+        sliderDefault = 0.8,
+        sliderGet = function()
+            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons_utility_percent
+        end,
+        sliderSet = function(value)
+            local rounded = math.floor((value or 0) * 10 + 0.5) / 10
+            ns.db.profile.cooldownManager_experimental_enableRectangularIcons_utility_percent = rounded
+            ns.StyledIcons:OnSettingChanged()
+        end,
+        sliderFormatter = function(value)
+            return string.format("%.0f%%", value * 100)
+        end,
     })
+
     SettingsLib:CreateText(experimentalCategory, {
-        name = "追蹤器與顯示/隱藏光環的設定，現在可以在冷卻技能設定的第三個分頁中進行調整",
+        name = "|cffff0000不再是實驗功能：|r追蹤器可在主標籤頁中設定 ＆ 光環的隱藏/顯示設定現在可在\n冷卻設定的第三個標籤頁中調整。",
     })
     SettingsLib:CreateButton(experimentalCategory, {
         text = "打開冷卻技能設定",

@@ -82,6 +82,59 @@ local function GetStackOffsetY()
     return (ns.db and ns.db.profile and ns.db.profile.trinketRacialTracker_stackOffsetY) or 1
 end
 
+local function GetCooldownSwipeColor()
+    return {
+        (ns.db and ns.db.profile and ns.db.profile.cooldownManager_customCDSwipeColor_r)
+            or DB.DEFAULT_COOLDOWN_SWIPE_COLOR[1],
+        (ns.db and ns.db.profile and ns.db.profile.cooldownManager_customCDSwipeColor_g)
+            or DB.DEFAULT_COOLDOWN_SWIPE_COLOR[2],
+        (ns.db and ns.db.profile and ns.db.profile.cooldownManager_customCDSwipeColor_b)
+            or DB.DEFAULT_COOLDOWN_SWIPE_COLOR[3],
+        (ns.db and ns.db.profile and ns.db.profile.cooldownManager_customCDSwipeColor_a)
+            or DB.DEFAULT_COOLDOWN_SWIPE_COLOR[4],
+    }
+end
+
+local function GetCooldownFontFlags()
+    local fontFlags = ns.db.profile.cooldownManager_cooldownFontFlags or {}
+    local fontFlag = {}
+    for n, v in pairs(fontFlags) do
+        if v == true then
+            table.insert(fontFlag, n)
+        end
+    end
+    return table.concat(fontFlag, ",")
+end
+
+local function ApplyCooldownFontToFrame(frame)
+    if not frame or not frame.Cooldown or not frame.Cooldown.GetCountdownFontString then
+        return
+    end
+    local fontString = frame.Cooldown:GetCountdownFontString()
+    if not fontString then
+        return
+    end
+    local size = ns.db.profile.cooldownManager_cooldownFontSizeTracker
+    local enabled = ns.db.profile.cooldownManager_cooldownFontSizeTracker_enabled
+    local numericSize = tonumber(size)
+    if enabled and numericSize == 0 then
+        fontString:SetFontHeight(0)
+        return
+    end
+    fontString:SetAlpha(1)
+    fontString:SetTextColor(1, 1, 1, 1)
+    if not enabled or size == "NIL" or size == nil then
+        numericSize = select(2, fontString:GetFont()) or 16
+    else
+        numericSize = numericSize or 16
+    end
+
+    local fontName = ns.db.profile.cooldownManager_cooldownFontName or "Friz Quadrata TT"
+    local fontPath = GetFontPath(fontName)
+    local fontFlags = GetCooldownFontFlags()
+    fontString:SetFont(fontPath, numericSize, fontFlags or "")
+end
+
 local function ApplySquareStyle(frame)
     local borderThickness = GetBorderThickness()
     local zoom = GetIconZoom()
@@ -232,6 +285,7 @@ function ItemViewerFrame:Initialize()
     end
     ApplyStyleToFrame(frame)
     ApplyStackFontToFrame(frame)
+    ApplyCooldownFontToFrame(frame)
     frame:Hide()
 end
 
@@ -259,6 +313,7 @@ function ItemViewerFrame:UpdateEntry(entry)
     ItemVisuals:UpdateEntryCooldown(frame, entry.kind, entry.id)
     ApplyStyleToFrame(frame)
     ApplyStackFontToFrame(frame)
+    ApplyCooldownFontToFrame(frame)
 
     frame:Show()
 end
@@ -268,6 +323,7 @@ function ItemViewerFrame:UpdateCooldown()
     if not frame:IsShown() or not frame._CMCTracker_EntryKind or not frame._CMCTracker_EntryID then
         return
     end
+    ItemVisuals:ApplyEntryIcon(frame, frame._CMCTracker_EntryKind, frame._CMCTracker_EntryID)
     ItemVisuals:UpdateEntryCooldown(frame, frame._CMCTracker_EntryKind, frame._CMCTracker_EntryID)
 end
 
@@ -369,7 +425,7 @@ function TrackerInstance:RefreshEntries(forceRefresh)
 
         local db = DB.GetDB()
         if ivf.frame.Cooldown then
-            ivf.frame.Cooldown:SetSwipeColor(unpack(DB.DEFAULT_COOLDOWN_SWIPE_COLOR))
+            ivf.frame.Cooldown:SetSwipeColor(unpack(GetCooldownSwipeColor()))
             ivf.frame.Cooldown:SetDrawEdge(false)
         end
 
@@ -397,6 +453,7 @@ function TrackerInstance:RefreshStyling()
         if ivf.frame:IsShown() then
             ApplyStyleToFrame(ivf.frame)
             ApplyStackFontToFrame(ivf.frame)
+            ApplyCooldownFontToFrame(ivf.frame)
         end
     end
 end
@@ -436,6 +493,7 @@ function TrackerInstance:Create()
     self.anchor:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
     self.anchor:RegisterEvent("SPELL_UPDATE_COOLDOWN")
     self.anchor:RegisterEvent("SPELL_UPDATE_CHARGES")
+    self.anchor:RegisterEvent("ITEM_LOCKED")
     self.anchor:RegisterEvent("PLAYER_ENTERING_WORLD")
     self.anchor:RegisterEvent("PLAYER_TALENT_UPDATE")
     self.anchor:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
@@ -443,8 +501,16 @@ function TrackerInstance:Create()
     self.anchor:SetScript("OnEvent", function(_, event, arg1)
         if event == "SPELL_UPDATE_COOLDOWN" or event == "SPELL_UPDATE_CHARGES" then
             self:UpdateCooldowns()
-        elseif event == "PLAYER_EQUIPMENT_CHANGED" then
-            self:RefreshEntries(false)
+        elseif event == "PLAYER_ENTERING_WORLD" then
+            self:RefreshEntries(true)
+            C_Timer.After(5, function()
+                self:RefreshEntries(true)
+            end)
+        elseif event == "ITEM_LOCKED" then
+            self:RefreshEntries(true)
+            C_Timer.After(0.5, function()
+                self:RefreshEntries(true)
+            end)
         else
             self:RefreshEntries(true)
         end

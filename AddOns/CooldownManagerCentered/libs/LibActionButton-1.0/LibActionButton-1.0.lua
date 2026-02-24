@@ -28,14 +28,11 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ]]
-local _, ns = ...
 local MAJOR_VERSION = "LibActionButton-1.0"
 local MINOR_VERSION = 143
 
 if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
--- local lib, oldversion = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
-lib = {}
-ns.LibActionButton = lib
+local lib, oldversion = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 
 -- Lua functions
@@ -1967,9 +1964,6 @@ function UpdateUsable(self)
 
 	if WoWRetail and self._state_type == "action" then
 		local isLevelLinkLocked = C_LevelLink.IsActionLocked(self._state_action)
-		if issecretvalue(self.icon:IsDesaturated()) then
-			return
-		end
 		if not self.icon:IsDesaturated() then
 			self.icon:SetDesaturated(isLevelLinkLocked)
 		end

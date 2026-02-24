@@ -5,10 +5,41 @@ local MiscPanel = ns.MiscPanel
 local CooldownStyle = ns.CooldownStyle or {}
 ns.CooldownStyle = CooldownStyle
 local MENU_TITLE = "|cff008945內|r|cff1e9a4e建|r|cff3faa4f技|r|cff5fb64a能|r|cff7ac243監控|r|cff8ccd00美化|r"
+local GCD_SPELL_ID = 61304
 
 local DEFAULT_ALWAYS_SHOW_COOLDOWN_EDGE = false
 local DEFAULT_SHOW_AURAS = true
+local DEFAULT_DISABLE_PROCS_GLOW = false
+local DEFAULT_REVERSE_AURA_SWIPE = false
 
+CooldownStyle.FORCE_DISABLED_INSTANT_CASTS = {
+    -- Druid
+    [8921] = true, -- Moonfire
+    [93402] = true, -- Sunfire
+    [191034] = true, -- Starfall
+
+    -- Warlock
+    [980] = true, -- Agony
+    [172] = true, -- Corruption
+    [348] = true, -- Immolate
+    [5740] = true, -- Rain of Fire
+    [1214467] = true, -- Raid of Fire
+    [316099] = true, -- Unstable Affliction
+    [1259790] = true, -- Unstable Affliction
+    [17877] = true, -- Shadowburn
+
+    -- Priest
+    [589] = true, -- Shadow Word: Pain
+    [34914] = true, -- Vampiric Touch
+    [15407] = true, -- Mind Flay,
+    [335467] = true, -- Shadow Word: Madness
+}
+
+-- local FIX_BLIZZARD_MISSING_DEBUFF = {
+--     [204596] = true, -- Sigil of Flame
+--     [207684] = true, -- Sigil of Misery
+--     [202137] = true, -- Sigil of Silence
+-- }
 local function GetCooldownFrames()
     local frames = {}
 
@@ -63,15 +94,22 @@ local function ApplyIconSettings(cdmFrame)
         return
     end
 
-    if CooldownStyle.GetShowAuras(spellID) and cdmFrame.wasSetFromAura then
+    local baseSpellId = FindBaseSpellByID(spellID)
+
+    local shouldShowAuras = true
+    if not CooldownStyle.GetShowAuras(cooldownInfo.spellID) or not CooldownStyle.GetShowAuras(baseSpellId) then
+        shouldShowAuras = false
+    end
+
+    if shouldShowAuras and cdmFrame.wasSetFromAura then
         cdmFrame.Cooldown:SetDrawSwipe(cdmFrame.cooldownShowSwipe == true)
         cdmFrame.Icon:SetDesaturation(0)
         return
     end
-
-    if cdmFrame.wasSetFromAura then
+    if cdmFrame._CMCTracker_Desaturation ~= nil then
         cdmFrame.Icon:SetDesaturation(cdmFrame._CMCTracker_Desaturation)
-
+    end
+    if cdmFrame.wasSetFromAura then
         local spellCharges = C_Spell.GetSpellCharges(spellID)
         if spellCharges then
             if issecretvalue(spellCharges.currentCharges) or issecretvalue(spellCharges.maxCharges) then
@@ -119,38 +157,52 @@ local function ApplyCooldownSettings(cdmFrame)
     end
 
     local spellID = cooldownInfo.overrideSpellID or cooldownInfo.spellID
+
     if not spellID then
         return
+    end
+    local baseSpellId = FindBaseSpellByID(spellID)
+    local shouldShowAuras = true
+    if not CooldownStyle.GetShowAuras(cooldownInfo.spellID) or not CooldownStyle.GetShowAuras(baseSpellId) then
+        shouldShowAuras = false
     end
 
     if CooldownStyle.GetAlwaysShowCooldownEdge(spellID) then
         cdmFrame.Cooldown:SetDrawEdge(true)
     end
 
-    if CooldownStyle.GetShowAuras(spellID) and cdmFrame.wasSetFromAura then
+    if shouldShowAuras and cdmFrame.wasSetFromAura then
+        cdmFrame.Cooldown:SetReverse(CooldownStyle.GetReverseAuraSwipe(baseSpellId))
         local _r, _g, _b, _a = GetCustomActiveSwipe()
         cdmFrame.Cooldown:SetSwipeColor(_r, _g, _b, _a)
         return
     end
+    local shouldHideAuras = not shouldShowAuras and cdmFrame.wasSetFromAura
 
     cdmFrame.Cooldown:SetReverse(false)
 
     local _r, _g, _b, _a = GetCustomGCDSwipe()
     cdmFrame.Cooldown:SetSwipeColor(_r, _g, _b, _a)
 
-    local cooldownDuration = C_Spell.GetSpellCooldownDuration(spellID)
-    cdmFrame.Cooldown:SetCooldownFromDurationObject(cooldownDuration)
-    if C_Spell.GetSpellCharges(spellID) then
-        cdmFrame.Cooldown:SetCooldownFromDurationObject(C_Spell.GetSpellChargeDuration(spellID))
-    else
-        cdmFrame.Cooldown:SetDrawSwipe(true)
-    end
-
     local cooldown = C_Spell.GetSpellCooldown(spellID)
-    if cooldown and cooldown.isOnGCD then
-        cdmFrame._CMCTracker_Desaturation = 0
-    else
+
+    cdmFrame._CMCTracker_Desaturation = nil
+
+    if shouldHideAuras and not cooldown.isOnGCD then
+        local cooldownDuration = C_Spell.GetSpellCooldownDuration(spellID)
+        cdmFrame.Cooldown:SetCooldownFromDurationObject(cooldownDuration)
+        if C_Spell.GetSpellCharges(spellID) then
+            cdmFrame.Cooldown:SetCooldownFromDurationObject(C_Spell.GetSpellChargeDuration(spellID))
+        end
         cdmFrame._CMCTracker_Desaturation = cooldownDuration:EvaluateRemainingPercent(desaturationCurve)
+    end
+    if shouldHideAuras and CooldownStyle.FORCE_DISABLED_INSTANT_CASTS[baseSpellId] then
+        if cooldown.isOnGCD then
+            local cooldownDuration = C_Spell.GetSpellCooldownDuration(GCD_SPELL_ID)
+            cdmFrame.Cooldown:SetCooldownFromDurationObject(cooldownDuration)
+        else
+            cdmFrame.Cooldown:SetCooldownFromDurationObject(C_DurationUtil.CreateDuration())
+        end
     end
 
     ApplyIconSettings(cdmFrame)
@@ -165,9 +217,16 @@ local function HookCooldownFrame(cdmFrame)
         ApplyCooldownSettings(self:GetParent())
     end)
 
+    -- local cooldownInfo = cdmFrame:GetCooldownInfo()
     hooksecurefunc(cdmFrame.Icon, "SetDesaturated", function(self)
         ApplyIconSettings(self:GetParent())
     end)
+    -- if FIX_BLIZZARD_MISSING_DEBUFF[cooldownInfo.spellID] then
+    --     print("Applying fix for missing desaturation for spellID", cooldownInfo.spellID)
+    --     hooksecurefunc(cdmFrame.Cooldown, "Clear", function(self)
+    --         ApplyCooldownSettings(self:GetParent(), true)
+    --     end)
+    -- end
 
     cdmFrame._CMCTracker_Hooked = true
 end
@@ -227,7 +286,6 @@ local function RefreshCooldownManagerFrames()
     for _, cdmFrame in ipairs(GetCooldownFrames()) do
         if cdmFrame.Cooldown and cdmFrame.Icon then
             ApplyCooldownSettings(cdmFrame)
-            ApplyIconSettings(cdmFrame)
         end
     end
 end
@@ -236,8 +294,12 @@ function CooldownStyle:RefreshHooks()
     HookFrames()
 end
 
+local isMenuModified = false
 function CooldownStyle:Initialize()
     HookFrames()
+    if isMenuModified then
+        return
+    end
 
     Menu.ModifyMenu("MENU_COOLDOWN_SETTINGS_ITEM", function(owner, rootDescription, contextData)
         local cooldownID = owner.cooldownID
@@ -263,12 +325,32 @@ function CooldownStyle:Initialize()
             TrackedBuff: integer = 2,
             TrackedBar: integer = 3,
         ]]
+        if cdInfo.hasAura or cdInfo.selfAura then
+            if category == 0 or category == 1 then
+                rootDescription:CreateCheckbox("Hide Aura", function()
+                    return not CooldownStyle.GetShowAuras(spellID)
+                end, function()
+                    CooldownStyle.ToggleShowAuras(spellID)
+                    RefreshCooldownManagerFrames()
+                end)
+            end
+
+            if category == 0 or category == 1 then
+                rootDescription:CreateCheckbox("Reverse Aura Swipe", function()
+                    return CooldownStyle.GetReverseAuraSwipe(spellID)
+                end, function()
+                    CooldownStyle.ToggleReverseAuraSwipe(spellID)
+                    RefreshCooldownManagerFrames()
+                end)
+            end
+        end
+
         if category == 0 or category == 1 then
-            rootDescription:CreateCheckbox("顯示光環", function()
-                return CooldownStyle.GetShowAuras(spellID)
+            rootDescription:CreateCheckbox("停用觸發發光", function()
+                return CooldownStyle.GetDisableProcsGlow(spellID)
             end, function()
-                CooldownStyle.ToggleShowAuras(spellID)
-                RefreshCooldownManagerFrames()
+                CooldownStyle.ToggleDisableProcsGlow(spellID)
+                -- RefreshCooldownManagerFrames()
             end)
         end
 
@@ -278,6 +360,7 @@ function CooldownStyle:Initialize()
             RefreshCooldownManagerFrames()
         end)
     end)
+    isMenuModified = true
 end
 function CooldownStyle.GetDB()
     return ns.db.profile.cooldownStyleSettings
@@ -349,4 +432,56 @@ end
 function CooldownStyle.ToggleShowAuras(spellID)
     local current = CooldownStyle.GetShowAuras(spellID)
     CooldownStyle.SetShowAuras(spellID, not current)
+end
+
+function CooldownStyle.GetReverseAuraSwipe(spellID)
+    local settings = CooldownStyle.GetSpellSettings(spellID)
+    if settings and settings.reverseAuraSwipe ~= nil then
+        return settings.reverseAuraSwipe
+    end
+    return DEFAULT_REVERSE_AURA_SWIPE
+end
+
+function CooldownStyle.SetReverseAuraSwipe(spellID, value)
+    if value == DEFAULT_REVERSE_AURA_SWIPE then
+        local settings = CooldownStyle.GetSpellSettings(spellID)
+        if settings ~= nil then
+            settings.reverseAuraSwipe = nil
+        end
+        return
+    end
+
+    local settings = CooldownStyle.EnsureSpellSettings(spellID)
+    settings.reverseAuraSwipe = value
+end
+
+function CooldownStyle.ToggleReverseAuraSwipe(spellID)
+    local current = CooldownStyle.GetReverseAuraSwipe(spellID)
+    CooldownStyle.SetReverseAuraSwipe(spellID, not current)
+end
+
+function CooldownStyle.GetDisableProcsGlow(spellID)
+    local settings = CooldownStyle.GetSpellSettings(spellID)
+    if settings and settings.disableProcsGlow ~= nil then
+        return settings.disableProcsGlow
+    end
+    return DEFAULT_DISABLE_PROCS_GLOW
+end
+
+function CooldownStyle.SetDisableProcsGlow(spellID, value)
+    if value == DEFAULT_DISABLE_PROCS_GLOW then
+        local settings = CooldownStyle.GetSpellSettings(spellID)
+        if settings ~= nil then
+            settings.disableProcsGlow = nil
+        end
+        return
+    end
+
+    local settings = CooldownStyle.EnsureSpellSettings(spellID)
+    settings.disableProcsGlow = value
+end
+
+function CooldownStyle.ToggleDisableProcsGlow(spellID)
+    local current = CooldownStyle.GetDisableProcsGlow(spellID)
+    CooldownStyle.SetDisableProcsGlow(spellID, not current)
 end
