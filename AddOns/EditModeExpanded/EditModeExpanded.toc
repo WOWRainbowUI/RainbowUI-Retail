@@ -1,6 +1,6 @@
 ## Interface: 120001
 ## Title: Edit Mode Expanded
-## Version: 12.0-020
+## Version: 12.0-021
 ## Notes: Expands Edit Mode to apply to other frames
 ## Author: Teelo
 ## SavedVariables: EditModeExpandedADB
@@ -34,6 +34,7 @@ FrameHandlers\BelowMinimapContainer.lua
 FrameHandlers\BonusRoll.lua
 FrameHandlers\Buffs.lua
 FrameHandlers\ChatButtons.lua
+FrameHandlers\ChatFrame.lua
 FrameHandlers\ClassResources.lua
 FrameHandlers\CooldownManager.lua
 FrameHandlers\DurationBars.lua
