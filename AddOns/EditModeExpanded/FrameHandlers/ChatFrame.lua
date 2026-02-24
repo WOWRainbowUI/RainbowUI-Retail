@@ -27,7 +27,7 @@ function addon:initChatButtons()
     	end
     )
     --Register events
-    lib:RegisterCustomCheckbox(ChatFrame1, "Fade out while in combat", 
+    lib:RegisterCustomCheckbox(ChatFrame1, "戰鬥中淡出", 
         -- on checked
         function()
             event:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -208,7 +208,7 @@ function addon:initChatButtons()
     	end
     )
     
-    lib:RegisterSlider(ChatFrame1, "Fade Delay", "Fade Delay",
+    lib:RegisterSlider(ChatFrame1, "淡出延遲", "淡出延遲",
         function(newValue)
             t = newValue
         end,
