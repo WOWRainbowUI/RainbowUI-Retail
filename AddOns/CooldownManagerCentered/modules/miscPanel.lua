@@ -12,6 +12,7 @@ local ITEM_STATE_SHOWN = ItemsData.ITEM_STATE_SHOWN
 local ITEM_STATE_HIDDEN = ItemsData.ITEM_STATE_HIDDEN
 local ITEM_STATE_TRACKER1 = ItemsData.ITEM_STATE_TRACKER1
 local ITEM_STATE_TRACKER2 = ItemsData.ITEM_STATE_TRACKER2
+local ENTRY_KIND_WILDCARD_SLOTS = ItemsData.ENTRY_KIND_WILDCARD_SLOTS or "wildcardSlots"
 
 local reorderSourceItem = nil
 local reorderTarget = nil
@@ -70,9 +71,51 @@ local function SetButtonEntry(button, kind, id)
     if kind == "item" then
         button.itemID = id
         button.spellID = nil
-    else
+    elseif kind == "spell" then
         button.itemID = nil
         button.spellID = id
+    else
+        button.itemID = nil
+        button.spellID = nil
+    end
+end
+
+local function SetWildcardGlow(button, kind)
+    if not button then
+        return
+    end
+
+    if kind == ENTRY_KIND_WILDCARD_SLOTS then
+        if not button._CMCTracker_WildcardGlow then
+            button._CMCTracker_WildcardGlowFrame = CreateFrame("Frame", nil, button)
+            button._CMCTracker_WildcardGlowFrame:SetAllPoints(button.Icon or button)
+            button._CMCTracker_WildcardGlowFrame:SetFrameStrata("MEDIUM")
+            button._CMCTracker_WildcardGlowFrame:SetFrameLevel(20)
+            local glow = button._CMCTracker_WildcardGlowFrame:CreateTexture(nil, "ARTWORK")
+
+            glow:SetAtlas("UI-CooldownManager-ActiveGlow", false)
+            glow:ClearAllPoints()
+            glow:SetPoint("CENTER", button.Icon or button, "CENTER", 0, 0)
+            glow:SetSize(58, 58)
+            button._CMCTracker_WildcardGlow = glow
+        end
+        if not button._CMCTracker_WildcardName then
+            local name = button._CMCTracker_WildcardGlowFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalOutline")
+            name:SetFontHeight(11)
+            name:SetPoint("BOTTOM", button.Icon or button, "BOTTOM", 0, -4)
+            name:SetText("Trinket\nSlot")
+            name:SetTextColor(1, 0.8, 0.2, 1)
+            button._CMCTracker_WildcardName = name
+        end
+        button._CMCTracker_WildcardGlow:Show()
+        button._CMCTracker_WildcardName:Show()
+    else
+        if button._CMCTracker_WildcardGlow then
+            button._CMCTracker_WildcardGlow:Hide()
+        end
+        if button._CMCTracker_WildcardName then
+            button._CMCTracker_WildcardName:Hide()
+        end
     end
 end
 
@@ -90,7 +133,13 @@ local function SetIconFromEntry(target, kind, id)
     if not target or not target.Icon then
         return
     end
-    local quality = C_TradeSkillUI.GetItemReagentQualityByItemInfo(id)
+    local qualityItemID = nil
+    if kind == ENTRY_KIND_WILDCARD_SLOTS and ItemsData.GetWildcardSlotItemID then
+        qualityItemID = ItemsData:GetWildcardSlotItemID(id)
+    elseif kind == "item" then
+        qualityItemID = id
+    end
+    local quality = qualityItemID and C_TradeSkillUI.GetItemReagentQualityByItemInfo(qualityItemID) or nil
     if quality then
         if not target.Icon._quality then
             target.Icon._quality_frame = CreateFrame("Frame", nil, target)
@@ -129,6 +178,9 @@ local function IsEntryOwned(owned, kind, id)
     end
     if kind == "spell" then
         return owned.spells[id]
+    end
+    if kind == ENTRY_KIND_WILDCARD_SLOTS then
+        return owned.wildcardSlots and owned.wildcardSlots[id]
     end
     return owned.items[id]
 end
@@ -446,7 +498,22 @@ local function InitializeItemButton(button)
             local kind, id = GetEntryKindAndID(self)
             if kind and id then
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                if kind == "spell" then
+                if kind == ENTRY_KIND_WILDCARD_SLOTS then
+                    local wildcardName = ItemsData:GetEntryName(kind, id) or tostring(id)
+                    local equippedItemID = ItemsData.GetWildcardSlotItemID and ItemsData:GetWildcardSlotItemID(id)
+                        or nil
+                    if equippedItemID and GameTooltip.SetItemByID then
+                        GameTooltip:SetItemByID(equippedItemID)
+                        GameTooltip:AddLine(" ")
+                        GameTooltip:AddLine(wildcardName, 0.85, 0.85, 0.85)
+                    else
+                        if GameTooltip_SetTitle then
+                            GameTooltip_SetTitle(GameTooltip, wildcardName)
+                        else
+                            GameTooltip:SetText(wildcardName)
+                        end
+                    end
+                elseif kind == "spell" then
                     if GameTooltip.SetSpellByID then
                         GameTooltip:SetSpellByID(id)
                     else
@@ -596,6 +663,7 @@ function MiscPanel:LayoutCategory(category, entries, owned)
         for index, entry in ipairs(entries) do
             local button = AcquireItemButton(category)
             SetButtonEntry(button, entry.kind, entry.id)
+            SetWildcardGlow(button, entry.kind)
             button._CMCTracker_Empty = false
             button.categoryState = category.state
             button.layoutIndex = index
@@ -719,6 +787,9 @@ function MiscPanel:CreateItemCategory(parent, title, state)
             frame._CMCTracker_EntryKind = nil
             frame._CMCTracker_EntryID = nil
             frame._CMCTracker_Empty = nil
+            if frame._CMCTracker_WildcardGlow then
+                frame._CMCTracker_WildcardGlow:Hide()
+            end
             if frame.Icon then
                 frame.Icon:SetTexture(nil)
             end

@@ -67,7 +67,7 @@ local function SetIconCooldownFont(icon, viewerName)
             return
         end
         if not size or size == 0 then
-            fontString:SetTextColor(0, 0, 0, 0)
+            fontString:SetFontHeight(0)
             return
         end
         fontString:SetTextColor(1, 1, 1, 1)

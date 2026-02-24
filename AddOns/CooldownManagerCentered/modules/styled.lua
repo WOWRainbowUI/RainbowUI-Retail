@@ -42,6 +42,14 @@ local function IsAnyStyledFeatureEnabled()
         return true
     end
 
+    if
+        ns.db.profile.cooldownManager_experimental_enableRectangularIcons_essential
+        or ns.db.profile.cooldownManager_experimental_enableRectangularIcons_utility
+        or ns.db.profile.cooldownManager_experimental_enableRectangularIcons_buffIcons
+    then
+        return true
+    end
+
     return false
 end
 function StyledIcons:IsAnyStyledFeatureEnabled()
@@ -54,19 +62,45 @@ local function GetViewerIconSize(viewerSettingName)
         data = normalizedSizeConfig[viewerSettingName]
     end
 
-    if ns.db.profile.cooldownManager_experimental_enableRectangularIcons then
-        if viewerSettingName == "Essential" or isNormalizedUtility then
-            return 50, 40
-        elseif viewerSettingName == "Utility" then
-            return 30, 24
-        elseif viewerSettingName == "BuffIcons" then
-            return 40, 32
-        end
+    if
+        viewerSettingName == "Essential"
+        and ns.db.profile.cooldownManager_experimental_enableRectangularIcons_essential
+    then
+        return data.width,
+            math.floor(
+                data.height
+                    * (ns.db.profile.cooldownManager_experimental_enableRectangularIcons_essential_percent or 0.8)
+            )
+    elseif
+        viewerSettingName == "Utility" and ns.db.profile.cooldownManager_experimental_enableRectangularIcons_utility
+    then
+        return data.width,
+            math.floor(
+                data.height * (ns.db.profile.cooldownManager_experimental_enableRectangularIcons_utility_percent or 0.8)
+            )
+    elseif
+        viewerSettingName == "BuffIcons"
+        and ns.db.profile.cooldownManager_experimental_enableRectangularIcons_buffIcons
+    then
+        return data.width,
+            math.floor(
+                data.height
+                    * (ns.db.profile.cooldownManager_experimental_enableRectangularIcons_buffIcons_percent or 0.8)
+            )
     end
     return data.width, data.height
 end
 
-local function ApplySquareStyle(button, viewerSettingName, iconScale)
+local function ApplySizeWithoutStyle(button, viewerSettingName)
+    local width, height = GetViewerIconSize(viewerSettingName)
+    if abs(width - height) >= 1 then
+        -- only apply if not squared (so for rectangular icons)
+        button:SetSize(width, height)
+        return
+    end
+end
+
+local function ApplySquareStyle(button, viewerSettingName)
     local width, height = GetViewerIconSize(viewerSettingName)
 
     local borderKey = "cooldownManager_squareIconsBorder_" .. viewerSettingName
@@ -223,7 +257,9 @@ local function ProcessViewer(viewer, viewerSettingName, applySquareStyle)
                 ApplyNormalizedSizeToButton(child, viewerSettingName)
             end
             if applySquareStyle then
-                ApplySquareStyle(child, viewerSettingName, viewer.iconScale)
+                ApplySquareStyle(child, viewerSettingName)
+            else
+                ApplySizeWithoutStyle(child, viewerSettingName)
             end
             if child.TriggerPandemicAlert and not child._wt_isStyleHooked then
                 child._wt_isStyleHooked = true

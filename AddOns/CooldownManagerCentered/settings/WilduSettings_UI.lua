@@ -569,6 +569,9 @@ local function WilduSettings_BuildCooldown(category, layout)
         set = function(value)
             ns.db.profile.cooldownManager_cooldownFontName = value
             ns.CooldownFont:RefreshAll()
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
         end,
         desc = "Select the font for ability cooldown numbers. Uses SharedMedia fonts if available.",
         generator = function(dropdown, rootDescription)
@@ -598,6 +601,9 @@ local function WilduSettings_BuildCooldown(category, layout)
                 end, function()
                     ns.db.profile.cooldownManager_cooldownFontName = fontName
                     ns.CooldownFont:RefreshAll()
+                    if ns.TrackerItemViewer then
+                        ns.TrackerItemViewer:RefreshStyling()
+                    end
                     dropdown:SetText(fontName)
                 end)
 
@@ -639,6 +645,9 @@ local function WilduSettings_BuildCooldown(category, layout)
         setSelection = function(value)
             ns.db.profile.cooldownManager_cooldownFontFlags = value
             ns.CooldownFont:RefreshAll()
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
         end,
         desc = "Select font flags for ability cooldown numbers.",
     })
@@ -797,6 +806,40 @@ local function WilduSettings_BuildCooldown(category, layout)
                 ns.API:ShowReloadUIConfirmation()
             end
             ns.CooldownFont:RefreshAll()
+        end
+    )
+    CreateCooldownFontSizeDropdown(
+        cooldownSection,
+        "cooldownManager_cooldownFontSizeTracker",
+        "Change on Tracker",
+        function()
+            return ns.db.profile.cooldownManager_cooldownFontSizeTracker ~= nil
+                    and tostring(ns.db.profile.cooldownManager_cooldownFontSizeTracker)
+                or "NIL"
+        end,
+        function(value)
+            if value == "NIL" then
+                ns.db.profile.cooldownManager_cooldownFontSizeTracker = "NIL"
+            else
+                local n = tonumber(value)
+                ns.db.profile.cooldownManager_cooldownFontSizeTracker = n
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
+        end,
+        "cooldownManager_cooldownFontSizeTracker_enabled",
+        function()
+            return ns.db.profile.cooldownManager_cooldownFontSizeTracker_enabled
+        end,
+        function(value)
+            ns.db.profile.cooldownManager_cooldownFontSizeTracker_enabled = value
+            if not value then
+                ns.API:ShowReloadUIConfirmation()
+            end
+            if ns.TrackerItemViewer then
+                ns.TrackerItemViewer:RefreshStyling()
+            end
         end
     )
 
@@ -1628,42 +1671,6 @@ local function WilduSettings_BuildCooldown(category, layout)
         colorizeTitle = true,
     })
 
-    local function BuildRacialsOptions()
-        local options = {}
-        local spellNameToIds = {}
-
-        for _, spellId in ipairs(ns.TrinketRacialTracker.RACIALS) do
-            local spellInfo = C_Spell.GetSpellInfo(spellId)
-            if spellInfo and spellInfo.name then
-                if not spellNameToIds[spellInfo.name] then
-                    spellNameToIds[spellInfo.name] = {
-                        ids = {},
-                        icon = spellInfo.iconID,
-                    }
-                end
-                table.insert(spellNameToIds[spellInfo.name].ids, spellId)
-            end
-        end
-
-        local sortedNames = {}
-        for name in pairs(spellNameToIds) do
-            table.insert(sortedNames, name)
-        end
-        table.sort(sortedNames)
-
-        for _, name in ipairs(sortedNames) do
-            local data = spellNameToIds[name]
-            local iconText = "|T" .. (data.icon or "Interface\\Icons\\INV_Misc_QuestionMark") .. ":16:16:0:0|t "
-            table.insert(options, {
-                value = name,
-                text = iconText .. name,
-                label = iconText .. name,
-            })
-        end
-
-        return options
-    end
-
     SettingsLib:CreateCheckbox(category, {
         parentSection = trackerStyleSection,
         prefix = "CMC_",
@@ -1676,9 +1683,6 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_squareIcons = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1705,9 +1709,6 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_borderThickness = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1733,9 +1734,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_iconZoom = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
+
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1785,9 +1784,6 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_stackAnchor = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1813,9 +1809,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_stackFontSize = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
+
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1841,9 +1835,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_stackOffsetX = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
+
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1869,9 +1861,7 @@ local function WilduSettings_BuildCooldown(category, layout)
         end,
         set = function(value)
             ns.db.profile.trinketRacialTracker_stackOffsetY = value
-            if ns.TrinketRacialTracker then
-                ns.TrinketRacialTracker:RefreshStyling()
-            end
+
             if ns.TrackerItemViewer then
                 ns.TrackerItemViewer:RefreshStyling()
             end
@@ -1972,6 +1962,57 @@ local function WilduSettings_BuildCooldown(category, layout)
         },
     })
 
+    SettingsLib:CreateMultiDropdown(category, {
+        prefix = "CMC_",
+        key = "cooldownManager_visibility_enabled_rules",
+        name = "|cff008945S|r|cff1e9a4em|r|cff3faa4fa|r|cff5fb64ar|r|cff8ccd00t|r Visibility",
+        customText = "No visibility changes",
+        searchtags = {
+            "Visibility",
+            "Rules",
+            "Conditions",
+            "Hide",
+            "Show",
+            "Utility",
+            "Essential",
+            "CDM",
+            "Opacity",
+            "Alpha",
+        },
+        defaultSelection = {},
+        values = {
+            ["SHOW_IN_COMBAT"] = "Always show in Combat",
+            ["SHOW_WITH_TARGET"] = "Always show with Target",
+            ["HIDE_WHEN_MOUNTED"] = "Hide when Mounted",
+            ["HIDE_OUT_OF_COMBAT"] = "Hide out of Combat",
+            ["HIDE_IN_VEHICLES"] = "Hide in Vehicles & Active Scenes",
+        },
+        order = {
+            "SHOW_IN_COMBAT",
+            "SHOW_WITH_TARGET",
+            "HIDE_WHEN_MOUNTED",
+            "HIDE_OUT_OF_COMBAT",
+            "HIDE_IN_VEHICLES",
+        },
+        getSelection = function()
+            return ns.db.profile.cooldownManager_visibility_enabled_rules or {}
+        end,
+        setSelection = function(value)
+            ns.db.profile.cooldownManager_visibility_enabled_rules = value
+            ns.CMCVisibility:Initialize()
+        end,
+        summary = function(selectionMap, labels)
+            local count = ns.API:GetTableLength(selectionMap)
+            if count == 0 then
+                return "No rules"
+            elseif count == 1 then
+                return "1 rule"
+            else
+                return count .. " rules"
+            end
+        end,
+        desc = "Select conditions for Cooldown Manager Visibility.",
+    })
     SettingsLib:CreateCheckbox(category, {
         prefix = "CMC_",
         key = "cooldownManager_limitUtilitySizeToEssential",
@@ -2033,69 +2074,122 @@ local function WilduSettings_BuildCooldown(category, layout)
         searchtags = { "Experimental", "Beta", "Testing", "Feature", "Features" },
     })
 
-    SettingsLib:CreateCheckbox(experimentalCategory, {
+    SettingsLib:CreateHeader(experimentalCategory, {
+        name = "Rectangular Icons - with custom aspect ratio",
+        searchtags = { "Rectangular", "Icons", "Experimental", "Rectangle", "Wide", "Aspect Ratio" },
+    })
+    SettingsLib:CreateCheckboxSlider(experimentalCategory, {
         prefix = "CMC_",
-        key = "cooldownManager_experimental_enableRectangularIcons",
-        name = "Rectangular Icons",
+        key = "cooldownManager_experimental_enableRectangularIcons_buffIcons",
+        name = "Enable for Buff Icons",
         searchtags = { "Rectangular", "Icons", "Experimental", "Rectangle", "Wide", "Aspect Ratio" },
         default = false,
         get = function()
-            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons
+            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons_buffIcons
         end,
         set = function(value)
-            ns.db.profile.cooldownManager_experimental_enableRectangularIcons = value
+            ns.db.profile.cooldownManager_experimental_enableRectangularIcons_buffIcons = value
             ns.StyledIcons:OnSettingChanged()
-            ns.API:ShowReloadUIConfirmation()
+            if not value then
+                ns.API:ShowReloadUIConfirmation()
+            end
         end,
-        desc = "Enable rectangular icons for Cooldown Manager viewers. |cffff0000Experimental feature, may cause issues!|r",
-    })
-    SettingsLib:CreateText(experimentalCategory, {
-        name = 'Rectangular icons - require "Square styling" to be enabled - not configurable yet',
-    })
+        desc = "Enable for Buff Icons viewer. |cffff0000Experimental feature, may cause issues!|r",
 
-    SettingsLib:CreateCheckbox(experimentalCategory, {
+        sliderKey = "cooldownManager_experimental_enableRectangularIcons_buffIcons_percent",
+        sliderName = "Height to Width Ratio",
+        sliderMin = 0.6,
+        sliderMax = 0.9,
+        sliderStep = 0.1,
+        sliderDefault = 0.8,
+        sliderGet = function()
+            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons_buffIcons_percent
+        end,
+        sliderSet = function(value)
+            local rounded = math.floor((value or 0) * 10 + 0.5) / 10
+            ns.db.profile.cooldownManager_experimental_enableRectangularIcons_buffIcons_percent = rounded
+            ns.StyledIcons:OnSettingChanged()
+        end,
+        sliderFormatter = function(value)
+            return string.format("%.0f%%", value * 100)
+        end,
+    })
+    SettingsLib:CreateCheckboxSlider(experimentalCategory, {
         prefix = "CMC_",
-        key = "cooldownManager_experimental_hideAuras",
-        name = "Hide Auras",
-        searchtags = { "Hide", "Auras", "Experimental", "Cooldowns", "Buffs", "Debuffs" },
+        key = "cooldownManager_experimental_enableRectangularIcons_essential",
+        name = "Enable for Essential",
+        searchtags = { "Rectangular", "Icons", "Experimental", "Rectangle", "Wide", "Aspect Ratio" },
         default = false,
         get = function()
-            -- return ns.db.profile.cooldownManager_experimental_hideAuras
-            return false
+            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons_essential
         end,
         set = function(value)
-            -- ns.db.profile.cooldownManager_experimental_hideAuras = value
-            return false
+            ns.db.profile.cooldownManager_experimental_enableRectangularIcons_essential = value
+            ns.StyledIcons:OnSettingChanged()
+            if not value then
+                ns.API:ShowReloadUIConfirmation()
+            end
         end,
-        isEnabled = function()
-            return false
+        desc = "Enable rectangular icons for Essential viewer. |cffff0000Experimental feature, may cause issues!|r",
+
+        sliderKey = "cooldownManager_experimental_enableRectangularIcons_essential_percent",
+        sliderName = "Height to Width Ratio",
+        sliderMin = 0.6,
+        sliderMax = 0.9,
+        sliderStep = 0.1,
+        sliderDefault = 0.8,
+        sliderGet = function()
+            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons_essential_percent
         end,
-        desc = "Hide auras on icons, always show only cooldowns of the abilities. |cffff0000Experimental feature, may cause issues!|r",
+        sliderSet = function(value)
+            local rounded = math.floor((value or 0) * 10 + 0.5) / 10
+            ns.db.profile.cooldownManager_experimental_enableRectangularIcons_essential_percent = rounded
+            ns.StyledIcons:OnSettingChanged()
+        end,
+        sliderFormatter = function(value)
+            return string.format("%.0f%%", value * 100)
+        end,
     })
 
-    SettingsLib:CreateCheckbox(experimentalCategory, {
+    SettingsLib:CreateCheckboxSlider(experimentalCategory, {
         prefix = "CMC_",
-        key = "cooldownManager_experimental_trinketRacialTracker",
-        name = "Trinket, Consumables & Racial Tracker",
-        searchtags = { "Trinket", "Racial", "Tracker", "Experimental", "Cooldowns", "Icons", "Potion", "Healthstone" },
+        key = "cooldownManager_experimental_enableRectangularIcons_utility",
+        name = "Enable Rectangular Icons for Utility",
+        searchtags = { "Rectangular", "Icons", "Experimental", "Rectangle", "Wide", "Aspect Ratio" },
         default = false,
         get = function()
-            -- return ns.db.profile.cooldownManager_experimental_trinketRacialTracker
-            return false
-        end,
-        isEnabled = function()
-            return false
+            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons_utility
         end,
         set = function(value)
-            -- ns.db.profile.cooldownManager_experimental_trinketRacialTracker = value
-            -- if ns.TrinketRacialTracker then
-            --     ns.TrinketRacialTracker:OnSettingChanged()
-            -- end
+            ns.db.profile.cooldownManager_experimental_enableRectangularIcons_utility = value
+            ns.StyledIcons:OnSettingChanged()
+            if not value then
+                ns.API:ShowReloadUIConfirmation()
+            end
         end,
-        desc = "Show a separate tracking bar for trinkets, potions, healthstones, and racial abilities. |cffff0000Experimental feature, may cause issues!|r",
+        desc = "Enable rectangular icons for Utility viewer. |cffff0000Experimental feature, may cause issues!|r",
+
+        sliderKey = "cooldownManager_experimental_enableRectangularIcons_utility_percent",
+        sliderName = "Height to Width Ratio",
+        sliderMin = 0.6,
+        sliderMax = 0.9,
+        sliderStep = 0.1,
+        sliderDefault = 0.8,
+        sliderGet = function()
+            return ns.db.profile.cooldownManager_experimental_enableRectangularIcons_utility_percent
+        end,
+        sliderSet = function(value)
+            local rounded = math.floor((value or 0) * 10 + 0.5) / 10
+            ns.db.profile.cooldownManager_experimental_enableRectangularIcons_utility_percent = rounded
+            ns.StyledIcons:OnSettingChanged()
+        end,
+        sliderFormatter = function(value)
+            return string.format("%.0f%%", value * 100)
+        end,
     })
+
     SettingsLib:CreateText(experimentalCategory, {
-        name = "Tracker & Hide/Show Auras settings are now configurable within the Cooldown Settings 3rd tab",
+        name = "|cffff0000NO LONGER EXPERIMENT:|r\nTracker is configurable in main tab\n& Hide/Show Auras settings are now configurable within the Cooldown Settings 3rd tab",
     })
     SettingsLib:CreateButton(experimentalCategory, {
         text = "Open Cooldown Settings",

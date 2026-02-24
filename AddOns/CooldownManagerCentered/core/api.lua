@@ -268,3 +268,11 @@ function API:DisableElvUICDMSkinning()
     skins.blizzard.cooldownManager = false
     return true
 end
+
+function API:GetTableLength(t)
+    local count = 0
+    for _ in pairs(t) do
+        count = count + 1
+    end
+    return count
+end
