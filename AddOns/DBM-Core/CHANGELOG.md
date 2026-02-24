@@ -1,30 +1,36 @@
 # DBM - Core
 
-## [12.0.22](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.0.22) (2026-02-18)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.0.21...12.0.22) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [12.0.23](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.0.23) (2026-02-23)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.0.22...12.0.23) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- Flag manaforge private auras with subtype flags for better distinction between targeted spells and GTFO spells  
-- Update localization.ru.lua (#1922)  
-- Force show timeline any time boss is engaged (but set alpha to 0). this ensures that timeline based sounds function even if user has timeline disabled.  
-- Update voicePacksounds  
-- Add more specific private aura option strings so that when multiple of same spell (gtfo vs targeted as example) exist, it's possible to distingquish the option text for multiple options.  
-- Upd RU locales (#1921)  
-    * Update localization.ru.lua  
-    * Update localization.ru.lua  
-    * Update localization.ru.lua  
-- Update koKR (#1920)  
+- prep new tag  
+- toc Update (#1928)  
     * Update koKR  
-- Update Core and GUI translations (#1919)  
-    * Update Core translation strings  
-    * Update Translations  
-    * Update Core and GUI translations  
-    ---------  
-    Co-authored-by: anon1231823 <anon1231823@users.noreply.github.com>  
-- fix bad object name  
--  - Refactored warning and time api calls so that countdowns and custom sound alerts will be unregistered on combatend and only if DBM registered them in first place. This fixes a possible issue if user used another addon that intended to register custom sounds or countdowns at same time as DBM.  
-     - Fixed a bug where event alerts would be registered even if user had globally disabled special announce sounds entirely. Now if global disable is toggled on, it'll be honored as intended.  
-- allow scale to go down to 25 instead of 50  
-    change default size from 75 to 60 to account for fact I adjusted defaults based on a render scale of 75%  
-- Make voice pack sound validation checks more strict  
-    Fix invalid voice pack sound on soulbinder  
-    bump alpha  
+- Update translations (#1926)  
+    * Update translations  
+- Fix zone combat scanner still activating and performing combat checks.  
+- Update localization.ru.lua (#1927)  
+- Update DBM-Midnight\_Mainline.toc (#1924)  
+- Update voice pack sounds  
+- update voicepack sounds  
+- Add "stun on you" and "traps incoming"  
+- Prep objects for supporting warning color in a future patch rather than having to go back and do it later.  
+    make luaLS more robust in validating color types as well so illiegal values can't be passed anymore  
+- fix typo  
+- restore player regen and unit health combat checks since we need them for world bosses and some non M+ dungeon bosses where they aren't secret. Restored checks should use strict secret checks to return end when not usable.  
+    restore player combat/low health alerts in outdoor world on retail.  
+    restore several unit identity functions (also needed for world bosses) when unitidentity is not secret  
+- Update localization.es.lua (#1925)  
+- Move boss mod options out of core and into own file for easier locating and readability  
+- Fix bug that caused disabled sounds to still play  
+- Move retail encounter events handler to own file, then only load that file on retail. small micro optimize for classic which doesn't need functions to even be loaded but more importantly just makes them easier to read/locate.  
+- Add movetobeam  
+- Automatically handle DisableSpecialWarningSounds when tlSoundsEvents table is created, this way it doesn't have to exist in every sub module.  
+- Prep keystones for Midnight S1  
+- toc cleanup  
+    Added support for midnight world bosses (only one of them has actual warnings/timers though since blizz forgot about other 3)  
+- GetViewType returns 0 if called too early on login, so to make sure we can restore users timeline setting on re-enable, we must call it on a delay  
+- another spot that alpha needs to be reset to 0 to keep timeline invisible  
+- Update localization.ru.lua (#1923)  
+    Minor changes  
+- bump alpha  

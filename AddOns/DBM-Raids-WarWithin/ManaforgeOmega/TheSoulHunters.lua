@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2688, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260218222853")
+mod:SetRevision("20260221020851")
 mod:SetCreatureID(237660, 237661, 237662)
 mod:SetEncounterID(3122)
 mod:SetBossHPInfoToHighest()
@@ -37,7 +37,6 @@ mod:AddPrivateAuraSoundOption(1235045, false, 1235045, 1, 2)--GTFO for void step
 mod:AddPrivateAuraSoundOption(1248464, false, 1241833, 1, 1)--Fracture Debuff
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 	self:EnableAlertOptions(1241306, 314, "farfromline", 2)
 	self:EnableAlertOptions(1227809, 315, "gathershare", 2)
 	self:EnableAlertOptions(1242259, 317, "aesoon", 2)

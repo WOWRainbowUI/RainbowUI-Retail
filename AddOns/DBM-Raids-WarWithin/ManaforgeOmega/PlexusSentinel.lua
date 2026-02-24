@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2684, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260218222853")
+mod:SetRevision("20260221020851")
 mod:SetCreatureID(233814)
 mod:SetEncounterID(3129)
 mod:SetHotfixNoticeRev(20250813000000)
@@ -27,7 +27,6 @@ mod:AddPrivateAuraSoundOption(1219607, true, 1219532, 1, 1)--Eradicating Salvo
 mod:AddPrivateAuraSoundOption(1219354, true, 1219354, 1, 2)--GTFO
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 	self:EnableAlertOptions(1220489, {231, 232, 233}, "carefly", 2)--3 spellids for protocol purge
 	self:EnableTimelineOptions(1219263, 227)
 	self:EnableTimelineOptions(1219450, 228)

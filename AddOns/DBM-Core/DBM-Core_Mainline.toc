@@ -1,4 +1,4 @@
-## Interface: 110207, 120000, 120001
+## Interface: 120001
 ## X-Min-Interface: 110200
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Main Core|r
@@ -19,7 +19,7 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## Author: MysticalOS, QartemisT
-## Version: 12.0.22
+## Version: 12.0.23
 ## X-Curse-Project-ID: 3358
 ## X-Wago-ID: qv633o6b
 ## X-Website: https://deadlybossmods.com
@@ -103,6 +103,7 @@ modules\ZoneCombatScanner.lua
 
 modules\objects\Difficulties.lua
 modules\objects\BossMod.lua
+modules\objects\BossModOptions.lua
 modules\objects\BossModEventDispatcher.lua
 modules\objects\Localization.lua
 modules\objects\VoicePacks.lua
@@ -114,3 +115,4 @@ modules\objects\Yell.lua
 modules\objects\Sorting.lua
 modules\objects\Tooltip.lua
 modules\objects\PrivateAura.lua
+modules\objects\EncounterEvents.lua

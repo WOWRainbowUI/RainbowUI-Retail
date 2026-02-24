@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2747, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260218222853")
+mod:SetRevision("20260221020851")
 mod:SetCreatureID(237861)
 mod:SetEncounterID(3133)
 mod:SetHotfixNoticeRev(20250818000000)
@@ -23,8 +23,7 @@ mod:AddPrivateAuraSoundOption(1233411, true, 1233416, 3, 1)--Crystalline Shockwa
 mod:AddPrivateAuraSoundOption(1247424, true, 1247424, 1, 1)--Null Consumption
 mod:AddPrivateAuraSoundOption(1227373, true, 1227373, 1, 1)--Shattershell
 
-function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()--commented because designer didn't actually add any event IDs to 3 of the 4 abilities this boss has
+function mod:OnLimitedCombatStart()--commented because designer didn't actually add any event IDs to 3 of the 4 abilities this boss has
 	if self:IsTank() then
 		self:EnableAlertOptions(1231871, 387, "defensive", 2)
 	end

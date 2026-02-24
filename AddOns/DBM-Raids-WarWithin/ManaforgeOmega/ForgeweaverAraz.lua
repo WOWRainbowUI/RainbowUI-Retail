@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2687, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260218222853")
+mod:SetRevision("20260223070830")
 mod:SetCreatureID(233817)
 mod:SetEncounterID(3132)
 mod:SetHotfixNoticeRev(20250821000000)
@@ -37,7 +37,6 @@ mod:AddPrivateAuraSoundOption(1238874, true, 1238873, 1, 1)--Echoing Tempest
 local berserkTimer = mod:NewBerserkTimer(600)
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 	self:EnableAlertOptions(1231015, 323, "mobsoon", 2)
 	self:EnableAlertOptions(1228161, 325, "watchfeet", 2)
 	if not self:IsTank() then
@@ -46,7 +45,7 @@ function mod:OnLimitedCombatStart()
 	self:EnableAlertOptions(1227631, 326, "carefly", 2)
 	self:EnableAlertOptions(1231720, {327, 328}, "bigmob", 2)
 	self:EnableAlertOptions(1232221, 330, "carefly", 2)
-	self:EnableAlertOptions(1232590, 340, "aesoon", 2, 0)--This event has no timer so we cannot use timer finished for sound
+	self:EnableAlertOptions(1232590, 340, "aesoon", 2, nil, 0)--This event has no timer so we cannot use timer finished for sound
 	self:EnableTimelineOptions(1228502, 322)
 	self:EnableTimelineOptions(1231015, 323)
 	self:EnableTimelineOptions(1228161, 325)

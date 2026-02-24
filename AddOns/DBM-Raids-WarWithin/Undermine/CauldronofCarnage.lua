@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2640, "DBM-Raids-WarWithin", 2, 1296)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260208045326")
+mod:SetRevision("20260221020851")
 mod:SetCreatureID(229181, 229177)
 mod:SetEncounterID(3010)
 mod:SetHotfixNoticeRev(20250131000000)
@@ -26,7 +26,6 @@ mod:AddCustomTimerOptions(465833, true, 6, 0)
 --mod:AddPrivateAuraSoundOption(1226311, true, 1226315, 3)
 
 function mod:OnLimitedCombatStart()
-	self:DisableSpecialWarningSounds()
 	self:EnableAlertOptions(465833, 338, "phasechange", 2)
 	self:EnableTimelineOptions(463900, 331)
 	self:EnableTimelineOptions(466178, 332)
