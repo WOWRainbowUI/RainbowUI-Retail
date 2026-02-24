@@ -1,5 +1,47 @@
 # Changelog
 
+
+## [3.0.1] - 2026-02-22
+
+### Added
+
+* Ultra-fast MiniCC frame detection (better compatibility).
+* New **Classifier** system (smarter frame detection & blacklist).
+* New **Styler** system (cleaner, faster cooldown styling).
+
+### Changed
+
+* Refactored core structure for better performance and maintainability.
+* Moved nameplate context handling.
+* Cleaned up options and removed unused defaults.
+* Updated TOC with new modules.
+
+
+## [2.9.2] - 2026-02-20
+### Fixed
+- **Charge Cooldown Overlap:** Fixed a visual glitch where cooldown timers for charge-based abilities (e.g., Fire Blast, Shield of the Righteous) would overlap and display simultaneously on action bars when using addons like Bartender4. The addon now correctly hides countdown numbers on the main cooldown when a charge cooldown is actively displaying its own timer.
+
+## [2.9.1] - 2026-02-19
+### Changed
+- Consolidate scan depth constant and remove redundant options from settings
+
+## [2.9.0] - 2026-02-19
+### Fixed
+- **Flickering / Keeps Flashing:** Cooldown frames no longer flicker or flash when abilities are used.
+  `QueueStyleUpdate` was resetting the per-frame anti-flicker state (`lastAppliedEdge`, `lastAppliedEdgeScale`,
+  `lastAppliedHideNums`) on every `CooldownFrame_Set` hook fire, forcing `SetDrawEdge`, `SetEdgeScale`, and
+  `SetHideCountdownNumbers` to be called redundantly even when no config value had changed. Removing those
+  resets lets the change-detection guards in `ApplyStyle` correctly suppress no-op API calls.
+### Changed
+- **Refactor:** Moved anti-flicker cache ownership exclusively to `ForceUpdateAll` and `ApplyStyle`;
+  `QueueStyleUpdate` no longer touches per-frame caches, preventing unnecessary API re-invocations on
+  each hook fire.
+- **Cleanup:** Removed legacy `CooldownFrame_SetTimer` hook (unused in modern retail clients).
+- **Cleanup:** Removed empty `NAME_PLATE_UNIT_REMOVED` event handler and its registration / unregistration
+  calls (weak-keyed tables already handle automatic garbage collection).
+- **Cleanup:** Removed `ApplyCustomStyle` backward-compatible alias (not referenced externally).
+- **Cleanup:** Translated or removed French inline comments in the debug logging system.
+
 ## [2.8.3] - 2026-02-16
 ### Added
 - **Game Default Font Option:** New font choice that automatically uses WoW's native font, perfect for CN servers and proper locale-specific rendering.
