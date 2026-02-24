@@ -8,17 +8,49 @@ local format = string.format
 -- Retrieve version dynamically from TOC
 local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Dev"
 
+-- LibSharedMedia integration (optional – silently absent if not installed)
+local LSM = LibStub("LibSharedMedia-3.0", true)
+
 -- === SHARED LOOKUP TABLES ===
-local FONT_OPTIONS = {
-    ["GAMEDEFAULT"]                                                      = "Game Default",
-    ["Fonts\\FRIZQT__.TTF"]        = "Friz Quadrata",
+
+-- Base fonts always available (WoW built-ins + addon-bundled fonts)
+local FONT_OPTIONS_BASE = {
+    ["GAMEDEFAULT"]               = "Game Default",
+    ["Fonts\\FRIZQT__.TTF"]       = "Friz Quadrata",
     ["Fonts\\FRIZQT___CYR.TTF"]   = "Friz Quadrata (Cyrillic)",
     ["Fonts\\ARIALN.TTF"]         = "Arial Narrow",
     ["Fonts\\MORPHEUS.TTF"]       = "Morpheus",
     ["Fonts\\skurri.ttf"]         = "Skurri",
     ["Fonts\\2002.TTF"]           = "2002",
-    ["Interface\\AddOns\\MinimalistCooldownEdge\\expressway.ttf"] = "Expressway",
+    ["Interface\\AddOns\\MinimalistCooldownEdge\\Fonts\\expressway.ttf"]        = "Expressway",
+    ["Interface\\AddOns\\MinimalistCooldownEdge\\Fonts\\bazooka_regular.ttf"]   = "Bazooka",
 }
+
+--- Returns a merged font table: base fonts + any fonts registered in LibSharedMedia.
+--- Declared as a function so the values are evaluated lazily each time the options
+--- panel opens, picking up fonts registered by other addons after this file loads.
+local function GetFontOptions()
+    local opts = {}
+    local usedNames = {}
+
+    -- Base fonts take full priority (path + name reserved)
+    for path, label in pairs(FONT_OPTIONS_BASE) do
+        opts[path] = label
+        usedNames[label:lower()] = true
+    end
+
+    if LSM then
+        for name, path in pairs(LSM:HashTable("font")) do
+            -- Skip if path already exists OR if display name is already in use
+            if not opts[path] and not usedNames[name:lower()] then
+                opts[path] = name
+                usedNames[name:lower()] = true
+            end
+        end
+    end
+    
+    return opts
+end
 
 local OUTLINE_OPTIONS = {
     ["NONE"]          = L["None"],
@@ -33,49 +65,6 @@ local ANCHOR_OPTIONS = {
     ["TOPRIGHT"]    = L["Top Right"],
     ["BOTTOMLEFT"]  = L["Bottom Left"],
     ["BOTTOMRIGHT"] = L["Bottom Right"],
-}
-
--- === DEFAULTS ===
-local DEFAULT_FONT = "GAMEDEFAULT"
-
-local function GetCategoryDefaults(enabled, fontSize)
-    return {
-        enabled = enabled,
-        -- Typography
-        font                 = DEFAULT_FONT,
-        fontSize             = fontSize or 18,
-        fontStyle            = "OUTLINE",
-        textColor            = { r = 1, g = 0.8, b = 0, a = 1 },
-        textAnchor           = "CENTER",
-        textOffsetX          = 0,
-        textOffsetY          = 0,
-        hideCountdownNumbers = false,
-        -- Edge
-        edgeEnabled = true,
-        edgeScale   = 1.4,
-        -- Stack (actionbar-specific, but stored for safety)
-        stackEnabled  = true,
-        stackFont     = DEFAULT_FONT,
-        stackSize     = 16,
-        stackStyle    = "OUTLINE",
-        stackColor    = { r = 1, g = 1, b = 1, a = 1 },
-        stackAnchor   = "BOTTOMRIGHT",
-        stackOffsetX  = -3,
-        stackOffsetY  = 3,
-    }
-end
-
-MCE.defaults = {
-    profile = {
-        debugMode = false,
-        scanDepth = 10,
-        categories = {
-            actionbar = GetCategoryDefaults(true,  18),
-            nameplate = GetCategoryDefaults(false, 12),
-            unitframe = GetCategoryDefaults(false, 12),
-            global    = GetCategoryDefaults(false, 18),
-        },
-    },
 }
 
 -- =========================================================================
@@ -127,15 +116,26 @@ end
 -- OPTIONS BUILDER
 -- =========================================================================
 
-local function CreateCategoryOptions(order, name, key)
+local function CreateCategoryOptions(order, name, key, desc)
     local disabledFn    = function() return IsCatDisabled(key) end
     local stackHiddenFn = function() return IsStackHidden(key) end
 
     return {
         type = "group",
-        name = name,
+        -- Dynamic name with status indicator (green dot = active, gray = inactive)
+        name = function()
+            if not MCE.db or not MCE.db.profile then return name end
+            local enabled = MCE.db.profile.categories[key].enabled
+            return (enabled and "|cff00ff00" .. L["ON"] .. "|r  " or "|cff666666" .. L["OFF"] .. "|r  ") .. name
+        end,
         order = order,
         args = {
+            -- ── 0. Category description ──────────────────────────────────
+            catDesc = desc and {
+                type = "description", order = 0, fontSize = "medium",
+                name = "|cffaaaaaa" .. desc .. "|r\n",
+            } or nil,
+
             -- ── 1. Main Toggle ──────────────────────────────────────────
             enableGroup = {
                 type = "group", name = L["State"], inline = true, order = 1,
@@ -157,7 +157,7 @@ local function CreateCategoryOptions(order, name, key)
                 args = {
                     font = {
                         type = "select", order = 1, width = 1.5,
-                        name = L["Font Face"], values = FONT_OPTIONS,
+                        name = L["Font Face"], values = GetFontOptions,
                         get = CatGet(key, "font"), set = CatSet(key, "font"),
                     },
                     fontSize = {
@@ -245,7 +245,7 @@ local function CreateCategoryOptions(order, name, key)
                     headerStyle = { type = "header", name = L["Style"], order = 10, hidden = stackHiddenFn },
                     stackFont = {
                         type = "select", order = 11, width = 1.5,
-                        name = L["Font"], values = FONT_OPTIONS,
+                        name = L["Font"], values = GetFontOptions,
                         get = CatGet(key, "stackFont"), set = CatSet(key, "stackFont"),
                         hidden = stackHiddenFn,
                     },
@@ -337,24 +337,27 @@ function MCE:GetOptions()
                         image = "Interface\\AddOns\\MinimalistCooldownEdge\\MinimalistCooldownEdge",
                         imageWidth = 32, imageHeight = 32,
                     },
-                    perfGroup = {
-                        type = "group", name = L["Performance & Detection"],
-                        inline = true, order = 2,
+                    -- ── Category Status Overview ────────────────────────
+                    statusGroup = {
+                        type = "group", name = L["Category Status"],
+                        inline = true, order = 1.5,
                         args = {
-                            scanDepth = {
-                                type = "range", order = 1, width = "double",
-                                name = L["Scan Depth"],
-                                desc = L["How deep the addon looks into UI frames to find cooldowns."],
-                                min = 1, max = 20, step = 1,
-                                get = function() return MCE.db.profile.scanDepth end,
-                                set = function(_, val)
-                                    MCE.db.profile.scanDepth = val
-                                    print("|cff00ff00MCE:|r " .. L["Global Scan Depth changed. A /reload is recommended."])
+                            statusText = {
+                                type = "description", order = 1, fontSize = "medium",
+                                name = function()
+                                    if not MCE.db or not MCE.db.profile then return "" end
+                                    local cats = MCE.db.profile.categories
+                                    local function s(enabled)
+                                        return enabled and "|cff00ff00" .. L["ON"] .. "|r" or "|cff999999" .. L["OFF"] .. "|r"
+                                    end
+                                    return format(
+                                        "%s: %s    |    %s: %s    |    %s: %s    |    %s: %s",
+                                        L["Action Bars"], s(cats.actionbar.enabled),
+                                        L["Nameplates"], s(cats.nameplate.enabled),
+                                        L["Unit Frames"], s(cats.unitframe.enabled),
+                                        L["CD Manager & Others"], s(cats.global.enabled)
+                                    )
                                 end,
-                            },
-                            helpText = {
-                                type = "description", order = 2, width = "full",
-                                name = L["SCAN_DEPTH_HELP"],
                             },
                         },
                     },
@@ -378,11 +381,15 @@ function MCE:GetOptions()
                 },
             },
 
-            -- ── Category tabs ───────────────────────────────────────────
-            actionbar = CreateCategoryOptions(2, L["Action Bars"],          "actionbar"),
-            nameplate = CreateCategoryOptions(3, L["Nameplates"],           "nameplate"),
-            unitframe = CreateCategoryOptions(4, L["Unit Frames"],          "unitframe"),
-            global    = CreateCategoryOptions(5, L["CD Manager & Others"],  "global"),
+            -- ── Category tabs (with per-category descriptions) ────────
+            actionbar = CreateCategoryOptions(2, L["Action Bars"],          "actionbar",
+                L["ACTIONBAR_DESC"]),
+            nameplate = CreateCategoryOptions(3, L["Nameplates"],           "nameplate",
+                L["NAMEPLATE_DESC"]),
+            unitframe = CreateCategoryOptions(4, L["Unit Frames"],          "unitframe",
+                L["UNITFRAME_DESC"]),
+            global    = CreateCategoryOptions(5, L["CD Manager & Others"],  "global",
+                L["GLOBAL_DESC"]),
 
             -- ── Profiles (always last) ──────────────────────────────────
             profiles = profileOpts,

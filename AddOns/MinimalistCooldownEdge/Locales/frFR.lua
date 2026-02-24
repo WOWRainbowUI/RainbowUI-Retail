@@ -74,3 +74,23 @@ L["SCAN_DEPTH_HELP"] = "\n|cff00ff00< 10|r : Efficace (Interface par défaut)\n|
 L["%s settings reset."] = "Paramètres de %s réinitialisés."
 L["Profile reset. Reloading UI..."] = "Profil réinitialisé. Rechargement de l'interface..."
 L["Global Scan Depth changed. A /reload is recommended."] = "Profondeur de scan globale modifiée. Un /reload est recommandé."
+
+-- Status Indicators
+L["ON"] = "ON"
+L["OFF"] = "OFF"
+L["Category Status"] = "État des catégories"
+
+-- Tools
+L["Tools"] = "Outils"
+L["Force Refresh"] = "Actualiser"
+L["Force a full rescan of all cooldown frames."] = "Force un scan complet de toutes les frames de recharge."
+L["Full refresh completed."] = "Actualisation complète."
+L["Clear Debug Log"] = "Vider le journal"
+L["Clears the saved debug log data."] = "Supprime les données du journal de débogage."
+L["Debug log cleared."] = "Journal de débogage vidé."
+
+-- Category Descriptions
+L["ACTIONBAR_DESC"] = "Personnalisez les recharges sur vos barres d'action, y compris Bartender4, Dominos et ElvUI."
+L["NAMEPLATE_DESC"] = "Stylez les recharges affichées sur les barres de nom ennemies et alliées (Plater, KuiNameplates, etc.)."
+L["UNITFRAME_DESC"] = "Ajustez le style des recharges sur les cadres joueur, cible et focus."
+L["GLOBAL_DESC"] = "Catégorie fourre-tout pour les recharges n'appartenant à aucune autre catégorie (sacs, menus, addons divers)."

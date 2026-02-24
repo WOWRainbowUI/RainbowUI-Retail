@@ -74,3 +74,23 @@ L["SCAN_DEPTH_HELP"] = "\n|cff00ff00< 10|r : Efficient (Default UI)\n|cfffff5691
 L["%s settings reset."] = true
 L["Profile reset. Reloading UI..."] = true
 L["Global Scan Depth changed. A /reload is recommended."] = true
+
+-- Status Indicators
+L["ON"] = "ON"
+L["OFF"] = "OFF"
+L["Category Status"] = true
+
+-- Tools
+L["Tools"] = true
+L["Force Refresh"] = true
+L["Force a full rescan of all cooldown frames."] = true
+L["Full refresh completed."] = true
+L["Clear Debug Log"] = true
+L["Clears the saved debug log data."] = true
+L["Debug log cleared."] = true
+
+-- Category Descriptions
+L["ACTIONBAR_DESC"] = "Customize cooldowns on your main action bars, including Bartender4, Dominos, and ElvUI bars."
+L["NAMEPLATE_DESC"] = "Style cooldowns displayed on enemy and friendly nameplates (Plater, KuiNameplates, etc.)."
+L["UNITFRAME_DESC"] = "Adjust cooldown styling on player, target, and focus unit frames."
+L["GLOBAL_DESC"] = "Catch-all for cooldowns that don't belong to other categories (bags, menus, misc addons)."
