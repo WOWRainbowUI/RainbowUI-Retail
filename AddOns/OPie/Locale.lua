@@ -3,7 +3,7 @@ local _, T = ...
 
 local C, z, V, K = GetLocale(), nil
 V =
-    C == "deDE" and { -- 229/229 (100%)
+    C == "deDE" and { -- 229/230 (99%)
       "%d |4minute:minuten; früher (%s)", "%s, um abzubrechen", "%s, um in aktuellen Ergebnissen zu suchen", "Alle Ausrüstungssets", "(Standard)", "(Gebe hier einen Icon-Namen oder Pfad ein)", "Ring hinzufügen", "Neuen Abschnitt hinzufügen", "Weiter drehen nach Gebrauch", "Alle %s-Charaktere",
       "Alle %s-Spezialisierungen", "Alle Einstellungen", "Alle Charaktere", "Als Schnellaktion erlauben", "Klicke bei gedrückter Alt-Taste, um die bedingte Bindung festzulegen", "Übergänge animieren", "Animation", "Aussehen", "Allen Spezialisierungen zuweisen", "An HUD Tooltip Position",
       "In der Mitte des Rings", "Basiert auf der Aktion des Abschnitts", "Verhalten", "Tastaturbelegungskonflikt", "Tastaturbelegung:", "Kamera-Analogstick", "Abbrechen", "Aktion ändern", "Mit %s gekennzeichnete Änderungen wurden durch eingereichtes Feedback inspiriert.", "Änderungen werden nicht gespeichert",
@@ -28,7 +28,7 @@ V =
       "Update erforderlich", "Standardbelegungen nutzen", "Benutze den ersten Abschnitt beim öffnen", "Verwende globale Einstellungen", "Scheibe verwenden", "Abschnitt verwenden und Ring schließen", "Nützlichkeit", "Virtueller Mauszeiger", "Sichtbarkeitsbedingung:", "Was gibt es Neues?",
       "Während ein Ring geöffnet ist:", "Weltmarkierungen", "World of Warcraft könnte die Einstellungen von OPie aufgrund unzureichenden Speichers nicht laden. Versucht, einige Addons zu deaktivieren.\n\nAlle jetzt getätigten Änderungen werden nicht gespeichert.", "Du kannst den Vorgang später abbrechen oder zu den vorherigen Einstellungen zurückkehren.", "Du kannst bei der Übersetzung von OPie helfen, indem du folgende Website besuchst:", "Man kann erweiterte Makro-Bedingungen benutzen; siehe %s für Details.", "Um die Schnellwahl nutzen zu können, muss die Option %s in den OPie-Einstellungen aktiviert sein.", "Dein Charakter kann dies momentan nicht nutzen", "Standard",
     }
-    or C == "esES" and { -- 228/229 (99%)
+    or C == "esES" and { -- 228/230 (99%)
       "%d |4minuto:minutos; hace (%s)", "%s para cancelar", "%s para buscar dentro de los resultados actuales", "(Todos los conjuntos)", "(predeterminado)", "(introduzca aquí un nombre de icono o ruta)", "Añadir anillo", "Añadir una nueva rodaja", "Rotación avanzada después de usar", "Todos los personajes %s",
       "Todas las especializaciones %s", "Todos los ajustes", "Todos los personajes", "Permitir como acción rapida", "Alt-clic para fijar el enlace", "Animar transiciones", "Animación", "Apariencia", "Asignar a todas las especializaciones", "En la posición del indicador de información del HUD",
       "En el centro del anillo", "Basado en la acción de la rodaja", "Comportamiento", "Conflicto de atajos", "Atajo:", "Control analógico de cámara", "Cancelar", "Cambiar acción", "Los cambios marcados con %s están inspirados por los comentarios enviados.", "No se guardarán los cambios",
@@ -53,7 +53,7 @@ V =
       "Actualización necesaria", "Usar teclados de anillo predeterminados", "Usar la primera rodaja al abrir", "Usar ajustes globales", "Usar rodaja", "Usar una rodaja y cerrar anillo", "Utilidades", "Cursor virtual", "Condición de visibilidad:", "Novedades",
       "Cuando el anillo está abierto:", "Marcadores del mundo", "World of Warcraft no ha podido cargar las variables guardadas de OPie debido a la falta de memoria. Intenta desactivar otros addons.\n\nCualquier cambio que hagas ahora no será guardado.", "Puedes cancelar o revertir a los ajustes anteriores mas tarde.", "Puedes ayudar a traducir OPie visitando:", "Puedes usar condiciones de macro extendidas; consulte %s para detalles.", "Debes activar la opción %s para este anillo en la configuración de OPie para usar acciones rapidas.", "Tu personaje no puede usar esto actualmente", "Por defecto",
     }
-    or C == "esMX" and { -- 223/229 (97%)
+    or C == "esMX" and { -- 223/230 (96%)
       "%d |4minuto:minutos; hace (%s)", "%s para cancelar", "%s para buscar dentro de los resultados actuales", "(Todos los conjuntos)", "(predeterminado)", "(introduzca aquí un nombre de icono o ruta)", "Añadir anillo", "Añadir una nueva rodaja", "Rotación avanzada después de usar", "Todos los personajes %s",
       "Todas las especializaciones %s", "Todos los ajustes", "Todos los personajes", "Permitir al acción rapida", "Alt click para configurar un vinculo condicional", "Animar transiciones", "Animación", "Apariencia", "Asignar a todas las especializaciones", "En la posición del tooltip del HUD",
       "En el centro del anillo", "Basado en la acción de la rodaja", "Comportamiento", "Conflicto de atajos", "Atajo:", "Control analógico de cámara", "Cancelar", "Cambiar acción", "Los cambios marcados con %s fueron inspirados por los comentarios enviados.", "No se guardarán los cambios",
@@ -78,7 +78,7 @@ V =
       "Actualizacion Requerida", "Usar teclados de anillo predeterminados", "Usar la primera sección al abrir", "Usar configuración global", "Usar opción", "Usar opción y cerrar anillo", "Utilidades", "Cursor de ratón virtual", "Condición de visibilidad:", z,
       "Mientras un anillo esté abierto:", "Marcadores del mundo", "World of Warcraft no pudo cargar las variables guardadas de OPie debido a falta de memoria. Intenta desactivar otros addons.\n\nCualquier cambio que realices ahora no será guardado.", "Puedes cancelar o revertir a la configuración anterior más tarde.", z, "Es posible usar condiciones de macro extendidas; consulte %s para detalles.", "Debes activar la opción %s para este anillo en la configuración de OPie para usar acciones rapidas.", "Tu personaje no puede usar esto actualmente.", "Por defecto",
     }
-    or C == "frFR" and { -- 229/229 (100%)
+    or C == "frFR" and { -- 229/230 (99%)
       "il y a %d |4minute:minutes; (%s)", "%s pour annuler", "%s pour rechercher parmis les résultats actuels", "Tous les ensembles", "(défaut)", "(Entrer le nom ou le chemin de l’icône ici)", "Ajouter un cercle", "Ajouter une nouvelle action", "Poursuivre la rotation après utilisation", "Tous les personnages %s",
       "Toutes les spécialisations des %s", "Tous les réglages", "Tous les personnages", "Permettre en tant qu'action rapide", "Alt + clic pour définir des touches avec conditions", "Animer les transitions", "Animation", "Apparence", "Assigne à toutes les spécialisations", "À la position de l'info-bulle HUD",
       "Au centre du cercle", "Selon l'action", "Comportement", "Conflit de raccourcis", "Raccourcis:", "Joystick de caméra", "Annuler", "Changer l'action", "Les modifications identifiées par %s ont été basées sur les commentaires reçus.", "Les changements ne seront pas enregistrés",
@@ -103,11 +103,11 @@ V =
       "Mise à jour requise", "Utiliser les raccourcis par défaut", "Utiliser la première action quand ouvert", "Utiliser le paramètre global", "Utiliser la partie", "Utiliser la partie et ferme l'anneau", "Utilitaire", "Curseur virtuel", "Condition de visibilité", "Quoi de neuf",
       "Quand un anneau est ouvert :", "Marqueurs de Terrain", "World of Warcraft n'a pas pu charger les variables enregistrées d'OPie en raison d'un manque de mémoire. Essayez de désactiver d'autres addons.\n\nToutes les modifications que vous effectuez maintenant ne seront pas sauvegardées.", "Vous pouvez annuler, ou revenir aux réglages précédents ultérieurement.", "Vous pouvez aider à traduire OPie en vous rendant sur :", "Vous pouvez utiliser les macro conditionnelles étendues; voir %s pour plus de détails", "Vous devez activer l'option %s pour ce cercle dans les options OPie pour utiliser des actions rapides.", "Votre personnage ne peut actuellement pas utiliser cela.", "Défaut",
     }
-    or C == "itIT" and { -- 229/229 (100%)
+    or C == "itIT" and { -- 229/230 (99%)
       "%d |4minuto:minuti; fa (%s)", "%s per annullare", "%s per cercare nei risultati correnti", "Tutti", "(predefinito)", "(inserisci qui il nome o il percorso di un'icona)", "Aggiungi anello", "Aggiungi una nuova sezione", "Avanzare dopo l'uso", "Tutti i %s personaggi",
       "Tutte le %s specializzazioni", "Tutte le impostazioni", "Tutti i personaggi", "Consenti come azione rapida", "Alt clic per impostare il binding condizionale", "Animare le transizioni", "Animazione", "Apparenza", "Assegna a tutte le specializzazioni", "Alla posizione del tooltip HUD",
       "Al centro dell’anello", "Basato sull'azione della sezione", "Comportamento", "Conflitto di collegamento", "Collegamento:", "Levetta analogica della telecamera", "Annulla", "Cambia azione", "Le modifiche contrassegnate con %s sono state introdotte sulla base dei feedback ricevuti.", "Le modifiche non verranno salvate",
-      "Scegli un collegamento per questo anello o abilita l'opzione %s nelle opzioni OPie.", "Chiudere l'anello", "Chiudere l'anello dopo un'azione rapida", "Colore:", "Combattimento", "Collegamenti condizionati", "Conflitti con: %s", "Input direzionale del controller:", "Copia l’URL mostrato sopra e aprilo tramite un browser.", "Crea profilo",
+      "Scegli un collegamento per questo anello o abilita l'opzione %s nelle opzioni OPie.", "Chiudi l'anello", "Chiudere l'anello dopo un'azione rapida", "Colore:", "Combattimento", "Collegamenti condizionati", "Conflitti con: %s", "Input direzionale del controller:", "Copia l’URL mostrato sopra e aprilo tramite un browser.", "Crea profilo",
       "Crea un nuovo profilo", "Crea un nuovo anello", "Crea un nuovo profilo", "Anelli personalizzati", "Personalizza sezione", "Personalizza OPie modificando gli anelli esistenti o creandone uno tuo.", "Personalizza le associazioni di tasti OPie di seguito. I collegamenti |cffa0a0a0Grigio|r e |cffFA2800rosso|r sono in conflitto con altri e non sono attualmente attivi.", "Personalizza l’anello di OPie e le assegnazioni dei tasti al suo interno.", "Personalizza l’aspetto e il comportamento di OPie.", "Personalizza l'aspetto e il comportamento di OPie. Clic destro su una casella di controllo ripristina lo stato predefinito.",
       "Personalizza i collegamenti", "Personalizza i comandi nell’anello", "Personalizza le opzioni", "Icona personalizzata", "Collegamento predefinito disabilitato", "Predefiniti", "Predefiniti per tutti gli anelli", "Elimina il profilo corrente", "Elimina anello", "Cancella sezione",
       "Dimostrazione", "Disabilitato", "Visualizza una sezione di salto", "Visualizza come un anello annidato", "Mostra come:", "Non mostrare", "Non fare nulla", "Vuoi reimpostare tutte le impostazioni di %s ai valori predefiniti, oppure solo quelle della categoria %s?", "Modifica gli anelli esistenti oppure crea i tuoi anelli personalizzati di OPie.", "Incorpora in altri anelli per impostazione predefinita",
@@ -126,9 +126,9 @@ V =
       "Fotografia:", "Specializzazioni e viaggi", "Specifica un’icona inserendo il nome di un file icona, il percorso della texture, il nome dell’atlas o il nome di un’abilità conosciuta.", "Scatta un'istantanea di questo anello per condividerlo con gli altri.", "Marcatori di destinazione", "Teletrasportati laddove sei richiesto… se conosci quel Cammino.", "Il collegamento verrà aggiornato per riflettere il valore di questa macro condizionale.", "La seguente macro di comando apre questo anello:", "Questa schermata", "Questo aspetto potrebbe non supportare tutte le funzionalità di OPie.",
       "Questo collegamento è attualmente utilizzato da un altro addon.", "Questo collegamento non è attualmente attivo perché è in conflitto con un altro.", "Competenze di mestiere", "Traduci Opie", "Attiva alla pressione dell’associazione", "Attiva al rilascio dell’associazione", "Capito; modifica comunque", "Cancella i cambiamenti", "Cursore non spostato", "Cursore immobile o al centro dell’anello",
       "È necessario un aggiornamento", "Usa le associazioni predefinite dell’anello", "Usa la prima fetta all’apertura", "Utilizza l’impostazione globale", "Usa fetta", "Usa la sezione e chiudi l’anello", "Utilità", "Cursore virtuale", "Condizionale di visibilità:", "Novità",
-      "Mentre un anello è aperto:", "Segnali Mondiali (Flares)", "World of Warcraft non è riuscito a caricare le variabili salvate di OPie a causa di memoria insufficiente. Prova a disattivare altri addon.\nEventuali modifiche effettuate ora non verranno salvate.\n\nTutte le modifiche apportate ora non verranno salvate.", "Puoi annullare o tornare alle impostazioni precedenti in un secondo momento.", "Puoi contribuire alla traduzione di OPie visitando:", "Puoi usare condizioni estese; consulta %s per i dettagli.", "Per usare le azioni rapide, è necessario attivare un’interazione %s per questo anello nelle opzioni di OPie.", "Non puoi usare questo con il tuo personaggio al momento.", "predefinito",
+      "Mentre un anello è aperto:", "Segnali Mondiali (Flares)", "World of Warcraft non è riuscito a caricare le variabili salvate di OPie a causa di memoria insufficiente. Prova a disattivare altri addon.\nEventuali modifiche effettuate ora non verranno salvate.\n\nTutte le modifiche apportate ora non verranno salvate.", "Puoi annullare o tornare alle impostazioni precedenti in un secondo momento.", "Puoi contribuire alla traduzione di OPie visitando:", "Puoi usare condizioni estese; consulta %s per i dettagli.", "Per usare le azioni rapide, è necessario attivare un’interazione %s per questo anello nelle opzioni di OPie.", "Il tuo personaggio non può utilizzarlo al momento.", "predefinito",
     }
-    or C == "koKR" and { -- 229/229 (100%)
+    or C == "koKR" and { -- 229/230 (99%)
       "%d분 전 (%s)", "%s로 취소", "%s로 현재 결과 내에서 검색하기", "(모든 세트)", "(기본값)", "(아이콘 이름 또는 경로를 입력하세요)", "고리 추가", "새로운 조각 추가", "사용 후 고급 기능 표시", "모든 %s 캐릭터",
       "%s의 모든 전문화", "모든 설정", "모든 캐릭터", "빠른 동작 허용", "Alt+클릭하여 조건 단축키 설정", "애니메이션 전환 효과", "애니메이션", "모양", "모든 전문화에 적용", "HUD 툴팁 위치",
       "고리 중앙에 표시", "조각별 표시", "동작", "단축키 중복", "단축키:", "시점 모의 컨트롤러", "취소", "동작 변경", "%s로 표시된 변경 사항은 제출된 피드백에서 영감을 받았습니다.", "변경 사항이 저장되지 않습니다.",
@@ -153,7 +153,7 @@ V =
       "업데이트가 필요합니다.", "기본 고리 단축키 사용", "열렸을 때 첫 번째 조각 사용", "전역 설정 사용", "조각 사용", "조각 사용후 고리 닫기", "유틸리티", "가상 마우스 커서", "표시 조건:", "새로운 소식",
       "고리가 열려 있을 때:", "바닥 징표", "메모리 부족으로 인해 월드 오브 워크래프트에서 OPie의 저장된 변수를 불러올 수 없습니다. 다른 애드온을 비활성화해 보세요.\n\n지금 변경한 내용은 저장되지 않습니다.", "나중에 취소하거나 이전 설정으로 되돌릴 수 있습니다.", "OPie 번역에 도움을 주시려면 다음 사이트를 방문하세요.", "확장 조건을 사용할 수 있습니다. 자세한 내용은 %s을 참조하세요.", "빠른 동작을 사용하려면 OPie 설정에서 이 고리에 대한 %s 옵션을 활성화해야 합니다.", "현재 당신의 캐릭터는 이를 사용할 수 없습니다.", "기본값",
     }
-    or C == "ruRU" and { -- 229/229 (100%)
+    or C == "ruRU" and { -- 229/230 (99%)
       "%d |4минуту:минуты:минут; назад (%s)", "%s для отмены", "%s для поиска в текущих результатах", "(Все комплекты)", "(по умолчанию)", "(введите название иконки или путь к ней)", "Создать кольцо", "Добавить новый фрагмент", "Дополнительная прокрутка после использования", "Все персонажи   %s",
       "Все специализаций  %s", "Все параметры", "Все персонажи", "Разрешить быстрое применение", "Нажать Alt для установки условной привязки", "Анимировать переходы", "Анимация", "Внешний вид", "Привязать ко всем специализациям", "В позиции всплывающей подсказки HUD",
       "В центре кольца", "Нажмите, чтобы изменить иконку", "Поведение", "Противоречие назначения горячей клавиши", "Назначение клавиши:", "Аналоговый стик камеры", "Отмена", "Изменить действие", "Изменения, отмеченные %s были внесены на основе полученной обратной связи.", "Изменения не будут сохранены",
@@ -178,7 +178,7 @@ V =
       "Требуется обновление", "Использовать привязку  для колец по умолчанию", "Использовать первый фрагмент при открытии", "Использовать глобальные настройки", "Использовать фрагмент", "Использовать фрагмент и закрыть кольцо", "Вспомогательный", "Виртуальный курсор мыши", "Видимые условия:", "Что нового?",
       "Когда кольцо открыто:", "Световые метки", "World of Warcraft не удалось загрузить сохраненные переменные OPie из-за нехватки памяти. Попробуйте отключить другие аддоны.\n\nВсе внесенные изменения в настоящее время не будут сохраняться.", "Вы можете отменить или вернуть предыдущие настройки позже.", "Вы поможете помочь в переводе OPie, посетив:", "Вы можете использовать расширенные макро условия; см. %s.", "Вы должны включить опцию %s для этого кольца в настройках OPie для использования быстрых действий.", "Ваш персонаж не может использовать это в данный момент.", "по умолчанию",
     }
-    or C == "zhCN" and { -- 229/229 (100%)
+    or C == "zhCN" and { -- 229/230 (99%)
       "%d 分钟前 (%s)", "%s取消", "%s在当前结果内搜索", "（所有套装）", "(默认)", "（输入图标名称或路径）", "添加环", "添加一个新功能", "使用后进阶显示", "所有%s角色",
       "%s的所有专精", "所有设置", "全部角色", "允许作为快捷动作", "Alt单击设置条件绑定", "动画过渡", "动画", "外观", "分配到所有专精", "在HUD提示位置",
       "在环中心", "按功能显示", "行为", "快捷键冲突", "快捷键：", "视角模拟摇杆", "取消", "改变行为", "标记为%s的修改是受提交的反馈启发而作出的。", "修改将不被保存",
@@ -203,7 +203,7 @@ V =
       "需要更新", "使用默认环快捷键", "打开时使用第一个功能", "使用全局设定", "使用功能", "使用功能并关闭环", "工具", "虚拟鼠标光标", "可见条件：", "最新动态",
       "环展开时：", "世界标记", "由于内存不足，魔兽世界不能加载已保存的OPie变量。请尝试禁用其他插件。现在你所做的任何改动都不会被保存。", "您可以稍后取消或恢复到之前的设置。", "您可以通过访问以下链接来帮助翻译OPie：", "你可以使用扩展的宏条件；详情见%s。", "必须为此环启用%s选项，以使用快捷动作。", "你的当前角色目前无法使用该物品。", "默认",
     }
-    or C == "zhTW" and { -- 229/229 (100%)
+    or C == "zhTW" and { -- 229/230 (99%)
       "%d 分鐘前 (%s)", "%s取消", "%s在目前的結果內搜尋", "(所有套裝)", "(預設)", "(在此輸入圖示名稱或路徑)", "新增環", "加入一個新的功能", "使用後進階顯示", "所有 %s 角色",
       "所有 %s 專精", "所有設定", "所有角色", "設為快速動作", "Alt+左鍵 設定條件式綁定", "轉換動畫", "動畫", "外觀", "給所有專精使用", "在畫面上顯示浮動提示資訊的位置",
       "在環中心", "依據自身的功能顯示圖示", "行為", "按鍵已被使用", "按鍵綁定:", "移動視角用的類比搖桿", "取消", "更改動作", "標記為 %s 的變更是受到提交的回饋啟發而進行的。", "不會儲存變更",
@@ -228,7 +228,7 @@ V =
       "需要更新", "使用預設的環按鍵綁定", "展開時使用第一個功能", "使用整體設定", "使用功能", "使用功能後關閉環", "工具", "虛擬滑鼠游標", "顯示條件:", "更新資訊",
       "環展開時:", "世界標記圖示", "記憶體不足! 魔獸世界無法載入 OPie 已儲存的變數，請停用其它插件。\n\n現在做的任何變更都不會被儲存。", "稍後可以取消或還原成先前的設定。", "你可以前往以下頁面協助翻譯 OPie：", "可以使用擴充的巨集條件式；詳細內容請看 %s。", "要使用快速功能，必須在 OPie 選項中替這個環啟用 %s 互動。", "你的角色目前無法使用此功能。", "預設",
     }
-    or C == "ptBR" and { -- 229/229 (100%)
+    or C == "ptBR" and { -- 229/230 (99%)
       "%d |4minuto:minutos; atrás(%s)", "%s para cancelar", "%s para procurar dentro dos resultados atuais", "Todos equipados", "(padrão)", "(insira o nome ou o caminho do ícone aqui)", "Adicionar anel", "Adicionar nova fatia", "Avançar rotação após o uso", "Todos os personagens %s",
       "Todas as especializações de %s", "Todas as Configurações", "Todos os personagens", "Permitir como ação rápida", "Alt e clique para definir atalho condicional", "Animar transições", "Animação", "Aparência", "Atribuir a todas as especializações", "Posição da ferramenta do HUD",
       "No centro do anel", "Baseado na ação da fatia", "Comportamento", "Conflito de atalhos", "Atalho:", "Alavanca analógica da câmera", "Cancelar", "Mudar ação", "As alterações marcadas com %s foram inspiradas por sugestões enviadas.", "As alterações não serão salvas",

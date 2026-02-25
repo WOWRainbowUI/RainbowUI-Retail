@@ -1,5 +1,5 @@
 local COMPAT, ADDON, T = select(4, GetBuildInfo()), ...
-local PC, EV, XU, GameTooltip = T.OPieCore, T.Evie, T.exUI, T.NotGameTooltip or GameTooltip
+local PC, EV, XU, GameTooltip, L = T.OPieCore, T.Evie, T.exUI, T.NotGameTooltip or GameTooltip, T.L
 local api, iapi, configCache, vis = {}, {}, {}, {}
 local max, min, abs, floor, sin, cos = math.max, math.min, math.abs, math.floor, sin, cos
 local GetPartialHintRaw = PC.GetPartialHintRaw
@@ -377,6 +377,14 @@ local atlasRatio = setmetatable({}, {__index=function(t,k)
 	end
 	return r
 end})
+local MOD_PREFIX = {[0] = ""} do
+	for i=1,15 do
+		MOD_PREFIX[i] = (i % 2 < 1 and "" or "ALT-") .. (i % 4 < 2 and "" or "CTRL-") .. (i % 8 < 4 and "" or "SHIFT-") .. (i < 8 and "" or "META-")
+	end
+end
+local function GetModifierKeyState()
+	return (IsAltKeyDown() and 1 or 0) + (IsControlKeyDown() and 2 or 0) + (IsShiftKeyDown() and 4 or 0) + (IsMetaKeyDown() and 8 or 0)
+end
 local IsControllerBinding do
 	local mem = {}
 	function IsControllerBinding(b)
@@ -387,6 +395,18 @@ local IsControllerBinding do
 		end
 		return r == true
 	end
+end
+local function IsSliceBindingConflicted(slice, bind, modState)
+	local bindKey, bindMod = bind and bind:match("[^-]*.?$"), modState
+	if bindKey and bindKey ~= bind then
+		local prefix = bind:sub(1, -#bindKey-1)
+		bindMod = MOD_PREFIX[prefix] or
+		          ((bind:match("ALT%-") and 1 or 0) + (bind:match("CTRL%-") and 2 or 0) +
+		           (bind:match("SHIFT%-") and 4 or 0) + (bind:match("META%-") and 8 or 0))
+		MOD_PREFIX[prefix], bindMod = bindMod, bit.bor(modState, bindMod)
+	end
+	local b = bindKey and C_KeyBindings.GetBindingByKey(MOD_PREFIX[bindMod] .. bindKey)
+	return b and not PC:IsOpenRingSliceBinding(slice, b) and tostring(_G["BINDING_NAME_" .. b] or b) or nil
 end
 
 local getSliceColor, setIconColorOverride do
@@ -468,9 +488,13 @@ local function updateCentralElements(_self, si, _, tok, usable, state, icon, cap
 			tipFunc, tipArg = text and GameTooltip.AddLine, text
 		end
 		if tipFunc then
+			local bindConflict = vis.sliceBindConflict[si]
 			if not checkTipThrottle(proxyFrame, tipFunc, tipArg, time) then
 				anchorTooltip(GameTooltip, proxyFrame, configCache.TooltipAnchor, vis.angle)
 				tipFunc(GameTooltip, tipArg)
+				if bindConflict then
+					GameTooltip:AddLine("\n|cffff0000" .. (L"Slice binding conflicts with %s."):format(bindConflict), 1, 0, 0, 1)
+				end
 				GameTooltip:Show()
 			end
 		elseif GameTooltip:IsOwned(proxyFrame) then
@@ -582,22 +606,34 @@ end
 local function callElementUpdate(self, f, si, ni, a1, a2)
 	return true, f(self, a1, a2, ambiguateToken(PC:GetOpenRingSliceAction(si, ni)))
 end
-local function updateSliceBindings(imode)
-	local showSliceBinds, _, sliceBind, sliceBind2 = configCache.ShowKeys
+vis.sliceBindConflict = {}
+local function updateSliceBindings(imode, curModState)
+	local showSliceBinds, useSliceBinds = configCache.ShowKeys, configCache.SliceBinding
+	curModState = curModState or GetModifierKeyState()
 	imode = showSliceBinds and (imode or PC:GetCurrentInputs())
+	local _, sliceBind, sliceBind2, c1, c2
 	for i=1, vis.count do
-		if showSliceBinds then
+		if useSliceBinds then
 			_, _, sliceBind, sliceBind2 = PC:GetOpenRingSlice(i)
-			if sliceBind2 then
-				local c1, c2 = IsControllerBinding(sliceBind), IsControllerBinding(sliceBind2)
+			c1, c2 = IsSliceBindingConflicted(i, sliceBind, curModState), IsSliceBindingConflicted(i, sliceBind2, curModState)
+			if c2 then
+				sliceBind2 = nil
+			end
+			if c1 then
+				sliceBind, sliceBind2 = sliceBind2, nil
+			end
+			vis.sliceBindConflict[i] = (c1 and c2 and '"|cffffffff' .. c1 .. '|r", "|cffffffff' .. c2 .. '|r"')
+			                           or (c1 or c2) and ('"|cffffffff' .. (c1 or c2) .. '|r"') or nil
+			if showSliceBinds and sliceBind and sliceBind2 then
+				c1, c2 = IsControllerBinding(sliceBind), IsControllerBinding(sliceBind2)
 				if c1 ~= c2 and (imode == "stick") == c2 then
 					sliceBind = sliceBind2
-				else
-					sliceBind = sliceBind or sliceBind2
 				end
 			end
+		else
+			vis.sliceBindConflict[i] = nil
 		end
-		Slices[i]:SetBinding(sliceBind or nil)
+		Slices[i]:SetBinding(showSliceBinds and (sliceBind or sliceBind2) or nil)
 	end
 	configCache.lastBindingMode = imode
 end
@@ -636,6 +672,12 @@ local function OnUpdate_Main(self, elapsed)
 	vis.angle = (adiff < abound or frameRate < MIN_ANIMATION_FPS) and angle or (oangle + arotDirection * abound) % 360
 	centerPointer:SetRotation(vis.angle/180*3.1415926535898 - 90/180*3.1415926535898)
 
+	local modState = GetModifierKeyState()
+	local modStateChanged, mut = vis.omState ~= modState, vis.schedMultiUpdate or 0
+	if modStateChanged or lastBindingMode and lastBindingMode ~= imode then
+		updateSliceBindings(imode, modState)
+	end
+
 	local si = qaid or (count <= 0 and 0) or isActiveRadius and
 		(floor(((90-angle - offset) * count/360 + 0.5) % count) + 1) or 0
 	securecall(callElementUpdate, self, updateCentralElements, si, nil, si)
@@ -653,11 +695,8 @@ local function OnUpdate_Main(self, elapsed)
 	end
 	OnUpdate_CheckAlpha(self, count)
 
-	local cmState, mut = (IsShiftKeyDown() and 1 or 0) + (IsControlKeyDown() and 2 or 0) + (IsAltKeyDown() and 4 or 0) + (IsMetaKeyDown() and 8 or 0), vis.schedMultiUpdate or 0
-	if vis.omState == cmState and mut < 0  then
-		vis.schedMultiUpdate = mut + elapsed
-	else
-		vis.omState, vis.schedMultiUpdate = cmState, -0.05
+	if modStateChanged or mut >= 0 then
+		vis.omState, vis.schedMultiUpdate = modState, -0.05
 		for i=1,count do
 			local originAngle = 90 - (i-1)*360/count - offset
 			securecall(callElementUpdate, Slices[i], updateSlice, i, nil, originAngle, si == i)
@@ -676,9 +715,8 @@ local function OnUpdate_Main(self, elapsed)
 				end
 			end
 		end
-	end
-	if lastBindingMode and lastBindingMode ~= imode then
-		updateSliceBindings(imode)
+	else
+		vis.schedMultiUpdate = mut + elapsed
 	end
 	GhostIndication:OnUpdate(elapsed)
 end

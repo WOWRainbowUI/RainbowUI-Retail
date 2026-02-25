@@ -1,6 +1,10 @@
 local _, T = ...
 
 function T.WhatsNewData(vh, uv, li)
+	vh("v8.2")
+	uv("Transmogrification Outfits can now be added to OPie rings.")
+	li("Added <tt>[race:haranir]</tt> extended conditional token.")
+	li("Conflicted slice bindings are no longer shown on the slice. The conflicting binding is identified in the slice tooltip.")
 	vh("v8.1")
 	li("[.4] OPie can now display secret ability cooldowns on patch 12.0.1.")
 	uv("[.3] Fixed an error that could occur in PvP matches or Mythic+ when using certain insecure macro conditionals on patch 12.0.0.")

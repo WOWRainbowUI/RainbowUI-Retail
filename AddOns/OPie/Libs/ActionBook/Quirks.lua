@@ -507,6 +507,11 @@ securecall(function() -- K'aresh Phase Diving flight restriction
 		KR:RegisterStateDriver(FLIGHT_BLOCKER, "phasedive", "[in:karesh,noflyable] 1;0")
 	end
 end)
+securecall(function() -- Shadowlands/Maw: require [flyable]
+	if MODERN then
+		KR:RegisterStateDriver(FLIGHT_BLOCKER, "shadowlands", "[in:shadowlands,noflyable] 1;0")
+	end
+end)
 securecall(function() -- TWW dungeon/delve flight restriction
 	if not MODERN then
 		return
@@ -647,18 +652,4 @@ securecall(function() -- Classic Mists: [spec:1] is stuck
 		end
 	end
 	EV.PLAYER_LOGIN = syncSpec
-end)
-securecall(function() -- Legion Remix: Unraveling Sands gets stuck
-	if not MODERN then
-		return
-	end
-	local GOOD_UNRAVEL_SID, BAD_UNRAVEL_SID = 1232808, 436524
-	function EV:PLAYER_LOGIN()
-		if PlayerGetTimerunningSeasonID() == 2 then
-			local good_cast, bad_cast = "spell:" .. GOOD_UNRAVEL_SID, "spell:" .. BAD_UNRAVEL_SID
-			RW:SetCastAlias(GetSpellInfo(BAD_UNRAVEL_SID) or bad_cast, good_cast)
-			RW:SetCastAlias(bad_cast, good_cast)
-		end
-		return "remove"
-	end
 end)

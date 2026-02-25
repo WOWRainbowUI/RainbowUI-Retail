@@ -3,7 +3,7 @@ if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
 local MODERN, CI_ERA, CF_CATA, CF_MISTS = COMPAT >= 11e4, COMPAT < 2e4, COMPAT > 4e4 and COMPAT < 11e4, COMPAT > 5e4 and COMPAT < 11e4
-local NO_SECRETS = not MODERN
+local SECRETS, NO_SECRETS = MODERN, not MODERN
 local EV, WR = T.Evie, T.Ware
 local AB = T.ActionBook:compatible(2, 31)
 local KR = T.ActionBook:compatible("Kindred", 1,33)
@@ -265,7 +265,7 @@ securecall(function() -- ready:spell name/spell id/item name/item id
 	KR:SetNonSecureConditional("ready", function(_name, args)
 		local gcS, gcL = GetSpellCooldown(61304)
 		if not args or args == "" then
-			return MODERN and gcL and issecretvalue(gcL) and "lockdown" or (gcS == 0 and gcL == 0)
+			return SECRETS and gcL and issecretvalue(gcL) and "lockdown" or (gcS == 0 and gcL == 0)
 		end
 		
 		local at = stringArgCache[args]
@@ -280,7 +280,7 @@ securecall(function() -- ready:spell name/spell id/item name/item id
 					cdS, cdL, _cdA = C_Container.GetItemCooldown(iid)
 				end
 			end
-			if MODERN and cdL and issecretvalue(cdL) then
+			if SECRETS and cdL and issecretvalue(cdL) then
 				return "lockdown"
 			elseif cdL == 0 or (cdS and cdL and (cdS + cdL) <= gcE) then
 				return true
@@ -323,7 +323,7 @@ securecall(function() -- self(de)buff:name, own(de)buff:name, (de)buff:name, cle
 		if not args or args == "" or not UnitExists(target) then
 			return false
 		end
-		local issecretvalue = MODERN and issecretvalue
+		local issecretvalue = SECRETS and issecretvalue
 		local at, query, filter = stringArgCache[args], C_UnitAuras.GetAuraSlots, conditionalFilter[name]
 		local count, ctok, a,b,c,d,e
 		repeat
@@ -349,14 +349,18 @@ securecall(function() -- self(de)buff:name, own(de)buff:name, (de)buff:name, cle
 	KR:SetNonSecureConditional("ownbuff", checkAura)
 	KR:SetNonSecureConditional("cleanse", function(_, _, target)
 		target = target or "target"
-		return UnitIsFriend("player", target) and select(2,C_UnitAuras.GetAuraSlots(target, "HARMFUL RAID", 1)) ~= nil
+		return UnitIsFriend("player", target) and select(2,C_UnitAuras.GetAuraSlots(target, MODERN and "HARMFUL RAID_PLAYER_DISPELLABLE" or "HARMFUL RAID", 1)) ~= nil
 	end)
 end)
 securecall(function() -- combo:count
 	local power, powerMap = 4, {[265]=7, [267]=14, [258]=13, PALADIN=9, MONK=12}
 	local defaultPower = powerMap[playerClass] or 4
 	KR:SetNonSecureConditional("combo", function(_name, args)
-		return UnitPower("player", power) >= (tonumber(args) or 1)
+		local pow = UnitPower("player", power)
+		if SECRETS and issecretvalue(pow) then
+			return "lockdown"
+		end
+		return pow >= (tonumber(args) or 1)
 	end)
 	local function syncComboPower()
 		local specid = MODERN and C_SpecializationInfo.GetSpecializationInfo(C_SpecializationInfo.GetSpecialization() or 0)
@@ -401,7 +405,7 @@ securecall(function() -- near:oid/cid
 	end)
 	function EV:PLAYER_SOFT_INTERACT_CHANGED(_, guid)
 		local ct, oid
-		if guid and not InCombatLockdown() then
+		if guid and not InCombatLockdown() and (NO_SECRETS or not issecretvalue(guid)) then
 			ct, oid = guid:match("^(%a+)%-[-%d]+%-(%d+)%-[^-]+$")
 			ct = typePrefix[ct]
 			oid = ct and ct .. oid or nil
@@ -428,6 +432,7 @@ securecall(function() -- race:token
 		ZandalariTroll="ZandalariTroll/Zandalari",
 		DarkIronDwarf="DarkIronDwarf/DarkIron",
 		EarthenDwarf="EarthenDwarf/Earthen",
+		Harronir="Harronir/Haranir",
 	}, UnitRace("player")
 	KR:SetStateConditionalValue("race", map[raceToken] or raceToken)
 end)
