@@ -62,27 +62,34 @@ local function IsNameplateContext(name, objType, unit)
         or (unit and strfind(unit, "nameplate", 1, true))
 end
 
--- NOUVELLE FONCTION : Détection ultra-rapide des frames générées par MiniCC
+-- FONCTION : Détection rapide des frames générées par MiniCC
 -- MiniCC injects DesiredIconSize/FontScale on anonymous nameplate cooldowns.
 local function IsMiniCCFrame(frame)
     if not frame then return false end
 
     -- 1. Duck-typing : MiniCC injecte ces variables spécifiques sur le Cooldown
     if frame.DesiredIconSize and frame.FontScale then
-        -- 2. Vérification de la hiérarchie (Cooldown -> Slot -> Container -> Nameplate)
+        
+        -- 2. Vérification de la nouvelle hiérarchie (Cooldown -> Layer -> Slot -> Container -> Nameplate)
         -- Les frames intermédiaires de MiniCC sont anonymes, GetName() doit retourner nil
-        local slotFrame = frame:GetParent()
-        if slotFrame and not slotFrame:GetName() then
+        local layerFrame = frame:GetParent()
+        if layerFrame and not layerFrame:GetName() then
             
-            local containerFrame = slotFrame:GetParent()
-            if containerFrame and not containerFrame:GetName() then
+            local slotFrame = layerFrame:GetParent()
+            if slotFrame and not slotFrame:GetName() then
                 
-                local nameplate = containerFrame:GetParent()
-                -- 3. Le parent final doit être une Nameplate reconnue
-                if nameplate then
-                    local npName = nameplate:GetName() or ""
-                    if IsNameplateContext(npName, nameplate:GetObjectType(), nameplate.unit) then
-                        return true
+                local containerFrame = slotFrame:GetParent()
+                if containerFrame and not containerFrame:GetName() then
+                    
+                    local nameplate = containerFrame:GetParent()
+                    
+                    -- 3. Le parent final doit être une Nameplate reconnue
+                    if nameplate then
+                        local npName = nameplate:GetName() or ""
+                        -- Assurez-vous que la fonction IsNameplateContext est bien définie ailleurs dans votre code
+                        if IsNameplateContext(npName, nameplate:GetObjectType(), nameplate.unit) then
+                            return true
+                        end
                     end
                 end
             end
