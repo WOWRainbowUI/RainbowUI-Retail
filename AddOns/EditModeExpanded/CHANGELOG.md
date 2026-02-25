@@ -1,7 +1,9 @@
 # Edit Mode Expanded
 
-## [12.0-021](https://github.com/teelolws/EditModeExpanded/tree/12.0-021) (2026-02-24)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/12.0-020...12.0-021) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [12.0-022](https://github.com/teelolws/EditModeExpanded/tree/12.0-022) (2026-02-25)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/12.0-021...12.0-022) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
-- Chat frame: add option to fade the Chat Frame and surrounding buttons while in combat  
-- Update TotemFrame.lua  
+- Update ChatFrame.lua  
+    Closes: https://github.com/teelolws/EditModeExpanded/issues/211  
+- Update EditModeExpanded.lua  
+- Update ChatFrame.lua  
