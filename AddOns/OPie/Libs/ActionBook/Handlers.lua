@@ -87,6 +87,40 @@ local spellPHS, actionPHS if MODERN then
 	actionPHS = AB:ReservePartialHintSuffix(phAction)
 end
 
+local function actionHint(slot)
+	local at, aid = GetActionInfo(slot)
+	if at == nil then
+		return false, 0, "Interface/Icons/inv_misc_questionmark", "", 0, 0, 0
+	end
+	local now, state = GetTime(), 0
+	local inRange, usable, nomana, hasRange = NormalizeInRange[IsActionInRange(slot)], IsUsableAction(slot)
+	inRange, hasRange = inRange ~= 0, inRange ~= nil
+	local skipCD, overCount, useChargeCooldown
+	local cdLeft, cdLength, enabled = GetActionCooldown(slot)
+	local count, charges, maxCharges, ccdStart, ccdLength
+	if MODERN and issecretvalue(cdLeft) then
+		skipCD, cdLeft, enabled, charges, maxCharges, ccdStart, ccdLength = 1, nil
+		state, cdLength = state + 524288, actionPHS + slot
+		overCount, count = C_ActionBar.GetActionDisplayCount(slot), 1
+	else
+		count, charges, maxCharges, ccdStart, ccdLength = GetActionCount(slot), GetActionCharges(slot)
+		cdLeft, cdLength, enabled = toCooldown(now, cdLeft, cdLength, enabled)
+		if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
+			useChargeCooldown = 1
+		end
+	end
+	state = state + ((IsCurrentAction(slot) or enabled == 0) and 1 or 0)
+	      + (at == "spell" and IsSpellOverlayed(aid) and 2 or 0)
+	      + (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) + (hasRange and 512 or 0)
+	      + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
+	usable = not not (usable and inRange and (skipCD or cdLeft == 0 or enabled == 0 or charges > 0))
+	if useChargeCooldown then
+		cdLeft, cdLength = toCooldown(now, ccdStart, ccdLength, 1)
+	end
+	overCount = overCount or count <= 1 and charges or count
+	return usable, state, GetActionTexture(slot), GetActionText(slot) or (at == "spell" and GetSpellInfo(aid)), overCount, cdLeft, cdLength, callMethod.SetAction, slot
+end
+
 securecall(function() -- mount: mount ID
 	if not MODERN_MOUNTS then
 		function mountHint()
@@ -1008,39 +1042,30 @@ securecall(function() -- worldmarker
 		end
 	end)
 end)
+securecall(function() -- action
+	local amap = {}
+	local function createAction(id, _flags)
+		if type(id) ~= "number" or id < 0 or id % 1 ~= 0 then return end
+		local aid = amap[id]
+		if aid == nil then
+			aid = AB:CreateActionSlot(actionHint, id, "attribute", "type","action", "action",id)
+			amap[id] = aid
+		end
+		return aid
+	end
+	local function describeAction(id)
+		if type(id) ~= "number" or id < 0 or id % 1 ~= 0 then return end
+		return L"Action", id, GetActionTexture(id)
+	end
+	AB:RegisterActionType("action", createAction, describeAction, 2)
+end)
 securecall(function() -- extrabutton
 	local slot = (MODERN or CF_CATA) and GetExtraBarIndex and (GetExtraBarIndex()*12 - 11)
 	local function extrabuttonHint()
 		if not HasExtraActionBar() then
 			return false, 0, "Interface/Icons/temp", "", 0, 0, 0
 		end
-		local now, state, at, aid = GetTime(), 0, GetActionInfo(slot)
-		local inRange, usable, nomana, hasRange = NormalizeInRange[IsActionInRange(slot)], IsUsableAction(slot)
-		inRange, hasRange = inRange ~= 0, inRange ~= nil
-		local skipCD, overCount, useChargeCooldown
-		local cdLeft, cdLength, enabled = nil, GetActionCooldown(slot)
-		local count, charges, maxCharges, ccdStart, ccdLength
-		if MODERN and issecretvalue(cdLeft) then
-			skipCD, cdLeft, enabled, charges, maxCharges, ccdStart, ccdLength = 1, nil
-			state, cdLength = state + 524288, actionPHS + slot
-			overCount, count = C_ActionBar.GetActionDisplayCount(slot), 1
-		else
-			count, charges, maxCharges, ccdStart, ccdLength = GetActionCount(slot), GetActionCharges(slot)
-			cdLeft, cdLength, enabled = toCooldown(now, cdLeft, cdLeft, enabled)
-			if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
-				useChargeCooldown = 1
-			end
-		end
-		state = state + ((IsCurrentAction(slot) or enabled == 0) and 1 or 0)
-		      + (at == "spell" and IsSpellOverlayed(aid) and 2 or 0)
-		      + (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) + (hasRange and 512 or 0)
-		      + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
-		usable = not not (usable and inRange and (skipCD or cdLeft == 0 or enabled == 0 or charges > 0))
-		if useChargeCooldown then
-			cdLeft, cdLength = toCooldown(now, ccdStart, ccdLength, 1)
-		end
-		overCount = overCount or count <= 1 and charges or count
-		return usable, state, GetActionTexture(slot), GetActionText(slot) or (at == "spell" and GetSpellInfo(aid)), overCount, cdLeft, cdLength, callMethod.SetAction, slot
+		return actionHint(slot)
 	end
 	local aid = slot and AB:CreateActionSlot(extrabuttonHint, nil, "conditional", "[extrabar]", "attribute", "type","action", "action",slot)
 	local aid2 = slot and AB:CreateActionSlot(extrabuttonHint, nil, "attribute", "type","action", "action",slot)
@@ -1427,7 +1452,15 @@ securecall(function() -- /ping
 	RW:SetCommandHint(SLASH_PING1, 40, function(_, _, clause, target)
 		if clause then
 			clause = lowered[clause]
-			local ci = INFO[TOKENS[clause] or clause] or INFO[C_Ping.GetContextualPingTypeForUnit(UnitGUID(target ~= "cursor" and target or "mouseover") or nil) == 4 and 2 or 1]
+			local ci = INFO[TOKENS[clause] or clause]
+			if not ci then
+				local unit = target ~= "cursor" and target or "mouseover"
+				local guid = UnitGUID(unit)
+				local pingType = guid and issecretvalue(guid)
+				             and (UnitCanAttack("player", unit) and UnitIsEnemy("player", unit) and 4 or 5)
+				              or C_Ping.GetContextualPingTypeForUnit(guid)
+				ci = INFO[pingType == 4 and 2 or 1]
+			end
 			local perm = (not IsInRaid() or UnitIsGroupLeader("player") or UnitIsGroupAssistant("player") or not C_PartyInfo.GetRestrictPings())
 			local cdInfo, nowMs = C_Ping.GetCooldownInfo(), GetTime()*1000
 			local cd = cdInfo.endTimeMs > nowMs and (cdInfo.endTimeMs-nowMs)/1000 or 0
@@ -1745,4 +1778,174 @@ securecall(function() -- uipanel: token
 		return L"Interface Panel"
 	end
 	AB:RegisterActionType("uipanel", createPanel, describePanel, 1)
+end)
+securecall(function() -- outfit: id
+	if not MODERN then return end
+	local CTO_SID, UTO_SID = 1247917, 1247613
+	local SF_PICKUP_FID, SF_DROP_FID, SF_OPICKUP_FID = 567489, 567524, 567565
+	local CTO_NAME, CTO_ICON = C_Spell.GetSpellName(CTO_SID), C_Spell.GetSpellTexture(CTO_SID)
+	local CLOBBER_SLOT = (CLASS == "DRUID" and 120 or 108) + 10
+	local unlockedOutfits = {[0]=true}
+	local outfitAction, outfitName, outfitIcon = {}, {}, {}
+	local SLASH_USEOUTFIT = "/ab:useoutfit" do
+		local outfitButton = CreateFrame("Button", nil, nil, "SecureActionButtonTemplate")
+		outfitButton:SetAttribute("action", CLOBBER_SLOT)
+		outfitButton:SetAttribute("useOnKeyDown", false)
+		SecureHandlerWrapScript(outfitButton, "OnClick", outfitButton, 'return "RightButton"');
+		outfitButton:SetAttribute("RunSlashCmd", [=[--AB:Outfit_RunSlash 
+			local _cmd, v = ...
+			return nil, "notified-click", tonumber(v)
+		]=])
+		outfitButton:SetAttribute("RunSlashCmd-PreClick", [=[--AB:Outfit_PreClick 
+			local _cmd, v = ...
+			self:SetAttribute("type", nil)
+			self:SetAttribute("outfit-id", v)
+		]=])
+		local function IsCursorOutfit(oid, ct, id, _, id2)
+			return ct == "outfit" and id == oid or oid == 0 and ct == "spell" and CTO_SID == id2
+		end
+		local function IsActionOutfit(oid, at, id)
+			return at == "outfit" and id == oid or oid == 0 and at == "spell" and CTO_SID == id
+		end
+		local DuckCursorSounds do
+			local s
+			local function RestoreCursorSounds(_)
+				if s then
+					_ = (s % 2 > 0) and UnmuteSoundFile(SF_PICKUP_FID)
+					_ = (s % 4 > 1) and UnmuteSoundFile(SF_DROP_FID)
+					_ = (s % 8 > 3) and UnmuteSoundFile(SF_OPICKUP_FID)
+					s = nil
+				end
+			end
+			function DuckCursorSounds(_)
+				if s ~= nil then
+					EV.After(0, RestoreCursorSounds)
+					return
+				end
+				local wp1, h1 = PlaySoundFile(SF_PICKUP_FID)
+				local wp2, h2 = PlaySoundFile(SF_DROP_FID)
+				local wp3, h3 = PlaySoundFile(SF_OPICKUP_FID)
+				if not (wp1 or wp2 or wp3) then
+					return
+				end
+				s = (wp1 and 1 or 0) + (wp2 and 2 or 0) + (wp3 and 4 or 0)
+				_ = wp1 and StopSound(h1) and nil or wp2 and StopSound(h2) and nil or wp3 and StopSound(h3)
+				_ = wp1 and MuteSoundFile(SF_PICKUP_FID) and nil
+				 or wp2 and MuteSoundFile(SF_DROP_FID) and nil
+				 or wp3 and MuteSoundFile(SF_OPICKUP_FID)
+				EV.After(0, RestoreCursorSounds)
+			end
+		end
+		local csEmpty
+		outfitButton:SetScript("PreClick", function()
+			local oid = outfitButton:GetAttribute("outfit-id")
+			if InCombatLockdown() or not oid then
+				return oid and UIErrorsFrame:AddExternalErrorMessage(ERR_NOT_IN_COMBAT) and nil
+			end
+			DuckCursorSounds()
+			ClearCursor() -- going to happen anyway
+			C_TransmogOutfitInfo.PickupOutfit(oid)
+			if IsCursorOutfit(oid, GetCursorInfo()) then
+				csEmpty = nil == GetActionInfo(CLOBBER_SLOT)
+				PlaceAction(CLOBBER_SLOT)
+				if IsActionOutfit(oid, GetActionInfo(CLOBBER_SLOT)) then
+					outfitButton:SetAttribute("type", "action")
+				end
+			else
+				ClearCursor()
+			end
+		end)
+		outfitButton:SetScript("PostClick", function()
+			if InCombatLockdown() or csEmpty == nil then
+				return
+			end
+			if csEmpty == true then
+				ClearCursor()
+				PickupAction(CLOBBER_SLOT)
+				ClearCursor()
+			elseif csEmpty == false then
+				PlaceAction(CLOBBER_SLOT)
+				ClearCursor()
+			end
+			outfitButton:SetAttribute("type", nil)
+			csEmpty = nil
+		end)
+		RW:RegisterCommandEx(SLASH_USEOUTFIT, 3 + 2^5*2 + 2^8*5, outfitButton)
+	end
+	local function getOutfitName(id)
+		if id == 0 then
+			outfitName[id], outfitIcon[id] = CTO_NAME, CTO_ICON
+			return CTO_NAME
+		end
+		local info, name = C_TransmogOutfitInfo.GetOutfitInfo(id)
+		if info then
+			name = info.name
+			name = name == TRANSMOG_OUTFIT_NAME_DEFAULT and (name .. " #" .. id) or name
+			outfitName[id], outfitIcon[id] = name, info.icon
+			return name
+		end
+	end
+	local function setOutfitTooltip(tip, id)
+		local name = id == 0 and CTO_NAME or outfitName[id] or getOutfitName(id)
+		tip:SetText(HIGHLIGHT_FONT_COLOR_CODE .. (name or ""))
+		tip:AddLine(HIGHLIGHT_FONT_COLOR_CODE .. SPELL_CAST_TIME_INSTANT)
+		local dt = C_Spell.GetSpellDescription(id == 0 and CTO_SID or UTO_SID)
+		dt = dt and dt:match("^[^\r\n]+")
+		if dt then
+			tip:AddLine(dt, nil, nil, nil, true)
+		end
+		local ncs = "|r\n" .. NORMAL_FONT_COLOR_CODE
+		if C_TransmogOutfitInfo.GetActiveOutfitID() ~= id then
+			-- No extra hint
+		elseif C_TransmogOutfitInfo.IsLockedOutfit(id) then
+			tip:AddLine("\n|cffffffff" .. L"Appearance locked" .. ncs .. L"Use again to allow this apperance to be replaced by a Situation.", nil,nil,nil,1)
+		else
+			tip:AddLine("\n|cffffffff" .. L"Appearance unlocked" .. ncs .. L"Use again to prevent this apperance from being replaced by a Situation.", nil,nil,nil,1)
+		end
+	end
+	local function hintOutfit(id)
+		local cdsid, now = id == 0 and CTO_SID or UTO_SID, GetTime()
+		local name = outfitName[id] or getOutfitName(id)
+		local icon = outfitIcon[id]
+		local usable = not InCombatLockdown()
+		local state = C_TransmogOutfitInfo.GetActiveOutfitID() == id and 1 or 0
+		local cdLeft, cdLength, enabled = GetSpellCooldown(cdsid)
+		if issecretvalue(cdLeft) then
+			cdLeft, enabled = nil
+			state, cdLength = state + 524288, spellPHS + cdsid
+		else
+			cdLeft, cdLength, enabled = toCooldown(now, cdLeft, cdLength, enabled)
+			usable = usable and cdLeft == 0
+		end
+		return usable, state, icon, name, 0, cdLeft, cdLength, setOutfitTooltip, id
+	end
+	local function IsTransmogOutfitUnlocked(id)
+		return unlockedOutfits[id] or type(id) == "number" and C_TransmogOutfitInfo.GetOutfitInfo(id) and true
+	end
+	local function createOutfit(id)
+		if not IsTransmogOutfitUnlocked(id) then
+			return
+		end
+		local aid = outfitAction[id] or AB:CreateActionSlot(hintOutfit, id, "retext",SLASH_USEOUTFIT .. " " .. id)
+		outfitAction[id], unlockedOutfits[id] = aid, true
+		return aid
+	end
+	local function describeOutfit(id)
+		if type(id) ~= "number" or id < 0 or id % 1 > 0 then return end
+		local name = outfitName[id] or getOutfitName(id)
+		local icon = outfitIcon[id]
+		return L"Outfit", name ~= "" and name or ("#" .. id), icon
+	end
+	AB:RegisterActionType("outfit", createOutfit, describeOutfit, 1)
+	function EV:TRANSMOG_OUTFITS_CHANGED(newID)
+		if next(outfitName) then
+			wipe(outfitName)
+			wipe(outfitIcon)
+		end
+		if newID then
+			unlockedOutfits[newID] = true
+		end
+		AB:NotifyObservers("outfit")
+	end
+	AB.HUM.IsTransmogOutfitUnlocked = IsTransmogOutfitUnlocked
 end)

@@ -1566,6 +1566,11 @@ function api.setSliceProperty(prop, ...)
 	elseif prop == "skipSpecs" or prop == "show" then
 		local ss = sliceDetail.skipSpecs:GetValue()
 		local sh = sliceDetail.showConditional:GetText()
+		local shTrim = sh and sh:match("^%s*(.-)%s*$") or ""
+		if shTrim ~= "hide" and shTrim ~= "show" and shTrim:match("^[^%[%];]+$") then
+			sh = "[" .. shTrim .. "]"
+			sliceDetail.showConditional:SetText(sh)
+		end
 		slice.show = (ss or sh ~= "") and ((ss and ("[spec:" .. ss .. "] hide;") or "") .. sh) or nil
 	elseif prop == "rotationMode" then
 		if ... == "default" then

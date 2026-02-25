@@ -259,6 +259,15 @@ if COMPAT >= 3e4 then -- equipmentset
 		end
 	end)
 end
+if MODERN then
+	AB:AugmentCategory(L"Outfits", function(_, add)
+		for i=0, C_TransmogOutfitInfo.GetMaxNumberOfUsableOutfits() do
+			if AB.IsTransmogOutfitUnlocked(i) then
+				add("outfit", i)
+			end
+		end
+	end)
+end
 AB:AugmentCategory(L"Raid markers", function(_, add)
 	local NUM_WORLD_MARKERS = CF_CATA and NUM_WORLD_RAID_MARKERS_CATA == 5 and 5 or 8
 	for k=0, (MODERN or CF_CATA) and 1 or 0 do
