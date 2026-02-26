@@ -162,7 +162,6 @@ local function SetItemLevel(self, link, category, BagID, SlotID)
     end
 end
 
---[[ All ]]
 hooksecurefunc("SetItemButtonQuality", function(self, quality, itemIDOrLink, suppressOverlays, isBound)
     if (self.ItemLevelCategory or self.isBag) then return end
     local frame = GetItemLevelFrame(self)
@@ -250,6 +249,44 @@ LibEvent:attachEvent("ADDON_LOADED", function(self, addonName)
         end)
     end
 end)
+
+-- Merchant
+local function UpdateMerchantItemLevel()
+    if (not TinyInspectReforgedDB
+        or not TinyInspectReforgedDB.EnableItemLevel
+        or not TinyInspectReforgedDB.EnableItemLevelMerchant) then
+        return
+    end
+    if (not MerchantFrame) then return end
+    local page = MerchantFrame.page or 1
+    local perPage = MERCHANT_ITEMS_PER_PAGE or 12
+    local numItems = GetMerchantNumItems and GetMerchantNumItems() or 0
+    local buttonPool = MerchantFrame.itemButtons
+        or (MerchantFrame.MerchantItemList and MerchantFrame.MerchantItemList.itemButtons)
+    for i = 1, perPage do
+        local index = (page - 1) * perPage + i
+        local link = GetMerchantItemLink(index)
+        local button = (buttonPool and buttonPool[i])
+            or _G["MerchantItem"..i.."ItemButton"]
+            or _G["MerchantItem"..i]
+        if (button) then
+            if (numItems > 0 and index <= numItems) then
+                SetItemLevel(button, link, "Merchant")
+            else
+                SetItemLevel(button, nil, "Merchant")
+            end
+        end
+    end
+end
+
+if (MerchantFrame_UpdateMerchantInfo) then
+    hooksecurefunc("MerchantFrame_UpdateMerchantInfo", UpdateMerchantItemLevel)
+end
+if (MerchantFrame_Update) then
+    hooksecurefunc("MerchantFrame_Update", UpdateMerchantItemLevel)
+end
+LibEvent:attachEvent("MERCHANT_SHOW", UpdateMerchantItemLevel)
+LibEvent:attachEvent("MERCHANT_UPDATE", UpdateMerchantItemLevel)
 
 -------------------
 --   PaperDoll  --

@@ -1,12 +1,33 @@
 local LibEvent = LibStub:GetLibrary("LibEvent.7000")
 
-local function FindLine(tooltip, keyword)
+--local function FindLine(tooltip, keyword)
+--    local line, text
+--    for i = 2, tooltip:NumLines() do
+--        line = _G[tooltip:GetName() .. "TextLeft" .. i]
+--        text = line:GetText() or ""
+--        local check, found = pcall(string.find, text, keyword)
+--        if (check and found) then
+--            return line, i, _G[tooltip:GetName() .. "TextRight" .. i]
+--        end
+--    end
+--end
+
+function FindLine(tooltip, keyword)
     local line, text
     for i = 2, tooltip:NumLines() do
         line = _G[tooltip:GetName() .. "TextLeft" .. i]
-        text = line:GetText() or ""
-        if (string.find(text, keyword)) then
-            return line, i, _G[tooltip:GetName() .. "TextRight" .. i]
+        local check, value = pcall(function() return line and line:GetText() end)
+        if (check) then
+            local checkType, isStr = pcall(function() return type(value) == "string" end)
+            if (checkType and isStr) then
+                local checkNotEmpty, notEmpty = pcall(function() return value ~= "" end)
+                if (checkNotEmpty and notEmpty) then
+                    local checkFind, found = pcall(function() return strfind(value, keyword) end)
+                    if (checkFind and found) then
+                        return line, i, _G[tooltip:GetName() .. "TextRight" .. i]
+                    end
+                end
+            end
         end
     end
 end
@@ -67,6 +88,10 @@ end
 if (GameTooltip.ProcessInfo) then
     hooksecurefunc(GameTooltip, "ProcessInfo", function(self, info)
         if (not info or not info.tooltipData) then return end
+        local flag = info.tooltipData.type
+        local guid = info.tooltipData.guid
+        if (flag ~= 2) then return end
+
         local check, _, unit = pcall(self.GetUnit, self)
         if (not check or not unit) then return end
         if (TinyInspectReforgedDB and (TinyInspectReforgedDB.EnableMouseItemLevel or TinyInspectReforgedDB.EnableMouseSpecialization)) then
@@ -79,21 +104,24 @@ if (GameTooltip.ProcessInfo) then
             local inspecting = GetInspecting()
             if (inspecting) then
                 if (inspecting.unit and not SafeUnitIsUnit(inspecting.unit, unit)) then
-                    return AppendToGameTooltip(guid, "n/a")
+                    return AppendToGameTooltip(nil, "n/a")
                 else
-                    return AppendToGameTooltip(guid, "...")
+                    return AppendToGameTooltip(nil, "...")
                 end
             end
             ClearInspectPlayer()
             NotifyInspect(unit)
-            AppendToGameTooltip(guid, "...")
+            AppendToGameTooltip(nil, "...")
         end
     end)
 end
 
 LibEvent:attachTrigger("UNIT_INSPECT_READY", function(self, data)
     if (TinyInspectReforgedDB and not TinyInspectReforgedDB.EnableMouseItemLevel) then return end
-    if (data.guid == pcall(UnitGUID, "mouseover")) then
+    local check, isMouseover = pcall(function()
+        return data.guid == UnitGUID("mouseover")
+    end)
+    if (check and isMouseOver) then
         AppendToGameTooltip(data.guid, floor(data.ilevel), data.spec, data.weaponLevel, data.isArtifact)
     end
 end)
