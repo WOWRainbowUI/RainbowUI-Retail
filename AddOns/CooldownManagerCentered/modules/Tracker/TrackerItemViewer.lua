@@ -10,6 +10,7 @@ local LEM = LibStub("LibEQOLEditMode-1.0")
 local ItemViewer = ns.TrackerItemViewer or {}
 ns.TrackerItemViewer = ItemViewer
 
+local UPDATE_THROTTLE_DELAY = 0.25
 local DEFAULT_ICON_SIZE = 50
 local DEFAULT_ICON_PADDING = 2
 local BASE_SQUARE_MASK = "Interface\\AddOns\\CooldownManagerCentered\\Media\\Art\\Square"
@@ -255,6 +256,9 @@ function ItemViewerFrame:Initialize()
         frame.Cooldown:SetDrawEdge(false)
         frame.Cooldown:SetSwipeTexture(DEFAULT_MASK_TEXTURE)
         frame.Cooldown:SetHideCountdownNumbers(false)
+        frame.Cooldown:HookScript("OnCooldownDone", function()
+            ItemVisuals:UpdateEntryCooldown(frame, frame._CMCTracker_EntryKind, frame._CMCTracker_EntryID)
+        end)
     end
     if not frame.mask then
         local mask = frame:CreateMaskTexture()
@@ -334,18 +338,6 @@ local function GetConfigValue(configKey, key, default)
     return default
 end
 
-local function EntriesMatch(a, b)
-    if #a ~= #b then
-        return false
-    end
-    for i = 1, #a do
-        if a[i].kind ~= b[i].kind or a[i].id ~= b[i].id then
-            return false
-        end
-    end
-    return true
-end
-
 local TrackerInstance = {}
 TrackerInstance.__index = TrackerInstance
 
@@ -356,7 +348,7 @@ function TrackerInstance:New(configKey, frameName, getEntriesFn)
         getEntriesFn = getEntriesFn,
         anchor = nil,
         iconFrames = {},
-        cachedEntries = {},
+        lastUpdateTimes = {},
     }, TrackerInstance)
     return instance
 end
@@ -391,25 +383,35 @@ function TrackerInstance:UpdateIconPosition(frame, visibleIndex)
 end
 
 function TrackerInstance:UpdateCooldowns()
+    if
+        self.lastUpdateTimes.UpdateCooldownsThrottle
+        and (GetTime() - self.lastUpdateTimes.UpdateCooldownsThrottle) < UPDATE_THROTTLE_DELAY
+    then
+        return
+    end
+
+    self.lastUpdateTimes.UpdateCooldownsThrottle = GetTime()
     for _, ivf in ipairs(self.iconFrames) do
         ivf:UpdateCooldown()
     end
 end
 
-function TrackerInstance:RefreshEntries(forceRefresh)
+function TrackerInstance:RefreshEntries()
     if not self.anchor then
         return
     end
+    if
+        self.lastUpdateTimes.RefreshEntriesThrottle
+        and (GetTime() - self.lastUpdateTimes.RefreshEntriesThrottle) < UPDATE_THROTTLE_DELAY
+    then
+        return
+    end
+
+    self.lastUpdateTimes.RefreshEntriesThrottle = GetTime()
 
     local owned = ItemsData:ScanOwnedItems()
     ItemsData:EnsureTrackedItems(owned)
     local entries = self.getEntriesFn(owned)
-
-    if not forceRefresh and EntriesMatch(entries, self.cachedEntries) then
-        self:UpdateCooldowns()
-        return
-    end
-    self.cachedEntries = entries
 
     local iconSize = self:GetIconSize()
     local padding = self:GetIconPadding()
@@ -463,7 +465,7 @@ function TrackerInstance:UpdateIconLayout()
     for _, ivf in ipairs(self.iconFrames) do
         ivf.frame:SetSize(iconSize, iconSize)
     end
-    self:RefreshEntries(true)
+    self:RefreshEntries()
 end
 
 function TrackerInstance:Create()
@@ -494,25 +496,34 @@ function TrackerInstance:Create()
     self.anchor:RegisterEvent("SPELL_UPDATE_COOLDOWN")
     self.anchor:RegisterEvent("SPELL_UPDATE_CHARGES")
     self.anchor:RegisterEvent("ITEM_LOCKED")
+    self.anchor:RegisterEvent("BAG_UPDATE_DELAYED")
+    self.anchor:RegisterEvent("BAG_UPDATE_COOLDOWN")
     self.anchor:RegisterEvent("PLAYER_ENTERING_WORLD")
     self.anchor:RegisterEvent("PLAYER_TALENT_UPDATE")
     self.anchor:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 
     self.anchor:SetScript("OnEvent", function(_, event, arg1)
-        if event == "SPELL_UPDATE_COOLDOWN" or event == "SPELL_UPDATE_CHARGES" then
+        if event == "SPELL_UPDATE_COOLDOWN" or event == "SPELL_UPDATE_CHARGES" or event == "BAG_UPDATE_COOLDOWN" then
             self:UpdateCooldowns()
+            C_Timer.After(UPDATE_THROTTLE_DELAY, function()
+                self:UpdateCooldowns()
+            end)
         elseif event == "PLAYER_ENTERING_WORLD" then
-            self:RefreshEntries(true)
+            self:RefreshEntries()
             C_Timer.After(5, function()
-                self:RefreshEntries(true)
+                self:RefreshEntries()
             end)
         elseif event == "ITEM_LOCKED" then
-            self:RefreshEntries(true)
+            self:RefreshEntries()
             C_Timer.After(0.5, function()
-                self:RefreshEntries(true)
+                self:RefreshEntries()
+            end)
+        elseif event == "BAG_UPDATE_DELAYED" then
+            C_Timer.After(0.2, function()
+                self:RefreshEntries()
             end)
         else
-            self:RefreshEntries(true)
+            self:RefreshEntries()
         end
     end)
 
@@ -604,7 +615,7 @@ function TrackerInstance:Create()
             end,
             set = function(layoutName, value)
                 ns.db.profile.editMode[configKey].iconPadding = value
-                instance:RefreshEntries(true)
+                instance:RefreshEntries()
             end,
             minValue = 0,
             maxValue = 20,
@@ -623,7 +634,7 @@ function TrackerInstance:Create()
             set = function(layoutName, value)
                 ns.db.profile.editMode[configKey].orientation = value
                 OnPositionChanged(anchor, configKey)
-                instance:RefreshEntries(true)
+                instance:RefreshEntries()
             end,
             values = {
                 { text = "Horizontal Right" },
@@ -654,7 +665,7 @@ function TrackerInstance:Create()
 
     WilduUICore.RegisterFrameWithLEM(self.anchor, self.configKey, additionalSettings, OnPositionChanged)
 
-    self:RefreshEntries(true)
+    self:RefreshEntries()
 end
 
 local tracker1 = TrackerInstance:New("tracker1", "CMCTracker1", function(owned)
@@ -669,7 +680,7 @@ local trackers = { tracker1, tracker2 }
 
 function ItemViewer:RefreshItemViewerFrames()
     for _, tracker in ipairs(trackers) do
-        tracker:RefreshEntries(false)
+        tracker:RefreshEntries()
     end
 end
 
