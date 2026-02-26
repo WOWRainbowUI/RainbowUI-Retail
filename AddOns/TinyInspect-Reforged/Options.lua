@@ -342,7 +342,22 @@ frame.text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 frame.text:SetPoint("TOPLEFT", 30, -35)
 frame.text:SetText("by |cffF58CBABeezer|r |cffff00ff<The Dragon Fighters>|r - |cff33eeffAggramar EU|r")
 
-CreateCheckbox(options, frame, frame.title, 18, 11)
+frame:SetSize(500, 700)
+local frameScrollFrame = CreateFrame("ScrollFrame", "TinyInspectReforgedScrollFrame", UIParent, "UIPanelScrollFrameTemplate")
+frameScrollFrame.ScrollBar:Hide()
+frameScrollFrame.ScrollBar:ClearAllPoints()
+frameScrollFrame.ScrollBar:SetPoint("TOPLEFT", frameScrollFrame, "TOPRIGHT", -20, -22)
+frameScrollFrame.ScrollBar:SetPoint("BOTTOMLEFT", frameScrollFrame, "BOTTOMRIGHT", -20, 26)
+frameScrollFrame:HookScript("OnScrollRangeChanged", function(self, xrange, yrange)
+    self.ScrollBar:SetShown(floor(yrange) ~= 0)
+end)
+frameScrollFrame:SetScrollChild(frame)
+frameScrollFrame.parent = addonName
+frameScrollFrame.name = "eee"
+frameScrollFrame:Hide()
+
+
+CreateCheckbox(options, frame, frame.title, 18, 35)
 
 LibEvent:attachEvent("VARIABLES_LOADED", function()
     if (not TinyInspectReforgedDB or not TinyInspectReforgedDB.version) then
@@ -359,11 +374,11 @@ LibEvent:attachEvent("VARIABLES_LOADED", function()
 end)
 
 if Settings and Settings.RegisterCanvasLayoutCategory then
-    local category = Settings.RegisterCanvasLayoutCategory(frame, "TinyInspect Reforged")
+    local category = Settings.RegisterCanvasLayoutCategory(frameScrollFrame, "TinyInspect Reforged")
     Settings.RegisterAddOnCategory(category)
     frame.categoryID = category:GetID()    
 else
-    InterfaceOptions_AddCategory(frame)
+    InterfaceOptions_AddCategory(frameScrollFrame)
 end
 
 SLASH_TinyInspectReforged1 = "/tinyinspectreforged"

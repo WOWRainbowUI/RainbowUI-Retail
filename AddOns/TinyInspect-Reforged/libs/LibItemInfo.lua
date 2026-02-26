@@ -1,6 +1,7 @@
-
 local MAJOR, MINOR = "LibItemInfo.7000", 6
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
+
+local GetItemInfo = GetItemInfo or C_Item.GetItemInfo
 
 if not lib then return end
 
@@ -9,6 +10,7 @@ local locale = GetLocale()
 local ItemLevelPattern = gsub(ITEM_LEVEL, "%%d", "(%%d+)")
 local ItemLevelPlusPat = gsub(ITEM_LEVEL_PLUS, "%%d%+", "(%%d+%%+)")
 
+--Toolip
 local tooltip = CreateFrame("GameTooltip", "LibItemLevelTooltip1", UIParent, "GameTooltipTemplate")
 local unittip = CreateFrame("GameTooltip", "LibItemLevelTooltip2", UIParent, "GameTooltipTemplate")
 
@@ -90,7 +92,7 @@ function lib:GetItemInfo(link, stats, withoutExtra)
     return self:GetItemInfoViaTooltip(link, stats, withoutExtra)
 end
 
-function lib:GetItemInfoViaTooltip(link, stats)
+function lib:GetItemInfoViaTooltip(link, stats, withoutExtra)
     if (not link or link == "") then
         return 0, 0
     end

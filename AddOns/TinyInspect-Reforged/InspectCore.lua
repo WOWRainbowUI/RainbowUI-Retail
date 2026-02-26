@@ -38,7 +38,7 @@ function ReInspect(unit)
         identity  = guid,
         timer     = 0.5,
         elasped   = 0.5,
-        expired   = GetTime() + 3,
+        expired   = GetTime() + 5,
         data      = data,
         unit      = unit,
         onExecute = function(self)
@@ -84,7 +84,6 @@ function GetInspectIcon(unit)
     end
     return specIcon or ""
 end
-
 
 hooksecurefunc("ClearInspectPlayer", function()
     inspecting = false
