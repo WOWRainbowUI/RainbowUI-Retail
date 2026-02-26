@@ -1,6 +1,7 @@
 # BlizzMove
 
-## [v3.7.24](https://github.com/Kiatra/BlizzMove/tree/v3.7.24) (2026-02-02)
-[Full Changelog](https://github.com/Kiatra/BlizzMove/compare/v3.7.23...v3.7.24) [Previous Releases](https://github.com/Kiatra/BlizzMove/releases)
+## [v3.7.26](https://github.com/Kiatra/BlizzMove/tree/v3.7.26) (2026-02-25)
+[Full Changelog](https://github.com/Kiatra/BlizzMove/compare/v3.7.25...v3.7.26) [Previous Releases](https://github.com/Kiatra/BlizzMove/releases)
 
-- Fixed an issue where certain frames don't have their scale reset after reloading UI (fixes #168)  
+- Made some changes that might help with EncounterJournal tooltip issues (see #172)  
+- Create a FakeUIParent because blizzard really enjoys wasting our time with useless garbage (probably fixes #171)  
