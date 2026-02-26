@@ -1,12 +1,11 @@
 ## Interface: 120001, 120000, 50503, 38000, 20505, 11508
 ## Title: Baganator
-## Version: 787
+## Version: 789
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
 ## SavedVariablesPerCharacter: BAGANATOR_CURRENT_PROFILE
 ## IconTexture: Interface\AddOns\Baganator\Assets\logo.tga
-## OptionalDependencies: WagoAnalytics
 
 ## Category-enUS: Inventory
 ## Category-deDE: Inventar
@@ -29,7 +28,6 @@ Core\Config.lua
 Core\Utilities.lua
 Core\SlashCmd.lua
 Core\Welcome.lua
-Core\Analytics.lua
 Core\Dialogs.lua
 Core\Initialize.lua
 
