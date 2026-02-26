@@ -94,7 +94,7 @@ function ItemVisuals:UpdateSpellCooldown(frame, spellID)
     local desaturation = 0
 
     if not C_Spell.GetSpellCooldown(spellID).isOnGCD then
-        desaturation = cooldownDuration:EvaluateRemainingPercent(desaturationCurve)
+        desaturation = cooldownDuration:EvaluateRemainingDuration(desaturationCurve)
     end
 
     frame.Icon:SetDesaturation(desaturation)
@@ -125,9 +125,10 @@ function ItemVisuals:UpdateItemCooldown(frame, itemID)
     frame.Cooldown:SetDrawSwipe(true)
 
     local desaturation = 0
+    local cooldownRemaining = startTime + duration - GetTime()
 
     if not spellID or not C_Spell.GetSpellCooldown(spellID).isOnGCD then
-        if startTime > 0 then
+        if cooldownRemaining > 0.1 then
             desaturation = 1
         end
     end

@@ -188,13 +188,19 @@ local function ApplyCooldownSettings(cdmFrame)
 
     cdmFrame._CMCTracker_Desaturation = nil
 
-    if shouldHideAuras and not cooldown.isOnGCD then
-        local cooldownDuration = C_Spell.GetSpellCooldownDuration(spellID)
-        cdmFrame.Cooldown:SetCooldownFromDurationObject(cooldownDuration)
-        if C_Spell.GetSpellCharges(spellID) then
-            cdmFrame.Cooldown:SetCooldownFromDurationObject(C_Spell.GetSpellChargeDuration(spellID))
+    if shouldHideAuras then
+        if cooldown.isOnGCD then
+            cdmFrame.Cooldown:SetCooldownFromDurationObject(C_Spell.GetSpellCooldownDuration(GCD_SPELL_ID))
+        else
+            if C_Spell.GetSpellCharges(spellID) then
+                cdmFrame._CMCTracker_Desaturation = 1
+                cdmFrame.Cooldown:SetCooldownFromDurationObject(C_Spell.GetSpellChargeDuration(spellID))
+            else
+                local cooldownDuration = C_Spell.GetSpellCooldownDuration(spellID)
+                cdmFrame.Cooldown:SetCooldownFromDurationObject(cooldownDuration)
+                cdmFrame._CMCTracker_Desaturation = cooldownDuration:EvaluateRemainingDuration(desaturationCurve)
+            end
         end
-        cdmFrame._CMCTracker_Desaturation = cooldownDuration:EvaluateRemainingPercent(desaturationCurve)
     end
     if shouldHideAuras and CooldownStyle.FORCE_DISABLED_INSTANT_CASTS[baseSpellId] then
         if cooldown.isOnGCD then

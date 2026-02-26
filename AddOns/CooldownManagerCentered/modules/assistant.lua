@@ -345,16 +345,13 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
 
     if event == "EDIT_MODE_LAYOUTS_UPDATED" then
         PrintDebug("EditMode layout changed - rebuilding cache")
-        -- if not ns.API:IsSomeAddOnRestrictionActive() then
         BuildAllIconSpellCaches()
         Assistant:UpdateAllHighlights()
-        -- end
     elseif event == "PLAYER_ENTERING_WORLD" then
         rotationSpellsCacheValid = false
         UpdateRotationSpellsCache()
         BuildAllIconSpellCaches()
         Assistant:UpdateAllHighlights()
-        PrintDebug("PLAYER_ENTERING_WORLD - inLockdown:", tostring(ns.API:IsSomeAddOnRestrictionActive()))
     elseif
         event == "PLAYER_TALENT_UPDATE"
         or event == "SPELLS_CHANGED"

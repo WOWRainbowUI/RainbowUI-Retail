@@ -30,6 +30,9 @@ function addon:OnInitialize()
         ns.WilduSettings:RegisterSettings()
         ns.WilduSettings:InitializeSettings()
     end
+    print(
+        "|cff008945Cool|r|cff1e9a4e|r|cff3faa4fdown Ma|r|cff5fb64anag|r|cff7ac243er Ce|r|cff8ccd00ntered|r is rarely responsible for Cooldown Manager bugs. Through the beta cycle, Blizzard ignored and still did not resolve many issues related to disappearing/changing abilities, wrong or missing auras, and other bugs. If you encounter any of those, please report them to Blizzard as well, so they can prioritize fixing them."
+    )
 end
 local openCooldownViewerSettings = function()
     if not InCombatLockdown() then
