@@ -659,25 +659,37 @@ L['george_the_big_pinch_note'] = '快速點擊所有5個 {npc:238189} 以獲得 
 -------------------------------------------------------------------------------
 
 L['options_icons_karesh_lore_hunter'] = '{achievement:60890}'
-L['options_icons_karesh_lore_hunter_desc'] = '顯示成就 {achievement:60890} 所需的知識位置.'
+L['options_icons_karesh_lore_hunter_desc'] = '顯示 {achievement:60890} 成就中劇情物品的位置。'
 
 L['options_icons_phase_lost_and_found'] = '{achievement:61017}'
-L['options_icons_phase_lost_and_found_desc'] = nil
-L['phaseorb_label'] = nil
-L['phaseorb_note'] = nil
+L['options_icons_phase_lost_and_found_desc'] = '顯示 {achievement:61017} 成就中相位潛行寶珠的位置。'
+L['phaseorb_label'] = '相位潛行寶珠'
+L['phaseorb_note'] = '穿越相位潛行寶珠，即有機會獲取其中一款外觀。'
 
 L['options_icons_purrkins'] = '{achievement:42729}'
-L['options_icons_purrkins_desc'] = nil
-L['purrkins_note'] = nil
-L['kareshire_sublabel'] = nil
-L['in_a_tree'] = '在一棵樹上.'
-L['little_ms_phaser_sublabel'] = nil
+L['options_icons_purrkins_desc'] = '顯示 {achievement:42729} 成就中呼嚕貓的位置。'
+L['purrkins_note'] = '向呼嚕貓招手（{emote:/親昵}、{emote:/pet}）。'
+L['kareshire_sublabel'] = '相位切換。'
+L['in_a_tree'] = '在樹上。'
+L['little_ms_phaser_sublabel'] = '相位切換。'
 
-L['mailroom_distribution_note'] = nil
-L['gift_of_the_brothers_note'] = nil
-L['ancient_coffer_note'] = nil
+L['mailroom_distribution_note'] = '與外面的推車互動，然後打開郵件室的門。站在圓圈上並使用額外動作按鈕。寶藏將出現在門附近。'
+L['gift_of_the_brothers_note'] = '與 {object:閃爍的提燈} 互動並與 {npc:233881} 對話，然後去找 {npc:234112}（{dot:Red}）、{npc:234113}（{dot:Yellow}）和 {npc:234075}（{dot:Green}），最後回到 {object:閃爍的提燈} 處的 {npc:233881}。'
+L['ancient_coffer_note'] = '收集 {item:233794}（{dot:Red}）和 {item:233799}（{dot:Yellow}），然後回到 {object:上古寶匣} 處領取 {item:245269}。'
 
-L['sthaarbs_note'] = nil
-L['heka_tamos_note'] = nil
+L['sthaarbs_note'] = '使用 {object:相位導管} 附近的傳送器前往 {npc:234845} 處。'
+L['heka_tamos_note'] = '從附近的 {object:望露蓮}、{object:幽靈提燈}、{object:土生肉質植物} 和 {object:捕風花} 處各收集一層增益效果，然後與 {object:元素團結火盆} 互動召喚稀有。'
 
-L['translocated_gorger_note'] = nil
+L['translocated_gorger_note'] = '每週每個戰團可從 {object:吞噬者入侵} 首領收集 1 個 {item:246240}，組合這些物品即可製作坐騎。'
+
+
+L['zo_turu_note_start'] = '加入三個財團中的一個，並在 {location:法力熔爐：奧米伽} 內尋找密信容器。\n\n{item:249702}\n{item:249704}\n{item:249700}\n\n{note:每個投放點需要不同的財團。}'
+L['zo_turu_note_end'] = '\n\n收集完所有密信容器，前往 {npc:245344} 以完成任務 {quest:92082}。'
+L['cartel_ba_dead_drop_label'] = '巴財團密信容器'
+L['cartel_ba_dead_drop_location'] = '擊敗 {npc:233814} 後的右側路徑上，再使用 {spell:1232528} 跨越裂隙。'
+L['cartel_om_dead_drop_label'] = '奧財團密信容器'
+L['cartel_om_dead_drop_location'] = '在經過 {npc:237861} 後，建築物後方一塊岩石的上方。'
+L['cartel_zo_dead_drop_label'] = '佐財團密信容器'
+L['cartel_zo_dead_drop_location'] = '在見到 {npc:247989} 前，沿著管道走到第一個魔力通風口。'
+L['cartel_dead_drop_warning'] = '{note:如果在本副本中已擊敗 {npc:247989}，此密信容器將無法取得。}'
+
