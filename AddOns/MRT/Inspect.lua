@@ -898,8 +898,11 @@ do
 		if lastInspectTime[arg] and (currTime - lastInspectTime[arg]) < 0.2 then
 			return
 		end
-		lastInspectTime[arg] = currTime
 		local _,_,_,race,_,name,realm = GetPlayerInfoByGUID(arg)
+		if (canaccessvalue and not canaccessvalue(name)) then
+			return
+		end
+		lastInspectTime[arg] = currTime
 		if name then
 			if realm and realm ~= "" then name = name.."-"..realm end
 			local inspectedName = name

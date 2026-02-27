@@ -699,7 +699,7 @@ function module.main:ADDON_LOADED()
 end
 
 function module.main:CHAT_MSG_WHISPER(msg, user, special)
-	if user == ExRT.SDB.charKey then
+	if (issecretvalue and issecretvalue(user)) or user == ExRT.SDB.charKey then
 		return
 	end
 	msg = string.lower(msg):trim()
@@ -720,6 +720,9 @@ module.main.CHAT_MSG_YELL = module.main.CHAT_MSG_WHISPER
 
 
 function module.main:CHAT_MSG_BN_WHISPER(msg,sender,_,_,_,_,_,_,_,_,_,_,senderBnetIDAccount)
+	if (issecretvalue and issecretvalue(sender)) then
+		return
+	end
 	msg = string.lower(msg):trim()
 	if not ((msg and module.db.invWordsArray[msg]) or module.db.invWordsArray["ANYKEYWORD"]) then
 		return

@@ -110,11 +110,13 @@ module.db.msgindex = -1
 module.db.lasttext = ""
 
 module.db.encounter_time_p = {}	--phases
+module.db.encounter_pd = {}	--phases done
 module.db.encounter_time_c = {}	--custom
 module.db.encounter_time_wa_uids = {}	--wa custom events
 module.db.encounter_id = {}
 
 local encounter_time_p = module.db.encounter_time_p
+local encounter_pd = module.db.encounter_pd
 local encounter_time_c = module.db.encounter_time_c
 local encounter_time_wa_uids = module.db.encounter_time_wa_uids
 local encounter_id = module.db.encounter_id
@@ -419,6 +421,8 @@ local function GSUB_Time(preText,t,msg,newlinesym)
 				if phaseStart then
 					time = phaseStart + time - now
 					anyType = 1
+				elseif encounter_pd[(isGlobalPhase == "g" and "g" or "")..phase] then
+					anyType = 3
 				else
 					anyType = 2
 				end			
@@ -476,7 +480,9 @@ local function GSUB_Time(preText,t,msg,newlinesym)
 		msg = msg:gsub("([^ %-]+) |T.-|t *",GSUB_Time_hideOtherNames)
 	end
 
-	if time > 10 or not module.db.encounter_time or anyType == 2 then
+	if anyType == 3 and VMRT.Note.TimerPassedHide then
+		return ""
+	elseif time > 10 or not module.db.encounter_time or anyType == 2 or anyType == 3 then
 		return preText.."|cffffed88"..(prefixText or "")..format("%d:%02d|r ",floor(time/60),time % 60)..msg..newlinesym
 	elseif time < 0 then
 		if VMRT.Note.TimerPassedHide then
@@ -3095,15 +3101,16 @@ function module.options:Load()
 
 	self.textHelpAdv = ELib:Text(self.advancedScroll.C,
 		"|cffffff00{time:|r|cff00ff001:06,p2|r|cffffff00}|r - "..L.NoteHelpAdv1..
+		"|n|cffffff00{time:|r|cff00ff002:15,pg4|r|cffffff00}|r - global phase 4. Global phase is number of phases since beginning of the fight. For bosses with 1-2-1-2-... phases. (Will works only for second time of second phase in current example)"..
 		(not MRT.isMN and "|n|cffffff00{time:|r|cff00ff000:30,SCC:17:2|r|cffffff00}|r - "..L.NoteHelpAdv2 or "")..
 		(not MRT.isMN and "|n   "..(HUD_EDIT_MODE_ENABLE_ADVANCED_OPTIONS or "Advanced Options")..": |cffffff00{time:|cff00ff00TIME|r,|cff00ff00SCC/SCS/SAA/SAR|r:|cff00ff00SPELL_ID|r:|cff00ff00SPELL_COUNT|r:|cff00ffffSOURCE_NAME|r:|cff00ffffPHASE|r}|r" or "")..
 		"|n|cffffff00{time:|r|cff00ff002:00,e,customevent|r|cffffff00}|r - "..L.NoteHelpAdv3..
 		"|n|cffffff00{time:|r|cff00ff003:40,glowall|r|cffffff00}|r - "..L.NoteHelpAdv6..
 		"|n|cffffff00{time:|r|cff00ff004:15,glow|r|cffffff00}|r - "..L.NoteHelpAdv7..
-		"|n|cffffff00{time:|r|cff00ff000:45,wa:nzoth_hs1|r|cffffff00}|r - "..L.NoteHelpAdv4..
-		"|n   WA Function example:|n   Events: |cffffff00MRT_NOTE_TIME_EVENT|r|n   |cffff8bf3function(event,...)|n     if event == \"MRT_NOTE_TIME_EVENT\" then|n       local timerName, timeLeft, noteText = ...|n       if timerName == \"nzoth_hs1\" and timeLeft == 3 then|n         return true|n       end|n     end|n   end|r|n"..
-		"|n"..L.NoteHelpAdv5.."|n |cffe6ff15{time:0:30,SCC:17:2,wa:eventName1,wa:eventName2}|r|n |cffff9f05{time:1:40,p1.5}First intermission|r|n |cffe6ff15{p,SCC:17:2}Until end of the fight{/p}|r|n |cffff9f05{p,SCC:17:2,SCC:17:3}Until second condition{/p}|r|n|n |cffe6ff15{time:0:20,p2,wa:use_hs,glowall}|r"..
-		"|n |cffff9f05{time:65,SCC:17:2:"..UnitName'player'.."} Count casts only for player "..UnitName'player'.." |r|n |cffe6ff15{time:1:05,SCC:17:2::p3} Count casts only on phase 3 |r"
+		(MRT.isClassic and "|n|cffffff00{time:|r|cff00ff000:45,wa:nzoth_hs1|r|cffffff00}|r - "..L.NoteHelpAdv4 or "")..
+		(MRT.isClassic and "|n   WA Function example:|n   Events: |cffffff00MRT_NOTE_TIME_EVENT|r|n   |cffff8bf3function(event,...)|n     if event == \"MRT_NOTE_TIME_EVENT\" then|n       local timerName, timeLeft, noteText = ...|n       if timerName == \"nzoth_hs1\" and timeLeft == 3 then|n         return true|n       end|n     end|n   end|r|n" or "")..
+		(MRT.isClassic and "|n"..L.NoteHelpAdv5.."|n |cffe6ff15{time:0:30,SCC:17:2,wa:eventName1,wa:eventName2}|r|n |cffff9f05{time:1:40,p1.5}First intermission|r|n |cffe6ff15{p,SCC:17:2}Until end of the fight{/p}|r|n |cffff9f05{p,SCC:17:2,SCC:17:3}Until second condition{/p}|r|n|n |cffe6ff15{time:0:20,p2,wa:use_hs,glowall}|r" or "")..
+		(MRT.isClassic and "|n |cffff9f05{time:65,SCC:17:2:"..UnitName'player'.."} Count casts only for player "..UnitName'player'.." |r|n |cffe6ff15{time:1:05,SCC:17:2::p3} Count casts only on phase 3 |r" or "")
 	):Point("LEFT",10,0):Point("RIGHT",-10,0):Point("TOP",0,-5):Color()
 
 	local height = self.textHelpAdv:GetHeight()
@@ -4174,14 +4181,18 @@ do
 		local t = GetTime()
 		encounter_time_p[stage] = t
 		encounter_time_p[tostring(stage)] = t
+		encounter_pd[stage] = true
+		encounter_pd[tostring(stage)] = true
 		currPhase = stage
 		ResetCLEUData(true)
 		if globalStage then
 			encounter_time_p["g"..tostring(globalStage)] = t
+			encounter_pd["g"..tostring(globalStage)] = true
 			currGlobalPhase = globalStage
 		else
 			currGlobalPhase = currGlobalPhase + 1
 			encounter_time_p["g"..tostring(currGlobalPhase)] = t
+			encounter_pd["g"..tostring(currGlobalPhase)] = true
 		end
 		if module.frame:IsShown() then
 			module.allframes:UpdateText()
@@ -4227,9 +4238,12 @@ do
 		if timeInText or (phaseInText and ((type(BigWigsLoader)=='table') or (type(DBM)=='table'))) then
 			wipe(encounter_time_c)
 			wipe(encounter_time_wa_uids)
+			wipe(encounter_pd)
 			module.db.encounter_time = GetTime()
 			encounter_time_p[1] = module.db.encounter_time
 			encounter_time_p["1"] = module.db.encounter_time
+			encounter_pd[1] = true
+			encounter_pd["1"] = true
 			currPhase = 1
 			currGlobalPhase = 1
 			BossPhasesBossmod()
@@ -4283,6 +4297,7 @@ do
 		wipe(encounter_time_p)
 		wipe(encounter_time_c)
 		wipe(encounter_time_wa_uids)
+		wipe(encounter_pd)
 
 		module:UnregisterEvents("COMBAT_LOG_EVENT_UNFILTERED")
 

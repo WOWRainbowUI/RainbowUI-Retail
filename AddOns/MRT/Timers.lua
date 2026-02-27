@@ -67,8 +67,10 @@ local function ToRaid(msg)
 		return
 	end
 	if IsInRaid() then
+		if C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown() then return end
 		SendChatMessage(msg, "raid_warning")
 	elseif (GetNumGroupMembers() or 0) > 1 then
+		if C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown() then return end
 		SendChatMessage(msg, IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "PARTY")
 	else
 		RaidWarningFrame_OnEvent(RaidWarningFrame,"CHAT_MSG_RAID_WARNING",msg)
@@ -461,6 +463,69 @@ function module.options:Load()
 		self:tooltipReload(self)
 	end)
 
+	local function dropDownFontButtonClick(self,arg1,arg2)
+		ELib:DropDownClose()
+		VMRT.Timers.Font = arg1 --fontName
+		module.frame:UpdateFont()
+	end
+
+	self.dropDownFont = ELib:DropDown(self.TabTimerFrame,275,10):Size(100):Point(338,-35):SetText(L.cd2OtherSetFont)
+	for i=1,#ExRT.F.fontList do
+		self.dropDownFont.List[i] = {}
+		local info = self.dropDownFont.List[i]
+		info.text = ExRT.F.fontList[i]
+		info.arg1 = ExRT.F.fontList[i]
+		info.arg2 = i
+		info.func = dropDownFontButtonClick
+		info.font = ExRT.F.fontList[i]
+		info.justifyH = "CENTER" 
+	end
+	for name,font in ExRT.F.IterateMediaData("font") do
+		local info = {}
+		self.dropDownFont.List[#self.dropDownFont.List+1] = info
+
+		info.text = name
+		info.arg1 = font
+		info.func = dropDownFontButtonClick
+		info.font = font
+		info.justifyH = "CENTER" 
+	end
+
+	self.SliderFontSize = ELib:Slider(self.TabTimerFrame,L.NoteFontSize):Size(60):Point("LEFT",self.dropDownFont,"RIGHT",5,0):Range(6,48):SetTo(VMRT.Timers.FontSize or 16):OnChange(function(self,event) 
+		event = event - event%1
+		VMRT.Timers.FontSize = event
+		module.frame:UpdateFont()
+		self.tooltipText = event
+		self:tooltipReload(self)
+	end)
+
+	self.SliderBoxSize = ELib:Slider(self.TabTimerFrame,HUD_EDIT_MODE_SETTING_CHAT_FRAME_WIDTH or "Width"):Size(60):Point("LEFT",self.SliderFontSize,"RIGHT",5,0):Range(40,300):SetTo(VMRT.Timers.BoxSize or 77):OnChange(function(self,event) 
+		event = event - event%1
+		VMRT.Timers.BoxSize = event
+		module.frame:UpdateFont()
+		self.tooltipText = event
+		self:tooltipReload(self)
+	end)
+
+	self.SliderBoxHeight = ELib:Slider(self.TabTimerFrame,L.ReminderHeight):Size(60):Point("LEFT",self.SliderBoxSize,"RIGHT",5,0):Range(10,100):SetTo(VMRT.Timers.BoxHeight or 27):OnChange(function(self,event) 
+		event = event - event%1
+		VMRT.Timers.BoxHeight = event
+		module.frame:UpdateFont()
+		self.tooltipText = event
+		self:tooltipReload(self)
+	end)
+
+	self.ButtonToCenter = ELib:Button(self.TabTimerFrame,"R"):Size(20,20):Point("LEFT",self.SliderBoxHeight,"RIGHT",5,0):Tooltip(RESET or "Reset"):OnClick(function()
+		VMRT.Timers.FontSize = nil
+		VMRT.Timers.BoxSize = nil
+		VMRT.Timers.BoxHeight = nil
+		VMRT.Timers.Font = nil
+		module.frame:UpdateFont()
+		module.options.SliderFontSize:SetTo(16)
+		module.options.SliderBoxSize:SetTo(77)
+		module.options.SliderBoxHeight:SetTo(27)
+	end) 
+
 	
 	self.chkDPT = ELib:Check(self,L.TimerUseDptInstead,VMRT.Timers.useDPT):Point(15,-370):OnClick(function(self) 
 		if self:GetChecked() then
@@ -593,6 +658,18 @@ function module.main:ADDON_LOADED()
 
 	if VMRT.Timers.Alpha then module.frame:SetAlpha(VMRT.Timers.Alpha/100) end
 	if VMRT.Timers.Scale then module.frame:SetScale(VMRT.Timers.Scale/100) end
+
+	module.frame:UpdateFont()
+
+	ELib:FixPreloadFont(module.frame,function()
+		local defGameFont = GameFontWhite:GetFont()
+		
+		module.frame.txt:SetFont(defGameFont,10,"")
+		module.frame:UpdateFont()
+
+		return true
+	end)
+
 end
 
 function module.main:PLAYER_REGEN_DISABLED()
@@ -635,7 +712,7 @@ end)
 module.frame.total = 0
 module.frame.tmr = 0
 module.frame.killTmr = 0
-module.frame.txt = ELib:Text(module.frame,"00:00.0"):Size(77,27):Point("LEFT",11,0):Left():Font(ExRT.F.defFont,16):Color():Shadow():Outline()
+module.frame.txt = ELib:Text(module.frame,"00:00.0"):Size(0,27):Point("LEFT",11,0):Left():Font(ExRT.F.defFont,16):Color():Shadow():Outline()
 module.frame.killTime = ELib:Text(module.frame,""):Size(77,27):Point("TOP",module.frame,"BOTTOM",0,0):Top():Center():Font(ExRT.F.defFont,14):Color():Shadow():Outline()
 module.frame.txt_ms = ELib:Text(module.frame,""):Size(77,27):Point("LEFT",11,0):Left():Font(ExRT.F.defFont,16):Color():Shadow():Outline()
 module.frame.txt_s = ELib:Text(module.frame,""):Size(77,27):Point("LEFT",11,0):Left():Font(ExRT.F.defFont,16):Color():Shadow():Outline()
@@ -654,8 +731,10 @@ function module:UpdateView(t)
 		self.txt:SetText("00:00.0")
 		self.txt_ms:SetText("")
 		self.txt_s:SetText("")
-		self.txt:Size(77,27):Point("LEFT",11,0):Left():Font(ExRT.F.defFont,16):Color():Shadow():Outline()
+		self.txt:Size(0,27):Point("LEFT",11,0):Left():Font(ExRT.F.defFont,16):Color():Shadow():Outline()
 		self.killTime:Size(77,27):Point("TOP",self,"BOTTOM",0,0):Top():Center():Font(ExRT.F.defFont,14):Color():Shadow():Outline()
+
+		module.frame:UpdateFont()
 	elseif t == 2 then
 		self:SetSize(77,27)
 		self:SetBackdropBorderColor(0.1,0.1,0.1,0)
@@ -670,6 +749,11 @@ function module:UpdateView(t)
 		self.killTime:Size(77,27):Point("TOP",self,"BOTTOM",0,3):Top():Center():Font(ExRT.F.defFont,14):Color():Shadow():Outline()
 		
 	end
+end
+
+function module.frame:UpdateFont()
+	self.txt:Font(VMRT.Timers.Font or ExRT.F.defFont,VMRT.Timers.FontSize or 16)
+	self:SetSize(VMRT.Timers.BoxSize or 77,VMRT.Timers.BoxHeight or 27)
 end
 
 do

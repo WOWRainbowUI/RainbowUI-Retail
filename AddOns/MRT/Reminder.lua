@@ -19164,6 +19164,9 @@ do
 		if module.db.encounterBossmod and module.db.encounterBossmod ~= "BW" and event ~= "BigWigs_OnBossEngage" and DBM then
 			return
 		end
+		if canaccessvalue and (not canaccessvalue(select(2,...) or 0) or not canaccessvalue(select(3,...) or 0)) then
+			return
+		end
 		if (event == "BigWigs_Message") then
 			local bwModule, key, text, color, icon = ...
 
@@ -19288,6 +19291,9 @@ do
 			return
 		end
 		if module.db.encounterBossmod and module.db.encounterBossmod ~= "DBM" and BigWigsLoader then
+			return
+		end
+		if canaccessvalue and (not canaccessvalue(select(1,...) or 0) or not canaccessvalue(select(2,...) or 0) or not canaccessvalue(select(3,...) or 0)) then
 			return
 		end
 		if (event == "DBM_Announce") then
