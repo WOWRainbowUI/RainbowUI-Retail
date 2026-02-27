@@ -59,9 +59,8 @@ module.db.StaminaFood = {[201638]=true,[259457]=true,[288075]=true,[288074]=true
 
 module.db.tableFood_headers = ExRT.isClassic and {0,375} or {0,5,10,14}
 module.db.tableFlask = not ExRT.isClassic and {
-	--Stamina,	Int,		Agi,		Str 
-	[251838]=25,	[251837]=25,	[251836]=25,	[251839]=25,
-	[298839]=38,	[298837]=38,	[298836]=38,	[298841]=38,
+	[1236763]=true,	[1239355]=true,	[1235057]=true,	[1239755]=true,	[1236767]=true,
+	[1235111]=true,	[1235110]=true,	[1235108]=true,
 } or {
 	[17629]=true,	[17627]=true,	[17628]=true,	[17626]=true,
 	[17538]=true,	[11474]=true,	[17539]=true,	[26276]=true,
@@ -470,7 +469,7 @@ module.db.RaidCheckReadyCheckTable = {}
 module.db.RaidCheckReadyPPLNum = 0
 module.db.RaidCheckReadyCheckHideSchedule = nil
 
-module.db.tableRunes = {[224001]=5,[270058]=6,[317065]=6,[347901]=18,[367405]=18,[393438]=87,[453250]=87,[1234969]=733,[1242347]=733}
+module.db.tableRunes = {[224001]=5,[270058]=6,[317065]=6,[347901]=18,[367405]=18,[393438]=87,[453250]=87,[1234969]=733,[1242347]=733,[1264426]=25,}
 
 module.db.durability = {}
 module.db.oil = {}
@@ -487,6 +486,17 @@ local function GetRaidRosterInfo(raidUnitID)
 	elseif raidUnitID <= 5 then
 		local unit = raidUnitID <= 4 and "party"..raidUnitID or "player"
 		return ExRT.F.UnitCombatlogname(unit),nil,1,nil,nil,select(2,UnitClass(unit))
+	else
+		return nil
+	end
+end
+
+local function GetRaidRosterInfoWithUnit(raidUnitID)
+	if IsInRaid() then
+		return "raid"..raidUnitID, _GetRaidRosterInfo(raidUnitID)
+	elseif raidUnitID <= 5 then
+		local unit = raidUnitID <= 4 and "party"..raidUnitID or "player"
+		return unit, ExRT.F.UnitCombatlogname(unit),nil,1,nil,nil,select(2,UnitClass(unit))
 	else
 		return nil
 	end
@@ -557,6 +567,7 @@ local function PublicResults(msg,chat_type)
 		msg = msg:gsub("|r","")
 
 		chat_type = ExRT.F.chatType(true)
+		if C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown() then return end
 		SendChatMessage(msg,chat_type)
 	else
 		print(msg)
@@ -565,14 +576,17 @@ end
 
 local function GetRunes(checkType)
 	if ExRT.isClassic then return end
+	if C_Secrets and C_Secrets.ShouldAurasBeSecret() then
+		return
+	end
 	local f = {[0]={}}
 	local gMax = ExRT.F.GetRaidDiffMaxGroup()
 	for j=1,40 do
-		local name,_,subgroup = GetRaidRosterInfo(j)
+		local unit,name,_,subgroup = GetRaidRosterInfoWithUnit(j)
 		if name and subgroup <= gMax then
 			local isAnyBuff = nil
 			for i=1,60 do
-				local auraData = C_UnitAuras.GetAuraDataByIndex(name, i,"HELPFUL")
+				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i,"HELPFUL")
 				if not auraData then
 					break
 				else
@@ -637,6 +651,9 @@ end
 local vruneName
 local function GetVRunes(checkType)
 	if ExRT.isClassic then return end
+	if C_Secrets and C_Secrets.ShouldAurasBeSecret() then
+		return
+	end
 	if not vruneName then
 		local kjrunename = GetSpellInfo(237825)
 		if kjrunename then
@@ -649,11 +666,11 @@ local function GetVRunes(checkType)
 	local f = {[0]={},[1]={}}
 	local gMax = ExRT.F.GetRaidDiffMaxGroup()
 	for j=1,40 do
-		local name,_,subgroup = GetRaidRosterInfo(j)
+		local unit,name,_,subgroup = GetRaidRosterInfoWithUnit(j)
 		if name and subgroup <= gMax then
 			local isAnyBuff = nil
 			for i=1,60 do
-				local auraData = C_UnitAuras.GetAuraDataByIndex(name, i,"HELPFUL")
+				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i,"HELPFUL")
 				if not auraData then
 					break
 				elseif type(auraData.name)~='string' then
@@ -691,14 +708,17 @@ end
 
 
 local function GetFood(checkType)
+	if C_Secrets and C_Secrets.ShouldAurasBeSecret() then
+		return
+	end
 	local f = {[0]={}}
 	local gMax = ExRT.F.GetRaidDiffMaxGroup()
 	for j=1,40 do
-		local name,_,subgroup = GetRaidRosterInfo(j)
+		local unit,name,_,subgroup = GetRaidRosterInfoWithUnit(j)
 		if name and subgroup <= gMax then
 			local isAnyBuff = nil
 			for i=1,40 do
-				local auraData = C_UnitAuras.GetAuraDataByIndex(name, i,"HELPFUL")
+				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i,"HELPFUL")
 				if not auraData then
 					break
 				else
@@ -798,19 +818,25 @@ local function GetFood(checkType)
 end
 
 local function GetFlask(checkType)
+	if C_Secrets and C_Secrets.ShouldAurasBeSecret() then
+		return
+	end
 	local f = {[0]={}}
 	local gMax = ExRT.F.GetRaidDiffMaxGroup()
 	local _time = GetTime()
 	for j=1,40 do
-		local name,_,subgroup = GetRaidRosterInfo(j)
+		local unit,name,_,subgroup = GetRaidRosterInfoWithUnit(j)
 		if name and subgroup <= gMax then
 			local isAnyBuff = nil
 			for i=1,40 do
-				local auraData = C_UnitAuras.GetAuraDataByIndex(name, i,"HELPFUL")
+				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i,"HELPFUL")
 				if not auraData then
 					break
 				else
 					local flaskType = module.db.tableFlask[auraData.spellId]
+					if type(flaskType) == "boolean" then
+						flaskType = auraData.points and auraData.points[1] or 1
+					end
 					if flaskType then
 						if ExRT.isClassic then
 							flaskType = 1
@@ -901,6 +927,9 @@ local function GetFlask(checkType)
 end
 
 local function GetRaidBuffs(checkType)
+	if C_Secrets and C_Secrets.ShouldAurasBeSecret() then
+		return
+	end
 	local buffsList,buffsListLen = module.db.raidBuffs,#module.db.raidBuffs
 	local classicBuffsList
 	if ExRT.isClassic then
@@ -919,7 +948,7 @@ local function GetRaidBuffs(checkType)
 	local gMax = ExRT.F.GetRaidDiffMaxGroup()
 	local isAnyBuff = {}
 	for j=1,40 do
-		local name,_,subgroup, _, _, class = GetRaidRosterInfo(j)
+		local unit,name,_,subgroup, _, _, class = GetRaidRosterInfoWithUnit(j)
 		if name and subgroup <= gMax then
 			for k=1,buffsListLen * 2 do
 				isAnyBuff[k] = false
@@ -930,7 +959,7 @@ local function GetRaidBuffs(checkType)
 				end
 			end
 			for i=1,40 do
-				local auraData = C_UnitAuras.GetAuraDataByIndex(name, i,"HELPFUL")
+				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i,"HELPFUL")
 				if not auraData then
 					break
 				else
@@ -1115,13 +1144,16 @@ end
 
 --SCROLLS
 local function GetScrolls(checkType)
+	if C_Secrets and C_Secrets.ShouldAurasBeSecret() then
+		return
+	end
 	local f = {[0]={}}
 	local gMax = ExRT.F.GetRaidDiffMaxGroup()
 	for j=1,40 do
-		local name,_,subgroup = GetRaidRosterInfo(j)
+		local unit,name,_,subgroup = GetRaidRosterInfoWithUnit(j)
 		if name and subgroup <= gMax then
 			for i=1,40 do
-				local auraData = C_UnitAuras.GetAuraDataByIndex(name, i,"HELPFUL")
+				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i,"HELPFUL")
 				if not auraData then
 					break
 				else
@@ -1608,7 +1640,7 @@ local function CheckPotionsOnPull()
 	table.wipe(module.db.potionList)
 	local gMax = ExRT.F.GetRaidDiffMaxGroup()
 	for j=1,40 do
-		local name,_,subgroup = GetRaidRosterInfo(j)
+		local name,_,subgroup = GetRaidRosterInfoWithUnit(j)
 		if name and subgroup <= gMax then
 			local b = nil
 			for i=1,60 do
@@ -3559,18 +3591,22 @@ addonMsgFrame:RegisterEvent("CHAT_MSG_ADDON")
 if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 	local IS_DF = true
 	local IS_TWW = true	--UnitLevel'player' > 70
+	local IS_MN = true	--UnitLevel'player' > 80
 
 	local consumables_size = 44
 
-	local rune_item_id = IS_TWW and 224572 or IS_DF and 201325 or 181468
-	local rune_texture = IS_TWW and 4549102 or IS_DF and 4644002 or 134078
+	local rune_item_id = IS_MN and 259085 or IS_TWW and 224572 or IS_DF and 201325 or 181468
+	local rune_texture = IS_MN and 4549099 or IS_TWW and 4549102 or IS_DF and 4644002 or 134078
 	local rune_item_id2 = 246492
 	local rune_texture2 = 1345086
 	local rune_unlim_item_id = IS_TWW and 243191 or IS_DF and 211495 or 190384
 	local rune_unlim_texture = IS_TWW and 3566863 or IS_DF and 348535 or 4224736
+	local rune_second_docheck = false
 
-	--[432021]=70,	[432473]=70,	[431971]=70,	[431972]=70,	[431974]=70,	[431973]=70,
-	local flasks_list = {
+	local flasks_list = IS_MN and {
+		-245926,-245927,	-245933,-245932,	-245931,-245930,	-245929,-245928,
+		241320,241321,		241322,241323,		241324,241325,		241326,241327,
+	} or {
 		-212741,-212740,-212739,	-212747,-212746,-212745,	-212728,-212727,-212725,	-212731,-212730,-212729,	-212738,-212736,-212735,	-212734,-212733,-212732,
 		212283,212282,212281,		212301,212300,212299,		212271,212270,212269,		212274,212273,212272,		212280,212279,212278,		212277,212276,212275,		
 	}
@@ -3679,6 +3715,37 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 		[6904] = {ench=6904,item=205039,icon=4559225,q=3},
 		[7501] = {ench=7501,item=224109,icon=609896,q=2},
 		[7052] = {ench=7052,item=210494,icon=1045108},
+
+		[7935] = {ench=7935,item=240133,icon=5931426,q=3},
+		[7936] = {ench=7936,item=240154,icon=5931153,q=2},
+		[7937] = {ench=7937,item=240155,icon=5931153,q=3},
+		[7938] = {ench=7938,item=240156,icon=5931150,q=2},
+		[7939] = {ench=7939,item=240157,icon=5931150,q=3},
+		[8051] = {ench=8051,item=243733,icon=7548987,q=2},
+		[8052] = {ench=8052,item=243734,icon=7548987,q=3},
+		[8053] = {ench=8053,item=243735,icon=7548985,q=2},
+		[8054] = {ench=8054,item=243736,icon=7548985,q=3},
+		[8055] = {ench=8055,item=243737,icon=7548986,q=2},
+		[8056] = {ench=8056,item=243738,icon=7548986,q=3},
+		[8158] = {ench=8158,item=244640,icon=7549196,q=2},
+		[8159] = {ench=8159,item=244641,icon=7549196,q=3},
+		[7905] = {ench=7905,item=237371,icon=7548942,q=3},
+		[7906] = {ench=7906,item=237370,icon=7548941,q=2},
+		[7907] = {ench=7907,item=237367,icon=7548938,q=2},
+		[7908] = {ench=7908,item=237369,icon=7548939,q=3},
+		[8615] = {ench=8615,item=257746,icon=4548899,q=3},
+		[8614] = {ench=8614,item=257745,icon=4548899,q=2},
+		[8613] = {ench=8613,item=257748,icon=4548897,q=3},
+		[8612] = {ench=8612,item=257747,icon=4548897,q=2},
+		[8611] = {ench=8611,item=257752,icon=249175,q=3},
+		[8610] = {ench=8610,item=257751,icon=249175,q=2},
+		[8609] = {ench=8609,item=257750,icon=249176,q=3},
+		[8608] = {ench=8608,item=257749,icon=249176,q=2},
+		[8163] = {ench=8163,item=244643,icon=7549219,q=3},
+		[8162] = {ench=8162,item=244642,icon=7549219,q=2},
+		[8161] = {ench=8161,item=244645,icon=7549218,q=3},
+		[7934] = {ench=7934,item=240094,icon=5931426,q=2},
+		[8160] = {ench=8160,item=244644,icon=7549218,q=2},
 	}
 	local wenchants_items = {}
 	for k,v in pairs(wenchants) do
@@ -4154,7 +4221,7 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 
 		local runeCount = GetItemCount(rune_item_id,false,true)
 		local runeSecondItem
-		if runeCount == 0 then
+		if runeCount == 0 and rune_second_docheck then
 			runeCount = GetItemCount(rune_item_id2,false,true)
 			if runeCount and runeCount > 0 then
 				runeSecondItem = true

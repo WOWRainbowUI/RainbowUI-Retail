@@ -1,6 +1,10 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5260
+* Fixes
+* Timers: added font options
+
 v.5251
 * Midnight update
 * Minor fixes
