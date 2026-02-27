@@ -261,10 +261,9 @@ if COMPAT >= 3e4 then -- equipmentset
 end
 if MODERN then
 	AB:AugmentCategory(L"Outfits", function(_, add)
-		for i=0, C_TransmogOutfitInfo.GetMaxNumberOfUsableOutfits() do
-			if AB.IsTransmogOutfitUnlocked(i) then
-				add("outfit", i)
-			end
+		add("outfit", 0)
+		for _, i in pairs(C_TransmogOutfitInfo.GetOutfitsInfo()) do
+			add("outfit", i.outfitID)
 		end
 	end)
 end
