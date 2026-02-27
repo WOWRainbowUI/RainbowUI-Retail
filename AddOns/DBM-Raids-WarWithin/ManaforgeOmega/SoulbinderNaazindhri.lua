@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2685, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260221020851")
+mod:SetRevision("20260226050506")
 mod:SetCreatureID(233816)
 mod:SetEncounterID(3130)
 mod:SetUsedIcons(4, 6)
@@ -30,7 +30,7 @@ mod:AddPrivateAuraSoundOption(1242086, true, 1242086, 1, 2)--GTFO
 function mod:OnLimitedCombatStart()
 	self:EnableAlertOptions(1223859, {345, 346}, "carefly", 2)
 
-	self:EnableTimelineOptions(1223859, 345, 346)
+	self:EnableTimelineOptions(1223859, {345, 346})
 	self:EnableTimelineOptions(1227276, 347)
 	self:EnableTimelineOptions(1237607, 348)
 	self:EnableTimelineOptions(1225626, 349)

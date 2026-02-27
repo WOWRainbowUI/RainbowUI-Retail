@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2686, "DBM-Raids-WarWithin", 1, 1302)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260221020851")
+mod:SetRevision("20260226050506")
 mod:SetCreatureID(233815)
 mod:SetEncounterID(3131)
 mod:SetUsedIcons(1, 2)
@@ -44,7 +44,7 @@ function mod:OnLimitedCombatStart()
 	self:EnableTimelineOptions(1226867, 266)--Likely won't work due to event being tied to hidden script
 	self:EnableTimelineOptions(1227226, 267)
 	self:EnableTimelineOptions(1237212, 268)
-	self:EnableTimelineOptions(1237272, 269, 602)
+	self:EnableTimelineOptions(1237272, {269, 602})
 	self:EnableTimelineOptions(1247672, 270)
 	self:EnableTimelineOptions(1227782, 271)
 	self:EnablePrivateAuraSound(1226311, "lineyou", 17)
