@@ -8,7 +8,7 @@ LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "AceEvent-3.0", "AceConsole-3
 function addon:OnInitialize()
     -- Determine if the client is Russian to set default font accordingly
     local isRussian = (GetLocale() == "ruRU")
-    local defaultFont = "Pepsi Modern"
+    local defaultFont = " 王漢宗綜藝體"
     if isRussian then
         defaultFont = "Zero Cool"
     end
