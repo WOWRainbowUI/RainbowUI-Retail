@@ -1,6 +1,6 @@
 ## Interface: 120001
 ## Title: BtWQuests: Midnight Prologue
-## Version: 1.0
+## Version: 1.1
 ## Notes: Midnight Prologue quest data for BtWQuests
 ## Author: Breen
 ## Dependencies: BtWQuests
