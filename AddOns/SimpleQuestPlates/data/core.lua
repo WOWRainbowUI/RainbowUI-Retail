@@ -80,7 +80,7 @@ end
 local DEFAULTS = {
     enabled = true,
     scale = 1.0,
-    offsetX = 40,
+    offsetX = 0,
     offsetY = 0,
     anchor = "RIGHT",
     relativeTo = "LEFT",
