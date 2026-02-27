@@ -1,0 +1,17 @@
+## Interface: 120001
+## Title: HandyNotes: Midnight
+## Version: 132
+## Notes: Midnight Notes
+## OptionalDeps: Ace3
+## RequiredDeps: HandyNotes
+## X-Embeds: Ace3
+## SavedVariables: HandyNotes_MidnightDB
+## IconTexture: 236762
+
+## Title-zhTW: |cff4DFF4D[地圖]|r 地圖標記-至暗之夜
+## Notes-zhTW: HandyNotes: Midnight |n|n在地圖上顯示至暗之夜的寶藏和稀有怪位置。
+## Category-zhTW: 地圖
+
+libs\Krowi_WorldMapButtons-1.4\Krowi_WorldMapButtons-1.4.xml
+core\core.xml
+plugin.xml
