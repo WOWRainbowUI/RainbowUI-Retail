@@ -1,3 +1,15 @@
+# BetterBlizzFrames 1.9.0e
+## Prepatch/Midnight
+### Tweak
+- Update Venruki profile (www.twitch.tv/venruki). Ty for sharing.
+### Bugfix
+- Another round of minor misc bugfixes.
+
+# BetterBlizzFrames 1.9.0d
+## Prepatch/Midnight
+### Bugfix
+- Minor bugfixes (and fix typo in mmarkers profile string import)
+
 # BetterBlizzFrames 1.9.0c
 ## Prepatch/Midnight
 ### Tweak
