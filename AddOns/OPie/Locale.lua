@@ -23,10 +23,10 @@ V =
       "恢复默认设置", "回复已删除的环", "还原...", "右键点击解除绑定", "环快捷键", "环名称：", "环尺寸", "环边", "环：%s", "旋转：",
       "旋转嵌套环（下）", "旋转嵌套环（上）", "搜索", "选择 %s 互动方式以启用此选项。", "选择要修改的环", "双击一个动作以加入到这个环", "以下总结了OPie最近更新的精选亮点。有关完整的发行说明，请访问%s", "选择的功能（关闭环）", "当前选择环（环保持打开）", "设置名称过滤器：",
       "变形", "分享环", "按住 Shift 键单击查看环宏命令", "显示冷却数字", "显示充能数字", "显示功能标签", "显示给：", "显示鼠标提示", "模拟右键点击", "功能#%d",
-      "快照：", "专精和旅行", "通过输入图标文件名、纹理路径、纹理图集名称或已知的技能名称来指定图标。", "获取该环的快照与他人分享。", "标记目标", "如果你已经开启了该副本的英雄之路，便可直接传送至你需要的副本。", "按键设置将根据该宏条件的返回值更新。", "用以下宏命令打开此环：", "这些设置", "此外观可能不支持全部的OPie功能。",
-      "此快捷键正被另一个插件使用。", "此快捷键当前无法使用，因为它和另一个绑定冲突。", "专业技能", "翻译OPie", "按下绑定按键触发", "松开绑定按键触发", "明白了；继续编辑", "撤销变动", "未移动的光标", "光标未移动，或者在环中心",
-      "需要更新", "使用默认环快捷键", "打开时使用第一个功能", "使用全局设定", "使用功能", "使用功能并关闭环", "工具", "虚拟鼠标光标", "可见条件：", "最新动态",
-      "环展开时：", "世界标记", "由于内存不足，魔兽世界不能加载已保存的OPie变量。请尝试禁用其他插件。现在你所做的任何改动都不会被保存。", "您可以稍后取消或恢复到之前的设置。", "您可以通过访问以下链接来帮助翻译OPie：", "你可以使用扩展的宏条件；详情见%s。", "必须为此环启用%s选项，以使用快捷动作。", "你的当前角色目前无法使用该物品。", "默认",
+      z, "快照：", "专精和旅行", "通过输入图标文件名、纹理路径、纹理图集名称或已知的技能名称来指定图标。", "获取该环的快照与他人分享。", "标记目标", "如果你已经开启了该副本的英雄之路，便可直接传送至你需要的副本。", "按键设置将根据该宏条件的返回值更新。", "用以下宏命令打开此环：", "这些设置",
+      "此外观可能不支持全部的OPie功能。", "此快捷键正被另一个插件使用。", "此快捷键当前无法使用，因为它和另一个绑定冲突。", "专业技能", "翻译OPie", "按下绑定按键触发", "松开绑定按键触发", "明白了；继续编辑", "撤销变动", "未移动的光标",
+      "光标未移动，或者在环中心", "需要更新", "使用默认环快捷键", "打开时使用第一个功能", "使用全局设定", "使用功能", "使用功能并关闭环", "工具", "虚拟鼠标光标", "可见条件：",
+      "最新动态", "环展开时：", "世界标记", "由于内存不足，魔兽世界不能加载已保存的OPie变量。请尝试禁用其他插件。现在你所做的任何改动都不会被保存。", "您可以稍后取消或恢复到之前的设置。", "您可以通过访问以下链接来帮助翻译OPie：", "你可以使用扩展的宏条件；详情见%s。", "必须为此环启用%s选项，以使用快捷动作。", "你的当前角色目前无法使用该物品。", "默认",
     }
     or C == "zhTW" and { -- 229/230 (99%)
       "%d 分鐘前 (%s)", "%s取消", "%s在目前的結果內搜尋", "(所有套裝)", "(預設)", "(在此輸入圖示名稱或路徑)", "新增環", "加入一個新的功能", "使用後進階顯示", "所有 %s 角色",
@@ -48,10 +48,10 @@ V =
       "恢復為預設值", "恢復已刪除的環", "還原...", "點右鍵取消綁定", "環按鍵綁定", "環的名稱:", "環縮放大小", "環旁邊", "環: %s", "環旋轉:",
       "捲動環中環 (往下)", "捲動環中環 (往上)", "搜尋", "選擇 %s 互動方式以啟用此選項。", "選擇要更改的環", "在技能上面點兩下便可加入環。", "OPie 最近更新的重點摘要如下，如需完整的更新紀錄，請造訪 %s", "選擇的功能 (關閉環)", "選擇的功能 (保持環展開)", "套裝名稱過濾:",
       "變形", "分享環", "Shift+左鍵 檢視環的巨集指令", "顯示冷卻時間數字", "顯示充能數字", "顯示功能文字", "顯示給:", "顯示浮動提示資訊", "模擬右鍵點擊", "功能 #%d",
-      "字串:", "天賦專精和旅行", "輸入圖示檔案名稱、材質路徑、圖集名稱或已知的技能名稱來指定圖示。", "將環的設定字串分享給其他人用。", "目標標記圖示", "傳送到你需要的地方... 若你知曉那條道路。", "將會依據巨集條件更新按鍵綁定。", "使用下列的巨集指令來展開這個環:", "這些設定", "這個外觀可能不支援 OPie 的全部功能。",
-      "其他插件正在使用這個按鍵綁定。", "無法使用這個按鍵綁定，因為已用於其他地方。", "專業技能", "翻譯 OPie", "按下按鍵綁定時觸發", "放開按鍵綁定時觸發", "瞭解; 仍要繼續編輯", "復原變更", "游標未移動", "游標未移動，或在環中心",
-      "需要更新", "使用預設的環按鍵綁定", "展開時使用第一個功能", "使用整體設定", "使用功能", "使用功能後關閉環", "工具", "虛擬滑鼠游標", "顯示條件:", "更新資訊",
-      "環展開時:", "世界標記圖示", "記憶體不足! 魔獸世界無法載入 OPie 已儲存的變數，請停用其它插件。\n\n現在做的任何變更都不會被儲存。", "稍後可以取消或還原成先前的設定。", "你可以前往以下頁面協助翻譯 OPie：", "可以使用擴充的巨集條件式；詳細內容請看 %s。", "要使用快速功能，必須在 OPie 選項中替這個環啟用 %s 互動。", "你的角色目前無法使用此功能。", "預設", "快捷列-環形",
+      z, "字串:", "天賦專精和旅行", "輸入圖示檔案名稱、材質路徑、圖集名稱或已知的技能名稱來指定圖示。", "將環的設定字串分享給其他人用。", "目標標記圖示", "傳送到你需要的地方... 若你知曉那條道路。", "將會依據巨集條件更新按鍵綁定。", "使用下列的巨集指令來展開這個環:", "這些設定",
+      "這個外觀可能不支援 OPie 的全部功能。", "其他插件正在使用這個按鍵綁定。", "無法使用這個按鍵綁定，因為已用於其他地方。", "專業技能", "翻譯 OPie", "按下按鍵綁定時觸發", "放開按鍵綁定時觸發", "瞭解; 仍要繼續編輯", "復原變更", "游標未移動",
+      "游標未移動，或在環中心", "需要更新", "使用預設的環按鍵綁定", "展開時使用第一個功能", "使用整體設定", "使用功能", "使用功能後關閉環", "工具", "虛擬滑鼠游標", "顯示條件:",
+      "更新資訊", "環展開時:", "世界標記圖示", "記憶體不足! 魔獸世界無法載入 OPie 已儲存的變數，請停用其它插件。\n\n現在做的任何變更都不會被儲存。", "稍後可以取消或還原成先前的設定。", "你可以前往以下頁面協助翻譯 OPie：", "可以使用擴充的巨集條件式；詳細內容請看 %s。", "要使用快速功能，必須在 OPie 選項中替這個環啟用 %s 互動。", "你的角色目前無法使用此功能。", "預設", "快捷列-環形",
     } or nil
 
 K = V and {
@@ -74,10 +74,10 @@ K = V and {
       "Restore default settings", "Restore deleted ring", "Revert...", "Right click to unbind", "Ring Bindings", "Ring name:", "Ring scale", "Ring-side", "Ring: %s", "Rotation:",
       "Scroll nested ring (down)", "Scroll nested ring (up)", "Search", "Select a %s interaction to enable this option.", "Select a ring to modify", "Select an action by double clicking.", "Selected highlights from recent updates to OPie are summarized below. For full release notes, please visit %s", "Selected slice (close ring)", "Selected slice (keep ring open)", "Set name filter:",
       "Shapeshifts", "Share ring", "Shift click to view ring macro command", "Show cooldown numbers", "Show recharge numbers", "Show slice labels", "Show this slice for:", "Show tooltips:", "Simulate a right-click", "Slice #%d",
-      "Snapshot:", "Specializations and Travel", "Specify an icon by entering an icon file name, texture path, atlas name, or a known ability name.", "Take a snapshot of this ring to share it with others.", "Target Markers", "Teleport to where you are needed... if you know that Path.", "The binding will update to reflect the value of this macro options expression.", "The following macro command opens this ring:", "These Settings", "This appearance may not support all OPie features.",
-      "This binding is currently used by another addon.", "This binding is not currently active because it conflicts with another.", "Trade Skills", "Translate OPie", "Trigger on binding press", "Trigger on binding release", "Understood; edit anyway", "Undo changes", "Unmoved cursor", "Unmoved cursor, or at ring center",
-      "Update required", "Use default ring bindings", "Use first slice when opened", "Use global setting", "Use slice", "Use slice and close ring", "Utility", "Virtual mouse cursor", "Visibility conditional:", "What's New",
-      "While a ring is open:", "World Markers", "World of Warcraft could not load OPie's saved variables due to a lack of memory. Try disabling other addons.\n\nAny changes you make now will not be saved.", "You can cancel or revert to previous settings later.", "You can help translate OPie by visiting:", "You may use extended conditionals; see %s for details.", "You must enable a %s interaction for this ring in OPie options to use quick actions.", "Your character currently cannot use this.", "default", "OPie",
+      "Slice binding conflicts with %s.", "Snapshot:", "Specializations and Travel", "Specify an icon by entering an icon file name, texture path, atlas name, or a known ability name.", "Take a snapshot of this ring to share it with others.", "Target Markers", "Teleport to where you are needed... if you know that Path.", "The binding will update to reflect the value of this macro options expression.", "The following macro command opens this ring:", "These Settings",
+      "This appearance may not support all OPie features.", "This binding is currently used by another addon.", "This binding is not currently active because it conflicts with another.", "Trade Skills", "Translate OPie", "Trigger on binding press", "Trigger on binding release", "Understood; edit anyway", "Undo changes", "Unmoved cursor",
+      "Unmoved cursor, or at ring center", "Update required", "Use default ring bindings", "Use first slice when opened", "Use global setting", "Use slice", "Use slice and close ring", "Utility", "Virtual mouse cursor", "Visibility conditional:",
+      "What's New", "While a ring is open:", "World Markers", "World of Warcraft could not load OPie's saved variables due to a lack of memory. Try disabling other addons.\n\nAny changes you make now will not be saved.", "You can cancel or revert to previous settings later.", "You can help translate OPie by visiting:", "You may use extended conditionals; see %s for details.", "You must enable a %s interaction for this ring in OPie options to use quick actions.", "Your character currently cannot use this.", "default", "OPie",
 }
 
 local L = K and {}

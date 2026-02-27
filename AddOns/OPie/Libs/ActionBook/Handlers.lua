@@ -1919,11 +1919,8 @@ securecall(function() -- outfit: id
 		end
 		return usable, state, icon, name, 0, cdLeft, cdLength, setOutfitTooltip, id
 	end
-	local function IsTransmogOutfitUnlocked(id)
-		return unlockedOutfits[id] or type(id) == "number" and C_TransmogOutfitInfo.GetOutfitInfo(id) and true
-	end
 	local function createOutfit(id)
-		if not IsTransmogOutfitUnlocked(id) then
+		if not (unlockedOutfits[id] or type(id) == "number" and C_TransmogOutfitInfo.GetOutfitInfo(id)) then
 			return
 		end
 		local aid = outfitAction[id] or AB:CreateActionSlot(hintOutfit, id, "retext",SLASH_USEOUTFIT .. " " .. id)
@@ -1947,5 +1944,4 @@ securecall(function() -- outfit: id
 		end
 		AB:NotifyObservers("outfit")
 	end
-	AB.HUM.IsTransmogOutfitUnlocked = IsTransmogOutfitUnlocked
 end)
