@@ -686,7 +686,10 @@ local VUHDO_DEFAULT_CONFIG = {
 	["STANDARD_TOOLTIP"] = false,
 	["DEBUFF_TOOLTIP"] = true,
 
-	["AUTO_PROFILES"] = {	},
+	["AUTO_PROFILES"] = { },
+
+	["AURA_GROUPS"] = { },
+	["AURA_GROUP_DISABLED"] = { },
 
 	["RES_ANNOUNCE_TEXT"] = VUHDO_I18N_DEFAULT_RES_ANNOUNCE,
 	["RES_ANNOUNCE_MASS_TEXT"] = VUHDO_I18N_DEFAULT_RES_ANNOUNCE_MASS,
@@ -1841,7 +1844,7 @@ function VUHDO_loadDefaultConfig()
 ----		250191, -- Conflagration
 ----		254181, -- Seared Skin
 ----		248255, -- Infernal Rockets
---		-- Kin’garoth
+--		-- Kin?garoth
 ----		254919, -- Forging Strike
 --		249535, -- Demolished (M)
 --		246706, -- Demolish
@@ -1873,7 +1876,7 @@ function VUHDO_loadDefaultConfig()
 ----		250757, -- Cosmic Glare (M)
 --		-- Aggramar
 ----		244291, -- Foe Breaker
-----		245990, -- Taeschalach’s Reach
+----		245990, -- Taeschalach?s Reach
 --		245994, -- Scorching Blaze
 ----		246014, -- Searing Tempest
 ----		244736, -- Wake of Flame
@@ -1894,7 +1897,7 @@ function VUHDO_loadDefaultConfig()
 ----		258646, -- Gift of the Sky
 ----		255199, -- Avatar of Aggramar
 --		250669, -- Soulburst
-----		255200, -- Aggramar’s Boon
+----		255200, -- Aggramar?s Boon
 ----		257299, -- Ember of Rage
 ----		252729, -- Cosmic Ray
 ----		252634, -- Cosmic Smash
@@ -2849,6 +2852,7 @@ function VUHDO_loadDefaultConfig()
 	end
 	VUHDO_POWER_TYPE_COLORS = VUHDO_ensureSanity("VUHDO_POWER_TYPE_COLORS", VUHDO_POWER_TYPE_COLORS, VUHDO_DEFAULT_POWER_TYPE_COLORS);
 	VUHDO_DEFAULT_POWER_TYPE_COLORS = VUHDO_compressAndPackTable(VUHDO_DEFAULT_POWER_TYPE_COLORS);
+
 end
 
 
@@ -2948,9 +2952,7 @@ local VUHDO_DEFAULT_PANEL_SETUP = {
 		["TARGET_NEUTRAL"] = VUHDO_makeFullColor(1, 1, 0, 1,   1, 1, 0, 1),
 		["TARGET_ENEMY"] = VUHDO_makeFullColor(1, 0, 0, 1,   1, 0, 0, 1),
 
-		["DEBUFF" .. VUHDO_DEBUFF_TYPE_NONE] =  {
-			["useText"] = false, ["useBackground"] = false, ["useOpacity"] = false,
-		},
+		["DEBUFF" .. VUHDO_DEBUFF_TYPE_NONE] = VUHDO_makeFullColor(0, 0, 0, 0,   0, 0, 0, 0),
 		["DEBUFF" .. VUHDO_DEBUFF_TYPE_POISON] = VUHDO_makeFullColor(0, 0.592, 0.8, 1,   0, 1, 0.686, 1),
 		["DEBUFF" .. VUHDO_DEBUFF_TYPE_DISEASE] = VUHDO_makeFullColor(0.8, 0.4, 0.4, 1,   1, 0, 0, 1),
 		["DEBUFF" .. VUHDO_DEBUFF_TYPE_CURSE] = VUHDO_makeFullColor(0.7, 0, 0.7, 1,   1, 0, 1, 1),
@@ -2961,6 +2963,18 @@ local VUHDO_DEFAULT_PANEL_SETUP = {
 		["DEBUFF_BAR_GLOW"] = VUHDO_makeFullColor(0.95, 0.95, 0.32, 1,   1, 1, 0, 1),
 		["DEBUFF_ICON_GLOW"] = VUHDO_makeFullColor(0.95, 0.95, 0.32, 1,   1, 1, 0, 1),
 		["CHARMED"] = VUHDO_makeFullColor(0.51, 0.082, 0.263, 1,   1, 0.31, 0.31, 1),
+
+		["AURA_BAR_DEFAULT"] = {
+			["R"] = 0.7098, ["G"] = 0.7294, ["B"] = 0.7412, ["O"] = 0.5,
+			["TR"] = 1, ["TG"] = 1, ["TB"] = 1, ["TO"] = 1,
+			["useText"] = false, ["useBackground"] = true, ["useOpacity"] = true,
+		},
+
+		["AURA_STACK_TRIANGLE"] = {
+			["R"] = 0.180, ["G"] = 0.937, ["B"] = 0.169, ["O"] = 1,
+			["TR"] = 1, ["TG"] = 1, ["TB"] = 1, ["TO"] = 1,
+			["useText"] = true, ["useBackground"] = true, ["useOpacity"] = false,
+		},
 
 		["BAR_FRAMES"] = {
 			["R"] = 0, ["G"] = 0, ["B"] = 0, ["O"] = 0.7,
@@ -3068,11 +3082,281 @@ local VUHDO_DEFAULT_PANEL_SETUP = {
 			},
 		},
 	}, -- BAR_COLORS
+
+	["AURA_DEFAULTS"] = {
+		["iconSize"] = 40,
+		["iconSpacing"] = 2,
+		["barWidth"] = 100,
+		["barHeight"] = 30,
+		["showTimer"] = true,
+		["showStacks"] = true,
+		["showClock"] = false,
+		["fadeOnLow"] = false,
+		["fadeThreshold"] = 3,
+		["flashOnLow"] = false,
+		["flashThreshold"] = 2,
+		["dispelBorder"] = false,
+		["showTooltip"] = true,
+	},
 };
 
 
 
 --
+VUHDO_DEFAULT_AURA_GROUPS = {
+	["MY_HOTS"] = {
+		["filter"] = "HELPFUL|PLAYER|RAID_IN_COMBAT",
+		["excludeFilter"] = nil,
+		["priority"] = 10,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["OTHERS_HOTS"] = {
+		["filter"] = "HELPFUL|RAID_IN_COMBAT",
+		["excludeFilter"] = "PLAYER",
+		["priority"] = 11,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["ALL_HOTS"] = {
+		["filter"] = "HELPFUL|RAID_IN_COMBAT",
+		["excludeFilter"] = nil,
+		["priority"] = 12,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["DISPELLABLE"] = {
+		["filter"] = "HARMFUL|RAID_PLAYER_DISPELLABLE",
+		["excludeFilter"] = nil,
+		["priority"] = 1,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_DISPEL,
+		["canColorBar"] = true,
+		["canColorText"] = true,
+		["enabled"] = true,
+	},
+	["CC_EFFECTS"] = {
+		["filter"] = "HARMFUL|CROWD_CONTROL",
+		["excludeFilter"] = nil,
+		["priority"] = 2,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["BIG_DEFENSIVES"] = {
+		["filter"] = "HELPFUL|BIG_DEFENSIVE",
+		["excludeFilter"] = nil,
+		["priority"] = 5,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["EXTERNAL_DEFENSIVES"] = {
+		["filter"] = "HELPFUL|EXTERNAL_DEFENSIVE",
+		["excludeFilter"] = nil,
+		["priority"] = 7,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["ALL_DEBUFFS"] = {
+		["filter"] = "HARMFUL",
+		["excludeFilter"] = nil,
+		["priority"] = 20,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["ALL_BUFFS"] = {
+		["filter"] = "HELPFUL",
+		["excludeFilter"] = nil,
+		["priority"] = 21,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["MY_BUFFS"] = {
+		["filter"] = "HELPFUL|RAID|PLAYER",
+		["excludeFilter"] = nil,
+		["priority"] = 13,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["OTHERS_BUFFS"] = {
+		["filter"] = "HELPFUL|RAID",
+		["excludeFilter"] = "PLAYER",
+		["priority"] = 14,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["ALL_RAID_BUFFS"] = {
+		["filter"] = "HELPFUL|RAID",
+		["excludeFilter"] = nil,
+		["priority"] = 15,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["RAID_DEBUFFS"] = {
+		["filter"] = "HARMFUL|RAID",
+		["excludeFilter"] = nil,
+		["priority"] = 3,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["IMPORTANT_BUFFS"] = {
+		["filter"] = "HELPFUL|IMPORTANT",
+		["excludeFilter"] = nil,
+		["priority"] = 6,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["IMPORTANT_DEBUFFS"] = {
+		["filter"] = "HARMFUL|IMPORTANT",
+		["excludeFilter"] = nil,
+		["priority"] = 4,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["MY_NAMEPLATE_DEBUFFS"] = {
+		["filter"] = "HARMFUL|INCLUDE_NAME_PLATE_ONLY|PLAYER",
+		["excludeFilter"] = nil,
+		["priority"] = 17,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["OTHERS_NAMEPLATE_DEBUFFS"] = {
+		["filter"] = "HARMFUL|INCLUDE_NAME_PLATE_ONLY",
+		["excludeFilter"] = "PLAYER",
+		["priority"] = 18,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["ALL_NAMEPLATE_DEBUFFS"] = {
+		["filter"] = "HARMFUL|INCLUDE_NAME_PLATE_ONLY",
+		["excludeFilter"] = nil,
+		["priority"] = 19,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["MY_DEBUFFS"] = {
+		["filter"] = "HARMFUL|PLAYER",
+		["excludeFilter"] = nil,
+		["priority"] = 22,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["MY_EXTERNAL_DEFENSIVES"] = {
+		["filter"] = "HELPFUL|EXTERNAL_DEFENSIVE|PLAYER",
+		["excludeFilter"] = nil,
+		["priority"] = 8,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["MY_RAID_DEBUFFS"] = {
+		["filter"] = "HARMFUL|RAID|PLAYER",
+		["excludeFilter"] = nil,
+		["priority"] = 16,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["CANCELABLE_BUFFS"] = {
+		["filter"] = "HELPFUL|CANCELABLE",
+		["excludeFilter"] = nil,
+		["priority"] = 23,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["NOT_CANCELABLE_BUFFS"] = {
+		["filter"] = "HELPFUL|NOT_CANCELABLE",
+		["excludeFilter"] = nil,
+		["priority"] = 24,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	["TORGHAST_ANIMA"] = {
+		["filter"] = "HELPFUL|MAW",
+		["excludeFilter"] = nil,
+		["priority"] = 30,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["enabled"] = true,
+	},
+	-- ["INFERRED_RIPTIDE"] = {
+	-- 	["filter"] = nil,
+	-- 	["isInferred"] = true,
+	-- 	["inferredType"] = "SHAMAN_RIPTIDE",
+	-- 	["playerClassRequired"] = "SHAMAN",
+	-- 	["priority"] = 31,
+	-- 	["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+	-- 	["canColorBar"] = false,
+	-- 	["canColorText"] = false,
+	-- 	["enabled"] = true,
+	-- },
+	-- ["INFERRED_ECHO"] = {
+	-- 	["filter"] = nil,
+	-- 	["isInferred"] = true,
+	-- 	["inferredType"] = "EVOKER_ECHO",
+	-- 	["playerClassRequired"] = "EVOKER",
+	-- 	["priority"] = 32,
+	-- 	["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+	-- 	["canColorBar"] = false,
+	-- 	["canColorText"] = false,
+	-- 	["enabled"] = true,
+	-- },
+	-- ["INFERRED_ATONEMENT"] = {
+	-- 	["filter"] = nil,
+	-- 	["isInferred"] = true,
+	-- 	["inferredType"] = "PRIEST_ATONEMENT",
+	-- 	["playerClassRequired"] = "PRIEST",
+	-- 	["priority"] = 33,
+	-- 	["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+	-- 	["canColorBar"] = false,
+	-- 	["canColorText"] = false,
+	-- 	["enabled"] = true,
+	-- },
+};
+
+
+
 local VUHDO_DEFAULT_PER_PANEL_SETUP = {
 	["HOTS"] = {
 		["size"] = 40,
@@ -3294,6 +3578,172 @@ local VUHDO_DEFAULT_PER_PANEL_SETUP = {
 	},
 
 	["frameStrata"] = "MEDIUM",
+
+	["AURA_ANCHORS"] = {
+		["1"] = {
+			["groupId"] = "MY_HOTS",
+			["enabled"] = true,
+			["radioValue"] = 13,
+			["offsetX"] = 0,
+			["offsetY"] = 0,
+			["maxDisplay"] = 9,
+			["maxColumns"] = 9,
+			["maxRows"] = 1,
+			["sortRule"] = 3,
+			["sortDir"] = 0,
+			["size"] = 20,
+			["barWidth"] = 100,
+			["barHeight"] = 12,
+			["barVertical"] = false,
+			["barTurnAxis"] = false,
+			["barInvertGrowth"] = false,
+			["spacing"] = nil,
+			["style"] = "icons",
+			["growthDir"] = "RIGHT",
+			["wrapDir"] = "UP",
+			["showTimer"] = 2,
+			["showStacks"] = 2,
+			["showClock"] = 2,
+			["showTooltip"] = 2,
+			["fadeOnLow"] = 2,
+			["flashOnLow"] = 2,
+			["dispelBorder"] = 2,
+			["colorMode"] = "default",
+			["iconType"] = 1,
+			["stackType"] = 1,
+			["fixedSlots"] = false,
+			["TIMER_TEXT"] = {
+				["ANCHOR"] = "BOTTOMRIGHT",
+				["X_ADJUST"] = 25,
+				["Y_ADJUST"] = 0,
+				["SCALE"] = 40,
+				["FONT"] = "Interface\\AddOns\\VuhDo\\Fonts\\ariblk.ttf",
+				["COLOR"] = VUHDO_makeFullColor(0, 0, 0, 1, 1, 1, 1, 1),
+				["USE_SHADOW"] = false,
+				["USE_OUTLINE"] = true,
+				["USE_MONO"] = false,
+			},
+			["COUNTER_TEXT"] = {
+				["ANCHOR"] = "TOP",
+				["X_ADJUST"] = -25,
+				["Y_ADJUST"] = 0,
+				["SCALE"] = 40,
+				["FONT"] = "Interface\\AddOns\\VuhDo\\Fonts\\ariblk.ttf",
+				["COLOR"] = VUHDO_makeFullColor(0, 0, 0, 1, 0, 1, 0, 1),
+				["USE_SHADOW"] = false,
+				["USE_OUTLINE"] = true,
+				["USE_MONO"] = false,
+			},
+		},
+		["2"] = {
+			["groupId"] = "DISPELLABLE",
+			["enabled"] = true,
+			["radioValue"] = 17,
+			["offsetX"] = 0,
+			["offsetY"] = 0,
+			["maxDisplay"] = 3,
+			["maxColumns"] = 3,
+			["maxRows"] = 1,
+			["sortRule"] = 0,
+			["sortDir"] = 0,
+			["size"] = 20,
+			["barWidth"] = 100,
+			["barHeight"] = 12,
+			["barVertical"] = false,
+			["barTurnAxis"] = false,
+			["barInvertGrowth"] = false,
+			["spacing"] = nil,
+			["style"] = "icons",
+			["growthDir"] = "LEFT",
+			["wrapDir"] = "DOWN",
+			["showTimer"] = 2,
+			["showStacks"] = 2,
+			["showTooltip"] = 2,
+			["showClock"] = 2,
+			["fadeOnLow"] = 2,
+			["flashOnLow"] = 2,
+			["dispelBorder"] = 1,
+			["colorMode"] = "default",
+			["iconType"] = 1,
+			["stackType"] = 1,
+			["fixedSlots"] = false,
+			["TIMER_TEXT"] = {
+				["ANCHOR"] = "BOTTOMRIGHT",
+				["X_ADJUST"] = 25,
+				["Y_ADJUST"] = 0,
+				["SCALE"] = 40,
+				["FONT"] = "Interface\\AddOns\\VuhDo\\Fonts\\ariblk.ttf",
+				["COLOR"] = VUHDO_makeFullColor(0, 0, 0, 1, 1, 1, 1, 1),
+				["USE_SHADOW"] = false,
+				["USE_OUTLINE"] = true,
+				["USE_MONO"] = false,
+			},
+			["COUNTER_TEXT"] = {
+				["ANCHOR"] = "TOP",
+				["X_ADJUST"] = -25,
+				["Y_ADJUST"] = 0,
+				["SCALE"] = 40,
+				["FONT"] = "Interface\\AddOns\\VuhDo\\Fonts\\ariblk.ttf",
+				["COLOR"] = VUHDO_makeFullColor(0, 0, 0, 1, 0, 1, 0, 1),
+				["USE_SHADOW"] = false,
+				["USE_OUTLINE"] = true,
+				["USE_MONO"] = false,
+			},
+		},
+		["3"] = {
+			["groupId"] = "BIG_DEFENSIVES",
+			["enabled"] = true,
+			["radioValue"] = 16,
+			["position"] = "CENTER",
+			["offsetX"] = 0,
+			["offsetY"] = 0,
+			["maxDisplay"] = 3,
+			["maxColumns"] = 3,
+			["maxRows"] = 1,
+			["sortRule"] = 0,
+			["sortDir"] = 0,
+			["size"] = 45,
+			["barWidth"] = 100,
+			["barHeight"] = 12,
+			["spacing"] = nil,
+			["style"] = "icons",
+			["growthDir"] = "RIGHT",
+			["wrapDir"] = "DOWN",
+			["showTimer"] = 3,
+			["showStacks"] = 3,
+			["showTooltip"] = 2,
+			["showClock"] = 1,
+			["fadeOnLow"] = 2,
+			["flashOnLow"] = 2,
+			["dispelBorder"] = 2,
+			["colorMode"] = "default",
+			["iconType"] = 1,
+			["stackType"] = 1,
+			["fixedSlots"] = false,
+			["TIMER_TEXT"] = {
+				["ANCHOR"] = "BOTTOMRIGHT",
+				["X_ADJUST"] = 25,
+				["Y_ADJUST"] = 0,
+				["SCALE"] = 40,
+				["FONT"] = "Interface\\AddOns\\VuhDo\\Fonts\\ariblk.ttf",
+				["COLOR"] = VUHDO_makeFullColor(0, 0, 0, 1, 1, 1, 1, 1),
+				["USE_SHADOW"] = false,
+				["USE_OUTLINE"] = true,
+				["USE_MONO"] = false,
+			},
+			["COUNTER_TEXT"] = {
+				["ANCHOR"] = "TOP",
+				["X_ADJUST"] = -25,
+				["Y_ADJUST"] = 0,
+				["SCALE"] = 40,
+				["FONT"] = "Interface\\AddOns\\VuhDo\\Fonts\\ariblk.ttf",
+				["COLOR"] = VUHDO_makeFullColor(0, 0, 0, 1, 0, 1, 0, 1),
+				["USE_SHADOW"] = false,
+				["USE_OUTLINE"] = true,
+				["USE_MONO"] = false,
+			},
+		},
+	},
 };
 
 
@@ -3387,6 +3837,8 @@ function VUHDO_loadDefaultPanelSetup()
 	if VUHDO_PANEL_SETUP["HOTS"] and not VUHDO_PANEL_SETUP["HOTS"]["VERSION"] then
 		VUHDO_PANEL_SETUP["HOTS"] = nil;
 	end
+
+	VUHDO_migrateOldConfigsToAuraAnchors();
 
 	VUHDO_PANEL_SETUP = VUHDO_ensureSanity("VUHDO_PANEL_SETUP", VUHDO_PANEL_SETUP, VUHDO_DEFAULT_PANEL_SETUP);
 	VUHDO_DEFAULT_PANEL_SETUP = VUHDO_compressAndPackTable(VUHDO_DEFAULT_PANEL_SETUP);

@@ -154,12 +154,14 @@ function VUHDO_initFromSpellbook()
 			tinsert(tHotSlots, "");
 		end
 
-		for tCnt, tHotName in pairs(tHotSlots) do
-			if not VUHDO_strempty(tHotName) then
-				VUHDO_ACTIVE_HOTS[tHotName] = true;
+		if not VUHDO_SECRETS_ENABLED then
+			for tCnt, tHotName in pairs(tHotSlots) do
+				if not VUHDO_strempty(tHotName) then
+					VUHDO_ACTIVE_HOTS[tHotName] = true;
 
-				if tHotCfg["" .. tCnt]["others"] then
-					VUHDO_ACTIVE_HOTS_OTHERS[tHotName] = true;
+					if tHotCfg["" .. tCnt]["others"] then
+						VUHDO_ACTIVE_HOTS_OTHERS[tHotName] = true;
+					end
 				end
 			end
 		end

@@ -4,10 +4,10 @@ local VUHDO_INTERNAL_TOGGLES = { };
 
 local strsplit = strsplit;
 local pairs = pairs;
-
 local VUHDO_updateHealth;
 local sCurrentTarget = nil;
 local sCurrentFocus = nil;
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
 
 
@@ -32,6 +32,10 @@ local function VUHDO_addUnitHealth(aUnit, aDelta)
 	tInfo = VUHDO_RAID[aUnit] or tDeadInfo;
 
 	if not tInfo["dead"] then
+		if sSecretsEnabled and issecretvalue(tInfo["health"]) then
+			return;
+		end
+
 		tNewHealth = tInfo["health"] + aDelta;
 
 		if tNewHealth < 0 then

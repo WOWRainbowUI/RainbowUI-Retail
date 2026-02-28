@@ -9,6 +9,7 @@ local twipe = table.wipe;
 
 local GetSpellInfo = GetSpellInfo or VUHDO_getSpellInfo;
 local UnitGUID = UnitGUID;
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
 local VUHDO_ACTIVE_TRACE_SPELLS = { 
 	-- [<unit GUID>] = {
@@ -48,6 +49,7 @@ local sTrailOfLightIcon = nil;
 
 --
 local VUHDO_updateBouquetsForEvent;
+local VUHDO_unitIsUnit;
 local VUHDO_PLAYER_GUID = -1;
 local VUHDO_RAID_GUIDS = { };
 local VUHDO_INTERNAL_TOGGLES = { };
@@ -60,6 +62,7 @@ local sSpellTraceDefaultDuration = nil;
 function VUHDO_spellTraceInitLocalOverrides()
 
 	VUHDO_updateBouquetsForEvent = _G["VUHDO_deferUpdateBouquetsForEvent"];
+	VUHDO_unitIsUnit = _G["VUHDO_unitIsUnit"];
 
 	VUHDO_PLAYER_GUID = UnitGUID("player");
 	VUHDO_RAID_GUIDS = _G["VUHDO_RAID_GUIDS"];
@@ -157,11 +160,13 @@ local function VUHDO_addSpellTrace(aSrcGuid, aDstGuid, aSpellId)
 
 	VUHDO_ACTIVE_TRACE_SPELLS[aDstGuid]["latest"] = tSpellId;
 
-	if not VUHDO_ACTIVE_TRACE_GUIDS[aSrcGuid] then
-		VUHDO_ACTIVE_TRACE_GUIDS[aSrcGuid] = { };
-	end
+	if not sSecretsEnabled or (not issecretvalue(aSrcGuid) and not issecretvalue(aDstGuid)) then
+		if not VUHDO_ACTIVE_TRACE_GUIDS[aSrcGuid] then
+			VUHDO_ACTIVE_TRACE_GUIDS[aSrcGuid] = { };
+		end
 
-	VUHDO_ACTIVE_TRACE_GUIDS[aSrcGuid][tSpellId] = aDstGuid;
+		VUHDO_ACTIVE_TRACE_GUIDS[aSrcGuid][tSpellId] = aDstGuid;
+	end
 
 end
 
@@ -349,7 +354,7 @@ function VUHDO_addIncomingSpellTrace(aSrcUnit, aCastGuid, aSpellId)
 
 	if UnitExists(tDstUnit) then
 		for tRaidUnit, _ in pairs(VUHDO_RAID) do
-			if UnitIsUnit(tDstUnit, tRaidUnit) then
+			if VUHDO_unitIsUnit(tDstUnit, tRaidUnit) then
 				tUnit = tRaidUnit;
 
 				break;

@@ -234,7 +234,7 @@
 				</Frames>
 			</Frame>
 
-			<Frame name="$parentAnnouncePanel" inherits="VuhDoPanelTemplate">
+			<Frame name="$parentAnnouncePanel" inherits="VuhDoPanelTemplate" hidden="true">
 				<Size>
 					<AbsDimension x="445" y="105" />
 				</Size>

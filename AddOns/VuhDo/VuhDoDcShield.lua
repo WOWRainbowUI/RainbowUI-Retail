@@ -13,9 +13,15 @@ local _;
 local format = format;
 
 local VUHDO_RAID;
+
+local VUHDO_getOrCreateUnitInfo;
+
 function VUHDO_dcShieldInitLocalOverrides()
 	VUHDO_RAID = _G["VUHDO_RAID"];
+
+	VUHDO_getOrCreateUnitInfo = _G["VUHDO_getOrCreateUnitInfo"];
 end
+
 -----------------------------------------------------------------------------------
 
 
@@ -162,11 +168,9 @@ local function VUHDO_buildInfoFromSnippet(aUnit, aSnippet, aName)
 	local tInfo;
 	local tClassId;
 
-	if not VUHDO_RAID[aUnit] then VUHDO_RAID[aUnit] = { }; end
+	tInfo = VUHDO_getOrCreateUnitInfo(aUnit);
 
 	tClassId = VUHDO_MACRO_TO_CLASS[strsub(aSnippet, 2, 2)] or VUHDO_ID_PETS;
-
-	tInfo = VUHDO_RAID[aUnit];
 	tInfo["healthmax"] = 100;
 	tInfo["health"] = 100;
 	tInfo["name"] = aName or VUHDO_I18N_NOT_AVAILABLE;

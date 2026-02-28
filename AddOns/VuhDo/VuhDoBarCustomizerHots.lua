@@ -1,5 +1,8 @@
 local _;
 local format = format;
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
+
+local sIsSpecialDotSuspended = false;
 
 local sIsFade;
 local sIsFlashWhenLow;
@@ -114,6 +117,9 @@ local VUHDO_getBarIconCharge;
 local VUHDO_getBarIconClockOrStub;
 local VUHDO_backColorWithFallback;
 local VUHDO_textColor;
+local VUHDO_copyColorTo;
+local VUHDO_setStatusBarVuhDoColor;
+local VUHDO_applyAllLayersToTexture;
 
 local VUHDO_PANEL_SETUP;
 local VUHDO_HEALING_HOTS;
@@ -146,6 +152,9 @@ function VUHDO_customHotsInitLocalOverrides()
 	VUHDO_getBarIconClockOrStub = _G["VUHDO_getBarIconClockOrStub"];
 	VUHDO_backColorWithFallback = _G["VUHDO_backColorWithFallback"];
 	VUHDO_textColor = _G["VUHDO_textColor"];
+	VUHDO_copyColorTo = _G["VUHDO_copyColorTo"];
+	VUHDO_setStatusBarVuhDoColor = _G["VUHDO_setStatusBarVuhDoColor"];
+	VUHDO_applyAllLayersToTexture = _G["VUHDO_applyAllLayersToTexture"];
 
 	sBarColors = VUHDO_PANEL_SETUP["BAR_COLORS"];
 	sHotCols = sBarColors["HOTS"];
@@ -255,13 +264,15 @@ local function VUHDO_customizeHotBar(aButton, aRest, anIndex, aDuration, aColor)
 	end
 
 	if aColor then
-		tHotBar:SetVuhDoColor(aColor);
+		VUHDO_setStatusBarVuhDoColor(tHotBar, aColor);
 	end
 
 	if (aDuration or 0) == 0 or not aRest then
+		tHotBar:SetMinMaxValues(0, 1);
 		tHotBar:SetValue(0);
 	else
-		tHotBar:SetValue(aRest / aDuration);
+		tHotBar:SetMinMaxValues(0, aDuration);
+		tHotBar:SetValue(aRest);
 	end
 
 end
@@ -291,6 +302,7 @@ local tClockDuration;
 local tOpacity, tTextOpacity;
 local tHotColor;
 local tTimes;
+local tWorkingHotColor = { };
 local function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTimes, anIcon, aDuration, aShieldCharges, aColor, anIndex, aClipL, aClipR, aClipT, aClipB)
 
 	tHotCfg = sBarColors[VUHDO_HOT_CFGS[anIndex]];
@@ -350,7 +362,7 @@ local function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTim
 	if aColor and aColor["useSlotColor"] then
 		tHotColor = VUHDO_copyColor(tHotCfg);
 	elseif aColor and (not aColor["isDefault"] or not tIsHotShowIcon) then
-		tHotColor = aColor;
+		tHotColor = VUHDO_copyColorTo(aColor, tWorkingHotColor);
 
 		if tTimes > 1 and not aColor["noStacksColor"] then
 			tChargeColor = sBarColors[VUHDO_CHARGE_COLORS[tTimes]];
@@ -370,7 +382,7 @@ local function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTim
 		end
 
 	elseif sIsWarnColor and aRest < sHotCols["WARNING"]["lowSecs"] then
-		tHotColor = sHotCols["WARNING"];
+		tHotColor = VUHDO_copyColorTo(sHotCols["WARNING"], tWorkingHotColor);
 
 		-- FIXME: color swatch should set isOpacity but doesn't
 		if tHotColor["O"] then
@@ -388,7 +400,7 @@ local function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTim
 
 		if tIsHotShowIcon then
 			if aColor then
-				tHotColor = aColor;
+				tHotColor = VUHDO_copyColorTo(aColor, tWorkingHotColor);
 			else
 				tHotColor["R"], tHotColor["G"], tHotColor["B"] = 1, 1, 1;
 			end
@@ -907,6 +919,47 @@ end
 
 
 --
+local tUnitHotInfo;
+local tSpellName;
+local tSpellId;
+local tSpellIdStr;
+function VUHDO_removeHotByAuraInstanceId(aUnit, anAuraInstanceId)
+
+	if not aUnit or not anAuraInstanceId then
+		return;
+	end
+
+	tUnitHotInfo = VUHDO_getUnitHotInfo(aUnit, anAuraInstanceId);
+
+	if not tUnitHotInfo then
+		return;
+	end
+
+	tSpellName = tUnitHotInfo[6];
+	tSpellId = tUnitHotInfo[7];
+
+	if tSpellName then
+		VUHDO_removeUnitHot(aUnit, tSpellName, VUHDO_UNIT_HOT_TYPE_MINE, anAuraInstanceId);
+		VUHDO_removeUnitHot(aUnit, tSpellName, VUHDO_UNIT_HOT_TYPE_OTHERS, anAuraInstanceId);
+		VUHDO_removeUnitHot(aUnit, tSpellName, VUHDO_UNIT_HOT_TYPE_BOTH, anAuraInstanceId);
+	end
+
+	if tSpellId then
+		tSpellIdStr = tostring(tSpellId);
+		VUHDO_removeUnitHot(aUnit, tSpellIdStr, VUHDO_UNIT_HOT_TYPE_MINE, anAuraInstanceId);
+		VUHDO_removeUnitHot(aUnit, tSpellIdStr, VUHDO_UNIT_HOT_TYPE_OTHERS, anAuraInstanceId);
+		VUHDO_removeUnitHot(aUnit, tSpellIdStr, VUHDO_UNIT_HOT_TYPE_BOTH, anAuraInstanceId);
+	end
+
+	VUHDO_removeUnitHotInfo(aUnit, anAuraInstanceId);
+
+	return;
+
+end
+
+
+
+--
 local tUnitHotLists;
 local tUnitHotList;
 local tUnitHotListSource;
@@ -1244,9 +1297,9 @@ end
 
 
 --
-function VUHDO_hotBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCounter, aDuration, aColor, aBuffName, aBouquetName, anImpact, aTimer2, aClipL, aClipR, aClipT, aClipB)
+function VUHDO_hotBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCounter, aDuration, aColor, aBuffName, aBouquetName, anImpact, aTimer2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate)
 
-	VUHDO_updateHotIcons(aUnit, "BOUQUET_" .. (aBouquetName or ""), aTimer, aCounter, anIcon, aDuration, 0, aColor, aBuffName, aClipL, aClipR, aClipT, aClipB);
+	VUHDO_updateHotIcons(aUnit, "BOUQUET_" .. (aBouquetName or ""), aTimer, aCounter, anIcon, aDuration, 0, aColor, aBuffName, aClipL, aClipR, aClipT, aClipB, aLayerTemplate);
 
 end
 
@@ -1352,7 +1405,11 @@ function VUHDO_updateHots(aUnit, anInfo, aSpellName, aSpellId)
 
 	-- FIXME: should only do this once on vehicle entrance
 	if anInfo["isVehicle"] then
-		VUHDO_removeHots(aUnit);
+		if sSecretsEnabled then
+			VUHDO_hideAurasForUnit(aUnit);
+		else
+			VUHDO_removeHots(aUnit);
+		end
 
 		aUnit = anInfo["petUnit"];
 
@@ -1429,13 +1486,17 @@ end
 --
 local tIcon;
 local tPanelNum;
-function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCounter, aDuration, aColor, aBuffName, aBouquetName, anImpact, aTimer2, aClipL, aClipR, aClipT, aClipB)
+function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCounter, aDuration, aColor, aBuffName, aBouquetName, anImpact, aTimer2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate)
+
+	if sIsSpecialDotSuspended then
+		return;
+	end
 
 	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
 		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
 
 		if VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["SWIFTMEND_INDICATOR"] == aBouquetName then
-			if anIsActive and aColor then
+			if anIsActive and (aColor or aLayerTemplate) then
 				tIcon = VUHDO_getBarRoleIcon(tButton, 51);
 
 				if VUHDO_ATLAS_TEXTURES[anIcon] then
@@ -1446,7 +1507,11 @@ function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTim
 
 				VUHDO_PixelUtil.ApplySettings(tIcon);
 
-				tIcon:SetVertexColor(VUHDO_backColorWithFallback(aColor));
+				if aLayerTemplate then
+					VUHDO_applyAllLayersToTexture(tButton, tIcon, aLayerTemplate);
+				elseif aColor then
+					tIcon:SetVertexColor(VUHDO_backColorWithFallback(aColor));
+				end
 
 				tIcon:SetTexCoord(aClipL or 0, aClipR or 1, aClipT or 0, aClipB or 1);
 
@@ -1506,6 +1571,17 @@ end
 
 
 --
+function VUHDO_suspendSpecialDot(aSuspend)
+
+	sIsSpecialDotSuspended = aSuspend;
+
+	return;
+
+end
+
+
+
+--
 local sIsSuspended = false;
 function VUHDO_suspendHoTs(aFlag)
 	sIsSuspended = aFlag;
@@ -1547,6 +1623,11 @@ local tChargeInfo;
 local function VUHDO_updateSwiftmendCooldown()
 
 	if not sIsPlayerKnowsSwiftmend then
+		return;
+	end
+
+	-- FIXME: need to migrate for Midnight secrets
+	if sSecretsEnabled then
 		return;
 	end
 

@@ -1,7 +1,5 @@
 local GetSpellName = C_Spell.GetSpellName;
 
-
-
 local VUHDO_CUSTOM_DEBUFF_CONFIG = { };
 local VUHDO_UNIT_CUSTOM_DEBUFFS = { };
 setmetatable(VUHDO_UNIT_CUSTOM_DEBUFFS, VUHDO_META_NEW_ARRAY);
@@ -10,24 +8,20 @@ local VUHDO_LAST_UNIT_DEBUFFS = { };
 local VUHDO_PLAYER_DISPEL_ABILITIES = { };
 local VUHDO_PLAYER_PURGE_ABILITIES = { };
 
-
+VUHDO_PLAYER_HAS_DISPEL = false;
+VUHDO_PLAYER_HAS_PURGE = false;
 
 local VUHDO_IGNORE_DEBUFFS_BY_CLASS = { };
 local VUHDO_IGNORE_DEBUFF_NAMES = { };
 
-
-
---
 local VUHDO_DEBUFF_TYPES = {
 	["Magic"] = VUHDO_DEBUFF_TYPE_MAGIC,
 	["Disease"] = VUHDO_DEBUFF_TYPE_DISEASE,
 	["Poison"] = VUHDO_DEBUFF_TYPE_POISON,
 	["Curse"] = VUHDO_DEBUFF_TYPE_CURSE,
-	[""] = VUHDO_DEBUFF_TYPE_ENRAGE,
+	["Bleed"] = VUHDO_DEBUFF_TYPE_BLEED,
+	["Enrage"] = VUHDO_DEBUFF_TYPE_ENRAGE,
 };
-
-
-
 
 VUHDO_DEBUFF_BLACKLIST = {
 	[GetSpellName(69127)] = true, -- Chill of the Throne
@@ -38,12 +32,6 @@ VUHDO_DEBUFF_BLACKLIST = {
 	[VUHDO_SPELL_ID.DEBUFF_FATIGUED] = true -- Fatigued (Primal Fury)
 };
 
-
-
-
-
--- BURST CACHE ---------------------------------------------------
-
 local VUHDO_CONFIG;
 local VUHDO_RAID;
 local VUHDO_PANEL_SETUP;
@@ -51,9 +39,17 @@ local VUHDO_DEBUFF_COLORS = { };
 
 local VUHDO_DEBUFF_BLACKLIST = { };
 
+local VUHDO_DEFAULT_AURA_GROUPS;
+local VUHDO_AURA_GROUP_COLOR_OFF;
+local VUHDO_AURA_GROUP_COLOR_DISPEL;
+local VUHDO_AURA_GROUP_COLOR_CUSTOM;
+
 local UnitIsFriend = UnitIsFriend;
 local UnitIsEnemy = UnitIsEnemy;
+local UnitCanAttack = UnitCanAttack;
 local table = table;
+local tinsert = table.insert;
+local tsort = table.sort;
 local GetTime = GetTime;
 local InCombatLockdown = InCombatLockdown;
 local twipe = table.wipe;
@@ -62,8 +58,16 @@ local _;
 local tostring = tostring;
 local ForEachAura = AuraUtil.ForEachAura or VUHDO_forEachAura;
 local GetAuraDataByAuraInstanceID = C_UnitAuras.GetAuraDataByAuraInstanceID;
+local GetUnitAuras = C_UnitAuras and C_UnitAuras.GetUnitAuras;
+
 local VUHDO_shouldScanUnit;
 
+local sUnitDispellableDebuffId = { };
+local sUnitDebuffColorText = { };
+local sUnitDebuffCanColorBar = { };
+local sUnitDebuffColorType = { };
+local sUnitDebuffCustomColor = { };
+local sCanColorBarGroups = { };
 
 local sIsNotRemovableOnly;
 local sIsNotRemovableOnlyIcons;
@@ -83,6 +87,9 @@ local sEmpty = { };
 local sCurChosenColor = { };
 --local sColorArray = nil;
 
+
+
+--
 function VUHDO_debuffsInitLocalOverrides()
 
 	VUHDO_shouldScanUnit = _G["VUHDO_shouldScanUnit"];
@@ -91,6 +98,10 @@ function VUHDO_debuffsInitLocalOverrides()
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
 	VUHDO_DEBUFF_BLACKLIST = _G["VUHDO_DEBUFF_BLACKLIST"];
+	VUHDO_DEFAULT_AURA_GROUPS = _G["VUHDO_DEFAULT_AURA_GROUPS"];
+	VUHDO_AURA_GROUP_COLOR_OFF = _G["VUHDO_AURA_GROUP_COLOR_OFF"];
+	VUHDO_AURA_GROUP_COLOR_DISPEL = _G["VUHDO_AURA_GROUP_COLOR_DISPEL"];
+	VUHDO_AURA_GROUP_COLOR_CUSTOM = _G["VUHDO_AURA_GROUP_COLOR_CUSTOM"];
 
 	sIsNotRemovableOnly = not VUHDO_CONFIG["DETECT_DEBUFFS_REMOVABLE_ONLY"];
 	sIsNotRemovableOnlyIcons = not VUHDO_CONFIG["DETECT_DEBUFFS_REMOVABLE_ONLY_ICONS"];
@@ -128,8 +139,6 @@ function VUHDO_debuffsInitLocalOverrides()
 
 end
 
-----------------------------------------------------
-
 
 
 --
@@ -141,7 +150,7 @@ local sCustomDebuffInfoPool = VUHDO_createTablePool("DebuffInfo", 2500);
 
 
 --
-local function VUHDO_getPooledAuraData()
+function VUHDO_getPooledAuraData()
 
 	return sDebuffAuraPool:get();
 
@@ -150,7 +159,7 @@ end
 
 
 --
-local function VUHDO_releasePooledAuraData(anAuraData)
+function VUHDO_releasePooledAuraData(anAuraData)
 
 	sDebuffAuraPool:release(anAuraData);
 
@@ -222,7 +231,7 @@ end
 
 
 --
-local function VUHDO_getPooledCustomDebuffInfo()
+function VUHDO_getPooledCustomDebuffInfo()
 
 	return sCustomDebuffInfoPool:get();
 
@@ -231,7 +240,7 @@ end
 
 
 --
-local function VUHDO_releasePooledCustomDebuffInfo(aCustomDebuffInfo)
+function VUHDO_releasePooledCustomDebuffInfo(aCustomDebuffInfo)
 
 	sCustomDebuffInfoPool:release(aCustomDebuffInfo);
 
@@ -248,92 +257,96 @@ end
 
 
 
---
-local function VUHDO_copyColorTo(aSource, aDest)
-	aDest["R"], aDest["G"], aDest["B"] = aSource["R"], aSource["G"], aSource["B"];
-	aDest["TR"], aDest["TG"], aDest["TB"] = aSource["TR"], aSource["TG"], aSource["TB"];
-	aDest["O"], aDest["TO"] = aSource["O"], aSource["TO"];
-	aDest["useText"], aDest["useBackground"], aDest["useOpacity"] = aSource["useText"], aSource["useBackground"], aSource["useOpacity"];
-	return aDest;
-end
+do
+	--
+	local tSourceColor;
+	local tDebuff;
+	local tColor = { };
+	local tEmpty = { };
+	local tCopy = { };
+	local tNextSoundTime = 0;
+	function VUHDO_copyColorTo(aSource, aDest)
 
+		aDest["R"], aDest["G"], aDest["B"] = aSource["R"], aSource["G"], aSource["B"];
+		aDest["TR"], aDest["TG"], aDest["TB"] = aSource["TR"], aSource["TG"], aSource["TB"];
+		aDest["O"], aDest["TO"] = aSource["O"], aSource["TO"];
+		aDest["useText"], aDest["useBackground"], aDest["useOpacity"] = aSource["useText"], aSource["useBackground"], aSource["useOpacity"];
 
-
---
-local tSourceColor;
-local tDebuff;
-local tColor = { };
-local tEmpty = { };
-function _VUHDO_getDebuffColor(anInfo)
-
-	if anInfo["charmed"] then
-		return VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
+		return aDest;
 	end
 
-	tDebuff = anInfo["debuff"];
 
-	if not anInfo["mibucateg"] and (tDebuff or 0) == 0 then -- VUHDO_DEBUFF_TYPE_NONE
-		return tEmpty;
-	end
 
-	twipe(tColor);
+	--
+	local function _VUHDO_getDebuffColor(anInfo)
 
-	if tDebuff and tDebuff > 0 and tDebuff ~= 7 and anInfo["unit"] and sCurChosenColor[anInfo["unit"]] then
-		tSourceColor = sCurChosenColor[anInfo["unit"]];
+		if anInfo["charmed"] then
+			return VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
+		end
 
-		if tSourceColor["useText"] then
+		tDebuff = anInfo["debuff"];
+
+		if not anInfo["mibucateg"] and (tDebuff or 0) == 0 then -- VUHDO_DEBUFF_TYPE_NONE
+			return tEmpty;
+		end
+
+		twipe(tColor);
+
+		if tDebuff and tDebuff > 0 and tDebuff ~= 7 and anInfo["unit"] and sCurChosenColor[anInfo["unit"]] then
+			tSourceColor = sCurChosenColor[anInfo["unit"]];
+
+			if tSourceColor["useText"] then
+				tColor["useText"], tColor["TR"], tColor["TG"], tColor["TB"], tColor["TO"] = true, tSourceColor["TR"], tSourceColor["TG"], tSourceColor["TB"], tSourceColor["TO"];
+			end
+
+			if tSourceColor["useBackground"] then
+				tColor["useBackground"], tColor["R"], tColor["G"], tColor["B"], tColor["O"] = true, tSourceColor["R"], tSourceColor["G"], tSourceColor["B"], tSourceColor["O"];
+			end
+		end
+
+		if not anInfo["mibucateg"] or not VUHDO_BUFF_SETTINGS[anInfo["mibucateg"]] then
+			return tColor;
+		end
+
+		tSourceColor = VUHDO_BUFF_SETTINGS[anInfo["mibucateg"]]["missingColor"];
+
+		if not tColor["useText"] and VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_TEXT"] then
 			tColor["useText"], tColor["TR"], tColor["TG"], tColor["TB"], tColor["TO"] = true, tSourceColor["TR"], tSourceColor["TG"], tSourceColor["TB"], tSourceColor["TO"];
 		end
 
-		if tSourceColor["useBackground"] then
+		if not tColor["useBackground"] and VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_BACKGROUND"] then
 			tColor["useBackground"], tColor["R"], tColor["G"], tColor["B"], tColor["O"] = true, tSourceColor["R"], tSourceColor["G"], tSourceColor["B"], tSourceColor["O"];
 		end
-	end
 
-	if not anInfo["mibucateg"] or not VUHDO_BUFF_SETTINGS[anInfo["mibucateg"]] then
 		return tColor;
+
 	end
 
-	tSourceColor = VUHDO_BUFF_SETTINGS[anInfo["mibucateg"]]["missingColor"];
 
-	if not tColor["useText"] and VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_TEXT"] then
-		tColor["useText"], tColor["TR"], tColor["TG"], tColor["TB"], tColor["TO"] = true, tSourceColor["TR"], tSourceColor["TG"], tSourceColor["TB"], tSourceColor["TO"];
+
+	--
+	function VUHDO_getDebuffColor(anInfo)
+		return VUHDO_copyColorTo(_VUHDO_getDebuffColor(anInfo), tCopy);
 	end
 
-	if not tColor["useBackground"] and VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_BACKGROUND"] then
-		tColor["useBackground"], tColor["R"], tColor["G"], tColor["B"], tColor["O"] = true, tSourceColor["R"], tSourceColor["G"], tSourceColor["B"], tSourceColor["O"];
-	end
-
-	return tColor;
-
-end
 
 
+	--
+	function VUHDO_playDebuffSound(aSound, aDebuffName)
+		if (aSound or "") == "" or GetTime() < tNextSoundTime then
+			return;
+		end
 
---
-local tCopy = { };
-function VUHDO_getDebuffColor(anInfo)
-	return VUHDO_copyColorTo(_VUHDO_getDebuffColor(anInfo), tCopy);
-end
+		local tSuccess = VUHDO_playSoundFile(aSound);
 
-
-
---
-local tNextSoundTime = 0;
-local function VUHDO_playDebuffSound(aSound, aDebuffName)
-	if (aSound or "") == "" or GetTime() < tNextSoundTime then
-		return;
-	end
-
-	local tSuccess = VUHDO_playSoundFile(aSound);
-
-	if tSuccess then
-		tNextSoundTime = GetTime() + 2;
-	else
-		if aDebuffName then
-			VUHDO_Msg(format(VUHDO_I18N_PLAY_SOUND_FILE_CUSTOM_DEBUFF_ERR, aSound, aDebuffName));
+		if tSuccess then
+			tNextSoundTime = GetTime() + 2;
 		else
-			VUHDO_Msg(format(VUHDO_I18N_PLAY_SOUND_FILE_DEBUFF_ERR, aSound));
+			if aDebuffName then
+				VUHDO_Msg(format(VUHDO_I18N_PLAY_SOUND_FILE_CUSTOM_DEBUFF_ERR, aSound, aDebuffName));
+			else
+				VUHDO_Msg(format(VUHDO_I18N_PLAY_SOUND_FILE_DEBUFF_ERR, aSound));
+			end
 		end
 	end
 end
@@ -386,241 +399,246 @@ local VUHDO_UNIT_DEBUFF_INFO_DEFAULT = { [1] = nil, [2] = nil, [3] = 0, [4] = 0 
 
 
 
---
-local tUnitDebuffInfos;
-local tUnitDebuffInfo;
-local tUnitDebuffInfoLists;
-local tUnitDebuffInfoAuras;
-local tUnitDebuffInfoAura;
-local tUnitDebuffInfoListHead;
-local tUnitDebuffInfoListNew;
-local function VUHDO_addUnitDebuffInfo(aUnit, aType, anAuraInstanceId, anIcon, anExpiry, aStacks, aDuration)
+do
+	--
+	local tUnitDebuffInfos;
+	local tUnitDebuffInfo;
+	local tUnitDebuffInfoLists;
+	local tUnitDebuffInfoAuras;
+	local tUnitDebuffInfoAura;
+	local tUnitDebuffInfoListHead;
+	local tUnitDebuffInfoListNew;
+	function VUHDO_addUnitDebuffInfo(aUnit, aType, anAuraInstanceId, anIcon, anExpiry, aStacks, aDuration)
 
-	if not aUnit or not anAuraInstanceId or not aType then
-		return;
-	end
-
-	tUnitDebuffInfos = VUHDO_UNIT_DEBUFF_INFOS[aUnit];
-
-	tUnitDebuffInfo = tUnitDebuffInfos[aType];
-
-	if not tUnitDebuffInfo then
-		return;
-	end
-
-	tUnitDebuffInfoLists = tUnitDebuffInfos["listHeads"];
-
-	if not tUnitDebuffInfoLists then
-		return;
-	end
-
-	if aType == "CHOSEN" then
-		tUnitDebuffInfoAuras = tUnitDebuffInfos["chosenAuras"];
-	else
-		tUnitDebuffInfoAuras = tUnitDebuffInfos["typeAuras"];
-	end
-
-	if not tUnitDebuffInfoAuras then
-		return;
-	end
-
-	tUnitDebuffInfoAura = tUnitDebuffInfoAuras[anAuraInstanceId];
-
-	if tUnitDebuffInfoAura then
-		if anIcon ~= nil then
-			tUnitDebuffInfoAura[1] = anIcon;
-			tUnitDebuffInfo[1] = anIcon;
+		if not aUnit or not anAuraInstanceId or not aType then
+			return;
 		end
 
-		if anExpiry ~= nil then
-			tUnitDebuffInfoAura[2] = anExpiry;
-			tUnitDebuffInfo[2] = anExpiry;
+		tUnitDebuffInfos = VUHDO_UNIT_DEBUFF_INFOS[aUnit];
+
+		tUnitDebuffInfo = tUnitDebuffInfos[aType];
+
+		if not tUnitDebuffInfo then
+			return;
 		end
 
-		if aStacks ~= nil then
-			tUnitDebuffInfoAura[3] = aStacks;
-			tUnitDebuffInfo[3] = aStacks;
+		tUnitDebuffInfoLists = tUnitDebuffInfos["listHeads"];
+
+		if not tUnitDebuffInfoLists then
+			return;
 		end
 
-		if aDuration ~= nil then
-			tUnitDebuffInfoAura[4] = aDuration;
-			tUnitDebuffInfo[4] = aDuration;
-		end
-
-		tUnitDebuffInfoAura[5] = aType;
-	else
-		tUnitDebuffInfoAura = VUHDO_getPooledAuraData();
-
-		tUnitDebuffInfoAura[1], tUnitDebuffInfoAura[2], tUnitDebuffInfoAura[3],
-		tUnitDebuffInfoAura[4], tUnitDebuffInfoAura[5] =
-			anIcon or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[1],
-			anExpiry or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[2],
-			aStacks or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[3],
-			aDuration or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[4],
-			aType;
-
-		tUnitDebuffInfoAuras[anAuraInstanceId] = tUnitDebuffInfoAura;
-
-		tUnitDebuffInfoListHead = tUnitDebuffInfoLists[aType];
-
-		tUnitDebuffInfoListNew = VUHDO_getPooledListNode();
-
-		tUnitDebuffInfoListNew["auraInstanceId"] = anAuraInstanceId;
-		tUnitDebuffInfoListNew["prev"] = tUnitDebuffInfoListHead;
-
-		tUnitDebuffInfoLists[aType] = tUnitDebuffInfoListNew;
-
-		tUnitDebuffInfo[1], tUnitDebuffInfo[2],
-		tUnitDebuffInfo[3], tUnitDebuffInfo[4] =
-			anIcon or tUnitDebuffInfo[1] or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[1],
-			anExpiry or tUnitDebuffInfo[2] or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[2],
-			aStacks or tUnitDebuffInfo[3] or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[3],
-			aDuration or tUnitDebuffInfo[4] or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[4];
-	end
-
-end
-
-
-
---
-local tUnitDebuffInfos;
-local tUnitDebuffInfo;
-local tUnitDebuffInfoLists;
-local tUnitDebuffInfoAuras;
-local tUnitDebuffInfoAura;
-local tListNode;
-local tUnitDebuffInfoListCur;
-local tUnitDebuffInfoListPrev;
-local function VUHDO_removeUnitDebuffInfo(aUnit, aType, anAuraInstanceId)
-
-	if not aUnit or not anAuraInstanceId or not aType then
-		return;
-	end
-
-	tUnitDebuffInfos = VUHDO_UNIT_DEBUFF_INFOS[aUnit];
-
-	tUnitDebuffInfo = tUnitDebuffInfos[aType];
-
-	if not tUnitDebuffInfo then
-		return;
-	end
-
-	tUnitDebuffInfoLists = tUnitDebuffInfos["listHeads"];
-
-	if not tUnitDebuffInfoLists then
-		return;
-	end
-
-	if aType == "CHOSEN" then
-		tUnitDebuffInfoAuras = tUnitDebuffInfos["chosenAuras"];
-	else
-		tUnitDebuffInfoAuras = tUnitDebuffInfos["typeAuras"];
-	end
-
-	tUnitDebuffInfoAura = tUnitDebuffInfoAuras and tUnitDebuffInfoAuras[anAuraInstanceId];
-
-	if not tUnitDebuffInfoAura then
-		return;
-	end
-
-	tUnitDebuffInfoAuras[anAuraInstanceId] = nil;
-	VUHDO_releasePooledAuraData(tUnitDebuffInfoAura);
-
-	tUnitDebuffInfoListCur = tUnitDebuffInfoLists[aType];
-	tUnitDebuffInfoListPrev = nil;
-	tListNode = nil;
-
-	while tUnitDebuffInfoListCur do
-		if tUnitDebuffInfoListCur["auraInstanceId"] == anAuraInstanceId then
-			tListNode = tUnitDebuffInfoListCur;
-
-			if tUnitDebuffInfoListPrev then
-				-- remove middle or tail
-				tUnitDebuffInfoListPrev["prev"] = tUnitDebuffInfoListCur["prev"];
-			else
-				-- remove head
-				tUnitDebuffInfoLists[aType] = tUnitDebuffInfoListCur["prev"];
-	                end
-
-			break;
+		if aType == "CHOSEN" then
+			tUnitDebuffInfoAuras = tUnitDebuffInfos["chosenAuras"];
 		else
-			tUnitDebuffInfoListPrev = tUnitDebuffInfoListCur;
-			tUnitDebuffInfoListCur = tUnitDebuffInfoListCur["prev"];
+			tUnitDebuffInfoAuras = tUnitDebuffInfos["typeAuras"];
 		end
+
+		if not tUnitDebuffInfoAuras then
+			return;
+		end
+
+		tUnitDebuffInfoAura = tUnitDebuffInfoAuras[anAuraInstanceId];
+
+		if tUnitDebuffInfoAura then
+			if anIcon ~= nil then
+				tUnitDebuffInfoAura[1] = anIcon;
+				tUnitDebuffInfo[1] = anIcon;
+			end
+
+			if anExpiry ~= nil then
+				tUnitDebuffInfoAura[2] = anExpiry;
+				tUnitDebuffInfo[2] = anExpiry;
+			end
+
+			if aStacks ~= nil then
+				tUnitDebuffInfoAura[3] = aStacks;
+				tUnitDebuffInfo[3] = aStacks;
+			end
+
+			if aDuration ~= nil then
+				tUnitDebuffInfoAura[4] = aDuration;
+				tUnitDebuffInfo[4] = aDuration;
+			end
+
+			tUnitDebuffInfoAura[5] = aType;
+		else
+			tUnitDebuffInfoAura = VUHDO_getPooledAuraData();
+
+			tUnitDebuffInfoAura[1], tUnitDebuffInfoAura[2], tUnitDebuffInfoAura[3],
+			tUnitDebuffInfoAura[4], tUnitDebuffInfoAura[5] =
+				anIcon or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[1],
+				anExpiry or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[2],
+				aStacks or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[3],
+				aDuration or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[4],
+				aType;
+
+			tUnitDebuffInfoAuras[anAuraInstanceId] = tUnitDebuffInfoAura;
+
+			tUnitDebuffInfoListHead = tUnitDebuffInfoLists[aType];
+
+			tUnitDebuffInfoListNew = VUHDO_getPooledListNode();
+
+			tUnitDebuffInfoListNew["auraInstanceId"] = anAuraInstanceId;
+			tUnitDebuffInfoListNew["prev"] = tUnitDebuffInfoListHead;
+
+			tUnitDebuffInfoLists[aType] = tUnitDebuffInfoListNew;
+
+			tUnitDebuffInfo[1], tUnitDebuffInfo[2],
+			tUnitDebuffInfo[3], tUnitDebuffInfo[4] =
+				anIcon or tUnitDebuffInfo[1] or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[1],
+				anExpiry or tUnitDebuffInfo[2] or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[2],
+				aStacks or tUnitDebuffInfo[3] or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[3],
+				aDuration or tUnitDebuffInfo[4] or VUHDO_UNIT_DEBUFF_INFO_DEFAULT[4];
+		end
+
 	end
 
-	if tListNode then
-		VUHDO_releasePooledListNode(tListNode);
+
+
+	--
+	local tUnitDebuffInfos;
+	local tUnitDebuffInfo;
+	local tUnitDebuffInfoLists;
+	local tUnitDebuffInfoAuras;
+	local tUnitDebuffInfoAura;
+	local tListNode;
+		local tUnitDebuffInfoListCur;
+		local tUnitDebuffInfoListPrev;
+		--
+		function VUHDO_removeUnitDebuffInfo(aUnit, aType, anAuraInstanceId)
+
+		if not aUnit or not anAuraInstanceId or not aType then
+			return;
+		end
+
+		tUnitDebuffInfos = VUHDO_UNIT_DEBUFF_INFOS[aUnit];
+
+		tUnitDebuffInfo = tUnitDebuffInfos[aType];
+
+		if not tUnitDebuffInfo then
+			return;
+		end
+
+		tUnitDebuffInfoLists = tUnitDebuffInfos["listHeads"];
+
+		if not tUnitDebuffInfoLists then
+			return;
+		end
+
+		if aType == "CHOSEN" then
+			tUnitDebuffInfoAuras = tUnitDebuffInfos["chosenAuras"];
+		else
+			tUnitDebuffInfoAuras = tUnitDebuffInfos["typeAuras"];
+		end
+
+		tUnitDebuffInfoAura = tUnitDebuffInfoAuras and tUnitDebuffInfoAuras[anAuraInstanceId];
+
+		if not tUnitDebuffInfoAura then
+			return;
+		end
+
+		tUnitDebuffInfoAuras[anAuraInstanceId] = nil;
+		VUHDO_releasePooledAuraData(tUnitDebuffInfoAura);
+
+		tUnitDebuffInfoListCur = tUnitDebuffInfoLists[aType];
+		tUnitDebuffInfoListPrev = nil;
+		tListNode = nil;
+
+		while tUnitDebuffInfoListCur do
+			if tUnitDebuffInfoListCur["auraInstanceId"] == anAuraInstanceId then
+				tListNode = tUnitDebuffInfoListCur;
+
+				if tUnitDebuffInfoListPrev then
+					-- remove middle or tail
+					tUnitDebuffInfoListPrev["prev"] = tUnitDebuffInfoListCur["prev"];
+				else
+					-- remove head
+					tUnitDebuffInfoLists[aType] = tUnitDebuffInfoListCur["prev"];
+						end
+
+				break;
+			else
+				tUnitDebuffInfoListPrev = tUnitDebuffInfoListCur;
+				tUnitDebuffInfoListCur = tUnitDebuffInfoListCur["prev"];
+			end
+		end
+
+		if tListNode then
+			VUHDO_releasePooledListNode(tListNode);
+		end
+
 	end
 
-end
 
 
+	--
+	local tUnitDebuffInfos;
+	local tUnitDebuffInfoLists;
+	local tUnitDebuffInfoListHead;
+		local tAuraInstanceId;
+		local tUnitDebuffInfoAuras;
+		--
+		function VUHDO_getUnitDebuffInfo(aUnit, aType)
 
---
-local tUnitDebuffInfos;
-local tUnitDebuffInfoLists;
-local tUnitDebuffInfoListHead;
-local tAuraInstanceId;
-local tUnitDebuffInfoAuras;
-local function VUHDO_getUnitDebuffInfo(aUnit, aType)
+		if not aUnit or not aType then
+			return;
+		end
 
-	if not aUnit or not aType then
-		return;
+		tUnitDebuffInfos = VUHDO_UNIT_DEBUFF_INFOS[aUnit];
+
+		tUnitDebuffInfoLists = tUnitDebuffInfos["listHeads"];
+		tUnitDebuffInfoListHead = tUnitDebuffInfoLists and tUnitDebuffInfoLists[aType];
+
+		if not tUnitDebuffInfoListHead or not tUnitDebuffInfoListHead["auraInstanceId"] then
+			return;
+		end
+
+		tAuraInstanceId = tUnitDebuffInfoListHead["auraInstanceId"];
+
+		if aType == "CHOSEN" then
+			tUnitDebuffInfoAuras = tUnitDebuffInfos["chosenAuras"];
+		else
+			tUnitDebuffInfoAuras = tUnitDebuffInfos["typeAuras"];
+		end
+
+		return tUnitDebuffInfoAuras and tUnitDebuffInfoAuras[tAuraInstanceId];
+
 	end
 
-	tUnitDebuffInfos = VUHDO_UNIT_DEBUFF_INFOS[aUnit];
 
-	tUnitDebuffInfoLists = tUnitDebuffInfos["listHeads"];
-	tUnitDebuffInfoListHead = tUnitDebuffInfoLists and tUnitDebuffInfoLists[aType];
 
-	if not tUnitDebuffInfoListHead or not tUnitDebuffInfoListHead["auraInstanceId"] then
-		return;
+	--
+	local tUnitDebuffInfos;
+	local tUnitDebuffInfo;
+		local tUnitDebuffInfoHead;
+		--
+		function VUHDO_updateUnitDebuffInfo(aUnit, aType)
+
+		if not aUnit or not aType then
+			return;
+		end
+
+		tUnitDebuffInfos = VUHDO_UNIT_DEBUFF_INFOS[aUnit];
+
+		tUnitDebuffInfo = tUnitDebuffInfos[aType];
+
+		if not tUnitDebuffInfo then
+			return;
+		end
+
+		tUnitDebuffInfoHead = VUHDO_getUnitDebuffInfo(aUnit, aType);
+
+		if tUnitDebuffInfoHead then
+			tUnitDebuffInfo[1], tUnitDebuffInfo[2], tUnitDebuffInfo[3], tUnitDebuffInfo[4] =
+				tUnitDebuffInfoHead[1], tUnitDebuffInfoHead[2], tUnitDebuffInfoHead[3], tUnitDebuffInfoHead[4];
+		else
+			tUnitDebuffInfo[1], tUnitDebuffInfo[2], tUnitDebuffInfo[3], tUnitDebuffInfo[4] =
+				VUHDO_UNIT_DEBUFF_INFO_DEFAULT[1], VUHDO_UNIT_DEBUFF_INFO_DEFAULT[2],
+				VUHDO_UNIT_DEBUFF_INFO_DEFAULT[3], VUHDO_UNIT_DEBUFF_INFO_DEFAULT[4];
+		end
+
 	end
-
-	tAuraInstanceId = tUnitDebuffInfoListHead["auraInstanceId"];
-
-	if aType == "CHOSEN" then
-		tUnitDebuffInfoAuras = tUnitDebuffInfos["chosenAuras"];
-	else
-		tUnitDebuffInfoAuras = tUnitDebuffInfos["typeAuras"];
-	end
-
-	return tUnitDebuffInfoAuras and tUnitDebuffInfoAuras[tAuraInstanceId];
-
-end
-
-
-
---
-local tUnitDebuffInfos;
-local tUnitDebuffInfo;
-local tUnitDebuffInfoHead;
-local function VUHDO_updateUnitDebuffInfo(aUnit, aType)
-
-	if not aUnit or not aType then
-		return;
-	end
-
-	tUnitDebuffInfos = VUHDO_UNIT_DEBUFF_INFOS[aUnit];
-
-	tUnitDebuffInfo = tUnitDebuffInfos[aType];
-
-	if not tUnitDebuffInfo then
-		return;
-	end
-
-	tUnitDebuffInfoHead = VUHDO_getUnitDebuffInfo(aUnit, aType);
-
-	if tUnitDebuffInfoHead then
-		tUnitDebuffInfo[1], tUnitDebuffInfo[2], tUnitDebuffInfo[3], tUnitDebuffInfo[4] =
-			tUnitDebuffInfoHead[1], tUnitDebuffInfoHead[2], tUnitDebuffInfoHead[3], tUnitDebuffInfoHead[4];
-	else
-		tUnitDebuffInfo[1], tUnitDebuffInfo[2], tUnitDebuffInfo[3], tUnitDebuffInfo[4] =
-			VUHDO_UNIT_DEBUFF_INFO_DEFAULT[1], VUHDO_UNIT_DEBUFF_INFO_DEFAULT[2],
-			VUHDO_UNIT_DEBUFF_INFO_DEFAULT[3], VUHDO_UNIT_DEBUFF_INFO_DEFAULT[4];
-	end
-
 end
 
 
@@ -1186,7 +1204,7 @@ do
 			tIsShown = true;
 		end
 
-		tType = VUHDO_DEBUFF_BLEED_SPELLS[aSpellId] and VUHDO_DEBUFF_TYPE_BLEED or VUHDO_DEBUFF_TYPES[aTypeString];
+		tType = VUHDO_DEBUFF_TYPES[aTypeString];
 
 		tDebuffClassIgnoreList = VUHDO_IGNORE_DEBUFFS_BY_CLASS[tInfo["class"] or ""] or sEmpty;
 		tIsRelevant = not VUHDO_IGNORE_DEBUFF_NAMES[aName] and not tDebuffClassIgnoreList[aName];
@@ -1286,7 +1304,7 @@ do
 			tIsShown = true;
 		end
 
-		tType = VUHDO_DEBUFF_BLEED_SPELLS[aSpellId] and VUHDO_DEBUFF_TYPE_BLEED or VUHDO_DEBUFF_TYPES[aTypeString];
+		tType = VUHDO_DEBUFF_TYPES[aTypeString];
 
 		tFriend = UnitIsFriend("player", sUnit);
 		tHostile = not tFriend or UnitIsEnemy("player", sUnit);
@@ -1591,7 +1609,7 @@ local function VUHDO_updateDebuffs(aUnit)
 
 				tCurChosenInfo = tUnitCurChosenInfo[tAuraInstanceId];
 
-				if sStdDebuffSound and tCurChosenInfo and tInfo["range"] then
+				if sStdDebuffSound and tCurChosenInfo and (tInfo["hasSecretRange"] or tInfo["range"]) then
 					tType = tCurChosenInfo[1];
 
 					if sIsDebuffSoundRemovableOnly then
@@ -1635,174 +1653,394 @@ end
 
 
 
+--
+do
+	--
+	local tEffectiveColorType;
+	local tColorBarGroup;
+	function VUHDO_rebuildCanColorBarGroupsCache()
+
+		twipe(sCanColorBarGroups);
+
+		for tGroupId, tGroup in pairs(VUHDO_CONFIG["AURA_GROUPS"] or sEmpty) do
+			tEffectiveColorType = tGroup["colorType"] or ((tGroup["canColorBar"] or tGroup["canColorText"]) and VUHDO_AURA_GROUP_COLOR_DISPEL or VUHDO_AURA_GROUP_COLOR_OFF);
+
+			if tEffectiveColorType >= VUHDO_AURA_GROUP_COLOR_DISPEL and tGroup["enabled"] ~= false then
+				if tGroup["isInferred"] then
+					tColorBarGroup = { };
+
+					tColorBarGroup["isInferred"] = true;
+					tColorBarGroup["inferredType"] = tGroup["inferredType"];
+					tColorBarGroup["priority"] = tGroup["priority"] or 50;
+					tColorBarGroup["colorType"] = tGroup["colorType"] or tEffectiveColorType;
+					tColorBarGroup["customColor"] = tGroup["customColor"];
+
+					if tGroup["canColorBar"] then
+						tColorBarGroup["canColorBar"] = true;
+					else
+						tColorBarGroup["canColorBar"] = false;
+					end
+
+					if tGroup["canColorText"] then
+						tColorBarGroup["canColorText"] = true;
+					else
+						tColorBarGroup["canColorText"] = false;
+					end
+
+					tinsert(sCanColorBarGroups, tColorBarGroup);
+				else
+					tColorBarGroup = { };
+
+					tColorBarGroup["filter"] = tGroup["filter"];
+					tColorBarGroup["priority"] = tGroup["priority"] or 50;
+					tColorBarGroup["colorType"] = tGroup["colorType"] or tEffectiveColorType;
+					tColorBarGroup["customColor"] = tGroup["customColor"];
+
+					if tGroup["canColorBar"] then
+						tColorBarGroup["canColorBar"] = true;
+					else
+						tColorBarGroup["canColorBar"] = false;
+					end
+
+					if tGroup["canColorText"] then
+						tColorBarGroup["canColorText"] = true;
+					else
+						tColorBarGroup["canColorText"] = false;
+					end
+
+					if tEffectiveColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
+						if strfind(tGroup["filter"], "HARMFUL", 1, true) then
+							tColorBarGroup["dispelCheckFilter"] = "HARMFUL|RAID_PLAYER_DISPELLABLE";
+						else
+							tColorBarGroup["dispelCheckFilter"] = "HELPFUL|RAID_PLAYER_DISPELLABLE";
+						end
+
+						tColorBarGroup["isHelpful"] = not strfind(tGroup["filter"], "HARMFUL", 1, true);
+					end
+
+					tinsert(sCanColorBarGroups, tColorBarGroup);
+				end
+			end
+		end
+
+		for tGroupId, tGroup in pairs(VUHDO_DEFAULT_AURA_GROUPS or sEmpty) do
+			if not tGroup["playerClassRequired"] or tGroup["playerClassRequired"] == VUHDO_PLAYER_CLASS then
+				tEffectiveColorType = tGroup["colorType"] or ((tGroup["canColorBar"] or tGroup["canColorText"]) and VUHDO_AURA_GROUP_COLOR_DISPEL or VUHDO_AURA_GROUP_COLOR_OFF);
+
+				if not (VUHDO_CONFIG["AURA_GROUPS"] and VUHDO_CONFIG["AURA_GROUPS"][tGroupId]) and tEffectiveColorType >= VUHDO_AURA_GROUP_COLOR_DISPEL and
+					tGroup["enabled"] ~= false and not (VUHDO_CONFIG["AURA_GROUP_DISABLED"] and VUHDO_CONFIG["AURA_GROUP_DISABLED"][tGroupId]) and
+					not (VUHDO_DEFAULT_AURA_GROUPS[tGroupId] and VUHDO_DEFAULT_AURA_GROUPS[tGroupId]["enabled"] == false) then
+					if tGroup["isInferred"] then
+						tColorBarGroup = { };
+
+						tColorBarGroup["isInferred"] = true;
+						tColorBarGroup["inferredType"] = tGroup["inferredType"];
+						tColorBarGroup["priority"] = tGroup["priority"] or 50;
+						tColorBarGroup["colorType"] = tGroup["colorType"] or tEffectiveColorType;
+						tColorBarGroup["customColor"] = tGroup["customColor"];
+
+						if tGroup["canColorBar"] then
+							tColorBarGroup["canColorBar"] = true;
+						else
+							tColorBarGroup["canColorBar"] = false;
+						end
+
+						if tGroup["canColorText"] then
+							tColorBarGroup["canColorText"] = true;
+						else
+							tColorBarGroup["canColorText"] = false;
+						end
+
+						tinsert(sCanColorBarGroups, tColorBarGroup);
+					else
+						tColorBarGroup = { };
+
+						tColorBarGroup["filter"] = tGroup["filter"];
+						tColorBarGroup["priority"] = tGroup["priority"] or 50;
+						tColorBarGroup["colorType"] = tGroup["colorType"] or tEffectiveColorType;
+						tColorBarGroup["customColor"] = tGroup["customColor"];
+
+						if tGroup["canColorBar"] then
+							tColorBarGroup["canColorBar"] = true;
+						else
+							tColorBarGroup["canColorBar"] = false;
+						end
+
+						if tGroup["canColorText"] then
+							tColorBarGroup["canColorText"] = true;
+						else
+							tColorBarGroup["canColorText"] = false;
+						end
+
+						if tEffectiveColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
+							if strfind(tGroup["filter"], "HARMFUL", 1, true) then
+								tColorBarGroup["dispelCheckFilter"] = "HARMFUL|RAID_PLAYER_DISPELLABLE";
+							else
+								tColorBarGroup["dispelCheckFilter"] = "HELPFUL|RAID_PLAYER_DISPELLABLE";
+							end
+
+							tColorBarGroup["isHelpful"] = not strfind(tGroup["filter"], "HARMFUL", 1, true);
+						end
+
+						tinsert(sCanColorBarGroups, tColorBarGroup);
+					end
+				end
+			end
+		end
+
+		tsort(sCanColorBarGroups, function(tSortA, tSortB)
+			return (tSortA["priority"] or 50) < (tSortB["priority"] or 50);
+		end);
+
+		return;
+
+	end
+
+
+
+	--
+	local tAuras;
+	local tAura;
+	local tAuraInstanceId;
+	local tCanColorGroup;
+	function VUHDO_updateDispellableDebuffForUnit(aUnit)
+
+		if not aUnit then
+			return;
+		end
+
+		sUnitDispellableDebuffId[aUnit] = nil;
+		sUnitDebuffColorText[aUnit] = nil;
+		sUnitDebuffCanColorBar[aUnit] = nil;
+		sUnitDebuffColorType[aUnit] = nil;
+		sUnitDebuffCustomColor[aUnit] = nil;
+
+		for tCnt = 1, #sCanColorBarGroups do
+			tCanColorGroup = sCanColorBarGroups[tCnt];
+
+			if tCanColorGroup["isInferred"] and VUHDO_hasInferredAura(aUnit) and
+				VUHDO_INFERRED_AURAS[aUnit] and VUHDO_INFERRED_AURAS[aUnit][tCanColorGroup["inferredType"]] then
+				sUnitDispellableDebuffId[aUnit] = VUHDO_INFERRED_AURA_SYNTHETIC_IDS[tCanColorGroup["inferredType"]] or -1;
+
+				sUnitDebuffColorType[aUnit] = tCanColorGroup["colorType"];
+				sUnitDebuffCustomColor[aUnit] = tCanColorGroup["customColor"];
+				sUnitDebuffCanColorBar[aUnit] = tCanColorGroup["canColorBar"];
+				sUnitDebuffColorText[aUnit] = tCanColorGroup["canColorText"];
+
+				return;
+			elseif tCanColorGroup["dispelCheckFilter"] and ((tCanColorGroup["isHelpful"] and VUHDO_PLAYER_HAS_PURGE and UnitCanAttack("player", aUnit)) or
+				(not tCanColorGroup["isHelpful"] and VUHDO_PLAYER_HAS_DISPEL and not UnitCanAttack("player", aUnit))) then
+				tAuras = GetUnitAuras(aUnit, tCanColorGroup["filter"], 40, Enum.UnitAuraSortRule.Default, 1);
+
+				if tAuras then
+					for tIdx = 1, #tAuras do
+						tAura = tAuras[tIdx];
+						tAuraInstanceId = tAura["auraInstanceID"];
+
+						if not C_UnitAuras.IsAuraFilteredOutByInstanceID(aUnit, tAuraInstanceId, tCanColorGroup["dispelCheckFilter"]) then
+							sUnitDispellableDebuffId[aUnit] = tAuraInstanceId;
+							sUnitDebuffColorType[aUnit] = tCanColorGroup["colorType"];
+							sUnitDebuffCustomColor[aUnit] = tCanColorGroup["customColor"];
+							sUnitDebuffCanColorBar[aUnit] = tCanColorGroup["canColorBar"];
+							sUnitDebuffColorText[aUnit] = tCanColorGroup["canColorText"];
+
+							return;
+						end
+					end
+				end
+			elseif not tCanColorGroup["isInferred"] and not tCanColorGroup["dispelCheckFilter"] then
+				tAuras = GetUnitAuras(aUnit, tCanColorGroup["filter"], 1, Enum.UnitAuraSortRule.Default, 1);
+
+				if tAuras and #tAuras > 0 then
+					tAura = tAuras[1];
+					tAuraInstanceId = tAura["auraInstanceID"];
+
+					sUnitDispellableDebuffId[aUnit] = tAuraInstanceId;
+					sUnitDebuffColorType[aUnit] = tCanColorGroup["colorType"];
+					sUnitDebuffCustomColor[aUnit] = tCanColorGroup["customColor"];
+					sUnitDebuffCanColorBar[aUnit] = tCanColorGroup["canColorBar"];
+					sUnitDebuffColorText[aUnit] = tCanColorGroup["canColorText"];
+
+					return;
+				end
+			end
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_getDispellableDebuffId(aUnit)
+
+		return sUnitDispellableDebuffId[aUnit];
+
+	end
+
+
+
+	--
+	function VUHDO_hasDispellableDebuff(aUnit)
+
+		return sUnitDispellableDebuffId[aUnit] ~= nil;
+
+	end
+
+
+
+	--
+	function VUHDO_shouldColorTextForDebuff(aUnit)
+
+		return sUnitDebuffColorText[aUnit] == true;
+
+	end
+
+
+
+	--
+	function VUHDO_getDebuffColorType(aUnit)
+
+		return sUnitDebuffColorType[aUnit];
+
+	end
+
+
+
+	--
+	function VUHDO_getDebuffCustomColor(aUnit)
+
+		return sUnitDebuffCustomColor[aUnit];
+
+	end
+
+
+
+	--
+	function VUHDO_getDebuffCanColorBar(aUnit)
+
+		return sUnitDebuffCanColorBar[aUnit];
+
+	end
+
+
+
+	--
+	function VUHDO_getDebuffCanColorText(aUnit)
+
+		return sUnitDebuffColorText[aUnit];
+
+	end
+
+
+
+	--
+	function VUHDO_clearDispellableDebuffCache(aUnit)
+
+		if aUnit then
+			sUnitDispellableDebuffId[aUnit] = nil;
+			sUnitDebuffColorText[aUnit] = nil;
+			sUnitDebuffCanColorBar[aUnit] = nil;
+			sUnitDebuffColorType[aUnit] = nil;
+			sUnitDebuffCustomColor[aUnit] = nil;
+		else
+			twipe(sUnitDispellableDebuffId);
+			twipe(sUnitDebuffColorText);
+			twipe(sUnitDebuffCanColorBar);
+			twipe(sUnitDebuffColorType);
+			twipe(sUnitDebuffCustomColor);
+		end
+
+		return;
+
+	end
+end
+
+
+
 do
 	--
 	local tInfo;
-	local tAura;
-	local tDoUpdate;
-	local tDoUpdateIter;
-	local tDoUpdateDebuffType;
-	local tDoUpdateDebuffChosen;
-	local tDoUpdateUnitDebuffInfo = { };
-	local tUnitCustomDebuffs;
-	local tUnitCurIcons;
 	function VUHDO_determineDebuff(aUnit, aUpdateInfo)
 
 		tInfo = (VUHDO_RAID or sEmpty)[aUnit];
 
 		if not tInfo then
-			return 0, ""; -- VUHDO_DEBUFF_TYPE_NONE
+			return nil, nil;
 		end
 
-		sUnit = aUnit;
-		sNow = GetTime();
+		VUHDO_updateDispellableDebuffForUnit(aUnit);
 
-		if (not aUpdateInfo and VUHDO_shouldScanUnit(aUnit)) or (aUpdateInfo and aUpdateInfo.isFullUpdate) then
-			VUHDO_initHots(aUnit);
+		tInfo["debuffText"] = VUHDO_shouldColorTextForDebuff(aUnit);
 
-			sUnitDebuffInfo = VUHDO_initDebuffInfos(aUnit);
-
-			ForEachAura(aUnit, "HARMFUL", nil, VUHDO_determineAuraPredicate, true);
-			ForEachAura(aUnit, "HELPFUL", nil, VUHDO_determineAuraPredicate, true);
-		elseif aUpdateInfo then
-			sUnitDebuffInfo = (sCurIcons[aUnit] and sCurChosen[aUnit]) and VUHDO_UNIT_DEBUFF_INFOS[aUnit] or VUHDO_initDebuffInfos(aUnit);
-
-			if aUpdateInfo.addedAuras then
-				for _, tAuraData in pairs(aUpdateInfo.addedAuras) do
-					VUHDO_determineAuraPredicate(tAuraData);
-				end
-			end
-
-			if aUpdateInfo.updatedAuraInstanceIDs then
-				for _, tAuraInstanceId in pairs(aUpdateInfo.updatedAuraInstanceIDs) do
-					tAura = GetAuraDataByAuraInstanceID(aUnit, tAuraInstanceId);
-
-					if tAura then
-						VUHDO_determineAuraPredicate(tAura, true);
-					end
-				end
-			end
-
-			if aUpdateInfo.removedAuraInstanceIDs then
-				tDoUpdate = false;
-
-				tDoUpdateUnitDebuffInfo["CHOSEN"], tDoUpdateUnitDebuffInfo[1], tDoUpdateUnitDebuffInfo[2],
-				tDoUpdateUnitDebuffInfo[3], tDoUpdateUnitDebuffInfo[4], tDoUpdateUnitDebuffInfo[8], tDoUpdateUnitDebuffInfo[9] =
-					false, false, false, false, false, false, false;
-
-				tDoUpdateIter, tDoUpdateDebuffType, tDoUpdateDebuffChosen = false, nil, false;
-
-				for _, tAuraInstanceId in pairs(aUpdateInfo.removedAuraInstanceIDs) do
-					VUHDO_removeHot(aUnit, tAuraInstanceId);
-
-					tDoUpdateIter, tDoUpdateDebuffType, tDoUpdateDebuffChosen = VUHDO_removeDebuff(aUnit, tAuraInstanceId);
-
-					if tDoUpdateIter then
-						tDoUpdate = true;
-					end
-
-					if tDoUpdateDebuffType then
-						tDoUpdateUnitDebuffInfo[tDoUpdateDebuffType] = true;
-					end
-
-					if tDoUpdateDebuffChosen then
-						tDoUpdateUnitDebuffInfo["CHOSEN"] = true;
-					end
-				end
-
-				if tDoUpdate then
-					VUHDO_updateCurChosen(aUnit);
-				end
-
-				for tUpdateType, tDoUpdateType in pairs(tDoUpdateUnitDebuffInfo) do
-					if tDoUpdateType then
-						VUHDO_updateUnitDebuffInfo(aUnit, tUpdateType);
-					end
-				end
-			end
+		if VUHDO_hasDispellableDebuff(aUnit) then
+			return VUHDO_getDispellableDebuffId(aUnit), nil;
 		end
 
-		VUHDO_updateHots(aUnit, tInfo);
-
-		VUHDO_updateDebuffs(aUnit);
-
-		tUnitCustomDebuffs = VUHDO_UNIT_CUSTOM_DEBUFFS and VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit];
-
-		-- Lost old custom debuff?
-		tUnitCustomDebuffs = VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit];
-		tUnitCurIcons = sCurIcons[aUnit];
-
-		if tUnitCustomDebuffs then
-			for tAuraInstanceId, tUnitCustomDebuff in pairs(tUnitCustomDebuffs) do
-				if tUnitCustomDebuff and (not tUnitCurIcons or not tUnitCurIcons[tAuraInstanceId]) then
-					VUHDO_removeDebuff(aUnit, tAuraInstanceId);
-				end
-			end
-		end
-
-		return VUHDO_getDeterminedDebuffInfo(aUnit);
+		return nil, nil;
 
 	end
-end
-local VUHDO_determineDebuff = VUHDO_determineDebuff;
+	local VUHDO_determineDebuff = VUHDO_determineDebuff;
 
 
 
---
-local tUnitCustomDebuffs;
-local tCustomDebuffSpellId;
-local tCustomDebuffName;
-local tAuraInstanceIdsToRemove;
-local tIgnoredNameOrId;
-function VUHDO_removeIgnoredDebuffFromAllUnits(aNameOrSpellId)
+	--
+	local tUnitCustomDebuffs;
+	local tCustomDebuffSpellId;
+	local tCustomDebuffName;
+	local tAuraInstanceIdsToRemove;
+	local tIgnoredNameOrId;
+	function VUHDO_removeIgnoredDebuffFromAllUnits(aNameOrSpellId)
 
-	if not aNameOrSpellId or not VUHDO_RAID then
+		if not aNameOrSpellId or not VUHDO_RAID then
+			return;
+		end
+
+		tIgnoredNameOrId = tostring(aNameOrSpellId);
+
+		for tUnit, _ in pairs(VUHDO_RAID) do
+			tUnitCustomDebuffs = VUHDO_UNIT_CUSTOM_DEBUFFS[tUnit];
+
+			if tUnitCustomDebuffs then
+				tAuraInstanceIdsToRemove = { };
+
+				for tAuraInstanceId, tCustomDebuffInfo in pairs(tUnitCustomDebuffs) do
+					tCustomDebuffSpellId = tCustomDebuffInfo[6];
+					tCustomDebuffName = tCustomDebuffInfo[5];
+
+					if (tCustomDebuffSpellId and tostring(tCustomDebuffSpellId) == tIgnoredNameOrId)
+						or (tCustomDebuffName and tCustomDebuffName == tIgnoredNameOrId) then
+						table.insert(tAuraInstanceIdsToRemove, tAuraInstanceId);
+					end
+				end
+
+				for _, tAuraInstanceId in pairs(tAuraInstanceIdsToRemove) do
+					VUHDO_removeDebuff(tUnit, tAuraInstanceId);
+				end
+			end
+		end
+
 		return;
+
 	end
 
-	tIgnoredNameOrId = tostring(aNameOrSpellId);
 
-	for tUnit, _ in pairs(VUHDO_RAID) do
-		tUnitCustomDebuffs = VUHDO_UNIT_CUSTOM_DEBUFFS[tUnit];
 
-		if tUnitCustomDebuffs then
-			tAuraInstanceIdsToRemove = { };
+	--
+	function VUHDO_updateAllCustomDebuffs(anIsEnableAnim)
 
-			for tAuraInstanceId, tCustomDebuffInfo in pairs(tUnitCustomDebuffs) do
-				tCustomDebuffSpellId = tCustomDebuffInfo[6];
-				tCustomDebuffName = tCustomDebuffInfo[5];
+		twipe(VUHDO_UNIT_CUSTOM_DEBUFFS);
 
-				if (tCustomDebuffSpellId and tostring(tCustomDebuffSpellId) == tIgnoredNameOrId)
-					or (tCustomDebuffName and tCustomDebuffName == tIgnoredNameOrId) then
-					table.insert(tAuraInstanceIdsToRemove, tAuraInstanceId);
-				end
-			end
+		VUHDO_MAY_DEBUFF_ANIM = false;
 
-			for _, tAuraInstanceId in pairs(tAuraInstanceIdsToRemove) do
-				VUHDO_removeDebuff(tUnit, tAuraInstanceId);
-			end
+		for tUnit, tInfo in pairs(VUHDO_RAID) do
+			tInfo["debuff"], tInfo["debuffName"] = VUHDO_determineDebuff(tUnit);
 		end
+
+		VUHDO_MAY_DEBUFF_ANIM = anIsEnableAnim;
+
 	end
-
-	return;
-
-end
-
-
-
---
-function VUHDO_updateAllCustomDebuffs(anIsEnableAnim)
-
-	twipe(VUHDO_UNIT_CUSTOM_DEBUFFS);
-
-	VUHDO_MAY_DEBUFF_ANIM = false;
-
-	for tUnit, tInfo in pairs(VUHDO_RAID) do
-		tInfo["debuff"], tInfo["debuffName"] = VUHDO_determineDebuff(tUnit);
-	end
-
-	VUHDO_MAY_DEBUFF_ANIM = anIsEnableAnim;
-
 end
 
 
@@ -1855,6 +2093,9 @@ function VUHDO_initDebuffs()
 			end
 		end
 	end
+
+	VUHDO_PLAYER_HAS_DISPEL = next(VUHDO_PLAYER_DISPEL_ABILITIES) ~= nil;
+	VUHDO_PLAYER_HAS_PURGE = next(VUHDO_PLAYER_PURGE_ABILITIES) ~= nil;
 
 	if not VUHDO_CONFIG then
 		VUHDO_CONFIG = _G["VUHDO_CONFIG"];
@@ -1910,6 +2151,12 @@ function VUHDO_initDebuffs()
 		VUHDO_tableAddAllKeys(VUHDO_IGNORE_DEBUFF_NAMES, VUHDO_INIT_IGNORE_DEBUFFS_DURATION);
 	end
 
+	VUHDO_rebuildCanColorBarGroupsCache();
+
+	VUHDO_buildSingleDispelTypeCurves();
+
+	return;
+
 end
 
 
@@ -1935,6 +2182,33 @@ end
 --
 function VUHDO_getUnitDebuffSchoolInfos(aUnit, aDebuffSchool)
 	return VUHDO_UNIT_DEBUFF_INFOS[aUnit][aDebuffSchool];
+end
+
+
+
+--
+local tListHeads;
+local tListHead;
+function VUHDO_getDebuffTypeAuraInstanceId(aUnit, aDebuffType)
+
+	if not aUnit or not aDebuffType then
+		return nil;
+	end
+
+	tListHeads = VUHDO_UNIT_DEBUFF_INFOS[aUnit] and VUHDO_UNIT_DEBUFF_INFOS[aUnit]["listHeads"];
+
+	if not tListHeads then
+		return nil;
+	end
+
+	tListHead = tListHeads[aDebuffType];
+
+	if tListHead and tListHead["auraInstanceId"] then
+		return tListHead["auraInstanceId"];
+	end
+
+	return nil;
+
 end
 
 

@@ -59,7 +59,6 @@ local VUHDO_HANDLER_EVENT_SNAPSHOTS = {
 
 local VUHDO_parseAddonMessage;
 local VUHDO_spellcastSent;
-local VUHDO_parseCombatLogEvent;
 local VUHDO_updateAllOutRaidTargetButtons;
 local VUHDO_updateAllRaidTargetIndices;
 local VUHDO_updateDirectionFrame;
@@ -75,8 +74,6 @@ local VUHDO_updateBouquetsForEvent;
 local VUHDO_updateAllHoTs;
 local VUHDO_updateAllCyclicBouquets;
 local VUHDO_updateAllDebuffIcons;
-local VUHDO_createDebuffIconAnimation;
-local VUHDO_cleanupDebuffIconAnimation;
 local VUHDO_updateAllAggro;
 local VUHDO_updateUnitAggro;
 local VUHDO_updateAllRange;
@@ -94,6 +91,8 @@ local VUHDO_redrawPanel;
 local VUHDO_redrawAllPanels;
 
 local VUHDO_UIFrameFlash_OnUpdate = function() end;
+
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
 
 
@@ -531,10 +530,14 @@ local sClusterRefreshSecs = 1.2;
 local sAoeRefreshSecs = 1.3;
 local sBuffsRefreshSecs;
 local sParseCombatLog;
+local sLastShapeshiftTime = 0;
 
 local VuhDoGcdStatusBar;
 local VuhDoDirectionFrame;
 
+
+
+--
 local function VUHDO_eventHandlerInitLocalOverrides()
 
 	VUHDO_RAID = _G["VUHDO_RAID"];
@@ -626,6 +629,16 @@ local function VUHDO_eventHandlerInitLocalOverrides()
 	return;
 
 end
+
+
+
+--
+function VUHDO_getIsDirectionArrow()
+
+	return sIsDirectionArrow;
+
+end
+
 
 
 ----------------------------------------------------
@@ -720,6 +733,8 @@ function VUHDO_initAllBurstCaches()
 	VUHDO_tooltipInitLocalOverrides();
 	VUHDO_modelToolsInitLocalOverrides();
 	VUHDO_toolboxInitLocalOverrides();
+	VUHDO_aurasInitLocalOverrides();
+	VUHDO_auraInferenceInitLocalOverrides();
 	VUHDO_guiToolboxInitLocalOverrides();
 	VUHDO_vuhdoInitLocalOverrides();
 	VUHDO_spellEventHandlerInitLocalOverrides();
@@ -728,6 +743,7 @@ function VUHDO_initAllBurstCaches()
 	VUHDO_combatLogInitLocalOverrides();
 	VUHDO_eventHandlerInitLocalOverrides();
 	VUHDO_customHealthInitLocalOverrides();
+	VUHDO_customHealthTextInitLocalOverrides();
 	VUHDO_customManaInitLocalOverrides();
 	VUHDO_customTargetInitLocalOverrides();
 	VUHDO_customClustersInitLocalOverrides();
@@ -737,8 +753,10 @@ function VUHDO_initAllBurstCaches()
 	VUHDO_roleCheckerInitLocalOverrides();
 	VUHDO_sizeCalculatorInitLocalOverrides();
 	VUHDO_customHotsInitLocalOverrides();
-	VUHDO_customDebuffIconsInitLocalOverrides();
 	VUHDO_debuffsInitLocalOverrides();
+	VUHDO_barCustomizerAurasInitLocalOverrides();
+	VUHDO_barCustomizerThreatInitLocalOverrides();
+	VUHDO_customDebuffIconsInitLocalOverrides();
 	VUHDO_healCommAdapterInitLocalOverrides();
 	VUHDO_buffWatchInitLocalOverrides();
 	VUHDO_clusterBuilderInitLocalOverrides();
@@ -747,6 +765,7 @@ function VUHDO_initAllBurstCaches()
 	VUHDO_bouquetValidatorsStatusInitLocalOverrides();
 	VUHDO_bouquetValidatorsInitLocalOverrides();
 	VUHDO_bouquetsInitLocalOverrides();
+	VUHDO_bouquetLayersInitLocalOverrides();
 	VUHDO_textProvidersInitLocalOverrides();
 	VUHDO_textProviderHandlersInitLocalOverrides();
 	VUHDO_actionEventHandlerInitLocalOverrides();
@@ -976,43 +995,20 @@ do
 			tEventTotalStartTime = debugprofilestop();
 		end
 
-		if "COMBAT_LOG_EVENT_UNFILTERED" == anEvent then
-			if VUHDO_VARIABLES_LOADED then
-				-- As of 8.x COMBAT_LOG_EVENT_UNFILTERED is now just an event with no arguments
-				anArg1, anArg2, anArg3, anArg4, anArg5, anArg6, anArg7, anArg8, anArg9, anArg10, anArg11, anArg12, anArg13, anArg14, anArg15, anArg16, anArg17, anArg18, anArg19 = CombatLogGetCurrentEventInfo();
-
-				if sParseCombatLog then
-					-- SWING_DAMAGE - the amount of damage is the 12th arg
-					-- ENVIRONMENTAL_DAMAGE - the amount of damage is the 13th arg
-					-- for all other events with the _DAMAGE suffix the amount of damage is the 15th arg
-					VUHDO_parseCombatLogEvent(anArg2, anArg8, anArg12, anArg13, anArg15);
-				end
-
-				if VUHDO_INTERNAL_TOGGLES[36] then -- VUHDO_UPDATE_SHIELD
-					-- for SPELL events with _AURA suffixes the amount healed is the 16th arg
-					-- for SPELL_HEAL/SPELL_PERIODIC_HEAL the amount absorbed is the 17th arg
-					-- for SPELL_ABSORBED the absorb spell ID is either the 16th or 19th arg
-					VUHDO_parseCombatLogShieldAbsorb(anArg2, anArg4, anArg8, anArg13, anArg16, anArg12, anArg17, anArg19);
-				end
-
-				if VUHDO_INTERNAL_TOGGLES[37] then -- VUHDO_UPDATE_SPELL_TRACE
-					VUHDO_parseCombatLogSpellTrace(
-						anArg2,  -- message/event
-						anArg4,  -- source GUID
-						anArg8,  -- dest GUID
-						anArg13, -- spell name
-						anArg12, -- spell ID
-						anArg16  -- amount
-					);
-				end
-			end
-
-		elseif "UNIT_AURA" == anEvent then
+		if "UNIT_AURA" == anEvent then
 			tUnitInfo = (VUHDO_RAID or tEmptyRaid)[anArg1];
 
 			if tUnitInfo then
-				tUnitInfo["debuff"], tUnitInfo["debuffName"] = VUHDO_determineDebuff(anArg1, anArg2);
-				VUHDO_updateBouquetsForEvent(anArg1, 4); -- VUHDO_UPDATE_DEBUFF
+				VUHDO_onUnitAura(anArg1, anArg2);
+				VUHDO_updateBouquetsForEvent(anArg1, 4);
+
+				if VUHDO_VARIABLES_LOADED and VUHDO_INTERNAL_TOGGLES[VUHDO_UPDATE_AURA_INFERENCE] then
+					if VUHDO_onUnitAuraInference(anArg1, anArg2) then
+						VUHDO_determineDebuff(anArg1);
+						VUHDO_updateBouquetsForEvent(anArg1, 4);
+						VUHDO_updateInferredAuraDisplaysForUnit(anArg1);
+					end
+				end
 			end
 
 		elseif "UNIT_HEALTH" == anEvent then
@@ -1092,6 +1088,17 @@ do
 				((VUHDO_CONFIG["SPELL_TRACE"]["showIncomingEnemy"] and UnitIsEnemy(anArg1, "player")) or
 					(VUHDO_CONFIG["SPELL_TRACE"]["showIncomingFriendly"] and UnitIsFriend(anArg1, "player"))) then
 				VUHDO_removeIncomingSpellTrace(anArg1, anArg2, anArg3);
+			end
+
+		elseif "UNIT_SPELLCAST_SUCCEEDED" == anEvent then
+			if VUHDO_VARIABLES_LOADED and VUHDO_INTERNAL_TOGGLES[VUHDO_UPDATE_AURA_INFERENCE] then
+				VUHDO_onSpellcastSucceeded(anArg1, anArg2, anArg3);
+			end
+
+		elseif "UNIT_SPELLCAST_EMPOWER_STOP" == anEvent then
+			if VUHDO_VARIABLES_LOADED and VUHDO_INTERNAL_TOGGLES[VUHDO_UPDATE_AURA_INFERENCE]
+				and "EVOKER" == VUHDO_PLAYER_CLASS then
+				VUHDO_onSpellcastEmpoweredStop(anArg1, anArg2, anArg3, anArg4);
 			end
 
 		elseif "NAME_PLATE_UNIT_REMOVED" == anEvent then
@@ -1202,11 +1209,19 @@ do
 					end
 
 					if UnitExists("focus") then
+						VUHDO_fullAuraRefresh("focus");
+
 						VUHDO_setHealth("focus", 1); -- VUHDO_UPDATE_ALL
 					else
-						VUHDO_removeHots("focus");
-						VUHDO_removeAllDebuffIcons("focus");
-						VUHDO_resetDebuffsFor("focus");
+						VUHDO_clearUnitAuraCache("focus");
+
+						if sSecretsEnabled then
+							VUHDO_hideAurasForUnit("focus");
+						else
+							VUHDO_removeHots("focus");
+							VUHDO_removeAllDebuffIcons("focus");
+							VUHDO_resetDebuffsFor("focus");
+						end
 
 						if VUHDO_RAID["focus"] then
 							table.wipe(VUHDO_RAID["focus"]);
@@ -1248,8 +1263,15 @@ do
 				VUHDO_updateBouquetsForEvent(anArg1, 30); -- VUHDO_UPDATE_ALT_POWER
 			end
 
+		elseif "UPDATE_SHAPESHIFT_FORM" == anEvent then
+			sLastShapeshiftTime = GetTime();
+
 		elseif "LEARNED_SPELL_IN_SKILL_LINE" == anEvent or "TRAIT_CONFIG_UPDATED" == anEvent or "SPELLS_CHANGED" == anEvent then
 			if VUHDO_VARIABLES_LOADED then
+				if "SPELLS_CHANGED" == anEvent and (GetTime() - sLastShapeshiftTime) < 0.5 then
+					return;
+				end
+
 				VUHDO_initFromSpellbook();
 				VUHDO_registerAllBouquets(false);
 				VUHDO_initBuffs();
@@ -1479,6 +1501,8 @@ do
 	local tSubCommand;
 	local tPanelNum;
 	local tHelpText;
+	local tCurrentValue;
+	local tCount;
 	function VUHDO_slashCmd(aCommand)
 
 		tParsedTexts = VUHDO_textParse(aCommand);
@@ -1594,6 +1618,24 @@ do
 
 		elseif tCommandWord == "proff" then
 			SetCVar("scriptProfile", "0");
+			ReloadUI();
+
+		elseif tCommandWord == "secrets" then
+			tCurrentValue = GetCVar("secretCombatRestrictionsForced") or "0";
+
+			if tCurrentValue == "1" then
+				SetCVar("secretCombatRestrictionsForced", "0");
+				SetCVar("secretEncounterRestrictionsForced", "0");
+				SetCVar("secretChallengeModeRestrictionsForced", "0");
+				SetCVar("secretPvPMatchRestrictionsForced", "0");
+				SetCVar("secretMapRestrictionsForced", "0");
+				VUHDO_Msg("Secret restrictions DISABLED - reloading UI...");
+			else
+				SetCVar("secretCombatRestrictionsForced", "1");
+				SetCVar("secretEncounterRestrictionsForced", "1");
+				VUHDO_Msg("Secret restrictions ENABLED (combat+encounter) - reloading UI...");
+			end
+
 			ReloadUI();
 
 		elseif (strfind(tCommandWord, "chkvars")) then
@@ -1765,6 +1807,15 @@ do
 				VUHDO_animHelp();
 			end
 
+		elseif tCommandWord == "aura" then
+			tSubCommand = strlower(tParsedTexts[2] or "");
+
+			if strfind(tSubCommand, "mig") then
+				VUHDO_resetAndRemigrateAuras();
+			else
+				VUHDO_auraHelp();
+			end
+
 		elseif tCommandWord == "ab" or tCommandWord == "about" then
 			VUHDO_printAbout();
 
@@ -1884,6 +1935,15 @@ function VUHDO_updateGlobalToggles()
 		= (VUHDO_isModelConfigured(VUHDO_ID_PRIVATE_TANKS) and not VUHDO_CONFIG["OMIT_TARGET"])
 		or VUHDO_isModelConfigured(VUHDO_ID_TARGET);
 
+	-- VUHDO_INTERNAL_TOGGLES[VUHDO_UPDATE_AURA_INFERENCE] = "SHAMAN" == VUHDO_PLAYER_CLASS or "EVOKER" == VUHDO_PLAYER_CLASS or "PRIEST" == VUHDO_PLAYER_CLASS;
+	VUHDO_INTERNAL_TOGGLES[VUHDO_UPDATE_AURA_INFERENCE] = false;
+
+	-- VUHDO_UnRegisterEvent(VUHDO_INTERNAL_TOGGLES[VUHDO_UPDATE_AURA_INFERENCE],
+	-- 	"UNIT_SPELLCAST_SUCCEEDED");
+
+	-- VUHDO_UnRegisterEvent("EVOKER" == VUHDO_PLAYER_CLASS and VUHDO_INTERNAL_TOGGLES[VUHDO_UPDATE_AURA_INFERENCE],
+	-- 	"UNIT_SPELLCAST_EMPOWER_STOP");
+
 	VUHDO_UnRegisterEvent(VUHDO_CONFIG["SHOW_INCOMING"] or VUHDO_CONFIG["SHOW_OWN_INCOMING"],
 		"UNIT_HEAL_PREDICTION");
 
@@ -1906,11 +1966,9 @@ function VUHDO_updateGlobalToggles()
 	VUHDO_UnRegisterEvent(tIsShieldInterest, "UNIT_ABSORB_AMOUNT_CHANGED");
 	VUHDO_UnRegisterEvent(tIsHealAbsorbInterest, "UNIT_HEAL_ABSORB_AMOUNT_CHANGED");
 
-	VUHDO_INTERNAL_TOGGLES[VUHDO_UPDATE_SPELL_TRACE] = VUHDO_CONFIG["SHOW_SPELL_TRACE"]
-		or VUHDO_isAnyoneInterestedIn(VUHDO_UPDATE_SPELL_TRACE);
-
-	VUHDO_UnRegisterEvent(sParseCombatLog or VUHDO_INTERNAL_TOGGLES[VUHDO_UPDATE_SPELL_TRACE],
-		"COMBAT_LOG_EVENT_UNFILTERED");
+	VUHDO_INTERNAL_TOGGLES[VUHDO_UPDATE_SPELL_TRACE] = not sSecretsEnabled
+		and (VUHDO_CONFIG["SHOW_SPELL_TRACE"]
+			or VUHDO_isAnyoneInterestedIn(VUHDO_UPDATE_SPELL_TRACE));
 
 	return;
 
@@ -2024,9 +2082,21 @@ end
 
 
 --
+local tIsOnGCD;
+local tDuration;
 function VUHDO_initGcd()
 
-	VUHDO_GCD_UPDATE = true;
+	if not sSecretsEnabled then
+		VUHDO_GCD_UPDATE = true;
+
+		return;
+	end
+
+	_, _, _, _, tIsOnGCD, tDuration = GetSpellCooldown(VUHDO_SPELL_ID.GLOBAL_COOLDOWN);
+
+	if tIsOnGCD == true and tDuration then
+		VuhDoGcdStatusBar:SetTimerDuration(tDuration, Enum.StatusBarInterpolation.Immediate, Enum.StatusBarTimerDirection.RemainingTime);
+	end
 
 	return;
 
@@ -2152,19 +2222,19 @@ do
 
 	--
 	local tGcdStart;
-	local tGcdDuration;
+	local tGcdDurationRemaining;
 	local function VUHDO_handleSegment1A(aTimeDelta)
 
 		-- Update GCD-Bar
 		if VUHDO_GCD_UPDATE then
-			tGcdStart, tGcdDuration = GetSpellCooldown(VUHDO_SPELL_ID.GLOBAL_COOLDOWN);
+			tGcdStart, tGcdDurationRemaining = GetSpellCooldown(VUHDO_SPELL_ID.GLOBAL_COOLDOWN);
 
-			if (tGcdDuration or 0) == 0 then
+			if (tGcdDurationRemaining or 0) == 0 then
 				VuhDoGcdStatusBar:SetValue(0);
-
 				VUHDO_GCD_UPDATE = false;
 			else
-				VuhDoGcdStatusBar:SetValue((tGcdDuration - (GetTime() - tGcdStart)) / tGcdDuration);
+				VuhDoGcdStatusBar:SetMinMaxValues(0, 1);
+				VuhDoGcdStatusBar:SetValue((tGcdDurationRemaining - (GetTime() - tGcdStart)) / tGcdDurationRemaining);
 			end
 		end
 
@@ -2259,19 +2329,23 @@ do
 		if VUHDO_checkResetTimer("UPDATE_HOTS", sHotToggleUpdateSecs) then
 			if VUHDO_RAID then
 				if sHotDebuffToggle == 1 then
-					VUHDO_updateAllHoTs();
+					if not sSecretsEnabled then
+						VUHDO_updateAllHoTs();
+					end
 
-					if VUHDO_INTERNAL_TOGGLES[18] then -- VUHDO_UPDATE_MOUSEOVER_CLUSTER
+					if not sSecretsEnabled and VUHDO_INTERNAL_TOGGLES[18] then -- VUHDO_UPDATE_MOUSEOVER_CLUSTER
 						VUHDO_updateClusterHighlights();
 					end
 
-					if VUHDO_INTERNAL_TOGGLES[37] then -- VUHDO_UPDATE_SPELL_TRACE
+					if not sSecretsEnabled and VUHDO_INTERNAL_TOGGLES[37] then -- VUHDO_UPDATE_SPELL_TRACE
 						VUHDO_updateSpellTrace();
 					end
 				elseif sHotDebuffToggle == 2 then
 					VUHDO_updateAllCyclicBouquets(false);
 				else
-					VUHDO_updateAllDebuffIcons(false);
+					if not sSecretsEnabled then
+						VUHDO_updateAllDebuffIcons(false);
+					end
 
 					-- Reload after played gained control
 					if not HasFullControl() then
@@ -2313,7 +2387,7 @@ do
 		end
 
 		-- Refresh custom debuff Tooltip
-		if VUHDO_checkResetTimer("REFRESH_CUDE_TOOLTIP", 1) then
+		if not sSecretsEnabled and VUHDO_checkResetTimer("REFRESH_CUDE_TOOLTIP", 1) then
 			VUHDO_updateCustomDebuffTooltip();
 		end
 
@@ -2354,12 +2428,12 @@ do
 		end
 
 		-- Refresh Cluster
-		if VUHDO_checkResetTimer("UPDATE_CLUSTERS", sClusterRefreshSecs) then
+		if not sSecretsEnabled and VUHDO_checkResetTimer("UPDATE_CLUSTERS", sClusterRefreshSecs) then
 			VUHDO_updateAllClusters();
 		end
 
 		-- AoE advice
-		if VUHDO_checkResetTimer("UPDATE_AOE", sAoeRefreshSecs) then
+		if not sSecretsEnabled and VUHDO_checkResetTimer("UPDATE_AOE", sAoeRefreshSecs) then
 			VUHDO_aoeUpdateAll();
 		end
 
@@ -2731,12 +2805,12 @@ local VUHDO_ALL_EVENT_NAMES = {
 	"CHAT_MSG_ADDON",
 	"RAID_TARGET_UPDATE",
 	"LEARNED_SPELL_IN_SKILL_LINE", "TRAIT_CONFIG_UPDATED",
+	"UPDATE_SHAPESHIFT_FORM",
 	"PLAYER_FLAGS_CHANGED",
 	"PLAYER_LOGOUT",
 	"UNIT_DISPLAYPOWER", "UNIT_MAXPOWER", "UNIT_POWER_UPDATE", "RUNE_POWER_UPDATE",
 	"UNIT_SPELLCAST_SENT",
 	"PARTY_MEMBER_ENABLE", "PARTY_MEMBER_DISABLE",
-	"COMBAT_LOG_EVENT_UNFILTERED",
 	"UNIT_THREAT_SITUATION_UPDATE",
 	"UPDATE_BINDINGS",
 	"PLAYER_TARGET_CHANGED", "PLAYER_FOCUS_CHANGED",
@@ -2762,6 +2836,7 @@ local VUHDO_ALL_EVENT_NAMES = {
 	"PLAYER_SPECIALIZATION_CHANGED", "ACTIVE_TALENT_GROUP_CHANGED",
 	"UNIT_SPELLCAST_START", "UNIT_SPELLCAST_DELAYED", "UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_CHANNEL_UPDATE",
 	"UNIT_SPELLCAST_STOP", "UNIT_SPELLCAST_INTERRUPTED", "UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_FAILED_QUIET", "UNIT_SPELLCAST_CHANNEL_STOP",
+	"UNIT_SPELLCAST_SUCCEEDED", "UNIT_SPELLCAST_EMPOWER_STOP",
 	"NAME_PLATE_UNIT_REMOVED",
 	"UI_SCALE_CHANGED", "DISPLAY_SIZE_CHANGED",
 };

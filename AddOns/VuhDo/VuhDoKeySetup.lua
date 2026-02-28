@@ -16,6 +16,7 @@ local VUHDO_buildPingMacroText;
 local VUHDO_replaceMacroTemplates;
 local VUHDO_isActionValid;
 local VUHDO_isSpellKnown;
+local VUHDO_findButtonFromChild;
 
 local GetMacroIndexByName = GetMacroIndexByName;
 local GetMacroInfo = GetMacroInfo;
@@ -27,6 +28,7 @@ local IsUsableItem = IsUsableItem or C_Item.IsUsableItem;
 local pairs = pairs;
 local strlower = strlower;
 local format = format;
+local issecretvalue = issecretvalue;
 
 local sIsCliqueCompat;
 
@@ -48,6 +50,7 @@ function VUHDO_keySetupInitLocalOverrides()
 	VUHDO_replaceMacroTemplates = _G["VUHDO_replaceMacroTemplates"];
 	VUHDO_isActionValid = _G["VUHDO_isActionValid"];
 	VUHDO_isSpellKnown = _G["VUHDO_isSpellKnown"];
+	VUHDO_findButtonFromChild = _G["VUHDO_findButtonFromChild"];
 
 	sIsCliqueCompat = VUHDO_CONFIG["IS_CLIQUE_COMPAT_MODE"];
 
@@ -321,8 +324,8 @@ function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceT
 
 	if not aButton:GetAttribute("vd_tt_hook") then
 		if anIsIcButton then
-			aButton:HookScript("OnEnter", function(self) VUHDO_showDebuffTooltip(self); VuhDoActionOnEnter(self:GetParent():GetParent():GetParent():GetParent()) end);
-			aButton:HookScript("OnLeave", function(self) VUHDO_hideDebuffTooltip(); VuhDoActionOnLeave(self:GetParent():GetParent():GetParent():GetParent()) end);
+			aButton:HookScript("OnEnter", function(self) VUHDO_showDebuffTooltip(self); VuhDoActionOnEnter(VUHDO_findButtonFromChild(self)) end);
+			aButton:HookScript("OnLeave", function(self) VUHDO_hideDebuffTooltip(); VuhDoActionOnLeave(VUHDO_findButtonFromChild(self)) end);
 		else
 			aButton:HookScript("OnEnter",	function(self) VuhDoActionOnEnter(self); end);
 			aButton:HookScript("OnLeave",	function(self) VuhDoActionOnLeave(self); end);
@@ -370,7 +373,7 @@ function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceT
 		end
 	end
 
-	if VUHDO_BUTTON_CACHE[aButton] or VUHDO_BUTTON_CACHE[aButton:GetParent():GetParent():GetParent():GetParent()] then
+	if VUHDO_BUTTON_CACHE[aButton] or VUHDO_BUTTON_CACHE[VUHDO_findButtonFromChild(aButton)] then
 		tWheelDefString = tClearBindsSnippet;
 
 		if tIsWheel then
@@ -487,7 +490,9 @@ function VUHDO_setupSmartCast(aButton)
 		end
 	end
 
-	if not tInfo["baseRange"] then return false; end
+	if not (tInfo["hasSecretRange"] or (issecretvalue and issecretvalue(tInfo["baseRange"]))) and not tInfo["baseRange"] then
+		return false;
+	end
 
 	-- Trade?
 	tCursorItemType = GetCursorInfo();

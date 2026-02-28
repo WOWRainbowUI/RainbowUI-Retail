@@ -1,5 +1,8 @@
 local GetSpellBookItemTexture = GetSpellBookItemTexture or VUHDO_getSpellBookItemTexture;
 
+local VUHDO_setStatusBarVuhDoColor;
+local VUHDO_setStatusBarOrientation;
+local VUHDO_getStatusbarOrientationNumber;
 local VUHDO_getHealthBar;
 local VUHDO_getBarIcon;
 local VUHDO_getBarIconTimer;
@@ -16,6 +19,9 @@ local sOrientation = { };
 --
 function VUHDO_panelRedrawHotsInitLocalOverrides()
 
+	VUHDO_setStatusBarVuhDoColor = _G["VUHDO_setStatusBarVuhDoColor"];
+	VUHDO_setStatusBarOrientation = _G["VUHDO_setStatusBarOrientation"];
+	VUHDO_getStatusbarOrientationNumber = _G["VUHDO_getStatusbarOrientationNumber"];
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getBarIcon = _G["VUHDO_getBarIcon"];
 	VUHDO_getBarIconTimer = _G["VUHDO_getBarIconTimer"];
@@ -30,7 +36,7 @@ function VUHDO_panelRedrawHotsInitLocalOverrides()
 		sHotConfig[tPanelNum] = VUHDO_PANEL_SETUP[tPanelNum]["HOTS"];
 
 		sHotBarConfig[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HOT_BARS"];
-		sOrientation[tPanelNum] = VUHDO_getStatusbarOrientationString("HOT_BARS", tPanelNum);
+		sOrientation[tPanelNum] = VUHDO_getStatusbarOrientationNumber("HOT_BARS", tPanelNum);
 	end
 
 end
@@ -130,9 +136,8 @@ function VUHDO_initHotBars(aPanelNum)
 			VUHDO_PixelUtil.SetWidth(tHotBar, sHotBarWidth);
 			VUHDO_PixelUtil.SetHeight(tHotBar, sHotBarHeight);
 			tHotBar:SetValue(0);
-			tHotBar:SetVuhDoColor(sBarColors["HOT" .. tCnt]);
-			tHotBar:SetOrientation(tOrientation);
-			tHotBar:SetIsInverted(tHotBarConfig["invertGrowth"]);
+			VUHDO_setStatusBarVuhDoColor(tHotBar, sBarColors["HOT" .. tCnt]);
+			VUHDO_setStatusBarOrientation(tHotBar, tOrientation);
 			tHotBar:Show();
 		end
 	end

@@ -60,7 +60,7 @@ VUHDO_CUSTOM_ICONS = {
 	{ VUHDO_I18N_CUSTOM_ICON_GLOSSY, "Interface\\AddOns\\VuhDo\\Images\\icon_white_square" }, --2
 	{ VUHDO_I18N_CUSTOM_ICON_MOSAIC, "Interface\\AddOns\\VuhDo\\Images\\cluster" }, -- 3
 	{ VUHDO_I18N_CUSTOM_ICON_CLUSTER, "Interface\\AddOns\\VuhDo\\Images\\cluster2" }, -- 4
-	{ VUHDO_I18N_CUSTOM_ICON_FLAT, "Interface\\AddOns\\VuhDo\\Images\\white_square_16_16" }, -- 5
+	{ VUHDO_I18N_CUSTOM_ICON_FLAT, "Interface\\AddOns\\VuhDo\\Images\\hot_flat_16_16_preview" }, -- 5
 	{ VUHDO_I18N_CUSTOM_ICON_SPOT, "Interface\\AddOns\\VuhDo\\Images\\icon_white" }, -- 6
 	{ VUHDO_I18N_CUSTOM_ICON_CIRCLE, "Interface\\AddOns\\VuhDo\\Images\\shield_stacks4" }, -- 7
 	{ VUHDO_I18N_CUSTOM_ICON_SKETCHED, "Interface\\AddOns\\VuhDo\\Images\\hot_flat_16_16" }, -- 8

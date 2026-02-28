@@ -514,10 +514,8 @@ local function VUHDO_createTestUser()
 		end
 	end
 
-	if (VUHDO_RAID[tUnit] == nil) then
-		VUHDO_RAID[tUnit] = { };
-	end
-	tInfo = VUHDO_RAID[tUnit];
+	tInfo = VUHDO_getOrCreateUnitInfo(tUnit);
+
 	tInfo["healthmax"] = tHealthMax;
 	tInfo["health"] = VUHDO_getRandomHealth(tHealthMax);
 	tInfo["name"] = VUHDO_generateLeetName();

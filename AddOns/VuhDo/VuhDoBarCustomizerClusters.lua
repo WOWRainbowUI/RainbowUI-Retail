@@ -12,6 +12,7 @@ local VUHDO_CLUSTER_UNIT = nil;
 --
 local twipe = table.wipe;
 local pairs = pairs;
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
 local VUHDO_RAID = { };
 
@@ -25,6 +26,7 @@ local VUHDO_getBarIconTimer;
 local VUHDO_isInConeInFrontOf;
 local VUHDO_backColor;
 local VUHDO_getUnitButtonsSafe;
+local VUHDO_applyAllLayersToBorder;
 
 local sHealthLimit;
 local sIsRaid;
@@ -56,6 +58,7 @@ function VUHDO_customClustersInitLocalOverrides()
 	VUHDO_isInConeInFrontOf = _G["VUHDO_isInConeInFrontOf"];
 	VUHDO_backColor = _G["VUHDO_backColor"];
 	VUHDO_getUnitButtonsSafe = _G["VUHDO_getUnitButtonsSafe"];
+	VUHDO_applyAllLayersToBorder = _G["VUHDO_applyAllLayersToBorder"];
 
 	sClusterConfig = VUHDO_CONFIG["CLUSTER"];
 	sHealthLimit = sClusterConfig["BELOW_HEALTH_PERC"] * 0.01;
@@ -107,6 +110,10 @@ function VUHDO_getCustomDestCluster(aUnit, anArray, anIsSourcePlayer, anIsRadial
 	tSrcInfo = VUHDO_RAID[aUnit];
 	if not tSrcInfo or tSrcInfo["isPet"] or "focus" == aUnit or "target" == aUnit then return 0; end
 
+	if sSecretsEnabled then
+		return 0;
+	end
+
 	if anIsRadial then VUHDO_getUnitsInRadialClusterWith(aUnit, aRangePow, tDestCluster, aCdSpell);
 	else VUHDO_getUnitsInChainClusterWith(aUnit, aJumpRangePow, tDestCluster, aNumMaxTargets, aCdSpell); end
 
@@ -114,7 +121,7 @@ function VUHDO_getCustomDestCluster(aUnit, anArray, anIsSourcePlayer, anIsRadial
 	for _, tUnit in pairs(tDestCluster) do
 		tInfo = VUHDO_RAID[tUnit];
 		if tInfo and tInfo["healthmax"] > 0 and not tInfo["dead"] and tInfo["health"] / tInfo["healthmax"] <= aHealthLimit then
-			if (anIsRaid or tInfo["group"] == tSrcGroup) and VUHDO_isInConeInFrontOf(tUnit, aCone) then -- all raid members or in same group
+			if (anIsRaid or tInfo["group"] == tSrcGroup) and VUHDO_isInConeInFrontOf(tUnit, aCone) then
 				anArray[#anArray + 1] = tUnit;
 				if #anArray == aNumMaxTargets then break; end
 			end
@@ -145,6 +152,10 @@ function VUHDO_updateAllClusterIcons(aUnit, anInfo)
 		return;
 	end
 
+	if sSecretsEnabled then
+		return;
+	end
+
 	tAllButtons = VUHDO_getUnitButtons(aUnit);
 	if not tAllButtons then
 		return;
@@ -167,12 +178,26 @@ function VUHDO_updateAllClusterIcons(aUnit, anInfo)
 				return;
 			end
 
-			if tNumLow < sThreshFair or not anInfo["range"] then
+			if tNumLow < sThreshFair then
+				VUHDO_getBarIconFrame(tButton, tClusterSlot):Hide();
+				VUHDO_getBarIconTimer(tButton, tClusterSlot):SetText("");
+			elseif anInfo["hasSecretRange"] then
+				VUHDO_getBarIcon(tButton, tClusterSlot):SetVertexColor(VUHDO_backColor(tNumLow < sThreshGood and sColorFair or sColorGood));
+
+				VUHDO_getBarIconFrame(tButton, tClusterSlot):Show();
+				VUHDO_getBarIconFrame(tButton, tClusterSlot):SetAlphaFromBoolean(anInfo["range"], 1, 0);
+
+				if sClusterConfig["IS_NUMBER"] then
+					VUHDO_getBarIconTimer(tButton, tClusterSlot):SetText(tNumLow);
+				end
+			elseif not anInfo["range"] then
 				VUHDO_getBarIconFrame(tButton, tClusterSlot):Hide();
 				VUHDO_getBarIconTimer(tButton, tClusterSlot):SetText("");
 			else
 				VUHDO_getBarIcon(tButton, tClusterSlot):SetVertexColor(VUHDO_backColor(tNumLow < sThreshGood and sColorFair or sColorGood));
+
 				VUHDO_getBarIconFrame(tButton, tClusterSlot):Show();
+
 				if sClusterConfig["IS_NUMBER"] then
 					VUHDO_getBarIconTimer(tButton, tClusterSlot):SetText(tNumLow);
 				end
@@ -198,7 +223,17 @@ local VUHDO_removeAllClusterHighlights = VUHDO_removeAllClusterHighlights;
 
 --
 function VUHDO_highlightClusterFor(aUnit)
+
 	VUHDO_CLUSTER_UNIT = aUnit;
+
+	if sSecretsEnabled then
+		if VUHDO_HIGLIGHT_NUM ~= 0 then
+			VUHDO_removeAllClusterHighlights();
+		end
+
+		return;
+	end
+
 	if VUHDO_HIGLIGHT_NUM ~= 0 then
 		VUHDO_removeAllClusterHighlights();
 	end
@@ -209,15 +244,26 @@ function VUHDO_highlightClusterFor(aUnit)
 		VUHDO_HIGLIGHT_CLUSTER[tUnit] = true;
 		VUHDO_updateBouquetsForEvent(tUnit, 18); -- VUHDO_UPDATE_MOUSEOVER_CLUSTER
 	end
+
+	return;
+
 end
 
 
 
 --
 function VUHDO_updateClusterHighlights()
+
+	if sSecretsEnabled then
+		return;
+	end
+
 	if VUHDO_CLUSTER_UNIT then
 		VUHDO_highlightClusterFor(VUHDO_CLUSTER_UNIT);
 	end
+
+	return;
+
 end
 
 
@@ -246,18 +292,28 @@ end
 
 --
 local tBorder;
-function VUHDO_clusterBorderBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCounter, aDuration, aColor, aBuffName, aBouquetName)
+function VUHDO_clusterBorderBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCounter, aDuration, aColor, aBuffName, aBouquetName, aLevel, aCurrValue2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate)
 
 	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
 		if VUHDO_INDICATOR_CONFIG[VUHDO_BUTTON_CACHE[tButton]]["BOUQUETS"]["CLUSTER_BORDER"] == aBouquetName then
 			tBorder = VUHDO_getClusterBorderFrame(tButton);
 
-			if aColor then
-				tBorder:SetBackdropBorderColor(VUHDO_backColorWithFallback(aColor));
+			if tBorder then
+				if anIsActive then
+					if aLayerTemplate then
+						VUHDO_applyAllLayersToBorder(tButton, tBorder, aLayerTemplate);
+					elseif aColor then
+						tBorder:SetBackdropBorderColor(VUHDO_backColorWithFallback(aColor));
+					end
 
-				tBorder:Show();
-			else
-				tBorder:Hide();
+					tBorder:Show();
+				else
+					tBorder:Hide();
+				end
+			end
+
+			if sSecretsEnabled then
+				VUHDO_updateIndicatorAlphaChain(tButton, "CLUSTER_BORDER", VUHDO_RAID[aUnit]);
 			end
 		end
 	end
