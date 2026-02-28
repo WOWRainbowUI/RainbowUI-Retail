@@ -1,6 +1,17 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\..\FrameXML\UI.xsd">
     <Script file="Main.lua"/>
+
+    <Script file="Quest.lua"/>
+    <Script file="MapDataProvider.lua"/>
+
+    <Script file="POIButton\POIButtonHighlightManager.lua"/>
+    <Script file="POIButton\POIButtonUtil.lua"/>
+    <Script file="POIButton\POIButton.lua"/>
+    <Include file="POIButton\POIButton.xml"/>
+    <Script file="POIButton\POIButtonOwner.lua"/>
+    <Include file="POIButton\POIButtonOwner.xml"/>
+
     <Include file="ObjectiveTrackerFonts.xml"/>
     <Script file="ObjectiveTrackerManager.lua"/>
     <Script file="ObjectiveTrackerShared.lua"/>

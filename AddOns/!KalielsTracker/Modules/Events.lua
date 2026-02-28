@@ -65,11 +65,6 @@ local function ShouldShowTimeLeft(poiInfo)
     return true
 end
 
-local function QuestMapFrame_OpenToEvent(poiID)
-    QuestMapFrame:SetDisplayMode(QuestLogDisplayMode.Events)
-    OpenMapToEventPoi(poiID)
-end
-
 -- External ------------------------------------------------------------------------------------------------------------
 
 function KT_EventObjectiveTrackerMixin:InitModule()
@@ -218,7 +213,7 @@ end
 
 function KT_EventObjectiveTrackerMixin:OnBlockHeaderClick(block, mouseButton)
     if mouseButton ~= "RightButton" then
-        QuestMapFrame_OpenToEvent(block.id)
+        KT.OpenService_Open("event", block.id)
     else
         KT_ObjectiveTracker_ToggleDropDown(block, KT_EventObjectiveTracker_OnOpenDropDown)
     end
@@ -246,7 +241,7 @@ function KT_EventObjectiveTracker_OnOpenDropDown(self)
     KT.Menu_AddButton(text, func)
 
     KT.Menu_AddButton(OBJECTIVES_SHOW_QUEST_MAP, function()
-        QuestMapFrame_OpenToEvent(block.id)
+        KT.OpenService_Open("event", block.id)
     end)
 end
 

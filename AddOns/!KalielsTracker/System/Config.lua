@@ -66,7 +66,6 @@ local defaults = {
         menuWowheadURLModifier = "",
         menuYouTubeURL = true,
         menuYouTubeURLModifier = "",
-        questDefaultActionMap = true,
         questShowTags = true,
         questShowZones = true,
         taskShowFactions = true,
@@ -88,9 +87,6 @@ local defaults = {
         addonRareScanner = false,
         addonAuctionator = false,
         addonBtWQuests = false,
-
-        hackLFG = true,
-        hackWorldMap = true,
     },
     char = {
         collapsed = false,

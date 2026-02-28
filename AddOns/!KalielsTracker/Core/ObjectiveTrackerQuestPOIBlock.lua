@@ -22,11 +22,11 @@ end
 function KT_ObjectiveTrackerQuestPOIBlockMixin:AddPOIButton(questID, isComplete, isSuperTracked, isWorldQuest)
 	local style;
 	if self.poiIsWorldQuest then
-		style = POIButtonUtil.Style.WorldQuest;
+		style = KT_POIButtonUtil.Style.WorldQuest;
 	elseif self.poiIsComplete then
-		style = POIButtonUtil.Style.QuestComplete;
+		style = KT_POIButtonUtil.Style.QuestComplete;
 	else
-		style = POIButtonUtil.Style.QuestInProgress;
+		style = KT_POIButtonUtil.Style.QuestInProgress;
 	end
 	local poiButton = self:GetPOIButton(style);
 	poiButton:SetPoint("TOPRIGHT", self.HeaderText, "TOPLEFT", -7, 5);
@@ -40,7 +40,7 @@ function KT_ObjectiveTrackerQuestPOIBlockMixin:GetPOIButton(style)
 		button = g_questPOIButtonPool:Acquire();
 		button:SetParent(self);
 		-- MSA (begin)
-		if style ~= POIButtonUtil.Style.AreaPOI then
+		if style ~= KT_POIButtonUtil.Style.AreaPOI then
 			-- Quest / World Quest / Bonus Objective
 			button:SetQuestID(self.poiQuestID);
 			button.areaPOIID = nil

@@ -1210,17 +1210,7 @@ local options = {
                             fontSize = "medium",
                             order = 4,
                         },
-                        questDefaultActionMap = {
-                            name = "Quest default action - World Map",
-                            desc = "Set the Quest default action as \"World Map\". Otherwise is the default action \"Quest Details\".",
-                            type = "toggle",
-                            width = "normal+half",
-                            set = function()
-                                db.questDefaultActionMap = not db.questDefaultActionMap
-                            end,
-                            order = 4.1,
-                        },
-						questShowTags = {
+                        questShowTags = {
 							name = "Show Quest tags",
 							desc = "Show / Hide Quest tags (quest level, quest type) inside the tracker.",
 							type = "toggle",
@@ -1229,7 +1219,7 @@ local options = {
 								db.questShowTags = not db.questShowTags
 								OTF:Update()
 							end,
-							order = 4.2,
+							order = 4.1,
 						},
 						questShowZones = {
 							name = "Show Quest Zones",
@@ -1240,7 +1230,7 @@ local options = {
 								db.questShowZones = not db.questShowZones
 								OTF:Update()
 							end,
-							order = 4.3,
+							order = 4.2,
 						},
 						taskShowFactions = {
 							name = "Show World Quest Factions",
@@ -1251,7 +1241,7 @@ local options = {
 								db.taskShowFactions = not db.taskShowFactions
 								OTF:Update()
 							end,
-							order = 4.4,
+							order = 4.3,
 						},
 						questAutoTrack = {
 							name = "Auto Quest tracking",
@@ -1267,7 +1257,7 @@ local options = {
 								SetCVar("autoQuestWatch", value)
 								ReloadUI()
 							end,
-							order = 4.5,
+							order = 4.4,
 						},
 						questProgressAutoTrack = {
 							name = "Auto Quest progress tracking",
@@ -1283,7 +1273,7 @@ local options = {
 								SetCVar("autoQuestProgress", value)
 								ReloadUI()
 							end,
-							order = 4.6,
+							order = 4.5,
 						},
 						questAutoFocusClosest = {
 							name = "Auto focus closest Quest                            ",  -- space for a wider tooltip
@@ -1299,7 +1289,7 @@ local options = {
 							set = function()
 								db.questAutoFocusClosest = not db.questAutoFocusClosest
 							end,
-							order = 4.7,
+							order = 4.6,
 						},
 					},
 				},
@@ -1808,58 +1798,6 @@ local options = {
 					type = "description",
 					order = 0,
 				},
-				sec1 = {
-					name = DUNGEONS_BUTTON,
-					type = "group",
-					inline = true,
-					order = 1,
-					args = {
-						hackLFG = {
-							name = "LFG Hack",
-							desc = cBold.."Affects the small Eye buttons|r for finding groups inside the tracker. When the hack is active, "..
-									"the buttons work without errors. When the hack is inactive, the buttons are not available.\n\n"..
-									cWarning2.."Negative impacts:|r\n"..
-									"- Inside the dialog for create \"Premade Group\", the \"Title\" is not set automatically "..
-									"(e.g. keystone level\nfor Mythic+).\n",
-							descStyle = "inline",
-							type = "toggle",
-							width = "full",
-							confirm = true,
-							confirmText = warning,
-							set = function()
-								db.hackLFG = not db.hackLFG
-								ReloadUI()
-							end,
-							order = 1,
-						},
-					},
-				},
-				sec2 = {
-					name = WORLDMAP_BUTTON,
-					type = "group",
-					inline = true,
-					order = 2,
-					args = {
-						hackWorldMap = {
-							name = "World Map Hack",
-							desc = cBold.."Affects the World Map|r and removes taint errors. The hack prevents calls to "..
-									"restricted functions. When the hack is inactive, the World Map display causes errors. "..
-									"It is not possible to get rid of these errors, since the tracker has a lot of interaction "..
-									"with the game frames.\n\n"..
-									cWarning2.."Negative impacts:|r unknown in WoW 12.0.0\n",
-							descStyle = "inline",
-							type = "toggle",
-							width = "full",
-							confirm = true,
-							confirmText = warning,
-							set = function()
-								db.hackWorldMap = not db.hackWorldMap
-								ReloadUI()
-							end,
-							order = 1,
-						},
-					},
-				},
 			},
 		},
 	},
@@ -2127,7 +2065,7 @@ local function Setup()
 	KT.optionsFrame.controls = ACD:AddToBlizOptions(addonName, controls.name, parentID, "controls")
 	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, modules.name, parentID, "modules")
 	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, addons.name, parentID, "addons")
-	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, hacks.name, parentID, "hacks")
+	--KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, hacks.name, parentID, "hacks")
 	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, profiles.name, parentID, "profiles")
 
 	KT.db.RegisterCallback(KT, "OnProfileChanged", "InitProfile")

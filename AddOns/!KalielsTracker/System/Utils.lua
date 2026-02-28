@@ -141,7 +141,7 @@ end
 
 function KT.SetMapToCurrentZone()
     local mapID = C_Map.GetBestMapForUnit("player")
-    WorldMapFrame:SetMapID(mapID)
+    KT.SetMapID(mapID)
 end
 
 function KT.GetMapID()
@@ -149,7 +149,8 @@ function KT.GetMapID()
 end
 
 function KT.SetMapID(mapID)
-    WorldMapFrame:SetMapID(mapID)
+    C_Map.OpenWorldMap(mapID)
+    HideUIPanel(WorldMapFrame)
 end
 
 function KT.IsInBetween()  -- Shadowlands
@@ -164,22 +165,9 @@ function KT.CompareZones(mapID1, mapID2)
     return sameZone, sameContinent
 end
 
-local questOfferDataProvider
-local function GetQuestOfferDataProvider()
-    if not questOfferDataProvider and WorldMapFrame and WorldMapFrame.dataProviders then
-        for provider in pairs(WorldMapFrame.dataProviders) do
-            if provider.GetAllQuestOffersForMap then
-                questOfferDataProvider = provider
-                break
-            end
-        end
-    end
-    return questOfferDataProvider
-end
-
 function KT.GetQuestOfferInfo(mapID, id)
-    local dataProvider = GetQuestOfferDataProvider()
-    for questID, info in pairs(dataProvider:GetAllQuestOffersForMap(mapID)) do
+    local questOffers = KT.GetQuestOffersForMap(mapID)
+    for questID, info in pairs(questOffers) do
         if questID == id then
             return info
         end
@@ -647,7 +635,7 @@ function KT.GetBonusPoiInfoCached(questID)
         local mapID = GetQuestUiMapID(questID)
         if mapID then
             -- Tasks
-            local tasks = GetTasksOnMapCached(mapID)
+            local tasks = KT.GetTasksOnMapCached(mapID)
             if tasks then
                 for _, info in ipairs(tasks) do
                     if questID == info.questID then
@@ -753,7 +741,7 @@ end
 function KT.InCombatBlocked()
     local blocked = InCombatLockdown()
     if blocked then
-        UIErrorsFrame:AddExternalErrorMessage("This operation cannot be completed during combat.")
+        UIErrorsFrame:AddExternalErrorMessage("This action cannot be completed during combat.")
     end
     return blocked
 end

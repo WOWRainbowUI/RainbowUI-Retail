@@ -31,6 +31,7 @@ local cWarning2 = "|cffff4200"
 local cDots = "|cff808080"
 local offs = "\n|T:1:9|t"
 local offs2 = "\n|T:1:21|t"
+local offs3 = "|T:1:9|t"
 local ebSpace = "|T:16:1|t\n"
 local beta = "|cffff7fff[Beta]|r"
 local new = "|cffff7fff[NEW]|r"
@@ -362,19 +363,15 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 8.1.0|r\n"..
-					"- ADDED - replace scroll indicator with interactive scrollbar\n"..
-					"- ADDED - TomTom - waypoint support for Collection sources (Appearances, Decors)\n"..
-					"- ADDED - Collections tracking (Appearance, Decor) - dropdown menu, tooltip\n"..
-					"- ADDED - TomTom - support for other TomTom waypoints\n"..
-					"- ADDED - Threat Quest - show POI button\n"..
-					"- CHANGED (help) - Active Patrons\n"..
-					"- CHANGED - addon support - ElvUI 15.05\n"..
-					"- CHANGED - improve rewards in tooltips\n"..
-					"- CHANGED - Libs\n"..
-					"- FIXED - secret number value taint\n"..
-					"- FIXED - Hide visibility rule is ignored when \"Hide empty tracker\" is enabled\n"..
+					(cTitle.."Version 8.2.0|r\n"..
+					"- ADDED - support for WoW 12.0.1.65867\n"..
+					"- FIXED - taint errors\n"..
+					offs3.."- Clicking on entries in the tracker is only available out of combat.\n"..
+					offs3.."- Clicking on a quest opens the map, but not the quest details panel.\n"..
+					offs3.."- The small “Eye” button is no longer available.\n"..
+					offs3.."- The standalone Quest Details window is no longer supported.\n"..
 					"- FIXED - high CPU usage in Quest tracker (Blizz bug)\n"..
+					"- REMOVED - all Hacks\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
