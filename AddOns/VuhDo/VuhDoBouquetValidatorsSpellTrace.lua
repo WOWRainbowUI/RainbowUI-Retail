@@ -267,6 +267,9 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_SPELL_TRACE = {
 		["validator"] = VUHDO_spellTraceValidator,
 		["updateCyclic"] = true,
 		["interests"] = { VUHDO_UPDATE_SPELL_TRACE },
+		["secretType"] = VUHDO_SECRET_TYPE_NONE,
+		["hasValue"] = false,
+		["isGlobal"] = false,
 	},
 
 	["SPELL_TRACE_INCOMING"] = {
@@ -274,6 +277,9 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_SPELL_TRACE = {
 		["validator"] = VUHDO_spellTraceIncomingValidator,
 		["updateCyclic"] = true,
 		["interests"] = { VUHDO_UPDATE_SPELL_TRACE },
+		["secretType"] = VUHDO_SECRET_TYPE_NONE,
+		["hasValue"] = false,
+		["isGlobal"] = false,
 	},
 
 	["SPELL_TRACE_HEAL"] = {
@@ -281,6 +287,9 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_SPELL_TRACE = {
 		["validator"] = VUHDO_spellTraceHealValidator,
 		["updateCyclic"] = true,
 		["interests"] = { VUHDO_UPDATE_SPELL_TRACE },
+		["secretType"] = VUHDO_SECRET_TYPE_NONE,
+		["hasValue"] = false,
+		["isGlobal"] = false,
 	},
 
 	["SPELL_TRACE_SINGLE"] = {
@@ -289,24 +298,36 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_SPELL_TRACE = {
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_SPELL_TRACE,
 		["updateCyclic"] = true,
 		["interests"] = { VUHDO_UPDATE_SPELL_TRACE },
+		["secretType"] = VUHDO_SECRET_TYPE_NONE,
+		["hasValue"] = false,
+		["isGlobal"] = false,
 	},
 
 	["TRAIL_OF_LIGHT"] = {
 		["displayName"] = VUHDO_I18N_TRAIL_OF_LIGHT,
 		["validator"] = VUHDO_trailOfLightValidator,
 		["interests"] = { VUHDO_UPDATE_SPELL_TRACE },
+		["secretType"] = VUHDO_SECRET_TYPE_NONE,
+		["hasValue"] = false,
+		["isGlobal"] = false,
 	},
 
 	["TRAIL_OF_LIGHT_NEXT"] = {
 		["displayName"] = VUHDO_I18N_TRAIL_OF_LIGHT_NEXT,
 		["validator"] = VUHDO_trailOfLightNextValidator,
 		["interests"] = { VUHDO_UPDATE_SPELL_TRACE },
+		["secretType"] = VUHDO_SECRET_TYPE_NONE,
+		["hasValue"] = false,
+		["isGlobal"] = false,
 	},
 
 	["AOE_ADVICE"] = {
 		["displayName"] = VUHDO_I18N_AOE_ADVICE,
 		["validator"] = VUHDO_aoeAdviceValidator,
 		["interests"] = { VUHDO_UPDATE_AOE_ADVICE },
+		["secretType"] = VUHDO_SECRET_TYPE_NONE,
+		["hasValue"] = false,
+		["isGlobal"] = false,
 	},
 };
 

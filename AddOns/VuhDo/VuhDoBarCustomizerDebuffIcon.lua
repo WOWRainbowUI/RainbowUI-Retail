@@ -30,6 +30,7 @@ local VUHDO_backColor;
 local VUHDO_updateHealthBarsFor;
 local VUHDO_getBarIconFrameBackground;
 local VUHDO_getBarIconButton;
+local VUHDO_findButtonFromChild;
 
 local VUHDO_PANEL_SETUP;
 local VUHDO_CONFIG;
@@ -62,6 +63,7 @@ function VUHDO_customDebuffIconsInitLocalOverrides()
 	VUHDO_updateHealthBarsFor = _G["VUHDO_updateHealthBarsFor"];
 	VUHDO_getBarIconFrameBackground = _G["VUHDO_getBarIconFrameBackground"];
 	VUHDO_getBarIconButton = _G["VUHDO_getBarIconButton"];
+	VUHDO_findButtonFromChild = _G["VUHDO_findButtonFromChild"];
 
 	VUHDO_updateHealthBarsFor = _G["VUHDO_deferUpdateHealthBarsFor"];
 
@@ -627,7 +629,7 @@ do
 				end
 
 				if self["iconIndex"] then
-					tButton = tIconButton:GetParent():GetParent();
+					tButton = VUHDO_findButtonFromChild(tIconButton);
 
 					if tButton then
 						tSuccess, tIconTexture = pcall(VUHDO_getBarIcon, tButton, self["iconIndex"]);
@@ -723,7 +725,7 @@ do
 						tBarIconFrameBackground:SetBackdropBorderColor(tBarIconFrameBackground["originalBorderColor"][1], tBarIconFrameBackground["originalBorderColor"][2], tBarIconFrameBackground["originalBorderColor"][3], tBarIconFrameBackground["originalBorderColor"][4]);
 					end
 
-					tButton = tBarIconFrameBackground:GetParent():GetParent();
+					tButton = VUHDO_findButtonFromChild(tBarIconFrameBackground);
 
 					if tButton then
 						tSuccess, tIconTexture = pcall(VUHDO_getBarIcon, tButton, tState["iconIndex"]);
@@ -1076,6 +1078,8 @@ do
 	local tIconInfo;
 	local tFrame;
 	function VUHDO_updateDebuffIcon(aUnit, anIcon, aName, anExpiry, aStacks, aDuration, anIsBuff, aSpellId, anAuraInstanceId)
+
+		-- FIXME: cleanup dead code path that was used for custom debuffs
 
 		if not VUHDO_DEBUFF_ICONS[aUnit] then
 			VUHDO_DEBUFF_ICONS[aUnit] = { };

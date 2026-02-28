@@ -8,6 +8,31 @@ VUHDO_DEBUG = { };
 VUHDO_RAID = { };
 local VUHDO_RAID;
 
+
+
+--
+local tUnitInfo;
+function VUHDO_getOrCreateUnitInfo(aUnit)
+
+	if not aUnit then
+		return nil;
+	end
+
+	tUnitInfo = VUHDO_RAID[aUnit];
+
+	if not tUnitInfo then
+		tUnitInfo = { };
+		VUHDO_RAID[aUnit] = tUnitInfo;
+
+		VUHDO_initUnitAuraSlots(aUnit);
+	end
+
+	return tUnitInfo;
+
+end
+
+
+
 VUHDO_RAID_NAMES = { };
 local VUHDO_RAID_NAMES = VUHDO_RAID_NAMES;
 
@@ -99,6 +124,7 @@ local UnitHealth = UnitHealth;
 --local UnitHealthMax = UnitHealthMax; 
 local UnitIsAFK = UnitIsAFK;
 local UnitIsConnected = UnitIsConnected;
+local InChatMessagingLockdown = C_ChatInfo and C_ChatInfo.InChatMessagingLockdown;
 local UnitIsCharmed = UnitIsCharmed;
 local UnitInRaid = UnitInRaid;
 local UnitHasVehicleUI = UnitHasVehicleUI;
@@ -128,8 +154,10 @@ local ipairs = ipairs;
 local twipe = table.wipe;
 local tsort = table.sort;
 local _;
+
 local sTrigger;
 local sCurrentMode;
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
 
 function VUHDO_vuhdoInitLocalOverrides()
@@ -164,6 +192,7 @@ function VUHDO_vuhdoInitLocalOverrides()
 	VUHDO_resetClusterCoordDeltas = _G["VUHDO_resetClusterCoordDeltas"];
 	VUHDO_getUnitZoneName = _G["VUHDO_getUnitZoneName"];
 	VUHDO_cleanupSpellTraceForUnit = _G["VUHDO_cleanupSpellTraceForUnit"];
+	VUHDO_initUnitAuraSlots = _G["VUHDO_initUnitAuraSlots"];
 
 	VUHDO_INTERNAL_TOGGLES = _G["VUHDO_INTERNAL_TOGGLES"];
 	VUHDO_PANEL_UNITS = _G["VUHDO_PANEL_UNITS"];
@@ -189,7 +218,7 @@ local function VUHDO_updateAllRaidNames()
 	twipe(VUHDO_RAID_NAMES);
 
 	for tUnit, tInfo in pairs(VUHDO_RAID) do
-		if not VUHDO_isSpecialUnit(tUnit) then
+		if not VUHDO_isSpecialUnit(tUnit) and not tInfo["hasSecretName"] then
 			-- ensure not to overwrite a player name with a pet's identical name
 			if not VUHDO_RAID_NAMES[tInfo["name"]] or not tInfo["isPet"] then
 				VUHDO_RAID_NAMES[tInfo["name"]] = tUnit;
@@ -202,8 +231,17 @@ end
 
 --
 local function VUHDO_isValidEmergency(anInfo)
-	return not anInfo["isPet"] and anInfo["range"] and not anInfo["dead"]
-		and anInfo["connected"] and not anInfo["charmed"];
+
+	if anInfo["isPet"] or anInfo["dead"] or not anInfo["connected"] or anInfo["charmed"] then
+		return false;
+	end
+
+	if anInfo["hasSecretRange"] then
+		return true;
+	end
+
+	return anInfo["range"];
+
 end
 
 
@@ -243,6 +281,14 @@ local VUHDO_EMERGENCY_SORTERS = {
 
 --
 local function VUHDO_sortEmergencies()
+
+	-- FIXME: emergency mode degraded - disabled when secrets detected
+	if sSecretsEnabled then
+		twipe(VUHDO_EMERGENCIES);
+
+		return;
+	end
+
 	twipe(VUHDO_RAID_SORTED);
 
 	for tUnit, tInfo in pairs(VUHDO_RAID) do
@@ -255,6 +301,9 @@ local function VUHDO_sortEmergencies()
 
 	tsort(VUHDO_RAID_SORTED, VUHDO_EMERGENCY_SORTERS[sCurrentMode]);
 	VUHDO_setTopEmergencies(VUHDO_CONFIG["MAX_EMERGENCIES"]);
+
+	return;
+
 end
 
 
@@ -273,9 +322,18 @@ end
 --
 local tIsAfk;
 local tIsConnected;
+local tInChatLockdown;
 local function VUHDO_updateAfkDc(aUnit)
-	tIsAfk = UnitIsAFK(aUnit);
 	tIsConnected = UnitIsConnected(aUnit);
+
+	tInChatLockdown = InChatMessagingLockdown();
+
+	if tInChatLockdown then
+		tIsAfk = false;
+	else
+		tIsAfk = UnitIsAFK(aUnit);
+	end
+
 	if tIsAfk or not tIsConnected then
 		if not VUHDO_UNIT_AFK_DC[aUnit] then VUHDO_UNIT_AFK_DC[aUnit] = GetTime(); end
 	else
@@ -317,11 +375,17 @@ function VUHDO_setHealth(aUnit, aMode)
 	tIsPet = tOwner ~= nil;
 
 	if strfind(aUnit, tUnitId, 1, true) or tIsPet or aUnit == "player" or VUHDO_isSpecialUnit(aUnit) then
-
 		tIsDead = UnitIsDeadOrGhost(aUnit) and not UnitIsFeignDeath(aUnit);
+
 		if tIsDead then
-			VUHDO_removeHots(aUnit);
-			VUHDO_removeAllDebuffIcons(aUnit);
+			if sSecretsEnabled then
+				VUHDO_hideAurasForUnit(aUnit);
+			else
+				VUHDO_removeHots(aUnit);
+				VUHDO_removeAllDebuffIcons(aUnit);
+			end
+
+			VUHDO_clearUnitAuraCache(aUnit);
 
 			if VUHDO_INTERNAL_TOGGLES and VUHDO_INTERNAL_TOGGLES[37] and VUHDO_CONFIG and VUHDO_CONFIG["SHOW_SPELL_TRACE"] then
 				VUHDO_cleanupSpellTraceForUnit(aUnit);
@@ -335,8 +399,8 @@ function VUHDO_setHealth(aUnit, aMode)
 			tPowerType = UnitPowerType(aUnit);
 			tIsAfk, tIsConnected, _ = VUHDO_updateAfkDc(aUnit);
 
-			if not VUHDO_RAID[aUnit] then	VUHDO_RAID[aUnit] = { }; end
-			tInfo = VUHDO_RAID[aUnit];
+			tInfo = VUHDO_getOrCreateUnitInfo(aUnit);
+
 			tInfo["ownerUnit"] = tOwner;
 
 			if tIsPet and tClassId then
@@ -352,17 +416,48 @@ function VUHDO_setHealth(aUnit, aMode)
 			tName, tRealm = UnitName(aUnit);
 			tInfo["healthmax"] = UnitHealthMax(aUnit);
 			tInfo["health"] = UnitHealth(aUnit);
+
+			if sSecretsEnabled then
+				tInfo["hasSecretHealth"] = issecretvalue(tInfo["health"]);
+				tInfo["hasSecretHealthMax"] = issecretvalue(tInfo["healthmax"]);
+			else
+				tInfo["hasSecretHealth"] = false;
+				tInfo["hasSecretHealthMax"] = false;
+			end
+
 			tInfo["name"] = tName;
+
+			if sSecretsEnabled then
+				tInfo["hasSecretName"] = issecretvalue(tName);
+			else
+				tInfo["hasSecretName"] = false;
+			end
+
 			tInfo["number"] = VUHDO_getUnitNo(aUnit);
 			tInfo["unit"] = aUnit;
 			tInfo["class"] = tClassName;
 			tInfo["range"] = VUHDO_isInRange(aUnit);
+
+			if sSecretsEnabled then
+				tInfo["hasSecretRange"] = issecretvalue(tInfo["range"]);
+			else
+				tInfo["hasSecretRange"] = false;
+			end
+
 			tInfo["debuff"], tInfo["debuffName"] = VUHDO_determineDebuff(aUnit);
 			tInfo["isPet"] = tIsPet;
 			tInfo["powertype"] = tonumber(tPowerType);
 			tInfo["power"] = UnitPower(aUnit);
 			tInfo["powermax"] = UnitPowerMax(aUnit);
-			tInfo["charmed"] = UnitIsCharmed(aUnit) and UnitCanAttack("player", aUnit);
+
+			if sSecretsEnabled then
+				tInfo["hasSecretPower"] = issecretvalue(tInfo["power"]) or issecretvalue(tInfo["powermax"]);
+			else
+				tInfo["hasSecretPower"] = false;
+			end
+
+			tInfo["canAttack"] = UnitCanAttack("player", aUnit);
+			tInfo["charmed"] = UnitIsCharmed(aUnit) and tInfo["canAttack"];
 			tInfo["aggro"] = false;
 			tInfo["group"] = VUHDO_getUnitGroup(aUnit, tIsPet);
 			tInfo["dead"] = tIsDead;
@@ -378,21 +473,36 @@ function VUHDO_setHealth(aUnit, aMode)
 			tInfo["role"] = VUHDO_determineRole(aUnit);
 			tInfo["fullName"] = (tRealm or "") ~= "" and (tName .. "-" .. tRealm) or tName;
 			tInfo["raidIcon"] = GetRaidTargetIndex(aUnit);
+
+			if sSecretsEnabled then
+				tInfo["hasSecretRaidIcon"] = issecretvalue(tInfo["raidIcon"]);
+			else
+				tInfo["hasSecretRaidIcon"] = false;
+			end
+
 			tInfo["visible"] = UnitIsVisible(aUnit); -- Reihenfolge beachten
 			tInfo["zone"], tInfo["map"] = VUHDO_getUnitZoneName(aUnit); -- ^^
-			tInfo["baseRange"] = UnitInRange(aUnit) or "player" == aUnit;
+
+			if VUHDO_RAID["player"] then
+				tInfo["baseRange"] = true;
+			else
+				tInfo["baseRange"] = UnitInRange(aUnit);
+			end
+
 			tInfo["isAltPower"] = VUHDO_isAltPowerActive(aUnit);
 			--[[tInfo["missbuff"] = nil;
 			tInfo["mibucateg"] = nil;
 			tInfo["mibuvariants"] = nil;]]
 
-			if tLocalClass == tName then
+			if tInfo["hasSecretName"] then
+				tInfo["className"] = "";
+			elseif tLocalClass == tName then
 				tInfo["className"] = UnitCreatureType(aUnit) or "";
 			else
 				tInfo["className"] = tLocalClass or "";
 			end
 
-			if not VUHDO_isSpecialUnit(aUnit) then
+			if not VUHDO_isSpecialUnit(aUnit) and not tInfo["hasSecretName"] then
 				if not tIsPet and tInfo["fullName"] == tName and VUHDO_RAID_NAMES[tName] then
 					VUHDO_IS_SUSPICIOUS_ROSTER = true;
 				end
@@ -412,17 +522,34 @@ function VUHDO_setHealth(aUnit, aMode)
 
 			if 2 == aMode then -- VUHDO_UPDATE_HEALTH
 				tNewHealth = UnitHealth(aUnit);
-				if not tIsDead and tInfo["health"] > 0 then
+
+				if not sSecretsEnabled and not tIsDead and tInfo["health"] > 0 then
 					tInfo["lifeLossPerc"] = tNewHealth / tInfo["health"];
 				end
 
 				tInfo["health"] = tNewHealth;
 
+				if sSecretsEnabled then
+					tInfo["hasSecretHealth"] = issecretvalue(tInfo["health"]);
+					tInfo["hasSecretHealthMax"] = issecretvalue(tInfo["healthmax"]);
+				else
+					tInfo["hasSecretHealth"] = false;
+					tInfo["hasSecretHealthMax"] = false;
+				end
+
 				if tInfo["dead"] ~= tIsDead then
 					if not tIsDead then
 						tInfo["healthmax"] = UnitHealthMax(aUnit);
+
+						if sSecretsEnabled then
+							tInfo["hasSecretHealthMax"] = issecretvalue(tInfo["healthmax"]);
+						else
+							tInfo["hasSecretHealthMax"] = false;
+						end
 					end
+
 					tInfo["dead"] = tIsDead;
+
 					VUHDO_updateHealthBarsFor(aUnit, 10); -- VUHDO_UPDATE_ALIVE
 					VUHDO_updateBouquetsForEvent(aUnit, 10); -- VUHDO_UPDATE_ALIVE
 				end
@@ -431,6 +558,12 @@ function VUHDO_setHealth(aUnit, aMode)
 				tInfo["dead"] = tIsDead;
 				tInfo["healthmax"] = UnitHealthMax(aUnit);
 				tInfo["sortMaxHp"] = VUHDO_getUnitSortMaxHp(aUnit);
+
+				if sSecretsEnabled then
+					tInfo["hasSecretHealthMax"] = issecretvalue(tInfo["healthmax"]);
+				else
+					tInfo["hasSecretHealthMax"] = false;
+				end
 
 			elseif 6 == aMode then -- VUHDO_UPDATE_AFK
 				tInfo["afk"] = tIsAfk;
@@ -446,7 +579,11 @@ local VUHDO_setHealth = VUHDO_setHealth;
 
 --
 local function VUHDO_setHealthSafe(aUnit, aMode)
-	if UnitExists(aUnit) then VUHDO_setHealth(aUnit, aMode); end
+
+	if UnitExists(aUnit) then
+		VUHDO_setHealth(aUnit, aMode);
+	end
+
 end
 
 
@@ -455,6 +592,7 @@ end
 local tOwner;
 local tIsPet;
 function VUHDO_updateHealth(aUnit, aMode)
+
 	-- as of patch 7.1 we are seeing empty units on health related events
 	if not aUnit then
 		return;
@@ -462,13 +600,14 @@ function VUHDO_updateHealth(aUnit, aMode)
 
 	tIsPet = VUHDO_RAID[aUnit] and VUHDO_RAID[aUnit]["isPet"];
 
-	if not tIsPet or VUHDO_INTERNAL_TOGGLES[26] then -- VUHDO_UPDATE_PETS  -- Enth„lt nur Pets als eigene Balken, vehicles werden ?ber owner dargestellt s.unten
+	if not tIsPet or VUHDO_INTERNAL_TOGGLES[26] then -- VUHDO_UPDATE_PETS  -- Enthâ€žlt nur Pets als eigene Balken, vehicles werden ?ber owner dargestellt s.unten
 		VUHDO_setHealth(aUnit, aMode);
 		VUHDO_updateHealthBarsFor(aUnit, aMode);
 	end
 
 	if tIsPet then -- Vehikel?
 		tOwner = VUHDO_RAID[aUnit]["ownerUnit"];
+
 		-- tOwner may not be present when leaving a vehicle
 		if VUHDO_RAID[tOwner] and VUHDO_RAID[tOwner]["isVehicle"] then
 			VUHDO_setHealth(tOwner, aMode);
@@ -480,16 +619,25 @@ function VUHDO_updateHealth(aUnit, aMode)
 		and (2 == aMode or 3 == aMode) then -- VUHDO_UPDATE_HEALTH -- VUHDO_UPDATE_HEALTH_MAX
 		-- Remove old emergencies
 		VUHDO_FORCE_RESET = true;
+
 		for tUnit, _ in pairs(VUHDO_EMERGENCIES) do
 			VUHDO_updateHealthBarsFor(tUnit, 11); -- VUHDO_UPDATE_EMERGENCY
 		end
-		VUHDO_sortEmergencies();
+
+		if not sSecretsEnabled then
+			VUHDO_sortEmergencies();
+		end
+
 		-- Set new Emergencies
 		VUHDO_FORCE_RESET = false;
+
 		for tUnit, _ in pairs(VUHDO_EMERGENCIES) do
 			VUHDO_updateHealthBarsFor(tUnit, 11); -- VUHDO_UPDATE_EMERGENCY
 		end
 	end
+
+	return;
+
 end
 
 
@@ -497,19 +645,32 @@ end
 --
 local tIcon;
 function VUHDO_updateAllRaidTargetIndices()
+
 	for tUnit, tInfo in pairs(VUHDO_RAID) do
 		tIcon = GetRaidTargetIndex(tUnit);
-		if tInfo["raidIcon"] ~= tIcon then
+
+		if sSecretsEnabled and (issecretvalue(tIcon) or issecretvalue(tInfo["raidIcon"])) then
 			tInfo["raidIcon"] = tIcon;
+			tInfo["hasSecretRaidIcon"] = issecretvalue(tIcon);
+
+			VUHDO_updateBouquetsForEvent(tUnit, 24); -- VUHDO_UPDATE_RAID_TARGET
+		elseif tInfo["raidIcon"] ~= tIcon then
+			tInfo["raidIcon"] = tIcon;
+			tInfo["hasSecretRaidIcon"] = false;
+
 			VUHDO_updateBouquetsForEvent(tUnit, 24); -- VUHDO_UPDATE_RAID_TARGET
 		end
 	end
+
+	return;
+
 end
 
 
 
 -- Add to groups 1-8
 local function VUHDO_addUnitToGroup(aUnit, aGroupNum)
+
 	if "player" ~= aUnit or not VUHDO_CONFIG["OMIT_SELF"] then
 		if not VUHDO_CONFIG["OMIT_OWN_GROUP"] or aGroupNum ~= VUHDO_PLAYER_GROUP then
 			tinsert(VUHDO_GROUPS[aGroupNum] or {}, aUnit);
@@ -517,15 +678,22 @@ local function VUHDO_addUnitToGroup(aUnit, aGroupNum)
 
 		if VUHDO_PLAYER_GROUP == aGroupNum then tinsert(VUHDO_GROUPS[10], aUnit); end -- VUHDO_ID_GROUP_OWN
 	end
+
+	return;
+
 end
 
 
 
 --
 local function VUHDO_addUnitToClass(aUnit, aClassId)
+
 	if ("player" ~= aUnit or not VUHDO_CONFIG["OMIT_SELF"]) and aClassId then
 		tinsert(VUHDO_GROUPS[aClassId], aUnit);
 	end
+
+	return;
+
 end
 
 
@@ -534,7 +702,11 @@ end
 local function VUHDO_removeUnitFromRaidGroups(aUnit)
 	for tModelId, tAllUnits in pairs(VUHDO_GROUPS) do
 		if tModelId ~= 41 and tModelId ~= 42 and tModelId ~= 43 and tModelId ~= 44 then  -- VUHDO_ID_MAINTANKS -- VUHDO_ID_PRIVATE_TANKS -- VUHDO_ID_MAIN_ASSISTS -- VUHDO_ID_BOSSES
-			VUHDO_tableRemoveValue(tAllUnits, aUnit);
+			for tIndex, tUnit in pairs(tAllUnits) do
+				if tUnit == aUnit then
+					tremove(tAllUnits, tIndex);
+				end
+			end
 		end
 	end
 end
@@ -732,30 +904,46 @@ end
 
 
 --
+local tGuid;
 local function VUHDO_updateAllGuids()
+
 	twipe(VUHDO_RAID_GUIDS);
+
 	for tUnit, _ in pairs(VUHDO_RAID) do
 		if tUnit ~= "focus" and tUnit ~= "target" then
-			VUHDO_RAID_GUIDS[UnitGUID(tUnit) or 0] = tUnit;
+			tGuid = UnitGUID(tUnit);
+
+			if tGuid and not (sSecretsEnabled and issecretvalue(tGuid)) then
+				VUHDO_RAID_GUIDS[tGuid] = tUnit;
+			end
 		end
 	end
+
+	return;
+
 end
 
 
 
 --
 local function VUHDO_convertMainTanks()
+
 	-- Discard deprecated
 	for tCnt = 1, 8 do -- VUHDO_MAX_MTS
 		if not VUHDO_RAID_NAMES[VUHDO_MAINTANK_NAMES[tCnt] or "*"] then
 			VUHDO_MAINTANK_NAMES[tCnt] = nil;
 		end
 	end
+
 	-- Convert to units instead of names
 	twipe(VUHDO_MAINTANKS);
+
 	for tCnt, tName in pairs(VUHDO_MAINTANK_NAMES) do
 		VUHDO_MAINTANKS[tCnt] = VUHDO_RAID_NAMES[tName];
 	end
+
+	return;
+
 end
 
 
@@ -831,9 +1019,15 @@ function VUHDO_reloadRaidMembers()
 				VUHDO_setHealth(tBossUnitId, 1); -- VUHDO_UPDATE_ALL
 			else
 				-- FIXME: find a more efficient way to trigger boss removal
-				VUHDO_removeHots(tBossUnitId);
-				VUHDO_removeAllDebuffIcons(tBossUnitId);
-				VUHDO_resetDebuffsFor(tBossUnitId);
+				if sSecretsEnabled then
+					VUHDO_hideAurasForUnit(tBossUnitId);
+				else
+					VUHDO_removeHots(tBossUnitId);
+					VUHDO_removeAllDebuffIcons(tBossUnitId);
+					VUHDO_resetDebuffsFor(tBossUnitId);
+				end
+
+				VUHDO_clearUnitAuraCache(tBossUnitId);
 
 				if VUHDO_INTERNAL_TOGGLES and VUHDO_INTERNAL_TOGGLES[37] and VUHDO_CONFIG and VUHDO_CONFIG["SHOW_SPELL_TRACE"] then
 					VUHDO_cleanupSpellTraceForUnit(tBossUnitId);
@@ -862,7 +1056,9 @@ function VUHDO_reloadRaidMembers()
 	VUHDO_updateBuffPanel();
 
 	if sCurrentMode ~= 1 then  -- VUHDO_MODE_NEUTRAL
-		VUHDO_sortEmergencies();
+		if not sSecretsEnabled then
+			VUHDO_sortEmergencies();
+		end
 	end
 
 	VUHDO_createClusterUnits();
@@ -899,16 +1095,19 @@ function VUHDO_refreshRaidMembers()
 
 		if UnitExists(tPlayer) and tPlayer ~= VUHDO_PLAYER_RAID_ID then
 			tInfo = VUHDO_RAID[tPlayer];
-			if not tInfo or VUHDO_RAID_GUIDS[UnitGUID(tPlayer)] ~= tPlayer then
+			tGuid = UnitGUID(tPlayer);
+
+			if not tInfo or (tGuid and not (sSecretsEnabled and issecretvalue(tGuid)) and VUHDO_RAID_GUIDS[tGuid] ~= tPlayer) then
 				VUHDO_setHealth(tPlayer, 1); -- VUHDO_UPDATE_ALL
 			else
 				tInfo["group"] = VUHDO_getUnitGroup(tPlayer, false);
 
 				tInfo["isVehicle"] = UnitHasVehicleUI(tPlayer);
-				if ( tInfo["isVehicle"] ) then
+
+				if tInfo["isVehicle"] then
 					local tRaidId = UnitInRaid(tPlayer);
-					
-					if ( tRaidId and not UnitTargetsVehicleInRaidUI(tPlayer) ) then
+
+					if tRaidId and not UnitTargetsVehicleInRaidUI(tPlayer) then
 						tInfo["isVehicle"] = false;
 					end
 				end
@@ -918,6 +1117,7 @@ function VUHDO_refreshRaidMembers()
 				if tIsDcChange then
 					VUHDO_updateBouquetsForEvent(tPlayer, 19); -- VUHDO_UPDATE_DC
 				end
+
 				VUHDO_setHealthSafe(tPetUnitType .. tCnt, 1); -- VUHDO_UPDATE_ALL
 			end
 
@@ -951,8 +1151,10 @@ function VUHDO_refreshRaidMembers()
 	for tBossUnitId, _ in pairs(VUHDO_BOSS_UNITS) do
 		if UnitExists(tBossUnitId) then -- and UnitIsFriend("player", tBossUnitId) then
 			tInfo = VUHDO_RAID[tBossUnitId];
+			tGuid = UnitGUID(tBossUnitId);
 
-			if not tInfo or VUHDO_RAID_GUIDS[UnitGUID(tBossUnitId)] ~= tBossUnitId then
+			-- FIXME: cannot track boss identity when GUID is secret
+			if not tInfo or (tGuid and not (sSecretsEnabled and issecretvalue(tGuid)) and VUHDO_RAID_GUIDS[tGuid] ~= tBossUnitId) then
 				VUHDO_setHealth(tBossUnitId, 1); -- VUHDO_UPDATE_ALL
 			else
 				tInfo["group"] = VUHDO_getUnitGroup(tBossUnitId, false);
@@ -963,9 +1165,15 @@ function VUHDO_refreshRaidMembers()
 			end
 		else
 			-- FIXME: find a more efficient way to trigger boss removal
-			VUHDO_removeHots(tBossUnitId);
-			VUHDO_removeAllDebuffIcons(tBossUnitId);
-			VUHDO_resetDebuffsFor(tBossUnitId);
+			if sSecretsEnabled then
+				VUHDO_hideAurasForUnit(tBossUnitId);
+			else
+				VUHDO_removeHots(tBossUnitId);
+				VUHDO_removeAllDebuffIcons(tBossUnitId);
+				VUHDO_resetDebuffsFor(tBossUnitId);
+			end
+
+			VUHDO_clearUnitAuraCache(tBossUnitId);
 
 			if VUHDO_INTERNAL_TOGGLES and VUHDO_INTERNAL_TOGGLES[37] and VUHDO_CONFIG and VUHDO_CONFIG["SHOW_SPELL_TRACE"] then
 				VUHDO_cleanupSpellTraceForUnit(tBossUnitId);
@@ -990,7 +1198,7 @@ function VUHDO_refreshRaidMembers()
 	VUHDO_updateAllGuids();
 	VUHDO_updateBuffRaidGroup();
 
-	if sCurrentMode ~= 1 then -- VUHDO_MODE_NEUTRAL
+	if not sSecretsEnabled and sCurrentMode ~= 1 then -- VUHDO_MODE_NEUTRAL
 		VUHDO_sortEmergencies();
 	end
 
@@ -999,4 +1207,3 @@ function VUHDO_refreshRaidMembers()
 	return;
 
 end
-

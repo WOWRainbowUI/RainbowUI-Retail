@@ -10,11 +10,13 @@
 	<Script file="VuhDoConst.lua" />
 	<Script file="VuhDoGuiConst.lua" />
 	<Script file="VuhDoToolbox.lua" />
+	<Script file="VuhDoToolboxUtil.lua" />
+	<Script file="VuhDoAuras.lua" />
+	<Script file="VuhDoAuraInference.lua" />
 	<Script file="VuhDoTask.lua" />
 	<Script file="VuhDoPercentile.lua" />
 	<Script file="VuhDoBuffConst.lua" />
 	<Script file="VuhDoDebuffConst.lua" />
-	<Script file="VuhDoDebuffConstBleed.lua" />
 	<Script file="VuhDoTextProviders.lua" />
 	<Script file="VuhDoTextProviderHandler.lua" />
 	<Script file="VuhDoDefaultsBouquets.lua" />
@@ -37,6 +39,7 @@
 	<Script file="VuhDoBouquetValidatorsStatus.lua" />
 	<Script file="VuhDoBouquetValidators.lua" />
 	<Script file="VuhDoBouquets.lua" />
+	<Script file="VuhDoBouquetLayers.lua" />
 	<Script file="VuhDoEventHandler.lua" />
 	<Script file="VuhDoTooltip.lua" />
 	<Script file="VuhDoCtraAdapter.lua" />
@@ -58,7 +61,8 @@
 	<Script file="VuhDoNewOptionsSpellFireShared.lua" />
 	<Script file="VuhDoNewOptionsGeneralSkinsShared.lua" />
 
-	<Frame name="VuhDoStatusBar" enableMouse="false" virtual="true" hidden="false">
+	<StatusBar name="VuhDoStatusBar" enableMouse="false" virtual="true" hidden="false">
+		<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
 		<Frames>
 			<Frame name="$parentLabel" setAllPoints="true">
 				<Layers>
@@ -71,10 +75,10 @@
 		</Frames>
 		<Scripts>
 			<OnLoad>
-				VUHDO_refactorStatusbar(self);
+				self.statusTexture = self:GetStatusBarTexture();
 			</OnLoad>
 		</Scripts>
-	</Frame>
+	</StatusBar>
 
 	<Frame name="VuhDoMinimapDropDown" inherits="UIDropDownMenuTemplate" clampedToScreen="true" id="1" hidden="true">
 		<Scripts>

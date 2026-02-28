@@ -4,6 +4,7 @@ local tonumber = tonumber;
 local pairs = pairs;
 local ipairs = ipairs;
 local _;
+
 VUHDO_GROUP_SIZE = 1;
 
 VUHDO_PROFILES = { };
@@ -680,6 +681,8 @@ local VUHDO_DEFAULT_PROFILES = {
 					["useOpacity"] = true,
 				},
 				["DEBUFF0"] = {
+					["R"] = 0, ["G"] = 0, ["B"] = 0, ["O"] = 0,
+					["TR"] = 0, ["TG"] = 0, ["TB"] = 0, ["TO"] = 0,
 					["useBackground"] = false,
 					["useText"] = false,
 					["useOpacity"] = false,
@@ -1675,7 +1678,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["USE_OUTLINE"] = true,
 				},
 				["iconRadioValue"] = 2,
-				["radioValue"] = 20,
+				["radioValue"] = 17,
 				["COUNTER_TEXT"] = {
 					["X_ADJUST"] = -25,
 					["SCALE"] = 66,
@@ -1982,6 +1985,8 @@ local VUHDO_DEFAULT_PROFILES = {
 					["useOpacity"] = true,
 				},
 				["DEBUFF0"] = {
+					["R"] = 0, ["G"] = 0, ["B"] = 0, ["O"] = 0,
+					["TR"] = 0, ["TG"] = 0, ["TB"] = 0, ["TO"] = 0,
 					["useBackground"] = false,
 					["useText"] = false,
 					["useOpacity"] = false,
@@ -2752,7 +2757,7 @@ function VUHDO_loadProfile(aName)
 	VUHDO_initBlizzFrames();
 	VUHDO_bouqetsChanged();
 
-	if (VUHDO_initCustomDebuffComboModel ~= nil) then
+	if not VUHDO_SECRETS_ENABLED and (VUHDO_initCustomDebuffComboModel ~= nil) then
 		VUHDO_initCustomDebuffComboModel();
 
 		VuhDoNewOptionsDebuffsCustomStorePanelEditBox:SetText("");

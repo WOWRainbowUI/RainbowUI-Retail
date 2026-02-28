@@ -111,7 +111,7 @@
 						</Scripts>
 					</Frame>
 
-					<Frame name="$parentProgressBar" inherits="VuhDoProgressBar">
+					<StatusBar name="$parentProgressBar" inherits="VuhDoProgressBar">
 						<Size>
 							<AbsDimension x="200" y="18" />
 						</Size>
@@ -122,7 +122,7 @@
 								</Offset>
 							</Anchor>
 						</Anchors>
-					</Frame>
+					</StatusBar>
 
 					<Button name="$parentCancelButton" inherits="VuhDoCancelButtonTemplate">
 						<Anchors>

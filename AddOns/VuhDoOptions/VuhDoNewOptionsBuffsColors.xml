@@ -168,7 +168,7 @@
 				</Frames>
 			</Frame>
 
-			<Frame name="$parentBarsPanel" inherits="VuhDoPanelTemplate">
+			<Frame name="$parentBarsPanel" inherits="VuhDoPanelTemplate" hidden="true">
 				<Size>
 					<AbsDimension x="128" y="164" />
 				</Size>

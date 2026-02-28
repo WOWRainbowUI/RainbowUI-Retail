@@ -1,0 +1,263 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<Script file="VuhDoNewOptionsColorsAuras.lua" />
+
+	<Frame name="VuhDoNewOptionsColorsAurasTemplate" virtual="true">
+		<Scripts>
+			<OnShow>
+				VUHDO_colorsAurasOnShow();
+			</OnShow>
+		</Scripts>
+		<Frames>
+
+			<Frame name="$parentMainPanel" inherits="VuhDoPanelTemplate">
+				<Size>
+					<AbsDimension x="448" y="288" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="12" y="-12" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Frames>
+
+					<Frame name="$parentTitleLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="200" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="12" y="-12" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_AURAS" inherits="VuDoDefaultTitleFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<CheckButton name="$parentShowTimerCheck" text="VUHDO_I18N_SHOW_TIMER" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentTitleLabel" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-12" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.AURA_DEFAULTS.showTimer");
+								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K626);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentShowStacksCheck" text="VUHDO_I18N_SHOW_STACKS" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentShowTimerCheck" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="20" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.AURA_DEFAULTS.showStacks");
+								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K627);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentShowClockCheck" text="VUHDO_I18N_SHOW_CLOCK" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentShowStacksCheck" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="20" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.AURA_DEFAULTS.showClock");
+								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K628);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentShowTooltipCheck" text="VUHDO_I18N_SHOW_TOOLTIP" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentShowTimerCheck" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-8" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.AURA_DEFAULTS.showTooltip");
+								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K634);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentDispelBorderCheck" text="VUHDO_I18N_DISPEL_BORDER" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentShowTooltipCheck" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="20" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.AURA_DEFAULTS.dispelBorder");
+								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K633);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<Frame name="$parentAuraBarDefaultTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentShowTooltipCheck" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-8" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.AURA_BAR_DEFAULT");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_AURA_BAR_DEFAULT_COLOR, VUHDO_I18N_AURA_BAR_DEFAULT_COLOR);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentStackTriangleTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentAuraBarDefaultTexture" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="20" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.AURA_STACK_TRIANGLE");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_AURA_STACK_TRIANGLE_COLOR, VUHDO_I18N_AURA_STACK_TRIANGLE_COLOR);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentWarningLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="120" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentAuraBarDefaultTexture" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-24" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_WARNING_SETTINGS" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<CheckButton name="$parentFadeOnLowCheck" text="VUHDO_I18N_FADE_ON_LOW" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentWarningLabel" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-8" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.AURA_DEFAULTS.fadeOnLow");
+								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K629);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<Frame name="$parentFadeThresholdSlider" inherits="VuhDoHSliderTemplate">
+						<Size>
+							<AbsDimension x="200" y="50" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentFadeOnLowCheck" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-4" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.AURA_DEFAULTS.fadeThreshold");
+								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_FADE_THRESHOLD, 1, 30, " " .. VUHDO_I18N_SECS, 1);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K631);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.AURA_DEFAULTS.fadeOnLow", false);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<CheckButton name="$parentFlashOnLowCheck" text="VUHDO_I18N_FLASH_ON_LOW" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentFadeOnLowCheck" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="120" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.AURA_DEFAULTS.flashOnLow");
+								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K630);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<Frame name="$parentFlashThresholdSlider" inherits="VuhDoHSliderTemplate">
+						<Size>
+							<AbsDimension x="200" y="50" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentFlashOnLowCheck" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-4" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.AURA_DEFAULTS.flashThreshold");
+								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_FLASH_THRESHOLD, 1, 30, " " .. VUHDO_I18N_SECS, 1);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K632);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.AURA_DEFAULTS.flashOnLow", false);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+
+				</Frames>
+			</Frame>
+
+		</Frames>
+	</Frame>
+</Ui>

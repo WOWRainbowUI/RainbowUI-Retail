@@ -85,7 +85,7 @@
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parentHotsRadioButton" text="VUHDO_I18N_HOT_ICONS" inherits="VuhDoTabRadioButtonTemplate">
+					<CheckButton name="$parentAurasRadioButton" text="VUHDO_I18N_AURAS" inherits="VuhDoTabRadioButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
@@ -95,26 +95,9 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								self.tabPanel = "VuhDoNewOptionsPanelHots";
+								self.tabPanel = "VuhDoNewOptionsPanelAuras";
 								VUHDO_lnfCheckButtonOnLoad(self);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K337);
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
-					<CheckButton name="$parentHotBarsRadioButton" text="VUHDO_I18N_HOT_BARS" inherits="VuhDoTabRadioButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="3" y="-283" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								self.tabPanel = "VuhDoNewOptionsPanelHotBars";
-								VUHDO_lnfCheckButtonOnLoad(self);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K338);
+								VUHDO_lnfSetTooltip(self, "Configure aura anchors for this panel");
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -123,7 +106,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="3" y="-318" />
+									<AbsDimension x="3" y="-283" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -146,7 +129,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="3" y="-353" />
+									<AbsDimension x="3" y="-318" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -255,9 +238,7 @@
 					</Frame>
 					<Frame name="VuhDoNewOptionsPanelTooltip" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsPanelTooltipTemplate">
 					</Frame>
-					<Frame name="VuhDoNewOptionsPanelHots" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsPanelHotsTemplate">
-					</Frame>
-					<Frame name="VuhDoNewOptionsPanelHotBars" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsPanelHotBarsTemplate">
+					<Frame name="VuhDoNewOptionsPanelAuras" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsPanelAurasTemplate">
 					</Frame>
 					<Frame name="VuhDoNewOptionsPanelIndicators" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsPanelIndicatorsTemplate">
 					</Frame>

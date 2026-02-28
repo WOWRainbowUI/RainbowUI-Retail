@@ -1,0 +1,373 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<Script file="VuhDoNewOptionsAuraGroups.lua" />
+
+	<Frame name="VuhDoNewOptionsAuraGroupsTemplate" virtual="true">
+		<Frames>
+
+			<Frame name="$parentStorePanel" inherits="VuhDoPanelTemplate">
+				<Size>
+					<AbsDimension x="380" y="320" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="25" y="-25" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Frames>
+
+					<Frame name="$parentSelectLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="120" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="12" y="-12" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_AURA_GROUPS" inherits="VuDoDefaultTitleFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Button name="$parentGroupCombo" inherits="VuhDoComboBoxTemplate">
+						<Size>
+							<AbsDimension x="180" y="24" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="12" y="-35" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_SELECTED", VUHDO_AURA_GROUPS_COMBO_MODEL, VUHDO_I18N_SELECT);
+								self:SetAttribute("custom_function", VUHDO_auraGroupsComboChanged);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K611);
+							</OnLoad>
+							<OnShow>
+								VUHDO_lnfPatchFont(self, "Text");
+								VUHDO_initAuraGroupsComboModel();
+								VUHDO_lnfComboBoxInitFromModel(self);
+							</OnShow>
+						</Scripts>
+					</Button>
+
+					<Button name="$parentNewButton" inherits="VuhDoButtonTemplate" text="VUHDO_I18N_NEW">
+						<Size>
+							<AbsDimension x="50" y="24" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentGroupCombo" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="18" y="1" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								VUHDO_auraGroupsOnNewGroup();
+							</OnClick>
+						</Scripts>
+					</Button>
+
+					<Button name="$parentCloneButton" inherits="VuhDoButtonTemplate" text="VUHDO_I18N_COPY">
+						<Size>
+							<AbsDimension x="50" y="24" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentNewButton" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="4" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								if VUHDO_AURA_GROUPS_SELECTED then
+									VUHDO_auraGroupsOnCloneGroup(VUHDO_AURA_GROUPS_SELECTED);
+								end
+							</OnClick>
+						</Scripts>
+					</Button>
+
+					<Button name="$parentDeleteButton" inherits="VuhDoButtonTemplate" text="VUHDO_I18N_DELETE">
+						<Size>
+							<AbsDimension x="50" y="24" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentCloneButton" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="4" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								if VUHDO_AURA_GROUPS_SELECTED and not VUHDO_isBuiltInAuraGroup(VUHDO_AURA_GROUPS_SELECTED) then
+									VUHDO_auraGroupsOnDeleteGroup(VUHDO_AURA_GROUPS_SELECTED);
+								end
+							</OnClick>
+						</Scripts>
+					</Button>
+
+					<CheckButton name="$parentEnabledCheckButton" text="VUHDO_I18N_ENABLE" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="12" y="-72" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_AURA_GROUPS_ENABLED");
+								VUHDO_lnfCheckButtonOnLoad(self);
+
+								self:SetAttribute("custom_function_post", VUHDO_auraGroupsEnabledChanged);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<Frame name="$parentNameLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="80" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentEnabledCheckButton" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-8" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_NAME" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<EditBox name="$parentNameEditBox" inherits="VuhDoEditBoxTemplate" autoFocus="false">
+						<Size>
+							<AbsDimension x="200" y="22" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentNameLabel" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="4" y="-2" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnTextChanged>
+								VUHDO_auraGroupsNameChanged(self);
+							</OnTextChanged>
+						</Scripts>
+					</EditBox>
+
+					<Frame name="$parentFilterLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="120" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentNameLabel" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-8" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_AURA_FILTER" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Frame name="$parentExcludeFilterLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="120" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentFilterLabel" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="42" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_AURA_EXCLUDE" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Button name="$parentFilterCombo" inherits="VuhDoComboBoxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentFilterLabel" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-4" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_FILTER_SELECTED", VUHDO_AURA_FILTER_OPTIONS, VUHDO_I18N_AURA_FILTER);
+								self:SetAttribute("custom_function", VUHDO_auraGroupsFilterChanged);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K612);
+							</OnLoad>
+							<OnShow>
+								VUHDO_lnfPatchFont(self, "Text");
+								VUHDO_lnfComboBoxInitFromModel(self);
+							</OnShow>
+						</Scripts>
+					</Button>
+
+					<Button name="$parentExcludeFilterCombo" inherits="VuhDoComboBoxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentExcludeFilterLabel" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-4" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_EXCLUDE_SELECTED", VUHDO_AURA_EXCLUDE_FILTER_OPTIONS, VUHDO_I18N_AURA_FILTER_NONE);
+								self:SetAttribute("custom_function", VUHDO_auraGroupsExcludeFilterChanged);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K613);
+							</OnLoad>
+							<OnShow>
+								VUHDO_lnfPatchFont(self, "Text");
+								VUHDO_lnfComboBoxInitFromModel(self);
+							</OnShow>
+						</Scripts>
+					</Button>
+
+					<Frame name="$parentColorTypeLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="120" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentFilterCombo" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-8" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_AURA_COLOR_TYPE" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Button name="$parentColorTypeCombo" inherits="VuhDoComboBoxTemplate">
+						<Size>
+							<AbsDimension x="120" y="24" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentColorTypeLabel" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-2" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_COLOR_TYPE", VUHDO_AURA_GROUPS_COLOR_TYPE_OPTIONS, VUHDO_I18N_AURA_COLOR_TYPE);
+								self:SetAttribute("custom_function", VUHDO_auraGroupsColorTypeChanged);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K615);
+							</OnLoad>
+							<OnShow>
+								VUHDO_lnfPatchFont(self, "Text");
+							</OnShow>
+						</Scripts>
+					</Button>
+
+					<CheckButton name="$parentCanColorBarCheckButton" text="VUHDO_I18N_AURA_COLOR_BAR" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentColorTypeCombo" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-4" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_AURA_GROUPS_CAN_COLOR_BAR");
+								VUHDO_lnfCheckButtonOnLoad(self);
+								self:SetAttribute("custom_function_post", VUHDO_auraGroupsCanColorBarChanged);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentCanColorTextCheckButton" text="VUHDO_I18N_AURA_COLOR_TEXT" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentCanColorBarCheckButton" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="4" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_AURA_GROUPS_CAN_COLOR_TEXT");
+								VUHDO_lnfCheckButtonOnLoad(self);
+								self:SetAttribute("custom_function_post", VUHDO_auraGroupsCanColorTextChanged);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<Frame name="$parentCustomColorTexture" inherits="VuhDoColorSwatchTexture">
+						<Size>
+							<AbsDimension x="120" y="32" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentCanColorTextCheckButton" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="8" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+
+					<Frame name="$parentPrioritySlider" inherits="VuhDoHSliderTemplate">
+						<Size>
+							<AbsDimension x="200" y="50" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentCanColorBarCheckButton" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-2" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_AURA_GROUPS_PRIORITY");
+								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_PRIORITY, 1, 100, "", 1);
+								self:SetAttribute("custom_function_post", VUHDO_auraGroupsPriorityChanged);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K614);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+				</Frames>
+			</Frame>
+
+		</Frames>
+	</Frame>
+</Ui>

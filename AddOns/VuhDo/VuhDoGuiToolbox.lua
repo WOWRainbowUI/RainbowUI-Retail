@@ -10,6 +10,10 @@ local format = format;
 local GetLocale = GetLocale;
 local InCombatLockdown = InCombatLockdown;
 local UnitExists = UnitExists;
+
+local VUHDO_RAID_TARGET_TEXTURE_ROWS = 4;
+local VUHDO_RAID_TARGET_TEXTURE_COLUMNS = 4;
+
 local sIsNotInChina = GetLocale() ~= "zhCN" and GetLocale() ~= "zhTW" and GetLocale() ~= "koKR";
 local sIsManaBar = { };
 local sIsSideBarLeft = { };
@@ -26,6 +30,7 @@ local VUHDO_getActionPanelOrStub;
 local VUHDO_getPanelButtons;
 local VUHDO_getHealthBarText;
 local VUHDO_getUnitButtonsSafe;
+local VUHDO_isModelInPanel;
 
 -----------------------------------------------------------------------
 --local VUHDO_getNumbersFromString;
@@ -45,6 +50,7 @@ function VUHDO_guiToolboxInitLocalOverrides()
 	VUHDO_getPanelButtons = _G["VUHDO_getPanelButtons"];
 	VUHDO_getHealthBarText = _G["VUHDO_getHealthBarText"];
 	VUHDO_getUnitButtonsSafe = _G["VUHDO_getUnitButtonsSafe"];
+	VUHDO_isModelInPanel = _G["VUHDO_isModelInPanel"];
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		sIsManaBar[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["MANA_BAR"] ~= "";
@@ -80,12 +86,31 @@ local function VUHDO_hasPanelVisibleButtons(aPanelNum)
 		return true;
 
 	else
+		if VUHDO_isModelInPanel(aPanelNum, 42) and
+			((not VUHDO_CONFIG["OMIT_TARGET"] and UnitExists("target")) or (not VUHDO_CONFIG["OMIT_FOCUS"] and UnitExists("focus"))) then
+			return true;
+		end
+
+		if VUHDO_isModelInPanel(aPanelNum, 82) and UnitExists("target") then
+			return true;
+		end
+
+		if VUHDO_isModelInPanel(aPanelNum, 83) and UnitExists("focus") then
+			return true;
+		end
+
+		if VUHDO_isModelInPanel(aPanelNum, 44) then
+			for tCnt = 1, 8 do
+				if UnitExists("boss" .. tCnt) then
+					return true;
+				end
+			end
+		end
+
 		for _, tButton in pairs(VUHDO_getPanelButtons(aPanelNum)) do
 			tUnit = tButton:GetAttribute("unit");
-			
-			if not tUnit then
-				return false;
-			elseif UnitExists(tUnit) then
+
+			if tUnit and UnitExists(tUnit) then
 				return true;
 			end
 		end
@@ -326,7 +351,14 @@ end
 
 --
 function VUHDO_setRaidTargetIconTexture(aTexture, anIndex)
-	aTexture:SetTexCoord(VUHDO_getRaidTargetIconTexture(anIndex));
+
+	if anIndex then
+		aTexture:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons");
+		aTexture:SetSpriteSheetCell(anIndex, VUHDO_RAID_TARGET_TEXTURE_ROWS, VUHDO_RAID_TARGET_TEXTURE_COLUMNS);
+	end
+
+	return;
+
 end
 
 
@@ -992,28 +1024,37 @@ end
 --
 local tOutline, tShadowAlpha, tColor, tFactor;
 function VUHDO_customizeIconText(aParent, aHeight, aLabel, aSetup)
+
 	tFactor = aHeight * 0.01;
+
 	aLabel:ClearAllPoints();
-	VUHDO_PixelUtil.SetPoint(aLabel, aSetup["ANCHOR"], aParent:GetName(), aSetup["ANCHOR"], tFactor * aSetup["X_ADJUST"], -tFactor * aSetup["Y_ADJUST"]);
+	VUHDO_PixelUtil.SetPoint(aLabel, aSetup["ANCHOR"], aParent, aSetup["ANCHOR"], tFactor * aSetup["X_ADJUST"], -tFactor * aSetup["Y_ADJUST"]);
+
 	tOutline = aSetup["USE_OUTLINE"] and "OUTLINE|" or "";
 	tOutline = tOutline .. (aSetup["USE_MONO"] and "OUTLINEMONOCHROME" or ""); -- Bugs out in MoP beta
 
 	tColor = aSetup["COLOR"];
+
 	if tColor then
 		tShadowAlpha = aSetup["USE_SHADOW"] and tColor["O"] or 0;
+
 		aLabel:SetTextColor(VUHDO_textColor(tColor));
 		aLabel:SetShadowColor(tColor["R"], tColor["G"], tColor["B"], tShadowAlpha);
 	else
 		tShadowAlpha = aSetup["USE_SHADOW"] and 1 or 0;
+
 		aLabel:SetTextColor(1, 1, 1, 1);
 		aLabel:SetShadowColor(0, 0, 0, tShadowAlpha);
 	end
 
 	aLabel:SetFont(aSetup["FONT"], tFactor * aSetup["SCALE"], tOutline or "");
-	
+
 	aLabel:SetShadowOffset(1, -1);
 
 	aLabel:SetText("");
+
+	return;
+
 end
 
 
@@ -1135,6 +1176,23 @@ end
 
 
 --
+function VUHDO_copyColorTo(aSource, aDest)
+
+	if not aSource then
+		return aDest;
+	end
+
+	aDest["R"], aDest["G"], aDest["B"], aDest["O"] = aSource["R"], aSource["G"], aSource["B"], aSource["O"];
+	aDest["TR"], aDest["TG"], aDest["TB"], aDest["TO"] = aSource["TR"], aSource["TG"], aSource["TB"], aSource["TO"];
+	aDest["useBackground"], aDest["useText"], aDest["useOpacity"] = aSource["useBackground"], aSource["useText"], aSource["useOpacity"];
+
+	return aDest;
+
+end
+
+
+
+--
 local tSummand;
 function VUHDO_brightenColor(aColor, aFactor)
 	if not aColor then return; end
@@ -1222,13 +1280,13 @@ end
 
 --
 local tPanelNum;
-function VUHDO_indicatorTextCallback(aBarNum, aUnit, aProviderName, aText, aValue, anIndicatorName)
+function VUHDO_indicatorTextCallback(aBarNum, aUnit, aProviderName, aValue, anIndicatorName, ...)
 
 	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
 		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
 
 		if VUHDO_INDICATOR_CONFIG[tPanelNum]["TEXT_INDICATORS"][anIndicatorName]["TEXT_PROVIDER"] == aProviderName then
-			VUHDO_getHealthBarText(tButton, aBarNum):SetText(aText);
+			VUHDO_getHealthBarText(tButton, aBarNum):SetText(format(...));
 		end
 	end
 

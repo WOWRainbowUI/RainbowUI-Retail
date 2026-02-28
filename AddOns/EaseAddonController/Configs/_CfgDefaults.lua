@@ -1673,7 +1673,7 @@ D["TeleportMenu"] = {
 D["TidyPlates_ThreatPlates"] = {
     defaultEnable = 0,
 	tags = { "UNITFRAME" },
-	title = "威力血條",
+	title = "[測試版] 威力血條",
 	desc = "威力強大、能夠根據仇恨值變化血條、提供更多自訂選項的血條。還可以幫指定的怪自訂血條樣式，讓血條更清楚明顯。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_warrior_innerrage",
@@ -1807,7 +1807,7 @@ D["VCB"] = {
 D["VuhDo"] = {
     defaultEnable = 0,
 	tags = { "UNITFRAME" },
-	title = "團隊框架 (巫毒)",
+	title = "[測試版] 團隊框架 (巫毒)",
 	desc = "功能強大的補血框架，可用來取代內建的隊伍/團隊框架，滑鼠點一下就能快速施放法術/補血，是補師的好朋友!``可以自訂框架的外觀、順序，提供治療、驅散、施放增益效果、使用飾品、距離檢查和仇恨提示和更多功能。``還有精美且清楚的 HOT 和動畫效果提醒驅散的 DEBUFF 圖示。`",
 	img = true,
     {

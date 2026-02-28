@@ -1,5 +1,6 @@
 local _;
 
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
 -- for saving once learnt yards in saved variables
 local VUHDO_STORED_ZONES = { };
@@ -37,6 +38,8 @@ function VUHDO_clusterBuilderInitLocalOverrides()
 
 	VUHDO_tableUniqueAdd = _G["VUHDO_tableUniqueAdd"];
 	VUHDO_checkInteractDistance = _G["VUHDO_checkInteractDistance"];
+
+	return;
 end
 
 
@@ -208,6 +211,10 @@ local VuhDoDummyStub = {
 };
 
 function VUHDO_updateAllClusters()
+
+	if sSecretsEnabled then
+		return;
+	end
 
 	-- as of patch 7.1 APIs related to unit position/distance do not function inside instances
 	tIsInInstance, _ = IsInInstance();
@@ -411,9 +418,11 @@ local function VUHDO_getMostDeficitUnitOutOf(anIncludeList, anExcludeList)
 	for _, tUnit in pairs(anIncludeList) do
 		if not anExcludeList[tUnit] then
 			tInfo = VUHDO_RAID[tUnit];
-			if tInfo and tInfo["healthmax"] - tInfo["health"] > tWinnerMissLife then
-				tWinnerUnit = tUnit;
-				tWinnerMissLife = tInfo["healthmax"] - tInfo["health"];
+			if tInfo and tInfo["healthmax"] > 0 and not tInfo["dead"] then
+				if tInfo["healthmax"] - tInfo["health"] > tWinnerMissLife then
+					tWinnerUnit = tUnit;
+					tWinnerMissLife = tInfo["healthmax"] - tInfo["health"];
+				end
 			end
 		end
 	end

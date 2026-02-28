@@ -219,7 +219,7 @@
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parentDebuffsRadioButton" text="VUHDO_I18N_DEBUFFS" inherits="VuhDoTabStopButtonTemplate">
+					<CheckButton name="$parentAurasRadioButton" text="VUHDO_I18N_AURAS" inherits="VuhDoTabStopButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
@@ -229,7 +229,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad inherit="prepend">
-								self.tabPanel = "VuhDoNewOptionsDebuffs";
+								self.tabPanel = "VuhDoNewOptionsAura";
 							</OnLoad>
 							<OnClick>VUHDO_newOptionsTabbedClickedClicked(self); VUHDO_lnfRadioButtonClicked(self)</OnClick>
 						</Scripts>
@@ -252,7 +252,7 @@
 					</Frame>
 					<Frame name="VuhDoNewOptionsBuffs" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsBuffsTemplate">
 					</Frame>
-					<Frame name="VuhDoNewOptionsDebuffs" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsDebuffsTemplate">
+					<Frame name="VuhDoNewOptionsAura" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsAuraTemplate">
 					</Frame>
 					<Frame name="VuhDoNewOptionsTools" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsToolsTemplate">
 					</Frame>

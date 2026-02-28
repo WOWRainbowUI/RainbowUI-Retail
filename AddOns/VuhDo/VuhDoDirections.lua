@@ -82,19 +82,49 @@ local VUHDO_getRedGreenForDistance = VUHDO_getRedGreenForDistance;
 local tInfo;
 local tIsInInstance;
 function VUHDO_shouldDisplayArrow(aUnit)
+
 	tIsInInstance, _ = IsInInstance();
 
 	if tIsInInstance then
-		return false;
+		return false, false;
 	end
 
 	tInfo = VUHDO_RAID[aUnit];
-	return not UnitIsUnit("player", aUnit)
-		and tInfo
-		and (not tInfo["range"] or sIsAlways)
-		and (not sIsDeadOnly or tInfo["dead"])
-		and tInfo["connected"]
-		and not tInfo["isPet"];
+
+	if not tInfo then
+		return false, false;
+	end
+
+	if UnitIsUnit("player", aUnit) then
+		return false, false;
+	end
+
+	if tInfo["isPet"] then
+		return false, false;
+	end
+
+	if not tInfo["connected"] then
+		return false, false;
+	end
+
+	if sIsDeadOnly and not tInfo["dead"] then
+		return false, false;
+	end
+
+	if sIsAlways then
+		return true, false;
+	end
+
+	if tInfo["hasSecretRange"] then
+		return true, true;
+	end
+
+	if not tInfo["range"] then
+		return true, false;
+	end
+
+	return false, false;
+
 end
 local VUHDO_shouldDisplayArrow = VUHDO_shouldDisplayArrow;
 
@@ -103,6 +133,8 @@ local VUHDO_shouldDisplayArrow = VUHDO_shouldDisplayArrow;
 --
 local tPanelNum;
 local tUnit;
+local tShouldShow;
+local tHasSecretRange;
 local tDirection;
 local tCell;
 local sLastCell = nil;
@@ -120,7 +152,9 @@ function VUHDO_updateDirectionFrame(aButton)
 
 	tUnit = tButton:GetAttribute("unit");
 
-	if not VUHDO_shouldDisplayArrow(tUnit) then
+	tShouldShow, tHasSecretRange = VUHDO_shouldDisplayArrow(tUnit);
+
+	if not tShouldShow then
 		VuhDoDirectionFrame["shown"] = false;
 		VuhDoDirectionFrame:Hide();
 
@@ -175,5 +209,11 @@ function VUHDO_updateDirectionFrame(aButton)
 
 	VuhDoDirectionFrame:Show();
 	VuhDoDirectionFrame["shown"] = true;
+
+	if tHasSecretRange then
+		VuhDoDirectionFrame:SetAlphaFromBoolean(VUHDO_RAID[tUnit]["range"], 0, 1);
+	else
+		VuhDoDirectionFrame:SetAlpha(1);
+	end
 
 end

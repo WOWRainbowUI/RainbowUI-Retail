@@ -1,8 +1,8 @@
+local _;
+
 local pairs = pairs;
 local UnitExists = UnitExists;
 local UnitIsUnit = UnitIsUnit;
-local _;
-
 
 local VUHDO_RAID = { };
 local VUHDO_INTERNAL_TOGGLES = { };
@@ -17,6 +17,9 @@ local VUHDO_updateHealthBarsFor;
 local VUHDO_getUnitButtonsSafe;
 local VUHDO_getPlayerTargetFrame;
 local VUHDO_cleanupSpellTraceForUnit;
+local VUHDO_applyAllLayersToBorder;
+
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
 
 
@@ -36,6 +39,7 @@ function VUHDO_playerTargetEventHandlerInitLocalOverrides()
 	VUHDO_getUnitButtonsSafe = _G["VUHDO_getUnitButtonsSafe"];
 	VUHDO_getPlayerTargetFrame = _G["VUHDO_getPlayerTargetFrame"];
 	VUHDO_cleanupSpellTraceForUnit = _G["VUHDO_cleanupSpellTraceForUnit"];
+	VUHDO_applyAllLayersToBorder = _G["VUHDO_applyAllLayersToBorder"];
 
 	return;
 
@@ -83,11 +87,19 @@ function VUHDO_updatePlayerTarget()
 		end
 
 		if UnitExists("target") then
+			VUHDO_fullAuraRefresh("target");
+
 			VUHDO_setHealth("target", 1); -- VUHDO_UPDATE_ALL
 		else
-			VUHDO_removeHots("target");
-			VUHDO_removeAllDebuffIcons("target");
-			VUHDO_resetDebuffsFor("target");
+			VUHDO_clearUnitAuraCache("target");
+
+			if sSecretsEnabled then
+				VUHDO_hideAurasForUnit("target");
+			else
+				VUHDO_removeHots("target");
+				VUHDO_removeAllDebuffIcons("target");
+				VUHDO_resetDebuffsFor("target");
+			end
 
 			VUHDO_updateTargetBars("target");
 
@@ -107,19 +119,30 @@ end
 
 --
 local tBorder;
-function VUHDO_barBorderBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCounter, aDuration, aColor, aBuffName, aBouquetName, anImpact)
+function VUHDO_barBorderBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCounter, aDuration, aColor, aBuffName, aBouquetName, anImpact, aTimer2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate)
 
 	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
 		if VUHDO_INDICATOR_CONFIG[VUHDO_BUTTON_CACHE[tButton]]["BOUQUETS"]["BAR_BORDER"] == aBouquetName then
-			if aColor then
-				tBorder = VUHDO_getPlayerTargetFrame(tButton);
+			tBorder = VUHDO_getPlayerTargetFrame(tButton);
 
-				VUHDO_PixelUtil.SetFrameLevel(tBorder, tButton:GetFrameLevel() + (anImpact or 0) + 2);
-				tBorder:SetBackdropBorderColor(VUHDO_backColorWithFallback(aColor));
+			if tBorder then
+				if anIsActive then
+					if aLayerTemplate then
+						VUHDO_PixelUtil.SetFrameLevel(tBorder, tButton:GetFrameLevel() + (anImpact or 0) + 2);
+						VUHDO_applyAllLayersToBorder(tButton, tBorder, aLayerTemplate);
+					elseif aColor then
+						VUHDO_PixelUtil.SetFrameLevel(tBorder, tButton:GetFrameLevel() + (anImpact or 0) + 2);
+						tBorder:SetBackdropBorderColor(VUHDO_backColorWithFallback(aColor));
+					end
 
-				tBorder:Show();
-			else
-				VUHDO_getPlayerTargetFrame(tButton):Hide();
+					tBorder:Show();
+				else
+					tBorder:Hide();
+				end
+			end
+
+			if sSecretsEnabled then
+				VUHDO_updateIndicatorAlphaChain(tButton, "BAR_BORDER", VUHDO_RAID[aUnit]);
 			end
 		end
 	end

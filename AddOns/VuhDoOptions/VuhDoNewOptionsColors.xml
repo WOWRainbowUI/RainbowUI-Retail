@@ -65,7 +65,7 @@
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parentHotsRadioButton" text="VUHDO_I18N_HOTS" inherits="VuhDoTabRadioButtonTemplate">
+					<CheckButton name="$parentAurasRadioButton" text="VUHDO_I18N_AURAS" inherits="VuhDoTabRadioButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
@@ -75,26 +75,9 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								self.tabPanel = "VuhDoNewOptionsColorsHots";
+								self.tabPanel = "VuhDoNewOptionsColorsAuras";
 								VUHDO_lnfCheckButtonOnLoad(self);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K224);
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
-					<CheckButton name="$parentHot2RadioButton" text="VUHDO_I18N_HOTS_2" inherits="VuhDoTabRadioButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="3" y="-155" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								self.tabPanel = "VuhDoNewOptionsColorsHotCharges";
-								VUHDO_lnfCheckButtonOnLoad(self);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K225);
+								VUHDO_lnfSetTooltip(self, "Global aura display defaults");
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -103,7 +86,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="3" y="-193" />
+									<AbsDimension x="3" y="-155" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -120,7 +103,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="3" y="-231" />
+									<AbsDimension x="3" y="-193" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -138,7 +121,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="3" y="-269" />
+									<AbsDimension x="3" y="-231" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -155,7 +138,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="3" y="-307" />
+									<AbsDimension x="3" y="-269" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -188,9 +171,7 @@
 					</Frame>
 					<Frame name="VuhDoNewOptionsColorsPowers" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsColorsPowersTemplate">
 					</Frame>
-					<Frame name="VuhDoNewOptionsColorsHots" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsColorsHotsTemplate">
-					</Frame>
-					<Frame name="VuhDoNewOptionsColorsHotCharges" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsColorsHotChargesTemplate">
+					<Frame name="VuhDoNewOptionsColorsAuras" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsColorsAurasTemplate">
 					</Frame>
 					<Frame name="VuhDoNewOptionsColorsClasses" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsColorsClassesTemplate">
 					</Frame>

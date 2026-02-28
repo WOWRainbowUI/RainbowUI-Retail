@@ -86,7 +86,7 @@
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parentAoeAdviceRadioButton" text="VUHDO_I18N_AOE_ADVICE" inherits="VuhDoTabRadioButtonTemplate">
+					<CheckButton name="$parentAoeAdviceRadioButton" hidden="true" text="VUHDO_I18N_AOE_ADVICE" inherits="VuhDoTabRadioButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
@@ -107,7 +107,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="3" y="-163" />
+									<AbsDimension x="3" y="-128" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -127,7 +127,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="3" y="-203" />
+									<AbsDimension x="3" y="-168" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -139,7 +139,7 @@
 						</Layers>
 					</Frame>
 
-					<CheckButton name="$parentClusterRadioButton" text="VUHDO_I18N_CLUSTERS" inherits="VuhDoTabRadioButtonTemplate">
+					<CheckButton name="$parentClusterRadioButton" hidden="true" text="VUHDO_I18N_CLUSTERS" inherits="VuhDoTabRadioButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
@@ -156,7 +156,7 @@
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parentSpellTraceRadioButton" text="VUHDO_I18N_SPELL_TRACE" inherits="VuhDoTabRadioButtonTemplate">
+					<CheckButton name="$parentSpellTraceRadioButton" hidden="true" text="VUHDO_I18N_SPELL_TRACE" inherits="VuhDoTabRadioButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
@@ -173,7 +173,7 @@
 						</Scripts>
 					</CheckButton>
 
-					<Frame name="$parentExpertLabel" inherits="VuhDoLabelFrameTemplate">
+					<Frame name="$parentExpertLabel" hidden="true" inherits="VuhDoLabelFrameTemplate">
 						<Size>
 							<AbsDimension x="100" y="18" />
 						</Size>
@@ -196,7 +196,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="3" y="-308" />
+									<AbsDimension x="3" y="-183" />
 								</Offset>
 							</Anchor>
 						</Anchors>

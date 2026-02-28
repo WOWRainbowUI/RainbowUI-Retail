@@ -1,8 +1,8 @@
-## Interface: 110205, 110207
+## Interface: 120001
 
 ## Title: VuhDo ['vu:du:] - Options
 ## Author: Iza@Gilneas, humfras, Ivaria@Hyjal
-## Version: 3.194
+## Version: 3.198
 ## Notes: VuhDo Options
 ## IconTexture: Interface\AddOns\VuhDo\Images\TemporaryPortrait-Female-BloodElf-VuhDo
 
@@ -65,12 +65,14 @@ VuhDoNewOptionsPanelText.xml
 VuhDoNewOptionsPanelMisc.xml
 VuhDoNewOptionsPanelHotBars.xml
 VuhDoNewOptionsPanelHots.xml
+VuhDoNewOptionsPanelAuras.xml
 VuhDoNewOptionsPanelIndicators.xml
 VuhDoNewOptionsPanelPanel.xml
 VuhDoNewOptionsColorsClasses.xml
 VuhDoNewOptionsColorsClassGradients.xml
 VuhDoNewOptionsColorsHots.xml
 VuhDoNewOptionsColorsHotCharges.xml
+VuhDoNewOptionsColorsAuras.xml
 VuhDoNewOptionsColorsStates.xml
 VuhDoNewOptionsColorsModes.xml
 VuhDoNewOptionsColorsPowers.xml
@@ -86,6 +88,8 @@ VuhDoNewOptionsDebuffs.xml
 VuhDoNewOptionsDebuffsStandard.xml
 VuhDoNewOptionsDebuffsCustom.xml
 VuhDoNewOptionsDebuffsCustomVisuals.xml
+VuhDoNewOptionsAuraGroups.xml
+VuhDoNewOptionsAura.xml
 VuhDoNewOptionsTools.xml
 VuhDoNewOptionsToolsSkins.xml
 VuhDoNewOptionsToolsKeyLayouts.xml

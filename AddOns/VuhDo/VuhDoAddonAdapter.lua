@@ -189,17 +189,27 @@ end
 
 
 --
+local tBtnName;
+local tHeader;
 function VUHDO_initCliqueSupport()
-	if not VUHDO_CONFIG["IS_CLIQUE_COMPAT_MODE"] then return; end
+
+	if not VUHDO_CONFIG["IS_CLIQUE_COMPAT_MODE"] then
+		return;
+	end
 
 	if not IsAddOnLoaded("Clique") then
 		VUHDO_Msg("警告：Clique 相容模式已經啟用，但是 Clique 似乎尚未載入!", 1, 0.4, 0.4);
+
+		return;
 	end
 
-	ClickCastFrames = ClickCastFrames or {};
+	ClickCastFrames = ClickCastFrames or { };
 
-	local tBtnName;
-	local tIcon;
+	tHeader = _G["VuhDoHealButtonSecureHeaderFrame"];
+
+	if tHeader and ClickCastHeader then
+		tHeader:SetFrameRef("sCliqueHeader", ClickCastHeader);
+	end
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		for tButtonNum = 1, 51 do -- VUHDO_MAX_BUTTONS_PANEL
@@ -212,6 +222,9 @@ function VUHDO_initCliqueSupport()
 			end
 		end
 	end
+
+	return;
+
 end
 
 

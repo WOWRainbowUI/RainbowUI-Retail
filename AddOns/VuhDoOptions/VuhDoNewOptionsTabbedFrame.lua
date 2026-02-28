@@ -146,7 +146,7 @@ local tAllPanels = {
 	{ "VuhDoNewOptionsColors", "Colors" },
 	{ "VuhDoNewOptionsMove", "Move" },
 	{ "VuhDoNewOptionsBuffs", "Buffs" },
-	{ "VuhDoNewOptionsDebuffs", "Debuffs" },
+	{ "VuhDoNewOptionsAura", "Auras" },
 	{ "VuhDoNewOptionsTools", "Tools" },
 }
 

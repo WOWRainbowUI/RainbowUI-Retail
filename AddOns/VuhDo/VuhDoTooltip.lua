@@ -14,6 +14,7 @@ local UnitHealthMax = UnitHealthMax;
 local UnitIsConnected = UnitIsConnected;
 local UnitIsAFK = UnitIsAFK;
 local UnitIsDND = UnitIsDND;
+local InChatMessagingLockdown = C_ChatInfo and C_ChatInfo.InChatMessagingLockdown;
 local GetRealZoneText = GetRealZoneText;
 local UnitExists = UnitExists;
 local UnitClass = UnitClass;
@@ -23,6 +24,10 @@ local pairs = pairs;
 local ipairs = ipairs;
 local twipe = table.wipe;
 local format = format;
+local issecretvalue = issecretvalue;
+local AbbreviateNumbers = AbbreviateNumbers;
+
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local sEmpty = { };
 
 
@@ -243,6 +248,10 @@ end
 --
 local function VUHDO_getKiloText(aNumber)
 
+	if sSecretsEnabled and issecretvalue(aNumber) then
+		return AbbreviateNumbers(aNumber);
+	end
+
 	return aNumber >= 1000000 and format("%.2fM", aNumber * 0.000001) 
 		or aNumber > 99500 and format("%dk", aNumber * 0.001)
 		or aNumber > 9500 and format("%.1fk", aNumber * 0.001)
@@ -253,18 +262,33 @@ end
 
 
 --
-local tUnit, tInfo;
+local tUnit;
+local tInfo;
+local tName;
 local tClassColor;
 local tLeftText;
 local tRightText;
+local tInChatLockdown;
+local tIsAfk;
+local tIsDnd;
 local tModifier;
 local tGuildName, tGuildRank;
 local tBinding;
 local tClassName, tClassNameLoc;
 function VUHDO_updateTooltip()
-	if not UnitExists(VUHDO_TT_UNIT) then	return;	end
 
-	tInfo = VUHDO_RAID[VUHDO_RAID_NAMES[UnitName(VUHDO_TT_UNIT)]] or VUHDO_RAID[VUHDO_TT_UNIT];
+	if not UnitExists(VUHDO_TT_UNIT) then
+		return;
+	end
+
+	tName = UnitName(VUHDO_TT_UNIT);
+
+	if sSecretsEnabled and issecretvalue(tName) then
+		tInfo = VUHDO_RAID[VUHDO_TT_UNIT];
+	else
+		tInfo = VUHDO_RAID[VUHDO_RAID_NAMES[tName]] or VUHDO_RAID[VUHDO_TT_UNIT];
+	end
+
 	if not tInfo then
 		tUnit = VUHDO_TT_UNIT;
 		tInfo = sEmpty;
@@ -277,6 +301,7 @@ function VUHDO_updateTooltip()
 	-- Name, Role
 	tClassNameLoc, tClassName = UnitClass(tUnit);
 	tClassColor = VUHDO_getClassColorByModelId(VUHDO_CLASS_IDS[tClassName] or "*");
+
 	if not tClassColor then
 		-- FIXME: bar text color is not per panel
 		tClassColor = VUHDO_PANEL_SETUP["PANEL_COLOR"]["TEXT"];
@@ -307,10 +332,15 @@ function VUHDO_updateTooltip()
 		UnitIsGhost(tUnit) and VUHDO_I18N_TT_GHOST
 		or UnitIsDead(tUnit) and VUHDO_I18N_TT_DEAD or " ";
 
+	tInChatLockdown = InChatMessagingLockdown();
+
+	tIsAfk = not tInChatLockdown and UnitIsAFK(tUnit);
+	tIsDnd = not tInChatLockdown and UnitIsDND(tUnit);
+
 	tRightText =
 		not UnitIsConnected(tUnit) and VUHDO_getDurationTextSince(VUHDO_getAfkDcTime(tUnit))
-		or UnitIsAFK(tUnit) and format("%s %s", VUHDO_I18N_TT_AFK, VUHDO_getDurationTextSince(VUHDO_getAfkDcTime(tUnit)))
-		or UnitIsDND(tUnit) and VUHDO_I18N_TT_DND or " ";
+		or tIsAfk and format("%s %s", VUHDO_I18N_TT_AFK, VUHDO_getDurationTextSince(VUHDO_getAfkDcTime(tUnit)))
+		or tIsDnd and VUHDO_I18N_TT_DND or " ";
 
 	if tLeftText ~= " " or tRightText ~= " " then
 		VUHDO_addTooltipLineLeft(tLeftText, VUHDO_VALUE_COLOR);
@@ -332,6 +362,7 @@ function VUHDO_updateTooltip()
 
 		for tIndex, tButtonName in ipairs(VUHDO_MOUSE_BUTTONS) do
 			tBinding = VUHDO_getSpellTooltip(tModifier, tIndex, tUnit);
+
 			if #tBinding ~= 0 then
 				VUHDO_addTooltipLineLeft(format("%s%s%s", tModifier, tButtonName, tBinding), VUHDO_VALUE_COLOR, 8);
 			end
@@ -339,6 +370,9 @@ function VUHDO_updateTooltip()
 	end
 
 	VUHDO_finishTooltip();
+
+	return;
+
 end
 
 

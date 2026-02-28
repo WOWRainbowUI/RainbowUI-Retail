@@ -137,6 +137,7 @@ end
 
 --
 local function VUHDO_setupStaticBuffPanel(aCategoryName, aBuffPanel, anIsPresent)
+
 	local tBuffSettings;
 
 	if (VUHDO_BUFF_SETTINGS[aCategoryName] == nil) then
@@ -163,13 +164,14 @@ local function VUHDO_setupStaticBuffPanel(aCategoryName, aBuffPanel, anIsPresent
 	VUHDO_lnfSetModel(tMissButton, "VUHDO_BUFF_SETTINGS." .. aCategoryName .. ".missingColor.show");
 	VUHDO_lnfSetTooltip(tMissButton, VUHDO_I18N_TT.K386);
 	tMissButton:Hide();
-	tMissButton:Show();
 
 	local tMissTexture = _G[aBuffPanel:GetName() .. "MissingTexture"];
 	VUHDO_lnfSetModel(tMissTexture, "VUHDO_BUFF_SETTINGS." .. aCategoryName .. ".missingColor");
 	VUHDO_lnfSetTooltip(tMissTexture, VUHDO_I18N_TT.K385);
 	tMissTexture:Hide();
-	tMissTexture:Show();
+
+	return;
+
 end
 
 

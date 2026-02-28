@@ -3,6 +3,7 @@ local select = select;
 local type = type;
 
 local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs;
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
 local VUHDO_SHIELDS = {
 	[17] = 15, -- VUHDO_SPELL_ID.POWERWORD_SHIELD -- ok
@@ -178,7 +179,11 @@ local function VUHDO_initShieldValue(aUnit, aShieldName, anAmount, aDuration)
 	VUHDO_SHIELD_LEFT[aUnit][aShieldName] = anAmount;
 
 	if sIsPumpAegis and VUHDO_PUMP_SHIELDS[aShieldName] then
-		VUHDO_SHIELD_SIZE[aUnit][aShieldName] = VUHDO_RAID["player"]["healthmax"] * VUHDO_PUMP_SHIELDS[aShieldName];
+		if sSecretsEnabled and VUHDO_RAID["player"] and VUHDO_RAID["player"]["hasSecretHealthMax"] then
+			VUHDO_SHIELD_SIZE[aUnit][aShieldName] = 0;
+		else
+			VUHDO_SHIELD_SIZE[aUnit][aShieldName] = VUHDO_RAID["player"]["healthmax"] * VUHDO_PUMP_SHIELDS[aShieldName];
+		end
 	else
 		VUHDO_SHIELD_SIZE[aUnit][aShieldName] = anAmount;
 	end

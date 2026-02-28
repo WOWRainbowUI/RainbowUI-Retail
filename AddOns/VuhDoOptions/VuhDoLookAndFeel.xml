@@ -2664,7 +2664,7 @@
 </Frame>
 
 
-<Frame name="VuhDoProgressBar" virtual="true" inherits="VuhDoStatusBar">
+<StatusBar name="VuhDoProgressBar" virtual="true" inherits="VuhDoStatusBar">
 	<Layers>
 		<Layer>
 			<FontString name="$parentText" text="請稍候" inherits="VuDoDarkTitleFontTemplate">
@@ -2673,7 +2673,7 @@
 	</Layers>
 	<Scripts>
 		<OnLoad>
-			VUHDO_refactorStatusbar(self);
+			self.statusTexture = self:GetStatusBarTexture();
 			self:SetStatusBarTexture("Interface\\AddOns\\VuhDoOptions\\Images\\blue_lt_square_16_16");
 			self:SetStatusBarColor(1, 1, 1, 1);
 			self["SetProgress"] = function(self, aValue, aMaxValue)
@@ -2683,7 +2683,7 @@
 			end
 		</OnLoad>
 	</Scripts>
-</Frame>
+</StatusBar>
 
 
 </Ui>

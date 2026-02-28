@@ -40,7 +40,7 @@ end
 --
 local tInfo;
 local tIndicators;
-local tText, tValue, tMaxValue;
+local tValue, tMaxValue;
 local tEmpty = { };
 function VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType, aBouquetName, anIsActive)
 
@@ -58,13 +58,11 @@ function VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType, aBouquetName,
 								-- FIXME: hardcoded bouquet name check is fragile
 								if not anIsActive or
 									(aBouquetName == VUHDO_I18N_DEF_BOUQUET_BAR_MANA_HEALER_ONLY and tInfo["role"] ~= VUHDO_ID_RANGED_HEAL) then
-									tFunction(aUnit, tProviderName, "", 0, tIndicatorName);
+									tFunction(aUnit, tProviderName, "", tIndicatorName, "%s", "");
 								else
 									tValue, tMaxValue = VUHDO_TEXT_PROVIDERS[tProviderName]["calculator"](tInfo);
 
-									tText = VUHDO_TEXT_PROVIDERS[tProviderName]["validator"](tInfo, tValue, tMaxValue);
-
-									tFunction(aUnit, tProviderName, tText, tValue, tIndicatorName);
+									tFunction(aUnit, tProviderName, tValue, tIndicatorName, VUHDO_TEXT_PROVIDERS[tProviderName]["validator"](tInfo, tValue, tMaxValue));
 								end
 							end
 						end
@@ -78,9 +76,7 @@ function VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType, aBouquetName,
 						if not VUHDO_getRegisteredBouquetIndicators(tIndicatorName) then
 							tValue, tMaxValue = VUHDO_TEXT_PROVIDERS[tProviderName]["calculator"](tInfo);
 
-							tText = VUHDO_TEXT_PROVIDERS[tProviderName]["validator"](tInfo, tValue, tMaxValue);
-
-							tFunction(aUnit, tProviderName, tText, tValue, tIndicatorName);
+							tFunction(aUnit, tProviderName, tValue, tIndicatorName, VUHDO_TEXT_PROVIDERS[tProviderName]["validator"](tInfo, tValue, tMaxValue));
 						end
 					end
 				end
@@ -90,7 +86,7 @@ function VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType, aBouquetName,
 		for tProviderName, tAllIndicators in pairs(VUHDO_REGISTERED_PROVIDERS) do
 			if VUHDO_isTextProviderInterestedInEvent(tProviderName, anEventType) then
 				for tIndicatorName, tFunction in pairs(tAllIndicators) do
-					tFunction(aUnit, tProviderName, "", 0, tIndicatorName);
+					tFunction(aUnit, tProviderName, "", tIndicatorName, "%s", "");
 				end
 			end
 		end

@@ -29,8 +29,8 @@ local VUHDO_reloadRaidMembers;
 local VUHDO_isPanelVisible;
 local VUHDO_positionHealButton;
 local VUHDO_positionTableHeaders;
+local VUHDO_refreshAllUnitAuras;
 
-local sLastDebuffIcon;
 local sShowPanels;
 
 function VUHDO_panelRefreshInitLocalOverrides()
@@ -59,9 +59,10 @@ function VUHDO_panelRefreshInitLocalOverrides()
 	VUHDO_isPanelVisible = _G["VUHDO_isPanelVisible"];
 	VUHDO_positionHealButton = _G["VUHDO_positionHealButton"];
 	VUHDO_positionTableHeaders = _G["VUHDO_positionTableHeaders"];
+	VUHDO_refreshAllUnitAuras = _G["VUHDO_refreshAllUnitAuras"];
 
-	sLastDebuffIcon = VUHDO_CONFIG["CUSTOM_DEBUFF"]["max_num"] + 39;
 	sShowPanels = VUHDO_CONFIG["SHOW_PANELS"];
+
 end
 -- BURST CACHE ---------------------------------------------------
 
@@ -155,6 +156,8 @@ local function VUHDO_refreshPositionAllHealButtons(aPanel, aPanelNum)
 			end
 		end
 
+		VUHDO_clearUnitAuraFrames(tButton);
+
 		VUHDO_PixelUtil.Hide(tButton);
 		tButtonIdx = tButtonIdx + 1;
 	end
@@ -212,15 +215,25 @@ end
 
 --
 function VUHDO_refreshUiNoMembers()
+
 	VUHDO_resetNameTextCache();
+
 	twipe(VUHDO_UNIT_BUTTONS);
 	twipe(VUHDO_UNIT_BUTTONS_PANEL);
+
 	VUHDO_refreshAllPanels();
+
 	VUHDO_updateAllCustomDebuffs(true);
+	VUHDO_refreshAllUnitAuras();
+
 	if VUHDO_INTERNAL_TOGGLES[22] then -- VUHDO_UPDATE_UNIT_TARGET
 		VUHDO_rebuildTargets();
 	end
+
 	VUHDO_initAllEventBouquets();
+
+	return;
+
 end
 local VUHDO_refreshUiNoMembers = VUHDO_refreshUiNoMembers;
 
@@ -288,13 +301,14 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 					offsetY = 0,
 				},
 			},
-			durationAnchor = {
+			-- FIXME: make configurable in VuhDo Options
+			--[[durationAnchor = {
 				point = "TOP",
 				relativeTo = tPrivateAura,
 				relativePoint = "BOTTOM",
 				offsetX = 0,
 				offsetY = 0,
-			},
+			},]]
 		};
 
 		tPrivateAura["anchorId"] = C_UnitAuras.AddPrivateAuraAnchor(tPrivateAuraAnchor);

@@ -8,6 +8,7 @@ local pairs = pairs;
 local floor = floor;
 local twipe = table.wipe;
 local select = select;
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local _;
 
 local sIsIncoming;
@@ -230,7 +231,7 @@ function VUHDO_aoeUpdateSpellAverages()
 			tSpellModi = tInfo["base"] / tInfo["divisor"];
 			tInfo["avg"] = floor((tInfo["base"] + tBonus * tSpellModi) + 0.5);
 		end
-		
+
 		-- FIXME: as of 9.0.1 PLAYER_EQUIPMENT_CHANGED sometimes fires before VUHDO_CONFIG is loaded and available
 		if VUHDO_CONFIG then
 			tInfo["thresh"] = VUHDO_CONFIG["AOE_ADVISOR"]["config"][tName]["thresh"];
@@ -299,7 +300,7 @@ local function VUHDO_getAverageExpectedHeals(aCluster, aMaxHealAmount, aDegressi
 	if tHealingTotal == 0 or tNumPlayersHealed == 0 then
 		return 0;
 	end
-	
+
 	-- Find out how much the aDegression multiplier has reduced our expected heals.
 	-- The heal-amount gets multiplied by aDegression on each jump.  So the average degression multiplier is
 	-- (1 + 1*aDegression + 1*aDegression^2 + ... + 1*aDegression^(tNumHealTargets-1))/tNumHealTargets
@@ -309,7 +310,7 @@ local function VUHDO_getAverageExpectedHeals(aCluster, aMaxHealAmount, aDegressi
 	if aDegression < 1 then
 		tDegressionAverage = (1-aDegression^tNumHealTargets)/((1-aDegression)*tNumHealTargets);
 	end
-	
+
 	--Find the average expected healed
 	local tAverageHealedPerPlayer = tHealingTotal / tNumPlayersHealed;
 	return tAverageHealedPerPlayer * tNumHealTargets * tDegressionAverage;
@@ -438,6 +439,10 @@ local tOldAoeForUnit = {};
 local tAoeChangedForUnit = { };
 function VUHDO_aoeUpdateAll()
 	if not VUHDO_INTERNAL_TOGGLES[32] then return; end -- VUHDO_UPDATE_AOE_ADVICE
+
+	if sSecretsEnabled then
+		return;
+	end
 
 	tPlayerModi = VUHDO_getPlayerHealingMod();
 

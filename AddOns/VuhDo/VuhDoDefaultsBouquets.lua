@@ -342,7 +342,7 @@ VUHDO_DEFAULT_BACKGROUND_BOUQUETS = {
 			["name"] = "DEBUFF_BAR_COLOR",
 			["mine"] = true, ["icon"] = 1,
 			["color"] = VUHDO_makeFullColorForBouquet(1, 1, 1, 1,   1, 1, 1, 1),
-			["custom"] = { [1] = 1, ["radio"] = 1, ["bright"] = 1.0 },
+			["custom"] = { [1] = 1, ["radio"] = 1, ["bright"] = 0.4 },
 		},
 		{
 			["name"] = "CLASS_COLOR",
@@ -1969,6 +1969,25 @@ function VUHDO_loadDefaultBouquets()
 		VUHDO_addDefaultBouquet(VUHDO_DEFAULT_CHI_HARMONY_ICON_BOTH_BOUQUET);
 	end
 	VUHDO_DEFAULT_CHI_HARMONY_ICON_BOTH_BOUQUET = nil;
+
+	if VUHDO_BOUQUETS["VERSION"] < 37 then
+		VUHDO_BOUQUETS["VERSION"] = 37;
+
+		VUHDO_BOUQUETS["STORED"][VUHDO_I18N_DEF_BAR_BACKGROUND_CLASS_COLOR] =
+			VUHDO_decompressIfCompressed(VUHDO_BOUQUETS["STORED"][VUHDO_I18N_DEF_BAR_BACKGROUND_CLASS_COLOR]);
+
+		local tBouquet = VUHDO_BOUQUETS["STORED"][VUHDO_I18N_DEF_BAR_BACKGROUND_CLASS_COLOR];
+
+		if tBouquet then
+			for _, tEntry in pairs(tBouquet) do
+				if tEntry["name"] == "DEBUFF_BAR_COLOR" and tEntry["custom"] and tEntry["custom"]["bright"] == 1 then
+					tEntry["custom"]["bright"] = 0.4;
+
+					break;
+				end
+			end
+		end
+	end
 
 	VUHDO_buildGenericHealthBarBouquet();
 	VUHDO_buildGenericTargetHealthBouquet();
