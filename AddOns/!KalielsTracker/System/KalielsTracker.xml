@@ -48,7 +48,7 @@
             <KeyValue key="hideSubTypeIcon" value="true" type="boolean"/>
         </KeyValues>
         <Frames>
-            <Frame parentKey="Display" inherits="POIButtonDisplayLayerTemplate">
+            <Frame parentKey="Display" inherits="KT_POIButtonDisplayLayerTemplate">
                 <Layers>
                     <Layer level="OVERLAY">
                         <Texture parentKey="KTtomtom" file="Interface\AddOns\!KalielsTracker\Media\KT-TomTomTag" hidden="true">

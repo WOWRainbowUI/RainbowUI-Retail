@@ -163,13 +163,77 @@ local function SetHooks()
 		KT.Menu_AddCheck("最愛", IsFavorite("achievements", block.id), ToggleFavorite, "achievements", block.id)
 	end)
 
+    -- POI
+    local bck_KT_POIButtonMixin_OnClick = KT_POIButtonMixin.OnClick
+    function KT_POIButtonMixin:OnClick(button)
+        if button ~= "LeftButton" then
+            return
+        end
+
+        if self:IsSelected() then
+            PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
+            C_SuperTrack.ClearAllSuperTracked()
+            return
+        end
+
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+
+        local questID = self:GetQuestID()
+        if questID and dbChar.filterAuto[1] then
+            if ChatEdit_TryInsertQuestLinkForQuestID(questID) then
+                return
+            end
+
+            C_SuperTrack.SetSuperTrackedQuestID(questID)
+            if self:GetPingWorldMap() then
+                EventRegistry:TriggerEvent("MapCanvas.PingQuestID", questID)
+            end
+            return
+        end
+        bck_KT_POIButtonMixin_OnClick(self, button)
+    end
+
+    -- POI - POIButton.lua
+    --[[hooksecurefunc(POIButtonMixin, "OnMouseDown", function(self)
+        print("OnMouseDown")
+        if self:IsSelected() then
+            C_SuperTrack.ClearAllSuperTracked()
+        end
+    end)]]
+
+    hooksecurefunc(POIButtonMixin, "OnClick", function(self, button)
+        if not dbChar.filterAuto[1] then return end
+
+        local questID = self:GetQuestID()
+        if questID then
+            if QuestUtils_IsQuestWatched(questID) then
+                if IsShiftKeyDown() then
+                    if QuestUtil.CanRemoveQuestWatch() then
+                        C_QuestLog.RemoveQuestWatch(questID)
+                    end
+                end
+            else
+                C_QuestLog.AddQuestWatch(questID)
+            end
+        end
+    end)
+
 	-- Quest Log - QuestMapFrame.lua
-	local bck_QuestMapQuestOptions_TrackQuest = QuestMapQuestOptions_TrackQuest
-	QuestMapQuestOptions_TrackQuest = function(questID)
-		if not dbChar.filterAuto[1] then
-			bck_QuestMapQuestOptions_TrackQuest(questID)
-		end
-	end
+	hooksecurefunc("QuestMapQuestOptions_TrackQuest", function(questID)
+        if not dbChar.filterAuto[1] then return end
+
+        if QuestUtils_IsQuestWatched(questID) then
+            if QuestUtil.CanRemoveQuestWatch() then
+                C_QuestLog.RemoveQuestWatch(questID);
+            end
+        else
+            if C_QuestLog.GetNumQuestWatches() >= Constants.QuestWatchConsts.MAX_QUEST_WATCHES then
+                UIErrorsFrame:AddMessage(OBJECTIVES_WATCH_TOO_MANY, 1.0, 0.1, 0.1, 1.0);
+            else
+                C_QuestLog.AddQuestWatch(questID);
+            end
+        end
+    end)
 
 	hooksecurefunc("QuestMapFrame_UpdateQuestDetailsButtons", function()
 		if dbChar.filterAuto[1] then
@@ -180,38 +244,6 @@ local function SetHooks()
 			QuestLogPopupDetailFrame.TrackButton:Enable()
 		end
 	end)
-end
-
-local function SetHooks_Init()
-	-- POI - POIButton.lua
-	local bck_POIButtonMixin_OnClick = POIButtonMixin.OnClick
-	function POIButtonMixin:OnClick(button)
-		if button ~= "LeftButton" then
-			return
-		end
-
-		if self:IsSelected() then
-			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
-			C_SuperTrack.ClearAllSuperTracked()
-			return
-		end
-
-		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-
-		local questID = self:GetQuestID()
-		if questID and dbChar.filterAuto[1] then
-			if ChatEdit_TryInsertQuestLinkForQuestID(questID) then
-				return
-			end
-
-			C_SuperTrack.SetSuperTrackedQuestID(questID)
-			if self:GetPingWorldMap() then
-				EventRegistry:TriggerEvent("MapCanvas.PingQuestID", questID)
-			end
-			return
-		end
-		bck_POIButtonMixin_OnClick(self, button)
-	end
 end
 
 -- Blizzard_AchievementUI
@@ -1104,8 +1136,6 @@ function M:OnInitialize()
             }
         }, KT.db.defaults)
         KT.db:RegisterDefaults(defaults)
-
-        SetHooks_Init()
     end
 end
 

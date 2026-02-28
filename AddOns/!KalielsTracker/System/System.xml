@@ -9,6 +9,7 @@
     <Script file="Telemetry.lua"/>
     <Script file="Quests.lua"/>
     <Script file="Achievements.lua"/>
+    <Script file="OpenService.lua"/>
     <Script file="Menu.lua"/>
     <Script file="StaticPopup.lua"/>
     <Script file="Visibility.lua"/>

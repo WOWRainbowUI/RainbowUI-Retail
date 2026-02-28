@@ -1482,17 +1482,10 @@ local function SetHooks()
 	end
 
 	function KT_ObjectiveTrackerBlockMixin:AddRightEdgeFrame(settings, identifier, ...)
-		if not db.hackLFG and settings.template == "KT_QuestObjectiveFindGroupButtonTemplate" then
-			return nil
-		end
-
 		local frame
 		if settings.template == "KT_QuestObjectiveItemButtonTemplate" then
 			QuestItemButton_Add(self, 3, 4)
 			frame = self.ItemButton
-		else
-			frame = KT.KT_ObjectiveTrackerBlockMixin.AddRightEdgeFrame(self, settings, identifier, ...)
-			frame:SetFrameLevel(self:GetFrameLevel() + 1)
 		end
 		return frame
 	end
@@ -1716,13 +1709,13 @@ local function SetHooks()
 	function KT_ObjectiveTrackerQuestPOIBlockMixin:AddPOIButton(questID, isComplete, isSuperTracked, isWorldQuest)  -- R
 		local style
 		if self.poiInfo then
-			style = POIButtonUtil.Style[self.poiInfo.areaPoiID and "AreaPOI" or "BonusObjective"]
+			style = KT_POIButtonUtil.Style[self.poiInfo.areaPoiID and "AreaPOI" or "BonusObjective"]
 		elseif self.poiIsWorldQuest then
-			style = POIButtonUtil.Style.WorldQuest
+			style = KT_POIButtonUtil.Style.WorldQuest
 		elseif self.poiIsComplete then
-			style = POIButtonUtil.Style.QuestComplete
+			style = KT_POIButtonUtil.Style.QuestComplete
 		else
-			style = POIButtonUtil.Style.QuestInProgress
+			style = KT_POIButtonUtil.Style.QuestInProgress
 		end
 		local poiButton = self:GetPOIButton(style)
 		poiButton:SetPoint("TOPRIGHT", self.HeaderText, "TOPLEFT", -7, 3)
@@ -1840,11 +1833,7 @@ local function SetHooks()
 					self:RemoveAutoQuestPopUp(questID);
 					ShowQuestComplete(questID);
 				else
-					if db.questDefaultActionMap then
-						QuestMapFrame_OpenToQuestDetails(questID);
-					else
-						QuestUtil.OpenQuestDetails(questID);
-					end
+					KT.OpenService_Open("quest", questID)
 				end
 			end
 		else
@@ -1873,13 +1862,8 @@ local function SetHooks()
 		end
 		KT.Menu_AddButton(text, func)
 
-		local toggleDetailsText = QuestUtil.IsShowingQuestDetails(block.id) and OBJECTIVES_HIDE_VIEW_IN_QUESTLOG or OBJECTIVES_VIEW_IN_QUESTLOG;
-		KT.Menu_AddButton(toggleDetailsText, function()
-			QuestUtil.OpenQuestDetails(block.id)
-		end)
-
 		KT.Menu_AddButton(OBJECTIVES_SHOW_QUEST_MAP, function()
-			QuestMapFrame_OpenToQuestDetails(block.id)
+			KT.OpenService_Open("quest", block.id)
 		end)
 
 		if ( C_QuestLog.IsPushableQuest(block.id) and IsInGroup() ) then
@@ -1920,15 +1904,8 @@ local function SetHooks()
 				KT:Alert_WowheadURL("achievement", achievementID)
 			elseif IsModifiedClick(db.menuYouTubeURLModifier) then
 				KT:Alert_YouTubeURL("achievement", achievementID)
-			elseif not AchievementFrame:IsShown() then
-				AchievementFrame_ToggleAchievementFrame();
-				AchievementFrame_SelectAchievement(achievementID);
 			else
-				if AchievementFrameAchievements.selection ~= achievementID then
-					AchievementFrame_SelectAchievement(achievementID);
-				else
-					AchievementFrame_ToggleAchievementFrame();
-				end
+				KT.OpenService_Open("achievement", achievementID)
 			end
 		else
 			KT_ObjectiveTracker_ToggleDropDown(block, KT_AchievementObjectiveTracker_OnOpenDropDown)
@@ -1943,7 +1920,7 @@ local function SetHooks()
 		KT.Menu_AddTitle(achievementName)
 
 		KT.Menu_AddButton(OBJECTIVES_VIEW_ACHIEVEMENT, function()
-			OpenAchievementFrameToAchievement(block.id)
+			KT.OpenService_Open("achievement", block.id)
 		end)
 
 		KT.Menu_AddButton(OBJECTIVES_STOP_TRACKING, function()
@@ -1975,16 +1952,10 @@ local function SetHooks()
 				elseif IsModifiedClick(db.menuYouTubeURLModifier) then
 					KT:Alert_YouTubeURL("quest", questID)
 				else
-					local mapID = (self.showWorldQuests or isThreatQuest) and C_TaskQuest.GetQuestZoneID(questID) or GetQuestUiMapID(questID)
-					if mapID and mapID > 0 then
-						QuestMapFrame:SetDisplayMode(QuestLogDisplayMode.Quests)
-						QuestMapFrame_CloseQuestDetails()
-						OpenQuestLog(mapID);
-						if block.poiInfo and block.poiInfo.areaPoiID then
-							EventRegistry:TriggerEvent("PingAreaPOIEvent", block.poiInfo.areaPoiID)
-						else
-							EventRegistry:TriggerEvent("MapCanvas.PingQuestID", questID);
-						end
+					if block.poiInfo and block.poiInfo.areaPoiID then
+						KT.OpenService_Open("bonusquest", questID, block.poiInfo.areaPoiID)
+					else
+						KT.OpenService_Open("bonusquest", questID)
 					end
 				end
 			end
@@ -2069,11 +2040,7 @@ local function SetHooks()
 				KT:Alert_WowheadURL("spell", recipeID)
 			else
 				if not KT.IsRecraftBlock(block) then
-					if C_TradeSkillUI.IsRecipeProfessionLearned(recipeID) then
-						C_TradeSkillUI.OpenRecipe(recipeID)
-					else
-						Professions.InspectRecipe(recipeID);
-					end
+					KT.OpenService_Open("profession", recipeID)
 				end
 			end
 		else
@@ -2130,7 +2097,7 @@ local function SetHooks()
 			elseif IsModifiedClick(db.menuWowheadURLModifier) then
 				KT:Alert_WowheadURL("activity", block.id)
 			else
-				MonthlyActivitiesFrame_OpenFrameToActivity(block.id);
+				KT.OpenService_Open("travelerslog", block.id)
 			end
 
 			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
@@ -2176,7 +2143,7 @@ local function SetHooks()
             if IsModifiedClick("QUESTWATCHTOGGLE") then
                 self:UntrackInitiativeTask(block.id);
             else
-                HousingFramesUtil.OpenFrameToTaskID(block.id)
+				KT.OpenService_Open("endeavortask", block.id)
             end
 
             PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
@@ -2226,7 +2193,7 @@ local function SetHooks()
 				elseif block.targetType == Enum.ContentTrackingTargetType.Profession then
 					self:ClickProfessionTarget(block.targetID);
 				else
-					ContentTrackingUtil.OpenMapToTrackable(block.trackableType, block.trackableID);
+					KT.OpenService_Open("collectionitem", block.trackableType, block.trackableID)
 				end
 
 				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
@@ -2342,7 +2309,7 @@ end
 
 local function SetHooks_Init()
 	-- POIButton.lua
-	hooksecurefunc(POIButtonMixin, "UpdateButtonStyle", function(self)
+	hooksecurefunc(KT_POIButtonMixin, "UpdateButtonStyle", function(self)
 		self.questTagInfo = nil  -- fix Blizz bug
 		if self.Display.SubTypeIcon and self.hideSubTypeIcon then
 			self.Display.SubTypeIcon:Hide()
@@ -2644,7 +2611,7 @@ function KT:SetOtherButtons()
 		button:GetNormalTexture():SetTexCoord(0.5, 1, 0.25, 0.5)
 		button:RegisterForClicks("AnyDown")
 		button:SetScript("OnClick", function(self, btn)
-			ToggleAchievementFrame()
+			KT.OpenService_Open("achievements")
 		end)
 		button:SetScript("OnEnter", function(self)
 			self:GetNormalTexture():SetVertexColor(1, 1, 1)
@@ -2666,7 +2633,7 @@ function KT:SetOtherButtons()
 		button:GetNormalTexture():SetTexCoord(0.5, 1, 0, 0.25)
 		button:RegisterForClicks("AnyDown")
 		button:SetScript("OnClick", function(self, btn)
-			ToggleQuestLog()
+			KT.OpenService_Open("questlog")
 		end)
 		button:SetScript("OnEnter", function(self)
 			self:GetNormalTexture():SetVertexColor(1, 1, 1)

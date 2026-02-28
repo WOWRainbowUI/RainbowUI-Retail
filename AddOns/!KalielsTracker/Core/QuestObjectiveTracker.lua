@@ -3,7 +3,7 @@ local _, KT = ...
 
 local settings = {
 	headerText = TRACKER_HEADER_QUESTS,
-	events = { "QUEST_LOG_UPDATE", "QUEST_WATCH_LIST_CHANGED", "QUEST_AUTOCOMPLETE", "SUPER_TRACKING_CHANGED", "QUEST_TURNED_IN", "QUEST_POI_UPDATE", "SUPER_TRACKING_PATH_UPDATED" },
+	events = { "QUEST_LOG_UPDATE", "QUEST_WATCH_LIST_CHANGED", "QUEST_AUTOCOMPLETE", "SUPER_TRACKING_CHANGED", "QUEST_TURNED_IN", "QUEST_POI_UPDATE" },  -- MSA
 	lineTemplate = "KT_QuestObjectiveLineTemplate",
 	blockTemplate = "KT_ObjectiveTrackerQuestPOIBlockTemplate",
 	rightEdgeFrameSpacing = 2,
@@ -25,7 +25,6 @@ KT_QuestObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin,
 function KT_QuestObjectiveTrackerMixin:InitModule()
 	self:AddTag("quest");
 	self:WatchMoney(false);
-	self.pathUpdateHandled = true  -- fix Blizz bug (ignore first STPU)
 end
 
 function KT_QuestObjectiveTrackerMixin:OnEvent(event, ...)
@@ -47,14 +46,6 @@ function KT_QuestObjectiveTrackerMixin:OnEvent(event, ...)
 		if block then
 			block:PlayTurnInAnimation();
 		end
-	elseif event == "SUPER_TRACKING_CHANGED" then  -- fix Blizz bug
-		self:MarkDirty()
-		self.pathUpdateHandled = false
-	elseif event == "SUPER_TRACKING_PATH_UPDATED" then  -- fix Blizz bug
-		if not self.pathUpdateHandled then
-			self:MarkDirty()
-			self.pathUpdateHandled = true
-		end
 	else
 		self:MarkDirty();
 	end
@@ -72,7 +63,7 @@ function KT_QuestObjectiveTrackerMixin:OnBlockHeaderClick(block, mouseButton)
 				C_QuestLog.RemoveQuestWatch(questID);
 			end
 		else
-			local quest = QuestCache:Get(questID);
+			local quest = KT_QuestCache:Get(questID);
 			if quest.isAutoComplete and quest:IsComplete() then
 				self:RemoveAutoQuestPopUp(questID);
 				ShowQuestComplete(questID);
@@ -169,7 +160,7 @@ function KT_QuestObjectiveTrackerMixin:BuildQuestWatchInfos()
 	for i = 1, C_QuestLog.GetNumQuestWatches() do
 		local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(i);
 		if questID then
-			local quest = QuestCache:Get(questID);
+			local quest = KT_QuestCache:Get(questID);
 			if self:ShouldDisplayQuest(quest) then
 				table.insert(infos, { quest = quest, index = i, KTquest = KT.QuestsCache_GetInfo(questID) });  -- MSA
 			end

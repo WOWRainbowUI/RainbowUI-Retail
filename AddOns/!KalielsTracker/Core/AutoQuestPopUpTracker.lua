@@ -6,7 +6,7 @@ local questItems = { };
 KT_AutoQuestPopupTrackerMixin = { };
 
 function KT_AutoQuestPopupTrackerMixin:ShouldDisplayAutoQuest(questID)
-	return not C_QuestLog.IsQuestBounty(questID) and self:ShouldDisplayQuest(QuestCache:Get(questID));
+	return not C_QuestLog.IsQuestBounty(questID) and self:ShouldDisplayQuest(KT_QuestCache:Get(questID));
 end
 
 local function MakeBlockKey(questID, popUpType)

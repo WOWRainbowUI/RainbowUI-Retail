@@ -59,35 +59,26 @@ local function QuestMapQuestOptionsDropDown_Initialize(self)
 end
 
 local function SetHooks()
-	-- DropDown - QuestMapFrame.lua
-	function QuestMapLogTitleButton_OnClick(self, button)  -- R
-		if ChatFrameUtil.TryInsertQuestLinkForQuestID(self.questID) then
-			return;
-		end
-
-		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
-
-		if IsShiftKeyDown() then
-			self:ToggleTracking();
-		else
-			local isDisabledQuest = C_QuestLog.IsQuestDisabledForSession(self.questID);
-			if not isDisabledQuest and button == "RightButton" then
-				if ( self.questID ~= dropDownFrame.questID ) then
-					MSA_CloseDropDownMenus();
-				end
-				dropDownFrame.questID = self.questID;
-				MSA_ToggleDropDownMenu(1, nil, dropDownFrame, "cursor", 6, -6);
-			elseif button == "LeftButton" then
-				if IsModifiedClick(db.menuWowheadURLModifier) then
-					KT:Alert_WowheadURL("quest", self.questID)
-				elseif IsModifiedClick(db.menuYouTubeURLModifier) then
-					KT:Alert_YouTubeURL("quest", self.questID)
-				else
-					QuestMapFrame_ShowQuestDetails(self.questID);
-				end
+	-- QuestMapFrame.lua
+	hooksecurefunc("QuestMapLogTitleButton_OnClick", function(self, button)
+		local isDisabledQuest = C_QuestLog.IsQuestDisabledForSession(self.questID)
+		if not isDisabledQuest and button == "RightButton" then
+			local manager = Menu.GetManager()
+			local menu = manager:GetOpenMenu()
+			if menu then
+				manager:CloseMenu(menu)
+			end
+			MSA_CloseDropDownMenus()
+			dropDownFrame.questID = self.questID
+			MSA_ToggleDropDownMenu(1, nil, dropDownFrame, "cursor", 6, -6)
+		elseif button == "LeftButton" then
+			if IsModifiedClick(db.menuWowheadURLModifier) then
+				KT:Alert_WowheadURL("quest", self.questID)
+			elseif IsModifiedClick(db.menuYouTubeURLModifier) then
+				KT:Alert_YouTubeURL("quest", self.questID)
 			end
 		end
-	end
+	end)
 
 	hooksecurefunc("QuestMapQuestOptions_TrackQuest", function(questID)
 		if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
@@ -99,7 +90,7 @@ end
 local function SetFrames()
 	-- DropDown frame
 	dropDownFrame = MSA_DropDownMenu_Create(addonName.."QuestLogDropDown", QuestMapFrame)
-	dropDownFrame.questID = 0	-- for QuestMapQuestOptionsDropDown_Initialize
+	dropDownFrame.questID = 0  -- for QuestMapQuestOptionsDropDown_Initialize
 	MSA_DropDownMenu_Initialize(dropDownFrame, QuestMapQuestOptionsDropDown_Initialize, "MENU")
 end
 

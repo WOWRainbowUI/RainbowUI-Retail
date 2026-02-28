@@ -31,6 +31,7 @@ local cWarning2 = "|cffff4200"
 local cDots = "|cff808080"
 local offs = "\n|T:1:9|t"
 local offs2 = "\n|T:1:21|t"
+local offs3 = "|T:1:9|t"
 local ebSpace = "|T:16:1|t\n"
 local beta = "|cffff7fff[Beta]|r"
 local new = "|cffff7fff[新功能]|r"
@@ -362,20 +363,17 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
-					(cTitle.."版本 8.1.0|r\n"..
-					"- 新增 - 將捲動指示器替換為可互動的捲軸\n"..
-					"- 新增 - TomTom - 支援收藏來源的路徑點（外觀、裝飾）\n"..
-					"- 新增 - 收藏追蹤（外觀、裝飾） - 下拉選單、提示訊息\n"..
-					"- 新增 - TomTom - 支援其他 TomTom 路徑點\n"..
-					"- 新增 - 威脅任務 - 顯示 POI 按鈕\n"..
-					"- 修改（說明） - 活躍贊助者\n"..
-					"- 修改 - 插件支援 - ElvUI 15.05\n"..
-					"- 修改 - 改善提示訊息中的獎勵顯示\n"..
-					"- 修改 - 函式庫\n"..
-					"- 修正 - 秘密數值污染問題\n"..
-					"- 修正 - 當啟用「隱藏空追蹤器」時，隱藏可見性規則被忽略\n"..
-					"- 修正 - 任務追蹤器中的高 CPU 使用率（暴雪 Bug）\n"..
-					"\n")..
+					(cTitle.."版本 8.2.0|r\n"
+						.. "- 新增：支援 WoW 12.0.1.65867\n"
+						.. "- 修正：污染錯誤\n"
+						.. offs3.."- 追蹤清單中的項目僅能在非戰鬥狀態下點擊。\n"
+						.. offs3.."- 點擊任務會開啟地圖，但不會顯示任務詳細內容。\n"
+						.. offs3.."- 已不再提供小「眼睛」按鈕。\n"
+						.. offs3.."- 已不再支援獨立的任務詳細內容視窗。\n"
+						.. "- 修正：任務追蹤清單的高 CPU 使用率 (暴雪的 bug)\n"
+						.. "- 移除：所有遊戲修正功能\n"
+						.. "\n")..
+
 
 					cTitle.."問題回報|r\n"..
 					"若要回報問題，請至 CurseForge 使用 "..cBold.."Tickets (工單)|r，而不要使用 Comments (留言)。\n"..ebSpace.."\n"..

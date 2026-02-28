@@ -68,7 +68,7 @@
 		</Scripts>
 	</Frame>
 
-	<Frame name="KT_ObjectiveTrackerModuleTemplate" mixin="KT_ObjectiveTrackerModuleMixin" inherits="POIButtonOwnerTemplate" hidden="true" virtual="true">
+	<Frame name="KT_ObjectiveTrackerModuleTemplate" mixin="KT_ObjectiveTrackerModuleMixin" inherits="KT_POIButtonOwnerTemplate" hidden="true" virtual="true">
 		<!-- this needs to have a valid rect or first layout will be off -->
 		<Size x="260" y="10"/>
 		<Anchors>

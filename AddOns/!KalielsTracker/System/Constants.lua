@@ -138,16 +138,16 @@ KT.VISIBILITY_CONTEXTS = {
     "rare"
 }
 KT.VISIBILITY_CONTEXTS_LOCALIZED = {
-    world = "World",
-    city = "City",
-    house = "House",
-    dungeon = "Dungeon",
-    mythicplus = "Mythic+",
-    raid = "Raid",
-    arena = "Arena",
-    battleground = "Battleground",
-    petbattle = "Pet Battle",
-    rare = "Rare NPC"
+    world = "野外",
+    city = "城市",
+    house = "房屋",
+    dungeon = "地城",
+    mythicplus = "M+",
+    raid = "團隊",
+    arena = "競技場",
+    battleground = "戰場",
+    petbattle = "寵物對戰",
+    rare = "稀有怪"
 }
 
 -- Major Cities

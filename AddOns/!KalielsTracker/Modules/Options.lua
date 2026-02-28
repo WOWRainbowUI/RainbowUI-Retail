@@ -1210,17 +1210,7 @@ local options = {
                             fontSize = "medium",
                             order = 4,
                         },
-                        questDefaultActionMap = {
-                            name = "任務預設動作 - 世界地圖",
-                            desc = "將點擊任務的預設動作設為 \"世界地圖\"，停用時預設動作會是 \"任務內容\"。",
-                            type = "toggle",
-                            width = "normal+half",
-                            set = function()
-                                db.questDefaultActionMap = not db.questDefaultActionMap
-                            end,
-                            order = 4.1,
-                        },
-						questShowTags = {
+                        questShowTags = {
 							name = "顯示任務標籤",
 							desc = "在任務追蹤清單中顯示/隱藏任務標籤 (任務等級、任務類型)。",
 							type = "toggle",
@@ -1229,7 +1219,7 @@ local options = {
 								db.questShowTags = not db.questShowTags
 								OTF:Update()
 							end,
-							order = 4.2,
+							order = 4.1,
 						},
 						questShowZones = {
 							name = "顯示任務區域",
@@ -1240,7 +1230,7 @@ local options = {
 								db.questShowZones = not db.questShowZones
 								OTF:Update()
 							end,
-							order = 4.3,
+							order = 4.2,
 						},
 						taskShowFactions = {
 							name = "顯示世界任務陣營",
@@ -1251,7 +1241,7 @@ local options = {
 								db.taskShowFactions = not db.taskShowFactions
 								OTF:Update()
 							end,
-							order = 4.4,
+							order = 4.3,
 						},
 						questAutoTrack = {
 							name = "自動追蹤新任務",
@@ -1267,7 +1257,7 @@ local options = {
 								SetCVar("autoQuestWatch", value)
 								ReloadUI()
 							end,
-							order = 4.5,
+							order = 4.4,
 						},
 						questProgressAutoTrack = {
 							name = "自動追蹤任務進度",
@@ -1283,7 +1273,7 @@ local options = {
 								SetCVar("autoQuestProgress", value)
 								ReloadUI()
 							end,
-							order = 4.6,
+							order = 4.5,
 						},
 						questAutoFocusClosest = {
 							name = "自動將最近的任務設為專注                            ",  -- space for a wider tooltip
@@ -1299,7 +1289,7 @@ local options = {
 							set = function()
 								db.questAutoFocusClosest = not db.questAutoFocusClosest
 							end,
-							order = 4.7,
+							order = 4.6,
 						},
 					},
 				},
@@ -1808,58 +1798,6 @@ local options = {
 					type = "description",
 					order = 0,
 				},
-				sec1 = {
-					name = DUNGEONS_BUTTON,
-					type = "group",
-					inline = true,
-					order = 1,
-					args = {
-						hackLFG = {
-							name = "尋求組隊修正",
-							desc = cBold.."影響在任務追蹤清單中尋找隊伍用的小眼睛。|r"..
-									"啟用遊戲修正時按鈕可以正常使用，不會發生錯誤。停用時將無法使用按鈕。\n\n"..
-									cWarning2.."負面影響:|r\n"..
-									"- 建立預組隊伍的對話框不會自動設定好 \"標題\"，\n"..
-									"  例如 M+ 鑰石層數。\n",
-							descStyle = "inline",
-							type = "toggle",
-							width = "full",
-							confirm = true,
-							confirmText = warning,
-							set = function()
-								db.hackLFG = not db.hackLFG
-								ReloadUI()
-							end,
-							order = 1,
-						},
-					},
-				},
-				sec2 = {
-					name = WORLDMAP_BUTTON,
-					type = "group",
-					inline = true,
-					order = 2,
-					args = {
-						hackWorldMap = {
-							name = "世界地圖修正 ",
-							desc = cBold.."影響世界地圖|r並且移除汙染錯誤。"..
-									"這個遊戲修正避免呼叫受限制的函數。"..
-									"停用遊戲修正時，世界地圖顯示會導致錯誤。"..
-									"由於追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-									cWarning2.."負面影響:|r 在魔獸世界 12.0.0 尚未可知。\n",
-							descStyle = "inline",
-							type = "toggle",
-							width = "full",
-							confirm = true,
-							confirmText = warning,
-							set = function()
-								db.hackWorldMap = not db.hackWorldMap
-								ReloadUI()
-							end,
-							order = 1,
-						},
-					},
-				},
 			},
 		},
 	},
@@ -2127,7 +2065,7 @@ local function Setup()
 	KT.optionsFrame.controls = ACD:AddToBlizOptions(addonName, controls.name, parentID, "controls")
 	KT.optionsFrame.modules = ACD:AddToBlizOptions(addonName, modules.name, parentID, "modules")
 	KT.optionsFrame.addons = ACD:AddToBlizOptions(addonName, addons.name, parentID, "addons")
-	KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, hacks.name, parentID, "hacks")
+	--KT.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, hacks.name, parentID, "hacks")
 	KT.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, profiles.name, parentID, "profiles")
 
 	KT.db.RegisterCallback(KT, "OnProfileChanged", "InitProfile")

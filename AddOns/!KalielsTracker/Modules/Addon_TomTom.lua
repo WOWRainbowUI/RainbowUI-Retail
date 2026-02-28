@@ -138,7 +138,7 @@ local function QuestPOIGetIconInfo(questID)
 	if not x or not y then
 		mapID = GetQuestUiMapID(questID)
 		if mapID and mapID > 0 then
-			local quests = C_QuestLog.GetQuestsOnMap(mapID)
+			local quests = KT.GetQuestsOnMapCached(mapID)
 			if quests then
 				for _, info in ipairs(quests) do
 					if info.questID == questID then
@@ -162,7 +162,7 @@ local function TaskQuestPOIGetIconInfo(questID)
 	local x, y, waypointMapID, waypointText
 	local mapID = C_TaskQuest.GetQuestZoneID(questID)
 	if mapID then
-		local tasks = GetTasksOnMapCached(mapID)
+		local tasks = KT.GetTasksOnMapCached(mapID)
 		if tasks then
 			for _, info  in ipairs(tasks) do
 				if HaveQuestData(info.questID) then
@@ -338,28 +338,17 @@ end
 
 local function SetWaypointTag(button, show)
 	local tag = button.Display.KTtomtom
-	if show then
-		if tag then
-			tag:Show()
-		else
-			-- Only for new POI button tags on World Map!
-			-- The tracker has tag inside KT2_ObjectiveTrackerPOIButtonTemplate (animation bug prevention)
-			tag = button.Display:CreateTexture(nil, "OVERLAY")
-			tag:SetTexture(KT.MEDIA_PATH.."KT-TomTomTag")
-			tag:SetSize(32, 32)
-			tag:SetPoint("CENTER")
-			button.Display.KTtomtom = tag
-		end
+	if not tag then return end
 
+	if show then
+		tag:Show()
 		if questWaypoint then
 			tag:SetTexCoord(0, 0.5, 0, 1)
 		else
 			tag:SetTexCoord(0.5, 1, 0, 1)
 		end
 	else
-		if tag then
-			tag:Hide()
-		end
+		tag:Hide()
 	end
 end
 
@@ -577,10 +566,6 @@ local function SetHooks()
 			questWaypoint = nil
 			superTrackedQuestID = 0
 			OTF:Update()
-			if WorldMapFrame:IsShown() then
-				WorldMapFrame:RefreshQuestLog()
-				WorldMapFrame:RefreshOverlayFrames()  -- fix Blizz bug (Area POI)
-			end
 		end
 	end)
 
@@ -601,8 +586,8 @@ local function SetHooks()
 	local bck_TomTomCrazyArrow_OnClick = TomTomCrazyArrow:GetScript("OnClick")
 	TomTomCrazyArrow:SetScript("OnClick", function(self, btn, down)
 		if btn == "LeftButton" then
-            if dbChar.waypoint.id > 0 then
-                OpenQuestLog(dbChar.waypoint.mapID)
+            if not KT.InCombatBlocked() and dbChar.waypoint.id > 0 then
+                C_Map.OpenWorldMap(dbChar.waypoint.mapID)
             end
 		else
 			if IsShiftKeyDown() then
@@ -681,23 +666,20 @@ local function SetHooks()
 	hooksecurefunc(KT_WorldQuestObjectiveTracker, "OnQuestTurnedIn", function(self, questID)
 		RemoveWaypoint(questID)
 	end)
-end
 
-local function SetHooks_Init()
-	-- Blizzard
-	hooksecurefunc(POIButtonMixin, "UpdateButtonStyle", function(self)
-		local show = (superTrackedQuestID == self.questID or superTrackedQuestID == self.areaPOIID)
-		SetWaypointTag(self, show)
-	end)
+    hooksecurefunc(KT_POIButtonMixin, "UpdateButtonStyle", function(self)
+        local show = (superTrackedQuestID == self.questID or superTrackedQuestID == self.areaPOIID)
+        SetWaypointTag(self, show)
+    end)
 
-	hooksecurefunc(POIButtonMixin, "OnClick", function(self)
-		-- Quest and World Quest modules are automatically marked as dirty
-		if KT.POIButton_IsCampaign(self) then
-			KT_CampaignQuestObjectiveTracker:MarkDirty()
-		elseif KT.POIButton_IsEvent(self) then
-			KT_EventObjectiveTracker:MarkDirty()
-		end
-	end)
+    hooksecurefunc(KT_POIButtonMixin, "OnClick", function(self)
+        -- Quest and World Quest modules are automatically marked as dirty
+        if KT.POIButton_IsCampaign(self) then
+            KT_CampaignQuestObjectiveTracker:MarkDirty()
+        elseif KT.POIButton_IsEvent(self) then
+            KT_EventObjectiveTracker:MarkDirty()
+        end
+    end)
 end
 
 local function SetEvents()
@@ -738,7 +720,6 @@ local function SetEvents()
 			if not type and not	superTrackedPoiID then
 				type = dbChar.waypoint.type
 				superTrackedPoiID = dbChar.waypoint.id
-				GetAreaPOIsForPlayerByMapIDCached(dbChar.waypoint.mapID)
 			end
 			if type and superTrackedPoiID then
 				C_SuperTrack.SetSuperTrackedMapPin(type, superTrackedPoiID)
@@ -826,9 +807,6 @@ local function SetEvents()
 				OTF:Update()
 			end)
 		end
-		if WorldMapFrame:IsShown() then
-			WorldMapFrame:RefreshOverlayFrames()  -- fix Blizz bug (Area POI)
-		end
 	end, M)
 end
 
@@ -849,8 +827,6 @@ function M:OnInitialize()
 			}
 		}, KT.db.defaults)
 		KT.db:RegisterDefaults(defaults)
-
-		SetHooks_Init()
 	end
 end
 
