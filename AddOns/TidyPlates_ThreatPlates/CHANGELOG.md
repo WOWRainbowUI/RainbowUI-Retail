@@ -1,4 +1,4 @@
-# 13.0.0-beta18 (2026-02-23)
+# 13.0.0-beta20 (2026-02-27)
 
 This is a basic version with Midnight support. Expect lots of missing features and Lua errors. Report any bugs at https://github.com/Backupiseasy/ThreatPlates/issues.
 
@@ -13,6 +13,14 @@ This is a basic version with Midnight support. Expect lots of missing features a
 * Updated integrated libraries (Ace3 r1387-alpha, LibSharedMedia-3.0 v11.2.1)
  
 Beta changes:
+* Re-enabled cast target in Midnight.
+* Fixed a bug where the castbar not showing channeled spells with the correct animation direction.
+* Fixed the clickable area now also when Threat Plates were anchored to WorldFrame.
+* Fixed a bug where hostile NPCs were shown with neutral color (yellow) [Comment #7971, #8013].
+* Re-enabled nameplate clickthough in Midnight.
+* Fixed a bug where the clickable area was not adjusted when the nameplate size was changed. This only works if parent UI Parent or Nameplate is selected in General - Appearance.
+* Added some basic filters for auras back to Threat Plates.
+* Fixed a bug that prevented threat colouring from being disabled. [Comments #7990 and #7897].
 * Fixed a Lua error that occurred when the aura duration was classified as a secret value in the Auras widget [Comment #8001].
 * Fixed a bug that prevented a nameplate from resetting correctly after the unit lost mouseover focus [Comment #7991].
 * Fixed a Lua error that occurred when opening the options dialog [Comment #7994].

@@ -5,7 +5,7 @@
 ---------------------------------------------------------------------------------------------------
 local L = Addon.L
 
-Addon.DEBUG = Addon.Meta("version") == "13.0.0-beta18"
+Addon.DEBUG = Addon.Meta("version") == "13.0.0-beta20"
 
 local function toggleDPS()
   if Addon.db.profile.optionRoleDetectionAutomatic then
@@ -231,7 +231,7 @@ local function ChatCommandDebug(cmd_list)
 
 		print("Name:", unit.name)
 		print("  Reaction:", unit.reaction)
-		print("    UnitReaction:", UnitReaction("target", "player"))
+		print("    UnitReaction:", Addon.GetUnitReactionToPlayer("target"))
     print("    UnitCanAttack = ", UnitCanAttack("target", "player"))
     print("    UnitIsFriend = ", UnitIsFriend("target", "player"))
 		print("    UnitSelectionColor = ", UnitSelectionColor("target"))
