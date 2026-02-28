@@ -218,6 +218,10 @@ L['Hearthstones Select Desc'] = "選擇要使用哪個爐石 (如果選擇了多
 L['Hide Hearthstone Button'] = "隱藏爐石按鈕";
 L['Hide Port Button'] = "隱藏傳送按鈕";
 L['Hide Home Button'] = "隱藏回家按鈕";
+L['Hide Hearthstone Text'] = "隱藏爐石文字";
+L['Hide Port Text'] = "隱藏傳送文字";
+L['Hide Additional Tooltip Text'] = "隱藏額外的浮動提示文字";
+L['Hide Additional Tooltip Text Description'] = "在浮動提示中隱藏爐石綁定位置和選擇傳送按鈕。"
 
 L["Classic"] = "經典時期";
 L["Burning Crusade"] = "燃燒的遠征";
