@@ -2887,7 +2887,7 @@ do
 
 		VUHDO_refreshPixelScale();
 
-		VUHDO_printAbout();
+		-- VUHDO_printAbout();
 
 		return;
 
