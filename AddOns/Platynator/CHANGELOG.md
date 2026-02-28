@@ -1,11 +1,11 @@
 # Platynator
 
-## [330](https://github.com/TheMouseNest/Platynator/tree/330) (2026-02-25)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/329...330) [Previous Releases](https://github.com/TheMouseNest/Platynator/releases)
+## [331](https://github.com/TheMouseNest/Platynator/tree/331) (2026-02-27)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/330...331) [Previous Releases](https://github.com/TheMouseNest/Platynator/releases)
 
-- Tweak default style "Blizzard"  
-- Add border asset matching Blizzard style more & update "Blizzard" default style  
-- Show labels on class icon options  
-- Fix loading of custom borders  
-- Add "Blizzard Metal" border texture  
-- Add fancier class icon assets  
+- Add "Interrupt Not Ready" color  
+- Bugfixes for new style selections  
+- Enable quest markers in delves  
+- Add optional combat-only and pvp player only style options  
+- Add Blizzard Midnight selected texture and update "Blizzard" style to use it  
+- Tweak positioning of "Blizzard: Midnight" border  
