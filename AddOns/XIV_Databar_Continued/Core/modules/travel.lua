@@ -27,6 +27,17 @@ local function SafeIsUsableItem(id)
     return IsUsableItem(id)
 end
 
+local function GetOwnedItemCount(id)
+    if not id then return 0 end
+    if C_Item and C_Item.GetItemCount then
+        return C_Item.GetItemCount(id) or 0
+    end
+    if GetItemCount then
+        return GetItemCount(id, true) or 0
+    end
+    return 0
+end
+
 -- Build the correct macro for a given transport ID + name.
 local function BuildMacro(id, name)
     if PlayerHasToy(id) or SafeIsUsableItem(id) then
@@ -107,6 +118,12 @@ function TravelModule:OnInitialize()
     self.garrisonHearth = 110560
     self.housingRequested = false
     self.disableHousing = false
+
+    -- Backfill new profile flag so it defaults to enabled when absent
+    local profile = xb.db and xb.db.profile
+    if profile and profile.hideAdditionalTooltipText == nil then
+        profile.hideAdditionalTooltipText = true
+    end
 
     self.hearthstones = {
         556,       -- Astral Recall
@@ -246,7 +263,7 @@ function TravelModule:OnDisable()
 end
 
 function TravelModule:CreateFrames()
-    local db = xb.db and xb.db.profile
+    local db = xb.db.profile
     -- Hearthstones Part
     self.hearthButton = self.hearthButton or
                             CreateFrame('BUTTON', 'hearthButton',
@@ -285,7 +302,7 @@ function TravelModule:CreateFrames()
             -- Check safely before calling to prevent errors
             local nineSlice = self.portPopup.NineSlice
             local tooltipNineSlice = GameTooltip.NineSlice
-            
+
             if nineSlice.SetCenterColor and tooltipNineSlice.GetCenterColor then
                 nineSlice:SetCenterColor(tooltipNineSlice:GetCenterColor())
             end
@@ -407,7 +424,7 @@ function TravelModule:RegisterFrameEvents()
             end
         end
     end
-    
+
     local function createLeaveHandler(colorFunc)
         return function()
             colorFunc()
@@ -423,7 +440,7 @@ function TravelModule:RegisterFrameEvents()
     self.hearthButton:SetScript('OnEnter', createHoverHandler(function() self:SetHearthColor() end, true))
     self.hearthButton:SetScript('OnLeave', createLeaveHandler(function() self:SetHearthColor() end))
 
-    -- Port button events  
+    -- Port button events
     self.portButton:SetScript('OnEnter', createHoverHandler(function() self:SetPortColor() end, true))
     self.portButton:SetScript('OnLeave', createLeaveHandler(function() self:SetPortColor() end))
 
@@ -525,7 +542,7 @@ function TravelModule:GetRemainingCooldown(id, isSpell)
     else
         startTime, duration = GetItemCooldown(id)
     end
-    
+
     if type(startTime) == "number" and type(duration) == "number" and duration > 0 then
         return math.max(0, startTime + duration - GetTime())
     end
@@ -540,25 +557,25 @@ function TravelModule:GetTransportName(id)
             return spellInfo.name
         end
     end
-    
+
     -- Try toy
     if PlayerHasToy(id) then
         local _, name = C_ToyBox.GetToyInfo(id)
         if name then return name end
     end
-    
+
     -- Try item
     if SafeIsUsableItem(id) then
         local name = GetItemInfo(id)
         if name then return name end
     end
-    
+
     return nil
 end
 
 function TravelModule:FindUsableTransport(ids, preferRandom)
     local available = {}
-    
+
     for _, id in ipairs(ids) do
         if self:IsUsable(id) then
             local name = self:GetTransportName(id)
@@ -568,7 +585,7 @@ function TravelModule:FindUsableTransport(ids, preferRandom)
             end
         end
     end
-    
+
     if #available == 0 then return nil end
     if preferRandom then
         return available[math.random(#available)]
@@ -578,16 +595,16 @@ end
 
 function TravelModule:SetButtonState(button, icon, text, isActive, isHover)
     local db = xb.db.profile
-    
+
     if isHover then
         text:SetTextColor(unpack(xb:HoverColors()))
     elseif isActive then
         icon:SetVertexColor(xb:GetColor('normal'))
         text:SetTextColor(xb:GetColor('normal'))
     else
-        icon:SetVertexColor(db.color.inactive.r, db.color.inactive.g, 
+        icon:SetVertexColor(db.color.inactive.r, db.color.inactive.g,
                           db.color.inactive.b, db.color.inactive.a)
-        text:SetTextColor(db.color.inactive.r, db.color.inactive.g, 
+        text:SetTextColor(db.color.inactive.r, db.color.inactive.g,
                          db.color.inactive.b, db.color.inactive.a)
     end
 end
@@ -617,19 +634,19 @@ function TravelModule:SetHearthColor()
             if isSelected then table.insert(selectedHearthstones, hearthstoneId) end
         end
     end
-    
+
     local usableHearthstones = #selectedHearthstones > 0 and selectedHearthstones or self.hearthstones
-    
+
     -- Find usable transport
     local transport = self:FindUsableTransport(usableHearthstones, xb.db.profile.randomizeHs)
     local isActive = transport ~= nil
-    
+
     if transport then
         self.hearthButton:SetAttribute("macrotext", transport.macro)
     end
-    
+
     -- Set button appearance
-    self:SetButtonState(self.hearthButton, self.hearthIcon, self.hearthText, 
+    self:SetButtonState(self.hearthButton, self.hearthIcon, self.hearthText,
                        isActive, self.hearthButton:IsMouseOver())
 end
 
@@ -643,18 +660,18 @@ function TravelModule:SetPortColor()
             return
         end
     end
-    
+
     -- Get transport name and set macro
     local transportName = self:GetTransportName(portItem.portId)
     local isActive = transportName ~= nil
-    
+
     if transportName then
         local macro = BuildMacro(portItem.portId, transportName)
         self.portButton:SetAttribute("macrotext", macro)
     end
-    
+
     -- Set button appearance
-    self:SetButtonState(self.portButton, self.portIcon, self.portText, 
+    self:SetButtonState(self.portButton, self.portIcon, self.portText,
                        isActive, self.portButton:IsMouseOver())
 end
 
@@ -912,8 +929,7 @@ function TravelModule:CreatePortPopup()
     local changedWidth = false
     for i, v in pairs(self.portOptions) do
         if self.portButtons[v.portId] == nil then
-            if PlayerHasToy(v.portId) or IsPlayerSpell(v.portId) or
-                SafeIsUsableItem(v.portId) then
+            if self:IsUsable(v.portId) then
                 local button = CreateFrame('BUTTON', nil, self.portPopup)
                 local buttonText = button:CreateFontString(nil, 'OVERLAY')
 
@@ -955,8 +971,7 @@ function TravelModule:CreatePortPopup()
                 end
             end -- if usable item or spell
         else
-            if not (PlayerHasToy(v.portId) or IsPlayerSpell(v.portId) or
-                SafeIsUsableItem(v.portId)) then
+            if not self:IsUsable(v.portId) then
                 self.portButtons[v.portId].isSettable = false
             else
                 local label = GetPortLabel(v.portId) or v.text
@@ -1225,6 +1240,9 @@ function TravelModule:Refresh()
     end
 
     if InCombatLockdown() then
+        local hideHearthText = db.hideHearthstoneText
+        local hidePortText = db.hidePortText
+
         if not select(1, self.hearthText:GetFont()) then
             self.hearthText:SetFont(xb:GetFont(xb.db.profile.text.fontSize))
         end
@@ -1232,10 +1250,13 @@ function TravelModule:Refresh()
             self.portText:SetFont(xb:GetFont(xb.db.profile.text.fontSize))
         end
 
-        self.hearthText:SetText(GetBindLocation())
+        self.hearthText:SetText(hideHearthText and '' or GetBindLocation())
+        self.hearthText:SetShown(not hideHearthText)
+
         local combatPortItem = xb.db.char.portItem or self:FindFirstOption()
         local combatPortText = combatPortItem and (combatPortItem.text or GetPortLabel(combatPortItem.portId)) or ''
-        self.portText:SetText(combatPortText)
+        self.portText:SetText(hidePortText and '' or combatPortText)
+        self.portText:SetShown(not hidePortText)
         self:SetHearthColor()
         self:SetPortColor()
         if allowMythic then
@@ -1261,25 +1282,34 @@ function TravelModule:Refresh()
 
     -- Hearthstone Part
     if not db.hideHearthstoneButton then
-        self.hearthText:SetFont(xb:GetFont(db.text.fontSize))
-        self.hearthText:SetText(GetBindLocation())
+        local hideHearthText = db.hideHearthstoneText
 
-        self.hearthButton:SetSize(self.hearthText:GetWidth() + iconSize +
-                                    db.general.barPadding, xb:GetHeight())
+        self.hearthText:SetFont(xb:GetFont(db.text.fontSize))
+        self.hearthText:SetText(hideHearthText and '' or GetBindLocation())
+        self.hearthText:SetShown(not hideHearthText)
+
+        local hearthTextWidth = hideHearthText and 0 or self.hearthText:GetWidth()
+
+        local hearthButtonWidth = hideHearthText and iconSize or (hearthTextWidth + iconSize + db.general.barPadding)
+
+        self.hearthButton:SetSize(hearthButtonWidth, xb:GetHeight())
         self.hearthButton:SetPoint("RIGHT")
 
         self.hearthText:SetPoint("RIGHT")
 
         self.hearthIcon:SetTexture(xb.constants.mediaPath .. 'datatexts\\hearth')
         self.hearthIcon:SetSize(iconSize, iconSize)
+        self.hearthIcon:ClearAllPoints()
 
-        self.hearthIcon:SetPoint("RIGHT", self.hearthText, "LEFT",
-                                -(db.general.barPadding), 0)
+        if hideHearthText then
+            self.hearthIcon:SetPoint("RIGHT", self.hearthButton, "RIGHT", 0, 0)
+        else
+            self.hearthIcon:SetPoint("RIGHT", self.hearthText, "LEFT", -(db.general.barPadding), 0)
+        end
 
         self:SetHearthColor()
         if not self.hearthButton:IsVisible() then
             self.hearthButton:Show()
-            self.hearthText:Show()
         end
     else
         self.hearthButton:Hide()
@@ -1288,14 +1318,20 @@ function TravelModule:Refresh()
 
     -- Portals Part
     if hasPortOptions and not db.hidePortButton then
+        local hidePortText = db.hidePortText
+
         self.portButton:Show()
         self.portText:SetFont(xb:GetFont(db.text.fontSize))
         local portItem = xb.db.char.portItem or self:FindFirstOption()
         local portText = portItem and (portItem.text or GetPortLabel(portItem.portId)) or ''
-        self.portText:SetText(portText)
+        self.portText:SetText(hidePortText and '' or portText)
+        self.portText:SetShown(not hidePortText)
 
-        self.portButton:SetSize(self.portText:GetWidth() + iconSize +
-                                    db.general.barPadding, xb:GetHeight())
+        local portTextWidth = hidePortText and 0 or self.portText:GetWidth()
+
+        local portButtonWidth = hidePortText and iconSize or (portTextWidth + iconSize + db.general.barPadding)
+
+        self.portButton:SetSize(portButtonWidth, xb:GetHeight())
 
         -- Set parent to main button if hearth is hidden
         local parent = self.hearthButton
@@ -1311,7 +1347,13 @@ function TravelModule:Refresh()
         self.portText:SetPoint("RIGHT")
         self.portIcon:SetTexture(xb.constants.mediaPath .. 'datatexts\\garr')
         self.portIcon:SetSize(iconSize, iconSize)
-        self.portIcon:SetPoint("RIGHT", self.portText, "LEFT", -(db.general.barPadding), 0)
+        self.portIcon:ClearAllPoints()
+
+        if hidePortText then
+            self.portIcon:SetPoint("RIGHT", self.portButton, "RIGHT", 0, 0)
+        else
+            self.portIcon:SetPoint("RIGHT", self.portText, "LEFT", -(db.general.barPadding), 0)
+        end
 
         self:SetPortColor()
         self:CreatePortPopup()
@@ -1393,7 +1435,7 @@ function TravelModule:Refresh()
         self.homeButton:SetPoint(homeParentPoint, homeParentFrame, homeRelPoint,
                                  homeXOff, 0)
 
-        self.homeIcon:SetTexture(xb.constants.mediaPath .. 'datatexts\\house')
+        self.homeIcon:SetTexture(xb.constants.mediaPath .. 'datatexts\\house_tp')
         self.homeIcon:SetSize(iconSize, iconSize)
         self.homeIcon:SetPoint("RIGHT", self.homeButton, "RIGHT", 0, 0)
 
@@ -1405,12 +1447,12 @@ function TravelModule:Refresh()
     end
 
     local popupPadding = xb.constants.popupPadding
-    local popupPoint = 'BOTTOM'
-    local relPoint = 'TOP'
+    local popupPoint = 'BOTTOMRIGHT'
+    local relPoint = 'TOPRIGHT'
     if db.general.barPosition == 'TOP' then
         popupPadding = -(popupPadding)
-        popupPoint = 'TOP'
-        relPoint = 'BOTTOM'
+        popupPoint = 'TOPRIGHT'
+        relPoint = 'BOTTOMRIGHT'
     end
 
     self.portPopup:ClearAllPoints()
@@ -1433,21 +1475,27 @@ function TravelModule:Refresh()
         self.mythicPopup:Hide()
     end
 
-    local totalWidth = 0
+    local totalWidth, hasPrev = 0, false
     if self.hearthButton:IsVisible() then
-        totalWidth = totalWidth + self.hearthButton:GetWidth() + db.general.barPadding
+        totalWidth = totalWidth + self.hearthButton:GetWidth()
+        hasPrev = true
     end
     if self.portButton:IsVisible() then
+        if hasPrev then totalWidth = totalWidth + db.general.barPadding end
         totalWidth = totalWidth + self.portButton:GetWidth()
+        hasPrev = true
     end
 
     if allowMythic and self.mythicButton and self.mythicButton:IsVisible() then
+        if hasPrev then totalWidth = totalWidth + db.general.barPadding end
         totalWidth = totalWidth + self.mythicButton:GetWidth()
+        hasPrev = true
     end
     if compat.isMainline and self.homeButton and self.homeButton:IsVisible() then
-        totalWidth = totalWidth + self.homeButton:GetWidth() +
-                         db.general.barPadding
+        if hasPrev then totalWidth = totalWidth + db.general.barPadding end
+        totalWidth = totalWidth + self.homeButton:GetWidth()
     end
+
     self.hearthFrame:SetSize(totalWidth, xb:GetHeight())
     self.hearthFrame:SetPoint("RIGHT", -(db.general.barPadding), 0)
     self.hearthFrame:Show()
@@ -1465,7 +1513,11 @@ function TravelModule:ShowTooltip()
         local hearthstoneId = 6948 -- Regular Hearthstone ID
         local hearthCooldown = self:GetRemainingCooldown(hearthstoneId, false)
         local hearthCdString = self:FormatCooldown(hearthCooldown)
-        GameTooltip:AddDoubleLine(L['Hearthstone'], hearthCdString, r, g, b, 1, 1, 1)
+        if(not xb.db.profile.hideAdditionalTooltipText) then
+            GameTooltip:AddDoubleLine(L['Hearthstone'] .. " |cffffffff(" .. GetBindLocation() .. ")|r", hearthCdString, r, g, b, 1, 1, 1)
+        else
+            GameTooltip:AddDoubleLine(L['Hearthstone'], hearthCdString, r, g, b, 1, 1, 1)
+        end
 
         -- Show teleport cooldowns using utility functions
         if self.portOptions then
@@ -1473,17 +1525,28 @@ function TravelModule:ShowTooltip()
                 if portOption and portOption.portId then
                     local label = portOption.text or GetPortLabel(portOption.portId)
                     local isSpell = IsSpellKnown(portOption.portId)
-                    
+
+                    local combatPortItem = xb.db.char.portItem or self:FindFirstOption()
+                    local combatPortText = combatPortItem and (combatPortItem.text or GetPortLabel(combatPortItem.portId)) or ''
+
                     if isSpell then
                         -- Handle spells
                         local spellCooldown = self:GetRemainingCooldown(portOption.portId, true)
                         local cdString = self:FormatCooldown(spellCooldown)
-                        GameTooltip:AddDoubleLine(label, cdString, r, g, b, 1, 1, 1)
+                        if label == combatPortText and not xb.db.profile.hideAdditionalTooltipText then
+                            GameTooltip:AddDoubleLine(label .. " |cffffffff(Selected)|r", cdString, r, g, b, 1, 1, 1)
+                        else
+                            GameTooltip:AddDoubleLine(label, cdString, r, g, b, 1, 1, 1)
+                        end
                     elseif PlayerHasToy(portOption.portId) or SafeIsUsableItem(portOption.portId) then
                         -- Handle items and toys
                         local itemCooldown = self:GetRemainingCooldown(portOption.portId, false)
                         local cdString = self:FormatCooldown(itemCooldown)
-                        GameTooltip:AddDoubleLine(label, cdString, r, g, b, 1, 1, 1)
+                        if label == combatPortText and not xb.db.profile.hideAdditionalTooltipText then
+                            GameTooltip:AddDoubleLine(label .. " |cffffffff(Selected)|r", cdString, r, g, b, 1, 1, 1)
+                        else
+                            GameTooltip:AddDoubleLine(label, cdString, r, g, b, 1, 1, 1)
+                        end
                     end
                 end
             end
@@ -1521,7 +1584,14 @@ function TravelModule:FindFirstOption()
 end
 
 function TravelModule:IsUsable(id)
-    return PlayerHasToy(id) or SafeIsUsableItem(id) or IsPlayerSpell(id)
+    if not id then return false end
+
+    -- Stable checks first to avoid transient false negatives during zone transitions.
+    if PlayerHasToy(id) or IsPlayerSpell(id) then return true end
+    if GetOwnedItemCount(id) > 0 then return true end
+
+    -- Keep runtime usability as a fallback.
+    return SafeIsUsableItem(id)
 end
 
 function TravelModule:RefreshHearthstonesList()
@@ -1566,6 +1636,10 @@ function TravelModule:GetDefaultOptions()
     return 'travel', {
         enabled = true,
         hideHearthstoneButton = false,
+        hideHearthstoneText = false,
+        hidePortButton = false,
+        hidePortText = false,
+        hideAdditionalTooltipText = true,
         hideHomeButton = false,
         enableMythicPortals = compat.isMainline,
         hideMythicText = false,
@@ -1642,7 +1716,21 @@ function TravelModule:GetConfig()
                     xb.db.profile.hideHearthstoneButton = val;
                     self:Refresh();
                 end,
-                width = "full"
+                width = "2"
+            },
+            hideHearthstoneText = {
+                name = L['Hide Hearthstone Text'],
+                order = 12.5,
+                type = "toggle",
+                get = function()
+                    return xb.db.profile.hideHearthstoneText;
+                end,
+                set = function(_, val)
+                    xb.db.profile.hideHearthstoneText = val;
+                    self:Refresh();
+                end,
+                disabled = function() return xb.db.profile.hideHearthstoneButton end,
+                width = "1"
             },
             hidePortButton = {
                 name = L['Hide Port Button'],
@@ -1655,11 +1743,39 @@ function TravelModule:GetConfig()
                     xb.db.profile.hidePortButton = val;
                     self:Refresh();
                 end,
-                width = "full"
+                width = "2"
+            },
+            hidePortText = {
+                name = L['Hide Port Text'],
+                order = 14.5,
+                type = "toggle",
+                get = function()
+                    return xb.db.profile.hidePortText;
+                end,
+                set = function(_, val)
+                    xb.db.profile.hidePortText = val;
+                    self:Refresh();
+                end,
+                disabled = function() return xb.db.profile.hidePortButton end,
+                width = "1"
+            },
+            hideAdditionalTooltipText = {
+                name = L['Hide Additional Tooltip Text'],
+                desc = L['Hide Additional Tooltip Text Description'],
+                order = 15,
+                type = "toggle",
+                get = function()
+                    return xb.db.profile.hideAdditionalTooltipText;
+                end,
+                set = function(_, val)
+                    xb.db.profile.hideAdditionalTooltipText = val;
+                    self:Refresh();
+                end,
+                width = "1"
             },
             hideHomeButton = {
                 name = L['Hide Home Button'],
-                order = 15,
+                order = 16,
                 type = "toggle",
                 hidden = function() return not compat.isMainline end,
                 get = function()
