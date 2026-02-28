@@ -152,13 +152,18 @@ elseif not Addon.ExpansionIsAtLeastMidnight then
     --C_NamePlate_SetNamePlateSelfSize(baseWidth * horizontalScale * Lerp(1.1, 1.0, clampedZeroBasedScale), baseHeight)
   end
 else
+  -- # Nameplate Hierarchy, Anchoring, and Scaling
   Addon.SetBaseNamePlateSize = function(self) 
-    --local db = Addon.db.profile.settings.healthbar
-    --C_NamePlate.SetNamePlateSize(db.width + 40, db.height + 40)
-    --C_NamePlate.SetNamePlateSize(db.width, db.height)
-    
-    --C_NamePlateManager.SetNamePlateHitTestInsets(Enum.NamePlateType.Enemy, -10000, -10000, -10000, -10000)
-    --C_NamePlateManager.SetNamePlateHitTestInsets(Enum.NamePlateType.Friendly, -10000, -10000, -10000, -10000)
+    -- local extraXOffset = 10;
+		-- local extraYOffset = setupOptions.healthBarHeight / 2;
+    local width, height = self.db.profile.settings.healthbar.width, self.db.profile.settings.healthbar.height
+    if Addon.NameplateParentFrame == WorldFrame then
+      local ui_scale = UIParent:GetEffectiveScale()
+      C_NamePlate.SetNamePlateSize(width / ui_scale, height / ui_scale)
+    else
+      C_NamePlate.SetNamePlateSize(width + 10, height + 10)
+    end
+    self.SetNamePlateClickThrough()
   end
 end
 
@@ -208,14 +213,8 @@ function Addon:ReloadTheme()
 
   -- Do this after combat ends, not in PLAYER_ENTERING_WORLD as it won't get set if the player is on combat when
   -- that event fires.
-  if not Addon.ExpansionIsAtLeastMidnight then
-    Addon:CallbackWhenOoC(function() Addon:SetBaseNamePlateSize() end, L["Unable to change a setting while in combat."])
-    Addon:CallbackWhenOoC(function()
-      local db = self.db.profile
-      SetNamePlateFriendlyClickThrough(db.NamePlateFriendlyClickThrough)
-      SetNamePlateEnemyClickThrough(db.NamePlateEnemyClickThrough)
-    end)
-  end
+  Addon:CallbackWhenOoC(function() Addon:SetBaseNamePlateSize() end, L["Unable to change a setting while in combat."])
+  Addon.SetNamePlateClickThrough()
   
   -- Update all UI elements (frames, textures, ...)
   Addon:UpdatePlatesVisible()
