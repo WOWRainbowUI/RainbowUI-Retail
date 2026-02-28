@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.7.34) add-on for World of Warcraft UI
+    Decursive (v 2.8.0-RC1) add-on for World of Warcraft UI
     Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-01-18T23:59:26Z
+    This file was last updated on 2026-02-27T16:45:58Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -115,7 +115,7 @@ local DebugTextTable    = T._DebugTextTable;
 local Reported          = {};
 
 local UNPACKAGED = "@pro" .. "ject-version@";
-local VERSION = "2.7.34";
+local VERSION = "2.8.0-RC1";
 
 if not T._LoadedFiles then
     T._LoadedFiles = {};
@@ -228,11 +228,12 @@ function T._AddDebugText(a1, ...) -- {{{
     local zone = GetRealZoneText() or "none";
 
     if not Reported[text] then
-        table.insert (DebugTextTable,  ("\n\n|cffff0000*****************|r\n\n%.4f (tr:'%s' ca:'%s' icl:'%s' h%d_w%d-%dfps-%s): %s -|count: "):format(
+        table.insert (DebugTextTable,  ("\n\n|cffff0000*****************|r\n\n%.4f (tr:'%s' ca:'%s' icl:'%s' rs:'%s' h%d_w%d-%dfps-%s): %s -|count: "):format(
         NiceTime(), -- %.4f
         tostring(T._DebugTimerRefName), -- tr:'%s'
         tostring(T._CatchAllErrors), -- ca:'%s'
         tostring(InCombatLockdown()), -- icl:'%s'
+        T.Dcr and T.Dcr.currentRestrictionsStr and T.Dcr:currentRestrictionsStr() or "!",
         select(3, GetNetStats()), -- h%d
         select(4, GetNetStats()), -- w%d
         GetFramerate(), -- %dfps
@@ -334,7 +335,7 @@ do
         local dbclud = T.Dcr.Status and T.Dcr.Status.delayedUnDebuffOccurences or -1
 
 
-        DebugHeader = ("%s\n2.7.34  %s(%s)  CT: %0.4f D: %s %s %s DTl: %d DE: %d nDrE: %d Embeded: %s W: %d (LA: %d TAMU: %d) TA: %d NDRTA: %d BUIE: %d dbc: [d:%d-%d, u:%d-%d] TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] (%s, %s, %s, %s)"):format(instructionsHeader, -- "%s\n
+        DebugHeader = ("%s\n2.8.0-RC1  %s(%s)  CT: %0.4f D: %s %s %s DTl: %d DE: %d nDrE: %d Embeded: %s W: %d (LA: %d TAMU: %d) TA: %d NDRTA: %d BUIE: %d dbc: [d:%d-%d, u:%d-%d] TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] (%s, %s, %s, %s)"):format(instructionsHeader, -- "%s\n
         tostring(DC.MyClass), tostring(UnitLevel("player") or "??"), NiceTime(), date(), GetLocale(), -- %s(%s)  CT: %0.4f D: %s %s
         BugGrabber and "BG" .. (T.BugGrabber and "e" or "") or "NBG", -- %s
         #DebugTextTable / 2, -- DTl: %d
@@ -626,7 +627,7 @@ function T._onError(event, errorObject)
             _G.DEBUGLOCALS_LEVEL = _G.DEBUGLOCALS_LEVEL + 9
         end
 
-        -- forward the error to the original error handler
+        -- forward the error to the original error handler (there is no _G.HandleLuaError anymore)
         if _G.HandleLuaError or T._OriginalDebugHandler then
             local errorm = errorObject.message;
 
@@ -1104,9 +1105,6 @@ do
         -- if the diagnostic was requested by the user, we also test AceEvent functionalities among a few other things {{{ -
         if force and FromCommand and T._DiagStatus == 0 then
 
-            if not _G.HandleLuaError then
-                AddDebugText("|cFFFF0000WARNING Blizzard default error handler is no longer available...|r");
-            end
 
             if not _G.GetCallstackHeight or not _G.GetErrorCallstackHeight then
                 AddDebugText("|cFFFF0000WARNING Blizzard GetErrorCallstackHeight or GetErrorCallstackHeight not available...|r");
@@ -1200,4 +1198,4 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_DIAG.lua"] = "2.7.34";
+T._LoadedFiles["Dcr_DIAG.lua"] = "2.8.0-RC1";
