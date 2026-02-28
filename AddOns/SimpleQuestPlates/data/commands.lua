@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX | Simple Quest Plates! - commands.lua
--- Version: 1.0.0
+
 -- Author: DonnieDice
 -- Description: Slash commands and chat interface
 --=====================================================================================

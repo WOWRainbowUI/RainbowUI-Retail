@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX | Simple Quest Plates! - options_rgx.lua
--- Version: 1.0.0
+
 -- Author: DonnieDice
 -- Description: RGX Mods community tab content
 --=====================================================================================
@@ -14,7 +14,7 @@ function SQP:CreateRGXSection(content)
     -- RGX Mods title
     local rgxTitle = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     rgxTitle:SetPoint("TOPLEFT", 20, yOffset)
-    rgxTitle:SetText("|cff58be81RGX Mods 社群|r")
+    rgxTitle:SetText("|cff58be81RGX Mods Community|r")
     yOffset = yOffset - 20
     
     -- Community description
@@ -31,7 +31,7 @@ function SQP:CreateRGXSection(content)
     communityText:SetPoint("TOPRIGHT", communityFrame, "TOPRIGHT", -10, -10)
     communityText:SetJustifyH("LEFT")
     communityText:SetJustifyV("TOP")
-    communityText:SetText("RGX Mods 製作高品質的魔獸世界插件。加入我們的 Discord 以獲得支援！")
+    communityText:SetText("RGX Mods creates high-quality WoW addons. Join our Discord for support!")
     communityText:SetWordWrap(true)
     
     yOffset = yOffset - 55
@@ -52,7 +52,7 @@ function SQP:CreateRGXSection(content)
     
     local discordText = discordFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     discordText:SetPoint("LEFT", discordIcon, "RIGHT", 10, 8)
-    discordText:SetText("|cff58be81加入我們的 Discord|r")
+    discordText:SetText("|cff58be81Join Our Discord|r")
     
     local discordLink = discordFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     discordLink:SetPoint("TOPLEFT", discordText, "BOTTOMLEFT", 0, -3)

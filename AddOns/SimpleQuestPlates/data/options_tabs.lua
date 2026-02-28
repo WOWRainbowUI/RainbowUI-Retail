@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX | Simple Quest Plates! - options_tabs.lua
--- Version: 1.0.0
+
 -- Author: DonnieDice
 -- Description: Tab system for options panel
 --=====================================================================================
@@ -10,7 +10,7 @@ local addonName, SQP = ...
 -- Create tab button
 function SQP:CreateTabButton(parent, id, text)
     local tab = CreateFrame("Button", nil, parent)
-    tab:SetSize(120, 32)
+    tab:SetSize(100, 26)
     tab.id = id
     
     -- Background
@@ -101,31 +101,32 @@ end
 function SQP:InitializeTabs(container, previewContainer)
     -- Tab container
     local tabContainer = CreateFrame("Frame", nil, container)
-    tabContainer:SetHeight(40)
-    tabContainer:SetPoint("TOPLEFT", previewContainer, "BOTTOMLEFT", 0, -10)
-    tabContainer:SetPoint("TOPRIGHT", previewContainer, "BOTTOMRIGHT", 0, -10)
+    tabContainer:SetHeight(32)
+    tabContainer:SetPoint("TOPLEFT", previewContainer, "BOTTOMLEFT", 0, -6)
+    tabContainer:SetPoint("TOPRIGHT", previewContainer, "BOTTOMRIGHT", 0, -6)
     
     -- Tab buttons
     local tabs = {}
     local tabPanels = {}
     
     local tabInfo = {
-        {id = "general", text = "一般"},
-        {id = "font", text = "文字"},
-        {id = "icon", text = "圖示"},
-        {id = "about", text = "關於"},
-        {id = "rgx", text = "RGX Mods"}
+        {id = "general", text = self.L["General"]},
+        {id = "icon",    text = self.L["Main Icon"]},
+        {id = "kill",    text = self.L["Kill"]},
+        {id = "loot",    text = self.L["Loot"]},
+        {id = "percent", text = self.L["Percent"]},
+        {id = "about",   text = self.L["About"]},
     }
     
     -- Create tabs
     for i, info in ipairs(tabInfo) do
         local tab = self:CreateTabButton(tabContainer, info.id, info.text)
-        tab:SetPoint("LEFT", tabContainer, "LEFT", (i-1) * 125, 0)
+        tab:SetPoint("LEFT", tabContainer, "LEFT", (i-1) * 105, 0)
         
         -- Create panel without scrolling (all tabs fit now)
         local needsScroll = false
         local panel = self:CreateTabPanel(container, needsScroll)
-        panel:SetPoint("TOPLEFT", tabContainer, "BOTTOMLEFT", 0, -5)
+        panel:SetPoint("TOPLEFT", tabContainer, "BOTTOMLEFT", 0, -3)
         panel:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", -10, 10)
         
         tab:SetScript("OnClick", function()

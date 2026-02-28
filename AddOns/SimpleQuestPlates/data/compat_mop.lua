@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX | Simple Quest Plates! - compat_mop.lua
--- Version: 1.1.0
+
 -- Author: DonnieDice
 -- Description: MoP Classic nameplate compatibility layer
 --=====================================================================================
@@ -103,6 +103,11 @@ local function ScanNameplates()
     
     -- Update the old nameplates list
     oldNameplates = currentNameplates
+end
+
+-- Expose a manual rescan for settings refresh on classic clients
+function SQP:RescanNameplates()
+    ScanNameplates()
 end
 
 -- OnUpdate handler for scanning nameplates

@@ -1,6 +1,6 @@
 --=====================================================================================
 -- RGX | Simple Quest Plates! - options_core.lua
--- Version: 1.0.0
+
 -- Author: DonnieDice
 -- Description: Core options panel framework
 --=====================================================================================
@@ -8,7 +8,7 @@
 local addonName, SQP = ...
 
 -- Constants
-SQP.PANEL_NAME = "任務-提示"
+SQP.PANEL_NAME = SQP.L["PANEL_NAME"]
 SQP.SECTION_COLOR = {0.345, 0.745, 0.506} -- #58be81
 SQP.PANEL_WIDTH = 700
 SQP.PANEL_HEIGHT = 600
@@ -42,9 +42,9 @@ function SQP:CreateOptionsPanel()
     
     -- Create preview section at the top
     local previewContainer = CreateFrame("Frame", nil, container, "BackdropTemplate")
-    previewContainer:SetHeight(180)
-    previewContainer:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -10)
-    previewContainer:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", 0, -10)
+    previewContainer:SetHeight(148)
+    previewContainer:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -6)
+    previewContainer:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", 0, -6)
     previewContainer:SetBackdrop(self.BACKDROP_DARK)
     previewContainer:SetBackdropColor(0.08, 0.08, 0.08, 0.8)
     previewContainer:SetBackdropBorderColor(unpack(self.SECTION_COLOR))
@@ -58,10 +58,11 @@ function SQP:CreateOptionsPanel()
     
     -- Populate tab content
     self:CreateGeneralOptions(tabPanels.general.content)
-    self:CreateFontOptions(tabPanels.font.content)
     self:CreateIconOptions(tabPanels.icon.content)
+    self:CreateKillOptions(tabPanels.kill.content)
+    self:CreateLootOptions(tabPanels.loot.content)
+    self:CreatePercentOptions(tabPanels.percent.content)
     self:CreateAboutSection(tabPanels.about.content)
-    self:CreateRGXSection(tabPanels.rgx.content)
     
     -- Register the panel
     if Settings and Settings.RegisterCanvasLayoutCategory then
@@ -79,6 +80,10 @@ end
 
 -- Open options panel
 function SQP:OpenOptions()
+    if InCombatLockdown() then
+        self:PrintMessage(self.L["ERROR_COMBAT_LOCKDOWN"] or "Cannot open options during combat.")
+        return
+    end
     if Settings and Settings.OpenToCategory and self.settingsCategory then
         Settings.OpenToCategory(self.settingsCategory:GetID())
     elseif InterfaceOptionsFrame_OpenToCategory then
@@ -89,9 +94,9 @@ end
 
 -- Create reset confirmation dialog
 StaticPopupDialogs["SQP_RESET_CONFIRM"] = {
-    text = "|cff58be81簡易任務怪提示!|r\n\n是否確定要重置所有設定，恢復成預設值?",
-    button1 = "是",
-    button2 = "否",
+    text = SQP.L["RESET_CONFIRM"],
+    button1 = YES,
+    button2 = NO,
     OnAccept = function()
         SQP:ResetSettings()
     end,
