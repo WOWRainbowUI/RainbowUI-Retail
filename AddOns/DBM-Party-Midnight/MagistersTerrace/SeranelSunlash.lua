@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2661, "DBM-Party-Midnight", 3, 1300)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260221094926")
+mod:SetRevision("20260226065527")
 mod:SetCreatureID(231863)
 mod:SetEncounterID(3072)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -35,7 +35,7 @@ function mod:OnLimitedCombatStart()
 
 	self:EnableTimelineOptions(1224903, 93)
 	self:EnableTimelineOptions(1248689, 94)
-	self:EnableTimelineOptions(1225787, 95, 513)
+	self:EnableTimelineOptions(1225787, {95, 513})
 	self:EnableTimelineOptions(1225193, 96)
 
 	self:EnablePrivateAuraSound({1225787,1225792}, "debuffyou", 17)

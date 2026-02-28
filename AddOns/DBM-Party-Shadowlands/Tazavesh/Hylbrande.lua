@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2448, "DBM-Party-Shadowlands", 9, 1194)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260221022657")
+mod:SetRevision("20260226065527")
 mod:SetCreatureID(175663)
 mod:SetEncounterID(2426)
 mod:SetUsedIcons(1, 2)
@@ -32,7 +32,7 @@ function mod:OnLimitedCombatStart()
 	self:EnableAlertOptions(346766, 590, "specialsoon", 1)
 
 	self:EnableTimelineOptions(346957, 586)
-	self:EnableTimelineOptions(347094, 587, 589)
+	self:EnableTimelineOptions(347094, {587, 589})
 	self:EnableTimelineOptions(346116, 588)
 	self:EnableTimelineOptions(346766, 590)
 

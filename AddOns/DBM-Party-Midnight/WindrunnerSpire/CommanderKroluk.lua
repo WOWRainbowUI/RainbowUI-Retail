@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2657, "DBM-Party-Midnight", 1, 1299)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260221094926")
+mod:SetRevision("20260226065527")
 mod:SetCreatureID(231631)
 mod:SetEncounterID(3058)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -39,9 +39,9 @@ function mod:OnLimitedCombatStart()
 	self:EnableAlertOptions(1253026, {211,213}, "gathershare", 2)
 	self:EnableAlertOptions(472043, 215, "mobsoon", 2)
 
-	self:EnableTimelineOptions(467620, 210, 556)
-	self:EnableTimelineOptions(1253026, 211, 213)
-	self:EnableTimelineOptions(1283247, 212, 214)
+	self:EnableTimelineOptions(467620, {210, 556})
+	self:EnableTimelineOptions(1253026, {211, 213})
+	self:EnableTimelineOptions(1283247, {212, 214})
 	self:EnableTimelineOptions(472043, 215)
 	self:EnableTimelineOptions(470966, 216)
 

@@ -4,7 +4,7 @@ local mod	= DBM:NewMod("Nullaeus", "DBM-Delves-Midnight", 1)
 mod.statTypes = "normal,mythic"
 mod.soloChallenge = true
 
-mod:SetRevision("20260221022657")
+mod:SetRevision("20260226065527")
 --mod:SetCreatureID(244752)--Not known which 2 are nemesis boss yet and which 2 are random spawns
 mod:SetEncounterID(3372, 3430)
 mod:SetHotfixNoticeRev(20250220000000)
@@ -29,9 +29,9 @@ function mod:OnLimitedCombatStart()
 	self:EnableAlertOptions(1256355, {391,394}, "defensive", 2)
 	self:EnableAlertOptions(1256351, {392,393}, "aesoon", 2)
 
-	self:EnableTimelineOptions(1256358, 390, 395)
-	self:EnableTimelineOptions(1256355, 391, 394)
-	self:EnableTimelineOptions(1256351, 392, 393)
+	self:EnableTimelineOptions(1256358, {390, 395})
+	self:EnableTimelineOptions(1256355, {391, 394})
+	self:EnableTimelineOptions(1256351, {392, 393})
 
 	--if self:IsMythic() then
 	--	self:SetCreatureID(244753)
