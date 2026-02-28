@@ -11,7 +11,7 @@ SQP.L = SQP.L or {}
 -- Default English strings
 local L = {
     -- Options Panel
-    ["OPTIONS_ENABLE"] = "Enable Simple Quest Plates",
+    ["OPTIONS_ENABLE"] = "Enable",
     ["OPTIONS_DISPLAY"] = "Display Settings",
     ["OPTIONS_SCALE"] = "Icon Scale",
     ["OPTIONS_OFFSET_X"] = "Horizontal Offset",
@@ -30,9 +30,25 @@ local L = {
     ["OPTIONS_COLOR_KILL"] = "Kill Quests",
     ["OPTIONS_COLOR_ITEM"] = "Item Quests",
     ["OPTIONS_COLOR_PERCENT"] = "Progress Quests",
+    ["OPTIONS_COLOR_OUTLINE"] = "Outline Color",
     ["OPTIONS_ICON_STYLE"] = "Icon Style",
     ["OPTIONS_ICON_TINT"] = "Enable Icon Tinting",
     ["OPTIONS_ICON_COLOR"] = "Icon Tint Color",
+    ["OPTIONS_ICON_TINT_MAIN"] = "Enable Main Icon Tinting",
+    ["OPTIONS_ICON_COLOR_MAIN"] = "Main Icon Tint Color",
+    ["OPTIONS_ICON_TINT_QUEST"] = "Enable Quest Icon Tinting",
+    ["OPTIONS_ICON_COLOR_QUEST"] = "Quest Icon Tint Color",
+    ["OPTIONS_SHOW_KILL_ICON"] = "Show Kill Icon",
+    ["OPTIONS_SHOW_LOOT_ICON"] = "Show Loot Icon",
+    ["OPTIONS_QUEST_TYPE_ICONS"] = "Quest Type Icons",
+    ["OPTIONS_ICON_OFFSETS"] = "Quest Type Icon Offsets",
+    ["OPTIONS_ANIMATE_ICON"] = "Animate Main Icon",
+    ["OPTIONS_RESET_MAIN_ICON"] = "Reset Main Icon Settings",
+    ["OPTIONS_RESET_QUEST_ICONS"] = "Reset Quest Icon Settings",
+    ["OPTIONS_KILL_ICON_OFFSET_X"] = "Kill X",
+    ["OPTIONS_KILL_ICON_OFFSET_Y"] = "Kill Y",
+    ["OPTIONS_LOOT_ICON_OFFSET_X"] = "Loot X",
+    ["OPTIONS_LOOT_ICON_OFFSET_Y"] = "Loot Y",
     ["OPTIONS_SIZE"] = "Size",
     ["OPTIONS_POSITION"] = "Position",
     
@@ -75,6 +91,7 @@ local L = {
     -- Messages
     ["MSG_LOADED"] = "v%s loaded successfully. Type |cfffff569/sqp help|r for commands.",
     ["MSG_DISCORD"] = "Join our Discord: |cff58be81discord.gg/N7kdKAHVVF|r",
+    ["SETTINGS_RESET"] = "|cff58be81All settings have been reset to defaults|r",
 }
 
 -- Set English as default

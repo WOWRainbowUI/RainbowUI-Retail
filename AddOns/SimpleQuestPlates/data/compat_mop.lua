@@ -105,6 +105,11 @@ local function ScanNameplates()
     oldNameplates = currentNameplates
 end
 
+-- Expose a manual rescan for settings refresh on classic clients
+function SQP:RescanNameplates()
+    ScanNameplates()
+end
+
 -- OnUpdate handler for scanning nameplates
 local function OnUpdate(self, elapsed)
     nameplateUpdateTimer = nameplateUpdateTimer + elapsed

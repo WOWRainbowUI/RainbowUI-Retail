@@ -75,6 +75,27 @@ function SQP:NAME_PLATE_UNIT_REMOVED(unitID)
     end
 end
 
+-- Target/mouseover updates (helps tooltip-driven detection on Classic)
+function SQP:PLAYER_TARGET_CHANGED()
+    if UnitExists("target") then
+        local plate = SQP.Compat.GetNamePlateForUnit and SQP.Compat.GetNamePlateForUnit("target")
+        if plate then
+            plate._unitID = "target"
+            self:UpdateQuestIcon(plate, "target")
+        end
+    end
+end
+
+function SQP:UPDATE_MOUSEOVER_UNIT()
+    if UnitExists("mouseover") then
+        local plate = SQP.Compat.GetNamePlateForUnit and SQP.Compat.GetNamePlateForUnit("mouseover")
+        if plate then
+            plate._unitID = "mouseover"
+            self:UpdateQuestIcon(plate, "mouseover")
+        end
+    end
+end
+
 -- Quest events with throttling
 local questUpdateThrottle = 0
 local QUEST_UPDATE_THROTTLE = 0.3  -- 300ms throttle
@@ -171,3 +192,5 @@ SQP.eventFrame:RegisterEvent("PLAYER_LEAVING_WORLD")
 SQP.eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 SQP.eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 SQP.eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+SQP.eventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+SQP.eventFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")

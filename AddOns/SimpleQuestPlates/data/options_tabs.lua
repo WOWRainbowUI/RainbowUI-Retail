@@ -10,7 +10,7 @@ local addonName, SQP = ...
 -- Create tab button
 function SQP:CreateTabButton(parent, id, text)
     local tab = CreateFrame("Button", nil, parent)
-    tab:SetSize(120, 32)
+    tab:SetSize(100, 26)
     tab.id = id
     
     -- Background
@@ -101,9 +101,9 @@ end
 function SQP:InitializeTabs(container, previewContainer)
     -- Tab container
     local tabContainer = CreateFrame("Frame", nil, container)
-    tabContainer:SetHeight(40)
-    tabContainer:SetPoint("TOPLEFT", previewContainer, "BOTTOMLEFT", 0, -10)
-    tabContainer:SetPoint("TOPRIGHT", previewContainer, "BOTTOMRIGHT", 0, -10)
+    tabContainer:SetHeight(32)
+    tabContainer:SetPoint("TOPLEFT", previewContainer, "BOTTOMLEFT", 0, -6)
+    tabContainer:SetPoint("TOPRIGHT", previewContainer, "BOTTOMRIGHT", 0, -6)
     
     -- Tab buttons
     local tabs = {}
@@ -111,21 +111,22 @@ function SQP:InitializeTabs(container, previewContainer)
     
     local tabInfo = {
         {id = "general", text = "General"},
-        {id = "font", text = "Font"},
-        {id = "icon", text = "Icon"},
-        {id = "about", text = "About"},
-        {id = "rgx", text = "RGX Mods"}
+        {id = "icon",    text = "Main Icon"},
+        {id = "kill",    text = "Kill"},
+        {id = "loot",    text = "Loot"},
+        {id = "percent", text = "Percent"},
+        {id = "about",   text = "About"},
     }
     
     -- Create tabs
     for i, info in ipairs(tabInfo) do
         local tab = self:CreateTabButton(tabContainer, info.id, info.text)
-        tab:SetPoint("LEFT", tabContainer, "LEFT", (i-1) * 125, 0)
+        tab:SetPoint("LEFT", tabContainer, "LEFT", (i-1) * 105, 0)
         
         -- Create panel without scrolling (all tabs fit now)
         local needsScroll = false
         local panel = self:CreateTabPanel(container, needsScroll)
-        panel:SetPoint("TOPLEFT", tabContainer, "BOTTOMLEFT", 0, -5)
+        panel:SetPoint("TOPLEFT", tabContainer, "BOTTOMLEFT", 0, -3)
         panel:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", -10, 10)
         
         tab:SetScript("OnClick", function()

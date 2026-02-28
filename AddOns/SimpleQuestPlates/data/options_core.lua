@@ -42,9 +42,9 @@ function SQP:CreateOptionsPanel()
     
     -- Create preview section at the top
     local previewContainer = CreateFrame("Frame", nil, container, "BackdropTemplate")
-    previewContainer:SetHeight(180)
-    previewContainer:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -10)
-    previewContainer:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", 0, -10)
+    previewContainer:SetHeight(148)
+    previewContainer:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -6)
+    previewContainer:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", 0, -6)
     previewContainer:SetBackdrop(self.BACKDROP_DARK)
     previewContainer:SetBackdropColor(0.08, 0.08, 0.08, 0.8)
     previewContainer:SetBackdropBorderColor(unpack(self.SECTION_COLOR))
@@ -58,10 +58,11 @@ function SQP:CreateOptionsPanel()
     
     -- Populate tab content
     self:CreateGeneralOptions(tabPanels.general.content)
-    self:CreateFontOptions(tabPanels.font.content)
     self:CreateIconOptions(tabPanels.icon.content)
+    self:CreateKillOptions(tabPanels.kill.content)
+    self:CreateLootOptions(tabPanels.loot.content)
+    self:CreatePercentOptions(tabPanels.percent.content)
     self:CreateAboutSection(tabPanels.about.content)
-    self:CreateRGXSection(tabPanels.rgx.content)
     
     -- Register the panel
     if Settings and Settings.RegisterCanvasLayoutCategory then
@@ -79,6 +80,10 @@ end
 
 -- Open options panel
 function SQP:OpenOptions()
+    if InCombatLockdown() then
+        self:PrintMessage(self.L["ERROR_COMBAT_LOCKDOWN"] or "Cannot open options during combat.")
+        return
+    end
     if Settings and Settings.OpenToCategory and self.settingsCategory then
         Settings.OpenToCategory(self.settingsCategory:GetID())
     elseif InterfaceOptionsFrame_OpenToCategory then

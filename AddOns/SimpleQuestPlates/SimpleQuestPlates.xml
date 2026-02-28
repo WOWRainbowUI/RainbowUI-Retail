@@ -25,8 +25,9 @@
     
     <!-- Options sections -->
     <Script file="data\options_general.lua"/>
-    <Script file="data\options_font.lua"/>
     <Script file="data\options_icon.lua"/>
+    <Script file="data\options_kill.lua"/>
+    <Script file="data\options_loot.lua"/>
+    <Script file="data\options_percent.lua"/>
     <Script file="data\options_about.lua"/>
-    <Script file="data\options_rgx.lua"/>
 </Ui>

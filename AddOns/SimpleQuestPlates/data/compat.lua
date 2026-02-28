@@ -82,22 +82,28 @@ else
         return IsQuestComplete(questID)
     end
     
-    SQP.Compat.GetQuestObjectives = function(questID)
+    SQP.Compat.GetQuestObjectives = function(questID, questLogIndex)
         local objectives = {}
-        -- In Classic, we need to find the quest index first
-        for i = 1, GetNumQuestLogEntries() do
-            local _, _, _, _, _, _, _, qID = GetQuestLogTitle(i)
-            if qID == questID then
-                local numObjectives = GetNumQuestLeaderBoards(i)
-                for j = 1, numObjectives do
-                    local text, objectiveType, finished = GetQuestLogLeaderBoard(j, i)
-                    table.insert(objectives, {
-                        text = text,
-                        type = objectiveType,
-                        finished = finished
-                    })
+        -- In Classic, we need to find the quest index first (or accept one directly)
+        local index = questLogIndex
+        if not index and questID then
+            for i = 1, GetNumQuestLogEntries() do
+                local _, _, _, _, _, _, _, qID = GetQuestLogTitle(i)
+                if qID == questID then
+                    index = i
+                    break
                 end
-                break
+            end
+        end
+        if index then
+            local numObjectives = GetNumQuestLeaderBoards(index)
+            for j = 1, numObjectives do
+                local text, objectiveType, finished = GetQuestLogLeaderBoard(j, index)
+                table.insert(objectives, {
+                    text = text,
+                    type = objectiveType,
+                    finished = finished
+                })
             end
         end
         return objectives
@@ -203,6 +209,42 @@ else
     SQP.Compat.GetNamePlates = function()
         return {}
     end
+end
+
+-- Quest-related unit detection (best-effort across versions)
+SQP.Compat.IsQuestRelatedUnit = function(unitID)
+    if not unitID then return false end
+    if SQP.Compat and SQP.Compat.UnitIsRelatedToActiveQuest then
+        local ok, related = pcall(SQP.Compat.UnitIsRelatedToActiveQuest, unitID)
+        if ok and related then
+            return true
+        end
+    end
+    if UnitIsRelatedToActiveQuest then
+        local ok, related = pcall(UnitIsRelatedToActiveQuest, unitID)
+        if ok and related then
+            return true
+        end
+    end
+    if IsQuestLogUnit then
+        local ok, related = pcall(IsQuestLogUnit, unitID)
+        if ok and related then
+            return true
+        end
+    end
+    if UnitIsQuestBoss then
+        local ok, related = pcall(UnitIsQuestBoss, unitID)
+        if ok and related then
+            return true
+        end
+    end
+    if UnitIsQuestGiver then
+        local ok, related = pcall(UnitIsQuestGiver, unitID)
+        if ok and related then
+            return true
+        end
+    end
+    return false
 end
 
 -- Color Picker compatibility

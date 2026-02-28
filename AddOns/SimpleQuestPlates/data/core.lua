@@ -23,6 +23,26 @@ local floor = math.floor
 local format = string.format
 local strmatch = string.match
 
+-- Shallow copy table values (nested tables copied one level deep)
+local function CloneValue(value)
+    if type(value) ~= "table" then
+        return value
+    end
+    local copy = {}
+    for k, v in pairs(value) do
+        if type(v) == "table" then
+            local nested = {}
+            for nk, nv in pairs(v) do
+                nested[nk] = nv
+            end
+            copy[k] = nested
+        else
+            copy[k] = v
+        end
+    end
+    return copy
+end
+
 -- Lua Globals
 local UnitName = UnitName
 local UnitExists = UnitExists
@@ -60,7 +80,7 @@ local function GetAddOnMetadataCompat(name, field)
     return nil
 end
 
-SQP.VERSION = "1.6.12" -- Addon version (also in TOC file)
+SQP.VERSION = "1.8.4" -- Addon version (also in TOC file)
 SQP.NAME = GetAddOnMetadataCompat(addonName, "Title") or addonName or "SimpleQuestPlates"
 SQP.AUTHOR = GetAddOnMetadataCompat(addonName, "Author") or "DonnieDice"
 SQP.LOCALE = GetLocale()
@@ -79,26 +99,79 @@ do
     SQP.tocversion = tocversion or 0
 end
 
--- Default settings
+-- Default settings (based on tuned in-game values)
 SQP.DEFAULTS = {
     enabled = true,
-    scale = 1.0,
-    offsetX = 0,
-    offsetY = 0,
-    anchor = "RIGHT", -- LEFT or RIGHT
-    relativeTo = "LEFT", -- ANCHOR_LEFT or ANCHOR_RIGHT
+    scale = 1.1,
+    offsetX = 12,
+    offsetY = 3,
+    anchor = "RIGHT",
+    relativeTo = "LEFT",
     hideInCombat = false,
     hideInInstance = false,
-    itemColor = {0.2, 1, 0.2}, -- Green
-    killColor = {1, 0.82, 0}, -- Gold
-    percentColor = {0.2, 1, 1}, -- Cyan
-    fontOutline = "THICKOUTLINE", -- NONE, THINOUTLINE, THICKOUTLINE, MONOCHROME
+    itemColor = {0.2, 1, 0.2},   -- Green
+    killColor = {1, 0.82, 0},    -- Gold
+    percentColor = {0.2, 1, 1},  -- Cyan
+    fontOutline = "",            -- No outline by default
+    outlineWidth = 0,
     fontSize = 12,
-    fontColor = {1, 1, 1}, -- White
-    iconTint = false,
-    iconTintColor = {1, 1, 1}, -- White
+    fontFamily = "Fonts\\FRIZQT__.TTF",
+    outlineColor = {0, 0, 0},
+    outlineAlpha = 0,
+    showMessages = true,
+    showKillIcon = true,
+    showLootIcon = true,
+    showPercentIcon = true,
+    animateQuestIcon = false,
+    animateQuestIcons = true,
+    showIconBackground = true,
+    killIconOffsetX = 2,
+    killIconOffsetY = 15,
+    lootIconOffsetX = -38,
+    lootIconOffsetY = 16,
+    percentIconOffsetX = -17,
+    percentIconOffsetY = 0,
+    killIconSize = 14,
+    lootIconSize = 14,
+    percentIconSize = 8,
+    iconTintMain = false,
+    iconTintMainColor = {1, 1, 1},
+    iconTintQuest = false,
+    iconTintQuestColor = {1, 1, 1},
     debug = false,
 }
+
+-- Determine effective outline settings
+function SQP:GetOutlineInfo()
+    local settings = SQPSettings or self.DEFAULTS or {}
+    local fontOutline = settings.fontOutline or "OUTLINE"
+    local outlineWidth = settings.outlineWidth
+    local noOutline = fontOutline == "" or fontOutline == "NONE"
+    if noOutline then
+        outlineWidth = 0
+    elseif not outlineWidth then
+        if fontOutline == "THICKOUTLINE" then
+            outlineWidth = 3
+        elseif fontOutline == "OUTLINE" then
+            outlineWidth = 2
+        else
+            outlineWidth = 1
+        end
+    end
+    if outlineWidth < 0 then
+        outlineWidth = 0
+    end
+    return outlineWidth, fontOutline, noOutline
+end
+
+-- Apply default settings to a settings table (does not overwrite existing values)
+function SQP:ApplyDefaults(settings)
+    for k, v in pairs(self.DEFAULTS) do
+        if settings[k] == nil or (type(v) == "table" and type(settings[k]) ~= "table") then
+            settings[k] = CloneValue(v)
+        end
+    end
+end
 
 -- Current settings (initialized later)
 SQPSettings = SQPSettings or {}
@@ -143,15 +216,16 @@ end
 
 -- Print message to chat frame
 function SQP:PrintMessage(msg, level)
+    if not msg then return end
     if DEFAULT_CHAT_FRAME then
         local icon = format("|T%s:0|t", self.ICON_TEXTURE or "")
-        local prefix = format("%s - |cff58be81[SQP]|r", icon)
+        local prefix = format("%s - |cffffffff[|r|cff58be81SQP|r|cffffffff]|r", icon)
         if level and level ~= "" then
             local levelColor = "fffff569"
             if tostring(level) == "DEBUG" then
                 levelColor = "ff9d9d9d"
             end
-            prefix = prefix .. " |c" .. levelColor .. "[" .. tostring(level) .. "]|r"
+            prefix = prefix .. " |cffffffff[|r|c" .. levelColor .. tostring(level) .. "|r|cffffffff]|r"
         end
         DEFAULT_CHAT_FRAME:AddMessage(format("%s %s", prefix, msg))
     end
@@ -174,9 +248,23 @@ function SQP:GetSavedSettings()
     end
     
     -- Copy defaults if new or missing
-    for k, v in pairs(self.DEFAULTS) do
-        if SQPSettings[k] == nil then
-            SQPSettings[k] = v
+    self:ApplyDefaults(SQPSettings)
+
+    -- Migrate legacy tint settings
+    if SQPSettings.iconTint ~= nil then
+        if SQPSettings.iconTintMain == nil then
+            SQPSettings.iconTintMain = SQPSettings.iconTint
+        end
+        if SQPSettings.iconTintQuest == nil then
+            SQPSettings.iconTintQuest = SQPSettings.iconTint
+        end
+    end
+    if type(SQPSettings.iconTintColor) == "table" then
+        if SQPSettings.iconTintMainColor == nil then
+            SQPSettings.iconTintMainColor = CloneValue(SQPSettings.iconTintColor)
+        end
+        if SQPSettings.iconTintQuestColor == nil then
+            SQPSettings.iconTintQuestColor = CloneValue(SQPSettings.iconTintColor)
         end
     end
     
@@ -191,6 +279,7 @@ function SQP:SaveSettings()
     if SQPSettings == nil then
         SQPSettings = {}
     end
+    self:ApplyDefaults(SQPSettings)
     SQPSavedSettings = SQPSettings
 end
 
@@ -206,9 +295,10 @@ end
 
 -- Reset settings to default
 function SQP:ResetSettings()
-    SQPSavedSettings = nil
-    self:InitializeSettings()
-    self:PrintMessage(self.L["SETTINGS_RESET"])
+    SQPSettings = {}
+    self:ApplyDefaults(SQPSettings)
+    SQPSavedSettings = SQPSettings
+    self:PrintMessage(self.L["SETTINGS_RESET"] or "|cff58be81All settings have been reset to defaults|r")
     self:RefreshAllNameplates()
 end
 
