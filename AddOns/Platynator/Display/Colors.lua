@@ -69,17 +69,19 @@ local function DoesOtherTankHaveAggro(unit)
   return IsInRaid() and UnitGroupRolesAssigned(unit .. "target") == "TANK"
 end
 
-local inRelevantInstance = false
+local inRelevantThreatInstance = false
+local inRelevantEliteInstance = false
 
 local instanceTracker = CreateFrame("Frame")
 instanceTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
 instanceTracker:SetScript("OnEvent", function()
-  inRelevantInstance = addonTable.Display.Utilities.IsInRelevantInstance()
-  if PLATYNATOR_LAST_INSTANCE == nil or inRelevantInstance ~= PLATYNATOR_LAST_INSTANCE.inInstance or PLATYNATOR_LAST_INSTANCE.lastLFGInstanceID ~= select(10, GetInstanceInfo()) then
+  inRelevantThreatInstance = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, delve = true, pvp = true})
+  inRelevantEliteInstance = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, pvp = true})
+  if PLATYNATOR_LAST_INSTANCE == nil or (inRelevantThreatInstance or inRelevantEliteInstance) ~= PLATYNATOR_LAST_INSTANCE.inInstance or PLATYNATOR_LAST_INSTANCE.lastLFGInstanceID ~= select(10, GetInstanceInfo()) then
     PLATYNATOR_LAST_INSTANCE = {
       level = UnitEffectiveLevel("player"),
       lastLFGInstanceID = select(10, GetInstanceInfo()),
-      inInstance = inRelevantInstance,
+      inInstance = inRelevantThreatInstance or inRelevantEliteInstance,
     }
   end
 end)
@@ -130,6 +132,16 @@ local kindToEvent = {
   threat = {"UNIT_THREAT_LIST_UPDATE"},
   execute = {"UNIT_HEALTH"},
   interruptReady = {
+    "UNIT_SPELLCAST_START",
+    "UNIT_SPELLCAST_STOP",
+    "UNIT_SPELLCAST_FAILED",
+    "UNIT_SPELLCAST_INTERRUPTED",
+    "UNIT_SPELLCAST_INTERRUPTIBLE",
+    "UNIT_SPELLCAST_NOT_INTERRUPTIBLE",
+    "UNIT_SPELLCAST_CHANNEL_START",
+    "UNIT_SPELLCAST_CHANNEL_STOP",
+  },
+  interruptNotReady = {
     "UNIT_SPELLCAST_START",
     "UNIT_SPELLCAST_STOP",
     "UNIT_SPELLCAST_FAILED",
@@ -289,7 +301,7 @@ function addonTable.Display.GetColor(settings, state, unit)
     elseif s.kind == "threat" then
       local threat = state.threat
       local hostile = state.hostile
-      if not state.isPlayer and (inRelevantInstance or not s.instancesOnly) and (threat or (hostile and not s.combatOnly) or IsInCombatWith(unit)) then
+      if not state.isPlayer and (inRelevantThreatInstance or not s.instancesOnly) and (threat or (hostile and not s.combatOnly) or IsInCombatWith(unit)) then
         if (isTank and (threat == 0 or threat == nil) and not DoesOtherTankHaveAggro(unit)) or (not isTank and threat == 3) then
           table.insert(colorQueue, {color = s.colors.warning})
           break
@@ -313,7 +325,7 @@ function addonTable.Display.GetColor(settings, state, unit)
         table.insert(colorQueue, {color = s.colors.rareElite})
       end
     elseif s.kind == "eliteType" then
-      if (inRelevantInstance or not s.instancesOnly) and not addonTable.Display.Utilities.IsNeutralUnit(unit) then
+      if (inRelevantEliteInstance or not s.instancesOnly) and not addonTable.Display.Utilities.IsNeutralUnit(unit) then
         local classification = UnitClassification(unit)
         if classification == "elite" then
           local level = UnitEffectiveLevel(unit)
@@ -399,6 +411,30 @@ function addonTable.Display.GetColor(settings, state, unit)
             local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
             if notInterruptible == false and cooldownInfo.startTime == 0 then
               table.insert(colorQueue, {color = s.colors.ready})
+              break
+            end
+          end
+        end
+      end
+    elseif s.kind == "interruptNotReady" then
+      local castInfo = state.castInfo
+      local channelInfo = state.channelInfo
+      local notInterruptible = castInfo[8]
+      if notInterruptible == nil then
+        notInterruptible = channelInfo[7]
+      end
+      state.frequentUpdater.interruptReady = nil
+      if notInterruptible ~= nil then
+        local spellID = GetInterruptSpell()
+        if spellID then
+          state.frequentUpdater.interruptReady = true
+          if C_Spell.GetSpellCooldownDuration then
+            local duration = C_Spell.GetSpellCooldownDuration(spellID)
+            table.insert(colorQueue, {state = {{value = duration:IsZero(), invert = true}, {value = notInterruptible, invert = true}}, color = s.colors.notReady})
+          else
+            local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
+            if notInterruptible == false and cooldownInfo.startTime ~= 0 then
+              table.insert(colorQueue, {color = s.colors.notReady})
               break
             end
           end
