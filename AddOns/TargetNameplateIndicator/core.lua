@@ -111,7 +111,7 @@ do
 					texturePoint = "BOTTOM",
 					anchorPoint = "TOP",
 					xOffset = 0,
-					yOffset = 22,
+					yOffset = 30,
 				}
 			},
 			mouseover = {
