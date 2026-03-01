@@ -41,7 +41,7 @@ map.nodes[34413305] = Rare({
     quest = 89569, -- 94683
     rewards = {
         Achievement({id = 62122, criteria = 111839}),
-        Reputation({id = 2696, gain = 5, quest = 94683}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94683}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -52,7 +52,7 @@ map.nodes[51801862] = Rare({
     quest = 89570, -- 94697
     rewards = {
         Achievement({id = 62122, criteria = 111840}),
-        Reputation({id = 2696, gain = 5, quest = 94697}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94697}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -64,7 +64,7 @@ map.nodes[51857291] = Rare({
     rewards = {
         Achievement({id = 62122, criteria = 111841}),
         Transmog({item = 256231, type = L['2h_sword']}),
-        Reputation({id = 2696, gain = 5, quest = 94700}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94698}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -76,7 +76,7 @@ map.nodes[28952444] = Rare({
     quest = 89575, -- 89575/81425/94699?
     rewards = {
         Achievement({id = 62122, criteria = 111842}),
-        Reputation({id = 2696, gain = 5, quest = 94699}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94699}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -88,7 +88,7 @@ map.nodes[50876514] = Rare({
     rewards = {
         Achievement({id = 62122, criteria = 111843}),
         Transmog({item = 264580, type = L['plate']}),
-        Reputation({id = 2696, gain = 5, quest = 94700}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94700}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -100,7 +100,7 @@ map.nodes[38994997] = Rare({
     rewards = {
         Achievement({id = 62122, criteria = 111844}),
         Transmog({item = 264627, type = L['polearm']}), -- Rav'ik's Space Hunting Spear
-        Reputation({id = 2696, gain = 5, quest = 94701}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94701}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     },
@@ -112,7 +112,7 @@ map.nodes[30484456] = Rare({
     quest = 89578, -- 94702
     rewards = {
         Achievement({id = 62122, criteria = 111845}),
-        Reputation({id = 2696, gain = 5, quest = 94702}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94702}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -125,7 +125,7 @@ map.nodes[46295113] = Rare({
     rewards = {
         Achievement({id = 62122, criteria = 111846}),
         Transmog({item = 264541, type = L['leather']}), -- Egg-Swaddling Sash
-        Reputation({id = 2696, gain = 5, quest = 94703}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94703}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -137,7 +137,7 @@ map.nodes[47773422] = Rare({
     rewards = {
         Achievement({id = 62122, criteria = 111847}),
         Transmog({item = 264648, type = L['1h_mace']}), -- Verminscale Gavel
-        Reputation({id = 2696, gain = 5, quest = 94704}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94704}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -148,7 +148,7 @@ map.nodes[21307055] = Rare({
     quest = 89581, -- 94705
     rewards = {
         Achievement({id = 62122, criteria = 111848}),
-        Reputation({id = 2696, gain = 5, quest = 94705}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94705}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -160,7 +160,7 @@ map.nodes[39592097] = Rare({ -- wowhead beta coords
     quest = 89583, -- 89583/94706
     rewards = {
         Achievement({id = 62122, criteria = 111849}),
-        Reputation({id = 2696, gain = 5, quest = 94706}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94706}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -171,7 +171,7 @@ map.nodes[33718897] = Rare({
     quest = 89572, -- 94707
     rewards = {
         Achievement({id = 62122, criteria = 111850}), Item({item = 265543}),
-        Reputation({id = 2696, gain = 5, quest = 94707}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94707}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -182,7 +182,7 @@ map.nodes[47682056] = Rare({
     quest = 89573, -- 94708, -- 89573
     rewards = {
         Achievement({id = 62122, criteria = 111851}), Item({item = 265560}),
-        Reputation({id = 2696, gain = 5, quest = 94708}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94708}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -193,7 +193,7 @@ map.nodes[46394339] = Rare({
     quest = 91072, -- 94709
     rewards = {
         Achievement({id = 62122, criteria = 111852}),
-        Reputation({id = 2696, gain = 5, quest = 94709}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94709}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -204,7 +204,7 @@ map.nodes[45294170] = Rare({
     quest = 91073, -- 94710
     rewards = {
         Achievement({id = 62122, criteria = 111853}),
-        Reputation({id = 2696, gain = 5, quest = 94710}), Spacer(),
+        Reputation({id = 2696, gain = 50, quest = 94710}), Spacer(),
         Section(L['shared_drops']), Mount({item = 257152, id = 2760}), -- Amani Sharptalon
         Mount({item = 257200, id = 2775}) -- Witherbark Pango
     }
@@ -216,7 +216,7 @@ map.nodes[45294170] = Rare({
 
 map.nodes[44724409] = Treasure({
     requires = ns.requirement.Item(259361, 1000), -- Vile Essence
-    quest = nil, -- 90794 or 90804
+    quest = 90794,
     rewards = {
         Achievement({id = 62125, criteria = 111854}),
         Mount({item = 257444, id = 2786}) -- Hexed Vilefeather Eagle
@@ -339,7 +339,7 @@ map.nodes[42923436] = SkyridingGlyph({
     rewards = {Achievement({id = 61581, criteria = 110355})}
 }) -- Shadebasin Watch
 
-map.nodes[53008212] = SkyridingGlyph({
+map.nodes[53638039] = SkyridingGlyph({
     rewards = {Achievement({id = 61581, criteria = 110354})}
 }) -- Temple of Akil'zon
 
@@ -382,7 +382,7 @@ map.nodes[30178466] = LoreObject({
     quest = 94632,
     rewards = {
         Achievement({id = 62104, criteria = 111775}),
-        Reputation({id = 2696, gain = 375, quest = 94632})
+        Reputation({id = 2696, gain = 250, quest = 94632})
     },
     pois = {ns.poi.Entrance({31258397})}
 }) -- Tablet of Nalorakk
@@ -391,23 +391,15 @@ map.nodes[53108211] = LoreObject({
     quest = 94627,
     rewards = {
         Achievement({id = 62104, criteria = 111772}),
-        Reputation({id = 2696, gain = 375, quest = 94633})
+        Reputation({id = 2696, gain = 250, quest = 94633})
     }
 }) -- Tablet of Akil'zon
-
-map.nodes[37492669] = LoreObject({
-    quest = 94633,
-    rewards = {
-        Achievement({id = 62104, criteria = 111776}),
-        Reputation({id = 2696, gain = 375, quest = 94633})
-    }
-}) -- Tablet of the Witherbark
 
 map.nodes[55131762] = LoreObject({
     quest = 94631,
     rewards = {
         Achievement({id = 62104, criteria = 111774}),
-        Reputation({id = 2696, gain = 375, quest = 94631})
+        Reputation({id = 2696, gain = 250, quest = 94631})
     }
 }) -- Tablet of Jan'alai
 
@@ -415,7 +407,7 @@ map.nodes[39264472] = LoreObject({
     quest = 94673,
     rewards = {
         Achievement({id = 62104, criteria = 111777}),
-        Reputation({id = 2696, gain = 375, quest = 94673})
+        Reputation({id = 2696, gain = 250, quest = 94673})
     }
 }) -- Tablet of Kulzi
 
@@ -423,7 +415,7 @@ map.nodes[32083165] = LoreObject({
     quest = 94628,
     rewards = {
         Achievement({id = 62104, criteria = 111773}),
-        Reputation({id = 2696, gain = 375, quest = 94628})
+        Reputation({id = 2696, gain = 250, quest = 94628})
     }
 }) -- Tablet of Halazzi
 
@@ -431,7 +423,7 @@ map.nodes[52923212] = LoreObject({
     quest = 94674,
     rewards = {
         Achievement({id = 62104, criteria = 111778}),
-        Reputation({id = 2696, gain = 375, quest = 94674})
+        Reputation({id = 2696, gain = 250, quest = 94674})
     }
 }) -- Tablet of Filo
 
@@ -512,7 +504,10 @@ map.nodes[32292240] = SpiritpawMarathon({
     label = '{achievement:62202}',
     note = L['spiritpaw_marathon_note'],
     rewards = {
-        Achievement({id = 62202, criteria = 112042, oneline = true}) -- Spiritpaw Marathon,
+        Achievement({id = 62202, criteria = 112895, oneline = true}) -- Spiritpaw Marathon,
+    },
+    pois = {
+        POI({points = 51523279, color = 'Pink'}) -- End
     }
 }) -- Speak with Feevra (Achievement seems buggy not displaying on map)
 
