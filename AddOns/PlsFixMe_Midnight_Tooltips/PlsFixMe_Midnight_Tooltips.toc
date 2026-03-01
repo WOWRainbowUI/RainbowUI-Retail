@@ -10,4 +10,4 @@
 ## Notes-zhTW: PlsFixMe_Midnight_Tooltips |n|n這是一個臨時修正插件，用來解決因暴雪 API 改動而導致的 Lua 錯誤與缺失的提示訊息。
 ## X-Category-zhTW: 進階
 
-PlsFixMe_Midnight_Tooltips.lua
+# PlsFixMe_Midnight_Tooltips.lua
