@@ -38,22 +38,44 @@ do
 	end
 end
 
-local tooltip
---[[ namespace:GetTooltip(_..._) ![](https://img.shields.io/badge/function-blue)
-Creates and returns a tooltip specific for the addon.  
-The variable arguments are passed to [SetOwner](https://warcraft.wiki.gg/wiki/API_GameTooltip_SetOwner) if provided.
---]]
-function addon:GetTooltip(...)
-	if not tooltip then
-		tooltip = CreateFrame('GameTooltip', addonName .. 'Tooltip', UIParent, 'GameTooltipTemplate')
-		tooltip:SetFrameStrata('DIALOG')
+local tooltip; do
+	local function refreshTooltip(self)
+		-- we need this to refresh tooltips when cache gets updated from TOOLTIP_DATA_UPDATE,
+		-- but we can't use GameTooltip_OnUpdate because it taints secrets
+		local info = self:GetPrimaryTooltipInfo()
+		if info and info.getterName then
+			-- this is so stupidly janky lol
+			if self[info.getterName:gsub('Get','Set')](self, unpack(info.getterArgs or {})) then
+				self:Show() -- re-render
+			end
+		end
 	end
 
-	if ... then
-		tooltip:SetOwner(...)
-	end
+	--[[ namespace:GetTooltip(_..._) ![](https://img.shields.io/badge/function-blue)
+	Creates and returns a tooltip specific for the addon.  
+	The variable arguments are passed to [SetOwner](https://warcraft.wiki.gg/wiki/API_GameTooltip_SetOwner) if provided.
+	--]]
+	function addon:GetTooltip(...)
+		if not tooltip then
+			tooltip = CreateFrame('GameTooltip', addonName .. 'Tooltip', UIParent, 'GameTooltipTemplate')
+			tooltip:SetFrameStrata('DIALOG')
+			tooltip:HookScript('OnShow', GameTooltip_Hide)
+			tooltip.RefreshDataNextUpdate = refreshTooltip
 
-	return tooltip
+			local embeddedItemTooltip = CreateFrame('Frame', nil, tooltip, 'InternalEmbeddedItemTooltipTemplate')
+			embeddedItemTooltip:SetPoint('BOTTOMLEFT', 10, 13)
+			embeddedItemTooltip:SetSize(100, 100)
+			embeddedItemTooltip:Hide()
+			embeddedItemTooltip.yspacing = 13
+			tooltip.ItemTooltip = embeddedItemTooltip
+		end
+
+		if ... then
+			tooltip:SetOwner(...)
+		end
+
+		return tooltip
+	end
 end
 
 --[[ namespace:HideTooltip() ![](https://img.shields.io/badge/function-blue)
