@@ -315,16 +315,14 @@ map.nodes[48737544] = Treasure({
 smc.nodes[37805238] = Treasure({
     label = L['incomplete_book_of_sonnets'],
     requires = ns.requirement.Item(265832), -- Booklet of Sonnets
-    quest = 94781, -- 93458 (old quest id?),
-    -- rewards = {}, --[Silvermoon Library Bookcase] housing decor + 55rep with Silvermoon City faction
-    parent = map.id,
+    quest = 94781,
+    rewards = {Decor({item = 245282})}, -- Silvermoon Library Bookcase
     pois = {
         POI({40748846, label = '{item:265833}'}), -- Lost Page 1
         POI({33289017, label = '{item:265834}'}), -- Lost Page 2
         POI({39818047, label = '{item:265835}'}) -- Lost Page 3
     }
 }) -- Incomplete Book of Sonnets
--- TODO: bugged on beta, cannot be looted
 
 -------------------------------------------------------------------------------
 ----------------------------- PROFESSION TREASURES ----------------------------
@@ -350,12 +348,12 @@ map.nodes[56844077] = PT.Blacksmithing({quest = 89180, id = 238543}) -- Metalwor
 map.nodes[48327578] = PT.Blacksmithing({quest = 89178, id = 238541}) -- Silvermoon Smithing Kit
 map.nodes[63493260] = PT.Enchanting({quest = 89107, id = 238555}) -- Sin'dorei Enchanting Rod
 map.nodes[60755301] = PT.Enchanting({quest = 89103, id = 238551}) -- Everblazing Sunmote
-smc.nodes[62005460] = PT.Engineering({
+smc.nodes[51307440] = PT.Engineering({
     quest = 89133,
     id = 238556,
     parent = map.id
 }) -- One Engineer's Junk
-smc.nodes[64305620] = PT.Engineering({
+smc.nodes[51205720] = PT.Engineering({
     quest = 89139,
     id = 238562,
     parent = map.id
@@ -426,9 +424,9 @@ map.nodes[58921954] = SkyridingGlyph({
     rewards = {Achievement({id = 61576, criteria = 110337})}
 }) -- Silvermoon City
 
-map.nodes[54555098] = SkyridingGlyph({
+map.nodes[40005960] = SkyridingGlyph({
     rewards = {Achievement({id = 61576, criteria = 110338})}
-}) -- Runestone Shan'dor
+}) -- Goldenmist Village
 
 map.nodes[49474803] = SkyridingGlyph({
     rewards = {Achievement({id = 61576, criteria = 110339})}
@@ -501,7 +499,7 @@ map.nodes[47958820] = LoreObject({
     quest = 91841,
     rewards = {
         Achievement({id = 62104, criteria = 111828}),
-        Reputation({id = 2710, gain = 375, quest = 91841})
+        Reputation({id = 2710, gain = 250, quest = 91841})
     }
 }) -- Memorial Plaque
 
@@ -509,7 +507,7 @@ map.nodes[37601378] = LoreObject({
     quest = 93563,
     rewards = {
         Achievement({id = 62104, criteria = 111829}),
-        Reputation({id = 2710, gain = 375, quest = 93563})
+        Reputation({id = 2710, gain = 250, quest = 93563})
     }
 }) -- Shrine of Dath'remar
 
@@ -517,7 +515,7 @@ map.nodes[50524347] = LoreObject({
     quest = 93564,
     rewards = {
         Achievement({id = 62104, criteria = 111830}),
-        Reputation({id = 2710, gain = 375, quest = 93564})
+        Reputation({id = 2710, gain = 250, quest = 93564})
     }
 }) -- Dead Scar Research/Mirveda's Notes
 
@@ -525,7 +523,7 @@ map.nodes[36057251] = LoreObject({
     quest = 93565,
     rewards = {
         Achievement({id = 62104, criteria = 111831}),
-        Reputation({id = 2710, gain = 375, quest = 93565})
+        Reputation({id = 2710, gain = 250, quest = 93565})
     }
 }) -- Profane Research/Dar'khan's Notes
 
@@ -533,7 +531,7 @@ map.nodes[57815092] = LoreObject({
     quest = 93562,
     rewards = {
         Achievement({id = 62104, criteria = 111832}),
-        Reputation({id = 2710, gain = 375, quest = 93562})
+        Reputation({id = 2710, gain = 250, quest = 93562})
     }
 }) -- Hawkstrider Husbandry Manual
 
@@ -541,7 +539,7 @@ smc.nodes[38107699] = LoreObject({
     quest = 93570,
     rewards = {
         Achievement({id = 62104, criteria = 111833}),
-        Reputation({id = 2710, gain = 375, quest = 93570})
+        Reputation({id = 2710, gain = 250, quest = 93570})
     }
 }) -- Unfinished Sheet Music
 
