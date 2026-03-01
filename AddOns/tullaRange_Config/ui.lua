@@ -204,7 +204,7 @@ end
 
 -- meow
 do
-    local cat = Settings.RegisterCanvasLayoutCategory(AddonSettingsFrame, L.AddonNameLo)
+    local cat = Settings.RegisterCanvasLayoutCategory(AddonSettingsFrame, L.AddonNameLoc)
 
     Settings.RegisterAddOnCategory(cat)
     TULLARANGE_COLORS.categoryID = cat:GetID() -- 自行加入
