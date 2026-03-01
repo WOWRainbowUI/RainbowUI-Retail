@@ -124,19 +124,19 @@ do
 	local sincelast = 0
 
 	function OnUpdate(frame, elapsed)
-		sincelast = sincelast + elapsed
-		if sincelast < refreshtime then
-			return
-		end
-		sincelast = 0
-
-		-- Stop if cast bar hidden or fading out
+		-- Immediate cleanup (not throttled)
 		if not castBar:IsVisible() or Player.Bar.fadeOut then
 			rangeOverlay:SetAlpha(0)
 			rangeCheckedFrame:SetAlpha(1)
 			f:SetScript("OnUpdate", nil)
 			return
 		end
+
+		sincelast = sincelast + elapsed
+		if sincelast < refreshtime then
+			return
+		end
+		sincelast = 0
 
 		-- Determine spell based on target relationship
 		local spell
@@ -218,13 +218,16 @@ function Range:UNIT_SPELLCAST_START(event, unit)
 	if unit ~= "player" then
 		return
 	end
-	if selfCast then return end
 	if not castBar and Player.Bar then
 		castBar = Player.Bar.Bar
 	end
 	if castBar then
 		setupOverlay()
-		if UnitExists("target") then
+		if selfCast or not UnitExists("target") then
+			rangeOverlay:SetAlpha(0)
+			rangeCheckedFrame:SetAlpha(1)
+			f:SetScript("OnUpdate", nil)
+		else
 			f:SetScript("OnUpdate", OnUpdate)
 		end
 	end
