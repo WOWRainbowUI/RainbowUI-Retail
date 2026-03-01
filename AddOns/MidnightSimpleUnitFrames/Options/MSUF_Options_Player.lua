@@ -320,7 +320,7 @@ local _MSUF_INDICATOR_SPECS = {
             { MSUF_LevelAnchorText("BOTTOMLEFT"), "BOTTOMLEFT" },
             { MSUF_LevelAnchorText("BOTTOMRIGHT"), "BOTTOMRIGHT" },
         },
-        -- Level: eigene Größe (per-unit). Nil => folgt Name-Fontgröße (Fallback in Apply/Runtime).
+        -- Level: eigene  (per-unit). Nil => folgt Name-Font (Fallback in Apply/Runtime).
         sizeEdit  = "playerLevelSizeEdit",
         sizeLabel = "playerLevelSizeLabel",
         sizeField = "levelIndicatorSize",
@@ -383,9 +383,9 @@ local MSUF_TOTINLINE_SEP_OPTIONS = {
     { value = "<<<", text = "<<<" },
     { value = ">>>", text = ">>>" },
     -- optional extras (UTF-8 is fine in Lua sources)
-    { value = "•",   text = "•"   },
-    { value = "—",   text = "—"   },
-    { value = "·",   text = "·"   },
+    { value = "||",   text = "||"   },
+    { value = "",   text = ""   },
+    { value = "--",   text = "--"   },
     { value = ">",   text = ">"   },
     { value = "<",   text = "<"   },
 }
@@ -539,7 +539,7 @@ local function MSUF_BindDropdown(panel, fieldName, confKey, options, textFn, IsF
             info.value = opt.value
             info.func  = OnClick
             info.arg1  = opt.value
-            -- safe checked function, don’t rely on btn.text being non-nil
+            -- safe checked function, donÃ¢â‚¬â„¢t rely on btn.text being non-nil
             info.checked = function()
                 local conf = EnsureKeyDBFn and EnsureKeyDBFn()
                 local v = conf and conf[confKey]
@@ -648,6 +648,17 @@ local MSUF_COPY_BASIC_FIELDS = {
     "alphaFGOutOfCombat",
     "alphaBGInCombat",
     "alphaBGOutOfCombat",
+    -- Load Conditions (per-unit visibility rules)
+    "loadCondHideMounted",
+    "loadCondHideInVehicle",
+    "loadCondHideResting",
+    "loadCondHideInCombat",
+    "loadCondHideOutOfCombat",
+    "loadCondHideStealthed",
+    "loadCondHideSolo",
+    "loadCondHideInGroup",
+    "loadCondHideInInstance",
+    "loadCondActive",
 }
 local MSUF_COPY_INDICATOR_FIELDS = {
     "showLeaderIcon",
@@ -1258,12 +1269,38 @@ function ns.MSUF_Options_Player_Build(panel, frameGroup, helpers)
     end
     dd._msufDropWidth = 170
     MSUF_ExpandDropdownClickArea(dd)
-    -- Left: Unit Alpha
-    local sizeBox = CreateGroupBox(frameGroup, "Unit Alpha", leftX, topY - basicsH - 12, leftW, sizeH, texWhite, texWhite2)
+    -- Left: Load Conditions (between Frame Basics and Unit Alpha)
+    local loadCondH = 160
+    local loadCondBox = CreateGroupBox(frameGroup, "Load Conditions", leftX, topY - basicsH - 12, leftW, loadCondH, texWhite, texWhite2)
+    loadCondBox:Hide()
+    panel.playerLoadCondBox = loadCondBox
+    -- Two-column checkbox layout for compact display.
+    -- Left column: conditions that hide based on player activity state.
+    -- Right column: conditions that hide based on group/location state.
+    local LOAD_COND_UI_SPECS = {
+        -- { panelField, dbField, label, x, y }
+        { "playerLoadCondMountedCB",    "loadCondHideMounted",      "Mounted",       12, -32 },
+        { "playerLoadCondVehicleCB",    "loadCondHideInVehicle",    "In vehicle",    12, -54 },
+        { "playerLoadCondRestingCB",    "loadCondHideResting",      "Resting",       12, -76 },
+        { "playerLoadCondStealthedCB",  "loadCondHideStealthed",    "Stealthed",     12, -98 },
+        { "playerLoadCondInCombatCB",   "loadCondHideInCombat",     "In combat",     12, -120 },
+        -- Right column
+        { "playerLoadCondOutCombatCB",  "loadCondHideOutOfCombat",  "Out of combat", 132, -32 },
+        { "playerLoadCondSoloCB",       "loadCondHideSolo",         "Solo",          132, -54 },
+        { "playerLoadCondInGroupCB",    "loadCondHideInGroup",      "In group",      132, -76 },
+        { "playerLoadCondInInstanceCB", "loadCondHideInInstance",   "In instance",   132, -98 },
+    }
+    panel._msufLoadCondSpecs = LOAD_COND_UI_SPECS
+    for _, s in ipairs(LOAD_COND_UI_SPECS) do
+        panel[s[1]] = CreateCheck(loadCondBox, "MSUF_UF_" .. s[1], s[3], s[4], s[5])
+    end
+    -- Left: Unit Alpha (shifted down to accommodate Load Conditions box)
+    local sizeBox = CreateGroupBox(frameGroup, "Unit Alpha", leftX, topY - basicsH - 12 - loadCondH - 12, leftW, sizeH, texWhite, texWhite2)
     sizeBox:Hide()
     panel.playerSizeBox = sizeBox
     -- Store base/boss heights for dynamic boss-only extension
     panel._msufBasicsH = basicsH
+    panel._msufLoadCondH = loadCondH
     panel._msufSizeBaseH = sizeH
     panel._msufSizeBossH = sizeBossH
     -- Unit Alpha controls (in/out of combat)
@@ -1431,7 +1468,7 @@ end
         end
     end
 		---------------------------------------------------------------------
-		-- Indicator (Leader / Raid Marker / Level) — spec-driven build
+		-- Indicator (Leader / Raid Marker / Level)  spec-driven build
 		-- All layout for other unit tabs is handled by LayoutIndicatorTemplate().
 		---------------------------------------------------------------------
 		-- Section title (anchored to first divider in LayoutIndicatorTemplate)
@@ -1457,6 +1494,9 @@ end
 		panel.playerBossSpacingSlider = panel.playerBossSpacingSlider or CreateLabeledSlider("MSUF_UF_BossSpacingSlider", "Boss spacing", textGroup, -200, 0, 1, 12, bossSpacingY)
 		FinalizeCompactSlider(panel.playerBossSpacingSlider, (rightW - 24))
 		panel.playerBossSpacingSlider:Hide()
+		-- Boss-only: invert boss order toggle (boss 1 at bottom instead of top)
+		panel.playerInvertBossOrderCB = panel.playerInvertBossOrderCB or CreateCheck(textGroup, "MSUF_UF_InvertBossOrderCB", "Invert boss order", 12, bossSpacingY - 50)
+		panel.playerInvertBossOrderCB:Hide()
 		-- Pet-only: anchor pet frame relative to Player/Target (shown only on pet pages by LayoutIndicatorTemplate)
 		if not panel.petAnchorToLabel then
 			panel.petAnchorToLabel = textGroup:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -1478,6 +1518,27 @@ end
 			end
 		end
 		panel.petAnchorToDD:Hide()
+		-- Focus-only: anchor focus frame relative to Player/Target (shown only on focus pages).
+		if not panel.focusAnchorToLabel then
+			panel.focusAnchorToLabel = textGroup:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+			panel.focusAnchorToLabel:SetJustifyH("LEFT")
+		end
+		panel.focusAnchorToLabel:SetText(TR("Anchor focus to"))
+		panel.focusAnchorToLabel:Hide()
+		if not panel.focusAnchorToDD then
+			local dd = CreateFrame("Frame", "MSUF_FocusAnchorToDropDown", textGroup, "UIDropDownMenuTemplate")
+			panel.focusAnchorToDD = dd
+			if UIDropDownMenu_SetWidth then
+				UIDropDownMenu_SetWidth(dd, 180)
+			end
+			dd._msufDropWidth = 180
+			if type(_G.MSUF_ExpandDropdownClickArea) == "function" then
+				_G.MSUF_ExpandDropdownClickArea(dd)
+			elseif type(MSUF_ExpandDropdownClickArea) == "function" then
+				MSUF_ExpandDropdownClickArea(dd)
+			end
+		end
+		panel.focusAnchorToDD:Hide()
 		-- Status icons (player/target only; lives in its own box)
 		local statusBox = panel._msufStatusIconsGroup
 		local STATUS_BASE_TOGGLE_Y = -34
@@ -1661,7 +1722,7 @@ end
 			if cb then cb:Hide() end
 		 end
 		---------------------------------------------------------------------
-		-- Indicator rows (Leader / Raid Marker / Level) — spec-driven
+		-- Indicator rows (Leader / Raid Marker / Level)  spec-driven
 		---------------------------------------------------------------------
 		local function _MSUF_BuildIndicatorRow(spec, idx)
 			if not spec then  return end
@@ -1721,7 +1782,7 @@ end
 			_MSUF_BuildIndicatorRow(_MSUF_INDICATOR_SPECS and _MSUF_INDICATOR_SPECS[id], idx)
 		end
 		---------------------------------------------------------------------
-		-- Status Icons rows (Combat / Rested / Incoming Rez) — spec-driven
+		-- Status Icons rows (Combat / Rested / Incoming Rez)  spec-driven
 		---------------------------------------------------------------------
 		local STATUS_ROW_SPECS = {
 			{
@@ -1885,20 +1946,32 @@ end
             panel[btnKey]:SetText(TR("Copy"))
             panel[btnKey]:Hide()
         end
+        -- Action buttons must not be re-skinned by the SlashMenu mirror (otherwise they can become "hover-only").
+        if panel[btnKey] then
+            panel[btnKey]._msufNoSlashSkin = true
+            if _G and _G.MSUF_SkinMidnightActionButton then
+                _G.MSUF_SkinMidnightActionButton(panel[btnKey])
+            else
+                panel[btnKey].__msufMidnightActionSkinned = true
+            end
+        end
         if not panel[hintKey] then
             panel[hintKey] = textGroup:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
             panel[hintKey]:SetText(hintText)
             panel[hintKey]:Hide()
         end
-        -- Single, stable anchor for all copy UIs (above the Edit Mode button, avoids indicator overlap)
-        panel[dropKey]:ClearAllPoints()
-        panel[dropKey]:SetPoint("BOTTOMLEFT", panel, "BOTTOMLEFT", 52, 96)
-        panel[labelKey]:ClearAllPoints()
-        panel[labelKey]:SetPoint("LEFT", panel[dropKey], "LEFT", -40, 2)
-        panel[btnKey]:ClearAllPoints()
-        panel[btnKey]:SetPoint("LEFT", panel[dropKey], "RIGHT", -14, 2)
-        panel[hintKey]:ClearAllPoints()
-        panel[hintKey]:SetPoint("TOPLEFT", panel[dropKey], "BOTTOMLEFT", -32, -2)
+        -- Anchor inside scroll content (below the Unit Alpha box) so it scrolls with the layout.
+        local sizeBox = panel.playerSizeBox
+        if sizeBox then
+            panel[dropKey]:ClearAllPoints()
+            panel[dropKey]:SetPoint("TOPLEFT", sizeBox, "BOTTOMLEFT", 44, -16)
+            panel[labelKey]:ClearAllPoints()
+            panel[labelKey]:SetPoint("LEFT", panel[dropKey], "LEFT", -40, 2)
+            panel[btnKey]:ClearAllPoints()
+            panel[btnKey]:SetPoint("LEFT", panel[dropKey], "RIGHT", -14, 2)
+            panel[hintKey]:ClearAllPoints()
+            panel[hintKey]:SetPoint("TOPLEFT", panel[dropKey], "BOTTOMLEFT", -32, -2)
+        end
      end
     local _MSUF_COPY_UI_SPECS = {
         {
@@ -2033,6 +2106,9 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
 		-- Pet-only widgets inside this template must also be hard-hidden outside the Frames tab.
 		if panel.petAnchorToLabel then panel.petAnchorToLabel:Hide() end
 		if panel.petAnchorToDD then panel.petAnchorToDD:Hide() end
+		-- Focus-only widgets: same treatment.
+		if panel.focusAnchorToLabel then panel.focusAnchorToLabel:Hide() end
+		if panel.focusAnchorToDD then panel.focusAnchorToDD:Hide() end
         for _, spec in pairs(_MSUF_INDICATOR_SPECS) do
             SetShownByName(spec.showCB, false)
             SetShownByName(spec.xStepper, false)
@@ -2045,6 +2121,7 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
             SetShownByName(spec.resetBtn, false)
         end
         if panel.playerBossSpacingSlider then panel.playerBossSpacingSlider:Hide() end
+        if panel.playerInvertBossOrderCB then panel.playerInvertBossOrderCB:Hide() end
         -- Status icons (and Step-1 Combat row controls) must also be hard-hidden outside Frames tab
         if panel.statusIconsHeader then panel.statusIconsHeader:Hide() end
         if panel.statusCombatIconCB then panel.statusCombatIconCB:Hide() end
@@ -2153,6 +2230,28 @@ function ns.MSUF_Options_Player_LayoutIndicatorTemplate(panel, currentKey)
 			end
 			if panel.petAnchorToDD.SetFrameLevel and container.GetFrameLevel then
 				panel.petAnchorToDD:SetFrameLevel((container:GetFrameLevel() or 0) + 2)
+			end
+		end
+	end
+	-- Focus-only: allow anchoring the focus frame to Player/Target (same layout slot as pet anchor).
+	local showFocusAnchorTo = (currentKey == "focus") and true or false
+	if panel.focusAnchorToLabel then panel.focusAnchorToLabel:SetShown(showFocusAnchorTo) end
+	if panel.focusAnchorToDD then panel.focusAnchorToDD:SetShown(showFocusAnchorTo) end
+	if showFocusAnchorTo then
+		local y = baseToggleY + (row * step) + 6
+		if panel.focusAnchorToLabel then
+			panel.focusAnchorToLabel:ClearAllPoints()
+			panel.focusAnchorToLabel:SetPoint("TOPLEFT", container, "TOPLEFT", 12, y)
+		end
+		if panel.focusAnchorToDD then
+			panel.focusAnchorToDD:ClearAllPoints()
+			if panel.focusAnchorToLabel then
+				panel.focusAnchorToDD:SetPoint("TOPLEFT", panel.focusAnchorToLabel, "BOTTOMLEFT", -18, -6)
+			else
+				panel.focusAnchorToDD:SetPoint("TOPLEFT", container, "TOPLEFT", -6, y - 22)
+			end
+			if panel.focusAnchorToDD.SetFrameLevel and container.GetFrameLevel then
+				panel.focusAnchorToDD:SetFrameLevel((container:GetFrameLevel() or 0) + 2)
 			end
 		end
 	end
@@ -2340,7 +2439,28 @@ local isBossKey = false
             panel.playerBossSpacingSlider:SetPoint("TOPLEFT", container, "TOPLEFT", 12, ctrlY)
         end
     end
+    -- Invert boss order toggle (boss only, placed below spacing slider)
+    if panel.playerInvertBossOrderCB then
+        local show = isBossKey and true or false
+        panel.playerInvertBossOrderCB:SetShown(show)
+        if show then
+            local ctrlY = baseCtrlY + (row * step) - 50
+            panel.playerInvertBossOrderCB:ClearAllPoints()
+            panel.playerInvertBossOrderCB:SetPoint("TOPLEFT", container, "TOPLEFT", 12, ctrlY)
+        end
+    end
+    -- Notify scroll container that content height may have changed.
+    if panel._msufFramesScrollUpdate then
+        panel._msufFramesScrollUpdate()
+    end
  end
+-- Forward declarations for alpha helpers (defined after ApplyFromDB, used inside it).
+local MSUF_Alpha_NormalizeMode
+local MSUF_Alpha_GetKeysForMode
+local MSUF_Alpha_ReadPair
+local MSUF_Alpha_WritePair
+local MSUF_AlphaUI_SetSlider
+local MSUF_AlphaUI_RefreshSliders
 function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffsetValue)
     if not panel or not currentKey then  return end
     -- Be robust when the core passes nil conf/g (e.g. first time opening a unit tab).
@@ -2430,6 +2550,21 @@ function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffse
 			if UIDropDownMenu_SetText then
 				local txt = (v == "player" and "Player frame") or (v == "target" and "Target frame") or "Free (global anchor)"
 				UIDropDownMenu_SetText(panel.petAnchorToDD, txt)
+			end
+		end
+	end
+	-- Focus-only: anchor focus frame relative to Player/Target.
+	if panel.focusAnchorToDD then
+		local show = (isFocusKey and isFramesTab) and true or false
+		panel.focusAnchorToDD:SetShown(show)
+		if panel.focusAnchorToLabel then panel.focusAnchorToLabel:SetShown(show) end
+		if show then
+			local v = conf.anchorToUnitframe
+			if v ~= "player" and v ~= "target" then v = "GLOBAL" end
+			if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(panel.focusAnchorToDD, v) end
+			if UIDropDownMenu_SetText then
+				local txt = (v == "player" and "Player frame") or (v == "target" and "Target frame") or "Free (global anchor)"
+				UIDropDownMenu_SetText(panel.focusAnchorToDD, txt)
 			end
 		end
 	end
@@ -2534,6 +2669,33 @@ end
         UIDropDownMenu_SetSelectedValue(panel.playerPortraitDropDown, mode)
         UIDropDownMenu_SetText(panel.playerPortraitDropDown, MSUF_PortraitModeText(mode))
     end
+    -- Load Conditions box: dynamic title per-unit + checkbox restore from DB.
+    if panel.playerLoadCondBox and panel.playerLoadCondBox._msufTitleText then
+        local k = currentKey
+        if k == "tot" or k == "targetoftarget" then k = "targettarget" end
+        local lcTitleMap = {
+            player = "Player Load Conditions",
+            target = "Target Load Conditions",
+            focus = "Focus Load Conditions",
+            pet = "Pet Load Conditions",
+            boss = "Boss Load Conditions",
+            targettarget = "ToT Load Conditions",
+        }
+        panel.playerLoadCondBox._msufTitleText:SetText(lcTitleMap[k] or "Load Conditions")
+    end
+    -- Restore load condition checkboxes from DB.
+    local lcSpecs = panel._msufLoadCondSpecs
+    if lcSpecs then
+        for _, s in ipairs(lcSpecs) do
+            local cb = panel[s[1]]
+            if cb and cb.SetChecked then
+                cb:SetChecked((conf[s[2]] == true) and true or false)
+            end
+        end
+    end
+    -- Ensure the fast-path flag is in sync (covers profile import/Copy-To/DB reset).
+    local lcRecompute = _G.MSUF_LoadCond_RecomputeActive
+    if type(lcRecompute) == "function" then lcRecompute(conf) end
     -- Unit Alpha (in/out of combat) [spec-driven]
     local excludeTP = (conf.alphaExcludeTextPortrait == true)
     if panel.playerAlphaExcludeTextPortraitCB then
@@ -2597,6 +2759,14 @@ end
             ForceSliderEditBox(panel.playerBossSpacingSlider)
         end
     end
+    -- Invert Boss Order (boss only)
+    if panel.playerInvertBossOrderCB then
+        local show = (currentKey == "boss")
+        panel.playerInvertBossOrderCB:SetShown(show)
+        if show then
+            panel.playerInvertBossOrderCB:SetChecked((conf.invertBossOrder == true) and true or false)
+        end
+    end
     -- Copy settings button (Player menu)
     MSUF_BindAllCopyButtons(panel)
     -- Copy settings button (Target menu)
@@ -2619,7 +2789,11 @@ end
 function ns.MSUF_Options_Player_InstallHandlers(panel, api)
     if not panel or not api then  return end
     local function IsFramesTab()
-        return (api.getTabKey and api.getTabKey() == "frames")
+        -- Some cores use different internal tab keys ("frames", "player", etc.).
+        -- Options_Player widgets should remain interactive as long as we are on *any* MSUF frames/options page.
+        if not api.getTabKey then return true end
+        local k = api.getTabKey()
+        return (k == nil) or (k == "frames") or (k == "player") or (k == "unitframes")
     end
     local function CurrentKey()
         return (api.getKey and api.getKey()) or "player"
@@ -2640,7 +2814,10 @@ local function ApplyLayoutCurrent(reason)
     if type(fn) == "function" then
         local urgent = (key == "target" or key == "targettarget" or key == "focus")
         pcall(fn, key, reason or "OPTIONS_LAYOUT", urgent)
-         return
+        -- Many layout-only requests don't re-run the full Apply path (position/size/anchor).
+        -- In options, we prefer correctness/snappiness over micro-optimizing a click handler.
+        ApplyCurrent()
+        return
     end
     ApplyCurrent()
  end
@@ -2723,7 +2900,7 @@ local function MSUF_ApplyIndicatorUI(spec)
         local v = conf and conf[spec.sizeField]
         if type(v) ~= "number" and g then v = g[spec.sizeField] end
         if type(v) ~= "number" and spec.id == "level" then
-            -- Wenn kein eigener Wert gesetzt ist: zeige effektive Name-Fontgröße als Default.
+            -- Wenn kein eigener Wert gesetzt ist: zeige effektive Name-Font als Default.
             v = MSUF_ReadNumber(conf, g, "nameFontSize", 14)
         end
         v = tonumber(v) or spec.sizeDefault or 14
@@ -2963,37 +3140,36 @@ for _, rowId in ipairs(MSUF_INDICATOR_ORDER) do
     MSUF_BindIndicatorRow(INDICATOR_SPECS[rowId])
 end
 
--- Pet-only: "Anchor pet to" dropdown (Indicator box)
-if panel.petAnchorToDD and UIDropDownMenu_Initialize then
-    local drop = panel.petAnchorToDD
-    local function GetEffectiveValue(conf)
-        local v = conf and conf.anchorToUnitframe
-        if v == "player" or v == "target" then
-            return v
-        end
-        -- Treat nil/"GLOBAL"/unknown as global anchor.
-        return "GLOBAL"
-    end
-    local function TextFor(v)
-        if v == "player" then return "Player frame" end
-        if v == "target" then return "Target frame" end
-        return "Free (global anchor)"
-    end
+-- Shared helpers for pet/focus "Anchor to" dropdowns.
+local function _MSUF_AnchorToEffectiveValue(conf)
+    local v = conf and conf.anchorToUnitframe
+    if v == "player" or v == "target" then return v end
+    return "GLOBAL"
+end
+local function _MSUF_AnchorToTextFor(v)
+    if v == "player" then return "Player frame" end
+    if v == "target" then return "Target frame" end
+    return "Free (global anchor)"
+end
+local _MSUF_ANCHOR_TO_CHOICES = {
+    {"Free (global anchor)", "GLOBAL"},
+    {"Player frame", "player"},
+    {"Target frame", "target"},
+}
+
+-- Bind an "Anchor <unit> to" dropdown for a given unit key.
+local function _MSUF_BindAnchorToDropdown(drop, requiredKey)
+    if not drop or not UIDropDownMenu_Initialize then return end
     UIDropDownMenu_Initialize(drop, function(self, level)
         if not level or level ~= 1 then  return end
         if not IsFramesTab() then  return end
         local k = (CurrentKey and CurrentKey()) or "player"
         if k == "tot" then k = "targettarget" end
-        if k ~= "pet" then  return end
+        if k ~= requiredKey then  return end
 
         local conf = EnsureKeyDB()
-        local cur = GetEffectiveValue(conf)
-        local choices = {
-            {"Free (global anchor)", "GLOBAL"},
-            {"Player frame", "player"},
-            {"Target frame", "target"},
-        }
-        for _, pair in ipairs(choices) do
+        local cur = _MSUF_AnchorToEffectiveValue(conf)
+        for _, pair in ipairs(_MSUF_ANCHOR_TO_CHOICES) do
             local textLabel, value = pair[1], pair[2]
             local info = UIDropDownMenu_CreateInfo()
             info.text = textLabel
@@ -3005,10 +3181,9 @@ if panel.petAnchorToDD and UIDropDownMenu_Initialize then
                 if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(drop, value) end
                 if UIDropDownMenu_SetText then UIDropDownMenu_SetText(drop, textLabel) end
                 if CloseDropDownMenus then CloseDropDownMenus() end
-                -- Apply immediately (PositionUnitFrame uses this field for pet).
                 ApplyCurrent()
             end
-            info.checked = function()  return (GetEffectiveValue(conf) == value) end
+            info.checked = function()  return (_MSUF_AnchorToEffectiveValue(conf) == value) end
             info.isNotRadio = false
             UIDropDownMenu_AddButton(info, level)
         end
@@ -3018,13 +3193,15 @@ if panel.petAnchorToDD and UIDropDownMenu_Initialize then
         if not IsFramesTab() then  return end
         local k = (CurrentKey and CurrentKey()) or "player"
         if k == "tot" then k = "targettarget" end
-        if k ~= "pet" then  return end
+        if k ~= requiredKey then  return end
         local conf = EnsureKeyDB()
-        local v = GetEffectiveValue(conf)
+        local v = _MSUF_AnchorToEffectiveValue(conf)
         if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(drop, v) end
-        if UIDropDownMenu_SetText then UIDropDownMenu_SetText(drop, TextFor(v)) end
+        if UIDropDownMenu_SetText then UIDropDownMenu_SetText(drop, _MSUF_AnchorToTextFor(v)) end
     end)
 end
+_MSUF_BindAnchorToDropdown(panel.petAnchorToDD, "pet")
+_MSUF_BindAnchorToDropdown(panel.focusAnchorToDD, "focus")
 
 -- Status icons (Step 1): Combat row uses indicator-style controls (player/target)
 _G.MSUF_RequestStatusCombatIndicatorRefresh = _G.MSUF_RequestStatusCombatIndicatorRefresh or function()
@@ -3697,7 +3874,7 @@ MSUF_RefreshLevelIndicatorFrames = function()
 -- Layered keys (when alphaExcludeTextPortrait == true):
 --   Foreground: alphaFGInCombat / alphaFGOutOfCombat
 --   Background: alphaBGInCombat / alphaBGOutOfCombat
-local function MSUF_Alpha_NormalizeMode(mode)
+MSUF_Alpha_NormalizeMode = function(mode)
     -- IMPORTANT: Some DB sanitizers keep only numbers/bools.
     -- Accept both the legacy string modes and a compact numeric/bool encoding.
     --   background: true / 1 / "background"
@@ -3710,7 +3887,7 @@ local function MSUF_Alpha_NormalizeMode(mode)
     end
      return "foreground"
 end
-local function MSUF_Alpha_GetKeysForMode(conf, mode)
+MSUF_Alpha_GetKeysForMode = function(conf, mode)
     mode = MSUF_Alpha_NormalizeMode(mode)
     local layered = (conf and conf.alphaExcludeTextPortrait == true)
     if layered then
@@ -3721,7 +3898,7 @@ local function MSUF_Alpha_GetKeysForMode(conf, mode)
     end
      return "alphaInCombat", "alphaOutOfCombat"
 end
-local function MSUF_Alpha_ReadPair(conf, mode)
+MSUF_Alpha_ReadPair = function(conf, mode)
     if not conf then  return 1, 1 end
     mode = MSUF_Alpha_NormalizeMode(mode)
     local aInLegacy  = tonumber(conf.alphaInCombat) or 1
@@ -3741,14 +3918,14 @@ local function MSUF_Alpha_ReadPair(conf, mode)
     end
      return aIn, aOut
 end
-local function MSUF_Alpha_WritePair(conf, mode, aIn, aOut)
+MSUF_Alpha_WritePair = function(conf, mode, aIn, aOut)
     if not conf then  return end
     mode = MSUF_Alpha_NormalizeMode(mode)
     local kIn, kOut = MSUF_Alpha_GetKeysForMode(conf, mode)
     conf[kIn] = aIn
     conf[kOut] = aOut
  end
-local function MSUF_AlphaUI_SetSlider(slider, v)
+MSUF_AlphaUI_SetSlider = function(slider, v)
     if slider and slider.SetValue then
         slider.MSUF_SkipCallback = true
         slider:SetValue(v)
@@ -3756,7 +3933,7 @@ local function MSUF_AlphaUI_SetSlider(slider, v)
         if slider.editBox then ForceSliderEditBox(slider) end
     end
  end
-local function MSUF_AlphaUI_RefreshSliders()
+MSUF_AlphaUI_RefreshSliders = function()
     if not IsFramesTab() then  return end
     local conf = EnsureKeyDB()
     local mode = MSUF_Alpha_NormalizeMode(conf.alphaLayerMode)
@@ -3768,6 +3945,59 @@ local function ApplyAlphaOnly()
     local fn = (_G and _G.MSUF_RefreshAllUnitAlphas) or MSUF_RefreshAllUnitAlphas
     if type(fn) == "function" then pcall(fn) end
  end
+-- Load Conditions checkboxes (per-unit hide rules)
+do
+    local specs = panel._msufLoadCondSpecs
+    if specs then
+        -- Collect all load-cond checkboxes for combat enable/disable.
+        local allLoadCondCBs = {}
+        for _, s in ipairs(specs) do
+            local cb = panel[s[1]]
+            local dbField = s[2]
+            if cb then
+                allLoadCondCBs[#allLoadCondCBs + 1] = cb
+                cb:SetScript("OnClick", function(self)
+                    if not IsFramesTab() then return end
+                    -- Block changes during combat (EnableMouse on secure frames = taint).
+                    if InCombatLockdown and InCombatLockdown() then
+                        -- Revert the visual check (click already toggled it).
+                        self:SetChecked(not self:GetChecked())
+                        return
+                    end
+                    local conf = EnsureKeyDB()
+                    conf[dbField] = self:GetChecked() and true or false
+                    -- Recompute the fast-path flag (zero overhead when no conditions set).
+                    local recompute = _G.MSUF_LoadCond_RecomputeActive
+                    if type(recompute) == "function" then recompute(conf) end
+                    -- Trigger load conditions re-evaluation immediately.
+                    local lcRefresh = _G.MSUF_LoadCond_RefreshAll
+                    if type(lcRefresh) == "function" then lcRefresh() end
+                end)
+            end
+        end
+        -- Combat lockdown: grey out checkboxes on enter, restore on leave.
+        local function _SetLoadCondCBsEnabled(enabled)
+            for i = 1, #allLoadCondCBs do
+                local cb = allLoadCondCBs[i]
+                if enabled then
+                    if cb.Enable then cb:Enable() end
+                else
+                    if cb.Disable then cb:Disable() end
+                end
+            end
+        end
+        local lcCombatFrame = CreateFrame("Frame")
+        lcCombatFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+        lcCombatFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        lcCombatFrame:SetScript("OnEvent", function(_, event)
+            _SetLoadCondCBsEnabled(event == "PLAYER_REGEN_ENABLED")
+        end)
+        -- If we load mid-combat, disable immediately.
+        if InCombatLockdown and InCombatLockdown() then
+            _SetLoadCondCBsEnabled(false)
+        end
+    end
+end
 -- Alpha sync checkbox
 if panel.playerAlphaSyncCB then
     panel.playerAlphaSyncCB:SetScript("OnClick", function(self)
@@ -3892,6 +4122,15 @@ if bs then
         ApplyCurrent()
      end
     if bs.HookScript then bs:HookScript("OnShow", function()  ForceSliderEditBox(bs)  end) end
+end
+-- Invert boss order toggle (boss key only)
+if panel.playerInvertBossOrderCB then
+    panel.playerInvertBossOrderCB:SetScript("OnClick", function(self)
+        if not IsFramesTab() or CurrentKey() ~= "boss" then  return end
+        local conf = EnsureKeyDB()
+        conf.invertBossOrder = self:GetChecked() and true or false
+        ApplyCurrent()
+     end)
 end
 -- Copy settings button (Player menu)
     MSUF_BindAllCopyButtons(panel)

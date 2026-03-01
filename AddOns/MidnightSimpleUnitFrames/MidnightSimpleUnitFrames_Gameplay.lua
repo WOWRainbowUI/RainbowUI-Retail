@@ -24,6 +24,22 @@ local GetCVar    = GetCVar
 local GetCVarBool = GetCVarBool
 local math_min     = math.min
 local math_max     = math.max
+local IsAltKeyDown  = IsAltKeyDown
+local GetSpecialization    = GetSpecialization
+local GetSpecializationInfo = GetSpecializationInfo
+
+-- Per-spec helper: returns the current specialization ID (globally unique)
+-- or nil if unavailable.  Used as key in nameplateMeleeSpellIDBySpec.
+local function MSUF_GetPlayerSpecID()
+    if not GetSpecialization then return nil end
+    local specIndex = GetSpecialization()
+    if not specIndex or specIndex <= 0 then return nil end
+    if not GetSpecializationInfo then return nil end
+    local specID = GetSpecializationInfo(specIndex)
+    if not specID or specID <= 0 then return nil end
+    return specID
+end
+
 ------------------------------------------------------
 -- Small math helpers
 ------------------------------------------------------
@@ -43,6 +59,22 @@ if not _MSUF_Clamp then
         return v
     end
     _G._MSUF_Clamp = _MSUF_Clamp
+end
+
+
+local _MSUF_RoundInt = _G._MSUF_RoundInt
+if not _MSUF_RoundInt then
+    _MSUF_RoundInt = function(v)
+        v = tonumber(v)
+        if not v then
+            return 0
+        end
+        if v >= 0 then
+            return math.floor(v + 0.5)
+        end
+        return math.ceil(v - 0.5)
+    end
+    _G._MSUF_RoundInt = _MSUF_RoundInt
 end
 
 local C_Timer      = C_Timer
@@ -139,6 +171,12 @@ local function EnsureGameplayDefaults()
     if g.lockCombatTimer == nil then
         g.lockCombatTimer = false
     end
+    -- When enabled, the combat timer frame never steals clicks (recommended).
+    -- When disabled, the timer can be dragged normally while unlocked (no ALT needed).
+    if g.combatTimerClickThrough == nil then
+        g.combatTimerClickThrough = true
+    end
+
 
     -- Anchor target for the combat timer (none/player/target/focus)
     if g.combatTimerAnchor == nil then
@@ -232,12 +270,11 @@ end
     if type(g.crosshairOutRangeColor) ~= "table" then
         g.crosshairOutRangeColor = { 1, 0, 0 } -- default red
     end
-    -- Cooldown manager icon mode (for MSUF_CooldownIcons module)
-    -- Default OFF to avoid idle CPU when the external viewer/module is present.
-    -- TEMPORARILY DISABLED: CooldownManager "bars as icons" mode will be reworked.
-    -- Keep the key for backward compatibility, but hard-force OFF for now.
-    g.cooldownIcons = false
-
+    -- Per-class / per-spec storage for the melee range spell
+    if g.meleeSpellPerClass == nil then g.meleeSpellPerClass = false end
+    if g.meleeSpellPerSpec == nil then g.meleeSpellPerSpec = false end
+    if type(g.nameplateMeleeSpellIDByClass) ~= "table" then g.nameplateMeleeSpellIDByClass = {} end
+    if type(g.nameplateMeleeSpellIDBySpec) ~= "table" then g.nameplateMeleeSpellIDBySpec = {} end
     -- Shaman: player totem tracker (player-only for now)
     -- Default ON for Shamans on first run; otherwise default OFF.
     if g.enablePlayerTotems == nil then
@@ -283,6 +320,7 @@ end
         g.playerTotemsTextColor = { 1, 1, 1 }
     end
 
+
     -- One-time tip popup flag
     if g.shownGameplayColorsTip == nil then
         g.shownGameplayColorsTip = false
@@ -299,84 +337,6 @@ local function GetGameplayDBFast()
         return gameplayDBCache
     end
     return EnsureGameplayDefaults()
-end
-
-------------------------------------------------------
--- Cooldown Manager Icon Mode: hard stop idle CPU
---
--- The CooldownManagerIcons integration can become a tiny but permanent idle CPU
--- contributor if the external viewer keeps an OnUpdate alive while hidden.
--- We keep it event-driven by syncing the icon module state on viewer show/hide
--- (and on login), with a single coalesced request (no persistent OnUpdate here).
-------------------------------------------------------
-do
-    local _hooked = false
-    local _pending = false
-
-    local function _Run()
-        _pending = false
-        EnsureGameplayDefaults()
-
-        local fn = _G and _G.MSUF_ApplyCooldownIconMode
-        if type(fn) == "function" then
-            -- Optional module: keep errors visible during dev; but don't hard-break login.
-            pcall(fn)
-            return
-        end
-
-        -- Fallback for older builds: just let the icon module decide whether to keep OnUpdate alive.
-        fn = _G and _G.MSUF_CDIcons_UpdateOnUpdateState
-        if type(fn) == "function" then
-            pcall(fn)
-        end
-    end
-
-    local function RequestSync()
-        if _pending then return end
-        _pending = true
-        if C_Timer_After then
-            C_Timer_After(0, _Run)
-        else
-            _Run()
-        end
-    end
-
-    -- Expose for Options panel handlers (keeps all call sites consistent).
-    if ns then
-        ns.MSUF_RequestCooldownIconsSync = RequestSync
-    end
-
-    local function TryHook()
-        if _hooked then return end
-        local ecv = _G and _G["EssentialCooldownViewer"]
-        if not ecv or not ecv.HookScript then return end
-        _hooked = true
-
-        ecv:HookScript("OnShow", RequestSync)
-        ecv:HookScript("OnHide", RequestSync)
-        ecv:HookScript("OnSizeChanged", RequestSync)
-
-        RequestSync()
-    end
-
-    local function ScheduleHookAttempts()
-        local tries = 0
-        local function attempt()
-            tries = tries + 1
-            TryHook()
-            if (not _hooked) and tries < 10 and C_Timer_After then
-                C_Timer_After(1, attempt)
-            end
-        end
-        if C_Timer_After then
-            C_Timer_After(1, attempt)
-        else
-            attempt()
-        end
-    end
-
-    RequestSync()
-    ScheduleHookAttempts()
 end
 
 ------------------------------------------------------
@@ -560,9 +520,20 @@ local function MSUF_ResolveCrosshairRangeSpellIDFromGameplay(g)
         spellID = tonumber(g.meleeRangeSpellID) or 0
     end
     if spellID <= 0 then
-        -- New: optional per-class storage for the shared melee-range spell.
-        -- If enabled and a class entry exists, prefer that.
-        if g.meleeSpellPerClass and type(g.nameplateMeleeSpellIDByClass) == "table" and UnitClass then
+        -- Per-spec storage takes priority over per-class.
+        -- Resolution order: per-spec -> per-class -> global fallback.
+        if g.meleeSpellPerSpec and type(g.nameplateMeleeSpellIDBySpec) == "table" then
+            local specID = MSUF_GetPlayerSpecID()
+            if specID then
+                local perSpec = tonumber(g.nameplateMeleeSpellIDBySpec[specID]) or 0
+                if perSpec > 0 then
+                    spellID = perSpec
+                end
+            end
+        end
+
+        -- Per-class fallback (only if per-spec didn't resolve)
+        if spellID <= 0 and g.meleeSpellPerClass and type(g.nameplateMeleeSpellIDByClass) == "table" and UnitClass then
             local _, class = UnitClass("player")
             if class then
                 local perClass = tonumber(g.nameplateMeleeSpellIDByClass[class]) or 0
@@ -629,6 +600,9 @@ local function MSUF_Gameplay_TickCombatTimer()
             lastTimerText = ""
             combatTimerText:SetText("")
         end
+        if combatFrame and combatFrame.IsShown and combatFrame:IsShown() then
+            combatFrame:Hide()
+        end
         wasInCombat = false
         combatStartTime = nil
         return
@@ -639,6 +613,9 @@ local function MSUF_Gameplay_TickCombatTimer()
     local inCombat = (UnitAffectingCombat and UnitAffectingCombat("player")) or (InCombatLockdown and InCombatLockdown()) or false
 
     if inCombat then
+        if combatFrame and combatFrame.Show and (not combatFrame:IsShown()) then
+            combatFrame:Show()
+        end
         local now = GetTime()
         if not combatStartTime then
             combatStartTime = now
@@ -658,16 +635,23 @@ local function MSUF_Gameplay_TickCombatTimer()
             combatTimerText:SetText(text)
         end
     else
-        -- Out of combat: show preview only when unlocked & enabled
-        if not gNow.lockCombatTimer then
-            if lastTimerText ~= "0:00" then
-                lastTimerText = "0:00"
-                combatTimerText:SetText("0:00")
+        -- Out of combat: when locked, hide the entire timer (no preview).
+        -- When unlocked, show a 0:00 preview so the user can position it.
+        if gNow.lockCombatTimer then
+            if combatFrame and combatFrame.IsShown and combatFrame:IsShown() then
+                combatFrame:Hide()
             end
-        else
             if lastTimerText ~= "" then
                 lastTimerText = ""
                 combatTimerText:SetText("")
+            end
+        else
+            if combatFrame and combatFrame.Show and (not combatFrame:IsShown()) then
+                combatFrame:Show()
+            end
+            if lastTimerText ~= "0:00" then
+                lastTimerText = "0:00"
+                combatTimerText:SetText("0:00")
             end
         end
         wasInCombat = false
@@ -1278,10 +1262,27 @@ end
 local function ApplyLockState()
     local g = EnsureGameplayDefaults()
     if combatFrame then
-        if g.lockCombatTimer then
+        -- Combat Timer mouse behavior:
+        -- • While dragging: keep mouse enabled so OnDragStop always fires (prevents "stuck to mouse").
+        -- • Locked: always click-through (never steal clicks / never invisible clickbox).
+        -- • Unlocked: either click-through with ALT-to-drag, or always-interactive when click-through is disabled.
+        if combatFrame._msufDragging then
+            combatFrame:EnableMouse(true)
+        elseif not g.enableCombatTimer then
+            combatFrame:EnableMouse(false)
+        elseif g.lockCombatTimer then
             combatFrame:EnableMouse(false)
         else
-            combatFrame:EnableMouse(true)
+            local clickThrough = (g.combatTimerClickThrough ~= false)
+            if clickThrough then
+                if IsAltKeyDown and IsAltKeyDown() then
+                    combatFrame:EnableMouse(true)
+                else
+                    combatFrame:EnableMouse(false)
+                end
+            else
+                combatFrame:EnableMouse(true)
+            end
         end
     end
 
@@ -1324,11 +1325,14 @@ local function _MSUF_GetCombatTimerAnchorFrame(g)
         return UIParent
     end
     local f = _MSUF_GetUnitFrameForAnchor(key)
-    if f and f.GetCenter then
+    if f then
+        -- Always return the chosen frame if it exists.
+        -- The anchor must work even if the frame is currently hidden or has no center yet.
         return f
     end
     return UIParent
 end
+
 
 local function MSUF_Gameplay_ApplyCombatTimerAnchor(g)
     if not combatFrame then
@@ -1388,44 +1392,50 @@ local function CreateCombatTimerFrame()
             return
         end
 
-        -- When the timer is anchored to a unitframe, keeping the relative anchor while dragging
-        -- can make the movement feel "sticky"/jittery (SetPoint fights the mouse). Detach it
-        -- to UIParent for the duration of the drag, then re-attach on drag stop.
-        self._msufDragging = true
-        local x, y = self:GetCenter()
-        if x and y then
-            self:ClearAllPoints()
-            self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x, y)
+        -- Safety: if click-through is enabled, dragging is only allowed while ALT is held.
+        -- (Prevents accidental drags when the frame is temporarily interactive.)
+        if gd.combatTimerClickThrough ~= false then
+            if not (IsAltKeyDown and IsAltKeyDown()) then
+                return
+            end
         end
+
+        self._msufDragging = true
         self:StartMoving()
     end)
 
     combatFrame:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
         self._msufDragging = nil
-        local x, y = self:GetCenter()
-        if not x or not y then
-            return
-        end
 
+        -- Use the same proven "combat enter/leave" drag-save logic:
+        -- store offsets from the CURRENT anchor's center (or UIParent fallback).
         local db = EnsureGameplayDefaults()
         local anchor = _MSUF_GetCombatTimerAnchorFrame(db)
-        local ax, ay
-        if anchor and anchor.GetCenter then
-            ax, ay = anchor:GetCenter()
-        end
-        if not ax or not ay then
-            ax, ay = UIParent:GetCenter()
-        end
-        if not ax or not ay then
-            return
+
+        local x, y = self:GetCenter()
+        if x and y then
+            local ax, ay = UIParent:GetCenter()
+            if anchor and anchor.GetCenter then
+                local tx, ty = anchor:GetCenter()
+                if tx and ty then
+                    ax, ay = tx, ty
+                end
+            end
+            if ax and ay then
+                db.combatOffsetX = _MSUF_RoundInt(x - ax)
+                db.combatOffsetY = _MSUF_RoundInt(y - ay)
+            end
         end
 
-        db.combatOffsetX = x - ax
-        db.combatOffsetY = y - ay
+        -- Live-sync offset sliders in the Gameplay panel (if open).
+        local p = _G and _G.MSUF_GameplayPanel
+        if p and p.MSUF_SyncCombatTimerOffsetSliders then
+            p:MSUF_SyncCombatTimerOffsetSliders()
+        end
 
-        -- Re-attach to the configured anchor immediately so it stays stable.
-        MSUF_Gameplay_ApplyCombatTimerAnchor(db)
+        -- Re-apply click-through / ALT-to-drag state after the drag ends.
+        ApplyLockState()
     end)
 
     combatTimerText = combatFrame:CreateFontString(nil, "OVERLAY")
@@ -1437,6 +1447,42 @@ local function CreateCombatTimerFrame()
 
     -- Apply initial lock state
     ApplyLockState()
+
+
+    -- Modifier listener: keep timer click-through unless ALT is held (when unlocked).
+    if not ns._MSUF_CombatTimerModifierFrame then
+        local f = CreateFrame("Frame")
+        ns._MSUF_CombatTimerModifierFrame = f
+        f:RegisterEvent("MODIFIER_STATE_CHANGED")
+        f:SetScript("OnEvent", function()
+            if not combatFrame then return end
+
+            -- Never toggle mouse while dragging; otherwise OnDragStop can fail to fire
+            -- and the frame may appear to "stick" to the cursor.
+            if combatFrame._msufDragging then
+                combatFrame:EnableMouse(true)
+                return
+            end
+
+            local gd = GetGameplayDBFast()
+            if not gd or not gd.enableCombatTimer or gd.lockCombatTimer then
+                if combatFrame then combatFrame:EnableMouse(false) end
+                return
+            end
+
+            -- If click-through is disabled, keep it interactive while unlocked.
+            if gd.combatTimerClickThrough == false then
+                combatFrame:EnableMouse(true)
+                return
+            end
+
+            if IsAltKeyDown and IsAltKeyDown() then
+                combatFrame:EnableMouse(true)
+            else
+                combatFrame:EnableMouse(false)
+            end
+        end)
+    end
 
     return combatFrame
 end
@@ -2731,6 +2777,8 @@ end
 
 end
 
+
+
 -- Feature tables (single-file modules) for readability and safer future refactors
 local GameplayFeatures = {
     CombatTimer     = {},
@@ -2758,8 +2806,7 @@ GameplayFeatures.CombatStateText.Apply = MSUF_Gameplay_ApplyCombatStateText
 GameplayFeatures.CombatCrosshair.Apply = MSUF_Gameplay_ApplyCombatCrosshair
 
 GameplayFeatures.PlayerTotems.Apply = GameplayFeatures_PlayerTotems_Apply
-
-local GameplayFeatureOrder = { "CombatTimer", "CombatStateText", "CombatCrosshair", "PlayerTotems" }
+local GameplayFeatureOrder = {"CombatTimer", "CombatStateText", "CombatCrosshair", "PlayerTotems" }
 
 local function Gameplay_ApplyAllFeatures(g)
     for i = 1, #GameplayFeatureOrder do
@@ -2928,14 +2975,17 @@ function ns.MSUF_RegisterGameplayOptions_Full(parentCategory)
         end)
     end
 
-    local function BindSlider(sl, key, roundFunc, after, applyNow)
+	    local function BindSlider(sl, key, roundFunc, after, applyNow)
         sl:SetScript("OnValueChanged", function(self, value)
             -- UI sync (panel:refresh / drag-sync) should not write DB or trigger apply.
             if panel and panel._msufSuppressSliderChanges then
                 return
             end
-            local g = EnsureGameplayDefaults()
-            if roundFunc then value = roundFunc(value) end
+	            local g = EnsureGameplayDefaults()
+	            -- Defensive: only call a real round/transform function.
+	            if type(roundFunc) == "function" then
+	                value = roundFunc(value)
+	            end
             g[key] = value
             if after then after(self, g, value) end
             if applyNow then RequestApply() end
@@ -2998,10 +3048,34 @@ perClassCB:SetPoint("TOPLEFT", meleeInput, "BOTTOMLEFT", 4, -6)
 perClassCB.Text:SetText("Store per class")
 panel.meleeSpellPerClassCheck = perClassCB
 
-local perClassHint = content:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
-perClassHint:SetPoint("TOPLEFT", perClassCB, "BOTTOMLEFT", 20, -2)
-perClassHint:SetText("Keeps per character settings.")
-panel.meleeSpellPerClassHint = perClassHint
+-- Optional per-spec storage: each specialization can have its own range spell.
+-- Takes priority over per-class when both are enabled.
+local perSpecCB = CreateFrame("CheckButton", "MSUF_Gameplay_MeleeSpellPerSpecCheck", content, "InterfaceOptionsCheckButtonTemplate")
+perSpecCB:SetPoint("TOPLEFT", perClassCB, "BOTTOMLEFT", 0, 2)
+perSpecCB.Text:SetText("Store per spec")
+panel.meleeSpellPerSpecCheck = perSpecCB
+
+local perStorageHint = content:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+perStorageHint:SetPoint("TOPLEFT", perSpecCB, "BOTTOMLEFT", 20, -2)
+perStorageHint:SetText("Keeps per character / spec settings.")
+panel.meleeSpellPerStorageHint = perStorageHint
+
+-- Tooltips for per-class / per-spec (since hint label may be hidden in compact layout)
+local function _SetStorageTooltip(cb, title, body)
+    cb:SetScript("OnEnter", function(self)
+        if GameTooltip then
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:AddLine(title, 1, 1, 1)
+            GameTooltip:AddLine(body, 1, 0.82, 0, true)
+            GameTooltip:Show()
+        end
+    end)
+    cb:SetScript("OnLeave", function()
+        if GameTooltip then GameTooltip:Hide() end
+    end)
+end
+_SetStorageTooltip(perClassCB, "Store per class", "Each class keeps its own melee range spell.\nAllows one profile across multiple characters.")
+_SetStorageTooltip(perSpecCB, "Store per spec", "Each specialization keeps its own melee range spell.\nRequires 'Store per class' to be enabled.")
 
 local meleeSelected = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 meleeSelected:SetPoint("LEFT", meleeInput, "RIGHT", 12, 0)
@@ -3068,7 +3142,15 @@ end
 local function UpdateSelectedTextFromDB()
     local g = EnsureGameplayDefaults()
     local id = 0
-    if g.meleeSpellPerClass and type(g.nameplateMeleeSpellIDByClass) == "table" and UnitClass then
+    -- Per-spec takes priority
+    if g.meleeSpellPerSpec and type(g.nameplateMeleeSpellIDBySpec) == "table" then
+        local specID = MSUF_GetPlayerSpecID()
+        if specID then
+            id = tonumber(g.nameplateMeleeSpellIDBySpec[specID]) or 0
+        end
+    end
+    -- Per-class fallback
+    if id <= 0 and g.meleeSpellPerClass and type(g.nameplateMeleeSpellIDByClass) == "table" and UnitClass then
         local _, class = UnitClass("player")
         if class then
             id = tonumber(g.nameplateMeleeSpellIDByClass[class]) or 0
@@ -3141,7 +3223,16 @@ MSUF_SelectMeleeSpell = function(spellID, spellName, preferNameInBox)
     spellID = tonumber(spellID) or 0
     if spellID <= 0 then return end
 
-    -- Persist selection (global + optional per-class)
+    -- Persist selection (global + optional per-class + optional per-spec)
+    if g.meleeSpellPerSpec then
+        if type(g.nameplateMeleeSpellIDBySpec) ~= "table" then
+            g.nameplateMeleeSpellIDBySpec = {}
+        end
+        local specID = MSUF_GetPlayerSpecID()
+        if specID then
+            g.nameplateMeleeSpellIDBySpec[specID] = spellID
+        end
+    end
     if g.meleeSpellPerClass then
         if type(g.nameplateMeleeSpellIDByClass) ~= "table" then
             g.nameplateMeleeSpellIDByClass = {}
@@ -3226,6 +3317,15 @@ meleeInput:SetScript("OnTextChanged", function(self)
 
     local asNum = tonumber(txt)
     if asNum and asNum > 0 then
+        if g.meleeSpellPerSpec then
+            if type(g.nameplateMeleeSpellIDBySpec) ~= "table" then
+                g.nameplateMeleeSpellIDBySpec = {}
+            end
+            local specID = MSUF_GetPlayerSpecID()
+            if specID then
+                g.nameplateMeleeSpellIDBySpec[specID] = asNum
+            end
+        end
         if g.meleeSpellPerClass then
             if type(g.nameplateMeleeSpellIDByClass) ~= "table" then
                 g.nameplateMeleeSpellIDByClass = {}
@@ -3285,6 +3385,50 @@ perClassCB:SetScript("OnClick", function(self)
                 if not g.nameplateMeleeSpellIDByClass[class] or tonumber(g.nameplateMeleeSpellIDByClass[class]) <= 0 then
                     g.nameplateMeleeSpellIDByClass[class] = tonumber(g.nameplateMeleeSpellID) or 0
                 end
+            end
+        end
+    else
+        -- If per-class is disabled, per-spec makes no sense either.
+        g.meleeSpellPerSpec = false
+        if perSpecCB then perSpecCB:SetChecked(false) end
+        if perSpecCB then perSpecCB:SetEnabled(false) end
+    end
+
+    -- Enable/disable per-spec checkbox based on per-class state
+    if perSpecCB then perSpecCB:SetEnabled(want) end
+
+    -- Refresh UI + apply immediately.
+    if panel and panel.refresh then
+        panel:refresh()
+    end
+    ns.MSUF_RequestGameplayApply()
+end)
+
+-- Per-spec checkbox behavior (only meaningful when per-class is also enabled).
+perSpecCB:SetScript("OnClick", function(self)
+    local g = EnsureGameplayDefaults()
+    local want = self:GetChecked() and true or false
+    g.meleeSpellPerSpec = want
+    if want then
+        if type(g.nameplateMeleeSpellIDBySpec) ~= "table" then
+            g.nameplateMeleeSpellIDBySpec = {}
+        end
+        -- Seed spec entry from current per-class or global spell if missing.
+        local specID = MSUF_GetPlayerSpecID()
+        if specID then
+            if not g.nameplateMeleeSpellIDBySpec[specID] or tonumber(g.nameplateMeleeSpellIDBySpec[specID]) <= 0 then
+                -- Try per-class first, then global
+                local seed = 0
+                if g.meleeSpellPerClass and type(g.nameplateMeleeSpellIDByClass) == "table" and UnitClass then
+                    local _, class = UnitClass("player")
+                    if class then
+                        seed = tonumber(g.nameplateMeleeSpellIDByClass[class]) or 0
+                    end
+                end
+                if seed <= 0 then
+                    seed = tonumber(g.nameplateMeleeSpellID) or 0
+                end
+                g.nameplateMeleeSpellIDBySpec[specID] = seed
             end
         end
     end
@@ -3621,8 +3765,48 @@ end
         end
     )
 
+    -- Click-through toggle (affects UNLOCKED behavior):
+    -- ON  = timer never steals clicks; unlock + hold ALT to drag.
+    -- OFF = timer is draggable normally while unlocked.
+    local combatClickThrough = _MSUF_Check("MSUF_Gameplay_CombatTimerClickThroughCheck", "TOPLEFT", combatLock, "BOTTOMLEFT", 0, -8,
+        "Click-through (ALT to drag when unlocked)",
+        "combatTimerClickThroughCheck", "combatTimerClickThrough",
+        function()
+            ApplyLockState()
+        end
+    )
+
+    -- Precise position sliders (offset from chosen anchor)
+    local combatPosLabel = _MSUF_Label("GameFontHighlight", "TOPLEFT", combatSlider, "BOTTOMLEFT", 0, -20, "Timer position (offset)", "combatTimerPosLabel")
+
+    local combatOffsetXSlider = _MSUF_Slider("MSUF_Gameplay_CombatTimerOffsetXSlider", "TOPLEFT", combatPosLabel, "BOTTOMLEFT", 0, -12, 240, -800, 800, 1, "-800", "800", "X: 0",
+        "combatTimerOffsetXSlider", "combatOffsetX",
+        function(v) return math.floor(v + 0.5) end,
+        function(self, g, v)
+            local t = _G[self:GetName() .. "Text"]
+            if t then t:SetText(string.format("X: %d", v)) end
+            MSUF_Gameplay_ApplyCombatTimerAnchor(g)
+            MSUF_Gameplay_TickCombatTimer()
+        end,
+        false
+    )
+    _MSUF_SliderTextRight("MSUF_Gameplay_CombatTimerOffsetXSlider")
+
+    local combatOffsetYSlider = _MSUF_Slider("MSUF_Gameplay_CombatTimerOffsetYSlider", "TOPLEFT", combatOffsetXSlider, "BOTTOMLEFT", 0, -12, 240, -800, 800, 1, "-800", "800", "Y: -200",
+        "combatTimerOffsetYSlider", "combatOffsetY",
+        function(v) return math.floor(v + 0.5) end,
+        function(self, g, v)
+            local t = _G[self:GetName() .. "Text"]
+            if t then t:SetText(string.format("Y: %d", v)) end
+            MSUF_Gameplay_ApplyCombatTimerAnchor(g)
+            MSUF_Gameplay_TickCombatTimer()
+        end,
+        false
+    )
+    _MSUF_SliderTextRight("MSUF_Gameplay_CombatTimerOffsetYSlider")
+
     -- Combat Enter/Leave header + separator
-    local combatStateSeparator = _MSUF_Sep(combatSlider, -24)
+    local combatStateSeparator = _MSUF_Sep(combatOffsetYSlider, -24)
     local combatStateHeader = _MSUF_Header(combatStateSeparator, "Combat Enter/Leave")
 
     -- Combat state text checkbox
@@ -4027,6 +4211,22 @@ _totemsLeftBottom = totemsDragHint
             meleeSharedWarn:ClearAllPoints()
             meleeSharedWarn:SetPoint("BOTTOMLEFT", meleeSelected, "TOPLEFT", 0, 4)
         end
+
+        -- Position per-class / per-spec checkboxes inline (horizontal) in the right column
+        -- to avoid vertical overlap with the thickness/size sliders below.
+        -- Layout:  Selected: Backstab (53)   [✓] Store per class
+        --          Used by: Crosshair color  [✓] Store per spec
+        if perClassCB then
+            perClassCB:ClearAllPoints()
+            perClassCB:SetPoint("LEFT", meleeSelected, "RIGHT", 8, 0)
+        end
+        if perSpecCB then
+            perSpecCB:ClearAllPoints()
+            perSpecCB:SetPoint("LEFT", meleeUsedBy, "RIGHT", 8, 0)
+        end
+        if panel.meleeSpellPerStorageHint then
+            panel.meleeSpellPerStorageHint:Hide()
+        end
     end
 
     -- Crosshair preview (in-menu)
@@ -4202,261 +4402,9 @@ _totemsLeftBottom = totemsDragHint
         crosshairPreview:SetPoint("BOTTOMRIGHT", crosshairSizeSlider, "BOTTOMLEFT", -18, -4)
     end
 
-    -- Cooldown manager header + separator
-    local cooldownSeparator = _MSUF_Sep(crosshairSizeSlider, -30)
-    local cooldownHeader = _MSUF_Header(cooldownSeparator, "Cooldown Manager")
-    -- NOTE: Temporarily disabled until CooldownManager integration is reworked.
-    local cooldownIconsCheck = _MSUF_Check("MSUF_Gameplay_CooldownIconsCheck", "TOPLEFT", cooldownHeader, "BOTTOMLEFT", 0, -8,
-        "Show cooldown manager bars as icons (temporarily disabled)", "cooldownIconsCheck", nil
-    )
-    cooldownIconsCheck:SetChecked(false)
-    if cooldownIconsCheck.Disable then cooldownIconsCheck:Disable() end
-------------------------------------------------------
-    -- Disabled/greyed state styling (match Main menu behavior)
-    ------------------------------------------------------
-    local function _MSUF_RememberTextColor(fs)
-        if not fs or fs.__msufOrigColor then return end
-        local r, g, b, a = fs:GetTextColor()
+    -- No Cooldown Manager section (removed)
 
-        -- Important: many Blizzard templates use a yellow default font color (GameFontNormal).
-        -- For Gameplay toggles we want the "enabled" baseline to be WHITE (like the rest of MSUF),
-        -- otherwise the first state refresh after a click can "lock in" yellow and spread across toggles.
-        if r and g and b and (r > 0.95) and (g > 0.70) and (g < 0.95) and (b < 0.30) then
-            fs.__msufOrigColor = { 1, 1, 1, a or 1 }
-        else
-            fs.__msufOrigColor = { r or 1, g or 1, b or 1, a or 1 }
-        end
-    end
-
-    local function _MSUF_SetFontStringEnabled(fs, enabled, dimWhenOff)
-        if not fs then return end
-        _MSUF_RememberTextColor(fs)
-        if enabled then
-            local c = fs.__msufOrigColor
-            fs:SetTextColor(c[1], c[2], c[3], c[4])
-        else
-            -- Slightly dim or strongly grey depending on context
-            if dimWhenOff then
-                fs:SetTextColor(0.55, 0.55, 0.55, 0.9)
-            else
-                fs:SetTextColor(0.45, 0.45, 0.45, 0.9)
-            end
-        end
-    end
-
-    local function _MSUF_SetCheckStyle(cb, forceEnabled)
-        if not cb then return end
-        if forceEnabled then
-            cb:Enable()
-        end
-
-        local fs = cb.Text
-        if not fs then return end
-        _MSUF_RememberTextColor(fs)
-
-        if not cb:IsEnabled() then
-            fs:SetTextColor(0.45, 0.45, 0.45, 0.9)
-            return
-        end
-
-        -- Unchecked toggles are intentionally greyed (like Main menu)
-        if cb:GetChecked() then
-            local c = fs.__msufOrigColor
-            fs:SetTextColor(c[1], c[2], c[3], c[4])
-        else
-            fs:SetTextColor(0.60, 0.60, 0.60, 0.95)
-        end
-    end
-
-    local function _MSUF_SetCheckEnabled(cb, enabled)
-        if not cb then return end
-        if enabled then
-            cb:Enable()
-        else
-            cb:Disable()
-        end
-        _MSUF_SetCheckStyle(cb)
-    end
-
-    local function _MSUF_SetSliderEnabled(sl, enabled)
-        if not sl then return end
-        if enabled then
-            sl:Enable()
-        else
-            sl:Disable()
-        end
-        sl:SetAlpha(enabled and 1 or 0.6)
-
-        local name = sl.GetName and sl:GetName()
-        if name and name ~= "" then
-            _MSUF_SetFontStringEnabled(_G[name .. "Low"], enabled, true)
-            _MSUF_SetFontStringEnabled(_G[name .. "High"], enabled, true)
-            _MSUF_SetFontStringEnabled(_G[name .. "Text"], enabled, false)
-        end
-    end
-
-    local function _MSUF_SetButtonEnabled(btn, enabled)
-        if not btn then return end
-        btn:SetEnabled(enabled and true or false)
-        btn:SetAlpha(enabled and 1 or 0.6)
-    end
-
-local function _MSUF_SetDropdownEnabled(dd, enabled)
-    if not dd then return end
-    if enabled then
-        if UIDropDownMenu_EnableDropDown then
-            UIDropDownMenu_EnableDropDown(dd)
-        elseif dd.EnableMouse then
-            dd:EnableMouse(true)
-        end
-        if dd.SetAlpha then dd:SetAlpha(1) end
-    else
-        if UIDropDownMenu_DisableDropDown then
-            UIDropDownMenu_DisableDropDown(dd)
-        elseif dd.EnableMouse then
-            dd:EnableMouse(false)
-        end
-        if dd.SetAlpha then dd:SetAlpha(0.6) end
-    end
-end
-
-    local function _MSUF_SetEditBoxEnabled(eb, enabled)
-        if not eb then return end
-        if not enabled and eb.ClearFocus then
-            eb:ClearFocus()
-        end
-
-        if eb.EnableMouse then
-            eb:EnableMouse(enabled and true or false)
-        end
-        if eb.SetAlpha then
-            eb:SetAlpha(enabled and 1 or 0.6)
-        end
-
-        -- Text color + visual dim
-        if eb.SetTextColor then
-            if enabled then
-                eb:SetTextColor(1, 1, 1, 1)
-            else
-                eb:SetTextColor(0.65, 0.65, 0.65, 0.95)
-            end
-        end
-    end
-
-    function panel:MSUF_UpdateGameplayDisabledStates()
-        local g = EnsureGameplayDefaults()
-
-        -- Top-level toggles: always enabled, but unchecked is greyed
-        _MSUF_SetCheckStyle(self.combatTimerCheck, true)
-        _MSUF_SetCheckStyle(self.combatStateCheck, true)
-        _MSUF_SetCheckStyle(self.combatCrosshairCheck, true)
-        _MSUF_SetCheckStyle(self.cooldownIconsCheck, false)
-
-        -- Combat Timer dependents
-        local timerOn = g.enableCombatTimer and true or false
-        _MSUF_SetSliderEnabled(self.combatFontSizeSlider, timerOn)
-        _MSUF_SetCheckEnabled(self.lockCombatTimerCheck, timerOn)
-        _MSUF_SetFontStringEnabled(self.combatTimerAnchorLabel, timerOn, false)
-        _MSUF_SetDropdownEnabled(self.combatTimerAnchorDropdown, timerOn)
-
-        -- Combat Enter/Leave dependents
-        local stateOn = g.enableCombatStateText and true or false
-        _MSUF_SetFontStringEnabled(self.combatStateEnterLabel, stateOn, false)
-        _MSUF_SetFontStringEnabled(self.combatStateLeaveLabel, stateOn, false)
-        _MSUF_SetEditBoxEnabled(self.combatStateEnterInput, stateOn)
-        _MSUF_SetEditBoxEnabled(self.combatStateLeaveInput, stateOn)
-        _MSUF_SetSliderEnabled(self.combatStateFontSizeSlider, stateOn)
-        _MSUF_SetSliderEnabled(self.combatStateDurationSlider, stateOn)
-        _MSUF_SetCheckEnabled(self.lockCombatStateCheck, stateOn)
-        _MSUF_SetButtonEnabled(self.combatStateDurationResetButton, stateOn)
-
-        -- Rogue: First Dance is a Rogue-only helper (independent of the Enter/Leave text toggle).
-        local isRogue = false
-        if UnitClass then
-            local _, class = UnitClass("player")
-            isRogue = (class == "ROGUE")
-        end
-        _MSUF_SetCheckEnabled(self.firstDanceCheck, isRogue)
-
-        -- Shaman: Player Totems dependents
-        local isShaman = false
-        if UnitClass then
-            local _, class = UnitClass("player")
-            isShaman = (class == "SHAMAN")
-        end
-
-        -- Enable toggle itself is only relevant for Shaman
-        _MSUF_SetCheckEnabled(self.playerTotemsCheck, isShaman)
-
-        _MSUF_SetButtonEnabled(self.playerTotemsPreviewButton, isShaman)
-
-        local previewActive = (ns and ns.MSUF_PlayerTotems_IsPreviewActive and ns.MSUF_PlayerTotems_IsPreviewActive()) and true or false
-        local totemsOn = (isShaman and (g.enablePlayerTotems or previewActive)) and true or false
-        _MSUF_SetCheckEnabled(self.playerTotemsShowTextCheck, totemsOn)
-        _MSUF_SetCheckEnabled(self.playerTotemsScaleByIconCheck, (totemsOn and g.playerTotemsShowText) and true or false)
-
-        _MSUF_SetSliderEnabled(self.playerTotemsIconSizeSlider, totemsOn)
-        _MSUF_SetSliderEnabled(self.playerTotemsSpacingSlider, totemsOn)
-        _MSUF_SetSliderEnabled(self.playerTotemsOffsetXSlider, totemsOn)
-        _MSUF_SetSliderEnabled(self.playerTotemsOffsetYSlider, totemsOn)
-
-        _MSUF_SetDropdownEnabled(self.playerTotemsGrowthDropdown, totemsOn)
-        _MSUF_SetButtonEnabled(self.playerTotemsAnchorFromButton, totemsOn)
-        _MSUF_SetButtonEnabled(self.playerTotemsAnchorToButton, totemsOn)
-        local textOn = (totemsOn and g.playerTotemsShowText) and true or false
-        local canManualFont = (textOn and not g.playerTotemsScaleTextByIconSize) and true or false
-        _MSUF_SetSliderEnabled(self.playerTotemsFontSizeSlider, canManualFont)
-
-        if self.playerTotemsColorSwatch then
-            if self.playerTotemsColorSwatch.SetAlpha then
-                self.playerTotemsColorSwatch:SetAlpha(textOn and 1 or 0.6)
-            end
-            if self.playerTotemsColorSwatch.EnableMouse then
-                self.playerTotemsColorSwatch:EnableMouse(textOn and true or false)
-            end
-        end
-
-                if self.playerTotemsPreviewButton and self.playerTotemsPreviewButton.SetText then
-            local active = (ns and ns.MSUF_PlayerTotems_IsPreviewActive and ns.MSUF_PlayerTotems_IsPreviewActive()) and true or false
-            self.playerTotemsPreviewButton:SetText(active and "Stop preview" or "Preview")
-        end
-
--- Crosshair dependents
-        local crosshairOn = g.enableCombatCrosshair and true or false
-        _MSUF_SetCheckEnabled(self.crosshairRangeColorCheck, crosshairOn)
-        _MSUF_SetFontStringEnabled(self.crosshairRangeHintText, crosshairOn, true)
-        _MSUF_SetFontStringEnabled(self.crosshairThicknessLabel, crosshairOn, false)
-        _MSUF_SetFontStringEnabled(self.crosshairSizeLabel, crosshairOn, false)
-        _MSUF_SetSliderEnabled(self.crosshairThicknessSlider, crosshairOn)
-        _MSUF_SetSliderEnabled(self.crosshairSizeSlider, crosshairOn)
-
-        -- Spell selection is only relevant when range-color mode is active
-        local rangeOn = (crosshairOn and g.enableCombatCrosshairMeleeRangeColor) and true or false
-        _MSUF_SetFontStringEnabled(self.meleeSharedTitle, rangeOn, false)
-        _MSUF_SetFontStringEnabled(self.meleeSharedSubText, rangeOn, true)
-        _MSUF_SetFontStringEnabled(self.meleeSpellChooseLabel, rangeOn, true)
-        _MSUF_SetFontStringEnabled(self.meleeSpellSelectedText, rangeOn, true)
-        _MSUF_SetFontStringEnabled(self.meleeSpellUsedByText, rangeOn, true)
-        _MSUF_SetEditBoxEnabled(self.meleeSpellInput, rangeOn)
-        _MSUF_SetCheckEnabled(self.meleeSpellPerClassCheck, rangeOn)
-        _MSUF_SetFontStringEnabled(self.meleeSpellPerClassHint, rangeOn, true)
-
-        if self.meleeSuggestionFrame and not rangeOn then
-            self.meleeSuggestionFrame:Hide()
-        end
-
-        -- Keep the orange warning aligned with enabled state
-        if UpdateSelectedTextFromDB then
-            UpdateSelectedTextFromDB()
-        end
-
-        if self.MSUF_UpdateCrosshairPreview then
-            self.MSUF_UpdateCrosshairPreview()
-        end
-    end
-
-    lastControl = cooldownIconsCheck
-
+    lastControl = crosshairSizeSlider
     ------------------------------------------------------
     -- Panel scripts (refresh/okay/default)
     ------------------------------------------------------
@@ -4467,7 +4415,9 @@ end
     local _MSUF_GAMEPLAY_DEFAULT_KEYS = {
         "nameplateMeleeSpellID",
         "meleeSpellPerClass",
+        "meleeSpellPerSpec",
         "nameplateMeleeSpellIDByClass",
+        "nameplateMeleeSpellIDBySpec",
 
         "combatOffsetX",
         "combatOffsetY",
@@ -4475,6 +4425,7 @@ end
         "combatFontSize",
         "enableCombatTimer",
         "lockCombatTimer",
+        "combatTimerClickThrough",
 
         "combatStateOffsetX",
         "combatStateOffsetY",
@@ -4504,9 +4455,6 @@ end
         "enableCombatCrosshairMeleeRangeColor",
         "crosshairThickness",
         "crosshairSize",
-
-        "cooldownIcons",
-
     }
 
     local function _MSUF_ResetGameplayToDefaults()
@@ -4532,7 +4480,15 @@ end
         local meleeInput = self.meleeSpellInput
         if meleeInput then
             local id = 0
-            if g.meleeSpellPerClass and type(g.nameplateMeleeSpellIDByClass) == "table" and UnitClass then
+            -- Per-spec takes priority
+            if g.meleeSpellPerSpec and type(g.nameplateMeleeSpellIDBySpec) == "table" then
+                local specID = MSUF_GetPlayerSpecID()
+                if specID then
+                    id = tonumber(g.nameplateMeleeSpellIDBySpec[specID]) or 0
+                end
+            end
+            -- Per-class fallback
+            if id <= 0 and g.meleeSpellPerClass and type(g.nameplateMeleeSpellIDByClass) == "table" and UnitClass then
                 local _, class = UnitClass("player")
                 if class then
                     id = tonumber(g.nameplateMeleeSpellIDByClass[class]) or 0
@@ -4546,6 +4502,11 @@ end
 
         if self.meleeSpellPerClassCheck then
             self.meleeSpellPerClassCheck:SetChecked(g.meleeSpellPerClass and true or false)
+        end
+        if self.meleeSpellPerSpecCheck then
+            self.meleeSpellPerSpecCheck:SetChecked(g.meleeSpellPerSpec and true or false)
+            -- Per-spec only meaningful when per-class is on
+            self.meleeSpellPerSpecCheck:SetEnabled(g.meleeSpellPerClass and true or false)
         end
         if UpdateSelectedTextFromDB then
             UpdateSelectedTextFromDB()
@@ -4568,6 +4529,7 @@ end
         local checks = {
             {"combatTimerCheck", "enableCombatTimer"},
             {"lockCombatTimerCheck", "lockCombatTimer"},
+            {"combatTimerClickThroughCheck", "combatTimerClickThrough"},
 
             {"combatStateCheck", "enableCombatStateText"},
             {"lockCombatStateCheck", "lockCombatState"},
@@ -4580,9 +4542,7 @@ end
 
             {"combatCrosshairCheck", "enableCombatCrosshair"},
             {"crosshairRangeColorCheck", "enableCombatCrosshairMeleeRangeColor"},
-
-            {"cooldownIconsCheck", "cooldownIcons", true},
-        }
+}
         for i = 1, #checks do
             local t = checks[i]
             SetCheck(t[1], t[2], t[3])
@@ -4591,6 +4551,8 @@ end
         -- Simple sliders
         local sliders = {
             {"combatFontSizeSlider", "combatFontSize", 0},
+            {"combatTimerOffsetXSlider", "combatOffsetX", 0},
+            {"combatTimerOffsetYSlider", "combatOffsetY", -200},
             {"combatStateFontSizeSlider", "combatStateFontSize", 0},
             {"combatStateDurationSlider", "combatStateDuration", 1.5},
 
@@ -4603,6 +4565,18 @@ end
         for i = 1, #sliders do
             local t = sliders[i]
             SetSlider(t[1], t[2], t[3])
+        end
+
+        -- Combat Timer offset label text (refresh runs with slider-changes suppressed)
+        if self.combatTimerOffsetXSlider then
+            local vx = tonumber(g.combatOffsetX) or 0
+            local txt = _G[self.combatTimerOffsetXSlider:GetName() .. "Text"]
+            if txt then txt:SetText(string.format("X: %d", math.floor(vx + 0.5))) end
+        end
+        if self.combatTimerOffsetYSlider then
+            local vy = tonumber(g.combatOffsetY) or -200
+            local txt = _G[self.combatTimerOffsetYSlider:GetName() .. "Text"]
+            if txt then txt:SetText(string.format("Y: %d", math.floor(vy + 0.5))) end
         end
 
         -- Combat Timer anchor dropdown
@@ -4685,6 +4659,26 @@ end
         self._msufSuppressSliderChanges = false
     end
 
+-- Live-sync: allow the Combat Timer frame to drag-update X/Y without spamming Apply().
+function panel:MSUF_SyncCombatTimerOffsetSliders()
+    if not self.combatTimerOffsetXSlider or not self.combatTimerOffsetYSlider then
+        return
+    end
+    local g = EnsureGameplayDefaults()
+    self._msufSuppressSliderChanges = true
+    local vx = _MSUF_RoundInt(g.combatOffsetX)
+    local vy = _MSUF_RoundInt(g.combatOffsetY)
+    self.combatTimerOffsetXSlider:SetValue(vx)
+    self.combatTimerOffsetYSlider:SetValue(vy)
+
+    local t = _G[self.combatTimerOffsetXSlider:GetName() .. "Text"]
+    if t then t:SetText(string.format("X: %d", vx)) end
+    t = _G[self.combatTimerOffsetYSlider:GetName() .. "Text"]
+    if t then t:SetText(string.format("Y: %d", vy)) end
+
+    self._msufSuppressSliderChanges = false
+end
+
 -- Live-sync: allow the Totem preview frame to drag-update X/Y without spamming Apply().
 function panel:MSUF_SyncTotemOffsetSliders()
     if not self.playerTotemsOffsetXSlider or not self.playerTotemsOffsetYSlider then
@@ -4705,13 +4699,7 @@ end
         end
 
         ns.MSUF_RequestGameplayApply()
-
-        if ns and ns.MSUF_RequestCooldownIconsSync then
-            ns.MSUF_RequestCooldownIconsSync()
-        elseif MSUF_ApplyCooldownIconMode then
-            MSUF_ApplyCooldownIconMode()
-        end
-    end
+end
 
     panel.default = function(self)
         _MSUF_ResetGameplayToDefaults()
@@ -4720,13 +4708,7 @@ end
         end
 
         ns.MSUF_RequestGameplayApply()
-
-        if ns and ns.MSUF_RequestCooldownIconsSync then
-            ns.MSUF_RequestCooldownIconsSync()
-        elseif MSUF_ApplyCooldownIconMode then
-            MSUF_ApplyCooldownIconMode()
-        end
-    end
+end
 
     
     ------------------------------------------------------

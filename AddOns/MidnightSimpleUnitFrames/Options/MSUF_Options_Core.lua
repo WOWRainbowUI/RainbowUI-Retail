@@ -21,62 +21,23 @@ end
 -- File-scope locals (avoid accidental globals; safe for split modules)
 local panel, title, sub
 local searchBox
-local frameGroup, fontGroup, auraGroup, castbarGroup
+local frameGroup, frameGroupHost, fontGroup, auraGroup, castbarGroup, castbarGroupHost
+local MSUF_BarsApplyGradient -- forward decl; assigned in Bars section below
 -- ---------------------------------------------------------------------------
--- Reload prompt (Gradients)
--- Shown when user toggles Power Bar Gradient or clicks the Gradient Direction pad.
--- Provides "Reload now" / "Later" buttons (no slider-spam).
+-- Gradient changes apply live (no reload required).
+-- Keep a no-op stub so any stale call-sites (older builds) don't nil-error.
 -- ---------------------------------------------------------------------------
-local function MSUF_Options_ShowGradientReloadPopup()
-    if not _G then  return end
-    -- Avoid stacking popups
-    if _G.StaticPopup_Visible and _G.StaticPopup_Visible("MSUF_GRADIENTS_RELOAD_PROMPT") then
-         return
-    end
-    -- If we are in combat, defer the popup until combat ends (no chat spam).
-    if type(InCombatLockdown) == "function" and InCombatLockdown() then
-        _G.__MSUF_GRADIENTS_RELOAD_PENDING = true
-        if not _G.__MSUF_GRADIENTS_RELOAD_WATCHER then
-            local f = CreateFrame("Frame")
-            _G.__MSUF_GRADIENTS_RELOAD_WATCHER = f
-            f:RegisterEvent("PLAYER_REGEN_ENABLED")
-            f:SetScript("OnEvent", function()
-                if _G.__MSUF_GRADIENTS_RELOAD_PENDING then
-                    _G.__MSUF_GRADIENTS_RELOAD_PENDING = false
-                    -- Delay to next tick so UI is fully unlocked.
-                    if C_Timer and C_Timer.After then
-                        C_Timer.After(0, MSUF_Options_ShowGradientReloadPopup)
-                    else
-                        MSUF_Options_ShowGradientReloadPopup()
-                    end
-                end
-             end)
-        end
-         return
-    end
-    -- If popup API is missing, do nothing (user requested only a Reload Now/Later prompt).
-    if not _G.StaticPopupDialogs then  return end
-    if not _G.StaticPopupDialogs["MSUF_GRADIENTS_RELOAD_PROMPT"] then
-        _G.StaticPopupDialogs["MSUF_GRADIENTS_RELOAD_PROMPT"] = {
-            text = "Apply gradient changes with a reload?\n\nSome gradient changes may not fully apply until you /reload.",
-            button1 = "Reload now",
-            button2 = "Later",
-            OnAccept = function()
-                if _G.ReloadUI then _G.ReloadUI() end
-             end,
-            timeout = 0,
-            whileDead = 1,
-            hideOnEscape = 1,
-            preferredIndex = 3,
-        }
-    end
-    if _G.StaticPopup_Show then
-        _G.StaticPopup_Show("MSUF_GRADIENTS_RELOAD_PROMPT")
-    end
- end
--- Step 11 cleanup: We only prompt reload for Power Bar Gradient toggle / Gradient D-pad clicks.
--- Keep a no-op stub to avoid nil errors if older UI handlers still call it.
-local function MSUF_ScheduleReloadRecommend()   end
+local function MSUF_Options_ShowGradientReloadPopup() end -- no-op stub (live apply, backward compat)
+-- ---------------------------------------------------------------------------
+-- Transition helpers (optional, graceful fallback to instant Show/Hide)
+-- ---------------------------------------------------------------------------
+local function _T() return ns.MSUF_Transitions end
+local function _TFadeIn(f, d)
+    local T = _T()
+    if T and T.FadeIn then T.FadeIn(f, d) else if f and f.Show then f:Show() end end
+end
+local TRANS_TAB = 0.10
+local function MSUF_ScheduleReloadRecommend()   end       -- no-op stub (backward compat)
 local castbarEnemyGroup, castbarTargetGroup, castbarFocusGroup, castbarBossGroup, castbarPlayerGroup
 local barGroupHost, barGroup, miscGroup, profileGroup
 -- ---------------------------------------------------------------------------
@@ -105,6 +66,109 @@ local function MSUF_BarsMenu_QueueScrollUpdate()
         if not (top and bottom) then return end
 
         local h = math.ceil((top - bottom) + 24)
+        if h < 500 then h = 500 end
+        child:SetHeight(h)
+
+        local w = scroll:GetWidth()
+        if w and w > 1 then child:SetWidth(w) end
+
+        if scroll.UpdateScrollChildRect then scroll:UpdateScrollChildRect() end
+        if _G and _G.UIPanelScrollFrame_Update then _G.UIPanelScrollFrame_Update(scroll) end
+    end
+
+    if C_Timer and C_Timer.After then
+        C_Timer.After(0, run)
+    else
+        run()
+    end
+end
+
+-- ---------------------------------------------------------------------------
+-- Frames menu: scroll container (same pattern as Bars menu above)
+-- ---------------------------------------------------------------------------
+local function MSUF_FramesMenu_QueueScrollUpdate()
+    local host = frameGroupHost
+    if not host then return end
+    local scroll = host._msufFramesScroll
+    local child  = host._msufFramesScrollChild
+    if not (scroll and child and child.SetHeight) then return end
+
+    if host._msufFramesScrollQueued then return end
+    host._msufFramesScrollQueued = true
+
+    local function run()
+        host._msufFramesScrollQueued = false
+        if not (scroll and child) then return end
+
+        -- Measure from scroll child top to the lowest visible group box bottom.
+        local top = child.GetTop and child:GetTop()
+        if not top then return end
+
+        local lowest = top
+        local content = host._msufFramesContent
+        if content then
+            local regions = { content:GetChildren() }
+            for i = 1, #regions do
+                local r = regions[i]
+                if r and r.IsShown and r:IsShown() and r.GetBottom then
+                    local b = r:GetBottom()
+                    if b and b < lowest then lowest = b end
+                end
+            end
+        end
+
+        local h = math.ceil((top - lowest) + 32)
+        if h < 500 then h = 500 end
+        child:SetHeight(h)
+
+        local w = scroll:GetWidth()
+        if w and w > 1 then child:SetWidth(w) end
+
+        if scroll.UpdateScrollChildRect then scroll:UpdateScrollChildRect() end
+        if _G and _G.UIPanelScrollFrame_Update then _G.UIPanelScrollFrame_Update(scroll) end
+    end
+
+    if C_Timer and C_Timer.After then
+        C_Timer.After(0, run)
+    else
+        run()
+    end
+end
+
+-- ---------------------------------------------------------------------------
+-- Castbar menu: scroll container (same pattern as Frames/Bars menus)
+-- ---------------------------------------------------------------------------
+local function MSUF_CastbarMenu_QueueScrollUpdate()
+    local host = castbarGroupHost
+    if not host then return end
+    local scroll = host._msufCastbarScroll
+    local child  = host._msufCastbarScrollChild
+    if not (scroll and child and child.SetHeight) then return end
+
+    if host._msufCastbarScrollQueued then return end
+    host._msufCastbarScrollQueued = true
+
+    local function run()
+        host._msufCastbarScrollQueued = false
+        if not (scroll and child) then return end
+
+        local top = child.GetTop and child:GetTop()
+        if not top then return end
+
+        local lowest = top
+        local content = host._msufCastbarContent
+        if content then
+            local regions = { content:GetChildren() }
+            for i = 1, #regions do
+                local r = regions[i]
+                if r and r.IsShown and r:IsShown() and r.GetBottom then
+                    local b = r:GetBottom()
+                    if b and b < lowest then lowest = b end
+                end
+            end
+        end
+
+        local h = math.ceil((top - lowest) + 32)
         if h < 500 then h = 500 end
         child:SetHeight(h)
 
@@ -222,6 +286,8 @@ local function MSUF_ResetDropdownListScroll(listFrame)
                     )
                 end
                 if btn.Show then btn:Show() end
+                -- DropDownList1 is global/reused: restore default hitbox when scroll mode ends.
+                if btn.SetHitRectInsets then btn:SetHitRectInsets(0, 0, 0, 0) end
                 btn._msufHiddenByMSUF = nil
             end
         end
@@ -280,7 +346,7 @@ local function MSUF_ApplyDropdownListScroll(listFrame, maxVisible)
         sb:SetPoint("BOTTOMRIGHT", listFrame, "BOTTOMRIGHT", -6, 18)
         sb:SetMinMaxValues(0, 0)
         -- CRITICAL: UIPanelScrollBarTemplate ships with a default handler that expects
-        -- sb.scrollFrame:SetVerticalScroll(). DropDownList1 is NOT a scrollFrame → nil crash.
+        -- sb.scrollFrame:SetVerticalScroll(). DropDownList1 is NOT a scrollFrame  nil crash.
         sb.scrollFrame = nil
         if sb.SetScript then sb:SetScript("OnValueChanged", nil) end
         sb:SetValue(0)
@@ -305,6 +371,11 @@ local function MSUF_ApplyDropdownListScroll(listFrame, maxVisible)
          end)
     end
     if not sb then  return end
+    -- Ensure scrollbar sits above dropdown buttons so it receives mouse events first.
+    if sb.SetFrameLevel and listFrame.GetFrameLevel then
+        sb:SetFrameLevel((listFrame:GetFrameLevel() or 0) + 50)
+    end
+
     local maxOffset = numButtons - maxVisible
     if maxOffset < 0 then maxOffset = 0 end
     sb:SetMinMaxValues(0, maxOffset)
@@ -343,9 +414,13 @@ local function MSUF_ApplyDropdownListScroll(listFrame, maxVisible)
                 if visIndex < 1 or visIndex > maxVisible then
                     if btn.Hide then btn:Hide() end
                     btn._msufHiddenByMSUF = true
+                    if btn.SetHitRectInsets then btn:SetHitRectInsets(0, 0, 0, 0) end
                 else
                     if btn.Show then btn:Show() end
                     btn._msufHiddenByMSUF = nil
+                    -- Exclude the scrollbar area from the button hitbox so clicks fall through to the scrollbar.
+                    -- Reserve 24px on the right (16px scrollbar + 6px margin + 2px padding).
+                    if btn.SetHitRectInsets then btn:SetHitRectInsets(0, 24, 0, 0) end
                     btn:ClearAllPoints()
                     local y = topY + ((visIndex - 1) * step * dir)
                     btn:SetPoint(topPoint, listFrame, topRelPoint, topX, y)
@@ -537,7 +612,7 @@ local function MSUF_CallUpdateAllFonts()
     end
     if type(fn) == "function" then return fn() end
  end
--- Local number parser (Options chunk can’t rely on main-file locals)
+-- Local number parser (Options chunk cant rely on main-file locals)
 local function MSUF_GetNumber(text, default, minVal, maxVal)
     local n = tonumber(text)
     if n == nil then n = default end
@@ -582,6 +657,12 @@ function MSUF_RegisterOptionsCategoryLazy()
                     if pending then
                         _G.MSUF_PendingOpenAfterCombat = nil
                         pending()
+                    end
+                    -- Zero combat overhead: unregister when nothing is pending
+                    if not (_G and _G.MSUF_PendingOpenAfterCombat) then
+                        self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+                        self:SetScript("OnEvent", nil)
+                        if _G then _G.MSUF_CombatDeferFrame = nil end
                     end
                  end)
             end
@@ -673,7 +754,7 @@ function CreateOptionsPanel()
 -- Options that affect layout should request a UFCore layout flush (DIRTY_LAYOUT) instead of forcing full updates.
 local function MSUF_Options_NormalizeUnitKey(unitKey)
     if unitKey == "tot" then  return "targettarget" end
-    if type(unitKey) == "string" and unitKey:match("^boss%d+$") then  return "boss" end
+    if _G.MSUF_GetBossIndexFromToken and _G.MSUF_GetBossIndexFromToken(unitKey) then  return "boss" end
      return unitKey
 end
 local function MSUF_Options_IsUrgentUnitKey(unitKey)
@@ -771,14 +852,60 @@ panel = (_G and _G.MSUF_OptionsPanel) or CreateFrame("Frame")
         if searchLabel and searchLabel.Hide then searchLabel:Hide() end
         if searchBox and searchBox.Hide then searchBox:Hide() end
     end
-    frameGroup = CreateFrame("Frame", nil, panel)
-    frameGroup:SetAllPoints()
+    -- Frames menu: scrollable host (same pattern as Bars menu).
+    frameGroupHost = CreateFrame("Frame", "MSUF_FramesMenuHost", panel)
+    frameGroupHost:SetAllPoints()
+
+    local framesScroll = CreateFrame("ScrollFrame", "MSUF_FramesMenuScrollFrame", frameGroupHost, "UIPanelScrollFrameTemplate")
+    framesScroll:SetPoint("TOPLEFT", frameGroupHost, "TOPLEFT", 0, -110)
+    framesScroll:SetPoint("BOTTOMRIGHT", frameGroupHost, "BOTTOMRIGHT", -36, 16)
+
+    local framesScrollChild = CreateFrame("Frame", "MSUF_FramesMenuScrollChild", framesScroll)
+    framesScrollChild:SetSize(1, 1)
+    framesScroll:SetScrollChild(framesScrollChild)
+
+    -- Content root: same offsets as before; no layout regression.
+    frameGroup = CreateFrame("Frame", "MSUF_FramesMenuContent", framesScrollChild)
+    frameGroup:SetPoint("TOPLEFT", framesScrollChild, "TOPLEFT", 0, 110)
+    frameGroup:SetSize(760, 1200)
+
+    -- Cache for the height updater + resize hooks.
+    frameGroupHost._msufFramesScroll      = framesScroll
+    frameGroupHost._msufFramesScrollChild = framesScrollChild
+    frameGroupHost._msufFramesContent     = frameGroup
+    if frameGroupHost.HookScript then
+        frameGroupHost:HookScript("OnShow", MSUF_FramesMenu_QueueScrollUpdate)
+        frameGroupHost:HookScript("OnSizeChanged", MSUF_FramesMenu_QueueScrollUpdate)
+    end
     fontGroup = CreateFrame("Frame", nil, panel)
     fontGroup:SetAllPoints()
     auraGroup = CreateFrame("Frame", nil, panel)
     auraGroup:SetAllPoints()
-    castbarGroup = CreateFrame("Frame", nil, panel)
-    castbarGroup:SetAllPoints()
+    -- Castbar menu: scrollable host (same pattern as Frames/Bars menus).
+    castbarGroupHost = CreateFrame("Frame", "MSUF_CastbarMenuHost", panel)
+    castbarGroupHost:SetAllPoints()
+
+    local castbarScroll = CreateFrame("ScrollFrame", "MSUF_CastbarMenuScrollFrame", castbarGroupHost, "UIPanelScrollFrameTemplate")
+    castbarScroll:SetPoint("TOPLEFT", castbarGroupHost, "TOPLEFT", 0, -110)
+    castbarScroll:SetPoint("BOTTOMRIGHT", castbarGroupHost, "BOTTOMRIGHT", -36, 16)
+
+    local castbarScrollChild = CreateFrame("Frame", "MSUF_CastbarMenuScrollChild", castbarScroll)
+    castbarScrollChild:SetSize(1, 1)
+    castbarScroll:SetScrollChild(castbarScrollChild)
+
+    -- Content root: same offsets as before; no layout regression.
+    castbarGroup = CreateFrame("Frame", "MSUF_CastbarMenuContent", castbarScrollChild)
+    castbarGroup:SetPoint("TOPLEFT", castbarScrollChild, "TOPLEFT", 0, 110)
+    castbarGroup:SetSize(760, 1200)
+
+    -- Cache for the height updater + resize hooks.
+    castbarGroupHost._msufCastbarScroll      = castbarScroll
+    castbarGroupHost._msufCastbarScrollChild = castbarScrollChild
+    castbarGroupHost._msufCastbarContent     = castbarGroup
+    if castbarGroupHost.HookScript then
+        castbarGroupHost:HookScript("OnShow", MSUF_CastbarMenu_QueueScrollUpdate)
+        castbarGroupHost:HookScript("OnSizeChanged", MSUF_CastbarMenu_QueueScrollUpdate)
+    end
     local function MSUF_HideLegacyCastbarEditButton()
         local names = {
             'MSUF_CastbarEditModeButton',
@@ -881,75 +1008,64 @@ panel = (_G and _G.MSUF_OptionsPanel) or CreateFrame("Frame")
          return key
     end
     local function UpdateGroupVisibility()
+        -- Hide all instantly, then FadeIn the active group
+        frameGroupHost:Hide()
+        fontGroup:Hide()
+        auraGroup:Hide()
+        castbarGroupHost:Hide()
+        barGroupHost:Hide()
+        miscGroup:Hide()
+        profileGroup:Hide()
         if currentTabKey == "fonts" then
-            frameGroup:Hide()
-            fontGroup:Show()
-            auraGroup:Hide()
-            castbarGroup:Hide()
-            barGroupHost:Hide()
-            miscGroup:Hide()
-            profileGroup:Hide()
+            _TFadeIn(fontGroup, TRANS_TAB)
         elseif currentTabKey == "bars" then
-            frameGroup:Hide()
-            fontGroup:Hide()
-            auraGroup:Hide()
-            castbarGroup:Hide()
-            barGroupHost:Show()
-            miscGroup:Hide()
-            profileGroup:Hide()
+            _TFadeIn(barGroupHost, TRANS_TAB)
         elseif currentTabKey == "auras" then
-            frameGroup:Hide()
-            fontGroup:Hide()
-            auraGroup:Show()
-            castbarGroup:Hide()
-            barGroupHost:Hide()
-            miscGroup:Hide()
-            profileGroup:Hide()
+            _TFadeIn(auraGroup, TRANS_TAB)
         elseif currentTabKey == "castbar" then
-            frameGroup:Hide()
-            fontGroup:Hide()
-            auraGroup:Hide()
-            castbarGroup:Show()
-            barGroupHost:Hide()
-            miscGroup:Hide()
-            profileGroup:Hide()
+            -- Reset scroll to top when switching to castbar tab.
+            local cbScroll = castbarGroupHost._msufCastbarScroll
+            if cbScroll and cbScroll.SetVerticalScroll then
+                cbScroll:SetVerticalScroll(0)
+            end
+            _TFadeIn(castbarGroupHost, TRANS_TAB)
+            MSUF_CastbarMenu_QueueScrollUpdate()
         elseif currentTabKey == "misc" then
-            frameGroup:Hide()
-            fontGroup:Hide()
-            auraGroup:Hide()
-            castbarGroup:Hide()
-            barGroupHost:Hide()
-            miscGroup:Show()
-            profileGroup:Hide()
+            _TFadeIn(miscGroup, TRANS_TAB)
         elseif currentTabKey == "profiles" then
-            frameGroup:Hide()
-            fontGroup:Hide()
-            auraGroup:Hide()
-            castbarGroup:Hide()
-            barGroupHost:Hide()
-            miscGroup:Hide()
-            profileGroup:Show()
+            _TFadeIn(profileGroup, TRANS_TAB)
         else
-            frameGroup:Show()
-            fontGroup:Hide()
-            auraGroup:Hide()
-            castbarGroup:Hide()
-            barGroupHost:Hide()
-            miscGroup:Hide()
-            profileGroup:Hide()
+            -- Reset scroll to top when switching unit tabs.
+            local frScroll = frameGroupHost._msufFramesScroll
+            if frScroll and frScroll.SetVerticalScroll then
+                frScroll:SetVerticalScroll(0)
+            end
+            _TFadeIn(frameGroupHost, TRANS_TAB)
             -- Player-only layout: hide the old right-column offset sliders and show the compact group.
             local isUnitFrame = (UNIT_FRAME_KEYS[currentKey] == true)
             if panel and panel.playerTextLayoutGroup then panel.playerTextLayoutGroup:SetShown(isUnitFrame) end
             if panel and panel.playerBasicsBox then
                 panel.playerBasicsBox:SetShown(isUnitFrame)
             end
+            if panel and panel.playerLoadCondBox then panel.playerLoadCondBox:SetShown(isUnitFrame) end
             if panel and panel.playerSizeBox then panel.playerSizeBox:SetShown(isUnitFrame) end
+            -- Recalculate scroll height after layout changes.
+            MSUF_FramesMenu_QueueScrollUpdate()
         end
         if editModeButton then
             -- Show the shared bottom-left Edit Mode button in:
-            -- * Frames tab (unit frames)
-            -- * Castbar tab (castbar edit mode)
+            -- * Frames tab (unit frames) — inside scroll content
+            -- * Castbar tab (castbar edit mode) — fixed at panel bottom
             if currentTabKey == "castbar" then
+                -- Place inside castbar scroll content below the menu panel.
+                editModeButton:SetParent(castbarGroup)
+                editModeButton:ClearAllPoints()
+                local cbPanel = _G["MSUF_CastbarMenuPanel"]
+                if cbPanel then
+                    editModeButton:SetPoint("TOPLEFT", cbPanel, "BOTTOMLEFT", 0, -12)
+                else
+                    editModeButton:SetPoint("BOTTOMLEFT", castbarGroup, "BOTTOMLEFT", 16, 16)
+                end
                 editModeButton:Show()
             elseif currentTabKey == "frames" and (
                 currentKey == "player"
@@ -959,6 +1075,15 @@ panel = (_G and _G.MSUF_OptionsPanel) or CreateFrame("Frame")
                 or currentKey == "boss"
                 or currentKey == "pet"
             ) then
+                -- Place inside scroll content below the Unit Alpha box.
+                editModeButton:SetParent(frameGroup)
+                editModeButton:ClearAllPoints()
+                local sizeBox = panel and panel.playerSizeBox
+                if sizeBox then
+                    editModeButton:SetPoint("TOPLEFT", sizeBox, "BOTTOMLEFT", 8, -56)
+                else
+                    editModeButton:SetPoint("BOTTOMLEFT", frameGroup, "BOTTOMLEFT", 16, 16)
+                end
                 editModeButton:Show()
             else
                 editModeButton:Hide()
@@ -1088,51 +1213,80 @@ panel = (_G and _G.MSUF_OptionsPanel) or CreateFrame("Frame")
     -- Flat midnight-style button for small action buttons (Focus Kick / Castbar Edit Mode, etc.)
     -- Keeps the dark look without the sticky blue highlight.
     local function MSUF_SkinMidnightActionButton(btn, opts)
-        if not btn or btn.__msufMidnightActionSkinned then  return end
+        if not btn then  return end
+        -- Prevent the SlashMenu mirror skin from overriding Options action buttons.
+        btn._msufNoSlashSkin = true
         btn.__msufMidnightActionSkinned = true
+
+        if type(_G.MSUF_ForceShowUIPanelButtonPieces) == "function" then
+            pcall(_G.MSUF_ForceShowUIPanelButtonPieces, btn)
+        end
+
         opts = opts or {}
         local r, g, b, a = (opts.r or 0.06), (opts.g or 0.06), (opts.b or 0.06), (opts.a or 0.92)
+
         local function SetRegionColor(self, rr, gg, bb, aa)
             local name = self.GetName and self:GetName()
             local left  = self.Left  or (name and _G[name .. "Left"]) or nil
             local mid   = self.Middle or (name and _G[name .. "Middle"]) or nil
             local right = self.Right or (name and _G[name .. "Right"]) or nil
-            if left then left:SetTexture("Interface\\Buttons\\WHITE8x8"); left:SetVertexColor(rr, gg, bb, aa or 1) end
-            if mid then mid:SetTexture("Interface\\Buttons\\WHITE8x8"); mid:SetVertexColor(rr, gg, bb, aa or 1) end
-            if right then right:SetTexture("Interface\\Buttons\\WHITE8x8"); right:SetVertexColor(rr, gg, bb, aa or 1) end
+
+            local function Paint(t)
+                if not t then return end
+                if t.SetTexture then t:SetTexture("Interface\\Buttons\\WHITE8x8") end
+                if t.SetVertexColor then t:SetVertexColor(rr, gg, bb, aa or 1) end
+                if t.SetAlpha then t:SetAlpha(1) end
+                if t.Show then t:Show() end
+            end
+
+            Paint(left); Paint(mid); Paint(right)
+
             local nt = self.GetNormalTexture and self:GetNormalTexture()
             if nt then
-                nt:SetTexture("Interface\\Buttons\\WHITE8x8")
-                nt:SetVertexColor(rr, gg, bb, aa or 1)
-                nt:SetTexCoord(0, 1, 0, 1)
-            end
-         end
-        SetRegionColor(btn, r, g, b, a)
-        -- Subtle overlays; avoid calling SetHighlightTexture/SetPushedTexture directly (can error on some builds).
-        do
-            local hl = btn.GetHighlightTexture and btn:GetHighlightTexture() or nil
-            if hl then
-                hl:SetTexture("Interface/Buttons/WHITE8x8")
-                hl:SetVertexColor(1, 1, 1, 0) -- fully transparent
-                hl:SetTexCoord(0, 1, 0, 1)
-                hl:SetAllPoints(btn)
-            end
-            local pt = btn.GetPushedTexture and btn:GetPushedTexture() or nil
-            if pt then
-                pt:SetTexture("Interface/Buttons/WHITE8x8")
-                pt:SetVertexColor(1, 1, 1, 0.06) -- tiny pressed tint
-                pt:SetTexCoord(0, 1, 0, 1)
-                pt:SetAllPoints(btn)
+                if nt.SetTexture then nt:SetTexture("Interface\\Buttons\\WHITE8x8") end
+                if nt.SetVertexColor then nt:SetVertexColor(rr, gg, bb, aa or 1) end
+                if nt.SetTexCoord then nt:SetTexCoord(0, 1, 0, 1) end
+                if nt.SetAlpha then nt:SetAlpha(1) end
+                if nt.Show then nt:Show() end
             end
         end
+
+        SetRegionColor(btn, r, g, b, a)
+
+        -- Pushed texture: tiny tint so the click feedback is visible.
+        local pt = btn.GetPushedTexture and btn:GetPushedTexture() or nil
+        if pt then
+            pt:SetTexture("Interface/Buttons/WHITE8x8")
+            pt:SetVertexColor(1, 1, 1, 0.06)
+            pt:SetTexCoord(0, 1, 0, 1)
+            pt:SetAllPoints(btn)
+            pt:Show()
+        end
+
+        -- Highlight texture: keep it effectively invisible (we handle hover elsewhere).
+        local hl = btn.GetHighlightTexture and btn:GetHighlightTexture() or nil
+        if hl then
+            hl:SetTexture("Interface/Buttons/WHITE8x8")
+            hl:SetVertexColor(1, 1, 1, 0)
+            hl:SetTexCoord(0, 1, 0, 1)
+            hl:SetAllPoints(btn)
+            hl:Show()
+        end
+
         local fs = btn.GetFontString and btn:GetFontString() or nil
         if fs and fs.SetTextColor then
             local tr = (opts.textR ~= nil) and opts.textR or 0.92
             local tg = (opts.textG ~= nil) and opts.textG or 0.92
             local tb = (opts.textB ~= nil) and opts.textB or 0.92
             fs:SetTextColor(tr, tg, tb)
+            if fs.SetAlpha then fs:SetAlpha(1) end
+            if fs.SetDrawLayer then fs:SetDrawLayer("OVERLAY", 7) end
+            if fs.Show then fs:Show() end
         end
+
+        if btn.SetAlpha then btn:SetAlpha(1) end
      end
+
     -- Legacy top navigation strip removed.
     -- Navigation is driven exclusively by the Slash/Flash menu.
     -- We keep SetCurrentKey() + MSUF_GetTabButtonHelpers() so the slash menu can switch
@@ -1163,6 +1317,8 @@ panel = (_G and _G.MSUF_OptionsPanel) or CreateFrame("Frame")
     snapCheck:Hide()
 emFont = editModeButton:GetFontString()
 if emFont then emFont:SetFontObject("GameFontNormalLarge") end
+    -- Ensure this action button is immune to SlashMenu mirror reskin passes.
+    MSUF_SkinMidnightActionButton(editModeButton)
     function MSUF_SyncCastbarEditModeWithUnitEdit()
     if not MSUF_DB or not MSUF_DB.general then  return end
     local g = MSUF_DB.general
@@ -1338,7 +1494,7 @@ editModeButton:SetScript("OnClick", function()
                 AudioOptionsFrame:Hide()
             end
         end
-                        print("|cffffd700MSUF:|r " .. label .. " Edit Mode |cff00ff00ON|r – drag the " .. label .. " frame with the left mouse button or use the arrow buttons.")
+                        print("|cffffd700MSUF:|r " .. label .. " Edit Mode |cff00ff00ON|r  drag the " .. label .. " frame with the left mouse button or use the arrow buttons.")
         else
             print("|cffffd700MSUF:|r " .. label .. " Edit Mode |cffff0000OFF|r.")
         end
@@ -1482,21 +1638,11 @@ local function MSUF_CreateGradientDirectionPad(parent)
             -- Keep legacy key around as "last touched" for older builds/tools.
             g.gradientDirection = dirKey
             if pad.SyncFromDB then pad:SyncFromDB() end
-            -- Prompt to /reload so gradient direction applies reliably.
-            if type(MSUF_Options_ShowGradientReloadPopup) == "function" then
-                MSUF_Options_ShowGradientReloadPopup()
-            end
-            if type(ApplyAllSettings) == "function" then ApplyAllSettings() end
-            -- Force-refresh unitframes so gradient direction applies immediately (HP and/or Power).
-            local frames = _G and _G.MSUF_UnitFrames
-            if frames and type(_G.MSUF_RequestUnitframeUpdate) == "function" then
-                for _, f in pairs(frames) do
-                    if f and f.unit and f.hpBar then
-                        _G.MSUF_RequestUnitframeUpdate(f, true, true, "GradientDirPad")
-                    end
-                end
-            elseif ns and ns.MSUF_RefreshAllFrames then
-                ns.MSUF_RefreshAllFrames()
+            -- Apply gradient changes live (HP + Power, throttle-safe).
+            if type(MSUF_BarsApplyGradient) == "function" then
+                MSUF_BarsApplyGradient()
+            elseif type(ApplyAllSettings) == "function" then
+                ApplyAllSettings()
             end
          end)
         pad.buttons[dirKey] = b
@@ -1933,7 +2079,7 @@ if ns then
 end
 --[[
     Split-module exports (very small, very safe)
-    True file-splits (Misc/Fonts/…)
+    True file-splits (Misc/Fonts/)
     MUST NOT depend on Core file-scope locals.
     We therefore export a small, stable helper surface via `ns.*`.
     Idempotent and intentionally behavior-neutral.
@@ -2182,6 +2328,8 @@ local function MSUF_StyleToggleText(cb)
             CreateLabeledSlider = CreateLabeledSlider,
             CreateAxisStepper   = CreateAxisStepper,
         })
+    -- Store scroll updater on panel so Options_Player layout functions can trigger it.
+    panel._msufFramesScrollUpdate = MSUF_FramesMenu_QueueScrollUpdate
     -- Re-anchor boss-only controls into the boxed unitframe UI (so they don't float around)
     -- (removed) old boss portrait reposition block
     if bossSpacingSlider and panel and panel.playerSizeBox then
@@ -2222,6 +2370,40 @@ local function MSUF_StyleToggleText(cb)
         hideOnEscape = true,
         preferredIndex = 3,
     }
+    StaticPopupDialogs["MSUF_COPY_PROFILE_INPUT"] = {
+        text = "Copy profile '%s' to new name:",
+        button1 = "Copy",
+        button2 = CANCEL,
+        hasEditBox = true,
+        OnAccept = function(self, data)
+            local newName = (self.editBox:GetText() or ""):gsub("^%s+", ""):gsub("%s+$", "")
+            if newName == "" then return end
+            if data and data.source and data.panel then
+                if type(MSUF_CopyProfile) == "function" then
+                    local ok = MSUF_CopyProfile(data.source, newName)
+                    if ok then
+                        MSUF_SwitchProfile(newName)
+                        data.panel:UpdateProfileUI(newName)
+                    end
+                end
+            end
+        end,
+        EditBoxOnEnterPressed = function(self)
+            local parent = self:GetParent()
+            if parent.button1 and parent.button1:Click() then return end
+        end,
+        EditBoxOnEscapePressed = function(self)
+            self:GetParent():Hide()
+        end,
+        OnShow = function(self)
+            self.editBox:SetText("")
+            self.editBox:SetFocus()
+        end,
+        timeout = 0,
+        whileDead = true,
+        hideOnEscape = true,
+        preferredIndex = 3,
+    }
 -- ------------------------------------------------------------
 -- Profiles header (Step 2: data-driven, reduced boilerplate)
 -- ------------------------------------------------------------
@@ -2252,15 +2434,24 @@ local headerRow, _btns = MSUF_BuildButtonRowList(profileGroup, profileTitle, 8, 
         w    = 140,
         h    = 24,
     },
+    {
+        id   = "copy",
+        name = "MSUF_ProfileCopyButton",
+        text = "Copy profile",
+        w    = 140,
+        h    = 24,
+    },
 })
 resetBtn  = _btns.reset
 deleteBtn = _btns.delete
+local copyBtn = _btns.copy
 -- Keep the label for internal updates, but hide it so it never overlaps the buttons.
 currentProfileLabel = profileGroup:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 currentProfileLabel:Hide()
 if MSUF_SkinMidnightActionButton then
     MSUF_SkinMidnightActionButton(resetBtn,  { textR = 1, textG = 0.85, textB = 0.1 })
     MSUF_SkinMidnightActionButton(deleteBtn, { textR = 1, textG = 0.85, textB = 0.1 })
+    MSUF_SkinMidnightActionButton(copyBtn,   { textR = 1, textG = 0.85, textB = 0.1 })
 end
 helpText = profileGroup:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 helpText:SetPoint("TOPLEFT", resetBtn, "BOTTOMLEFT", 0, -8)
@@ -2438,7 +2629,20 @@ deleteBtn:SetScript("OnClick", function()
         nil,
         {
             name  = name,   -- geht an data.name im Popup
-            panel = panel,  -- geht an data.panel -> für UpdateProfileUI
+            panel = panel,  -- geht an data.panel ->  UpdateProfileUI
+        }
+    )
+ end)
+copyBtn:SetScript("OnClick", function()
+    local source = MSUF_ActiveProfile
+    if not source then return end
+    StaticPopup_Show(
+        "MSUF_COPY_PROFILE_INPUT",
+        source,
+        nil,
+        {
+            source = source,
+            panel  = panel,
         }
     )
  end)
@@ -2748,6 +2952,7 @@ local function MSUF_SyncCastbarsTabToggles()
         if UIDropDownMenu_SetText then UIDropDownMenu_SetText(castbarFillDirDrop, (dir == "LTR") and "Left to right" or "Right to left (default)") end
         MSUF_SetDropDownEnabled(castbarFillDirDrop, castbarFillDirLabel, true)
     end
+    CB(castbarOpositeDirectionTarget, (g.castbarOpositeDirectionTarget ~= false))
     CB(castbarChannelTicksCheck, (g.castbarShowChannelTicks ~= false))
     CB(castbarGCDBarCheck, (g.showGCDBar ~= false))
     local gcdOn = (g.showGCDBar ~= false)
@@ -2776,7 +2981,7 @@ end
         "MSUF_CastbarShakeIntensitySlider",
         "Shake intensity",
         castbarEnemyGroup,
-        0, 30, 1,         -- 0–30 strength
+        0, 30, 1,         -- strength
         175, -200          -- Next to the toggles
     )
     if _G and _G.MSUF_Options_BindGeneralNumberSlider then _G.MSUF_Options_BindGeneralNumberSlider(castbarShakeIntensitySlider, "castbarShakeStrength", { def = 8, min = 0, max = 30, int = true }) end
@@ -2917,9 +3122,10 @@ end
         MSUF_SyncSimpleDropdown(castbarFillDirDrop, castbarFillDirOptions, MSUF_GetCastbarFillDir)
      end)
     -- Step 16: Apply dispatch handles castbar updates (castbarVisuals/castbarTicks/castbarGlow/castbarLatency)
--- Channeled casts: show 5 tick lines
+    -- Able to have the two cast bars be oposite each other
+    castbarOpositeDirectionTarget = CB("MSUF_CastbarOpositeDirectionTarget", "Use opposite fill direction for target", 16, 0, "castbarOpositeDirectionTarget", "castbarOpositeDirectionTarget", function(cb)  cb:ClearAllPoints(); cb:SetPoint("TOPLEFT", castbarFillDirDrop, "BOTTOMLEFT", 16, -10)  end)
     -- Channeled casts: show 5 tick lines
-    castbarChannelTicksCheck = CB("MSUF_CastbarChannelTicksCheck", "Show channel tick lines (5)", 16, 0, "castbarShowChannelTicks", "castbarTicks", function(cb)  if castbarFillDirDrop then cb:ClearAllPoints(); cb:SetPoint("TOPLEFT", castbarFillDirDrop, "BOTTOMLEFT", 16, -10) end  end)
+    castbarChannelTicksCheck = CB("MSUF_CastbarChannelTicksCheck", "Show channel tick lines (5)", 16, 0, "castbarShowChannelTicks", "castbarTicks", function(cb)  if castbarFillDirDrop then cb:ClearAllPoints(); cb:SetPoint("TOPLEFT", castbarOpositeDirectionTarget, "BOTTOMLEFT", 0, -10) end  end)
 -- GCD bar (player): show a short bar for instant casts that trigger the global cooldown
     local function _MSUF_ApplyGCDBarToggle(v)
         v = (v and true) or false
@@ -3002,13 +3208,13 @@ empowerStageBlinkTimeSlider:SetScript("OnShow", function(self)
         local panel = _G["MSUF_CastbarMenuPanel"]
         if not panel then
             panel = CreateFrame("Frame", "MSUF_CastbarMenuPanel", castbarEnemyGroup, "BackdropTemplate")
-            panel:SetPoint("TOPLEFT", castbarEnemyGroup, "TOPLEFT", 16, -175); panel:SetPoint("BOTTOMRIGHT", castbarEnemyGroup, "BOTTOMRIGHT", -16, 60); panel:EnableMouse(false)
+            panel:SetPoint("TOPLEFT", castbarEnemyGroup, "TOPLEFT", 16, -175); panel:SetPoint("RIGHT", castbarEnemyGroup, "RIGHT", -16, 0); panel:SetHeight(620); panel:EnableMouse(false)
             local tex = MSUF_TEX_WHITE8 or "Interface\\Buttons\\WHITE8X8"
             panel:SetBackdrop({ bgFile = tex, edgeFile = tex, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 } })
             panel:SetBackdropColor(0, 0, 0, 0.20); panel:SetBackdropBorderColor(1, 1, 1, 0.15)
             -- Split lines
-            local vLine = panel:CreateTexture(nil, "ARTWORK"); vLine:SetColorTexture(1, 1, 1, 0.12); vLine:SetWidth(1); vLine:SetPoint("TOP", panel, "TOP", 0, -16); vLine:SetPoint("BOTTOM", panel, "BOTTOM", 0, 120)
-            local hLine = panel:CreateTexture(nil, "ARTWORK"); hLine:SetColorTexture(1, 1, 1, 0.12); hLine:SetHeight(1); hLine:SetPoint("LEFT", panel, "LEFT", 16, 0); hLine:SetPoint("RIGHT", panel, "RIGHT", -16, 0); hLine:SetPoint("BOTTOM", panel, "BOTTOM", 0, 120)
+            local vLine = panel:CreateTexture(nil, "ARTWORK"); vLine:SetColorTexture(1, 1, 1, 0.12); vLine:SetWidth(1); vLine:SetPoint("TOP", panel, "TOP", 0, -16); vLine:SetPoint("BOTTOM", panel, "BOTTOM", 0, 150)
+            local hLine = panel:CreateTexture(nil, "ARTWORK"); hLine:SetColorTexture(1, 1, 1, 0.12); hLine:SetHeight(1); hLine:SetPoint("LEFT", panel, "LEFT", 16, 0); hLine:SetPoint("RIGHT", panel, "RIGHT", -16, 0); hLine:SetPoint("BOTTOM", panel, "BOTTOM", 0, 150)
             -- Columns + empowered area
             local leftCol = CreateFrame("Frame", "MSUF_CastbarMenuPanelLeft", panel); leftCol:EnableMouse(false)
             leftCol:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -16); leftCol:SetPoint("RIGHT", vLine, "LEFT", -16, 0); leftCol:SetPoint("BOTTOM", hLine, "TOP", 0, 12)
@@ -3042,7 +3248,8 @@ empowerStageBlinkTimeSlider:SetScript("OnShow", function(self)
         A(castbarFillDirLabel, "TOPLEFT", castbarUnifiedDirCheck, "BOTTOMLEFT", 0, -14)
         A(castbarFillDirDrop, "TOPLEFT", castbarFillDirLabel, "BOTTOMLEFT", -16, -4)
         -- keep alignment with dropdown padding (-16) by offsetting back +16
-        A(castbarChannelTicksCheck, "TOPLEFT", castbarFillDirDrop, "BOTTOMLEFT", 16, -10)
+        A(castbarOpositeDirectionTarget, "TOPLEFT", castbarFillDirDrop, "BOTTOMLEFT", 16, -10)
+        A(castbarChannelTicksCheck, "TOPLEFT", castbarOpositeDirectionTarget, "BOTTOMLEFT", 0, -10)
         A(castbarGCDBarCheck, "TOPLEFT", castbarChannelTicksCheck, "BOTTOMLEFT", 0, -8)
         -- Style (right)
         A(castbarTextureLabel, "TOPLEFT", rightCol, "TOPLEFT", 0, -20); T(castbarTextureLabel, "Castbar texture")
@@ -3480,9 +3687,15 @@ do
 end
 BAR_DROPDOWN_WIDTH = 260
     barsTitle = barGroup:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-    barsTitle:SetPoint("TOPLEFT", barGroup, "TOPLEFT", 16, -120)
+    barsTitle:SetPoint("TOPLEFT", barGroup, "TOPLEFT", 16, -178)
     barsTitle:SetText(TR("Bar appearance"))
 local MSUF_RefreshAbsorbBarUIEnabled
+-- Forward-declared scope refs (filled when scope system is created below).
+-- These allow absorb dropdowns to be scope-aware even though they're created first.
+local _MSUF_BarScope_GetUnitKey     -- function() → unitKey or nil
+local _MSUF_BarScope_GetUnitDB      -- function(unitKey) → unit DB table
+local _MSUF_BarScope_EnableOverride -- function(unitKey)
+local _MSUF_BarScope_SyncUI         -- function()  (refresh all scope-aware controls)
 -- Absorb display (moved from Misc -> Bar appearance; replaces Bar mode which is now in Colors)
 absorbDisplayLabel = barGroup:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 absorbDisplayLabel:SetPoint("TOPLEFT", barsTitle, "BOTTOMLEFT", 0, -8)
@@ -3500,6 +3713,17 @@ local absorbDisplayOptions = {
 local function MSUF_GetAbsorbDisplayMode()
     EnsureDB()
     local g = MSUF_DB.general or {}
+    -- Per-unit override
+    if type(_MSUF_BarScope_GetUnitKey) == "function" then
+        local unitKey = _MSUF_BarScope_GetUnitKey()
+        if unitKey then
+            local u = MSUF_DB[unitKey]
+            if u and u.hpPowerTextOverride == true and u.absorbTextMode ~= nil then
+                local m = tonumber(u.absorbTextMode)
+                if m and m >= 1 and m <= 4 then return m end
+            end
+        end
+    end
     local mode = tonumber(g.absorbTextMode)
     if mode and mode >= 1 and mode <= 4 then  return mode end
     local barOn  = (g.enableAbsorbBar ~= false)
@@ -3513,10 +3737,24 @@ local function MSUF_BindAbsorbDropdown(drop, options, getKey, dbField, applyFunc
     if not drop then  return end
     MSUF_InitSimpleDropdown(drop, options, getKey, function(mode)
         EnsureDB()
-        MSUF_DB.general = MSUF_DB.general or {}
-        MSUF_DB.general[dbField] = mode
+        -- Scope-aware: write to unit DB if a unit is selected, else to general.
+        local unitKey = type(_MSUF_BarScope_GetUnitKey) == "function" and _MSUF_BarScope_GetUnitKey() or nil
+        if unitKey then
+            local u = type(_MSUF_BarScope_GetUnitDB) == "function" and _MSUF_BarScope_GetUnitDB(unitKey) or nil
+            if u then
+                if u.hpPowerTextOverride ~= true and type(_MSUF_BarScope_EnableOverride) == "function" then
+                    _MSUF_BarScope_EnableOverride(unitKey)
+                end
+                u[dbField] = mode
+            end
+        else
+            MSUF_DB.general = MSUF_DB.general or {}
+            MSUF_DB.general[dbField] = mode
+        end
         if type(applyFunc) == "function" then pcall(applyFunc, mode) end
         if MSUF_RefreshAbsorbBarUIEnabled then MSUF_RefreshAbsorbBarUIEnabled() end
+        -- Sync override checkbox (may have been auto-enabled).
+        if type(_MSUF_BarScope_SyncUI) == "function" then _MSUF_BarScope_SyncUI() end
      end, nil, BAR_DROPDOWN_WIDTH)
     drop:HookScript("OnShow", function()
         MSUF_SyncSimpleDropdown(drop, options, getKey)
@@ -3545,10 +3783,22 @@ local absorbAnchorOptions = {
     { key = 1, label = "Anchor to left side" },
     { key = 2, label = "Anchor to right side" },
 	    { key = 3, label = "Follow HP bar" },
+	    { key = 4, label = "Follow HP bar (overflow)" },
+	    { key = 5, label = "Reverse from max" },
 }
 local function MSUF_GetAbsorbAnchorMode()
     EnsureDB()
     local g = MSUF_DB.general or {}
+    -- Per-unit override
+    if type(_MSUF_BarScope_GetUnitKey) == "function" then
+        local unitKey = _MSUF_BarScope_GetUnitKey()
+        if unitKey then
+            local u = MSUF_DB[unitKey]
+            if u and u.hpPowerTextOverride == true and u.absorbAnchorMode ~= nil then
+                return tonumber(u.absorbAnchorMode) or 2
+            end
+        end
+    end
     return tonumber(g.absorbAnchorMode) or 2
 end
 MSUF_BindAbsorbDropdown(absorbAnchorDrop, absorbAnchorOptions, MSUF_GetAbsorbAnchorMode, "absorbAnchorMode", function()
@@ -3859,8 +4109,10 @@ if absorbTexTestCB then
 -- Absorb display dropdown remains enabled so users can turn the bar back on.
 MSUF_RefreshAbsorbBarUIEnabled = function()
     EnsureDB()
-    local g = (MSUF_DB and MSUF_DB.general) or {}
-    local barEnabled = (g.enableAbsorbBar ~= false) and true or false
+    -- Determine bar enabled state from current scope
+    local barEnabled
+    local mode = MSUF_GetAbsorbDisplayMode()
+    barEnabled = (mode == 2 or mode == 3)
     -- Anchor mode only matters when a bar is rendered
     MSUF_SetDropDownEnabled(absorbAnchorDrop, absorbAnchorLabel, barEnabled)
     -- Texture overrides + test mode only apply to the bars
@@ -3966,8 +4218,123 @@ gradientCheck = CreateLabeledCheckButton(
     powerBarBorderSizeEdit:SetAutoFocus(false)
     powerBarBorderSizeEdit:SetPoint("LEFT", powerBarBorderSizeLabel, "RIGHT", 10, 0)
     powerBarBorderSizeEdit:SetTextInsets(4, 4, 2, 2)
+
+    -- Bar settings scope (Shared vs per-unit override). Controls text + absorb per-unit.
+    hpPowerScopeLabel = barGroup:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    hpPowerScopeLabel:SetPoint("TOPLEFT", powerBarBorderSizeLabel or powerBarBorderCheck or powerBarEmbedCheck or powerBarHeightLabel, "BOTTOMLEFT", 0, -16)
+    hpPowerScopeLabel:SetText(TR("Bar settings"))
+    hpPowerScopeDrop = CreateFrame("Frame", "MSUF_HPTextScopeDropdown", barGroup, "UIDropDownMenuTemplate")
+    MSUF_ExpandDropdownClickArea(hpPowerScopeDrop)
+    hpPowerScopeDrop:SetPoint("TOPLEFT", hpPowerScopeLabel, "BOTTOMLEFT", -16, -4)
+    hpPowerScopeOptions = {
+        { key = "shared",      label = "Shared" },
+        { key = "player",      label = "Player" },
+        { key = "target",      label = "Target" },
+        { key = "targettarget",label = "Target of Target" },
+        { key = "focus",       label = "Focus" },
+        { key = "pet",         label = "Pet" },
+        { key = "boss",        label = "Boss" },
+    }
+
+    local function _MSUF_HPText_NormalizeScopeKey(k)
+        if k == "tot" then k = "targettarget" end
+        if _G.MSUF_GetBossIndexFromToken and _G.MSUF_GetBossIndexFromToken(k) then k = "boss" end
+        if k ~= "shared" and k ~= "player" and k ~= "target" and k ~= "focus" and k ~= "targettarget" and k ~= "pet" and k ~= "boss" then
+            return "shared"
+        end
+        return k
+    end
+
+    local function _MSUF_HPText_GetScopeKey()
+        EnsureDB()
+        local g = MSUF_DB.general
+        local k = _MSUF_HPText_NormalizeScopeKey(g.hpPowerTextSelectedKey)
+        g.hpPowerTextSelectedKey = k
+        return k
+    end
+
+    local function _MSUF_HPText_GetUnitKey()
+        local k = _MSUF_HPText_GetScopeKey()
+        if k == "shared" then return nil end
+        return k
+    end
+
+    local function _MSUF_HPText_GetUnitDB(unitKey)
+        if not unitKey then return nil end
+        EnsureDB()
+        MSUF_DB[unitKey] = MSUF_DB[unitKey] or {}
+        return MSUF_DB[unitKey]
+    end
+
+    local function _MSUF_HPText_EnableOverride(unitKey)
+        if not unitKey then return end
+        EnsureDB()
+        local g = MSUF_DB.general
+        local u = _MSUF_HPText_GetUnitDB(unitKey)
+        if not u then return end
+        if u.hpPowerTextOverride ~= true then
+            u.hpPowerTextOverride = true
+        end
+        if u.hpTextMode == nil then u.hpTextMode = g.hpTextMode end
+        if u.powerTextMode == nil then u.powerTextMode = g.powerTextMode end
+        if u.hpTextSeparator == nil then u.hpTextSeparator = g.hpTextSeparator end
+        if u.powerTextSeparator == nil then
+            u.powerTextSeparator = (g.powerTextSeparator ~= nil) and g.powerTextSeparator or g.hpTextSeparator
+        end
+	        -- Spacers: copy Shared into unit on first enable so the unit starts identical.
+	        if u.hpTextSpacerEnabled == nil then u.hpTextSpacerEnabled = g.hpTextSpacerEnabled end
+	        if u.hpTextSpacerX == nil then u.hpTextSpacerX = g.hpTextSpacerX end
+	        if u.powerTextSpacerEnabled == nil then u.powerTextSpacerEnabled = g.powerTextSpacerEnabled end
+	        if u.powerTextSpacerX == nil then u.powerTextSpacerX = g.powerTextSpacerX end
+	        -- Absorb settings: copy Shared into unit on first enable.
+	        if u.absorbTextMode == nil then u.absorbTextMode = g.absorbTextMode end
+	        if u.absorbAnchorMode == nil then u.absorbAnchorMode = g.absorbAnchorMode end
+		        -- Text anchors: copy Shared into unit on first enable.
+		        if u.hpTextAnchor == nil then u.hpTextAnchor = g.hpTextAnchor end
+		        if u.powerTextAnchor == nil then u.powerTextAnchor = g.powerTextAnchor end
+    end
+
+    -- Wire up forward-declared scope refs so absorb dropdowns (created earlier) can be scope-aware.
+    _MSUF_BarScope_GetUnitKey     = _MSUF_HPText_GetUnitKey
+    _MSUF_BarScope_GetUnitDB      = _MSUF_HPText_GetUnitDB
+    _MSUF_BarScope_EnableOverride = _MSUF_HPText_EnableOverride
+
+    -- Override checkbox (only relevant for unit scopes).
+    hpPowerOverrideCheck = CreateFrame('CheckButton', 'MSUF_HPTextOverrideCheck', barGroup, 'UICheckButtonTemplate')
+    hpPowerOverrideCheck:SetPoint('TOPLEFT', hpPowerScopeDrop, 'BOTTOMLEFT', 16, -6)
+    hpPowerOverrideCheck.text = _G['MSUF_HPTextOverrideCheckText']
+    if hpPowerOverrideCheck.text then
+        hpPowerOverrideCheck.text:SetText(TR('Override shared settings'))
+    end
+    MSUF_StyleToggleText(hpPowerOverrideCheck)
+    MSUF_StyleCheckmark(hpPowerOverrideCheck)
+    hpPowerOverrideCheck:SetScript('OnEnter', function(self)
+        GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+        GameTooltip:SetText('Per-unit override', 1, 1, 1)
+        GameTooltip:AddLine('When unchecked, this unit inherits Shared settings for text modes, absorb display, and spacers.', 0.9, 0.9, 0.9, true)
+        GameTooltip:AddLine('Changing any per-unit setting will auto-enable this override.', 0.9, 0.9, 0.9, true)
+        GameTooltip:Show()
+    end)
+    hpPowerOverrideCheck:SetScript('OnLeave', function() GameTooltip:Hide() end)
+
+    -- Re-anchor Bar scope (Shared/Override) to the TOP of the Bars menu so it's always visible.
+    -- A header label makes the purpose clear.
+    if not barGroup._msufBarScopeHeader then
+        local hdr = barGroup:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+        hdr:SetPoint("TOPLEFT", barGroup, "TOPLEFT", 16, -120)
+        hdr:SetText(TR("Bar scope"))
+        barGroup._msufBarScopeHeader = hdr
+    end
+    hpPowerScopeLabel:ClearAllPoints()
+    hpPowerScopeLabel:SetPoint("TOPLEFT", barGroup._msufBarScopeHeader, "BOTTOMLEFT", 0, -6)
+    hpPowerScopeLabel:SetText(TR("Configure settings for"))
+    hpPowerScopeDrop:ClearAllPoints()
+    hpPowerScopeDrop:SetPoint("TOPLEFT", hpPowerScopeLabel, "BOTTOMLEFT", -16, -4)
+    hpPowerOverrideCheck:ClearAllPoints()
+    hpPowerOverrideCheck:SetPoint("TOPLEFT", hpPowerScopeDrop, "TOPRIGHT", 10, -4)
+
     hpModeLabel = barGroup:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    hpModeLabel:SetPoint("TOPLEFT", powerBarBorderSizeLabel or powerBarBorderCheck or powerBarEmbedCheck or powerBarHeightLabel, "BOTTOMLEFT", 0, -16)
+    hpModeLabel:SetPoint("TOPLEFT", hpPowerOverrideCheck, "BOTTOMLEFT", 0, -44)
     hpModeLabel:SetText(TR("Textmode HP / Power"))
     -- Make this header white (requested UX): the dropdown items remain normal.
     hpModeLabel:SetTextColor(1, 1, 1, 1)
@@ -3980,14 +4347,59 @@ gradientCheck = CreateLabeledCheckButton(
         { key = "PERCENT_PLUS_FULL",  label = "% + Full value" },
         { key = "PERCENT_ONLY",       label = "Only %" },
     }
+
+    local function _MSUF_HPText_GetHpModeKey()
+        EnsureDB()
+        local g = MSUF_DB.general
+        local unitKey = _MSUF_HPText_GetUnitKey()
+        if not unitKey then
+            return (g.hpTextMode or "FULL_PLUS_PERCENT")
+        end
+        local u = _MSUF_HPText_GetUnitDB(unitKey)
+        if u and u.hpPowerTextOverride == true and u.hpTextMode ~= nil then
+            return u.hpTextMode
+        end
+        return (g.hpTextMode or "FULL_PLUS_PERCENT")
+    end
+
+    local function _MSUF_HPText_SetHpModeKey(v)
+        EnsureDB()
+        local g = MSUF_DB.general
+        local unitKey = _MSUF_HPText_GetUnitKey()
+        if not unitKey then
+            g.hpTextMode = v
+            return
+        end
+        local u = _MSUF_HPText_GetUnitDB(unitKey)
+        if u and u.hpPowerTextOverride ~= true then
+            _MSUF_HPText_EnableOverride(unitKey)
+        end
+        u.hpTextMode = v
+    end
+    hpModeDrop._msufGetCurrentKey = _MSUF_HPText_GetHpModeKey
     MSUF_InitSimpleDropdown(
         hpModeDrop,
         hpModeOptions,
-        function()  EnsureDB(); return (MSUF_DB.general.hpTextMode or "FULL_PLUS_PERCENT") end,
-        function(v)  EnsureDB(); MSUF_DB.general.hpTextMode = v  end,
+        _MSUF_HPText_GetHpModeKey,
+        _MSUF_HPText_SetHpModeKey,
         function(v, opt)
             ApplyAllSettings()
+            local unitKey = _MSUF_HPText_GetUnitKey()
+            if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then
+                if unitKey then
+                    _G.MSUF_ForceTextLayoutForUnitKey(unitKey)
+                else
+                    _G.MSUF_ForceTextLayoutForUnitKey("player")
+                    _G.MSUF_ForceTextLayoutForUnitKey("target")
+                    _G.MSUF_ForceTextLayoutForUnitKey("focus")
+                    _G.MSUF_ForceTextLayoutForUnitKey("targettarget")
+                    _G.MSUF_ForceTextLayoutForUnitKey("pet")
+                    _G.MSUF_ForceTextLayoutForUnitKey("boss")
+                end
+            end
             if type(_G.MSUF_Options_RefreshHPSpacerControls) == "function" then _G.MSUF_Options_RefreshHPSpacerControls() end
+            -- Sync override checkbox (may have been auto-enabled)
+            if type(_MSUF_BarScope_SyncUI) == "function" then _MSUF_BarScope_SyncUI() end
          end,
         BAR_DROPDOWN_WIDTH
     )
@@ -3998,19 +4410,75 @@ powerModeLabel = barGroup:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     MSUF_ExpandDropdownClickArea(powerModeDrop)
     powerModeDrop:SetPoint("TOPLEFT", powerModeLabel, "BOTTOMLEFT", -16, -16)
     powerModeOptions = {
-        { key = "FULL_SLASH_MAX",     label = "Current / Max" },
-        { key = "FULL_ONLY",          label = "Full value only" },
-        { key = "FULL_PLUS_PERCENT",  label = "Full value + %" },
-        { key = "PERCENT_PLUS_FULL",  label = "% + Full value" },
-        { key = "PERCENT_ONLY",       label = "Only %" },
+        { key = "CURRENT", label = "Current" },
+        { key = "MAX", label = "Max" },
+        { key = "CURMAX", label = "Cur/Max" },
+        { key = "PERCENT", label = "Percent" },
+        { key = "CURPERCENT", label = "Cur + Percent" },
+        { key = "CURMAXPERCENT", label = "Cur/Max + Percent" },
     }
+
+    local function _MSUF_NormalizePowerTextMode_Local(mode)
+        if type(_G.MSUF_NormalizePowerTextMode) == "function" then
+            return _G.MSUF_NormalizePowerTextMode(mode)
+        end
+        if mode == nil then return "CURPERCENT" end
+        if mode == "FULL_SLASH_MAX" then return "CURMAX" end
+        if mode == "FULL_ONLY" then return "CURRENT" end
+        if mode == "PERCENT_ONLY" then return "PERCENT" end
+        if mode == "FULL_PLUS_PERCENT" or mode == "PERCENT_PLUS_FULL" then return "CURPERCENT" end
+        return mode
+    end
+    local function _MSUF_HPText_GetPowerModeKey()
+        EnsureDB()
+        local g = MSUF_DB.general
+        local unitKey = _MSUF_HPText_GetUnitKey()
+        if not unitKey then
+            return _MSUF_NormalizePowerTextMode_Local(g.powerTextMode)
+        end
+        local u = _MSUF_HPText_GetUnitDB(unitKey)
+        if u and u.hpPowerTextOverride == true and u.powerTextMode ~= nil then
+            return _MSUF_NormalizePowerTextMode_Local(u.powerTextMode)
+        end
+        return _MSUF_NormalizePowerTextMode_Local(g.powerTextMode)
+    end
+
+    local function _MSUF_HPText_SetPowerModeKey(v)
+        EnsureDB()
+        local g = MSUF_DB.general
+        local unitKey = _MSUF_HPText_GetUnitKey()
+        if not unitKey then
+            g.powerTextMode = v
+            return
+        end
+        local u = _MSUF_HPText_GetUnitDB(unitKey)
+        if u and u.hpPowerTextOverride ~= true then
+            _MSUF_HPText_EnableOverride(unitKey)
+        end
+        u.powerTextMode = v
+    end
+    powerModeDrop._msufGetCurrentKey = _MSUF_HPText_GetPowerModeKey
     MSUF_InitSimpleDropdown(
         powerModeDrop,
         powerModeOptions,
-        function()  EnsureDB(); return (MSUF_DB.general.powerTextMode or "FULL_PLUS_PERCENT") end,
-        function(v)  EnsureDB(); MSUF_DB.general.powerTextMode = v  end,
+        _MSUF_HPText_GetPowerModeKey,
+        _MSUF_HPText_SetPowerModeKey,
         function(v, opt)
             ApplyAllSettings()
+            local unitKey = _MSUF_HPText_GetUnitKey()
+            if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then
+                if unitKey then
+                    _G.MSUF_ForceTextLayoutForUnitKey(unitKey)
+                else
+                    _G.MSUF_ForceTextLayoutForUnitKey("player")
+                    _G.MSUF_ForceTextLayoutForUnitKey("target")
+                    _G.MSUF_ForceTextLayoutForUnitKey("focus")
+                    _G.MSUF_ForceTextLayoutForUnitKey("targettarget")
+                    _G.MSUF_ForceTextLayoutForUnitKey("pet")
+                    _G.MSUF_ForceTextLayoutForUnitKey("boss")
+                end
+            end
+            if type(_MSUF_BarScope_SyncUI) == "function" then _MSUF_BarScope_SyncUI() end
          end,
         BAR_DROPDOWN_WIDTH
     )
@@ -4039,17 +4507,63 @@ powerModeLabel = barGroup:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         hpSepDrop.relativePoint = "BOTTOMLEFT"
     end
     local textSepOptions = {
-        { key = "",  label = " ", menuText = "Space / none" }, -- empty → looks blank, just space between values
+        { key = "",  label = " ", menuText = "Space / none" }, -- empty  looks blank, just space between values
         { key = "-", label = "-" },
         { key = "/", label = "/" },
         { key = "\\", label = "\\" },
         { key = "|", label = "|" },
+        { key = "<", label = "<" },
+        { key = ">", label = ">" },
+        { key = "~", label = "~" },
+        { key = "\194\183", label = "\194\183", menuText = "\194\183  (middle dot)" },
+        { key = "\226\128\162", label = "\226\128\162", menuText = "\226\128\162  (bullet)" },
+        { key = ":", label = ":" },
+        { key = "\194\187", label = "\194\187", menuText = "\194\187  (guillemet right)" },
+        { key = "\194\171", label = "\194\171", menuText = "\194\171  (guillemet left)" },
     }
     MSUF_InitSimpleDropdown(
         hpSepDrop,
         textSepOptions,
-        function()  EnsureDB(); return (MSUF_DB.general.hpTextSeparator or "") end,
-        function(v)  EnsureDB(); MSUF_DB.general.hpTextSeparator = v  end,
+        function()
+            EnsureDB()
+            local g = MSUF_DB.general
+            local unitKey = _MSUF_HPText_GetUnitKey()
+            if not unitKey then
+                return (g.hpTextSeparator or "")
+            end
+            local u = _MSUF_HPText_GetUnitDB(unitKey)
+            if u and u.hpPowerTextOverride == true and u.hpTextSeparator ~= nil then
+                return u.hpTextSeparator
+            end
+            return (g.hpTextSeparator or "")
+        end,
+        function(v)
+            EnsureDB()
+            local g = MSUF_DB.general
+            local unitKey = _MSUF_HPText_GetUnitKey()
+            if not unitKey then
+                g.hpTextSeparator = v
+                -- Force immediate text re-render for all units (Shared scope).
+                if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then
+                    _G.MSUF_ForceTextLayoutForUnitKey("player")
+                    _G.MSUF_ForceTextLayoutForUnitKey("target")
+                    _G.MSUF_ForceTextLayoutForUnitKey("focus")
+                    _G.MSUF_ForceTextLayoutForUnitKey("targettarget")
+                    _G.MSUF_ForceTextLayoutForUnitKey("pet")
+                    _G.MSUF_ForceTextLayoutForUnitKey("boss")
+                end
+                return
+            end
+            local u = _MSUF_HPText_GetUnitDB(unitKey)
+            if u and u.hpPowerTextOverride ~= true then
+                _MSUF_HPText_EnableOverride(unitKey)
+            end
+            u.hpTextSeparator = v
+            if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then
+                _G.MSUF_ForceTextLayoutForUnitKey(unitKey)
+            end
+            if type(_MSUF_BarScope_SyncUI) == "function" then _MSUF_BarScope_SyncUI() end
+        end,
         "all"
     )
 -- Power separator (separate from HP separator; falls back to HP separator if unset for backward compatibility)
@@ -4076,11 +4590,331 @@ powerModeLabel = barGroup:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         function()
             EnsureDB()
             local g = MSUF_DB.general
+            local unitKey = _MSUF_HPText_GetUnitKey()
+            if unitKey then
+                local u = _MSUF_HPText_GetUnitDB(unitKey)
+                if u and u.hpPowerTextOverride == true then
+                    if u.powerTextSeparator ~= nil then return u.powerTextSeparator end
+                    if u.hpTextSeparator ~= nil then return u.hpTextSeparator end
+                end
+            end
             return (g.powerTextSeparator ~= nil) and g.powerTextSeparator or (g.hpTextSeparator or "")
         end,
-        function(v)  EnsureDB(); MSUF_DB.general.powerTextSeparator = v  end,
+        function(v)
+            EnsureDB()
+            local g = MSUF_DB.general
+            local unitKey = _MSUF_HPText_GetUnitKey()
+            if not unitKey then
+                g.powerTextSeparator = v
+                -- Force immediate text re-render for all units (Shared scope).
+                if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then
+                    _G.MSUF_ForceTextLayoutForUnitKey("player")
+                    _G.MSUF_ForceTextLayoutForUnitKey("target")
+                    _G.MSUF_ForceTextLayoutForUnitKey("focus")
+                    _G.MSUF_ForceTextLayoutForUnitKey("targettarget")
+                    _G.MSUF_ForceTextLayoutForUnitKey("pet")
+                    _G.MSUF_ForceTextLayoutForUnitKey("boss")
+                end
+                return
+            end
+            local u = _MSUF_HPText_GetUnitDB(unitKey)
+            if u and u.hpPowerTextOverride ~= true then
+                _MSUF_HPText_EnableOverride(unitKey)
+            end
+            u.powerTextSeparator = v
+            if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then
+                _G.MSUF_ForceTextLayoutForUnitKey(unitKey)
+            end
+            if type(_MSUF_BarScope_SyncUI) == "function" then _MSUF_BarScope_SyncUI() end
+        end,
         "all"
     )
+
+    local function _MSUF_SyncHpPowerTextScopeUI()
+        EnsureDB()
+        local g = MSUF_DB.general
+        local scopeKey = _MSUF_HPText_GetScopeKey()
+        local unitKey = _MSUF_HPText_GetUnitKey()
+        if hpPowerScopeDrop and hpPowerScopeOptions then
+            MSUF_SyncSimpleDropdown(hpPowerScopeDrop, hpPowerScopeOptions, _MSUF_HPText_GetScopeKey)
+        end
+        if hpPowerOverrideCheck then
+            if unitKey then
+                local u = _MSUF_HPText_GetUnitDB(unitKey)
+                hpPowerOverrideCheck:Show()
+                hpPowerOverrideCheck:Enable()
+                hpPowerOverrideCheck:SetAlpha(1)
+                hpPowerOverrideCheck:SetChecked(u and u.hpPowerTextOverride == true)
+            else
+                hpPowerOverrideCheck:Hide()
+            end
+        end
+        -- Show reset button only in Shared scope (when any override exists)
+        local resetBtn = _G["MSUF_HPTextResetOverridesBtn"]
+        if resetBtn then
+            if unitKey then
+                resetBtn:Hide()
+            else
+                -- Show only if at least one unit has an active override
+                local anyOverride = false
+                local unitKeys = { "player", "target", "focus", "targettarget", "pet", "boss" }
+                for _, uKey in ipairs(unitKeys) do
+                    local u = MSUF_DB[uKey]
+                    if u and u.hpPowerTextOverride == true then anyOverride = true; break end
+                end
+                if anyOverride then
+                    resetBtn:Show()
+                else
+                    resetBtn:Hide()
+                end
+            end
+        end
+        if hpModeDrop and hpModeOptions and hpModeDrop._msufGetCurrentKey then
+            MSUF_SyncSimpleDropdown(hpModeDrop, hpModeOptions, hpModeDrop._msufGetCurrentKey)
+        end
+        if powerModeDrop and powerModeOptions and powerModeDrop._msufGetCurrentKey then
+            MSUF_SyncSimpleDropdown(powerModeDrop, powerModeOptions, powerModeDrop._msufGetCurrentKey)
+        end
+        if hpSepDrop and textSepOptions then
+            MSUF_SyncSimpleDropdown(hpSepDrop, textSepOptions, function()
+                EnsureDB()
+                local g0 = MSUF_DB.general
+                local uKey = _MSUF_HPText_GetUnitKey()
+                if not uKey then return (g0.hpTextSeparator or "") end
+                local u0 = _MSUF_HPText_GetUnitDB(uKey)
+                if u0 and u0.hpPowerTextOverride == true and u0.hpTextSeparator ~= nil then return u0.hpTextSeparator end
+                return (g0.hpTextSeparator or "")
+            end)
+        end
+        if powerSepDrop and textSepOptions then
+            MSUF_SyncSimpleDropdown(powerSepDrop, textSepOptions, function()
+                EnsureDB()
+                local g0 = MSUF_DB.general
+                local uKey = _MSUF_HPText_GetUnitKey()
+                if uKey then
+                    local u0 = _MSUF_HPText_GetUnitDB(uKey)
+                    if u0 and u0.hpPowerTextOverride == true then
+                        if u0.powerTextSeparator ~= nil then return u0.powerTextSeparator end
+                        if u0.hpTextSeparator ~= nil then return u0.hpTextSeparator end
+                    end
+                end
+                return (g0.powerTextSeparator ~= nil) and g0.powerTextSeparator or (g0.hpTextSeparator or "")
+            end)
+        end
+        if type(_G.MSUF_Options_RefreshHPSpacerControls) == "function" then
+            _G.MSUF_Options_RefreshHPSpacerControls()
+        end
+        -- Sync absorb dropdowns with current scope
+        if absorbDisplayDrop and absorbDisplayOptions then
+            MSUF_SyncSimpleDropdown(absorbDisplayDrop, absorbDisplayOptions, MSUF_GetAbsorbDisplayMode)
+        end
+        if absorbAnchorDrop and absorbAnchorOptions then
+            MSUF_SyncSimpleDropdown(absorbAnchorDrop, absorbAnchorOptions, MSUF_GetAbsorbAnchorMode)
+        end
+        if MSUF_RefreshAbsorbBarUIEnabled then MSUF_RefreshAbsorbBarUIEnabled() end
+
+        -- ── Gray out global-only controls when a per-unit scope is active ──
+        -- Per-unit controls (absorb display, absorb anchor, text modes, spacers) stay active.
+        -- Everything else (textures, gradients, outline, highlight, power bar) is global-only.
+        local isUnit = (unitKey ~= nil)
+        local ena = not isUnit  -- true = enabled (Shared), false = disabled (unit scope)
+        local dimAlpha = isUnit and 0.35 or 1
+        -- Helper: dim/enable a dropdown by global name
+        local function DimDrop(name, labelFS)
+            MSUF_SetDropDownEnabled(_G[name], labelFS, ena)
+        end
+        -- Helper: dim/enable a checkbox by global name
+        local function DimCheck(name)
+            MSUF_SetCheckboxEnabled(_G[name], ena)
+        end
+        -- Helper: dim/enable a slider or generic frame
+        local function DimSlider(name)
+            MSUF_SetLabeledSliderEnabled(_G[name], ena)
+        end
+        local function DimFrame(name)
+            local f = _G[name]
+            if not f then return end
+            if f.SetAlpha then f:SetAlpha(dimAlpha) end
+            if ena then
+                if f.Enable then pcall(f.Enable, f) end
+            else
+                if f.Disable then pcall(f.Disable, f) end
+            end
+            if f.EnableMouse then pcall(f.EnableMouse, f, ena) end
+        end
+        -- Helper: dim a section header / label fontstring
+        local function DimLabel(fs)
+            if not fs then return end
+            if fs.SetTextColor then
+                if ena then fs:SetTextColor(1, 1, 1) else fs:SetTextColor(0.35, 0.35, 0.35) end
+            elseif fs.SetAlpha then
+                fs:SetAlpha(dimAlpha)
+            end
+        end
+
+        -- ── Left panel: global-only sections ──
+        -- Absorb textures (global)
+        DimDrop("MSUF_AbsorbBarTextureDropdown", nil)
+        DimDrop("MSUF_HealAbsorbBarTextureDropdown", nil)
+        DimCheck("MSUF_AbsorbTextureTestModeCheck")
+        DimCheck("MSUF_SelfHealPredictionCheck")
+        DimLabel(absorbTextureLabel)
+        -- Bar textures (global)
+        DimDrop("MSUF_BarTextureDropdown", nil)
+        DimDrop("MSUF_BarBackgroundTextureDropdown", nil)
+        DimFrame("MSUF_BarTexturePreview")
+        DimLabel(barTextureLabel)
+        DimLabel(barBgTextureLabel)
+        DimLabel(_G.MSUF_BarsMenuTexturesHeader)
+        -- Gradient section (global)
+        DimCheck("MSUF_GradientEnableCheck")
+        DimCheck("MSUF_PowerGradientEnableCheck")
+        DimSlider("MSUF_GradientStrengthSlider")
+        DimFrame("MSUF_GradientDirectionPad")
+        DimLabel(_G.MSUF_BarsMenuGradientHeader)
+        -- Outline thickness (global)
+        DimSlider("MSUF_BarOutlineThicknessSlider")
+        -- Highlight border section (global)
+        DimSlider("MSUF_HighlightBorderThicknessSlider")
+        DimDrop("MSUF_AggroOutlineDropdown", nil)
+        DimCheck("MSUF_AggroOutlineTestCheck")
+        DimDrop("MSUF_DispelOutlineDropdown", nil)
+        DimCheck("MSUF_DispelOutlineTestCheck")
+        DimDrop("MSUF_PurgeOutlineDropdown", nil)
+        DimCheck("MSUF_PurgeOutlineTestCheck")
+        DimCheck("MSUF_HighlightPrioCheck")
+        DimFrame("MSUF_HighlightPrioContainer")
+        DimLabel(_G.MSUF_BarsMenuHighlightHeader)
+        -- Left panel section divider lines + headers stored on panel
+        local lp = _G["MSUF_BarsMenuPanelLeft"]
+        if lp then
+            if lp.MSUF_SectionLine_Textures then lp.MSUF_SectionLine_Textures:SetAlpha(dimAlpha) end
+            if lp.MSUF_SectionLine_Gradient then lp.MSUF_SectionLine_Gradient:SetAlpha(dimAlpha) end
+            if lp.MSUF_SectionLine_Highlight then lp.MSUF_SectionLine_Highlight:SetAlpha(dimAlpha) end
+            if lp.MSUF_SectionHeader_Outline then DimLabel(lp.MSUF_SectionHeader_Outline) end
+            if lp.MSUF_SectionLine_Outline then lp.MSUF_SectionLine_Outline:SetAlpha(dimAlpha) end
+        end
+
+        -- ── Right panel: global-only sections ──
+        -- Power bar settings (global)
+        DimCheck("MSUF_TargetPowerBarCheck")
+        DimCheck("MSUF_BossPowerBarCheck")
+        DimCheck("MSUF_PlayerPowerBarCheck")
+        DimCheck("MSUF_FocusPowerBarCheck")
+        DimFrame("MSUF_PowerBarHeightEdit")
+        DimCheck("MSUF_PowerBarEmbedCheck")
+        DimCheck("MSUF_PowerBarBorderCheck")
+        DimFrame("MSUF_PowerBarBorderSizeEdit")
+        DimLabel(powerBarHeightLabel)
+        DimLabel(powerBarBorderSizeLabel)
+        DimLabel(_G.MSUF_BarsMenuRightHeader)
+    end
+
+    MSUF_InitSimpleDropdown(
+        hpPowerScopeDrop,
+        hpPowerScopeOptions,
+        _MSUF_HPText_GetScopeKey,
+        function(v)
+            EnsureDB()
+            local g = MSUF_DB.general
+            local k = _MSUF_HPText_NormalizeScopeKey(v)
+            g.hpPowerTextSelectedKey = k
+            if k ~= "shared" then
+                g.hpSpacerSelectedUnitKey = k
+            end
+        end,
+        function() _MSUF_SyncHpPowerTextScopeUI() end,
+        BAR_DROPDOWN_WIDTH
+    )
+
+    hpPowerOverrideCheck:SetScript('OnClick', function(self)
+        EnsureDB()
+        local unitKey = _MSUF_HPText_GetUnitKey()
+        if not unitKey then
+            self:SetChecked(false)
+            return
+        end
+        local u = _MSUF_HPText_GetUnitDB(unitKey)
+        if not u then
+            self:SetChecked(false)
+            return
+        end
+        if self:GetChecked() then
+            _MSUF_HPText_EnableOverride(unitKey)
+        else
+            u.hpPowerTextOverride = false
+        end
+        ApplyAllSettings()
+        if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then
+            _G.MSUF_ForceTextLayoutForUnitKey(unitKey)
+        end
+        -- Re-apply absorb settings for affected frames
+        if _G.MSUF_UnitFrames then
+            for _, frame in pairs(_G.MSUF_UnitFrames) do
+                if frame and frame.unit then
+                    if type(_G.MSUF_ApplyAbsorbAnchorMode) == "function" then
+                        _G.MSUF_ApplyAbsorbAnchorMode(frame)
+                    end
+                    if UpdateSimpleUnitFrame then UpdateSimpleUnitFrame(frame) end
+                end
+            end
+        end
+        _MSUF_SyncHpPowerTextScopeUI()
+    end)
+
+    -- "Reset all overrides" button — only visible when Shared scope is selected.
+    local hpPowerResetBtn = CreateFrame("Button", "MSUF_HPTextResetOverridesBtn", barGroup, "UIPanelButtonTemplate")
+    hpPowerResetBtn:SetSize(140, 22)
+    hpPowerResetBtn:SetPoint("TOPLEFT", hpPowerOverrideCheck, "TOPLEFT", 0, 2)
+    hpPowerResetBtn:SetText(TR("Reset all overrides"))
+    hpPowerResetBtn:SetNormalFontObject("GameFontNormalSmall")
+    hpPowerResetBtn:SetHighlightFontObject("GameFontHighlightSmall")
+    hpPowerResetBtn:Hide()
+    hpPowerResetBtn:SetScript("OnClick", function()
+        EnsureDB()
+        local unitKeys = { "player", "target", "focus", "targettarget", "pet", "boss" }
+        local anyReset = false
+        for _, uKey in ipairs(unitKeys) do
+            local u = MSUF_DB[uKey]
+            if u and u.hpPowerTextOverride then
+                u.hpPowerTextOverride = false
+                anyReset = true
+            end
+        end
+        if anyReset then
+            ApplyAllSettings()
+            -- Re-apply absorb + text layout for all frames
+            if _G.MSUF_UnitFrames then
+                for _, frame in pairs(_G.MSUF_UnitFrames) do
+                    if frame and frame.unit then
+                        if type(_G.MSUF_ApplyAbsorbAnchorMode) == "function" then
+                            _G.MSUF_ApplyAbsorbAnchorMode(frame)
+                        end
+                        if UpdateSimpleUnitFrame then UpdateSimpleUnitFrame(frame) end
+                    end
+                end
+            end
+            for _, uKey in ipairs(unitKeys) do
+                if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then
+                    _G.MSUF_ForceTextLayoutForUnitKey(uKey)
+                end
+            end
+        end
+        _MSUF_SyncHpPowerTextScopeUI()
+    end)
+    hpPowerResetBtn:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine("Reset all overrides")
+        GameTooltip:AddLine("Clears per-unit overrides for all units (Player, Target, Focus, etc.) so they all use the shared settings again.", 0.9, 0.9, 0.9, true)
+        GameTooltip:Show()
+    end)
+    hpPowerResetBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
+
+    -- Wire up scope sync so absorb apply callbacks can trigger a full refresh.
+    _MSUF_BarScope_SyncUI = _MSUF_SyncHpPowerTextScopeUI
+
+    -- Initial sync.
+    _MSUF_SyncHpPowerTextScopeUI()
 -- HP % Spacer (split FULL value + % into two text anchors)
     -- Per-unit settings are stored on MSUF_DB[unitKey].hpTextSpacerEnabled / hpTextSpacerX.
     -- The Bars menu shows the settings for the *last clicked* MSUF unitframe (stored as a UI selection
@@ -4090,7 +4924,7 @@ hpSpacerSelectedLabel = barGroup:CreateFontString(nil, "ARTWORK", "GameFontHighl
 hpSpacerSelectedLabel:ClearAllPoints()
 hpSpacerSelectedLabel:SetPoint("TOPLEFT", hpSepDrop, "BOTTOMLEFT", 16, -8)
 hpSpacerSelectedLabel:SetTextColor(1, 0.82, 0, 1)
-hpSpacerSelectedLabel:SetText(TR("Selected: Player"))
+hpSpacerSelectedLabel:SetText(TR("Selected: Shared"))
 hpSpacerInfoButton = CreateFrame("Button", "MSUF_HPSpacerInfoButton", barGroup)
 hpSpacerInfoButton:SetSize(14, 14)
 hpSpacerInfoButton:ClearAllPoints()
@@ -4102,13 +4936,14 @@ do
     hpSpacerInfoButton._msufTex = t
 end
 hpSpacerInfoButton:SetScript("OnEnter", function(self)
-    if not GameTooltip then  return end
-    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:AddLine("Text Spacers", 1, 1, 1)
-    GameTooltip:AddLine("Click a MSUF unitframe (Player/Target/Focus/ToT/Pet/Boss) to choose which unit these spacer settings apply to.", 0.9, 0.9, 0.9, true)
-    GameTooltip:AddLine("Works only when the corresponding text mode is set to 'Full value + %' (or '% + Full value').", 0.9, 0.9, 0.9, true)
-    GameTooltip:Show()
- end)
+   if not GameTooltip then  return end
+   GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+   GameTooltip:AddLine("Text Spacers", 1, 1, 1)
+   GameTooltip:AddLine("Use the Bar settings scope dropdown (left panel, bottom) to choose which unit these settings apply to.", 0.9, 0.9, 0.9, true)
+	   GameTooltip:AddLine("When scope is set to 'Shared', settings apply globally. Select a unit and enable 'Override shared settings' to customize per unitframe.", 0.9, 0.9, 0.9, true)
+   GameTooltip:AddLine("Works only when the corresponding text mode is set to 'Full value + %' (or '% + Full value').", 0.9, 0.9, 0.9, true)
+   GameTooltip:Show()
+end)
 hpSpacerInfoButton:SetScript("OnLeave", function()  if GameTooltip then GameTooltip:Hide() end  end)
 -- HP spacer controls
 hpSpacerCheck = CreateFrame("CheckButton", "MSUF_HPTextSpacerCheck", barGroup, "UICheckButtonTemplate")
@@ -4137,24 +4972,38 @@ local powerSpacerSlider = CreateLabeledSlider("MSUF_PowerTextSpacerSlider", "Pow
 powerSpacerSlider:ClearAllPoints()
 powerSpacerSlider:SetPoint("TOPLEFT", powerSpacerCheck, "BOTTOMLEFT", 0, -18)
 if powerSpacerSlider.SetWidth then powerSpacerSlider:SetWidth(260) end
-    local function _MSUF_HPSpacer_GetSelectedUnitKey()
-        EnsureDB()
-        MSUF_DB.general = MSUF_DB.general or {}
-        local g = MSUF_DB.general
-        local k = g.hpSpacerSelectedUnitKey or "player"
-        if k == "tot" then k = "targettarget" end
-        if type(k) == "string" and k:match("^boss%d+$") then k = "boss" end
-        if k ~= "player" and k ~= "target" and k ~= "focus" and k ~= "targettarget" and k ~= "pet" and k ~= "boss" then k = "player" end
-        g.hpSpacerSelectedUnitKey = k
-         return k
-    end
-    local function _MSUF_HPSpacer_GetUnitDB()
-        local unitKey = _MSUF_HPSpacer_GetSelectedUnitKey()
-        MSUF_DB[unitKey] = MSUF_DB[unitKey] or {}
-        return unitKey, MSUF_DB[unitKey]
-    end
-    local function _MSUF_TextModeAllowsSpacer(mode)
-        return (mode == "FULL_PLUS_PERCENT" or mode == "PERCENT_PLUS_FULL")
+	local function _MSUF_HPSpacer_GetSelection()
+	    -- Selection is driven by the HP/Power scope dropdown above.
+	    EnsureDB()
+	    MSUF_DB.general = MSUF_DB.general or {}
+	    local g = MSUF_DB.general
+	    local scope = (type(_MSUF_HPText_GetScopeKey) == "function") and _MSUF_HPText_GetScopeKey() or nil
+	    if type(_MSUF_HPText_NormalizeScopeKey) == "function" then
+	        scope = _MSUF_HPText_NormalizeScopeKey(scope)
+	    end
+	    if scope == "shared" then
+	        return nil, true
+	    end
+	    local k = scope
+	    if type(_G.MSUF_NormalizeTextLayoutUnitKey) == "function" then
+	        k = _G.MSUF_NormalizeTextLayoutUnitKey(k, "player")
+	    end
+	    if not k or k == "shared" then k = "player" end
+	    g.hpSpacerSelectedUnitKey = k
+	    return k, false
+	end
+	local function _MSUF_HPSpacer_GetDB()
+	    local unitKey, isShared = _MSUF_HPSpacer_GetSelection()
+	    EnsureDB()
+	    MSUF_DB.general = MSUF_DB.general or {}
+	    if isShared then
+	        return nil, MSUF_DB.general, true
+	    end
+	    MSUF_DB[unitKey] = MSUF_DB[unitKey] or {}
+	    return unitKey, MSUF_DB[unitKey], false
+	end
+local function _MSUF_TextModeAllowsSpacer(mode)
+  return (mode == "FULL_PLUS_PERCENT" or mode == "PERCENT_PLUS_FULL" or mode == "CURPERCENT" or mode == "CURMAXPERCENT")
     end
     local SPACER_SPECS = {
         {
@@ -4207,100 +5056,180 @@ if powerSpacerSlider.SetWidth then powerSpacerSlider:SetWidth(260) end
         if spec.maxCap and mv > spec.maxCap then mv = spec.maxCap end
          return mv
     end
-    local function _MSUF_SyncSpacerControls()
-        EnsureDB()
-        local unitKey, u = _MSUF_HPSpacer_GetUnitDB()
-        local g0 = MSUF_DB.general or {}
-        if hpSpacerSelectedLabel and hpSpacerSelectedLabel.SetText then
-            hpSpacerSelectedLabel:SetText("Selected: " .. _MSUF_NiceUnitKey(unitKey))
-        end
-        for _, spec in ipairs(SPACER_SPECS) do
-            local mode = g0[spec.modeKey] or "FULL_PLUS_PERCENT"
-            local modeAllows = _MSUF_TextModeAllowsSpacer(mode)
-            local cb = spec.check
-            local sl = spec.slider
-            local enabled = (u[spec.enabledKey] == true)
-            if cb and cb.SetChecked then cb:SetChecked(enabled) end
-            if cb and cb.SetEnabled then cb:SetEnabled(modeAllows) end
-            if cb and cb.SetAlpha then cb:SetAlpha(modeAllows and 1 or 0.45) end
-            -- Optional: dim HP spacer toggle label when disabled by mode (requested UX).
-            if spec.dimText and cb and cb.text and cb.text.SetTextColor then
-                local c = modeAllows and 1 or 0.5
-                cb.text:SetTextColor(c, c, c, 1)
+	local function _MSUF_GetEffectiveSpacerMode(unitKey, spec, g0)
+	    if not spec or not spec.modeKey then  return "FULL_PLUS_PERCENT" end
+	    -- Shared selection uses Shared mode directly.
+	    if not unitKey then
+	        return (g0 and g0[spec.modeKey]) or "FULL_PLUS_PERCENT"
+	    end
+	    local u0 = (MSUF_DB and MSUF_DB[unitKey]) or nil
+	    local useOverride = (u0 and u0.hpPowerTextOverride == true)
+	    local m = (useOverride and u0 and u0[spec.modeKey]) or (g0 and g0[spec.modeKey]) or "FULL_PLUS_PERCENT"
+	    return m
+	end
+
+local function _MSUF_SyncSpacerControls()
+    EnsureDB()
+	    local g0 = MSUF_DB.general or {}
+	    -- Seed Shared spacer defaults from Player (user expectation: Shared starts "like Player").
+	    do
+	        local p = MSUF_DB and MSUF_DB.player
+	        if p then
+	            if g0.hpTextSpacerEnabled == nil and p.hpTextSpacerEnabled ~= nil then g0.hpTextSpacerEnabled = p.hpTextSpacerEnabled end
+	            if g0.hpTextSpacerX == nil and p.hpTextSpacerX ~= nil then g0.hpTextSpacerX = p.hpTextSpacerX end
+	            if g0.powerTextSpacerEnabled == nil and p.powerTextSpacerEnabled ~= nil then g0.powerTextSpacerEnabled = p.powerTextSpacerEnabled end
+	            if g0.powerTextSpacerX == nil and p.powerTextSpacerX ~= nil then g0.powerTextSpacerX = p.powerTextSpacerX end
+	        end
+	    end
+	    local unitKey, u, isShared = _MSUF_HPSpacer_GetDB()
+	    local unitOverride = (not isShared) and (u and u.hpPowerTextOverride == true)
+
+	    if hpSpacerSelectedLabel and hpSpacerSelectedLabel.SetText then
+	        local nice = (isShared and "Shared") or _MSUF_NiceUnitKey(unitKey)
+	        hpSpacerSelectedLabel:SetText("Selected: " .. nice)
+	    end
+
+    for _, spec in ipairs(SPACER_SPECS) do
+        local cb = spec.check
+        local sl = spec.slider
+
+	        local canEdit = isShared or unitOverride
+	        -- If unit override is OFF, show effective (Shared) values but keep controls disabled.
+	        local src = (isShared and g0) or (unitOverride and u or g0)
+	        local enabled = (src and src[spec.enabledKey] == true) or false
+	        local mode = _MSUF_GetEffectiveSpacerMode(unitKey, spec, g0)
+	        local modeAllows = _MSUF_TextModeAllowsSpacer(mode)
+
+	        if cb and cb.SetChecked then cb:SetChecked(enabled) end
+	        if cb and cb.SetEnabled then cb:SetEnabled(canEdit and modeAllows) end
+	        if cb and cb.SetAlpha then cb:SetAlpha((canEdit and modeAllows) and 1 or 0.45) end
+
+        -- Optional: dim HP spacer toggle label when disabled by mode (requested UX).
+	        if spec.dimText and cb and cb.text and cb.text.SetTextColor then
+	            local c = (modeAllows and (canEdit and 1 or 0.75)) or 0.5
+	            cb.text:SetTextColor(c, c, c, 1)
+	        end
+
+	        -- Shared slider range is based on Player (requested). Unit scope uses its own unit.
+	        local maxKey = isShared and "player" or unitKey
+	        local maxV = _MSUF_GetSpacerMax(spec, maxKey)
+
+        if sl and sl.SetMinMaxValues then
+            sl:SetMinMaxValues(0, maxV)
+            sl.minVal = 0
+            sl.maxVal = maxV
+
+            local n = (sl.GetName and sl:GetName())
+            if n and _G then
+                local high = _G[n .. "High"]
+                local low  = _G[n .. "Low"]
+                if high and high.SetText then high:SetText(tostring(maxV)) end
+                if low  and low.SetText  then low:SetText(TR("0")) end
             end
-            local maxV = _MSUF_GetSpacerMax(spec, unitKey)
-            if sl and sl.SetMinMaxValues then
-                sl:SetMinMaxValues(0, maxV)
-                sl.minVal = 0
-                sl.maxVal = maxV
-                local n = (sl.GetName and sl:GetName())
-                if n and _G then
-                    local high = _G[n .. "High"]
-                    local low  = _G[n .. "Low"]
-                    if high and high.SetText then high:SetText(tostring(maxV)) end
-                    if low  and low.SetText  then low:SetText(TR("0")) end
-                end
-                local v = tonumber(u[spec.xKey]) or 0
-                if v < 0 then v = 0 end
-                if v > maxV then v = maxV end
-                u[spec.xKey] = v
-                if type(MSUF_SetLabeledSliderValue) == "function" then
-                    MSUF_SetLabeledSliderValue(sl, v)
-                else
-                    sl.MSUF_SkipCallback = true
-                    sl:SetValue(v)
-                    sl.MSUF_SkipCallback = nil
-                end
-                local slEnabled = (modeAllows and enabled)
-                if type(MSUF_SetLabeledSliderEnabled) == "function" then
-                    MSUF_SetLabeledSliderEnabled(sl, slEnabled)
-                    if (not slEnabled) and sl.SetAlpha then sl:SetAlpha(0.45) end -- keep old visual
-                else
-                    if sl.SetEnabled then sl:SetEnabled(slEnabled) end
-                    if sl.SetAlpha then sl:SetAlpha(slEnabled and 1 or 0.45) end
-                end
+
+	            local v = tonumber(src and src[spec.xKey]) or 0
+	            if v < 0 then v = 0 end
+	            if v > maxV then v = maxV end
+	            -- Only write back when the scope is editable; never clamp Shared based on a smaller unit.
+	            if canEdit then
+	                if isShared then
+	                    g0[spec.xKey] = v
+	                elseif u then
+	                    u[spec.xKey] = v
+	                end
+	            end
+
+            if type(MSUF_SetLabeledSliderValue) == "function" then
+                MSUF_SetLabeledSliderValue(sl, v)
+            else
+                sl.MSUF_SkipCallback = true
+                sl:SetValue(v)
+                sl.MSUF_SkipCallback = nil
+            end
+
+	            local slEnabled = (canEdit and modeAllows and enabled)
+            if type(MSUF_SetLabeledSliderEnabled) == "function" then
+                MSUF_SetLabeledSliderEnabled(sl, slEnabled)
+                if (not slEnabled) and sl.SetAlpha then sl:SetAlpha(0.45) end -- keep old visual
+            else
+                if sl.SetEnabled then sl:SetEnabled(slEnabled) end
+                if sl.SetAlpha then sl:SetAlpha(slEnabled and 1 or 0.45) end
             end
         end
-     end
-    local function _MSUF_BindSpacerToggle(spec)
+    end
+ end
+
+	local _MSUF_TEXT_LAYOUT_KEYS = { "player", "target", "focus", "targettarget", "pet", "boss" }
+	local function _MSUF_RequestTextLayoutForScope(unitKey, isShared, reason)
+	    if isShared then
+	        for _, k in ipairs(_MSUF_TEXT_LAYOUT_KEYS) do
+	            if type(MSUF_Options_RequestLayoutForKey) == "function" then
+	                MSUF_Options_RequestLayoutForKey(k, reason)
+	            end
+	            if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then
+	                _G.MSUF_ForceTextLayoutForUnitKey(k)
+	            end
+	        end
+	        return
+	    end
+	    if type(MSUF_Options_RequestLayoutForKey) == "function" then
+	        MSUF_Options_RequestLayoutForKey(unitKey, reason)
+	    end
+	    if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then
+	        _G.MSUF_ForceTextLayoutForUnitKey(unitKey)
+	    end
+	end
+
+local function _MSUF_BindSpacerToggle(spec)
         if not spec or not spec.check then  return end
         spec.check:SetScript("OnClick", function(self)
             EnsureDB()
-            local g = MSUF_DB.general or {}
-            local mode = g[spec.modeKey] or "FULL_PLUS_PERCENT"
-            if not _MSUF_TextModeAllowsSpacer(mode) then
-                _MSUF_SyncSpacerControls()
-                 return
-            end
-            local unitKey, u = _MSUF_HPSpacer_GetUnitDB()
-            u[spec.enabledKey] = self:GetChecked() and true or false
-            _MSUF_SyncSpacerControls()
-            MSUF_Options_RequestLayoutForKey(unitKey, spec.reqToggle)
-            if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then _G.MSUF_ForceTextLayoutForUnitKey(unitKey) end
+	            local unitKey, db, isShared = _MSUF_HPSpacer_GetDB()
+	            local g = MSUF_DB.general or {}
+	            local canEdit = isShared or (db and db.hpPowerTextOverride == true)
+	            if not canEdit then
+	                _MSUF_SyncSpacerControls()
+	                return
+	            end
+	            local mode = _MSUF_GetEffectiveSpacerMode(unitKey, spec, g)
+	            if not _MSUF_TextModeAllowsSpacer(mode) then
+	                _MSUF_SyncSpacerControls()
+	                return
+	            end
+	            local targetDB = isShared and g or db
+	            targetDB[spec.enabledKey] = self:GetChecked() and true or false
+	            _MSUF_SyncSpacerControls()
+	            _MSUF_RequestTextLayoutForScope(unitKey, isShared, spec.reqToggle)
          end)
      end
     local function _MSUF_BindSpacerSlider(spec)
         if not spec or not spec.slider then  return end
         spec.slider.onValueChanged = function(self, value)
             EnsureDB()
-            local g = MSUF_DB.general or {}
-            local mode = g[spec.modeKey] or "FULL_PLUS_PERCENT"
-            if not _MSUF_TextModeAllowsSpacer(mode) then
-                _MSUF_SyncSpacerControls()
-                 return
-            end
-            local unitKey, u = _MSUF_HPSpacer_GetUnitDB()
-            local maxV = _MSUF_GetSpacerMax(spec, unitKey)
-            local v = tonumber(value) or 0
-            if v < 0 then v = 0 end
-            if v > maxV then v = maxV end
-            u[spec.xKey] = v
+	            local unitKey, db, isShared = _MSUF_HPSpacer_GetDB()
+	            local g = MSUF_DB.general or {}
+	            local canEdit = isShared or (db and db.hpPowerTextOverride == true)
+	            if not canEdit then
+	                _MSUF_SyncSpacerControls()
+	                return
+	            end
+	            local mode = _MSUF_GetEffectiveSpacerMode(unitKey, spec, g)
+	            if not _MSUF_TextModeAllowsSpacer(mode) then
+	                _MSUF_SyncSpacerControls()
+	                return
+	            end
+	            local maxKey = isShared and "player" or unitKey
+	            local maxV = _MSUF_GetSpacerMax(spec, maxKey)
+	            local v = tonumber(value) or 0
+	            if v < 0 then v = 0 end
+	            if v > maxV then v = maxV end
+	            local targetDB = isShared and g or db
+	            targetDB[spec.xKey] = v
             -- If clamped, snap slider back (without triggering callbacks).
             if v ~= value and type(MSUF_SetLabeledSliderValue) == "function" then
                 MSUF_SetLabeledSliderValue(self, v)
             end
-            MSUF_Options_RequestLayoutForKey(unitKey, spec.reqX)
-            if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then _G.MSUF_ForceTextLayoutForUnitKey(unitKey) end
+	            _MSUF_RequestTextLayoutForScope(unitKey, isShared, spec.reqX)
          end
      end
     for _, spec in ipairs(SPACER_SPECS) do
@@ -4308,8 +5237,9 @@ if powerSpacerSlider.SetWidth then powerSpacerSlider:SetWidth(260) end
         _MSUF_BindSpacerSlider(spec)
     end
     _MSUF_SyncSpacerControls()
-    -- Let the main file refresh this UI when the user clicks a unitframe.
+    -- Let other code refresh this UI when selection/scope changes.
     _G.MSUF_Options_RefreshHPSpacerControls = _MSUF_SyncSpacerControls
+
 local barTextureDrop
         local barBgTextureDrop
         -- Shared helper used by both bar texture dropdowns (foreground + background)
@@ -4462,6 +5392,39 @@ barOutlineThicknessSlider.onValueChanged = function(_, value)
     end
 end
 
+-- Highlight border thickness (separate overlay for aggro/dispel/purge)
+local highlightBorderThicknessSlider = CreateLabeledSlider(
+    "MSUF_HighlightBorderThicknessSlider",
+    "Highlight border thickness",
+    barGroup,
+    1, 6, 1,
+    16, -420
+)
+do
+    local txt = _G["MSUF_HighlightBorderThicknessSliderText"]
+    if txt and txt.SetFontObject then txt:SetFontObject("GameFontHighlightSmall") end
+end
+do
+    EnsureDB()
+    local gen = (MSUF_DB and MSUF_DB.general) or {}
+    local t = tonumber(gen.highlightBorderThickness)
+    if type(t) ~= "number" then t = 2 end
+    t = math.floor(t + 0.5)
+    if t < 1 then t = 1 elseif t > 6 then t = 6 end
+    MSUF_SetLabeledSliderValue(highlightBorderThicknessSlider, t)
+end
+
+highlightBorderThicknessSlider.onValueChanged = function(_, value)
+    EnsureDB()
+    MSUF_DB.general = MSUF_DB.general or {}
+    MSUF_DB.general.highlightBorderThickness = value
+    if type(_G.MSUF_ApplyBarOutlineThickness_All) == "function" then
+        _G.MSUF_ApplyBarOutlineThickness_All()
+    else
+        ApplyAllSettings()
+    end
+end
+
 
 -- Aggro border indicator: reuse outline border as a thick orange threat border (target/focus/boss).
 -- No extra header label; the dropdown itself is the control.
@@ -4526,6 +5489,13 @@ local aggroTestCheck = CreateFrame("CheckButton", "MSUF_AggroOutlineTestCheck", 
 -- Nudge the checkbox down to align visually with the dropdown and avoid edge clipping.
 aggroTestCheck:SetPoint("LEFT", aggroOutlineDrop, "RIGHT", 6, -4)
 aggroTestCheck.Text:SetText(TR("Test"))
+aggroTestCheck.tooltipText = TR("Aggro border: Target, Focus, Boss frames")
+aggroTestCheck:HookScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(self.tooltipText, 1, 1, 1, 1, true)
+    GameTooltip:Show()
+end)
+aggroTestCheck:HookScript("OnLeave", function() GameTooltip:Hide() end)
 aggroTestCheck:SetScript("OnClick", function(self)
     local on = self:GetChecked() and true or false
     if type(_G.MSUF_SetAggroBorderTestMode) == "function" then
@@ -4589,6 +5559,13 @@ dispelOutlineDrop._msufDispelOutlineGet = _DispelOutline_Get
 local dispelTestCheck = CreateFrame("CheckButton", "MSUF_DispelOutlineTestCheck", barGroup, "ChatConfigCheckButtonTemplate")
 dispelTestCheck:SetPoint("LEFT", dispelOutlineDrop, "RIGHT", 6, -4)
 dispelTestCheck.Text:SetText(TR("Test"))
+dispelTestCheck.tooltipText = TR("Dispel border: Player, Target, Focus, Target of Target")
+dispelTestCheck:HookScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(self.tooltipText, 1, 1, 1, 1, true)
+    GameTooltip:Show()
+end)
+dispelTestCheck:HookScript("OnLeave", function() GameTooltip:Hide() end)
 dispelTestCheck:SetScript("OnClick", function(self)
     local on = self:GetChecked() and true or false
     if type(_G.MSUF_SetDispelBorderTestMode) == "function" then
@@ -4596,13 +5573,269 @@ dispelTestCheck:SetScript("OnClick", function(self)
     end
 end)
 
+-- Purge border: yellow outline border when the player can purge/spellsteal a buff on the unit.
+local purgeOutlineDrop = CreateFrame("Frame", "MSUF_PurgeOutlineDropdown", barGroup, "UIDropDownMenuTemplate")
+MSUF_ExpandDropdownClickArea(purgeOutlineDrop)
+purgeOutlineDrop:SetPoint("TOPLEFT", dispelOutlineDrop, "BOTTOMLEFT", 0, -18)
+UIDropDownMenu_SetWidth(purgeOutlineDrop, 170)
+if UIDropDownMenu_SetClampedToScreen then UIDropDownMenu_SetClampedToScreen(purgeOutlineDrop, true) end
+	if UIDropDownMenu_JustifyText then UIDropDownMenu_JustifyText(purgeOutlineDrop, "LEFT") end
+MSUF_MakeDropdownScrollable(purgeOutlineDrop, 10)
+
+local purgeOutlineOptions = {
+    { key = 0, label = TR("Purge border off") },
+    { key = 1, label = TR("Purge border on") },
+}
+
+local function _PurgeOutline_Get()
+    local g = MSUF_DB and MSUF_DB.general
+    return (g and g.purgeOutlineMode) or 0
+end
+
+local function _PurgeOutline_Set(val)
+    EnsureDB()
+    MSUF_DB.general = MSUF_DB.general or {}
+    MSUF_DB.general.purgeOutlineMode = val
+    if type(_G.MSUF_RefreshDispelOutlineStates) == "function" then
+        _G.MSUF_RefreshDispelOutlineStates(true)
+    else
+        local fn = _G.MSUF_RefreshRareBarVisuals
+        local frames = _G.MSUF_UnitFrames
+        if type(fn) == "function" and type(frames) == "table" then
+            if frames.player then fn(frames.player) end
+            if frames.target then fn(frames.target) end
+            if frames.focus then fn(frames.focus) end
+            if frames.targettarget then fn(frames.targettarget) end
+        end
+    end
+end
+
+MSUF_InitSimpleDropdown(
+    purgeOutlineDrop,
+    purgeOutlineOptions,
+    _PurgeOutline_Get,
+    function(v) _PurgeOutline_Set(v) end,
+    function() _PurgeOutline_Set(_PurgeOutline_Get()) end,
+    170
+)
+purgeOutlineDrop._msufPurgeOutlineOptions = purgeOutlineOptions
+purgeOutlineDrop._msufPurgeOutlineGet = _PurgeOutline_Get
+
+local purgeTestCheck = CreateFrame("CheckButton", "MSUF_PurgeOutlineTestCheck", barGroup, "ChatConfigCheckButtonTemplate")
+purgeTestCheck:SetPoint("LEFT", purgeOutlineDrop, "RIGHT", 6, -4)
+purgeTestCheck.Text:SetText(TR("Test"))
+purgeTestCheck.tooltipText = TR("Purge border: Target, Focus, Target of Target")
+purgeTestCheck:HookScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(self.tooltipText, 1, 1, 1, 1, true)
+    GameTooltip:Show()
+end)
+purgeTestCheck:HookScript("OnLeave", function() GameTooltip:Hide() end)
+purgeTestCheck:SetScript("OnClick", function(self)
+    local on = self:GetChecked() and true or false
+    if type(_G.MSUF_SetPurgeBorderTestMode) == "function" then
+        _G.MSUF_SetPurgeBorderTestMode(on)
+    end
+end)
+
+-- Ã¢â€â‚¬Ã¢â€â‚¬ Highlight priority reorder Ã¢â€â‚¬Ã¢â€â‚¬
+-- Draggable rows to set display priority of highlight borders (Aggro/Dispel/Purge).
+-- Default order: Dispel > Aggro > Purge.  Custom order stored in DB.
+local _PRIO_DEFAULTS = { "dispel", "aggro", "purge" }  -- must match render fallback order
+local _PRIO_LABELS   = { dispel = "Dispel", aggro = "Aggro", purge = "Purge" }
+
+local prioCheck = CreateFrame("CheckButton", "MSUF_HighlightPrioCheck", barGroup, "ChatConfigCheckButtonTemplate")
+prioCheck:SetPoint("TOPLEFT", purgeOutlineDrop, "BOTTOMLEFT", 16, -10)
+prioCheck.Text:SetText(TR("Custom highlight priority"))
+prioCheck.tooltipText = TR("Drag to reorder which highlight border takes priority when multiple are active.")
+prioCheck:HookScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(TR("Custom highlight priority"), 1, 1, 1)
+    GameTooltip:AddLine(self.tooltipText, 0.8, 0.8, 0.8, true)
+    GameTooltip:Show()
+end)
+prioCheck:HookScript("OnLeave", function() GameTooltip:Hide() end)
+
+local prioContainer = CreateFrame("Frame", "MSUF_HighlightPrioContainer", barGroup)
+prioContainer:SetSize(200, 78)
+prioContainer:SetPoint("TOPLEFT", prioCheck, "BOTTOMLEFT", -2, -4)
+
+local _PRIO_ROW_H, _PRIO_ROW_GAP = 22, 4
+local _prioRows = {}
+
+local function _Prio_GetOrder()
+    local g = MSUF_DB and MSUF_DB.general
+    local o = g and g.highlightPrioOrder
+    if type(o) == "table" and #o == 3 then return { o[1], o[2], o[3] } end
+    return { _PRIO_DEFAULTS[1], _PRIO_DEFAULTS[2], _PRIO_DEFAULTS[3] }
+end
+
+local function _Prio_SlotY(s)
+    return -((s - 1) * (_PRIO_ROW_H + _PRIO_ROW_GAP))
+end
+
+local function _Prio_SnapAll()
+    for i = 1, 3 do
+        local row = _prioRows[i]
+        row.frame:ClearAllPoints()
+        row.frame:SetPoint("TOPLEFT", prioContainer, "TOPLEFT", 0, _Prio_SlotY(row.slotIndex))
+    end
+end
+
+local function _Prio_SaveOrder()
+    EnsureDB()
+    MSUF_DB.general = MSUF_DB.general or {}
+    local sorted = {}
+    for i = 1, 3 do sorted[i] = _prioRows[i] end
+    table.sort(sorted, function(a, b) return a.slotIndex < b.slotIndex end)
+    local order = {}
+    for i = 1, 3 do order[i] = sorted[i].key end
+    MSUF_DB.general.highlightPrioOrder = order
+    -- Full refresh: covers player/target/focus/targettarget/boss1-5.
+    if type(_G.MSUF_ApplyBarOutlineThickness_All) == "function" then
+        _G.MSUF_ApplyBarOutlineThickness_All()
+    end
+end
+
+local function _Prio_SetEnabled(enabled)
+    for i = 1, 3 do
+        local row = _prioRows[i]
+        row.frame:SetAlpha(enabled and 1 or 0.4)
+        row.frame:EnableMouse(enabled and true or false)
+    end
+end
+
+for i = 1, 3 do
+    local rf = CreateFrame("Frame", "MSUF_PrioRow" .. i, prioContainer, BackdropTemplateMixin and "BackdropTemplate" or nil)
+    rf:SetSize(190, _PRIO_ROW_H)
+    rf:SetMovable(true)
+    rf:EnableMouse(true)
+    rf:RegisterForDrag("LeftButton")
+    rf:SetBackdrop({
+        bgFile   = MSUF_TEX_WHITE8 or "Interface\\Buttons\\WHITE8X8",
+        edgeFile = MSUF_TEX_WHITE8 or "Interface\\Buttons\\WHITE8X8",
+        edgeSize = 1,
+    })
+    rf:SetBackdropColor(0.12, 0.12, 0.12, 0.85)
+    rf:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.6)
+    local stripe = rf:CreateTexture(nil, "ARTWORK")
+    stripe:SetSize(4, _PRIO_ROW_H - 2)
+    stripe:SetPoint("LEFT", rf, "LEFT", 2, 0)
+    rf._stripe = stripe
+    local label = rf:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    label:SetPoint("LEFT", stripe, "RIGHT", 6, 0)
+    rf._label = label
+    local num = rf:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    num:SetPoint("RIGHT", rf, "RIGHT", -8, 0)
+    num:SetTextColor(0.5, 0.5, 0.5, 1)
+    rf._numText = num
+    rf:SetScript("OnEnter", function(self)
+        local g = MSUF_DB and MSUF_DB.general
+        if not (g and g.highlightPrioEnabled == 1) then return end
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(TR("Drag to reorder"), 1, 1, 1)
+        GameTooltip:AddLine(TR("Left-click and drag up or down to change highlight priority."), 0.8, 0.8, 0.8, true)
+        GameTooltip:Show()
+    end)
+    rf:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    rf:SetScript("OnDragStart", function(self)
+        GameTooltip:Hide()
+        self:StartMoving()
+        self:SetFrameStrata("TOOLTIP")
+    end)
+    rf:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        self:SetFrameStrata(prioContainer:GetFrameStrata())
+        local _, selfY = self:GetCenter()
+        local contTop = prioContainer:GetTop()
+        local bestSlot, bestDist = 1, math.huge
+        for s = 1, 3 do
+            local slotY = contTop + _Prio_SlotY(s) - _PRIO_ROW_H / 2
+            local dist = math.abs(selfY - slotY)
+            if dist < bestDist then bestDist = dist; bestSlot = s end
+        end
+        local myRow
+        for idx = 1, 3 do
+            if _prioRows[idx].frame == self then myRow = _prioRows[idx]; break end
+        end
+        if myRow and myRow.slotIndex ~= bestSlot then
+            for idx = 1, 3 do
+                if _prioRows[idx].slotIndex == bestSlot then
+                    _prioRows[idx].slotIndex = myRow.slotIndex; break
+                end
+            end
+            myRow.slotIndex = bestSlot
+        end
+        for idx = 1, 3 do
+            _prioRows[idx].frame._numText:SetText(tostring(_prioRows[idx].slotIndex))
+        end
+        _Prio_SnapAll()
+        _Prio_SaveOrder()
+    end)
+    _prioRows[i] = { frame = rf, key = "", slotIndex = i }
+end
+
+local function _Prio_InitRows()
+    local order = _Prio_GetOrder()
+    local g = MSUF_DB and MSUF_DB.general
+    -- Read actual colors from Colors menu DB, with fallback defaults.
+    local dbColors = {
+        dispel = {
+            (g and g.dispelBorderColorR) or 0.25,
+            (g and g.dispelBorderColorG) or 0.75,
+            (g and g.dispelBorderColorB) or 1.00,
+        },
+        aggro = {
+            (g and g.aggroBorderColorR) or 1.00,
+            (g and g.aggroBorderColorG) or 0.50,
+            (g and g.aggroBorderColorB) or 0.00,
+        },
+        purge = {
+            (g and g.purgeBorderColorR) or 1.00,
+            (g and g.purgeBorderColorG) or 0.85,
+            (g and g.purgeBorderColorB) or 0.00,
+        },
+    }
+    for i = 1, 3 do
+        local key = order[i]
+        local col = dbColors[key] or { 1, 1, 1 }
+        _prioRows[i].key = key
+        _prioRows[i].slotIndex = i
+        _prioRows[i].frame._stripe:SetColorTexture(col[1], col[2], col[3], 1)
+        _prioRows[i].frame._label:SetText(TR(_PRIO_LABELS[key] or key))
+        _prioRows[i].frame._numText:SetText(tostring(i))
+    end
+    _Prio_SnapAll()
+end
+_Prio_InitRows()
+
+_G.MSUF_PrioRows_Reinit = function()
+    _Prio_InitRows()
+    local g = MSUF_DB and MSUF_DB.general
+    _Prio_SetEnabled(g and g.highlightPrioEnabled == 1)
+end
+
+prioCheck:SetScript("OnClick", function(self)
+    EnsureDB()
+    MSUF_DB.general = MSUF_DB.general or {}
+    local on = self:GetChecked() and true or false
+    MSUF_DB.general.highlightPrioEnabled = on and 1 or 0
+    _Prio_SetEnabled(on)
+    _Prio_SaveOrder()
+end)
+do
+    local g = MSUF_DB and MSUF_DB.general
+    prioCheck:SetChecked(g and g.highlightPrioEnabled == 1)
+    _Prio_SetEnabled(g and g.highlightPrioEnabled == 1)
+end
+
 -- Bars menu style: boxed layout like the new Castbar/Focus Kick menus
 -- (Two framed columns: Bar appearance / Power Bar Settings)
 do
     -- Panel height must include the HP + Power Spacer controls at the bottom of the right column.
     -- Keep this as a single constant so creation + live re-layout always match (no drift/regressions).
     -- Increased slightly to ensure the Highlight Border section (and dropdown buttons) never clip at the bottom.
-    local BARS_PANEL_H = 950
+    local BARS_PANEL_H = 1100
     -- Create panels once
     if not _G["MSUF_BarsMenuPanelLeft"] then
         local function SetupPanel(panel)
@@ -4617,7 +5850,7 @@ do
          end
         local leftPanel = CreateFrame("Frame", "MSUF_BarsMenuPanelLeft", barGroup, "BackdropTemplate")
         leftPanel:SetSize(330, BARS_PANEL_H)
-        leftPanel:SetPoint("TOPLEFT", barGroup, "TOPLEFT", 0, -110)
+        leftPanel:SetPoint("TOPLEFT", barGroup, "TOPLEFT", 0, -172)
         SetupPanel(leftPanel)
         local rightPanel = CreateFrame("Frame", "MSUF_BarsMenuPanelRight", barGroup, "BackdropTemplate")
         rightPanel:SetSize(320, BARS_PANEL_H)
@@ -4629,6 +5862,7 @@ do
         local rightHeader = rightPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
         rightHeader:SetPoint("TOPLEFT", rightPanel, "TOPLEFT", 16, -12)
         rightHeader:SetText(TR("Power Bar Settings"))
+        _G.MSUF_BarsMenuRightHeader = rightHeader
         -- Section labels in left panel
         local absorbHeader = leftPanel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         absorbHeader:SetPoint("TOPLEFT", leftHeader, "BOTTOMLEFT", 0, -18)
@@ -4700,7 +5934,7 @@ do
     if leftPanel then
         leftPanel:ClearAllPoints()
         leftPanel:SetSize(330, BARS_PANEL_H)
-        leftPanel:SetPoint("TOPLEFT", barGroup, "TOPLEFT", 0, -110)
+        leftPanel:SetPoint("TOPLEFT", barGroup, "TOPLEFT", 0, -172)
     end
     if rightPanel and leftPanel then
         rightPanel:ClearAllPoints()
@@ -4983,7 +6217,7 @@ do
     local legacyHeader = _G.MSUF_BarsMenuHighlightHeader
     if legacyHeader then legacyHeader:Hide() end
 
-    -- Section header
+    -- Section header Ã¢â‚¬â€ compact font
     local highlightHeader = leftPanel and leftPanel.MSUF_SectionHeader_Highlight
     if leftPanel and not highlightHeader then
         highlightHeader = leftPanel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -4993,8 +6227,7 @@ do
 
     if highlightHeader and outlineSlider then
         highlightHeader:ClearAllPoints()
-        -- Give it a bit more breathing room than the outline section.
-        highlightHeader:SetPoint("TOPLEFT", outlineSlider, "BOTTOMLEFT", 0, -44)
+        highlightHeader:SetPoint("TOPLEFT", outlineSlider, "BOTTOMLEFT", 0, -62)
         highlightHeader:Show()
     elseif highlightHeader then
         highlightHeader:Hide()
@@ -5019,17 +6252,26 @@ do
         end
     end
 
-    -- Re-anchor Aggro + Dispel border dropdowns under the new divider line
+    -- Re-anchor highlight thickness slider + Aggro/Dispel/Purge dropdowns + priority widget
+    local hlSlider = _G["MSUF_HighlightBorderThicknessSlider"]
     local aggroDrop = _G["MSUF_AggroOutlineDropdown"]
     local aggroTest = _G["MSUF_AggroOutlineTestCheck"]
     local dispelDrop = _G["MSUF_DispelOutlineDropdown"]
     local dispelTest = _G["MSUF_DispelOutlineTestCheck"]
+    local purgeDrop = _G["MSUF_PurgeOutlineDropdown"]
+    local purgeTest = _G["MSUF_PurgeOutlineTestCheck"]
+    local prioChk = _G["MSUF_HighlightPrioCheck"]
+    local prioCont = _G["MSUF_HighlightPrioContainer"]
 
-    if aggroDrop and highlightLine and highlightLine:IsShown() then
+    if hlSlider and highlightLine and highlightLine:IsShown() then
+        hlSlider:ClearAllPoints()
+        hlSlider:SetPoint("TOPLEFT", highlightLine, "BOTTOMLEFT", 16, -18)
+        hlSlider:SetWidth(280)
+    end
+
+    if aggroDrop and hlSlider then
         aggroDrop:ClearAllPoints()
-        -- UIDropDownMenuTemplate has an internal left padding. To visually align the *boxed* dropdown
-        -- with our section divider line (same as other dropdowns in this panel), we offset by -16px.
-        aggroDrop:SetPoint("TOPLEFT", highlightLine, "BOTTOMLEFT", -16, -10)
+        aggroDrop:SetPoint("TOPLEFT", hlSlider, "BOTTOMLEFT", -16, -28)
         UIDropDownMenu_SetWidth(aggroDrop, 170)
 		if UIDropDownMenu_JustifyText then UIDropDownMenu_JustifyText(aggroDrop, "LEFT") end
     end
@@ -5046,18 +6288,59 @@ do
 		dispelTest:ClearAllPoints()
 		dispelTest:SetPoint("LEFT", dispelDrop, "RIGHT", 6, -4)
 	end
+    if purgeDrop and dispelDrop then
+        purgeDrop:ClearAllPoints()
+        purgeDrop:SetPoint("TOPLEFT", dispelDrop, "BOTTOMLEFT", 0, -12)
+        UIDropDownMenu_SetWidth(purgeDrop, 170)
+    end
+    if purgeTest and purgeDrop then
+        purgeTest:ClearAllPoints()
+        purgeTest:SetPoint("LEFT", purgeDrop, "RIGHT", 6, -4)
+    end
+    if prioChk and purgeDrop then
+        prioChk:ClearAllPoints()
+        prioChk:SetPoint("TOPLEFT", purgeDrop, "BOTTOMLEFT", 16, -10)
+    end
+    if prioCont and prioChk then
+        prioCont:ClearAllPoints()
+        prioCont:SetPoint("TOPLEFT", prioChk, "BOTTOMLEFT", -2, -4)
+    end
 end
--- Right panel: text modes start under power bar height
+-- Bar scope: positioned ABOVE both panels so it's always visible at the top.
+do
+    local leftPanel2 = _G["MSUF_BarsMenuPanelLeft"]
+    -- Hide the old scope section line inside the left panel (no longer needed there).
+    if leftPanel2 and leftPanel2.MSUF_SectionLine_BarScope then
+        leftPanel2.MSUF_SectionLine_BarScope:Hide()
+    end
+    -- Anchor scope header + dropdown above the two-column panels.
+    local scopeHeader = barGroup._msufBarScopeHeader
+    if scopeHeader then
+        scopeHeader:ClearAllPoints()
+        scopeHeader:SetPoint("TOPLEFT", barGroup, "TOPLEFT", 16, -120)
+        scopeHeader:Show()
+    end
+    if hpPowerScopeLabel and scopeHeader then
+        hpPowerScopeLabel:ClearAllPoints()
+        hpPowerScopeLabel:SetPoint("LEFT", scopeHeader, "RIGHT", 12, 0)
+        hpPowerScopeLabel:SetText(TR("Configure settings for"))
+    end
+    if hpPowerScopeDrop and hpPowerScopeLabel then
+        hpPowerScopeDrop:ClearAllPoints()
+        hpPowerScopeDrop:SetPoint("LEFT", hpPowerScopeLabel, "RIGHT", -10, -2)
+        UIDropDownMenu_SetWidth(hpPowerScopeDrop, 160)
+    end
+    if hpPowerOverrideCheck and hpPowerScopeDrop then
+        hpPowerOverrideCheck:ClearAllPoints()
+        hpPowerOverrideCheck:SetPoint("LEFT", hpPowerScopeDrop, "RIGHT", -10, 0)
+    end
+end
+-- Right panel: text modes anchor directly under power bar border (scope dropdown moved to left)
+    local textTopAnchor = powerBarBorderSizeLabel or powerBarBorderCheck or powerBarEmbedCheck or powerBarHeightLabel
     if hpModeLabel then
         hpModeLabel:ClearAllPoints()
-        if powerBarBorderSizeLabel then
-            hpModeLabel:SetPoint("TOPLEFT", powerBarBorderSizeLabel, "BOTTOMLEFT", 0, -28)
-        elseif powerBarBorderCheck then
-            hpModeLabel:SetPoint("TOPLEFT", powerBarBorderCheck, "BOTTOMLEFT", 0, -28)
-        elseif powerBarEmbedCheck then
-            hpModeLabel:SetPoint("TOPLEFT", powerBarEmbedCheck, "BOTTOMLEFT", 0, -28)
-        elseif powerBarHeightLabel then
-            hpModeLabel:SetPoint("TOPLEFT", powerBarHeightLabel, "BOTTOMLEFT", 0, -28)
+        if textTopAnchor then
+            hpModeLabel:SetPoint("TOPLEFT", textTopAnchor, "BOTTOMLEFT", 0, -28)
         end
     end
     local textModesLine
@@ -5157,6 +6440,15 @@ local function MSUF_SyncBarsTabToggles()
         if t < 0 then t = 0 elseif t > 6 then t = 6 end
         MSUF_SetLabeledSliderValue(barOutlineThicknessSlider, t)
         MSUF_SetLabeledSliderEnabled(barOutlineThicknessSlider, true)
+    -- Highlight border thickness (1..6) for aggro/dispel/purge overlay.
+    if highlightBorderThicknessSlider then
+        local ht = tonumber(g.highlightBorderThickness)
+        if type(ht) ~= "number" then ht = 2 end
+        ht = math.floor(ht + 0.5)
+        if ht < 1 then ht = 1 elseif ht > 6 then ht = 6 end
+        MSUF_SetLabeledSliderValue(highlightBorderThicknessSlider, ht)
+        MSUF_SetLabeledSliderEnabled(highlightBorderThicknessSlider, true)
+    end
         local g = (MSUF_DB and MSUF_DB.general) or {}
         local mode = g.aggroOutlineMode or 0
         local dd = _G["MSUF_AggroOutlineDropdown"]
@@ -5175,6 +6467,24 @@ if dispelDrop then
 	if (g.dispelOutlineMode or 0) == 1 then
 		UIDropDownMenu_SetText(dispelDrop, TR("Dispel border on"))
 	end
+end
+
+-- Purge border dropdown
+local purgeDrop = _G["MSUF_PurgeOutlineDropdown"]
+if purgeDrop then
+	UIDropDownMenu_SetText(purgeDrop, TR("Purge border off"))
+	if (g.purgeOutlineMode or 0) == 1 then
+		UIDropDownMenu_SetText(purgeDrop, TR("Purge border on"))
+	end
+end
+
+-- Highlight priority
+local prioChk = _G["MSUF_HighlightPrioCheck"]
+if prioChk then
+	prioChk:SetChecked((g.highlightPrioEnabled or 0) == 1)
+end
+if type(_G.MSUF_PrioRows_Reinit) == "function" then
+	_G.MSUF_PrioRows_Reinit()
 end
 
     end
@@ -5226,8 +6536,8 @@ end
  end
  MSUF_BarsMenu_QueueScrollUpdate()
 if barGroup and barGroup.HookScript then barGroup:HookScript('OnShow', MSUF_SyncBarsTabToggles) end
-local function MSUF_BarsApplyGradient()
-    -- Note to user: gradients may not fully apply until /reload (shown once to avoid spam).
+MSUF_BarsApplyGradient = function()
+    -- Live-apply gradient changes (HP + Power). No reload required.
     -- Ensure the strength isn't accidentally zeroed (old hidden slider could leave 0, making gradients look "dead").
     EnsureDB()
     local g = (MSUF_DB and MSUF_DB.general) or {}
@@ -5287,14 +6597,6 @@ local function MSUF_BarsApplyGradient()
 if _G and _G.MSUF_Options_BindDBBoolCheck then
     _G.MSUF_Options_BindDBBoolCheck(gradientCheck, "general.enableGradient", MSUF_BarsApplyGradient, MSUF_SyncBarsTabToggles)
     _G.MSUF_Options_BindDBBoolCheck(powerGradientCheck, "general.enablePowerGradient", MSUF_BarsApplyGradient, MSUF_SyncBarsTabToggles)
-end
--- Prompt for reload when toggling Power Bar Gradient (user click).
-if powerGradientCheck and powerGradientCheck.HookScript then
-    powerGradientCheck:HookScript("OnClick", function()
-        if type(MSUF_Options_ShowGradientReloadPopup) == "function" then
-            MSUF_Options_ShowGradientReloadPopup()
-        end
-     end)
 end
 do
     local SIMPLE_BAR_SLIDERS = {
@@ -5423,10 +6725,14 @@ end
     panel.hpModeDrop                 = hpModeDrop
 panel.barTextureDrop             = barTextureDrop
     panel.barOutlineThicknessSlider = barOutlineThicknessSlider
+    panel.highlightBorderThicknessSlider = highlightBorderThicknessSlider
 	    panel.aggroOutlineDrop          = aggroOutlineDrop
     panel.aggroTestCheck            = aggroTestCheck
 	panel.dispelOutlineDrop         = dispelOutlineDrop
 	panel.dispelTestCheck           = dispelTestCheck
+	panel.purgeOutlineDrop          = purgeOutlineDrop
+	panel.purgeTestCheck            = purgeTestCheck
+	panel.prioCheck                 = prioCheck
 panel.fontSizeSlider     = fontSizeSlider
 panel.updateThrottleSlider = updateThrottleSlider
 panel.powerBarHeightSlider = powerBarHeightSlider
@@ -5473,6 +6779,19 @@ panel.infoTooltipDisableCheck = infoTooltipDisableCheck
 			if dispelOutlineDrop and dispelOutlineDrop._msufDispelOutlineOptions and dispelOutlineDrop._msufDispelOutlineGet then
 				MSUF_SyncSimpleDropdown(dispelOutlineDrop, dispelOutlineDrop._msufDispelOutlineOptions, dispelOutlineDrop._msufDispelOutlineGet)
 				if self.dispelTestCheck then self.dispelTestCheck:SetChecked((_G and _G.MSUF_DispelBorderTestMode) and true or false) end
+			end
+			local purgeOutlineDrop = self.purgeOutlineDrop
+			if purgeOutlineDrop and purgeOutlineDrop._msufPurgeOutlineOptions and purgeOutlineDrop._msufPurgeOutlineGet then
+				MSUF_SyncSimpleDropdown(purgeOutlineDrop, purgeOutlineDrop._msufPurgeOutlineOptions, purgeOutlineDrop._msufPurgeOutlineGet)
+			end
+			if self.purgeTestCheck then self.purgeTestCheck:SetChecked((_G and _G.MSUF_PurgeBorderTestMode) and true or false) end
+			-- Deferred hook: if slash menu window was created after panel build, hook it now.
+			do
+				local sw = _G.MSUF_StandaloneOptionsWindow
+				if sw and not sw.__MSUF_TestCleanupHooked and type(_G.MSUF_TestCleanup_Deferred) == "function" then
+					sw.__MSUF_TestCleanupHooked = true
+					sw:HookScript("OnHide", _G.MSUF_TestCleanup_Deferred)
+				end
 			end
         if anchorEdit then anchorEdit:SetText(g.anchorName or "UIParent") end
         if anchorCheck then
@@ -5578,23 +6897,34 @@ end
     -- Style all toggle labels: checked = white, unchecked = grey
     if MSUF_StyleAllToggles then MSUF_StyleAllToggles(panel) end
     panel.__MSUF_FullBuilt = true
-    -- Ensure aggro-border test mode never leaks outside the Settings panel.
+    -- Ensure aggro/dispel/purge test modes persist while the user navigates
+    -- between menu tabs (Bars Ã¢â€ â€ Colors), but clear when the slash menu closes.
     if not panel.__MSUF_AggroTestHooked then
         panel.__MSUF_AggroTestHooked = true
-        panel:HookScript("OnHide", function()
+        local function _ClearAllTestModes()
             if type(_G.MSUF_SetAggroBorderTestMode) == "function" then
                 _G.MSUF_SetAggroBorderTestMode(false)
             end
             if type(_G.MSUF_SetDispelBorderTestMode) == "function" then
                 _G.MSUF_SetDispelBorderTestMode(false)
             end
-            if panel.aggroTestCheck then
-                panel.aggroTestCheck:SetChecked(false)
+            if type(_G.MSUF_SetPurgeBorderTestMode) == "function" then
+                _G.MSUF_SetPurgeBorderTestMode(false)
             end
-			if panel.dispelTestCheck then
-				panel.dispelTestCheck:SetChecked(false)
-			end
-        end)
+            if panel.aggroTestCheck then panel.aggroTestCheck:SetChecked(false) end
+            if panel.dispelTestCheck then panel.dispelTestCheck:SetChecked(false) end
+            if panel.purgeTestCheck then panel.purgeTestCheck:SetChecked(false) end
+        end
+        -- Standalone slash menu window (/msuf)
+        local slashWin = _G.MSUF_StandaloneOptionsWindow
+        if slashWin and not slashWin.__MSUF_TestCleanupHooked then
+            slashWin.__MSUF_TestCleanupHooked = true
+            slashWin:HookScript("OnHide", _ClearAllTestModes)
+        end
+        -- If slash window is created later, hook it on next Show.
+        if not slashWin then
+            _G.MSUF_TestCleanup_Deferred = _ClearAllTestModes
+        end
     end
 
 SetCurrentKey("player")

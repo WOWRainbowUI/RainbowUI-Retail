@@ -430,6 +430,12 @@ end
     if g.unitInfoTooltipStyle == nil then
         g.unitInfoTooltipStyle = "classic"
     end
+    -- Tooltip custom position (set via Edit Mode drag).
+    -- nil / false = use default style-based positioning (classic/modern).
+    -- When set, these are BOTTOMLEFT-relative pixel coordinates on UIParent.
+    -- Intentionally NOT defaulted: absence means "no custom position".
+    if g.tooltipPosX ~= nil and type(g.tooltipPosX) ~= "number" then g.tooltipPosX = nil end
+    if g.tooltipPosY ~= nil and type(g.tooltipPosY) ~= "number" then g.tooltipPosY = nil end
     if g.castbarInterruptibleColor == nil then
         g.castbarInterruptibleColor = "turquoise"
     end
@@ -463,6 +469,10 @@ if g.castbarUnifiedFillDirection ~= nil then
     -- Channeled casts: show 5 tick lines (channel tick markers)
     if g.castbarShowChannelTicks == nil then
         g.castbarShowChannelTicks = false
+    end
+    -- Opposite fill-direction for enemy castbar
+    if g.castbarOpositeDirectionTarget == nil then
+        g.castbarOpositeDirectionTarget = false
     end
     -- GCD/Instant-cast bar (disabled by default; options treat nil as enabled)
     if g.showGCDBar == nil then g.showGCDBar = false end
@@ -718,6 +728,10 @@ end
     if g.hpTextSpacerX == nil then
         g.hpTextSpacerX = 140
     end
+    -- Bar settings scope: always default to Shared so users edit globally first.
+    if g.hpPowerTextSelectedKey == nil then
+        g.hpPowerTextSelectedKey = "shared"
+    end
     -- Which unit's HP spacer settings are currently shown/edited in the Bars menu.
     -- This is purely a UI selection state (does not change gameplay behavior).
     if g.hpSpacerSelectedUnitKey == nil then
@@ -774,8 +788,27 @@ end
             end
         end
     end
+
+    -- Power text mode: migrate legacy modes to EQoL-style keys.
+    local function _MSUF_MigratePowerMode(v)
+        if v == nil then return nil end
+        if v == "FULL_SLASH_MAX" then return "CURMAX" end
+        if v == "FULL_ONLY" then return "CURRENT" end
+        if v == "PERCENT_ONLY" then return "PERCENT" end
+        if v == "FULL_PLUS_PERCENT" or v == "PERCENT_PLUS_FULL" then return "CURPERCENT" end
+        return v
+    end
+
+    g.powerTextMode = _MSUF_MigratePowerMode(g.powerTextMode)
+    for _, unitKey in ipairs({"player","target","focus","targettarget","pet","boss"}) do
+        local u = MSUF_DB[unitKey]
+        if type(u) == "table" then
+            u.powerTextMode = _MSUF_MigratePowerMode(u.powerTextMode)
+        end
+    end
+
     if g.powerTextMode == nil then
-        g.powerTextMode = "FULL_PLUS_PERCENT"
+        g.powerTextMode = "CURPERCENT"
     end
     if g.showTotalAbsorbAmount == nil then
         g.showTotalAbsorbAmount = false
@@ -1001,7 +1034,9 @@ end
     -- This lets users run a single profile across multiple characters without
     -- having to swap the spell whenever they change class.
     if gp.meleeSpellPerClass == nil then gp.meleeSpellPerClass = false end
+    if gp.meleeSpellPerSpec == nil then gp.meleeSpellPerSpec = false end
     if gp.nameplateMeleeSpellIDByClass == nil then gp.nameplateMeleeSpellIDByClass = {} end
+    if gp.nameplateMeleeSpellIDBySpec == nil then gp.nameplateMeleeSpellIDBySpec = {} end
     -- Auras: legacy auras DB removed in Patch 6D Step 2 (Auras 2.0 uses MSUF_DB.auras2)
     if MSUF_DB.auras ~= nil then MSUF_DB.auras = nil end
 -- Root toggle: Shorten unit names (Frames -> General)
@@ -1049,10 +1084,12 @@ filters = {
                     enabled = true,
                     hidePermanent = false,
                     onlyBossAuras = false,
+                    onlyImportantAuras = false,
                     buffs = {
                         includeBoss = false,
                         includeStealable = false,
                         onlyMine = false,
+                        onlyImportant = false,
                     },
                     debuffs = {
                         dispelCurse = false,
@@ -1063,6 +1100,7 @@ filters = {
                         includeBoss = false,
                         includeDispellable = false,
                         onlyMine = false,
+                        onlyImportant = false,
                     },
                 },
             },
@@ -1083,10 +1121,12 @@ filters = {
                         enabled = true,
                         hidePermanent = false,
                         onlyBossAuras = false,
+                        onlyImportantAuras = false,
                         buffs = {
                             includeBoss = false,
                             includeStealable = false,
                             onlyMine = false,
+                            onlyImportant = false,
                         },
                         debuffs = {
                             dispelCurse = false,
@@ -1097,6 +1137,7 @@ filters = {
                             includeBoss = false,
                             includeDispellable = false,
                             onlyMine = false,
+                            onlyImportant = false,
                         },
                     },
                 },
@@ -1116,10 +1157,12 @@ filters = {
                         enabled = true,
                         hidePermanent = false,
                         onlyBossAuras = false,
+                        onlyImportantAuras = false,
                         buffs = {
                             includeBoss = false,
                             includeStealable = false,
                             onlyMine = false,
+                            onlyImportant = false,
                         },
                         debuffs = {
                             dispelCurse = false,
@@ -1130,6 +1173,7 @@ filters = {
                             includeBoss = false,
                             includeDispellable = false,
                             onlyMine = false,
+                            onlyImportant = false,
                         },
                     },
                 },
@@ -1154,10 +1198,12 @@ filters = {
                     enabled = true,
                     hidePermanent = false,
                     onlyBossAuras = false,
+                    onlyImportantAuras = false,
                     buffs = {
                         includeBoss = false,
                         includeStealable = false,
                         onlyMine = false,
+                        onlyImportant = false,
                     },
                     debuffs = {
                         dispelCurse = false,
@@ -1168,11 +1214,50 @@ filters = {
                         includeBoss = false,
                         includeDispellable = false,
                         onlyMine = false,
+                        onlyImportant = false,
                     },
                 },
             }
         end
     end
+    -- Auras 2.0: ensure curated IMPORTANT filter keys exist for existing profiles
+    -- IMPORTANT = Blizzard curated "important" aura list for unitframe aura APIs.
+    -- Split toggles: Buffs + Debuffs have their own IMPORTANT toggle (like Unhalted).
+    if MSUF_DB and MSUF_DB.auras2 then
+        local a2 = MSUF_DB.auras2
+        local function EnsureImportantSplit(f)
+            if type(f) ~= "table" then return end
+            f.buffs = (type(f.buffs) == "table") and f.buffs or {}
+            f.debuffs = (type(f.debuffs) == "table") and f.debuffs or {}
+            local b, d = f.buffs, f.debuffs
+
+            -- One-time migration: legacy onlyImportantAuras -> per-type toggles
+            if f._msufA2_onlyImportantSplitMigrated_v1 ~= true then
+                if f.onlyImportantAuras == true then
+                    if b.onlyImportant == nil then b.onlyImportant = true end
+                    if d.onlyImportant == nil then d.onlyImportant = true end
+                    f.onlyImportantAuras = false
+                end
+                f._msufA2_onlyImportantSplitMigrated_v1 = true
+            end
+
+            if f.onlyImportantAuras == nil then f.onlyImportantAuras = false end
+            if b.onlyImportant == nil then b.onlyImportant = false end
+            if d.onlyImportant == nil then d.onlyImportant = false end
+        end
+
+        if a2.shared and a2.shared.filters then
+            EnsureImportantSplit(a2.shared.filters)
+        end
+        if a2.perUnit then
+            for _, pu in pairs(a2.perUnit) do
+                if pu and pu.filters then
+                    EnsureImportantSplit(pu.filters)
+                end
+            end
+        end
+    end
+
 local function fill(key, defaults)
         MSUF_DB[key] = MSUF_DB[key] or {}
         local t = MSUF_DB[key]
@@ -1252,6 +1337,10 @@ local function fill(key, defaults)
         portraitMode = "OFF",
         -- Per-unitframe: reverse fill direction for HP + Power bars.
         reverseFillBars = false,
+        -- Focus-only: optional relative anchor for positioning.
+        -- "GLOBAL" keeps the classic behavior (anchored to the MSUF global anchor).
+        -- Other supported values: "player", "target".
+        anchorToUnitframe = "GLOBAL",
     })
     for k, v in pairs(textDefaults) do
         if MSUF_DB.focus[k] == nil then MSUF_DB.focus[k] = v end
@@ -1300,6 +1389,7 @@ local function fill(key, defaults)
         offsetX      = 507,
         offsetY      = 309,
         spacing      = -96,
+        invertBossOrder = false,
         showName     = true,
         showLevelIndicator = false,
         showHP       = true,

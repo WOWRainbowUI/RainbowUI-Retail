@@ -99,6 +99,16 @@ local function PushVisualUpdates()
         ns.MSUF_RefreshAllFrames()
     end
 
+    -- Sync highlight priority stripe colors when border colors change.
+    local reinit = _G.MSUF_PrioRows_Reinit
+    if type(reinit) == "function" then reinit() end
+
+    -- Live-update highlight border colors during test mode (zero cost when no test active).
+    if _G.MSUF_AggroBorderTestMode or _G.MSUF_DispelBorderTestMode or _G.MSUF_PurgeBorderTestMode then
+        local applyAll = _G.MSUF_ApplyBarOutlineThickness_All
+        if type(applyAll) == "function" then applyAll() end
+    end
+
     -- Safety: keep mouseover highlight bound to the correct unitframe.
     -- Throttled (coalesces rapid UI changes into 1 pass).
     if ns.MSUF_ScheduleMouseoverHighlightFix then
@@ -138,11 +148,14 @@ local function MSUF_FixHighlightForFrame(frame)
     -- Ensure it is anchored to the unitframe (and includes the power bar if it extends below the main frame).
     -- Also try to snap to pixel grid to avoid "one side thicker" artifacts at non-integer UI scales.
     local bottomAnchor = frame
-    local pb =
+    -- When power bar is detached, highlight only covers the HP bar area.
+    local pbDetached = frame._msufPowerBarDetached
+    local pb = not pbDetached and (
         frame.targetPowerBar or frame.TargetPowerBar or frame.powerBar or frame.PowerBar
         or frame.power or frame.Power or frame.ManaBar or frame.manaBar
         or frame.MSUF_powerBar or frame.MSUF_PowerBar or frame.MSUFPowerBar
         or frame.resourceBar or frame.ResourceBar or frame.classPowerBar or frame.ClassPowerBar
+    ) or nil
 
     if pb and pb.IsShown and pb.GetObjectType then
         -- Only use it if it behaves like a Region/Frame and is currently shown.
@@ -156,7 +169,8 @@ local function MSUF_FixHighlightForFrame(frame)
     end
 
     -- If we didn't find a known power bar field, try a lightweight child scan by name.
-    if bottomAnchor == frame and frame.GetChildren then
+    -- Skip scan when power bar is detached (highlight should only cover HP bar).
+    if not pbDetached and bottomAnchor == frame and frame.GetChildren then
         local children = { frame:GetChildren() }
         for i = 1, #children do
             local c = children[i]
@@ -213,6 +227,8 @@ local function MSUF_FixHighlightForFrame(frame)
         end)
     end
 end
+-- Export so other files can re-fix highlight anchors (e.g. after detach state changes)
+_G.MSUF_FixHighlightForFrame = MSUF_FixHighlightForFrame
 
 function ns.MSUF_FixMouseoverHighlightBindings()
     -- Prefer EnumerateFrames() (safe, doesn't touch _G and avoids odd tables like _G itself).
@@ -519,7 +535,7 @@ local function GetNonInterruptibleCastColor()
         return c[1], c[2], c[3]
     end
 
-    -- Fallback: „red“ aus der Palette
+    -- Fallback: aus der Palette
     if MSUF_FONT_COLORS and MSUF_FONT_COLORS["red"] then
         local c = MSUF_FONT_COLORS["red"]
         return c[1], c[2], c[3]
@@ -529,7 +545,7 @@ local function GetNonInterruptibleCastColor()
     return 0.4, 0.01, 0.01
 end
 
--- global alias für die Castbar-Logik im Main-File
+-- global alias die Castbar-Logik im Main-File
 MSUF_GetNonInterruptibleCastColor = GetNonInterruptibleCastColor
 
 local function SetNonInterruptibleCastColor(r, g, b)
@@ -2102,6 +2118,56 @@ end
         end)
     end)
 
+-- Purge border (outline indicator for purgeable/spellstealable buffs)
+    local function GetPurgeBorderColor()
+        local defR, defG, defB = 1.00, 0.85, 0.00
+        if EnsureDB and MSUF_DB then
+            EnsureDB()
+            MSUF_DB.general = MSUF_DB.general or {}
+            local g = MSUF_DB.general
+            local r = g.purgeBorderColorR
+            local gg = g.purgeBorderColorG
+            local b = g.purgeBorderColorB
+            if type(r) == "number" and type(gg) == "number" and type(b) == "number" then
+                return r, gg, b
+            end
+        end
+        return defR, defG, defB
+    end
+
+    local function SetPurgeBorderColor(r, g, b)
+        if not EnsureDB or not MSUF_DB then return end
+        EnsureDB()
+        MSUF_DB.general = MSUF_DB.general or {}
+        local gen = MSUF_DB.general
+        gen.purgeBorderColorR = r
+        gen.purgeBorderColorG = g
+        gen.purgeBorderColorB = b
+        PushVisualUpdates()
+    end
+
+    local purgeLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    purgeLabel:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barLabelX, startY - 5 * rowH)
+    purgeLabel:SetJustifyH("LEFT")
+    purgeLabel:SetText("Purge Border Color")
+
+    local purgeSwatch = CreateFrame("Button", "MSUF_Colors_PurgeBorderSwatch", content)
+    purgeSwatch:SetSize(barSwatchW, 16)
+    purgeSwatch:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barSwatchX, startY - 5 * rowH)
+
+    panel.__MSUF_ExtraColorPurgeBorderTex = purgeSwatch:CreateTexture(nil, "ARTWORK")
+    panel.__MSUF_ExtraColorPurgeBorderTex:SetAllPoints()
+    panel.__MSUF_ExtraColorPurgeBorderTex:SetColorTexture(GetPurgeBorderColor())
+
+    purgeSwatch:SetScript("OnClick", function()
+        local r, g, b = GetPurgeBorderColor()
+        OpenColorPicker(r, g, b, function(nr, ng, nb)
+            SetPurgeBorderColor(nr, ng, nb)
+            local tex = panel.__MSUF_ExtraColorPurgeBorderTex
+            if tex then tex:SetColorTexture(nr, ng, nb) end
+        end)
+    end)
+
     -- Reset (kept for 0-regression; affects both columns)
     local npcResetBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
     npcResetBtn:SetSize(160, 22)
@@ -2120,6 +2186,7 @@ end
                         gen.powerBarBgColorR, gen.powerBarBgColorG, gen.powerBarBgColorB = nil, nil, nil
                         gen.aggroBorderColorR, gen.aggroBorderColorG, gen.aggroBorderColorB = nil, nil, nil
                         gen.dispelBorderColorR, gen.dispelBorderColorG, gen.dispelBorderColorB = nil, nil, nil
+                        gen.purgeBorderColorR, gen.purgeBorderColorG, gen.purgeBorderColorB = nil, nil, nil
             
                         gen.powerBarBgMatchHPColor = nil
                         MSUF_DB.bars = MSUF_DB.bars or {}

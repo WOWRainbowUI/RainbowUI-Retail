@@ -1,9 +1,4 @@
 -- MidnightSimpleUnitFrames - Boss Castbar Module (bootstrap)
--- Step 0: Show MSUF-style boss castbars (boss1..boss5) without options UI.
--- Goals for Step 0:
---   - Use the SAME interruptible/non-interruptible color sources as MSUF (so the Colors menu applies automatically).
---   - Use MSUF's castbar layout (icon is OUTSIDE the statusbar fill area; no overlap).
---   - Use duration-objects (UnitCastingDuration/UnitChannelDuration) + MSUF_CastbarManager if available.
 
 local addonName, ns = ...
 ns = ns or {}
@@ -343,7 +338,7 @@ local function CreateBossCastbarFrame(unit)
 local h = self:GetHeight() or 18
 if h < 12 then h = 12 end
 
--- Boss-specific castbar icon settings (Step 2)
+-- Boss-specific castbar icon settings
 EnsureDBSafe()
 local g = (_G.MSUF_DB and _G.MSUF_DB.general) or {}
 local showIcon = (g.showBossCastIcon == nil) and (g.castbarShowIcon ~= false) or (g.showBossCastIcon ~= false)
@@ -959,7 +954,7 @@ local function BossCastbar_OnUpdate(self, elapsed)
         self.MSUF_durationObj = newObj
         if self._msufCastState then self._msufCastState.durationObj = newObj end
         if self.statusBar and self.statusBar.SetTimerDuration then
-            SafeCall(self.statusBar.SetTimerDuration, self.statusBar, newObj, 0)
+            SafeCall(self.statusBar.SetTimerDuration, self.statusBar, newObj)
         end
         -- Re-snapshot for future ticks.
         Boss_SnapshotPlainTimes(self, newObj)
@@ -1146,7 +1141,7 @@ BossCastbar_Start = function(frame)
         end
 
         if frame.statusBar and frame.statusBar.SetTimerDuration then
-            SafeCall(frame.statusBar.SetTimerDuration, frame.statusBar, durObj, 0)
+            SafeCall(frame.statusBar.SetTimerDuration, frame.statusBar, durObj)
         end
         Boss_SnapshotPlainTimes(frame, durObj)
 	    
@@ -1220,7 +1215,7 @@ BossCastbar_Start = function(frame)
         end
 
         if frame.statusBar and frame.statusBar.SetTimerDuration then
-            SafeCall(frame.statusBar.SetTimerDuration, frame.statusBar, durObj, 0)
+            SafeCall(frame.statusBar.SetTimerDuration, frame.statusBar, durObj)
         end
         Boss_SnapshotPlainTimes(frame, durObj)
 	    
@@ -1836,7 +1831,17 @@ function _G.MSUF_UpdateBossCastbarPreview()
         -- Only show a preview when the corresponding boss unitframe preview exists & is visible.
         if uf and uf.IsShown and uf:IsShown() then
             MSUF_PositionBossCastbarPreview(f, i)
+            -- Hard-sync first (runtime truth), then apply layout from DB.
+            -- IMPORTANT: If we hard-sync *after* layout, it overrides live width/height edits
+            -- and makes the boss preview look like it "won't live apply".
+            if type(_G.MSUF_HardSyncCastbarPreview) == "function" then
+                local real = (_G.MSUF_BossCastbars and _G.MSUF_BossCastbars[i]) or _G["MSUF_BossCastbar" .. i]
+                _G.MSUF_HardSyncCastbarPreview(f, real)
+            end
+
+            -- Apply DB-driven layout last so Edit Mode changes to width/height are visible immediately.
             MSUF_ApplyBossCastbarPreviewLayout(f, i)
+
             f:Show()
         else
             f:Hide()

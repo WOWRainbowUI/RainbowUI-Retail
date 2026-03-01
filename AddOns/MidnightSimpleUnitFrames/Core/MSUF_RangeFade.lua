@@ -78,6 +78,8 @@ do
         activeSpells = {}, -- [spellID] = true
         spellState   = {}, -- [spellID] = 1/0/nil
         activeCount  = 0,
+        knownCount   = 0,
+        inRangeCount = 0,
 
         inRangeAny = true,
         lastAppliedAlpha = -1,
@@ -105,18 +107,33 @@ do
     end
 
     local function RF_RecomputeInRangeAny()
-        local anyKnown = false
-        local anyTrue = false
-        for _, v in pairs(RF.spellState) do
-            if v ~= nil then
-                anyKnown = true
-                if v == 1 then
-                    anyTrue = true
-                    break
-                end
+        RF.inRangeAny = (RF.knownCount <= 0) or (RF.inRangeCount > 0)
+    end
+
+    local function RF_SetSpellState(spellID, newValue)
+        local oldValue = RF.spellState[spellID]
+        if oldValue == newValue then
+            return
+        end
+
+        if oldValue ~= nil then
+            RF.knownCount = RF.knownCount - 1
+            if oldValue == 1 then
+                RF.inRangeCount = RF.inRangeCount - 1
             end
         end
-        RF.inRangeAny = (not anyKnown) or anyTrue
+
+        RF.spellState[spellID] = newValue
+
+        if newValue ~= nil then
+            RF.knownCount = RF.knownCount + 1
+            if newValue == 1 then
+                RF.inRangeCount = RF.inRangeCount + 1
+            end
+        end
+
+        if RF.knownCount < 0 then RF.knownCount = 0 end
+        if RF.inRangeCount < 0 then RF.inRangeCount = 0 end
     end
 
     local function RF_ResolveSpellID(spellIdentifier)
@@ -142,7 +159,7 @@ do
         RF.activeSpells[spellID] = nil
         RF.activeCount = RF.activeCount - 1
         EnableSpellRangeCheck(spellID, false)
-        RF.spellState[spellID] = nil
+        RF_SetSpellState(spellID, nil)
     end
 
     local function RF_DisableAllSpells()
@@ -152,6 +169,8 @@ do
         wipe(RF.activeSpells)
         wipe(RF.spellState)
         RF.activeCount = 0
+        RF.knownCount = 0
+        RF.inRangeCount = 0
         RF.inRangeAny = true
     end
 
@@ -311,9 +330,9 @@ do
 
         if checksRange == true then
             local v = ((isInRange == true) or (isInRange == 1)) and 1 or 0
-            RF.spellState[spellID] = v
+            RF_SetSpellState(spellID, v)
         else
-            RF.spellState[spellID] = nil
+            RF_SetSpellState(spellID, nil)
         end
 
         RF_RecomputeInRangeAny()
@@ -331,6 +350,8 @@ do
 
     function _G.MSUF_RangeFade_Reset()
         wipe(RF.spellState)
+        RF.knownCount = 0
+        RF.inRangeCount = 0
         RF.inRangeAny = true
         RF.lastAppliedAlpha = -1
         RF_ApplyAlphaIfChanged(true)
@@ -417,7 +438,7 @@ do
                 if reset then reset() end
             end)
         else
-            -- Fallback: EventBus registration (UFCore not loaded yet — shouldn't happen with TOC order)
+            -- Fallback: EventBus registration (UFCore not loaded yet  shouldn't happen with TOC order)
             reg("PLAYER_TARGET_CHANGED", "MSUF_RANGEFADE", function()
                 local reset = _G.MSUF_RangeFade_Reset
                 if reset then reset() end
@@ -531,13 +552,13 @@ function _G.MSUF_RangeFade_InitPostLogin()
 
 	        local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 	        local issecretvalue = _G.issecretvalue
+	        -- Resolve secret-value checker once (called thousands of times per second).
+	        local _nsv_fn = (type(_G.NotSecretValue) == "function" and _G.NotSecretValue)
+	            or (type(issecretvalue) == "function" and function(v) return issecretvalue(v) == false end)
+	            or nil
+
 	        local function NotSecretValue(v)
-	            if type(_G.NotSecretValue) == "function" then
-	                return _G.NotSecretValue(v)
-	            end
-	            if type(issecretvalue) == "function" then
-	                return (issecretvalue(v) == false)
-	            end
+	            if _nsv_fn then return _nsv_fn(v) end
 	            return true
 	        end
 
@@ -690,21 +711,17 @@ function _G.MSUF_RangeFade_InitPostLogin()
 	        end
 
 	        local function UnitExistsNS(unit)
-	            if type(UnitExists) ~= "function" then
+	            if not UnitExists then return true end
+	            local r = UnitExists(unit)
+	            if _nsv_fn then
+	                if _nsv_fn(r) then return (r == true) end
 	                return true
 	            end
-	            local r = UnitExists(unit)
-	            if NotSecretValue(r) then
-	                return (r == true)
-	            end
-	            -- Unknown/secret: treat as exists (don't fade).
-	            return true
+	            return (r == true)
 	        end
 
 	        local function AllowInteractCheck()
-	            if type(InCombatLockdown) ~= "function" then
-	                return false
-	            end
+	            if not InCombatLockdown then return false end
 	            local ic = InCombatLockdown()
 	            if NotSecretValue(ic) then
 	                return (ic ~= true)
@@ -719,10 +736,11 @@ function _G.MSUF_RangeFade_InitPostLogin()
 
 	            local anyChecked = false
 	            local anyOut = false
+	            local nsv = _nsv_fn  -- hoist for hot loop
 
 	            for spellID in pairs(spells) do
 	                local r = IsSpellInRange(spellID, unit)
-	                if NotSecretValue(r) then
+	                if not nsv or nsv(r) then
 	                    anyChecked = true
 	                    if r == true or r == 1 then
 	                        return true
@@ -926,21 +944,25 @@ function _G.MSUF_RangeFade_InitPostLogin()
 	            ApplyUnitRangeFade("focus", "focus", conf, ComputeInRange_Generic)
 	        end
 
+	        -- Pre-cached boss unit strings (avoid "boss"..i concat in hot loop)
+	        local _bossUnits = { "boss1", "boss2", "boss3", "boss4", "boss5" }
+	        local _nBossUnits = #_bossUnits
+
 	        local function UpdateBosses()
 	            local db = _G.MSUF_DB
 	            local conf = db and db.boss
 
 	            if not IsEnabled(conf) then
-	                for i = 1, (_G.MSUF_MAX_BOSS_FRAMES or 5) do
-	                    ClearUnitMul("boss" .. i, "boss")
+	                for i = 1, _nBossUnits do
+	                    ClearUnitMul(_bossUnits[i], "boss")
 	                end
 	                return
 	            end
 
-	            for i = 1, (_G.MSUF_MAX_BOSS_FRAMES or 5) do
-	                local unit = "boss" .. i
+	            local frames = _G.MSUF_UnitFrames
+	            for i = 1, _nBossUnits do
+	                local unit = _bossUnits[i]
 	                -- Avoid extra work if unit/frame isn't up.
-	                local frames = _G.MSUF_UnitFrames
 	                local f = frames and frames[unit]
 	                if f and f.IsShown and f:IsShown() and UnitExistsNS(unit) then
 	                    ApplyUnitRangeFade(unit, "boss", conf, ComputeInRange_Enemy)
@@ -962,8 +984,8 @@ function _G.MSUF_RangeFade_InitPostLogin()
 	            local mulT = _G.MSUF_RangeFadeMul
 	            if type(mulT) ~= "table" then return end
 	            mulT.focus = 1
-	            for i = 1, (_G.MSUF_MAX_BOSS_FRAMES or 5) do
-	                mulT["boss" .. i] = 1
+	            for i = 1, _nBossUnits do
+	                mulT[_bossUnits[i]] = 1
 	            end
 	        end
 
@@ -991,9 +1013,21 @@ function _G.MSUF_RangeFade_InitPostLogin()
 	        ef:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 	        ef:RegisterEvent("ACTIONBAR_UPDATE_COOLDOWN")
 
+	        -- Throttle: cooldown events fire 27-48x/sec in combat but range changes slowly.
+	        -- Limit range checks to max 5/sec (0.2s interval) for cooldown events.
+	        local _rfThrottleAt = 0
+	        local _RF_THROTTLE_INTERVAL = 0.2
+
 	        ef:SetScript("OnEvent", function(_, event)
 	            if event == "SPELLS_CHANGED" or event == "PLAYER_ENTERING_WORLD" or event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED" or event == "PLAYER_TALENT_UPDATE" or event == "TRAIT_CONFIG_UPDATED" then
 	                UpdateActiveSpells()
+	            end
+
+	            -- Cooldown events: throttle to avoid 27-48 range checks/sec
+	            if event == "SPELL_UPDATE_COOLDOWN" or event == "ACTIONBAR_UPDATE_COOLDOWN" then
+	                local now = GetTime()
+	                if now < _rfThrottleAt then return end
+	                _rfThrottleAt = now + _RF_THROTTLE_INTERVAL
 	            end
 
 	            -- Apply (if disabled, this will clear multipliers)

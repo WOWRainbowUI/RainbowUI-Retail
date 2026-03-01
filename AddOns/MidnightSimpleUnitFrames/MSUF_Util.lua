@@ -18,6 +18,38 @@ local UnitHealthPercent, UnitPowerPercent = UnitHealthPercent, UnitPowerPercent
 local InCombatLockdown = InCombatLockdown
 local CreateFrame, GetTime = CreateFrame, GetTime
 
+-- ---------------------------------------------------------------------------
+-- Boss unit token helpers (perf)
+--
+-- Avoid pattern matching (string:match) in hot paths. Pattern matching is
+-- noticeably heavier than simple substring/tonumber checks.
+--
+-- Returns bossIndex (number) if u is "bossN" (N>=1), otherwise nil.
+-- NOTE: Keep global names stable so call-sites across files can use them.
+-- ---------------------------------------------------------------------------
+if type(_G.MSUF_GetBossIndexFromToken) ~= "function" then
+    function _G.MSUF_GetBossIndexFromToken(u)
+        if type(u) ~= "string" then
+            return nil
+        end
+        -- Fast prefix check
+        if string_sub(u, 1, 4) ~= "boss" then
+            return nil
+        end
+        local n = tonumber(string_sub(u, 5))
+        if n and n >= 1 then
+            return n
+        end
+        return nil
+    end
+end
+
+if type(_G.MSUF_IsBossUnitToken) ~= "function" then
+    function _G.MSUF_IsBossUnitToken(u)
+        return _G.MSUF_GetBossIndexFromToken(u) ~= nil
+    end
+end
+
 -- MSUF_Util.lua
 -- Stateless helpers / pure functions extracted from MidnightSimpleUnitFrames.lua
 -- Keep names stable (globals) to avoid touching call-sites.
@@ -131,21 +163,12 @@ end
 
 function MSUF_SetTextIfChanged(fs, text)
     if not fs then return end
-
-    -- Midnight/Beta "secret value" safety:
-    -- Never compare or cache text, because secret values will error on equality checks.
-    -- Just push the text through to the FontString.
-    local tt = type(text)
-    if tt == "nil" then
-        fs:SetText("")
-    elseif tt == "string" then
-        fs:SetText(text)
-    elseif tt == "number" then
-        -- IMPORTANT: do NOT tostring() here. Midnight/Beta "secret values" can
-        -- error during string conversion; the FontString API can handle numbers.
+    -- PERF: Simplified hot path. FontString:SetText() handles nil→"", numbers, and
+    -- secret values natively via C-side. No Lua-side type() branching needed.
+    -- Secret-safe: no comparison on text value, just nil gate.
+    if text ~= nil then
         fs:SetText(text)
     else
-        -- Be conservative: avoid passing unknown types (could error without pcall).
         fs:SetText("")
     end
 end
@@ -678,3 +701,73 @@ if not _G.MSUF_IsInAnyEditMode then
     end
 end
 
+
+-- Global helper: restore UIPanelButtonTemplate pieces if another skin/hide pass removed them.
+-- This is defensive and safe to call repeatedly; it only touches obvious regions (Left/Middle/Right/Normal/Font).
+if not _G.MSUF_ForceShowUIPanelButtonPieces then
+    function _G.MSUF_ForceShowUIPanelButtonPieces(btn)
+        if not btn then return end
+
+        local name = (btn.GetName and btn:GetName()) or nil
+        local left  = btn.Left   or (name and _G[name .. "Left"])   or nil
+        local mid   = btn.Middle or (name and _G[name .. "Middle"]) or nil
+        local right = btn.Right  or (name and _G[name .. "Right"])  or nil
+
+        local function ShowTex(t)
+            if not t then return end
+            if t.SetAlpha then pcall(t.SetAlpha, t, 1) end
+            if t.Show then pcall(t.Show, t) end
+        end
+
+        ShowTex(left)
+        ShowTex(mid)
+        ShowTex(right)
+
+        local nt = (btn.GetNormalTexture and btn:GetNormalTexture()) or nil
+        ShowTex(nt)
+
+        local fs = (btn.GetFontString and btn:GetFontString()) or btn.Text or nil
+        if fs then
+            if fs.SetAlpha then pcall(fs.SetAlpha, fs, 1) end
+            if fs.SetDrawLayer then pcall(fs.SetDrawLayer, fs, "OVERLAY", 7) end
+            if fs.Show then pcall(fs.Show, fs) end
+        end
+
+        if btn.SetAlpha then pcall(btn.SetAlpha, btn, 1) end
+    end
+end
+
+-- =========================================================================
+-- Keybinding support (Bindings.xml auto-discovered by WoW, NOT in TOC)
+-- =========================================================================
+BINDING_HEADER_MSUF_HEADER = "Midnight Simple Unit Frames"
+BINDING_NAME_MSUF_TOGGLE_OPTIONS = "Toggle MSUF Options"
+BINDING_NAME_MSUF_TOGGLE_EDITMODE = "Toggle MSUF Edit Mode"
+
+function MSUF_Keybind_ToggleOptions()
+    if type(_G.MSUF_OpenStandaloneOptionsWindow) == "function" then
+        local win = _G.MSUF_StandaloneOptionsWindow
+        if win and win.IsShown and win:IsShown() then
+            if type(_G.MSUF_HideStandaloneOptionsWindow) == "function" then
+                _G.MSUF_HideStandaloneOptionsWindow()
+            elseif win.Hide then
+                win:Hide()
+            end
+        else
+            _G.MSUF_OpenStandaloneOptionsWindow("home")
+        end
+    end
+end
+
+function MSUF_Keybind_ToggleEditMode()
+    if type(_G.MSUF_SetMSUFEditModeDirect) == "function" then
+        local st = _G.MSUF_EditState
+        local nextActive = true
+        if type(st) == "table" and st.active ~= nil then
+            nextActive = not st.active
+        end
+        pcall(_G.MSUF_SetMSUFEditModeDirect, nextActive, nil)
+    elseif type(_G.MSUF_ToggleEditMode) == "function" then
+        pcall(_G.MSUF_ToggleEditMode)
+    end
+end

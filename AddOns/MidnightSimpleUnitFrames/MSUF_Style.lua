@@ -338,6 +338,13 @@ function Style.SkinIconButton(btn, opts)
 function Style.SkinButton(btn, opts)
   if not Style.IsEnabled() then  return end
   if not btn then  return end
+  -- Opt-out: some buttons manage their own visuals (Options action buttons).
+  if btn._msufNoSlashSkin or btn.__msufMidnightActionSkinned or btn.__msufMidnightTabSkinned then
+    if type(_G.MSUF_ForceShowUIPanelButtonPieces) == "function" then
+      pcall(_G.MSUF_ForceShowUIPanelButtonPieces, btn)
+    end
+    return
+  end
   -- Specialized: dropdown arrows / icon-only buttons
   if _MSUF_IsDropButton(btn) then
     return Style.SkinDropButton(btn, opts)

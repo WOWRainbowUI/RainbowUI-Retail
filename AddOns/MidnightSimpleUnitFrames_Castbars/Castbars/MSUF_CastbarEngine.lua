@@ -21,7 +21,6 @@ local Style    = ns.MSUF_CastbarStyle     -- loaded earlier in the TOC
 ns.MSUF_CastbarEngine = ns.MSUF_CastbarEngine or {}
 local E = ns.MSUF_CastbarEngine
 
--- P3 Fix #16: Per-unit frame-tick cache.
 -- When BuildState is called multiple times for the same unit in the same game frame
 -- (same GetTime() value), return the cached result instead of re-querying WoW APIs.
 -- This avoids redundant UnitCastingInfo + UnitChannelInfo calls during event dispatch.
@@ -103,11 +102,15 @@ local _EnsureDBLazy = _G.MSUF_EnsureDBLazy or function()
     if not MSUF_DB and type(EnsureDB) == "function" then EnsureDB() end
 end
 
-local function GetFillDirectionReverseFor(castType)
+local function GetFillDirectionReverseFor(castType, unit)
     _EnsureDBLazy()
     local g = (MSUF_DB and MSUF_DB.general) or {}
 
     local baseReverse = (g.castbarFillDirection == "RTL") and true or false
+    if unit == "target" and g.castbarOpositeDirectionTarget == true then
+        baseReverse = not baseReverse
+    end
+
     local unified = (g.castbarUnifiedDirection == true)
 
     if castType == "CHANNEL" or castType == "EMPOWER" then
@@ -153,7 +156,6 @@ end
 function E:BuildState(unit, frameHint)
     if not unit then return { active = false } end
 
-    -- P3 Fix #16: Frame-tick cache — if already built for this unit in this game frame, return cached.
     local now = GetTime()
     if _buildCacheTime[unit] == now and E._state[unit] then
         return E._state[unit]
@@ -208,7 +210,7 @@ function E:BuildState(unit, frameHint)
             if ok then state.durationObj = d end
         end
 
-        state.reverseFill = GetFillDirectionReverseFor(state.castType)
+        state.reverseFill = GetFillDirectionReverseFor(state.castType, state.unit)
         return state
     end
 
@@ -234,7 +236,7 @@ function E:BuildState(unit, frameHint)
             if ok then state.durationObj = d end
         end
 
-        state.reverseFill = GetFillDirectionReverseFor(state.castType)
+        state.reverseFill = GetFillDirectionReverseFor(state.castType, state.unit)
         return state
     end
 

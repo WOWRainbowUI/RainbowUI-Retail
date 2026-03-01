@@ -570,6 +570,7 @@ ns.MSUF_PRESETS = {
       castbarPlayerTimeOffsetY = 0,
       castbarShakeStrength = 4,
       castbarShowChannelTicks = false,
+      castbarOpositeDirectionTarget = false,
       castbarShowGlow = false,
       castbarShowIcon = true,
       castbarShowSpellName = true,
@@ -825,7 +826,7 @@ ns.MSUF_PRESETS = {
     },
   },
   ["Rounded_Unitframes 1440p"] = {
-  _msufWarning = "Requires manual toggle: go to Modules → Styles and toggle the Rounded Unitframes module OFF/ON once after loading this preset.",
+  _msufWarning = "Requires manual toggle: go to Modules  Styles and toggle the Rounded Unitframes module OFF/ON once after loading this preset.",
   auras2 = {
     enabled = true,
     perUnit = {
@@ -1372,6 +1373,7 @@ ns.MSUF_PRESETS = {
     castbarPlayerTimeOffsetY = 0,
     castbarShakeStrength = 4,
     castbarShowChannelTicks = false,
+    castbarOpositeDirectionTarget = false,
     castbarShowGlow = false,
     castbarShowIcon = true,
     castbarShowSpellName = true,

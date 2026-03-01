@@ -1,5 +1,5 @@
 -- Castbars/MSUF_PlayerCastbarRuntime.lua
--- Phase 5 extraction: Player castbar runtime (latency, color, interrupt, cast, OnEvent).
+--  extraction: Player castbar runtime (latency, color, interrupt, cast, OnEvent).
 -- Loaded AFTER Empower + ChannelTicks (needs _G exports from those files).
 
 local MSUF_FastCall = _G.MSUF_FastCall or function(...) return pcall(...) end
@@ -12,6 +12,70 @@ local MSUF_PlayerCastbar_EmpowerStart       = function(s, id) local fn = _G.MSUF
 local MSUF_PlayerCastbar_ClearEmpower       = function(s, h) local fn = _G.MSUF_PlayerCastbar_ClearEmpower; if fn then fn(s, h) end end
 local MSUF_PlayerChannelHasteMarkers_Update = function(s, f) local fn = _G.MSUF_PlayerChannelHasteMarkers_Update; if fn then fn(s, f) end end
 local MSUF_PlayerChannelHasteMarkers_Hide   = function(s) local fn = _G.MSUF_PlayerChannelHasteMarkers_Hide; if fn then fn(s) end end
+
+local function MSUF_PlayerCastbar_ApplyLatencyZone(frame, pct, isChanneled)
+    if not frame or not frame.latencyBar or not frame.statusBar then
+        return
+    end
+
+    local bw = frame.statusBar:GetWidth() or 0
+    local ww = bw * (pct or 0)
+    local reverse = _G.MSUF_GetReverseFillSafe(frame, isChanneled and true or false)
+    local anchorOnLeft = reverse and true or false  -- finish edge (value always increases)
+
+    frame.latencyBar:ClearAllPoints()
+    if anchorOnLeft then
+        frame.latencyBar:SetPoint("TOPLEFT", frame.statusBar, "TOPLEFT", 0, 0)
+        frame.latencyBar:SetPoint("BOTTOMLEFT", frame.statusBar, "BOTTOMLEFT", 0, 0)
+    else
+        frame.latencyBar:SetPoint("TOPRIGHT", frame.statusBar, "TOPRIGHT", 0, 0)
+        frame.latencyBar:SetPoint("BOTTOMRIGHT", frame.statusBar, "BOTTOMRIGHT", 0, 0)
+    end
+
+    frame.latencyBar:SetWidth(ww)
+    if ww and ww > 0 then
+        frame.latencyBar:Show()
+    else
+        frame.latencyBar:Hide()
+    end
+end
+
+local function MSUF_PlayerCastbar_ApplyPendingLatencyZone(frame, generation)
+    if not frame then
+        return
+    end
+
+    local pending = frame._msufLatencyPending
+    if not pending then
+        return
+    end
+
+    if generation and pending.generation ~= generation then
+        return
+    end
+
+    MSUF_PlayerCastbar_ApplyLatencyZone(frame, pending.pct or 0, pending.isChanneled and true or false)
+end
+
+local MSUF_PlayerCastbar_LatencyZoneTimerQueue = {}
+
+local function MSUF_PlayerCastbar_RunQueuedLatencyZoneCallbacks()
+    local queue = MSUF_PlayerCastbar_LatencyZoneTimerQueue
+    local count = #queue
+    if count <= 0 then
+        return
+    end
+
+    local i = 1
+    while i <= count do
+        local frame = queue[i]
+        local generation = queue[i + 1]
+        MSUF_PlayerCastbar_ApplyPendingLatencyZone(frame, generation)
+        queue[i] = nil
+        queue[i + 1] = nil
+        i = i + 2
+    end
+end
 
 local function MSUF_PlayerCastbar_UpdateLatencyZone(self, isChanneled, durSec)
     if not self or not self.latencyBar or not self.statusBar then
@@ -55,52 +119,26 @@ local function MSUF_PlayerCastbar_UpdateLatencyZone(self, isChanneled, durSec)
     self.MSUF_latencyLastDurSec = durSec
 
     local barW = self.statusBar:GetWidth() or 0
-    local w = barW * pct
+
+    local pending = self._msufLatencyPending
+    if not pending then
+        pending = {}
+        self._msufLatencyPending = pending
+    end
+    pending.pct = pct
+    pending.isChanneled = isChanneled and true or false
+    pending.generation = (pending.generation or 0) + 1
+    local generation = pending.generation
 
     if (not barW or barW <= 1) and C_Timer and C_Timer.After then
-        C_Timer.After(0, function()
-            if not self or not self.latencyBar or not self.statusBar then return end
-            local bw = self.statusBar:GetWidth() or 0
-            local ww = bw * (self.MSUF_latencyLastPct or 0)
-            local isChan = self.MSUF_latencyLastIsChanneled and true or false
-            local reverse = _G.MSUF_GetReverseFillSafe(self, isChan)
-            local anchorOnLeft = reverse and true or false  -- finish edge (value always increases)
-
-            self.latencyBar:ClearAllPoints()
-            if anchorOnLeft then
-                self.latencyBar:SetPoint("TOPLEFT", self.statusBar, "TOPLEFT", 0, 0)
-                self.latencyBar:SetPoint("BOTTOMLEFT", self.statusBar, "BOTTOMLEFT", 0, 0)
-            else
-                self.latencyBar:SetPoint("TOPRIGHT", self.statusBar, "TOPRIGHT", 0, 0)
-                self.latencyBar:SetPoint("BOTTOMRIGHT", self.statusBar, "BOTTOMRIGHT", 0, 0)
-            end
-            self.latencyBar:SetWidth(ww)
-            if ww and ww > 0 then
-                self.latencyBar:Show()
-            else
-                self.latencyBar:Hide()
-            end
-        end)
+        local queue = MSUF_PlayerCastbar_LatencyZoneTimerQueue
+        queue[#queue + 1] = self
+        queue[#queue + 1] = generation
+        C_Timer.After(0, MSUF_PlayerCastbar_RunQueuedLatencyZoneCallbacks)
         return
     end
 
-    local reverse = _G.MSUF_GetReverseFillSafe(self, isChanneled)
-    local anchorOnLeft = reverse and true or false  -- finish edge (value always increases)
-
-    self.latencyBar:ClearAllPoints()
-    if anchorOnLeft then
-        self.latencyBar:SetPoint("TOPLEFT", self.statusBar, "TOPLEFT", 0, 0)
-        self.latencyBar:SetPoint("BOTTOMLEFT", self.statusBar, "BOTTOMLEFT", 0, 0)
-    else
-        self.latencyBar:SetPoint("TOPRIGHT", self.statusBar, "TOPRIGHT", 0, 0)
-        self.latencyBar:SetPoint("BOTTOMRIGHT", self.statusBar, "BOTTOMRIGHT", 0, 0)
-    end
-    self.latencyBar:SetWidth(w)
-    if w and w > 0 then
-        self.latencyBar:Show()
-    else
-        self.latencyBar:Hide()
-    end
+    MSUF_PlayerCastbar_ApplyPendingLatencyZone(self, generation)
 end
 
 local function MSUF_PlayerCastbar_UpdateColorForInterruptible(self)
@@ -316,7 +354,8 @@ local function MSUF_PlayerCastbar_ShowInterruptFeedback(self, label)
     -- Phase 2A: Use shared interrupt bar visuals (replaces ~25 lines of inline setup).
     local rf = _G.MSUF_GetReverseFillSafe and _G.MSUF_GetReverseFillSafe(self, false) or false
     _G.MSUF_ApplyInterruptBarVisuals(self, {
-        barValue = 0.8,
+        -- Player interrupt feedback should fully fill the bar (matches target/focus/boss).
+        barValue = 1,
         colorR = 0.8, colorG = 0.1, colorB = 0.1,
         reverseFill = rf,
         label = label or INTERRUPTED,
@@ -392,7 +431,7 @@ local function MSUF_PlayerCastbar_UnhaltedUpdate(self, event)
         -- Ensure fill direction updates for this cast type (cast vs channel) immediately.
         self.MSUF_isChanneled = false
         MSUF_PlayerChannelHasteMarkers_Hide(self)
-	    local castName, castText, castTex, _, _, _, _, notInterruptible = UnitCastingInfo(unit)
+	    local castName, castText, castTex, startTimeMS, endTimeMS, _, _, notInterruptible = UnitCastingInfo(unit)
 	    -- IMPORTANT (Midnight/Beta): do NOT apply boolean operators (e.g. `not not x`) to potentially-secret values.
 	    -- Derive a plain Lua boolean via a truthiness branch.
 	    local apiNI = false
@@ -400,6 +439,34 @@ local function MSUF_PlayerCastbar_UnhaltedUpdate(self, event)
 	    self.isNotInterruptible = apiNI
         if self.icon then self.icon:SetTexture(castTex or nil) end
         if self.castText then MSUF_SetTextIfChanged(self.castText, castName or "") end
+
+        -- Snapshot plain end/total timestamps for manager fast-path.
+        -- Fix: DurationObjects can briefly report stale remaining when a cast is cancelled/restarted (SpellQueueWindow / same-frame).
+        do
+            self._msufPlainEndTime = nil
+            self._msufPlainTotal = nil
+            self._msufRemaining = nil
+            self._msufLastTimeDecimal = nil
+            self._msufZeroCount = nil
+            self._msufLastDurationObj = nil
+            self._msufTimerAssumeCountdown = nil
+
+            local now = GetTime()
+            if type(endTimeMS) == "number" then
+                local endSec = endTimeMS / 1000
+                local r = endSec - now
+                if type(r) == "number" and r > 0 then
+                    self._msufPlainEndTime = endSec
+                    self._msufRemaining = r
+                end
+            end
+            if type(startTimeMS) == "number" and type(endTimeMS) == "number" then
+                local tot = (endTimeMS - startTimeMS) / 1000
+                if type(tot) == "number" and tot > 0 then
+                    self._msufPlainTotal = tot
+                end
+            end
+        end
 
         -- Apply current (possibly overridden) player castbar color.
         MSUF_PlayerCastbar_UpdateColorForInterruptible(self)
@@ -457,7 +524,7 @@ local function MSUF_PlayerCastbar_UnhaltedUpdate(self, event)
         self.MSUF_isChanneled = true
         self._msufStripeReverseFill = (__msuf_rf and true or false)
         MSUF_PlayerChannelHasteMarkers_Update(self, true)
-	        local chanName, chanText, chanTex, _, _, _, notInterruptible = UnitChannelInfo(unit)
+	        local chanName, chanText, chanTex, startTimeMS, endTimeMS, _, notInterruptible = UnitChannelInfo(unit)
 	        -- IMPORTANT (Midnight/Beta): do NOT apply boolean operators (e.g. `not not x`) to potentially-secret values.
 	        -- Derive a plain Lua boolean via a truthiness branch.
 	        local apiNI = false
@@ -465,6 +532,7 @@ local function MSUF_PlayerCastbar_UnhaltedUpdate(self, event)
 	        self.isNotInterruptible = apiNI
         if self.icon then self.icon:SetTexture(chanTex or nil) end
         if self.castText then MSUF_SetTextIfChanged(self.castText, chanName or "") end
+
 
         -- Apply current (possibly overridden) player castbar color.
         MSUF_PlayerCastbar_UpdateColorForInterruptible(self)
@@ -519,6 +587,13 @@ local function MSUF_PlayerCastbar_UnhaltedUpdate(self, event)
         self._msufHardStopNilSince = nil
         self.MSUF_durationObj = nil
         self.MSUF_timerDriven = nil
+        self._msufPlainEndTime = nil
+        self._msufPlainTotal = nil
+        self._msufRemaining = nil
+        self._msufLastTimeDecimal = nil
+        self._msufZeroCount = nil
+        self._msufLastDurationObj = nil
+        self._msufTimerAssumeCountdown = nil
         if MSUF_UnregisterCastbar then MSUF_UnregisterCastbar(self) end
 
         MSUF_PlayerChannelHasteMarkers_Hide(self)
