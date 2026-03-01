@@ -4273,6 +4273,35 @@ addItemsWithVariants({
         MAGE = {250058}, -- Voidbreaker's Leyline Nexi
         WARLOCK = {250040}, -- Abyssal Immolator's Fury
     },
+
+    -- Alnforged (Warrior, Paladin, Death Knight)
+    [249350] = { -- Alnforged Riftbloom (Chest)
+        WARRIOR = {249955}, -- Night Ender's Breastplate
+        PALADIN = {249964}, -- Luminant Verdict's Divine Warplate
+        DEATHKNIGHT = {249973}, -- Relentless Rider's Cuirass
+    },
+
+    -- Alncured (Rogue, Monk, Druid, Demon Hunter)
+    [249348] = { -- Alncured Riftbloom (Chest)
+        ROGUE = {250009}, -- Fantastic Finery of the Grim Jest
+        MONK = {250018}, -- Battle Garb of Ra-den's Chosen
+        DRUID = {250027}, -- Trunk of the Luminous Bloom
+        DEMONHUNTER = {250036}, -- Devouring Reaver's Engine
+    },
+
+    -- Alncast (Hunter, Shaman, Evoker)
+    [249349] = { -- Alncast Riftbloom (Chest)
+        HUNTER = {249991}, -- Primal Sentry's Scaleplate
+        SHAMAN = {249982}, -- Embrace of the Primal Core
+        EVOKER = {250000}, -- Frenzyward of the Black Talon
+    },
+
+    -- Alnwoven (Priest, Mage, Warlock)
+    [249347] = { -- Alnwoven Riftbloom (Chest)
+        PRIEST = {250054}, -- Blind Oath's Raiment
+        MAGE = {250063}, -- Voidbreaker's Robe
+        WARLOCK = {250045}, -- Abyssal Immolator's Dreadrobe
+    },
 })
 
 -- END DATA
