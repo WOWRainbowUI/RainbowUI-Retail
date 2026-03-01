@@ -17,8 +17,8 @@
 		end
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
-		Details.build_counter = 14660
-		Details.alpha_build_counter = 14660 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 14696
+		Details.alpha_build_counter = 14696 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -275,11 +275,11 @@
 		---@param attribute number
 		---@param guid string
 		---@return damagemeter_combat_session_source
-		function Details222.B.GetSpells(type, identifier, attribute, guid)
+		function Details222.B.GetSpells(type, identifier, attribute, guid, x)
 			if Details222.B.IsSegmentType(type) then
-				return Details.DM[(getSpellFname .. DETAILS_SEGMENTTYPE_TYPE)](identifier, attribute, guid)
+				return Details.DM[(getSpellFname .. DETAILS_SEGMENTTYPE_TYPE)](identifier, attribute, guid, x)
 			else
-				return Details.DM[(getSpellFname .. type)](identifier, attribute, guid)
+				return Details.DM[(getSpellFname .. type)](identifier, attribute, guid, x)
 			end
 		end
 
