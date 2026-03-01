@@ -52,7 +52,17 @@ MSUF_RestorePanelState=MSUF_RestorePanelState or function(panel,st) if not panel
 local sf=panel.ScrollFrame or panel.scrollFrame or panel.scroll or panel.Scroll or panel.scrollChild if sf and sf.SetVerticalScroll and st.vScroll then pcall(sf.SetVerticalScroll,sf,st.vScroll)
 end
 end
-local S={win=nil,content=nil,scale={},mirror={host=nil,currentKey="home",currentPanel=nil,homePanel=nil,homeToolsApi=nil,tipText=nil,},}
+local S={win=nil,content=nil,scale={},mirror={host=nil,currentKey="home",currentPanel=nil,homePanel=nil,homeToolsApi=nil,tipText=nil,selectEpoch=0,},}
+-- Transition helpers (populated after MSUF_Transitions loads; nil-safe fallback)
+local function _T() return ns.MSUF_Transitions end
+local function _TFadeIn(f,d,cb)  local t=_T() if t then t.FadeIn(f,d,cb)  elseif f and f.Show then f:Show() end end
+local function _TDismiss(f,d,cb) local t=_T() if t then t.Dismiss(f,d,cb) elseif f and f.Hide then f:Hide() end end
+local function _TScaleReveal(f,d,cb)  local t=_T() if t then t.ScaleReveal(f,d,cb)  else _TFadeIn(f,d,cb) end end
+local function _TScaleDismiss(f,d,cb) local t=_T() if t then t.ScaleDismiss(f,d,cb) else _TDismiss(f,d,cb) end end
+local function _TCancel(f) local t=_T() if t then t.Cancel(f) end end
+local TRANS_OPEN  = 0.15   -- main window open
+local TRANS_CLOSE = 0.12   -- main window close (faster = snappy)
+local TRANS_PAGE  = 0.10   -- page switch crossfade
 local function MSUF_UpdateHomePanel(panel) if not panel then return end
 local tip=S and S.mirror and S.mirror.tipText if not tip and _G and type(_G.MSUF_GetNextTip)=="function"then tip=_G.MSUF_GetNextTip()
 if S and S.mirror then S.mirror.tipText=tip end
@@ -69,12 +79,12 @@ local win=_G and _G.MSUF_StandaloneOptionsWindow;
 local b=win and win._msufDashEditBtn if b and b._msufSetSelected and type(MSUF_IsMSUFEditModeActive)=="function"then b:_msufSetSelected(MSUF_IsMSUFEditModeActive())
 end
 local prof=(_G and _G.MSUF_ActiveProfile)
-or"預設"if panel._msufProfileValue and panel._msufProfileValue.SetText then panel._msufProfileValue:SetText(prof)
+or"Default"if panel._msufProfileValue and panel._msufProfileValue.SetText then panel._msufProfileValue:SetText(prof)
 end
 if panel._msufStatusLine and panel._msufStatusLine.SetText then local edit=(type(MSUF_IsMSUFEditModeActive)=="function"and MSUF_IsMSUFEditModeActive())
-and"開啟"or"關閉";
+and"On"or"Off";
 local combat=(InCombatLockdown and InCombatLockdown())
-and"戰鬥中"or"非戰鬥中"panel._msufStatusLine:SetText("設定檔："..tostring(prof).."   ● 編輯模式："..edit.."   ● "..combat)
+and"In combat"or"Out of combat"panel._msufStatusLine:SetText("Profile: "..tostring(prof).."   •   Edit Mode: "..edit.."   •   "..combat)
 end
 end
 local function MSUF_Print(msg) if type(print)=="function"then print("|cff00ff00MSUF:|r "..tostring(msg))
@@ -380,7 +390,7 @@ end
 if fill and fill.SetVertexColor then fill:SetVertexColor(MSUF_THEME.bgR,MSUF_THEME.bgG,MSUF_THEME.bgB,0.90)
 end
 return fill,border end
-local MSUF_TIPS={"大幅調整：調整滑桿時按住 |cff00ff00SHIFT|r 可加快數值變更速度。","微調：調整滑桿時按住 |cff00ff00CTRL|r 可進行小幅微調。","快速重置：如果感覺位置跑掉了，試試 |cff00ff00/msuf reset|r (重置框架位置)。","恢復原廠設定：使用 |cff00ff00選單>進階>恢復原廠設定|r (或輸入 /msuf fullreset confirm + /reload)。","編輯模式：使用 |cff00ff00切換編輯模式|r 快速移動框架，然後使用位置視窗進行微調。","設定檔安全：在進行大幅更動前請先建立新的設定檔 — 需要時可隨時切換回來。","顏色：|cff00ff00顏色|r 分頁讓你自訂幾乎所有內容 (字型、狀態條、施法條、高亮)。","遊戲輔助：|cff00ff00遊戲輔助|r 分頁包含可啟用/停用的額外 UI 工具和警告。","推薦：|cff00ff00Sensei Resource Bar|r 與 MSUF 搭配使用效果極佳，能清晰追蹤資源。","UI 縮放提示：MSUF 擁有獨立的介面縮放設定 — 與整體介面縮放分開。","疑難排解：如果視覺效果沒有更新，快速執行 |cff00ff00/reload|r 通常能修復大多數介面問題。","可讀性：稍大的字體通常比巨大的框架更有幫助 (特別是在團隊副本中)。","在開發 MSUF Unhalted 期間，R41z0r 和其他優秀的插件開發者提供了許多幫助！","Danders 是一個很棒的隊伍/團隊框架插件，與 MSUF 搭配運作良好","社群：如果你喜歡 MSUF，請分享給朋友 — UI 插件靠口碑成長。",}
+local MSUF_TIPS={"Bigger steps: Hold |cff00ff00SHIFT|r while adjusting sliders to change values faster.","Fine tuning: Hold |cff00ff00CTRL|r while adjusting sliders for smaller steps.","Quick reset: If something feels off, try |cff00ff00/msuf reset|r (frame positions).","Factory reset: Use |cff00ff00Menu → Advanced → Factory Reset|r (or /msuf fullreset confirm + /reload).","Edit Mode: Use |cff00ff00Toggle Edit Mode|r to move frames quickly, then fine-tune with the position popup.","Profiles safety: Create a new profile before big experiments — switch back instantly if needed.","Colors: The |cff00ff00Colors|r tab lets you customize almost everything (fonts, bars, castbars, highlights).","Gameplay: The |cff00ff00Gameplay|r tab contains extra UI tools and warnings you can enable/disable.","Recommended: |cff00ff00Sensei Resource Bar|r pairs insanely well with MSUF to track resources cleanly.","UI scale tip: MSUF has its own UI scale — separate from the Global UI scale.","Troubleshoot: If visuals don’t update, a quick |cff00ff00/reload|r fixes most UI state issues.","Readability: Slightly larger fonts often help more than bigger frames (especially in raids).","During development of MSUF Unhalted, R41z0r and other great addon developers helped out!","Danders is a great Party/Raidframe addon and works really well with MSUF","Community: If you like MSUF, share it with a friend — UI addons grow by word of mouth.",}
 MSUF_GetNextTip=function() local tips=MSUF_TIPS if not tips or#tips==0 then return nil,0,0 end
 local general=MSUF_EnsureGeneral();
 local idx=1 if general then idx=(tonumber(general.tipCycleIndex)
@@ -415,10 +425,10 @@ local function MSUF_CopyValue(v) if type(v)~="table"then return v end
 if type(CopyTable)=="function"then return CopyTable(v) end
 return MSUF_DeepCopy(v) end
 local MSUF_ShowReloadRecommendedPopup local function MSUF_ApplyPreset(presetName) local preset=MSUF_PRESETS and MSUF_PRESETS[presetName]
-if type(preset)~="table"then print("|cffff3333MSUF:|r 找不到預設設定："..tostring(presetName)) return end
+if type(preset)~="table"then print("|cffff3333MSUF:|r Preset not found: "..tostring(presetName)) return end
 if type(MSUF_InitProfiles)=="function"then pcall(MSUF_InitProfiles)
 end
-if type(MSUF_DB)~="table"then print("|cffff3333MSUF:|r 資料庫尚未準備好 (MSUF_DB 遺失)。") return end
+if type(MSUF_DB)~="table"then print("|cffff3333MSUF:|r DB not ready (MSUF_DB missing).") return end
 local importStr=preset._msufImportString or preset._msufImport if type(importStr)=="string"then local okPrefix,prefix=pcall(string.match,importStr,"^%s*(MSUF%d+):")
 if okPrefix and(prefix=="MSUF2"or prefix=="MSUF3")
 then local imp=_G and _G.MSUF_ImportFromString if type(imp)=="function"then pcall(imp,importStr)
@@ -426,10 +436,10 @@ if type(ApplyAllSettings)=="function"then pcall(ApplyAllSettings)
 end
 if type(UpdateAllFonts)=="function"then pcall(UpdateAllFonts)
 end
-print("|cff00ff00MSUF:|r 已載入預設設定："..tostring(presetName))
-if type(MSUF_ShowReloadRecommendedPopup)=="function"then MSUF_ShowReloadRecommendedPopup("預設設定："..tostring(presetName))
+print("|cff00ff00MSUF:|r Loaded preset: "..tostring(presetName))
+if type(MSUF_ShowReloadRecommendedPopup)=="function"then MSUF_ShowReloadRecommendedPopup("Preset: "..tostring(presetName))
 end
-return else print("|cffff3333MSUF:|r 無法載入此預設設定 (MSUF_ImportFromString 遺失)。")
+return else print("|cffff3333MSUF:|r Cannot load this preset (MSUF_ImportFromString missing).")
 end
 end
 end
@@ -445,8 +455,8 @@ if type(ApplyAllSettings)=="function"then pcall(ApplyAllSettings)
 end
 if type(UpdateAllFonts)=="function"then pcall(UpdateAllFonts)
 end
-print("|cff00ff00MSUF:|r 已載入預設設定："..tostring(presetName))
-if type(MSUF_ShowReloadRecommendedPopup)=="function"then MSUF_ShowReloadRecommendedPopup("預設設定："..tostring(presetName))
+print("|cff00ff00MSUF:|r Loaded preset: "..tostring(presetName))
+if type(MSUF_ShowReloadRecommendedPopup)=="function"then MSUF_ShowReloadRecommendedPopup("Preset: "..tostring(presetName))
 end
 end
 local function MSUF_GetPresetNames() local names={}
@@ -460,25 +470,25 @@ MSUF_PENDING_PRESET=presetName local preset=MSUF_PRESETS and MSUF_PRESETS[preset
 local warn=preset and preset._msufWarning if warn~=nil and warn~=""then warn=tostring(warn)
 else warn=nil end
 if not StaticPopupDialogs["MSUF_LOAD_PRESET_CONFIRM"]
-then StaticPopupDialogs["MSUF_LOAD_PRESET_CONFIRM"]={text="載入預設設定：%s？\n\n這將會覆蓋您「目前」啟用的設定檔設定。",button1=YES,button2=NO,timeout=0,whileDead=1,hideOnEscape=1,preferredIndex=3,OnAccept=function() if MSUF_PENDING_PRESET then MSUF_ApplyPreset(MSUF_PENDING_PRESET)
+then StaticPopupDialogs["MSUF_LOAD_PRESET_CONFIRM"]={text="Load preset: %s?\n\nThis will overwrite your CURRENT active profile settings.",button1=YES,button2=NO,timeout=0,whileDead=1,hideOnEscape=1,preferredIndex=3,OnAccept=function() if MSUF_PENDING_PRESET then MSUF_ApplyPreset(MSUF_PENDING_PRESET)
 end
 MSUF_PENDING_PRESET=nil end
 ,OnCancel=function() MSUF_PENDING_PRESET=nil end
 ,}
 end
 local dlg=StaticPopupDialogs["MSUF_LOAD_PRESET_CONFIRM"]
-if dlg then if warn then dlg.text="載入預設設定：%s？\n\n|cffffaa00警告：|r "..warn.."\n\n這將會覆蓋您「目前」啟用的設定檔設定。"else dlg.text="載入預設設定：%s？\n\n這將會覆蓋您「目前」啟用的設定檔設定。"end
+if dlg then if warn then dlg.text="Load preset: %s?\n\n|cffffaa00Warning:|r "..warn.."\n\nThis will overwrite your CURRENT active profile settings."else dlg.text="Load preset: %s?\n\nThis will overwrite your CURRENT active profile settings."end
 end
 StaticPopup_Show("MSUF_LOAD_PRESET_CONFIRM",presetName) end
 local MSUF_PENDING_RELOAD_RECOMMEND_LABEL=nil MSUF_ShowReloadRecommendedPopup=function(label) if InCombatLockdown and InCombatLockdown()
-then if type(MSUF_Print)=="function"then MSUF_Print("建議重新載入介面 (戰鬥中無法顯示彈出視窗)。")
-else print("|cffffaa00MSUF:|r 建議重新載入介面 (戰鬥中無法顯示彈出視窗)。")
+then if type(MSUF_Print)=="function"then MSUF_Print("Reload recommended (cannot show popup in combat).")
+else print("|cffffaa00MSUF:|r Reload recommended (cannot show popup in combat).")
 end
 return end
 MSUF_PENDING_RELOAD_RECOMMEND_LABEL=tostring(label or"")
-if MSUF_PENDING_RELOAD_RECOMMEND_LABEL==""then MSUF_PENDING_RELOAD_RECOMMEND_LABEL="這些變更"end
+if MSUF_PENDING_RELOAD_RECOMMEND_LABEL==""then MSUF_PENDING_RELOAD_RECOMMEND_LABEL="these changes"end
 if not StaticPopupDialogs["MSUF_RELOAD_RECOMMENDED"]
-then StaticPopupDialogs["MSUF_RELOAD_RECOMMENDED"]={text="MSUF 建議重新載入介面以確保所有變更正確套用。\n\n套用：%s\n\n現在重新載入？",button1="重新載入",button2="暫不要",timeout=0,whileDead=1,hideOnEscape=1,preferredIndex=3,OnAccept=function() MSUF_PENDING_RELOAD_RECOMMEND_LABEL=nil if type(ReloadUI)=="function"then ReloadUI()
+then StaticPopupDialogs["MSUF_RELOAD_RECOMMENDED"]={text="MSUF recommends reloading the UI to ensure all changes apply correctly.\n\nApply: %s\n\nReload now?",button1="Reload",button2="Not now",timeout=0,whileDead=1,hideOnEscape=1,preferredIndex=3,OnAccept=function() MSUF_PENDING_RELOAD_RECOMMEND_LABEL=nil if type(ReloadUI)=="function"then ReloadUI()
 end
 end
 ,OnCancel=function() MSUF_PENDING_RELOAD_RECOMMEND_LABEL=nil end
@@ -487,10 +497,10 @@ end
 StaticPopup_Show("MSUF_RELOAD_RECOMMENDED",MSUF_PENDING_RELOAD_RECOMMEND_LABEL) end
 local MSUF_PENDING_RELOAD_LABEL=nil;
 local MSUF_PENDING_RELOAD_FN=nil local function MSUF_ShowReloadConfirm(label,fn) if InCombatLockdown and InCombatLockdown()
-then MSUF_Print("戰鬥中無法重新載入介面。") return end
+then MSUF_Print("Cannot reload UI in combat.") return end
 MSUF_PENDING_RELOAD_LABEL=tostring(label or"")
 MSUF_PENDING_RELOAD_FN=fn if not StaticPopupDialogs["MSUF_RELOAD_UI_CONFIRM"]
-then StaticPopupDialogs["MSUF_RELOAD_UI_CONFIRM"]={text="現在重新載入介面？\n\n這將會套用：%s",button1=YES,button2=NO,timeout=0,whileDead=1,hideOnEscape=1,preferredIndex=3,OnAccept=function() local f=MSUF_PENDING_RELOAD_FN;
+then StaticPopupDialogs["MSUF_RELOAD_UI_CONFIRM"]={text="Reload UI now?\n\nThis will apply: %s",button1=YES,button2=NO,timeout=0,whileDead=1,hideOnEscape=1,preferredIndex=3,OnAccept=function() local f=MSUF_PENDING_RELOAD_FN;
 MSUF_PENDING_RELOAD_FN=nil MSUF_PENDING_RELOAD_LABEL=nil if type(f)=="function"then pcall(f)
 end
 end
@@ -517,7 +527,7 @@ titleFS:SetPoint("TOP",f,"TOP",0,-14)
 titleFS:SetText("Link")
 f._msufTitleFS=titleFS local hintFS=f:CreateFontString(nil,"OVERLAY","GameFontNormal")
 hintFS:SetPoint("TOP",titleFS,"BOTTOM",0,-6)
-hintFS:SetText("按 Ctrl+C 複製：")
+hintFS:SetText("Press Ctrl+C to copy:")
 hintFS:SetTextColor(0.90,0.90,0.90,1)
 local eb=CreateFrame("EditBox",nil,f,"InputBoxTemplate")
 eb:SetAutoFocus(false)
@@ -628,6 +638,10 @@ g.R:SetAllPoints(fillGroup.R)
 g:Hide()
 btn._msufNavActive3=g return g end
 MSUF_SkinButton=function(btn) if not btn then return end
+-- Opt-out: Options panels manage their own action buttons (Edit Mode / Copy / Import Cancel etc).
+if btn._msufNoSlashSkin or btn.__msufMidnightActionSkinned or btn.__msufMidnightTabSkinned then
+if type(_G.MSUF_ForceShowUIPanelButtonPieces)=="function"then pcall(_G.MSUF_ForceShowUIPanelButtonPieces,btn) end
+return end
 if btn.__MSUF_MidnightSkinned or btn.__MSUF_NavSkinned or btn.__MSUF_DashSkinned then return end
 btn.__MSUF_MidnightSkinned=true local looksPanel=false if(btn.Left and btn.Middle and btn.Right)
 then looksPanel=true elseif btn.GetRegions then local regions={btn:GetRegions()}
@@ -1293,7 +1307,7 @@ scale=clamp(scale,0.3,2.0)
 if InCombatLockdown and InCombatLockdown()
 then _MSUF_pendingGlobalScale=scale if MSUF_EnsureScaleApplyAfterCombat then MSUF_EnsureScaleApplyAfterCombat()
 end
-if not silent then MSUF_Print("戰鬥中無法變更整體介面縮放。將在脫離戰鬥後套用。")
+if not silent then MSUF_Print("Cannot change global UI scale in combat. Will apply after combat.")
 end
 return end
 if applyCVars then local cvarScale=clamp(scale,0.3,2.0)
@@ -1306,7 +1320,7 @@ end
 MSUF_EnforceUIParentScale(scale)
 MSUF_ScheduleUIParentNudges(scale)
 if not silent then local cvarScale=clamp(scale,0.3,2.0)
-MSUF_Print(string.format("整體介面縮放已設定為 %.4f (CVar %.4f)",scale,cvarScale))
+MSUF_Print(string.format("Global UI scale set to %.4f (CVar %.4f)",scale,cvarScale))
 end
 end
 MSUF_EnsureScaleApplyAfterCombat=function() if _MSUF_scaleApplyWatcher then return end
@@ -1340,7 +1354,7 @@ _MSUF_scaleApplyWatcher=nil end
 end
 ) end
 local function MSUF_ResetGlobalUiScale(silent) if InCombatLockdown and InCombatLockdown()
-then if not silent then MSUF_Print("戰鬥中無法重置整體介面縮放。")
+then if not silent then MSUF_Print("Cannot reset global UI scale in combat.")
 end
 return end
 MSUF_SetCVarIfChanged("useUIScale","0")
@@ -1349,7 +1363,7 @@ MSUF_SetCVarIfChanged("uiScale","1.0")
 MSUF_SetCVarIfChanged("uiscale","1.0")
 if UIParent and UIParent.SetScale then pcall(UIParent.SetScale,UIParent,1.0)
 end
-_MSUF_lastGlobalCVarScale=nil _MSUF_lastGlobalUiParentScale=nil if not silent then MSUF_Print("整體介面縮放已重置 (備援)。")
+_MSUF_lastGlobalCVarScale=nil _MSUF_lastGlobalUiParentScale=nil if not silent then MSUF_Print("Global UI scale reset (fallback).")
 end
 end
 local function MSUF_SetScalingDisabled(disable,silent) local g=MSUF_EnsureGeneral and MSUF_EnsureGeneral()
@@ -1359,12 +1373,12 @@ g.globalUiScalePreset="auto"g.globalUiScaleValue=nil MSUF_SetSavedMsufScale(1.0)
 if InCombatLockdown and InCombatLockdown()
 then _MSUF_pendingDisableScaling=true if MSUF_EnsureScaleApplyAfterCombat then MSUF_EnsureScaleApplyAfterCombat()
 end
-if not silent then MSUF_Print("MSUF 縮放已停用。將在脫離戰鬥後完全重置。")
+if not silent then MSUF_Print("MSUF scaling disabled. Will fully reset after combat.")
 end
 return end
 MSUF_ResetGlobalUiScale(true)
 MSUF_ApplyMsufScale(1.0,{ignoreDisable=true})
-_MSUF_pendingDisableScaling=nil _MSUF_pendingMsufScale=nil _MSUF_pendingGlobalScale=nil if not silent then MSUF_Print("MSUF 縮放已停用 (現在由暴雪處理縮放)。")
+_MSUF_pendingDisableScaling=nil _MSUF_pendingMsufScale=nil _MSUF_pendingGlobalScale=nil if not silent then MSUF_Print("MSUF scaling disabled (Blizzard handles scaling now).")
 end
 end
 _G.MSUF_SetScalingDisabled=MSUF_SetScalingDisabled local function MSUF_SaveGlobalPreset(preset,scale) local g=MSUF_EnsureGeneral()
@@ -1437,15 +1451,15 @@ local segGap=seg and -1 or 8
 local segW=seg and (isXL and 84 or 78) or 56
 local segH=seg and 22 or 20
 
-local titleText=opts.title or"工具"
+local titleText=opts.title or"Tools"
 local title=UI_Text(parent,"GameFontNormal","TOPLEFT",parent,"TOPLEFT",6,-2,titleText,MSUF_SkinTitle)
-local globalLabel=UI_Text(parent,"GameFontHighlight","TOPLEFT",title,"BOTTOMLEFT",0,-10,"整體介面縮放",MSUF_SkinText)
-local globalCur=UI_Text(parent,"GameFontHighlightSmall","TOPLEFT",globalLabel,"BOTTOMLEFT",0,-6,"目前：...",MSUF_SkinText)
+local globalLabel=UI_Text(parent,"GameFontHighlight","TOPLEFT",title,"BOTTOMLEFT",0,-10,"Global UI Scale",MSUF_SkinText)
+local globalCur=UI_Text(parent,"GameFontHighlightSmall","TOPLEFT",globalLabel,"BOTTOMLEFT",0,-6,"Current: ...",MSUF_SkinText)
 
 local btn1080,btn1440,btn4k,btnAuto
 local presetRow=MSUF_BuildButtonRow(parent,globalCur,"TOPLEFT","BOTTOMLEFT",0,-8,{
-{text="1080",w=segW,h=segH,skinFn=MSUF_SkinDashboardButton,tipTitle="整體介面縮放：1080",tipBody="套用 MSUF 針對 1080p 設置的整體縮放預設值並重新載入介面。重新載入時自動恢復暴雪縮放設定。",onClick=function()
-MSUF_ShowReloadConfirm("整體介面縮放：1080p",function()
+{text="1080",w=segW,h=segH,skinFn=MSUF_SkinDashboardButton,tipTitle="Global UI Scale: 1080",tipBody="Applies MSUF's global scale preset for 1080p-like setups and reloads your UI. Auto restores Blizzard scaling on reload.",onClick=function()
+MSUF_ShowReloadConfirm("Global UI Scale: 1080p",function()
 if _G and _G.MSUF_SetScalingDisabled then _G.MSUF_SetScalingDisabled(false,true)
 end
 MSUF_SaveGlobalPreset("1080p",UI_SCALE_1080)
@@ -1453,8 +1467,8 @@ MSUF_SetGlobalUiScale(UI_SCALE_1080,true)
 ReloadUI()
 end)
 end},
-{text="1440",w=segW,h=segH,skinFn=MSUF_SkinDashboardButton,tipTitle="整體介面縮放：1440",tipBody="套用 MSUF 針對 1440p 設置的整體縮放預設值並重新載入介面。重新載入時自動恢復暴雪縮放設定。",onClick=function()
-MSUF_ShowReloadConfirm("整體介面縮放：1440p",function()
+{text="1440",w=segW,h=segH,skinFn=MSUF_SkinDashboardButton,tipTitle="Global UI Scale: 1440",tipBody="Applies MSUF's global scale preset for 1440p-like setups and reloads your UI. Auto restores Blizzard scaling on reload.",onClick=function()
+MSUF_ShowReloadConfirm("Global UI Scale: 1440p",function()
 if _G and _G.MSUF_SetScalingDisabled then _G.MSUF_SetScalingDisabled(false,true)
 end
 MSUF_SaveGlobalPreset("1440p",UI_SCALE_1440)
@@ -1462,8 +1476,8 @@ MSUF_SetGlobalUiScale(UI_SCALE_1440,true)
 ReloadUI()
 end)
 end},
-{text="4K",w=segW,h=segH,skinFn=MSUF_SkinDashboardButton,tipTitle="整體介面縮放：4K",tipBody="套用 MSUF 針對 4K (2160p) 設置的整體縮放預設值 (0.3556) 並重新載入介面。重新載入時自動恢復暴雪縮放設定。",onClick=function()
-MSUF_ShowReloadConfirm("整體介面縮放：4K (2160p)",function()
+{text="4K",w=segW,h=segH,skinFn=MSUF_SkinDashboardButton,tipTitle="Global UI Scale: 4K",tipBody="Applies MSUF's global scale preset for 4K (2160p) setups (0.3556) and reloads your UI. Auto restores Blizzard scaling on reload.",onClick=function()
+MSUF_ShowReloadConfirm("Global UI Scale: 4K (2160p)",function()
 if _G and _G.MSUF_SetScalingDisabled then _G.MSUF_SetScalingDisabled(false,true)
 end
 MSUF_SaveGlobalPreset("4k",UI_SCALE_4K)
@@ -1471,8 +1485,8 @@ MSUF_SetGlobalUiScale(UI_SCALE_4K,true)
 ReloadUI()
 end)
 end},
-{text="Auto",w=segW,h=segH,skinFn=MSUF_SkinDashboardButton,tipTitle="整體介面縮放：自動",tipBody="停止強制使用 MSUF 整體縮放並恢復您先前的暴雪介面縮放設定。",onClick=function()
-MSUF_ShowReloadConfirm("整體介面縮放：自動",function()
+{text="Auto",w=segW,h=segH,skinFn=MSUF_SkinDashboardButton,tipTitle="Global UI Scale: Auto",tipBody="Stops enforcing MSUF global scale and restores your previous Blizzard UI scale.",onClick=function()
+MSUF_ShowReloadConfirm("Global UI Scale: Auto",function()
 if _G and _G.MSUF_SetScalingDisabled then _G.MSUF_SetScalingDisabled(false,true)
 end
 MSUF_SaveGlobalPreset("auto",nil)
@@ -1487,7 +1501,7 @@ local resetW=120
 local offW=180
 local msufReset,msufOff
 local row=MSUF_BuildButtonRow(parent,btn1080 or globalCur,"TOPLEFT","BOTTOMLEFT",0,-10,{
-{text="重置",w=resetW,h=18,skinFn=MSUF_SkinDashboardButton,tipTitle="重置介面縮放",tipBody="將整體介面縮放重置回 100% (1.0) 並標記為自訂預設值。",onClick=function()
+{text="Reset",w=resetW,h=18,skinFn=MSUF_SkinDashboardButton,tipTitle="Reset UI Scale",tipBody="Resets the global UI scale back to 100% (1.0) and marks it as Custom preset.",onClick=function()
 do local g=MSUF_EnsureGeneral and MSUF_EnsureGeneral()
 or nil if g then g.disableScaling=false end
 if _G and _G.MSUF_SetScalingDisabled then _G.MSUF_SetScalingDisabled(false,true)
@@ -1498,7 +1512,7 @@ MSUF_SetGlobalUiScale(1.0,true)
 if api.Refresh then api.Refresh()
 end
 end},
-{text="縮放關閉",w=offW,h=18,skinFn=MSUF_SkinDashboardButton,tipTitle="停用所有 MSUF 縮放",tipBody="關閉 MSUF 套用的所有縮放 (整體介面縮放 + MSUF 單位框架縮放 + 斜線指令選單縮放)，然後重新載入介面。由暴雪處理縮放。",onClick=function()
+{text="Scaling OFF",w=offW,h=18,skinFn=MSUF_SkinDashboardButton,tipTitle="Disable ALL MSUF scaling",tipBody="Turns off all scaling MSUF applies (global UI scale + MSUF unitframe scale + Slash Menu scale), then reloads your UI. Blizzard handles scaling.",onClick=function()
 local g=MSUF_EnsureGeneral and MSUF_EnsureGeneral()
 or nil
 local isDisabled=g and g.disableScaling
@@ -1530,8 +1544,8 @@ msufReset,msufOff=row and row[1],row and row[2]
 
 -- MSUF-only (unitframes + castbars) scale slider
 -- Align header with the slider track (same left inset as the sliders).
-local msufScaleLabel=UI_Text(parent,"GameFontHighlight","TOPLEFT",(msufReset or (row and row[1]) or (btn1080 or globalCur)),"BOTTOMLEFT",10,-12,"MSUF 單位框架縮放",MSUF_SkinText)
-local msufScaleCur=UI_Text(parent,"GameFontHighlightSmall","TOPLEFT",msufScaleLabel,"BOTTOMLEFT",0,-6,"目前：...",MSUF_SkinText)
+local msufScaleLabel=UI_Text(parent,"GameFontHighlight","TOPLEFT",(msufReset or (row and row[1]) or (btn1080 or globalCur)),"BOTTOMLEFT",10,-12,"MSUF Unitframe Scale",MSUF_SkinText)
+local msufScaleCur=UI_Text(parent,"GameFontHighlightSmall","TOPLEFT",msufScaleLabel,"BOTTOMLEFT",0,-6,"Current: ...",MSUF_SkinText)
 local msufScaleSlider=CreateFrame("Slider","MSUF_Tools_MsufScaleSlider",parent,"OptionsSliderTemplate")
 msufScaleSlider:ClearAllPoints()
 -- Anchor within the box so the thumb never clips.
@@ -1557,7 +1571,7 @@ local function MSUF_UpdateMsufScaleRow(scale)
 scale=tonumber(scale) or 1.0
 scale=clamp(scale,0.25,1.5)
 local pct=math.floor(scale*100+0.5)
-if msufScaleCur and msufScaleCur.SetText then msufScaleCur:SetText(string.format("目前：%.2f (%d%%)",scale,pct)) end
+if msufScaleCur and msufScaleCur.SetText then msufScaleCur:SetText(string.format("Current: %.2f (%d%%)",scale,pct)) end
 end
 
 local function MSUF_SnapMsufScalePct(pct)
@@ -1585,11 +1599,11 @@ MSUF_ApplyMsufScale(scale)
 MSUF_UpdateMsufScaleRow(scale)
 end)
 
-if MSUF_AddTooltip then pcall(MSUF_AddTooltip,msufScaleSlider,"MSUF 單位框架縮放","提示：滑鼠停留在滑桿上並使用滾輪可以 5% 為單位變更縮放。\n\n僅縮放 MSUF 框架 (單位框架 + 施法條)。範圍 25%–150% (0.25–1.50)。拖曳或點擊以調整。立即套用；若在戰鬥中則於脫離戰鬥後套用。") end
+if MSUF_AddTooltip then pcall(MSUF_AddTooltip,msufScaleSlider,"MSUF Unitframe Scale","TIP: Hover this slider and use the Mouse Wheel to change the scale in 5% steps.\n\nScales only MSUF frames (unitframes + castbars). Range 25%–150% (0.25–1.50). Drag or click to adjust. Applied immediately; in combat it applies after combat.") end
 
 -- Slash menu scale slider (scales only the MSUF standalone options window)
-local menuScaleLabel=UI_Text(parent,"GameFontHighlight","TOPLEFT",msufScaleSlider,"BOTTOMLEFT",0,-18,"MSUF 斜線指令選單縮放",MSUF_SkinText)
-local menuScaleCur=UI_Text(parent,"GameFontHighlightSmall","TOPLEFT",menuScaleLabel,"BOTTOMLEFT",0,-6,"目前：...",MSUF_SkinText)
+local menuScaleLabel=UI_Text(parent,"GameFontHighlight","TOPLEFT",msufScaleSlider,"BOTTOMLEFT",0,-18,"MSUF Slash Menu Scale",MSUF_SkinText)
+local menuScaleCur=UI_Text(parent,"GameFontHighlightSmall","TOPLEFT",menuScaleLabel,"BOTTOMLEFT",0,-6,"Current: ...",MSUF_SkinText)
 local menuScaleSlider=CreateFrame("Slider","MSUF_Tools_SlashMenuScaleSlider",parent,"OptionsSliderTemplate")
 menuScaleSlider:ClearAllPoints()
 menuScaleSlider:SetPoint("TOP",menuScaleCur,"BOTTOM",0,-8)
@@ -1614,7 +1628,7 @@ local function MSUF_UpdateSlashMenuScaleRow(scale)
 scale=tonumber(scale) or 1.0
 scale=clamp(scale,0.25,1.5)
 local pct=math.floor(scale*100+0.5)
-if menuScaleCur and menuScaleCur.SetText then menuScaleCur:SetText(string.format("目前：%.2f (%d%%)",scale,pct)) end
+if menuScaleCur and menuScaleCur.SetText then menuScaleCur:SetText(string.format("Current: %.2f (%d%%)",scale,pct)) end
 end
 
 menuScaleSlider:EnableMouseWheel(true)
@@ -1635,7 +1649,7 @@ MSUF_ApplySlashMenuScale(scale,{ignoreDisable=true})
 MSUF_UpdateSlashMenuScaleRow(scale)
 end)
 
-if MSUF_AddTooltip then pcall(MSUF_AddTooltip,menuScaleSlider,"MSUF 斜線指令選單縮放","提示：滑鼠停留在滑桿上並使用滾輪可以 5% 為單位變更縮放。\n\n僅縮放 MSUF 斜線指令選單視窗。範圍 25%–150% (0.25–1.50)。拖曳或點擊以調整。立即套用。") end
+if MSUF_AddTooltip then pcall(MSUF_AddTooltip,menuScaleSlider,"MSUF Slash Menu Scale","TIP: Hover this slider and use the Mouse Wheel to change the scale in 5% steps.\n\nScales only the MSUF Slash Menu window. Range 25%–150% (0.25–1.50). Drag or click to adjust. Applied immediately.") end
 
 api.ui={title=title,globalCur=globalCur,btn1080=btn1080,btn1440=btn1440,btn4k=btn4k,btnAuto=btnAuto,msufReset=msufReset,msufOff=msufOff,msufScaleLabel=msufScaleLabel,msufScaleCur=msufScaleCur,msufScaleSlider=msufScaleSlider,menuScaleLabel=menuScaleLabel,menuScaleCur=menuScaleCur,menuScaleSlider=menuScaleSlider,}
 
@@ -1802,10 +1816,10 @@ if p.Hide then p:Hide()
 end
 local title=p:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
 title:SetPoint("TOPLEFT",12,-12)
-title:SetText("模組")
+title:SetText("Modules")
 local sub=p:CreateFontString(nil,"OVERLAY","GameFontNormal")
 sub:SetPoint("TOPLEFT",title,"BOTTOMLEFT",0,-6)
-sub:SetText("可選的 MSUF 模組與 UI 風格 (僅限 MSUF)。")
+sub:SetText("Optional MSUF modules and UI styling (MSUF only).")
 if type(_G.MSUF_ApplyMidnightBackdrop)=="function"then pcall(_G.MSUF_ApplyMidnightBackdrop,p,0.96)
 end
 if type(_G.MSUF_SkinTitle)=="function"then pcall(_G.MSUF_SkinTitle,title)
@@ -1814,13 +1828,13 @@ if type(_G.MSUF_SkinMuted)=="function"then pcall(_G.MSUF_SkinMuted,sub)
 end
 local cb=CreateFrame("CheckButton",nil,p,"UICheckButtonTemplate")
 cb:SetPoint("TOPLEFT",sub,"BOTTOMLEFT",0,-14)
-if cb.Text then cb.Text:SetText("啟用 MSUF 風格")
+if cb.Text then cb.Text:SetText("Enable MSUF Style")
 if type(_G.MSUF_SkinText)=="function"then pcall(_G.MSUF_SkinText,cb.Text)
 end
 end
 local note=p:CreateFontString(nil,"OVERLAY","GameFontDisableSmall")
 note:SetPoint("TOPLEFT",cb,"BOTTOMLEFT",28,-6)
-note:SetText("停用可能需要執行 /reload 才能完全移除現有的風格樣式。")
+note:SetText("Disabling may require /reload to fully remove existing styling.")
 if type(_G.MSUF_SkinMuted)=="function"then pcall(_G.MSUF_SkinMuted,note)
 end
 local function GetEnabled() if type(_G.MSUF_StyleIsEnabled)=="function"then local ok,v=pcall(_G.MSUF_StyleIsEnabled)
@@ -1838,11 +1852,11 @@ cb:SetScript("OnClick",function(self) SetEnabled(self:GetChecked()) end
 )
 local rb=CreateFrame("CheckButton",nil,p,"UICheckButtonTemplate")
 rb:SetPoint("TOPLEFT",note,"BOTTOMLEFT",-28,-12)
-if rb.Text then rb.Text:SetText("圓角單位框架")
+if rb.Text then rb.Text:SetText("Rounded unitframes")
 if type(_G.MSUF_SkinText)=="function"then pcall(_G.MSUF_SkinText,rb.Text)
 end
 end
-rb.tooltipText="使用超橢圓遮罩遮蔽生命力/能量/吸收盾條和背景，使 MSUF 單位框架呈現圓角。"local function GetRoundedEnabled() if _G.MSUF_DB and _G.MSUF_DB.general then return _G.MSUF_DB.general.roundedUnitframes==true end
+rb.tooltipText="Round MSUF unitframes by masking HP/Power/Absorb bars and backgrounds with the superellipse mask."local function GetRoundedEnabled() if _G.MSUF_DB and _G.MSUF_DB.general then return _G.MSUF_DB.general.roundedUnitframes==true end
 return false end
 local function SetRoundedEnabled(v) if _G.MSUF_DB and _G.MSUF_DB.general then _G.MSUF_DB.general.roundedUnitframes=v and true or false end
 if type(_G.MSUF_ApplyModules)=="function"then pcall(_G.MSUF_ApplyModules)
@@ -1878,23 +1892,23 @@ end
 end
 -- === Page Registry (MIRROR_PAGES) ===
 
-local MIRROR_PAGES={home={title="Midnight Simple Unitframes (版本 1.9b3)",nav="儀表板",build=nil},main={title="MSUF 選項",nav="Options",build=MSUF_EnsureMainOptionsPanelBuilt,select=MSUF_MirrorSelectMain},uf_player={title="MSUF 玩家",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("player") end
-},uf_target={title="MSUF 目標",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("target") end
-},uf_targettarget={title="MSUF 目標的目標",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("targettarget") end
-},uf_focus={title="MSUF 專注目標",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("focus") end
-},uf_boss={title="MSUF 首領框架",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("boss") end
-},uf_pet={title="MSUF 寵物",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("pet") end
-},opt_bars={title="MSUF 計量條",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("bars") end
-},opt_fonts={title="MSUF 字型",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("fonts") end
-},opt_auras={title="MSUF 光環",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("auras") end
-},auras2={title="MSUF 光環 2.0",build=MSUF_EnsureAuras2PanelBuilt},opt_castbar={title="MSUF 施法條",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("castbar") end
-},opt_misc={title="MSUF 其他",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("misc") end
-},opt_colors={title="MSUF 顏色",build=MSUF_EnsureColorsPanelBuilt},castbar={title="MSUF 施法條",build=MSUF_EnsureMainOptionsPanelBuilt,select=function(subkey) MSUF_SelectMainOptionsKey("castbar");
+local MIRROR_PAGES={home={title="Midnight Simple Unitframes (Version 1.9b3)",nav="Dashboard",build=nil},main={title="MSUF Options",nav="Options",build=MSUF_EnsureMainOptionsPanelBuilt,select=MSUF_MirrorSelectMain},uf_player={title="MSUF Player",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("player") end
+},uf_target={title="MSUF Target",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("target") end
+},uf_targettarget={title="MSUF Target of Target",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("targettarget") end
+},uf_focus={title="MSUF Focus",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("focus") end
+},uf_boss={title="MSUF Boss Frames",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("boss") end
+},uf_pet={title="MSUF Pet",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("pet") end
+},opt_bars={title="MSUF Bars",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("bars") end
+},opt_fonts={title="MSUF Fonts",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("fonts") end
+},opt_auras={title="MSUF Auras",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("auras") end
+},auras2={title="MSUF Auras 2.0",build=MSUF_EnsureAuras2PanelBuilt},opt_castbar={title="MSUF Castbar",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("castbar") end
+},opt_misc={title="MSUF Miscellaneous",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("misc") end
+},opt_colors={title="MSUF Colors",build=MSUF_EnsureColorsPanelBuilt},castbar={title="MSUF Castbar",build=MSUF_EnsureMainOptionsPanelBuilt,select=function(subkey) MSUF_SelectMainOptionsKey("castbar");
 if subkey and subkey~=""then MSUF_SelectCastbarSubPage(subkey)
 end
 end
-},profiles={title="MSUF 設定檔",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("profiles") end
-},colors={title="MSUF 顏色",build=MSUF_EnsureColorsPanelBuilt},gameplay={title="MSUF 遊戲輔助",build=MSUF_EnsureGameplayPanelBuilt},modules={title="MSUF 模組",build=MSUF_EnsureModulesPanelBuilt}}
+},profiles={title="MSUF Profiles",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("profiles") end
+},colors={title="MSUF Colors",build=MSUF_EnsureColorsPanelBuilt},gameplay={title="MSUF Gameplay",build=MSUF_EnsureGameplayPanelBuilt},modules={title="MSUF Modules",build=MSUF_EnsureModulesPanelBuilt}}
 local function MSUF_GetMirrorPageInfo(key) return MIRROR_PAGES and key and MIRROR_PAGES[key]
 or nil end
 local function MSUF_NormalizeMirrorKey(key,allowHome) key=key or(allowHome and"home"or"main")
@@ -1951,9 +1965,9 @@ if panel.__MSUF_MirrorHeaderScanToken then panel.__MSUF_MirrorHeaderScanToken=ni
 local function IsHeaderText(t) if type(t)~="string"or t==""then return false end
 local tl=string.lower(t)
 return string.find(tl,"midnight simple unit frames",1,true)
-or string.find(tl,"測試版本",1,true)
-or string.find(tl,"早期版本",1,true)
-or string.find(tl,"感謝您使用",1,true) end
+or string.find(tl,"beta version",1,true)
+or string.find(tl,"early version",1,true)
+or string.find(tl,"thank you for using",1,true) end
 local function ScanChunk() if not panel.__MSUF_MirrorHiddenHeader then panel.__MSUF_MirrorHeaderScanToken=nil panel.__MSUF_MirrorHeaderScanState=nil return end
 local token=panel.__MSUF_MirrorHeaderScanToken if not token then return end
 local st=panel.__MSUF_MirrorHeaderScanState if type(st)~="table"then st={stack={panel},sp=1,nodes=0,maxNodes=450,}
@@ -2098,10 +2112,12 @@ end
 local function MSUF_IsCastbarKey(k) return k=="castbar"or k=="opt_castbar" end
 local function MSUF_Standalone_UpdateTitle(activeKey) if not(S.win and S.win._msufTitleFS and S.win._msufTitleFS.SetText)
 then return end
-if activeKey=="home"then S.win._msufTitleFS:SetText("MSUF 選單") return end
+local _ver = _G.C_AddOns and _G.C_AddOns.GetAddOnMetadata and _G.C_AddOns.GetAddOnMetadata("MidnightSimpleUnitFrames", "Version")
+local _vStr = (type(_ver) == "string" and _ver ~= "") and ("  |cff9ece6av" .. _ver .. "|r") or ""
+if activeKey=="home"then S.win._msufTitleFS:SetText("MSUF Menu" .. _vStr) return end
 local info=MSUF_GetMirrorPageInfo(activeKey)
-S.win._msufTitleFS:SetText((info and info.title)
-or"MSUF 選單") end
+S.win._msufTitleFS:SetText(((info and info.title)
+or"MSUF Menu") .. _vStr) end
 local function MSUF_Standalone_UpdateNav(activeKey) if not(S.win and S.win._msufNavButtons)
 then return end
 local buttons=S.win._msufNavButtons;
@@ -2127,9 +2143,9 @@ local sel=info and info.select;
 local wantSub=subkey if wantSub==nil and S and S.mirror then wantSub=S.mirror.pendingSubKey S.mirror.pendingSubKey=nil end
 if S and S.mirror then if isCastbarKey and type(wantSub)=="string"and wantSub~=""then S.mirror.currentSubKey=wantSub elseif not isCastbarKey then S.mirror.currentSubKey=nil end
 end
-if type(sel)=="function"then if C_Timer and C_Timer.After then C_Timer.After(0,function() pcall(sel,wantSub) end
+if type(sel)=="function"then local epoch=S.mirror.selectEpoch if C_Timer and C_Timer.After then C_Timer.After(0,function() if S.mirror.selectEpoch~=epoch then return end pcall(sel,wantSub) end
 )
-C_Timer.After(0.05,function() pcall(sel,wantSub) end
+C_Timer.After(0.05,function() if S.mirror.selectEpoch~=epoch then return end pcall(sel,wantSub) end
 )
 else pcall(sel,wantSub)
 end
@@ -2149,13 +2165,13 @@ end
 return panel end
 local function MSUF_Standalone_AfterAttachFixups(key,isCastbarKey) if not isCastbarKey then return end
 MSUF_Standalone_SetCastbarTopButtonsHidden(true)
-if C_Timer and C_Timer.After then C_Timer.After(0,function() MSUF_Standalone_SetCastbarTopButtonsHidden(true) end
+if C_Timer and C_Timer.After then local epoch=S.mirror.selectEpoch C_Timer.After(0,function() if S.mirror.selectEpoch~=epoch then return end MSUF_Standalone_SetCastbarTopButtonsHidden(true) end
 )
-C_Timer.After(0.05,function() MSUF_Standalone_SetCastbarTopButtonsHidden(true) end
+C_Timer.After(0.05,function() if S.mirror.selectEpoch~=epoch then return end MSUF_Standalone_SetCastbarTopButtonsHidden(true) end
 )
-C_Timer.After(0.15,function() MSUF_Standalone_SetCastbarTopButtonsHidden(true) end
+C_Timer.After(0.15,function() if S.mirror.selectEpoch~=epoch then return end MSUF_Standalone_SetCastbarTopButtonsHidden(true) end
 )
-C_Timer.After(0.30,function() MSUF_Standalone_SetCastbarTopButtonsHidden(true) end
+C_Timer.After(0.30,function() if S.mirror.selectEpoch~=epoch then return end MSUF_Standalone_SetCastbarTopButtonsHidden(true) end
 )
 end
 local p=S and S.mirror and S.mirror.currentPanel if p and p.HookScript and not p.__MSUF_FocusKickResizeHooked then p.__MSUF_FocusKickResizeHooked=true p:HookScript("OnSizeChanged",function() if S and S.mirror and MSUF_IsCastbarKey(S.mirror.currentKey)
@@ -2175,19 +2191,21 @@ end
 end
 end
 local function MSUF_SwitchMirrorPage(key,subkey) key=MSUF_NormalizeMirrorKey(key,true)
+S.mirror.selectEpoch=(S.mirror.selectEpoch or 0)+1
 if key=="home"then if S.mirror and MSUF_IsCastbarKey(S.mirror.currentKey)
 and not MSUF_IsCastbarKey(key)
 then MSUF_Standalone_SetCastbarTopButtonsHidden(false)
 end
-if S.mirror.currentPanel then MSUF_DetachMirroredPanel(S.mirror.currentPanel)
-S.mirror.currentPanel=nil end
-S.mirror.currentKey="home"if S.mirror.homePanel then if S.mirror.homePanel.Show then S.mirror.homePanel:Show()
-end
+if S.mirror.currentPanel then local _p=S.mirror.currentPanel MSUF_DetachMirroredPanel(_p)
+S.mirror.currentPanel=nil if _p and _p.Hide then pcall(_p.Hide,_p) end end
+S.mirror.currentKey="home"if S.mirror.homePanel then _TFadeIn(S.mirror.homePanel,TRANS_PAGE)
 MSUF_UpdateHomePanel(S.mirror.homePanel)
 end
 MSUF_Standalone_UpdateTitle("home")
 MSUF_Standalone_UpdateNav("home") return end
-if S.mirror.homePanel and S.mirror.homePanel.Hide then S.mirror.homePanel:Hide()
+if S.mirror.homePanel then _TCancel(S.mirror.homePanel)
+if S.mirror.homePanel.SetAlpha then S.mirror.homePanel:SetAlpha(1) end
+if S.mirror.homePanel.Hide then S.mirror.homePanel:Hide() end
 end
 local isCastbarKey=MSUF_IsCastbarKey(key)
 if S.mirror.currentKey==key and S.mirror.currentPanel and S.mirror.currentPanel.IsShown and S.mirror.currentPanel:IsShown()
@@ -2197,9 +2215,11 @@ MSUF_Standalone_UpdateNav(key) return end
 if S.mirror and MSUF_IsCastbarKey(S.mirror.currentKey)
 and not isCastbarKey then MSUF_Standalone_SetCastbarTopButtonsHidden(false)
 end
-if S.mirror.currentPanel then MSUF_DetachMirroredPanel(S.mirror.currentPanel)
-S.mirror.currentPanel=nil end
+local prevPanel = S.mirror.currentPanel
+if S.mirror.currentPanel then local _p=S.mirror.currentPanel MSUF_DetachMirroredPanel(_p)
+S.mirror.currentPanel=nil if _p and _p.Hide then pcall(_p.Hide,_p) end end
 S.mirror.currentKey=key S.mirror.currentPanel=MSUF_Standalone_AttachMirrorPanel(key)
+if S.mirror.currentPanel and S.mirror.currentPanel ~= prevPanel then _TFadeIn(S.mirror.currentPanel,TRANS_PAGE) end
 MSUF_Standalone_ApplySelection(key,subkey,isCastbarKey)
 MSUF_Standalone_AfterAttachFixups(key,isCastbarKey)
 MSUF_Standalone_UpdateTitle(key)
@@ -2217,11 +2237,11 @@ local headers=navParent._msufTreeHeaders or{}
 navParent._msufTreeHeaders=headers local hasTitle=not navParent._msufSkipNavTitle;
 local title,sub if hasTitle and not navParent._msufNavTitle then title=navParent:CreateFontString(nil,"OVERLAY","GameFontNormal")
 title:SetPoint("TOPLEFT",navParent,"TOPLEFT",padL,-padT)
-title:SetText("導航")
+title:SetText("Navigation")
 MSUF_SkinTitle(title)
 sub=navParent:CreateFontString(nil,"OVERLAY","GameFontDisableSmall")
 sub:SetPoint("TOPLEFT",title,"BOTTOMLEFT",0,-2)
-sub:SetText("快速存取")
+sub:SetText("Quick access")
 MSUF_SkinMuted(sub)
 navParent._msufNavTitle=title navParent._msufNavSub=sub else title=navParent._msufNavTitle sub=navParent._msufNavSub end
 if not navParent._msufNavHighlight then local hl=navParent:CreateTexture(nil,"BACKGROUND")
@@ -2237,7 +2257,7 @@ navParent._msufNavStripe=stripe end
 local function MakeButton(label,w,onClick,isHeader,isChild) local b=UI_Button(navParent,tostring(label or""),w,btnH,"TOPLEFT",navParent,"TOPLEFT",0,0,onClick)
 MSUF_LeftJustifyButtonText(b,isChild and 10 or 12)
 MSUF_SkinNavButton(b,isHeader,isChild) return b end
-local NAV={{type="leaf",key="home",label="主選單"},{type="header",id="unitframes",label="單位框架",defaultOpen=true,children={{key="uf_player",label="玩家"},{key="uf_target",label="目標"},{key="uf_targettarget",label="目標的目標"},{key="uf_focus",label="專注目標"},{key="uf_boss",label="首領框架"},{key="uf_pet",label="寵物"},}},{type="header",id="options",label="設定選項",defaultOpen=true,children={{key="opt_bars",label="計量條"},{key="opt_fonts",label="字型"},{key="auras2",label="光環 2.0"},{key="opt_castbar",label="施法條"},{key="opt_misc",label="其他"},{key="opt_colors",label="顏色"},}},{type="leaf",key="gameplay",label="遊戲輔助"},{type="header",id="modules",label="模組",defaultOpen=false,children={{key="modules",label="風格"},}},{type="leaf",key="profiles",label="設定檔"},}
+local NAV={{type="leaf",key="home",label="Dashboard"},{type="header",id="unitframes",label="Unit Frames",defaultOpen=true,children={{key="uf_player",label="Player"},{key="uf_target",label="Target"},{key="uf_targettarget",label="Target of Target"},{key="uf_focus",label="Focus"},{key="uf_boss",label="Boss Frames"},{key="uf_pet",label="Pet"},}},{type="header",id="options",label="Options",defaultOpen=true,children={{key="opt_bars",label="Bars"},{key="opt_fonts",label="Fonts"},{key="auras2",label="Auras 2.0"},{key="opt_castbar",label="Castbar"},{key="opt_misc",label="Miscellaneous"},{key="opt_colors",label="Colors"},}},{type="leaf",key="gameplay",label="Gameplay"},{type="header",id="modules",label="Modules",defaultOpen=false,children={{key="modules",label="Style"},}},{type="leaf",key="profiles",label="Profiles"},}
 local headerLabels={}
 for _,node in ipairs(NAV)
 do if node.type=="header"then headerLabels[node.id]=node.label end
@@ -2379,9 +2399,10 @@ MSUF_AttachManualResizeGrip(f)
 MSUF_ApplyMidnightBackdrop(f,1.0)
 local title=f:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
 title:SetPoint("TOPLEFT",12,-10)
-title:SetText("MSUF 選項")
+title:SetText("MSUF Options")
 MSUF_SkinTitle(title)
 f._msufTitleFS=title local close=UI_CloseButton(f,"TOPRIGHT",f,"TOPRIGHT",-4,-4)
+close:SetScript("OnClick",function() _TScaleDismiss(f,TRANS_CLOSE) end)
 local function MSUF_SetPropagateKeyboardInputSafe(frame,enabled) if not frame or not frame.SetPropagateKeyboardInput then return end
 if type(InCombatLockdown)=="function"and InCombatLockdown()
 then frame._msufPendingPropagateKeyboard=enabled return end
@@ -2436,22 +2457,22 @@ home:Hide()
 S.mirror.homePanel=home f._msufHomePanel=home MSUF_ApplyMidnightControlsToFrame(home)
 local homeTitle=home:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
 homeTitle:SetPoint("TOPLEFT",12,-10)
-homeTitle:SetText("主選單")
+homeTitle:SetText("Main Menu")
 MSUF_SkinTitle(homeTitle)
 local homeHint=home:CreateFontString(nil,"OVERLAY","GameFontHighlightSmall")
 homeHint:SetPoint("TOPLEFT",homeTitle,"BOTTOMLEFT",0,-2)
-homeHint:SetText("快速工具與介面縮放 (內容同 /msuf options)。")
+homeHint:SetText("Quick tools & UI scale (same content as /msuf options).")
 MSUF_SkinText(homeHint)
 local tipBox=CreateFrame("Frame",nil,home)
 tipBox:SetPoint("TOPLEFT",home,"TOPLEFT",12,-44)
 tipBox:SetPoint("TOPRIGHT",home,"TOPRIGHT",-12,-44)
 tipBox:SetHeight(22)
 local tipLabel=tipBox:CreateFontString(nil,"OVERLAY","GameFontDisableSmall")
-tipLabel:SetPoint("TOPLEFT",tipBox,"TOPLEFT",0,-10) -- 自行修改位置
+tipLabel:SetPoint("TOPLEFT",tipBox,"TOPLEFT",0,0)
 tipLabel:SetJustifyH("LEFT")
 tipLabel:SetJustifyV("TOP")
 tipLabel:SetAlpha(0.82)
-tipLabel:SetText("提示：")
+tipLabel:SetText("Tip:")
 MSUF_SkinMuted(tipLabel)
 local tipText=tipBox:CreateFontString(nil,"OVERLAY","GameFontDisableSmall")
 tipText:SetPoint("TOPLEFT",tipLabel,"TOPRIGHT",6,0)
@@ -2507,11 +2528,11 @@ else MSUF_Print("Edit Mode function not found.")
 end
 end
 local function MSUF_ShowResetPositionsConfirm() if InCombatLockdown and InCombatLockdown()
-then MSUF_Print("戰鬥中無法重置。") return end
+then MSUF_Print("Cannot reset while in combat.") return end
 -- === Slash Commands ===
 
 if not StaticPopupDialogs["MSUF_RESET_POS_CONFIRM"]
-then StaticPopupDialogs["MSUF_RESET_POS_CONFIRM"]={text="現在重置 MSUF 框架位置？\n\n這將把「目前啟用」設定檔的 MSUF 框架位置與可見性重置為預設值。",button1=YES,button2=NO,timeout=0,whileDead=1,hideOnEscape=1,preferredIndex=3,OnAccept=function() if _G.SlashCmdList and _G.SlashCmdList["MIDNIGHTSUF"]
+then StaticPopupDialogs["MSUF_RESET_POS_CONFIRM"]={text="Reset MSUF frame positions now?\n\nThis resets MSUF frame positions + visibility to defaults for the ACTIVE profile.",button1=YES,button2=NO,timeout=0,whileDead=1,hideOnEscape=1,preferredIndex=3,OnAccept=function() if _G.SlashCmdList and _G.SlashCmdList["MIDNIGHTSUF"]
 then pcall(_G.SlashCmdList["MIDNIGHTSUF"],"reset")
 else MSUF_Print("/msuf reset handler not found.")
 end
@@ -2520,9 +2541,9 @@ end
 end
 StaticPopup_Show("MSUF_RESET_POS_CONFIRM") end
 local function MSUF_ShowFactoryResetConfirm() if InCombatLockdown and InCombatLockdown()
-then MSUF_Print("戰鬥中無法恢復原廠設定。") return end
+then MSUF_Print("Cannot factory reset while in combat.") return end
 if not StaticPopupDialogs["MSUF_FACTORY_RESET_CONFIRM"]
-then StaticPopupDialogs["MSUF_FACTORY_RESET_CONFIRM"]={text="現在將 MSUF 恢復原廠設定？\n\n這將刪除此帳號的「所有」MSUF 設定檔與設定。\n\n介面將會重新載入。",button1=YES,button2=NO,timeout=0,whileDead=1,hideOnEscape=1,preferredIndex=3,OnAccept=function() if type(_G.MSUF_DoFullReset)=="function"then pcall(_G.MSUF_DoFullReset);
+then StaticPopupDialogs["MSUF_FACTORY_RESET_CONFIRM"]={text="FACTORY RESET MSUF now?\n\nThis deletes ALL MSUF profiles & settings for this account.\n\nThe UI will reload.",button1=YES,button2=NO,timeout=0,whileDead=1,hideOnEscape=1,preferredIndex=3,OnAccept=function() if type(_G.MSUF_DoFullReset)=="function"then pcall(_G.MSUF_DoFullReset);
  return end
 _G.MSUF_DB=nil;
 _G.MSUF_GlobalDB=nil _G.MSUF_ActiveProfile=nil if type(ReloadUI)=="function"then ReloadUI()
@@ -2531,34 +2552,34 @@ end
 ,}
 end
 StaticPopup_Show("MSUF_FACTORY_RESET_CONFIRM") end
-local quick=CreateCard(colL,"快速操作")
+local quick=CreateCard(colL,"Quick Actions")
 quick:SetHeight(206)
 local bigW=410;
 local bigH=26;
 local LQ=MSUF_LayoutColumn(quick,12,-34,bigH,8);
 local qx1,qy1=LQ:Row(bigH,8);
-local bEdit=UI_BtnTL(quick,"切換編輯模式",bigW,bigH,qx1,qy1,DashToggleEditMode,"切換編輯模式","進入 MSUF 編輯模式以拖曳框架並調整位置。",MSUF_SkinDashboardButton)
+local bEdit=UI_BtnTL(quick,"Toggle Edit Mode",bigW,bigH,qx1,qy1,DashToggleEditMode,"Toggle Edit Mode","Enter MSUF Edit Mode to drag frames and adjust positions.",MSUF_SkinDashboardButton)
 local win=_G and _G.MSUF_StandaloneOptionsWindow if win then win._msufDashEditBtn=bEdit end
 if bEdit and bEdit._msufSetSelected then bEdit:_msufSetSelected(MSUF_IsMSUFEditModeActive())
 end
 MSUF_TryHookEditModeForDashboard()
 local qx2,qy2=LQ:Row(bigH,10);
-local bReset=UI_BtnTL(quick,"重置框架位置",bigW,bigH,qx2,qy2,MSUF_ShowResetPositionsConfirm,"重置框架位置","將 MSUF 框架位置與可見性重置為預設值 (目前設定檔)。",MSUF_SkinDashboardButton);
+local bReset=UI_BtnTL(quick,"Reset Frame Positions",bigW,bigH,qx2,qy2,MSUF_ShowResetPositionsConfirm,"Reset Frame Positions","Resets MSUF frame positions + visibility to defaults (active profile).",MSUF_SkinDashboardButton);
 local smallH=22;
 local qx3,qy3=LQ:Row(smallH,0);
-local rowBtns=MSUF_BuildButtonRowTL(quick,qx3,qy3,{{text="顏色",w=160,h=smallH,gap=10,skinFn=MSUF_SkinDashboardButton,onClick=function() MSUF_SwitchMirrorPage("colors") end
-},{text="遊戲輔助",w=118,h=smallH,skinFn=MSUF_SkinDashboardButton,onClick=function() MSUF_SwitchMirrorPage("gameplay") end
+local rowBtns=MSUF_BuildButtonRowTL(quick,qx3,qy3,{{text="Colors",w=160,h=smallH,gap=10,skinFn=MSUF_SkinDashboardButton,onClick=function() MSUF_SwitchMirrorPage("colors") end
+},{text="Gameplay",w=118,h=smallH,skinFn=MSUF_SkinDashboardButton,onClick=function() MSUF_SwitchMirrorPage("gameplay") end
 },},10)
 local bColors=rowBtns[1];
 local bGameplay=rowBtns[2];
-local profCard=CreateCard(colL,"設定檔",quick,-12)
+local profCard=CreateCard(colL,"Profile",quick,-12)
 profCard:SetHeight(92)
 local LP=MSUF_LayoutColumn(profCard,12,-34,18,6);
 local px,py=LP:Row(18,0);
-local profLabel=UI_TextTL(profCard,"GameFontHighlight",px,py,"目前設定檔：",MSUF_SkinText);
+local profLabel=UI_TextTL(profCard,"GameFontHighlight",px,py,"Active profile:",MSUF_SkinText);
 local profValue=UI_Text(profCard,"GameFontHighlight","LEFT",profLabel,"RIGHT",8,0,((_G and _G.MSUF_ActiveProfile)
-or"預設"),MSUF_SkinTitle)
-home._msufProfileValue=profValue local bProfiles=UI_Btn(profCard,"開啟設定檔",160,22,"TOPRIGHT",profCard,"TOPRIGHT",-12,-30,function() MSUF_SwitchMirrorPage("profiles") end
+or"Default"),MSUF_SkinTitle)
+home._msufProfileValue=profValue local bProfiles=UI_Btn(profCard,"Open Profiles",160,22,"TOPRIGHT",profCard,"TOPRIGHT",-12,-30,function() MSUF_SwitchMirrorPage("profiles") end
 ,nil,nil,MSUF_SkinDashboardButton)
 do local DISCORD_URL="https://discord.gg/JQnhZXnTAK";
 local discordRow=CreateFrame("Frame",nil,profCard)
@@ -2569,12 +2590,12 @@ local discordLabel=discordRow:CreateFontString(nil,"OVERLAY","GameFontHighlight"
 discordLabel:SetPoint("LEFT",discordRow,"LEFT",0,0)
 discordLabel:SetText("Discord:")
 MSUF_SkinText(discordLabel)
-local bDiscordSelect=UI_Btn(discordRow,"選取",72,18,"RIGHT",discordRow,"RIGHT",0,0,function() if discordRow._msufDiscordBox and discordRow._msufDiscordBox.SetFocus then discordRow._msufDiscordBox:SetFocus()
+local bDiscordSelect=UI_Btn(discordRow,"Select",72,18,"RIGHT",discordRow,"RIGHT",0,0,function() if discordRow._msufDiscordBox and discordRow._msufDiscordBox.SetFocus then discordRow._msufDiscordBox:SetFocus()
 if discordRow._msufDiscordBox.HighlightText then discordRow._msufDiscordBox:HighlightText()
 end
 end
 end
-,"選取","點擊以選取此文字。",MSUF_SkinDashboardButton)
+,"Select","Click to select this text.",MSUF_SkinDashboardButton)
 local discordBox=CreateFrame("EditBox",nil,discordRow,"InputBoxTemplate")
 discordBox:SetAutoFocus(false)
 discordBox:SetHeight(18)
@@ -2600,10 +2621,10 @@ end
 )
 end
 discordRow._msufDiscordBox=discordBox end
-local adv=CreateCard(colL,"進階",profCard,-12)
+local adv=CreateCard(colL,"Advanced",profCard,-12)
 adv:SetPoint("BOTTOMLEFT",colL,"BOTTOMLEFT",0,0)
 adv:SetPoint("BOTTOMRIGHT",colL,"BOTTOMRIGHT",0,0)
-local advTitle=adv._msufTitle local advToggle=UI_Btn(adv,"顯示",88,18,"TOPRIGHT",adv,"TOPRIGHT",-12,-8,function() end
+local advTitle=adv._msufTitle local advToggle=UI_Btn(adv,"Show",88,18,"TOPRIGHT",adv,"TOPRIGHT",-12,-8,function() end
 ,nil,nil,MSUF_SkinDashboardButton)
 local advHint=adv:CreateFontString(nil,"OVERLAY","GameFontDisableSmall")
 advHint:SetPoint("TOPLEFT",adv,"TOPLEFT",12,-34)
@@ -2628,11 +2649,11 @@ local btnRow=CreateFrame("Frame",nil,advBody)
 btnRow:SetPoint("BOTTOMLEFT",advBody,"BOTTOMLEFT",0,0)
 btnRow:SetPoint("BOTTOMRIGHT",advBody,"BOTTOMRIGHT",0,0)
 btnRow:SetHeight(24)
-do local defs={{text="顯示說明",w=120,h=20,onClick=function() if _G.SlashCmdList and _G.SlashCmdList["MIDNIGHTSUF"]
+do local defs={{text="Print Help",w=120,h=20,onClick=function() if _G.SlashCmdList and _G.SlashCmdList["MIDNIGHTSUF"]
 then pcall(_G.SlashCmdList["MIDNIGHTSUF"],"help")
 end
 end
-,},{text="恢復原廠設定",w=120,h=20,gap=8,onClick=function() MSUF_ShowFactoryResetConfirm() end
+,},{text="Factory Reset",w=120,h=20,gap=8,onClick=function() MSUF_ShowFactoryResetConfirm() end
 ,},}
 local prev for i,d in ipairs(defs)
 do local b if i==1 then b=UI_Btn(btnRow,d.text,d.w,d.h,"BOTTOMLEFT",btnRow,"BOTTOMLEFT",0,0,d.onClick,d.tipTitle,d.tipBody,MSUF_SkinDashboardButton)
@@ -2640,11 +2661,11 @@ else b=UI_Btn(btnRow,d.text,d.w,d.h,"LEFT",prev,"RIGHT",d.gap or 8,0,d.onClick,d
 end
 prev=b end
 end
-local function AdvApplyState(open) if open then advToggle:SetText("隱藏")
+local function AdvApplyState(open) if open then advToggle:SetText("Hide")
 advHint:SetText("")
 advBody:Show()
-else advToggle:SetText("顯示")
-advHint:SetText("已隱藏。點擊「顯示」以展開斜線指令與進階工具。")
+else advToggle:SetText("Show")
+advHint:SetText("Hidden. Click Show to reveal slash commands + power tools.")
 advBody:Hide()
 end
 end
@@ -2654,18 +2675,18 @@ AdvApplyState(S.mirror.dashAdvOpen) end
 AdvApplyState(S.mirror.dashAdvOpen==true)
 local scaleCard=CreateCard(colR,nil,nil,nil,true)
 scaleCard:SetHeight(300)
-S.mirror.homeToolsApi=MSUF_BuildTools(scaleCard,{compact=false,wide=true,xl=true,title="縮放與版面配置",segmented=true,showValue=true})
-local presetsCard=CreateCard(colR,"預設設定",scaleCard,-12)
+S.mirror.homeToolsApi=MSUF_BuildTools(scaleCard,{compact=false,wide=true,xl=true,title="Scale & Layout",segmented=true,showValue=true})
+local presetsCard=CreateCard(colR,"Presets",scaleCard,-12)
 presetsCard:SetPoint("BOTTOMLEFT",colR,"BOTTOMLEFT",0,0)
 presetsCard:SetPoint("BOTTOMRIGHT",colR,"BOTTOMRIGHT",0,0)
 local presetsTitle=presetsCard._msufTitle;
 local presetDrop=CreateFrame("Frame","MSUF_PresetDropdown",presetsCard,"UIDropDownMenuTemplate")
 presetDrop:SetPoint("TOPLEFT",presetsTitle,"BOTTOMLEFT",-16,-4)
 UIDropDownMenu_SetWidth(presetDrop,220)
-UIDropDownMenu_SetText(presetDrop,presetsCard._msufSelectedPreset or"選擇預設設定...")
+UIDropDownMenu_SetText(presetDrop,presetsCard._msufSelectedPreset or"Select preset...")
 UIDropDownMenu_Initialize(presetDrop,function(self,level) local names=MSUF_GetPresetNames()
 if not names or#names==0 then local info=UIDropDownMenu_CreateInfo();
-info.text="(無預設設定)"info.notCheckable=true;
+info.text="(no presets)"info.notCheckable=true;
 UIDropDownMenu_AddButton(info,level) return end
 for _,name in ipairs(names)
 do local pname=name local info=UIDropDownMenu_CreateInfo();
@@ -2683,21 +2704,22 @@ then presetsCard._msufSelectedPreset=names[1]
 UIDropDownMenu_SetText(presetDrop,names[1])
 end
 end
-local bLoadPreset=UI_Btn(presetsCard,"載入預設設定",240,24,"TOPLEFT",presetDrop,"BOTTOMLEFT",16,-6,function() local sel=presetsCard._msufSelectedPreset if not sel then MSUF_Print("請先選擇一個預設設定。");
+local bLoadPreset=UI_Btn(presetsCard,"Load preset",240,24,"TOPLEFT",presetDrop,"BOTTOMLEFT",16,-6,function() local sel=presetsCard._msufSelectedPreset if not sel then MSUF_Print("Select a preset first.");
  return end
 MSUF_ShowPresetConfirm(sel) end
-,"載入預設設定","將選取的預設設定套用到您目前啟用的設定檔。這將覆蓋現有設定 (若不確定請先匯出)。",MSUF_SkinDashboardButton)
+,"Load preset","Applies the selected preset to your current active profile. This overwrites settings (export first if unsure).",MSUF_SkinDashboardButton)
 local presetHint=presetsCard:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
 presetHint:SetPoint("TOPLEFT",bLoadPreset,"BOTTOMLEFT",0,-4)
-presetHint:SetText("覆蓋您目前啟用的設定檔設定。")
+presetHint:SetText("Overwrites your current active profile settings.")
 MSUF_SkinMuted(presetHint)
 do local KO_FI_URL="https://ko-fi.com/midnightsimpleunitframes#linkModal";
 local PAYPAL_URL="https://www.paypal.com/ncp/payment/H3N2P87S53KBQ";
+local PATREON_URL="https://www.patreon.com/cw/MidnightSimpleUnitframes";
 local GITHUB_URL="https://github.com/Mapkov2/MidnightSimpleUnitFrames";
 local ICON_DIR="Interface\\AddOns\\MidnightSimpleUnitFrames\\Media\\Masks\\";
 local supportLabel=presetsCard:CreateFontString(nil,"OVERLAY","GameFontNormal")
 supportLabel:SetPoint("BOTTOMLEFT",presetsCard,"BOTTOMLEFT",12,14)
-supportLabel:SetText("支持 MSUF 開發：")
+supportLabel:SetText("Support the MSUF Development:")
 supportLabel:SetTextColor(0.90,0.90,0.90)
 supportLabel:SetJustifyH("LEFT")
 supportLabel:SetJustifyV("MIDDLE")
@@ -2705,7 +2727,7 @@ if MSUF_SkinMuted then pcall(MSUF_SkinMuted,supportLabel)
 end
 local row=CreateFrame("Frame",nil,presetsCard)
 row:SetHeight(24)
-row:SetWidth(120)
+row:SetWidth(150)
 row:SetPoint("BOTTOMRIGHT",presetsCard,"BOTTOMRIGHT",-12,12)
 local function CreateIcon(texFile,size,tooltipTitle,tooltipText,onClick) local b=CreateFrame("Button",nil,row)
 b:SetSize(size,size)
@@ -2731,9 +2753,10 @@ end
 end
 return b end
 local sz=22;
-local gap=7 local icons={{tex="PayPal.png",title="PayPal",tip="點擊以複製 PayPal 贊助連結。",onClick=function() MSUF_ShowCopyLink("PayPal",PAYPAL_URL) end
-},{tex="Ko-Fi.png",title="Ko-fi",tip="點擊以複製 Ko-fi 連結。",onClick=function() MSUF_ShowCopyLink("Ko-fi",KO_FI_URL) end
-},{tex="GitHub.png",title="GitHub",tip="點擊以複製 GitHub 儲存庫連結。",onClick=function() MSUF_ShowCopyLink("GitHub",GITHUB_URL) end
+local gap=7 local icons={{tex="Patreon.png",title="Patreon",tip="Click to copy the Patreon support link.",onClick=function() MSUF_ShowCopyLink("Patreon",PATREON_URL) end
+},{tex="PayPal.png",title="PayPal",tip="Click to copy the PayPal support link.",onClick=function() MSUF_ShowCopyLink("PayPal",PAYPAL_URL) end
+},{tex="Ko-Fi.png",title="Ko-fi",tip="Click to copy the Ko-fi link.",onClick=function() MSUF_ShowCopyLink("Ko-fi",KO_FI_URL) end
+},{tex="GitHub.png",title="GitHub",tip="Click to copy the GitHub repository link.",onClick=function() MSUF_ShowCopyLink("GitHub",GITHUB_URL) end
 },}
 local prev for _,d in ipairs(icons)
 do local b=CreateIcon(d.tex,sz,d.title,d.tip,d.onClick)
@@ -2741,6 +2764,19 @@ if not prev then b:SetPoint("RIGHT",row,"RIGHT",0,0)
 else b:SetPoint("RIGHT",prev,"LEFT",-gap,0)
 end
 prev=b end
+end
+do
+    local aboutLine = presetsCard:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    aboutLine:SetPoint("BOTTOMLEFT", supportLabel, "TOPLEFT", 0, 4)
+    aboutLine:SetJustifyH("LEFT")
+    local aboutVer = _G.C_AddOns and _G.C_AddOns.GetAddOnMetadata and _G.C_AddOns.GetAddOnMetadata("MidnightSimpleUnitFrames", "Version")
+    local aboutStr = "by |cffccd0d9Mapko|r"
+    if type(aboutVer) == "string" and aboutVer ~= "" then
+        aboutStr = "v" .. aboutVer .. "  •  " .. aboutStr .. "  •  with help from |cffccd0d9R41z0r|r and the community"
+    end
+    aboutLine:SetText(aboutStr)
+    aboutLine:SetAlpha(0.65)
+    if MSUF_SkinMuted then pcall(MSUF_SkinMuted, aboutLine) end
 end
 local function MSUF_DashboardLayout() local wL=(colL and colL.GetWidth and colL:GetWidth())
 or 0;
@@ -2813,8 +2849,8 @@ S.mirror.currentKey=startKey MSUF_SwitchMirrorPage(startKey,startSubKey) end
 f:SetScript("OnHide",function() MSUF_Standalone_SetCastbarTopButtonsHidden(false)
 if MSUF_SaveWindowGeometry then MSUF_SaveWindowGeometry(f,f._msufGeomKey or"full")
 end
-if S.mirror.currentPanel then MSUF_DetachMirroredPanel(S.mirror.currentPanel);
-S.mirror.currentPanel=nil end
+if S.mirror.currentPanel then local _p=S.mirror.currentPanel MSUF_DetachMirroredPanel(_p);
+S.mirror.currentPanel=nil if _p and _p.Hide then pcall(_p.Hide,_p) end end
 end
 )
 f:Hide()
@@ -2823,19 +2859,18 @@ local function MSUF_ToggleOptionsWindow(key,subkey) local w=MSUF_CreateOptionsWi
 if w:IsShown()
 then if key and S.mirror.currentKey~=key then MSUF_SwitchMirrorPage(key,subkey) return end
 if subkey then MSUF_SwitchMirrorPage(key or S.mirror.currentKey or"home",subkey) return end
-w:Hide() return end
-w._msufInitialKey=key w._msufInitialSubKey=subkey or"home"w._msufInitialSubKey=subkey w:Show() end
+_TScaleDismiss(w,TRANS_CLOSE) return end
+w._msufInitialKey=key w._msufInitialSubKey=subkey or"home"w._msufInitialSubKey=subkey _TScaleReveal(w,TRANS_OPEN) end
 local function MSUF_ShowOptionsWindow(key,subkey) local w=MSUF_CreateOptionsWindow()
 key=key or"home"if w.IsShown and w:IsShown()
 then if key and S and S.mirror and S.mirror.currentKey~=key then MSUF_SwitchMirrorPage(key,subkey)
 elseif key then MSUF_SwitchMirrorPage(key,subkey)
 end
 return w end
-w._msufInitialKey=key w._msufInitialSubKey=subkey if w.Show then w:Show()
-end
+w._msufInitialKey=key w._msufInitialSubKey=subkey _TScaleReveal(w,TRANS_OPEN)
 return w end
 local function MSUF_HideOptionsWindow() if S and S.win and S.win.IsShown and S.win:IsShown()
-and S.win.Hide then S.win:Hide()
+then _TScaleDismiss(S.win,TRANS_CLOSE)
 end
 end
 _G.MSUF_ShowStandaloneOptionsWindow=MSUF_ShowOptionsWindow _G.MSUF_OpenStandaloneOptionsWindow=MSUF_ShowOptionsWindow _G.MSUF_HideStandaloneOptionsWindow=MSUF_HideOptionsWindow _G.MSUF_OpenPage=function(key,subkey) key=(key or"home")
@@ -2879,6 +2914,7 @@ else openKey("castbar")
 end
 return end
 if first=="profiles"then openKey("profiles") return end
+if first=="versiontest"then if _G.MSUF_VersionCheck_DebugFakeUpdate then _G.MSUF_VersionCheck_DebugFakeUpdate() end return end
 return original(msg) end
 end
 SLASH_MSUFOPTIONS1="/msufoptions"SlashCmdList["MSUFOPTIONS"]=function() MSUF_ToggleOptionsWindow("main") end

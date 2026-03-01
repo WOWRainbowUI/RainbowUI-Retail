@@ -36,13 +36,33 @@ function Filters.NormalizeFilters(f, sharedSettings, migrateFlagKey)
         f[migrateFlagKey] = true
     end
 
+    -- IMPORTANT split toggle migration (v1):
+    -- Legacy config used f.onlyImportantAuras (single toggle) to force both buffs+debuffs to IMPORTANT.
+    -- New config uses per-type toggles: f.buffs.onlyImportant and f.debuffs.onlyImportant.
+    if not f._msufA2_onlyImportantSplitMigrated_v1 then
+        if f.onlyImportantAuras == true then
+            if b.onlyImportant == nil then b.onlyImportant = true end
+            if d.onlyImportant == nil then d.onlyImportant = true end
+            -- Deprecate legacy master flag so users can independently toggle buffs/debuffs.
+            f.onlyImportantAuras = false
+        end
+        f._msufA2_onlyImportantSplitMigrated_v1 = true
+    end
+
     Default(f, "hidePermanent", false)
     Default(b, "onlyMine", false)
     Default(b, "includeBoss", false)
+    Default(b, "onlyImportant", false)
     Default(d, "onlyMine", false)
     Default(d, "includeBoss", false)
+    Default(d, "onlyImportant", false)
     Default(f, "onlyBossAuras", false)
+    Default(f, "onlyImportantAuras", false)
     Default(f, "onlyRaidInCombatAuras", false)
+    -- Aura sort order (passed to C_UnitAuras.GetAuraSlots).
+    -- 0=Unsorted (default/legacy), 1=Default, 2=BigDefensive, 3=Expiration,
+    -- 4=ExpirationOnly, 5=Name, 6=NameOnly.
+    Default(f, "sortOrder", 0)
 end
 
 -- Ensure shared.filters exists, migrate legacy storage if needed, and keep legacy shared flags in sync.
@@ -81,6 +101,7 @@ end
 
 -- Resolve which filter table to use for a unit.
 -- Default: shared.filters. If per-unit overrideFilters is enabled, use that unit's filters table.
+-- Lazy-normalizes per-unit tables on first access (defensive against manual DB edits).
 function Filters.GetEffectiveFilterTable(a2, shared, unitKey)
     if type(shared) ~= "table" then return nil end
     local tf = shared.filters
@@ -90,7 +111,14 @@ function Filters.GetEffectiveFilterTable(a2, shared, unitKey)
         local u = pu and pu[unitKey]
         if type(u) == "table" and u.overrideFilters == true then
             local puf = u.filters
-            if puf ~= nil then tf = puf end
+            if puf ~= nil then
+                -- Lazy normalize: ensure schema is complete (one-time per profile load)
+                if not puf._msufA2_normalizedRuntime then
+                    Filters.NormalizeFilters(puf)
+                    puf._msufA2_normalizedRuntime = true
+                end
+                tf = puf
+            end
         end
     end
 
@@ -98,12 +126,23 @@ function Filters.GetEffectiveFilterTable(a2, shared, unitKey)
 end
 
 -- Compute runtime flags used by Model/Render loops.
--- Returns: tf, masterOn, onlyBossAuras, buffsOnlyMine, debuffsOnlyMine, buffsIncludeBoss, debuffsIncludeBoss, hidePermanentBuffs
+-- Returns:
+--   tf, masterOn,
+--   onlyBossAuras,
+--   onlyImportantBuffs, onlyImportantDebuffs,
+--   buffsOnlyMine, debuffsOnlyMine,
+--   buffsIncludeBoss, debuffsIncludeBoss,
+--   hidePermanentBuffs
 function Filters.ResolveRuntimeFlags(a2, shared, unitKey)
     local tf = Filters.GetEffectiveFilterTable(a2, shared, unitKey)
 
     local masterOn = (tf and tf.enabled == true) and true or false
     local onlyBossAuras = (masterOn and tf and tf.onlyBossAuras == true) and true or false
+
+    -- Legacy (deprecated): a single toggle that forced BOTH buffs+debuffs to IMPORTANT.
+    local legacyOnlyImportant = (masterOn and tf and tf.onlyImportantAuras == true) and true or false
+
+    local onlyImportantBuffs, onlyImportantDebuffs = false, false
 
     local buffsOnlyMine, debuffsOnlyMine = false, false
     local buffsIncludeBoss, debuffsIncludeBoss = false, false
@@ -112,6 +151,18 @@ function Filters.ResolveRuntimeFlags(a2, shared, unitKey)
     if masterOn and tf then
         local b = tf.buffs
         local d = tf.debuffs
+
+        -- IMPORTANT per-type toggles (preferred). Fall back to legacyOnlyImportant only if missing.
+        if b and b.onlyImportant ~= nil then
+            onlyImportantBuffs = (b.onlyImportant == true)
+        else
+            onlyImportantBuffs = legacyOnlyImportant
+        end
+        if d and d.onlyImportant ~= nil then
+            onlyImportantDebuffs = (d.onlyImportant == true)
+        else
+            onlyImportantDebuffs = legacyOnlyImportant
+        end
 
         if b and b.onlyMine ~= nil then
             buffsOnlyMine = (b.onlyMine == true)
@@ -137,7 +188,9 @@ function Filters.ResolveRuntimeFlags(a2, shared, unitKey)
         buffsOnlyMine = (type(shared) == "table" and shared.onlyMyBuffs == true) or false
         debuffsOnlyMine = (type(shared) == "table" and shared.onlyMyDebuffs == true) or false
         hidePermanentBuffs = (type(shared) == "table" and shared.hidePermanent == true) or false
+        onlyImportantBuffs = false
+        onlyImportantDebuffs = false
     end
 
-    return tf, masterOn, onlyBossAuras, buffsOnlyMine, debuffsOnlyMine, buffsIncludeBoss, debuffsIncludeBoss, hidePermanentBuffs
+    return tf, masterOn, onlyBossAuras, onlyImportantBuffs, onlyImportantDebuffs, buffsOnlyMine, debuffsOnlyMine, buffsIncludeBoss, debuffsIncludeBoss, hidePermanentBuffs
 end

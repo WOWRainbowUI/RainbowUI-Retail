@@ -80,7 +80,7 @@ local function MSUF_ConfirmColorReset(label, doReset)
         }
     end
 
-    StaticPopupDialogs[KEY].text = "重置 " .. tostring(label) .. " 顏色設定？\n\n此動作無法復原。"
+    StaticPopupDialogs[KEY].text = "Reset " .. tostring(label) .. " color settings?\n\nThis cannot be undone."
     StaticPopup_Show(KEY)
 end
 
@@ -97,6 +97,16 @@ local function PushVisualUpdates()
     end
     if ns.MSUF_RefreshAllFrames then
         ns.MSUF_RefreshAllFrames()
+    end
+
+    -- Sync highlight priority stripe colors when border colors change.
+    local reinit = _G.MSUF_PrioRows_Reinit
+    if type(reinit) == "function" then reinit() end
+
+    -- Live-update highlight border colors during test mode (zero cost when no test active).
+    if _G.MSUF_AggroBorderTestMode or _G.MSUF_DispelBorderTestMode or _G.MSUF_PurgeBorderTestMode then
+        local applyAll = _G.MSUF_ApplyBarOutlineThickness_All
+        if type(applyAll) == "function" then applyAll() end
     end
 
     -- Safety: keep mouseover highlight bound to the correct unitframe.
@@ -138,11 +148,14 @@ local function MSUF_FixHighlightForFrame(frame)
     -- Ensure it is anchored to the unitframe (and includes the power bar if it extends below the main frame).
     -- Also try to snap to pixel grid to avoid "one side thicker" artifacts at non-integer UI scales.
     local bottomAnchor = frame
-    local pb =
+    -- When power bar is detached, highlight only covers the HP bar area.
+    local pbDetached = frame._msufPowerBarDetached
+    local pb = not pbDetached and (
         frame.targetPowerBar or frame.TargetPowerBar or frame.powerBar or frame.PowerBar
         or frame.power or frame.Power or frame.ManaBar or frame.manaBar
         or frame.MSUF_powerBar or frame.MSUF_PowerBar or frame.MSUFPowerBar
         or frame.resourceBar or frame.ResourceBar or frame.classPowerBar or frame.ClassPowerBar
+    ) or nil
 
     if pb and pb.IsShown and pb.GetObjectType then
         -- Only use it if it behaves like a Region/Frame and is currently shown.
@@ -156,7 +169,8 @@ local function MSUF_FixHighlightForFrame(frame)
     end
 
     -- If we didn't find a known power bar field, try a lightweight child scan by name.
-    if bottomAnchor == frame and frame.GetChildren then
+    -- Skip scan when power bar is detached (highlight should only cover HP bar).
+    if not pbDetached and bottomAnchor == frame and frame.GetChildren then
         local children = { frame:GetChildren() }
         for i = 1, #children do
             local c = children[i]
@@ -213,6 +227,8 @@ local function MSUF_FixHighlightForFrame(frame)
         end)
     end
 end
+-- Export so other files can re-fix highlight anchors (e.g. after detach state changes)
+_G.MSUF_FixHighlightForFrame = MSUF_FixHighlightForFrame
 
 function ns.MSUF_FixMouseoverHighlightBindings()
     -- Prefer EnumerateFrames() (safe, doesn't touch _G and avoids odd tables like _G itself).
@@ -519,7 +535,7 @@ local function GetNonInterruptibleCastColor()
         return c[1], c[2], c[3]
     end
 
-    -- Fallback: „red“ aus der Palette
+    -- Fallback: aus der Palette
     if MSUF_FONT_COLORS and MSUF_FONT_COLORS["red"] then
         local c = MSUF_FONT_COLORS["red"]
         return c[1], c[2], c[3]
@@ -529,7 +545,7 @@ local function GetNonInterruptibleCastColor()
     return 0.4, 0.01, 0.01
 end
 
--- global alias für die Castbar-Logik im Main-File
+-- global alias die Castbar-Logik im Main-File
 MSUF_GetNonInterruptibleCastColor = GetNonInterruptibleCastColor
 
 local function SetNonInterruptibleCastColor(r, g, b)
@@ -670,23 +686,6 @@ local CLASS_TOKENS = {
     "DRUID",
     "DEMONHUNTER",
     "EVOKER",
-}
-
--- 添加中文職業名稱對應表
-local CLASS_NAMES_ZH = {
-    WARRIOR = "戰士",
-    PALADIN = "聖騎士",
-    HUNTER = "獵人",
-    ROGUE = "盜賊",
-    PRIEST = "牧師",
-    DEATHKNIGHT = "死亡騎士",
-    SHAMAN = "薩滿",
-    MAGE = "法師",
-    WARLOCK = "術士",
-    MONK = "武僧",
-    DRUID = "德魯伊",
-    DEMONHUNTER = "惡魔獵人",
-    EVOKER = "喚能師",
 }
 
 local function GetClassColor(token)
@@ -1143,7 +1142,7 @@ function ns.MSUF_RegisterColorsOptions_Full(parentCategory)
     -- Root panel & scroll container
     --------------------------------------------------
     local panel = (_G and _G.MSUF_ColorsPanel) or CreateFrame("Frame", "MSUF_ColorsPanel", UIParent)
-    panel.name = "顏色"
+    panel.name = "Colors"
 
     if panel.__MSUF_ColorsBuilt then
         return panel
@@ -1243,13 +1242,13 @@ end
     --------------------------------------------------
     local title = content:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 16, -16)
-    title:SetText("至暗之夜頭像 - 顏色")
+    title:SetText("Midnight Simple Unit Frames - Colors")
 
     local subText = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     subText:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
     subText:SetWidth(600)
     subText:SetJustifyH("LEFT")
-    subText:SetText("設定整體顏色，例如整體字型顏色、職業條顏色以及 NPC 反應顏色。")
+    subText:SetText("Configure global colors such as the global font color, per-class bar colors, and NPC reaction colors.")
 
     --------------------------------------------------
 
@@ -1258,7 +1257,7 @@ end
     --------------------------------------------------
     local fontLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     fontLabel:SetPoint("TOPLEFT", subText, "BOTTOMLEFT", 0, -24)
-    fontLabel:SetText("整體字型顏色")
+    fontLabel:SetText("Global font color")
     F.CreateHeaderDividerAbove(fontLabel)
 
     local fontSwatch = CreateFrame("Button", "MSUF_Colors_FontSwatchButton", content)
@@ -1279,7 +1278,7 @@ end
     local fontResetBtn = CreateFrame("Button", "MSUF_Colors_FontResetButton", content, "UIPanelButtonTemplate")
     fontResetBtn:SetSize(140, 22)
     fontResetBtn:SetPoint("TOPLEFT", fontSwatch, "BOTTOMLEFT", 0, -8)
-    fontResetBtn:SetText("使用字型調色盤")
+    fontResetBtn:SetText("Use font palette")
     fontResetBtn:SetScript("OnClick", function()
         MSUF_ConfirmColorReset("font palette", function()
                     ResetGlobalFontToPalette()
@@ -1293,14 +1292,14 @@ end
     --------------------------------------------------
     local classHeader = content:CreateFontString("MSUF_Colors_ClassHeader", "ARTWORK", "GameFontNormal")
     classHeader:SetPoint("TOPLEFT", fontResetBtn, "BOTTOMLEFT", 0, -32)
-    classHeader:SetText("職業條顏色")
+    classHeader:SetText("Class bar colors")
     F.CreateHeaderDividerAbove(classHeader)
 
     local classSub = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     classSub:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", 0, -4)
     classSub:SetWidth(600)
     classSub:SetJustifyH("LEFT")
-    classSub:SetText("為每個職業選擇覆蓋的血條顏色。")
+    classSub:SetText("Choose an override bar color per class.")
 
     local startY    = -36
     local rowHeight = 22
@@ -1319,35 +1318,13 @@ end
 
             local lower = token:lower()
             local className
-            if lower == "warrior" then
-				className = "戰士"
-			elseif lower == "paladin" then
-				className = "聖騎士"
-			elseif lower == "hunter" then
-				className = "獵人"
-			elseif lower == "rogue" then
-				className = "盜賊"
-			elseif lower == "priest" then
-				className = "牧師"
-			elseif lower == "deathknight" then
-				className = "死亡騎士"
-			elseif lower == "shaman" then
-				className = "薩滿"
-			elseif lower == "mage" then
-				className = "法師"
-			elseif lower == "warlock" then
-				className = "術士"
-			elseif lower == "monk" then
-				className = "武僧"
-			elseif lower == "druid" then
-				className = "德魯伊"
-			elseif lower == "demonhunter" then
-				className = "惡魔獵人"
-			elseif lower == "evoker" then
-				className = "喚能師"
-			else
-				className = token
-			end
+            if lower == "deathknight" then
+                className = "DK"
+            elseif lower == "demonhunter" then
+                className = "DH"
+            else
+                className = lower:sub(1, 1):upper() .. lower:sub(2)
+            end
 
             local c = RAID_CLASS_COLORS and RAID_CLASS_COLORS[token]
 
@@ -1395,7 +1372,7 @@ end
     local resetClassBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
     resetClassBtn:SetSize(180, 22)
     resetClassBtn:SetPoint("TOPLEFT", classSub, "BOTTOMLEFT", 0, resetOffsetY)
-    resetClassBtn:SetText("重置所有職業顏色")
+    resetClassBtn:SetText("Reset all class colors")
     resetClassBtn:SetScript("OnClick", function()
         MSUF_ConfirmColorReset("class", function()
                     ResetAllClassColors()
@@ -1416,14 +1393,14 @@ end
     --------------------------------------------------
     local classBgHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     classBgHeader:SetPoint("TOPLEFT", resetClassBtn, "BOTTOMLEFT", 0, -32)
-    classBgHeader:SetText("血條背景色調")
+    classBgHeader:SetText("Bar background tint")
     F.CreateHeaderDividerAbove(classBgHeader)
 
     local classBgSub = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     classBgSub:SetPoint("TOPLEFT", classBgHeader, "BOTTOMLEFT", 0, -4)
     classBgSub:SetWidth(600)
     classBgSub:SetJustifyH("LEFT")
-    classBgSub:SetText("套用到*所有*模式血條背景的色調。(深色模式也會使用此色調。)")
+    classBgSub:SetText("Tint applied to the bar background in *all* bar modes. (Dark Mode uses this tint too.)")
 
     local classBgSwatch = CreateFrame("Button", "MSUF_Colors_ClassBarBgSwatch", content)
     classBgSwatch:SetSize(80, 16)
@@ -1443,7 +1420,7 @@ end
     local classBgResetBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
     classBgResetBtn:SetSize(140, 22)
     classBgResetBtn:SetPoint("TOPLEFT", classBgSwatch, "BOTTOMLEFT", 0, -8)
-    classBgResetBtn:SetText("重置為黑色")
+    classBgResetBtn:SetText("Reset to black")
     classBgResetBtn:SetScript("OnClick", function()
         MSUF_ConfirmColorReset("class bar background", function()
                     ResetClassBarBgColor()
@@ -1460,7 +1437,7 @@ end
         classBgMatchCheck.text = classBgMatchCheck:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         classBgMatchCheck.text:SetPoint("LEFT", classBgMatchCheck, "RIGHT", 2, 0)
     end
-    classBgMatchCheck.text:SetText("符合生命力顏色")
+    classBgMatchCheck.text:SetText("Match HP")
 
     local function UpdateClassBgMatchState()
         local match = GetBarBgMatchHP()
@@ -1490,17 +1467,17 @@ end
     --------------------------------------------------
     local barAppHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     barAppHeader:SetPoint("TOPLEFT", classBgResetBtn, "BOTTOMLEFT", 0, -28)
-    barAppHeader:SetText("血條外觀")
+    barAppHeader:SetText("Bar appearance")
     F.CreateHeaderDividerAbove(barAppHeader)
 
     local barModeLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     barModeLabel:SetPoint("TOPLEFT", barAppHeader, "BOTTOMLEFT", 0, -10)
-    barModeLabel:SetText("血條模式")
+    barModeLabel:SetText("Bar mode")
 
     local barModeOptions = {
-        { key = "dark",    label = "深色模式 (黑底血條)" },
-        { key = "class",   label = "職業顏色模式 (彩色血條)" },
-        { key = "unified", label = "統一顏色模式 (所有框架單一顏色)" },
+        { key = "dark",    label = "Dark Mode (dark black bars)" },
+        { key = "class",   label = "Class Color Mode (color HP bars)" },
+        { key = "unified", label = "Unified Color Mode (one color for all frames)" },
     }
 
     barModeDrop = CreateFrame("Frame", "MSUF_Colors_BarModeDropdown", content, "UIDropDownMenuTemplate")
@@ -1557,7 +1534,7 @@ end
     -- Unified bar color (only used when Bar mode == "unified")
     local unifiedLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     unifiedLabel:SetPoint("TOPLEFT", barModeDrop, "BOTTOMLEFT", 16, -18)
-    unifiedLabel:SetText("統一血條顏色")
+    unifiedLabel:SetText("Unified bar color")
 
     local unifiedSwatch = CreateFrame("Button", "MSUF_Colors_UnifiedBarSwatch", content)
     unifiedSwatch:SetSize(240, 16)
@@ -1569,7 +1546,7 @@ end
     local unifiedResetBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
     unifiedResetBtn:SetSize(140, 22)
     unifiedResetBtn:SetPoint("TOPLEFT", unifiedSwatch, "BOTTOMLEFT", 0, -8)
-    unifiedResetBtn:SetText("重置為預設值")
+    unifiedResetBtn:SetText("Reset to default")
 
     local function MSUF_GetUnifiedBarColor()
         EnsureDB()
@@ -1646,7 +1623,7 @@ end
     end
 local darkToneLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 darkToneLabel:SetPoint("TOPLEFT", unifiedResetBtn, "BOTTOMLEFT", 0, -18)
-darkToneLabel:SetText("深色模式血條顏色")
+darkToneLabel:SetText("Dark mode bar color")
 
     darkToneLabelFS = darkToneLabel
 
@@ -1831,7 +1808,7 @@ end
     -- Left block: Unitframe Colors
     local unitHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     unitHeader:SetPoint("TOPLEFT", darkToneSlider, "BOTTOMLEFT", leftHeaderX, -48)
-    unitHeader:SetText("單位框架顏色")
+    unitHeader:SetText("Unitframe Colors")
     F.CreateHeaderDividerAbove(unitHeader)
 
     local unitLabelX    = 0
@@ -1842,7 +1819,7 @@ end
     local friendlyLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     friendlyLabel:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitLabelX, startY)
     friendlyLabel:SetJustifyH("LEFT")
-    friendlyLabel:SetText("友方 NPC 顏色")
+    friendlyLabel:SetText("Friendly NPC Color")
 
     local npcFriendlySwatch = CreateFrame("Button", "MSUF_Colors_NPCFriendlySwatch", content)
     npcFriendlySwatch:SetSize(unitBarW, 16)
@@ -1863,7 +1840,7 @@ end
     local neutralLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     neutralLabel:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitLabelX, startY - rowH)
     neutralLabel:SetJustifyH("LEFT")
-    neutralLabel:SetText("中立 NPC 顏色")
+    neutralLabel:SetText("Neutral NPC Color")
 
     local npcNeutralSwatch = CreateFrame("Button", "MSUF_Colors_NPCNeutralSwatch", content)
     npcNeutralSwatch:SetSize(unitBarW, 16)
@@ -1884,7 +1861,7 @@ end
     local enemyLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     enemyLabel:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitLabelX, startY - 2 * rowH)
     enemyLabel:SetJustifyH("LEFT")
-    enemyLabel:SetText("敵方 NPC 顏色")
+    enemyLabel:SetText("Enemy NPC Color")
 
     local npcEnemySwatch = CreateFrame("Button", "MSUF_Colors_NPCEnemySwatch", content)
     npcEnemySwatch:SetSize(unitBarW, 16)
@@ -1905,7 +1882,7 @@ end
     local deadLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     deadLabel:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitLabelX, startY - 3 * rowH)
     deadLabel:SetJustifyH("LEFT")
-    deadLabel:SetText("死亡 NPC 顏色")
+    deadLabel:SetText("Dead NPC Color")
 
     local npcDeadSwatch = CreateFrame("Button", "MSUF_Colors_NPCDeadSwatch", content)
     npcDeadSwatch:SetSize(unitBarW, 16)
@@ -1926,7 +1903,7 @@ end
     local petLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     petLabel:SetPoint("TOPLEFT", unitHeader, "BOTTOMLEFT", unitLabelX, startY - 4 * rowH)
     petLabel:SetJustifyH("LEFT")
-    petLabel:SetText("寵物框架顏色")
+    petLabel:SetText("Pet Frame Color")
 
     local petFrameSwatch = CreateFrame("Button", "MSUF_Colors_PetFrameSwatch", content)
     petFrameSwatch:SetSize(unitBarW, 16)
@@ -1953,7 +1930,7 @@ end
     -- Right block: Bar Colors
     local barHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     barHeader:SetPoint("TOPLEFT", darkToneSlider, "BOTTOMLEFT", rightHeaderX, -48)
-    barHeader:SetText("計量條顏色")
+    barHeader:SetText("Bar Colors")
     F.CreateHeaderDividerAbove(barHeader)
 
     local barLabelX     = 0
@@ -1964,7 +1941,7 @@ end
     local absorbLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     absorbLabel:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barLabelX, startY)
     absorbLabel:SetJustifyH("LEFT")
-    absorbLabel:SetText("吸收盾條顏色")
+    absorbLabel:SetText("Absorb Bar Color")
 
     local absorbSwatch = CreateFrame("Button", "MSUF_Colors_AbsorbOverlaySwatch", content)
     absorbSwatch:SetSize(barSwatchW, 16)
@@ -1987,7 +1964,7 @@ end
     local healAbsorbLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     healAbsorbLabel:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barLabelX, startY - rowH)
     healAbsorbLabel:SetJustifyH("LEFT")
-    healAbsorbLabel:SetText("治療吸收盾條顏色")
+    healAbsorbLabel:SetText("Heal-Absorb Bar Color")
 
     local healAbsorbSwatch = CreateFrame("Button", "MSUF_Colors_HealAbsorbOverlaySwatch", content)
     healAbsorbSwatch:SetSize(barSwatchW, 16)
@@ -2010,7 +1987,7 @@ end
     local powerBgLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     powerBgLabel:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barLabelX, startY - 2 * rowH)
     powerBgLabel:SetJustifyH("LEFT")
-    powerBgLabel:SetText("能量條背景顏色")
+    powerBgLabel:SetText("Power Bar Background Color")
 
     local powerBgSwatch = CreateFrame("Button", "MSUF_Colors_PowerBarBackgroundSwatch", content)
     panel.__MSUF_ExtraColorPowerBgSwatch = powerBgSwatch
@@ -2037,7 +2014,7 @@ end
         panel.__MSUF_ExtraColorPowerBgMatchCheck.text = panel.__MSUF_ExtraColorPowerBgMatchCheck:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         panel.__MSUF_ExtraColorPowerBgMatchCheck.text:SetPoint("LEFT", panel.__MSUF_ExtraColorPowerBgMatchCheck, "RIGHT", 2, 0)
     end
-    panel.__MSUF_ExtraColorPowerBgMatchCheck.text:SetText("符合生命力顏色")
+    panel.__MSUF_ExtraColorPowerBgMatchCheck.text:SetText("Match HP")
     panel.__MSUF_ExtraColorPowerBgMatchCheck:SetChecked(GetPowerBarBackgroundMatchHP())
     panel.__MSUF_ExtraColorPowerBgMatchCheck:SetScript("OnClick", function(btn)
         SetPowerBarBackgroundMatchHP(btn:GetChecked())
@@ -2069,7 +2046,7 @@ end
     local aggroLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     aggroLabel:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barLabelX, startY - 3 * rowH)
     aggroLabel:SetJustifyH("LEFT")
-    aggroLabel:SetText("仇恨邊框顏色")
+    aggroLabel:SetText("Aggro Border Color")
 
     local aggroSwatch = CreateFrame("Button", "MSUF_Colors_AggroBorderSwatch", content)
     aggroSwatch:SetSize(barSwatchW, 16)
@@ -2122,7 +2099,7 @@ end
     local dispelLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     dispelLabel:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barLabelX, startY - 4 * rowH)
     dispelLabel:SetJustifyH("LEFT")
-    dispelLabel:SetText("驅散邊框顏色")
+    dispelLabel:SetText("Dispel Border Color")
 
     local dispelSwatch = CreateFrame("Button", "MSUF_Colors_DispelBorderSwatch", content)
     dispelSwatch:SetSize(barSwatchW, 16)
@@ -2141,11 +2118,61 @@ end
         end)
     end)
 
+-- Purge border (outline indicator for purgeable/spellstealable buffs)
+    local function GetPurgeBorderColor()
+        local defR, defG, defB = 1.00, 0.85, 0.00
+        if EnsureDB and MSUF_DB then
+            EnsureDB()
+            MSUF_DB.general = MSUF_DB.general or {}
+            local g = MSUF_DB.general
+            local r = g.purgeBorderColorR
+            local gg = g.purgeBorderColorG
+            local b = g.purgeBorderColorB
+            if type(r) == "number" and type(gg) == "number" and type(b) == "number" then
+                return r, gg, b
+            end
+        end
+        return defR, defG, defB
+    end
+
+    local function SetPurgeBorderColor(r, g, b)
+        if not EnsureDB or not MSUF_DB then return end
+        EnsureDB()
+        MSUF_DB.general = MSUF_DB.general or {}
+        local gen = MSUF_DB.general
+        gen.purgeBorderColorR = r
+        gen.purgeBorderColorG = g
+        gen.purgeBorderColorB = b
+        PushVisualUpdates()
+    end
+
+    local purgeLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    purgeLabel:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barLabelX, startY - 5 * rowH)
+    purgeLabel:SetJustifyH("LEFT")
+    purgeLabel:SetText("Purge Border Color")
+
+    local purgeSwatch = CreateFrame("Button", "MSUF_Colors_PurgeBorderSwatch", content)
+    purgeSwatch:SetSize(barSwatchW, 16)
+    purgeSwatch:SetPoint("TOPLEFT", barHeader, "BOTTOMLEFT", barSwatchX, startY - 5 * rowH)
+
+    panel.__MSUF_ExtraColorPurgeBorderTex = purgeSwatch:CreateTexture(nil, "ARTWORK")
+    panel.__MSUF_ExtraColorPurgeBorderTex:SetAllPoints()
+    panel.__MSUF_ExtraColorPurgeBorderTex:SetColorTexture(GetPurgeBorderColor())
+
+    purgeSwatch:SetScript("OnClick", function()
+        local r, g, b = GetPurgeBorderColor()
+        OpenColorPicker(r, g, b, function(nr, ng, nb)
+            SetPurgeBorderColor(nr, ng, nb)
+            local tex = panel.__MSUF_ExtraColorPurgeBorderTex
+            if tex then tex:SetColorTexture(nr, ng, nb) end
+        end)
+    end)
+
     -- Reset (kept for 0-regression; affects both columns)
     local npcResetBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
     npcResetBtn:SetSize(160, 22)
     npcResetBtn:SetPoint("TOPLEFT", petLabel, "BOTTOMLEFT", 0, -12)
-    npcResetBtn:SetText("重置額外顏色")
+    npcResetBtn:SetText("Reset Extra Color")
     npcResetBtn:SetScript("OnClick", function()
         MSUF_ConfirmColorReset("unitframe + bar", function()
                     if EnsureDB and MSUF_DB then
@@ -2159,6 +2186,7 @@ end
                         gen.powerBarBgColorR, gen.powerBarBgColorG, gen.powerBarBgColorB = nil, nil, nil
                         gen.aggroBorderColorR, gen.aggroBorderColorG, gen.aggroBorderColorB = nil, nil, nil
                         gen.dispelBorderColorR, gen.dispelBorderColorG, gen.dispelBorderColorB = nil, nil, nil
+                        gen.purgeBorderColorR, gen.purgeBorderColorG, gen.purgeBorderColorB = nil, nil, nil
             
                         gen.powerBarBgMatchHPColor = nil
                         MSUF_DB.bars = MSUF_DB.bars or {}
@@ -2228,14 +2256,14 @@ end
     --------------------------------------------------
     local castbarHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     castbarHeader:SetPoint("TOPLEFT", npcResetBtn, "BOTTOMLEFT", 0, -32)
-    castbarHeader:SetText("施法條顏色")
+    castbarHeader:SetText("Castbar colors")
     F.CreateHeaderDividerAbove(castbarHeader)
 
     local castbarSub = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     castbarSub:SetPoint("TOPLEFT", castbarHeader, "BOTTOMLEFT", 0, -4)
     castbarSub:SetWidth(600)
     castbarSub:SetJustifyH("LEFT")
-    castbarSub:SetText("設定可斷法、不可斷法及中斷回饋施法條的顏色。")
+    castbarSub:SetText("Configure colors for interruptible, non-interruptible and interrupt feedback castbars.")
 
     --------------------------------------------------
     -- Castbar dropdowns
@@ -2243,7 +2271,7 @@ end
     -- Interruptible cast color (custom Color Picker)
     local interruptibleColorLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     interruptibleColorLabel:SetPoint("TOPLEFT", castbarSub, "BOTTOMLEFT", 0, -12)
-    interruptibleColorLabel:SetText("可斷法顏色")
+    interruptibleColorLabel:SetText("Interruptible cast color")
 
     local interruptibleSwatch = CreateFrame("Button", "MSUF_Colors_InterruptibleCastColorSwatch", content)
     interruptibleSwatch:SetSize(32, 16)
@@ -2267,7 +2295,7 @@ end
 
     local nonInterruptibleColorLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     nonInterruptibleColorLabel:SetPoint("TOPLEFT", interruptibleColorLabel, "BOTTOMLEFT", 0, -32)
-    nonInterruptibleColorLabel:SetText("不可斷法顏色")
+    nonInterruptibleColorLabel:SetText("Non-interruptible cast color")
 
     local nonInterruptibleSwatch = CreateFrame("Button", "MSUF_Colors_NonInterruptibleCastColorSwatch", content)
     nonInterruptibleSwatch:SetSize(32, 16)
@@ -2292,7 +2320,7 @@ end
 -- Interrupt color (all castbars)
     local interruptFeedbackColorLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     interruptFeedbackColorLabel:SetPoint("TOPLEFT", nonInterruptibleColorLabel, "BOTTOMLEFT", 0, -32)
-    interruptFeedbackColorLabel:SetText("中斷顏色 (所有施法條)")
+    interruptFeedbackColorLabel:SetText("Interrupt color (all castbars)")
 
     local interruptFeedbackSwatch = CreateFrame("Button", "MSUF_Colors_InterruptFeedbackColorSwatch", content)
     interruptFeedbackSwatch:SetSize(32, 16)
@@ -2317,7 +2345,7 @@ end
     -- Castbar text color (custom RGB; right-click to reset to Global font color)
     local castbarTextColorLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     castbarTextColorLabel:SetPoint("TOPLEFT", castbarSub, "BOTTOMLEFT", 360, -12)
-    castbarTextColorLabel:SetText("施法條文字顏色")
+    castbarTextColorLabel:SetText("Castbar text color")
 
     local castbarTextSwatch = CreateFrame("Button", "MSUF_Colors_CastbarTextColorSwatch", content)
     castbarTextSwatch:SetSize(32, 16)
@@ -2351,7 +2379,7 @@ end
 -- Castbar border color (Outline; right-click to reset)
 local castbarBorderColorLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 castbarBorderColorLabel:SetPoint("TOPLEFT", castbarTextSwatch, "BOTTOMLEFT", 0, -18)
-castbarBorderColorLabel:SetText("施法條邊框顏色")
+castbarBorderColorLabel:SetText("Castbar border color")
 
 local castbarBorderSwatch = CreateFrame("Button", "MSUF_Colors_CastbarBorderColorSwatch", content)
 castbarBorderSwatch:SetSize(32, 16)
@@ -2388,33 +2416,33 @@ end
     --------------------------------------------------
     local playerOverrideHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     playerOverrideHeader:SetPoint("TOPLEFT", interruptFeedbackSwatch, "BOTTOMLEFT", 0, -26)
-    playerOverrideHeader:SetText("玩家施法條覆蓋")
+    playerOverrideHeader:SetText("Player castbar override")
 
     local playerOverrideSub = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     playerOverrideSub:SetPoint("TOPLEFT", playerOverrideHeader, "BOTTOMLEFT", 0, -4)
     playerOverrideSub:SetWidth(600)
     playerOverrideSub:SetJustifyH("LEFT")
-    playerOverrideSub:SetText("選用：強制玩家施法條在一般施法時使用職業或自訂顏色。中斷回饋仍會使用「中斷顏色 (所有施法條)」。")
+    playerOverrideSub:SetText("Optional: forces the Player castbar to use Class or Custom color during normal casts. Interrupt feedback still uses 'Interrupt color (all castbars)'.")
 
     local playerOverrideEnable = CreateFrame("CheckButton", nil, content, "UICheckButtonTemplate")
     playerOverrideEnable:SetPoint("TOPLEFT", playerOverrideSub, "BOTTOMLEFT", 0, -10)
-    playerOverrideEnable.text:SetText("啟用玩家覆蓋")
+    playerOverrideEnable.text:SetText("Enable Player override")
 
     local modeLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     modeLabel:SetPoint("TOPLEFT", playerOverrideEnable, "BOTTOMLEFT", 0, -10)
-    modeLabel:SetText("模式：")
+    modeLabel:SetText("Mode:")
 
     local classModeCheck = CreateFrame("CheckButton", nil, content, "UICheckButtonTemplate")
     classModeCheck:SetPoint("LEFT", modeLabel, "RIGHT", 12, 0)
-    classModeCheck.text:SetText("職業顏色")
+    classModeCheck.text:SetText("Class color")
 
     local customModeCheck = CreateFrame("CheckButton", nil, content, "UICheckButtonTemplate")
     customModeCheck:SetPoint("LEFT", classModeCheck, "RIGHT", 70, 0)
-    customModeCheck.text:SetText("自訂顏色")
+    customModeCheck.text:SetText("Custom color")
 
     local customColorLabel = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     customColorLabel:SetPoint("LEFT", customModeCheck.text, "RIGHT", 18, 0)
-    customColorLabel:SetText("顏色：")
+    customColorLabel:SetText("Color:")
 
     local playerOverrideSwatch = CreateFrame("Button", "MSUF_Colors_PlayerCastbarOverrideSwatch", content)
     playerOverrideSwatch:SetSize(32, 16)
@@ -2490,7 +2518,7 @@ end
     local resetCastbarColorsBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
     resetCastbarColorsBtn:SetSize(160, 22)
     resetCastbarColorsBtn:SetPoint("TOPLEFT", modeLabel, "BOTTOMLEFT", 0, -10)
-    resetCastbarColorsBtn:SetText("重置施法條顏色")
+    resetCastbarColorsBtn:SetText("Reset castbar colors")
 
     resetCastbarColorsBtn:SetScript("OnClick", function()
         MSUF_ConfirmColorReset("castbar", function()
@@ -2569,14 +2597,14 @@ end
     --------------------------------------------------
     local mouseoverHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     mouseoverHeader:SetPoint("TOPLEFT", modeLabel, "BOTTOMLEFT", 0, -64)
-    mouseoverHeader:SetText("滑鼠指向顯著標示")
+    mouseoverHeader:SetText("Mouseover highlight")
     F.CreateHeaderDividerAbove(mouseoverHeader)
 
     local mouseoverSub = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     mouseoverSub:SetPoint("TOPLEFT", mouseoverHeader, "BOTTOMLEFT", 0, -4)
     mouseoverSub:SetWidth(600)
     mouseoverSub:SetJustifyH("LEFT")
-    mouseoverSub:SetText("設定當滑鼠游標懸停在 MSUF 單位框架上時出現的顯著標示邊框。")
+    mouseoverSub:SetText("Configure the mouseover highlight border that appears when you hover MSUF unitframes.")
 
     -- Enable/disable mouseover highlight
     highlightEnableCheck = CreateFrame("CheckButton", "MSUF_Colors_HighlightEnableCheck", content, "UICheckButtonTemplate")
@@ -2586,7 +2614,7 @@ end
         highlightEnableCheck.text = highlightEnableCheck:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         highlightEnableCheck.text:SetPoint("LEFT", highlightEnableCheck, "RIGHT", 2, 0)
     end
-    highlightEnableCheck.text:SetText("啟用滑鼠指向顯著標示")
+    highlightEnableCheck.text:SetText("Enable mouseover highlight")
 
     local highlightColorLabel
     local highlightColorSwatch
@@ -2626,7 +2654,7 @@ end
     -- Mouseover highlight color (Colorpicker)
     highlightColorLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     highlightColorLabel:SetPoint("TOPLEFT", highlightEnableCheck, "BOTTOMLEFT", 0, -12)
-    highlightColorLabel:SetText("滑鼠指向顯著標示顏色")
+    highlightColorLabel:SetText("Mouseover highlight color")
 
     highlightColorSwatch = CreateFrame("Button", "MSUF_Colors_HighlightColorSwatch", content)
     highlightColorSwatch:SetSize(32, 16)
@@ -2702,23 +2730,23 @@ end
 --------------------------------------------------
 local gameplayHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 gameplayHeader:SetPoint("TOPLEFT", highlightColorSwatch, "BOTTOMLEFT", 0, -44)
-gameplayHeader:SetText("遊戲性")
+gameplayHeader:SetText("Gameplay")
 F.CreateHeaderDividerAbove(gameplayHeader)
 
 local gameplaySub = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 gameplaySub:SetPoint("TOPLEFT", gameplayHeader, "BOTTOMLEFT", 0, -4)
 gameplaySub:SetWidth(600)
 gameplaySub:SetJustifyH("LEFT")
-gameplaySub:SetText("設定遊戲性疊加層使用的顏色 (戰鬥計時器、進入/離開戰鬥文字、準心距離)。")
+gameplaySub:SetText("Configure colors used by Gameplay overlays (Combat Timer, Combat Enter/Leave text, Crosshair range).")
 
 local combatTimerLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 combatTimerLabel:SetPoint("TOPLEFT", gameplaySub, "BOTTOMLEFT", 0, -12)
-combatTimerLabel:SetText("戰鬥計時器文字顏色")
+combatTimerLabel:SetText("Combat timer text color")
 
 -- Shown when the corresponding Gameplay option is disabled
 local combatTimerOffText = content:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
 combatTimerOffText:SetPoint("LEFT", combatTimerLabel, "RIGHT", 10, 0)
-combatTimerOffText:SetText("已在遊戲性設定中關閉")
+combatTimerOffText:SetText("Turned Off in Gameplay")
 combatTimerOffText:Hide()
 
 local combatTimerSwatch = CreateFrame("Button", "MSUF_Colors_CombatTimerColorSwatch", content)
@@ -2729,12 +2757,12 @@ combatTimerTex:SetAllPoints()
 
 local combatEnterLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 combatEnterLabel:SetPoint("TOPLEFT", combatTimerSwatch, "BOTTOMLEFT", 0, -12)
-combatEnterLabel:SetText("進入戰鬥文字顏色")
+combatEnterLabel:SetText("Combat Enter text color")
 
 -- Shown when Combat Enter/Leave text is disabled in Gameplay
 local combatStateOffText = content:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
 combatStateOffText:SetPoint("LEFT", combatEnterLabel, "RIGHT", 10, 0)
-combatStateOffText:SetText("已在遊戲性設定中關閉")
+combatStateOffText:SetText("Turned Off in Gameplay")
 combatStateOffText:Hide()
 
 local combatEnterSwatch = CreateFrame("Button", "MSUF_Colors_CombatEnterColorSwatch", content)
@@ -2745,7 +2773,7 @@ combatEnterTex:SetAllPoints()
 
 local combatLeaveLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 combatLeaveLabel:SetPoint("TOPLEFT", combatEnterSwatch, "BOTTOMLEFT", 0, -12)
-combatLeaveLabel:SetText("離開戰鬥文字顏色")
+combatLeaveLabel:SetText("Combat Leave text color")
 
 local combatLeaveSwatch = CreateFrame("Button", "MSUF_Colors_CombatLeaveColorSwatch", content)
 combatLeaveSwatch:SetSize(32, 16)
@@ -2760,7 +2788,7 @@ if not combatColorSyncCheck.text then
     combatColorSyncCheck.text = combatColorSyncCheck:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     combatColorSyncCheck.text:SetPoint("LEFT", combatColorSyncCheck, "RIGHT", 2, 0)
 end
-combatColorSyncCheck.text:SetText("同步")
+combatColorSyncCheck.text:SetText("Sync")
 
 -- Forward refs so UpdateGameplay* can grey/disable Reset buttons
 local combatTimerResetBtn
@@ -2988,7 +3016,7 @@ end
 combatTimerResetBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
 combatTimerResetBtn:SetSize(110, 22)
 combatTimerResetBtn:SetPoint("LEFT", combatTimerSwatch, "RIGHT", 12, 0)
-combatTimerResetBtn:SetText("重置")
+combatTimerResetBtn:SetText("Reset")
 combatTimerResetBtn:SetScript("OnClick", function()
         MSUF_ConfirmColorReset("combat timer colors", function()
                 F.ResetGameplayCombatTimerColor()
@@ -2998,7 +3026,7 @@ combatTimerResetBtn:SetScript("OnClick", function()
 combatStateResetBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
 combatStateResetBtn:SetSize(110, 22)
 combatStateResetBtn:SetPoint("LEFT", combatEnterSwatch, "RIGHT", 12, 0)
-combatStateResetBtn:SetText("重置")
+combatStateResetBtn:SetText("Reset")
 combatStateResetBtn:SetScript("OnClick", function()
         MSUF_ConfirmColorReset("combat state colors", function()
                 F.ResetGameplayCombatStateColors()
@@ -3048,12 +3076,12 @@ end)
 -- Crosshair range colors (Gameplay)
 local crosshairInLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 crosshairInLabel:SetPoint("TOPLEFT", combatLeaveSwatch, "BOTTOMLEFT", 0, -18)
-crosshairInLabel:SetText("準心射程內顏色")
+crosshairInLabel:SetText("Crosshair in-range color")
 
 -- Shown when Crosshair melee-range coloring is disabled in Gameplay
 local crosshairOffText = content:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
 crosshairOffText:SetPoint("LEFT", crosshairInLabel, "RIGHT", 10, 0)
-crosshairOffText:SetText("已在遊戲性設定中關閉")
+crosshairOffText:SetText("Turned Off in Gameplay")
 crosshairOffText:Hide()
 
 local crosshairInSwatch = CreateFrame("Button", "MSUF_Colors_CrosshairInRangeColorSwatch", content)
@@ -3064,7 +3092,7 @@ crosshairInTex:SetAllPoints()
 
 local crosshairOutLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 crosshairOutLabel:SetPoint("TOPLEFT", crosshairInSwatch, "BOTTOMLEFT", 0, -12)
-crosshairOutLabel:SetText("準心射程外顏色")
+crosshairOutLabel:SetText("Crosshair out-of-range color")
 
 local crosshairOutSwatch = CreateFrame("Button", "MSUF_Colors_CrosshairOutRangeColorSwatch", content)
 crosshairOutSwatch:SetSize(32, 16)
@@ -3136,7 +3164,7 @@ end
 crosshairResetBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
 crosshairResetBtn:SetSize(110, 22)
 crosshairResetBtn:SetPoint("LEFT", crosshairInSwatch, "RIGHT", 12, 0)
-crosshairResetBtn:SetText("重置")
+crosshairResetBtn:SetText("Reset")
 crosshairResetBtn:SetScript("OnClick", function()
         MSUF_ConfirmColorReset("crosshair range colors", function()
                 F.ResetGameplayCrosshairColors()
@@ -3162,11 +3190,11 @@ end)
 -- Player Totems text color (Gameplay: Shaman Totem tracker)
 local totemTextLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 totemTextLabel:SetPoint("TOPLEFT", crosshairOutSwatch, "BOTTOMLEFT", 0, -18)
-totemTextLabel:SetText("圖騰追蹤器文字顏色")
+totemTextLabel:SetText("Totem tracker text color")
 
 local totemTextOffText = content:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
 totemTextOffText:SetPoint("LEFT", totemTextLabel, "RIGHT", 10, 0)
-totemTextOffText:SetText("已在遊戲性設定中關閉")
+totemTextOffText:SetText("Turned Off in Gameplay")
 totemTextOffText:Hide()
 
 local totemTextSwatch = CreateFrame("Button", "MSUF_Colors_PlayerTotemsTextColorSwatch", content)
@@ -3178,7 +3206,7 @@ totemTextTex:SetAllPoints()
 local totemTextResetBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
 totemTextResetBtn:SetSize(110, 22)
 totemTextResetBtn:SetPoint("LEFT", totemTextSwatch, "RIGHT", 12, 0)
-totemTextResetBtn:SetText("重置")
+totemTextResetBtn:SetText("Reset")
 
 F.GetPlayerTotemsTextColor = function()
     local g = F.EnsureGameplayDB()
@@ -3249,14 +3277,14 @@ lastControl = totemTextSwatch
 --------------------------------------------------
 local powerHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 powerHeader:SetPoint("TOPLEFT", totemTextSwatch, "BOTTOMLEFT", 0, -44)
-powerHeader:SetText("能量條顏色")
+powerHeader:SetText("Power bar colors")
 F.CreateHeaderDividerAbove(powerHeader)
 
 local powerSub = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 powerSub:SetPoint("TOPLEFT", powerHeader, "BOTTOMLEFT", 0, -4)
 powerSub:SetWidth(600)
 powerSub:SetJustifyH("LEFT")
-powerSub:SetText("設定 MSUF 能量條使用的能量資源自訂顏色。")
+powerSub:SetText("Configure custom colors for power resources used by MSUF power bars.")
 
 local powerTypeDrop = CreateFrame("Frame", "MSUF_Colors_PowerTypeDropdown", content, "UIDropDownMenuTemplate")
 powerTypeDrop:SetPoint("TOPLEFT", powerSub, "BOTTOMLEFT", -16, -8)
@@ -3270,21 +3298,21 @@ local powerColorTex = powerColorSwatch:CreateTexture(nil, "ARTWORK")
 powerColorTex:SetAllPoints()
 
 local powerColorResetBtn = CreateFrame("Button", "MSUF_Colors_PowerColorResetBtn", content, "UIPanelButtonTemplate")
-powerColorResetBtn:SetText("重置")
+powerColorResetBtn:SetText("Reset")
 powerColorResetBtn:SetSize(70, 18)
 powerColorResetBtn:SetPoint("LEFT", powerColorSwatch, "RIGHT", 10, 0)
 
 -- Common power tokens (keep simple, but cover modern classes)
 local POWER_TOKEN_OPTIONS = {
-    { token = "MANA",        label = "法力" },
-    { token = "RAGE",        label = "怒氣" },
-    { token = "ENERGY",      label = "能量" },
-    { token = "FOCUS",       label = "集中值" },
-    { token = "RUNIC_POWER", label = "符能" },
-    { token = "INSANITY",    label = "狂亂值" },
-    { token = "FURY",        label = "魔怒" },
-    { token = "PAIN",        label = "魔痛" },
-    { token = "ESSENCE",     label = "精華" },
+    { token = "MANA",        label = "Mana" },
+    { token = "RAGE",        label = "Rage" },
+    { token = "ENERGY",      label = "Energy" },
+    { token = "FOCUS",       label = "Focus" },
+    { token = "RUNIC_POWER", label = "Runic Power" },
+    { token = "INSANITY",    label = "Insanity" },
+    { token = "FURY",        label = "Fury" },
+    { token = "PAIN",        label = "Pain" },
+    { token = "ESSENCE",     label = "Essence" },
 }
 
 F.EnsurePowerColorsDB = function()
@@ -3360,7 +3388,7 @@ powerTypeDrop._msufSelectedToken = powerTypeDrop._msufSelectedToken or "MANA"
 UIDropDownMenu_SetSelectedValue(powerTypeDrop, powerTypeDrop._msufSelectedToken)
 -- Set initial text
 do
-    local txtLabel = "法力"
+    local txtLabel = "Mana"
     for _, opt in ipairs(POWER_TOKEN_OPTIONS) do
         if opt.token == powerTypeDrop._msufSelectedToken then
             txtLabel = opt.label
@@ -3406,18 +3434,18 @@ lastControl = powerColorResetBtn
 --------------------------------------------------
 local aurasHeader = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 aurasHeader:SetPoint("TOPLEFT", powerTypeDrop, "BOTTOMLEFT", 16, -34)
-aurasHeader:SetText("光環")
+aurasHeader:SetText("Auras")
 F.CreateHeaderDividerAbove(aurasHeader)
 
 local aurasSub = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 aurasSub:SetPoint("TOPLEFT", aurasHeader, "BOTTOMLEFT", 0, -4)
 aurasSub:SetWidth(600)
 aurasSub:SetJustifyH("LEFT")
-aurasSub:SetText("設定光環 2.0 使用的顏色 (自身顯著標示邊框、進階過濾器邊框) 以及堆疊層數文字。")
+aurasSub:SetText("Configure colors used by Auras 2.0 (own highlight borders, advanced filter borders) and stack count text.")
 
 local auraBuffLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 auraBuffLabel:SetPoint("TOPLEFT", aurasSub, "BOTTOMLEFT", 0, -12)
-auraBuffLabel:SetText("自身增益顯著標示顏色")
+auraBuffLabel:SetText("Own buff highlight color")
 
 local auraBuffSwatch = CreateFrame("Button", "MSUF_Colors_AuraOwnBuffHighlightSwatch", content)
 auraBuffSwatch:SetSize(32, 16)
@@ -3427,7 +3455,7 @@ auraBuffTex:SetAllPoints()
 
 local auraDebuffLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 auraDebuffLabel:SetPoint("TOPLEFT", auraBuffSwatch, "BOTTOMLEFT", 0, -12)
-auraDebuffLabel:SetText("自身減益顯著標示顏色")
+auraDebuffLabel:SetText("Own debuff highlight color")
 
 local auraDebuffSwatch = CreateFrame("Button", "MSUF_Colors_AuraOwnDebuffHighlightSwatch", content)
 auraDebuffSwatch:SetSize(32, 16)
@@ -3437,7 +3465,7 @@ auraDebuffTex:SetAllPoints()
 
 local auraStacksLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 auraStacksLabel:SetPoint("TOPLEFT", auraDebuffSwatch, "BOTTOMLEFT", 0, -12)
-auraStacksLabel:SetText("堆疊層數文字顏色")
+auraStacksLabel:SetText("Stack count text color")
 
 local auraStacksSwatch = CreateFrame("Button", "MSUF_Colors_AuraStackCountSwatch", content)
 auraStacksSwatch:SetSize(32, 16)
@@ -3448,14 +3476,14 @@ auraStacksTex:SetAllPoints()
 local auraResetBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
 auraResetBtn:SetSize(110, 22)
 auraResetBtn:SetPoint("LEFT", auraStacksSwatch, "RIGHT", 12, 0)
-auraResetBtn:SetText("重置")
+auraResetBtn:SetText("Reset")
 
 
 
 -- Aura cooldown text colors (DurationObject step curve)
 local auraCDSafeLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 auraCDSafeLabel:SetPoint("TOPLEFT", aurasSub, "BOTTOMLEFT", 360, -12)
-auraCDSafeLabel:SetText("冷卻文字：安全")
+auraCDSafeLabel:SetText("Cooldown text: Safe")
 
 local auraCDSafeSwatch = CreateFrame("Button", "MSUF_Colors_AuraCooldownSafeSwatch", content)
 auraCDSafeSwatch:SetSize(32, 16)
@@ -3465,7 +3493,7 @@ auraCDSafeTex:SetAllPoints()
 
 local auraCDWarnLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 auraCDWarnLabel:SetPoint("TOPLEFT", auraCDSafeLabel, "BOTTOMLEFT", 0, -32)
-auraCDWarnLabel:SetText("冷卻文字：警告")
+auraCDWarnLabel:SetText("Cooldown text: Warning")
 
 local auraCDWarnSwatch = CreateFrame("Button", "MSUF_Colors_AuraCooldownWarningSwatch", content)
 auraCDWarnSwatch:SetSize(32, 16)
@@ -3475,7 +3503,7 @@ auraCDWarnTex:SetAllPoints()
 
 local auraCDUrgentLabel = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 auraCDUrgentLabel:SetPoint("TOPLEFT", auraCDWarnLabel, "BOTTOMLEFT", 0, -32)
-auraCDUrgentLabel:SetText("冷卻文字：緊急")
+auraCDUrgentLabel:SetText("Cooldown text: Urgent")
 
 local auraCDUrgentSwatch = CreateFrame("Button", "MSUF_Colors_AuraCooldownUrgentSwatch", content)
 auraCDUrgentSwatch:SetSize(32, 16)
@@ -3486,7 +3514,7 @@ auraCDUrgentTex:SetAllPoints()
 local auraCDResetBtn = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
 auraCDResetBtn:SetSize(110, 22)
 auraCDResetBtn:SetPoint("LEFT", auraCDUrgentSwatch, "RIGHT", 12, 0)
-auraCDResetBtn:SetText("重置")
+auraCDResetBtn:SetText("Reset")
 
 F.EnsureAurasColorsDB = function()
     EnsureDB()
@@ -3864,11 +3892,11 @@ lastControl = auraCDUrgentSwatch
                     mode = (g.useClassColors and "class") or "dark"
                     g.barMode = mode
                 end
-                local label = "深色模式 (黑底血條)"
+                local label = "Dark Mode (dark black bars)"
                 if mode == "class" then
-                    label = "職業顏色模式 (彩色血條)"
+                    label = "Class Color Mode (color HP bars)"
                 elseif mode == "unified" then
-                    label = "統一顏色模式 (所有框架單一顏色)"
+                    label = "Unified Color Mode (one color for all frames)"
                 end
                 UIDropDownMenu_SetSelectedValue(barModeDrop, mode)
                 UIDropDownMenu_SetText(barModeDrop, label)
@@ -4028,7 +4056,7 @@ function ns.MSUF_RegisterColorsOptions(parentCategory)
     end
 
     local panel = (_G and _G.MSUF_ColorsPanel) or CreateFrame("Frame", "MSUF_ColorsPanel", UIParent)
-    panel.name = "顏色"
+    panel.name = "Colors"
 
     -- IMPORTANT: Panels created with UIParent are shown by default.
     -- If we rely on OnShow for first-time build, we must ensure the panel starts hidden,
@@ -4058,7 +4086,7 @@ function ns.MSUF_RegisterColorsOptions(parentCategory)
             end
             panel.__MSUF_ColorsBuilding = true
 
-            -- Build immediately (no C_Timer.After(0)): avoids "需要再次點擊" issues.
+            -- Build immediately (no C_Timer.After(0)): avoids "needs second click" issues.
             ns.MSUF_RegisterColorsOptions_Full(parentCategory)
 
             panel.__MSUF_ColorsBuilding = nil

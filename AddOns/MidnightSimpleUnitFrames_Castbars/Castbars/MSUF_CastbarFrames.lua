@@ -1,5 +1,4 @@
 -- Castbars/MSUF_CastbarFrames.lua
--- Step 11: Move castbar frame construction helpers out of MSUF_Castbars.lua (safe refactor).
 -- Contains ONLY constructors/builders (no runtime cast logic).
 
 local _G = _G
@@ -187,11 +186,11 @@ function _G.MSUF_CreateCastbarPreviewFrame(kind, frameName, opts)
 
     local label = opts.label
     if not label then
-        if kind == "player" then label = "玩家施法條預覽"
-        elseif kind == "target" then label = "目標施法條預覽"
-        elseif kind == "focus" then label = "專注目標施法條預覽"
-        elseif kind == "boss" then label = "首領施法條預覽"
-        else label = "施法條預覽"
+        if kind == "player" then label = "Player castbar preview"
+        elseif kind == "target" then label = "Target castbar preview"
+        elseif kind == "focus" then label = "Focus castbar preview"
+        elseif kind == "boss" then label = "Boss castbar preview"
+        else label = "Castbar preview"
         end
     end
     castText:SetText(label)

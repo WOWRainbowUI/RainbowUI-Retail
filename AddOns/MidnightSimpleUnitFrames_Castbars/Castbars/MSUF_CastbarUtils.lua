@@ -1,5 +1,4 @@
 -- Castbars/MSUF_CastbarUtils.lua
--- Step 10: Split low-risk shared helpers out of MSUF_Castbars.lua.
 --
 -- This file intentionally defines GLOBAL helpers because multiple MSUF modules
 -- (Edit Mode, Boss, Options) may call into castbar helpers across files.
@@ -8,7 +7,167 @@
 local addonName, ns = ...
 
 -- =====================================================================
--- Phase 1A: Canonical lazy EnsureDB â€” single definition for all files.
+-- 12.0 SetTimerDuration helper (NO global hook)
+--
+-- IMPORTANT (Midnight/secret values):
+-- Replacing or hooksecuring the shared StatusBar:SetTimerDuration method will
+-- route *all* Blizzard timer bars through addon Lua, which taints the duration/
+-- remaining-time values. Blizzard UI (e.g. EncounterTimeline) then can crash on
+-- secret-number comparisons ("attempt to compare ... secret number value tainted by ...").
+--
+-- Therefore we MUST NOT hook/override StatusBar:SetTimerDuration globally.
+--
+-- Instead, MSUF uses this scoped helper for its own statusbars to normalize the
+-- optional interpolation/direction arguments and avoid legacy callers passing dt/0/1/bool.
+-- =====================================================================
+
+do
+  if type(_G.MSUF_StatusBarSetTimerDurationSafe) ~= "function" then
+    local enumInterp = _G.Enum and _G.Enum.StatusBarInterpolation
+    local enumDir    = _G.Enum and _G.Enum.StatusBarTimerDirection
+
+    local validInterp = nil
+    local validDir    = nil
+
+    if type(enumInterp) == "table" then
+      validInterp = {}
+      for _, v in pairs(enumInterp) do
+        if type(v) == "number" then validInterp[v] = true end
+      end
+    end
+
+    if type(enumDir) == "table" then
+      validDir = {}
+      for _, v in pairs(enumDir) do
+        if type(v) == "number" then validDir[v] = true end
+      end
+    end
+
+    local function _NormalizeInterpolation(x)
+      if x == nil then return nil end
+      local t = type(x)
+      if t == "number" then
+        if validInterp and validInterp[x] then return x end
+        return nil
+      elseif t == "boolean" then
+        if enumInterp and type(enumInterp.Immediate) == "number" then
+          return enumInterp.Immediate
+        end
+        return nil
+      end
+      return nil
+    end
+
+    local function _NormalizeDirection(x)
+      if x == nil then return nil end
+      local t = type(x)
+      if t == "number" then
+        if validDir and validDir[x] then return x end
+        return nil
+      elseif t == "boolean" then
+        if enumDir then
+          local rem = enumDir.RemainingTime
+          local ela = enumDir.ElapsedTime
+          if x and type(rem) == "number" then return rem end
+          if (not x) and type(ela) == "number" then return ela end
+        end
+        return nil
+      end
+      return nil
+    end
+
+    function _G.MSUF_StatusBarSetTimerDurationSafe(statusBar, duration, interpolation, direction)
+      if not statusBar or not statusBar.SetTimerDuration then
+        return false
+      end
+
+      interpolation = _NormalizeInterpolation(interpolation)
+      direction     = _NormalizeDirection(direction)
+
+      if interpolation ~= nil and direction ~= nil then
+        statusBar:SetTimerDuration(duration, interpolation, direction)
+        return true
+      end
+
+      statusBar:SetTimerDuration(duration)
+      return true
+    end
+  end
+end
+
+-- =====================================================================
+-- Edit Mode Preview Hard-Sync
+--
+-- After profile reset/import/load (and /reload), DB values can be transient
+-- while the *real* castbar has already resolved its final runtime size
+-- (auto-width, unitframe-driven width, detach, scale). Previews that compute
+-- size from DB/defaults can drift from the real bar.
+--
+-- Fix: In MSUF Edit Mode, always hard-sync preview size/scale directly from
+-- the real castbar when the preview is positioned/shown.
+-- Preview-only: does not affect real castbar sizing.
+-- =====================================================================
+
+if type(_G.MSUF_HardSyncCastbarPreview) ~= "function" then
+  function _G.MSUF_HardSyncCastbarPreview(preview, real)
+    if not preview or not real then
+      return
+    end
+
+    -- Frame size
+    if real.GetSize and preview.SetSize then
+      local w, h = real:GetSize()
+      if w and h and w > 0 and h > 0 then
+        preview:SetSize(w, h)
+      end
+    end
+
+    -- Frame scale
+    if real.GetScale and preview.SetScale then
+      local s = real:GetScale()
+      if s and s > 0 then
+        preview:SetScale(s)
+      end
+    end
+
+    -- StatusBar footprint (preview StatusBar is NOT SetAllPoints; must be resized too)
+    if preview.statusBar and preview.statusBar.SetSize then
+      if real.statusBar and real.statusBar.GetSize then
+        local sw, sh = real.statusBar:GetSize()
+        if sw and sh and sw > 0 and sh > 0 then
+          preview.statusBar:SetSize(sw, sh)
+        end
+      else
+        -- Best-effort fallback based on outer frame size
+        if preview.GetSize then
+          local w, h = preview:GetSize()
+          if w and h and w > 0 and h > 0 then
+            preview.statusBar:SetSize(w, math.max(4, h - 2))
+          end
+        end
+      end
+    end
+
+    -- Icon size
+    if preview.icon and preview.icon.SetSize and real.icon and real.icon.GetSize then
+      local iw, ih = real.icon:GetSize()
+      if iw and ih and iw > 0 and ih > 0 then
+        preview.icon:SetSize(iw, ih)
+      end
+    end
+
+    -- Player latency bar width (preview-only element)
+    if preview.latencyBar and preview.latencyBar.SetWidth and real.latencyBar and real.latencyBar.GetWidth then
+      local lw = real.latencyBar:GetWidth()
+      if lw and lw > 0 then
+        preview.latencyBar:SetWidth(lw)
+      end
+    end
+  end
+end
+
+-- =====================================================================
+-- Phase 1A: Canonical lazy EnsureDB  single definition for all files.
 -- After PLAYER_LOGIN, MSUF_DB is always populated; the nil-guard short-circuits.
 -- =====================================================================
 local function _EnsureDBLazy()
@@ -154,7 +313,7 @@ end
 
 
 -- -------------------------------------------------
--- Step 6: Shared castbar APPLY helper (maintainability + less drift)
+-- Shared castbar APPLY helper (maintainability + less drift)
 -- Single place to:
 --  - set icon/text
 --  - apply durationObj to StatusBar via SetTimerDuration (and direction)
@@ -202,10 +361,72 @@ local function _MSUF_GetReverseFill(frame, state, isChanneled)
     return false
 end
 
--- Phase 1C: Global export â€” simplified 2-arg form for callers that don't have a state table.
+-- Phase 1C: Global export  simplified 2-arg form for callers that don't have a state table.
 -- Returns a plain boolean (true/false, never nil).
 function _G.MSUF_GetReverseFillSafe(frame, isChanneled)
     return _MSUF_GetReverseFill(frame, nil, isChanneled)
+end
+-- =====================================================================
+-- Phase 1C: Canonical reverse-fill resolution (single source of truth)
+--
+-- This MUST return a plain Lua boolean. It is used by:
+--   * Driver Cast() (timer direction + stripe/latency anchoring)
+--   * Frame builders (previews)
+--
+-- Rules:
+--   * base direction from MSUF_DB.general.castbarFillDirection ("LTR"/"RTL")
+--   * if castbarOpositeDirectionTarget == true => invert ONLY for target (and target preview)
+--   * if castbarUnifiedDirection ~= true and isChanneled => invert (channels drain opposite)
+-- =====================================================================
+local function _MSUF_ResolveCastbarUnitKey(frame)
+    if not frame then return nil end
+
+    local u = frame.unit or frame.MSUF_unit or frame._msufUnit or frame.unitKey
+    if type(u) == "string" and u ~= "" then
+        return u
+    end
+
+    local k = frame._msufBarKey or frame.barKey or frame.key
+    if type(k) == "string" and k ~= "" then
+        if k == "player" or k == "target" or k == "focus" then return k end
+        if k == "boss" or k:sub(1, 4) == "boss" then return k end
+    end
+
+    if frame == _G.MSUF_PlayerCastbar or frame == _G.MSUF_PlayerCastbarPreview then return "player" end
+    if frame == _G.MSUF_TargetCastbar or frame == _G.MSUF_TargetCastbarPreview then return "target" end
+    if frame == _G.MSUF_FocusCastbar  or frame == _G.MSUF_FocusCastbarPreview  then return "focus" end
+
+    local n = frame.GetName and frame:GetName() or nil
+    if type(n) == "string" then
+        if n:find("Target", 1, true) then return "target" end
+        if n:find("Focus", 1, true) then return "focus" end
+        if n:find("Player", 1, true) then return "player" end
+        if n:find("boss", 1, true) or n:find("Boss", 1, true) then return "boss" end
+    end
+
+    return nil
+end
+
+function _G.MSUF_GetCastbarReverseFillForFrame(frame, isChanneled)
+    _EnsureDBLazy()
+    local g = (MSUF_DB and MSUF_DB.general) or {}
+
+    local baseReverse = (g.castbarFillDirection == "RTL") and true or false
+
+    if g.castbarOpositeDirectionTarget == true then
+        local unitKey = _MSUF_ResolveCastbarUnitKey(frame)
+        if unitKey == "target" then
+            baseReverse = not baseReverse
+        end
+    end
+
+    if isChanneled == true then
+        if g.castbarUnifiedDirection ~= true then
+            return not baseReverse
+        end
+    end
+
+    return baseReverse
 end
 
 -- =====================================================================
@@ -714,7 +935,7 @@ end
 
 
 -- =====================================================================
--- Cluster A: Canonical ClearEmpowerState â€” single definition for all files.
+-- Cluster A: Canonical ClearEmpowerState  single definition for all files.
 -- Clears all empower-related frame fields and hides tick/segment overlays.
 -- Previously duplicated identically in Driver and Boss.
 -- =====================================================================
@@ -759,7 +980,7 @@ function _G.MSUF_ClearEmpowerState(frame)
 end
 
 -- =====================================================================
--- Phase 2A: Shared interrupt feedback bar visuals.
+--  Shared interrupt feedback bar visuals.
 -- Performs the common visual steps for showing "Interrupted" on any castbar.
 -- Callers handle their own lifecycle (timers, state tracking, cleanup).
 --
@@ -804,7 +1025,7 @@ function _G.MSUF_ApplyInterruptBarVisuals(frame, opts)
     end
 
     -- Set text
-    local label = opts.label or "已打斷"
+    local label = opts.label or "Interrupted"
     if frame.castText then
         if type(_G.MSUF_CB_ApplyTexts) == "function" then
             _G.MSUF_CB_ApplyTexts(frame, nil, label, nil)

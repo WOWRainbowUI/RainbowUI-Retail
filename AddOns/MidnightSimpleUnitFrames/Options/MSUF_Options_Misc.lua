@@ -249,8 +249,8 @@ end
         sl:SetObeyStepOnDrag(true)
         sl:SetWidth(spec.width or 270)
 
-        local low = _G[sl:GetName() .. "低"]
-        local high = _G[sl:GetName() .. "高"]
+        local low = _G[sl:GetName() .. "Low"]
+        local high = _G[sl:GetName() .. "High"]
         if low and low.SetText then low:SetText(spec.lowText or tostring(spec.min)) end
         if high and high.SetText then high:SetText(spec.highText or tostring(spec.max)) end
 
@@ -333,9 +333,9 @@ end
 
     local LEFT_W, RIGHT_W = 330, 330
 
-    local leftPanel = UI:MakePanel(miscGroup, "更新頻率", miscGroup, 0, -110, LEFT_W, 330)
-    local rightPanel = UI:MakePanel(miscGroup, "單位資訊面板", leftPanel, LEFT_W, 0, RIGHT_W, 330)
-    local bottomPanel = UI:MakePanel(miscGroup, "指示器", leftPanel, 0, -(330 + 16), LEFT_W + RIGHT_W, 180)
+    local leftPanel = UI:MakePanel(miscGroup, "Updates", miscGroup, 0, -110, LEFT_W, 396)
+    local rightPanel = UI:MakePanel(miscGroup, "Unit info panel", leftPanel, LEFT_W, 0, RIGHT_W, 396)
+    local bottomPanel = UI:MakePanel(miscGroup, "Indicators", leftPanel, 0, -(396 + 16), LEFT_W + RIGHT_W, 180)
 
     local centerDivider = miscGroup:CreateTexture(nil, "ARTWORK")
     centerDivider:SetColorTexture(1, 1, 1, 0.10)
@@ -388,7 +388,7 @@ end
         end
 
         local gap = 6
-        leftPanel._msufPresetPerf = MakePresetButton("效能優先...", function()
+        leftPanel._msufPresetPerf = MakePresetButton("Perf...", function()
             local g = EnsureGeneral()
             g.miscUpdatesPreset = "perf"
             sliders.updateInterval:SetValue(0.12)
@@ -399,7 +399,7 @@ end
         end)
         leftPanel._msufPresetPerf:SetPoint("LEFT", row, "LEFT", 0, 0)
 
-        leftPanel._msufPresetBal = MakePresetButton("平衡模式...", function()
+        leftPanel._msufPresetBal = MakePresetButton("Balanced...", function()
             local g = EnsureGeneral()
             g.miscUpdatesPreset = "balanced"
             sliders.updateInterval:SetValue(0.05)
@@ -410,7 +410,7 @@ end
         end)
         leftPanel._msufPresetBal:SetPoint("LEFT", leftPanel._msufPresetPerf, "RIGHT", gap, 0)
 
-        leftPanel._msufPresetAcc = MakePresetButton("精確優先...", function()
+        leftPanel._msufPresetAcc = MakePresetButton("Accurate...", function()
             local g = EnsureGeneral()
             g.miscUpdatesPreset = "accurate"
             sliders.updateInterval:SetValue(0.01)
@@ -444,7 +444,7 @@ end
             g.frameUpdateInterval = v
             MSUF_FrameUpdateInterval = v
         end,
-        formatText = function(v) return string.format("單位更新間隔：%.2f 秒", v) end,
+        formatText = function(v) return string.format("Unit update interval: %.2f s", v) end,
     })
 
     sliders.castbarUpdate = UI:MakeSlider({
@@ -466,7 +466,7 @@ end
             g.castbarUpdateInterval = v
             MSUF_CastbarUpdateInterval = v
         end,
-        formatText = function(v) return string.format("施法條更新間隔：%.2f 秒", v) end,
+        formatText = function(v) return string.format("Castbar update interval: %.2f s", v) end,
     })
 
     sliders.ufcoreBudget = UI:MakeSlider({
@@ -487,7 +487,7 @@ end
             local g = EnsureGeneral()
             g.ufcoreFlushBudgetMs = v
         end,
-        formatText = function(v) return string.format("UFCore 刷新預算：%.1f 毫秒", v) end,
+        formatText = function(v) return string.format("UFCore flush budget: %.1f ms", v) end,
     })
 
     sliders.ufcoreUrgent = UI:MakeSlider({
@@ -510,10 +510,57 @@ end
         end,
         formatText = function(v)
             local n = math.floor((tonumber(v) or 10) + 0.5)
-            return string.format("UFCore 緊急上限：%d", n)
+            return string.format("UFCore urgent cap: %d", n)
         end,
     })
 
+
+    -- Welcome message & version check toggles (below sliders, still in Updates)
+    -- Note: StyleCheckbox references MSUF_DisableBlizzUFCheck which is created
+    -- later (right panel). We re-style on OnShow when the ref exists.
+    local function DeferredRestyle(cb)
+        local origOnShow = cb:GetScript("OnShow")
+        cb:SetScript("OnShow", function(self)
+            UI:StyleCheckbox(self)
+            if origOnShow then origOnShow(self) end
+        end)
+    end
+
+    local welcomeMsgCheck = UI:MakeCheck({
+        name   = "MSUF_ShowWelcomeMessageCheck",
+        parent = leftPanel,
+        template = "UICheckButtonTemplate",
+        anchor = sliders.ufcoreUrgent,
+        x = 0, y = -20,
+        label  = "Show welcome message on login",
+        get = function()
+            local g = EnsureGeneral()
+            return (g.showWelcomeMessage ~= false)
+        end,
+        set = function(v)
+            local g = EnsureGeneral()
+            g.showWelcomeMessage = v and true or false
+        end,
+    })
+    DeferredRestyle(welcomeMsgCheck)
+
+    local versionCheckCheck = UI:MakeCheck({
+        name   = "MSUF_VersionCheckEnabledCheck",
+        parent = leftPanel,
+        template = "UICheckButtonTemplate",
+        anchor = welcomeMsgCheck,
+        x = 0, y = -6,
+        label  = "Enable version check (peer-to-peer)",
+        get = function()
+            local g = EnsureGeneral()
+            return (g.versionCheckEnabled ~= false)
+        end,
+        set = function(v)
+            local g = EnsureGeneral()
+            g.versionCheckEnabled = v and true or false
+        end,
+    })
+    DeferredRestyle(versionCheckCheck)
 
     -------------------------------------------------------------------------
     -- Unit info panel & misc toggles (right panel)
@@ -525,7 +572,7 @@ end
         template = "UICheckButtonTemplate",
         anchor = rightPanel._msufHeaderLine,
         x = 0, y = -10,
-        label = "停用 MSUF 單位資訊面板的浮動提示",
+        label = "Disable MSUF unit info panel tooltips",
         get = function()
             local g = EnsureGeneral()
             return g.disableUnitInfoTooltips and true or false
@@ -536,7 +583,7 @@ end
         end,
     })
 
-    local posLabel = UI:Label(rightPanel, "MSUF 單位資訊面板位置", "TOPLEFT", infoTooltipDisable, 0, -28)
+    local posLabel = UI:Label(rightPanel, "MSUF unit info panel position", "TOPLEFT", infoTooltipDisable, 0, -28)
     UI:MakeDropdown({
         name = "MSUF_InfoTooltipPosDropdown",
         parent = rightPanel,
@@ -544,10 +591,10 @@ end
         x = -16, y = -8,
         width = 180,
         options = {
-            { text = "暴雪經典", value = "classic" },
-            { text = "現代 (滑鼠游標下方)", value = "modern" },
+            { text = "Blizzard Classic", value = "classic" },
+            { text = "Modern (under cursor)", value = "modern" },
         },
-        fallbackText = "暴雪經典",
+        fallbackText = "Blizzard Classic",
         get = function()
             local g = EnsureGeneral()
             return g.unitInfoTooltipStyle or "classic"
@@ -558,7 +605,7 @@ end
         end,
     })
 
-    local blizzHeader = UI:Label(rightPanel, "暴雪框架", "TOPLEFT", posLabel, 0, -64)
+    local blizzHeader = UI:Label(rightPanel, "Blizzard frames", "TOPLEFT", posLabel, 0, -64)
     local blizzLine = rightPanel:CreateTexture(nil, "OVERLAY")
     blizzLine:SetColorTexture(1, 1, 1, 0.10)
     blizzLine:SetHeight(1)
@@ -571,7 +618,7 @@ end
         template = "UICheckButtonTemplate",
         anchor = blizzLine,
         x = 0, y = -10,
-        label = "停用暴雪單位框架",
+        label = "Disable Blizzard unitframes",
         get = function()
             local g = EnsureGeneral()
             return (g.disableBlizzardUnitFrames ~= false) and true or false
@@ -579,13 +626,13 @@ end
         set = function(v)
             local g = EnsureGeneral()
             g.disableBlizzardUnitFrames = v and true or false
-            print("|cffffd700MSUF:|r 變更暴雪單位框架的可見度需要重新載入介面 (/reload)。")
+            print("|cffffd700MSUF:|r Changing Blizzard unitframes visibility requires a /reload.")
         end,
     })
 
     if not StaticPopupDialogs["MSUF_RELOAD_PLAYERFRAME_HIDE_MODE"] then
         StaticPopupDialogs["MSUF_RELOAD_PLAYERFRAME_HIDE_MODE"] = {
-            text = "這將改變 MSUF 隱藏暴雪玩家框架的方式。\n\n關閉：相容模式 (保持玩家框架運作但隱藏，作為資源條插件的父框架)。\n開啟：強制隱藏模式 (完全隱藏玩家框架；可能會導致某些資源條插件失效)。\n\n需要重新載入介面。",
+            text = "This changes how MSUF hides the Blizzard PlayerFrame.\n\nOFF: Compatibility mode (keeps PlayerFrame alive as hidden parent for resource bar addons).\nON: Hard-hide mode (fully hides PlayerFrame; may break some resource bar addons).\n\nA UI reload is required.",
             button1 = RELOADUI,
             button2 = CANCEL,
             OnAccept = function() ReloadUI() end,
@@ -599,10 +646,10 @@ end
     local function HardKillTooltip_OnEnter(self)
         if not GameTooltip then return end
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText(TR("隱藏暴雪玩家框架 (若需相容其他插件請關閉)"), 1, 0.9, 0.4)
-        GameTooltip:AddLine("關閉：保持玩家框架運作作為隱藏的父框架。", 0.95, 0.95, 0.95, true)
-        GameTooltip:AddLine("開啟：完全隱藏玩家框架 (可能會導致某些資源條插件失效)。", 1, 0.82, 0.2, true)
-        GameTooltip:AddLine("需要重新載入介面。", 0.9, 0.9, 0.9, true)
+        GameTooltip:SetText(TR("Hide Blizzard PlayerFrame (Turn off for other addon compatibility)"), 1, 0.9, 0.4)
+        GameTooltip:AddLine("OFF: Keeps PlayerFrame alive as a hidden parent.", 0.95, 0.95, 0.95, true)
+        GameTooltip:AddLine("ON: Fully hides PlayerFrame (may break some resource bar addons).", 1, 0.82, 0.2, true)
+        GameTooltip:AddLine("Requires a UI reload.", 0.9, 0.9, 0.9, true)
         GameTooltip:Show()
     end
 
@@ -616,7 +663,7 @@ end
         template = "UICheckButtonTemplate",
         anchor = blizzUFDisable,
         x = 0, y = -10,
-        label = "完全隱藏暴雪玩家框架 - 若需相容資源條請關閉",
+        label = "Fully Hide Blizzard PlayerFrame - Turn off for resource bar compatibility",
         get = function()
             local g = EnsureGeneral()
             return (g.hardKillBlizzardPlayerFrame == true)
@@ -642,7 +689,7 @@ end
         template = "InterfaceOptionsCheckButtonTemplate",
         anchor = _G.MSUF_HardKillPlayerFrameCheck,
         x = 0, y = -12,
-        label = "顯示 MSUF 小地圖圖示",
+        label = "Show MSUF minimap icon",
         get = function()
             local g = EnsureGeneral()
             return (g.showMinimapIcon ~= false) and true or false
@@ -667,7 +714,7 @@ end
         template = "InterfaceOptionsCheckButtonTemplate",
         anchor = minimapIconCheck,
         x = 0, y = -12,
-        label = "目標鎖定/目標丟失時播放音效",
+        label = "Play sound on Target/Target Lost",
         get = function()
             local g = EnsureGeneral()
             return (g.playTargetSelectLostSounds == true)
@@ -696,22 +743,15 @@ end
         return g.statusIndicators
     end
 
-    local function IsBetaClient()
-        local ok, v
-        if type(_G.IsBetaBuild) == "function" then ok, v = pcall(_G.IsBetaBuild); if ok and v then return true end end
-        if type(_G.IsTestBuild) == "function" then ok, v = pcall(_G.IsTestBuild); if ok and v then return true end end
-        if type(_G.IsAlphaBuild) == "function" then ok, v = pcall(_G.IsAlphaBuild); if ok and v then return true end end
-        return false
-    end
-
-    local function EnsureBetaStatusPopup()
+    -- Always show a warning when enabling AFK/DND indicators (these are constrained in instance-combat).
+    local function EnsureStatusAFKDNDPopupWarning()
         if not _G.StaticPopupDialogs then return end
-        if _G.StaticPopupDialogs["MSUF_BETA_STATUS_AFKDND_WARNING"] then return end
+        if _G.StaticPopupDialogs["MSUF_STATUS_AFKDND_WARNING"] then return end
 
-        _G.StaticPopupDialogs["MSUF_BETA_STATUS_AFKDND_WARNING"] = {
-            text = "BETA 警告：\n\n由於 API 變更，AFK/DND 狀態指示器目前在 Beta 客戶端上不可靠。\n它們可能無法正確更新或出現非預期行為。\n\n仍要啟用嗎？",
-            button1 = "啟用",
-            button2 = "取消",
+        _G.StaticPopupDialogs["MSUF_STATUS_AFKDND_WARNING"] = {
+            text = "WARNING:\n\nAFK/DND status indicators do NOT update while you are inside an instance AND in combat.\nThis is a client/API limitation.\n\nOutside of instance combat they should work normally.\n\nEnable anyway?",
+            button1 = "Enable",
+            button2 = "Cancel",
             timeout = 0,
             whileDead = 1,
             hideOnEscape = 1,
@@ -735,7 +775,7 @@ end
         }
     end
 
-    local statusHeader = UI:Label(bottomPanel, "狀態指示器", "TOPLEFT", bottomPanel, 14, -34)
+    local statusHeader = UI:Label(bottomPanel, "Status indicators", "TOPLEFT", bottomPanel, 14, -34)
     local statusLine = bottomPanel:CreateTexture(nil, "ARTWORK")
     statusLine:SetColorTexture(1, 1, 1, 0.10)
     statusLine:SetHeight(1)
@@ -744,7 +784,7 @@ end
 
 
     -- Range Fade (moved here so it sits at the same height as Indicators, bottom-right column)
-    local rangeFadeHeader = UI:Label(bottomPanel, "距離淡出", "TOPLEFT", bottomPanel, LEFT_W + 14, -34)
+    local rangeFadeHeader = UI:Label(bottomPanel, "Range fade", "TOPLEFT", bottomPanel, LEFT_W + 14, -34)
     local rangeFadeLine = bottomPanel:CreateTexture(nil, "ARTWORK")
     rangeFadeLine:SetColorTexture(1, 1, 1, 0.10)
     rangeFadeLine:SetHeight(1)
@@ -757,7 +797,7 @@ end
         template = "InterfaceOptionsCheckButtonTemplate",
         anchor = rangeFadeHeader,
         x = 0, y = -14,
-        label = "啟用目標距離淡出",
+        label = "Enable Target Range Fade",
         get = function()
             local t = EnsureTarget()
             return (t.rangeFadeEnabled == true)
@@ -776,7 +816,7 @@ end
         template = "InterfaceOptionsCheckButtonTemplate",
         anchor = rangeFadeTargetCheck,
         x = 0, y = -12,
-        label = "啟用專注目標距離淡出",
+        label = "Enable Focus Range Fade",
         get = function()
             local t = EnsureFocus()
             return (t.rangeFadeEnabled == true)
@@ -796,7 +836,7 @@ end
         template = "InterfaceOptionsCheckButtonTemplate",
         anchor = rangeFadeFocusCheck,
         x = 0, y = -12,
-        label = "啟用首領目標距離淡出",
+        label = "Enable Boss Range Fade",
         get = function()
             local t = EnsureBoss()
             return (t.rangeFadeEnabled == true)
@@ -815,10 +855,10 @@ end
     local y0 = -10
 
     local statusSpecs = {
-        { key = "showAFK",   label = "顯示暫離",   confirmBeta = true },
-        { key = "showDND",   label = "顯示勿擾",   confirmBeta = true },
-        { key = "showDead",  label = "顯示死亡" },
-        { key = "showGhost", label = "顯示靈魂" },
+        { key = "showAFK",   label = "Show AFK",   confirm = true },
+        { key = "showDND",   label = "Show DND",   confirm = true },
+        { key = "showDead",  label = "Show Dead" },
+        { key = "showGhost", label = "Show Ghost" },
     }
 
     bottomPanel._msufStatusCBs = bottomPanel._msufStatusCBs or {}
@@ -839,13 +879,13 @@ end
         cb:SetScript("OnClick", function(selfBtn)
             local want = selfBtn:GetChecked() and true or false
 
-            if want and s.confirmBeta and IsBetaClient() and _G.StaticPopup_Show then
-                EnsureBetaStatusPopup()
+            if want and s.confirm and _G.StaticPopup_Show then
+                EnsureStatusAFKDNDPopupWarning()
                 selfBtn:SetChecked(false)
                 local db = GetStatusDB()
                 db[s.key] = false
 
-                local popup = _G.StaticPopup_Show("MSUF_BETA_STATUS_AFKDND_WARNING", nil, nil, { key = s.key, cb = selfBtn, getDB = GetStatusDB })
+                local popup = _G.StaticPopup_Show("MSUF_STATUS_AFKDND_WARNING", nil, nil, { key = s.key, cb = selfBtn, getDB = GetStatusDB })
                 if popup then return end
                 want = true
                 selfBtn:SetChecked(true)

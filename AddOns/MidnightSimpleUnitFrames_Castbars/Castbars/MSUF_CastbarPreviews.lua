@@ -1,5 +1,4 @@
 -- Castbars/MSUF_CastbarPreviews.lua
--- Phase 2 extraction: All preview, test mode, and edit mode functions.
 -- Zero combat path — only used in MSUF Edit Mode.
 
 local _EnsureDBLazy = _G.MSUF_EnsureDBLazy or function()
@@ -101,7 +100,7 @@ function _G.MSUF_SetPlayerCastbarTestMode(active, keepSetting)
 
         if isPreview then
             if frame.castText then
-                MSUF_SetTextIfChanged(frame.castText, "玩家施法條預覽")
+                MSUF_SetTextIfChanged(frame.castText, "Player castbar preview")
             end
             if frame.timeText then
                 MSUF_SetTextIfChanged(frame.timeText, "")
@@ -191,7 +190,7 @@ function _G.MSUF_SetPlayerCastbarTestMode(active, keepSetting)
     f.interruptFeedbackEndTime = nil
 
     if f.castText then
-        MSUF_SetTextIfChanged(f.castText, "測試施法")
+        MSUF_SetTextIfChanged(f.castText, "Test Cast")
     end
     if f.icon then
         f.icon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
@@ -383,7 +382,7 @@ local function _MSUF_SetSimpleCastbarTestMode(cfg, active, keepSetting)
     if MSUF_UpdateCastbarVisuals then MSUF_UpdateCastbarVisuals() end
 
     if f.castText and f.castText.SetText then
-        f.castText:SetText("測試施法")
+        f.castText:SetText("Test Cast")
         f.castText:Show()
         f.castText:SetAlpha(1)
     end
@@ -424,7 +423,7 @@ function _G.MSUF_SetTargetCastbarTestMode(active, keepSetting)
         previewName = "MSUF_TargetCastbarPreview",
         reanchorFn  = "MSUF_ReanchorTargetCastBar",
         showTimeKey = "showTargetCastTime",
-        label       = "目標施法條預覽",
+        label       = "Target castbar preview",
     }, active, keepSetting)
 end
 
@@ -436,7 +435,7 @@ function _G.MSUF_SetFocusCastbarTestMode(active, keepSetting)
         previewName = "MSUF_FocusCastbarPreview",
         reanchorFn  = "MSUF_ReanchorFocusCastBar",
         showTimeKey = "showFocusCastTime",
-        label       = "專注目標施法條預覽",
+        label       = "Focus castbar preview",
     }, active, keepSetting)
 end
 
@@ -470,8 +469,8 @@ local function _MSUF_BossPreview_OnUpdate(self)
 
     -- Keep label stable even if other refreshes happen while editing.
     if self.castText and self.castText.GetText and self.castText.SetText then
-        if self.castText:GetText() ~= "測試施法" then
-            self.castText:SetText("測試施法")
+        if self.castText:GetText() ~= "Test Cast" then
+            self.castText:SetText("Test Cast")
         end
     end
 
@@ -555,7 +554,7 @@ function _G.MSUF_SetBossCastbarTestMode(active, keepSetting)
                 end
 
                 if f.castText and f.castText.SetText then
-                    f.castText:SetText("首領施法條預覽")
+                    f.castText:SetText("Boss castbar preview")
                 end
                 if f.timeText and f.timeText.SetText then
                     f.timeText:SetText("")
@@ -597,7 +596,7 @@ function _G.MSUF_SetBossCastbarTestMode(active, keepSetting)
         end
 
         if f.castText and f.castText.SetText then
-            f.castText:SetText("測試施法")
+            f.castText:SetText("Test Cast")
         end
 
         -- IMPORTANT: Do NOT force-show the icon in test mode.
@@ -735,7 +734,7 @@ local function MSUF_CreateTargetCastbarPreview()
         strata = "DIALOG",
         width  = w,
         height = h,
-        label  = "目標施法條預覽",
+        label  = "Target castbar preview",
         showIcon = true,
         showTime = true,
         bgAlpha = 0.8,
@@ -780,7 +779,7 @@ local function MSUF_CreateFocusCastbarPreview()
         strata = "DIALOG",
         width  = w,
         height = h,
-        label  = "專注目標施法條預覽",
+        label  = "Focus castbar preview",
         showIcon = true,
         showTime = true,
         bgAlpha = 0.8,
@@ -988,7 +987,15 @@ end
 
         local f = _G.MSUF_BossCastbarPreview or MSUF_CreateBossCastbarPreview_Fallback()
         MSUF_PositionBossCastbarPreview_Fallback()
+
+        -- Hard-sync first, then apply layout so live width/height edits show immediately.
+        if type(_G.MSUF_HardSyncCastbarPreview) == "function" then
+            local real = (_G.MSUF_BossCastbars and _G.MSUF_BossCastbars[1]) or _G.MSUF_BossCastbar
+            _G.MSUF_HardSyncCastbarPreview(f, real)
+        end
+
         MSUF_ApplyBossCastbarPreviewLayout_Fallback()
+
         f:Show()
     end
 end
@@ -1125,6 +1132,11 @@ function MSUF_PositionPlayerCastbarPreview()
         return
     end
 
+    -- Hard-sync preview to the real bar (runtime truth) to avoid profile apply/import timing drift.
+    if type(_G.MSUF_HardSyncCastbarPreview) == "function" then
+        _G.MSUF_HardSyncCastbarPreview(MSUF_PlayerCastbarPreview, _G.MSUF_PlayerCastbar)
+    end
+
     -- Core owns the unitframe table; refresh our reference (safe, edit-mode only).
     UnitFrames = UnitFrames or _G.MSUF_UnitFrames
 
@@ -1174,6 +1186,11 @@ end
 function MSUF_PositionTargetCastbarPreview()
     if not MSUF_TargetCastbarPreview then
         return
+    end
+
+    -- Hard-sync preview to the real bar (runtime truth) to avoid profile apply/import timing drift.
+    if type(_G.MSUF_HardSyncCastbarPreview) == "function" then
+        _G.MSUF_HardSyncCastbarPreview(MSUF_TargetCastbarPreview, _G.MSUF_TargetCastbar)
     end
 
     UnitFrames = UnitFrames or _G.MSUF_UnitFrames
@@ -1236,6 +1253,11 @@ end
 function MSUF_PositionFocusCastbarPreview()
     if not MSUF_FocusCastbarPreview then
         return
+    end
+
+    -- Hard-sync preview to the real bar (runtime truth) to avoid profile apply/import timing drift.
+    if type(_G.MSUF_HardSyncCastbarPreview) == "function" then
+        _G.MSUF_HardSyncCastbarPreview(MSUF_FocusCastbarPreview, _G.MSUF_FocusCastbar)
     end
 
     UnitFrames = UnitFrames or _G.MSUF_UnitFrames
@@ -1333,9 +1355,38 @@ end
 
     end
 
+    -- Helper: compute preview size the same way the real bar does (supports "auto width" when attached).
+    local function GetAttachedWidthOrDB(widthKey, detachedFlag, unitKey, fallback)
+        local wv = tonumber(g[widthKey])
+        if not wv or wv <= 0 then
+            if not detachedFlag and UnitFrames and UnitFrames[unitKey] and UnitFrames[unitKey].GetWidth then
+                wv = UnitFrames[unitKey]:GetWidth()
+            end
+        end
+        if not wv or wv <= 0 then
+            wv = tonumber(g.castbarGlobalWidth) or fallback or 250
+        end
+        return wv
+    end
+    local function GetHeightOrDB(heightKey, fallback)
+        local hv = tonumber(g[heightKey])
+        if not hv or hv <= 0 then
+            hv = tonumber(g.castbarGlobalHeight)
+        end
+        if not hv or hv <= 0 then
+            hv = fallback or 18
+        end
+        return hv
+    end
+
     if UnitFrames and UnitFrames["target"] then
         local targetPreview = MSUF_TargetCastbarPreview or MSUF_CreateTargetCastbarPreview()
         if targetPreview and MSUF_PositionTargetCastbarPreview then
+            if type(_G.MSUF_ApplyPlayerCastbarSizeAndLayout) == "function" then
+                local tw = GetAttachedWidthOrDB("castbarTargetBarWidth", g.castbarTargetDetached, "target", 250)
+                local th = GetHeightOrDB("castbarTargetBarHeight", 18)
+                _G.MSUF_ApplyPlayerCastbarSizeAndLayout(targetPreview, g, tw, th)
+            end
             MSUF_PositionTargetCastbarPreview()
             targetPreview:Show()
         end
@@ -1346,6 +1397,15 @@ end
     if UnitFrames and UnitFrames["focus"] then
         local focusPreview = MSUF_FocusCastbarPreview or MSUF_CreateFocusCastbarPreview()
         if focusPreview and MSUF_PositionFocusCastbarPreview then
+            if type(_G.MSUF_ApplyPlayerCastbarSizeAndLayout) == "function" then
+                local fw = GetAttachedWidthOrDB("castbarFocusBarWidth", g.castbarFocusDetached, "focus", 250)
+                -- If focus is attached but has no unitframe yet, mirror target as a pragmatic fallback.
+                if (not fw or fw <= 0) and (UnitFrames and UnitFrames["target"] and UnitFrames["target"].GetWidth) then
+                    fw = UnitFrames["target"]:GetWidth()
+                end
+                local fh = GetHeightOrDB("castbarFocusBarHeight", 18)
+                _G.MSUF_ApplyPlayerCastbarSizeAndLayout(focusPreview, g, fw, fh)
+            end
             MSUF_PositionFocusCastbarPreview()
             focusPreview:Show()
         end

@@ -39,7 +39,7 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
     if type(CreateLabeledSlider) ~= "function" then
         local warn = fontGroup:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
         warn:SetPoint("TOPLEFT", fontGroup, "TOPLEFT", 16, -140)
-        warn:SetText(TR("MSUF：字型建構器缺少 CreateLabeledSlider（核心匯出）。"))
+        warn:SetText(TR("MSUF: Fonts builder missing CreateLabeledSlider (Core export)."))
          return
     end
     if type(MSUF_ExpandDropdownClickArea) ~= "function" then MSUF_ExpandDropdownClickArea = function()   end end
@@ -165,8 +165,8 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
         slider:SetWidth(110)
         local n = slider.GetName and slider:GetName()
         if n then
-            local low  = _G[n .. "低"]
-            local high = _G[n .. "高"]
+            local low  = _G[n .. "Low"]
+            local high = _G[n .. "High"]
             local text = _G[n .. "Text"]
             if low  then low:Hide()  end
             if high then high:Hide() end
@@ -209,15 +209,15 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
          return fs
     end
     local function FormatOverrideSummary(list)
-        if not list or #list == 0 then  return "覆蓋：-", nil end
-        if #list == 1 then return "覆蓋：" .. list[1], list[1] end
-        return "覆蓋：" .. list[1] .. " +" .. tostring(#list - 1), table.concat(list, ", ")
+        if not list or #list == 0 then  return "Overrides: -", nil end
+        if #list == 1 then return "Overrides: " .. list[1], list[1] end
+        return "Overrides: " .. list[1] .. " +" .. tostring(#list - 1), table.concat(list, ", ")
     end
     local function ListFontOverrides(confField)
         EnsureDB()
         local out = {}
         local keys = { "player", "target", "targettarget", "focus", "pet", "boss" }
-        local pretty = { player="玩家", target="目標", targettarget="目標的目標", focus="專注目標", pet="寵物", boss="首領" }
+        local pretty = { player="Player", target="Target", targettarget="ToT", focus="Focus", pet="Pet", boss="Boss" }
         for _, k in ipairs(keys) do
             local c = MSUF_DB and MSUF_DB[k]
             if c and c[confField] ~= nil then out[#out + 1] = pretty[k] or k end
@@ -228,20 +228,20 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
     -- Build static layout (boxed)
     -- ---------------------------------------------------------------------
     EnsureDB()
-    local left = MakeBox("MSUF_FontsMenuPanelLeft", "字型設定")
+    local left = MakeBox("MSUF_FontsMenuPanelLeft", "Font Settings")
     left:SetSize(320, 560)
     left:ClearAllPoints()
     left:SetPoint("TOPLEFT", fontGroup, "TOPLEFT", 0, -110)
-    local right = MakeBox("MSUF_FontsMenuPanelRight", "字型顏色與樣式")
+    local right = MakeBox("MSUF_FontsMenuPanelRight", "Font color & style")
     right:SetSize(320, 560)
     right:ClearAllPoints()
     right:SetPoint("TOPLEFT", left, "TOPRIGHT", 14, 0)
     -- Section headers
-    local secGlobal = MakeSectionHeader(left, "MSUF_FontsMenuSection_Global", "整體字型")
-    local secSizes  = MakeSectionHeader(left, "MSUF_FontsMenuSection_Sizes", "文字大小")
-    local secStyle  = MakeSectionHeader(right, "MSUF_FontsMenuSection_Style", "文字樣式")
-    local secColors = MakeSectionHeader(right, "MSUF_FontsMenuSection_Colors", "名字顏色")
-    local secNames  = MakeSectionHeader(right, "MSUF_FontsMenuSection_Names", "名字顯示")
+    local secGlobal = MakeSectionHeader(left, "MSUF_FontsMenuSection_Global", "Global font")
+    local secSizes  = MakeSectionHeader(left, "MSUF_FontsMenuSection_Sizes", "Text sizes")
+    local secStyle  = MakeSectionHeader(right, "MSUF_FontsMenuSection_Style", "Text style")
+    local secColors = MakeSectionHeader(right, "MSUF_FontsMenuSection_Colors", "Name colors")
+    local secNames  = MakeSectionHeader(right, "MSUF_FontsMenuSection_Names", "Name display")
     secGlobal:ClearAllPoints(); secGlobal:SetPoint("TOPLEFT", left, "TOPLEFT", 14, -44)
     secSizes:ClearAllPoints();  -- anchored later (after dropdown)
     secStyle:ClearAllPoints();  secStyle:SetPoint("TOPLEFT", right, "TOPLEFT", 14, -44)
@@ -336,16 +336,16 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
     -- Force an initial rebuild so SetText finds a label on first open.
     RebuildFontChoices()
     SetFontDropdownText((MSUF_DB and MSUF_DB.general and MSUF_DB.general.fontKey) or (fontChoices[1] and fontChoices[1].key) or "FRIZQT")
-    -- Global "文字大小" block
+    -- Global "Text sizes" block
     secSizes:SetPoint("TOPLEFT", fontDrop, "BOTTOMLEFT", 14, -18)
-    local textSizeHelp = MakeHelp(left, "MSUF_TextSizeHelp", "整體預設值。除非在「單位框架 > 文字」中另行覆蓋，否則框架將繼承此設定。", 290)
+    local textSizeHelp = MakeHelp(left, "MSUF_TextSizeHelp", "Global defaults. Frames inherit unless overridden in Unitframes > Text.", 290)
     textSizeHelp:ClearAllPoints()
     textSizeHelp:SetPoint("TOPLEFT", secSizes, "BOTTOMLEFT", 0, -4)
     local colGap = 30
-    local nameFontSizeSlider = _G["MSUF_NameFontSizeSlider"] or CreateLabeledSlider("MSUF_NameFontSizeSlider", "名字", left, 8, 32, 1, 16, -250)
-    local hpFontSizeSlider   = _G["MSUF_HealthFontSizeSlider"] or CreateLabeledSlider("MSUF_HealthFontSizeSlider", "生命力", left, 8, 32, 1, 16, -320)
-    local powerFontSizeSlider= _G["MSUF_PowerFontSizeSlider"] or CreateLabeledSlider("MSUF_PowerFontSizeSlider", "能量", left, 8, 32, 1, 16, -390)
-    local castbarSpellNameFontSizeSlider = _G["MSUF_CastbarSpellNameFontSizeSlider"] or CreateLabeledSlider("MSUF_CastbarSpellNameFontSizeSlider", "施法條", left, 0, 30, 1, 16, -460)
+    local nameFontSizeSlider = _G["MSUF_NameFontSizeSlider"] or CreateLabeledSlider("MSUF_NameFontSizeSlider", "Name", left, 8, 32, 1, 16, -250)
+    local hpFontSizeSlider   = _G["MSUF_HealthFontSizeSlider"] or CreateLabeledSlider("MSUF_HealthFontSizeSlider", "Health", left, 8, 32, 1, 16, -320)
+    local powerFontSizeSlider= _G["MSUF_PowerFontSizeSlider"] or CreateLabeledSlider("MSUF_PowerFontSizeSlider", "Power", left, 8, 32, 1, 16, -390)
+    local castbarSpellNameFontSizeSlider = _G["MSUF_CastbarSpellNameFontSizeSlider"] or CreateLabeledSlider("MSUF_CastbarSpellNameFontSizeSlider", "Castbar", left, 0, 30, 1, 16, -460)
     -- Position sliders in 2x2 grid
     nameFontSizeSlider:ClearAllPoints()
     nameFontSizeSlider:SetPoint("TOPLEFT", textSizeHelp, "BOTTOMLEFT", 0, -18)
@@ -355,10 +355,10 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
     powerFontSizeSlider:SetPoint("TOPLEFT", nameFontSizeSlider, "BOTTOMLEFT", 0, -84)
     castbarSpellNameFontSizeSlider:ClearAllPoints()
     castbarSpellNameFontSizeSlider:SetPoint("TOPLEFT", powerFontSizeSlider, "TOPRIGHT", colGap, 0)
-    CompactTextSizeSlider(nameFontSizeSlider, "名字")
-    CompactTextSizeSlider(hpFontSizeSlider, "生命力")
-    CompactTextSizeSlider(powerFontSizeSlider, "能量")
-    CompactTextSizeSlider(castbarSpellNameFontSizeSlider, "施法條")
+    CompactTextSizeSlider(nameFontSizeSlider, "Name")
+    CompactTextSizeSlider(hpFontSizeSlider, "HP")
+    CompactTextSizeSlider(powerFontSizeSlider, "Power")
+    CompactTextSizeSlider(castbarSpellNameFontSizeSlider, "Castbar")
     -- Override info lines (Name/HP/Power only)
     local nameOverrideInfo  = MakeOverrideInfo(left, "MSUF_NameFontOverrideInfo")
     local hpOverrideInfo    = MakeOverrideInfo(left, "MSUF_HpFontOverrideInfo")
@@ -397,8 +397,8 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
         resetBtn = CreateFrame("Button", "MSUF_ResetFontOverridesBtn", left, "UIPanelButtonTemplate")
         resetBtn:SetSize(280, 20)
         resetBtn:SetPoint("BOTTOMLEFT", left, "BOTTOMLEFT", 14, 14)
-        resetBtn:SetText(TR("重置覆蓋設定"))
-        resetBtn.tooltipText = "清除個別單位的名字/生命力/能量，以及個別施法條的法術名稱/時間字型大小覆蓋設定，使一切恢復繼承整體預設值。"
+        resetBtn:SetText(TR("Reset overrides"))
+        resetBtn.tooltipText = "Clears per-unit Name/Health/Power and per-castbar Cast Name/Time font size overrides so everything inherits the global defaults again."
     else
         resetBtn:ClearAllPoints()
         resetBtn:SetPoint("BOTTOMLEFT", left, "BOTTOMLEFT", 14, 14)
@@ -406,7 +406,7 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
     end
     if not StaticPopupDialogs["MSUF_RESET_FONT_OVERRIDES"] then
         StaticPopupDialogs["MSUF_RESET_FONT_OVERRIDES"] = {
-            text = "重置所有字型大小覆蓋設定？\n\n這將清除個別單位的名字/生命力/能量，以及個別施法條的法術名稱/時間覆蓋設定，使一切恢復繼承整體預設值。",
+            text = "Reset all font size overrides?\n\nThis clears per-unit overrides for Name/Health/Power AND per-castbar overrides for Cast Name/Time so everything inherits the global defaults.",
             button1 = YES,
             button2 = NO,
             whileDead = true,
@@ -474,16 +474,16 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
     -- ---------------------------------------------------------------------
     -- Right column: checkboxes + name shortening
     -- ---------------------------------------------------------------------
-    local boldCheck = MakeCheck("MSUF_BoldTextCheck", right, "使用粗外框文字")
-    local noOutlineCheck = MakeCheck("MSUF_NoOutlineCheck", right, "停用文字周圍的黑色邊框")
-    local textBackdropCheck = MakeCheck("MSUF_TextBackdropCheck", right, "新增文字陰影（背景）")
+    local boldCheck = MakeCheck("MSUF_BoldTextCheck", right, "Use bold text (THICKOUTLINE)")
+    local noOutlineCheck = MakeCheck("MSUF_NoOutlineCheck", right, "Disable black outline around text")
+    local textBackdropCheck = MakeCheck("MSUF_TextBackdropCheck", right, "Add text shadow (backdrop)")
     boldCheck:ClearAllPoints()
     boldCheck:SetPoint("TOPLEFT", secStyle, "BOTTOMLEFT", -2, -8)
     noOutlineCheck:ClearAllPoints()
     noOutlineCheck:SetPoint("TOPLEFT", boldCheck, "BOTTOMLEFT", 0, -10)
     textBackdropCheck:ClearAllPoints()
     textBackdropCheck:SetPoint("TOPLEFT", noOutlineCheck, "BOTTOMLEFT", 0, -10)
-    -- Divider line under "名字顏色"
+    -- Divider line under "Name colors"
     local colorsLine = right.MSUF_SectionLine_Colors
     if not colorsLine then
         colorsLine = right:CreateTexture(nil, "ARTWORK")
@@ -495,16 +495,16 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
     colorsLine:ClearAllPoints()
     colorsLine:SetPoint("TOPLEFT", secColors, "BOTTOMLEFT", -16, -4)
     colorsLine:SetWidth(286)
-    local nameClassColorCheck = MakeCheck("MSUF_NameClassColorCheck", right, "依職業著色玩家名字")
-    local npcNameRedCheck = MakeCheck("MSUF_NPCNameRedCheck", right, "使用 NPC 顏色著色 NPC/首領名字")
-    local powerTextColorByTypeCheck = MakeCheck("MSUF_PowerTextColorByTypeCheck", right, "依能量類型著色能量文字")
+    local nameClassColorCheck = MakeCheck("MSUF_NameClassColorCheck", right, "Color player names by class")
+    local npcNameRedCheck = MakeCheck("MSUF_NPCNameRedCheck", right, "Color NPC/boss names using NPC colors")
+    local powerTextColorByTypeCheck = MakeCheck("MSUF_PowerTextColorByTypeCheck", right, "Color power text by power type")
     nameClassColorCheck:ClearAllPoints()
     nameClassColorCheck:SetPoint("TOPLEFT", colorsLine, "BOTTOMLEFT", 14, -8)
     npcNameRedCheck:ClearAllPoints()
     npcNameRedCheck:SetPoint("TOPLEFT", nameClassColorCheck, "BOTTOMLEFT", 0, -10)
     powerTextColorByTypeCheck:ClearAllPoints()
     powerTextColorByTypeCheck:SetPoint("TOPLEFT", npcNameRedCheck, "BOTTOMLEFT", 0, -10)
-    -- Divider line under "名字顯示"
+    -- Divider line under "Name display"
     local namesLine = right.MSUF_SectionLine_Names
     if not namesLine then
         namesLine = right:CreateTexture(nil, "ARTWORK")
@@ -516,7 +516,7 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
     namesLine:ClearAllPoints()
     namesLine:SetPoint("TOPLEFT", secNames, "BOTTOMLEFT", -16, -4)
     namesLine:SetWidth(286)
-    local shortenNamesCheck = MakeCheck("MSUF_ShortenNamesCheck", right, "縮短單位名字（玩家除外）")
+    local shortenNamesCheck = MakeCheck("MSUF_ShortenNamesCheck", right, "Shorten unit names (except Player)")
     shortenNamesCheck:ClearAllPoints()
     shortenNamesCheck:SetPoint("TOPLEFT", namesLine, "BOTTOMLEFT", 14, -8)
     -- Truncation style dropdown
@@ -524,7 +524,7 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
     if not shortenNameClipSideLabel then
         shortenNameClipSideLabel = right:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         right.MSUF_ShortenNameClipSideLabel = shortenNameClipSideLabel
-        shortenNameClipSideLabel:SetText(TR("截斷樣式"))
+        shortenNameClipSideLabel:SetText(TR("Truncation style"))
     end
     shortenNameClipSideLabel:ClearAllPoints()
     shortenNameClipSideLabel:SetPoint("TOPLEFT", shortenNamesCheck, "BOTTOMLEFT", 16, -10)
@@ -532,8 +532,8 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
     shortenNameClipSideDrop:ClearAllPoints()
     shortenNameClipSideDrop:SetPoint("TOPLEFT", shortenNameClipSideLabel, "BOTTOMLEFT", -16, -2)
     local function GetClipSideLabel(value)
-        if value == "RIGHT" then  return "保留開頭（顯示前幾個字）" end
-         return "保留結尾（顯示後幾個字）"
+        if value == "RIGHT" then  return "Keep start (show first letters)" end
+         return "Keep end (show last letters)"
     end
     -- Sliders (use OptionsSliderTemplate for the two legacy controls)
     local shortenNameMaxCharsSlider = _G["MSUF_ShortenNameMaxCharsSlider"]
@@ -546,7 +546,7 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
         if MSUF_StyleSlider then MSUF_StyleSlider(shortenNameMaxCharsSlider) end
         _G["MSUF_ShortenNameMaxCharsSliderLow"]:SetText(TR("6"))
         _G["MSUF_ShortenNameMaxCharsSliderHigh"]:SetText(TR("30"))
-        _G["MSUF_ShortenNameMaxCharsSliderText"]:SetText(TR("最大名字長度"))
+        _G["MSUF_ShortenNameMaxCharsSliderText"]:SetText(TR("Max name length"))
     end
     shortenNameMaxCharsSlider:ClearAllPoints()
     shortenNameMaxCharsSlider:SetPoint("TOPLEFT", shortenNameClipSideDrop, "BOTTOMLEFT", 16, -12)
@@ -560,7 +560,7 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
         if MSUF_StyleSlider then MSUF_StyleSlider(shortenNameFrontMaskSlider) end
         _G["MSUF_ShortenNameFrontMaskSliderLow"]:SetText(TR("0"))
         _G["MSUF_ShortenNameFrontMaskSliderHigh"]:SetText(TR("40"))
-        _G["MSUF_ShortenNameFrontMaskSliderText"]:SetText(TR("保留空間"))
+        _G["MSUF_ShortenNameFrontMaskSliderText"]:SetText(TR("Reserved space"))
     end
     shortenNameFrontMaskSlider:ClearAllPoints()
     shortenNameFrontMaskSlider:SetPoint("TOPLEFT", shortenNameMaxCharsSlider, "BOTTOMLEFT", 0, -20)
@@ -578,15 +578,15 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
                  return
             end
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-            GameTooltip:SetText(TR("名字縮短"))
+            GameTooltip:SetText(TR("Name Shortening"))
             EnsureDB()
             local side = (MSUF_DB and MSUF_DB.general and MSUF_DB.general.shortenNameClipSide) or "LEFT"
             if side == "RIGHT" then
-                GameTooltip:AddLine("保留開頭：顯示前幾個字（截斷結尾）。", 1, 1, 1, true)
-                GameTooltip:AddLine("傳統模式使用單純的 FontString 寬度截斷。", 0.95, 0.95, 0.95, true)
+                GameTooltip:AddLine("Keep start: shows the first letters (clips the end).", 1, 1, 1, true)
+                GameTooltip:AddLine("Legacy clean mode uses plain FontString width clipping.", 0.95, 0.95, 0.95, true)
             else
-                GameTooltip:AddLine("保留結尾：顯示後幾個字（截斷開頭）。", 1, 1, 1, true)
-                GameTooltip:AddLine("保留空間可保護截斷邊緣（避免重疊）。", 0.95, 0.95, 0.95, true)
+                GameTooltip:AddLine("Keep end: shows the last letters (clips the beginning).", 1, 1, 1, true)
+                GameTooltip:AddLine("Reserved space protects the clipped edge (avoids overlaps).", 0.95, 0.95, 0.95, true)
             end
             GameTooltip:Show()
          end)
@@ -611,11 +611,11 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
         local t = _G["MSUF_ShortenNameFrontMaskSliderText"]
         if t and t.SetText then
             if (not shortenEnabled) then
-                t:SetText(TR("保留空間"))
+                t:SetText(TR("Reserved space"))
             elseif side == "RIGHT" then
-                t:SetText(TR("保留空間（未使用）"))
+                t:SetText(TR("Reserved space (unused)"))
             else
-                t:SetText(TR("保留空間（左）"))
+                t:SetText(TR("Reserved space (left)"))
             end
         end
         if shortenNameFrontMaskSlider and shortenNameFrontMaskSlider.Enable and shortenNameFrontMaskSlider.Disable then
@@ -682,8 +682,8 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
             info.checked = (current == value)
             UIDropDownMenu_AddButton(info, level)
          end
-        AddOption("保留結尾（顯示後幾個字）", "LEFT")
-        AddOption("保留開頭（顯示前幾個字）", "RIGHT")
+        AddOption("Keep end (show last letters)", "LEFT")
+        AddOption("Keep start (show first letters)", "RIGHT")
      end)
     -- Scripts (checkboxes)
     boldCheck:SetScript("OnClick", function(self)
@@ -751,21 +751,21 @@ function ns.MSUF_Options_Fonts_Build(panel, fontGroup)
     -- Shared color list (kept for backward compat with Core/other panels)
     -- ---------------------------------------------------------------------
     local colorList = {
-        { key = "white",     r=1,   g=1,   b=1,   label="白色" },
-        { key = "black",     r=0,   g=0,   b=0,   label="黑色" },
-        { key = "red",       r=1,   g=0,   b=0,   label="紅色" },
-        { key = "green",     r=0,   g=1,   b=0,   label="綠色" },
-        { key = "blue",      r=0,   g=0,   b=1,   label="藍色" },
-        { key = "yellow",    r=1,   g=1,   b=0,   label="黃色" },
-        { key = "cyan",      r=0,   g=1,   b=1,   label="青色" },
-        { key = "magenta",   r=1,   g=0,   b=1,   label="洋紅色" },
-        { key = "orange",    r=1,   g=0.5, b=0,   label="橘色" },
-        { key = "purple",    r=0.6, g=0,   b=0.8, label="紫色" },
-        { key = "pink",      r=1,   g=0.6, b=0.8, label="粉紅色" },
-        { key = "turquoise", r=0,   g=0.9, b=0.8, label="綠松石色" },
-        { key = "grey",      r=0.5, g=0.5, b=0.5, label="灰色" },
-        { key = "brown",     r=0.6, g=0.3, b=0.1, label="棕色" },
-        { key = "gold",      r=1,   g=0.85,b=0.1, label="金色" },
+        { key = "white",     r=1,   g=1,   b=1,   label="White" },
+        { key = "black",     r=0,   g=0,   b=0,   label="Black" },
+        { key = "red",       r=1,   g=0,   b=0,   label="Red" },
+        { key = "green",     r=0,   g=1,   b=0,   label="Green" },
+        { key = "blue",      r=0,   g=0,   b=1,   label="Blue" },
+        { key = "yellow",    r=1,   g=1,   b=0,   label="Yellow" },
+        { key = "cyan",      r=0,   g=1,   b=1,   label="Cyan" },
+        { key = "magenta",   r=1,   g=0,   b=1,   label="Magenta" },
+        { key = "orange",    r=1,   g=0.5, b=0,   label="Orange" },
+        { key = "purple",    r=0.6, g=0,   b=0.8, label="Purple" },
+        { key = "pink",      r=1,   g=0.6, b=0.8, label="Pink" },
+        { key = "turquoise", r=0,   g=0.9, b=0.8, label="Turquoise" },
+        { key = "grey",      r=0.5, g=0.5, b=0.5, label="Grey" },
+        { key = "brown",     r=0.6, g=0.3, b=0.1, label="Brown" },
+        { key = "gold",      r=1,   g=0.85,b=0.1, label="Gold" },
     }
     panel.__MSUF_COLOR_LIST = colorList
     _G.MSUF_COLOR_LIST = colorList

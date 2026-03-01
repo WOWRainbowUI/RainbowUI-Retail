@@ -1,35 +1,24 @@
 -- ============================================================================
--- MSUF_A2_Collect.lua â€” Auras 3.0 Collection Layer
+-- MSUF_A2_Collect.lua  Auras 3.0 Collection Layer
 -- Replaces MSUF_A2_Store.lua + MSUF_A2_Model.lua
 --
 -- Performance optimizations:
---   â€¢ C_UnitAuras functions localized once at file scope
---   â€¢ SecretsActive() hoisted out of per-aura loop (1 call per GetAuras)
---   â€¢ isFiltered() called ONCE per aura (combined onlyMine + playerAura)
---   â€¢ needPlayerAura flag skips isFiltered when highlights disabled
---   â€¢ Split request-cap vs output-cap: low caps = low API work
---   â€¢ Stale-tail clear skipped when count unchanged
---   â€¢ PlayerFilter cached in table (no if-chain)
+--    C_UnitAuras functions localized once at file scope
+--    SecretsActive() hoisted out of per-aura loop (1 call per GetAuras)
+--    isFiltered() called ONCE per aura (combined onlyMine + playerAura)
+--    needPlayerAura flag skips isFiltered when highlights disabled
+--    Split request-cap vs output-cap: low caps = low API work
+--    Stale-tail clear skipped when count unchanged
+--    PlayerFilter cached in table (no if-chain)
 -- ============================================================================
 
 local addonName, ns = ...
 ns = (rawget(_G, "MSUF_NS") or ns) or {}
--- =========================================================================
--- PERF LOCALS (Auras2 runtime)
---  - Reduce global table lookups in high-frequency aura pipelines.
---  - Secret-safe: localizing function references only (no value comparisons).
--- =========================================================================
-local type, tostring, tonumber, select = type, tostring, tonumber, select
-local pairs, ipairs, next = pairs, ipairs, next
-local math_min, math_max, math_floor = math.min, math.max, math.floor
-local string_format, string_match, string_sub = string.format, string.match, string.sub
-local CreateFrame, GetTime = CreateFrame, GetTime
-local UnitExists = UnitExists
-local InCombatLockdown = InCombatLockdown
-local C_Timer = C_Timer
+local type, select = type, select
+local math_min = math.min
+local GetTime = GetTime
 local C_UnitAuras = C_UnitAuras
 local C_Secrets = C_Secrets
-local C_CurveUtil = C_CurveUtil
 ns.MSUF_Auras2 = (type(ns.MSUF_Auras2) == "table") and ns.MSUF_Auras2 or {}
 local API = ns.MSUF_Auras2
 
@@ -46,9 +35,11 @@ local type = type
 local select = select
 local C_UnitAuras = C_UnitAuras
 local issecretvalue = _G and _G.issecretvalue
+local canaccessvalue = _G and _G.canaccessvalue
+local _hasCanaccessvalue = (type(canaccessvalue) == "function")
 
 -- Localized API functions (bound once, avoids table lookup per aura)
-local _getSlots, _getBySlot, _isFiltered, _doesExpire, _getDuration, _getStackCount
+local _getSlots, _getBySlot, _getByAid, _isFiltered, _doesExpire, _getDuration, _getStackCount
 local _apisBound = false
 
 local function BindAPIs()
@@ -56,6 +47,7 @@ local function BindAPIs()
     if not C_UnitAuras then return end
     _getSlots      = C_UnitAuras.GetAuraSlots
     _getBySlot     = C_UnitAuras.GetAuraDataBySlot
+    _getByAid      = C_UnitAuras.GetAuraDataByAuraInstanceID  -- Delta updates
     _isFiltered    = C_UnitAuras.IsAuraFilteredOutByInstanceID
     _doesExpire    = C_UnitAuras.DoesAuraHaveExpirationTime
     _getDuration   = C_UnitAuras.GetAuraDuration
@@ -73,10 +65,12 @@ local function IsSV(v)
     return false
 end
 
+-- Secret mode cached at file scope (avoid function call per GetAuras)
 local _secretActive = nil
 local _secretCheckAt = 0
 local _GetTime = GetTime
 
+-- PERF: Inline secret check - no function call overhead
 local function SecretsActive()
     local now = _GetTime()
     if _secretActive ~= nil and now < _secretCheckAt then
@@ -88,53 +82,65 @@ local function SecretsActive()
     return _secretActive
 end
 
--- ---------------------------------------------------------------------------
--- Test filter: hide all auras that have a *safe* timer.
--- Meaning: aura has expiration time AND that expiration signal is not secret.
--- IMPORTANT: secret auras must NEVER be filtered based on timing.
--- (Later this can be gated behind a toggle.)
--- ---------------------------------------------------------------------------
+-- Secret-safe boss flag read: 1=true, 0=false, -1=unknown/secret.
+--  - Never boolean-test a potentially secret boolean.
+--  - Cache as small integer: 1=true, 0=false, -1=unknown/secret.
+local function _ReadBossFlag(data)
+    if type(data) ~= "table" then return -1 end
 
+    local v = data.isBossAura
+    if v == nil then
+        return -1
+    end
 
--- NOTE: secretsActive parameter passed in (hoisted from loop)
-local function IsPermanentAura(unit, aid, secretsNow)
-    if secretsNow then return false end
-    if type(_doesExpire) ~= "function" then return false end
-    local v = _doesExpire(unit, aid)
-    if IsSV(v) then return false end
-    if type(v) == "boolean" then return (v == false) end
-    if type(v) == "number" then return (v <= 0) end
-    return false
+    -- If the value is secret, we must not test it.
+    if _hasCanaccessvalue then
+        if canaccessvalue(v) ~= true then
+            return -1
+        end
+    elseif issecretvalue and issecretvalue(v) == true then
+        return -1
+    end
+
+    -- Now safe to read/compare.
+    return (v == true) and 1 or 0
 end
 
-local function IsBossAura(data, secretsNow)
-    if data == nil or secretsNow then return false end
-    return (data.isBossAura == true)
+local function IsBossAura(data)
+    if type(data) ~= "table" then return false end
+    local f = data._msufA2_bossFlag
+    if f == nil then
+        f = _ReadBossFlag(data)
+        data._msufA2_bossFlag = f
+    end
+    return (f == 1)
 end
 
 -- --
--- Varargs capture (zero-alloc for n â‰¤ 16)
+-- PERF: Optimized slot capture - avoid varargs overhead
 -- --
-local _scratch = { _n = 0 }
+local _scratch = {}
+for _i = 1, 40 do _scratch[_i] = nil end
+_scratch._n = 0
 
-local function CaptureSlots(t, ...)
+-- PERF: Captures slots from GetAuraSlots directly, skipping the continuation
+-- token as a named parameter. Eliminates the expensive select(2,...) wrapper.
+-- Usage: CaptureFromGetSlots(_scratch, _getSlots(unit, filter, cap, sort))
+local function CaptureFromGetSlots(t, _token, ...)
     local n = select('#', ...)
-    local prev = t._n or 0
     t._n = n
-    if n == 0 then
-        -- skip
+    if n == 0 then return 0 end
+
+    -- PERF: Unrolled for common cases (most units have <12 auras)
+    if n <= 8 then
+        local a,b,c,d,e,f,g,h = ...
+        t[1]=a; t[2]=b; t[3]=c; t[4]=d; t[5]=e; t[6]=f; t[7]=g; t[8]=h
     elseif n <= 16 then
         local a,b,c,d,e,f,g,h,i,j,k,l,m,o,p,q = ...
-        t[1]=a;  t[2]=b;  t[3]=c;  t[4]=d
-        t[5]=e;  t[6]=f;  t[7]=g;  t[8]=h
-        t[9]=i;  t[10]=j; t[11]=k; t[12]=l
-        t[13]=m; t[14]=o; t[15]=p; t[16]=q
+        t[1]=a; t[2]=b; t[3]=c; t[4]=d; t[5]=e; t[6]=f; t[7]=g; t[8]=h
+        t[9]=i; t[10]=j; t[11]=k; t[12]=l; t[13]=m; t[14]=o; t[15]=p; t[16]=q
     else
-        local tmp = {...}
-        for i = 1, n do t[i] = tmp[i] end
-    end
-    if n < prev then
-        for i = n + 1, prev do t[i] = nil end
+        for i = 1, n do t[i] = select(i, ...) end
     end
     return n
 end
@@ -146,214 +152,373 @@ local FILTER_HELPFUL         = "HELPFUL"
 local FILTER_HARMFUL         = "HARMFUL"
 local FILTER_HELPFUL_PLAYER  = "HELPFUL|PLAYER"
 local FILTER_HARMFUL_PLAYER  = "HARMFUL|PLAYER"
+-- IMPORTANT is evaluated like Unhalted/oUF: include the aura type in the filter string.
+local FILTER_HELPFUL_IMPORTANT = "HELPFUL|IMPORTANT"
+local FILTER_HARMFUL_IMPORTANT = "HARMFUL|IMPORTANT"
 
-local _pFilterMap = {
-    [FILTER_HELPFUL] = FILTER_HELPFUL_PLAYER,
-    [FILTER_HARMFUL] = FILTER_HARMFUL_PLAYER,
-}
-local function PlayerFilter(filter)
-    return _pFilterMap[filter] or (filter .. "|PLAYER")
+-- Backward-compat stub (external addons may call this; no-op in JIT model)
+Collect.InvalidateCache = function() end
+
+-- Scan flags
+-- We only compute expensive per-aura tags (e.g. IMPORTANT) when any frame needs them.
+local _scanImportant = false
+
+function Collect.SetScanFlags(needImportant)
+    _scanImportant = (needImportant == true)
+    -- JIT: No cache to invalidate — IMPORTANT is computed inline in GetAuras.
 end
 
 -- --
--- Core collection function
---
--- needPlayerAura: when false, skips the isFiltered() call for
--- player-aura detection. Pass false when both highlightOwnBuffs
--- AND highlightOwnDebuffs are disabled â€” saves 1 C API call per aura.
+-- Backward compat stubs (external callers)
 -- --
 
-function Collect.GetAuras(unit, filter, maxCount, onlyMine, hidePermanent, onlyBoss, out, needPlayerAura)
-    out = (type(out) == "table") and out or {}
+API.Store = (type(API.Store) == "table") and API.Store or {}
+local Store = API.Store
+-- JIT: No raw aura cache. Store is kept as a no-op shell for backward compat.
+Store._epochs = Store._epochs or {}
+
+-- PERF: Configurable scan limits (set by Render from user config)
+-- JIT: These are passed directly to GetAuraSlots as the 3rd arg.
+-- Multiply by 3 to ensure enough auras for filtered scenarios (onlyMine, hidePermanent, etc.)
+local _maxHelpfulScan = 12
+local _maxHarmfulScan = 12
+-- Scratch tables for merged collection (avoids allocation per render tick)
+local _playerScratch = {}
+local _bossScratch = {}
+
+function Collect.SetScanLimits(maxBuffs, maxDebuffs)
+    -- Multiply by 3 for filter headroom, cap at 40
+    _maxHelpfulScan = math_min((maxBuffs or 12) * 3, 40)
+    _maxHarmfulScan = math_min((maxDebuffs or 12) * 3, 40)
+end
+
+-- Legacy stubs (sort order is now passed as direct parameter to GetAuras)
+function Collect.SetSortOrder() end
+function Collect.SetSortReverse() end
+function Collect.SetUnitSortOrder() end
+
+-- --
+-- Core collection function (JIT)
+--
+-- sortOrder: nil/0 = unsorted (best perf), 1-6 = Blizzard Enum.AuraSortOrder
+--   Passed directly as 4th arg to C_UnitAuras.GetAuraSlots.
+-- needPlayerAura: when false, skips the isFiltered() call for
+-- player-aura detection. Pass false when both highlightOwnBuffs
+-- AND highlightOwnDebuffs are disabled — saves 1 C API call per aura.
+-- --
+
+function Collect.GetAuras(unit, filter, maxCount, onlyMine, hidePermanent, onlyBoss, onlyImportant, out, needPlayerAura, sortOrder)
+    out = out or {}
     local prevN = out._msufA2_n or 0
 
-    if not unit or not C_UnitAuras then
+    if not unit then
         if prevN > 0 then for i = 1, prevN do out[i] = nil end end
         out._msufA2_n = 0
         return out, 0
     end
 
     if not _apisBound then BindAPIs() end
-    if type(_getSlots) ~= "function" or type(_getBySlot) ~= "function" then
+    if not _getSlots or not _getBySlot then
         if prevN > 0 then for i = 1, prevN do out[i] = nil end end
         out._msufA2_n = 0
         return out, 0
     end
 
-    local outputCap = (type(maxCount) == "number" and maxCount > 0) and maxCount or 40
+    local outputCap = maxCount or 40
     local isHelpful = (filter == FILTER_HELPFUL)
 
-    -- â”€â”€ Split request-cap vs output-cap â”€â”€
-    local hasFilters = onlyMine or hidePermanent or onlyBoss
-    local requestCap
-    if hasFilters then
-        requestCap = outputCap * 3
-        if requestCap > 40 then requestCap = 40 end
+    -- Sort: nil = unsorted (best perf). 0 normalised to nil.
+    local unitSort = (sortOrder ~= 0) and sortOrder or nil
+
+    -- =====================================================================
+    -- PERF: Smart API Filter — push filtering into C++ when possible.
+    -- When onlyMine/onlyImportant, pass the combined filter to GetAuraSlots
+    -- so C++ returns only matching slots. This eliminates:
+    --   - isFiltered() calls per aura (saves 1 C call × N auras)
+    --   - Processing of auras that would be rejected anyway
+    --   - Need for 3× scan headroom (C++ already pre-filtered)
+    -- =====================================================================
+    local apiFilter = filter
+    local skipPlayerFilter = false
+    local skipImportantFilter = false
+    local scanCap
+
+    if onlyMine and not onlyBoss then
+        -- C++ pre-filters to player-only → zero isFiltered calls needed
+        apiFilter = isHelpful and FILTER_HELPFUL_PLAYER or FILTER_HARMFUL_PLAYER
+        skipPlayerFilter = true
+        -- Less headroom needed: only permanent filter can reject
+        scanCap = math_min(outputCap * 2, 40)
+    elseif onlyImportant and not onlyMine then
+        -- C++ pre-filters to important-only → zero isFiltered calls needed
+        apiFilter = isHelpful and FILTER_HELPFUL_IMPORTANT or FILTER_HARMFUL_IMPORTANT
+        skipImportantFilter = true
+        scanCap = math_min(outputCap * 2, 40)
     else
-        requestCap = outputCap
+        scanCap = isHelpful and _maxHelpfulScan or _maxHarmfulScan
     end
 
-    -- â”€â”€ Hoist expensive checks â”€â”€
-    local canFilter = (type(_isFiltered) == "function")
-    -- Only call SecretsActive if we actually need it for boss/permanent checks
-    local secretsNow = (hidePermanent or onlyBoss) and SecretsActive() or false
-    -- Determine if we need a separate isFiltered call for playerAura detection
-    -- When onlyMine is true, we get isPlayerAura for free from the filter check
-    local wantPlayerAura = (needPlayerAura ~= false) and canFilter
-    local detectSeparately = wantPlayerAura and (not onlyMine)
-    local playerFilter = (onlyMine or detectSeparately) and PlayerFilter(filter) or nil
+    local nSlots = CaptureFromGetSlots(_scratch, _getSlots(unit, apiFilter, scanCap, unitSort))
 
-    -- â”€â”€ Collect slots â”€â”€
-    local nSlots = CaptureSlots(_scratch, select(2, _getSlots(unit, filter, requestCap, nil)))
+    -- PERF: Hoist ALL loop-variant checks and filter strings outside loop
+    local wantPlayerAura = (needPlayerAura ~= false) and not skipPlayerFilter
+    local checkPermanent = (hidePermanent == true)
+    local checkBoss = (onlyBoss == true)
+    local checkImportant = (onlyImportant == true) and not skipImportantFilter
+    local checkOnlyMine = (onlyMine == true) and not skipPlayerFilter
+
+    -- PERF: Hoist filter strings (avoid per-aura ternary)
+    local playerFilter = wantPlayerAura and (isHelpful and FILTER_HELPFUL_PLAYER or FILTER_HARMFUL_PLAYER) or nil
+    local importantFilter = checkImportant and (isHelpful and FILTER_HELPFUL_IMPORTANT or FILTER_HARMFUL_IMPORTANT) or nil
+
+    -- PERF: Hoist secret check once per GetAuras (not per aura)
+    -- Only needed when hidePermanent is active
+    local secretsNow = checkPermanent and SecretsActive() or false
+    -- PERF: Localize for inner loop (avoids upvalue indirection)
+    local lGetBySlot = _getBySlot
+    local lIsFiltered = _isFiltered
+    local lDoesExpire = _doesExpire
+    local lIssecretvalue = issecretvalue
+    local lCanaccessvalue = canaccessvalue
+    local lHasCanaccessvalue = _hasCanaccessvalue
 
     local n = 0
     for i = 1, nSlots do
         if n >= outputCap then break end
 
-        local data = _getBySlot(unit, _scratch[i])
-        if type(data) == "table" then
+        local data = lGetBySlot(unit, _scratch[i])
+        if data then
             local aid = data.auraInstanceID
-            if aid ~= nil then
-                local skip = false
-                local isPlayerAura = false
-
-                -- onlyMine filter + captures isPlayerAura as side effect
-                if onlyMine and canFilter then
-                    if _isFiltered(unit, aid, playerFilter) then
-                        skip = true
-                    else
-                        isPlayerAura = true -- passed PLAYER filter = player's aura
+            if aid then
+                -- =========================================================
+                -- PERF: repeat/break pattern eliminates 'dominated' flag
+                -- and multiple 'if not dominated' branch checks per aura.
+                -- Each 'break' = reject this aura, fall through = accept.
+                -- =========================================================
+                repeat
+                    -- Filter: onlyMine (skip if C++ already pre-filtered)
+                    local isOwn
+                    if checkOnlyMine then
+                        -- Need isFiltered for onlyMine check
+                        if lIsFiltered(unit, aid, playerFilter) then break end  -- not mine → reject
+                        isOwn = true  -- passed the PLAYER filter
+                    elseif wantPlayerAura then
+                        -- Not filtering onlyMine, but need isOwn for highlights
+                        isOwn = lIsFiltered and not lIsFiltered(unit, aid, playerFilter)
                     end
-                end
 
-                if not skip and onlyBoss and not IsBossAura(data, secretsNow) then
-                    skip = true
-                end
+                    -- Filter: hidePermanent (inlined — no function call)
+                    -- Secret-safe: if doesExpire returns secret, issecretvalue catches it
+                    if checkPermanent and not secretsNow then
+                        local v = lDoesExpire(unit, aid)
+                        if v ~= nil then
+                            -- Secret check first: do not compare inaccessible values.
+                            if lHasCanaccessvalue and lCanaccessvalue(v) ~= true then
+                                -- secret → treat as non-permanent (fail-open)
+                            elseif lIssecretvalue and lIssecretvalue(v) then
+                                -- secret → treat as non-permanent (fail-open)
+                            elseif v == false then
+                                break -- permanent → reject
+                            end
+                        end
+                    end
 
-                if not skip and hidePermanent and IsPermanentAura(unit, aid, secretsNow) then
-                    skip = true
-                end
+                    -- Filter: onlyBoss (inlined boss flag read, secret-safe)
+                    if checkBoss then
+                        local bf = data._msufA2_bossFlag
+                        if bf == nil then
+                            local v = data.isBossAura
+                            if v == nil then
+                                bf = -1
+                            elseif _hasCanaccessvalue then
+                                bf = (canaccessvalue(v) == true) and ((v == true) and 1 or 0) or -1
+                            elseif lIssecretvalue and lIssecretvalue(v) == true then
+                                bf = -1
+                            else
+                                bf = (v == true) and 1 or 0
+                            end
+                            data._msufA2_bossFlag = bf
+                        end
+                        if bf == 0 then break end  -- confirmed not-boss → reject
+                    end
 
-                if not skip then
+                    -- Filter: onlyImportant (skip if C++ already pre-filtered)
+                    if checkImportant then
+                        if not lIsFiltered or lIsFiltered(unit, aid, importantFilter) then
+                            break  -- not important or API unavailable → reject
+                        end
+                    end
+
+                    -- ===== ACCEPT =====
+                    -- Only write isPlayerAura when highlights need it
+                    if wantPlayerAura or skipPlayerFilter then
+                        data._msufIsPlayerAura = skipPlayerFilter and true or (isOwn or false)
+                    end
                     n = n + 1
-                    data._msufAuraInstanceID = aid
-
-                    if onlyMine then
-                        data._msufIsPlayerAura = isPlayerAura
-                    elseif detectSeparately then
-                        data._msufIsPlayerAura = not _isFiltered(unit, aid, playerFilter)
-                    else
-                        data._msufIsPlayerAura = false
-                    end
-
                     out[n] = data
-                end
+                until true
             end
         end
     end
 
+    -- Tail clear (stale entries from previous render)
     if n < prevN then
-        for i = n + 1, prevN do out[i] = nil end
+        for j = n + 1, prevN do out[j] = nil end
     end
+
     out._msufA2_n = n
     return out, n
 end
 
--- Merged collection: player-only + boss auras -- SINGLE PASS
---
--- Old approach: 2x GetAuraSlots + up to 80x GetAuraDataBySlot
--- New approach: 1x GetAuraSlots + up to 40x GetAuraDataBySlot
---
+-- Merged collection: player-only + boss auras — SINGLE PASS
 -- Semantic equivalence: player auras first (priority), then
 -- non-duplicate boss auras appended up to cap.
 
--- Scratch table for boss auras during merge (avoids allocation)
-local _bossScratch = {}
-
-function Collect.GetMergedAuras(unit, filter, maxCount, hidePermanent, out, mergeOut, needPlayerAura)
-    out = (type(out) == "table") and out or {}
+function Collect.GetMergedAuras(unit, filter, maxCount, hidePermanent, onlyImportant, out, mergeOut, needPlayerAura, sortOrder)
+    out = out or {}
     local prevN = out._msufA2_n or 0
 
-    if not unit or not C_UnitAuras then
+    if type(unit) ~= "string" then
         if prevN > 0 then for i = 1, prevN do out[i] = nil end end
         out._msufA2_n = 0
         return out, 0
     end
 
     if not _apisBound then BindAPIs() end
-    if type(_getSlots) ~= "function" or type(_getBySlot) ~= "function" then
+    if not _getSlots or not _getBySlot then
         if prevN > 0 then for i = 1, prevN do out[i] = nil end end
         out._msufA2_n = 0
         return out, 0
     end
 
-    local outputCap = (type(maxCount) == "number" and maxCount > 0) and maxCount or 40
+    maxCount = (type(maxCount) == "number" and maxCount > 0) and maxCount or 40
+    local isHelpful = (filter == FILTER_HELPFUL) or (filter == FILTER_HELPFUL_PLAYER)
 
-    -- Single GetAuraSlots call (request full 40)
-    local nSlots = CaptureSlots(_scratch, select(2, _getSlots(unit, filter, 40, nil)))
+    -- Sort: nil = unsorted (best perf). 0 normalised to nil.
+    local unitSort = (sortOrder ~= 0) and sortOrder or nil
 
-    -- Hoist expensive state
-    local canFilter = (type(_isFiltered) == "function")
-    -- Need secrets for both hidePermanent and IsBossAura
-    local secretsNow = SecretsActive()
-    local playerFilter = canFilter and PlayerFilter(filter) or nil
-    local wantPlayerAura = (needPlayerAura ~= false)
+    -- Merged cannot use PLAYER pre-filter (needs both player + boss auras)
+    -- But CAN use IMPORTANT pre-filter when applicable
+    local apiFilter = isHelpful and FILTER_HELPFUL or FILTER_HARMFUL
+    local skipImportantFilter = false
+    local scanCap
 
-    -- Single pass: classify each aura into player or boss bucket
-    local playerN = 0
-    local bossN = 0
+    if onlyImportant then
+        apiFilter = isHelpful and FILTER_HELPFUL_IMPORTANT or FILTER_HARMFUL_IMPORTANT
+        skipImportantFilter = true
+        scanCap = math_min(maxCount * 2, 40)
+    else
+        scanCap = isHelpful and _maxHelpfulScan or _maxHarmfulScan
+    end
+
+    local nSlots = CaptureFromGetSlots(_scratch, _getSlots(unit, apiFilter, scanCap, unitSort))
+
+    -- PERF: Hoist filter checks and strings
+    local checkPermanent = (hidePermanent == true)
+    local checkImportant = (onlyImportant == true) and not skipImportantFilter
+    local secretsNow = checkPermanent and SecretsActive() or false
+    local playerFilter = isHelpful and FILTER_HELPFUL_PLAYER or FILTER_HARMFUL_PLAYER
+    local importantFilter = checkImportant and (isHelpful and FILTER_HELPFUL_IMPORTANT or FILTER_HARMFUL_IMPORTANT) or nil
+
+    -- PERF: Localize C API functions for inner loop
+    local lGetBySlot = _getBySlot
+    local lIsFiltered = _isFiltered
+    local lDoesExpire = _doesExpire
+    local lIssecretvalue = issecretvalue
+    local lCanaccessvalue = canaccessvalue
+    local lHasCanaccessvalue = _hasCanaccessvalue
+
+    local playerScratch = _playerScratch
+    local bossScratch = _bossScratch
+    local nPlayer, nBoss = 0, 0
 
     for i = 1, nSlots do
-        local data = _getBySlot(unit, _scratch[i])
-        if type(data) == "table" then
+        if (nPlayer + nBoss) >= maxCount then break end
+
+        local data = lGetBySlot(unit, _scratch[i])
+        if data then
             local aid = data.auraInstanceID
-            if aid ~= nil then
-                -- hidePermanent filter (applied to all auras)
-                local dominated = hidePermanent and IsPermanentAura(unit, aid, secretsNow)
-                if not dominated then
-                    -- Classify: is this the player's own aura?
-                    local isPlayer = false
-                    if canFilter and playerFilter then
-                        -- _isFiltered returns true if aura does NOT match the filter
-                        -- So "not filtered by PLAYER filter" = IS the player's aura
-                        isPlayer = not _isFiltered(unit, aid, playerFilter)
-                    end
-
-                    data._msufAuraInstanceID = aid
-                    data._msufIsPlayerAura = wantPlayerAura and isPlayer or false
-
-                    if isPlayer then
-                        -- Player's own aura: primary bucket
-                        if playerN < outputCap then
-                            playerN = playerN + 1
-                            out[playerN] = data
+            if aid then
+                repeat
+                    -- Filter: hidePermanent (inlined, secret-safe)
+                    if checkPermanent and not secretsNow then
+                        local v = lDoesExpire(unit, aid)
+                        if v ~= nil then
+                            if lHasCanaccessvalue and lCanaccessvalue(v) ~= true then
+                                -- fail-open for secret values
+                            elseif lIssecretvalue and lIssecretvalue(v) then
+                                -- fail-open for secret values
+                            elseif v == false then
+                                break
+                            end
                         end
-                    elseif IsBossAura(data, secretsNow) then
-                        -- Not player's, but is a boss aura: secondary bucket
-                        bossN = bossN + 1
-                        _bossScratch[bossN] = data
                     end
-                    -- Non-player, non-boss auras: dropped (merge semantics)
-                end
+
+                    -- Filter: onlyImportant (skip if C++ pre-filtered)
+                    if checkImportant then
+                        if not lIsFiltered or lIsFiltered(unit, aid, importantFilter) then
+                            break
+                        end
+                    end
+
+                    -- Classify: player vs boss via C API
+                    local isOwn = lIsFiltered and not lIsFiltered(unit, aid, playerFilter) or false
+                    data._msufIsPlayerAura = isOwn
+
+                    if isOwn then
+                        nPlayer = nPlayer + 1
+                        playerScratch[nPlayer] = data
+                    else
+                        -- Inlined boss flag read (secret-safe)
+                        local bf = data._msufA2_bossFlag
+                        if bf == nil then
+                            local v = data.isBossAura
+                            if v == nil then
+                                bf = -1
+                            elseif _hasCanaccessvalue then
+                                bf = (canaccessvalue(v) == true) and ((v == true) and 1 or 0) or -1
+                            elseif lIssecretvalue and lIssecretvalue(v) == true then
+                                bf = -1
+                            else
+                                bf = (v == true) and 1 or 0
+                            end
+                            data._msufA2_bossFlag = bf
+                        end
+                        if bf == 1 then
+                            nBoss = nBoss + 1
+                            bossScratch[nBoss] = data
+                        end
+                    end
+                until true
             end
         end
     end
 
-    -- Append boss auras after player auras (up to cap)
-    local n = playerN
-    for i = 1, bossN do
-        if n >= outputCap then break end
+    -- Merge: player auras first (priority), then boss auras
+    local n = 0
+    for i = 1, nPlayer do
         n = n + 1
-        out[n] = _bossScratch[i]
+        out[n] = playerScratch[i]
+        playerScratch[i] = nil
+        if n >= maxCount then break end
     end
 
-    -- Clear boss scratch (avoid stale references)
-    for i = 1, bossN do _bossScratch[i] = nil end
+    if n < maxCount then
+        for i = 1, nBoss do
+            n = n + 1
+            out[n] = bossScratch[i]
+            bossScratch[i] = nil
+            if n >= maxCount then break end
+        end
+    else
+        for i = 1, nBoss do bossScratch[i] = nil end
+    end
 
-    -- Stale-tail clear
+    -- Tail clear
     if n < prevN then
-        for i = n + 1, prevN do out[i] = nil end
+        for j = n + 1, prevN do out[j] = nil end
     end
+
     out._msufA2_n = n
     return out, n
 end
@@ -390,7 +555,7 @@ function Collect.HasExpiration(unit, auraInstanceID)
 end
 
 -- --
--- Fast-path helpers (no guards â€” Icons.lua binds these after
+-- Fast-path helpers (no guards  Icons.lua binds these after
 -- APIs are confirmed available, saving 3 checks per call per icon)
 -- --
 
@@ -412,29 +577,20 @@ function Collect.HasExpirationFast(unit, aid)
     return nil
 end
 
--- --
--- Backward compat stubs
--- --
+-- ============================================================================
+-- JIT Model: No EnrichAura, no PreScanUnit, no Delta processing.
+-- GetAuras queries C API directly on each render tick.
+-- Store methods are kept as no-op stubs for backward compatibility.
+-- ============================================================================
 
-API.Store = (type(API.Store) == "table") and API.Store or {}
-local Store = API.Store
-Store._epochs = Store._epochs or {}
+-- No-op: JIT model has no cache to update
+function Store.OnUnitAura(unit, updateInfo) end
 
-function Store.OnUnitAura(unit, updateInfo)
-    if not unit then return end
-    Store._epochs[unit] = (Store._epochs[unit] or 0) + 1
-end
+-- No-op: JIT model has no cache to invalidate
+function Store.InvalidateUnit(unit) end
 
-function Store.InvalidateUnit(unit)
-    if not unit then return end
-    Store._epochs[unit] = (Store._epochs[unit] or 0) + 1
-end
-
-function Store.GetEpoch(unit)
-    return Store._epochs[unit] or 0
-end
-
-function Store.GetEpochSig(unit) return Store.GetEpoch(unit) end
+function Store.GetEpoch(unit) return 0 end
+function Store.GetEpochSig(unit) return 0 end
 function Store.GetRawSig() return nil end
 function Store.PopUpdated() return nil, 0 end
 function Store.ForceScanForReuse() return nil end
@@ -443,9 +599,9 @@ function Store.GetStackCount(unit, aid) return Collect.GetStackCount(unit, aid) 
 
 API.Model = (type(API.Model) == "table") and API.Model or {}
 local Model = API.Model
-Model.IsBossAura = function(data) return IsBossAura(data, SecretsActive()) end
+Model.IsBossAura = IsBossAura
 Model.GetPlayerAuraIdSetCached = nil
 
 Collect.SecretsActive = SecretsActive
-Collect.IsBossAura = function(data) return IsBossAura(data, SecretsActive()) end
+Collect.IsBossAura = IsBossAura
 Collect.IsSV = IsSV

@@ -5,11 +5,6 @@
 local addonName, ns = ...
 
 
--- MSUF: Max-perf Auras2: replace protected calls (pcall) with direct calls.
--- NOTE: this removes error-catching; any error will propagate.
-local function MSUF_A2_FastCall(fn, ...)
-    return true, fn(...)
-end
 ns = (rawget(_G, "MSUF_NS") or ns) or {}
 -- =========================================================================
 -- PERF LOCALS (Auras2 runtime)
@@ -42,6 +37,7 @@ local type = type
 -- Pre-cached boss unit strings (avoid "boss"..i in all loops)
 local _BOSS_UNITS = { "boss1", "boss2", "boss3", "boss4", "boss5" }
 local _BOSS_MAX = 5
+local _After0 = C_Timer and C_Timer.After
 
 -- Cached module refs (bound lazily, reset on InvalidateDB)
 local _cachedReqUnit      -- API.RequestUnit (fast MarkDirty path)
@@ -58,17 +54,14 @@ local function BindCachedRefs()
     _cachedOnUnitAura  = Store and Store.OnUnitAura
     _cachedInvalidUnit = Store and Store.InvalidateUnit
     _cachedIsEditFn    = API.IsEditModeActive
-    _refsBound = true
+    -- Only mark fully bound when Store is available.
+    -- If Store hasn't loaded yet (load-order race), retry next event.
+    _refsBound = (Store ~= nil)
 end
 
 -- ------------------------------------------------------------
 -- Helpers
 -- ------------------------------------------------------------
-local function SafePCall(fn, ...)
-    if type(fn) ~= "function" then return end
-    local ok, _ = MSUF_A2_FastCall(fn, ...)
-    return ok
-end
 
 -- Strict coalescing for UNIT_AURA bursts:
 --  * Never render "per event".
@@ -94,6 +87,40 @@ local function MarkDirty(unit, delay)
     end
 end
 
+local function HandlePlayerTargetChanged()
+    if not _refsBound then BindCachedRefs() end
+    if _cachedInvalidUnit then
+        _cachedInvalidUnit("target")
+    end
+
+    -- Coalesce target swap to one next-frame aura refresh.
+    -- UNIT_AURA bursts arriving this frame still update Store deltas, then piggyback this flush.
+    if Events._targetSwapQueued then
+        return
+    end
+    Events._targetSwapQueued = true
+
+    if _After0 then
+        _After0(0, Events._flushTargetSwap)
+    else
+        Events._targetSwapQueued = nil
+        MarkDirty("target", 0)
+    end
+end
+
+local function HandlePlayerFocusChanged()
+    if not _refsBound then BindCachedRefs() end
+    if _cachedInvalidUnit then
+        _cachedInvalidUnit("focus")
+    end
+    MarkDirty("focus", 0)
+end
+
+Events._flushTargetSwap = Events._flushTargetSwap or function()
+    Events._targetSwapQueued = nil
+    MarkDirty("target", 0)
+end
+
 local function IsEditModeActive()
     -- Fast path: cached API function (set once by Render, never changes)
     if not _refsBound then BindCachedRefs() end
@@ -114,18 +141,12 @@ local function IsEditModeActive()
 
     local g = rawget(_G, "MSUF_IsInEditMode")
     if type(g) == "function" then
-        local ok, v = MSUF_A2_FastCall(g)
-        if ok and v == true then
-            return true
-        end
+        if g() == true then return true end
     end
 
     local h = rawget(_G, "MSUF_IsMSUFEditModeActive")
     if type(h) == "function" then
-        local ok, v = MSUF_A2_FastCall(h)
-        if ok and v == true then
-            return true
-        end
+        if h() == true then return true end
     end
 
     return false
@@ -450,6 +471,15 @@ end
 local function OnAnyEditModeChanged(active)
     local _, shared = EnsureDB()
 
+    -- CRITICAL: Force-set the cached edit mode state IMMEDIATELY.
+    -- Without this, IsEditModeActive() returns stale TRUE for up to 100ms,
+    -- causing MarkAllDirty → RenderUnit to re-enter the preview path and
+    -- undo the ClearAllPreviews() cleanup below.
+    local forceSet = API.ForceSetEditModeActive
+    if type(forceSet) == "function" then
+        forceSet(active)
+    end
+
     local wantPreview = (shared and shared.showInEditMode == true) or false
 
     -- Clear previews when leaving Edit Mode OR when previews are disabled.
@@ -457,6 +487,15 @@ local function OnAnyEditModeChanged(active)
     if (active == false) or (wantPreview ~= true) then
         if API.ClearAllPreviews then
             API.ClearAllPreviews()
+        end
+
+        -- Bug 2 fix: Force Masque reskin after clearing previews.
+        -- Preview icons modified cooldown/texture state that Masque's skin
+        -- (e.g. Shadow) tracks internally. Without a reskin, the stale
+        -- overlay state causes icons to appear very dark.
+        local MasqueMod = API.Masque
+        if MasqueMod and MasqueMod.ForceReskin then
+            MasqueMod.ForceReskin()
         end
     end
 
@@ -788,21 +827,13 @@ end
     local busUnreg = _G.MSUF_EventBus_Unregister
     if type(busReg) == "function" and type(busUnreg) == "function" then
         if needTarget then
-            busReg("PLAYER_TARGET_CHANGED", "MSUF_A2_EVENTS", function()
-                if not _refsBound then BindCachedRefs() end
-                if _cachedInvalidUnit then _cachedInvalidUnit("target") end
-                if ShouldProcessUnitEvent("target") then MarkDirty("target", 0) end
-            end)
+            busReg("PLAYER_TARGET_CHANGED", "MSUF_A2_EVENTS", HandlePlayerTargetChanged)
         else
             busUnreg("PLAYER_TARGET_CHANGED", "MSUF_A2_EVENTS")
         end
 
         if needFocus then
-            busReg("PLAYER_FOCUS_CHANGED", "MSUF_A2_EVENTS", function()
-                if not _refsBound then BindCachedRefs() end
-                if _cachedInvalidUnit then _cachedInvalidUnit("focus") end
-                if ShouldProcessUnitEvent("focus") then MarkDirty("focus", 0) end
-            end)
+            busReg("PLAYER_FOCUS_CHANGED", "MSUF_A2_EVENTS", HandlePlayerFocusChanged)
         else
             busUnreg("PLAYER_FOCUS_CHANGED", "MSUF_A2_EVENTS")
         end
@@ -814,8 +845,10 @@ end
         local handler = ef._msufA2_unitAuraOnEvent
         if not handler then
             handler = function(self, event, unit, updateInfo)
-                if event ~= "UNIT_AURA" then return end
+                if not unit then return end
 
+                -- PERF: RegisterUnitEvent already filters to our units.
+                -- Only validate against stored tokens as safety net for multi-unit frames.
                 local units = self._msufA2_unitAuraUnits
                 if units then
                     if unit ~= units[1] and unit ~= units[2] then
@@ -835,17 +868,22 @@ end
                     end
                 end
 
-
-                if unit and ShouldProcessUnitEvent(unit, true) then
-                    -- Feed delta into Store (cached ref, no guard chains)
-                    if not _refsBound then BindCachedRefs() end
-                    local onAura = _cachedOnUnitAura
-                    if onAura then
-                        onAura(unit, updateInfo)
-                    end
-
-                    MarkDirty(unit)
+                -- Always feed delta into Store so cache stays current.
+                -- ShouldProcessUnitEvent is NOT gated here — RegisterUnitEvent
+                -- already ensures we only receive events for enabled units.
+                if not _refsBound then BindCachedRefs() end
+                local onAura = _cachedOnUnitAura
+                if onAura then
+                    onAura(unit, updateInfo)
                 end
+
+                -- Target swap already scheduled a consolidated next-frame render.
+                -- Keep Store current but skip duplicate same-frame dirty marks.
+                if unit == "target" and Events._targetSwapQueued then
+                    return
+                end
+
+                MarkDirty(unit)
             end
             ef._msufA2_unitAuraOnEvent = handler
         end
@@ -895,10 +933,7 @@ function Events.Init()
                 for i = 1, _BOSS_MAX do inv(_BOSS_UNITS[i]) end
             end
             for i = 1, _BOSS_MAX do
-                local u = _BOSS_UNITS[i]
-                if ShouldProcessUnitEvent(u) then
-                    MarkDirty(u, 0)
-                end
+                MarkDirty(_BOSS_UNITS[i], 0)
             end
             StartBossAttachRetry()
             return
@@ -923,14 +958,13 @@ function Events.Init()
                 for i = 1, _BOSS_MAX do inv(_BOSS_UNITS[i]) end
             end
 
-            if ShouldProcessUnitEvent("player") then MarkDirty("player", 0) end
-            if ShouldProcessUnitEvent("target") then MarkDirty("target", 0) end
-            if ShouldProcessUnitEvent("focus") then MarkDirty("focus") end
+            -- After entering world, always mark all units dirty for full refresh.
+            -- RenderUnit handles disabled/non-existent units gracefully.
+            MarkDirty("player", 0)
+            MarkDirty("target", 0)
+            MarkDirty("focus", 0)
             for i = 1, _BOSS_MAX do
-                local u = _BOSS_UNITS[i]
-                if ShouldProcessUnitEvent(u) then
-                    MarkDirty(u)
-                end
+                MarkDirty(_BOSS_UNITS[i])
             end
 
             if Events.UpdateEditModePoll then
