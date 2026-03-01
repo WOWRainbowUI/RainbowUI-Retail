@@ -1,8 +1,6 @@
-## Changed in v2026.12
+## Changed in v2026.13
 
-* Undermine: add the vignette rewards for S.C.R.A.P. Heaps
-* Dragonflight: remove duplicated requirement notice for Verdant Skitterfly
-* Delay the first vignette scan when logging in slightly so we'll have location data
-* Overlay: Improve adding of data to Blizzard's map pins
-* RangeExtender will no longer clutter up your addon list if you're not in a game-type that supports it
+* Midnight: add quests to currency drops for notability tracking
+* BfA: add Ulmath's loot
+* Change how I'm showing item tooltips so they'll never use a MoneyFrame, hopefully avoiding some ongoing secret errors
 
