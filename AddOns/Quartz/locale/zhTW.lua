@@ -345,5 +345,17 @@ L["Width"] = "寬度"
 L["X"] = "X"
 L["Y"] = "Y"
 
+-- GCD dual mode strings
+L["Display Mode"] = "顯示模式"
+L["Choose between a horizontal bar or a square icon"] = "選擇水平量條或方形圖示"
+L["Bar"] = "量條"
+L["Bar Settings"] = "量條設定"
+L["Set the fill color of the GCD bar"] = "設定 GCD 條的填充顏色"
+L["Bar Texture"] = "量條材質"
+L["Set the texture of the GCD bar"] = "設定 GCD 條的材質"
+L["Icon Settings"] = "圖示設定"
+L["Swipe Color"] = "滑動顏色"
+L["Free Position"] = "自由位置"
+
 -- 自行加入
 L["Profiles"] = "設定檔"

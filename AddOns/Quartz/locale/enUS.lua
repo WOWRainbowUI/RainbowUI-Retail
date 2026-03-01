@@ -361,6 +361,18 @@ L["Set the border size."] = true
 L["Set the border color."] = true
 L["Set the border texture."] = true
 
+-- GCD dual mode strings
+L["Display Mode"] = true
+L["Choose between a horizontal bar or a square icon"] = true
+L["Bar"] = true
+L["Bar Settings"] = true
+L["Set the fill color of the GCD bar"] = true
+L["Bar Texture"] = true
+L["Set the texture of the GCD bar"] = true
+L["Icon Settings"] = true
+L["Swipe Color"] = true
+L["Free Position"] = true
+
 -- EnemyCasts module
 L["Uninterruptible Color"] = true
 L["Set the color of the bars for uninterruptible casts"] = true

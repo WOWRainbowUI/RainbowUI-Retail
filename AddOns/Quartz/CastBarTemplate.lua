@@ -68,16 +68,25 @@ local function CancelTimerAnimation(self)
 end
 
 -- Apply backdrop settings
-local function ApplyBackdropSettings(self, db)
-	self.backdrop.edgeFile = media:Fetch("border", db.border)
+local function ApplyBackdropSettings(self, db, notInterruptible)
+	if notInterruptible and db.noInterruptChangeBorder then
+		self.backdrop.edgeFile = media:Fetch("border", db.noInterruptBorder)
+	else
+		self.backdrop.edgeFile = media:Fetch("border", db.border)
+	end
 	self.backdropInfo = self.backdrop
 	self:ApplyBackdrop()
-	
-	local r, g, b = unpack(Quartz3.db.profile.bordercolor)
-	self:SetBackdropBorderColor(r, g, b, Quartz3.db.profile.borderalpha)
-	
-	r, g, b = unpack(Quartz3.db.profile.backgroundcolor)
-	self:SetBackdropColor(r, g, b, Quartz3.db.profile.backgroundalpha)
+
+	if notInterruptible and db.noInterruptChangeBorder then
+		local r, g, b = unpack(db.noInterruptBorderColor)
+		self:SetBackdropBorderColor(r, g, b, db.noInterruptBorderAlpha)
+	else
+		local r, g, b = unpack(Quartz3.db.profile.bordercolor)
+		self:SetBackdropBorderColor(r, g, b, Quartz3.db.profile.borderalpha)
+	end
+
+	local br, bg, bb = unpack(Quartz3.db.profile.backgroundcolor)
+	self:SetBackdropColor(br, bg, bb, Quartz3.db.profile.backgroundalpha)
 end
 
 -- Common cleanup after cast ends
@@ -85,6 +94,9 @@ local function CleanupCastEnd(self)
 	self.TimeText:SetText("")
 	if self.NoInterruptOverlay then
 		self.NoInterruptOverlay:Hide()
+	end
+	if self.NoInterruptBorderOverlay then
+		self.NoInterruptBorderOverlay:Hide()
 	end
 end
 
@@ -248,9 +260,25 @@ local function ToggleCastNotInterruptible(self, notInterruptible, init)
 				self.Shield:Hide()
 			end
 		end
-		
+
+		-- Border overlay with SetAlphaFromBoolean
+		if self.NoInterruptBorderOverlay then
+			if db.noInterruptChangeBorder then
+				self.NoInterruptBorderOverlay.backdrop.edgeFile = media:Fetch("border", db.noInterruptBorder)
+				self.NoInterruptBorderOverlay.backdropInfo = self.NoInterruptBorderOverlay.backdrop
+				self.NoInterruptBorderOverlay:ApplyBackdrop()
+				local r, g, b = unpack(db.noInterruptBorderColor)
+				self.NoInterruptBorderOverlay:SetBackdropBorderColor(r, g, b, db.noInterruptBorderAlpha)
+				self.NoInterruptBorderOverlay:SetBackdropColor(0, 0, 0, 0)
+				self.NoInterruptBorderOverlay:Show()
+				self.NoInterruptBorderOverlay:SetAlphaFromBoolean(notInterruptible, 1, 0)
+			else
+				self.NoInterruptBorderOverlay:Hide()
+			end
+		end
+
 		ApplyBackdropSettings(self, db)
-		self.lastNotInterruptible = nil
+		self.lastNotInterruptible = notInterruptible
 		return
 	end
 
@@ -258,12 +286,15 @@ local function ToggleCastNotInterruptible(self, notInterruptible, init)
 	if notInterruptible and db.noInterruptChangeColor then
 		self.Bar:SetStatusBarColor(unpack(db.noInterruptColor))
 	end
-	-- Hide overlay regardless
+	-- Hide overlays (not needed for non-secret path)
 	if self.NoInterruptOverlay then
 		self.NoInterruptOverlay:Hide()
 	end
+	if self.NoInterruptBorderOverlay then
+		self.NoInterruptBorderOverlay:Hide()
+	end
 
-	ApplyBackdropSettings(self, db)
+	ApplyBackdropSettings(self, db, notInterruptible)
 
 	if self.Shield then
 		if notInterruptible and db.noInterruptShield and not db.hideicon then
@@ -378,6 +409,9 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 	end
 	self.delay = 0
 	self.fadeOut = nil
+	if guid then
+		self.castGUID = guid
+	end
 	self.numStages = numStages
 
 	self.Bar:SetStatusBarColor(unpack(self.casting and Quartz3.db.profile.castingcolor or Quartz3.db.profile.channelingcolor))
@@ -438,13 +472,21 @@ end
 CastBarTemplate.UNIT_SPELLCAST_CHANNEL_STOP = CastBarTemplate.UNIT_SPELLCAST_STOP
 CastBarTemplate.UNIT_SPELLCAST_EMPOWER_STOP = CastBarTemplate.UNIT_SPELLCAST_STOP
 
-function CastBarTemplate:UNIT_SPELLCAST_FAILED(event, unit)
-	if self.channeling or self.casting or (unit ~= self.unit and not (self.unit == "player" and unit == "vehicle")) then
+function CastBarTemplate:UNIT_SPELLCAST_FAILED(event, unit, castGUID, spellID)
+	if unit ~= self.unit and not (self.unit == "player" and unit == "vehicle") then
 		return
 	end
-	
+	-- Match this FAILED to our active cast via castGUID
+	if self.castGUID and castGUID and canaccessvalue(castGUID) then
+		if castGUID ~= self.castGUID then return end
+	elseif not (self.channeling or self.casting) then
+		return
+	end
+
 	CancelTimerAnimation(self)
-	
+
+	self.casting, self.channeling, self.chargeSpell = nil, nil, nil
+	self.castGUID = nil
 	self.fadeOut = true
 	if not self.stopTime then
 		self.stopTime = GetTime()
@@ -1155,11 +1197,44 @@ do
 					dialogInline = true,
 					order = 455,
 					args = {
+						noInterruptChangeBorder = {
+							type = "toggle",
+							name = L["Change Border Style"],
+							desc = L["Adjust the Border Style for non-interruptible Cast Bars"],
+							order = 1,
+						},
+						noInterruptBorder = {
+							type = "select",
+							name = L["Border"],
+							desc = L["Set the border style for no interrupt casting bars"],
+							dialogControl = "LSM30_Border",
+							values = lsmlist.border,
+							order = 2,
+							disabled = noInterruptChangeBorder,
+						},
+						noInterruptBorderColor = {
+							type = "color",
+							name = L["Border Color"],
+							desc = L["Set the color of the no interrupt casting bar border"],
+							get = getColor,
+							set = setColor,
+							order = 3,
+							disabled = noInterruptChangeBorder,
+						},
+						noInterruptBorderAlpha = {
+							type = "range",
+							name = L["Border Alpha"],
+							desc = L["Set the alpha of the no interrupt casting bar border"],
+							isPercent = true,
+							min = 0, max = 1, bigStep = 0.025,
+							order = 4,
+							disabled = noInterruptChangeBorder,
+						},
 						noInterruptChangeColor = {
 							type = "toggle",
 							name = L["Change Color"],
 							desc = L["Change the color of non-interruptible Cast Bars"],
-							order = 1,
+							order = 10,
 						},
 						noInterruptColor = {
 							type = "color",
@@ -1237,6 +1312,10 @@ Quartz3.CastBarTemplate.defaults = {
 	timetextx = 3,
 	timetexty = 0,
 
+	noInterruptChangeBorder = false,
+	noInterruptBorder = "Tooltip enlarged",
+	noInterruptBorderColor = {0.71, 0.73, 0.71},
+	noInterruptBorderAlpha = 1,
 	noInterruptColorChange = false,
 	noInterruptColor = {1.0, 0.49, 0},
 	noInterruptShield = true,
@@ -1298,6 +1377,16 @@ function Quartz3.CastBarTemplate:new(parent, unit, name, localizedName, config)
 		bar.NoInterruptOverlay:SetMinMaxValues(0, 1)
 		bar.NoInterruptOverlay:SetValue(1)
 		bar.NoInterruptOverlay:Hide()
+
+		-- NoInterruptBorderOverlay: border-only frame, uses SetAlphaFromBoolean with notInterruptible
+		bar.NoInterruptBorderOverlay = CreateFrame("Frame", nil, bar, "BackdropTemplate")
+		bar.NoInterruptBorderOverlay:SetAllPoints(bar)
+		bar.NoInterruptBorderOverlay:SetFrameLevel(bar:GetFrameLevel() + 1)
+		bar.NoInterruptBorderOverlay.backdrop = {
+			edgeSize = 16,
+			insets = {left = 4, right = 4, top = 4, bottom = 4},
+		}
+		bar.NoInterruptBorderOverlay:Hide()
 	end
 
 	bar.lastNotInterruptible = false
