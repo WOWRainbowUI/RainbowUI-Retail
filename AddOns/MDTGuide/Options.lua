@@ -8,7 +8,7 @@ local Self = {}
 Addon.Options = Self
 
 function Self:RegisterCategories()
-    self.category, self.layout = Settings.RegisterVerticalLayoutCategory(Name)
+    self.category, self.layout = Settings.RegisterVerticalLayoutCategory("M+ 導覽視窗")
     Settings.RegisterAddOnCategory(self.category)
 end
 
@@ -161,8 +161,8 @@ function Self:CreateCheckboxSlider(name, label, defaultEnabled, defaultValue, mi
     )
 
     self.layout:AddInitializer(CreateSettingsCheckboxSliderInitializer(
-        checkboxSetting, "Enable " .. label, tooltip,
-        sliderSetting, sliderOptions, "Set " .. label, tooltip
+        checkboxSetting, "啟用" .. label, tooltip,
+        sliderSetting, sliderOptions, "設定" .. label, tooltip
     ))
 end
 
