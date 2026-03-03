@@ -1,11 +1,14 @@
 local addonName, ACP = ...;
-ACP.version = 1.0
+ActionCamPlus_API = {}
+ACP.version = 1.1
 
 local castingMount = false
 local activeMountID = 0
 local _destination = nil
 local _delta = 0
 local isDruid
+
+local castingAttack = false
 
 BINDING_HEADER_ACTIONCAMPLUS = "ActionCamPlus"
 local CAMERA_ZOOM_PRECISION = .1
@@ -18,7 +21,44 @@ ACP.transitionFunctions = {
 	{name = "Ease In", func = "ease", coefficients = {.6, 0, 1, 1}},
 	{name = "Ease In and Out", func = "ease", coefficients = {.5, 0, .5, 1}}
 }
-TRANS_FUNCTIONS = ACP.transitionFunctions
+
+ACP.states = {
+	onFoot = "onFoot",
+	mounted = "mounted",
+	combat = "combat",
+	off = "off"
+}
+
+ACP.Settings = {
+	onFoot = {
+		actionCam = "ACP_ActionCam",
+		combatFocus = "ACP_Focusing",
+		interactFocus = "ACP_FocusingInteract",
+		pitch = "ACP_Pitch",
+		zoom = "ACP_SetCameraZoom"
+	},
+	mounted = {
+		actionCam = "ACP_MountedActionCam",
+		combatFocus = "ACP_MountedFocusing",
+		interactFocus = "ACP_MountedFocusingInteract",
+		pitch = "ACP_MountedPitch",
+		zoom = "ACP_MountedSetCameraZoom"
+	},
+	combat = {
+		actionCam = "ACP_CombatActionCam",
+		combatFocus = "ACP_CombatFocusing",
+		interactFocus = "ACP_CombatFocusingInteract",
+		pitch = "ACP_CombatPitch",
+		zoom = "ACP_CombatSetCameraZoom"
+	},
+	off = {
+		actionCam = "ACP_AddonEnabled",
+		combatFocus = "ACP_AddonEnabled",
+		interactFocus = "ACP_AddonEnabled",
+		pitch = "ACP_AddonEnabled",
+		zoom = "ACP_AddonEnabled"
+	}
+}
 
 local ActionCamPlus_EventFrame = CreateFrame("Frame", 'ActionCamPlus_EventFrame')
 -- Init Events
@@ -31,9 +71,6 @@ ActionCamPlus_EventFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 ActionCamPlus_EventFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")
 ActionCamPlus_EventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 ActionCamPlus_EventFrame:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
-if select(2, UnitClass("player")) == "DRUID" then
-	ActionCamPlus_EventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM") -- for Druid forms
-end
 
 -- Focusing Events
 ActionCamPlus_EventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -100,17 +137,17 @@ function ZoomFrame.linear(self, elapsed)
 end
 
 function ZoomFrame.cbSpecialCase(self, elapsed)
-	self:smoothZoomUpdate(elapsed, cbSpecialCase)
+	self:smoothZoomUpdate(elapsed, ACP.cbSpecialCase)
 end
 
 function ZoomFrame.cbSpecialCaseR(self, elapsed)
 	self:smoothZoomUpdate(elapsed, function(t)
-		return 1 - cbSpecialCase(1-t)
+		return 1 - ACP.cbSpecialCase(1-t)
 	end)
 end
 
 function ZoomFrame.ease(self, elapsed)
-	self:smoothZoomUpdate(elapsed, cubicBezier)
+	self:smoothZoomUpdate(elapsed, ACP.cubicBezier)
 end
 
 local updateTime = 0
@@ -231,11 +268,11 @@ function OffsetAnimationFrame.linear(t)
 end
 
 function OffsetAnimationFrame.ease(t, duration)
-	return cubicBezier(t, duration)
+	return ACP.cubicBezier(t, duration)
 end
 
 function OffsetAnimationFrame.cbSpecialCase(t)
-	return cbSpecialCase(t)
+	return ACP.cbSpecialCase(t)
 end
 
 -- animate smooth camera movements
@@ -308,7 +345,11 @@ function ActionCamPlus_EventFrame:ADDON_LOADED(self, addon)
 	ACP.ActionCamPlusConfig_Setup()
 
 	UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED")
-	_,isDruid = UnitClass("player")
+	local _,class = UnitClass("player")
+	isDruid = class == "DRUID"
+	if class == "SHAMAN" or isDruid then
+		ActionCamPlus_EventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM") -- for shapeshift forms
+	end
 
 	for _,func in pairs({"CameraZoomIn", "CameraZoomOut"}) do
 		hooksecurefunc(func, function(_, wasACP)
@@ -356,9 +397,11 @@ end)
 
 -- Mount Event Functions
 function ActionCamPlus_EventFrame:UNIT_SPELLCAST_START(self, unit, counter, spellID)
-	if unit == "player" and ACP.SpellIsMount(spellID) then
-		MoveViewInStop()
-
+	if unit ~= "player" then return end
+	if C_Spell.IsSpellHarmful(spellID) then
+		castingAttack = true
+		ACP.CheckAllSettings()
+	elseif ACP.SpellIsMount(spellID) then
 		activeMountID = spellID
 		castingMount = true
 		ACP.CheckAllSettings()
@@ -374,27 +417,31 @@ function ActionCamPlus_EventFrame:UNIT_SPELLCAST_FAILED(self, unit)
 end
 
 function ACP.MountCastNotSuccessfull(unit)
-	if unit == "player" and castingMount and not IsMounted() then
+	if unit ~= "player" then return end
+	if (castingMount and not IsMounted()) or castingAttack then
 		castingMount = false
+		castingAttack = false
 		ACP.CheckAllSettings()
 	end
 end
 
 function ActionCamPlus_EventFrame:UNIT_SPELLCAST_SUCCEEDED(self, unit)
-	if unit == "player" and castingMount then castingMount = false end
+	if unit ~= "player" then return end
+	castingMount = false
+	castingAttack = false
 end
 
 function ActionCamPlus_EventFrame:PLAYER_MOUNT_DISPLAY_CHANGED()
 	if not castingMount then ACP.CheckAllSettings() end
 end
 
-function ActionCamPlus_EventFrame:UPDATE_SHAPESHIFT_FORM() -- druid form check
+function ActionCamPlus_EventFrame:UPDATE_SHAPESHIFT_FORM() -- shapeshift form check
 	C_Timer.After(.1, function() if not castingMount then ACP.CheckAllSettings() end end)
 end
 
 function ACP.CheckDruidForm()
 	local currentForm = GetShapeshiftFormID()
-	local mountForms = {4, 29, 27, 3}
+	local mountForms = {4, 29, 27, 3, 48}
 	if ActionCamPlusDB.ACP_DruidFormMounts and currentForm and tContains(mountForms, currentForm) then
 		activeMountID = currentForm
 		return true
@@ -404,6 +451,7 @@ function ACP.CheckDruidForm()
 end
 
 -- Combat Event Functions
+-------------------------------
 function ActionCamPlus_EventFrame:PLAYER_REGEN_DISABLED() ACP.CheckAllSettings() end
 
 function ACP.waitForActive()
@@ -517,7 +565,7 @@ function ACP.CheckAllSettings() -- This function basically decides everything
 		else
 			ACP.SetCameraZoom(ActionCamPlusDB.mountedCamDistance, mounted)
 		end
-	elseif combat and ActionCamPlusDB.ACP_Combat then
+	elseif ActionCamPlusDB.ACP_Combat and (combat or castingAttack) then
 		ACP.print("Combat")
 		ACP.SetCameraOffset(ActionCamPlusDB.ACP_CombatActionCam)
 		ACP.SetFocus(ActionCamPlusDB.ACP_CombatFocusing)
@@ -538,6 +586,14 @@ function ACP.CheckAllSettings() -- This function basically decides everything
 	end
 end
 
+function ACP.GetState()
+	if not ActionCamPlusDB.ACP_AddonEnabled then return ACP.states.off end
+	local mounted = IsMounted() or castingMount or ACP.CheckDruidForm()
+	local combat = UnitAffectingCombat("player")
+
+	return mounted and ACP.states.mounted or combat and ACP.states.combat or ACP.states.onFoot
+end
+
 function ACP.SetCameraOffset(enable)
 	if enable then
 		offsetDestination = (ActionCamPlusDB.leftShoulder and -1 or 1) * ActionCamPlusDB.horizontalOffset
@@ -545,6 +601,11 @@ function ACP.SetCameraOffset(enable)
 		offsetDestination = 0
 	end
 	OffsetAnimationFrame:Show()
+end
+
+function ActionCamPlus_API.SwapSide()
+	ActionCamPlusDB.leftShoulder = not ActionCamPlusDB.leftShoulder
+	ACP.SetCameraOffset(ActionCamPlusDB[ACP.Settings[ACP.GetState()].actionCam])
 end
 
 function ACP.SetFocus(enable)
@@ -578,31 +639,19 @@ function ACP.SetCameraZoom(destination, isMount)
 
 	if destination == _destination then return end
 	local currentZoom = GetCameraZoom()
-	local delta = destination >= currentZoom and -1 or 1
-	if abs(destination - currentZoom) > CAMERA_ZOOM_PRECISION then
-		if _destination and _delta ~= delta then
-			MoveViewInStop()
-			MoveViewOutStop()
-		end
+	if not _destination and abs(destination - currentZoom) < CAMERA_ZOOM_PRECISION then return end
 
-		_destination = destination
-
-		-- we have to delay for one in-game frame so that our wow's cam doesn't get confused
-		local zoomSpeed = ActionCamPlusDB.transitionSpeed / GetCVar("cameraZoomSpeed")
-		if destination >= currentZoom then
-			-- C_Timer.After(0, function() CameraZoomOut(destination - GetCameraZoom() + .5) end)
-			_delta = 1
-			-- C_Timer.After(0, function() MoveViewOutStart(zoomSpeed, 0, true, true) end)
-			-- ACP.doubleDelay(function() CameraZoomOut(destination - currentZoom + .5) end)
-		else
-			-- C_Timer.After(0, function() CameraZoomIn(GetCameraZoom() - destination + .5) end)
-			_delta = -1
-			-- C_Timer.After(0, function() MoveViewInStart(zoomSpeed, 0, true, true) end)
-			-- ACP.doubleDelay(function() CameraZoomIn(currentZoom - destination + .5) end)
-		end
-		ZoomFrame.start = nil
-		ZoomFrame:Show()
+	local delta = destination <= currentZoom and -1 or 1
+	if _destination and _delta ~= delta then
+		MoveViewInStop()
+		MoveViewOutStop()
 	end
+
+	_destination = destination
+	_delta = delta
+
+	ZoomFrame.start = nil
+	ZoomFrame:Show()
 end
 
 -- delay two frames
@@ -666,7 +715,7 @@ function ACP.IsClassic()
 	return _G.WOW_PROJECT_ID == 11
 end
 
-function cbSpecialCase(t)
+function ACP.cbSpecialCase(t)
 	if t > 1 then return 1 end
 	if t < 0 then return 0 end
 	return ACP.x1*(1-t)^3 + 3*ACP.y1*t*(1-t)^2 + 3*ACP.x2*(1-t)*t^2 + ACP.y2*t^3
@@ -678,7 +727,7 @@ end
 
 ACP.x1, ACP.y1, ACP.x2, ACP.y2 = nil, nil, nil, nil
 ACP.C1, ACP.C2, ACP.C3 = nil, nil, nil
-function cubicBezier(t, duration)
+function ACP.cubicBezier(t, duration)
 	if t <= 0 then return 0 elseif t >= 1 then return 1 end
 
 	local guess = t
@@ -696,24 +745,24 @@ function cubicBezier(t, duration)
 
 	local i = 0
 	repeat
-		error = cbSystemEquation(guess, ACP.x1, ACP.x2) - t
-		local slope = cbSystemDerivative(guess, ACP.x1, ACP.x2, ACP.C1, ACP.C2, ACP.C3)
+		error = ACP.cbSystemEquation(guess, ACP.x1, ACP.x2) - t
+		local slope = ACP.cbSystemDerivative(guess, ACP.x1, ACP.x2, ACP.C1, ACP.C2, ACP.C3)
 		if abs(slope) < .02 then
-			guess = bisect(t, duration)
-			return cbSystemEquation(guess, ACP.y1, ACP.y2)
+			guess = ACP.bisect(t, duration)
+			return ACP.cbSystemEquation(guess, ACP.y1, ACP.y2)
 		end
 
 		guess = guess - error / slope
 		i = i + 1
 	until abs(error) < 1 / (200 * (duration or 10)) or i == 8
-	return cbSystemEquation(guess, ACP.y1, ACP.y2)
+	return ACP.cbSystemEquation(guess, ACP.y1, ACP.y2)
 end
 
-function cbSystemEquation(t, n, m)
+function ACP.cbSystemEquation(t, n, m)
 	return 3*t*(1 - t)^2*n + 3*t^2*(1-t)*m + t^3
 end
 
-function cbSystemDerivative(t, x1, x2, C1, C2, C3)
+function ACP.cbSystemDerivative(t, x1, x2, C1, C2, C3)
 	if C1 then
 		return C1*t^2 + C2*t + C3
 	else
@@ -721,15 +770,15 @@ function cbSystemDerivative(t, x1, x2, C1, C2, C3)
 	end
 end
 
-function bisect(t, duration)
+function ACP.bisect(t, duration)
 	local test = .5
 	local testRange = .25
 	repeat
-		error = cbSystemEquation(test, ACP.x1, ACP.x2) - t
+		error = ACP.cbSystemEquation(test, ACP.x1, ACP.x2) - t
 		test = test + (error > 0 and -1 or 1) * testRange
 		testRange = testRange / 2
 	until abs(error) < 1 / (200 * (duration or 10))
-	return cbSystemEquation(test, ACP.y1, ACP.y2)
+	return ACP.cbSystemEquation(test, ACP.y1, ACP.y2)
 end
 
 -- https://math.stackexchange.com/questions/4542705/derivatives-of-a-linear-and-cubic-b%C3%A9zier-curve
@@ -757,7 +806,7 @@ function ACP.print(...)
 	end
 
 	if not addonChatFrame then return
-	else 
+	else
 		local output = ""
 		for _,text in pairs({...}) do
 			output = output.." "..text

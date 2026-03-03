@@ -2,4 +2,7 @@
 	<Binding name="Toggle ActionCamPlus" header="ACTIONCAMPLUS" category="ActionCamPlus">
 		SlashCmdList.ACTIONCAMPLUS('')
 	</Binding>
+	<Binding name="Swap Side" category="ActionCamPlus">
+		ActionCamPlus_API.SwapSide()
+	</Binding>
 </Bindings>

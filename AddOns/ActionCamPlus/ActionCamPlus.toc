@@ -4,7 +4,7 @@
 ## Author: Anorian
 ## SavedVariables: ActionCamPlusDB
 ## Version: 0.22
-## OptionalDeps: ACP, Blizzard_PlayerSpells
+## OptionalDeps: ACP
 ## AddonCompartmentFunc: ActionCamPlus_ToggleConfigFrame
 
 ActionCamPlus.lua
