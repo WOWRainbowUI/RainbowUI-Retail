@@ -9,7 +9,7 @@ SQP (Simple Quest Plates) is a professional World of Warcraft addon that display
 ## Project Structure
 
 ### Core Files
-- **SimpleQuestPlates.toc**: TOC file for retail WoW (The War Within)
+- **SimpleQuestPlates.toc**: TOC file for retail WoW (Warcraft Midnight)
 - **SimpleQuestPlates.xml**: Main XML loader for all addon files
 - **data/core.lua**: Main addon initialization and settings management
 - **data/events.lua**: Event handling and registration
@@ -75,7 +75,7 @@ This addon follows RGX Mods community standards with Discord integration and pro
 
 ## Key Features
 
-- **Retail-Only Support**: Designed specifically for The War Within
+- **Retail-Only Support**: Designed specifically for Warcraft Midnight
 - **Item Priority Display**: Shows item counts before kill counts when both are required
 - **Hide Options**: Can hide icons in combat or instances
 - **Live Preview**: Real-time preview of appearance changes
@@ -124,7 +124,7 @@ When updating the addon version:
    - `data/core.lua` - Update both the comment header and `SQP.VERSION` variable
 
 2. **Update changelogs:**
-   - `CHANGELOG.md` - Add new version entry with all changes since previous version
-   - `docs/CHANGES.md` - **IMPORTANT**: This file should ONLY contain the current version changes (gets displayed on push). Remove all previous version entries when updating.
+   - `docs/CHANGELOG.md` - **IMPORTANT**: Keep ONLY the current version changes. Replace prior version entries when updating.
+   - `docs/CHANGES.md` - **IMPORTANT**: Keep ONLY the current version changes. Replace prior version entries when updating.
 
 3. **Version format:** Use semantic versioning (e.g., 1.0.1, 1.1.0, 2.0.0)

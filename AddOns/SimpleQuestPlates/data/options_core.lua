@@ -42,7 +42,7 @@ function SQP:CreateOptionsPanel()
     
     -- Create preview section at the top
     local previewContainer = CreateFrame("Frame", nil, container, "BackdropTemplate")
-    previewContainer:SetHeight(148)
+    previewContainer:SetHeight(108)
     previewContainer:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -6)
     previewContainer:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", 0, -6)
     previewContainer:SetBackdrop(self.BACKDROP_DARK)
@@ -57,8 +57,7 @@ function SQP:CreateOptionsPanel()
     local tabs, tabPanels = self:InitializeTabs(container, previewContainer)
     
     -- Populate tab content
-    self:CreateGeneralOptions(tabPanels.general.content)
-    self:CreateIconOptions(tabPanels.icon.content)
+    self:CreateGlobalOptions(tabPanels.global.content)
     self:CreateKillOptions(tabPanels.kill.content)
     self:CreateLootOptions(tabPanels.loot.content)
     self:CreatePercentOptions(tabPanels.percent.content)

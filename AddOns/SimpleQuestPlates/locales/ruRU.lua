@@ -68,4 +68,4 @@ L["QUEST_TEST_NONE"] = "Активные цели заданий не найде
 
 -- Messages
 L["MSG_LOADED"] = "v%s успешно загружен. Введите |cfffff569/sqp help|r для команд."
-L["MSG_DISCORD"] = "Присоединяйтесь к нашему Discord: |cff58be81discord.gg/N7kdKAHVVF|r"
+L["MSG_DISCORD"] = "Присоединяйтесь к нашему Discord: |cff58be81discord.gg/rgxmods|r"

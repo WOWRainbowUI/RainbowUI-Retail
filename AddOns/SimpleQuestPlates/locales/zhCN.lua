@@ -76,4 +76,4 @@ L["TEST_NO_QUESTS"] = "可见姓名板上未找到任务目标"
 
 -- Messages
 L["MSG_LOADED"] = "v%s 读取成功. 输入 |cfffff569/sqp help|r 获取命令帮助."
-L["MSG_DISCORD"] = "加入我们的Discord: |cff58be81discord.gg/N7kdKAHVVF|r"
+L["MSG_DISCORD"] = "加入我们的Discord: |cff58be81discord.gg/rgxmods|r"

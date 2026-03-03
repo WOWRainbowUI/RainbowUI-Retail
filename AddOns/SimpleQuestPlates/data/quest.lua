@@ -367,13 +367,20 @@ function SQP:UpdateQuestIcon(plate, unitID)
     local showIcon = false
     local displayText = "?"
     local displayColor = {1, 1, 1} -- Default white
+    local function IsIconStyleEnabled(typeKey)
+        local value = SQPSettings[typeKey .. "ShowIconBackground"]
+        if value == nil then
+            value = SQPSettings.showIconBackground
+        end
+        return value ~= false
+    end
 
     if progressGlob and questType ~= 2 then
         -- Priority: Item > Kill > Percent
         if itemsNeeded > 0 then
             showIcon = true
             displayText = itemsNeeded
-            if SQPSettings.showIconBackground == false then
+            if not IsIconStyleEnabled("loot") then
                 local px, py = strmatch(progressGlob or "", '(%d+)%s*/%s*(%d+)')
                 if px and py then displayText = px .. "/" .. py end
             end
@@ -383,7 +390,8 @@ function SQP:UpdateQuestIcon(plate, unitID)
         elseif objectiveCount > 0 then
             showIcon = true
             displayText = objectiveCount
-            if SQPSettings.showIconBackground == false then
+            local styleTypeKey = (questType == 3) and "percent" or "kill"
+            if not IsIconStyleEnabled(styleTypeKey) then
                 local px, py = strmatch(progressGlob or "", '(%d+)%s*/%s*(%d+)')
                 if px and py then displayText = px .. "/" .. py end
             end
@@ -404,31 +412,52 @@ function SQP:UpdateQuestIcon(plate, unitID)
     end
 
     if questRelatedOnly and not showIcon then
-        showIcon = true
-        displayText = "?"
-        displayColor = SQPSettings.killColor or {1, 0.82, 0}
-        Q.hasItem = false
-        Q.questType = 1
+        -- Only show "?" if at least one incomplete quest exists (prevents stale icons after quest completion)
+        local hasIncomplete = false
+        if SQP.Compat and SQP.Compat.GetNumQuestLogEntries then
+            for i = 1, SQP.Compat.GetNumQuestLogEntries() do
+                local info = SQP.Compat.GetInfo(i)
+                if info and not info.isHeader and not info.isHidden and (not info.isComplete or info.isComplete == 0) then
+                    hasIncomplete = true
+                    break
+                end
+            end
+        end
+        if hasIncomplete then
+            showIcon = true
+            displayText = "?"
+            displayColor = SQPSettings.killColor or {1, 0.82, 0}
+            Q.hasItem = false
+            Q.questType = 1
+        end
     end
 
     Q.questRelatedOnly = questRelatedOnly
 
-    local mainTintEnabled = SQPSettings.iconTintMain and SQPSettings.iconTintMainColor
-    local mainTintR, mainTintG, mainTintB, mainTintA = 1, 1, 1, 1
-    if mainTintEnabled then
-        mainTintR, mainTintG, mainTintB, mainTintA = unpack(SQPSettings.iconTintMainColor)
+    -- Per-type tinting: determine effective quest type
+    local effectiveType = (Q.hasItem and "loot") or ((questType or 0) == 3 and "percent") or "kill"
+    local killTintEnabled = SQPSettings.killTintIcon and SQPSettings.killTintIconColor
+    local killTintR, killTintG, killTintB, killTintA = 1, 1, 1, 1
+    if killTintEnabled then
+        killTintR, killTintG, killTintB, killTintA = unpack(SQPSettings.killTintIconColor)
     end
-    local questTintEnabled = SQPSettings.iconTintQuest and SQPSettings.iconTintQuestColor
-    local questTintR, questTintG, questTintB, questTintA = 1, 1, 1, 1
-    if questTintEnabled then
-        questTintR, questTintG, questTintB, questTintA = unpack(SQPSettings.iconTintQuestColor)
+    local lootTintEnabled = SQPSettings.lootTintIcon and SQPSettings.lootTintIconColor
+    local lootTintR, lootTintG, lootTintB, lootTintA = 1, 1, 1, 1
+    if lootTintEnabled then
+        lootTintR, lootTintG, lootTintB, lootTintA = unpack(SQPSettings.lootTintIconColor)
+    end
+    local percentTintEnabled = SQPSettings.percentTintIcon and SQPSettings.percentTintIconColor
+    local percentTintR, percentTintG, percentTintB, percentTintA = 1, 1, 1, 1
+    if percentTintEnabled then
+        percentTintR, percentTintG, percentTintB, percentTintA = unpack(SQPSettings.percentTintIconColor)
     end
 
+    local percentIconMode = IsIconStyleEnabled("percent")
     local showPercentIcon = showIcon and questType == 3 and SQPSettings.showPercentIcon ~= false
     local percentText = tostring(displayText) .. "%"
     if showPercentIcon then
         if Q.icon then
-            if SQPSettings.showIconBackground ~= false then
+            if percentIconMode then
                 Q.icon:Show()
             else
                 Q.icon:Hide()
@@ -436,13 +465,13 @@ function SQP:UpdateQuestIcon(plate, unitID)
         end
         if Q.percentIcon then
             -- Icon mode: show "%" as separate indicator; Text mode: show combined "75%"
-            if SQPSettings.showIconBackground ~= false then
+            if percentIconMode then
                 Q.percentIcon:SetText("%")
             else
                 Q.percentIcon:SetText(percentText)
             end
-            if mainTintEnabled then
-                Q.percentIcon:SetTextColor(mainTintR, mainTintG, mainTintB, mainTintA or 1)
+            if percentTintEnabled then
+                Q.percentIcon:SetTextColor(percentTintR, percentTintG, percentTintB, percentTintA or 1)
             else
                 Q.percentIcon:SetTextColor(unpack(SQPSettings.percentColor or {0.2, 1, 1}))
             end
@@ -450,7 +479,7 @@ function SQP:UpdateQuestIcon(plate, unitID)
         end
         if Q.percentIconOutline then
             Q.percentIconOutline:SetText(percentText)
-            local outlineWidth = SQP:GetOutlineInfo()
+            local outlineWidth = SQP:GetOutlineInfo("percent")
             if outlineWidth and outlineWidth > 0 then
                 Q.percentIconOutline:Show()
             else
@@ -465,7 +494,7 @@ function SQP:UpdateQuestIcon(plate, unitID)
             Q.percentIconOutline:Hide()
         end
         if Q.icon then
-            if SQPSettings.showIconBackground ~= false then
+            if IsIconStyleEnabled(effectiveType) then
                 Q.icon:Show()
             else
                 Q.icon:Hide()
@@ -473,7 +502,7 @@ function SQP:UpdateQuestIcon(plate, unitID)
         end
     end
 
-    local animate = SQPSettings.animateQuestIcon
+    local animate = SQPSettings[effectiveType .. "AnimateMain"]
     if Q.iconPulse then
         if animate and showIcon and not showPercentIcon then
             if not Q.iconPulse:IsPlaying() then
@@ -509,10 +538,21 @@ function SQP:UpdateQuestIcon(plate, unitID)
     end
 
     if showIcon then
+        -- Apply per-type font before rendering text
+        local fontTypeKey
+        if Q.hasItem then
+            fontTypeKey = "loot"
+        elseif questType == 3 then
+            fontTypeKey = "percent"
+        else
+            fontTypeKey = "kill"
+        end
+        SQP:UpdateQuestFont(Q.iconText, Q.iconTextOutline, Q.percentIcon, Q.percentIconOutline, fontTypeKey)
+
         -- Update and show the icon; percent quests show number+% in percentIcon, not iconText
         if showPercentIcon then
             -- Icon mode: show the number on the jellybean; text mode: number is inside percentIcon
-            if SQPSettings.showIconBackground ~= false then
+            if percentIconMode then
                 Q.iconText:SetText(tostring(displayText))
                 if Q.iconTextOutline then Q.iconTextOutline:SetText(tostring(displayText)) end
             else
@@ -532,9 +572,7 @@ function SQP:UpdateQuestIcon(plate, unitID)
             Q.ani:Stop()
             Q:Show()
             Q.ani:Play()
-            if mainTintEnabled and Q.icon then
-                Q.icon:SetVertexColor(mainTintR, mainTintG, mainTintB, mainTintA)
-            else
+            if Q.icon then
                 Q.icon:SetVertexColor(1, 1, 1, 1)
             end
             if SQPSettings.debug then
@@ -589,15 +627,15 @@ function SQP:UpdateQuestIcon(plate, unitID)
 
     if Q then
         if Q.killIcon then
-            if questTintEnabled then
-                Q.killIcon:SetVertexColor(questTintR, questTintG, questTintB, questTintA)
+            if killTintEnabled then
+                Q.killIcon:SetVertexColor(killTintR, killTintG, killTintB, killTintA)
             else
                 Q.killIcon:SetVertexColor(1, 1, 1, 1)
             end
         end
         if Q.lootIcon then
-            if questTintEnabled then
-                Q.lootIcon:SetVertexColor(questTintR, questTintG, questTintB, questTintA)
+            if lootTintEnabled then
+                Q.lootIcon:SetVertexColor(lootTintR, lootTintG, lootTintB, lootTintA)
             else
                 Q.lootIcon:SetVertexColor(1, 1, 1, 1)
             end
