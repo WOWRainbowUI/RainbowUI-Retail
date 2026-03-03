@@ -43,8 +43,11 @@ end
 
 -- PLAYER_LOGIN: Initialize addon systems
 function SQP:PLAYER_LOGIN()
-    -- Welcome message
-    -- self:PrintMessage(string.format(self.L["MSG_LOADED"], self.VERSION))
+    -- Welcome message (two-line SQP green format)
+    -- local loadedLine = self.L["MSG_LOADED_LINE1"] or "Loaded successfully. Type |cfffff569/sqp help|r for commands."
+    -- local versionLine = self.L["MSG_LOADED_LINE2"] or "|cfffff569Version:|r |cff7598b6v%s|r"
+    -- self:PrintMessage(loadedLine)
+    -- self:PrintMessage(string.format(versionLine, self.VERSION))
     
     -- Create options panel
     self:CreateOptionsPanel()
@@ -138,6 +141,12 @@ function SQP:QUEST_REMOVED(questID)
         end
     end
     self:UNIT_QUEST_LOG_CHANGED('player')
+    self:RefreshAllNameplates()
+end
+
+function SQP:QUEST_COMPLETE()
+    -- Quest objectives all met — refresh immediately so icons hide promptly
+    self:RefreshAllNameplates()
 end
 
 function SQP:QUEST_WATCH_LIST_CHANGED(questID, added)
@@ -187,6 +196,7 @@ end
 SQP.eventFrame:RegisterEvent("UNIT_QUEST_LOG_CHANGED")
 SQP.eventFrame:RegisterEvent("QUEST_ACCEPTED")
 SQP.eventFrame:RegisterEvent("QUEST_REMOVED")
+SQP.eventFrame:RegisterEvent("QUEST_COMPLETE")
 SQP.eventFrame:RegisterEvent("QUEST_WATCH_LIST_CHANGED")
 SQP.eventFrame:RegisterEvent("PLAYER_LEAVING_WORLD")
 SQP.eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")

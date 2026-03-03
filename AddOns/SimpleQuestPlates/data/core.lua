@@ -80,7 +80,7 @@ local function GetAddOnMetadataCompat(name, field)
     return nil
 end
 
-SQP.VERSION = "1.8.4" -- Addon version (also in TOC file)
+SQP.VERSION = "1.9.5" -- Addon version (also in TOC file)
 SQP.NAME = GetAddOnMetadataCompat(addonName, "Title") or addonName or "SimpleQuestPlates"
 SQP.AUTHOR = GetAddOnMetadataCompat(addonName, "Author") or "DonnieDice"
 SQP.LOCALE = GetLocale()
@@ -103,7 +103,7 @@ end
 SQP.DEFAULTS = {
     enabled = true,
     scale = 1.1,
-    offsetX = 12,
+    offsetX = 0,
     offsetY = 3,
     anchor = "RIGHT",
     relativeTo = "LEFT",
@@ -122,14 +122,38 @@ SQP.DEFAULTS = {
     showKillIcon = true,
     showLootIcon = true,
     showPercentIcon = true,
+    -- Per-type font: kill
+    killFontSize = 12,
+    killFontFamily = "Fonts\\FRIZQT__.TTF",
+    killFontOutline = "",
+    killOutlineWidth = 0,
+    killOutlineAlpha = 0,
+    killOutlineColor = {0, 0, 0},
+    -- Per-type font: loot
+    lootFontSize = 12,
+    lootFontFamily = "Fonts\\FRIZQT__.TTF",
+    lootFontOutline = "",
+    lootOutlineWidth = 0,
+    lootOutlineAlpha = 0,
+    lootOutlineColor = {0, 0, 0},
+    -- Per-type font: percent
+    percentFontSize = 8,
+    percentFontFamily = "Fonts\\FRIZQT__.TTF",
+    percentFontOutline = "",
+    percentOutlineWidth = 0,
+    percentOutlineAlpha = 0,
+    percentOutlineColor = {0, 0, 0},
     animateQuestIcon = false,
     animateQuestIcons = true,
-    showIconBackground = true,
+    showIconBackground = true, -- Legacy shared display style toggle
+    killShowIconBackground = true,
+    lootShowIconBackground = true,
+    percentShowIconBackground = true,
     killIconOffsetX = 2,
     killIconOffsetY = 15,
     lootIconOffsetX = -38,
     lootIconOffsetY = 16,
-    percentIconOffsetX = -17,
+    percentIconOffsetX = 18,
     percentIconOffsetY = 0,
     killIconSize = 14,
     lootIconSize = 14,
@@ -138,14 +162,37 @@ SQP.DEFAULTS = {
     iconTintMainColor = {1, 1, 1},
     iconTintQuest = false,
     iconTintQuestColor = {1, 1, 1},
+    -- Per-type main icon (jellybean) animation
+    killAnimateMain = false,
+    lootAnimateMain = false,
+    percentAnimateMain = false,
+    -- Per-type main icon (jellybean) tinting
+    killTintMain = false,
+    killTintMainColor = {1, 1, 1},
+    lootTintMain = false,
+    lootTintMainColor = {1, 1, 1},
+    percentTintMain = false,
+    percentTintMainColor = {1, 1, 1},
+    -- Per-type mini icon tinting (kill/loot task icons)
+    killTintIcon = false,
+    killTintIconColor = {1, 1, 1},
+    lootTintIcon = false,
+    lootTintIconColor = {1, 1, 1},
+    percentTintIcon = false,
+    percentTintIconColor = {1, 1, 1},
     debug = false,
 }
 
--- Determine effective outline settings
-function SQP:GetOutlineInfo()
+-- Determine effective outline settings for a quest type (or global if typeKey is nil)
+function SQP:GetOutlineInfo(typeKey)
     local settings = SQPSettings or self.DEFAULTS or {}
-    local fontOutline = settings.fontOutline or "OUTLINE"
-    local outlineWidth = settings.outlineWidth
+    local fontOutline, outlineWidth
+    if typeKey then
+        fontOutline  = settings[typeKey .. "FontOutline"]
+        outlineWidth = settings[typeKey .. "OutlineWidth"]
+    end
+    if fontOutline  == nil then fontOutline  = settings.fontOutline  or "" end
+    if outlineWidth == nil then outlineWidth = settings.outlineWidth or 0  end
     local noOutline = fontOutline == "" or fontOutline == "NONE"
     if noOutline then
         outlineWidth = 0
@@ -158,9 +205,7 @@ function SQP:GetOutlineInfo()
             outlineWidth = 1
         end
     end
-    if outlineWidth < 0 then
-        outlineWidth = 0
-    end
+    if outlineWidth < 0 then outlineWidth = 0 end
     return outlineWidth, fontOutline, noOutline
 end
 
@@ -246,9 +291,92 @@ function SQP:GetSavedSettings()
     if SQPSettings == nil then
         SQPSettings = {}
     end
-    
+
+    -- Migrate global font settings to per-type (must run before ApplyDefaults)
+    local function migrateFont(tk, sizeDefault)
+        if SQPSettings[tk.."FontSize"]    == nil then SQPSettings[tk.."FontSize"]    = SQPSettings.fontSize    or sizeDefault end
+        if SQPSettings[tk.."FontFamily"]  == nil then SQPSettings[tk.."FontFamily"]  = SQPSettings.fontFamily  or "Fonts\\FRIZQT__.TTF" end
+        if SQPSettings[tk.."FontOutline"] == nil then SQPSettings[tk.."FontOutline"] = SQPSettings.fontOutline or "" end
+        if SQPSettings[tk.."OutlineWidth"]== nil then SQPSettings[tk.."OutlineWidth"]= SQPSettings.outlineWidth or 0 end
+        if SQPSettings[tk.."OutlineAlpha"]== nil then SQPSettings[tk.."OutlineAlpha"]= SQPSettings.outlineAlpha or 0 end
+        if SQPSettings[tk.."OutlineColor"]== nil then
+            local oc = SQPSettings.outlineColor
+            SQPSettings[tk.."OutlineColor"] = oc and {oc[1], oc[2], oc[3]} or {0, 0, 0}
+        end
+    end
+    migrateFont("kill",    12)
+    migrateFont("loot",    12)
+    migrateFont("percent",  8)
+    -- percentIconSize → percentFontSize migration
+    if SQPSettings.percentFontSize == nil and SQPSettings.percentIconSize then
+        SQPSettings.percentFontSize = SQPSettings.percentIconSize
+    end
+
+    -- Migrate shared display style to per-type display styles
+    -- 1.9.3 behavior: default to Icon mode per tab (do not inherit old shared Text mode)
+    local legacyShowIconBackground = SQPSettings.showIconBackground
+    if SQPSettings.killShowIconBackground == nil then
+        SQPSettings.killShowIconBackground = true
+    end
+    if SQPSettings.lootShowIconBackground == nil then
+        SQPSettings.lootShowIconBackground = true
+    end
+    if SQPSettings.percentShowIconBackground == nil then
+        SQPSettings.percentShowIconBackground = true
+    end
+
+    -- One-time normalization for installs that inherited old shared style/toggles.
+    -- If everything is uniformly off, treat it as migrated legacy state and reset to defaults.
+    if not SQPSettings.migratedDefaults193 then
+        local allStyleOff =
+            SQPSettings.killShowIconBackground == false and
+            SQPSettings.lootShowIconBackground == false and
+            SQPSettings.percentShowIconBackground == false
+        local allShowOff =
+            SQPSettings.showKillIcon == false and
+            SQPSettings.showLootIcon == false and
+            SQPSettings.showPercentIcon == false
+
+        if allStyleOff or legacyShowIconBackground == false then
+            SQPSettings.killShowIconBackground = true
+            SQPSettings.lootShowIconBackground = true
+            SQPSettings.percentShowIconBackground = true
+        end
+        if allShowOff then
+            SQPSettings.showKillIcon = true
+            SQPSettings.showLootIcon = true
+            SQPSettings.showPercentIcon = true
+        end
+        SQPSettings.migratedDefaults193 = true
+    end
+
     -- Copy defaults if new or missing
     self:ApplyDefaults(SQPSettings)
+
+    -- Normalize boolean settings (older clients/checkbuttons may store 1/nil or strings)
+    for key, defaultValue in pairs(self.DEFAULTS) do
+        if type(defaultValue) == "boolean" then
+            local currentValue = SQPSettings[key]
+            if currentValue == nil then
+                SQPSettings[key] = defaultValue
+            elseif type(currentValue) ~= "boolean" then
+                if type(currentValue) == "number" then
+                    SQPSettings[key] = currentValue ~= 0
+                elseif type(currentValue) == "string" then
+                    local lowered = string.lower(currentValue)
+                    if lowered == "true" or lowered == "1" then
+                        SQPSettings[key] = true
+                    elseif lowered == "false" or lowered == "0" or lowered == "" then
+                        SQPSettings[key] = false
+                    else
+                        SQPSettings[key] = defaultValue
+                    end
+                else
+                    SQPSettings[key] = currentValue and true or false
+                end
+            end
+        end
+    end
 
     -- Migrate legacy tint settings
     if SQPSettings.iconTint ~= nil then
@@ -289,6 +417,14 @@ function SQP:SetSetting(key, value)
     if SQPSettings == nil then
         self:InitializeSettings()
     end
+
+    -- Persist booleans as explicit true/false (never nil), so unchecked checkboxes
+    -- cannot silently revert to a default true on SaveSettings().
+    local defaultValue = self.DEFAULTS and self.DEFAULTS[key]
+    if type(defaultValue) == "boolean" then
+        value = value and true or false
+    end
+
     SQPSettings[key] = value
     self:SaveSettings()
 end

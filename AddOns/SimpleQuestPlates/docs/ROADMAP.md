@@ -153,5 +153,5 @@ fix chat messages formatting to be like ccu and other addons loading messages wi
 <p align="center">
   <strong>Simple Quest Plates</strong><br>
   Part of the RGX Mods Collection<br>
-  <em>Discord: discord.gg/N7kdKAHVVF</em>
+  <em>Discord: discord.gg/rgxmods</em>
 </p>

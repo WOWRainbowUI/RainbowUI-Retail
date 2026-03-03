@@ -257,66 +257,55 @@ function SQP:OnPlateHide(nameplate, unitID)
 end
 
 -- Update font for quest text
-function SQP:UpdateQuestFont(fontString, outlineFontString, percentFontString, percentOutlineFontString)
-    -- Use selected font or default
-    local fontName = SQPSettings.fontFamily or STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF"
-    
-    local fontSize = SQPSettings.fontSize or 12
-    local outlineWidth, fontOutline, noOutline = self:GetOutlineInfo()
-    local outlineColor = SQPSettings.outlineColor or {0, 0, 0}
-    local r, g, b = unpack(outlineColor)
-    local a = SQPSettings.outlineAlpha ~= nil and SQPSettings.outlineAlpha or 1.0
-    
-    -- Set font (outline drawn by separate layer when available)
-    local mainOutline = outlineFontString and "" or (noOutline and "" or fontOutline)
-    fontString:SetFont(fontName, fontSize, mainOutline)
-    
-    -- Set standard shadow (only when no outline is selected)
-    fontString:SetShadowOffset(1, -1)
-    if outlineWidth <= 0 then
-        fontString:SetShadowColor(0, 0, 0, 1)
-    else
-        fontString:SetShadowColor(0, 0, 0, 0)
-    end
+-- typeKey: "kill", "loot", "percent", or nil (falls back to global settings)
+function SQP:UpdateQuestFont(fontString, outlineFontString, percentFontString, percentOutlineFontString, typeKey)
+    local S = SQPSettings or {}
 
-    if outlineFontString then
-        if outlineWidth <= 0 then
-            outlineFontString:Hide()
-        else
-            local outlineFlag = outlineWidth >= 3 and "THICKOUTLINE" or "OUTLINE"
-            local outlineSize = math.max(6, fontSize - 2)
-            outlineFontString:SetFont(fontName, outlineSize, outlineFlag)
-            outlineFontString:SetTextColor(r or 0, g or 0, b or 0, a or 1)
-            outlineFontString:SetShadowOffset(0, 0)
-            outlineFontString:SetShadowColor(0, 0, 0, 0)
-            outlineFontString:Show()
-        end
-    end
+    local function applyFont(main, outline, tk)
+        local fontName    = (tk and S[tk.."FontFamily"])   or S.fontFamily  or STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF"
+        local fontSize    = (tk and S[tk.."FontSize"])     or S.fontSize    or 12
+        local fontOutline = (tk and S[tk.."FontOutline"])  or S.fontOutline or ""
+        local outlineWidth= (tk and S[tk.."OutlineWidth"])
+        if outlineWidth == nil then outlineWidth = S.outlineWidth or 0 end
+        local outlineAlpha= (tk and S[tk.."OutlineAlpha"])
+        if outlineAlpha  == nil then outlineAlpha  = S.outlineAlpha  or 0 end
+        local outlineColor= (tk and S[tk.."OutlineColor"]) or S.outlineColor or {0, 0, 0}
 
-    if percentFontString then
-        local percentSize = (SQPSettings and SQPSettings.percentIconSize) or (fontSize + 4)
-        local percentMainOutline = percentOutlineFontString and "" or (noOutline and "" or fontOutline)
-        percentFontString:SetFont(fontName, percentSize, percentMainOutline)
-        percentFontString:SetShadowOffset(1, -1)
+        local noOutline = fontOutline == "" or fontOutline == "NONE"
+        if noOutline then outlineWidth = 0 end
+        if outlineWidth < 0 then outlineWidth = 0 end
+
+        local mainFlag = outline and "" or (noOutline and "" or fontOutline)
+        main:SetFont(fontName, fontSize, mainFlag)
+        main:SetShadowOffset(1, -1)
         if outlineWidth <= 0 then
-            percentFontString:SetShadowColor(0, 0, 0, 1)
+            main:SetShadowColor(0, 0, 0, 1)
         else
-            percentFontString:SetShadowColor(0, 0, 0, 0)
+            main:SetShadowColor(0, 0, 0, 0)
         end
 
-        if percentOutlineFontString then
+        if outline then
             if outlineWidth <= 0 then
-                percentOutlineFontString:Hide()
+                outline:Hide()
             else
-                local outlineFlag = outlineWidth >= 3 and "THICKOUTLINE" or "OUTLINE"
-                local percentOutlineSize = math.max(6, percentSize - 2)
-                percentOutlineFontString:SetFont(fontName, percentOutlineSize, outlineFlag)
-                percentOutlineFontString:SetTextColor(r or 0, g or 0, b or 0, a or 1)
-                percentOutlineFontString:SetShadowOffset(0, 0)
-                percentOutlineFontString:SetShadowColor(0, 0, 0, 0)
-                percentOutlineFontString:Show()
+                local flag = outlineWidth >= 3 and "THICKOUTLINE" or "OUTLINE"
+                -- Use same fontSize as main so the border aligns correctly
+                outline:SetFont(fontName, fontSize, flag)
+                local r, g, b = unpack(outlineColor)
+                outline:SetTextColor(r, g, b, outlineAlpha)
+                outline:SetShadowOffset(0, 0)
+                outline:SetShadowColor(0, 0, 0, 0)
+                outline:Show()
             end
         end
+    end
+
+    -- Main count text uses the provided typeKey
+    applyFont(fontString, outlineFontString, typeKey)
+
+    -- Percent symbol always uses "percent" settings
+    if percentFontString then
+        applyFont(percentFontString, percentOutlineFontString, "percent")
     end
 end
 
@@ -330,6 +319,14 @@ function SQP:RefreshAllNameplates()
     -- Update settings for all quest plates
     for plate, questFrame in pairs(self.QuestPlates) do
         if questFrame and questFrame.icon then
+            local function IsIconStyleEnabled(typeKey)
+                local value = SQPSettings[typeKey .. "ShowIconBackground"]
+                if value == nil then
+                    value = SQPSettings.showIconBackground
+                end
+                return value ~= false
+            end
+
             questFrame.icon:ClearAllPoints()
             questFrame.icon:SetPoint(
                 SQPSettings.anchor or 'RIGHT',
@@ -365,11 +362,20 @@ function SQP:RefreshAllNameplates()
             
             -- Update font settings
             if questFrame.iconText then
+                local fontTypeKey
+                if questFrame.hasItem then
+                    fontTypeKey = "loot"
+                elseif questFrame.questType == 3 then
+                    fontTypeKey = "percent"
+                else
+                    fontTypeKey = "kill"
+                end
                 self:UpdateQuestFont(
                     questFrame.iconText,
                     questFrame.iconTextOutline,
                     questFrame.percentIcon,
-                    questFrame.percentIconOutline
+                    questFrame.percentIconOutline,
+                    fontTypeKey
                 )
                 
                 -- Re-apply text color based on stored quest info
@@ -432,14 +438,20 @@ function SQP:RefreshAllNameplates()
 
             if questFrame.percentIcon then
                 if questFrame.questType == 3 then
+                    local percentIconMode = IsIconStyleEnabled("percent")
                     questFrame.percentIcon:ClearAllPoints()
                     questFrame.percentIcon:SetPoint('CENTER', questFrame.icon, SQPSettings.percentIconOffsetX or 0, SQPSettings.percentIconOffsetY or 0)
-                    questFrame.percentIcon:SetTextColor(unpack(SQPSettings.percentColor or {0.2, 1, 1}))
+                    if SQPSettings.percentTintIcon and SQPSettings.percentTintIconColor then
+                        local r, g, b, a = unpack(SQPSettings.percentTintIconColor)
+                        questFrame.percentIcon:SetTextColor(r, g, b, a or 1)
+                    else
+                        questFrame.percentIcon:SetTextColor(unpack(SQPSettings.percentColor or {0.2, 1, 1}))
+                    end
                     questFrame.percentIcon:Show()
                     if questFrame.percentIconOutline then
                         questFrame.percentIconOutline:ClearAllPoints()
                         questFrame.percentIconOutline:SetPoint('CENTER', questFrame.icon, SQPSettings.percentIconOffsetX or 0, SQPSettings.percentIconOffsetY or 0)
-                        local outlineWidth = SQP:GetOutlineInfo()
+                        local outlineWidth = SQP:GetOutlineInfo("percent")
                         if outlineWidth and outlineWidth > 0 then
                             questFrame.percentIconOutline:Show()
                         else
@@ -447,52 +459,65 @@ function SQP:RefreshAllNameplates()
                         end
                     end
                     if questFrame.icon then
-                        questFrame.icon:Hide()
+                        if percentIconMode then
+                            questFrame.icon:Show()
+                        else
+                            questFrame.icon:Hide()
+                        end
                     end
                 else
+                    local nonPercentType = questFrame.hasItem and "loot" or "kill"
+                    local nonPercentIconMode = IsIconStyleEnabled(nonPercentType)
                     questFrame.percentIcon:Hide()
                     if questFrame.percentIconOutline then
                         questFrame.percentIconOutline:Hide()
                     end
                     if questFrame.icon then
-                        questFrame.icon:Show()
+                        if nonPercentIconMode then
+                            questFrame.icon:Show()
+                        else
+                            questFrame.icon:Hide()
+                        end
                     end
                 end
             end
             
-            -- Update icon tinting
-            local mainTintEnabled = SQPSettings.iconTintMain and SQPSettings.iconTintMainColor
-            local mainTintR, mainTintG, mainTintB, mainTintA = 1, 1, 1, 1
-            if mainTintEnabled then
-                mainTintR, mainTintG, mainTintB, mainTintA = unpack(SQPSettings.iconTintMainColor)
-                questFrame.icon:SetVertexColor(mainTintR, mainTintG, mainTintB, mainTintA)
-            else
-                questFrame.icon:SetVertexColor(1, 1, 1, 1)
-            end
+            -- Main icon tinting removed (redundant with color controls)
+            questFrame.icon:SetVertexColor(1, 1, 1, 1)
 
-            local questTintEnabled = SQPSettings.iconTintQuest and SQPSettings.iconTintQuestColor
-            local questTintR, questTintG, questTintB, questTintA = 1, 1, 1, 1
-            if questTintEnabled then
-                questTintR, questTintG, questTintB, questTintA = unpack(SQPSettings.iconTintQuestColor)
+            local killTintEnabled = SQPSettings.killTintIcon and SQPSettings.killTintIconColor
+            local killTintR, killTintG, killTintB, killTintA = 1, 1, 1, 1
+            if killTintEnabled then
+                killTintR, killTintG, killTintB, killTintA = unpack(SQPSettings.killTintIconColor)
+            end
+            local lootTintEnabled = SQPSettings.lootTintIcon and SQPSettings.lootTintIconColor
+            local lootTintR, lootTintG, lootTintB, lootTintA = 1, 1, 1, 1
+            if lootTintEnabled then
+                lootTintR, lootTintG, lootTintB, lootTintA = unpack(SQPSettings.lootTintIconColor)
+            end
+            local percentTintEnabled = SQPSettings.percentTintIcon and SQPSettings.percentTintIconColor
+            local percentTintR, percentTintG, percentTintB, percentTintA = 1, 1, 1, 1
+            if percentTintEnabled then
+                percentTintR, percentTintG, percentTintB, percentTintA = unpack(SQPSettings.percentTintIconColor)
             end
 
             if questFrame.killIcon then
-                if questTintEnabled then
-                    questFrame.killIcon:SetVertexColor(questTintR, questTintG, questTintB, questTintA)
+                if killTintEnabled then
+                    questFrame.killIcon:SetVertexColor(killTintR, killTintG, killTintB, killTintA)
                 else
                     questFrame.killIcon:SetVertexColor(1, 1, 1, 1)
                 end
             end
             if questFrame.lootIcon then
-                if questTintEnabled then
-                    questFrame.lootIcon:SetVertexColor(questTintR, questTintG, questTintB, questTintA)
+                if lootTintEnabled then
+                    questFrame.lootIcon:SetVertexColor(lootTintR, lootTintG, lootTintB, lootTintA)
                 else
                     questFrame.lootIcon:SetVertexColor(1, 1, 1, 1)
                 end
             end
             if questFrame.percentIcon and questFrame.questType == 3 then
-                if mainTintEnabled then
-                    questFrame.percentIcon:SetTextColor(mainTintR, mainTintG, mainTintB, mainTintA or 1)
+                if percentTintEnabled then
+                    questFrame.percentIcon:SetTextColor(percentTintR, percentTintG, percentTintB, percentTintA or 1)
                 else
                     questFrame.percentIcon:SetTextColor(unpack(SQPSettings.percentColor or {0.2, 1, 1}))
                 end

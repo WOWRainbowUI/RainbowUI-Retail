@@ -13,7 +13,7 @@ This section outlines the development and release process to be followed by the 
 ### Development Cycle
 
 1.  **Implement Fixes:** Address bugs or implement features as requested by the user.
-2.  **Update Cumulative Changelog:** After each significant change, add a summary to the `docs/CHANGES.md` file. This file will serve as a running list of changes for the upcoming release.
+2.  **Update Current Release Notes:** After each significant change, update the notes in `docs/CHANGES.md` for the in-progress release. Keep this file scoped to one version only (remove older version sections).
 3.  **No Version Bumping:** Do not increment the addon version number during the development cycle. The version will only be updated when preparing for a final release.
 4.  **Testing:** The user is responsible for testing changes by copying the project directory to their World of Warcraft `AddOns` folder.
 
@@ -24,14 +24,14 @@ When the user confirms they are ready to create a new release:
 1.  **Finalize Version:** Ask the user for the new version number (e.g., 1.5.2 -> 1.6.0).
 2.  **Update Version Files:** Update the version number in all `.toc` files and in `data/core.lua`.
 3.  **Update Changelogs:**
-    *   Create a new version entry in `docs/CHANGELOG.md` using the accumulated notes from `docs/CHANGES.md`.
-    *   Ensure `docs/CHANGES.md` contains the final, polished release notes for the new version.
+    *   Set `docs/CHANGELOG.md` to the final, polished notes for the new version only (single version section).
+    *   Set `docs/CHANGES.md` to the same final notes for the new version only (single version section).
 4.  **Provide Git Commands:** Supply the final, one-liner command to stage all changes, create a detailed commit message, push to the main branch, and create and push the new version tag (e.g., `v1.6.0`).
 
 ## Project Structure
 
 ### Core Files
-- **SimpleQuestPlates.toc**: TOC file for retail WoW (The War Within)
+- **SimpleQuestPlates.toc**: TOC file for retail WoW (Warcraft Midnight)
 - **SimpleQuestPlates_*.toc**: TOC files for Classic, Wrath, Cataclysm, and MoP.
 - **SimpleQuestPlates.xml**: Main XML loader for all addon files.
 - **data/core.lua**: Main addon initialization and settings management.
@@ -143,7 +143,7 @@ When updating the addon version:
     *   `data/core.lua` - Update both the comment header and `SQP.VERSION` variable.
 
 2.  **Update changelogs:**
-    *   `docs/CHANGELOG.md` - Add new version entry with all changes since previous version.
-    *   `docs/CHANGES.md` - **IMPORTANT**: This file should ONLY contain the current version changes (gets displayed on push). Remove all previous version entries when updating.
+    *   `docs/CHANGELOG.md` - **IMPORTANT**: Keep ONLY the current version changes. Replace prior version entries when updating.
+    *   `docs/CHANGES.md` - **IMPORTANT**: Keep ONLY the current version changes. Replace prior version entries when updating.
 
 3.  **Version format:** Use semantic versioning (e.g., 1.0.1, 1.1.0, 2.0.0).

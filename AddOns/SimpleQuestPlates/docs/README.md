@@ -6,5 +6,6 @@ This directory contains documentation related to the Simple Quest Plates addon.
 
 | File | Description |
 |---|---|
-| `CHANGELOG.md` | A detailed log of all changes, fixes, and new features for each version of the addon. |
+| `CHANGELOG.md` | Current release notes only (single version section). Replace prior version entries on each release. |
+| `CHANGES.md` | Current release notes only (single version section), used by release/publish workflow. |
 | `ROADMAP.md` | Outlines the future development plans, planned features, and long-term goals for the addon. |

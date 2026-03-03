@@ -106,7 +106,7 @@ function SQP:CreateColorsOptions(content)
 
     local tintTitle = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     tintTitle:SetPoint("TOPLEFT", 20, rightYOffset)
-    tintTitle:SetText("|cff58be81Icon Tinting|r")
+    tintTitle:SetText(self.L["|cff58be81Icon Tinting|r"])
     rightYOffset = rightYOffset - 22
 
     -- Helper: tint section (checkbox + color picker)

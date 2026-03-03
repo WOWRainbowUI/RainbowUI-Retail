@@ -56,7 +56,7 @@ function SQP:CreateRGXSection(content)
     
     local discordLink = discordFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     discordLink:SetPoint("TOPLEFT", discordText, "BOTTOMLEFT", 0, -3)
-    discordLink:SetText("|cffffffffdiscord.gg/N7kdKAHVVF|r")
+    discordLink:SetText("|cffffffffdiscord.gg/rgxmods|r")
     
     -- Tab now fits without scrolling
 end

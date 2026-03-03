@@ -2,7 +2,7 @@
 -- RGX | Simple Quest Plates! - options_icon.lua
 
 -- Author: DonnieDice
--- Description: Main icon options tab (position + style)
+-- Description: Main icon options tab (position, scale, display style)
 --=====================================================================================
 
 local addonName, SQP = ...
@@ -34,7 +34,7 @@ function SQP:CreateIconOptions(content)
     xLabel:SetPoint("TOPLEFT", 20, yOffset)
     xLabel:SetText(self.L["OPTIONS_OFFSET_X"] or "Horizontal Offset")
 
-    local xSlider = self:CreateStyledSlider(leftColumn, -50, 50, 1, 160)
+    local xSlider = self:CreateStyledSlider(leftColumn, -100, 100, 1, 160)
     xSlider:SetPoint("TOPLEFT", xLabel, "BOTTOMLEFT", 0, -5)
     xSlider:SetValue(SQPSettings.offsetX)
     self.optionControls.offsetX = xSlider
@@ -64,7 +64,7 @@ function SQP:CreateIconOptions(content)
     yLabel:SetPoint("TOPLEFT", 20, yOffset)
     yLabel:SetText(self.L["OPTIONS_OFFSET_Y"] or "Vertical Offset")
 
-    local ySlider = self:CreateStyledSlider(leftColumn, -50, 50, 1, 160)
+    local ySlider = self:CreateStyledSlider(leftColumn, -100, 100, 1, 160)
     ySlider:SetPoint("TOPLEFT", yLabel, "BOTTOMLEFT", 0, -5)
     ySlider:SetValue(SQPSettings.offsetY)
     self.optionControls.offsetY = ySlider
@@ -121,7 +121,6 @@ function SQP:CreateIconOptions(content)
         SQP:RefreshAllNameplates()
     end)
 
-    -- Nameplate side reset (small button to the right of both side buttons)
     local anchorReset = self:CreateInlineResetButton(leftColumn, function()
         SQP:SetSetting('anchor', "RIGHT")
         SQP:SetSetting('relativeTo', "LEFT")
@@ -130,7 +129,7 @@ function SQP:CreateIconOptions(content)
     end)
     anchorReset:SetPoint("LEFT", rightBtn, "RIGHT", 6, 0)
 
-    -- ── RIGHT COLUMN: Style ──────────────────────────────────────────────────
+    -- ── RIGHT COLUMN: Scale + Display Style ──────────────────────────────────
     local rightYOffset = -15
 
     local styleLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -168,103 +167,6 @@ function SQP:CreateIconOptions(content)
     end)
     rightYOffset = rightYOffset - 48
 
-    -- Display Style (Icon / Text)
-    local styleLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    styleLabel:SetPoint("TOPLEFT", 20, rightYOffset)
-    styleLabel:SetText(self.L["Display Style"])
-    rightYOffset = rightYOffset - 22
-
-    local iconStyleBtn = self:CreateStyledButton(rightColumn, self.L["Icon"], 75, 25)
-    local textStyleBtn = self:CreateStyledButton(rightColumn, self.L["Text"], 75, 25)
-    iconStyleBtn:SetPoint("TOPLEFT", 20, rightYOffset)
-    textStyleBtn:SetPoint("LEFT", iconStyleBtn, "RIGHT", 8, 0)
-
-    local function UpdateStyleButtons()
-        iconStyleBtn:SetAlpha(SQPSettings.showIconBackground ~= false and 1 or 0.6)
-        textStyleBtn:SetAlpha(SQPSettings.showIconBackground == false and 1 or 0.6)
-    end
-    UpdateStyleButtons()
-    self.optionControls.updateStyleButtons = UpdateStyleButtons
-
-    iconStyleBtn:SetScript("OnClick", function()
-        SQP:SetSetting('showIconBackground', true)
-        UpdateStyleButtons()
-        SQP:RefreshAllNameplates()
-    end)
-    textStyleBtn:SetScript("OnClick", function()
-        SQP:SetSetting('showIconBackground', false)
-        UpdateStyleButtons()
-        SQP:RefreshAllNameplates()
-    end)
-    rightYOffset = rightYOffset - 34
-
-    -- Animate Main Icon
-    local animateFrame = self:CreateStyledCheckbox(rightColumn,
-        self.L["OPTIONS_ANIMATE_ICON"] or "Animate Main Icon")
-    animateFrame:SetPoint("TOPLEFT", 20, rightYOffset)
-    animateFrame.checkbox:SetChecked(SQPSettings.animateQuestIcon == true)
-    self.optionControls.animateQuestIcon = animateFrame.checkbox
-    animateFrame.checkbox:SetScript("OnClick", function(self)
-        SQP:SetSetting('animateQuestIcon', self:GetChecked())
-        SQP:RefreshAllNameplates()
-    end)
-    rightYOffset = rightYOffset - 34
-
-    -- Main Icon Tinting
-    local tintHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    tintHeader:SetPoint("TOPLEFT", 20, rightYOffset)
-    tintHeader:SetText(self.L["|cff58be81Main Icon Tinting|r"])
-    rightYOffset = rightYOffset - 22
-
-    local tintCbFrame = self:CreateStyledCheckbox(rightColumn, self.L["Enable Tinting"])
-    tintCbFrame:SetPoint("TOPLEFT", 20, rightYOffset)
-    tintCbFrame.checkbox:SetChecked(SQPSettings.iconTintMain == true)
-    self.optionControls.iconTintMain = tintCbFrame.checkbox
-    rightYOffset = rightYOffset - 26
-
-    local tintColorBtn = CreateFrame("Button", nil, rightColumn)
-    tintColorBtn:SetSize(20, 20)
-    tintColorBtn:SetPoint("TOPLEFT", 30, rightYOffset)
-    local tintBg = tintColorBtn:CreateTexture(nil, "BACKGROUND")
-    tintBg:SetAllPoints(); tintBg:SetColorTexture(0, 0, 0, 1)
-    local tintSw = tintColorBtn:CreateTexture(nil, "ARTWORK")
-    tintSw:SetSize(16, 16); tintSw:SetPoint("CENTER")
-    tintSw:SetColorTexture(unpack(SQPSettings.iconTintMainColor or {1, 1, 1}))
-
-    local tintColorLbl = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    tintColorLbl:SetPoint("LEFT", tintColorBtn, "RIGHT", 6, 0)
-    tintColorLbl:SetText(self.L["Tint Color"])
-
-    local tintReset = self:CreateInlineResetButton(rightColumn, function()
-        SQP:SetSetting('iconTintMainColor', {1, 1, 1})
-        tintSw:SetColorTexture(1, 1, 1); SQP:RefreshAllNameplates()
-    end)
-    tintReset:SetPoint("LEFT", tintColorLbl, "RIGHT", 6, 0)
-
-    local function UpdateTintAlpha()
-        local a = SQPSettings.iconTintMain == true and 1 or 0.4
-        tintColorBtn:SetAlpha(a); tintColorLbl:SetAlpha(a); tintReset:SetAlpha(a * 0.7)
-    end
-    UpdateTintAlpha()
-
-    tintCbFrame.checkbox:SetScript("OnClick", function(self)
-        SQP:SetSetting('iconTintMain', self:GetChecked())
-        UpdateTintAlpha(); SQP:RefreshAllNameplates()
-    end)
-
-    tintColorBtn:SetScript("OnClick", function()
-        if not SQPSettings.iconTintMain then return end
-        local r, g, b = unpack(SQPSettings.iconTintMainColor or {1, 1, 1})
-        local info = {r = r, g = g, b = b, hasOpacity = false}
-        info.swatchFunc = function()
-            local nr, ng, nb = ColorPickerFrame:GetColorRGB()
-            SQP:SetSetting('iconTintMainColor', {nr, ng, nb})
-            tintSw:SetColorTexture(nr, ng, nb); SQP:RefreshAllNameplates()
-        end
-        info.cancelFunc = function()
-            SQP:SetSetting('iconTintMainColor', {r, g, b})
-            tintSw:SetColorTexture(r, g, b); SQP:RefreshAllNameplates()
-        end
-        ColorPickerFrame:SetupColorPickerAndShow(info)
-    end)
+    -- Display Style (also available on Kill / Loot / Percent tabs)
+    rightYOffset = self:CreateDisplayStyleSection(rightColumn, nil, nil, rightYOffset)
 end

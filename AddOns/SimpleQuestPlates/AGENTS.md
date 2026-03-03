@@ -43,6 +43,7 @@
 - **Types**: `ci`, `feat`, `fix`, `docs`, `refactor`, `style`
 - **PR process**: Direct commits to main branch (single maintainer project)
 - **Release process**: Automated via GitHub Actions on version tags
+- **Changelog policy**: Keep only the current release notes in both `docs/CHANGELOG.md` and `docs/CHANGES.md` (single-version changelogs). Replace prior version entries on each release.
 
 ---
 
@@ -133,7 +134,8 @@ SimpleQuestPlates/
 | `SimpleQuestPlates.toc` | Retail addon metadata | Version updates, dependencies |
 | `locales/enUS.lua` | English text strings | Adding new translatable text |
 | `.pkgmeta` | Packaging configuration | Changing distribution settings |
-| `docs/CHANGES.md` | Release changelog | Documenting new versions |
+| `docs/CHANGELOG.md` | Current release notes | Keep only one version section |
+| `docs/CHANGES.md` | Current release notes (publish source) | Keep only one version section |
 
 ---
 
