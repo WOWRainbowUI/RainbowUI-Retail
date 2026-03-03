@@ -1,5 +1,8 @@
 <Bindings>
-	<Binding name="開關動感鏡頭 Plus" header="動感鏡頭 Plus" category="ADDONS">
+	<Binding name="開/關動感鏡頭 Plus" header="動感鏡頭 Plus" category="ADDONS">
 		SlashCmdList.ACTIONCAMPLUS('')
+	</Binding>
+	<Binding name="切換成另一邊" category="ADDONS">
+		ActionCamPlus_API.SwapSide()
 	</Binding>
 </Bindings>

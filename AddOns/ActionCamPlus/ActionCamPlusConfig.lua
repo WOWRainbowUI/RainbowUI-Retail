@@ -386,7 +386,7 @@ function ACP.AddOptions()
 		end
 	else
 		tabSystem = CreateFrame("Frame", "$parentTabSystem", ActionCamPlusOptionsFrame, "TabSystemTemplate")
-		tabSystem.tabTemplate = "SpellBookCategoryTabTemplate"
+		tabSystem.tabTemplate = "TabSystemTopButtonTemplate"
 		tabSystem.maxTabWidth = CONTENT_WIDTH / 2
 		tabSystem.minTabWidth = CONTENT_WIDTH / 2 - 10
 		tabSystem:SetSize(CONTENT_WIDTH, 40)
@@ -468,7 +468,7 @@ function ACP.AddOptions()
 		if ACP.transitionFunctions[value].func == "ease" and not ACP.transitionFunctions[value].dropTable then
 			local dropTable = {}
 			for t = 0, 100 do
-				dropTable[cbSystemEquation(t/1000, ACP.x1, ACP.x2)] = t/1000
+				dropTable[ACP.cbSystemEquation(t/1000, ACP.x1, ACP.x2)] = t/1000
 			end
 			ACP.transitionFunctions[value].dropTable = {}
 		end
