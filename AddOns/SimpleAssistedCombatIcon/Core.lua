@@ -1,9 +1,12 @@
 local addonName, addon = ...
 
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title")
+local addonIcon = C_AddOns.GetAddOnMetadata(addonName, "IconTexture")
+local PREFIX = "|cff4cc9f0SACI|r: "
 
 local LSM = LibStub("LibSharedMedia-3.0")
 local LDS = LibStub("LibDualSpec-1.0")
+local LDB = LibStub("LibDataBroker-1.1")
 
 local Masque = LibStub("Masque",true)
 local AceAddon = LibStub("AceAddon-3.0")
@@ -12,7 +15,7 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local AceDB = LibStub("AceDB-3.0")
 
-local DB_VERSION = 4
+local DB_VERSION = 5
 
 addon = AceAddon:NewAddon(addon, addonName, "AceConsole-3.0", "AceEvent-3.0")
 
@@ -51,7 +54,13 @@ local defaults = {
             },
         },
         iconSize = 48,
-        alpha = 1, 
+        alpha = 1,
+        icon = {
+            alpha = 1, 
+            size = 48,
+            scale = 1,
+            ratio = 1,
+        },
         fadeOutAlpha = 0.25,
         fadeOutHide = false,
         border = {
@@ -62,6 +71,7 @@ local defaults = {
         position = {
             strata = 3,
             parent = "UIParent",
+            parentFrame = "UIParent",
             point = "CENTER",
             relativePoint = "CENTER",
             X = 0,
@@ -80,6 +90,18 @@ local defaults = {
             overrides = {},
         }
     }
+}
+
+local BuiltinParentFrames = {
+    PlayerFrame = "玩家頭像框架",
+    TargetFrame = "目標頭像框架",
+    EssentialCooldownViewer = "關鍵冷卻檢視器",
+    UtilityCooldownViewer = "輔助冷卻檢視器",
+    PersonalResourceDisplayFrame = "個人資源條",
+    UIParent = "遊戲畫面",
+    __nameplate = "目標名條",
+    __cursor = "滑鼠游標",
+    __other = "其他",
 }
 
 function addon:OnInitialize()
@@ -150,6 +172,18 @@ function addon:UpdateDB()
         profile.DBVERSION = 4
     end
 
+    if profile.DBVERSION < 5 then
+        local parent = profile.position.parent
+
+        if BuiltinParentFrames[parent] ~= nil then
+            profile.position.parentFrame = parent
+        else
+            profile.position.parentFrame = "__other"
+        end
+
+        profile.DBVERSION = 5
+    end
+
     profile.DBVERSION = DB_VERSION
 end
 
@@ -217,9 +251,10 @@ function addon:SetupOptions()
                 desc = "鎖定或解鎖框架以進行移動。\n\n|cffffa000提示：將滑鼠移到圖示上時，按住 CTRL 鍵即可顯示鎖定/解鎖切換按鈕！|r",
                 get = function() return addon.db.profile.locked end,
                 set = function(_, val)
-                    addon.db.profile.locked = val
+                    AssistedCombatIconFrame:Lock(val)
                     AssistedCombatIconFrame:ApplyOptions()
                 end,
+                disabled = function() return addon.db.profile.position.parentFrame ~= "UIParent" end,
                 order = 1,
                 width = 0.6,
             },
@@ -470,6 +505,27 @@ function addon:SetupOptions()
                         name = "",
                         inline = true,
                         order = 5,
+                        args = {
+                            scale = {
+                                type = "range",
+                                name = "縮放",
+                                desc = "設定圖示的縮放大小",
+                                min = 0.25, max = 2, step = 0.05,
+                                get = function() return addon.db.profile.icon.scale end,
+                                set = function(_, val)
+                                    addon.db.profile.icon.scale = val
+                                    AssistedCombatIconFrame:ApplyOptions()
+                                end,
+                                order = 1,
+                                width = "normal",
+                            },
+                        },
+                    },
+                    grp6 = {
+                        type = "group",
+                        name = "",
+                        inline = true,
+                        order = 6,
                         args = {
                             checkVisible = {
                                 type = "toggle",
@@ -949,7 +1005,7 @@ function addon:SetupOptions()
                         end,
                         disabled = function() return not ConsolePort end,
                         order = 2,
-                        width = 1.2,
+                        width = 1.5,
                     },
                 },
             },
@@ -1055,27 +1111,45 @@ function addon:SetupOptions()
             },
             subgroup2 = {
                 type = "group",
-                name = "進階設定",
+                name = "對齊",
                 inline = true,
                 args = {
                     parent = {
+                        type = "select",
+                        name = "父層框架",
+						desc = "輸入框架名稱以便將圖示對齊到該框架。",
+                        values = BuiltinParentFrames,
+                        get = function() return addon.db.profile.position.parentFrame end,
+                        set = function(_, val)
+                            addon.db.profile.position.parentFrame = val
+                            if not val:match("^__") then
+                                addon.db.profile.position.parent = val
+                            end
+                            AssistedCombatIconFrame:ApplyOptions()
+                        end,
+                        order = 1,
+                        width = 1.2,
+                    },
+                    frame = {
                         type = "input",
-                        name = "父框架名稱",
-                        desc = "輸入要錨定圖示的框架名稱。",
-                        get = function() return addon.db.profile.position.parent or "UIParent" end,
+                        name = "指定框架",
+                        desc = "輸入框架名稱以便將圖示對齊到該框架。",
+                        get = function() return addon.db.profile.position.parent end,
                         set = function(_, val)
                             if val == "" then val = "UIParent" end
                             addon.db.profile.position.parent = val
                             AssistedCombatIconFrame:ApplyOptions()
                         end,
                         validate = function(info, value)
-                            if value == "" then return true end
                             if not _G[value] then
                                 return "該框架不存在。"
                             end
                             return true
                         end,
-                        order = 1,
+                        hidden = function()
+                            return addon.db.profile.position.parentFrame ~= "__other"
+                        end,
+                        order = 3,
                     },
                     point = {
                         type = "select",
@@ -1107,11 +1181,11 @@ function addon:SetupOptions()
                         type = "group",
                         name = "",
                         inline = true,
-                        order = 3,
+                        order = 4,
                         args = {
                             parentWarning = {
                                 type = "description",
-                                name = "|cffffa000拖曳圖示會將父框架重置回 UIParent。|r\n|cffffa000設定此選項也會停用按住 Ctrl 鍵並滑鼠指向時的鎖定/解鎖按鈕。|r",
+                                name = "|cffffa000當父層框架不是設為螢幕畫面時，將會停用解鎖與拖曳圖示功能。|r\n\n|cffffa000當對齊框架設為某個檢視器時，冷卻管理插件可能會干擾簡易輸出助手。|r"
                             },
                         },
                     },
@@ -1140,8 +1214,48 @@ function addon:SetupOptions()
 
     AddonCompartmentFrame:RegisterAddon({
         text = C_AddOns.GetAddOnMetadata(addonName, "Title"),
-        icon = C_AddOns.GetAddOnMetadata(addonName, "IconTexture"),
+        icon = addonIcon,
         func = function() AceConfigDialog:Open(addonName) end
+    })
+
+    local function DataBrokerLabel()
+        if addon.db.profile.enabled then
+            return PREFIX .. "(|c0000ff00已啟用|r)"
+        else
+            return PREFIX .. "(|c00ff0000已停用|r)"
+        end
+    end
+
+    addon.DataBroker = LDB:NewDataObject(addonName,{
+        type = "launcher",
+        text = nil,
+        label = DataBrokerLabel(),
+        icon = addonIcon,
+        OnClick = function(self, button, ...)
+            if button and button == "RightButton" then
+                addon.db.profile.enabled = not addon.db.profile.enabled
+                AssistedCombatIconFrame:UpdateVisibility()
+
+                addon.DataBroker.label = DataBrokerLabel()
+                if AceConfigDialog.OpenFrames[addonName] then
+                    AceConfigRegistry:NotifyChange(addonName)
+                end
+            else
+                addon:OpenConfig()
+            end
+        end,
+        OnEnter = function(frame)
+            GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMLEFT")
+            GameTooltip:SetText(addonTitle)
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine("|cff4cc9f0左鍵|r: 設定選項")
+            GameTooltip:AddLine("|cff4cc9f0右鍵|r: 啟用/停用")
+            GameTooltip:Show()
+        end,
+        OnLeave = function(frame)
+            if frame ~= self then return end
+            GameTooltip:Hide()
+        end
     })
 end
 
@@ -1150,24 +1264,41 @@ function addon:OnProfileChanged()
     AssistedCombatIconFrame:Reload()
 end
 
+function addon:OpenConfig()
+    if AceConfigDialog.OpenFrames[addonName] then
+        AceConfigDialog:Close(addonName)
+    else
+        AceConfigDialog:Open(addonName)
+    end
+end
+
 function addon:SlashCommand(input)
     input = input:lower():trim()
-    local PREFIX = "|cff4cc9f0SACI|r: "
 
     if input == "" then
-        AceConfigDialog:Open(addonName)
+        self:OpenConfig()
     elseif input =="lock" then
-        self.db.profile.locked = not self.db.profile.locked
-        AssistedCombatIconFrame:Lock(self.db.profile.locked)
-        DEFAULT_CHAT_FRAME:AddMessage(
-            PREFIX .. (self.db.profile.locked and "已鎖定" or "已解鎖")
-        )
+        if addon.db.profile.position.parentFrame ~= "UIParent" then
+            DEFAULT_CHAT_FRAME:AddMessage(
+                PREFIX .. "不是對齊到螢幕畫面時，無法鎖定或解鎖。"
+            )
+        else
+            AssistedCombatIconFrame:Lock(not self.db.profile.locked)
+            DEFAULT_CHAT_FRAME:AddMessage(
+                PREFIX .. (self.db.profile.locked and "已鎖定" or "已解鎖")
+            )
+        end
     elseif input =="unlock" then
-        self.db.profile.locked = false
-        AssistedCombatIconFrame:Lock(false)
-        DEFAULT_CHAT_FRAME:AddMessage(
-            PREFIX .. "已解鎖"
-        )
+        if addon.db.profile.position.parentFrame ~= "UIParent" then
+            DEFAULT_CHAT_FRAME:AddMessage(
+                PREFIX .. "不是對齊到螢幕畫面時，無法鎖定或解鎖。"
+            )
+        else
+            AssistedCombatIconFrame:Lock(false)
+            DEFAULT_CHAT_FRAME:AddMessage(
+                PREFIX .. "已解鎖"
+            )
+        end
     elseif input =="toggle" then
         self.db.profile.enabled = not self.db.profile.enabled
         DEFAULT_CHAT_FRAME:AddMessage(

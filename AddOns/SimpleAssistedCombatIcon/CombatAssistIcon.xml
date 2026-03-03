@@ -29,6 +29,7 @@
             </Button>
         </Frames>
         <Scripts>
+            <OnUpdate method="OnUpdate"/>
             <OnLoad method="OnLoad"/>
             <OnEvent method="OnEvent"/>
             <OnDragStart method="OnDragStart"/>
