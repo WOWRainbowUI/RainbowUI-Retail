@@ -14,7 +14,7 @@ end
 local TitleIconVersion_Small = Enum.TitleIconVersion and Enum.TitleIconVersion.Small
 
 function MenuModule:OnInitialize()
-    self.LTip = LibStub('LibQTip-1.0')
+    self.LTip = LibStub('LibQTip-2.0')
     self.mediaFolder = xb.constants.mediaPath .. 'microbar\\'
     self.icons = {}
     self.modifiers = {SHIFT_KEY_TEXT, ALT_KEY_TEXT, CTRL_KEY_TEXT}
@@ -752,12 +752,13 @@ function MenuModule:SocialHover(hoverFunc)
         end
 
         -- if the social tooltip already exists, deletus fetus it
-        if self.LTip:IsAcquired("SocialToolTip") then
-            self.LTip:Release(self.LTip:Acquire("SocialToolTip"))
+        if self.LTip:IsAcquiredTooltip("SocialToolTip") then
+            local existingTooltip = self.LTip:AcquireTooltip("SocialToolTip", 2, "LEFT", "RIGHT")
+            self.LTip:ReleaseTooltip(existingTooltip)
         end
 
         -- declare our LTip tooltip with 2 columns and mouse interaction when hovering/leaving/updating the tooltip
-        local tooltip = self.LTip:Acquire("SocialToolTip", 2, "LEFT", "RIGHT")
+        local tooltip = self.LTip:AcquireTooltip("SocialToolTip", 2, "LEFT", "RIGHT")
         tooltip:EnableMouse(true)
         tooltip:SetScript("OnEnter", function()
             self.tipHover = true
@@ -767,10 +768,18 @@ function MenuModule:SocialHover(hoverFunc)
         end)
         tooltip:SetScript("OnUpdate", function()
             if not self.tipHover and not self.lineHover then
-                tooltip:Release()
+                self.LTip:ReleaseTooltip(tooltip)
             end
         end)
         MenuModule:SkinFrame(tooltip, "SocialToolTip")
+		-- 設定背景顏色與透明度
+		if tooltip.NineSlice then
+			tooltip.NineSlice:SetCenterColor(0, 0, 0, 1)
+			-- tooltip.NineSlice:SetBorderColor(0.3, 0.3, 0.3, 1)
+			if tooltip.NineSlice.Center then
+				tooltip.NineSlice.Center:SetColorTexture(0, 0, 0, 0.9)  -- 第4個參數調透明度
+			end
+		end
 
         -- get the amount of bnet and non-bnet online friends as well as the player's faction
         local _, totalBNOnlineFriends = BNGetNumFriends()
@@ -783,9 +792,9 @@ function MenuModule:SocialHover(hoverFunc)
         -- if any friends are online add the [Social] section and an empty line to the tooltip
         if (totalOnlineFriends + totalBNOnlineFriends) > 0 then
             tooltip:SmartAnchorTo(MenuModule.frames.social)
-            tooltip:AddHeader('|cFFFFFFFF[|r' .. SOCIAL_LABEL .. '|cFFFFFFFF]|r')
-            tooltip:SetCellTextColor(1, 1, r, g, b, 1)
-            tooltip:AddLine(' ', ' ')
+            local headerRow = tooltip:AddHeadingRow('|cFFFFFFFF[|r' .. SOCIAL_LABEL .. '|cFFFFFFFF]|r')
+            headerRow:SetTextColor(r, g, b, 1)
+            tooltip:AddRow(' ', ' ')
         end
 
         -- 名字顯示職業顏色用的對照表
@@ -967,15 +976,15 @@ function MenuModule:SocialHover(hoverFunc)
 						local lineRight = string.format("%s |cff82c5ff%s|r %s %s", note, friendAccInfo.battleTag, gameName, socialIcon)
 
                         -- add left and right line to the tooltip
-                        tooltip:AddLine(lineLeft, lineRight)
+                        local lineRow = tooltip:AddRow(lineLeft, lineRight)
                         -- set up mouse events when the player hovers over/clicks on/leaves the friend's line in the tooltip
-                        tooltip:SetLineScript(tooltip:GetLineCount(), "OnEnter", function()
-                            self.lineHover = true
-                        end)
-                        tooltip:SetLineScript(tooltip:GetLineCount(), "OnLeave", function()
-                            self.lineHover = false
-                        end)
-                        tooltip:SetLineScript(tooltip:GetLineCount(), "OnMouseUp", function(self, _, button)
+                        lineRow:SetScript("OnEnter", function()
+							self.lineHover = true
+						end)
+						lineRow:SetScript("OnLeave", function()
+							self.lineHover = false
+						end)
+						lineRow:SetScript("OnMouseUp", function(self, _, button)
                             -- player left clicks on the friend, checks whether a modifier was used or not after
                             if button == "LeftButton" then
                                 -- player pressed SHIFT/ALT/CTRL when left clicking the friend
@@ -1050,15 +1059,15 @@ function MenuModule:SocialHover(hoverFunc)
 				    local lineRight = notes
 
                     -- add left and right line to the tooltip
-                    tooltip:AddLine(lineLeft, lineRight)
+                    local lineRow = tooltip:AddRow(lineLeft, lineRight)
                     -- set up mouse events when the player hovers over/clicks on/leaves the friend's line in the tooltip
-                    tooltip:SetLineScript(tooltip:GetLineCount(), "OnEnter", function()
+                    lineRow:SetScript("OnEnter", function()
                         self.lineHover = true
                     end)
-                    tooltip:SetLineScript(tooltip:GetLineCount(), "OnLeave", function()
+                    lineRow:SetScript("OnLeave", function()
                         self.lineHover = false
                     end)
-                    tooltip:SetLineScript(tooltip:GetLineCount(), "OnMouseUp", function(self, _, button)
+                    lineRow:SetScript("OnMouseUp", function(self, _, button)
                         -- if there is no realm name in the friend's name, the friend is playing on the same realm as the player
                         if not name:find('%u%U*-%u%U') then
                             local homeRealm = GetRealmName()
@@ -1079,13 +1088,13 @@ function MenuModule:SocialHover(hoverFunc)
         end -- totalOnlineFriends
 
         -- add section under the friends list for (modifiers) + left/right click and what each action does
-        tooltip:AddLine(' ', ' ')
-        tooltip:AddLine('<' .. L['Left-Click'] .. '>', L['Whisper BNet'])
-        tooltip:SetCellTextColor(tooltip:GetLineCount(), 1, r, g, b, 1)
-        tooltip:AddLine('<' .. self.modifier .. '+' .. L['Left-Click'] .. '>', CALENDAR_INVITELIST_INVITETORAID)
-        tooltip:SetCellTextColor(tooltip:GetLineCount(), 1, r, g, b, 1)
-        tooltip:AddLine('<' .. L['Right-Click'] .. '>', L['Whisper Character'])
-        tooltip:SetCellTextColor(tooltip:GetLineCount(), 1, r, g, b, 1)
+        tooltip:AddRow(' ', ' ')
+        local row1 = tooltip:AddRow('<' .. L['Left-Click'] .. '>', L['Whisper BNet'])
+        row1:SetTextColor(r, g, b, 1)
+        local row2 = tooltip:AddRow('<' .. self.modifier .. '+' .. L['Left-Click'] .. '>', CALENDAR_INVITELIST_INVITETORAID)
+        row2:SetTextColor(r, g, b, 1)
+        local row3 = tooltip:AddRow('<' .. L['Right-Click'] .. '>', L['Whisper Character'])
+        row3:SetTextColor(r, g, b, 1)
         -- if any bnet or non-bnet friends are online, set the tooltip to show
         if (totalOnlineFriends + totalBNOnlineFriends) > 0 then
             tooltip:Show()
@@ -1116,12 +1125,13 @@ function MenuModule:GuildHover(hoverFunc)
         end
 
         -- if the guild tooltip already exists, deletus fetus it
-        if self.LTip:IsAcquired("GuildToolTip") then
-            self.LTip:Release(self.LTip:Acquire("GuildToolTip"))
+        if self.LTip:IsAcquiredTooltip("GuildToolTip") then
+            local existingTooltip = self.LTip:AcquireTooltip("GuildToolTip", 2, "LEFT", "RIGHT")
+            self.LTip:ReleaseTooltip(existingTooltip)
         end
 
         -- declare our LTip tooltip with 2 columns and mouse interaction when hovering/leaving/updating the tooltip
-        local tooltip = self.LTip:Acquire("GuildToolTip", 2, "LEFT", "RIGHT")
+        local tooltip = self.LTip:AcquireTooltip("GuildToolTip", 2, "LEFT", "RIGHT")
         tooltip:EnableMouse(true)
         tooltip:SetScript("OnEnter", function()
             self.gtipHover = true
@@ -1131,7 +1141,7 @@ function MenuModule:GuildHover(hoverFunc)
         end)
         tooltip:SetScript("OnUpdate", function()
             if not self.gtipHover and not self.glineHover then
-                tooltip:Release()
+                self.LTip:ReleaseTooltip(tooltip)
             end
         end)
         MenuModule:SkinFrame(tooltip, "GuildToolTip")
@@ -1144,15 +1154,14 @@ function MenuModule:GuildHover(hoverFunc)
 
         -- get guild info and create first tooltip line, left is [Guild], right is GuildName
         local gName = GetGuildInfo('player')
-        tooltip:AddHeader('|cFFFFFFFF[|r' .. GUILD .. '|cFFFFFFFF]|r', '|cff00ff00' .. gName .. '|r')
-        tooltip:SetCellTextColor(1, 1, r, g, b, 1)
-        tooltip:SetCellTextColor(1, 2, r, g, b, 1)
-        tooltip:AddLine(' ', ' ')
+        local headerRow = tooltip:AddRow('|cFFFFFFFF[|r' .. GUILD .. '|cFFFFFFFF]|r', '|cff00ff00' .. gName .. '|r')
+        headerRow:SetTextColor(r, g, b, 1)
+        tooltip:AddRow(' ', ' ')
 
         if xb.db.profile.modules.microMenu.showGMOTD then
             local motd = GetGuildRosterMOTD()
             if motd ~= '' then
-                tooltip:AddLine('|cff00ff00' .. motd .. '|r', ' ') -- REVISION LATER: shorten guild motd if too long
+                tooltip:AddRow('|cff00ff00' .. motd .. '|r', ' ') -- REVISION LATER: shorten guild motd if too long
             end
         end
 
@@ -1181,14 +1190,14 @@ function MenuModule:GuildHover(hoverFunc)
                 local lineLeft = string.format('%s |c%s%s|r %s |cffecd672%s|r', level, colorHex,
                     charName or name or L['No Info'], status, note)
                 local lineRight = string.format('%s|cffffffff %s', (isMobile and '|cffffffa0[M]|r ' or ''), zone or '')
-                tooltip:AddLine(lineLeft, lineRight)
-                tooltip:SetLineScript(tooltip:GetLineCount(), 'OnEnter', function()
+                local lineRow = tooltip:AddRow(lineLeft, lineRight)
+                lineRow:SetScript('OnEnter', function()
                     self.glineHover = true
                 end)
-                tooltip:SetLineScript(tooltip:GetLineCount(), 'OnLeave', function()
+                lineRow:SetScript('OnLeave', function()
                     self.glineHover = false
                 end)
-                tooltip:SetLineScript(tooltip:GetLineCount(), 'OnMouseUp', function(self, _, button)
+                lineRow:SetScript('OnMouseUp', function(self, _, button)
                     if button == 'LeftButton' then
                         if modifierFunc() then
                             C_PartyInfo.InviteUnit(name)
@@ -1200,11 +1209,11 @@ function MenuModule:GuildHover(hoverFunc)
             end
         end
         -- add section under member list for (modifiers) + left/right click and what each section does
-        tooltip:AddLine(' ', ' ')
-        tooltip:AddLine('<' .. L['Left-Click'] .. '>', L['Whisper Character'])
-        tooltip:SetCellTextColor(tooltip:GetLineCount(), 1, r, g, b, 1)
-        tooltip:AddLine('<' .. self.modifier .. '+' .. L['Left-Click'] .. '>', CALENDAR_INVITELIST_INVITETORAID)
-        tooltip:SetCellTextColor(tooltip:GetLineCount(), 1, r, g, b, 1)
+        tooltip:AddRow(' ', ' ')
+        local grow1 = tooltip:AddRow('<' .. L['Left-Click'] .. '>', L['Whisper Character'])
+        grow1:SetTextColor(r, g, b, 1)
+        local grow2 = tooltip:AddRow('<' .. self.modifier .. '+' .. L['Left-Click'] .. '>', CALENDAR_INVITELIST_INVITETORAID)
+        grow2:SetTextColor(r, g, b, 1)
         tooltip:Show()
         hoverFunc()
     end

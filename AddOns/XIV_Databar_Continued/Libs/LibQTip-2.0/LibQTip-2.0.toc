@@ -1,0 +1,14 @@
+## Interface: 120000
+## Title: Lib: QTip-2.0
+## Notes: LibQTip-2.0 is a library that provides multiple-column, highly-configurable tooltips.
+## Author: Torhal
+## Version: 12.0.0.1-r1
+## X-Date: 2026-01-28T22:04:27Z
+## X-Category: Library
+## X-Curse-Project-ID: 856330
+## X-License: BSD
+## X-Website: http://www.curseforge.com/addons/libqtip-2-0/
+
+Libraries\Manifest.xml
+
+LibQTip-2.0.xml
