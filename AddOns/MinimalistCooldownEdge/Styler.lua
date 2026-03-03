@@ -131,17 +131,29 @@ local function IsMainCooldownWithActiveChargeCooldown(cdFrame)
 end
 
 -- =========================================================================
--- STACK COUNT STYLING  (action bar only)
+-- STACK COUNT STYLING  (action bar + CooldownManager viewers)
 -- =========================================================================
 
 function Styler:StyleStackCount(cdFrame, config, category)
-    if category ~= "actionbar" or not config.stackEnabled then return end
+    if not config.stackEnabled then return end
 
     local parent = cdFrame:GetParent()
     if not parent then return end
 
-    local parentName  = parent.GetName and parent:GetName()
-    local countRegion = parent.Count or (parentName and _G[parentName .. "Count"])
+    local countRegion
+
+    if category == "actionbar" then
+        -- Action bar: standard Count region on the button
+        local parentName = parent.GetName and parent:GetName()
+        countRegion = parent.Count or (parentName and _G[parentName .. "Count"])
+    elseif category == "global" then
+        -- CooldownManager viewers (EssentialCooldownViewer / UtilityCooldownViewer):
+        -- ChargeCount is a Frame (setAllPoints), ChargeCount.Current is the FontString.
+        local chargeCount = parent.ChargeCount
+        if chargeCount and chargeCount.Current then
+            countRegion = chargeCount.Current
+        end
+    end
 
     if not countRegion or not countRegion.GetObjectType then return end
     if countRegion:GetObjectType() ~= "FontString" then return end
@@ -260,7 +272,7 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
     if styledCategory[cdFrame] == category then return end
     styledCategory[cdFrame] = category
 
-    -- Stack counts (action bar only)
+    -- Stack / charge counts (actionbar + CooldownViewer globals)
     self:StyleStackCount(cdFrame, config, category)
 
     -- Font string styling & positioning

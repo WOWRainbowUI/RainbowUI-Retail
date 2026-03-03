@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.0.7] - 2026-03-02
+
+### Added
+* feat: Add localization for status indicators, tools, and category descriptions across multiple languages
+* Adjust stack count styling for action bars and CooldownManager viewers (EssentialCooldownViewer and UtilityCooldownViewer)
 
 ## [3.0.1] - 2026-02-22
 

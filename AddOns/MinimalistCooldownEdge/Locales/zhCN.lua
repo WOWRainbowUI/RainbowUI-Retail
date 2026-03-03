@@ -74,3 +74,23 @@ L["SCAN_DEPTH_HELP"] = "\n|cff00ff00< 10|r：高效（默认界面）\n|cfffff56
 L["%s settings reset."] = "%s 设置已重置。"
 L["Profile reset. Reloading UI..."] = "配置文件已重置。正在重新加载界面..."
 L["Global Scan Depth changed. A /reload is recommended."] = "全局扫描深度已更改。建议执行 /reload。"
+
+-- Status Indicators
+L["ON"] = "开"
+L["OFF"] = "关"
+L["Category Status"] = "分类状态"
+
+-- Tools
+L["Tools"] = "工具"
+L["Force Refresh"] = "强制刷新"
+L["Force a full rescan of all cooldown frames."] = "强制对所有冷却框体执行完整扫描。"
+L["Full refresh completed."] = "完整刷新完成。"
+L["Clear Debug Log"] = "清除调试日志"
+L["Clears the saved debug log data."] = "清除已保存的调试日志数据。"
+L["Debug log cleared."] = "调试日志已清除。"
+
+-- Category Descriptions
+L["ACTIONBAR_DESC"] = "自定义动作条上的冷却，包括 Bartender4、Dominos 和 ElvUI。"
+L["NAMEPLATE_DESC"] = "设置敌方和友方姓名板上显示的冷却样式（Plater、KuiNameplates 等）。"
+L["UNITFRAME_DESC"] = "调整玩家、目标和焦点单位框体上的冷却样式。"
+L["GLOBAL_DESC"] = "不属于其他分类的冷却的通用分类（CD管理器查看器、背包、菜单、其他插件）。包括 Essential 和 Utility 冷却查看器的充能样式。"

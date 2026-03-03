@@ -74,3 +74,23 @@ L["SCAN_DEPTH_HELP"] = "\n|cff00ff00< 10|r : Effizient (Standard-UI)\n|cfffff569
 L["%s settings reset."] = "%s Einstellungen zurückgesetzt."
 L["Profile reset. Reloading UI..."] = "Profil zurückgesetzt. UI wird neu geladen..."
 L["Global Scan Depth changed. A /reload is recommended."] = "Globale Scantiefe geändert. Ein /reload wird empfohlen."
+
+-- Status Indicators
+L["ON"] = "AN"
+L["OFF"] = "AUS"
+L["Category Status"] = "Kategoriestatus"
+
+-- Tools
+L["Tools"] = "Werkzeuge"
+L["Force Refresh"] = "Aktualisieren"
+L["Force a full rescan of all cooldown frames."] = "Erzwingt einen vollständigen Scan aller Abklingzeit-Fenster."
+L["Full refresh completed."] = "Vollständige Aktualisierung abgeschlossen."
+L["Clear Debug Log"] = "Debug-Protokoll leeren"
+L["Clears the saved debug log data."] = "Löscht die gespeicherten Debug-Protokolldaten."
+L["Debug log cleared."] = "Debug-Protokoll gelöscht."
+
+-- Category Descriptions
+L["ACTIONBAR_DESC"] = "Passe Abklingzeiten auf deinen Aktionsleisten an, einschließlich Bartender4, Dominos und ElvUI."
+L["NAMEPLATE_DESC"] = "Gestalte Abklingzeiten auf feindlichen und freundlichen Namensplaketten (Plater, KuiNameplates, etc.)."
+L["UNITFRAME_DESC"] = "Passe den Stil der Abklingzeiten auf Spieler-, Ziel- und Fokus-Einheitenfenstern an."
+L["GLOBAL_DESC"] = "Auffangkategorie für Abklingzeiten, die keiner anderen Kategorie angehören (CD-Manager-Anzeiger, Taschen, Menüs, diverse Addons). Enthält Aufladungsstile für Essential- und Utility-Abklingzeitsanzeiger."

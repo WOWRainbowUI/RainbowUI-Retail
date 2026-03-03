@@ -74,3 +74,23 @@ L["SCAN_DEPTH_HELP"] = "\n|cff00ff00< 10|r : Efficiente (UI predefinita)\n|cffff
 L["%s settings reset."] = "Impostazioni di %s reimpostate."
 L["Profile reset. Reloading UI..."] = "Profilo reimpostato. Ricaricamento interfaccia..."
 L["Global Scan Depth changed. A /reload is recommended."] = "Profondità di scansione globale modificata. Si raccomanda un /reload."
+
+-- Status Indicators
+L["ON"] = "ON"
+L["OFF"] = "OFF"
+L["Category Status"] = "Stato categorie"
+
+-- Tools
+L["Tools"] = "Strumenti"
+L["Force Refresh"] = "Aggiorna"
+L["Force a full rescan of all cooldown frames."] = "Forza una scansione completa di tutti i riquadri di ricarica."
+L["Full refresh completed."] = "Aggiornamento completo."
+L["Clear Debug Log"] = "Cancella registro"
+L["Clears the saved debug log data."] = "Cancella i dati del registro di debug salvati."
+L["Debug log cleared."] = "Registro di debug cancellato."
+
+-- Category Descriptions
+L["ACTIONBAR_DESC"] = "Personalizza le ricariche sulle barre d'azione, inclusi Bartender4, Dominos ed ElvUI."
+L["NAMEPLATE_DESC"] = "Stilizza le ricariche visualizzate sulle targhette nemiche e alleate (Plater, KuiNameplates, etc.)."
+L["UNITFRAME_DESC"] = "Regola lo stile delle ricariche sui riquadri giocatore, bersaglio e focus."
+L["GLOBAL_DESC"] = "Categoria generica per le ricariche che non appartengono ad altre categorie (visori del gestore CD, borse, menu, addon vari). Include lo stile delle cariche per i visori Essential e Utility."

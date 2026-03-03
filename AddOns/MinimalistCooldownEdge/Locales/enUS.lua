@@ -93,4 +93,4 @@ L["Debug log cleared."] = true
 L["ACTIONBAR_DESC"] = "Customize cooldowns on your main action bars, including Bartender4, Dominos, and ElvUI bars."
 L["NAMEPLATE_DESC"] = "Style cooldowns displayed on enemy and friendly nameplates (Plater, KuiNameplates, etc.)."
 L["UNITFRAME_DESC"] = "Adjust cooldown styling on player, target, and focus unit frames."
-L["GLOBAL_DESC"] = "Catch-all for cooldowns that don't belong to other categories (bags, menus, misc addons)."
+L["GLOBAL_DESC"] = "Catch-all for cooldowns that don't belong to other categories (CooldownManager viewers, bags, menus, misc addons). Includes charge styling for Essential & Utility cooldown viewers."

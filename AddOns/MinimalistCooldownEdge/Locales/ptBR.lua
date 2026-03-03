@@ -74,3 +74,23 @@ L["SCAN_DEPTH_HELP"] = "\n|cff00ff00< 10|r : Eficiente (UI padrão)\n|cfffff5691
 L["%s settings reset."] = "Configurações de %s redefinidas."
 L["Profile reset. Reloading UI..."] = "Perfil redefinido. Recarregando interface..."
 L["Global Scan Depth changed. A /reload is recommended."] = "Profundidade de varredura global alterada. Um /reload é recomendado."
+
+-- Status Indicators
+L["ON"] = "ON"
+L["OFF"] = "OFF"
+L["Category Status"] = "Status das categorias"
+
+-- Tools
+L["Tools"] = "Ferramentas"
+L["Force Refresh"] = "Atualizar"
+L["Force a full rescan of all cooldown frames."] = "Força uma varredura completa de todos os quadros de recarga."
+L["Full refresh completed."] = "Atualização completa."
+L["Clear Debug Log"] = "Limpar registro"
+L["Clears the saved debug log data."] = "Limpa os dados do registro de depuração salvos."
+L["Debug log cleared."] = "Registro de depuração limpo."
+
+-- Category Descriptions
+L["ACTIONBAR_DESC"] = "Personalize as recargas nas barras de ação, incluindo Bartender4, Dominos e ElvUI."
+L["NAMEPLATE_DESC"] = "Estilize as recargas exibidas nas placas de nome inimigas e aliadas (Plater, KuiNameplates, etc.)."
+L["UNITFRAME_DESC"] = "Ajuste o estilo de recarga nos quadros de jogador, alvo e foco."
+L["GLOBAL_DESC"] = "Categoria geral para recargas que não pertencem a outras categorias (visualizadores do gerenciador de CD, bolsas, menus, addons diversos). Inclui estilo de cargas para os visualizadores Essential e Utility."

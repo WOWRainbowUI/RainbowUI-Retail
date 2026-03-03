@@ -229,8 +229,8 @@ local function CreateCategoryOptions(order, name, key, desc)
                 },
             },
 
-            -- ── 4. Stack Counters (action bar only) ─────────────────────
-            stackGroup = (key == "actionbar") and {
+            -- ── 4. Stack Counters / Charges ────────────────────────────
+            stackGroup = (key == "actionbar" or key == "global") and {
                 type = "group", name = L["Stack Counters / Charges"],
                 inline = true, order = 30, disabled = disabledFn,
                 args = {

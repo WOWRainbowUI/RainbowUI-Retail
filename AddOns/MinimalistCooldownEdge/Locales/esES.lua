@@ -74,3 +74,23 @@ L["SCAN_DEPTH_HELP"] = "\n|cff00ff00< 10|r : Eficiente (UI por defecto)\n|cfffff
 L["%s settings reset."] = "Ajustes de %s restablecidos."
 L["Profile reset. Reloading UI..."] = "Perfil restablecido. Recargando interfaz..."
 L["Global Scan Depth changed. A /reload is recommended."] = "Profundidad de escaneo global cambiada. Se recomienda un /reload."
+
+-- Status Indicators
+L["ON"] = "ON"
+L["OFF"] = "OFF"
+L["Category Status"] = "Estado de categorías"
+
+-- Tools
+L["Tools"] = "Herramientas"
+L["Force Refresh"] = "Actualizar"
+L["Force a full rescan of all cooldown frames."] = "Fuerza un escaneo completo de todos los marcos de reutilización."
+L["Full refresh completed."] = "Actualización completa."
+L["Clear Debug Log"] = "Limpiar registro"
+L["Clears the saved debug log data."] = "Limpia los datos del registro de depuración guardados."
+L["Debug log cleared."] = "Registro de depuración limpiado."
+
+-- Category Descriptions
+L["ACTIONBAR_DESC"] = "Personaliza los tiempos de reutilización en tus barras de acción, incluyendo Bartender4, Dominos y ElvUI."
+L["NAMEPLATE_DESC"] = "Estiliza los tiempos de reutilización en placas de nombre enemigas y aliadas (Plater, KuiNameplates, etc.)."
+L["UNITFRAME_DESC"] = "Ajusta el estilo de reutilización en marcos de jugador, objetivo y foco."
+L["GLOBAL_DESC"] = "Categoría general para tiempos de reutilización que no pertenecen a otras categorías (visores del gestor de CD, bolsas, menús, addons diversos). Incluye estilo de cargas para los visores Essential y Utility."

@@ -74,3 +74,23 @@ L["SCAN_DEPTH_HELP"] = "\n|cff00ff00< 10|r : 효율적 (기본 UI)\n|cfffff56910
 L["%s settings reset."] = "%s 설정 초기화됨."
 L["Profile reset. Reloading UI..."] = "프로필 초기화됨. UI 재로딩 중..."
 L["Global Scan Depth changed. A /reload is recommended."] = "전역 스캔 깊이가 변경되었습니다. /reload를 권장합니다."
+
+-- Status Indicators
+L["ON"] = "ON"
+L["OFF"] = "OFF"
+L["Category Status"] = "카테고리 상태"
+
+-- Tools
+L["Tools"] = "도구"
+L["Force Refresh"] = "새로고침"
+L["Force a full rescan of all cooldown frames."] = "모든 재사용 대기시간 프레임을 강제로 전체 스캔합니다."
+L["Full refresh completed."] = "전체 새로고침 완료."
+L["Clear Debug Log"] = "디버그 로그 삭제"
+L["Clears the saved debug log data."] = "저장된 디버그 로그 데이터를 삭제합니다."
+L["Debug log cleared."] = "디버그 로그 삭제됨."
+
+-- Category Descriptions
+L["ACTIONBAR_DESC"] = "Bartender4, Dominos, ElvUI를 포함한 행동 단축바의 재사용 대기시간을 사용자 정의합니다."
+L["NAMEPLATE_DESC"] = "적/아군 이름표에 표시되는 재사용 대기시간을 스타일합니다 (Plater, KuiNameplates 등)."
+L["UNITFRAME_DESC"] = "플레이어, 대상, 주시대상 유닛 프레임의 재사용 대기시간 스타일을 조정합니다."
+L["GLOBAL_DESC"] = "다른 카테고리에 속하지 않는 재사용 대기시간을 위한 범용 카테고리 (CD 관리자 뷰어, 가방, 메뉴, 기타 애드온). Essential 및 Utility 쿨다운 뷰어의 충전 스타일링을 포함합니다."
