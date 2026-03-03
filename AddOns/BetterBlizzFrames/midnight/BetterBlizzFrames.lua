@@ -2090,6 +2090,14 @@ function BBF.HookAndUpdatePartyFrameRangeAlpha(toggle)
     local function UpdateRangeAlpha(frame)
         if not frame or not frame.displayedUnit then return end
         if frame:IsForbidden() or string.match(frame.displayedUnit, "nameplate") then return end
+        if BBF.SoloPartyFrame then
+            frame:SetAlpha(1)
+            if frame.background and BetterBlizzFramesDB.partyFrameRangeAlphaSolidBackground then
+                frame.background:SetIgnoreParentAlpha(true)
+                frame.background:SetAlpha(1)
+            end
+            return
+        end
         local inRange = UnitInRange(frame.displayedUnit)
         frame:SetAlphaFromBoolean(inRange, 1, BetterBlizzFramesDB.partyFrameRangeAlpha or 0.55)
         if frame.background and BetterBlizzFramesDB.partyFrameRangeAlphaSolidBackground then
@@ -4932,12 +4940,6 @@ Frame:SetScript("OnEvent", function(...)
     BBF.ResizeUIWidgetPowerBarFrame()
     BBF.LegacyBlueCombos()
     BBF.HideClassResourceTooltip()
-
-    if not BetterBlizzFramesDB.skipBugWarning then
-        C_Timer.After(3.5, function()
-            BBF.Print(L["Print_Bugs_Expected"])
-        end)
-    end
 
     local function LoginVariablesLoaded()
         if BBF.variablesLoaded then
