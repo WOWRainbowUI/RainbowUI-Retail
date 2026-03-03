@@ -1,0 +1,37 @@
+{
+    "Lua.runtime.version": "Lua 5.1",
+    "Lua.runtime.builtin": {
+        "basic": "disable",
+        "debug": "disable",
+        "io": "disable",
+        "math": "disable",
+        "os": "disable",
+        "package": "disable",
+        "string": "disable",
+        "table": "disable",
+        "utf8": "disable"
+    },
+    "Lua.workspace.library": [
+        "~\\.vscode\\extensions\\ketho.wow-api-0.22.3\\Annotations\\Core"
+    ],
+    "Lua.diagnostics.globals": [
+        "PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME",
+        "PROFESSIONS_CRAFTER_ORDER_TAB_NPC",
+        "SuperTrackedFrame",
+        "UiMapPoint",
+        "CreateSimpleTextureMarkup",
+        "BINDING_NAME_MOVIE_RECORDING_GUI",
+        "CLICK_BINDING_OPEN_MENU",
+        "LEARN_SKILL_TEMPLATE",
+        "EXPANSION_NAME10",
+        "UIDropDownMenu_Initialize",
+        "ToggleDropDownMenu",
+        "EXPANSION_FILTER_TEXT",
+        "UIDropDownMenu_AddButton",
+        "UIDropDownMenu_AddSeparator",
+        "UIDropDownMenu_CreateInfo",
+        "SlashCmdList",
+        "CreateFramePool",
+        "AddonCompartmentFrame"
+    ]
+}
