@@ -5,7 +5,7 @@
 ## Version: 1.0.0 (4)
 ## Category: Unit Frames
 ## OptionalDeps: Ace3, LibSharedMedia-3.0
-## SavedVariables: PersonalResourceReskinDB,PlayerPowerTextDB,PlayerHealthTextDB,PRDHealthToggleDB,AbsorbBarsBlizzard_Config,CustomEssenceBarDB.locked,CustomEssenceBarDB.orbHeight,CustomEssenceBarDB.orbWidth,CustomEssenceBarDB,CustomHolyPowerBarDB,CustomDeathKnightRuneBarDB,CustomSoulShardBarDB,PRDRightClickMenuConfig,CustomDruidComboBarDB,CustomRogueComboBarDB,CustomMageArcaneOrbDB,CustomWindwalkerMonkOrbBarDB,CustomDruidComboBar
+## SavedVariables: PersonalResourceReskinDB,DevourTextDB,PlayerPowerTextDB,PlayerHealthTextDB,PRDHealthToggleDB,AbsorbBarsBlizzard_Config,CustomEssenceBarDB.locked,CustomEssenceBarDB.orbHeight,CustomEssenceBarDB.orbWidth,CustomEssenceBarDB,CustomHolyPowerBarDB,CustomDeathKnightRuneBarDB,CustomSoulShardBarDB,PRDRightClickMenuConfig,CustomDruidComboBarDB,CustomRogueComboBarDB,CustomMageArcaneOrbDB,CustomWindwalkerMonkOrbBarDB,CustomDruidComboBar
 ## SavedVariables: GuardianIronfurTrackerDB
 
 # Portions of this addon are based on Enhanced Cooldown Manager by Argium (GPL-3)

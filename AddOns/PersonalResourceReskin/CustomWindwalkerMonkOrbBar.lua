@@ -1,4 +1,3 @@
-
 local function get(info)
     local key = info[#info]
     local db = CustomWindwalkerMonkOrbBarDB
@@ -14,6 +13,13 @@ local function set(info, value)
     if ApplyBarSettings then ApplyBarSettings() end
 end
 
+local _, class = UnitClass("player")
+if class ~= "MONK" then return end
+local spec = GetSpecialization and GetSpecialization() or nil
+local specID = spec and GetSpecializationInfo(spec) or nil
+if specID ~= 269 then return end
+
+-- Only register options if Windwalker
 function RegisterWWMonkOrbOptions()
     local wwMonkOrbOptions = {
         type = "group",
@@ -198,13 +204,17 @@ function RegisterWWMonkOrbOptions()
     end
 end
 
-if IsLoggedIn and IsLoggedIn() then
+if IsLoggedIn and IsLoggedIn() and specID == 269 then
     RegisterWWMonkOrbOptions()
 else
     local f = CreateFrame("Frame")
-    f:RegisterEvent("PLAYER_LOGIN")
+    f:RegisterEvent("PLAYER_ENTERING_WORLD")
     f:SetScript("OnEvent", function()
-        RegisterWWMonkOrbOptions()
+        local spec = GetSpecialization and GetSpecialization() or nil
+        local specID = spec and GetSpecializationInfo(spec) or nil
+        if specID == 269 then
+            RegisterWWMonkOrbOptions()
+        end
     end)
 end
 
@@ -417,17 +427,6 @@ chiBar:SetScript("OnEvent", function(self, event, ...)
         UpdateChi()
     end
 end)
-
-local function ShouldShowChiBar()
-    -- Only true for Windwalker Monk
-    local _, class = UnitClass("player")
-    if class ~= "MONK" then return false end
-    local spec = GetSpecialization and GetSpecialization()
-    if not spec then return false end
-    local specID = GetSpecializationInfo(spec)
-    return specID == 269
-end
-
 
 function UpdateVisibility()
     local mounted = IsMounted and IsMounted() or (IsPlayerMounted and IsPlayerMounted())
