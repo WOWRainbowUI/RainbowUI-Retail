@@ -2398,6 +2398,7 @@ function DUIDialogBaseMixin:CloseDialogInteraction()
 end
 
 function DUIDialogBaseMixin:OnHide()
+    self:Hide();
     CameraUtil:Restore();
 
     self:CloseDialogInteraction();
@@ -2452,7 +2453,6 @@ end
 function DUIDialogBaseMixin:OnMouseUp(button)
     if button == "RightButton" and GetDBBool("RightClickToCloseUI") and self:IsMouseMotionFocus() then
         self:Hide();
-        --self:CloseDialogInteraction();
     end
 end
 
@@ -2788,9 +2788,6 @@ do  --Clipboard
                 content.body = body;
                 content.objective = objective;
             else
-                local GetGossipText = API.GetGossipText;
-                local GetQuestText = API.GetQuestText;
-
                 local questID = GetQuestID();
                 if questID and questID ~= 0 then
                     content.title = GetQuestTitle();
@@ -2833,6 +2830,7 @@ do  --Clipboard
     function DUIDialogBaseMixin:GetContentForClipboard()
         local str;
 
+        --Use unmodified APIs
         local GetGossipText = API.GetGossipText;
         local GetQuestText = API.GetQuestText;
 
