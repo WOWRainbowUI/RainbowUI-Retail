@@ -570,7 +570,7 @@ function KT.GetNumQuestWatches()
     for i = 1, C_QuestLog.GetNumQuestWatches() do
         local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(i)
         if questID then
-            local quest = QuestCache:Get(questID)
+            local quest = KT_QuestCache:Get(questID)
             if quest:IsDisabledForSession() then
                 numWatches = numWatches - 1
             end

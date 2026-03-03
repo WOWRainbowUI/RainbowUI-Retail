@@ -363,6 +363,11 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 8.2.1|r\n"..
+					"- CHANGED - TomTom - waypoint improvements\n"..
+					"- FIXED - taint errors (2)\n"..
+					"\n")..
+
 					(cTitle.."Version 8.2.0|r\n"..
 					"- ADDED - support for WoW 12.0.1.65867\n"..
 					"- FIXED - taint errors\n"..
