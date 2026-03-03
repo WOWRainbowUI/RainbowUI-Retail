@@ -30,6 +30,8 @@ end
 
 function Addon.SetInstanceDungeon(dungeon)
     MDTGuideDB.dungeon = dungeon
+
+    Addon.SetEnemyForcesOffsets()
 end
 
 function Addon.GetCurrentDungeonId()

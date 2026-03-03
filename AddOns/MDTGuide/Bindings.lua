@@ -1,0 +1,8 @@
+BINDING_HEADER_MDTGuide = "MDTGuide"
+BINDING_NAME_MDTGuide_Toggle = "Toggle Guide Mode"
+BINDING_NAME_MDTGuide_CurrPull = "View current pull"
+BINDING_NAME_MDTGuide_PrevPull = "View to previous pull"
+BINDING_NAME_MDTGuide_NextPull = "View to next pull"
+BINDING_NAME_MDTGuide_CurrPull_Permanent = "Set current pull to selected pull"
+BINDING_NAME_MDTGuide_PrevPull_Permanent = "Set current pull to previous pull"
+BINDING_NAME_MDTGuide_NextPull_Permanent = "Set current pull to next pull"

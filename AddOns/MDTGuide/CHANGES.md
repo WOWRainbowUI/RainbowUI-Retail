@@ -1,3 +1,1 @@
-- Updated ToC version for patch 12.0.1
-- Fix current dungeon detection
-- Make dependency on MDT non-optional
+- Fix error occuring when fade settings option is disabled
