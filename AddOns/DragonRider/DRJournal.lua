@@ -528,7 +528,7 @@ local settingsTabButton = _G[DR.mainFrame:GetName() .. "Tab2"]
 
 if settingsTabButton then
 	settingsTabButton:SetScript("OnClick", function()
-		if DR.SettingsCategoryID then
+		if DR.SettingsCategoryID and not UnitAffectingCombat("player") then
 			Settings.OpenToCategory(DR.SettingsCategoryID)
 		end
 	end)
