@@ -1,0 +1,31 @@
+## Interface: 120001
+## Title: BuffReminders
+## Notes: Track missing buffs at a glance
+## Author: zerbi
+## Version: v4.1.3
+## SavedVariables: BuffRemindersDB
+## X-Curse-Project-ID: 1441094
+## X-Wago-ID: qGYZZjNg
+## OptionalDeps: Masque, LibCustomGlow-1.0
+## IconTexture: Interface\AddOns\BuffReminders\icon.tga
+## Category: Buffs & Debuffs
+## Category-zhCN: 增益和减益
+## Category-zhTW: 增益與減益
+
+## Title-zhTW: |cffFF2D2D[戰鬥]|r 增益提醒
+## Notes-zhTW: nBuffReminders |n|讓玩家快速掌握自己或隊伍缺少的增益效果，並提供直覺的提醒方式，延續了團隊增益追蹤的便利性。|n|cffffd200使用方法：|r從Esc>選項>插件>增益提醒，進行設定。
+## X-Category-zhTW: 戰鬥
+
+Core.lua
+Data\Buffs.lua
+Data\CombatSafeSpells.lua
+Data\ConsumableItems.lua
+Data\Pets.lua
+State.lua
+UI\Components.lua
+UI\Glow.lua
+Display\BuffReminders.lua
+Display\ImportExport.lua
+Display\Movers.lua
+Display\SecureButtons.lua
+Options\Options.lua

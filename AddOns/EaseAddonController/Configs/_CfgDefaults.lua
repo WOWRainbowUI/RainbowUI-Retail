@@ -372,6 +372,17 @@ D["BugSack"] = {
 		text = "點小地圖按鈕的 '紅色小袋子' 也可以查看錯誤訊息。"
 	}
 };
+D["BuffReminders"] = {
+	defaultEnable = 1,
+	tags = { "COMBAT" },
+	title = "增益提醒",
+	desc = "即時檢查角色或隊伍缺少的增益效果，並提供直覺的提醒方式，玩家甚至可以直接點擊施放缺失的增益，不失為 WA 的一種簡易替代方案。``除了角色自身的技能增益效果外，還支援消耗品、寵物增益效果等多種來源，並允許使用者自訂追蹤清單，監控任何想要的增益效果。``插件的增益效果計數僅包含存活、在線、可見且同陣營的隊友，在野外時不會計算敵對陣營玩家。``需要注意的是，插件不會顯示死亡、離線或鏡像的玩家增益效果。`",
+	modifier = "彩虹ui",
+	{
+        text = "設定選項",
+        callback = function() SlashCmdList["BUFFREMINDERS"]("") end,
+    },
+};
 D["ButtonForge"] = {
 	defaultEnable = 0,
 	title = "更多快捷列",
