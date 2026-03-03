@@ -138,7 +138,7 @@ local function QuestPOIGetIconInfo(questID)
 	if not x or not y then
 		mapID = GetQuestUiMapID(questID)
 		if mapID and mapID > 0 then
-			local quests = KT.GetQuestsOnMapCached(mapID)
+			local quests = C_QuestLog.GetQuestsOnMap(mapID)
 			if quests then
 				for _, info in ipairs(quests) do
 					if info.questID == questID then
@@ -798,15 +798,15 @@ local function SetEvents()
 		end)
 	end, M)
 
-	-- Update waypoint after accept quest
+	-- Create waypoint after accept quest (2nd time)
 	KT:RegEvent("QUEST_POI_UPDATE", function()
-		local questID = C_SuperTrack.GetSuperTrackedQuestID()
-		if questID and QuestUtils_IsQuestWatched(questID) then
-			C_Timer.After(0, function()
-				SetSuperTrackedQuestWaypoint(questID)
-				OTF:Update()
-			end)
-		end
+        C_Timer.After(0, function()
+            local questID = C_SuperTrack.GetSuperTrackedQuestID()
+            if questID and QuestUtils_IsQuestWatched(questID) then
+                SetSuperTrackedQuestWaypoint(questID, true)
+                OTF:Update()
+            end
+        end)
 	end, M)
 end
 

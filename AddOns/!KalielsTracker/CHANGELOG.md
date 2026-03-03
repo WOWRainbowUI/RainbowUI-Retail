@@ -1,4 +1,7 @@
 # Kaliel's Tracker changelog
+### 8.2.1
+- CHANGED - TomTom - waypoint improvements
+- FIXED - taint errors (2)
 ### 8.2.0
 - ADDED - support for WoW 12.0.1.65867
 - FIXED - taint errors

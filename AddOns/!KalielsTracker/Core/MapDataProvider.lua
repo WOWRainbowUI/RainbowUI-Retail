@@ -1,12 +1,25 @@
 ---@type KT
 local _, KT = ...
 
+local CACHE_BUCKET_SECONDS = 3600
+local cacheBucket = math.floor(GetServerTime() / CACHE_BUCKET_SECONDS)
+
+local function UpdateCacheWindow()
+    local currentBucket = math.floor(GetServerTime() / CACHE_BUCKET_SECONDS)
+    if currentBucket ~= cacheBucket then
+        cacheBucket = currentBucket
+        KT.ClearCachedActivitiesForPlayer()
+    end
+end
+
 -- SharedMapPoiTemplates.lua -------------------------------------------------------------------------------------------
 
 -- Cache for C_QuestLog.GetQuestsOnMap
 local questCache = {}
 
 function KT.GetQuestsOnMapCached(mapID)
+    UpdateCacheWindow()
+
     local entry = questCache[mapID]
     if entry then
         return entry
@@ -43,6 +56,8 @@ local function AddIndicatorQuestsToTasks(container, mapID)
 end
 
 function KT.GetTasksOnMapCached(mapID)
+    UpdateCacheWindow()
+
     local entry = taskCache[mapID]
     if entry then
         return entry
@@ -63,6 +78,8 @@ end
 local areaPOICache = {}
 
 function KT.GetAreaPOIsForPlayerByMapIDCached(mapID)
+    UpdateCacheWindow()
+
     local entry = areaPOICache[mapID]
     if entry then
         return entry
@@ -75,6 +92,11 @@ end
 
 function KT.ClearCachedAreaPOIsForPlayer()
     areaPOICache = {}
+end
+
+function KT.ClearCachedActivitiesForPlayer()
+    KT.ClearCachedQuestsForPlayer()
+    KT.ClearCachedAreaPOIsForPlayer()
 end
 
 -- QuestOfferDataProvider.lua ------------------------------------------------------------------------------------------

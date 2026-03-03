@@ -8,7 +8,7 @@ function KT_POIButtonHighlightManager:SetHighlight(questID)
 		self:ClearHighlight();
 	end
 	self.questID = questID;
-	--EventRegistry:TriggerEvent("SetHighlightedQuestPOI", questID);
+	EventRegistry:TriggerEvent("SetHighlightedQuestPOI", questID);
 end
 
 function KT_POIButtonHighlightManager:ClearHighlight()
@@ -17,7 +17,7 @@ function KT_POIButtonHighlightManager:ClearHighlight()
 	end
 	local oldID = self.questID;
 	self.questID = nil;
-	--EventRegistry:TriggerEvent("ClearHighlightedQuestPOI", oldID);
+	EventRegistry:TriggerEvent("ClearHighlightedQuestPOI", oldID);
 end
 
 function KT_POIButtonHighlightManager:HasHighlight()

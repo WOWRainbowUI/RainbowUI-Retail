@@ -1828,7 +1828,7 @@ local function SetHooks()
 			elseif IsModifiedClick(db.menuYouTubeURLModifier) then
 				KT:Alert_YouTubeURL("quest", questID)
 			else
-				local quest = QuestCache:Get(questID);
+				local quest = KT_QuestCache:Get(questID);
 				if quest.isAutoComplete and quest:IsComplete() then
 					self:RemoveAutoQuestPopUp(questID);
 					ShowQuestComplete(questID);
