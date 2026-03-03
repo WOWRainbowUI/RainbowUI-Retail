@@ -82,19 +82,18 @@ L["Category Status"] = "分類狀態"
 
 -- Tools
 L["Tools"] = "工具"
-L["Force Refresh"] = "強制刷新"
-L["Force a full rescan of all cooldown frames."] = "強制重新掃描所有冷卻框架。"
-L["Full refresh completed."] = "完整刷新完成。"
-L["Clear Debug Log"] = "清除除錯紀錄"
-L["Clears the saved debug log data."] = "清除已儲存的除錯紀錄資料。"
-L["Debug log cleared."] = "除錯紀錄已清除。"
+L["Force Refresh"] = "強制重新整理"
+L["Force a full rescan of all cooldown frames."] = "強制對所有冷卻框架執行完整掃描。"
+L["Full refresh completed."] = "完整重新整理完成。"
+L["Clear Debug Log"] = "清除偵錯日誌"
+L["Clears the saved debug log data."] = "清除已儲存的偵錯日誌資料。"
+L["Debug log cleared."] = "偵錯日誌已清除。"
 
 -- Category Descriptions
-L["ACTIONBAR_DESC"] = "自訂主要快捷列上的冷卻，包括 Bartender4、Dominos 和 ElvUI。"
-L["NAMEPLATE_DESC"] = "設定顯示於敵人和友方名條上的冷卻樣式（Plater、KuiNameplates 等）。"
-L["UNITFRAME_DESC"] = "調整玩家、目標與專注框架上的冷卻樣式。"
-L["GLOBAL_DESC"] = "用於其他分類未涵蓋的冷卻（背包、選單、其他插件）。"
-
+L["ACTIONBAR_DESC"] = "自訂快捷列上的冷卻，包括 Bartender4、Dominos 和 ElvUI。"
+L["NAMEPLATE_DESC"] = "設定敵方和友方名條上顯示的冷卻樣式（Plater、KuiNameplates 等）。"
+L["UNITFRAME_DESC"] = "調整玩家、目標和專注目標單位框架上的冷卻樣式。"
+L["GLOBAL_DESC"] = "不屬於其他分類的冷卻的通用分類（冷卻管理器檢視器、背包、選單、其他插件）。包括關鍵和輔助冷卻檢視器的充能樣式。"
 
 -- 自行加入
 L["MiniCE"] = "極簡冷卻時間"
