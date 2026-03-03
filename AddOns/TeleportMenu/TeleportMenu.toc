@@ -17,7 +17,7 @@
 ## Category-zhTW: 使用者介面
 
 ## Author: Justwait
-## Version: v12
+## Version: v12.1
 ## SavedVariables: TeleportMenuDB
 ## OptionalDeps: Masque
 
