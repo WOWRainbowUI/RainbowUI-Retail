@@ -382,6 +382,9 @@ local function CreateEditOverlay(targetFrame, frameName)
 	Dropdown:SetupMenu(function(dropdown, rootDescription)
 		rootDescription:CreateButton(L["LockFrame"], function()
 			DR.ToggleEditMode(false)
+			if not UnitAffectingCombat("player") then
+				Settings.OpenToCategory(DR.SettingsCategoryID);
+			end
 		end)
 		
 		rootDescription:CreateButton(RESET_TO_DEFAULT, function()
@@ -853,7 +856,10 @@ function DR.OnAddonLoaded()
 
 		do
 			local function OnButtonClick()
-				DR.ToggleEditMode(true);
+				if not UnitAffectingCombat("player") then
+					HideUIPanel(SettingsPanel);
+					DR.ToggleEditMode(true);
+				end
 			end
 			local btnText = L["UnlockFrame"]
 			local btnTT = L["UnlockFrame"]
@@ -1655,7 +1661,9 @@ function DR.OnAddonLoaded()
 
 		function DragonRider_OnAddonCompartmentClick(addonName, buttonName, menuButtonFrame)
 			if buttonName == "RightButton" then
-				Settings.OpenToCategory(category.ID);
+				if not UnitAffectingCombat("player") then
+					Settings.OpenToCategory(category.ID);
+				end
 			else
 				DR.mainFrame:Show();
 			end
