@@ -74,7 +74,7 @@ L['elite'] = '菁英'
 L['quest'] = '任務'
 L['quest_repeatable'] = '可重複任務'
 L['achievement'] = '成就'
-L['decor_owned'] = nil
+L['decor_owned'] = '已擁有：%s'
 
 ---------------------------------- LOCATION -----------------------------------
 L['in_cave'] = '在洞穴。'
@@ -134,8 +134,8 @@ L['sr_reverse_challenge'] = '逆向挑戰'
 L['sr_storm_race'] = '風暴競速'
 L['sr_bronze'] = '完成賽事來取得 ' .. ns.color.Bronze('銅牌') .. '.'
 L['sr_vendor_note'] = '使用 {currency:2588} 交換飛龍觀察者手稿和塑型.'
-L['options_icons_skyriding_race'] = '飛行競速'
-L['options_icons_skyriding_race_desc'] = '顯示區域內所有飛行競速的位置。'
+L['options_icons_skyriding_race'] = '天空騎術競速'
+L['options_icons_skyriding_race_desc'] = '顯示區域內所有天空騎術競速的位置.'
 
 -------------------------------------------------------------------------------
 --------------------------------- CONTEXT MENU --------------------------------
@@ -204,8 +204,8 @@ L['ignore_faction_restrictions_desc'] = '顯示需要對方陣營的隊伍、地
 L['options_rewards_settings'] = '獎勵'
 L['options_reward_behaviors_settings'] = '獎勵行為'
 L['options_reward_types'] = '顯示獎勵類型'
-L['options_decor_rewards'] = '顯示裝飾品獎勵'
-L['options_decor_rewards_desc'] = '在浮動提示資訊中顯示房屋裝飾品獎勵。'
+L['options_decor_rewards'] = '顯示房屋裝飾獎勵'
+L['options_decor_rewards_desc'] = '在浮動提示資訊中顯示房屋裝飾獎勵並追蹤收集狀態。'
 L['options_manuscript_rewards'] = '顯示飛龍觀察者手稿獎勵'
 L['options_manuscript_rewards_desc'] = '在浮動提示資訊中顯示飛龍觀察者手稿並追蹤收集狀態。'
 L['options_mount_rewards'] = '顯示坐騎獎勵'
