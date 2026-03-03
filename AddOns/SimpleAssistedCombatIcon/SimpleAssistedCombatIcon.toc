@@ -5,7 +5,7 @@
 ## Title: Simple Assisted Combat Icon
 ## Notes: A simple icon to display the current recommended ability from Blizzards Assisted Combat API.
 ## Author: Katur239
-## Version: 12.0.1.3
+## Version: 12.0.1.5
 ## SavedVariables: SCAIDB
 
 Libs\LibStub\LibStub.lua
@@ -13,6 +13,7 @@ Libs\LibSharedMedia.xml
 Libs\Ace3.xml
 Libs\LibKeyBound-1.0\lib.xml
 Libs\LibDualSpec-1.0\LibDualSpec-1.0.lua
+Libs\libdatabroker-1-1\LibDataBroker-1.1.lua
 
 Core.lua
 CombatAssistIcon.xml

@@ -1,9 +1,12 @@
 local addonName, addon = ...
 
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "Title")
+local addonIcon = C_AddOns.GetAddOnMetadata(addonName, "IconTexture")
+local PREFIX = "|cff4cc9f0SACI|r: "
 
 local LSM = LibStub("LibSharedMedia-3.0")
 local LDS = LibStub("LibDualSpec-1.0")
+local LDB = LibStub("LibDataBroker-1.1")
 
 local Masque = LibStub("Masque",true)
 local AceAddon = LibStub("AceAddon-3.0")
@@ -12,7 +15,7 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local AceDB = LibStub("AceDB-3.0")
 
-local DB_VERSION = 4
+local DB_VERSION = 5
 
 addon = AceAddon:NewAddon(addon, addonName, "AceConsole-3.0", "AceEvent-3.0")
 
@@ -51,7 +54,13 @@ local defaults = {
             },
         },
         iconSize = 48,
-        alpha = 1, 
+        alpha = 1,
+        icon = {
+            alpha = 1, 
+            size = 48,
+            scale = 1,
+            ratio = 1,
+        },
         fadeOutAlpha = 0.25,
         fadeOutHide = false,
         border = {
@@ -62,6 +71,7 @@ local defaults = {
         position = {
             strata = 3,
             parent = "UIParent",
+            parentFrame = "UIParent",
             point = "CENTER",
             relativePoint = "CENTER",
             X = 0,
@@ -80,6 +90,18 @@ local defaults = {
             overrides = {},
         }
     }
+}
+
+local BuiltinParentFrames = {
+    PlayerFrame = "Player Unit Frame",
+    TargetFrame = "Target Unit Frame",
+    EssentialCooldownViewer = "Essential Cooldown Viewer",
+    UtilityCooldownViewer = "Utility Cooldown Viewer",
+    PersonalResourceDisplayFrame = "Personal Resource Display",
+    UIParent = "Screen",
+    __nameplate = "Target Nameplate",
+    __cursor = "Cursor",
+    __other = "Other",
 }
 
 function addon:OnInitialize()
@@ -150,6 +172,18 @@ function addon:UpdateDB()
         profile.DBVERSION = 4
     end
 
+    if profile.DBVERSION < 5 then
+        local parent = profile.position.parent
+
+        if BuiltinParentFrames[parent] ~= nil then
+            profile.position.parentFrame = parent
+        else
+            profile.position.parentFrame = "__other"
+        end
+
+        profile.DBVERSION = 5
+    end
+
     profile.DBVERSION = DB_VERSION
 end
 
@@ -216,9 +250,10 @@ function addon:SetupOptions()
                 desc = "Lock or unlock the frame for movement.\n\n|cffffa000TIP: Press and Hold the CONTROL key while hovering over the icon to show a Lock/Unlock toggle button!|r",
                 get = function() return addon.db.profile.locked end,
                 set = function(_, val)
-                    addon.db.profile.locked = val
+                    AssistedCombatIconFrame:Lock(val)
                     AssistedCombatIconFrame:ApplyOptions()
                 end,
+                disabled = function() return addon.db.profile.position.parentFrame ~= "UIParent" end,
                 order = 1,
                 width = 0.6,
             },
@@ -469,6 +504,27 @@ function addon:SetupOptions()
                         name = "",
                         inline = true,
                         order = 5,
+                        args = {
+                            scale = {
+                                type = "range",
+                                name = "Icon Scale",
+                                desc = "Set the scale of the icon",
+                                min = 0.25, max = 2, step = 0.05,
+                                get = function() return addon.db.profile.icon.scale end,
+                                set = function(_, val)
+                                    addon.db.profile.icon.scale = val
+                                    AssistedCombatIconFrame:ApplyOptions()
+                                end,
+                                order = 1,
+                                width = "normal",
+                            },
+                        },
+                    },
+                    grp6 = {
+                        type = "group",
+                        name = "",
+                        inline = true,
+                        order = 6,
                         args = {
                             checkVisible = {
                                 type = "toggle",
@@ -948,7 +1004,7 @@ function addon:SetupOptions()
                         end,
                         disabled = function() return not ConsolePort end,
                         order = 2,
-                        width = 1.2,
+                        width = 1.5,
                     },
                 },
             },
@@ -1054,27 +1110,45 @@ function addon:SetupOptions()
             },
             subgroup2 = {
                 type = "group",
-                name = "Advanced",
+                name = "Anchor",
                 inline = true,
                 args = {
                     parent = {
-                        type = "input",
+                        type = "select",
                         name = " Frame Parent",
                         desc = "Enter a frame name to anchor the icon to.",
-                        get = function() return addon.db.profile.position.parent or "UIParent" end,
+                        values = BuiltinParentFrames,
+                        get = function() return addon.db.profile.position.parentFrame end,
+                        set = function(_, val)
+                            addon.db.profile.position.parentFrame = val
+                            if not val:match("^__") then
+                                addon.db.profile.position.parent = val
+                            end
+                            AssistedCombatIconFrame:ApplyOptions()
+                        end,
+                        order = 1,
+                        width = 1.2,
+                    },
+                    frame = {
+                        type = "input",
+                        name = "Specific Frame",
+                        desc = "Enter a frame name to anchor the icon to.",
+                        get = function() return addon.db.profile.position.parent end,
                         set = function(_, val)
                             if val == "" then val = "UIParent" end
                             addon.db.profile.position.parent = val
                             AssistedCombatIconFrame:ApplyOptions()
                         end,
                         validate = function(info, value)
-                            if value == "" then return true end
                             if not _G[value] then
                                 return "That frame doesn't exist."
                             end
                             return true
                         end,
-                        order = 1,
+                        hidden = function()
+                            return addon.db.profile.position.parentFrame ~= "__other"
+                        end,
+                        order = 3,
                     },
                     point = {
                         type = "select",
@@ -1106,11 +1180,11 @@ function addon:SetupOptions()
                         type = "group",
                         name = "",
                         inline = true,
-                        order = 3,
+                        order = 4,
                         args = {
                             parentWarning = {
                                 type = "description",
-                                name = "|cffffa000Dragging the icon will reset the Frame Parent back to the UIParent.|r\n|cffffa000Setting this option will also disable the lock/unlock button on mouseover with the Control key.|r",
+                                name = "|cffffa000Unlocking and dragging the icon is disabled when the Frame Parent is not set to Screen.|r\n\n|cffffa000Cooldown Manager addons may interfere with SACI when Frame anchor is set to one of the viewers.|r",
                             },
                         },
                     },
@@ -1139,8 +1213,48 @@ function addon:SetupOptions()
 
     AddonCompartmentFrame:RegisterAddon({
         text = addonTitle,
-        icon = C_AddOns.GetAddOnMetadata(addonName, "IconTexture"),
+        icon = addonIcon,
         func = function() AceConfigDialog:Open(addonName) end
+    })
+
+    local function DataBrokerLabel()
+        if addon.db.profile.enabled then
+            return PREFIX .. "(|c0000ff00Enabled|r)"
+        else
+            return PREFIX .. "(|c00ff0000Disabled|r)"
+        end
+    end
+
+    addon.DataBroker = LDB:NewDataObject(addonName,{
+        type = "launcher",
+        text = nil,
+        label = DataBrokerLabel(),
+        icon = addonIcon,
+        OnClick = function(self, button, ...)
+            if button and button == "RightButton" then
+                addon.db.profile.enabled = not addon.db.profile.enabled
+                AssistedCombatIconFrame:UpdateVisibility()
+
+                addon.DataBroker.label = DataBrokerLabel()
+                if AceConfigDialog.OpenFrames[addonName] then
+                    AceConfigRegistry:NotifyChange(addonName)
+                end
+            else
+                addon:OpenConfig()
+            end
+        end,
+        OnEnter = function(frame)
+            GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMLEFT")
+            GameTooltip:SetText(addonTitle)
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine("|cff4cc9f0 Left Click|r: Open Config")
+            GameTooltip:AddLine("|cff4cc9f0Right Click|r: Enable/Disable")
+            GameTooltip:Show()
+        end,
+        OnLeave = function(frame)
+            if frame ~= self then return end
+            GameTooltip:Hide()
+        end
     })
 end
 
@@ -1149,24 +1263,41 @@ function addon:OnProfileChanged()
     AssistedCombatIconFrame:Reload()
 end
 
+function addon:OpenConfig()
+    if AceConfigDialog.OpenFrames[addonName] then
+        AceConfigDialog:Close(addonName)
+    else
+        AceConfigDialog:Open(addonName)
+    end
+end
+
 function addon:SlashCommand(input)
     input = input:lower():trim()
-    local PREFIX = "|cff4cc9f0SACI|r: "
 
     if input == "" then
-        AceConfigDialog:Open(addonName)
+        self:OpenConfig()
     elseif input =="lock" then
-        self.db.profile.locked = not self.db.profile.locked
-        AssistedCombatIconFrame:Lock(self.db.profile.locked)
-        DEFAULT_CHAT_FRAME:AddMessage(
-            PREFIX .. (self.db.profile.locked and "Locked" or "Unlocked")
-        )
+        if addon.db.profile.position.parentFrame ~= "UIParent" then
+            DEFAULT_CHAT_FRAME:AddMessage(
+                PREFIX .. "Cannot lock or unlock while not anchored to the Screen."
+            )
+        else
+            AssistedCombatIconFrame:Lock(not self.db.profile.locked)
+            DEFAULT_CHAT_FRAME:AddMessage(
+                PREFIX .. (self.db.profile.locked and "Locked" or "Unlocked")
+            )
+        end
     elseif input =="unlock" then
-        self.db.profile.locked = false
-        AssistedCombatIconFrame:Lock(false)
-        DEFAULT_CHAT_FRAME:AddMessage(
-            PREFIX .. "Unlocked"
-        )
+        if addon.db.profile.position.parentFrame ~= "UIParent" then
+            DEFAULT_CHAT_FRAME:AddMessage(
+                PREFIX .. "Cannot lock or unlock while not anchored to the Screen."
+            )
+        else
+            AssistedCombatIconFrame:Lock(false)
+            DEFAULT_CHAT_FRAME:AddMessage(
+                PREFIX .. "Unlocked"
+            )
+        end
     elseif input =="toggle" then
         self.db.profile.enabled = not self.db.profile.enabled
         DEFAULT_CHAT_FRAME:AddMessage(
