@@ -408,32 +408,7 @@ local function ReskinBar(bar, barType)
     if barType == "power" then
         local _, class = UnitClass("player")
         local spec = GetSpecialization() -- 1: havoc, 2: Vengeance, 3: devour
-        if class == "DEMONHUNTER" and spec == 3 then
-            if not bar.__PRD_IMarker then
-                -- Vertical line
-                local vLine = bar:CreateTexture(nil, "OVERLAY")
-                vLine:SetColorTexture(1, 1, 1, 1)
-                vLine:SetSize(2, bar:GetHeight() * 1)
-                -- Horizontal line
-                local hLine = bar:CreateTexture(nil, "OVERLAY")
-                hLine:SetColorTexture(0, 0, 0, 0)
-                hLine:SetSize(12, 2)
-                bar.__PRD_IMarker = {vLine = vLine, hLine = hLine}
-            end
-            local barWidth = bar:GetWidth() or 220
-            local barHeight = bar:GetHeight() or 20
-            local x = barWidth * 0.8333
-            local vLine = bar.__PRD_IMarker.vLine
-            local hLine = bar.__PRD_IMarker.hLine
-            vLine:ClearAllPoints()
-            vLine:SetPoint("BOTTOM", bar, "BOTTOMLEFT", x, 0)
-            hLine:ClearAllPoints()
-            hLine:SetPoint("BOTTOM", vLine, "TOP", 0, 0)
-            vLine:SetHeight(bar:GetHeight() * 1)
-            hLine:SetWidth(12)
-            vLine:Show()
-            hLine:Show()
-        end
+        -- Removed all 'T' marker code for Devour Demon Hunter (spec == 3)
     end
     -- Hide marker for non-Demon Hunter classes
     if barType == "power" then
@@ -448,67 +423,11 @@ if barType == "altpower" then
     local _, class = UnitClass("player")
     local spec = GetSpecialization() -- 1: havoc, 2: Vengeance, 3: devour
     if class == "DEMONHUNTER" and spec == 3 then
-        local percents = {0.14286, 0.28571, 0.42857, 0.57143, 0.71429, 0.85714, 1.0}
-        bar.__PRD_AltMarkers = bar.__PRD_AltMarkers or {}
-        local barWidth = bar:GetWidth() or 220
-        local barHeight = bar:GetHeight() or 20
-        -- Create or update markers
-        for i, pct in ipairs(percents) do
-            if not bar.__PRD_AltMarkers[i] then
-                local vLine = bar:CreateTexture(nil, "OVERLAY")
-                vLine:SetColorTexture(0, 0, 0, 0.9)
-                vLine:SetSize(2, barHeight)
-                local hLine = bar:CreateTexture(nil, "OVERLAY")
-                hLine:SetColorTexture(0, 0, 0, 0)
-                hLine:SetSize(12, 2)
-                bar.__PRD_AltMarkers[i] = {vLine = vLine, hLine = hLine}
-            end
-            local x = barWidth * pct
-            local vLine = bar.__PRD_AltMarkers[i].vLine
-            local hLine = bar.__PRD_AltMarkers[i].hLine
-            vLine:ClearAllPoints()
-            vLine:SetPoint("BOTTOM", bar, "BOTTOMLEFT", x, 0)
-            hLine:ClearAllPoints()
-            hLine:SetPoint("BOTTOM", vLine, "TOP", 0, 0)
-            vLine:SetHeight(barHeight)
-            hLine:SetWidth(12)
-            vLine:Show()
-            hLine:Show()
-        end
-        -- Hide any extra markers if the table is too long
-        for i = #percents + 1, #bar.__PRD_AltMarkers do
-            local marker = bar.__PRD_AltMarkers[i]
-            if marker then
+        -- All 'T' marker code for Devour Demon Hunter (spec == 3) removed: do nothing
+        if bar.__PRD_AltMarkers then
+            for _, marker in ipairs(bar.__PRD_AltMarkers) do
                 marker.vLine:Hide()
                 marker.hLine:Hide()
-            end
-        end
-
-        -- Hook SetHeight to always update marker heights if not already hooked
-        if not bar.__PRD_AltMarkers_HeightHooked then
-            bar.__PRD_AltMarkers_HeightHooked = true
-            local origSetHeight = bar.SetHeight
-            bar.SetHeight = function(self, newHeight, ...)
-                local result = origSetHeight(self, newHeight, ...)
-                -- Only update markers if they exist and this is the right bar
-                if self.__PRD_AltMarkers and type(self.__PRD_AltMarkers) == "table" then
-                    local barWidth = self:GetWidth() or 220
-                    for i, marker in ipairs(self.__PRD_AltMarkers) do
-                        if marker and marker.vLine and marker.hLine then
-                            marker.vLine:SetHeight(newHeight)
-                            -- Optionally, reposition in case barWidth changed
-                            local pct = percents[i]
-                            if pct then
-                                local x = barWidth * pct
-                                marker.vLine:ClearAllPoints()
-                                marker.vLine:SetPoint("BOTTOM", self, "BOTTOMLEFT", x, 0)
-                                marker.hLine:ClearAllPoints()
-                                marker.hLine:SetPoint("BOTTOM", marker.vLine, "TOP", 0, 0)
-                            end
-                        end
-                    end
-                end
-                return result
             end
         end
     elseif bar.__PRD_AltMarkers then
@@ -516,11 +435,6 @@ if barType == "altpower" then
             marker.vLine:Hide()
             marker.hLine:Hide()
         end
-    end
-elseif bar.__PRD_AltMarkers then
-    for _, marker in ipairs(bar.__PRD_AltMarkers) do
-        marker.vLine:Hide()
-        marker.hLine:Hide()
     end
 end
    
@@ -1847,73 +1761,12 @@ function PersonalResourceReskin:OnInitialize()
         end
         -- Register MonkOrbTracker options as a subpage if available ONLY if player is a Monk
         local _, class = UnitClass("player")
-        if class == "MONK" then
-            if _G.MonkOrbTrackerOptions then
-                PersonalResourceReskinPlus_Options.RegisterSubOptions("MonkOrbTracker", _G.MonkOrbTrackerOptions)
+        if class == "DEMONHUNTER" and spec == 3 and bar.__PRD_AltMarkers then
+            for _, marker in ipairs(bar.__PRD_AltMarkers) do
+                marker.vLine:Hide()
+                marker.hLine:Hide()
             end
         end
-            -- Register WarriorPainTracker options as a subpage if available
-            if _G.WarriorPainTrackerOptions then
-                PersonalResourceReskinPlus_Options.RegisterSubOptions("WarriorPainTracker", _G.WarriorPainTrackerOptions)
-            end
-        -- Register WarriorTracker options as a subpage if available (Fury Warrior Whirlwind tracker) ONLY if player is a Warrior
-        local _, class = UnitClass("player")
-        if class == "WARRIOR" then
-            if _G.WarriorTrackerOptions then
-                PersonalResourceReskinPlus_Options.RegisterSubOptions("WarriorTracker", _G.WarriorTrackerOptions)
-            end
-        end
-        -- Add a dedicated Profile Management subpage using AceDBOptions-3.0
-        local AceDBOptions = LibStub and LibStub("AceDBOptions-3.0", true)
-        local LibDualSpec = LibStub("LibDualSpec-1.0", true)
-        if AceDBOptions and self.db then
-            local profileOptions = AceDBOptions:GetOptionsTable(self.db)
-            -- Enhance profile options with spec profile support
-            if LibDualSpec then
-                LibDualSpec:EnhanceOptions(profileOptions, self.db)
-            end
-            profileOptions.order = 1000
-            profileOptions.name = "Profile Management"
-            profileOptions.args = profileOptions.args or {}
-            profileOptions.args._ckraigfriend_logo = {
-                order = 9998,
-                type = "description",
-                name = "|TInterface/AddOns/PersonalResourceReskin/Media/ckraiglogo.tga:64:64:0:0|t",
-                fontSize = "medium",
-            }
-            profileOptions.args._ckraigfriend_footer = {
-                order = 9999,
-                type = "description",
-                name = "|cff888888|r\n\n|cffffffffMade by Ckraigfriend|r",
-                fontSize = "medium",
-            }
-            profileOptions.args._current_profile_footer = {
-                order = 10000,
-                type = "description",
-                name = function()
-                    local db = PersonalResourceReskin and PersonalResourceReskin.db
-                    local prof = db and db:GetCurrentProfile() or "Unknown"
-                    return "|cffaaaaaaCurrent Profile:|r |cffffffff" .. prof .. "|r"
-                end,
-                fontSize = "medium",
-            }
-            PersonalResourceReskinPlus_Options.RegisterSubOptions("Profiles", profileOptions)
-        end
-
-        -- Add Custom Rogue Combo Bar options if available
-        -- Load Rogue Combo Bar Options if not already loaded
-        -- Load and register Rogue Combo Bar Options ONLY if player is a Rogue
-        local _, class = UnitClass("player")
-        if class == "ROGUE" then
-            if not _G.CustomRogueComboBarOptions and type(loadfile) == "function" then
-                pcall(function() loadfile("Interface/AddOns/PersonalResourceReskin/CustomRogueComboBarOptions.lua")() end)
-            end
-            if _G.CustomRogueComboBarOptions then
-                PersonalResourceReskinPlus_Options.RegisterSubOptions("CustomRogueComboBar", _G.CustomRogueComboBarOptions)
-            end
-        end
-
-        -- Load and register Druid Combo Bar Options ONLY if player is a Druid
         local _, class = UnitClass("player")
         if class == "DRUID" then
             if not _G.CustomDruidComboBarOptions and type(loadfile) == "function" then

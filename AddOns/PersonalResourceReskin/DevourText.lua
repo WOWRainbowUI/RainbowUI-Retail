@@ -1,5 +1,3 @@
-
-
 -- Only load for Demon Hunters
 local _, class = UnitClass("player")
 if class ~= "DEMONHUNTER" then return end
@@ -32,51 +30,76 @@ end
 
 
 local function GetDevourValue()
-    if DemonHunterSoulFragmentsBar and DemonHunterSoulFragmentsBar.GetValue then
-        return DemonHunterSoulFragmentsBar:GetValue()
-    end
-    return 0
+    -- If you want to show a real value, replace this with your logic
+    return "0"
 end
 
 local LSM = LibStub("LibSharedMedia-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
+DevourTextDB = DevourTextDB or {}
 local defaults = {
-    profile = {
-        devourFont = "Friz Quadrata TT",
-        devourFontSize = 20,
-        devourAnchorPoint = "CENTER"
-    }
+    devourFont = "Friz Quadrata TT",
+    devourFontSize = 20,
+    devourAnchorPoint = "CENTER",
+    devourStrata = "HIGH",
+    devourLocked = false
 }
 
-local db
-
-local function ApplyDevourFont()
-    if db and db.profile and db.profile.devourFont then
-        local font = LSM:Fetch("font", db.profile.devourFont) or STANDARD_TEXT_FONT
-        local size = db.profile.devourFontSize or 20
-        frame.text:SetFont(font, size, "OUTLINE")
+local function CopyDefaults(dest, src)
+    for k, v in pairs(src) do
+        if dest[k] == nil then dest[k] = v end
     end
+end
+CopyDefaults(DevourTextDB, defaults)
+
+function ApplyDevourFont()
+    local font = LSM:Fetch("font", DevourTextDB.devourFont) or STANDARD_TEXT_FONT
+    local size = DevourTextDB.devourFontSize or 20
+    frame.text:SetFont(font, size, "OUTLINE")
+    frame:SetFrameStrata(DevourTextDB.devourStrata or "HIGH")
 end
 
 local options = {
     name = "|cFFA330C9Devour Text Font|r",
     type = "group",
     args = {
+        devourStrata = {
+            name = "Devour Text Strata",
+            desc = "Set the frame strata for the Devour text (controls layering).",
+            type = "select",
+            values = {
+                BACKGROUND = "BACKGROUND",
+                LOW = "LOW",
+                MEDIUM = "MEDIUM",
+                HIGH = "HIGH",
+                DIALOG = "DIALOG",
+                FULLSCREEN = "FULLSCREEN",
+                FULLSCREEN_DIALOG = "FULLSCREEN_DIALOG",
+                TOOLTIP = "TOOLTIP",
+            },
+            get = function() return DevourTextDB.devourStrata or "HIGH" end,
+            set = function(_, val)
+                DevourTextDB.devourStrata = val
+                frame:SetFrameStrata(val)
+            end,
+            order = 2.5,
+        },
         devourFont = {
             name = "Devour Text Font",
             desc = "Select a font for the Devour text.",
             type = "select",
-            values = function() return LSM:HashTable("font") end,
-            get = function()
-                return db and db.profile and db.profile.devourFont or "Friz Quadrata TT"
+            values = function()
+                local fonts = LSM:HashTable("font")
+                local short = {}
+                for k, _ in pairs(fonts) do short[k] = k end
+                return short
             end,
+            get = function() return DevourTextDB.devourFont or "Friz Quadrata TT" end,
             set = function(_, val)
-                if db and db.profile then
-                    db.profile.devourFont = val
-                    ApplyDevourFont()
-                end
+                DevourTextDB.devourFont = val
+                ApplyDevourFont()
             end,
             order = 1,
         },
@@ -85,14 +108,10 @@ local options = {
             desc = "Set the font size for the Devour text.",
             type = "range",
             min = 8, max = 48, step = 1,
-            get = function()
-                return db and db.profile and db.profile.devourFontSize or 20
-            end,
+            get = function() return DevourTextDB.devourFontSize or 20 end,
             set = function(_, val)
-                if db and db.profile then
-                    db.profile.devourFontSize = val
-                    ApplyDevourFont()
-                end
+                DevourTextDB.devourFontSize = val
+                ApplyDevourFont()
             end,
             order = 2,
         },
@@ -103,9 +122,9 @@ local options = {
             order = 3,
             func = function()
                 frame:EnableMouse(false)
-                if db and db.profile then db.profile.devourLocked = true end
+                DevourTextDB.devourLocked = true
             end,
-            disabled = function() return db and db.profile and db.profile.devourLocked end,
+            disabled = function() return DevourTextDB.devourLocked end,
         },
         unlockDevourText = {
             name = "Unlock Devour Text",
@@ -114,9 +133,9 @@ local options = {
             order = 4,
             func = function()
                 frame:EnableMouse(true)
-                if db and db.profile then db.profile.devourLocked = false end
+                DevourTextDB.devourLocked = false
             end,
-            disabled = function() return db and db.profile and not db.profile.devourLocked end,
+            disabled = function() return not DevourTextDB.devourLocked end,
         },
     },
 }
@@ -129,9 +148,9 @@ end)
 
 
 local function OnInitialize()
-    db = LibStub("AceDB-3.0"):New("DevourTextDB", defaults, true)
+    CopyDefaults(DevourTextDB, defaults)
     ApplyDevourFont()
-    if db and db.profile and db.profile.devourLocked then
+    if DevourTextDB.devourLocked then
         frame:EnableMouse(false)
     else
         frame:EnableMouse(true)
@@ -147,7 +166,6 @@ local function UpdateDevourText()
     if ShouldShowDevour() then
         local value = GetDevourValue()
         frame.text:SetText(value or "0")
-        ApplyDevourFont()
         frame:Show()
     else
         frame:Hide()
@@ -162,9 +180,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
 end)
 
 local function AnchorToPRDBar()
-    local prd = _G.PersonalResourceDisplayFrame
-    local altBar = prd and prd.AlternatePowerBar
-    local background = altBar and altBar.background
+    local prd = rawget(_G, "PersonalResourceDisplayFrame")
+    local altBar = prd and prd.AlternatePowerBar or nil
+    local background = altBar and altBar.background or nil
     if altBar and background then
         frame:SetParent(altBar)
         frame:ClearAllPoints()
@@ -174,16 +192,16 @@ local function AnchorToPRDBar()
         frame:ClearAllPoints()
         frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
     end
-    frame:SetFrameStrata("HIGH")
+    frame:SetFrameStrata(DevourTextDB.devourStrata or "HIGH")
     frame:SetFrameLevel(100)
 end
 
 AnchorToPRDBar()
 
 local function HookPRDBar()
-    local prd = _G.PersonalResourceDisplayFrame
-    local altBar = prd and prd.AlternatePowerBar
-    local background = altBar and altBar.background
+    local prd = _G and _G.PersonalResourceDisplayFrame or nil
+    local altBar = prd and prd.AlternatePowerBar or nil
+    local background = altBar and altBar.background or nil
     if background and not background._devourTextHooked then
         background._devourTextHooked = true
         hooksecurefunc(background, "SetPoint", function()
