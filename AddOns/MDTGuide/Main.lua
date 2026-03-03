@@ -6,6 +6,9 @@ local Addon = select(2, ...)
 MDTG = Addon
 MDTGuideDB = {
     active = false,
+    dungeon = nil,
+    offsetEnemyForces = nil,
+    offsetBosses = nil,
     options = {
         height = 200,
         widthSide = 200,
@@ -35,7 +38,7 @@ Addon.COLOR_DEAD = { 0.55, 0.13, 0.13 }
 Addon.DEBUG = false
 Addon.PATTERN_INSTANCE_RESET = "^" .. INSTANCE_RESET_SUCCESS:gsub("%%s", ".+") .. "$"
 
-local toggleBtn, currentPullBtn, announceBtn
+local toggleBtn, currBtn, prevBtn, nextBtn, announceBtn
 local hideFrames, hoverFrames
 local zoomAnimGrp, fadeAnimGrp
 local fadeTicker, isFaded
@@ -87,8 +90,17 @@ function Addon.EnableGuideMode(noZoom)
     f:SetWidth(MDTGuideDB.options.widthSide)
     f:SetPoint("TOPLEFT", main, "TOPRIGHT", 0, 25)
     f:SetPoint("BOTTOMLEFT", main, "BOTTOMRIGHT", 0, -20)
+
+    main.closeButton:SetWidth(18)
+    main.closeButton:SetHeight(18)
+
     toggleBtn:SetPoint("RIGHT", main.closeButton, "LEFT")
-    currentPullBtn:Show()
+    toggleBtn:SetWidth(18)
+    toggleBtn:SetHeight(18)
+
+    currBtn:Show()
+    prevBtn:Show()
+    nextBtn:Show()
     announceBtn:Show()
 
     -- Adjust enemy info
@@ -145,8 +157,17 @@ function Addon.DisableGuideMode()
     w:SetWidth(251)
     w:SetPoint("TOPLEFT", main, "TOPRIGHT", 0, 30)
     w:SetPoint("BOTTOMLEFT", main, "BOTTOMRIGHT", 0, -30)
+
+    main.closeButton:SetWidth(24)
+    main.closeButton:SetHeight(24)
+
     toggleBtn:SetPoint("RIGHT", main.maximizeButton, "LEFT", 0, 0)
-    currentPullBtn:Hide()
+    toggleBtn:SetWidth(24)
+    toggleBtn:SetHeight(24)
+
+    currBtn:Hide()
+    prevBtn:Hide()
+    nextBtn:Hide()
     announceBtn:Hide()
 
     -- Reset enemy info
@@ -422,7 +443,7 @@ function Addon.ScrollToPull(n, center)
 end
 
 -- ---------------------------------------
---                 Fade
+--               Fade/Hide
 -- ---------------------------------------
 
 function Addon.SetFade(fade)
@@ -518,6 +539,16 @@ function Addon.GetHoverFrames()
     return hoverFrames
 end
 
+function Addon.SetHide(hide)
+    if hide ~= nil then
+        MDTGuideDB.options.hide = hide
+    end
+
+    if isHidden and not MDT.main_frame:IsShown() then
+        MDT:ShowInterface()
+    end
+end
+
 -- ---------------------------------------
 --                Announce
 -- ---------------------------------------
@@ -571,48 +602,37 @@ end
 --             Enemy forces
 -- ---------------------------------------
 
-function Addon.GetEnemyForces()
+function Addon.GetEnemyForces(real)
+    local ef = not real and MDTGuideDB.offsetEnemyForces or 0
+    if not Addon.IsCurrentInstance() then return ef end
+
     local n = select(3, C_Scenario.GetStepInfo())
-    if not n or n == 0 then return end
+    if not n or n == 0 then return ef end
 
     local info = C_ScenarioInfo.GetCriteriaInfo(n)
 
-    return tonumber((info.quantityString:gsub("%%", ""))), info.totalQuantity
+    return ef + tonumber((info.quantityString:gsub("%%", "")))
 end
 
----@param encounterID number
----@return boolean?
----@deprecated This method doesn't work reliably anymore
-function Addon.IsEncounterDefeated(encounterID)
-    -- The asset ID seems to be the only thing connecting scenario steps
-    -- and journal encounters, other than trying to match the name :/
-    local assetID = select(7, EJ_GetEncounterInfo(encounterID))
+function Addon.GetNumDefeatedEncounters(real)
+    local b = not real and MDTGuideDB.offsetBosses or 0
+    if not Addon.IsCurrentInstance() then return b end
+
     local n = select(3, C_Scenario.GetStepInfo())
-    if not assetID or not n or n == 0 then return end
+    if not n or n == 0 then return b end
 
-    for i = 1, n - 1 do
-        local info = C_ScenarioInfo.GetCriteriaInfo(i)
-        if info.assetID == assetID then
-            return info.completed
-        end
-    end
-end
-
-function Addon.GetNumDefeatedEncounters()
-    local n, b = select(3, C_Scenario.GetStepInfo()), 0
     for i = 1, n - 1 do
         local info = C_ScenarioInfo.GetCriteriaInfo(i)
         if info.completed then b = b + 1 end
     end
+
     return b
 end
 
 ---@return number?
 ---@return MDTPull?
-function Addon.GetCurrentPullByEnemyForces()
-    local trash, bosses = Addon.GetEnemyForces(), Addon.GetNumDefeatedEncounters()
-    if not trash then return end
-
+function Addon.GetCurrentPullByEnemyForces(real)
+    local trash, bosses = Addon.GetEnemyForces(real), Addon.GetNumDefeatedEncounters(real)
     local prevBossPull = nil
 
     return Addon.IteratePulls(function(_, enemy, _, _, pull, i)
@@ -626,26 +646,59 @@ function Addon.GetCurrentPullByEnemyForces()
     end)
 end
 
+function Addon.SetEnemyForcesOffsets(trash, bosses)
+    MDTGuideDB.offsetEnemyForces = trash and trash - Addon.GetEnemyForces(true) or nil
+    MDTGuideDB.offsetBosses = bosses and bosses - Addon.GetNumDefeatedEncounters(true) or nil
+end
+
 -- ---------------------------------------
 --               Progress
 -- ---------------------------------------
 
-function Addon.GetCurrentPull()
-    if not Addon.IsCurrentInstance() then return end
-    return Addon.GetCurrentPullByEnemyForces()
-end
+function Addon.SetCurrentPull(n, permanent)
+    local pulls = Addon.GetCurrentPulls()
 
-function Addon.ZoomToCurrentPull(refresh)
-    if not Addon.IsActive() then return end
+    if n < 1 or n > #pulls then return end
 
-    local n, pull = Addon.GetCurrentPull()
-    if not n then return end ---@cast pull -?
+    if permanent then
+        local trash, bosses = 0, 0
+
+        Addon.IteratePulls(function (_, enemy, _, _, _, i)
+            if i == n then
+                return true
+            elseif enemy.isBoss then
+                bosses = bosses + 1
+            else
+                trash = trash + enemy.count
+            end
+        end)
+
+        Addon.SetEnemyForcesOffsets(trash, bosses)
+    end
 
     MDT:SetSelectionToPull(n)
 
-    if MDT:GetCurrentSubLevel() == Addon.GetBestSubLevel(pull) then return end
+    if MDT:GetCurrentSubLevel() == Addon.GetBestSubLevel(pulls[n]) then return end
 
     Addon.ZoomToPull(n)
+end
+
+function Addon.ChangeCurrentPullBy(by, permanent)
+    local n = MDT:GetCurrentPreset().value.currentPull or #Addon.GetCurrentPulls()
+    Addon.SetCurrentPull(n + by, permanent)
+end
+
+function Addon.GetCurrentPull()
+    return Addon.GetCurrentPullByEnemyForces()
+end
+
+function Addon.ZoomToCurrentPull()
+    if not Addon.IsActive() then return end
+
+    local n = Addon.GetCurrentPull()
+    if not n then return end
+
+    Addon.SetCurrentPull(n)
 end
 
 function Addon.ColorEnemy(enemyId, cloneId, color)
@@ -658,22 +711,20 @@ function Addon.ColorEnemy(enemyId, cloneId, color)
 end
 
 function Addon.ColorEnemies()
-    if Addon.IsActive() and Addon.IsCurrentInstance() then
-        local n = Addon.GetCurrentPullByEnemyForces()
-        if n and n > 0 then
-            local enemyForces = Addon.GetEnemyForces()
+    if not Addon.IsActive() then return end
 
-            Addon.IteratePulls(function(_, enemy, cloneId, enemyId, _, i)
-                if i > n then return true end
+    local n, ef = Addon.GetCurrentPullByEnemyForces(), Addon.GetEnemyForces()
+    if not n then return end
 
-                enemyForces = enemyForces - enemy.count
+    Addon.IteratePulls(function(_, enemy, cloneId, enemyId, _, i)
+        if i > n then return true end
 
-                local color = i == n and (enemyForces < 0 or enemy.isBoss) and Addon.COLOR_CURR or Addon.COLOR_DEAD
+        ef = ef - enemy.count
 
-                Addon.ColorEnemy(enemyId, cloneId, color)
-            end)
-        end
-    end
+        local color = i == n and (ef < 0 or enemy.isBoss) and Addon.COLOR_CURR or Addon.COLOR_DEAD
+
+        Addon.ColorEnemy(enemyId, cloneId, color)
+    end)
 end
 
 -- ---------------------------------------
@@ -686,7 +737,7 @@ function Addon.IsActive()
 end
 
 function Addon.IsInRun()
-    return Addon.IsActive() and Addon.IsCurrentInstance() and Addon.GetEnemyForces() and true
+    return Addon.IsActive() and Addon.IsCurrentInstance() and Addon.GetEnemyForces() > 0 and true
 end
 
 -- ---------------------------------------
@@ -703,7 +754,7 @@ local OnEvent = function(_, ev, ...)
         if ... == Name then
             Frame:UnregisterEvent("ADDON_LOADED")
 
-            Addon.MigrateOptions()
+            Addon.Options:OnLoaded()
 
             
 
@@ -719,72 +770,147 @@ local OnEvent = function(_, ev, ...)
                 -- Insert toggle button
                 if not toggleBtn then
                     ---@type MaximizeMinimizeButtonFrame
-                    toggleBtn = CreateFrame("Button", nil, MDT.main_frame, "MaximizeMinimizeButtonFrameTemplate")
-                    toggleBtn[MDTGuideDB.active and "Minimize" or "Maximize"](toggleBtn)
-                    toggleBtn:SetOnMaximizedCallback(function() Addon.DisableGuideMode() end)
-                    toggleBtn:SetOnMinimizedCallback(function() Addon.EnableGuideMode() end)
-                    toggleBtn:Show()
+                    local f = CreateFrame("Button", nil, MDT.main_frame, "MaximizeMinimizeButtonFrameTemplate")
+                    f[MDTGuideDB.active and "Minimize" or "Maximize"](f)
+                    f:SetOnMaximizedCallback(function() Addon.DisableGuideMode() end)
+                    f:SetOnMinimizedCallback(function() Addon.EnableGuideMode() end)
+                    f:Show()
 
+                    f:SetPoint("RIGHT", main.maximizeButton, "LEFT", 0, 0)
                     main.maximizeButton:SetPoint("RIGHT", main.closeButton, "LEFT", 0, 0)
-                    toggleBtn:SetPoint("RIGHT", main.maximizeButton, "LEFT", 0, 0)
+
                     main.sidePanel.WidgetGroup.PresetDropDown.frame:SetWidth(145)
-                end
 
-                -- Insert current pull button
-                if not currentPullBtn then
-                    ---@type SquareIconButton
-                    currentPullBtn = CreateFrame("Button", nil, MDT.main_frame, "SquareIconButtonTemplate")
-                    currentPullBtn:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Up")
-                    currentPullBtn:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Down")
-                    currentPullBtn:SetDisabledTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Disabled")
-                    currentPullBtn:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
-                    currentPullBtn:SetFrameLevel(4)
-                    currentPullBtn:SetHeight(21)
-                    currentPullBtn:SetWidth(21)
-                    currentPullBtn:SetScript("OnClick", function() Addon.ZoomToCurrentPull() end)
-                    currentPullBtn:SetScript("OnEnter", function()
-                        GameTooltip:SetOwner(currentPullBtn, "ANCHOR_BOTTOM", 0, 0)
-                        GameTooltip:AddLine("前往當前拉怪")
-                        GameTooltip:Show()
-                    end)
-                    currentPullBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
-
-                    currentPullBtn:SetPoint("RIGHT", toggleBtn, "LEFT", 0, 0.5)
-
-                    currentPullBtn:Hide()
+                    toggleBtn = f
                 end
 
                 if not announceBtn then
                     ---@type SquareIconButton
-                    announceBtn = CreateFrame("Button", nil, MDT.main_frame, "SquareIconButtonTemplate")
-                    announceBtn:SetNormalTexture("Interface\\Buttons\\UI-GuildButton-MOTD-Up")
-                    announceBtn:SetDisabledTexture("Interface\\Buttons\\UI-GuildButton-MOTD-Disabled")
-                    announceBtn:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
-                    announceBtn:SetFrameLevel(4)
-                    announceBtn:SetHeight(13)
-                    announceBtn:SetWidth(13)
-                    announceBtn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-                    announceBtn:SetScript("OnClick", function(_, btn)
+                    local f = CreateFrame("Button", nil, MDT.main_frame, "SquareIconButtonTemplate")
+                    f:SetNormalTexture("Interface\\Buttons\\UI-GuildButton-MOTD-Up")
+                    f:SetDisabledTexture("Interface\\Buttons\\UI-GuildButton-MOTD-Disabled")
+                    f:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
+                    f:SetFrameLevel(4)
+                    f:SetHeight(13)
+                    f:SetWidth(13)
+                    f:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+                    f:SetScript("OnClick", function(_, btn)
                         if btn == "RightButton" then
                             Addon.AnnounceNextPulls()
                         else
                             Addon.AnnounceSelectedPulls()
                         end
                     end)
-                    announceBtn:SetScript("OnEnter", function()
-                        GameTooltip:SetOwner(announceBtn, "ANCHOR_BOTTOM", 0, 0)
+                    f:SetScript("OnLeave", GameTooltip_Hide)
+                    f:SetScript("OnEnter", function(self)
+                        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, 0)
                         GameTooltip:AddLine("通報所選的拉怪")
-                        GameTooltip:AddLine("右鍵: 也要通報下一波拉怪", 1, 1, 1, true)
+                        GameTooltip:AddLine(" ")
+                        GameTooltip:AddLine("|cffeda55f右鍵:|r 也要通報下一波拉怪", 0.2, 1, 0.2)
                         if not IsInGroup() then
                             GameTooltip:AddLine("(沒有隊伍時會顯示預覽)", 0.7, 0.7, 0.7, true)
                         end
                         GameTooltip:Show()
                     end)
-                    announceBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
-                    announceBtn:SetPoint("RIGHT", currentPullBtn, "LEFT", -8, 0)
+                    f:SetPoint("RIGHT", toggleBtn, "LEFT", -5, 0)
+                    f:Hide()
 
-                    announceBtn:Hide()
+                    announceBtn = f
+                end
+
+                -- Insert current pull button
+                if not currBtn then
+                    ---@type SquareIconButton
+                    local f = CreateFrame("Button", nil, MDT.main_frame.bottomPanel, "SquareIconButtonTemplate")
+                    -- f:SetNormalTexture("Interface\\Buttons\\LockButton-Unlocked-Up")
+                    -- f:SetPushedTexture("Interface\\Buttons\\LockButton-Unlocked-Down")
+                    f:SetNormalTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Up")
+                    f:SetPushedTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Down")
+                    f:SetDisabledTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Disabled")
+                    f:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
+                    f:SetFrameLevel(4)
+                    f:SetHeight(21)
+                    f:SetWidth(21)
+                    f:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+                    f:SetScript("OnClick", function(_, btn)
+                        if btn == "RightButton" then
+                            Addon.SetCurrentPull(MDT:GetCurrentPreset().value.currentPull, true)
+                        else
+                            if IsShiftKeyDown() then Addon.SetEnemyForcesOffsets() end
+                            Addon.ZoomToCurrentPull()
+                        end
+                    end)
+                    f:SetScript("OnEnter", function(self)
+                        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, 0)
+                        GameTooltip:AddLine("Go to current pull")
+                        GameTooltip:AddLine(" ")
+                        GameTooltip:AddLine("|cffeda55fRight-click:|r Set current pull to selected pull", 0.2, 1, 0.2)
+                        GameTooltip:AddLine("|cffeda55fShift-click:|r Reset current pull to raw dungeon progress", 0.2, 1, 0.2)
+                        GameTooltip:Show()
+                    end)
+                    f:SetScript("OnLeave", GameTooltip_Hide)
+
+                    f:SetPoint("LEFT", MDT.main_frame.bottomPanel, "RIGHT", 90, 0)
+                    f:Hide()
+
+                    currBtn = f
+                end
+
+                if not prevBtn then
+                    ---@type SquareIconButton
+                    local f = CreateFrame("Button", nil, MDT.main_frame.bottomPanel, "SquareIconButtonTemplate")
+                    f:SetNormalTexture("Interface\\Buttons\\UI-Panel-CollapseButton-Up")
+                    f:SetPushedTexture("Interface\\Buttons\\UI-Panel-CollapseButton-Down")
+                    f:SetDisabledTexture("Interface\\Buttons\\UI-Panel-CollapseButton-Disabled")
+                    f:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
+                    f:RotateTextures(math.rad(90))
+                    f:SetFrameLevel(4)
+                    f:SetHeight(21)
+                    f:SetWidth(21)
+                    f:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+                    f:SetScript("OnClick", function(_, btn) Addon.ChangeCurrentPullBy(-1, btn == "RightButton") end)
+                    f:SetScript("OnLeave", GameTooltip_Hide)
+                    f:SetScript("OnEnter", function(self)
+                        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, 0)
+                        GameTooltip:AddLine("Go to previous pull")
+                        GameTooltip:AddLine(" ")
+                        GameTooltip:AddLine("|cffeda55fRight-click:|r Set current pull to previous pull", 0.2, 1, 0.2)
+                        GameTooltip:Show()
+                    end)
+
+                    f:SetPoint("RIGHT", currBtn, "LEFT", -1, 0)
+                    f:Hide()
+
+                    prevBtn = f
+                end
+
+                if not nextBtn then
+                    ---@type SquareIconButton
+                    local f = CreateFrame("Button", nil, MDT.main_frame.bottomPanel, "SquareIconButtonTemplate")
+                    f:SetNormalTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Up")
+                    f:SetPushedTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Down")
+                    f:SetDisabledTexture("Interface\\Buttons\\UI-Panel-ExpandButton-Disabled")
+                    f:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
+                    f:RotateTextures(math.rad(90))
+                    f:SetFrameLevel(4)
+                    f:SetHeight(21)
+                    f:SetWidth(21)
+                    f:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+                    f:SetScript("OnClick", function(_, btn) Addon.ChangeCurrentPullBy(1, btn == "RightButton") end)
+                    f:SetScript("OnLeave", GameTooltip_Hide)
+                    f:SetScript("OnEnter", function(self)
+                        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, 0)
+                        GameTooltip:AddLine("Go to next pull")
+                        GameTooltip:AddLine(" ")
+                        GameTooltip:AddLine("|cffeda55fRight-click:|r Set current pull to next pull", 0.2, 1, 0.2)
+                        GameTooltip:Show()
+                    end)
+
+                    f:SetPoint("LEFT", currBtn, "RIGHT", 1, 0)
+                    f:Hide()
+
+                    nextBtn = f
                 end
 
                 hooksecurefunc(main, "Show", function ()
@@ -915,7 +1041,7 @@ local OnEvent = function(_, ev, ...)
         local dungeon = Addon.GetInstanceDungeonId(map)
         Addon.SetInstanceDungeon(dungeon)
     elseif ev == "SCENARIO_CRITERIA_UPDATE" then
-        Addon.ZoomToCurrentPull(true)
+        Addon.ZoomToCurrentPull()
     elseif ev == "SCENARIO_COMPLETED" or ev == "CHAT_MSG_SYSTEM" and canaccessvalue(...) and (...):match(Addon.PATTERN_INSTANCE_RESET) then
         Addon.SetInstanceDungeon()
     elseif ev == "PLAYER_REGEN_ENABLED" or ev == "PLAYER_REGEN_DISABLED" then
@@ -930,7 +1056,7 @@ local OnEvent = function(_, ev, ...)
             isHidden = false
             if not isShown then
                 MDT:ShowInterface()
-                C_Timer.After(0.1, function () Addon.ZoomToCurrentPull(true) end)
+                C_Timer.After(0.1, function () Addon.ZoomToCurrentPull() end)
             end
         end
     end
@@ -958,85 +1084,3 @@ Frame:RegisterEvent("SCENARIO_COMPLETED")
 Frame:RegisterEvent("CHAT_MSG_SYSTEM")
 Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-
--- ---------------------------------------
---                Options
--- ---------------------------------------
-
-SLASH_MDTG1 = "/mdtg"
-
-function SlashCmdList.MDTG(args)
-
-    local op = MDTGuideDB.options
-    local cmd, arg1, arg2 = strsplit(' ', args)
-
-    -- Route
-    -- Zoom
-    if cmd == "zoom" then
-        local min = tonumber(arg1)
-        if not min then return Addon.Echo(cmd, "First parameter must be a number.") end
-
-        local max = not arg2 and min or tonumber(arg2)
-        if not max then return Addon.Echo(cmd, "Second parameter must be a number if set.") end
-
-        op.zoomMin = min
-        op.zoomMax = max
-        Addon.Echo("Zoom scale", "Set to %s/%s", min, max)
-
-    -- Fade
-    elseif cmd == "fade" then
-        Addon.SetFade(tonumber(arg1) or arg1 ~= "off" and 0.3)
-        Addon.Echo("Fade", op.fade and "enabled" or "disabled")
-
-        -- Hide
-    elseif cmd == "hide" then
-        op.hide = arg1 ~= "off"
-
-        if isHidden and not MDT.main_frame:IsShown() then
-            MDT:ShowInterface()
-        end
-
-        Addon.Echo("Hide", op.hide and "enabled" or "disabled")
-
-    -- Animate
-    elseif cmd == "animate" then
-        op.animate = arg1 ~= "off"
-
-        Addon.Echo("Animations", op.animate and "enabled" or "disabled")
-
-    -- Help
-    else
-        Addon.Echo("Usage")
-        Addon.Command("zoom <min-or-both> [<max>]", "Scale default min/max visible area size when zooming. (%s/%s, 1/1)", op.zoomMin, op.zoomMax)
-        Addon.Command("fade [on/off/<opacity>]", "Enable/Disable fading or set opacity. (%s, 0.3)", op.fade or "off")
-        Addon.Command("hide [on/off]", "Enable/Disable hiding in combat. (%s, off)", op.hide and "on" or "off")
-        Addon.Command("animate [on/off]", "Enable/Disable animations. (%s, on)", op.animate and "on" or "off")
-        Addon.Echo("|cffcccccc/mdtg|r", "Print this help message.")
-        Addon.Echo("Legend", "<...> = number, [...] = optional, .../... = either or, (..., ...) = (current, default)")
-    end
-end
-
-function Addon.MigrateOptions()
-    -- Legacy globals
-    if MDTGuideOptions and MDTGuideOptions.version == 1 then
-        MDTGuideDB.active = MDTGuideActive
-        MDTGuideDB.options = MDTGuideOptions
-        MDTGuideActive = nil
-        MDTGuideOptions = nil
-    end
-
-    -- Migrate options
-    local op = MDTGuideDB.options
-
-    if not op.version then
-        op.zoom = nil
-        op.zoomMin = 1
-        op.zoomMax = 1
-        op.route = false
-        op.version = 1
-    end
-    if op.version <= 1 then
-        op.animate = true
-        op.version = 2
-    end
-end

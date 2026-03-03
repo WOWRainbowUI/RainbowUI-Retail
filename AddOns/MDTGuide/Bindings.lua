@@ -1,0 +1,8 @@
+BINDING_HEADER_MDTGuide = "M+地城規劃工具-導覽視窗"
+BINDING_NAME_MDTGuide_Toggle = "切換導覽模式"
+BINDING_NAME_MDTGuide_CurrPull = "查看當前拉怪"
+BINDING_NAME_MDTGuide_PrevPull = "查看上一拉怪"
+BINDING_NAME_MDTGuide_NextPull = "查看下一拉怪"
+BINDING_NAME_MDTGuide_CurrPull_Permanent = "將當前拉怪設為目標拉怪"
+BINDING_NAME_MDTGuide_PrevPull_Permanent = "切換至上一拉怪並固定"
+BINDING_NAME_MDTGuide_NextPull_Permanent = "切換至下一拉怪並固定"

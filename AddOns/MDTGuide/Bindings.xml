@@ -1,0 +1,23 @@
+<Bindings>
+    <Binding name="MDTGuide_Toggle" Category="BINDING_HEADER_MDTGuide">
+        MDTG.ToggleGuideMode()
+    </Binding>
+    <Binding name="MDTGuide_CurrPull" Category="BINDING_HEADER_MDTGuide">
+        MDTG.ZoomToCurrentPull()
+    </Binding>
+    <Binding name="MDTGuide_NextPull" Category="BINDING_HEADER_MDTGuide">
+        MDTG.ChangeCurrentPullBy(1)
+    </Binding>
+    <Binding name="MDTGuide_PrevPull" Category="BINDING_HEADER_MDTGuide">
+        MDTG.ChangeCurrentPullBy(-1)
+    </Binding>
+    <Binding name="MDTGuide_CurrPull_Permanent" Category="BINDING_HEADER_MDTGuide">
+        MDTG.SetCurrentPull(MDT:GetCurrentPreset().value.currentPull, true)
+    </Binding>
+    <Binding name="MDTGuide_NextPull_Permanent" Category="BINDING_HEADER_MDTGuide">
+        MDTG.ChangeCurrentPullBy(1, true)
+    </Binding>
+    <Binding name="MDTGuide_PrevPull_Permanent" Category="BINDING_HEADER_MDTGuide">
+        MDTG.ChangeCurrentPullBy(-1, true)
+    </Binding>
+</Bindings>
