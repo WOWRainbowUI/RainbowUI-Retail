@@ -1,0 +1,29 @@
+## Interface: 120001
+## Title: Myu's Knowledge Points Tracker
+## Category: Professions
+## Notes: Tracks acquisition of knowledge points for professions
+## Author: Myu
+## Dependencies: Blizzard_Professions
+## SavedVariables: MKPT_Config
+## Version: 0.3.3
+## X-Curse-Project-ID: 1457220
+## X-Wago-ID: nGv78DNx
+## IconTexture: Interface\AddOns\MyusKnowledgePointsTracker\Textures\MKPT_Icon
+
+## Title-zhTW: |cffFFFF99[專業]|r 點數追蹤
+## Notes-zhTW: Myu's Knowledge Points Tracker |n|n專業技能知識點追蹤工具，主要目的是幫助玩家更有效率地管理和收集知識點。|n|n|cffffd200使用方法: |r點小地圖按鈕。
+## X-Category-zhTW: 交易
+## DefaultState: disabled
+
+libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Utils.lua
+MKPT_Item.lua
+MKPT_Profession.lua
+MKPT_Requirement.lua
+MKPT_Ui.lua
+MKPT_MinimapIcon.lua
+MKPT_RightClickMenu.lua
+MKPT_Config.lua
+MKPT_SlashCommand.lua
+Init.lua
+MKPT.lua
