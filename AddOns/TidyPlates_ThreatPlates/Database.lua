@@ -582,7 +582,7 @@ end
 local CurrentVersion = VersionToNumber(Addon.Meta("version"))
 
 function TidyPlatesThreat:VersionIsAtLeast(min_version)
-  if CurrentVersion == 0 then return true end -- Always return true in development (version = "13.0.0-beta20")
+  if CurrentVersion == 0 then return true end -- Always return true in development (version = "13.0.0")
 
   local min_version_no, _ = VersionToNumber(min_version)
   return min_version_no > 0 and CurrentVersion >= min_version_no

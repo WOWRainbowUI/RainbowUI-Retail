@@ -1,4 +1,4 @@
-# 13.0.0-beta20 (2026-02-27)
+# 13.0.0 (2026-03-03)
 
 This is a basic version with Midnight support. Expect lots of missing features and Lua errors. Report any bugs at https://github.com/Backupiseasy/ThreatPlates/issues.
 
