@@ -32,7 +32,6 @@ WIM.AddLocale("ptBR", {
     ["A new version of WIM is available!\nYou can download the latest version from curse"] = "Uma nova versão do WIM está disponível!\nVocê poderá fazer o download da nova versão indo em curse",
 
     ["Options"] = "Opções",
-
     ["Icon Position"] = "Posição do icone",
     ["Font Size"] = "Tamanho da fonte",
     ["Window Scale (Percent)"] = "Escala da janela (porcentagem)",
@@ -288,6 +287,7 @@ WIM.AddLocale("ptBR", {
     ["Enable WIM"] = "Ativar WIM",
     ["Display Minimap Icon"] = "Exibir ícone no minimapa",
     ["<Right-Click> to show unread messages."] = "<Clique-Direita> para exibir mensagens não lidas",
+	["Display Addon Compartment Icon"] = "Exibir ícone do compartimento de addons",
     ["Display Tutorials"] = "Exibir tutoriais",
     ["Reset Tutorials"] = "Resetar tutoriais",
     ["Credits"] = "Créditos",
@@ -397,6 +397,12 @@ WIM.AddLocale("ptBR", {
     ["Play sound when a whisper is sent."] = "Reproduzir som quando um sussurro é enviado",
     ["Allow others to see my talent spec."] = "Permitir que outros vejam o meu talento especifico",
     ["Window Strata:"] = "Strata da janela:",
+	["Background"] = BACKGROUND,
+	["Low"] = LOW,
+	["Medium"] = "Médio",
+	["High"] = "Alto",
+	["Dialog"] = ENABLE_DIALOG,
+	["Tooltip"] = "Dica",
     ["Unlock from Minimap"] = "Desbloquear do minimapa",
     ["Press <Tab> to advance to next tell target."] = "Pressionar <Tab> para avançar para o próximo alvo",
 	["Force sounds when game sound is disabled."] = "Forçar sons quando o som do jogo estiver desativado",
