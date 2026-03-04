@@ -184,6 +184,7 @@ function Filters.ResolveRuntimeFlags(a2, shared, unitKey)
         else
             hidePermanentBuffs = (type(shared) == "table" and shared.hidePermanent == true) or false
         end
+
     else
         buffsOnlyMine = (type(shared) == "table" and shared.onlyMyBuffs == true) or false
         debuffsOnlyMine = (type(shared) == "table" and shared.onlyMyDebuffs == true) or false

@@ -22,6 +22,8 @@ end
 local panel, title, sub
 local searchBox
 local frameGroup, frameGroupHost, fontGroup, auraGroup, castbarGroup, castbarGroupHost
+local barGroup, barGroupHost
+local classPowerGroup, classPowerGroupHost
 local MSUF_BarsApplyGradient -- forward decl; assigned in Bars section below
 -- ---------------------------------------------------------------------------
 -- Gradient changes apply live (no reload required).
@@ -582,6 +584,9 @@ local function MSUF_SyncSimpleDropdown(dropdown, options, getCurrentKey)
         end
     end
  end
+-- Export dropdown helpers for split-out option modules (e.g. MSUF_Options_ClassPower).
+_G.MSUF_InitSimpleDropdown = MSUF_InitSimpleDropdown
+_G.MSUF_SyncSimpleDropdown = MSUF_SyncSimpleDropdown
 -- Options Core (extracted from MidnightSimpleUnitFrames.lua)
 -- NOTE: This file is intentionally self-contained for math/string locals to avoid relying on main-file locals.
 local floor  = math.floor
@@ -969,6 +974,49 @@ panel = (_G and _G.MSUF_OptionsPanel) or CreateFrame("Frame")
         barGroupHost:HookScript("OnShow", MSUF_BarsMenu_QueueScrollUpdate)
         barGroupHost:HookScript("OnSizeChanged", MSUF_BarsMenu_QueueScrollUpdate)
     end
+
+    -- Class Resources menu: dedicated tab (no Bars content).
+    classPowerGroupHost = CreateFrame("Frame", "MSUF_ClassPowerMenuHost", panel)
+    classPowerGroupHost:SetAllPoints()
+
+    local cpScroll = CreateFrame("ScrollFrame", "MSUF_ClassPowerMenuScrollFrame", classPowerGroupHost, "UIPanelScrollFrameTemplate")
+    cpScroll:SetPoint("TOPLEFT", classPowerGroupHost, "TOPLEFT", 0, -110)
+    cpScroll:SetPoint("BOTTOMRIGHT", classPowerGroupHost, "BOTTOMRIGHT", -36, 16)
+
+    local cpScrollChild = CreateFrame("Frame", "MSUF_ClassPowerMenuScrollChild", cpScroll)
+    cpScrollChild:SetSize(1, 1)
+    cpScroll:SetScrollChild(cpScrollChild)
+
+    classPowerGroup = CreateFrame("Frame", "MSUF_ClassPowerMenuContent", cpScrollChild)
+    -- NOTE: Unlike the legacy Bars layout, the Class Resources page is built
+    -- with a normal top-aligned header. Do NOT apply the +110px "legacy offset"
+    -- compensation here, or the first headers get pushed above the scroll view
+    -- and appear clipped.
+    classPowerGroup:SetPoint("TOPLEFT", cpScrollChild, "TOPLEFT", 0, 0)
+    classPowerGroup:SetSize(760, 900)
+
+    -- Dummy anchor panels (hidden) used by MSUF_Options_ClassPower to size/anchor cpPanel.
+    do
+        local lp = CreateFrame("Frame", "MSUF_ClassPowerMenuPanelLeft", classPowerGroup)
+        lp:SetSize(330, 1)
+        lp:SetPoint("TOPLEFT", classPowerGroup, "TOPLEFT", 0, -20)
+        lp:Hide()
+        local rp = CreateFrame("Frame", "MSUF_ClassPowerMenuPanelRight", classPowerGroup)
+        rp:SetSize(320, 1)
+        rp:SetPoint("TOPLEFT", lp, "TOPRIGHT", 0, 0)
+        rp:Hide()
+    end
+
+    classPowerGroupHost._msufClassPowerScroll = cpScroll
+    classPowerGroupHost._msufClassPowerScrollChild = cpScrollChild
+    if classPowerGroupHost.HookScript then
+        classPowerGroupHost:HookScript("OnShow", function()
+            if cpScroll and cpScroll.SetVerticalScroll then cpScroll:SetVerticalScroll(0) end
+            if type(_G.MSUF_EnsureClassPowerMenuBuilt) == "function" then
+                pcall(_G.MSUF_EnsureClassPowerMenuBuilt)
+            end
+        end)
+    end
     miscGroup = CreateFrame("Frame", nil, panel)
     miscGroup:SetAllPoints()
     profileGroup = CreateFrame("Frame", nil, panel)
@@ -994,6 +1042,8 @@ panel = (_G and _G.MSUF_OptionsPanel) or CreateFrame("Frame")
              return "Boss Frames"
         elseif key == "bars" then
              return "Bars"
+        elseif key == "classpower" then
+             return "Class Resources"
         elseif key == "fonts" then
              return "Fonts"
         elseif key == "auras" then
@@ -1014,12 +1064,15 @@ panel = (_G and _G.MSUF_OptionsPanel) or CreateFrame("Frame")
         auraGroup:Hide()
         castbarGroupHost:Hide()
         barGroupHost:Hide()
+        if classPowerGroupHost then classPowerGroupHost:Hide() end
         miscGroup:Hide()
         profileGroup:Hide()
         if currentTabKey == "fonts" then
             _TFadeIn(fontGroup, TRANS_TAB)
         elseif currentTabKey == "bars" then
             _TFadeIn(barGroupHost, TRANS_TAB)
+        elseif currentTabKey == "classpower" then
+            _TFadeIn(classPowerGroupHost, TRANS_TAB)
         elseif currentTabKey == "auras" then
             _TFadeIn(auraGroup, TRANS_TAB)
         elseif currentTabKey == "castbar" then
@@ -1091,7 +1144,7 @@ panel = (_G and _G.MSUF_OptionsPanel) or CreateFrame("Frame")
         end
      end
     local function IsTabKey(k)
-        return k == "bars" or k == "fonts" or k == "auras" or k == "castbar" or k == "misc" or k == "profiles"
+        return k == "bars" or k == "classpower" or k == "fonts" or k == "auras" or k == "castbar" or k == "misc" or k == "profiles"
     end
     local function SetCurrentKey(newKey)
         if IsTabKey(newKey) then
@@ -1992,6 +2045,9 @@ local function _MSUF_DBSetPath(path, value)
             if type(MSUF_DB) ~= "table" then  return end
             local v = self:GetChecked() and true or false
                         _MSUF_DBSetPath(dbPath, v)
+            -- Force the widget's visual state to match the new value.
+            -- Some custom checkbox templates / skins don't auto-toggle reliably.
+            if self.SetChecked then self:SetChecked(v) end
             if type(applyFn) == "function" then applyFn(v, self)
             elseif type(applyFn) == "string" and _G and type(_G.MSUF_Options_Apply) == "function" then _G.MSUF_Options_Apply(applyFn, v, self) end
             if type(syncFn)  == "function" then syncFn() end
@@ -2129,6 +2185,7 @@ local function MSUF_InstallCompatWrappers()
     ExportFn("MSUF_SetDropDownEnabled", (ns and ns.MSUF_SetDropDownEnabled) or MSUF_SetDropDownEnabled)
     ExportFn("MSUF_StyleSlider", (ns and ns.MSUF_StyleSlider) or MSUF_StyleSlider)
     ExportFn("MSUF_SkinMidnightActionButton", (ns and ns.MSUF_SkinMidnightActionButton) or MSUF_SkinMidnightActionButton)
+    ExportFn("MSUF_StyleSmallButton", MSUF_StyleSmallButton)
     ExportFn("MSUF_Options_RequestLayoutAll", (ns and ns.MSUF_Options_RequestLayoutAll) or MSUF_Options_RequestLayoutAll)
     ExportFn("MSUF_CallUpdateAllFonts", (ns and ns.MSUF_CallUpdateAllFonts) or MSUF_CallUpdateAllFonts)
     -- Keep the known-good bar-texture exports if present (v101 baseline).
@@ -2310,7 +2367,7 @@ local function MSUF_StyleToggleText(cb)
             if c and c.GetChildren then MSUF_StyleAllToggles(c) end
         end
      end
-    local function CreateLabeledCheckButton(name, label, parent, x, y)
+    local function CreateLabeledCheckButton(name, label, parent, x, y, maxTextWidth)
         local cb = CreateFrame('CheckButton', name, parent, 'UICheckButtonTemplate')
         local extraY = 0
         if parent == frameGroup or parent == fontGroup or parent == barGroup or parent == profileGroup then extraY = -40 end
@@ -2319,6 +2376,9 @@ local function MSUF_StyleToggleText(cb)
         if cb.text then cb.text:SetText(TR(label or "")) end
         MSUF_StyleToggleText(cb)
         MSUF_StyleCheckmark(cb)
+        if maxTextWidth and _G.MSUF_ClampCheckboxText then
+            _G.MSUF_ClampCheckboxText(cb, maxTextWidth)
+        end
          return cb
     end
     -- Player options UI is implemented in Options\MSUF_Options_Player.lua (refactored out of Options Core).
@@ -3979,6 +4039,24 @@ local function _MSUF_InitStatusbarTextureDropdown(drop, cfg)
     end
     _MSUF_SyncStatusbarTextureDropdown(drop)
  end
+_G.MSUF_InitStatusbarTextureDropdown = _MSUF_InitStatusbarTextureDropdown
+_G.MSUF_SyncStatusbarTextureDropdown = _MSUF_SyncStatusbarTextureDropdown
+_G.MSUF_KillMenuPreviewBar = MSUF_KillMenuPreviewBar
+
+-- Resolve a SharedMedia statusbar key (e.g. "Flat") → texture path.
+-- Used by ClassPower, Absorb bars, and anywhere a per-panel texture override
+-- needs to be resolved from a stored key name to an actual file path.
+if not _G.MSUF_ResolveStatusbarTextureKey then
+    function _G.MSUF_ResolveStatusbarTextureKey(key)
+        if type(key) ~= "string" or key == "" then return nil end
+        local LSM = MSUF_GetLSM and MSUF_GetLSM()
+        if LSM and type(LSM.Fetch) == "function" then
+            local ok, tex = pcall(LSM.Fetch, LSM, "statusbar", key, true)
+            if ok and type(tex) == "string" and tex ~= "" then return tex end
+        end
+        return nil
+    end
+end
 local function _MSUF_InitAbsorbTextureDropdown(drop, dbKey, followText)
     if not drop then  return end
     followText = followText or "Use foreground texture"
@@ -4972,6 +5050,102 @@ local powerSpacerSlider = CreateLabeledSlider("MSUF_PowerTextSpacerSlider", "Pow
 powerSpacerSlider:ClearAllPoints()
 powerSpacerSlider:SetPoint("TOPLEFT", powerSpacerCheck, "BOTTOMLEFT", 0, -18)
 if powerSpacerSlider.SetWidth then powerSpacerSlider:SetWidth(260) end
+
+-- ── Bar Animation + Text Accuracy ──────────────────────────────────
+-- Two independent toggles so users can pick:
+--   Both ON  = MidnightRogueBars style (hyper-smooth, pixel-accurate)
+--   Both OFF = Classic MSUF style (instant snap, battery-friendly)
+--   Mixed    = Custom blend
+local animHeader = barGroup:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+animHeader:SetPoint("TOPLEFT", powerSpacerSlider, "BOTTOMLEFT", 0, -38)
+animHeader:SetText(TR("Bar Animation + Text Accuracy"))
+animHeader:SetTextColor(1, 0.82, 0, 1)
+_G.MSUF_SmoothPowerHeader = animHeader
+
+local animLine = barGroup:CreateTexture(nil, "ARTWORK")
+animLine:SetColorTexture(1, 1, 1, 0.20)
+animLine:SetHeight(1)
+animLine:SetPoint("TOPLEFT", animHeader, "BOTTOMLEFT", -16, -4)
+animLine:SetWidth(286)
+
+-- ─ Toggle 1: Smooth power bar (ExponentialEaseOut interpolation) ─
+local smoothBarCheck = CreateFrame("CheckButton", "MSUF_SmoothPowerBarCheck", barGroup, "UICheckButtonTemplate")
+smoothBarCheck:ClearAllPoints()
+smoothBarCheck:SetPoint("TOPLEFT", animLine, "BOTTOMLEFT", 16, -6)
+smoothBarCheck.text = _G["MSUF_SmoothPowerBarCheckText"]
+if smoothBarCheck.text then smoothBarCheck.text:SetText(TR("Smooth power bar")) end
+MSUF_StyleToggleText(smoothBarCheck)
+MSUF_StyleCheckmark(smoothBarCheck)
+local smoothBarHint = barGroup:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+smoothBarHint:SetPoint("TOPLEFT", smoothBarCheck, "BOTTOMLEFT", 0, -1)
+smoothBarHint:SetText(TR("C-side interpolation for fluid bar movement"))
+smoothBarHint:SetTextColor(0.45, 0.45, 0.45)
+smoothBarCheck:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:AddLine("Smooth Power Bar", 1, 1, 1)
+    GameTooltip:AddLine("Uses ExponentialEaseOut interpolation on the", 0.9, 0.9, 0.9, true)
+    GameTooltip:AddLine("StatusBar for silky-smooth bar animation.", 0.9, 0.9, 0.9, true)
+    GameTooltip:AddLine(" ", 0.9, 0.9, 0.9)
+    GameTooltip:AddLine("When OFF: Bar snaps instantly to new values.", 0.7, 0.7, 0.7, true)
+    GameTooltip:Show()
+end)
+smoothBarCheck:SetScript("OnLeave", function() GameTooltip:Hide() end)
+do
+    EnsureDB()
+    MSUF_DB.bars = MSUF_DB.bars or {}
+    local val = MSUF_DB.bars.smoothPowerBar
+    if val == nil then val = true end
+    smoothBarCheck:SetChecked(val)
+end
+smoothBarCheck:SetScript("OnClick", function(self)
+    EnsureDB()
+    MSUF_DB.bars = MSUF_DB.bars or {}
+    MSUF_DB.bars.smoothPowerBar = self:GetChecked() and true or false
+    if type(_G.MSUF_UFCore_RefreshSettingsCache) == "function" then
+        _G.MSUF_UFCore_RefreshSettingsCache("SMOOTH_POWER")
+    end
+end)
+
+-- ─ Toggle 2: Real-time power text (every event, no throttle) ─
+local rtTextCheck = CreateFrame("CheckButton", "MSUF_RealtimePowerTextCheck", barGroup, "UICheckButtonTemplate")
+rtTextCheck:ClearAllPoints()
+rtTextCheck:SetPoint("TOPLEFT", smoothBarHint, "BOTTOMLEFT", 0, -6)
+rtTextCheck.text = _G["MSUF_RealtimePowerTextCheckText"]
+if rtTextCheck.text then rtTextCheck.text:SetText(TR("Real-time power text")) end
+MSUF_StyleToggleText(rtTextCheck)
+MSUF_StyleCheckmark(rtTextCheck)
+local rtTextHint = barGroup:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+rtTextHint:SetPoint("TOPLEFT", rtTextCheck, "BOTTOMLEFT", 0, -1)
+rtTextHint:SetText(TR("Update text every event (higher CPU, pixel-accurate)"))
+rtTextHint:SetTextColor(0.45, 0.45, 0.45)
+rtTextCheck:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:AddLine("Real-time Power Text", 1, 1, 1)
+    GameTooltip:AddLine("Updates the power number on every game event", 0.9, 0.9, 0.9, true)
+    GameTooltip:AddLine("for pixel-accurate text that matches the bar.", 0.9, 0.9, 0.9, true)
+    GameTooltip:AddLine(" ", 0.9, 0.9, 0.9)
+    GameTooltip:AddLine("When OFF: Text updates are budget-gated", 0.7, 0.7, 0.7, true)
+    GameTooltip:AddLine("(player 33Hz, others 10Hz) for lower CPU.", 0.7, 0.7, 0.7, true)
+    GameTooltip:Show()
+end)
+rtTextCheck:SetScript("OnLeave", function() GameTooltip:Hide() end)
+do
+    EnsureDB()
+    MSUF_DB.bars = MSUF_DB.bars or {}
+    local val = MSUF_DB.bars.realtimePowerText
+    if val == nil then val = true end
+    rtTextCheck:SetChecked(val)
+end
+rtTextCheck:SetScript("OnClick", function(self)
+    EnsureDB()
+    MSUF_DB.bars = MSUF_DB.bars or {}
+    MSUF_DB.bars.realtimePowerText = self:GetChecked() and true or false
+    if type(_G.MSUF_UFCore_RefreshSettingsCache) == "function" then
+        _G.MSUF_UFCore_RefreshSettingsCache("REALTIME_TEXT")
+    end
+end)
+-- ── End Bar Animation + Text Accuracy ──────────────────────────────
+
 	local function _MSUF_HPSpacer_GetSelection()
 	    -- Selection is driven by the HP/Power scope dropdown above.
 	    EnsureDB()
@@ -5835,7 +6009,7 @@ do
     -- Panel height must include the HP + Power Spacer controls at the bottom of the right column.
     -- Keep this as a single constant so creation + live re-layout always match (no drift/regressions).
     -- Increased slightly to ensure the Highlight Border section (and dropdown buttons) never clip at the bottom.
-    local BARS_PANEL_H = 1100
+    local BARS_PANEL_H = 1170
     -- Create panels once
     if not _G["MSUF_BarsMenuPanelLeft"] then
         local function SetupPanel(panel)
@@ -6206,11 +6380,20 @@ if barOutlineThicknessSlider and outlineLine and outlineLine:IsShown() then
         end
     end
 end
+-- Match Power bar outline slider width to Outline thickness (both 280)
+do
+    local dpb = _G.MSUF_DPBOutlineSlider
+    local s = dpb and (dpb.slider or dpb)
+    if s and s.SetWidth then
+        s:SetWidth(280)
+    end
+end
 
 -- Left panel: Highlight border section (Aggro/Dispel + future border highlights)
 do
     local leftPanel = _G["MSUF_BarsMenuPanelLeft"]
-    local outlineSlider = barOutlineThicknessSlider
+    local dpb = _G.MSUF_DPBOutlineSlider
+    local outlineSlider = (dpb and (dpb.slider or dpb)) or barOutlineThicknessSlider
 
     -- Hide the simple label created during initial panel build; we render this section
     -- using the same header+divider style as "Gradient Options" / "Outline thickness".
@@ -6533,6 +6716,19 @@ end
         end
     end
     SetControlEnabled(powerBarBorderSizeEdit, (anyPBEnabled and borderEnabled), true)
+    -- Smooth power bar + realtime text toggles sync
+    local smoothCB = _G["MSUF_SmoothPowerBarCheck"]
+    if smoothCB then
+        local sv = b.smoothPowerBar
+        if sv == nil then sv = true end
+        smoothCB:SetChecked(sv)
+    end
+    local rtCB = _G["MSUF_RealtimePowerTextCheck"]
+    if rtCB then
+        local rv = b.realtimePowerText
+        if rv == nil then rv = true end
+        rtCB:SetChecked(rv)
+    end
  end
  MSUF_BarsMenu_QueueScrollUpdate()
 if barGroup and barGroup.HookScript then barGroup:HookScript('OnShow', MSUF_SyncBarsTabToggles) end

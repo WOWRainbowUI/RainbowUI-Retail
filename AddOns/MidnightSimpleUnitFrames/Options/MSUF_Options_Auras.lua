@@ -774,14 +774,18 @@ function ns.MSUF_RegisterAurasOptions_Full(parentCategory)
     -- Blizzard-rendered Private Auras (anchor controls)
     local privateBox = MakeBox(content, 720, 140)
     privateBox:SetPoint("TOPLEFT", timerBox, "BOTTOMLEFT", 0, -14)
-    local advBox = MakeBox(content, 720, 260)
+    local advBox = MakeBox(content, 720, 240)
     advBox:SetPoint("TOPLEFT", privateBox, "BOTTOMLEFT", 0, -14)
+    local ignoreBox = MakeBox(content, 720, 200)
+    ignoreBox:SetPoint("TOPLEFT", advBox, "BOTTOMLEFT", 0, -14)
+    local reminderBox = MakeBox(content, 720, 260)
+    reminderBox:SetPoint("TOPLEFT", ignoreBox, "BOTTOMLEFT", 0, -14)
     -- Movement controls are handled via MSUF Edit Mode now (no placeholder section here).
     -- Prevent dead scroll space: keep the scroll child height tight to the last section.
     local function MSUF_Auras2_UpdateContentHeight()
-        if not (content and advBox and content.GetTop and advBox.GetBottom) then  return end
+        if not (content and reminderBox and content.GetTop and reminderBox.GetBottom) then  return end
         local top = content:GetTop()
-        local bottom = advBox:GetBottom()
+        local bottom = reminderBox:GetBottom()
         if not top or not bottom then  return end
         -- Add a small bottom padding so the last box doesn't stick to the edge.
         local h = (top - bottom) + 24
@@ -1346,6 +1350,9 @@ local function UpdateAdvancedEnabled()
     for i = 1, #advGate do
         SetCheckboxEnabled(advGate[i], master)
     end
+    -- Allow sated slider dependent enable-state logic
+    local fn = rawget(_G, "MSUF_A2_UpdateAdvancedDependentWidgets")
+    if type(fn) == "function" then pcall(fn, master) end
     -- Override toggle is only meaningful for non-shared editing keys.
     local key = GetEditingKey()
     if cbOverrideFilters then
@@ -1667,7 +1674,6 @@ end
     h3:SetText(TR("Display"))
     local TIP_SHOW_STACK = 'Shows stack/application counts (e.g. "2") on aura icons. Disable to hide stack numbers.'
     local TIP_HIDE_PERMANENT = 'Hides buffs with no duration. Debuffs are never hidden by this option.\n\nNote: Target/Focus APIs may still show permanent buffs during combat due to API limitations.'
-    local TIP_ADV_INFO = 'Use "Enable filters" in the Auras 2.0 box as the master switch.\n\nInclude toggles are additive (they never hide your normal auras).\nHighlight toggles only change border colors.'
     do
         local displayCB = {}
         local TIP_SWIPE_STYLE = "When enabled, the cooldown swipe represents elapsed time (darkens as time is lost).\n\nTurn this OFF to keep the default cooldown-style swipe."
@@ -1687,6 +1693,9 @@ end
             { "Show cooldown text", 200, -300, A2_Settings, "showCooldownText", nil,
                 "Shows the countdown numbers on aura icons. Disable to hide cooldown numbers (swipe can remain enabled).",
                 "cbShowCooldownText" },
+            { "Click-through auras", 200, -324, A2_Settings, "clickThroughAuras", nil,
+                "Makes all aura icons non-interactive. Mouse clicks and tooltips pass through to the game world.",
+                "cbClickThrough" },
             { "Show tooltip", 12, -276, A2_Settings, "showTooltip", nil, nil, "cbShowTooltip" },
         }, displayCB)
         for _, cb in pairs(displayCB) do
@@ -2026,6 +2035,8 @@ end
         BuildBoolPathCheckboxes(advBox, {
             { "Include boss buffs", 12, -58, A2_FilterBuffs, "includeBoss", nil, nil, "cbBossBuffs" },
             { "Include boss debuffs", 12, -86, A2_FilterDebuffs, "includeBoss", nil, nil, "cbBossDebuffs" },
+            { "Show Sated/Exhaustion", 12, -114, A2_Settings, "showSated", nil,
+                "Controls whether Bloodlust lockout auras (Sated/Exhaustion/Temporal Displacement, etc.) are shown.", "cbShowSated" },
             { "Only show boss auras", 380, -58, GetEditingFilters, "onlyBossAuras", nil,
                 "Hard filter: when enabled (and filters are enabled), only auras flagged as boss auras will be shown.", "cbOnlyBoss" },
             { "Only show IMPORTANT buffs", 380, -86, A2_FilterBuffs, "onlyImportant", nil,
@@ -2033,9 +2044,62 @@ end
             { "Only show IMPORTANT debuffs", 380, -114, A2_FilterDebuffs, "onlyImportant", nil,
                 "Hard filter: when enabled (and filters are enabled), only debuffs in Blizzard\'s curated IMPORTANT list will be shown (e.g. raid mechanics, key defensives, etc.).", "cbOnlyImpDebuffs" },
         }, refs)
+
+        -- Sated/Exhaustion remaining-time threshold (0 = always show when toggle is on)
+        local function GetSatedThreshold()
+            local s = A2_Settings()
+            local v = s and s.satedShowAtSeconds
+            return (type(v) == "number") and v or 0
+        end
+        local function SetSatedThreshold(v)
+            local s = A2_Settings(); if not s then return end
+            v = tonumber(v) or 0
+            if v < 0 then v = 0 end
+            if v > 3600 then v = 3600 end
+            s.satedShowAtSeconds = v
+        end
+        local satedSlider = CreateAuras2CompactSlider(advBox, "", 0, 600, 5, 30, -140, 200, GetSatedThreshold, SetSatedThreshold)
+        if satedSlider then
+            A2_Track("global", satedSlider)
+            MSUF_StyleAuras2CompactSlider(satedSlider, { hideMinMax = true })
+            AttachSliderValueBox(satedSlider, 0, 600, 5, GetSatedThreshold)
+        end
+
+        -- Dependent enable-state: slider only meaningful when showSated is enabled.
+        local function UpdateSatedEnabledState(masterOn)
+            if not satedSlider then return end
+            local s = A2_Settings()
+            local show = (s and s.showSated ~= false) or false
+            local on = (masterOn == true) and show
+            if satedSlider then SetCheckboxEnabled(satedSlider, on) end
+        end
+
+        _G.MSUF_A2_UpdateAdvancedDependentWidgets = function(masterOn)
+            UpdateSatedEnabledState(masterOn)
+        end
+
+        if refs.cbShowSated then
+            local old = refs.cbShowSated:GetScript("OnClick")
+            refs.cbShowSated:SetScript("OnClick", function(self, ...)
+                if old then pcall(old, self, ...) end
+                local f = GetEditingFilters()
+                UpdateSatedEnabledState((f and f.enabled == true) or false)
+            end)
+            refs.cbShowSated:HookScript("OnShow", function()
+                local f = GetEditingFilters()
+                UpdateSatedEnabledState((f and f.enabled == true) or false)
+            end)
+        end
+        if satedSlider then
+            satedSlider:HookScript("OnShow", function()
+                local f = GetEditingFilters()
+                UpdateSatedEnabledState((f and f.enabled == true) or false)
+            end)
+        end
+
 -- Track scopes + auto-override wrappers (Auras 2 menu only)
 do
-    local filterKeys = { "cbBossBuffs", "cbBossDebuffs", "cbOnlyBoss", "cbOnlyImpBuffs", "cbOnlyImpDebuffs" }
+    local filterKeys = { "cbBossBuffs", "cbBossDebuffs", "cbShowSated", "cbOnlyBoss", "cbOnlyImpBuffs", "cbOnlyImpDebuffs" }
     for i = 1, #filterKeys do
         local cb = refs[filterKeys[i]]
         if cb then
@@ -2175,7 +2239,8 @@ end
                 if cb then advGate[#advGate + 1] = cb end
             end
          end
-        Track({ "cbBossBuffs", "cbBossDebuffs", "cbOnlyBoss", "cbOnlyImpBuffs", "cbOnlyImpDebuffs", "cbPrivateShowP", "cbPrivateShowF", "cbPrivateShowB" })
+        Track({ "cbBossBuffs", "cbBossDebuffs", "cbShowSated", "cbOnlyBoss", "cbOnlyImpBuffs", "cbOnlyImpDebuffs", "cbPrivateShowP", "cbPrivateShowF", "cbPrivateShowB" })
+        if satedSlider then advGate[#advGate + 1] = satedSlider end
         -- Advanced gating should also affect the Private Auras master + sliders.
         if btnPrivateEnable then advGate[#advGate + 1] = btnPrivateEnable end
         if privateMaxPlayer then advGate[#advGate + 1] = privateMaxPlayer end
@@ -2202,10 +2267,10 @@ end
                 SORT_TEXT[SORT_ITEMS[i].value] = SORT_ITEMS[i].text
             end
             local sortH = advBox:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-            sortH:SetPoint("TOPLEFT", advBox, "TOPLEFT", 12, -130)
+            sortH:SetPoint("TOPLEFT", advBox, "TOPLEFT", 12, -176)
             sortH:SetText(TR("Sort order"))
             local ddSort = CreateFrame("Frame", "MSUF_Auras2_SortOrderDropDown", advBox, "UIDropDownMenuTemplate")
-            ddSort:SetPoint("TOPLEFT", advBox, "TOPLEFT", 90, -136)
+            ddSort:SetPoint("TOPLEFT", advBox, "TOPLEFT", 90, -182)
             MSUF_FixUIDropDown(ddSort, 220)
             local function SortGet()
                 local key = GetEditingKey()
@@ -2251,6 +2316,344 @@ end
         end
     end
     UpdateAdvancedEnabled()
+
+    -- ================================================================
+    -- GLOBAL IGNORE LIST — predefined category toggles (shared / per-unit)
+    -- Follows the same editing-key dropdown as filters (Shared/Player/Target/Focus).
+    -- Boss frames excluded from ignore list (makes no sense for boss auras).
+    -- ================================================================
+    do
+        local ignH = ignoreBox:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        ignH:SetPoint("TOPLEFT", ignoreBox, "TOPLEFT", 12, -10)
+        ignH:SetText(TR("Global Ignore List"))
+
+        -- Editing label (follows the top dropdown: Shared / Player / Target / Focus)
+        local ignEditLabel = ignoreBox:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        ignEditLabel:SetPoint("TOPLEFT", ignoreBox, "TOPLEFT", 170, -13)
+
+        -- Override ignore list getter/setter (mirrors filter override pattern)
+        local function GetIgnoreOverride()
+            local key = GetEditingKey()
+            if key == "shared" then return false end
+            local a2 = select(1, GetAuras2DB())
+            if not a2 or not a2.perUnit or not a2.perUnit[key] then return false end
+            return (a2.perUnit[key].overrideIgnore == true)
+        end
+        local function SetIgnoreOverride(v)
+            local key = GetEditingKey()
+            if key == "shared" then return end
+            local a2 = select(1, GetAuras2DB())
+            if not a2 then return end
+            a2.perUnit = (type(a2.perUnit) == "table") and a2.perUnit or {}
+            if type(a2.perUnit[key]) ~= "table" then a2.perUnit[key] = {} end
+            local u = a2.perUnit[key]
+            if v == true then
+                u.overrideIgnore = true
+                -- Deep-copy shared ignoreCats if no per-unit table yet
+                local s = A2_Settings()
+                if type(u.ignoreCats) ~= "table" then
+                    u.ignoreCats = {}
+                    if s and type(s.ignoreCats) == "table" then
+                        for k2, v2 in next, s.ignoreCats do u.ignoreCats[k2] = v2 end
+                    end
+                end
+            else
+                u.overrideIgnore = false
+            end
+            A2_RequestApply()
+            C_Timer.After(0, function()
+                if panel and panel.OnRefresh then panel.OnRefresh() end
+            end)
+        end
+        local function AutoOverrideIgnoreIfNeeded()
+            if GetEditingKey() == "shared" then return false end
+            if GetIgnoreOverride() then return false end
+            SetIgnoreOverride(true)
+            return true
+        end
+
+        -- Override checkbox (hidden when editing "shared")
+        local cbOverrideIgnore = CreateCheckbox(ignoreBox, "Override for this unit", 380, -10,
+            GetIgnoreOverride, SetIgnoreOverride,
+            "When off, this unit uses Shared ignore settings. When on, it uses its own copy.")
+
+        -- Resolve effective ignoreCats table for current editing key
+        local function GetEditingIgnoreCats()
+            local key = GetEditingKey()
+            local a2 = select(1, GetAuras2DB())
+            if not a2 then return nil end
+            -- Per-unit override path
+            if key ~= "shared" then
+                local u = a2.perUnit and a2.perUnit[key]
+                if u and u.overrideIgnore == true then
+                    if type(u.ignoreCats) ~= "table" then u.ignoreCats = {} end
+                    return u.ignoreCats
+                end
+            end
+            -- Shared path
+            local s = a2.shared
+            if not s then return nil end
+            if type(s.ignoreCats) ~= "table" then s.ignoreCats = {} end
+            return s.ignoreCats
+        end
+
+        -- Get category metadata from Cache module
+        local a2api = ns and ns.MSUF_Auras2
+        local catMeta = a2api and a2api.Cache and a2api.Cache.IGNORE_CAT_META
+        if not catMeta then
+            catMeta = {
+                { key = "RAID_BUFFS",      label = "Raid Buffs" },
+                { key = "BLESSING_BRONZE", label = "Blessing of the Bronze" },
+                { key = "HEALER_HOTS",     label = "Healer HoTs" },
+                { key = "ROGUE_POISONS",   label = "Rogue Poisons" },
+                { key = "SHAMAN_IMBUE",    label = "Shaman Imbuements" },
+                { key = "DESERTER",        label = "Deserter" },
+                { key = "SKYRIDING",       label = "Skyriding" },
+                { key = "SELF_BUFFS",      label = "Long-term Self Buffs" },
+                { key = "RESOURCE_AURAS",  label = "Resource-like Auras" },
+                { key = "COOLDOWNS",       label = "Cooldowns" },
+            }
+        end
+
+        -- Build two-column category checkboxes
+        local ignEntries = {}
+        local leftCount, rightCount = 0, 0
+        for i = 1, #catMeta do
+            local cm = catMeta[i]
+            local col, row
+            if i <= 5 then
+                leftCount = leftCount + 1
+                col = 12
+                row = leftCount
+            else
+                rightCount = rightCount + 1
+                col = 380
+                row = rightCount
+            end
+            local yOff = -34 - (row - 1) * 28
+            ignEntries[#ignEntries + 1] = {
+                cm.label, col, yOff, GetEditingIgnoreCats, cm.key, nil,
+                cm.tooltip, "cbIgn_" .. cm.key
+            }
+        end
+
+        local ignRefs = {}
+        BuildBoolPathCheckboxes(ignoreBox, ignEntries, ignRefs)
+
+        -- Collect all ignore checkboxes
+        local ignCbs = {}
+        for i = 1, #catMeta do
+            local refKey = "cbIgn_" .. catMeta[i].key
+            local cb = ignRefs[refKey]
+            if cb then
+                ignCbs[#ignCbs + 1] = cb
+                A2_Track("global", cb)
+                -- Auto-override + apply on click
+                local oldClick = cb:GetScript("OnClick")
+                cb:SetScript("OnClick", function(self, ...)
+                    AutoOverrideIgnoreIfNeeded()
+                    if oldClick then pcall(oldClick, self, ...) end
+                    -- Invalidate cached ignore hashtable so FilterAndSort rebuilds it
+                    local a2api = ns and ns.MSUF_Auras2
+                    if a2api and a2api.Cache and a2api.Cache.InvalidateIgnoreHash then
+                        a2api.Cache.InvalidateIgnoreHash()
+                    end
+                    A2_RequestApply()
+                end)
+            end
+        end
+
+        -- Gating: enable/disable checkboxes based on editing key + override state
+        local _IGNORE_UNIT_LABELS = { shared = "Shared (all units)", player = "Player", target = "Target", focus = "Focus" }
+        local function UpdateIgnoreBoxState()
+            local key = GetEditingKey()
+            local isBoss = (key == "boss1" or key == "boss2" or key == "boss3" or key == "boss4" or key == "boss5")
+            local isShared = (key == "shared")
+
+            -- Editing label
+            if isBoss then
+                ignEditLabel:SetText("|cff888888Not available for Boss frames|r")
+            else
+                ignEditLabel:SetText("Editing: |cffffd200" .. (_IGNORE_UNIT_LABELS[key] or key) .. "|r")
+            end
+
+            -- Override checkbox: show only for non-shared, non-boss
+            if cbOverrideIgnore then
+                if isShared or isBoss then
+                    cbOverrideIgnore:Hide()
+                else
+                    cbOverrideIgnore:Show()
+                end
+            end
+
+            -- Category checkboxes: enabled when shared, or when unit has override
+            local canEdit = false
+            if isBoss then
+                canEdit = false
+            elseif isShared then
+                canEdit = true
+            else
+                canEdit = GetIgnoreOverride()
+            end
+            for i = 1, #ignCbs do
+                SetCheckboxEnabled(ignCbs[i], canEdit)
+            end
+        end
+
+        -- Hook into the editing-key dropdown change path
+        _G.MSUF_A2_UpdateIgnoreBoxState = UpdateIgnoreBoxState
+
+        -- Run once on build
+        UpdateIgnoreBoxState()
+    end
+
+    -- ================================================================
+    -- BUFF REMINDERS — per-buff toggles + expiry threshold slider
+    -- ================================================================
+    do
+        local remH = reminderBox:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        remH:SetPoint("TOPLEFT", reminderBox, "TOPLEFT", 12, -10)
+        remH:SetText(TR("Buff Reminders"))
+
+        local remDesc = reminderBox:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+        remDesc:SetPoint("TOPLEFT", reminderBox, "TOPLEFT", 12, -28)
+        remDesc:SetWidth(500)
+        remDesc:SetJustifyH("LEFT")
+        remDesc:SetText("Ghost icons appear at the player frame when a buff is missing or about to expire. Position via Edit Mode mover.")
+
+        -- Master toggle
+        local cbShowReminders = CreateCheckbox(reminderBox, "Enable Buff Reminders", 12, -50,
+            function()
+                local s = A2_Settings()
+                return s and (s.showReminders ~= false)
+            end,
+            function(v)
+                local s = A2_Settings()
+                if s then s.showReminders = (v == true) end
+                local _api = ns and ns.MSUF_Auras2
+                local rm = _api and _api.Reminder
+                if rm and rm.MarkDirty then rm.MarkDirty() end
+                A2_RequestApply()
+            end,
+            "Show ghost icons for missing buffs at the player frame.")
+        A2_Track("global", cbShowReminders)
+
+        -- Per-buff checkboxes
+        local provMeta = {
+            { key = "FORTITUDE",       label = "Power Word: Fortitude" },
+            { key = "ARCANE_INTELLECT", label = "Arcane Intellect" },
+            { key = "MARK_OF_WILD",    label = "Mark of the Wild" },
+            { key = "BATTLE_SHOUT",    label = "Battle Shout" },
+            { key = "SKYFURY",         label = "Skyfury" },
+            { key = "SOURCE_OF_MAGIC", label = "Source of Magic" },
+            { key = "BLESSING_BRONZE", label = "Blessing of the Bronze" },
+            { key = "ROGUE_LETHAL",    label = "Lethal Poison (Rogue)" },
+            { key = "ROGUE_NONLETHAL", label = "Non-Lethal Poison (Rogue)" },
+        }
+        -- Try to use live provider list if available
+        local a2api = ns and ns.MSUF_Auras2
+        local liveProv = a2api and a2api.Reminder and a2api.Reminder.PROVIDERS
+        if liveProv and #liveProv > 0 then provMeta = liveProv end
+
+        local function GetReminders()
+            local s = A2_Settings()
+            if not s then return nil end
+            if type(s.reminders) ~= "table" then s.reminders = {} end
+            return s.reminders
+        end
+
+        -- Two-column layout: nil = ON default, false = OFF
+        local remCbs = {}
+        local leftCount, rightCount = 0, 0
+        for i = 1, #provMeta do
+            local pm = provMeta[i]
+            local col, row
+            if i <= 5 then
+                leftCount = leftCount + 1
+                col = 12; row = leftCount
+            else
+                rightCount = rightCount + 1
+                col = 380; row = rightCount
+            end
+            local yOff = -74 - (row - 1) * 24
+            local pKey = pm.key
+            local cb = CreateCheckbox(reminderBox, pm.label, col, yOff,
+                function()
+                    local r = GetReminders()
+                    return r and (r[pKey] ~= false)  -- nil = ON
+                end,
+                function(v)
+                    local r = GetReminders()
+                    if r then r[pKey] = (v == true) and true or false end
+                    local _api = ns and ns.MSUF_Auras2
+                    local rm = _api and _api.Reminder
+                    if rm and rm.MarkDirty then rm.MarkDirty() end
+                end,
+                pm.label)
+            if cb then
+                remCbs[#remCbs + 1] = cb
+                A2_Track("global", cb)
+            end
+        end
+
+        -- Threshold slider
+        local thrLabel = reminderBox:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        thrLabel:SetPoint("TOPLEFT", reminderBox, "TOPLEFT", 12, -202)
+        thrLabel:SetText("Expiry Warning")
+
+        local thrDesc2 = reminderBox:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+        thrDesc2:SetPoint("TOPLEFT", thrLabel, "BOTTOMLEFT", 0, -2)
+        thrDesc2:SetWidth(340)
+        thrDesc2:SetJustifyH("LEFT")
+        thrDesc2:SetText("Show reminder when buff expires within this time. 0 = only when missing.")
+
+        local thrSlider = CreateSlider(reminderBox, "", 0, 600, 5, 12, -244,
+            function()
+                local s = A2_Settings()
+                return (s and type(s.reminderThreshold) == "number") and s.reminderThreshold or 0
+            end,
+            function(v)
+                local s = A2_Settings()
+                if s then s.reminderThreshold = v end
+                local _api = ns and ns.MSUF_Auras2
+                local rm = _api and _api.Reminder
+                if rm and rm.MarkDirty then rm.MarkDirty() end
+            end)
+        thrSlider:SetWidth(340)
+        local thrSliderName = thrSlider:GetName()
+        local thrLow = _G[thrSliderName .. "Low"]
+        local thrHigh = _G[thrSliderName .. "High"]
+        if thrLow then thrLow:SetText("0 (Off)") end
+        if thrHigh then thrHigh:SetText("10 min") end
+        A2_Track("global", thrSlider)
+
+        -- Gate: disable per-buff checkboxes + slider when master toggle off
+        local function UpdateReminderGating()
+            local s = A2_Settings()
+            local enabled = s and (s.showReminders ~= false)
+            for i = 1, #remCbs do
+                SetCheckboxEnabled(remCbs[i], enabled)
+            end
+            if thrSlider.EnableDisable then
+                thrSlider:EnableDisable(enabled)
+            elseif enabled then
+                thrSlider:Enable()
+            else
+                thrSlider:Disable()
+            end
+        end
+
+        if cbShowReminders then
+            local oldClick = cbShowReminders:GetScript("OnClick")
+            cbShowReminders:SetScript("OnClick", function(self, ...)
+                if oldClick then pcall(oldClick, self, ...) end
+                UpdateReminderGating()
+            end)
+        end
+
+        _G.MSUF_A2_UpdateReminderGating = UpdateReminderGating
+        UpdateReminderGating()
+    end
     -- Ensure checkbox state stays consistent after /reload or early panel opens
     local function MSUF_Auras2_RefreshOptionsControls()
         if not content then  return end
@@ -2292,6 +2695,12 @@ end
         MSUF_Auras2_RefreshOptionsControls()
         UpdateAdvancedEnabled()
         ApplyOverrideUISafety()
+        -- Sync ignore list box state (editing key + override gating)
+        local fn = rawget(_G, "MSUF_A2_UpdateIgnoreBoxState")
+        if type(fn) == "function" then pcall(fn) end
+        -- Sync reminder gating (master toggle)
+        local fn2 = rawget(_G, "MSUF_A2_UpdateReminderGating")
+        if type(fn2) == "function" then pcall(fn2) end
      end
     -- Settings sometimes calls OnRefresh (old InterfaceOptions style) when a category is selected.
     -- Provide it so the panel refreshes even when OnShow does not re-fire.
@@ -2341,11 +2750,6 @@ end
             ForcePanelRefresh()
         end
      end)
-    local rInfo = advBox:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
-    rInfo:SetPoint("TOPLEFT", advBox, "TOPLEFT", 12, -190)
-    rInfo:SetWidth(690)
-    rInfo:SetJustifyH("LEFT")
-    rInfo:SetText(TIP_ADV_INFO)
     -- Register as sub-category under the main MSUF panel
     -- NOTE: Slash-menu-only mode must NOT register any Blizzard settings / interface options categories.
     if not (_G and _G.MSUF_SLASHMENU_ONLY) then

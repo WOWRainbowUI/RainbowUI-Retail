@@ -76,6 +76,14 @@ local _ufcoreDebugDirty = false
 local _ufcoreFlushBudgetMs = 0.35  -- PERF: Hard-cap per-flush spike. Target: combined MSUF < 800μs/frame.
 local _ufcoreUrgentMax = 10
 
+-- ── Smooth power bar + real-time text (MidnightRogueBars-style) ──
+-- _smoothPowerBar:    ExponentialEaseOut on StatusBar (fluid animation).
+-- _realtimePowerText: Text updated every event (no budget gating).
+-- Both ON  = MidnightRogueBars hyper-accurate mode.
+-- Both OFF = Classic MSUF battery-saver mode.
+local _smoothPowerBar    = true
+local _realtimePowerText = true
+
 local function UFCore_RefreshSettingsCache(reason)
     local cache = Core._settingsCache or {}
     Core._settingsCache = cache
@@ -127,6 +135,22 @@ local function UFCore_RefreshSettingsCache(reason)
     if ag ~= "border" then ag = nil end
     if not ag and g and g.enableAggroHighlight == true then ag = "border" end -- legacy migrate
     cache.aggroIndicatorMode = ag or "off"
+
+    -- Smooth power bar + real-time text (hot-path upvalues).
+    -- Default ON (true) when not explicitly set. Matches MidnightRogueBars behavior.
+    local prevEither = (_smoothPowerBar or _realtimePowerText)
+    _smoothPowerBar    = not (bars and bars.smoothPowerBar == false)
+    _realtimePowerText = not (bars and bars.realtimePowerText == false)
+    local nowEither = (_smoothPowerBar or _realtimePowerText)
+
+    -- Swap DIRECT_APPLY handler to match new settings (zero branches in hot path).
+    if Core._PowerSwapHandler then Core._PowerSwapHandler() end
+
+    -- When the "either toggle ON" state changes, re-register events on all frames.
+    -- This adds/removes UNIT_POWER_FREQUENT → true zero overhead when both off.
+    if (prevEither ~= nowEither) and Core.RefreshAllUnitEvents then
+        Core.RefreshAllUnitEvents(true)
+    end
 
     -- Bar mode (authoritative): "dark" | "class" | "unified"
     local mode = g and g.barMode or nil
@@ -385,6 +409,7 @@ function Core.InvalidateAllFrameConfigs()
             f._msufCachedShowAbsorbText = nil
             f._msufPwrTextConf = nil
             f._msufHpTextConf = nil
+            f._msufPwrPctCleared = nil
             f._msufHpTxtAt = nil
             f._msufStatusConf = nil
             f._msufStatusIconsConf = nil
@@ -767,7 +792,7 @@ Elements.Power = {
     bit = EL_POWER,
     dirty = DIRTY_POWER,
     events = {
-        "UNIT_POWER_UPDATE", "UNIT_MAXPOWER", "UNIT_DISPLAYPOWER",
+        "UNIT_POWER_UPDATE", "UNIT_POWER_FREQUENT", "UNIT_MAXPOWER", "UNIT_DISPLAYPOWER",
         "UNIT_POWER_BAR_SHOW", "UNIT_POWER_BAR_HIDE",
     },
     Enable = function(f, conf) end,
@@ -902,12 +927,21 @@ Elements.Status = {
     key = "Status",
     bit = EL_STATUS,
     dirty = DIRTY_STATUS,
-    urgent = true,
     events = {
         "UNIT_CONNECTION",
         "UNIT_FLAGS",
         -- Incoming resurrection (player/target).
         "INCOMING_RESURRECT_CHANGED",
+    },
+    -- IMPORTANT PERF POLICY:
+    -- UNIT_FLAGS can flood at boss pull (many units flip combat flags at once).
+    -- Never allow UNIT_FLAGS to bypass the normal UFCore flush queue, even for
+    -- target/focus/ToT which otherwise default-promote to urgent.
+    --
+    -- This preserves gameplay correctness (status updates still happen), but
+    -- prevents large spikes by forcing coalescing + budgeted flush.
+    eventUrgentOverrides = {
+        UNIT_FLAGS = false,
     },
     Enable = function(f, conf) end,
     Disable = function(f) end,
@@ -1031,7 +1065,9 @@ local ELEMENT_LIST = {
 
 local UFCORE_EVENT_ALIAS = {
     UNIT_HEALTH_FREQUENT = "UNIT_HEALTH",
-    UNIT_POWER_FREQUENT  = "UNIT_POWER_UPDATE",
+    -- UNIT_POWER_FREQUENT: intentionally NOT aliased.
+    -- Must be registered as its own event for smooth power bars.
+    -- DIRECT_APPLY maps it to the same handler as UNIT_POWER_UPDATE.
 }
 
 local function UFCore_WantEvent(f, conf, desired, unsupported, ev)
@@ -1039,6 +1075,12 @@ local function UFCore_WantEvent(f, conf, desired, unsupported, ev)
     if (unsupported and unsupported[ev]) then return end
     if ev == "INCOMING_RESURRECT_CHANGED" then
         if not (conf and conf.showIncomingResIndicator) then return end
+    end
+    -- UNIT_POWER_FREQUENT: only register on the PLAYER frame when toggles ON.
+    -- Target/Focus/Boss never get this event → zero overhead for non-player.
+    if ev == "UNIT_POWER_FREQUENT" then
+        if not (_smoothPowerBar or _realtimePowerText) then return end
+        if not f._msufIsPlayer then return end
     end
     desired[ev] = true
 end
@@ -2307,6 +2349,7 @@ do
         if evs then
             local baseMask, baseUrgent = el.dirty, el.urgent
             local mo = el.eventMaskOverrides
+            local uo = el.eventUrgentOverrides
             for j = 1, #evs do
                 local ev = evs[j]
                 ev = UFCORE_EVENT_ALIAS[ev] or ev
@@ -2318,7 +2361,22 @@ do
                     info = { mask = m }
                     UNIT_EVENT_MAP[ev] = info
                 end
-                if baseUrgent then info.urgent = true end
+
+                -- Urgent policy (per-event override supported):
+                --   * Explicit false forces non-urgent, even if other callers
+                --     would default-promote (e.g. target/focus/ToT policy).
+                --   * Explicit true forces urgent.
+                --   * Otherwise, element-level urgent=true marks event as urgent.
+                local u = (uo and uo[ev])
+                if u == false then
+                    info.urgent = false
+                elseif u == true then
+                    info.urgent = true
+                elseif baseUrgent then
+                    if info.urgent ~= false then
+                        info.urgent = true
+                    end
+                end
             end
         end
     end
@@ -2393,76 +2451,211 @@ do
 
     local powerFn = Elements.Power and Elements.Power.Update
     if powerFn then
-        -- UNIT_POWER_UPDATE → value-only fast path (most frequent power event).
-        -- If bar is already visible: just UnitPowerType + UnitPower + SetValue.
-        -- Eliminates: Elements.Power.Update wrapper (IsShown before+after for outline),
-        -- ns.Bars.ApplySpec dispatch, UnitExists check, MSUF_IsTargetLikeFrame,
-        -- PowerBarAllowed, ApplyPowerBarVisual (color), SetMinMaxValues, type() guards.
-        -- Power fast-path (12.0/Midnight secret-safe):
-        -- * Use ONLY UnitPower/UnitPowerMax/UnitPowerPercent (+ UnitPowerType) pass-through.
-        -- * Avoid any comparisons/arithmetic on returned values in the hot path.
-        -- * Cache cur/max/pct so MSUF_Text can render accurate text matching the bar.
-        local _UnitPower        = UnitPower
-        local _UnitPowerMax     = UnitPowerMax
-        local _UnitPowerPercent = UnitPowerPercent
-        local _UnitPowerType    = UnitPowerType
-        local _Curve100         = (CurveConstants and CurveConstants.ScaleTo100) or true
+        -- ──────────────────────────────────────────────────────────────
+        -- Power fast-path — MidnightRogueBars EnergyBar approach.
+        --
+        -- Two independent settings (cached upvalues):
+        --
+        --   _smoothPowerBar (bars.smoothPowerBar):
+        --     ON:  ExponentialEaseOut on SetMinMaxValues + SetValue
+        --     OFF: Instant snap (no interpolation)
+        --
+        --   _realtimePowerText (bars.realtimePowerText):
+        --     ON:  Text updated every event (like MidnightRogueBars)
+        --     OFF: Budget-gated (player 33Hz, others 10Hz)
+        --
+        -- UNIT_POWER_FREQUENT is registered for smooth sub-tick updates.
+        -- ──────────────────────────────────────────────────────────────
+        local _UnitPower     = UnitPower
+        local _UnitPowerMax  = UnitPowerMax
+        local _UnitPowerType = UnitPowerType
+        local _Interp = (type(Enum) == "table"
+            and Enum.StatusBarInterpolation
+            and Enum.StatusBarInterpolation.ExponentialEaseOut) or nil
 
-        DIRECT_APPLY["UNIT_POWER_UPDATE"] = function(f)
+        -- PERF: Pre-resolve UnitPowerPercent + ScaleTo100 for RenderPowerText cache.
+        -- Caching pPct here eliminates 1 UnitPowerPercent C-API call per text update.
+        local _PwrPctFn = UnitPowerPercent
+        local _PwrScale = (type(CurveConstants) == "table" and CurveConstants.ScaleTo100) or true
+
+        -- ── Handler A: Both OFF — zero added overhead vs original MSUF ──
+        -- No interpolation, budget-gated text. No function calls for time check.
+        local function _PowerOff(f)
             local bar = f.targetPowerBar or f.powerBar
             if not bar then return end
 
             local unit = f.unit
             local pType = _UnitPowerType(unit)
             if pType == nil then return end
+            -- Ele Shaman: class power shows Maelstrom → main bar shows Mana
+            if f._msufIsPlayer and _G.MSUF_EleMaelstromActive then pType = 0 end
 
-            -- TEXT CACHE: Fetch cur/max once for MSUF_Text.RenderPowerText.
-            -- (Text rendering handles secret values correctly via C_StringUtil.)
-            f._msufCachedPType = pType
-            local cur = _UnitPower(unit, pType, false)
-            local mx  = _UnitPowerMax(unit, pType, false)
-            f._msufCachedPCur  = (type(cur) == "number") and cur or nil
-            f._msufCachedPMax  = (type(mx) == "number") and mx or nil
+            local cur = _UnitPower(unit, pType)
+            local mx  = _UnitPowerMax(unit, pType)
+            if type(cur) ~= "number" then cur = 0 end
+            if type(mx)  ~= "number" then mx  = 100 end
 
-            -- BAR FILL: Use UnitPowerPercent (returns a regular number, never
-            -- a secret) so the StatusBar always renders the correct fill.
-            -- UnitPower/UnitPowerMax can return secret values that do not
-            -- reliably drive SetMinMaxValues+SetValue after zone transitions
-            -- (e.g. leaving M+), causing the bar to appear permanently full.
-            if _UnitPowerPercent then
-                local pct = _UnitPowerPercent(unit, pType, false, _Curve100)
-                if type(pct) == "number" then
-                    bar:SetMinMaxValues(0, 100)
-                    bar:SetValue(pct)
-                    f._msufCachedPPct = pct
-                else
-                    f._msufCachedPPct = nil
-                end
-            else
-                -- Fallback: UnitPowerPercent unavailable (shouldn't happen in 12.0).
-                -- Reuse cur/mx from text cache above.
-                if type(mx) == "number" then bar:SetMinMaxValues(0, mx) end
-                if type(cur) == "number" then bar:SetValue(cur) end
-                f._msufCachedPPct = nil
-            end
+            bar:SetMinMaxValues(0, mx)
+            bar:SetValue(cur)
+
+            f._msufCachedPType   = pType
+            f._msufCachedPCur    = cur
+            f._msufCachedPMax    = mx
+            f._msufCachedPPct    = nil
             f._msufCachedPSerial = Core._frameNowSerial
 
-            -- Text update: budget gated + player faster rate.
+            -- Budget-gated text: direct table read (no function call).
+            -- Core._frameNow is updated by FlushTask every frame — precise enough
+            -- for a 33Hz/10Hz budget gate. Avoids _RefreshFrameNow() overhead.
             local fnTxt = FN_UpdatePowerTextFast
             if fnTxt then
-                local now = _RefreshFrameNow()
-                local interval = (f._msufIsPlayer and 0.03) or 0.10
-                if (now - (f._msufPwrTxtAt or 0)) >= interval then
-                    if _DirectTextAllowed() then
-                        f._msufPwrTxtAt = now + (f._msufTextStagger or 0)
-                        fnTxt(f)
-                    end
+                local now = Core._frameNow
+                if (now - (f._msufPwrTxtAt or 0)) >= ((f._msufIsPlayer and 0.03) or 0.10) then
+                    f._msufPwrTxtAt = now
+                    -- PERF: Pre-cache percent so RenderPowerText skips UnitPowerPercent C-API.
+                    if _PwrPctFn then f._msufCachedPPct = _PwrPctFn(unit, pType, false, _PwrScale) end
+                    fnTxt(f)
                 end
             end
         end
 
-        -- UNIT_POWER_FREQUENT should use the same fast path.
-        DIRECT_APPLY["UNIT_POWER_FREQUENT"] = DIRECT_APPLY["UNIT_POWER_UPDATE"]
+        -- ── Handler B: Smooth ON, text OFF — ExponentialEaseOut + budget text ──
+        local function _PowerSmooth(f)
+            local bar = f.targetPowerBar or f.powerBar
+            if not bar then return end
+
+            local unit = f.unit
+            local pType = _UnitPowerType(unit)
+            if pType == nil then return end
+            if _G.MSUF_EleMaelstromActive then pType = 0 end
+
+            local cur = _UnitPower(unit, pType)
+            local mx  = _UnitPowerMax(unit, pType)
+            if type(cur) ~= "number" then cur = 0 end
+            if type(mx)  ~= "number" then mx  = 100 end
+
+            bar:SetMinMaxValues(0, mx, _Interp)
+            bar:SetValue(cur, _Interp)
+
+            f._msufCachedPType   = pType
+            f._msufCachedPCur    = cur
+            f._msufCachedPMax    = mx
+            f._msufCachedPPct    = nil
+            f._msufCachedPSerial = Core._frameNowSerial
+
+            local fnTxt = FN_UpdatePowerTextFast
+            if fnTxt then
+                local now = Core._frameNow
+                if (now - (f._msufPwrTxtAt or 0)) >= ((f._msufIsPlayer and 0.03) or 0.10) then
+                    f._msufPwrTxtAt = now
+                    -- PERF: Pre-cache percent so RenderPowerText skips UnitPowerPercent C-API.
+                    if _PwrPctFn then f._msufCachedPPct = _PwrPctFn(unit, pType, false, _PwrScale) end
+                    fnTxt(f)
+                end
+            end
+        end
+
+        -- ── Handler C: Realtime text ON — no interpolation, text every event ──
+        local function _PowerRTText(f)
+            local bar = f.targetPowerBar or f.powerBar
+            if not bar then return end
+
+            local unit = f.unit
+            local pType = _UnitPowerType(unit)
+            if pType == nil then return end
+            if _G.MSUF_EleMaelstromActive then pType = 0 end
+
+            local cur = _UnitPower(unit, pType)
+            local mx  = _UnitPowerMax(unit, pType)
+            if type(cur) ~= "number" then cur = 0 end
+            if type(mx)  ~= "number" then mx  = 100 end
+
+            bar:SetMinMaxValues(0, mx)
+            bar:SetValue(cur)
+
+            f._msufCachedPType   = pType
+            f._msufCachedPCur    = cur
+            f._msufCachedPMax    = mx
+            f._msufCachedPPct    = nil
+            f._msufCachedPSerial = Core._frameNowSerial
+
+            local fnTxt = FN_UpdatePowerTextFast
+            if fnTxt then
+                -- PERF: Pre-cache percent so RenderPowerText skips UnitPowerPercent C-API.
+                if _PwrPctFn then f._msufCachedPPct = _PwrPctFn(unit, pType, false, _PwrScale) end
+                fnTxt(f)
+            end
+        end
+
+        -- ── Handler D: Both ON — full MidnightRogueBars (hyper-accurate) ──
+        local function _PowerFull(f)
+            local bar = f.targetPowerBar or f.powerBar
+            if not bar then return end
+
+            local unit = f.unit
+            local pType = _UnitPowerType(unit)
+            if pType == nil then return end
+            if _G.MSUF_EleMaelstromActive then pType = 0 end
+
+            local cur = _UnitPower(unit, pType)
+            local mx  = _UnitPowerMax(unit, pType)
+            if type(cur) ~= "number" then cur = 0 end
+            if type(mx)  ~= "number" then mx  = 100 end
+
+            bar:SetMinMaxValues(0, mx, _Interp)
+            bar:SetValue(cur, _Interp)
+
+            f._msufCachedPType   = pType
+            f._msufCachedPCur    = cur
+            f._msufCachedPMax    = mx
+            f._msufCachedPPct    = nil
+            f._msufCachedPSerial = Core._frameNowSerial
+
+            local fnTxt = FN_UpdatePowerTextFast
+            if fnTxt then
+                -- PERF: Pre-cache percent so RenderPowerText skips UnitPowerPercent C-API.
+                if _PwrPctFn then f._msufCachedPPct = _PwrPctFn(unit, pType, false, _PwrScale) end
+                fnTxt(f)
+            end
+        end
+
+        -- Pre-defined no-op (avoids closure allocation on every swap).
+        local _PowerNoop = function() end
+
+        -- ── Pick handler based on settings (called by RefreshSettingsCache) ──
+        -- Player frame: selected handler based on toggles.
+        -- Non-player frames (target/focus/boss): ALWAYS _PowerOff.
+        -- One boolean read per event — negligible vs the 5 C API calls that follow.
+        local _playerPowerFn = _PowerOff
+
+        local function _PowerSwapHandler()
+            local s = _smoothPowerBar and (_Interp ~= nil)
+            local r = _realtimePowerText
+            if     s and r     then _playerPowerFn = _PowerFull
+            elseif s and not r then _playerPowerFn = _PowerSmooth
+            elseif not s and r then _playerPowerFn = _PowerRTText
+            else                    _playerPowerFn = _PowerOff
+            end
+        end
+
+        -- UNIT_POWER_UPDATE: fires for ALL frames (player + target + focus + boss).
+        -- Dispatch: player → selected handler, everyone else → _PowerOff.
+        DIRECT_APPLY["UNIT_POWER_UPDATE"] = function(f)
+            if f._msufIsPlayer then
+                return _playerPowerFn(f)
+            end
+            return _PowerOff(f)
+        end
+
+        -- UNIT_POWER_FREQUENT: only registered on player frame (Layer 1 gate).
+        -- So this handler ONLY ever fires for player. Direct to selected handler.
+        DIRECT_APPLY["UNIT_POWER_FREQUENT"] = function(f)
+            return _playerPowerFn(f)
+        end
+
+        -- Wire initial handler + expose swap for settings cache.
+        _PowerSwapHandler()
+        Core._PowerSwapHandler = _PowerSwapHandler
 
         -- Rare power events → full chain (correct: handles visibility, color, range).
         -- Set visibility-check flag so Elements.Power.Update only does before/after
@@ -2644,6 +2837,7 @@ function Core.NotifyConfigChanged(unitKey, alsoUpdate, urgent, reason)
     f._msufCachedShowAbsorbText = nil
     f._msufPwrTextConf = nil
     f._msufHpTextConf = nil
+    f._msufPwrPctCleared = nil
     f._msufHpTxtAt = nil
     f._msufStatusConf = nil
     f._msufStatusIconsConf = nil

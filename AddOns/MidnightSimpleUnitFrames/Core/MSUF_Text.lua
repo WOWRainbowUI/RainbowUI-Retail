@@ -31,8 +31,8 @@ function ns.Text.Set(fs, text, show)
     -- invalidation + GC of the old internal string.
     -- Secret-safe: issecretvalue guards the comparison. Secret strings
     -- (from ShortenNumber on secret UnitPower values) fall through to SetText.
-    local isv = _G.issecretvalue
-    if not isv or not isv(text) then
+    -- P0: Use file-scope upvalue (_MSUF_issecret) instead of _G lookup per call.
+    if not _MSUF_issecret or not _MSUF_issecret(text) then
         if text == fs._msufLastSetT then
             if fs.Show then fs:Show() end
             return
@@ -496,6 +496,10 @@ function ns.Text.RenderPowerText(self)
 
     -- PERF: Reuse pType/cur/max/pct from DIRECT_APPLY handler if same frame.
     -- This keeps the text 1:1 in sync with the bar fast-path.
+    -- pPct is pre-cached by DIRECT_APPLY → skips 1× UnitPowerPercent C-API call.
+    -- NOTE: In WoW 12.0, cached values CAN be secret (UnitPower returns secret
+    -- numbers where type() == "number" but issecretvalue() == true, and ~= nil
+    -- is also true). Must still run IsSecret before any string compares.
     local pType, curValue, maxValue, powerPct
     local frameSerial = _G._MSUF_FrameSerial
     local cachedSerial = self._msufCachedPSerial
@@ -505,16 +509,19 @@ function ns.Text.RenderPowerText(self)
         maxValue = self._msufCachedPMax
         powerPct = self._msufCachedPPct
     end
-    -- Fallback: fetch from C-API if no valid cache
+    -- Fallback: fetch from C-API if no valid cache.
+    -- 2 args only — matches MidnightRogueBars secret-safe pattern.
     if pType == nil then
         pType = (F.UnitPowerType and F.UnitPowerType(unit)) or (UnitPowerType and UnitPowerType(unit))
     end
+    -- Ele Shaman: class power shows Maelstrom → main bar + text show Mana
+    if self._msufIsPlayer and _G.MSUF_EleMaelstromActive then pType = 0 end
     if pType ~= nil then
         if curValue == nil then
-            curValue = (F.UnitPower and F.UnitPower(unit, pType, false)) or (UnitPower and UnitPower(unit, pType, false)) or nil
+            curValue = (F.UnitPower and F.UnitPower(unit, pType)) or (UnitPower and UnitPower(unit, pType)) or nil
         end
         if maxValue == nil then
-            maxValue = (F.UnitPowerMax and F.UnitPowerMax(unit, pType, false)) or (UnitPowerMax and UnitPowerMax(unit, pType, false)) or nil
+            maxValue = (F.UnitPowerMax and F.UnitPowerMax(unit, pType)) or (UnitPowerMax and UnitPowerMax(unit, pType)) or nil
         end
     else
         curValue = (F.UnitPower and F.UnitPower(unit)) or (UnitPower and UnitPower(unit)) or nil
@@ -564,8 +571,11 @@ function ns.Text.RenderPowerText(self)
     ns.Text.Set(self.powerText, mainText or "", true)
     if sideText ~= nil and self.powerTextPct then
         ns.Text.Set(self.powerTextPct, sideText, true)
-    else
+        self._msufPwrPctCleared = nil
+    elseif not self._msufPwrPctCleared then
+        -- PERF: Gate ClearField — skip if already cleared (saves ~1.6ms/trace).
         ns.Text.ClearField(self, "powerTextPct")
+        self._msufPwrPctCleared = true
     end
 
     -- PERF: Skip SetTextColor when power type hasn't changed since last apply.
@@ -673,6 +683,8 @@ function ns.Text.ApplyPowerTextColorByType(self, unit, enabled)
     -- UnitPowerType existence is guarded above. Direct call (no FastCall overhead).
     local pType, pTok = UnitPowerType(unit)
     if pType == nil then  return end
+    -- Ele Shaman: class power shows Maelstrom → text color matches Mana
+    if self._msufIsPlayer and _G.MSUF_EleMaelstromActive then pType = 0; pTok = "MANA" end
     if type(MSUF_GetResolvedPowerColor) ~= "function" then  return end
     local pr, pg, pb = MSUF_GetResolvedPowerColor(pType, pTok)
     if not pr then  return end
