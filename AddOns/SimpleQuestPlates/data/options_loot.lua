@@ -97,6 +97,9 @@ function SQP:CreateLootOptions(content)
         if SQP.optionControls and SQP.optionControls.animateQuestIcons then
             SQP.optionControls.animateQuestIcons:SetChecked(self:GetChecked())
         end
+        if SQP.optionControls and SQP.optionControls.animateQuestIconsPercent then
+            SQP.optionControls.animateQuestIconsPercent:SetChecked(self:GetChecked())
+        end
         SQP:RefreshAllNameplates()
     end)
     yOffset = yOffset - 34
@@ -110,6 +113,34 @@ function SQP:CreateLootOptions(content)
         SQP:RefreshAllNameplates()
     end)
     yOffset = yOffset - 34
+
+    local lootAnimIntensityLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    lootAnimIntensityLabel:SetPoint("TOPLEFT", 20, yOffset)
+    lootAnimIntensityLabel:SetText(string.format("Intensity: %d%%", SQPSettings.lootAnimationIntensity or 100))
+    self.optionControls.lootAnimationIntensityLabel = lootAnimIntensityLabel
+
+    local lootAnimIntensitySlider = self:CreateStyledSlider(leftColumn, 25, 200, 5, 160)
+    lootAnimIntensitySlider:SetPoint("TOPLEFT", lootAnimIntensityLabel, "BOTTOMLEFT", 0, -4)
+    lootAnimIntensitySlider:SetValue(SQPSettings.lootAnimationIntensity or 100)
+    self.optionControls.lootAnimationIntensity = lootAnimIntensitySlider
+
+    local lootAnimIntensityReset = self:CreateInlineResetButton(leftColumn, function()
+        SQP:SetSetting('lootAnimationIntensity', 100)
+        lootAnimIntensitySlider:SetValue(100)
+        lootAnimIntensityLabel:SetText("Intensity: 100%")
+        ActivateLoot()
+        SQP:RefreshAllNameplates()
+    end)
+    lootAnimIntensityReset:SetPoint("LEFT", lootAnimIntensitySlider, "RIGHT", 5, 0)
+
+    lootAnimIntensitySlider:SetScript("OnValueChanged", function(self, newVal)
+        newVal = math.floor(newVal / 5 + 0.5) * 5
+        SQP:SetSetting('lootAnimationIntensity', newVal)
+        lootAnimIntensityLabel:SetText(string.format("Intensity: %d%%", newVal))
+        ActivateLoot()
+        SQP:RefreshAllNameplates()
+    end)
+    yOffset = yOffset - 44
 
     -- Loot Color
     local colorHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -183,6 +214,7 @@ function SQP:CreateLootOptions(content)
         SQP:SetSetting('lootShowIconBackground', D.lootShowIconBackground)
         SQP:SetSetting('animateQuestIcons', D.animateQuestIcons)
         SQP:SetSetting('lootAnimateMain',   D.lootAnimateMain)
+        SQP:SetSetting('lootAnimationIntensity', D.lootAnimationIntensity)
         SQP:SetSetting('itemColor',         {unpack(D.itemColor)})
         SQP:SetSetting('lootTintIcon',      D.lootTintIcon)
         SQP:SetSetting('lootTintIconColor', {unpack(D.lootTintIconColor)})
@@ -196,7 +228,12 @@ function SQP:CreateLootOptions(content)
         if oc.lootShowIconBackgroundStyleUpdater then oc.lootShowIconBackgroundStyleUpdater() end
         if oc.animateQuestIconsLoot then oc.animateQuestIconsLoot:SetChecked(D.animateQuestIcons) end
         if oc.animateQuestIcons then oc.animateQuestIcons:SetChecked(D.animateQuestIcons) end
+        if oc.animateQuestIconsPercent then oc.animateQuestIconsPercent:SetChecked(D.animateQuestIcons) end
         if oc.lootAnimateMain      then oc.lootAnimateMain:SetChecked(D.lootAnimateMain) end
+        if oc.lootAnimationIntensity then oc.lootAnimationIntensity:SetValue(D.lootAnimationIntensity) end
+        if oc.lootAnimationIntensityLabel then
+            oc.lootAnimationIntensityLabel:SetText(string.format("Intensity: %d%%", D.lootAnimationIntensity))
+        end
         if oc.lootTintIcon         then oc.lootTintIcon:SetChecked(D.lootTintIcon) end
         -- Update color swatches
         if oc.lootColorSwatch              then oc.lootColorSwatch:SetColorTexture(unpack(D.itemColor)) end

@@ -6,6 +6,7 @@
 --=====================================================================================
 
 local addonName, SQP = ...
+local floor = math.floor
 
 -- Create tab button
 function SQP:CreateTabButton(parent, id, text)
@@ -54,7 +55,7 @@ function SQP:CreateTabButton(parent, id, text)
     return tab
 end
 
--- Create tab panel (no scroll — content must fit)
+-- Create tab panel (no scroll - content must fit)
 function SQP:CreateTabPanel(parent)
     local panel = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     panel:SetBackdrop(self.BACKDROP_DARK)
@@ -81,6 +82,7 @@ function SQP:InitializeTabs(container, previewContainer)
     -- Tab buttons
     local tabs = {}
     local tabPanels = {}
+    local orderedTabs = {}
 
     local tabInfo = {
         {id = "global",  text = "Global"},
@@ -90,43 +92,98 @@ function SQP:InitializeTabs(container, previewContainer)
         {id = "about",   text = "About"},
     }
 
-    -- Create tabs (110px wide, 115px spacing = 5×115 = 575px; fits in ~580px content)
-    for i, info in ipairs(tabInfo) do
-        local tab = self:CreateTabButton(tabContainer, info.id, info.text)
-        tab:SetPoint("LEFT", tabContainer, "LEFT", (i-1) * 115, 0)
+    local function ActivateTab(id)
+        for _, panel in pairs(tabPanels) do
+            panel:Hide()
+        end
+        for _, tab in pairs(tabs) do
+            tab:SetActive(false)
+        end
 
+        if tabPanels[id] then
+            tabPanels[id]:Show()
+        end
+        if tabs[id] then
+            tabs[id]:SetActive(true)
+        end
+
+        if SQP.previewFrame then
+            if id == "kill" and SQP.previewFrame.activateKillMode then
+                SQP.previewFrame.activateKillMode()
+            elseif id == "loot" and SQP.previewFrame.activateLootMode then
+                SQP.previewFrame.activateLootMode()
+            elseif id == "percent" and SQP.previewFrame.activatePercentMode then
+                SQP.previewFrame.activatePercentMode()
+            elseif SQP.previewFrame.activateKillMode then
+                SQP.previewFrame.activateKillMode()
+            end
+        end
+    end
+
+    -- Create tabs
+    for index, info in ipairs(tabInfo) do
+        local tab = self:CreateTabButton(tabContainer, info.id, info.text)
         local panel = self:CreateTabPanel(container)
         panel:SetPoint("TOPLEFT", tabContainer, "BOTTOMLEFT", 0, -3)
         panel:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", -10, 10)
 
+        local tabId = info.id
         tab:SetScript("OnClick", function()
-            -- Hide all panels and deactivate all tabs
-            for _, p in pairs(tabPanels) do p:Hide() end
-            for _, t in pairs(tabs) do t:SetActive(false) end
-            -- Show selected panel and activate tab
-            panel:Show()
-            tab:SetActive(true)
-            -- Auto-switch preview to the relevant quest type
-            if SQP.previewFrame then
-                if info.id == "kill" and SQP.previewFrame.activateKillMode then
-                    SQP.previewFrame.activateKillMode()
-                elseif info.id == "loot" and SQP.previewFrame.activateLootMode then
-                    SQP.previewFrame.activateLootMode()
-                elseif info.id == "percent" and SQP.previewFrame.activatePercentMode then
-                    SQP.previewFrame.activatePercentMode()
-                elseif SQP.previewFrame.activateKillMode then
-                    SQP.previewFrame.activateKillMode()
-                end
-            end
+            ActivateTab(tabId)
         end)
 
-        tabs[info.id] = tab
-        tabPanels[info.id] = panel
+        tabs[tabId] = tab
+        tabPanels[tabId] = panel
+        orderedTabs[index] = tab
     end
 
+    -- Fill the tab row width evenly so no space remains after the last tab.
+    local function LayoutTabs()
+        local count = #orderedTabs
+        if count == 0 then return end
+
+        local containerWidth = tabContainer:GetWidth() or 0
+        if containerWidth <= 0 then return end
+
+        local gap = 4
+        local totalGap = gap * (count - 1)
+        local availableWidth = containerWidth - totalGap
+        if availableWidth < count then
+            availableWidth = count
+        end
+
+        local baseWidth = floor(availableWidth / count)
+        local remainder = floor(availableWidth - (baseWidth * count))
+
+        for index, tab in ipairs(orderedTabs) do
+            tab:ClearAllPoints()
+            tab:SetHeight(26)
+
+            if index == 1 then
+                tab:SetPoint("LEFT", tabContainer, "LEFT", 0, 0)
+            else
+                tab:SetPoint("LEFT", orderedTabs[index - 1], "RIGHT", gap, 0)
+            end
+
+            if index < count then
+                local tabWidth = baseWidth
+                if remainder > 0 then
+                    tabWidth = tabWidth + 1
+                    remainder = remainder - 1
+                end
+                tab:SetWidth(tabWidth)
+            else
+                tab:SetPoint("RIGHT", tabContainer, "RIGHT", 0, 0)
+            end
+        end
+    end
+
+    LayoutTabs()
+    tabContainer:SetScript("OnSizeChanged", LayoutTabs)
+    tabContainer:SetScript("OnShow", LayoutTabs)
+
     -- Default to global tab
-    tabs.global:SetActive(true)
-    tabPanels.global:Show()
+    ActivateTab("global")
 
     return tabs, tabPanels
 end

@@ -161,6 +161,8 @@ function SQP:CreatePreviewSection(parent)
         fadeIn:SetToAlpha(1)
         fadeIn:SetDuration(0.5)
         fadeIn:SetSmoothing("IN_OUT")
+        pulse._fadeOut = fadeOut
+        pulse._fadeIn = fadeIn
         return pulse
     end
 
@@ -179,6 +181,8 @@ function SQP:CreatePreviewSection(parent)
         fadeIn:SetToAlpha(1)
         fadeIn:SetDuration(0.6)
         fadeIn:SetSmoothing("IN_OUT")
+        pulse._fadeOut = fadeOut
+        pulse._fadeIn = fadeIn
         return pulse
     end
 
@@ -209,20 +213,10 @@ function SQP:CreatePreviewSection(parent)
     -- Safely read frame dimensions that may be protected/tainted values.
     local function ToPlainNumber(value)
         if value == nil then return nil end
-
-        if type(value) == "number" then
-            -- Secret/tainted numbers can fail arithmetic; guard with pcall.
-            local okMath, plainValue = pcall(function(v) return v + 0 end, value)
-            if okMath and type(plainValue) == "number" then
-                return plainValue
-            end
-        end
-
         local okString, stringValue = pcall(tostring, value)
         if not okString or not stringValue then
             return nil
         end
-
         return tonumber(stringValue)
     end
 
@@ -486,49 +480,45 @@ function SQP:CreatePreviewSection(parent)
             end
         end
 
-        -- Manage main icon pulse animation (per-tab setting)
-        local animKey = (previewTypeKey == "kill" and "killAnimateMain") or
-                        (previewTypeKey == "loot" and "lootAnimateMain") or
-                        "percentAnimateMain"
-        local animateMain = SQPSettings[animKey] == true
+        -- Manage main/icon text pulse animation with global override support.
+        local animateMain = SQP:IsAnimationEnabled(previewTypeKey, false)
+        local mainIconShown = icon:IsShown()
+        local percentTextShown = self.percentIcon and self.percentIcon:IsShown() and not mainIconShown
 
-        if previewTypeKey == "percent" then
-            if self.iconPulse and self.iconPulse:IsPlaying() then self.iconPulse:Stop() end
-            if self.percentPulse then
-                if animateMain and self.percentIcon and self.percentIcon:IsShown() then
-                    if not self.percentPulse:IsPlaying() then self.percentPulse:Play() end
-                else
-                    if self.percentPulse:IsPlaying() then self.percentPulse:Stop() end
-                    percentIcon:SetAlpha(1)
-                end
-            end
-            if self.percentOutlinePulse then
-                if animateMain and self.percentIconOutline and self.percentIconOutline:IsShown() then
-                    if not self.percentOutlinePulse:IsPlaying() then self.percentOutlinePulse:Play() end
-                else
-                    if self.percentOutlinePulse:IsPlaying() then self.percentOutlinePulse:Stop() end
-                    percentIconOutline:SetAlpha(1)
-                end
-            end
-        else
-            if self.percentPulse and self.percentPulse:IsPlaying() then self.percentPulse:Stop() end
-            if self.percentOutlinePulse and self.percentOutlinePulse:IsPlaying() then self.percentOutlinePulse:Stop() end
-            percentIcon:SetAlpha(1)
-            percentIconOutline:SetAlpha(1)
-            if self.iconPulse then
-                if animateMain and icon:IsShown() then
-                    if not self.iconPulse:IsPlaying() then self.iconPulse:Play() end
-                else
-                    if self.iconPulse:IsPlaying() then self.iconPulse:Stop() end
-                    icon:SetAlpha(1)
-                end
+        if self.iconPulse then
+            SQP:ApplyPulseDuration(self.iconPulse, SQP:GetAnimationDuration(previewTypeKey, true))
+            if animateMain and mainIconShown then
+                if not self.iconPulse:IsPlaying() then self.iconPulse:Play() end
+            else
+                if self.iconPulse:IsPlaying() then self.iconPulse:Stop() end
+                icon:SetAlpha(1)
             end
         end
 
-        -- Manage task icon pulse animation (shared kill/loot mini-icon toggle)
-        local animateTasks = SQPSettings.animateQuestIcons == true
+        if self.percentPulse then
+            SQP:ApplyPulseDuration(self.percentPulse, SQP:GetAnimationDuration("percent", false))
+            if animateMain and percentTextShown then
+                if not self.percentPulse:IsPlaying() then self.percentPulse:Play() end
+            else
+                if self.percentPulse:IsPlaying() then self.percentPulse:Stop() end
+                percentIcon:SetAlpha(1)
+            end
+        end
+
+        if self.percentOutlinePulse then
+            SQP:ApplyPulseDuration(self.percentOutlinePulse, SQP:GetAnimationDuration("percent", false))
+            if animateMain and percentTextShown and self.percentIconOutline and self.percentIconOutline:IsShown() then
+                if not self.percentOutlinePulse:IsPlaying() then self.percentOutlinePulse:Play() end
+            else
+                if self.percentOutlinePulse:IsPlaying() then self.percentOutlinePulse:Stop() end
+                percentIconOutline:SetAlpha(1)
+            end
+        end
+
+        -- Manage task icon pulse animation (kill/loot mini icons) with global override.
         if self.killIconPulse then
-            if animateTasks and self.killIcon and self.killIcon:IsShown() then
+            SQP:ApplyPulseDuration(self.killIconPulse, SQP:GetAnimationDuration("kill", false))
+            if SQP:IsAnimationEnabled("kill", true) and self.killIcon and self.killIcon:IsShown() then
                 if not self.killIconPulse:IsPlaying() then self.killIconPulse:Play() end
             else
                 if self.killIconPulse:IsPlaying() then self.killIconPulse:Stop() end
@@ -536,7 +526,8 @@ function SQP:CreatePreviewSection(parent)
             end
         end
         if self.lootIconPulse then
-            if animateTasks and self.lootIcon and self.lootIcon:IsShown() then
+            SQP:ApplyPulseDuration(self.lootIconPulse, SQP:GetAnimationDuration("loot", false))
+            if SQP:IsAnimationEnabled("loot", true) and self.lootIcon and self.lootIcon:IsShown() then
                 if not self.lootIconPulse:IsPlaying() then self.lootIconPulse:Play() end
             else
                 if self.lootIconPulse:IsPlaying() then self.lootIconPulse:Stop() end

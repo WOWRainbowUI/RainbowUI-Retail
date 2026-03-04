@@ -59,6 +59,8 @@ function SQP:CreateQuestPlate(nameplate)
         fadeIn:SetToAlpha(1)
         fadeIn:SetDuration(0.5)
         fadeIn:SetSmoothing("IN_OUT")
+        pulse._fadeOut = fadeOut
+        pulse._fadeIn = fadeIn
         return pulse
     end
 
@@ -78,6 +80,8 @@ function SQP:CreateQuestPlate(nameplate)
         fadeIn:SetToAlpha(1)
         fadeIn:SetDuration(0.6)
         fadeIn:SetSmoothing("IN_OUT")
+        pulse._fadeOut = fadeOut
+        pulse._fadeIn = fadeIn
         return pulse
     end
     

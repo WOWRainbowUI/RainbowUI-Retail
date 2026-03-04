@@ -1,16 +1,24 @@
 # /locales
 
-This directory contains the localization files for the Simple Quest Plates addon. Each file provides translations for a specific language, allowing the addon to be used by players in different regions.
+Localization files for SimpleQuestPlates.
 
-## Localization Files
+## Available Locales
 
-| File | Language |
-|---|---|
-| `enUS.lua` | English (US) |
-| `deDE.lua` | German |
-| `esES.lua` | Spanish (Spain) |
-| `frFR.lua` | French |
-| `ruRU.lua` | Russian |
-| `zhCN.lua` | Chinese (Simplified) |
+- `enUS.lua` - English baseline/fallback strings
+- `enGB.lua` - English (EU) locale module
+- `deDE.lua` - German overrides
+- `esES.lua` - Spanish overrides (`esES` and `esMX`)
+- `frFR.lua` - French overrides
+- `itIT.lua` - Italian locale module
+- `koKR.lua` - Korean locale module
+- `ptBR.lua` - Brazilian Portuguese locale module
+- `ruRU.lua` - Russian overrides
+- `zhCN.lua` - Simplified Chinese overrides
+- `zhTW.lua` - Traditional Chinese locale module
 
-If you would like to contribute a new translation, you can use `enUS.lua` as a template.
+## Guidance
+
+- Add new keys to `enUS.lua` first.
+- Other locale files can override translated strings while preserving fallback values.
+- Keep key names stable to avoid runtime string lookup issues.
+- All locale modules currently include a full key set for runtime safety.

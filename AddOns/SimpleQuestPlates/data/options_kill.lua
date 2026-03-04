@@ -97,6 +97,9 @@ function SQP:CreateKillOptions(content)
         if SQP.optionControls and SQP.optionControls.animateQuestIconsLoot then
             SQP.optionControls.animateQuestIconsLoot:SetChecked(self:GetChecked())
         end
+        if SQP.optionControls and SQP.optionControls.animateQuestIconsPercent then
+            SQP.optionControls.animateQuestIconsPercent:SetChecked(self:GetChecked())
+        end
         SQP:RefreshAllNameplates()
     end)
     yOffset = yOffset - 34
@@ -110,6 +113,34 @@ function SQP:CreateKillOptions(content)
         SQP:RefreshAllNameplates()
     end)
     yOffset = yOffset - 34
+
+    local killAnimIntensityLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    killAnimIntensityLabel:SetPoint("TOPLEFT", 20, yOffset)
+    killAnimIntensityLabel:SetText(string.format("Intensity: %d%%", SQPSettings.killAnimationIntensity or 100))
+    self.optionControls.killAnimationIntensityLabel = killAnimIntensityLabel
+
+    local killAnimIntensitySlider = self:CreateStyledSlider(leftColumn, 25, 200, 5, 160)
+    killAnimIntensitySlider:SetPoint("TOPLEFT", killAnimIntensityLabel, "BOTTOMLEFT", 0, -4)
+    killAnimIntensitySlider:SetValue(SQPSettings.killAnimationIntensity or 100)
+    self.optionControls.killAnimationIntensity = killAnimIntensitySlider
+
+    local killAnimIntensityReset = self:CreateInlineResetButton(leftColumn, function()
+        SQP:SetSetting('killAnimationIntensity', 100)
+        killAnimIntensitySlider:SetValue(100)
+        killAnimIntensityLabel:SetText("Intensity: 100%")
+        ActivateKill()
+        SQP:RefreshAllNameplates()
+    end)
+    killAnimIntensityReset:SetPoint("LEFT", killAnimIntensitySlider, "RIGHT", 5, 0)
+
+    killAnimIntensitySlider:SetScript("OnValueChanged", function(self, newVal)
+        newVal = math.floor(newVal / 5 + 0.5) * 5
+        SQP:SetSetting('killAnimationIntensity', newVal)
+        killAnimIntensityLabel:SetText(string.format("Intensity: %d%%", newVal))
+        ActivateKill()
+        SQP:RefreshAllNameplates()
+    end)
+    yOffset = yOffset - 44
 
     -- Kill Color
     local colorHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -183,6 +214,7 @@ function SQP:CreateKillOptions(content)
         SQP:SetSetting('killShowIconBackground', D.killShowIconBackground)
         SQP:SetSetting('animateQuestIcons', D.animateQuestIcons)
         SQP:SetSetting('killAnimateMain',   D.killAnimateMain)
+        SQP:SetSetting('killAnimationIntensity', D.killAnimationIntensity)
         SQP:SetSetting('killColor',         {unpack(D.killColor)})
         SQP:SetSetting('killTintIcon',      D.killTintIcon)
         SQP:SetSetting('killTintIconColor', {unpack(D.killTintIconColor)})
@@ -193,7 +225,12 @@ function SQP:CreateKillOptions(content)
         if oc.killShowIconBackgroundStyleUpdater then oc.killShowIconBackgroundStyleUpdater() end
         if oc.animateQuestIcons then oc.animateQuestIcons:SetChecked(D.animateQuestIcons) end
         if oc.animateQuestIconsLoot then oc.animateQuestIconsLoot:SetChecked(D.animateQuestIcons) end
+        if oc.animateQuestIconsPercent then oc.animateQuestIconsPercent:SetChecked(D.animateQuestIcons) end
         if oc.killAnimateMain   then oc.killAnimateMain:SetChecked(D.killAnimateMain) end
+        if oc.killAnimationIntensity then oc.killAnimationIntensity:SetValue(D.killAnimationIntensity) end
+        if oc.killAnimationIntensityLabel then
+            oc.killAnimationIntensityLabel:SetText(string.format("Intensity: %d%%", D.killAnimationIntensity))
+        end
         if oc.killTintIcon      then oc.killTintIcon:SetChecked(D.killTintIcon) end
         -- Update color swatches
         if oc.killColorSwatch              then oc.killColorSwatch:SetColorTexture(unpack(D.killColor)) end

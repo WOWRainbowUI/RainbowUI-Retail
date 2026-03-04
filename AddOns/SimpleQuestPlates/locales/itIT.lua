@@ -1,35 +1,21 @@
 --=====================================================================================
--- RGX | Simple Quest Plates! - frFR.lua
+-- RGX | Simple Quest Plates! - itIT.lua
 
 -- Author: DonnieDice
--- Description: French localization
+-- Description: Italian localization
 --=====================================================================================
 
 local addonName, SQP = ...
 local locale = GetLocale()
 
-if locale ~= "frFR" then return end
+if locale ~= "itIT" then return end
 
 local L = SQP.L or {}
 
--- French translations
-L["OPTIONS_ENABLE"] = "Activer Simple Quest Plates"
-L["OPTIONS_DISPLAY"] = "Paramètres d'affichage"
-L["OPTIONS_SCALE"] = "Taille de l'icône"
-L["OPTIONS_OFFSET_X"] = "Décalage horizontal"
-L["OPTIONS_OFFSET_Y"] = "Décalage vertical"
-L["OPTIONS_ANCHOR"] = "Position de l'icône"
-L["OPTIONS_TEST"] = "Test de détection"
-L["OPTIONS_RESET"] = "Réinitialiser tous les paramètres"
-
-L["CMD_ENABLED"] = "est maintenant |cff00ff00ACTIVÉ|r"
-L["CMD_DISABLED"] = "est maintenant |cffff0000DÉSACTIVÉ|r"
-L["CMD_VERSION"] = "Version de Simple Quest Plates: |cff58be81%s|r"
-L["CMD_HELP_HEADER"] = "|cff58be81Commandes RGX | Simple Quest Plates!:|r"
-
-L["MSG_LOADED"] = "v%s chargé avec succès. Tapez |cfffff569/sqp help|r pour les commandes."
 -- enUS fallback keys (auto-filled for full locale coverage)
+L["OPTIONS_ENABLE"] = "Enable"
 L["OPTIONS_DISABLE"] = "Disable"
+L["OPTIONS_DISPLAY"] = "Display Settings"
 L["OPTIONS_GENERAL"] = "General Settings"
 L["OPTIONS_ADDON_STATE"] = "Addon State"
 L["OPTIONS_DEBUG"] = "Enable Debug Mode"
@@ -37,7 +23,13 @@ L["OPTIONS_CHAT_MESSAGES"] = "Show Chat Messages"
 L["OPTIONS_COMBAT"] = "Combat Settings"
 L["OPTIONS_HIDE_COMBAT"] = "Hide Icons in Combat"
 L["OPTIONS_HIDE_INSTANCE"] = "Hide Icons in Instances"
+L["OPTIONS_SCALE"] = "Icon Scale"
+L["OPTIONS_OFFSET_X"] = "Horizontal Offset"
+L["OPTIONS_OFFSET_Y"] = "Vertical Offset"
 L["OPTIONS_ICON_POSITION"] = "Icon Position"
+L["OPTIONS_ANCHOR"] = "Icon Position"
+L["OPTIONS_TEST"] = "Test Detection"
+L["OPTIONS_RESET"] = "Reset All Settings"
 L["OPTIONS_RESET_FONT"] = "Reset Font Settings"
 L["OPTIONS_RESET_ICON"] = "Reset Icon Settings"
 L["OPTIONS_FONT_SIZE"] = "Font Size"
@@ -73,6 +65,9 @@ L["OPTIONS_LOOT_ICON_OFFSET_X"] = "Loot X"
 L["OPTIONS_LOOT_ICON_OFFSET_Y"] = "Loot Y"
 L["OPTIONS_SIZE"] = "Size"
 L["OPTIONS_POSITION"] = "Position"
+L["CMD_ENABLED"] = "is now |cff00ff00ENABLED|r"
+L["CMD_DISABLED"] = "is now |cffff0000DISABLED|r"
+L["CMD_VERSION"] = "Simple Quest Plates version: |cff58be81%s|r"
 L["CMD_SCALE_SET"] = "Icon scale set to: |cff58be81%.1f|r"
 L["CMD_SCALE_INVALID"] = "|cffff0000Invalid scale value. Use a number between 0.5 and 2.0|r"
 L["CMD_OFFSET_SET"] = "Icon offset set to: |cff58be81X=%d, Y=%d|r"
@@ -83,6 +78,7 @@ L["CMD_STATUS_STATE"] = "  State: %s"
 L["CMD_STATUS_SCALE"] = "  Scale: |cff58be81%.1f|r"
 L["CMD_STATUS_OFFSET"] = "  Offset: |cff58be81X=%d, Y=%d|r"
 L["CMD_STATUS_ANCHOR"] = "  Position: |cff58be81%s|r"
+L["CMD_HELP_HEADER"] = "|cff58be81Simple Quest Plates Commands:|r"
 L["CMD_HELP_ENABLE"] = "  |cfffff569/sqp on|r - Enable the addon"
 L["CMD_HELP_DISABLE"] = "  |cfffff569/sqp off|r - Disable the addon"
 L["CMD_HELP_SCALE"] = "  |cfffff569/sqp scale <0.5-2.0>|r - Set icon scale"
@@ -103,6 +99,7 @@ L["QUEST_TEST_ACTIVE"] = "Active quest objectives found: %d"
 L["QUEST_TEST_NONE"] = "No active quest objectives found"
 L["TEST_FOUND_QUESTS"] = "Found %d units with quest objectives"
 L["TEST_NO_QUESTS"] = "No quest objectives found on visible nameplates"
+L["MSG_LOADED"] = "v%s loaded successfully. Type |cfffff569/sqp help|r for commands."
 L["MSG_LOADED_LINE1"] = "Loaded successfully. Type |cfffff569/sqp help|r for commands."
 L["MSG_LOADED_LINE2"] = "|cfffff569Version:|r |cff7598b6v%s|r"
 L["MSG_DISCORD"] = "Join our Discord: |cff58be81discord.gg/rgxmods|r"

@@ -8,28 +8,48 @@
 local addonName, SQP = ...
 local format = string.format
 local tonumber = tonumber
+local type = type
+local UnitExists = UnitExists
+local UnitGUID = UnitGUID
+local UnitName = UnitName
 
 -- Constants
 local CHAT_COMMAND = "sqp"
 
+local function GetText(self, key, fallback)
+    local value = self and self.L and self.L[key]
+    if value == nil or value == "" then
+        return fallback
+    end
+    return value
+end
+
+local function TrimInput(input)
+    if type(input) ~= "string" then
+        return ""
+    end
+    return (input:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
 -- Show help information
 function SQP:ShowHelp()
-    self:PrintMessage(self.L["CMD_HELP_HEADER"])
-    print(self.L["CMD_HELP_TEST"])
-    print(self.L["CMD_HELP_ENABLE"])
-    print(self.L["CMD_HELP_DISABLE"])
-    print(self.L["CMD_HELP_STATUS"])
-    print(self.L["CMD_HELP_SCALE"])
-    print(self.L["CMD_HELP_OFFSET"])
-    print(self.L["CMD_HELP_ANCHOR"] or "  /sqp anchor <LEFT|RIGHT> - Set icon position")
-    print(self.L["CMD_HELP_RESET"])
-    print(self.L["CMD_HELP_OPTIONS"] or "  /sqp options - Open the options panel")
-    self:PrintMessage(self.L["COMMUNITY_MESSAGE"])
+    self:PrintMessage(GetText(self, "CMD_HELP_HEADER", "|cff58be81Simple Quest Plates Commands:|r"))
+    print(GetText(self, "CMD_HELP_TEST", "  |cfffff569/sqp test|r - Test quest detection"))
+    print(GetText(self, "CMD_HELP_ENABLE", "  |cfffff569/sqp on|r - Enable the addon"))
+    print(GetText(self, "CMD_HELP_DISABLE", "  |cfffff569/sqp off|r - Disable the addon"))
+    print(GetText(self, "CMD_HELP_STATUS", "  |cfffff569/sqp status|r - Show current settings"))
+    print(GetText(self, "CMD_HELP_SCALE", "  |cfffff569/sqp scale <0.5-2.0>|r - Set icon scale"))
+    print(GetText(self, "CMD_HELP_OFFSET", "  |cfffff569/sqp offset <x> <y>|r - Set icon offset"))
+    print(GetText(self, "CMD_HELP_ANCHOR", "  |cfffff569/sqp anchor <LEFT|RIGHT>|r - Set icon anchor side"))
+    print(GetText(self, "CMD_HELP_RESET", "  |cfffff569/sqp reset|r - Reset all settings"))
+    print(GetText(self, "CMD_HELP_OPTIONS", "  |cfffff569/sqp options|r - Open the options panel"))
+    print(GetText(self, "CMD_HELP_VERSION", "  |cfffff569/sqp version|r - Show addon version"))
+    self:PrintMessage(GetText(self, "COMMUNITY_MESSAGE", GetText(self, "MSG_DISCORD", "Join our Discord: |cff58be81discord.gg/rgxmods|r")))
 end
 
 -- Test quest detection on current nameplates
 function SQP:TestQuestDetection()
-    self:PrintMessage(self.L["TEST_SCANNING"])
+    self:PrintMessage(GetText(self, "TEST_SCANNING", GetText(self, "CMD_TEST", "Testing quest detection...")))
     
     local count = 0
     for i = 1, 40 do
@@ -44,34 +64,85 @@ function SQP:TestQuestDetection()
     end
     
     if count > 0 then
-        self:PrintMessage(format(self.L["TEST_FOUND_QUESTS"], count))
+        self:PrintMessage(format(GetText(self, "TEST_FOUND_QUESTS", "Found %d units with quest objectives"), count))
     else
-        self:PrintMessage(self.L["TEST_NO_QUESTS"])
+        self:PrintMessage(GetText(self, "TEST_NO_QUESTS", "No quest objectives found on visible nameplates"))
     end
 end
 
 -- Show current status
 function SQP:ShowStatus()
-    self:PrintMessage(self.L["STATUS_HEADER"])
-    print(format("%s %s", self.L["STATUS_STATUS"], 
-        SQPSettings.enabled and self.L["STATUS_ENABLED"] or self.L["STATUS_DISABLED"]))
-    print(format(self.L["STATUS_VERSION"], self.VERSION))
-    print(format(self.L["STATUS_SCALE"], SQPSettings.scale))
-    print(format(self.L["STATUS_OFFSET"], SQPSettings.offsetX, SQPSettings.offsetY))
-    print(format(self.L["STATUS_ANCHOR"], SQPSettings.anchor))
+    local statusHeader = GetText(self, "STATUS_HEADER", GetText(self, "CMD_STATUS", "|cff58be81Simple Quest Plates Status:|r"))
+    local statusLine = GetText(self, "STATUS_STATUS", GetText(self, "CMD_STATUS_STATE", "  State: %s"))
+    local enabledText = GetText(self, "STATUS_ENABLED", "|cff00ff00ENABLED|r")
+    local disabledText = GetText(self, "STATUS_DISABLED", "|cffff0000DISABLED|r")
+    local versionLine = GetText(self, "STATUS_VERSION", GetText(self, "CMD_VERSION", "Simple Quest Plates version: |cff58be81%s|r"))
+    local scaleLine = GetText(self, "STATUS_SCALE", GetText(self, "CMD_STATUS_SCALE", "  Scale: |cff58be81%.1f|r"))
+    local offsetLine = GetText(self, "STATUS_OFFSET", GetText(self, "CMD_STATUS_OFFSET", "  Offset: |cff58be81X=%d, Y=%d|r"))
+    local anchorLine = GetText(self, "STATUS_ANCHOR", GetText(self, "CMD_STATUS_ANCHOR", "  Anchor: |cff58be81%s|r"))
+
+    self:PrintMessage(statusHeader)
+    print(format(statusLine, SQPSettings.enabled and enabledText or disabledText))
+    print(format(versionLine, self.VERSION or "unknown"))
+    print(format(scaleLine, SQPSettings.scale or 1))
+    print(format(offsetLine, SQPSettings.offsetX or 0, SQPSettings.offsetY or 0))
+    print(format(anchorLine, SQPSettings.anchor or "RIGHT"))
+end
+
+function SQP:DebugTarget()
+    local unitID = "target"
+    if not UnitExists(unitID) then
+        self:PrintMessage("No target selected.", "DEBUG")
+        return
+    end
+
+    local unitName = UnitName(unitID) or "Unknown"
+    local unitGUID = UnitGUID(unitID) or "unknown"
+    local progress = self:GetQuestProgress(unitID)
+
+    self:PrintMessage(format("Target: %s (%s)", unitName, unitGUID), "DEBUG")
+    if progress then
+        self:PrintMessage(format("Quest progress: %s", tostring(progress)), "DEBUG")
+    else
+        self:PrintMessage("Quest progress: none", "DEBUG")
+    end
+
+    if self.Compat and self.Compat.IsQuestRelatedUnit then
+        local ok, related = pcall(self.Compat.IsQuestRelatedUnit, unitID)
+        if ok then
+            self:PrintMessage(format("Quest related: %s", related and "yes" or "no"), "DEBUG")
+        end
+    end
+end
+
+function SQP:DebugNameplates()
+    local total = 0
+    local related = 0
+    for i = 1, 40 do
+        local unitID = "nameplate" .. i
+        if UnitExists(unitID) then
+            total = total + 1
+            local progress = self:GetQuestProgress(unitID)
+            if progress then
+                related = related + 1
+                self:PrintMessage(format("%s: %s", UnitName(unitID) or unitID, tostring(progress)), "DEBUG")
+            end
+        end
+    end
+    self:PrintMessage(format("Visible nameplates: %d, quest-related: %d", total, related), "DEBUG")
 end
 
 -- Set icon scale
 function SQP:SetScale(scale)
     scale = tonumber(scale)
     if not scale or scale < 0.5 or scale > 2.0 then
-        self:PrintMessage(self.L["ERROR_INVALID_SCALE"])
+        self:PrintMessage(GetText(self, "ERROR_INVALID_SCALE", GetText(self, "CMD_SCALE_INVALID", "|cffff0000Invalid scale value. Use a number between 0.5 and 2.0|r")))
         return
     end
     
     SQPSettings.scale = scale
     self:SaveSettings()
-    self:PrintMessage(format(self.L["SETTINGS_SCALE_SET"], scale))
+    self:PrintMessage(format(GetText(self, "SETTINGS_SCALE_SET", GetText(self, "CMD_SCALE_SET", "Icon scale set to: |cff58be81%.1f|r")), scale))
     self:RefreshAllNameplates()
 end
 
@@ -80,14 +151,14 @@ function SQP:SetOffset(x, y)
     x = tonumber(x)
     y = tonumber(y)
     if not x or not y then
-        self:PrintMessage(self.L["ERROR_INVALID_OFFSET"])
+        self:PrintMessage(GetText(self, "ERROR_INVALID_OFFSET", GetText(self, "CMD_OFFSET_INVALID", "|cffff0000Invalid offset values. Use numbers between -50 and 50|r")))
         return
     end
     
     SQPSettings.offsetX = x
     SQPSettings.offsetY = y
     self:SaveSettings()
-    self:PrintMessage(format(self.L["SETTINGS_OFFSET_SET"], x, y))
+    self:PrintMessage(format(GetText(self, "SETTINGS_OFFSET_SET", GetText(self, "CMD_OFFSET_SET", "Icon offset set to: |cff58be81X=%d, Y=%d|r")), x, y))
     self:RefreshAllNameplates()
 end
 
@@ -95,20 +166,20 @@ end
 function SQP:SetAnchor(anchor)
     anchor = anchor:upper()
     if anchor ~= "LEFT" and anchor ~= "RIGHT" then
-        self:PrintMessage(self.L["ERROR_INVALID_ANCHOR"])
+        self:PrintMessage(GetText(self, "ERROR_INVALID_ANCHOR", "|cffff0000Invalid anchor. Use LEFT or RIGHT|r"))
         return
     end
     
     SQPSettings.anchor = anchor
     SQPSettings.relativeTo = anchor == "LEFT" and "RIGHT" or "LEFT"
     self:SaveSettings()
-    self:PrintMessage(format(self.L["SETTINGS_ANCHOR_SET"], anchor))
+    self:PrintMessage(format(GetText(self, "SETTINGS_ANCHOR_SET", "Anchor set to: |cff58be81%s|r"), anchor))
     self:RefreshAllNameplates()
 end
 
 -- Process slash command input
 function SQP:ProcessSlashCommand(input)
-    input = input:trim():lower()
+    input = TrimInput(input):lower()
     
     -- No input = open options panel
     if input == "" then
@@ -123,6 +194,8 @@ function SQP:ProcessSlashCommand(input)
         self:TestQuestDetection()
     elseif input == "status" then
         self:ShowStatus()
+    elseif input == "version" then
+        self:PrintMessage(format(GetText(self, "CMD_VERSION", "Simple Quest Plates version: |cff58be81%s|r"), self.VERSION or "unknown"))
     elseif input == "reset" then
         self:ResetSettings()
     elseif input:match("^scale%s+(.+)") then
@@ -144,7 +217,7 @@ function SQP:ProcessSlashCommand(input)
     elseif input == "debug nameplates" then
         self:DebugNameplates()
     else
-        self:PrintMessage(self.L["ERROR_UNKNOWN_COMMAND"])
+        self:PrintMessage(GetText(self, "ERROR_UNKNOWN_COMMAND", "|cffff0000Unknown command. Type /sqp help|r"))
     end
 end
 

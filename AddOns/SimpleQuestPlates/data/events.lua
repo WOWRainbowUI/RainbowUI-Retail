@@ -167,14 +167,16 @@ end
 -- Combat state changes
 function SQP:PLAYER_REGEN_DISABLED()
     -- Entered combat
-    if SQPSettings.hideInCombat then
+    local animationMode = SQPSettings.animationCombatMode or "always"
+    if SQPSettings.hideInCombat or animationMode ~= "always" then
         self:RefreshAllNameplates()
     end
 end
 
 function SQP:PLAYER_REGEN_ENABLED()
     -- Left combat
-    if SQPSettings.hideInCombat then
+    local animationMode = SQPSettings.animationCombatMode or "always"
+    if SQPSettings.hideInCombat or animationMode ~= "always" then
         self:RefreshAllNameplates()
     end
 end
