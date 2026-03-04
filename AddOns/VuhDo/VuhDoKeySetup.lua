@@ -113,53 +113,7 @@ local function _VUHDO_setupHealButtonAttributes(aModiKey, aButtonId, anAction, a
 		elseif "menu" == tActionLow or "tell" == tActionLow then
 			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, nil);
 		elseif "dropdown" == tActionLow then
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "VUHDO_contextMenu");
-
-			VUHDO_contextMenu = function()
-				tUnit = aButton["raidid"];
-				local tName, tMenu;
-
-				if UnitIsUnit(tUnit, "player") then
-					tMenu = "SELF";
-				elseif UnitIsUnit(tUnit, "vehicle") then
-					tMenu = "VEHICLE";
-				elseif UnitIsUnit(tUnit, "pet") then
-					tMenu = "PET";
-				elseif UnitIsPlayer(tUnit) then
-					tInfo = VUHDO_RAID[tUnit];
-				
-					tName = tInfo["name"];
-
-					if UnitInRaid(tUnit) then
-						tMenu = "RAID_PLAYER";
-					elseif UnitInParty(tUnit) then
-						tMenu = "PARTY";
-					else
-						tMenu = "PLAYER";
-					end
-				else
-					tMenu = "TARGET";
-					tName = RAID_TARGET_ICON;
-				end
-
-				UIDropDownMenu_SetInitializeFunction(VuhDoUnitButtonDropDown,
-					function(self)
-						if tMenu then
-							local tContextData = {
-								unit = tUnit,
-								name = tName,
-							};
-
-							UnitPopup_OpenMenu(tMenu, tContextData);
-						end
-					end
-				);
-				UIDropDownMenu_SetDisplayMode(VuhDoUnitButtonDropDown, "MENU");
-
-				ToggleDropDownMenu(1, nil, VuhDoUnitButtonDropDown, "cursor", 0, 0);
-			end
-
-			aButton["VUHDO_contextMenu"] = VUHDO_contextMenu;
+			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "togglemenu");
 		else
 			anAction = VUHDO_REPLACE_SPELL_NAME[anAction] or anAction;
 

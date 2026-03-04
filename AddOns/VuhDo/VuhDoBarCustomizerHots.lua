@@ -346,8 +346,10 @@ local function VUHDO_customizeHotIcons(aPanelNum, aButton, aHotName, aRest, aTim
 		VUHDO_PixelUtil.ApplySettings(tIcon);
 	end
 
-	tIcon:SetTexCoord(aClipL or sClipL, aClipR or sClipR, aClipT or sClipT, aClipB or sClipB);
-	
+	if not VUHDO_ATLAS_TEXTURES[anIcon] then
+		tIcon:SetTexCoord(aClipL or sClipL, aClipR or sClipR, aClipT or sClipT, aClipB or sClipB);
+	end
+
 	aTimes = aTimes or 0;
 	tIsChargeShown = sIsChargesIcon[aPanelNum] and aTimes > 0;
 	
@@ -1513,7 +1515,9 @@ function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTim
 					tIcon:SetVertexColor(VUHDO_backColorWithFallback(aColor));
 				end
 
-				tIcon:SetTexCoord(aClipL or 0, aClipR or 1, aClipT or 0, aClipB or 1);
+				if not VUHDO_ATLAS_TEXTURES[anIcon] then
+					tIcon:SetTexCoord(aClipL or 0, aClipR or 1, aClipT or 0, aClipB or 1);
+				end
 
 				tIcon:Show();
 

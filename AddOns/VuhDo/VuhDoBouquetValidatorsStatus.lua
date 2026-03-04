@@ -95,6 +95,10 @@ end
 --
 function VUHDO_getHealPredictionCalculator()
 
+	if not sHealPredictionCalculator and sSecretsEnabled then
+		VUHDO_initHealPredictionCalculator();
+	end
+
 	return sHealPredictionCalculator;
 
 end
@@ -225,6 +229,10 @@ end
 
 --
 local function VUHDO_threatAboveValidator(anInfo, aSomeCustom)
+
+	if sSecretsEnabled and anInfo["hasSecretThreat"] then
+		return (anInfo["threat"] or 0) >= 2, nil, -1, -1, -1;
+	end
 
 	return anInfo["threatPerc"] > aSomeCustom["custom"][1], nil, -1, -1, -1;
 
@@ -1155,7 +1163,7 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["validator"] = VUHDO_statusThreatValidator,
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
 		["interests"] = { VUHDO_UPDATE_THREAT_PERC },
-		["secretType"] = VUHDO_SECRET_TYPE_NONE,
+		["secretType"] = VUHDO_SECRET_TYPE_VALUES,
 		["hasValue"] = true,
 		["isGlobal"] = false,
 	},
