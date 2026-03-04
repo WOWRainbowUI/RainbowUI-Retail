@@ -31,6 +31,8 @@ local VUHDO_MANUAL_ROLES;
 local VUHDO_RAID_NAMES;
 local VUHDO_RAID;
 
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
+
 function VUHDO_roleCheckerInitLocalOverrides()
 	VUHDO_MANUAL_ROLES = _G["VUHDO_MANUAL_ROLES"];
 	VUHDO_RAID_NAMES = _G["VUHDO_RAID_NAMES"];
@@ -432,6 +434,37 @@ function VUHDO_determineRole(aUnit)
 	-- Estimated role fixed?
 	if VUHDO_FIX_ROLES[tName] then
 		return VUHDO_FIX_ROLES[tName];
+	end
+
+	if sSecretsEnabled and tInfo["hasSecretPower"] then
+		tDfRole = UnitGroupRolesAssigned(aUnit);
+
+		if "TANK" == tDfRole then
+			return 60;
+		elseif "HEALER" == tDfRole then
+			return 63;
+		elseif "DAMAGER" == tDfRole then
+			if tClassId == VUHDO_ID_WARRIORS
+				or tClassId == VUHDO_ID_PALADINS
+				or tClassId == VUHDO_ID_DEATH_KNIGHT
+				or tClassId == VUHDO_ID_MONKS
+				or tClassId == VUHDO_ID_DEMON_HUNTERS
+				or tClassId == VUHDO_ID_ROGUES then
+				return 61;
+			elseif tClassId == VUHDO_ID_PRIESTS
+				or tClassId == VUHDO_ID_WARLOCKS
+				or tClassId == VUHDO_ID_MAGES
+				or tClassId == VUHDO_ID_EVOKERS then
+				return 62;
+			elseif tClassId == VUHDO_ID_HUNTERS
+				or tClassId == VUHDO_ID_SHAMANS then
+				return 62;
+			elseif tClassId == VUHDO_ID_DRUIDS then
+				return 61;
+			end
+		end
+
+		return nil;
 	end
 
 	if 29 == tClassId then -- VUHDO_ID_DEATH_KNIGHT

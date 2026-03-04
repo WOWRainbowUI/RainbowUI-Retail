@@ -471,7 +471,13 @@ function VUHDO_setHealth(aUnit, aMode)
 			tInfo["classId"] = tClassId;
 			tInfo["sortMaxHp"] = VUHDO_getUnitSortMaxHp(aUnit);
 			tInfo["role"] = VUHDO_determineRole(aUnit);
-			tInfo["fullName"] = (tRealm or "") ~= "" and (tName .. "-" .. tRealm) or tName;
+
+			if sSecretsEnabled and issecretvalue(tRealm) then
+				tInfo["fullName"] = tName;
+			else
+				tInfo["fullName"] = (tRealm or "") ~= "" and (tName .. "-" .. tRealm) or tName;
+			end
+
 			tInfo["raidIcon"] = GetRaidTargetIndex(aUnit);
 
 			if sSecretsEnabled then

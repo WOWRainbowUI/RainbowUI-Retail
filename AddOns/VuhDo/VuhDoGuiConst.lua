@@ -76,8 +76,8 @@ VUHDO_CUSTOM_ICONS = {
 
 --
 VUHDO_ATLAS_TEXTURES = {
-	["Raid-Icon-SummonPending"] = true,
-	["Raid-Icon-SummonAccepted"] = true,
-	["Raid-Icon-SummonDeclined"] = true,
+	["RaidFrame-Icon-SummonPending"] = true,
+	["RaidFrame-Icon-SummonAccepted"] = true,
+	["RaidFrame-Icon-SummonDeclined"] = true,
 };
 
