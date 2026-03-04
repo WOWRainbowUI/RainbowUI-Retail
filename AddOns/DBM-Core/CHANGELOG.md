@@ -1,17 +1,19 @@
 # DBM - Core
 
-## [12.0.26](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.0.26) (2026-02-26)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.0.25...12.0.26) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [12.0.28](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.0.28) (2026-03-04)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.0.27...12.0.28) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- Update Translations (#1933)  
-    * Update translations  
-- prep new tag, since testing found no further bugs. Hybrid objects work perfectly now  
-- Fixed incorrect args  
-- - Update announce, special announce, and timer objects to support using hardcoded timers in a more seemless way with encounter api  
-       - existing objects can easily be upgraded to hybrid objects (where they're both hard coded AND can fallback to internal timer/announce apis as needed)  
-       - Updated dimensius to be first example of some of these practices  
-    - Updated regular timeline only object to be more consistent with alert only object.  
-- debug text tweak  
--  - Fixed a bug where DBM core didn't register safe CHAT\_MSG events in core that would result in some world bosses not engaging (or detecting victories based on those chat messages).  
-     - Properly fix remaining bugs with UNIT\_HEALTH combat detection on retail. It can still be used for engaging bosses in situations where unitidentity isn't secret (like outdoors) even if health is secret. It'll now always treat engaging a world boss as "in progress" though and invalidate record kill times at all times. There is just no way around that if we can't check if boss was at full health when engaging.  
-     - Fixed several bugs in classic where GetBossHP could fail to return boss HP due to several obsolete checks that were preventing nameplates, focus, and boss unitIds from being checked at all.  
+- prep new tag with new work around for the STILL unfixed Ruia problem  
+- handle disabled private auras in core in a way that hides them from UI until such a time they return  
+- Update koKR (#1942)  
+    Update koKR locale  
+- fix debug  
+- since blizzard is now randomly unprivating auras, add a print if DBM attempts to register a private aura that isn't one anymore  
+- Update localization.tw.lua (#1937)  
+- Update localization.cn.lua (#1939)  
+- Fix debug logic  
+- added method for updating announce and special announce icon on the fly  
+- Add new dropdown option that lets you specifiy time you begin hearing countdown on Blizzard timer objects  
+    Improved encounter debug code for collecting hardcoded timers/warnings  
+- add the 3 count media i been sitting on for ages  
+- bump alpha  
