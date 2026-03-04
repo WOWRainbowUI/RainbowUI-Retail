@@ -1,5 +1,6 @@
 local AddOnName, Engine = ...;
 local AceLocale = LibStub:GetLibrary("AceLocale-3.0");
+---@type XIV_DatabarLocale
 local L = AceLocale:NewLocale(AddOnName, "zhTW", false, false);
 if not L then return end
 
@@ -222,6 +223,16 @@ L['Hide Hearthstone Text'] = "隱藏爐石文字";
 L['Hide Port Text'] = "隱藏傳送文字";
 L['Hide Additional Tooltip Text'] = "隱藏額外的浮動提示文字";
 L['Hide Additional Tooltip Text Description'] = "在浮動提示中隱藏爐石綁定位置和選擇傳送按鈕。"
+
+-- House/Home Selection
+L['Home'] = "回家"; -- To Translate
+L['Unknown House'] = "未知的房屋"; -- To Translate
+L['House'] = "房屋"; -- To Translate
+L['Plot'] = "土地"; -- To Translate
+L['Selected'] = "選擇的"; -- To Translate
+L['Change Home'] = "更改回家"; -- To Translate
+L['No Houses Owned'] = "沒有自己的房屋"; -- To Translate
+L['Visit Selected Home'] = "拜訪選擇的房屋"; -- To Translate
 
 L["Classic"] = "經典時期";
 L["Burning Crusade"] = "燃燒的遠征";

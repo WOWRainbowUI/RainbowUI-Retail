@@ -1,5 +1,5 @@
-local AddOnName, XIVBar = ...;
-
+---@class XIVBar
+local XIVBar = select(2, ...);
 XIVBar.Changelog[2610] = {
     version_string = "2.6.1",
     release_date = "2024/02/05",

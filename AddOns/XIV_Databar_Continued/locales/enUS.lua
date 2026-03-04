@@ -2,7 +2,8 @@ local AddonName, Engine = ...;
 
 local LibStub = LibStub;
 local AceLocale = LibStub:GetLibrary("AceLocale-3.0");
-local L = AceLocale:NewLocale(AddonName, "enUS", true, false); ---@class XIV_DatabarLocale
+---@class XIV_DatabarLocale
+local L = AceLocale:NewLocale(AddonName, "enUS", true, false);
 
 L['Modules'] = true;
 L['Left-Click'] = true;
@@ -221,6 +222,16 @@ L['Hide Hearthstone Text'] = true;
 L['Hide Port Text'] = true;
 L['Hide Additional Tooltip Text'] = true;
 L['Hide Additional Tooltip Text Description'] = "Hide the hearthstone bind location and the select port button in the tooltip.";
+
+-- House/Home Selection
+L['Home'] = true;
+L['Unknown House'] = true;
+L['House'] = true;
+L['Plot'] = true;
+L['Selected'] = true;
+L['Change Home'] = true;
+L['No Houses Owned'] = true;
+L['Visit Selected Home'] = true;
 
 L["Classic"] = true;
 L["Burning Crusade"] = true;
