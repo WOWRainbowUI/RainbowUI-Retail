@@ -78,6 +78,130 @@ function SQP:CreateGlobalOptions(content)
     end)
     yOffset = yOffset - 30
 
+    -- Global Animation Override
+    local animSection = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    animSection:SetPoint("TOPLEFT", 20, yOffset)
+    animSection:SetText(self.L["|cff58be81Animation|r"])
+    yOffset = yOffset - 20
+
+    local overrideAnimFrame = self:CreateStyledCheckbox(leftColumn, self.L["Use Global Animation Override"])
+    overrideAnimFrame:SetPoint("TOPLEFT", 20, yOffset)
+    overrideAnimFrame.checkbox:SetChecked(SQPSettings.useGlobalAnimationSettings == true)
+    self.optionControls.useGlobalAnimationSettings = overrideAnimFrame.checkbox
+    yOffset = yOffset - 26
+
+    local globalAnimEnableFrame = self:CreateStyledCheckbox(leftColumn, self.L["Enable All Animations"])
+    globalAnimEnableFrame:SetPoint("TOPLEFT", 20, yOffset)
+    globalAnimEnableFrame.checkbox:SetChecked(SQPSettings.globalAnimationEnabled ~= false)
+    self.optionControls.globalAnimationEnabled = globalAnimEnableFrame.checkbox
+    yOffset = yOffset - 28
+
+    local function GetAnimationCombatMode()
+        local mode = SQPSettings.animationCombatMode
+        if mode ~= "always" and mode ~= "combat" and mode ~= "outofcombat" then
+            mode = "always"
+        end
+        return mode
+    end
+
+    local animModeLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    animModeLabel:SetPoint("TOPLEFT", 20, yOffset)
+    animModeLabel:SetText(self.L["Animate When"])
+    yOffset = yOffset - 20
+
+    local animAlwaysBtn = self:CreateStyledButton(leftColumn, self.L["Always"], 58, 22)
+    local animCombatBtn = self:CreateStyledButton(leftColumn, self.L["Combat"], 58, 22)
+    local animOutBtn = self:CreateStyledButton(leftColumn, self.L["No Combat"], 70, 22)
+    animAlwaysBtn:SetPoint("TOPLEFT", 20, yOffset)
+    animCombatBtn:SetPoint("LEFT", animAlwaysBtn, "RIGHT", 6, 0)
+    animOutBtn:SetPoint("LEFT", animCombatBtn, "RIGHT", 6, 0)
+    self.optionControls.animationCombatModeButtons = {
+        always = animAlwaysBtn,
+        combat = animCombatBtn,
+        outofcombat = animOutBtn,
+    }
+
+    local function UpdateAnimationModeButtons()
+        local mode = GetAnimationCombatMode()
+        animAlwaysBtn:SetAlpha(mode == "always" and 1 or 0.6)
+        animCombatBtn:SetAlpha(mode == "combat" and 1 or 0.6)
+        animOutBtn:SetAlpha(mode == "outofcombat" and 1 or 0.6)
+    end
+    UpdateAnimationModeButtons()
+    yOffset = yOffset - 30
+
+    animAlwaysBtn:SetScript("OnClick", function()
+        SQP:SetSetting('animationCombatMode', "always")
+        UpdateAnimationModeButtons()
+        SQP:RefreshAllNameplates()
+    end)
+    animCombatBtn:SetScript("OnClick", function()
+        SQP:SetSetting('animationCombatMode', "combat")
+        UpdateAnimationModeButtons()
+        SQP:RefreshAllNameplates()
+    end)
+    animOutBtn:SetScript("OnClick", function()
+        SQP:SetSetting('animationCombatMode', "outofcombat")
+        UpdateAnimationModeButtons()
+        SQP:RefreshAllNameplates()
+    end)
+
+    local globalIntensityLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    globalIntensityLabel:SetPoint("TOPLEFT", 20, yOffset)
+    globalIntensityLabel:SetText(format(self.L["Global Intensity: %d%%"], SQPSettings.globalAnimationIntensity or 100))
+    self.optionControls.globalAnimationIntensityLabel = globalIntensityLabel
+
+    local globalIntensitySlider = self:CreateStyledSlider(leftColumn, 25, 200, 5, 160)
+    globalIntensitySlider:SetPoint("TOPLEFT", globalIntensityLabel, "BOTTOMLEFT", 0, -4)
+    globalIntensitySlider:SetValue(SQPSettings.globalAnimationIntensity or 100)
+    self.optionControls.globalAnimationIntensity = globalIntensitySlider
+
+    local globalIntensityReset = self:CreateInlineResetButton(leftColumn, function()
+        SQP:SetSetting('globalAnimationIntensity', 100)
+        globalIntensitySlider:SetValue(100)
+        globalIntensityLabel:SetText(self.L["Global Intensity: 100%"])
+        SQP:RefreshAllNameplates()
+    end)
+    globalIntensityReset:SetPoint("LEFT", globalIntensitySlider, "RIGHT", 4, 0)
+    yOffset = yOffset - 44
+
+    local function UpdateGlobalAnimationControls()
+        local override = SQPSettings.useGlobalAnimationSettings == true
+        if globalAnimEnableFrame then
+            globalAnimEnableFrame:SetAlpha(override and 1 or 0.5)
+            if globalAnimEnableFrame.checkbox then
+                globalAnimEnableFrame.checkbox:SetEnabled(override)
+            end
+        end
+        if globalIntensitySlider then
+            globalIntensitySlider:SetEnabled(override)
+            globalIntensitySlider:SetAlpha(override and 1 or 0.5)
+        end
+        if globalIntensityReset then
+            globalIntensityReset:SetAlpha(override and 0.7 or 0.35)
+        end
+        if globalIntensityLabel then
+            globalIntensityLabel:SetAlpha(override and 1 or 0.6)
+        end
+    end
+
+    overrideAnimFrame.checkbox:SetScript("OnClick", function(self)
+        SQP:SetSetting('useGlobalAnimationSettings', self:GetChecked())
+        UpdateGlobalAnimationControls()
+        SQP:RefreshAllNameplates()
+    end)
+    globalAnimEnableFrame.checkbox:SetScript("OnClick", function(self)
+        SQP:SetSetting('globalAnimationEnabled', self:GetChecked())
+        SQP:RefreshAllNameplates()
+    end)
+    globalIntensitySlider:SetScript("OnValueChanged", function(self, value)
+        value = math.floor(value / 5 + 0.5) * 5
+        SQP:SetSetting('globalAnimationIntensity', value)
+        globalIntensityLabel:SetText(format(self.L["Global Intensity: %d%%"], value))
+        SQP:RefreshAllNameplates()
+    end)
+    UpdateGlobalAnimationControls()
+
     -- Combat Settings
     local combatSection = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     combatSection:SetPoint("TOPLEFT", 20, yOffset)

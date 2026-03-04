@@ -117,6 +117,34 @@ function SQP:CreatePercentOptions(content)
     end)
     yOffset = yOffset - 34
 
+    local percentAnimIntensityLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    percentAnimIntensityLabel:SetPoint("TOPLEFT", 20, yOffset)
+    percentAnimIntensityLabel:SetText(string.format(self.L["Intensity: %d%%"], SQPSettings.percentAnimationIntensity or 100))
+    self.optionControls.percentAnimationIntensityLabel = percentAnimIntensityLabel
+
+    local percentAnimIntensitySlider = self:CreateStyledSlider(leftColumn, 25, 200, 5, 160)
+    percentAnimIntensitySlider:SetPoint("TOPLEFT", percentAnimIntensityLabel, "BOTTOMLEFT", 0, -4)
+    percentAnimIntensitySlider:SetValue(SQPSettings.percentAnimationIntensity or 100)
+    self.optionControls.percentAnimationIntensity = percentAnimIntensitySlider
+
+    local percentAnimIntensityReset = self:CreateInlineResetButton(leftColumn, function()
+        SQP:SetSetting('percentAnimationIntensity', 100)
+        percentAnimIntensitySlider:SetValue(100)
+        percentAnimIntensityLabel:SetText(self.L["Intensity: 100%"])
+        ActivatePercent()
+        SQP:RefreshAllNameplates()
+    end)
+    percentAnimIntensityReset:SetPoint("LEFT", percentAnimIntensitySlider, "RIGHT", 5, 0)
+
+    percentAnimIntensitySlider:SetScript("OnValueChanged", function(self, newVal)
+        newVal = math.floor(newVal / 5 + 0.5) * 5
+        SQP:SetSetting('percentAnimationIntensity', newVal)
+        percentAnimIntensityLabel:SetText(string.format(self.L["Intensity: %d%%"], newVal))
+        ActivatePercent()
+        SQP:RefreshAllNameplates()
+    end)
+    yOffset = yOffset - 44
+
     -- Percent Color
     local colorHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     colorHeader:SetPoint("TOPLEFT", 20, yOffset)
@@ -188,6 +216,7 @@ function SQP:CreatePercentOptions(content)
         SQP:SetSetting('percentShowIconBackground', D.percentShowIconBackground)
         SQP:SetSetting('animateQuestIcons', D.animateQuestIcons)
         SQP:SetSetting('percentAnimateMain', D.percentAnimateMain)
+        SQP:SetSetting('percentAnimationIntensity', D.percentAnimationIntensity)
         SQP:SetSetting('percentColor', {unpack(D.percentColor)})
         SQP:SetSetting('percentTintIcon', D.percentTintIcon)
         SQP:SetSetting('percentTintIconColor', {unpack(D.percentTintIconColor)})
@@ -201,6 +230,10 @@ function SQP:CreatePercentOptions(content)
         if oc.animateQuestIcons then oc.animateQuestIcons:SetChecked(D.animateQuestIcons) end
         if oc.animateQuestIconsLoot then oc.animateQuestIconsLoot:SetChecked(D.animateQuestIcons) end
         if oc.percentAnimateMain then oc.percentAnimateMain:SetChecked(D.percentAnimateMain) end
+        if oc.percentAnimationIntensity then oc.percentAnimationIntensity:SetValue(D.percentAnimationIntensity) end
+        if oc.percentAnimationIntensityLabel then
+            oc.percentAnimationIntensityLabel:SetText(string.format(self.L["Intensity: %d%%"], D.percentAnimationIntensity))
+        end
         if oc.percentTintIcon then oc.percentTintIcon:SetChecked(D.percentTintIcon) end
         if oc.percentColorSwatch then oc.percentColorSwatch:SetColorTexture(unpack(D.percentColor)) end
         if oc.percentTintIconColorSwatch then oc.percentTintIconColorSwatch:SetColorTexture(unpack(D.percentTintIconColor)) end

@@ -51,6 +51,7 @@ local UnitIsPlayer = UnitIsPlayer
 local UnitIsFriend = UnitIsFriend
 local UnitIsEnemy = UnitIsEnemy
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local UnitAffectingCombat = UnitAffectingCombat
 local GetBuildInfo = GetBuildInfo
 local PlaySound = PlaySound
 local GetCursorPosition = GetCursorPosition
@@ -80,7 +81,7 @@ local function GetAddOnMetadataCompat(name, field)
     return nil
 end
 
-SQP.VERSION = "1.9.5" -- Addon version (also in TOC file)
+SQP.VERSION = "1.9.6" -- Addon version (also in TOC file)
 SQP.NAME = GetAddOnMetadataCompat(addonName, "Title") or addonName or "SimpleQuestPlates"
 SQP.AUTHOR = GetAddOnMetadataCompat(addonName, "Author") or "DonnieDice"
 SQP.LOCALE = GetLocale()
@@ -145,6 +146,13 @@ SQP.DEFAULTS = {
     percentOutlineColor = {0, 0, 0},
     animateQuestIcon = false,
     animateQuestIcons = true,
+    useGlobalAnimationSettings = false,
+    globalAnimationEnabled = true,
+    animationCombatMode = "always", -- always | combat | outofcombat
+    globalAnimationIntensity = 100,
+    killAnimationIntensity = 100,
+    lootAnimationIntensity = 100,
+    percentAnimationIntensity = 100,
     showIconBackground = true, -- Legacy shared display style toggle
     killShowIconBackground = true,
     lootShowIconBackground = true,
@@ -182,6 +190,85 @@ SQP.DEFAULTS = {
     percentTintIconColor = {1, 1, 1},
     debug = false,
 }
+
+-- Animation setting helpers
+function SQP:IsAnimationCombatAllowed()
+    local settings = SQPSettings or self.DEFAULTS or {}
+    local mode = settings.animationCombatMode
+
+    if mode ~= "always" and mode ~= "combat" and mode ~= "outofcombat" then
+        mode = "always"
+    end
+
+    if mode == "always" then
+        return true
+    end
+
+    local inCombat = UnitAffectingCombat and UnitAffectingCombat("player")
+    if mode == "combat" then
+        return inCombat and true or false
+    end
+    return not inCombat
+end
+
+function SQP:IsAnimationEnabled(typeKey, isTaskIcon)
+    local settings = SQPSettings or self.DEFAULTS or {}
+    local baseEnabled = false
+
+    if settings.useGlobalAnimationSettings == true then
+        baseEnabled = settings.globalAnimationEnabled ~= false
+    elseif isTaskIcon then
+        baseEnabled = settings.animateQuestIcons == true
+    elseif typeKey and typeKey ~= "" then
+        baseEnabled = settings[typeKey .. "AnimateMain"] == true
+    end
+
+    if not baseEnabled then
+        return false
+    end
+
+    return self:IsAnimationCombatAllowed()
+end
+
+function SQP:GetAnimationIntensity(typeKey)
+    local settings = SQPSettings or self.DEFAULTS or {}
+    local intensity
+
+    if settings.useGlobalAnimationSettings == true then
+        intensity = settings.globalAnimationIntensity
+    elseif typeKey and typeKey ~= "" then
+        intensity = settings[typeKey .. "AnimationIntensity"]
+    end
+
+    if intensity == nil then
+        intensity = settings.globalAnimationIntensity
+    end
+
+    intensity = tonumber(intensity) or 100
+    if intensity < 25 then intensity = 25 end
+    if intensity > 200 then intensity = 200 end
+    return intensity
+end
+
+function SQP:GetAnimationDuration(typeKey, isMain)
+    local baseDuration = isMain and 0.5 or 0.6
+    local intensity = self:GetAnimationIntensity(typeKey)
+    local duration = baseDuration * (100 / intensity)
+    if duration < 0.15 then duration = 0.15 end
+    if duration > 2 then duration = 2 end
+    return duration
+end
+
+function SQP:ApplyPulseDuration(animationGroup, duration)
+    if not animationGroup or not duration then return end
+
+    if animationGroup._fadeOut and animationGroup._fadeOut.SetDuration then
+        animationGroup._fadeOut:SetDuration(duration)
+    end
+    if animationGroup._fadeIn and animationGroup._fadeIn.SetDuration then
+        animationGroup._fadeIn:SetDuration(duration)
+    end
+end
 
 -- Determine effective outline settings for a quest type (or global if typeKey is nil)
 function SQP:GetOutlineInfo(typeKey)
@@ -307,7 +394,7 @@ function SQP:GetSavedSettings()
     migrateFont("kill",    12)
     migrateFont("loot",    12)
     migrateFont("percent",  8)
-    -- percentIconSize → percentFontSize migration
+    -- percentIconSize -> percentFontSize migration
     if SQPSettings.percentFontSize == nil and SQPSettings.percentIconSize then
         SQPSettings.percentFontSize = SQPSettings.percentIconSize
     end
@@ -352,6 +439,12 @@ function SQP:GetSavedSettings()
 
     -- Copy defaults if new or missing
     self:ApplyDefaults(SQPSettings)
+
+    -- Normalize animation combat mode
+    local animationMode = SQPSettings.animationCombatMode
+    if animationMode ~= "always" and animationMode ~= "combat" and animationMode ~= "outofcombat" then
+        SQPSettings.animationCombatMode = "always"
+    end
 
     -- Normalize boolean settings (older clients/checkbuttons may store 1/nil or strings)
     for key, defaultValue in pairs(self.DEFAULTS) do

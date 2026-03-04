@@ -3,11 +3,11 @@
 ## Project Structure & Module Organization
 
 **SimpleQuestPlates** is a World of Warcraft addon with a modular Lua architecture:
-- `data/` - Core addon functionality (17 Lua modules)
-- `locales/` - Internationalization files (6 languages)
-- `docs/` - Documentation and changelogs
+- `data/` - Core addon functionality (18 Lua modules)
+- `locales/` - Internationalization files (11 locale codes)
+- `docs/` - Documentation and release notes
 - `images/` - Icons, logos, and UI assets
-- Multiple `.toc` files for different WoW versions (Retail, Classic, Cata, MoP, Wrath, Vanilla)
+- Single `.toc` with multi-interface support (Retail and Classic variants)
 
 ## Build, Test, and Development Commands
 
@@ -43,7 +43,7 @@
 - **Types**: `ci`, `feat`, `fix`, `docs`, `refactor`, `style`
 - **PR process**: Direct commits to main branch (single maintainer project)
 - **Release process**: Automated via GitHub Actions on version tags
-- **Changelog policy**: Keep only the current release notes in both `docs/CHANGELOG.md` and `docs/CHANGES.md` (single-version changelogs). Replace prior version entries on each release.
+- **Changelog policy**: Keep only the current release notes in `docs/CHANGES.md` (single-version changelog). Replace the prior version entry on each release.
 
 ---
 
@@ -55,7 +55,7 @@
 
 **Key responsibilities:**
 - Real-time quest objective tracking on nameplates
-- Multi-version WoW compatibility (Retail, Classic Era, Cata, MoP, Wrath, Vanilla)
+- Multi-version WoW compatibility (Retail and Classic-era branches via interface metadata)
 - Comprehensive customization options for display and positioning
 
 ---
@@ -90,7 +90,7 @@ Nameplate API → Nameplate Tracking → Position Management
 
 ```
 SimpleQuestPlates/
-├── data/                          # Core addon modules (17 files)
+├── data/                          # Core addon modules (18 files)
 │   ├── core.lua                   # Main initialization and settings
 │   ├── quest.lua                  # Quest detection and progress tracking
 │   ├── nameplates.lua             # Nameplate management and icon display
@@ -98,16 +98,20 @@ SimpleQuestPlates/
 │   ├── commands.lua               # Slash command processing
 │   ├── compat.lua                 # Cross-version compatibility
 │   ├── compat_mop.lua             # MoP-specific compatibility
-│   └── options_*.lua              # Options panel (6 modules)
+│   └── options_*.lua              # Options panel (11 modules)
 ├── locales/                       # Internationalization
 │   ├── enUS.lua                   # English (default)
+│   ├── enGB.lua                   # English (EU)
 │   ├── deDE.lua                   # German
-│   ├── esES.lua                   # Spanish
+│   ├── esES.lua                   # Spanish (esES/esMX)
 │   ├── frFR.lua                   # French
+│   ├── itIT.lua                   # Italian
+│   ├── koKR.lua                   # Korean
+│   ├── ptBR.lua                   # Brazilian Portuguese
 │   ├── ruRU.lua                   # Russian
-│   └── zhCN.lua                   # Chinese
+│   ├── zhCN.lua                   # Chinese (Simplified)
+│   └── zhTW.lua                   # Chinese (Traditional)
 ├── docs/                          # Documentation
-│   ├── CHANGELOG.md               # Version history
 │   └── CHANGES.md                 # Release notes
 ├── images/                        # UI assets
 │   ├── icon.tga                   # Addon icon
@@ -115,11 +119,7 @@ SimpleQuestPlates/
 ├── .github/workflows/             # CI/CD automation
 │   └── release.yml                # Automated packaging and distribution
 ├── SimpleQuestPlates.xml          # Module loader
-├── SimpleQuestPlates.toc          # Retail addon metadata
-├── SimpleQuestPlates_Cata.toc     # Cataclysm metadata
-├── SimpleQuestPlates_MoP.toc      # Mists of Pandaria metadata
-├── SimpleQuestPlates_Vanilla.toc  # Classic Era metadata
-└── SimpleQuestPlates_Wrath.toc    # Wrath of the Lich King metadata
+└── SimpleQuestPlates.toc          # Addon metadata (multi-interface)
 ```
 
 ### Key Files to Know
@@ -131,11 +131,10 @@ SimpleQuestPlates/
 | `data/quest.lua` | Quest detection logic | Fixing quest tracking issues |
 | `data/nameplates.lua` | Icon display system | Modifying visual appearance or positioning |
 | `data/events.lua` | WoW event handling | Adding new event responses |
-| `SimpleQuestPlates.toc` | Retail addon metadata | Version updates, dependencies |
+| `SimpleQuestPlates.toc` | Addon metadata (multi-interface) | Version updates, interface values, dependencies |
 | `locales/enUS.lua` | English text strings | Adding new translatable text |
 | `.pkgmeta` | Packaging configuration | Changing distribution settings |
-| `docs/CHANGELOG.md` | Current release notes | Keep only one version section |
-| `docs/CHANGES.md` | Current release notes (publish source) | Keep only one version section |
+| `docs/CHANGES.md` | Current release notes | Keep only one version section |
 
 ---
 

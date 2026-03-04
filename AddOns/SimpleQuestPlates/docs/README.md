@@ -1,11 +1,14 @@
 # /docs
 
-This directory contains documentation related to the Simple Quest Plates addon.
+Documentation and release-note sources.
 
-## Documentation Files
+## Files
 
-| File | Description |
-|---|---|
-| `CHANGELOG.md` | Current release notes only (single version section). Replace prior version entries on each release. |
-| `CHANGES.md` | Current release notes only (single version section), used by release/publish workflow. |
-| `ROADMAP.md` | Outlines the future development plans, planned features, and long-term goals for the addon. |
+- `CHANGES.md` - Current release notes source (single-version file)
+- `ROADMAP.md` - Forward-looking maintenance roadmap
+- `README.md` - Documentation index for this folder
+
+## Release Notes Policy
+
+Keep only the active release section in `CHANGES.md`.
+When cutting a new release, replace the previous version section rather than appending.

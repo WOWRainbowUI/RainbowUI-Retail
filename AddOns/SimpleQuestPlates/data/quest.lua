@@ -502,9 +502,13 @@ function SQP:UpdateQuestIcon(plate, unitID)
         end
     end
 
-    local animate = SQPSettings[effectiveType .. "AnimateMain"]
+    local animateMain = self:IsAnimationEnabled(effectiveType, false)
+    local mainIconShown = Q.icon and Q.icon:IsShown()
+    local percentTextShown = Q.percentIcon and Q.percentIcon:IsShown() and not mainIconShown
+
     if Q.iconPulse then
-        if animate and showIcon and not showPercentIcon then
+        self:ApplyPulseDuration(Q.iconPulse, self:GetAnimationDuration(effectiveType, true))
+        if animateMain and showIcon and mainIconShown then
             if not Q.iconPulse:IsPlaying() then
                 Q.iconPulse:Play()
             end
@@ -512,10 +516,14 @@ function SQP:UpdateQuestIcon(plate, unitID)
             if Q.iconPulse:IsPlaying() then
                 Q.iconPulse:Stop()
             end
+            if Q.icon then
+                Q.icon:SetAlpha(1)
+            end
         end
     end
     if Q.percentPulse then
-        if animate and showIcon and showPercentIcon then
+        self:ApplyPulseDuration(Q.percentPulse, self:GetAnimationDuration("percent", false))
+        if animateMain and showIcon and percentTextShown then
             if not Q.percentPulse:IsPlaying() then
                 Q.percentPulse:Play()
             end
@@ -523,16 +531,23 @@ function SQP:UpdateQuestIcon(plate, unitID)
             if Q.percentPulse:IsPlaying() then
                 Q.percentPulse:Stop()
             end
+            if Q.percentIcon then
+                Q.percentIcon:SetAlpha(1)
+            end
         end
     end
     if Q.percentOutlinePulse then
-        if animate and showIcon and showPercentIcon and Q.percentIconOutline and Q.percentIconOutline:IsShown() then
+        self:ApplyPulseDuration(Q.percentOutlinePulse, self:GetAnimationDuration("percent", false))
+        if animateMain and showIcon and percentTextShown and Q.percentIconOutline and Q.percentIconOutline:IsShown() then
             if not Q.percentOutlinePulse:IsPlaying() then
                 Q.percentOutlinePulse:Play()
             end
         else
             if Q.percentOutlinePulse:IsPlaying() then
                 Q.percentOutlinePulse:Stop()
+            end
+            if Q.percentIconOutline then
+                Q.percentIconOutline:SetAlpha(1)
             end
         end
     end
@@ -644,19 +659,29 @@ function SQP:UpdateQuestIcon(plate, unitID)
 
     -- Animate quest type mini-icons
     if Q then
-        local animateQI = SQPSettings.animateQuestIcons
+        local animateKillTask = self:IsAnimationEnabled("kill", true)
+        local animateLootTask = self:IsAnimationEnabled("loot", true)
+
         if Q.killIconPulse then
-            if animateQI and Q.killIcon and Q.killIcon:IsShown() then
+            self:ApplyPulseDuration(Q.killIconPulse, self:GetAnimationDuration("kill", false))
+            if animateKillTask and Q.killIcon and Q.killIcon:IsShown() then
                 if not Q.killIconPulse:IsPlaying() then Q.killIconPulse:Play() end
             else
                 if Q.killIconPulse:IsPlaying() then Q.killIconPulse:Stop() end
+                if Q.killIcon then
+                    Q.killIcon:SetAlpha(1)
+                end
             end
         end
         if Q.lootIconPulse then
-            if animateQI and Q.lootIcon and Q.lootIcon:IsShown() then
+            self:ApplyPulseDuration(Q.lootIconPulse, self:GetAnimationDuration("loot", false))
+            if animateLootTask and Q.lootIcon and Q.lootIcon:IsShown() then
                 if not Q.lootIconPulse:IsPlaying() then Q.lootIconPulse:Play() end
             else
                 if Q.lootIconPulse:IsPlaying() then Q.lootIconPulse:Stop() end
+                if Q.lootIcon then
+                    Q.lootIcon:SetAlpha(1)
+                end
             end
         end
     end
