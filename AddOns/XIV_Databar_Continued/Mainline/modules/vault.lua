@@ -1,4 +1,5 @@
-local AddOnName, XIVBar = ...
+---@class XIVBar
+local XIVBar = select(2, ...)
 local xb = XIVBar
 local L = xb.L
 

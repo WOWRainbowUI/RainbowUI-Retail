@@ -1,5 +1,6 @@
 local AddOnName, Engine = ...;
 local AceLocale = LibStub:GetLibrary("AceLocale-3.0");
+---@type XIV_DatabarLocale
 local L = AceLocale:NewLocale(AddOnName, "frFR", false, false);
 if not L then return end
 
@@ -217,6 +218,16 @@ L['Hide Hearthstone Text'] = "Masquer le texte de la pierre de foyer";
 L['Hide Port Text'] = "Masquer le texte des téléportations secondaires";
 L['Hide Additional Tooltip Text'] = "Masquer les textes additionnels de l'infobulle"; -- To Translate
 L['Hide Additional Tooltip Text Description'] = "Masquer les textes additionnels de l'infobulle comme le point de liaison de la pierre de foyer et le bouton de téléportation secondaire sélectionné."; -- To Translate
+
+-- House/Home Selection
+L['Home'] = "Logis";
+L['Unknown House'] = "Maison Inconnue";
+L['House'] = "Logis";
+L['Plot'] = "Parcelle";
+L['Selected'] = "Sélectionné";
+L['Change Home'] = "Changer de Logis";
+L['No Houses Owned'] = "Aucun logis possédé";
+L['Visit Selected Home'] = "Visiter le logis sélectionné";
 
 L["Classic"] = true;
 L["Burning Crusade"] = true;

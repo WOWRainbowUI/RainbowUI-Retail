@@ -1,5 +1,6 @@
 ﻿local AddOnName, Engine = ...;
 local AceLocale = LibStub:GetLibrary("AceLocale-3.0");
+---@type XIV_DatabarLocale
 local L = AceLocale:NewLocale(AddOnName, "deDE", false, false);
 if not L then return end
 
@@ -213,10 +214,20 @@ L['Hearthstones Select Desc'] = "Ruhesteinauswahl Beschreibung";
 L['Hide Hearthstone Button'] = "Ruhestein Taste ausblenden";
 L['Hide Port Button'] = "Port Taste ausblenden";
 L['Hide Home Button'] = "Home Taste ausblenden";
-L['Hide Hearthstone Text'] = true; -- To Translate
-L['Hide Port Text'] = true; -- To Translate
-L['Hide Additional Tooltip Text'] = true; -- To Translate
-L['Hide Additional Tooltip Text Description'] = "Hide the hearthstone bind location and the select port button in the tooltip."; -- To Translate
+L['Hide Hearthstone Text'] = "Versteckt Ruhesteintext";
+L['Hide Port Text'] = "Versteckt Porttext";
+L['Hide Additional Tooltip Text'] = "Zusätzlichen Tooltiptext ausblenden";
+L['Hide Additional Tooltip Text Description'] = "Blende den Hearthstone-Bindungsort und die Taste zur Portauswahl im Tooltip aus.";
+
+-- House/Home Selection
+L['Home'] = "Zuhause";
+L['Unknown House'] = "Unbekanntes Haus";
+L['House'] = "Haus";
+L['Plot'] = true; -- No Translate needed
+L['Selected'] = "Ausgewählt";
+L['Change Home'] = "Ändere Zuhause";
+L['No Houses Owned'] = "Kein eigenenes Haus";
+L['Visit Selected Home'] = "Besuche ausgewähltes Haus";
 
 L["Classic"] = true; -- No Translate needed
 L["Burning Crusade"] = true; -- No Translate needed
