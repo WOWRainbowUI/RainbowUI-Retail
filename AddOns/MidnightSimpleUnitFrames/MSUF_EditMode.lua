@@ -1043,16 +1043,37 @@ local MSUF__CastbarPopupApplying = false
 local MSUF__CastbarPopupSyncing = false
 local MSUF__EditModeCombatFrame
 local MSUF__EditModeCombatNoticeShown = false
-local MSUF__EditModeCombatWarnFrame
-local MSUF__EditModeCombatWarnShownThisCombat = false
 
-local function MSUF_EditMode_ShowCombatWarning()
+-- ══════════════════════════════════════════════════════════════════════
+-- Combat Lockdown Guard  (replaces the old "warning-only" listener)
+-- ──────────────────────────────────────────────────────────────────────
+-- PLAYER_REGEN_DISABLED → force-close Edit Mode immediately.
+-- This prevents taint, secure-frame violations and addon errors that
+-- occur when Edit Mode manipulates frames during combat.
+--
+-- Secret-safe: no secret value comparisons; InCombatLockdown() returns
+-- a plain boolean and MSUF_UnitEditModeActive is addon-owned state.
+-- ══════════════════════════════════════════════════════════════════════
+local MSUF__EditModeCombatLockdownFrame
+local MSUF__EditModeCombatLockdownClosedThisCombat = false
+
+local function MSUF_EditMode_CombatForceClose()
+    -- Guard: only act when Edit Mode is actually active.
     if not MSUF_UnitEditModeActive then return end
-    if not (InCombatLockdown and InCombatLockdown()) then return end
-    if MSUF__EditModeCombatWarnShownThisCombat then return end
-    MSUF__EditModeCombatWarnShownThisCombat = true
 
-    local msg = "|cffffd700MSUF Edit Mode:|r You are in combat - changes/movement will be applied after combat ends."
+    MSUF__EditModeCombatLockdownClosedThisCombat = true
+
+    -- Use the deterministic exit path (combat-safe: defers secure work).
+    if Edit and Edit.Flow and type(Edit.Flow.Exit) == "function" then
+        Edit.Flow.Exit("combat_lockdown", { flushPending = false })
+    elseif type(MSUF_EditMode_ExitDeterministic) == "function" then
+        MSUF_EditMode_ExitDeterministic("combat_lockdown", { flushPending = false })
+    else
+        -- Absolute fallback: at minimum flip state off.
+        MSUF_EM_SetActive(false, nil)
+    end
+
+    local msg = "|cffffd700MSUF:|r Edit Mode closed — you entered combat."
     if _G.DEFAULT_CHAT_FRAME and _G.DEFAULT_CHAT_FRAME.AddMessage then
         _G.DEFAULT_CHAT_FRAME:AddMessage(msg)
     else
@@ -1060,39 +1081,39 @@ local function MSUF_EditMode_ShowCombatWarning()
     end
 end
 
-local function MSUF_EditMode_StartCombatWarningListener()
-    if MSUF__EditModeCombatWarnFrame then return end
-    MSUF__EditModeCombatWarnFrame = CreateFrame("Frame")
-    MSUF__EditModeCombatWarnFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-    MSUF__EditModeCombatWarnFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-    MSUF__EditModeCombatWarnFrame:SetScript("OnEvent", function(_, event)
+local function MSUF_EditMode_StartCombatLockdown()
+    if MSUF__EditModeCombatLockdownFrame then return end
+
+    MSUF__EditModeCombatLockdownFrame = CreateFrame("Frame")
+    MSUF__EditModeCombatLockdownFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+    MSUF__EditModeCombatLockdownFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    MSUF__EditModeCombatLockdownFrame:SetScript("OnEvent", function(_, event)
         if event == "PLAYER_REGEN_DISABLED" then
-            if MSUF_UnitEditModeActive then
-                MSUF_EditMode_ShowCombatWarning()
-            end
+            MSUF_EditMode_CombatForceClose()
         else -- PLAYER_REGEN_ENABLED
-            MSUF__EditModeCombatWarnShownThisCombat = false
+            MSUF__EditModeCombatLockdownClosedThisCombat = false
         end
     end)
 
-    -- If we enter Edit Mode while already in combat, warn immediately (Das klappt nicht so richtig)
-    if InCombatLockdown and InCombatLockdown() and MSUF_UnitEditModeActive then
-        MSUF_EditMode_ShowCombatWarning()
+    -- Belt-and-suspenders: if we somehow got here while already in combat,
+    -- force-close right now (should never happen due to Flow.Enter guard).
+    if InCombatLockdown and InCombatLockdown() then
+        MSUF_EditMode_CombatForceClose()
     end
 end
 
-local function MSUF_EditMode_StopCombatWarningListener()
-    if not MSUF__EditModeCombatWarnFrame then return end
-    if MSUF__EditModeCombatWarnFrame.UnregisterAllEvents then
-        MSUF__EditModeCombatWarnFrame:UnregisterAllEvents()
+local function MSUF_EditMode_StopCombatLockdown()
+    if not MSUF__EditModeCombatLockdownFrame then return end
+    if MSUF__EditModeCombatLockdownFrame.UnregisterAllEvents then
+        MSUF__EditModeCombatLockdownFrame:UnregisterAllEvents()
     else
-        MSUF__EditModeCombatWarnFrame:UnregisterEvent("PLAYER_REGEN_DISABLED")
-        MSUF__EditModeCombatWarnFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+        MSUF__EditModeCombatLockdownFrame:UnregisterEvent("PLAYER_REGEN_DISABLED")
+        MSUF__EditModeCombatLockdownFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
     end
-    MSUF__EditModeCombatWarnFrame:SetScript("OnEvent", nil)
-    MSUF__EditModeCombatWarnFrame:Hide()
-    MSUF__EditModeCombatWarnFrame = nil
-    MSUF__EditModeCombatWarnShownThisCombat = false
+    MSUF__EditModeCombatLockdownFrame:SetScript("OnEvent", nil)
+    MSUF__EditModeCombatLockdownFrame:Hide()
+    MSUF__EditModeCombatLockdownFrame = nil
+    MSUF__EditModeCombatLockdownClosedThisCombat = false
 end
 
 local function MSUF_EditMode_HardTeardown()
@@ -1135,8 +1156,8 @@ local function MSUF_EditMode_HardTeardown()
         MSUF__EditModeCombatFrame = nil
     end
 
-    -- Kill combat warning listener
-    MSUF_EditMode_StopCombatWarningListener()
+    -- Kill combat lockdown listener
+    MSUF_EditMode_StopCombatLockdown()
 
     local nudge = _G and _G.MSUF_ArrowKeyNudgeFrame
     if nudge then
@@ -3038,6 +3059,9 @@ local MSUF_EM_UNIT_POPUP_PREV_KEYS = {
     "hpTextAnchor","powerTextAnchor","nameTextAnchor",
     "powerBarDetached","detachedPowerBarWidth","detachedPowerBarHeight",
     "detachedPowerBarOffsetX","detachedPowerBarOffsetY",
+    "detachedPowerBarSyncClassPower",
+    "detachedPowerBarAnchorToClassPower",
+    "detachedPowerBarTextOnBar",
 }
 
 local function MSUF_EM_CopyKeys(dst, src, keys)
@@ -3910,6 +3934,22 @@ local function ApplyUnitPopupValues()
                     if dpbH then dpbH = math.floor(dpbH + 0.5); if dpbH < 2 then dpbH = 2 elseif dpbH > 80 then dpbH = 80 end; conf.detachedPowerBarHeight = dpbH end
                     if dpbX then dpbX = math.floor(dpbX + 0.5); conf.detachedPowerBarOffsetX = dpbX end
                     if dpbY then dpbY = math.floor(dpbY + 0.5); conf.detachedPowerBarOffsetY = dpbY end
+                    -- Sync width to class power (player only, MRB syncEnergyWithCombo pattern)
+                    if pf.syncClassPowerCB and pf.unit == "player" then
+                        conf.detachedPowerBarSyncClassPower = (pf.syncClassPowerCB:GetChecked() and true or false)
+                    end
+                    -- Anchor power bar to class power container (player only)
+                    if pf.anchorToClassPowerCB and pf.unit == "player" then
+                        conf.detachedPowerBarAnchorToClassPower = (pf.anchorToClassPowerCB:GetChecked() and true or false)
+                    end
+                    -- Power text on detached bar
+                    if pf.powerTextOnBarCB then
+                        conf.detachedPowerBarTextOnBar = (pf.powerTextOnBarCB:GetChecked() and true or false)
+                    end
+                end
+                -- Refresh power bar outline slider dim state in Bars menu
+                if type(_G.MSUF_RefreshDPBOutlineSliderState) == "function" then
+                    _G.MSUF_RefreshDPBOutlineSliderState()
                 end
             end
 
@@ -4168,6 +4208,66 @@ MSUF_EM_BuildNumericRows(pf, frameRows, frameHeader, "BOTTOMLEFT", 0, ApplyUnitP
             end)
             detachCB:SetScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
 
+            -- Sync width to Class Power / Resource Bar (player only, MRB syncEnergyWithCombo pattern)
+            local syncCB = CreateFrame("CheckButton", "$parentSyncClassPower", pf, "UICheckButtonTemplate")
+            syncCB:SetSize(20, 20)
+            syncCB:SetPoint("TOPLEFT", detachCB, "BOTTOMLEFT", 0, -2)
+            local syncText = syncCB.Text or (syncCB.GetName and _G[syncCB:GetName() .. "Text"])
+            if syncText then syncText:SetText("Sync width to Resource Bar") end
+            pf.syncClassPowerCB = syncCB
+
+            syncCB:SetScript("OnEnter", function()
+                MSUF_EM_PopupShowTooltip(pf,
+                    "Sync Width to Resource Bar",
+                    "Matches the detached power bar width to the Class Power bar (Combo Points, Soul Shards, etc.).\n\nThe Resource Bar becomes the width master.\nWidth field is locked while synced.")
+            end)
+            syncCB:SetScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
+
+            syncCB:SetScript("OnClick", function(self)
+                if pf.UpdateDetachSection then pf.UpdateDetachSection() end
+                ApplyUnitPopupValues()
+            end)
+
+            -- Anchor detached power bar to class power container (player only)
+            local anchorCPCB = CreateFrame("CheckButton", "$parentAnchorToClassPower", pf, "UICheckButtonTemplate")
+            anchorCPCB:SetSize(20, 20)
+            anchorCPCB:SetPoint("TOPLEFT", syncCB, "BOTTOMLEFT", 0, -2)
+            local anchorCPText = anchorCPCB.Text or (anchorCPCB.GetName and _G[anchorCPCB:GetName() .. "Text"])
+            if anchorCPText then anchorCPText:SetText("Anchor to Resource Bar") end
+            pf.anchorToClassPowerCB = anchorCPCB
+
+            anchorCPCB:SetScript("OnEnter", function()
+                MSUF_EM_PopupShowTooltip(pf,
+                    "Anchor to Resource Bar",
+                    "Attaches the detached power bar to the Class Power bar.\n\nMoving the Class Power bar also moves the power bar.\nYou can still adjust X/Y offsets relative to the resource bar.")
+            end)
+            anchorCPCB:SetScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
+
+            anchorCPCB:SetScript("OnClick", function(self)
+                if pf.UpdateDetachSection then pf.UpdateDetachSection() end
+                ApplyUnitPopupValues()
+            end)
+
+            -- Show power text on detached power bar instead of unit frame
+            local textOnBarCB = CreateFrame("CheckButton", "$parentPowerTextOnBar", pf, "UICheckButtonTemplate")
+            textOnBarCB:SetSize(20, 20)
+            textOnBarCB:SetPoint("TOPLEFT", anchorCPCB, "BOTTOMLEFT", 0, -2)
+            local textOnBarText = textOnBarCB.Text or (textOnBarCB.GetName and _G[textOnBarCB:GetName() .. "Text"])
+            if textOnBarText then textOnBarText:SetText("Power text on bar") end
+            pf.powerTextOnBarCB = textOnBarCB
+
+            textOnBarCB:SetScript("OnEnter", function()
+                MSUF_EM_PopupShowTooltip(pf,
+                    "Power Text on Bar",
+                    "Moves the power text from the unit frame onto the detached power bar.\n\nText offset X/Y still works relative to the power bar.")
+            end)
+            textOnBarCB:SetScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
+
+            textOnBarCB:SetScript("OnClick", function(self)
+                if pf.UpdateDetachSection then pf.UpdateDetachSection() end
+                ApplyUnitPopupValues()
+            end)
+
             -- Detached power bar numeric rows (W, H, X, Y)
             local detachRows = {
                 { key = "dpbW", label = "Width:",    box = "$parentDPBWBox", dy = -6 },
@@ -4175,7 +4275,7 @@ MSUF_EM_BuildNumericRows(pf, frameRows, frameHeader, "BOTTOMLEFT", 0, ApplyUnitP
                 { key = "dpbX", label = "Offset X:", box = "$parentDPBXBox", dy = -8 },
                 { key = "dpbY", label = "Offset Y:", box = "$parentDPBYBox", dy = -8 },
             }
-            MSUF_EM_BuildNumericRows(pf, detachRows, detachCB, "BOTTOMLEFT", 0, ApplyUnitPopupValues)
+            MSUF_EM_BuildNumericRows(pf, detachRows, textOnBarCB, "BOTTOMLEFT", 0, ApplyUnitPopupValues)
 
             -- Show/hide + enable detach controls based on unit
             pf.UpdateDetachSection = function()
@@ -4186,6 +4286,7 @@ MSUF_EM_BuildNumericRows(pf, frameRows, frameHeader, "BOTTOMLEFT", 0, ApplyUnitP
 
                 -- Hide entire section for non-detachable units
                 local elements = { p.pbDivider, p.pbHeader, p.detachPowerBarCB,
+                    p.syncClassPowerCB, p.anchorToClassPowerCB, p.powerTextOnBarCB,
                     p.dpbWLabel, p.dpbWBox, p.dpbWMinus, p.dpbWPlus,
                     p.dpbHLabel, p.dpbHBox, p.dpbHMinus, p.dpbHPlus,
                     p.dpbXLabel, p.dpbXBox, p.dpbXMinus, p.dpbXPlus,
@@ -4198,6 +4299,29 @@ MSUF_EM_BuildNumericRows(pf, frameRows, frameHeader, "BOTTOMLEFT", 0, ApplyUnitP
                 local h = 520
                 if canDetach then
                     local isDetached = (p.detachPowerBarCB and p.detachPowerBarCB:GetChecked()) and true or false
+                    local isPlayer = (unit == "player")
+
+                    -- Sync checkbox: only for player (only player has class power)
+                    if p.syncClassPowerCB then
+                        p.syncClassPowerCB:SetShown(isDetached and isPlayer)
+                    end
+                    -- Anchor to resource bar: only for player when detached
+                    if p.anchorToClassPowerCB then
+                        p.anchorToClassPowerCB:SetShown(isDetached and isPlayer)
+                    end
+                    -- Power text on bar: any detached unit
+                    if p.powerTextOnBarCB then
+                        p.powerTextOnBarCB:SetShown(isDetached)
+                        -- Re-anchor: below anchorCPCB for player, below detachCB for others
+                        if isDetached then
+                            p.powerTextOnBarCB:ClearAllPoints()
+                            if isPlayer and p.anchorToClassPowerCB then
+                                p.powerTextOnBarCB:SetPoint("TOPLEFT", p.anchorToClassPowerCB, "BOTTOMLEFT", 0, -2)
+                            else
+                                p.powerTextOnBarCB:SetPoint("TOPLEFT", p.detachPowerBarCB, "BOTTOMLEFT", 0, -2)
+                            end
+                        end
+                    end
 
                     -- Show/hide detach rows only when detached
                     local showRows = isDetached
@@ -4213,7 +4337,39 @@ MSUF_EM_BuildNumericRows(pf, frameRows, frameHeader, "BOTTOMLEFT", 0, ApplyUnitP
                         end
                     end
 
-                    h = h + 30  -- divider + header + checkbox
+                    -- Lock width row when synced to class power OR CDM width mode
+                    local isSynced = isDetached and isPlayer
+                        and p.syncClassPowerCB and p.syncClassPowerCB:GetChecked()
+                    -- Also lock when global CDM width mode is active
+                    if isDetached and not isSynced then
+                        local dpbWMode = MSUF_DB and MSUF_DB.bars and MSUF_DB.bars.detachedPowerBarWidthMode
+                        if dpbWMode and dpbWMode ~= "manual" and dpbWMode ~= "" then
+                            isSynced = true
+                        end
+                    end
+                    local wEls = { p.dpbWLabel, p.dpbWBox, p.dpbWMinus, p.dpbWPlus }
+                    for _, el in ipairs(wEls) do
+                        if el then
+                            if el.EnableMouse then el:EnableMouse(not isSynced) end
+                            if el.SetAlpha then el:SetAlpha(isSynced and 0.4 or 1) end
+                        end
+                    end
+                    -- When synced, DB width is kept up-to-date by CP_Layout
+                    -- (MRB pattern: master writes to slave's DB field).
+                    -- Show the DB value in the locked box.
+                    if isSynced and p.dpbWBox and p.dpbWBox.SetText then
+                        local playerConf = MSUF_DB and MSUF_DB.player
+                        if playerConf then
+                            local w = playerConf.detachedPowerBarWidth
+                            if type(w) == "number" and w > 0 then
+                                p.dpbWBox:SetText(tostring(math.floor(w + 0.5)))
+                            end
+                        end
+                    end
+
+                    h = h + 30  -- divider + header + detach checkbox
+                    if isDetached and isPlayer then h = h + 48 end  -- sync + anchor checkboxes (player only)
+                    if isDetached then h = h + 24 end  -- text on bar checkbox (any unit)
                     if showRows then h = h + 110 end  -- W/H/X/Y rows
                 end
                 if p.SetSize then p:SetSize(360, h) end
@@ -4304,8 +4460,10 @@ MSUF_EM_BuildNumericRows(pf, frameRows, frameHeader, "BOTTOMLEFT", 0, ApplyUnitP
             local unit = pf.unit
             local canDetach = (unit == "player" or unit == "target" or unit == "focus")
             local isDetached = canDetach and pf.detachPowerBarCB and pf.detachPowerBarCB:GetChecked()
+            local isPlayer = (unit == "player")
             local h = 520
             if canDetach then h = h + 30 end          -- divider + header + checkbox
+            if isDetached and isPlayer then h = h + 24 end  -- sync checkbox
             if isDetached then h = h + 110 end         -- W/H/X/Y rows
             pf:SetSize(360, h)
         end
@@ -4412,6 +4570,18 @@ MSUF_EM_BuildNumericRows(pf, frameRows, frameHeader, "BOTTOMLEFT", 0, ApplyUnitP
             if pf.dpbHBox then pf.dpbHBox:SetText(tostring(conf.detachedPowerBarHeight or 6)) end
             if pf.dpbXBox then pf.dpbXBox:SetText(tostring(conf.detachedPowerBarOffsetX or 0)) end
             if pf.dpbYBox then pf.dpbYBox:SetText(tostring(conf.detachedPowerBarOffsetY or -4)) end
+            -- Sync width to resource bar (player only)
+            if pf.syncClassPowerCB then
+                pf.syncClassPowerCB:SetChecked(unit == "player" and conf.detachedPowerBarSyncClassPower == true)
+            end
+            -- Anchor to resource bar (player only)
+            if pf.anchorToClassPowerCB then
+                pf.anchorToClassPowerCB:SetChecked(unit == "player" and conf.detachedPowerBarAnchorToClassPower == true)
+            end
+            -- Power text on bar
+            if pf.powerTextOnBarCB then
+                pf.powerTextOnBarCB:SetChecked(conf.detachedPowerBarTextOnBar == true)
+            end
         end
     end
     -- Smart open: only position when the popup is opened for a new frame.
@@ -7287,7 +7457,7 @@ function MSUF_SetMSUFEditModeFromBlizzard(active)
 
         MSUF_EM_SetActive(true, "player")
         MSUF_EditModeSizing = false
-MSUF_EditMode_StartCombatWarningListener()
+MSUF_EditMode_StartCombatLockdown()
         if _G.MSUF_EnableArrowKeyNudge then _G.MSUF_EnableArrowKeyNudge(true) end
         if type(MSUF_RefreshAllUnitVisibilityDrivers)=="function" then MSUF_EditMode_RequestVisibilityDrivers(true) end
         if not MSUF_CurrentEditUnitKey then
@@ -7544,7 +7714,7 @@ if not _G.MSUF_SetMSUFEditModeDirect then
             if type(_G.MSUF_Auras2_RefreshAll) == "function" then
                 _G.MSUF_Auras2_RefreshAll()
             end
-MSUF_EditMode_StartCombatWarningListener()
+MSUF_EditMode_StartCombatLockdown()
             if _G.MSUF_EnableArrowKeyNudge then _G.MSUF_EnableArrowKeyNudge(true) end
             if unitKey then
                 MSUF_CurrentEditUnitKey = unitKey
@@ -8050,6 +8220,10 @@ do
 
     -- Convenience helpers (used by Options/commands; keeps behavior identical).
     Edit.Flow.Enter = function(unitKey)
+        -- Combat lockdown: block entering Edit Mode in combat (defense-in-depth).
+        if InCombatLockdown and InCombatLockdown() then
+            return
+        end
         if Edit.Util and Edit.Util.ClearKeyboardFocus then
             Edit.Util.ClearKeyboardFocus()
         end
@@ -8069,6 +8243,10 @@ do
     Edit.Flow.Toggle = function(unitKey)
         if MSUF_UnitEditModeActive then
             return Edit.Flow.Exit("toggle", { flushPending = true })
+        end
+        -- Combat lockdown: block toggling ON in combat (defense-in-depth).
+        if InCombatLockdown and InCombatLockdown() then
+            return
         end
         return Edit.Flow.Enter(unitKey)
     end

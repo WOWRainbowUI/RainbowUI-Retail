@@ -20,24 +20,12 @@ ns = (rawget(_G, "MSUF_NS") or ns) or {}
 --  - Reduce global table lookups in high-frequency aura pipelines.
 --  - Secret-safe: localizing function references only (no value comparisons).
 -- =========================================================================
-local type, tostring, tonumber, select = type, tostring, tonumber, select
-local pairs, ipairs, next = pairs, ipairs, next
-local math_min, math_max, math_floor = math.min, math.max, math.floor
-local string_format, string_match, string_sub = string.format, string.match, string.sub
+local type, pairs, next = type, pairs, next
 local CreateFrame, GetTime = CreateFrame, GetTime
 local UnitExists = UnitExists
 local InCombatLockdown = InCombatLockdown
 local C_Timer = C_Timer
 local C_UnitAuras = C_UnitAuras
-local C_Secrets = C_Secrets
-local C_CurveUtil = C_CurveUtil
-
--- FastCall: no pcall in hot paths
-local function MSUF_A2_FastCall(fn, ...)
-    if fn == nil then return false end
-    return true, fn(...)
-end
-_G.MSUF_A2_FastCall = MSUF_A2_FastCall
 
 if ns.__MSUF_A2_CORE_LOADED then return end
 ns.__MSUF_A2_CORE_LOADED = true
@@ -54,21 +42,14 @@ local A2_STATE = API.state
 
 
 -- Hot locals
-
-local type = type
-local pairs = pairs
-local CreateFrame = CreateFrame
-local GetTime = GetTime
-local UnitExists = UnitExists
 local floor = math.floor
 local max = math.max
+local tonumber = tonumber
 
 -- Module references (late-bound)
-local Collect  -- API.Collect
-local Icons    -- API.Icons / API.Apply
-local Store    -- API.Store (epoch only)
-local _storeEpochs  -- Store._epochs (direct table, Phase 8)
-local Filters  -- API.Filters
+local Icons        -- API.Icons / API.Apply
+local Filters      -- API.Filters
+local CacheModule  -- API.Cache (v4 delta cache)
 
 
 -- Combat / Edit Mode state (cheap cached checks)
@@ -130,7 +111,7 @@ local A2_AURAS2_DEFAULTS = { enabled=true, showTarget=true, showFocus=true, show
 local A2_SHARED_DEFAULTS = {
     showBuffs=true, showDebuffs=true, showTooltip=true,
     showCooldownSwipe=true, showCooldownText=true, cooldownSwipeDarkenOnLoss=false,
-    showInEditMode=true, showStackCount=true,
+    showInEditMode=true, showStackCount=true, clickThroughAuras=false,
     stackCountAnchor="TOPRIGHT", masqueEnabled=false, masqueHideBorder=false,
     layoutMode="SEPARATE", buffDebuffAnchor="STACKED", splitSpacing=0,
     highlightPrivatePlayerAuras=false, highlightOwnBuffs=false, highlightOwnDebuffs=false,
@@ -140,6 +121,16 @@ local A2_SHARED_DEFAULTS = {
     stackTextSize=14, cooldownTextSize=14, bossEditTogether=true,
     showPrivateAurasPlayer=true, showPrivateAurasFocus=true, showPrivateAurasBoss=true,
     privateAuraMaxPlayer=4, privateAuraMaxOther=4,
+    showSated=true, satedShowAtSeconds=0,
+    ignoreCats={},
+    showReminders=true,
+    reminders={},
+    reminderThreshold=0,
+    reminderOffsetX=0,
+    reminderOffsetY=0,
+    reminderIconSize=22,
+    reminderSpacing=2,
+    reminderGrowth="RIGHT",
 }
 
 local A2_GROWTH_OK = {RIGHT=true,LEFT=true,UP=true,DOWN=true}
@@ -153,7 +144,7 @@ local function Clamp(v, def, lo, hi) v = tonumber(v); if not v then v = def end;
 local function EnsureDB()
     local gdb = _G.MSUF_DB
     if type(gdb) ~= "table" then _G.MSUF_DB = {}; gdb = _G.MSUF_DB end
-    if type(_G.EnsureDB) == "function" then MSUF_A2_FastCall(_G.EnsureDB) end
+    if type(_G.EnsureDB) == "function" then _G.EnsureDB() end
     MSUF_DB = _G.MSUF_DB
     if type(MSUF_DB) ~= "table" then return nil end
 
@@ -176,6 +167,7 @@ local function EnsureDB()
     s.showPrivateAurasTarget = false
     s.privateAuraMaxPlayer = Clamp(s.privateAuraMaxPlayer, 4, 0, 12)
     s.privateAuraMaxOther  = Clamp(s.privateAuraMaxOther,  4, 0, 12)
+    s.satedShowAtSeconds   = Clamp(s.satedShowAtSeconds, 0, 0, 3600)
     -- Per-type growth: sanitize invalid values (nil = fall back to s.growth)
     if s.buffGrowth ~= nil and not A2_GROWTH_OK[s.buffGrowth] then s.buffGrowth = nil end
     if s.debuffGrowth ~= nil and not A2_GROWTH_OK[s.debuffGrowth] then s.debuffGrowth = nil end
@@ -218,6 +210,7 @@ end
 
 -- Config invalidation
 local _configGen = 0
+local _dbFetchGen = -1
 
 local function InvalidateDB()
     _ensureReady = false
@@ -228,6 +221,9 @@ local function InvalidateDB()
     if API.Colors and API.Colors.InvalidateCache then API.Colors.InvalidateCache() end
     Icons = API.Icons or API.Apply
     if Icons and Icons.BumpConfigGen then Icons.BumpConfigGen() end
+    -- v4: Invalidate delta cache (config change affects filter results)
+    local CM = API.Cache
+    if CM and CM.InvalidateAll then CM.InvalidateAll() end
     -- Schedule refresh
     if API.MarkAllDirty then API.MarkAllDirty(0) end
 end
@@ -415,10 +411,29 @@ local function EnsureAttached(unit)
     private:SetPoint("BOTTOMLEFT", buffs, "TOPLEFT", 0, 0)
     private:Hide()
 
+    -- Reminder container (player-only, but create for all — hidden by default)
+    local reminder = CreateFrame("Frame", nil, anchor)
+    reminder:SetSize(1, 1)
+    reminder:SetPoint("BOTTOMLEFT", anchor, "BOTTOMLEFT", 0, 0)
+    reminder:Hide()
+
     -- Sync visibility with parent unitframe (direct calls - no FastCall overhead)
+    -- PERF: Capture unit in closure (set once per EnsureAttached, never changes).
+    local _hookUnit = unit
     frame:HookScript("OnShow", function()
         if anchor then anchor:Show() end
-        if API.MarkAllDirty then API.MarkAllDirty(0) end
+        -- Force cache re-scan for THIS unit.  Boss adds can spawn with
+        -- pre-existing auras long after the initial INSTANCE_ENCOUNTER_ENGAGE_UNIT
+        -- already created an empty cache entry.  Without the invalidation,
+        -- FilterAndSort sees the stale empty entry and skips FullScan → 0 auras.
+        local Store = API.Store
+        if Store and Store.InvalidateUnit then
+            Store.InvalidateUnit(_hookUnit)
+        end
+        -- Targeted dirty (avoids wasteful MarkAllDirty for 8 units).
+        if API.MarkDirty then
+            API.MarkDirty(_hookUnit, 0)
+        end
     end)
     frame:HookScript("OnHide", function()
         if anchor then anchor:Hide() end
@@ -432,18 +447,13 @@ local function EnsureAttached(unit)
         buffs = buffs,
         mixed = mixed,
         private = private,
+        reminder = reminder,
         -- Reusable list buffers (zero alloc on steady state)
         _buffList = {},
         _debuffList = {},
-        -- Last rendered state for diff
-        _lastBuffAids = {},
-        _lastDebuffAids = {},
+        -- Last rendered counts for diff
         _lastBuffCount = 0,
         _lastDebuffCount = 0,
-        _lastEpoch = -1,
-        _lastConfigGen = -1,
-        _lastAnchorGen = -1,
-        _lastPrivateGen = -1,
     }
     AurasByUnit[unit] = entry
     return entry
@@ -799,6 +809,8 @@ end
     local debuffDY = ReadOffset(shared, lay, "debuffGroupOffsetY", 0)
     local privOffX = ReadOffset(shared, lay, "privateOffsetX",     0)
     local privOffY = ReadOffset(shared, lay, "privateOffsetY",     0)
+    local remOffX  = ReadOffset(shared, lay, "reminderOffsetX",    0)
+    local remOffY  = ReadOffset(shared, lay, "reminderOffsetY",    0)
 
     -- PERF: Skip re-anchoring when target-swap refreshes request identical layout.
     -- Cache uses only non-secret DB values + frame identity.
@@ -813,6 +825,7 @@ end
         and (layoutCache.debuffDX == debuffDX and layoutCache.debuffDY == debuffDY)
         and (layoutCache.buffDX == buffDX and layoutCache.buffDY == buffDY)
         and (layoutCache.privOffX == privOffX and layoutCache.privOffY == privOffY)
+        and (layoutCache.remOffX == remOffX and layoutCache.remOffY == remOffY)
 
     local anchor = entry.anchor
     if not cacheHit then
@@ -821,6 +834,7 @@ end
         layoutCache.debuffDX, layoutCache.debuffDY = debuffDX, debuffDY
         layoutCache.buffDX, layoutCache.buffDY = buffDX, buffDY
         layoutCache.privOffX, layoutCache.privOffY = privOffX, privOffY
+        layoutCache.remOffX, layoutCache.remOffY = remOffX, remOffY
 
         -- Position anchor
         anchor:ClearAllPoints()
@@ -844,6 +858,12 @@ end
         if entry.private then
             entry.private:ClearAllPoints()
             entry.private:SetPoint("BOTTOMLEFT", anchor, "BOTTOMLEFT", privOffX, privOffY)
+        end
+
+        -- Reminder
+        if entry.reminder then
+            entry.reminder:ClearAllPoints()
+            entry.reminder:SetPoint("BOTTOMLEFT", anchor, "BOTTOMLEFT", remOffX, remOffY)
         end
     end
 
@@ -873,19 +893,29 @@ end
             end
             MirrorMover(entry.editMoverPrivate, entry.private, anchor, privW, privH)
         end
+        -- Reminder mover (player-only, created by Reminder module)
+        if unit == "player" and entry.editMoverReminder and entry.reminder then
+            local remIconSz = ReadOffset(shared, lay, "reminderIconSize", 22)
+            if remIconSz < 10 then remIconSz = 10 end
+            local remSp = ReadOffset(shared, lay, "reminderSpacing", 2)
+            if remSp < 0 then remSp = 0 end
+            local remGrow = (lay and type(lay.reminderGrowth) == "string" and lay.reminderGrowth)
+                         or (shared and type(shared.reminderGrowth) == "string" and shared.reminderGrowth)
+                         or "RIGHT"
+            local remStep = remIconSz + remSp
+            local remW, remH
+            if remGrow == "UP" or remGrow == "DOWN" then
+                remW = remIconSz
+                remH = (9 * remStep) + headerH
+            else
+                remW = 9 * remStep
+                remH = remIconSz + headerH
+            end
+            MirrorMover(entry.editMoverReminder, entry.reminder, anchor, remW, remH)
+        end
     end
 end
 
--- PERF: File-scope helper (avoids closure allocation inside RenderUnit)
-local function HasImportantToggle(f)
-    if type(f) ~= "table" then return false end
-    if f.onlyImportantAuras == true then return true end -- legacy
-    local b = f.buffs
-    if type(b) == "table" and b.onlyImportant == true then return true end
-    local d = f.debuffs
-    if type(d) == "table" and d.onlyImportant == true then return true end
-    return false
-end
 
 -- Pre-cached boss unit strings (avoid "boss"..i concatenation in loops)
 local _BOSS_UNITS = { "boss1", "boss2", "boss3", "boss4", "boss5" }
@@ -902,71 +932,22 @@ local function RenderUnit(entry)
 
     -- Bind modules once
     if not _modulesBound then
-        Collect = API.Collect
         Icons   = API.Icons or API.Apply
-        Store   = API.Store
-        _storeEpochs = Store and Store._epochs
         Filters = API.Filters
-        if Collect and Icons then _modulesBound = true end
+        CacheModule = API.Cache
+        if Icons and CacheModule then _modulesBound = true end
     end
 
-    if not Collect or not Icons then return end
+    if not Icons or not CacheModule then return end
 
     -- Single gen read for entire function (value cannot change mid-call)
     local gen = _configGen
 
-    -- PERF: Update scan limits once per configGen (reduces C API calls)
-    -- GetAuras2DB result is reused by the main render path below.
+    -- PERF: Cache DB fetch per configGen (avoids repeated GetAuras2DB per unit)
     local a2, shared
-    if Collect._scanLimitsGen ~= gen then
-        Collect._scanLimitsGen = gen
+    if _dbFetchGen ~= gen then
+        _dbFetchGen = gen
         a2, shared = GetAuras2DB()
-        if shared and Collect.SetScanLimits then
-            -- Start with shared values
-            local maxB = shared.maxBuffs or 12
-            local maxD = shared.maxDebuffs or 12
-            -- Check perUnit overrides for higher values
-            if a2 and a2.perUnit then
-                for _, pu in pairs(a2.perUnit) do
-                    if pu.overrideSharedLayout and pu.layoutShared then
-                        local ls = pu.layoutShared
-                        if type(ls.maxBuffs) == "number" and ls.maxBuffs > maxB then
-                            maxB = ls.maxBuffs
-                        end
-                        if type(ls.maxDebuffs) == "number" and ls.maxDebuffs > maxD then
-                            maxD = ls.maxDebuffs
-                        end
-                    end
-                end
-            end
-            Collect.SetScanLimits(maxB, maxD)
-        end
-
-        -- Scan flags (only compute expensive per-aura tags when any frame needs them)
-        if shared and Collect.SetScanFlags then
-            local needImportant = false
-            local sf = shared.filters
-            if HasImportantToggle(sf) then
-                needImportant = true
-            elseif a2 and a2.perUnit then
-                for _, pu in pairs(a2.perUnit) do
-                    if pu and pu.overrideFilters == true and HasImportantToggle(pu.filters) then
-                        needImportant = true
-                        break
-                    end
-                end
-            end
-            Collect.SetScanFlags(needImportant)
-        end
-
-        -- Aura sort order: read from shared.filters, pass to Collect.
-        -- Uses the Blizzard Enum.AuraSortOrder values (0-6) on the
-        -- C_UnitAuras.GetAuraSlots 4th parameter.  Secret-safe: plain number.
-        if shared and Collect.SetSortOrder then
-            local sf = shared.filters
-            Collect.SetSortOrder(sf and sf.sortOrder or 0)
-
-        end
     end
 
     local unit = entry.unit
@@ -1025,15 +1006,23 @@ local function RenderUnit(entry)
             cfg.debuffsIncludeBoss = false
             cfg.hidePermanentBuffs = false
             cfg.sortOrder = 0
-            -- cfg.sortReverse removed (reverse sorting not supported)
+        end
+        -- Sated/Exhaustion filter (reads from shared, independent of master filter toggle)
+        cfg.showSated = (shared.showSated ~= false)
+        cfg.satedShowAtSeconds = (type(shared.satedShowAtSeconds) == "number") and shared.satedShowAtSeconds or 0
+        -- Global Ignore List (reads from shared, per-unit overridable, boss excluded)
+        if _IS_BOSS[unit] then
+            cfg.ignoreCats = nil
+        else
+            local cats = shared.ignoreCats
+            if pu and pu.overrideIgnore == true and type(pu.ignoreCats) == "table" then
+                cats = pu.ignoreCats
+            end
+            cfg.ignoreCats = (type(cats) == "table") and cats or nil
         end
         -- Display flags
         cfg.showBuffs = (shared.showBuffs == true)
         cfg.showDebuffs = (shared.showDebuffs == true)
-        cfg.needPlayerAura = (shared.highlightOwnBuffs == true)
-            or (shared.highlightOwnDebuffs == true)
-            or cfg.buffsOnlyMine
-            or cfg.debuffsOnlyMine
     end
 
     -- Local aliases for hot-path values
@@ -1055,7 +1044,6 @@ local function RenderUnit(entry)
     local stackCountAnchor  = cfg.stackCountAnchor
     local showBuffs         = cfg.showBuffs
     local showDebuffs       = cfg.showDebuffs
-    local needPlayerAura    = cfg.needPlayerAura
     local masterOn          = cfg.masterOn
 
     -- Early bail: no unit, no edit mode  nothing to render 
@@ -1075,6 +1063,13 @@ local function RenderUnit(entry)
     if EditMode and EditMode.EnsureMovers then
         EditMode.EnsureMovers(entry, unit, shared, iconSize, spacing)
     end
+    -- Reminder mover (player-only, created by Reminder module)
+    -- PERF: Zero overhead when reminders disabled — no mover creation.
+    local ReminderMod = API.Reminder
+    if isEditActive and unit == "player" and shared and shared.showReminders ~= false
+       and ReminderMod and ReminderMod.EnsureMover then
+        ReminderMod.EnsureMover(entry, unit, shared)
+    end
 
     -- Anchor: only reposition when config changes (configGen bumped) or edit mode active
     if gen ~= entry._lastAnchorGen or isEditActive then
@@ -1093,9 +1088,12 @@ local function RenderUnit(entry)
     if not _inCombat then
         if EditMode then
             if EditMode.ShowMovers then EditMode.ShowMovers(entry) end
+            -- Reminder mover
+            if unit == "player" and entry.editMoverReminder then entry.editMoverReminder:Show() end
         else
             local EM = API.EditMode
             if EM and EM.HideMovers then EM.HideMovers(entry) end
+            if entry.editMoverReminder then entry.editMoverReminder:Hide() end
         end
     end
 
@@ -1117,10 +1115,6 @@ local function RenderUnit(entry)
             else
                 entry._msufA2_previewActive = nil
             end
-            -- Invalidate epoch + config caches so the real aura path runs a
-            -- full rebuild instead of hitting the epoch-diff early-out.
-            entry._lastEpoch = -1
-            entry._lastConfigGen = -1
             entry._msufA2_playerPreviewInit = nil
         end
     end
@@ -1152,11 +1146,9 @@ local function RenderUnit(entry)
         if not isPlayer then
             return
         end
-        -- Player: invalidate epoch once on preview entry so real buff path runs.
+        -- Player: flag preview init so real buff path runs.
         if not entry._msufA2_playerPreviewInit then
             entry._msufA2_playerPreviewInit = true
-            entry._lastEpoch = -1
-            entry._lastConfigGen = -1
         end
     end
 
@@ -1168,47 +1160,31 @@ local function RenderUnit(entry)
         return
     end
 
-    -- Track configGen for config resolution caching
-    entry._lastConfigGen = gen
-
-    -- Collect auras (single pass) 
-    -- Per-unit sort order: set before collect so PreScanUnit uses the right order.
+    -- Collect auras via delta cache (handles both sorted and unsorted)
     -- Secret-safe: plain numeric config, never compared with secret data.
-    if Collect.SetUnitSortOrder then
-        Collect.SetUnitSortOrder(unit, cfg.capsSortOrder or 0)
-    end
+
     local buffCount = 0
     local debuffCount = 0
-    local buffsOnlyMine    = cfg.buffsOnlyMine
-    local debuffsOnlyMine  = cfg.debuffsOnlyMine
-    local buffsIncludeBoss = cfg.buffsIncludeBoss
-    local debuffsIncludeBoss = cfg.debuffsIncludeBoss
-    local onlyBossAuras    = cfg.onlyBossAuras
-    local onlyImportantBuffs = cfg.onlyImportantBuffs
-    local onlyImportantDebuffs = cfg.onlyImportantDebuffs
-    local hidePermanentBuffs = cfg.hidePermanentBuffs
 
     -- PERF: Local function references eliminate table lookups in hot loops
     local _AcquireIcon = Icons.AcquireIcon
     local _CommitIcon = Icons.CommitIcon
-    local _GetAuras = Collect.GetAuras
-    local _GetMergedAuras = Collect.GetMergedAuras
-
-
-    -- Secret-safe sort params (passed into C_UnitAuras.GetAuraSlots)
-    local _sortOrder = cfg.capsSortOrder or cfg.sortOrder or 0
 
     -- Player in edit mode: debuffs already rendered as preview above, skip real debuff path.
     local skipDebuffs = (showTest and unit == "player")
 
-    if showDebuffs and not skipDebuffs then
-        local list
-        if debuffsOnlyMine and debuffsIncludeBoss then
-            list, debuffCount = _GetMergedAuras(unit, "HARMFUL", maxDebuffs, false, onlyImportantDebuffs, entry._debuffList, nil, needPlayerAura, _sortOrder)
-        else
-            list, debuffCount = _GetAuras(unit, "HARMFUL", maxDebuffs, debuffsOnlyMine, false, onlyBossAuras, onlyImportantDebuffs, entry._debuffList, needPlayerAura, _sortOrder)
-        end
+    -- Pass sortOrder to cache (0 = unsorted fast-path, 1-6 = C++ sorted)
+    cfg.sortOrder = cfg.capsSortOrder or cfg.sortOrder or 0
 
+    local _, nB, _, nD = CacheModule.FilterAndSort(unit, cfg, entry._buffList, entry._debuffList)
+    CacheModule.ClearChanged(unit)
+
+    buffCount  = showBuffs and nB or 0
+    debuffCount = (showDebuffs and not skipDebuffs) and nD or 0
+
+    -- CommitIcon: debuffs
+    if debuffCount > 0 then
+        local list = entry._debuffList
         local container = entry.debuffs
         for i = 1, debuffCount do
             local aura = list[i]
@@ -1219,21 +1195,15 @@ local function RenderUnit(entry)
         end
     end
 
-    if showBuffs then
-        local list
-        if buffsOnlyMine and buffsIncludeBoss then
-            list, buffCount = _GetMergedAuras(unit, "HELPFUL", maxBuffs, hidePermanentBuffs, onlyImportantBuffs, entry._buffList, nil, needPlayerAura, _sortOrder)
-        else
-            list, buffCount = _GetAuras(unit, "HELPFUL", maxBuffs, buffsOnlyMine, hidePermanentBuffs, onlyBossAuras, onlyImportantBuffs, entry._buffList, needPlayerAura, _sortOrder)
-        end
-
+    -- CommitIcon: buffs
+    if buffCount > 0 then
+        local list = entry._buffList
         local container = entry.buffs
-        local offset = 0
         for i = 1, buffCount do
             local aura = list[i]
             if aura then
-                local icon = _AcquireIcon(container, offset + i)
-                _CommitIcon(icon, unit, aura, shared, true, hidePermanentBuffs, masterOn, aura._msufIsPlayerAura, stackCountAnchor, gen)
+                local icon = _AcquireIcon(container, i)
+                _CommitIcon(icon, unit, aura, shared, true, false, masterOn, aura._msufIsPlayerAura, stackCountAnchor, gen)
             end
         end
     end
@@ -1277,6 +1247,15 @@ local function RenderUnit(entry)
 
     entry._lastBuffCount = buffCount
     entry._lastDebuffCount = debuffCount
+
+    -- Buff Reminders: ghost icons for missing group buffs (player only).
+    -- PERF: Zero overhead when disabled or non-player — no function call at all.
+    if unit == "player" and shared and shared.showReminders ~= false then
+        local ReminderMod = API.Reminder
+        if ReminderMod and ReminderMod.Render then
+            ReminderMod.Render(entry, unit, shared, buffIconSize, spacing, buffGrowth, showTest)
+        end
+    end
 end
 
 
@@ -1389,6 +1368,9 @@ local function RefreshAll()
         Store.InvalidateUnit("focus")
         for i = 1, 5 do Store.InvalidateUnit(_BOSS_UNITS[i]) end
     end
+    -- v4: Invalidate cache (forces re-filter on next render)
+    local CM = API.Cache
+    if CM and CM.InvalidateAll then CM.InvalidateAll() end
     MarkAllDirty(0)
 end
 
@@ -1402,6 +1384,9 @@ local function RefreshUnit(unit)
     if Icons and Icons.BumpConfigGen then Icons.BumpConfigGen() end
     local Store = API.Store
     if Store and Store.InvalidateUnit then Store.InvalidateUnit(unit) end
+    -- v4: Invalidate cache for this unit (forces re-filter on next render)
+    local CM = API.Cache
+    if CM and CM.Invalidate then CM.Invalidate(unit) end
     MarkDirty(unit, 0)
 end
 
@@ -1473,9 +1458,6 @@ local function ClearAllPreviews()
                 _ClearPreviewContainer(entry.private)
                 entry._msufA2_previewActive = nil
             end
-            -- Force full rebuild so real auras render after preview exit.
-            entry._lastEpoch = -1
-            entry._lastConfigGen = -1
             entry._msufA2_playerPreviewInit = nil
         end
     end

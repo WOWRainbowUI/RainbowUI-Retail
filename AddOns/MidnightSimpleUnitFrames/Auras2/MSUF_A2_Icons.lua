@@ -88,6 +88,7 @@ local _wantBuffHL       = false
 local _wantDebuffHL     = false
 local _useBlizzardTimer = false  -- true = Blizzard C++ pass-through for countdown text
 local _useDispelBorders = false  -- dispel-type border coloring for debuffs
+local _clickThrough     = false  -- true = all auras non-interactive (mouse pass-through)
 
 --  Debuff dispel-type color lookup (Ã‚Â  la R41z0r / Blizzard) 
 -- Maps dispel index  Blizzard color object; used for both manual
@@ -165,6 +166,33 @@ local function RefreshSharedFlags(shared, gen)
     _wantDebuffHL = (shared and shared.highlightOwnDebuffs == true) or false
     _useBlizzardTimer = (shared and shared.useBlizzardTimerText == true) or false
     _useDispelBorders = (shared and shared.useDebuffTypeBorders == true) or false
+    _clickThrough     = (shared and shared.clickThroughAuras == true) or false
+end
+
+-- ---------------------------------------------------------------------------
+-- Masque backdrop compatibility
+--
+-- When Masque skins are used (often non-square shapes like circles), MSUF's
+-- subtle background texture can remain visible as a square "box" behind the
+-- skinned icon. This can also appear intermittently due to icon reuse.
+--
+-- Fix: diff-gated show/hide of the background texture whenever Masque is
+-- enabled and the icon has been registered with Masque.
+-- ---------------------------------------------------------------------------
+
+local function ApplyMasqueBackdrop(icon, shared)
+    local bg = icon and icon._msufBG
+    if not bg then return end
+
+    local hide = (shared and shared.masqueEnabled == true and icon.MSUF_MasqueAdded == true) or false
+    if icon._msufA2_bgHidden ~= hide then
+        icon._msufA2_bgHidden = hide
+        if hide then
+            bg:Hide()
+        else
+            bg:Show()
+        end
+    end
 end
 
 -- --
@@ -588,6 +616,9 @@ function Icons.CommitIcon(icon, unit, aura, shared, isHelpful, hidePermanent, ma
         RefreshSharedFlags(shared, gen)
     end
 
+    -- Masque: hide MSUF square backdrop behind non-square skins
+    ApplyMasqueBackdrop(icon, shared)
+
     if not aura then
         local container = icon._msufA2_container or icon:GetParent()
         local aidMap = container and container._msufA2_iconByAid
@@ -681,6 +712,13 @@ function Icons.CommitIcon(icon, unit, aura, shared, isHelpful, hidePermanent, ma
     _fast_ApplyDispelBorder(icon, unit, aura, isHelpful)
 
     -- 6. (Masque overlay sync removed from hot path — handled once in AddButton)
+
+    -- 7. Click-through: diff-gated EnableMouse (PERF: only when state changes)
+    local wantMouse = not _clickThrough
+    if icon._msufA2_mouseOn ~= wantMouse then
+        icon._msufA2_mouseOn = wantMouse
+        icon:EnableMouse(wantMouse)
+    end
 
     icon:Show()
     return true
@@ -1322,6 +1360,13 @@ function Icons.RenderPreviewIcons(entry, unit, shared, useSingleRow, buffCap, de
 
         icon:Show()
 
+        -- Click-through: apply same setting as live icons (diff-gated)
+        local wantMouse = not _clickThrough
+        if icon._msufA2_mouseOn ~= wantMouse then
+            icon._msufA2_mouseOn = wantMouse
+            icon:EnableMouse(wantMouse)
+        end
+
         -- Invalidate + resolve text config
         icon._msufA2_textCfgGen = nil
         ResolveTextConfig(icon, unit, shared, gen)
@@ -1485,6 +1530,13 @@ function Icons.RenderPreviewPrivateIcons(entry, unit, shared, privIconSize, spac
             icon._msufPrivateLock:Show()
 
             icon:Show()
+
+            -- Click-through (diff-gated)
+            local wantMouse = not _clickThrough
+            if icon._msufA2_mouseOn ~= wantMouse then
+                icon._msufA2_mouseOn = wantMouse
+                icon:EnableMouse(wantMouse)
+            end
 
             -- Position using growth direction
             icon:ClearAllPoints()

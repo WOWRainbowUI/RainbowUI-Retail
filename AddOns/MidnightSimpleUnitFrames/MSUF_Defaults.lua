@@ -240,6 +240,11 @@ end
     if g.darkBgBrightness == nil then
         g.darkBgBrightness = 0.25      -- 25% Grau als Standard
     end
+    -- When true, dark mode uses the bar-background tint color directly (no brightness dimming).
+    -- Allows fully custom background colors (including white) in dark mode.
+    if g.darkBgCustomColor == nil then
+        g.darkBgCustomColor = false
+    end
     if g.classBarBgR == nil or g.classBarBgG == nil or g.classBarBgB == nil then
         g.classBarBgR = 0.0   -- default: black background
         g.classBarBgG = 0.0
@@ -974,6 +979,12 @@ if MSUF_DB.bars == nil then
     end
     if MSUF_DB.bars.powerBarHeight == nil then
         MSUF_DB.bars.powerBarHeight = 3
+    end
+    if MSUF_DB.bars.smoothPowerBar == nil then
+        MSUF_DB.bars.smoothPowerBar = true
+    end
+    if MSUF_DB.bars.realtimePowerText == nil then
+        MSUF_DB.bars.realtimePowerText = true
     end
     if MSUF_DB.bars.embedPowerBarIntoHealth == nil then
         -- Pixel-perfect default: keep the power bar *inside* the unitframe bounds.
