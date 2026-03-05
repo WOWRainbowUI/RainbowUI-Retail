@@ -1,6 +1,5 @@
-## Changed in v2026.13
+## Changed in v2026.14
 
-* Midnight: add quests to currency drops for notability tracking
-* BfA: add Ulmath's loot
-* Change how I'm showing item tooltips so they'll never use a MoneyFrame, hopefully avoiding some ongoing secret errors
+* Midnight: updated loot with new data since release
+* Macro: a Blizzard hotfix meant `exists` causes errors with /tm, so work around that
 
