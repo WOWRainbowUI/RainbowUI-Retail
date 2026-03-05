@@ -135,7 +135,7 @@ DBM.DefaultOptions = {
 	CountdownVoice3 = "Smooth",
 	CountSize = 5,
 	PullVoice = "Corsica",
-	ChosenVoicePack2 = (GetLocale() == "enUS" or GetLocale() == "enGB") and "VEM" or "None",
+	ChosenVoicePack2 = (GetLocale() == "enUS" or GetLocale() == "enGB") and "VEM" or "SahaJh", -- 更改語音包
 	VPReplacesAnnounce = true,
 	VPReplacesSADefault = true,
 	EventSoundVictory2 = "Interface\\AddOns\\DBM-Core\\sounds\\Victory\\SmoothMcGroove_Fanfare.ogg",
