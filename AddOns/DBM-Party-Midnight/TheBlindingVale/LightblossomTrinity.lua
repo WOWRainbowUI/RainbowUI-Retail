@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2769, "DBM-Party-Midnight", 4, 1309)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260226065527")
+mod:SetRevision("20260303042556")
 mod:SetCreatureID(243028)--Meittik only one reported as a main boss
 mod:SetEncounterID(3199)
 --mod:SetHotfixNoticeRev(20250823000000)
