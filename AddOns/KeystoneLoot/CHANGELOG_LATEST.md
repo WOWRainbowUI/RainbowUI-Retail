@@ -1,2 +1,5 @@
+## Bugfixes
+- KeystoneLootCharDB
+
 ## Other Changes
-- Bump TOC version
+- Merge branch 'main' of https://github.com/Wolkenschutz/KeystoneLoot
