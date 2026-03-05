@@ -147,11 +147,20 @@ function Styler:StyleStackCount(cdFrame, config, category)
         local parentName = parent.GetName and parent:GetName()
         countRegion = parent.Count or (parentName and _G[parentName .. "Count"])
     elseif category == "global" then
-        -- CooldownManager viewers (EssentialCooldownViewer / UtilityCooldownViewer):
-        -- ChargeCount is a Frame (setAllPoints), ChargeCount.Current is the FontString.
+        -- CooldownManager viewers:
+        -- EssentialCooldownViewer / UtilityCooldownViewer:
+        --   ChargeCount is a Frame (setAllPoints), ChargeCount.Current is the FontString.
+        -- BuffIconCooldownViewer:
+        --   Applications is a Frame (setAllPoints), Applications.Applications is the FontString.
         local chargeCount = parent.ChargeCount
         if chargeCount and chargeCount.Current then
             countRegion = chargeCount.Current
+        end
+        if not countRegion then
+            local applications = parent.Applications
+            if applications and applications.Applications then
+                countRegion = applications.Applications
+            end
         end
     end
 

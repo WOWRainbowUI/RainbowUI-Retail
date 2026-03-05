@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.0.8] - 2026-03-03
+
+### Added
+* BuffIconCooldownViewer stack/charges style
+
 ## [3.0.7] - 2026-03-02
 
 ### Added
