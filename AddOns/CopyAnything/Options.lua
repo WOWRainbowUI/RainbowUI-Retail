@@ -77,6 +77,6 @@ function addon:OnInitialize()
 	self.db = AceDB:New("CopyAnythingDB", defaultDB, true)
 	AceConfig:RegisterOptionsTable("CopyAnything", options)
 	options.args.profiles = AceDBOptions:GetOptionsTable(self.db)
-	AceConfigDialog:AddToBlizOptions("CopyAnything", L.copyAnything, nil, "general")
+	_,  CopyAnythingDB.categoryID = AceConfigDialog:AddToBlizOptions("CopyAnything", L.copyAnything, nil, "general")
 	AceConfigDialog:AddToBlizOptions("CopyAnything", L.profiles, L.copyAnything, "profiles")
 end

@@ -516,7 +516,7 @@ D["CopyAnything"] = {
 	{
         text = "設定選項",
         callback = function() 
-			Settings.OpenToCategory("複製文字")
+			Settings.OpenToCategory(CopyAnythingDB.categoryID)
 		end,
     },
 	{
