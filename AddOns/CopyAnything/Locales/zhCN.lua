@@ -3,36 +3,25 @@ if not L then return end
 
 --[[Translation missing --]]
 --[[ L["copyAnything"] = "Copy Anything"--]] 
---[[Translation missing --]]
---[[ L["copyFrame"] = "Copy Frame"--]] 
---[[Translation missing --]]
---[[ L["fastCopy"] = "Fast Copy"--]] 
---[[Translation missing --]]
---[[ L["fastCopyDesc"] = "Automatically hide the copy frame after CTRL+C is pressed."--]] 
---[[Translation missing --]]
---[[ L["fontStrings"] = "FontStrings"--]] 
---[[Translation missing --]]
---[[ L["general"] = "General"--]] 
+L["copyFrame"] = "复制文字弹窗"
+L["fastCopy"] = "快速复制"
+L["fastCopyDesc"] = "按 CTRL+C 复制文字后，自动关闭复制文字弹窗。"
+L["fontStrings"] = "文字字符"
+L["general"] = "常规"
 --[[Translation missing --]]
 --[[ L["invalidSearchType"] = "Invalid search type '%s'. Check options."--]] 
---[[Translation missing --]]
---[[ L["mouseFocus"] = "Mouse Focus"--]] 
---[[Translation missing --]]
---[[ L["noTextFound"] = "No text found."--]] 
---[[Translation missing --]]
---[[ L["parentFrames"] = "Parent Frames"--]] 
---[[Translation missing --]]
---[[ L["profiles"] = "Profiles"--]] 
---[[Translation missing --]]
---[[ L["searchType"] = "Search Type"--]] 
---[[Translation missing --]]
---[[ L["searchTypeDesc"] = "Method to use for searching for text under the cursor."--]] 
---[[Translation missing --]]
---[[ L["searchTypeDescExtended"] = [=[Font Strings (default) - Search for individual FontStrings under the cursor.
-Parent Frames - Search for top level frames under the cursor, and copy all text from their children.
-Mouse Focus - Copy text from the mouse focus frame. Only works on frames that are registered for mouse events.]=]--]] 
+L["mouseFocus"] = "鼠标指向"
+L["noTextFound"] = "未找到文字"
+L["parentFrames"] = "父级框体"
+L["profiles"] = "配置"
+L["searchType"] = "查找类型"
+L["searchTypeDesc"] = "请选择要用什么方式在鼠标指向的位置查找文字。"
+L["searchTypeDescExtended"] = [=[文字字符（默认）：查找鼠标指向位置的单行文字。
+父级框体：查找鼠标指向框体的父级框体，将其子框体的内容全部复制。
+鼠标指向：复制鼠标指向框体中的文字，只在注册过鼠标事件、可以触发鼠标操作的框体（如点击、指向高亮）才有效果。]=]
 --[[Translation missing --]]
 --[[ L["show"] = "Show"--]] 
 --[[Translation missing --]]
---[[ L["tooManyFontStrings"] = "More than %d FontStrings were found. The copy was cancelled to prevent the game from freezing for an excessive amount of time."--]] 
+--[[ L["tooltip"] = "Mouse Tooltip"--]] 
+L["tooManyFontStrings"] = "找到超过 %d 个文字字串。为了避免游戏卡死，已取消复制。"
 
