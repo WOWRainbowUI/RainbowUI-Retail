@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.05 (18th February 2026)
+-- 	Leatrix Plus 12.0.07 (4th March 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.05"
+	LeaPlusLC["AddonVer"] = "12.0.07"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -4623,9 +4623,9 @@
 						if linkType == "battlepet" then
 							local speciesID, level, breedQuality = strsplit(":", linkOptions)
 							local qualityColor = BAG_ITEM_QUALITY_COLORS[tonumber(breedQuality)]
-							link = qualityColor:WrapTextInColorCode(name .. " |n" .. L["Level"] .. " " .. level .. L["Battle Pet"])
+							link = qualityColor:WrapTextInColorCode(name .. " (" .. L["Level"] .. " " .. level .. ")")
 						end
-						StaticPopup1Text:SetText(gsub(StaticPopup1Text:GetText(), gsub(TypeDeleteLine, "@", ""), "") .. "|n" .. link)
+						StaticPopup1Text:SetText(gsub(StaticPopup1Text:GetText(), gsub(TypeDeleteLine, "@", ""), "") .. link)
 					end
 				else
 					-- Item does not require player to type delete so just show item link
@@ -4639,9 +4639,9 @@
 						if linkType == "battlepet" then
 							local speciesID, level, breedQuality = strsplit(":", linkOptions)
 							local qualityColor = BAG_ITEM_QUALITY_COLORS[tonumber(breedQuality)]
-							link = qualityColor:WrapTextInColorCode(name .. " |n" .. L["Level"] .. " " .. level .. L["Battle Pet"])
+							link = qualityColor:WrapTextInColorCode(name .. " (" .. L["Level"] .. " " .. level .. ")")
 						end
-						StaticPopup1Text:SetText(gsub(StaticPopup1Text:GetText(), gsub(TypeDeleteLine, "@", ""), "") .. "|n|n" .. link)
+						StaticPopup1Text:SetText(gsub(StaticPopup1Text:GetText(), gsub(TypeDeleteLine, "@", ""), "") .. "|n|n" .. link .. "|n|n")
 					end
 				end
 			end)
