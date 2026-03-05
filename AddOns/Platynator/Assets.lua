@@ -121,6 +121,8 @@ addonTable.Assets.Highlights = {
   ["Platy: Arrow Hi-vis"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/hi-vis-arrows.png", width = 158, height = 50, has4k = true, margin = 0.5, extra = 0, modifier = 0.42, shiftModifierV = 1, DPIScale = 8/10, mode = renderMode.Sliced, tag = "arrows"},
   ["Platy: Arrow Hi-vis Down"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/hi-vis-arrow-down.png", width = 125, height = 185, has4k = true, mode = renderMode.Fixed, tag = "arrows"},
 
+  ["Platy: Brackets"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/brackets.png", width = 154, height = 56, has4k = true, margin = 0.45, extra = 0, modifier = 0.3, shiftModifierV = 1, DPIScale = 8/10, mode = renderMode.Sliced},
+
   ["Platy: Blizzard Classic Level"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/blizzard-classic-level.png", width = 178, height = 125, has4k = true, mode = renderMode.Fixed, tag = "blizzard-classic-level"},
 
   ["Platy: Animated Dashes Short"] = {offset = -1, defaultWidth = 1, preview = "Interface/AddOns/Platynator/Assets/Special/Animations/important-preview.png", horizontal = "Interface/AddOns/Platynator/Assets/Special/Animations/important.png", vertical = "Interface/AddOns/Platynator/Assets/Special/Animations/important-90.png", columns = 1, rows = 11, duration = 0.5, kind = "animatedBorder"},
@@ -250,7 +252,6 @@ function addonTable.Assets.ApplyScale()
     ResizeSlicedAssets(list, list)
     ResizeSlicedAssets(masks, list)
     for key, entry in pairs(list) do
-      ---@diagnostic disable-next-line param-type-mismatch
       LSM:Register("nineslice", key, {
         file = entry.file,
         previewWidth = entry.width,
@@ -263,7 +264,6 @@ function addonTable.Assets.ApplyScale()
       local maskKey = masks[key] and key or "Platy: Solid"
       local maskData = masks[maskKey]
       local maskMargin = maskData.margin or 0.49
-      ---@diagnostic disable-next-line param-type-mismatch
       LSM:Register("ninesliceborder", key, {
         nineslice = key,
         mask = {
@@ -278,7 +278,6 @@ function addonTable.Assets.ApplyScale()
     for key, entry in pairs(list) do
       if entry.mode == renderMode.Sliced then
         ResizeSlicedAssets({entry}, {entry})
-        ---@diagnostic disable-next-line param-type-mismatch
         LSM:Register("nineslice", key, {
           file = entry.file,
           previewWidth = entry.width,
@@ -292,7 +291,6 @@ function addonTable.Assets.ApplyScale()
         -- Not registered on purpose
       else
         ResizeAssets({entry})
-        ---@diagnostic disable-next-line param-type-mismatch
         LSM:Register("platynator/sizedtexture", key, {
           file = entry.file,
           width = entry.width,

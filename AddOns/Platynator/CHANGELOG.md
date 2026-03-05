@@ -1,11 +1,9 @@
 # Platynator
 
-## [335](https://github.com/TheMouseNest/Platynator/tree/335) (2026-03-03)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/334...335) [Previous Releases](https://github.com/TheMouseNest/Platynator/releases)
+## [336](https://github.com/TheMouseNest/Platynator/tree/336) (2026-03-04)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/335...336) [Previous Releases](https://github.com/TheMouseNest/Platynator/releases)
 
+- Use UnitShouldDisplaySpellTargetName to prevent odd names showing as cast target  
+- Improve in-combat detection  
 - Cleanup  
-- Use highest alpha of current casting/mouseover on the nameplate  
-- Fix elite colours applying in PvP instances  
-- Add "Scorch" to Execute spells, even though it isn't quite the same  
-- Cleanup  
-- Apply "Interrupt (Not?) Ready" colours to all interrupts on a warlock  
+- Add "Brackets" highlight option  
