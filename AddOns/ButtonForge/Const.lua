@@ -86,7 +86,7 @@ Const.StealthSpellIds[5215] = 1;		-- Prowl
 
 
 Const.WispSpellIds = {};
-Const.WispSpellIds[19746]	= 1;		--Concentration Aura
+Const.WispSpellIds[317920]	= 1;		--Concentration Aura
 Const.WispSpellIds[32223]	= 1;		--Crusader Aura
 Const.WispSpellIds[465]		= 1;		--Devotion Aura
 Const.WispSpellIds[19891]	= 1;		--Resistance Aura
