@@ -1,8 +1,14 @@
 local _, BR = ...
 
--- Blizzard whitelists specific spell IDs for C_UnitAuras.GetUnitAuraBySpellID() during combat.
+-- Blizzard whitelists specific spell IDs for C_UnitAuras.GetUnitAuraBySpellID() during
+-- restricted contexts: combat lockdown, boss encounters, and M+ keystones.
 -- Non-whitelisted spells silently return nil, indistinguishable from "buff missing."
--- This is the single source of truth: any spell ID NOT here is assumed unsafe to query in combat.
+-- This is the single source of truth: any spell ID NOT here is assumed unsafe to query.
+--
+-- IMPORTANT: Boss encounters (ENCOUNTER_START) restrict the aura API BEFORE the player
+-- enters combat (InCombatLockdown). A spell that returns nil during an encounter but
+-- before combat will cause a brief false "missing" flash if not handled correctly.
+-- State.lua uses inCombat (set by Display, covers encounters too) + M+ difficulty to gate queries.
 --
 -- Source: Blizzard's UnitAuraBySpell combat whitelist (confirmed via in-game testing).
 BR.COMBAT_SAFE_SPELLS = {

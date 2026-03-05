@@ -1,5 +1,8 @@
 local _, BR = ...
 
+-- Lua stdlib locals
+local min = math.min
+
 -- ============================================================================
 -- BUFF DATA TABLES
 -- ============================================================================
@@ -103,6 +106,15 @@ local _, BR = ...
 ---@field castItemID? number        -- Item to use on click
 ---@field castMacro? string         -- Raw macro text for click action
 ---@field requireItemID? number    -- Only show if this item is equipped or in bags
+---@field loadConditions? LoadConditions  -- Per-buff content visibility (nil = show everywhere)
+
+---Check if the player is inside a delve (difficultyID 208)
+---@return boolean
+local function IsInDelve()
+    local difficultyID = select(3, GetInstanceInfo())
+    return difficultyID == 208
+end
+BR.IsInDelve = IsInDelve
 
 ---Check if the player's pet is on passive stance
 ---@return boolean? true if pet exists and is on passive, nil otherwise
@@ -371,8 +383,8 @@ BR.BUFF_TABLES = {
                 local hasDragonTemperedBlades = IsPlayerSpell(381801)
 
                 -- Only require as many as the player actually knows
-                local requiredLethal = math.min(knownLethal, hasDragonTemperedBlades and 2 or 1)
-                local requiredNonLethal = math.min(knownNonLethal, hasDragonTemperedBlades and 2 or 1)
+                local requiredLethal = min(knownLethal, hasDragonTemperedBlades and 2 or 1)
+                local requiredNonLethal = min(knownNonLethal, hasDragonTemperedBlades and 2 or 1)
 
                 return activeLethal < requiredLethal or activeNonLethal < requiredNonLethal
             end,
@@ -507,7 +519,7 @@ BR.BUFF_TABLES = {
             key = "frostMagePet",
             name = "水元素",
             class = "MAGE",
-            missingText = "沒有\n水元素",
+            missingText = "沒有\n寵物",
             requireSpecId = 64, -- Frost
             requiresSpellID = 31687,
             groupId = "pets",
@@ -543,7 +555,7 @@ BR.BUFF_TABLES = {
             key = "unholyPet",
             name = "穢邪食屍鬼",
             class = "DEATHKNIGHT",
-            missingText = "沒有\n食屍鬼",
+            missingText = "沒有\n寵物",
             requireSpecId = 252, -- Unholy
             groupId = "pets",
             customCheck = function()
@@ -554,7 +566,7 @@ BR.BUFF_TABLES = {
             key = "warlockPet",
             name = "術士惡魔",
             class = "WARLOCK",
-            missingText = "沒有\n惡魔",
+            missingText = "沒有\n寵物",
             displayIcon = 136082, -- Summon Demon flyout icon
             excludeSpellID = 108503, -- Grimoire of Sacrifice: pet intentionally sacrificed
             groupId = "pets",
@@ -622,31 +634,14 @@ BR.BUFF_TABLES = {
         },
         -- Delve Food (only when inside a delve with Brann or Valeera)
         {
-            buffIconID = 133954,
+            spellID = 442522,
             key = "delveFood",
             name = "探究食物",
             missingText = "沒有\n食物",
             groupId = "delveFood",
-            displayIcon = 133954,
             noExpirationGlow = true, -- 10-min duration makes standard thresholds meaningless
             infoTooltip = "只限探究|只有當布萊恩或瓦莉拉在你的隊伍中時才會在探索內顯示。\n\n此增益效果的過期發光被禁用，因為其短暫的10分鐘持續時間會導致它始終發光。",
-            visibilityCondition = function()
-                local inInstance, instanceType = IsInInstance()
-                if not inInstance or instanceType ~= "scenario" then
-                    return false
-                end
-                for i = 1, GetNumGroupMembers() do
-                    local guid = UnitGUID("party" .. i)
-                    if guid then
-                        local npcID = select(6, strsplit("-", guid))
-                        npcID = tonumber(npcID)
-                        if npcID == 210759 or npcID == 248567 then
-                            return true
-                        end
-                    end
-                end
-                return false
-            end,
+            visibilityCondition = BR.IsInDelve,
         },
         -- Weapon Buffs (oils, stones - but not for classes with imbues)
         {

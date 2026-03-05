@@ -6,6 +6,7 @@ local addonName, BR = ...
 
 ---@class DefaultSettings
 ---@field iconSize number
+---@field iconWidth? number
 ---@field textSize? number
 ---@field iconAlpha number
 ---@field textAlpha number
@@ -23,6 +24,7 @@ local addonName, BR = ...
 ---@field glowSize number
 ---@field fontFace? string
 ---@field showConsumablesWithoutItems? boolean
+---@field delveFoodOnly? boolean
 ---@field consumableRebuffWarning? boolean
 ---@field consumableRebuffThreshold? number
 ---@field consumableRebuffColor? number[]
@@ -35,6 +37,7 @@ local addonName, BR = ...
 ---@class CategorySetting
 ---@field position CategoryPosition
 ---@field iconSize? number
+---@field iconWidth? number
 ---@field textSize? number
 ---@field iconAlpha? number
 ---@field textAlpha? number
@@ -111,6 +114,11 @@ local addonName, BR = ...
 ---@field _br_pet_extra_text? FontString   -- Spirit Beast label below spec
 ---@field qualityOverlay? FontString         -- Quality rank text (R1/R2/R3) for consumable frames
 ---@field _cachedItems? table|false         -- Per-cycle cache for GetConsumableActionItems result
+
+-- Lua stdlib locals (avoid repeated global lookups in hot paths)
+local floor, max, min = math.floor, math.max, math.min
+local random = math.random
+local tinsert, tremove, tsort, tconcat = table.insert, table.remove, table.sort, table.concat
 
 -- Shared constants (from Core.lua)
 local DEFAULT_BORDER_SIZE = BR.DEFAULT_BORDER_SIZE
@@ -220,7 +228,7 @@ local function BuildCustomBuffArray()
     for k in pairs(db.customBuffs) do
         sortedKeys[#sortedKeys + 1] = k
     end
-    table.sort(sortedKeys)
+    tsort(sortedKeys)
     for _, k in ipairs(sortedKeys) do
         CustomBuffs[#CustomBuffs + 1] = db.customBuffs[k]
     end
@@ -238,10 +246,7 @@ end
 -- Note: enabledBuffs defaults to all enabled - only set false to disable by default
 local defaults = {
     locked = true,
-    enabledBuffs = {
-        delveFood = false,
-        burningRush = false,
-    },
+    enabledBuffs = {},
     showOnlyInGroup = false,
     hideWhileResting = false,
     hideInCombat = false,
@@ -252,12 +257,16 @@ local defaults = {
     petPassiveOnlyInCombat = false,
     optionsPanelScale = 1.2, -- base scale (displayed as 100%)
     showLoginMessages = true,
+    minimap = {
+        hide = false,
+    },
 
     -- Global defaults (inherited by categories unless overridden)
     ---@type DefaultSettings
     defaults = {
         -- Appearance
         iconSize = 64,
+        -- iconWidth: nil = same as iconSize (square). Set explicitly for non-square icons.
         -- textSize: nil = auto (derived from iconSize * 0.32). Only set when user explicitly overrides.
         iconAlpha = 1,
         textAlpha = 1,
@@ -275,7 +284,9 @@ local defaults = {
         useCustomGlowColor = false,
         glowSize = 2,
         showConsumablesWithoutItems = false,
+        delveFoodOnly = false,
         consumableDisplayMode = "sub_icons",
+        showConsumableTooltips = false,
         petDisplayMode = "generic", -- "generic" or "expanded"
         petLabels = true,
         petSpecIconOnHover = true,
@@ -289,16 +300,17 @@ local defaults = {
 
     ---@type CategoryVisibility
     categoryVisibility = { -- Which content types each category shows in
-        raid = { openWorld = true, dungeon = true, scenario = true, raid = true },
-        presence = { openWorld = true, dungeon = true, scenario = true, raid = true },
-        targeted = { openWorld = false, dungeon = true, scenario = true, raid = true },
-        self = { openWorld = true, dungeon = true, scenario = true, raid = true },
-        pet = { openWorld = true, dungeon = true, scenario = true, raid = true },
+        raid = { openWorld = true, dungeon = true, scenario = true, raid = true, housing = false },
+        presence = { openWorld = true, dungeon = true, scenario = true, raid = true, housing = false },
+        targeted = { openWorld = false, dungeon = true, scenario = true, raid = true, housing = false },
+        self = { openWorld = true, dungeon = true, scenario = true, raid = true, housing = false },
+        pet = { openWorld = true, dungeon = true, scenario = true, raid = true, housing = false },
         consumable = {
             openWorld = false,
             dungeon = true,
             scenario = true,
             raid = true,
+            housing = false,
             dungeonDifficulty = {
                 normal = false,
                 heroic = false,
@@ -314,7 +326,6 @@ local defaults = {
                 mythic = true,
             },
         },
-        custom = { openWorld = true, dungeon = true, scenario = true, raid = true },
     },
 
     ---@type AllCategorySettings
@@ -483,6 +494,7 @@ local function GetCategorySettings(category)
         return {
             position = catSettings and catSettings.position or { point = "CENTER", x = 0, y = 0 },
             iconSize = globalDefaults.iconSize or 64,
+            iconWidth = globalDefaults.iconWidth,
             textSize = globalDefaults.textSize, -- nil = auto (derived from iconSize)
             iconAlpha = globalDefaults.iconAlpha or 1,
             textAlpha = globalDefaults.textAlpha or 1,
@@ -513,6 +525,7 @@ local function GetCategorySettings(category)
         -- This ensures custom-appearance categories are fully independent from Global Defaults changes.
         -- Values are snapshotted from current defaults when useCustomAppearance is first enabled.
         result.iconSize = (catSettings and catSettings.iconSize) or 64
+        result.iconWidth = catSettings and catSettings.iconWidth
         result.textSize = (catSettings and catSettings.textSize) -- nil = auto
         result.iconAlpha = (catSettings and catSettings.iconAlpha) or 1
         result.textAlpha = (catSettings and catSettings.textAlpha) or 1
@@ -528,6 +541,7 @@ local function GetCategorySettings(category)
         result.expirationThreshold = (catSettings and catSettings.expirationThreshold)
     else
         result.iconSize = globalDefaults.iconSize or 64
+        result.iconWidth = globalDefaults.iconWidth
         result.textSize = globalDefaults.textSize -- nil = auto
         result.iconAlpha = globalDefaults.iconAlpha or 1
         result.textAlpha = globalDefaults.textAlpha or 1
@@ -586,8 +600,16 @@ local TEXT_SCALE_RATIO = 0.32
 ---@param iconSize? number
 ---@return number
 local function GetFontSize(scale, textSize, iconSize)
-    local baseSize = textSize or math.floor((iconSize or 64) * TEXT_SCALE_RATIO)
-    return math.max(6, math.floor(baseSize * (scale or 1)))
+    local baseSize = textSize or floor((iconSize or 64) * TEXT_SCALE_RATIO)
+    return max(6, floor(baseSize * (scale or 1)))
+end
+
+---Get effective icon width (falls back to iconSize for square icons)
+---@param iconWidth? number Explicit width setting
+---@param iconSize number Icon height (used as fallback)
+---@return number width
+local function GetEffectiveWidth(iconWidth, iconSize)
+    return iconWidth or iconSize
 end
 
 ---Get font size for a specific frame based on its effective category
@@ -853,7 +875,8 @@ local function CreateBuffFrame(buff, category)
         or "main"
     local catSettings = GetCategorySettings(effectiveCat)
     local iconSize = catSettings.iconSize or 64
-    frame:SetSize(iconSize, iconSize)
+    local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconSize)
+    frame:SetSize(iconWidth, iconSize)
 
     -- Icon + border textures
     local displayIcon = buff.displayIcon
@@ -916,7 +939,7 @@ local function CreateBuffFrame(buff, category)
     if buff.key == "food" then
         frame.foodLabel = frame:CreateFontString(nil, "OVERLAY")
         frame.foodLabel:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
-        local flSize = math.max(8, (catSettings.iconSize or 64) * 0.22)
+        local flSize = max(8, (catSettings.iconSize or 64) * 0.22)
         frame.foodLabel:SetFont(fontPath, flSize, "OUTLINE")
         frame.foodLabel:SetTextColor(1, 1, 1, 1)
         frame.foodLabel:Hide()
@@ -961,7 +984,8 @@ local function GetOrCreateExtraFrame(frame, index)
     local effectiveCat = GetEffectiveCategory(frame)
     local catSettings = GetCategorySettings(effectiveCat)
     local iconSize = catSettings.iconSize or 64
-    extra:SetSize(iconSize, iconSize)
+    local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconSize)
+    extra:SetSize(iconWidth, iconSize)
 
     CreateIconTextures(extra, nil)
 
@@ -1000,7 +1024,7 @@ local function GetOrCreateExtraFrame(frame, index)
 end
 
 -- Helper to position frames within a container using specified settings
-local function PositionFramesInContainer(container, frames, iconSize, spacing, direction)
+local function PositionFramesInContainer(container, frames, iconWidth, iconHeight, spacing, direction)
     local count = #frames
     if count == 0 then
         return
@@ -1010,18 +1034,18 @@ local function PositionFramesInContainer(container, frames, iconSize, spacing, d
         frame:ClearAllPoints()
         if direction == "LEFT" then
             -- Grow left: first icon at right edge, subsequent icons to the left
-            frame:SetPoint("RIGHT", container, "RIGHT", -((i - 1) * (iconSize + spacing)), 0)
+            frame:SetPoint("RIGHT", container, "RIGHT", -((i - 1) * (iconWidth + spacing)), 0)
         elseif direction == "RIGHT" then
             -- Grow right: first icon at left edge, subsequent icons to the right
-            frame:SetPoint("LEFT", container, "LEFT", (i - 1) * (iconSize + spacing), 0)
+            frame:SetPoint("LEFT", container, "LEFT", (i - 1) * (iconWidth + spacing), 0)
         elseif direction == "UP" then
-            frame:SetPoint("BOTTOM", container, "BOTTOM", 0, (i - 1) * (iconSize + spacing))
+            frame:SetPoint("BOTTOM", container, "BOTTOM", 0, (i - 1) * (iconHeight + spacing))
         elseif direction == "DOWN" then
-            frame:SetPoint("TOP", container, "TOP", 0, -((i - 1) * (iconSize + spacing)))
+            frame:SetPoint("TOP", container, "TOP", 0, -((i - 1) * (iconHeight + spacing)))
         else -- CENTER (horizontal)
-            local totalWidth = count * iconSize + (count - 1) * spacing
-            local startX = -totalWidth / 2 + iconSize / 2
-            frame:SetPoint("CENTER", container, "CENTER", startX + (i - 1) * (iconSize + spacing), 0)
+            local totalWidth = count * iconWidth + (count - 1) * spacing
+            local startX = -totalWidth / 2 + iconWidth / 2
+            frame:SetPoint("CENTER", container, "CENTER", startX + (i - 1) * (iconWidth + spacing), 0)
         end
     end
 end
@@ -1042,7 +1066,7 @@ local function GetSortedCategories()
     for i, category in ipairs(CATEGORIES) do
         sorted[#sorted + 1] = { name = category, index = i }
     end
-    table.sort(sorted, function(a, b)
+    tsort(sorted, function(a, b)
         local aPri = db.categorySettings and db.categorySettings[a.name] and db.categorySettings[a.name].priority
             or defaults.categorySettings[a.name].priority
         local bPri = db.categorySettings and db.categorySettings[b.name] and db.categorySettings[b.name].priority
@@ -1068,16 +1092,17 @@ local function BuildLayoutSignature(frames)
     for i, frame in ipairs(frames) do
         keys[i] = (frame.buffDef and frame.buffDef.key) or frame.key or ""
     end
-    return table.concat(keys, ",")
+    return tconcat(keys, ",")
 end
 
 ---Position frames with variable sizes inside the main container, centering smaller frames on the cross-axis.
 ---@param container table
 ---@param frames table[]
----@param sizes number[] per-frame icon sizes
+---@param widths number[] per-frame icon widths
+---@param heights number[] per-frame icon heights
 ---@param spacings number[] per-frame absolute spacing values
 ---@param direction string grow direction
-local function PositionFramesVariable(container, frames, sizes, spacings, direction)
+local function PositionFramesVariable(container, frames, widths, heights, spacings, direction)
     local count = #frames
     if count == 0 then
         return
@@ -1086,11 +1111,12 @@ local function PositionFramesVariable(container, frames, sizes, spacings, direct
     -- Anchor points place frames at the center of the cross-axis edge,
     -- so smaller frames are automatically centered — no manual offset needed.
     local offset = 0
+    local isVertical = direction == "UP" or direction == "DOWN"
     -- Hoist container width for CENTER mode (constant across iterations)
     local containerWidth = (direction == "CENTER") and container:GetWidth() or 0
 
     for i, frame in ipairs(frames) do
-        local size = sizes[i]
+        local mainSize = isVertical and heights[i] or widths[i]
 
         frame:ClearAllPoints()
         if direction == "LEFT" then
@@ -1103,13 +1129,13 @@ local function PositionFramesVariable(container, frames, sizes, spacings, direct
             frame:SetPoint("TOP", container, "TOP", 0, -offset)
         else -- CENTER (horizontal)
             local startX = -containerWidth / 2 + offset
-            frame:SetPoint("CENTER", container, "CENTER", startX + size / 2, 0)
+            frame:SetPoint("CENTER", container, "CENTER", startX + widths[i] / 2, 0)
         end
 
         -- Advance offset for next frame
         if i < count then
-            local gap = math.max(spacings[i], spacings[i + 1])
-            offset = offset + size + gap
+            local gap = max(spacings[i], spacings[i + 1])
+            offset = offset + mainSize + gap
         end
     end
 end
@@ -1130,9 +1156,11 @@ local function PositionMainContainer(mainFrameBuffs)
         local isVertical = direction == "UP" or direction == "DOWN"
 
         -- Collect per-frame sizes and spacings based on effective category
-        local sizes = {}
+        local widths = {}
+        local heights = {}
         local spacings = {} -- absolute pixel spacing per frame
-        local maxCross = 0
+        local maxWidth = 0
+        local maxHeight = 0
         local settingsCache = {} -- avoid redundant GetCategorySettings calls for same category
         for i, frame in ipairs(mainFrameBuffs) do
             local effectiveCat = GetEffectiveCategory(frame)
@@ -1142,28 +1170,35 @@ local function PositionMainContainer(mainFrameBuffs)
                 settingsCache[effectiveCat] = settings
             end
             local iconSize = settings.iconSize or 64
-            sizes[i] = iconSize
-            spacings[i] = math.floor(iconSize * (settings.spacing or 0.2))
-            frame:SetSize(iconSize, iconSize)
-            if iconSize > maxCross then
-                maxCross = iconSize
+            local iconWidth = GetEffectiveWidth(settings.iconWidth, iconSize)
+            widths[i] = iconWidth
+            heights[i] = iconSize
+            local mainDim = isVertical and iconSize or iconWidth
+            spacings[i] = floor(mainDim * (settings.spacing or 0.2))
+            frame:SetSize(iconWidth, iconSize)
+            if iconWidth > maxWidth then
+                maxWidth = iconWidth
+            end
+            if iconSize > maxHeight then
+                maxHeight = iconSize
             end
         end
 
         -- Compute total main-axis extent
         local totalMain = 0
-        for i = 1, #sizes do
-            totalMain = totalMain + sizes[i]
-            if i < #sizes then
-                totalMain = totalMain + math.max(spacings[i], spacings[i + 1])
+        for i = 1, #widths do
+            local mainSize = isVertical and heights[i] or widths[i]
+            totalMain = totalMain + mainSize
+            if i < #widths then
+                totalMain = totalMain + max(spacings[i], spacings[i + 1])
             end
         end
 
         -- Size mainFrame to fit contents
         if isVertical then
-            mainFrame:SetSize(maxCross, math.max(totalMain, maxCross))
+            mainFrame:SetSize(maxWidth, max(totalMain, maxHeight))
         else
-            mainFrame:SetSize(math.max(totalMain, maxCross), maxCross)
+            mainFrame:SetSize(max(totalMain, maxWidth), maxHeight)
         end
 
         -- Re-anchor based on growth direction so first icon stays at anchor position
@@ -1174,7 +1209,7 @@ local function PositionMainContainer(mainFrameBuffs)
         mainFrame:ClearAllPoints()
         mainFrame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
 
-        PositionFramesVariable(mainFrame, mainFrameBuffs, sizes, spacings, direction)
+        PositionFramesVariable(mainFrame, mainFrameBuffs, widths, heights, spacings, direction)
         mainFrame:Show()
     else
         lastMainSignature = ""
@@ -1202,26 +1237,29 @@ local function PositionSplitCategory(category, frames)
         local anchor = DIRECTION_ANCHORS[direction] or "CENTER"
         local pos = catSettings.position or { point = "CENTER", x = 0, y = 0 }
         local iconSize = catSettings.iconSize or 64
-        local spacing = math.floor(iconSize * (catSettings.spacing or 0.2))
+        local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconSize)
+        local isVertical = direction == "UP" or direction == "DOWN"
+        local mainSize = isVertical and iconSize or iconWidth
+        local spacing = floor(mainSize * (catSettings.spacing or 0.2))
 
         -- Resize individual buff frames to category's icon size
         for _, frame in ipairs(frames) do
-            frame:SetSize(iconSize, iconSize)
+            frame:SetSize(iconWidth, iconSize)
         end
 
         -- Size category frame to fit contents
-        local isVertical = direction == "UP" or direction == "DOWN"
-        local totalSize = #frames * iconSize + (#frames - 1) * spacing
+        local crossSize = isVertical and iconWidth or iconSize
+        local totalSize = #frames * mainSize + (#frames - 1) * spacing
         if isVertical then
-            catFrame:SetSize(iconSize, math.max(totalSize, iconSize))
+            catFrame:SetSize(crossSize, max(totalSize, iconSize))
         else
-            catFrame:SetSize(math.max(totalSize, iconSize), iconSize)
+            catFrame:SetSize(max(totalSize, iconWidth), crossSize)
         end
 
         catFrame:ClearAllPoints()
         catFrame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
 
-        PositionFramesInContainer(catFrame, frames, iconSize, spacing, direction)
+        PositionFramesInContainer(catFrame, frames, iconWidth, iconSize, spacing, direction)
         catFrame:Show()
     else
         lastSplitSignatures[category] = ""
@@ -1347,7 +1385,7 @@ local function GenerateTestEntries()
             if not BR.BuffState.visibleByCategory[cat] then
                 BR.BuffState.visibleByCategory[cat] = {}
             end
-            table.insert(BR.BuffState.visibleByCategory[cat], entry)
+            tinsert(BR.BuffState.visibleByCategory[cat], entry)
         end
     end
 
@@ -1399,13 +1437,13 @@ ToggleTestMode = function(showLabels)
         -- Seed fake values for consistent display during test mode
         local db = BuffRemindersDB
         testModeData = {
-            fakeTotal = math.random(10, 20),
-            fakeRemaining = math.random(1, (db.defaults and db.defaults.expirationThreshold) or 15) * 60,
+            fakeTotal = random(10, 20),
+            fakeRemaining = random(1, (db.defaults and db.defaults.expirationThreshold) or 15) * 60,
             fakeMissing = {},
             showLabels = showLabels,
         }
         for i = 1, #RaidBuffs do
-            testModeData.fakeMissing[i] = math.random(1, 5)
+            testModeData.fakeMissing[i] = random(1, 5)
         end
         BR.SecureButtons.HideAllSecureFrames()
         lastMainSignature = ""
@@ -1558,7 +1596,7 @@ local function ApplyFoodFrameStyle(frame, label, hearty)
         frame.foodLabel:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
     end
     local size = frame:GetWidth()
-    local fontSize = math.max(8, size * 0.22)
+    local fontSize = max(8, size * 0.22)
     frame.foodLabel:SetFont(fontPath, fontSize, "OUTLINE")
     frame.foodLabel:SetTextColor(1, 1, 1, 1)
     if hearty then
@@ -1607,6 +1645,9 @@ local function ResolveConsumableFrame(frame)
     ClearFoodFrameStyle(frame)
     local def = frame.buffDef
     local fallback = def and (def.displayIcon or def.buffIconID)
+    if type(fallback) == "table" then
+        fallback = fallback[1]
+    end
     if fallback then
         frame.icon:SetTexture(fallback)
     end
@@ -1776,8 +1817,8 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
             local catSettings = GetCategorySettings(effectiveCat)
             local consumableSettings = GetCategorySettings("consumable")
             local iconSize = catSettings.iconSize or 64
-            local size = math.max(18, math.floor(iconSize * 0.45))
-            local btnSpacing = math.max(2, math.floor(size * 0.2))
+            local size = max(18, floor(iconSize * 0.45))
+            local btnSpacing = max(2, floor(size * 0.2))
             local subIconSide = consumableSettings.subIconSide or "BOTTOM"
             local subIconOffset = -6
             local itemCount = #items - 1
@@ -1792,7 +1833,7 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
                 if extra.qualityOverlay then
                     BR.SecureButtons.SetQualityOverlay(extra.qualityOverlay, items[i].craftedQuality, size)
                 end
-                extra.stackCount:SetFont(fontPath, math.max(10, math.floor(size * 0.45)), "OUTLINE")
+                extra.stackCount:SetFont(fontPath, max(12, floor(size * 0.45)), "OUTLINE")
                 extra.stackCount:SetText(items[i].count > 1 and tostring(items[i].count) or "")
                 extra.stackCount:Show()
                 extra.count:Hide()
@@ -1801,10 +1842,10 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
 
                 extra:ClearAllPoints()
                 if isSideways then
-                    local maxPerCol = math.max(1, math.floor((iconSize + btnSpacing) / (size + btnSpacing)))
+                    local maxPerCol = max(1, floor((iconSize + btnSpacing) / (size + btnSpacing)))
                     local row = idx % maxPerCol
-                    local col = math.floor(idx / maxPerCol)
-                    local thisColCount = math.min(maxPerCol, itemCount - col * maxPerCol)
+                    local col = floor(idx / maxPerCol)
+                    local thisColCount = min(maxPerCol, itemCount - col * maxPerCol)
                     local thisColHeight = thisColCount * size + (thisColCount - 1) * btnSpacing
                     local startY = (iconSize - thisColHeight) / 2
                     local yOff = -(startY + row * (size + btnSpacing))
@@ -1814,10 +1855,10 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
                         extra:SetPoint("TOPLEFT", frame, "TOPRIGHT", -subIconOffset + col * (size + btnSpacing), yOff)
                     end
                 else
-                    local maxPerRow = math.max(1, math.floor((iconSize + btnSpacing) / (size + btnSpacing)))
+                    local maxPerRow = max(1, floor((iconSize + btnSpacing) / (size + btnSpacing)))
                     local col = idx % maxPerRow
-                    local row = math.floor(idx / maxPerRow)
-                    local thisRowCount = math.min(maxPerRow, itemCount - row * maxPerRow)
+                    local row = floor(idx / maxPerRow)
+                    local thisRowCount = min(maxPerRow, itemCount - row * maxPerRow)
                     local thisRowWidth = thisRowCount * size + (thisRowCount - 1) * btnSpacing
                     local startX = (iconSize - thisRowWidth) / 2
                     local xOff = startX + col * (size + btnSpacing)
@@ -1918,8 +1959,8 @@ local function UpdatePetLabels(frame, petAction)
     end
 
     local ratio = scale / 100
-    local nameSize = math.max(7, math.floor(frame:GetWidth() * 0.18 * ratio))
-    local familySize = math.max(7, math.floor(nameSize * 0.85))
+    local nameSize = max(7, floor(frame:GetWidth() * 0.18 * ratio))
+    local familySize = max(7, floor(nameSize * 0.85))
     frame._br_pet_name_text:SetFont(fontPath, nameSize, "OUTLINE")
     frame._br_pet_name_text:ClearAllPoints()
     frame._br_pet_name_text:SetPoint("TOP", frame, "BOTTOM", 0, -2)
@@ -1954,19 +1995,19 @@ end
 
 local function SetupPetExtraFrame(frame, index, action, entry, cachedGlow, frameList)
     local extra = GetOrCreateExtraFrame(frame, index)
-        extra:SetParent(frame:GetParent())
-        extra:SetSize(frame:GetWidth(), frame:GetHeight())
-        extra.icon:SetTexture(action.icon)
-        extra.count:Hide()
-        extra.stackCount:Hide()
-        extra._br_pet_spell = action.spellName
-        extra._br_pet_spec_icon = action.petSpecIcon
-        UpdatePetLabels(extra, action)
-        BR.SecureButtons.ReapplyPetSpecIconIfHovered(extra)
-        extra:Show()
-        SetExpirationGlow(extra, entry.shouldGlow, entry.category, cachedGlow)
-        if frameList then
-            frameList[#frameList + 1] = extra
+    extra:SetParent(frame:GetParent())
+    extra:SetSize(frame:GetWidth(), frame:GetHeight())
+    extra.icon:SetTexture(action.icon)
+    extra.count:Hide()
+    extra.stackCount:Hide()
+    extra._br_pet_spell = action.spellName
+    extra._br_pet_spec_icon = action.petSpecIcon
+    UpdatePetLabels(extra, action)
+    BR.SecureButtons.ReapplyPetSpecIconIfHovered(extra)
+    extra:Show()
+    SetExpirationGlow(extra, entry.shouldGlow, entry.category, cachedGlow)
+    if frameList then
+        frameList[#frameList + 1] = extra
     end
 end
 
@@ -2015,10 +2056,10 @@ local function ApplyPetDisplayMode(frame, entry, frameList)
         frame._br_pet_spec_icon = preferredAction and preferredAction.petSpecIcon
         UpdatePetLabels(frame, preferredAction)
     end
-        BR.SecureButtons.ReapplyPetSpecIconIfHovered(frame)
+    BR.SecureButtons.ReapplyPetSpecIconIfHovered(frame)
 
     -- Show extra frames for additional actions
-            local cachedGlow = entry.category and GetCachedGlowSettings(entry.category) or nil
+    local cachedGlow = entry.category and GetCachedGlowSettings(entry.category) or nil
     local extraIndex = 0
     for i, action in ipairs(entry.petActions) do
         local showAsExtra = (petMode == "expanded" and i >= 2)
@@ -2037,7 +2078,7 @@ RenderPetEntries = function()
         return
     end
     if not petEntries._sorted then
-        table.sort(petEntries, function(a, b)
+        tsort(petEntries, function(a, b)
             return a.sortOrder < b.sortOrder
         end)
     end
@@ -2069,17 +2110,8 @@ UpdateDisplay = function()
         -- Test mode: generate fake state entries through the normal pipeline
         GenerateTestEntries()
     else
-        -- Early exit: dead, instanced PvP, or player housing
-        local _, instanceType = IsInInstance()
-        local inHousing = C_Housing
-            and (
-                (C_Housing.IsInsideHouseOrPlot and C_Housing.IsInsideHouseOrPlot())
-                or (C_Housing.IsOnNeighborhoodMap and C_Housing.IsOnNeighborhoodMap())
-            )
-
         local isDead = UnitIsDeadOrGhost("player")
-        -- Absolute exit: nothing should show when dead or in housing
-        if isDead or inHousing then
+        if isDead then
             HideAllDisplayFrames()
             return
         end
@@ -2107,6 +2139,7 @@ UpdateDisplay = function()
         end
 
         -- PvP/Arena: still use fallback (not affected by Blizzard's non-secret change)
+        local _, instanceType = IsInInstance()
         if instanceType == "pvp" or instanceType == "arena" then
             HideAllDisplayFrames()
             UpdateFallbackDisplay()
@@ -2137,7 +2170,7 @@ UpdateDisplay = function()
 
         if entries and #entries > 0 then
             if not entries._sorted then
-                table.sort(entries, function(a, b)
+                tsort(entries, function(a, b)
                     return a.sortOrder < b.sortOrder
                 end)
             end
@@ -2330,7 +2363,7 @@ local function CreateCustomBuffFrameRuntime(customBuff)
     end
     local frame = CreateBuffFrame(customBuff, "custom")
     buffFrames[customBuff.key] = frame
-    table.insert(CustomBuffs, customBuff)
+    tinsert(CustomBuffs, customBuff)
     -- Only register for glow tracking if glowMode is not disabled
     if customBuff.glowMode ~= "disabled" then
         RegisterGlowBuff(customBuff, "custom")
@@ -2405,7 +2438,7 @@ local function RemoveCustomBuffFrame(key)
     -- Remove from BUFF_TABLES.custom array
     for i = #CustomBuffs, 1, -1 do
         if CustomBuffs[i].key == key then
-            table.remove(CustomBuffs, i)
+            tremove(CustomBuffs, i)
             break
         end
     end
@@ -2453,7 +2486,8 @@ local function UpdateVisuals()
         local effectiveCat = GetEffectiveCategory(frame)
         local catSettings = GetCategorySettings(effectiveCat)
         local size = catSettings.iconSize or 64
-        frame:SetSize(size, size)
+        local width = GetEffectiveWidth(catSettings.iconWidth, size)
+        frame:SetSize(width, size)
         frame.count:SetFont(fontPath, GetFrameFontSize(frame, 1), "OUTLINE")
 
         -- Text color and alpha
@@ -2466,7 +2500,7 @@ local function UpdateVisuals()
 
         -- Food label font update
         if frame.foodLabel then
-            local flSize = math.max(8, size * 0.22)
+            local flSize = max(8, size * 0.22)
             frame.foodLabel:SetFont(fontPath, flSize, "OUTLINE")
         end
         if frame.buffText then
@@ -2498,7 +2532,7 @@ local function UpdateVisuals()
         -- Update extra frames (expanded consumable display mode)
         if frame.extraFrames then
             for _, extra in ipairs(frame.extraFrames) do
-                extra:SetSize(size, size)
+                extra:SetSize(width, size)
                 UpdateIconStyling(extra, catSettings)
                 extra:SetAlpha(catSettings.iconAlpha or 1)
             end
@@ -2639,12 +2673,27 @@ local function SlashHandler(msg)
         BuffRemindersDB.locked = true
         BR.Movers.HideAll()
         BR.Components.RefreshAll()
-        print("|cff00ccffBuffReminders:|r 框架已鎖定。")
+        print("|cff00ccffBuffReminders:|r Frames locked.")
     elseif cmd == "unlock" then
         BuffRemindersDB.locked = false
         BR.Movers.UpdateAnchor()
         BR.Components.RefreshAll()
-        print("|cff00ccffBuffReminders:|r 框架已解鎖。")
+        print("|cff00ccffBuffReminders:|r Frames unlocked.")
+    elseif cmd == "minimap" then
+        if not BuffRemindersDB.minimap then
+            BuffRemindersDB.minimap = {}
+        end
+        BuffRemindersDB.minimap.hide = not BuffRemindersDB.minimap.hide
+        if BR.MinimapButton then
+            if BuffRemindersDB.minimap.hide then
+                BR.MinimapButton.Icon:Hide("BuffReminders")
+                print("|cff00ccff增益提醒:|r 小地圖按鈕隱藏。")
+            else
+                BR.MinimapButton.Icon:Show("BuffReminders")
+                print("|cff00ccff增益提醒:|r 小地圖按鈕顯示。")
+            end
+        end
+        BR.Components.RefreshAll()
     else
         BR.Options.Toggle()
     end
@@ -2654,6 +2703,7 @@ end
 eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -2673,6 +2723,8 @@ eventFrame:RegisterEvent("PET_BAR_UPDATE")
 eventFrame:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
 eventFrame:RegisterEvent("PET_STABLE_UPDATE")
 eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+eventFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
+eventFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
 eventFrame:RegisterEvent("PLAYER_DIFFICULTY_CHANGED")
 eventFrame:RegisterEvent("PLAYER_UPDATE_RESTING")
 eventFrame:RegisterEvent("BAG_UPDATE_DELAYED")
@@ -2712,7 +2764,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
         -- ====================================================================
         -- Versioned migrations — each runs exactly once, tracked by dbVersion
         -- ====================================================================
-        local DB_VERSION = 17
+        local DB_VERSION = 21
 
         local migrations = {
             -- [1] Consolidate all pre-versioning migrations (v2.8 → v3.x)
@@ -3145,6 +3197,86 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
                 db.showOnlyOnReadyCheck = nil
                 db.readyCheckDuration = nil
             end,
+
+            -- [18] Add housing = false to existing categoryVisibility entries
+            [18] = function()
+                if db.categoryVisibility then
+                    for _, cat in ipairs({ "raid", "presence", "targeted", "self", "pet", "consumable", "custom" }) do
+                        local vis = db.categoryVisibility[cat]
+                        if vis and vis.housing == nil then
+                            vis.housing = false
+                        end
+                    end
+                end
+            end,
+
+            -- [19] Custom buffs now use per-buff loadConditions; migrate category-level custom visibility
+            [19] = function()
+                -- Carry over old category-level settings to each existing custom buff
+                local oldVis = db.categoryVisibility and db.categoryVisibility.custom
+                local oldReadyCheck = db.categorySettings
+                    and db.categorySettings.custom
+                    and db.categorySettings.custom.showOnlyOnReadyCheck
+                if db.customBuffs then
+                    for _, buff in pairs(db.customBuffs) do
+                        if not buff.loadConditions then
+                            -- Migrate from category visibility or use old defaults
+                            local lc = {}
+                            if oldVis then
+                                -- Preserve user's per-content-type choices
+                                for _, key in ipairs({ "openWorld", "scenario", "dungeon", "raid", "housing" }) do
+                                    if oldVis[key] == false then
+                                        lc[key] = false
+                                    end
+                                end
+                                if oldVis.dungeonDifficulty then
+                                    lc.dungeonDifficulty = {}
+                                    for dk, dv in pairs(oldVis.dungeonDifficulty) do
+                                        lc.dungeonDifficulty[dk] = dv
+                                    end
+                                end
+                                if oldVis.raidDifficulty then
+                                    lc.raidDifficulty = {}
+                                    for dk, dv in pairs(oldVis.raidDifficulty) do
+                                        lc.raidDifficulty[dk] = dv
+                                    end
+                                end
+                            else
+                                -- No custom visibility was set; apply old default (housing off)
+                                lc.housing = false
+                            end
+                            if oldReadyCheck then
+                                lc.readyCheckOnly = true
+                            end
+                            -- Only store if any value is non-default
+                            if next(lc) then
+                                buff.loadConditions = lc
+                            end
+                        end
+                    end
+                end
+                -- Clean up category-level keys
+                if db.categoryVisibility then
+                    db.categoryVisibility.custom = nil
+                end
+                if db.categorySettings and db.categorySettings.custom then
+                    db.categorySettings.custom.showOnlyOnReadyCheck = nil
+                end
+            end,
+
+            -- [20] Ensure minimap table exists for LibDBIcon
+            [20] = function()
+                if not db.minimap then
+                    db.minimap = {}
+                end
+            end,
+
+            -- [21] Enable delve food by default (was opt-in, now opt-out)
+            [21] = function()
+                if db.enabledBuffs and db.enabledBuffs.delveFood == false then
+                    db.enabledBuffs.delveFood = nil
+                end
+            end,
         }
 
         -- Run pending migrations
@@ -3236,10 +3368,40 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
 
         local slashInfo = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontDisable")
         slashInfo:SetPoint("TOPLEFT", openBtn, "BOTTOMLEFT", 0, -12)
-        slashInfo:SetText("指令: /br, /br lock, /br unlock, /br test")
+        slashInfo:SetText("指令: /br, /br lock, /br unlock, /br test, /br minimap")
 
         local category = Settings.RegisterCanvasLayoutCategory(settingsPanel, settingsPanel.name)
         Settings.RegisterAddOnCategory(category)
+
+        -- Minimap button (LibDBIcon)
+        local LDB = LibStub("LibDataBroker-1.1", true)
+        local LDBIcon = LDB and LibStub("LibDBIcon-1.0", true)
+        if LDB and LDBIcon then
+            local dataObj = LDB:NewDataObject("BuffReminders", {
+                type = "launcher",
+                label = "增益提醒",
+                icon = "Interface\\AddOns\\BuffReminders\\icon",
+                OnClick = function(_, button)
+                    if button == "LeftButton" then
+                        BR.Options.Toggle()
+                    elseif button == "RightButton" then
+                        ToggleTestMode(true)
+                    end
+                end,
+                OnTooltipShow = function(tooltip)
+                    tooltip:AddLine("增益提醒")
+                    tooltip:AddLine("|cFFCFCFCF左鍵點擊|r: 選項")
+                    tooltip:AddLine("|cFFCFCFCF右鍵點擊|r: 測試模式")
+                    local owner = tooltip:GetOwner()
+                    if owner and owner:GetParent() == Minimap then
+                        tooltip:AddLine("|cFF808080/br minimap|r |cFF808080來切換按鈕顯示|r")
+                    end
+                end,
+            })
+            LDBIcon:Register("BuffReminders", dataObj, db.minimap)
+            LDBIcon:AddButtonToCompartment("BuffReminders")
+            BR.MinimapButton = { Icon = LDBIcon, DataObj = dataObj }
+        end
     elseif event == "PLAYER_ENTERING_WORLD" then
         -- Invalidate caches on zone change (spec may have auto-switched on entry)
         BR.BuffState.InvalidateContentTypeCache()
@@ -3248,6 +3410,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
         -- Sync flags with current state (in case of reload)
         inCombat = InCombatLockdown()
         isResting = IsResting()
+        BR.BuffState.SetInCombat(inCombat)
         BR.BuffState.SetInVehicle(UnitInVehicle("player") == true)
         BR.StateHelpers.ScanEatingState()
         ResolveFontPath()
@@ -3280,23 +3443,35 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
                 end
             end
         end)
+    elseif event == "ZONE_CHANGED_NEW_AREA" then
+        -- Delves have no loading screen, so PLAYER_ENTERING_WORLD doesn't fire.
+        -- GetInstanceInfo() still returns stale data when this event fires,
+        -- so defer the cache invalidation + refresh.
+        C_Timer.After(0.5, function()
+            BR.BuffState.InvalidateContentTypeCache()
+            SetDirty()
+        end)
     elseif event == "GROUP_ROSTER_UPDATE" then
         SetDirty()
     elseif event == "PLAYER_REGEN_ENABLED" then
         inCombat = inEncounter
+        BR.BuffState.SetInCombat(inCombat)
         BR.StateHelpers.ScanEatingState()
         BR.SecureButtons.RefreshOverlaySpells()
         StartUpdates()
     elseif event == "PLAYER_REGEN_DISABLED" then
         inCombat = true
+        BR.BuffState.SetInCombat(true)
         SetDirty()
     elseif event == "ENCOUNTER_START" then
         inEncounter = true
         inCombat = true
+        BR.BuffState.SetInCombat(true)
         SetDirty()
     elseif event == "ENCOUNTER_END" then
         inEncounter = false
         inCombat = inCombat and InCombatLockdown()
+        BR.BuffState.SetInCombat(inCombat)
         SetDirty()
     elseif event == "PLAYER_DEAD" then
         HideAllDisplayFrames()

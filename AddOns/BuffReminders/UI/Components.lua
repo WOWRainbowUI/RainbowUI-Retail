@@ -33,6 +33,11 @@ local _, BR = ...
 ---@field onChange fun(checked: boolean)
 ---@field tooltip? string|table
 
+-- Lua stdlib locals (avoid repeated global lookups in hot paths)
+local floor, max, min = math.floor, math.max, math.min
+local rad = math.rad
+local tinsert = table.insert
+
 local Components = BR.Components
 local RefreshableComponents = BR.RefreshableComponents
 
@@ -122,7 +127,7 @@ function BR.CreateButton(parent, text, onClick, tooltip)
 
     -- Auto-size based on text with padding
     local textWidth = btnText:GetStringWidth()
-    btn:SetSize(math.max(textWidth + 16, 60), 22)
+    btn:SetSize(max(textWidth + 16, 60), 22)
 
     -- Visual state tracking
     local isEnabled = true
@@ -188,7 +193,7 @@ function BR.CreateButton(parent, text, onClick, tooltip)
     function btn:SetText(newText)
         btnText:SetText(newText)
         local newWidth = btnText:GetStringWidth()
-        self:SetSize(math.max(newWidth + 16, 60), 22)
+        self:SetSize(max(newWidth + 16, 60), 22)
     end
 
     function btn:GetText()
@@ -370,7 +375,7 @@ function Components.Slider(parent, config)
     local valueText = valueBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     valueText:SetAllPoints()
     valueText:SetJustifyH("LEFT")
-    valueText:SetText(math.floor(currentValue) .. suffix)
+    valueText:SetText(floor(currentValue) .. suffix)
     holder.valueText = valueText
 
     local function ValueToPosition(val)
@@ -384,17 +389,17 @@ function Components.Slider(parent, config)
 
     local function PositionToValue(pos)
         local pct = pos / (sliderWidth - THUMB_WIDTH)
-        pct = math.max(0, math.min(1, pct))
+        pct = max(0, min(1, pct))
         local val = config.min + pct * (config.max - config.min)
         -- Snap to nearest multiple of step (aligned to 0, not min)
-        val = math.floor(val / step + 0.5) * step
-        return math.max(config.min, math.min(config.max, val))
+        val = floor(val / step + 0.5) * step
+        return max(config.min, min(config.max, val))
     end
 
     local function UpdateThumbPosition()
         local pos = ValueToPosition(currentValue)
         thumb:SetPoint("CENTER", trackBg, "LEFT", pos + THUMB_WIDTH / 2, 0)
-        trackFill:SetWidth(math.max(1, pos + THUMB_WIDTH / 2))
+        trackFill:SetWidth(max(1, pos + THUMB_WIDTH / 2))
     end
 
     local function UpdateVisual()
@@ -446,9 +451,9 @@ function Components.Slider(parent, config)
             local newVal = PositionToValue(localX)
             if newVal ~= currentValue then
                 currentValue = newVal
-                valueText:SetText(math.floor(currentValue) .. suffix)
+                valueText:SetText(floor(currentValue) .. suffix)
                 UpdateThumbPosition()
-                config.onChange(math.floor(currentValue))
+                config.onChange(floor(currentValue))
             end
         end
     end)
@@ -463,9 +468,9 @@ function Components.Slider(parent, config)
             local localX = (mouseX - frameLeft) / scale - THUMB_WIDTH / 2
             local newVal = PositionToValue(localX)
             currentValue = newVal
-            valueText:SetText(math.floor(currentValue) .. suffix)
+            valueText:SetText(floor(currentValue) .. suffix)
             UpdateVisual()
-            config.onChange(math.floor(currentValue))
+            config.onChange(floor(currentValue))
             isDragging = true
         end
     end)
@@ -488,11 +493,11 @@ function Components.Slider(parent, config)
     editBox:SetScript("OnEnterPressed", function(self)
         local num = tonumber(self:GetText())
         if num then
-            num = math.max(config.min, math.min(config.max, num))
+            num = max(config.min, min(config.max, num))
             currentValue = num
-            valueText:SetText(math.floor(currentValue) .. suffix)
+            valueText:SetText(floor(currentValue) .. suffix)
             UpdateVisual()
-            config.onChange(math.floor(currentValue))
+            config.onChange(floor(currentValue))
         end
         editContainer:Hide()
         valueBtn:Show()
@@ -510,12 +515,12 @@ function Components.Slider(parent, config)
 
     -- Track editbox for focus cleanup on panel hide
     if panelEditBoxes then
-        table.insert(panelEditBoxes, editBox)
+        tinsert(panelEditBoxes, editBox)
     end
 
     valueBtn:SetScript("OnClick", function()
         valueBtn:Hide()
-        editBox:SetText(tostring(math.floor(currentValue)))
+        editBox:SetText(tostring(floor(currentValue)))
         editContainer:Show()
         editBox:SetFocus()
         editBox:HighlightText()
@@ -538,11 +543,11 @@ function Components.Slider(parent, config)
                 -- Snap down to previous multiple of step
                 newVal = currentValue - remainder
             end
-            newVal = math.max(config.min, math.min(config.max, newVal))
+            newVal = max(config.min, min(config.max, newVal))
             currentValue = newVal
-            valueText:SetText(math.floor(currentValue) .. suffix)
+            valueText:SetText(floor(currentValue) .. suffix)
             UpdateVisual()
-            config.onChange(math.floor(currentValue))
+            config.onChange(floor(currentValue))
         end
     end)
 
@@ -588,7 +593,7 @@ function Components.Slider(parent, config)
     -- Public methods
     function holder:SetValue(val)
         currentValue = val
-        valueText:SetText(math.floor(currentValue) .. suffix)
+        valueText:SetText(floor(currentValue) .. suffix)
         UpdateVisual()
     end
 
@@ -613,7 +618,7 @@ function Components.Slider(parent, config)
     function holder:Refresh()
         if config.get then
             currentValue = config.get()
-            valueText:SetText(math.floor(currentValue) .. suffix)
+            valueText:SetText(floor(currentValue) .. suffix)
             UpdateVisual()
         end
         if config.enabled then
@@ -623,7 +628,7 @@ function Components.Slider(parent, config)
 
     -- Auto-register if refreshable
     if config.get or config.enabled then
-        table.insert(RefreshableComponents, holder)
+        tinsert(RefreshableComponents, holder)
     end
 
     return holder
@@ -764,6 +769,7 @@ end
 ---@field infoTooltip? string Optional info icon tooltip (format: "title|description")
 ---@field warningTooltip? string Optional warning icon tooltip (format: "title|description")
 ---@field onRightClick? fun() Optional right-click callback (wired on all interactive children)
+---@field labelFont? string Font object name for the label (default "GameFontHighlight")
 
 ---Create a modern flat-style checkbox with label and optional icons/tooltip
 ---@param parent table Parent frame
@@ -796,7 +802,7 @@ function Components.Checkbox(parent, config)
     end
 
     -- Label
-    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local label = holder:CreateFontString(nil, "OVERLAY", config.labelFont or "GameFontHighlight")
     label:SetPoint("LEFT", lastAnchor, "RIGHT", ICON_SPACING + 1, 0) -- Slightly more space before text
     label:SetText(config.label)
     holder.label = label
@@ -889,9 +895,135 @@ function Components.Checkbox(parent, config)
 
     -- Auto-register if refreshable
     if config.get or config.enabled then
-        table.insert(RefreshableComponents, holder)
+        tinsert(RefreshableComponents, holder)
     end
 
+    return holder
+end
+
+-- ============================================================================
+-- DIMENSION LINK (chain toggle between Width/Height sliders)
+-- ============================================================================
+
+local DimensionLinkColors = {
+    linked = { 0.9, 0.75, 0.2, 1 }, -- gold when linked
+    unlinked = { 0.35, 0.35, 0.35, 1 }, -- dim when unlinked
+    hover = { 1, 0.82, 0, 1 }, -- bright gold on hover
+    disabled = { 0.2, 0.2, 0.2, 1 },
+}
+
+---@class DimensionLinkConfig
+---@field isLinked fun(): boolean
+---@field onLink fun()
+---@field onUnlink fun()
+---@field enabled? fun(): boolean
+
+---Create a small link/unlink toggle button for pairing Width and Height sliders
+---@param parent Frame
+---@param config DimensionLinkConfig
+---@return Frame
+function Components.DimensionLink(parent, config)
+    local colors = DimensionLinkColors
+    local ICON_SIZE = 16
+    local BAR_W = 2
+    local BAR_H = 10
+    local BRIDGE_W = 6
+    local BRIDGE_H = 2
+    local BREAK_OFFSET = 3 -- vertical offset for broken chain look
+
+    local holder = CreateFrame("Button", nil, parent)
+    holder:SetSize(ICON_SIZE, 20)
+
+    -- Draw a chain/link icon: two vertical bars connected by horizontal bridges
+    local leftBar = holder:CreateTexture(nil, "ARTWORK")
+    leftBar:SetSize(BAR_W, BAR_H)
+
+    local rightBar = holder:CreateTexture(nil, "ARTWORK")
+    rightBar:SetSize(BAR_W, BAR_H)
+
+    local topBridge = holder:CreateTexture(nil, "ARTWORK")
+    topBridge:SetSize(BRIDGE_W, BRIDGE_H)
+
+    local bottomBridge = holder:CreateTexture(nil, "ARTWORK")
+    bottomBridge:SetSize(BRIDGE_W, BRIDGE_H)
+
+    local allParts = { leftBar, rightBar, topBridge, bottomBridge }
+    local isEnabled = true
+
+    local function PositionParts(linked)
+        leftBar:ClearAllPoints()
+        rightBar:ClearAllPoints()
+        topBridge:ClearAllPoints()
+        bottomBridge:ClearAllPoints()
+        if linked then
+            -- Aligned bars with bridges
+            leftBar:SetPoint("LEFT", holder, "CENTER", -BRIDGE_W / 2, 0)
+            rightBar:SetPoint("RIGHT", holder, "CENTER", BRIDGE_W / 2, 0)
+            topBridge:SetPoint("TOP", holder, "CENTER", 0, BAR_H / 2 - 1)
+            bottomBridge:SetPoint("BOTTOM", holder, "CENTER", 0, -(BAR_H / 2 - 1))
+        else
+            -- Offset bars: left shifts up, right shifts down (broken chain)
+            leftBar:SetPoint("LEFT", holder, "CENTER", -BRIDGE_W / 2, BREAK_OFFSET)
+            rightBar:SetPoint("RIGHT", holder, "CENTER", BRIDGE_W / 2, -BREAK_OFFSET)
+            topBridge:SetPoint("TOP", holder, "CENTER", 0, BAR_H / 2 - 1)
+            bottomBridge:SetPoint("BOTTOM", holder, "CENTER", 0, -(BAR_H / 2 - 1))
+        end
+    end
+
+    local function UpdateVisual()
+        local linked = config.isLinked()
+        local color = isEnabled and (linked and colors.linked or colors.unlinked) or colors.disabled
+        for _, part in ipairs(allParts) do
+            part:SetColorTexture(unpack(color))
+        end
+        topBridge:SetShown(linked)
+        bottomBridge:SetShown(linked)
+        PositionParts(linked)
+    end
+
+    holder:SetScript("OnClick", function()
+        if not isEnabled then
+            return
+        end
+        if config.isLinked() then
+            config.onUnlink()
+        else
+            config.onLink()
+        end
+        UpdateVisual()
+    end)
+
+    holder:SetScript("OnEnter", function()
+        if isEnabled then
+            local color = colors.hover
+            for _, part in ipairs(allParts) do
+                part:SetColorTexture(unpack(color))
+            end
+            local tipText = config.isLinked() and "取消連結寬度和高度" or "連結寬度和高度"
+            ShowTooltip(holder, tipText, "連結後，更改其中一個即可同時更新兩者。", "ANCHOR_TOP")
+        end
+    end)
+
+    holder:SetScript("OnLeave", function()
+        HideTooltip()
+        UpdateVisual()
+    end)
+
+    function holder:SetEnabled(enabled)
+        isEnabled = enabled
+        UpdateVisual()
+    end
+
+    function holder:Refresh()
+        if config.enabled then
+            isEnabled = config.enabled()
+        end
+        UpdateVisual()
+    end
+
+    tinsert(RefreshableComponents, holder)
+
+    UpdateVisual()
     return holder
 end
 
@@ -1049,7 +1181,7 @@ function Components.Toggle(parent, config)
 
     -- Auto-register if refreshable
     if config.get or config.enabled then
-        table.insert(RefreshableComponents, holder)
+        tinsert(RefreshableComponents, holder)
     end
 
     UpdateVisual()
@@ -1128,7 +1260,7 @@ local function CreateDropdownCore(parent, width, options, initialValue, onChange
     arrow:SetSize(12, 12)
     arrow:SetPoint("RIGHT", -6, 0)
     arrow:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
-    arrow:SetRotation(math.rad(-90)) -- points down
+    arrow:SetRotation(rad(-90)) -- points down
 
     -- ==================== MENU ====================
     -- Parent to dropdown parent so it scrolls with container
@@ -1163,7 +1295,7 @@ local function CreateDropdownCore(parent, width, options, initialValue, onChange
         scrollFrame:SetScript("OnMouseWheel", function(_, delta)
             local current = scrollFrame:GetVerticalScroll()
             local maxScroll = #options * ITEM_HEIGHT - visibleCount * ITEM_HEIGHT
-            local newScroll = math.max(0, math.min(maxScroll, current - delta * ITEM_HEIGHT * 3))
+            local newScroll = max(0, min(maxScroll, current - delta * ITEM_HEIGHT * 3))
             scrollFrame:SetVerticalScroll(newScroll)
         end)
     end
@@ -1297,7 +1429,7 @@ local function CreateDropdownCore(parent, width, options, initialValue, onChange
             item:SetScript("OnMouseWheel", function(_, delta)
                 local current = scrollFrame:GetVerticalScroll()
                 local maxScroll = #options * ITEM_HEIGHT - visibleCount * ITEM_HEIGHT
-                local newScroll = math.max(0, math.min(maxScroll, current - delta * ITEM_HEIGHT * 3))
+                local newScroll = max(0, min(maxScroll, current - delta * ITEM_HEIGHT * 3))
                 scrollFrame:SetVerticalScroll(newScroll)
             end)
         end
@@ -1384,7 +1516,7 @@ function Components.DirectionButtons(parent, config)
     -- Build options array
     local options = {}
     for _, dir in ipairs(directions) do
-        table.insert(options, { label = dirLabels[dir], value = dir })
+        tinsert(options, { label = dirLabels[dir], value = dir })
     end
 
     -- Container frame
@@ -1433,7 +1565,7 @@ function Components.DirectionButtons(parent, config)
 
     -- Auto-register if refreshable
     if config.get or config.enabled then
-        table.insert(RefreshableComponents, holder)
+        tinsert(RefreshableComponents, holder)
     end
 
     -- Backwards compatibility: empty buttons table (no longer used)
@@ -1447,6 +1579,7 @@ local CONTENT_TOGGLE_DEFS = {
     { key = "scenario", label = "場", tooltip = "場景事件 (探究、托加斯特、等等。)" },
     { key = "dungeon", label = "地", tooltip = "地下城 (包含 M+)" },
     { key = "raid", label = "團", tooltip = "團隊副本" },
+    { key = "housing", label = "家", tooltip = "住家" },
 }
 
 local DUNGEON_DIFF_DEFS = {
@@ -1589,20 +1722,45 @@ end
 
 Components.CreateSegmentedBar = CreateSegmentedBar
 
----Build barConfig for the content-type (W/S/D/R) bar
+---@class VisibilityTogglesConfig : ComponentConfig
+---@field category? CategoryName Category for DB-backed visibility toggles
+---@field store? VisibilityStore Custom data source (overrides category DB access)
+---@field onChange fun() Callback when visibility changes
+---@field noAutoRefresh? boolean Skip auto-registration in RefreshableComponents
+
+---@class VisibilityStore
+---@field getContent fun(key: string): boolean Whether content type is enabled
+---@field setContent fun(key: string) Toggle content type
+---@field getDiffTable fun(dbKey: string): table? Get difficulty sub-table (nil = all enabled)
+---@field ensureDiffTable fun(dbKey: string): table Get or create difficulty sub-table
+
+---Build a DB-backed VisibilityStore for a category
 ---@param category CategoryName
----@param onChange fun()
----@return table barConfig
-local function MakeContentBarConfig(category, onChange)
+---@return VisibilityStore
+local function MakeCategoryStore(category)
     return {
-        toggleDefs = CONTENT_TOGGLE_DEFS,
-        segmentWidth = DEFAULT_SEGMENT_W,
-        getState = function(key)
+        getContent = function(key)
             local db = BuffRemindersDB
-            local visibility = db.categoryVisibility and db.categoryVisibility[category]
-            return not visibility or visibility[key] ~= false
+            local vis = db.categoryVisibility and db.categoryVisibility[category]
+            return not vis or vis[key] ~= false
         end,
-        setState = function(key)
+        setContent = function(key)
+            local db = BuffRemindersDB
+            if not db.categoryVisibility then
+                db.categoryVisibility = {}
+            end
+            if not db.categoryVisibility[category] then
+                db.categoryVisibility[category] =
+                    { openWorld = true, scenario = true, dungeon = true, raid = true, housing = false }
+            end
+            db.categoryVisibility[category][key] = not db.categoryVisibility[category][key]
+        end,
+        getDiffTable = function(dbKey)
+            local db = BuffRemindersDB
+            local vis = db.categoryVisibility and db.categoryVisibility[category]
+            return vis and vis[dbKey]
+        end,
+        ensureDiffTable = function(dbKey)
             local db = BuffRemindersDB
             if not db.categoryVisibility then
                 db.categoryVisibility = {}
@@ -1610,22 +1768,20 @@ local function MakeContentBarConfig(category, onChange)
             if not db.categoryVisibility[category] then
                 db.categoryVisibility[category] = { openWorld = true, scenario = true, dungeon = true, raid = true }
             end
-            db.categoryVisibility[category][key] = not db.categoryVisibility[category][key]
+            if not db.categoryVisibility[category][dbKey] then
+                db.categoryVisibility[category][dbKey] = {}
+            end
+            return db.categoryVisibility[category][dbKey]
         end,
-        onChange = onChange,
     }
 end
-
----@class VisibilityTogglesConfig : ComponentConfig
----@field category CategoryName Category for visibility toggles
----@field onChange fun() Callback when visibility changes
 
 ---Create standalone content + difficulty visibility toggles (D/R expand to the right)
 ---@param parent table Parent frame
 ---@param config VisibilityTogglesConfig Configuration table
 ---@return table holder Frame containing segmented toggle bar with D/R difficulty expansion
 function Components.VisibilityToggles(parent, config)
-    local category = config.category
+    local store = config.store or MakeCategoryStore(config.category)
     local DIFF_SEGMENT_W = 26
 
     local holder = CreateFrame("Frame", nil, parent)
@@ -1634,39 +1790,12 @@ function Components.VisibilityToggles(parent, config)
     -- All toggle buttons across all bars (content + difficulty bars) for Refresh
     local allToggleButtons = {}
 
-    -- Helper: get/set difficulty sub-table
-    local function getDiffTable(dbKey)
-        local db = BuffRemindersDB
-        local vis = db.categoryVisibility and db.categoryVisibility[category]
-        return vis and vis[dbKey]
-    end
-
-    local function ensureDiffTable(dbKey)
-        local db = BuffRemindersDB
-        if not db.categoryVisibility then
-            db.categoryVisibility = {}
-        end
-        if not db.categoryVisibility[category] then
-            db.categoryVisibility[category] = { openWorld = true, scenario = true, dungeon = true, raid = true }
-        end
-        if not db.categoryVisibility[category][dbKey] then
-            db.categoryVisibility[category][dbKey] = {}
-        end
-        return db.categoryVisibility[category][dbKey]
-    end
-
-    local function isContentEnabled(contentKey)
-        local db = BuffRemindersDB
-        local vis = db.categoryVisibility and db.categoryVisibility[category]
-        return not vis or vis[contentKey] ~= false
-    end
-
     -- Compute tri-state visual for D/R buttons: "on" (all diffs enabled), "partial" (some), "off" (content disabled)
     local function getDiffVisualState(contentKey, diffDbKey, diffDefs)
-        if not isContentEnabled(contentKey) then
+        if not store.getContent(contentKey) then
             return "off"
         end
-        local diffTable = getDiffTable(diffDbKey)
+        local diffTable = store.getDiffTable(diffDbKey)
         if not diffTable then
             return "on" -- nil = all enabled
         end
@@ -1695,18 +1824,27 @@ function Components.VisibilityToggles(parent, config)
     contentLabel:SetPoint("LEFT", 0, 0)
     contentLabel:SetText("顯示在：")
 
-    -- Content bar with custom getVisualState for D/R
-    local contentBarConfig = MakeContentBarConfig(category, config.onChange)
-    contentBarConfig.getVisualState = function(key)
-        if key == "dungeon" then
-            return getDiffVisualState("dungeon", "dungeonDifficulty", DUNGEON_DIFF_DEFS)
-        elseif key == "raid" then
-            return getDiffVisualState("raid", "raidDifficulty", RAID_DIFF_DEFS)
-        else
-            return isContentEnabled(key) and "on" or "off"
-        end
-    end
-    local contentBar, contentButtons = CreateSegmentedBar(holder, contentBarConfig)
+    -- Content bar
+    local contentBar, contentButtons = CreateSegmentedBar(holder, {
+        toggleDefs = CONTENT_TOGGLE_DEFS,
+        segmentWidth = DEFAULT_SEGMENT_W,
+        getState = function(key)
+            return store.getContent(key)
+        end,
+        getVisualState = function(key)
+            if key == "dungeon" then
+                return getDiffVisualState("dungeon", "dungeonDifficulty", DUNGEON_DIFF_DEFS)
+            elseif key == "raid" then
+                return getDiffVisualState("raid", "raidDifficulty", RAID_DIFF_DEFS)
+            else
+                return store.getContent(key) and "on" or "off"
+            end
+        end,
+        setState = function(key)
+            store.setContent(key)
+        end,
+        onChange = config.onChange,
+    })
     contentBar:SetPoint("LEFT", contentLabel, "RIGHT", 6, 0)
 
     for _, btn in ipairs(contentButtons) do
@@ -1735,22 +1873,19 @@ function Components.VisibilityToggles(parent, config)
 
     -- Pre-create difficulty bars
     for _, mapping in ipairs(diffMappings) do
-        -- Difficulty bar: parented to holder so it's clipped by scroll frame
         local bar, buttons = CreateSegmentedBar(holder, {
             toggleDefs = mapping.diffDefs,
             segmentWidth = DIFF_SEGMENT_W,
             getState = function(key)
-                local diffTable = getDiffTable(mapping.diffDbKey)
+                local diffTable = store.getDiffTable(mapping.diffDbKey)
                 return not diffTable or diffTable[key] ~= false
             end,
             setState = function(key)
-                local t = ensureDiffTable(mapping.diffDbKey)
+                local t = store.ensureDiffTable(mapping.diffDbKey)
                 local wasEnabled = t[key] ~= false
                 t[key] = not wasEnabled
 
                 -- Auto-manage content type toggle
-                local db = BuffRemindersDB
-                local vis = db.categoryVisibility and db.categoryVisibility[category]
                 if wasEnabled then
                     -- Turned off: check if ALL are now off -> disable content type
                     local anyStillOn = false
@@ -1760,14 +1895,14 @@ function Components.VisibilityToggles(parent, config)
                             break
                         end
                     end
-                    if not anyStillOn and vis then
-                        vis[mapping.contentKey] = false
+                    if not anyStillOn and store.getContent(mapping.contentKey) then
+                        store.setContent(mapping.contentKey)
                     end
                 else
                     -- Turned on from off: if content type was disabled, re-enable it
                     -- and set only the clicked difficulty to true (others stay off)
-                    if vis and vis[mapping.contentKey] == false then
-                        vis[mapping.contentKey] = true
+                    if not store.getContent(mapping.contentKey) then
+                        store.setContent(mapping.contentKey)
                         for _, def in ipairs(mapping.diffDefs) do
                             t[def.key] = def.key == key
                         end
@@ -1845,7 +1980,9 @@ function Components.VisibilityToggles(parent, config)
         refreshAll()
     end
 
-    table.insert(RefreshableComponents, holder)
+    if not config.noAutoRefresh then
+        tinsert(RefreshableComponents, holder)
+    end
 
     return holder
 end
@@ -1943,7 +2080,7 @@ function Components.Dropdown(parent, config, _)
 
     -- Auto-register if refreshable
     if config.get or config.enabled then
-        table.insert(RefreshableComponents, holder)
+        tinsert(RefreshableComponents, holder)
     end
 
     return holder
@@ -2064,7 +2201,7 @@ function Components.TextInput(parent, config)
 
     -- Track editbox for focus cleanup
     if panelEditBoxes then
-        table.insert(panelEditBoxes, editBox)
+        tinsert(panelEditBoxes, editBox)
     end
 
     -- Callbacks
@@ -2111,7 +2248,7 @@ function Components.TextInput(parent, config)
 
     -- Auto-register if refreshable
     if config.get or config.enabled then
-        table.insert(RefreshableComponents, holder)
+        tinsert(RefreshableComponents, holder)
     end
 
     return holder
@@ -2169,8 +2306,8 @@ function Components.NumericStepper(parent, config)
     end
 
     local function ClampAndSet(val)
-        val = math.max(config.min or 0, math.min(config.max or 100, val))
-        val = math.floor(val / step + 0.5) * step
+        val = max(config.min or 0, min(config.max or 100, val))
+        val = floor(val / step + 0.5) * step
         if val ~= currentValue then
             currentValue = val
             UpdateValueText()
@@ -2275,7 +2412,7 @@ function Components.NumericStepper(parent, config)
 
     -- Track editbox for focus cleanup on panel hide
     if panelEditBoxes then
-        table.insert(panelEditBoxes, editBox)
+        tinsert(panelEditBoxes, editBox)
     end
 
     valueBtn:SetScript("OnClick", function()
@@ -2283,12 +2420,12 @@ function Components.NumericStepper(parent, config)
             return
         end
         valueBtn:Hide()
-        editBox:SetText(tostring(math.floor(currentValue)))
+        editBox:SetText(tostring(floor(currentValue)))
         editContainer:Show()
         editBox:SetFocus()
         editBox:HighlightText()
     end)
-    SetupTooltip(valueBtn, "Adjust value", "點選輸入或使用滑鼠滾輪", "ANCHOR_TOP")
+    SetupTooltip(valueBtn, "調整數值", "點選輸入或使用滑鼠滾輪", "ANCHOR_TOP")
 
     -- Hover effects (skip if button is at its limit)
     local function IsBtnAtLimit(btn)
@@ -2333,7 +2470,7 @@ function Components.NumericStepper(parent, config)
 
     -- Public methods
     function holder:SetValue(val)
-        currentValue = math.max(config.min or 0, math.min(config.max or 100, val))
+        currentValue = max(config.min or 0, min(config.max or 100, val))
         UpdateValueText()
     end
 
@@ -2374,7 +2511,7 @@ function Components.NumericStepper(parent, config)
 
     -- Auto-register if refreshable
     if config.get or config.enabled then
-        table.insert(RefreshableComponents, holder)
+        tinsert(RefreshableComponents, holder)
     end
 
     return holder
@@ -2385,7 +2522,7 @@ end
 -- ============================================================================
 
 ---@class ColorSwatchConfig : ComponentConfig
----@field label string Display label
+---@field label? string Display label
 ---@field get? fun(): number, number, number, number? Getter returning r, g, b [, a]
 ---@field enabled? fun(): boolean Getter for enabled state
 ---@field onChange fun(r: number, g: number, b: number, a?: number) Callback when color changes
@@ -2439,13 +2576,13 @@ function Components.ColorSwatch(parent, config)
     if config.hasOpacity then
         alphaText = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
         alphaText:SetPoint("LEFT", swatchBtn, "RIGHT", 4, 0)
-        alphaText:SetText(math.floor(currentA * 100) .. "%")
+        alphaText:SetText(floor(currentA * 100) .. "%")
     end
 
     local function UpdateSwatchColor()
         swatchBtn:SetBackdropColor(currentR, currentG, currentB, 1)
         if alphaText then
-            alphaText:SetText(math.floor(currentA * 100) .. "%")
+            alphaText:SetText(floor(currentA * 100) .. "%")
         end
     end
     UpdateSwatchColor()
@@ -2536,7 +2673,7 @@ function Components.ColorSwatch(parent, config)
 
     -- Auto-register if refreshable
     if config.get or config.enabled then
-        table.insert(RefreshableComponents, holder)
+        tinsert(RefreshableComponents, holder)
     end
 
     return holder
@@ -2665,8 +2802,8 @@ function Components.TextArea(parent, config)
     scrollFrame:EnableMouseWheel(true)
     scrollFrame:SetScript("OnMouseWheel", function(self, delta)
         local current = self:GetVerticalScroll()
-        local maxScroll = math.max(0, self:GetScrollChild():GetHeight() - self:GetHeight())
-        local newScroll = math.max(0, math.min(maxScroll, current - delta * 20))
+        local maxScroll = max(0, self:GetScrollChild():GetHeight() - self:GetHeight())
+        local newScroll = max(0, min(maxScroll, current - delta * 20))
         self:SetVerticalScroll(newScroll)
     end)
 
@@ -2723,7 +2860,7 @@ function Components.TextArea(parent, config)
         local text = self:GetText()
         local _, fontHeight = self:GetFont()
         local lineCount = select(2, string.gsub(text, "\n", "\n")) + 1
-        local contentHeight = math.max(config.height - 4, fontHeight * lineCount + 12)
+        local contentHeight = max(config.height - 4, fontHeight * lineCount + 12)
         self:SetHeight(contentHeight)
 
         if config.onTextChanged then
@@ -2733,7 +2870,7 @@ function Components.TextArea(parent, config)
 
     -- Track editbox for focus cleanup
     if panelEditBoxes then
-        table.insert(panelEditBoxes, editBox)
+        tinsert(panelEditBoxes, editBox)
     end
 
     -- Public methods
@@ -2758,6 +2895,225 @@ function Components.TextArea(parent, config)
     end
 
     return holder
+end
+
+-- ============================================================================
+-- APPEARANCE GRID
+-- ============================================================================
+-- Declarative 2-column, 4-row grid of appearance controls:
+--   Row 1: Width [link] Height
+--   Row 2: Zoom         Border
+--   Row 3: Spacing      Alpha
+--   Row 4: Text [+-] [color]
+
+---@class AppearanceGridConfig
+---@field get fun(key: string, default: any): any  Read setting value
+---@field set fun(key: string, value: any)          Write setting value
+---@field setMulti fun(changes: table)              Batch write settings
+---@field isLinked fun(): boolean                   Are width/height linked?
+---@field onLink fun()                              Called when user re-links dimensions
+---@field onUnlink fun()                            Called when user unlinks dimensions
+---@field enabled? fun(): boolean                   Wraps all controls (nil = always enabled)
+---@field masqueCheck? fun(): boolean               Returns true when Masque is active (disables zoom/border)
+
+---Create a 2-column appearance grid with standard layout
+---@param parent Frame
+---@param config AppearanceGridConfig
+---@return {frame: Frame, height: number, holders: table}
+function Components.AppearanceGrid(parent, config)
+    local LW = 50 -- labelWidth for all sliders
+    local LINK_X = 216 -- labelWidth(50) + sliderWidth(100) + value(60) + gap(6)
+    local COL2 = 240 -- LINK_X + linkIcon(16) + gap(8)
+    local ROW_H = 24
+    local GRID_HEIGHT = 96
+
+    local frame = CreateFrame("Frame", nil, parent)
+    frame:SetPoint("TOPLEFT")
+    frame:SetSize(480, GRID_HEIGHT)
+
+    local enabled = config.enabled
+    local masqueCheck = config.masqueCheck
+
+    -- Enabled helpers
+    local function baseEnabled()
+        return not enabled or enabled()
+    end
+    local function masqueEnabled()
+        return baseEnabled() and (not masqueCheck or not masqueCheck())
+    end
+
+    -- Forward declarations for cross-refresh
+    local widthHolder, heightHolder
+
+    -- Row 1: Width [link] Height
+    widthHolder = Components.Slider(frame, {
+        label = "Width",
+        min = 16,
+        max = 128,
+        labelWidth = LW,
+        get = function()
+            local w = config.get("iconWidth", nil)
+            return w or config.get("iconSize", 64)
+        end,
+        enabled = enabled and baseEnabled or nil,
+        onChange = function(val)
+            if config.isLinked() then
+                config.set("iconSize", val)
+            else
+                config.set("iconWidth", val)
+            end
+            if heightHolder then
+                heightHolder:Refresh()
+            end
+        end,
+    })
+    widthHolder:SetPoint("TOPLEFT", 0, 0)
+
+    local linkBtn = Components.DimensionLink(frame, {
+        isLinked = config.isLinked,
+        enabled = enabled and baseEnabled or nil,
+        onLink = config.onLink,
+        onUnlink = config.onUnlink,
+    })
+    linkBtn:SetPoint("TOPLEFT", LINK_X, 0)
+
+    heightHolder = Components.Slider(frame, {
+        label = "Height",
+        min = 16,
+        max = 128,
+        labelWidth = LW,
+        get = function()
+            return config.get("iconSize", 64)
+        end,
+        enabled = enabled and baseEnabled or nil,
+        onChange = function(val)
+            config.set("iconSize", val)
+            if widthHolder then
+                widthHolder:Refresh()
+            end
+        end,
+    })
+    heightHolder:SetPoint("TOPLEFT", COL2, 0)
+
+    -- Row 2: Zoom, Border
+    local zoomHolder = Components.Slider(frame, {
+        label = "Zoom",
+        min = 0,
+        max = 15,
+        labelWidth = LW,
+        suffix = "%",
+        get = function()
+            return config.get("iconZoom", BR.DEFAULT_ICON_ZOOM)
+        end,
+        enabled = masqueCheck and masqueEnabled or (enabled and baseEnabled or nil),
+        onChange = function(val)
+            config.set("iconZoom", val)
+        end,
+    })
+    zoomHolder:SetPoint("TOPLEFT", 0, -ROW_H)
+
+    local borderHolder = Components.Slider(frame, {
+        label = "Border",
+        min = 0,
+        max = 8,
+        labelWidth = LW,
+        suffix = "px",
+        get = function()
+            return config.get("borderSize", BR.DEFAULT_BORDER_SIZE)
+        end,
+        enabled = masqueCheck and masqueEnabled or (enabled and baseEnabled or nil),
+        onChange = function(val)
+            config.set("borderSize", val)
+        end,
+    })
+    borderHolder:SetPoint("TOPLEFT", COL2, -ROW_H)
+
+    -- Row 3: Spacing, Alpha
+    local spacingHolder = Components.Slider(frame, {
+        label = "Spacing",
+        min = 0,
+        max = 50,
+        labelWidth = LW,
+        suffix = "%",
+        get = function()
+            return floor((config.get("spacing", 0.2)) * 100)
+        end,
+        enabled = enabled and baseEnabled or nil,
+        onChange = function(val)
+            config.set("spacing", val / 100)
+        end,
+    })
+    spacingHolder:SetPoint("TOPLEFT", 0, -ROW_H * 2)
+
+    local alphaHolder = Components.Slider(frame, {
+        label = "Alpha",
+        min = 10,
+        max = 100,
+        labelWidth = LW,
+        suffix = "%",
+        get = function()
+            return floor((config.get("iconAlpha", 1)) * 100)
+        end,
+        enabled = enabled and baseEnabled or nil,
+        onChange = function(val)
+            config.set("iconAlpha", val / 100)
+        end,
+    })
+    alphaHolder:SetPoint("TOPLEFT", COL2, -ROW_H * 2)
+
+    -- Row 4: Text size stepper + color swatch
+    local textSizeHolder = Components.NumericStepper(frame, {
+        label = "Text",
+        labelWidth = LW,
+        min = 6,
+        max = 32,
+        get = function()
+            local textSize = config.get("textSize", nil)
+            if textSize then
+                return textSize
+            end
+            local iconSize = config.get("iconSize", 64)
+            return floor(iconSize * 0.32)
+        end,
+        enabled = enabled and baseEnabled or nil,
+        onChange = function(val)
+            config.set("textSize", val)
+        end,
+    })
+    textSizeHolder:SetPoint("TOPLEFT", 0, -ROW_H * 3)
+
+    local textColorHolder = Components.ColorSwatch(frame, {
+        hasOpacity = true,
+        get = function()
+            local tc = config.get("textColor", { 1, 1, 1 })
+            local ta = config.get("textAlpha", 1)
+            return tc[1], tc[2], tc[3], ta
+        end,
+        enabled = enabled and baseEnabled or nil,
+        onChange = function(r, g, b, a)
+            config.setMulti({
+                textColor = { r, g, b },
+                textAlpha = a or 1,
+            })
+        end,
+    })
+    textColorHolder:SetPoint("LEFT", textSizeHolder, "RIGHT", 12, 0)
+
+    return {
+        frame = frame,
+        height = GRID_HEIGHT,
+        holders = {
+            width = widthHolder,
+            height = heightHolder,
+            link = linkBtn,
+            zoom = zoomHolder,
+            border = borderHolder,
+            spacing = spacingHolder,
+            alpha = alphaHolder,
+            textSize = textSizeHolder,
+            textColor = textColorHolder,
+        },
+    }
 end
 
 ---Initialize panelEditBoxes reference (called from CreateOptionsPanel)
@@ -2994,7 +3350,7 @@ function Components.CollapsibleSection(parent, config)
             contentBg:Hide()
             holder:SetHeight(HEADER_HEIGHT)
         else
-            indicator:SetRotation(math.rad(-90)) -- points down
+            indicator:SetRotation(rad(-90)) -- points down
             contentBg:Show()
             holder:SetHeight(HEADER_HEIGHT + contentHeight + CONTENT_PADDING * 2)
         end
@@ -3125,7 +3481,7 @@ function Components.Banner(parent, config)
     end
 
     if config.visible then
-        table.insert(RefreshableComponents, holder)
+        tinsert(RefreshableComponents, holder)
     end
 
     return holder

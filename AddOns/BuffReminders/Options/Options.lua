@@ -5,6 +5,10 @@ local _, BR = ...
 -- ============================================================================
 -- Simplified 3-tab layout: Buffs, Display/Behavior, Settings
 
+-- Lua stdlib locals
+local floor, max, min, abs = math.floor, math.max, math.min, math.abs
+local tinsert, tsort, tremove = table.insert, table.sort, table.remove
+
 -- Aliases from BR namespace
 local Components = BR.Components
 local CreateButton = BR.CreateButton
@@ -16,7 +20,6 @@ local StyleEditBox = BR.StyleEditBox
 -- Shared constants
 local TEXCOORD_INSET = BR.TEXCOORD_INSET
 local DEFAULT_BORDER_SIZE = BR.DEFAULT_BORDER_SIZE
-local DEFAULT_ICON_ZOOM = BR.DEFAULT_ICON_ZOOM
 local OPTIONS_BASE_SCALE = BR.OPTIONS_BASE_SCALE
 
 -- Buff tables
@@ -120,7 +123,7 @@ local function CreateOptionsPanel()
 
     -- Forward declarations for banner system
     local UpdateBannerLayout
-    local housingBanner, masqueBanner, readyCheckBanner
+    local masqueBanner, readyCheckBanner
 
     -- Track all EditBoxes so we can clear focus when panel hides
     local panelEditBoxes = {}
@@ -181,7 +184,7 @@ local function CreateOptionsPanel()
     local MIN_PCT, MAX_PCT = 80, 150
 
     local currentScale = BuffRemindersDB.optionsPanelScale or BASE_SCALE
-    local currentPct = math.floor(currentScale / BASE_SCALE * 100 + 0.5)
+    local currentPct = floor(currentScale / BASE_SCALE * 100 + 0.5)
 
     -- Close button
     local closeBtn = CreateButton(panel, "x", function()
@@ -207,15 +210,15 @@ local function CreateOptionsPanel()
     scaleUp:SetText(">")
 
     local function UpdateScaleText()
-        local pct = math.floor((BuffRemindersDB.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
+        local pct = floor((BuffRemindersDB.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
         scaleValue:SetText(pct .. "%")
         scaleDown:SetTextColor(pct > MIN_PCT and 1 or 0.4, pct > MIN_PCT and 1 or 0.4, pct > MIN_PCT and 1 or 0.4)
         scaleUp:SetTextColor(pct < MAX_PCT and 1 or 0.4, pct < MAX_PCT and 1 or 0.4, pct < MAX_PCT and 1 or 0.4)
     end
 
     local function UpdateScale(delta)
-        local oldPct = math.floor((BuffRemindersDB.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
-        local newPct = math.max(MIN_PCT, math.min(MAX_PCT, oldPct + delta))
+        local oldPct = floor((BuffRemindersDB.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
+        local newPct = max(MIN_PCT, min(MAX_PCT, oldPct + delta))
         local newScale = newPct / 100 * BASE_SCALE
         BuffRemindersDB.optionsPanelScale = newScale
         panel:SetScale(newScale)
@@ -243,7 +246,7 @@ local function CreateOptionsPanel()
         UpdateScale(10)
     end)
     upBtn:SetScript("OnEnter", function()
-        local pct = math.floor((BuffRemindersDB.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
+        local pct = floor((BuffRemindersDB.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
         if pct < MAX_PCT then
             scaleUp:SetTextColor(1, 0.82, 0)
         end
@@ -332,17 +335,6 @@ local function CreateOptionsPanel()
     local BANNER_BETWEEN_GAP = 4
     local BANNER_BOTTOM_GAP = 0
 
-    housingBanner = Components.Banner(panel, {
-        text = "在住家社區增益追蹤是停用的",
-        visible = function()
-            return C_Housing
-                and (
-                    (C_Housing.IsInsideHouseOrPlot and C_Housing.IsInsideHouseOrPlot())
-                    or (C_Housing.IsOnNeighborhoodMap and C_Housing.IsOnNeighborhoodMap())
-                )
-        end,
-    })
-
     masqueBanner = Components.Banner(panel, {
         text = "縮放以及邊框設定是由Masque所管理",
         icon = "QuestNormal",
@@ -363,14 +355,6 @@ local function CreateOptionsPanel()
     UpdateBannerLayout = function()
         local bannerY = -30 - TAB_HEIGHT - BANNER_TOP_GAP
         local bannerOffset = 0
-
-        if housingBanner:IsShown() then
-            housingBanner:ClearAllPoints()
-            housingBanner:SetPoint("TOPLEFT", panel, "TOPLEFT", COL_PADDING, bannerY)
-            housingBanner:SetPoint("RIGHT", panel, "RIGHT", -COL_PADDING, 0)
-            bannerY = bannerY - BANNER_HEIGHT - BANNER_BETWEEN_GAP
-            bannerOffset = bannerOffset + BANNER_HEIGHT + BANNER_BETWEEN_GAP
-        end
 
         if masqueBanner:IsShown() then
             masqueBanner:ClearAllPoints()
@@ -423,7 +407,7 @@ local function CreateOptionsPanel()
                 local texture = GetBuffTexture(spellID)
                 if texture and not seenTextures[texture] then
                     seenTextures[texture] = true
-                    table.insert(icons, texture)
+                    tinsert(icons, texture)
                 end
             end
             return #icons > 0 and icons or nil
@@ -469,7 +453,7 @@ local function CreateOptionsPanel()
             end
 
             local function ToggleLabel(checked)
-                return checked and "準備確認" or "永遠"
+                return checked and "Ready check" or "Always"
             end
 
             local toggle
@@ -519,14 +503,14 @@ local function CreateOptionsPanel()
                 if buff.spellID then
                     local spellList = type(buff.spellID) == "table" and buff.spellID or { buff.spellID }
                     for _, id in ipairs(spellList) do
-                        table.insert(groupSpells[buff.groupId], id)
+                        tinsert(groupSpells[buff.groupId], id)
                     end
                 end
                 if buff.displaySpells then
                     local displayList = type(buff.displaySpells) == "table" and buff.displaySpells
                         or { buff.displaySpells }
                     for _, id in ipairs(displayList) do
-                        table.insert(groupDisplaySpells[buff.groupId], id)
+                        tinsert(groupDisplaySpells[buff.groupId], id)
                     end
                 end
                 -- Resolve display icon(s) per entry: displayIcon > displaySpells > primary spellID
@@ -541,7 +525,7 @@ local function CreateOptionsPanel()
                     for _, icon in ipairs(overrides) do
                         if not seen[icon] then
                             seen[icon] = true
-                            table.insert(groupIconOverrides[buff.groupId], icon)
+                            tinsert(groupIconOverrides[buff.groupId], icon)
                         end
                     end
                 elseif buff.displaySpells then
@@ -551,7 +535,7 @@ local function CreateOptionsPanel()
                         local texture = GetBuffTexture(id)
                         if texture and not seen[texture] then
                             seen[texture] = true
-                            table.insert(groupIconOverrides[buff.groupId], texture)
+                            tinsert(groupIconOverrides[buff.groupId], texture)
                         end
                     end
                 elseif buff.spellID then
@@ -560,7 +544,7 @@ local function CreateOptionsPanel()
                         local texture = GetBuffTexture(primarySpell)
                         if texture and not seen[texture] then
                             seen[texture] = true
-                            table.insert(groupIconOverrides[buff.groupId], texture)
+                            tinsert(groupIconOverrides[buff.groupId], texture)
                         end
                     end
                 end
@@ -709,10 +693,10 @@ local function CreateOptionsPanel()
         local sortedKeys = {}
         if db.customBuffs then
             for key in pairs(db.customBuffs) do
-                table.insert(sortedKeys, key)
+                tinsert(sortedKeys, key)
             end
         end
-        table.sort(sortedKeys)
+        tsort(sortedKeys)
 
         for _, key in ipairs(sortedKeys) do
             local customBuff = db.customBuffs[key]
@@ -736,21 +720,21 @@ local function CreateOptionsPanel()
             holder:SetPoint("TOPLEFT", 0, rowY)
             panel.buffCheckboxes[key] = holder
 
-            table.insert(panel.customBuffRows, holder)
+            tinsert(panel.customBuffRows, holder)
             rowY = rowY - ITEM_HEIGHT
         end
 
-        local addBtn = CreateButton(customBuffsContainer, "+ 新增自訂增益", function()
+        local addBtn = CreateButton(customBuffsContainer, "+ Add Custom Buff", function()
             ShowCustomBuffModal(nil, RenderCustomBuffRows)
         end)
         addBtn:SetPoint("TOPLEFT", 0, rowY - ADD_BTN_GAP)
-        table.insert(panel.customBuffRows, addBtn)
+        tinsert(panel.customBuffRows, addBtn)
 
-        customBuffsContainer:SetHeight(math.abs(rowY) + CUSTOM_CONTAINER_PAD)
+        customBuffsContainer:SetHeight(abs(rowY) + CUSTOM_CONTAINER_PAD)
 
         -- Recalculate content height when custom buffs change
         local effectiveRightY = customSectionStartY + rowY - CUSTOM_CONTAINER_PAD
-        buffsContent:SetHeight(math.max(math.abs(buffsLeftY), math.abs(effectiveRightY)) + 4)
+        buffsContent:SetHeight(max(abs(buffsLeftY), abs(effectiveRightY)) + 4)
 
         return rowY
     end
@@ -768,140 +752,55 @@ local function CreateOptionsPanel()
 
     local defNote = displayBehaviorContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     displayBehaviorLayout:AddText(defNote, 12, COMPONENT_GAP)
-    defNote:SetText("(全部類別都會繼承設定，除非被覆蓋)")
+    defNote:SetText("(All categories inherit these unless overridden)")
 
-    -- Fixed column layout: all sliders use default labelWidth (70)
-    local DEF_COL2 = 260 -- labelWidth(70) + sliderWidth(100) + value(60) + gap(30)
+    local function isDefDimensionsLinked()
+        local db = BuffRemindersDB.defaults
+        return not db or db.iconWidth == nil
+    end
 
-    local defSizeHolder = Components.Slider(displayBehaviorContent, {
-        label = "圖示大小",
-        min = 16,
-        max = 128,
-        get = function()
-            return BuffRemindersDB.defaults and BuffRemindersDB.defaults.iconSize or 64
+    local defGrid = Components.AppearanceGrid(displayBehaviorContent, {
+        get = function(key, default)
+            local d = BuffRemindersDB.defaults
+            return d and d[key] or default
         end,
-        onChange = function(val)
-            BR.Config.Set("defaults.iconSize", val)
+        set = function(key, value)
+            BR.Config.Set("defaults." .. key, value)
         end,
-    })
-
-    local defZoomHolder = Components.Slider(displayBehaviorContent, {
-        label = "圖示縮放",
-        min = 0,
-        max = 15,
-        get = function()
-            return BuffRemindersDB.defaults and BuffRemindersDB.defaults.iconZoom or DEFAULT_ICON_ZOOM
-        end,
-        enabled = function()
-            return not IsMasqueActive()
-        end,
-        suffix = "%",
-        onChange = function(val)
-            BR.Config.Set("defaults.iconZoom", val)
-        end,
-    })
-    displayBehaviorLayout:AddRow(
-        { { defSizeHolder, displayBehaviorX }, { defZoomHolder, displayBehaviorX + DEF_COL2 } },
-        COMPONENT_GAP
-    )
-
-    local defBorderHolder = Components.Slider(displayBehaviorContent, {
-        label = "邊框",
-        min = 0,
-        max = 8,
-        get = function()
-            return BuffRemindersDB.defaults and BuffRemindersDB.defaults.borderSize or DEFAULT_BORDER_SIZE
-        end,
-        enabled = function()
-            return not IsMasqueActive()
-        end,
-        suffix = "px",
-        onChange = function(val)
-            BR.Config.Set("defaults.borderSize", val)
-        end,
-    })
-
-    local defAlphaHolder = Components.Slider(displayBehaviorContent, {
-        label = "透明度",
-        min = 10,
-        max = 100,
-        get = function()
-            return math.floor((BuffRemindersDB.defaults and BuffRemindersDB.defaults.iconAlpha or 1) * 100)
-        end,
-        suffix = "%",
-        onChange = function(val)
-            BR.Config.Set("defaults.iconAlpha", val / 100)
-        end,
-    })
-    displayBehaviorLayout:AddRow(
-        { { defBorderHolder, displayBehaviorX }, { defAlphaHolder, displayBehaviorX + DEF_COL2 } },
-        COMPONENT_GAP
-    )
-
-    local defSpacingHolder = Components.Slider(displayBehaviorContent, {
-        label = "間距",
-        min = 0,
-        max = 50,
-        get = function()
-            return math.floor((BuffRemindersDB.defaults and BuffRemindersDB.defaults.spacing or 0.2) * 100)
-        end,
-        suffix = "%",
-        onChange = function(val)
-            BR.Config.Set("defaults.spacing", val / 100)
-        end,
-    })
-
-    local defTextSizeHolder = Components.NumericStepper(displayBehaviorContent, {
-        label = "文字",
-        min = 6,
-        max = 32,
-        get = function()
-            local db = BuffRemindersDB.defaults
-            if db and db.textSize then
-                return db.textSize
+        setMulti = function(changes)
+            local prefixed = {}
+            for k, v in pairs(changes) do
+                prefixed["defaults." .. k] = v
             end
-            -- Auto: derive from icon size (matches rendering behavior)
-            local iconSize = db and db.iconSize or 64
-            return math.floor(iconSize * 0.32)
+            BR.Config.SetMulti(prefixed)
         end,
-        onChange = function(val)
-            BR.Config.Set("defaults.textSize", val)
+        isLinked = isDefDimensionsLinked,
+        onLink = function()
+            BR.Config.Set("defaults.iconWidth", nil)
+            Components.RefreshAll()
         end,
+        onUnlink = function()
+            local db = BuffRemindersDB.defaults
+            BR.Config.Set("defaults.iconWidth", db and db.iconSize or 64)
+            Components.RefreshAll()
+        end,
+        masqueCheck = IsMasqueActive,
     })
-
-    local defTextColorHolder = Components.ColorSwatch(displayBehaviorContent, {
-        hasOpacity = true,
-        get = function()
-            local tc = BuffRemindersDB.defaults and BuffRemindersDB.defaults.textColor or { 1, 1, 1 }
-            local ta = BuffRemindersDB.defaults and BuffRemindersDB.defaults.textAlpha or 1
-            return tc[1], tc[2], tc[3], ta
-        end,
-        onChange = function(r, g, b, a)
-            BR.Config.SetMulti({
-                ["defaults.textColor"] = { r, g, b },
-                ["defaults.textAlpha"] = a or 1,
-            })
-        end,
-    })
-    displayBehaviorLayout:AddRow(
-        { { defSpacingHolder, displayBehaviorX }, { defTextSizeHolder, displayBehaviorX + DEF_COL2 } },
-        COMPONENT_GAP
-    )
-    defTextColorHolder:SetPoint("LEFT", defTextSizeHolder, "RIGHT", 12, 0) -- aligns alpha % with slider values
+    displayBehaviorLayout:Add(defGrid.frame, defGrid.height, COMPONENT_GAP)
 
     -- Font dropdown (global setting, uses LibSharedMedia)
     local function BuildFontOptions()
         local fontList = LSM:List("font")
         local opts = { { label = "預設", value = nil } }
         for _, name in ipairs(fontList) do
-            table.insert(opts, { label = name, value = name })
+            tinsert(opts, { label = name, value = name })
         end
         return opts
     end
 
     local defFontHolder = Components.Dropdown(displayBehaviorContent, {
         label = "字體:",
-        labelWidth = 70,
+        labelWidth = 50,
         options = BuildFontOptions(),
         width = 200,
         maxItems = 15,
@@ -923,7 +822,7 @@ local function CreateOptionsPanel()
     displayBehaviorLayout:Add(defFontHolder, nil, COMPONENT_GAP)
 
     local defDirHolder = Components.DirectionButtons(displayBehaviorContent, {
-        labelWidth = 70,
+        labelWidth = 50,
         get = function()
             return BuffRemindersDB.defaults and BuffRemindersDB.defaults.growDirection or "CENTER"
         end,
@@ -1055,7 +954,7 @@ local function CreateOptionsPanel()
     displayBehaviorLayout:Space(20 + COMPONENT_GAP)
 
     -- Per-Category Customization section
-    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "按類別自訂")
+    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "按類別自定義")
     displayBehaviorLayout:Space(COMPONENT_GAP)
 
     -- Create collapsible sections that chain-anchor to each other
@@ -1064,7 +963,7 @@ local function CreateOptionsPanel()
 
     local function UpdateAppearanceContentHeight()
         -- Calculate total height: fixed header area + all collapsible sections
-        local totalHeight = math.abs(displayBehaviorLayout:GetY())
+        local totalHeight = abs(displayBehaviorLayout:GetY())
         for _, sec in ipairs(categorySections) do
             totalHeight = totalHeight + sec:GetHeight() + 4
         end
@@ -1094,19 +993,18 @@ local function CreateOptionsPanel()
 
         local db = BuffRemindersDB
 
-        -- Visibility callback for W/S/D/R toggles
+        -- W/S/D/R content visibility + ready check (not for custom — custom uses per-buff loadConditions)
+        if category ~= "custom" then
         local function OnCategoryVisibilityChange()
             UpdateDisplay()
         end
 
-        -- W/S/D/R content visibility toggles
         local visToggles = Components.VisibilityToggles(catContent, {
             category = category,
             onChange = OnCategoryVisibilityChange,
         })
         catLayout:Add(visToggles, nil, SECTION_GAP)
 
-        -- Show only on ready check (per-category)
         local readyCheckHolder = Components.Checkbox(catContent, {
             label = "只在準備確認時顯示",
             get = function()
@@ -1122,6 +1020,15 @@ local function CreateOptionsPanel()
             end,
         })
         catLayout:Add(readyCheckHolder, nil, COMPONENT_GAP)
+        else
+            local banner = Components.Banner(catContent, {
+                text = "可視性與準備確認設定移動到每個增益的編輯選單中。",
+                color = "orange",
+                icon = "services-icon-warning",
+            })
+            catLayout:Add(banner, nil, SECTION_GAP)
+            banner:SetPoint("RIGHT", catContent, "RIGHT", 0, 0)
+        end
 
         -- Icons sub-header (all categories except custom)
         if category ~= "custom" then
@@ -1178,9 +1085,9 @@ local function CreateOptionsPanel()
                     local textSize = cs and cs.textSize
                     if not textSize then
                         local iconSize = (cs and cs.iconSize) or 64
-                        textSize = math.floor(iconSize * 0.32)
+                        textSize = floor(iconSize * 0.32)
                     end
-                    return math.max(6, math.floor(textSize * 0.8))
+                    return max(6, floor(textSize * 0.8))
                 end,
                 enabled = function()
                     local cs = db.categorySettings and db.categorySettings.raid
@@ -1267,6 +1174,27 @@ local function CreateOptionsPanel()
                     end,
                 })
                 catLayout:Add(specIconHolder, nil, COMPONENT_GAP)
+            end
+
+            if category == "consumable" then
+                local showTooltipsHolder = Components.Checkbox(catContent, {
+                    label = "顯示物品提示",
+                    get = function()
+                        return BR.Config.Get("defaults.showConsumableTooltips", false) ~= false
+                    end,
+                    enabled = function()
+                        local hcs = db.categorySettings and db.categorySettings[category]
+                        return hcs and hcs.clickable == true
+                    end,
+                    tooltip = {
+                        title = "顯示物品提示",
+                        desc = "當滑鼠懸停在消耗品圖示時，顯示物品的提示。",
+                    },
+                    onChange = function(checked)
+                        BR.Config.Set("defaults.showConsumableTooltips", checked)
+                    end,
+                })
+                catLayout:Add(showTooltipsHolder, nil, COMPONENT_GAP)
             end
 
             catLayout:SetX(0)
@@ -1409,7 +1337,7 @@ local function CreateOptionsPanel()
             function petPreviewHolder:Refresh()
                 updatePetDisplayModePreview(BR.Config.Get("defaults.petDisplayMode", "generic"))
             end
-            table.insert(BR.RefreshableComponents, petPreviewHolder)
+            tinsert(BR.RefreshableComponents, petPreviewHolder)
 
             local petLabelsHolder = Components.Checkbox(catContent, {
                 label = "Pet labels",
@@ -1495,7 +1423,7 @@ local function CreateOptionsPanel()
                     btn.UpdateVisual()
                 end
             end
-            table.insert(BR.RefreshableComponents, petClassBarRefreshHolder)
+            tinsert(BR.RefreshableComponents, petClassBarRefreshHolder)
         end
 
         -- Item display mode (consumable only, grouped with icon options)
@@ -1660,7 +1588,7 @@ local function CreateOptionsPanel()
             function previewHolder:Refresh()
                 updateDisplayModePreview(BR.Config.Get("defaults.consumableDisplayMode", "sub_icons"))
             end
-            table.insert(BR.RefreshableComponents, previewHolder)
+            tinsert(BR.RefreshableComponents, previewHolder)
 
             -- Sub-icon placement side (anchored below preview, visible only in sub_icons mode)
             local subIconSideHolder = Components.Dropdown(catContent, {
@@ -1708,6 +1636,21 @@ local function CreateOptionsPanel()
                 end,
             })
             catLayout:Add(showWithoutItemsHolder, nil, COMPONENT_GAP)
+
+            local delveFoodOnlyHolder = Components.Checkbox(catContent, {
+                label = "在探究只有探究食物",
+                get = function()
+                    return BR.Config.Get("defaults.delveFoodOnly", false) == true
+                end,
+                tooltip = {
+                    title = "在探究只有探究食物",
+                    desc = "當進入探究時，隱藏除探究食物外的所有消耗品提醒。",
+                },
+                onChange = function(checked)
+                    BR.Config.Set("defaults.delveFoodOnly", checked)
+                end,
+            })
+            catLayout:Add(delveFoodOnlyHolder, nil, COMPONENT_GAP)
         end
 
         -- Layout sub-header
@@ -1816,6 +1759,7 @@ local function CreateOptionsPanel()
                     local cs = db.categorySettings[category]
                     local appearanceKeys = {
                         "iconSize",
+                        "iconWidth",
                         "spacing",
                         "iconZoom",
                         "borderSize",
@@ -1844,6 +1788,8 @@ local function CreateOptionsPanel()
         })
         catLayout:Add(useCustomAppHolder, nil, COMPONENT_GAP)
 
+        local baseContentY = catLayout:GetY()
+
         -- Direction buttons (part of custom appearance)
         catLayout:SetX(10)
         local dirHolder = Components.DirectionButtons(catContent, {
@@ -1864,13 +1810,6 @@ local function CreateOptionsPanel()
         })
         catLayout:Add(dirHolder, nil, COMPONENT_GAP + DROPDOWN_EXTRA)
 
-        -- Appearance controls (3-row grid with fixed columns)
-        catLayout:SetX(10)
-        local appFrame = CreateFrame("Frame", nil, catContent)
-        appFrame:SetSize(380, 50)
-        catLayout:SetX(10)
-        catLayout:Add(appFrame, 0)
-
         -- Read the category's own saved value, falling back to defaults only if no value was saved.
         -- This avoids showing inherited defaults when useCustomAppearance is off, so toggling
         -- custom appearance off/on preserves the user's previously configured values.
@@ -1883,131 +1822,48 @@ local function CreateOptionsPanel()
             return db.defaults and db.defaults[key] or default
         end
 
-        local CAT_LW = 50 -- Shared label width for aligned columns
-        local CAT_COL2 = CAT_LW + 100 + 60 + 10 -- labelWidth + slider + value + gap = 220
+        local CAT_LW = 50 -- Shared label width for glow rows
+        local CAT_COL2 = 240 -- Column 2 offset for glow rows
 
-        local sizeHolder = Components.Slider(appFrame, {
-            label = "大小",
-            min = 16,
-            max = 128,
-            labelWidth = CAT_LW,
-            get = function()
-                return getCatOwnValue("iconSize", 64)
-            end,
-            enabled = isCustomAppearanceEnabled,
-            onChange = function(val)
-                BR.Config.Set("categorySettings." .. category .. ".iconSize", val)
-            end,
-        })
-        sizeHolder:SetPoint("TOPLEFT", 0, 0)
+        local function isCatDimensionsLinked()
+            local cs = db.categorySettings and db.categorySettings[category]
+            return not cs or cs.iconWidth == nil
+        end
 
-        local zoomHolder = Components.Slider(appFrame, {
-            label = "縮放",
-            min = 0,
-            max = 15,
-            labelWidth = CAT_LW,
-            get = function()
-                return getCatOwnValue("iconZoom", DEFAULT_ICON_ZOOM)
-            end,
-            enabled = function()
-                return isCustomAppearanceEnabled() and not IsMasqueActive()
-            end,
-            suffix = "%",
-            onChange = function(val)
-                BR.Config.Set("categorySettings." .. category .. ".iconZoom", val)
-            end,
-        })
-        zoomHolder:SetPoint("TOPLEFT", CAT_COL2, 0)
+        -- Appearance controls (2-col declarative grid)
+        catLayout:SetX(10)
+        local appFrame = CreateFrame("Frame", nil, catContent)
+        appFrame:SetSize(480, 50)
+        catLayout:Add(appFrame, 0)
 
-        local borderHolder = Components.Slider(appFrame, {
-            label = "邊框",
-            min = 0,
-            max = 8,
-            labelWidth = CAT_LW,
-            get = function()
-                return getCatOwnValue("borderSize", DEFAULT_BORDER_SIZE)
+        local catGrid = Components.AppearanceGrid(appFrame, {
+            get = getCatOwnValue,
+            set = function(key, value)
+                BR.Config.Set("categorySettings." .. category .. "." .. key, value)
             end,
-            enabled = function()
-                return isCustomAppearanceEnabled() and not IsMasqueActive()
-            end,
-            suffix = "px",
-            onChange = function(val)
-                BR.Config.Set("categorySettings." .. category .. ".borderSize", val)
-            end,
-        })
-        borderHolder:SetPoint("TOPLEFT", 0, -24)
-
-        local catAlphaHolder = Components.Slider(appFrame, {
-            label = "透明度",
-            min = 10,
-            max = 100,
-            labelWidth = CAT_LW,
-            get = function()
-                return math.floor((getCatOwnValue("iconAlpha", 1)) * 100)
-            end,
-            enabled = isCustomAppearanceEnabled,
-            suffix = "%",
-            onChange = function(val)
-                BR.Config.Set("categorySettings." .. category .. ".iconAlpha", val / 100)
-            end,
-        })
-        catAlphaHolder:SetPoint("TOPLEFT", CAT_COL2, -24)
-
-        local spacingHolder = Components.Slider(appFrame, {
-            label = "間距",
-            min = 0,
-            max = 50,
-            labelWidth = CAT_LW,
-            get = function()
-                return math.floor((getCatOwnValue("spacing", 0.2)) * 100)
-            end,
-            enabled = isCustomAppearanceEnabled,
-            suffix = "%",
-            onChange = function(val)
-                BR.Config.Set("categorySettings." .. category .. ".spacing", val / 100)
-            end,
-        })
-        spacingHolder:SetPoint("TOPLEFT", 0, -48)
-
-        local catTextSizeHolder = Components.NumericStepper(appFrame, {
-            label = "文字",
-            labelWidth = CAT_LW,
-            min = 6,
-            max = 32,
-            get = function()
-                local textSize = getCatOwnValue("textSize", nil)
-                if textSize then
-                    return textSize
+            setMulti = function(changes)
+                local prefixed = {}
+                for k, v in pairs(changes) do
+                    prefixed["categorySettings." .. category .. "." .. k] = v
                 end
-                -- Auto: derive from icon size
-                local iconSize = getCatOwnValue("iconSize", 64)
-                return math.floor(iconSize * 0.32)
+                BR.Config.SetMulti(prefixed)
+            end,
+            isLinked = isCatDimensionsLinked,
+            onLink = function()
+                BR.Config.Set("categorySettings." .. category .. ".iconWidth", nil)
+                Components.RefreshAll()
+            end,
+            onUnlink = function()
+                local size = getCatOwnValue("iconSize", 64)
+                BR.Config.Set("categorySettings." .. category .. ".iconWidth", size)
+                Components.RefreshAll()
             end,
             enabled = isCustomAppearanceEnabled,
-            onChange = function(val)
-                BR.Config.Set("categorySettings." .. category .. ".textSize", val)
-            end,
-        })
-        catTextSizeHolder:SetPoint("TOPLEFT", CAT_COL2, -48)
-
-        local catTextColorHolder = Components.ColorSwatch(appFrame, {
-            hasOpacity = true,
-            get = function()
-                local tc = getCatOwnValue("textColor", { 1, 1, 1 })
-                local ta = getCatOwnValue("textAlpha", 1)
-                return tc[1], tc[2], tc[3], ta
-            end,
-            enabled = isCustomAppearanceEnabled,
-            onChange = function(r, g, b, a)
-                BR.Config.SetMulti({
-                    ["categorySettings." .. category .. ".textColor"] = { r, g, b },
-                    ["categorySettings." .. category .. ".textAlpha"] = a or 1,
+            masqueCheck = IsMasqueActive,
                 })
-            end,
-        })
-        catTextColorHolder:SetPoint("LEFT", catTextSizeHolder, "RIGHT", 12, 0) -- aligns alpha % with slider values
 
-        -- Row 4: Glow settings
+        -- Glow settings (positioned after appearance grid)
+        local glowRowY = -catGrid.height
         local gridHeight
         if category == "pet" then
             -- Pets don't expire — single "Glow when missing" checkbox
@@ -2026,7 +1882,7 @@ local function CreateOptionsPanel()
                     })
                 end,
             })
-            catPetGlowHolder:SetPoint("TOPLEFT", 0, -72)
+            catPetGlowHolder:SetPoint("TOPLEFT", 0, glowRowY)
 
             local catGlowTypeOptions = {}
             for gi, gt in ipairs(GlowTypes) do
@@ -2052,11 +1908,12 @@ local function CreateOptionsPanel()
                     BR.Config.Set("categorySettings." .. category .. ".glowType", val)
                 end,
             }, "BuffReminders_" .. category .. "_GlowTypeDropdown")
-            catGlowTypeHolder:SetPoint("TOPLEFT", CAT_COL2, -72)
+            catGlowTypeHolder:SetPoint("TOPLEFT", CAT_COL2, glowRowY)
 
             local catUseCustomColorHolder = Components.Checkbox(appFrame, {
                 label = "顏色",
-                tooltip = "Use a custom glow color instead of the default.\nWhen off, glows use the native library color which looks more vibrant.",
+                labelFont = "GameFontNormalTiny",
+                tooltip = "使用自訂發光顏色而不是預設顏色。\n關閉時，發光使用原生顏色，看起來更加鮮豔。",
                 get = function()
                     return getCatOwnValue("useCustomGlowColor", false)
                 end,
@@ -2093,11 +1950,11 @@ local function CreateOptionsPanel()
                     BR.Config.Set("categorySettings." .. category .. ".glowSize", val)
                 end,
             })
-            catGlowSizeHolder:SetPoint("TOPLEFT", CAT_COL2, -96)
-            catUseCustomColorHolder:SetPoint("LEFT", catGlowSizeHolder, "RIGHT", 6, 0)
-            catGlowColorHolder:SetPoint("LEFT", catUseCustomColorHolder.label, "RIGHT", 4, 0)
+            catGlowSizeHolder:SetPoint("TOPLEFT", CAT_COL2, glowRowY - 24)
+            catUseCustomColorHolder:SetPoint("LEFT", catGlowSizeHolder, "RIGHT", 3, 0)
+            catGlowColorHolder:SetPoint("LEFT", catUseCustomColorHolder.label, "RIGHT", 2, 0)
 
-            gridHeight = 120 -- 5 rows (glow + size)
+            gridHeight = catGrid.height + 48
         else
             local function isGlowEnabled()
                 return isCustomAppearanceEnabled() and getCatOwnValue("showExpirationGlow", true) ~= false
@@ -2114,7 +1971,7 @@ local function CreateOptionsPanel()
                     Components.RefreshAll()
                 end,
             })
-            catGlowCheckHolder:SetPoint("TOPLEFT", 0, -72)
+            catGlowCheckHolder:SetPoint("TOPLEFT", 0, glowRowY)
 
             local catGlowThresholdHolder = Components.Slider(appFrame, {
                 min = 1,
@@ -2149,10 +2006,11 @@ local function CreateOptionsPanel()
                     BR.Config.Set("categorySettings." .. category .. ".glowType", val)
                 end,
             }, "BuffReminders_" .. category .. "_GlowTypeDropdown")
-            catGlowTypeHolder:SetPoint("TOPLEFT", CAT_COL2, -72)
+            catGlowTypeHolder:SetPoint("TOPLEFT", CAT_COL2, glowRowY)
 
             local catUseCustomColorHolder = Components.Checkbox(appFrame, {
                 label = "顏色",
+                labelFont = "GameFontNormalTiny",
                 tooltip = "使用自訂發光顏色而不是預設顏色。\n關閉時，發光使用原生顏色，看起來更加鮮豔。",
                 get = function()
                     return getCatOwnValue("useCustomGlowColor", false)
@@ -2203,20 +2061,47 @@ local function CreateOptionsPanel()
                     BR.Config.Set("categorySettings." .. category .. ".glowWhenMissing", checked)
                 end,
             })
-            catGlowWhenMissingHolder:SetPoint("TOPLEFT", 20, -96)
-            catGlowSizeHolder:SetPoint("TOPLEFT", CAT_COL2, -96)
-            catUseCustomColorHolder:SetPoint("LEFT", catGlowSizeHolder, "RIGHT", 6, 0)
-            catGlowColorHolder:SetPoint("LEFT", catUseCustomColorHolder.label, "RIGHT", 4, 0)
+            catGlowWhenMissingHolder:SetPoint("TOPLEFT", 20, glowRowY - 24)
+            catGlowSizeHolder:SetPoint("TOPLEFT", CAT_COL2, glowRowY - 24)
+            catUseCustomColorHolder:SetPoint("LEFT", catGlowSizeHolder, "RIGHT", 3, 0)
+            catGlowColorHolder:SetPoint("LEFT", catUseCustomColorHolder.label, "RIGHT", 2, 0)
 
-            gridHeight = 120 -- 5 rows with glow + when missing
+            gridHeight = catGrid.height + 48
         end
 
         -- Advance past the appFrame grid and finalize section height
         catLayout:Space(gridHeight)
         catLayout:SetX(0)
 
-        section:SetContentHeight(math.abs(catLayout:GetY()) + 10)
-        table.insert(categorySections, section)
+        local fullContentHeight = abs(catLayout:GetY()) + 10
+        local baseContentHeight = abs(baseContentY) + 10
+
+        local UpdateCustomAppearanceVisibility = function()
+            local show = isCustomAppearanceEnabled()
+            if show then
+                dirHolder:Show()
+                appFrame:Show()
+                section:SetContentHeight(fullContentHeight)
+            else
+                dirHolder:Hide()
+                appFrame:Hide()
+                section:SetContentHeight(baseContentHeight)
+            end
+            C_Timer.After(0, UpdateAppearanceContentHeight)
+        end
+
+        -- Register so panel OnShow syncs visibility state
+        tinsert(BR.RefreshableComponents, { Refresh = UpdateCustomAppearanceVisibility })
+
+        -- Set initial state (inline to avoid deferred timer during loop)
+        if isCustomAppearanceEnabled() then
+            section:SetContentHeight(fullContentHeight)
+        else
+            dirHolder:Hide()
+            appFrame:Hide()
+            section:SetContentHeight(baseContentHeight)
+        end
+        tinsert(categorySections, section)
         previousSection = section
     end
 
@@ -2243,6 +2128,27 @@ local function CreateOptionsPanel()
         end,
     })
     setLayout:Add(loginMsgHolder, nil, COMPONENT_GAP)
+
+    local minimapHolder = Components.Checkbox(settingsContent, {
+        label = "顯示小地圖按鈕",
+        get = function()
+            return not BuffRemindersDB.minimap or not BuffRemindersDB.minimap.hide
+        end,
+        onChange = function(checked)
+            if not BuffRemindersDB.minimap then
+                BuffRemindersDB.minimap = {}
+            end
+            BuffRemindersDB.minimap.hide = not checked
+            if BR.MinimapButton then
+                if checked then
+                    BR.MinimapButton.Icon:Show("BuffReminders")
+                else
+                    BR.MinimapButton.Icon:Hide("BuffReminders")
+                end
+            end
+        end,
+    })
+    setLayout:Add(minimapHolder, nil, COMPONENT_GAP)
 
     -- General Settings section
     LayoutSectionHeader(setLayout, settingsContent, "可視性")
@@ -2285,8 +2191,11 @@ local function CreateOptionsPanel()
     setLayout:Add(combatHolder, nil, COMPONENT_GAP)
 
     local combatExpiringHolder = Components.Checkbox(settingsContent, {
-        label = "戰鬥中隱藏過期",
-        tooltip = "透過僅顯示完全缺少的增益效果（而不是仍然有效但即將過期的增益效果）來減少戰鬥期間的混亂。",
+        label = "隱藏過期",
+        tooltip = {
+            title = "隱藏過期",
+            desc = "在戰鬥中，隱藏即將過期的增益效果，只顯示完全缺少的增益效果",
+        },
         get = function()
             return BuffRemindersDB.hideExpiringInCombat ~= false
         end,
@@ -2302,7 +2211,10 @@ local function CreateOptionsPanel()
 
     local vehicleHolder = Components.Checkbox(settingsContent, {
         label = "載具中隱藏",
-        tooltip = { title = "載具中隱藏", desc = "在任務載具中隱藏所有增益提醒。禁用後，團隊和在場增益仍然顯示" },
+        tooltip = {
+            title = "載具中隱藏",
+            desc = "在任務載具中隱藏所有增益提醒。禁用後，團隊和在場增益仍然顯示",
+},
         get = function()
             return BuffRemindersDB.hideAllInVehicle == true
         end,
@@ -2430,7 +2342,7 @@ local function CreateOptionsPanel()
     profLayout:Add(importButton, 22)
     importStatus:SetPoint("LEFT", importButton, "RIGHT", 10, 0)
 
-    profilesContent:SetHeight(math.abs(profLayout:GetY()) + 50)
+    profilesContent:SetHeight(abs(profLayout:GetY()) + 50)
 
     -- ========== BOTTOM BUTTONS ==========
     local bottomFrame = CreateFrame("Frame", nil, panel)
@@ -2461,7 +2373,7 @@ local function CreateOptionsPanel()
         self.text:SetText(BuffRemindersDB.locked and "解鎖" or "鎖定")
     end
     lockBtn:Refresh()
-    table.insert(BR.RefreshableComponents, lockBtn)
+    tinsert(BR.RefreshableComponents, lockBtn)
 
     local testBtn = CreateButton(btnHolder, "停止測試", function(self)
         local isOn = ToggleTestMode()
@@ -2595,9 +2507,9 @@ StaticPopupDialogs["BUFFREMINDERS_DELETE_CUSTOM"] = {
 }
 
 StaticPopupDialogs["BUFFREMINDERS_RESET_DEFAULTS"] = {
-    text = "重置增益提醒回預設嗎？\n\n這會清除所有自訂設置\n並重載介面。",
-    button1 = "Reset",
-    button2 = "Cancel",
+    text = "重置增益提醒回預設嗎？\n\n這會清除所有自訂設置\n並重載UI。",
+    button1 = RESET,
+    button2 = CANCEL,
     OnAccept = function()
         wipe(BuffRemindersDB)
         ReloadUI()
@@ -2648,7 +2560,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     end
 
     local MODAL_WIDTH = 460
-    local BASE_HEIGHT = 530
+    local BASE_HEIGHT = 636
     local ROW_HEIGHT = 26
     local CONTENT_LEFT = 20
     local ROWS_START_Y = -60
@@ -2658,10 +2570,10 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     if editingBuff then
         if type(editingBuff.spellID) == "table" then
             for _, id in ipairs(editingBuff.spellID) do
-                table.insert(existingSpellIDs, id)
+                tinsert(existingSpellIDs, id)
             end
         else
-            table.insert(existingSpellIDs, editingBuff.spellID)
+            tinsert(existingSpellIDs, editingBuff.spellID)
         end
     end
 
@@ -2747,7 +2659,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         sectionsFrame:ClearAllPoints()
         sectionsFrame:SetPoint("TOPLEFT", modal, "TOPLEFT", CONTENT_LEFT, addBtnY - 28)
 
-        local extraRows = math.max(0, rowCount - 1)
+        local extraRows = max(0, rowCount - 1)
         modal:SetHeight(BASE_HEIGHT + (extraRows * ROW_HEIGHT))
     end
 
@@ -2802,7 +2714,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             for i, rd in ipairs(spellRows) do
                 if rd == rowData then
                     rowData.frame:Hide()
-                    table.remove(spellRows, i)
+                    tremove(spellRows, i)
                     UpdateLayout()
                     break
                 end
@@ -2831,7 +2743,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             end
         end
 
-        table.insert(spellRows, rowData)
+        tinsert(spellRows, rowData)
 
         if initialSpellID then
             doLookup()
@@ -2847,7 +2759,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
 
     -- Sections frame (always visible, below add-spell button)
     sectionsFrame = CreateFrame("Frame", nil, modal)
-    sectionsFrame:SetSize(MODAL_WIDTH - 40, 350)
+    sectionsFrame:SetSize(MODAL_WIDTH - 40, 456)
 
     local function CreateSeparator(parent, yOff, width)
         local line = parent:CreateTexture(nil, "ARTWORK")
@@ -3007,6 +2919,86 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     })
     glowModeDropdown:SetPoint("TOPLEFT", 0, -192)
 
+    -- Load conditions section (per-buff content visibility)
+    CreateSeparator(sectionsFrame, -222)
+    CreateSectionHeader(sectionsFrame, "SHOW IN", 0, -231)
+
+    -- Local state for load conditions (read on save)
+    local loadConditions = {}
+    if editingBuff and editingBuff.loadConditions then
+        for k, v in pairs(editingBuff.loadConditions) do
+            if type(v) == "table" then
+                loadConditions[k] = {}
+                for dk, dv in pairs(v) do
+                    loadConditions[k][dk] = dv
+                end
+            else
+                loadConditions[k] = v
+            end
+        end
+    elseif not editingBuff then
+        -- New buff defaults: housing off (matches old category-level default)
+        loadConditions.housing = false
+    end
+
+    -- Reuse VisibilityToggles with a table-backed store instead of DB-backed
+    local visToggles = Components.VisibilityToggles(sectionsFrame, {
+        store = {
+            getContent = function(key)
+                return loadConditions[key] ~= false
+            end,
+            setContent = function(key)
+                if loadConditions[key] ~= false then
+                    loadConditions[key] = false
+                else
+                    loadConditions[key] = nil
+                end
+            end,
+            getDiffTable = function(dbKey)
+                return loadConditions[dbKey]
+            end,
+            ensureDiffTable = function(dbKey)
+                if not loadConditions[dbKey] then
+                    loadConditions[dbKey] = {}
+                end
+                return loadConditions[dbKey]
+            end,
+        },
+        noAutoRefresh = true,
+        onChange = function() end,
+    })
+    visToggles:SetPoint("TOPLEFT", 0, -248)
+
+    -- Ready check toggle
+    local lcReadyCheckToggle = Components.Toggle(sectionsFrame, {
+        label = "只有在準備確認",
+        checked = editingBuff and editingBuff.loadConditions and editingBuff.loadConditions.readyCheckOnly or false,
+        onChange = function(isChecked)
+            loadConditions.readyCheckOnly = isChecked or nil
+        end,
+    })
+    lcReadyCheckToggle:SetPoint("TOPLEFT", 0, -276)
+
+    -- Level filter dropdown
+    local levelFilterHolder = Components.Dropdown(sectionsFrame, {
+        label = "等級:",
+        labelWidth = 38,
+        width = 150,
+        options = {
+            { value = "any", label = "任何等級" },
+            { value = "maxLevel", label = "只限最大等級" },
+            { value = "belowMaxLevel", label = "低於最大等級" },
+        },
+        get = function()
+            local lf = loadConditions.levelFilter
+            return lf or "any"
+        end,
+        onChange = function(val)
+            loadConditions.levelFilter = (val ~= "any") and val or nil
+        end,
+    })
+    levelFilterHolder:SetPoint("TOPLEFT", 0, -298)
+
     -- Click action section
     CreateSeparator(sectionsFrame, -224)
     CreateSectionHeader(sectionsFrame, "點擊動作", 0, -233)
@@ -3026,7 +3018,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     -- Container for the conditional input (spell/item Lookup or macro text)
     actionInputHolder = CreateFrame("Frame", nil, sectionsFrame)
     actionInputHolder:SetSize(MODAL_WIDTH - 40, 26)
-    actionInputHolder:SetPoint("TOPLEFT", 0, -284)
+    actionInputHolder:SetPoint("TOPLEFT", 0, -390)
 
     -- Spell ID input with Lookup
     castSpellEditBox = CreateFrame("EditBox", nil, actionInputHolder)
@@ -3195,7 +3187,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             UpdateActionInputVisibility(value)
         end,
     })
-    actionTypeDropdown:SetPoint("TOPLEFT", 0, -254)
+    actionTypeDropdown:SetPoint("TOPLEFT", 0, -360)
 
     -- Initialize visibility for the current action type
     UpdateActionInputVisibility(existingActionType)
@@ -3229,7 +3221,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         local firstName = nil
         for _, rowData in ipairs(spellRows) do
             if rowData.validated and rowData.spellID then
-                table.insert(validatedIDs, rowData.spellID)
+                tinsert(validatedIDs, rowData.spellID)
                 if not firstName then
                     firstName = rowData.spellName
                 end
@@ -3272,6 +3264,41 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             end
         end
 
+        -- Only persist loadConditions if any value differs from default (all-enabled)
+        -- Clean up difficulty sub-tables where all entries are enabled (true/nil)
+        for _, diffKey in ipairs({ "dungeonDifficulty", "raidDifficulty" }) do
+            local dt = loadConditions[diffKey]
+            if dt then
+                local anyOff = false
+                for _, v in pairs(dt) do
+                    if v == false then
+                        anyOff = true
+                        break
+                    end
+                end
+                if not anyOff then
+                    loadConditions[diffKey] = nil
+                end
+            end
+        end
+
+        local savedLoadConditions = nil
+        local function hasNonDefault(t)
+            for _, v in pairs(t) do
+                if type(v) == "table" then
+                    if hasNonDefault(v) then
+                        return true
+                    end
+                else
+                    return true
+                end
+            end
+            return false
+        end
+        if hasNonDefault(loadConditions) then
+            savedLoadConditions = loadConditions
+        end
+
         local customBuff = {
             spellID = spellIDValue,
             key = key,
@@ -3286,6 +3313,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             castItemID = castItemIDValue,
             castMacro = castMacroValue,
             requireItemID = tonumber(strtrim(requireItemEditBox:GetText())) or nil,
+            loadConditions = savedLoadConditions,
         }
 
         BuffRemindersDB.customBuffs[key] = customBuff

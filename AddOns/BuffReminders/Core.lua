@@ -36,6 +36,7 @@ local _, BR = ...
 ---@field dungeon boolean
 ---@field scenario boolean
 ---@field raid boolean
+---@field housing boolean
 ---@field dungeonDifficulty? DungeonDifficulty
 ---@field raidDifficulty? RaidDifficulty
 
@@ -114,6 +115,7 @@ local RootSettings = {
 local CategorySettingKeys = {
     -- Appearance (visual properties)
     iconSize = "VisualsRefresh",
+    iconWidth = "VisualsRefresh",
     iconZoom = "VisualsRefresh",
     borderSize = "VisualsRefresh",
     textSize = "VisualsRefresh",
@@ -148,6 +150,7 @@ local CategorySettingKeys = {
 local DefaultSettingKeys = {
     -- Appearance
     iconSize = "VisualsRefresh",
+    iconWidth = "VisualsRefresh",
     iconZoom = "VisualsRefresh",
     borderSize = "VisualsRefresh",
     textSize = "VisualsRefresh",
@@ -165,8 +168,10 @@ local DefaultSettingKeys = {
     useCustomGlowColor = "VisualsRefresh",
     glowSize = "VisualsRefresh",
     showConsumablesWithoutItems = "DisplayRefresh",
+    delveFoodOnly = "DisplayRefresh",
     -- Consumable display mode
     consumableDisplayMode = "DisplayRefresh",
+    showConsumableTooltips = nil, -- No refresh needed, read at tooltip time
     -- Pet display mode
     petDisplayMode = "DisplayRefresh",
     petLabels = "DisplayRefresh",
@@ -264,6 +269,7 @@ local function ValidatePath(segments)
             local knownKeys = {
                 "position",
                 "iconSize",
+                "iconWidth",
                 "iconZoom",
                 "borderSize",
                 "textSize",
@@ -495,6 +501,7 @@ end
 -- Keys that are appearance-related (inherit from defaults when useCustomAppearance is false)
 local AppearanceKeys = {
     iconSize = true,
+    iconWidth = true,
     textSize = true,
     iconAlpha = true,
     textAlpha = true,

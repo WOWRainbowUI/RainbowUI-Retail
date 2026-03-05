@@ -26,6 +26,10 @@ local _, BR = ...
 ---@field eatingExpirationTime number?      -- GetTime()-based expiration of eating aura
 ---@field petActions PetActionList?           -- Expanded pet summon actions
 
+-- Lua stdlib locals (avoid repeated global lookups in hot paths)
+local floor = math.floor
+local tinsert = table.insert
+
 -- Buff tables from Buffs.lua (via BR namespace)
 local BUFF_TABLES = BR.BUFF_TABLES
 local BuffBeneficiaries = BR.BuffBeneficiaries
@@ -59,6 +63,21 @@ local inReadyCheck = false
 
 -- Vehicle state (set via SetInVehicle)
 local inVehicle = false
+
+-- Combat/encounter state (set via SetInCombat by the Display layer)
+-- IMPORTANT: This flag is the single source of truth for "are aura queries restricted?"
+-- within State.lua. It covers BOTH combat lockdown AND boss encounters.
+--
+-- Why not just call InCombatLockdown()? Because ENCOUNTER_START fires BEFORE
+-- InCombatLockdown() returns true — the player isn't in combat until their first hostile
+-- action lands on the boss. During that window (potentially hundreds of ms while a spell
+-- is traveling), the aura API is already restricted but InCombatLockdown() still returns
+-- false. Non-whitelisted spells (e.g. Devotion Aura 465) silently return nil from
+-- C_UnitAuras.GetUnitAuraBySpellID, causing false "missing" flashes.
+--
+-- The Display layer sets this flag on ENCOUNTER_START, PLAYER_REGEN_DISABLED, etc.,
+-- ensuring State.lua sees the restricted state as early as possible.
+local inCombat = false
 
 -- ============================================================================
 -- CACHED VALUES (invalidated by specific events)
@@ -121,9 +140,8 @@ local currentValidUnits = {}
 -- True in follower dungeons and delves where NPC companions can receive buffs.
 local includeNPCsInCounting = false
 
--- True when the player is in combat lockdown. Set once per Refresh() cycle in BuildValidUnitCache.
--- Used by CountMissingBuff to skip NPCs during combat (NPC buff spell IDs aren't combat-whitelisted).
-local refreshInCombat = false
+-- Note: inCombat (set via SetInCombat) is used by CountMissingBuff to skip NPCs during
+-- combat/encounters — NPC buff spell IDs aren't on the Blizzard aura whitelist.
 
 -- Aura-safe spell whitelist loaded from Data/CombatSafeSpells.lua
 local COMBAT_SAFE_SPELLS = BR.COMBAT_SAFE_SPELLS
@@ -319,9 +337,8 @@ local function BuildValidUnitCache()
     do
         -- Default: exclude NPCs from buff counting.
         -- Only whitelist specific content where NPC companions can receive player buffs.
-        local difficultyID, difficultyName = select(3, GetInstanceInfo())
-        includeNPCsInCounting = difficultyID == 205 or difficultyName == "Delves" -- Follower dungeon / Delves
-        refreshInCombat = InCombatLockdown()
+        local difficultyID = select(3, GetInstanceInfo())
+        includeNPCsInCounting = difficultyID == 205 or difficultyID == 208 -- Follower dungeon / Delves
     end
 
     local inRaid = IsInRaid()
@@ -422,11 +439,11 @@ end
 ---@param seconds number
 ---@return string
 local function FormatRemainingTime(seconds)
-    local mins = math.floor(seconds / 60)
+    local mins = floor(seconds / 60)
     if mins > 0 then
         return mins .. "m"
     else
-        return math.floor(seconds) .. "s"
+        return floor(seconds) .. "s"
     end
 end
 
@@ -446,9 +463,29 @@ local function IsBuffEnabled(key)
 end
 
 ---Get the current content type based on instance/zone (cached)
----@return "openWorld"|"dungeon"|"scenario"|"raid"
+---@return "openWorld"|"dungeon"|"scenario"|"raid"|"housing"
 local function GetCurrentContentType()
     if cachedContentType then
+        return cachedContentType
+    end
+
+    -- Check housing before instance type (housing zones may report as instanced)
+    if
+        C_Housing
+        and (
+            (C_Housing.IsInsideHouseOrPlot and C_Housing.IsInsideHouseOrPlot())
+            or (C_Housing.IsOnNeighborhoodMap and C_Housing.IsOnNeighborhoodMap())
+        )
+    then
+        cachedContentType = "housing"
+        return cachedContentType
+    end
+
+    -- Delves report inInstance=false but instanceType="scenario" and difficultyID=208;
+    -- check difficultyID first so they are correctly classified as scenarios.
+    local difficultyID = select(3, GetInstanceInfo())
+    if difficultyID == 208 then
+        cachedContentType = "scenario"
         return cachedContentType
     end
 
@@ -525,6 +562,52 @@ local function IsCategoryVisibleForContent(category)
     if catSettings and catSettings.showOnlyOnReadyCheck and not inReadyCheck then
         return false
     end
+    return true
+end
+
+---Check if a custom buff should be visible based on its per-buff loadConditions
+---@param buff CustomBuff
+---@return boolean
+local function IsCustomBuffVisibleForContent(buff)
+    if inVehicle then
+        return false
+    end
+    local lc = buff.loadConditions
+    if not lc then
+        return true
+    end -- nil = show everywhere
+
+    local contentType = GetCurrentContentType()
+    if lc[contentType] == false then
+        return false
+    end
+
+    -- Difficulty sub-filter
+    local diffKey = GetCurrentDifficultyKey()
+    if diffKey then
+        if contentType == "dungeon" and lc.dungeonDifficulty then
+            return lc.dungeonDifficulty[diffKey] ~= false
+        elseif contentType == "raid" and lc.raidDifficulty then
+            return lc.raidDifficulty[diffKey] ~= false
+        end
+    end
+
+    -- Per-buff ready check filter
+    if lc.readyCheckOnly and not inReadyCheck then
+        return false
+    end
+
+    -- Level filter
+    if lc.levelFilter then
+        local playerLevel = UnitLevel("player")
+        local maxLevel = GetMaxLevelForPlayerExpansion()
+        if lc.levelFilter == "maxLevel" and playerLevel < maxLevel then
+            return false
+        elseif lc.levelFilter == "belowMaxLevel" and playerLevel >= maxLevel then
+            return false
+        end
+    end
+
     return true
 end
 
@@ -612,7 +695,7 @@ local function CountMissingBuff(spellIDs, buffKey, playerOnly)
         -- UnitHasBuff returns nil causing false missing counts. Targeted buffs (HasPresenceBuff,
         -- IsPlayerBuffActive) use player-cast spell IDs that ARE whitelisted, so they
         -- still include NPCs via the unchanged includeNPCsInCounting check.
-        if data.isPlayer or (includeNPCsInCounting and not refreshInCombat) then
+        if data.isPlayer or (includeNPCsInCounting and not inCombat) then
             -- Check if unit's class benefits from this buff
             if not beneficiaries or beneficiaries[data.class] then
                 total = total + 1
@@ -729,9 +812,9 @@ local function ShouldShowTargetedBuff(spellIDs, requiredClass, beneficiaryRole, 
         -- Shortcut: check if the caster has this buff on themselves (combat-safe spell ID)
         local hasBuff, remaining = UnitHasBuff("player", casterBuffId)
         -- Update last target cache by scanning group for the original buff.
-        -- Only out of combat: the target-side spell may not be on the combat whitelist,
+        -- Only out of combat/encounter: the target-side spell may not be on the aura whitelist,
         -- so UnitHasBuff would return nil and incorrectly clear the cache.
-        if buffKey and not InCombatLockdown() then
+        if buffKey and not inCombat then
             if hasBuff then
                 local foundTarget = false
                 for _, data in ipairs(currentValidUnits) do
@@ -1175,7 +1258,8 @@ function BuffState.Refresh()
     currentWeaponEnchants.offHandExpiration = offExp
 
     local trackingMode = db.buffTrackingMode
-    local inCombat = InCombatLockdown()
+    -- Aura API is restricted in combat/encounters (inCombat set by Display layer)
+    -- and during M+ keystones (always restricted regardless of combat state).
     local isAuraRestricted = inCombat or GetCurrentDifficultyKey() == "mythicPlus"
     local hideExpiring = isAuraRestricted and db.hideExpiringInCombat ~= false
 
@@ -1345,6 +1429,7 @@ function BuffState.Refresh()
     -- Process consumable buffs
     local consumableVisible = IsCategoryVisibleForContent("consumable")
     local consGlow, consGlowMissing, consGlowThreshold = GetCategoryGlow("consumable")
+    local delveFoodOnly = db.defaults and db.defaults.delveFoodOnly and BR.IsInDelve()
     for i, buff in ipairs(Consumables) do
         local entry = GetOrCreateEntry(buff.key, "consumable", i)
         local settingKey = buff.groupId or buff.key
@@ -1356,6 +1441,7 @@ function BuffState.Refresh()
             and consumableVisible
             and hasCaster
             and PassesPreChecks(buff, nil, db)
+            and not (buff.key ~= "delveFood" and delveFoodOnly)
         then
             local shouldShow, remainingTime = ShouldShowConsumableBuff(
                 buff.spellID,
@@ -1380,7 +1466,6 @@ function BuffState.Refresh()
     end
 
     -- Process custom buffs (user-defined, flows through ShouldShowSelfBuff like self/pet)
-    local customVisible = IsCategoryVisibleForContent("custom")
     local customGlow, customGlowMissing, customGlowThreshold = GetCategoryGlow("custom")
     local skipSpellKnown = SKIP_SPELL_KNOWN_CATEGORIES["custom"]
     for i, buff in ipairs(CustomBuffs) do
@@ -1389,7 +1474,7 @@ function BuffState.Refresh()
 
         local shouldProcess = (not isAuraRestricted or IsAuraTrackable(buff))
             and IsBuffEnabled(settingKey)
-            and customVisible
+            and IsCustomBuffVisibleForContent(buff)
 
         -- If requireSpellKnown is true, check if player knows at least one spell
         if shouldProcess and buff.requireSpellKnown then
@@ -1448,7 +1533,7 @@ function BuffState.Refresh()
             if not BuffState.visibleByCategory[cat] then
                 BuffState.visibleByCategory[cat] = {}
             end
-            table.insert(BuffState.visibleByCategory[cat], entry)
+            tinsert(BuffState.visibleByCategory[cat], entry)
         end
     end
 
@@ -1499,6 +1584,13 @@ end
 ---@return boolean
 function BuffState.GetInVehicle()
     return inVehicle
+end
+
+---Set the combat/encounter state (single source of truth for aura restrictions)
+---Called by the Display layer on ENCOUNTER_START, PLAYER_REGEN_DISABLED, etc.
+---@param state boolean
+function BuffState.SetInCombat(state)
+    inCombat = state
 end
 
 -- ============================================================================
