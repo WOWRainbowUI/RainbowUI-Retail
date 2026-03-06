@@ -2463,7 +2463,7 @@ ShowGlowDemo = function()
         border:SetColorTexture(0, 0, 0, 1)
 
         local demoSize = BR.Config.Get("defaults.glowSize", 2)
-        Glow.Start(iconFrame, i, color, "BR_demo_" .. i, demoSize)
+        Glow.Start(iconFrame, i, color, "BR_demo_" .. i, demoSize, DEFAULT_BORDER_SIZE, DEFAULT_BORDER_SIZE)
         demoFrames[i] = iconFrame
 
         local typeLabel = demoPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -3000,8 +3000,8 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     levelFilterHolder:SetPoint("TOPLEFT", 0, -298)
 
     -- Click action section
-    CreateSeparator(sectionsFrame, -224)
-    CreateSectionHeader(sectionsFrame, "點擊動作", 0, -233)
+    CreateSeparator(sectionsFrame, -330)
+    CreateSectionHeader(sectionsFrame, "點擊動作", 0, -339)
 
     -- Determine existing action type
     local existingActionType = "none"

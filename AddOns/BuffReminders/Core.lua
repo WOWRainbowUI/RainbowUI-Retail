@@ -31,12 +31,17 @@ local _, BR = ...
 ---@field heroic? boolean
 ---@field mythic? boolean
 
+---@class ScenarioDifficulty
+---@field delves? boolean
+---@field others? boolean
+
 ---@class ContentVisibility
 ---@field openWorld boolean
 ---@field dungeon boolean
 ---@field scenario boolean
 ---@field raid boolean
 ---@field housing boolean
+---@field scenarioDifficulty? ScenarioDifficulty
 ---@field dungeonDifficulty? DungeonDifficulty
 ---@field raidDifficulty? RaidDifficulty
 
@@ -58,7 +63,7 @@ BR.RefreshableComponents = {}
 
 BR.TEXCOORD_INSET = 0.08
 BR.DEFAULT_BORDER_SIZE = 2
-BR.DEFAULT_ICON_ZOOM = 8 -- percentage (0.08 as inset)
+BR.DEFAULT_ICON_ZOOM = 0 -- percentage; base crop (TEXCOORD_INSET) is always applied separately
 BR.OPTIONS_BASE_SCALE = 1.2
 
 -- ============================================================================

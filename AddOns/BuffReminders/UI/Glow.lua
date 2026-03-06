@@ -24,17 +24,21 @@ BR.Glow.DEFAULT_COLOR = { 0.95, 0.95, 0.32, 1 }
 ---@param key string Unique key to namespace this border's state on the frame
 ---@param color number[]|nil {r, g, b [, a]} or nil for default color
 ---@param thickness? number Border thickness in pixels (default 2)
-function BR.Glow.PulsingBorderStart(frame, key, color, thickness)
+---@param xOffset? number Extra horizontal outward offset (default 0)
+---@param yOffset? number Extra vertical outward offset (default 0)
+function BR.Glow.PulsingBorderStart(frame, key, color, thickness, xOffset, yOffset)
     color = color or BR.Glow.DEFAULT_COLOR
     local cr, cg, cb, ca = color[1] or 1, color[2] or 1, color[3] or 1, color[4] or 1
     local stateKey = "_pulsingBorder_" .. key
     local state = frame[stateKey]
     thickness = thickness or 2
+    xOffset = xOffset or 0
+    yOffset = yOffset or 0
 
     if not state then
         local holder = CreateFrame("Frame", nil, frame)
-        holder:SetPoint("TOPLEFT", -thickness, thickness)
-        holder:SetPoint("BOTTOMRIGHT", thickness, -thickness)
+        holder:SetPoint("TOPLEFT", -xOffset, yOffset)
+        holder:SetPoint("BOTTOMRIGHT", xOffset, -yOffset)
         holder:SetFrameLevel(frame:GetFrameLevel() + 5)
         local t = holder:CreateTexture(nil, "OVERLAY")
         t:SetPoint("TOPLEFT")
@@ -63,8 +67,15 @@ function BR.Glow.PulsingBorderStart(frame, key, color, thickness)
         fade:SetToAlpha(0.3)
         fade:SetDuration(0.6)
         fade:SetSmoothing("IN_OUT")
-        state =
-            { holder = holder, anim = ag, edges = { t, b, l, r }, color = { cr, cg, cb, ca }, thickness = thickness }
+        state = {
+            holder = holder,
+            anim = ag,
+            edges = { t, b, l, r },
+            color = { cr, cg, cb, ca },
+            thickness = thickness,
+            xOffset = xOffset,
+            yOffset = yOffset,
+        }
         frame[stateKey] = state
     else
         local prev = state.color
@@ -74,14 +85,16 @@ function BR.Glow.PulsingBorderStart(frame, key, color, thickness)
             end
             state.color = { cr, cg, cb, ca }
         end
-        if state.thickness ~= thickness then
-            state.holder:SetPoint("TOPLEFT", -thickness, thickness)
-            state.holder:SetPoint("BOTTOMRIGHT", thickness, -thickness)
+        if state.thickness ~= thickness or state.xOffset ~= xOffset or state.yOffset ~= yOffset then
+            state.holder:SetPoint("TOPLEFT", -xOffset, yOffset)
+            state.holder:SetPoint("BOTTOMRIGHT", xOffset, -yOffset)
             state.edges[1]:SetHeight(thickness) -- top
             state.edges[2]:SetHeight(thickness) -- bottom
             state.edges[3]:SetWidth(thickness) -- left
             state.edges[4]:SetWidth(thickness) -- right
             state.thickness = thickness
+            state.xOffset = xOffset
+            state.yOffset = yOffset
         end
     end
     state.holder:Show()
@@ -117,16 +130,27 @@ BR.Glow.Types = {
 ---@param color number[]|nil {r, g, b, a} or nil for native library color
 ---@param key string Unique key for this glow instance
 ---@param size? number Glow thickness/scale (default 2)
-function BR.Glow.Start(frame, typeIndex, color, key, size)
+---@param xOffset? number Extra horizontal outward offset (default 0)
+---@param yOffset? number Extra vertical outward offset (default 0)
+function BR.Glow.Start(frame, typeIndex, color, key, size, xOffset, yOffset)
     size = size or 2
+    xOffset = xOffset or 0
+    yOffset = yOffset or 0
     if typeIndex == 1 then
-        LCG.PixelGlow_Start(frame, color, nil, nil, 10, size, nil, nil, nil, key)
+        LCG.PixelGlow_Start(frame, color, nil, nil, 10, size, xOffset, yOffset, false, key)
     elseif typeIndex == 2 then
-        LCG.AutoCastGlow_Start(frame, color, nil, nil, size / 2, nil, nil, key)
+        LCG.AutoCastGlow_Start(frame, color, nil, nil, size / 2, xOffset, yOffset, key)
     elseif typeIndex == 3 then
-        BR.Glow.PulsingBorderStart(frame, key, color, size)
+        BR.Glow.PulsingBorderStart(frame, key, color, size, xOffset, yOffset)
     elseif typeIndex == 4 then
-        LCG.ProcGlow_Start(frame, { color = color, key = key, duration = 1, startAnim = false })
+        LCG.ProcGlow_Start(frame, {
+            color = color,
+            key = key,
+            duration = 1,
+            startAnim = false,
+            xOffset = xOffset,
+            yOffset = yOffset,
+        })
     end
 end
 
@@ -183,47 +207,52 @@ end
 ---@param frame table
 ---@param show boolean
 ---@param category? string Category name for per-category glow settings (nil = use global defaults)
----@param cachedSettings? {typeIndex: number, color: number[], useCustomColor: boolean, size: number} Pre-fetched glow settings to avoid DB reads
+---@param cachedSettings? {typeIndex: number, color: number[], useCustomColor: boolean, size: number, borderSize: number} Pre-fetched glow settings to avoid DB reads
 function BR.Glow.SetExpiration(frame, show, category, cachedSettings)
     local state = frame[GLOW_STATE_KEY]
 
     if show then
-        local typeIndex, color, size
+        local typeIndex, color, size, borderOffset
         if cachedSettings then
             typeIndex = cachedSettings.typeIndex
             color = cachedSettings.useCustomColor and cachedSettings.color or nil
             size = cachedSettings.size
+            borderOffset = cachedSettings.borderSize or BR.DEFAULT_BORDER_SIZE
         elseif category then
             typeIndex = BR.Config.GetCategorySetting(category, "glowType") or 1
             local useCustom = BR.Config.GetCategorySetting(category, "useCustomGlowColor")
             color = useCustom and (BR.Config.GetCategorySetting(category, "glowColor") or BR.Glow.DEFAULT_COLOR) or nil
             size = BR.Config.GetCategorySetting(category, "glowSize") or 2
+            borderOffset = BR.Config.GetCategorySetting(category, "borderSize") or BR.DEFAULT_BORDER_SIZE
         else
             local db = BuffRemindersDB
             typeIndex = (db.defaults and db.defaults.glowType) or 1
             local useCustom = db.defaults and db.defaults.useCustomGlowColor
             color = useCustom and ((db.defaults and db.defaults.glowColor) or BR.Glow.DEFAULT_COLOR) or nil
             size = (db.defaults and db.defaults.glowSize) or 2
+            borderOffset = (db.defaults and db.defaults.borderSize) or BR.DEFAULT_BORDER_SIZE
         end
 
-        -- Already glowing with the same type, size, and color — don't restart (preserves animation state)
+        -- Already glowing with the same type, size, color, and border — don't restart (preserves animation state)
         if
             state
             and state.showing
             and state.typeIndex == typeIndex
             and state.size == size
+            and state.borderOffset == borderOffset
             and ColorsEqual(state.color, color)
         then
             return
         end
 
-        -- Stop previous glow if type, size, or color changed
+        -- Stop previous glow if type, size, color, or border changed
         if state and state.showing then
             BR.Glow.Stop(frame, state.typeIndex, EXPIRATION_KEY)
         end
 
-        BR.Glow.Start(frame, typeIndex, color, EXPIRATION_KEY, size)
-        frame[GLOW_STATE_KEY] = { showing = true, typeIndex = typeIndex, size = size, color = color }
+        BR.Glow.Start(frame, typeIndex, color, EXPIRATION_KEY, size, borderOffset, borderOffset)
+        frame[GLOW_STATE_KEY] =
+            { showing = true, typeIndex = typeIndex, size = size, color = color, borderOffset = borderOffset }
     else
         if state and state.showing then
             BR.Glow.Stop(frame, state.typeIndex, EXPIRATION_KEY)

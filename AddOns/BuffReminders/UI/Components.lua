@@ -769,7 +769,7 @@ end
 ---@field infoTooltip? string Optional info icon tooltip (format: "title|description")
 ---@field warningTooltip? string Optional warning icon tooltip (format: "title|description")
 ---@field onRightClick? fun() Optional right-click callback (wired on all interactive children)
----@field labelFont? string Font object name for the label (default "GameFontHighlight")
+---@field labelFont? string Font object name for the label (default "GameFontHighlightSmall")
 
 ---Create a modern flat-style checkbox with label and optional icons/tooltip
 ---@param parent table Parent frame
@@ -1574,12 +1574,9 @@ function Components.DirectionButtons(parent, config)
     return holder
 end
 
-local CONTENT_TOGGLE_DEFS = {
-    { key = "openWorld", label = "世", tooltip = "開放世界" },
-    { key = "scenario", label = "場", tooltip = "場景事件 (探究、托加斯特、等等。)" },
-    { key = "dungeon", label = "地", tooltip = "地下城 (包含 M+)" },
-    { key = "raid", label = "團", tooltip = "團隊副本" },
-    { key = "housing", label = "家", tooltip = "住家" },
+local SCENARIO_DIFF_DEFS = {
+    { key = "delves", label = "探", tooltip = "探究" },
+    { key = "others", label = "O", tooltip = "其他場景事件 (托加斯特等等)" },
 }
 
 local DUNGEON_DIFF_DEFS = {
@@ -1597,6 +1594,38 @@ local RAID_DIFF_DEFS = {
     { key = "heroic", label = "H", tooltip = "英雄團隊副本" },
     { key = "mythic", label = "M", tooltip = "傳奇團隊副本" },
 }
+
+local CONTENT_TOGGLE_DEFS = {
+    { key = "openWorld", label = "世", tooltip = "開放世界" },
+    { key = "housing", label = "家", tooltip = "住家" },
+    {
+        key = "scenario",
+        label = "場",
+        tooltip = "場景事件 (探究、托加斯特等等)",
+        diffDbKey = "scenarioDifficulty",
+        diffDefs = SCENARIO_DIFF_DEFS,
+    },
+    {
+        key = "dungeon",
+        label = "地",
+        tooltip = "地下城 (包含M+)",
+        diffDbKey = "dungeonDifficulty",
+        diffDefs = DUNGEON_DIFF_DEFS,
+    },
+    { key = "raid", label = "團", tooltip = "團隊副本", diffDbKey = "raidDifficulty", diffDefs = RAID_DIFF_DEFS },
+}
+
+-- Lookup: contentKey -> toggle def (for data-driven submenu access)
+local contentToggleByKey = {}
+-- Content toggles that have a difficulty submenu, with their button index
+local DIFF_MAPPINGS = {}
+for i, toggle in ipairs(CONTENT_TOGGLE_DEFS) do
+    contentToggleByKey[toggle.key] = toggle
+    if toggle.diffDefs then
+        DIFF_MAPPINGS[#DIFF_MAPPINGS + 1] =
+            { contentKey = toggle.key, diffDbKey = toggle.diffDbKey, diffDefs = toggle.diffDefs, btnIndex = i }
+    end
+end
 
 local SEGMENT_H = 16
 local DIVIDER_W = 1
@@ -1832,13 +1861,11 @@ function Components.VisibilityToggles(parent, config)
             return store.getContent(key)
         end,
         getVisualState = function(key)
-            if key == "dungeon" then
-                return getDiffVisualState("dungeon", "dungeonDifficulty", DUNGEON_DIFF_DEFS)
-            elseif key == "raid" then
-                return getDiffVisualState("raid", "raidDifficulty", RAID_DIFF_DEFS)
-            else
-                return store.getContent(key) and "on" or "off"
+            local toggle = contentToggleByKey[key]
+            if toggle and toggle.diffDbKey then
+                return getDiffVisualState(key, toggle.diffDbKey, toggle.diffDefs)
             end
+                return store.getContent(key) and "on" or "off"
         end,
         setState = function(key)
             store.setContent(key)
@@ -1855,11 +1882,6 @@ function Components.VisibilityToggles(parent, config)
     local diffBars = {} -- keyed by contentKey ("dungeon", "raid")
     local activeDiffKey = nil -- which difficulty bar is currently shown
 
-    local diffMappings = {
-        { contentKey = "dungeon", diffDbKey = "dungeonDifficulty", diffDefs = DUNGEON_DIFF_DEFS, btnIndex = 3 },
-        { contentKey = "raid", diffDbKey = "raidDifficulty", diffDefs = RAID_DIFF_DEFS, btnIndex = 4 },
-    }
-
     -- Arrow indicator between content bar and difficulty bar (hidden when no diff bar is open)
     local expandArrow = CreateFrame("Frame", nil, holder)
     expandArrow:SetSize(10, BAR_H)
@@ -1872,7 +1894,7 @@ function Components.VisibilityToggles(parent, config)
     expandArrow:Hide()
 
     -- Pre-create difficulty bars
-    for _, mapping in ipairs(diffMappings) do
+    for _, mapping in ipairs(DIFF_MAPPINGS) do
         local bar, buttons = CreateSegmentedBar(holder, {
             toggleDefs = mapping.diffDefs,
             segmentWidth = DIFF_SEGMENT_W,
@@ -1949,7 +1971,7 @@ function Components.VisibilityToggles(parent, config)
     end
 
     -- Override D and R button click to toggle difficulty bar to the right
-    for _, mapping in ipairs(diffMappings) do
+    for _, mapping in ipairs(DIFF_MAPPINGS) do
         local btn = contentButtons[mapping.btnIndex]
         btn:SetScript("OnClick", function()
             showDiffBar(mapping.contentKey)
