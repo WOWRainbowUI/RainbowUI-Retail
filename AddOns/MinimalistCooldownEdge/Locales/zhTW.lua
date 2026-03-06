@@ -95,6 +95,19 @@ L["NAMEPLATE_DESC"] = "設定敵方和友方名條上顯示的冷卻樣式（Pla
 L["UNITFRAME_DESC"] = "調整玩家、目標和專注目標單位框架上的冷卻樣式。"
 L["GLOBAL_DESC"] = "不屬於其他分類的冷卻的通用分類（冷卻管理器檢視器、背包、選單、其他插件）。包括關鍵和輔助冷卻檢視器的充能樣式。"
 
+-- Dynamic Text Colors
+L["Dynamic Text Colors"] = "動態文字顏色"
+L["Color by Remaining Time"] = "依剩餘時間變色"
+L["Dynamically colors the countdown text based on how much time is left."] = "依剩餘時間動態變更倒數文字顏色。"
+L["DYNAMIC_COLORS_DESC"] = "根據冷卻剩餘時間改變文字顏色。啟用後會覆蓋上方的靜態顏色設定。"
+L["Expiring Soon"] = "即將到期"
+L["Short Duration"] = "短時間"
+L["Long Duration"] = "長時間"
+L["Beyond Thresholds"] = "超過閾值"
+L["Threshold (seconds)"] = "閾值（秒）"
+L["Default Color"] = "預設顏色"
+L["Color used when the remaining time exceeds all thresholds."] = "當剩餘時間超過所有閾值時所使用的顏色。"
+
 -- 自行加入
 L["MiniCE"] = "極簡冷卻時間"
 L["MinimalistCooldownEdge"] = "冷卻時間"

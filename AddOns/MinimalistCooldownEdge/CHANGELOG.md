@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.1.0] - 2026-03-06
+
+### Added
+* Dynamic Text Colors — Added configurable "Color by Remaining Time" for Action Bars. Dynamically colors countdown text using native DurationObject + ColorCurve APIs; thresholds and default color are configurable in the options.
+
+### Changed
+* Refactor: Prefer native countdown font strings before generic region scans for safer Midnight 12.x cooldown styling.
+* Refactor: Stop sorting dynamic duration thresholds in-place, preserving option ordering in the saved profile.
+* Compatibility: Improve action button duration lookup for buttons exposing the action id via attributes.
+
 ## [3.0.8] - 2026-03-03
 
 ### Added
