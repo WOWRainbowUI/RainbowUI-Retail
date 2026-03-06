@@ -97,11 +97,23 @@ local function CategoryDefaults(enabled, fontSize)
     }
 end
 
+-- Action bar gets extra textColorByDuration defaults
+local actionbarDefaults = CategoryDefaults(true, 18)
+actionbarDefaults.textColorByDuration = {
+    enabled = true,
+    thresholds = {
+        { threshold = 5,    color = { r = 1.0, g = 0.0,  b = 0.0,  a = 1.0 } },
+        { threshold = 60,   color = { r = 1.0, g = 0.8,  b = 0.0,  a = 1.0 } },
+        { threshold = 3600, color = { r = 1.0, g = 1.0,  b = 1.0,  a = 1.0 } },
+    },
+    defaultColor = { r = 0.67, g = 0.67, b = 0.67, a = 1.0 },
+}
+
 MCE.defaults = {
     profile = {
         debugMode = false,
         categories = {
-            actionbar = CategoryDefaults(true,  18),
+            actionbar = actionbarDefaults,
             nameplate = CategoryDefaults(false, 12),
             unitframe = CategoryDefaults(false, 12),
             global    = CategoryDefaults(false, 18),

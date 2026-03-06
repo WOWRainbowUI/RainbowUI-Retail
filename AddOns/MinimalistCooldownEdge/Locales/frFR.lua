@@ -94,3 +94,16 @@ L["ACTIONBAR_DESC"] = "Personnalisez les recharges sur vos barres d'action, y co
 L["NAMEPLATE_DESC"] = "Stylez les recharges affichées sur les barres de nom ennemies et alliées (Plater, KuiNameplates, etc.)."
 L["UNITFRAME_DESC"] = "Ajustez le style des recharges sur les cadres joueur, cible et focus."
 L["GLOBAL_DESC"] = "Catégorie fourre-tout pour les recharges n'appartenant à aucune autre catégorie (visionneuses du gestionnaire de CD, sacs, menus, addons divers). Inclut le style des charges pour les visionneuses Essential et Utility."
+
+-- Dynamic Text Colors
+L["Dynamic Text Colors"] = "Couleurs dynamiques du texte"
+L["Color by Remaining Time"] = "Colorier selon le temps restant"
+L["Dynamically colors the countdown text based on how much time is left."] = "Colorie dynamiquement le texte du compte à rebours selon le temps restant."
+L["DYNAMIC_COLORS_DESC"] = "Change la couleur du texte en fonction de la durée restante de la recharge. Remplace la couleur statique ci-dessus lorsqu'activé."
+L["Expiring Soon"] = "Expiration imminente"
+L["Short Duration"] = "Courte durée"
+L["Long Duration"] = "Longue durée"
+L["Beyond Thresholds"] = "Au-delà des seuils"
+L["Threshold (seconds)"] = "Seuil (secondes)"
+L["Default Color"] = "Couleur par défaut"
+L["Color used when the remaining time exceeds all thresholds."] = "Couleur utilisée quand le temps restant dépasse tous les seuils."

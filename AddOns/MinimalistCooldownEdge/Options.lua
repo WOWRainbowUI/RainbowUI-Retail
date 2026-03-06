@@ -206,6 +206,101 @@ local function CreateCategoryOptions(order, name, key, desc)
                 },
             },
 
+            -- ── 2.5 Dynamic Text Colors (Action Bar only) ───────────────
+            dynamicColors = (key == "actionbar") and {
+                type = "group", name = L["Dynamic Text Colors"],
+                inline = true, order = 15, disabled = disabledFn,
+                args = {
+                    dynamicDesc = {
+                        type = "description", order = 0, fontSize = "small",
+                        name = "|cffaaaaaa" .. L["DYNAMIC_COLORS_DESC"] .. "|r\n",
+                    },
+                    dynamicEnabled = {
+                        type = "toggle", order = 1, width = "full",
+                        name = L["Color by Remaining Time"],
+                        desc = L["Dynamically colors the countdown text based on how much time is left."],
+                        get = function()
+                            return MCE.db.profile.categories[key].textColorByDuration.enabled
+                        end,
+                        set = function(_, val)
+                            MCE.db.profile.categories[key].textColorByDuration.enabled = val
+                            MCE:ForceUpdateAll()
+                        end,
+                    },
+                    -- Threshold 1: Expiring Soon
+                    t1Header = {
+                        type = "header", name = L["Expiring Soon"], order = 10,
+                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
+                    },
+                    t1Value = {
+                        type = "range", order = 11, width = 1.0,
+                        name = L["Threshold (seconds)"], min = 1, max = 60, step = 1,
+                        get = function() return MCE.db.profile.categories[key].textColorByDuration.thresholds[1].threshold end,
+                        set = function(_, val) MCE.db.profile.categories[key].textColorByDuration.thresholds[1].threshold = val; MCE:ForceUpdateAll() end,
+                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
+                    },
+                    t1Color = {
+                        type = "color", order = 12, width = 0.5,
+                        name = L["Color"], hasAlpha = true,
+                        get = function() local c = MCE.db.profile.categories[key].textColorByDuration.thresholds[1].color; return c.r, c.g, c.b, c.a end,
+                        set = function(_, r, g, b, a) local c = MCE.db.profile.categories[key].textColorByDuration.thresholds[1].color; c.r, c.g, c.b, c.a = r, g, b, a; MCE:ForceUpdateAll() end,
+                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
+                    },
+                    -- Threshold 2: Short Duration
+                    t2Header = {
+                        type = "header", name = L["Short Duration"], order = 20,
+                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
+                    },
+                    t2Value = {
+                        type = "range", order = 21, width = 1.0,
+                        name = L["Threshold (seconds)"], min = 5, max = 300, step = 1,
+                        get = function() return MCE.db.profile.categories[key].textColorByDuration.thresholds[2].threshold end,
+                        set = function(_, val) MCE.db.profile.categories[key].textColorByDuration.thresholds[2].threshold = val; MCE:ForceUpdateAll() end,
+                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
+                    },
+                    t2Color = {
+                        type = "color", order = 22, width = 0.5,
+                        name = L["Color"], hasAlpha = true,
+                        get = function() local c = MCE.db.profile.categories[key].textColorByDuration.thresholds[2].color; return c.r, c.g, c.b, c.a end,
+                        set = function(_, r, g, b, a) local c = MCE.db.profile.categories[key].textColorByDuration.thresholds[2].color; c.r, c.g, c.b, c.a = r, g, b, a; MCE:ForceUpdateAll() end,
+                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
+                    },
+                    -- Threshold 3: Long Duration
+                    t3Header = {
+                        type = "header", name = L["Long Duration"], order = 30,
+                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
+                    },
+                    t3Value = {
+                        type = "range", order = 31, width = 1.0,
+                        name = L["Threshold (seconds)"], min = 60, max = 7200, step = 60,
+                        get = function() return MCE.db.profile.categories[key].textColorByDuration.thresholds[3].threshold end,
+                        set = function(_, val) MCE.db.profile.categories[key].textColorByDuration.thresholds[3].threshold = val; MCE:ForceUpdateAll() end,
+                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
+                    },
+                    t3Color = {
+                        type = "color", order = 32, width = 0.5,
+                        name = L["Color"], hasAlpha = true,
+                        get = function() local c = MCE.db.profile.categories[key].textColorByDuration.thresholds[3].color; return c.r, c.g, c.b, c.a end,
+                        set = function(_, r, g, b, a) local c = MCE.db.profile.categories[key].textColorByDuration.thresholds[3].color; c.r, c.g, c.b, c.a = r, g, b, a; MCE:ForceUpdateAll() end,
+                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
+                    },
+                    -- Default color (beyond all thresholds)
+                    defaultHeader = {
+                        type = "header", name = L["Beyond Thresholds"], order = 40,
+                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
+                    },
+                    defaultDurationColor = {
+                        type = "color", order = 41, width = 0.8,
+                        name = L["Default Color"],
+                        desc = L["Color used when the remaining time exceeds all thresholds."],
+                        hasAlpha = true,
+                        get = function() local c = MCE.db.profile.categories[key].textColorByDuration.defaultColor; return c.r, c.g, c.b, c.a end,
+                        set = function(_, r, g, b, a) local c = MCE.db.profile.categories[key].textColorByDuration.defaultColor; c.r, c.g, c.b, c.a = r, g, b, a; MCE:ForceUpdateAll() end,
+                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
+                    },
+                },
+            } or nil,
+
             -- ── 3. Swipe Edge ───────────────────────────────────────────
             swipeEdge = {
                 type = "group", name = L["Swipe Animation"],

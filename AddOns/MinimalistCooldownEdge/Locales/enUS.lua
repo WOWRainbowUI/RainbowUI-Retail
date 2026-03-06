@@ -94,3 +94,16 @@ L["ACTIONBAR_DESC"] = "Customize cooldowns on your main action bars, including B
 L["NAMEPLATE_DESC"] = "Style cooldowns displayed on enemy and friendly nameplates (Plater, KuiNameplates, etc.)."
 L["UNITFRAME_DESC"] = "Adjust cooldown styling on player, target, and focus unit frames."
 L["GLOBAL_DESC"] = "Catch-all for cooldowns that don't belong to other categories (CooldownManager viewers, bags, menus, misc addons). Includes charge styling for Essential & Utility cooldown viewers."
+
+-- Dynamic Text Colors
+L["Dynamic Text Colors"] = true
+L["Color by Remaining Time"] = true
+L["Dynamically colors the countdown text based on how much time is left."] = true
+L["DYNAMIC_COLORS_DESC"] = "Changes the text color based on the remaining cooldown duration. Overrides the static color above when enabled."
+L["Expiring Soon"] = true
+L["Short Duration"] = true
+L["Long Duration"] = true
+L["Beyond Thresholds"] = true
+L["Threshold (seconds)"] = true
+L["Default Color"] = true
+L["Color used when the remaining time exceeds all thresholds."] = true
