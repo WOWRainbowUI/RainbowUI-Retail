@@ -105,6 +105,13 @@ local RAID_DIFFICULTY_KEYS = {
     [16] = "mythic", -- Mythic
 }
 
+-- Maps content type to the DB key holding its difficulty sub-filter
+local CONTENT_DIFF_DB_KEYS = {
+    scenario = "scenarioDifficulty",
+    dungeon = "dungeonDifficulty",
+    raid = "raidDifficulty",
+}
+
 -- Talent/spell knowledge cache (invalidated on PLAYER_SPECIALIZATION_CHANGED)
 local cachedSpellKnowledge = {}
 
@@ -525,6 +532,10 @@ local function GetCurrentDifficultyKey()
             cachedDifficultyKey = key
         end
         return key
+    elseif contentType == "scenario" then
+        local key = difficultyID == 208 and "delves" or "others"
+        cachedDifficultyKey = key
+        return key
     end
     return nil
 end
@@ -551,10 +562,10 @@ local function IsCategoryVisibleForContent(category)
     -- Check difficulty sub-filter
     local diffKey = GetCurrentDifficultyKey()
     if diffKey then
-        if contentType == "dungeon" and visibility.dungeonDifficulty then
-            return visibility.dungeonDifficulty[diffKey] ~= false
-        elseif contentType == "raid" and visibility.raidDifficulty then
-            return visibility.raidDifficulty[diffKey] ~= false
+        local diffDbKey = CONTENT_DIFF_DB_KEYS[contentType]
+        local diffTable = diffDbKey and visibility[diffDbKey]
+        if diffTable then
+            return diffTable[diffKey] ~= false
         end
     end
     -- Per-category ready check filter
@@ -585,10 +596,10 @@ local function IsCustomBuffVisibleForContent(buff)
     -- Difficulty sub-filter
     local diffKey = GetCurrentDifficultyKey()
     if diffKey then
-        if contentType == "dungeon" and lc.dungeonDifficulty then
-            return lc.dungeonDifficulty[diffKey] ~= false
-        elseif contentType == "raid" and lc.raidDifficulty then
-            return lc.raidDifficulty[diffKey] ~= false
+        local diffDbKey = CONTENT_DIFF_DB_KEYS[contentType]
+        local diffTable = diffDbKey and lc[diffDbKey]
+        if diffTable then
+            return diffTable[diffKey] ~= false
         end
     end
 
@@ -1380,7 +1391,13 @@ function BuffState.Refresh()
             if shouldShow then
                 SetEntryMissing(entry, buff.missingText, selfGlowMissing)
                 entry.iconByRole = buff.iconByRole
-            elseif shouldShow == false and selfGlow and not buff.enchantID and not hideExpiring then
+            elseif
+                shouldShow == false
+                and selfGlow
+                and not buff.enchantID
+                and not buff.noExpirationGlow
+                and not hideExpiring
+            then
                 -- Buff present but maybe expiring (enchants don't track expiration here)
                 local _, remaining = UnitHasBuff("player", buff.buffIdOverride or buff.spellID)
                 TrySetEntryExpiring(entry, remaining, selfGlowThreshold)
