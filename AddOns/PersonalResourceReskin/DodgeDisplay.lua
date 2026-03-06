@@ -51,7 +51,7 @@ local function InitializeDodgeDisplay()
     initialized = true
     f = CreateFrame("Frame", "DodgeDisplayFrame", UIParent)
     f:SetSize(120, 30)
-    f:SetFrameStrata("HIGH")
+    f:SetFrameStrata("MEDIUM")
 
     f.text = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     f.text:SetPoint("CENTER")

@@ -42,7 +42,6 @@ function _G.MoveAlternatePowerBar()
     local profile = PersonalResourceReskin.db and PersonalResourceReskin.db.profile
     if not profile then return end
     local prd = _G["PersonalResourceDisplayFrame"]
-    -- Only move the Alternate Power Bar if explicitly called (e.g., from the X/Y slider), not on every update or event
     if prd and prd.AlternatePowerBar then
         if profile.altPowerBarWidth then
             prd.AlternatePowerBar:SetWidth(profile.altPowerBarWidth)
@@ -50,10 +49,35 @@ function _G.MoveAlternatePowerBar()
         if profile.altPowerBarHeight then
             prd.AlternatePowerBar:SetHeight(profile.altPowerBarHeight)
         end
-        -- Only set position if user is not in Edit Mode
         if not (EditModeManagerFrame and EditModeManagerFrame.editModeActive) then
             prd.AlternatePowerBar:ClearAllPoints()
-            prd.AlternatePowerBar:SetPoint("CENTER", UIParent, "CENTER", profile.altPowerBarX or 0, profile.altPowerBarY or 0)
+            -- Anchoring logic
+            if profile.altPowerBarAnchorEnabled then
+                local anchorTarget = profile.altPowerBarAnchorTarget or "NONE"
+                local anchorPosition = profile.altPowerBarAnchorPosition or "BELOW"
+                local anchorOffset = profile.altPowerBarAnchorOffset or 10
+                local anchorX = profile.altPowerBarAnchorX or 0
+                local anchorFrame = nil
+                if anchorTarget == "HEALTH" and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
+                    anchorFrame = prd.HealthBarsContainer.healthBar
+                elseif anchorTarget == "POWER" and prd.PowerBar then
+                    anchorFrame = prd.PowerBar
+                end
+                if anchorFrame then
+                    if anchorPosition == "ABOVE" then
+                        prd.AlternatePowerBar:SetPoint("BOTTOM", anchorFrame, "TOP", anchorX, anchorOffset)
+                    elseif anchorPosition == "BELOW" then
+                        prd.AlternatePowerBar:SetPoint("TOP", anchorFrame, "BOTTOM", anchorX, -anchorOffset)
+                    else -- Custom fallback
+                        prd.AlternatePowerBar:SetPoint("CENTER", anchorFrame, "CENTER", anchorX, anchorOffset)
+                    end
+                else
+                    -- Fallback to UIParent if no anchor
+                    prd.AlternatePowerBar:SetPoint("CENTER", UIParent, "CENTER", profile.altPowerBarX or 0, profile.altPowerBarY or 0)
+                end
+            else
+                prd.AlternatePowerBar:SetPoint("CENTER", UIParent, "CENTER", profile.altPowerBarX or 0, profile.altPowerBarY or 0)
+            end
         end
     end
 end
@@ -1632,45 +1656,6 @@ function PersonalResourceReskin:OnInitialize()
             end,
             order = 0.839,
         },
-        altPowerBarX = {
-            name = "Alternate Power Bar X Offset",
-            desc = "Move the Alternate Power Bar left/right.",
-            type = "range",
-            min = -1000,
-            max = 1000,
-            step = 1,
-            get = function()
-                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and (PersonalResourceReskin.db.profile.altPowerBarX or 0) or 0
-            end,
-            set = function(_, val)
-                if PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
-                    PersonalResourceReskin.db.profile.altPowerBarX = val
-                    if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
-                end
-            end,
-            order = 0.84,
-        },
-        -- Alternate Power Bar Y Offset
-        altPowerBarY = {
-            name = "Alternate Power Bar Y Offset",
-            desc = "Move the Alternate Power Bar up/down.",
-            type = "range",
-            min = -1000,
-            max = 1000,
-            step = 1,
-            get = function()
-                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and (PersonalResourceReskin.db.profile.altPowerBarY or 0) or 0
-            end,
-            set = function(_, val)
-                if PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
-                    PersonalResourceReskin.db.profile.altPowerBarY = val
-                    if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
-                end
-            end,
-            order = 0.841,
-        },
-
-        -- Alternate Power Bar Height
         altPowerBarHeight = {
             name = "Alternate Power Bar Height",
             desc = "Adjust the height of the Alternate Power Bar.",
@@ -1688,6 +1673,141 @@ function PersonalResourceReskin:OnInitialize()
                 end
             end,
             order = 0.842,
+        },
+        -- Anchor options for Alternate Power Bar
+        altPowerBarAnchorEnabled = {
+            name = "Anchor Alternate Power Bar",
+            desc = "Enable anchoring the Alternate Power Bar to PRD Health/Power bar.",
+            type = "toggle",
+            order = 0.850,
+            get = function()
+                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.altPowerBarAnchorEnabled
+            end,
+            set = function(_, val)
+                if PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
+                    PersonalResourceReskin.db.profile.altPowerBarAnchorEnabled = val
+                    if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
+                end
+            end,
+        },
+        altPowerBarAnchorTarget = {
+            name = "Anchor Target",
+            desc = "Choose which PRD bar to anchor to.",
+            type = "select",
+            order = 0.851,
+            values = { NONE = "None (Custom)", HEALTH = "Health Bar", POWER = "Power Bar" },
+            get = function()
+                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and (PersonalResourceReskin.db.profile.altPowerBarAnchorTarget or "NONE")
+            end,
+            set = function(_, val)
+                if PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
+                    PersonalResourceReskin.db.profile.altPowerBarAnchorTarget = val
+                    if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
+                end
+            end,
+            disabled = function()
+                return not (PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.altPowerBarAnchorEnabled)
+            end,
+        },
+        altPowerBarAnchorPosition = {
+            name = "Anchor Position",
+            desc = "Place above or below the selected PRD bar.",
+            type = "select",
+            order = 0.852,
+            values = { ABOVE = "Above", BELOW = "Below", CENTER = "Center" },
+            get = function()
+                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and (PersonalResourceReskin.db.profile.altPowerBarAnchorPosition or "BELOW")
+            end,
+            set = function(_, val)
+                if PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
+                    PersonalResourceReskin.db.profile.altPowerBarAnchorPosition = val
+                    if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
+                end
+            end,
+            disabled = function()
+                return not (PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.altPowerBarAnchorEnabled)
+            end,
+        },
+        altPowerBarAnchorOffset = {
+            name = "Anchor Vertical Offset",
+            desc = "Vertical offset from the PRD bar when anchored.",
+            type = "range",
+            min = -200, max = 200, step = 1,
+            order = 0.853,
+            get = function()
+                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and (PersonalResourceReskin.db.profile.altPowerBarAnchorOffset or 10)
+            end,
+            set = function(_, val)
+                if PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
+                    PersonalResourceReskin.db.profile.altPowerBarAnchorOffset = val
+                    if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
+                end
+            end,
+            disabled = function()
+                return not (PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.altPowerBarAnchorEnabled)
+            end,
+        },
+        altPowerBarAnchorX = {
+            name = "Anchor Horizontal Offset",
+            desc = "Horizontal offset from the PRD bar when anchored.",
+            type = "range",
+            min = -400, max = 400, step = 1,
+            order = 0.854,
+            get = function()
+                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and (PersonalResourceReskin.db.profile.altPowerBarAnchorX or 0)
+            end,
+            set = function(_, val)
+                if PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
+                    PersonalResourceReskin.db.profile.altPowerBarAnchorX = val
+                    if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
+                end
+            end,
+            disabled = function()
+                return not (PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.altPowerBarAnchorEnabled)
+            end,
+        },
+        -- Custom X/Y offset (only enabled if not anchoring)
+        altPowerBarX = {
+            name = "Alternate Power Bar X Offset",
+            desc = "Move the Alternate Power Bar left/right (only if not anchored).",
+            type = "range",
+            min = -1000,
+            max = 1000,
+            step = 1,
+            order = 0.855,
+            get = function()
+                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and (PersonalResourceReskin.db.profile.altPowerBarX or 0) or 0
+            end,
+            set = function(_, val)
+                if PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
+                    PersonalResourceReskin.db.profile.altPowerBarX = val
+                    if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
+                end
+            end,
+            disabled = function()
+                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.altPowerBarAnchorEnabled
+            end,
+        },
+        altPowerBarY = {
+            name = "Alternate Power Bar Y Offset",
+            desc = "Move the Alternate Power Bar up/down (only if not anchored).",
+            type = "range",
+            min = -1000,
+            max = 1000,
+            step = 1,
+            order = 0.856,
+            get = function()
+                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and (PersonalResourceReskin.db.profile.altPowerBarY or 0) or 0
+            end,
+            set = function(_, val)
+                if PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
+                    PersonalResourceReskin.db.profile.altPowerBarY = val
+                    if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
+                end
+            end,
+            disabled = function()
+                return PersonalResourceReskin.db and PersonalResourceReskin.db.profile and PersonalResourceReskin.db.profile.altPowerBarAnchorEnabled
+            end,
         },
 
         -- Anchor mode toggle
@@ -1760,6 +1880,14 @@ function PersonalResourceReskin:OnInitialize()
             PersonalResourceReskinPlus_Options.RegisterSubOptions("SoulsTrackerVeng", _G.SoulsTrackerVengOptions)
         end
         -- Register MonkOrbTracker options as a subpage if available ONLY if player is a Monk
+        local _, class = UnitClass("player")
+        if class == "MONK" and _G.MonkOrbTrackerOptions then
+            PersonalResourceReskinPlus_Options.RegisterSubOptions("MonkOrbTracker", _G.MonkOrbTrackerOptions)
+        end
+        -- Register CustomWindwalkerMonkOrbBar options as a subpage if available ONLY if player is a Monk
+        if class == "MONK" and _G.CustomWindwalkerMonkOrbBarOptions then
+            PersonalResourceReskinPlus_Options.RegisterSubOptions("CustomWindwalkerMonkOrbBar", _G.CustomWindwalkerMonkOrbBarOptions)
+        end
         local _, class = UnitClass("player")
         if class == "DEMONHUNTER" and spec == 3 and bar.__PRD_AltMarkers then
             for _, marker in ipairs(bar.__PRD_AltMarkers) do

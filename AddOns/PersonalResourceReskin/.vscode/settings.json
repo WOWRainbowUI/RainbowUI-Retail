@@ -104,7 +104,8 @@
         "PLAYER",
         "class",
         "StaticPopupDialogs",
-        "StaticPopup_Show"
+        "StaticPopup_Show",
+        "PowerBarColor"
     ],
     "Lua.diagnostics.disable": [
         "assign-type-mismatch"
