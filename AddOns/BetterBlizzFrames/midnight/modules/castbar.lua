@@ -483,10 +483,12 @@ function BBF.ClassicCastbar(castBar, unitType)
                 end
             end
 
-            if notInterruptible ~= nil then
-                self.Border:SetAlphaFromBoolean(notInterruptible, 0, 1)
-            else
-                self.Border:SetAlpha(1)
+            if not isPlayer then
+                if notInterruptible ~= nil then
+                    self.Border:SetAlphaFromBoolean(notInterruptible, 0, 1)
+                else
+                    self.Border:SetAlpha(1)
+                end
             end
 
             if event == "UNIT_SPELLCAST_INTERRUPTED" then
