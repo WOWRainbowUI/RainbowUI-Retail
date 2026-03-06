@@ -453,7 +453,7 @@ local function CreateOptionsPanel()
             end
 
             local function ToggleLabel(checked)
-                return checked and "Ready check" or "Always"
+                return checked and "準備確認" or "總是"
             end
 
             local toggle
@@ -724,7 +724,7 @@ local function CreateOptionsPanel()
             rowY = rowY - ITEM_HEIGHT
         end
 
-        local addBtn = CreateButton(customBuffsContainer, "+ Add Custom Buff", function()
+        local addBtn = CreateButton(customBuffsContainer, "+ 新增自訂增益", function()
             ShowCustomBuffModal(nil, RenderCustomBuffRows)
         end)
         addBtn:SetPoint("TOPLEFT", 0, rowY - ADD_BTN_GAP)
@@ -748,11 +748,11 @@ local function CreateOptionsPanel()
     local displayBehaviorLayout = Components.VerticalLayout(displayBehaviorContent, { x = displayBehaviorX, y = -10 })
 
     -- Global Defaults section
-    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "全局預設")
+    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "整體預設")
 
     local defNote = displayBehaviorContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     displayBehaviorLayout:AddText(defNote, 12, COMPONENT_GAP)
-    defNote:SetText("(All categories inherit these unless overridden)")
+    defNote:SetText("(所有類別都會繼承這些設定，除非被覆蓋。)")
 
     local function isDefDimensionsLinked()
         local db = BuffRemindersDB.defaults
@@ -864,7 +864,7 @@ local function CreateOptionsPanel()
             return BuffRemindersDB.defaults and BuffRemindersDB.defaults.expirationThreshold or 15
         end,
         enabled = isExpirationGlowEnabled,
-        suffix = " min",
+        suffix = " 分",
         onChange = function(val)
             BR.Config.Set("defaults.expirationThreshold", val)
         end,
@@ -954,7 +954,7 @@ local function CreateOptionsPanel()
     displayBehaviorLayout:Space(20 + COMPONENT_GAP)
 
     -- Per-Category Customization section
-    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "按類別自定義")
+    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "按類別自訂")
     displayBehaviorLayout:Space(COMPONENT_GAP)
 
     -- Create collapsible sections that chain-anchor to each other
@@ -1022,7 +1022,7 @@ local function CreateOptionsPanel()
         catLayout:Add(readyCheckHolder, nil, COMPONENT_GAP)
         else
             local banner = Components.Banner(catContent, {
-                text = "可視性與準備確認設定移動到每個增益的編輯選單中。",
+                text = "顯示與準備確認設定移動到每個增益的編輯選單中。",
                 color = "orange",
                 icon = "services-icon-warning",
             })
@@ -1439,7 +1439,7 @@ local function CreateOptionsPanel()
                     { value = "icon_only", label = "只有圖示", desc = "顯示次數最高的物品" },
                     {
                         value = "sub_icons",
-                        label = "Sub-icons",
+                        label = "子圖示",
                         desc = "每個圖示下方可點擊的各種小物品",
                     },
                     { value = "expanded", label = "開展", desc = "每種物品都為全尺寸圖示" },
@@ -2151,7 +2151,7 @@ local function CreateOptionsPanel()
     setLayout:Add(minimapHolder, nil, COMPONENT_GAP)
 
     -- General Settings section
-    LayoutSectionHeader(setLayout, settingsContent, "可視性")
+    LayoutSectionHeader(setLayout, settingsContent, "顯示")
 
     local groupHolder = Components.Checkbox(settingsContent, {
         label = "只有在隊伍/團隊中顯示",
@@ -2264,13 +2264,13 @@ local function CreateOptionsPanel()
     })
     setLayout:Add(trackingModeHolder, nil, COMPONENT_GAP)
 
-    LayoutSectionHeader(setLayout, settingsContent, "Danger zone")
+    LayoutSectionHeader(setLayout, settingsContent, "危險區域")
 
     local resetBtn = CreateButton(settingsContent, "重置回預設", function()
         StaticPopup_Show("BUFFREMINDERS_RESET_DEFAULTS")
     end, {
         title = "重置回預設",
-        desc = "清除所有設定並恢復到預設，這會重載UI。",
+        desc = "清除所有設定並恢復到預設，這會重新載入介面。",
     })
     resetBtn:SetSize(130, 22)
     setLayout:Add(resetBtn)
@@ -2507,7 +2507,7 @@ StaticPopupDialogs["BUFFREMINDERS_DELETE_CUSTOM"] = {
 }
 
 StaticPopupDialogs["BUFFREMINDERS_RESET_DEFAULTS"] = {
-    text = "重置增益提醒回預設嗎？\n\n這會清除所有自訂設置\n並重載UI。",
+    text = "是否要重置增益提醒成預設值?\n\n這會清除所有自訂設定\n並且重新載入介面。",
     button1 = RESET,
     button2 = CANCEL,
     OnAccept = function()
@@ -2752,7 +2752,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         return rowData
     end
 
-    addSpellBtn = CreateButton(modal, "+ Add Spell ID", function()
+    addSpellBtn = CreateButton(modal, "+ 新增法術ID", function()
         CreateSpellRow(nil)
         UpdateLayout()
     end)
@@ -3041,7 +3041,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     castSpellName:SetJustifyH("LEFT")
     castSpellName:SetWordWrap(false)
 
-    local castSpellLookupBtn = CreateButton(actionInputHolder, "Lookup", function()
+    local castSpellLookupBtn = CreateButton(actionInputHolder, "查詢", function()
         local id = tonumber(castSpellEditBox:GetText())
         if not id then
             castSpellIcon:Hide()
@@ -3175,7 +3175,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         { value = "macro", label = "巨集" },
     }
     actionTypeDropdown = Components.Dropdown(sectionsFrame, {
-        label = "On click:",
+        label = "點擊時:",
         options = actionTypeOptions,
         selected = existingActionType,
         width = 120,

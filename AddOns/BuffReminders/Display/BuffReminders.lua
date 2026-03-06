@@ -3021,7 +3021,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
                     db.customBuffs[key] = {
                         spellID = 111400,
                         key = key,
-                        name = "Burning Rush",
+                        name = "燃燒狂奔",
                         missingText = "",
                         class = "WARLOCK",
                         showWhenPresent = true,

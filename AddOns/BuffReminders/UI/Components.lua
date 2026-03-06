@@ -525,7 +525,7 @@ function Components.Slider(parent, config)
         editBox:SetFocus()
         editBox:HighlightText()
     end)
-    SetupTooltip(valueBtn, "Adjust value", "點選輸入或使用滑鼠滾輪", "ANCHOR_TOP")
+    SetupTooltip(valueBtn, "調整數值", "點選輸入或使用滑鼠滾輪", "ANCHOR_TOP")
 
     -- Mouse wheel support
     holder:EnableMouseWheel(true)
@@ -1509,7 +1509,7 @@ end
 ---@return table holder Frame containing direction dropdown with .SetDirection(dir)
 function Components.DirectionButtons(parent, config)
     local directions = { "LEFT", "CENTER", "RIGHT", "UP", "DOWN" }
-    local dirLabels = { LEFT = "Left", CENTER = "Center", RIGHT = "Right", UP = "Up", DOWN = "Down" }
+    local dirLabels = { LEFT = "左", CENTER = "中", RIGHT = "右", UP = "上", DOWN = "下" }
     local width = config.width or 90
     local labelWidth = config.labelWidth or 70
 
@@ -2969,7 +2969,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 1: Width [link] Height
     widthHolder = Components.Slider(frame, {
-        label = "Width",
+        label = "寬度",
         min = 16,
         max = 128,
         labelWidth = LW,
@@ -3000,7 +3000,7 @@ function Components.AppearanceGrid(parent, config)
     linkBtn:SetPoint("TOPLEFT", LINK_X, 0)
 
     heightHolder = Components.Slider(frame, {
-        label = "Height",
+        label = "高度",
         min = 16,
         max = 128,
         labelWidth = LW,
@@ -3019,7 +3019,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 2: Zoom, Border
     local zoomHolder = Components.Slider(frame, {
-        label = "Zoom",
+        label = "縮放",
         min = 0,
         max = 15,
         labelWidth = LW,
@@ -3035,7 +3035,7 @@ function Components.AppearanceGrid(parent, config)
     zoomHolder:SetPoint("TOPLEFT", 0, -ROW_H)
 
     local borderHolder = Components.Slider(frame, {
-        label = "Border",
+        label = "邊框",
         min = 0,
         max = 8,
         labelWidth = LW,
@@ -3052,7 +3052,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 3: Spacing, Alpha
     local spacingHolder = Components.Slider(frame, {
-        label = "Spacing",
+        label = "間距",
         min = 0,
         max = 50,
         labelWidth = LW,
@@ -3068,7 +3068,7 @@ function Components.AppearanceGrid(parent, config)
     spacingHolder:SetPoint("TOPLEFT", 0, -ROW_H * 2)
 
     local alphaHolder = Components.Slider(frame, {
-        label = "Alpha",
+        label = "透明度",
         min = 10,
         max = 100,
         labelWidth = LW,
@@ -3085,7 +3085,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 4: Text size stepper + color swatch
     local textSizeHolder = Components.NumericStepper(frame, {
-        label = "Text",
+        label = "文字",
         labelWidth = LW,
         min = 6,
         max = 32,
