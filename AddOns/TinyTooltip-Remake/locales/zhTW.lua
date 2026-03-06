@@ -37,10 +37,16 @@ local T = {
 	["general.skinMoreFrames"]   = "外觀套用到更多框架 |cffcccc33(需要重新載入 /reload)|r",
 	["general.SavedVariablesPerCharacter"]  = "角色專用設定",
 	["general.hideUnitFrameHint"]            = "隱藏頭像框右鍵設定提示",
+	["general.quickFocusModKey"]             = "快速專注目標輔助按鍵",
+    ["quickfocus.help"]                      = "按住輔助按鍵並點擊目標可設為專注目標，按住輔助按鍵並點擊空白處可取消專注目標。(點擊單位框架時此功能無效)",
 
     ["item.coloredItemBorder"]              = "顯示物品邊框顏色",
+	["item.modifierShowAll"]                = "按住任意輔助按鍵顯示所有資訊",
 	["item.showItemIcon"]                   = "顯示物品圖示",
-	["item.showExpansionInformation"]	    = "顯示更多物品資訊",
+	["item.showItemId"]                     = "顯示物品ID",
+    ["item.showItemMaxStack"]               = "顯示最大堆疊數量",
+    ["item.showItemIconId"]                 = "顯示物品圖示ID",
+    ["item.showItemExpansion"]              = "顯示資料片",
     ["quest.coloredQuestBorder"]            = "顯示任務邊框顏色",
     
     ["unit.player.anchor.position"]         = "位置",
@@ -110,7 +116,10 @@ local T = {
     ["unit.npc.elements.moveSpeed"]         = "移動速度",
     ["spell.background"]                    = "背景顔色",
     ["spell.borderColor"]                   = "邊框顔色",
+	["spell.modifierShowAll"]               = "按住任意輔助按鍵顯示所有資訊",
 	["spell.showIcon"]                      = "法術圖示",
+	["spell.showSpellId"]                   = "顯示法術ID",
+    ["spell.showSpellIconId"]               = "顯示法術圖示ID",
 	["Mythic+ Score"]                       = "M+分數",
     
     ["dropdown.inherit"]        = "|cffffee00沿用整體設定|r",
@@ -188,11 +197,10 @@ local T = {
     ["menu.player"] = "玩家",
     ["menu.npc"] = "NPC",
     ["menu.statusbar"] = "狀態條",
+	["menu.item"] = "物品",
     ["menu.spell"] = "法術",
     ["menu.font"] = "文字",
     ["menu.variables"] = "變數",
-    ["id.display.none"] = "無",
-    ["id.display.both"] = "全部",
 	
 	["Tooltip"] = "浮動提示資訊",
 	["button.resetAll"] = "全部重置",
@@ -219,7 +227,10 @@ local T = {
 	["id.item"]                             = "物品ID",
     ["id.spell"]                            = "法術ID",
     ["id.icon"]                             = "圖示ID",
+	["id.expansion"]                        = "資料片",
     ["id.maxStack"]                         = "最大堆疊數",
+	["id.display.none"] = "無",
+    ["id.display.both"] = "全部",
     
 }
 for k, v in pairs(T) do
