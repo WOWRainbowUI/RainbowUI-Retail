@@ -8,6 +8,22 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 12.0.1.2
+Released 2026-03-05
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 12.0.1.2 for Retail WoW
+Version 5.5.3.4 for Classic Mists of Pandaria
+Version 1.15.8.6 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No changes.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 2.5.5.4 for Classic Burning Crusade
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated the list of models for TBC.  Previously, TBC was using the same list as Classic WoW, but several of those models did not work in TBC.
+
+=======================================
 RELEASE 12.0.1.1
 Released 2026-02-10
 
@@ -153,37 +169,6 @@ Version 4.4.2.6 for Classic Cataclysm
 Version 1.15.7.2 for Classic WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 - No changes.
-=======================================
-RELEASE 11.1.5.1
-Released 2025-04-22
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.1.5.1 for Retail WoW
-Version 4.4.2.5 for Classic Cataclysm
-Version 1.15.7.1 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Retail WoW 11.1.5 and Classic WoW 1.15.7.
-- Fixed the "ThinBorderTemplate" error in Retail WoW.
-- Added a tooltip for the icon that indicates the selected profile is used for all characters.
-
-=======================================
-RELEASE 11.1.0.1
-Released 2025-02-26
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.1.0.1 for Retail WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for Retail WoW 11.1.0 (The War Within).
-- Fixed bug that caused cursor FX to not move while CursorTrail settings were open and the mouse was over the world background.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 11.1.0.1 for Retail WoW
-Version 4.4.2.3 for Classic Cataclysm
-Version 1.15.6.4 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Changed the "Electric" default.  ("Fade out when idle" is now on.)
-- Minor improvements to error handling.
-- Minor changes to help text.
 
 ]]
 

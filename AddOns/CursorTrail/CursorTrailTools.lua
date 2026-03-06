@@ -748,6 +748,9 @@ function HandleToolSwitches(params)  --[ Keywords: Slash Commands ]
     elseif (params == "model") then
         CursorModel_Dump()
     -------------------------------------------------------------------------------
+    elseif (params == "modelbase") then  -- Dumps base values in a format that can be copied/pasted to the models lua file.
+        CursorModelBase_Dump()
+    -------------------------------------------------------------------------------
     ----elseif (params == "cal") then
     ----    Calibrating_DoNextStep()
     ----elseif (params == "track") then
@@ -1127,6 +1130,20 @@ function CursorModel_Dump(heading, model)
     print(color.."    GetScale, GetModelScale =|r", round(model.base:GetScale(),3), ",", round(model.base:GetModelScale(),3))
     local z, x, y = model.base:GetPosition()
     print(color.."    GetPosition (Z,x,y) =|r", round(z,3), ",", round(x,3), ",", round(y,3))
+end
+
+-------------------------------------------------------------------------------
+function CursorModelBase_Dump(heading, model)
+    heading = (heading or "MODEL BASE INFO").. "  (Layer ".. (gLayers:getSelectedLayerNum() or "nil") ..")"
+    model = model or gLayers:getSelectedLayer().CursorModel
+    vals = model.Constants
+    local color = "|cff9999ff"
+    print(color .. heading)
+    print(color .."Model ".. vals.sortedID ..":  ".. vals.Name)
+    print("        BaseScale = ".. tostring(vals.BaseScale) ..", BaseFacing = ".. tostring(vals.BaseFacing) ..",")
+    print("        BaseOfsX = ".. tostring(vals.BaseOfsX) ..", BaseOfsY = ".. tostring(vals.BaseOfsY) ..",")
+    print("        BaseStepX = ".. tostring(vals.BaseStepX) ..", BaseStepY = ".. tostring(vals.BaseStepY) ..",")
+    print("        IsSkewed = ".. (vals.IsSkewed and "true" or "false") ..", HorizontalSlope = ".. tostring(vals.HorizontalSlope) ..",\n")
 end
 
 --- End of File ---
