@@ -18,6 +18,18 @@ local function vignetteToggle(vignetteid, name)
 	}
 end
 
+local function vignetteTypeToggle(atlas, name, order)
+	return {
+		type = "toggle",
+		name = name,
+		desc = "ID: " .. atlas,
+		arg = atlas,
+		-- width = "double",
+		descStyle = "inline",
+		order = order,
+	}
+end
+
 function module:OnInitialize()
 	self.db = core.db:RegisterNamespace("Scan_Vignettes", {
 		profile = {
@@ -64,20 +76,20 @@ function module:OnInitialize()
 						args={
 							desc = config.desc("這裡列出曾經通知過的小地圖圖示，勾選的小地圖圖示將不會再發出通知。", 0),
 							type = {
-								type = "multiselect",
-								name = "類型",
-								get = function(info, key) return self.db.profile.ignore_type[key] end,
-								set = function(info, key, value)
-									self.db.profile.ignore_type[key] = value
-								end,
-								values = {
-									vignettekill = CreateAtlasMarkup("vignettekill", 20, 20) .. " 擊殺",
-									vignettekillelite = CreateAtlasMarkup("vignettekillelite", 24, 24) .. " 擊殺精英",
-									vignetteloot = CreateAtlasMarkup("vignetteloot", 20, 20) .. " 拾取",
-									vignettelootelite = CreateAtlasMarkup("vignettelootelite", 24, 24) .. " 拾取精英",
-									vignetteevent = CreateAtlasMarkup("vignetteevent", 20, 20) .. " 事件",
-									vignetteeventelite = CreateAtlasMarkup("vignetteeventelite", 24, 24) .. " 事件精英",
-									["warfront-neutralhero"] = CreateAtlasMarkup("warfront-neutralhero", 20, 20) .. " 獎勵首領",
+								type="group",
+								name="類型",
+								inline=true,
+								get=function(info) return self.db.profile.ignore_type[info.arg] end,
+								set=function(info, value) self.db.profile.ignore_type[info.arg] = value end,
+								args={
+									vignettekill = vignetteTypeToggle("vignettekill", CreateAtlasMarkup("vignettekill", 20, 20) .. " 擊殺", 10),
+									vignettekillelite = vignetteTypeToggle("vignettekillelite", CreateAtlasMarkup("vignettekillelite", 24, 24) .. " 擊殺精英", 20),
+									vignetteloot = vignetteTypeToggle("vignetteloot", CreateAtlasMarkup("vignetteloot", 20, 20) .. " 拾取", 30),
+									vignettelootelite = vignetteTypeToggle("vignettelootelite", CreateAtlasMarkup("vignettelootelite", 24, 24) .. " 拾取精英", 40),
+									vignetteevent = vignetteTypeToggle("vignetteevent", CreateAtlasMarkup("vignetteevent", 20, 20) .. " 事件", 50),
+									vignetteeventelite = vignetteTypeToggle("vignetteeventelite", CreateAtlasMarkup("vignetteeventelite", 24, 24) .. " 事件精英", 60),
+									["warfront-neutralhero"] = vignetteTypeToggle("warfront-neutralhero", CreateAtlasMarkup("warfront-neutralhero", 20, 20) .. " 獎勵首領", 70),
+									glowingmoth = vignetteTypeToggle("glowingmoth", CreateAtlasMarkup("vignetteloot", 20, 20) .. " 發光蛾", 100),
 								},
 								order=10,
 							},
@@ -98,6 +110,12 @@ function module:OnInitialize()
 		local vignettes = config.options.args.scanning.plugins.vignettes.vignettes.args.ignore.args.specific.args
 		for vignetteid, name in pairs(self.db.profile.ignore) do
 			vignettes['vignette:'..vignetteid] = vignetteToggle(vignetteid, name)
+		end
+		local types = config.options.args.scanning.plugins.vignettes.vignettes.args.ignore.args.type.args
+		for atlas in pairs(self.db.profile.ignore_type) do
+			if not types[atlas:lower()] then
+				types[atlas:lower()] = vignetteTypeToggle(atlas:lower(), CreateAtlasMarkup(atlas, 20, 20) .. " " .. atlas)
+			end
 		end
 	end
 end
@@ -122,9 +140,9 @@ function module:SeenVignette(event, name, vignetteid, atlas)
 	if not vignetteconfig["vignette:"..vignetteid] then
 		vignetteconfig["vignette:"..vignetteid] = vignetteToggle(vignetteid, name)
 	end
-	local typeconfig = config.options.args.scanning.plugins.vignettes.vignettes.args.ignore.args.type.values
+	local typeconfig = config.options.args.scanning.plugins.vignettes.vignettes.args.ignore.args.type.args
 	if not typeconfig[atlas:lower()] then
-		typeconfig[atlas:lower()] = CreateAtlasMarkup(atlas, 20, 20) .. " " .. atlas
+		typeconfig[atlas:lower()] = vignetteTypeToggle(atlas:lower(), CreateAtlasMarkup(atlas, 20, 20) .. " " .. atlas)
 	end
 end
 
@@ -187,10 +205,14 @@ function module:WorkOutMobFromVignette(instanceid)
 	if not vignetteInfo then
 		return -- Debug("vignette had no info")
 	end
-	if vignette_denylist[vignetteInfo.vignetteID or 0] then
+	local vignetteID = vignetteInfo.vignetteID or 0
+	if vignette_denylist[vignetteID] then
 		return -- Debug("Vignette was on the denylist", vignetteInfo.vignetteID)
 	end
-	if self.db.profile.ignore[vignetteInfo.vignetteID] then
+	if self.db.profile.ignore[vignetteID] then
+		return -- Debug("Vignette was ignored", vignetteInfo.vignetteID, vignetteInfo.name)
+	end
+	if self.db.profile.ignore_type.glowingmoth and vignetteID >= 7173 and vignetteID <= 7293 then
 		return -- Debug("Vignette was ignored", vignetteInfo.vignetteID, vignetteInfo.name)
 	end
 	if self.db.profile.ignore_type[vignetteInfo.atlasName:lower()] then
