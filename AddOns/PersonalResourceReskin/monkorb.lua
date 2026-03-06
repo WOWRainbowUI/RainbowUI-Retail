@@ -3,7 +3,7 @@
 -- Always register options page, only run bar logic for Brewmaster Monk
 local _, class = UnitClass("player")
 local isMonk = class == "MONK"
-local isBrewmaster = false
+local isBrewmaster = true
 if isMonk and GetSpecialization then
     local spec = GetSpecialization()
     isBrewmaster = (spec == 1)

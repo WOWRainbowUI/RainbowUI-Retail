@@ -1,3 +1,11 @@
+-- Returns true if the player is a Windwalker Monk (specID 269)
+local function ShouldShowChiBar()
+    local _, class = UnitClass("player")
+    if class ~= "MONK" then return false end
+    local spec = GetSpecialization and GetSpecialization() or nil
+    local specID = spec and GetSpecializationInfo(spec) or nil
+    return specID == 269
+end
 local function get(info)
     local key = info[#info]
     local db = CustomWindwalkerMonkOrbBarDB
@@ -13,11 +21,7 @@ local function set(info, value)
     if ApplyBarSettings then ApplyBarSettings() end
 end
 
-local _, class = UnitClass("player")
-if class ~= "MONK" then return end
-local spec = GetSpecialization and GetSpecialization() or nil
-local specID = spec and GetSpecializationInfo(spec) or nil
-if specID ~= 269 then return end
+
 
 -- Only register options if Windwalker
 function RegisterWWMonkOrbOptions()
@@ -204,19 +208,19 @@ function RegisterWWMonkOrbOptions()
     end
 end
 
-if IsLoggedIn and IsLoggedIn() and specID == 269 then
-    RegisterWWMonkOrbOptions()
-else
-    local f = CreateFrame("Frame")
-    f:RegisterEvent("PLAYER_ENTERING_WORLD")
-    f:SetScript("OnEvent", function()
-        local spec = GetSpecialization and GetSpecialization() or nil
-        local specID = spec and GetSpecializationInfo(spec) or nil
-        if specID == 269 then
-            RegisterWWMonkOrbOptions()
-        end
-    end)
-end
+local f = CreateFrame("Frame")
+f:RegisterEvent("PLAYER_ENTERING_WORLD")
+f:RegisterEvent("PLAYER_LOGIN")
+f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+f:SetScript("OnEvent", function()
+    local _, class = UnitClass("player")
+    if class ~= "MONK" then return end
+    local spec = GetSpecialization and GetSpecialization() or nil
+    local specID = spec and GetSpecializationInfo(spec) or nil
+    if specID == 269 then
+        RegisterWWMonkOrbOptions()
+    end
+end)
 
 
 local NUM_ORBS = 6 
