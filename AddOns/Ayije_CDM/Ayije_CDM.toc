@@ -1,0 +1,17 @@
+## Title: |cFF3bb273Ayije_CDM|r
+## Notes: Cooldown Manager
+## Author: Ayije
+## Version: 3.66
+## Interface: 120001, 120000
+## DefaultState: enabled
+## SavedVariables: Ayije_CDMDB
+## X-Curse-Project-ID: 1469668
+## X-Wago-ID: aNebMd62
+
+Libs\embeds.xml
+Init.lua
+Locales\embeds.xml
+Core\embeds.xml
+Config\embeds.xml
+Modules\embeds.xml
+Core\Main.lua

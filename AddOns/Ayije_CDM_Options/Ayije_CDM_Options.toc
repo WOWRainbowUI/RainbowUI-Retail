@@ -1,0 +1,12 @@
+## Interface: 120001, 120000
+## Title: |cFF3bb273Ayije_CDM|r Options
+## Notes: Cooldown Manager Options UI
+## Author: Ayije
+## Version: 3.66
+## LoadOnDemand: 1
+## Dependencies: Ayije_CDM
+## X-Curse-Project-ID: 1469668
+## X-Wago-ID: aNebMd62
+
+Init.lua
+embeds.xml
