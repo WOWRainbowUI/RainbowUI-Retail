@@ -207,6 +207,7 @@ hooksecurefunc("SetItemButtonQuality", function(self, quality, itemIDOrLink, sup
 end)
 
 -- ALT
+--[[
 if (EquipmentFlyout_DisplayButton) then
     hooksecurefunc("EquipmentFlyout_DisplayButton", function(button, paperDollItemSlot)
         local location = button.location
@@ -224,6 +225,7 @@ if (EquipmentFlyout_DisplayButton) then
         end
     end)
 end
+--]]
 
 -- GuildNews
 LibEvent:attachEvent("ADDON_LOADED", function(self, addonName)
