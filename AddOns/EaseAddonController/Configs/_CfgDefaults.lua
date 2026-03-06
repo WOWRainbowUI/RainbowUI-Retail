@@ -219,6 +219,21 @@ D["AutoPotion"] = {
         text = "使用巨集: 載入插件後，從 Esc > 巨集設定，將名稱為 '治療' 巨集拉到快捷列上，然後重新載入介面。\n\n使用快速鍵: 從 Esc > 選項 > 按鍵綁定 > 插件 > 使用治療巨集，設定一個按鍵後便能使用。\n\n當背包中有相關物品但巨集無效時，只要重新載入介面即可。\n",       
 	},
 };
+D["Ayije_CDM"] = {
+	defaultEnable = 0,
+	tags = { "COMBAT" },
+	title = "阿吉冷卻管理器",
+	desc = "專注於技能冷卻、增益狀態與戰鬥資源的全面管理。``它能在技能圖示上顯示快捷鍵，並透過光效提示協助玩家掌握技能循環；同時支援群組淡出功能，讓介面在脫戰或無目標時保持整潔。``插件提供完整的外觀自訂，包括邊框、光效與增益條樣式，並能將增益分為三類顯示，獨立追蹤防禦技能、種族技能與飾品。``除此之外，它還內建資源條與施法條，並允許玩家手動加入技能追蹤或建立專屬增益計時器，確保戰鬥資訊一目了然。讓玩家依照個人需求打造最符合操作習慣的戰鬥輔助系統。`",
+	modifier = "米利",
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+	{
+        text = "設定選項",
+        callback = function() SlashCmdList["AYIJECDM"]("") end,
+    },
+};
 D["Baganator"] = {
 	defaultEnable = 1,
 	tags = { "ITEM" },
@@ -489,9 +504,8 @@ D["ColorPickerPlus"] = {
 };
 D["CooldownManagerCentered"] = {
     defaultEnable = 0,
-	tags = { "COMBAT" },
-	title = "內建技能監控美化",
-	desc = "改善遊戲內建的技能監控，不會改變你能看到的冷卻資訊，而是重新設計顯示方式，讓冷卻提示更直覺、更集中，提升戰鬥中的操作流暢度。`",
+	title = "(請刪除) 內建技能監控美化",
+	desc = "已改為使用 '阿吉冷卻管理器'，請刪除 AddOns 裡面的 CooldownManagerCentered 資料夾。`",
 	modifier = "彩虹ui",
 	{
         text = "設定選項",

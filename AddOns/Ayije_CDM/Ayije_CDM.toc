@@ -1,0 +1,22 @@
+## Title: |cFF3bb273Ayije_CDM|r
+## Notes: Cooldown Manager
+## Author: Ayije
+## Version: 3.66
+## Interface: 120001
+## DefaultState: enabled
+## SavedVariables: Ayije_CDMDB
+## X-Curse-Project-ID: 1469668
+## X-Wago-ID: aNebMd62
+
+## Title-zhTW: |cFF00FFFF[戰鬥]|r 阿吉冷卻管理器
+## Notes-zhTW: |cFF3bb273Ayije_CDM|r |n|n全能技能與冷卻追蹤插件，它能在戰鬥中清晰顯示技能快捷鍵、冷卻時間、增益 狀態與資源條，並支援自訂樣式、技能分組與淡出效果。|n|n|cffffd200使用方法: |r輸入 /cdm 進行設定。
+## Category-zhTW: 戰鬥
+## DefaultState: disabled
+
+
+Init.lua
+Locales\embeds.xml
+Core\embeds.xml
+Config\embeds.xml
+Modules\embeds.xml
+Core\Main.lua
