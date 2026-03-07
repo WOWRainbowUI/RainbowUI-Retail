@@ -356,6 +356,7 @@ smc.nodes[37805238] = Treasure({
 -------------------------------------------------------------------------------
 smc.nodes[49117586] = PT.Alchemy({quest = 89115, id = 238536, parent = map.id}) -- Freshly Plucked Peacebloom
 smc.nodes[47755169] = PT.Alchemy({quest = 89117, id = 238538, parent = map.id}) -- Pristine Potion
+smc.nodes[45054474] = PT.Alchemy({quest = 89111, id = 238532, parent = map.id}) -- Vial of Eversong Oddities
 smc.nodes[49176133] = PT.Blacksmithing({
     quest = 89183,
     id = 238546,
@@ -375,6 +376,7 @@ map.nodes[56844077] = PT.Blacksmithing({quest = 89180, id = 238543}) -- Metalwor
 map.nodes[48327578] = PT.Blacksmithing({quest = 89178, id = 238541}) -- Silvermoon Smithing Kit
 map.nodes[63493260] = PT.Enchanting({quest = 89107, id = 238555}) -- Sin'dorei Enchanting Rod
 map.nodes[60755301] = PT.Enchanting({quest = 89103, id = 238551}) -- Everblazing Sunmote
+map.nodes[40196121] = PT.Enchanting({quest = 89101, id = 238549}) -- Enchanted Sunfire Silk
 smc.nodes[51307440] = PT.Engineering({
     quest = 89133,
     id = 238556,
@@ -396,6 +398,7 @@ smc.nodes[47655039] = PT.Inscription({
 }) -- Songwriter's Pen
 map.nodes[40356123] = PT.Inscription({quest = 89074, id = 238579}) -- Songwriter's Quill
 map.nodes[48317555] = PT.Inscription({quest = 89069, id = 238574}) -- Spare Ink
+map.nodes[39284543] = PT.Inscription({quest = 89072, id = 238577}) -- Half-Baked Techniques
 smc.nodes[55444782] = PT.Jewelcrafting({
     quest = 89127,
     id = 238585,
@@ -427,13 +430,6 @@ smc.nodes[31796828] =
     PT.Tailoring({quest = 89084, id = 238618, parent = map.id}) -- Particularly Enchanting Tablecloth
 map.nodes[46363487] = PT.Tailoring({quest = 89080, id = 238614}) -- Sin'dorei Outfitter's Ruler
 
---[[ MOVE TO RIGHT MAP WHEN FOUND
-map.nodes[] = PT.Enchanting({quest = 89101, id = 238549}) -- Enchanted Sunfire Silk
-map.nodes[] = PT.Alchemy({quest = 89111, id = 238532}) -- Vial of Eversong Oddities
-map.nodes[] = PT.Inscription({quest = 89072, id = 238577}) -- Half-Baked Techniques
-map.nodes[] = PT.Herbalism({quest = 89161, id = 238469}) -- Sweeping Harvester's Scythe
-
-]] --
 -------------------------------------------------------------------------------
 ------------------------- EVERSONG WOODS GLYPH HUNTER -------------------------
 -------------------------------------------------------------------------------
