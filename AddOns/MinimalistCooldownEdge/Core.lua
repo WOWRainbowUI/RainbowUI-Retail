@@ -4,10 +4,15 @@ local addonName, addon = ...
 local MCE = LibStub("AceAddon-3.0"):NewAddon(addon, "MinimalistCooldownEdge",
     "AceConsole-3.0", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("MinimalistCooldownEdge")
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 -- === UPVALUE LOCALS (Performance) ===
 local pcall = pcall
 local InCombatLockdown = InCombatLockdown
+local select = select
+local tostring = tostring
+local tconcat = table.concat
+local CHAT_PREFIX = "|cff00ccffMiniCE|r"
 
 -- =========================================================================
 -- SHARED UTILITIES  (used across all modules)
@@ -15,9 +20,14 @@ local InCombatLockdown = InCombatLockdown
 
 --- Safe forbidden-frame check (pcall guards tainted frames).
 --- Must use pcall because indexing a tainted frame itself throws.
+--- Pre-defined helper avoids creating a closure on every call.
+local function checkForbidden(frame)
+    return frame:IsForbidden()
+end
+
 function MCE:IsForbidden(frame)
     if not frame then return true end
-    local ok, val = pcall(function() return frame:IsForbidden() end)
+    local ok, val = pcall(checkForbidden, frame)
     return not ok or val
 end
 
@@ -35,47 +45,22 @@ function MCE.ResolveFontPath(fontPath)
     return fontPath
 end
 
--- =========================================================================
--- DEBUG / LOGGING SYSTEM
--- =========================================================================
+local function BuildChatMessage(...)
+    local count = select("#", ...)
+    if count == 0 then
+        return CHAT_PREFIX
+    end
 
--- Initialisation de la table globale si elle n'existe pas
-MinimalistCooldownEdge_DebugLog = MinimalistCooldownEdge_DebugLog or {}
+    local parts = {}
+    for i = 1, count do
+        parts[i] = tostring(select(i, ...))
+    end
 
--- Cache de session pour éviter de spammer le fichier d'écriture à chaque frame (performance)
-local sessionLogCache = {}
-
-function MCE:DebugPrint(message)
-    if not (self.db and self.db.profile and self.db.profile.debugMode) then return end
-    self:Print("|cffffaa00[Debug]|r " .. tostring(message))
+    return CHAT_PREFIX .. " " .. tconcat(parts, " ")
 end
 
-function MCE:LogStyleApplication(frame, category, success)
-    if not frame then return end
-    if not (self.db and self.db.profile and self.db.profile.debugMode) then return end
-    if self:GetModule("Classifier"):IsBlacklisted(frame) then return end
-
-    -- On crée un identifiant unique pour la frame
-    local frameName = frame:GetName() or "AnonymousFrame"
-    local parent = frame:GetParent()
-    local parentName = parent and parent:GetName() or "NoParent"
-
-    -- Clé unique : Parent -> Frame
-    local key = parentName .. " -> " .. frameName
-
-    -- Si on a déjà logué cette frame dans cette session, on ignore (pour ne pas tuer les FPS)
-    if sessionLogCache[key] then return end
-    sessionLogCache[key] = true
-
-    -- Enregistrement dans la variable sauvegardée
-    MinimalistCooldownEdge_DebugLog[key] = {
-        frameName = frameName,
-        parentName = parentName,
-        category = category,
-        objType = frame:GetObjectType(),
-        timestamp = date("%Y-%m-%d %H:%M:%S"),
-        success = success,
-    }
+function MCE:Print(...)
+    DEFAULT_CHAT_FRAME:AddMessage(BuildChatMessage(...))
 end
 
 -- =========================================================================
@@ -109,14 +94,22 @@ actionbarDefaults.textColorByDuration = {
     defaultColor = { r = 0.67, g = 0.67, b = 0.67, a = 1.0 },
 }
 
+local cooldownManagerDefaults = CategoryDefaults(false, 18)
+cooldownManagerDefaults.essentialFontSize = cooldownManagerDefaults.fontSize
+cooldownManagerDefaults.utilityFontSize = cooldownManagerDefaults.fontSize
+cooldownManagerDefaults.buffIconFontSize = cooldownManagerDefaults.fontSize
+
 MCE.defaults = {
+    global = {
+        versionAlertsShown = {},
+    },
     profile = {
-        debugMode = false,
         categories = {
-            actionbar = actionbarDefaults,
-            nameplate = CategoryDefaults(false, 12),
-            unitframe = CategoryDefaults(false, 12),
-            global    = CategoryDefaults(false, 18),
+            actionbar       = actionbarDefaults,
+            nameplate       = CategoryDefaults(false, 12),
+            unitframe       = CategoryDefaults(false, 12),
+            cooldownmanager = cooldownManagerDefaults,
+            global          = CategoryDefaults(false, 18),
         },
     },
 }
@@ -128,56 +121,56 @@ MCE.defaults = {
 function MCE:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("MinimalistCooldownEdgeDB_v2", self.defaults, true)
 
+    if not self.db.global.versionAlertsShown then
+        self.db.global.versionAlertsShown = {}
+    end
+
+    local categories = self.db.profile.categories
+    if not categories.cooldownmanager then
+        categories.cooldownmanager = CopyTable(self.defaults.profile.categories.cooldownmanager)
+    end
+
+    local cooldownManager = categories.cooldownmanager
+    if cooldownManager.essentialFontSize == nil then
+        cooldownManager.essentialFontSize = cooldownManager.fontSize or 18
+    end
+    if cooldownManager.utilityFontSize == nil then
+        cooldownManager.utilityFontSize = cooldownManager.fontSize or 18
+    end
+    if cooldownManager.buffIconFontSize == nil then
+        cooldownManager.buffIconFontSize = cooldownManager.fontSize or 18
+    end
+
     LibStub("AceConfig-3.0"):RegisterOptionsTable(addonName, self.GetOptions)
-    self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, L["MinimalistCooldownEdge"]) -- 自行修改
+
+    do
+        local status = AceConfigDialog:GetStatusTable(addonName)
+        status.width = math.max(status.width or 0, 900)
+        status.height = math.max(status.height or 0, 600)
+        status.groups = status.groups or {}
+        status.groups.treewidth = math.max(status.groups.treewidth or 0, 210)
+        status.groups.treesizable = true
+    end
+
+    self.optionsFrame = AceConfigDialog:AddToBlizOptions(addonName, L["MinimalistCooldownEdge"]) -- 自行修改
 
     self:RegisterChatCommand("mce", "SlashCommand")
     self:RegisterChatCommand("minice", "SlashCommand")
     self:RegisterChatCommand("minimalistcooldownedge", "SlashCommand")
-
-    self:DebugPrint("Addon initialized.")
 end
 
 function MCE:OnEnable()
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
-    self:DebugPrint("Addon enabled.")
 end
 
 function MCE:OnDisable()
-    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    self:DebugPrint("Addon disabled.")
-end
-
-function MCE:PLAYER_ENTERING_WORLD(_, isInitialLogin, isReloadingUi)
-    if isInitialLogin then
-        self:DebugPrint("PLAYER_ENTERING_WORLD (initial login).")
-    elseif isReloadingUi then
-        self:DebugPrint("PLAYER_ENTERING_WORLD (UI reload).")
-    else
-        self:DebugPrint("PLAYER_ENTERING_WORLD (zone/world transition).")
-    end
 end
 
 function MCE:SlashCommand(input)
-    local cmd = input and input:match("^%s*(%S+)")
-
-    if cmd and cmd:lower() == "debug" then
-        if not (self.db and self.db.profile) then return end
-        self.db.profile.debugMode = not self.db.profile.debugMode
-        if self.db.profile.debugMode then
-            self:Print("Debug mode enabled.")
-            self:DebugPrint("Debug logging active.")
-        else
-            self:Print("Debug mode disabled.")
-        end
-        return
-    end
-
     if InCombatLockdown() then
         self:Print(L["Cannot open options in combat."])
         return
     end
-    LibStub("AceConfigDialog-3.0"):Open(addonName)
+    AceConfigDialog:Open(addonName)
 end
 
 --- Public API – delegates to Styler module.

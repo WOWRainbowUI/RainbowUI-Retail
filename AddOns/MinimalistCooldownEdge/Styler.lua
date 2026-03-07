@@ -44,19 +44,32 @@ local durationColorTicker = nil
 -- Cached WoW ColorCurve built from user thresholds; invalidated on config change
 local actionbarColorCurve = nil
 
-local function QueueKnownCooldownMembers(frame, queueUpdate, forcedCategory)
-    local seen = {}
+local function StopDurationColorTicker()
+    if durationColorTicker then
+        durationColorTicker:Cancel()
+        durationColorTicker = nil
+    end
+end
 
-    for i = 1, select("#", "cooldown", "Cooldown", "chargeCooldown", "ChargeCooldown") do
-        local key = select(i, "cooldown", "Cooldown", "chargeCooldown", "ChargeCooldown")
-        local cooldown = frame[key]
+local COOLDOWN_MEMBER_KEYS = { "cooldown", "Cooldown", "chargeCooldown", "ChargeCooldown" }
+
+local function QueueKnownCooldownMembers(frame, queueUpdate, forcedCategory)
+    -- Dedup without table allocation: at most 2 unique cooldowns (main + charge)
+    local seen1, seen2
+    for i = 1, 4 do
+        local cooldown = frame[COOLDOWN_MEMBER_KEYS[i]]
         if type(cooldown) == "table"
-           and not seen[cooldown]
+           and cooldown ~= seen1 and cooldown ~= seen2
            and not MCE:IsForbidden(cooldown) then
-            seen[cooldown] = true
+            if not seen1 then seen1 = cooldown else seen2 = cooldown end
             queueUpdate(cooldown, forcedCategory)
         end
     end
+end
+
+-- Pre-defined callback to avoid closure allocation in ForceUpdateAll / StyleCooldownsInFrame
+local function QueueUpdateCallback(cooldown, forcedCategory)
+    Styler:QueueUpdate(cooldown, forcedCategory)
 end
 
 local function GetActionIDFromButton(parent)
@@ -77,34 +90,49 @@ local function GetActionIDFromButton(parent)
     return nil
 end
 
+-- Scratch table reused by GetCooldownTextRegions to avoid per-call allocation
+local textRegionScratch = {}
+
+--- Vararg helper: filters FontString regions without allocating a table for GetRegions().
+local function FilterFontStringRegions(count, firstRegion, ...)
+    for i = 1, select("#", ...) do
+        local region = select(i, ...)
+        if region and region ~= firstRegion
+           and region.GetObjectType
+           and region:GetObjectType() == "FontString"
+           and not MCE:IsForbidden(region) then
+            count = count + 1
+            textRegionScratch[count] = region
+        end
+    end
+    return count
+end
+
 local function GetCooldownTextRegions(cdFrame)
-    local results = {}
-    local seen = {}
+    -- Reuse scratch table; track count for accurate iteration
+    local count = 0
+    local firstRegion = nil
 
     local countdownText = cdFrame.GetCountdownFontString and cdFrame:GetCountdownFontString()
     if countdownText and not MCE:IsForbidden(countdownText) then
-        results[1] = countdownText
-        seen[countdownText] = true
+        count = 1
+        textRegionScratch[1] = countdownText
+        firstRegion = countdownText
     end
 
     if cdFrame.GetRegions then
         local numRegions = cdFrame.GetNumRegions and cdFrame:GetNumRegions() or 0
         if numRegions > 0 then
-            local regions = { cdFrame:GetRegions() }
-            for i = 1, numRegions do
-                local region = regions[i]
-                if region and region.GetObjectType
-                   and region:GetObjectType() == "FontString"
-                   and not seen[region]
-                   and not MCE:IsForbidden(region) then
-                    results[#results + 1] = region
-                    seen[region] = true
-                end
-            end
+            count = FilterFontStringRegions(count, firstRegion, cdFrame:GetRegions())
         end
     end
 
-    return results
+    -- Nil out stale entries from previous calls
+    for i = count + 1, #textRegionScratch do
+        textRegionScratch[i] = nil
+    end
+
+    return textRegionScratch, count
 end
 
 --- Builds a WoW C_CurveUtil Step color curve from the threshold config.
@@ -183,51 +211,65 @@ local function GetActionBarDuration(cdFrame)
     return C_ActionBar.GetActionCooldownDuration(actionID)
 end
 
+local function ResetCountdownTextColor(cdFrame, config)
+    local text = cdFrame.GetCountdownFontString and cdFrame:GetCountdownFontString()
+    if not text or MCE:IsForbidden(text) then return false end
+
+    local tc = config and config.textColor
+    if tc then
+        text:SetTextColor(tc.r, tc.g, tc.b, tc.a)
+    end
+
+    return true
+end
+
+local function ApplyActionBarDurationColor(cdFrame, config, curve)
+    if not cdFrame or MCE:IsForbidden(cdFrame) then return false end
+    if cdFrame.IsShown and not cdFrame:IsShown() then return false end
+
+    local text = cdFrame.GetCountdownFontString and cdFrame:GetCountdownFontString()
+    if not text or MCE:IsForbidden(text) then return false end
+
+    local duration = GetActionBarDuration(cdFrame)
+    if not duration then
+        ResetCountdownTextColor(cdFrame, config)
+        return false
+    end
+
+    local ok, color = pcall(duration.EvaluateRemainingDuration, duration, curve)
+    if ok and color then
+        text:SetTextColor(color:GetRGBA())
+        return true
+    end
+
+    ResetCountdownTextColor(cdFrame, config)
+    return false
+end
+
 --- Ticker callback: updates countdown text color on tracked action bar cooldowns.
 local function UpdateDurationColors()
     local curve = GetColorCurve()
+    local config = MCE.db and MCE.db.profile and MCE.db.profile.categories.actionbar
     if not curve then
         -- Feature disabled or no valid curve
         wipe(durationColoredFrames)
-        if durationColorTicker then
-            durationColorTicker:Cancel()
-            durationColorTicker = nil
-        end
+        StopDurationColorTicker()
         return
     end
 
-    local hasActive = false
+    local activeCount = 0
 
     for cdFrame in pairs(durationColoredFrames) do
-        if cdFrame and not MCE:IsForbidden(cdFrame) then
-            local duration = GetActionBarDuration(cdFrame)
-            if duration then
-                -- EvaluateRemainingDuration handles expired durations gracefully;
-                -- we never call IsZero() as it returns secret-tainted booleans in TWW+.
-                local text = cdFrame:GetCountdownFontString()
-                if text then
-                    local ok, color = pcall(duration.EvaluateRemainingDuration, duration, curve)
-                    if ok and color then
-                        hasActive = true
-                        text:SetTextColor(color:GetRGBA())
-                    else
-                        durationColoredFrames[cdFrame] = nil
-                    end
-                else
-                    hasActive = true
-                end
-            else
-                -- No duration available (not an action bar frame or expired)
-                durationColoredFrames[cdFrame] = nil
-            end
+        if cdFrame and not MCE:IsForbidden(cdFrame)
+           and ApplyActionBarDurationColor(cdFrame, config, curve) then
+            activeCount = activeCount + 1
         else
             durationColoredFrames[cdFrame] = nil
         end
     end
 
-    if not hasActive and durationColorTicker then
-        durationColorTicker:Cancel()
-        durationColorTicker = nil
+    if activeCount == 0 then
+        StopDurationColorTicker()
     end
 end
 
@@ -302,10 +344,8 @@ function Styler:OnEnable()
     end
 
     C_Timer_After(2, function()
-        MCE:DebugPrint("Initial full scan scheduled on enable.")
         self:ForceUpdateAll(true)
     end)
-    MCE:DebugPrint("Styler enabled.")
 end
 
 function Styler:OnDisable()
@@ -313,11 +353,10 @@ function Styler:OnDisable()
         self.nameplateTicker:Cancel()
         self.nameplateTicker = nil
     end
-    if durationColorTicker then
-        durationColorTicker:Cancel()
-        durationColorTicker = nil
-    end
+    StopDurationColorTicker()
     wipe(durationColoredFrames)
+    wipe(pendingNameplates)
+    wipe(pendingAuras)
     -- AceEvent auto-unregisters events; AceHook auto-unhooks.
 end
 
@@ -362,16 +401,13 @@ local function GetDesiredHideCountdownNumbers(cdFrame, category, config)
     return hideNums
 end
 
+local function rawCompare(a, b)
+    return a == b
+end
+
 local function IsSameValueSafe(a, b)
-    local ok, same = pcall(function()
-        return a == b
-    end)
-
-    if ok then
-        return same
-    end
-
-    return false
+    local ok, same = pcall(rawCompare, a, b)
+    return ok and same or false
 end
 
 -- =========================================================================
@@ -390,7 +426,7 @@ function Styler:StyleStackCount(cdFrame, config, category)
         -- Action bar: standard Count region on the button
         local parentName = parent.GetName and parent:GetName()
         countRegion = parent.Count or (parentName and _G[parentName .. "Count"])
-    elseif category == "global" then
+    elseif category == "cooldownmanager" then
         -- CooldownManager viewers:
         -- EssentialCooldownViewer / UtilityCooldownViewer:
         --   ChargeCount is a Frame (setAllPoints), ChargeCount.Current is the FontString.
@@ -426,6 +462,25 @@ function Styler:StyleStackCount(cdFrame, config, category)
     end
 end
 
+local function GetCooldownFontSize(cdFrame, category, config)
+    if category ~= "cooldownmanager" then
+        return config.fontSize
+    end
+
+    local viewerType = Classifier:GetCooldownManagerViewerType(cdFrame)
+    if viewerType == "essential" then
+        return config.essentialFontSize or config.fontSize
+    end
+    if viewerType == "utility" then
+        return config.utilityFontSize or config.fontSize
+    end
+    if viewerType == "bufficon" then
+        return config.buffIconFontSize or config.fontSize
+    end
+
+    return config.fontSize
+end
+
 -- =========================================================================
 -- STYLE APPLICATION
 -- =========================================================================
@@ -433,6 +488,26 @@ end
 -- Uses change-detection on edge/countdown APIs to prevent visual flicker:
 -- SetDrawEdge, SetEdgeScale, SetHideCountdownNumbers are only called when
 -- their value actually differs from the last-applied value.
+
+-- Aura-pending retry batching: coalesces deferred aura classifications
+-- into a single timer pass, avoiding per-frame closure allocation.
+local pendingAuras = {}
+local auraRetryTimerScheduled = false
+
+local function ProcessPendingAuras()
+    auraRetryTimerScheduled = false
+    for cdFrame in pairs(pendingAuras) do
+        if cdFrame and not MCE:IsForbidden(cdFrame) then
+            local retryCategory = Classifier:ClassifyFrame(cdFrame)
+            if retryCategory == "aura_pending" then
+                retryCategory = "global"
+            end
+            Classifier:SetCategory(cdFrame, retryCategory)
+            Styler:ApplyStyle(cdFrame)
+        end
+    end
+    wipe(pendingAuras)
+end
 
 function Styler:ApplyStyle(cdFrame, forcedCategory)
     if MCE:IsForbidden(cdFrame) then return end
@@ -456,23 +531,15 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
     -- Handle deferred aura classification (single retry, then fallback to global)
     if category == "aura_pending" then
         Classifier:SetCategory(cdFrame, nil)
-        C_Timer_After(0.1, function()
-            if cdFrame and not MCE:IsForbidden(cdFrame) then
-                local retryCategory = Classifier:ClassifyFrame(cdFrame)
-                if retryCategory == "aura_pending" then
-                    retryCategory = "global"
-                end
-                Classifier:SetCategory(cdFrame, retryCategory)
-                self:ApplyStyle(cdFrame)
-            end
-        end)
+        pendingAuras[cdFrame] = true
+        if not auraRetryTimerScheduled then
+            auraRetryTimerScheduled = true
+            C_Timer_After(0.1, ProcessPendingAuras)
+        end
         return
     end
 
-    if category == "blacklist" then
-        MCE:LogStyleApplication(cdFrame, "blacklist", false)
-        return
-    end
+    if category == "blacklist" then return end
 
     local config = MCE.db.profile.categories[category]
     if not config or not config.enabled then
@@ -491,17 +558,22 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
         else
             lastAppliedEdge[cdFrame] = false
         end
-        MCE:LogStyleApplication(cdFrame, category .. " (Disabled)", false)
         return
     end
-
-    MCE:LogStyleApplication(cdFrame, category, true)
 
     -- === Duration-based text coloring (actionbar only) ===
     if category == "actionbar" and config.textColorByDuration
        and config.textColorByDuration.enabled then
-        durationColoredFrames[cdFrame] = true
-        StartDurationColorTicker()
+        local curve = GetColorCurve()
+        if curve and ApplyActionBarDurationColor(cdFrame, config, curve) then
+            durationColoredFrames[cdFrame] = true
+            StartDurationColorTicker()
+        else
+            durationColoredFrames[cdFrame] = nil
+            if not curve then
+                ResetCountdownTextColor(cdFrame, config)
+            end
+        end
     else
         durationColoredFrames[cdFrame] = nil
     end
@@ -538,22 +610,29 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
         end
     end
 
-    -- Skip full font re-style if category hasn't changed (prevents text flashing)
-    if styledCategory[cdFrame] ~= category then
-        styledCategory[cdFrame] = category
+    -- Skip full font re-style if category/viewer type hasn't changed (prevents text flashing)
+    local styleKey = category
+    if category == "cooldownmanager" then
+        local viewerType = Classifier:GetCooldownManagerViewerType(cdFrame) or "default"
+        styleKey = category .. ":" .. viewerType
+    end
 
-        -- Stack / charge counts (actionbar + CooldownViewer globals)
+    if styledCategory[cdFrame] ~= styleKey then
+        styledCategory[cdFrame] = styleKey
+
+        -- Stack / charge counts (actionbar + CooldownManager viewers)
         self:StyleStackCount(cdFrame, config, category)
 
         -- Font string styling & positioning
         do
             local fontStyle    = MCE.NormalizeFontStyle(config.fontStyle)
             local resolvedFont = MCE.ResolveFontPath(config.font)
-            local textRegions  = GetCooldownTextRegions(cdFrame)
+            local fontSize     = GetCooldownFontSize(cdFrame, category, config)
+            local textRegions, textRegionCount = GetCooldownTextRegions(cdFrame)
 
-            for i = 1, #textRegions do
+            for i = 1, textRegionCount do
                 local region = textRegions[i]
-                region:SetFont(resolvedFont, config.fontSize, fontStyle)
+                region:SetFont(resolvedFont, fontSize, fontStyle)
                 -- Always apply static text color as default
                 if config.textColor then
                     local tc = config.textColor
@@ -568,26 +647,6 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
         end
     end
 
-    -- Apply duration-based color on EVERY call, not just first style.
-    -- Must live outside the styledCategory guard: when a new cooldown starts
-    -- on an already-styled action button, the text still carries the RED
-    -- "expiring" color from the previous cooldown.  Without this, the color
-    -- is only corrected 0-100 ms later by the ticker, causing a visible
-    -- red flash on every cast.
-    if category == "actionbar" and config.textColorByDuration
-       and config.textColorByDuration.enabled then
-        local duration = GetActionBarDuration(cdFrame)
-        local curve = GetColorCurve()
-        if duration and curve then
-            local text = cdFrame:GetCountdownFontString()
-            if text then
-                local ok, color = pcall(duration.EvaluateRemainingDuration, duration, curve)
-                if ok and color then
-                    text:SetTextColor(color:GetRGBA())
-                end
-            end
-        end
-    end
 end
 
 -- =========================================================================
@@ -595,8 +654,6 @@ end
 -- =========================================================================
 
 function Styler:ForceUpdateAll(fullScan)
-    MCE:DebugPrint("ForceUpdateAll called (fullScan=" .. tostring(fullScan) .. ").")
-
     -- Clear all caches so everything gets a fresh pass
     Classifier:WipeCache()
     wipe(styledCategory)
@@ -605,10 +662,7 @@ function Styler:ForceUpdateAll(fullScan)
     wipe(lastAppliedHideNums)
     wipe(durationColoredFrames)
     InvalidateColorCurve()
-    if durationColorTicker then
-        durationColorTicker:Cancel()
-        durationColorTicker = nil
-    end
+    StopDurationColorTicker()
 
     if fullScan or not self.fullScanDone then
         self.fullScanDone = true
@@ -618,9 +672,7 @@ function Styler:ForceUpdateAll(fullScan)
                 if frame:IsObjectType("Cooldown") then
                     self:QueueUpdate(frame)
                 else
-                    QueueKnownCooldownMembers(frame, function(cooldown)
-                        self:QueueUpdate(cooldown)
-                    end)
+                    QueueKnownCooldownMembers(frame, QueueUpdateCallback)
                 end
             end
             frame = EnumerateFrames(frame)
@@ -736,16 +788,31 @@ end
 -- NAMEPLATE EVENTS
 -- =========================================================================
 
+-- Nameplate add batching: coalesces multiple NAME_PLATE_UNIT_ADDED events
+-- into a single deferred scan pass, avoiding per-event closure allocation.
+local pendingNameplates = {}
+local nameplateAddTimerScheduled = false
+
+local function ProcessPendingNameplates()
+    nameplateAddTimerScheduled = false
+    for plate in pairs(pendingNameplates) do
+        if plate and not MCE:IsForbidden(plate) then
+            Styler:StyleCooldownsInFrame(plate, "nameplate", 10)
+        end
+    end
+    wipe(pendingNameplates)
+end
+
 function Styler:NAME_PLATE_UNIT_ADDED(_, unit)
     local plate = C_NamePlate and C_NamePlate.GetNamePlateForUnit(unit)
     if not plate then return end
 
-    -- Single deferred call (batch processor coalesces any rapid follow-ups)
-    C_Timer_After(0.05, function()
-        if plate and not MCE:IsForbidden(plate) then
-            self:StyleCooldownsInFrame(plate, "nameplate", 10)
-        end
-    end)
+    -- Batch nameplate adds to avoid per-event closure allocation
+    pendingNameplates[plate] = true
+    if not nameplateAddTimerScheduled then
+        nameplateAddTimerScheduled = true
+        C_Timer_After(0.05, ProcessPendingNameplates)
+    end
 end
 
 function Styler:RefreshVisibleNameplates()
@@ -775,31 +842,37 @@ end
 -- =========================================================================
 -- SCOPED SCANNING
 -- =========================================================================
--- Recursively scans a frame tree and queues all Cooldown frames found
--- for batch style processing. Used primarily for nameplate scanning.
+-- Scans a frame tree and queues all Cooldown frames found for batch style
+-- processing. Used primarily for nameplate scanning.
+-- Refactored as methods to avoid per-call closure + table allocation.
+
+--- Vararg helper: processes children without allocating a table from GetChildren().
+function Styler:ScanChildren(forcedCategory, maxDepth, newDepth, ...)
+    for i = 1, select("#", ...) do
+        local child = select(i, ...)
+        if child then
+            self:ScanFrameRecursive(child, forcedCategory, maxDepth, newDepth)
+        end
+    end
+end
+
+function Styler:ScanFrameRecursive(frame, forcedCategory, maxDepth, depth)
+    if not frame or depth > maxDepth then return end
+    if MCE:IsForbidden(frame) then return end
+
+    if frame.IsObjectType and frame:IsObjectType("Cooldown") then
+        self:QueueUpdate(frame, forcedCategory)
+    else
+        QueueKnownCooldownMembers(frame, QueueUpdateCallback, forcedCategory)
+    end
+
+    local childCount = frame.GetNumChildren and frame:GetNumChildren() or 0
+    if childCount > 0 and frame.GetChildren then
+        self:ScanChildren(forcedCategory, maxDepth, depth + 1, frame:GetChildren())
+    end
+end
 
 function Styler:StyleCooldownsInFrame(rootFrame, forcedCategory, maxDepth)
     if not rootFrame then return end
-    maxDepth = maxDepth or 5
-
-    local function scan(frame, depth)
-        if not frame or depth > maxDepth then return end
-        if MCE:IsForbidden(frame) then return end
-
-        if frame.IsObjectType and frame:IsObjectType("Cooldown") then
-            self:QueueUpdate(frame, forcedCategory)
-        else
-            QueueKnownCooldownMembers(frame, function(cooldown, category)
-                self:QueueUpdate(cooldown, category)
-            end, forcedCategory)
-        end
-
-        local childCount = frame.GetNumChildren and frame:GetNumChildren() or 0
-        if childCount > 0 and frame.GetChildren then
-            local children = { frame:GetChildren() }
-            for i = 1, childCount do scan(children[i], depth + 1) end
-        end
-    end
-
-    scan(rootFrame, 0)
+    self:ScanFrameRecursive(rootFrame, forcedCategory, maxDepth or 5, 0)
 end

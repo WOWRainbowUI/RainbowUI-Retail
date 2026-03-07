@@ -9,7 +9,8 @@ L["Cannot open options in combat."] = "戰鬥中無法開啟選項。"
 L["Action Bars"] = "快捷列"
 L["Nameplates"] = "名條"
 L["Unit Frames"] = "單位框架"
-L["CD Manager & Others"] = "冷卻技能 & 其他"
+L["CooldownManager"] = "冷卻技能"
+L["Others"] = "其他"
 
 -- Group Headers
 L["General"] = "一般"
@@ -22,6 +23,7 @@ L["Performance & Detection"] = "效能 & 偵測"
 L["Danger Zone"] = "危險區域"
 L["Style"] = "樣式"
 L["Positioning"] = "位置"
+L["CooldownManager Viewers"] = "冷卻技能檢視器"
 
 -- Toggles & Settings
 L["Enable %s"] = "啟用%s"
@@ -37,6 +39,9 @@ L["Hide the text entirely (useful if you only want the swipe edge or stacks)."] 
 L["Anchor Point"] = "位置"
 L["Offset X"] = "水平偏移"
 L["Offset Y"] = "垂直偏移"
+L["Essential Viewer Size"] = "關鍵檢視器大小"
+L["Utility Viewer Size"] = "輔助檢視器大小"
+L["Buff Icon Viewer Size"] = "增益圖示檢視器大小"
 L["Show Swipe Edge"] = "顯示邊緣轉圈"
 L["Shows the white line indicating cooldown progress."] = "顯示表示冷卻進度的白色線條。"
 L["Edge Thickness"] = "邊緣粗細"
@@ -85,15 +90,37 @@ L["Tools"] = "工具"
 L["Force Refresh"] = "強制重新整理"
 L["Force a full rescan of all cooldown frames."] = "強制對所有冷卻框架執行完整掃描。"
 L["Full refresh completed."] = "完整重新整理完成。"
-L["Clear Debug Log"] = "清除偵錯日誌"
-L["Clears the saved debug log data."] = "清除已儲存的偵錯日誌資料。"
-L["Debug log cleared."] = "偵錯日誌已清除。"
+
+-- Links
+L["Links"] = "連結"
+L["LINKS_DESC"] = "提供更新、變更紀錄和下載的專案連結。"
+L["CurseForge URL"] = "CurseForge 網址"
+L["Copy this link to open the CurseForge project page in your browser."] = "複製此連結以在瀏覽器中開啟 CurseForge 專案頁面。"
+L["Developer Page"] = "開發者頁面"
+L["Copy this link to view other projects from Anahkas on CurseForge."] = "複製此連結以查看 Anahkas 在 CurseForge 上的其他專案。"
+
+-- Help
+L["Help"] = "說明"
+L["Project Information"] = "專案資訊"
+L["Development Status"] = "開發狀態"
+L["HELP_ABOUT_DESC"] = "MinimalistCooldownEdge 是一款輕量化的冷卻時間樣式插件，專注於清晰度、效能與簡潔介面。"
+L["HELP_DEVELOPMENT_DESC"] = "此插件仍在持續開發與改進中。"
+L["HELP_FEEDBACK_DESC"] = "非常歡迎建議、回饋與評論，這些能幫助塑造未來的改進方向。"
+
+-- Quick Toggles Dashboard
+L["Quick Toggles"] = "快速切換"
+L["QUICK_TOGGLES_DESC"] = "可快速啟用或停用分類，變更會立即生效。"
+
+-- Danger Zone / Maintenance
+L["DANGER_ZONE_DESC"] = "此操作無法復原。您的設定檔將被完全重置，並且介面會重新載入。"
+L["MAINTENANCE_DESC"] = "將此分類恢復為出廠預設值。其他分類不受影響。"
 
 -- Category Descriptions
 L["ACTIONBAR_DESC"] = "自訂快捷列上的冷卻，包括 Bartender4、Dominos 和 ElvUI。"
 L["NAMEPLATE_DESC"] = "設定敵方和友方名條上顯示的冷卻樣式（Plater、KuiNameplates 等）。"
 L["UNITFRAME_DESC"] = "調整玩家、目標和專注目標單位框架上的冷卻樣式。"
-L["GLOBAL_DESC"] = "不屬於其他分類的冷卻的通用分類（冷卻管理器檢視器、背包、選單、其他插件）。包括關鍵和輔助冷卻檢視器的充能樣式。"
+L["COOLDOWNMANAGER_DESC"] = "為冷卻技能檢視器提供共用的圖示樣式。倒數文字大小可針對關鍵、輔助與增益圖示檢視器分別設定。"
+L["OTHERS_DESC"] = "用於不屬於其他分類的冷卻時間（背包、選單、其他插件）。"
 
 -- Dynamic Text Colors
 L["Dynamic Text Colors"] = "動態文字顏色"

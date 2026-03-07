@@ -85,9 +85,6 @@ L["Tools"] = "工具"
 L["Force Refresh"] = "强制刷新"
 L["Force a full rescan of all cooldown frames."] = "强制对所有冷却框体执行完整扫描。"
 L["Full refresh completed."] = "完整刷新完成。"
-L["Clear Debug Log"] = "清除调试日志"
-L["Clears the saved debug log data."] = "清除已保存的调试日志数据。"
-L["Debug log cleared."] = "调试日志已清除。"
 
 -- Category Descriptions
 L["ACTIONBAR_DESC"] = "自定义动作条上的冷却，包括 Bartender4、Dominos 和 ElvUI。"
