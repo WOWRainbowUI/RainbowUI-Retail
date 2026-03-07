@@ -85,9 +85,6 @@ L["Tools"] = "Werkzeuge"
 L["Force Refresh"] = "Aktualisieren"
 L["Force a full rescan of all cooldown frames."] = "Erzwingt einen vollständigen Scan aller Abklingzeit-Fenster."
 L["Full refresh completed."] = "Vollständige Aktualisierung abgeschlossen."
-L["Clear Debug Log"] = "Debug-Protokoll leeren"
-L["Clears the saved debug log data."] = "Löscht die gespeicherten Debug-Protokolldaten."
-L["Debug log cleared."] = "Debug-Protokoll gelöscht."
 
 -- Category Descriptions
 L["ACTIONBAR_DESC"] = "Passe Abklingzeiten auf deinen Aktionsleisten an, einschließlich Bartender4, Dominos und ElvUI."

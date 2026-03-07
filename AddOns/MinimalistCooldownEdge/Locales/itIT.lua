@@ -85,9 +85,6 @@ L["Tools"] = "Strumenti"
 L["Force Refresh"] = "Aggiorna"
 L["Force a full rescan of all cooldown frames."] = "Forza una scansione completa di tutti i riquadri di ricarica."
 L["Full refresh completed."] = "Aggiornamento completo."
-L["Clear Debug Log"] = "Cancella registro"
-L["Clears the saved debug log data."] = "Cancella i dati del registro di debug salvati."
-L["Debug log cleared."] = "Registro di debug cancellato."
 
 -- Category Descriptions
 L["ACTIONBAR_DESC"] = "Personalizza le ricariche sulle barre d'azione, inclusi Bartender4, Dominos ed ElvUI."

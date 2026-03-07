@@ -85,9 +85,6 @@ L["Tools"] = "도구"
 L["Force Refresh"] = "새로고침"
 L["Force a full rescan of all cooldown frames."] = "모든 재사용 대기시간 프레임을 강제로 전체 스캔합니다."
 L["Full refresh completed."] = "전체 새로고침 완료."
-L["Clear Debug Log"] = "디버그 로그 삭제"
-L["Clears the saved debug log data."] = "저장된 디버그 로그 데이터를 삭제합니다."
-L["Debug log cleared."] = "디버그 로그 삭제됨."
 
 -- Category Descriptions
 L["ACTIONBAR_DESC"] = "Bartender4, Dominos, ElvUI를 포함한 행동 단축바의 재사용 대기시간을 사용자 정의합니다."

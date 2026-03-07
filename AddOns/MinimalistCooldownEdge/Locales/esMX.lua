@@ -85,9 +85,6 @@ L["Tools"] = "Herramientas"
 L["Force Refresh"] = "Actualizar"
 L["Force a full rescan of all cooldown frames."] = "Fuerza un escaneo completo de todos los marcos de reutilización."
 L["Full refresh completed."] = "Actualización completa."
-L["Clear Debug Log"] = "Limpiar registro"
-L["Clears the saved debug log data."] = "Limpia los datos del registro de depuración guardados."
-L["Debug log cleared."] = "Registro de depuración limpiado."
 
 -- Category Descriptions
 L["ACTIONBAR_DESC"] = "Personaliza los tiempos de reutilización en tus barras de acción, incluyendo Bartender4, Dominos y ElvUI."

@@ -85,9 +85,6 @@ L["Tools"] = "Инструменты"
 L["Force Refresh"] = "Обновить"
 L["Force a full rescan of all cooldown frames."] = "Принудительное полное сканирование всех фреймов перезарядки."
 L["Full refresh completed."] = "Полное обновление завершено."
-L["Clear Debug Log"] = "Очистить журнал"
-L["Clears the saved debug log data."] = "Очищает сохранённые данные журнала отладки."
-L["Debug log cleared."] = "Журнал отладки очищен."
 
 -- Category Descriptions
 L["ACTIONBAR_DESC"] = "Настройте перезарядки на панелях действий, включая Bartender4, Dominos и ElvUI."

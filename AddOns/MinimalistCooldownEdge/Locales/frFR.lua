@@ -85,9 +85,6 @@ L["Tools"] = "Outils"
 L["Force Refresh"] = "Actualiser"
 L["Force a full rescan of all cooldown frames."] = "Force un scan complet de toutes les frames de recharge."
 L["Full refresh completed."] = "Actualisation complète."
-L["Clear Debug Log"] = "Vider le journal"
-L["Clears the saved debug log data."] = "Supprime les données du journal de débogage."
-L["Debug log cleared."] = "Journal de débogage vidé."
 
 -- Category Descriptions
 L["ACTIONBAR_DESC"] = "Personnalisez les recharges sur vos barres d'action, y compris Bartender4, Dominos et ElvUI."
@@ -107,3 +104,27 @@ L["Beyond Thresholds"] = "Au-delà des seuils"
 L["Threshold (seconds)"] = "Seuil (secondes)"
 L["Default Color"] = "Couleur par défaut"
 L["Color used when the remaining time exceeds all thresholds."] = "Couleur utilisée quand le temps restant dépasse tous les seuils."
+
+-- Links
+L["Links"] = "Liens"
+L["LINKS_DESC"] = "Liens utiles du projet pour les mises à jour, changelogs et téléchargements."
+L["CurseForge URL"] = "URL CurseForge"
+L["Copy this link to open the CurseForge project page in your browser."] = "Copiez ce lien pour ouvrir la page du projet CurseForge dans votre navigateur."
+L["Developer Page"] = "Page du développeur"
+L["Copy this link to view other projects from Anahkas on CurseForge."] = "Copiez ce lien pour voir les autres projets de Anahkas sur CurseForge."
+
+-- Help
+L["Help"] = "Aide"
+L["Project Information"] = "Informations du projet"
+L["Development Status"] = "État du développement"
+L["HELP_ABOUT_DESC"] = "MinimalistCooldownEdge est un addon léger de style de cooldown, pensé pour la lisibilité, les performances et une interface propre."
+L["HELP_DEVELOPMENT_DESC"] = "Cet addon est encore en cours de développement et d'amélioration."
+L["HELP_FEEDBACK_DESC"] = "Vos suggestions, avis et retours sont les bienvenus et aident à orienter les prochaines améliorations."
+
+-- Quick Toggles Dashboard
+L["Quick Toggles"] = "Bascules rapides"
+L["QUICK_TOGGLES_DESC"] = "Activez ou désactivez les catégories en un coup d'œil. Les changements s'appliquent instantanément."
+
+-- Danger Zone / Maintenance
+L["DANGER_ZONE_DESC"] = "Cette action est irréversible. Votre profil sera complètement réinitialisé et l'interface rechargée."
+L["MAINTENANCE_DESC"] = "Rétablit les paramètres par défaut de cette catégorie. Les autres catégories ne sont pas affectées."

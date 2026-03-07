@@ -1,6 +1,6 @@
 -- Classifier.lua – Frame classification & blacklist (AceModule)
 --
--- Determines which category (actionbar / nameplate / unitframe / global)
+-- Determines which category (actionbar / nameplate / unitframe / cooldownmanager / global)
 -- a Cooldown frame belongs to, so the Styler can apply the right config.
 
 local MCE = LibStub("AceAddon-3.0"):GetAddon("MinimalistCooldownEdge")
@@ -14,6 +14,10 @@ local SCAN_DEPTH = 10  -- Ancestry levels scanned for frame classification (cove
 
 -- Weak-keyed cache: auto-collected when frames are garbage-collected
 local categoryCache = setmetatable({}, { __mode = "k" })
+local viewerTypeCache = setmetatable({}, { __mode = "k" })
+
+-- Module-level scratch table reused by ClassifyFrame to avoid per-call allocation
+local classifyChain = {}
 
 -- =========================================================================
 -- BLACKLIST DATA
@@ -27,27 +31,28 @@ local BLACKLIST_NAME_CONTAINS = {
     "ContainerFrameCombinedBagsCooldown",
 }
 
--- Exact relation keys: "ParentName -> FrameName"
+-- Nested lookup: BLACKLIST_EXACT_PAIRS[parentName][frameName]
+-- Avoids per-call string concatenation ("ParentName -> FrameName").
 local BLACKLIST_EXACT_PAIRS = {
     -- Character Slots
-    ["CharacterBackSlot -> CharacterBackSlotCooldown"] = true,
-    ["CharacterShirtSlot -> CharacterShirtSlotCooldown"] = true,
-    ["CharacterMainHandSlot -> CharacterMainHandSlotCooldown"] = true,
-    ["CharacterLegsSlot -> CharacterLegsSlotCooldown"] = true,
-    ["CharacterFinger0Slot -> CharacterFinger0SlotCooldown"] = true,
-    ["CharacterHeadSlot -> CharacterHeadSlotCooldown"] = true,
-    ["CharacterFeetSlot -> CharacterFeetSlotCooldown"] = true,
-    ["CharacterShoulderSlot -> CharacterShoulderSlotCooldown"] = true,
-    ["CharacterWristSlot -> CharacterWristSlotCooldown"] = true,
-    ["CharacterHandsSlot -> CharacterHandsSlotCooldown"] = true,
-    ["CharacterTabardSlot -> CharacterTabardSlotCooldown"] = true,
-    ["CharacterSecondaryHandSlot -> CharacterSecondaryHandSlotCooldown"] = true,
-    ["CharacterFinger1Slot -> CharacterFinger1SlotCooldown"] = true,
-    ["CharacterWaistSlot -> CharacterWaistSlotCooldown"] = true,
-    ["CharacterChestSlot -> CharacterChestSlotCooldown"] = true,
-    ["CharacterNeckSlot -> CharacterNeckSlotCooldown"] = true,
-    ["CharacterTrinket1Slot -> CharacterTrinket1SlotCooldown"] = true,
-    ["CharacterTrinket0Slot -> CharacterTrinket0SlotCooldown"] = true,
+    ["CharacterBackSlot"]           = { ["CharacterBackSlotCooldown"] = true },
+    ["CharacterShirtSlot"]          = { ["CharacterShirtSlotCooldown"] = true },
+    ["CharacterMainHandSlot"]       = { ["CharacterMainHandSlotCooldown"] = true },
+    ["CharacterLegsSlot"]           = { ["CharacterLegsSlotCooldown"] = true },
+    ["CharacterFinger0Slot"]        = { ["CharacterFinger0SlotCooldown"] = true },
+    ["CharacterHeadSlot"]           = { ["CharacterHeadSlotCooldown"] = true },
+    ["CharacterFeetSlot"]           = { ["CharacterFeetSlotCooldown"] = true },
+    ["CharacterShoulderSlot"]       = { ["CharacterShoulderSlotCooldown"] = true },
+    ["CharacterWristSlot"]          = { ["CharacterWristSlotCooldown"] = true },
+    ["CharacterHandsSlot"]          = { ["CharacterHandsSlotCooldown"] = true },
+    ["CharacterTabardSlot"]         = { ["CharacterTabardSlotCooldown"] = true },
+    ["CharacterSecondaryHandSlot"]  = { ["CharacterSecondaryHandSlotCooldown"] = true },
+    ["CharacterFinger1Slot"]        = { ["CharacterFinger1SlotCooldown"] = true },
+    ["CharacterWaistSlot"]          = { ["CharacterWaistSlotCooldown"] = true },
+    ["CharacterChestSlot"]          = { ["CharacterChestSlotCooldown"] = true },
+    ["CharacterNeckSlot"]           = { ["CharacterNeckSlotCooldown"] = true },
+    ["CharacterTrinket1Slot"]       = { ["CharacterTrinket1SlotCooldown"] = true },
+    ["CharacterTrinket0Slot"]       = { ["CharacterTrinket0SlotCooldown"] = true },
 }
 
 -- =========================================================================
@@ -99,6 +104,38 @@ local function IsMiniCCFrame(frame)
     return false
 end
 
+local function GetCooldownManagerViewerTypeFromChain(chain, chainLen)
+    for i = 1, chainLen do
+        local frame = chain[i]
+        local name = frame.GetName and frame:GetName() or ""
+
+        if strfind(name, "EssentialCooldownViewer", 1, true) then
+            return "essential"
+        end
+        if strfind(name, "UtilityCooldownViewer", 1, true) then
+            return "utility"
+        end
+        if strfind(name, "BuffIconCooldownViewer", 1, true) then
+            return "bufficon"
+        end
+    end
+
+    local owner = chain[1]
+    if owner then
+        local applications = owner.Applications
+        if applications and applications.Applications then
+            return "bufficon"
+        end
+
+        local chargeCount = owner.ChargeCount
+        if chargeCount and chargeCount.Current then
+            return "utility_or_essential"
+        end
+    end
+
+    return nil
+end
+
 -- =========================================================================
 -- PUBLIC API
 -- =========================================================================
@@ -113,7 +150,8 @@ function Classifier:IsBlacklisted(frame, knownFrameName)
     local parent    = frame.GetParent and frame:GetParent() or nil
     local parentName = parent and parent.GetName and parent:GetName() or "NoParent"
 
-    if BLACKLIST_EXACT_PAIRS[parentName .. " -> " .. frameName] then return true end
+    local parentBlacklist = BLACKLIST_EXACT_PAIRS[parentName]
+    if parentBlacklist and parentBlacklist[frameName] then return true end
 
     for _, key in ipairs(BLACKLIST_NAME_CONTAINS) do
         if strfind(frameName, key, 1, true) or strfind(parentName, key, 1, true) then
@@ -124,7 +162,7 @@ function Classifier:IsBlacklisted(frame, knownFrameName)
 end
 
 --- Single-pass frame classifier. Builds the ancestry chain once, then
---- classifies by priority: blacklist > nameplate > unitframe > actionbar > global.
+--- classifies by priority: blacklist > nameplate > unitframe > actionbar > cooldownmanager > global.
 function Classifier:ClassifyFrame(cooldownFrame)
     local current = cooldownFrame:GetParent()
     if not current then return "global" end
@@ -132,8 +170,8 @@ function Classifier:ClassifyFrame(cooldownFrame)
     local maxDepth     = SCAN_DEPTH
     local extendedLimit = SCAN_DEPTH + 30
 
-    -- Phase 1: Build ancestry chain once (single allocation, reused for all checks)
-    local chain = {}
+    -- Phase 1: Build ancestry chain once (reuses module-level scratch table)
+    local chain = classifyChain
     local chainLen = 0
     local node = current
     while node and node ~= UIParent and chainLen < extendedLimit do
@@ -141,6 +179,8 @@ function Classifier:ClassifyFrame(cooldownFrame)
         chain[chainLen] = node
         node = node:GetParent()
     end
+    -- Clear stale entries from previous calls to avoid holding dead references
+    for i = chainLen + 1, #chain do chain[i] = nil end
     local reachedUIParent = (node == UIParent)
 
     -- Phase 2: Fast early-out for aura buttons (buff/debuff on player frame vs nameplate)
@@ -161,6 +201,8 @@ function Classifier:ClassifyFrame(cooldownFrame)
         -- Chain still building (hierarchy incomplete) → defer
         return "aura_pending"
     end
+
+    local cooldownManagerViewerType = GetCooldownManagerViewerTypeFromChain(chain, chainLen)
 
     -- Phase 3: General classification within configured scan depth
     local limit = chainLen < maxDepth and chainLen or maxDepth
@@ -197,6 +239,11 @@ function Classifier:ClassifyFrame(cooldownFrame)
         end
     end
 
+    if cooldownManagerViewerType then
+        viewerTypeCache[cooldownFrame] = cooldownManagerViewerType
+        return "cooldownmanager"
+    end
+
     -- Phase 4: Extended nameplate check beyond configured depth
     -- Nameplates can be deeply nested in addon UIs (Plater, KuiNameplates, etc.)
     for i = limit + 1, chainLen do
@@ -222,14 +269,42 @@ function Classifier:GetCategory(cooldownFrame)
     return category
 end
 
+function Classifier:GetCooldownManagerViewerType(cooldownFrame)
+    local cached = viewerTypeCache[cooldownFrame]
+    if cached then return cached end
+
+    local current = cooldownFrame and cooldownFrame.GetParent and cooldownFrame:GetParent()
+    if not current then return nil end
+
+    local chain = classifyChain
+    local chainLen = 0
+    local node = current
+    while node and node ~= UIParent and chainLen < (SCAN_DEPTH + 30) do
+        chainLen = chainLen + 1
+        chain[chainLen] = node
+        node = node:GetParent()
+    end
+    for i = chainLen + 1, #chain do chain[i] = nil end
+
+    local viewerType = GetCooldownManagerViewerTypeFromChain(chain, chainLen)
+    if viewerType then
+        viewerTypeCache[cooldownFrame] = viewerType
+    end
+    return viewerType
+end
+
 function Classifier:IsCached(frame)
     return categoryCache[frame] ~= nil
 end
 
 function Classifier:SetCategory(frame, cat)
     categoryCache[frame] = cat
+    if cat ~= "cooldownmanager" then
+        viewerTypeCache[frame] = nil
+    end
 end
 
 function Classifier:WipeCache()
     wipe(categoryCache)
+    wipe(viewerTypeCache)
 end

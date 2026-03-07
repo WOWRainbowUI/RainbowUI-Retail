@@ -3,11 +3,11 @@
 ## Title: |cff00ccffMiniCE|r (MinimalistCooldownEdge)
 ## Notes: Clean cooldowns with category-specific styles.
 ## Author: Anahkas
-## Version: 3.1.0
+## Version: 3.2.0
 ## IconTexture: Interface\AddOns\MinimalistCooldownEdge\MinimalistCooldownEdge
 ## Category: Action Bars
 ## X-Curse-Project-ID: 1443896
-## SavedVariables: MinimalistCooldownEdgeDB_v2, MinimalistCooldownEdge_DebugLog
+## SavedVariables: MinimalistCooldownEdgeDB_v2
 
 
 # Libraries (only load what the addon actually uses)
@@ -38,6 +38,7 @@ Locales\itIT.lua
 
 # Core Files (Order Matters!)
 Core.lua
+Alerts.lua
 Classifier.lua
 Styler.lua
 Options.lua

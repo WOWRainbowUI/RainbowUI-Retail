@@ -1,12 +1,16 @@
 local addonName, addon = ...
 local MCE = LibStub("AceAddon-3.0"):GetAddon("MinimalistCooldownEdge")
 local L = LibStub("AceLocale-3.0"):GetLocale("MinimalistCooldownEdge")
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 -- === UPVALUE LOCALS ===
 local format = string.format
+local sort = table.sort
 
 -- Retrieve version dynamically from TOC
 local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Dev"
+local CURSEFORGE_URL = "https://www.curseforge.com/wow/addons/mini-cooldown-text-edge-styler"
+local DEVELOPER_URL = "https://www.curseforge.com/members/anahkas/projects"
 
 -- LibSharedMedia integration (optional – silently absent if not installed)
 local LSM = LibStub("LibSharedMedia-3.0", true)
@@ -112,6 +116,83 @@ local function IsStackHidden(key)
     return not MCE.db.profile.categories[key].stackEnabled
 end
 
+local function ResolveOptionValue(value)
+    if type(value) == "function" then
+        local ok, result = pcall(value)
+        if ok then
+            return result
+        end
+        return nil
+    end
+
+    return value
+end
+
+local function IsOptionHidden(option)
+    local hidden = ResolveOptionValue(option.hidden)
+    return hidden and true or false
+end
+
+local function BuildRootTreeDefinition()
+    local options = MCE:GetOptions()
+    local entries = {}
+
+    for key, option in pairs(options.args or {}) do
+        if option and option.type == "group" and not option.inline and not IsOptionHidden(option) then
+            entries[#entries + 1] = {
+                value = key,
+                text = ResolveOptionValue(option.name) or key,
+                disabled = false,
+            }
+        end
+    end
+
+    sort(entries, function(a, b)
+        local optA = options.args[a.value] or {}
+        local optB = options.args[b.value] or {}
+        local orderA = optA.order or 100
+        local orderB = optB.order or 100
+
+        if orderA == orderB then
+            return tostring(a.text):upper() < tostring(b.text):upper()
+        end
+
+        return orderA < orderB
+    end)
+
+    return entries
+end
+
+local function RefreshTreeWidgets(widget)
+    if not widget then return end
+
+    if widget.type == "TreeGroup" then
+        widget:SetTree(BuildRootTreeDefinition())
+    end
+
+    if widget.children then
+        for _, child in ipairs(widget.children) do
+            RefreshTreeWidgets(child)
+        end
+    end
+end
+
+local function RefreshDynamicCategoryLabels()
+    if not AceConfigDialog then return end
+
+    local openFrame = AceConfigDialog.OpenFrames and AceConfigDialog.OpenFrames[addonName]
+    if openFrame then
+        RefreshTreeWidgets(openFrame)
+    end
+
+    local blizOptions = AceConfigDialog.BlizOptions and AceConfigDialog.BlizOptions[addonName]
+    if blizOptions then
+        for _, widget in pairs(blizOptions) do
+            RefreshTreeWidgets(widget)
+        end
+    end
+end
+
 -- =========================================================================
 -- OPTIONS BUILDER
 -- =========================================================================
@@ -119,40 +200,49 @@ end
 local function CreateCategoryOptions(order, name, key, desc)
     local disabledFn    = function() return IsCatDisabled(key) end
     local stackHiddenFn = function() return IsStackHidden(key) end
+    local isCooldownManager = (key == "cooldownmanager")
 
     return {
         type = "group",
-        -- Dynamic name with status indicator (green dot = active, gray = inactive)
+        -- Dynamic name with status indicator (colored accent when active, dimmed when inactive)
         name = function()
             if not MCE.db or not MCE.db.profile then return name end
             local enabled = MCE.db.profile.categories[key].enabled
-            return (enabled and "|cff00ff00" .. L["ON"] .. "|r  " or "|cff666666" .. L["OFF"] .. "|r  ") .. name
+            if enabled then
+                return "|cff33ff99" .. L["ON"] .. "|r  " .. name
+            else
+                return "|cff555555" .. L["OFF"] .. "|r  |cff888888" .. name .. "|r"
+            end
         end,
         order = order,
         args = {
             -- ── 0. Category description ──────────────────────────────────
             catDesc = desc and {
                 type = "description", order = 0, fontSize = "medium",
-                name = "|cffaaaaaa" .. desc .. "|r\n",
+                name = "\n|cff88bbdd" .. desc .. "|r\n",
             } or nil,
 
             -- ── 1. Main Toggle ──────────────────────────────────────────
             enableGroup = {
-                type = "group", name = L["State"], inline = true, order = 1,
+                type = "group", name = "", inline = true, order = 1,
                 args = {
                     enabled = {
                         type = "toggle", order = 1, width = "full",
-                        name = format(L["Enable %s"], name),
+                        name = "|cff33ff99" .. format(L["Enable %s"], name) .. "|r",
                         desc = L["Toggle styling for this category."],
                         get = CatGet(key, "enabled"),
-                        set = CatSet(key, "enabled"),
+                        set = function(_, val)
+                            MCE.db.profile.categories[key].enabled = val
+                            MCE:ForceUpdateAll()
+                            LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
+                        end,
                     },
                 },
             },
 
             -- ── 2. Typography ───────────────────────────────────────────
             typography = {
-                type = "group", name = L["Typography (Cooldown Numbers)"],
+                type = "group", name = "|cffffd100" .. L["Typography (Cooldown Numbers)"] .. "|r",
                 inline = true, order = 10, disabled = disabledFn,
                 args = {
                     font = {
@@ -164,6 +254,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         type = "range", order = 2, width = 0.7,
                         name = L["Size"], min = 8, max = 36, step = 1,
                         get = CatGet(key, "fontSize"), set = CatSet(key, "fontSize"),
+                        hidden = function() return isCooldownManager end,
                     },
                     fontStyle = {
                         type = "select", order = 3, width = 0.8,
@@ -183,6 +274,27 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatGet(key, "hideCountdownNumbers"),
                         set = CatSet(key, "hideCountdownNumbers"),
                     },
+                    cooldownManagerHeader = isCooldownManager and {
+                        type = "header", name = L["CooldownManager Viewers"], order = 5.1,
+                    } or nil,
+                    essentialFontSize = isCooldownManager and {
+                        type = "range", order = 5.2, width = "full",
+                        name = L["Essential Viewer Size"], min = 8, max = 36, step = 1,
+                        get = CatGet(key, "essentialFontSize", 18),
+                        set = CatSet(key, "essentialFontSize"),
+                    } or nil,
+                    utilityFontSize = isCooldownManager and {
+                        type = "range", order = 5.3, width = "full",
+                        name = L["Utility Viewer Size"], min = 8, max = 36, step = 1,
+                        get = CatGet(key, "utilityFontSize", 18),
+                        set = CatSet(key, "utilityFontSize"),
+                    } or nil,
+                    buffIconFontSize = isCooldownManager and {
+                        type = "range", order = 5.4, width = "full",
+                        name = L["Buff Icon Viewer Size"], min = 8, max = 36, step = 1,
+                        get = CatGet(key, "buffIconFontSize", 18),
+                        set = CatSet(key, "buffIconFontSize"),
+                    } or nil,
                     -- Positioning sub-section
                     posHeader = { type = "header", name = L["Positioning"], order = 6 },
                     textAnchor = {
@@ -208,12 +320,12 @@ local function CreateCategoryOptions(order, name, key, desc)
 
             -- ── 2.5 Dynamic Text Colors (Action Bar only) ───────────────
             dynamicColors = (key == "actionbar") and {
-                type = "group", name = L["Dynamic Text Colors"],
+                type = "group", name = "|cffffd100" .. L["Dynamic Text Colors"] .. "|r",
                 inline = true, order = 15, disabled = disabledFn,
                 args = {
                     dynamicDesc = {
                         type = "description", order = 0, fontSize = "small",
-                        name = "|cffaaaaaa" .. L["DYNAMIC_COLORS_DESC"] .. "|r\n",
+                        name = "|cff88bbdd" .. L["DYNAMIC_COLORS_DESC"] .. "|r\n",
                     },
                     dynamicEnabled = {
                         type = "toggle", order = 1, width = "full",
@@ -303,7 +415,7 @@ local function CreateCategoryOptions(order, name, key, desc)
 
             -- ── 3. Swipe Edge ───────────────────────────────────────────
             swipeEdge = {
-                type = "group", name = L["Swipe Animation"],
+                type = "group", name = "|cffffd100" .. L["Swipe Animation"] .. "|r",
                 inline = true, order = 20, disabled = disabledFn,
                 args = {
                     edgeEnabled = {
@@ -325,8 +437,8 @@ local function CreateCategoryOptions(order, name, key, desc)
             },
 
             -- ── 4. Stack Counters / Charges ────────────────────────────
-            stackGroup = (key == "actionbar" or key == "global") and {
-                type = "group", name = L["Stack Counters / Charges"],
+            stackGroup = (key == "actionbar" or key == "cooldownmanager") and {
+                type = "group", name = "|cffffd100" .. L["Stack Counters / Charges"] .. "|r",
                 inline = true, order = 30, disabled = disabledFn,
                 args = {
                     stackEnabled = {
@@ -388,19 +500,23 @@ local function CreateCategoryOptions(order, name, key, desc)
 
             -- ── 5. Maintenance ──────────────────────────────────────────
             maintenance = {
-                type = "group", name = L["Maintenance"],
+                type = "group", name = "|cff999999" .. L["Maintenance"] .. "|r",
                 inline = true, order = 100,
                 args = {
+                    maintenanceDesc = {
+                        type = "description", order = 0, fontSize = "small",
+                        name = "|cff666666" .. L["MAINTENANCE_DESC"] .. "|r\n",
+                    },
                     resetCategory = {
                         type = "execute", order = 1, width = "full",
-                        name = format(L["Reset %s"], name),
+                        name = "|cffff8888" .. format(L["Reset %s"], name) .. "|r",
                         desc = L["Revert this category to default settings."],
                         confirm = true,
                         func = function()
                             MCE.db.profile.categories[key] = CopyTable(MCE.defaults.profile.categories[key])
                             MCE:ForceUpdateAll()
-                            LibStub("AceConfigRegistry-3.0"):NotifyChange("MinimalistCooldownEdge")
-                            print("|cff00ccffMCE:|r " .. format(L["%s settings reset."], name))
+                            LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
+                            MCE:Print(format(L["%s settings reset."], name))
                         end,
                     },
                 },
@@ -419,55 +535,100 @@ function MCE:GetOptions()
 
     return {
         type = "group",
-        name = "MiniCE",
+        name = "|cff00ccffMiniCE|r",
         args = {
             -- ── General ─────────────────────────────────────────────────
             general = {
                 type = "group", name = L["General"], order = 1,
                 args = {
                     banner = {
-                        type = "description", order = 1, fontSize = "medium",
-                        name = "|cff00ccff" .. addonName .. "|r |cffffd100v" .. addonVersion .. "|r\n" ..
-                               L["BANNER_DESC"],
+                        type = "description", order = 0.1, fontSize = "large",
+                        name = "|cff00ccffMinimalistCooldownEdge|r",
                         image = "Interface\\AddOns\\MinimalistCooldownEdge\\MinimalistCooldownEdge",
-                        imageWidth = 32, imageHeight = 32,
+                        imageWidth = 48, imageHeight = 48,
                     },
-                    -- ── Category Status Overview ────────────────────────
-                    statusGroup = {
-                        type = "group", name = L["Category Status"],
+                    bannerMeta = {
+                        type = "description", order = 0.2, fontSize = "small",
+                        name = "|cff888888v" .. addonVersion .. "  |cff666666by Anahkas|r\n",
+                    },
+                    bannerSep = { type = "header", name = "", order = 0.3 },
+                    bannerDesc = {
+                        type = "description", order = 0.4, fontSize = "medium",
+                        name = "|cffbbbbbb" .. L["BANNER_DESC"] .. "|r\n",
+                    },
+                    -- ── Quick Toggles Dashboard ─────────────────────────
+                    quickToggles = {
+                        type = "group", name = "|cffffd100" .. L["Quick Toggles"] .. "|r",
                         inline = true, order = 1.5,
                         args = {
-                            statusText = {
-                                type = "description", order = 1, fontSize = "medium",
-                                name = function()
-                                    if not MCE.db or not MCE.db.profile then return "" end
-                                    local cats = MCE.db.profile.categories
-                                    local function s(enabled)
-                                        return enabled and "|cff00ff00" .. L["ON"] .. "|r" or "|cff999999" .. L["OFF"] .. "|r"
-                                    end
-                                    return format(
-                                        "%s: %s    |    %s: %s    |    %s: %s    |    %s: %s",
-                                        L["Action Bars"], s(cats.actionbar.enabled),
-                                        L["Nameplates"], s(cats.nameplate.enabled),
-                                        L["Unit Frames"], s(cats.unitframe.enabled),
-                                        L["CD Manager & Others"], s(cats.global.enabled)
-                                    )
+                            quickDesc = {
+                                type = "description", order = 0, fontSize = "small",
+                                name = "|cff888888" .. L["QUICK_TOGGLES_DESC"] .. "|r\n",
+                            },
+                            toggleActionbar = {
+                                type = "toggle", order = 1, width = 0.85,
+                                name = "|cffffd100" .. L["Action Bars"] .. "|r",
+                                get = function() return MCE.db.profile.categories.actionbar.enabled end,
+                                set = function(_, v) MCE.db.profile.categories.actionbar.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                            },
+                            toggleNameplate = {
+                                type = "toggle", order = 2, width = 0.85,
+                                name = "|cffffd100" .. L["Nameplates"] .. "|r",
+                                get = function() return MCE.db.profile.categories.nameplate.enabled end,
+                                set = function(_, v) MCE.db.profile.categories.nameplate.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                            },
+                            toggleUnitframe = {
+                                type = "toggle", order = 3, width = 0.85,
+                                name = "|cffffd100" .. L["Unit Frames"] .. "|r",
+                                get = function() return MCE.db.profile.categories.unitframe.enabled end,
+                                set = function(_, v) MCE.db.profile.categories.unitframe.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                            },
+                            toggleCooldownMgr = {
+                                type = "toggle", order = 4, width = 0.85,
+                                name = "|cffffd100" .. L["CooldownManager"] .. "|r",
+                                get = function() return MCE.db.profile.categories.cooldownmanager.enabled end,
+                                set = function(_, v) MCE.db.profile.categories.cooldownmanager.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                            },
+                            toggleGlobal = {
+                                type = "toggle", order = 5, width = 0.85,
+                                name = "|cffffd100" .. L["Others"] .. "|r",
+                                get = function() return MCE.db.profile.categories.global.enabled end,
+                                set = function(_, v) MCE.db.profile.categories.global.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                            },
+                        },
+                    },
+                    -- ── Tools ────────────────────────────────────────────
+                    toolsGroup = {
+                        type = "group", name = "|cffffd100" .. L["Tools"] .. "|r",
+                        inline = true, order = 2.5,
+                        args = {
+                            forceRefresh = {
+                                type = "execute", order = 1, width = 1.5,
+                                name = L["Force Refresh"],
+                                desc = L["Force a full rescan of all cooldown frames."],
+                                func = function()
+                                    MCE:ForceUpdateAll(true)
+                                    MCE:Print(L["Full refresh completed."])
                                 end,
                             },
                         },
                     },
                     resetGroup = {
-                        type = "group", name = L["Danger Zone"],
+                        type = "group", name = "|cffff4444" .. L["Danger Zone"] .. "|r",
                         inline = true, order = 3,
                         args = {
+                            dangerDesc = {
+                                type = "description", order = 0, fontSize = "small",
+                                name = "|cff666666" .. L["DANGER_ZONE_DESC"] .. "|r\n",
+                            },
                             resetAll = {
                                 type = "execute", order = 1, width = "full",
-                                name = L["Factory Reset (All)"],
+                                name = "|cffff6666" .. L["Factory Reset (All)"] .. "|r",
                                 desc = L["Resets the entire profile to default values and reloads the UI."],
                                 confirm = true,
                                 func = function()
                                     MCE.db:ResetProfile()
-                                    print("|cff00ccffMCE:|r " .. L["Profile reset. Reloading UI..."])
+                                    MCE:Print(L["Profile reset. Reloading UI..."])
                                     ReloadUI()
                                 end,
                             },
@@ -483,8 +644,58 @@ function MCE:GetOptions()
                 L["NAMEPLATE_DESC"]),
             unitframe = CreateCategoryOptions(4, L["Unit Frames"],          "unitframe",
                 L["UNITFRAME_DESC"]),
-            global    = CreateCategoryOptions(5, L["CD Manager & Others"],  "global",
-                L["GLOBAL_DESC"]),
+            cooldownmanager = CreateCategoryOptions(5, L["CooldownManager"], "cooldownmanager",
+                L["COOLDOWNMANAGER_DESC"]),
+            global          = CreateCategoryOptions(6, L["Others"],          "global",
+                L["OTHERS_DESC"]),
+
+            help = {
+                type = "group", name = L["Help"], order = 9,
+                args = {
+                    aboutHeader = {
+                        type = "description", order = 0.1, fontSize = "large",
+                        name = "|cff00ccffMiniCE|r\n",
+                    },
+                    aboutMeta = {
+                        type = "description", order = 0.15, fontSize = "small",
+                        name = "|cff888888v" .. addonVersion .. "|r\n",
+                    },
+                    aboutDesc = {
+                        type = "description", order = 0.2, fontSize = "medium",
+                        name = "|cffbbbbbb" .. L["HELP_ABOUT_DESC"] .. "|r\n",
+                    },
+                    projectGroup = {
+                        type = "group", name = "|cffffd100" .. L["Project Information"] .. "|r",
+                        inline = true, order = 1,
+                        args = {
+                            projectUrl = {
+                                type = "input", order = 1, width = "full",
+                                name = L["CurseForge URL"],
+                                desc = L["Copy this link to open the CurseForge project page in your browser."],
+                                get = function() return CURSEFORGE_URL end,
+                                set = function() end,
+                            },
+                            developerUrl = {
+                                type = "input", order = 2, width = "full",
+                                name = L["Developer Page"],
+                                desc = L["Copy this link to view other projects from Anahkas on CurseForge."],
+                                get = function() return DEVELOPER_URL end,
+                                set = function() end,
+                            },
+                        },
+                    },
+                    developmentGroup = {
+                        type = "group", name = "|cffffd100" .. L["Development Status"] .. "|r",
+                        inline = true, order = 2,
+                        args = {
+                            developmentDesc = {
+                                type = "description", order = 1, fontSize = "medium",
+                                name = "|cff88bbdd" .. L["HELP_DEVELOPMENT_DESC"] .. "|r\n\n|cffbbbbbb" .. L["HELP_FEEDBACK_DESC"] .. "|r",
+                            },
+                        },
+                    },
+                },
+            },
 
             -- ── Profiles (always last) ──────────────────────────────────
             profiles = profileOpts,
