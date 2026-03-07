@@ -4437,7 +4437,7 @@ local function CreateAurasWidgetOptions()
                 desc = L["Show time left on auras that have a duration."],
                 arg = { "AuraWidget", "ShowDuration" },
                 disabled = function()
-                  return db.AuraWidget.ShowOmniCC
+                  return db.AuraWidget.ShowOmniCC and not Addon.ExpansionIsAtLeastMidnight
                 end
               },
               OmniCC = {
@@ -4446,6 +4446,7 @@ local function CreateAurasWidgetOptions()
                 order = 35,
                 desc = L["Show the OmniCC cooldown count instead of the built-in duration text on auras."],
                 arg = { "AuraWidget", "ShowOmniCC" },
+                hidden = Addon.ExpansionIsAtLeastMidnight,
               },
               Stacks = {
                 name = L["Stack Count"],
@@ -7370,6 +7371,8 @@ local function CreateHealthbarOptions()
       TargetUnitText = GetTextEntry(L["Target"], 50, { "settings", "healthbar", "TargetUnit" }),
     },
   }
+
+  entry.args.TargetUnitText.hidden = Addon.ExpansionIsAtLeastMidnight
 
   entry.args.TargetUnitText.args.Showing = {
     name = L["Show"],
@@ -10612,7 +10615,6 @@ local function CreateOptionsTable()
                           order = 60,
                           desc = L["Display health text on units with full health."],
                           arg = { "text", "full" },
-                          hidden = Addon.ExpansionIsAtLeastMidnight,
                         },
                         Truncate = {
                           name = L["Shorten"],
@@ -10628,7 +10630,7 @@ local function CreateOptionsTable()
                       order = 35,
                       type = "group",
                       inline = true,
-                      hidden = not Addon.WOW_FEATURE_ABSORB, -- Absorbs were added with Mists
+                      hidden = not Addon.WOW_FEATURE_ABSORBS, -- Absorbs were added with Mists
                       args = {
                         EnableAmount = {
                           name = L["Amount"],
@@ -10636,7 +10638,6 @@ local function CreateOptionsTable()
                           order = 10,
                           desc = L["Display absorbs amount text."],
                           arg = { "text", "AbsorbsAmount" },
-                          hidden = Addon.ExpansionIsAtLeastMidnight
                         },
                         EnableShorten = {
                           name = L["Shorten"],
@@ -10645,14 +10646,14 @@ local function CreateOptionsTable()
                           desc = L["This will format text to a simpler format using M or K for millions and thousands. Disabling this will show exact absorbs amounts."],
                           arg = { "text", "AbsorbsShorten" },
                           disabled = function() return not db.text.AbsorbsAmount end,
-                          hidden = Addon.ExpansionIsAtLeastMidnight,
                         },
                         EnablePercentage = {
                           name = L["Percentage"],
                           type = "toggle",
                           order = 30,
                           desc = L["Display absorbs percentage text."],
-                          arg = { "text", "AbsorbsPercentage" }
+                          arg = { "text", "AbsorbsPercentage" },
+                          hidden = Addon.ExpansionIsAtLeastMidnight,
                         },
                       },
                     },
